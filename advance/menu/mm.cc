@@ -486,6 +486,7 @@ int os_main(int argc, char* argv[])
 	bool opt_default;
 	bool opt_remove;
 	bool opt_logsync;
+	bool opt_version;
 	int key = 0;
 	const char* section_map[1];
 
@@ -527,9 +528,12 @@ int os_main(int argc, char* argv[])
 	opt_logsync = false;
 	opt_remove = false;
 	opt_default = false;
+	opt_version = false;
 	for(int i=1;i<argc;++i) {
 		if (target_option(argv[i], "verbose")) {
 			opt_verbose = true;
+		} else if (target_option(argv[i], "version")) {
+			opt_version = true;
 		} else if (target_option(argv[i], "remove")) {
 			opt_remove = true;
 		} else if (target_option(argv[i], "default")) {
@@ -542,6 +546,11 @@ int os_main(int argc, char* argv[])
 			target_err("Unknown option '%s'.\n", argv[i]);
 			goto err_init;
 		}
+	}
+
+	if (opt_version) {
+		target_out("%s\n", VERSION);
+		goto done_init;
 	}
 
 	if (opt_log || opt_logsync) {

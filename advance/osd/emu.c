@@ -39,6 +39,7 @@
 #include "log.h"
 #include "target.h"
 #include "alloc.h"
+#include "portable.h"
 
 #include <signal.h>
 #include <string.h>
@@ -461,7 +462,10 @@ static adv_conf_conv STANDARD[] = {
 { "*", "device_video_24bit", "*", "%s", "device_color_bgr24", "%s", 0 }, /* rename */
 { "*", "device_video_32bit", "*", "%s", "device_color_bgr32", "%s", 0 }, /* rename */
 /* 0.62.3 */
-{ "*", "display_artwork", "*", "%s", "display_artwork_backdrop", "%s", 0 } /* rename */
+{ "*", "display_artwork", "*", "%s", "display_artwork_backdrop", "%s", 0 }, /* rename */
+/* 0.68.0 */
+{ "*", "display_magnify", "yes", "%s", "%s", "2", 0 }, /* rename */
+{ "*", "display_magnify", "no", "%s", "%s", "1", 0 } /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
@@ -486,6 +490,7 @@ int os_main(int argc, char* argv[])
 	int opt_default;
 	int opt_remove;
 	char* opt_gamename;
+	int opt_version;
 	struct advance_context* context = &CONTEXT;
 	adv_conf* cfg_context;
 	const char* section_map[5];
@@ -496,6 +501,7 @@ int os_main(int argc, char* argv[])
 	opt_gamename = 0;
 	opt_default = 0;
 	opt_remove = 0;
+	opt_version = 0;
 
 	malloc_init();
 
@@ -570,6 +576,8 @@ int os_main(int argc, char* argv[])
 	for(i=1;i<argc;++i) {
 		if (strcmp(argv[i], "-default") == 0) {
 			opt_default = 1;
+		} else if (strcmp(argv[i], "-version") == 0) {
+			opt_version = 1;
 		} else if (strcmp(argv[i], "-log") == 0) {
 			opt_log = 1;
 		} else if (strcmp(argv[i], "-logsync") == 0) {
@@ -581,16 +589,16 @@ int os_main(int argc, char* argv[])
 		} else if (strcmp(argv[i], "-listinfo") == 0) {
 			opt_info = 1;
 		} else if (strcmp(argv[i], "-record") == 0 && i+1<argc && argv[i+1][0] != '-') {
-			strcpy(option.record_file, argv[i+1]);
-			/* add the default extension */
-			if (strchr(option.record_file,'.') == 0)
-				strcat(option.record_file, ".inp");
+			if (strchr(argv[i+1], '.') == 0)
+				snprintf(option.record_file_buffer, sizeof(option.record_file_buffer), "%s.inp", argv[i+1]);
+			else
+				snprintf(option.record_file_buffer, sizeof(option.record_file_buffer), "%s", argv[i+1]);
 			++i;
 		} else if (strcmp(argv[i], "-playback") == 0 && i+1<argc && argv[i+1][0] != '-') {
-			strcpy(option.playback_file, argv[i+1]);
-			/* add the default extension */
-			if (strchr(option.playback_file,'.') == 0)
-				strcat(option.playback_file, ".inp");
+			if (strchr(argv[i+1],'.') == 0)
+				snprintf(option.playback_file_buffer, sizeof(option.playback_file_buffer), "%s.inp", argv[i+1]);
+			else
+				snprintf(option.playback_file_buffer, sizeof(option.playback_file_buffer), "%s", argv[i+1]);
 			++i;
 		} else if (argv[i][0]!='-') {
 			unsigned j;
@@ -610,6 +618,11 @@ int os_main(int argc, char* argv[])
 
 	if (opt_info) {
 		mame_print_info(stdout);
+		goto done_os;
+	}
+
+	if (opt_version) {
+		target_out("%s\n", VERSION);
 		goto done_os;
 	}
 
@@ -653,7 +666,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (!opt_gamename) {
-		if (!option.playback_file[0]) {
+		if (!option.playback_file_buffer[0]) {
 			target_err("No game specified on the command line.\n");
 			goto err_os;
 		}
@@ -669,7 +682,7 @@ int os_main(int argc, char* argv[])
 		if (advance_fileio_config_load(cfg_context, &option) != 0)
 			goto err_os;
 
-		option.game = mame_playback_look(option.playback_file);
+		option.game = mame_playback_look(option.playback_file_buffer);
 		if (option.game == 0)
 			goto err_os;
 	} else {

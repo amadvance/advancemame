@@ -68,7 +68,8 @@ JOBJS += \
 	$(JOBJ)/lib/filedos.o \
 	$(JOBJ)/lib/targdos.o \
 	$(JOBJ)/dos/os.o \
-	$(JOBJ)/dos/jalleg.o
+	$(JOBJ)/dos/jalleg.o \
+	$(JOBJ)/dos/snprintf.o
 endif
 
 ifeq ($(CONF_HOST),windows)

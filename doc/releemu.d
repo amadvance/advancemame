@@ -1,6 +1,14 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.68.0
+	This release add supports the new `scale4x' effect. To use it you
+	must ensure to use an high pclock upper limit. Something like 150 MHz.
+	You need also a monitor wich support an high hclock upper limit.
+	Something like 70 kHz.
+	Otherwise the required 4x4 times bigger mode may be rejected.
+	Be warned. It's slow.
+
 AdvanceMAME 0.67.0 / AdvanceMESS 0.66.0
 	The precompiled DOS binaries of these releases are compiled with
 	the old gcc 2.95.3. Please report if this fixes any know specific

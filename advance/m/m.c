@@ -22,6 +22,7 @@
 #include "conf.h"
 #include "mouseall.h"
 #include "target.h"
+#include "portable.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,7 +70,7 @@ void run(void)
 			if (i!=0)
 				strcat(new_msg, "\n");
 
-			sprintf(new_msg + strlen(new_msg), "mouse %d, [", i);
+			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "mouse %d, [", i);
 			for(j=0;j<mouseb_button_count_get(i);++j) {
 				if (mouseb_button_get(i, j))
 					strcat(new_msg, "_");
@@ -80,14 +81,14 @@ void run(void)
 
 			mouseb_pos_get(i, &x, &y);
 
-			sprintf(new_msg + strlen(new_msg), " [%6d/%6d]", x, y);
+			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), " [%6d/%6d]", x, y);
 		}
 
 		if (strcmp(msg, new_msg)!=0) {
 			os_clock_t current = os_clock();
 			double period = (current - last) * 1000.0 / OS_CLOCKS_PER_SEC;
 			strcpy(msg, new_msg);
-			sprintf(new_msg + strlen(new_msg), " (%4.0f ms)", period);
+			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), " (%4.0f ms)", period);
 			last = current;
 			printf("%s\n", new_msg);
 		}

@@ -31,6 +31,7 @@
 #include "target.h"
 #include "log.h"
 #include "os.h"
+#include "portable.h"
 
 #include "SDL.h"
 
@@ -283,17 +284,15 @@ adv_error target_search(char* path, unsigned path_size, const char* file)
 void target_out_va(const char* text, va_list arg)
 {
 	unsigned len = strlen(TARGET.buffer_out);
-	/* euristic */
-	if (len + strlen(text) < BUFFER_SIZE * 2 / 3)
-		vsprintf(TARGET.buffer_out + len, text, arg);
+	if (len < BUFFER_SIZE)
+		vsnprintf(TARGET.buffer_out + len, BUFFER_SIZE - len, text, arg);
 }
 
 void target_err_va(const char *text, va_list arg)
 {
 	unsigned len = strlen(TARGET.buffer_err);
-	/* euristic */
-	if (len + strlen(text) < BUFFER_SIZE * 2 / 3)
-		vsprintf(TARGET.buffer_err + len, text, arg);
+	if (len < BUFFER_SIZE)
+		vsnprintf(TARGET.buffer_err + len, BUFFER_SIZE - len, text, arg);
 }
 
 void target_nfo_va(const char *text, va_list arg)

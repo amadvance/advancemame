@@ -1,6 +1,9 @@
 ############################################################################
 # Menu build
 
+$(MENUOBJ)/menu/mm.o: $(srcdir)/advance/advance.mak
+MENUCFLAGS += -DVERSION=\"$(MENUVERSION)\"
+
 MENUCFLAGS += \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
@@ -195,6 +198,7 @@ MENUOBJS += \
 	$(MENUOBJ)/dos/malleg.o \
 	$(MENUOBJ)/dos/kalleg.o \
 	$(MENUOBJ)/dos/jalleg.o \
+	$(MENUOBJ)/dos/snprintf.o \
 	$(MENUOBJ)/card/card.o \
 	$(MENUOBJ)/dos/pci.o \
 	$(MENUOBJ)/dos/pcimap.o \

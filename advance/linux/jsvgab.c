@@ -41,9 +41,9 @@
 
 struct joystickb_svgalib_context {
 	unsigned counter; /**< Number of joysticks active. */
-	char axe_name[32];
-	char button_name[32];
-	char stick_name[32];
+	char axe_name_buffer[32];
+	char button_name_buffer[32];
+	char stick_name_buffer[32];
 };
 
 static struct joystickb_svgalib_context svgalib_state;
@@ -138,9 +138,9 @@ const char* joystickb_svgalib_stick_name_get(unsigned j, unsigned s)
 
 	(void)j;
 
-	sprintf(svgalib_state.stick_name, "S%d", s+1);
+	snprintf(svgalib_state.stick_name_buffer, sizeof(svgalib_state.stick_name_buffer), "S%d", s+1);
 
-	return svgalib_state.stick_name;
+	return svgalib_state.stick_name_buffer;
 }
 
 const char* joystickb_svgalib_stick_axe_name_get(unsigned j, unsigned s, unsigned a)
@@ -154,9 +154,9 @@ const char* joystickb_svgalib_stick_axe_name_get(unsigned j, unsigned s, unsigne
 	(void)j;
 	(void)s;
 
-	sprintf(svgalib_state.axe_name, "A%d", a+1);
+	snprintf(svgalib_state.axe_name_buffer, sizeof(svgalib_state.axe_name_buffer), "A%d", a+1);
 
-	return svgalib_state.axe_name;
+	return svgalib_state.axe_name_buffer;
 }
 
 const char* joystickb_svgalib_button_name_get(unsigned j, unsigned b)
@@ -168,9 +168,9 @@ const char* joystickb_svgalib_button_name_get(unsigned j, unsigned b)
 
 	(void)j;
 
-	sprintf(svgalib_state.button_name, "B%d", b+1);
+	snprintf(svgalib_state.button_name_buffer, sizeof(svgalib_state.button_name_buffer), "B%d", b+1);
 
-	return svgalib_state.button_name;
+	return svgalib_state.button_name_buffer;
 }
 
 unsigned joystickb_svgalib_button_get(unsigned j, unsigned b)

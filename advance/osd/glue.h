@@ -90,15 +90,15 @@ struct mame_option {
 
 	char savegame;
 
-	char language_file[MAME_MAXPATH];
-	char record_file[MAME_MAXPATH];
-	char playback_file[MAME_MAXPATH];
-	char cheat_file[MAME_MAXPATH];
-	char history_file[MAME_MAXPATH];
-	char info_file[MAME_MAXPATH];
+	char language_file_buffer[MAME_MAXPATH];
+	char record_file_buffer[MAME_MAXPATH];
+	char playback_file_buffer[MAME_MAXPATH];
+	char cheat_file_buffer[MAME_MAXPATH];
+	char history_file_buffer[MAME_MAXPATH];
+	char info_file_buffer[MAME_MAXPATH];
 
 #ifdef MESS
-	char crc_dir[MAME_MAXPATH];
+	char crc_dir_buffer[MAME_MAXPATH];
 	struct mame_image* image_map[MAME_MAXIMAGE];
 	unsigned image_mac;
 #endif

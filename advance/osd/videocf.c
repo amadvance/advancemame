@@ -30,6 +30,7 @@
 
 #include "emu.h"
 #include "log.h"
+#include "portable.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,13 +42,21 @@ const char* mode_current_name(const struct advance_video_context* context)
 	return crtc_name_get(context->state.crtc_selected);
 }
 
-int mode_current_magnify(const struct advance_video_context* context)
+unsigned mode_current_magnify(const struct advance_video_context* context)
 {
+	if (context->state.game_visible_size_x * 4 <= context->state.mode_visible_size_x
+		&& context->state.game_visible_size_y * 4 <= context->state.mode_visible_size_y)
+		return 4;
+
+	if (context->state.game_visible_size_x * 3 <= context->state.mode_visible_size_x
+		&& context->state.game_visible_size_y * 3 <= context->state.mode_visible_size_y)
+		return 3;
+
 	if (context->state.game_visible_size_x * 2 <= context->state.mode_visible_size_x
 		&& context->state.game_visible_size_y * 2 <= context->state.mode_visible_size_y)
-		return 1;
-	else
-		return 0;
+		return 2;
+
+	return 1;
 }
 
 /* Return the stretch used by the video configuration */
@@ -65,9 +74,8 @@ int mode_current_stretch(const struct advance_video_context* context)
 }
 
 /* Return the description of a video configuration */
-const char* mode_desc(struct advance_video_context* context, const adv_crtc* crtc)
+void mode_desc_print(struct advance_video_context* context, char* buffer, unsigned size, const adv_crtc* crtc)
 {
-	static char buffer[128];
 	double factor_x = (double)crtc_hsize_get(crtc) / context->state.mode_best_size_x;
 	double factor_y = (double)crtc_vsize_get(crtc) / context->state.mode_best_size_y;
 	char c;
@@ -77,8 +85,7 @@ const char* mode_desc(struct advance_video_context* context, const adv_crtc* crt
 		c = 'i';
 	else
 		c = 's';
-	sprintf(buffer, "%4dx%4d%c %4.2fx%4.2f", crtc_hsize_get(crtc), crtc_vsize_get(crtc), c, factor_x, factor_y);
-	return buffer;
+	snprintf(buffer, size, "%4dx%4d%c %4.2fx%4.2f", crtc_hsize_get(crtc), crtc_vsize_get(crtc), c, factor_x, factor_y);
 }
 
 /* Compute the MCD of two number (Euclide) */
@@ -152,12 +159,24 @@ static int score_compare_size(const struct advance_video_context* context, const
 	unsigned best_size_x;
 	unsigned best_size_y;
 
-	if (context->config.magnify_flag) {
-		best_size_x = context->state.mode_best_size_2x;
-		best_size_y = context->state.mode_best_size_2y;
-	} else {
+	switch (context->config.magnify_factor) {
+	default :
+	case 1 :
 		best_size_x = context->state.mode_best_size_x;
 		best_size_y = context->state.mode_best_size_y;
+		break;
+	case 2 :
+		best_size_x = context->state.mode_best_size_2x;
+		best_size_y = context->state.mode_best_size_2y;
+		break;
+	case 3 :
+		best_size_x = context->state.mode_best_size_3x;
+		best_size_y = context->state.mode_best_size_3y;
+		break;
+	case 4 :
+		best_size_x = context->state.mode_best_size_4x;
+		best_size_y = context->state.mode_best_size_4y;
+		break;
 	}
 
 	/* nearest is lower */

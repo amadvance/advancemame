@@ -271,7 +271,7 @@ adv_bool crtc_clock_check(const adv_monitor* monitor, const adv_crtc* crtc);
 int crtc_compare(const adv_crtc* A, const adv_crtc* B);
 
 adv_error crtc_parse(adv_crtc* crtc, const char* begin, const char* end);
-void crtc_print(char* buffer, const adv_crtc* crtc);
+void crtc_print(char* buffer, unsigned size, const adv_crtc* crtc);
 
 void crtc_fake_set(adv_crtc* crtc, unsigned size_x, unsigned size_y);
 adv_bool crtc_is_fake(const adv_crtc* crtc);

@@ -31,6 +31,7 @@
 #include "mousedrv.h"
 #include "log.h"
 #include "error.h"
+#include "portable.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -41,7 +42,7 @@ struct mouseb_state_struct mouseb_state;
 void mouseb_default(void)
 {
 	mouseb_state.is_initialized_flag = 1;
-	strcpy(mouseb_state.name, "none");
+	snprintf(mouseb_state.name, DEVICE_NAME_MAX, "%s", "none");
 }
 
 void mouseb_reg(adv_conf* context, adv_bool auto_detect)
@@ -71,7 +72,7 @@ adv_error mouseb_load(adv_conf* context)
 	}
 
 	mouseb_state.is_initialized_flag = 1;
-	strcpy(mouseb_state.name, conf_string_get_default(context, "device_mouse"));
+	snprintf(mouseb_state.name, DEVICE_NAME_MAX, "%s", conf_string_get_default(context, "device_mouse"));
 
 	/* load specific driver options */
 	at_least_one = 0;

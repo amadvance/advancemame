@@ -78,7 +78,7 @@ struct fileio_item {
 	char** dir_map; /**< Vector of directories. */
 };
 
-static struct fileio_item CONFIG[] = {
+static struct fileio_item FILEIO_CONFIG[] = {
 	/* FILETYPE_RAW */
 	{ FILETYPE_ROM, "dir_rom", "rom", FILEIO_MODE_MULTI, 0, 0 },
 	/* FILETYPE_ROM_NOCRC */
@@ -103,7 +103,7 @@ static struct fileio_item CONFIG[] = {
 };
 
 struct fileio_item* fileio_find(int type) {
-	struct fileio_item* i = CONFIG;
+	struct fileio_item* i = FILEIO_CONFIG;
 	while (i->type != type) {
 		if (i->type == FILETYPE_end) {
 			return 0;
@@ -134,7 +134,7 @@ int osd_get_path_count(int pathtype)
 int osd_get_path_info(int pathtype, int pathindex, const char* filename)
 {
 	struct fileio_item* i;
-	char path[FILE_MAXPATH];
+	char path_buffer[FILE_MAXPATH];
 	struct stat st;
 
 	log_std(("osd: osd_get_path_info(pathtype:%d,pathindex:%d,filename:%s)\n", pathtype, pathindex, filename));
@@ -145,11 +145,11 @@ int osd_get_path_info(int pathtype, int pathindex, const char* filename)
 		return PATH_NOT_FOUND;
 	}
 
-	strcpy(path, file_abs(i->dir_map[pathindex], filename));
+	snprintf(path_buffer, sizeof(path_buffer), "%s", file_abs(i->dir_map[pathindex], filename));
 
-	log_std(("osd: osd_get_path_info() -> %s\n", path));
+	log_std(("osd: osd_get_path_info() -> %s\n", path_buffer));
 
-	if (stat(path, &st) != 0) {
+	if (stat(path_buffer, &st) != 0) {
 		log_std(("osd: osd_get_path_info() -> failed\n"));
 		return PATH_NOT_FOUND;
 	}
@@ -185,7 +185,7 @@ static int partialequal(const char* zipfile, const char* file)
 osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const char* mode)
 {
 	struct fileio_item* i;
-	char path[FILE_MAXPATH];
+	char path_buffer[FILE_MAXPATH];
 	adv_fz* h;
 	char* split;
 
@@ -197,40 +197,39 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 		return 0;
 	}
 
-	strcpy(path, file_abs(i->dir_map[pathindex], filename));
+	snprintf(path_buffer, sizeof(path_buffer), "%s", file_abs(i->dir_map[pathindex], filename));
 
-	split = strchr(path,'=');
+	split = strchr(path_buffer, '=');
 	if (split != 0) {
-		char zip_file[FILE_MAXPATH];
-		char file[FILE_MAXPATH];
+		char zip_file_buffer[FILE_MAXPATH];
+		char file_buffer[FILE_MAXPATH];
 		adv_zip* zip;
 		adv_zipent* ent;
 
 		*split = 0;
-		strcpy(zip_file, path);
-		strcat(zip_file, ".zip");
-		strcpy(file, split + 1);
+		snprintf(zip_file_buffer, sizeof(zip_file_buffer), "%s.zip", path_buffer);
+		snprintf(file_buffer, sizeof(file_buffer), "%s", split + 1);
 
-		log_std(("osd: osd_fopen() -> %s %s\n", zip_file, file));
+		log_std(("osd: osd_fopen() -> %s %s\n", zip_file_buffer, file_buffer));
 
-		if (access(zip_file, R_OK)!=0) {
-			log_std(("osd: osd_fopen() -> failed, zip %s not readable\n", zip_file));
+		if (access(zip_file_buffer, R_OK)!=0) {
+			log_std(("osd: osd_fopen() -> failed, zip %s not readable\n", zip_file_buffer));
 			return 0;
 		}
 
-		zip = zip_open(zip_file);
+		zip = zip_open(zip_file_buffer);
 		if (!zip) {
-			log_std(("osd: osd_fopen() -> failed, zip %s not openable\n", zip_file));
+			log_std(("osd: osd_fopen() -> failed, zip %s not openable\n", zip_file_buffer));
 			return 0;
 		}
 
 		h = 0;
 		while ((ent = zip_read(zip))!=0) {
-			if (partialequal(ent->name, file)) {
+			if (partialequal(ent->name, file_buffer)) {
 				if (ent->compression_method == 0) {
-					h = fzopenzipuncompressed(zip_file, ent->offset_lcl_hdr_frm_frst_disk, ent->uncompressed_size);
+					h = fzopenzipuncompressed(zip_file_buffer, ent->offset_lcl_hdr_frm_frst_disk, ent->uncompressed_size);
 				} else if (ent->compression_method == 8) {
-					h = fzopenzipcompressed(zip_file, ent->offset_lcl_hdr_frm_frst_disk, ent->compressed_size, ent->uncompressed_size);
+					h = fzopenzipcompressed(zip_file_buffer, ent->offset_lcl_hdr_frm_frst_disk, ent->compressed_size, ent->uncompressed_size);
 				}
 				break;
 			}
@@ -238,10 +237,10 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 
 		zip_close(zip);
 	} else {
-		log_std(("osd: osd_fopen() -> %s\n", path));
+		log_std(("osd: osd_fopen() -> %s\n", path_buffer));
 
 		/* open a regular file */
-		h = fzopen(path, mode);
+		h = fzopen(path_buffer, mode);
 	}
 
 	log_std(("osd: osd_fopen() -> %s\n", h ? "success" : "failed"));
@@ -340,7 +339,7 @@ const char *osd_get_device_name(int i)
 int osd_create_directory(int pathtype, int pathindex, const char *dirname)
 {
 	struct fileio_item* i;
-	char path[FILE_MAXPATH];
+	char path_buffer[FILE_MAXPATH];
 
 	log_std(("osd: osd_create_directory(pathtype:%d,pathindex:%d,dirname:%s)\n", pathtype, pathindex, dirname));
 
@@ -350,12 +349,12 @@ int osd_create_directory(int pathtype, int pathindex, const char *dirname)
 		return -1;
 	}
 
-	strcpy(path, file_abs(i->dir_map[pathindex], dirname));
+	snprintf(path_buffer, sizeof(path_buffer), "%s", file_abs(i->dir_map[pathindex], dirname));
 
-	log_std(("osd: osd_create_directory() -> %s\n", path));
+	log_std(("osd: osd_create_directory() -> %s\n", path_buffer));
 
-	if (file_dir_make(path) != 0) {
-		log_std(("ERROR:fileio: mkdir(%s) failed\n", path));
+	if (file_dir_make(path_buffer) != 0) {
+		log_std(("ERROR:fileio: mkdir(%s) failed\n", path_buffer));
 		return -1;
 	}
 
@@ -430,30 +429,26 @@ int osd_dir_get_entry(void* void_h, char* name, int namelength, int* is_dir)
 	d = readdir(h->h);
 
 	while (d) {
-		char file[FILE_MAXPATH];
+		char file_buffer[FILE_MAXPATH];
 		struct stat st;
 
-		sprintf(file, "%s/%s", h->dir, d->d_name);
+		snprintf(file_buffer, sizeof(file_buffer), "%s/%s", h->dir, d->d_name);
 
 		/* on any error ignore the file */
 
-		if (stat(file, &st) == 0) {
+		if (stat(file_buffer, &st) == 0) {
 			if (S_ISDIR(st.st_mode)) {
 				if (namelength >= strlen(d->d_name) + 1) {
 					*is_dir = 1;
-					strcpy(name, d->d_name);
-
+					snprintf(name, namelength, "%s", d->d_name);
 					log_std(("osd: osd_dir_get_entry() -> %s\n", name));
-
 					return strlen(name);
 				}
 			} else if (match(d->d_name, h->pattern)) {
 				if (namelength >= strlen(d->d_name) + 1) {
 					*is_dir = 0;
-					strcpy(name, d->d_name);
-
+					snprintf(name, namelength, "%s", d->d_name);
 					log_std(("osd: osd_dir_get_entry() -> %s\n", name));
-
 					return strlen(name);
 				}
 			}
@@ -472,18 +467,24 @@ void osd_change_directory(const char* dir)
 	chdir(dir);
 }
 
+static char FILEIO_CWD_BUFFER[FILE_MAXPATH];
+
 const char* osd_get_cwd(void)
 {
-	static char cwd[FILE_MAXPATH];
+	char cwd_buffer[FILE_MAXPATH];
 
 	log_std(("osd: osd_get_cdw()\n"));
 
-	getcwd(cwd, sizeof(cwd));
-	strcat(cwd, "/");
+	getcwd(cwd_buffer, sizeof(cwd_buffer));
 
-	log_std(("osd: osd_get_cwd() -> %s\n", cwd));
+	if (!cwd_buffer[0] || cwd_buffer[strlen(cwd_buffer)-1] != file_dir_slash())
+		snprintf(FILEIO_CWD_BUFFER, sizeof(FILEIO_CWD_BUFFER), "%s%c", cwd_buffer, file_dir_slash());
+	else
+		snprintf(FILEIO_CWD_BUFFER, sizeof(FILEIO_CWD_BUFFER), "%s", cwd_buffer);
 
-	return cwd;
+	log_std(("osd: osd_get_cwd() -> %s\n", FILEIO_CWD_BUFFER));
+
+	return FILEIO_CWD_BUFFER;
 }
 
 int osd_select_file(int type, int id, char* filename)
@@ -560,12 +561,13 @@ void osd_device_eject(int type, int id)
 	image_unload(type, id);
 }
 
+static char FILEIO_SEPARATOR[2];
+
 const char *osd_path_separator(void)
 {
-	static char separator[2];
-	separator[0] = file_dir_slash();
-	separator[1] = 0;
-	return separator;
+	FILEIO_SEPARATOR[0] = file_dir_slash();
+	FILEIO_SEPARATOR[1] = 0;
+	return FILEIO_SEPARATOR;
 }
 
 int osd_is_path_separator(char ch)
@@ -622,12 +624,12 @@ adv_error advance_fileio_init(adv_conf* context)
 {
 
 	struct fileio_item* i;
-	for(i=CONFIG;i->type != FILETYPE_end;++i) {
+	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
 		i->dir_map = 0;
 		i->dir_mac = 0;
 	}
 
-	for(i=CONFIG;i->type != FILETYPE_end;++i) {
+	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
 		if (i->config) {
 			const char* def = 0;
 			switch (i->mode) {
@@ -650,7 +652,7 @@ adv_error advance_fileio_init(adv_conf* context)
 void advance_fileio_done(void)
 {
 	struct fileio_item* i;
-	for(i=CONFIG;i->type != FILETYPE_end;++i) {
+	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
 		path_free(i->dir_map, i->dir_mac);
 	}
 }
@@ -672,7 +674,7 @@ static void dir_create(char** dir_map, unsigned dir_mac)
 adv_error advance_fileio_config_load(adv_conf* context, struct mame_option* option)
 {
 	struct fileio_item* i;
-	for(i=CONFIG;i->type != FILETYPE_end;++i) {
+	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
 		/* free a previously loaded value */
 		path_free(i->dir_map, i->dir_mac);
 		i->dir_map = 0;
@@ -693,7 +695,7 @@ adv_error advance_fileio_config_load(adv_conf* context, struct mame_option* opti
 	{
 		const char* s = conf_string_get_default(context, "dir_crc");
 		log_std(("advance:fileio: %s %s\n", "dir_crc", s));
-		strcpy(option->crc_dir, s);
+		snprintf(option->crc_dir_buffer, sizeof(option->crc_dir_buffer), "%s", s);
 	}
 #endif
 

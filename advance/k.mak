@@ -56,7 +56,8 @@ KOBJS += \
 	$(KOBJ)/lib/filedos.o \
 	$(KOBJ)/lib/targdos.o \
 	$(KOBJ)/dos/os.o \
-	$(KOBJ)/dos/kalleg.o
+	$(KOBJ)/dos/kalleg.o \
+	$(KOBJ)/dos/snprintf.o
 endif
 
 $(KOBJ)/%.o: $(srcdir)/advance/%.c

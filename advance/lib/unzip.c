@@ -228,7 +228,7 @@ adv_zip* zip_open(const char* zipfile)
 	zip->cd_pos = 0;
 
 	/* file name */
-	zip->zip = (char*)malloc(strlen(zipfile)+1);
+	zip->zip = strdup(zipfile);
 	if (!zip->zip) {
 		free(zip->cd);
 		free(zip->ecd);
@@ -236,7 +236,6 @@ adv_zip* zip_open(const char* zipfile)
 		free(zip);
 		return 0;
 	}
-	strcpy(zip->zip, zipfile);
 
 	return zip;
 }

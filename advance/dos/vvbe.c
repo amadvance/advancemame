@@ -33,6 +33,7 @@
 #include "video.h"
 #include "log.h"
 #include "error.h"
+#include "portable.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -164,7 +165,7 @@ adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode)
 {
 	vbe_ModeInfoBlock info;
 
-	sprintf(mode->name, "vbe_bios_%x", vbe_mode->mode);
+	snprintf(mode->name, MODE_NAME_MAX, "vbe_bios_%x", vbe_mode->mode);
 	*DRIVER(mode) = *vbe_mode;
 
 	if (vbe_mode_info_get(&info, DRIVER(mode)->mode)!=0) {

@@ -112,6 +112,7 @@
 #define COMBINE_FILTERX (VIDEO_COMBINE_Y_NONE | VIDEO_COMBINE_X_FILTER)
 #define COMBINE_FILTERY VIDEO_COMBINE_Y_FILTER
 #define COMBINE_SCALE2X VIDEO_COMBINE_Y_SCALE2X
+#define COMBINE_SCALE4X VIDEO_COMBINE_Y_SCALE4X
 /*@}*/
 
 /** Special additional effect (enumeration). */
@@ -158,7 +159,7 @@ struct advance_video_config_context {
 	adv_bool triplebuf_flag; /**< If triple buffering is active. */
 	int skiplines; /**< Centering value for screen, -1 for auto centering. */
 	int skipcolumns; /**< Centering value for screen, -1 for auto centering. */
-	char resolution[MODE_NAME_MAX]; /**< Name of the resolution. "auto" for automatic. */
+	char resolution_buffer[MODE_NAME_MAX]; /**< Name of the resolution. "auto" for automatic. */
 	adv_bool scanlines_flag; /**< If hardware scanlines are active */
 	int stretch; /**< Type of stretch. One of STRETCH_*. */
 	int adjust; /**< Type of hardware stretch. One of ADJUST_*. */
@@ -172,7 +173,7 @@ struct advance_video_config_context {
 	int fastest_time; /**< Time for turbo at the startup [seconds]. */
 	int measure_time; /**< Time for the speed measure [seconds]. */
 	adv_bool restore_flag; /**< Reset the video mode at the exit [boolean]. */
-	adv_bool magnify_flag; /**< Magnify effect requested [boolean]. */
+	unsigned magnify_factor; /**< Magnify factor requested [1,2,4]. */
 	unsigned index; /**< Index mode. */
 	double frameskip_factor; /**< Current frameskip factor. */
 	adv_bool frameskip_auto_flag; /**< boolean. */
@@ -180,10 +181,10 @@ struct advance_video_config_context {
 	adv_monitor monitor; /**< Monitor specifications. */
 	adv_generate_interpolate_set interpolate; /**< Video mode generator specifications. */
 	adv_crtc_container crtc_bag; /**< All the modelines. */
-	char section_name[256]; /**< Section used to store the option for the game. */
-	char section_resolution[256]; /**< Section used to store the option for the resolution. */
-	char section_resolutionclock[256]; /**< Section used to store the option for the resolution/freq. */
-	char section_orientation[256]; /**< Section used to store the option for the orientation. */
+	char section_name_buffer[256]; /**< Section used to store the option for the game. */
+	char section_resolution_buffer[256]; /**< Section used to store the option for the resolution. */
+	char section_resolutionclock_buffer[256]; /**< Section used to store the option for the resolution/freq. */
+	char section_orientation_buffer[256]; /**< Section used to store the option for the orientation. */
 	adv_bool smp_flag; /**< Use threads */
 	adv_bool crash_flag; /**< If enable the crash menu entry. */
 	unsigned monitor_aspect_x; /**< Horizontal aspect of the monitor (4 for a standard monitor) */
@@ -223,6 +224,10 @@ struct advance_video_state_context {
 	unsigned mode_best_size_y;
 	unsigned mode_best_size_2x;
 	unsigned mode_best_size_2y;
+	unsigned mode_best_size_3x;
+	unsigned mode_best_size_3y;
+	unsigned mode_best_size_4x;
+	unsigned mode_best_size_4y;
 	double mode_best_vclock;
 
 	/* Palette */
@@ -335,9 +340,9 @@ int crtc_scanline(const adv_crtc* crtc);
 void crtc_sort(const struct advance_video_context* context, const adv_crtc** map, unsigned mac);
 
 const char* mode_current_name(const struct advance_video_context* context);
-int mode_current_magnify(const struct advance_video_context* context);
+unsigned mode_current_magnify(const struct advance_video_context* context);
 int mode_current_stretch(const struct advance_video_context* context);
-const char* mode_desc(struct advance_video_context* context, const adv_crtc* crtc);
+void mode_desc_print(struct advance_video_context* context, char* buffer, unsigned size, const adv_crtc* crtc);
 int mode_current_stretch(const struct advance_video_context* context);
 
 adv_error advance_video_init(struct advance_video_context* context, adv_conf* cfg_context);
@@ -354,7 +359,7 @@ void advance_video_save(struct advance_video_context* context, const char* secti
 struct advance_record_config_context {
 	unsigned sound_time; /**< Max recording time in seconds. */
 	unsigned video_time; /**< Max recording time in seconds. */
-	char dir[FILE_MAXPATH]; /**< Directory to store the recording. */
+	char dir_buffer[FILE_MAXPATH]; /**< Directory to store the recording. */
 	adv_bool video_flag; /**< Main activation flag for video recording. */
 	adv_bool sound_flag; /**< Main activation flag for sound recording. */
 	unsigned video_interlace; /**< Interlace factor for the video recording. */
@@ -381,13 +386,13 @@ struct advance_record_state_context {
 	unsigned video_freq_base; /**< Frequency step value. */
 	adv_bool video_stopped_flag; /**< If the video recording is stopped. */
 
-	char sound_file[FILE_MAXPATH]; /**< Sound file */
+	char sound_file_buffer[FILE_MAXPATH]; /**< Sound file */
 	FILE* sound_f; /**< Sound handle */
 
-	char video_file[FILE_MAXPATH]; /**< Video file */
+	char video_file_buffer[FILE_MAXPATH]; /**< Video file */
 	FILE* video_f; /**< Video handle */
 
-	char snapshot_file[FILE_MAXPATH]; /**< Shapshot file */
+	char snapshot_file_buffer[FILE_MAXPATH]; /**< Shapshot file */
 };
 
 struct advance_record_context {
@@ -483,7 +488,7 @@ void advance_estimate_common_end(struct advance_estimate_context* context, adv_b
 /* SafeQuit */
 
 struct advance_safequit_config_context {
-	char file[FILE_MAXPATH]; /**< File safequit.dat to load. */
+	char file_buffer[FILE_MAXPATH]; /**< File safequit.dat to load. */
 	adv_bool debug_flag; /**< Show the debug flag on the screen. */
         adv_bool safe_exit_flag; /**< Flag for safe exit. */
 };

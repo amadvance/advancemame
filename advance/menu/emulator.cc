@@ -38,6 +38,7 @@
 #include <errno.h>
 
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -300,22 +301,19 @@ bool emulator::run_process(time_t& duration, const string& dir, int argc, const 
 		return false;
 	}
 
-	char cmdline[TARGET_MAXCMD];
-
-	cmdline[0] = 0;
+	ostringstream cmdline;
 	for(int i=0;i<argc;++i) {
 		if (i!=0)
-			strcat(cmdline, " ");
+			cmdline << " ";
 		if (strchr(argv[i], ' ')) {
-			strcat(cmdline, "\"");
-			strcat(cmdline, argv[i]);
-			strcat(cmdline, "\"");
+			cmdline << "\"";
+			cmdline << argv[i];
+			cmdline << "\"";
 		} else {
-			strcat(cmdline, argv[i]);
+			cmdline << argv[i];
 		}
 	}
-
-	log_std(("menu: run '%s'\n", cmdline));
+	log_std(("menu: run '%s'\n", cmdline.str().c_str()));
 
 	start = time(0);
 
@@ -757,10 +755,11 @@ bool mame_info::load_game(game_set& gar)
 	) {
 		target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
 
-		char cmd[TARGET_MAXCMD];
-		sprintf(cmd, "%s -listinfo > %s", cpath_export(config_exe_path_get()), cpath_export(info_file));
+		ostringstream cmd;
 
-		int r = target_system(cmd);
+		cmd << cpath_export(config_exe_path_get()) << " -listinfo > " << cpath_export(info_file);
+
+		int r = target_system(cmd.str().c_str());
 
 		bool result = spawn_check(r, false);
 		if (!result)
@@ -1066,9 +1065,10 @@ bool mame_mame::run(const game& g, unsigned orientation, difficulty_t difficulty
 		if (attenuation > 0)
 			attenuation = 0;
 		argv[argc++] = strdup("-sound_volume");
-		char buf[16];
-		sprintf(buf,"%d",attenuation);
-		argv[argc++] = strdup(buf);
+
+		ostringstream att;
+		att << attenuation;
+		argv[argc++] = strdup(att.str().c_str());
 	}
 
 	argc = compile(g, argv, argc, user_cmd_arg, orientation);
@@ -1817,16 +1817,16 @@ bool dmess::load_software(game_set& gar)
 
 string dmess::image_name_get(const string& snap_create, const string& name)
 {
-	char path[FILE_MAXPATH];
-	sprintf(path, "%s%.8s.png", slash_add(snap_create).c_str(), name.c_str());
+	char path_buffer[FILE_MAXPATH];
+	snprintf(path_buffer, sizeof(path_buffer), "%s%.8s.png", slash_add(snap_create).c_str(), name.c_str());
 
 	int snapno = 0;
-	while (access(cpath_export(path), F_OK)==0) {
-		sprintf(path, "%s%.4s%04d.png", slash_add(snap_create).c_str(), name.c_str(), snapno);
+	while (access(cpath_export(path_buffer), F_OK)==0) {
+		snprintf(path_buffer, sizeof(path_buffer), "%s%.4s%04d.png", slash_add(snap_create).c_str(), name.c_str(), snapno);
 		++snapno;
 	}
 
-	return path;
+	return path_buffer;
 }
 
 bool dmess::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
@@ -2080,44 +2080,44 @@ bool advmess::load_software(game_set& gar)
 
 string advmess::image_name_get(const string& snap_create, const string& name)
 {
-	char path[FILE_MAXPATH];
-	sprintf(path, "%s%.8s.png", slash_add(snap_create).c_str(), name.c_str());
+	char path_buffer[FILE_MAXPATH];
+	snprintf(path_buffer, sizeof(path_buffer), "%s%.8s.png", slash_add(snap_create).c_str(), name.c_str());
 
 	int snapno = 0;
-	while (access(cpath_export(path), F_OK)==0) {
-		sprintf(path, "%s%.4s%04d.png", slash_add(snap_create).c_str(), name.c_str(), snapno);
+	while (access(cpath_export(path_buffer), F_OK)==0) {
+		snprintf(path_buffer, sizeof(path_buffer), "%s%.4s%04d.png", slash_add(snap_create).c_str(), name.c_str(), snapno);
 		++snapno;
 	}
 
-	return path;
+	return path_buffer;
 }
 
 string advmess::clip_name_get(const string& clip_create, const string& name)
 {
-	char path[FILE_MAXPATH];
-	sprintf(path, "%s%.8s.mng", slash_add(clip_create).c_str(), name.c_str());
+	char path_buffer[FILE_MAXPATH];
+	snprintf(path_buffer, sizeof(path_buffer), "%s%.8s.mng", slash_add(clip_create).c_str(), name.c_str());
 
 	int snapno = 0;
-	while (access(cpath_export(path), F_OK)==0) {
-		sprintf(path, "%s%.4s%04d.mng", slash_add(clip_create).c_str(), name.c_str(), snapno);
+	while (access(cpath_export(path_buffer), F_OK)==0) {
+		snprintf(path_buffer, sizeof(path_buffer), "%s%.4s%04d.mng", slash_add(clip_create).c_str(), name.c_str(), snapno);
 		++snapno;
 	}
 
-	return path;
+	return path_buffer;
 }
 
 string advmess::sound_name_get(const string& sound_create, const string& name)
 {
-	char path[FILE_MAXPATH];
-	sprintf(path, "%s%.8s.wav", slash_add(sound_create).c_str(), name.c_str());
+	char path_buffer[FILE_MAXPATH];
+	snprintf(path_buffer, sizeof(path_buffer), "%s%.8s.wav", slash_add(sound_create).c_str(), name.c_str());
 
 	int snapno = 0;
-	while (access(cpath_export(path), F_OK)==0) {
-		sprintf(path, "%s%.4s%04d.wav", slash_add(sound_create).c_str(), name.c_str(), snapno);
+	while (access(cpath_export(path_buffer), F_OK)==0) {
+		snprintf(path_buffer, sizeof(path_buffer), "%s%.4s%04d.wav", slash_add(sound_create).c_str(), name.c_str(), snapno);
 		++snapno;
 	}
 
-	return path;
+	return path_buffer;
 }
 
 ///
@@ -2282,9 +2282,10 @@ bool advmess::run(const game& g, unsigned orientation, difficulty_t difficulty, 
 	if (attenuation > 0)
 		attenuation = 0;
 	argv[argc++] = strdup("-sound_volume");
-	char buf[16];
-	sprintf(buf,"%d",attenuation);
-	argv[argc++] = strdup(buf);
+
+	ostringstream att;
+	att << attenuation;
+	argv[argc++] = strdup(att.str().c_str());
 
 	argc = compile(g, argv, argc, user_cmd_arg, orientation);
 
@@ -2574,10 +2575,11 @@ bool raine_info::load_game(game_set& gar)
 	) {
 		target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
 
-		char cmd[TARGET_MAXCMD];
-		sprintf(cmd, "%s -gameinfo > %s", cpath_export(config_exe_path_get()), cpath_export(info_file));
+		ostringstream cmd;
 
-		int r = target_system(cmd);
+		cmd << cpath_export(config_exe_path_get()) << " -gameinfo > " << cpath_export(info_file);
+
+		int r = target_system(cmd.str().c_str());
 
 		bool result = spawn_check(r, false);
 		if (!result)

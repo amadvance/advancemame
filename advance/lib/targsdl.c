@@ -180,7 +180,8 @@ void target_sync(void)
 
 int target_search(char* path, unsigned path_size, const char* file)
 {
-	strcpy(path, file);
+	snprintf(path, path_size, "%s", file);
+
 	if (access(path, F_OK) != 0) {
 		return -1;
 	}

@@ -19,6 +19,7 @@
  */
 
 #include "key.h"
+#include "portable.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -138,20 +139,22 @@ static struct key_entry KEY[] = {
 { 0, 0 }
 };
 
+static char key_name_buffer[32];
+
 /**
  * Return a short name for the specified key code.
  */
 const char* key_name(unsigned code)
 {
-	static char name[32];
 	struct key_entry* i;
 
 	for(i=KEY;i->name;++i)
 		if (i->code == code)
 			return i->name;
 
-	sprintf(name, "%d", code);
-	return name;
+	snprintf(key_name_buffer, sizeof(key_name_buffer), "%d", code);
+
+	return key_name_buffer;
 }
 
 /**

@@ -290,6 +290,9 @@ endif
 ############################################################################
 # EMU build
 
+$(OBJ)/advance/osd/emu.o: $(srcdir)/advance/advance.mak
+EMUCFLAGS += -DVERSION=\"$(EMUVERSION)\"
+
 ifeq ($(CONF_EMU),mame)
 EMUCFLAGS += -DMAME
 endif

@@ -30,8 +30,10 @@
 
 #include "vnone.h"
 #include "video.h"
+#include "portable.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 /***************************************************************************/
@@ -219,7 +221,7 @@ static adv_error none_palette8_set(const adv_color_rgb* palette, unsigned start,
 
 static adv_error none_mode_import(adv_mode* mode, const none_video_mode* none_mode)
 {
-	strcpy(mode->name, none_mode->crtc.name);
+	snprintf(mode->name, MODE_NAME_MAX, "%s", none_mode->crtc.name);
 
 	*DRIVER(mode) = *none_mode;
 

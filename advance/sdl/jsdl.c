@@ -30,6 +30,7 @@
 
 #include "jsdl.h"
 #include "log.h"
+#include "portable.h"
 
 #include "SDL.h"
 
@@ -38,9 +39,9 @@
 struct joystickb_sdl_context {
 	unsigned counter; /**< Number of joysticks active */
 	SDL_Joystick* map[JOYSTICK_MAX];
-	char axe_name[32];
-	char button_name[32];
-	char stick_name[32];
+	char axe_name_buffer[32];
+	char button_name_buffer[32];
+	char stick_name_buffer[32];
 };
 
 static struct joystickb_sdl_context sdl_state;
@@ -132,9 +133,9 @@ const char* joystickb_sdl_stick_name_get(unsigned j, unsigned s)
 
 	(void)j;
 
-	sprintf(sdl_state.stick_name, "S%d", s+1);
+	snprintf(sdl_state.stick_name_buffer, sizeof(sdl_state.stick_name_buffer), "S%d", s+1);
 
-	return sdl_state.stick_name;
+	return sdl_state.stick_name_buffer;
 }
 
 const char* joystickb_sdl_stick_axe_name_get(unsigned j, unsigned s, unsigned a)
@@ -148,9 +149,9 @@ const char* joystickb_sdl_stick_axe_name_get(unsigned j, unsigned s, unsigned a)
 	(void)j;
 	(void)s;
 
-	sprintf(sdl_state.axe_name, "A%d", a+1);
+	snprintf(sdl_state.axe_name_buffer, sizeof(sdl_state.axe_name_buffer), "A%d", a+1);
 
-	return sdl_state.axe_name;
+	return sdl_state.axe_name_buffer;
 }
 
 const char* joystickb_sdl_button_name_get(unsigned j, unsigned b)
@@ -161,9 +162,9 @@ const char* joystickb_sdl_button_name_get(unsigned j, unsigned b)
 	assert(j < joystickb_sdl_count_get());
 	assert(b < joystickb_sdl_button_count_get(j) );
 
-	sprintf(sdl_state.button_name, "B%d", b+1);
+	snprintf(sdl_state.button_name_buffer, sizeof(sdl_state.button_name_buffer), "B%d", b+1);
 
-	return sdl_state.button_name;
+	return sdl_state.button_name_buffer;
 }
 
 unsigned joystickb_sdl_button_get(unsigned j, unsigned b)

@@ -27,6 +27,7 @@
 #include "target.h"
 
 #include <iostream>
+#include <sstream>
 
 #include <dirent.h>
 #include <unistd.h>
@@ -704,9 +705,9 @@ string sort_item_size(const game& g)
 string sort_item_res(const game& g)
 {
 	if (g.sizex_get() && g.sizey_get()) {
-		char buffer[32];
-		sprintf(buffer, "%dx%d", g.sizex_get(), g.sizey_get());
-		return buffer;
+		ostringstream s;
+		s << g.sizex_get() << "x" << g.sizey_get();
+		return s.str();
 	} else {
 		return "<unknown>";
 	}

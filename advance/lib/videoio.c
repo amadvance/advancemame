@@ -33,6 +33,7 @@
 #include "gtf.h"
 #include "crtcbag.h"
 #include "error.h"
+#include "portable.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -44,14 +45,14 @@
 /* Parse */
 
 /** Last parse error */
-static char video_mode_parse_error[1024];
+static char video_mode_parse_error_buffer[1024];
 
 static adv_error parse_int(int* r, const char** begin, const char* end)
 {
 	char* e;
 	*r = strtol(*begin, &e, 10);
 	if (e==*begin || e > end) {
-		sprintf(video_mode_parse_error, "Error in value");
+		snprintf(video_mode_parse_error_buffer, sizeof(video_mode_parse_error_buffer), "Error in value");
 		return -1;
 	}
 	*begin = e;
@@ -70,7 +71,7 @@ static adv_error parse_token(char* token, unsigned size, const char* separator, 
 
 	while (*begin < end && !strchr(separator, **begin)) {
 		if (pos + 2 > size) {
-			sprintf(video_mode_parse_error, "Token too long");
+			snprintf(video_mode_parse_error_buffer, sizeof(video_mode_parse_error_buffer), "Token too long");
 			return -1;
 		}
 		token[pos] = **begin;
@@ -78,7 +79,7 @@ static adv_error parse_token(char* token, unsigned size, const char* separator, 
 		++*begin;
 	}
 	if (!pos) {
-		sprintf(video_mode_parse_error, "Expected token");
+		snprintf(video_mode_parse_error_buffer, sizeof(video_mode_parse_error_buffer), "Expected token");
 		return -1;
 	}
 	token[pos] = 0;
@@ -106,7 +107,7 @@ static adv_error parse_double(double* r, const char** begin, const char* end)
 	char* e;
 	*r = strtod(*begin, &e);
 	if (e==*begin || e > end) {
-		sprintf(video_mode_parse_error, "Error in value");
+		snprintf(video_mode_parse_error_buffer, sizeof(video_mode_parse_error_buffer), "Error in value");
 		return -1;
 	}
 	*begin = e;
@@ -191,7 +192,7 @@ static adv_error parse_crtc(adv_crtc* crtc, const char* begin, const char* end)
 		} else {
 			if (token[0]=='#')
 				return 0; /* comment */
-			sprintf(video_mode_parse_error, "Unknown token '%s'", token);
+			snprintf(video_mode_parse_error_buffer, sizeof(video_mode_parse_error_buffer), "Unknown token '%s'", token);
 			return -1;
 		}
 		parse_separator(" \t", &begin, end);
@@ -226,7 +227,7 @@ adv_error crtc_parse(adv_crtc* crtc, const char* begin, const char* end)
 
 	parse_separator(" \t", &begin, end);
 	if (begin == end) {
-		sprintf(video_mode_parse_error, "Missing modeline data");
+		snprintf(video_mode_parse_error_buffer, sizeof(video_mode_parse_error_buffer), "Missing modeline data");
 		return -1;
 	}
 
@@ -236,7 +237,7 @@ adv_error crtc_parse(adv_crtc* crtc, const char* begin, const char* end)
 	return 0;
 }
 
-void crtc_print(char* buffer, const adv_crtc* crtc)
+void crtc_print(char* buffer, unsigned size, const adv_crtc* crtc)
 {
 	const char* flag1 = crtc_is_nhsync(crtc) ? " -hsync" : " +hsync";
 	const char* flag2 = crtc_is_nvsync(crtc) ? " -vsync" : " +vsync";
@@ -246,11 +247,14 @@ void crtc_print(char* buffer, const adv_crtc* crtc)
 	const char* flag6 = crtc_is_tvntsc(crtc) ? " tvntsc" : "";
 
 	if (strchr(crtc->name, ' ')!=0)
-		sprintf(buffer, "\"%s\"", crtc->name);
+		snprintf(buffer, size, "\"%s\"", crtc->name);
 	else
-		sprintf(buffer, "%s", crtc->name);
+		snprintf(buffer, size, "%s", crtc->name);
 
-	sprintf(buffer + strlen(buffer), " %g %d %d %d %d %d %d %d %d%s%s%s%s%s%s",
+	size -= strlen(buffer);
+	buffer += strlen(buffer);
+
+	snprintf(buffer, size, " %g %d %d %d %d %d %d %d %d%s%s%s%s%s%s",
 		(double)crtc->pixelclock / 1E6,
 		crtc->hde, crtc->hrs, crtc->hre, crtc->ht,
 		crtc->vde, crtc->vrs, crtc->vre, crtc->vt,
@@ -273,7 +277,7 @@ adv_error crtc_container_load(adv_conf* context, adv_crtc_container* cc)
 		} else {
 			if (!error) {
 				error = 1;
-				error_set("%s in argument '%s' for option 'device_video_modeline'", video_mode_parse_error, s);
+				error_set("%s in argument '%s' for option 'device_video_modeline'", video_mode_parse_error_buffer, s);
 			}
 		}
 		conf_iterator_next(&i);
@@ -290,7 +294,7 @@ void crtc_container_save(adv_conf* context, adv_crtc_container* cc)
 	crtc_container_iterator_begin(&i, cc);
 	while (!crtc_container_iterator_is_end(&i)) {
 		char buffer[1024];
-		crtc_print(buffer, crtc_container_iterator_get(&i));
+		crtc_print(buffer, sizeof(buffer), crtc_container_iterator_get(&i));
 		conf_string_set(context, "", "device_video_modeline", buffer);
 		crtc_container_iterator_next(&i);
 	}
@@ -390,24 +394,31 @@ static adv_error monitor_single_parse(adv_monitor_range* range, const char* begi
 	return 0;
 }
 
-void monitor_print(char* buffer, const adv_monitor_range* range_begin, const adv_monitor_range* range_end, double mult)
+void monitor_print(char* buffer, unsigned size, const adv_monitor_range* range_begin, const adv_monitor_range* range_end, double mult)
 {
-	*buffer = 0;
+	adv_bool empty = 1;
+
 	while (range_begin != range_end) {
 		if (range_begin->low != 0 && range_begin->high != 0) {
-			if (*buffer)
-				strcat(buffer, ", ");
-			if (range_begin->low == range_begin->high) {
-				sprintf(buffer+strlen(buffer), "%g", range_begin->low / mult);
-			} else {
-				sprintf(buffer+strlen(buffer), "%g-%g", range_begin->low / mult, range_begin->high / mult);
+			if (!empty) {
+				snprintf(buffer, size, ", ");
+				size -= strlen(buffer);
+				buffer += strlen(buffer);
 			}
+			if (range_begin->low == range_begin->high) {
+				snprintf(buffer, size, "%g", range_begin->low / mult);
+			} else {
+				snprintf(buffer, size, "%g-%g", range_begin->low / mult, range_begin->high / mult);
+			}
+			size -= strlen(buffer);
+			buffer += strlen(buffer);
+			empty = 0;
 		}
 		++range_begin;
 	}
 
-	if (!*buffer)
-		strcpy(buffer, "0");
+	if (empty)
+		snprintf(buffer, size, "0");
 }
 
 adv_error monitor_parse(adv_monitor* monitor, const char* p, const char* h, const char* v)
@@ -487,13 +498,13 @@ void monitor_save(adv_conf* context, const adv_monitor* monitor)
 {
 	char buffer[1024];
 
-	monitor_print(buffer, &monitor->pclock, &monitor->pclock + 1, 1E6);
+	monitor_print(buffer, sizeof(buffer), &monitor->pclock, &monitor->pclock + 1, 1E6);
 	conf_string_set(context, "", "device_video_pclock", buffer);
 
-	monitor_print(buffer, monitor->hclock, monitor->hclock + MONITOR_RANGE_MAX, 1E3);
+	monitor_print(buffer, sizeof(buffer), monitor->hclock, monitor->hclock + MONITOR_RANGE_MAX, 1E3);
 	conf_string_set(context, "", "device_video_hclock", buffer);
 
-	monitor_print(buffer, monitor->vclock, monitor->vclock + MONITOR_RANGE_MAX, 1);
+	monitor_print(buffer, sizeof(buffer), monitor->vclock, monitor->vclock + MONITOR_RANGE_MAX, 1);
 	conf_string_set(context, "", "device_video_vclock", buffer);
 }
 
@@ -615,13 +626,13 @@ static adv_error parse_generate_interpolate(const char* begin, const char* end, 
 	return 0;
 }
 
-static void out_generate_interpolate(char* buffer, const adv_generate_interpolate* interpolate)
+static void out_generate_interpolate(char* buffer, unsigned size, const adv_generate_interpolate* interpolate)
 {
 	adv_generate out = interpolate->gen;
 
 	generate_normalize(&out);
 
-	sprintf(buffer, "%d %g %g %g %g %g %g %g %g",
+	snprintf(buffer, size, "%d %g %g %g %g %g %g %g %g",
 		interpolate->hclock,
 		out.hactive, out.hfront, out.hsync, out.hback,
 		out.vactive, out.vfront, out.vsync, out.vback);
@@ -687,7 +698,7 @@ void generate_interpolate_save(adv_conf* context, const adv_generate_interpolate
 	conf_remove(context, "", "device_video_format");
 	for(i=0;i<interpolate->mac;++i) {
 		char buffer[1024];
-		out_generate_interpolate(buffer, &interpolate->map[i]);
+		out_generate_interpolate(buffer, sizeof(buffer), &interpolate->map[i]);
 		conf_string_set(context, "", "device_video_format", buffer);
 	}
 }
@@ -786,7 +797,7 @@ void gtf_save(adv_conf* context, const adv_gtf* gtf)
 {
 	char buffer[1024];
 
-	sprintf(buffer, "%g %d %d %g %g %g %g",
+	snprintf(buffer, sizeof(buffer), "%g %d %d %g %g %g %g",
 		gtf->margin_frac,
 		gtf->v_min_frontporch_lines,
 		gtf->v_sync_lines,

@@ -31,6 +31,7 @@
 #include "file.h"
 #include "conf.h"
 #include "target.h"
+#include "portable.h"
 
 #include <string.h>
 #include <math.h>
@@ -82,33 +83,33 @@ int draw_test(int x, int y, const char* s, adv_crtc* crtc, int modify) {
 	}
 	++y;
 	++y;
-	sprintf(buffer,"modeline %.2f %d %d %d %d %d %d %d %d", (double)crtc->pixelclock / 1E6, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt);
+	snprintf(buffer,sizeof(buffer),"modeline %.2f %d %d %d %d %d %d %d %d", (double)crtc->pixelclock / 1E6, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt);
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
 
-	sprintf(buffer,"pclock  %6.2f [MHz]", crtc_pclock_get(crtc) / 1E6);
+	snprintf(buffer,sizeof(buffer),"pclock  %6.2f [MHz]", crtc_pclock_get(crtc) / 1E6);
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
-	sprintf(buffer,"hclock  %6.2f [kHz]", crtc_hclock_get(crtc) / 1E3);
+	snprintf(buffer,sizeof(buffer),"hclock  %6.2f [kHz]", crtc_hclock_get(crtc) / 1E3);
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
-	sprintf(buffer,"vclock  %6.2f [Hz]", crtc_vclock_get(crtc));
+	snprintf(buffer,sizeof(buffer),"vclock  %6.2f [Hz]", crtc_vclock_get(crtc));
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
 
-	sprintf(buffer,"hsync   %6.2f [us]", (double)(crtc->hre - crtc->hrs) * 1E6 / crtc_pclock_get(crtc) );
+	snprintf(buffer,sizeof(buffer),"hsync   %6.2f [us]", (double)(crtc->hre - crtc->hrs) * 1E6 / crtc_pclock_get(crtc) );
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
-	sprintf(buffer,"vsync   %6.2f [us]", (double)(crtc->vre - crtc->vrs) * 1E6 / crtc_hclock_get(crtc) );
+	snprintf(buffer,sizeof(buffer),"vsync   %6.2f [us]", (double)(crtc->vre - crtc->vrs) * 1E6 / crtc_hclock_get(crtc) );
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 	++y;
 
 	if (crtc_is_doublescan(crtc))
-		sprintf(buffer,"scan     double");
+		snprintf(buffer,sizeof(buffer),"scan     double");
 	else if (crtc_is_interlace(crtc))
-		sprintf(buffer,"scan     interlace");
+		snprintf(buffer,sizeof(buffer),"scan     interlace");
 	else
-		sprintf(buffer,"scan     single");
+		snprintf(buffer,sizeof(buffer),"scan     single");
 	draw_string(x,y,buffer,DRAW_COLOR_WHITE);
 
 	return y;
@@ -118,7 +119,7 @@ static void draw_text_bar(void) {
 	char buffer[256];
 	unsigned i;
 
-	sprintf(buffer," AdvanceCONFIG - " __DATE__ );
+	snprintf(buffer,sizeof(buffer)," AdvanceCONFIG - " __DATE__ );
 	draw_text_left(0,0,text_size_x(),buffer,COLOR_BAR);
 
 	strcpy(buffer,"");
@@ -131,7 +132,7 @@ static void draw_text_bar(void) {
 	}
 	draw_text_left(text_size_x() - strlen(buffer),0,strlen(buffer),buffer,COLOR_BAR);
 
-	sprintf(buffer," ENTER Select  ESC Back");
+	snprintf(buffer,sizeof(buffer)," ENTER Select  ESC Back");
 	draw_text_left(0,text_size_y() - 1,text_size_x(),buffer,COLOR_BAR);
 }
 
@@ -169,7 +170,7 @@ static void entry_monitor(int x, int y, int dx, void* data, int n, int selected)
 		} else {
 			char buffer[256];
 			adv_generate generate = p->generate;
-			sprintf(buffer,"format = %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f",
+			snprintf(buffer,sizeof(buffer),"format = %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f",
 				generate.hactive, generate.hfront, generate.hsync, generate.hback,
 				generate.vactive, generate.vfront, generate.vsync, generate.vback);
 			draw_text_left(0,monitor_y,text_size_x(),buffer,COLOR_NORMAL);
@@ -305,22 +306,22 @@ static void entry_model(int x, int y, int dx, void* data, int n, int selected) {
 	struct model_data_struct* p = ((struct model_data_struct*)data) + n;
 
 	if (p->model) {
-		sprintf(buffer,"  %s - %s",p->manufacturer,p->model);
+		snprintf(buffer,sizeof(buffer),"  %s - %s",p->manufacturer,p->model);
 		draw_text_left(x,y,dx,buffer, selected ? COLOR_REVERSE : COLOR_NORMAL);
 
 		if (selected) {
 			strcpy(buffer,"pclock = ");
-			monitor_print(buffer + strlen(buffer), &p->monitor.pclock, &p->monitor.pclock + 1, 1E6);
+			monitor_print(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), &p->monitor.pclock, &p->monitor.pclock + 1, 1E6);
 			draw_text_left(0,model_y,text_size_x(),buffer,COLOR_NORMAL);
 			strcpy(buffer,"hclock = ");
-			monitor_print(buffer + strlen(buffer), p->monitor.hclock, p->monitor.hclock + MONITOR_RANGE_MAX, 1E3);
+			monitor_print(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), p->monitor.hclock, p->monitor.hclock + MONITOR_RANGE_MAX, 1E3);
 			draw_text_left(0,model_y+1,text_size_x(),buffer,COLOR_NORMAL);
 			strcpy(buffer,"vclock = ");
-			monitor_print(buffer + strlen(buffer), p->monitor.vclock, p->monitor.vclock + MONITOR_RANGE_MAX, 1);
+			monitor_print(buffer + strlen(buffer), sizeof(buffer) - strlen(buffer), p->monitor.vclock, p->monitor.vclock + MONITOR_RANGE_MAX, 1);
 			draw_text_left(0,model_y+2,text_size_x(),buffer,COLOR_NORMAL);
 		}
 	} else {
-		sprintf(buffer,"-- %s --",p->manufacturer);
+		snprintf(buffer,sizeof(buffer),"-- %s --",p->manufacturer);
 		draw_text_left(x,y,dx,buffer, COLOR_LOW);
 	}
 }
@@ -379,7 +380,7 @@ static adv_error cmd_model(adv_conf* config, adv_monitor* monitor) {
 			if (manufacturer && model && h && v && mac < max) {
 				data[mac].manufacturer = strdup(manufacturer);
 				data[mac].model = strdup(model);
-				if (monitor_parse(&data[mac].monitor,"5 - 90",h,v)!=0) {
+				if (monitor_parse(&data[mac].monitor,"5 - 150",h,v)!=0) {
 					video_mode_restore();
 					target_err("Invalid monitor specification %s:%s:%s:%s.",manufacturer,model,h,v);
 					target_flush();
@@ -434,10 +435,10 @@ static adv_error cmd_model_custom(adv_monitor* monitor) {
 	draw_text_para(0,6,text_size_x(),text_size_y()-8,
 "Enter the clock specification of your monitor. "
 "Usually you can find them in the last page of your monitor manual. "
-"For the pclock you can safely use the values 5 - 90.\n"
+"For the pclock you can safely use the values 5 - 150.\n"
 "The pclock specification is in MHz, the hclock is in kHz, the vclock is in Hz.\n\n"
 "For example:\n\n"
-"pclock = 5-90\n"
+"pclock = 5-150\n"
 "hclock = 30.5-60\n"
 "vclock = 55-130\n"
 "\nor\n\n"
@@ -824,7 +825,7 @@ static void entry_interpolate(int x, int y, int dx, void* data, int n, adv_bool 
 				range = " - OUT OF RANGE";
 			else
 				range = "";
-			sprintf(buffer,"Mode %4dx%4d %.1f/%.1f %s%s",p->x,p->y,hclock / 1E3,vclock,pivot,range);
+			snprintf(buffer,sizeof(buffer),"Mode %4dx%4d %.1f/%.1f %s%s",p->x,p->y,hclock / 1E3,vclock,pivot,range);
 			break;
 		case interpolate_done :
 			strcpy(buffer,"Done");
@@ -1038,13 +1039,13 @@ static void entry_adjust(int x, int y, int dx, void* data, int n, adv_bool selec
 
 	switch (p->type) {
 		case adjust_previous:
-			sprintf(buffer,"Previous centering settings");
+			snprintf(buffer,sizeof(buffer),"Previous centering settings");
 			break;
 		case adjust_easy:
-			sprintf(buffer,"Easy centering - SUGGESTED - (one or two reference modes)");
+			snprintf(buffer,sizeof(buffer),"Easy centering - SUGGESTED - (one or two reference modes)");
 			break;
 		case adjust_precise:
-			sprintf(buffer,"Precise centering - (many reference modes)");
+			snprintf(buffer,sizeof(buffer),"Precise centering - (many reference modes)");
 			break;
 	}
 
@@ -1124,25 +1125,25 @@ static void entry_test(int x, int y, int dx, void* data, int n, adv_bool selecte
 
 	switch (p->type) {
 		case test_mode :
-			sprintf(buffer,"Test mode %4dx%4d (singlescan)",p->x,p->y);
+			snprintf(buffer,sizeof(buffer),"Test mode %4dx%4d (singlescan)",p->x,p->y);
 			break;
 		case test_save :
-			strcpy(buffer,"Save & Exit");
+			snprintf(buffer,sizeof(buffer),"Save & Exit");
 			break;
 		case test_exit :
-			strcpy(buffer,"Exit without saving");
+			snprintf(buffer,sizeof(buffer),"Exit without saving");
 			break;
 		case test_custom_single:
-			strcpy(buffer,"Test custom (singlescan) - Use only singlescan modes");
+			snprintf(buffer,sizeof(buffer),"Test custom (singlescan) - Use only singlescan modes");
 			break;
 		case test_custom_double:
-			strcpy(buffer,"Test custom (doublescan) - Use only doublescan modes");
+			snprintf(buffer,sizeof(buffer),"Test custom (doublescan) - Use only doublescan modes");
 			break;
 		case test_custom_interlace:
-			strcpy(buffer,"Test custom (interlace) - Use only interlace modes");
+			snprintf(buffer,sizeof(buffer),"Test custom (interlace) - Use only interlace modes");
 			break;
 		case test_custom:
-			strcpy(buffer,"Test custom - Use the nearest available mode (like AdvanceMAME)");
+			snprintf(buffer,sizeof(buffer),"Test custom - Use the nearest available mode (like AdvanceMAME)");
 			break;
 	}
 

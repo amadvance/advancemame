@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMAME Version 2.2.6 2003/04
+	) Added the "-version" command line option.
+	) Removed some "buffer overflow".
+
 AdvanceMENU Version 2.2.5 2003/03
 	) Fixed the default colors.
 	) Updated with autoconf 2.57.

@@ -27,6 +27,7 @@
 #include <list>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 #include <unistd.h>
 #include <math.h>
@@ -2013,18 +2014,6 @@ void int_update(bool progressive)
 	int_update_post(int_update_pre(progressive));
 }
 
-#ifdef __SNAPSHOT__
-void int_snapshot()
-{
-	static unsigned snapshot_num = 0;
-	char snapshot_name[32];
-	sprintf(snapshot_name, "snap%d.bmp", snapshot_num);
-	snapshot_num++;
-
-	video_snapshot_save(snapshot_name, 0, 0);
-}
-#endif
-
 //---------------------------------------------------------------------------
 // Key
 
@@ -2476,11 +2465,6 @@ unsigned int_getkey(bool update_background)
 	int_key_last = int_key_saved;
 	int_key_saved = INT_KEY_NONE;
 
-#ifdef __SNAPSHOT__
-	if (int_key_last == INT_KEY_SNAPSHOT)
-		int_snapshot();
-#endif
-
 	return int_key_last;
 }
 
@@ -2674,15 +2658,17 @@ static int_rgb string2color(const string& s)
 	return COLOR_NAME[0].rgb;
 }
 
-static const char* color2string(const int_rgb& c)
+static string color2string(const int_rgb& c)
 {
-	static char buffer[32];
 	for(unsigned i=0;i<16;++i)
 		if (c.r == COLOR_NAME[i].rgb.r && c.g == COLOR_NAME[i].rgb.g && c.b == COLOR_NAME[i].rgb.b)
 			return COLOR_NAME[i].name;
 
-	sprintf(buffer, "%02x%02x%02x", (unsigned)c.r, (unsigned)c.g, (unsigned)c.b);
-	return buffer;
+	ostringstream s;
+
+	s << setfill('0') << setw(2) << hex << (unsigned)c.r << (unsigned)c.g << (unsigned)c.b;
+
+	return s.str();
 }
 
 bool int_color_in(const string& s)

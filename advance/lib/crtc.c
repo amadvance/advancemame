@@ -31,6 +31,7 @@
 #include "crtc.h"
 #include "video.h"
 #include "error.h"
+#include "portable.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -706,7 +707,7 @@ void crtc_fake_set(adv_crtc* crtc, unsigned size_x, unsigned size_y)
 	crtc->pixelclock = 0;
 	crtc->flags = 0;
 
-	sprintf(crtc->name, "%dx%d", size_x, size_y);
+	snprintf(crtc->name, CRTC_NAME_MAX, "%dx%d", size_x, size_y);
 }
 
 /**

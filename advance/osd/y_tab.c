@@ -41,6 +41,7 @@
 #include <string.h>
 
 #include "script.h"
+#include "portable.h"
 
 #define YYERROR_VERBOSE
 
@@ -1249,11 +1250,11 @@ struct script_cmd* script_parse(const char* text)
 	if (r!=0) {
 		if (r == STRING) {
 			char buffer[256];
-			sprintf(buffer, "Unexpected token '%s'", yylval.str);
+			snprintf(buffer, sizeof(buffer), "Unexpected token '%s'", yylval.str);
 			yyerror(buffer);
 		} else if (r<255) {
 			char buffer[256];
-			sprintf(buffer, "Unexpected token '%c'", (char)r);
+			snprintf(buffer, sizeof(buffer), "Unexpected token '%c'", (char)r);
 			yyerror(buffer);
 		} else {
 			yyerror("Unexpected token");

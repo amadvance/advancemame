@@ -34,6 +34,7 @@
 #include "ossdl.h"
 #include "error.h"
 #include "target.h"
+#include "portable.h"
 
 #ifdef USE_KEYBOARD_SDL
 #include "ksdl.h"
@@ -636,7 +637,7 @@ adv_error sdl_mode_import(adv_mode* mode, const sdl_video_mode* sdl_mode)
 {
 	log_std(("video:sdl: sdl_mode_import()\n"));
 
-	sprintf(mode->name, "sdl_%dx%dx%d", sdl_mode->size_x, sdl_mode->size_y, index_bits_per_pixel(sdl_mode->index));
+	snprintf(mode->name, MODE_NAME_MAX, "sdl_%dx%dx%d", sdl_mode->size_x, sdl_mode->size_y, index_bits_per_pixel(sdl_mode->index));
 
 	*DRIVER(mode) = *sdl_mode;
 
@@ -746,7 +747,7 @@ void sdl_crtc_container_insert_default(adv_crtc_container* cc)
 		for(i=0;map[i];++i) {
 			adv_crtc crtc;
 			crtc_fake_set(&crtc, map[i]->w, map[i]->h);
-			sprintf(crtc.name, "sdl_%dx%d", map[i]->w, map[i]->h);
+			snprintf(crtc.name, CRTC_NAME_MAX, "sdl_%dx%d", map[i]->w, map[i]->h);
 			crtc_container_insert(cc, &crtc);
 		}
 	}

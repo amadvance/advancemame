@@ -57,7 +57,8 @@ MOBJS += \
 	$(MOBJ)/lib/filedos.o \
 	$(MOBJ)/lib/targdos.o \
 	$(MOBJ)/dos/os.o \
-	$(MOBJ)/dos/malleg.o
+	$(MOBJ)/dos/malleg.o \
+	$(MOBJ)/dos/snprintf.o
 endif
 
 $(MOBJ)/%.o: $(srcdir)/advance/%.c

@@ -34,7 +34,7 @@
 #include "os.h"
 #include "error.h"
 #include "rgb.h"
-
+#include "portable.h"
    
 #include <ctype.h>
 #include <stdarg.h>
@@ -338,7 +338,7 @@ void video_default(void)
 	video_option.fast_change = 0;
 	video_option.output = adv_output_auto;
 	video_option.cursor = adv_cursor_auto;
-	strcpy(video_option.name, "auto");
+	snprintf(video_option.name, DEVICE_NAME_MAX, "%s", "auto");
 }
 
 static adv_conf_enum_int OPTION_OUTPUT[] = {
@@ -567,7 +567,7 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 	video_option.output = conf_int_get_default(context, "device_video_output");
 	video_option.cursor = conf_int_get_default(context, "device_video_cursor");
 
-	strcpy(video_option.name, conf_string_get_default(context, "device_video"));
+	snprintf(video_option.name, DEVICE_NAME_MAX, "%s", conf_string_get_default(context, "device_video"));
 
 	if (device_check("device_video", video_option.name, (const adv_driver**)video_state.driver_map, video_state.driver_mac, driver_ignore) != 0) {
 		return -1;
@@ -684,7 +684,7 @@ void video_mode_done(adv_bool restore)
 void mode_reset(adv_mode* mode)
 {
 	memset(mode, 0, sizeof(adv_mode));
-	strcpy(mode->name, "unamed");
+	snprintf(mode->name, MODE_NAME_MAX, "%s", "unamed");
 }
 
 static void log_clock(void)

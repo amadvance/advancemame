@@ -31,6 +31,7 @@
 #include "conf.h"
 #include "incstr.h"
 #include "log.h"
+#include "portable.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -109,8 +110,9 @@ static char* glob_subst(const char* format, char* own_s)
 		char* token = strstr(format, "%s");
 		/* assume no more than one %s token */
 		if (token) {
-			char* n = malloc(strlen(format) + strlen(own_s) - 1);
-			sprintf(n, format, own_s);
+			unsigned l = strlen(format) + strlen(own_s) - 1;
+			char* n = malloc(l);
+			snprintf(n, l, format, own_s);
 			free(own_s);
 			return n;
 		} else {
@@ -978,10 +980,10 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 			|| (value->option->data.base_int.has_limit
 				&& (r < value->option->data.base_int.limit_low || r > value->option->data.base_int.limit_high))
 			) {
-				char valid[128];
-				sprintf(valid, "Valid arguments are int from %d to %d", value->option->data.base_int.limit_low, value->option->data.base_int.limit_high);
+				char valid_buffer[128];
+				snprintf(valid_buffer, sizeof(valid_buffer), "Valid arguments are int from %d to %d", value->option->data.base_int.limit_low, value->option->data.base_int.limit_high);
 				if (error)
-					error(error_context, conf_error_invalid, value->input->file_in, value->option->tag, valid, "Invalid argument '%s' for option '%s' in file '%s'", own_value, value->option->tag, value->input->file_in);
+					error(error_context, conf_error_invalid, value->input->file_in, value->option->tag, valid_buffer, "Invalid argument '%s' for option '%s' in file '%s'", own_value, value->option->tag, value->input->file_in);
 				free(own_value);
 				return -1;
 		}
@@ -1005,10 +1007,10 @@ static adv_error import_float(struct adv_conf_value_struct* value, char* own_val
 		|| (value->option->data.base_float.has_limit
 			&& (r < value->option->data.base_float.limit_low || r > value->option->data.base_float.limit_high)
 		)) {
-		char valid[128];
-		sprintf(valid, "Valid arguments are float from %g to %g", value->option->data.base_float.limit_low, value->option->data.base_float.limit_high);
+		char valid_buffer[128];
+		snprintf(valid_buffer, sizeof(valid_buffer), "Valid arguments are float from %g to %g", value->option->data.base_float.limit_low, value->option->data.base_float.limit_high);
 		if (error)
-			error(error_context, conf_error_invalid, value->input->file_in, value->option->tag, valid, "Out of range argument '%s' for option '%s' in file '%s'", own_value, value->option->tag, value->input->file_in);
+			error(error_context, conf_error_invalid, value->input->file_in, value->option->tag, valid_buffer, "Out of range argument '%s' for option '%s' in file '%s'", own_value, value->option->tag, value->input->file_in);
 		free(own_value);
 		return -1;
 	}
@@ -2281,7 +2283,7 @@ adv_error conf_int_set(adv_conf* context, const char* section, const char* tag, 
 		return -1;
 
 	if (!option->data.base_int.has_enum) {
-		sprintf(result_buffer, "%d", (int)result);
+		snprintf(result_buffer, sizeof(result_buffer), "%d", (int)result);
 		result_string = result_buffer;
 	} else {
 		unsigned i;
@@ -2315,7 +2317,7 @@ adv_error conf_float_set(adv_conf* context, const char* section, const char* tag
 
 	assert_option(context, tag, conf_type_float);
 
-	sprintf(result_buffer, "%g", (double)result);
+	snprintf(result_buffer, sizeof(result_buffer), "%g", (double)result);
         result_string = result_buffer;
 
 	return conf_set(context, section, tag, result_string);
@@ -2377,9 +2379,10 @@ adv_error conf_remove(adv_conf* context, const char* section, const char* tag)
  * Get the default value.
  * \param option Option to scan.
  * \param buffer Destination buffer used for int/float values.
+ * \param size Size of the destination buffer.
  * \return 0 if the option has not a default.
  */
-static const char* option_default_get(struct adv_conf_option_struct* option, char* buffer)
+static const char* option_default_get(struct adv_conf_option_struct* option, char* buffer, unsigned size)
 {
 	switch (option->type) {
 		case conf_type_bool :
@@ -2390,7 +2393,7 @@ static const char* option_default_get(struct adv_conf_option_struct* option, cha
 			if (!option->data.base_int.has_def)
 				return 0;
 			if (!option->data.base_int.has_enum) {
-				sprintf(buffer, "%d", (int)option->data.base_int.def);
+				snprintf(buffer, size, "%d", (int)option->data.base_int.def);
 				return buffer;
 			} else {
 				unsigned i;
@@ -2404,7 +2407,7 @@ static const char* option_default_get(struct adv_conf_option_struct* option, cha
 		case conf_type_float :
 			if (!option->data.base_float.has_def)
 				return 0;
-			sprintf(buffer, "%g", (double)option->data.base_float.def);
+			snprintf(buffer, size, "%g", (double)option->data.base_float.def);
 			return buffer;
 		case conf_type_string :
 			if (!option->data.base_string.has_def)
@@ -2416,14 +2419,14 @@ static const char* option_default_get(struct adv_conf_option_struct* option, cha
 	}
 }
 
-static const char* value_get(struct adv_conf_value_struct* value, char* buffer)
+static const char* value_get(struct adv_conf_value_struct* value, char* buffer, unsigned size)
 {
 	switch (value->option->type) {
 		case conf_type_bool :
 			return value->data.bool_value ? "yes" : "no";
 		case conf_type_int :
 			if (!value->option->data.base_int.has_enum) {
-				sprintf(buffer, "%d", (int)value->data.int_value);
+				snprintf(buffer, size, "%d", (int)value->data.int_value);
 				return buffer;
 			} else {
 				unsigned i;
@@ -2435,7 +2438,7 @@ static const char* value_get(struct adv_conf_value_struct* value, char* buffer)
 				return 0;
 			}
 		case conf_type_float :
-			sprintf(buffer, "%g", (double)value->data.float_value);
+			snprintf(buffer, size, "%g", (double)value->data.float_value);
 			return buffer;
 		case conf_type_string :
 			return value->data.string_value;
@@ -2467,7 +2470,7 @@ adv_error conf_set_default(adv_conf* context, const char* section, const char* t
 	if (!option)
 		return -1;
 
-	result_string = option_default_get(option, result_buffer);
+	result_string = option_default_get(option, result_buffer, sizeof(result_buffer));
 	if (!result_string)
 		return -1;
 
@@ -2508,8 +2511,8 @@ void conf_remove_if_default(adv_conf* context, const char* section)
 			if (value) {
 				char result_buffer[CONF_NUM_BUFFER_MAX];
 				char default_buffer[CONF_NUM_BUFFER_MAX];
-				const char* result_string = value_get(value, result_buffer);
-				const char* default_string = option_default_get(option, default_buffer);
+				const char* result_string = value_get(value, result_buffer, sizeof(result_buffer));
+				const char* default_string = option_default_get(option, default_buffer, sizeof(default_buffer));
 				assert(result_string);
 				if (default_string && strcmp(result_string, default_string)==0) {
 					value_remove(context, value);

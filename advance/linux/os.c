@@ -93,7 +93,7 @@ struct os_context {
 #endif
 
 	int is_quit; /**< Is termination requested. */
-	char title[128]; /**< Title of the window. */
+	char title_buffer[128]; /**< Title of the window. */
 
 	os_clock_t last; /**< Last clock. */
 };
@@ -274,7 +274,7 @@ int os_inner_init(const char* title)
 #endif
       
 	/* set the titlebar */
-	strcpy(OS.title, title);
+	snprintf(OS.title_buffer, sizeof(OS.title_buffer), "%s", title);
 
 	/* set some signal handlers */
 	signal(SIGABRT, os_signal);
@@ -361,7 +361,7 @@ void os_inner_done(void)
 
 const char* os_internal_title_get(void)
 {
-	return OS.title;
+	return OS.title_buffer;
 }
 
 void os_poll(void)

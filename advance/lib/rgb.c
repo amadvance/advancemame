@@ -30,6 +30,7 @@
 
 #include "rgb.h"
 #include "mode.h"
+#include "portable.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -177,20 +178,20 @@ const char* color_def_name_make(adv_color_def def_ordinal)
 
 	switch (def.nibble.type) {
 	case adv_color_type_palette :
-		strcpy(color_name_buffer, "palette");
+		snprintf(color_name_buffer, sizeof(color_name_buffer), "%s", "palette");
 		return color_name_buffer;
 	case adv_color_type_rgb :
-		sprintf(color_name_buffer, "rgb %d/%d,%d/%d,%d/%d",
+		snprintf(color_name_buffer, sizeof(color_name_buffer), "rgb %d/%d,%d/%d,%d/%d",
 			def.nibble.red_len, def.nibble.red_pos,
 			def.nibble.green_len, def.nibble.green_pos,
 			def.nibble.blue_len, def.nibble.blue_pos
 		);
 		return color_name_buffer;
 	case adv_color_type_yuy2 :
-		strcpy(color_name_buffer, "yuy2");
+		snprintf(color_name_buffer, sizeof(color_name_buffer), "%s", "yuy2");
 		return color_name_buffer;
 	default:
-		strcpy(color_name_buffer, "unknown");
+		snprintf(color_name_buffer, sizeof(color_name_buffer), "%s", "unknown");
 		return color_name_buffer;
 	}
 }

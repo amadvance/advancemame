@@ -301,7 +301,7 @@ static void input_init(struct advance_input_context* context)
 {
 	unsigned i, j, k, w;
 	unsigned mac;
-	char buf[256];
+	char buffer[256];
 
 	/* initialize the state */
 	for(i=0;i<INPUT_MOUSE_MAX;++i) {
@@ -342,8 +342,8 @@ static void input_init(struct advance_input_context* context)
 	for(i=0;i<mouseb_count_get() && i<INPUT_MOUSE_MAX;++i) {
 		for(j=0;j<mouseb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
 			if (mac+1 < INPUT_MAX) {
-				sprintf(buf, "MOUSE%d B%d", i+1, j+1);
-				strncpy(input_joyname_map[mac], buf, INPUT_NAME_MAX-1);
+				snprintf(buffer, sizeof(buffer), "MOUSE%d B%d", i+1, j+1);
+				strncpy(input_joyname_map[mac], buffer, INPUT_NAME_MAX-1);
 				input_joyname_map[mac][INPUT_NAME_MAX-1] = 0;
 				input_joy_map[mac].name = input_joyname_map[mac];
 				input_joy_map[mac].code = DIGITAL_MOUSE_BUTTON(i, j);
@@ -356,8 +356,8 @@ static void input_init(struct advance_input_context* context)
 		for(j=0;j<joystickb_stick_count_get(i) && j<INPUT_STICK_MAX;++j) {
 			for(k=0;k<joystickb_stick_axe_count_get(i, j) && k<INPUT_AXE_MAX;++k) {
 				if (mac+1 < INPUT_MAX) {
-					sprintf(buf, "J%d %s %s -", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
-					strncpy(input_joyname_map[mac], buf, INPUT_NAME_MAX-1);
+					snprintf(buffer, sizeof(buffer), "J%d %s %s -", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					strncpy(input_joyname_map[mac], buffer, INPUT_NAME_MAX-1);
 					input_joyname_map[mac][INPUT_NAME_MAX-1] = 0;
 					input_joy_map[mac].name = input_joyname_map[mac];
 					input_joy_map[mac].code = DIGITAL_JOY(i, j, k, 0);
@@ -365,8 +365,8 @@ static void input_init(struct advance_input_context* context)
 				}
 
 				if (mac+1 < INPUT_MAX) {
-					sprintf(buf, "J%d %s %s +", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
-					strncpy(input_joyname_map[mac], buf, INPUT_NAME_MAX-1);
+					snprintf(buffer, sizeof(buffer), "J%d %s %s +", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					strncpy(input_joyname_map[mac], buffer, INPUT_NAME_MAX-1);
 					input_joyname_map[mac][INPUT_NAME_MAX-1] = 0;
 					input_joy_map[mac].name = input_joyname_map[mac];
 					input_joy_map[mac].code = DIGITAL_JOY(i, j, k, 1);
@@ -377,8 +377,8 @@ static void input_init(struct advance_input_context* context)
 
 		for(j=0;j<joystickb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
 			if (mac+1 < INPUT_MAX) {
-				sprintf(buf, "J%d %s", i+1, joystickb_button_name_get(i, j));
-				strncpy(input_joyname_map[mac], buf, INPUT_NAME_MAX-1);
+				snprintf(buffer, sizeof(buffer), "J%d %s", i+1, joystickb_button_name_get(i, j));
+				strncpy(input_joyname_map[mac], buffer, INPUT_NAME_MAX-1);
 				input_joyname_map[mac][INPUT_NAME_MAX-1] = 0;
 				input_joy_map[mac].name = input_joyname_map[mac];
 				input_joy_map[mac].code = DIGITAL_JOY_BUTTON(i, j);
@@ -428,25 +428,25 @@ adv_error advance_input_init(struct advance_input_context* context, adv_conf* cf
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
 		unsigned j;
 		for(j=0;j<INPUT_PLAYER_AXE_MAX;++j) {
-			char tag[32];
-			char def[32];
-			sprintf(tag, "input_map[%d,%s]", i, input_map_axe_desc[j]);
-			sprintf(def, "joystick[%d,0,%d]", i, j);
-			conf_string_register_default(cfg_context, tag, def);
+			char tag_buffer[32];
+			char def_buffer[32];
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%d,%s]", i, input_map_axe_desc[j]);
+			snprintf(def_buffer, sizeof(def_buffer), "joystick[%d,0,%d]", i, j);
+			conf_string_register_default(cfg_context, tag_buffer, def_buffer);
 		}
 	}
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		char tag[32];
-		char def[32];
+		char tag_buffer[32];
+		char def_buffer[32];
 
-		sprintf(tag, "input_map[%d,trakx]", i);
-		sprintf(def, "mouse[%d,0]", i);
-		conf_string_register_default(cfg_context, tag, def);
+		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%d,trakx]", i);
+		snprintf(def_buffer, sizeof(def_buffer), "mouse[%d,0]", i);
+		conf_string_register_default(cfg_context, tag_buffer, def_buffer);
 
-		sprintf(tag, "input_map[%d,traky]", i);
-		sprintf(def, "mouse[%d,1]", i);
-		conf_string_register_default(cfg_context, tag, def);
+		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%d,traky]", i);
+		snprintf(def_buffer, sizeof(def_buffer), "mouse[%d,1]", i);
+		conf_string_register_default(cfg_context, tag_buffer, def_buffer);
 	}
 
 	joystickb_reg(cfg_context, 0);
@@ -756,15 +756,15 @@ adv_error advance_input_config_load(struct advance_input_context* context, adv_c
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
 		for(j=0;j<INPUT_PLAYER_AXE_MAX;++j) {
-			char tag[32];
+			char tag_buffer[32];
 			char* d;
-			sprintf(tag, "input_map[%d,%s]", i, input_map_axe_desc[j]);
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%d,%s]", i, input_map_axe_desc[j]);
 
-			s = conf_string_get_default(cfg_context, tag);
+			s = conf_string_get_default(cfg_context, tag_buffer);
 			d = strdup(s);
 			if (parse_joystick(context->config.analog_map[i][j], d)!=0) {
 				free(d);
-				printf("Invalid argument '%s' for option '%s'\n", s, tag);
+				printf("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
 				printf("Valid format is [-]joystick[JOYSTICK,STICK,AXE] ...\n");
 				return -1;
 			}
@@ -791,15 +791,15 @@ adv_error advance_input_config_load(struct advance_input_context* context, adv_c
 	}
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		char tag[32];
+		char tag_buffer[32];
 		char* d;
 
-		sprintf(tag, "input_map[%d,trakx]", i);
-		s = conf_string_get_default(cfg_context, tag);
+		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%d,trakx]", i);
+		s = conf_string_get_default(cfg_context, tag_buffer);
 		d = strdup(s);
 		if (parse_mouse(context->config.trakx_map[i], d)!=0) {
 			free(d);
-			printf("Invalid argument '%s' for option '%s'\n", s, tag);
+			printf("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
 			printf("Valid format is [-]mouse[MOUSE,AXE] ...\n");
 			return -1;
 		}
@@ -822,12 +822,12 @@ adv_error advance_input_config_load(struct advance_input_context* context, adv_c
 		}
 		log_std(("\n"));
 
-		sprintf(tag, "input_map[%d,traky]", i);
-		s = conf_string_get_default(cfg_context, tag);
+		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%d,traky]", i);
+		s = conf_string_get_default(cfg_context, tag_buffer);
 		d = strdup(s);
 		if (parse_mouse(context->config.traky_map[i], d)!=0) {
 			free(d);
-			printf("Invalid argument '%s' for option '%s'\n", s, tag);
+			printf("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
 			printf("Valid format is [-]mouse[MOUSE,AXE] ...\n");
 			return -1;
 		}

@@ -33,6 +33,7 @@
 #include "target.h"
 #include "file.h"
 #include "conf.h"
+#include "portable.h"
 
 #include "allegro2.h"
 
@@ -73,7 +74,7 @@ static struct os_context OS;
 
 const char* __wrap_get_config_string(const char *section, const char *name, const char *def)
 {
-	char allegro_name[256];
+	char allegro_name_buffer[256];
 	const char* result;
 
 	log_std(("allegro: get_config_string(%s, %s, %s)\n", section, name, def));
@@ -84,10 +85,11 @@ const char* __wrap_get_config_string(const char *section, const char *name, cons
 
 	if (!OS.allegro_conf)
 		return def;
-	sprintf(allegro_name, "allegro_%s", name);
+
+	snprintf(allegro_name_buffer, sizeof(allegro_name_buffer), "allegro_%s", name);
 	conf_section_set(OS.allegro_conf, 0, 0);
-	if (conf_is_registered(OS.allegro_conf, allegro_name)
-		&& conf_string_get(OS.allegro_conf, allegro_name, &result) == 0)
+	if (conf_is_registered(OS.allegro_conf, allegro_name_buffer)
+		&& conf_string_get(OS.allegro_conf, allegro_name_buffer, &result) == 0)
 		return result;
 	else
 		return def;
@@ -95,7 +97,7 @@ const char* __wrap_get_config_string(const char *section, const char *name, cons
 
 int __wrap_get_config_int(const char *section, const char *name, int def)
 {
-	char allegro_name[256];
+	char allegro_name_buffer[256];
 	const char* result;
 
 	log_std(("allegro: get_config_int(%s, %s, %d)\n", section, name, def));
@@ -103,9 +105,9 @@ int __wrap_get_config_int(const char *section, const char *name, int def)
 	if (!OS.allegro_conf)
 		return def;
 	conf_section_set(OS.allegro_conf, 0, 0);
-	sprintf(allegro_name, "allegro_%s", name);
-	if (conf_is_registered(OS.allegro_conf, allegro_name)
-		&& conf_string_get(OS.allegro_conf, allegro_name, &result) == 0)
+	snprintf(allegro_name_buffer, sizeof(allegro_name_buffer), "allegro_%s", name);
+	if (conf_is_registered(OS.allegro_conf, allegro_name_buffer)
+		&& conf_string_get(OS.allegro_conf, allegro_name_buffer, &result) == 0)
 		return atoi(result);
 	else
 		return def;
@@ -113,7 +115,7 @@ int __wrap_get_config_int(const char *section, const char *name, int def)
 
 int __wrap_get_config_id(const char *section, const char *name, int def)
 {
-	char allegro_name[256];
+	char allegro_name_buffer[256];
 	const char* result;
 
 	log_std(("allegro: get_config_id(%s, %s, %d)\n", section, name, def));
@@ -121,9 +123,9 @@ int __wrap_get_config_id(const char *section, const char *name, int def)
 	if (!OS.allegro_conf)
 		return def;
 	conf_section_set(OS.allegro_conf, 0, 0);
-	sprintf(allegro_name, "allegro_%s", name);
-	if (conf_is_registered(OS.allegro_conf, allegro_name)
-		&& conf_string_get(OS.allegro_conf, allegro_name, &result) == 0)
+	snprintf(allegro_name_buffer, sizeof(allegro_name_buffer), "allegro_%s", name);
+	if (conf_is_registered(OS.allegro_conf, allegro_name_buffer)
+		&& conf_string_get(OS.allegro_conf, allegro_name_buffer, &result) == 0)
 	{
 		unsigned v;
 		v = ((unsigned)(unsigned char)result[3]);
@@ -137,56 +139,56 @@ int __wrap_get_config_id(const char *section, const char *name, int def)
 
 void __wrap_set_config_string(const char *section, const char *name, const char *val)
 {
-	char allegro_name[128];
+	char allegro_name_buffer[256];
 
 	log_std(("allegro: set_config_string(%s, %s, %s)\n", section, name, val));
 
 	if (!OS.allegro_conf)
 		return;
-	sprintf(allegro_name, "allegro_%s", name);
+	snprintf(allegro_name_buffer, sizeof(allegro_name_buffer), "allegro_%s", name);
 	if (val) {
-		if (!conf_is_registered(OS.allegro_conf, allegro_name))
-			conf_string_register(OS.allegro_conf, allegro_name);
-		conf_string_set(OS.allegro_conf, "", allegro_name, val); /* ignore error */
+		if (!conf_is_registered(OS.allegro_conf, allegro_name_buffer))
+			conf_string_register(OS.allegro_conf, allegro_name_buffer);
+		conf_string_set(OS.allegro_conf, "", allegro_name_buffer, val); /* ignore error */
 	} else {
-		conf_remove(OS.allegro_conf, "", allegro_name);
+		conf_remove(OS.allegro_conf, "", allegro_name_buffer);
 	}
 }
 
 void __wrap_set_config_int(const char *section, const char *name, int val)
 {
-	char allegro_name[128];
-	char buffer[16];
+	char allegro_name_buffer[256];
+	char int_buffer[16];
 
 	log_std(("allegro: set_config_int(%s, %s, %d)\n", section, name, val));
 
 	if (!OS.allegro_conf)
 		return;
-	sprintf(allegro_name, "allegro_%s", name);
-	if (!conf_is_registered(OS.allegro_conf, allegro_name))
-		conf_string_register(OS.allegro_conf, allegro_name);
-	sprintf(buffer, "%d", val);
-	conf_string_set(OS.allegro_conf, "", allegro_name, buffer); /* ignore error */
+	snprintf(allegro_name_buffer, sizeof(allegro_name_buffer), "allegro_%s", name);
+	if (!conf_is_registered(OS.allegro_conf, allegro_name_buffer))
+		conf_string_register(OS.allegro_conf, allegro_name_buffer);
+	snprintf(int_buffer, sizeof(int_buffer), "%d", val);
+	conf_string_set(OS.allegro_conf, "", allegro_name_buffer, int_buffer); /* ignore error */
 }
 
 void __wrap_set_config_id(const char *section, const char *name, int val)
 {
-	char allegro_name[128];
-	char buffer[16];
+	char allegro_name_buffer[256];
+	char id_buffer[16];
 
 	log_std(("allegro: set_config_id(%s, %s, %d)\n", section, name, val));
 
 	if (!OS.allegro_conf)
 		return;
-	sprintf(allegro_name, "allegro_%s", name);
-	if (!conf_is_registered(OS.allegro_conf, allegro_name))
-		conf_string_register(OS.allegro_conf, allegro_name);
-	buffer[3] = ((unsigned)val) & 0xFF;
-	buffer[2] = (((unsigned)val) >> 8) & 0xFF;
-	buffer[1] = (((unsigned)val) >> 16) & 0xFF;
-	buffer[0] = (((unsigned)val) >> 24) & 0xFF;
-	buffer[4] = 0;
-	conf_string_set(OS.allegro_conf, "", allegro_name, buffer); /* ignore error */
+	snprintf(allegro_name_buffer, sizeof(allegro_name_buffer), "allegro_%s", name);
+	if (!conf_is_registered(OS.allegro_conf, allegro_name_buffer))
+		conf_string_register(OS.allegro_conf, allegro_name_buffer);
+	id_buffer[3] = ((unsigned)val) & 0xFF;
+	id_buffer[2] = (((unsigned)val) >> 8) & 0xFF;
+	id_buffer[1] = (((unsigned)val) >> 16) & 0xFF;
+	id_buffer[0] = (((unsigned)val) >> 24) & 0xFF;
+	id_buffer[4] = 0;
+	conf_string_set(OS.allegro_conf, "", allegro_name_buffer, id_buffer); /* ignore error */
 }
 
 #endif

@@ -30,6 +30,7 @@
 
 #include "emu.h"
 #include "log.h"
+#include "portable.h"
 
 #include <zlib.h>
 
@@ -228,7 +229,7 @@ static void sound_cancel(struct advance_record_context* context)
 	context->state.sound_active_flag = 0;
 
 	fclose(context->state.sound_f);
-	remove(context->state.sound_file);
+	remove(context->state.sound_file_buffer);
 }
 
 static int sound_start(struct advance_record_context* context, const char* file, double frequency, int stereo)
@@ -262,18 +263,18 @@ static int sound_start(struct advance_record_context* context, const char* file,
 		context->state.sound_sample_size *= 2;
 	context->state.sound_stopped_flag = 0;
 
-	strcpy(context->state.sound_file, file);
+	snprintf(context->state.sound_file_buffer, sizeof(context->state.sound_file_buffer), "%s", file);
 
-	context->state.sound_f = fopen(context->state.sound_file, "wb");
+	context->state.sound_f = fopen(context->state.sound_file_buffer, "wb");
 	if (!context->state.sound_f) {
-		log_std(("ERROR: opening file %s\n", context->state.sound_file));
+		log_std(("ERROR: opening file %s\n", context->state.sound_file_buffer));
 		return -1;
 	}
 
 	if (fwrite_header(context->state.sound_frequency, 16, context->state.sound_stereo_flag ? 2 : 1, 0, context->state.sound_f)!=1) {
-		log_std(("ERROR: writing file %s\n", context->state.sound_file));
+		log_std(("ERROR: writing file %s\n", context->state.sound_file_buffer));
 		fclose(context->state.sound_f);
-		remove(context->state.sound_file);
+		remove(context->state.sound_file_buffer);
 		return -1;
 	}
 
@@ -310,7 +311,7 @@ static int sound_update(struct advance_record_context* context, const short* map
 
 	return 0;
 err:
-	log_std(("ERROR: writing file %s\n", context->state.sound_file));
+	log_std(("ERROR: writing file %s\n", context->state.sound_file_buffer));
 	sound_cancel(context);
 	return -1;
 }
@@ -325,9 +326,9 @@ static int sound_stop(struct advance_record_context* context, unsigned* time)
 	context->state.sound_active_flag = 0;
 
 	if (fwrite_header_size(context->state.sound_sample_size * context->state.sound_sample_counter, context->state.sound_f) != 1) {
-		log_std(("ERROR: writing header file %s\n", context->state.sound_file));
+		log_std(("ERROR: writing header file %s\n", context->state.sound_file_buffer));
 		fclose(context->state.sound_f);
-		remove(context->state.sound_file);
+		remove(context->state.sound_file_buffer);
 		return -1;
 	}
 
@@ -754,7 +755,7 @@ static void video_cancel(struct advance_record_context* context)
 	context->state.video_active_flag = 0;
 
 	fclose(context->state.video_f);
-	remove(context->state.video_file);
+	remove(context->state.video_file_buffer);
 }
 
 static void video_freq_step(unsigned* base, unsigned* step, double freq)
@@ -797,11 +798,11 @@ static int video_start(struct advance_record_context* context, const char* file,
 	context->state.video_sample_counter = 0;
 	context->state.video_stopped_flag = 0;
 
-	strcpy(context->state.video_file, file);
+	snprintf(context->state.video_file_buffer, sizeof(context->state.video_file_buffer), "%s", file);
 
-	context->state.video_f = fopen(context->state.video_file, "wb");
+	context->state.video_f = fopen(context->state.video_file_buffer, "wb");
 	if (!context->state.video_f) {
-		log_std(("ERROR: opening file %s\n", context->state.video_file));
+		log_std(("ERROR: opening file %s\n", context->state.video_file_buffer));
 		return -1;
 	}
 
@@ -818,9 +819,9 @@ static int video_start(struct advance_record_context* context, const char* file,
 	context->state.video_freq_step = mng_step;
 
 	if (mng_write_header(context->state.video_f, width, height, context->state.video_freq_base, orientation) != 0) {
-		log_std(("ERROR: writing header in file %s\n", context->state.video_file));
+		log_std(("ERROR: writing header in file %s\n", context->state.video_file_buffer));
 		fclose(context->state.video_f);
-		remove(context->state.video_file);
+		remove(context->state.video_file_buffer);
 		return -1;
 	}
 
@@ -864,13 +865,13 @@ static int video_update(struct advance_record_context* context, const void* vide
 
 #ifdef USE_MNG_LC
 	if (mng_write_image_frame(context->state.video_f, context->state.video_freq_step) != 0) {
-		log_std(("ERROR: writing image frame in file %s\n", context->state.video_file));
+		log_std(("ERROR: writing image frame in file %s\n", context->state.video_file_buffer));
 		goto err;
 	}
 #endif
 
 	if (png_write_image_header(context->state.video_f, video_width, video_height, 8, color_type, orientation) != 0) {
-		log_std(("ERROR: writing image header in file %s\n", context->state.video_file));
+		log_std(("ERROR: writing image header in file %s\n", context->state.video_file_buffer));
 		goto err;
 	}
 
@@ -887,18 +888,18 @@ static int video_update(struct advance_record_context* context, const void* vide
 		if (png_write_image_16pal(context->state.video_f, video_buffer, video_bytes_per_scanline, video_width, video_height, palette_map, palette_max, 1, orientation)!=0)
 			goto err_data;
 	} else {
-		log_std(("ERROR: unknown image format for file %s\n", context->state.video_file));
+		log_std(("ERROR: unknown image format for file %s\n", context->state.video_file_buffer));
 		goto err;
 	}
 
 	if (png_write_image_footer(context->state.video_f) != 0) {
-		log_std(("ERROR: writing image footer in file %s\n", context->state.video_file));
+		log_std(("ERROR: writing image footer in file %s\n", context->state.video_file_buffer));
 		goto err;
 	}
 
 	return 0;
 err_data:
-	log_std(("ERROR: writing image data in file %s\n", context->state.video_file));
+	log_std(("ERROR: writing image data in file %s\n", context->state.video_file_buffer));
 err:
 	video_cancel(context);
 	return -1;
@@ -923,9 +924,9 @@ static int video_stop(struct advance_record_context* context, unsigned* time)
 	return 0;
 
 err:
-	log_std(("ERROR: closing file %s\n", context->state.video_file));
+	log_std(("ERROR: closing file %s\n", context->state.video_file_buffer));
 	fclose(context->state.video_f);
-	remove(context->state.video_file);
+	remove(context->state.video_file_buffer);
 	return -1;
 }
 
@@ -935,14 +936,15 @@ err:
 static int snapshot_start(struct advance_record_context* context, const char* file)
 {
 	context->state.snapshot_active_flag = 1;
-	strcpy(context->state.snapshot_file, file);
+
+	snprintf(context->state.snapshot_file_buffer, sizeof(context->state.snapshot_file_buffer), "%s", file);
 
 	return 0;
 }
 
 static int snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, osd_rgb_t* palette_map, unsigned palette_max, unsigned orientation)
 {
-	const char* file = context->state.snapshot_file;
+	const char* file = context->state.snapshot_file_buffer;
 	FILE* f;
 	unsigned color_type;
 
@@ -1014,17 +1016,17 @@ err:
 /*************************************************************************************/
 /* OSD */
 
-static void advance_record_next(struct advance_record_context* context, const mame_game* game, char* path_wav, char* path_mng)
+static void advance_record_next(struct advance_record_context* context, const mame_game* game, char* path_wav, unsigned size_wav, char* path_mng, unsigned size_mng)
 {
 	unsigned counter = 0;
 
-	sprintf(path_wav, "%s/%.8s.wav", context->config.dir, mame_game_name(game));
-	sprintf(path_mng, "%s/%.8s.mng", context->config.dir, mame_game_name(game));
+	snprintf(path_wav, size_wav, "%s/%.8s.wav", context->config.dir_buffer, mame_game_name(game));
+	snprintf(path_mng, size_mng, "%s/%.8s.mng", context->config.dir_buffer, mame_game_name(game));
 
 	if (access(path_wav, F_OK)==0 || access(path_mng, F_OK)==0) {
 		do {
-			sprintf(path_wav, "%s/%.4s%04d.wav", context->config.dir, mame_game_name(game), counter);
-			sprintf(path_mng, "%s/%.4s%04d.mng", context->config.dir, mame_game_name(game), counter);
+			snprintf(path_wav, size_wav, "%s/%.4s%04d.wav", context->config.dir_buffer, mame_game_name(game), counter);
+			snprintf(path_mng, size_mng, "%s/%.4s%04d.mng", context->config.dir_buffer, mame_game_name(game), counter);
 			++counter;
 		} while (access(path_wav, F_OK)==0 || access(path_mng, F_OK)==0);
 	}
@@ -1078,7 +1080,7 @@ void osd_record_start(void)
 		video_cancel(context); /* ignore error */
 	}
 
-	advance_record_next(context, game, path_wav, path_mng);
+	advance_record_next(context, game, path_wav, FILE_MAXPATH, path_mng, FILE_MAXPATH);
 
 	if (context->config.sound_flag && !context->config.video_flag)
 		mame_ui_message("Start recording");
@@ -1134,15 +1136,15 @@ void osd_record_stop(void)
 	}
 }
 
-static void advance_snapshot_next(struct advance_record_context* context, const mame_game* game, char* path_png)
+static void advance_snapshot_next(struct advance_record_context* context, const mame_game* game, char* path_png, unsigned size)
 {
 	unsigned counter = 0;
 
-	sprintf(path_png, "%s/%.8s.png", context->config.dir, mame_game_name(game));
+	snprintf(path_png, size, "%s/%.8s.png", context->config.dir_buffer, mame_game_name(game));
 
 	if (access(path_png, F_OK)==0) {
 		do {
-			sprintf(path_png, "%s/%.4s%04d.png", context->config.dir, mame_game_name(game), counter);
+		snprintf(path_png, size, "%s/%.4s%04d.png", context->config.dir_buffer, mame_game_name(game), counter);
 			++counter;
 		} while (access(path_png, F_OK)==0);
 	}
@@ -1152,13 +1154,13 @@ void osd2_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 {
 	struct advance_record_context* context = &CONTEXT.record;
 	const mame_game* game = CONTEXT.game;
-	char path_png[FILE_MAXPATH];
+	char path_png_buffer[FILE_MAXPATH];
 
 	log_std(("osd: osd_save_snapshot(x1:%d, y1:%d, x2:%d, y2:%d)\n", x1, y1, x2, y2));
 
-	advance_snapshot_next(context, game, path_png);
+	advance_snapshot_next(context, game, path_png_buffer, sizeof(path_png_buffer));
 
-	snapshot_start(context, path_png);
+	snapshot_start(context, path_png_buffer);
 }
 
 /*************************************************************************************/
@@ -1222,7 +1224,7 @@ void advance_record_snapshot_update(struct advance_record_context* context, cons
 
 adv_error advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context)
 {
-	strcpy(context->config.dir, conf_string_get_default(cfg_context, "dir_snap"));
+	snprintf(context->config.dir_buffer, sizeof(context->config.dir_buffer), "%s", conf_string_get_default(cfg_context, "dir_snap"));
 	context->config.sound_time = conf_int_get_default(cfg_context, "record_sound_time");
 	context->config.video_time = conf_int_get_default(cfg_context, "record_video_time");
 	context->config.video_flag = conf_bool_get_default(cfg_context, "record_video");

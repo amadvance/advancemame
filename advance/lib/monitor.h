@@ -85,7 +85,7 @@ double monitor_pclock_max(const adv_monitor* monitor);
 
 void monitor_reset(adv_monitor* monitor);
 adv_bool monitor_is_empty(const adv_monitor* monitor);
-void monitor_print(char* buffer, const adv_monitor_range* range_begin, const adv_monitor_range* range_end, double mult);
+void monitor_print(char* buffer, unsigned size, const adv_monitor_range* range_begin, const adv_monitor_range* range_end, double mult);
 adv_error monitor_parse(adv_monitor* monitor, const char* p, const char* h, const char* v);
 adv_error monitor_load(adv_conf* context, adv_monitor* monitor);
 void monitor_save(adv_conf* context, const adv_monitor* monitor);

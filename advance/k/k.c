@@ -22,6 +22,7 @@
 #include "conf.h"
 #include "keyall.h"
 #include "target.h"
+#include "portable.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +38,8 @@ void sigint(int signum)
 
 void run(void)
 {
-	char cmd[256];
+	char msg[1024];
+	char new_msg[1024];
 	int esc_pressed_before;
 	int esc_count;
 	os_clock_t last;
@@ -49,30 +51,29 @@ void run(void)
 	last = os_clock();
 	esc_pressed_before = 0;
 	esc_count = 0;
-	strcpy(cmd, "unknown");
+	strcpy(msg, "unknown");
 
 	while (esc_count < 3 && !done) {
 		int i;
 		int esc_pressed = 0;
 		unsigned count = 0;
-		char newcmd[256];
-		*newcmd = 0;
+		*new_msg = 0;
 
 		for(i=0;i<KEYB_MAX;++i) {
 			if (keyb_get(i)) {
 				if (i==KEYB_ESC)
 					esc_pressed = 1;
 				++count;
-				sprintf(newcmd + strlen(newcmd), "%s ", key_name(i));
+				snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "%s ", key_name(i));
 			}
 		}
 
-		if (strcmp(cmd, newcmd)!=0) {
+		if (strcmp(msg, new_msg)!=0) {
 			os_clock_t current = os_clock();
 			double period = (current - last) * 1000.0 / OS_CLOCKS_PER_SEC;
 			last = current;
-			strcpy(cmd, newcmd);
-			printf("(%6.1f ms) [%3d] %s\n", period, count, cmd);
+			strcpy(msg, new_msg);
+			printf("(%6.1f ms) [%3d] %s\n", period, count, msg);
 		}
 
 		if (count == 1 && esc_pressed) {

@@ -30,6 +30,7 @@
 
 #include "emu.h"
 #include "target.h"
+#include "portable.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -54,14 +55,16 @@ static int video_mode_menu(struct advance_video_context* context, int selected, 
 
 	menu_item[total] = strdup("Auto");
 	entry[total] = 0;
-	flag[total] = strcmp("auto", context->config.resolution)==0;
+	flag[total] = strcmp("auto", context->config.resolution_buffer)==0;
 	++total;
 
 	for(i=0;i<context->state.crtc_mac;++i) {
+		char buffer[128];
 		const adv_crtc* crtc = context->state.crtc_map[i];
 		entry[total] = crtc;
-		menu_item[total] = strdup(mode_desc(context, crtc));
-		flag[total] = strcmp(crtc_name_get(crtc), context->config.resolution)==0;
+		mode_desc_print(context, buffer, sizeof(buffer), crtc);
+		menu_item[total] = strdup(buffer);
+		flag[total] = strcmp(crtc_name_get(crtc), context->config.resolution_buffer)==0;
 		++total;
 	}
 
@@ -88,7 +91,7 @@ static int video_mode_menu(struct advance_video_context* context, int selected, 
 	{
 		if (selected == total - 1) selected = -1;
 		else if (selected == 0) {
-			strcpy(context->config.resolution, "auto");
+			snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", "auto");
 			advance_video_change(context);
 
 			/* show at screen the new configuration name */
@@ -96,7 +99,7 @@ static int video_mode_menu(struct advance_video_context* context, int selected, 
 
 			mame_ui_refresh();
 		} else {
-			strcpy(context->config.resolution, crtc_name_get(entry[selected]));
+			snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", crtc_name_get(entry[selected]));
 			advance_video_change(context);
 			
 			mame_ui_refresh();
@@ -138,19 +141,19 @@ static int video_pipeline_menu(struct advance_video_context* context, int select
 
 	for(i=1, stage=video_pipeline_begin(&context->state.blit_pipeline);stage!=video_pipeline_end(&context->state.blit_pipeline);++stage, ++i) {
 		if (stage == video_pipeline_pivot(&context->state.blit_pipeline)) {
-			sprintf(buffer, "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline)->type));
+			snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline)->type));
 			++i;
 			menu_item[total] = strdup(buffer);
 			flag[total] = 0;
 			++total;
 		}
-		sprintf(buffer, "(%d) %s, p %d, dp %d", i, pipe_name(stage->type), stage->sbpp, stage->sdp);
+		snprintf(buffer, sizeof(buffer), "(%d) %s, p %d, dp %d", i, pipe_name(stage->type), stage->sbpp, stage->sdp);
 		menu_item[total] = strdup(buffer);
 		flag[total] = 0;
 		++total;
 	}
 	if (stage == video_pipeline_pivot(&context->state.blit_pipeline)) {
-		sprintf(buffer, "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline)->type));
+		snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline)->type));
 		++i;
 		menu_item[total] = strdup(buffer);
 		flag[total] = 0;
@@ -251,7 +254,7 @@ int osd2_menu(int selected, unsigned input)
 
 	total = 0;
 
-	sprintf(mode_buffer, "%dx%dx%d %.1f/%.1f/%.1f",
+	snprintf(mode_buffer, sizeof(mode_buffer), "%dx%dx%d %.1f/%.1f/%.1f",
 		video_size_x(),
 		video_size_y(),
 		video_bits_per_pixel(),
@@ -266,21 +269,27 @@ int osd2_menu(int selected, unsigned input)
 
 	resolution_index = total;
 	menu_item[total] = "Mode";
-	menu_subitem[total] = context->config.resolution;
+	menu_subitem[total] = context->config.resolution_buffer;
 	flag[total] = 0;
 	++total;
 
 	if (!context->state.game_vector_flag) {
-		if (strcmp(context->config.resolution, "auto")==0) {
+		if (strcmp(context->config.resolution_buffer, "auto")==0) {
 			magnify_index = total;
-			if (mode_current_magnify(context))
-				menu_item[total] = "Magnify [yes]";
-			else
-				menu_item[total] = "Magnify [no]";
-			if (context->config.magnify_flag)
-				menu_subitem[total] = "yes";
-			else
-				menu_subitem[total] = "no";
+			switch (mode_current_magnify(context)) {
+			default :
+			case 1 : menu_item[total] = "Magnify [1]"; break;
+			case 2 : menu_item[total] = "Magnify [2]"; break;
+			case 3 : menu_item[total] = "Magnify [3]"; break;
+			case 4 : menu_item[total] = "Magnify [4]"; break;
+			}
+			switch (context->config.magnify_factor) {
+			default :
+			case 1 : menu_subitem[total] = "1"; break;
+			case 2 : menu_subitem[total] = "2"; break;
+			case 3 : menu_subitem[total] = "3"; break;
+			case 4 : menu_subitem[total] = "4"; break;
+			}
 			flag[total] = 0;
 			++total;
 
@@ -396,6 +405,7 @@ int osd2_menu(int selected, unsigned input)
 		case COMBINE_FILTERX : menu_item[total] = "Resize Effect [filterx]"; break;
 		case COMBINE_FILTERY : menu_item[total] = "Resize Effect [filtery]"; break;
 		case COMBINE_SCALE2X : menu_item[total] = "Resize Effect [scale2x]"; break;
+		case COMBINE_SCALE4X : menu_item[total] = "Resize Effect [scale4x]"; break;
 	}
 	switch (context->config.combine) {
 		case COMBINE_AUTO : menu_subitem[total] = "auto"; break;
@@ -406,6 +416,7 @@ int osd2_menu(int selected, unsigned input)
 		case COMBINE_FILTERX : menu_subitem[total] = "filterx"; break;
 		case COMBINE_FILTERY : menu_subitem[total] = "filtery"; break;
 		case COMBINE_SCALE2X : menu_subitem[total] = "scale2x"; break;
+		case COMBINE_SCALE4X : menu_subitem[total] = "scale4x"; break;
 	}
 	flag[total] = 0;
 	++total;
@@ -571,11 +582,11 @@ int osd2_menu(int selected, unsigned input)
 			context->state.menu_sub_flag = 2;
 			mame_ui_refresh();
 		} else if (selected == save_game_index) {
-			advance_video_save(context, context->config.section_name);
+			advance_video_save(context, context->config.section_name_buffer);
 		} else if (selected == save_resolution_index) {
-			advance_video_save(context, context->config.section_resolution);
+			advance_video_save(context, context->config.section_resolution_buffer);
 		} else if (selected == save_resolutionclock_index) {
-			advance_video_save(context, context->config.section_resolutionclock);
+			advance_video_save(context, context->config.section_resolutionclock_buffer);
 		} else if (selected == save_all_index) {
 			advance_video_save(context, "");
 		} else if (selected == crash_index) {
@@ -594,7 +605,8 @@ int osd2_menu(int selected, unsigned input)
 				case COMBINE_FILTER : context->config.combine = COMBINE_FILTERX; break;
 				case COMBINE_FILTERX : context->config.combine = COMBINE_FILTERY; break;
 				case COMBINE_FILTERY : context->config.combine = COMBINE_SCALE2X; break;
-				case COMBINE_SCALE2X : context->config.combine = COMBINE_AUTO; break;
+				case COMBINE_SCALE2X : context->config.combine = COMBINE_SCALE4X; break;
+				case COMBINE_SCALE4X : context->config.combine = COMBINE_AUTO; break;
 			}
 			advance_video_change(context);
 			mame_ui_refresh();
@@ -633,7 +645,9 @@ int osd2_menu(int selected, unsigned input)
 			advance_video_change(context);
 			mame_ui_refresh();
 		} else if (selected == magnify_index) {
-			context->config.magnify_flag = !context->config.magnify_flag;
+			context->config.magnify_factor += 1;
+			if (context->config.magnify_factor > 4)
+				context->config.magnify_factor = 1;
 			advance_video_change(context);
 			mame_ui_refresh();
 		} else if (selected == index_index) {
@@ -664,7 +678,7 @@ int osd2_menu(int selected, unsigned input)
 	{
 		if (selected == combine_index) {
 			switch (context->config.combine) {
-				case COMBINE_AUTO : context->config.combine = COMBINE_SCALE2X; break;
+				case COMBINE_AUTO : context->config.combine = COMBINE_SCALE4X; break;
 				case COMBINE_NONE : context->config.combine = COMBINE_AUTO; break;
 				case COMBINE_MAX : context->config.combine = COMBINE_NONE; break;
 				case COMBINE_MEAN : context->config.combine = COMBINE_MAX; break;
@@ -672,6 +686,7 @@ int osd2_menu(int selected, unsigned input)
 				case COMBINE_FILTERX : context->config.combine = COMBINE_FILTER; break;
 				case COMBINE_FILTERY : context->config.combine = COMBINE_FILTERX; break;
 				case COMBINE_SCALE2X : context->config.combine = COMBINE_FILTERY; break;
+				case COMBINE_SCALE4X : context->config.combine = COMBINE_SCALE2X; break;
 			}
 			advance_video_change(context);
 			mame_ui_refresh();
@@ -710,7 +725,9 @@ int osd2_menu(int selected, unsigned input)
 			advance_video_change(context);
 			mame_ui_refresh();
 		} else if (selected == magnify_index) {
-			context->config.magnify_flag = !context->config.magnify_flag;
+			context->config.magnify_factor -= 1;
+			if (context->config.magnify_factor < 1)
+				context->config.magnify_factor = 4;
 			advance_video_change(context);
 			mame_ui_refresh();
 		} else if (selected == index_index) {

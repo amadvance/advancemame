@@ -105,8 +105,8 @@ static void AddDatabaseEntry(char * buf)
 static void LoadSafeQuitDatabase(const char* file, const char* game_name)
 {
 	mame_file* theFile;
-	char buf[2048];
-	char gameName[32];
+	char buffer[2048];
+	char game_name_buffer[32];
 	UINT8 foundGameName = 0;
 
 	theFile = mame_fopen(NULL, file, FILETYPE_HISTORY, 0);
@@ -114,23 +114,23 @@ static void LoadSafeQuitDatabase(const char* file, const char* game_name)
 	if (!theFile)
 		return;
 
-	sprintf(gameName, "%s:", game_name);
+	snprintf(game_name_buffer, sizeof(game_name_buffer), "%s:", game_name);
 
-	while ((mame_fgets(buf, 2048, theFile) != NULL) && (entryListLength < MAX_ACTIONS))
+	while ((mame_fgets(buffer, 2048, theFile) != NULL) && (entryListLength < MAX_ACTIONS))
 	{
-		unsigned len = strlen(buf);
+		unsigned len = strlen(buffer);
 
 		/* remove spaces at the end */
-		while (len>0 && isspace(buf[len-1]))
-			buf[--len] = 0;
+		while (len>0 && isspace(buffer[len-1]))
+			buffer[--len] = 0;
 
 		if (foundGameName) {
 			/* terminate on empty line */
-			if(!buf[0])
+			if(!buffer[0])
 				goto done;
-			AddDatabaseEntry(buf);
+			AddDatabaseEntry(buffer);
 		} else {
-			if (strcmp(buf, gameName) == 0) {
+			if (strcmp(buffer, game_name_buffer) == 0) {
 				foundGameName = 1;
 			}
 		}
@@ -186,7 +186,7 @@ adv_error advance_safequit_inner_init(struct advance_safequit_context* context, 
 	safeQuitStatus = 0;
 	memset(entryList, 0, sizeof(ActionEntry) * MAX_ACTIONS);
 
-	LoadSafeQuitDatabase(context->config.file, mame_game_name(option->game));
+	LoadSafeQuitDatabase(context->config.file_buffer, mame_game_name(option->game));
 
 	return 0;
 }
@@ -199,7 +199,7 @@ adv_error advance_safequit_config_load(struct advance_safequit_context* context,
 {
 	context->config.safe_exit_flag = conf_bool_get_default(cfg_context, "misc_safequit");
 	context->config.debug_flag = conf_bool_get_default(cfg_context, "misc_safequitdebug");
-	strcpy(context->config.file, conf_string_get_default(cfg_context, "misc_safequitfile"));
+	snprintf(context->config.file_buffer, sizeof(context->config.file_buffer), "%s", conf_string_get_default(cfg_context, "misc_safequitfile"));
 
 	return 0;
 }
@@ -227,13 +227,13 @@ void advance_safequit_update(struct advance_safequit_context* context)
 	safeQuitStatus = good;
 
 	if (context->config.debug_flag) {
-		char buf[4];
+		char buffer[4];
 
-		buf[0] = (safeQuitStatus & 1) ? '1' : '0';
-		buf[1] = (safeQuitStatus & 2) ? '1' : '0';
-		buf[2] = 0;
+		buffer[0] = (safeQuitStatus & 1) ? '1' : '0';
+		buffer[1] = (safeQuitStatus & 2) ? '1' : '0';
+		buffer[2] = 0;
 
-		mame_ui_text(buf, 0, 0);
+		mame_ui_text(buffer, 0, 0);
 	}
 }
 

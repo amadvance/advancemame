@@ -736,7 +736,7 @@ adv_error fb_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned
 
 adv_error fb_mode_import(adv_mode* mode, const fb_video_mode* fb_mode)
 {
-	strcpy(mode->name, fb_mode->crtc.name);
+	snprintf(mode->name, MODE_NAME_MAX, "%s", fb_mode->crtc.name);
 
 	*DRIVER(mode) = *fb_mode;
 

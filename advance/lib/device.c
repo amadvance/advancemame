@@ -31,6 +31,7 @@
 #include "device.h"
 #include "log.h"
 #include "target.h"
+#include "portable.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -42,7 +43,7 @@ static const adv_device* device_match_one(const char* tag, const adv_driver* drv
 	char* tag_device;
 	const adv_device* i;
 
-	strcpy(tag_driver, tag);
+	snprintf(tag_driver, DEVICE_NAME_MAX, "%s", tag);
 	tag_device = strchr(tag_driver, '/');
 	if (tag_device) {
 		*tag_device = 0;
@@ -88,8 +89,8 @@ const adv_device* device_match(const char* tag, const adv_driver* drv, adv_bool 
 {
 	char buffer[DEVICE_NAME_MAX];
 	const char* tag_one;
-	strcpy(buffer, tag);
 
+	snprintf(buffer, sizeof(buffer), "%s", tag);
 	tag_one = strtok(buffer, " \t");
 	while (tag_one) {
 		const adv_device* dev = device_match_one(tag_one, drv, allow_none);
@@ -115,9 +116,9 @@ void device_error(const char* option, const char* arg, const adv_driver** driver
 		for(j=0;driver_map[i]->device_map[j].name;++j) {
 			char buffer[DEVICE_NAME_MAX];
 			if (strcmp(driver_map[i]->device_map[j].name, "auto")==0) {
-				sprintf(buffer, "%s", driver_map[i]->name);
+				snprintf(buffer, sizeof(buffer), "%s", driver_map[i]->name);
 			} else {
-				sprintf(buffer, "%s/%s", driver_map[i]->name, driver_map[i]->device_map[j].name);
+				snprintf(buffer, sizeof(buffer), "%s/%s", driver_map[i]->name, driver_map[i]->device_map[j].name);
 			}
 			target_err("%16s %s\n", buffer, driver_map[i]->device_map[j].desc);
 		}
@@ -131,7 +132,7 @@ adv_error device_check(const char* option, const char* arg, const adv_driver** d
 	unsigned i, j;
 
 	/* check the validity of every item on the argument */
-	strcpy(buffer, arg);
+	snprintf(buffer, sizeof(buffer), "%s", arg);
 	tag_one = strtok(buffer, " \t");
 	while (tag_one) {
 		if (strcmp("auto", tag_one)!=0 && strstr(driver_ignore, tag_one)==0) {
@@ -139,9 +140,9 @@ adv_error device_check(const char* option, const char* arg, const adv_driver** d
 				if (strcmp(driver_map[i]->name, tag_one)==0)
 					break;
 				for(j=0;driver_map[i]->device_map[j].name;++j) {
-					char buffer_cat[DEVICE_NAME_MAX];
-					sprintf(buffer_cat, "%s/%s", driver_map[i]->name, driver_map[i]->device_map[j].name);
-					if (strcmp(buffer_cat, tag_one)==0)
+					char cat_buffer[DEVICE_NAME_MAX];
+					snprintf(cat_buffer, sizeof(cat_buffer), "%s/%s", driver_map[i]->name, driver_map[i]->device_map[j].name);
+					if (strcmp(cat_buffer, tag_one)==0)
 						break;
 				}
 				if (driver_map[i]->device_map[j].name)

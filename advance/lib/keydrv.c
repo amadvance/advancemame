@@ -31,6 +31,7 @@
 #include "keydrv.h"
 #include "log.h"
 #include "error.h"
+#include "portable.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -41,7 +42,7 @@ struct keyb_state_struct keyb_state;
 void keyb_default(void)
 {
 	keyb_state.is_initialized_flag = 1;
-	strcpy(keyb_state.name, "auto");
+	snprintf(keyb_state.name, DEVICE_NAME_MAX, "%s", "auto");
 }
 
 void keyb_reg(adv_conf* context, adv_bool auto_detect)
@@ -71,7 +72,7 @@ adv_error keyb_load(adv_conf* context)
 	}
 
 	keyb_state.is_initialized_flag = 1;
-	strcpy(keyb_state.name, conf_string_get_default(context, "device_keyboard"));
+	snprintf(keyb_state.name, DEVICE_NAME_MAX, "%s", conf_string_get_default(context, "device_keyboard"));
 
 	/* load specific driver options */
 	at_least_one = 0;

@@ -323,8 +323,8 @@ struct advance_glue_context {
 	char info_buffer[1024]; /**< Buffer for the reported display info. */
 
 #ifdef MESS
-	char crc_file[MAME_MAXPATH]; /**< Storage for the the crcfile MESS pointer. */
-	char parent_crc_file[MAME_MAXPATH]; /**< Storage for the the pcrcfile MESS pointer. */
+	char crc_file_buffer[MAME_MAXPATH]; /**< Storage for the the crcfile MESS pointer. */
+	char parent_crc_file_buffer[MAME_MAXPATH]; /**< Storage for the the pcrcfile MESS pointer. */
 #endif
 
 	char resolution_buffer[32]; /**< Buffer used by mame_resolution(). */
@@ -368,9 +368,9 @@ const char* mame_game_resolution(const mame_game* game)
 			dx = machine.default_visible_area.max_x - machine.default_visible_area.min_x + 1;
 			dy = machine.default_visible_area.max_y - machine.default_visible_area.min_y + 1;
 		}
-		sprintf(GLUE.resolution_buffer, "%dx%d", dx, dy);
+		snprintf(GLUE.resolution_buffer, sizeof(GLUE.resolution_buffer), "%dx%d", dx, dy);
 	} else {
-		strcpy(GLUE.resolution_buffer, "vector");
+		snprintf(GLUE.resolution_buffer, sizeof(GLUE.resolution_buffer), "%s", "vector");
 	}
 	return GLUE.resolution_buffer;
 }
@@ -392,9 +392,9 @@ const char* mame_game_resolutionclock(const mame_game* game)
 			dy = machine.default_visible_area.max_y - machine.default_visible_area.min_y + 1;
 		}
 		clock = floor(machine.frames_per_second);
-		sprintf(GLUE.resolutionclock_buffer, "%dx%dx%d", dx, dy, clock);
+		snprintf(GLUE.resolutionclock_buffer, sizeof(GLUE.resolutionclock_buffer), "%dx%dx%d", dx, dy, clock);
 	} else {
-		strcpy(GLUE.resolutionclock_buffer, "vector");
+		snprintf(GLUE.resolutionclock_buffer, sizeof(GLUE.resolutionclock_buffer), "%s", "vector");
 	}
 	return GLUE.resolutionclock_buffer;
 }
@@ -554,19 +554,19 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.debug_height = advance->debug_height;
 	options.debug_depth = 8;
 
-	if (advance->language_file[0])
-		options.language_file = mame_fopen(0, advance->language_file, FILETYPE_LANGUAGE, 0);
+	if (advance->language_file_buffer[0])
+		options.language_file = mame_fopen(0, advance->language_file_buffer, FILETYPE_LANGUAGE, 0);
 	else
 		options.language_file = 0;
 
-	if (advance->record_file[0]) {
+	if (advance->record_file_buffer[0]) {
 		INP_HEADER inp_header;
 
-		log_std(("glue: opening record file %s\n", advance->record_file));
+		log_std(("glue: opening record file %s\n", advance->record_file_buffer));
 
-		options.record = mame_fopen(advance->record_file, 0, FILETYPE_INPUTLOG, 1);
+		options.record = mame_fopen(advance->record_file_buffer, 0, FILETYPE_INPUTLOG, 1);
 		if (!options.record) {
-			target_err("Error opening the input record file '%s'.\n", advance->record_file);
+			target_err("Error opening the input record file '%s'.\n", advance->record_file_buffer);
 			return -1;
 		}
 
@@ -578,26 +578,26 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		inp_header.version[2] = 0;
 
 		if (mame_fwrite(options.record, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
-			target_err("Error writing the input record file '%s'.\n", advance->record_file);
+			target_err("Error writing the input record file '%s'.\n", advance->record_file_buffer);
 			return -1;
 		}
 	} else
 		options.record = 0;
 
-	if (advance->playback_file[0]) {
+	if (advance->playback_file_buffer[0]) {
 		INP_HEADER inp_header;
 
-		log_std(("glue: opening playback file %s\n", advance->playback_file));
+		log_std(("glue: opening playback file %s\n", advance->playback_file_buffer));
 
-		options.playback = mame_fopen(advance->playback_file, 0, FILETYPE_INPUTLOG, 0);
+		options.playback = mame_fopen(advance->playback_file_buffer, 0, FILETYPE_INPUTLOG, 0);
 		if (!options.playback) {
-			target_err("Error opening the input playback file '%s'.\n", advance->playback_file);
+			target_err("Error opening the input playback file '%s'.\n", advance->playback_file_buffer);
 			return -1;
 		}
 
 		/* read playback header */
 		if (mame_fread(options.playback, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
-			target_err("Error reading the input playback file '%s'.\n", advance->playback_file);
+			target_err("Error reading the input playback file '%s'.\n", advance->playback_file_buffer);
 			return -1;
 		}
 
@@ -633,27 +633,27 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		return -1;
 	}
 
-	cheatfile = (char*)advance->cheat_file;
-	history_filename = (char*)advance->history_file;
-	mameinfo_filename = (char*)advance->info_file;
+	cheatfile = (char*)advance->cheat_file_buffer;
+	history_filename = (char*)advance->history_file_buffer;
+	mameinfo_filename = (char*)advance->info_file_buffer;
 
 #ifdef MESS
 	{
 		const struct GameDriver* driver = (const struct GameDriver*)context->game;
 
-		sprintf(GLUE.crc_file, "%s%c%s.crc", advance->crc_dir, file_dir_slash(), driver->name);
-		crcfile = GLUE.crc_file;
+		snprintf(GLUE.crc_file_buffer, sizeof(GLUE.crc_file_buffer), "%s%c%s.crc", advance->crc_dir_buffer, file_dir_slash(), driver->name);
+		crcfile = GLUE.crc_file_buffer;
 
 		log_std(("glue: file_crc %s\n", crcfile));
 
 		if (driver->clone_of
 			&& driver->clone_of->name
 			&& (driver->clone_of->flags & NOT_A_DRIVER) == 0) {
-			sprintf(GLUE.parent_crc_file, "%s%c%s.crc", advance->crc_dir, file_dir_slash(), driver->clone_of->name);
+			snprintf(GLUE.parent_crc_file_buffer, sizeof(GLUE.parent_crc_file_buffer), "%s%c%s.crc", advance->crc_dir_buffer, file_dir_slash(), driver->clone_of->name);
 		} else {
-			strcpy(GLUE.parent_crc_file, "");
+			GLUE.parent_crc_file_buffer[0] = 0;
 		}
-		pcrcfile = GLUE.parent_crc_file;
+		pcrcfile = GLUE.parent_crc_file_buffer;
 
 		log_std(("glue: parent_file_crc %s\n", pcrcfile));
 	}
@@ -691,7 +691,7 @@ void mame_ui_message(const char* s, ...)
 	va_list arg;
 	char buffer[256];
 	va_start(arg, s);
-	vsprintf(buffer, s, arg);
+	vsnprintf(buffer, sizeof(buffer), s, arg);
 	usrintf_showmessage(buffer);
 	va_end(arg);
 }
@@ -1168,16 +1168,17 @@ int osd_input_port_filter(int result, int type)
 
 const char *osd_get_fps_text(const struct performance_info *performance)
 {
-	osd2_info(GLUE.info_buffer, sizeof(GLUE.info_buffer) - 1);
+	unsigned l;
+
+	osd2_info(GLUE.info_buffer, sizeof(GLUE.info_buffer));
+
+	l = strlen(GLUE.info_buffer);
 
 	/* for vector games, add the number of vector updates */
-	if (Machine->drv->video_attributes & VIDEO_TYPE_VECTOR)
-	{
-		sprintf(GLUE.info_buffer + strlen(GLUE.info_buffer), "\n%4d vector updates", performance->vector_updates_last_second);
-	}
-	else if (performance->partial_updates_this_frame > 1)
-	{
-		sprintf(GLUE.info_buffer + strlen(GLUE.info_buffer), "\n%4d partial updates", performance->partial_updates_this_frame);
+	if (Machine->drv->video_attributes & VIDEO_TYPE_VECTOR) {
+		snprintf(GLUE.info_buffer + l, sizeof(GLUE.info_buffer) - l, "\n%4d vector updates", performance->vector_updates_last_second);
+	} else if (performance->partial_updates_this_frame > 1) {
+		snprintf(GLUE.info_buffer + l, sizeof(GLUE.info_buffer) - l, "\n%4d partial updates", performance->partial_updates_this_frame);
 	}
 	
 	return GLUE.info_buffer;
@@ -1227,7 +1228,7 @@ static void mess_init(adv_conf* context)
 	while (*i) {
 		char buffer[256];
 
-		sprintf(buffer, "dev_%s", *i);
+		snprintf(buffer, sizeof(buffer), "dev_%s", *i);
 
 		conf_string_register_multi(context, buffer);
 
@@ -1244,7 +1245,7 @@ static int mess_config_load(adv_conf* context)
 		adv_conf_iterator j;
 		char buffer[256];
 
-		sprintf(buffer, "dev_%s", *i);
+		snprintf(buffer, sizeof(buffer), "dev_%s", *i);
 
 		conf_iterator_begin(&j, context, buffer);
 		while (!conf_iterator_is_end(&j)) {
@@ -1365,18 +1366,18 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 
 	option->cheat_flag = conf_bool_get_default(cfg_context, "misc_cheat");
 
-	strcpy(option->language_file, conf_string_get_default(cfg_context, "misc_languagefile"));
+	snprintf(option->language_file_buffer, sizeof(option->language_file_buffer), "%s", conf_string_get_default(cfg_context, "misc_languagefile"));
 
-	strcpy(option->cheat_file, conf_string_get_default(cfg_context, "misc_cheatfile"));
+	snprintf(option->cheat_file_buffer, sizeof(option->cheat_file_buffer), "%s", conf_string_get_default(cfg_context, "misc_cheatfile"));
 
 	/* convert the dir separator char to ';'. */
 	/* the cheat system use always this char in all the operating system */
-	for(s=option->cheat_file;*s;++s)
+	for(s=option->cheat_file_buffer;*s;++s)
 		if (*s == file_dir_separator())
 			*s = ';';
 
-	strcpy(option->history_file, conf_string_get_default(cfg_context, "misc_historyfile"));
-	strcpy(option->info_file, conf_string_get_default(cfg_context, "misc_infofile"));
+	snprintf(option->history_file_buffer, sizeof(option->history_file_buffer), "%s", conf_string_get_default(cfg_context, "misc_historyfile"));
+	snprintf(option->info_file_buffer, sizeof(option->info_file_buffer), "%s", conf_string_get_default(cfg_context, "misc_infofile"));
 
 #ifdef MESS
 	if (mess_config_load(cfg_context) != 0) {

@@ -86,9 +86,10 @@ unsigned slang_flags(void)
 	return VIDEO_DRIVER_FLAGS_MODE_TEXT | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 }
 
-adv_error slang_init(int device_id, adv_output output)
+adv_error slang_init(int device_id, adv_output output, adv_cursor cursor)
 {
 	assert( !slang_is_active() );
+	(void)cursor;
 
 	log_std(("video:slang: slang_init()\n"));
 
@@ -255,7 +256,7 @@ void slang_wait_vsync(void)
 
 adv_error slang_mode_import(adv_mode* mode, const slang_video_mode* slang_mode)
 {
-	strcpy(mode->name, "slang");
+	snprintf(mode->name, MODE_NAME_MAX, "%s", "slang");
 
 	*DRIVER(mode) = *slang_mode;
 

@@ -29,6 +29,7 @@
  */
 
 #include "file.h"
+#include "portable.h"
 
 #include <signal.h>
 #include <process.h>
@@ -266,13 +267,13 @@ const char* file_config_file_root(const char* file)
 
 const char* file_config_file_home(const char* file)
 {
-	sprintf(FL.file_home_buffer, "%s", file);
+	snprintf(FL.file_home_buffer, sizeof(FL.file_home_buffer), "%s", file);
 	return FL.file_home_buffer;
 }
 
 const char* file_config_file_legacy(const char* file)
 {
-	sprintf(FL.file_legacy_buffer, "%s", file);
+	snprintf(FL.file_legacy_buffer, sizeof(FL.file_legacy_buffer), "%s", file);
 	return FL.file_legacy_buffer;
 }
 

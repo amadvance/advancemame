@@ -3,13 +3,13 @@ Name
 
 Synopsys
 	:advmame GAME [-default] [-remove] [-log] [-listinfo]
-	:	[-record FILE] [-playback FILE]
+	:	[-record FILE] [-playback FILE] [-version]
 
 	:advpac GAME [-default] [-remove] [-log] [-listinfo]
-	:	[-record FILE] [-playback FILE]
+	:	[-record FILE] [-playback FILE] [-version]
 
 	:advmess MACHINE [images...] [-default] [-remove] [-log]
-	:	[-listinfo] [-record FILE] [-playback FILE]
+	:	[-listinfo] [-record FILE] [-playback FILE] [-version]
 
 Description
 	AdvanceMAME is an unofficial MAME version for Linux, DOS and Windows 
@@ -111,6 +111,9 @@ Options
 		Play back the previously recorded game inputs in the
 		specified file.
 
+	-version
+		Print the version number.
+
 	On the command line you can also specify all configuration
 	options with the format -OPTION ARGUMENT. For boolean options
 	you don't need to specify the argument but you must use the
@@ -173,7 +176,7 @@ Features
 	the image quality when it's strecthed.
 
 	There are five types of video effects: `none', `max', `mean',
-	`filter' and `scale2x'. 
+	`filter', `scale2x' and `scale4x'.
         You can select the favorite effect with the `display_resizeeffect'
 	option.
 
@@ -188,14 +191,16 @@ Features
 	results are when the image is stretched almost by a double
 	factor. When the image is enlarged the filter is applied after
 	stretching; when reduced, it's applied before.
-	The `scale2x' effect add missing pixels trying to match the
-	image patterns.
+	The `scale2x' and `scale4x' effects add missing pixels trying to
+	match the image patterns.
 
 	The `max', `mean' and `filter' effects work only in RGB video
 	modes (not palettized).
+
 	The `scale2x' effect works only if the image is magnified by a
 	factor of 2. To enable it you should also use the `magnify'
-	option.
+	option. The `scale2x' effect works only if the image is magnified by a
+	factor of 4.
 
   RGB Effects
 	AdvanceMAME supports also some special video effects to simulate
@@ -644,11 +649,17 @@ Configuration
 		:display_resize mixed
 
     display_magnify
-	Used to suggest the use of a double resolution video mode.
-	It is mainly used to enable the `scale2x' effect.
+	Used to suggest the use of a double or bigger resolution video mode.
+	It is mainly used to enable the `scale2x' and `scale4x' effect.
 	This option doesn't have any effect for vector games.
 
-	:display_magnify yes | no
+	:display_magnify 1 | 2 | 3 | 4
+
+	Options:
+		1 - Normal size (default).
+		2 - Double size.
+		3 - Triple size.
+		4 - Quadruple size.
 
     display_scanlines
 	Used to suggest the use of hardware scanlines when choosing
@@ -754,7 +765,7 @@ Configuration
 	transformation applied.
 
 	:display_resizeeffect auto | none | max | mean | filter
-	:	| filterx | filtery | scale2x
+	:	| filterx | filtery | scale2x | scale4x
 
 	Options:
 		auto - Selects automatically the best effect (default).
@@ -789,6 +800,9 @@ Configuration
 		filterx - like `filter' but only in the x direction
 		filtery - like `filter' but only in the y direction
 		scale2x - It works only in expansion by a factor of 2.
+			It tries to add the missing pixels matching the
+			original bitmap pattern.
+		scale4x - It works only in expansion by a factor of 4.
 			It tries to add the missing pixels matching the
 			original bitmap pattern.
 
@@ -1331,7 +1345,7 @@ Configuration
 	second thread. This behaviour requires a complete bitmap redraw
 	by MAME for the games that don't already do it.
 	Generally you get a big speed improvement only if you are using
-	a strong video effect like `magnify' and `scale2x'.
+	a strong video effect like `magnify', `scale2x' or `scale4x'.
 
 	:misc_smp yes | no
 

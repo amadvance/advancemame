@@ -323,7 +323,7 @@ Configuration
 		V_FIXED - Vertical fixed clock in Hz
 
 	Example for a Generic PC SVGA multisync monitor :
-		:device_video_pclock 10 - 90
+		:device_video_pclock 10 - 150
 		:device_video_hclock 30.5 - 60
 		:device_video_vclock 55 - 130
 

@@ -2,7 +2,7 @@ Name
 	advmenu - The AdvanceMENU Frontend
 
 Synopsys
-	:advmenu [-default] [-remove] [-log] [-logsync]
+	:advmenu [-default] [-remove] [-log] [-logsync] [-version]
 
 Description
 	The AdvanceMENU utility is a frontend to run the AdvanceMAME,
@@ -54,6 +54,9 @@ Options
 
 	-verbose
 		Print some startup information.
+
+	-version
+		Print the version number.
 
 Emulators
 	The program supports many type of emulators. The emulators

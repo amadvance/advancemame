@@ -31,6 +31,7 @@
 #include "joydrv.h"
 #include "log.h"
 #include "error.h"
+#include "portable.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -41,7 +42,7 @@ struct joystickb_state_struct joystickb_state;
 void joystickb_default(void)
 {
 	joystickb_state.is_initialized_flag = 1;
-	strcpy(joystickb_state.name, "none");
+	snprintf(joystickb_state.name, DEVICE_NAME_MAX, "%s", "none");
 }
 
 void joystickb_reg(adv_conf* context, adv_bool auto_detect)
@@ -71,7 +72,7 @@ adv_error joystickb_load(adv_conf* context)
 	}
 
 	joystickb_state.is_initialized_flag = 1;
-	strcpy(joystickb_state.name, conf_string_get_default(context, "device_joystick"));
+	snprintf(joystickb_state.name, DEVICE_NAME_MAX, "%s", conf_string_get_default(context, "device_joystick"));
 
 	/* load specific driver options */
 	at_least_one = 0;

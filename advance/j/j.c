@@ -22,6 +22,7 @@
 #include "conf.h"
 #include "joyall.h"
 #include "target.h"
+#include "portable.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -129,7 +130,7 @@ void run(void)
 			if (i!=0)
 				strcat(new_msg, "\n");
 
-			sprintf(new_msg + strlen(new_msg), "joy %d, [", i);
+			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "joy %d, [", i);
 			for(j=0;j<joystickb_button_count_get(i);++j) {
 				if (joystickb_button_get(i, j))
 					strcat(new_msg, "_");
@@ -146,7 +147,7 @@ void run(void)
 						digital = '/';
 					else
 						digital = '-';
-					sprintf(new_msg + strlen(new_msg), " %d/%d [%4d %c]", j, k, joystickb_stick_axe_analog_get(i, j, k), digital);
+					snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), " %d/%d [%4d %c]", j, k, joystickb_stick_axe_analog_get(i, j, k), digital);
 				}
 			}
 		}

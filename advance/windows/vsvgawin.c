@@ -34,6 +34,7 @@
 #include "ossdl.h"
 #include "error.h"
 #include "conf.h"
+#include "portable.h"
 
 #ifdef USE_KEYBOARD_SDL
 #include "ksdl.h"
@@ -884,7 +885,7 @@ adv_error svgawin_mode_import(adv_mode* mode, const svgawin_video_mode* svgawin_
 {
 	log_std(("video:svgawin: svgawin_mode_import()\n"));
 
-	strcpy(mode->name, svgawin_mode->crtc.name);
+	snprintf(mode->name, MODE_NAME_MAX, "%s", svgawin_mode->crtc.name);
 
 	*DRIVER(mode) = *svgawin_mode;
 

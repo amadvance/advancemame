@@ -47,6 +47,7 @@
 #include "videoall.h"
 #include "keydrv.h"
 #include "error.h"
+#include "portable.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -141,25 +142,25 @@
 
 void advance_video_save(struct advance_video_context* context, const char* section)
 {
-	conf_string_set(context->state.cfg_context, section, "display_mode", context->config.resolution);
+	conf_string_set(context->state.cfg_context, section, "display_mode", context->config.resolution_buffer);
 	if (!context->state.game_vector_flag) {
 		conf_int_set(context->state.cfg_context, section, "display_resizeeffect", context->config.combine);
 		conf_int_set(context->state.cfg_context, section, "display_rgbeffect", context->config.rgb_effect);
 		conf_int_set(context->state.cfg_context, section, "display_resize", context->config.stretch);
-		conf_bool_set(context->state.cfg_context, section, "display_magnify", context->config.magnify_flag);
+		conf_int_set(context->state.cfg_context, section, "display_magnify", context->config.magnify_factor);
 		conf_int_set(context->state.cfg_context, section, "display_index", context->config.index);
 		if (context->state.game_visible_size_x < context->state.game_used_size_x
 			|| context->state.game_visible_size_y < context->state.game_used_size_y)
 		{
 			if (context->config.skipcolumns>=0) {
 				char buffer[32];
-				sprintf(buffer, "%d", context->config.skipcolumns);
+				snprintf(buffer, sizeof(buffer), "%d", context->config.skipcolumns);
 				conf_string_set(context->state.cfg_context, section, "display_skipcolumns", buffer);
 			} else
 				conf_string_set(context->state.cfg_context, section, "display_skipcolumns", "auto");
 			if (context->config.skiplines>=0) {
 				char buffer[32];
-				sprintf(buffer, "%d", context->config.skiplines);
+				snprintf(buffer, sizeof(buffer), "%d", context->config.skiplines);
 				conf_string_set(context->state.cfg_context, section, "display_skiplines", buffer);
 			} else
 				conf_string_set(context->state.cfg_context, section, "display_skiplines", "auto");
@@ -209,10 +210,12 @@ static adv_error video_make_crtc(struct advance_video_context* context, adv_crtc
 	if ((context->config.adjust & ADJUST_ADJUST_X) != 0) {
 		unsigned best_size_x;
 
-		if (context->config.magnify_flag) {
-			best_size_x = context->state.mode_best_size_2x;
-		} else {
-			best_size_x = context->state.mode_best_size_x;
+		switch (context->config.magnify_factor) {
+		default :
+		case 1 : best_size_x = context->state.mode_best_size_x; break;
+		case 2 : best_size_x = context->state.mode_best_size_2x; break;
+		case 3 : best_size_x = context->state.mode_best_size_3x; break;
+		case 4 : best_size_x = context->state.mode_best_size_4x; break;
 		}
 
 		crtc_hsize_set(crtc, best_size_x);
@@ -634,6 +637,9 @@ static void video_update_effect(struct advance_video_context* context)
 		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 2*context->state.game_visible_size_y) {
 			context->state.combine = COMBINE_SCALE2X;
+		} else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x
+			&& context->state.mode_visible_size_y == 4*context->state.game_visible_size_y) {
+			context->state.combine = COMBINE_SCALE4X;
 		} else if (context->state.mode_visible_size_x >= 2*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y >= 2*context->state.game_visible_size_y) {
 			context->state.combine = COMBINE_FILTER;
@@ -670,6 +676,15 @@ static void video_update_effect(struct advance_video_context* context)
 		)
 	) {
 		log_std(("emu:video: resizeeffect=scale2x disabled because the wrong mode size\n"));
+		context->state.combine = COMBINE_NONE;
+	}
+
+	if (context->state.combine == COMBINE_SCALE4X
+		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x
+			|| context->state.mode_visible_size_y != 4*context->state.game_visible_size_y
+		)
+	) {
+		log_std(("emu:video: resizeeffect=scale4x disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
@@ -1003,7 +1018,7 @@ static adv_error video_update_crtc(struct advance_video_context* context)
 			}
 		} else {
 			char buffer[256];
-			crtc_print(buffer, crtc);
+			crtc_print(buffer, sizeof(buffer), crtc);
 			log_std(("advance:excluded: modeline:\"%s\"\n", buffer));
 		}
 	}
@@ -1018,15 +1033,15 @@ static adv_error video_update_crtc(struct advance_video_context* context)
 
 	for(j=0;j<context->state.crtc_mac;++j) {
 		char buffer[256];
-		crtc_print(buffer, context->state.crtc_map[j]);
+		crtc_print(buffer, sizeof(buffer), context->state.crtc_map[j]);
 		log_std(("advance:mode: %3d modeline:\"%s\"\n", j, buffer));
 	}
 
 	crtc = 0;
-	if (strcmp(context->config.resolution, "auto")!=0) {
+	if (strcmp(context->config.resolution_buffer, "auto")!=0) {
 		int i;
 		for(i=0;i<context->state.crtc_mac;++i) {
-			if (video_resolution_cmp(context->config.resolution, crtc_name_get(context->state.crtc_map[i])) == 0) {
+			if (video_resolution_cmp(context->config.resolution_buffer, crtc_name_get(context->state.crtc_map[i])) == 0) {
 				crtc = context->state.crtc_map[i];
 				break;
 			}
@@ -1042,7 +1057,7 @@ static adv_error video_update_crtc(struct advance_video_context* context)
 
 	{
 		char buffer[256];
-		crtc_print(buffer, crtc);
+		crtc_print(buffer, sizeof(buffer), crtc);
 		log_std(("advance:selected: modeline:\"%s\"\n", buffer));
 	}
 
@@ -1055,7 +1070,7 @@ static adv_error video_update_crtc(struct advance_video_context* context)
 /**
  * Compute and insert in the main list a new modeline with the specified parameter.
  */
-static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context* context, const char* name, unsigned size_x0, unsigned size_y0, unsigned size_x1, unsigned size_y1, unsigned size_x2, unsigned size_y2, unsigned size_x3, unsigned size_y3, double vclock, adv_bool force_scanline, adv_bool force_interlace)
+static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context* context, const char* name, unsigned size_x0, unsigned size_y0, unsigned size_x1, unsigned size_y1, unsigned size_x2, unsigned size_y2, unsigned size_x3, unsigned size_y3, double vclock, adv_bool force_scanline, adv_bool force_interlace, adv_bool force_correct_size)
 {
 	char buffer[256];
 	adv_crtc crtc;
@@ -1088,19 +1103,21 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 		if (err != 0)
 			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VCLOCK);
 		/* try with a mode with different vtotal and different vclock */
-		if (err != 0)
+		if (err != 0 && !force_correct_size)
 			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
 	}
 
-	if (err != 0)
+	if (err != 0) {
+		log_std(("advance:generate: failed to generate mode %s\n", name));
 		return 0;
+	}
 
 	if (!crtc_clock_check(&context->config.monitor, &crtc))
 		return 0;
 
-	strcpy(crtc.name, name);
+	crtc_name_set(&crtc, name);
 
-	crtc_print(buffer, &crtc);
+	crtc_print(buffer, sizeof(buffer), &crtc);
 	log_std(("advance:generate: modeline \"%s\"\n", buffer));
 
 	ret = crtc_container_insert(&context->config.crtc_bag, &crtc);
@@ -1120,8 +1137,8 @@ static void video_init_crtc_make_fake(struct advance_video_context* context, con
 	adv_crtc crtc;
 	crtc_fake_set(&crtc, size_x, size_y);
 
-	strcpy(crtc.name, name);
-	crtc_print(buffer, &crtc);
+	crtc_name_set(&crtc, name);
+	crtc_print(buffer, sizeof(buffer), &crtc);
 
 	log_std(("advance:generate: fake \"%s\"\n", buffer));
 
@@ -1161,9 +1178,9 @@ static void video_init_crtc_make_vector(struct advance_video_context* context, c
 
 	crtc_hsize_set(&crtc, size_x0);
 
-	strcpy(crtc.name, name);
+	crtc_name_set(&crtc, name);
 
-	crtc_print(buffer, &crtc);
+	crtc_print(buffer, sizeof(buffer), &crtc);
 	log_std(("advance:generate: modeline \"%s\"\n", buffer));
 
 	crtc_container_insert(&context->config.crtc_bag, &crtc);
@@ -1277,6 +1294,7 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		video_init_crtc_make_fake(context, "generate", best_size_x, best_size_y);
 		video_init_crtc_make_fake(context, "generate-double", best_size_2x, best_size_2y);
 		video_init_crtc_make_fake(context, "generate-triple", best_size_3x, best_size_3y);
+		video_init_crtc_make_fake(context, "generate-quad", best_size_4x, best_size_4y);
 	} else {
 		unsigned long long factor_x;
 		unsigned long long factor_y;
@@ -1354,27 +1372,29 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 			if (video_is_generable(context) && context->config.interpolate.mac > 0) {
 				/* generate modes for a programmable driver */
 				const adv_crtc* crtc;
-				crtc = video_init_crtc_make_raster(context, "generate", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 0, 0);
+				crtc = video_init_crtc_make_raster(context, "generate", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 0, 0, 0);
 				if (context->config.scanlines_flag) {
 					if (!crtc || !crtc_is_singlescan(crtc))
-						video_init_crtc_make_raster(context, "generate-scanline", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 1, 0);
+						video_init_crtc_make_raster(context, "generate-scanline", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 1, 0, 0);
 				}
 				if (!crtc || !crtc_is_interlace(crtc))
-					video_init_crtc_make_raster(context, "generate-interlace", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 0, 1);
-				crtc = video_init_crtc_make_raster(context, "generate-double", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 0, 0);
+					video_init_crtc_make_raster(context, "generate-interlace", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 0, 1, 0);
+				crtc = video_init_crtc_make_raster(context, "generate-double", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 0, 0, 1);
 				if (context->config.scanlines_flag) {
 					if (!crtc || !crtc_is_singlescan(crtc))
-						video_init_crtc_make_raster(context, "generate-double-scanline", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 1, 0);
+						video_init_crtc_make_raster(context, "generate-double-scanline", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 1, 0, 1);
 				}
 				if (!crtc || !crtc_is_interlace(crtc))
-					video_init_crtc_make_raster(context, "generate-double-interlace", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 0, 1);
-				video_init_crtc_make_raster(context, "generate-triple", best_size_3x, best_size_3y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0);
+					video_init_crtc_make_raster(context, "generate-double-interlace", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 0, 1, 1);
+				video_init_crtc_make_raster(context, "generate-triple", best_size_3x, best_size_3y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0, 1);
+				video_init_crtc_make_raster(context, "generate-quad", best_size_4x, best_size_4y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0, 1);
 			}
 			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM) != 0) {
 				/* generate modes for a zoom driver */
 				video_init_crtc_make_fake(context, "generate", best_size_x, best_size_y);
 				video_init_crtc_make_fake(context, "generate-double", best_size_2x, best_size_2y);
 				video_init_crtc_make_fake(context, "generate-triple", best_size_3x, best_size_3y);
+				video_init_crtc_make_fake(context, "generate-quad", best_size_4x, best_size_4y);
 			}
 		}
 	}
@@ -1392,6 +1412,10 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	context->state.mode_best_size_y = best_size_y;
 	context->state.mode_best_size_2x = best_size_2x;
 	context->state.mode_best_size_2y = best_size_2y;
+	context->state.mode_best_size_3x = best_size_3x;
+	context->state.mode_best_size_3y = best_size_3y;
+	context->state.mode_best_size_4x = best_size_4x;
+	context->state.mode_best_size_4y = best_size_4y;
 	context->state.mode_best_vclock = best_vclock;
 
 	log_std(("emu:video: game_area_size_x %d\n", (unsigned)context->state.game_area_size_x));
@@ -1488,15 +1512,15 @@ static inline adv_error video_frame_resolution(struct advance_video_context* con
 {
 	adv_bool modify = 0;
 	adv_bool show = 0;
-	char old[MODE_NAME_MAX];
+	char old_buffer[MODE_NAME_MAX];
 
-	strcpy(old, context->config.resolution);
+	snprintf(old_buffer, sizeof(old_buffer), "%s", context->config.resolution_buffer);
 
 	if (input == OSD_INPUT_MODE_NEXT) {
 		show = 1;
-		if (strcmp(context->config.resolution, "auto")==0) {
+		if (strcmp(context->config.resolution_buffer, "auto")==0) {
 			if (context->state.crtc_mac > 1) {
-				strcpy(context->config.resolution, crtc_name_get(context->state.crtc_map[1]));
+				snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", crtc_name_get(context->state.crtc_map[1]));
 				modify = 1;
 			}
 		} else {
@@ -1505,34 +1529,34 @@ static inline adv_error video_frame_resolution(struct advance_video_context* con
 				if (context->state.crtc_map[i] == context->state.crtc_selected)
 					break;
 			if (i<context->state.crtc_mac && i+1<context->state.crtc_mac) {
-				strcpy(context->config.resolution, crtc_name_get(context->state.crtc_map[i+1]));
+				snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", crtc_name_get(context->state.crtc_map[i+1]));
 				modify = 1;
 			}
 		}
 	} else if (input == OSD_INPUT_MODE_PRED) {
 		show = 1;
-		if (strcmp(context->config.resolution, "auto")!=0) {
+		if (strcmp(context->config.resolution_buffer, "auto")!=0) {
 			unsigned i;
 			for(i=0;i<context->state.crtc_mac;++i)
 				if (context->state.crtc_map[i] == context->state.crtc_selected)
 					break;
 			if (i<context->state.crtc_mac && i>0) {
-				strcpy(context->config.resolution, crtc_name_get(context->state.crtc_map[i-1]));
+				snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", crtc_name_get(context->state.crtc_map[i-1]));
 				modify = 1;
 			}
 		}
 	}
 
 	if (modify) {
-		log_std(("emu:video: select mode %s\n", context->config.resolution));
+		log_std(("emu:video: select mode %s\n", context->config.resolution_buffer));
 
 		/* update all the complete state, the configuration is choosen by the name */
 		if (advance_video_change(context) != 0) {
 
 			/* it fails in some strange conditions, generally when a not supported feature is used */
 			/* for example if a interlaced mode is requested and the lower driver refuses to use it */
-			strcpy(context->config.resolution, old);
-			log_std(("emu:video: retrying old mode %s\n", context->config.resolution));
+			snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", old_buffer);
+			log_std(("emu:video: retrying old_buffer mode %s\n", context->config.resolution_buffer));
 			if (advance_video_change(context) != 0) {
 				return -1;
 			}
@@ -1540,7 +1564,7 @@ static inline adv_error video_frame_resolution(struct advance_video_context* con
 	}
 
 	if (show) {
-		mame_ui_message(context->config.resolution);
+		mame_ui_message(context->config.resolution_buffer);
 	}
 
 	return 0;
@@ -2689,10 +2713,10 @@ int osd2_video_init(struct osd_video_option* req)
 	}
 
 	if (video_update_crtc(context) != 0) {
-		if (strcmp(context->config.resolution, "auto")==0)
+		if (strcmp(context->config.resolution_buffer, "auto")==0)
 			target_err("No video modes available for the current game.\n");
 		else
-			target_err("The specified 'display_mode %s' doesn't exist.\n", context->config.resolution);
+			target_err("The specified 'display_mode %s' doesn't exist.\n", context->config.resolution_buffer);
 		return -1;
 	}
 
@@ -2924,15 +2948,15 @@ void osd2_info(char* buffer, unsigned size)
 	skip = 100 * context->state.skip_level_full / (context->state.skip_level_full + context->state.skip_level_skip);
 
 	if (context->state.fastest_flag) {
-		sprintf(buffer, "%7s %3d%% - %3d%%", "startup", skip, rate);
+		snprintf(buffer, size, "%7s %3d%% - %3d%%", "startup", skip, rate);
 	} else if (!context->state.sync_throttle_flag) {
-		sprintf(buffer, "%7s 100%% - %3d%%", "free", rate);
+		snprintf(buffer, size, "%7s 100%% - %3d%%", "free", rate);
 	} else if (context->state.turbo_flag) {
-		sprintf(buffer, "%7s %3d%% - %3d%%", "turbo", skip, rate);
+		snprintf(buffer, size, "%7s %3d%% - %3d%%", "turbo", skip, rate);
 	} else if (context->config.frameskip_auto_flag) {
-		sprintf(buffer, "%7s %3d%% - %3d%%", "auto", skip, rate);
+		snprintf(buffer, size, "%7s %3d%% - %3d%%", "auto", skip, rate);
 	} else {
-		sprintf(buffer, "%7s %3d%% - %3d%%", "fix", skip, rate);
+		snprintf(buffer, size, "%7s %3d%% - %3d%%", "fix", skip, rate);
 	}
 }
 
@@ -3004,7 +3028,8 @@ static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 { "filter", COMBINE_FILTER },
 { "filterx", COMBINE_FILTERX },
 { "filtery", COMBINE_FILTERY },
-{ "scale2x", COMBINE_SCALE2X }
+{ "scale2x", COMBINE_SCALE2X },
+{ "scale4x", COMBINE_SCALE4X }
 };
 
 static adv_conf_enum_int OPTION_ADJUST[] = {
@@ -3013,6 +3038,13 @@ static adv_conf_enum_int OPTION_ADJUST[] = {
 { "clock", ADJUST_ADJUST_CLOCK },
 { "xclock", ADJUST_ADJUST_X | ADJUST_ADJUST_CLOCK },
 { "generate", ADJUST_GENERATE }
+};
+
+static adv_conf_enum_int OPTION_MAGNIFY[] = {
+{ "1", 1 },
+{ "2", 2 },
+{ "3", 3 },
+{ "4", 4 }
 };
 
 static adv_conf_enum_int OPTION_ROTATE[] = {
@@ -3060,7 +3092,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_bool_register_default(cfg_context, "display_vsync", 1);
 	conf_bool_register_default(cfg_context, "display_buffer", 0);
 	conf_int_register_enum_default(cfg_context, "display_resize", conf_enum(OPTION_RESIZE), STRETCH_INTEGER_X_FRACTIONAL_Y);
-	conf_bool_register_default(cfg_context, "display_magnify", 0);
+	conf_int_register_enum_default(cfg_context, "display_magnify", conf_enum(OPTION_MAGNIFY), 1);
 	conf_int_register_enum_default(cfg_context, "display_adjust", conf_enum(OPTION_ADJUST), ADJUST_NONE);
 	conf_string_register_default(cfg_context, "display_skiplines", "auto");
 	conf_string_register_default(cfg_context, "display_skipcolumns", "auto");
@@ -3132,7 +3164,7 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 		adv_crtc* crtc = crtc_container_iterator_get(&i);
 		/* if a specific mode is chosen, size the debugger like it */
 		if (is_crtc_acceptable_preventive(context, crtc)
-			&& video_resolution_cmp(context->config.resolution, crtc_name_get(crtc)) == 0) {
+			&& video_resolution_cmp(context->config.resolution_buffer, crtc_name_get(crtc)) == 0) {
 			option->debug_width = crtc_hsize_get(crtc);
 			option->debug_height = crtc_vsize_get(crtc);
 		}
@@ -3162,8 +3194,8 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 		for(crtc_container_iterator_begin(&i, &context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 			adv_crtc* crtc = crtc_container_iterator_get(&i);
 			if (is_crtc_acceptable_preventive(context, crtc)
-				&& (strcmp(context->config.resolution, "auto")==0
-					|| video_resolution_cmp(context->config.resolution, crtc_name_get(crtc)) == 0
+				&& (strcmp(context->config.resolution_buffer, "auto")==0
+					|| video_resolution_cmp(context->config.resolution_buffer, crtc_name_get(crtc)) == 0
 					)
 				) {
 				int size = crtc_hsize_get(crtc) * crtc_vsize_get(crtc);
@@ -3213,19 +3245,19 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.game_orientation = mame_game_orientation(option->game);
 
 	context->config.inlist_combinemax_flag = mame_is_game_in_list(GAME_BLIT_COMBINE_MAX, option->game);
-	strcpy(context->config.section_name, mame_game_name(option->game));
-	strcpy(context->config.section_resolution, mame_game_resolution(option->game));
-	strcpy(context->config.section_resolutionclock, mame_game_resolutionclock(option->game));
+	snprintf(context->config.section_name_buffer, sizeof(context->config.section_name_buffer), "%s", mame_game_name(option->game));
+	snprintf(context->config.section_resolution_buffer, sizeof(context->config.section_resolution_buffer), "%s", mame_game_resolution(option->game));
+	snprintf(context->config.section_resolutionclock_buffer, sizeof(context->config.section_resolutionclock_buffer), "%s", mame_game_resolutionclock(option->game));
 	if ((context->config.game_orientation & OSD_ORIENTATION_SWAP_XY) != 0)
-		strcpy(context->config.section_orientation, "vertical");
+		snprintf(context->config.section_orientation_buffer, sizeof(context->config.section_orientation_buffer), "%s", "vertical");
 	else
-		strcpy(context->config.section_orientation, "horizontal");
+		snprintf(context->config.section_orientation_buffer, sizeof(context->config.section_orientation_buffer), "%s", "horizontal");
 
 	context->config.scanlines_flag = conf_bool_get_default(cfg_context, "display_scanlines");
 	context->config.vsync_flag = conf_bool_get_default(cfg_context, "display_vsync");
 	context->config.triplebuf_flag = conf_bool_get_default(cfg_context, "display_buffer");
 	context->config.stretch = conf_int_get_default(cfg_context, "display_resize");
-	context->config.magnify_flag = conf_bool_get_default(cfg_context, "display_magnify");
+	context->config.magnify_factor = conf_int_get_default(cfg_context, "display_magnify");
 	context->config.adjust = conf_int_get_default(cfg_context, "display_adjust");
 
 	context->config.monitor_aspect_x = conf_int_get_default(cfg_context, "display_aspectx");
@@ -3280,7 +3312,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.crash_flag = conf_bool_get_default(cfg_context, "misc_crash");
 
 	s = conf_string_get_default(cfg_context, "display_mode");
-	strcpy(context->config.resolution, s);
+	snprintf(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), "%s", s);
 
 	context->config.index = conf_int_get_default(cfg_context, "display_color");
 	context->config.restore_flag = conf_bool_get_default(cfg_context, "display_restore");
