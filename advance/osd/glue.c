@@ -562,6 +562,8 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	if (advance->record_file[0]) {
 		INP_HEADER inp_header;
 
+		log_std(("glue: opening record file %s\n", advance->record_file));
+
 		options.record = mame_fopen(advance->record_file, 0, FILETYPE_INPUTLOG, 1);
 		if (!options.record) {
 			target_err("Error opening the input record file '%s'.\n", advance->record_file);
@@ -585,7 +587,9 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	if (advance->playback_file[0]) {
 		INP_HEADER inp_header;
 
-		options.playback = mame_fopen(0, advance->playback_file, FILETYPE_INPUTLOG, 0);
+		log_std(("glue: opening playback file %s\n", advance->playback_file));
+
+		options.playback = mame_fopen(advance->playback_file, 0, FILETYPE_INPUTLOG, 0);
 		if (!options.playback) {
 			target_err("Error opening the input playback file '%s'.\n", advance->playback_file);
 			return -1;

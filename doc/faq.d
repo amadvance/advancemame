@@ -142,7 +142,7 @@ Windows Configuration FAQ
 	<empty>
 
 Video Configuration FAQ
-  How can I enable the TV-OUT signal of the video board ?
+  How can I enable the TV-OUT signal (S-VIDEO) of the video board ?
 	You cannot. If the TV-OUT signal is not enabled automatically
 	by your video board you cannot enable it manually.
 

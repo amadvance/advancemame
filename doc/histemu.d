@@ -1,9 +1,14 @@
 Name
 	history - History For Advance Emulators
 
-AdvanceMAME Version 0.65.1 2003/02
-	) The display_scanlines option is now as default off.
+AdvanceMAME Version 0.65.1 2003/03
+	) The display_scanlines option is now off as default.
+		The `generate-scanline' video modes are now created only
+		if display_scanlines is active at the startup.
 	) Minor changes at the video menu.
+	) Fixed the `-playback' command.
+	) Fixed the slowdown problem reading .dat files.
+	) Added automatic detection of Linux Frame Buffer capabilities.
 
 AdvanceMAME Version 0.65.0 2003/02
 	) Fixed the CPU detection by the configure script.

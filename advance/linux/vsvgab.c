@@ -37,6 +37,7 @@
 #include <vga.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /***************************************************************************/
 /* State */
@@ -323,6 +324,11 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 	}
 	svgalib_state.memory_size = res;
 
+	/* claim two screen of memory */
+	if (svgalib_state.memory_size > bytes_per_scanline * mode->crtc.vde * 2)
+		svgalib_state.memory_size = bytes_per_scanline * mode->crtc.vde * 2;
+	vga_claimvideomemory(svgalib_state.memory_size);
+
 	svgalib_state.ptr = vga_getgraphmem();
 
 	modeinfo = vga_getmodeinfo(svgalib_state.mode_number);
@@ -405,6 +411,12 @@ void svgalib_mode_done(adv_bool restore)
 		/* a mode reset is required otherwise the other drivers are not able to set the mode */
 		log_std(("video:svgalib: vga_setmode(TEXT)\n"));
 		vga_setmode(TEXT);
+
+#if 0
+		/* clear screen "tput clear" */
+		fputs("\033[H\033[J", stdout);
+		fflush(stdout);
+#endif
 	}
 }
 
@@ -422,7 +434,6 @@ unsigned svgalib_virtual_y(void)
 
 unsigned svgalib_adjust_bytes_per_page(unsigned bytes_per_page)
 {
-	bytes_per_page = (bytes_per_page + 0xFFFF) & ~0xFFFF;
 	return bytes_per_page;
 }
 

@@ -90,24 +90,20 @@ Targets
 		clear - Clean all.
 		install - Install all [must be root].
 
-Requirements
-	To compile the Advance projects you need the following
-	software :
-		:GNU gcc 2.95.3 or 3.0.4 or 3.2.2 (with c and c++ support)
-		:NASM 0.98.33 (or newer)
-		:zlib 1.1.3 (or newer)
-		:Make 3.79.1 (or newer)
-
-	The gcc compiler versions 2.96.x, 3.0, 3.0.1 and 3.0.2 are NOT
-	supported. In DOS the versions 3.1, 3.1.1, 3.2, 3.2.1 and 3.2.2
-	are only partially supported (some games may have problems).
-	Other versions may work.
-
-	To build on Linux you need the additional following software:
+Requirememts
+    Linux
+	To build in Linux you need the following software:
 		:Linux 2.4.0 (or newer)
+		:GNU gcc C/C++ 2.95.3 or 3.0.4 or 3.2.2
+		:GNU make 3.79.1 (or newer)
+		:NASM 0.98.33 (or newer)
+		:zlib 1.1.4 (or newer)
 		:SVGALIB 1.9.14 (or newer)
-		:S-Lang 1.4.3 (or newer)
 		:LibSDL 1.2.4 (or newer)
+		:S-Lang 1.4.3 (or newer)
+
+	The gcc compiler versions 2.96.x, 3.0, 3.0.1 and 3.0.2 doesn't work.
+	Other versions should work.
 
 	The SVGALIB 1.4.x versions are NOT supported.
 
@@ -116,19 +112,31 @@ Requirements
 	some problems on the library. Use the noirq.diff patch if you detect
 	random freeze only with vsync activated.
 
+	Remember to edit the /etc/vga/libvga.conf file with your settings.
+	Specifically you need at least to set correctly `HorizSync' and
+	`VertRefresh'.
+
 	If your distribution doesn't contain the S-Lang library you
 	can download it from http://www.s-lang.org/.
 
-	To build in DOS you need the additional following software:
-		:DJGPP development kit 2.03 (djdev*.zip)
-		:DJGPP GNU binutils (bnu*b.zip)
-		:DJGPP GNU C/C++ compiler (gcc*b.zip gpp*b.zip)
-		:DJGPP GNU make (mak*b.zip)
-		:DJGPP GNU fileutils (fil*b.zip)
-		:DJGPP GNU shellutils (shl*b.zip)
-		:DJGPP GNU patch (pat*b.zip)
-		:SEAL 1.0.7 + mame patch
+    DOS
+	To build in DOS you need the following software:
+		:DJGPP development kit 2.03 (or never) [djdev*.zip]
+		:DJGPP GNU binutils [bnu*b.zip]
+		:DJGPP GNU gcc C/C++ 2.95.3 or 3.0.4 or 3.2.2 [gcc*b.zip gpp*b.zip]
+		:DJGPP GNU make 3.79.1 (or newer) [mak*b.zip]
+		:DJGPP GNU fileutils [fil*b.zip]
+		:DJGPP GNU shellutils [shl*b.zip]
+		:DJGPP GNU patch [pat*b.zip]
+		:NASM 0.98.33 (or newer)
+		:zlib 1.1.4 (or newer)
+		:SEAL 1.0.7 + MAME patch
 		:Allegro 4.0.0 (or newer)
+
+	The gcc compiler versions 3.0, 3.0.1 and 3.0.2 doesn't work.
+	The versions 3.1, 3.1.1, 3.2, 3.2.1 and 3.2.2 have some minor known
+	problems (a few games doesn't work correctly).
+	Other versions should work.
 
 	The patched SEAL library is available at http://www.mame.net
 
@@ -136,10 +144,17 @@ Requirements
 	version named `nasmw.exe' you must rename it as `nasm.exe' or
 	change the `Makefile' to use it.
 
-	To build on Windows you need the additional following software:
+    Windows
+	To build in Windows you need the following software:
 		:MINGW 1.1 (or newer)
+		:MINGW GNU gcc C/C++ 2.95.3 (or never)
+		:NASM 0.98.33 (or newer)
+		:zlib 1.1.4 (or newer)
 		:LibSDL 1.2.4 (or newer)
 
+	The only tested compiler version is 2.95.3. Other versions
+	should work.
+
 Copyright
-	This file is Copyright (C) 2002 Andrea Mazzoleni.
+	This file is Copyright (C) 2003 Andrea Mazzoleni.
 

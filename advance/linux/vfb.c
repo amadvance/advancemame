@@ -198,32 +198,32 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 	var->bits_per_pixel = bits_per_pixel;
 	var->grayscale = 0;
 	switch (bits_per_pixel) {
-		case 8 :
+	case 8 :
 		break;
-		case 15 :
-			var->red.length = 5;
-			var->red.offset = 10;
-			var->green.length = 5;
-			var->green.offset = 5;
-			var->blue.length = 5;
-			var->blue.offset = 0;
+	case 15 :
+		var->red.length = 5;
+		var->red.offset = 10;
+		var->green.length = 5;
+		var->green.offset = 5;
+		var->blue.length = 5;
+		var->blue.offset = 0;
 		break;
-		case 16 :
-			var->red.length = 5;
-			var->red.offset = 11;
-			var->green.length = 6;
-			var->green.offset = 5;
-			var->blue.length = 5;
-			var->blue.offset = 0;
+	case 16 :
+		var->red.length = 5;
+		var->red.offset = 11;
+		var->green.length = 6;
+		var->green.offset = 5;
+		var->blue.length = 5;
+		var->blue.offset = 0;
 		break;
-		case 24 :
-                case 32 :
-			var->red.length = 8;
-			var->red.offset = 16;
-			var->green.length = 8;
-			var->green.offset = 8;
-			var->blue.length = 8;
-			var->blue.offset = 0;
+	case 24 :
+	case 32 :
+		var->red.length = 8;
+		var->red.offset = 16;
+		var->green.length = 8;
+		var->green.offset = 8;
+		var->blue.length = 8;
+		var->blue.offset = 0;
 		break;
 	}
 	var->nonstd = 0;
@@ -257,43 +257,109 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 	}
 }
 
-static void fb_detect(void)
+static adv_error fb_test(struct fb_var_screeninfo* var, unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool doublescan, adv_bool interlace, adv_bool nhsync, adv_bool nvsync, unsigned bits_per_pixel)
+{
+	log_std(("video:fb: test bit depth %d\n", bits_per_pixel));
+
+	fb_preset(var, pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, nhsync, nvsync, bits_per_pixel, FB_ACTIVATE_TEST);
+	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, var) != 0)
+		return -1;
+
+	return 0;
+}
+
+static adv_error fb_test_auto(struct fb_var_screeninfo* var, unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool doublescan, adv_bool interlace, adv_bool nhsync, adv_bool nvsync)
+{
+	unsigned bits_per_pixel;
+
+	if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) != 0)
+		bits_per_pixel = 16;
+	else if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR15) != 0)
+		bits_per_pixel = 15;
+	else if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR32) != 0)
+		bits_per_pixel = 32;
+	else if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) != 0)
+		bits_per_pixel = 8;
+	else if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR24) != 0)
+		bits_per_pixel = 24;
+	else
+		return -1;
+
+	log_std(("video:fb: test mode %d bits\n", bits_per_pixel));
+
+	fb_preset(var, pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, nhsync, nvsync, bits_per_pixel, FB_ACTIVATE_TEST);
+
+	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, var) != 0)
+		return -1;
+
+	return 0;
+}
+
+static adv_error fb_detect(void)
 {
 	struct fb_var_screeninfo var;
 
-#if 0
-	/* TODO that happen if the 8 bit mode is not supported ? */
+	/* test bit depth */
+	log_std(("video:fb: test bits depths\n"));
+	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, 8) != 0
+		|| (var.bits_per_pixel != 8)) {
+		log_std(("video:fb: disable 8 bits modes, not supported\n"));
+		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
+	}
+
+	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, 15) != 0
+		|| (var.bits_per_pixel != 15)) {
+		log_std(("video:fb: disable 15 bits modes, not supported\n"));
+		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR15;
+	}
+
+	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, 16) != 0
+		|| (var.bits_per_pixel != 16)) {
+		log_std(("video:fb: disable 16 bits modes, not supported\n"));
+		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR16;
+	}
+
+	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, 24) != 0
+		|| (var.bits_per_pixel != 24)) {
+		log_std(("video:fb: disable 24 bits modes, not supported\n"));
+		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR24;
+	}
+
+	if (fb_test(&var, 25175200, 640, 656, 752, 800, 480, 490, 492, 525, 0, 0, 1, 1, 32) != 0
+		|| (var.bits_per_pixel != 32)) {
+		log_std(("video:fb: disable 32 bits modes, not supported\n"));
+		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
+	}
 
 	/* test interlace modes */
 	log_std(("video:fb: test iterlace modes\n"));
-	fb_preset(&var, 40280300, 1024, 1048, 1200, 1280, 768, 784, 787, 840, 0, 1, 1, 1, 8, FB_ACTIVATE_TEST);
-	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, &var) != 0
+	if (fb_test_auto(&var, 40280300, 1024, 1048, 1200, 1280, 768, 784, 787, 840, 0, 1, 1, 1) != 0
 		|| (var.vmode & FB_VMODE_INTERLACED) == 0) {
 		log_std(("video:fb: disable interlace modes, not supported\n"));
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
 	}
 
+	if (strstr(fb_state.fixinfo.id, "GeForce")!=0) {
+		log_std(("video:fb: disable interlace modes, not supported by the GeForge hardware\n"));
+		/* the GeForge hardware doesn't support interlace */
+		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
+	}
+
 	/* test doublescan modes */
 	log_std(("video:fb: test doublescan modes\n"));
-	fb_preset(&var, 12676000, 320, 328, 376, 400, 240, 245, 246, 262, 1, 0, 1, 1, 8, FB_ACTIVATE_TEST);
-	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, &var) != 0
+	if (fb_test_auto(&var, 12676000, 320, 328, 376, 400, 240, 245, 246, 262, 1, 0, 1, 1) != 0
 		|| (var.vmode & FB_VMODE_DOUBLE) == 0) {
 		log_std(("video:fb: disable doublescan modes, not supported\n"));
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
 	}
-#endif
-
-	if (strstr(fb_state.fixinfo.id, "GeForce")!=0) {
-		log_std(("video:fb: disable interlace modes, not supported by the GeForge hardware\n"));
-		/* in Linux 2.4.20 it doesn't support interlace */
-		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
-	}
 
 	if (strstr(fb_state.fixinfo.id, "nVidia")!=0) {
 		log_std(("video:fb: disable doublescan modes, not supported by the nVidia driver\n"));
-		/* in Linux 2.4.20 it doesn't support doublescan */
+		/* the Linux 2.4.20 driver doesn't support doublescan */
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
 	}
+
+	return 0;
 }
 
 adv_error fb_init(int device_id, adv_output output, adv_cursor cursor)
@@ -340,13 +406,13 @@ adv_error fb_init(int device_id, adv_output output, adv_cursor cursor)
 	/* get the fixed info */
 	if (ioctl(fb_state.fd, FBIOGET_FSCREENINFO, &fb_state.fixinfo) != 0) {
 		error_set("Error in FBIOGET_FSCREENINFO");
-		return -1;
+		goto err_close;
 	}
 
 	/* get the variable info */
 	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.varinfo) != 0) {
 		error_set("Error in FBIOGET_VSCREENINFO");
-		return -1;
+		goto err_close;
 	}
 
 	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
@@ -355,11 +421,17 @@ adv_error fb_init(int device_id, adv_output output, adv_cursor cursor)
 		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
 		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
-	fb_detect();
+	if (fb_detect() != 0) {
+		goto err_close;
+	}
 
 	fb_state.active = 1;
 
 	return 0;
+
+err_close:
+	close(fb_state.fd);
+	return -1;
 }
 
 void fb_done(void)
@@ -492,8 +564,8 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		return -1;
 	}
 
-	/* disable cursor */
-	fwrite("\033[?1c", 1, 5, stdout);
+	/* disable cursor "tput civis" */
+	fputs("\033[?1c", stdout);
 	fflush(stdout);
 
 	fb_state.mode_active = 1;
@@ -507,9 +579,15 @@ void fb_mode_done(adv_bool restore)
 
 	log_std(("video:fb: fb_mode_done()\n"));
 
-	/* restore cursor */
-	fwrite("\033[?0c", 1, 5, stdout);
+	/* restore cursor "tput cnorm" */
+	fputs("\033[?0c", stdout);
 	fflush(stdout);
+
+#if 0
+	/* clear screen "tput clear" */
+	fputs("\033[H\033[J", stdout);
+	fflush(stdout);
+#endif
 
 	munmap(fb_state.ptr, fb_state.fixinfo.smem_len);
 

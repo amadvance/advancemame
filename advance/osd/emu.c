@@ -582,9 +582,15 @@ int os_main(int argc, char* argv[])
 			opt_info = 1;
 		} else if (strcmp(argv[i], "-record") == 0 && i+1<argc && argv[i+1][0] != '-') {
 			strcpy(option.record_file, argv[i+1]);
+			/* add the default extension */
+			if (strchr(option.record_file,'.') == 0)
+				strcat(option.record_file, ".inp");
 			++i;
 		} else if (strcmp(argv[i], "-playback") == 0 && i+1<argc && argv[i+1][0] != '-') {
 			strcpy(option.playback_file, argv[i+1]);
+			/* add the default extension */
+			if (strchr(option.playback_file,'.') == 0)
+				strcat(option.playback_file, ".inp");
 			++i;
 		} else if (argv[i][0]!='-') {
 			unsigned j;
@@ -639,6 +645,13 @@ int os_main(int argc, char* argv[])
 		goto done_os;
 	}
 
+	if (opt_log || opt_logsync) {
+		if (log_init(ADVANCE_NAME ".log", opt_logsync) != 0) {
+			target_err("Error opening the log file '" ADVANCE_NAME ".log'.\n");
+			goto err_os;
+		}
+	}
+
 	if (!opt_gamename) {
 		if (!option.playback_file[0]) {
 			target_err("No game specified on the command line.\n");
@@ -659,18 +672,10 @@ int os_main(int argc, char* argv[])
 		option.game = mame_playback_look(option.playback_file);
 		if (option.game == 0)
 			goto err_os;
-
 	} else {
 		option.game = select_game(opt_gamename);
 		if (option.game == 0)
 			goto err_os;
-	}
-
-	if (opt_log || opt_logsync) {
-		if (log_init(ADVANCE_NAME ".log", opt_logsync) != 0) {
-			target_err("Error opening the log file '" ADVANCE_NAME ".log'.\n");
-			goto err_os;
-		}
 	}
 
 	/* set the used section */

@@ -211,7 +211,7 @@ unsigned sound_alsa_buffered(void)
 
 	r = snd_pcm_delay(alsa_state.handle, &buffered);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa snd_pcm_delay() failed %d\n", r));
+		log_std(("ERROR:sound:alsa: snd_pcm_delay() failed %d\n", r));
 		buffered = 0;
 	}
 
