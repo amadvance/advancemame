@@ -1,4 +1,5 @@
 #include <iostream>
+#include <list>
 #include <set>
 #include <string>
 #include <sstream>
@@ -33,28 +34,39 @@ void Interp4(unsigned p[10], int p1, int p2) {
 }
 
 void Interp5(unsigned p[10], int p1, int p2, int p3) {
-	p[p1] += 4;
-	p[p2] += 6;
-	p[p3] += 6;
-}
-
-void Interp6(unsigned p[10], int p1, int p2, int p3) {
 	p[p1] += 8;
 	p[p2] += 4;
 	p[p3] += 4;
 }
 
-void Interp7(unsigned p[10], int p1, int p2, int p3) {
-	p[p1] += 8;
-	p[p2] += 6;
+void Interp6(unsigned p[10], int p1, int p2, int p3) {
+	p[p1] += 10;
+	p[p2] += 4;
 	p[p3] += 2;
 }
 
-void Interp8(unsigned p[10], int p1, int p2, int p3) {
+void Interp7(unsigned p[10], int p1, int p2, int p3) {
 	p[p1] += 12;
 	p[p2] += 2;
 	p[p3] += 2;
 }
+
+#define PIXEL00_0     Copy(DST[i][0], 5);
+#define PIXEL01_0     Copy(DST[i][1], 5);
+#define PIXEL02_0     Copy(DST[i][2], 5);
+#define PIXEL03_0     Copy(DST[i][3], 5);
+#define PIXEL10_0     Copy(DST[i][4], 5);
+#define PIXEL11_0     Copy(DST[i][5], 5);
+#define PIXEL12_0     Copy(DST[i][6], 5);
+#define PIXEL13_0     Copy(DST[i][7], 5);
+#define PIXEL20_0     Copy(DST[i][8], 5);
+#define PIXEL21_0     Copy(DST[i][9], 5);
+#define PIXEL22_0     Copy(DST[i][10], 5);
+#define PIXEL23_0     Copy(DST[i][11], 5);
+#define PIXEL30_0     Copy(DST[i][12], 5);
+#define PIXEL31_0     Copy(DST[i][13], 5);
+#define PIXEL32_0     Copy(DST[i][14], 5);
+#define PIXEL33_0     Copy(DST[i][15], 5);
 
 #define PIXEL00_0     Copy(DST[i][0], 5);
 #define PIXEL00_10    Interp1(DST[i][0], 2, 4);
@@ -64,7 +76,6 @@ void Interp8(unsigned p[10], int p1, int p2, int p3) {
 #define PIXEL00_31    Interp3(DST[i][0], 5, 4);
 #define PIXEL00_32    Interp3(DST[i][0], 5, 2);
 #define PIXEL00_50    Interp5(DST[i][0], 5, 2, 4);
-#define PIXEL00_60    Interp6(DST[i][0], 5, 2, 4);
 #define PIXEL01_0     Copy(DST[i][1], 5);
 #define PIXEL01_10    Interp1(DST[i][1], 2, 5);
 #define PIXEL01_22    Interp2(DST[i][1], 5, 2);
@@ -73,8 +84,9 @@ void Interp8(unsigned p[10], int p1, int p2, int p3) {
 #define PIXEL01_32    Interp3(DST[i][1], 5, 2);
 #define PIXEL01_34    Interp3(DST[i][1], 2, 5);
 #define PIXEL01_41    Interp4(DST[i][1], 5, 4);
-#define PIXEL01_61    Interp6(DST[i][1], 2, 5, 4);
-#define PIXEL01_70    Interp7(DST[i][1], 5, 2, 4);
+#define PIXEL01_51    Interp5(DST[i][1], 2, 5, 4);
+#define PIXEL01_60    Interp6(DST[i][1], 5, 2, 4);
+#define PIXEL01_61    Interp6(DST[i][1], 5, 2, 1);
 #define PIXEL02_0     Copy(DST[i][2], 5);
 #define PIXEL02_10    Interp1(DST[i][2], 2, 5);
 #define PIXEL02_21    Interp2(DST[i][2], 5, 2);
@@ -83,8 +95,9 @@ void Interp8(unsigned p[10], int p1, int p2, int p3) {
 #define PIXEL02_31    Interp3(DST[i][2], 5, 2);
 #define PIXEL02_33    Interp3(DST[i][2], 2, 5);
 #define PIXEL02_42    Interp4(DST[i][2], 5, 6);
-#define PIXEL02_61    Interp6(DST[i][2], 2, 5, 6);
-#define PIXEL02_70    Interp7(DST[i][2], 5, 2, 6);
+#define PIXEL02_51    Interp5(DST[i][2], 2, 5, 6);
+#define PIXEL02_60    Interp6(DST[i][2], 5, 2, 6);
+#define PIXEL02_61    Interp6(DST[i][2], 5, 2, 3);
 #define PIXEL03_0     Copy(DST[i][3], 5);
 #define PIXEL03_10    Interp1(DST[i][3], 2, 6);
 #define PIXEL03_20    Interp2(DST[i][3], 5, 3);
@@ -93,7 +106,6 @@ void Interp8(unsigned p[10], int p1, int p2, int p3) {
 #define PIXEL03_31    Interp3(DST[i][3], 5, 2);
 #define PIXEL03_32    Interp3(DST[i][3], 5, 6);
 #define PIXEL03_50    Interp5(DST[i][3], 5, 2, 6);
-#define PIXEL03_60    Interp6(DST[i][3], 5, 2, 6);
 #define PIXEL10_0     Copy(DST[i][4], 5);
 #define PIXEL10_10    Interp1(DST[i][4], 4, 5);
 #define PIXEL10_21    Interp2(DST[i][4], 5, 4);
@@ -102,18 +114,19 @@ void Interp8(unsigned p[10], int p1, int p2, int p3) {
 #define PIXEL10_31    Interp3(DST[i][4], 5, 4);
 #define PIXEL10_33    Interp3(DST[i][4], 4, 5);
 #define PIXEL10_42    Interp4(DST[i][4], 5, 2);
-#define PIXEL10_61    Interp6(DST[i][4], 4, 5, 2);
-#define PIXEL10_70    Interp7(DST[i][4], 5, 4, 2);
+#define PIXEL10_51    Interp5(DST[i][4], 4, 5, 2);
+#define PIXEL10_60    Interp6(DST[i][4], 5, 4, 2);
+#define PIXEL10_61    Interp6(DST[i][4], 5, 4, 1);
 #define PIXEL11_0     Copy(DST[i][5], 5);
 #define PIXEL11_40    Interp4(DST[i][5], 5, 1);
 #define PIXEL11_41    Interp4(DST[i][5], 5, 4);
 #define PIXEL11_42    Interp4(DST[i][5], 5, 2);
-#define PIXEL11_80    Interp8(DST[i][5], 5, 4, 2);
+#define PIXEL11_70    Interp7(DST[i][5], 5, 4, 2);
 #define PIXEL12_0     Copy(DST[i][6], 5);
 #define PIXEL12_40    Interp4(DST[i][6], 5, 3);
 #define PIXEL12_41    Interp4(DST[i][6], 5, 2);
 #define PIXEL12_42    Interp4(DST[i][6], 5, 6);
-#define PIXEL12_80    Interp8(DST[i][6], 5, 6, 2);
+#define PIXEL12_70    Interp7(DST[i][6], 5, 6, 2);
 #define PIXEL13_0     Copy(DST[i][7], 5);
 #define PIXEL13_10    Interp1(DST[i][7], 6, 5);
 #define PIXEL13_22    Interp2(DST[i][7], 5, 6);
@@ -122,8 +135,9 @@ void Interp8(unsigned p[10], int p1, int p2, int p3) {
 #define PIXEL13_32    Interp3(DST[i][7], 5, 6);
 #define PIXEL13_34    Interp3(DST[i][7], 6, 5);
 #define PIXEL13_41    Interp4(DST[i][7], 5, 2);
-#define PIXEL13_61    Interp6(DST[i][7], 6, 5, 2);
-#define PIXEL13_70    Interp7(DST[i][7], 5, 6, 2);
+#define PIXEL13_51    Interp5(DST[i][7], 6, 5, 2);
+#define PIXEL13_60    Interp6(DST[i][7], 5, 6, 2);
+#define PIXEL13_61    Interp6(DST[i][7], 5, 6, 3);
 #define PIXEL20_0     Copy(DST[i][8], 5);
 #define PIXEL20_10    Interp1(DST[i][8], 4, 5);
 #define PIXEL20_22    Interp2(DST[i][8], 5, 4);
@@ -132,18 +146,19 @@ void Interp8(unsigned p[10], int p1, int p2, int p3) {
 #define PIXEL20_32    Interp3(DST[i][8], 5, 4);
 #define PIXEL20_34    Interp3(DST[i][8], 4, 5);
 #define PIXEL20_41    Interp4(DST[i][8], 5, 8);
-#define PIXEL20_61    Interp6(DST[i][8], 4, 5, 8);
-#define PIXEL20_70    Interp7(DST[i][8], 5, 4, 8);
+#define PIXEL20_51    Interp5(DST[i][8], 4, 5, 8);
+#define PIXEL20_60    Interp6(DST[i][8], 5, 4, 8);
+#define PIXEL20_61    Interp6(DST[i][8], 5, 4, 7);
 #define PIXEL21_0     Copy(DST[i][9], 5);
 #define PIXEL21_40    Interp4(DST[i][9], 5, 7);
 #define PIXEL21_41    Interp4(DST[i][9], 5, 8);
 #define PIXEL21_42    Interp4(DST[i][9], 5, 4);
-#define PIXEL21_80    Interp8(DST[i][9], 5, 4, 8);
+#define PIXEL21_70    Interp7(DST[i][9], 5, 4, 8);
 #define PIXEL22_0     Copy(DST[i][10], 5);
 #define PIXEL22_40    Interp4(DST[i][10], 5, 9);
 #define PIXEL22_41    Interp4(DST[i][10], 5, 6);
 #define PIXEL22_42    Interp4(DST[i][10], 5, 8);
-#define PIXEL22_80    Interp8(DST[i][10], 5, 6, 8);
+#define PIXEL22_70    Interp7(DST[i][10], 5, 6, 8);
 #define PIXEL23_0     Copy(DST[i][11], 5);
 #define PIXEL23_10    Interp1(DST[i][11], 6, 5);
 #define PIXEL23_21    Interp2(DST[i][11], 5, 6);
@@ -152,8 +167,9 @@ void Interp8(unsigned p[10], int p1, int p2, int p3) {
 #define PIXEL23_31    Interp3(DST[i][11], 5, 6);
 #define PIXEL23_33    Interp3(DST[i][11], 6, 5);
 #define PIXEL23_42    Interp4(DST[i][11], 5, 8);
-#define PIXEL23_61    Interp6(DST[i][11], 6, 5, 8);
-#define PIXEL23_70    Interp7(DST[i][11], 5, 6, 8);
+#define PIXEL23_51    Interp5(DST[i][11], 6, 5, 8);
+#define PIXEL23_60    Interp6(DST[i][11], 5, 6, 8);
+#define PIXEL23_61    Interp6(DST[i][11], 5, 6, 9);
 #define PIXEL30_0     Copy(DST[i][12], 5);
 #define PIXEL30_10    Interp1(DST[i][12], 8, 4);
 #define PIXEL30_20    Interp2(DST[i][12], 5, 7);
@@ -162,7 +178,6 @@ void Interp8(unsigned p[10], int p1, int p2, int p3) {
 #define PIXEL30_31    Interp3(DST[i][12], 5, 8);
 #define PIXEL30_32    Interp3(DST[i][12], 5, 4);
 #define PIXEL30_50    Interp5(DST[i][12], 5, 8, 4);
-#define PIXEL30_60    Interp6(DST[i][12], 5, 8, 4);
 #define PIXEL31_0     Copy(DST[i][13], 5);
 #define PIXEL31_10    Interp1(DST[i][13], 8, 5);
 #define PIXEL31_21    Interp2(DST[i][13], 5, 8);
@@ -171,8 +186,9 @@ void Interp8(unsigned p[10], int p1, int p2, int p3) {
 #define PIXEL31_31    Interp3(DST[i][13], 5, 8);
 #define PIXEL31_33    Interp3(DST[i][13], 8, 5);
 #define PIXEL31_42    Interp4(DST[i][13], 5, 4);
-#define PIXEL31_61    Interp6(DST[i][13], 8, 5, 4);
-#define PIXEL31_70    Interp7(DST[i][13], 5, 8, 4);
+#define PIXEL31_51    Interp5(DST[i][13], 8, 5, 4);
+#define PIXEL31_60    Interp6(DST[i][13], 5, 8, 4);
+#define PIXEL31_61    Interp6(DST[i][13], 5, 8, 7);
 #define PIXEL32_0     Copy(DST[i][14], 5);
 #define PIXEL32_10    Interp1(DST[i][14], 8, 5);
 #define PIXEL32_22    Interp2(DST[i][14], 5, 8);
@@ -181,8 +197,9 @@ void Interp8(unsigned p[10], int p1, int p2, int p3) {
 #define PIXEL32_32    Interp3(DST[i][14], 5, 8);
 #define PIXEL32_34    Interp3(DST[i][14], 8, 5);
 #define PIXEL32_41    Interp4(DST[i][14], 5, 6);
-#define PIXEL32_61    Interp6(DST[i][14], 8, 5, 6);
-#define PIXEL32_70    Interp7(DST[i][14], 5, 8, 6);
+#define PIXEL32_51    Interp5(DST[i][14], 8, 5, 6);
+#define PIXEL32_60    Interp6(DST[i][14], 5, 8, 6);
+#define PIXEL32_61    Interp6(DST[i][14], 5, 8, 9);
 #define PIXEL33_0     Copy(DST[i][15], 5);
 #define PIXEL33_10    Interp1(DST[i][15], 8, 6);
 #define PIXEL33_20    Interp2(DST[i][15], 5, 9);
@@ -191,17 +208,21 @@ void Interp8(unsigned p[10], int p1, int p2, int p3) {
 #define PIXEL33_31    Interp3(DST[i][15], 5, 6);
 #define PIXEL33_32    Interp3(DST[i][15], 5, 8);
 #define PIXEL33_50    Interp5(DST[i][15], 5, 8, 6);
-#define PIXEL33_60    Interp6(DST[i][15], 5, 8, 6);
 
 #define N 16
 
 unsigned DST[4096][N][10];
 
-int main() {
+int main(int argc, char* argv[]) {
 
 	for(unsigned i=0;i<256*2*2*2*2;++i) {
 		switch (i & 0xFF) {
 		#include "o4.h"
+		}
+		if (argc>1) {
+			for(unsigned k=0;k<N;++k) {
+				simplify(DST[i][k], i);
+			}
 		}
 	}
 
@@ -235,6 +256,7 @@ int main() {
 				l.first->mask.insert(k);
 			}
 		}
+		set<cond> cs;
 		for(unsigned j=0;j<N;++j) {
 			if (m[j].size() == 1) {
 				set<item>::iterator l=m[j].begin();
@@ -252,20 +274,33 @@ int main() {
 					++h;
 				}
 				string c = condition(l->mask);
-				cout << "if (" << c << ") {" << endl;
-				cout << "P" << j << " = " << interp(l->p) << ";" << endl;
-				cout << "} else {" << endl;
-				cout << "P" << j << " = " << interp(h->p) << ";" << endl;
-				cout << "}" << endl;
+				pair<set<cond>::iterator,bool> n = cs.insert(cond(c));
+				ostringstream i0, i1;
+				i1 << "P" << j << " = " << interp(l->p) << ";";
+				i0 << "P" << j << " = " << interp(h->p) << ";";
+				string ss;
+				n.first->if_true.insert(n.first->if_true.end(), i1.str());
+				n.first->if_false.insert(n.first->if_false.end(), i0.str());
 			} else {
 				for(set<item>::iterator l=m[j].begin();l!=m[j].end();++l) {
 					string c = condition(l->mask);
-					cout << "if (" << c << ") {" << endl;
-					cout << "P" << j << " = " << interp(l->p) << ";" << endl;
-					cout << ");" << endl;
-					cout << "}" << endl;
+					pair<set<cond>::iterator,bool> n = cs.insert(cond(c));
+					ostringstream i1;
+					i1 << "P" << j << " = " << interp(l->p) << ";";
+					n.first->if_true.insert(n.first->if_true.end(), i1.str());
 				}
 			}
+		}
+		for(set<cond>::iterator j=cs.begin();j!=cs.end();++j) {
+			cout << "if (" << j->name << ") {" << endl;
+			for(list<string>::iterator k=j->if_true.begin();k!=j->if_true.end();++k)
+				cout << "\t" << *k << endl;
+			if (j->if_false.size() > 0) {
+				cout << "} else {" << endl;
+				for(list<string>::iterator k=j->if_false.begin();k!=j->if_false.end();++k)
+					cout << "\t" << *k << endl;
+			}
+			cout << "}" << endl;
 		}
 		cout << "} break;" << endl;
 	}

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <list>
 #include <set>
 #include <string>
 #include <sstream>
@@ -89,11 +90,16 @@ void Interp5(unsigned p[10], int p1, int p2) {
 
 unsigned DST[4096][N][10];
 
-int main() {
+int main(int argc, char* argv[]) {
 
 	for(unsigned i=0;i<256*2*2*2*2;++i) {
 		switch (i & 0xFF) {
 		#include "o3.h"
+		}
+		if (argc>1) {
+			for(unsigned k=0;k<N;++k) {
+				simplify(DST[i][k], i);
+			}
 		}
 	}
 
@@ -127,6 +133,7 @@ int main() {
 				l.first->mask.insert(k);
 			}
 		}
+		set<cond> cs;
 		for(unsigned j=0;j<N;++j) {
 			if (m[j].size() == 1) {
 				set<item>::iterator l=m[j].begin();
@@ -144,20 +151,33 @@ int main() {
 					++h;
 				}
 				string c = condition(l->mask);
-				cout << "if (" << c << ") {" << endl;
-				cout << "P" << j << " = " << interp(l->p) << ";" << endl;
-				cout << "} else {" << endl;
-				cout << "P" << j << " = " << interp(h->p) << ";" << endl;
-				cout << "}" << endl;
+				pair<set<cond>::iterator,bool> n = cs.insert(cond(c));
+				ostringstream i0, i1;
+				i1 << "P" << j << " = " << interp(l->p) << ";";
+				i0 << "P" << j << " = " << interp(h->p) << ";";
+				string ss;
+				n.first->if_true.insert(n.first->if_true.end(), i1.str());
+				n.first->if_false.insert(n.first->if_false.end(), i0.str());
 			} else {
 				for(set<item>::iterator l=m[j].begin();l!=m[j].end();++l) {
 					string c = condition(l->mask);
-					cout << "if (" << c << ") {" << endl;
-					cout << "P" << j << " = " << interp(l->p) << ";" << endl;
-					cout << ");" << endl;
-					cout << "}" << endl;
+					pair<set<cond>::iterator,bool> n = cs.insert(cond(c));
+					ostringstream i1;
+					i1 << "P" << j << " = " << interp(l->p) << ";";
+					n.first->if_true.insert(n.first->if_true.end(), i1.str());
 				}
 			}
+		}
+		for(set<cond>::iterator j=cs.begin();j!=cs.end();++j) {
+			cout << "if (" << j->name << ") {" << endl;
+			for(list<string>::iterator k=j->if_true.begin();k!=j->if_true.end();++k)
+				cout << "\t" << *k << endl;
+			if (j->if_false.size() > 0) {
+				cout << "} else {" << endl;
+				for(list<string>::iterator k=j->if_false.begin();k!=j->if_false.end();++k)
+					cout << "\t" << *k << endl;
+			}
+			cout << "}" << endl;
 		}
 		cout << "} break;" << endl;
 	}

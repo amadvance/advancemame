@@ -16,20 +16,20 @@
         case 165:
         {
           PIXEL00_50
-          PIXEL01_70
-          PIXEL02_70
+          PIXEL01_60
+          PIXEL02_60
           PIXEL03_50
-          PIXEL10_70
-          PIXEL11_80
-          PIXEL12_80
-          PIXEL13_70
-          PIXEL20_70
-          PIXEL21_80
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL10_60
+          PIXEL11_70
+          PIXEL12_70
+          PIXEL13_60
+          PIXEL20_60
+          PIXEL21_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_50
-          PIXEL31_70
-          PIXEL32_70
+          PIXEL31_60
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -42,17 +42,17 @@
           PIXEL01_30
           PIXEL02_30
           PIXEL03_20
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_40
-          PIXEL13_30
-          PIXEL20_70
-          PIXEL21_80
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL13_61
+          PIXEL20_60
+          PIXEL21_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_50
-          PIXEL31_70
-          PIXEL32_70
+          PIXEL31_60
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -62,20 +62,20 @@
         case 49:
         {
           PIXEL00_50
-          PIXEL01_70
-          PIXEL02_30
+          PIXEL01_60
+          PIXEL02_61
           PIXEL03_20
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_40
           PIXEL13_30
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_40
           PIXEL23_30
           PIXEL30_50
-          PIXEL31_70
-          PIXEL32_30
+          PIXEL31_60
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -85,17 +85,17 @@
         case 69:
         {
           PIXEL00_50
-          PIXEL01_70
-          PIXEL02_70
+          PIXEL01_60
+          PIXEL02_60
           PIXEL03_50
-          PIXEL10_70
-          PIXEL11_80
-          PIXEL12_80
-          PIXEL13_70
-          PIXEL20_30
+          PIXEL10_60
+          PIXEL11_70
+          PIXEL12_70
+          PIXEL13_60
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL30_20
           PIXEL31_30
           PIXEL32_30
@@ -108,20 +108,20 @@
         case 140:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_70
+          PIXEL01_61
+          PIXEL02_60
           PIXEL03_50
           PIXEL10_30
           PIXEL11_40
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           PIXEL20_30
           PIXEL21_40
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_70
+          PIXEL31_61
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -137,14 +137,14 @@
           PIXEL10_21
           PIXEL11_41
           PIXEL12_40
-          PIXEL13_30
-          PIXEL20_70
-          PIXEL21_80
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL13_61
+          PIXEL20_60
+          PIXEL21_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_50
-          PIXEL31_70
-          PIXEL32_70
+          PIXEL31_60
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -157,17 +157,17 @@
           PIXEL01_30
           PIXEL02_42
           PIXEL03_22
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_42
           PIXEL13_22
-          PIXEL20_70
-          PIXEL21_80
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL20_60
+          PIXEL21_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_50
-          PIXEL31_70
-          PIXEL32_70
+          PIXEL31_60
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -177,20 +177,20 @@
         case 53:
         {
           PIXEL00_50
-          PIXEL01_70
+          PIXEL01_60
           PIXEL02_21
           PIXEL03_21
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_41
           PIXEL13_41
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_40
           PIXEL23_30
           PIXEL30_50
-          PIXEL31_70
-          PIXEL32_30
+          PIXEL31_60
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -200,19 +200,19 @@
         case 177:
         {
           PIXEL00_50
-          PIXEL01_70
-          PIXEL02_30
+          PIXEL01_60
+          PIXEL02_61
           PIXEL03_20
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_40
           PIXEL13_30
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_42
           PIXEL23_42
           PIXEL30_50
-          PIXEL31_70
+          PIXEL31_60
           PIXEL32_22
           PIXEL33_22
           break;
@@ -223,14 +223,14 @@
         case 197:
         {
           PIXEL00_50
-          PIXEL01_70
-          PIXEL02_70
+          PIXEL01_60
+          PIXEL02_60
           PIXEL03_50
-          PIXEL10_70
-          PIXEL11_80
-          PIXEL12_80
-          PIXEL13_70
-          PIXEL20_30
+          PIXEL10_60
+          PIXEL11_70
+          PIXEL12_70
+          PIXEL13_60
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_41
           PIXEL23_21
@@ -246,17 +246,17 @@
         case 101:
         {
           PIXEL00_50
-          PIXEL01_70
-          PIXEL02_70
+          PIXEL01_60
+          PIXEL02_60
           PIXEL03_50
-          PIXEL10_70
-          PIXEL11_80
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL10_60
+          PIXEL11_70
+          PIXEL12_70
+          PIXEL13_60
           PIXEL20_22
           PIXEL21_42
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL30_22
           PIXEL31_42
           PIXEL32_30
@@ -269,20 +269,20 @@
         case 172:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_70
+          PIXEL01_61
+          PIXEL02_60
           PIXEL03_50
           PIXEL10_30
           PIXEL11_40
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           PIXEL20_41
           PIXEL21_41
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_70
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -293,19 +293,19 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_70
+          PIXEL02_60
           PIXEL03_50
           PIXEL10_42
           PIXEL11_42
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           PIXEL20_30
           PIXEL21_40
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_70
+          PIXEL31_61
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -328,15 +328,15 @@
             PIXEL12_0
             PIXEL13_10
           }
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_40
           PIXEL23_30
           PIXEL30_50
-          PIXEL31_70
-          PIXEL32_30
+          PIXEL31_60
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -344,14 +344,14 @@
         case 81:
         {
           PIXEL00_50
-          PIXEL01_70
-          PIXEL02_30
+          PIXEL01_60
+          PIXEL02_61
           PIXEL03_20
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_40
           PIXEL13_30
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           if (M68)
           {
@@ -375,13 +375,13 @@
         case 76:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_70
+          PIXEL01_61
+          PIXEL02_60
           PIXEL03_50
           PIXEL10_30
           PIXEL11_40
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           if (M84)
           {
             PIXEL20_30
@@ -397,7 +397,7 @@
             PIXEL31_10
           }
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL32_30
           PIXEL33_20
           break;
@@ -422,14 +422,14 @@
           PIXEL02_30
           PIXEL03_20
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           PIXEL20_30
           PIXEL21_40
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_70
+          PIXEL31_61
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -439,14 +439,14 @@
           PIXEL01_30
           PIXEL02_30
           PIXEL03_20
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_40
-          PIXEL13_30
-          PIXEL20_30
+          PIXEL13_61
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL30_20
           PIXEL31_30
           PIXEL32_30
@@ -456,8 +456,8 @@
         case 24:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_30
+          PIXEL01_61
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_30
           PIXEL11_40
@@ -468,8 +468,8 @@
           PIXEL22_40
           PIXEL23_30
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_30
+          PIXEL31_61
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -485,13 +485,13 @@
           PIXEL11_41
           PIXEL12_42
           PIXEL13_22
-          PIXEL20_70
-          PIXEL21_80
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL20_60
+          PIXEL21_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_50
-          PIXEL31_70
-          PIXEL32_70
+          PIXEL31_60
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -500,19 +500,19 @@
         case 180:
         {
           PIXEL00_50
-          PIXEL01_70
+          PIXEL01_60
           PIXEL02_21
           PIXEL03_21
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_41
           PIXEL13_41
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_42
           PIXEL23_42
           PIXEL30_50
-          PIXEL31_70
+          PIXEL31_60
           PIXEL32_22
           PIXEL33_22
           break;
@@ -522,13 +522,13 @@
         case 225:
         {
           PIXEL00_50
-          PIXEL01_70
-          PIXEL02_70
+          PIXEL01_60
+          PIXEL02_60
           PIXEL03_50
-          PIXEL10_70
-          PIXEL11_80
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL10_60
+          PIXEL11_70
+          PIXEL12_70
+          PIXEL13_60
           PIXEL20_22
           PIXEL21_42
           PIXEL22_41
@@ -545,19 +545,19 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_70
+          PIXEL02_60
           PIXEL03_50
           PIXEL10_42
           PIXEL11_42
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           PIXEL20_41
           PIXEL21_41
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_70
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -578,16 +578,16 @@
             PIXEL03_10
             PIXEL13_10
           }
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_0
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_40
           PIXEL23_30
           PIXEL30_50
-          PIXEL31_70
-          PIXEL32_30
+          PIXEL31_60
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -595,14 +595,14 @@
         case 209:
         {
           PIXEL00_50
-          PIXEL01_70
-          PIXEL02_30
+          PIXEL01_60
+          PIXEL02_61
           PIXEL03_20
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_40
           PIXEL13_30
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_0
           if (M68)
@@ -625,13 +625,13 @@
         case 108:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_70
+          PIXEL01_61
+          PIXEL02_60
           PIXEL03_50
           PIXEL10_30
           PIXEL11_40
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           if (M84)
           {
             PIXEL20_0
@@ -646,7 +646,7 @@
           }
           PIXEL21_0
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL32_30
           PIXEL33_20
           break;
@@ -670,14 +670,14 @@
           PIXEL03_20
           PIXEL11_0
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           PIXEL20_30
           PIXEL21_40
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_70
+          PIXEL31_61
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -699,18 +699,18 @@
             PIXEL01_34
             PIXEL02_23
             PIXEL03_10
-            PIXEL12_80
-            PIXEL13_61
+            PIXEL12_70
+            PIXEL13_51
           }
           PIXEL10_21
           PIXEL11_41
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_40
           PIXEL23_30
           PIXEL30_50
-          PIXEL31_70
-          PIXEL32_30
+          PIXEL31_60
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -730,20 +730,20 @@
           }
           else
           {
-            PIXEL02_61
+            PIXEL02_51
             PIXEL03_10
-            PIXEL12_80
+            PIXEL12_70
             PIXEL13_23
             PIXEL23_33
             PIXEL33_31
           }
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_42
           PIXEL30_50
-          PIXEL31_70
+          PIXEL31_60
           PIXEL32_22
           break;
         }
@@ -751,7 +751,7 @@
         case 85:
         {
           PIXEL00_50
-          PIXEL01_70
+          PIXEL01_60
           PIXEL02_21
           if (M68)
           {
@@ -766,15 +766,15 @@
           {
             PIXEL03_32
             PIXEL13_34
-            PIXEL22_80
+            PIXEL22_70
             PIXEL23_23
-            PIXEL32_61
+            PIXEL32_51
             PIXEL33_10
           }
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_41
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           PIXEL30_20
           PIXEL31_30
@@ -784,11 +784,11 @@
         case 113:
         {
           PIXEL00_50
-          PIXEL01_70
-          PIXEL02_30
+          PIXEL01_60
+          PIXEL02_61
           PIXEL03_20
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_40
           PIXEL13_30
           PIXEL20_22
@@ -804,8 +804,8 @@
           }
           else
           {
-            PIXEL22_80
-            PIXEL23_61
+            PIXEL22_70
+            PIXEL23_51
             PIXEL30_31
             PIXEL31_33
             PIXEL32_23
@@ -817,13 +817,13 @@
         case 204:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_70
+          PIXEL01_61
+          PIXEL02_60
           PIXEL03_50
           PIXEL10_30
           PIXEL11_40
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           if (M84)
           {
             PIXEL20_30
@@ -835,8 +835,8 @@
           }
           else
           {
-            PIXEL20_61
-            PIXEL21_80
+            PIXEL20_51
+            PIXEL21_70
             PIXEL30_10
             PIXEL31_23
             PIXEL32_34
@@ -863,18 +863,18 @@
             PIXEL00_31
             PIXEL10_33
             PIXEL20_23
-            PIXEL21_80
+            PIXEL21_70
             PIXEL30_10
-            PIXEL31_61
+            PIXEL31_51
           }
           PIXEL01_22
-          PIXEL02_70
+          PIXEL02_60
           PIXEL03_50
           PIXEL11_42
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL32_30
           PIXEL33_20
           break;
@@ -894,21 +894,21 @@
           else
           {
             PIXEL00_10
-            PIXEL01_61
+            PIXEL01_51
             PIXEL10_23
-            PIXEL11_80
+            PIXEL11_70
             PIXEL20_34
             PIXEL30_32
           }
           PIXEL02_30
           PIXEL03_20
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           PIXEL21_41
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL31_21
-          PIXEL32_70
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -930,18 +930,18 @@
             PIXEL01_23
             PIXEL02_33
             PIXEL03_31
-            PIXEL10_61
-            PIXEL11_80
+            PIXEL10_51
+            PIXEL11_70
           }
           PIXEL12_42
           PIXEL13_22
           PIXEL20_30
           PIXEL21_40
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_70
+          PIXEL31_61
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -954,11 +954,11 @@
           PIXEL10_21
           PIXEL11_41
           PIXEL12_40
-          PIXEL13_30
-          PIXEL20_30
+          PIXEL13_61
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL30_20
           PIXEL31_30
           PIXEL32_30
@@ -971,14 +971,14 @@
           PIXEL01_30
           PIXEL02_42
           PIXEL03_22
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_42
           PIXEL13_22
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL30_20
           PIXEL31_30
           PIXEL32_30
@@ -988,7 +988,7 @@
         case 28:
         {
           PIXEL00_20
-          PIXEL01_30
+          PIXEL01_61
           PIXEL02_21
           PIXEL03_21
           PIXEL10_30
@@ -1000,16 +1000,16 @@
           PIXEL22_40
           PIXEL23_30
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_30
+          PIXEL31_61
+          PIXEL32_61
           PIXEL33_20
           break;
         }
         case 152:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_30
+          PIXEL01_61
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_30
           PIXEL11_40
@@ -1020,7 +1020,7 @@
           PIXEL22_42
           PIXEL23_42
           PIXEL30_20
-          PIXEL31_30
+          PIXEL31_61
           PIXEL32_22
           PIXEL33_22
           break;
@@ -1031,11 +1031,11 @@
           PIXEL01_30
           PIXEL02_30
           PIXEL03_20
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_40
-          PIXEL13_30
-          PIXEL20_30
+          PIXEL13_61
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_41
           PIXEL23_21
@@ -1051,14 +1051,14 @@
           PIXEL01_30
           PIXEL02_30
           PIXEL03_20
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           PIXEL20_22
           PIXEL21_42
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL30_22
           PIXEL31_42
           PIXEL32_30
@@ -1068,8 +1068,8 @@
         case 56:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_30
+          PIXEL01_61
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_30
           PIXEL11_40
@@ -1081,7 +1081,7 @@
           PIXEL23_30
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_30
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -1089,7 +1089,7 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_30
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_42
           PIXEL11_42
@@ -1100,8 +1100,8 @@
           PIXEL22_40
           PIXEL23_30
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_30
+          PIXEL31_61
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -1139,8 +1139,8 @@
           PIXEL22_40
           PIXEL23_30
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_30
+          PIXEL31_61
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -1161,10 +1161,10 @@
             PIXEL03_10
             PIXEL13_10
           }
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_0
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_0
           if (M68)
@@ -1187,8 +1187,8 @@
         case 248:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_30
+          PIXEL01_61
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_30
           PIXEL11_40
@@ -1241,7 +1241,7 @@
           PIXEL03_20
           PIXEL11_0
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           if (M84)
           {
             PIXEL20_0
@@ -1256,7 +1256,7 @@
           }
           PIXEL21_0
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL32_30
           PIXEL33_20
           break;
@@ -1285,8 +1285,8 @@
           PIXEL22_40
           PIXEL23_30
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_30
+          PIXEL31_61
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -1306,10 +1306,10 @@
             PIXEL03_10
             PIXEL13_10
           }
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_0
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_40
           PIXEL23_30
@@ -1322,8 +1322,8 @@
         case 216:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_30
+          PIXEL01_61
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_30
           PIXEL11_40
@@ -1357,7 +1357,7 @@
           PIXEL10_30
           PIXEL11_40
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           if (M84)
           {
             PIXEL20_0
@@ -1372,7 +1372,7 @@
           }
           PIXEL21_0
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL32_30
           PIXEL33_20
           break;
@@ -1401,8 +1401,8 @@
           PIXEL22_40
           PIXEL23_30
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_30
+          PIXEL31_61
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -1412,11 +1412,11 @@
           PIXEL01_30
           PIXEL02_30
           PIXEL03_20
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_40
           PIXEL13_30
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_0
           if (M68)
@@ -1438,8 +1438,8 @@
         case 120:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_30
+          PIXEL01_61
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_30
           PIXEL11_40
@@ -1482,11 +1482,11 @@
           PIXEL03_20
           PIXEL11_0
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           PIXEL20_30
           PIXEL21_40
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL30_20
           PIXEL31_30
           PIXEL32_30
@@ -1508,8 +1508,8 @@
           PIXEL22_40
           PIXEL23_30
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_30
+          PIXEL31_61
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -1519,11 +1519,11 @@
           PIXEL01_30
           PIXEL02_42
           PIXEL03_22
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_42
           PIXEL13_22
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_41
           PIXEL23_21
@@ -1536,8 +1536,8 @@
         case 184:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_30
+          PIXEL01_61
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_30
           PIXEL11_40
@@ -1562,11 +1562,11 @@
           PIXEL10_21
           PIXEL11_41
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           PIXEL20_22
           PIXEL21_42
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL30_22
           PIXEL31_42
           PIXEL32_30
@@ -1577,7 +1577,7 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_30
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_42
           PIXEL11_42
@@ -1589,7 +1589,7 @@
           PIXEL23_30
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_30
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -1603,10 +1603,10 @@
           PIXEL11_41
           PIXEL12_42
           PIXEL13_22
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL30_20
           PIXEL31_30
           PIXEL32_30
@@ -1616,7 +1616,7 @@
         case 156:
         {
           PIXEL00_20
-          PIXEL01_30
+          PIXEL01_61
           PIXEL02_21
           PIXEL03_21
           PIXEL10_30
@@ -1628,7 +1628,7 @@
           PIXEL22_42
           PIXEL23_42
           PIXEL30_20
-          PIXEL31_30
+          PIXEL31_61
           PIXEL32_22
           PIXEL33_22
           break;
@@ -1639,10 +1639,10 @@
           PIXEL01_30
           PIXEL02_30
           PIXEL03_20
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           PIXEL20_22
           PIXEL21_42
           PIXEL22_41
@@ -1656,7 +1656,7 @@
         case 60:
         {
           PIXEL00_20
-          PIXEL01_30
+          PIXEL01_61
           PIXEL02_21
           PIXEL03_21
           PIXEL10_30
@@ -1669,7 +1669,7 @@
           PIXEL23_30
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_30
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -1682,8 +1682,8 @@
           PIXEL10_21
           PIXEL11_41
           PIXEL12_40
-          PIXEL13_30
-          PIXEL20_30
+          PIXEL13_61
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_41
           PIXEL23_21
@@ -1699,14 +1699,14 @@
           PIXEL01_30
           PIXEL02_42
           PIXEL03_22
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_42
           PIXEL13_22
           PIXEL20_22
           PIXEL21_42
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL30_22
           PIXEL31_42
           PIXEL32_30
@@ -1717,7 +1717,7 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_30
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_42
           PIXEL11_42
@@ -1728,7 +1728,7 @@
           PIXEL22_42
           PIXEL23_42
           PIXEL30_20
-          PIXEL31_30
+          PIXEL31_61
           PIXEL32_22
           PIXEL33_22
           break;
@@ -1744,7 +1744,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -1759,7 +1759,7 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
@@ -1769,7 +1769,7 @@
           PIXEL23_30
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_30
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -1787,13 +1787,13 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
           PIXEL10_21
           PIXEL11_41
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           if (M68)
           {
@@ -1807,7 +1807,7 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           PIXEL30_20
           PIXEL31_30
@@ -1816,7 +1816,7 @@
         case 92:
         {
           PIXEL00_20
-          PIXEL01_30
+          PIXEL01_61
           PIXEL02_21
           PIXEL03_21
           PIXEL10_30
@@ -1834,7 +1834,7 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           if (M68)
@@ -1849,7 +1849,7 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -1864,7 +1864,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -1872,7 +1872,7 @@
           PIXEL02_30
           PIXEL03_20
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           if (M84)
           {
             PIXEL20_30
@@ -1884,7 +1884,7 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           PIXEL22_41
@@ -1904,7 +1904,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -1924,11 +1924,11 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL32_30
           PIXEL33_20
           break;
@@ -1944,7 +1944,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -1959,7 +1959,7 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
@@ -1968,7 +1968,7 @@
           PIXEL22_42
           PIXEL23_42
           PIXEL30_20
-          PIXEL31_30
+          PIXEL31_61
           PIXEL32_22
           PIXEL33_22
           break;
@@ -1987,11 +1987,11 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL20_22
           PIXEL21_42
@@ -2007,7 +2007,7 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           PIXEL30_22
           PIXEL31_42
@@ -2017,7 +2017,7 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_30
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_42
           PIXEL11_42
@@ -2034,7 +2034,7 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           if (M68)
@@ -2049,7 +2049,7 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -2064,7 +2064,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -2079,7 +2079,7 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
@@ -2094,7 +2094,7 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           if (M68)
@@ -2109,7 +2109,7 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -2131,18 +2131,18 @@
             PIXEL01_34
             PIXEL02_23
             PIXEL03_10
-            PIXEL12_80
-            PIXEL13_61
+            PIXEL12_70
+            PIXEL13_51
           }
           PIXEL10_21
           PIXEL11_41
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_40
           PIXEL23_30
           PIXEL30_50
-          PIXEL31_70
-          PIXEL32_30
+          PIXEL31_60
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -2162,20 +2162,20 @@
           }
           else
           {
-            PIXEL02_61
+            PIXEL02_51
             PIXEL03_10
-            PIXEL12_80
+            PIXEL12_70
             PIXEL13_23
             PIXEL23_33
             PIXEL33_31
           }
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_42
           PIXEL30_50
-          PIXEL31_70
+          PIXEL31_60
           PIXEL32_22
           break;
         }
@@ -2183,7 +2183,7 @@
         case 212:
         {
           PIXEL00_50
-          PIXEL01_70
+          PIXEL01_60
           PIXEL02_21
           if (M68)
           {
@@ -2198,15 +2198,15 @@
           {
             PIXEL03_32
             PIXEL13_34
-            PIXEL22_80
+            PIXEL22_70
             PIXEL23_23
-            PIXEL32_61
+            PIXEL32_51
             PIXEL33_10
           }
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_41
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           PIXEL30_20
           PIXEL31_30
@@ -2216,11 +2216,11 @@
         case 240:
         {
           PIXEL00_50
-          PIXEL01_70
-          PIXEL02_30
+          PIXEL01_60
+          PIXEL02_61
           PIXEL03_20
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_40
           PIXEL13_30
           PIXEL20_22
@@ -2236,8 +2236,8 @@
           }
           else
           {
-            PIXEL22_80
-            PIXEL23_61
+            PIXEL22_70
+            PIXEL23_51
             PIXEL30_31
             PIXEL31_33
             PIXEL32_23
@@ -2249,13 +2249,13 @@
         case 232:
         {
           PIXEL00_20
-          PIXEL01_30
-          PIXEL02_70
+          PIXEL01_61
+          PIXEL02_60
           PIXEL03_50
           PIXEL10_30
           PIXEL11_40
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           if (M84)
           {
             PIXEL20_0
@@ -2267,8 +2267,8 @@
           }
           else
           {
-            PIXEL20_61
-            PIXEL21_80
+            PIXEL20_51
+            PIXEL21_70
             PIXEL30_10
             PIXEL31_23
             PIXEL32_34
@@ -2295,18 +2295,18 @@
             PIXEL00_31
             PIXEL10_33
             PIXEL20_23
-            PIXEL21_80
+            PIXEL21_70
             PIXEL30_10
-            PIXEL31_61
+            PIXEL31_51
           }
           PIXEL01_22
-          PIXEL02_70
+          PIXEL02_60
           PIXEL03_50
           PIXEL11_42
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL32_30
           PIXEL33_20
           break;
@@ -2326,21 +2326,21 @@
           else
           {
             PIXEL00_10
-            PIXEL01_61
+            PIXEL01_51
             PIXEL10_23
-            PIXEL11_80
+            PIXEL11_70
             PIXEL20_34
             PIXEL30_32
           }
           PIXEL02_30
           PIXEL03_20
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           PIXEL21_41
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL31_21
-          PIXEL32_70
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -2362,25 +2362,25 @@
             PIXEL01_23
             PIXEL02_33
             PIXEL03_31
-            PIXEL10_61
-            PIXEL11_80
+            PIXEL10_51
+            PIXEL11_70
           }
           PIXEL12_42
           PIXEL13_22
           PIXEL20_30
           PIXEL21_40
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_20
-          PIXEL31_30
-          PIXEL32_70
+          PIXEL31_61
+          PIXEL32_60
           PIXEL33_50
           break;
         }
         case 124:
         {
           PIXEL00_20
-          PIXEL01_30
+          PIXEL01_61
           PIXEL02_21
           PIXEL03_21
           PIXEL10_30
@@ -2424,7 +2424,7 @@
           PIXEL03_20
           PIXEL11_0
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           PIXEL20_30
           PIXEL21_40
           PIXEL22_41
@@ -2460,7 +2460,7 @@
           PIXEL23_30
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_30
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -2474,7 +2474,7 @@
           PIXEL11_41
           PIXEL12_40
           PIXEL13_30
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_0
           if (M68)
@@ -2509,7 +2509,7 @@
             PIXEL03_10
             PIXEL13_10
           }
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_0
           PIXEL20_22
@@ -2526,7 +2526,7 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_30
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_42
           PIXEL11_42
@@ -2575,7 +2575,7 @@
           }
           PIXEL21_0
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL32_30
           PIXEL33_20
           break;
@@ -2604,7 +2604,7 @@
           PIXEL22_42
           PIXEL23_42
           PIXEL30_20
-          PIXEL31_30
+          PIXEL31_61
           PIXEL32_22
           PIXEL33_22
           break;
@@ -2612,7 +2612,7 @@
         case 188:
         {
           PIXEL00_20
-          PIXEL01_30
+          PIXEL01_61
           PIXEL02_21
           PIXEL03_21
           PIXEL10_30
@@ -2633,7 +2633,7 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_30
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_42
           PIXEL11_42
@@ -2665,7 +2665,7 @@
           PIXEL23_30
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_30
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -2684,7 +2684,7 @@
           PIXEL22_42
           PIXEL23_42
           PIXEL30_20
-          PIXEL31_30
+          PIXEL31_61
           PIXEL32_22
           PIXEL33_22
           break;
@@ -2702,7 +2702,7 @@
           PIXEL20_22
           PIXEL21_42
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL30_22
           PIXEL31_42
           PIXEL32_30
@@ -2718,7 +2718,7 @@
           PIXEL10_21
           PIXEL11_41
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           PIXEL20_22
           PIXEL21_42
           PIXEL22_41
@@ -2735,7 +2735,7 @@
           PIXEL01_30
           PIXEL02_42
           PIXEL03_22
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_42
           PIXEL13_22
@@ -2759,7 +2759,7 @@
           PIXEL11_41
           PIXEL12_42
           PIXEL13_22
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_41
           PIXEL23_21
@@ -2772,7 +2772,7 @@
         case 220:
         {
           PIXEL00_20
-          PIXEL01_30
+          PIXEL01_61
           PIXEL02_21
           PIXEL03_21
           PIXEL10_30
@@ -2790,7 +2790,7 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           PIXEL22_0
@@ -2819,7 +2819,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -2842,7 +2842,7 @@
           PIXEL22_42
           PIXEL23_42
           PIXEL30_20
-          PIXEL31_30
+          PIXEL31_61
           PIXEL32_22
           PIXEL33_22
           break;
@@ -2858,7 +2858,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -2866,7 +2866,7 @@
           PIXEL02_30
           PIXEL03_20
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           if (M84)
           {
             PIXEL20_0
@@ -2900,11 +2900,11 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL20_22
           PIXEL21_42
@@ -2949,7 +2949,7 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
@@ -2960,7 +2960,7 @@
           PIXEL23_30
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_30
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -2968,7 +2968,7 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_30
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_42
           PIXEL11_42
@@ -2999,7 +2999,7 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -3022,7 +3022,7 @@
           PIXEL10_21
           PIXEL11_41
           PIXEL12_0
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           if (M68)
           {
@@ -3036,7 +3036,7 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           PIXEL30_20
           PIXEL31_30
@@ -3072,11 +3072,11 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL32_30
           PIXEL33_20
           break;
@@ -3092,7 +3092,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -3107,7 +3107,7 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
@@ -3136,7 +3136,7 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -3151,7 +3151,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -3180,7 +3180,7 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           if (M68)
@@ -3195,7 +3195,7 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -3210,7 +3210,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -3225,7 +3225,7 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
@@ -3240,7 +3240,7 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           PIXEL22_0
@@ -3282,7 +3282,7 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
@@ -3298,7 +3298,7 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           if (M68)
@@ -3313,20 +3313,20 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
         case 229:
         {
           PIXEL00_50
-          PIXEL01_70
-          PIXEL02_70
+          PIXEL01_60
+          PIXEL02_60
           PIXEL03_50
-          PIXEL10_70
-          PIXEL11_80
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL10_60
+          PIXEL11_70
+          PIXEL12_70
+          PIXEL13_60
           PIXEL20_22
           PIXEL21_42
           PIXEL22_41
@@ -3347,13 +3347,13 @@
           PIXEL11_41
           PIXEL12_42
           PIXEL13_22
-          PIXEL20_70
-          PIXEL21_80
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL20_60
+          PIXEL21_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_50
-          PIXEL31_70
-          PIXEL32_70
+          PIXEL31_60
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -3361,38 +3361,38 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_70
+          PIXEL02_60
           PIXEL03_50
           PIXEL10_42
           PIXEL11_42
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           PIXEL20_41
           PIXEL21_41
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_70
+          PIXEL32_60
           PIXEL33_50
           break;
         }
         case 181:
         {
           PIXEL00_50
-          PIXEL01_70
+          PIXEL01_60
           PIXEL02_21
           PIXEL03_21
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_41
           PIXEL13_41
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_42
           PIXEL23_42
           PIXEL30_50
-          PIXEL31_70
+          PIXEL31_60
           PIXEL32_22
           PIXEL33_22
           break;
@@ -3408,7 +3408,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -3423,7 +3423,7 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
@@ -3451,7 +3451,7 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
@@ -3471,7 +3471,7 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           PIXEL30_22
           PIXEL31_42
@@ -3498,7 +3498,7 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           if (M68)
@@ -3513,7 +3513,7 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -3528,7 +3528,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -3548,7 +3548,7 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           PIXEL22_41
@@ -3562,12 +3562,12 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_70
+          PIXEL02_60
           PIXEL03_50
           PIXEL10_42
           PIXEL11_42
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           if (M84)
           {
             PIXEL20_30
@@ -3579,7 +3579,7 @@
           {
             PIXEL20_32
             PIXEL21_0
-            PIXEL30_60
+            PIXEL30_50
             PIXEL31_31
           }
           PIXEL22_41
@@ -3600,7 +3600,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
             PIXEL01_32
             PIXEL10_31
             PIXEL11_0
@@ -3611,11 +3611,11 @@
           PIXEL13_22
           PIXEL20_41
           PIXEL21_41
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_70
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -3634,18 +3634,18 @@
           else
           {
             PIXEL02_31
-            PIXEL03_60
+            PIXEL03_50
             PIXEL12_0
             PIXEL13_32
           }
           PIXEL10_21
           PIXEL11_41
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_42
           PIXEL23_42
           PIXEL30_50
-          PIXEL31_70
+          PIXEL31_60
           PIXEL32_22
           PIXEL33_22
           break;
@@ -3654,11 +3654,11 @@
         case 116:
         {
           PIXEL00_50
-          PIXEL01_70
+          PIXEL01_60
           PIXEL02_21
           PIXEL03_21
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_41
           PIXEL13_41
           PIXEL20_22
@@ -3675,7 +3675,7 @@
             PIXEL22_0
             PIXEL23_31
             PIXEL32_32
-            PIXEL33_60
+            PIXEL33_50
           }
           PIXEL30_22
           PIXEL31_42
@@ -3813,9 +3813,9 @@
             PIXEL00_31
             PIXEL10_33
             PIXEL20_23
-            PIXEL21_80
+            PIXEL21_70
             PIXEL30_10
-            PIXEL31_61
+            PIXEL31_51
           }
           PIXEL01_22
           PIXEL02_21
@@ -3847,9 +3847,9 @@
           {
             PIXEL03_32
             PIXEL13_34
-            PIXEL22_80
+            PIXEL22_70
             PIXEL23_23
-            PIXEL32_61
+            PIXEL32_51
             PIXEL33_10
           }
           PIXEL10_42
@@ -3878,8 +3878,8 @@
             PIXEL01_23
             PIXEL02_33
             PIXEL03_31
-            PIXEL10_61
-            PIXEL11_80
+            PIXEL10_51
+            PIXEL11_70
           }
           PIXEL12_42
           PIXEL13_22
@@ -3914,8 +3914,8 @@
           }
           else
           {
-            PIXEL20_61
-            PIXEL21_80
+            PIXEL20_51
+            PIXEL21_70
             PIXEL30_10
             PIXEL31_23
             PIXEL32_34
@@ -3940,9 +3940,9 @@
           }
           else
           {
-            PIXEL02_61
+            PIXEL02_51
             PIXEL03_10
-            PIXEL12_80
+            PIXEL12_70
             PIXEL13_23
             PIXEL23_33
             PIXEL33_31
@@ -3971,9 +3971,9 @@
           else
           {
             PIXEL00_10
-            PIXEL01_61
+            PIXEL01_51
             PIXEL10_23
-            PIXEL11_80
+            PIXEL11_70
             PIXEL20_34
             PIXEL30_32
           }
@@ -4012,8 +4012,8 @@
           }
           else
           {
-            PIXEL22_80
-            PIXEL23_61
+            PIXEL22_70
+            PIXEL23_51
             PIXEL30_31
             PIXEL31_33
             PIXEL32_23
@@ -4038,8 +4038,8 @@
             PIXEL01_34
             PIXEL02_23
             PIXEL03_10
-            PIXEL12_80
-            PIXEL13_61
+            PIXEL12_70
+            PIXEL13_51
           }
           PIXEL10_21
           PIXEL11_41
@@ -4058,12 +4058,12 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_70
+          PIXEL02_60
           PIXEL03_50
           PIXEL10_42
           PIXEL11_42
-          PIXEL12_80
-          PIXEL13_70
+          PIXEL12_70
+          PIXEL13_60
           PIXEL20_0
           PIXEL21_0
           PIXEL22_41
@@ -4074,7 +4074,7 @@
           }
           else
           {
-            PIXEL30_60
+            PIXEL30_50
           }
           PIXEL31_0
           PIXEL32_41
@@ -4090,7 +4090,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
           }
           PIXEL01_0
           PIXEL02_42
@@ -4101,11 +4101,11 @@
           PIXEL13_22
           PIXEL20_41
           PIXEL21_41
-          PIXEL22_80
-          PIXEL23_70
+          PIXEL22_70
+          PIXEL23_60
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_70
+          PIXEL32_60
           PIXEL33_50
           break;
         }
@@ -4121,18 +4121,18 @@
           }
           else
           {
-            PIXEL03_60
+            PIXEL03_50
           }
           PIXEL10_21
           PIXEL11_41
           PIXEL12_0
           PIXEL13_0
-          PIXEL20_70
-          PIXEL21_80
+          PIXEL20_60
+          PIXEL21_70
           PIXEL22_42
           PIXEL23_42
           PIXEL30_50
-          PIXEL31_70
+          PIXEL31_60
           PIXEL32_22
           PIXEL33_22
           break;
@@ -4141,11 +4141,11 @@
         case 244:
         {
           PIXEL00_50
-          PIXEL01_70
+          PIXEL01_60
           PIXEL02_21
           PIXEL03_21
-          PIXEL10_70
-          PIXEL11_80
+          PIXEL10_60
+          PIXEL11_70
           PIXEL12_41
           PIXEL13_41
           PIXEL20_22
@@ -4161,7 +4161,7 @@
           }
           else
           {
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -4320,7 +4320,7 @@
         case 252:
         {
           PIXEL00_20
-          PIXEL01_30
+          PIXEL01_61
           PIXEL02_21
           PIXEL03_21
           PIXEL10_30
@@ -4349,7 +4349,7 @@
           }
           else
           {
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -4357,7 +4357,7 @@
         {
           PIXEL00_22
           PIXEL01_22
-          PIXEL02_30
+          PIXEL02_61
           PIXEL03_20
           PIXEL10_42
           PIXEL11_42
@@ -4384,7 +4384,7 @@
           }
           else
           {
-            PIXEL30_60
+            PIXEL30_50
           }
           PIXEL31_0
           break;
@@ -4407,7 +4407,7 @@
           PIXEL03_20
           PIXEL11_0
           PIXEL12_40
-          PIXEL13_30
+          PIXEL13_61
           PIXEL20_0
           PIXEL21_0
           PIXEL22_41
@@ -4418,7 +4418,7 @@
           }
           else
           {
-            PIXEL30_60
+            PIXEL30_50
           }
           PIXEL31_0
           PIXEL32_41
@@ -4433,7 +4433,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
           }
           PIXEL01_0
           PIXEL02_42
@@ -4456,7 +4456,7 @@
           }
           PIXEL21_0
           PIXEL22_40
-          PIXEL23_30
+          PIXEL23_61
           PIXEL32_30
           PIXEL33_20
           break;
@@ -4469,7 +4469,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
           }
           PIXEL01_0
           if (M26)
@@ -4493,7 +4493,7 @@
           PIXEL23_30
           PIXEL30_21
           PIXEL31_21
-          PIXEL32_30
+          PIXEL32_61
           PIXEL33_20
           break;
         }
@@ -4518,7 +4518,7 @@
           }
           else
           {
-            PIXEL03_60
+            PIXEL03_50
           }
           PIXEL11_0
           PIXEL12_0
@@ -4528,7 +4528,7 @@
           PIXEL22_42
           PIXEL23_42
           PIXEL30_20
-          PIXEL31_30
+          PIXEL31_61
           PIXEL32_22
           PIXEL33_22
           break;
@@ -4544,13 +4544,13 @@
           }
           else
           {
-            PIXEL03_60
+            PIXEL03_50
           }
           PIXEL10_21
           PIXEL11_41
           PIXEL12_0
           PIXEL13_0
-          PIXEL20_30
+          PIXEL20_61
           PIXEL21_40
           PIXEL22_0
           if (M68)
@@ -4585,7 +4585,7 @@
             PIXEL03_10
             PIXEL13_10
           }
-          PIXEL10_30
+          PIXEL10_61
           PIXEL11_40
           PIXEL12_0
           PIXEL20_22
@@ -4601,7 +4601,7 @@
           }
           else
           {
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -4646,7 +4646,7 @@
           }
           else
           {
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -4670,7 +4670,7 @@
           }
           else
           {
-            PIXEL30_60
+            PIXEL30_50
           }
           PIXEL31_0
           PIXEL32_0
@@ -4680,7 +4680,7 @@
           }
           else
           {
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -4724,7 +4724,7 @@
           }
           else
           {
-            PIXEL30_60
+            PIXEL30_50
           }
           PIXEL31_0
           break;
@@ -4737,7 +4737,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
           }
           PIXEL01_0
           PIXEL02_42
@@ -4756,7 +4756,7 @@
           }
           else
           {
-            PIXEL30_60
+            PIXEL30_50
           }
           PIXEL31_0
           PIXEL32_41
@@ -4771,7 +4771,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
           }
           PIXEL01_0
           if (M26)
@@ -4816,7 +4816,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
           }
           PIXEL01_0
           PIXEL02_0
@@ -4826,7 +4826,7 @@
           }
           else
           {
-            PIXEL03_60
+            PIXEL03_50
           }
           PIXEL10_0
           PIXEL11_0
@@ -4863,7 +4863,7 @@
           }
           else
           {
-            PIXEL03_60
+            PIXEL03_50
           }
           PIXEL11_0
           PIXEL12_0
@@ -4898,7 +4898,7 @@
           }
           else
           {
-            PIXEL03_60
+            PIXEL03_50
           }
           PIXEL10_21
           PIXEL11_41
@@ -4917,7 +4917,7 @@
           }
           else
           {
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }
@@ -4929,7 +4929,7 @@
           }
           else
           {
-            PIXEL00_60
+            PIXEL00_50
           }
           PIXEL01_0
           PIXEL02_0
@@ -4939,7 +4939,7 @@
           }
           else
           {
-            PIXEL03_60
+            PIXEL03_50
           }
           PIXEL10_0
           PIXEL11_0
@@ -4955,7 +4955,7 @@
           }
           else
           {
-            PIXEL30_60
+            PIXEL30_50
           }
           PIXEL31_0
           PIXEL32_0
@@ -4965,7 +4965,7 @@
           }
           else
           {
-            PIXEL33_60
+            PIXEL33_50
           }
           break;
         }

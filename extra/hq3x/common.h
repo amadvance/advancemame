@@ -151,3 +151,77 @@ string interp(const unsigned p[10]) {
 	return s;
 }
 
+class cond {
+public:
+	cond(const string& Aname);
+
+	string name;
+	mutable list<string> if_true;
+	mutable list<string> if_false;
+
+	bool operator<(const cond& A) const;
+};
+
+cond::cond(const string& Aname) : name(Aname) {
+}
+
+bool cond::operator<(const cond& A) const {
+	return name < A.name;
+}
+
+unsigned maskbit(unsigned i) {
+	switch (i) {
+	case 0 : return 0x1;
+	case 1 : return 0x2;
+	case 2 : return 0x4;
+	case 3 : return 0x8;
+	case 5 : return 0x10;
+	case 6 : return 0x20;
+	case 7 : return 0x40;
+	case 8 : return 0x80;
+	}
+	return 0;
+}
+
+bool isequal(unsigned i, unsigned j, unsigned maskfull) {
+	if (i == j) {
+		return 1;
+	}
+	if (i == 4) {
+		return (maskfull & maskbit(j)) == 0;
+	}
+	if (j == 4) {
+		return (maskfull & maskbit(i)) == 0;
+	}
+	if ((maskfull & maskbit(i)) == 0 && (maskfull & maskbit(j)) == 0) {
+		return 1;
+	}
+/* if enabled it will generate complex test M cases */
+#if 0
+	if ((i==2 && j==6) || (i==6 && j==2)) {
+		return (maskfull & 0x100) == 0;
+	}
+	if ((i==6 && j==8) || (i==8 && j==6)) {
+		return (maskfull & 0x200) == 0;
+	}
+	if ((i==8 && j==4) || (i==4 && j==8)) {
+		return (maskfull & 0x400) == 0;
+	}
+	if ((i==4 && j==2) || (i==2 && j==4)) {
+		return (maskfull & 0x800) == 0;
+	}
+#endif
+	return 0;
+}
+
+void simplify(unsigned p[10], unsigned maskfull) {
+	for(unsigned i=0;i<9;++i) {
+		for(unsigned j=i+1;j<9;++j) {
+			if (isequal(i, j, maskfull)) {
+				p[i+1] += p[j+1];
+				p[j+1] = 0;
+			}
+		}
+	}
+}
+

@@ -11,9 +11,12 @@ hq4x: hq4x.cc common.h
 
 hq2x.dat: hq2x
 	./hq2x > hq2x.dat
+	./hq2x lq > lq2x.dat
 
 hq3x.dat: hq3x
 	./hq3x > hq3x.dat
+	./hq3x lq > lq3x.dat
 
 hq4x.dat: hq4x
 	./hq4x > hq4x.dat
+	./hq4x lq > lq4x.dat
