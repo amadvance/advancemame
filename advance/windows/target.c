@@ -420,8 +420,11 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 
 	*cmdline = 0;
 
+	/* The /S option and the extra " is required for the */
+	/* CMD processing. But it don't work for COMMAND.COM */
+
 	sncatarg(cmdline, EXEC_MAX, comspec);
-	sncat(cmdline, EXEC_MAX, " /C ");
+	sncat(cmdline, EXEC_MAX, " /S /C \"");
 
 	for(i=0;argv[i];++i) {
 		if (i)
@@ -431,6 +434,7 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 
 	sncat(cmdline, EXEC_MAX, " > ");
 	sncatarg(cmdline, EXEC_MAX, output);
+	sncat(cmdline, EXEC_MAX, "\"");
 
 	r = exec(cmdline);
 
