@@ -284,9 +284,11 @@ static adv_error keyb_setup(struct keyboard_item_context* item, int f)
 		item->state[i] = 0;
 
 	memset(item->key_bitmask, 0, sizeof(item->key_bitmask));
-	if (ioctl(f, EVIOCGBIT(EV_KEY, sizeof(item->key_bitmask)), item->key_bitmask) < 0) {
-		log_std(("event: error in ioctl(EVIOCGBIT(EV_KEY,%d))\n", (int)KEY_MAX));
-		return -1;
+	if (event_test_bit(EV_KEY, item->evtype_bitmask)) {
+		if (ioctl(f, EVIOCGBIT(EV_KEY, sizeof(item->key_bitmask)), item->key_bitmask) < 0) {
+			log_std(("event: error in ioctl(EVIOCGBIT(EV_KEY,%d))\n", (int)KEY_MAX));
+			return -1;
+		}
 	}
 
 	return 0;

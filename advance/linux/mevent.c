@@ -115,15 +115,18 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 		{ REL_Z, "z" },
 		{ REL_WHEEL, "wheel" },
 		{ REL_HWHEEL, "hwheel" },
-		{ REL_DIAL, "dial" }
+		{ REL_DIAL, "dial" },
+		{ REL_MISC, "misc" }
 	};
 
 	item->f = f;
 
 	memset(key_bitmask, 0, sizeof(key_bitmask));
-	if (ioctl(f, EVIOCGBIT(EV_KEY, sizeof(key_bitmask)), key_bitmask) < 0) {
-		log_std(("event: error in ioctl(EVIOCGBIT(EV_KEY,%d))\n", (int)KEY_MAX));
-		return -1;
+	if (event_test_bit(EV_KEY, item->evtype_bitmask)) {
+		if (ioctl(f, EVIOCGBIT(EV_KEY, sizeof(key_bitmask)), key_bitmask) < 0) {
+			log_std(("event: error in ioctl(EVIOCGBIT(EV_KEY,%d))\n", (int)KEY_MAX));
+			return -1;
+		}
 	}
 
 	item->button_mac = 0;
@@ -139,9 +142,11 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 	}
 
 	memset(rel_bitmask, 0, sizeof(rel_bitmask));
-	if (ioctl(f, EVIOCGBIT(EV_REL, sizeof(rel_bitmask)), rel_bitmask) < 0) {
-		log_std(("event: error in ioctl(EVIOCGBIT(EV_REL,%d))\n", (int)REL_MAX));
-		return -1;
+	if (event_test_bit(EV_REL, item->evtype_bitmask)) {
+		if (ioctl(f, EVIOCGBIT(EV_REL, sizeof(rel_bitmask)), rel_bitmask) < 0) {
+			log_std(("event: error in ioctl(EVIOCGBIT(EV_REL,%d))\n", (int)REL_MAX));
+			return -1;
+		}
 	}
 
 	item->axe_mac = 0;

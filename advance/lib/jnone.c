@@ -55,87 +55,6 @@ unsigned joystickb_none_count_get(void)
 	return 0;
 }
 
-unsigned joystickb_none_stick_count_get(unsigned j)
-{
-	log_debug(("joystickb:none: joystickb_none_stick_count_get()\n"));
-
-	assert(0);
-
-	return 0;
-}
-
-unsigned joystickb_none_stick_axe_count_get(unsigned j, unsigned s)
-{
-	log_debug(("joystickb:none: joystickb_none_stick_axe_count_get()\n"));
-
-	assert(0);
-
-	return 0;
-}
-
-unsigned joystickb_none_button_count_get(unsigned j)
-{
-	log_debug(("joystickb:none: joystickb_none_button_count_get()\n"));
-
-	assert(0);
-
-	return 0;
-}
-
-const char* joystickb_none_stick_name_get(unsigned j, unsigned s)
-{
-	log_debug(("joystickb:none: joystickb_none_stick_name_get()\n"));
-
-	assert(0);
-
-	return "Unknown";
-}
-
-const char* joystickb_none_stick_axe_name_get(unsigned j, unsigned s, unsigned a)
-{
-	log_debug(("joystickb:none: joystickb_none_stick_axe_name_get()\n"));
-
-	assert(0);
-
-	return "Unknown";
-}
-
-const char* joystickb_none_button_name_get(unsigned j, unsigned b)
-{
-	log_debug(("joystickb:none: joystickb_none_button_name_get()\n"));
-
-	assert(0);
-
-	return "Unknown";
-}
-
-unsigned joystickb_none_button_get(unsigned j, unsigned b)
-{
-	log_debug(("joystickb:none: joystickb_none_button_get()\n"));
-
-	assert(0);
-
-	return 0;
-}
-
-unsigned joystickb_none_stick_axe_digital_get(unsigned j, unsigned s, unsigned a, unsigned d)
-{
-	log_debug(("joystickb:none: joystickb_none_stick_axe_digital_get()\n"));
-
-	assert(0);
-
-	return 0;
-}
-
-int joystickb_none_stick_axe_analog_get(unsigned j, unsigned s, unsigned a)
-{
-	log_debug(("joystickb:none: joystickb_none_stick_axe_analog_get()\n"));
-
-	assert(0);
-
-	return 0;
-}
-
 void joystickb_none_calib_start(void)
 {
 	log_debug(("joystickb:none: joystickb_none_calib_start()\n"));
@@ -179,15 +98,18 @@ joystickb_driver joystickb_none_driver = {
 	joystickb_none_done,
 	joystickb_none_flags,
 	joystickb_none_count_get,
-	joystickb_none_stick_count_get,
-	joystickb_none_stick_axe_count_get,
-	joystickb_none_button_count_get,
-	joystickb_none_stick_name_get,
-	joystickb_none_stick_axe_name_get,
-	joystickb_none_button_name_get,
-	joystickb_none_button_get,
-	joystickb_none_stick_axe_digital_get,
-	joystickb_none_stick_axe_analog_get,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
 	joystickb_none_calib_start,
 	joystickb_none_calib_next,
 	joystickb_none_poll

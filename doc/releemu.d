@@ -2,8 +2,9 @@ Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
 AdvanceMAME 0.71.2
-	This release contains a new set of Linux input driver for keyboards, mice
-	and joysticks based on the Linux input-event interfaces.
+	This release contains a new set of Linux input driver for
+	keyboards, mice and joysticks based on the Linux input-event
+	interfaces.
 	These drivers remove any limitations on the number of
 	keyboards, mice and joysticks, and they give the best
 	support for the new USB HID devices.
@@ -13,6 +14,15 @@ AdvanceMAME 0.71.2
 	game control. This option works best with the new
 	Linux input-device drivers which are able to report
 	correctly the exact type of input control.
+
+	The `input_map' option now can remap also all the digital
+	inputs like keys, buttons and digital joystick.
+	This feature is similar at the official MAME ctrl remmapping,
+	but it allow to select any type of digital input, not only
+	the inputs known by MAME. For example you can map the
+	`bookmark' key (present only on some keyboards) also if
+	doesn't exist a MAME code for it. This also remove any limitation
+	on the number of joystick and mouse buttons.
 
 AdvanceMAME 0.68.0
 	This release supports the new `scale3x' and `scale4x' effects.

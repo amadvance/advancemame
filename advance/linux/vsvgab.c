@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999-2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -109,6 +109,11 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned zoom_size, adv
 	if (sizeof(svgalib_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
 
+	if (!os_internal_svgalib_get()) {
+		error_set("Unsupported without the svgalib library.\n");
+		return -1;
+	}
+
 	if (getenv("DISPLAY")) {
 		error_set("Unsupported in X.\n");
 		return -1;
@@ -116,11 +121,6 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned zoom_size, adv
 
 	if (output != adv_output_auto && output != adv_output_fullscreen) {
 		error_set("Only fullscreen output is supported.\n");
-		return -1;
-	}
-
-	if (!os_internal_svgalib_get()) {
-		error_set("Unsupported without the svgalib library.\n");
 		return -1;
 	}
 
@@ -146,7 +146,7 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned zoom_size, adv
 	case BANSHEE :
 	case SIS :
 	case I740 :
-/*	case I810 : */ /* Version 1.9.17 does't work with most recent Intel boards */
+/*	case I810 : */ /* Version 1.9.17 doesn't work with most recent Intel boards */
 	case LAGUNA :
 	case RAGE :
 	case MX :
@@ -199,16 +199,16 @@ void svgalib_done(void)
 }
 
 /* Flags copied from svgalib/src/timings.h */
-#define SVGALIB_PHSYNC          0x1     /* Positive hsync polarity. */
-#define SVGALIB_NHSYNC          0x2     /* Negative hsync polarity. */
-#define SVGALIB_PVSYNC          0x4     /* Positive vsync polarity. */
-#define SVGALIB_NVSYNC          0x8     /* Negative vsync polarity. */
-#define SVGALIB_INTERLACED      0x10    /* Mode has interlaced timing. */
-#define SVGALIB_DOUBLESCAN      0x20    /* Mode uses doublescan. */
-#define SVGALIB_TVMODE          0x200   /* Enable the TV output. */
-#define SVGALIB_TVPAL           0x400   /* Use the PAL format. */
-#define SVGALIB_TVNTSC          0x800   /* Use the NTSC format. */
-#define SVGALIB_FORCE           0x1000  /* Force the use of this modeline. */
+#define SVGALIB_PHSYNC 0x1 /* Positive hsync polarity. */
+#define SVGALIB_NHSYNC 0x2 /* Negative hsync polarity. */
+#define SVGALIB_PVSYNC 0x4 /* Positive vsync polarity. */
+#define SVGALIB_NVSYNC 0x8 /* Negative vsync polarity. */
+#define SVGALIB_INTERLACED 0x10 /* Mode has interlaced timing. */
+#define SVGALIB_DOUBLESCAN 0x20 /* Mode uses doublescan. */
+#define SVGALIB_TVMODE 0x200 /* Enable the TV output. */
+#define SVGALIB_TVPAL 0x400 /* Use the PAL format. */
+#define SVGALIB_TVNTSC 0x800 /* Use the NTSC format. */
+#define SVGALIB_FORCE 0x1000 /* Force the use of this modeline. */
 
 adv_error svgalib_mode_set(const svgalib_video_mode* mode) 
 {

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999-2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -184,113 +184,9 @@ static struct input_equiv input_keyequiv_map[] = {
 { DIGITAL_KBD(0, KEYB_RCONTROL), KEYCODE_RCONTROL },
 { DIGITAL_KBD(0, KEYB_ALT), KEYCODE_LALT },
 { DIGITAL_KBD(0, KEYB_ALTGR), KEYCODE_RALT },
-/*
-{ DIGITAL_KBD(0, KEYB_LWIN, CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_RWIN, CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_MENU, CODE_OTHER },
-*/
 { DIGITAL_KBD(0, KEYB_SCRLOCK), KEYCODE_SCRLOCK },
 { DIGITAL_KBD(0, KEYB_NUMLOCK), KEYCODE_NUMLOCK },
-{ DIGITAL_KBD(0, KEYB_CAPSLOCK), KEYCODE_CAPSLOCK },
-/*
-{ DIGITAL_KBD(0, KEYB_STOP), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_AGAIN), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_PROPS), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_UNDO), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_FRONT), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_COPY), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_OPEN), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_PASTE), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_FIND), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_CUT), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_HELP), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_MENU), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_CALC), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_SETUP), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_SLEEP), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_WAKEUP), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_FILE), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_SENDFILE), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_DELETEFILE), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_XFER), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_PROG1), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_PROG2), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_WWW), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_MSDOS), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_COFFEE), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_DIRECTION), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_CYCLEWINDOWS), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_MAIL), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_BOOKMARKS), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_COMPUTER), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_BACK), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_FORWARD), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_CLOSECD), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_EJECTCD), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_EJECTCLOSECD), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_NEXTSONG), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_PLAYPAUSE), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_PREVIOUSSONG), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_STOPCD), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_RECORD), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_REWIND), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_PHONE), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_ISO), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_CONFIG), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_HOMEPAGE), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_REFRESH), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_EXIT), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_MOVE), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_EDIT), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_SCROLLUP), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_SCROLLDOWN), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_KPLEFTPAREN), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_KPRIGHTPAREN), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_INTL1), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_INTL2), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_INTL3), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_INTL4), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_INTL5), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_INTL6), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_INTL7), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_INTL8), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_INTL9), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_LANG1), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_LANG2), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_LANG3), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_LANG4), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_LANG5), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_LANG6), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_LANG7), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_LANG8), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_LANG9), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_PLAYCD), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_PAUSECD), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_PROG3), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_PROG4), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_SUSPEND), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_CLOSE), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_BRIGHTNESSDOWN), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_BRIGHTNESSUP), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_MACRO), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_MUTE), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_VOLUMEDOWN), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_VOLUMEUP), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_POWER), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_COMPOSE), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_F13), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_F14), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_F15), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_F16), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_F17), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_F18), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_F19), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_F20), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_F21), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_F22), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_F23), CODE_OTHER },
-{ DIGITAL_KBD(0, KEYB_F24), CODE_OTHER }
-*/
+{ DIGITAL_KBD(0, KEYB_CAPSLOCK), KEYCODE_CAPSLOCK }
 };
 
 /**
@@ -397,7 +293,7 @@ static char input_joyname_map[INPUT_JOYMOUSE_MAX + 1][INPUT_NAME_MAX];
 #define ANALOG_TYPE_SPECIAL DIGITAL_TYPE_SPECIAL
 #define ANALOG_TYPE_MOUSE 5 /* Mouse - NAAADDDTTT */
 #define ANALOG_TYPE_JOY 6 /* Joy - NAAASSSDDDTTT */
-#define ANALOG_TYPE_AUTO 7 /* Automatic choice. This isn't a real code */
+#define ANALOG_TYPE_BALL 7 /* Ball - NAAADDDTTT */
 #define ANALOG_TYPE_GET(i) DIGITAL_TYPE_GET(i)
 
 #define ANALOG_SPECIAL_NONE DIGITAL_SPECIAL_NONE
@@ -415,6 +311,12 @@ static char input_joyname_map[INPUT_JOYMOUSE_MAX + 1][INPUT_NAME_MAX];
 #define ANALOG_JOY_AXE_GET(i) (((i) >> 9) & 0x7)
 #define ANALOG_JOY_NEGATE_GET(i) (((i) >> 12) & 0x1)
 #define ANALOG_JOY(joy, stick, axe, negate) (ANALOG_TYPE_JOY | (joy) << 3 | (stick) << 6 | (axe) << 9 | (negate) << 12)
+
+/* Analog Joy/ball */
+#define ANALOG_BALL_DEV_GET(i) (((i) >> 3) & 0x7)
+#define ANALOG_BALL_AXE_GET(i) (((i) >> 6) & 0x7)
+#define ANALOG_BALL_NEGATE_GET(i) (((i) >> 9) & 0x1)
+#define ANALOG_BALL(joy, axe, negate) (ANALOG_TYPE_BALL | (joy) << 3 | (axe) << 6 | (negate) << 9)
 
 static char* input_analog_map_desc[INPUT_ANALOG_MAX] = {
 	"x", "y", "z", "pedal"
@@ -443,9 +345,6 @@ static const char* parse_token(char* c, int* p, char* s, const char* sep, const 
 	v = *p;
 
 	while (s[*p] && strchr(sep, s[*p])==0 && strchr(ignore, s[*p])==0)
-		++*p;
-
-	while (s[*p] && strchr(ignore, s[*p])!=0)
 		++*p;
 
 	*c = s[*p];
@@ -543,6 +442,108 @@ static adv_error parse_mouse_axe(int* v, const char* s, unsigned mouse)
 	return -1;
 }
 
+static adv_error parse_joystick_rel(int* v, const char* s, unsigned joystick)
+{
+	unsigned i;
+
+	if (strspn(s, "0123456789") == strlen(s)) {
+		return parse_int(v, s);
+	}
+
+	if (joystick < 0 || joystick >= joystickb_count_get()) {
+		*v = 0; /* fake value, doesn't fail if you remove a device */
+		return 0;
+	}
+
+	for(i=0;i<joystickb_rel_count_get(joystick);++i) {
+		if (strcmp(joystickb_rel_name_get(joystick, i), s) == 0) {
+			*v = i;
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+static adv_error parse_mouse_button(int* v, const char* s, unsigned mouse)
+{
+	unsigned i;
+
+	if (strspn(s, "0123456789") == strlen(s)) {
+		return parse_int(v, s);
+	}
+
+	if (mouse < 0 || mouse >= mouseb_count_get()) {
+		*v = 0; /* fake value, doesn't fail if you remove a device */
+		return 0;
+	}
+
+	for(i=0;i<mouseb_button_count_get(mouse);++i) {
+		if (strcmp(mouseb_button_name_get(mouse, i), s) == 0) {
+			*v = i;
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+static adv_error parse_joystick_button(int* v, const char* s, unsigned joystick)
+{
+	unsigned i;
+
+	if (strspn(s, "0123456789") == strlen(s)) {
+		return parse_int(v, s);
+	}
+
+	if (joystick < 0 || joystick >= joystickb_count_get()) {
+		*v = 0; /* fake value, doesn't fail if you remove a device */
+		return 0;
+	}
+
+	for(i=0;i<joystickb_button_count_get(joystick);++i) {
+		if (strcmp(joystickb_button_name_get(joystick, i), s) == 0) {
+			*v = i;
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+static adv_error parse_key(int* v, const char* s, unsigned keyboard)
+{
+	unsigned i;
+
+	if (strspn(s, "0123456789") == strlen(s)) {
+		return parse_int(v, s);
+	}
+
+	for(i=0;i<KEYB_MAX;++i) {
+		if (strcmp(key_name(i), s) == 0) {
+			*v = i;
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+static adv_error parse_direction(int* v, const char* s)
+{
+	if (strcmp(s,"left")==0 || strcmp(s,"up")==0) {
+		*v = 1;
+		return 0;
+	}
+
+	if (strcmp(s,"right")==0 || strcmp(s,"down")==0) {
+		*v = 0;
+		return 0;
+	}
+
+	return -1;
+}
+
 static adv_error parse_analog(int* map, char* s)
 {
 	unsigned p;
@@ -565,7 +566,6 @@ static adv_error parse_analog(int* map, char* s)
 		const char* v0;
 		const char* v1;
 		const char* v2;
-		int joystick, stick, axe, negate;
 
 		t = parse_token(&c, &p, s, "[", " \t");
 		if (first && strcmp(t,"auto")==0) {
@@ -581,45 +581,47 @@ static adv_error parse_analog(int* map, char* s)
 			return 0;
 		}
 
-		if (strcmp(t, "joystick")!=0 && strcmp(t, "-joystick")!=0)
-			return -1;
-		if (c!='[')
-			return -1;
+		if (strcmp(t, "joystick")==0 || strcmp(t, "-joystick")==0) {
+			int joystick, stick, axe;
+			adv_bool negate;
 
-		if (strcmp(t, "joystick")==0)
-			negate = 0;
-		else
-			negate = 1;
+			if (c!='[')
+				return -1;
 
-		v0 = parse_token(&c, &p, s, ",", " \t");
-		if (c!=',')
-			return -1;
+			negate = t[0] == '-';
 
-		v1 = parse_token(&c, &p, s, ",", " \t");
-		if (c!=',')
-			return -1;
+			v0 = parse_token(&c, &p, s, ",", " \t");
+			if (c!=',')
+				return -1;
 
-		v2 = parse_token(&c, &p, s, "]", " \t");
-		if (c!=']')
-			return -1;
+			v1 = parse_token(&c, &p, s, ",", " \t");
+			if (c!=',')
+				return -1;
 
-		if (parse_int(&joystick, v0) != 0
-			|| parse_joystick_stick(&stick, v1, joystick) != 0
-			|| parse_joystick_stick_axe(&axe, v2, joystick, stick) != 0)
-			return -1;
+			v2 = parse_token(&c, &p, s, "]", " \t");
+			if (c!=']')
+				return -1;
 
-		if (joystick < 0 || joystick >= INPUT_JOY_MAX)
-			return -1;
-		if (stick < 0 || stick >= INPUT_STICK_MAX)
-			return -1;
-		if (axe < 0 || axe >= INPUT_AXE_MAX)
-			return -1;
+			if (parse_int(&joystick, v0) != 0
+				|| parse_joystick_stick(&stick, v1, joystick) != 0
+				|| parse_joystick_stick_axe(&axe, v2, joystick, stick) != 0)
+				return -1;
 
-		if (mac >= INPUT_MAP_MAX)
-			return -1;
+			if (joystick < 0 || joystick >= INPUT_JOY_MAX)
+				return -1;
+			if (stick < 0 || stick >= INPUT_STICK_MAX)
+				return -1;
+			if (axe < 0 || axe >= INPUT_AXE_MAX)
+				return -1;
 
-		map[mac] = ANALOG_JOY(joystick, stick, axe, negate);
-		++mac;
+			if (mac >= INPUT_MAP_MAX)
+				return -1;
+
+			map[mac] = ANALOG_JOY(joystick, stick, axe, negate);
+			++mac;
+		} else {
+			return -1;
+		}
 
 		parse_skip(&p, s, " \t");
 
@@ -650,7 +652,6 @@ static int parse_trak(int* map, char* s)
 		const char* t;
 		const char* v0;
 		const char* v1;
-		int mouse, axe, negate;
 
 		t = parse_token(&c, &p, s, "[", " \t");
 		if (first && strcmp(t,"auto")==0) {
@@ -667,38 +668,71 @@ static int parse_trak(int* map, char* s)
 			return 0;
 		}
 
-		if (strcmp(t, "mouse")!=0 && strcmp(t, "-mouse")!=0)
-			return -1;
-		if (c!='[')
-			return -1;
+		if (strcmp(t, "mouse")==0 || strcmp(t, "-mouse")==0) {
+			int mouse, axe;
+			adv_bool negate;
+			
+			if (c!='[')
+				return -1;
 
-		if (strcmp(t, "mouse")==0)
-			negate = 0;
-		else
-			negate = 1;
+			negate = t[0] == '-';
 
-		v0 = parse_token(&c, &p, s, ",", " \t");
-		if (c!=',')
-			return -1;
+			v0 = parse_token(&c, &p, s, ",", " \t");
+			if (c!=',')
+				return -1;
 
-		v1 = parse_token(&c, &p, s, "]", " \t");
-		if (c!=']')
-			return -1;
+			v1 = parse_token(&c, &p, s, "]", " \t");
+			if (c!=']')
+				return -1;
 
-		if (parse_int(&mouse, v0) != 0
-			|| parse_mouse_axe(&axe, v1, mouse) != 0)
-			return -1;
+			if (parse_int(&mouse, v0) != 0
+				|| parse_mouse_axe(&axe, v1, mouse) != 0)
+				return -1;
 
-		if (mouse < 0 || mouse >= INPUT_MOUSE_MAX)
-			return -1;
-		if (axe < 0 || axe >= INPUT_AXE_MAX)
-			return -1;
+			if (mouse < 0 || mouse >= INPUT_MOUSE_MAX)
+				return -1;
+			if (axe < 0 || axe >= INPUT_AXE_MAX)
+				return -1;
 
-		if (mac >= INPUT_MAP_MAX)
-			return -1;
+			if (mac >= INPUT_MAP_MAX)
+				return -1;
 
-		map[mac] = ANALOG_MOUSE(mouse, axe, negate);
-		++mac;
+			map[mac] = ANALOG_MOUSE(mouse, axe, negate);
+			++mac;
+		} else if (strcmp(t, "joystick_ball")==0 || strcmp(t, "-joystick_ball")==0) {
+			int joystick, axe;
+			adv_bool negate;
+			
+			if (c!='[')
+				return -1;
+
+			negate = t[0] == '-';
+
+			v0 = parse_token(&c, &p, s, ",", " \t");
+			if (c!=',')
+				return -1;
+
+			v1 = parse_token(&c, &p, s, "]", " \t");
+			if (c!=']')
+				return -1;
+
+			if (parse_int(&joystick, v0) != 0
+				|| parse_joystick_rel(&axe, v1, joystick) != 0)
+				return -1;
+
+			if (joystick < 0 || joystick >= INPUT_JOY_MAX)
+				return -1;
+			if (axe < 0 || axe >= INPUT_AXE_MAX)
+				return -1;
+
+			if (mac >= INPUT_MAP_MAX)
+				return -1;
+
+			map[mac] = ANALOG_BALL(joystick, axe, negate);
+			++mac;
+		} else {
+			return -1;
+		}
 
 		parse_skip(&p, s, " \t");
 
@@ -730,6 +764,7 @@ static int parse_digital(unsigned* map, char* s)
 		const char* v0;
 		const char* v1;
 		const char* v2;
+		const char* v3;
 
 		t = parse_token(&c, &p, s, "[", " \t");
 		if (first && strcmp(t,"auto")==0) {
@@ -743,7 +778,7 @@ static int parse_digital(unsigned* map, char* s)
 			return 0;
 		}
 
-		if (strcmp(t, "kbd")==0) {
+		if (strcmp(t, "keyboard")==0) {
 			int board;
 			int key;
 
@@ -758,13 +793,8 @@ static int parse_digital(unsigned* map, char* s)
 			if (c!=']')
 				return -1;
 
-			if (parse_int(&board, v0) != 0)
-				return -1;
-
-			for(key=0;key<KEYB_MAX;++key)
-				if (strcmp(key_name(key), v1) == 0)
-					break;
-			if (key == KEYB_MAX)
+			if (parse_int(&board, v0) != 0
+				|| parse_key(&key, v1, board) != 0)
 				return -1;
 
 			if (board < 0 || board >= INPUT_KEYBOARD_MAX)
@@ -777,7 +807,52 @@ static int parse_digital(unsigned* map, char* s)
 
 			map[mac] = DIGITAL_KBD(board, key);
 			++mac;
-		} else if (strcmp(t, "joystickb")==0) {
+		} else if (strcmp(t, "joystick_digital")==0) {
+			int joystick;
+			int stick;
+			int axe;
+			int dir;
+
+			if (c!='[')
+				return -1;
+
+			v0 = parse_token(&c, &p, s, ",", " \t");
+			if (c!=',')
+				return -1;
+
+			v1 = parse_token(&c, &p, s, ",", " \t");
+			if (c!=',')
+				return -1;
+
+			v2 = parse_token(&c, &p, s, ",", " \t");
+			if (c!=',')
+				return -1;
+
+			v3 = parse_token(&c, &p, s, "]", " \t");
+			if (c!=']')
+				return -1;
+
+			if (parse_int(&joystick, v0) != 0
+				|| parse_joystick_stick(&stick, v1, joystick) != 0
+				|| parse_joystick_stick_axe(&axe, v2, joystick, stick) != 0
+				|| parse_direction(&dir, v3) != 0)
+				return -1;
+
+			if (joystick < 0 || joystick >= INPUT_JOY_MAX)
+				return -1;
+			if (stick < 0 || stick >= INPUT_STICK_MAX)
+				return -1;
+			if (axe < 0 || axe >= INPUT_AXE_MAX)
+				return -1;
+			if (dir < 0 || dir >= 2)
+				return -1;
+
+			if (mac >= INPUT_MAP_MAX)
+				return -1;
+
+			map[mac] = DIGITAL_JOY(joystick, stick, axe, dir);
+			++mac;
+		} else if (strcmp(t, "joystick_button")==0) {
 			int joystick;
 			int button;
 
@@ -792,9 +867,8 @@ static int parse_digital(unsigned* map, char* s)
 			if (c!=']')
 				return -1;
 
-			if (parse_int(&joystick, v0) != 0)
-				return -1;
-			if (parse_int(&button, v1) != 0)
+			if (parse_int(&joystick, v0) != 0
+				|| parse_joystick_button(&button, v1, joystick) != 0)
 				return -1;
 
 			if (joystick < 0 || joystick >= INPUT_JOY_MAX)
@@ -807,7 +881,7 @@ static int parse_digital(unsigned* map, char* s)
 
 			map[mac] = DIGITAL_JOY_BUTTON(joystick, button);
 			++mac;
-		} else if (strcmp(t, "mouseb")==0) {
+		} else if (strcmp(t, "mouse_button")==0) {
 			int mouse;
 			int button;
 
@@ -822,9 +896,8 @@ static int parse_digital(unsigned* map, char* s)
 			if (c!=']')
 				return -1;
 
-			if (parse_int(&mouse, v0) != 0)
-				return -1;
-			if (parse_int(&button, v1) != 0)
+			if (parse_int(&mouse, v0) != 0
+				|| parse_mouse_button(&button, v1, mouse) != 0)
 				return -1;
 
 			if (mouse < 0 || mouse >= INPUT_MOUSE_MAX)
@@ -1047,17 +1120,39 @@ static void input_setup_log(struct advance_input_context* context)
 {
 	unsigned i, j, k;
 
-	log_std(("advance:keyboard: %d available\n", keyb_count_get() ));
+	log_std(("advance: input devices\n"));
+
+	log_std(("Driver %s, keyboards %d\n", keyb_name(), keyb_count_get()));
 	for(i=0;i<keyb_count_get();++i) {
-		log_std(("advance:keyboard: %d\n", i));
+		log_std(("keyboard %d\n", i));
 	}
-	log_std(("advance:mouse: %d available\n", mouseb_count_get() ));
+
+	log_std(("Driver %s, mouses %d\n", mouseb_name(), mouseb_count_get()));
 	for(i=0;i<mouseb_count_get();++i) {
-		log_std(("advance:mouse: %d, buttons %d\n", i, mouseb_button_count_get(i)));
+		log_std(("mouse %d, axes %d, buttons %d\n", i, mouseb_axe_count_get(i), mouseb_button_count_get(i)));
+		for(j=0;j<mouseb_axe_count_get(i);++j) {
+			log_std(("\taxe %d [%s]\n", j, mouseb_axe_name_get(i, j)));
+		}
+		for(j=0;j<mouseb_button_count_get(i);++j) {
+			log_std(("\tbutton %d [%s]\n", j, mouseb_button_name_get(i, j)));
+		}
 	}
-	log_std(("advance:joystick: %d available\n", joystickb_count_get() ));
+
+	log_std(("Driver %s, joysticks %d\n", joystickb_name(), joystickb_count_get()));
 	for(i=0;i<joystickb_count_get();++i) {
-		log_std(("advance:joystick: %d, buttons %d, stick %d\n", i, joystickb_button_count_get(i), joystickb_stick_count_get(i)));
+		log_std(("joy %d, controls %d, buttons %d, ball axes %d\n", i, joystickb_stick_count_get(i), joystickb_button_count_get(i), joystickb_rel_count_get(i)));
+		for(j=0;j<joystickb_stick_count_get(i);++j) {
+			log_std(("\tcontrol %d [%s], axes %d\n", j, joystickb_stick_name_get(i, j), joystickb_stick_axe_count_get(i, j)));
+			for(k=0;k<joystickb_stick_axe_count_get(i,j);++k) {
+				log_std(("\t\taxe %d [%s]\n", k, joystickb_stick_axe_name_get(i, j, k)));
+			}
+		}
+		for(j=0;j<joystickb_button_count_get(i);++j) {
+			log_std(("\tbutton %d [%s]\n", j, joystickb_button_name_get(i, j)));
+		}
+		for(j=0;j<joystickb_rel_count_get(i);++j) {
+			log_std(("\tball axe %d [%s]\n", j, joystickb_rel_name_get(i, j)));
+		}
 	}
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
@@ -1069,7 +1164,7 @@ static void input_setup_log(struct advance_input_context* context)
 					unsigned j = ANALOG_JOY_DEV_GET(v);
 					unsigned s = ANALOG_JOY_STICK_GET(v);
 					unsigned a = ANALOG_JOY_AXE_GET(v);
-					int negate = ANALOG_JOY_NEGATE_GET(v);
+					adv_bool negate = ANALOG_JOY_NEGATE_GET(v);
 					if (negate)
 						log_std((" -joystick[%d,%d,%d]", j, s, a));
 					else
@@ -1092,11 +1187,19 @@ static void input_setup_log(struct advance_input_context* context)
 				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
 					unsigned m = ANALOG_MOUSE_DEV_GET(v);
 					unsigned a = ANALOG_MOUSE_AXE_GET(v);
-					int negate = ANALOG_MOUSE_NEGATE_GET(v);
+					adv_bool negate = ANALOG_MOUSE_NEGATE_GET(v);
 					if (negate)
 						log_std((" -mouse[%d,%d]", m, a));
 					else
 						log_std((" mouse[%d,%d]", m, a));
+				} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_BALL) {
+					unsigned m = ANALOG_BALL_DEV_GET(v);
+					unsigned a = ANALOG_BALL_AXE_GET(v);
+					adv_bool negate = ANALOG_BALL_NEGATE_GET(v);
+					if (negate)
+						log_std((" -joystick_ball[%d,%d]", m, a));
+					else
+						log_std((" joystick_ball[%d,%d]", m, a));
 				} else {
 					if (k == 0)
 						log_std((" <none>"));
@@ -1276,6 +1379,10 @@ static void input_setup_init(struct advance_input_context* context)
 
 	/* initialize the joystick state */
 	for(i=0;i<INPUT_JOY_MAX;++i) {
+		for(j=0;j<INPUT_AXE_MAX;++j) {
+			context->state.ball_analog_current[i][j] = 0;
+		}
+
 		for(j=0;j<INPUT_STICK_MAX;++j) {
 			for(k=0;k<INPUT_AXE_MAX;++k) {
 				context->state.joystick_analog_current[i][j][k] = 0;
@@ -1328,7 +1435,7 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 			if (parse_analog(context->config.analog_map[i][j].seq, d)!=0) {
 				free(d);
 				target_err("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
-				target_err("Valid format is [-]joystick[JOYSTICK,STICK,AXE] ...\n");
+				target_err("Valid format is [-]joystick[JOYSTICK,STICK,AXE]\n");
 				return -1;
 			}
 			free(d);
@@ -1347,7 +1454,7 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 			if (parse_trak(context->config.trak_map[i][j].seq, d)!=0) {
 				free(d);
 				target_err("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
-				target_err("Valid format is [-]mouse[MOUSE,AXE] [-]joystick[JOY,STICK,AXE]...\n");
+				target_err("Valid format is [-]mouse[MOUSE,AXE]/[-]joystick_ball[JOYSTICK,AXE]\n");
 				return -1;
 			}
 			free(d);
@@ -1370,7 +1477,7 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 			if (parse_digital(context->config.digital_map[i].seq, d) != 0) {
 				free(d);
 				target_err("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
-				target_err("Valid format is kbd[...] or joystickb[...] or not mouseb[...]\n");
+				target_err("Valid format is keyboard[KEY]/joystick_button[JOYSTICK,BUTTON]/mouse_button[MOUSE,BUTTON]\n");
 				return -1;
 			}
 			++i;
@@ -1412,25 +1519,50 @@ void osd_customize_inputport_defaults(struct ipd* defaults)
 					++p;
 				}
 				if (p->name)
-					log_std(("advance: customize input %s\n", p->name));
+					log_std(("advance: customize input %s :", p->name));
 				else
-					log_std(("advance: customize input 0x%x\n", port));
+					log_std(("advance: customize input 0x%x :", port));
 
 				for(k=0;k<SEQ_MAX && k<INPUT_MAP_MAX;++k) {
 					unsigned v;
 					switch (seq[k]) {
-					case DIGITAL_SPECIAL_NONE : v = CODE_NONE; break;
-					case DIGITAL_SPECIAL_OR : v = CODE_OR; break;
-					case DIGITAL_SPECIAL_NOT : v = CODE_NOT; break;
+					case DIGITAL_SPECIAL_NONE :
+						v = CODE_NONE;
+						break;
+					case DIGITAL_SPECIAL_OR :
+						v = CODE_OR;
+						log_std((" or"));
+						break;
+					case DIGITAL_SPECIAL_NOT :
+						v = CODE_NOT;
+						log_std((" not"));
+						break;
 					default:
 						switch (DIGITAL_TYPE_GET(seq[k])) {
-						case DIGITAL_TYPE_KBD : v = mame_ui_code_from_oskey(seq[k]); break;
-						case DIGITAL_TYPE_JOY : v = mame_ui_code_from_osjoystick(seq[k]); break;
-						default : v = CODE_NONE;
+						case DIGITAL_TYPE_KBD :
+							v = mame_ui_code_from_oskey(seq[k]);
+							log_std((" keyboard[raw:0x%x,mamekeycode:%d]", seq[k], v));
+							break;
+						case DIGITAL_TYPE_MOUSE_BUTTON :
+							v = mame_ui_code_from_osjoystick(seq[k]);
+							log_std((" mouse_button[raw:0x%x,mamejoycode:%d]", seq[k], v));
+							break;
+						case DIGITAL_TYPE_JOY_BUTTON :
+							v = mame_ui_code_from_osjoystick(seq[k]);
+							log_std((" joystick_button[raw:0x%x,mamejoycode:%d]", seq[k], v));
+							break;
+						case DIGITAL_TYPE_JOY :
+							v = mame_ui_code_from_osjoystick(seq[k]);
+							log_std((" joystick_digital[raw:0x%x,mamejoycode:%d]", seq[k], v));
+							break;
+						default :
+							v = CODE_NONE;
+							break;
 						}
 					}
 					i->seq[k] = v;
 				}
+				log_std(("\n"));
 				for(;k<SEQ_MAX;++k)
 					i->seq[k] = CODE_NONE;
 			}
@@ -1577,6 +1709,12 @@ static void input_joystick_update(struct advance_input_context* context)
 	unsigned i, j, k, w;
 
 	for(i=0;i<joystickb_count_get() && i<INPUT_JOY_MAX;++i) {
+		for(j=0;j<joystickb_rel_count_get(i) && j<INPUT_AXE_MAX;++j) {
+			context->state.ball_analog_current[i][j] = joystickb_rel_get(i, j);
+			if (context->state.ball_analog_current[i][j])
+				input_something_pressed(context);
+		}
+
 		for(j=0;j<joystickb_stick_count_get(i) && j<INPUT_STICK_MAX;++j) {
 			for(k=0;k<joystickb_stick_axe_count_get(i, j) && k<INPUT_AXE_MAX;++k) {
 				context->state.joystick_analog_current[i][j][k] = joystickb_stick_axe_analog_get(i, j, k);
@@ -1816,7 +1954,7 @@ void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode 
 						unsigned j = ANALOG_JOY_DEV_GET(v);
 						unsigned s = ANALOG_JOY_STICK_GET(v);
 						unsigned a = ANALOG_JOY_AXE_GET(v);
-						int negate = ANALOG_JOY_NEGATE_GET(v);
+						adv_bool negate = ANALOG_JOY_NEGATE_GET(v);
 						if (j < INPUT_JOY_MAX && s < INPUT_STICK_MAX && a < INPUT_AXE_MAX) {
 							if (negate)
 								analog_axis[i] -= context->state.joystick_analog_current[j][s][a];
@@ -1878,38 +2016,41 @@ void osd_trak_read(int player, int* x, int* y)
 	*y = 0;
 
 	if (player < INPUT_PLAYER_MAX) {
-		for(n=0;n<INPUT_MAP_MAX;++n) {
-			unsigned v = context->config.trak_map[player][0].seq[n];
-			if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
-				unsigned m = ANALOG_MOUSE_DEV_GET(v);
-				unsigned a = ANALOG_MOUSE_AXE_GET(v);
-				int negate = ANALOG_MOUSE_NEGATE_GET(v);
-				if (m < INPUT_MOUSE_MAX && a < INPUT_AXE_MAX) {
-					if (negate)
-						*x -= context->state.mouse_analog_current[m][a];
-					else
-						*x += context->state.mouse_analog_current[m][a];
-				}
-			} else {
-				break;
-			}
-		}
+		unsigned i;
+		for(i=0;i<2;++i) {
+			int r;
 
-		for(n=0;n<INPUT_MAP_MAX;++n) {
-			unsigned v = context->config.trak_map[player][1].seq[n];
-			if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
-				unsigned m = ANALOG_MOUSE_DEV_GET(v);
-				unsigned a = ANALOG_MOUSE_AXE_GET(v);
-				int negate = ANALOG_MOUSE_NEGATE_GET(v);
-				if (m < INPUT_MOUSE_MAX && a < INPUT_AXE_MAX) {
-					if (negate) {
-						*y -= context->state.mouse_analog_current[m][a];
-					} else {
-						*y += context->state.mouse_analog_current[m][a];
+			r = 0;
+			for(n=0;n<INPUT_MAP_MAX;++n) {
+				unsigned v = context->config.trak_map[player][0].seq[n];
+				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
+					unsigned m = ANALOG_MOUSE_DEV_GET(v);
+					unsigned a = ANALOG_MOUSE_AXE_GET(v);
+					adv_bool negate = ANALOG_MOUSE_NEGATE_GET(v);
+					if (m < INPUT_MOUSE_MAX && a < INPUT_AXE_MAX) {
+						if (negate)
+							r -= context->state.mouse_analog_current[m][a];
+						else
+							r += context->state.mouse_analog_current[m][a];
 					}
+				} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_BALL) {
+					unsigned j = ANALOG_BALL_DEV_GET(v);
+					unsigned a = ANALOG_BALL_AXE_GET(v);
+					adv_bool negate = ANALOG_BALL_NEGATE_GET(v);
+					if (j < INPUT_JOY_MAX && a < INPUT_AXE_MAX) {
+						if (negate)
+							r -= context->state.ball_analog_current[j][a];
+						else
+							r += context->state.ball_analog_current[j][a];
+					}
+				} else {
+					break;
 				}
-			} else {
-				break;
+			}
+
+			switch (i) {
+			case 0 : *x += r; break;
+			case 1 : *y += r; break;
 			}
 		}
 	}

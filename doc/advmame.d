@@ -1087,20 +1087,36 @@ Configuration
 	Changes the analog control mapping. Map a joystick/control axe
 	on a player analog control.
 
-	:input_map[CONTROL] auto | [-]joystick[JOY,STICK,AXE] ...
+	:input_map[ANALOG] auto | [-]joystick[JOY,CONTROL,AXE] ...
 
 	The default is always `auto'.
 
 	Options:
-		CONTROL - Player analog control. One of: p1_x, p1_y, p1_z, p1_pedal,
+		ANALOG - Player analog control. One of: p1_x, p1_y, p1_z, p1_pedal,
 			p2_x, p2_y, p2_z, p2_pedal, p3_x, p3_y, p3_z, p3_pedal,
 			p4_x, p4_y, p4_z, p4_pedal.
 		- - Invert the direction of the movement.
 		JOY - Number of physical joystick: 0, 1, 2, 3, ...
-		STICK - Number of physical stick of the joystick: 0, 1, 2, 3, ...
-		AXE - Number of physical axe of the stick: 0, 1, 2, 3, ...
+		CONTROL - Number or name of physical control of the joystick: 0, 1, 2, 3, ...
+		AXE - Number or name of physical axe of the control: 0, 1, 2, 3, ...
 
-	Controls:
+	The control and axe names can be checked using the `advj' utility.
+	Generally the control names are :
+		stick - Stick.
+		gas - Acceleration pedal.
+		brake - Brake pedal.
+		wheel - Steering wheel.
+		hat, hat2, hat3, hat4 - Hats.
+		throttle - Throttle.
+		rudder - Rudder.
+		misc - Any other.
+
+	And the axe names are :
+		x, y, z - Movement on the X, Y, Z axe.
+		rx, ry, rz - Rotation on the X, Y, Z axe.
+		mono - For all the control with a single axe.
+
+	The analog controls are:
 		p1_AXE - Player 1.
 		p2_AXE - Player 2.
 		p3_AXE - Player 3.
@@ -1117,21 +1133,30 @@ Configuration
 		input_map[p1_y] -joystick[0,0,1] -joystick[0,1,1]
 
     input_map[p1|2|3|4_trakx|traky]
-	Changes the trak control mapping. Map a mouse axe on a player
-	trak control.
+	Changes the trak control mapping. Map a mouse axe or a joystick ball axe on
+	a player trak control.
 
-	:input_map[CONTROL] auto | [-]mouse[MOUSE,AXE] ...
+	:input_map[TRAK] auto | [-]mouse[MOUSE,AXE] [-]joystick_ball[JOYSTICK,AXE] ...
 
 	The default is always `auto'.
 
 	Options:
-		CONTROL - Player trak. One of: p1_trakx, p1_traky,
+		TRAK - Player analog trak. One of: p1_trakx, p1_traky,
 			p2_trakx, p2_traky, p3_trakx, p3_traky, p4_trakx, p4_traky.
 		- - Invert the direction of the movement.
 		MOUSE - Number of physical mouse: 0, 1, 2, 3, ...
-		AXE - Number of physical mouse axe: 0, 1, 2, ...
+		JOYSTICK - Number of physical joystick: 0, 1, 2, 3, ...
+		AXE - Number or name of physical mouse axe: 0, 1, 2, ...
 
-	Controls:
+	The axe names can be checked using the `advm' and `advj' utilities.
+	Generally they are :
+		x, y, z - Movement on the X, Y, Z axe.
+		wheel - Vertical wheel.
+		hwheel - Horizontal wheel.
+		dial - Dial.
+		misc - Any other.
+
+	The analog traks are:
 		p1_AXE - Player 1.
 		p2_AXE - Player 2.
 		p3_AXE - Player 3.
@@ -1146,30 +1171,65 @@ Configuration
 		input_map[p1_traky] -mouse[0,1] -mouse[1,1]
 
     input_map[*]
-	Changes the keyboard control mapping. Map a sequence of
+	Changes the digital control mapping. Map a sequence of
 	keyboard/mouse/joystick keys on a player button or analog
-	simulation control.
+	simulation digital control.
 
-	:input_map[CONTROL] auto | kbd[KEYBOARD,KEY]
-		| mouseb[MOUSE,MOUSE_BUTTON] | joystickb[JOY,JOY_BUTTON]
+	:input_map[DIGITAL] auto | keyboard[KEYBOARD,KEY]
+		| mouse_button[MOUSE,MOUSE_BUTTON] | joystick_button[JOY,JOY_BUTTON]
+		| joystick_digital[JOY,CONTROL,AXE,DIR]
 		| or | not | ...
 
 	The default is always `auto'.
 
 	Options:
-		CONTROL - Player button or analog simulation control.
+		DIGITAL - Player button or analog simulation digital
+			digital control.
 		KEYBOARD - Number of physical keyboard: 0, 1, 2, 3, ...
 		KEY - Name of physical key.
 		MOUSE - Number of physical mouse: 0, 1, 2, 3, ...
-		MOUSE_BUTTON - Mouse button. A number: 0, 1, 2, 3, ... or
-			a name: left, right, middle, ...
+		MOUSE_BUTTON - Number or name of a physical mouse button:
+			0, 1, 2, 3, ...
 		JOY - Number of physical joystick: 0, 1, 2, 3, ...
-		JOY_BUTTON - Joystick button. A number: 0, 1, 2, 3, ... or
-			a name: trigger, top, thumb, ...
+		CONTROL - Number or name of physical control of the joystick: 0, 1, 2, 3, ...
+		DIR - Direction of the movement: left, up, right, down.
+		AXE - Number or name of physical axe of the control: 0, 1, 2, 3, ...
+		JOY_BUTTON - Number or name of a physical joystick button:
+			0, 1, 2, 3, ...
 		or - Or operand.
 		not - Not operand.
 
-	Controls:
+	The joystick button names can be checked using the `advj' utility.
+	Generally they are:
+		trigger - Joystick trigger button.
+		top, top2 - Joystick top buttons.
+		thumb, thumb2 - Joystick thumb buttons.
+		pinkie - Joystick pinkie button.
+		base, base2, base3, base4, base5, base6 - Joystick base buttons.
+		dead - Joystick dead button.
+		a, b, c, x, y, z - GamePad buttons.
+		tl, tr, tl2, tr2 - GamePad top (left/right) buttons.
+		thumbl thumbr - GamePad thumb (left/right) buttons.
+		select, start, mode - GamePad extra buttons.
+		gear_up, gear_down - Wheel gear buttons.
+		left, right, middle - Ball standard buttons.
+		side - Ball side button.
+		extra - Ball extra button.
+		forward - Ball forward button.
+		back - Ball back button.
+		fourth, fifth, sixth - Ball misc buttons.
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9 - Misc buttons.
+
+	The mouse button names can be checked using the `advm' utility.
+	Generally they are:
+		left, right, middle - Standard buttons.
+		side - Side button.
+		extra - Extra button.
+		forward - Forward button.
+		back - Back button.
+		fourth, fifth, sixth - Misc buttons.
+
+	The digital controls are:
 		p1_up, p2_up, p3_up, p4_up, p1_down, p2_down, p3_down, p4_down, 
 		p1_left, p2_left, p3_left, p4_left, p1_right, p2_right, p3_right, 
 		p4_right, p1_button1, p2_button1, p3_button1, p4_button1, p1_button2, 
@@ -1213,7 +1273,8 @@ Configuration
 		ui_toggle_debug, ui_save_state, ui_load_state, ui_add_cheat, 
 		ui_delete_cheat, ui_save_cheat, ui_watch_value.
 
-	Keys:
+	The key names can be checked using the `advk' utility.
+	Generally they are:
 		a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u,
 		v, w, x, y, z, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0_pad, 1_pad, 2_pad,
 		3_pad, 4_pad, 5_pad, 6_pad, 7_pad, 8_pad, 9_pad, f1, f2, f3,
@@ -1237,9 +1298,9 @@ Configuration
 		f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24.
 
 	Examples:
-		input_map[p1_left] kbd[0,left]
-		input_map[p1_right] kbd[0,right]
-		input_map[p1_button1] kdb[0,lshit] or joystickb[0,trigger] or mouseb[0,left]
+		input_map[p1_left] keyboard[0,left] or joystick_digital[0,stick,x,left]
+		input_map[p1_right] keyboard[0,right] or joystick_digital[0,stick,x,right]
+		input_map[p1_button1] keyboard[0,lshit] or joystick_button[0,trigger] or mouse_button[0,left]
 
   Record Configuration Options
 	This section describes the options used for the recording

@@ -174,10 +174,7 @@ const char* joystickb_svgalib_button_name_get(unsigned joystick, unsigned button
 
 	(void)joystick;
 
-	if (button == 0)
-		snprintf(svgalib_state.button_name_buffer, sizeof(svgalib_state.button_name_buffer), "button");
-	else
-		snprintf(svgalib_state.button_name_buffer, sizeof(svgalib_state.button_name_buffer), "button%d", button+1);
+	snprintf(svgalib_state.button_name_buffer, sizeof(svgalib_state.button_name_buffer), "%d", button+1);
 
 	return svgalib_state.button_name_buffer;
 }
@@ -272,13 +269,16 @@ joystickb_driver joystickb_svgalib_driver = {
 	joystickb_svgalib_count_get,
 	joystickb_svgalib_stick_count_get,
 	joystickb_svgalib_stick_axe_count_get,
-	joystickb_svgalib_button_count_get,
 	joystickb_svgalib_stick_name_get,
 	joystickb_svgalib_stick_axe_name_get,
-	joystickb_svgalib_button_name_get,
-	joystickb_svgalib_button_get,
 	joystickb_svgalib_stick_axe_digital_get,
 	joystickb_svgalib_stick_axe_analog_get,
+	joystickb_svgalib_button_count_get,
+	joystickb_svgalib_button_name_get,
+	joystickb_svgalib_button_get,
+	0,
+	0,
+	0,
 	joystickb_svgalib_calib_start,
 	joystickb_svgalib_calib_next,
 	joystickb_svgalib_poll

@@ -9,6 +9,8 @@ AdvanceMAME Version 0.71.2 2003/08
 	) The `input_map' option now accept the `auto' setting which
 		is able to map the correct input device on the correct
 		game control.
+	) The `input_map' option now can remap also all the digital
+		inputs like keys, buttons and digital joystick.
 	) Improved the advk, advj and advm utilities. They now
 		report more information on the hardware found.
 

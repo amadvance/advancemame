@@ -576,6 +576,7 @@ struct advance_input_state_context {
 	int joystick_button_current[INPUT_JOY_MAX][INPUT_BUTTON_MAX]; /**< Joystick button state. */
 	int joystick_analog_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX]; /**< Joystick analog state. */
 	int joystick_digital_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX][INPUT_DIR_MAX]; /**< Joystick digital state. */
+	int ball_analog_current[INPUT_JOY_MAX][INPUT_AXE_MAX]; /**< Joystick ball analog state. */
 
 	int mouse_button_current[INPUT_MOUSE_MAX][INPUT_BUTTON_MAX]; /**< Mouse button state. */
 	int mouse_analog_current[INPUT_MOUSE_MAX][INPUT_AXE_MAX]; /**< Mouse analog state. */

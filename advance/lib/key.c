@@ -236,7 +236,7 @@ static struct key_entry KEY[] = {
 { 0, 0 }
 };
 
-static char key_name_buffer[32];
+static char key_name_buffer[64];
 
 /**
  * Return a short name for the specified key code.
@@ -249,7 +249,7 @@ const char* key_name(unsigned code)
 		if (i->code == code)
 			return i->name;
 
-	snprintf(key_name_buffer, sizeof(key_name_buffer), "%d", code);
+	snprintf(key_name_buffer, sizeof(key_name_buffer), "code_%d", code);
 
 	return key_name_buffer;
 }

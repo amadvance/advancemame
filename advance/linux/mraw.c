@@ -97,7 +97,7 @@ static void mouseb_setup(struct mouse_item_context* item)
 		{ MOUSE_LEFTBUTTON, "left" },
 		{ MOUSE_RIGHTBUTTON, "right" },
 		{ MOUSE_MIDDLEBUTTON, "middle" },
-		{ MOUSE_FOURTHBUTTON, "four" },
+		{ MOUSE_FOURTHBUTTON, "fourth" },
 		{ MOUSE_FIFTHBUTTON, "fifth" },
 		{ MOUSE_SIXTHBUTTON, "sixth" }
 	};

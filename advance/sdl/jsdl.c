@@ -186,10 +186,7 @@ const char* joystickb_sdl_button_name_get(unsigned joystick, unsigned button)
 
 	(void)joystick;
 
-	if (button == 0)
-		snprintf(sdl_state.button_name_buffer, sizeof(sdl_state.button_name_buffer), "button");
-	else
-		snprintf(sdl_state.button_name_buffer, sizeof(sdl_state.button_name_buffer), "button%d", button+1);
+	snprintf(sdl_state.button_name_buffer, sizeof(sdl_state.button_name_buffer), "%d", button+1);
 
 	return sdl_state.button_name_buffer;
 }
@@ -288,13 +285,16 @@ joystickb_driver joystickb_sdl_driver = {
 	joystickb_sdl_count_get,
 	joystickb_sdl_stick_count_get,
 	joystickb_sdl_stick_axe_count_get,
-	joystickb_sdl_button_count_get,
 	joystickb_sdl_stick_name_get,
 	joystickb_sdl_stick_axe_name_get,
-	joystickb_sdl_button_name_get,
-	joystickb_sdl_button_get,
 	joystickb_sdl_stick_axe_digital_get,
 	joystickb_sdl_stick_axe_analog_get,
+	joystickb_sdl_button_count_get,
+	joystickb_sdl_button_name_get,
+	joystickb_sdl_button_get,
+	0,
+	0,
+	0,
 	joystickb_sdl_calib_start,
 	joystickb_sdl_calib_next,
 	joystickb_sdl_poll

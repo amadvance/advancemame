@@ -47,6 +47,7 @@
 #define EVENT_JOYSTICK_STICK_MAX 16
 #define EVENT_JOYSTICK_NAME_MAX 128
 #define EVENT_JOYSTICK_AXE_MAX 8
+#define EVENT_JOYSTICK_REL_MAX 8
 
 struct joystick_button_context {
 	unsigned code;
@@ -73,6 +74,12 @@ struct joystick_stick_context {
 	char name[EVENT_JOYSTICK_NAME_MAX];
 };
 
+struct joystick_rel_context {
+	unsigned code;
+	int value;
+	char name[EVENT_JOYSTICK_NAME_MAX];
+};
+
 struct joystick_item_context {
 	int f;
 	unsigned char evtype_bitmask[EV_MAX/8 + 1];
@@ -80,6 +87,8 @@ struct joystick_item_context {
 	struct joystick_stick_context stick_map[EVENT_JOYSTICK_STICK_MAX];
 	unsigned button_mac;
 	struct joystick_button_context button_map[EVENT_JOYSTICK_BUTTON_MAX];
+	unsigned rel_mac;
+	struct joystick_rel_context rel_map[EVENT_JOYSTICK_REL_MAX];
 };
 
 struct joystickb_event_context {
@@ -100,24 +109,61 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 {
 	unsigned char key_bitmask[KEY_MAX/8 + 1];
 	unsigned char abs_bitmask[ABS_MAX/8 + 1];
+	unsigned char rel_bitmask[REL_MAX/8 + 1];
 	unsigned i;
 	struct button_entry {
 		int code;
 		const char* name;
 	} button_map[] = {
-		{ BTN_TRIGGER, "trigger" },
-		{ BTN_TOP, "top" },
-		{ BTN_THUMB, "thumb" },
-		{ BTN_TOP2, "top2" },
-		{ BTN_THUMB2, "thumb2" },
-		{ BTN_PINKIE, "pinkie" },
-		{ BTN_BASE, "base" },
-		{ BTN_BASE2, "base2" },
-		{ BTN_BASE3, "base3" },
-		{ BTN_BASE4, "base4" },
-		{ BTN_BASE5, "base5" },
-		{ BTN_BASE6, "base6" },
-		{ BTN_DEAD, "dead" }
+		{ BTN_TRIGGER, "trigger" }, /* joystick */
+		{ BTN_TOP, "top" }, /* joystick */
+		{ BTN_TOP2, "top2" }, /* joystick */
+		{ BTN_THUMB, "thumb" }, /* joystick */
+		{ BTN_THUMB2, "thumb2" }, /* joystick */
+		{ BTN_PINKIE, "pinkie" }, /* joystick */
+		{ BTN_BASE, "base" }, /* joystick */
+		{ BTN_BASE2, "base2" }, /* joystick */
+		{ BTN_BASE3, "base3" }, /* joystick */
+		{ BTN_BASE4, "base4" }, /* joystick */
+		{ BTN_BASE5, "base5" }, /* joystick */
+		{ BTN_BASE6, "base6" }, /* joystick */
+		{ BTN_DEAD, "dead" }, /* joystick */
+		{ BTN_A, "a" }, /* gamepad */
+		{ BTN_B, "b" }, /* gamepad */
+		{ BTN_C, "c" }, /* gamepad */
+		{ BTN_X, "x" }, /* gamepad */
+		{ BTN_Y, "y" }, /* gamepad */
+		{ BTN_Z, "z" }, /* gamepad */
+		{ BTN_TL, "tl" }, /* gamepad */
+		{ BTN_TR, "tr" }, /* gamepad */
+		{ BTN_TL2, "tl2" }, /* gamepad */
+		{ BTN_TR2, "tr2" }, /* gamepad */
+		{ BTN_SELECT, "select" }, /* gamepad */
+		{ BTN_START, "start" }, /* gamepad */
+		{ BTN_MODE, "mode" }, /* gamepad */
+		{ BTN_THUMBL, "thumbl" }, /* gamepad */
+		{ BTN_THUMBR, "thumbr" }, /* gamepad */
+#if defined(BTN_GEAR_DOWN) && defined(BTN_GEAR_DOWN) /* only in Linux 2.6 */
+		{ BTN_GEAR_DOWN, "gear_down" }, /* wheel */
+		{ BTN_GEAR_UP, "gear_up" }, /* wheel */
+#endif
+		{ BTN_0, "0" }, /* misc */
+		{ BTN_1, "1" }, /* misc */
+		{ BTN_2, "2" }, /* misc */
+		{ BTN_3, "3" }, /* misc */
+		{ BTN_4, "4" }, /* misc */
+		{ BTN_5, "5" }, /* misc */
+		{ BTN_6, "6" }, /* misc */
+		{ BTN_7, "7" }, /* misc */
+		{ BTN_8, "8" }, /* misc */
+		{ BTN_9, "9" }, /* misc */
+		{ BTN_LEFT, "left" }, /* ball */
+		{ BTN_RIGHT, "right" }, /* ball */
+		{ BTN_MIDDLE, "middle" }, /* ball */
+		{ BTN_SIDE, "side" }, /* ball */
+		{ BTN_EXTRA, "extra" }, /* ball */
+		{ BTN_FORWARD, "forward" }, /* ball */
+		{ BTN_BACK, "back" } /* ball */
 	};
 
 	struct stick_entry {
@@ -127,7 +173,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		} axe_map[7];
 		const char* name;
 	} stick_map[] = {
-		{ { { ABS_X, "x" }, { ABS_RX, "rx" }, { ABS_Y, "y" }, { ABS_RY, "ry" }, { ABS_Z, "z" } , { ABS_RZ, "rz" }, { ABS_UNASSIGNED, 0 } }, "stick" },
+		{ { { ABS_X, "x" }, { ABS_Y, "y" }, { ABS_Z, "z" }, { ABS_RX, "rx" }, { ABS_RY, "ry" }, { ABS_RZ, "rz" }, { ABS_UNASSIGNED, 0 } }, "stick" },
 		{ { { ABS_GAS, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "gas" }, /* acceleratore */
 		{ { { ABS_BRAKE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "brake" }, /* freno */
 		{ { { ABS_WHEEL, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "wheel" }, /* volante */
@@ -137,18 +183,34 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ { { ABS_HAT3X, "x" }, { ABS_HAT3Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat4" },
 		{ { { ABS_THROTTLE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "throttle" },
 		{ { { ABS_RUDDER, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "rudder" }, /* timone */
-		{ { { ABS_PRESSURE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "pressure" },
-		{ { { ABS_DISTANCE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "distance" },
-		{ { { ABS_TILT_X, "x" }, { ABS_TILT_Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "tilt" },
-		{ { { ABS_MISC, "misc" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "misc" }
+		/* { { { ABS_PRESSURE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "pressure" }, */ /* tablet */
+		/* { { { ABS_DISTANCE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "distance" }, */ /* tablet */
+		/* { { { ABS_TILT_X, "x" }, { ABS_TILT_Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "tilt" }, */ /* tablet */
+		/* { { { ABS_VOLUME, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "volume" }, */ /* not an action control */
+		{ { { ABS_MISC, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "misc" }
+	};
+
+	struct rel_entry {
+		int code;
+		const char* name;
+	} rel_map[] = {
+		{ REL_X, "x" },
+		{ REL_Y, "y" },
+		{ REL_Z, "z" },
+		{ REL_WHEEL, "wheel" },
+		{ REL_HWHEEL, "hwheel" },
+		{ REL_DIAL, "dial" },
+		{ REL_MISC, "misc" }
 	};
 
 	item->f = f;
 
 	memset(key_bitmask, 0, sizeof(key_bitmask));
-	if (ioctl(f, EVIOCGBIT(EV_KEY, sizeof(key_bitmask)), key_bitmask) < 0) {
-		log_std(("event: error in ioctl(EVIOCGBIT(EV_KEY,%d))\n", (int)KEY_MAX));
-		return -1;
+	if (event_test_bit(EV_KEY, item->evtype_bitmask)) {
+		if (ioctl(f, EVIOCGBIT(EV_KEY, sizeof(key_bitmask)), key_bitmask) < 0) {
+			log_std(("event: error in ioctl(EVIOCGBIT(EV_KEY,%d))\n", (int)KEY_MAX));
+			return -1;
+		}
 	}
 
 	item->button_mac = 0;
@@ -164,9 +226,11 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	}
 
 	memset(abs_bitmask, 0, sizeof(abs_bitmask));
-	if (ioctl(f, EVIOCGBIT(EV_ABS, sizeof(abs_bitmask)), abs_bitmask) < 0) {
-		log_std(("event: error in ioctl(EVIOCGBIT(EV_ABS,%d))\n", (int)ABS_MAX));
-		return -1;
+	if (event_test_bit(EV_ABS, item->evtype_bitmask)) {
+		if (ioctl(f, EVIOCGBIT(EV_ABS, sizeof(abs_bitmask)), abs_bitmask) < 0) {
+			log_std(("event: error in ioctl(EVIOCGBIT(EV_ABS,%d))\n", (int)ABS_MAX));
+			return -1;
+		}
 	}
 
 	item->stick_mac = 0;
@@ -226,6 +290,26 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 			/* save the stick only if it hash some axes */
 			if (stick->axe_mac)
 				++item->stick_mac;
+		}
+	}
+
+	memset(rel_bitmask, 0, sizeof(rel_bitmask));
+	if (event_test_bit(EV_REL, item->evtype_bitmask)) {
+		if (ioctl(f, EVIOCGBIT(EV_REL, sizeof(rel_bitmask)), rel_bitmask) < 0) {
+			log_std(("event: error in ioctl(EVIOCGBIT(EV_REL,%d))\n", (int)REL_MAX));
+			return -1;
+		}
+	}
+
+	item->rel_mac = 0;
+	for(i=0;i<sizeof(rel_map)/sizeof(rel_map[0]);++i) {
+		if (event_test_bit(rel_map[i].code, rel_bitmask)) {
+			if (item->rel_mac < EVENT_JOYSTICK_REL_MAX) {
+				item->rel_map[item->rel_mac].code = rel_map[i].code;
+				item->rel_map[item->rel_mac].value = 0;
+				sncpy(item->rel_map[item->rel_mac].name, sizeof(item->rel_map[item->rel_mac].name), rel_map[i].name);
+				++item->rel_mac;
+			}
 		}
 	}
 
@@ -315,15 +399,6 @@ unsigned joystickb_event_stick_axe_count_get(unsigned joystick, unsigned stick)
 	return event_state.map[joystick].stick_map[stick].axe_mac;
 }
 
-unsigned joystickb_event_button_count_get(unsigned joystick)
-{
-	log_debug(("joystickb:event: joystickb_event_button_count_get()\n"));
-
-	assert(joystick < joystickb_event_count_get());
-
-	return event_state.map[joystick].button_mac;
-}
-
 const char* joystickb_event_stick_name_get(unsigned joystick, unsigned stick)
 {
 	log_debug(("joystickb:event: joystickb_event_stick_name_get()\n"));
@@ -343,26 +418,6 @@ const char* joystickb_event_stick_axe_name_get(unsigned joystick, unsigned stick
 	assert(axe < joystickb_event_stick_axe_count_get(joystick, stick) );
 
 	return event_state.map[joystick].stick_map[stick].axe_map[axe].name;
-}
-
-const char* joystickb_event_button_name_get(unsigned joystick, unsigned button)
-{
-	log_debug(("joystickb:event: joystickb_event_button_name_get()\n"));
-
-	assert(joystick < joystickb_event_count_get());
-	assert(button < joystickb_event_button_count_get(joystick) );
-
-	return event_state.map[joystick].button_map[button].name;
-}
-
-unsigned joystickb_event_button_get(unsigned joystick, unsigned button)
-{
-	log_debug(("joystickb:event: joystickb_event_button_get()\n"));
-
-	assert(joystick < joystickb_event_count_get());
-	assert(button < joystickb_event_button_count_get(joystick) );
-
-	return event_state.map[joystick].button_map[button].state != 0;
 }
 
 unsigned joystickb_event_stick_axe_digital_get(unsigned joystick, unsigned stick, unsigned axe, unsigned d)
@@ -393,6 +448,70 @@ int joystickb_event_stick_axe_analog_get(unsigned joystick, unsigned stick, unsi
 	assert(axe < joystickb_event_stick_axe_count_get(joystick, stick) );
 
 	r = event_state.map[joystick].stick_map[stick].axe_map[axe].value_adj;
+
+	return r;
+}
+
+unsigned joystickb_event_button_count_get(unsigned joystick)
+{
+	log_debug(("joystickb:event: joystickb_event_button_count_get()\n"));
+
+	assert(joystick < joystickb_event_count_get());
+
+	return event_state.map[joystick].button_mac;
+}
+
+const char* joystickb_event_button_name_get(unsigned joystick, unsigned button)
+{
+	log_debug(("joystickb:event: joystickb_event_button_name_get()\n"));
+
+	assert(joystick < joystickb_event_count_get());
+	assert(button < joystickb_event_button_count_get(joystick) );
+
+	return event_state.map[joystick].button_map[button].name;
+}
+
+unsigned joystickb_event_button_get(unsigned joystick, unsigned button)
+{
+	log_debug(("joystickb:event: joystickb_event_button_get()\n"));
+
+	assert(joystick < joystickb_event_count_get());
+	assert(button < joystickb_event_button_count_get(joystick) );
+
+	return event_state.map[joystick].button_map[button].state != 0;
+}
+
+unsigned joystickb_event_rel_count_get(unsigned joystick)
+{
+	log_debug(("joystickb:event: joystickb_event_rel_count_get()\n"));
+
+	assert(joystick < joystickb_event_count_get());
+
+	return event_state.map[joystick].rel_mac;
+}
+
+const char* joystickb_event_rel_name_get(unsigned joystick, unsigned rel)
+{
+	log_debug(("joystickb:event: joystickb_event_button_rel_get()\n"));
+
+	assert(joystick < joystickb_event_count_get());
+	assert(rel < joystickb_event_rel_count_get(joystick) );
+
+	return event_state.map[joystick].rel_map[rel].name;
+}
+
+int joystickb_event_rel_get(unsigned joystick, unsigned rel)
+{
+	int r;
+	struct joystick_item_context* item = event_state.map + joystick;
+
+	log_debug(("joystickb:event: joystickb_event_rel_get()\n"));
+
+	assert(joystick < joystickb_event_count_get());
+	assert(rel < joystickb_event_rel_count_get(joystick) );
+
+	r = event_state.map[joystick].rel_map[rel].value;
+	event_state.map[joystick].rel_map[rel].value = 0;
 
 	return r;
 }
@@ -461,6 +580,14 @@ void joystickb_event_poll(void)
 						break;
 					}
 				}
+			} else if (type == EV_REL) {
+				unsigned j;
+				for(j=0;j<item->rel_mac;++j) {
+					if (code == item->rel_map[j].code) {
+						item->rel_map[j].value += value;
+						break;
+					}
+				}
 			} else if (type == EV_ABS) {
 				unsigned j;
 				for(j=0;j<item->stick_mac;++j) {
@@ -505,13 +632,16 @@ joystickb_driver joystickb_event_driver = {
 	joystickb_event_count_get,
 	joystickb_event_stick_count_get,
 	joystickb_event_stick_axe_count_get,
-	joystickb_event_button_count_get,
 	joystickb_event_stick_name_get,
 	joystickb_event_stick_axe_name_get,
-	joystickb_event_button_name_get,
-	joystickb_event_button_get,
 	joystickb_event_stick_axe_digital_get,
 	joystickb_event_stick_axe_analog_get,
+	joystickb_event_button_count_get,
+	joystickb_event_button_name_get,
+	joystickb_event_button_get,
+	joystickb_event_rel_count_get,
+	joystickb_event_rel_name_get,
+	joystickb_event_rel_get,
 	joystickb_event_calib_start,
 	joystickb_event_calib_next,
 	joystickb_event_poll
