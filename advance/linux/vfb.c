@@ -97,70 +97,203 @@ static unsigned char* fb_linear_write_line(unsigned y)
 	return fb_state.ptr + fb_state.bytes_per_scanline * y;
 }
 
-static void fb_log(void)
+static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 {
 	double v;
 
-	log_std(("video:fb: fix info\n"));
-	log_std(("video:fb: id %s\n", fb_state.fixinfo.id));
-	log_std(("video:fb: smem_start:%08x, smem_len:%08x\n", (unsigned)fb_state.fixinfo.smem_start, (unsigned)fb_state.fixinfo.smem_len));
-	log_std(("video:fb: mmio_start:%08x, mmio_len:%08x\n", (unsigned)fb_state.fixinfo.mmio_start, (unsigned)fb_state.fixinfo.mmio_len));
-	log_std(("video:fb: type:%d, type_aux:%d\n", (unsigned)fb_state.fixinfo.type, (unsigned)fb_state.fixinfo.type_aux));
-	switch (fb_state.fixinfo.visual) {
-		case FB_VISUAL_TRUECOLOR :
-			log_std(("video:fb: visual:%d FB_VISUAL_TRUECOLOR\n", (unsigned)fb_state.fixinfo.visual));
-			break;
-		case FB_VISUAL_PSEUDOCOLOR :
-			log_std(("video:fb: visual:%d FB_VISUAL_PSEUDOCOLOR\n", (unsigned)fb_state.fixinfo.visual));
-			break;
-		case FB_VISUAL_DIRECTCOLOR :
-			log_std(("video:fb: visual:%d FB_VISUAL_DIRECTCOLOR\n", (unsigned)fb_state.fixinfo.visual));
-			break;
-		default:
-			log_std(("video:fb: visual:%d\n", (unsigned)fb_state.fixinfo.visual));
-			break;
+	if (fix) {
+		log_std(("video:fb: fix info\n"));
+		log_std(("video:fb: id %s\n", fix->id));
+		log_std(("video:fb: smem_start:%08x, smem_len:%08x\n", (unsigned)fix->smem_start, (unsigned)fix->smem_len));
+		log_std(("video:fb: mmio_start:%08x, mmio_len:%08x\n", (unsigned)fix->mmio_start, (unsigned)fix->mmio_len));
+		log_std(("video:fb: type:%d, type_aux:%d\n", (unsigned)fix->type, (unsigned)fix->type_aux));
+		switch (fix->visual) {
+			case FB_VISUAL_TRUECOLOR :
+				log_std(("video:fb: visual:%d FB_VISUAL_TRUECOLOR\n", (unsigned)fix->visual));
+				break;
+			case FB_VISUAL_PSEUDOCOLOR :
+				log_std(("video:fb: visual:%d FB_VISUAL_PSEUDOCOLOR\n", (unsigned)fix->visual));
+				break;
+			case FB_VISUAL_DIRECTCOLOR :
+				log_std(("video:fb: visual:%d FB_VISUAL_DIRECTCOLOR\n", (unsigned)fix->visual));
+				break;
+			default:
+				log_std(("video:fb: visual:%d\n", (unsigned)fix->visual));
+				break;
+		}
+		log_std(("video:fb: xpanstep:%d, ypanstep:%d, ywrapstep:%d\n", (unsigned)fix->xpanstep, (unsigned)fix->ypanstep, (unsigned)fix->ywrapstep));
+		log_std(("video:fb: line_length:%d\n", (unsigned)fix->line_length));
+		log_std(("video:fb: accel:%d\n", (unsigned)fix->accel));
 	}
-	log_std(("video:fb: xpanstep:%d, ypanstep:%d, ywrapstep:%d\n", (unsigned)fb_state.fixinfo.xpanstep, (unsigned)fb_state.fixinfo.ypanstep, (unsigned)fb_state.fixinfo.ywrapstep));
-	log_std(("video:fb: line_length:%d\n", (unsigned)fb_state.fixinfo.line_length));
-	log_std(("video:fb: accel:%d\n", (unsigned)fb_state.fixinfo.accel));
-	log_std(("video:fb: variable info\n"));
-	log_std(("video:fb: xres:%d, yres:%d\n", (unsigned)fb_state.varinfo.xres, (unsigned)fb_state.varinfo.yres));
-	log_std(("video:fb: xres_virtual:%d, yres_virtual:%d\n", (unsigned)fb_state.varinfo.xres_virtual, (unsigned)fb_state.varinfo.yres_virtual));
-	log_std(("video:fb: xoffset:%d, yoffset:%d\n", (unsigned)fb_state.varinfo.xoffset, (unsigned)fb_state.varinfo.yoffset));
-	log_std(("video:fb: bits_per_pixel:%d, grayscale:%d\n", (unsigned)fb_state.varinfo.bits_per_pixel, (unsigned)fb_state.varinfo.grayscale));
-	log_std(("video:fb: red %d:%d green %d:%d blue %d:%d transp %d:%d\n",
-		(unsigned)fb_state.varinfo.red.length, (unsigned)fb_state.varinfo.red.offset,
-		(unsigned)fb_state.varinfo.green.length, (unsigned)fb_state.varinfo.green.offset,
-		(unsigned)fb_state.varinfo.blue.length, (unsigned)fb_state.varinfo.blue.offset,
-		(unsigned)fb_state.varinfo.transp.length, (unsigned)fb_state.varinfo.transp.offset
-	));
-	log_std(("video:fb: nonstd:%d, activate:%x\n", (unsigned)fb_state.varinfo.nonstd, (unsigned)fb_state.varinfo.activate));
-	log_std(("video:fb: height:%d, width:%d\n", fb_state.varinfo.height, fb_state.varinfo.width));
-	log_std(("video:fb: accel_flags:%d\n", fb_state.varinfo.accel_flags));
-	log_std(("video:fb: pixclock:%d, left:%d, right:%d, upper:%d, lower:%d, hsync:%d, vsync:%d\n",
-		(unsigned)fb_state.varinfo.pixclock,
-		(unsigned)fb_state.varinfo.left_margin,
-		(unsigned)fb_state.varinfo.right_margin,
-		(unsigned)fb_state.varinfo.upper_margin,
-		(unsigned)fb_state.varinfo.lower_margin,
-		(unsigned)fb_state.varinfo.hsync_len,
-		(unsigned)fb_state.varinfo.vsync_len
-	));
-	log_std(("video:fb: sync:%x, vmode:%x\n", (unsigned)fb_state.varinfo.sync, (unsigned)fb_state.varinfo.vmode));
-	log_std(("video:fb: reserved %x:%x:%x:%x:%x:%x\n",
-		(unsigned)fb_state.varinfo.reserved[0],
-		(unsigned)fb_state.varinfo.reserved[1],
-		(unsigned)fb_state.varinfo.reserved[2],
-		(unsigned)fb_state.varinfo.reserved[3],
-		(unsigned)fb_state.varinfo.reserved[4],
-		(unsigned)fb_state.varinfo.reserved[5]
-	));
 
-	v = 1000000000000LL / (double)fb_state.varinfo.pixclock;
-	v /= fb_state.varinfo.xres + fb_state.varinfo.left_margin + fb_state.varinfo.right_margin + fb_state.varinfo.hsync_len;
-	v /= fb_state.varinfo.yres + fb_state.varinfo.upper_margin + fb_state.varinfo.lower_margin + fb_state.varinfo.vsync_len;
+	if (var) {
+		log_std(("video:fb: variable info\n"));
+		log_std(("video:fb: xres:%d, yres:%d\n", (unsigned)var->xres, (unsigned)var->yres));
+		log_std(("video:fb: xres_virtual:%d, yres_virtual:%d\n", (unsigned)var->xres_virtual, (unsigned)var->yres_virtual));
+		log_std(("video:fb: xoffset:%d, yoffset:%d\n", (unsigned)var->xoffset, (unsigned)var->yoffset));
+		log_std(("video:fb: bits_per_pixel:%d, grayscale:%d\n", (unsigned)var->bits_per_pixel, (unsigned)var->grayscale));
+		log_std(("video:fb: red %d:%d green %d:%d blue %d:%d transp %d:%d\n",
+			(unsigned)var->red.length, (unsigned)var->red.offset,
+			(unsigned)var->green.length, (unsigned)var->green.offset,
+			(unsigned)var->blue.length, (unsigned)var->blue.offset,
+			(unsigned)var->transp.length, (unsigned)var->transp.offset
+		));
+		log_std(("video:fb: nonstd:%d, activate:%x\n", (unsigned)var->nonstd, (unsigned)var->activate));
+		log_std(("video:fb: height:%d, width:%d\n", var->height, var->width));
+		log_std(("video:fb: accel_flags:%d\n", var->accel_flags));
+		log_std(("video:fb: pixclock:%d, left:%d, right:%d, upper:%d, lower:%d, hsync:%d, vsync:%d\n",
+			(unsigned)var->pixclock,
+			(unsigned)var->left_margin,
+			(unsigned)var->right_margin,
+			(unsigned)var->upper_margin,
+			(unsigned)var->lower_margin,
+			(unsigned)var->hsync_len,
+			(unsigned)var->vsync_len
+		));
+		log_std(("video:fb: sync:%x", (unsigned)var->sync));
+		if (var->sync & FB_SYNC_HOR_HIGH_ACT)
+			log_std((" nhsync"));
+		if (var->sync & FB_SYNC_VERT_HIGH_ACT)
+			log_std((" nvsync"));
+		if (var->sync & FB_SYNC_EXT)
+			log_std((" external_sync"));
+		if (var->sync & FB_SYNC_COMP_HIGH_ACT)
+			log_std((" composite_sync"));
+		if (var->sync & FB_SYNC_BROADCAST)
+			log_std((" broadcast_sync"));
+		if (var->sync & FB_SYNC_ON_GREEN)
+			log_std((" sync_on_green"));
+		log_std(("\n"));
+		log_std(("video:fb: vmode:%x", (unsigned)var->vmode));
+		if (var->vmode & FB_VMODE_INTERLACED)
+			log_std((" interlace"));
+		if (var->vmode & FB_VMODE_DOUBLE)
+			log_std((" doublescan"));
+		log_std(("\n"));
+		log_std(("video:fb: reserved %x:%x:%x:%x:%x:%x\n",
+			(unsigned)var->reserved[0],
+			(unsigned)var->reserved[1],
+			(unsigned)var->reserved[2],
+			(unsigned)var->reserved[3],
+			(unsigned)var->reserved[4],
+			(unsigned)var->reserved[5]
+		));
+		v = 1000000000000LL / (double)var->pixclock;
+		v /= var->xres + var->left_margin + var->right_margin + var->hsync_len;
+		v /= var->yres + var->upper_margin + var->lower_margin + var->vsync_len;
+		log_std(("video:fb: expected vclock:%g\n", v));
+	}
+}
 
-	log_std(("video:fb: expected vclock:%g\n", v));
+static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool doublescan, adv_bool interlace, adv_bool nhsync, adv_bool nvsync, unsigned bits_per_pixel, unsigned activate)
+{
+	memset(var, 0, sizeof(struct fb_var_screeninfo));
+
+	var->xres = hde;
+	var->yres = vde;
+	var->xres_virtual = hde;
+	var->yres_virtual = 2 * vde;
+	var->xoffset = 0;
+	var->yoffset = 0;
+	var->bits_per_pixel = bits_per_pixel;
+	var->grayscale = 0;
+	switch (bits_per_pixel) {
+		case 8 :
+		break;
+		case 15 :
+			var->red.length = 5;
+			var->red.offset = 10;
+			var->green.length = 5;
+			var->green.offset = 5;
+			var->blue.length = 5;
+			var->blue.offset = 0;
+		break;
+		case 16 :
+			var->red.length = 5;
+			var->red.offset = 11;
+			var->green.length = 6;
+			var->green.offset = 5;
+			var->blue.length = 5;
+			var->blue.offset = 0;
+		break;
+		case 24 :
+                case 32 :
+			var->red.length = 8;
+			var->red.offset = 16;
+			var->green.length = 8;
+			var->green.offset = 8;
+			var->blue.length = 8;
+			var->blue.offset = 0;
+		break;
+	}
+	var->nonstd = 0;
+	var->activate = activate;
+	var->height = 0;
+	var->width = 0;
+	var->accel_flags = FB_ACCEL_NONE;
+	var->pixclock = (unsigned)(1000000000000LL / pixelclock);
+	var->left_margin = ht - hre;
+	var->right_margin = hrs - hde;
+	var->upper_margin = vt - vre;
+	var->lower_margin = vrs - vde;
+	var->hsync_len = hre - hrs;
+	var->vsync_len = vre - vrs;
+
+	var->sync = 0;
+	if (nhsync)
+		var->sync |= FB_SYNC_HOR_HIGH_ACT;
+	if (nvsync)
+		var->sync |= FB_SYNC_VERT_HIGH_ACT;
+
+	var->vmode = 0;
+	if (doublescan) {
+		var->vmode |= FB_VMODE_DOUBLE;
+		var->upper_margin /= 2;
+		var->lower_margin /= 2;
+		var->vsync_len /= 2;
+	}
+	if (interlace) {
+		var->vmode |= FB_VMODE_INTERLACED;
+	}
+}
+
+static void fb_detect(void)
+{
+	struct fb_var_screeninfo var;
+
+#if 0
+	/* TODO that happen if the 8 bit mode is not supported ? */
+
+	/* test interlace modes */
+	log_std(("video:fb: test iterlace modes\n"));
+	fb_preset(&var, 40280300, 1024, 1048, 1200, 1280, 768, 784, 787, 840, 0, 1, 1, 1, 8, FB_ACTIVATE_TEST);
+	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, &var) != 0
+		|| (var.vmode & FB_VMODE_INTERLACED) == 0) {
+		log_std(("video:fb: disable interlace modes, not supported\n"));
+		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
+	}
+
+	/* test doublescan modes */
+	log_std(("video:fb: test doublescan modes\n"));
+	fb_preset(&var, 12676000, 320, 328, 376, 400, 240, 245, 246, 262, 1, 0, 1, 1, 8, FB_ACTIVATE_TEST);
+	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, &var) != 0
+		|| (var.vmode & FB_VMODE_DOUBLE) == 0) {
+		log_std(("video:fb: disable doublescan modes, not supported\n"));
+		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
+	}
+#endif
+
+	if (strstr(fb_state.fixinfo.id, "GeForce")!=0) {
+		log_std(("video:fb: disable interlace modes, not supported by the GeForge hardware\n"));
+		/* in Linux 2.4.20 it doesn't support interlace */
+		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
+	}
+
+	if (strstr(fb_state.fixinfo.id, "nVidia")!=0) {
+		log_std(("video:fb: disable doublescan modes, not supported by the nVidia driver\n"));
+		/* in Linux 2.4.20 it doesn't support doublescan */
+		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
+	}
 }
 
 adv_error fb_init(int device_id, adv_output output, adv_cursor cursor)
@@ -216,23 +349,13 @@ adv_error fb_init(int device_id, adv_output output, adv_cursor cursor)
 		return -1;
 	}
 
-	fb_log();
+	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
 
 	fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
 		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
 		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
-	if (strstr(fb_state.fixinfo.id, "nVidia")!=0) {
-		log_std(("video:fb: disable doublescan modes not supported by this driver\n"));
-		/* in Linux 2.4.20 it doesn't support doublescan */
-		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
-	}
-
-	if (strstr(fb_state.fixinfo.id, "GeForce")!=0) {
-		log_std(("video:fb: disable interlace modes not supported by this driver\n"));
-		/* in Linux 2.4.20 it doesn't support interlace */
-		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
-	}
+	fb_detect();
 
 	fb_state.active = 1;
 
@@ -262,76 +385,13 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		return -1;
 	}
 
-	memset(&fb_state.varinfo, 0, sizeof(fb_state.varinfo));
-
-	fb_state.varinfo.xres = mode->crtc.hde;
-	fb_state.varinfo.yres = mode->crtc.vde;
-	fb_state.varinfo.xres_virtual = mode->crtc.hde;
-	fb_state.varinfo.yres_virtual = 2 * mode->crtc.vde;
-	fb_state.varinfo.xoffset = 0;
-	fb_state.varinfo.yoffset = 0;
-	fb_state.varinfo.bits_per_pixel = index_bits_per_pixel(mode->index);
-	fb_state.varinfo.grayscale = 0;
-	switch (index_bits_per_pixel(mode->index)) {
-		case 8 :
-		break;
-		case 15 :
-			fb_state.varinfo.red.length = 5;
-			fb_state.varinfo.red.offset = 10;
-			fb_state.varinfo.green.length = 5;
-			fb_state.varinfo.green.offset = 5;
-			fb_state.varinfo.blue.length = 5;
-			fb_state.varinfo.blue.offset = 0;
-		break;
-		case 16 :
-			fb_state.varinfo.red.length = 5;
-			fb_state.varinfo.red.offset = 11;
-			fb_state.varinfo.green.length = 6;
-			fb_state.varinfo.green.offset = 5;
-			fb_state.varinfo.blue.length = 5;
-			fb_state.varinfo.blue.offset = 0;
-		break;
-		case 24 :
-                case 32 :
-			fb_state.varinfo.red.length = 8;
-			fb_state.varinfo.red.offset = 16;
-			fb_state.varinfo.green.length = 8;
-			fb_state.varinfo.green.offset = 8;
-			fb_state.varinfo.blue.length = 8;
-			fb_state.varinfo.blue.offset = 0;
-		break;
-	}
-	fb_state.varinfo.nonstd = 0;
-	fb_state.varinfo.activate = FB_ACTIVATE_NOW;
-	fb_state.varinfo.height = 0;
-	fb_state.varinfo.width = 0;
-	fb_state.varinfo.accel_flags = FB_ACCEL_NONE;
-	fb_state.varinfo.pixclock = (unsigned)(1000000000000LL / mode->crtc.pixelclock);
-	fb_state.varinfo.left_margin = mode->crtc.ht - mode->crtc.hre;
-	fb_state.varinfo.right_margin = mode->crtc.hrs - mode->crtc.hde;
-	fb_state.varinfo.upper_margin = mode->crtc.vt - mode->crtc.vre;
-	fb_state.varinfo.lower_margin = mode->crtc.vrs - mode->crtc.vde;
-	fb_state.varinfo.hsync_len = mode->crtc.hre - mode->crtc.hrs;
-	fb_state.varinfo.vsync_len = mode->crtc.vre - mode->crtc.vrs;
-
-	fb_state.varinfo.sync = 0;
-	if (crtc_is_nhsync(&mode->crtc))
-		fb_state.varinfo.sync |= FB_SYNC_HOR_HIGH_ACT;
-	if (crtc_is_nvsync(&mode->crtc))
-		fb_state.varinfo.sync |= FB_SYNC_VERT_HIGH_ACT;
-	if (crtc_is_tvpal(&mode->crtc) || crtc_is_tvntsc(&mode->crtc))
-		fb_state.varinfo.sync |= FB_SYNC_BROADCAST;
-
-	fb_state.varinfo.vmode = 0;
-	if (crtc_is_doublescan(&mode->crtc)) {
-		fb_state.varinfo.vmode |= FB_VMODE_DOUBLE;
-		fb_state.varinfo.upper_margin /= 2;
-		fb_state.varinfo.lower_margin /= 2;
-		fb_state.varinfo.vsync_len /= 2;
-	}
-	if (crtc_is_interlace(&mode->crtc)) {
-		fb_state.varinfo.vmode |= FB_VMODE_INTERLACED;
-	}
+	fb_preset(&fb_state.varinfo,
+		mode->crtc.pixelclock,
+		mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht,
+		mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt,
+		crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc),
+		index_bits_per_pixel(mode->index), FB_ACTIVATE_NOW
+	);
 
 	log_std(("video:fb: FBIOPUT_VSCREENINFO\n"));
 
@@ -357,7 +417,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		return -1;
 	}
 
-	fb_log();
+	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
 
 	if (fb_state.fixinfo.visual == FB_VISUAL_DIRECTCOLOR) {
 		unsigned red_l = 1 << fb_state.varinfo.red.length;

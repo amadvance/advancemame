@@ -1,6 +1,10 @@
 Name
 	history - History For Advance Emulators
 
+AdvanceMAME Version 0.65.1 2003/02
+	) The display_scanlines option is now as default off.
+	) Minor changes at the video menu.
+
 AdvanceMAME Version 0.65.0 2003/02
 	) Fixed the CPU detection by the configure script.
 	) The Linux ALSA sound drivers now doesn't block the execution if the

@@ -739,7 +739,7 @@ void run_help(config_state& rs)
 
 	int y = 2*int_font_dy_get();
 	int xt = 1*int_font_dx_get();
-	int xd = 8*int_font_dx_get();
+	int xd = 12*int_font_dx_get();
 	int_put(xt, y, "TILDE", COLOR_HELP_TAG);
 	int_put(xd, y, "Main menu", COLOR_HELP_NORMAL);
 	y += int_font_dy_get();
@@ -818,6 +818,30 @@ void run_help(config_state& rs)
 	y += int_font_dy_get();
 	int_put(xt, y, "ESC", COLOR_HELP_TAG);
 	int_put(xd, y, "Cancel", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+
+	y += int_font_dy_get();
+	int_put(xt, y, "In the emulators:", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "5 6 7 8", COLOR_HELP_TAG);
+	int_put(xd, y, "Insert Coins", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "1 2 3 4", COLOR_HELP_TAG);
+	int_put(xd, y, "Start Player 1, 2, 3, 4", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "CTRL ALT SPACE", COLOR_HELP_TAG);
+	int_put(xd, y, "Buttons Player 1", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "ARROWS", COLOR_HELP_TAG);
+	int_put(xd, y, "Move Player 1", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, ", .", COLOR_HELP_TAG);
+	int_put(xd, y, "Change video mode", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+	int_put(xt, y, "ESC", COLOR_HELP_TAG);
+	int_put(xd, y, "Return to the menu", COLOR_HELP_NORMAL);
+	y += int_font_dy_get();
+
 
 	int_getkey();
 }

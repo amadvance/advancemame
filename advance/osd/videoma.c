@@ -1355,13 +1355,17 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 				/* generate modes for a programmable driver */
 				const adv_crtc* crtc;
 				crtc = video_init_crtc_make_raster(context, "generate", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 0, 0);
-				if (!crtc || !crtc_is_singlescan(crtc))
-					video_init_crtc_make_raster(context, "generate-scanline", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 1, 0);
+				if (context->config.scanlines_flag) {
+					if (!crtc || !crtc_is_singlescan(crtc))
+						video_init_crtc_make_raster(context, "generate-scanline", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 1, 0);
+				}
 				if (!crtc || !crtc_is_interlace(crtc))
 					video_init_crtc_make_raster(context, "generate-interlace", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 0, 1);
 				crtc = video_init_crtc_make_raster(context, "generate-double", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 0, 0);
-				if (!crtc || !crtc_is_singlescan(crtc))
-					video_init_crtc_make_raster(context, "generate-double-scanline", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 1, 0);
+				if (context->config.scanlines_flag) {
+					if (!crtc || !crtc_is_singlescan(crtc))
+						video_init_crtc_make_raster(context, "generate-double-scanline", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 1, 0);
+				}
 				if (!crtc || !crtc_is_interlace(crtc))
 					video_init_crtc_make_raster(context, "generate-double-interlace", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 0, 1);
 				video_init_crtc_make_raster(context, "generate-triple", best_size_3x, best_size_3y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0);
@@ -3052,7 +3056,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	/* save the configuration */
 	context->state.cfg_context = cfg_context;
 
-	conf_bool_register_default(cfg_context, "display_scanlines", 1);
+	conf_bool_register_default(cfg_context, "display_scanlines", 0);
 	conf_bool_register_default(cfg_context, "display_vsync", 1);
 	conf_bool_register_default(cfg_context, "display_buffer", 0);
 	conf_int_register_enum_default(cfg_context, "display_resize", conf_enum(OPTION_RESIZE), STRETCH_INTEGER_X_FRACTIONAL_Y);

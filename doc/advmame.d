@@ -656,6 +656,10 @@ Configuration
 
 	:display_scanlines yes | no
 
+	Options:
+		yes - Try to select a singlescan video mode.
+		no - Try to select a doublescan video mode (default).
+
     display_buffer
 	Activates the video image buffering.
 
