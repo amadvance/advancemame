@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
 AC_INIT([advance],[source])
 AC_CANONICAL_HOST
-AC_PREREQ([2.53])
-AC_COPYRIGHT([Copyright 2002 Andrea Mazzoleni])
+AC_PREREQ(2.57)
+AC_COPYRIGHT([Copyright 2003 Andrea Mazzoleni])
 
 # Checks for system.
 
@@ -170,14 +170,11 @@ AC_ARG_ENABLE(
 )
 if test $ac_enable_asm = auto; then
 	AC_MSG_CHECKING([whether ${CC-cc} accepts Pentium assembler])
-	AC_TRY_COMPILE(
-		[],
-		[#if !defined(__i386__)
-		choke me
-		#endif],
-		[ac_enable_asm=yes],
-		[ac_enable_asm=no]
-	)
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
+			#if !defined(__i386__)
+			choke me
+			#endif
+		]])],[ac_enable_asm=yes],[ac_enable_asm=no])
 	AC_MSG_RESULT([$ac_enable_asm])
 fi
 if test $ac_enable_asm = yes; then
@@ -256,14 +253,11 @@ if test $ac_lib_svgalib = auto; then
 			[ac_lib_svgalib=no]
 		)
 		AC_MSG_CHECKING([for svgalib version])
-		AC_TRY_COMPILE(
-			[#include <vga.h>],
-			[#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
-			choke me
-			#endif],
-			[],
-			[ac_lib_svgalib=no]
-		)
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <vga.h>]], [[
+				#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
+				choke me
+				#endif
+			]])],[],[ac_lib_svgalib=no])
 		AC_MSG_RESULT([$ac_lib_svgalib])
 	else
 		ac_lib_svgalib=no
@@ -275,14 +269,11 @@ elif test $ac_lib_svgalib = yes; then
 		[],
 		[AC_MSG_ERROR([The SVGALIB library is missing])]
 	)
-	AC_TRY_COMPILE(
-		[#include <vga.h>],
-		[#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
-		choke me
-		#endif],
-		[],
-		[AC_MSG_ERROR([The SVGALIB library is too old. Please upgrade to the 1.9 or 2.0 version])]
-	)
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <vga.h>]], [[
+			#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
+			choke me
+			#endif
+		]])],[],[AC_MSG_ERROR([The SVGALIB library is too old. Please upgrade to the 1.9 or 2.0 version])])
 fi
 if test $ac_lib_svgalib = yes; then
 	ac_lib="$ac_lib SVGALIB"
@@ -298,24 +289,18 @@ AC_ARG_ENABLE(
 if test $ac_lib_fb = auto; then
 	if test $ac_host = unix; then
 		AC_MSG_CHECKING([for FrameBuffer])
-		AC_TRY_COMPILE(
-			[#include <linux/fb.h>],
-			[struct fb_var_screeninfo dummy;],
-			[ac_lib_fb=yes],
-			[ac_lib_fb=no]
-		)
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/fb.h>]], [[
+				struct fb_var_screeninfo dummy;
+			]])],[ac_lib_fb=yes],[ac_lib_fb=no])
 		AC_MSG_RESULT([$ac_lib_fb])
 	else
 		ac_lib_fb=no
 	fi
 elif test $ac_lib_fb = yes; then
 	AC_MSG_CHECKING([for FrameBuffer])
-	AC_TRY_COMPILE(
-		[#include <linux/fb.h>],
-		[struct fb_var_screeninfo dummy;],
-		[],
-		[AC_MSG_ERROR([The Frame Buffer library is missing])]
-	)
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <linux/fb.h>]], [[
+			struct fb_var_screeninfo dummy;
+		]])],[],[AC_MSG_ERROR([The Frame Buffer library is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_fb = yes; then
@@ -332,34 +317,24 @@ AC_ARG_ENABLE(
 if test $ac_lib_alsa = auto; then
 	if test $ac_host = unix; then
 		AC_MSG_CHECKING([for ALSA])
-		AC_TRY_COMPILE(
-			[#include <alsa/asoundlib.h>],
-			[
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <alsa/asoundlib.h>]], [[
 				#if SND_LIB_VERSION < ((0<<16)|(9<<8)|0)
 				choke me
 				#endif
 				int dummy = SND_PCM_FORMAT_S16_LE;
-			],
-			[ac_lib_alsa=yes],
-			[ac_lib_alsa=no]
-		)
+			]])],[ac_lib_alsa=yes],[ac_lib_alsa=no])
 		AC_MSG_RESULT([$ac_lib_alsa])
 	else
 		ac_lib_alsa=no
 	fi
 elif test $ac_lib_alsa = yes; then
 	AC_MSG_CHECKING([for ALSA])
-	AC_TRY_COMPILE(
-		[#include <alsa/asoundlib.h>],
-		[
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <alsa/asoundlib.h>]], [[
 			#if SND_LIB_VERSION < ((0<<16)|(9<<8)|0)
 			choke me
 			#endif
 			int dummy = SND_PCM_FORMAT_S16_LE;
-		],
-		[],
-		[AC_MSG_ERROR([The ALSA library is missing or too old])]
-	)
+		]])],[],[AC_MSG_ERROR([The ALSA library is missing or too old])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_alsa = yes; then
@@ -376,24 +351,18 @@ AC_ARG_ENABLE(
 if test $ac_lib_oss = auto; then
 	if test $ac_host = unix; then
 		AC_MSG_CHECKING([for OSS])
-		AC_TRY_COMPILE(
-			[#include <sys/soundcard.h>],
-			[int dummy = SNDCTL_DSP_SETFMT;],
-			[ac_lib_oss=yes],
-			[ac_lib_oss=no]
-		)
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/soundcard.h>]], [[
+				int dummy = SNDCTL_DSP_SETFMT;
+			]])],[ac_lib_oss=yes],[ac_lib_oss=no])
 		AC_MSG_RESULT([$ac_lib_oss])
 	else
 		ac_lib_oss=no
 	fi
 elif test $ac_lib_oss = yes; then
 	AC_MSG_CHECKING([for OSS])
-	AC_TRY_COMPILE(
-		[#include <sys/soundcard.h>],
-		[int dummy = SNDCTL_DSP_SETFMT;],
-		[],
-		[AC_MSG_ERROR([The OSS library is missing])]
-	)
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/soundcard.h>]], [[
+			int dummy = SNDCTL_DSP_SETFMT;
+		]])],[],[AC_MSG_ERROR([The OSS library is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_oss = yes; then
@@ -560,24 +529,18 @@ AC_ARG_ENABLE(
 if test $ac_lib_kraw = auto; then
 	if test $ac_host = unix; then
 		AC_MSG_CHECKING([for KRAW keyboard interface])
-		AC_TRY_COMPILE(
-			[#include <sys/kd.h>],
-			[int dummy = K_MEDIUMRAW;],
-			[ac_lib_kraw=yes],
-			[ac_lib_kraw=no]
-		)
+		AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/kd.h>]], [[
+				int dummy = K_MEDIUMRAW;
+			]])],[ac_lib_kraw=yes],[ac_lib_kraw=no])
 		AC_MSG_RESULT([$ac_lib_kraw])
 	else
 		ac_lib_kraw=no
 	fi
 elif test $ac_lib_fb = yes; then
 	AC_MSG_CHECKING([for KRAW keyboard interface])
-	AC_TRY_COMPILE(
-		[#include <sys/kd.h>],
-		[int dummy = K_MEDIUMRAW;],
-		[],
-		[AC_MSG_ERROR([The KRAW keyboard interface is missing])]
-	)
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/kd.h>]], [[
+			int dummy = K_MEDIUMRAW;
+		]])],[],[AC_MSG_ERROR([The KRAW keyboard interface is missing])])
 	AC_MSG_RESULT([yes])
 fi
 if test $ac_lib_kraw = yes; then

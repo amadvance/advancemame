@@ -245,18 +245,18 @@ void sound_alsa_volume(double volume)
 
 	r = snd_mixer_attach(handle, card);
 	if (r < 0) {
-		log_std(("sound:alsa: Mixer attach error: %s", snd_strerror(r)));
+		log_std(("sound:alsa: Mixer attach error: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
 	if ((r = snd_mixer_selem_register(handle, NULL, NULL)) < 0) {
-		log_std(("sound:alsa: Mixer register error: %s", snd_strerror(r)));
+		log_std(("sound:alsa: Mixer register error: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
 	r = snd_mixer_load(handle);
 	if (r < 0) {
-		log_std(("sound:alsa: Mixer load error: %s", snd_strerror(r)));
+		log_std(("sound:alsa: Mixer load error: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 
@@ -267,26 +267,42 @@ void sound_alsa_volume(double volume)
 	}
 
 	if (volume > 0) {
-		for(c=0;c<=SND_MIXER_SCHN_LAST;++c) {
-			snd_mixer_selem_set_playback_switch(elem, c, 1);
+		if (snd_mixer_selem_has_playback_switch(elem)) {
+			log_std(("sound:alsa: enable playback\n"));
+			for(c=0;c<=SND_MIXER_SCHN_LAST;++c) {
+				snd_mixer_selem_set_playback_switch(elem, c, 1);
+			}
+		} else {
+			log_std(("sound:alsa: skip enable playback\n"));
 		}
 
 		if (snd_mixer_selem_has_playback_volume(elem)) {
+			log_std(("sound:alsa: set playback volume\n"));
+
 			snd_mixer_selem_get_playback_volume_range(elem, &pmin, &pmax);
 
-			v = pmin + (pmax - pmin) * volume;
+			v = pmin + (pmax - pmin) * volume + 0.5;
 			if (v < pmin)
 				v = pmin;
 			if (v > pmax)
 				v = pmax;
 
+			log_std(("sound:alsa: min:%d, max:%d, set:%d\n", (int)pmin, (int)pmax, (int)v));
+
 			for(c=0;c<=SND_MIXER_SCHN_LAST;++c) {
 				snd_mixer_selem_set_playback_volume(elem, c, v);
 			}
+		} else {
+			log_std(("sound:alsa: skip set playback volume\n"));
 		}
 	} else {
-		for(c=0;c<=SND_MIXER_SCHN_LAST;++c) {
-			snd_mixer_selem_set_playback_switch(elem, c, 0);
+		if (snd_mixer_selem_has_playback_switch(elem)) {
+			log_std(("sound:alsa: disable playback\n"));
+			for(c=0;c<=SND_MIXER_SCHN_LAST;++c) {
+				snd_mixer_selem_set_playback_switch(elem, c, 0);
+			}
+		} else {
+			log_std(("sound:alsa: skip disable playback\n"));
 		}
 	}
 

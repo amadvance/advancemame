@@ -486,11 +486,16 @@ const char* osd_get_cwd(void)
 	return cwd;
 }
 
-int osd_select_file(int sel, char* filename)
+int osd_select_file(int type, int id, char* filename)
 {
-	log_std(("osd: osd_select_file(sel:%d, filename:%s)\n", sel, filename));
+	log_std(("osd: osd_select_file(type:%d, id:%d, filename:%s)\n", type, id, filename));
 
 	return 0;
+}
+
+void osd_image_load_status_changed(int type, int id)
+{
+	log_std(("osd: osd_image_load_status_changed(type:%d, id:%d)\n", type, id));
 }
 
 char* osd_basename(char* filename)

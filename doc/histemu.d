@@ -1,6 +1,9 @@
 Name
 	history - History For Advance Emulators
 
+AdvanceMAME Version 0.66.1 2003/03
+	) Updated with autoconf 2.57
+
 AdvanceMAME Version 0.66.0 2003/03
 	) The display_scanlines option is now off as default.
 		The `generate-scanline' video modes are now created only

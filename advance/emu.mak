@@ -452,6 +452,7 @@ ifeq ($(CONF_EMU),mess)
 OBJDIRS += \
 	$(OBJ)/mess \
 	$(OBJ)/mess/systems \
+	$(OBJ)/mess/devices \
 	$(OBJ)/mess/machine \
 	$(OBJ)/mess/vidhrdw \
 	$(OBJ)/mess/sndhrdw \
