@@ -3,15 +3,7 @@ Name
 
 	This is a collection of Frequently Asked Questions.
 
-	The FAQ is organized in the following chapters :
-
-		* AdvanceMAME FAQ
-		* AdvanceMENU FAQ
-		* DOS FAQ
-		* Linux FAQ
-		* Windows FAQ
-		* Video FAQ
-		* License FAQ
+SubSubIndex
 
 AdvanceMAME FAQ
   Is the Linux version of AdvanceMAME able to program my video board ?

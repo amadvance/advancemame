@@ -4,6 +4,8 @@ Name
 	This file describes the video, sound, joystick, mouse and keyboard
 	drivers used by the Advance programs.
 
+SubSubIndex
+
 Video Drivers
   Types of Drivers
 	The video drivers can be divided in two different categories:
@@ -73,7 +75,7 @@ Video Drivers
 
 	This driver is able to use the Linux fb API to synchronize with
 	the vertical sync of the video mode, but generally it isn't possible
-	because the low end drivers don't support this feature.
+	because the low-end drivers don't support this feature.
 	Anyway, if you run the program as root it can use the standard VGA
 	registers to detect the vsync.
 	This is the major limitation compared with the svgalib driver.
@@ -212,7 +214,7 @@ Sound Drivers
 	some specific changes for MAME.
 
 	The source patch and the library source can be downloaded from
-	the MAME site :
+	the MAME site:
 
 		+http://www.mame.net/
 
@@ -223,7 +225,7 @@ Sound Drivers
 	This driver works in DOS and it uses the VSync sound drivers
 	from the VSyncMAME emulator.
 
-	More info is in the VSyncMAME page :
+	More info is in the VSyncMAME page:
 
 		+http://vsynchmame.mameworld.net/
 
@@ -284,11 +286,11 @@ Input Drivers
 	It's able to autodetect all the present hardware.
 
 	This driver is also able to correctly report the type of devices
-	found. You should for example expect to have the gas pedal mapped
+	found. You should for example expects to have the gas pedal mapped
 	on the gas control of the game.
 
 	It can also be used with some custom devices connected at the
-	Paralle Port. Details on how to build these custom interfaces are
+	Parallel Port. Details on how to build these custom interfaces are
 	in the /usr/src/linux/Documentation/input/joystick-parport.txt file.
 
 	It has a special support for the ACT Light-gun to fix the wrong
@@ -352,7 +354,7 @@ Input Drivers
 	For USB devices this driver doesn't require any configuration.
 	It's able to autodetect all the present hardware.
 
-	The mouses are searched on the /dev/input/eventX devices.
+	The mice are searched on the /dev/input/eventX devices.
 
     svgalib - SVGALIB mouse (Linux)
 	This driver works in Linux and it uses the SVGALIB library.
@@ -364,7 +366,7 @@ Input Drivers
 
     raw - Serial mouse (Linux)
 	This driver works in Linux and it communicates directly with
-	the configured serial mouses. It's also support USB mouses
+	the configured serial mice. It's also support USB mice
 	using the Linux mousedev module.
 
 	It supports up to 4 mice at the same time.
@@ -385,7 +387,7 @@ Input Drivers
     allegro - Allegro mouse (DOS)
 	This driver works in DOS and it uses the Allegro library.
 
-	It supports up to 2 mouses at the same time using the
+	It supports up to 2 mice at the same time using the
 	special `optimous' driver present in the `contrib/' directory.
 
 Video Drivers Configuration
@@ -451,14 +453,14 @@ Video Drivers Configuration
 	previous `VIDEO DRIVER' section.
 
 	Example to enable the `vbeline' and the `vgaline' drivers
-	with auto-detection for DOS :
+	with auto-detection for DOS:
 		:device_video vbeline vgaline
 
 	Example to force the `vbeline/vbe3' driver and the `vgaline'
-	driver for DOS :
+	driver for DOS:
 		:device_video vbeline/vbe3 vgaline
 
-	Example to enable the `fb' and `slang' driver for Linux :
+	Example to enable the `fb' and `slang' driver for Linux:
 		:device_video fb slang
 
     device_video_output
@@ -533,19 +535,19 @@ Video Drivers Configuration
 		V_LOW - V_HIGH - Vertical clock range in Hz
 		V_FIXED - Vertical fixed clock in Hz
 
-	Example for a Generic PC SVGA multisync monitor :
+	Example for a Generic PC SVGA multisync monitor:
 
 		:device_video_pclock 10 - 150
 		:device_video_hclock 30.5 - 60
 		:device_video_vclock 55 - 130
 
-	Example for a Generic PC VGA monitor :
+	Example for a Generic PC VGA monitor:
 
 		:device_video_pclock 10 - 50
 		:device_video_hclock 31.5
 		:device_video_vclock 55 - 130
 
-	Example for a PAL TV (European) :
+	Example for a PAL TV (European):
 
 		:device_video_pclock 5 - 50
 		:device_video_hclock 15.62
@@ -558,25 +560,25 @@ Video Drivers Configuration
 		:device_video_hclock 15.62, 15.73
 		:device_video_vclock 50, 60
 
-	Example for a NTSC TV (USA) :
+	Example for a NTSC TV (USA):
 
 		:device_video_pclock 5 - 50
 		:device_video_hclock 15.73
 		:device_video_vclock 59.94
 
-	Example for a Generic Arcade Monitor Standard Resolution 15 kHz (CGA) :
+	Example for a Generic Arcade Monitor Standard Resolution 15 kHz (CGA):
 
 		:device_video_pclock 5 - 50
 		:device_video_hclock 15.75
 		:device_video_vclock 50 - 60
 
-	Example for a Generic Atari Monitor Extended Resolution 16 kHz :
+	Example for a Generic Atari Monitor Extended Resolution 16 kHz:
 
 		:device_video_pclock 5 - 50
 		:device_video_hclock 16.5
 		:device_video_vclock 53
 
-	Example for a Generic Arcade Monitor Medium Resolution 25 kHz (EGA) :
+	Example for a Generic Arcade Monitor Medium Resolution 25 kHz (EGA):
 
 		:device_video_pclock 5 - 50
 		:device_video_hclock 25
@@ -622,7 +624,7 @@ Video Drivers Configuration
 	interpolation of the two formats with the nearest horizontal
 	clock.
 
-	The default value of this option is for an Arcade 15 kHz monitor :
+	The default value of this option is for an Arcade 15 kHz monitor:
 
 		:15720 0.737 0.075 0.074 0.113 0.916 0.012 0.012 0.060
 
@@ -646,7 +648,7 @@ Video Drivers Configuration
 
 	Options:
 		yes - Permits the use of the feature if the
-			low end driver allow it (default).
+			low-end driver allows it (default).
 		no - Disable completely the feature.
 
     device_color_palette8/br8/bgr15/bgr16/bgr24/bgr32/yuy2
@@ -673,7 +675,7 @@ Video Drivers Configuration
 
 	Options:
 		yes - Permits the use of the bit depth if the
-			low end driver allow it (default).
+			low-end driver allows it (default).
 		no - Disable completely the bit depth.
 
     device_video_fastchange
@@ -847,7 +849,7 @@ Sound Drivers Configuration
 	Options:
 		DEVICE - Output device (default 'default').
 
-	Other possibile choices generally are 'hw:0,0' for using the
+	Other possible choices generally are 'hw:0,0' for using the
 	frequency and format chosen directly by the hardware, or 'dmix'
 	for allow concurrent access to other applications at the
 	audio card.
@@ -1053,7 +1055,7 @@ Input Drivers Configuration
 		wacomgraphire - Wacom Graphire tablet/mouse.
 		drmousee4ds - Digital Research double-wheeled mouse.
 
-	The Linux mouses under /dev/input/* are always of type ps2,
+	The Linux mice under /dev/input/* are always of type ps2,
 	imps2 or exps2.
 
 	Examples:

@@ -1,7 +1,6 @@
 Name
 	script - The AdvanceMAME Script Machine
 
-Description
 	AdvanceMAME support a scripting language to control external
 	device like lamps, keyboard leds...
 	You can assign a simple script at various events like key press,

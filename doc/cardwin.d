@@ -8,7 +8,12 @@ Name
 	supported chipset, it's probably supported also if the OEM vendor is not
 	in the list.
 
-SVGAWIN
+	Please note that some laptop video cards work only when connected to
+	an external monitor, and not with the LCD screen.
+
+SubIndex
+
+SVGAWIN Drivers
 	The `svgawin' driver is a subset of the Linux SVGALIB library.
 
 	This driver is experimental. At present it's only tested on Windows

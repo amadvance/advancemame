@@ -1,7 +1,9 @@
-NAME
+Name
 	tips - The Speed Tips
 
 	This is a collection of tips to improve the emulation speed.
+
+SubIndex
 
 Speed Tips That Don't Reduce The Emulation Quality
 	The following are simple tips to improve the speed of the

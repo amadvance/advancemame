@@ -4,6 +4,8 @@ Name
 	This file contains the instructions to build AdvanceMAME, AdvanceMESS
 	and AdvanceMENU from the source archives.
 
+SubIndex
+
 Preparing The Sources
 	If you are using the standard source packages you don't need to prepare
 	the sources, simply decompress the archive.

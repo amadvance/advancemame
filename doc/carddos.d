@@ -8,8 +8,13 @@ Name
 	supported chipset, it's probably supported also if the OEM vendor is not
 	in the list.
 
-SVGALINE
-	The `svgaline' driver is a subset of the Linux SVGALIB library.
+	Please note that some laptop video cards work only when connected to
+	an external monitor, and not with the LCD screen.
+
+SubIndex
+
+SVGALINE Drivers
+	The `svgaline' drivers are a subset of the Linux SVGALIB library.
 
   ATI Technologies (1002)
 	+Mach64 CT (215CT222) [4354] 
@@ -1180,7 +1185,7 @@ SVGALINE
 	+86C988 ViRGE/VX [883d] 
 	+TrioV Family [8903] 
 
-VBELINE
+VBELINE Drivers
 	These are the OLD DOS drivers based on the VBE BIOS of the
 	video board. Some of these drivers are derived from the
 	VSyncMAME video drivers written by Saka and from the ATI driver

@@ -35,6 +35,24 @@ string fill(unsigned l, char c)
 	return r;
 }
 
+string token(int& p, const string& s)
+{
+	int begin;
+	int end;
+
+	begin = p;
+
+	while (p < s.length() && s[p] != '\n')
+		++p;
+
+	end = p;
+
+	if (p < s.length())
+		++p;
+
+	return s.substr(begin, end - begin);
+}
+
 string trim_left(const string& s)
 {
 	string r = s;
@@ -86,19 +104,26 @@ enum state_t {
 };
 
 class convert {
-	void step(string& s);
+	void step(const string& s);
+	void next(unsigned level, unsigned& Alevel0, unsigned& Alevel1, unsigned& Alevel2);
+	void index_all(const string& file, unsigned index_level);
+	unsigned index_level(const string& s);
 	bool is_option(const string& s, string& a);
 	bool is_tag(const string& s, string& a, string& b, bool root_tag);
 	bool is_dot(const string& s, string& a);
 	bool is_pre(const string& s, string& a);
 	bool is_line(const string& s, string& a);
 	bool request_separator;
+
 protected:
 	istream& is;
 	ostream& os;
 	state_t state;
+	unsigned level0;
+	unsigned level1;
+	unsigned level2;
 public:
-	convert(istream& Ais, ostream& Aos) : is(Ais), os(Aos) { };
+	convert(istream& Ais, ostream& Aos);
 	virtual ~convert();
 
 	void run();
@@ -108,6 +133,10 @@ public:
 
 	virtual void sep() = 0;
 	virtual void line() = 0;
+
+	virtual void index_begin();
+	virtual void index_end();
+	virtual void index_text(unsigned level, unsigned index0, unsigned index1, unsigned index2, const string& s);
 
 	virtual void section_begin(unsigned level) = 0;
 	virtual void section_end() = 0;
@@ -138,6 +167,10 @@ public:
 	virtual void tag_start(const string& a, const string& b) = 0;
 	virtual void tag_stop() = 0;
 	virtual void tag_text(const string& s) = 0;
+};
+
+convert::convert(istream& Ais, ostream& Aos) : is(Ais), os(Aos)
+{
 };
 
 convert::~convert()
@@ -202,9 +235,35 @@ bool convert::is_tag(const string& s, string& a, string& b, bool root_tag)
 	return true;
 }
 
-void convert::step(string& s)
+void convert::next(unsigned level, unsigned& Alevel0, unsigned& Alevel1, unsigned& Alevel2)
 {
-	s = trim_right(s);
+	if (level == 0) {
+		++Alevel0;
+		Alevel1 = 0;
+		Alevel2 = 0;
+	} else if (level == 1) {
+		++Alevel1;
+		Alevel2 = 0;
+	} else {
+		++Alevel2;
+	}
+}
+
+void convert::index_begin()
+{
+}
+
+void convert::index_end()
+{
+}
+
+void convert::index_text(unsigned level, unsigned index0, unsigned index1, unsigned index2, const string& s)
+{
+}
+
+void convert::step(const string& r)
+{
+	string s = trim_right(r);
 
 	// count left space
 	unsigned nt = 0;
@@ -360,8 +419,10 @@ void convert::step(string& s)
 
 	if (s.length()>0 && (ns == 0 || ns == 2 || ns == 4)) {
 		state_t state_new = ns == 0 ? state_section0 : (ns == 2 ? state_section1 : state_section2);
-		if (state != state_new)
+		if (state != state_new) {
+			next(ns / 2, level0, level1, level2);
 			section_begin(ns / 2);
+		}
 		state = state_new;
 		section_text(s);
 		return;
@@ -393,25 +454,94 @@ void convert::step(string& s)
 	return;
 }
 
-void convert::run()
+unsigned convert::index_level(const string& s)
+{
+	if (isalpha(s[0])) {
+		return 0;
+	} else if (s[0] == ' ' && s[1] == ' ' && isalpha(s[2])) {
+		return 1;
+	} else if (s[0] == ' ' && s[1] == ' ' && s[2] == ' ' && s[3] == ' ' && isalpha(s[4])) {
+		return 2;
+	} else {
+		return 3;
+	}
+}
+
+void convert::index_all(const string& file, unsigned depth)
 {
 	string s;
+	unsigned index0 = 0;
+	unsigned index1 = 0;
+	unsigned index2 = 0;
+
+	int j = 0;
+	index_begin();
+	while (j < file.length()) {
+		string u;
+		s = token(j, file);
+		u = up(s);
+		if (u != "NAME" && u != "INDEX" && u != "SUBINDEX" && u != "SUBSUBINDEX") {
+			unsigned level = index_level(s);
+			if (depth >= level) {
+				next(level, index0, index1, index2);
+				string t = trim(s);
+				while (j < file.length()) {
+					int jj = j;
+					s = token(j, file);
+					if (index_level(s) != level) {
+						j = jj;
+						break;
+					}
+					t += " ";
+					t += trim(s);
+				}
+				index_text(level, index0, index1, index2, t);
+			}
+		}
+	}
+	index_end();
+}
+
+void convert::run()
+{
+	int i;
+	string file;
+	string s;
+
+	// read the whole file
+	getline(is, file, static_cast<char>(EOF));
+
 	state = state_filled;
 	request_separator = false;
 
-	getline(is, s);
-	if (s == "NAME" || s == "Name") {
-		getline(is, s);
+	i = 0;
+	s = token(i, file);
+	if (up(s) == "NAME") {
+		s = token(i, file);
 		unsigned d = s.find(" - ");
 		header(trim(s.substr(0, d)), trim(s.substr(d+3)));
 	} else {
 		header("", "");
-		step(s);
+		i = 0;
 	}
 
-	while (!is.eof()) {
-		getline(is, s);
-		step(s);
+	level0 = 0;
+	level1 = 0;
+	level2 = 0;
+
+	while (i < file.length()) {
+		string u;
+		s = token(i, file);
+		u = up(s);
+		if (u == "INDEX") {
+			index_all(file, 0);
+		} else if (u == "SUBINDEX") {
+			index_all(file, 1);
+		} else if (u == "SUBSUBINDEX") {
+			index_all(file, 2);
+		} else {
+			step(s);
+		}
 	}
 
 	// end
@@ -716,9 +846,6 @@ void convert_man::tag_text(const string& s)
 
 class convert_html : public convert {
 protected:
-	unsigned level0;
-	unsigned level1;
-	unsigned level2;
 	string mask(string s);
 	string link(string s);
 public:
@@ -729,6 +856,10 @@ public:
 
 	virtual void sep();
 	virtual void line();
+
+	virtual void index_begin();
+	virtual void index_end();
+	virtual void index_text(unsigned level, unsigned index0, unsigned index1, unsigned index2, const string& s);
 
 	virtual void section_begin(unsigned level);
 	virtual void section_end();
@@ -830,9 +961,6 @@ void convert_html::header(const string& a, const string& b)
 	if (b.length()) {
 		os << "<" HTML_H1 "><center>" << mask(b) << "</center></" HTML_H1 ">" << endl;
 	}
-	level0 = 0;
-	level1 = 0;
-	level2 = 0;
 }
 
 void convert_html::footer()
@@ -841,26 +969,72 @@ void convert_html::footer()
 	os << "</html>" << endl;
 }
 
+void convert_html::index_begin()
+{
+	os << "<p>The sections of this document are:<p>\n";
+	os << "<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"2\">\n";
+}
+
+void convert_html::index_end()
+{
+	os << "</table>\n";
+}
+
+void convert_html::index_text(unsigned level, unsigned index0, unsigned index1, unsigned index2, const string& s)
+{
+	if (level == 0) {
+		os << "<tr><td width=\"5%\"></td><td colspan=3>\n";
+		os << "<a href=\"#" << index0 << "\">";
+		os << index0;
+		os << " " << s << "</a><br>\n";
+		os << "</td></tr>\n";
+	} else if (level == 1) {
+		if (index0) {
+			os << "<tr><td width=\"5%\"></td><td width=\"5%\"></td><td colspan=2>\n";
+			os << "<a href=\"#" << index0 << "." << index1 << "\">";
+			os << index0 << "." << index1;
+			os << " " << s << "</a><br>\n";
+			os << "</td></tr>\n";
+		}
+	} else if (level == 2) {
+		if (index0 && index1) {
+			os << "<tr><td width=\"5%\"></td><td width=\"5%\"></td><td width=\"5%\"></td><td>\n";
+			os << "<a href=\"#" << index0 << "." << index1 << "." << index2 << "\">";
+			os << index0 << "." << index1 << "." << index2;
+			os << " " << s << "</a><br>\n";
+			os << "</td></tr>\n";
+		}
+	}
+}
+
 void convert_html::section_begin(unsigned level)
 {
 	if (level == 0) {
-		++level0;
-		level1 = 0;
-		level2 = 0;
-		os << "<" HTML_H1 ">" << level0 << " " << endl;
+		os << "<" HTML_H1 ">";
+		os << "<a name=\"" << level0 << "\">";
+		os << level0;
+		os << "</a>";
+		os << " " << endl;
 	} else if (level == 1) {
-		++level1;
-		level2 = 0;
-		if (level0)
-			os << "<" HTML_H2 ">" << level0 << "." << level1 << " " << endl;
-		else
+		if (level0) {
+			os << "<" HTML_H2 ">";
+			os << "<a name=\"" << level0 << "." << level1 << "\">";
+			os << level0 << "." << level1;
+			os << "</a>";
+			os << " " << endl;
+		} else {
 			os << "<" HTML_H2 ">" << endl;
+		}
 	} else {
-		++level2;
-		if (level0 && level1)
-			os << "<" HTML_H3 ">" << level0 << "." << level1 << "." << level2 << " " << endl;
-		else
+		if (level0 && level1) {
+			os << "<" HTML_H3 ">";
+			os << "<a name=\"" << level0 << "." << level1 << "." << level2 << "\">";
+			os << level0 << "." << level1 << "." << level2;
+			os << "</a>";
+			os << " " << endl;
+		} else {
 			os << "<" HTML_H3 ">" << endl;
+		}
 	}
 }
 
@@ -1050,10 +1224,6 @@ void convert_frame::header(const string& a, const string& b)
 	if (b.length()) {
 		os << "<" HTML_H1 "><center>" << mask(b) << "</center></" HTML_H1 ">" << endl;
 	}
-
-	level0 = 0;
-	level1 = 0;
-	level2 = 0;
 }
 
 void convert_frame::footer()
@@ -1066,9 +1236,6 @@ void convert_frame::footer()
 class convert_txt : public convert {
 	bool first_line;
 	unsigned max_length;
-	unsigned level0;
-	unsigned level1;
-	unsigned level2;
 	string mask(string s);
 public:
 	convert_txt(istream& Ais, ostream& Aos) : convert(Ais, Aos) { };
@@ -1126,9 +1293,6 @@ void convert_txt::header(const string& a, const string& b)
 		os << fill(space, ' ') << b << endl;
 		os << fill(space, ' ') << fill(b.length(), '=') << endl;
 	}
-	level0 = 0;
-	level1 = 0;
-	level2 = 0;
 }
 
 void convert_txt::footer()
@@ -1137,17 +1301,8 @@ void convert_txt::footer()
 
 void convert_txt::section_begin(unsigned level)
 {
-	if (level == 0) {
-		++level0;
-		level1 = 0;
-		level2 = 0;
+	if (level == 0)
 		os << endl;
-	} else if (level == 1) {
-		++level1;
-		level2 = 0;
-	} else {
-		++level2;
-	}
 	if (state == state_separator)
 		os << endl;
 	first_line = true;

@@ -8,8 +8,13 @@ Name
 	supported chipset, it's probably supported also if the OEM vendor is not
 	in the list.
 
-Frame Buffer
-	The `fb' driver uses the Linux Kernel Frame Buffer Driver.
+	Please note that some laptop video cards work only when connected to
+	an external monitor, and not with the LCD screen.
+
+SubIndex
+
+Frame Buffer Drivers
+	The `fb' driver uses the Linux Kernel Frame Buffer Drivers.
 	It supports all the video board supported by your Linux
 	Kernel which are able to create new video modes.
 	This exclude the `vesafb' driver.
@@ -982,7 +987,7 @@ Frame Buffer
 	+82852GM/GME/GMV/PM, 855GM/GME Montara Integrated Graphics Device [3582] 
 	+82865G Integrated Graphics Device [2572] 
 
-SVGALIB
+SVGALIB Drivers
 	The `svgalib' driver uses the Linux SVGALIB library.
 	It supports all the video boards supported by the library.
 

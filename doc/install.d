@@ -1,6 +1,11 @@
 Name
 	install - Installation
 
+	This document describes the installation process of
+	the Advance programs.
+
+SubSubIndex
+
 System Requirements
 	To run the Advance programs you may need to install and
 	configure some drivers and libraries on your system.
@@ -58,7 +63,7 @@ System Requirements
 	board, you must install the included SVGAWIN driver.
 
 	Please note that this driver is EXPERIMENTAL software and it
-	works only for a few set of video boards. More information is
+	works only for a few sets of video boards. More information is
 	present in the `svgawin.txt' documentation file.
 
 	Otherwise the Advance programs are able to display in a window
@@ -152,7 +157,7 @@ Video Hardware
 	monitors.
   
 	You can generally find the range of clocks supported in the
-	monitor manual, generic values are :
+	monitor manual, generic values are:
 
 		:device_video_pclock 10 - 150
 		:device_video_hclock 30.5 - 60
@@ -242,7 +247,7 @@ Video Hardware
 	horizontal and vertical clocks, corresponding at the TV PAL
 	and NTSC standards.
 
-	Clocks values for for PAL TV (European) are:
+	Clocks values for PAL TV (European) are:
 
 		:device_video_pclock 5 - 50
 		:device_video_hclock 15.62
@@ -299,20 +304,20 @@ Video Setup
 	board to get the best possible fullscreen video modes with always the
 	correct size and aspect ratio.
 
-	This features is available in Linux with the SVGALIB and Frame
+	This feature is available in Linux with the SVGALIB and Frame
 	Buffer libraries, in DOS with the SVGALIB and VBELINE libraries
 	and in Windows with the SVGAWIN library.
 	It isn't available in Mac OS X and other Unix.
 
-	To made it possible, the programs need some information on your
+	To make it possible, the programs need some information on your
 	monitor capability in the form of the supported pixel, horizontal
 	and vertical clocks.
 
-	With these info the programs are able to always generate
+	With thies information the programs are able to always generate
 	`perfect' video modes for the emulated game.
 
   Operation Modes
-	The programs support two basic way to generated video modes:
+	The programs support two basic ways to generated video modes:
 	the `automatic' and the `manual' operation mode.
 
 	In the `automatic' mode the programs automatically generate
@@ -327,7 +332,7 @@ Video Setup
 	Please note that if you are using the SDL or VBE video
 	drivers, the programs aren't able to create or adjust video
 	modes. In this case you don't need to configure anything because
-	the programs can use only the video modes which your system
+	the programs can use only the video modes that your system
 	reports as available.
 
 	The SDL and VBE video drivers are only indicated to use
@@ -351,7 +356,7 @@ Video Setup
 	monitor manual for the vertical and horizontal clocks
 	supported by your monitor.
 
-	The `advcfg' utility adds these options in your `advmame.rc' :
+	The `advcfg' utility adds these options in your `advmame.rc':
 
 		:display_mode auto
 		:display_adjust generate_yclock
@@ -370,7 +375,7 @@ Video Setup
 	`advv' utility.
 
 	This is the description of the few basic steps required to run 
-	the programs in the manual operation mode. All the option used 
+	the programs in the manual operation mode. All the options used 
 	are documented in the `advdev.txt' file.
 
 	) For AdvanceMAME add in the in the file `advmame.rc' these
@@ -379,7 +384,7 @@ Video Setup
 		:display_mode auto
 		:display_adjust x
 
-	) Add in the the file `advmame.rc' or `advmenu.rc' the
+	) Add in the file `advmame.rc' or `advmenu.rc' the
 		`p/h/vclock' options that specify which horizontal and
 		vertical clocks are supported by your monitor.
 		Generally these values are specified in the technical
@@ -417,7 +422,7 @@ Video Setup
 	) Delete any old configuration files and restart from scratch.
 
 	) If you are using a PC Multisync monitor and the image is
-		instable or the monitor automatically switch off, you
+		instable or the monitor automatically switches off, you
 		have probably entered wrong clock values.
 		Check the horizontal and vertical clock ranges
 		supported by your monitor in the monitor manual.
@@ -434,6 +439,10 @@ Video Setup
 		Try for example with:
 
 		:device_video_pclock 8 - 50
+		
+	) If interlaced video modes have swapped rows, try using 
+		the `display_interlaceeffect' option to adjust the 
+		image.
 
     Linux
 	) If you are using the `svgalib' driver ensure that you have
@@ -449,8 +458,9 @@ Video Setup
 	) If you are using the `svgalib' driver check the svgalib patches
 		in the `contrib/svgalib' directory.
 
-	) Try forcing the use of the `fb' driver instead of the
-		`svgalib' driver with the option:
+	) If you have both the `svgalib' and `fb' drivers, try forcing the 
+		use of the `fb' driver instead of the `svgalib' driver 
+		with the option:
 
 		:device_video fb slang
 
