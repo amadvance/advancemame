@@ -4,6 +4,9 @@ Name
 AdvanceMAME Version 0.89.0 2004/12
 	) Added a ncurses driver for text mode in Linux.
 
+AdvanceMESS Version 0.89.0.0 2004/12
+	) All from AdvanceMAME 0.89.0.
+
 AdvanceMAME Version 0.88.0 2004/11
 	) Improved the timer precision in the Windows version.
 	) Added support for scaling bitmapped fonts by an

@@ -1224,6 +1224,9 @@ Configuration
 			With mono games the left channel is the negation of
 			the right channel. This means that with surround
 			enabled the output is always stereo.
+			If you use mono headphones, the effect will not
+			work and you will hear silence or an attenuated
+			sound.
 
     sound_samplerate
 	Sets the audio sample rate.

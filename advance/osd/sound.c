@@ -514,15 +514,6 @@ static void sound_play_effect(struct advance_sound_context* context, const short
 				sample_mono += 1;
 				sample_stereo += 2;
 			}
-		} else if (context->state.input_mode == SOUND_MODE_STEREO && context->state.output_mode == SOUND_MODE_MONO) {
-			unsigned i;
-			const short* sample_stereo = sample_buffer;
-			short* sample_mono = sample_mix;
-			for(i=0;i<sample_count;++i) {
-				sample_mono[0] = (sample_stereo[0] + sample_stereo[1]) / 2;
-				sample_mono += 1;
-				sample_stereo += 2;
-			}
 		} else if (context->state.input_mode == SOUND_MODE_MONO && context->state.output_mode == SOUND_MODE_SURROUND) {
 			unsigned i;
 			const short* sample_mono = sample_buffer;
@@ -537,6 +528,15 @@ static void sound_play_effect(struct advance_sound_context* context, const short
 				}
 				sample_mono += 1;
 				sample_surround += 2;
+			}
+		} else if (context->state.input_mode == SOUND_MODE_STEREO && context->state.output_mode == SOUND_MODE_MONO) {
+			unsigned i;
+			const short* sample_stereo = sample_buffer;
+			short* sample_mono = sample_mix;
+			for(i=0;i<sample_count;++i) {
+				sample_mono[0] = (sample_stereo[0] + sample_stereo[1]) / 2;
+				sample_mono += 1;
+				sample_stereo += 2;
 			}
 		} else if (context->state.input_mode == SOUND_MODE_STEREO && context->state.output_mode == SOUND_MODE_SURROUND) {
 			unsigned i;
