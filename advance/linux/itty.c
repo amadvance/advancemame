@@ -28,7 +28,7 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "islang.h"
+#include "itty.h"
 #include "log.h"
 #include "target.h"
 #include "oslinux.h"
@@ -42,102 +42,124 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <termios.h>
 
-struct inputb_slang_context {
+struct inputb_tty_context {
 	unsigned last;
 };
 
-static struct inputb_slang_context slang_state;
+static struct inputb_tty_context tty_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "sLang input" },
+{ "auto", -1, "Terminal input" },
 { 0, 0, 0 }
 };
 
-adv_error inputb_slang_init(int inputb_id)
+adv_error inputb_tty_init(int inputb_id)
 {
-	log_std(("inputb:slang: inputb_slang_init(id:%d)\n", inputb_id));
+	struct termios adjust;
 
-	if (!os_internal_slang_get()) {
-		log_std(("inputb:slang: slang not initialized\n"));
-		return -1;
-	}
+	log_std(("inputb:tty: inputb_tty_init(id:%d)\n", inputb_id));
 
 #ifdef USE_VIDEO_SDL
 	/* If the SDL video driver is used, also the SDL */
 	/* keyboard input must be used. */
 	if (SDL_WasInit(SDL_INIT_VIDEO)) {
-		log_std(("inputb:slang: Incompatible with the SDL video driver\n"));
-		error_nolog_cat("slang: Incompatible with the SDL video driver.\n");
+		log_std(("inputb:tty: Incompatible with the SDL video driver\n"));
+		error_nolog_cat("tty: Incompatible with the SDL video driver.\n");
 		return -1; 
 	}
 #endif
 
-	slang_state.last = 0;
+	/* no buffer */
+	setvbuf(stdin, 0, _IONBF, 0);
+
+	/* not canonical input */
+	tcgetattr(fileno(stdin), &adjust);
+	adjust.c_lflag &= ~(ICANON | ECHO);
+	tcsetattr(fileno(stdin), TCSANOW, &adjust);
+
+	tty_state.last = 0;
 
 	return 0;
 }
 
-void inputb_slang_done(void)
+void inputb_tty_done(void)
 {
-	log_std(("inputb:slang: inputb_slang_done()\n"));
+	struct termios adjust;
+
+	log_std(("inputb:tty: inputb_tty_done()\n"));
+
+	/* restore term */
+	tcgetattr(fileno(stdin), &adjust);
+	adjust.c_lflag |= ICANON | ECHO;
+	tcsetattr(fileno(stdin), TCSANOW, &adjust);
 }
 
-static int slang_getkey(void)
+static int tty_getkey(void)
 {
 	struct timeval tv;
 	fd_set fds;
 	int fd = fileno(stdin);
-	char c;
+	unsigned char c;
 
-	tv.tv_sec = tv.tv_usec = 0;
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+
 	FD_ZERO(&fds);
 	FD_SET(fd, &fds);
 
 	if (select(fd + 1, &fds, 0, 0, &tv) > 0) {
-		if (read(fileno(stdin), &c, 1) != 1) {
+
+		if (read(fd, &c, 1) != 1) {
 			return 0;
 		}
+
 		return c;
 	}
 
 	return 0;
 }
 
-adv_bool inputb_slang_hit(void)
+adv_bool inputb_tty_hit(void)
 {
-	log_debug(("inputb:slang: inputb_slang_count_get()\n"));
+	log_debug(("inputb:tty: inputb_tty_count_get()\n"));
 
-	if (slang_state.last != 0)
+	if (tty_state.last != 0)
 		return 1;
 
-	slang_state.last = slang_getkey();
-	return slang_state.last != 0;
+	tty_state.last = tty_getkey();
+
+	return tty_state.last != 0;
 }
 
-unsigned inputb_slang_get(void)
+unsigned inputb_tty_get(void)
 {
 	const unsigned max = 32;
 	char map[max+1];
 	unsigned mac;
 
-	log_debug(("inputb:slang: inputb_slang_button_count_get()\n"));
+	log_debug(("inputb:tty: inputb_tty_button_count_get()\n"));
 
 	mac = 0;
-	while (mac<max && (mac==0 || slang_state.last)) {
+	while (mac<max && (mac==0 || tty_state.last)) {
 
-		if (slang_state.last) {
-			map[mac] = slang_state.last;
+		if (tty_state.last) {
+			map[mac] = tty_state.last;
 			if (mac > 0 && map[mac] == 27) {
 				break;
 			}
 			++mac;
-			slang_state.last = 0;
+			tty_state.last = 0;
 		} else {
 			target_idle();
 		}
 
-		slang_state.last = slang_getkey();
+		tty_state.last = tty_getkey();
 	}
 	map[mac] = 0;
 
@@ -190,32 +212,32 @@ unsigned inputb_slang_get(void)
 	return 0;
 }
 
-unsigned inputb_slang_flags(void)
+unsigned inputb_tty_flags(void)
 {
 	return 0;
 }
 
-adv_error inputb_slang_load(adv_conf* context)
+adv_error inputb_tty_load(adv_conf* context)
 {
 	return 0;
 }
 
-void inputb_slang_reg(adv_conf* context)
+void inputb_tty_reg(adv_conf* context)
 {
 }
 
 /***************************************************************************/
 /* Driver */
 
-inputb_driver inputb_slang_driver = {
-	"slang",
+inputb_driver inputb_tty_driver = {
+	"tty",
 	DEVICE,
-	inputb_slang_load,
-	inputb_slang_reg,
-	inputb_slang_init,
-	inputb_slang_done,
-	inputb_slang_flags,
-	inputb_slang_hit,
-	inputb_slang_get
+	inputb_tty_load,
+	inputb_tty_reg,
+	inputb_tty_init,
+	inputb_tty_done,
+	inputb_tty_flags,
+	inputb_tty_hit,
+	inputb_tty_get
 };
 

@@ -194,9 +194,9 @@ void keyb_allegro_done(void)
 	log_std(("keyb:allegro: keyb_allegro_done()\n"));
 }
 
-adv_error keyb_allegro_enable(void)
+adv_error keyb_allegro_enable(adv_bool graphics)
 {
-	log_std(("key:allegro: keyb_allegro_enable()\n"));
+	log_std(("key:allegro: keyb_allegro_enable(graphics:%d)\n", (int)graphics));
 
 	if (install_keyboard() != 0) {
 		error_set("Function install_keyboard() failed.\n");

@@ -193,9 +193,9 @@ void keyb_sdl_done(void)
 	log_std(("keyb:sdl: keyb_sdl_done()\n"));
 }
 
-adv_error keyb_sdl_enable(void)
+adv_error keyb_sdl_enable(adv_bool graphics)
 {
-	log_std(("keyb:sdl: keyb_sdl_enable()\n"));
+	log_std(("keyb:sdl: keyb_sdl_enable(graphics:%d)\n", (int)graphics));
 
 	/* check that the video mode is a SDL video mode */
 	if (!os_internal_sdl_is_video_mode_active()) {

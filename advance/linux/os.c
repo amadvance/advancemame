@@ -45,6 +45,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <termios.h>
 
 #if defined(USE_SVGALIB)
 #include <vga.h>
@@ -90,6 +91,7 @@ struct os_context {
 
 	int is_quit; /**< Is termination requested. */
 	char title_buffer[128]; /**< Title of the window. */
+	struct termios term;
 };
 
 static struct os_context OS;
@@ -130,6 +132,9 @@ int os_inner_init(const char* title)
 		log_std(("os: version %s\n", uts.version));
 		log_std(("os: machine %s\n", uts.machine));
 	}
+
+	/* save term */
+	tcgetattr(fileno(stdin), &OS.term);
 
 	/* print the compiler version */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
@@ -224,9 +229,9 @@ int os_inner_init(const char* title)
 #if defined(USE_SLANG)
 	OS.slang_active = 0;
 	if (display == 0) {
-		log_std(("os: SLang_init_tty()\n"));
+		log_std(("os: SLtt_get_terminfo()\n"));
 		SLtt_get_terminfo();
-		SLang_init_tty(-1, 0, 0);
+		log_std(("os: SLsmg_init_smg()\n"));
 		SLsmg_init_smg();
 		OS.slang_active = 1;
 	} else {
@@ -318,8 +323,8 @@ void os_inner_done(void)
 #endif
 #ifdef USE_SLANG
 	if (OS.slang_active) {
+		log_std(("os: SLsmg_reset_smg()\n"));
 		SLsmg_reset_smg();
-		SLang_reset_tty();
 		OS.slang_active = 0;
 	}
 #endif
@@ -336,6 +341,9 @@ void os_inner_done(void)
 		OS.svgalib_active = 0;
 	}
 #endif
+
+	/* restore term */
+	tcsetattr(fileno(stdin), TCSANOW, &OS.term);
 }
 
 void os_poll(void)

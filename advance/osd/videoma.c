@@ -2831,7 +2831,7 @@ int osd2_video_init(struct osd_video_option* req)
 	hardware_script_start(HARDWARE_SCRIPT_VIDEO);
 
 	/* enable the keyboard input. It must be done after the video mode set. */
-	if (keyb_enable() != 0) {
+	if (keyb_enable(1) != 0) {
 		video_done_mode(context, 0);
 		video_mode_restore();
 		target_err("%s\n", error_get());

@@ -68,6 +68,7 @@ adv_error inputb_load(adv_conf* context)
 	int at_least_one;
 
 	if (inputb_state.driver_mac == 0) {
+		error_set("No input driver was compiled in.");
 		return -1;
 	}
 
@@ -109,7 +110,7 @@ adv_error inputb_init(void)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize the input driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize the input driver. The errors are:\n");
 
 	for(i=0;i<inputb_state.driver_mac;++i) {
 		const adv_device* dev;

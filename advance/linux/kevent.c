@@ -358,9 +358,9 @@ void keyb_event_done(void)
 	event_state.mac = 0;
 }
 
-adv_error keyb_event_enable(void)
+adv_error keyb_event_enable(adv_bool graphics)
 {
-	log_std(("keyb:event: keyb_event_enable()\n"));
+	log_std(("keyb:event: keyb_event_enable(graphics:%d)\n", (int)graphics));
 
 	return 0;
 }

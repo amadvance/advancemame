@@ -46,13 +46,15 @@ VOBJS += \
 	$(VOBJ)/linux/os.o
 ifeq ($(CONF_LIB_SLANG),yes)
 VCFLAGS += \
-	-DUSE_VIDEO_SLANG \
-	-DUSE_INPUT_SLANG
+	-DUSE_VIDEO_SLANG
 VLIBS += -lslang
 VOBJS += \
-	$(VOBJ)/linux/vslang.o \
-	$(VOBJ)/linux/islang.o
+	$(VOBJ)/linux/vslang.o
 endif
+VCFLAGS += \
+	-DUSE_INPUT_TTY
+VOBJS += \
+	$(VOBJ)/linux/itty.o
 ifeq ($(CONF_LIB_SVGALIB),yes)
 VCFLAGS += \
 	-DUSE_VIDEO_SVGALIB

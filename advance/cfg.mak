@@ -47,15 +47,18 @@ CFGOBJS += \
 	$(CFGOBJ)/lib/filenix.o \
 	$(CFGOBJ)/lib/targnix.o \
 	$(CFGOBJ)/linux/os.o
+CFGLIBS += -lm
 ifeq ($(CONF_LIB_SLANG),yes)
 CFGCFLAGS += \
-	-DUSE_VIDEO_SLANG \
-	-DUSE_INPUT_SLANG
+	-DUSE_VIDEO_SLANG
 CFGLIBS += -lslang
 CFGOBJS += \
-	$(CFGOBJ)/linux/vslang.o \
-	$(CFGOBJ)/linux/islang.o
+	$(CFGOBJ)/linux/vslang.o
 endif
+CFGCFLAGS += \
+	-DUSE_INPUT_TTY
+CFGOBJS += \
+	$(CFGOBJ)/linux/itty.o
 ifeq ($(CONF_LIB_SVGALIB),yes)
 CFGCFLAGS += \
 	-DUSE_VIDEO_SVGALIB

@@ -508,8 +508,7 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 				&& crtc_is_valid(&current)
 				&& crtc_clock_check(monitor,&current)
 				&& video_mode_generate(&mode, &current, index)==0) {
-				video_mode_done(1);
-				if (video_mode_set(&mode)!=0) {
+				if (text_mode_set(&mode) != 0) {
 					text_done();
 					target_err("Error setting the calibration mode.\n");
 					target_err("%s\n",error_get());
@@ -639,8 +638,7 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned index, const ad
 		&& crtc_is_valid(&current)
 		&& crtc_clock_check(monitor,&current)
 		&& video_mode_generate(&mode, &current, index)==0) {
-		video_mode_done(1);
-		if (video_mode_set(&mode)!=0) {
+		if (text_mode_set(&mode) != 0) {
 			text_done();
 			target_err("Error setting the calibration mode.\n");
 			target_err("%s\n",error_get());
@@ -909,8 +907,7 @@ static adv_error interpolate_test(const char* msg, adv_crtc* crtc, const adv_mon
 		return -1;
 	}
 
-	video_mode_done(1);
-	if (video_mode_set(&mode)!=0) {
+	if (text_mode_set(&mode) != 0) {
 		text_reset();
 		return -1;
 	}
@@ -1164,8 +1161,7 @@ adv_error cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_mon
 		return -1;
 	}
 
-	video_mode_done(1);
-	if (video_mode_set(&mode)!=0) {
+	if (text_mode_set(&mode) != 0) {
 		text_reset();
 		return -1;
 	}
@@ -1541,31 +1537,41 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	if (inputb_load(config) != 0) {
-		goto err_mode;
+		target_err("%s\n\r", error_get());
+		goto err_os;
 	}
 
+	/* after this command all the target_err() string must have \n\r at the end */
 	if (os_inner_init("AdvanceCFG") != 0) {
-		goto err_mode;
+		goto err_os;
 	}
 
 	if (video_init() != 0) {
-		target_err("%s\n", error_get());
-		goto err_inner;
+		target_err("%s\n\r", error_get());
+		goto err_os_inner;
 	}
 
 	if (video_blit_init() != 0) {
-		target_err("%s\n", error_get());
+		target_err("%s\n\r", error_get());
 		goto err_video;
 	}
 
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
-		target_err("No driver is able to program your video board in this context.\n");
-		target_err("Ensure to use the 'device_video_output auto' option.\n");
+		target_err("No driver is able to program your video board in this context.\n\r");
+		target_err("Ensure to use the 'device_video_output auto' option.\n\r");
 #ifdef USE_VIDEO_SVGAWIN
-		target_err("Ensure to have installed the svgawin.sys driver with the svgawin.exe utility.\n");
+		target_err("Ensure to have installed the svgawin.sys driver with the svgawin.exe utility.\n\r");
 #endif
-		if (getenv("DISPLAY") != 0)
-			target_err("Try to not run this program in X.\n");
+#if defined(USE_VIDEO_FB) || defined(USE_VIDEO_SVGALIB)
+		{
+			char* term;
+			if (getenv("DISPLAY") != 0)
+				target_err("Try to not run this program in X.\n\r");
+			term = getenv("TERM");
+			if (!term || strcmp(term,"linux")!=0)
+				target_err("Try to run this program in TERM=linux terminal.\n\r");
+		}
+#endif
 		goto err_blit;
 	}
 
@@ -1576,25 +1582,25 @@ int os_main(int argc, char* argv[]) {
 		case MODE_FLAGS_INDEX_BGR24 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR24; break;
 		case MODE_FLAGS_INDEX_BGR32 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR32; break;
 		default:
-			target_err("Invalid bit depth specification.\n");
+			target_err("Invalid bit depth specification.\n\r");
 			goto err_blit;
 	}
 
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & bit_flag) == 0) {
-		target_err("Specified bit depth isn't supported.\n");
-		target_err("Try another value with the -bit option.\n");
+		target_err("Specified bit depth isn't supported.\n\r");
+		target_err("Try another value with the -bit option.\n\r");
 		goto err_blit;
 	}
 
 	if (inputb_init() != 0) {
-		target_err("%s\n", error_get());
+		target_err("%s\n\r", error_get());
 		goto err_blit;
 	}
 
 	res = monitor_load(config, &monitor);
 	if (res < 0) {
-		printf("Error loading the clock options from the configuration file %s\n", opt_rc);
-		printf("%s\n", error_get());
+		target_err("Error loading the clock options from the configuration file %s\n\r", opt_rc);
+		target_err("%s\n\r", error_get());
 		goto err_blit;
 	}
 	if (res == 0) {
@@ -1714,7 +1720,7 @@ int os_main(int argc, char* argv[]) {
 
 	os_done();
 
-	conf_save(config, 0, error_callback, 0);
+	conf_save(config, 0, 0, error_callback, 0);
 
 	conf_done(config);
 
@@ -1728,7 +1734,7 @@ err_blit:
 	video_blit_done();
 err_video:
 	video_done();
-err_inner:
+err_os_inner:
 	os_inner_done();
 err_os:
 	if (opt_log || opt_logsync) {

@@ -98,6 +98,8 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned zoom_size, adv
 {
 	int res;
 	int chipset;
+	char* term;
+
 	(void)cursor;
 	(void)zoom_size;
 
@@ -111,6 +113,12 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned zoom_size, adv
 
 	if (!os_internal_svgalib_get()) {
 		error_set("Unsupported without the svgalib library.\n");
+		return -1;
+	}
+
+	term = getenv("TERM");
+	if (!term || strcmp(term, "linux")!=0) {
+		error_set("Works only with TERM=linux terminals.\n");
 		return -1;
 	}
 
@@ -410,15 +418,19 @@ void svgalib_mode_done(adv_bool restore)
 	svgalib_state.mode_active = 0;
 
 	if (restore) {
+		char* term;
+
 		/* a mode reset is required otherwise the other drivers are not able to set the mode */
 		log_std(("video:svgalib: vga_setmode(TEXT)\n"));
 		vga_setmode(TEXT);
 
-#if 0
-		/* clear screen "tput clear" */
-		fputs("\033[H\033[J", stdout);
-		fflush(stdout);
-#endif
+		/* refresh the screen, SVGALIB doesn't save and restore the video memory */
+		term = getenv("TERM");
+		if (term && strcmp(term,"linux")==0) {
+			/* refresh the screen, partial output of "tput flash" */
+			fputs("\033[?5h\033[?5l", stdout);
+			fflush(stdout);
+		}
 	}
 }
 

@@ -48,9 +48,9 @@ void keyb_none_done(void)
 	log_std(("keyb:none: keyb_none_done()\n"));
 }
 
-adv_error keyb_none_enable(void)
+adv_error keyb_none_enable(adv_bool graphics)
 {
-	log_std(("keyb:none: keyb_none_enable()\n"));
+	log_std(("keyb:none: keyb_none_enable(graphics:%d)\n", (int)graphics));
 
 	return 0;
 }

@@ -1072,8 +1072,8 @@ static adv_error cmd_onvideo_test(void)
 		return -1;
 	}
 
-	video_mode_done(1);
-	if (video_mode_set(&mode)!=0) {
+	if (text_mode_set(&mode) != 0) {
+		text_reset();
 		return -1;
 	}
 
@@ -1124,7 +1124,8 @@ static adv_error cmd_onvideo_test(void)
 
 				if (crtc_clock_check(&the_monitor, crtc)
 					&& video_mode_generate(&mode, crtc, the_mode_index)==0) {
-					if (video_mode_set(&mode) != 0) {
+					if (text_mode_set(&mode) != 0) {
+						text_reset();
 						/* abort */
 						*crtc = crtc_save;
 						the_modes_modified = crtc_save_modified;
@@ -1173,7 +1174,8 @@ static adv_error cmd_onvideo_calib(void)
 		return -1;
 	}
 
-	if (video_mode_set(&mode)!=0) {
+	if (text_mode_set(&mode) != 0) {
+		text_reset();
 		return -1;
 	}
 
@@ -1226,7 +1228,8 @@ static adv_error cmd_onvideo_animate(void)
 		return -1;
 	}
 
-	if (video_mode_set(&mode)!=0) {
+	if (text_mode_set(&mode) != 0) {
+		text_reset();
 		return -1;
 	}
 
@@ -1257,7 +1260,7 @@ static adv_error cmd_onvideo_animate(void)
 	do {
 		target_idle();
 		os_poll();
-	} while (inputb_get()==INPUTB_NONE);	
+	} while (inputb_get()==INPUTB_NONE);
 
 	return 0;
 }
@@ -1887,43 +1890,53 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (inputb_load(the_config) != 0) {
+		target_err("%s\n\r", error_get());
 		goto err_os;
 	}
 
+	/* after this command all the target_err() string must have \n\r at the end */
 	if (os_inner_init("AdvanceVIDEO") != 0) {
 		goto err_os;
 	}
 
 	if (video_init() != 0) {
-		target_err("%s\n", error_get());
-		goto err_os;
+		target_err("%s\n\r", error_get());
+		goto err_os_inner;
 	}
 
 	if (video_blit_init() != 0) {
-		target_err("%s\n", error_get());
+		target_err("%s\n\r", error_get());
 		goto err_video;
 	}
 
 	if (the_advance != advance_vbe && the_advance != advance_vga)
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
-		target_err("No driver is able to program your video board in this context.\n");
-		target_err("Ensure to use the 'device_video_output auto' option.\n");
+		target_err("No driver is able to program your video board in this context.\n\r");
+		target_err("Ensure to use the 'device_video_output auto' option.\n\r");
 #ifdef USE_VIDEO_SVGAWIN
-		target_err("Ensure to have installed the svgawin.sys driver with the svgawin.exe utility.\n");
+		target_err("Ensure to have installed the svgawin.sys driver with the svgawin.exe utility.\n\r");
 #endif
-		if (getenv("DISPLAY") != 0)
-			target_err("Try to not run this program in X.\n");
+#if defined(USE_VIDEO_FB) || defined(USE_VIDEO_SVGALIB)
+		{
+			char* term;
+			if (getenv("DISPLAY") != 0)
+				target_err("Try to not run this program in X.\n\r");
+			term = getenv("TERM");
+			if (!term || strcmp(term,"linux")!=0)
+				target_err("Try to run this program in TERM=linux terminal.\n\r");
+		}
+#endif
 		goto err_blit;
 	}
 
 	if (inputb_init() != 0) {
-		target_err("%s\n", error_get());
+		target_err("%s\n\r", error_get());
 		goto err_blit;
 	}
 
 	if (monitor_load(the_config, &the_monitor) != 0) {
-		printf("Error loading the clock options from the configuration file %s\n", opt_rc);
-		printf("%s\n", error_get());
+		target_err("Error loading the clock options from the configuration file %s\n\r", opt_rc);
+		target_err("%s\n\r", error_get());
 		goto err_input;
 	}
 
@@ -1938,8 +1951,8 @@ int os_main(int argc, char* argv[])
 	/* load generate_linear config */
 	res = generate_interpolate_load(the_config, &the_interpolate);
 	if (res<0) {
-		target_err("Error loading the format options from the configuration file %s.\n", opt_rc);
-		target_err("%s\n", error_get());
+		target_err("Error loading the format options from the configuration file %s.\n\r", opt_rc);
+		target_err("%s\n\r", error_get());
 		goto err_input;
 	}
 	if (res>0) {
@@ -1951,8 +1964,8 @@ int os_main(int argc, char* argv[])
 	/* load generate_linear config */
 	res = gtf_load(the_config, &the_gtf);
 	if (res<0) {
-		target_err("Error loading the gtf options from the configuration file %s.\n", opt_rc);
-		target_err("%s\n", error_get());
+		target_err("Error loading the gtf options from the configuration file %s.\n\r", opt_rc);
+		target_err("%s\n\r", error_get());
 		goto err_input;
 	}
 	if (res>0) {
@@ -2024,7 +2037,7 @@ int os_main(int argc, char* argv[])
 
 	os_done();
 
-	conf_save(the_config, 0, error_callback, 0);
+	conf_save(the_config, 0, 0, error_callback, 0);
 
 	conf_done(the_config);
 
@@ -2036,6 +2049,7 @@ err_blit:
 	video_blit_done();
 err_video:
 	video_done();
+err_os_inner:
 	os_inner_done();
 err_os:
 	if (opt_log || opt_logsync) {

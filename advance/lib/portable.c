@@ -52,11 +52,23 @@ void sncpy(char* dst, size_t len, const char* src)
 #ifndef NDEBUG
 		++dst;
 		while (len) {
-			*dst++ = 0;
+			*dst++ = 0x5A;
 			--len;
 		}
 #endif
 	}
+}
+
+/**
+ * Copy a string with a size limit and no more than the specified number of chars.
+ * The destination string always has the terminating 0.
+ */
+void sncpyn(char* dst, size_t len, const char* src, size_t src_len)
+{
+	if (len < src_len + 1)
+		sncpy(dst, len, src);
+	else
+		sncpy(dst, src_len + 1, src);
 }
 
 /**

@@ -36,7 +36,7 @@
  * The drivers are registered on the basis of the following defines:
  *  - USE_INPUT_DOS
  *  - USE_INPUT_SDL
- *  - USE_INPUT_SLANG
+ *  - USE_INPUT_TTY
  *  - USE_INPUT_NONE
  */
 void inputb_reg_driver_all(adv_conf* context)
@@ -44,8 +44,8 @@ void inputb_reg_driver_all(adv_conf* context)
 #ifdef USE_INPUT_DOS
 	inputb_reg_driver(context, &inputb_dos_driver);
 #endif
-#ifdef USE_INPUT_SLANG
-	inputb_reg_driver(context, &inputb_slang_driver);
+#ifdef USE_INPUT_TTY
+	inputb_reg_driver(context, &inputb_tty_driver);
 #endif
 #ifdef USE_INPUT_SDL
 	inputb_reg_driver(context, &inputb_sdl_driver);
@@ -65,8 +65,8 @@ void inputb_report_driver_all(char* s, unsigned size)
 #ifdef USE_INPUT_DOS
 	sncat(s, size, " dos");
 #endif
-#ifdef USE_INPUT_SLANG
-	sncat(s, size, " slang");
+#ifdef USE_INPUT_TTY
+	sncat(s, size, " tty");
 #endif
 #ifdef USE_INPUT_SDL
 	sncat(s, size, " sdl");

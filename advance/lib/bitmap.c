@@ -577,6 +577,21 @@ adv_bitmap* bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned dx, 
 				dst += 3;
 			}
 		}
+	} else if (bmp->bytes_per_pixel == 4) {
+		for(j=0;j<sy;++j) {
+			uint8* src;
+			uint8* dst;
+			src = (uint8*)bitmap_line(bmp, map_y[j]);
+			dst = (uint8*)bitmap_line(newbmp, j);
+			for(i=0;i<sx;++i) {
+				unsigned off = map_x[i] * 4;
+				dst[0] = src[off];
+				dst[1] = src[off+1];
+				dst[2] = src[off+2];
+				dst[3] = src[off+3];
+				dst += 4;
+			}
+		}
 	}
 
 	free(map_x);

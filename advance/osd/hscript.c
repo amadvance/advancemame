@@ -155,6 +155,7 @@ script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg
 			argextra->value = mp->port;
 			return &script_symbol_get;
 		}
+		++mp;
 	}
 
 	return 0;

@@ -43,11 +43,11 @@ Video Drivers
 	This driver works in DOS and is able to use video modes obtained
 	tweaking the hardware registers of the recognized SVGA boards.
 
-	All clocks, all bit depths are available.
+	All clocks, all RGB bit depths are available.
 	To use these modes your video board must be supported
 	by a `svgaline' driver listed in the `carddos.txt' file.
 
-	This driver is completely independent of the VBE BIOS
+	This driver is completely independent of the VGA/VBE BIOS
 	of your board.
 
     vbeline - Generate DOS VBE (VESA) modes
@@ -55,7 +55,7 @@ Video Drivers
 	tweaking the standard VBE BIOS mode changing the hardware registers
 	of the SVGA.
 
-	All clocks, all bit depths are available.
+	All clocks, all RGB bit depths are available.
 
 	To use these modes your video board must be supported
 	by a `vbeline' driver listed in the `carddos.txt' file.
@@ -105,23 +105,48 @@ Video Drivers
 	tweaking the hardware registers of the recognized SVGA boards using
 	the SVGALIB library.
 
-	All clocks, all bit depths are available.
+	All clocks, all RGB bit depths are available.
+
 	To use these modes your video board must be supported
 	by a `svgalib' driver listed in the `cardlinx.txt' file.
-
 	To use this driver you need to install the SVGALIB library
 	version 1.9.x.
 
+	To use this driver you need to correctly configure the
+	SVGALIB HorizSync and VertRefresh options in the
+	file /etc/vga/libvga.config file.
+	You must use a range equal or a bit larger than the range
+	specified with the AdvanceMAME hclock and vclock options.
+
+	This driver is not available in X (when the environment DISPLAY
+	variable is defined).
+
     fb - Generate Linux Frame Buffer modes
-	This driver works in Linux and is able to use video modes
-	from the Linux Kernel Console Frame Buffer.
+	This driver works in Linux and is able to create video modes
+	using the Linux Kernel Frame Buffer interface.
+
+	All clocks, all RGB bit depths are available.
 
 	To use this driver you must activate the Console Frame Buffer
 	support in your Linux kernel.
 
+	This driver is not available in X (when the environment DISPLAY
+	variable is defined).
+
+	The Frame Buffer device opened is `/dev/fb0', you can change it
+	setting the FRAMEBUFFER environment variable.
+
+	The generic Frame Buffer `vesafb' driver cannot be used because
+	it doesn't allow the creation of new video modes.
+
     sdl - System SDL modes
 	This driver works in Linux, Windows and Mac OS X and is able to
 	use video modes reported by the SDL graphics library.
+
+	It supports all RGB/YUY2 bit depths available.
+
+	You can change some options of this driver using the SDL specific
+	environment variables described in the contrib/sdl/env.txt file.
 
     slang - System Linux sLang text modes
 	This driver works in Linux and is able to use current terminal text
@@ -132,7 +157,7 @@ Video Drivers
 	modes obtained tweaking the hardware registers of the recognized
 	SVGA boards.
 
-	All clocks, all bit depths are available.
+	All clocks, all RGB bit depths are available.
 
 	To use these modes your video board must be supported
 	by a `svgawin' driver listed in the `cardwin.txt' file.
@@ -157,6 +182,11 @@ Sound Drivers
 	This driver works in DOS and it uses the SEAL sound library with
 	some specific changes for MAME.
 
+	The source patch and the library source can be downloaded from
+	the MAME site :
+
+		:http://www.mame.net
+
     allegro - Allegro sound
 	This driver works in DOS and it uses the Allegro library.
 
@@ -166,7 +196,7 @@ Sound Drivers
 
 	More info is in the VSyncMAME page :
 
-		http://vsyncmame.mameworld.net
+		:http://vsyncmame.mameworld.net
 
     sdl - SDL sound
 	This driver works in Linux, Windows and Mac OS X and it uses
@@ -178,12 +208,19 @@ Sound Drivers
 	It isn't able to precisely control the amount of bufferized samples.
 	This means that it may add a small latency on the sound output.
 
+	You can change some options of this driver using the SDL specific
+	environment variables described in the contrib/sdl/env.txt file.
+
 Input Drivers
   Available Keyboard Drivers
 	The following is the list of all the keyboard drivers supported.
 
     svgalib - SVGALIB keyboard
 	This driver works in Linux and it uses the SVGALIB library.
+
+	It supports only one keyboard.
+
+	You can change console with ALT+Fx and break the program with CTRL+C.
 
     event - Linux Input-Event interface
 	This driver works in Linux and it uses the new style input-event
@@ -198,12 +235,24 @@ Input Drivers
 	This driver works in Linux and it uses directly the Linux kernel
 	keyboard interface.
 
+	It supports only one keyboard.
+
+	You can change console with ALT+Fx and break the program with CTRL+C.
+
     allegro - Allegro keyboard
 	This driver works in DOS and it uses the Allegro library.
+
+	You can break the program pressing CTRL+C, CTRL+BREAK or ALT+CTRL+END.
 
     sdl - SDL keyboard
 	This driver works in Linux, Windows and Mac OS X and it uses
 	the SDL library.
+
+	You can change some options of this driver using the SDL specific
+	environment variables described in the contrib/sdl/env.txt file.
+
+	In a Window Manager environment you can switch to fullscreen
+	pressing ALT+ENTER.
 
   Available Joystick Drivers
 	The following is the list of all the joystick drivers supported.
@@ -212,6 +261,8 @@ Input Drivers
 	This driver works in Linux and it uses the SVGALIB library.
 
 	It supports more than one joystick at the same time.
+
+	The joysticks are searched on the /dev/jsX devices.
 
     event - Linux Input-Event interface
 	This driver works in Linux and it uses the new style input-event
@@ -226,16 +277,27 @@ Input Drivers
 	found. You should for example expect to have the gas pedal mapped
 	on the gas control of the game.
 
+	Details on how to build the Parellel Port hardware interfaces are
+	in the /usr/src/linux/Documentation/input/joystick-parport.txt file.
+
+	The joysticks are searched on the /dev/input/eventX devices.
+
     allegro - Allegro joystick
 	This driver works in DOS and it uses the Allegro library.
 
 	It supports only one joystick.
+
+	Details on how to build the Parellel Port hardware interfaces for
+	SNES, PSX, N64 and other pads are in the Allegro sources.
 
     sdl - SDL joystick
 	This driver works in Linux, Windows and Mac OS X and it uses
 	the SDL joystick interface.
 
 	It supports more than one joystick at the same time.
+
+	You can change some options of this driver using the SDL specific
+	environment variables described in the contrib/sdl/env.txt file.
 
   Available Mouse Drivers
 	The following is the list of all the mouse drivers supported.
@@ -256,6 +318,8 @@ Input Drivers
 
 	For USB devices this driver doesn't requires any configuration.
 	It's able to autodetect all the present harware.
+
+	The mouses are searched on the /dev/input/eventX devices.
 
     raw - Serial mouse
 	This driver works in Linux and it communicates directly with
@@ -280,6 +344,9 @@ Input Drivers
 
 	It supports only one mouse.
 
+	You can change some options of this driver using the SDL specific
+	environment variables described in the contrib/sdl/env.txt file.
+
 Video Drivers Configuration
 	The following are the video configuration options available for
 	all the programs.
@@ -302,19 +369,11 @@ Video Drivers Configuration
 
 	Options for Linux:
 		svgalib - SVGA generated graphics modes with the
-			SVGALIB 1.9.x library. This driver is not
-			available in X (when the environment DISPLAY
-			variable is defined).
+			SVGALIB 1.9.x library.
 		fb - SVGA generated graphics modes with the Linux Console
-			Frame Buffer. This driver is not
-			available in X (when the environment DISPLAY
-			variable is defined).
+			Frame Buffer.
 		slang - Text video modes with the sLang library.
 		sdl - SDL graphics and fake text modes.
-
-	If you use the `svgalib' driver remember to configure the
-	correct monitor clock in the SVGALIB configuration file generally
-	placed in /etc/vga/libvga.config.
 
 	Options for Mac OS X:
 		sdl - SDL graphics and fake text modes.
@@ -420,12 +479,6 @@ Video Drivers Configuration
 	:device_video_pclock P_LOW - P_HIGH
 	:device_video_hclock H_LOW - H_HIGH [, H_LOW - H_HIGH] [, H_FIXED]
 	:device_video_vclock V_LOW - V_HIGH [, V_LOW - V_HIGH] [, V_FIXED]
-
-	If you are using the svgalib driver in Linux you need also to
-	adjust the SVGALIB configuration file /etc/vga/libvga.config
-	and correctly set the HorizSync and VertRefresh options.
-	You must use a range equal or larger ranges than specified with
-	the hclock and vclock options.
 
 	Options:
 		P_LOW - P_HIGH - Pixel clock range in MHz
@@ -724,8 +777,8 @@ Input Drivers Configuration
 		auto - Automatic detection (default).
 
 	Options for Linux:
-		svgalib - SVGALIB keyboard.
 		event - Linux input-event interface.
+		svgalib - SVGALIB keyboard.
 		raw - Linux kernel keyboard interface.
 		sdl - SDL keyboard. This driver is available
 			only if the SDL video output is used.
@@ -752,8 +805,8 @@ Input Drivers Configuration
 		auto - Automatic detection.
 
 	Options for Linux:
-		svgalib - SVGALIB automatic detection.
 		event - Linux input-event interface.
+		svgalib - SVGALIB automatic detection.
 		sdl - SDL automatic detection.
 
 	Options for Mac OS X:
@@ -793,9 +846,6 @@ Input Drivers Configuration
 		allegro/segapcifast - IF-SEGA2/PCI.
 		allegro/wingwarrior - Wingman Warrior.
 
-	Details on how to build the LPT hardware interfaces for SNES, PSX,
-	N64 and other pads are in the Allegro sources.
-
 	Options for Windows:
 		sdl - SDL automatic detection.
 
@@ -809,8 +859,8 @@ Input Drivers Configuration
 		auto - Automatic detection.
 
 	Options for Linux:
-		svgalib - SVGALIB automatic detection.
 		event - Linux input-event interface.
+		svgalib - SVGALIB automatic detection.
 		raw - Direct serial communication.
 		sdl - SDL automatic detection.
 

@@ -38,19 +38,30 @@ void sigint(int signum)
 
 void run(void)
 {
+	target_clock_t last;
+
 	printf("Press ESC or Break to exit\n\r");
 
 	signal(SIGINT, sigint);
 
+	last = target_clock();
+
 	while (!done) {
 
 		if (inputb_hit()) {
-			unsigned k = inputb_get();
+			unsigned k;
+
+			target_clock_t current = target_clock();
+			double period = (current - last) * 1000.0 / TARGET_CLOCKS_PER_SEC;
+
+			k = inputb_get();
+
+			last = current;
 
 			if (k > 32 && k < 256)
-				printf("- %d (%c)\n\r", k, (char)k);
+				printf("(%6.1f ms) %d '%c'\n\r", period, k, (char)k);
 			else
-				printf("- %d ()\n\r", k);
+				printf("(%6.1f ms) %d\n\r", period, k);
 
 			if (k == 27)
 				done = 1;

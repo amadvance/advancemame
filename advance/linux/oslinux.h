@@ -59,7 +59,7 @@ int os_internal_fb_is_video_mode_active(void);
 #endif
 
 /* Check if sLang is used in some way */
-#if defined(USE_VIDEO_SLANG) || defined(USE_INPUT_SLANG)
+#if defined(USE_VIDEO_SLANG)
 #define USE_SLANG
 void* os_internal_slang_get(void);
 #endif

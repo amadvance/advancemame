@@ -349,7 +349,7 @@ Configuration
 			file, but this prevent the automatic generation of
 			the listing file which must be generated manually.
 			You can put a `-' in front of the file path
-			to ignore any error returned by the exevutable.
+			to ignore any error returned by the executable.
 		ARGUMENTS - The arguments to be passed to the emulator.
 			The arguments are needed only for the `generic'
 			emulator.  For the others, AdvanceMENU is

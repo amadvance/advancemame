@@ -68,6 +68,7 @@ adv_error keyb_load(adv_conf* context)
 	int at_least_one;
 
 	if (keyb_state.driver_mac == 0) {
+		error_set("No keyboard driver was compiled in.");
 		return -1;
 	}
 
@@ -107,7 +108,7 @@ adv_error keyb_init(adv_bool disable_special)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize the keyboard driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize the keyboard driver. The errors are:\n");
 
 	for(i=0;i<keyb_state.driver_mac;++i) {
 		const adv_device* dev;
@@ -148,11 +149,11 @@ void keyb_done(void)
 	keyb_state.is_active_flag = 0;
 }
 
-adv_error keyb_enable(void)
+adv_error keyb_enable(adv_bool graphics)
 {
 	assert(keyb_state.is_active_flag && !keyb_state.is_enabled_flag);
 
-	if (keyb_state.driver_current->enable() != 0)
+	if (keyb_state.driver_current->enable(graphics) != 0)
 		return -1;
 
 	keyb_state.is_enabled_flag = 1;

@@ -105,7 +105,6 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 
 	if (fix) {
 		log_std(("video:fb: fix info\n"));
-		log_std(("video:fb: id %s\n", fix->id));
 		log_std(("video:fb: smem_start:%08x, smem_len:%08x\n", (unsigned)fix->smem_start, (unsigned)fix->smem_len));
 		log_std(("video:fb: mmio_start:%08x, mmio_len:%08x\n", (unsigned)fix->mmio_start, (unsigned)fix->mmio_len));
 		log_std(("video:fb: type:%d, type_aux:%d\n", (unsigned)fix->type, (unsigned)fix->type_aux));
@@ -367,6 +366,9 @@ static adv_error fb_detect(void)
 adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
 {
 	const char* fb;
+	char id_buffer[64];
+	char* term;
+
 	(void)cursor;
 	(void)zoom_size;
 
@@ -376,6 +378,12 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 
 	if (sizeof(fb_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
+
+	term = getenv("TERM");
+	if (!term || strcmp(term, "linux")!=0) {
+		error_set("Works only with TERM=linux terminals.\n");
+		return -1;
+	}
 
 	if (getenv("DISPLAY")) {
 		error_set("Unsupported in X.\n");
@@ -405,17 +413,32 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 
 	/* get the variable info */
 	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.varinfo) != 0) {
-		error_set("Function ioctl(FBIOGET_VSCREENINFO( failed.");
+		error_set("Function ioctl(FBIOGET_VSCREENINFO) failed.");
 		goto err_close;
 	}
 
+	/* copy the id in a safe way, it may be not 0 terminated */
+	sncpyn(id_buffer, sizeof(id_buffer), fb_state.fixinfo.id, sizeof(fb_state.fixinfo.id));
+
+	log_std(("video:fb: id %s\n", id_buffer));
+
 	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
+
+	if (strcmp(id_buffer, "VESA VGA")==0) {
+		error_set("The 'vesafb' FrameBuffer driver doesn't allow the creation of new video modes.");
+		goto err_close;
+	}
 
 	fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
 		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
 		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
 	if (fb_detect() != 0) {
+		goto err_close;
+	}
+
+	if ((fb_state.flags & (VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32)) == 0) {
+		error_set("This '%s' FrameBuffer driver doesn't seem to allow the creation of new video modes.", id_buffer);
 		goto err_close;
 	}
 
@@ -441,6 +464,8 @@ void fb_done(void)
 
 adv_error fb_mode_set(const fb_video_mode* mode)
 {
+	char* term;
+
 	assert( fb_is_active() && !fb_mode_is_active() );
 
 	log_std(("video:fb: fb_mode_set()\n"));
@@ -558,10 +583,6 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		return -1;
 	}
 
-	/* disable cursor "tput civis" */
-	fputs("\033[?1c", stdout);
-	fflush(stdout);
-
 	fb_state.mode_active = 1;
 
 	return 0;
@@ -569,19 +590,11 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 void fb_mode_done(adv_bool restore)
 {
+	char* term;
+
 	assert( fb_is_active() && fb_mode_is_active() );
 
 	log_std(("video:fb: fb_mode_done()\n"));
-
-	/* restore cursor "tput cnorm" */
-	fputs("\033[?0c", stdout);
-	fflush(stdout);
-
-#if 0
-	/* clear screen "tput clear" */
-	fputs("\033[H\033[J", stdout);
-	fflush(stdout);
-#endif
 
 	munmap(fb_state.ptr, fb_state.fixinfo.smem_len);
 

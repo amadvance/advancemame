@@ -30,13 +30,10 @@ IOBJS += \
 	$(IOBJ)/lib/filenix.o \
 	$(IOBJ)/lib/targnix.o \
 	$(IOBJ)/linux/os.o
-ifeq ($(CONF_LIB_SLANG),yes)
 ICFLAGS += \
-	-DUSE_INPUT_SLANG 
-ILIBS += -lslang
+	-DUSE_INPUT_TTY
 IOBJS += \
-	$(IOBJ)/linux/islang.o
-endif
+	$(VOBJ)/linux/itty.o
 endif
 
 ifeq ($(CONF_HOST),dos)

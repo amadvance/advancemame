@@ -292,7 +292,7 @@ static void int_key_done()
 
 static bool int_key_enable()
 {
-	if (keyb_enable() != 0)
+	if (keyb_enable(1) != 0)
 		return false;
 
 	return true;

@@ -215,17 +215,17 @@ static int text_default_set(adv_crtc_container* cc, adv_monitor* monitor)
 	return 0;
 }
 
-int text_init(adv_crtc_container* cc, adv_monitor* monitor)
+adv_error text_init(adv_crtc_container* cc, adv_monitor* monitor)
 {
 	if (text_default_set(cc,monitor)!=0) {
 		video_mode_restore();
-		target_err("Error inizialing the default video mode\n\"%s\"", error_get());
+		target_err("Error inizialing the default video mode.\n\r\"%s\"\n\r", error_get());
 		return -1;
 	}
 
 	if (the_default_mode_flag == 0) {
 		video_mode_restore();
-		target_err("No text modes available for your hardware.\nPlease check your `device_video_p/h/vclock' options in the configuration file.\nEventually add a specific modeline named '" DEFAULT_TEXT_MODE "'\n");
+		target_err("No text modes available for your hardware.\n\rPlease check your `device_video_p/h/vclock' options in the configuration file.\nEventually add a specific modeline named '" DEFAULT_TEXT_MODE "'\n\rand ensure that you have a text mode video driver compiled in.\n\r");
 		return -1;
 	}
 
@@ -239,7 +239,7 @@ void text_reset(void)
 
 	if (video_mode_set(&the_default_mode)!=0) {
 		video_mode_restore();
-		printf("Error in inizialing the default video mode\n");
+		target_err("Error in inizialing the default video mode\n\r");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -254,6 +254,21 @@ void text_put(int x, int y, char c, int color)
 	if (y>=0 && y<text_size_y() && x>=0 && x<text_size_x()) {
 		video_put_char(x, y, c, color);
 	}
+}
+
+adv_error text_mode_set(adv_mode* mode) {
+	inputb_done();
+
+	if (video_mode_set(mode)!=0) {
+		inputb_init(); /* ignore error */
+		return -1;
+	}
+
+	if (inputb_init() != 0) {
+		return -1;
+	}
+
+	return 0;
 }
 
 /***************************************************************************/

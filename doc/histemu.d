@@ -13,7 +13,7 @@ AdvanceMAME Version 0.72.0 2003/09
 		inputs like keys, buttons and digital joystick.
 	) Improved the advk, advj and advm utilities. They now
 		report more information on the hardware found.
-	) Added a new `include' option to include additionaly
+	) Added a new `include' option to include additionally
 		configuration files.
 	) The `display_magnify' option has now a new `auto' setting
 		which automatically scale the game if it's
@@ -21,13 +21,15 @@ AdvanceMAME Version 0.72.0 2003/09
 	) Added a new script `safequit' started when the game enter in the
 		safequit state.
 	) Added a strong error control parsing for the safequit database.
-	) Renamed the scripts removing the [] in the names.
+	) Renamed the script options removing the [] in the names.
 	) Added a new set of script `event1,2,3,4,5,6' for a fine control
 		of the safequit system.
-	) Renamed the some safequit options in `misc_eventdebug' and
-		`misc_eventfile. The `safequit.dat' file in `event.dat'.
+	) Renamed the safequit options in `misc_eventdebug' and
+		`misc_eventfile and the `safequit.dat' file in `event.dat'.
 	) The Linux keyboard `raw' driver has now a basic support to switch
 		vt pressing ALT+Fx.
+	) The Linux version of the advv and advcfg utilities have now
+		a better keyboard input handling.
 
 AdvanceMESS Version 0.72.0.0 2003/09
 	) All from AdvanceMAME 0.72.0.

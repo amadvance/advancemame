@@ -190,12 +190,12 @@ void keyb_svgalib_done(void)
 	log_std(("keyb:svgalib: keyb_svgalib_done()\n"));
 }
 
-adv_error keyb_svgalib_enable(void)
+adv_error keyb_svgalib_enable(adv_bool graphics)
 {
 	struct keyb_pair* i;
 	unsigned j;
 
-	log_std(("keyb:svgalib: keyb_svgalib_enable()\n"));
+	log_std(("keyb:svgalib: keyb_svgalib_enable(graphics:%d)\n", (int)graphics));
 
 #if defined(USE_VIDEO_SDL)
 	if (os_internal_sdl_is_video_active()) {

@@ -45,6 +45,7 @@
 #include <unistd.h>
 #include <sys/vt.h>
 #include <signal.h>
+#include <errno.h>
 
 #define LOW_INVALID ((unsigned)0xFFFFFFFF)
 
@@ -55,7 +56,9 @@ struct keyb_raw_context {
 	int f; /**< Handle. */
 	unsigned map_up_to_low[KEYB_MAX]; /**< Key mapping. */
 	unsigned char state[256]; /**< Key state. */
-	adv_bool disable_special_flag;
+	adv_bool disable_special_flag; /**< Disable special hotkeys. */
+	adv_bool graphics_flag; /**< Set the terminal in graphics mode. */
+	adv_bool passive_flag; /**< Be passive on some actions. Required for compatibility with other libs. */
 };
 
 static struct keyb_pair {
@@ -210,7 +213,7 @@ void keyb_raw_done(void)
 	log_std(("keyb:raw: keyb_raw_done()\n"));
 }
 
-adv_error keyb_raw_enable(void)
+adv_error keyb_raw_enable(adv_bool graphics_mode)
 {
 	log_std(("keyb:raw: keyb_raw_enable()\n"));
 
@@ -220,6 +223,17 @@ adv_error keyb_raw_enable(void)
 		return -1;
 	}
 #endif
+
+	raw_state.passive_flag = 0;
+#ifdef USE_VIDEO_SVGALIB
+	/* SVGALIB already set the terminal in KD_GRAPHICS mode and */
+	/* it waits on a signal on a vt switch */
+	if (os_internal_svgalib_is_video_mode_active()) {
+		raw_state.passive_flag = 1;
+	}
+#endif
+
+	raw_state.graphics_flag = graphics_mode;
 
 	raw_state.f = open("/dev/tty", O_RDONLY);
 	if (raw_state.f == -1) {
@@ -241,9 +255,10 @@ adv_error keyb_raw_enable(void)
 
 	raw_state.newkbdtermios = raw_state.oldkbdtermios;
 
+	/* setting taken from SVGALIB */
 	raw_state.newkbdtermios.c_lflag &= ~(ICANON | ECHO | ISIG);
 	raw_state.newkbdtermios.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | IXOFF | IXON);
-	raw_state.newkbdtermios.c_cc[VMIN] = 0; /* Making these 0 seems to have the desired effect. */
+	raw_state.newkbdtermios.c_cc[VMIN] = 0;
 	raw_state.newkbdtermios.c_cc[VTIME] = 0;
 
 	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.newkbdtermios) != 0) {
@@ -253,9 +268,23 @@ adv_error keyb_raw_enable(void)
 	}
 
 	if (ioctl(raw_state.f, KDSKBMODE, K_MEDIUMRAW) != 0) {
+		/* restore old mode */
+		if (ioctl(raw_state.f, KDSKBMODE, raw_state.oldkbmode) < 0) {
+			/* ignore error */
+			log_std(("keyb:raw: ioctl(KDSKBMODE,old) failed\n"));
+		}
 		error_set("Error enabling the raw keyboard driver. Function ioctl(KDSKBMODE) failed.\n");
 		close(raw_state.f);
 		return -1;
+	}
+
+	if (!raw_state.passive_flag && raw_state.graphics_flag) {
+		/* set the console in graphics mode, it only disable the cursor and the echo */
+		log_std(("keyb:raw: ioctl(KDSETMODE, KD_GRAPHICS)\n"));
+		if (ioctl(raw_state.f, KDSETMODE, KD_GRAPHICS) < 0) {
+			/* ignore error */
+			log_std(("keyb:raw: ioctl(KDSETMODE, KD_GRAPHICS) failed\n"));
+		}
 	}
 
 	memset(raw_state.state, 0, sizeof(raw_state.state));
@@ -267,8 +296,23 @@ void keyb_raw_disable(void)
 {
 	log_std(("keyb:raw: keyb_raw_disable()\n"));
 
-	ioctl(raw_state.f, KDSKBMODE, raw_state.oldkbmode);
-	tcsetattr(raw_state.f, 0, &raw_state.oldkbdtermios);
+	if (!raw_state.passive_flag && raw_state.graphics_flag) {
+		if (ioctl(raw_state.f, KDSETMODE, KD_TEXT) < 0) {
+			/* ignore error */
+			log_std(("keyb:raw: ioctl(KDSETMODE, KD_TEXT) failed\n"));
+		}
+	}
+
+	if (ioctl(raw_state.f, KDSKBMODE, raw_state.oldkbmode) < 0) {
+		/* ignore error */
+		log_std(("keyb:raw: ioctl(KDSKBMODE,old) failed\n"));
+	}
+
+	if (tcsetattr(raw_state.f, 0, &raw_state.oldkbdtermios) != 0) {
+		/* ignore error */
+		log_std(("keyb:raw: tcsetattr(old) failed\n"));
+	}
+
 	close(raw_state.f);
 }
 
@@ -398,26 +442,57 @@ static void keyb_raw_vt_switch(unsigned char code)
 	if (!vt)
 		return;
 
+	/* get active vt */
+	if (ioctl(raw_state.f, VT_GETSTATE, &vts) < 0) {
+		log_std(("keyb:raw: ioctl(VT_GETSTATE) failed\n"));
+		return;
+	}
+
 	/* do not switch vt's if need not to */
-	ioctl(raw_state.f, VT_GETSTATE, &vts);
 	if (vt == vts.v_active)
 		return;
 
-	/* if switching vt's, need to clear keystates */
-	for(i=0;i<256;++i) {
-		raw_state.state[i] = 0;
+	if (!raw_state.passive_flag && raw_state.graphics_flag) {
+		if (ioctl(raw_state.f, KDSETMODE, KD_TEXT) < 0) {
+			log_std(("keyb:raw: ioctl(KDSETMODE, KD_TEXT) failed\n"));
+			return;
+		}
 	}
 
 	/* change vt */
-	ioctl(raw_state.f, VT_ACTIVATE, vt);
+	if (ioctl(raw_state.f, VT_ACTIVATE, vt) == 0) {
+		if (!raw_state.passive_flag) {
+			log_std(("keyb:raw: waiting vt change\n"));
 
-	/* wait until the control return */
-	struct vt_stat vts_switch;
-	while (1) {
-		ioctl(raw_state.f, VT_GETSTATE, &vts_switch);
-		if (vts.v_active == vts_switch.v_active)
-			break;
-		sleep(1);
+			/* wait for new console to be activated */
+			ioctl(raw_state.f, VT_WAITACTIVE, vt);
+
+			log_std(("keyb:raw: waiting vt return\n"));
+
+			/* wait for original console to be actived */
+			while (ioctl(raw_state.f, VT_WAITACTIVE, vts.v_active) < 0 ) {
+
+				if ((errno != EINTR) && (errno != EAGAIN)) {
+					log_std(("keyb:raw: ioctl(VT_WAITACTIVE) failed, %d\n", errno));
+					/* unknown VT error - cancel this without blocking */
+					break;
+				}
+
+				sleep(1);
+			}
+		}
+	}
+
+	if (!raw_state.passive_flag && raw_state.graphics_flag) {
+		if (ioctl(raw_state.f, KDSETMODE, KD_GRAPHICS) < 0) {
+			/* ignore error */
+			log_std(("keyb:raw: ioctl(KDSETMODE, KD_GRAPHICS) failed\n"));
+		}
+	}
+
+	/* need to clear keystates */
+	for(i=0;i<256;++i) {
+		raw_state.state[i] = 0;
 	}
 }
 

@@ -48,8 +48,8 @@ extern "C" {
 #ifdef USE_INPUT_SDL
 #include "isdl.h"
 #endif
-#ifdef USE_INPUT_SLANG
-#include "islang.h"
+#ifdef USE_INPUT_TTY
+#include "itty.h"
 #endif
 #ifdef USE_INPUT_NONE
 #include "inone.h"

@@ -29,11 +29,11 @@
  */
 
 /** \file
- * Input driver "slang".
+ * Input driver "tty".
  */
 
-#ifndef __ISLANG_H
-#define __ISLANG_H
+#ifndef __ITTY_H
+#define __ITTY_H
 
 #include "inputdrv.h"
 
@@ -42,10 +42,10 @@ extern "C" {
 #endif
 
 /**
- * Input driver "slang".
+ * Input driver "tty".
  * \ingroup Input
  */
-extern inputb_driver inputb_slang_driver;
+extern inputb_driver inputb_tty_driver;
 
 #ifdef __cplusplus
 }

@@ -187,7 +187,7 @@ int os_main(int argc, char* argv[])
 
 	probe();
 
-	if (keyb_enable() != 0) {
+	if (keyb_enable(0) != 0) {
 		target_err("%s\n", error_get());
 		goto err_done;
 	}

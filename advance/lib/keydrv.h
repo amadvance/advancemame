@@ -60,7 +60,7 @@ typedef struct keyb_driver_struct {
 	void (*reg)(adv_conf* context);
 	adv_error (*init)(int device_id, adv_bool disable_special);
 	void (*done)(void);
-	adv_error (*enable)(void);
+	adv_error (*enable)(adv_bool graphics);
 	void (*disable)(void);
 	unsigned (*flags)(void);
 	unsigned (*count_get)(void);
@@ -141,8 +141,9 @@ void keyb_done(void);
 /**
  * Enable the keyboard driver.
  * The keyboard driver must be enabled after the video mode set.
+ * \param graphics_mode Enable the graphics mode behaviour, disabling echo and cursor.
  */
-adv_error keyb_enable(void);
+adv_error keyb_enable(adv_bool graphics);
 
 /**
  * Disable the keyboard driver.

@@ -22,6 +22,7 @@
 #define __DRAW_H
 
 #include "video.h"
+#include "mode.h"
 #include "generate.h"
 #include "gtf.h"
 #include "crtcbag.h"
@@ -68,10 +69,11 @@ unsigned text_size_y(void);
 void text_clear(void);
 void text_set_font(void);
 int text_crtc_compare(const adv_crtc* a, const adv_crtc* b);
-int text_init(adv_crtc_container* cc, adv_monitor* monitor);
+adv_error text_init(adv_crtc_container* cc, adv_monitor* monitor);
 void text_reset(void);
 void text_done(void);
 void text_put(int x, int y, char c, int color);
+adv_error text_mode_set(adv_mode* mode);
 
 /***************************************************************************/
 /* Draw interface */

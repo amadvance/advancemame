@@ -68,6 +68,7 @@ adv_error sound_load(adv_conf* context)
 	int at_least_one;
 
 	if (sound_state.driver_mac == 0) {
+		error_set("No sound driver was compiled in.");
 		return -1;
 	}
 
@@ -111,7 +112,7 @@ adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize the sound driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize the sound driver. The errors are:\n");
 
 	for(i=0;i<sound_state.driver_mac;++i) {
 		const adv_device* dev;

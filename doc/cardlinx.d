@@ -749,5 +749,6 @@ SVGALib
 Frame Buffer
 	The `fb' driver uses the Linux Kernel Consolle Driver.
 	It supports all the video board supported by your Linux
-	Kernel.
+	Kernel which are able to create new video modes.
+	This exclude the generic `vesafb' Frame Buffer driver.
 

@@ -4,8 +4,9 @@ Name
 AdvanceMENU Version 2.2.10 2003/09
 	) Added a new set of Linux input driver for keyboards, mice
 		and joysticks based on the Linux input-event interfaces.
-	) Added a new `include' option to include additionaly
+	) Added a new `include' option to include additionally
 		configuration files.
+	) Added support for png images with alpha channel.
 
 AdvanceMENU Version 2.2.9 2003/07
 	) Added support for importing the XML output of AdvanceMESS 0.71.0.0.

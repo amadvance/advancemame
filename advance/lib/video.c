@@ -452,7 +452,7 @@ adv_error video_init(void)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize the video driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize the video driver. The errors are:\n");
 
 	/* enable all the video driver */
 
@@ -568,7 +568,7 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 	int at_least_one;
 
 	if (video_state.driver_mac == 0) {
-		error_set("No video driver registered\n");
+		error_set("No video driver was compiled in.");
 		return -1;
 	}
 
@@ -820,7 +820,7 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned fla
 	unsigned i;
 
 	/* store the error prefix */
-	error_nolog_set("No driver is capable to do the specified video mode.\n\nThe following is the detailed list of errors for every driver:\n");
+	error_nolog_set("No driver is capable to do the specified video mode. The errors are:\n");
 
 	/* try any enabled driver */
 	for(i=0;i<video_state.driver_mac;++i) {
@@ -903,7 +903,7 @@ adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, u
 
 	if (crtc_is_doublescan(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) == 0) {
-			error_nolog_set("Mode dDoublescan not supported.\n");
+			error_nolog_set("Mode doublescan not supported.\n");
 			return -1;
 		}
 	}
