@@ -456,6 +456,11 @@ adv_error svgalib_mode_generate(svgalib_video_mode* mode, const adv_crtc* crtc, 
 {
 	assert( svgalib_is_active() );
 
+	if (crtc_is_fake(crtc)) {
+		error_nolog_cat("svgalib: Not programmable modes not supported\n");
+		return -1;
+	}
+
 	if (video_mode_generate_check("svgalib", svgalib_flags(), 8, 2048, crtc, flags)!=0)
 		return -1;
 
@@ -490,6 +495,13 @@ adv_error svgalib_load(adv_conf* context)
 {
 	assert( !svgalib_is_active() );
 	return 0;
+}
+
+void svgalib_crtc_container_insert_default(adv_crtc_container* cc)
+{
+	log_std(("video:svgalib: svgalib_crtc_container_insert_default()\n"));
+
+	crtc_container_insert_default_modeline_svga(cc);
 }
 
 /***************************************************************************/
@@ -556,6 +568,6 @@ adv_video_driver video_svgalib_driver = {
 	svgalib_mode_generate_void,
 	svgalib_mode_import_void,
 	svgalib_mode_compare_void,
-	0
+	svgalib_crtc_container_insert_default
 };
 

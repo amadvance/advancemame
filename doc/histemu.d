@@ -1,6 +1,12 @@
 Name
 	history - History For Advance Emulators
 
+AdvanceMAME Version 0.62.3 2002/12
+	) Added the Alsa sound driver for Linux. It's now the
+		preferred choice.
+	) Fixed another bug in the ./configure script if the
+		SDL library is missing.
+
 AdvanceMAME Version 0.62.2 2002/12
 	) Added a new raw keyboard driver for Linux [Kari Hautio].
 	) Changed the yield behaviour on high system load. Now the

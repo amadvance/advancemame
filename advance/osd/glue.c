@@ -631,7 +631,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		sprintf(GLUE.crc_file, "%s%c%s.crc", advance->crc_dir, file_dir_slash(), driver->name);
 		crcfile = GLUE.crc_file;
 
-		log_std(("mess: file_crc %s\n", crcfile));
+		log_std(("glue: file_crc %s\n", crcfile));
 
 		if (driver->clone_of
 			&& driver->clone_of->name
@@ -642,7 +642,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		}
 		pcrcfile = GLUE.parent_crc_file;
 
-		log_std(("mess: parent_file_crc %s\n", pcrcfile));
+		log_std(("glue: parent_file_crc %s\n", pcrcfile));
 	}
 #endif
 
@@ -778,6 +778,9 @@ int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_compo
 
 	log_std(("osd: osd_create_display(width:%d, height:%d, aspect_x:%d, aspect_y:%d, depth:%d, colors:%d, fps:%g, attributes:%d, orientation:%d)\n", params->width, params->height, params->aspect_x, params->aspect_y, params->depth, params->colors, (double)params->fps, params->video_attributes, params->orientation));
 
+	/* print any buffered message before setting the video mode */
+	target_flush();
+
 	width = params->width;
 	height = params->height;
 	aspect_x = params->aspect_x;
@@ -888,8 +891,12 @@ static unsigned glue_sound_sample(void)
 	/* Correction for a generic sound buffer underflow. */
 	/* Generally happen that the DMA buffer underflow reporting */
 	/* a very full state instead of an empty one. */
+	if (samples < 0) {
+		log_std(("WARNING:glue: negative sound samples %d adjusted to 16\n", samples));
+		samples = 16;
+	}
 	if (samples < 16) {
-		log_std(("WARNING: too less sound samples %d adjusted to 16\n", samples));
+		log_std(("WARNING:glue: too less sound samples %d adjusted to 16\n", samples));
 		samples = 16;
 	}
 
@@ -1005,7 +1012,7 @@ void osd_update_video_and_audio(struct mame_display *display)
 			/* if no sound generated use the silence buffer */
 			sample_count = glue_sound_sample();
 			if (sample_count > GLUE.sound_silence_count) {
-				log_std(("ERROR: silence underflow! %d %d\n", sample_count, GLUE.sound_silence_count));
+				log_std(("ERROR:glue: silence underflow! %d %d\n", sample_count, GLUE.sound_silence_count));
 				sample_count = GLUE.sound_silence_count;
 			}
 
@@ -1224,18 +1231,18 @@ static int mess_config_load(adv_conf* context)
 			const char* arg = conf_iterator_string_get(&j);
 			int id;
 
-			log_std(("mess: register device %s %s\n", *i, arg));
+			log_std(("glue: register device %s %s\n", *i, arg));
 
 			id = device_typeid(*i);
 			if (id < 0) {
 				/* If we get to here, log the error - This is mostly due to a mismatch in the array */
-				log_std(("ERROR: unknown mess devices %s\n", *i));
+				log_std(("ERROR:glue: unknown mess devices %s\n", *i));
 				return -1;
 			}
 
 			/* register the devices with its arg */
 			if (register_device(id, arg) != 0) {
-				log_std(("ERROR: calling register_device(type:%d, arg:%s)\n", id, arg));
+				log_std(("ERROR:glue: calling register_device(type:%d, arg:%s)\n", id, arg));
 				return -1;
 			}
 

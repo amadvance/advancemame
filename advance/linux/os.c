@@ -136,7 +136,7 @@ int os_inner_init(const char* title)
 #endif
 
 	if (uname(&uts) != 0) {
-		log_std(("ERROR: uname failed\n"));
+		log_std(("ERROR:os: uname failed\n"));
 	} else {
 		log_std(("os: sys %s\n", uts.sysname));
 		log_std(("os: release %s\n", uts.release));

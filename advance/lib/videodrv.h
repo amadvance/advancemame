@@ -92,10 +92,10 @@
 #define VIDEO_DRIVER_FLAGS_DEFAULT_BGR8 0x20000 /**< bgr8 is the preferred choice. */
 #define VIDEO_DRIVER_FLAGS_DEFAULT_BGR15 0x30000 /**< bgr15 is the preferred choice. */
 #define VIDEO_DRIVER_FLAGS_DEFAULT_BGR16 0x40000 /**< bgr16 is the preferred choice. */
-#define VIDEO_DRIVER_FLAGS_DEFAULT_BGR24 0x500000 /**< bgr24 is the preferred choice. */
-#define VIDEO_DRIVER_FLAGS_DEFAULT_BGR32 0x600000 /**< bgr32 is the preferred choice. */
-#define VIDEO_DRIVER_FLAGS_DEFAULT_YUY2 0x700000 /**< yuy2 is the preferred choice. */
-#define VIDEO_DRIVER_FLAGS_DEFAULT_MASK 0xF00000
+#define VIDEO_DRIVER_FLAGS_DEFAULT_BGR24 0x50000 /**< bgr24 is the preferred choice. */
+#define VIDEO_DRIVER_FLAGS_DEFAULT_BGR32 0x60000 /**< bgr32 is the preferred choice. */
+#define VIDEO_DRIVER_FLAGS_DEFAULT_YUY2 0x70000 /**< yuy2 is the preferred choice. */
+#define VIDEO_DRIVER_FLAGS_DEFAULT_MASK 0xF0000
 /*@}*/
 
 /** \name Output Flags

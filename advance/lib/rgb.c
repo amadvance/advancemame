@@ -280,39 +280,11 @@ adv_color_def color_def_make_from_rgb_sizelenpos(unsigned bytes_per_pixel, unsig
 }
 
 /**
- * Make an arbitary RGB format definition.
- * \param red_len Bits of the red channel.
- * \param red_pos Bit position red channel.
- * \param green_len Bits of the green channel.
- * \param green_pos Bit position green channel.
- * \param blue_len Bits of the blue channel.
- * \param blue_pos Bit position blue channel.
- * \return Color definition format.
- */
-adv_color_def color_def_make_from_rgb_lenpos(unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos)
-{
-	union adv_color_def_union def;
-
-	def.ordinal = 0;
-
-	def.nibble.type = adv_color_type_rgb;
-	def.nibble.red_len = red_len;
-	def.nibble.red_pos = red_pos;
-	def.nibble.green_len = green_len;
-	def.nibble.green_pos = green_pos;
-	def.nibble.blue_len = blue_len;
-	def.nibble.blue_pos = blue_pos;
-	def.nibble.alpha_size = 0;
-
-	return def.ordinal;
-}
-
-/**
  * Make an arbitary RGB format definition from a maskshift specification.
  * \param red_mask, green_mask, blue_mask Bit mask.
  * \param red_shift, green_shift, blue_shift Shift.
  */
-adv_color_def color_def_make_from_rgb_maskshift(unsigned red_mask, int red_shift, unsigned green_mask, int green_shift, unsigned blue_mask, int blue_shift)
+adv_color_def color_def_make_from_rgb_sizemaskshift(unsigned bytes_per_pixel, unsigned red_mask, int red_shift, unsigned green_mask, int green_shift, unsigned blue_mask, int blue_shift)
 {
 	unsigned red_len = rgb_len_get_from_mask(red_mask);
 	unsigned green_len = rgb_len_get_from_mask(green_mask);
@@ -321,7 +293,7 @@ adv_color_def color_def_make_from_rgb_maskshift(unsigned red_mask, int red_shift
 	unsigned green_pos = 8 + green_shift - green_len;
 	unsigned blue_pos = 8 + blue_shift - blue_len;
 
-	return color_def_make_from_rgb_lenpos(red_len, red_pos, green_len, green_pos, blue_len, blue_pos);
+	return color_def_make_from_rgb_sizelenpos(bytes_per_pixel, red_len, red_pos, green_len, green_pos, blue_len, blue_pos);
 }
 
 /**

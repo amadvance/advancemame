@@ -32,6 +32,7 @@
 #define __SCRVBE_H
 
 #include "scrvga.h"
+#include "rgb.h"
 
 #include <assert.h>
 
@@ -314,14 +315,7 @@ static inline unsigned vbe_bytes_per_scanline(void)
 
 unsigned vbe_adjust_bytes_per_page(unsigned bytes_per_page);
 
-static inline adv_color_def vbe_color_def(void)
-{
-	if (vbe_state.mode_info.MemoryModel == vbeMemPK) {
-		return color_def_make(adv_color_type_palette);
-	} else {
-		return color_def_make_from_rgb_maskshift(vbe_state.rgb_red_mask, vbe_state.rgb_red_shift, vbe_state.rgb_green_mask, vbe_state.rgb_green_shift, vbe_state.rgb_blue_mask, vbe_state.rgb_blue_shift);
-	}
-}
+adv_color_def vbe_color_def(void);
 
 static inline adv_bool vbe_pm_is_active(void)
 {

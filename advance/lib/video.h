@@ -131,6 +131,12 @@ static inline const adv_video_driver* video_current_driver(void)
 	return mode_driver(video_current_mode());
 }
 
+/** Video driver of the current mode. */
+static inline unsigned video_driver_flags(void)
+{
+	return mode_driver(video_current_mode())->flags();
+}
+
 /**
  * Get the color format of the current video mode.
  */
@@ -391,7 +397,7 @@ int video_mode_compare(const adv_mode* a, const adv_mode* b);
 
 adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned flags);
 adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const adv_crtc* crtc, unsigned flags);
-unsigned video_mode_generate_driver_flags(unsigned subset);
+unsigned video_mode_generate_driver_flags(unsigned flags_out, unsigned flags_in);
 
 void video_mode_print(char* buffer, const adv_mode* vm);
 

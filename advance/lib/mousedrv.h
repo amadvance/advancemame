@@ -108,31 +108,36 @@ adv_error mouseb_init(void);
 void mouseb_done(void);
 void mouseb_abort(void);
 
-static inline unsigned mouseb_count_get(void) {
+static inline unsigned mouseb_count_get(void)
+{
 	assert( mouseb_state.is_active_flag );
 
 	return mouseb_state.driver_current->count_get();
 }
 
-static inline unsigned mouseb_button_count_get(unsigned mouse) {
+static inline unsigned mouseb_button_count_get(unsigned mouse)
+{
 	assert( mouseb_state.is_active_flag );
 
 	return mouseb_state.driver_current->button_count_get(mouse);
 }
 
-static inline void mouseb_pos_get(unsigned mouse, int* x, int* y) {
+static inline void mouseb_pos_get(unsigned mouse, int* x, int* y)
+{
 	assert( mouseb_state.is_active_flag );
 
 	return mouseb_state.driver_current->pos_get(mouse, x, y);
 }
 
-static inline unsigned mouseb_button_get(unsigned mouse, unsigned button) {
+static inline unsigned mouseb_button_get(unsigned mouse, unsigned button)
+{
 	assert( mouseb_state.is_active_flag );
 
 	return mouseb_state.driver_current->button_get(mouse, button);
 }
 
-static inline void mouseb_poll(void) {
+static inline void mouseb_poll(void)
+{
 	assert( mouseb_state.is_active_flag );
 
 	mouseb_state.driver_current->poll();
@@ -142,7 +147,8 @@ static inline void mouseb_poll(void) {
  * Get the driver/device name.
  * \return Pointer at a static buffer.
  */
-static inline const char* mouseb_name(void) {
+static inline const char* mouseb_name(void)
+{
 	return mouseb_state.name;
 }
 

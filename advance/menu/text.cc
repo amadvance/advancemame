@@ -418,7 +418,7 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 		if (strcmp(crtc->name, DEFAULT_GRAPH_MODE)==0) {
 
 			// check the clocks only if the driver is programmable
-			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
 				if (!crtc_clock_check(&int_monitor, crtc)) {
 					target_err("The selected mode '%s' is out of your monitor capabilities.\n", DEFAULT_GRAPH_MODE);
 					return false;
@@ -438,7 +438,7 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 	// generate an exact mode with clock
 	if (int_has_generate) {
 		adv_crtc crtc;
-		err = generate_find_interpolate(&crtc, int_mode_size, int_mode_size*3/4, 70, &int_monitor, &int_interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK), GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK);
+		err = generate_find_interpolate(&crtc, int_mode_size, int_mode_size*3/4, 70, &int_monitor, &int_interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK);
 		if (err == 0) {
 			if (crtc_clock_check(&int_monitor, &crtc)) {
 				adv_mode mode;
@@ -454,7 +454,7 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 	}
 
 	// generate any resolution for a window manager
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW))!=0) {
 		adv_crtc crtc;
 		crtc_fake_set(&crtc, int_mode_size, int_mode_size*3/4);
 
@@ -473,7 +473,7 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 		const adv_crtc* crtc = crtc_container_iterator_get(&i);
 
 		// check the clocks only if the driver is programmable
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
 			if (!crtc_clock_check(&int_monitor, crtc)) {
 				continue;
 			}
@@ -613,7 +613,7 @@ bool int_init2(unsigned size, const string& sound_event_key)
 		goto int_video;
 	}
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM)!=0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM)!=0) {
 		target_err("Zoom output mode not supported by this program.\n");
 		goto int_blit;
 	}
@@ -623,13 +623,13 @@ bool int_init2(unsigned size, const string& sound_event_key)
 		int_has_generate = false;
 
 	// disable generate if the driver is not programmable
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0)
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0)
 		int_has_generate = false;
 
 	// add modes if the list is empty and no generation is possibile
 	if (!int_has_generate
 		&& crtc_container_is_empty(&int_modelines)) {
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
 			crtc_container_insert_default_modeline_svga(&int_modelines);
 			crtc_container_insert_default_modeline_vga(&int_modelines);
 		} else {
@@ -638,7 +638,7 @@ bool int_init2(unsigned size, const string& sound_event_key)
 	}
 
 	// check if the video driver has a default bit depth
-	switch (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_DEFAULT_MASK) {
+	switch (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_DEFAULT_MASK) {
 	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR8 : index = MODE_FLAGS_INDEX_BGR8; break;
 	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR15 : index = MODE_FLAGS_INDEX_BGR15; break;
 	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR16 : index = MODE_FLAGS_INDEX_BGR16; break;
@@ -749,7 +749,7 @@ void int_done3(bool reset_video_mode)
 	int_key_done2();
 
 	if (reset_video_mode) {
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)==0) {
+		if ((video_driver_flags() & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)==0) {
 			video_write_lock();
 			video_clear(0, 0, video_size_x(), video_size_y(), 0);
 			video_write_unlock(0, 0, video_size_x(), video_size_y());
@@ -1121,6 +1121,17 @@ static void int_clear_noclip(int x, int y, int dx, int dy, const int_rgb& color)
 	int_clear_raw(x, y, dx, dy, color);
 }
 
+void int_clear() 
+{
+	// clear the bitmap
+	if ((video_driver_flags() & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0
+		&& video_buffer_pixel_size > 1) {
+		memset(video_buffer, 0xFF, video_buffer_size);
+	} else {
+		memset(video_buffer, 0x0, video_buffer_size);
+	}
+}	
+
 void int_clear(int x, int y, int dx, int dy, const int_rgb& color)
 {
 	if (x < 0) {
@@ -1139,17 +1150,6 @@ void int_clear(int x, int y, int dx, int dy, const int_rgb& color)
 	}
 	if (dx > 0 && dy > 0)
 		int_clear_noclip(x, y, dx, dy, color);
-}
-
-void int_clear()
-{
-	// clear the bitmap
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0
-		&& video_buffer_pixel_size > 1) {
-		memset(video_buffer, 0xFF, video_buffer_size);
-	} else {
-		memset(video_buffer, 0x0, video_buffer_size);
-	}
 }
 
 void int_box(int x, int y, int dx, int dy, int width, const int_rgb& color)
@@ -2389,7 +2389,7 @@ static void int_clip_idle()
 
 		video_stretch_palette_8(dst_x, dst_y, dst_dx, dst_dy, ptr, dx, dy, dw, dp, palette, combine);
 	} else if (bitmap->bytes_per_pixel == 3 || bitmap->bytes_per_pixel == 4) {
-		adv_color_def color_def = color_def_make_from_rgb_lenpos(8, 0, 8, 8, 8, 16);
+		adv_color_def color_def = color_def_make_from_rgb_sizelenpos(bitmap->bytes_per_pixel, 8, 0, 8, 8, 8, 16);
 
 		video_stretch(dst_x, dst_y, dst_dx, dst_dy, ptr, dx, dy, dw, dp, color_def, combine);
 	}
@@ -2641,7 +2641,8 @@ static struct color_name {
 { "white", { 255, 255, 255 } }
 };
 
-static unsigned hexdigit2int(char c) {
+static unsigned hexdigit2int(char c)
+{
 	if (c>='A' && c<='F')
 		return c - 'A' + 10;
 	if (c>='a' && c<='f')
@@ -2651,7 +2652,8 @@ static unsigned hexdigit2int(char c) {
 	return 0;
 }
 
-static unsigned hexnibble2int(char c0, char c1) {
+static unsigned hexnibble2int(char c0, char c1)
+{
 	return hexdigit2int(c0) * 16 + hexdigit2int(c1);
 }
 
@@ -2663,9 +2665,9 @@ static int_rgb string2color(const string& s)
 
 	if (s.length() == 6 && s.find_first_not_of("0123456789abcdefABCDEF") == string::npos) {
 		int_rgb c;
-		c.r = hexnibble2int(s[0],s[1]);
-		c.g = hexnibble2int(s[2],s[3]);
-		c.b = hexnibble2int(s[4],s[5]);
+		c.r = hexnibble2int(s[0], s[1]);
+		c.g = hexnibble2int(s[2], s[3]);
+		c.b = hexnibble2int(s[4], s[5]);
 		return c;
 	}
 

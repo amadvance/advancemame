@@ -241,12 +241,12 @@ static adv_conf_enum_int OPTION_CHANNELS[] = {
 { "auto", SOUND_MODE_AUTO },
 { "mono", SOUND_MODE_MONO },
 { "stereo", SOUND_MODE_STEREO },
-{ "surround", SOUND_MODE_SURROUND },
+{ "surround", SOUND_MODE_SURROUND }
 };
 
 int advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context)
 {
-	conf_int_register_enum_default(cfg_context, "sound_mode", conf_enum(OPTION_CHANNELS), -1);
+	conf_int_register_enum_default(cfg_context, "sound_mode", conf_enum(OPTION_CHANNELS), SOUND_MODE_AUTO);
 	conf_int_register_limit_default(cfg_context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
 	conf_bool_register_default(cfg_context, "sound_resamplefilter", 1);
@@ -270,7 +270,7 @@ struct sound_device {
 
 int advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* option)
 {
-	context->config.mode = conf_bool_get_default(cfg_context, "sound_mode");
+	context->config.mode = conf_int_get_default(cfg_context, "sound_mode");
 	context->config.attenuation = conf_int_get_default(cfg_context, "sound_volume");
 	context->config.latency_time = conf_float_get_default(cfg_context, "sound_latency");
 	option->samplerate = conf_int_get_default(cfg_context, "sound_samplerate");

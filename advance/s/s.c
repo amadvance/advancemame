@@ -24,6 +24,7 @@
 #include "mixer.h"
 #include "sounddrv.h"
 #include "target.h"
+#include "log.h"
 
 #include <string.h>
 
@@ -92,13 +93,21 @@ int os_main(int argc, char* argv[])
 	adv_conf* context;
 	const char* s;
         const char* section_map[1];
+	const char** file_map;
+	unsigned file_mac;
 	int i;
-	unsigned n;
 	double latency_time;
 	double buffer_time;
 	double volume;
 	unsigned rate;
 	int attenuation;
+	adv_bool opt_log;
+	adv_bool opt_logsync;
+
+	opt_log = 0;
+	opt_logsync = 0;
+	file_map = 0;
+	file_mac = 0;
 
 	context = conf_init();
 
@@ -115,10 +124,28 @@ int os_main(int argc, char* argv[])
 	if (conf_input_args_load(context, 0, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
-	if (argc <= 1) {
+	file_map = malloc(argc * sizeof(const char*));
+
+	for(i=1;i<argc;++i) {
+		if (target_option(argv[i], "log")) {
+			opt_log = 1;
+		} else if (target_option(argv[i], "logsync")) {
+			opt_logsync = 1;
+		} else {
+			file_map[file_mac++] = argv[i];
+		}
+	}
+
+	if (argc <= 1 || file_mac == 0) {
 		fprintf(stderr, "Syntax: advs FILES...\n");
 		goto err_os;
 	}
+
+	if (opt_log || opt_logsync) {
+		const char* log = "advs.log";
+		remove(log);
+		log_init(log, opt_logsync);
+        }
 
 	section_map[0] = "";
 	conf_section_set(context, section_map, 1);
@@ -138,39 +165,47 @@ int os_main(int argc, char* argv[])
 	if (os_inner_init("AdvanceSOUND") != 0)
 		goto err_os;
 
-	n = argc - 1;
-
-	if (n > MIXER_CHANNEL_MAX) {
+	if (file_mac > MIXER_CHANNEL_MAX) {
 		fprintf(stderr, "Too many files\n");
 		goto err_os_inner;
 	}
 
-	if (mixer_init(rate, n, 1, buffer_time + latency_time, latency_time) != 0) {
+	if (mixer_init(rate, file_mac, 1, buffer_time + latency_time, latency_time) != 0) {
 		fprintf(stderr, "Error initializing the mixer\n");
 		goto err_os_inner;
 	}
 
 	mixer_volume(volume);
 
-	for(i=1;i<argc;++i)
-		run(i-1, argv[i]);
+	for(i=0;i<file_mac;++i)
+		run(i, file_map[i]);
+
+	free(file_map);
 
 	signal(SIGINT, sigint);
 
 	while (!done) {
-		for(i=0;i<n;++i)
+		for(i=0;i<file_mac;++i)
 			if (mixer_is_playing(i))
 				break;
-		if (i==n)
+		if (i==file_mac)
 			break;
 
 		mixer_poll();
 		target_idle();
 	}
 
+	log_std(("s: shutdown\n"));
+
 	mixer_done();
 
 	os_inner_done();
+
+	log_std(("s: the end\n"));
+
+	if (opt_log || opt_logsync) {
+		log_done();
+	}
 
 	os_done();
 	conf_done(context);
@@ -179,6 +214,7 @@ int os_main(int argc, char* argv[])
 
 err_os_inner:
 	os_inner_done();
+	log_done();
 err_os:
 	os_done();
 err_conf:

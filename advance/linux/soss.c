@@ -39,8 +39,6 @@
 #include <sys/soundcard.h>
 
 struct sound_oss_context {
-	adv_bool active_flag;
-
 	unsigned channel;
 	unsigned rate;
 	unsigned sample_length;
@@ -120,8 +118,6 @@ adv_error sound_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 
 	*rate = oss_state.rate;
 
-	oss_state.active_flag = 1;
-
 	return 0;
 
 err_close:
@@ -135,10 +131,7 @@ void sound_oss_done(void)
 {
 	log_std(("sound:oss: sound_oss_done()\n"));
 
-	if (oss_state.active_flag) {
-		oss_state.active_flag = 0;
-		close(oss_state.handle);
-	}
+	close(oss_state.handle);
 }
 
 void sound_oss_stop(void)
@@ -181,7 +174,7 @@ void sound_oss_play(const short* sample_map, unsigned sample_count)
 		r = write(oss_state.handle, sample_map, sample_count * oss_state.sample_length);
 
 		if (r != sample_count * oss_state.sample_length) {
-			log_std(("sound:oss: sound WRITE ERROR %d\n", r));
+			log_std(("ERROR:sound:oss write() failed %d\n", r));
 		}
 	}
 }

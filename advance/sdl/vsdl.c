@@ -158,7 +158,7 @@ static adv_error sdl_init(int device_id, adv_output output)
 
 	assert( !sdl_is_active() );
 
-	log_std(("video:sdl: sdl_init()\n"));
+	log_std(("video:sdl: sdl_init(id:%d,output:%x)\n", device_id, (unsigned)output));
 
 	if (sizeof(sdl_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
@@ -225,6 +225,7 @@ static adv_error sdl_init(int device_id, adv_output output)
 	}
 
 	if (sdl_state.output == adv_output_window) {
+		log_std(("video:sdl: use window output\n"));
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW;
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32;
 		switch (info->vfmt->BitsPerPixel) {
@@ -237,6 +238,8 @@ static adv_error sdl_init(int device_id, adv_output output)
 	} else if (sdl_state.output == adv_output_fullscreen) {
 		unsigned x;
 		unsigned y;
+		
+		log_std(("video:sdl: use fullscreen output\n"));
 
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
@@ -269,6 +272,8 @@ static adv_error sdl_init(int device_id, adv_output output)
 		unsigned mode_x;
 		unsigned mode_y;
 		adv_bool mode_flag;
+
+		log_std(("video:sdl: use zoom output\n"));
 
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM;
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;

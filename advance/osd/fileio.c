@@ -33,6 +33,7 @@
 #include "conf.h"
 #include "fz.h"
 #include "log.h"
+#include "target.h"
 
 #include "mame2.h"
 
@@ -770,8 +771,11 @@ int osd_display_loading_rom_message(const char *name, int current, int total)
 	(void)current;
 	(void)total;
 
-	log_debug(("osd: osd_display_loading_rom_message(name:%s, current:%d, total:%d)\n", name, current, total));
+	log_std(("osd: osd_display_loading_rom_message(name:%s, current:%d, total:%d)\n", name, current, total));
 
+	if (current < 0 && name)
+		target_err("%s",name);
+		
 	/* nothing */
 
 	return 0;

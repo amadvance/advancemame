@@ -229,7 +229,7 @@ static int score_compare_crtc(const struct advance_video_context* context, const
 	r = score_compare_size(context, a, b);
 	if (r) return r;
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
 		/* only for programamble drivers */
 
 		r = score_compare_scanline(context, a, b);

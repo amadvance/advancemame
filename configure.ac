@@ -324,6 +324,50 @@ fi
 AC_SUBST([CONF_LIB_FB],[$ac_lib_fb])
 
 AC_ARG_ENABLE(
+	[alsa],
+	AC_HELP_STRING([--enable-alsa],[enable the use of the ALSA library. (default auto)]),
+	[ac_lib_alsa=$enableval],
+	[ac_lib_alsa=auto]
+)
+if test $ac_lib_alsa = auto; then
+	if test $ac_host = unix; then
+		AC_MSG_CHECKING([for ALSA])
+		AC_TRY_COMPILE(
+			[#include <alsa/asoundlib.h>],
+			[
+				#if SND_LIB_VERSION < ((0<<16)|(9<<8)|0)
+				choke me
+				#endif
+				int dummy = SND_PCM_FORMAT_S16_LE;
+			],
+			[ac_lib_alsa=yes],
+			[ac_lib_alsa=no]
+		)
+		AC_MSG_RESULT([$ac_lib_alsa])
+	else
+		ac_lib_alsa=no
+	fi
+elif test $ac_lib_alsa = yes; then
+	AC_MSG_CHECKING([for ALSA])
+	AC_TRY_COMPILE(
+		[#include <alsa/asoundlib.h>],
+		[
+			#if SND_LIB_VERSION < ((0<<16)|(9<<8)|0)
+			choke me
+			#endif
+			int dummy = SND_PCM_FORMAT_S16_LE;
+		],
+		[],
+		[AC_MSG_ERROR([The ALSA library is missing or too old])]
+	)
+	AC_MSG_RESULT([yes])
+fi
+if test $ac_lib_alsa = yes; then
+	ac_lib="$ac_lib ALSA"
+fi
+AC_SUBST([CONF_LIB_ALSA],[$ac_lib_alsa])
+
+AC_ARG_ENABLE(
 	[oss],
 	AC_HELP_STRING([--enable-oss],[enable the use of the OSS library. (default auto)]),
 	[ac_lib_oss=$enableval],
@@ -434,53 +478,53 @@ if test $ac_lib_sdl = auto; then
 		if test -z ${host_alias} ; then
 			AC_CHECK_PROGS(
 				[SDLCONFIG],
-				[sdl-config],
-				[no]
+				[sdl-config]
 			)
 		else
 			AC_CHECK_PROGS(
 				[SDLCONFIG],
-				[${host_alias}-sdl-config],
-				[no]
+				[${host_alias}-sdl-config]
 			)
 		fi
-		if test ! $SDLCONFIG = no; then
+		if test -z $SDLCONFIG; then
+			ac_lib_sdl=no
+		else
 			SDLCFLAGS=`$SDLCONFIG --cflags`
 			SDLLIBS=`$SDLCONFIG --libs`
+			AC_CHECK_LIB(
+				[SDL],
+				[SDL_Init],
+				[ac_lib_sdl=yes],
+				[ac_lib_sdl=no],
+				[$SDLLIBS]
+			)
 		fi
-		AC_CHECK_LIB(
-			[SDL],
-			[SDL_Init],
-			[ac_lib_sdl=yes],
-			[ac_lib_sdl=no],
-			[$SDLLIBS]
-		)
 	fi
 elif test $ac_lib_sdl = yes; then
 	if test -z ${host_alias} ; then
 		AC_CHECK_PROGS(
 			[SDLCONFIG],
-			[sdl-config],
-			[no]
+			[sdl-config]
 		)
 	else
 		AC_CHECK_PROGS(
 			[SDLCONFIG],
-			[${host_alias}-sdl-config],
-			[no]
+			[${host_alias}-sdl-config]
 		)
 	fi
-	if test ! $SDLCONFIG = no; then
+	if test -z $SDLCONFIG ; then
+		AC_MSG_ERROR([The sdl-config tool is missing])
+	else
 		SDLCFLAGS=`$SDLCONFIG --cflags`
 		SDLLIBS=`$SDLCONFIG --libs`
+		AC_CHECK_LIB(
+			[SDL],
+			[SDL_Init],
+			[],
+			[AC_MSG_ERROR([The SDL library is missing])],
+			[$SDLLIBS]
+		)
 	fi
-	AC_CHECK_LIB(
-		[SDL],
-		[SDL_Init],
-		[],
-		[AC_MSG_ERROR([The SDL library is missing])],
-		[$SDLLIBS]
-	)
 fi
 if test $ac_lib_sdl = yes; then
 	ac_lib="$ac_lib SDL"

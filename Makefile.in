@@ -15,7 +15,7 @@ PREFIX=@prefix@
 # The unix host uses:
 #   SVGALIB, Frame Buffer, SDL for the video
 #   SLang, SDL for the text
-#   OSS, SDL for the sound
+#   ALSA, OSS, SDL for the sound
 #   SVGALIB, SDL, KRAW for the keyboard
 #   SVGALIB, SDL for the joystick
 #   SVGALIB, SDL for the mouse
@@ -48,6 +48,7 @@ PREFIX=@prefix@
 #CONF_LIB_SVGAWIN=yes
 #CONF_LIB_SDL=yes
 #CONF_LIB_FB=yes
+#CONF_LIB_ALSA=yes
 #CONF_LIB_OSS=yes
 #CONF_LIB_PTHREAD=yes
 #CONF_LIB_SLANG=yes
@@ -99,6 +100,7 @@ CONF_BUILD=@CONF_BUILD@
 CONF_HOST=@CONF_HOST@
 CONF_LIB_SVGALIB=@CONF_LIB_SVGALIB@
 CONF_LIB_FB=@CONF_LIB_FB@
+CONF_LIB_ALSA=@CONF_LIB_ALSA@
 CONF_LIB_OSS=@CONF_LIB_OSS@
 CONF_LIB_SDL=@CONF_LIB_SDL@
 CONF_LIB_SVGAWIN=@CONF_LIB_SVGAWIN@
@@ -157,6 +159,10 @@ endif
      
 ifndef CONF_LIB_FB
 CONF_LIB_FB=yes
+endif
+
+ifndef CONF_LIB_ALSA
+CONF_LIB_ALSA=no
 endif
 
 ifndef CONF_LIB_OSS

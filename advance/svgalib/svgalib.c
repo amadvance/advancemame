@@ -1547,6 +1547,11 @@ int ADV_SVGALIB_CALL adv_svgalib_detect(const char* name) {
  */
 int ADV_SVGALIB_CALL adv_svgalib_check(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc)
 {
+	if (!(pixelclock>0
+		&& hde <= hrs && hrs < hre && hre <= ht
+		&& vde <= vrs && vrs < vre && vre <= vt))
+		return -1;
+	
 	mode_init(pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, hsync, vsync, bits_per_pixel, tvpal, tvntsc);
 
 	if (adv_svgalib_state.driver->drv->modeavailable(adv_svgalib_state.mode_number) == 0) {

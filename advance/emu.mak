@@ -77,6 +77,13 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/linux/ksvgab.o \
 	$(OBJ)/advance/linux/msvgab.o
 endif
+ifeq ($(CONF_LIB_ALSA),yes)
+ADVANCECFLAGS += \
+	-DUSE_SOUND_ALSA
+ADVANCEOBJS += \
+	$(OBJ)/advance/linux/salsa.o
+ADVANCELIBS += -lasound
+endif
 ifeq ($(CONF_LIB_OSS),yes)
 ADVANCECFLAGS += \
 	-DUSE_SOUND_OSS

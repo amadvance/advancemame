@@ -180,9 +180,9 @@ static int text_default_set(adv_crtc_container* cc, adv_monitor* monitor)
 		}
 	}
 
+	/* add a fake text mode for the windowed modes */
 	if (!the_default_mode_flag) {
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_TEXT) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0) {
-			/* add a fake text mode for the windowed modes */
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_TEXT, VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)) != 0) {
 			adv_crtc crtc;
 			adv_mode mode;
 			crtc_reset_all(&crtc);

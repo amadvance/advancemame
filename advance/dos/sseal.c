@@ -361,8 +361,9 @@ void sound_seal_play(const short* sample_map, unsigned sample_count)
 
 	seal_state.last = current;
 
-	if (sound_seal_overflow(seal_state.pos, sample_count))
-		log_std(("ERROR: sound buffer overflow\n"));
+	if (sound_seal_overflow(seal_state.pos, sample_count)) {
+		log_std(("ERROR:sound:seal: sound buffer overflow\n"));
+	}
 
 	if (seal_state.channel > 1) {
 		while (count) {

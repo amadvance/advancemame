@@ -275,6 +275,7 @@ void crtc_print(char* buffer, const adv_crtc* crtc);
 
 void crtc_fake_set(adv_crtc* crtc, unsigned size_x, unsigned size_y);
 adv_bool crtc_is_fake(const adv_crtc* crtc);
+adv_bool crtc_is_valid(const adv_crtc* crtc);
 
 #ifdef __cplusplus
 }

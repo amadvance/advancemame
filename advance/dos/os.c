@@ -313,7 +313,7 @@ static void os_align(void)
 	for(i=0;i<32;++i) {
 		m[i] = (char*)malloc(i);
 		if (((unsigned)m[i]) & 0x7)
-			log_std(("ERROR: unaligned malloc ptr:%p, size:%d\n", (void*)m[i], i));
+			log_std(("ERROR:os: unaligned malloc ptr:%p, size:%d\n", (void*)m[i], i));
 	}
 
 	for(i=0;i<32;++i) {

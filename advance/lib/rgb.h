@@ -109,8 +109,7 @@ union adv_color_def_union {
 const char* color_def_name_make(adv_color_def rgb_def);
 adv_color_def color_def_make(adv_color_type type);
 adv_color_def color_def_make_from_rgb_sizelenpos(unsigned bytes_per_pixel, unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos);
-adv_color_def color_def_make_from_rgb_lenpos(unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos);
-adv_color_def color_def_make_from_rgb_maskshift(unsigned red_mask, int red_shift, unsigned green_mask, int green_shift, unsigned blue_mask, int blue_shift);
+adv_color_def color_def_make_from_rgb_sizemaskshift(unsigned bytes_per_pixel, unsigned red_mask, int red_shift, unsigned green_mask, int green_shift, unsigned blue_mask, int blue_shift);
 adv_color_def color_def_make_from_index(unsigned index);
 adv_pixel pixel_make_from_def(unsigned r, unsigned g, unsigned b, adv_color_def def);
 

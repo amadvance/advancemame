@@ -910,6 +910,11 @@ adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, 
 
 	assert( vbeline_is_active() );
 
+	if (crtc_is_fake(crtc)) {
+		error_nolog_cat("vbeline: Not programmable modes not supported\n");
+		return -1;
+	}
+
 	if (video_mode_generate_check("vbeline", vbeline_flags(), 8, 2048, crtc, flags)!=0)
 		return -1;
 

@@ -29,51 +29,26 @@
  */
 
 /** \file
- * Devices.
+ * Sound driver "alsa".
  */
 
-/** \addtogroup Device */
-/*@{*/
+#ifndef __SALSA_H
+#define __SALSA_H
 
-#ifndef __DEVICE_H
-#define __DEVICE_H
+#include "sounddrv.h"
 
-/***************************************************************************/
-/* Driver */
-
-#include "extra.h"
-
-/** Max number of devices */
-#define DEVICE_MAX 8
-
-/** Max length of a device name or a list of names */
-#define DEVICE_NAME_MAX 256
-
-/**
- * Device minimal information.
- * This structure define the common entries for all the devices.
- * A device is always part of a driver. Generally a driver supports
- * more than one device.
- */
-typedef struct adv_device_struct {
-	const char *name; /** Name of the device. */
-	int id; /** Identifier of the device. This identifier must be passed at the driver init() function. */
-	const char* desc; /** Description of the device. */
-} adv_device;
-
-/**
- * Driver minimal information.
- * This structure define the common entries for all the drivers.
- */
-typedef struct adv_driver_struct {
-	const char *name; /** Name of the driver. */
-	const adv_device* device_map; /** List of supported device. */
-} adv_driver;
-
-const adv_device* device_match(const char* tag, const adv_driver* drv, adv_bool allow_none);
-adv_error device_check(const char* option, const char* arg, const adv_driver** driver_map, unsigned driver_mac, const char* driver_ignore);
-void device_error(const char* option, const char* arg, const adv_driver** driver_map, unsigned driver_mac);
-
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-/*@}*/
+/**
+ * Sound driver "alsa".
+ * \ingroup Sound
+ */
+extern sound_driver sound_alsa_driver;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

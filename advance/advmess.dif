@@ -3,6 +3,22 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
 +++ srcmess/advance.pat	2002-12-15 14:55:48.000000000 +0100
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/common.c srcmess/common.c
+--- srcmess.ori/common.c	2002-12-09 13:57:40.000000000 +0100
++++ srcmess/common.c	2002-12-18 20:39:27.000000000 +0100
+@@ -1134,11 +1134,11 @@
+ 		}
+ 		else
+ 			strcat(romdata->errorbuf, "WARNING: the game might not run correctly.\n");
+ 
+ 		/* display the result */
+-		printf("%s", romdata->errorbuf);
++		osd_display_loading_rom_message(romdata->errorbuf, -1, -1);
+ 
+ 		/* if we're not getting out of here, wait for a keypress */
+ 		if (!options.gui_host && !bailing)
+ 		{
+ 			int k;
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpu/i8085/i8085.c srcmess/cpu/i8085/i8085.c
 --- srcmess.ori/cpu/i8085/i8085.c	2002-07-21 18:24:54.000000000 +0200
 +++ srcmess/cpu/i8085/i8085.c	2002-12-15 14:55:48.000000000 +0100
@@ -93,7 +109,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/cpuexec.c srcmess/cpuexec.c
---- srcmess.ori/cpuexec.c	2002-10-21 15:02:41.000000000 +0200
+--- srcmess.ori/cpuexec.c	2002-10-21 15:02:40.000000000 +0200
 +++ srcmess/cpuexec.c	2002-12-15 14:55:48.000000000 +0100
 @@ -233,10 +233,13 @@
  	watchdog_counter = -1;
@@ -110,7 +126,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_type & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/info.c srcmess/info.c
---- srcmess.ori/info.c	2002-11-02 23:44:07.000000000 +0100
+--- srcmess.ori/info.c	2002-11-02 23:44:06.000000000 +0100
 +++ srcmess/info.c	2002-12-15 15:00:04.000000000 +0100
 @@ -742,10 +742,39 @@
  	fprintf(out, SELECT(L2P "palettesize %d" L2N, "\t\t\t<palettesize>%d</palettesize>\n"), driver.total_colors);
@@ -218,7 +234,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/inptport.h srcmess/inptport.h
---- srcmess.ori/inptport.h	2002-10-13 17:18:55.000000000 +0200
+--- srcmess.ori/inptport.h	2002-10-13 17:18:54.000000000 +0200
 +++ srcmess/inptport.h	2002-12-15 14:55:48.000000000 +0100
 @@ -84,10 +84,15 @@
  	IPT_OSD_4,
@@ -319,7 +335,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
  #endif
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/osdepend.h srcmess/osdepend.h
---- srcmess.ori/osdepend.h	2002-12-09 13:57:49.000000000 +0100
+--- srcmess.ori/osdepend.h	2002-12-09 13:57:48.000000000 +0100
 +++ srcmess/osdepend.h	2002-12-15 14:55:48.000000000 +0100
 @@ -399,10 +399,36 @@
  #include "osd_mess.h"
@@ -395,7 +411,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  struct lang_struct
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/usrintrf.c srcmess/usrintrf.c
---- srcmess.ori/usrintrf.c	2002-12-09 13:57:53.000000000 +0100
+--- srcmess.ori/usrintrf.c	2002-12-09 13:57:52.000000000 +0100
 +++ srcmess/usrintrf.c	2002-12-15 14:58:22.000000000 +0100
 @@ -843,12 +843,16 @@
  	while (items[i])

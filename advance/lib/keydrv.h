@@ -143,7 +143,8 @@ void keyb_abort(void);
 /**
  * Return the capabilities flag of the keyboard driver.
  */
-static inline unsigned keyb_flags(void) {
+static inline unsigned keyb_flags(void)
+{
 	assert( keyb_state.is_active_flag );
 
 	return keyb_state.driver_current->flags();
@@ -156,7 +157,8 @@ static inline unsigned keyb_flags(void) {
  *  - == 0 not pressed
  *  - != 0 pressed
  */
-static inline unsigned keyb_get(unsigned code) {
+static inline unsigned keyb_get(unsigned code)
+{
 	assert( keyb_state.is_active_flag );
 
 	return keyb_state.driver_current->get(code);
@@ -166,7 +168,8 @@ static inline unsigned keyb_get(unsigned code) {
  * Get the status of all the keys.
  * \param code_map The destination vector of KEYB_MAX elements.
  */
-static inline void keyb_all_get(unsigned char* code_map) {
+static inline void keyb_all_get(unsigned char* code_map)
+{
 	assert( keyb_state.is_active_flag );
 
 	keyb_state.driver_current->all_get(code_map);
@@ -177,7 +180,8 @@ static inline void keyb_all_get(unsigned char* code_map) {
  * This function must be called periodically to ensure that
  * the keyboard events are processed.
  */
-static inline void keyb_poll(void) {
+static inline void keyb_poll(void)
+{
 	assert( keyb_state.is_active_flag );
 
 	keyb_state.driver_current->poll();
@@ -187,7 +191,8 @@ static inline void keyb_poll(void) {
  * Get the driver/device name.
  * \return Pointer at a static buffer.
  */
-static inline const char* keyb_name(void) {
+static inline const char* keyb_name(void)
+{
 	return keyb_state.name;
 }
 

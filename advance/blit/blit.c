@@ -584,11 +584,14 @@ static inline void video_pipeline_vert_run(const struct video_pipeline_struct* p
 	const struct video_stage_horz_struct* begin = video_pipeline_begin(pipeline);
 	const struct video_stage_horz_struct* end = video_pipeline_end(pipeline);
 	while (begin != end) {
+		assert(begin);
 		((struct video_stage_horz_struct*)begin)->state_mutable = 0;
 		++begin;
 	}
 
 	/* draw */
+	assert(pipeline->stage_vert.put);
+	assert(video_pipeline_vert(pipeline)->put);
 	video_pipeline_vert(pipeline)->put(video_pipeline_vert(pipeline), x, y, src);
 
 	/* restore the MMX micro state */

@@ -110,7 +110,8 @@ void sound_abort(void);
  * \param sample_map Samples to play.
  * \param sample_count Number of samples to play. If stereo is enable sample_map must contains the 2*sample_count samples.
  */
-static inline void sound_play(const sound_sample_t* sample_map, unsigned sample_count) {
+static inline void sound_play(const sound_sample_t* sample_map, unsigned sample_count)
+{
 	assert( sound_state.is_active_flag && sound_state.is_playing_flag );
 
 	sound_state.driver_current->play(sample_map, sample_count);
@@ -119,7 +120,8 @@ static inline void sound_play(const sound_sample_t* sample_map, unsigned sample_
 /**
  * Return the number of buffered samples.
  */
-static inline unsigned sound_buffered(void) {
+static inline unsigned sound_buffered(void)
+{
 	assert( sound_state.is_active_flag && sound_state.is_playing_flag );
 
 	return sound_state.driver_current->buffered();
@@ -128,7 +130,8 @@ static inline unsigned sound_buffered(void) {
 /**
  * Stop the playing.
  */
-static inline void sound_stop(void) {
+static inline void sound_stop(void)
+{
 	assert( sound_state.is_active_flag && sound_state.is_playing_flag );
 
 	sound_state.driver_current->stop();
@@ -141,7 +144,8 @@ static inline void sound_stop(void) {
  * The buffer is filled with the specified amount of silence.
  * \param silence_time Silence time.
  */
-static inline adv_error sound_start(double silence_time) {
+static inline adv_error sound_start(double silence_time)
+{
 	assert( sound_state.is_active_flag && !sound_state.is_playing_flag );
 
 	if (sound_state.driver_current->start(silence_time) != 0)
@@ -156,7 +160,8 @@ static inline adv_error sound_start(double silence_time) {
  * Set the output volume.
  * \param v Volume. 1 is the maximum. 0 is silence.
  */
-static inline void sound_volume(double v) {
+static inline void sound_volume(double v)
+{
 	assert( sound_state.is_active_flag );
 
 	sound_state.driver_current->volume(v);
@@ -166,7 +171,8 @@ static inline void sound_volume(double v) {
  * Get the driver/device name.
  * \return Pointer at a static buffer.
  */
-static inline const char* sound_name(void) {
+static inline const char* sound_name(void)
+{
 	return sound_state.name;
 }
 

@@ -492,6 +492,8 @@ void run_clone(config_state& rs)
 	choice_bag::iterator i;
 
 	rs.current_clone = 0;
+	if (!rs.current_game)
+		return;
 
 	ostringstream s;
 	s << rs.current_game->description_get() << ", " << rs.current_game->manufacturer_get() << ", " << rs.current_game->year_get();
@@ -562,9 +564,10 @@ void run_calib(config_state& rs)
 
 #define MENU_CHOICE_DX 25*int_font_dx_get()
 
-void run_submenu(config_state& rs)
+bool run_submenu(config_state& rs)
 {
 	choice_bag ch;
+	bool ret = false;
 
 	ch.insert( ch.end(), choice("Config/Sort", 0) );
 	ch.insert( ch.end(), choice("Config/Type", 1) );
@@ -578,6 +581,8 @@ void run_submenu(config_state& rs)
 	ch.insert( ch.end(), choice("Config/Save as Default", 11) );
 	ch.insert( ch.end(), choice("Game/Type", 8) );
 	ch.insert( ch.end(), choice("Game/Group", 9) );
+	ch.insert( ch.end(), choice("Game/Run", 14) );
+	ch.insert( ch.end(), choice("Game/Run Clone", 15) );
 	ch.insert( ch.end(), choice("Command", 7) );
 	ch.insert( ch.end(), choice("Help", 10) );
 
@@ -632,8 +637,18 @@ void run_submenu(config_state& rs)
 			case 13 :
 				run_calib(rs);
 				break;
+			case 14 :
+				ret = true;
+				break;
+			case 15 :
+				run_clone(rs);
+				if (rs.current_clone != 0)
+					ret = true;
+				break;
 		}
 	}
+	
+	return ret;
 }
 
 // ------------------------------------------------------------------------

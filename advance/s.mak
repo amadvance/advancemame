@@ -39,6 +39,13 @@ SOBJS += \
 	$(SOBJ)/lib/filenix.o \
 	$(SOBJ)/lib/targnix.o \
 	$(SOBJ)/linux/os.o
+ifeq ($(CONF_LIB_ALSA),yes)
+SCFLAGS += \
+	-DUSE_SOUND_ALSA
+SOBJS += \
+	$(SOBJ)/linux/salsa.o
+SLIBS += -lasound
+endif
 ifeq ($(CONF_LIB_OSS),yes)
 SCFLAGS += \
 	-DUSE_SOUND_OSS

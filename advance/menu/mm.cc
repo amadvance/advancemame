@@ -98,7 +98,13 @@ int run_sub(config_state& rs, bool silent)
 			case INT_KEY_MENU :
 				// replay the sound and clip
 				silent = false;
-				run_submenu(rs);
+				if (run_submenu(rs)) {
+					if (rs.current_game) {
+						done = true;
+						is_run = true;
+						key = INT_KEY_ENTER;
+					}
+				}
 				break;
 			case INT_KEY_SETGROUP :
 				// replay the sound and clip
@@ -130,22 +136,16 @@ int run_sub(config_state& rs, bool silent)
 			case INT_KEY_RUN_CLONE :
 				// replay the sound and clip
 				silent = false;
-				if (rs.current_game) {
-					run_clone(rs);
-					if (rs.current_clone) {
-						done = true;
-						is_run = true;
-					}
+				run_clone(rs);
+				if (rs.current_clone) {
+					done = true;
+					is_run = true;
 				}
 				break;
 			case INT_KEY_ENTER :
 				// replay the sound and clip
 				silent = false;
 				if (rs.current_game) {
-					if (rs.current_game->emulator_get()->tree_get())
-						rs.current_clone = &rs.current_game->clone_best_get();
-					else
-						rs.current_clone = rs.current_game;
 					done = true;
 					is_run = true;
 				}
@@ -154,6 +154,13 @@ int run_sub(config_state& rs, bool silent)
 	}
 
 	if (is_run) {
+		assert( rs.current_game );
+		if (!rs.current_clone) {
+			if (rs.current_game->emulator_get()->tree_get())
+				rs.current_clone = &rs.current_game->clone_best_get();
+			else
+				rs.current_clone = rs.current_game;
+		}
 		if (!rs.video_reset_mode)
 			run_runinfo(rs);
 	}

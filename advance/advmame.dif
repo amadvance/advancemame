@@ -5,7 +5,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/common.c src/common.c
 --- src.ori/common.c	2002-11-02 14:53:00.000000000 +0100
-+++ src/common.c	2002-11-15 22:19:50.000000000 +0100
++++ src/common.c	2002-12-18 19:25:36.000000000 +0100
 @@ -429,17 +429,11 @@
  	coin_counter_w - sets input for coin counter
  -------------------------------------------------*/
@@ -25,6 +25,19 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  /*-------------------------------------------------
  	coin_lockout_w - locks out one coin input
+@@ -1134,11 +1128,11 @@
+ 		}
+ 		else
+ 			strcat(romdata->errorbuf, "WARNING: the game might not run correctly.\n");
+ 
+ 		/* display the result */
+-		printf("%s", romdata->errorbuf);
++		osd_display_loading_rom_message(romdata->errorbuf, -1, -1);
+ 
+ 		/* if we're not getting out of here, wait for a keypress */
+ 		if (!options.gui_host && !bailing)
+ 		{
+ 			int k;
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/common.h src/common.h
 --- src.ori/common.h	2002-11-02 14:53:28.000000000 +0100
 +++ src/common.h	2002-11-16 17:04:14.000000000 +0100
@@ -422,7 +435,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  COREOBJS += $(OBJ)/driver.o $(OBJ)/cheat.o
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2002-06-30 20:58:46.000000000 +0200
-+++ src/osdepend.h	2002-11-16 18:33:45.000000000 +0100
++++ src/osdepend.h	2002-11-16 18:33:44.000000000 +0100
 @@ -400,10 +400,36 @@
  #include "osd_dir.h"
  #endif

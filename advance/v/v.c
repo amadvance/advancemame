@@ -332,7 +332,14 @@ static void draw_text_info(int x, int y, int dx, int dy, int pos)
 	char buffer[3][256];
 
 	adv_crtc* crtc = menu_pos(pos);
-	format_info(buffer[0], buffer[1], buffer[2], crtc);
+
+	if (crtc) {
+		format_info(buffer[0], buffer[1], buffer[2], crtc);
+	} else {
+		strcpy(buffer[0],"");
+		strcpy(buffer[1],"");
+		strcpy(buffer[2],"");
+	}
 
 	draw_text_left(x, y+0, dx, buffer[0], COLOR_INFO_TITLE);
 	draw_text_left(x, y+1, dx, buffer[1], COLOR_INFO_NORMAL);
@@ -1540,6 +1547,7 @@ static int menu_run(void)
 
 	done = 0;
 	while (!done) {
+
 		draw_text_index(BAR_X, BAR_Y1+1, BAR_DX);
 		draw_text_bar(BAR_X, BAR_Y1, BAR_Y2, BAR_DX);
 		draw_text_info(INFO_X, INFO_Y, INFO_DX, INFO_DY, menu_base + menu_rel);
@@ -1897,8 +1905,9 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (the_advance != advance_vbe && the_advance != advance_vga)
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
 		target_err("No driver is able to program your video board in this context.\n");
+		target_err("Ensure to use the 'device_video_output auto' option.\n");
 #ifdef __WIN32__
 		target_err("Ensure to have installed the svgawin.sys driver with the svgawin.exe utility.\n");
 #endif

@@ -185,7 +185,7 @@ static int video_make_crtc(struct advance_video_context* context, adv_crtc* crtc
 {
 	*crtc = *original_crtc;
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
 		return 0; /* always ok if the driver is not programmable */
 	}
 
@@ -221,7 +221,7 @@ static int video_make_crtc(struct advance_video_context* context, adv_crtc* crtc
 	}
 
 	if (!crtc_clock_check(&context->config.monitor, crtc)) {
-		log_std(("ERROR: checking the final clock"));
+		log_std(("ERROR:emu:video: checking the final clock"));
 		return -1;
 	}
 
@@ -283,32 +283,32 @@ static void video_update_sync(struct advance_video_context* context)
 	if (context->state.vsync_flag) {
 		/* disable if no throttling */
 		if (!context->state.sync_throttle_flag) {
-			log_std(("advance:video: vsync disabled because throttle disactive\n"));
+			log_std(("emu:video: vsync disabled because throttle disactive\n"));
 			context->state.vsync_flag = 0;
 		}
 
 		/* disable if turbo active */
 		if (context->state.turbo_flag) {
-			log_std(("advance:video: vsync disabled because turbo active\n"));
+			log_std(("emu:video: vsync disabled because turbo active\n"));
 			context->state.vsync_flag = 0;
 		}
 
 		/* disable if fastest active */
 		if (context->state.fastest_flag) {
-			log_std(("advance:video: vsync disabled because fastest active\n"));
+			log_std(("emu:video: vsync disabled because fastest active\n"));
 			context->state.vsync_flag = 0;
 		}
 
 		/* disable if measure active */
 		if (context->state.measure_flag) {
-			log_std(("advance:video: vsync disabled because measure active\n"));
+			log_std(("emu:video: vsync disabled because measure active\n"));
 			context->state.vsync_flag = 0;
 		}
 
 		/* disable the vsync flag if the frame rate is wrong */
 		if (context->state.mode_vclock < reference * 0.97
 			|| context->state.mode_vclock > reference * 1.03) {
-			log_std(("advance:video: vsync disabled because the vclock is too different %g %g\n", reference, context->state.mode_vclock));
+			log_std(("emu:video: vsync disabled because the vclock is too different %g %g\n", reference, context->state.mode_vclock));
 			context->state.vsync_flag = 0;
 		}
 	}
@@ -336,7 +336,7 @@ static int video_update_index(struct advance_video_context* context)
 
 	if (index == MODE_FLAGS_INDEX_NONE) {
 		/* get the video driver preferred bit depth */
-		switch (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_DEFAULT_MASK) {
+		switch (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_DEFAULT_MASK) {
 		case VIDEO_DRIVER_FLAGS_DEFAULT_PALETTE8 :
 			index = MODE_FLAGS_INDEX_PALETTE8;
 			break;
@@ -376,7 +376,7 @@ static int video_update_index(struct advance_video_context* context)
 				index = MODE_FLAGS_INDEX_BGR32;
 				break;
 			default:
-				log_std(("ERROR: invalid game_bits_per_pixel\n"));
+				log_std(("ERROR:emu:video: invalid game_bits_per_pixel\n"));
 				return -1;
 			}
 		}
@@ -390,7 +390,7 @@ static int video_update_index(struct advance_video_context* context)
 		case MODE_FLAGS_INDEX_BGR32 : select = select_pref_bgr32; break;
 		case MODE_FLAGS_INDEX_YUY2 : select = select_pref_yuy2; break;
 		default:
-			log_std(("ERROR: invalid index\n"));
+			log_std(("ERROR:emu:video: invalid index\n"));
 			return -1;
 	}
 
@@ -404,10 +404,10 @@ static int video_update_index(struct advance_video_context* context)
 			case MODE_FLAGS_INDEX_BGR32 : flag = VIDEO_DRIVER_FLAGS_MODE_BGR32; break;
 			case MODE_FLAGS_INDEX_YUY2 : flag = VIDEO_DRIVER_FLAGS_MODE_YUY2; break;
 			default:
-				log_std(("ERROR: invalid *select\n"));
+				log_std(("ERROR:emu:video: invalid *select\n"));
 				return -1;
 		}
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & flag) != 0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & flag) != 0) {
 			/* only if a palette mode is usable */
 			if (mode_may_be_palette || index != MODE_FLAGS_INDEX_PALETTE8) {
 				break;
@@ -417,7 +417,7 @@ static int video_update_index(struct advance_video_context* context)
 	}
 
 	if (!*select) {
-		log_std(("ERROR: no mode supported\n"));
+		log_std(("ERROR:emu:video: no mode supported\n"));
 		return -1;
 	}
 
@@ -433,7 +433,7 @@ static int video_update_index(struct advance_video_context* context)
 static int video_make_mode(struct advance_video_context* context, adv_mode* mode, const adv_crtc* crtc)
 {
 	if (video_mode_generate(mode, crtc, context->state.mode_index)!=0) {
-		log_std(("ERROR: video_mode_generate failed '%s'\n", error_get()));
+		log_std(("ERROR:emu:video: video_mode_generate failed '%s'\n", error_get()));
 		return -1;
 	}
 
@@ -473,7 +473,7 @@ static int video_init_mode(struct advance_video_context* context, adv_mode* mode
 	assert( !context->state.mode_flag );
 
 	if (video_mode_set(mode) != 0) {
-		log_std(("ERROR: calling video_mode_set() '%s'\n", error_get()));
+		log_std(("ERROR:emu:video: calling video_mode_set() '%s'\n", error_get()));
 		return -1;
 	}
 
@@ -489,7 +489,7 @@ static int video_init_mode(struct advance_video_context* context, adv_mode* mode
 
 	video_invalidate_screen();
 
-	log_std(("advance:video: mode %s, size %dx%d, bits_per_pixel %d, bytes_per_scanline %d, pages %d\n", video_name(), video_size_x(), video_size_y(), video_bits_per_pixel(), video_bytes_per_scanline(), update_page_max_get()));
+	log_std(("emu:video: mode %s, size %dx%d, bits_per_pixel %d, bytes_per_scanline %d, pages %d\n", video_name(), video_size_x(), video_size_y(), video_bits_per_pixel(), video_bytes_per_scanline(), update_page_max_get()));
 
 	return 0;
 }
@@ -568,10 +568,10 @@ static void video_update_pan(struct advance_video_context* context)
 		context->state.game_visible_pos_y = context->state.game_used_size_y - context->state.game_visible_size_y;
 	}
 
-	log_std(("advance:video: game_visible_pos_x %d\n", context->state.game_visible_pos_x));
-	log_std(("advance:video: game_visible_pos_y %d\n", context->state.game_visible_pos_y));
-	log_std(("advance:video: game_visible_size_x %d\n", context->state.game_visible_size_x));
-	log_std(("advance:video: game_visible_size_y %d\n", context->state.game_visible_size_y));
+	log_std(("emu:video: game_visible_pos_x %d\n", context->state.game_visible_pos_x));
+	log_std(("emu:video: game_visible_pos_y %d\n", context->state.game_visible_pos_y));
+	log_std(("emu:video: game_visible_size_x %d\n", context->state.game_visible_size_x));
+	log_std(("emu:video: game_visible_size_y %d\n", context->state.game_visible_size_y));
 
 	pos_x = context->state.game_visible_pos_x;
 	pos_y = context->state.game_visible_pos_y;
@@ -595,7 +595,7 @@ static void video_update_pan(struct advance_video_context* context)
 		SWAP(unsigned, size_x, size_y);
 	}
 
-	log_std(("advance:video: mame_ui_area_set(min_x:%d, min_y:%d, max_x:%d, max_y:%d)\n", pos_x, pos_y, pos_x+size_x-1, pos_y+size_y-1));
+	log_std(("emu:video: mame_ui_area_set(min_x:%d, min_y:%d, max_x:%d, max_y:%d)\n", pos_x, pos_y, pos_x+size_x-1, pos_y+size_y-1));
 
 	mame_ui_area_set(pos_x, pos_y, pos_x+size_x-1, pos_y+size_y-1);
 }
@@ -641,7 +641,7 @@ static void video_update_effect(struct advance_video_context* context)
 		case MODE_FLAGS_INDEX_BGR32 :
 			break;
 		default:
-			log_std(("advance:video: resizeeffect=* disabled because we aren't in a rgb mode\n"));
+			log_std(("emu:video: resizeeffect=* disabled because we aren't in a rgb mode\n"));
 			context->state.combine = COMBINE_NONE;
 			break;
 		}
@@ -652,21 +652,21 @@ static void video_update_effect(struct advance_video_context* context)
 			|| context->state.mode_visible_size_y != 2*context->state.game_visible_size_y
 		)
 	) {
-		log_std(("advance:video: resizeeffect=scale2x disabled because the wrong mode size\n"));
+		log_std(("emu:video: resizeeffect=scale2x disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
 	/* max only in y reduction */
 	if (context->state.combine == COMBINE_MAX
 		&& context->state.mode_visible_size_y >= context->state.game_visible_size_y) {
-		log_std(("advance:video: resizeeffect=max disabled because the wrong mode size\n"));
+		log_std(("emu:video: resizeeffect=max disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
 	/* mean only in y change */
 	if (context->state.combine == COMBINE_MEAN
 		&& context->state.mode_visible_size_y == context->state.game_visible_size_y) {
-		log_std(("advance:video: resizeeffect=mean disabled because the wrong mode size\n"));
+		log_std(("emu:video: resizeeffect=mean disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
@@ -678,7 +678,7 @@ static void video_update_effect(struct advance_video_context* context)
 		case MODE_FLAGS_INDEX_BGR32 :
 			break;
 		default:
-			log_std(("advance:video: rgbeffect=* disabled because we aren't in a rgb mode\n"));
+			log_std(("emu:video: rgbeffect=* disabled because we aren't in a rgb mode\n"));
 			context->state.rgb_effect = EFFECT_NONE;
 		}
 	}
@@ -780,7 +780,7 @@ static int is_crtc_acceptable_preventive(struct advance_video_context* context, 
 
 	mode_reset(&mode);
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
 		return 1; /* always ok if the driver is not programmable */
 	}
 
@@ -814,7 +814,7 @@ static void video_update_visible(struct advance_video_context* context, const ad
 
 	assert( crtc );
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
 		/* only for window */
 		context->state.mode_visible_size_x = crtc_hsize_get(crtc);
 		context->state.mode_visible_size_y = crtc_vsize_get(crtc);
@@ -1039,7 +1039,7 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 
 	if (force_scanline) {
 		/* use only single scanline modes */
-		unsigned cap = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE);
+		unsigned cap = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE);
 		/* try with a perfect mode */
 		if (err != 0)
 			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_EXACT);
@@ -1048,7 +1048,7 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VCLOCK);
 	} else if (force_interlace) {
 		/* use only interlace modes */
-		unsigned cap = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN);
+		unsigned cap = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN);
 		/* try with a perfect mode */
 		if (err != 0)
 			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_EXACT);
@@ -1058,13 +1058,13 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 	} else {
 		/* try with a perfect mode */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK), GENERATE_ADJUST_EXACT);
+			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_EXACT);
 		/* try with a mode with different vclock but correct vtotal */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK), GENERATE_ADJUST_VCLOCK);
+			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VCLOCK);
 		/* try with a mode with different vtotal and different vclock */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
+			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
 	}
 
 	if (err != 0)
@@ -1081,7 +1081,7 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 	ret = crtc_container_insert(&context->config.crtc_bag, &crtc);
 
 	if (context->config.stretch == STRETCH_FRACTIONAL_XY) {
-		log_std(("advance:video: fractional coverted in mixed because generate/adjustx is active\n"));
+		log_std(("emu:video: fractional coverted in mixed because generate/adjustx is active\n"));
 		context->config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y;
 	}
 
@@ -1120,13 +1120,13 @@ static void video_init_crtc_make_vector(struct advance_video_context* context, c
 
 	/* try with a perfect mode */
 	if (err != 0)
-		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK), GENERATE_ADJUST_EXACT);
+		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_EXACT);
 	/* try with a mode with different vtotal but correct vclock */
 	if (err != 0)
-		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK), GENERATE_ADJUST_VTOTAL);
+		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL);
 	/* try with a mode with different vtotal and different vclock */
 	if (err != 0)
-		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
+		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
 
 	if (err != 0)
 		return;
@@ -1162,7 +1162,7 @@ static unsigned best_step(unsigned value, unsigned step)
 static adv_bool video_is_programmable(struct advance_video_context* context)
 {
 	return (context->config.adjust & ADJUST_GENERATE) != 0
-		&& (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0;
+		&& (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0;
 }
 
 /**
@@ -1183,11 +1183,11 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	unsigned long long arcade_aspect_ratio_y;
 
 	if (context->config.adjust != ADJUST_NONE
-		&& (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0  /* not for programmable driver */
+		&& (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0  /* not for programmable driver */
 	) {
 #if 1
 		context->config.adjust = ADJUST_NONE;
-		log_std(("advance:video: adjust=* disabled because the graphics driver is not programmable\n"));
+		log_std(("emu:video: adjust=* disabled because the graphics driver is not programmable\n"));
 #else
 		target_err(
 			"Your current video driver doesn't support hardware programming.\n"
@@ -1198,7 +1198,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 #endif
 	}
 
-	log_std(("advance:video: blit_orientation %d\n", context->config.blit_orientation));
+	log_std(("emu:video: blit_orientation %d\n", context->config.blit_orientation));
 
 	context->state.pause_flag = 0;
 	context->state.crtc_selected = 0;
@@ -1249,7 +1249,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		context->state.game_colors = req->colors;
 	}
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0) {
 		best_size_x = context->state.game_used_size_x;
 		best_size_y = context->state.game_used_size_y;
 		best_size_2x = 2 * context->state.game_used_size_x;
@@ -1268,7 +1268,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		unsigned step_x;
 
 		/* if the clock is programmable the monitor specification must be present */
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
 			if (monitor_is_empty(&context->config.monitor)) {
 				target_err("Missing options `device_video_p/h/vclock'.\n");
 				target_err("Please read the file `install.txt' and `advv.txt'.\n");
@@ -1306,7 +1306,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		factor_y = context->config.monitor_aspect_y * context->state.game_aspect_y;
 		video_aspect_reduce(&factor_x, &factor_y);
 
-		log_std(("advance:video: best aspect factor %dx%d (expansion %g)\n", (unsigned)factor_x, (unsigned)factor_y, (double)context->config.aspect_expansion_factor));
+		log_std(("emu:video: best aspect factor %dx%d (expansion %g)\n", (unsigned)factor_x, (unsigned)factor_y, (double)context->config.aspect_expansion_factor));
 
 		/* Some video cards require a size multiple of 16. */
 		/* (for example GeForge in doublescan with 8 bit modes) */
@@ -1347,7 +1347,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 					video_init_crtc_make_raster(context, "generate-double-interlace", best_size_2x, best_size_2y, best_vclock, 0, 1);
 				video_init_crtc_make_raster(context, "generate-triple", best_size_3x, best_size_3y, best_vclock, 0, 0);
 			}
-			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM) != 0) {
+			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM) != 0) {
 				/* generate modes for a zoom driver */
 				video_init_crtc_make_fake(context, "generate", best_size_x, best_size_y);
 				video_init_crtc_make_fake(context, "generate-double", best_size_2x, best_size_2y);
@@ -1356,7 +1356,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		}
 	}
 
-	log_std(("advance:video: best mode %dx%d, mode2x %dx%d, mode3x %dx%d, bits_per_pixel %d, vclock %g\n", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_bits, (double)best_vclock));
+	log_std(("emu:video: best mode %dx%d, mode2x %dx%d, mode3x %dx%d, bits_per_pixel %d, vclock %g\n", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_bits, (double)best_vclock));
 
 	if (context->state.game_vector_flag) {
 		context->config.stretch = STRETCH_NONE;
@@ -1368,14 +1368,14 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	context->state.mode_best_size_2y = best_size_2y;
 	context->state.mode_best_vclock = best_vclock;
 
-	log_std(("advance:video: game_area_size_x %d\n", (unsigned)context->state.game_area_size_x));
-	log_std(("advance:video: game_area_size_y %d\n", (unsigned)context->state.game_area_size_y));
-	log_std(("advance:video: game_used_pos_x %d\n", (unsigned)context->state.game_used_pos_x));
-	log_std(("advance:video: game_used_pos_y %d\n", (unsigned)context->state.game_used_pos_y));
-	log_std(("advance:video: game_used_size_x %d\n", (unsigned)context->state.game_used_size_x));
-	log_std(("advance:video: game_used_size_y %d\n", (unsigned)context->state.game_used_size_y));
-	log_std(("advance:video: game_aspect_x %d\n", (unsigned)context->state.game_aspect_x));
-	log_std(("advance:video: game_aspect_y %d\n", (unsigned)context->state.game_aspect_y));
+	log_std(("emu:video: game_area_size_x %d\n", (unsigned)context->state.game_area_size_x));
+	log_std(("emu:video: game_area_size_y %d\n", (unsigned)context->state.game_area_size_y));
+	log_std(("emu:video: game_used_pos_x %d\n", (unsigned)context->state.game_used_pos_x));
+	log_std(("emu:video: game_used_pos_y %d\n", (unsigned)context->state.game_used_pos_y));
+	log_std(("emu:video: game_used_size_x %d\n", (unsigned)context->state.game_used_size_x));
+	log_std(("emu:video: game_used_size_y %d\n", (unsigned)context->state.game_used_size_y));
+	log_std(("emu:video: game_aspect_x %d\n", (unsigned)context->state.game_aspect_x));
+	log_std(("emu:video: game_aspect_y %d\n", (unsigned)context->state.game_aspect_y));
 
 	return 0;
 }
@@ -1409,8 +1409,8 @@ static int video_init_color(struct advance_video_context* context, struct osd_vi
 
 	context->state.palette_dirty_total = (context->state.palette_total + osd_mask_size - 1) / osd_mask_size;
 
-	log_std(("advance:video: palette_total %d\n", context->state.palette_total));
-	log_std(("advance:video: palette_dirty_total %d\n", context->state.palette_dirty_total));
+	log_std(("emu:video: palette_total %d\n", context->state.palette_total));
+	log_std(("emu:video: palette_dirty_total %d\n", context->state.palette_dirty_total));
 
 	context->state.palette_dirty_map = (osd_mask_t*)malloc(context->state.palette_dirty_total * sizeof(osd_mask_t));
 	context->state.palette_map = (osd_rgb_t*)malloc(context->state.palette_total * sizeof(osd_rgb_t));
@@ -1498,7 +1498,7 @@ static inline void video_frame_resolution(struct advance_video_context* context,
 	}
 
 	if (modify) {
-		log_std(("advance:video: select mode %s\n", context->config.resolution));
+		log_std(("emu:video: select mode %s\n", context->config.resolution));
 
 		/* update all the complete state, the configuration is choosen by the name */
 		advance_video_change(context);
@@ -1572,6 +1572,9 @@ static inline void video_frame_blit(struct advance_video_context* context, unsig
 static inline void video_frame_pipeline(struct advance_video_context* context, const struct osd_bitmap* bitmap)
 {
 	unsigned combine;
+	char buffer[256];
+	const struct video_stage_horz_struct* stage;
+	unsigned i;
 
 	/* check if the pipeline is already allocated */
 	if (context->state.blit_pipeline_flag)
@@ -1630,7 +1633,9 @@ static inline void video_frame_pipeline(struct advance_video_context* context, c
 	combine = context->state.combine | context->state.rgb_effect | context->state.interlace_effect;
 
 	if (context->state.game_rgb_flag) {
-		video_stretch_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.game_color_def, combine);
+		adv_error res;
+		res = video_stretch_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.game_color_def, combine);
+		assert(res == 0);
 	} else {
 		if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
 			video_stretch_palette_hw_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, combine);
@@ -1641,6 +1646,9 @@ static inline void video_frame_pipeline(struct advance_video_context* context, c
 					break;
 				case 2 :
 					video_stretch_palette_16_pipeline_init(&context->state.blit_pipeline, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp,  context->state.palette_index_map, combine);
+					break;
+				default :
+					assert(0);
 					break;
 			}
 		}
@@ -1928,13 +1936,13 @@ static void video_frame_sync(struct advance_video_context* context)
 					video_wait_vsync();
 					after = advance_timer();
 					if (after - current > 1.1 / video_measured_vclock())
-						log_std(("ERROR: sync wait too long. %g instead of %g\n", after - current, 1.0 / (double)video_measured_vclock()));
+						log_std(("ERROR:emu:video: sync wait too long. %g instead of %g\n", after - current, 1.0 / (double)video_measured_vclock()));
 					current = after;
 				} else {
-					log_std(("ERROR: sync delay too big\n"));
+					log_std(("ERROR:emu:video: sync delay too big\n"));
 				}
 			} else {
-				log_std(("ERROR: too late for a sync\n"));
+				log_std(("ERROR:emu:video: too late for a sync\n"));
 			}
 		} else {
 			current = video_frame_wait(current, expected);
@@ -2223,7 +2231,7 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 	unsigned size_y;
 
 	if (!bitmap || !palette) {
-		log_std(("ERROR: null debugger bitmap\n"));
+		log_std(("ERROR:emu:video: null debugger bitmap\n"));
 		return;
 	}
 
@@ -2717,18 +2725,18 @@ void osd2_palette(const osd_mask_t* mask, const osd_rgb_t* palette, unsigned siz
 	log_debug(("osd: osd2_palette(size:%d)\n", size));
 
 	if (context->state.game_rgb_flag) {
-		log_debug(("WARNING: no palette because the game is in RGB mode\n"));
+		log_debug(("WARNING:emu:video: no palette because the game is in RGB mode\n"));
 		return;
 	}
 
 	dirty_size = (size + osd_mask_size - 1) / osd_mask_size;
 
 	if (size > context->state.palette_total || dirty_size > context->state.palette_dirty_total) {
-		log_std(("ERROR: invalid palette access, size:%d, total:%d, dirty_size:%d, total:%d\n", size, context->state.palette_total, dirty_size, context->state.palette_dirty_total));
+		log_std(("ERROR:emu:video: invalid palette access, size:%d, total:%d, dirty_size:%d, total:%d\n", size, context->state.palette_total, dirty_size, context->state.palette_dirty_total));
 		if (size > context->state.palette_total) {
 			size = context->state.palette_total;
 			dirty_size = (size + osd_mask_size - 1) / osd_mask_size;
-			log_std(("WARNING: invalid palette access, adjusting to size:%d, dirty_size:%d\n", size, dirty_size));
+			log_std(("WARNING:emu:video: invalid palette access, adjusting to size:%d, dirty_size:%d\n", size, dirty_size));
 		} else {
 			return;
 		}
@@ -3041,7 +3049,7 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 	if (!video_is_programmable(context)
 		&& crtc_container_is_empty(&context->config.crtc_bag)) {
 
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
 			crtc_container_insert_default_modeline_svga(&context->config.crtc_bag);
 			crtc_container_insert_default_modeline_vga(&context->config.crtc_bag);
 		} else {
@@ -3061,7 +3069,7 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 			option->debug_height = crtc_vsize_get(crtc);
 		}
 	}
-	log_std(("advance:video: suggested debugger size %dx%d\n", option->debug_width, option->debug_height));
+	log_std(("emu:video: suggested debugger size %dx%d\n", option->debug_width, option->debug_height));
 
 	/* set the vector game size */
 	if (mame_is_game_vector(option->game)) {
@@ -3102,7 +3110,7 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 			mode_size_x = crtc_hsize_get(best_crtc);
 			mode_size_y = crtc_vsize_get(best_crtc);
 		} else {
-			log_std(("advance:video: no specific mode for vector games\n"));
+			log_std(("emu:video: no specific mode for vector games\n"));
 		}
 
 		/* assume a game aspect of 4/3 */
@@ -3117,7 +3125,7 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 		option->vector_width = game_size_x;
 		option->vector_height = game_size_y;
 
-		log_std(("advance:video: suggested vector size %dx%d\n", option->vector_width, option->vector_height));
+		log_std(("emu:video: suggested vector size %dx%d\n", option->vector_width, option->vector_height));
 	} else {
 		option->vector_width = 0;
 		option->vector_height = 0;
@@ -3238,13 +3246,13 @@ int advance_video_config_load(struct advance_video_context* context, adv_conf* c
 	}
 	if (err == 0) {
 		/* print the clock ranges */
-		log_std(("advance:video: pclock %.3f - %.3f\n", (double)context->config.monitor.pclock.low, (double)context->config.monitor.pclock.high));
+		log_std(("emu:video: pclock %.3f - %.3f\n", (double)context->config.monitor.pclock.low, (double)context->config.monitor.pclock.high));
 		for(i=0;i<MONITOR_RANGE_MAX;++i)
 			if (context->config.monitor.hclock[i].low)
-				log_std(("advance:video: hclock %.3f - %.3f\n", (double)context->config.monitor.hclock[i].low, (double)context->config.monitor.hclock[i].high));
+				log_std(("emu:video: hclock %.3f - %.3f\n", (double)context->config.monitor.hclock[i].low, (double)context->config.monitor.hclock[i].high));
 		for(i=0;i<MONITOR_RANGE_MAX;++i)
 			if (context->config.monitor.vclock[i].low)
-				log_std(("advance:video: vclock %.3f - %.3f\n", (double)context->config.monitor.vclock[i].low, (double)context->config.monitor.vclock[i].high));
+				log_std(("emu:video: vclock %.3f - %.3f\n", (double)context->config.monitor.vclock[i].low, (double)context->config.monitor.vclock[i].high));
 	}
 	if (err > 0) {
 		monitor_reset(&context->config.monitor);
@@ -3259,19 +3267,19 @@ int advance_video_config_load(struct advance_video_context* context, adv_conf* c
 	} else if (err>0) {
 		if (monitor_hclock_check(&context->config.monitor, 15720)) {
 			/* Arcade Standard Resolution */
-			log_std(("advance:video: default format standard resolution\n"));
+			log_std(("emu:video: default format standard resolution\n"));
 			generate_default_atari_standard(&context->config.interpolate.map[0].gen);
 			context->config.interpolate.map[0].hclock = 15720;
 			context->config.interpolate.mac = 1;
 		} else if (monitor_hclock_check(&context->config.monitor, 25000)) {
 			/* Arcade Medium Resolution */
-			log_std(("advance:video: default format medium resolution\n"));
+			log_std(("emu:video: default format medium resolution\n"));
 			generate_default_atari_medium(&context->config.interpolate.map[0].gen);
 			context->config.interpolate.map[0].hclock = 25000;
 			context->config.interpolate.mac = 1;
 		} else {
 			/* VGA Resolution */
-			log_std(("advance:video: default format vga resolution\n"));
+			log_std(("emu:video: default format vga resolution\n"));
 			generate_default_vga(&context->config.interpolate.map[0].gen);
 			context->config.interpolate.map[0].hclock = 31500;
 			context->config.interpolate.mac = 1;

@@ -709,7 +709,20 @@ void crtc_fake_set(adv_crtc* crtc, unsigned size_x, unsigned size_y)
 	sprintf(crtc->name, "%dx%d", size_x, size_y);
 }
 
+/**
+ * Check if the crtc contains fake data.
+ */
 adv_bool crtc_is_fake(const adv_crtc* crtc)
 {
 	return crtc->pixelclock == 0;
+}
+
+/**
+ * Check if the crtc contains valid data.
+ */
+adv_bool crtc_is_valid(const adv_crtc* crtc)
+{
+	return crtc->pixelclock>0
+		&& crtc->hde <= crtc->hrs && crtc->hrs < crtc->hre && crtc->hre <= crtc->ht
+		&& crtc->vde <= crtc->vrs && crtc->vrs < crtc->vre && crtc->vre <= crtc->vt;
 }

@@ -480,11 +480,6 @@ static adv_error cmd_model_custom(adv_monitor* monitor) {
 		return 0;
 }
 
-static adv_bool video_crtc_check(const adv_crtc* crtc) {
-	return crtc->hde <= crtc->hrs && crtc->hrs < crtc->hre && crtc->hre <= crtc->ht
-		&& crtc->vde <= crtc->vrs && crtc->vrs < crtc->vre && crtc->vre <= crtc->vt;
-}
-
 static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const adv_monitor* monitor, int only_h_center) {
 	int done = 0;
 	int modify = 1;
@@ -502,7 +497,7 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 
 		if (modify) {
 			if (crtc_adjust_clock(&current, monitor)==0
-				&& video_crtc_check(&current)
+				&& crtc_is_valid(&current)
 				&& crtc_clock_check(monitor,&current)
 				&& video_mode_generate(&mode, &current, index)==0) {
 				video_mode_done(1);
@@ -635,7 +630,7 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned index, const ad
 	mode_reset(&mode);
 
 	if (crtc_adjust_clock(&current, monitor)==0
-		&& video_crtc_check(&current)
+		&& crtc_is_valid(&current)
 		&& crtc_clock_check(monitor,&current)
 		&& video_mode_generate(&mode, &current, index)==0) {
 		video_mode_done(1);
@@ -1288,17 +1283,17 @@ static adv_error cmd_test(adv_generate_interpolate_set* interpolate, const adv_m
 	data[mac].type = test_exit;
 	++mac;
 
-	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK)) != 0) {
+	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0)) != 0) {
 		data[mac].type = test_custom_single;
 		++mac;
 	}
 
-	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK)) != 0) {
+	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0)) != 0) {
 		data[mac].type = test_custom_double;
 		++mac;
 	}
 
-	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK)) != 0) {
+	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0)) != 0) {
 		data[mac].type = test_custom_interlace;
 		++mac;
 	}
@@ -1355,25 +1350,25 @@ static adv_error cmd_test(adv_generate_interpolate_set* interpolate, const adv_m
 			int x,y;
 			double vclock;
 			if (cmd_test_custom(&x,&y,&vclock) == 0)
-				cmd_test_mode(interpolate,monitor,x,y,vclock,index,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN,0);
+				cmd_test_mode(interpolate,monitor,x,y,vclock,index,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN, 0);
 		}
 		if (res >= 0 && data[res].type == test_custom_double) {
 			int x,y;
 			double vclock;
 			if (cmd_test_custom(&x,&y,&vclock) == 0)
-				cmd_test_mode(interpolate,monitor,x,y,vclock,index,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN,0);
+				cmd_test_mode(interpolate,monitor,x,y,vclock,index,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN, 0);
 		}
 		if (res >= 0 && data[res].type == test_custom_interlace) {
 			int x,y;
 			double vclock;
 			if (cmd_test_custom(&x,&y,&vclock) == 0)
-				cmd_test_mode(interpolate,monitor,x,y,vclock,index,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE,0);
+				cmd_test_mode(interpolate,monitor,x,y,vclock,index,VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE, 0);
 		}
 		if (res >= 0 && data[res].type == test_custom) {
 			int x,y;
 			double vclock;
 			if (cmd_test_custom(&x,&y,&vclock) == 0)
-				cmd_test_mode(interpolate,monitor,x,y,vclock,index,video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK),0);
+				cmd_test_mode(interpolate,monitor,x,y,vclock,index,video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), 0);
 		}
 	} while (res >= 0 && (data[res].type == test_mode || data[res].type == test_custom_single || data[res].type == test_custom_double || data[res].type == test_custom_interlace || data[res].type == test_custom));
 
@@ -1558,8 +1553,9 @@ int os_main(int argc, char* argv[]) {
 		goto err_video;
 	}
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
 		target_err("No driver is able to program your video board in this context.\n");
+		target_err("Ensure to use the 'device_video_output auto' option.\n");
 #ifdef __WIN32__
 		target_err("Ensure to have installed the svgawin.sys driver with the svgawin.exe utility.\n");
 #endif
@@ -1580,7 +1576,7 @@ int os_main(int argc, char* argv[]) {
 			goto err_blit;
 	}
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK) & bit_flag) == 0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & bit_flag) == 0) {
 		target_err("Specified bit depth isn't supported.\n");
 		target_err("Try another value with the -bit option.\n");
 		goto err_blit;

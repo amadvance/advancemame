@@ -587,6 +587,11 @@ adv_error vgaline_mode_generate(vgaline_video_mode* mode, const adv_crtc* crtc, 
 
 	assert( vgaline_is_active() );
 
+	if (crtc_is_fake(crtc)) {
+		error_nolog_cat("vgaline: Not programmable modes not supported\n");
+		return -1;
+	}
+
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
 	case MODE_FLAGS_INDEX_PALETTE8 :
 		if (vgaline_mode_generate_graphics(mode, crtc, flags) != 0)

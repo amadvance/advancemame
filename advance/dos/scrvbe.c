@@ -506,6 +506,15 @@ static void vbe_rgb_data(int* shift, unsigned* mask, unsigned posbit, unsigned m
 	*shift = posbit + masksize - 8;
 }
 
+adv_color_def vbe_color_def(void)
+{
+	if (vbe_state.mode_info.MemoryModel == vbeMemPK) {
+		return color_def_make(adv_color_type_palette);
+	} else {
+		return color_def_make_from_rgb_sizemaskshift(vbe_state.bytes_per_pixel, vbe_state.rgb_red_mask, vbe_state.rgb_red_shift, vbe_state.rgb_green_mask, vbe_state.rgb_green_shift, vbe_state.rgb_blue_mask, vbe_state.rgb_blue_shift);
+	}
+}
+
 /* Set one graphics mode
  * in:
  *   mode mode number with vbeClear or vbeLinear flags

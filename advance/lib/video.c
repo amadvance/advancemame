@@ -617,6 +617,22 @@ unsigned video_capability_flags(unsigned flags)
 	return flags;
 }
 
+/**
+ * Change the drivers flags with the fake flags.
+ */
+unsigned video_fake_flags(unsigned flags)
+{
+	/* add BGR8 derived from PALETTE8 */
+	if ((flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) != 0)
+		flags |= VIDEO_DRIVER_FLAGS_MODE_BGR8;
+
+	/* add TEXT derived from BGR16 */
+	if ((flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) != 0)
+		flags |= VIDEO_DRIVER_FLAGS_MODE_TEXT;
+
+	return flags;
+}
+
 #define COMPARE(a, b) \
 	if (a < b) \
 		return -1; \
@@ -924,10 +940,10 @@ adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, u
 /**
  * Return the flags of the drivers used to generate video modes.
  * This function add the flags of all the drivers usable.
- * \param subset Define a subset of flags on which limit the search.
- *   Use
+ * \param flags_or Required flags with OR.
+ * \param flags_and Required flags with AND.
  */
-unsigned video_mode_generate_driver_flags(unsigned subset)
+unsigned video_mode_generate_driver_flags(unsigned flags_or, unsigned flags_and)
 {
 	unsigned flags;
 	unsigned equality_mask;
@@ -935,27 +951,26 @@ unsigned video_mode_generate_driver_flags(unsigned subset)
 
 	flags = 0;
 
+	log_debug(("video: video_mode_generate_driver_flags(flags_or:%x,flags_and:%x)\n", flags_or, flags_and));
+
 	/* add flags only with the same capabilities */
 	equality_mask = VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK | VIDEO_DRIVER_FLAGS_OUTPUT_MASK;
 
 	for(i=0;i<video_state.driver_mac;++i) {
 		if (video_state.driver_map[i]) {
 			/* limit the flags with the video internal options */
-			unsigned driver_flags = video_capability_flags(video_state.driver_map[i]->flags());
-			if ((driver_flags & subset) != 0) {
-				if (!flags || (flags & equality_mask) == (driver_flags & equality_mask))
+			unsigned driver_flags = video_fake_flags(video_capability_flags(video_state.driver_map[i]->flags()));
+			if ((driver_flags & flags_or) != 0
+				&& (driver_flags & flags_and) == flags_and) {
+				if (!flags || (flags & equality_mask) == (driver_flags & equality_mask)) {
+					log_debug(("video: video_mode_generate_driver_flags() add driver %s\n", video_state.driver_map[i]->name));
 					flags |= driver_flags;
+				}
 			}
 		}
 	}
 
-	/* add BGR8 derived from PALETTE8 */
-	if ((flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) != 0)
-		flags |= VIDEO_DRIVER_FLAGS_MODE_BGR8;
-
-	/* add TEXT derived from BGR16 */
-	if ((flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) != 0)
-		flags |= VIDEO_DRIVER_FLAGS_MODE_TEXT;
+	log_debug(("video: video_mode_generate_driver_flags() = %x\n", flags));
 
 	return flags;
 }

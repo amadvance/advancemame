@@ -364,7 +364,7 @@ adv_color_def svgaline_color_def(void)
 	if (adv_svgalib_pixel_get() == 1)
 		return color_def_make(adv_color_type_palette);
 	else
-		return color_def_make_from_rgb_lenpos(adv_svgalib_state.mode.red_len, adv_svgalib_state.mode.red_pos, adv_svgalib_state.mode.green_len, adv_svgalib_state.mode.green_pos, adv_svgalib_state.mode.blue_len, adv_svgalib_state.mode.blue_pos);
+		return color_def_make_from_rgb_sizelenpos(adv_svgalib_state.mode.bytes_per_pixel, adv_svgalib_state.mode.red_len, adv_svgalib_state.mode.red_pos, adv_svgalib_state.mode.green_len, adv_svgalib_state.mode.green_pos, adv_svgalib_state.mode.blue_len, adv_svgalib_state.mode.blue_pos);
 }
 
 void svgaline_wait_vsync(void)
@@ -436,6 +436,11 @@ adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc
 	assert( svgaline_is_active() );
 
 	log_std(("video:svgaline: svgaline_mode_generate(x:%d, y:%d, bits:%d)\n", crtc->hde, crtc->vde, index_bits_per_pixel(flags & MODE_FLAGS_INDEX_MASK)));
+
+	if (crtc_is_fake(crtc)) {
+		error_nolog_cat("svgaline: Not programmable modes not supported\n");
+		return -1;
+	}
 
 	if (video_mode_generate_check("svgaline", svgaline_flags(), 8, 2048, crtc, flags)!=0)
 		return -1;

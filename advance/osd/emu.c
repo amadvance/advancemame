@@ -447,6 +447,7 @@ static adv_conf_conv STANDARD[] = {
 /* 0.62.2 */
 { "*", "sound_stereo", "*", "", "", "", 0 }, /* ignore */
 { "*", "display_rgb", "*", "", "", "", 0 }, /* ignore */
+{ "*", "display_depth", "auto", "%s", "display_color", "auto", 0 }, /* rename */
 { "*", "display_depth", "8", "%s", "display_color", "palette8", 0 }, /* rename */
 { "*", "display_depth", "15", "%s", "display_color", "bgr15", 0 }, /* rename */
 { "*", "display_depth", "16", "%s", "display_color", "bgr16", 0 }, /* rename */

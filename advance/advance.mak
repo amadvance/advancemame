@@ -2,15 +2,15 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.62.0.0
+EMUVERSION = 0.62.0.1
 else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
 else
-EMUVERSION = 0.62.2
+EMUVERSION = 0.62.3
 endif
 endif
-MENUVERSION = 2.2.2
+MENUVERSION = 2.2.3
 CABVERSION = 1.1.4
 
 ############################################################################
@@ -386,14 +386,24 @@ wholepac:
 
 wholemenu:
 	$(MAKE) CONF=no distmenu
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos distmenubin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distmenubin
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix distmenubin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distmenubin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos distmenubin
 
 wholecab:
 	$(MAKE) CONF=no distcab
 	$(MAKE) $(ARCH_I386) CONF=no CONF_HOST=dos distcabbin
 	$(MAKE) $(ARCH_I386) CONF=no CONF_HOST=windows distcabbin
+
+wholedist:
+	$(MAKE) CONF=no dist
+	$(MAKE) CONF=no CONF_EMU=mess dist
+	$(MAKE) CONF=no distmenu
+
+wholewin:
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distmenubin
 
 distmess:
 	$(MAKE) CONF=no CONF_EMU=mess dist

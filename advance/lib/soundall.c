@@ -36,6 +36,7 @@
  *  - USE_SOUND_SEAL
  *  - USE_SOUND_ALLEGRO
  *  - USE_SOUND_VSYNC
+ *  - USE_SOUND_ALSA
  *  - USE_SOUND_OSS
  *  - USE_SOUND_SDL
  *  - USE_SOUND_NONE
@@ -50,6 +51,9 @@ void sound_reg_driver_all(adv_conf* context)
 #endif
 #ifdef USE_SOUND_VSYNC
 	sound_reg_driver(context, &sound_vsync_driver);
+#endif
+#ifdef USE_SOUND_ALSA
+	sound_reg_driver(context, &sound_alsa_driver);
 #endif
 #ifdef USE_SOUND_OSS
 	sound_reg_driver(context, &sound_oss_driver);

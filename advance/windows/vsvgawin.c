@@ -249,6 +249,16 @@ static void SDL_WM_DefIcon(void)
 	SDL_FreeSurface(surface);
 }
 
+adv_bool svgawin_is_active(void)
+{
+	 return svgawin_state.active != 0;
+}
+
+adv_bool svgawin_mode_is_active(void)
+{
+	return svgawin_state.mode_active != 0;
+}
+
 static adv_error sdl_init(int device_id)
 {
 	char buf[64];
@@ -381,7 +391,7 @@ static adv_error svgalib_init(int device_id)
 
 adv_error svgawin_init(int device_id, adv_output output)
 {
-	log_std(("video:svgawin: svgawin_init()\n"));
+	log_std(("video:svgawin: svgawin_init(device_id:%d,output:%x)\n", device_id, (unsigned)output));
 
 	if (sizeof(svgawin_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
@@ -448,16 +458,6 @@ void svgawin_done(void)
 	}
 
 	svgawin_state.active = 0;
-}
-
-adv_bool svgawin_is_active(void)
-{
-	 return svgawin_state.active != 0;
-}
-
-adv_bool svgawin_mode_is_active(void)
-{
-	return svgawin_state.mode_active != 0;
 }
 
 unsigned svgawin_flags(void)
@@ -826,7 +826,7 @@ adv_color_def svgawin_color_def(void)
 	if (adv_svgalib_pixel_get() == 1)
 		return color_def_make(adv_color_type_palette);
 	else
-		return color_def_make_from_rgb_lenpos(adv_svgalib_state.mode.red_len, adv_svgalib_state.mode.red_pos, adv_svgalib_state.mode.green_len, adv_svgalib_state.mode.green_pos, adv_svgalib_state.mode.blue_len, adv_svgalib_state.mode.blue_pos);
+		return color_def_make_from_rgb_sizelenpos(adv_svgalib_state.mode.bytes_per_pixel, adv_svgalib_state.mode.red_len, adv_svgalib_state.mode.red_pos, adv_svgalib_state.mode.green_len, adv_svgalib_state.mode.green_pos, adv_svgalib_state.mode.blue_len, adv_svgalib_state.mode.blue_pos);
 }
 
 void svgawin_wait_vsync(void)
@@ -906,6 +906,11 @@ adv_error svgawin_mode_generate(svgawin_video_mode* mode, const adv_crtc* crtc, 
 
 	log_std(("video:svgawin: svgawin_mode_generate(x:%d, y:%d)\n", crtc->hde, crtc->vde));
 
+	if (crtc_is_fake(crtc)) {
+		error_nolog_cat("svgawin: Not programmable modes not supported\n");
+		return -1;
+	}
+
 	if (video_mode_generate_check("svgawin", svgawin_flags(), 8, 2048, crtc, flags)!=0)
 		return -1;
 
@@ -913,7 +918,7 @@ adv_error svgawin_mode_generate(svgawin_video_mode* mode, const adv_crtc* crtc, 
 		error_nolog_cat("video:svgawin: Generic error checking the availability of the video mode\n");
 		return -1;
 	}
-
+	
 	mode->crtc = *crtc;
 	mode->index = flags & MODE_FLAGS_INDEX_MASK;
 
@@ -934,6 +939,9 @@ int svgawin_mode_compare(const svgawin_video_mode* a, const svgawin_video_mode* 
 
 void svgawin_crtc_container_insert_default(adv_crtc_container* cc)
 {
+	log_std(("video:svgawin: svgawin_crtc_container_insert_default()\n"));
+
+	crtc_container_insert_default_modeline_svga(cc);
 }
 
 void svgawin_default(void)

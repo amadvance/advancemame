@@ -381,13 +381,13 @@ void fb_wait_vsync(void)
 
 	do {
 		if (ioctl(fb_state.fd, FBIOGET_VBLANK, &blank) != 0) {
-			log_std(("video:fb: ERROR FBIOGET_VBLANK not supported\n"));
+			log_std(("ERROR:video:fb: FBIOGET_VBLANK not supported\n"));
 			/* not supported */
 			return;
 		}
 
 		if ((blank.flags & FB_VBLANK_HAVE_VSYNC) == 0) {
-			log_std(("video:fb: ERROR FB_VBLANK_HAVE_VSYNC not supported\n"));
+			log_std(("ERROR:video:fb: FB_VBLANK_HAVE_VSYNC not supported\n"));
 			/* not supported */
 			return;
 		}
@@ -476,6 +476,11 @@ adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned f
 {
 	assert( fb_is_active() );
 
+	if (crtc_is_fake(crtc)) {
+		error_nolog_cat("fb: Not programmable modes not supported\n");
+		return -1;
+	}
+
 	if (video_mode_generate_check("fb", fb_flags(), 8, 2048, crtc, flags)!=0)
 		return -1;
 
@@ -510,6 +515,13 @@ adv_error fb_load(adv_conf* context)
 {
 	assert( !fb_is_active() );
 	return 0;
+}
+
+void fb_crtc_container_insert_default(adv_crtc_container* cc)
+{
+	log_std(("video:fb: fb_crtc_container_insert_default()\n"));
+
+	crtc_container_insert_default_modeline_svga(cc);
 }
 
 /***************************************************************************/
@@ -571,6 +583,6 @@ adv_video_driver video_fb_driver = {
 	fb_mode_generate_void,
 	fb_mode_import_void,
 	fb_mode_compare_void,
-	0
+	fb_crtc_container_insert_default
 };
 

@@ -107,79 +107,92 @@ adv_error joystickb_init(void);
 void joystickb_done(void);
 void joystickb_abort(void);
 
-static inline unsigned joystickb_count_get(void) {
+static inline unsigned joystickb_count_get(void)
+{
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->count_get();
 }
 
-static inline unsigned joystickb_stick_count_get(unsigned j) {
+static inline unsigned joystickb_stick_count_get(unsigned j)
+{
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->stick_count_get(j);
 }
 
-static inline unsigned joystickb_stick_axe_count_get(unsigned j, unsigned s) {
+static inline unsigned joystickb_stick_axe_count_get(unsigned j, unsigned s)
+{
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->stick_axe_count_get(j, s);
 }
 
-static inline unsigned joystickb_button_count_get(unsigned j) {
+static inline unsigned joystickb_button_count_get(unsigned j)
+{
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->button_count_get(j);
 }
 
-static inline const char* joystickb_stick_name_get(unsigned j, unsigned s) {
+static inline const char* joystickb_stick_name_get(unsigned j, unsigned s)
+{
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->stick_name_get(j, s);
 }
 
-static inline const char* joystickb_stick_axe_name_get(unsigned j, unsigned s, unsigned a) {
+static inline const char* joystickb_stick_axe_name_get(unsigned j, unsigned s, unsigned a)
+{
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->stick_axe_name_get(j, s, a);
 }
 
-static inline const char* joystickb_button_name_get(unsigned j, unsigned b) {
+static inline const char* joystickb_button_name_get(unsigned j, unsigned b)
+{
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->button_name_get(j, b);
 }
 
-static inline unsigned joystickb_button_get(unsigned j, unsigned b) {
+static inline unsigned joystickb_button_get(unsigned j, unsigned b)
+{
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->button_get(j, b);
 }
 
-static inline unsigned joystickb_stick_axe_digital_get(unsigned j, unsigned s, unsigned a, unsigned d) {
+static inline unsigned joystickb_stick_axe_digital_get(unsigned j, unsigned s, unsigned a, unsigned d)
+{
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->stick_axe_digital_get(j, s, a, d);
 }
 
-static inline int joystickb_stick_axe_analog_get(unsigned j, unsigned s, unsigned a) {
+static inline int joystickb_stick_axe_analog_get(unsigned j, unsigned s, unsigned a)
+{
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->stick_axe_analog_get(j, s, a);
 }
 
-static inline void joystickb_calib_start(void) {
+static inline void joystickb_calib_start(void)
+{
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->calib_start();
 }
 
-static inline const char* joystickb_calib_next(void) {
+static inline const char* joystickb_calib_next(void)
+{
 	assert( joystickb_state.is_active_flag );
 
 	return joystickb_state.driver_current->calib_next();
 }
 
-static inline void joystickb_poll(void) {
+static inline void joystickb_poll(void)
+{
 	assert( joystickb_state.is_active_flag );
 
 	joystickb_state.driver_current->poll();
@@ -189,7 +202,8 @@ static inline void joystickb_poll(void) {
  * Get the driver/device name.
  * \return Pointer at a static buffer.
  */
-static inline const char* joystickb_name(void) {
+static inline const char* joystickb_name(void)
+{
 	return joystickb_state.name;
 }
 

@@ -112,6 +112,13 @@ MENUCFLAGS += \
 MENUOBJS += \
 	$(MENUOBJ)/linux/vfb.o
 endif
+ifeq ($(CONF_LIB_ALSA),yes)
+MENUCFLAGS += \
+	-DUSE_SOUND_ALSA
+MENUOBJS += \
+	$(MENUOBJ)/linux/salsa.o
+MENULIBS += -lasound
+endif
 ifeq ($(CONF_LIB_OSS),yes)
 MENUCFLAGS += \
 	-DUSE_SOUND_OSS
