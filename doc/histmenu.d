@@ -1,6 +1,13 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.4.3 2004/12
+	) The selection in the Groups/Types/Emulators
+		listing menu is not more intuitive. If only
+		an item is selected the cursor position
+		make an implicitely selection.
+	) Added a ncurses driver for text mode in Linux.
+
 AdvanceMENU Version 2.4.2 2004/10
 	) Added a new `input_hotkey' option to disable OS
 		hotkeys like CTRL+C.

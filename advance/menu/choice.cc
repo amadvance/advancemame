@@ -224,6 +224,22 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 	int_box(x-border, y-border, dx+2*border, dy+border*2, 1, COLOR_CHOICE_NORMAL.foreground);
 	int_clear(x-border+1, y-border+1, dx+2*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL.background);
 
+	unsigned count = 0;
+	for(iterator i=begin();i!=end();++i) {
+		if (i->state_get() == 2 && i->bistate_get()) {
+			++count;
+		}
+	}
+	// unselect a single element but set the cursor on it
+	if (count == 1) {
+		for(iterator i=begin();i!=end();++i) {
+			if (i->state_get() == 2 && i->bistate_get()) {
+				pos = i;
+				pos->bistate_set(false);
+			}
+		}
+	}
+
 	pos_rel = pos - begin();
 	if (pos_rel >= pos_rel_max) {
 		pos_base = pos_rel - pos_rel_max + 1;
@@ -272,12 +288,14 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 			case EVENT_ENTER :
 				pos = begin() + pos_base + pos_rel;
 				if (pos->active_get()) {
-					if (pos->state_get() == 2 && !pos->bistate_get()) {
-						for(iterator i=begin();i!=end();++i) {
-							if (i->state_get() == 2) {
-								i->bistate_set(false);
-							}
+					unsigned count = 0;
+					for(iterator i=begin();i!=end();++i) {
+						if (i->state_get() == 2 && i->bistate_get()) {
+							++count;
 						}
+					}
+					// select a single element if none is selected
+					if (count == 0) {
 						pos->bistate_set(true);
 					}
 					done = 1;
