@@ -860,7 +860,7 @@ Configuration
 		BACKGROUND - Background color. Like foreground color.
 
     ui_command_menu
-	Menu item for the commands submenu.
+	Menu item name for the commands submenu.
 
 	ui_command_menu MENU
 
@@ -868,7 +868,7 @@ Configuration
 		MENU - Name of the menu entry (default "Command").
 
     ui_command_error
-	Message displayed on a command error.
+	Message displayed if a command fails.
 
 	ui_command_error MSG
 
@@ -876,7 +876,8 @@ Configuration
 		MSG - Message to display (default "Error running the command").
 
     ui_command
-	Used defined commands.
+	Used defined commands. These commands are executed as sheel scripts.
+	The video mode is not changed, so they must be silent.
 
 	ui_command "MENU" SCRIPT
 
@@ -884,11 +885,19 @@ Configuration
 		MENU - Name of the menu entry.
 		SCRIPT - Commands to execute.
 
+	In the script text some macro are substituted with information of
+	the current game :
+		%s -  The game name. For example "pacman".
+		%p - The complete path of the rom. For
+			example "c:\emu\roms\pacman.zip".
+		%f - The rom name with the extension. For
+			example "pacman.zip".
+
 	Examples:
-		:ui_command "Joystick/Standard" \
+		:ui_command "Joystick/GamePad" \
 		:	rmmod analog \
 		:	sleep 1 \
-		:	modprobe analog
+		:	modprobe analog js=gamepad
 
     ui_console
 	Change the interface behavior for the use on a Game Console system.

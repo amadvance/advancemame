@@ -27,7 +27,8 @@ AC_DEFUN(AC_CHECK_CPU_ARCH,
 if test -f /proc/cpuinfo ; then
 	if grep -i "vendor_id.*:.*GenuineIntel" /proc/cpuinfo > /dev/null ; then
 		if grep -i "family.*: 15" /proc/cpuinfo > /dev/null ; then
-			ac_cpu_arch="pentium4"
+dnl The pentium4 generation is generally slower than pentium2
+			ac_cpu_arch="pentium2"
 			ac_cpu_arch_secondary=i686
 		elif grep -i "family.*: 6" /proc/cpuinfo > /dev/null ; then
 			ac_cpu_arch="pentiumpro"

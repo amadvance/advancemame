@@ -292,6 +292,7 @@ int osd2_menu(int selected, unsigned input)
 			}
 			switch (context->config.magnify_factor) {
 			default :
+			case 0 : menu_subitem[total] = "auto"; break;
 			case 1 : menu_subitem[total] = "1"; break;
 			case 2 : menu_subitem[total] = "2"; break;
 			case 3 : menu_subitem[total] = "3"; break;
@@ -661,9 +662,10 @@ int osd2_menu(int selected, unsigned input)
 			mame_ui_refresh();
 		} else if (selected == magnify_index) {
 			struct advance_video_config_context config = context->config;
-			config.magnify_factor += 1;
-			if (config.magnify_factor > 4)
-				config.magnify_factor = 1;
+			if (config.magnify_factor == 4)
+				config.magnify_factor = 0;
+			else
+				config.magnify_factor += 1;
 			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == index_index) {
@@ -750,9 +752,10 @@ int osd2_menu(int selected, unsigned input)
 			mame_ui_refresh();
 		} else if (selected == magnify_index) {
 			struct advance_video_config_context config = context->config;
-			config.magnify_factor -= 1;
-			if (config.magnify_factor < 1)
+			if (config.magnify_factor == 0)
 				config.magnify_factor = 4;
+			else
+				config.magnify_factor -= 1;
 			advance_video_change(context, &config);
 			mame_ui_refresh();
 		} else if (selected == index_index) {

@@ -156,6 +156,10 @@ void joystickb_init_null(void)
 	assert(joystickb_state.driver_current == 0);
 	assert(!joystickb_state.is_active_flag);
 
+	if (!joystickb_state.is_initialized_flag) {
+		joystickb_default();
+	}
+
 	joystickb_state.driver_current = &joystickb_none_driver;
 
 	joystickb_state.driver_current->init(-1); /* it must never fail */

@@ -38,7 +38,9 @@
 #include <string.h>
 
 /* Define if you want to assume fast write in video memory */
+#ifndef __MSDOS__
 #define USE_MTRR
+#endif
 
 /***************************************************************************/
 /* mmx */

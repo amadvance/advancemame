@@ -138,8 +138,19 @@ void run_command(config_state& rs)
 		}
 	}
 
-	for(script_container::iterator i=rs.script_bag.begin();i!=rs.script_bag.end();++i)
+	for(script_container::iterator i=rs.script_bag.begin();i!=rs.script_bag.end();++i) {
+		if (i->text.find("%s") != string::npos) {
+			if (!rs.current_game)
+				continue;
+		}
+		if (i->text.find("%p") != string::npos || i->text.find("%f") != string::npos) {
+			if (!rs.current_game)
+				continue;
+			if (rs.current_game->rom_zip_set_get().size() == 0)
+				continue;
+		}
 		ch.insert( ch.end(), choice(i->name, &*i) );
+	}
 
 	if (ch.begin() == ch.end())
 		ch.insert( ch.end(), choice("No commands available", -1) );
@@ -149,7 +160,7 @@ void run_command(config_state& rs)
 
 	if (key == INT_KEY_ENTER) {
 		int r;
-		if (i->value_get()>=0 && i->value_get()<=256) {
+		if (i->value_get()>=-1 && i->value_get()<=256) {
 			switch (i->value_get()) {
 			case 0 :
 				r = remove(cpath_export(rs.current_game->preview_snap_get().archive_get()));
@@ -175,6 +186,9 @@ void run_command(config_state& rs)
 			case 7 :
 				r = remove(cpath_export(rs.current_sound.archive_get()));
 				break;
+			case -1 :
+				r = 0;
+				break;
 			default:
 				r = -1;
 				break;
@@ -185,7 +199,7 @@ void run_command(config_state& rs)
 			string text = s->text;
 
 			if (rs.current_game) {
-				text = subs(text, "%s", rs.current_game->name_get());
+				text = subs(text, "%s", rs.current_game->name_without_emulator_get());
 				if (rs.current_game->rom_zip_set_get().size()) {
 					string path = *rs.current_game->rom_zip_set_get().begin();
 					text = subs(text, "%p", path_export(path));
@@ -195,7 +209,7 @@ void run_command(config_state& rs)
 
 			int_unplug();
 
-			r = target_script(s->text.c_str());
+			r = target_script(text.c_str());
 
 			int_plug();
 		}

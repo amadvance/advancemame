@@ -33,6 +33,7 @@
 #include "error.h"
 #include "snstring.h"
 #include "portable.h"
+#include "knone.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -103,6 +104,7 @@ adv_error keyb_init(adv_bool disable_special)
 	unsigned i;
 
 	assert(keyb_state.driver_current == 0);
+	assert(!keyb_state.is_active_flag);
 
 	if (!keyb_state.is_initialized_flag) {
 		keyb_default();
@@ -148,6 +150,22 @@ void keyb_done(void)
 
 	keyb_state.driver_current = 0;
 	keyb_state.is_active_flag = 0;
+}
+
+void keyb_init_null(void)
+{
+	assert(keyb_state.driver_current == 0);
+	assert(!keyb_state.is_active_flag);
+
+	if (!keyb_state.is_initialized_flag) {
+		keyb_default();
+	}
+
+	keyb_state.driver_current = &keyb_none_driver;
+
+	keyb_state.driver_current->init(-1, 1); /* it must never fail */
+
+	keyb_state.is_active_flag = 1;
 }
 
 adv_error keyb_enable(adv_bool graphics)

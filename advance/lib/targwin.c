@@ -29,6 +29,7 @@
  */
 
 #include "target.h"
+#include "file.h"
 #include "log.h"
 #include "os.h"
 #include "snstring.h"
@@ -150,10 +151,8 @@ adv_error target_apm_shutdown(void)
 	OSVERSIONINFO VersionInformation;
 	DWORD flags = EWX_POWEROFF;
 
-#if 0
 	/* force always the shutdown */
 	flags |= EWX_FORCE;
-#endif	
 
 	VersionInformation.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	if (!GetVersionEx(&VersionInformation)) {
@@ -164,7 +163,7 @@ adv_error target_apm_shutdown(void)
 		HANDLE hToken;
 		TOKEN_PRIVILEGES tkp;
 
-	 	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+		if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
 			return -1;
  
 		LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
@@ -186,7 +185,7 @@ adv_error target_apm_shutdown(void)
 	if (!ExitWindowsEx(flags, 0)) 
 		return -1;
 
-	return 0;	
+	return 0;
 }
 
 adv_error target_apm_standby(void)
@@ -262,6 +261,56 @@ static int exec(char* cmdline)
 	CloseHandle(process.hThread);
 
 	return exitcode;
+}
+
+adv_error target_script(const char* script)
+{
+	char* tmp;
+	char file[FILE_MAXPATH];
+	FILE* f;
+	int r;
+
+	log_std(("win: script\n%s\n", script));
+
+	tmp = getenv("TMP");
+	if (!tmp)
+		tmp = "\\";
+
+	sncpy(file, FILE_MAXPATH, tmp);
+	if (file[0] && file[strlen(file)-1] != '\\')
+		sncat(file, FILE_MAXPATH, "\\");
+	sncat(file, FILE_MAXPATH, "advs0000.bat");
+
+	log_std(("win: file %s\n", file));
+
+	f = fopen(file, "w");
+	if (!f) {
+		log_std(("win: fopen(%s) failed\n", file));
+		goto err;
+	}
+
+	if (fprintf(f, "%s", script) < 0) {
+		log_std(("win: fprintf() failed\n"));
+		goto err_close;
+	}
+
+	if (fclose(f) != 0) {
+		log_std(("win: fclose() failed\n"));
+		goto err;
+	}
+
+	r = target_system(file);
+
+	log_std(("win: return %d\n", r));
+
+	remove(file); /* ignore error */
+
+	return r;
+
+err_close:
+	fclose(f);
+err:
+	return -1;
 }
 
 adv_error target_system(const char* cmd)

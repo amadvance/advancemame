@@ -814,10 +814,16 @@ void convert_html::section_begin(unsigned level)
 	} else if (level == 1) {
 		++level1;
 		level2 = 0;
-		os << "<" HTML_H2 ">" << level0 << "." << level1 << " " << endl;
+		if (level0)
+			os << "<" HTML_H2 ">" << level0 << "." << level1 << " " << endl;
+		else
+			os << "<" HTML_H2 ">" << endl;
 	} else {
 		++level2;
-		os << "<" HTML_H3 ">" << level0 << "." << level1 << "." << level2 << " " << endl;
+		if (level0 && level1)
+			os << "<" HTML_H3 ">" << level0 << "." << level1 << "." << level2 << " " << endl;
+		else
+			os << "<" HTML_H3 ">" << endl;
 	}
 }
 
@@ -825,7 +831,7 @@ void convert_html::section_end()
 {
 	if (state == state_section0)
 		os << "</" HTML_H1 ">" << endl;
-	else if (state == state_section0)
+	else if (state == state_section1)
 		os << "</" HTML_H2 ">" << endl;
 	else
 		os << "</" HTML_H3 ">" << endl;

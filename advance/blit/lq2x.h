@@ -39,7 +39,7 @@
 /* LQ2x C implementation */
 
 /*
- * This effect is derived from the lq2x effect made by Maxim Stepin
+ * This effect is derived from the hq2x effect made by Maxim Stepin
  */
 
 static void lq2x_16_def(interp_uint16* dst0, interp_uint16* dst1, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count)

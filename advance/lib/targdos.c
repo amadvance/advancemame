@@ -295,6 +295,56 @@ void target_led_set(unsigned mask)
 /***************************************************************************/
 /* System */
 
+adv_error target_script(const char* script)
+{
+	char* tmp;
+	char file[FILE_MAXPATH];
+	FILE* f;
+	int r;
+
+	log_std(("dos: script\n%s\n", script));
+
+	tmp = getenv("TMP");
+	if (!tmp)
+		tmp = "\\";
+
+	sncpy(file, FILE_MAXPATH, tmp);
+	if (file[0] && file[strlen(file)-1] != '\\')
+		sncat(file, FILE_MAXPATH, "\\");
+	sncat(file, FILE_MAXPATH, "advs0000.bat");
+
+	log_std(("dos: file %s\n", file));
+
+	f = fopen(file, "w");
+	if (!f) {
+		log_std(("dos: fopen(%s) failed\n", file));
+		goto err;
+	}
+
+	if (fprintf(f, "%s", script) < 0) {
+		log_std(("dos: fprintf() failed\n"));
+		goto err_close;
+	}
+
+	if (fclose(f) != 0) {
+		log_std(("dos: fclose() failed\n"));
+		goto err;
+	}
+
+	r = target_system(file);
+
+	log_std(("dos: return %d\n", r));
+
+	remove(file); /* ignore error */
+
+	return r;
+
+err_close:
+	fclose(f);
+err:
+	return -1;
+}
+
 adv_error target_system(const char* cmd)
 {
 	int r;

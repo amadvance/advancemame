@@ -39,7 +39,7 @@
 /* HQ4x C implementation */
 
 /*
- * This effect is derived from the hq4x effect made by Maxim Stepin
+ * This effect is a rewritten implementation of the hq4x effect made by Maxim Stepin
  */
 
 static void hq4x_16_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* dst2, interp_uint16* dst3, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count)

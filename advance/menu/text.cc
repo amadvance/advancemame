@@ -790,6 +790,8 @@ err:
 
 void int_unplug()
 {
+	keyb_disable();
+	mouseb_done();
 	joystickb_done();
 }
 
@@ -797,6 +799,13 @@ void int_plug()
 {
 	if (joystickb_init() != 0)
 		joystickb_init_null();
+	if (mouseb_init() != 0)
+		mouseb_init_null();
+	if (keyb_enable(1) != 0) {
+		keyb_done();
+		keyb_init_null();
+		keyb_enable(1);
+	}
 }
 
 void int_unset(bool reset_video_mode)
@@ -850,8 +859,7 @@ bool int_enable(const string& font, unsigned orientation)
 	return true;
 }
 
-void int_disable()
-{
+void int_disable() {
 	font_free(real_font_map);
 	operator delete(video_buffer);
 }

@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2003-10-13 18:44:01.000000000 +0200
++++ src/advance.pat	2003-10-19 17:27:35.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive src.ori/common.c src/common.c
 --- src.ori/common.c	2003-10-12 20:56:02.000000000 +0200
-+++ src/common.c	2003-10-13 18:44:01.000000000 +0200
++++ src/common.c	2003-10-19 17:27:35.000000000 +0200
 @@ -414,17 +414,11 @@
  	coin_counter_w - sets input for coin counter
  -------------------------------------------------*/
@@ -84,7 +84,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  			int k;
 diff -U 5 --new-file --recursive src.ori/cpmame.mak src/cpmame.mak
 --- src.ori/cpmame.mak	2003-05-15 04:59:00.000000000 +0200
-+++ src/cpmame.mak	2003-10-13 18:44:01.000000000 +0200
++++ src/cpmame.mak	2003-10-19 17:27:35.000000000 +0200
 @@ -15,10 +15,11 @@
  
  # SOUNDs
@@ -99,7 +99,7 @@ diff -U 5 --new-file --recursive src.ori/cpmame.mak src/cpmame.mak
  	$(OBJ)/machine/kabuki.o \
 diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
 --- src.ori/cpu/i8085/i8085.c	2003-10-12 20:51:58.000000000 +0200
-+++ src/cpu/i8085/i8085.c	2003-10-13 18:44:01.000000000 +0200
++++ src/cpu/i8085/i8085.c	2003-10-19 17:27:35.000000000 +0200
 @@ -85,10 +85,16 @@
   * 
   *****************************************************************************/
@@ -119,7 +119,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
 --- src.ori/cpu/m68000/make68k.c	2003-06-09 20:34:00.000000000 +0200
-+++ src/cpu/m68000/make68k.c	2003-10-13 18:44:01.000000000 +0200
++++ src/cpu/m68000/make68k.c	2003-10-19 17:27:35.000000000 +0200
 @@ -188,11 +188,11 @@
  
  
@@ -168,7 +168,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/mak
  
 diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
 --- src.ori/cpu/z80/z80.c	2003-02-27 23:02:44.000000000 +0100
-+++ src/cpu/z80/z80.c	2003-10-13 18:44:01.000000000 +0200
++++ src/cpu/z80/z80.c	2003-10-19 17:27:35.000000000 +0200
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -188,7 +188,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
  #else
 diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
 --- src.ori/cpuexec.c	2003-10-12 20:56:02.000000000 +0200
-+++ src/cpuexec.c	2003-10-13 18:44:01.000000000 +0200
++++ src/cpuexec.c	2003-10-19 17:27:35.000000000 +0200
 @@ -310,10 +310,13 @@
  	watchdog_counter = -1;
  
@@ -203,25 +203,9 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
-diff -U 5 --new-file --recursive src.ori/drivers/marinedt.c src/drivers/marinedt.c
---- src.ori/drivers/marinedt.c	2003-10-12 20:56:02.000000000 +0200
-+++ src/drivers/marinedt.c	2003-10-13 19:01:43.000000000 +0200
-@@ -90,11 +90,11 @@
- 	you get 200 for each shot, don't think it's actually a timer
- have i been using x/y consistently, ie non rotated or rotated origin?
- 	yes, seems to be best using xy raw (ie non-rotated)
- */
- 
--#include "vidhrdw\generic.h"
-+#include "vidhrdw/generic.h"
- 
- static int marinedt_obj1_a, marinedt_obj1_x, marinedt_obj1_y, marinedt_music, marinedt_sound, marinedt_obj2_a, marinedt_obj2_x, marinedt_obj2_y, marinedt_pd, marinedt_pf;
- static	int coll,cx,cyr,cyq;
- static	int collh,cxh,cyrh,cyqh;
- 
 diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
 --- src.ori/drivers/multi32.c	2003-09-14 13:53:06.000000000 +0200
-+++ src/drivers/multi32.c	2003-10-13 18:44:01.000000000 +0200
++++ src/drivers/multi32.c	2003-10-19 17:27:38.000000000 +0200
 @@ -711,11 +711,11 @@
  	MDRV_NVRAM_HANDLER(system32)
  
@@ -237,7 +221,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/multi32.c src/drivers/multi32.c
  	MDRV_VIDEO_START(system32)
 diff -U 5 --new-file --recursive src.ori/drivers/neogeo.c src/drivers/neogeo.c
 --- src.ori/drivers/neogeo.c	2003-10-12 20:56:02.000000000 +0200
-+++ src/drivers/neogeo.c	2003-10-13 18:44:01.000000000 +0200
++++ src/drivers/neogeo.c	2003-10-19 17:27:38.000000000 +0200
 @@ -386,11 +386,11 @@
  			}
  			fc++;
@@ -253,7 +237,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/neogeo.c src/drivers/neogeo.c
  
 diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
 --- src.ori/fileio.c	2003-08-09 02:53:12.000000000 +0200
-+++ src/fileio.c	2003-10-13 18:44:01.000000000 +0200
++++ src/fileio.c	2003-10-19 17:27:38.000000000 +0200
 @@ -66,10 +66,11 @@
  	UINT64 offset;
  	UINT64 length;
@@ -396,8 +380,8 @@ diff -U 5 --new-file --recursive src.ori/fileio.c src/fileio.c
  
  	/* determine start/stop based on reverse search flag */
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
---- src.ori/inptport.c	2003-10-12 20:56:02.000000000 +0200
-+++ src/inptport.c	2003-10-13 18:46:10.000000000 +0200
+--- src.ori/inptport.c	2003-10-19 17:26:12.000000000 +0200
++++ src/inptport.c	2003-10-19 17:27:38.000000000 +0200
 @@ -201,10 +201,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
@@ -548,7 +532,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  
 diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
 --- src.ori/inptport.h	2003-09-03 22:06:04.000000000 +0200
-+++ src/inptport.h	2003-10-13 18:44:01.000000000 +0200
++++ src/inptport.h	2003-10-19 17:27:38.000000000 +0200
 @@ -87,10 +87,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
@@ -567,7 +551,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive src.ori/input.c src/input.c
 --- src.ori/input.c	2003-09-03 22:06:04.000000000 +0200
-+++ src/input.c	2003-10-13 18:44:01.000000000 +0200
++++ src/input.c	2003-10-19 17:27:38.000000000 +0200
 @@ -812,11 +812,11 @@
  {
  	int pressed;
@@ -596,7 +580,7 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
  		{
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
 --- src.ori/mame.c	2003-08-09 02:53:14.000000000 +0200
-+++ src/mame.c	2003-10-13 18:44:01.000000000 +0200
++++ src/mame.c	2003-10-19 17:27:38.000000000 +0200
 @@ -983,26 +983,20 @@
  	to a given resolution
  -------------------------------------------------*/
@@ -636,7 +620,7 @@ diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
  /*-------------------------------------------------
 diff -U 5 --new-file --recursive src.ori/neomame.mak src/neomame.mak
 --- src.ori/neomame.mak	2003-06-09 22:02:00.000000000 +0200
-+++ src/neomame.mak	2003-10-13 18:44:01.000000000 +0200
++++ src/neomame.mak	2003-10-19 17:27:38.000000000 +0200
 @@ -8,10 +8,11 @@
  EMULATOR_EXE = neomame.exe
  
@@ -651,7 +635,7 @@ diff -U 5 --new-file --recursive src.ori/neomame.mak src/neomame.mak
  
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2003-08-09 02:53:02.000000000 +0200
-+++ src/osdepend.h	2003-10-13 18:44:01.000000000 +0200
++++ src/osdepend.h	2003-10-19 17:27:38.000000000 +0200
 @@ -391,10 +391,38 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
@@ -693,7 +677,7 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
  #endif
 diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
 --- src.ori/rules.mak	2003-09-03 22:06:06.000000000 +0200
-+++ src/rules.mak	2003-10-13 18:44:01.000000000 +0200
++++ src/rules.mak	2003-10-19 17:27:38.000000000 +0200
 @@ -1010,16 +1010,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
@@ -747,49 +731,9 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  endif
  
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
-diff -U 5 --new-file --recursive src.ori/timer.c src/timer.c
---- src.ori/timer.c	2003-10-12 20:56:02.000000000 +0200
-+++ src/timer.c	2003-10-14 18:00:05.000000000 +0200
-@@ -84,10 +84,11 @@
- 
- /* other internal states */
- static double global_offset;
- static mame_timer *callback_timer;
- static int callback_timer_modified;
-+static double callback_timer_expire_time;
- 
- 
- 
- /*-------------------------------------------------
- 	get_relative_time - return the current time
-@@ -103,11 +104,11 @@
- 	if (activecpu >= 0)
- 		return cpunum_get_localtime(activecpu);
- 	
- 	/* if we're currently in a callback, use the timer's expiration time as a base */
- 	if (callback_timer)
--		return callback_timer->expire;
-+		return callback_timer_expire_time;
- 	
- 	/* otherwise, return 0 */
- 	return 0;
- }
- 
-@@ -323,10 +324,11 @@
- 			timer->enabled = 0;
- 
- 		/* set the global state of which callback we're in */
- 		callback_timer_modified = 0;
- 		callback_timer = timer;
-+		callback_timer_expire_time = timer->expire;
- 
- 		/* call the callback */
- 		if (was_enabled && timer->callback)
- 		{
- 			LOG(("Timer %08X fired (expire=%.9f)\n", (UINT32)timer, timer->expire));
 diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2003-09-03 22:06:06.000000000 +0200
-+++ src/ui_text.c	2003-10-13 18:44:01.000000000 +0200
++++ src/ui_text.c	2003-10-19 17:27:43.000000000 +0200
 @@ -240,10 +240,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -807,7 +751,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  {
 diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	2003-09-03 22:06:06.000000000 +0200
-+++ src/ui_text.h	2003-10-13 18:44:01.000000000 +0200
++++ src/ui_text.h	2003-10-19 17:27:43.000000000 +0200
 @@ -206,10 +206,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -825,7 +769,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  {
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
 --- src.ori/usrintrf.c	2003-09-14 13:53:06.000000000 +0200
-+++ src/usrintrf.c	2003-10-13 18:44:01.000000000 +0200
++++ src/usrintrf.c	2003-10-19 17:27:43.000000000 +0200
 @@ -853,12 +853,16 @@
  	while (items[i])
  	{
@@ -1128,7 +1072,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  				if (osd_selected != 0)
 diff -U 5 --new-file --recursive src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
 --- src.ori/vidhrdw/cave.c	2003-08-09 02:53:14.000000000 +0200
-+++ src/vidhrdw/cave.c	2003-10-13 18:44:01.000000000 +0200
++++ src/vidhrdw/cave.c	2003-10-19 17:27:43.000000000 +0200
 @@ -1424,10 +1424,13 @@
  VIDEO_UPDATE( cave )
  {

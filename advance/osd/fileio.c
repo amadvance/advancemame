@@ -48,6 +48,7 @@
 #include <ctype.h>
 #include <assert.h>
 #include <dirent.h>
+#include <errno.h>
 
 /***************************************************************************/
 /* Declaration */
@@ -149,7 +150,7 @@ int osd_get_path_info(int pathtype, int pathindex, const char* filename)
 
 	sncpy(path_buffer, sizeof(path_buffer), file_abs(i->dir_map[pathindex], filename));
 
-	log_std(("osd: osd_get_path_info() -> %s\n", path_buffer));
+	log_std(("osd: osd_get_path_info() try %s\n", path_buffer));
 
 	if (stat(path_buffer, &st) != 0) {
 		log_std(("osd: osd_get_path_info() -> failed\n"));
@@ -190,6 +191,7 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 	char path_buffer[FILE_MAXPATH];
 	adv_fz* h;
 	char* split;
+	struct advance_fileio_context* context = &CONTEXT.fileio;
 
 	log_std(("osd: osd_fopen(pathtype:%d,pathindex:%d,filename:%s,mode:%s)\n", pathtype, pathindex, filename, mode));
 
@@ -212,7 +214,7 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 		snprintf(zip_file_buffer, sizeof(zip_file_buffer), "%s.zip", path_buffer);
 		sncpy(file_buffer, sizeof(file_buffer), split + 1);
 
-		log_std(("osd: osd_fopen() -> %s %s\n", zip_file_buffer, file_buffer));
+		log_std(("osd: osd_fopen() try %s %s\n", zip_file_buffer, file_buffer));
 
 		if (access(zip_file_buffer, R_OK)!=0) {
 			log_std(("osd: osd_fopen() -> failed, zip %s not readable\n", zip_file_buffer));
@@ -239,15 +241,57 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 
 		zip_close(zip);
 	} else {
-		log_std(("osd: osd_fopen() -> %s\n", path_buffer));
+		log_std(("osd: osd_fopen() try file %s\n", path_buffer));
 
-		/* open a regular file */
-		h = fzopen(path_buffer, mode);
+		/* for the diff file support the write in memory mode */
+		if (i->type == FILETYPE_IMAGE_DIFF) {
+			/* if the file is already open reuse it */
+			if (context->state.diff_handle && strcmp(path_buffer, context->state.diff_file_buffer)==0) {
+				h = context->state.diff_handle;
+			} else {
+				/* try a normal open */
+				h = fzopen(path_buffer, mode);
+				/* if it's failed for access denied */
+				if (h == 0 && errno == EACCES) {
+					log_std(("osd: osd_fopen() -> failed, retry with readonly\n"));
+					/* reopen in memory */
+					h = fzopennullwrite(path_buffer, mode);
+					if (h && context->state.diff_handle == 0) {
+						/* save the handle if not already saved */
+						context->state.diff_handle = h;
+						sncpy(context->state.diff_file_buffer, sizeof(context->state.diff_file_buffer), path_buffer);
+					}
+				}
+			}
+		} else {
+			/* open a regular file */
+			h = fzopen(path_buffer, mode);
+		}
 	}
 
-	log_std(("osd: osd_fopen() -> %s\n", h ? "success" : "failed"));
+	log_std(("osd: osd_fopen() -> %p, %s\n", h, h ? "success" : "failed"));
 
 	return (osd_file*)h;
+}
+
+void osd_fclose(osd_file* file)
+{
+	adv_fz* h = (adv_fz*)file;
+	struct advance_fileio_context* context = &CONTEXT.fileio;
+
+	log_std(("osd: osd_fclose(%p)\n", file));
+
+	if (h == context->state.diff_handle) {
+		/* don't close the diff memory handler */
+
+		/* reset the position */
+		if (fzseek(h, 0, SEEK_SET) != 0) {
+			fzclose(h);
+			context->state.diff_handle = 0;
+		}
+	} else {
+		fzclose(h);
+	}
 }
 
 int osd_fseek(osd_file* file, INT64 offset, int whence)
@@ -255,7 +299,7 @@ int osd_fseek(osd_file* file, INT64 offset, int whence)
 	adv_fz* h = (adv_fz*)file;
 	int r;
 
-	log_std(("osd: osd_fseek(offset:%d, whence:%d)\n", (int)offset, (int)whence));
+	log_std(("osd: osd_fseek(%p, offset:%d, whence:%d)\n", file, (int)offset, (int)whence));
 
 	r = fzseek(h, offset, whence);
 
@@ -269,7 +313,7 @@ UINT64 osd_ftell(osd_file* file)
 	adv_fz* h = (adv_fz*)file;
 	UINT64 r;
 
-	log_std(("osd: osd_ftell()\n"));
+	log_std(("osd: osd_ftell(%p)\n", file));
 
 	r = fztell(h);
 
@@ -311,13 +355,6 @@ UINT32 osd_fwrite(osd_file* file, const void* buffer, UINT32 length)
 	log_pedantic(("osd: osd_fwrite() -> %d\n", (int)r));
 
 	return r;
-}
-
-void osd_fclose(osd_file* file)
-{
-	adv_fz* h = (adv_fz*)file;
-
-	fzclose(h);
 }
 
 #ifdef MESS
@@ -626,9 +663,8 @@ static void path_free(char** dir_map, unsigned dir_mac)
 	free(dir_map);
 }
 
-adv_error advance_fileio_init(adv_conf* context)
+adv_error advance_fileio_init(struct advance_fileio_context* context, adv_conf* cfg_context)
 {
-
 	struct fileio_item* i;
 	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
 		i->dir_map = 0;
@@ -644,22 +680,27 @@ adv_error advance_fileio_init(adv_conf* context)
 				case FILEIO_MODE_FILE : def = file_config_dir_singlefile(); break;
 			}
 			if (def)
-				conf_string_register_default(context, i->config, def);
+				conf_string_register_default(cfg_context, i->config, def);
 		}
 	}
 
+	context->state.diff_handle = 0;
+
 #ifdef MESS
-	conf_string_register_default(context, "dir_crc", file_config_dir_singledir("crc"));
+	conf_string_register_default(cfg_context, "dir_crc", file_config_dir_singledir("crc"));
 #endif
 
 	return 0;
 }
 
-void advance_fileio_done(void)
+void advance_fileio_done(struct advance_fileio_context* context)
 {
 	struct fileio_item* i;
 	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
 		path_free(i->dir_map, i->dir_mac);
+	}
+	if (context->state.diff_handle) {
+		fzclose(context->state.diff_handle);
 	}
 }
 
@@ -677,7 +718,7 @@ static void dir_create(char** dir_map, unsigned dir_mac)
 	}
 }
 
-adv_error advance_fileio_config_load(adv_conf* context, struct mame_option* option)
+adv_error advance_fileio_config_load(struct advance_fileio_context* context, adv_conf* cfg_context, struct mame_option* option)
 {
 	struct fileio_item* i;
 	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
@@ -687,7 +728,7 @@ adv_error advance_fileio_config_load(adv_conf* context, struct mame_option* opti
 		i->dir_mac = 0;
 
 		if (i->config) {
-			const char* s = conf_string_get_default(context, i->config);
+			const char* s = conf_string_get_default(cfg_context, i->config);
 			log_std(("advance:fileio: %s %s\n", i->config, s));
 			path_allocate(&i->dir_map, &i->dir_mac, s);
 			dir_create(i->dir_map, i->dir_mac);
@@ -699,7 +740,7 @@ adv_error advance_fileio_config_load(adv_conf* context, struct mame_option* opti
 
 #ifdef MESS
 	{
-		const char* s = conf_string_get_default(context, "dir_crc");
+		const char* s = conf_string_get_default(cfg_context, "dir_crc");
 		log_std(("advance:fileio: %s %s\n", "dir_crc", s));
 		sncpy(option->crc_dir_buffer, sizeof(option->crc_dir_buffer), s);
 	}

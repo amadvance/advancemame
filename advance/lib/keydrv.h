@@ -133,6 +133,12 @@ adv_error keyb_load(adv_conf* config_context);
 adv_error keyb_init(adv_bool disable_special);
 
 /**
+ * Initialize the null driver.
+ * This command setup the null keyboard driver, also if it isn't configured in the load option.
+ */
+void keyb_init_null(void);
+
+/**
  * Deinitialize the keyboard driver.
  * Call it only after a succesful keyb_init().
  */

@@ -1,10 +1,12 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.75.0 2003/10
+AdvanceMAME Version 0.76.0 2003/10
 	) Fixed a computation error in the `hq2/3/4x' effects.
 	) Fixed a bug on the `mean' effect introduced in the last version.
 	) Upgraded the DOS/Windows SVGALIB drivers at version 1.9.18.
+	) The harddisk differential image .dif file are now created in memory
+		if the access on the filesystem is denied.
 
 AdvanceMAME Version 0.74.1 2003/09
 	) Added the effects `lq4x' and `hq4x'. The `hq2x' and `hq3x' versions

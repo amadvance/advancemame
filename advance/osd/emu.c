@@ -481,7 +481,7 @@ int os_main(int argc, char* argv[])
 		goto err_os;
 	if (advance_record_init(&context->record, config_context)!=0)
 		goto err_os;
-	if (advance_fileio_init(config_context)!=0)
+	if (advance_fileio_init(&context->fileio, config_context)!=0)
 		goto err_os;
 	if (advance_safequit_init(&context->safequit, config_context)!=0)
 		goto err_os;
@@ -630,7 +630,7 @@ int os_main(int argc, char* argv[])
 		section_map[0] = "";
 		conf_section_set(config_context, section_map, 1);
 
-		if (advance_fileio_config_load(config_context, &option) != 0)
+		if (advance_fileio_config_load(&context->fileio, config_context, &option) != 0)
 			goto err_os;
 
 		option.game = mame_playback_look(option.playback_file_buffer);
@@ -675,7 +675,7 @@ int os_main(int argc, char* argv[])
 		goto err_os;
 	if (advance_record_config_load(&context->record, config_context) != 0)
 		goto err_os;
-	if (advance_fileio_config_load(config_context, &option) != 0)
+	if (advance_fileio_config_load(&context->fileio, config_context, &option) != 0)
 		goto err_os;
 	if (advance_safequit_config_load(&context->safequit, config_context) != 0)
 		goto err_os;
@@ -724,7 +724,7 @@ int os_main(int argc, char* argv[])
 
 	hardware_script_done();
 	advance_safequit_done(&context->safequit);
-	advance_fileio_done();
+	advance_fileio_done(&context->fileio);
 	advance_record_done(&context->record);
 	advance_input_done(&context->input);
 	advance_sound_done(&context->sound);

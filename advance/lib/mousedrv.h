@@ -110,6 +110,7 @@ void mouseb_reg(adv_conf* config_context, adv_bool auto_detect);
 void mouseb_reg_driver(adv_conf* config_context, mouseb_driver* driver);
 adv_error mouseb_load(adv_conf* config_context);
 adv_error mouseb_init(void);
+void mouseb_init_null(void);
 void mouseb_done(void);
 void mouseb_abort(void);
 unsigned mouseb_count_get(void);

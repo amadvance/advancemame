@@ -36,6 +36,7 @@
 #include "os.h"
 #include "target.h"
 #include "file.h"
+#include "fz.h"
 #include "key.h"
 #include "conf.h"
 #include "generate.h"
@@ -679,6 +680,22 @@ adv_error advance_global_config_load(struct advance_global_context* context, adv
 void advance_global_done(struct advance_global_context* context);
 
 /***************************************************************************/
+/* Fileio */
+
+struct advance_fileio_state_context {
+	adv_fz* diff_handle; /**< Diff file handle. */
+	char diff_file_buffer[FILE_MAXPATH]; /**< Diff file path. */
+};
+
+struct advance_fileio_context {
+	struct advance_fileio_state_context state;
+};
+
+adv_error advance_fileio_init(struct advance_fileio_context* context, adv_conf* cfg_context);
+void advance_fileio_done(struct advance_fileio_context* context);
+adv_error advance_fileio_config_load(struct advance_fileio_context* context, adv_conf* cfg_context, struct mame_option* option);
+
+/***************************************************************************/
 /* State */
 
 struct advance_context {
@@ -690,6 +707,7 @@ struct advance_context {
 	struct advance_sound_context sound;
 	struct advance_record_context record;
 	struct advance_safequit_context safequit;
+	struct advance_fileio_context fileio;
 };
 
 /**
@@ -706,11 +724,6 @@ adv_error mame_init(struct advance_context* context, adv_conf* cfg_context);
 void mame_done(struct advance_context* context);
 adv_error mame_config_load(adv_conf* context, struct mame_option* option);
 int mame_game_run(struct advance_context* context, const struct mame_option* option);
-
-/* Fileio */
-adv_error advance_fileio_init(adv_conf* context);
-void advance_fileio_done(void);
-adv_error advance_fileio_config_load(adv_conf* context, struct mame_option* option);
 
 /* Timer */
 static inline double advance_timer(void)

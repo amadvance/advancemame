@@ -33,6 +33,7 @@
 #include "error.h"
 #include "snstring.h"
 #include "portable.h"
+#include "mnone.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -103,7 +104,6 @@ adv_error mouseb_init(void)
 	unsigned i;
 
 	assert(mouseb_state.driver_current == 0);
-
 	assert(!mouseb_state.is_active_flag);
 
 	if (!mouseb_state.is_initialized_flag) {
@@ -149,6 +149,22 @@ void mouseb_done(void)
 
 	mouseb_state.driver_current = 0;
 	mouseb_state.is_active_flag = 0;
+}
+
+void mouseb_init_null(void)
+{
+	assert(mouseb_state.driver_current == 0);
+	assert(!mouseb_state.is_active_flag);
+
+	if (!mouseb_state.is_initialized_flag) {
+		mouseb_default();
+	}
+
+	mouseb_state.driver_current = &mouseb_none_driver;
+
+	mouseb_state.driver_current->init(-1); /* it must never fail */
+
+	mouseb_state.is_active_flag = 1;
 }
 
 void mouseb_abort(void)
