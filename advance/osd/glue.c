@@ -1298,7 +1298,6 @@ adv_error mame_init(struct advance_context* context, adv_conf* cfg_context)
 	conf_int_register_enum_default(cfg_context, "misc_internaldepth", conf_enum(OPTION_DEPTH), 0);
 
 	conf_bool_register_default(cfg_context, "misc_cheat", 0);
-	conf_bool_register_default(cfg_context, "misc_quiet", 0);
 	conf_string_register_default(cfg_context, "misc_languagefile", "english.lng");
 	conf_string_register_default(cfg_context, "misc_cheatfile", "cheat.dat" );
 	conf_string_register_default(cfg_context, "misc_historyfile", "history.dat");
@@ -1353,7 +1352,6 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 	option->color_depth = conf_int_get_default(cfg_context, "misc_internaldepth");
 
 	option->cheat_flag = conf_bool_get_default(cfg_context, "misc_cheat");
-	option->quiet_flag = conf_bool_get_default(cfg_context, "misc_quiet");
 
 	strcpy(option->language_file, conf_string_get_default(cfg_context, "misc_languagefile"));
 

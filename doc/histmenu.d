@@ -12,6 +12,9 @@ AdvanceMENU Version 2.2.3 2003/01
 	) Added a new `difficulty' option and menu to globaly control
 		the difficulty level of the games. It works only
 		with AdvanceMAME.
+	) The `generic' emulator type is now able to import games
+		information from a MAME like information file
+		written manually.
 
 AdvanceMENU Version 2.2.2 2002/12
 	) Fixed the MNG playing in 32 bits modes. This is potentially

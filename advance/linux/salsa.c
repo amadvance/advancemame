@@ -43,7 +43,6 @@ struct sound_alsa_context {
 	unsigned channel;
 	unsigned rate;
 	unsigned sample_length;
-	unsigned size;
 	snd_pcm_t* handle;
 };
 
@@ -89,6 +88,7 @@ adv_error sound_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 	snd_pcm_sw_params_t* sw_params;
 	snd_pcm_uframes_t period_size;
 	unsigned period_count;
+	adv_bool found;
 
 	log_std(("sound:alsa: sound_alsa_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", sound_id, *rate, stereo_flag, buffer_time));
 
@@ -140,26 +140,53 @@ adv_error sound_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 		goto err_close;
 	}
 
-	period_size = 2048;
-	r = snd_pcm_hw_params_set_period_size_near(alsa_state.handle, hw_params, &period_size, 0);
-	if (r < 0) {
-		log_std(("sound:alsa: Couldn't set period size %d: %s\n", (unsigned)period_size, snd_strerror(r)));
-		goto err_close;
+	/* set a small the period size, and increment it until the period count is allowed */
+	/* using a small period size should ensure a fine granularity when getting the quantity of data stored in buffers */
+	period_size = 512;
+	found = 0;
+	while (!found && period_size <= 65536) {
+		r = snd_pcm_hw_params_set_period_size_near(alsa_state.handle, hw_params, &period_size, 0);
+		if (r < 0) {
+			log_std(("sound:alsa: Couldn't set period size %d: %s\n", (unsigned)period_size, snd_strerror(r)));
+			period_size *= 2;
+			continue;
+		} else {
+			log_std(("sound:alsa: set_period_size_near(%d) succesful\n", (unsigned)period_size));
+		}
+
+		period_count = alsa_state.rate * buffer_time / period_size + 1;
+		if (period_count < 2)
+			period_count = 2;
+		r = snd_pcm_hw_params_set_periods_min(alsa_state.handle, hw_params, &period_count, 0);
+		if (r < 0) {
+			log_std(("sound:alsa: Couldn't set period number %d: %s\n", (unsigned)period_count, snd_strerror(r)));
+			period_size *= 2;
+			continue;
+		} else {
+			log_std(("sound:alsa: set_periods_min(%d) succesful\n", (unsigned)period_count));
+		}
+
+		found = 1;
 	}
 
-	log_std(("sound:alsa: set_period_size_near(%d)\n", (unsigned)period_size));
+	/* if all fail try setting the buffer size */
+	if (!found) {
+		snd_pcm_uframes_t buffer_size = alsa_state.rate * buffer_time;
 
-	period_count = alsa_state.rate * buffer_time / period_size + 1;
-	if (period_count < 2)
-		period_count = 2;
-	r = snd_pcm_hw_params_set_periods_min(alsa_state.handle, hw_params, &period_count, 0);
-	if (r < 0) {
-		log_std(("sound:alsa: Couldn't set period number %d: %s\n", (unsigned)period_count, snd_strerror(r)));
-		goto err_close;
+		r = snd_pcm_hw_params_set_buffer_size_min(alsa_state.handle, hw_params, &buffer_size);
+		if (r < 0) {
+			log_std(("sound:alsa: Couldn't set buffer size min %d: %s\n", (unsigned)buffer_size, snd_strerror(r)));
+			r = snd_pcm_hw_params_set_buffer_size_near(alsa_state.handle, hw_params, &buffer_size);
+			if (r < 0) {
+				log_std(("sound:alsa: Couldn't set buffer size near %d: %s\n", (unsigned)buffer_size, snd_strerror(r)));
+				goto err_close;
+			} else {
+				log_std(("sound:alsa: set_buffer_size_near(%d) succesful\n", (unsigned)buffer_size));
+			}
+		} else {
+			log_std(("sound:alsa: set_buffer_size_min(%d) succesful\n", (unsigned)buffer_size));
+		}
 	}
-	alsa_state.size = period_size * period_count;
-
-	log_std(("sound:alsa: set_periods_min(%d)\n", (unsigned)period_count));
 
 	r = snd_pcm_hw_params(alsa_state.handle, hw_params);
 	if (r < 0) {

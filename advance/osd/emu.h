@@ -582,6 +582,7 @@ void advance_input_force_exit(struct advance_input_context* context);
 
 struct advance_global_config_context {
 	int difficulty; /**< Difficulty level. */
+	adv_bool quiet_flag; /**< Be quiet on message printing. */
 };
 
 struct advance_global_state_context {

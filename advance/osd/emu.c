@@ -708,7 +708,7 @@ int os_main(int argc, char* argv[])
 	if (hardware_script_config_load(cfg_context) != 0)
 		goto err_os;
 
-	if (!option.quiet_flag) {
+	if (!context->global.config.quiet_flag) {
 		target_nfo(ADVANCE_COPY);
 #ifdef __MSDOS__
 		target_nfo("%d [Mb] free physical memory, %d [Mb] free virtual memory\n", (unsigned)_go32_dpmi_remaining_physical_memory()/(1024*1024), (unsigned)_go32_dpmi_remaining_virtual_memory()/(1024*1024));

@@ -40,6 +40,34 @@
 #include <string.h>
 #include <unistd.h>
 
+/**
+ * Called while loading ROMs.
+ * It is called a last time with name == 0 to signal that the ROM loading
+ * process is finished.
+ * \return
+ *  - !=0 to abort loading
+ *  - ==0 on success
+ */
+int osd_display_loading_rom_message(const char *name, int current, int total)
+{
+	struct advance_global_context* context = &CONTEXT.global;
+
+	(void)name;
+	(void)current;
+	(void)total;
+
+	log_std(("osd: osd_display_loading_rom_message(name:%s, current:%d, total:%d)\n", name, current, total));
+
+	if (!context->config.quiet_flag) {
+		if (current < 0 && name)
+			target_err("%s",name);
+	}
+		
+	/* nothing */
+
+	return 0;
+}
+
 void advance_global_message(struct advance_global_context* context, const char* msg)
 {
 	log_std(("advance:global: set msg %s\n", msg));
@@ -220,12 +248,14 @@ static adv_conf_enum_int OPTION_DIFFICULTY[] = {
 
 adv_error advance_global_init(struct advance_global_context* context, adv_conf* cfg_context)
 {
+	conf_bool_register_default(cfg_context, "misc_quiet", 0);
 	conf_int_register_enum_default(cfg_context, "misc_difficulty", conf_enum(OPTION_DIFFICULTY), DIFFICULTY_NONE);
 	return 0;
 }
 
 adv_error advance_global_config_load(struct advance_global_context* context, adv_conf* cfg_context)
 {
+	context->config.quiet_flag = conf_bool_get_default(cfg_context, "misc_quiet");
 	context->config.difficulty = conf_int_get_default(cfg_context, "misc_difficulty");
 	return 0;
 }

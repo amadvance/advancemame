@@ -14,6 +14,8 @@ AdvanceMAME Version 0.62.3 2003/01
 		to control any artwork types.
 	) Added the `misc_difficulty' option to select the game
 		difficulty from the command line.
+	) The `misc_quiet' option now also disable the NO GOOD DUMP
+		messages.
 
 AdvanceMAME Version 0.62.2 2002/12
 	) Added a new raw keyboard driver for Linux [Kari Hautio].

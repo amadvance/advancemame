@@ -757,30 +757,6 @@ int osd_ftell(void* void_h)
 	return r;
 }
 
-/**
- * Called while loading ROMs.
- * It is called a last time with name == 0 to signal that the ROM loading
- * process is finished.
- * \return
- *  - !=0 to abort loading
- *  - ==0 on success
- */
-int osd_display_loading_rom_message(const char *name, int current, int total)
-{
-	(void)name;
-	(void)current;
-	(void)total;
-
-	log_std(("osd: osd_display_loading_rom_message(name:%s, current:%d, total:%d)\n", name, current, total));
-
-	if (current < 0 && name)
-		target_err("%s",name);
-		
-	/* nothing */
-
-	return 0;
-}
-
 /***************************************************************************/
 /* Directory interface */
 

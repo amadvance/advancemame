@@ -52,9 +52,7 @@ typedef void mame_game;
 struct mame_option {
 	const mame_game* game;
 
-	int quiet_flag;
-
-	int cheat_flag;
+	adv_bool cheat_flag;
 
 	double gamma;
 	double brightness;

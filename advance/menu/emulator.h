@@ -351,6 +351,7 @@ public:
 };
 
 class generic : public emulator {
+	bool generic::internal_load(game_set& gar);
 public:
 	generic(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 

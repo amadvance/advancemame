@@ -96,6 +96,7 @@ static unsigned char* svgalib_linear_write_line(unsigned y)
 adv_error svgalib_init(int device_id, adv_output output)
 {
 	int res;
+	int chipset;
 
 	/* assume that vga_init() is already called */
 	assert( !svgalib_is_active() );
@@ -128,6 +129,32 @@ adv_error svgalib_init(int device_id, adv_output output)
 	if (res < 0 || res < 0x1911) { /* 1.9.11 */
 		log_std(("video:svgalib: svgalib wrong version\n"));
 		error_nolog_cat("svgalib: You need the svgalib version 1.9.x or 2.0.x. Please upgrade.\n");
+		return -1;
+	}
+
+	chipset = vga_getcurrentchipset();
+	log_std(("video:svgalib: chipset number %d\n", chipset));
+
+	switch (chipset) {
+	case UNDEFINED :
+	case NEOMAGIC :
+	case CHIPS :
+	case MACH64 :
+	case MACH32 :
+	case EGA :
+	case ET4000 :
+	case TVGA8900 :
+	case CIRRUS :
+	case OAK :
+	case PARADISE :
+	case ET3000 :
+	case GVGA6400 :
+	case ATI :
+	case ALI :
+	case VESA :
+	case VGA :
+		log_std(("video:svgalib: chipset doesn't support modelines, aborting\n"));
+		error_nolog_cat("svgalib: Video board unsupported\n");
 		return -1;
 	}
 

@@ -97,6 +97,15 @@ Emulators
 	All the snapshots are searched in the directories specified with
 	the `emulator_*' options using the same name of the rom file.
 
+	If you want, you can manually write a MAME like information file
+	and name it as `ENUNAME.lst'. This file has the same format
+	of the output of the `-listinfo' MAME command.
+	Actually only the information `game', `name', `description', `year',
+	`manufacturer', `cloneof' are used.
+	Please note that this file is used only to add information at the
+	existing games. The games present in this file are not automatically
+	added at the game list.
+
   advmame (The AdvanceMAME emulator)
 	For the `advmame' emulator type the roms informations are
 	gathered from the file `ENUNAME.lst'. If this file doesn't
