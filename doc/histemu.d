@@ -4,6 +4,14 @@ Name
 AdvanceMAME Version 0.77.2 2003/12
 	) Games with unemulated protection are now reported as not working.
 		For example Choplifter.
+	) The DOS version now automatically disable any BIOS call on ATI
+		boards to prevent problems on broken video BIOS.
+	) Improved the frame syncronization algorithm. It uses less
+		CPU power if the operating system have a fine sleep
+		granularity like Linux 2.6.x.
+	) Reverted back the S3 Savage/Virge/Trio SVGALIB driver at
+		version 1.9.17. At least with S3 VirgeDX there is
+		a regression in version 1.9.18.
 
 AdvanceMAME Version 0.77.1 2003/12
 	) The audio/video syncroniziation is now done by AdvanceMAME

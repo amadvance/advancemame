@@ -1,13 +1,26 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.2.16 2003/12
+	) The menu is now more aggressive using CPU power. It helps
+		playing video clips at more than 50 Hz and with
+		multiple clips.
+	) In the multi clip mode, the cursor clip and sound are now always
+		played at full speed. Only the background clips are played
+		in slow-motion if the CPU power isn't enough.
+	) The DOS version now automatically disable any BIOS call on ATI
+		boards to prevent problems on broken video BIOS.
+	) Reverted back the S3 Savage/Virge/Trio SVGALIB driver at
+		version 1.9.17. At least with S3 VirgeDX there is
+		a regression in version 1.9.18.
+
 AdvanceMENU Version 2.2.15 2003/12
 	) The mixer now uses a separate buffer for any sound effects.
 		This should decrease the sound overlapping of too long
 		sound buffers.
 	) Fixed a segmentation fault bug on the DOS SVGALIB driver for
 		ATI Rage boards.
-	) The ui_top/bottom/left/right values are now scaled accordling
+	) The ui_top/bottom/left/right values are now scaled according
 		to the ui_background image.
 
 AdvanceMENU Version 2.2.14 2003/11
@@ -54,7 +67,7 @@ AdvanceMENU Version 2.2.10 2003/09
 
 AdvanceMENU Version 2.2.9 2003/07
 	) Added support for importing the XML output of AdvanceMESS 0.71.0.0.
-	) Added support for ignoring the return code of the runned
+	) Added support for ignoring the return code of the executed
 		generic emulator. Simply put a '-' in front of the emulator
 		executable name.
 	) The number of listed games is now correct in any sort mode.
