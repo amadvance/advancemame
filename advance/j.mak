@@ -2,21 +2,21 @@
 # J
 
 JCFLAGS += \
-	-Iadvance/$(HOST_SYSTEM) \
+	-Iadvance/$(CONF_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/common
 JOBJDIRS = \
 	$(JOBJ) \
 	$(JOBJ)/j \
 	$(JOBJ)/lib \
-	$(JOBJ)/$(HOST_SYSTEM)
+	$(JOBJ)/$(CONF_SYSTEM)
 JOBJS = \
 	$(JOBJ)/j/j.o \
 	$(JOBJ)/lib/log.o \
 	$(JOBJ)/lib/conf.o \
 	$(JOBJ)/lib/incstr.o
 
-ifeq ($(HOST_SYSTEM),linux)
+ifeq ($(CONF_SYSTEM),linux)
 JCFLAGS += -DPREFIX=\"$(PREFIX)\"
 JCFLAGS += \
 	-DUSE_JOYSTICK_SVGALIB
@@ -24,10 +24,10 @@ JLIBS = -lvga
 JOBJS += \
 	$(JOBJ)/lib/filenix.o \
 	$(JOBJ)/lib/targnix.o \
-	$(JOBJ)/$(HOST_SYSTEM)/os.o
+	$(JOBJ)/$(CONF_SYSTEM)/os.o
 endif
 
-ifeq ($(HOST_SYSTEM),dos)
+ifeq ($(CONF_SYSTEM),dos)
 JCFLAGS += -DUSE_CONFIG_ALLEGRO_WRAPPER
 JLDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_string \
@@ -40,22 +40,22 @@ JLIBS = -lalleg
 JOBJS += \
 	$(JOBJ)/lib/filedos.o \
 	$(JOBJ)/lib/targdos.o \
-	$(JOBJ)/$(HOST_SYSTEM)/os.o
+	$(JOBJ)/$(CONF_SYSTEM)/os.o
 endif
 
-ifeq ($(HOST_SYSTEM),sdl)
+ifeq ($(CONF_SYSTEM),sdl)
 JCFLAGS += \
 	$(SDLCFLAGS) \
 	-DPREFIX=\"$(PREFIX)\" \
 	-DUSE_JOYSTICK_SDL
 JLIBS += $(SDLLIBS)
-JOBJS += $(JOBJ)/$(HOST_SYSTEM)/os.o
-ifeq ($(HOST_TARGET),linux)
+JOBJS += $(JOBJ)/$(CONF_SYSTEM)/os.o
+ifeq ($(CONF_HOST),linux)
 JOBJS += \
 	$(JOBJ)/lib/filenix.o \
 	$(JOBJ)/lib/targnix.o
 endif
-ifeq ($(HOST_TARGET),windows)
+ifeq ($(CONF_HOST),windows)
 JOBJS += \
 	$(JOBJ)/lib/filedos.o \
 	$(JOBJ)/lib/targwin.o
@@ -73,7 +73,7 @@ $(sort $(JOBJDIRS)):
 $(JOBJ)/advj$(EXE) : $(sort $(JOBJDIRS)) $(JOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(JLDFLAGS) $(JOBJS) $(JLIBS) -o $@
-ifeq ($(COMPRESS),1)
+ifeq ($(CONF_COMPRESS),yes)
 	$(UPX) $@
 	$(TOUCH) $@
 endif

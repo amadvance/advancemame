@@ -2,10 +2,10 @@ NAME
 	portio - Input/output on hardware ports
 
 SYNOPSYS
-	portio lpt?
-	portio ADDRESS_HEX
-	portio lpt? VALUE_HEX
-	portio ADDRESS_HEX VALUE_HEX
+	:portio lpt?
+	:portio ADDRESS_HEX
+	:portio lpt? VALUE_HEX
+	:portio ADDRESS_HEX VALUE_HEX
 
 DESCRIPTION
 	The `portio' utility can be used to drive the parallel port
@@ -27,19 +27,19 @@ DESCRIPTION
 EXAMPLES
 	Set all the parallel port data bits:
 
-		portio lpt1 ff
+		:portio lpt1 ff
 
 	Clear all the parallel port data bits:
 
-		portio lpt1 0
+		:portio lpt1 0
 
 	Set all bit on the port 80h
 	
-		portio 80 ff
+		:portio 80 ff
 
 	Set all the parallel port data bits in the config.sys:
 
-		device=c:\mame\portio.exe lpt1 ff
+		:device=c:\mame\portio.exe lpt1 ff
 
 COPYRIGHT
 	This file is Copyright (C) 2002 Andrea Mazzoleni.

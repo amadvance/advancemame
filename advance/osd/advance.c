@@ -499,6 +499,7 @@ static struct conf_conv STANDARD[] = {
 { "*", "input_map[*,track]", "*", "", "", "", 0 }, /* ignore */
 /* 0.61.2 */
 { "*", "misc_language", "*", "%s", "misc_languagefile", "%s", 0 },
+{ "*", "input_safeexit", "*", "%s", "misc_safequit", "%s", 0 },
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
@@ -558,6 +559,8 @@ int os_main(int argc, char* argv[])
 	if (advance_record_init(&context->record, cfg_context)!=0)
 		goto err_os;
 	if (advance_fileio_init(cfg_context)!=0)
+		goto err_os;
+	if (advance_safequit_init(&context->safequit,cfg_context)!=0)
 		goto err_os;
 	if (hardware_script_init(cfg_context)!=0)
 		goto err_os;
@@ -681,6 +684,8 @@ int os_main(int argc, char* argv[])
 		goto err_os;
 	if (advance_fileio_config_load(cfg_context, &option) != 0)
 		goto err_os;
+	if (advance_safequit_config_load(&context->safequit,cfg_context) != 0)
+		goto err_os;
 	if (hardware_script_config_load(cfg_context) != 0)
 		goto err_os;
 
@@ -705,7 +710,7 @@ int os_main(int argc, char* argv[])
 		goto err_os_inner;
 	if (advance_fileio_inner_init()!=0)
 		goto err_os_inner;
-	if (advance_safequit_inner_init(&option)!=0)
+	if (advance_safequit_inner_init(&context->safequit, &option)!=0)
 		goto err_os_inner;
 	if (hardware_script_inner_init()!=0)
 		goto err_os_inner;
@@ -717,7 +722,7 @@ int os_main(int argc, char* argv[])
 	log_std(("advance: *_inner_done()\n"));
 
 	hardware_script_inner_done();
-	advance_safequit_inner_done();
+	advance_safequit_inner_done(&context->safequit);
 	advance_fileio_inner_done();
 	advance_input_inner_done(&context->input);
 	advance_video_inner_done(&context->video);
@@ -729,6 +734,7 @@ int os_main(int argc, char* argv[])
 	log_std(("advance: *_done()\n"));
 
 	hardware_script_done();
+	advance_safequit_done(&context->safequit);
 	advance_fileio_done();
 	advance_record_done(&context->record);
 	advance_input_done(&context->input);

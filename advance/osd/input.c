@@ -405,7 +405,6 @@ int advance_input_init(struct advance_input_context* context, struct conf_contex
 	conf_bool_register_default(cfg_context, "input_hotkey", 1);
 	conf_bool_register_default(cfg_context, "input_steadykey", 0);
 	conf_int_register_default(cfg_context, "input_idleexit", 0);
-	conf_bool_register_default(cfg_context, "input_safeexit", 0);
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
 		unsigned j;
@@ -509,7 +508,6 @@ int advance_input_config_load(struct advance_input_context* context, struct conf
 	context->config.disable_special_flag = !conf_bool_get_default(cfg_context, "input_hotkey");
 	context->config.steadykey_flag = conf_bool_get_default(cfg_context, "input_steadykey");
 	context->config.input_idle_limit = conf_int_get_default(cfg_context, "input_idleexit");
-	context->config.input_safe_exit_flag = conf_bool_get_default(cfg_context, "input_safeexit");
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
 		unsigned j;
@@ -608,20 +606,13 @@ int advance_input_config_load(struct advance_input_context* context, struct conf
 	return 0;
 }
 
-int advance_input_exit_filter(struct advance_input_context* context, int result_memory) {
+int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, int result_memory) {
 	if (context->state.input_forced_exit_flag)
 		return 2;
 
-	if (!context->config.input_safe_exit_flag) {
-		if (result_memory)
-			return 2;
-		else
-			return 0;
-	}
+	advance_safequit_update(safequit_context);
 
-	advance_safequit_update();
-
-	if (advance_safequit_can_exit()) {
+	if (advance_safequit_can_exit(safequit_context)) {
 		if (result_memory)
 			return 2;
 		else

@@ -1,0 +1,310 @@
+# Process this file with autoconf to produce a configure script.
+AC_INIT([advance],[source])
+AC_CANONICAL_HOST
+AC_PREREQ([2.53])
+AC_COPYRIGHT([Copyright 2002 Andrea Mazzoleni])
+
+# Checks for system.
+
+case "$host" in
+	*-*-linux*)
+		ac_host=linux
+		AC_SUBST([EXE],[])
+	;;
+	*-*-cygwin* | *-*-mingw32*)
+		ac_host=windows
+		AC_SUBST([EXE],[.exe])
+	;;
+	*-*-msdos*)
+		ac_host=dos
+		AC_SUBST([EXE],[.exe])
+	;;
+	*)
+		AC_MSG_ERROR([Unsupported host environment: Please add to configure.ac])
+        ;;
+esac
+AC_SUBST([CONF_HOST],[$ac_host])
+
+case "$build" in
+	*-*-linux*)
+		ac_build=linux
+		AC_SUBST([EXE_BUILD],[])
+	;;
+	*-*-cygwin* | *-*-mingw32*)
+		ac_build=windows
+		AC_SUBST([EXE_BUILD],[.exe])
+	;;
+	*-*-msdos*)
+		ac_build=dos
+		AC_SUBST([EXE_BUILD],[.exe])
+	;;
+	*)
+		AC_MSG_ERROR([Unsupported build environment: Please add to configure.ac])
+        ;;
+esac
+AC_SUBST([CONF_BUILD],[$ac_build])
+
+if test -z "$CFLAGS" ; then
+	CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused"
+fi
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_CHECK_TOOLS(AR, ar)
+AC_CHECK_TOOLS(RC, windres)
+AC_CHECK_PROGS(TAR, tar)
+AC_CHECK_PROGS(GZIP, gzip)
+AC_CHECK_PROGS(ASM, nasm)
+AC_CHECK_PROGS(CC_BUILD, gcc cc)
+AC_CHECK_PROGS(CXX_BUILD, g++ gxx c++ cxx)
+
+AC_C_BIGENDIAN(
+	[ac_is_bigendian=yes],
+	[ac_is_bigendian=no]
+)
+if test $ac_is_bigendian = yes; then
+	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_MSB"
+else
+	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_LSB"
+fi
+
+# Checks for libraries.
+AC_CHECK_LIB(
+	[z],
+	[adler32],
+	[],
+	AC_MSG_ERROR([The zlib library is required])
+)
+
+# Checks for header files.
+# Checks for typedefs, structures, and compiler characteristics.
+# Checks for library functions.
+
+# Checks for command line options.
+AC_ARG_WITH(
+	[emu],
+	AC_HELP_STRING([--with-emu],[select the emulator to use: mame, mess, neomame, cpmame, pac, none (default auto)]),
+	[ac_with_emu=$withval],
+	[ac_with_emu=auto]
+)
+if test $ac_with_emu = auto; then
+	if test -d $srcdir/src ; then
+		ac_with_emu=mame
+	elif test -d $srcdir/srcmess ; then
+		ac_with_emu=mess
+	elif test -d $srcdir/srcpac ; then
+		ac_with_emu=pac
+	else
+		ac_with_emu=none
+	fi
+fi
+if test $ac_with_emu = mame -o $ac_with_emu = neomame -o $ac_with_emu = cpmame; then
+	if test ! -f $srcdir/src/mame.mak ; then
+		AC_MSG_ERROR([You need the MAME source in the src/ directory])
+	fi
+	if test ! -f $srcdir/src/advance.pat ; then
+		AC_MSG_ERROR([You must patch the MAME source in src/ with the advance/advmame.dif patch])
+	fi
+elif test $ac_with_emu = mess; then
+	if test ! -f $srcdir/srcmess/mame.mak ; then
+		AC_MSG_ERROR([You need the MESS source in the srcmess directory])
+	fi
+	if test ! -f $srcdir/mess/mess.mak ; then
+		AC_MSG_ERROR([You need the MESS source in the srcmess directory])
+	fi
+	if test ! -f $srcdir/srcmess/advance.pat ; then
+		AC_MSG_ERROR([You must patch the MESS source in srcmess/ with the advance/advmess.dif patch])
+	fi
+elif test $ac_with_emu = pac; then
+	if test ! -f $srcdir/srcpac/mame.mak ; then
+		AC_MSG_ERROR([You need the PacMAME source in the srcpac directory])
+	fi
+	if test ! -f $srcdir/srcpac/advance.pat ; then
+		AC_MSG_ERROR([You must patch the PacMAME source in srcpac/ with the advance/advpac.dif patch])
+	fi
+elif test ! $ac_with_emu = none; then
+	AC_MSG_ERROR([Unknown emulator $ac_with_emu])
+fi
+AC_SUBST(CONF_EMU,$ac_with_emu)
+
+AC_ARG_WITH(
+	[system],
+	AC_HELP_STRING([--with-system],[select the system to use: native or sdl. (default auto)]),
+	[ac_with_system=$withval],
+	[ac_with_system=auto]
+)
+if test $ac_with_system = auto; then
+	if test $ac_host = dos; then
+		ac_with_system=native
+	elif test $ac_host = windows; then
+		ac_with_system=sdl
+	elif test $ac_with_emu = none; then
+		ac_with_system=sdl
+	else
+		ac_with_system=native
+	fi
+fi
+if test $ac_with_system = sdl; then
+	if test -z ${host_alias} ; then
+		AC_CHECK_PROGS(
+			[SDLCONFIG],
+			[sdl-config],
+			[none]
+		)
+	else
+		AC_CHECK_PROGS(
+			[SDLCONFIG],
+			[${host_alias}-sdl-config],
+			[none]
+		)
+	fi
+	if test $SDLCONFIG = none; then
+		AC_MSG_ERROR([The sdl-config script is required for the "sdl" system])
+	fi
+
+	SDLCFLAGS=`$SDLCONFIG --cflags`
+	SDLLIBS=`$SDLCONFIG --libs`
+	AC_CHECK_LIB(
+		[SDL],
+		[SDL_Init],
+		[],
+		AC_MSG_ERROR([The SDL library is required for the "sdl" system]),
+		[$SDLLIBS]
+	)
+	AC_SUBST(SDLCFLAGS)
+	AC_SUBST(SDLLIBS)
+elif test $ac_with_system = native; then
+	if test $ac_host = dos; then
+		AC_CHECK_LIB(
+			[alleg],
+			[install_allegro],
+			[ac_library_allegro=yes],
+			[ac_library_allegro=no]
+		)
+		if test $ac_library_allegro = no; then
+			AC_MSG_ERROR([The Allegro library is required for the "native" system])
+		fi
+		AC_CHECK_LIB(
+			[audio],
+			[AInitialize],
+			[ac_library_seal=yes],
+			[ac_library_seal=no]
+		)
+		if test $ac_library_seal = no; then
+			AC_MSG_ERROR([The SEAL library is required for the "native" system])
+		fi
+	else
+		AC_CHECK_LIB(
+			[vga],
+			[vga_init],
+			[ac_library_vga=yes],
+			[ac_library_vga=no]
+		)
+		if test $ac_library_vga = no; then
+			AC_MSG_ERROR([The vgalib library is required for the "native" system])
+		fi
+		AC_TRY_COMPILE(
+			[#include <vga.h>],
+			[#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
+			choke me
+			#endif],
+			[ac_library_vga_version=yes],
+			[ac_library_vga_version=no]
+		)
+		if test $ac_library_vga_version = no; then
+			AC_MSG_ERROR([Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version])
+		fi
+	fi
+elif test $ac_with_system = none; then
+	AC_MSG_ERROR([You must specify a --with-system= option])
+else
+	AC_MSG_ERROR([Unknown system $ac_with_system])
+fi
+AC_SUBST([CONF_SYSTEM],[$ac_with_system])
+
+# Checks for command line options.
+AC_ARG_ENABLE(
+	[smp],
+	AC_HELP_STRING([--enable-smp],[enable the multi processor support (default yes)]),
+	[ac_enable_smp=$enableval],
+	[ac_enable_smp=yes]
+)
+AC_SUBST([CONF_SMP],[$ac_enable_smp])
+
+AC_ARG_ENABLE(
+	[debugger],
+	AC_HELP_STRING([--enable-debugger],[enable the emulator debugger (default no)]),
+	[ac_enable_debugger=$enableval],
+	[ac_enable_debugger=no]
+)
+AC_SUBST([CONF_DEBUGGER],[$ac_enable_debugger])
+
+AC_ARG_ENABLE(
+	[compress],
+	AC_HELP_STRING([--enable-compress],[enable the compression of the executable (default no)]),
+	[ac_enable_compress=$enableval],
+	[ac_enable_compress=no]
+)
+if test $ac_enable_compress = yes; then
+	AC_CHECK_PROGS(
+		[UPX],
+		[upx],
+		AC_MSG_ERROR([The upx program is required for compressing])
+	)
+	AC_CHECK_PROGS(
+		[TOUCH],
+		[touch],
+		AC_MSG_ERROR([The touch program is required for compressing])
+	)
+fi
+AC_SUBST([CONF_COMPRESS],[$ac_enable_compress])
+
+AC_ARG_ENABLE(
+	[asm],
+	AC_HELP_STRING([--enable-asm],[enable the 586 optimizations (default yes)]),
+	[ac_enable_asm=$withval],
+	[ac_enable_asm=yes]
+)
+if test $ac_enable_asm = yes; then
+	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
+fi
+
+# Export the architecture CFLAGS
+AC_SUBST([CONF_CFLAGS_ARCH],[$CFLAGS_ARCH])
+
+# Export the optimization CFLAGS
+AC_SUBST([CONF_CFLAGS_OPT],[$CFLAGS])
+
+# Notify that ./configure was runned
+AC_SUBST([CONF],[yes])
+
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+
+echo ""
+echo "== Configuration =="
+echo "Build environment :" $ac_build "("$build")"
+echo "Host environment :" $ac_host "("$host")"
+if test $ac_is_bigendian = yes; then
+	echo "Host endianess : big"
+else
+	echo "Host endianess : little"
+fi
+if test $ac_enable_smp = yes; then
+	echo "Host processor : single/multi processor"
+else
+	echo "Host processor : single processor"
+fi
+echo "System library :" $ac_with_system
+echo "Emulator to compile :" $ac_with_emu
+if test $ac_enable_asm = yes; then
+	echo "Assembler for Pentium : yes"
+else
+	echo "Assembler for Pentium : no"
+fi
+echo "Compress executables :" $ac_enable_compress
+echo "Emulator debugger :" $ac_enable_debugger
+echo "CFLAGS :" $CFLAGS
+

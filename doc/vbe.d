@@ -2,7 +2,7 @@ NAME
 	vbe - VBE mode remapper
 
 SYNOPSYS
-	vbe [/l] [/u] [/c CONFIG]
+	:vbe [/l] [/u] [/c CONFIG]
 
 DESCRIPTION
 	The `vbe' utility is a TSR (Terminate Stay Resident) VBE BIOS
@@ -20,13 +20,13 @@ DESCRIPTION
 
 	These are some example rc files:
 
-		ntsc.rc - NTSC TV
-		pal.rc - PAL TV
-		standard.rc - Arcade Standard Resolution (15 kHz)
-		medium.rc - Arcade Medium Resolution (25 kHz)
-		extended.rc - Arcade Extended Resolution (16.5 kHz)
-		pcvga.rc - VGA PC Monitor
-		pcmult.rc - SVGA PC Multisync Monitor
+		ntsc.rc - NTSC TV.
+		pal.rc - PAL TV.
+		standard.rc - Arcade Standard Resolution (15 kHz).
+		medium.rc - Arcade Medium Resolution (25 kHz).
+		extended.rc - Arcade Extended Resolution (16.5 kHz).
+		pcvga.rc - VGA PC Monitor.
+		pcmult.rc - SVGA PC Multisync Monitor.
 
 	All the modelines present in the configuration files are used
 	to create the list of available VBE mode. For every modeline
@@ -51,36 +51,36 @@ CARDS SUPPORTED
 	`Scitech Display Doctor' (SDD) program to work correctly.
 
 	3dfx - 3dfx (interlaced modes not supported)
-		Banshee, Voodoo3, Voodoo5
+		:Banshee, Voodoo3, Voodoo5
 
 	cirrus - Cirrus Logic (with SDD)
-		GD542?, GD5428, GD543?
+		:GD542?, GD5428, GD543?
 
 	s3 - S3 (with SDD)
-		ViRGE, Vision 866, Vision 964, Trio32, Trio64, Trio64V+
-		Aurora64V+, Trio64UV+, ViRGE/VX, 868, 928, 864, 964, 968,
-		Trio64 V2/DX, Trio64V2, ViRGE/DX, ViRGE/GX, ViRGE/GX2
+		:ViRGE, Vision 866, Vision 964, Trio32, Trio64, Trio64V+
+		:Aurora64V+, Trio64UV+, ViRGE/VX, 868, 928, 864, 964, 968,
+		:Trio64 V2/DX, Trio64V2, ViRGE/DX, ViRGE/GX, ViRGE/GX2
 
 	sis - SiS
-		6326, 620, 530, 300, 630, 540
+		:6326, 620, 530, 300, 630, 540
 
 	savage - S3 Savage
-		Savage 3D, Savage 3DM, Savage 4
+		:Savage 3D, Savage 3DM, Savage 4
 
 	neomagic - NeoMagic (interlaced modes not supported)
-		MagicGraph 128 (NM2070), 128V (NM2090), 128ZV (NM2093)
-		128ZV+ (NM2097), 128XD (NM2160)
-		MagicMedia 256AV (NM2200), 256ZX (NM2360), 256XL+ (NM2380)
+		:MagicGraph 128 (NM2070), 128V (NM2090), 128ZV (NM2093)
+		:128ZV+ (NM2097), 128XD (NM2160)
+		:MagicMedia 256AV (NM2200), 256ZX (NM2360), 256XL+ (NM2380)
 
 	trident - Trident (without SDD)
-		TGUI 9320, TGUI 9420, TGUI 9440, TGUI 9660
-		Providia 9682, Providia 9685
-		Cyber 9397, Cyber 9397/DVD, Cyber 9385, Cyber 9385-1
-		Cyber 9382, Cyber 9388, Cyber 9397, Cyber 939A/DVD, Cyber 9520
-		Cyber 9525/DVD, Cyber 9540
-		3DImage975, 3DImage985
-		CyberBlade/i7, CyberBlade/DSTN/i7, CyberBlade/i1, CyberBlade/DSTN/i1
-		Blade3D, Blade3D/T64
+		:TGUI 9320, TGUI 9420, TGUI 9440, TGUI 9660
+		:Providia 9682, Providia 9685
+		:Cyber 9397, Cyber 9397/DVD, Cyber 9385, Cyber 9385-1
+		:Cyber 9382, Cyber 9388, Cyber 9397, Cyber 939A/DVD, Cyber 9520
+		:Cyber 9525/DVD, Cyber 9540
+		:3DImage975, 3DImage985
+		:CyberBlade/i7, CyberBlade/DSTN/i7, CyberBlade/i1, CyberBlade/DSTN/i1
+		:Blade3D, Blade3D/T64
 
 	vbe3 - (interlaced modes rarely supported)
 		Any video boards with a VBE3 BIOS which is also VGA
@@ -126,23 +126,22 @@ TESTS
 EXAMPLES
 	Load it:
 
-		vbe /l
+		:vbe /l
 
 	Load it with an arbitrary configuration file:
 
-		vbe /l /c c:\cab\myconf.rc
+		:vbe /l /c c:\cab\myconf.rc
 
 	Unload it:
 
-		vbe /u
+		:vbe /u
 
 	You can force a specific vbeline driver adding the
 	`device_video vbeline/DRIVER' option in your configuration
 	file.
 
 	For example :
-
-		device_video vbeline/vbe3
+		:device_video vbeline/vbe3
 
 BUGS
 	The configuration file is checked only for the

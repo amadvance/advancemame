@@ -2,7 +2,7 @@ NAME
 	video - Video control
 
 SYNOPSYS
-	video [/l PCXIMAGE] [/s MODE] [/e] [/d] [/r]
+	:video [/l PCXIMAGE] [/s MODE] [/e] [/d] [/r]
 
 DESCRIPTION
 	The `video' utility can be used to control the video
@@ -38,14 +38,14 @@ EXAMPLE
 	A good configuration for Arcade monitors/TVs may be:
 
 	(in config.sys)
-		device=c:\cab\video.exe /l c:\cab\video.pcx
-		device=c:\cab\vga.exe /l /d /c c:\cab\vga.rc
-		...other commands...
+		:device=c:\cab\video.exe /l c:\cab\video.pcx
+		:device=c:\cab\vga.exe /l /d /c c:\cab\vga.rc
+		:...other commands...
 
 	(in autoexec.bat)
-		...other commands...
-		c:\cab\vga /e
-		...final application...
+		:...other commands...
+		:c:\cab\vga /e
+		:...final application...
 
 COPYRIGHT
 	This file is Copyright (C) 2002 Andrea Mazzoleni.

@@ -2,7 +2,7 @@ NAME
 	vga - VGA mode remapper
 
 SYNOPSYS
-	vga [/l] [/u] [/a] [/c CONFIG] [/d] [/e]
+	:vga [/l] [/u] [/a] [/c CONFIG] [/d] [/e]
 
 DESCRIPTION
 	The `vga' utility is a TSR (Terminate Stay Resident) VGA BIOS
@@ -21,20 +21,20 @@ DESCRIPTION
 
 	These are some example rc files:
 
-		ntsc.rc - NTSC TV
-		pal.rc - PAL TV
-		standard.rc - Arcade Standard Resolution (15 kHz)
-		medium.rc - Arcade Medium Resolution (25 kHz)
-		extended.rc - Arcade Extended Resolution (16.5 kHz)
-		pcvga.rc - VGA PC Monitor
-		pcmult.rc - SVGA PC Multisync Monitor
+		ntsc.rc - NTSC TV.
+		pal.rc - PAL TV.
+		standard.rc - Arcade Standard Resolution (15 kHz).
+		medium.rc - Arcade Medium Resolution (25 kHz).
+		extended.rc - Arcade Extended Resolution (16.5 kHz).
+		pcvga.rc - VGA PC Monitor.
+		pcmult.rc - SVGA PC Multisync Monitor.
 	
 	From all the modelines in the configuration file three of them
 	are chosen for the standard VGA mode 1h, 3h and 13h.
 
-		1h - width of 40*9 or 40*8 pixel
-		3h - width of 80*9 or 80*8 pixel
-		13h - width of 320 pixel and height of 200
+		1h - width of 40*9 or 40*8 pixel.
+		3h - width of 80*9 or 80*8 pixel.
+		13h - width of 320 pixel and height of 200.
 
 	All the other modelines are used to adjust any other XMode
 	detected. When the current video mode width and height match
@@ -72,7 +72,7 @@ OPTIONS
 	You can force a video mode reset in text mode using the standard
 	DOS command:
 
-		mode co80
+		:mode co80
 
 	or with the `video' utility.
 
@@ -101,29 +101,29 @@ LIMITATIONS
 EXAMPLES
 	Load it:
 
-		vga /l
+		:vga /l
 
 	Load it with an arbitrary configuration file:
 
-		vga /l /c c:\myconf.rc
+		:vga /l /c c:\myconf.rc
 
 	Unload it:
 
-		vga /u
+		:vga /u
 
 	Load it in the config.sys file:
 
-		device=c:\cab\vga.exe /l /c c:\cab\vga.rc
+		:device=c:\cab\vga.exe /l /c c:\cab\vga.rc
 
 	Adjust the current video mode in the config.sys without loading
 	in memory the utility:
 
-		device=c:\cab\vga.exe /a /c c:\cab\vga.rc
+		:device=c:\cab\vga.exe /a /c c:\cab\vga.rc
 
 	Adjust the current video mode in the config.sys and disable
 	all the video output:
 
-		device=c:\cab\vga.exe /l /d /c c:\cab\vga.rc
+		:device=c:\cab\vga.exe /l /d /c c:\cab\vga.rc
 
 	the latter is probably the most interesting use. You can load
 	`vga' as soon as possible to adjust the video output and prevent
@@ -132,7 +132,7 @@ EXAMPLES
 	After the system is inizialized you can insert in the autoexec.bat
 	the command:
 
-		c:\cab\vga /e
+		:c:\cab\vga /e
 
 	to reenable the video output.
 

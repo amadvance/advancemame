@@ -1,22 +1,18 @@
-#
-# AdvanceMAME
-#
-
 #############################################################################
-# Basic configuration
+# User configuration
 #
 
 # Installation prefix (only for Linux):
-PREFIX=/usr/local
+PREFIX=@prefix@
 
 # Select the emu executable (mame by default)
 # The available choices are: mame, neomame, cpmame, mess, pac
-#EMU = mame
+#CONF_EMU = mame
 
-# Uncommment the target operating system or the current one is used:
-#HOST_TARGET=linux
-#HOST_TARGET=dos
-#HOST_TARGET=windows
+# Uncommment the host operating system (default is the current one):
+#CONF_HOST=linux
+#CONF_HOST=dos
+#CONF_HOST=windows
 
 # Uncomment the main system library to use.
 # The available choices for Linux are :
@@ -51,14 +47,14 @@ PREFIX=/usr/local
 # it's unable to completly control the graphics output. It isn't a good
 # choice for a fullscreen use of the programs.
 #
-#HOST_SYSTEM=linux
-#HOST_SYSTEM=dos
-#HOST_SYSTEM=sdl
+#CONF_SYSTEM=linux
+#CONF_SYSTEM=dos
+#CONF_SYSTEM=sdl
 
-# Uncomment to enable the SMP (Multiprocessor) code:
-USE_SMP=1
+# Uncomment and set to "yes" to enable the SMP (Multiprocessor) code:
+#CONF_SMP=yes
 
-# Select the target architecture CFLAGS (i686 by default)
+# Select the architecture CFLAGS (i686 by default)
 # The available choices for the -march= option with gcc-2.95 are:
 #   i386, i486, i586, i686
 # The available choices for the -march= option with gcc-3.0 are:
@@ -68,151 +64,174 @@ USE_SMP=1
 #   pentium3, pentium4, k6, k6-2, k6-3, athlon, athlon-tbird, athlon-4,
 #   athlon-xp, athlon-mp
 # for i586
-#CFLAGS_ARCH = -march=i586 -DUSE_LSB -DUSE_ASM_i586
+#CONF_CFLAGS_ARCH = -march=i586 -DUSE_LSB -DUSE_ASM_i586
 # for i686
-CFLAGS_ARCH = -march=i686 -DUSE_LSB -DUSE_ASM_i586 -DUSE_ASM_MMX
+#CONF_CFLAGS_ARCH = -march=i686 -DUSE_LSB -DUSE_ASM_i586
 # for k6
-#CFLAGS_ARCH = -march=k6 -DUSE_LSB -DUSE_ASM_i586 -DUSE_ASM_MMX
+#CONF_CFLAGS_ARCH = -march=k6 -DUSE_LSB -DUSE_ASM_i586
 # for generic LittleEndian
-#CFLAGS_ARCH = -DUSE_LSB
+#CONF_CFLAGS_ARCH = -DUSE_LSB
 # for generic BigEndian
-#CFLAGS_ARCH = -DUSE_MSB
+#CONF_CFLAGS_ARCH = -DUSE_MSB
 
-# Compilation option for the optimized build
-CFLAGS_OPTIMIZE = -O3 -fomit-frame-pointer -fstrict-aliasing
+# Select the optimization flags: (optimized buil by default)
+# Optimized build
+#CONF_CFLAGS_OPT = -O3 -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused
+# Profile build
+#CONF_CFLAGS_OPT = -O3 -pg -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused
+# Debug build
+#CONF_CFLAGS_OPT = -O0 -g -Wall -Wno-sign-compare -Wno-unused
 
-# Compilation option for the debug build
-CFLAGS_DEBUG = -O0
+# Uncomment and set to "yes" to compile the MAME debugger:
+#CONF_DEBUGGER=no
 
-# Uncomment to compile the MAME debugger:
-#DEBUG=1
-
-# Uncomment to generate the profiling information:
-#PROFILE=1
-
-# Uncomment to generate the debug symbols:
-#SYMBOLS=1
-
-# Uncomment to generate the map file:
-#MAP=1
-
-# Uncomment to compress the executable:
-COMPRESS=1
+# Uncomment and set to "yes" to compress the executable:
+#CONF_COMPRESS=no
 
 #############################################################################
-# System options
+# Override configuration
+
+ifeq (@CONF@,yes)
+CONF_EMU=@CONF_EMU@
+CONF_BUILD=@CONF_BUILD@
+CONF_HOST=@CONF_HOST@
+CONF_SYSTEM=@CONF_SYSTEM@
+CONF_SMP=@CONF_SMP@
+CONF_CFLAGS_ARCH=@CONF_CFLAGS_ARCH@
+CONF_CFLAGS_OPT=@CONF_CFLAGS_OPT@
+CONF_DEBUGGER=@CONF_DEBUGGER@
+CONF_COMPRESS=@CONF_COMPRESS@
+endif
+
+#############################################################################
+# Default configuration
 #
 
-# Build environment
-HOST := $(shell uname)
-ifneq (,$(findstring Linux,$(HOST)))
-HOST_BUILD=linux
-else
-ifneq (,$(findstring DOS,$(HOST)))
-HOST_BUILD=dos
-else
-HOST_BUILD=windows
+# Automatic EMU detection by source
+ifeq ($(CONF_EMU),)
+ifneq ($(wildcard src),)
+CONF_EMU = mame
+endif
+endif
+ifeq ($(CONF_EMU),)
+ifneq ($(wildcard srcmess),)
+CONF_EMU = mess
+endif
+endif
+ifeq ($(CONF_EMU),)
+ifneq ($(wildcard srcpac),)
+CONF_EMU = pac
 endif
 endif
 
-# Target environment
-ifndef HOST_TARGET
-HOST_TARGET=$(HOST_BUILD)
-endif
-
-# System environment
-ifndef HOST_SYSTEM
-ifeq ($(HOST_TARGET),windows)
-HOST_SYSTEM=sdl
+ifndef CONF_BUILD
+UNAME := $(shell uname)
+ifneq (,$(findstring Linux,$(UNAME)))
+CONF_BUILD=linux
 else
-HOST_SYSTEM=$(HOST_TARGET)
-endif
-endif
-
-# Binary description
-ifeq ($(HOST_TARGET),$(HOST_SYSTEM))
-BINARYTAG = $(HOST_TARGET)-native-$(ARCH)
+ifneq (,$(findstring DOS,$(UNAME)))
+CONF_BUILD=dos
 else
-BINARYTAG = $(HOST_TARGET)-$(HOST_SYSTEM)-$(ARCH)
+CONF_BUILD=windows
 endif
-BINARYDIR = $(HOST_TARGET)/$(HOST_SYSTEM)/$(ARCH)
-BINARYDIR-HOST = $(HOST_BUILD)
+endif
+endif
 
-# Check
-ifeq (,$(findstring $(HOST_TARGET),/linux/dos/windows/))
-$(error Invalid HOST_TARGET=$(HOST_TARGET))
+ifndef CONF_HOST
+CONF_HOST=$(CONF_BUILD)
 endif
-ifeq (,$(findstring $(HOST_SYSTEM),/linux/dos/sdl/))
-$(error Invalid HOST_SYSTEM=$(HOST_SYSTEM))
-endif
-ifeq ($(HOST_TARGET),linux)
-ifeq (,$(findstring $(HOST_SYSTEM),/linux/sdl/))
-$(error Unsupported HOST_SYSTEM=$(HOST_SYSTEM) for HOST_TARGET=$(HOST_TARGET))
-endif
-endif
-ifeq ($(HOST_TARGET),dos)
-ifeq (,$(findstring $(HOST_SYSTEM),/dos/))
-$(error Unsupported HOST_SYSTEM=$(HOST_SYSTEM) for HOST_TARGET=$(HOST_TARGET))
+
+ifndef CONF_SYSTEM
+ifeq ($(CONF_HOST),windows)
+CONF_SYSTEM=sdl
+else
+CONF_SYSTEM=$(CONF_HOST)
 endif
 endif
-ifeq ($(HOST_TARGET),windows)
-ifeq (,$(findstring $(HOST_SYSTEM),/sdl/))
-$(error Unsupported HOST_SYSTEM=$(HOST_SYSTEM) for HOST_TARGET=$(HOST_TARGET))
+
+ifndef CONF_SMP
+CONF_SMP=yes
 endif
+
+ifndef CONF_CFLAGS_ARCH
+CONF_CFLAGS_ARCH = -march=i686 -DUSE_LSB -DUSE_ASM_i586
+endif
+
+ifndef CONF_CFLAGS_OPT
+CONF_CFLAGS_OPT = -O3 -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused
+endif
+
+ifndef CONF_DEBUGGER
+CONF_DEBUGGER=no
+endif
+
+ifndef CONF_COMPRESS
+CONF_COMPRESS=no
+endif
+
+#############################################################################
+# Extra configuration
+
+# Enable the creation of the map files
+ifndef CONF_MAP
+CONF_MAP=no
+endif
+
+# Name of the architecture. Used in the distribution name files.
+ifndef CONF_ARCH
+CONF_ARCH=def
 endif
 
 ############################################################################
-# Tool options
+# Default Tools configuration
 
 MAKE = @make -j 2
 MD = -@mkdir -p
 RM = @rm -f
 ECHO = @echo
-# Don't add the prefix @. This command must be used also in a sheel
+# Don't add the prefix @. This command must be used also in a shell
 INSTALL = install
 INSTALL_PROGRAM_DIR = $(INSTALL) -d -o root -g bin -m 755
 INSTALL_MAN_DIR = $(INSTALL) -d -o root -g 0 -m 755
 INSTALL_DATA_DIR = $(INSTALL) -d -o root -g bin -m 755
 INSTALL_PROGRAM = $(INSTALL) -c -o root -g bin -m 555
-INSTALL_PROGRAM_STRIP = $(INSTALL) -c -s -o root -g bin -m 555
 INSTALL_MAN = $(INSTALL) -c -o root -g bin -m 444
 INSTALL_DATA = $(INSTALL) -c -o root -g bin -m 644
 
-ifeq ($(HOST_TARGET),linux)
-# Don't compress the linux executables. I like to see the ldd dependencies.
-UPX = @true
+ifeq ($(CONF_HOST),linux)
+UPX = @upx -q -q -q
 LN = @ln -s
 EXE =
 ASMFLAGS = -f elf
-CFLAGS-HOST = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_ELF
+CFLAGS_BUILD = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_ELF
 ZLIBS = -lz
 endif
-ifeq ($(HOST_TARGET),dos)
+ifeq ($(CONF_HOST),dos)
 UPX = @upx -q -q -q
 LN = @cp
 EXE = .exe
 ASMFLAGS = -f coff
-CFLAGS-HOST = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
+CFLAGS_BUILD = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
 ZLIBS = -lz
 endif
-ifeq ($(HOST_TARGET),windows)
+ifeq ($(CONF_HOST),windows)
 UPX = @upx -q -q -q
 LN = @cp
 EXE = .exe
 ASMFLAGS = -f coff
-CFLAGS-HOST = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
+CFLAGS_BUILD = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
 ZLIBS = -static -lz
 endif
 
-ifeq ($(HOST_BUILD),linux)
+ifeq ($(CONF_BUILD),linux)
 ASM = @nasm
-EXE-HOST =
-CC-HOST = @gcc
-CXX-HOST = @g++
-LD-HOST = @gcc
-LDXX-HOST = @g++
+EXE_BUILD =
+CC_BUILD = @gcc
+CXX_BUILD = @g++
+LD_BUILD = @gcc
+LDXX_BUILD = @g++
 TOUCH = @touch
-ifeq ($(HOST_TARGET),linux)
+ifeq ($(CONF_HOST),linux)
 AR = @ar
 CC = @gcc
 CXX = @g++
@@ -225,7 +244,7 @@ endif
 SDLCFLAGS = $(shell sdl-config --cflags)
 SDLLIBS = $(shell sdl-config --libs)
 endif
-ifeq ($(HOST_TARGET),dos)
+ifeq ($(CONF_HOST),dos)
 # Probably you need to changes these to cross compile:
 CROSSTARGET = i586-pc-msdosdjgpp
 CROSSDIR = /usr
@@ -235,7 +254,7 @@ CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
 LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc -B$(CROSSDIR)/bin/
 LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++ -B$(CROSSDIR)/bin/
 endif
-ifeq ($(HOST_TARGET),windows)
+ifeq ($(CONF_HOST),windows)
 # Probably you need to changes these to cross compile:
 CROSSTARGET = i386-mingw32msvc
 CROSSDIR = /usr/local/cross-tools
@@ -250,13 +269,13 @@ SDLLIBS = -lSDL -mwindows
 endif
 endif
 
-ifeq ($(HOST_BUILD),dos)
+ifeq ($(CONF_BUILD),dos)
 ASM = @nasm
-EXE-HOST = .exe
-CC-HOST = @gcc
-LD-HOST = @gcc
-CXX-HOST = @gxx
-LDXX-HOST = @gxx
+EXE_BUILD = .exe
+CC_BUILD = @gcc
+LD_BUILD = @gcc
+CXX_BUILD = @gxx
+LDXX_BUILD = @gxx
 AR = @ar
 CC = @gcc
 CXX = @gxx
@@ -265,13 +284,13 @@ LDXX = @gxx
 TOUCH = @rem
 endif
 
-ifeq ($(HOST_BUILD),windows)
+ifeq ($(CONF_BUILD),windows)
 ASM = @nasmw
-EXE-HOST = .exe
-CC-HOST = @gcc
-LD-HOST = @gcc
-CXX-HOST = @g++
-LDXX-HOST = @g++
+EXE_BUILD = .exe
+CC_BUILD = @gcc
+LD_BUILD = @gcc
+CXX_BUILD = @g++
+LDXX_BUILD = @g++
 AR = @ar
 CC = @gcc
 CXX = @g++
@@ -285,65 +304,101 @@ SDLLIBS = -lSDL -mwindows
 endif
 
 #############################################################################
-# Architecture options
+# Override Tools configuration
 
-# Default architecture name
-ifeq ($(ARCH),)
-ARCH = def
-endif
-
-# Override of the default option
-ifneq ($(CFLAGS_ARCH_OVERRIDE),)
-CFLAGS += $(CFLAGS_ARCH_OVERRIDE)
-else
-CFLAGS += $(CFLAGS_ARCH)
+ifeq (@CONF@,yes)
+INSTALL=@INSTALL@
+CC=@@CC@
+CXX=@@CXX@
+LD=@@CC@
+LDXX=@@CXX@
+AR=@@AR@
+ASM=@@ASM@
+RC=@@RC@
+CC_BUILD=@@CC_BUILD@
+LD_BUILD=@@CC_BUILD@
+CXX_BUILD=@@CXX_BUILD@
+LDXX_BUILD=@@CXX_BUILD@
+EXE=@EXE@
+EXE_BUILD=@EXE_BUILD@
+ASMFLAGS=@ASMFLAGS@
+SDLCFLAGS=@SDLCFLAGS@
+SDLLIBS=@SDLLIBS@
+CFLAGS_BUILD=@CFLAGS_BUILD@
 endif
 
 #############################################################################
-# Symbol options
+# Derived options
 
-ifdef SYMBOLS
-MSG = "(symbols)"
-CFLAGS += $(CFLAGS_DEBUG) -g -Wall -Wno-sign-compare -Wno-unused
+# Conversion of native
+ifeq ($(CONF_SYSTEM),native)
+CONF_SYSTEM=$(CONF_HOST)
+endif
+
+# Binaries
+ifeq ($(CONF_HOST),$(CONF_SYSTEM))
+BINARYTAG = $(CONF_HOST)-native-$(CONF_ARCH)
 else
-ifdef PROFILE
+BINARYTAG = $(CONF_HOST)-$(CONF_SYSTEM)-$(CONF_ARCH)
+endif
+BINARYDIR = $(CONF_HOST)/$(CONF_SYSTEM)/$(CONF_ARCH)
+BINARYDIR_BUILD = $(CONF_BUILD)
+
+# Checks
+ifeq (,$(findstring $(CONF_HOST),/linux/dos/windows/))
+$(error Invalid CONF_HOST=$(CONF_HOST))
+endif
+ifeq (,$(findstring $(CONF_SYSTEM),/linux/dos/sdl/))
+$(error Invalid CONF_SYSTEM=$(CONF_SYSTEM))
+endif
+ifeq ($(CONF_HOST),linux)
+ifeq (,$(findstring $(CONF_SYSTEM),/linux/sdl/))
+$(error Unsupported CONF_SYSTEM=$(CONF_SYSTEM) for CONF_HOST=$(CONF_HOST))
+endif
+endif
+ifeq ($(CONF_HOST),dos)
+ifeq (,$(findstring $(CONF_SYSTEM),/dos/))
+$(error Unsupported CONF_SYSTEM=$(CONF_SYSTEM) for CONF_HOST=$(CONF_HOST))
+endif
+endif
+ifeq ($(CONF_HOST),windows)
+ifeq (,$(findstring $(CONF_SYSTEM),/sdl/))
+$(error Unsupported CONF_SYSTEM=$(CONF_SYSTEM) for CONF_HOST=$(CONF_HOST))
+endif
+endif
+
+#############################################################################
+# CFLAGS options
+
+# Override any environment CFLAGS declaration
+CFLAGS = $(CONF_CFLAGS_ARCH) $(CONF_CFLAGS_OPT)
+
+ifneq (,$(findstring -pg,$(CONF_CFLAGS_OPT)))
 MSG = "(profile)"
-CFLAGS += $(CFLAGS_OPTIMIZE) -DNDEBUG -pg -Wall -Wno-sign-compare -Wno-unused
+CFLAGS += -DNDEBUG
+else
+ifneq (,$(findstring -g,$(CONF_CFLAGS_OPT)))
+MSG = "(debug)"
 else
 MSG =
-CFLAGS += $(CFLAGS_OPTIMIZE) -DNDEBUG -Wall -Wno-sign-compare -Wno-unused
-LDFLAGS += -s
+CFLAGS += -DNDEBUG
 endif
 endif
 
 #############################################################################
 # EMU
 
-# Automatic EMU detection by source
-ifeq ($(EMU),)
-ifneq ($(wildcard src),)
-EMU = mame
-endif
-endif
-ifeq ($(EMU),)
-ifneq ($(wildcard srcmess),)
-EMU = mess
-endif
-endif
-ifeq ($(EMU),)
-ifneq ($(wildcard srcpac),)
-EMU = pac
-endif
-endif
+# Emulator file name
+EMUNAME = adv$(CONF_EMU)
 
-# Target file name
-EMUNAME = adv$(EMU)
-
-# Target source directory
-ifeq ($(EMU),mess)
+# Emulator source directory. If it doesn't exist the emulator isn't compiled
+ifeq ($(CONF_EMU),none)
+EMUSRC=srcnone
+endif
+ifeq ($(CONF_EMU),mess)
 EMUSRC=srcmess
 endif
-ifeq ($(EMU),pac)
+ifeq ($(CONF_EMU),pac)
 EMUSRC=srcpac
 endif
 ifeq ($(EMUSRC),)
@@ -399,7 +454,7 @@ clean:
 flags: obj
 	$(ECHO) CFLAGS=$(CFLAGS)
 	$(ECHO) LDFLAGS=$(LDFLAGS)
-	$(ECHO) CFLAGS-HOST=$(CFLAGS-HOST)
+	$(ECHO) CFLAGS_BUILD=$(CFLAGS_BUILD)
 	$(ECHO) SDLCFLAGS=$(SDLCFLAGS)
 	$(ECHO) SDLLIBS=$(SDLLIBS)
 	$(ECHO) EMUCFLAGS=$(EMUCFLAGS)
@@ -412,7 +467,7 @@ flags: obj
 	$(ECHO) SYSTEMLDFLAGS=$(SYSTEMLDFLAGS)
 	$(ECHO) SYSTEMLIBS=$(SYSTEMLIBS)
 	$(ECHO) CC=$(CC)
-	$(ECHO) CC-HOST=$(CC-HOST)
+	$(ECHO) CC_BUILD=$(CC_BUILD)
 	$(ECHO) "int test(void) { return 0; }" > obj/flags.c
 	$(CC) $(CFLAGS) obj/flags.c -S -fverbose-asm -o obj/flags.S
 

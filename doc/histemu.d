@@ -20,6 +20,12 @@ AdvanceMAME Version 0.61.2 2002/07
 	) Documented the varius `misc_*file' options.
 	) Removed the `zmng' utility from the contrib dir.
 		It's now included in the AdvanceSCAN package.
+	) Renamed the `input_safeexit' option to `misc_safequit' and
+		added the options `misc_safequitdebug' and
+		`misc_safequitfile'. The SafeQuit is now enabled by
+		default.
+	) Revised the output format of all the documentation. Now
+		it's available as formatted text, html and man pages.
 
 AdvanceMAME Version 0.61.1 2002/07
 	) Fixed a stupid bug on some neogeo games.

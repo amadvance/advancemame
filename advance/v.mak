@@ -2,7 +2,7 @@
 # V
 
 VCFLAGS += \
-	-Iadvance/$(HOST_SYSTEM) \
+	-Iadvance/$(CONF_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/blit \
 	-Iadvance/common
@@ -29,9 +29,9 @@ VOBJDIRS = \
 	$(VOBJ)/v \
 	$(VOBJ)/lib \
 	$(VOBJ)/blit \
-	$(VOBJ)/$(HOST_SYSTEM)
+	$(VOBJ)/$(CONF_SYSTEM)
 
-ifeq ($(HOST_SYSTEM),linux)
+ifeq ($(CONF_SYSTEM),linux)
 VCFLAGS += -DPREFIX=\"$(PREFIX)\"
 VCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_SLANG \
@@ -40,13 +40,13 @@ VLIBS = -lslang -lvga
 VOBJS += \
 	$(VOBJ)/lib/filenix.o \
 	$(VOBJ)/lib/targnix.o \
-	$(VOBJ)/$(HOST_SYSTEM)/os.o \
-	$(VOBJ)/$(HOST_SYSTEM)/vsvgab.o \
-	$(VOBJ)/$(HOST_SYSTEM)/vfb.o \
-	$(VOBJ)/$(HOST_SYSTEM)/vslang.o
+	$(VOBJ)/$(CONF_SYSTEM)/os.o \
+	$(VOBJ)/$(CONF_SYSTEM)/vsvgab.o \
+	$(VOBJ)/$(CONF_SYSTEM)/vfb.o \
+	$(VOBJ)/$(CONF_SYSTEM)/vslang.o
 endif
 
-ifeq ($(HOST_SYSTEM),dos)
+ifeq ($(CONF_SYSTEM),dos)
 VCFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE \
 	-Iadvance/card \
@@ -58,13 +58,13 @@ VLIBS = -lalleg
 VOBJS += \
 	$(VOBJ)/lib/filedos.o \
 	$(VOBJ)/lib/targdos.o \
-	$(VOBJ)/$(HOST_SYSTEM)/os.o \
-	$(VOBJ)/$(HOST_SYSTEM)/vvgal.o \
-	$(VOBJ)/$(HOST_SYSTEM)/vvbe.o \
-	$(VOBJ)/$(HOST_SYSTEM)/vvbel.o \
-	$(VOBJ)/$(HOST_SYSTEM)/vsvgal.o \
-	$(VOBJ)/$(HOST_SYSTEM)/scrvbe.o \
-	$(VOBJ)/$(HOST_SYSTEM)/scrvga.o \
+	$(VOBJ)/$(CONF_SYSTEM)/os.o \
+	$(VOBJ)/$(CONF_SYSTEM)/vvgal.o \
+	$(VOBJ)/$(CONF_SYSTEM)/vvbe.o \
+	$(VOBJ)/$(CONF_SYSTEM)/vvbel.o \
+	$(VOBJ)/$(CONF_SYSTEM)/vsvgal.o \
+	$(VOBJ)/$(CONF_SYSTEM)/scrvbe.o \
+	$(VOBJ)/$(CONF_SYSTEM)/scrvga.o \
 	$(VOBJ)/card/card.o \
 	$(VOBJ)/card/pci.o \
 	$(VOBJ)/card/map.o \
@@ -123,7 +123,7 @@ $(sort $(VOBJDIRS)):
 $(VOBJ)/advv$(EXE) : $(sort $(VOBJDIRS)) $(VOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(VLDFLAGS) $(VOBJS) $(VLIBS) -o $@
-ifeq ($(COMPRESS),1)
+ifeq ($(CONF_COMPRESS),yes)
 	$(UPX) $@
 	$(TOUCH) $@
 endif

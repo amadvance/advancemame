@@ -2,7 +2,7 @@
 # CFG
 
 CFGCFLAGS += \
-	-Iadvance/$(HOST_SYSTEM) \
+	-Iadvance/$(CONF_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/blit \
 	-Iadvance/v \
@@ -13,7 +13,7 @@ CFGOBJDIRS = \
 	$(CFGOBJ)/lib \
 	$(CFGOBJ)/blit \
 	$(CFGOBJ)/v \
-	$(CFGOBJ)/$(HOST_SYSTEM)
+	$(CFGOBJ)/$(CONF_SYSTEM)
 CFGOBJS = \
 	$(CFGOBJ)/lib/log.o \
 	$(CFGOBJ)/lib/video.o \
@@ -34,27 +34,27 @@ CFGOBJS = \
 	$(CFGOBJ)/cfg/list.o \
 	$(CFGOBJ)/v/draw.o
 
-ifeq ($(HOST_SYSTEM),linux)
+ifeq ($(CONF_SYSTEM),linux)
 CFGCFLAGS += -DPREFIX=\"$(PREFIX)\"
 CFGCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_SLANG \
 	-DUSE_INPUT_SVGALIB \
-	-Iadvance/$(HOST_SYSTEM)
+	-Iadvance/$(CONF_SYSTEM)
 CFGLIBS = -lslang -lvga
 CFGOBJS += \
 	$(CFGOBJ)/lib/filenix.o \
 	$(CFGOBJ)/lib/targnix.o \
-	$(CFGOBJ)/$(HOST_SYSTEM)/os.o \
-	$(CFGOBJ)/$(HOST_SYSTEM)/vsvgab.o \
-	$(CFGOBJ)/$(HOST_SYSTEM)/vfb.o \
-	$(CFGOBJ)/$(HOST_SYSTEM)/vslang.o
+	$(CFGOBJ)/$(CONF_SYSTEM)/os.o \
+	$(CFGOBJ)/$(CONF_SYSTEM)/vsvgab.o \
+	$(CFGOBJ)/$(CONF_SYSTEM)/vfb.o \
+	$(CFGOBJ)/$(CONF_SYSTEM)/vslang.o
 endif
 
-ifeq ($(HOST_SYSTEM),dos)
+ifeq ($(CONF_SYSTEM),dos)
 CFGCFLAGS += -DPREFIX=\"$(PREFIX)\"
 CFGCFLAGS += \
 	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE \
-	-Iadvance/$(HOST_SYSTEM) \
+	-Iadvance/$(CONF_SYSTEM) \
 	-Iadvance/card \
 	-Iadvance/svgalib \
 	-Iadvance/svgalib/clockchi \
@@ -64,12 +64,12 @@ CFGLIBS = -lalleg
 CFGOBJS += \
 	$(CFGOBJ)/lib/filedos.o \
 	$(CFGOBJ)/lib/targdos.o \
-	$(CFGOBJ)/$(HOST_SYSTEM)/os.o \
-	$(CFGOBJ)/$(HOST_SYSTEM)/vvgal.o \
-	$(CFGOBJ)/$(HOST_SYSTEM)/vvbel.o \
-	$(CFGOBJ)/$(HOST_SYSTEM)/vsvgal.o \
-	$(CFGOBJ)/$(HOST_SYSTEM)/scrvbe.o \
-	$(CFGOBJ)/$(HOST_SYSTEM)/scrvga.o \
+	$(CFGOBJ)/$(CONF_SYSTEM)/os.o \
+	$(CFGOBJ)/$(CONF_SYSTEM)/vvgal.o \
+	$(CFGOBJ)/$(CONF_SYSTEM)/vvbel.o \
+	$(CFGOBJ)/$(CONF_SYSTEM)/vsvgal.o \
+	$(CFGOBJ)/$(CONF_SYSTEM)/scrvbe.o \
+	$(CFGOBJ)/$(CONF_SYSTEM)/scrvga.o \
 	$(CFGOBJ)/card/card.o \
 	$(CFGOBJ)/card/pci.o \
 	$(CFGOBJ)/card/map.o \
@@ -128,7 +128,7 @@ $(sort $(CFGOBJDIRS)):
 $(CFGOBJ)/advcfg$(EXE) : $(sort $(CFGOBJDIRS)) $(CFGOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(CFGLDFLAGS) $(CFGOBJS) $(CFGLIBS) -o $@
-ifeq ($(COMPRESS),1)
+ifeq ($(CONF_COMPRESS),yes)
 	$(UPX) $@
 	$(TOUCH) $@
 endif

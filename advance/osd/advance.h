@@ -330,12 +330,12 @@ void advance_video_save(struct advance_video_context* context, const char* secti
 /* Record */
 
 struct advance_record_config_context {
-	unsigned sound_time; /**< Max recording time in seconds */
-	unsigned video_time; /**< Max recording time in seconds */
-	char dir[FILE_MAXPATH];
-	int video_flag;
-	int sound_flag;
-	unsigned video_interlace; /**< Interlace factor for the video recording */
+	unsigned sound_time; /**< Max recording time in seconds. */
+	unsigned video_time; /**< Max recording time in seconds. */
+	char dir[FILE_MAXPATH]; /**< Directory to store the recording. */
+	int video_flag; /**< Main activation flag for video recording. */
+	int sound_flag; /**< Main activation flag for sound recording. */
+	unsigned video_interlace; /**< Interlace factor for the video recording. */
 };
 
 struct advance_record_state_context {
@@ -445,6 +445,31 @@ void advance_estimate_common_begin(struct advance_estimate_context* context);
 void advance_estimate_common_end(struct advance_estimate_context* context, int skip_flag);
 
 /***************************************************************************/
+/* SafeQuit */
+
+struct advance_safequit_config {
+	char file[FILE_MAXPATH]; /**< File safequit.dat to load. */
+	int debug_flag; /**< Show the debug flag on the screen. */
+        int safe_exit_flag; /**< Flag for safe exit. */
+};
+
+struct advance_safequit_state {
+};
+
+struct advance_safequit_context {
+	struct advance_safequit_config config;
+	struct advance_safequit_state state;
+};
+
+int advance_safequit_init(struct advance_safequit_context* context, struct conf_context* cfg_context);
+void advance_safequit_done(struct advance_safequit_context* context);
+int advance_safequit_inner_init(struct advance_safequit_context* context, struct mame_option* option);
+void advance_safequit_inner_done(struct advance_safequit_context* context);
+int advance_safequit_config_load(struct advance_safequit_context* context, struct conf_context* cfg_context);
+int advance_safequit_can_exit(struct advance_safequit_context* context);
+void advance_safequit_update(struct advance_safequit_context* context);
+
+/***************************************************************************/
 /* Input */
 
 #define INPUT_PLAYER_MAX 4 /**< Max numer of player */
@@ -452,7 +477,6 @@ void advance_estimate_common_end(struct advance_estimate_context* context, int s
 
 struct advance_input_config {
 	int input_idle_limit; /**< Limit of no input to exit */
-        int input_safe_exit_flag; /**< Flag for safe exit */
 	int mouse_id; /**< Mouse type */
 	int joystick_id; /**< Joystick type */
 	int keyboard_id; /**< Keyboard type */
@@ -491,7 +515,7 @@ int advance_input_inner_init(struct advance_input_context* context);
 void advance_input_inner_done(struct advance_input_context* context);
 void advance_input_update(struct advance_input_context* context, int is_pause);
 int advance_input_config_load(struct advance_input_context* context, struct conf_context* cfg_context);
-int advance_input_exit_filter(struct advance_input_context* context, int result_memory);
+int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, int result_memory);
 
 /***************************************************************************/
 /* State */
@@ -503,6 +527,7 @@ struct advance_context {
 	struct advance_input_context input;
 	struct advance_sound_context sound;
 	struct advance_record_context record;
+	struct advance_safequit_context safequit;
 };
 
 /**
@@ -531,11 +556,5 @@ int advance_fileio_config_load(struct conf_context* context, struct mame_option*
 static __inline__ double advance_timer(void) {
 	return os_clock() / (double)OS_CLOCKS_PER_SEC;
 }
-
-/* SafeQuit */
-int advance_safequit_inner_init(struct mame_option* option);
-void advance_safequit_inner_done(void);
-int advance_safequit_can_exit(void);
-void advance_safequit_update(void);
 
 #endif

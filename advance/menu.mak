@@ -2,7 +2,7 @@
 # Menu build
 
 MENUCFLAGS += \
-	-Iadvance/$(HOST_SYSTEM) \
+	-Iadvance/$(CONF_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/blit \
 	-Iadvance/mpglib \
@@ -13,7 +13,7 @@ MENUOBJDIRS += \
 	$(MENUOBJ)/lib \
 	$(MENUOBJ)/blit \
 	$(MENUOBJ)/mpglib \
-	$(MENUOBJ)/$(HOST_SYSTEM)
+	$(MENUOBJ)/$(CONF_SYSTEM)
 MENUOBJS += \
 	$(MENUOBJ)/menu/category.o \
 	$(MENUOBJ)/menu/choice.o \
@@ -68,7 +68,7 @@ MENUOBJS += \
 	$(MENUOBJ)/mpglib/tabinit.o
 MENULIBS += $(ZLIBS)
 
-ifeq ($(HOST_SYSTEM),linux)
+ifeq ($(CONF_SYSTEM),linux)
 MENUCFLAGS += -DPREFIX=\"$(PREFIX)\"
 MENUCFLAGS += \
 	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_NONE \
@@ -78,13 +78,13 @@ MENULIBS += -lvga
 MENUOBJS += \
 	$(MENUOBJ)/lib/filenix.o \
 	$(MENUOBJ)/lib/targnix.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/os.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/vsvgab.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/vfb.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/soss.o
+	$(MENUOBJ)/$(CONF_SYSTEM)/os.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/vsvgab.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/vfb.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/soss.o
 endif
 
-ifeq ($(HOST_SYSTEM),dos)
+ifeq ($(CONF_SYSTEM),dos)
 MENUCFLAGS += \
 	-Iadvance/card \
 	-Iadvance/svgalib \
@@ -106,15 +106,15 @@ MENULIBS += -lalleg -laudio
 MENUOBJS += \
 	$(MENUOBJ)/lib/filedos.o \
 	$(MENUOBJ)/lib/targdos.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/os.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/vvgal.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/vvbe.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/vvbel.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/vsvgal.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/scrvbe.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/scrvga.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/salleg.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/sseal.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/os.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/vvgal.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/vvbe.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/vvbel.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/vsvgal.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/scrvbe.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/scrvga.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/salleg.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/sseal.o \
 	$(MENUOBJ)/card/card.o \
 	$(MENUOBJ)/card/pci.o \
 	$(MENUOBJ)/card/map.o \
@@ -162,7 +162,7 @@ MENUOBJDIRS += \
 	$(MENUOBJ)/svgalib/drivers
 endif
 
-ifeq ($(HOST_SYSTEM),sdl)
+ifeq ($(CONF_SYSTEM),sdl)
 MENUCFLAGS += \
 	$(SDLCFLAGS) \
 	-DPREFIX=\"$(PREFIX)\" \
@@ -171,15 +171,15 @@ MENUCFLAGS += \
 	-DUSE_KEYBOARD_SDL -DUSE_MOUSE_SDL -DUSE_JOYSTICK_SDL
 MENULIBS += $(SDLLIBS)
 MENUOBJS += \
-	$(MENUOBJ)/$(HOST_SYSTEM)/os.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/vsdl.o \
-	$(MENUOBJ)/$(HOST_SYSTEM)/ssdl.o
-ifeq ($(HOST_TARGET),linux)
+	$(MENUOBJ)/$(CONF_SYSTEM)/os.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/vsdl.o \
+	$(MENUOBJ)/$(CONF_SYSTEM)/ssdl.o
+ifeq ($(CONF_HOST),linux)
 MENUOBJS += \
 	$(MENUOBJ)/lib/filenix.o \
 	$(MENUOBJ)/lib/targnix.o
 endif
-ifeq ($(HOST_TARGET),windows)
+ifeq ($(CONF_HOST),windows)
 MENUOBJS += \
 	$(MENUOBJ)/lib/filedos.o \
 	$(MENUOBJ)/lib/targwin.o \
@@ -190,7 +190,7 @@ MENUOBJS += $(MENUOBJ)/sdl/sdlmwin.o
 endif
 endif
 
-ifdef MAP
+ifeq ($(CONF_MAP),yes)
 MENULDFLAGS += -Xlinker -Map -Xlinker $(MENUOBJ)/advmenu.map
 endif
 
@@ -213,7 +213,7 @@ $(sort $(MENUOBJDIRS)):
 $(MENUOBJ)/advmenu$(EXE) : $(sort $(MENUOBJDIRS)) $(MENUOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LDXX) $(LDFLAGS) $(MENULDFLAGS) $(MENUOBJS) $(MENULIBS) -o $@
-ifeq ($(COMPRESS),1)
+ifeq ($(CONF_COMPRESS),yes)
 	$(UPX) $@
 	$(TOUCH) $@
 endif
@@ -224,7 +224,16 @@ endif
 # MENU dist
 
 MENU_ROOT_SRC = \
-	makefile
+	Makefile.in \
+	config.guess \
+	config.status \
+	config.sub \
+	configure \
+	configure.ac \
+	configure.msdos \
+	configure.windows \
+	install-sh \
+	mkinstalldirs
 
 MENU_SRC = \
 	$(wildcard advance/menu/*.c) \
@@ -247,8 +256,8 @@ MENU_DOC_SRC = \
 	doc/authors.d \
 	doc/faq.d \
 	doc/histmenu.d \
-	doc/readmenu.txt \
-	doc/relemenu.txt \
+	doc/readmenu.d \
+	doc/relemenu.d \
 	doc/advv.d \
 	doc/advcfg.d \
 	doc/install.d \
@@ -266,13 +275,17 @@ MENU_DOC_BIN = \
 	$(D2OBJ)/advmenu.txt \
 	$(D2OBJ)/authors.txt \
 	$(D2OBJ)/faq.txt \
+	$(D2OBJ)/readmenu.txt \
+	$(D2OBJ)/relemenu.txt \
 	$(D2OBJ)/histmenu.txt \
 	$(D2OBJ)/license.html \
 	$(D2OBJ)/advmenu.html \
 	$(D2OBJ)/authors.html \
 	$(D2OBJ)/faq.html \
+	$(D2OBJ)/relemenu.html \
+	$(D2OBJ)/histmenu.html \
 	$(D2OBJ)/histmenu.html
-ifneq ($(HOST_TARGET),sdl)
+ifneq ($(CONF_HOST),sdl)
 MENU_DOC_BIN += \
 	$(D2OBJ)/advv.txt \
 	$(D2OBJ)/advcfg.txt \
@@ -287,24 +300,25 @@ endif
 
 MENU_ROOT_BIN = \
 	$(MENUOBJ)/advmenu$(EXE)
-ifeq ($(HOST_SYSTEM),linux)
+ifeq ($(CONF_SYSTEM),linux)
 MENU_ROOT_BIN += \
-	$(D2OBJ)/advmenu.1
+	$(D2OBJ)/advmenu.1 \
+	$(wildcard support/confbin/*)
 endif
-ifeq ($(HOST_TARGET),dos)
+ifeq ($(CONF_HOST),dos)
 MENU_ROOT_BIN += \
 	support/advmenuv.bat \
 	support/advmenuc.bat
 endif
-ifeq ($(HOST_TARGET),windows)
+ifeq ($(CONF_HOST),windows)
 MENU_ROOT_BIN += \
 	support/sdl.dll
 endif
-ifneq ($(HOST_SYSTEM),sdl)
+ifneq ($(CONF_SYSTEM),sdl)
 MENU_ROOT_BIN += \
 	$(VOBJ)/advv$(EXE) \
 	$(CFGOBJ)/advcfg$(EXE)
-ifeq ($(HOST_SYSTEM),linux)
+ifeq ($(CONF_SYSTEM),linux)
 MENU_ROOT_BIN += \
 	$(D2OBJ)/advv.1 \
 	$(D2OBJ)/advcfg.1
@@ -314,7 +328,7 @@ endif
 MENU_DIST_FILE_SRC = advancemenu-$(MENUVERSION)
 MENU_DIST_FILE_BIN = advancemenu-$(MENUVERSION)-$(BINARYTAG)
 
-ifeq ($(HOST_TARGET),dos)
+ifeq ($(CONF_HOST),dos)
 MENU_DIST_DIR_SRC = tmp
 MENU_DIST_DIR_BIN = tmpbin
 else
@@ -322,8 +336,12 @@ MENU_DIST_DIR_SRC = $(MENU_DIST_FILE_SRC)
 MENU_DIST_DIR_BIN = $(MENU_DIST_FILE_BIN)
 endif
 
-distmenu: $(RCSRC)
+distmenu: $(RCSRC) $(D2OBJ)/readmenu.txt $(D2OBJ)/relemenu.txt $(D2OBJ)/histmenu.txt $(D2OBJ)/build.txt
 	mkdir $(MENU_DIST_DIR_SRC)
+	cp $(D2OBJ)/readmenu.txt $(MENU_DIST_DIR_SRC)/README
+	cp $(D2OBJ)/relemenu.txt $(MENU_DIST_DIR_SRC)/RELEASE
+	cp $(D2OBJ)/histmenu.txt $(MENU_DIST_DIR_SRC)/HISTORY
+	cp $(D2OBJ)/build.txt $(MENU_DIST_DIR_SRC)/BUILD
 	cp $(MENU_ROOT_SRC) $(MENU_DIST_DIR_SRC)
 	mkdir $(MENU_DIST_DIR_SRC)/doc
 	cp $(MENU_DOC_SRC) $(MENU_DIST_DIR_SRC)/doc
@@ -370,24 +388,26 @@ distmenu: $(RCSRC)
 
 distmenubin: $(MENU_ROOT_BIN) $(MENU_DOC_BIN)
 	mkdir $(MENU_DIST_DIR_BIN)
-ifeq ($(HOST_TARGET),linux)
-	cp doc/readmenu.txt $(MENU_DIST_DIR_BIN)/README
-	cp doc/relemenu.txt $(MENU_DIST_DIR_BIN)/RELEASE
+ifeq ($(CONF_HOST),linux)
+	cp $(D2OBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/README
+	cp $(D2OBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/RELEASE
+	cp $(D2OBJ)/histmenu.txt $(MENU_DIST_DIR_BIN)/HISTORY
 else
-	cp doc/readmenu.txt $(MENU_DIST_DIR_BIN)/readme.txt
-	cp doc/relemenu.txt $(MENU_DIST_DIR_BIN)/release.txt
+	cp $(D2OBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/readme.txt
+	cp $(D2OBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/release.txt
+	cp $(D2OBJ)/history.txt $(MENU_DIST_DIR_BIN)/history.txt
 endif
 	cp $(MENU_ROOT_BIN) $(MENU_DIST_DIR_BIN)
 	mkdir $(MENU_DIST_DIR_BIN)/doc
 	cp $(MENU_DOC_BIN) $(MENU_DIST_DIR_BIN)/doc
 	mkdir $(MENU_DIST_DIR_BIN)/contrib
 	cp -R $(MENU_CONTRIB_SRC) $(MENU_DIST_DIR_BIN)/contrib
-ifneq ($(HOST_TARGET),linux)
+ifeq ($(CONF_HOST),linux)
+	rm -f $(MENU_DIST_FILE_BIN).tar.gz
+	tar cfzo $(MENU_DIST_FILE_BIN).tar.gz $(MENU_DIST_DIR_BIN)
+else
 	rm -f $(MENU_DIST_FILE_BIN).zip
 	find $(MENU_DIST_DIR_BIN) \( -name "*.txt" \) -type f -exec utod {} \;
 	cd $(MENU_DIST_DIR_BIN) && zip -r ../$(MENU_DIST_FILE_BIN).zip *
-else
-	rm -f $(MENU_DIST_FILE_BIN).tar.gz
-	tar cfzo $(MENU_DIST_FILE_BIN).tar.gz $(MENU_DIST_DIR_BIN)
 endif
 	rm -r $(MENU_DIST_DIR_BIN)

@@ -68,10 +68,7 @@ static int blit_has_mmx(void) {
 	return 0;
 }
 
-#if !defined(USE_ASM_MMX)
-
 /* Support the the both condition. MMX present or not */
-
 int the_blit_mmx = 0;
 #define BLITTER(name) (the_blit_mmx ? name##_mmx : name##_def)
 
@@ -89,29 +86,6 @@ static __inline__ void internal_end(void)
 		);
 	}
 }
-
-#else
-
-/* Assume that MMX is always present. */
-
-#define the_blit_mmx 1
-#define BLITTER(name) (name##_mmx)
-
-static int blit_set_mmx(void) {
-	if (!blit_has_mmx())
-		return -1;
-
-	return 0;
-}
-
-static __inline__ void internal_end(void)
-{
-	__asm__ __volatile__ (
-		"emms"
-	);
-}
-
-#endif
 
 #else
 

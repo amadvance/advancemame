@@ -727,10 +727,12 @@ string convert_txt::mask(string s) {
 }
 
 void convert_txt::header(const string& a, const string& b) {
-	unsigned space = (80 - b.length()) / 2;
-	os << fill(space,' ') << fill(b.length(),'=') << endl;
-	os << fill(space,' ') << b << endl;
-	os << fill(space,' ') << fill(b.length(),'=') << endl;
+	if (b.length()) {
+		unsigned space = (80 - b.length()) / 2;
+		os << fill(space,' ') << fill(b.length(),'=') << endl;
+		os << fill(space,' ') << b << endl;
+		os << fill(space,' ') << fill(b.length(),'=') << endl;
+	}
 }
 
 void convert_txt::footer() {

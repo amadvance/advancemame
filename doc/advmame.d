@@ -211,7 +211,7 @@ FEATURES
 	For some supported games you can force the display of an
 	exit menu during the game play to prevent unwanted exit.
 
-	More details are in the description of the `input_safeexit',
+	More details are in the description of the `misc_safequit',
 	and `input_idleexit' options.
 
     Input Control
@@ -1026,15 +1026,6 @@ INPUT CONFIGURATION OPTIONS
 		TIME - Number of seconds to wait, if 0 (default)
 			never exits automatically.
 
-    input_safeexit
-	Activates safe exit mode. If enabled, to stop the
-	emulation, you need to confirm on a simple menu.
-
-	:input_safeexit yes | no
-
-	If the file `safequit.dat' is found the exit menu is shown only 
-	if any coin is inserted or if you are playing.
-
     input_map[,x|y|z|pedal]
 	Changes the analog control mapping. Map the physical A'n
 	joystick, B'n stick, C'n axe on the J'n axe of the I'n player.
@@ -1289,6 +1280,33 @@ SUPPORT FILES CONFIGURATION OPTIONS
 
 	Options:
 		FILE - Info file to load (default mameinfo.dat).
+
+    misc_safequit
+	Activates safe quit mode. If enabled, to stop the
+	emulation, you need to confirm on a simple menu.
+
+	:misc_safequit_safeexit yes | no
+
+	If the file `safequit.dat' is found the exit menu is shown only 
+	if a coin is inserted or if you are playing.
+
+    misc_safequitdebug
+	Activates the debug mode for the safequit feature. On the top
+	left of the screen the two internal state of the safequit engine
+	are printed. The first value is the coin state, the second value
+	is the playing state. If both the values are 1 the exit is permitted
+	without prompting.
+
+	:misc_safequitdebug yes | no
+
+    misc_safequitfile
+	Selects the safequit file to use.
+
+	:misc_safequitfile FILE
+
+	Options:
+		FILE - SafeQuit file to load (default safequit.dat).
+
 
 COPYRIGHT
 	This file is Copyright (C) 2002 Andrea Mazzoleni, Filipe Estima.

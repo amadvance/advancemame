@@ -105,8 +105,8 @@ static struct fileio_item CONFIG[] = {
 	{ OSD_FILETYPE_STATE, "dir_sta", "sta", ".sta", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
 	{ OSD_FILETYPE_MEMCARD, "dir_memcard", "memcard", ".mem", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
 	{ OSD_FILETYPE_SCREENSHOT, "dir_snap", "snap", ".png", FILEIO_MODE_DIRNAME, FILEIO_OPEN_NONE, FILEIO_OPEN_WRITE, 0, 0 },
-	{ OSD_FILETYPE_HISTORY, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 }, /* used for history.dat and mameinfo.dat */
-	{ OSD_FILETYPE_CHEAT, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 }, /* used for cheat.dat and safequit.dat */
+	{ OSD_FILETYPE_HISTORY, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 }, /* used for history.dat, mameinfo.dat, safequit.dat */
+	{ OSD_FILETYPE_CHEAT, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_READWRITE, 0, 0 }, /* used for cheat.dat */
 	{ OSD_FILETYPE_LANGUAGE, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 }, /* used for language file */
 	{ OSD_FILETYPE_end, 0, 0, 0, 0, 0, 0 }
 };

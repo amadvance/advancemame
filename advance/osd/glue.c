@@ -527,6 +527,10 @@ void mame_ui_message(const char* s, ...) {
 	va_end(arg);
 }
 
+void mame_ui_text(const char* s, unsigned x, unsigned y) {
+	ui_text(GLUE.bitmap, s, x, y);
+}
+
 void mame_ui_menu(const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem) {
 	ui_displaymenu(GLUE.bitmap,items,subitems,flag,selected,arrowize_subitem);
 }
@@ -939,7 +943,7 @@ int osd_input_ui_filter(int result, int type) {
 
 /* Filter the main exit request */
 int osd_input_exit_filter(int result) {
-	return advance_input_exit_filter(&CONTEXT.input,result);
+	return advance_input_exit_filter(&CONTEXT.input,&CONTEXT.safequit,result);
 }
 
 /* Filter the input port state */

@@ -12,13 +12,13 @@ LINELIBS = -lm
 
 $(LINEOBJ)/%.o: advance/%.cc
 	$(ECHO) $@ $(MSG)
-	$(CXX-HOST) $(CFLAGS) $(LINECFLAGS) -c $< -o $@
+	$(CXX_BUILD) $(CFLAGS_BUILD) $(LINECFLAGS) -c $< -o $@
 
 $(sort $(LINEOBJDIRS)):
 	$(ECHO) $@
 	$(MD) $@
 
-$(LINEOBJ)/advline$(EXE-HOST) : $(sort $(LINEOBJDIRS)) $(LINEOBJS)
+$(LINEOBJ)/advline$(EXE_BUILD) : $(sort $(LINEOBJDIRS)) $(LINEOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LDXX-HOST) $(LDFLAGS) $(LINELDFLAGS) $(LINEOBJS) $(LINELIBS) -o $@
+	$(LDXX_BUILD) $(LDFLAGS_BUILD) $(LINELDFLAGS) $(LINEOBJS) $(LINELIBS) -o $@
 

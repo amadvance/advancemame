@@ -2,21 +2,21 @@
 # M
 
 MCFLAGS += \
-	-Iadvance/$(HOST_SYSTEM) \
+	-Iadvance/$(CONF_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/common
 MOBJDIRS = \
 	$(MOBJ) \
 	$(MOBJ)/m \
 	$(MOBJ)/lib \
-	$(MOBJ)/$(HOST_SYSTEM)
+	$(MOBJ)/$(CONF_SYSTEM)
 MOBJS = \
 	$(MOBJ)/m/m.o \
 	$(MOBJ)/lib/log.o \
 	$(MOBJ)/lib/conf.o \
 	$(MOBJ)/lib/incstr.o
 
-ifeq ($(HOST_SYSTEM),linux)
+ifeq ($(CONF_SYSTEM),linux)
 MCFLAGS += -DPREFIX=\"$(PREFIX)\"
 MCFLAGS += \
 	-DUSE_MOUSE_SVGALIB
@@ -24,10 +24,10 @@ MLIBS = -lvga
 MOBJS += \
 	$(MOBJ)/lib/filenix.o \
 	$(MOBJ)/lib/targnix.o \
-	$(MOBJ)/$(HOST_SYSTEM)/os.o
+	$(MOBJ)/$(CONF_SYSTEM)/os.o
 endif
 
-ifeq ($(HOST_SYSTEM),dos)
+ifeq ($(CONF_SYSTEM),dos)
 MCFLAGS += -DUSE_CONFIG_ALLEGRO_WRAPPER
 MLDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_string \
@@ -40,22 +40,22 @@ MLIBS = -lalleg
 MOBJS += \
 	$(MOBJ)/lib/filedos.o \
 	$(MOBJ)/lib/targdos.o \
-	$(MOBJ)/$(HOST_SYSTEM)/os.o
+	$(MOBJ)/$(CONF_SYSTEM)/os.o
 endif
 
-ifeq ($(HOST_SYSTEM),sdl)
+ifeq ($(CONF_SYSTEM),sdl)
 MCFLAGS += \
 	$(SDLCFLAGS) \
 	-DPREFIX=\"$(PREFIX)\" \
 	-DUSE_MOUSE_SDL
 MLIBS += $(SDLLIBS)
-MOBJS += $(MOBJ)/$(HOST_SYSTEM)/os.o
-ifeq ($(HOST_TARGET),linux)
+MOBJS += $(MOBJ)/$(CONF_SYSTEM)/os.o
+ifeq ($(CONF_HOST),linux)
 MOBJS += \
 	$(MOBJ)/lib/filenix.o \
 	$(MOBJ)/lib/targnix.o
 endif
-ifeq ($(HOST_TARGET),windows)
+ifeq ($(CONF_HOST),windows)
 MOBJS += \
 	$(MOBJ)/lib/filedos.o \
 	$(MOBJ)/lib/targwin.o
@@ -73,7 +73,7 @@ $(sort $(MOBJDIRS)):
 $(MOBJ)/advm$(EXE) : $(sort $(MOBJDIRS)) $(MOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(MLDFLAGS) $(MOBJS) $(MLIBS) -o $@
-ifeq ($(COMPRESS),1)
+ifeq ($(CONF_COMPRESS),yes)
 	$(UPX) $@
 	$(TOUCH) $@
 endif

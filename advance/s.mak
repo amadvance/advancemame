@@ -2,7 +2,7 @@
 # S
 
 SCFLAGS += \
-	-Iadvance/$(HOST_SYSTEM) \
+	-Iadvance/$(CONF_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/mpglib \
 	-Iadvance/common
@@ -28,9 +28,9 @@ SOBJDIRS = \
 	$(SOBJ)/s \
 	$(SOBJ)/lib \
 	$(SOBJ)/mpglib \
-	$(SOBJ)/$(HOST_SYSTEM)
+	$(SOBJ)/$(CONF_SYSTEM)
 
-ifeq ($(HOST_SYSTEM),linux)
+ifeq ($(CONF_SYSTEM),linux)
 SCFLAGS += -DPREFIX=\"$(PREFIX)\"
 SCFLAGS += \
 	-DUSE_SOUND_OSS
@@ -38,11 +38,11 @@ SLIBS = $(ZLIBS) -lm
 SOBJS += \
 	$(SOBJ)/lib/filenix.o \
 	$(SOBJ)/lib/targnix.o \
-	$(SOBJ)/$(HOST_SYSTEM)/os.o \
-	$(SOBJ)/$(HOST_SYSTEM)/soss.o
+	$(SOBJ)/$(CONF_SYSTEM)/os.o \
+	$(SOBJ)/$(CONF_SYSTEM)/soss.o
 endif
 
-ifeq ($(HOST_SYSTEM),dos)
+ifeq ($(CONF_SYSTEM),dos)
 SCFLAGS += \
 	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO
 SLIBS = -laudio -lalleg $(ZLIBS) -lm
@@ -50,26 +50,26 @@ SLDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
 SOBJS += \
 	$(SOBJ)/lib/filedos.o \
 	$(SOBJ)/lib/targdos.o \
-	$(SOBJ)/$(HOST_SYSTEM)/os.o \
-	$(SOBJ)/$(HOST_SYSTEM)/sseal.o \
-	$(SOBJ)/$(HOST_SYSTEM)/salleg.o
+	$(SOBJ)/$(CONF_SYSTEM)/os.o \
+	$(SOBJ)/$(CONF_SYSTEM)/sseal.o \
+	$(SOBJ)/$(CONF_SYSTEM)/salleg.o
 endif
 
-ifeq ($(HOST_SYSTEM),sdl)
+ifeq ($(CONF_SYSTEM),sdl)
 SCFLAGS += \
 	$(SDLCFLAGS) \
 	-DPREFIX=\"$(PREFIX)\" \
 	-DUSE_SOUND_SDL
 SLIBS += $(ZLIBS) -lm $(SDLLIBS)
 SOBJS += \
-	$(SOBJ)/$(HOST_SYSTEM)/os.o \
-	$(SOBJ)/$(HOST_SYSTEM)/ssdl.o
-ifeq ($(HOST_TARGET),linux)
+	$(SOBJ)/$(CONF_SYSTEM)/os.o \
+	$(SOBJ)/$(CONF_SYSTEM)/ssdl.o
+ifeq ($(CONF_HOST),linux)
 SOBJS += \
 	$(SOBJ)/lib/filenix.o \
 	$(SOBJ)/lib/targnix.o
 endif
-ifeq ($(HOST_TARGET),windows)
+ifeq ($(CONF_HOST),windows)
 SOBJS += \
 	$(SOBJ)/lib/filedos.o \
 	$(SOBJ)/lib/targwin.o
@@ -87,7 +87,7 @@ $(sort $(SOBJDIRS)):
 $(SOBJ)/advs$(EXE) : $(sort $(SOBJDIRS)) $(SOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(SLDFLAGS) $(SOBJS) $(SLIBS) -o $@
-ifeq ($(COMPRESS),1)
+ifeq ($(CONF_COMPRESS),yes)
 	$(UPX) $@
 	$(TOUCH) $@
 endif

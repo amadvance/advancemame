@@ -1,178 +1,68 @@
 BUILD
-	This file contains the instructions to build AdvanceMAME,
-	AdvanceMESS, AdvancePAC and AdvanceMENU from the source
-	archives.
+	This file contains the instructions to build AdvanceMAME, AdvanceMESS,
+	AdvancePAC and AdvanceMENU from the source archives.
 
-HOW TO BUILD AdvanceMAME
-	To build the AdvanceMAME program follow these steps:
+PREPARING THE SOURCE
+	To compile AdvanceMENU you don't need to add anything at the source, they are
+	already complete.
 
-	) Check that you have installed all the required libraries
-		listed in the following LIBRARIES section.
+	To build one of the Advance version of the MAME, MESS, PacMAME emulators you
+	need first to download and unzip the original emulator source. You must
+	use the same version of the Advance source.
 
-	) Create the `advmame' directory.
+	The source of the MAME emulator must be unzipped in the `src/' directory,
+	the MESS source in `srcmess/' and the PacMAME source in `srcpac/'.
+	In a Unix system remember to unzip the original .zip archives with the
+	`unzip -aa' command to convert all the files from the DOS/Windows CR/LF format
+	to the Unix CR format.
 
-	) Unzip the MAME sources in the `advmame' directory.
-		You must use the original MAME source from www.mame.net, you
-		cannot use the source of another MAME clone like XMAME.
-		In Linux remember to use the unzip flag `-aa' to convert all the
-		files from the DOS CR/LF format to the Unix CR format.
-		The MAME source archive contains only text files, so it's safe
-		to use `-aa' instead of `-a'.
+	After unpacking the emulator sources you need to patch the MAME source with the
+	patch `advance/advmame.dif', the MESS source with `advance/advmess.dif' and the
+	PacMAME source with `advance/advpac.dif'. If the patch aren't applied correctly
+	probably you are using the wrong version of the emulator source.
 
-	) Unzip the AdvanceMAME source in `advmame'. The original MAME
-		`makefile' must be overwritten by the new AdvanceMAME version.
+CONFIGURING
+	In a Unix system you need to run the `./configure' script with the
+	proper options. You can get a complete list with the `./configure --help' command.
+	Generally, you need only to specify the the --with-system option choosing the
+	`sdl' or `native' system library.
 
-	) The final tree should be :
+	The `native' system uses the svgalib 1.9 and framebuffer graphics libraries and it's
+	able to directly access and completly control the graphics output of your video
+	board and automatically generate video modes with the correct size and frequency.
 
-		:/advmame/advance
-		:/advmame/src
-		:/advmame/makefile
+	The `sdl' system uses the LibSDL graphics library, it can be used to show the
+	programs in a Window Manager, but it's unable to completly control the graphics
+	output. It isn't a good choice for the fullscreen use of the emulator.
 
-	) Patch the MAME source using the `advance/advmame.dif' patch
-		with the command in Linux:
+	If you want to customize the compilation CFLAGS you can set them before
+	calling the ./configure script, for example:
 
-		:cd advmame/src
-		:patch -p1 < ../advance/advmame.dif
+		:CFLAGS="-O3 -march=pentiumii -fomit-frame-pointer -fstrict-aliasing" ./configure
 
-	or in DOS/Windows:
+	In a DOS/Windows system you need to manually rename the `Makefile.in' file
+	as `Makefile', and edit the its first section to match your requirements.
 
-		:cd advmame\src
-		:patch -p1 < ..\advance\advmame.dif
-
-	) Edit the first section of the `makefile' to match your
-		requirements.
-
-	) Start `make'.
-
-	) In Linux as root start `make install'.
-
-HOW TO BUILD AdvanceMESS
-	To build the AdvanceMESS program follow these steps:
-
-	) Check that you have installed all the required libraries
-		listed in the following LIBRARIES section.
-
-	) Create the `advmess' directory.
-
-	) Unzip the MAME sources in the `advmess' directory.
-		In Linux remember to use the unzip flag `-aa' to convert all the
-		files from the DOS CR/LF format to the Unix CR format.
-		The MAME source archive contains only text files, so it's safe
-		to use `-aa' instead of `-a'.
-
-	) Unzip the MESS sources in the `advmess' directory.
-		In Linux unzip with the `-aa' option.
-
-	) Unzip the AdvanceMESS source in `advmess'. The original MESS
-		`makefile' must be overwritten by the new AdvanceMESS version.
-
-	) Rename the `src' directory as `srcmess'.
-
-	) The final tree should be :
-
-		./advmess/advance
-		:/advmess/srcmess
-		:/advmess/makefile
-
-	) Patch the MESS source using the `advance/advmess.dif' patch
-		with the command in Linux:
-
-		:cd advmess/srcmess
-		:patch -p1 < ../advance/advmess.dif
-
-		or in DOS/Windows:
-
-		:cd advmess\srcmess
-		:patch -p1 < ..\advance\advmess.dif
-
-	) Edit the first section of the `makefile' to match your
-		requirements.
-
-	) Start `make'.
-
-	) In Linux as root start `make install'.
-
-HOW TO BUILD AdvancePAC
-	To build the AdvancePAC program follow these steps:
-
-	) Check that you have installed all the required libraries
-		listed in the following LIBRARIES section.
-
-	) Create the `advpac' directory
-
-	) Unzip the PacMAME sources in the `advpac' directory.
-		In Linux unzip with the `-aa' option.
-
-	) Unzip the AdvancePAC source in `advpac'.
-
-	) Rename the `src' directory as `srcpac'.
-
-	) The final tree should be :
-
-		:/advpac/advance
-		:/advpac/srcpac
-		:/advpac/makefile
-
-	) Patch the PacMAME source using the `advance/advpac.dif' patch
-		with the command in Linux:
-
-		:cd advpac/srcpac
-		.patch -p1 < ../advance/advpac.dif
-
-		or in DOS/Windows:
-
-		:cd advpac\srcpac
-		:patch -p1 < ..\advance\advpac.dif
-
-	) Edit the first section of the `makefile' to match your
-		requirements.
-
-	) Start `make'.
-
-	) In Linux as root start `make install'.
-
-HOW TO BUILD AdvanceMENU
-	To build the AdvanceMENU program follow these steps:
-
-	) Check that you have installed all the required libraries
-		listed in the following LIBRARIES section.
-
-	) Create the `advmenu' directory.
-
-	) Unzip the AdvanceMENU sources in the `advmenu' directory.
-
-	) Edit the first section of the `makefile' to match your
-		requirements.
-
-	) Start `make'.
-
-	) In Linux as root start `make install'.
-
-HOW TO BUILD AdvanceCAB
-	To build the AdvanceCAB DOS 16 bits utilities you need the
-	Borland C 3.1 and the Turbo Assembler.
-	Simply use the Makefile present in any directory with the
-	Borland make.
+COMPILING
+	Finally you can run `make' to compile all, and in a Unix system `make install'
+	to install the binaries and the documentation.
 
 TARGETS
 	These are the defined targets in the `Makefile' :
-		emu - Compile the emulator specified with the macro
-			EMU (specified at the start of the
-			makefile).
-		cfg -  Compile `advcfg'
-		v - Compile `advv'
-		line - Compile `advline'
-		k - Compile `advk'
-		j - Compile `advj'
-		m - Compile `advm'
-		s - Compile `advs'
-		menu - Compile `advmenu'
-		all (or empty) - Compile all
+		emu - Compile the emulator.
+		cfg -  Compile `advcfg'.
+		v - Compile `advv'.
+		line - Compile `advline'.
+		k - Compile `advk'.
+		j - Compile `advj'.
+		m - Compile `advm'.
+		s - Compile `advs'.
+		menu - Compile `advmenu'.
+		all (or empty) - Compile all.
+		clear - Clean all.
+		install - Install all [must be root].
 
-	For Linux there are also the following :
-		install - Install all [must be root]
-
-LIBRARIES
+REQUIREMENTS
 	To compile the Advance projects you need the following
 	software :
 		:GNU gcc 2.95.3 or 3.0.4 or 3.1 (with c and c++ support)
@@ -223,7 +113,4 @@ LIBRARIES
 		:Windows (any version)
 		:MINGW 1.1 (or newer)
 		:LibSDL 1.2.4 (or newer)
-
-COPYRIGHT
-	This file is Copyright (C) 2002 Andrea Mazzoleni, Filipe Estima.
 

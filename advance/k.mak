@@ -2,14 +2,14 @@
 # K
 
 KCFLAGS += \
-	-Iadvance/$(HOST_SYSTEM) \
+	-Iadvance/$(CONF_SYSTEM) \
 	-Iadvance/lib \
 	-Iadvance/common
 KOBJDIRS = \
 	$(KOBJ) \
 	$(KOBJ)/k \
 	$(KOBJ)/lib \
-	$(KOBJ)/$(HOST_SYSTEM)
+	$(KOBJ)/$(CONF_SYSTEM)
 KOBJS = \
 	$(KOBJ)/k/k.o \
 	$(KOBJ)/lib/log.o \
@@ -17,38 +17,38 @@ KOBJS = \
 	$(KOBJ)/lib/key.o \
 	$(KOBJ)/lib/incstr.o
 
-ifeq ($(HOST_SYSTEM),linux)
+ifeq ($(CONF_SYSTEM),linux)
 KCFLAGS += -DPREFIX=\"$(PREFIX)\"
 KLIBS = -lvga
 KOBJS += \
 	$(KOBJ)/lib/filenix.o \
 	$(KOBJ)/lib/targnix.o \
-	$(KOBJ)/$(HOST_SYSTEM)/os.o
+	$(KOBJ)/$(CONF_SYSTEM)/os.o
 KCFLAGS += \
 	-DUSE_KEYBOARD_SVGALIB
 endif
 
-ifeq ($(HOST_SYSTEM),dos)
+ifeq ($(CONF_SYSTEM),dos)
 KLIBS = -lalleg
 KOBJS += \
 	$(KOBJ)/lib/filedos.o \
 	$(KOBJ)/lib/targdos.o \
-	$(KOBJ)/$(HOST_SYSTEM)/os.o
+	$(KOBJ)/$(CONF_SYSTEM)/os.o
 endif
 
-ifeq ($(HOST_SYSTEM),sdl)
+ifeq ($(CONF_SYSTEM),sdl)
 KCFLAGS += \
 	$(SDLCFLAGS) \
 	-DPREFIX=\"$(PREFIX)\" \
 	-DUSE_KEYBOARD_SDL
 KLIBS += $(SDLLIBS)
-KOBJS += $(KOBJ)/$(HOST_SYSTEM)/os.o
-ifeq ($(HOST_TARGET),linux)
+KOBJS += $(KOBJ)/$(CONF_SYSTEM)/os.o
+ifeq ($(CONF_HOST),linux)
 KOBJS += \
 	$(KOBJ)/lib/filenix.o \
 	$(KOBJ)/lib/targnix.o
 endif
-ifeq ($(HOST_TARGET),windows)
+ifeq ($(CONF_HOST),windows)
 KOBJS += \
 	$(KOBJ)/lib/filedos.o \
 	$(KOBJ)/lib/targwin.o
@@ -66,7 +66,7 @@ $(sort $(KOBJDIRS)):
 $(KOBJ)/advk$(EXE) : $(sort $(KOBJDIRS)) $(KOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(LDFLAGS) $(KLDFLAGS) $(KOBJS) $(KLIBS) -o $@
-ifeq ($(COMPRESS),1)
+ifeq ($(CONF_COMPRESS),yes)
 	$(UPX) $@
 	$(TOUCH) $@
 endif

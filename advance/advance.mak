@@ -1,22 +1,22 @@
 ############################################################################
 # COMMON version
 
-ifeq ($(EMU),mess)
+ifeq ($(CONF_EMU),mess)
 EMUVERSION = 0.56.x
 else
-ifeq ($(EMU),pac)
+ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
 else
 EMUVERSION = 0.61.2
 endif
 endif
 MENUVERSION = 2.0.1
-CABVERSION = 0.11.2
+CABVERSION = 0.11.3
 
 ############################################################################
 # COMMON dir
 
-OBJ = obj/$(EMU)/$(BINARYDIR)
+OBJ = obj/$(CONF_EMU)/$(BINARYDIR)
 MENUOBJ = obj/menu/$(BINARYDIR)
 MOBJ = obj/m/$(BINARYDIR)
 JOBJ = obj/j/$(BINARYDIR)
@@ -24,8 +24,8 @@ KOBJ = obj/k/$(BINARYDIR)
 VOBJ = obj/v/$(BINARYDIR)
 SOBJ = obj/s/$(BINARYDIR)
 CFGOBJ = obj/cfg/$(BINARYDIR)
-LINEOBJ = obj/line/$(BINARYDIR-HOST)
-D2OBJ = obj/d2/$(BINARYDIR-HOST)
+LINEOBJ = obj/line/$(BINARYDIR_BUILD)
+D2OBJ = obj/d2/$(BINARYDIR_BUILD)
 
 ############################################################################
 # COMMON targets
@@ -71,7 +71,7 @@ ifneq ($(wildcard advance/menu),)
 INSTALL_BINFILES += $(MENUOBJ)/advmenu$(EXE)
 INSTALL_MANFILES += $(D2OBJ)/advmenu.1
 endif
-ifneq ($(HOST_SYSTEM),sdl)
+ifneq ($(CONF_SYSTEM),sdl)
 ifneq ($(wildcard advance/v),)
 INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
 INSTALL_MANFILES += $(D2OBJ)/advv.1
@@ -110,8 +110,8 @@ s: $(SOBJ)/advs$(EXE)
 k: $(KOBJ)/advk$(EXE)
 j: $(JOBJ)/advj$(EXE)
 m: $(MOBJ)/advm$(EXE)
-line: $(LINEOBJ)/advline$(EXE-HOST)
-d2: $(D2OBJ)/advd2$(EXE-HOST)
+line: $(LINEOBJ)/advline$(EXE_BUILD)
+d2: $(D2OBJ)/advd2$(EXE_BUILD)
 
 ############################################################################
 # COMMON SRC
@@ -217,7 +217,7 @@ install_data: $(INSTALL_DATAFILES)
 ifdef INSTALL_DATAFILES
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/rom
-ifeq ($(EMU),mess)
+ifeq ($(CONF_EMU),mess)
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/image
 	@for i in $(INSTALL_IMAGEDIRS); do \
 		$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/image/$$i; \
@@ -301,114 +301,114 @@ $(CFGOBJ)/svgalib/%.o: advance/svgalib/%.c
 ############################################################################
 # Special Rules
 
-ARCH_ALL = ARCH=i386 CFLAGS_ARCH_OVERRIDE="-march=i386 -DUSE_LSB"
-ARCH_PENTIUM = ARCH=i586 CFLAGS_ARCH_OVERRIDE="-march=i586 -DUSE_LSB -DUSE_ASM_i586"
-ARCH_PENTIUM2 = ARCH=i686 CFLAGS_ARCH_OVERRIDE="-march=i686 -DUSE_LSB -DUSE_ASM_i586 -DUSE_ASM_MMX"
-ARCH_K6 = ARCH=k6 CFLAGS_ARCH_OVERRIDE="-march=k6 -DUSE_LSB -DUSE_ASM_i586 -DUSE_ASM_MMX"
+ARCH_ALL = ARCH=i386 CONF_CFLAGS_ARCH="-march=i386 -DUSE_LSB"
+ARCH_PENTIUM = ARCH=i586 CONF_CFLAGS_ARCH="-march=i586 -DUSE_LSB -DUSE_ASM_i586"
+ARCH_PENTIUM2 = ARCH=i686 CONF_CFLAGS_ARCH="-march=i686 -DUSE_LSB -DUSE_ASM_i586"
+ARCH_K6 = ARCH=k6 CONF_CFLAGS_ARCH="-march=k6 -DUSE_LSB -DUSE_ASM_i586"
 
 dosmame:
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos EMU=mame emu
+	$(MAKE) $(ARCH_PENTIUM2) CONF_HOST=dos CONF_EMU=mame emu
 
 dosmess:
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos EMU=mess emu
+	$(MAKE) $(ARCH_PENTIUM2) CONF_HOST=dos CONF_EMU=mess emu
 
 dospac:
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos EMU=pac emu
+	$(MAKE) $(ARCH_PENTIUM2) CONF_HOST=dos CONF_EMU=pac emu
 
 dosmenu:
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos EMU=mame menu
+	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=dos CONF_EMU=mame menu
 
 dosdistbin: dosdistbinpentium2
 
 dosdistbinpentium:
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=dos distbin
 
 dosdistbinpentium2:
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos distbin
+	$(MAKE) $(ARCH_PENTIUM2) CONF_HOST=dos distbin
 
 dosdistbink6:
-	$(MAKE) $(ARCH_K6) HOST_TARGET=dos distbin
+	$(MAKE) $(ARCH_K6) CONF_HOST=dos distbin
 
 dosdistcabbin:
-	$(MAKE) $(ARCH_ALL) HOST_TARGET=dos distcabbin
+	$(MAKE) $(ARCH_ALL) CONF_HOST=dos distcabbin
 
 dosdistmenubin:
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos HOST_SYSTEM=dos distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=dos CONF_SYSTEM=dos distmenubin
 
 linuxdistmenubin:
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=linux HOST_SYSTEM=linux distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=linux CONF_SYSTEM=linux distmenubin
 
 windowsdistmenubin:
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=windows HOST_SYSTEM=sdl distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=windows CONF_SYSTEM=sdl distmenubin
 
 linuxsdldistmenubin:
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=linux HOST_SYSTEM=sdl distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=linux CONF_SYSTEM=sdl distmenubin
 
 mame:
-	$(MAKE) EMU=mame emu
+	$(MAKE) CONF_EMU=mame emu
 
 mame586:
-	$(MAKE) $(ARCH_PENTIUM) EMU=mame emu
+	$(MAKE) $(ARCH_PENTIUM) CONF_EMU=mame emu
 
 neomame:
-	$(MAKE) EMU=neomame emu
+	$(MAKE) CONF_EMU=neomame emu
 
 cpmame:
-	$(MAKE) EMU=cpmame emu
+	$(MAKE) CONF_EMU=cpmame emu
 
 messmame:
-	$(MAKE) EMU=mess emu
+	$(MAKE) CONF_EMU=mess emu
 
 pacmame:
-	$(MAKE) EMU=pac emu
+	$(MAKE) CONF_EMU=pac emu
 
 menu586:
 	$(MAKE) $(ARCH_PENTIUM) menu
 
 wholemame:
 	$(MAKE) dist
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos MAP=1 distbin
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos MAP=1 distbin
-	$(MAKE) $(ARCH_K6) HOST_TARGET=dos MAP=1 distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=dos CONF_MAP=yes distbin
+	$(MAKE) $(ARCH_PENTIUM2) CONF_HOST=dos CONF_MAP=yes distbin
+	$(MAKE) $(ARCH_K6) CONF_HOST=dos CONF_MAP=yes distbin
 
 wholemess:
-	$(MAKE) EMU=mess dist
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos EMU=mess MAP=1 distbin
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos EMU=mess MAP=1 distbin
-	$(MAKE) $(ARCH_K6) HOST_TARGET=dos EMU=mess MAP=1 distbin
+	$(MAKE) CONF_EMU=mess dist
+	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes distbin
+	$(MAKE) $(ARCH_PENTIUM2) CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes distbin
+	$(MAKE) $(ARCH_K6) CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes distbin
 
 wholepac:
-	$(MAKE) EMU=pac dist
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos EMU=pac MAP=1 distbin
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos EMU=pac MAP=1 distbin
-	$(MAKE) $(ARCH_K6) HOST_TARGET=dos EMU=pac MAP=1 distbin
+	$(MAKE) CONF_EMU=pac dist
+	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=dos CONF_EMU=pac CONF_MAP=yes distbin
+	$(MAKE) $(ARCH_PENTIUM2) CONF_HOST=dos CONF_EMU=pac CONF_MAP=yes distbin
+	$(MAKE) $(ARCH_K6) CONF_HOST=dos CONF_EMU=pac CONF_MAP=yes distbin
 
 wholemenu:
 	$(MAKE) distmenu
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos HOST_SYSTEM=dos MAP=1 distmenubin
-	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=windows HOST_SYSTEM=sdl MAP=1 distmenubin
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=linux HOST_SYSTEM=sdl MAP=1 distmenubin
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=linux HOST_SYSTEM=linux MAP=1 distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=dos CONF_SYSTEM=dos CONF_MAP=yes distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF_HOST=windows CONF_SYSTEM=sdl CONF_MAP=yes distmenubin
+	$(MAKE) $(ARCH_PENTIUM2) CONF_HOST=linux CONF_SYSTEM=sdl CONF_MAP=yes distmenubin
+	$(MAKE) $(ARCH_PENTIUM2) CONF_HOST=linux CONF_SYSTEM=linux CONF_MAP=yes distmenubin
 
 wholecab:
-	$(MAKE) HOST_TARGET=dos distcab
-	$(MAKE) $(ARCH_ALL) HOST_TARGET=dos MAP=1 distcabbin
+	$(MAKE) CONF_HOST=dos distcab
+	$(MAKE) $(ARCH_ALL) CONF_HOST=dos CONF_MAP=yes distcabbin
 
 distmess:
-	$(MAKE) EMU=mess dist
+	$(MAKE) CONF_EMU=mess dist
 
 distmessbin:
-	$(MAKE) EMU=mess distbin
+	$(MAKE) CONF_EMU=mess distbin
 
 distpac:
-	$(MAKE) EMU=pac dist
+	$(MAKE) CONF_EMU=pac dist
 
 distpacbin:
-	$(MAKE) EMU=pac distbin
+	$(MAKE) CONF_EMU=pac distbin
 
 distmame:
-	$(MAKE) EMU=mame dist
+	$(MAKE) CONF_EMU=mame dist
 
 distmamebin:
-	$(MAKE) EMU=mame distbin
+	$(MAKE) CONF_EMU=mame distbin
 
