@@ -1753,6 +1753,8 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 	double skip;
 
 	if (context->config.smp_flag) {
+		/* if SMP is active the time estimation take care of it */
+		/* the times are not added, but the max value is used */
 		full = estimate_context->estimate_mame_full;
 		if (full < estimate_context->estimate_osd_full)
 			full = estimate_context->estimate_osd_full;
@@ -1762,6 +1764,7 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 		full += estimate_context->estimate_common_full;
 		skip += estimate_context->estimate_common_skip;
 	} else {
+		/* standard time estimation */
 		full = estimate_context->estimate_mame_full + estimate_context->estimate_osd_full;
 		skip = estimate_context->estimate_mame_skip + estimate_context->estimate_osd_skip;
 	}
@@ -2249,6 +2252,11 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 		/* duplicate the data */
 		pthread_mutex_lock(&context->state.thread_video_mutex);
 
+		/* wait for the stop notification  */
+		while (context->state.thread_state_ready_flag) {
+			pthread_cond_wait(&context->state.thread_video_cond, &context->state.thread_video_mutex);
+		}
+
 		advance_estimate_common_begin(estimate_context);
 
 		if (!skip_flag) {
@@ -2284,6 +2292,10 @@ static void video_frame_update(struct advance_video_context* context, struct adv
 
 		log_debug(("advance:thread: signal\n"));
 
+		/* notify that the data is ready */
+		context->state.thread_state_ready_flag = 1;
+
+		/* signal at the thread to start */
 		pthread_cond_signal(&context->state.thread_video_cond);
 
 		pthread_mutex_unlock(&context->state.thread_video_mutex);
@@ -2312,8 +2324,11 @@ static void* video_thread(void* void_context) {
 	while (1) {
 		log_debug(("advance:thread: wait\n"));
 
-		/* wait for the next signal */
-		pthread_cond_wait(&context->state.thread_video_cond, &context->state.thread_video_mutex);
+		/* wait for the start notification  */
+		while (!context->state.thread_state_ready_flag && !context->state.thread_exit_flag) {
+			pthread_cond_wait(&context->state.thread_video_cond, &context->state.thread_video_mutex);
+		}
+
 		log_debug(("advance:thread: wakeup\n"));
 
 		/* check for exit */
@@ -2323,7 +2338,9 @@ static void* video_thread(void* void_context) {
 			pthread_exit(0);
 		}
 
-		log_debug(("advance:thread: draw\n"));
+		pthread_mutex_unlock(&context->state.thread_video_mutex);
+
+		log_debug(("advance:thread: draw start\n"));
 
 		/* update the frame */
 		video_frame_update_now(
@@ -2341,6 +2358,16 @@ static void* video_thread(void* void_context) {
 			context->state.thread_state_sample_count,
 			context->state.thread_state_skip_flag
 		);
+
+		log_debug(("advance:thread: draw stop\n"));
+
+		pthread_mutex_lock(&context->state.thread_video_mutex);
+
+		/* notify that the data was used */
+		context->state.thread_state_ready_flag = 0;
+
+		/* signal the completion of the operation */
+		pthread_cond_signal(&context->state.thread_video_cond);
 	}
 }
 #endif
@@ -2351,6 +2378,7 @@ static void* video_thread(void* void_context) {
 static int video_init_thread(struct advance_video_context* context) {
 #ifdef USE_SMP
 	context->state.thread_exit_flag = 0;
+	context->state.thread_state_ready_flag = 0;
 	context->state.thread_state_game = 0;
 	context->state.thread_state_led = 0;
 	context->state.thread_state_input = 0;

@@ -80,8 +80,8 @@ ifeq ($(CONF_HOST),unix)
 MENUOBJDIRS += \
 	$(MENUOBJ)/linux
 MENUCFLAGS +=  \
-	-I$(srcdir)/advance/linux \
-	-DPREFIX=\"$(PREFIX)\"
+	-DPREFIX=\"$(PREFIX)\" \
+	-I$(srcdir)/advance/linux
 MENUCFLAGS += \
 	-DUSE_VIDEO_NONE -DUSE_VIDEO_RESTORE \
 	-DUSE_SOUND_NONE \
@@ -118,8 +118,6 @@ MENUOBJS += \
 	$(MENUOBJ)/linux/soss.o
 endif
 ifeq ($(CONF_LIB_SDL),yes)
-MENUOBJDIRS += \
-	$(MENUOBJ)/sdl
 MENUCFLAGS += \
 	$(SDLCFLAGS) \
 	-I$(srcdir)/advance/sdl \
@@ -129,8 +127,9 @@ MENUCFLAGS += \
 	-DUSE_MOUSE_SDL \
 	-DUSE_JOYSTICK_SDL
 MENULIBS += $(SDLLIBS)
+MENUOBJDIRS += \
+	$(MENUOBJ)/sdl
 MENUOBJS += \
-	$(MENUOBJ)/sdl/os.o \
 	$(MENUOBJ)/sdl/vsdl.o \
 	$(MENUOBJ)/sdl/ssdl.o \
 	$(MENUOBJ)/sdl/ksdl.o \
@@ -140,8 +139,6 @@ endif
 endif
 
 ifeq ($(CONF_HOST),dos)
-MENUOBJDIRS += \
-	$(MENUOBJ)/dos
 MENUCFLAGS += \
 	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
@@ -164,6 +161,8 @@ MENULDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_id \
 	-Xlinker --wrap -Xlinker set_config_id
 MENULIBS += -lalleg -laudio
+MENUOBJDIRS += \
+	$(MENUOBJ)/dos
 MENUOBJS += \
 	$(MENUOBJ)/lib/filedos.o \
 	$(MENUOBJ)/lib/targdos.o \

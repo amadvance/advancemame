@@ -41,7 +41,6 @@
 #include <stdlib.h>
 
 #include <linux/fb.h>
-#include <vga.h> /* for waitretrace */
 
 /***************************************************************************/
 /* State */
@@ -350,14 +349,14 @@ void fb_wait_vsync(void) {
 
 	do {
 		if (ioctl(fb_state.fd, FBIOGET_VBLANK, &blank) != 0) {
+			log_std(("video:fb: ERROR FBIOGET_VBLANK not supported\n"));
 			/* not supported */
-			vga_waitretrace();
 			return;
 		}
 
 		if ((blank.flags & FB_VBLANK_HAVE_VSYNC) == 0) {
+			log_std(("video:fb: ERROR FB_VBLANK_HAVE_VSYNC not supported\n"));
 			/* not supported */
-			vga_waitretrace();
 			return;
 		}
 	} while ((blank.flags & FB_VBLANK_VSYNCING) == 0);

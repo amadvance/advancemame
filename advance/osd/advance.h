@@ -242,17 +242,18 @@ struct advance_video_state_context {
 
 #ifdef USE_SMP
 	/* Thread */
-	pthread_t thread_id;
-	pthread_cond_t thread_video_cond;
-	pthread_mutex_t thread_video_mutex;
-	int thread_exit_flag;
-	struct osd_bitmap* thread_state_game;
-	short* thread_state_sample_buffer;
+	pthread_t thread_id; /**< Thread identifier. */
+	pthread_cond_t thread_video_cond; /**< Thread start/stop condition. */
+	pthread_mutex_t thread_video_mutex; /**< Thread access control. */
+	int thread_exit_flag; /**< If the thread must exit. */
+	int thread_state_ready_flag; /**< If the thread data is ready. */
+	struct osd_bitmap* thread_state_game; /**< Thread game bitmap to draw. */
+	short* thread_state_sample_buffer; /**< Thread game sound to play. */
 	unsigned thread_state_sample_count;
 	unsigned thread_state_sample_max;
-	unsigned thread_state_led;
-	unsigned thread_state_input;
-	int thread_state_skip_flag;
+	unsigned thread_state_led; /**< Thread game led to set. */
+	unsigned thread_state_input; /**< Thread input to process. */
+	int thread_state_skip_flag; /**< Thread frame skip_flag to use. */
 #endif
 
 	/* Fastest startup */
@@ -290,22 +291,22 @@ struct advance_video_state_context {
 	int game_visible_pos_x; /**< First visibile position in the used part of the bitmap (not in the whole bitmap). */
 	int game_visible_pos_y;
 
-	/* Basic increment of number of pixel for mantaining the alignement */
+	/** Basic increment of number of pixel for mantaining the alignement. */
 	unsigned game_visible_pos_x_increment;
 
 	/* Blit pipeline */
-	int blit_pipeline_flag; /**< !=0 if blit_pipeline is computed */
-	struct video_pipeline_struct blit_pipeline; /**< put pipeline for the whole put */
+	int blit_pipeline_flag; /**< !=0 if blit_pipeline is computed. */
+	struct video_pipeline_struct blit_pipeline; /**< Put pipeline for the whole put. */
 
-	const video_crtc* crtc_selected; /**< current crtc, pointer in the crtc_vector */
-	video_crtc crtc_effective; /**< current modified crtc */
+	const video_crtc* crtc_selected; /**< Current crtc, pointer in the crtc_vector. */
+	video_crtc crtc_effective; /**< Current modified crtc. */
 	const video_crtc* crtc_map[VIDEO_CRTC_MAX];
 	unsigned crtc_mac;
 
 	/* Event */
-	unsigned event_mask_old; /**< Previous event bitmask */
+	unsigned event_mask_old; /**< Previous event bitmask. */
 
-	int pause_flag; /**< The emulation is paused */
+	int pause_flag; /**< The emulation is paused. */
 
 	/* Menu state */
 	int menu_sub_active; /**< If the sub menu is active. */

@@ -58,7 +58,7 @@ Options
 Video Drivers
 	For the DOS version of the programs the following drivers are 
 	available:
-		vgaline - Tweaked VGA modes.
+		vgaline - Generated VGA modes.
 			Video modes obtained tweaking the hardware
 			registers of the standard VGA. Usually these modes
 			are called Tweaked, XMode, ZMode.
@@ -69,13 +69,13 @@ Video Drivers
 
 			This driver supports also text modes with pixel clocks
 			12.59, 14.16, 25.17, 28.32 MHz.
-		svgaline - Tweaked SVGA modes.
+		svgaline - Generated SVGA modes.
 			Video modes obtained tweaking the hardware
 			registers of the recognized SVGA boards.
 
 			All clocks, all bit depths are available.
 			To use these modes your video board must be supported
-			by a `svgaline' driver listed in the `card.txt' file.
+			by a `svgaline' driver listed in the `carddos.txt' file.
 
 			The drivers are probed at the startup, and the first
 			detected is used. The name of the video driver active
@@ -84,13 +84,13 @@ Video Drivers
 
 			This driver is completly indipendent of the VBE BIOS
 			of your board.
-		vbeline - Tweaked VBE (VESA) modes.
+		vbeline - Generated VBE (VESA) modes.
 			Video modes obtained tweaking the standard VBE BIOS mode
 			changing the hardware registers of the SVGA.
 			All clocks, all bit depths are available.
 
 			To use these modes your video board must be supported
-			by a `vbeline' driver listed in the `card.txt' file.
+			by a `vbeline' driver listed in the `carddos.txt' file.
 			The drivers are probed at the startup, and the first
 			detected is used. The name of the video driver active
 			is displayed in the upper right corner of the first
@@ -113,7 +113,7 @@ Video Drivers
 			If your video board isn't supported by any drivers and
 			you don't have a VBE3 BIOS you can try installing a
 			software VESA BIOS like the SciTech Display Doctor.
-		vbe - VBE modes.
+		vbe - Available VBE modes.
 			This driver is able to use only the video modes
 			reported by your VESA BIOS.
 			It doesn't require any `device_p/h/vclock' options
@@ -122,14 +122,14 @@ Video Drivers
 
 	For the Linux version of the programs the following drivers are 
 	available:
-		svgalib - Tweaked SVGA modes.
+		svgalib - Generated SVGALIB modes.
 			SVGA Graphics modes from the SVGALIB library.
 			You must install the SVGALIB library version 1.9.x.
-		fb - Console Frame Buffer modes.
+		fb - Generated Frame Buffer modes.
 			SVGA Graphics modes from the Linux Kernel Console Frame
 			Buffer. You must activate the Console Frame Buffer
 			support in your kernel.
-		sdl - SDL modes.
+		sdl - Available SDL modes.
 			This driver is able to use only the video modes
 			reported by the SDL system.
 			It doesn't require any `device_p/h/vclock' options
@@ -244,7 +244,7 @@ Configuration
 	the `/' separator. For example to force the `vbe3' model
 	detection of the `vbeline' driver you must specify
 	`vbeline/vbe3'. A complete list of all the available model is in
-	the `card.txt' file. Plese note that forcing a specific video
+	the `carddos.txt' file. Plese note that forcing a specific video
 	driver is discouraged with the only exception of the
 	`vbeline/vbe3' model.
 
@@ -451,7 +451,7 @@ Configuration
 		auto - Autodetect (default).
 		vbe3 - Use the VBE3 BIOS if available, this is the
 			last driver detected.
-		... - Check the `card.txt' file for a complete list of
+		... - Check the `carddos.txt' file for a complete list of
 			the video driver available.
 	Example:
 		:device_vbeline_driver vbe3

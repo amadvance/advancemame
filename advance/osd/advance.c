@@ -145,7 +145,7 @@ int osd_thread(void (*func0)(void), void (*func1)(void))
 	if (context->config.smp_flag) {
 
 		pthread_mutex_lock(&thread_mutex1);
-
+		
 		pthread_mutex_lock(&thread_mutex0);
 		thread_call = func1;
 		pthread_cond_signal(&thread_cond0);
@@ -158,6 +158,7 @@ int osd_thread(void (*func0)(void), void (*func1)(void))
 
 		return 0;
 	} else {
+
 		func0();
 		func1();
 
