@@ -541,7 +541,7 @@ HEADER
 "\tThis exclude the `vesafb' driver.\n"
 "\n"
 "\tThe following is the list of the drivers available on the\n"
-"\tLinux Kernel 2.4.26. More recent kernels may have more\n"
+"\tLinux Kernel 2.6.10. More recent kernels may have more\n"
 "\trecent models supported.\n"
 "\n"
 ;
@@ -658,13 +658,13 @@ struct pci_id_mask ID_VBELINE[] = {
 };
 
 struct pci_id ID_FB[] = {
-#include "fbid.h"
+#include "fbid26.h"
 { 0 }
 };
 
 struct pci_id ID_FBPATCH[] = {
 #define USE_FB_PATCH
-#include "fbid.h"
+#include "fbid24.h"
 #undef USE_FB_PATCH
 { 0 }
 };

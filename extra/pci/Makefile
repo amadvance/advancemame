@@ -11,6 +11,9 @@ clean:
 alsa:
 	awk '{ print "{ " $$2 ", " $$3 ", \"\" }, /* " $$1 " */ " } ' < modules.pcimap > alsaid.h.new
 
+fb:
+	awk '{ print "{ " $$2 ", " $$3 ", \"\" }, /* " $$1 " */ " } ' < modules.pcimap > fbid26.h.new
+
 pcismall.txt: pcidevs.txt
 	grep -E "^(D|V)" pcidevs.txt > pcismall.txt
 
