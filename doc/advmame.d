@@ -568,7 +568,9 @@ Configuration
 	emulated game. Correct using of this option removes the need
 	of any software stretching improving a lot the game image.
 
-	:display_adjust none | x | clock | xclock | generate
+	:display_adjust none | x | clock | xclock | generate_exact
+		| generate_y | generate_clock | generate_clocky
+		| generate_yclock
 
 	Options:
 		none - No automatic video mode creation. Use only the
@@ -582,7 +584,7 @@ Configuration
 			to match the game's frame rate.
 		xclock - Adjusts the available modeline's width and the
 			vertical clock.
-		generate - Creates automatically some new modelines using
+		generate_exact - Creates automatically some new modelines using
 			the format specified on the `device_video_format'
 			option.
 			The generated modelines will have the names :
@@ -593,16 +595,33 @@ Configuration
 			to set it up correctly.
 			If the `device_video_format' option isn't
 			specified a default value is used.
+		generate_y - Like generate_exact and it allows to generate
+			modes with a wrong size if a perfect mode is not
+			possible.
+		generate_clock - Like generate_exact and it allows to generate
+			modes with a wrong clock if a perfect mode is not
+			possible.
+		generate_yclock - Like generate_exact and it allows
+			to generate modes with a wrong clock and/or size if a
+			perfect mode is not possible. Modes with a correct size
+			are favorite over mode than a correct clock.
+		generate_clocky - Like generate_exact and it allows
+			to generate modes with a wrong clock and/or size if a
+			perfect mode is not possible. Modes with a correct clock
+			are favorite over mode witha correct size.
 
-	The `generate' option is the most powerful, you don't need to
+	The `generate' options are the most powerful, you don't need to
 	create a list of modelines with the `advmamev' utility.
 	With all the other options you need to create a list of good
 	modeline with the `advv' utility.
 
-	The `advcfg' utility always sets up the `generate' option.
+	Of all the `generate' options, the `generate_yclock' is the
+	suggested.
 
-	If you can't get good result with the `generate' you should
-	create a list of modelines and try with the `xclock' option.
+	The `advcfg' utility always sets up the `generate_yclock' option.
+
+	If you can't get good result with the `generate' options you
+	should create a list of modelines and try with the `xclock' option.
 	The horizontal resolution of the modelines isn't important
 	because the video modes are stretched in any case.
 	Instead you should create a wide set of different vertical

@@ -1393,7 +1393,7 @@ void cmd_save(adv_conf* config, const adv_generate_interpolate_set* interpolate,
 	case advance_pac :
 		/* set the specific AdvanceMAME options to enable the generate mode. */
 		conf_string_set(config,"","display_mode","auto");
-		conf_string_set(config,"","display_adjust","generate");
+		conf_string_set(config,"","display_adjust","generate_yclock");
 		break;
 	case advance_menu:
 		break;

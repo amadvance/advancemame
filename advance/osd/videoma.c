@@ -207,6 +207,7 @@ static adv_error video_make_crtc(struct advance_video_context* context, adv_crtc
 		return 0; /* always ok if the driver is not programmable */
 	}
 
+	/* adjust the X size */
 	if ((context->config.adjust & ADJUST_ADJUST_X) != 0) {
 		unsigned best_size_x;
 
@@ -221,8 +222,8 @@ static adv_error video_make_crtc(struct advance_video_context* context, adv_crtc
 		crtc_hsize_set(crtc, best_size_x);
 	}
 
+	/* adjust the clock */
 	if ((context->config.adjust & ADJUST_ADJUST_CLOCK) != 0) {
-
 		crtc_vclock_set(crtc, context->state.game_fps);
 
 		if (!crtc_clock_check(&context->config.monitor, crtc)) {
@@ -231,6 +232,10 @@ static adv_error video_make_crtc(struct advance_video_context* context, adv_crtc
 
 		if (!crtc_clock_check(&context->config.monitor, crtc)) {
 			crtc_vclock_set(crtc, 3 * context->state.game_fps);
+		}
+
+		if (!crtc_clock_check(&context->config.monitor, crtc)) {
+			crtc_vclock_set(crtc, 4 * context->state.game_fps);
 		}
 
 		if (!crtc_clock_check(&context->config.monitor, crtc)) {
@@ -828,6 +833,7 @@ static adv_bool is_crtc_acceptable_preventive(struct advance_video_context* cont
 		return 1; /* always ok if the driver is not programmable */
 	}
 
+	/* adjust the clock if possible */
 	if ((context->config.adjust & ADJUST_ADJUST_CLOCK) != 0) {
 		if (!crtc_clock_check(&context->config.monitor, &temp_crtc)) {
 			if (crtc_adjust_clock(&temp_crtc, &context->config.monitor) != 0) {
@@ -1080,43 +1086,70 @@ static adv_error video_update_crtc(struct advance_video_context* context)
 /* Initialization */
 
 /**
- * Compute and insert in the main list a new modeline with the specified parameter.
+ * Generate and add a crtc mode.
+ */
+adv_error video_init_crtc_generate(struct advance_video_context* context, adv_crtc* crtc, unsigned adjust, unsigned cap, unsigned size_x0, unsigned size_y0, unsigned size_x1, unsigned size_y1, unsigned size_x2, unsigned size_y2, unsigned size_x3, unsigned size_y3, double vclock)
+{
+	adv_error err = -1;
+
+	/* try with a perfect mode */
+	if (err != 0)
+		err = generate_find_interpolate_multi(crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_EXACT);
+	if ((adjust & (ADJUST_ADJUST_CLOCK | ADJUST_ADJUST_Y)) == (ADJUST_ADJUST_CLOCK | ADJUST_ADJUST_Y)) {
+		if ((adjust & ADJUST_FAVORITE_SIZE_OVER_CLOCK) != 0) {
+			/* try with a mode with different vclock */
+			if (err != 0)
+				err = generate_find_interpolate_multi(crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VCLOCK);
+			/* try with a mode with different vtotal and different vclock */
+			if (err != 0)
+				err = generate_find_interpolate_multi(crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
+		} else {
+			/* try with a mode with different vtotal */
+			if (err != 0)
+				err = generate_find_interpolate_multi(crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VTOTAL);
+			/* try with a mode with different vtotal and different vclock */
+			if (err != 0)
+				err = generate_find_interpolate_multi(crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
+		}
+	} else if ((adjust & ADJUST_ADJUST_CLOCK) != 0) {
+		/* try with a mode with different vclock */
+		if (err != 0)
+			err = generate_find_interpolate_multi(crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VCLOCK);
+	} else if ((adjust & ADJUST_ADJUST_Y) != 0) {
+		/* try with a mode with different vtotal */
+		if (err != 0)
+			err = generate_find_interpolate_multi(crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VTOTAL);
+	}
+
+	return err;
+}
+
+/**
+ * Generate and add a crtc mode for a raster game.
  */
 static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context* context, const char* name, unsigned size_x0, unsigned size_y0, unsigned size_x1, unsigned size_y1, unsigned size_x2, unsigned size_y2, unsigned size_x3, unsigned size_y3, double vclock, adv_bool force_scanline, adv_bool force_interlace, adv_bool force_correct_size)
 {
 	char buffer[256];
 	adv_crtc crtc;
-	adv_error err = -1;
+	adv_error err;
 	const adv_crtc* ret;
+
+	unsigned adj = context->config.adjust;
+	if (force_correct_size) {
+		adj &= ~ADJUST_ADJUST_Y;
+	}
 
 	if (force_scanline) {
 		/* use only single scanline modes */
 		unsigned cap = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE);
-		/* try with a perfect mode */
-		if (err != 0)
-			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_EXACT);
-		/* try with a mode with different vclock but correct vtotal */
-		if (err != 0)
-			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VCLOCK);
+		err = video_init_crtc_generate(context, &crtc, adj, cap, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock);
 	} else if (force_interlace) {
 		/* use only interlace modes */
 		unsigned cap = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN);
-		/* try with a perfect mode */
-		if (err != 0)
-			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_EXACT);
-		/* try with a mode with different vclock but correct vtotal */
-		if (err != 0)
-			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VCLOCK);
+		err = video_init_crtc_generate(context, &crtc, adj, cap, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock);
 	} else {
-		/* try with a perfect mode */
-		if (err != 0)
-			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_EXACT);
-		/* try with a mode with different vclock but correct vtotal */
-		if (err != 0)
-			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VCLOCK);
-		/* try with a mode with different vtotal and different vclock */
-		if (err != 0 && !force_correct_size)
-			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
+		unsigned cap = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0);
+		err = video_init_crtc_generate(context, &crtc, adj, cap, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock);
 	}
 
 	if (err != 0) {
@@ -1124,8 +1157,10 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 		return 0;
 	}
 
-	if (!crtc_clock_check(&context->config.monitor, &crtc))
+	if (!crtc_clock_check(&context->config.monitor, &crtc)) {
+		log_std(("advance:generate: failed to generate a correct mode\n"));
 		return 0;
+	}
 
 	crtc_name_set(&crtc, name);
 
@@ -1138,9 +1173,9 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 }
 
 /**
- * Crete a fake video mode.
+ * Crete and add a fake video mode.
  * The fake video modes are for exclusive use with video driver with a fake mode set,
- * i.e. drivers for a window manager.
+ * i.e. drivers for a window manager. It never fails.
  */
 static void video_init_crtc_make_fake(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y)
 {
@@ -1158,30 +1193,26 @@ static void video_init_crtc_make_fake(struct advance_video_context* context, con
 }
 
 /**
- * Compute and insert in the main list a new modeline guessing the specified parameters.
- * This is mainly used for vector games.
+ * Generate and add a crtc mode for a vector game.
  */
 static void video_init_crtc_make_vector(struct advance_video_context* context, const char* name, unsigned size_x0, unsigned size_y0, unsigned size_x1, unsigned size_y1, unsigned size_x2, unsigned size_y2, unsigned size_x3, unsigned size_y3, double vclock)
 {
 	char buffer[256];
 	adv_crtc crtc;
-	adv_error err = -1;
+	adv_error err;
 
-	/* try with a perfect mode */
-	if (err != 0)
-		err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_EXACT);
-	/* try with a mode with different vtotal but correct vclock */
-	if (err != 0)
-		err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL);
-	/* try with a mode with different vtotal and different vclock */
-	if (err != 0)
-		err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
+	unsigned cap = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0);
+	err = video_init_crtc_generate(context, &crtc, context->config.adjust, cap, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock);
 
-	if (err != 0)
+	if (err != 0) {
+		log_std(("advance:generate: failed to generate mode vector\n"));
 		return;
+	}
 
-	if (!crtc_clock_check(&context->config.monitor, &crtc))
+	if (!crtc_clock_check(&context->config.monitor, &crtc)) {
+		log_std(("advance:generate: failed to generate a correct mode\n"));
 		return;
+	}
 
 	/* adjust the horizontal size */
 	size_y0 = crtc_vsize_get(&crtc);
@@ -3050,7 +3081,11 @@ static adv_conf_enum_int OPTION_ADJUST[] = {
 { "x", ADJUST_ADJUST_X },
 { "clock", ADJUST_ADJUST_CLOCK },
 { "xclock", ADJUST_ADJUST_X | ADJUST_ADJUST_CLOCK },
-{ "generate", ADJUST_GENERATE }
+{ "generate_exact", ADJUST_GENERATE },
+{ "generate_y", ADJUST_GENERATE | ADJUST_ADJUST_Y },
+{ "generate_clock", ADJUST_GENERATE | ADJUST_ADJUST_CLOCK },
+{ "generate_yclock", ADJUST_GENERATE | ADJUST_ADJUST_Y | ADJUST_ADJUST_CLOCK | ADJUST_FAVORITE_SIZE_OVER_CLOCK },
+{ "generate_clocky", ADJUST_GENERATE | ADJUST_ADJUST_Y | ADJUST_ADJUST_CLOCK }
 };
 
 static adv_conf_enum_int OPTION_MAGNIFY[] = {

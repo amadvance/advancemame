@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMENU
 
-AdvanceMAME Version 2.2.6 2003/04
+AdvanceMAME Version 2.2.6 2003/05
 	) Added the "-version" command line option.
 	) Removed some "buffer overflow".
 	) In Linux you can specify an arbitrary data directory with the

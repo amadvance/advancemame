@@ -94,12 +94,14 @@
 #define STRETCH_FRACTIONAL_XY 3 /**< Stretch fractional on x and y. */
 /*@}*/
 
-/** Hardware stretch (enumeration). */
+/** Hardware stretch (mask). */
 /*@{*/
 #define ADJUST_NONE 0 /**< No mode adjust. */
 #define ADJUST_ADJUST_X 0x1 /**< Adjust the x size. */
 #define ADJUST_ADJUST_CLOCK 0x2 /**< Adjuts the clock. */
 #define ADJUST_GENERATE 0x4 /**< Generate. */
+#define ADJUST_ADJUST_Y 0x8 /**< Adjust the y size. */
+#define ADJUST_FAVORITE_SIZE_OVER_CLOCK 0x10 /**< Favorite the size over the clock. */
 /*@}*/
 
 /** Special combine effect (enumeration). */

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Scale2x project.
  *
- * Copyright (C) 2000-2002 Andrea Mazzoleni
+ * Copyright (C) 2001-2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,11 +19,11 @@
  */
 
 /*
- * This file contains a C and MMX implentation of the Scale2x effect.
+ * This file contains a C and MMX implementation of the Scale2x effect.
  *
- * You can found an high level description of the effect at :
+ * You can find an high level description of the effect at :
  *
- * http://scale2x.sourceforge.net/scale2x.html
+ * http://scale2x.sourceforge.net/
  *
  * Alternatively at the previous license terms, you are allowed to use this
  * code in your program with these conditions:
@@ -188,6 +188,8 @@ static void scale2x_32_def_single(scale2x_uint32* dst, const scale2x_uint32* src
  */
 static inline void scale2x_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
 {
+	assert(count >= 2);
+
 	scale2x_8_def_single(dst0, src0, src1, src2, count);
 	scale2x_8_def_single(dst1, src2, src1, src0, count);
 }
@@ -205,6 +207,8 @@ static inline void scale2x_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, const
  */
 static inline void scale2x_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
 {
+	assert(count >= 2);
+
 	scale2x_16_def_single(dst0, src0, src1, src2, count);
 	scale2x_16_def_single(dst1, src2, src1, src0, count);
 }
@@ -222,6 +226,8 @@ static inline void scale2x_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, co
  */
 static inline void scale2x_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
 {
+	assert(count >= 2);
+
 	scale2x_32_def_single(dst0, src0, src1, src2, count);
 	scale2x_32_def_single(dst1, src2, src1, src0, count);
 }

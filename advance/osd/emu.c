@@ -465,7 +465,8 @@ static adv_conf_conv STANDARD[] = {
 { "*", "display_artwork", "*", "%s", "display_artwork_backdrop", "%s", 0 }, /* rename */
 /* 0.68.0 */
 { "*", "display_magnify", "yes", "%s", "%s", "2", 0 }, /* rename */
-{ "*", "display_magnify", "no", "%s", "%s", "1", 0 } /* rename */
+{ "*", "display_magnify", "no", "%s", "%s", "1", 0 }, /* rename */
+{ "*", "display_adjust", "generate", "%s", "%s", "generate_yclock", 0 } /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
