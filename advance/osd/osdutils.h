@@ -35,7 +35,6 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <string.h>
-
 #include <ctype.h>
 
 #ifdef __MSDOS__
@@ -90,6 +89,15 @@ static inline void osd_mkdir(const char* dir)
 #else
 #define PATH_SEPARATOR '/'
 #define EOLN "\n"
+#endif
+
+#if !defined(__MSDOS__) && !defined(__WIN32__)
+static inline void strlwr(char* s) {
+	while (*s) {
+		*s = tolower(*s);
+		++s;
+	}
+}
 #endif
 
 #endif

@@ -31,6 +31,8 @@
 #ifndef __OSD_CPU_H
 #define __OSD_CPU_H
 
+#include "osdutils.h"
+
 #define OSD_CPU_H /* Some MAME files requires this (sound/fm.c) */
 
 /* Common types */

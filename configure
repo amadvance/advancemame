@@ -3174,46 +3174,65 @@ if test $ac_auto_cflags = yes; then
 	else
 		CFLAGS=""
 
-if grep -i "family.*:.*3" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="i386"
-	ac_cpu_family=3
-elif grep -i "family.*:.*4" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="i486"
-	ac_cpu_family=4
-elif grep -i "family.*:.*5" /proc/cpuinfo > /dev/null ; then
-	if grep -i "model name.*:.*K6" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="k6"
-	elif grep -i "model name.*:.*Pentium MMX" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium-mmx"
-	elif grep -i "model name.*:.*Pentium" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium"
-	else
-		ac_cpu_arch="i586"
-	fi
-	ac_cpu_family=5
-elif grep "family.*:.*6" /proc/cpuinfo > /dev/null ; then
-	if grep -i "model name.*:.*Athlon" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="athlon"
-	elif grep -i "model name.*:.*Pentium IV" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium4"
-	elif grep -i "model name.*:.*Pentium III" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium3"
-	elif grep -i "model name.*:.*Pentium II" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium2"
-	elif grep -i "model name.*:.*Pentium Pro" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentiumpro"
-	else
-		ac_cpu_arch="i686"
-	fi
-	ac_cpu_family=6
+if grep -i "model name.*:.*Celeron.*Willamette" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="pentium4"
+	ac_cpu_arch_secondary=i686
+elif grep -i "model name.*:.*Celeron.*Coppermine" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="pentium3"
+	ac_cpu_arch_secondary=i686
+elif grep -i "model name.*:.*Celeron.*Mendocino" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="pentium2"
+	ac_cpu_arch_secondary=i686
+elif grep -i "model name.*:.*Pentium.*III" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="pentium3"
+	ac_cpu_arch_secondary=i686
+elif grep -i "model name.*:.*Pentium.*II" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="pentium2"
+	ac_cpu_arch_secondary=i686
+elif grep -i "model name.*:.*Pentium.*Pro" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="pentiumpro"
+	ac_cpu_arch_secondary=i686
+elif grep -i "model name.*:.*Pentium.* 4 " /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="pentium4"
+	ac_cpu_arch_secondary=i686
+elif grep -i "model name.*:.*Pentium" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="pentium"
+	ac_cpu_arch_secondary=i586
+elif grep -i "model name.*:.*Athlon.*MP" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="athlon-mp"
+	ac_cpu_arch_secondary=i686
+elif grep -i "model name.*:.*Athlon.*XP" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="athlon-xp"
+	ac_cpu_arch_secondary=i686
+elif grep -i "model name.*:.*Athlon.*TBird" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="athlon-tbird"
+	ac_cpu_arch_secondary=i686
+elif grep -i "model name.*:.*Athlon.* 4 " /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="athlon-4"
+	ac_cpu_arch_secondary=i686
+elif grep -i "model name.*:.*Athlon" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="athlon"
+	ac_cpu_arch_secondary=i686
+elif grep -i "model name.*:.*Duron" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="pentium"
+	ac_cpu_arch_secondary=i586
+elif grep -i "model name.*:.*K6-3" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="k6-3"
+	ac_cpu_arch_secondary=i586
+elif grep -i "model name.*:.*K6-2" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="k6-2"
+	ac_cpu_arch_secondary=i586
+elif grep -i "model name.*:.*K6" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="k6"
+	ac_cpu_arch_secondary=i586
 else
 	ac_cpu_arch=blend
-	ac_cpu_family=0
+	ac_cpu_arch_secondary=blend
 fi
-echo "$as_me:$LINENO: checking build cpu, family" >&5
-echo $ECHO_N "checking build cpu, family... $ECHO_C" >&6
-echo "$as_me:$LINENO: result: $ac_cpu_arch, $ac_cpu_family" >&5
-echo "${ECHO_T}$ac_cpu_arch, $ac_cpu_family" >&6
+echo "$as_me:$LINENO: checking build arch" >&5
+echo $ECHO_N "checking build arch... $ECHO_C" >&6
+echo "$as_me:$LINENO: result: $ac_cpu_arch" >&5
+echo "${ECHO_T}$ac_cpu_arch" >&6
 
 
 if test $ac_cpu_arch = blend; then
@@ -3238,10 +3257,10 @@ rm -f conftest*
 		ac_cc_arch=$ac_cpu_arch
 	else
 
-echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -march=i${ac_cpu_family}86" >&5
-echo $ECHO_N "checking whether ${CC-cc} accepts -march=i${ac_cpu_family}86... $ECHO_C" >&6
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -march=$ac_cpu_arch_secondary" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -march=$ac_cpu_arch_secondary... $ECHO_C" >&6
 echo 'void f(){}' > conftest.c
-if test -z "`${CC-cc} -c -march=i${ac_cpu_family}86 conftest.c 2>&1`"; then
+if test -z "`${CC-cc} -c -march=$ac_cpu_arch_secondary conftest.c 2>&1`"; then
   echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
   ac_cc_family_arch=yes
@@ -3253,7 +3272,7 @@ fi
 rm -f conftest*
 
 		if test $ac_cc_family_arch = yes ; then
-			ac_cc_arch=i${ac_cpu_family}86
+			ac_cc_arch=$ac_cpu_arch_secondary
 		else
 			ac_cc_arch=blend
 		fi

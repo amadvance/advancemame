@@ -1,6 +1,9 @@
 Name
 	history - History For Advance Emulators
 
+AdvanceMAME Version 0.64.0 2003/02
+	) Fixed the Pentium 4 detection by the configure script.
+
 AdvanceMAME Version 0.63.0 2003/01
 	) Added the ALSA sound driver for Linux. It's now the
 		preferred choice over OSS.

@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2003-01-13 18:30:42.000000000 +0100
++++ src/advance.pat	2003-02-09 22:48:39.000000000 +0100
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/common.c src/common.c
---- src.ori/common.c	2002-12-03 10:33:52.000000000 +0100
-+++ src/common.c	2003-01-13 20:03:48.000000000 +0100
+--- src.ori/common.c	2002-12-03 10:33:53.000000000 +0100
++++ src/common.c	2003-02-09 22:48:39.000000000 +0100
 @@ -411,17 +411,11 @@
  	coin_counter_w - sets input for coin counter
  -------------------------------------------------*/
@@ -39,8 +39,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		{
  			int k;
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
---- src.ori/cpu/i8085/i8085.c	2002-08-25 00:51:26.000000000 +0200
-+++ src/cpu/i8085/i8085.c	2003-01-13 18:30:42.000000000 +0100
+--- src.ori/cpu/i8085/i8085.c	2002-08-25 00:51:27.000000000 +0200
++++ src/cpu/i8085/i8085.c	2003-02-09 22:48:39.000000000 +0100
 @@ -61,10 +61,16 @@
   *
   *****************************************************************************/
@@ -59,8 +59,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #include "state.h"
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
---- src.ori/cpu/m68000/make68k.c	2002-11-15 19:08:24.000000000 +0100
-+++ src/cpu/m68000/make68k.c	2003-01-13 18:30:42.000000000 +0100
+--- src.ori/cpu/m68000/make68k.c	2002-11-15 19:08:25.000000000 +0100
++++ src/cpu/m68000/make68k.c	2003-02-09 22:48:39.000000000 +0100
 @@ -188,11 +188,11 @@
  
  
@@ -109,7 +109,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
 --- src.ori/cpu/z80/z80.c	2002-12-12 20:01:26.000000000 +0100
-+++ src/cpu/z80/z80.c	2003-01-13 18:30:42.000000000 +0100
++++ src/cpu/z80/z80.c	2003-02-09 22:48:39.000000000 +0100
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -128,8 +128,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpuexec.c src/cpuexec.c
---- src.ori/cpuexec.c	2002-12-08 13:32:24.000000000 +0100
-+++ src/cpuexec.c	2003-01-13 18:30:42.000000000 +0100
+--- src.ori/cpuexec.c	2002-12-08 13:32:25.000000000 +0100
++++ src/cpuexec.c	2003-02-09 22:48:39.000000000 +0100
 @@ -233,10 +233,13 @@
  	watchdog_counter = -1;
  
@@ -144,25 +144,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/datafile.c src/datafile.c
---- src.ori/datafile.c	2002-11-21 06:49:00.000000000 +0100
-+++ src/datafile.c	2003-01-17 18:37:46.000000000 +0100
-@@ -40,11 +40,11 @@
- 
- 
- /****************************************************************************
-  *      datafile constants
-  ****************************************************************************/
--#define MAX_DATAFILE_ENTRIES 3000
-+#define MAX_DATAFILE_ENTRIES 5000
- #define DATAFILE_TAG '$'
- 
- const char *DATAFILE_TAG_KEY = "$info";
- const char *DATAFILE_TAG_BIO = "$bio";
- const char *DATAFILE_TAG_MAME = "$mame";
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/neogeo.c src/drivers/neogeo.c
---- src.ori/drivers/neogeo.c	2002-12-24 18:25:06.000000000 +0100
-+++ src/drivers/neogeo.c	2003-01-13 18:30:48.000000000 +0100
+--- src.ori/drivers/neogeo.c	2003-01-16 23:19:22.000000000 +0100
++++ src/drivers/neogeo.c	2003-02-09 22:48:45.000000000 +0100
 @@ -289,11 +289,11 @@
  			}
  			fc++;
@@ -176,24 +160,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		vblank_int = 1;	   /* vertical blank */
  	}
  
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/fileio.c src/fileio.c
---- src.ori/fileio.c	2002-12-09 11:19:32.000000000 +0100
-+++ src/fileio.c	2003-01-13 20:17:10.000000000 +0100
-@@ -4,11 +4,10 @@
- 
- ***************************************************************************/
- 
- #include "driver.h"
- #include "unzip.h"
--#include "rc.h"
- 
- #ifdef MESS
- #include "image.h"
- #endif
- 
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/inptport.c src/inptport.c
 --- src.ori/inptport.c	2002-11-20 21:21:00.000000000 +0100
-+++ src/inptport.c	2003-01-13 18:32:00.000000000 +0100
++++ src/inptport.c	2003-02-09 22:48:49.000000000 +0100
 @@ -147,10 +147,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
@@ -322,8 +291,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/inptport.h src/inptport.h
---- src.ori/inptport.h	2002-11-15 18:36:20.000000000 +0100
-+++ src/inptport.h	2003-01-13 18:30:48.000000000 +0100
+--- src.ori/inptport.h	2002-11-15 18:36:21.000000000 +0100
++++ src/inptport.h	2003-02-09 22:48:49.000000000 +0100
 @@ -81,10 +81,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
@@ -342,7 +311,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/input.c src/input.c
 --- src.ori/input.c	2002-06-30 20:57:54.000000000 +0200
-+++ src/input.c	2003-01-13 18:30:48.000000000 +0100
++++ src/input.c	2003-02-09 22:48:49.000000000 +0100
 @@ -782,11 +782,11 @@
  {
  	int pressed;
@@ -371,7 +340,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		{
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/mame.c src/mame.c
 --- src.ori/mame.c	2003-01-02 17:52:20.000000000 +0100
-+++ src/mame.c	2003-01-13 18:30:48.000000000 +0100
++++ src/mame.c	2003-02-09 22:48:49.000000000 +0100
 @@ -953,26 +953,20 @@
  	to a given resolution
  -------------------------------------------------*/
@@ -411,7 +380,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  /*-------------------------------------------------
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/neomame.mak src/neomame.mak
 --- src.ori/neomame.mak	2001-02-16 16:13:54.000000000 +0100
-+++ src/neomame.mak	2003-01-13 18:30:48.000000000 +0100
++++ src/neomame.mak	2003-02-09 22:48:49.000000000 +0100
 @@ -8,17 +8,19 @@
  EMULATOR_EXE = neomame.exe
  
@@ -434,7 +403,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  COREOBJS += $(OBJ)/driver.o $(OBJ)/cheat.o
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2002-12-21 18:07:36.000000000 +0100
-+++ src/osdepend.h	2003-01-13 18:33:32.000000000 +0100
++++ src/osdepend.h	2003-02-09 22:48:49.000000000 +0100
 @@ -358,11 +358,37 @@
  /* things like changing the title bar or darkening the display. */
  /* Note that the OS dependant code must NOT stop processing input, since the user */
@@ -475,7 +444,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  int osd_net_send(int player, unsigned char buf[], int *size);
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/sound/fm.c src/sound/fm.c
 --- src.ori/sound/fm.c	2002-12-21 22:38:58.000000000 +0100
-+++ src/sound/fm.c	2003-01-13 20:19:02.000000000 +0100
++++ src/sound/fm.c	2003-02-09 22:48:49.000000000 +0100
 @@ -365,11 +365,11 @@
  #define PMS_RATE 0x400
  /* LFO runtime work */
@@ -491,7 +460,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  static INT32 OPN_LFO_wave[LFO_ENT];
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2002-11-20 21:54:00.000000000 +0100
-+++ src/ui_text.c	2003-01-13 18:30:48.000000000 +0100
++++ src/ui_text.c	2003-02-09 22:48:49.000000000 +0100
 @@ -202,10 +202,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -509,7 +478,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	2002-11-21 06:42:00.000000000 +0100
-+++ src/ui_text.h	2003-01-13 18:30:48.000000000 +0100
++++ src/ui_text.h	2003-02-09 22:48:49.000000000 +0100
 @@ -169,10 +169,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -526,8 +495,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  struct lang_struct
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/usrintrf.c src/usrintrf.c
---- src.ori/usrintrf.c	2002-12-09 19:31:18.000000000 +0100
-+++ src/usrintrf.c	2003-01-19 09:59:10.000000000 +0100
+--- src.ori/usrintrf.c	2003-01-24 14:31:14.000000000 +0100
++++ src/usrintrf.c	2003-02-09 22:48:49.000000000 +0100
 @@ -843,12 +843,16 @@
  	while (items[i])
  	{
@@ -872,7 +841,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  				if (osd_selected != 0)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
 --- src.ori/vidhrdw/cave.c	2002-05-25 12:32:48.000000000 +0200
-+++ src/vidhrdw/cave.c	2003-01-13 18:30:48.000000000 +0100
++++ src/vidhrdw/cave.c	2003-02-09 22:48:49.000000000 +0100
 @@ -1532,10 +1532,13 @@
  {
  	int pri, pri2;
@@ -887,24 +856,3 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{	tiledim_0 = cave_vctrl_0[ 1 ] & 0x2000;
  		if (tiledim_0 != old_tiledim_0)	tilemap_mark_all_tiles_dirty(tilemap_0);
  		old_tiledim_0 = tiledim_0;		}
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/vidhrdw/gaelco2.c src/vidhrdw/gaelco2.c
---- src.ori/vidhrdw/gaelco2.c	2002-12-31 13:49:24.000000000 +0100
-+++ src/vidhrdw/gaelco2.c	2003-01-14 20:34:52.000000000 +0100
-@@ -457,15 +457,16 @@
- 								int xpos = (((sx + ex*16 + px) & 0x3ff) + spr_x_adjust) & 0x3ff;
- 								UINT16 *pixel = srcy + xpos;
- 								int src_color = *pixel;
- 
- 								int gfx_px = xflip ? (gfx->width - 1 - px) : px;
-+								int gfx_pen;
- 
- 								if ((xpos < cliprect->min_x) || (xpos > cliprect->max_x)) continue;
- 
- 								/* get asociated pen for the current sprite pixel */
--								int gfx_pen = gfx_src[gfx->line_modulo*gfx_py + gfx_px];
-+								gfx_pen = gfx_src[gfx->line_modulo*gfx_py + gfx_px];
- 
- 								if ((gfx_pen == 0) || (gfx_pen >= 16)) continue;
- 
- 								/* make background color darker or brighter */
- 								*pixel = src_color + 4096*gfx_pen;
