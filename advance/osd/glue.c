@@ -1042,13 +1042,11 @@ static struct mame_port GLUE_PORT[GLUE_PORT_MAX];
  */
 static struct mame_port GLUE_PORT_STD[] = {
 
-	/* JOYSTICK */
 	P("up", "Up", JOYSTICK_UP)
 	P("down", "Down", JOYSTICK_DOWN)
 	P("left", "Left", JOYSTICK_LEFT)
 	P("right", "Right", JOYSTICK_RIGHT)
 
-	/* DOUBLE JOYSTICK */
 	P("doubleright_up", "Double Right Up", JOYSTICKRIGHT_UP)
 	P("doubleright_down", "Double Right Down", JOYSTICKRIGHT_DOWN)
 	P("doubleright_left", "Double Right Left", JOYSTICKRIGHT_LEFT)
@@ -1058,7 +1056,29 @@ static struct mame_port GLUE_PORT_STD[] = {
 	P("doubleleft_left", "Double Left Left", JOYSTICKLEFT_LEFT)
 	P("doubleleft_right", "Double Left Right", JOYSTICKLEFT_RIGHT)
 
-	/* BUTTON */
+	PE("paddle_left", "paddle_right", "Paddle Left", "Paddle Right", PADDLE)
+	PE("paddle_up", "paddle_down", "Paddle Up", "Paddle Down", PADDLE_V)
+
+	PE("stick_left", "stick_right", "Stick Left", "Stick Right", AD_STICK_X)
+	PE("stick_up", "stick_down", "Stick Up", "Stick Down", AD_STICK_Y)
+	PE("stick_forward", "stick_backward",  "Stick Forward", "Stick Backward", AD_STICK_Z)
+
+	PE("lightgun_left", "lightgun_right", "Lightgun Left", "Lightgun Right", LIGHTGUN_X)
+	PE("lightgun_up", "lightgun_down", "Lightgun Up", "Lightgun Down", LIGHTGUN_Y)
+
+	PE("pedalgas_push", "pedalgas_release", "Pedal Gas", "Pedal Gas Release", PEDAL)
+	PE("pedalbrake_push", "pedalbrake_release", "Pedal Brake", "Pedal Brake Release", PEDAL2)
+	PE("pedalother_push", "pedalother_release", "Pedal Other", "Pedal Other Release", PEDAL3)
+
+	PE("dial_left", "dial_right", "Dial Left", "Dial Right", DIAL)
+	PE("dial_up", "dial_down", "Dial Up", "Dial Down", DIAL_V)
+
+	PE("trackball_left", "trackball_right", "Trackball Left", "Trackball Right", TRACKBALL_X)
+	PE("trackball_up", "trackball_down", "Trackball Up", "Trackball Down", TRACKBALL_Y)
+
+	PE("mouse_left", "mouse_right", "Mouse Left", "Mouse Right", MOUSE_X)
+	PE("mouse_up", "mouse_down", "Mouse Up", "Mouse Down", MOUSE_Y)
+
 	P("button1", "Button 1", BUTTON1)
 	P("button2", "Button 2", BUTTON2)
 	P("button3", "Button 3", BUTTON3)
@@ -1070,43 +1090,15 @@ static struct mame_port GLUE_PORT_STD[] = {
 	P("button9", "Button 9", BUTTON9)
 	P("button10", "Button 10", BUTTON10)
 
-	/* PADDLE */
-	PE("paddle_left", "paddle_right", "Paddle Left", "Paddle Right", PADDLE)
-	PE("paddle_up", "paddle_down", "Paddle Up", "Paddle Down", PADDLE_V)
-
-	/* AD_STICK */
-	PE("stick_left", "stick_right", "Stick Left", "Stick Right", AD_STICK_X)
-	PE("stick_up", "stick_down", "Stick Up", "Stick Down", AD_STICK_Y)
-	PE("stick_forward", "stick_backward",  "Stick Forward", "Stick Backward", AD_STICK_Z)
-
-	/* LIGHTGUN */
-	PE("lightgun_left", "lightgun_right", "Lightgun Left", "Lightgun Right", LIGHTGUN_X)
-	PE("lightgun_up", "lightgun_down", "Lightgun Up", "Lightgun Down", LIGHTGUN_Y)
-
-	/* PEDAL */
-	PE("pedalgas_push", "pedalgas_release", "Pedal Gas", "Pedal Gas Release", PEDAL)
-	PE("pedalbrake_push", "pedalbrake_release", "Pedal Brake", "Pedal Brake Release", PEDAL2)
-	PE("pedalother_push", "pedalother_release", "Pedal Other", "Pedal Other Release", PEDAL3)
-
-	/* DIAL */
-	PE("dial_left", "dial_right", "Dial Left", "Dial Right", DIAL)
-	PE("dial_up", "dial_down", "Dial Up", "Dial Down", DIAL_V)
-
-	/* TRACKBALL */
-	PE("trackball_left", "trackball_right", "Trackball Left", "Trackball Right", TRACKBALL_X)
-	PE("trackball_up", "trackball_down", "Trackball Up", "Trackball Down", TRACKBALL_Y)
-
-	/* MOUSE */
-	PE("mouse_left", "mouse_right", "Mouse Left", "Mouse Right", MOUSE_X)
-	PE("mouse_up", "mouse_down", "Mouse Up", "Mouse Down", MOUSE_Y)
-
-	/* START */
 	S("start1", "Start 1 Player", START1)
 	S("start2", "Start 2 Players", START2)
 	S("start3", "Start 3 Players", START3)
 	S("start4", "Start 4 Players", START4)
+	S("start5", "Start 5 Players", START5)
+	S("start6", "Start 6 Players", START6)
+	S("start7", "Start 7 Players", START7)
+	S("start8", "Start 8 Players", START8)
 
-	/* COIN */
 	S("coin1", "Player 1 Coin", COIN1)
 	S("coin2", "Player 2 Coin", COIN2)
 	S("coin3", "Player 3 Coin", COIN3)
@@ -1115,11 +1107,8 @@ static struct mame_port GLUE_PORT_STD[] = {
 	S("coin6", "Player 6 Coin", COIN2)
 	S("coin7", "Player 7 Coin", COIN3)
 	S("coin8", "Player 8 Coin", COIN4)
-
-	/* BILL */
 	S("bill1", "Player 1 Bill", BILL1)
 
-	/* SERVICEK */
 	S("service_coin1", "Service 1 Coin", SERVICE1)
 	S("service_coin2", "Service 2 Coin", SERVICE2)
 	S("service_coin3", "Service 3 Coin", SERVICE3)
@@ -1129,14 +1118,36 @@ static struct mame_port GLUE_PORT_STD[] = {
 	S("service_coin7", "Service 7 Coin", SERVICE3)
 	S("service_coin8", "Service 8 Coin", SERVICE4)
 
-	/* SERVICE */
 	S("service", "Service", SERVICE)
-
-	/* TILT */
 	S("tilt", "Tilt", TILT)
-
-	/* INTERLOCK */
 	S("interlock", "Door Interlock", INTERLOCK)
+	S("volume_up", "Volume Up", VOLUME_UP)
+	S("volume_down", "Volume Down", VOLUME_DOWN)
+
+	P("mahjong_a", "Mahjong A", MAHJONG_A)
+	P("mahjong_b", "Mahjong B", MAHJONG_B)
+	P("mahjong_c", "Mahjong C", MAHJONG_C)
+	P("mahjong_d", "Mahjong D", MAHJONG_D)
+	P("mahjong_e", "Mahjong E", MAHJONG_E)
+	P("mahjong_f", "Mahjong F", MAHJONG_F)
+	P("mahjong_g", "Mahjong G", MAHJONG_G)
+	P("mahjong_h", "Mahjong H", MAHJONG_H)
+	P("mahjong_i", "Mahjong I", MAHJONG_I)
+	P("mahjong_j", "Mahjong J", MAHJONG_J)
+	P("mahjong_k", "Mahjong K", MAHJONG_K)
+	P("mahjong_l", "Mahjong L", MAHJONG_L)
+	P("mahjong_m", "Mahjong M", MAHJONG_M)
+	P("mahjong_n", "Mahjong N", MAHJONG_N)
+	P("mahjong_kan", "Mahjong Kan", MAHJONG_KAN)
+	P("mahjong_pon", "Mahjong Pon", MAHJONG_PON)
+	P("mahjong_chi", "Mahjong Chi", MAHJONG_CHI)
+	P("mahjong_reach", "Mahjong Reach", MAHJONG_REACH)
+	P("mahjong_ron", "Mahjong Ron", MAHJONG_RON)
+	P("mahjong_bet", "Mahjong Bet", MAHJONG_BET)
+	P("mahjong_chance", "Mahjong Last Chance", MAHJONG_LAST_CHANCE)
+	P("mahjong_score", "Mahjong Score", MAHJONG_SCORE)
+	P("mahjong_double_up", "Mahjong Double Up", MAHJONG_DOUBLE_UP)
+	P("mahjong_flip_flop", "Mahjong Flip Flop", MAHJONG_FLIP_FLOP)
 
 	/* MESS Specific */
 #ifdef MESS
@@ -1593,6 +1604,7 @@ adv_bool glue_is_portplayer(unsigned type)
 	if ((type >= __ipt_digital_joystick_start && type <= __ipt_digital_joystick_end)
 		|| (type >= __ipt_analog_start && type <= __ipt_analog_end)
 		|| (type >= IPT_BUTTON1 && type <= IPT_BUTTON10)
+		|| (type >= IPT_MAHJONG_A && type <= IPT_MAHJONG_FLIP_FLOP)
 		|| (type == IPT_SELECT) /* MESS specific */
 		|| (type == IPT_START) /* MESS specific */
 	) {
@@ -1630,7 +1642,7 @@ unsigned glue_port_convert(unsigned type, unsigned player, unsigned seqtype, con
 			index = 1;
 			break;
 		default:
-			log_std(("ERROR:glue: unsupported SEQ_TYPE_ constant %d\n", seqtype));
+			log_std(("ERROR:glue: convert unsupported SEQ_TYPE_ constant %d\n", seqtype));
 			return 0;
 		}
 	} else {
@@ -1639,7 +1651,7 @@ unsigned glue_port_convert(unsigned type, unsigned player, unsigned seqtype, con
 			index = 0;
 			break;
 		default:
-			log_std(("ERROR:glue: unsupported SEQ_TYPE_ constant %d\n", seqtype));
+			log_std(("ERROR:glue: convert unsupported SEQ_TYPE_ constant %d\n", seqtype));
 			return 0;
 		}
 	}
@@ -1649,7 +1661,7 @@ unsigned glue_port_convert(unsigned type, unsigned player, unsigned seqtype, con
 		player += 1;
 	} else {
 		if (player != 0) {
-			log_std(("ERROR:glue: unexpected player specification for port type %d\n", type));
+			log_std(("ERROR:glue: convert unexpected player specification for port type %d\n", type));
 		}
 		/* it's a global port */
 		player = 0;
@@ -1678,13 +1690,13 @@ struct InputPortDefinition* glue_port_convertback(unsigned port, int* seqtype)
 	player = MAME_PORT_PLAYER_GET(port);
 	if (glue_is_portplayer(type)) {
 		if (player == 0) {
-			log_std(("ERROR:glue: missing player specification for port type %d\n", type));
+			log_std(("ERROR:glue: convertback missing player specification for port type %d\n", type));
 		}
 		/* it's a player port */
 		player -= 1;
 	} else {
 		if (player != 0) {
-			log_std(("ERROR:glue: unexpected player specification for port type %d\n", type));
+			log_std(("ERROR:glue: convertback unexpected player specification for port type %d\n", type));
 		}
 		/* it's a global port */
 		player = 0;
@@ -1817,6 +1829,31 @@ static unsigned PORT_TYPE_REPORT_GAME[] = {
 	IPT_INTERLOCK,
 	IPT_VOLUME_UP,
 	IPT_VOLUME_DOWN,
+
+	IPT_MAHJONG_A,
+	IPT_MAHJONG_B,
+	IPT_MAHJONG_C,
+	IPT_MAHJONG_D,
+	IPT_MAHJONG_E,
+	IPT_MAHJONG_F,
+	IPT_MAHJONG_G,
+	IPT_MAHJONG_H,
+	IPT_MAHJONG_I,
+	IPT_MAHJONG_J,
+	IPT_MAHJONG_K,
+	IPT_MAHJONG_L,
+	IPT_MAHJONG_M,
+	IPT_MAHJONG_N,
+	IPT_MAHJONG_KAN,
+	IPT_MAHJONG_PON,
+	IPT_MAHJONG_CHI,
+	IPT_MAHJONG_REACH,
+	IPT_MAHJONG_RON,
+	IPT_MAHJONG_BET,
+	IPT_MAHJONG_LAST_CHANCE,
+	IPT_MAHJONG_SCORE,
+	IPT_MAHJONG_DOUBLE_UP,
+	IPT_MAHJONG_FLIP_FLOP,
 
 	0
 };
@@ -2037,37 +2074,6 @@ void mame_ui_refresh(void)
 	schedule_full_refresh();
 }
 
-void mame_ui_swap(void)
-{
-	struct mame_bitmap tmp;
-
-	if (!Machine->scrbitmap)
-		return;
-
-	if (!GLUE.bitmap_alt) {
-		/* allocate the alternate bitmap */
-		int width = Machine->scrbitmap->width;
-		int height = Machine->scrbitmap->height;
-		int depth = Machine->scrbitmap->depth;
-
-		if (Machine->orientation & ORIENTATION_SWAP_XY) {
-			int temp = width; width = height; height = temp;
-		}
-
-		GLUE.bitmap_alt = bitmap_alloc_depth(width, height, depth);
-	}
-
-	/* swap the contents of the two bitmap */
-	memcpy(&tmp, Machine->scrbitmap, sizeof(struct mame_bitmap));
-	memcpy(Machine->scrbitmap, GLUE.bitmap_alt, sizeof(struct mame_bitmap));
-	memcpy(GLUE.bitmap_alt, &tmp, sizeof(struct mame_bitmap));
-
-	/* force the core to redraw all, it's required because */
-	/* the bitmap now doesn't contain the previous frame, */
-	/* but the previous of the previous frame. */
-	schedule_full_refresh();
-}
-
 void mame_ui_gamma_factor_set(double gamma)
 {
 	palette_set_global_gamma(palette_get_global_gamma() * gamma);
@@ -2157,7 +2163,7 @@ int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_compo
 	unsigned aspect_x;
 	unsigned aspect_y;
 
-	log_std(("osd: osd_create_display(width:%d, height:%d, aspect_x:%d, aspect_y:%d, depth:%d, colors:%d, fps:%g, attributes:%d, orientation:%d)\n", params->width, params->height, params->aspect_x, params->aspect_y, params->depth, params->colors, (double)params->fps, params->video_attributes, params->orientation));
+	log_std(("osd: osd_create_display(width:%d, height:%d, aspect_x:%d, aspect_y:%d, depth:%d, colors:%d, fps:%g, attributes:%d)\n", params->width, params->height, params->aspect_x, params->aspect_y, params->depth, params->colors, (double)params->fps, params->video_attributes));
 
 	/* print any buffered message before setting the video mode */
 	target_flush();
@@ -2166,12 +2172,6 @@ int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_compo
 	height = params->height;
 	aspect_x = params->aspect_x;
 	aspect_y = params->aspect_y;
-
-	/* set the correct orientation of the aspect */
-	if (params->orientation & ORIENTATION_SWAP_XY) {
-		SWAP(unsigned, aspect_x, aspect_y);
-		SWAP(unsigned, width, height);
-	}
 
 	GLUE.video_flag = 0; /* the video isn't initialized */
 

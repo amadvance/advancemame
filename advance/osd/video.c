@@ -1332,7 +1332,6 @@ void advance_video_config_save(struct advance_video_context* context, const char
 			conf_remove(cfg_context, section, "display_skipcolumns");
 			conf_remove(cfg_context, section, "display_skiplines");
 		}
-		conf_bool_set_if_different(cfg_context, section, "display_scanlines", context->config.scanlines_flag);
 		conf_bool_set_if_different(cfg_context, section, "display_vsync", context->config.vsync_flag);
 	}
 

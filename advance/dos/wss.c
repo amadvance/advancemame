@@ -206,6 +206,8 @@ static char error_message[ERROR_MESSAGE_BUFFER_SIZE] = "\n";
 
 static void set_error_message(char *message)
 {
+	logerror_("wss:error %s", message);
+
 	while(1){
 		if(error_message_pointer >= (ERROR_MESSAGE_BUFFER_SIZE - 1)) break;
 		if(*message == '\0') break;
@@ -647,12 +649,15 @@ static BOOL allocate_dosmem4k(void)
 
 static void free_dosmem4k(void)
 {
-	if(g_dosmem4k_sel  == NULL) return;
-	if(g_dosmem4k_addr == NULL) return;
-//	  if(info4k.address != NULL){
-//		  __dpmi_unlock_linear_region(&info4k);
-//	  }
-	__dpmi_free_dos_memory(g_dosmem4k_sel);
+	if(g_dosmem4k_sel != NULL && g_dosmem4k_addr != NULL) {
+	//	  if(info4k.address != NULL){
+	//		  __dpmi_unlock_linear_region(&info4k);
+	//	  }
+		__dpmi_free_dos_memory(g_dosmem4k_sel);
+	}
+
+	g_dosmem4k_sel = NULL;
+	g_dosmem4k_addr = NULL;
 }
 
 static DWORD get_address_dosmem4k(void)

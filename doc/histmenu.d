@@ -6,6 +6,7 @@ AdvanceMENU Version 2.4.6 2005/01
 		privileges of suid/gid programs are dropped.
 	) The option `display_restoreatgame' can now be customized
 		for different emulator.
+	) Fixed the AC97 DOS audio driver.
 
 AdvanceMENU Version 2.4.5 2005/01
 	) Fixed the recognition of some USB mouses and keyboards

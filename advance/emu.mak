@@ -355,7 +355,7 @@ endif
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(OBJ)/advance/osd/emu.o: $(srcdir)/advance/version.mak Makefile
 
-EMUCFLAGS += -DVERSION=\"$(EMUVERSION)\"
+ADVANCECFLAGS += -DVERSION=\"$(EMUVERSION)\"
 
 ifeq ($(CONF_EMU),mess)
 EMUCFLAGS += -DMESS

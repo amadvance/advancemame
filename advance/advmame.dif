@@ -444,7 +444,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
 --- src.ori/inptport.c	2004-11-23 18:05:40.000000000 +0100
-+++ src/inptport.c	2005-01-04 16:23:42.000000000 +0100
++++ src/inptport.c	2005-01-16 13:52:45.000000000 +0100
 @@ -868,26 +868,21 @@
  
  	/* start with the raw defaults and ask the OSD to customize them in the backup array */
@@ -641,6 +641,30 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  			keypressed = info->lastdigital = 1;
  		}
  
+@@ -1874,15 +1896,18 @@
+ 		info->accum += delta;
+ 
+ 		/* if we got an absolute input, it overrides everything else */
+ 		if (analog_type == ANALOG_TYPE_ABSOLUTE)
+ 		{
+-			/* apply the inverse of the sensitivity to the raw value so that */
+-			/* it will still cover the full min->max range requested after */
+-			/* we apply the sensitivity adjustment */
+-			info->accum = APPLY_INVERSE_SENSITIVITY(rawvalue, port->analog.sensitivity);
+-			info->lastdigital = 0;
++			/* allow both the analog joystick and the keyboard to control the input port */
++			if (rawvalue != 0 || !info->lastdigital) {
++				/* apply the inverse of the sensitivity to the raw value so that */
++				/* it will still cover the full min->max range requested after */
++				/* we apply the sensitivity adjustment */
++				info->accum = APPLY_INVERSE_SENSITIVITY(rawvalue, port->analog.sensitivity);
++				info->lastdigital = 0;
++			}
+ 		}
+ 
+ 		/* if our last movement was due to a digital input, and if this control */
+ 		/* type autocenters, and if neither the increment nor the decrement seq */
+ 		/* was pressed, apply autocentering */
 diff -U 5 --new-file --recursive src.ori/input.c src/input.c
 --- src.ori/input.c	2004-09-21 20:02:10.000000000 +0200
 +++ src/input.c	2005-01-04 16:23:42.000000000 +0100

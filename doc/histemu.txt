@@ -3,7 +3,7 @@
                           ============================
 
 
-ADVANCEMAME VERSION 0.90.1 2005/01
+ADVANCEMAME VERSION 0.91.0 2005/02
 ==================================
 
 * Added a new `system()' script function to execute
@@ -14,6 +14,13 @@ ADVANCEMAME VERSION 0.90.1 2005/01
 * Enabled as default the use of the joystick and mouse.
   The `device_joystick' and `device_mouse' options
   have now the `auto' value as default.
+* Fixed the AC97 DOS audio driver.
+
+
+ADVANCEMESS VERSION 0.91.0.0 2005/02
+====================================
+
+* All from AdvanceMAME 0.91.0.
 
 
 ADVANCEMESS VERSION 0.90.0.0 2005/01

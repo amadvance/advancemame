@@ -202,7 +202,6 @@ int osd2_video_menu(int selected, unsigned input)
 	int save_resolutionclock_index;
 	int pipeline_index;
 	int magnify_index;
-	int scanline_index;
 	int index_index;
 	int smp_index;
 	int crash_index;
@@ -264,20 +263,8 @@ int osd2_video_menu(int selected, unsigned input)
 			case 4 : option = "4"; break;
 			}
 			magnify_index = advance_ui_menu_option_insert(&menu, text, option);
-
-			switch (video_scan()) {
-			case 0 : text = "Scanline [single]"; break;
-			case 1 : text = "Scanline [double]"; break;
-			case -1 : text = "Scanline [interlace]"; break;
-			}
-			if (video_context->config.scanlines_flag)
-				option = "yes";
-			else
-				option = "no";
-			scanline_index = advance_ui_menu_option_insert(&menu, text, option);
 		} else {
 			magnify_index = -1;
-			scanline_index = -1;
 		}
 
 		advance_ui_menu_title_insert(&menu, "Options");
@@ -297,7 +284,6 @@ int osd2_video_menu(int selected, unsigned input)
 		stretch_index = advance_ui_menu_option_insert(&menu, text, option);
 	} else {
 		magnify_index = -1;
-		scanline_index = -1;
 
 		advance_ui_menu_title_insert(&menu, "Options");
 
@@ -530,10 +516,6 @@ int osd2_video_menu(int selected, unsigned input)
 			case 1 : config.smp_flag = 0; break;
 			}
 			advance_video_reconfigure(video_context, &config);
-		} else if (selected == scanline_index) {
-			struct advance_video_config_context config = video_context->config;
-			config.scanlines_flag = !config.scanlines_flag;
-			advance_video_reconfigure(video_context, &config);
 		} else if (selected == magnify_index) {
 			struct advance_video_config_context config = video_context->config;
 			if (config.magnify_factor == 4)
@@ -608,10 +590,6 @@ int osd2_video_menu(int selected, unsigned input)
 			case 0 : config.smp_flag = 1; break;
 			case 1 : config.smp_flag = 0;  break;
 			}
-			advance_video_reconfigure(video_context, &config);
-		} else if (selected == scanline_index) {
-			struct advance_video_config_context config = video_context->config;
-			config.scanlines_flag = !config.scanlines_flag;
 			advance_video_reconfigure(video_context, &config);
 		} else if (selected == magnify_index) {
 			struct advance_video_config_context config = video_context->config;

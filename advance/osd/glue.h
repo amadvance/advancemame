@@ -248,7 +248,6 @@ struct mame_digital_map_entry {
 int mame_ui_port_pressed(unsigned port);
 void mame_ui_area_set(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void mame_ui_refresh(void);
-void mame_ui_swap(void);
 void mame_ui_gamma_factor_set(double gamma);
 unsigned char mame_ui_cpu_read(unsigned cpu, unsigned addr);
 unsigned mame_ui_frames_per_second(void);

@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.90.1 2005/01
+AdvanceMAME Version 0.91.0 2005/02
 	) Added a new `system()' script function to execute
 		a shell script.
 	) Improved the behaviour of the analog input. You can now
@@ -10,9 +10,10 @@ AdvanceMAME Version 0.90.1 2005/01
 	) Enabled as default the use of the joystick and mouse.
 		The `device_joystick' and `device_mouse' options
 		have now the `auto' value as default.
+	) Fixed the AC97 DOS audio driver.
 
-AdvanceMESS Version 0.90.0.0 2005/01
-	) All from AdvanceMAME 0.90.0.
+AdvanceMESS Version 0.91.0.0 2005/02
+	) All from AdvanceMAME 0.91.0.
 
 AdvanceMAME Version 0.90.0 2005/01
 	) Fixed the recognition of some USB mouses and keyboards
