@@ -473,8 +473,11 @@ EMU_CONTRIB_SRC = \
 	$(wildcard $(srcdir)/contrib/mame/*)
 
 EMU_SUPPORT_SRC = \
-	$(RCSRC) \
+	$(RCSRC)
+ifeq ($(CONF_EMU),mame)
+EMU_SUPPORT_SRC += \
 	$(srcdir)/support/safequit.dat
+endif
 
 EMU_DOC_SRC = \
 	$(srcdir)/doc/advmame.d \
@@ -487,6 +490,7 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/faq.d \
 	$(srcdir)/doc/tips.d \
 	$(srcdir)/doc/build.d \
+	$(srcdir)/doc/cost.d \
 	$(srcdir)/doc/advv.d \
 	$(srcdir)/doc/advcfg.d \
 	$(srcdir)/doc/advk.d \
@@ -502,6 +506,7 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/license.txt \
 	$(DOCOBJ)/advmame.txt \
 	$(DOCOBJ)/build.txt \
+	$(DOCOBJ)/cost.txt \
 	$(DOCOBJ)/authors.txt \
 	$(DOCOBJ)/script.txt \
 	$(DOCOBJ)/reademu.txt \
@@ -512,6 +517,7 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/license.html \
 	$(DOCOBJ)/advmame.html \
 	$(DOCOBJ)/build.html \
+	$(DOCOBJ)/cost.html \
 	$(DOCOBJ)/authors.html \
 	$(DOCOBJ)/script.html \
 	$(DOCOBJ)/reademu.html \
@@ -542,8 +548,11 @@ EMU_DOC_BIN += \
 endif
 
 EMU_ROOT_BIN = \
-	$(OBJ)/$(EMUNAME)$(EXE) \
+	$(OBJ)/$(EMUNAME)$(EXE)
+ifeq ($(CONF_EMU),mame)
+EMU_ROOT_BIN += \
 	$(srcdir)/support/safequit.dat
+endif
 ifeq ($(CONF_HOST),unix)
 EMU_ROOT_BIN += \
 	$(DOCOBJ)/advmame.1 \
@@ -577,13 +586,13 @@ ifeq ($(CONF_EMU),mess)
 ifeq ($(CONF_HOST),dos)
 EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif
-EMU_DOC_SRC += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
+EMU_SUPPORT_SRC += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif
 ifeq ($(CONF_EMU),pac)
 ifeq ($(CONF_HOST),dos)
 EMU_ROOT_BIN += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
 endif
-EMU_DOC_SRC += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
+EMU_SUPPORT_SRC += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
 endif
 
 EMU_DISTFILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)

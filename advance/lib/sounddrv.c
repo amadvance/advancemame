@@ -71,7 +71,7 @@ video_error sound_load(struct conf_context* context) {
 	for(i=0;i<sound_state.driver_mac;++i) {
 		const device* dev;
 
-		dev = device_match(sound_state.name,(driver*)sound_state.driver_map[i],1);
+		dev = device_match(sound_state.name, (driver*)sound_state.driver_map[i], 0);
 
 		if (dev)
 			at_least_one = 1;

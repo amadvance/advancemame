@@ -56,6 +56,7 @@
 	"MESS - Copyright (C) 1998-2002 by the MESS Team\n" \
 	"MAME - Copyright (C) 1997-2002 by Nicola Salmoria and the MAME Team\n"
 
+#define ADVANCE_TITLE "AdvanceMESS"
 #define ADVANCE_NAME "advmess"
 #define ADVANCE_NAME_LEGACY "mess"
 
@@ -66,6 +67,7 @@
 	"PacMAME - Copyright (C) 2001-2002 by Brian Glam \n" \
 	"MAME - Copyright (C) 1997-2002 by Nicola Salmoria and the MAME Team\n"
 
+#define ADVANCE_TITLE "AdvancePAC"
 #define ADVANCE_NAME "advpac"
 #define ADVANCE_NAME_LEGACY "pacmame"
 
@@ -75,6 +77,7 @@
 	"AdvanceMAME - Copyright (C) 1999-2002 by Andrea Mazzoleni\n" \
 	"MAME - Copyright (C) 1997-2002 by Nicola Salmoria and the MAME Team\n"
 
+#define ADVANCE_TITLE "AdvanceMAME"
 #define ADVANCE_NAME "advmame"
 #define ADVANCE_NAME_LEGACY "mame"
 

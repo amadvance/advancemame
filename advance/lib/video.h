@@ -375,7 +375,7 @@ void video_abort(void);
 
 video_error video_mode_set(video_mode* mode);
 void video_mode_done(video_bool restore);
-void video_mode_reset(void);
+void video_mode_restore(void);
 video_error video_mode_grab(video_mode* mode);
 int video_mode_compare(const video_mode* a, const video_mode* b);
 

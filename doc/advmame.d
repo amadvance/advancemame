@@ -415,10 +415,8 @@ Configuration
 		dir_rom - Multi directory specification for the
 			AdvanceMAME `rom' files and AdvanceMESS `bios'
 			files.
-		dir_imager - Multi directory specification for the
-			readonly disk/cartdrige/... image files.
-		dir_imagerw - Multi directory specification for the
-			readwrite disk image files.
+		dir_image - Multi directory specification for the
+			disk/cartdrige/... image files.
 		dir_imagediff - Multi directory specification for the
 			disk image differential files.
 		dir_sample - Multi directory specification for the
@@ -488,6 +486,9 @@ Configuration
 	the zip file `alpiner.zip' you can use this syntax:
 
 		:advmess ti99_4a -cart alpiner=crom.bin -cart alpiner=grom.bin
+
+	This feature is used automatically by AdvanceMENU to correctly
+	open software in zip files.
 
   Display Configuration Options
     device_video_*

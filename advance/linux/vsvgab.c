@@ -125,15 +125,10 @@ unsigned svgalib_flags(void) {
 #define SVGALIB_PVSYNC          0x4     /* Positive vsync polarity. */
 #define SVGALIB_NVSYNC          0x8     /* Negative vsync polarity. */
 #define SVGALIB_INTERLACED      0x10    /* Mode has interlaced timing. */
-#define SVGALIB_DOUBLESCAN      0x20    /* Mode uses VGA doublescan (see note). */
-#if 0
-#define SVGALIB_HADJUSTED       0x40    /* Horizontal CRTC timing adjusted. */
-#define SVGALIB_VADJUSTED       0x80    /* Vertical CRTC timing adjusted. */
-#define SVGALIB_USEPROGRCLOCK   0x100   /* A programmable clock is used. */
-#endif
-#define SVGALIB_TVMODE          0x200   /* Enable the TV output */
-#define SVGALIB_TVPAL           0x400   /* Use the PAL format */
-#define SVGALIB_TVNTSC          0x800   /* Use the NTSC format */
+#define SVGALIB_DOUBLESCAN      0x20    /* Mode uses doublescan. */
+#define SVGALIB_TVMODE          0x200   /* Enable the TV output. */
+#define SVGALIB_TVPAL           0x400   /* Use the PAL format. */
+#define SVGALIB_TVNTSC          0x800   /* Use the NTSC format. */
 
 video_error svgalib_mode_set(const svgalib_video_mode* mode) 
 {
@@ -172,9 +167,9 @@ video_error svgalib_mode_set(const svgalib_video_mode* mode)
 		return -1;
 	}
 
-	video_log("video:svgalib: vga_addtiming(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)\n",
+	log_std(("video:svgalib: vga_addtiming(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)\n",
 		mode->crtc.pixelclock / 1000, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, flags
-	);
+	));
 
 	switch (mode->bits_per_pixel) {
 		case 8 :
@@ -209,10 +204,12 @@ video_error svgalib_mode_set(const svgalib_video_mode* mode)
 		return -1;
 	}
 
-	video_log("video:svgalib: vga_addmode(%d,%d,%d,%d,%d) = %d\n",mode->crtc.hde,mode->crtc.vde,colors,bytes_per_scanline,bytes_per_pixel,res);
+	log_std(("video:svgalib: vga_addmode(%d,%d,%d,%d,%d) = %d\n",mode->crtc.hde,mode->crtc.vde,colors,bytes_per_scanline,bytes_per_pixel,res));
 
 	if (!vga_hasmode(res)) {
-		video_error_description_set("Error in vga_hasmode()");
+		video_error_description_nolog_set("Error in the SVGALIB function vga_hasmode(). Have you adjusted\nthe HorizSync and VertRefresh in /etc/vga/libvga.config ?\n");
+		log_std(("video:svgalib: Error in vga_hasmode(%d)\n", res));
+		log_std(("video:svgalib: Have you adjusted the HorizSync and VertRefresh in /etc/vga/libvga.config ?\n"));
 		return -1;
 	}
 
@@ -229,7 +226,7 @@ video_error svgalib_mode_set(const svgalib_video_mode* mode)
 		return -1;
 	}
 
-	video_log("video:svgalib: vga_setmode(%d)\n",svgalib_state.mode_number);
+	log_std(("video:svgalib: vga_setmode(%d)\n",svgalib_state.mode_number));
 	res = vga_setmode(svgalib_state.mode_number);
 	if (res != 0) {
 		video_error_description_set("Error in vga_setmode()");
@@ -321,7 +318,7 @@ void svgalib_mode_done(video_bool restore) {
 
 	if (restore) {
 		/* a mode reset is required otherwise the other drivers are not able to set the mode */
-		video_log("video:svgalib: vga_setmode(TEXT)\n");
+		log_std(("video:svgalib: vga_setmode(TEXT)\n"));
 		vga_setmode(TEXT);
 	}
 }

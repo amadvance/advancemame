@@ -174,6 +174,8 @@ static __inline__  int video_mode_scan(const video_mode* mode) {
 	return mode->scan;
 }
 
+void video_mode_reset(video_mode* mode);
+
 #ifdef __cplusplus
 }
 #endif

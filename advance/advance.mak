@@ -2,7 +2,7 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.56.x
+EMUVERSION = 0.61.0
 else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
@@ -36,67 +36,37 @@ ifdef ALL
 all_override: $(ALL)
 endif
 
-ifeq ($(CONF_EMU),mess)
-# from MESS 0.56
-INSTALL_IMAGEDIRS += \
-	a2600 a5200 a7800 lynx lynxa lynx2 nes nespal famicom gameboy snes gamegear \
-	sms genesis saturn astrocde studio2 channelf coleco colecoa pce arcadia vcg \
-	vectrex raaspec intv intvsrs advision sfzch svision atom atomeb bbca bbcb \
-	bbcb1770 bbcbp bbcbp128 z88 cpc464 cpc664 cpc6128 kccomp pcw8256 pcw8512 \
-	pcw9256 pcw9512 pcw10 pcw16 nc100 nc100a nc200 apple1 apple2c apple2c0 \
-	apple2cp apple2e apple2ee apple2ep lisa2 lisa210 macxl mac512ke macplus \
-	a400 a400pal a800 a800pal a800xl kim1 pet cbm30 cbm30b cbm40 cbm40pal cbm40b \
-	cbm80 cbm80pal cbm80ger cbm80swe superpet vic20 vic1001 vc20 vic20swe vic20i \
-	max c64 c64pal vic64s cbm4064 c64gs cbm500 cbm610 cbm620 cbm620hu cbm710 \
-	cbm720 cbm720se c16 c16hun c16c plus4 plus4c c364 c128 c128ger c128fra \
-	c128ita c128swe c65 c65e c65d c65c c65ger c65a ibmpc ibmpca pcmda pc europc \
-	t1000hx ibmxt pc200 pc20 pc1512 pc1640 xtvga at zx80 zx81 ts1000 aszmic pc8300 \
-	pow3000 spectrum specpls4 specbusy specpsch specgrot specimc speclec inves \
-	tk90x tk95 tc2048 ts2068 uk2086 spec128 spec128s specpls2 specpl2a specpls3 \
-	specp2fr specp2sp specp3sp specpl3e pc1251 pc1401 pc1402 pc1350 pc1403 \
-	pc1403h mz700 mz700j ti99_4 ti99_4e ti99_4a ti99_4ae avigo ti81 ti85 ti85v40 \
-	ti85v50 ti85v60 ti85v80 ti85v90 ti85v100 ti86 ti86v13 ti86v14 ti86v16 ti86grom \
-	pc88srl pc88srh jupiter sordm5 apfm1000 apfimag einstein ep128 ep128a kaypro \
-	mbee mbeepc mbee56k trs80 trs80l2 trs80l2a sys80 lnw80 coco cocoe coco2 \
-	coco2b coco3 coco3p coco3h dragon32 cp400 mc10 cgenie laser110 laser200 \
-	laser210 laser310 vz200 vz300 fellow tx8000 laser350 laser500 laser700 \
-	microtan oric1 orica prav8d prav8dd prav8dda telstrat p2000t p2000m uk101 \
-	superbrd msx msxj msxkr msxuk hotbit11 hotbit12 expert10 expert11 msx2 msx2a \
-	msx2j nascom1 nascom1a nascom1b nascom2 nascom2a coupe coupe512 pdp1 mtx512 \
-	intvkbd aquarius exidy galaxy svi318 svi328 svi328a apexc mk1 mk2
-endif
-
 ifneq ($(wildcard $(EMUSRC)),)
 INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
 INSTALL_DATAFILES += $(srcdir)/support/safequit.dat
 INSTALL_MANFILES += $(DOCOBJ)/advmame.1
 endif
-ifneq ($(wildcard $(srcdir)/advance/menu),)
+ifneq ($(wildcard $(srcdir)/advance/menu.mak),)
 INSTALL_BINFILES += $(MENUOBJ)/advmenu$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advmenu.1
 endif
 ifneq ($(CONF_SYSTEM),sdl)
-ifneq ($(wildcard $(srcdir)/advance/v),)
+ifneq ($(wildcard $(srcdir)/advance/v.mak),)
 INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advv.1
 endif
-ifneq ($(wildcard $(srcdir)/advance/cfg),)
+ifneq ($(wildcard $(srcdir)/advance/cfg.mak),)
 INSTALL_BINFILES += $(CFGOBJ)/advcfg$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advcfg.1
 endif
-ifneq ($(wildcard $(srcdir)/advance/s),)
+ifneq ($(wildcard $(srcdir)/advance/s.mak),)
 INSTALL_BINFILES += $(SOBJ)/advs$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advs.1
 endif
-ifneq ($(wildcard $(srcdir)/advance/k),)
+ifneq ($(wildcard $(srcdir)/advance/k.mak),)
 INSTALL_BINFILES += $(KOBJ)/advk$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advk.1
 endif
-ifneq ($(wildcard $(srcdir)/advance/j),)
+ifneq ($(wildcard $(srcdir)/advance/j.mak),)
 INSTALL_BINFILES += $(JOBJ)/advj$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advj.1
 endif
-ifneq ($(wildcard $(srcdir)/advance/m),)
+ifneq ($(wildcard $(srcdir)/advance/m.mak),)
 INSTALL_BINFILES += $(MOBJ)/advm$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advm.1
 endif
@@ -257,16 +227,11 @@ installdirs:
 	-$(INSTALL_DATA_DIR) $(PREFIX)/doc/advance
 	-$(INSTALL_MAN_DIR) $(PREFIX)/man/man1
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance
-ifdef INSTALL_DATAFILES
+ifneq ($(wildcard $(EMUSRC)),)
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/rom
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/sample
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/artwork
-endif
-ifdef INSTALL_IMAGEDIRS
 	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/image
-	@for i in $(INSTALL_IMAGEDIRS); do \
-		-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/image/$$i; \
-	done
 endif
 
 install-data: $(INSTALL_DATAFILES)
@@ -380,8 +345,9 @@ wholemame:
 wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist
 	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=yes distbin
-	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=yes distbin
-	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=yes distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=yes distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_SYSTEM=linux CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=no distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_SYSTEM=sdl CONF_EMU=mess CONF_MAP=yes CONF_COMPRESS=no distbin
 
 wholepac:
 	$(MAKE) CONF=no CONF_EMU=pac dist

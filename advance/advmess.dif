@@ -1,6 +1,89 @@
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/advance.pat srcmess/advance.pat
+--- srcmess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
++++ srcmess/advance.pat	2002-09-08 18:16:02.000000000 +0200
+@@ -0,0 +1 @@
++These files are patched for the use with the Advance emulator.
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/common.c srcmess/common.c
+--- srcmess.ori/common.c	2002-05-22 03:48:52.000000000 +0200
++++ srcmess/common.c	2002-09-08 18:16:02.000000000 +0200
+@@ -424,17 +424,11 @@
+ 	coin_counter_w - sets input for coin counter
+ -------------------------------------------------*/
+ 
+ void coin_counter_w(int num,int on)
+ {
+-	if (num >= COIN_COUNTERS) return;
+-	/* Count it only if the data has changed from 0 to non-zero */
+-	if (on && (lastcoin[num] == 0))
+-	{
+-		coins[num]++;
+-	}
+-	lastcoin[num] = on;
++	/* moved in update_input_ports */
+ }
+ 
+ 
+ /*-------------------------------------------------
+ 	coin_lockout_w - locks out one coin input
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/cpu/i8085/i8085.c srcmess/cpu/i8085/i8085.c
+--- srcmess.ori/cpu/i8085/i8085.c	2002-07-21 18:24:54.000000000 +0200
++++ srcmess/cpu/i8085/i8085.c	2002-09-08 18:16:02.000000000 +0200
+@@ -74,10 +74,16 @@
+  * 
+  *****************************************************************************/
+ 
+ /*int survival_prot = 0; */
+ 
++#if defined(__GNUC__) && __GNUC__ >= 3
++/* Disable all the asm macro and the big switch */
++#undef X86_ASM
++#define BIG_SWITCH 0
++#endif
++
+ #define VERBOSE 0
+ 
+ #include "driver.h"
+ #include "state.h"
+ #include "osd_cpu.h"
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/cpu/m68000/make68k.c srcmess/cpu/m68000/make68k.c
+--- srcmess.ori/cpu/m68000/make68k.c	2002-07-06 18:37:00.000000000 +0200
++++ srcmess/cpu/m68000/make68k.c	2002-09-08 18:16:02.000000000 +0200
+@@ -188,11 +188,11 @@
+ 
+ 
+ #define NORMAL 0
+ #define PCREL  1
+ 
+-#ifdef __ELF__
++#if defined(OBJ_TARGET_ELF)
+ #define PREF ""
+ #else
+ #define PREF "_"
+ #endif
+ 
+@@ -249,17 +249,17 @@
+ 
+ 
+ 
+ /* External register preservation */
+ 
+-#ifdef DOS
++#if defined(COMPILER_TARGET_GNUC)
+ 
+ /* Registers normally saved around C routines anyway */
+ /* GCC 2.9.1 (dos) seems to preserve EBX,EDI and EBP */
+ static char SavedRegs[] = "-B--SDB";
+ 
+-#elif defined(WIN32)
++#elif defined(COMPILER_TARGET_VISUALC)
+ 
+ /* visual C++, win32, says it preserves ebx, edi, esi, and ebp */
+ /* ---------- VC++ deosn't preserve EDI? (Kenjo, 110399) ---------- */
+ static char SavedRegs[] = "-B--S-B";
+ 
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/cpu/z80/z80.c srcmess/cpu/z80/z80.c
---- srcmess.ori/cpu/z80/z80.c	Sun Dec  9 10:40:40 2001
-+++ srcmess/cpu/z80/z80.c	Sun Jan 20 15:23:35 2002
+--- srcmess.ori/cpu/z80/z80.c	2002-05-22 03:49:32.000000000 +0200
++++ srcmess/cpu/z80/z80.c	2002-09-08 18:16:02.000000000 +0200
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -19,27 +102,27 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/cpuexec.c srcmess/cpuexec.c
---- srcmess.ori/cpuexec.c	Sun Sep 23 10:51:24 2001
-+++ srcmess/cpuexec.c	Tue Jan  8 22:13:54 2002
-@@ -289,10 +289,13 @@
- 	cpu_inittimers();
+--- srcmess.ori/cpuexec.c	2002-07-06 18:37:02.000000000 +0200
++++ srcmess/cpuexec.c	2002-09-08 18:16:02.000000000 +0200
+@@ -233,10 +233,13 @@
  	watchdog_counter = -1;
  
  	/* reset sound chips */
  	sound_reset();
-+	
+ 
 +	/* reset the osd level */
 +	osd_reset();
- 
++
  	/* first pass over CPUs */
  	for (cpunum = 0; cpunum < cpu_gettotalcpu(); cpunum++)
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
+ 		if (!(Machine->drv->cpu[cpunum].cpu_type & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/info.c srcmess/info.c
---- srcmess.ori/info.c	Mon Aug  6 15:17:38 2001
-+++ srcmess/info.c	Thu Jan 10 23:12:32 2002
-@@ -631,10 +631,34 @@
- 		fprintf(out, L2P "blit plain" L2N);
+--- srcmess.ori/info.c	2002-07-06 18:37:18.000000000 +0200
++++ srcmess/info.c	2002-09-08 19:43:52.000000000 +0200
+@@ -648,10 +648,42 @@
+ 	fprintf(out, L2P "palettesize %d" L2N, driver.total_colors);
  
  	fprintf(out, L2E L1N);
  }
@@ -56,7 +139,15 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
 +			fprintf(out, L2P "name \"%s\"" L2N, device_typename(dev->type));
 +
 +			while (*ext) {
-+				fprintf(out, L2P "ext \"%s\"" L2N, ext);
++				/* some drivers put the extension separated by a , */
++				char* ext_list = strdup(ext);
++				char* ext_item = strtok(ext_list, ",");
++				while (ext_item && ext_item[0]) {
++					fprintf(out, L2P "ext \"%s\"" L2N, ext_item);
++					ext_item = strtok(0 ,",");
++				}
++				free(ext_list);
++
 +				ext += strlen(ext) + 1;
 +			}
 +
@@ -73,7 +164,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  {
  
  #ifndef MESS
-@@ -674,10 +698,13 @@
+@@ -691,10 +723,13 @@
  	print_game_video(out,game);
  	print_game_sound(out,game);
  	print_game_input(out,game);
@@ -86,25 +177,25 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	fprintf(out, L1E);
  }
  
- #if !defined(MESS) && !defined(TINY_COMPILE) && !defined(CPSMAME)
+ #if !defined(MESS) && !defined(TINY_COMPILE) && !defined(CPSMAME) && !defined(MMSND)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/inptport.c srcmess/inptport.c
---- srcmess.ori/inptport.c	Sun Sep 23 10:49:36 2001
-+++ srcmess/inptport.c	Tue Jan  8 23:06:28 2002
-@@ -140,10 +140,13 @@
+--- srcmess.ori/inptport.c	2002-07-06 18:37:18.000000000 +0200
++++ srcmess/inptport.c	2002-09-08 18:16:02.000000000 +0200
+@@ -147,10 +147,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
  	{ IPT_UI_TOGGLE_UI,         "UI Toggle",			SEQ_DEF_1(KEYCODE_SCRLOCK) },
  #endif
  	{ IPT_UI_SNAPSHOT,          "Save Snapshot",		SEQ_DEF_1(KEYCODE_F12) },
-+	{ IPT_UI_SOUND_START,       "Save Sound Start",  SEQ_DEF_2(KEYCODE_ENTER,KEYCODE_LCONTROL) },
-+	{ IPT_UI_SOUND_STOP,        "Save Sound Stop",   SEQ_DEF_3(KEYCODE_ENTER,CODE_NOT,KEYCODE_LCONTROL) },
-+ 	{ IPT_UI_TURBO,             "Turbo",             SEQ_DEF_1(KEYCODE_ASTERISK) },
++	{ IPT_UI_RECORD_START,      "Record Start", SEQ_DEF_2(KEYCODE_ENTER,KEYCODE_LCONTROL) },
++	{ IPT_UI_RECORD_STOP,       "Record Stop", SEQ_DEF_3(KEYCODE_ENTER,CODE_NOT,KEYCODE_LCONTROL) },
++	{ IPT_UI_TURBO,             "Turbo", SEQ_DEF_1(KEYCODE_ASTERISK) },
  	{ IPT_UI_TOGGLE_CHEAT,      "Toggle Cheat",			SEQ_DEF_1(KEYCODE_F6) },
  	{ IPT_UI_UP,                "UI Up",				SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) },
  	{ IPT_UI_DOWN,              "UI Down",				SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
  	{ IPT_UI_LEFT,              "UI Left",				SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
  	{ IPT_UI_RIGHT,             "UI Right",				SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
-@@ -151,10 +154,12 @@
+@@ -158,10 +161,12 @@
  	{ IPT_UI_CANCEL,            "UI Cancel",			SEQ_DEF_1(KEYCODE_ESC) },
  	{ IPT_UI_PAN_UP,            "Pan Up",				SEQ_DEF_3(KEYCODE_PGUP, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_PAN_DOWN,          "Pan Down",				SEQ_DEF_3(KEYCODE_PGDN, CODE_NOT, KEYCODE_LSHIFT) },
@@ -117,19 +208,107 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
+@@ -1694,14 +1699,16 @@
+ 		int new, prev;
+ 
+ 		/* center stick */
+ 		if ((delta == 0) && (in->type & IPF_CENTER))
+ 		{
+-			if (current > default_value)
+-			delta = -100 / sensitivity;
+-			if (current < default_value)
+-			delta = 100 / sensitivity;
++			/* return backward at middle speed */
++			delta = default_value - current;
++			if (delta < -(keydelta+1)/2)
++				delta = -(keydelta+1)/2;
++			if (delta > (keydelta+1)/2)
++				delta = (keydelta+1)/2;
+ 		}
+ 
+ 		/* An analog joystick which is not at zero position (or has just */
+ 		/* moved there) takes precedence over all other computations */
+ 		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
+@@ -1959,16 +1966,23 @@
+ #define MAX_INPUT_BITS 1024
+ 	static int impulsecount[MAX_INPUT_BITS];
+ 	static int waspressed[MAX_INPUT_BITS];
+ 	static int pbwaspressed[MAX_INPUT_BITS];
+ 
++	unsigned newcoin[COIN_COUNTERS];
++	unsigned coin;
++
+ #ifdef MAME_NET
+ 	int player;
+ #endif /* MAME_NET */
+ 
+ 
+ profiler_mark(PROFILER_INPUT);
++	
++	/* clear the new coin status */
++	for(coin=0;coin<4;++coin)
++		newcoin[coin] = 0;
+ 
+ 	/* clear all the values before proceeding */
+ 	for (port = 0;port < MAX_INPUT_PORTS;port++)
+ 	{
+ 		input_port_value[port] = 0;
+@@ -2057,18 +2071,20 @@
+ 				}
+ 				else
+ 				{
+ 					InputSeq* seq;
+ 					seq = input_port_seq(in);
+-					if (seq_pressed(seq))
++
++					if (osd_input_port_filter(seq_pressed(seq), in->type & (IPF_PLAYERMASK | ~IPF_MASK)))
+ 					{
+-						/* skip if coin input and it's locked out */
+-						if ((in->type & ~IPF_MASK) >= IPT_COIN1 &&
+-							(in->type & ~IPF_MASK) <= IPT_COIN4 &&
+-                            coinlockedout[(in->type & ~IPF_MASK) - IPT_COIN1])
+-						{
+-							continue;
++						if ((in->type & ~IPF_MASK) >= IPT_COIN1 && (in->type & ~IPF_MASK) <= IPT_COIN4) {
++							unsigned ncoin = (in->type & ~IPF_MASK) - IPT_COIN1;
++							if (coinlockedout[ncoin])
++								continue;
++							if (!lastcoin[ncoin])
++								++coins[ncoin];
++							newcoin[ncoin] = 1;
+ 						}
+ 
+ 						/* if IPF_RESET set, reset the first CPU */
+ 						if ((in->type & IPF_RESETCPU) && waspressed[ib] == 0 && !playback)
+ 						{
+@@ -2196,10 +2212,14 @@
+ #ifdef MAME_NET
+ 	if ( net_active() && (default_player != NET_SPECTATOR) )
+ 		net_input_sync((unsigned char *) input_port_value, (unsigned char *) input_port_defaults, MAX_INPUT_PORTS);
+ #endif /* MAME_NET */
+ 
++	/* set the last coin status */
++	for(coin=0;coin<4;++coin)
++		lastcoin[coin] = newcoin[coin];
++	
+ profiler_mark(PROFILER_END);
+ }
+ 
+ 
+ 
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/inptport.h srcmess/inptport.h
---- srcmess.ori/inptport.h	Sun Sep 23 10:49:36 2001
-+++ srcmess/inptport.h	Tue Jan  8 22:13:54 2002
-@@ -75,10 +75,15 @@
- 	IPT_UNKNOWN,
+--- srcmess.ori/inptport.h	2002-07-06 18:37:18.000000000 +0200
++++ srcmess/inptport.h	2002-09-08 18:16:02.000000000 +0200
+@@ -81,10 +81,15 @@
+ 	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
  					/* It is used to store additional parameters for analog inputs */
  
  	/* the following are special codes for user interface handling - not to be used by drivers! */
 +	IPT_UI_MODE_NEXT,
-+	IPT_UI_MODE_PRED,		
-+	IPT_UI_SOUND_START,
-+	IPT_UI_SOUND_STOP,
++	IPT_UI_MODE_PRED,
++	IPT_UI_RECORD_START,
++	IPT_UI_RECORD_STOP,
 +	IPT_UI_TURBO,
  	IPT_UI_CONFIGURE,
  	IPT_UI_ON_SCREEN_DISPLAY,
@@ -137,8 +316,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	IPT_UI_RESET_MACHINE,
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/input.c srcmess/input.c
---- srcmess.ori/input.c	Sun Dec  9 10:40:06 2001
-+++ srcmess/input.c	Tue Jan  8 23:07:26 2002
+--- srcmess.ori/input.c	2002-07-06 13:33:26.000000000 +0200
++++ srcmess/input.c	2002-09-08 18:17:58.000000000 +0200
 @@ -791,11 +791,11 @@
  		pressed = 1;
  		ui_posted_press = 0;
@@ -166,95 +345,90 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  		if (ui_map[code].memory == 0)
  		{
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/mame.c srcmess/mame.c
---- srcmess.ori/mame.c	Sun Dec  9 10:40:06 2001
-+++ srcmess/mame.c	Tue Jan  8 22:13:54 2002
-@@ -810,32 +810,20 @@
+--- srcmess.ori/mame.c	2002-07-13 14:00:10.000000000 +0200
++++ srcmess/mame.c	2002-09-08 18:19:20.000000000 +0200
+@@ -1016,34 +1016,20 @@
+ 	to a given resolution
+ -------------------------------------------------*/
  
- 
- /* Scale the vector games to a given resolution */
- static void scale_vectorgames(int gfx_width,int gfx_height,int *width,int *height)
+ static void scale_vectorgames(int gfx_width, int gfx_height, int *width, int *height)
  {
 -	double x_scale, y_scale, scale;
 -
+-	/* based on the orientation, compute the scale values */
  	if (Machine->orientation & ORIENTATION_SWAP_XY)
  	{
--		x_scale=(double)gfx_width/(double)(*height);
--		y_scale=(double)gfx_height/(double)(*width);
+-		x_scale = (double)gfx_width / (double)(*height);
+-		y_scale = (double)gfx_height / (double)(*width);
 +		*width = gfx_height;
 +		*height = gfx_width*9/16;
  	}
  	else
  	{
--		x_scale=(double)gfx_width/(double)(*width);
--		y_scale=(double)gfx_height/(double)(*height);
+-		x_scale = (double)gfx_width / (double)(*width);
+-		y_scale = (double)gfx_height / (double)(*height);
 +		*width = gfx_width;
 +		*height = gfx_height;
  	}
--	if (x_scale<y_scale)
--		scale=x_scale;
--	else
--		scale=y_scale;
--	*width=(int)((double)*width*scale);
--	*height=(int)((double)*height*scale);
+-	
+-	/* pick the smaller scale factor */
+-	scale = (x_scale < y_scale) ? x_scale : y_scale;
 -
--	/* Padding to an dword value */
--	*width-=*width % 4;
--	*height-=*height % 4;
+-	/* compute the new size */
+-	*width = (int)((double)*width * scale);
+-	*height = (int)((double)*height * scale);
+-
+-	/* round to the nearest 4 pixel value */
+-	*width &= ~3;
+-	*height &= ~3;
  }
  
  
- static int vh_open(void)
- {
+ 
+ /*-------------------------------------------------
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/osdepend.h srcmess/osdepend.h
---- srcmess.ori/osdepend.h	Sun Dec  9 10:40:06 2001
-+++ srcmess/osdepend.h	Tue Jan  8 22:13:54 2002
-@@ -198,10 +198,15 @@
+--- srcmess.ori/osdepend.h	2002-08-23 16:30:08.000000000 +0200
++++ srcmess/osdepend.h	2002-09-08 18:16:02.000000000 +0200
+@@ -404,10 +404,36 @@
+ #include "osd_dir.h"
+ #endif
  
- /* direct access to the Sound Blaster OPL chip */
- void osd_opl_control(int chip,int reg);
- void osd_opl_write(int chip,int data);
+ void CLIB_DECL logerror(const char *text,...);
  
-+/*
-+  Start and stop the sound recording.
-+*/
-+void osd_save_sound_start(void);
-+void osd_save_sound_stop(void);
- 
- /******************************************************************************
- 
-   Keyboard
- 
-@@ -379,11 +384,27 @@
- /* things like changing the title bar or darkening the display. */
- /* Note that the OS dependant code must NOT stop processing input, since the user */
- /* interface is still active while the game is paused. */
- void osd_pause(int paused);
- 
++/******************************************************************************
++
++  Addititions
++
++******************************************************************************/
++
 +/* called then the game is reset */
 +void osd_reset(void);
 +
 +/* execute the specified menu (0,1,...) */
 +int osd_menu(struct mame_bitmap *bitmap, int sel);
 +
-+/* return the CPU cycles counter value */
-+unsigned int osd_cycles(void);
-+
 +/* filter the user interface input state */
 +int osd_input_ui_filter(int result, int type);
 +
 +/* filter the main exit request */
 +int osd_input_exit_filter(int result);
- 
++
 +/* filter the input port state */
 +int osd_input_port_filter(int result, int type);
++
++/* start and stop the video/sound recording. */
++void osd_record_start(void);
++void osd_record_stop(void);
++
++
+ #ifdef __cplusplus
+ }
+ #endif
  
- #ifdef MAME_NET
- /* network */
- int osd_net_init(void);
- int osd_net_send(int player, unsigned char buf[], int *size);
+ #endif
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/ui_text.c srcmess/ui_text.c
---- srcmess.ori/ui_text.c	Wed Jul 25 23:08:26 2001
-+++ srcmess/ui_text.c	Tue Jan  8 22:13:54 2002
+--- srcmess.ori/ui_text.c	2002-07-06 18:37:22.000000000 +0200
++++ srcmess/ui_text.c	2002-09-08 18:16:02.000000000 +0200
 @@ -202,10 +202,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -271,8 +445,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  int uistring_init (void *langfile)
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/ui_text.h srcmess/ui_text.h
---- srcmess.ori/ui_text.h	Wed Jul 25 23:08:44 2001
-+++ srcmess/ui_text.h	Tue Jan  8 22:13:54 2002
+--- srcmess.ori/ui_text.h	2002-07-06 18:37:22.000000000 +0200
++++ srcmess/ui_text.h	2002-09-08 18:16:02.000000000 +0200
 @@ -169,10 +169,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -289,9 +463,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  struct lang_struct
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- srcmess.ori/usrintrf.c srcmess/usrintrf.c
---- srcmess.ori/usrintrf.c	Sun Dec  9 10:40:08 2001
-+++ srcmess/usrintrf.c	Tue Jan  8 23:11:50 2002
-@@ -704,12 +704,16 @@
+--- srcmess.ori/usrintrf.c	2002-07-06 13:33:28.000000000 +0200
++++ srcmess/usrintrf.c	2002-09-08 18:20:24.000000000 +0200
+@@ -663,12 +663,16 @@
  	while (items[i])
  	{
  		len = 3 + strlen(items[i]);
@@ -310,7 +484,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	count = i;
  
  	visible = Machine->uiheight / (3 * Machine->uifontheight / 2) - 1;
-@@ -777,15 +781,27 @@
+@@ -736,15 +740,27 @@
  				dt[curr_dt].y = topoffs + (3*i+1)*Machine->uifontheight/2;
  				curr_dt++;
  			}
@@ -324,7 +498,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
 +				unsigned y = topoffs + (3*i+1)*Machine->uifontheight/2;
 +				int color = (flag && flag[item]) ? UI_COLOR_INVERSE : UI_COLOR_NORMAL;
 +				len = strlen(items[item]);
-+				if (len	> maxlen - 3) {
++				if (len > maxlen - 3) {
 +					unsigned x;
 +					const char* dot = "...";
 +					len = maxlen - 3;
@@ -343,7 +517,104 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	}
  
  	i = selected - topitem;
-@@ -2716,15 +2732,15 @@
+@@ -1866,13 +1882,13 @@
+ 		in++;
+ 	}
+ 
+ 	if (total == 0) return 0;
+ 
+-	/* Each analog control has 3 entries - key & joy delta, reverse, sensitivity */
++	/* Each analog control has 4 entries - key & joy delta, reverse, sensitivity */
+ 
+-#define ENTRIES 3
++#define ENTRIES 4
+ 
+ 	total2 = total * ENTRIES;
+ 
+ 	menu_item[total2] = ui_getstring (UI_returntomain);
+ 	menu_item[total2 + 1] = 0;	/* terminate array */
+@@ -1885,15 +1901,17 @@
+ 		{
+ 			char label[30][40];
+ 			char setting[30][40];
+ 			int sensitivity,delta;
+ 			int reverse;
++			int center;
+ 
+ 			strcpy (label[i], input_port_name(entry[i/ENTRIES]));
+ 			sensitivity = IP_GET_SENSITIVITY(entry[i/ENTRIES]);
+ 			delta = IP_GET_DELTA(entry[i/ENTRIES]);
+ 			reverse = (entry[i/ENTRIES]->type & IPF_REVERSE);
++			center = (entry[i/ENTRIES]->type & IPF_CENTER);
+ 
+ 			strcat (label[i], " ");
+ 			switch (i%ENTRIES)
+ 			{
+ 				case 0:
+@@ -1912,10 +1930,18 @@
+ 				case 2:
+ 					strcat (label[i], ui_getstring (UI_sensitivity));
+ 					sprintf(setting[i],"%3d%%",sensitivity);
+ 					if (i == sel) arrowize = 3;
+ 					break;
++				case 3:
++					strcat (label[i], ui_getstring (UI_center));
++					if (center)
++						sprintf(setting[i],ui_getstring (UI_on));
++					else
++						sprintf(setting[i],ui_getstring (UI_off));
++					if (i == sel) arrowize = 3;
++					break;
+ 			}
+ 
+ 			menu_item[i] = label[i];
+ 			menu_subitem[i] = setting[i];
+ 
+@@ -1963,10 +1989,21 @@
+ 
+ 				val --;
+ 				if (val < 1) val = 1;
+ 				IP_SET_SENSITIVITY(entry[sel/ENTRIES],val);
+ 			}
++			else if ((sel % ENTRIES) == 3)
++			/* center */
++			{
++				int center = entry[sel/ENTRIES]->type & IPF_CENTER;
++				if (center)
++					center=0;
++				else
++					center=IPF_CENTER;
++				entry[sel/ENTRIES]->type &= ~IPF_CENTER;
++				entry[sel/ENTRIES]->type |= center;
++			}
+ 		}
+ 	}
+ 
+ 	if (input_ui_pressed_repeat(IPT_UI_RIGHT,8))
+ 	{
+@@ -1999,10 +2036,21 @@
+ 
+ 				val ++;
+ 				if (val > 255) val = 255;
+ 				IP_SET_SENSITIVITY(entry[sel/ENTRIES],val);
+ 			}
++			else if ((sel % ENTRIES) == 3)
++			/* center */
++			{
++				int center = entry[sel/ENTRIES]->type & IPF_CENTER;
++				if (center)
++					center=0;
++				else
++					center=IPF_CENTER;
++				entry[sel/ENTRIES]->type &= ~IPF_CENTER;
++				entry[sel/ENTRIES]->type |= center;
++			}
+ 		}
+ 	}
+ 
+ 	if (input_ui_pressed(IPT_UI_SELECT))
+ 	{
+@@ -2853,15 +2901,15 @@
  
  
  #ifndef MESS
@@ -361,8 +632,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  #define MAX_SETUPMENU_ITEMS 20
  static const char *menu_item[MAX_SETUPMENU_ITEMS];
-@@ -2798,10 +2814,11 @@
- 	}
+@@ -2934,10 +2982,11 @@
+ #endif
  #endif
  #endif
  #endif
@@ -373,7 +644,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #endif
  	menu_item[menu_total] = ui_getstring (UI_returntogame); menu_action[menu_total++] = UI_EXIT;
  	menu_item[menu_total] = 0; /* terminate array */
-@@ -2860,10 +2877,13 @@
+@@ -2996,10 +3045,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -385,9 +656,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #ifndef MESS
  #ifndef TINY_COMPILE
  #ifndef CPSMAME
+ #ifndef MMSND
  			case UI_MEMCARD:
- 				res = memcard_menu(bitmap, sel >> SEL_BITS);
-@@ -2912,10 +2932,11 @@
+@@ -3050,10 +3102,11 @@
  			case UI_TAPECONTROL:
  			#endif
  			case UI_HISTORY:
@@ -399,27 +670,134 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  				break;
  
  			case UI_RESET:
-@@ -3427,10 +3448,16 @@
+@@ -3491,10 +3544,63 @@
+ 	vsprintf(messagetext,text,arg);
+ 	va_end(arg);
+ 	messagecounter = seconds * Machine->drv->frames_per_second;
+ }
+ 
++int on_exit_menu(struct mame_bitmap* bitmap, int selected)
++{
++	const char * exit_menu_item[8];
++	char flag[8];
++
++	int sel;
++	int total;
++
++	sel = selected - 1;
++
++	total = 0;
++
++	exit_menu_item[total] = "Continue";
++	flag[total] = 0;
++	++total;
++
++	exit_menu_item[total] = "Exit";
++	flag[total] = 0;
++	++total;
++
++	exit_menu_item[total] = 0;
++	flag[total] = 0;
++
++	ui_displaymenu(bitmap,exit_menu_item,0,flag,sel,0);
++
++	if (input_ui_pressed_repeat(IPT_UI_DOWN,8)) {
++		sel = (sel + 1) % total;
++	}
++
++	if (input_ui_pressed_repeat(IPT_UI_UP,8)) {
++		sel = (sel + total - 1) % total;
++	}
++
++	if (input_ui_pressed(IPT_UI_SELECT)) {
++		if (sel == 1)
++			sel = -2;
++		if (sel == 0)
++			sel = -1;
++	}
++
++	if (input_ui_pressed(IPT_UI_CANCEL)) {
++		sel = -1;
++	}
++
++	if (sel == -1 || sel == -2)
++	{
++		/* tell updatescreen() to clean after us */
++		schedule_full_refresh();
++	}
++
++	return sel + 1;
++}
++
+ void do_loadsave(struct mame_bitmap *bitmap, int request_loadsave)
+ {
+ 	int file = 0;
+ 
+ 	mame_pause(1);
+@@ -3672,17 +3778,42 @@
  
  	/* if the user pressed F12, save the screen to a file */
  	if (input_ui_pressed(IPT_UI_SNAPSHOT))
- 		osd_save_snapshot(bitmap);
+ 		artwork_save_snapshot(bitmap);
  
 +	/* save the sound to a file */
-+	if (input_ui_pressed(IPT_UI_SOUND_START))
-+		osd_save_sound_start();
-+	if (input_ui_pressed(IPT_UI_SOUND_STOP))
-+		osd_save_sound_stop();
++	if (input_ui_pressed(IPT_UI_RECORD_START))
++		osd_record_start();
++	if (input_ui_pressed(IPT_UI_RECORD_STOP))
++		osd_record_stop();
 +
  	/* This call is for the cheat, it must be called once a frame */
  	if (options.cheat) DoCheat(bitmap);
  
  	/* if the user pressed ESC, stop the emulation */
  	/* but don't quit if the setup menu is on screen */
-@@ -3606,11 +3633,11 @@
+-	if (setup_selected == 0 && input_ui_pressed(IPT_UI_CANCEL))
+-		return 1;
++	if (setup_selected == 0) {
++		int res = osd_input_exit_filter(input_ui_pressed(IPT_UI_CANCEL));
++		if (res > 1)
++			return 1;
++		if (res != 0) {
++			osd_sound_enable(0);
++			osd_pause(1);
++
++			res = 1;
++			while (res > 0) {
++				res = on_exit_menu(bitmap,res);
++				update_video_and_audio();
++			}
++
++			osd_pause(0);
++			osd_sound_enable(1);
++
++			if (res < 0)
++				return 1;
++		}
++	}
+ 
+ 	if (setup_selected == 0 && input_ui_pressed(IPT_UI_CONFIGURE))
+ 	{
+ 		setup_selected = -1;
+ 		if (osd_selected != 0)
+@@ -3793,10 +3924,14 @@
+ 			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
- 				osd_save_snapshot(bitmap);
+ 				artwork_save_snapshot(bitmap);
+ 
++			if (input_ui_pressed(IPT_UI_RECORD_START))
++				osd_record_start();
++			if (input_ui_pressed(IPT_UI_RECORD_STOP))
++				osd_record_stop();
+ 
+ 			if (input_ui_pressed(IPT_UI_SAVE_STATE))
+ 				do_loadsave(bitmap, LOADSAVE_SAVE);
+ 
+ 			if (input_ui_pressed(IPT_UI_LOAD_STATE))
+@@ -3805,11 +3940,11 @@
+ 			/* if the user pressed F4, show the character set */
+ 			if (input_ui_pressed(IPT_UI_SHOW_GFX))
+ 				showcharset(bitmap);
  
  			if (setup_selected == 0 && input_ui_pressed(IPT_UI_CANCEL))
 -				return 1;

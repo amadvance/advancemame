@@ -691,6 +691,8 @@ static int is_crtc_acceptable(struct advance_video_context* context, const video
 	video_crtc temp_crtc;
 	unsigned bit;
 
+	video_mode_reset(&mode);
+
 	/* try to adjust the crtc if required */
 	if (video_make_crtc(context,&temp_crtc,crtc) != 0)
 		return 0;
@@ -728,6 +730,8 @@ static int is_crtc_acceptable_preventive(struct advance_video_context* context, 
 	video_mode mode;
 	video_crtc temp_crtc = *crtc;
 	unsigned bit;
+
+	video_mode_reset(&mode);
 
 	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
 		return 1; /* always ok if the driver is not programmable */
@@ -2395,6 +2399,8 @@ int advance_video_change(struct advance_video_context* context) {
 	pthread_mutex_lock(&context->state.thread_video_mutex);
 #endif
 
+	video_mode_reset(&mode);
+
 	if (video_update_depthindex(context) != 0) {
 		goto err;
 	}
@@ -2446,6 +2452,7 @@ int osd2_video_init(struct osd_video_option* req)
 	struct advance_input_context* input_context = &CONTEXT.input;
 
 	video_mode mode;
+	video_mode_reset(&mode);
 
 	log_std(("osd: osd_video_init\n"));
 
@@ -2506,8 +2513,9 @@ err_os:
 	keyb_done();
 err_mode:
 	video_done_mode(context, 0);
-	video_mode_reset();
+	video_mode_restore();
 err:
+	target_err("%s\n",video_error_description_get());
 	return -1;
 }
 
@@ -2523,7 +2531,7 @@ void osd2_video_done(void)
 
 	if (context->config.restore_flag || context->state.measure_flag) {
 		video_done_mode(context,1);
-		video_mode_reset();
+		video_mode_restore();
 	} else {
 		video_done_mode(context,0);
 		if (video_mode_is_active())
@@ -2873,7 +2881,7 @@ static const char* GAME_BLIT_COMBINE_MAX[] = {
 0
 };
 
-static int video_config_mode(struct advance_video_context* context, struct mame_option* option) {
+static void video_config_mode(struct advance_video_context* context, struct mame_option* option) {
 	video_crtc_container_iterator i;
 	video_crtc* best_crtc = 0;
 	int best_size;
@@ -2964,8 +2972,6 @@ static int video_config_mode(struct advance_video_context* context, struct mame_
 		option->vector_width = 0;
 		option->vector_height = 0;
 	}
-
-	return 0;
 }
 
 int advance_video_config_load(struct advance_video_context* context, struct conf_context* cfg_context, struct mame_option* option) {
@@ -3138,12 +3144,13 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	/* Ignore the unused driver. These are generally the driver needed */
 	/* for the text mode, not used by the emulator. */
 	if (video_load(cfg_context, "slang") != 0) {
+		target_err("Error loading the video configuration.\n");
 		return -1;
 	}
 
 	if (video_crtc_container_load(cfg_context, &context->config.crtc_bag)!=0) {
-		target_err("Invalid modeline.\n");
 		target_err("%s\n",video_error_description_get());
+		target_err("Invalid modeline.\n");
 		return -1;
 	}
 
@@ -3157,19 +3164,17 @@ void advance_video_done(struct advance_video_context* context) {
 int advance_video_inner_init(struct advance_video_context* context, struct mame_option* option)
 {
 	if (video_init() != 0) {
+		target_err("Error initializing the video system.\n");
 		return -1;
 	}
 
 	if (video_blit_init() != 0) {
+		target_err("Error initializing the blit system.\n");
 		video_done();
 		return -1;
 	}
 
-	if (video_config_mode(context,option) != 0) {
-		video_blit_done();
-		video_done();
-		return -1;
-	}
+	video_config_mode(context,option);
 
 	return 0;
 }

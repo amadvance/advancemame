@@ -636,15 +636,15 @@ int os_main(int argc, char* argv[])
 			strcpy(option.playback_file,argv[i+1]);
 			++i;
 		} else if (argv[i][0]!='-') {
-			unsigned i;
+			unsigned j;
 			if (opt_gamename) {
 				target_err("Multiple game name definition, '%s' and '%s'.\n", opt_gamename, argv[i]);
 				goto err_os;
 			}
 			opt_gamename = argv[i];
 			/* case insensitive compare, there are a lot of frontends which use uppercase names */
-			for(i=0;opt_gamename[i];++i)
-				opt_gamename[i] = tolower(opt_gamename[i]);
+			for(j=0;opt_gamename[j];++j)
+				opt_gamename[j] = tolower(opt_gamename[j]);
 		} else {
 			target_err("Unknown command line option '%s'.\n",argv[i]);
 			goto err_os;
@@ -748,7 +748,7 @@ int os_main(int argc, char* argv[])
 
 	log_std(("advance: os_inner_init()\n"));
 
-	if (os_inner_init("AdvanceMAME") != 0) {
+	if (os_inner_init(ADVANCE_TITLE) != 0) {
 		goto err_os;
 	}
 

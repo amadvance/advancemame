@@ -982,6 +982,8 @@ static int cmd_onvideo_test(void) {
 	int dirty = 1;
 	int crtc_save_modified;
 
+	video_mode_reset(&mode);
+
 	crtc = menu_current();
 	if (!crtc)
 		return -1;
@@ -1070,6 +1072,8 @@ static int cmd_onvideo_calib(void) {
 	unsigned speed;
 	char buffer[128];
 
+	video_mode_reset(&mode);
+
 	if ((the_mode_type & VIDEO_FLAGS_TYPE_MASK) != VIDEO_FLAGS_TYPE_GRAPHICS) {
 		video_error_description_set("Command supported only in graphics mode");
 		return -1;
@@ -1112,6 +1116,8 @@ static int cmd_onvideo_animate(void) {
 	video_crtc* crtc;
 	unsigned i;
 	int counter;
+
+	video_mode_reset(&mode);
 
 	if ((the_mode_type & VIDEO_FLAGS_TYPE_MASK) != VIDEO_FLAGS_TYPE_GRAPHICS) {
 		video_error_description_set("Command supported only in graphics mode");

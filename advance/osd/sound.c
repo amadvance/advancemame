@@ -91,6 +91,8 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	assert(context->state.active_flag == 0);
 
 #ifdef NDEBUG
+	/* TODO This sound none check doesn't work with multiple sound driver specification. */
+
 	/* disable the sound with the none driver in the release build, */
 	/* in the debug build use the none driver */
 	if (strcmp(sound_name(),"none")==0) {

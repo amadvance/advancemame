@@ -142,7 +142,7 @@ unsigned game::time_tree_get() const {
 }
 
 string game::name_without_emulator_get() const {
-	int i = name_get().find('/');
+	int i = name_get().rfind('/');
 	if (i == string::npos)
 		return name_get();
 	else
@@ -270,6 +270,23 @@ bool game::preview_list_set(const string& list, void (game::*preview_set)(const 
 	return false;
 }
 
+bool game::preview_software_list_set(const string& list, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) const {
+	if (!software_get())
+		return false;
+
+	string bios = bios_get().name_without_emulator_get();
+
+	int i = 0;
+	while (i<list.length()) {
+		string dir = token_get(list,i,":");
+		token_skip(list,i,":");
+		if (preview_dir_set(dir + "/" + bios,preview_set,ext0,ext1))
+			return true;
+	}
+	return false;
+}
+
+
 bool game::preview_find_down(resource& path, const resource& (game::*preview_get)() const, const string& exclude) const {
 	if ((this->*preview_get)().is_valid()) {
 		path = (this->*preview_get)();
@@ -277,7 +294,7 @@ bool game::preview_find_down(resource& path, const resource& (game::*preview_get
 	}
 
 	for(pgame_container::const_iterator i=clone_bag_get().begin();i!=clone_bag_get().end();++i) {
-		if ((*i)->name_get() != exclude) {
+		if (!(*i)->software_get() && (*i)->name_get() != exclude) {
 			if ((*i)->preview_find_down(path,preview_get,string())) {
 				return true;
 			}

@@ -374,8 +374,8 @@ static int cmd_model(struct conf_context* config, video_monitor* monitor) {
 				data[mac].manufacturer = strdup(manufacturer);
 				data[mac].model = strdup(model);
 				if (monitor_parse(&data[mac].monitor,"5 - 90",h,v)!=0) {
-					video_mode_reset();
-					fprintf(stderr,"error: invalid monitor specification %s:%s:%s:%s",manufacturer,model,h,v);
+					video_mode_restore();
+					fprintf(stderr,"Invalid monitor specification %s:%s:%s:%s.",manufacturer,model,h,v);
 					exit(EXIT_FAILURE);
 				}
 				++mac;
@@ -497,7 +497,7 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 	double hclock = crtc->pixelclock / crtc->ht;
 
 	video_mode mode;
-	strcpy(mode.name,"test");
+	video_mode_reset(&mode);
 
 	while (!done) {
 		unsigned pred_t;
@@ -509,8 +509,8 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 				&& video_mode_generate(&mode, &current, bits, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)==0) {
 				video_mode_done(1);
 				if (video_mode_set(&mode)!=0) {
-					text_reset();
-					fprintf(stderr,"Error setting the calibrate mode\n");
+					text_done();
+					fprintf(stderr,"Error setting the calibration mode.\n");
 					fprintf(stderr,"%s\n",video_error_description_get());
 					exit(EXIT_FAILURE);
 				}
@@ -519,8 +519,8 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 				draw_test(2,2,msg,&current,1);
 			} else {
 				if (first) {
-					text_reset();
-					fprintf(stderr,"Error in the test mode\n");
+					text_done();
+					fprintf(stderr,"Error in the test mode.\n");
 					fprintf(stderr,"%s\n",video_error_description_get());
 					exit(EXIT_FAILURE);
 				}
@@ -624,7 +624,9 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 
 static void adjust_fix(const char* msg, video_crtc* crtc, unsigned bits, const video_monitor* monitor) {
 	video_crtc current = *crtc;
+
 	video_mode mode;
+	video_mode_reset(&mode);
 
 	if (crtc_adjust_clock(&current, monitor)==0
 		&& video_crtc_check(&current)
@@ -632,8 +634,8 @@ static void adjust_fix(const char* msg, video_crtc* crtc, unsigned bits, const v
 		&& video_mode_generate(&mode, &current, bits, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)==0) {
 		video_mode_done(1);
 		if (video_mode_set(&mode)!=0) {
-			text_reset();
-			fprintf(stderr,"Error setting the calibrate mode\n");
+			text_done();
+			fprintf(stderr,"Error setting the calibration mode.\n");
 			fprintf(stderr,"%s\n",video_error_description_get());
 			exit(EXIT_FAILURE);
 		}
@@ -651,12 +653,6 @@ static int cmd_adjust(const char* msg, video_generate_interpolate* entry, const 
 
 	x = y*4/3;
 	x = x & ~0xF;
-
-	log_std(("horz_clock %g\n", horz_clock));
-	log_std(("pclock_min %g\n", (double)monitor_pclock_min(monitor)));
-	log_std(("pclock_max %g\n", (double)monitor_pclock_max(monitor)));
-	log_std(("x %d\n", x));
-	log_std(("pclock %g\n", x*horz_clock));
 
 	generate_crtc(&crtc,x,y,generate);
 	crtc_hclock_set(&crtc,horz_clock);
@@ -676,8 +672,8 @@ static int cmd_adjust(const char* msg, video_generate_interpolate* entry, const 
 	}
 
 	if (crtc_adjust_clock(&crtc, monitor)!=0) {
-		text_reset();
-		fprintf(stderr,"Calibration mode unsupported\n");
+		text_done();
+		fprintf(stderr,"Calibration mode unsupported.\n");
 		fprintf(stderr,"%s\n",video_error_description_get());
 		exit(EXIT_FAILURE);
 	}
@@ -890,10 +886,10 @@ static void interpolate_update(video_generate_interpolate_set* interpolate, stru
 }
 
 int interpolate_test(const char* msg, video_crtc* crtc, const video_monitor* monitor, int bits) {
-	video_mode mode;
 	int res;
 
-	strcpy(mode.name,"test");
+	video_mode mode;
+	video_mode_reset(&mode);
 
 	if (video_mode_generate(&mode, crtc, bits, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
 		return -1;
@@ -1141,14 +1137,14 @@ static void entry_test(int x, int y, int dx, void* data, int n, int selected) {
 }
 
 int cmd_test_mode(video_generate_interpolate_set* interpolate, const video_monitor* monitor, int x, int y, double vclock, int bits, unsigned cap, int calib) {
-	video_mode mode;
 	video_crtc crtc;
+
+	video_mode mode;
+	video_mode_reset(&mode);
 
 	if (generate_find_interpolate_double(&crtc, x, y, vclock, monitor, interpolate, cap, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL)!=0) {
 		return -1;
 	}
-
-	strcpy(mode.name,"test");
 
 	if (video_mode_generate(&mode, &crtc, bits, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
 		return -1;
@@ -1440,7 +1436,7 @@ int os_main(int argc, char* argv[]) {
 	config = conf_init();
 
 	if (os_init(config)!=0) {
-		fprintf(stderr,"Error initializing the OS support\n");
+		fprintf(stderr,"Error initializing the OS support.\n");
 		goto err;
 	}
 
@@ -1477,7 +1473,7 @@ int os_main(int argc, char* argv[]) {
 		} else if (optionmatch(argv[j],"bit") && j+1<argc) {
 			bits = atoi(argv[++j]);
 		} else {
-			fprintf(stderr,"Unknown option %s\n",argv[j]);
+			fprintf(stderr,"Unknown option %s.\n",argv[j]);
 			goto err_os;
 		}
 	}
@@ -1512,7 +1508,7 @@ int os_main(int argc, char* argv[]) {
 	conf_section_set(config, section_map, 1);
 
 	if (video_load(config, "") != 0) {
-		fprintf(stderr,"Error loading the video options from the configuration file %s\n", opt_rc);
+		fprintf(stderr,"Error loading the video options from the configuration file %s.\n", opt_rc);
 		fprintf(stderr,"%s\n",video_error_description_get());
 		goto err_os;
 	}

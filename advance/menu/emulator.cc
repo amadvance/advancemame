@@ -405,16 +405,17 @@ bool emulator::run(const game& g, unsigned orientation, bool ignore_error) const
 unsigned emulator::preview_set(game_set& gar) const {
 	unsigned preview = 0;
 
-	gar.preview_list_set(config_alts_path_get(),user_name_get(),&game::preview_snap_set_ifmissing,".png",".pcx");
-	gar.preview_list_set(config_alts_path_get(),user_name_get(),&game::preview_clip_set_ifmissing,".mng","");
-	gar.preview_list_set(config_alts_path_get(),user_name_get(),&game::preview_sound_set_ifmissing,".mp3",".wav");
-
 	// search the previews in the software directory
 	if (software_path_get().length()) {
 		gar.preview_software_list_set(config_alts_path_get(),user_name_get(),&game::preview_snap_set_ifmissing,".png",".pcx");
 		gar.preview_software_list_set(config_alts_path_get(),user_name_get(),&game::preview_clip_set_ifmissing,".mng","");
 		gar.preview_software_list_set(config_alts_path_get(),user_name_get(),&game::preview_sound_set_ifmissing,".mp3",".wav");
 	}
+
+	// search the previews in the root directory
+	gar.preview_list_set(config_alts_path_get(),user_name_get(),&game::preview_snap_set_ifmissing,".png",".pcx");
+	gar.preview_list_set(config_alts_path_get(),user_name_get(),&game::preview_clip_set_ifmissing,".mng","");
+	gar.preview_list_set(config_alts_path_get(),user_name_get(),&game::preview_sound_set_ifmissing,".mp3",".wav");
 
 	if (gar.preview_list_set(config_icon_path_get(),user_name_get(),&game::preview_icon_set_ifmissing,".ico",""))
 		preview |= preview_icon;
@@ -432,13 +433,16 @@ unsigned emulator::preview_set(game_set& gar) const {
 
 void emulator::update(const game& g) const {
 	// update always the preview
-	if (!g.preview_list_set(config_alts_path_get(),&game::preview_snap_set,".png",".pcx"))
+	if (!g.preview_software_list_set(config_alts_path_get(),&game::preview_snap_set,".png",".pcx")
+		&& !g.preview_list_set(config_alts_path_get(),&game::preview_snap_set,".png",".pcx"))
 		g.preview_snap_set(resource());
 
-	if (!g.preview_list_set(config_alts_path_get(),&game::preview_clip_set,".mng",""))
+	if (!g.preview_software_list_set(config_alts_path_get(),&game::preview_clip_set,".mng","")
+		&& !g.preview_list_set(config_alts_path_get(),&game::preview_clip_set,".mng",""))
 		g.preview_clip_set(resource());
 
-	if (!g.preview_list_set(config_alts_path_get(),&game::preview_sound_set,".mp3",".wav"))
+	if (!g.preview_software_list_set(config_alts_path_get(),&game::preview_sound_set,".mp3",".wav")
+		&& !g.preview_list_set(config_alts_path_get(),&game::preview_sound_set,".mp3",".wav"))
 		g.preview_sound_set(resource());
 }
 
@@ -1525,10 +1529,12 @@ bool dmess::load_cfg(const game_set& gar) {
 	scan_dirlist(gar, config_rom_path_get());
 
 	for(game_set::const_iterator i=gar.begin();i!=gar.end();++i) {
-		if (conf_string_section_get(context, const_cast<char*>(i->name_get().c_str()), "softwarepath", &s)==0) {
-			i->software_path_set(s);
-		} else {
-			i->software_path_set(emu_software_path);
+		if (i->emulator_get() == this) {
+			if (conf_string_section_get(context, const_cast<char*>(i->name_get().c_str()), "softwarepath", &s)==0) {
+				i->software_path_set(s);
+			} else {
+				i->software_path_set(emu_software_path);
+			}
 		}
 	}
 
@@ -1570,13 +1576,15 @@ void dmess::scan_software_by_sys(game_container& gac, const string& software, co
 
 void dmess::scan_software(game_container& gac, const game_set& gar) {
 	for(game_set::const_iterator i=gar.begin();i!=gar.end();++i) {
-		int ptr = 0;
-		while (ptr < i->software_path_get().length()) {
-			string path = slash_add(token_get(i->software_path_get(),ptr,file_dir_separator()));
+		if (i->emulator_get() == this) {
+			int ptr = 0;
+			while (ptr < i->software_path_get().length()) {
+				string path = slash_add(token_get(i->software_path_get(),ptr,file_dir_separator()));
 
-			token_skip(i->software_path_get(),ptr,file_dir_separator());
+				token_skip(i->software_path_get(),ptr,file_dir_separator());
 
-			scan_software_by_sys(gac,path,i->name_without_emulator_get());
+				scan_software_by_sys(gac,path,i->name_without_emulator_get());
+			}
 		}
 	}
 }
@@ -1824,10 +1832,12 @@ bool advmess::load_cfg(const game_set& gar) {
 	scan_dirlist(gar, config_rom_path_get());
 
 	for(game_set::const_iterator i=gar.begin();i!=gar.end();++i) {
-		if (conf_string_section_get(context, const_cast<char*>(i->name_get().c_str()), "dir_image", &s)==0) {
-			i->software_path_set(s);
-		} else {
-			i->software_path_set(emu_software_path);
+		if (i->emulator_get() == this) {
+			if (conf_string_section_get(context, const_cast<char*>(i->name_get().c_str()), "dir_image", &s)==0) {
+				i->software_path_set(s);
+			} else {
+				i->software_path_set(emu_software_path);
+			}
 		}
 	}
 
@@ -1840,6 +1850,7 @@ void advmess::scan_software_by_sys(game_container& gac, const string& software, 
 {
 	string parent = bios.name_without_emulator_get();
 	string software_dir = software + parent;
+
 	DIR* dir = opendir(cpath_export(software_dir));
 	if (!dir)
 		return;
@@ -1889,13 +1900,15 @@ void advmess::scan_software_by_sys(game_container& gac, const string& software, 
 
 void advmess::scan_software(game_container& gac, const game_set& gar) {
 	for(game_set::const_iterator i=gar.begin();i!=gar.end();++i) {
-		int ptr = 0;
-		while (ptr < i->software_path_get().length()) {
-			string path = slash_add(token_get(i->software_path_get(),ptr,file_dir_separator()));
+		if (i->emulator_get() == this) {
+			int ptr = 0;
+			while (ptr < i->software_path_get().length()) {
+				string path = slash_add(token_get(i->software_path_get(),ptr,file_dir_separator()));
 
-			token_skip(i->software_path_get(),ptr,file_dir_separator());
+				token_skip(i->software_path_get(),ptr,file_dir_separator());
 
-			scan_software_by_sys(gac,path,*i);
+				scan_software_by_sys(gac,path,*i);
+			}
 		}
 	}
 }

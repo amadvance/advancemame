@@ -41,11 +41,6 @@ static const device* device_match_one(const char* tag, const driver* drv, video_
 	char* tag_device;
 	const device* i;
 
-	if (allow_none && strcmp(drv->name,"none")==0) {
-		assert(drv->device_map->name != 0);
-		return drv->device_map;
-	}
-
 	strcpy(tag_driver,tag);
 	tag_device = strchr(tag_driver,'/');
 	if (tag_device) {
@@ -53,6 +48,15 @@ static const device* device_match_one(const char* tag, const driver* drv, video_
 		++tag_device;
 	} else {
 		tag_device = "auto";
+	}
+
+	if (strcmp(drv->name,"none")==0) {
+		if (allow_none || strcmp(tag_driver,"none")==0) {
+			assert(drv->device_map->name != 0);
+			return drv->device_map;
+		} else {
+			return 0; /* "auto" never choose "none" */
+		}
 	}
 
 	if (strcmp(tag_driver,"auto")!=0 && strcmp(tag_driver,drv->name)!=0)
@@ -71,6 +75,14 @@ static const device* device_match_one(const char* tag, const driver* drv, video_
 	return i;
 }
 
+/**
+ * Check if a device name match the user specification.
+ * \param tag user specification.
+ * \param drv device to check.
+ * \param allow_none if true allows the "none" driver also if it
+ *   isn't specified. Otherwise the "none" driver is used only if explictly
+ *   specified. It isn't used from "auto".
+ */
 const device* device_match(const char* tag, const driver* drv, video_bool allow_none) {
 	char buffer[DEVICE_NAME_MAX];
 	const char* tag_one;

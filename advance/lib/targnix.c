@@ -174,7 +174,6 @@ void target_sync(void) {
 }
 
 int target_search(char* path, unsigned path_size, const char* file) {
-	char separator[2];
 	const char* path_env;
 	char* path_list;
 	char* dir;
@@ -190,6 +189,7 @@ int target_search(char* path, unsigned path_size, const char* file) {
 			return 0;
 		}
 
+		log_std(("linux: target_search failed\n"));
 		return -1;
 	}
 
@@ -197,43 +197,42 @@ int target_search(char* path, unsigned path_size, const char* file) {
 	path_env = getenv("PATH");
 	if (!path_env) {
 		log_std(("linux: genenv(PATH) failed\n"));
-		return -1;
-	}
+	} else {
+		char separator[2];
+		separator[0] = file_dir_separator();
+		separator[1] = 0;
 
-	/* duplicate for the strtok use */
-	path_list = strdup(path_env);
-	if (!path_env) {
-		return -1;
-	}
+		/* duplicate for the strtok use */
+		path_list = strdup(path_env);
 
-	separator[0] = file_dir_separator();
-	separator[1] = 0;
-	dir = strtok(path_list, separator);
-	while (dir) {
-		unsigned l;
+		dir = strtok(path_list, separator);
+		while (dir) {
+			unsigned l;
 
-		strcpy(path, dir);
+			strcpy(path, dir);
 
-		l = strlen(path);
-		if (l>0 && path[l-1] != file_dir_slash()) {
-			path[l] = file_dir_slash();
-			path[l+1] = 0;
+			l = strlen(path);
+			if (l>0 && path[l-1] != file_dir_slash()) {
+				path[l] = file_dir_slash();
+				path[l+1] = 0;
+			}
+
+			strcat(path, file);
+
+			if (access(path,F_OK) == 0) {
+				free(path_list);
+				log_std(("linux: target_search() return %s\n", path));
+				return 0;
+			}
+
+			dir = strtok(0, separator);
 		}
 
-		strcat(path, file);
-
-		if (access(path,F_OK) == 0) {
-			free(path_list);
-			log_std(("linux: target_search() return %s\n", path));
-			return 0;
-		}
-
-		dir = strtok(0, separator);
+		free(path_list);
 	}
 
 	log_std(("linux: target_search failed\n"));
 
-	free(path_list);
 	return -1;
 }
 

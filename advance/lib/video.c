@@ -372,6 +372,11 @@ void video_mode_done(video_bool restore)
 	video_state.mode_active = 0;
 }
 
+void video_mode_reset(video_mode* mode) {
+	memset(mode,0,sizeof(video_mode));
+	strcpy(mode->name, "unamed");
+}
+
 static void video_state_rgb_set_from_def(video_rgb_def _def);
 static void video_state_rgb_clear(void);
 
@@ -471,7 +476,7 @@ video_error video_mode_generate(video_mode* mode, const video_crtc* crtc, unsign
 	unsigned char driver_mode[VIDEO_DRIVER_MODE_SIZE_MAX];
 	unsigned i;
 
-	/* clear the error */
+	/* store the error prefix */
 	video_error_description_nolog_set("No driver is capable to do the specified video mode.\n\nThe following is the detailed list of errors for every driver:\n");
 
 	for(i=0;i<video_state.driver_mac;++i) {
@@ -483,6 +488,8 @@ video_error video_mode_generate(video_mode* mode, const video_crtc* crtc, unsign
 			if (crtc_is_fake(crtc)
 				|| video_mode_generate_check(video_state.driver_map[i]->name,driver_flags,8,4096,crtc,bits,flags)==0) {
 				if (video_state.driver_map[i]->mode_generate(&driver_mode,crtc,bits,flags)==0 && video_state.driver_map[i]->mode_import(mode,&driver_mode)==0) {
+					/* clear the stored error prefix */
+					video_error_description_nolog_set("%s","");
 					log_std(("video: using driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
 					return 0;
 				}
@@ -644,7 +651,7 @@ unsigned video_mode_generate_driver_flags(void)
  * Reset the startup mode.
  * \note After this call none video mode is active. video_mode_active()==0
  */
-void video_mode_reset(void)
+void video_mode_restore(void)
 {
 	assert(video_is_active());
 

@@ -1,6 +1,8 @@
 Name
 	advmenu - History For AdvanceCAB Emulators
 
+AdvanceCAB Version 0.11.3 2002/09 (not yet released)
+
 AdvanceCAB Version 0.11.2 2002/07
 	) Recompiled the `advv' utility with the new
 		VGA and SVGA video drivers.

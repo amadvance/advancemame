@@ -281,7 +281,8 @@ MENU_DOC_SRC = \
 	$(srcdir)/doc/install.d \
 	$(srcdir)/doc/carddos.d \
 	$(srcdir)/doc/cardlinx.d \
-	$(srcdir)/doc/build.d
+	$(srcdir)/doc/build.d \
+	$(srcdir)/doc/cost.d
 
 MENU_SUPPORT_SRC = \
 	$(RCSRC) \
@@ -291,6 +292,8 @@ MENU_SUPPORT_SRC = \
 MENU_DOC_BIN = \
 	$(DOCOBJ)/license.txt \
 	$(DOCOBJ)/advmenu.txt \
+	$(DOCOBJ)/build.txt \
+	$(DOCOBJ)/cost.txt \
 	$(DOCOBJ)/authors.txt \
 	$(DOCOBJ)/faq.txt \
 	$(DOCOBJ)/readmenu.txt \
@@ -298,6 +301,8 @@ MENU_DOC_BIN = \
 	$(DOCOBJ)/histmenu.txt \
 	$(DOCOBJ)/license.html \
 	$(DOCOBJ)/advmenu.html \
+	$(DOCOBJ)/build.html \
+	$(DOCOBJ)/cost.html \
 	$(DOCOBJ)/authors.html \
 	$(DOCOBJ)/faq.html \
 	$(DOCOBJ)/readmenu.html \

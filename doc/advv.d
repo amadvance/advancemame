@@ -273,6 +273,12 @@ Configuration
 	:device_video_hclock H_LOW - H_HIGH [, H_LOW - H_HIGH] [, H_FIXED]
 	:device_video_vclock V_LOW - V_HIGH [, V_LOW - V_HIGH] [, V_FIXED]
 
+	If you are using the svgalib driver in Linux you need also to
+	adjust the SVGALIB configuration file /etc/vga/libvga.config
+	and correctly set the HorizSync and VertRefresh options.
+	You must use range equal or larger ranges than specified with the
+	hclock and vclock options.
+
 	Options:
 		P_LOW - P_HIGH - Pixel clock range in MHz
 			The lower value is the lower clock generable

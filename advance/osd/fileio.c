@@ -71,7 +71,8 @@ struct dirio_handle {
 #define FILEIO_OPEN_NONE 0 /**< Open not allowed. */
 #define FILEIO_OPEN_READ 1 /**< Open for reading "rb". */
 #define FILEIO_OPEN_WRITE 2 /**< Open for writing "wb". */
-#define FILEIO_OPEN_READWRITE 3 /**< Open for reading and writing "r+b". */
+#define FILEIO_OPEN_READWRITE 3 /**< Open for reading and writing an existing file "r+b". */
+#define FILEIO_OPEN_READWRITECREATE 4 /**< Open for reading and writing a new file "w+b". */
 
 struct fileio_item {
 	int type; /**< OSD_FILETYPE_* */
@@ -84,32 +85,38 @@ struct fileio_item {
 
 	unsigned open_0; /**< Open mode for mode 0 (arg of osd_fopen) */
 	unsigned open_1; /**< Open mode for mode 1 (arg of osd_fopen) */
+	unsigned open_2; /**< Open mode for mode 2 (arg of osd_fopen) */
+	unsigned open_3; /**< Open mode for mode 3 (arg of osd_fopen) */
 
 	unsigned dir_mac; /**< Number of directories */
 	char** dir_map; /**< Vector of directories */
 };
 
 static struct fileio_item CONFIG[] = {
-	{ OSD_FILETYPE_ROM, "dir_rom", "rom", 0, FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_ROM, "dir_rom", "rom", 0, FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
 /* TODO implementare in OSD_FILETYPE_ROM_NOCRC la lettura senza crc */
-/*	{ OSD_FILETYPE_ROM_NOCRC, "dir_rom", "rom", 0, FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 }, */
-	{ OSD_FILETYPE_IMAGE_R, "dir_imager", "image", ".chd", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_IMAGE_RW, "dir_imagerw", "image", ".chd", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READWRITE, FILEIO_OPEN_READWRITE, 0, 0 },
-	{ OSD_FILETYPE_IMAGE_DIFF, "dir_imagediff", "image", ".dif", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READWRITE, FILEIO_OPEN_READWRITE, 0, 0 },
-	{ OSD_FILETYPE_SAMPLE, "dir_sample", "sample", ".wav", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_ARTWORK, "dir_artwork", "artwork", ".png", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_NVRAM, "dir_nvram" , "nvram", ".nv", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
-	{ OSD_FILETYPE_HIGHSCORE, "dir_hi", "hi", ".hi", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
-	{ OSD_FILETYPE_HIGHSCORE_DB, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 }, /* used for hiscore.dat */
-	{ OSD_FILETYPE_CONFIG, "dir_cfg", "cfg", ".cfg", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
-	{ OSD_FILETYPE_INPUTLOG, "dir_inp", "inp", ".inp", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
-	{ OSD_FILETYPE_STATE, "dir_sta", "sta", ".sta", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
-	{ OSD_FILETYPE_MEMCARD, "dir_memcard", "memcard", ".mem", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, 0, 0 },
-	{ OSD_FILETYPE_SCREENSHOT, "dir_snap", "snap", ".png", FILEIO_MODE_DIRNAME, FILEIO_OPEN_NONE, FILEIO_OPEN_WRITE, 0, 0 },
-	{ OSD_FILETYPE_HISTORY, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 }, /* used for history.dat, mameinfo.dat, safequit.dat */
-	{ OSD_FILETYPE_CHEAT, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_READWRITE, 0, 0 }, /* used for cheat.dat */
-	{ OSD_FILETYPE_LANGUAGE, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, 0, 0 }, /* used for language file */
-	{ OSD_FILETYPE_end, 0, 0, 0, 0, 0, 0 }
+/*	{ OSD_FILETYPE_ROM_NOCRC, "dir_rom", "rom", 0, FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, */
+#ifdef MESS
+	{ OSD_FILETYPE_IMAGE, "dir_image", "image", ".chd", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_READWRITE, FILEIO_OPEN_READWRITECREATE, 0, 0 },
+#else
+	{ OSD_FILETYPE_IMAGE_R, "dir_imager", "image", ".chd", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_IMAGE_RW, "dir_imagerw", "image", ".chd", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READWRITE, FILEIO_OPEN_READWRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+#endif
+	{ OSD_FILETYPE_IMAGE_DIFF, "dir_imagediff", "image", ".dif", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READWRITE, FILEIO_OPEN_READWRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_SAMPLE, "dir_sample", "sample", ".wav", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_ARTWORK, "dir_artwork", "artwork", ".png", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_NVRAM, "dir_nvram" , "nvram", ".nv", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_HIGHSCORE, "dir_hi", "hi", ".hi", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_HIGHSCORE_DB, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for hiscore.dat */
+	{ OSD_FILETYPE_CONFIG, "dir_cfg", "cfg", ".cfg", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_INPUTLOG, "dir_inp", "inp", ".inp", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_STATE, "dir_sta", "sta", ".sta", FILEIO_MODE_DIRGAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_MEMCARD, "dir_memcard", "memcard", ".mem", FILEIO_MODE_DIRNAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_SCREENSHOT, "dir_snap", "snap", ".png", FILEIO_MODE_DIRNAME, FILEIO_OPEN_NONE, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
+	{ OSD_FILETYPE_HISTORY, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for history.dat, mameinfo.dat, safequit.dat */
+	{ OSD_FILETYPE_CHEAT, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_READWRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for cheat.dat */
+	{ OSD_FILETYPE_LANGUAGE, 0, 0, 0, FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for language file */
+	{ OSD_FILETYPE_end, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
 /***************************************************************************/
@@ -250,6 +257,12 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 	case 1 :
 		mode = item->open_1;
 		break;
+	case 2 :
+		mode = item->open_2;
+		break;
+	case 3 :
+		mode = item->open_3;
+		break;
 	default:
 		log_std(("ERROR: osd_fopen() invalid open in unknow mode\n"));
 		return 0;
@@ -267,6 +280,9 @@ static struct fileio_handle* item_open(int type, const char* game, const char* n
 		break;
 	case FILEIO_OPEN_READWRITE :
 		open_mode = "r+b";
+		break;
+	case FILEIO_OPEN_READWRITECREATE :
+		open_mode = "w+b";
 		break;
 	default:
 		log_std(("ERROR: osd_fopen() invalid open in not specified mode\n"));
@@ -854,7 +870,7 @@ char* osd_basename(char* filename)
 
 	log_std(("osd: osd_basename(filename:%s)\n",filename));
 
-	base = strrchr(filename, os_dir_slash());
+	base = strrchr(filename, file_dir_slash());
 	if (base)
 		++base;
 	else
@@ -863,6 +879,51 @@ char* osd_basename(char* filename)
 	log_std(("osd: osd_basename() -> %s\n",base));
 
 	return base;
+}
+
+char* osd_strip_extension(const char* file)
+{
+	char* r;
+	char* slash;
+	char* dot;
+
+	if (!file)
+		return 0;
+
+	r = strdup(file);
+
+	slash = strrchr(r,file_dir_slash());
+	dot = strrchr(r,'.');
+
+	if (dot && (!slash || dot > slash))
+		*dot = 0;
+
+	return r;
+}
+
+char* osd_dirname(const char* file)
+{
+	char* r;
+	char* slash;
+
+	if (!file)
+		return 0;
+
+	r = strdup(file);
+
+	slash = strrchr(r,file_dir_slash());
+	if (slash) {
+		slash[1] = 0;
+		return r;
+	} else {
+		r[0] = 0;
+		return r;
+	}
+}
+
+void osd_device_eject(int type, int id)
+{
+	device_filename_change(type, id, 0);
 }
 
 #endif
@@ -927,7 +988,7 @@ int advance_fileio_init(struct conf_context* context) {
 	}
 
 #ifdef MESS
-	conf_string_register_default(context, "dir_crc", os_config_dir_singledir("crc"));
+	conf_string_register_default(context, "dir_crc", file_config_dir_singledir("crc"));
 #endif
 
 	return 0;

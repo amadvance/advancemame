@@ -33,6 +33,7 @@
 #include "mame2.h"
 #include "log.h"
 #include "target.h"
+#include "file.h"
 
 #include "hscript.h"
 
@@ -429,13 +430,6 @@ int mame_is_game_in_list(const char* list[], const mame_game* game) {
 	return 0;
 }
 
-#ifdef MESS
-static int mess_log(char *fmt, va_list arg) {
-	os_msg_va(fmt,arg);
-	return 0;
-}
-#endif
-
 const struct mame_game* mame_playback_look(const char* file) {
 	INP_HEADER inp_header;
 	void* playback;
@@ -598,23 +592,25 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	mameinfo_filename = (char*)advance->info_file;
 
 #ifdef MESS
-	sprintf(GLUE.crc_file,"%s%c%s.crc",advance->crc_dir,os_dir_slash(),driver->name);
-        crcfile = GLUE.crc_file;
+	{
+		const struct GameDriver* driver = (const struct GameDriver*)context->game;
 
-	os_log(("mess: file_crc %s\n", crcfile));
+		sprintf(GLUE.crc_file,"%s%c%s.crc",advance->crc_dir,file_dir_slash(),driver->name);
+		crcfile = GLUE.crc_file;
 
-	if (driver->clone_of
-		&& driver->clone_of->name
-		&& (driver->clone_of->flags & NOT_A_DRIVER) == 0) {
-		sprintf(GLUE.parent_crc_file,"%s%c%s.crc",advance->crc_dir,os_dir_slash(),driver->clone_of->name);
-	} else {
-		strcpy(GLUE.parent_crc_file,"");
+		log_std(("mess: file_crc %s\n", crcfile));
+
+		if (driver->clone_of
+			&& driver->clone_of->name
+			&& (driver->clone_of->flags & NOT_A_DRIVER) == 0) {
+			sprintf(GLUE.parent_crc_file,"%s%c%s.crc",advance->crc_dir,file_dir_slash(),driver->clone_of->name);
+		} else {
+			strcpy(GLUE.parent_crc_file,"");
+		}
+		pcrcfile = GLUE.parent_crc_file;
+
+		log_std(("mess: parent_file_crc %s\n", pcrcfile));
 	}
-	pcrcfile = GLUE.parent_crc_file;
-
-	os_log(("mess: parent_file_crc %s\n", pcrcfile));
-
-	options.mess_printf_output = mess_log;
 #endif
 
 	for(game_index=0;drivers[game_index];++game_index)

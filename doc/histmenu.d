@@ -3,7 +3,14 @@ Name
 
 AdvanceMENU Version 2.1.1 2002/09
 	) Fixed the window title and the icon in the sdl system.
-	) In Windows the default sdl samples buffer is now 2048
+	) In Windows the default sdl samples buffer is now 2048.
+		This solve the distorced sound.
+	) In DOS the executables are now searched also in the current
+		directory.
+	) Fixed the missing software bug when both DMESS and AdvanceMESS
+		are present.
+	) Some minor fixes for the AdvanceMESS use.
+	) Added the `cost' doc.
 
 AdvanceMENU Version 2.1.0 2002/09
 	) Revised the output format of all the documentation. Now

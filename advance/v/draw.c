@@ -188,13 +188,13 @@ static int text_default_set(void) {
 
 void text_init(void) {
 	if (text_default_set()!=0) {
-		video_mode_reset();
+		video_mode_restore();
 		printf("Error inizialing the default video mode\n\"%s\"",video_error_description_get());
 		exit(EXIT_FAILURE);
 	}
 
 	if (the_default_mode_flag == 0) {
-		video_mode_reset();
+		video_mode_restore();
 		printf("No text modes available for your hardware.\nTry removig the `[video] vgaline_driver' option from the configuration file.\n");
 		exit(EXIT_FAILURE);
 	}
@@ -205,14 +205,14 @@ void text_reset(void) {
 		video_mode_done(1);
 
 	if (video_mode_set(&the_default_mode)!=0) {
-		video_mode_reset();
+		video_mode_restore();
 		printf("Error in inizialing the default video mode\n");
 		exit(EXIT_FAILURE);
 	}
 }
 
 void text_done(void) {
-	video_mode_reset();
+	video_mode_restore();
 }
 
 void text_put(int x, int y, char c, int color) {

@@ -436,6 +436,7 @@ static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_containe
 		if (err == 0) {
 			if (crtc_clock_check(&text_monitor,&crtc)) {
 				video_mode mode;
+				video_mode_reset(&mode);
 				if (video_mode_generate(&mode,&crtc,depth,VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)==0) {
 					text_current_mode = mode;
 					mode_found = true;
@@ -452,6 +453,7 @@ static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_containe
 		crtc_fake_set(&crtc, text_mode_size, text_mode_size*3/4);
 
 		video_mode mode;
+		video_mode_reset(&mode);
 		if (video_mode_generate(&mode,&crtc,depth,VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)==0) {
 			text_current_mode = mode;
 			mode_found = true;
@@ -472,6 +474,7 @@ static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_containe
 		}
 
 		video_mode mode;
+		video_mode_reset(&mode);
 		if (video_mode_generate(&mode, crtc, depth, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)==0) {
 			if (!mode_found || mode_graphics_less(&mode, &text_current_mode)) {
 				text_current_mode = mode;
@@ -589,6 +592,7 @@ bool text_init2(unsigned size, unsigned depth, const string& sound_event_key) {
 	text_mode_size = size;
 	text_mode_depth = depth;
 	text_sound_event_key = sound_event_key;
+	video_mode_reset(&text_current_mode);
 
 	if (video_init() != 0) {
 		target_err("Error initializing the video driver.\n");
@@ -687,26 +691,26 @@ bool text_init3(double gamma, double brightness, unsigned idle_0, unsigned idle_
 	text_brightness = brightness;
 
 	if (video_mode_set(&text_current_mode) != 0) {
-		video_mode_reset();
+		video_mode_restore();
 		target_err("Error initializing the video driver.\n");
 		goto out;
 	}
 
 	if (!text_key_init2()) {
-		video_mode_reset();
+		video_mode_restore();
 		target_err("Error initializing the keyboard driver.\n");
 		goto out;
 	}
 
 	if (!text_joystick_init2()) {
-		video_mode_reset();
+		video_mode_restore();
 		target_err("Error initializing the joystick driver.\n");
 		target_err("Try with the option '-device_joystick none'.\n");
 		goto out_key;
 	}
 
 	if (!text_mouse_init2()) {
-		video_mode_reset();
+		video_mode_restore();
 		target_err("Error initializing the mouse driver.\n");
 		target_err("Try with the option '-device_mouse none'.\n");
 		goto out_joy;
@@ -737,7 +741,7 @@ void text_done3(bool reset_video_mode) {
 			video_clear(0,0,video_size_x(),video_size_y(),0);
 			video_write_unlock(0,0,video_size_x(),video_size_y());
 		}
-		video_mode_reset();
+		video_mode_restore();
 	} else {
 		video_mode_done(0);
 	}

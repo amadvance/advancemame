@@ -238,6 +238,7 @@ public:
 	bool preview_zip_set(const std::string& zip, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1) const;
         bool preview_dir_set(const std::string& dir, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1) const;
 	bool preview_list_set(const std::string& list, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1) const;
+	bool preview_software_list_set(const std::string& list, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1) const;
 
 	bool preview_find(resource& path, const resource& (game::*preview_get)() const) const;
 
