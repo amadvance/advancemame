@@ -34,6 +34,7 @@
 #include "msdl.h"
 #include "target.h"
 #include "file.h"
+#include "ossdl.h"
 
 #include "SDL.h"
 
@@ -84,6 +85,7 @@ int os_inner_init(const char* title) {
 
 	log_std(("os: sys SDL\n"));
 
+	/* print the compiler version */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
 #define COMPILER_RESOLVE(a) #a
 #define COMPILER(a,b,c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
@@ -91,8 +93,8 @@ int os_inner_init(const char* title) {
 #else
 	log_std(("os: compiler unknown\n"));
 #endif
-
-	log_std(("os: call SDL_Init(SDL_INIT_NOPARACHUTE)\n"));
+      
+	log_std(("os: SDL_Init(SDL_INIT_NOPARACHUTE)\n"));
 	if (SDL_Init(SDL_INIT_NOPARACHUTE) != 0) {
 		log_std(("os: SDL_Init() failed, %s\n", SDL_GetError()));
 		target_err("Error initializing the SDL video support.\n");
@@ -130,12 +132,16 @@ int os_inner_init(const char* title) {
 }
 
 void os_inner_done(void) {
-	log_std(("os: call SDL_Quit()\n"));
+	log_std(("os: SDL_Quit()\n"));
 	SDL_Quit();
 }
 
 void os_poll(void) {
 	SDL_Event event;
+
+	/* The event queue works only with the video initialized */
+	if (!SDL_WasInit(SDL_INIT_VIDEO))
+		return;
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {

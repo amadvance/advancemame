@@ -28,8 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
-#ifndef __OSINT_H
-#define __OSINT_H
+#ifndef __OSLINUX_H
+#define __OSLINUX_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,7 +38,10 @@ extern "C" {
 /***************************************************************************/
 /* Internal */
 
-const char* os_internal_title_get(void);
+void* os_internal_svgalib_get(void);
+void* os_internal_slang_get(void);
+void* os_internal_sdl_get(void);
+void* os_internal_x_get(void);
 
 #ifdef __cplusplus
 }

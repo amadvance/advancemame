@@ -28,8 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
-#ifndef __VIDEOSTD_H
-#define __VIDEOSTD_H
+#ifndef __ADVSTD_H
+#define __ADVSTD_H
 
 #include <stdarg.h>
 
@@ -46,14 +46,14 @@ extern "C" {
  *  - <0 is not ok
  *  - >0 special conditions
  */
-typedef int video_error;
+typedef int adv_error;
 
 /**
  * Code used to check the result of a boolean operation.
  *  - ==0 false
  *  - !=0 true
  */
-typedef int video_bool;
+typedef int adv_bool;
 
 /**
  * Max length of video mode name
@@ -125,15 +125,11 @@ static __inline__ unsigned video_rgb_mask_make_from_def(unsigned len, unsigned p
 /***************************************************************************/
 /* error/log */
 
-void video_error_description_set(const char* error, ...) __attribute__((format(printf,1,2)));
-void video_error_description_nolog_set(const char* error, ...) __attribute__((format(printf,1,2)));
-void video_error_description_nolog_cat(const char* error, ...) __attribute__((format(printf,1,2)));
+const char* error_description_get(void);
 
-void video_log_va(const char *text, va_list arg) __attribute__((format(printf,1,0)));
-void video_log(const char *text, ...) __attribute__((format(printf,1,2)));
-
-void video_log_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace);
-void video_log_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace);
+void error_description_set(const char* error, ...) __attribute__((format(printf,1,2)));
+void error_description_nolog_set(const char* error, ...) __attribute__((format(printf,1,2)));
+void error_description_nolog_cat(const char* error, ...) __attribute__((format(printf,1,2)));
 
 #ifdef __cplusplus
 }
