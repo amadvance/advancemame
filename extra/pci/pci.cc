@@ -526,7 +526,7 @@ HEADER
 "\tIt supports all the video boards supported by the library.\n"
 "\n"
 "\tThe following is the list of the drivers available on the\n"
-"\tSVGALIB 1.9.17 with the AdvanceMAME patches applied.\n"
+"\tSVGALIB 1.9.18 with the AdvanceMAME patches applied.\n"
 "\n"
 ;
 
@@ -553,6 +553,31 @@ HEADER
 ;
 
 	print_set(os,vs_fb);
+
+	os << FOOTER;
+}
+
+void print_audiocd(ostream& os, entry_vendor_set& vs_alsa) {
+	os <<
+"Name\n"
+"\taudiocd - Supported AdvanceCD Sound Cards\n"
+"\n"
+"\tThis is the list of the sound cards supported by AdvanceCD.\n"
+"\n"
+HEADER
+;
+
+	os <<
+"ALSA\n"
+"\tThis is the list of all the PCI sound cards supported by the Linux\n"
+"\tKernel ALSA drivers used in AdvanceCD.\n"
+"\tOnly the PCI cards are listed, but also some ISA PnP and USB cards\n"
+"\tare supported. You can check the official ALSA documentation for a\n"
+"\tmore complete card list at http://www.alsa-project.org/alsa-doc/ .\n"
+"\n"
+;
+
+	print_set(os,vs_alsa);
 
 	os << FOOTER;
 }
@@ -599,24 +624,29 @@ struct pci_id_mask {
 
 struct pci_id_mask ID_VBELINE[] = {
 #include "vbeid.h"
-{ 0, 0, 0, 0 }
+{ 0 }
 };
 
 struct pci_id ID_FB[] = {
 #include "fbid.h"
-{ 0, 0, 0 }
+{ 0 }
 };
 
 struct pci_id ID_FBPATCH[] = {
 #define USE_FB_PATCH
 #include "fbid.h"
 #undef USE_FB_PATCH
-{ 0, 0, 0 }
+{ 0 }
 };
 
 struct pci_id_mask ID_SVGALIB[] = {
 #include "vgaid.h"
-{ 0, 0, 0 }
+{ 0 }
+};
+
+struct pci_id ID_ALSA[] = {
+#include "alsaid.h"
+{ 0 }
 };
 
 void insert(struct pci_id_mask* pci, entry_vendor_group& device)
@@ -697,6 +727,7 @@ int main() {
 	entry_vendor_group vs_vbeline;
 	entry_vendor_group vs_fb;
 	entry_vendor_group vs_fbpatch;
+	entry_vendor_group vs_alsa;
 
 	load_vendor(vs_vendor.vg);
 
@@ -704,11 +735,13 @@ int main() {
 	insert(ID_SVGALIB, vs_svgalib);
 	insert(ID_FB, vs_fb);
 	insert(ID_FBPATCH, vs_fbpatch);
+	insert(ID_ALSA, vs_alsa);
 
 	load_device(vs_fbpatch.vg, vs_vendor.vg);
 	load_device(vs_vbeline.vg, vs_vendor.vg);
 	load_device(vs_svgalib.vg, vs_vendor.vg);
 	load_device(vs_fb.vg, vs_vendor.vg);
+	load_device(vs_alsa.vg, vs_vendor.vg);
 
 	{
 		ofstream fo;
@@ -744,6 +777,14 @@ int main() {
 		print_id(fo, vs_fbpatch.vg);
 		fo.close();
 	}
+
+	{
+		ofstream fo;
+		fo.open("audiocd.d");
+		print_audiocd(fo, vs_alsa.vg);
+		fo.close();
+	}
+
 
 	return 0;
 }
