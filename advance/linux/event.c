@@ -1613,12 +1613,12 @@ int event_compare(const void* void_a, const void* void_b)
 		return -1;
 	if (a->product > b->product)
 		return 1;
-	if (a->version < b->version)
+	if (a->id < b->id)
 		return -1;
-	if (a->version > b->version)
+	if (a->id > b->id)
 		return 1;
 
-	return strcmp(a->file, b->file);
+	return 0;
 }
 
 unsigned event_locate(struct event_location* event_map, unsigned event_max, adv_bool* eacces)
@@ -1654,6 +1654,7 @@ unsigned event_locate(struct event_location* event_map, unsigned event_max, adv_
 		event_map[event_mac].product = device_info[ID_PRODUCT];
 		event_map[event_mac].version = device_info[ID_VERSION];
 		event_map[event_mac].bus = device_info[ID_BUS];
+		event_map[event_mac].id = i;
 		++event_mac;
 
 		event_close(f);

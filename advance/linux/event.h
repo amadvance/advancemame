@@ -48,6 +48,7 @@ struct event_location {
 	unsigned product;
 	unsigned version;
 	unsigned bus;
+	unsigned id;
 };
 
 unsigned event_locate(struct event_location* event_map, unsigned event_max, adv_bool* eaccess);
