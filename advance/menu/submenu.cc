@@ -922,7 +922,6 @@ int run_submenu(config_state& rs)
 	choice_bag ch;
 
 	if (!rs.console_mode) {
-		if (rs.emu.size() > 1)
 		ch.insert(ch.end(), choice("Listing...", 1));
 		ch.insert(ch.end(), choice("Settings...", 0));
 		if (rs.emu.size() > 1)
@@ -932,7 +931,7 @@ int run_submenu(config_state& rs)
 		ch.insert(ch.end(), choice(menu_name(rs, rs.script_menu, EVENT_COMMAND), 8));
 		ch.insert(ch.end(), choice(menu_name(rs, "Clone...", EVENT_CLONE), 15));
 		ch.insert(ch.end(), choice(menu_name(rs, "Help", EVENT_HELP), 10));
-			ch.insert(ch.end(), choice("Statistics", 18));
+		ch.insert(ch.end(), choice("Statistics", 18));
 	} else {
 		ch.insert(ch.end(), choice(menu_name(rs, "Help", EVENT_HELP), 10));
 		if (rs.emu.size() > 1)

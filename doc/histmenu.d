@@ -5,6 +5,7 @@ AdvanceMENU Version 2.4.2 2004/10
 	) Added a new `input_hotkey' option to disable OS
 		hotkeys like CTRL+C.
 	) Fixed the game autostart and screensaver.
+	) Fixed the display of the "Listing" menu.
 
 AdvanceMENU Version 2.4.1 2004/09
 	) Added support for translucency in the user interface
