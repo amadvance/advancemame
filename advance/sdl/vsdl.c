@@ -126,7 +126,7 @@ unsigned sdl_flags(void) {
 
 	info = SDL_GetVideoInfo();
 
-	if (info->wm_available) {
+	if (info->wm_available && !sdl_option.fullscreen) {
 		flags |= VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER;
 		switch (info->vfmt->BitsPerPixel) {
 			case 8 : flags |= VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_8BIT; break;
@@ -170,8 +170,7 @@ void sdl_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y) 
 static unsigned SDL_ModeFlags(void) {
 	unsigned flags;
 
-	if ((sdl_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER) != 0
-		&& !sdl_option.fullscreen) {
+	if ((sdl_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER) != 0) {
 		/* use a window if a window manager is present */
 		flags = 0;
 	} else {

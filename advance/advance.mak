@@ -14,7 +14,7 @@ else
 EMUVERSION = 0.61.2
 endif
 endif
-MENUVERSION = 2.0.0
+MENUVERSION = 2.0.1
 CABVERSION = 0.11.2
 
 ############################################################################
@@ -1345,7 +1345,9 @@ MPGLIB_SRC = \
 
 LIB_SRC = \
 	$(wildcard advance/lib/*.c) \
-	$(wildcard advance/lib/*.h)
+	$(wildcard advance/lib/*.h) \
+	$(wildcard advance/lib/*.ico) \
+	$(wildcard advance/lib/*.rc)
 
 BLIT_SRC = \
 	$(wildcard advance/blit/*.c) \
@@ -1480,13 +1482,13 @@ TARGET_ROOT_BIN += \
 endif
 
 ifeq ($(EMU),mess)
-ifneq ($(HOST_SYSTEM),sdl)
+ifeq ($(HOST_TARGET),dos)
 TARGET_ROOT_BIN += support/advmessv.bat support/advmessc.bat
 endif
 TARGET_DOC_SRC += support/advmessv.bat support/advmessc.bat
 endif
 ifeq ($(EMU),pac)
-ifneq ($(HOST_SYSTEM),sdl)
+ifeq ($(HOST_TARGET),dos)
 TARGET_ROOT_BIN += support/advpacv.bat support/advpacc.bat
 endif
 TARGET_DOC_SRC += support/advpacv.bat support/advpacc.bat
@@ -1555,8 +1557,6 @@ dist: testmake $(RCSRC) $(TARGET_ADVANCE_SRC)
 	mkdir $(TARGET_DISTDIR_SRC)/contrib
 	mkdir $(TARGET_DISTDIR_SRC)/contrib/mame
 	cp -R $(TARGET_CONTRIB_SRC) $(TARGET_DISTDIR_SRC)/contrib/mame
-	rm -f $(TARGET_DISTFILE_SRC).zip
-	cd $(TARGET_DISTDIR_SRC) && zip -r ../$(TARGET_DISTFILE_SRC).zip *
 	rm -f $(TARGET_DISTFILE_SRC).tar.gz
 	tar cfzo $(TARGET_DISTFILE_SRC).tar.gz $(TARGET_DISTDIR_SRC)
 	rm -r $(TARGET_DISTDIR_SRC)
@@ -1640,14 +1640,17 @@ MENU_ROOT_BIN = \
 ifneq ($(HOST_SYSTEM),sdl)
 MENU_ROOT_BIN += \
 	$(RCSRC) \
-	support/advmenuv.bat \
-	support/advmenuc.bat \
 	$(VOBJ)/advv$(EXE) \
 	$(CFGOBJ)/advcfg$(EXE) \
 	doc/advv.txt \
 	doc/advcfg.txt \
 	doc/install.txt \
 	doc/card.txt
+endif
+ifeq ($(HOST_TARGET),dos)
+MENU_ROOT_BIN += \
+	support/advmenuv.bat \
+	support/advmenuc.bat
 endif
 ifeq ($(HOST_TARGET),windows)
 MENU_ROOT_BIN += \
@@ -1705,8 +1708,6 @@ distmenu: testmake $(RCSRC)
 	mkdir $(MENU_DIST_DIR_SRC)/contrib
 	mkdir $(MENU_DIST_DIR_SRC)/contrib/menu
 	cp -R $(MENU_CONTRIB_SRC) $(MENU_DIST_DIR_SRC)/contrib/menu
-	rm -f $(MENU_DIST_FILE_SRC).zip
-	cd $(MENU_DIST_DIR_SRC) && zip -r ../$(MENU_DIST_FILE_SRC).zip *
 	rm -f $(MENU_DIST_FILE_SRC).tar.gz
 	tar cfzo $(MENU_DIST_FILE_SRC).tar.gz $(MENU_DIST_DIR_SRC)
 	rm -r $(MENU_DIST_DIR_SRC)
