@@ -234,7 +234,7 @@ static void os_delay(void)
 
 	target_yield();
 
-	delay_time = measure_step(os_wait, 0.0001, 0.5, 7);
+	delay_time = measure_step(os_wait, 0.0001, 0.2, 7);
 
 	if (delay_time > 0) {
 		log_std(("os: sleep granularity %g\n", delay_time));
@@ -321,9 +321,24 @@ int os_inner_init(const char* title)
 	log_std(("os: compiled big endian system\n"));
 #endif
 
+#if defined(USE_X)
+	OS.x_active = 0;
+	{
+		int event_base, error_base;
+		int major_version, minor_version;
+
+		log_std(("os: XOpenDisplay()\n"));
+		OS.dga_display = XOpenDisplay(0);
+		if (OS.dga_display) {
+			OS.x_active = 1;
+		} else {
+			log_std(("WARNING:os: XOpenDisplay() failed. All the X drivers will be disabled.\n"));
+		}
+	}
+#endif
 #if defined(USE_SVGALIB)
 	OS.svgalib_active = 0;
-	if (display == 0) {
+	if (!os_internal_wm_active()) {
 		int h;
 		log_std(("os: open /dev/svga\n"));
 
@@ -356,7 +371,7 @@ int os_inner_init(const char* title)
 			/* target_nfo("Error opening the SVGALIB device /dev/svga.\n"); */
 		}
 	} else {
-		log_std(("WARNING:os: vga_init() skipped because DISPLAY is defined. All the SVGALIB drivers will be disabled.\n"));
+		log_std(("WARNING:os: vga_init() skipped because X is active. All the SVGALIB drivers will be disabled.\n"));
 		/* don't print the message. It may be a normal condition. */
 		/* target_nfo("SVGALIB not initialized because it's unusable in X.\n"); */
 	}
@@ -380,30 +395,14 @@ int os_inner_init(const char* title)
 #endif
 #if defined(USE_SLANG)
 	OS.slang_active = 0;
-	if (display == 0) {
+	if (!os_internal_wm_active()) {
 		log_std(("os: SLtt_get_terminfo()\n"));
 		SLtt_get_terminfo();
 		log_std(("os: SLsmg_init_smg()\n"));
 		SLsmg_init_smg();
 		OS.slang_active = 1;
 	} else {
-		log_std(("os: SLang_init_tty() skipped\n"));
-	}
-#endif
-#if defined(USE_X)
-	OS.x_active = 0;
-	if (display != 0) {
-		int event_base, error_base;
-		int major_version, minor_version;
-
-		log_std(("os: XOpenDisplay()\n"));
-		OS.dga_display = XOpenDisplay(0);
-		if (!OS.dga_display) {
-			log_std(("os: XOpenDisplay() failed\n"));
-			target_err("Couldn't open X11 display.");
-			return -1;
-		}
-		OS.x_active = 1;
+		log_std(("WARNING:os: SLang_init_tty() skipped because X is active. All the SLang drivers will be disabled.\n"));
 	}
 #endif
       
@@ -493,6 +492,19 @@ void* os_internal_sdl_get(void)
 	return 0;
 }
 #endif
+
+adv_bool os_internal_wm_active(void) {
+#ifdef USE_X
+	if (OS.x_active) {
+		return 1;
+	}
+#else
+	if (getenv("DISPLAY") != 0) {
+		return 1;
+	}
+#endif
+	return 0;
+}
 
 void os_inner_done(void)
 {

@@ -32,6 +32,7 @@
 #include "log.h"
 #include "target.h"
 #include "error.h"
+#include "ossdl.h"
 
 #include "SDL.h"
 
@@ -55,7 +56,12 @@ adv_error inputb_sdl_init(int inputb_id)
 {
 	log_std(("inputb:sdl: inputb_sdl_init(id:%d)\n", inputb_id));
 
-	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+	if (!os_internal_sdl_get()) {
+		error_set("Unsupported without the SDL library.\n");
+		return -1;
+	}
+
+	if (!os_internal_sdl_is_video_active()) {
 		error_set("Not supported without the SDL video driver.\n");
 		return -1; 
 	}
@@ -72,7 +78,7 @@ adv_error inputb_sdl_enable(adv_bool graphics)
 {
 	log_std(("inputb:sdl: inputb_sdl_enable(graphics:%d)\n", (int)graphics));
 
-	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+	if (!os_internal_sdl_is_video_active()) {
 		error_set("Not supported without the SDL video driver.\n");
 		return -1; 
 	}

@@ -168,6 +168,11 @@ adv_error keyb_svgalib_init(int keyb_id, adv_bool disable_special)
 
 	log_std(("keyb:svgalib: keyb_svgalib_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
+	if (os_internal_wm_active()) {
+		error_set("Unsupported in X.\n");
+		return -1;
+	}
+
 	if (!os_internal_svgalib_get()) {
 		error_set("Not supported without the svgalib library.\n");
 		return -1;
@@ -196,6 +201,11 @@ adv_error keyb_svgalib_enable(adv_bool graphics)
 	unsigned j;
 
 	log_std(("keyb:svgalib: keyb_svgalib_enable(graphics:%d)\n", (int)graphics));
+
+	if (os_internal_wm_active()) {
+		error_set("Unsupported in X.\n");
+		return -1;
+	}
 
 #if defined(USE_VIDEO_SDL)
 	if (os_internal_sdl_is_video_active()) {

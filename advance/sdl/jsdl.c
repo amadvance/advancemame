@@ -33,6 +33,8 @@
 #include "portable.h"
 #include "error.h"
 
+#include "ossdl.h"
+
 #include "SDL.h"
 
 #define SDL_JOYSTICK_MAX 4 /**< Max number of joysticks */
@@ -54,6 +56,11 @@ adv_error joystickb_sdl_init(int joystickb_id)
 	unsigned i;
 
 	log_std(("josytickb:sdl: joystickb_sdl_init(id:%d)\n", joystickb_id));
+
+	if (!os_internal_sdl_get()) {
+		error_set("Unsupported without the SDL library.\n");
+		return -1;
+	}
 
 	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) != 0) {
 		error_set("Function SDL_InitSubSystem(SDL_INIT_JOYSTICK) failed, %s.\n", SDL_GetError());

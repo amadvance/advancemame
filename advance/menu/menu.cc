@@ -1311,18 +1311,18 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	}
 
 	if (backdrop_mac == 1) {
-		int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 1, cursor_size, rs.preview_expand, false);
+		int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 1, cursor_size, rs.preview_expand, false);
 		int_backdrop_pos(0, backdrop_x, backdrop_y, backdrop_dx, backdrop_dy);
 	} else if (backdrop_mac > 1) {
 		if (rs.mode_effective == mode_tile_icon)
-			int_backdrop_init(COLOR_MENU_ICON, COLOR_MENU_CURSOR, backdrop_mac, cursor_size, cursor_size, rs.preview_expand, false);
+			int_backdrop_init(COLOR_MENU_ICON, COLOR_MENU_CURSOR, backdrop_mac, coln, cursor_size, cursor_size, rs.preview_expand, false);
 		else if (rs.mode_effective == mode_list_mixed || rs.mode_effective == mode_full_mixed)
-			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, cursor_size, rs.preview_expand, false);
+			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, 0, cursor_size, rs.preview_expand, false);
 		else {
 			if (space_x == 0)
-				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 0, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop);
+				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, coln, 0, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop);
 			else
-				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop);
+				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, coln, 1, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop);
 		}
 		for(int i=0;i<backdrop_mac;++i)
 			int_backdrop_pos(i, backdrop_map[i].x, backdrop_map[i].y, backdrop_map[i].dx, backdrop_map[i].dy);
@@ -1495,6 +1495,12 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			if (backdrop_mac == 1) {
 				backdrop_game_set(effective_game, 0, effective_preview, true, false, true, rs);
 			} else if (backdrop_mac > 1) {
+				if (rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop) {
+					// put all the clip in the internal cache
+					for(int i=0;i<coln*rown;++i) {
+						int_clip_clear(i);
+					}
+				}
 				for(int i=0;i<coln*rown;++i) {
 					bool current = i == pos_rel;
 					if (rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop)
@@ -1661,7 +1667,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 			break;
 	}
 
-	int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, rs.preview_expand, false);
+	int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, 0, rs.preview_expand, false);
 
 	int_backdrop_pos(0, 0, 0, int_dx_get(), int_dy_get());
 
@@ -1883,7 +1889,7 @@ void run_runinfo(config_state& rs)
 
 		resource backdrop;
 		if (backdrop_find_preview_strict(backdrop, preview, g, false)) {
-			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, rs.preview_expand, false);
+			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, 1, 0, 0, 0, rs.preview_expand, false);
 			int_backdrop_pos(0, 0, 0, int_dx_get(), int_dy_get());
 			backdrop_game_set(g, 0, preview, false, false, false, rs);
 			int_update();

@@ -397,14 +397,14 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 	if (sizeof(fb_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
 
-	term = getenv("TERM");
-	if (!term || strcmp(term, "linux")!=0) {
-		error_set("Works only with TERM=linux terminals.\n");
+	if (os_internal_wm_active()) {
+		error_set("Unsupported in X.\n");
 		return -1;
 	}
 
-	if (getenv("DISPLAY")) {
-		error_set("Unsupported in X. Try unsetting the DISPLAY environment variable.\n");
+	term = getenv("TERM");
+	if (!term || strcmp(term, "linux")!=0) {
+		error_set("Works only with TERM=linux terminals.\n");
 		return -1;
 	}
 

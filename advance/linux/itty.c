@@ -35,7 +35,7 @@
 #include "error.h"
 
 #ifdef USE_VIDEO_SDL
-#include "SDL.h"
+#include "ossdl.h"
 #endif
 
 #include <sys/select.h>
@@ -69,7 +69,7 @@ adv_error inputb_tty_init(int inputb_id)
 #ifdef USE_VIDEO_SDL
 	/* If the SDL video driver is used, also the SDL */
 	/* keyboard input must be used. */
-	if (SDL_WasInit(SDL_INIT_VIDEO)) {
+	if (os_internal_sdl_is_video_active()) {
 		error_set("Incompatible with the SDL video driver.\n");
 		return -1; 
 	}
@@ -90,7 +90,7 @@ adv_error inputb_tty_enable(adv_bool graphics)
 #ifdef USE_VIDEO_SDL
 	/* If the SDL video driver is used, also the SDL */
 	/* keyboard input must be used. */
-	if (SDL_WasInit(SDL_INIT_VIDEO)) {
+	if (os_internal_sdl_is_video_active()) {
 		error_set("Incompatible with the SDL video driver.\n");
 		return -1; 
 	}

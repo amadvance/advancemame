@@ -1429,7 +1429,7 @@ int ADV_SVGALIB_CALL adv_svgalib_init(int divide_clock_with_sequencer)
 void ADV_SVGALIB_CALL adv_svgalib_done(void)
 {
 	adv_svgalib_log("svgalib: adv_svgalib_done()\n");
-	
+
 	adv_svgalib_close();
 }
 

@@ -30,6 +30,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <set>
 
 #include <unistd.h>
 #include <math.h>
@@ -142,7 +143,8 @@ static void video_box(int x, int y, int dx, int dy, int width, const int_rgb& co
 
 static string int_cfg_file;
 
-static bool int_updating_active; // is updating the video
+// if updating at the video is possible
+static bool int_updating_active;
 
 // -----------------------------------------------------------------------
 // Joystick
@@ -1537,6 +1539,9 @@ class clip_data {
 	unsigned count;
 	adv_mng* mng_context;
 
+	clip_data();
+	clip_data(const clip_data&);
+
 public:
 	clip_data(const resource& Ares);
 	~clip_data();
@@ -1607,16 +1612,10 @@ bool clip_data::is_waiting()
 
 bool clip_data::is_old()
 {
-	if (!active)
+	if (!active || !running)
 		return false;
 
-	if (!running)
-		return false;
-
-	if (!f)
-		return true;
-
-	if (target_clock() > wait)
+	if (!f || target_clock() > wait)
 		return true;
 
 	return false;
@@ -1690,6 +1689,10 @@ adv_bitmap* clip_data::load(adv_color_rgb* rgb_map, unsigned* rgb_max)
 
 	wait += (target_clock_t)(delay * TARGET_CLOCKS_PER_SEC);
 
+	// limit the late time to 1/10 second
+	if (target_clock() - wait > TARGET_CLOCKS_PER_SEC / 10)
+		wait = target_clock() - TARGET_CLOCKS_PER_SEC / 10;
+
 	++count;
 
 	return bitmap;
@@ -1727,7 +1730,7 @@ clip_cache::~clip_cache()
 void clip_cache::reduce()
 {
 	// limit the cache size
-	while (bag.size() > max) {
+	while (bag.size() > 0) {
 		list<clip_data*>::iterator i = bag.end();
 		--i;
 		clip_data* data = *i;
@@ -1804,8 +1807,13 @@ class cell_manager {
 	bool multiclip;
 
 	target_clock_t backdrop_box_last;
+
+	bool idle_update(int index);
+
+	unsigned idle_iterator;
+
 public:
-	cell_manager(const int_color& Abackdrop_missing_color, const int_color& Abackdrop_box_color, unsigned Amac, unsigned outline, unsigned cursor, double expand_factor, bool Amulticlip);
+	cell_manager(const int_color& Abackdrop_missing_color, const int_color& Abackdrop_box_color, unsigned Amac, unsigned Ainc, unsigned outline, unsigned cursor, double expand_factor, bool Amulticlip);
 	~cell_manager();
 
 	unsigned size() const { return backdrop_mac; }
@@ -1824,14 +1832,14 @@ public:
 	bool clip_is_active(int index);
 
 	void reduce();
-	void idle();
+	bool idle();
 };
 
 unsigned cell_manager::backdrop_topline(int index) {
 	return backdrop_map[index].pos.real_y - backdrop_outline;
 }
 
-cell_manager::cell_manager(const int_color& Abackdrop_missing_color, const int_color& Abackdrop_box_color, unsigned Amac, unsigned outline, unsigned cursor, double expand_factor, bool Amulticlip)
+cell_manager::cell_manager(const int_color& Abackdrop_missing_color, const int_color& Abackdrop_box_color, unsigned Amac, unsigned Ainc, unsigned outline, unsigned cursor, double expand_factor, bool Amulticlip)
 {
 	backdrop_box_last = 0;
 	backdrop_missing_color = Abackdrop_missing_color;
@@ -1841,11 +1849,11 @@ cell_manager::cell_manager(const int_color& Abackdrop_missing_color, const int_c
 	backdrop_expand_factor = expand_factor;
 	backdrop_mac = Amac;
 
-	int_backdrop_cache = new backdrop_cache(backdrop_mac*2 + 1);
+	int_backdrop_cache = new backdrop_cache(backdrop_mac*2 + Ainc + 1);
 
 	multiclip = Amulticlip;
 	if (multiclip)
-		int_clip_cache = new clip_cache(backdrop_mac + 1);
+		int_clip_cache = new clip_cache(backdrop_mac);
 	else
 		int_clip_cache = new clip_cache(0);
 
@@ -1856,6 +1864,8 @@ cell_manager::cell_manager(const int_color& Abackdrop_missing_color, const int_c
 		backdrop_map[i].highlight = false;
 		backdrop_map[i].redraw = true;
 	}
+
+	idle_iterator = 0;
 }
 
 cell_manager::~cell_manager()
@@ -2013,41 +2023,101 @@ void cell_manager::reduce()
 		int_clip_cache->reduce();
 }
 
-void cell_manager::idle()
+// Define to update the video in one whole time for multiclip
+// #define USE_MULTICLIP_WHOLE
+
+bool cell_manager::idle_update(int index)
 {
-	for(unsigned i=0;i<backdrop_mac;++i) {
-		cell_t* cell = backdrop_map + i;
-		clip_data* clip = cell->cdata;
-		if (clip) {
-			adv_color_rgb rgb_map[256];
-			unsigned rgb_max;
+	adv_color_rgb rgb_map[256];
+	unsigned rgb_max;
 
-			if (!clip->is_old())
-				continue;
+	cell_t* cell = backdrop_map + index;
 
-			adv_bitmap* bitmap = clip->load(rgb_map, &rgb_max);
+	clip_data* clip = cell->cdata;
+	if (!clip)
+		return false;
 
-			if (!bitmap) {
-				cell->redraw = true; // force the redraw
-				backdrop_update(i);
-				if (!multiclip)
-					cell->pos.redraw();
-				continue;
-			}
+	if (!clip->is_old())
+		return false;
 
-			cell->pos.draw_clip(bitmap, rgb_map, rgb_max, cell->caspectx, cell->caspecty, backdrop_expand_factor, backdrop_missing_color.background, clip->is_first());
+	adv_bitmap* bitmap = clip->load(rgb_map, &rgb_max);
 
-			if (!multiclip)
-				cell->pos.redraw();
+	if (!bitmap) {
+		cell->redraw = true; // force the redraw
 
-			bitmap_free(bitmap);
-		}
+		backdrop_update(index);
+
+#ifdef USE_MULTICLIP_WHOLE
+		if (!multiclip)
+#endif
+			cell->pos.redraw();
+
+		return false;
 	}
 
+	cell->pos.draw_clip(bitmap, rgb_map, rgb_max, cell->caspectx, cell->caspecty, backdrop_expand_factor, backdrop_missing_color.background, clip->is_first());
+
+#ifdef USE_MULTICLIP_WHOLE
+	if (!multiclip)
+#endif
+		cell->pos.redraw();
+
+	bitmap_free(bitmap);
+
+	// ensure to fill the audio buffer
+	play_poll();
+
+	return true;
+}
+
+bool cell_manager::idle()
+{
 	if (multiclip) {
+		int highlight_index = -1;
+
+		target_clock_t start = target_clock();
+		target_clock_t stop = start + TARGET_CLOCKS_PER_SEC / 100; // limit update for 10 ms
+
+		// search the highlight clip
+		for(unsigned i=0;i<backdrop_mac;++i) {
+			if (backdrop_map[i].highlight) {
+				highlight_index = i;
+			}
+		}
+
+		// always display the highlight clip
+		if (highlight_index >= 0) {
+			idle_update(highlight_index);
+		}
+
+		// update all the clip
+		for(unsigned i=0;i<backdrop_mac;++i) {
+
+			// increment the iterator
+			++idle_iterator;
+			if (idle_iterator >= backdrop_mac)
+				idle_iterator = 0;
+
+			if (idle_iterator != highlight_index) {
+				idle_update(idle_iterator);
+
+				// don't wait too much
+				if (target_clock() > stop)
+					break;
+			}
+		}
+
+#ifdef USE_MULTICLIP_WHOLE
+		// update the whole video
 		video_write_lock();
 		video_stretch(0, 0, video_size_x(), video_size_y(), video_buffer, video_size_x(), video_size_y(), video_buffer_line_size, video_bytes_per_pixel(), video_color_def(), 0);
 		video_write_unlock(0, 0, video_size_x(), video_size_y());
+#endif
+
+	} else {
+		for(unsigned i=0;i<backdrop_mac;++i) {
+			idle_update(i);
+		}
 	}
 
 	target_clock_t backdrop_box_new = target_clock();
@@ -2055,6 +2125,16 @@ void cell_manager::idle()
 		backdrop_box_last = backdrop_box_new;
 		backdrop_box();
 	}
+
+	// recheck if some clip is already old
+	for(unsigned i=0;i<backdrop_mac;++i) {
+		cell_t* cell = backdrop_map + i;
+		clip_data* clip = cell->cdata;
+		if (clip && clip->is_old())
+			return false;
+	}
+
+	return true;
 }
 
 void cell_manager::clip_set(int index, const resource& res, unsigned aspectx, unsigned aspecty, bool restart)
@@ -2111,9 +2191,9 @@ bool cell_manager::clip_is_active(int index)
 
 static class cell_manager* CELL;
 
-void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Aoutline, unsigned Acursor, double expand_factor, bool multiclip)
+void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Ainc, unsigned Aoutline, unsigned Acursor, double expand_factor, bool multiclip)
 {
-	CELL = new cell_manager(back_color, back_box_color, Amac, Aoutline, Acursor, expand_factor, multiclip);
+	CELL = new cell_manager(back_color, back_box_color, Amac, Ainc, Aoutline, Acursor, expand_factor, multiclip);
 }
 
 void int_backdrop_done()
@@ -2793,9 +2873,17 @@ static void int_idle()
 
 	if (int_key_saved == INT_KEY_NONE) {
 		if (int_updating_active) {
-			if (CELL)
-				CELL->idle();
-			target_idle();
+			if (CELL) {
+				// idle only if there is time
+				if (CELL->idle()) {
+					target_idle();
+				} else {
+					// we are late, allow to allocate 100% CPU
+					target_yield();
+				}
+			} else {
+				target_idle();
+			}
 		}
 	}
 

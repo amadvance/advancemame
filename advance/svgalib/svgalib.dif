@@ -562,9 +562,9 @@ diff -u ../svgalib.ori/drivers/s3.c drivers/s3.c
      return 0;
  }
  
-diff -u ../svgalib.ori/drivers/savage.c drivers/savage.c
---- ../svgalib.ori/drivers/savage.c	2003-10-13 17:40:51.000000000 +0200
-+++ drivers/savage.c	2003-10-13 17:41:42.000000000 +0200
+diff -u ../svgalib.ori/drivers/savage17.c drivers/savage17.c
+--- ../svgalib.ori/drivers/savage17.c	2002-10-15 19:06:30.000000000 +0200
++++ drivers/savage17.c	2003-12-21 20:07:35.000000000 +0100
 @@ -15,13 +15,13 @@
  #include <sys/mman.h>
  #include "vga.h"
@@ -582,7 +582,91 @@ diff -u ../svgalib.ori/drivers/savage.c drivers/savage.c
 +#include "vgammvga.h"
  
  #define SAVAGEREG_SAVE(i) (VGA_TOTAL_REGS+i)
- #define TOTAL_REGS (VGA_TOTAL_REGS + 96)
+ #define TOTAL_REGS (VGA_TOTAL_REGS + 64)
+@@ -526,7 +526,7 @@
+         {31,  0, 4, 170000},
+         {31,  0, 3, 135000},
+         {31,  0, 4, 220000},
+-        {31,  0, 3, 135000},
++        {31,  0, 4, 135000},
+         {31,  0, 4, 170000},
+         {31,  0, 4, 170000},
+         {127, 0, 4, 180000},
+@@ -540,7 +540,7 @@
+     vgaS3VPtr new = (vgaS3VPtr)(moderegs+VGA_TOTAL_REGS);
+    
+     if(modeinfo->bitsPerPixel==16) {
+-        if((chipset==VIRGE)|| (chipset==TRIO64)) {
++        if((chipset==VIRGE)|| (chipset==TRIO64) || (chipset==VIRGEDX)) {
+             modetiming->HDisplay *=2;
+             modetiming->HSyncStart *=2;
+             modetiming->HSyncEnd *=2;
+@@ -891,10 +891,10 @@
+         case 0x8a22:
+         case 0x8a23:
+         case 0x8c10:
++        case 0x8c11:
+         case 0x8c12:
++        case 0x8c13:
+         case 0x9102:
+-		case 0x8d03:
+-		case 0x8d04:
+             init(0,0,0);
+             return 1;
+             break;
+@@ -1206,14 +1206,13 @@
+             chipset = SAVAGE3D;
+             break;
+         case 0x8c10:
++        case 0x8c11:
+         case 0x8c12:
++        case 0x8c13:
+             chipset = SAVAGEMX;
+             break;
+         case 0x8a22:
+         case 0x8a23:
+-
+-		case 0x8d03:
+-		case 0x8d04:
+             chipset = SAVAGE4;
+             break;
+         case 0x9102:
+diff -u ../svgalib.ori/drivers/savage18.c drivers/savage18.c
+--- ../svgalib.ori/drivers/savage18.c	2003-10-13 17:40:51.000000000 +0200
++++ drivers/savage18.c	2003-12-21 20:12:22.000000000 +0100
+@@ -561,7 +561,7 @@
+         {31,  0, 4, 170000}, /* Trio 3D2X */
+         {31,  0, 3, 135000}, /* Virge */
+         {31,  0, 4, 220000}, /* Virge VX */
+-        {31,  0, 3, 135000}, /* Virge DX */
++        {31,  0, 4, 135000}, /* Virge DX */
+         {31,  0, 4, 170000}, /* Virge GX2 */
+         {31,  0, 4, 170000}, /* Virge MX */
+         {127, 0, 4, 180000}, /* Savage 3D */
+@@ -997,10 +997,23 @@
+         case 0x8a22:
+         case 0x8a23:
+         case 0x8c10:
++        case 0x8c11:
+         case 0x8c12:
++        case 0x8c13:
+         case 0x9102:
++		case 0x8d01:
++		case 0x8d02:
+ 		case 0x8d03:
+ 		case 0x8d04:
++		case 0x8c22:
++		case 0x8c24:
++		case 0x8c26:
++		case 0x8c2a:
++		case 0x8c2b:
++		case 0x8c2c:
++		case 0x8c2d:
++		case 0x8c2e:
++		case 0x8c2f:
+             init(0,0,0);
+             return 1;
+             break;
 diff -u ../svgalib.ori/drivers/sis.c drivers/sis.c
 --- ../svgalib.ori/drivers/sis.c	2003-10-13 17:40:51.000000000 +0200
 +++ drivers/sis.c	2003-10-13 17:41:42.000000000 +0200

@@ -69,6 +69,11 @@ adv_error mouseb_svgalib_init(int mouseb_id)
 
 	log_std(("mouseb:svgalib: mouseb_svgalib_init(id:%d)\n", mouseb_id));
 
+	if (os_internal_wm_active()) {
+		error_set("Unsupported in X.\n");
+		return -1;
+	}
+
 	if (!os_internal_svgalib_get()) {
 		error_set("Not supported without the svgalib library.\n");
 		return -1;

@@ -33,6 +33,8 @@
 #include "endianrw.h"
 #include "error.h"
 
+#include "ossdl.h"
+
 #include <assert.h>
 
 #include "SDL.h"
@@ -98,6 +100,11 @@ adv_error soundb_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 	char name[64];
 
 	log_std(("sound:sdl: soundb_sdl_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", (unsigned)sound_id, (unsigned)*rate, (int)stereo_flag, (double)buffer_time));
+
+	if (!os_internal_sdl_get()) {
+		error_set("Unsupported without the SDL library.\n");
+		return -1;
+	}
 
 	if (!sdl_option.initialized) {
 		soundb_sdl_default();

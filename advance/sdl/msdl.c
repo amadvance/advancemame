@@ -32,6 +32,8 @@
 #include "log.h"
 #include "error.h"
 
+#include "ossdl.h"
+
 #include "SDL.h"
 
 #define SDL_MOUSE_BUTTON_MAX 3
@@ -53,7 +55,12 @@ adv_error mouseb_sdl_init(int mouseb_id)
 {
 	log_std(("mouseb:sdl: mouseb_sdl_init(id:%d)\n", mouseb_id));
 
-	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+	if (!os_internal_sdl_get()) {
+		error_set("Unsupported without the SDL library.\n");
+		return -1;
+	}
+
+	if (!os_internal_sdl_is_video_active()) {
 		error_set("The SDL mouse driver requires the SDL video driver.\n");
 		return -1; 
 	}

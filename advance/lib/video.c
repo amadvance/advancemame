@@ -47,10 +47,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __MSDOS__
-#include "pci.h" /* for pci_* */
-#endif
-
 /***************************************************************************/
 /* State */
 
@@ -83,35 +79,6 @@ unsigned char* (*video_write_line)(unsigned y);
 
 /***************************************************************************/
 /* Internal */
-
-#ifdef __MSDOS__
-static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* arg)
-{
-	DWORD dw;
-	unsigned base_class;
-	unsigned subsys_card;
-	unsigned subsys_vendor;
-
-	(void)arg;
-
-	if (pci_read_dword(bus_device_func, 0x8, &dw)!=0)
-		return 0;
-
-	base_class = (dw >> 24) & 0xFF;
-	if (base_class != 0x3 /* PCI_CLASS_DISPLAY */)
-		return 0;
-
-	if (pci_read_dword(bus_device_func, 0x2c, &dw)!=0)
-		return 0;
-
-	subsys_vendor = dw & 0xFFFF;
-	subsys_card = (dw >> 16) & 0xFFFF;
-
-	log_std(("video: found pci display vendor:%04x, device:%04x, subsys_vendor:%04x, subsys_card:%04x\n", vendor, device, subsys_vendor, subsys_card));
-
-	return 0;
-}
-#endif
 
 static void video_color_def_adjust(adv_color_def def_ordinal)
 {
@@ -443,12 +410,6 @@ adv_error video_init(void)
 	assert( !video_is_active() );
 
 	log_std(("video: video_init\n"));
-
-#ifdef __MSDOS__
-	if (pci_scan_device(pci_scan_device_callback, 0)!=0) {
-		log_std(("video: error scanning pci display device, resume and continue\n"));
-	}
-#endif
 
 	if (!video_option.initialized) {
 		video_default();
@@ -1042,6 +1003,8 @@ unsigned video_mode_generate_driver_flags(unsigned flags_or, unsigned flags_and)
  */
 void video_mode_restore(void)
 {
+	log_std(("video: video_mode_restore\n"));
+
 	assert(video_is_active());
 
 	if (video_mode_is_active())
@@ -1050,6 +1013,8 @@ void video_mode_restore(void)
 	/* if no video mode change return */
 	if (!video_state.old_mode_required)
 		return;
+
+	log_std(("video: mode_reset\n"));
 
 	/* os mode reset */
 	target_mode_reset();

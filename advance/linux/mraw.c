@@ -36,7 +36,7 @@
 #include "portable.h"
 
 #ifdef USE_VIDEO_SDL
-#include "SDL.h"
+#include "ossdl.h"
 #endif
 
 #if defined(USE_SVGALIB)
@@ -156,7 +156,7 @@ adv_error mouseb_raw_init(int mouseb_id)
 #ifdef USE_VIDEO_SDL
 	/* If the SDL video driver is used, also the SDL */
 	/* keyboard input must be used. */
-	if (SDL_WasInit(SDL_INIT_VIDEO)) {
+	if (os_internal_sdl_is_video_active()) {
 		error_set("Incompatible with the SDL video driver.\n");
 		return -1; 
 	}
