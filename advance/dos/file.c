@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include "portable.h"
 
 #include "file.h"
+#include "snstring.h"
 
 #include <dir.h>
 #include <direct.h>
@@ -43,8 +44,8 @@
 
 struct file_context {
 	char file_abs_buffer[FILE_MAXPATH]; /**< Absolute path returned by file_abs_buffer. */
-	char file_legacy_buffer[FILE_MAXPATH];
 	char file_home_buffer[FILE_MAXPATH];
+	char list_buffer[FILE_MAXPATH*4];
 	char universal_map[UNIVERSAL_MAX][UNIVERSAL_SIZE];
 	unsigned universal_mac;
 };
@@ -96,15 +97,18 @@ adv_bool file_path_is_abs(const char* path)
 
 const char* file_abs(const char* dir, const char* file)
 {
-	/* TODO implement the complete . and .. management */
-	if (file[0] == '\\' || (file[0] != 0 && file[1]==':')) {
+	if (file_path_is_abs(file)) {
 		snprintf(FL.file_abs_buffer, sizeof(FL.file_abs_buffer), "%s", file);
 	} else {
+		while (file[0] == '.' && file[1] == '\\')
+			file += 2;
+
 		if (!dir[0] || dir[strlen(dir)-1] != '\\')
 			snprintf(FL.file_abs_buffer, sizeof(FL.file_abs_buffer), "%s\\%s", dir, file);
 		else
 			snprintf(FL.file_abs_buffer, sizeof(FL.file_abs_buffer), "%s%s", dir, file);
 	}
+
 	return FL.file_abs_buffer;
 }
 
@@ -268,12 +272,6 @@ const char* file_config_file_home(const char* file)
 	return FL.file_home_buffer;
 }
 
-const char* file_config_file_legacy(const char* file)
-{
-	snprintf(FL.file_legacy_buffer, sizeof(FL.file_legacy_buffer), "%s", file);
-	return FL.file_legacy_buffer;
-}
-
 const char* file_config_dir_multidir(const char* tag)
 {
 	return tag;
@@ -288,3 +286,33 @@ const char* file_config_dir_singlefile(void)
 {
 	return ".";
 }
+
+const char* file_config_list(const char* const_list, const char* (*expand_dir)(const char* tag), const char* ref_dir)
+{
+	char* list = strdup(const_list);
+	int i;
+
+	FL.list_buffer[0] = 0;
+
+	i = 0;
+	while (list[i]) {
+		char c;
+		const char* file;
+
+		file = stoken(&c, &i, list, ";", "");
+
+		if (FL.list_buffer[0])
+			sncat(FL.list_buffer, sizeof(FL.list_buffer), ";");
+
+		if (ref_dir)
+			sncat(FL.list_buffer, sizeof(FL.list_buffer), file_abs(ref_dir, file));
+		else
+			sncat(FL.list_buffer, sizeof(FL.list_buffer), file);
+	}
+
+	free(list);
+
+	return FL.list_buffer;
+}
+
+

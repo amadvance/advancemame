@@ -114,18 +114,21 @@ struct mame_option {
 /* MAME interface */
 
 const mame_game* mame_game_at(unsigned index);
+adv_bool mame_game_working(const mame_game* game);
 const char* mame_game_resolution(const mame_game* game);
 const char* mame_game_resolutionclock(const mame_game* game);
 double mame_game_fps(const mame_game* game);
 unsigned mame_game_orientation(const mame_game* game);
 const char* mame_game_name(const mame_game* game);
+const char* mame_game_description(const mame_game* game);
+const char* mame_game_lang(const mame_game* game);
 const char* mame_software_name(const mame_game* game, adv_conf* context);
+const char* mame_section_name(const mame_game* game, adv_conf* context);
 const mame_game* mame_game_parent(const mame_game* game);
 const char* mame_game_description(const mame_game* game);
 const char* mame_game_year(const mame_game* game);
 const char* mame_game_manufacturer(const mame_game* game);
 unsigned mame_game_players(const mame_game* game);
-void mame_print_init(void);
 void mame_print_info(FILE* out);
 void mame_print_xml(FILE* out);
 adv_bool mame_is_game_vector(const mame_game* game);
@@ -319,7 +322,7 @@ void osd2_debugger_focus(int debugger_has_focus);
 void osd2_message(void);
 void osd2_customize_inputport_post_defaults(unsigned type, unsigned* seq, unsigned seq_max);
 void osd2_customize_inputport_post_game(unsigned type, unsigned* seq, unsigned seq_max);
-void osd2_customize_port_post_game(const char* tag, const char* value);
+void osd2_customize_genericport_post_game(const char* tag, const char* value);
 
 int osd2_sound_init(unsigned* sample_rate, int stereo_flag);
 void osd2_sound_done(void);

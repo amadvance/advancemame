@@ -498,14 +498,14 @@ void target_flush(void)
 	}
 }
 
-void target_signal(int signum)
+void target_signal(int signum, void* info, void* context)
 {
 	if (signum == SIGINT) {
 		fprintf(stderr, "Break\n\r");
 		exit(EXIT_FAILURE);
 	} else {
-		fprintf(stderr, "Signal %d.\n\r", signum);
-		fprintf(stderr, "%s, %s\n\r", __DATE__, __TIME__);
+		fprintf(stderr, "Signal %d\n\r", signum);
+		fprintf(stderr, "Compiled %s, %s\n\r", __DATE__, __TIME__);
 
 		_exit(EXIT_FAILURE);
 	}

@@ -729,8 +729,14 @@ adv_bool advance_input_digital_pressed(struct advance_input_context* context, un
 #define DIFFICULTY_HARDEST 4
 /*@}*/
 
+/** Language. */
+/*@{*/
+unsigned lang_identify_text(int lang, const char* text);
+/*@}*/
+
 struct advance_global_config_context {
-	int difficulty; /**< Difficulty level. */
+	int difficulty; /**< Difficulty level. DIFFICULTY_NONE for default. */
+	int lang; /**< Language. -1 for default. */
 	adv_bool freeplay_flag; /**< Free play switch. */
 	adv_bool quiet_flag; /**< Be quiet on message printing. */
 	adv_bool mutedemo_flag; /**< Mute demo mode. */

@@ -464,8 +464,8 @@ void print_id(ostream& os, entry_vendor_set& vs) {
 "\tThis list is automatically generated from the `pcidevs.txt' and `pci.ids'\n" \
 "\tfiles available at:\n" \
 "\n" \
-"\t\t:http://members.datafast.net.au/dft0802/downloads/pcidevs.txt\n" \
-"\t\t:http://pciids.sf.net/\n" \
+"\t\t+http://members.datafast.net.au/dft0802/downloads/pcidevs.txt\n" \
+"\t\t+http://pciids.sf.net/\n" \
 "\n" \
 "\tThe numbers in [] are the PCI device IDs of the video board\n" \
 "\tmodels. The numbers in () are the PCI vendor IDs of the\n" \
@@ -596,7 +596,7 @@ HEADER
 "\tKernel ALSA drivers used in AdvanceCD.\n"
 "\tOnly the PCI cards are listed, but also some ISA PnP and USB cards\n"
 "\tare supported. You can check the official ALSA documentation for a\n"
-"\tmore complete card list at http://www.alsa-project.org/alsa-doc/ .\n"
+"\tmore complete card list at http://www.alsa-project.org/alsa-doc/.\n"
 "\n"
 ;
 
@@ -808,7 +808,6 @@ int main() {
 		print_audiocd(fo, vs_alsa.vg);
 		fo.close();
 	}
-
 
 	return 0;
 }

@@ -61,7 +61,7 @@ void run(void)
 		}
 
 		os_poll();
-		target_idle();
+		target_yield();
 	}
 }
 
@@ -76,9 +76,9 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 	va_end(arg);
 }
 
-void os_signal(int signum)
+void os_signal(int signum, void* info, void* context)
 {
-	os_default_signal(signum);
+	os_default_signal(signum, info, context);
 }
 
 int os_main(int argc, char* argv[])

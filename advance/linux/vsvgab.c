@@ -331,6 +331,7 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 	/* claim two screen of memory, not more */
 	if (svgalib_state.memory_size > bytes_per_scanline * mode->crtc.vde * 2)
 		svgalib_state.memory_size = bytes_per_scanline * mode->crtc.vde * 2;
+
 	log_std(("video:svgalib: using %d bytes\n", svgalib_state.memory_size));
 	vga_claimvideomemory(svgalib_state.memory_size);
 

@@ -664,13 +664,14 @@ void crtc_reset(adv_crtc* crtc)
 }
 
 /**
- * Reset the crtc to standard values.
- * Also the "name", "user_flags" and "container_next" value are cleared.
+ * Reset the user data in the crtc.
+ * The "name", "user_flags" and "container_next" value are cleared.
  */
-void crtc_reset_all(adv_crtc* crtc)
+void crtc_user_reset(adv_crtc* crtc)
 {
-	memset(crtc, 0, sizeof(adv_crtc));
-	crtc_reset(crtc);
+	memset(crtc->name, 0, CRTC_NAME_MAX);
+	crtc->user_flags = 0;
+	crtc->container_next = 0;
 }
 
 void crtc_name_set(adv_crtc* crtc, const char* name)

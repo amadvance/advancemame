@@ -161,7 +161,7 @@ static inline const char* crtc_name_get(const adv_crtc* crtc)
 }
 
 void crtc_reset(adv_crtc* crtc);
-void crtc_reset_all(adv_crtc* crtc);
+void crtc_user_reset(adv_crtc* crtc);
 
 /**
  * Set the specified flag in the CRTC specification.

@@ -859,8 +859,15 @@ void conf_string_register_enum_default(adv_conf* context, const char* tag, adv_c
 void conf_int_register_enum_default(adv_conf* context, const char* tag, adv_conf_enum_int* enum_map, unsigned enum_mac, int def)
 {
 	struct adv_conf_option_struct* option = option_alloc();
+	unsigned i;
 
 	assert(option_search_tag(context, tag) == 0);
+
+	for(i=0;i<enum_mac;++i)
+		if (enum_map[i].map == def)
+			break;
+
+	assert(i != enum_mac);
 
 	option->type = conf_type_int;
 	option->is_multi = 0;

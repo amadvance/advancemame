@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1107,7 +1107,9 @@ bool dmame::load_cfg(const game_set& gar, bool quiet)
 	const char* s;
 	adv_conf* context;
 
-	string config_file = slash_add(file_dir(config_exe_path_get())) + "mame.cfg";
+	string ref_dir = exe_dir_get();
+
+	string config_file = slash_add(ref_dir) + "mame.cfg";
 
 	if (!validate_config_file(config_file))
 		return false;
@@ -1118,22 +1120,23 @@ bool dmame::load_cfg(const game_set& gar, bool quiet)
 	conf_string_register(context, "snap");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 0, 0, 0, 0, 0) != 0) {
+		target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
 		conf_done(context);
 		return false;
 	}
 
 	if (conf_string_section_get(context, "directory", "rompath", &s)==0) {
-		emu_rom_path = list_abs(list_import(s), exe_dir_get());
+		emu_rom_path = list_abs(list_import(s), ref_dir);
 	} else {
-		emu_rom_path = list_abs(list_import("roms"), exe_dir_get());
+		emu_rom_path = list_abs(list_import("roms"), ref_dir);
 	}
 
 	emu_software_path = "";
 
 	if (conf_string_section_get(context, "directory", "snap", &s)==0) {
-		emu_snap_path = list_abs(list_import(s), exe_dir_get());
+		emu_snap_path = list_abs(list_import(s), ref_dir);
 	} else {
-		emu_snap_path = list_abs(list_import("snap"), exe_dir_get());
+		emu_snap_path = list_abs(list_import("snap"), ref_dir);
 	}
 
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
@@ -1142,13 +1145,13 @@ bool dmame::load_cfg(const game_set& gar, bool quiet)
 
 	conf_done(context);
 
-	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), exe_dir_get()));
-	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), exe_dir_get()));
-	config_icon_path = list_abs(list_import(user_icon_path), exe_dir_get());
-	config_flyer_path = list_abs(list_import(user_flyer_path), exe_dir_get());
-	config_cabinet_path = list_abs(list_import(user_cabinet_path), exe_dir_get());
-	config_marquee_path = list_abs(list_import(user_marquee_path), exe_dir_get());
-	config_title_path = list_abs(list_import(user_title_path), exe_dir_get());
+	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), ref_dir));
+	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), ref_dir));
+	config_icon_path = list_abs(list_import(user_icon_path), ref_dir);
+	config_flyer_path = list_abs(list_import(user_flyer_path), ref_dir);
+	config_cabinet_path = list_abs(list_import(user_cabinet_path), ref_dir);
+	config_marquee_path = list_abs(list_import(user_marquee_path), ref_dir);
+	config_title_path = list_abs(list_import(user_title_path), ref_dir);
 
 	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
 	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
@@ -1180,7 +1183,9 @@ bool wmame::load_cfg(const game_set& gar, bool quiet)
 	const char* s;
 	adv_conf* context;
 
-	string config_file = slash_add(file_dir(config_exe_path_get())) + "mame.ini";
+	string ref_dir = exe_dir_get();
+
+	string config_file = slash_add(ref_dir) + "mame.ini";
 
 	if (!validate_config_file(config_file))
 		return false;
@@ -1191,22 +1196,23 @@ bool wmame::load_cfg(const game_set& gar, bool quiet)
 	conf_string_register(context, "snapshot_directory");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
+		target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
 		conf_done(context);
 		return false;
 	}
 
 	if (conf_string_section_get(context, "", "rompath", &s)==0) {
-		emu_rom_path = list_abs(list_import(s), exe_dir_get());
+		emu_rom_path = list_abs(list_import(s), ref_dir);
 	} else {
-		emu_rom_path = list_abs(list_import(file_config_dir_singledir("roms")), exe_dir_get());
+		emu_rom_path = list_abs(list_import("roms"), ref_dir);
 	}
 
 	emu_software_path = "";
 
 	if (conf_string_section_get(context, "", "snapshot_directory", &s)==0) {
-		emu_snap_path = list_abs(list_import(s), exe_dir_get());
+		emu_snap_path = list_abs(list_import(s), ref_dir);
 	} else {
-		emu_snap_path = list_abs(list_import(file_config_dir_singledir("snap")), exe_dir_get());
+		emu_snap_path = list_abs(list_import("snap"), ref_dir);
 	}
 
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
@@ -1215,13 +1221,13 @@ bool wmame::load_cfg(const game_set& gar, bool quiet)
 
 	conf_done(context);
 
-	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), exe_dir_get()));
-	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), exe_dir_get()));
-	config_icon_path = list_abs(list_import(user_icon_path), exe_dir_get());
-	config_flyer_path = list_abs(list_import(user_flyer_path), exe_dir_get());
-	config_cabinet_path = list_abs(list_import(user_cabinet_path), exe_dir_get());
-	config_marquee_path = list_abs(list_import(user_marquee_path), exe_dir_get());
-	config_title_path = list_abs(list_import(user_title_path), exe_dir_get());
+	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), ref_dir));
+	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), ref_dir));
+	config_icon_path = list_abs(list_import(user_icon_path), ref_dir);
+	config_flyer_path = list_abs(list_import(user_flyer_path), ref_dir);
+	config_cabinet_path = list_abs(list_import(user_cabinet_path), ref_dir);
+	config_marquee_path = list_abs(list_import(user_marquee_path), ref_dir);
+	config_title_path = list_abs(list_import(user_title_path), ref_dir);
 
 	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
 	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
@@ -1248,24 +1254,33 @@ string xmame::type_get() const {
 	return "xmame";
 }
 
+string list_importxmame(const string& list, const string& home_dir, const string& ref_dir)
+{
+	return list_abs(list_import(subs(list, "$HOME", home_dir)), path_import(ref_dir));
+}
+
 bool xmame::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
 
 	char* home = getenv("HOME");
-	if (!home || !*home)
-		return true; // ignore if missing
-
-	string home_dir = home;
-	if (home_dir.length() && home_dir[home_dir.length()-1] != '/')
-		home_dir += '/';
-	home_dir += ".xmame";
-
-	string config_file = path_import(home_dir + "/xmamerc");
-
-	if (!validate_config_file(config_file))
+	if (!home || !*home) {
+		target_err("Environemnt variable HOME not set.\n");
 		return false;
+	}
+
+	// assume to be in unix, so slash_add/remove can be
+	// used also for os paths
+	string home_dir_os = slash_remove(home);
+
+	string ref_dir_os = slash_add(home) + ".xmame";
+
+	string config_file = path_import(slash_add(ref_dir_os) + "xmamerc");
+
+	if (!validate_config_file(config_file)) {
+		return false;
+	}
 
 	context = conf_init();
 
@@ -1273,39 +1288,38 @@ bool xmame::load_cfg(const game_set& gar, bool quiet)
 	conf_string_register(context, "screenshotdir");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
+		target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
 		conf_done(context);
 		return false;
 	}
 
-	// use the current directory for the relative path
-
 	if (conf_string_section_get(context, "", "rompath", &s)==0) {
-		emu_rom_path = list_abs(list_import(s), dir_cwd());
+		emu_rom_path = list_importxmame(s, home_dir_os, ref_dir_os);
 	} else {
-		emu_rom_path = list_abs(list_import(home_dir + "/roms"), dir_cwd());
+		emu_rom_path = list_importxmame("roms", home_dir_os, ref_dir_os);
 	}
 
 	emu_software_path = "";
 
 	if (conf_string_section_get(context, "", "screenshotdir", &s)==0) {
-		emu_snap_path = list_abs(list_import(s), dir_cwd());
+		emu_snap_path = list_importxmame(s, home_dir_os, ref_dir_os);
 	} else {
-		emu_snap_path = list_abs(list_import("."), dir_cwd());
+		emu_snap_path = list_importxmame("snap", home_dir_os, ref_dir_os);
 	}
+
+	conf_done(context);
 
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
 	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
 	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
 
-	conf_done(context);
-
-	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), exe_dir_get()));
-	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), exe_dir_get()));
-	config_icon_path = list_abs(list_import(user_icon_path), exe_dir_get());
-	config_flyer_path = list_abs(list_import(user_flyer_path), exe_dir_get());
-	config_cabinet_path = list_abs(list_import(user_cabinet_path), exe_dir_get());
-	config_marquee_path = list_abs(list_import(user_marquee_path), exe_dir_get());
-	config_title_path = list_abs(list_import(user_title_path), exe_dir_get());
+	config_rom_path = dir_cat(emu_rom_path, list_importxmame(user_rom_path, home_dir_os, ref_dir_os));
+	config_alts_path = dir_cat(emu_snap_path, list_importxmame(user_alts_path, home_dir_os, ref_dir_os));
+	config_icon_path = list_importxmame(user_icon_path, home_dir_os, ref_dir_os);
+	config_flyer_path = list_importxmame(user_flyer_path, home_dir_os, ref_dir_os);
+	config_cabinet_path = list_importxmame(user_cabinet_path, home_dir_os, ref_dir_os);
+	config_marquee_path = list_importxmame(user_marquee_path, home_dir_os, ref_dir_os);
+	config_title_path = list_importxmame(user_title_path, home_dir_os, ref_dir_os);
 
 	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
 	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
@@ -1332,10 +1346,22 @@ string advmame::type_get() const {
 	return "advmame";
 }
 
+string list_importmultidir(const string& list, const string& ref)
+{
+	return list_import(file_config_list(list.c_str(), file_config_dir_multidir, ref.c_str()));
+}
+
+string list_importsingledir(const string& list, const string& ref)
+{
+	return list_import(file_config_list(list.c_str(), file_config_dir_singledir, ref.c_str()));
+}
+
 bool advmame::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
+
+	string ref_dir_os = cpath_export(exe_dir_get());
 
 	string config_file = path_abs(path_import(file_config_file_home("advmame.rc")), exe_dir_get());
 
@@ -1348,22 +1374,23 @@ bool advmame::load_cfg(const game_set& gar, bool quiet)
 	conf_string_register(context, "dir_snap");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
+		target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
 		conf_done(context);
 		return false;
 	}
 
 	if (conf_string_section_get(context, "", "dir_rom", &s)==0) {
-		emu_rom_path = list_abs(list_import(s), exe_dir_get());
+		emu_rom_path = list_importmultidir(s, ref_dir_os);
 	} else {
-		emu_rom_path = list_abs(list_import(file_config_dir_singledir("rom")), exe_dir_get());
+		emu_rom_path = list_importmultidir("rom", ref_dir_os);
 	}
 
 	emu_software_path = "";
 
 	if (conf_string_section_get(context, "", "dir_snap", &s)==0) {
-		emu_snap_path = list_abs(list_import(s), exe_dir_get());
+		emu_snap_path = list_importsingledir(s, ref_dir_os);
 	} else {
-		emu_snap_path = list_abs(list_import(file_config_dir_singledir("snap")), exe_dir_get());
+		emu_snap_path = list_importsingledir("snap", ref_dir_os);
 	}
 
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
@@ -1372,13 +1399,13 @@ bool advmame::load_cfg(const game_set& gar, bool quiet)
 
 	conf_done(context);
 
-	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), exe_dir_get()));
-	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), exe_dir_get()));
-	config_icon_path = list_abs(list_import(user_icon_path), exe_dir_get());
-	config_flyer_path = list_abs(list_import(user_flyer_path), exe_dir_get());
-	config_cabinet_path = list_abs(list_import(user_cabinet_path), exe_dir_get());
-	config_marquee_path = list_abs(list_import(user_marquee_path), exe_dir_get());
-	config_title_path = list_abs(list_import(user_title_path), exe_dir_get());
+	config_rom_path = dir_cat(emu_rom_path, list_importmultidir(user_rom_path, ref_dir_os));
+	config_alts_path = dir_cat(emu_snap_path, list_importmultidir(user_alts_path, ref_dir_os));
+	config_icon_path = list_importmultidir(user_icon_path, ref_dir_os);
+	config_flyer_path = list_importmultidir(user_flyer_path, ref_dir_os);
+	config_cabinet_path = list_importmultidir(user_cabinet_path, ref_dir_os);
+	config_marquee_path = list_importmultidir(user_marquee_path, ref_dir_os);
+	config_title_path = list_importmultidir(user_title_path, ref_dir_os);
 
 	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
 	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
@@ -1410,6 +1437,8 @@ bool advpac::load_cfg(const game_set& gar, bool quiet)
 	const char* s;
 	adv_conf* context;
 
+	string ref_dir_os = cpath_export(exe_dir_get());
+
 	string config_file = path_abs(path_import(file_config_file_home("advpac.rc")), exe_dir_get());
 
 	if (!validate_config_file(config_file))
@@ -1421,22 +1450,23 @@ bool advpac::load_cfg(const game_set& gar, bool quiet)
 	conf_string_register(context, "dir_snap");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
+		target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
 		conf_done(context);
 		return false;
 	}
 
 	if (conf_string_section_get(context, "", "dir_rom", &s)==0) {
-		emu_rom_path = list_abs(list_import(s), exe_dir_get());
+		emu_rom_path = list_importmultidir(s, ref_dir_os);
 	} else {
-		emu_rom_path = list_abs(list_import(file_config_dir_singledir("rom")), exe_dir_get());
+		emu_rom_path = list_importmultidir("rom", ref_dir_os);
 	}
 
 	emu_software_path = "";
 
 	if (conf_string_section_get(context, "", "dir_snap", &s)==0) {
-		emu_snap_path = list_abs(list_import(s), exe_dir_get());
+		emu_snap_path = list_importsingledir(s, ref_dir_os);
 	} else {
-		emu_snap_path = list_abs(list_import(file_config_dir_singledir("snap")), exe_dir_get());
+		emu_snap_path = list_importsingledir("snap", ref_dir_os);
 	}
 
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
@@ -1445,13 +1475,13 @@ bool advpac::load_cfg(const game_set& gar, bool quiet)
 
 	conf_done(context);
 
-	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), exe_dir_get()));
-	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), exe_dir_get()));
-	config_icon_path = list_abs(list_import(user_icon_path), exe_dir_get());
-	config_flyer_path = list_abs(list_import(user_flyer_path), exe_dir_get());
-	config_cabinet_path = list_abs(list_import(user_cabinet_path), exe_dir_get());
-	config_marquee_path = list_abs(list_import(user_marquee_path), exe_dir_get());
-	config_title_path = list_abs(list_import(user_title_path), exe_dir_get());
+	config_rom_path = dir_cat(emu_rom_path, list_importmultidir(user_rom_path, ref_dir_os));
+	config_alts_path = dir_cat(emu_snap_path, list_importmultidir(user_alts_path, ref_dir_os));
+	config_icon_path = list_importmultidir(user_icon_path, ref_dir_os);
+	config_flyer_path = list_importmultidir(user_flyer_path, ref_dir_os);
+	config_cabinet_path = list_importmultidir(user_cabinet_path, ref_dir_os);
+	config_marquee_path = list_importmultidir(user_marquee_path, ref_dir_os);
+	config_title_path = list_importmultidir(user_title_path, ref_dir_os);
 
 	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
 	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
@@ -1571,7 +1601,9 @@ bool dmess::load_cfg(const game_set& gar, bool quiet)
 	const char* s;
 	adv_conf* context;
 
-	string config_file = slash_add(file_dir(config_exe_path_get())) + "mess.cfg";
+	string ref_dir = exe_dir_get();
+
+	string config_file = slash_add(ref_dir) + "mess.cfg";
 
 	if (!validate_config_file(config_file))
 		return false;
@@ -1583,39 +1615,40 @@ bool dmess::load_cfg(const game_set& gar, bool quiet)
 	conf_string_register(context, "softwarepath");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 0, 0, 0, 0, 0) != 0) {
+		target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
 		conf_done(context);
 		return false;
 	}
 
 	if (conf_string_section_get(context, "directory", "biospath", &s)==0) {
-		emu_rom_path = list_abs(list_import(s), exe_dir_get());
+		emu_rom_path = list_abs(list_import(s), ref_dir);
 	} else {
-		emu_rom_path = list_abs("bios", exe_dir_get());
+		emu_rom_path = list_abs("bios", ref_dir);
 	}
 
 	if (conf_string_section_get(context, "directory", "softwarepath", &s)==0) {
-		emu_software_path = list_abs(list_import(s), exe_dir_get());
+		emu_software_path = list_abs(list_import(s), ref_dir);
 	} else {
-		emu_software_path = list_abs("software", exe_dir_get());
+		emu_software_path = list_abs("software", ref_dir);
 	}
 
 	if (conf_string_section_get(context, "directory", "snap", &s)==0) {
-		emu_snap_path = list_abs(list_import(s), exe_dir_get());
+		emu_snap_path = list_abs(list_import(s), ref_dir);
 	} else {
-		emu_snap_path = list_abs("snap", exe_dir_get());
+		emu_snap_path = list_abs("snap", ref_dir);
 	}
 
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
 	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
 	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
 
-	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), exe_dir_get()));
-	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), exe_dir_get()));
-	config_icon_path = list_abs(list_import(user_icon_path), exe_dir_get());
-	config_flyer_path = list_abs(list_import(user_flyer_path), exe_dir_get());
-	config_cabinet_path = list_abs(list_import(user_cabinet_path), exe_dir_get());
-	config_marquee_path = list_abs(list_import(user_marquee_path), exe_dir_get());
-	config_title_path = list_abs(list_import(user_title_path), exe_dir_get());
+	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), ref_dir));
+	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), ref_dir));
+	config_icon_path = list_abs(list_import(user_icon_path), ref_dir);
+	config_flyer_path = list_abs(list_import(user_flyer_path), ref_dir);
+	config_cabinet_path = list_abs(list_import(user_cabinet_path), ref_dir);
+	config_marquee_path = list_abs(list_import(user_marquee_path), ref_dir);
+	config_title_path = list_abs(list_import(user_title_path), ref_dir);
 
 	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
 	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
@@ -1873,6 +1906,8 @@ bool advmess::load_cfg(const game_set& gar, bool quiet)
 	const char* s;
 	adv_conf* context;
 
+	string ref_dir_os = path_export(exe_dir_get());
+
 	string config_file = path_abs(path_import(file_config_file_home("advmess.rc")), exe_dir_get());
 
 	if (!validate_config_file(config_file))
@@ -1885,39 +1920,40 @@ bool advmess::load_cfg(const game_set& gar, bool quiet)
 	conf_string_register(context, "dir_snap");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
+		target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
 		conf_done(context);
 		return false;
 	}
 
 	if (conf_string_section_get(context, "", "dir_rom", &s)==0) {
-		emu_rom_path = list_abs(list_import(s), exe_dir_get());
+		emu_rom_path = list_importmultidir(s, ref_dir_os);
 	} else {
-		emu_rom_path = list_abs(list_import(file_config_dir_singledir("rom")), exe_dir_get());
+		emu_rom_path = list_importmultidir("rom", ref_dir_os);
 	}
 
 	if (conf_string_section_get(context, "", "dir_image", &s)==0) {
-		emu_software_path = list_abs(list_import(s), exe_dir_get());
+		emu_software_path = list_importmultidir(s, ref_dir_os);
 	} else {
-		emu_software_path = list_abs(list_import(file_config_dir_singledir("image")), exe_dir_get());
+		emu_software_path = list_importmultidir("image", ref_dir_os);
 	}
 
 	if (conf_string_section_get(context, "", "dir_snap", &s)==0) {
-		emu_snap_path = list_abs(list_import(s), exe_dir_get());
+		emu_snap_path = list_importsingledir(s, ref_dir_os);
 	} else {
-		emu_snap_path = list_abs(list_import(file_config_dir_singledir("snap")), exe_dir_get());
+		emu_snap_path = list_importsingledir("snap", ref_dir_os);
 	}
 
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
 	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path) ));
 	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path) ));
 
-	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), exe_dir_get()));
-	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), exe_dir_get()));
-	config_icon_path = list_abs(list_import(user_icon_path), exe_dir_get());
-	config_flyer_path = list_abs(list_import(user_flyer_path), exe_dir_get());
-	config_cabinet_path = list_abs(list_import(user_cabinet_path), exe_dir_get());
-	config_marquee_path = list_abs(list_import(user_marquee_path), exe_dir_get());
-	config_title_path = list_abs(list_import(user_title_path), exe_dir_get());
+	config_rom_path = dir_cat(emu_rom_path, list_importmultidir(user_rom_path, ref_dir_os));
+	config_alts_path = dir_cat(emu_snap_path, list_importmultidir(user_alts_path, ref_dir_os));
+	config_icon_path = list_importmultidir(user_icon_path, ref_dir_os);
+	config_flyer_path = list_importmultidir(user_flyer_path, ref_dir_os);
+	config_cabinet_path = list_importmultidir(user_cabinet_path, ref_dir_os);
+	config_marquee_path = list_importmultidir(user_marquee_path, ref_dir_os);
+	config_title_path = list_importmultidir(user_title_path, ref_dir_os);
 
 	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
 	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
@@ -2566,7 +2602,9 @@ bool draine::load_cfg(const game_set& gar, bool quiet)
 	const char* s;
 	adv_conf* context;
 
-	string config_file = slash_add(file_dir(config_exe_path_get())) + "config/raine.cfg";
+	string ref_dir = exe_dir_get();
+
+	string config_file = slash_add(ref_dir) + "config/raine.cfg";
 
 	if (!validate_config_file(config_file))
 		return false;
@@ -2580,33 +2618,34 @@ bool draine::load_cfg(const game_set& gar, bool quiet)
 	conf_string_register(context, "screenshots");
 
 	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 0, 0, 0, 0, 0) != 0) {
+		target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
 		conf_done(context);
 		return false;
 	}
 
 	emu_rom_path = "";
 	if (conf_string_section_get(context, "Directories", "rom_dir_0", &s)==0) {
-		emu_rom_path = dir_cat(emu_rom_path, list_abs(list_import(s), exe_dir_get()));
+		emu_rom_path = dir_cat(emu_rom_path, list_abs(list_import(s), ref_dir));
 	}
 	if (conf_string_section_get(context, "Directories", "rom_dir_1", &s)==0) {
-		emu_rom_path = dir_cat(emu_rom_path, list_abs(list_import(s), exe_dir_get()));
+		emu_rom_path = dir_cat(emu_rom_path, list_abs(list_import(s), ref_dir));
 	}
 	if (conf_string_section_get(context, "Directories", "rom_dir_2", &s)==0) {
-		emu_rom_path = dir_cat(emu_rom_path, list_abs(list_import(s), exe_dir_get()));
+		emu_rom_path = dir_cat(emu_rom_path, list_abs(list_import(s), ref_dir));
 	}
 	if (conf_string_section_get(context, "Directories", "rom_dir_3", &s)==0) {
-		emu_rom_path = dir_cat(emu_rom_path, list_abs(list_import(s), exe_dir_get()));
+		emu_rom_path = dir_cat(emu_rom_path, list_abs(list_import(s), ref_dir));
 	}
 	if (emu_rom_path.length() == 0) {
-		emu_rom_path = list_abs(list_import("roms"), exe_dir_get());
+		emu_rom_path = list_abs(list_import("roms"), ref_dir);
 	}
 
 	emu_software_path = "";
 
 	if (conf_string_section_get(context, "Directories", "screenshots", &s)==0) {
-		emu_snap_path = list_abs(list_import(s), exe_dir_get());
+		emu_snap_path = list_abs(list_import(s), ref_dir);
 	} else {
-		emu_snap_path = list_abs(list_import("screens"), exe_dir_get());
+		emu_snap_path = list_abs(list_import("screens"), ref_dir);
 	}
 
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path) ));
@@ -2615,13 +2654,13 @@ bool draine::load_cfg(const game_set& gar, bool quiet)
 
 	conf_done(context);
 
-	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), exe_dir_get()));
-	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), exe_dir_get()));
-	config_icon_path = list_abs(list_import(user_icon_path), exe_dir_get());
-	config_flyer_path = list_abs(list_import(user_flyer_path), exe_dir_get());
-	config_cabinet_path = list_abs(list_import(user_cabinet_path), exe_dir_get());
-	config_marquee_path = list_abs(list_import(user_marquee_path), exe_dir_get());
-	config_title_path = list_abs(list_import(user_title_path), exe_dir_get());
+	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), ref_dir));
+	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), ref_dir));
+	config_icon_path = list_abs(list_import(user_icon_path), ref_dir);
+	config_flyer_path = list_abs(list_import(user_flyer_path), ref_dir);
+	config_cabinet_path = list_abs(list_import(user_cabinet_path), ref_dir);
+	config_marquee_path = list_abs(list_import(user_marquee_path), ref_dir);
+	config_title_path = list_abs(list_import(user_title_path), ref_dir);
 
 	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path) ));
 	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path) ));
@@ -2698,13 +2737,15 @@ bool generic::load_data(const game_set& gar)
 
 bool generic::load_cfg(const game_set& gar, bool quiet)
 {
-	config_rom_path = list_abs(list_import(user_rom_path), exe_dir_get());
-	config_alts_path = list_abs(list_import(user_alts_path), exe_dir_get());
-	config_flyer_path = list_abs(list_import(user_flyer_path), exe_dir_get());
-	config_cabinet_path = list_abs(list_import(user_cabinet_path), exe_dir_get());
-	config_marquee_path = list_abs(list_import(user_marquee_path), exe_dir_get());
-	config_title_path = list_abs(list_import(user_title_path), exe_dir_get());
-	config_icon_path = list_abs(list_import(user_icon_path), exe_dir_get());
+	string ref_dir = exe_dir_get();
+
+	config_rom_path = list_abs(list_import(user_rom_path), ref_dir);
+	config_alts_path = list_abs(list_import(user_alts_path), ref_dir);
+	config_flyer_path = list_abs(list_import(user_flyer_path), ref_dir);
+	config_cabinet_path = list_abs(list_import(user_cabinet_path), ref_dir);
+	config_marquee_path = list_abs(list_import(user_marquee_path), ref_dir);
+	config_title_path = list_abs(list_import(user_title_path), ref_dir);
+	config_icon_path = list_abs(list_import(user_icon_path), ref_dir);
 
 	// no scan done, the zip path is already added in the load_game() call
 

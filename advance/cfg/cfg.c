@@ -226,7 +226,7 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 
 	y = 2;
 
-	y = draw_text_para(0,y,text_size_x(),6,
+	y = draw_text_para(0,y,text_size_x(),text_size_y()-6,
 "Now you must select the format of video modes supported by your monitor. "
 "A predefined set based on the most common monitors is available. "
 "\n\n"
@@ -382,10 +382,12 @@ static adv_error cmd_model(adv_conf* config, adv_monitor* monitor) {
 	draw_text_bar();
 
 	y = 2;
-	y = draw_text_para(0,y,text_size_x(),4,
-"Now you must select the clock range supported by your monitor. "
+	y = draw_text_para(0,y,text_size_x(),text_size_y()-6,
+"Now you must select the clock range supported by your monitor and video card. "
 "The strongly suggested choice is to check your monitor manual for the "
-"supported vertical and horizontal clock range. "
+"supported vertical and horizontal clock range.\n\n"
+"Some video boards are unable to use a low pclock like 5 MHz. "
+"Try eventually to use an higher value like 10 or 12."
 	,COLOR_LOW);
 
 	model_y = ++y;
@@ -420,12 +422,15 @@ static adv_error cmd_model_custom(adv_monitor* monitor) {
 	draw_text_para(0,6,text_size_x(),text_size_y()-8,
 "Enter the clock specification of your monitor. "
 "Usually you can find them in the last page of your monitor manual. "
-"For the pclock you can safely use the values 5 - 150.\n"
+"You can specify a clock range using '-' or a list of values using ','.\n\n"
+"For pclock you can use the range 5 - 150. "
+"Some video boards are unable to use a low pclock like 5 MHz. "
+"Try eventually to use an higher value like 10 or 12.\n"
 "The pclock specification is in MHz, the hclock is in kHz, the vclock is in Hz.\n\n"
 "For example:\n\n"
-"pclock = 5-150\n"
-"hclock = 30.5-60\n"
-"vclock = 55-130\n"
+"pclock = 5-150 (supported pixel clocks in MHz)\n"
+"hclock = 30.5-60 (supported horizontal clocks in kHz)\n"
+"vclock = 55-130 (supported vertical clocks in Hz)\n"
 "\nor\n\n"
 "hclock = 12-70\n"
 "hclock = 31.5, 35-50\n"
@@ -441,31 +446,31 @@ static adv_error cmd_model_custom(adv_monitor* monitor) {
 		draw_text_left(9,3,64,hbuffer,COLOR_NORMAL);
 		draw_text_left(9,4,64,vbuffer,COLOR_NORMAL);
 		switch (state) {
-			case 0 :
-				if (draw_text_read(9,2,pbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
-					state = -1;
-				else
-					state = 1;
-				break;
-			case 1 :
-				if (draw_text_read(9,3,hbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
-					state = 0;
-				else
-					state = 2;
-				break;
-			case 2 :
-				if (draw_text_read(9,4,vbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
-					state = 1;
-				else
-					state = 3;
-				break;
-			case 3 :
-				if (monitor_parse(monitor,pbuffer,hbuffer,vbuffer) == 0) {
-					state = 4;
-				} else {
-					state = 0;
-					sound_error();
-				}
+		case 0 :
+			if (draw_text_read(9,2,pbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
+				state = -1;
+			else
+				state = 1;
+			break;
+		case 1 :
+			if (draw_text_read(9,3,hbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
+				state = 0;
+			else
+				state = 2;
+			break;
+		case 2 :
+			if (draw_text_read(9,4,vbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
+				state = 1;
+			else
+				state = 3;
+			break;
+		case 3 :
+			if (monitor_parse(monitor,pbuffer,hbuffer,vbuffer) == 0) {
+				state = 4;
+			} else {
+				state = 0;
+				sound_error();
+			}
 		}
 	}
 
@@ -529,84 +534,84 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 
 		if (only_h_center) {
 			switch (userkey) {
-				case INPUTB_LEFT :
-				case INPUTB_RIGHT :
-				case 'i' :
-				case 'I' :
-				case INPUTB_ENTER:
-				case INPUTB_ESC:
-				break;
-				default:
-					sound_warn();
-					userkey = 0;
+			case INPUTB_LEFT :
+			case INPUTB_RIGHT :
+			case 'i' :
+			case 'I' :
+			case INPUTB_ENTER:
+			case INPUTB_ESC:
+			break;
+			default:
+				sound_warn();
+				userkey = 0;
 			}
 		}
 
 		switch (userkey) {
-			case INPUTB_ENTER:
-			case INPUTB_ESC:
-				done = 1;
-				break;
-			case 'i' :
-				current.ht -= current.ht % 8;
-				current.ht -= 8;
-				current.pixelclock = hclock * current.ht;
-				modify = 1;
-				break;
-			case 'I' :
-				current.ht -= current.ht % 8;
-				current.ht += 8;
-				current.pixelclock = hclock * current.ht;
-				modify = 1;
-				break;
-			case 'K' :
-				current.vde -= 1;
-				modify = 1;
-				break;
-			case 'k' :
-				current.vde += 1;
-				modify = 1;
-				break;
-			case INPUTB_HOME :
-				current.hre -= 8;
-				modify = 1;
-				break;
-			case INPUTB_END :
-				current.hre += 8;
-				modify = 1;
-				break;
-			case INPUTB_PGUP :
-				current.vre -= 1;
-				modify = 1;
-				break;
-			case INPUTB_PGDN :
-				current.vre += 1;
-				modify = 1;
-				break;
-			case INPUTB_LEFT :
-				current.hrs -= current.hrs % 8;
-				current.hrs += 8;
-				current.hre -= current.hre % 8;
-				current.hre += 8;
-				modify = 1;
-				break;
-			case INPUTB_RIGHT :
-				current.hrs -= current.hrs % 8;
-				current.hrs -= 8;
-				current.hre -= current.hre % 8;
-				current.hre -= 8;
-				modify = 1;
-				break;
-			case INPUTB_DOWN :
-				current.vrs -= 1;
-				current.vre -= 1;
-				modify = 1;
-				break;
-			case INPUTB_UP :
-				current.vrs += 1;
-				current.vre += 1;
-				modify = 1;
-				break;
+		case INPUTB_ENTER:
+		case INPUTB_ESC:
+			done = 1;
+			break;
+		case 'i' :
+			current.ht -= current.ht % 8;
+			current.ht -= 8;
+			current.pixelclock = hclock * current.ht;
+			modify = 1;
+			break;
+		case 'I' :
+			current.ht -= current.ht % 8;
+			current.ht += 8;
+			current.pixelclock = hclock * current.ht;
+			modify = 1;
+			break;
+		case 'K' :
+			current.vde -= 1;
+			modify = 1;
+			break;
+		case 'k' :
+			current.vde += 1;
+			modify = 1;
+			break;
+		case INPUTB_HOME :
+			current.hre -= 8;
+			modify = 1;
+			break;
+		case INPUTB_END :
+			current.hre += 8;
+			modify = 1;
+			break;
+		case INPUTB_PGUP :
+			current.vre -= 1;
+			modify = 1;
+			break;
+		case INPUTB_PGDN :
+			current.vre += 1;
+			modify = 1;
+			break;
+		case INPUTB_LEFT :
+			current.hrs -= current.hrs % 8;
+			current.hrs += 8;
+			current.hre -= current.hre % 8;
+			current.hre += 8;
+			modify = 1;
+			break;
+		case INPUTB_RIGHT :
+			current.hrs -= current.hrs % 8;
+			current.hrs -= 8;
+			current.hre -= current.hre % 8;
+			current.hre -= 8;
+			modify = 1;
+			break;
+		case INPUTB_DOWN :
+			current.vrs -= 1;
+			current.vre -= 1;
+			modify = 1;
+			break;
+		case INPUTB_UP :
+			current.vrs += 1;
+			current.vre += 1;
+			modify = 1;
+			break;
 		}
 	}
 
@@ -797,22 +802,22 @@ static void entry_interpolate(int x, int y, int dx, void* data, int n, adv_bool 
 	const char* range;
 
 	switch (p->type) {
-		case interpolate_mode :
-			hclock = p->crtc.pixelclock / p->crtc.ht;
-			vclock = hclock / p->crtc.vt;
-			if (p->selected && p->valid)
-				pivot = " - REFERENCE";
-			else
-				pivot = "";
-			if (!p->valid)
-				range = " - OUT OF RANGE";
-			else
-				range = "";
-			snprintf(buffer, sizeof(buffer), "Mode %4dx%4d %.1f/%.1f %s%s", p->x, p->y, hclock / 1E3, vclock, pivot, range);
-			break;
-		case interpolate_done :
-			sncpy(buffer, sizeof(buffer), "Done");
-			break;
+	case interpolate_mode :
+		hclock = p->crtc.pixelclock / p->crtc.ht;
+		vclock = hclock / p->crtc.vt;
+		if (p->selected && p->valid)
+			pivot = " - REFERENCE";
+		else
+			pivot = "";
+		if (!p->valid)
+			range = " - OUT OF RANGE";
+		else
+			range = "";
+		snprintf(buffer, sizeof(buffer), "Mode %4dx%4d %.1f/%.1f %s%s", p->x, p->y, hclock / 1E3, vclock, pivot, range);
+		break;
+	case interpolate_done :
+		sncpy(buffer, sizeof(buffer), "Done");
+		break;
 	}
 
 	draw_text_left(x,y,dx,buffer, selected ? COLOR_REVERSE : COLOR_NORMAL);
@@ -1020,15 +1025,15 @@ static void entry_adjust(int x, int y, int dx, void* data, int n, adv_bool selec
 	struct adjust_data_struct* p = ((struct adjust_data_struct*)data) + n;
 
 	switch (p->type) {
-		case adjust_previous:
-			snprintf(buffer,sizeof(buffer),"Previous centering settings");
-			break;
-		case adjust_easy:
-			snprintf(buffer,sizeof(buffer),"Easy centering - SUGGESTED - (one or two reference modes)");
-			break;
-		case adjust_precise:
-			snprintf(buffer,sizeof(buffer),"Precise centering - (many reference modes)");
-			break;
+	case adjust_previous:
+		snprintf(buffer,sizeof(buffer),"Previous centering settings");
+		break;
+	case adjust_easy:
+		snprintf(buffer,sizeof(buffer),"Easy centering - SUGGESTED - (one or two reference modes)");
+		break;
+	case adjust_precise:
+		snprintf(buffer,sizeof(buffer),"Precise centering - (many reference modes)");
+		break;
 	}
 
 	draw_text_left(x,y,dx,buffer, selected ? COLOR_REVERSE : COLOR_NORMAL);
@@ -1048,7 +1053,7 @@ adv_error cmd_adjust_msg(int type, enum adjust_enum* adjust_type) {
 "You MUST use only the software control to change the size and the position "
 "of the video mode. (You can eventually adjust only the FIRST video mode "
 "with the monitor controls if these setting will be shared on all video modes. "
-"Generally this doesn't happen with modern PC MultiSync monitor)"
+"Generally this doesn't happen with modern PC MultiSync monitors)"
 "\n\n"
 "If you can't correctly adjust the video modes you can't use the automatic "
 "configuration of the Advance programs and you should follow the manual configuration."
@@ -1106,27 +1111,27 @@ static void entry_test(int x, int y, int dx, void* data, int n, adv_bool selecte
 	struct test_data_struct* p = ((struct test_data_struct*)data) + n;
 
 	switch (p->type) {
-		case test_mode :
-			snprintf(buffer,sizeof(buffer),"Test mode %4dx%4d (singlescan)",p->x,p->y);
-			break;
-		case test_save :
-			snprintf(buffer,sizeof(buffer),"Save & Exit");
-			break;
-		case test_exit :
-			snprintf(buffer,sizeof(buffer),"Exit without saving");
-			break;
-		case test_custom_single:
-			snprintf(buffer,sizeof(buffer),"Test custom (singlescan) - Use only singlescan modes");
-			break;
-		case test_custom_double:
-			snprintf(buffer,sizeof(buffer),"Test custom (doublescan) - Use only doublescan modes");
-			break;
-		case test_custom_interlace:
-			snprintf(buffer,sizeof(buffer),"Test custom (interlace) - Use only interlace modes");
-			break;
-		case test_custom:
-			snprintf(buffer,sizeof(buffer),"Test custom - Use the nearest available mode (like AdvanceMAME)");
-			break;
+	case test_mode :
+		snprintf(buffer,sizeof(buffer),"Test mode %4dx%4d (singlescan)",p->x,p->y);
+		break;
+	case test_save :
+		snprintf(buffer,sizeof(buffer),"Save & Exit");
+		break;
+	case test_exit :
+		snprintf(buffer,sizeof(buffer),"Exit without saving");
+		break;
+	case test_custom_single:
+		snprintf(buffer,sizeof(buffer),"Test custom (singlescan) - Use only singlescan modes");
+		break;
+	case test_custom_double:
+		snprintf(buffer,sizeof(buffer),"Test custom (doublescan) - Use only doublescan modes");
+		break;
+	case test_custom_interlace:
+		snprintf(buffer,sizeof(buffer),"Test custom (interlace) - Use only interlace modes");
+		break;
+	case test_custom:
+		snprintf(buffer,sizeof(buffer),"Test custom - Use the nearest available mode (like AdvanceMAME)");
+		break;
 	}
 
 	draw_text_left(x,y,dx,buffer, selected ? COLOR_REVERSE : COLOR_NORMAL);
@@ -1191,34 +1196,34 @@ static adv_error cmd_test_custom(int* x, int* y, double* vclock) {
 		draw_text_left(16,3,64,ybuffer,COLOR_NORMAL);
 		draw_text_left(16,4,64,vbuffer,COLOR_NORMAL);
 		switch (state) {
-			case 0 :
-				if (draw_text_read(16,2,xbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
-					state = -1;
-				else
-					state = 1;
-				break;
-			case 1 :
-				if (draw_text_read(16,3,ybuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
-					state = 0;
-				else
-					state = 2;
-				break;
-			case 2 :
-				if (draw_text_read(16,4,vbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
-					state = 1;
-				else
-					state = 3;
-				break;
-			case 3 :
-				*x = atoi(xbuffer);
-				*y = atoi(ybuffer);
-				*vclock = atof(vbuffer);
-				if (100 < *x && *x < 1920 && 100 < *y && *y < 1280 && 30 < *vclock && *vclock < 200) {
-					state = 4;
-				} else {
-					state = 0;
-					sound_error();
-				}
+		case 0 :
+			if (draw_text_read(16,2,xbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
+				state = -1;
+			else
+				state = 1;
+			break;
+		case 1 :
+			if (draw_text_read(16,3,ybuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
+				state = 0;
+			else
+				state = 2;
+			break;
+		case 2 :
+			if (draw_text_read(16,4,vbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
+				state = 1;
+			else
+				state = 3;
+			break;
+		case 3 :
+			*x = atoi(xbuffer);
+			*y = atoi(ybuffer);
+			*vclock = atof(vbuffer);
+			if (100 < *x && *x < 1920 && 100 < *y && *y < 1280 && 30 < *vclock && *vclock < 200) {
+				state = 4;
+			} else {
+				state = 0;
+				sound_error();
+			}
 		}
 	}
 
@@ -1318,7 +1323,7 @@ static adv_error cmd_test(adv_generate_interpolate_set* interpolate, const adv_m
 
 		y = 2;
 
-		y = draw_text_para(0,y,text_size_x(),4,
+		y = draw_text_para(0,y,text_size_x(),text_size_y()-6,
 "Now you can test various video modes. If they are correctly centered "
 "and sized save the configuration and exit.\n"
 "Otherwise you can go back pressing ESC or exit without saving and try "
@@ -1405,8 +1410,9 @@ static adv_conf_conv STANDARD[] = {
 { "*", "*", "*", "%s", "%s", "%s", 1 }
 };
 
-void os_signal(int signum) {
-	os_default_signal(signum);
+void os_signal(int signum, void* info, void* context)
+{
+	os_default_signal(signum, info, context);
 }
 
 void troubleshotting(void)
@@ -1504,14 +1510,14 @@ int os_main(int argc, char* argv[]) {
 		} else if (target_option_compare(argv[j],"bit") && j+1<argc) {
 			unsigned bits = atoi(argv[++j]);
 			switch (bits) {
-				case 8 : index = MODE_FLAGS_INDEX_BGR8; break;
-				case 15 : index = MODE_FLAGS_INDEX_BGR15; break;
-				case 16 : index = MODE_FLAGS_INDEX_BGR16; break;
-				case 24 : index = MODE_FLAGS_INDEX_BGR24; break;
-				case 32 : index = MODE_FLAGS_INDEX_BGR32; break;
-				default:
-					target_err("Invalid bit depth %d.\n", bits);
-					goto err_os;
+			case 8 : index = MODE_FLAGS_INDEX_BGR8; break;
+			case 15 : index = MODE_FLAGS_INDEX_BGR15; break;
+			case 16 : index = MODE_FLAGS_INDEX_BGR16; break;
+			case 24 : index = MODE_FLAGS_INDEX_BGR24; break;
+			case 32 : index = MODE_FLAGS_INDEX_BGR32; break;
+			default:
+				target_err("Invalid bit depth %d.\n", bits);
+				goto err_os;
 			}
 		} else {
 			target_err("Unknown option %s.\n",argv[j]);
@@ -1521,10 +1527,10 @@ int os_main(int argc, char* argv[]) {
 
 	if (!opt_rc) {
 		switch (the_advance) {
-			case advance_menu : opt_rc = file_config_file_home("advmenu.rc"); break;
-			case advance_mame : opt_rc = file_config_file_home("advmame.rc"); break;
-			case advance_mess : opt_rc = file_config_file_home("advmess.rc"); break;
-			case advance_pac : opt_rc = file_config_file_home("advpac.rc"); break;
+		case advance_menu : opt_rc = file_config_file_home("advmenu.rc"); break;
+		case advance_mame : opt_rc = file_config_file_home("advmame.rc"); break;
+		case advance_mess : opt_rc = file_config_file_home("advmess.rc"); break;
+		case advance_pac : opt_rc = file_config_file_home("advpac.rc"); break;
 		}
 	}
 
@@ -1578,14 +1584,14 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	switch (index) {
-		case MODE_FLAGS_INDEX_BGR8 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR8; break;
-		case MODE_FLAGS_INDEX_BGR15 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR15; break;
-		case MODE_FLAGS_INDEX_BGR16 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR16; break;
-		case MODE_FLAGS_INDEX_BGR24 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR24; break;
-		case MODE_FLAGS_INDEX_BGR32 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR32; break;
-		default:
-			target_err("Invalid bit depth specification.\n\r");
-			goto err_blit;
+	case MODE_FLAGS_INDEX_BGR8 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR8; break;
+	case MODE_FLAGS_INDEX_BGR15 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR15; break;
+	case MODE_FLAGS_INDEX_BGR16 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR16; break;
+	case MODE_FLAGS_INDEX_BGR24 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR24; break;
+	case MODE_FLAGS_INDEX_BGR32 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR32; break;
+	default:
+		target_err("Invalid bit depth specification.\n\r");
+		goto err_blit;
 	}
 
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & bit_flag) == 0) {
@@ -1638,72 +1644,71 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	while (state >= 0 && state != 8) {
-
 		switch (state) {
-			case 0 :
-				res = cmd_monitor(config, &generate,&type,&interpolate);
-				if (res == -1)
-					state = -1;
-				else if (type == monitor_custom)
-					state = 1;
-				else
-					state = 2;
-				break;
-			case 1 :
-				res = cmd_monitor_custom(&generate);
-				if (res == -1)
-					state = 0;
-				else if (type == monitor_custom)
-					state = 3;
-				else
-					state = 2;
-				break;
-			case 2 :
-				res = cmd_model(config,&monitor);
-				if (res == -1)
-					state = 0;
-				else if (monitor_is_empty(&monitor))
-					state = 3;
-				else
-					state = 4;
-				break;
-			case 3 :
-				res = cmd_model_custom(&monitor);
-				if (res == -1)
-					state = 2;
-				else
-					state = 4;
-				break;
-			case 4 :
-				res = cmd_adjust_msg(type,&adjust_type);
-				if (res < 0)
-					state = 2;
-				else {
-					if (adjust_type == adjust_previous) {
-						state = 5;
-					} else if (adjust_type == adjust_easy) {
-						if (monitor_hclock_min(&monitor) == monitor_hclock_max(&monitor))
-							res = cmd_interpolate_one(&interpolate,&generate,&monitor,index);
-						else
-							res = cmd_interpolate_two(&interpolate,&generate,&monitor,index);
-					} else {
-						res = cmd_interpolate_many(&interpolate,&generate,&monitor,index);
-					}
-					if (res >= 0)
-						state = 5;
+		case 0 :
+			res = cmd_monitor(config, &generate,&type,&interpolate);
+			if (res == -1)
+				state = -1;
+			else if (type == monitor_custom)
+				state = 1;
+			else
+				state = 2;
+			break;
+		case 1 :
+			res = cmd_monitor_custom(&generate);
+			if (res == -1)
+				state = 0;
+			else if (type == monitor_custom)
+				state = 3;
+			else
+				state = 2;
+			break;
+		case 2 :
+			res = cmd_model(config,&monitor);
+			if (res == -1)
+				state = 0;
+			else if (monitor_is_empty(&monitor))
+				state = 3;
+			else
+				state = 4;
+			break;
+		case 3 :
+			res = cmd_model_custom(&monitor);
+			if (res == -1)
+				state = 2;
+			else
+				state = 4;
+			break;
+		case 4 :
+			res = cmd_adjust_msg(type,&adjust_type);
+			if (res < 0)
+				state = 2;
+			else {
+				if (adjust_type == adjust_previous) {
+					state = 5;
+				} else if (adjust_type == adjust_easy) {
+					if (monitor_hclock_min(&monitor) == monitor_hclock_max(&monitor))
+						res = cmd_interpolate_one(&interpolate,&generate,&monitor,index);
+					else
+						res = cmd_interpolate_two(&interpolate,&generate,&monitor,index);
+				} else {
+					res = cmd_interpolate_many(&interpolate,&generate,&monitor,index);
 				}
-				break;
-			case 5 :
-				res = cmd_test(&interpolate,&monitor, index);
-				if (res == -1)
-					state = 4;
-				else
-					state = 6;
-				break;
-			case 6 :
-				cmd_save(config,&interpolate,&monitor,type);
-				state = 8;
-				break;
+				if (res >= 0)
+					state = 5;
+			}
+			break;
+		case 5 :
+			res = cmd_test(&interpolate,&monitor, index);
+			if (res == -1)
+				state = 4;
+			else
+				state = 6;
+			break;
+		case 6 :
+			cmd_save(config,&interpolate,&monitor,type);
+			state = 8;
+			break;
 		}
 	}
 

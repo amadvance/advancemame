@@ -272,7 +272,7 @@ void target_flush(void);
 /**
  * Process the specified signal.
  */
-void target_signal(int signum);
+void target_signal(int signum, void* info, void* context);
 
 /**
  * Crash the process.

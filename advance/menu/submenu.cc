@@ -575,7 +575,16 @@ void run_clone(config_state& rs)
 	for(pgame_container::const_iterator j = base->clone_bag_get().begin();j!=base->clone_bag_get().end();++j) {
 		if (!(*j)->software_get()) {
 			ostringstream s;
+
 			s << (*j)->description_get() << ", " << (*j)->manufacturer_get() << ", " << (*j)->year_get();
+
+			switch ((*j)->play_get()) {
+			case play_minor : s << " [with minor problems]"; break;
+			case play_major : s << " [not working]"; break;
+			case play_not : s << " [not working]"; break;
+			default: break;
+			}
+
 			ch.insert( ch.end(), choice( s.str(), (void*)&**j ) );
 		}
 	}

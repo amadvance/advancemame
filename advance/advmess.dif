@@ -1044,6 +1044,38 @@ diff -U 5 --new-file --recursive srcmess.ori/rules.mak srcmess/rules.mak
  endif
  
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
+diff -U 5 --new-file --recursive srcmess.ori/sound/mixer.c srcmess/sound/mixer.c
+--- srcmess.ori/sound/mixer.c	2003-10-12 20:51:58.000000000 +0200
++++ srcmess/sound/mixer.c	2004-06-27 21:59:28.000000000 +0200
+@@ -690,10 +690,11 @@
+ 
+ int mixer_sh_start(void)
+ {
+ 	struct mixer_channel_data *channel;
+ 	int i;
++	int r;
+ 
+ 	/* reset all channels to their defaults */
+ 	memset(&mixer_channel, 0, sizeof(mixer_channel));
+ 	for (i = 0, channel = mixer_channel; i < MIXER_MAX_CHANNELS; i++, channel++)
+ 	{
+@@ -713,11 +714,15 @@
+ 	/* clear the accumulators */
+ 	accum_base = 0;
+ 	memset(left_accum, 0, sizeof(left_accum));
+ 	memset(right_accum, 0, sizeof(right_accum));
+ 
+-	samples_this_frame = osd_start_audio_stream(is_stereo);
++	r = osd_start_audio_stream(is_stereo);
++	if (r < 0)
++		return -1;
++
++	samples_this_frame = r;
+ 
+ 	mixer_sound_enabled = 1;
+ 
+ 	return 0;
+ }
 diff -U 5 --new-file --recursive srcmess.ori/ui_text.c srcmess/ui_text.c
 --- srcmess.ori/ui_text.c	2004-06-02 02:02:30.000000000 +0200
 +++ srcmess/ui_text.c	2004-06-12 18:24:12.000000000 +0200

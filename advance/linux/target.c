@@ -28,6 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
+#define _GNU_SOURCE /* for EIP in ucontext.h */
+
 #include "portable.h"
 
 #include "target.h"
@@ -55,6 +57,9 @@
 #if HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
+#if HAVE_UCONTEXT_H
+#include <ucontext.h>
+#endif
 
 #if HAVE_IOPL
 #if HAVE_INOUT
@@ -65,6 +70,12 @@
 #if HAVE_BACKTRACE
 #if HAVE_BACKTRACE_SYMBOLS
 #define USE_BACKTRACE
+#endif
+#endif
+
+#ifdef __i386__
+#if HAVE_UCONTEXT_H
+#define USE_BACKTRACE_REG
 #endif
 #endif
 
@@ -639,33 +650,7 @@ void target_flush(void)
 	fflush(stderr);
 }
 
-static void target_backtrace(void)
-{
-#ifdef USE_BACKTRACE
-	void* buffer[256];
-	char** symbols;
-	int size;
-	int i;
-
-	/* The programm need to be compiled without CFLAGS=-fomit-frame-pointer */
-	/* and with LDFLAGS=-rdynamic */
-	size = backtrace(buffer, 256);
-
-	symbols = backtrace_symbols(buffer, size);
-
-	if (size > 1) {
-		printf("Stack backtrace:\n");
-		for(i=0;i<size;++i)
-			printf("%s\n", symbols[i]);
-	} else {
-		printf("No stack backtrace: compile without CFLAGS=-fomit-frame-pointer and with LDFLAGS=-rdynamic\n");
-	}
-
-	free(symbols);
-#endif
-}
-
-void target_signal(int signum)
+void target_signal(int signum, void* void_info, void* void_context)
 {
 	if (signum == SIGINT) {
 		fprintf(stderr, "Break\n\r");
@@ -680,11 +665,169 @@ void target_signal(int signum)
 		fprintf(stderr, "Alarm\n\r");
 		exit(EXIT_FAILURE);
 	} else {
+#ifdef USE_BACKTRACE
+		void* buffer[32];
+		char** symbols;
+		int size;
+		int i;
+		void* fault;
+		void* caller;
+		siginfo_t* info = void_info;
+
+		if (info) {
+			fault = info->si_addr;
+		} else {
+			fault = 0;
+		}
+
+#ifdef USE_BACKTRACE_REG
+		if (void_context) {
+			ucontext_t* context = void_context;
+			caller = (void*)context->uc_mcontext.gregs[REG_EIP];
+		} else {
+			caller = 0;
+		}
+#else
+		caller = 0;
+#endif
+
+		switch (signum) {
+		case SIGILL : fprintf(stderr, "Signal SIGILL"); break;
+		case SIGFPE : fprintf(stderr, "Signal SIGFPE"); break;
+		case SIGSEGV : fprintf(stderr, "Signal SIGSEGV"); break;
+		case SIGBUS : fprintf(stderr, "Signal SIGBUS"); break;
+		case SIGABRT : fprintf(stderr, "Signal SIGABRT"); break;
+		default : fprintf(stderr, "Signal %d", signum); break;
+		}
+
+		if (signum == SIGSEGV) {
+			if (info) {
+				switch (info->si_code) {
+#ifdef SEGV_MAPERR
+				case SEGV_MAPERR : fprintf(stderr,"[MAPERR]"); break;
+#endif
+#ifdef SEGV_ACCERR
+				case SEGV_ACCERR : fprintf(stderr,"[ACCERR]"); break;
+#endif
+				default : fprintf(stderr,"[%xh]", (unsigned)info->si_code); break;
+				}
+			}
+			fprintf(stderr, ", fault at %p, from code at %p\n", fault, caller);
+		} else if (signum == SIGILL) {
+			if (info) {
+				switch (info->si_code) {
+#ifdef ILL_ILLOPC
+				case ILL_ILLOPC : fprintf(stderr,"[ILLOPC]"); break;
+#endif
+#ifdef ILL_ILLOPN
+				case ILL_ILLOPN : fprintf(stderr,"[ILLOPN]"); break;
+#endif
+#ifdef ILL_ILLADR
+				case ILL_ILLADR : fprintf(stderr,"[ILLADR]"); break;
+#endif
+#ifdef ILL_ILLTRP
+				case ILL_ILLTRP : fprintf(stderr,"[ILLTRP]"); break;
+#endif
+#ifdef ILL_PRVOPC
+				case ILL_PRVOPC : fprintf(stderr,"[PRVOPC]"); break;
+#endif
+#ifdef ILL_PRVREG
+				case ILL_PRVREG : fprintf(stderr,"[PRVREG]"); break;
+#endif
+#ifdef ILL_COPROC
+				case ILL_COPROC : fprintf(stderr,"[COPROC]"); break;
+#endif
+#ifdef ILL_BADSTK
+				case ILL_BADSTK : fprintf(stderr,"[BADSTK]"); break;
+#endif
+				default : fprintf(stderr,"[%xh]", (unsigned)info->si_code); break;
+				}
+			}
+			fprintf(stderr, ", fault at %p, from code at %p\n", fault, caller);
+		} else if (signum == SIGBUS) {
+			if (info) {
+				switch (info->si_code) {
+#ifdef BUS_ADRALN
+				case BUS_ADRALN : fprintf(stderr,"[ADRALN]"); break;
+#endif
+#ifdef BUS_ADRERR
+				case BUS_ADRERR : fprintf(stderr,"[ADRERR]"); break;
+#endif
+#ifdef BUS_OBJERR
+				case BUS_OBJERR : fprintf(stderr,"[OBJERR]"); break;
+#endif
+				default : fprintf(stderr,"[%xh]", (unsigned)info->si_code); break;
+				}
+			}
+			fprintf(stderr, ", fault at %p, from code at %p\n", fault, caller);
+		} else if (signum == SIGFPE) {
+			if (info) {
+				switch (info->si_code) {
+#ifdef FPE_INTDIV
+				case FPE_INTDIV : fprintf(stderr,"[INTDIV]"); break;
+#endif
+#ifdef FPE_INTOVF
+				case FPE_INTOVF : fprintf(stderr,"[INTOVF]"); break;
+#endif
+#ifdef FPE_FLTDIV
+				case FPE_FLTDIV : fprintf(stderr,"[FLTDIV]"); break;
+#endif
+#ifdef FPE_FLTOVF
+				case FPE_FLTOVF : fprintf(stderr,"[FLTOVF]"); break;
+#endif
+#ifdef FPE_FLTUND
+				case FPE_FLTUND : fprintf(stderr,"[FLTUND]"); break;
+#endif
+#ifdef FPE_FLTRES
+				case FPE_FLTRES : fprintf(stderr,"[FLTRES]"); break;
+#endif
+#ifdef FPE_FLTINV
+				case FPE_FLTINV : fprintf(stderr,"[FLTINV]"); break;
+#endif
+#ifdef FPE_FLTSUB
+				case FPE_FLTSUB : fprintf(stderr,"[FLTSUB]"); break;
+#endif
+				default : fprintf(stderr,"[%xh]", (unsigned)info->si_code); break;
+				}
+			}
+			fprintf(stderr, ", fault at %p, from code at %p\n", fault, caller);
+		} else {
+			if (info) {
+				fprintf(stderr,"[%xh]", (unsigned)info->si_code);
+			}
+			fprintf(stderr, ", from code at %p\n", caller);
+		}
+
+#ifdef USE_BACKTRACE_REG
+		{
+			ucontext_t* context = void_context;
+			fprintf(stderr, "eax %08x ebx %08x ecx %08x edx %08x esi %08x edi %08x\n", context->uc_mcontext.gregs[REG_EAX], context->uc_mcontext.gregs[REG_EBX], context->uc_mcontext.gregs[REG_ECX], context->uc_mcontext.gregs[REG_EDX], context->uc_mcontext.gregs[REG_ESI], context->uc_mcontext.gregs[REG_EDI]);
+			fprintf(stderr, "ebp %08x esp %08x eip %08x efl %08x err %08x trp %08x\n", context->uc_mcontext.gregs[REG_EBP], context->uc_mcontext.gregs[REG_ESP], context->uc_mcontext.gregs[REG_EIP], context->uc_mcontext.gregs[REG_EFL], context->uc_mcontext.gregs[REG_ERR], context->uc_mcontext.gregs[REG_TRAPNO]);
+		}
+#endif
+
+		fprintf(stderr, "Compiled %s, %s\n", __DATE__, __TIME__);
+
+		size = backtrace(buffer + 1, 32 - 1) + 1;
+
+		buffer[0] = caller;
+
+		symbols = backtrace_symbols(buffer, size);
+
+		if (size > 1) {
+			printf("Stack backtrace:\n");
+			for(i=0;i<size;++i) {
+				printf("%s\n", symbols[i]);
+			}
+		} else {
+			printf("No stack backtrace: compile without CFLAGS=-fomit-frame-pointer and with LDFLAGS=-rdynamic\n");
+		}
+
+		free(symbols);
+#else
 		fprintf(stderr, "Signal %d.\n", signum);
-		fprintf(stderr, "%s, %s\n\r", __DATE__, __TIME__);
-
-		target_backtrace();
-
+		fprintf(stderr, "Compiled %s, %s\n\r", __DATE__, __TIME__);
+#endif
 		if (signum == SIGILL) {
 			fprintf(stderr, "Are you using the correct binary ?\n");
 		}
@@ -695,7 +838,7 @@ void target_signal(int signum)
 
 void target_crash(void)
 {
-	unsigned* i = (unsigned*)0;
+	unsigned* i = (unsigned*)0xDEADBEAF;
 	*i = *i;
 	abort();
 }

@@ -413,7 +413,7 @@ adv_error video_init(void)
 	forward = 0;
 #else
 	/* forward order */
-	/* some low priority drivers are disabled if some high priority is enabled */
+	/* some low priority drivers are disabled if some high priority are enabled */
 	forward = 1;
 #endif
 

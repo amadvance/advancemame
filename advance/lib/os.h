@@ -88,14 +88,15 @@ int os_is_quit(void);
 
 /**
  * Manage a signal.
- * The user must implement this function. Eventually call simply os_default_signal().
+ * The user must implement this function.
+ * Eventually call simply os_default_signal().
  */
-void os_signal(int signum);
+void os_signal(int signum, void* info, void* context);
 
 /**
  * Default behaviour for a signal.
  */
-void os_default_signal(int signum);
+void os_default_signal(int signum, void* info, void* context);
 
 #ifdef __cplusplus
 }

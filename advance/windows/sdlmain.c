@@ -8,13 +8,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <malloc.h>
-
-#if defined(__GNUC__) && __GNUC__ >= 3
-#include <alloca.h>
-#endif
 
 #include <windows.h>
+#include <malloc.h>
 
 /* Include the SDL main definition header */
 #include "SDL.h"

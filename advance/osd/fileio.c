@@ -746,8 +746,16 @@ adv_error advance_fileio_config_load(struct advance_fileio_context* context, adv
 		if (i->config) {
 			unsigned j;
 			const char* s = conf_string_get_default(cfg_context, i->config);
-			log_std(("advance:fileio: %s %s\n", i->config, s));
-			path_allocate(&i->dir_map, &i->dir_mac, s);
+			const char* a;
+
+			switch (i->mode) {
+			case FILEIO_MODE_MULTI : a = file_config_list(s, file_config_dir_multidir, 0); break;
+			case FILEIO_MODE_SINGLE : a = file_config_list(s, file_config_dir_singledir, 0); break;
+			default: a = s; break;
+			}
+
+			log_std(("advance:fileio: %s %s\n", i->config, a));
+			path_allocate(&i->dir_map, &i->dir_mac, a);
 			for(j=0;j<i->dir_mac;++j)
 				dir_create(i->dir_map[j]);
 		} else {
@@ -759,8 +767,9 @@ adv_error advance_fileio_config_load(struct advance_fileio_context* context, adv
 #ifdef MESS
 	{
 		const char* s = conf_string_get_default(cfg_context, "dir_crc");
-		log_std(("advance:fileio: %s %s\n", "dir_crc", s));
-		sncpy(option->crc_dir_buffer, sizeof(option->crc_dir_buffer), s);
+		const char* a = file_config_list(s, file_config_dir_singledir, 0);
+		log_std(("advance:fileio: %s %s\n", "dir_crc", a));
+		sncpy(option->crc_dir_buffer, sizeof(option->crc_dir_buffer), a);
 	}
 #endif
 

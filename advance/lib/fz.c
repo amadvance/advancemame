@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -596,9 +596,6 @@ long fzsize(adv_fz* f)
 {
 	if (f->type == fz_file) {
 		struct stat st;
-		if (fflush(f->f) != 0) {
-			return -1;
-		}
 		if (fstat(fileno(f->f), &st) != 0) {
 			return -1;
 		}

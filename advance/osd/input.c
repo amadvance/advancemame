@@ -2085,6 +2085,10 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 	return 0;
 }
 
+/**
+ * Called after a user customization of a GLOBAL input code combination.
+ * Called with an empty sequence to delete the customization.
+ */
 void osd2_customize_inputport_post_defaults(unsigned type, unsigned* seq, unsigned seq_max)
 {
 	adv_conf* cfg_context = CONTEXT.cfg;
@@ -2119,6 +2123,10 @@ void osd2_customize_inputport_post_defaults(unsigned type, unsigned* seq, unsign
 	}
 }
 
+/**
+ * Called after a user customization of a GAME input code combination.
+ * Called with an empty sequence to delete the customization.
+ */
 void osd2_customize_inputport_post_game(unsigned type, unsigned* seq, unsigned seq_max)
 {
 	adv_conf* cfg_context = CONTEXT.cfg;
@@ -2141,15 +2149,15 @@ void osd2_customize_inputport_post_game(unsigned type, unsigned* seq, unsigned s
 			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
 
 			if (!seq || seq[0] == DIGITAL_SPECIAL_AUTO) {
-				log_std(("emu:input: customize port default %s/%s\n", mame_game_name(game), tag_buffer));
+				log_std(("emu:input: customize port default %s/%s\n", mame_section_name(game, cfg_context), tag_buffer));
 
-				conf_remove(cfg_context, mame_game_name(game), tag_buffer);
+				conf_remove(cfg_context, mame_section_name(game, cfg_context), tag_buffer);
 			} else {
 				output_digital(value_buffer, sizeof(value_buffer), seq, seq_max);
 
-				log_std(("emu:input: customize port %s/%s %s\n", mame_game_name(game), tag_buffer, value_buffer));
+				log_std(("emu:input: customize port %s/%s %s\n", mame_section_name(game, cfg_context), tag_buffer, value_buffer));
 
-				conf_string_set(cfg_context, mame_game_name(game), tag_buffer, value_buffer);
+				conf_string_set(cfg_context, mame_section_name(game, cfg_context), tag_buffer, value_buffer);
 			}
 
 			break;
@@ -2484,6 +2492,7 @@ adv_bool advance_input_digital_pressed(struct advance_input_context* context, un
 
 /**
  * Get the list of all available digital key codes.
+ * This list is allowed to change at runtime.
  */
 const struct KeyboardInfo* osd_get_key_list(void)
 {
@@ -2507,6 +2516,13 @@ int osd_is_key_pressed(int keycode)
 	return advance_input_digital_pressed(context, keycode);
 }
 
+/**
+ * Get a unicode press.
+ * \param flush If !=0 flush the keyboard buffer flush and return 0.
+ * \return
+ * - == 0 No key in the keyboard buffer.
+ * - != 0 Unicode key pressed.
+ */
 int osd_readkey_unicode(int flush)
 {
 	/* no unicode support */
@@ -2515,6 +2531,7 @@ int osd_readkey_unicode(int flush)
 
 /**
  * Get the list of all available digital joystick codes.
+ * This list is allowed to change at runtime.
  */
 const struct JoystickInfo* osd_get_joy_list(void)
 {
@@ -2543,8 +2560,8 @@ int osd_is_joy_pressed(int joycode)
  * This function get all the analog axes for one player.
  * \param player Player.
  * \param analog_axis Vector filled with the analog position. Returned values are in the range -128 - 128.
- * \param analogjoy_input Vector containing the digital code which the osd_is_joystick_axis_code()
- * function reported be a joystick code. This code can be used to remap the joystick axes.
+ * \param analogjoy_input Vector containing the digital codes which the osd_is_joystick_axis_code()
+ * function reported be joystick codes for the same digital movement. These codes can be used to remap the joystick axes.
  */
 void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode analogjoy_input[MAX_ANALOG_AXES])
 {
@@ -2595,6 +2612,10 @@ void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode 
 /**
  * Check if a digital code refers to a joystick.
  * This function is used to map analog joystick like digital joystick.
+ * The values returned are used ONLY for calling osd_analogjoy_read().
+ * \return
+ * - != 0 The code refers to a joystick.
+ * - == 0 The code doesn't refer to a joystick.
  */
 int osd_is_joystick_axis_code(int joycode)
 {
@@ -2602,31 +2623,57 @@ int osd_is_joystick_axis_code(int joycode)
 	return 0;
 }
 
+/**
+ * Check if the joystick need calibration.
+ * The calibration is started only on user request.
+ */
 int osd_joystick_needs_calibration(void)
 {
 	return 1;
 }
 
+/**
+ * Start the calibration process.
+ */
 void osd_joystick_start_calibration(void)
 {
 	joystickb_calib_start();
 }
 
+/**
+ * Next step of the calibration.
+ * \return
+ * - != 0 Message to display at the user for the next step of the calibrarion.
+ * - == 0 End the calibration process.
+ */
 const char* osd_joystick_calibrate_next(void)
 {
 	return joystickb_calib_next();
 }
 
+/**
+ * Called during the calibration.
+ * Use this for polling if required.
+ */
 void osd_joystick_calibrate(void)
 {
 	/* nothing */
 }
 
+/**
+ * End of the calibration.
+ */
 void osd_joystick_end_calibration(void)
 {
 	/* nothing */
 }
 
+/**
+ * Get the trackball position.
+ * \param player Player.
+ * \param x, y Where to store the trackball movement from the last call.
+ * The movement can have any sensibility.
+ */
 void osd_trak_read(int player, int* x, int* y)
 {
 	struct advance_input_context* context = &CONTEXT.input;
@@ -2681,6 +2728,14 @@ void osd_trak_read(int player, int* x, int* y)
 /**
  * Read the position of the lightgun.
  * The returned range is from -128 to 128. 0,0 is the center of the screen.
+ * \note
+ * The OSD lightgun call should return the delta from the middle of the screen
+ * when the gun is fired (not the absolute pixel value), and 0 when the gun is
+ * inactive.  We take advantage of this to provide support for other controllers
+ * in place of a physical lightgun.  When the OSD lightgun returns 0, then control
+ * passes through to the analog joystick, and mouse, in that order.  When the OSD
+ * lightgun returns a value it overrides both mouse & analog joystick.
+ * There is an ugly hack to stop scaling of lightgun returned values.
  */
 void osd_lightgun_read(int player, int* deltax, int* deltay)
 {
@@ -2691,8 +2746,8 @@ void osd_lightgun_read(int player, int* deltax, int* deltay)
 
 #ifdef MESS
 /**
- * Check if the keyboard is disabled.
- * This functions disabled all the emulated keyboard input.
+ * Check if the emulated keyboard input need to be disabled.
+ * This function disables the emulated keyboard input.
  */
 int osd_keyboard_disabled(void)
 {

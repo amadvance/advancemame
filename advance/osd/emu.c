@@ -51,10 +51,11 @@ void adv_svgalib_log_va(const char *text, va_list arg)
 /***************************************************************************/
 /* Signal */
 
-void os_signal(int signum)
+void os_signal(int signum, void* info, void* context)
 {
 	hardware_script_abort();
-	os_default_signal(signum);
+
+	os_default_signal(signum, info, context);
 }
 
 /***************************************************************************/
@@ -138,6 +139,35 @@ static const mame_game* select_game(const char* gamename)
 
 	free(game_map);
 	return 0;
+}
+
+static const mame_game* select_lang(int lang, const mame_game* parent)
+{
+	unsigned i;
+	const mame_game* best;
+	unsigned best_score;
+
+	best = parent;
+	best_score = lang_identify_text(lang, mame_game_lang(best));
+
+	for(i=0;mame_game_at(i);++i) {
+		const mame_game* game = mame_game_at(i);
+		if (mame_game_working(game)
+			&& mame_game_parent(game) == parent) {
+			unsigned score = lang_identify_text(lang, mame_game_lang(game));
+
+			log_std(("emu:language: game %s, score %d, text %s\n", mame_game_name(game), score, mame_game_lang(game)));
+
+			if (score > best_score) {
+				best = game;
+				best_score = score;
+			}
+		}
+	}
+
+	log_std(("emu:language: select game %s\n", mame_game_name(best)));
+
+	return best;
 }
 
 /***************************************************************************/
@@ -590,9 +620,6 @@ int os_main(int argc, char* argv[])
 		}
 	}
 
-	/* initialize the MAME CPU support.It must be called before the mame_print commands */
-	mame_print_init();
-
 	if (opt_info) {
 		mame_print_info(stdout);
 		goto done_os;
@@ -660,19 +687,20 @@ int os_main(int argc, char* argv[])
 		}
 	}
 
+	/* setup the config system to search option in the global section. */
+	/* It's used to load option before knowning the effective game loaded. */
+	/* It implies that after the game is know the options may */
+	/* differ because a specific option for the game may be present */
+	/* in the configuration */
+
+	section_map[0] = "";
+	conf_section_set(context->cfg, section_map, 1);
+
 	if (!opt_gamename) {
 		if (!option.playback_file_buffer[0]) {
 			target_err("No game specified on the command line.\n");
 			goto err_os;
 		}
-
-		/* we need to know where to search the playback file. Without knowing the */
-		/* game only the global options can be used. */
-		/* It implies that after the game is know the playback directory may */
-		/* differ because a specific option for the game may be present in the */
-		/* configuration */
-		section_map[0] = "";
-		conf_section_set(context->cfg, section_map, 1);
 
 		if (advance_fileio_config_load(&context->fileio, context->cfg, &option) != 0)
 			goto err_os;
@@ -681,9 +709,15 @@ int os_main(int argc, char* argv[])
 		if (option.game == 0)
 			goto err_os;
 	} else {
+		int lang;
+
 		option.game = select_game(opt_gamename);
 		if (option.game == 0)
 			goto err_os;
+
+		lang = conf_int_get_default(context->cfg, "misc_lang");
+
+		option.game = select_lang(lang, option.game);
 	}
 
 	/* set the empty section for reading the software */

@@ -76,6 +76,10 @@
 
 #include <setjmp.h>
 
+#ifdef USE_SMP
+#include <pthread.h>
+#endif
+
 struct os_context {
 #ifdef USE_SVGALIB
 	adv_bool svgalib_active; /**< SVGALIB initialized. */
@@ -182,12 +186,13 @@ static void os_hup_signal(int signum)
 	siglongjmp(OS_HUP, 1);
 }
 
-void os_default_signal(int signum)
+void os_default_signal(int signum, void* info, void* context)
 {
 	if (OS_SIGNAL) {
 		/* detect recursive signals, for example a SIGSEGV while processig SIGTERM */
 		fprintf(stderr, "Double signals, %d and %d\n", OS_SIGNAL, signum);
-		target_signal(signum);
+
+		target_signal(signum, info, context);
 	}
 	OS_SIGNAL = signum;
 
@@ -195,7 +200,7 @@ void os_default_signal(int signum)
 
 	os_restore();
 
-	target_signal(signum);
+	target_signal(signum, info, context);
 }
 
 /***************************************************************************/
@@ -240,6 +245,42 @@ static void os_delay(void)
 
 	log_std(("os: clock granularity %g\n", (stop - start) / (double)TARGET_CLOCKS_PER_SEC ));
 }
+
+#ifdef USE_SMP
+
+static pid_t os_thread_id;
+
+static void* os_thread_function(void* arg)
+{
+	os_thread_id = getpid();
+	return 0;
+}
+
+static int os_thread(void)
+{
+	pthread_t pid;
+	pid_t process_id;
+ 
+	if (pthread_create(&pid, 0, os_thread_function, 0)) {
+		log_std(("ERROR:os: error calling pthread_create()\n"));
+		return -1;
+	}
+	if (pthread_join(pid, 0)) {
+		log_std(("ERROR:os: error calling pthread_join()\n"));
+		return -1;
+	}
+
+	process_id = getpid();
+
+	if (process_id == os_thread_id) {
+		log_std(("os: thread_id is equal at process_id. Probably NPTL threading.\n"));
+	} else {
+		log_std(("os: thread_id is different than process_id. Probably LinuxThread threading.\n"));
+	}
+
+	return 0;
+}
+#endif
 
 int os_inner_init(const char* title)
 {
@@ -335,6 +376,14 @@ int os_inner_init(const char* title)
 	log_std(("os: compiled little endian system\n"));
 	if (memcmp(endian, &endian_little, 4) != 0) {
 		target_err("The program is compiled as littleendian but system doesn't appear to be littleendian.\n");
+		return -1;
+	}
+#endif
+
+#ifdef USE_SMP
+	/* check the thread support */
+	if (os_thread() != 0) {
+		target_err("Error on the threading support.\n");
 		return -1;
 	}
 #endif
@@ -461,8 +510,7 @@ int os_inner_init(const char* title)
 		struct sigaction pipe_action;
 
 		/* STANDARD signals */
-
-		term_action.sa_handler = os_signal;
+		term_action.sa_handler = (void (*)(int))os_signal;
 		/* block external generated signals in the signal handler */
 		sigemptyset(&term_action.sa_mask);
 		sigaddset(&term_action.sa_mask, SIGALRM);
@@ -470,9 +518,7 @@ int os_inner_init(const char* title)
 		sigaddset(&term_action.sa_mask, SIGTERM);
 		sigaddset(&term_action.sa_mask, SIGHUP);
 		sigaddset(&term_action.sa_mask, SIGQUIT);
-
-		term_action.sa_flags = 0;
-
+		term_action.sa_flags = SA_RESTART | SA_SIGINFO;
 		/* external generated */
 		sigaction(SIGALRM, &term_action, 0);
 		sigaction(SIGINT, &term_action, 0);
@@ -487,20 +533,20 @@ int os_inner_init(const char* title)
 		/* HUP signal */
 		hup_action.sa_handler = os_hup_signal;
 		sigemptyset(&hup_action.sa_mask);
-		hup_action.sa_flags = 0;
+		hup_action.sa_flags = SA_RESTART;
 		sigaction(SIGHUP, &hup_action, 0);
 
 		/* QUIT signal */
 		quit_action.sa_handler = os_quit_signal;
 		sigemptyset(&quit_action.sa_mask);
-		quit_action.sa_flags = 0;
+		quit_action.sa_flags = SA_RESTART;
 		sigaction(SIGQUIT, &quit_action, 0);
 
-		/* PIPE signal, ignoring it force the functions to return with */
-		/* error. It happen for example on the LCD sockects */
+		/* PIPE signal, ignoring it force the some functions to */
+		/* return with error. It happen for example on the LCD sockets. */
 		pipe_action.sa_handler = SIG_IGN;
 		sigemptyset(&pipe_action.sa_mask);
-		pipe_action.sa_flags = 0;
+		pipe_action.sa_flags = SA_RESTART;
 		sigaction(SIGPIPE, &pipe_action, 0);
 	}
 

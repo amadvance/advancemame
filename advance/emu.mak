@@ -706,7 +706,8 @@ EMU_SUPPORT_SRC += \
 else
 EMU_SUPPORT_SRC += \
 	$(srcdir)/support/event.dat \
-	$(srcdir)/support/history.dat
+	$(srcdir)/support/history.dat \
+	$(srcdir)/support/hiscore.dat
 endif
 
 EMU_DOC_SRC = \
@@ -811,7 +812,8 @@ else
 EMU_ROOT_BIN += \
 	$(OBJ)/chdman$(EXE) \
 	$(srcdir)/support/event.dat \
-	$(srcdir)/support/history.dat
+	$(srcdir)/support/history.dat \
+	$(srcdir)/support/hiscore.dat
 endif
 ifeq ($(CONF_HOST),unix)
 EMU_ROOT_BIN += \

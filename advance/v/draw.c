@@ -172,7 +172,7 @@ static int text_default_set(adv_crtc_container* cc, adv_monitor* monitor)
 		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_TEXT, VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)) != 0) {
 			adv_crtc crtc;
 			adv_mode mode;
-			crtc_reset_all(&crtc);
+			crtc_reset(&crtc);
 			crtc_fake_set(&crtc, 640, 480);
 			if (video_mode_generate(&mode, &crtc, MODE_FLAGS_INDEX_TEXT)==0) {
 				log_std(("text: using generated mode\n"));

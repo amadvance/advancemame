@@ -550,17 +550,27 @@ void target_flush(void)
 {
 }
 
-void target_signal(int signum)
+void target_signal(int signum, void* info, void* context)
 {
 	if (signum == SIGINT) {
 		cprintf("Break\n\r");
+		exit(EXIT_FAILURE);
+	} else if (signum == SIGTERM) {
+		cprintf("Terminated\n\r");
 		exit(EXIT_FAILURE);
 	} else if (signum == SIGQUIT) {
 		cprintf("Quit\n\r");
 		exit(EXIT_FAILURE);
 	} else {
-		cprintf("Signal %d.\n\r", signum);
-		cprintf("%s, %s\n\r", __DATE__, __TIME__);
+
+		switch (signum) {
+		case SIGILL : cprintf("Signal SIGILL\n\r"); break;
+		case SIGFPE : cprintf("Signal SIGFPE\n\r"); break;
+		case SIGSEGV : cprintf("Signal SIGSEGV\n\r"); break;
+		case SIGABRT : cprintf("Signal SIGABRT\n\r"); break;
+		default : cprintf("Signal %d\n\r", signum); break;
+		}
+		cprintf("Compiled %s, %s\n\r", __DATE__, __TIME__);
 
 		__djgpp_traceback_exit(signum);
 

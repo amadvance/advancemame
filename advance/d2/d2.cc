@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ enum state_t {
 class convert {
 	void step(string& s);
 	bool is_option(const string& s, string& a);
-	bool is_tag(const string& s, string& a, string& b);
+	bool is_tag(const string& s, string& a, string& b, bool root_tag);
 	bool is_dot(const string& s, string& a);
 	bool is_pre(const string& s, string& a);
 	bool is_line(const string& s, string& a);
@@ -188,7 +188,7 @@ bool convert::is_option(const string& s, string& a)
 	return false;
 }
 
-bool convert::is_tag(const string& s, string& a, string& b)
+bool convert::is_tag(const string& s, string& a, string& b, bool root_tag)
 {
 	if (s.length() > 0 && s[0] == ':')
 		return false;
@@ -197,6 +197,8 @@ bool convert::is_tag(const string& s, string& a, string& b)
 		return false;
 	a = trim(s.substr(0, d));
 	b = trim(s.substr(d+3));
+	if (root_tag && a.find(' ') != string::npos)
+		return false;
 	return true;
 }
 
@@ -281,7 +283,7 @@ void convert::step(string& s)
 	// start
 	if (ns == 8 || ns == 16) {
 		string a, b;
-		if (is_tag(s, a, b)) {
+		if (is_tag(s, a, b, ns == 8)) {
 			state_t state_new = ns == 8 ? state_tag0 : state_tag1;
 			if (state != state_new) {
 				tag_begin(ns == 16);
@@ -718,6 +720,7 @@ protected:
 	unsigned level1;
 	unsigned level2;
 	string mask(string s);
+	string link(string s);
 public:
 	convert_html(istream& Ais, ostream& Aos) : convert(Ais, Aos) { };
 
@@ -783,6 +786,40 @@ string convert_html::mask(string s)
 	return r;
 }
 
+string convert_html::link(string s)
+{
+	int i = s.find("http://");
+
+	if (i == string::npos) {
+		i = s.find("ftp://");
+	}
+
+	if (i == string::npos) {
+		i = s.find("file://");
+	}
+
+	if (i == string::npos) {
+		return s;
+	}
+
+	int begin = i;
+	int end = i;
+	while (end<s.length() && !isspace(s[end]))
+		++end;
+
+	if (end>0 && (s[end-1] == '.' || s[end-1] == ',' || s[end-1] == ':' || s[end-1] == ';'))
+		--end;
+
+	string address = s.substr(begin, end - begin);
+	s.erase(begin, end - begin);
+
+	string l = "<a href=\"" + address + "\">" + address + "</a>";
+
+	s.insert(begin, l);
+
+	return s;
+}
+
 void convert_html::header(const string& a, const string& b)
 {
 	os << "<html>" << endl;
@@ -840,7 +877,7 @@ void convert_html::section_end()
 
 void convert_html::section_text(const string& s)
 {
-	os << mask(s) << endl;
+	os << link(mask(s)) << endl;
 }
 
 void convert_html::para_begin(unsigned level)
@@ -863,7 +900,7 @@ void convert_html::para_end()
 
 void convert_html::para_text(const string& s)
 {
-	os << mask(s) << endl;
+	os << link(mask(s)) << endl;
 }
 
 void convert_html::pre_begin(unsigned level)
@@ -896,7 +933,7 @@ void convert_html::pre_end()
 
 void convert_html::pre_text(const string& s)
 {
-	os << mask(s);
+	os << link(mask(s));
 #if 0
 	os  << "<br>";
 #endif
@@ -937,7 +974,7 @@ void convert_html::dot_stop()
 
 void convert_html::dot_text(const string& s)
 {
-	os << mask(s) << endl;
+	os << link(mask(s)) << endl;
 }
 
 void convert_html::option_begin()
@@ -965,7 +1002,7 @@ void convert_html::option_stop()
 
 void convert_html::option_text(const string& s)
 {
-	os << mask(s) << endl;
+	os << link(mask(s)) << endl;
 }
 
 void convert_html::tag_begin(unsigned level)
@@ -994,7 +1031,7 @@ void convert_html::tag_stop()
 
 void convert_html::tag_text(const string& s)
 {
-	os << mask(s) << endl;
+	os << link(mask(s)) << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -1017,7 +1054,6 @@ void convert_frame::header(const string& a, const string& b)
 	level0 = 0;
 	level1 = 0;
 	level2 = 0;
-
 }
 
 void convert_frame::footer()
@@ -1327,3 +1363,4 @@ int main(int argc, char* argv[])
 
 	return EXIT_SUCCESS;
 }
+

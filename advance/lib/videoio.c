@@ -208,8 +208,8 @@ static adv_error parse_crtc(adv_crtc* crtc, const char* begin, const char* end)
  */
 adv_error crtc_parse(adv_crtc* crtc, const char* begin, const char* end)
 {
-	/* defaults */
-	crtc_reset_all(crtc);
+	crtc_reset(crtc);
+	crtc_user_reset(crtc);
 
 	parse_separator(" \t", &begin, end);
 

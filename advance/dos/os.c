@@ -396,13 +396,13 @@ int os_inner_init(const char* title)
 #endif
 
 	/* set some signal handlers */
-	signal(SIGABRT, os_signal);
-	signal(SIGFPE, os_signal);
-	signal(SIGILL, os_signal);
-	signal(SIGINT, os_signal);
-	signal(SIGSEGV, os_signal);
-	signal(SIGTERM, os_signal);
-	signal(SIGQUIT, os_signal);
+	signal(SIGABRT, (void (*)(int))os_signal);
+	signal(SIGFPE, (void (*)(int))os_signal);
+	signal(SIGILL, (void (*)(int))os_signal);
+	signal(SIGINT, (void (*)(int))os_signal);
+	signal(SIGSEGV, (void (*)(int))os_signal);
+	signal(SIGTERM, (void (*)(int))os_signal);
+	signal(SIGQUIT, (void (*)(int))os_signal);
 
 	return 0;
 }
@@ -424,7 +424,7 @@ int os_is_quit(void)
 	return 0;
 }
 
-void os_default_signal(int signum)
+void os_default_signal(int signum, void* info, void* context)
 {
 	log_std(("os: signal %d\n", signum));
 
@@ -449,7 +449,7 @@ void os_default_signal(int signum)
 	log_std(("os: close log\n"));
 	log_abort();
 
-	target_signal(signum);
+	target_signal(signum, info, context);
 }
 
 /***************************************************************************/

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 
 #include "file.h"
 #include "target.h"
+#include "snstring.h"
 
 #if HAVE_SYS_UTSNAME_H
 #include <sys/utsname.h>
@@ -54,6 +55,7 @@ struct file_context {
 	char file_host_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
 	char file_data_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
 	char file_home_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
+	char list_buffer[FILE_MAXPATH*4]; /**< Static buffer for the returned strings. */
 };
 
 static struct file_context FL;
@@ -227,11 +229,6 @@ const char* file_config_file_home(const char* file)
 	return FL.file_home_buffer;
 }
 
-const char* file_config_file_legacy(const char* file)
-{
-	return 0;
-}
-
 const char* file_config_dir_multidir(const char* tag)
 {
 	assert( tag[0] != '/' );
@@ -256,5 +253,35 @@ const char* file_config_dir_singlefile(void)
 	else
 		snprintf(FL.dir_buffer, sizeof(FL.dir_buffer), "%s", FL.home_dir_buffer);
 	return FL.dir_buffer;
+}
+
+const char* file_config_list(const char* const_list, const char* (*expand_dir)(const char* tag), const char* ref_dir)
+{
+	char* list = strdup(const_list);
+	int i;
+
+	FL.list_buffer[0] = 0;
+
+	i = 0;
+	while (list[i]) {
+		char c;
+		const char* file;
+
+		file = stoken(&c, &i, list, ":", "");
+
+		if (FL.list_buffer[0])
+			sncat(FL.list_buffer, sizeof(FL.list_buffer), ":");
+
+		if (strncmp(file, "./", 2) == 0)
+			sncatf(FL.list_buffer, sizeof(FL.list_buffer), "%s/%s", FL.current_dir_buffer, file + 2);
+		else if (file[0] == '/')
+			sncat(FL.list_buffer, sizeof(FL.list_buffer), file);
+		else
+			sncat(FL.list_buffer, sizeof(FL.list_buffer), expand_dir(file));
+	}
+
+	free(list);
+
+	return FL.list_buffer;
 }
 

@@ -45,6 +45,26 @@
 #include <sys/mman.h> /* for mprotect */
 #endif
 
+#ifdef MESS
+/* This is the list of the MESS recognized devices, it must be syncronized */
+/* with the devices names present in the mess/device.c file */
+static const char* DEVICES[] = {
+	"cartridge",
+	"floppydisk",
+	"harddisk",
+	"cylinder",
+	"cassette",
+	"punchcard",
+	"punchtape",
+	"printer",
+	"serial",
+	"parallel",
+	"snapshot",
+	"quickload",
+	0
+};
+#endif
+
 /* Used in os_inline.h */
 __extension__ unsigned long long mmx_8to64_map[256] = {
 	0x0000000000000000ULL,
@@ -342,7 +362,7 @@ static struct advance_glue_context GLUE;
 /***************************************************************************/
 /* MAME */
 
-/* internals */
+/* MAME internal variables */
 extern char* cheatfile;
 extern char* history_filename;
 extern char* mameinfo_filename;
@@ -350,6 +370,27 @@ extern char* mameinfo_filename;
 const char* crcfile;
 const char* pcrcfile;
 #endif
+
+/**
+ * Check if the game is working perfectly.
+ */
+adv_bool mame_game_working(const mame_game* game)
+{
+	const struct GameDriver* driver = (const struct GameDriver*)game;
+
+	unsigned mask = GAME_NOT_WORKING
+		| GAME_UNEMULATED_PROTECTION
+		| GAME_WRONG_COLORS
+		| GAME_NO_SOUND
+		| GAME_IMPERFECT_COLORS
+		| GAME_IMPERFECT_SOUND
+		| GAME_IMPERFECT_GRAPHICS;
+
+	if ((driver->flags & mask) != 0)
+		return 0;
+
+	return 1;
+}
 
 const char* mame_game_resolution(const mame_game* game)
 {
@@ -420,6 +461,12 @@ unsigned mame_game_orientation(const mame_game* game)
 	return orientation;
 }
 
+/**
+ * Return the game name.
+ * \return
+ * - != 0 Game name.
+ * - == 0 Game name not found.
+ */
 const char* mame_game_name(const mame_game* game)
 {
 	const struct GameDriver* driver = (const struct GameDriver*)game;
@@ -430,32 +477,170 @@ const char* mame_game_name(const mame_game* game)
 	return driver->name;
 }
 
+/**
+ * Return the game description.
+ * \return Game description in free format.
+ */
+const char* mame_game_description(const mame_game* game)
+{
+	const struct GameDriver* driver = (const struct GameDriver*)game;
+
+	if (strcmp(driver->name, "root") == 0)
+		return "";
+
+	if (!driver->description)
+		return "";
+
+	return driver->description;
+}
+
+/**
+ * Return the game language.
+ * \return Game language string in free format.
+ */
+const char* mame_game_lang(const mame_game* game)
+{
+	const char* description;
+	const char* lang;
+
+	description = mame_game_description(game);
+
+	lang = strchr(description, '(');
+	if (!lang)
+		return "";
+
+	return lang;
+}
+
+/**
+ * Return the composed GAME[SOFTWARE] name.
+ * \return
+ * - != 0 Composed name.
+ * - == 0 Software name not found.
+ */
+const char* mame_software_name(const mame_game* game, adv_conf* context)
+{
+#ifdef MESS
+	const char** i;
+	char buffer[256];
+
+	i = DEVICES;
+	while (*i) {
+		adv_conf_iterator j;
+		char software_buffer[256];
+		const char* s;
+
+		snprintf(buffer, sizeof(buffer), "dev_%s", *i);
+
+		s = 0;
+		conf_iterator_begin(&j, context, buffer);
+		while (!conf_iterator_is_end(&j)) {
+			const char* arg;
+			int p;
+			char c;
+
+			arg = conf_iterator_string_get(&j);
+
+			sncpy(software_buffer, sizeof(software_buffer), arg);
+
+			/* convert user input to lower case */
+			for(p=0;software_buffer[p];++p)
+				software_buffer[p] = tolower(software_buffer[p]);
+
+			p = 0;
+			s = stoken(&c, &p, software_buffer, ".=", "");
+
+			if (s && s[0]) {
+				break;
+			}
+
+			conf_iterator_next(&j);
+		}
+
+		if (!conf_iterator_is_end(&j)) {
+			const char* n = mame_game_name(game);
+			if (s && s[0] && n && n[0]) {
+				char name_buffer[256];
+				mame_name_adjust(name_buffer, sizeof(name_buffer), s);
+				snprintf(GLUE.software_buffer, sizeof(GLUE.software_buffer), "%s[%s]", n, name_buffer);
+				return GLUE.software_buffer;
+			}
+		}
+
+		++i;
+	}
+
+	return 0;
+#else
+	return 0;
+#endif
+}
+
+/**
+ * Return the default option section name to use.
+ */
+const char* mame_section_name(const mame_game* game, adv_conf* context)
+{
+	const char* s;
+
+	s = mame_software_name(game, context);
+	if (s==0 || s[0]==0)
+		s = mame_game_name(game);
+
+	if (s==0 || s[0]==0)
+		s = "";
+
+	return s;
+}
+
+/**
+ * Return the parent game.
+ * \return
+ * - == 0 No parent game present.
+ * - != 0 Parent game.
+ */
 const mame_game* mame_game_parent(const mame_game* game)
 {
 	const struct GameDriver* driver = (const struct GameDriver*)game;
+
 	if (driver->clone_of!=0 && driver->clone_of->name!=0 && driver->clone_of->name[0]!=0)
 		return (const mame_game*)driver->clone_of;
 	else
 		return 0;
 }
 
-const char* mame_game_description(const mame_game* game)
-{
-	const struct GameDriver* driver = (const struct GameDriver*)game;
-	return driver->description;
-}
-
+/**
+ * Return the game manufacturer.
+ * \return Game manufacturer in free format.
+ */
 const char* mame_game_manufacturer(const mame_game* game)
 {
 	const struct GameDriver* driver = (const struct GameDriver*)game;
+
+	if (!driver->manufacturer)
+		return "";
+
 	return driver->manufacturer;
 }
 
+/**
+ * Return the game year.
+ * \return Game year in free format.
+ */
 const char* mame_game_year(const mame_game* game)
 {
 	const struct GameDriver* driver = (const struct GameDriver*)game;
+
+	if (!driver->year)
+		return "";
+
 	return driver->year;
 }
+
+/**
+ * Return the game number of player.
+ * \return Max number of player of the game.
+ */
 
 unsigned mame_game_players(const mame_game* game)
 {
@@ -463,37 +648,34 @@ unsigned mame_game_players(const mame_game* game)
 	const struct InputPortTiny* input = driver->input_ports;
 	int nplayer = 1;
 
-	while ((input->type & ~IPF_MASK) != IPT_END)
-	{
+	while ((input->type & ~IPF_MASK) != IPT_END) {
 		/* skip analog extension fields */
-		if ((input->type & ~IPF_MASK) != IPT_EXTENSION)
-		{
-			switch (input->type & IPF_PLAYERMASK)
-			{
-				case IPF_PLAYER1:
-					if (nplayer<1) nplayer = 1;
-					break;
-				case IPF_PLAYER2:
-					if (nplayer<2) nplayer = 2;
-					break;
-				case IPF_PLAYER3:
-					if (nplayer<3) nplayer = 3;
-					break;
-				case IPF_PLAYER4:
-					if (nplayer<4) nplayer = 4;
-					break;
-				case IPF_PLAYER5:
-					if (nplayer<5) nplayer = 5;
-					break;
-				case IPF_PLAYER6:
-					if (nplayer<6) nplayer = 6;
-					break;
-				case IPF_PLAYER7:
-					if (nplayer<7) nplayer = 7;
-					break;
-				case IPF_PLAYER8:
-					if (nplayer<8) nplayer = 8;
-					break;
+		if ((input->type & ~IPF_MASK) != IPT_EXTENSION) {
+			switch (input->type & IPF_PLAYERMASK) {
+			case IPF_PLAYER1:
+				if (nplayer<1) nplayer = 1;
+				break;
+			case IPF_PLAYER2:
+				if (nplayer<2) nplayer = 2;
+				break;
+			case IPF_PLAYER3:
+				if (nplayer<3) nplayer = 3;
+				break;
+			case IPF_PLAYER4:
+				if (nplayer<4) nplayer = 4;
+				break;
+			case IPF_PLAYER5:
+				if (nplayer<5) nplayer = 5;
+				break;
+			case IPF_PLAYER6:
+				if (nplayer<6) nplayer = 6;
+				break;
+			case IPF_PLAYER7:
+				if (nplayer<7) nplayer = 7;
+				break;
+			case IPF_PLAYER8:
+				if (nplayer<8) nplayer = 8;
+				break;
 			}
 		}
 		++input;
@@ -502,23 +684,32 @@ unsigned mame_game_players(const mame_game* game)
 	return nplayer;
 }
 
+/**
+ * Return the game at the specified index position.
+ * \return
+ * - == 0 Last empty position.
+ * - != 0 Game at the specified position.
+ */
 const mame_game* mame_game_at(unsigned i)
 {
 	return (const mame_game*)drivers[i];
 }
 
-void mame_print_init(void)
-{
-	cpuintrf_init();
-}
-
+/**
+ * Print the information database in INFO format.
+ */
 void mame_print_info(FILE* out)
 {
+	cpuintrf_init();
 	print_mame_info(out, drivers);
 }
 
+/**
+ * Print the information database in XML format.
+ */
 void mame_print_xml(FILE* out)
 {
+	cpuintrf_init();
 	print_mame_xml(out, drivers);
 }
 
@@ -534,7 +725,7 @@ adv_bool mame_is_game_vector(const mame_game* game)
 }
 
 /**
- * Check if the specified game name, is the game specified or a parent.
+ * Check if the specified game name is the game specified or a parent.
  */
 adv_bool mame_is_game_relative(const char* relative, const mame_game* game)
 {
@@ -548,6 +739,9 @@ adv_bool mame_is_game_relative(const char* relative, const mame_game* game)
 	return 0;
 }
 
+/**
+ * Look for a game specification in a playback file.
+ */
 const struct mame_game* mame_playback_look(const char* file)
 {
 	INP_HEADER inp_header;
@@ -904,17 +1098,23 @@ static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
 	K("n")
 	K("m")
 
-	KR4("pad_0", "keypad*0", "0*keypad", "0*kp", "kp*0")
-	KR4("pad_1", "keypad*1", "1*keypad", "1*kp", "kp*1")
-	KR4("pad_2", "keypad*2", "2*keypad", "2*kp", "kp*2")
-	KR4("pad_3", "keypad*3", "3*keypad", "3*kp", "kp*3")
-	KR4("pad_4", "keypad*4", "4*keypad", "4*kp", "kp*4")
-	KR4("pad_5", "keypad*5", "5*keypad", "5*kp", "kp*5")
-	KR4("pad_6", "keypad*6", "6*keypad", "6*kp", "kp*6")
-	KR4("pad_7", "keypad*7", "7*keypad", "7*kp", "kp*7")
-	KR4("pad_8", "keypad*8", "8*keypad", "8*kp", "kp*8")
-	KR4("pad_9", "keypad*9", "9*keypad", "9*kp", "kp*9")
-	KR4("pad_enter", "keypad*enter", "enter*keypad", "enter*kp", "kp*enter")
+	KR4("pad_0", "keypad*0", "0*keypad?", "0*kp?", "kp*0")
+	KR4("pad_1", "keypad*1", "1*keypad?", "1*kp?", "kp*1")
+	KR4("pad_2", "keypad*2", "2*keypad?", "2*kp?", "kp*2")
+	KR4("pad_3", "keypad*3", "3*keypad?", "3*kp?", "kp*3")
+	KR4("pad_4", "keypad*4", "4*keypad?", "4*kp?", "kp*4")
+	KR4("pad_5", "keypad*5", "5*keypad?", "5*kp?", "kp*5")
+	KR4("pad_6", "keypad*6", "6*keypad?", "6*kp?", "kp*6")
+	KR4("pad_7", "keypad*7", "7*keypad?", "7*kp?", "kp*7")
+	KR4("pad_8", "keypad*8", "8*keypad?", "8*kp?", "kp*8")
+	KR4("pad_9", "keypad*9", "9*keypad?", "9*kp?", "kp*9")
+	KR4("pad_enter", "keypad*enter", "enter*keypad?", "enter*kp?", "kp*enter")
+	KR4("pad_minus", "keypad*-", "-*keypad?", "-*kp?", "kp*-")
+	KR4("pad_plus", "keypad*+", "+*keypad?", "+*kp?", "kp*+")
+	KR4("pad_slash", "keypad*/", "/*keypad?", "/*kp?", "kp*/")
+	KR4("pad_colon", "keypad*.", ".*keypad?", ".*kp?", "kp*.")
+	KR4("pad_diesis", "keypad*#", "#*keypad?", "#*kp?", "kp*#")
+	KR4("pad_asterisk", "keypad*\\*", "\\**keypad?", "\\**kp?", "kp*\\*")
 
 	K("0")
 	K("1")
@@ -959,7 +1159,6 @@ static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
 	K("find")
 	K("cut")
 	K("help")
-	K("menu")
 	K("back")
 	K("forward")
 	KR2("capslock", "caps*lock", "shift*lock")
@@ -986,6 +1185,7 @@ static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
 	KR2("colon", "colon", ":")
 	KR2("pound", "pound", "£")
 	KR2("doublequote", "doublequote", "\"")
+	KR2("diesis", "diessi", "#")
 
 	KR3("lshift", "lshift", "left?shift", "shift?left")
 	KR3("rshift", "rshift", "right?shift", "shift?right")
@@ -1362,7 +1562,7 @@ static unsigned glue_keyboard_find(const char* name)
 		return 0;
 	}
 
-	/* hack for MESS c128 driver */
+	/* HACK for MESS c128 driver */
 	if (strncmp(name,"(64)", 4) == 0)
 		name += 4;
 
@@ -1375,7 +1575,7 @@ static unsigned glue_keyboard_find(const char* name)
 	for(j=0;GLUE_KEYBOARD_STD[j].name;++j) {
 		for(k=0;GLUE_KEYBOARD_STD[j].glob[k];++k) {
 			if (sglob(name_buffer, GLUE_KEYBOARD_STD[j].glob[k])) {
-				log_std(("glue: map key '%s' to control '%s'\n", name, GLUE_KEYBOARD_STD[j].name));
+				log_std(("glue: map key '%s' to control '%s' (exact)\n", name, GLUE_KEYBOARD_STD[j].name));
 				return IPT_KEYBOARD | (j << GLUE_PORT_KEYBOARD_SHIFT);
 			}
 		}
@@ -1393,7 +1593,7 @@ static unsigned glue_keyboard_find(const char* name)
 		for(j=0;GLUE_KEYBOARD_STD[j].name;++j) {
 			for(k=0;GLUE_KEYBOARD_STD[j].glob[k];++k) {
 				if (sglob(t, GLUE_KEYBOARD_STD[j].glob[k])) {
-					log_std(("glue: map key '%s' to control '%s'\n", name, GLUE_KEYBOARD_STD[j].name));
+					log_std(("glue: map key '%s' to control '%s' (partial)\n", name, GLUE_KEYBOARD_STD[j].name));
 					return IPT_KEYBOARD | (j << GLUE_PORT_KEYBOARD_SHIFT);
 				}
 			}
@@ -1648,81 +1848,6 @@ struct mame_analog* mame_analog_find(unsigned type)
 	return 0;
 }
 
-/* This is the list of the MESS recognized devices, it must be syncronized */
-/* with the devices names present in the mess/device.c file */
-static const char* DEVICES[] = {
-	"cartridge",
-	"floppydisk",
-	"harddisk",
-	"cylinder",
-	"cassette",
-	"punchcard",
-	"punchtape",
-	"printer",
-	"serial",
-	"parallel",
-	"snapshot",
-	"quickload",
-	0
-};
-
-const char* mame_software_name(const mame_game* game, adv_conf* context)
-{
-#ifdef MESS
-	const char** i;
-	static char buffer[256];
-
-	i = DEVICES;
-	while (*i) {
-		adv_conf_iterator j;
-		char software_buffer[256];
-		const char* s;
-
-		snprintf(buffer, sizeof(buffer), "dev_%s", *i);
-
-		s = 0;
-		conf_iterator_begin(&j, context, buffer);
-		while (!conf_iterator_is_end(&j)) {
-			const char* arg;
-			int p;
-			char c;
-
-			arg = conf_iterator_string_get(&j);
-
-			sncpy(software_buffer, sizeof(software_buffer), arg);
-
-			/* convert user input to lower case */
-			for(p=0;software_buffer[p];++p)
-				software_buffer[p] = tolower(software_buffer[p]);
-
-			p = 0;
-			s = stoken(&c, &p, software_buffer, ".=", "");
-
-			if (s && s[0]) {
-				break;
-			}
-
-			conf_iterator_next(&j);
-		}
-
-		if (!conf_iterator_is_end(&j)) {
-			const char* n = mame_game_name(game);
-			if (s && s[0] && n && n[0]) {
-				snprintf(GLUE.software_buffer, sizeof(GLUE.software_buffer), "%s[%s]", n, s);
-				return GLUE.software_buffer;
-			}
-		}
-
-		++i;
-	}
-
-	return 0;
-
-#else
-	return 0;
-#endif
-}
-
 /***************************************************************************/
 /* MAME callback interface */
 
@@ -1823,7 +1948,9 @@ void mame_ui_swap(void)
 	memcpy(Machine->scrbitmap, GLUE.bitmap_alt, sizeof(struct mame_bitmap));
 	memcpy(GLUE.bitmap_alt, &tmp, sizeof(struct mame_bitmap));
 
-	/* redraw all */
+	/* force the core to redraw all, it's required because */
+	/* the bitmap now doesn't contain the previous frame, */
+	/* but the previous of the previous frame. */
 	schedule_full_refresh();
 }
 
@@ -1843,15 +1970,28 @@ void logerror(const char* text, ...)
 	va_end(arg);
 }
 
+/**
+ * Initialize the system.
+ * \return
+ * - == 0 On success.
+ * - == -1 On error.
+ */
 int osd_init(void)
 {
 	return 0;
 }
 
+/**
+ * Deinitialize the system.
+ */
 void osd_exit(void)
 {
 }
 
+/**
+ * Terminate the program with an error message.
+ * It never return.
+ */
 void osd_die(const char* text,...)
 {
 	va_list arg;
@@ -1859,10 +1999,13 @@ void osd_die(const char* text,...)
 	log_va(text, arg);
 	va_end(arg);
 
-	/* raise a SIGABRT signal */
 	abort();
 }
 
+/**
+ * Allocate executable memory.
+ * Behave like malloc().
+ */
 void* osd_alloc_executable(size_t size)
 {
 	void* p = malloc(size);
@@ -1871,18 +2014,28 @@ void* osd_alloc_executable(size_t size)
 		int r;
 		r = mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
 		if (r != 0) {
-			log_std(("ERROR:osd: mprotect(%p,%d,...) failed, %s\n", p, size, strerror(errno)));
+			log_std(("ERROR:osd: mprotect(%p,%d,...) failed, %s\n", p, (unsigned)size, strerror(errno)));
 		}
 	}
 #endif
 	return p;
 }
 
+/**
+ * Free executable memory.
+ * Behave like free().
+ */
 void osd_free_executable(void* p)
 {
 	free(p);
 }
 
+/**
+ * Create the video.
+ * \return
+ * - ==0 On success.
+ * - ==-1 On error.
+ */
 int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_components)
 {
 	unsigned width;
@@ -1950,6 +2103,9 @@ int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_compo
 	return 0;
 }
 
+/**
+ * Destroy the video.
+ */
 void osd_close_display(void)
 {
 	log_std(("osd: osd_close_display()\n"));
@@ -1958,6 +2114,9 @@ void osd_close_display(void)
 		osd2_video_done();
 }
 
+/**
+ * Display a menu.
+ */
 int osd_menu(struct mame_bitmap *bitmap, int selected)
 {
 	unsigned input;
@@ -2016,6 +2175,10 @@ static unsigned glue_sound_sample(void)
 	return GLUE.sound_last_count;
 }
 
+/**
+ * Update the video frame.
+ * \note Called after osd_update_audio_stream().
+ */
 void osd_update_video_and_audio(struct mame_display *display)
 {
 	struct osd_bitmap game;
@@ -2031,8 +2194,7 @@ void osd_update_video_and_audio(struct mame_display *display)
 	/* save the bitmap */
 	GLUE.bitmap = display->game_bitmap;
 
-	/* update the bitmap */
-	if (display->game_bitmap) {
+	if (display->game_bitmap != 0) {
 		pgame = &game;
 		game.size_x = display->game_bitmap->width;
 		game.size_y = display->game_bitmap->height;
@@ -2040,8 +2202,10 @@ void osd_update_video_and_audio(struct mame_display *display)
 		game.bytes_per_scanline = display->game_bitmap->rowbytes;
 	} else {
 		pgame = 0;
+		log_std(("ERROR:glue: null game bitmap\n"));
 	}
-	if (display->debug_bitmap) {
+
+	if (display->debug_bitmap != 0) {
 		pdebug = &debug;
 		debug.size_x = display->debug_bitmap->width;
 		debug.size_y = display->debug_bitmap->height;
@@ -2111,6 +2275,15 @@ void osd_update_video_and_audio(struct mame_display *display)
 	profiler_mark(PROFILER_END);
 }
 
+/**
+ * Start the audio stream.
+ * Also used to start the thread system.
+ * \note Called after osd_create_display().
+ * \return
+ * - >0 The number of samples required for the next frame.
+ * - ==0 Disable the sound generation.
+ * - ==-1 On error.
+ */
 int osd_start_audio_stream(int stereo)
 {
 	unsigned rate = Machine->sample_rate;
@@ -2122,24 +2295,23 @@ int osd_start_audio_stream(int stereo)
 	if (osd2_sound_init(&rate, stereo) != 0) {
 		log_std(("osd: osd_start_audio_stream return no sound. Disable MAME sound generation.\n"));
 
-		osd2_thread_init();
+		if (osd2_thread_init() != 0) {
+			return -1;
+		}
 
 		/* disable the MAME sound generation */
 		Machine->sample_rate = 0;
 		return 0;
 	}
 
-	osd2_thread_init();
+	if (osd2_thread_init() != 0) {
+		return -1;
+	}
 
 	log_std(("osd: osd_start_audio_stream return %d rate\n", rate));
 
-#if USE_INTERNALRESAMPLE
-	/* don't change the MAME sample rate to the effective address, MAME */
-	/* will use onlt the nominal sample rate */
-#else
 	/* adjust the MAME sample rate to the effective value */
 	Machine->sample_rate = rate;
-#endif
 
 	GLUE.sound_flag = 1;
 
@@ -2164,6 +2336,9 @@ int osd_start_audio_stream(int stereo)
 	return GLUE.sound_step;
 }
 
+/**
+ * Stop the audio stream.
+ */
 void osd_stop_audio_stream(void)
 {
 	log_std(("osd: osd_stop_audio_stream()\n"));
@@ -2178,6 +2353,10 @@ void osd_stop_audio_stream(void)
 	}
 }
 
+/**
+ * Update the audio stream.
+ * \return The number of samples required for the next frame.
+ */
 int osd_update_audio_stream(short* buffer)
 {
 	log_debug(("osd: osd_update_audio_stream()\n"));
@@ -2195,34 +2374,56 @@ int osd_update_audio_stream(short* buffer)
 	}
 }
 
+/**
+ * Time measure.
+ */
 cycles_t osd_cycles(void)
 {
 	return target_clock();
 }
 
+/**
+ * Time base.
+ */
 cycles_t osd_cycles_per_second(void)
 {
 	return TARGET_CLOCKS_PER_SEC;
 }
 
+/**
+ * Time measure for profiling.
+ * It must return the maximum precise timer available.
+ * The time base isn't required.
+ */
 cycles_t osd_profiling_ticks(void)
 {
 	return target_clock();
 }
 
-/* Filter the user interface input state */
+/**
+ * Filter the user interface input state.
+ * \param result Result until now.
+ * \param type Port type.
+ */
 int osd_input_ui_filter(int result, int type)
 {
 	return result || hardware_is_input_simulated(SIMULATE_EVENT, type);
 }
 
-/* Filter the main exit request */
+/**
+ * Filter the main exit request.
+ * \param result Result until now.
+ */
 int osd_input_exit_filter(int result)
 {
 	return advance_input_exit_filter(&CONTEXT.input, &CONTEXT.safequit, result);
 }
 
-/* Filter the input port state */
+/**
+ * Filter the input port state.
+ * \param result Result until now.
+ * \param type Port type.
+ */
 int osd_input_port_filter(int result, int type)
 {
 	return result || hardware_is_input_simulated(SIMULATE_EVENT, type);
@@ -2281,6 +2482,12 @@ static int on_exit_menu(struct mame_bitmap* bitmap, int selected)
 	return sel + 1;
 }
 
+/**
+ * Handle the OSD user interface.
+ * \return
+ * - ==0 Normal condition.
+ * - ==1 User asked to exit from the program.
+ */
 int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active)
 {
 	unsigned input;
@@ -2363,13 +2570,11 @@ int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active)
 	return 0;
 }
 
-void osd_customize_inputport_defaults(struct ipd* defaults)
-{
-	log_std(("emu:glue: osd_customize_inputport_defaults()\n"));
-
-	/* no specific OS customization */
-}
-
+/**
+ * Called after a user customization of a GAME input code combination.
+ * \param def Default value of the input code combination.
+ * \param current User chosen value of the input code combination.
+ */
 void osd_customize_inputport_post_game(struct InputPort* def, struct InputPort* current)
 {
 	unsigned def_seq[MAME_INPUT_MAP_MAX];
@@ -2390,10 +2595,15 @@ void osd_customize_inputport_post_game(struct InputPort* def, struct InputPort* 
 	}
 }
 
+/**
+ * Called after a user customization of a GLOBAL input code combination.
+ * \param def Default value of the input code combination.
+ * \param current User chosen value of the input code combination.
+ */
 void osd_customize_inputport_post_defaults(struct ipd* def, struct ipd* current)
 {
-	unsigned seq[MAME_INPUT_MAP_MAX];
 	unsigned def_seq[MAME_INPUT_MAP_MAX];
+	unsigned seq[MAME_INPUT_MAP_MAX];
 	unsigned type;
 
 	log_std(("emu:glue: osd_customize_inputport_post_defaults()\n"));
@@ -2410,6 +2620,11 @@ void osd_customize_inputport_post_defaults(struct ipd* def, struct ipd* current)
 	}
 }
 
+/**
+ * Called after a user customization of a dipswitch.
+ * \param def Default value of the dipswitch.
+ * \param current User chosen value of the dipswitch.
+ */
 void osd_customize_switchport_post_game(struct InputPort* def, struct InputPort* current)
 {
 	char name_buffer[256];
@@ -2461,12 +2676,17 @@ void osd_customize_switchport_post_game(struct InputPort* def, struct InputPort*
 
 	if ((def->default_value & current->mask) != (current->default_value & current->mask)) {
 		mame_name_adjust(value_buffer, sizeof(value_buffer), v->name);
-		osd2_customize_port_post_game(tag_buffer, value_buffer);
+		osd2_customize_genericport_post_game(tag_buffer, value_buffer);
 	} else {
-		osd2_customize_port_post_game(tag_buffer, 0);
+		osd2_customize_genericport_post_game(tag_buffer, 0);
 	}
 }
 
+/**
+ * Called after a user customization of GAME analog port.
+ * \param def Default value of the analog port.
+ * \param current User chosen value of the analog port.
+ */
 void osd_customize_analogport_post_game(struct InputPort* def, struct InputPort* current)
 {
 	char value_buffer[256];
@@ -2486,9 +2706,9 @@ void osd_customize_analogport_post_game(struct InputPort* def, struct InputPort*
 	snprintf(tag_buffer, sizeof(tag_buffer), "input_setting[%s]", name_buffer);
 
 	if (strcmp(value_buffer, default_buffer) != 0) {
-		osd2_customize_port_post_game(tag_buffer, value_buffer);
+		osd2_customize_genericport_post_game(tag_buffer, value_buffer);
 	} else {
-		osd2_customize_port_post_game(tag_buffer, 0);
+		osd2_customize_genericport_post_game(tag_buffer, 0);
 	}
 }
 

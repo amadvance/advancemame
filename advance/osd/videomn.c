@@ -261,13 +261,13 @@ int osd2_menu(int selected, unsigned input)
 	{
 		int ret = 0;
 		switch (context->state.menu_sub_flag) {
-			case 1 : ret = video_mode_menu(context, ui_context, context->state.menu_sub_selected, input); break;
-			case 2 : ret = video_pipeline_menu(context, ui_context, context->state.menu_sub_selected, input); break;
+		case 1 : ret = video_mode_menu(context, ui_context, context->state.menu_sub_selected, input); break;
+		case 2 : ret = video_pipeline_menu(context, ui_context, context->state.menu_sub_selected, input); break;
 		}
 		switch (ret) {
-			case -1 : return -1; /* hide interface */
-			case 0 : context->state.menu_sub_flag = 0; context->state.menu_sub_selected = 1; break; /* close submenu */
-			default: context->state.menu_sub_selected = ret; break;
+		case -1 : return -1; /* hide interface */
+		case 0 : context->state.menu_sub_flag = 0; context->state.menu_sub_selected = 1; break; /* close submenu */
+		default: context->state.menu_sub_selected = ret; break;
 		}
 		return selected + 1;
 	}
@@ -316,9 +316,9 @@ int osd2_menu(int selected, unsigned input)
 
 			scanline_index = total;
 			switch (video_scan()) {
-				case 0 : menu_item[total] = "Scanline [single]"; break;
-				case 1 : menu_item[total] = "Scanline [double]"; break;
-				case -1 : menu_item[total] = "Scanline [interlace]"; break;
+			case 0 : menu_item[total] = "Scanline [single]"; break;
+			case 1 : menu_item[total] = "Scanline [double]"; break;
+			case -1 : menu_item[total] = "Scanline [interlace]"; break;
 			}
 			if (context->config.scanlines_flag)
 				menu_subitem[total] = "yes";
@@ -339,16 +339,16 @@ int osd2_menu(int selected, unsigned input)
 
 		stretch_index = total;
 		switch (mode_current_stretch(context)) {
-			case STRETCH_NONE : menu_item[total] = "Resize [no]"; break;
-			case STRETCH_INTEGER_XY : menu_item[total] = "Resize [integer]"; break;
-			case STRETCH_INTEGER_X_FRACTIONAL_Y : menu_item[total] = "Resize [mixed]"; break;
-			case STRETCH_FRACTIONAL_XY : menu_item[total] = "Resize [fractional]"; break;
+		case STRETCH_NONE : menu_item[total] = "Resize [no]"; break;
+		case STRETCH_INTEGER_XY : menu_item[total] = "Resize [integer]"; break;
+		case STRETCH_INTEGER_X_FRACTIONAL_Y : menu_item[total] = "Resize [mixed]"; break;
+		case STRETCH_FRACTIONAL_XY : menu_item[total] = "Resize [fractional]"; break;
 		}
 		switch (context->config.stretch) {
-			case STRETCH_NONE : menu_subitem[total] = "no"; break;
-			case STRETCH_INTEGER_XY : menu_subitem[total] = "integer"; break;
-			case STRETCH_INTEGER_X_FRACTIONAL_Y : menu_subitem[total] = "mixed"; break;
-			case STRETCH_FRACTIONAL_XY : menu_subitem[total] = "fractional"; break;
+		case STRETCH_NONE : menu_subitem[total] = "no"; break;
+		case STRETCH_INTEGER_XY : menu_subitem[total] = "integer"; break;
+		case STRETCH_INTEGER_X_FRACTIONAL_Y : menu_subitem[total] = "mixed"; break;
+		case STRETCH_FRACTIONAL_XY : menu_subitem[total] = "fractional"; break;
 		}
 		flag[total] = 0;
 		++total;
@@ -419,65 +419,65 @@ int osd2_menu(int selected, unsigned input)
 
 	combine_index = total;
 	switch (context->state.combine) {
-		case COMBINE_NONE : menu_item[total] = "Resize Effect [no]"; break;
-		case COMBINE_MAXMIN : menu_item[total] = "Resize Effect [max]"; break;
-		case COMBINE_MEAN : menu_item[total] = "Resize Effect [mean]"; break;
-		case COMBINE_FILTER : menu_item[total] = "Resize Effect [filter]"; break;
-		case COMBINE_SCALE : menu_item[total] = "Resize Effect [scale]"; break;
-		case COMBINE_LQ : menu_item[total] = "Resize Effect [lq]"; break;
-		case COMBINE_HQ : menu_item[total] = "Resize Effect [hq]"; break;
+	case COMBINE_NONE : menu_item[total] = "Resize Effect [no]"; break;
+	case COMBINE_MAXMIN : menu_item[total] = "Resize Effect [max]"; break;
+	case COMBINE_MEAN : menu_item[total] = "Resize Effect [mean]"; break;
+	case COMBINE_FILTER : menu_item[total] = "Resize Effect [filter]"; break;
+	case COMBINE_SCALE : menu_item[total] = "Resize Effect [scale]"; break;
+	case COMBINE_LQ : menu_item[total] = "Resize Effect [lq]"; break;
+	case COMBINE_HQ : menu_item[total] = "Resize Effect [hq]"; break;
 	}
 	switch (context->config.combine) {
-		case COMBINE_AUTO : menu_subitem[total] = "auto"; break;
-		case COMBINE_NONE : menu_subitem[total] = "no"; break;
-		case COMBINE_MAXMIN : menu_subitem[total] = "max"; break;
-		case COMBINE_MEAN : menu_subitem[total] = "mean"; break;
-		case COMBINE_FILTER : menu_subitem[total] = "filter"; break;
-		case COMBINE_SCALE : menu_subitem[total] = "scale"; break;
-		case COMBINE_LQ : menu_subitem[total] = "lq"; break;
-		case COMBINE_HQ : menu_subitem[total] = "hq"; break;
+	case COMBINE_AUTO : menu_subitem[total] = "auto"; break;
+	case COMBINE_NONE : menu_subitem[total] = "no"; break;
+	case COMBINE_MAXMIN : menu_subitem[total] = "max"; break;
+	case COMBINE_MEAN : menu_subitem[total] = "mean"; break;
+	case COMBINE_FILTER : menu_subitem[total] = "filter"; break;
+	case COMBINE_SCALE : menu_subitem[total] = "scale"; break;
+	case COMBINE_LQ : menu_subitem[total] = "lq"; break;
+	case COMBINE_HQ : menu_subitem[total] = "hq"; break;
 	}
 	flag[total] = 0;
 	++total;
 
 	effect_index = total;
 	switch (context->state.rgb_effect) {
-		case EFFECT_NONE : menu_item[total] = "Rgb Effect [no]"; break;
-		case EFFECT_RGB_TRIAD3PIX : menu_item[total] = "Rgb Effect [triad3dot]"; break;
-		case EFFECT_RGB_TRIAD6PIX : menu_item[total] = "Rgb Effect [triad6dot]"; break;
-		case EFFECT_RGB_TRIAD16PIX : menu_item[total] = "Rgb Effect [triad16dot]"; break;
-		case EFFECT_RGB_TRIADSTRONG3PIX : menu_item[total] = "Rgb Effect [triadstrong3dot]"; break;
-		case EFFECT_RGB_TRIADSTRONG6PIX : menu_item[total] = "Rgb Effect [triadstrong6dot]"; break;
-		case EFFECT_RGB_TRIADSTRONG16PIX : menu_item[total] = "Rgb Effect [triadstrong16dot]"; break;
-		case EFFECT_RGB_SCANDOUBLEHORZ : menu_item[total] = "Rgb Effect [scan2horz]"; break;
-		case EFFECT_RGB_SCANTRIPLEHORZ : menu_item[total] = "Rgb Effect [scan3horz]"; break;
-		case EFFECT_RGB_SCANDOUBLEVERT : menu_item[total] = "Rgb Effect [scan2vert]"; break;
-		case EFFECT_RGB_SCANTRIPLEVERT : menu_item[total] = "Rgb Effect [scan3vert]"; break;
+	case EFFECT_NONE : menu_item[total] = "Rgb Effect [no]"; break;
+	case EFFECT_RGB_TRIAD3PIX : menu_item[total] = "Rgb Effect [triad3dot]"; break;
+	case EFFECT_RGB_TRIAD6PIX : menu_item[total] = "Rgb Effect [triad6dot]"; break;
+	case EFFECT_RGB_TRIAD16PIX : menu_item[total] = "Rgb Effect [triad16dot]"; break;
+	case EFFECT_RGB_TRIADSTRONG3PIX : menu_item[total] = "Rgb Effect [triadstrong3dot]"; break;
+	case EFFECT_RGB_TRIADSTRONG6PIX : menu_item[total] = "Rgb Effect [triadstrong6dot]"; break;
+	case EFFECT_RGB_TRIADSTRONG16PIX : menu_item[total] = "Rgb Effect [triadstrong16dot]"; break;
+	case EFFECT_RGB_SCANDOUBLEHORZ : menu_item[total] = "Rgb Effect [scan2horz]"; break;
+	case EFFECT_RGB_SCANTRIPLEHORZ : menu_item[total] = "Rgb Effect [scan3horz]"; break;
+	case EFFECT_RGB_SCANDOUBLEVERT : menu_item[total] = "Rgb Effect [scan2vert]"; break;
+	case EFFECT_RGB_SCANTRIPLEVERT : menu_item[total] = "Rgb Effect [scan3vert]"; break;
 	}
 	switch (context->config.rgb_effect) {
-		case EFFECT_NONE : menu_subitem[total] = "no"; break;
-		case EFFECT_RGB_TRIAD3PIX : menu_subitem[total] = "triad3dot"; break;
-		case EFFECT_RGB_TRIAD6PIX : menu_subitem[total] = "triad6dot"; break;
-		case EFFECT_RGB_TRIAD16PIX : menu_subitem[total] = "triad16dot"; break;
-		case EFFECT_RGB_TRIADSTRONG3PIX : menu_subitem[total] = "triadstrong3dot"; break;
-		case EFFECT_RGB_TRIADSTRONG6PIX : menu_subitem[total] = "triadstrong6dot"; break;
-		case EFFECT_RGB_TRIADSTRONG16PIX : menu_subitem[total] = "triadstrong16dot"; break;
-		case EFFECT_RGB_SCANDOUBLEHORZ : menu_subitem[total] = "scan2horz"; break;
-		case EFFECT_RGB_SCANTRIPLEHORZ : menu_subitem[total] = "scan3horz"; break;
-		case EFFECT_RGB_SCANDOUBLEVERT : menu_subitem[total] = "scan2vert"; break;
-		case EFFECT_RGB_SCANTRIPLEVERT : menu_subitem[total] = "scan3vert"; break;
+	case EFFECT_NONE : menu_subitem[total] = "no"; break;
+	case EFFECT_RGB_TRIAD3PIX : menu_subitem[total] = "triad3dot"; break;
+	case EFFECT_RGB_TRIAD6PIX : menu_subitem[total] = "triad6dot"; break;
+	case EFFECT_RGB_TRIAD16PIX : menu_subitem[total] = "triad16dot"; break;
+	case EFFECT_RGB_TRIADSTRONG3PIX : menu_subitem[total] = "triadstrong3dot"; break;
+	case EFFECT_RGB_TRIADSTRONG6PIX : menu_subitem[total] = "triadstrong6dot"; break;
+	case EFFECT_RGB_TRIADSTRONG16PIX : menu_subitem[total] = "triadstrong16dot"; break;
+	case EFFECT_RGB_SCANDOUBLEHORZ : menu_subitem[total] = "scan2horz"; break;
+	case EFFECT_RGB_SCANTRIPLEHORZ : menu_subitem[total] = "scan3horz"; break;
+	case EFFECT_RGB_SCANDOUBLEVERT : menu_subitem[total] = "scan2vert"; break;
+	case EFFECT_RGB_SCANTRIPLEVERT : menu_subitem[total] = "scan3vert"; break;
 	}
 	flag[total] = 0;
 	++total;
 
 	vsync_index = total;
 	switch (context->state.vsync_flag) {
-		case 0 : menu_item[total] = "Vsync [no]"; break;
-		case 1 : menu_item[total] = "Vsync [yes]"; break;
+	case 0 : menu_item[total] = "Vsync [no]"; break;
+	case 1 : menu_item[total] = "Vsync [yes]"; break;
 	}
 	switch (context->config.vsync_flag) {
-		case 0 : menu_subitem[total] = "no"; break;
-		case 1 : menu_subitem[total] = "yes"; break;
+	case 0 : menu_subitem[total] = "no"; break;
+	case 1 : menu_subitem[total] = "yes"; break;
 	}
 	flag[total] = 0;
 	++total;
@@ -485,12 +485,12 @@ int osd2_menu(int selected, unsigned input)
 #ifdef USE_SMP
 	smp_index = total;
 	switch (context->config.smp_flag) {
-		case 0 : menu_item[total] = "SMP [no]"; break;
-		case 1 : menu_item[total] = "SMP [yes]"; break;
+	case 0 : menu_item[total] = "SMP [no]"; break;
+	case 1 : menu_item[total] = "SMP [yes]"; break;
 	}
 	switch (context->config.smp_flag) {
-		case 0 : menu_subitem[total] = "no"; break;
-		case 1 : menu_subitem[total] = "yes"; break;
+	case 0 : menu_subitem[total] = "no"; break;
+	case 1 : menu_subitem[total] = "yes"; break;
 	}
 	flag[total] = 0;
 	++total;
@@ -616,44 +616,44 @@ int osd2_menu(int selected, unsigned input)
 		if (selected == combine_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.combine) {
-				case COMBINE_AUTO : config.combine = COMBINE_NONE; break;
-				case COMBINE_NONE : config.combine = COMBINE_MAXMIN; break;
-				case COMBINE_MAXMIN : config.combine = COMBINE_MEAN; break;
-				case COMBINE_MEAN : config.combine = COMBINE_FILTER; break;
-				case COMBINE_FILTER : config.combine = COMBINE_SCALE; break;
-				case COMBINE_SCALE : config.combine = COMBINE_LQ; break;
-				case COMBINE_LQ : config.combine = COMBINE_HQ; break;
-				case COMBINE_HQ : config.combine = COMBINE_AUTO; break;
+			case COMBINE_AUTO : config.combine = COMBINE_NONE; break;
+			case COMBINE_NONE : config.combine = COMBINE_MAXMIN; break;
+			case COMBINE_MAXMIN : config.combine = COMBINE_MEAN; break;
+			case COMBINE_MEAN : config.combine = COMBINE_FILTER; break;
+			case COMBINE_FILTER : config.combine = COMBINE_SCALE; break;
+			case COMBINE_SCALE : config.combine = COMBINE_LQ; break;
+			case COMBINE_LQ : config.combine = COMBINE_HQ; break;
+			case COMBINE_HQ : config.combine = COMBINE_AUTO; break;
 			}
 			advance_video_change(context, &config);
 		} else if (selected == effect_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.rgb_effect) {
-				case EFFECT_NONE : config.rgb_effect = EFFECT_RGB_TRIAD3PIX; break;
-				case EFFECT_RGB_TRIAD3PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
-				case EFFECT_RGB_TRIADSTRONG3PIX : config.rgb_effect = EFFECT_RGB_TRIAD6PIX; break;
-				case EFFECT_RGB_TRIAD6PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG6PIX; break;
-				case EFFECT_RGB_TRIADSTRONG6PIX : config.rgb_effect = EFFECT_RGB_TRIAD16PIX; break;
-				case EFFECT_RGB_TRIAD16PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG16PIX; break;
-				case EFFECT_RGB_TRIADSTRONG16PIX : config.rgb_effect = EFFECT_RGB_SCANDOUBLEHORZ; break;
-				case EFFECT_RGB_SCANDOUBLEHORZ : config.rgb_effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
-				case EFFECT_RGB_SCANTRIPLEHORZ : config.rgb_effect = EFFECT_RGB_SCANDOUBLEVERT; break;
-				case EFFECT_RGB_SCANDOUBLEVERT : config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
-				case EFFECT_RGB_SCANTRIPLEVERT : config.rgb_effect = EFFECT_NONE; break;
+			case EFFECT_NONE : config.rgb_effect = EFFECT_RGB_TRIAD3PIX; break;
+			case EFFECT_RGB_TRIAD3PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
+			case EFFECT_RGB_TRIADSTRONG3PIX : config.rgb_effect = EFFECT_RGB_TRIAD6PIX; break;
+			case EFFECT_RGB_TRIAD6PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG6PIX; break;
+			case EFFECT_RGB_TRIADSTRONG6PIX : config.rgb_effect = EFFECT_RGB_TRIAD16PIX; break;
+			case EFFECT_RGB_TRIAD16PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG16PIX; break;
+			case EFFECT_RGB_TRIADSTRONG16PIX : config.rgb_effect = EFFECT_RGB_SCANDOUBLEHORZ; break;
+			case EFFECT_RGB_SCANDOUBLEHORZ : config.rgb_effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
+			case EFFECT_RGB_SCANTRIPLEHORZ : config.rgb_effect = EFFECT_RGB_SCANDOUBLEVERT; break;
+			case EFFECT_RGB_SCANDOUBLEVERT : config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
+			case EFFECT_RGB_SCANTRIPLEVERT : config.rgb_effect = EFFECT_NONE; break;
 			}
 			advance_video_change(context, &config);
 		} else if (selected == vsync_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.vsync_flag) {
-				case 0 : config.vsync_flag = 1; break;
-				case 1 : config.vsync_flag = 0; break;
+			case 0 : config.vsync_flag = 1; break;
+			case 1 : config.vsync_flag = 0; break;
 			}
 			advance_video_change(context, &config);
 		} else if (selected == smp_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.smp_flag) {
-				case 0 : config.smp_flag = 1; break;
-				case 1 : config.smp_flag = 0; break;
+			case 0 : config.smp_flag = 1; break;
+			case 1 : config.smp_flag = 0; break;
 			}
 			advance_video_change(context, &config);
 		} else if (selected == scanline_index) {
@@ -670,22 +670,22 @@ int osd2_menu(int selected, unsigned input)
 		} else if (selected == index_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.index) {
-				case MODE_FLAGS_INDEX_NONE : config.index = MODE_FLAGS_INDEX_PALETTE8; break;
-				case MODE_FLAGS_INDEX_PALETTE8 : config.index = MODE_FLAGS_INDEX_BGR8; break;
-				case MODE_FLAGS_INDEX_BGR8 : config.index = MODE_FLAGS_INDEX_BGR15; break;
-				case MODE_FLAGS_INDEX_BGR15 : config.index = MODE_FLAGS_INDEX_BGR16; break;
-				case MODE_FLAGS_INDEX_BGR16 : config.index = MODE_FLAGS_INDEX_BGR32; break;
-				case MODE_FLAGS_INDEX_BGR32 : config.index = MODE_FLAGS_INDEX_YUY2; break;
-				case MODE_FLAGS_INDEX_YUY2 : config.index = MODE_FLAGS_INDEX_NONE; break;
+			case MODE_FLAGS_INDEX_NONE : config.index = MODE_FLAGS_INDEX_PALETTE8; break;
+			case MODE_FLAGS_INDEX_PALETTE8 : config.index = MODE_FLAGS_INDEX_BGR8; break;
+			case MODE_FLAGS_INDEX_BGR8 : config.index = MODE_FLAGS_INDEX_BGR15; break;
+			case MODE_FLAGS_INDEX_BGR15 : config.index = MODE_FLAGS_INDEX_BGR16; break;
+			case MODE_FLAGS_INDEX_BGR16 : config.index = MODE_FLAGS_INDEX_BGR32; break;
+			case MODE_FLAGS_INDEX_BGR32 : config.index = MODE_FLAGS_INDEX_YUY2; break;
+			case MODE_FLAGS_INDEX_YUY2 : config.index = MODE_FLAGS_INDEX_NONE; break;
 			}
 			advance_video_change(context, &config);
 		} else if (selected == stretch_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.stretch) {
-				case STRETCH_NONE : config.stretch = STRETCH_FRACTIONAL_XY; break;
-				case STRETCH_INTEGER_XY : config.stretch = STRETCH_NONE; break;
-				case STRETCH_INTEGER_X_FRACTIONAL_Y : config.stretch = STRETCH_INTEGER_XY; break;
-				case STRETCH_FRACTIONAL_XY : config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y; break;
+			case STRETCH_NONE : config.stretch = STRETCH_FRACTIONAL_XY; break;
+			case STRETCH_INTEGER_XY : config.stretch = STRETCH_NONE; break;
+			case STRETCH_INTEGER_X_FRACTIONAL_Y : config.stretch = STRETCH_INTEGER_XY; break;
+			case STRETCH_FRACTIONAL_XY : config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y; break;
 			}
 			advance_video_change(context, &config);
 		}
@@ -696,44 +696,44 @@ int osd2_menu(int selected, unsigned input)
 		if (selected == combine_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.combine) {
-				case COMBINE_AUTO : config.combine = COMBINE_HQ; break;
-				case COMBINE_NONE : config.combine = COMBINE_AUTO; break;
-				case COMBINE_MAXMIN : config.combine = COMBINE_NONE; break;
-				case COMBINE_MEAN : config.combine = COMBINE_MAXMIN; break;
-				case COMBINE_FILTER : config.combine = COMBINE_MEAN; break;
-				case COMBINE_SCALE : config.combine = COMBINE_FILTER; break;
-				case COMBINE_LQ : config.combine = COMBINE_SCALE; break;
-				case COMBINE_HQ : config.combine = COMBINE_LQ; break;
+			case COMBINE_AUTO : config.combine = COMBINE_HQ; break;
+			case COMBINE_NONE : config.combine = COMBINE_AUTO; break;
+			case COMBINE_MAXMIN : config.combine = COMBINE_NONE; break;
+			case COMBINE_MEAN : config.combine = COMBINE_MAXMIN; break;
+			case COMBINE_FILTER : config.combine = COMBINE_MEAN; break;
+			case COMBINE_SCALE : config.combine = COMBINE_FILTER; break;
+			case COMBINE_LQ : config.combine = COMBINE_SCALE; break;
+			case COMBINE_HQ : config.combine = COMBINE_LQ; break;
 			}
 			advance_video_change(context, &config);
 		} else if (selected == effect_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.rgb_effect) {
-				case EFFECT_NONE : config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
-				case EFFECT_RGB_TRIAD3PIX : config.rgb_effect = EFFECT_NONE; break;
-				case EFFECT_RGB_TRIADSTRONG3PIX : config.rgb_effect = EFFECT_RGB_TRIAD3PIX; break;
-				case EFFECT_RGB_TRIAD6PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
-				case EFFECT_RGB_TRIADSTRONG6PIX : config.rgb_effect = EFFECT_RGB_TRIAD6PIX; break;
-				case EFFECT_RGB_TRIAD16PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG6PIX; break;
-				case EFFECT_RGB_TRIADSTRONG16PIX : config.rgb_effect = EFFECT_RGB_TRIAD16PIX; break;
-				case EFFECT_RGB_SCANDOUBLEHORZ : config.rgb_effect = EFFECT_RGB_TRIADSTRONG16PIX; break;
-				case EFFECT_RGB_SCANTRIPLEHORZ : config.rgb_effect = EFFECT_RGB_SCANDOUBLEHORZ; break;
-				case EFFECT_RGB_SCANDOUBLEVERT : config.rgb_effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
-				case EFFECT_RGB_SCANTRIPLEVERT : config.rgb_effect = EFFECT_RGB_SCANDOUBLEVERT; break;
+			case EFFECT_NONE : config.rgb_effect = EFFECT_RGB_SCANTRIPLEVERT; break;
+			case EFFECT_RGB_TRIAD3PIX : config.rgb_effect = EFFECT_NONE; break;
+			case EFFECT_RGB_TRIADSTRONG3PIX : config.rgb_effect = EFFECT_RGB_TRIAD3PIX; break;
+			case EFFECT_RGB_TRIAD6PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG3PIX; break;
+			case EFFECT_RGB_TRIADSTRONG6PIX : config.rgb_effect = EFFECT_RGB_TRIAD6PIX; break;
+			case EFFECT_RGB_TRIAD16PIX : config.rgb_effect = EFFECT_RGB_TRIADSTRONG6PIX; break;
+			case EFFECT_RGB_TRIADSTRONG16PIX : config.rgb_effect = EFFECT_RGB_TRIAD16PIX; break;
+			case EFFECT_RGB_SCANDOUBLEHORZ : config.rgb_effect = EFFECT_RGB_TRIADSTRONG16PIX; break;
+			case EFFECT_RGB_SCANTRIPLEHORZ : config.rgb_effect = EFFECT_RGB_SCANDOUBLEHORZ; break;
+			case EFFECT_RGB_SCANDOUBLEVERT : config.rgb_effect = EFFECT_RGB_SCANTRIPLEHORZ; break;
+			case EFFECT_RGB_SCANTRIPLEVERT : config.rgb_effect = EFFECT_RGB_SCANDOUBLEVERT; break;
 			}
 			advance_video_change(context, &config);
 		} else if (selected == vsync_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.vsync_flag) {
-				case 0 : config.vsync_flag = 1; break;
-				case 1 : config.vsync_flag = 0; break;
+			case 0 : config.vsync_flag = 1; break;
+			case 1 : config.vsync_flag = 0; break;
 			}
 			advance_video_change(context, &config);
 		} else if (selected == smp_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.smp_flag) {
-				case 0 : config.smp_flag = 1; break;
-				case 1 : config.smp_flag = 0; break;
+			case 0 : config.smp_flag = 1; break;
+			case 1 : config.smp_flag = 0;  break;
 			}
 			advance_video_change(context, &config);
 		} else if (selected == scanline_index) {
@@ -750,22 +750,22 @@ int osd2_menu(int selected, unsigned input)
 		} else if (selected == index_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.index) {
-				case MODE_FLAGS_INDEX_NONE : config.index = MODE_FLAGS_INDEX_YUY2; break;
-				case MODE_FLAGS_INDEX_PALETTE8 : config.index = MODE_FLAGS_INDEX_NONE; break;
-				case MODE_FLAGS_INDEX_BGR8 : config.index = MODE_FLAGS_INDEX_PALETTE8; break;
-				case MODE_FLAGS_INDEX_BGR15 : config.index = MODE_FLAGS_INDEX_BGR8; break;
-				case MODE_FLAGS_INDEX_BGR16 : config.index = MODE_FLAGS_INDEX_BGR15; break;
-				case MODE_FLAGS_INDEX_BGR32 : config.index = MODE_FLAGS_INDEX_BGR16; break;
-				case MODE_FLAGS_INDEX_YUY2 : config.index = MODE_FLAGS_INDEX_BGR32; break;
+			case MODE_FLAGS_INDEX_NONE : config.index = MODE_FLAGS_INDEX_YUY2; break;
+			case MODE_FLAGS_INDEX_PALETTE8 : config.index = MODE_FLAGS_INDEX_NONE; break;
+			case MODE_FLAGS_INDEX_BGR8 : config.index = MODE_FLAGS_INDEX_PALETTE8; break;
+			case MODE_FLAGS_INDEX_BGR15 : config.index = MODE_FLAGS_INDEX_BGR8; break;
+			case MODE_FLAGS_INDEX_BGR16 : config.index = MODE_FLAGS_INDEX_BGR15; break;
+			case MODE_FLAGS_INDEX_BGR32 : config.index = MODE_FLAGS_INDEX_BGR16; break;
+			case MODE_FLAGS_INDEX_YUY2 : config.index = MODE_FLAGS_INDEX_BGR32; break;
 			}
 			advance_video_change(context, &config);
 		} else if (selected == stretch_index) {
 			struct advance_video_config_context config = context->config;
 			switch (config.stretch) {
-				case STRETCH_NONE : config.stretch = STRETCH_INTEGER_XY; break;
-				case STRETCH_INTEGER_XY : config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y; break;
-				case STRETCH_INTEGER_X_FRACTIONAL_Y : config.stretch = STRETCH_FRACTIONAL_XY; break;
-				case STRETCH_FRACTIONAL_XY : config.stretch = STRETCH_NONE; break;
+			case STRETCH_NONE : config.stretch = STRETCH_INTEGER_XY; break;
+			case STRETCH_INTEGER_XY : config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y; break;
+			case STRETCH_INTEGER_X_FRACTIONAL_Y : config.stretch = STRETCH_FRACTIONAL_XY; break;
+			case STRETCH_FRACTIONAL_XY : config.stretch = STRETCH_NONE; break;
 			}
 			advance_video_change(context, &config);
 		}
@@ -779,3 +779,4 @@ int osd2_menu(int selected, unsigned input)
 
 	return selected + 1;
 }
+

@@ -162,9 +162,7 @@ void update_start(void)
  */
 void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool wait_retrace)
 {
-	assert(is_update_draw_allowed);
-
-	is_update_draw_allowed = 0;
+	assert(is_update_draw_allowed != 0);
 
 	video_write_unlock(x, y, size_x, size_y);
 
@@ -182,5 +180,7 @@ void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_b
 		if (wait_retrace)
 			video_wait_vsync();
 	}
+
+	is_update_draw_allowed = 0;
 }
 

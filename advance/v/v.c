@@ -130,18 +130,18 @@ static void draw_text_error(void)
 	text_clear();
 
 	draw_text_center(x, y, dx,
-"ERROR! An error occoured in your last action!"
+"ERROR! An error occurred in your last action!"
 	, COLOR_REVERSE);
 	++y;
 
 	++y;
 	y = draw_text_para(x, y, dx, dy,
-"Your last action generated an error. Probably you have requested an "
+"Your action has generated an error. Probably you have requested an "
 "unsupported feature by your hardware or software."
 	, COLOR_NORMAL);
 
 	if (*error_get()) {
-		y = draw_text_para(x, y, dx, dy-y, "\nThe video software report this error:", COLOR_NORMAL);
+		y = draw_text_para(x, y, dx, dy-y, "\nThe video software reports this error:", COLOR_NORMAL);
 		log_std(("v: error \"%s\"\n", error_get() ));
 		y = draw_text_para(x, y, dx, dy-y, error_get(), COLOR_ERROR);
 	}
@@ -185,7 +185,7 @@ static void menu_modify(void)
 
 static void menu_insert(adv_crtc* crtc)
 {
-	crtc->user_flags |= MODE_FLAGS_USER_BIT0;
+	crtc->user_flags = MODE_FLAGS_USER_BIT0;
 
 	the_modes_modified = 1;
 
@@ -212,7 +212,13 @@ static void menu_item_draw(int x, int y, int dx, int pos, adv_bool selected)
 
 	if (crtc) {
 		char tag;
+		unsigned pos;
 		unsigned color;
+		unsigned color_n;
+		unsigned color_v;
+		unsigned color_h;
+		unsigned color_p;
+		char pfreq_buffer[8];
 		char vfreq_buffer[8];
 		char hfreq_buffer[8];
 
@@ -220,43 +226,71 @@ static void menu_item_draw(int x, int y, int dx, int pos, adv_bool selected)
 			if (crtc->user_flags & MODE_FLAGS_USER_BIT0) {
 				tag = 'þ';
 				color = COLOR_SELECTED_MARK;
+				color_n = color;
+				color_v = color;
+				color_h = color;
+				color_p = color;
 			} else {
 				tag = ' ';
 				color = COLOR_SELECTED;
+				color_n = color;
+				color_v = color;
+				color_h = color;
+				color_p = color;
 			}
 		} else {
 			if (crtc->user_flags & MODE_FLAGS_USER_BIT0) {
 				tag = 'þ';
 				if (crtc_is_fake(crtc) || crtc_clock_check(&the_monitor, crtc)) {
 					color = COLOR_MARK;
+					color_n = color;
+					color_v = color;
+					color_h = color;
+					color_p = color;
 				} else {
-					color = COLOR_MARK_BAD;
+					color = COLOR_MARK;
+					color_n = COLOR_MARK_BAD;
+					color_v = monitor_vclock_check(&the_monitor, crtc_vclock_get(crtc)) ? color : color_n;
+					color_h = monitor_hclock_check(&the_monitor, crtc_vclock_get(crtc)) ? color : color_n;
+					color_p = monitor_pclock_check(&the_monitor, crtc_vclock_get(crtc)) ? color : color_n;
 				}
 			} else {
 				tag = ' ';
 				if (crtc_is_fake(crtc) || crtc_clock_check(&the_monitor, crtc)) {
 					color = COLOR_NORMAL;
+					color_n = color;
+					color_v = color;
+					color_h = color;
+					color_p = color;
 				} else {
-					color = COLOR_BAD;
+					color = COLOR_NORMAL;
+					color_n = COLOR_BAD;
+					color_v = monitor_vclock_check(&the_monitor, crtc_vclock_get(crtc)) ? color : color_n;
+					color_h = monitor_hclock_check(&the_monitor, crtc_vclock_get(crtc)) ? color : color_n;
+					color_p = monitor_pclock_check(&the_monitor, crtc_vclock_get(crtc)) ? color : color_n;
 				}
 			}
 		}
 
-		snprintf(vfreq_buffer, sizeof(vfreq_buffer), "%6.2f", (double)crtc_vclock_get(crtc));
+		snprintf(vfreq_buffer, sizeof(vfreq_buffer), "%7.2f", (double)crtc_vclock_get(crtc));
 
-		snprintf(hfreq_buffer, sizeof(hfreq_buffer), "%6.2f", (double)crtc_hclock_get(crtc) / 1E3);
+		snprintf(hfreq_buffer, sizeof(hfreq_buffer), "%7.2f", (double)crtc_hclock_get(crtc) / 1E3);
 
-		snprintf(buffer, sizeof(buffer), " %c %4d %4d %s %s %s",
-			tag,
-			crtc->hde,
-			crtc->vde,
-			hfreq_buffer,
-			vfreq_buffer,
-			crtc->name
-		);
+		snprintf(pfreq_buffer, sizeof(pfreq_buffer), "%7.2f", (double)crtc_pclock_get(crtc) / 1E6);
 
-		draw_text_left(x, y, dx, buffer, color);
+		snprintf(buffer, sizeof(buffer), " %c %4d %4d", tag, crtc->hde, crtc->vde);
 
+		pos = 0;
+
+		pos += draw_text_string(x + pos, y, buffer, color_n);
+
+		pos += draw_text_string(x + pos, y, pfreq_buffer, color_p);
+		pos += draw_text_string(x + pos, y, hfreq_buffer, color_h);
+		pos += draw_text_string(x + pos, y, vfreq_buffer, color_v);
+
+		snprintf(buffer, sizeof(buffer), " %s", crtc->name);
+
+		draw_text_left(x + pos, y, dx - pos, buffer, color_n);
 	} else {
 		draw_text_fill(x, y, ' ', dx, COLOR_NORMAL);
 	}
@@ -343,7 +377,7 @@ static void draw_text_index(int x, int y, int dx)
 	int i;
 	int pos = x;
 
-	pos += draw_text_string(pos, y, "Type ", COLOR_TITLE);
+	pos += draw_text_string(pos, y, "Color ", COLOR_TITLE);
 
 	for(i=0;i<8;++i) {
 		const char* text;
@@ -392,7 +426,7 @@ static void draw_text_bar(int x, int by1, int by2, int dx)
 
 	draw_text_left(x + dx - strlen(buffer), by1, strlen(buffer), buffer, COLOR_BAR);
 
-	snprintf(buffer, sizeof(buffer), " #    x    y hclock vclock name");
+	snprintf(buffer, sizeof(buffer), " #    x    y pclock hclock vclock name");
 	draw_text_left(x, by1+2, dx, buffer, COLOR_TITLE);
 
 	snprintf(buffer, sizeof(buffer), " F1 Help  F2 Save  SPACE Select  TAB Rename  ENTER Test  ESC Exit");
@@ -1322,8 +1356,6 @@ static adv_error cmd_modeline_create(int favourite_vtotal)
 	unsigned y;
 	adv_error res;
 
-	crtc_name_set(&crtc, "format_created");
-
 	sncpy(buffer, sizeof(buffer), "");
 	if (cmd_input_string(" Vertical clock [Hz] (example 60.0) : ", buffer, 10)!=0)
 		return 0;
@@ -1362,7 +1394,7 @@ static adv_error cmd_modeline_create(int favourite_vtotal)
 	if (res != 0)
 		res = generate_find_interpolate_multi(&crtc, x, y, x*2, y*2, x*3, y*3, x*4, y*4, freq, &the_monitor, &the_interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC, GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL);
 	if (res != 0) {
-		error_set("Requests out of your monitor range");
+		error_set("Request out of your monitor range");
 		return -1;
 	}
 
@@ -1711,9 +1743,9 @@ static adv_conf_conv STANDARD[] = {
 { "*", "*", "*", "%s", "%s", "%s", 1 }
 };
 
-void os_signal(int signum)
+void os_signal(int signum, void* info, void* context)
 {
-	os_default_signal(signum);
+	os_default_signal(signum, info, context);
 }
 
 void troubleshotting(void)
@@ -1763,7 +1795,7 @@ int os_main(int argc, char* argv[])
 	the_config = conf_init();
 
 	if (os_init(the_config)!=0) {
-		target_err("Error initializing the OS support\n");
+		target_err("Error initializing the OS support.\n");
 		goto err_conf;
 	}
 
@@ -1853,7 +1885,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (access(opt_rc, R_OK)!=0) {
-		target_err("Configuration file %s not found\n", opt_rc);
+		target_err("Configuration file %s not found.\n", opt_rc);
 		goto err_os;
 	}
 
@@ -1872,7 +1904,7 @@ int os_main(int argc, char* argv[])
 	conf_section_set(the_config, section_map, 1);
 
 	if (video_load(the_config, "") != 0) {
-		target_err("Error loading the video options from the configuration file %s\n", opt_rc);
+		target_err("Error loading the video options from the configuration file %s.\n", opt_rc);
 		target_err("%s\n", error_get());
 		goto err_os;
 	}
@@ -1902,7 +1934,7 @@ int os_main(int argc, char* argv[])
 
 	if (the_advance != advance_vbe && the_advance != advance_vga) {
 		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
-			target_err("No video driver is able to program your video board.\n\r");
+			target_err("No active video driver is able to program your video board.\n\r");
 			troubleshotting();
 			goto err_blit;
 		}
@@ -1914,7 +1946,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (monitor_load(the_config, &the_monitor) != 0) {
-		target_err("Error loading the clock options from the configuration file %s\n\r", opt_rc);
+		target_err("Error loading the clock options from the configuration file %s.\n\r", opt_rc);
 		target_err("%s\n\r", error_get());
 		goto err_input;
 	}

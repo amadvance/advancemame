@@ -42,6 +42,10 @@
 #include <math.h>
 #include <limits.h>
 
+#ifdef USE_SMP
+#include <pthread.h>
+#endif
+
 /** Max framskip factor */
 #define SYNC_MAX 4
 
@@ -90,7 +94,7 @@ void advance_video_save(struct advance_video_context* context, const char* secti
 		conf_int_set(cfg_context, section, "display_rgbeffect", context->config.rgb_effect);
 		conf_int_set(cfg_context, section, "display_resize", context->config.stretch);
 		conf_int_set(cfg_context, section, "display_magnify", context->config.magnify_factor);
-		conf_int_set(cfg_context, section, "display_index", context->config.index);
+		conf_int_set(cfg_context, section, "display_color", context->config.index);
 		if (context->state.game_visible_size_x < context->state.game_used_size_x
 			|| context->state.game_visible_size_y < context->state.game_used_size_y)
 		{
@@ -3069,20 +3073,57 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 /***************************************************************************/
 /* Thread */
 
+/**
+ * Wait the completion of the video thread.
+ */
+static void video_thread_wait(struct advance_video_context* context)
+{
 #ifdef USE_SMP
+	/* wait until the thread is ready */
+	pthread_mutex_lock(&context->state.thread_video_mutex);
 
-static struct osd_bitmap* bitmap_duplicate(struct osd_bitmap* old, const struct osd_bitmap* current)
+	/* wait for the stop notification  */
+	while (context->state.thread_state_ready_flag) {
+		pthread_cond_wait(&context->state.thread_video_cond, &context->state.thread_video_mutex);
+	}
+
+	pthread_mutex_unlock(&context->state.thread_video_mutex);
+#else
+	/* nothing */
+#endif
+}
+
+#ifdef USE_SMP
+/**
+ * Duplicate a bitmap.
+ * The old buffer is reused if possible.
+ */
+static struct osd_bitmap* video_thread_bitmap_duplicate(struct osd_bitmap* old, const struct osd_bitmap* current)
 {
 	if (current) {
-		if (!old)
-			old = malloc(sizeof(struct osd_bitmap));
+		if (old) {
+			if (old->size_y != current->size_y
+				|| old->bytes_per_scanline != current->bytes_per_scanline) {
+				free(old->ptr);
+				old->ptr = 0;
+			}
+		}
 
-		old->ptr = current->ptr;
+		if (!old) {
+			old = malloc(sizeof(struct osd_bitmap));
+			old->ptr = 0;
+		}
+
+		if (!old->ptr)
+			old->ptr = malloc(current->size_y * current->bytes_per_scanline);
+
+		memcpy(old->ptr, current->ptr, current->size_y * current->bytes_per_scanline);
 		old->size_x = current->size_x;
 		old->size_y = current->size_y;
 		old->bytes_per_scanline = current->bytes_per_scanline;
 	} else {
 		if (old) {
+			free(old->ptr);
 			free(old);
 			old = 0;
 		}
@@ -3091,10 +3132,15 @@ static struct osd_bitmap* bitmap_duplicate(struct osd_bitmap* old, const struct 
 	return old;
 }
 
-static void bitmap_free(struct osd_bitmap* bitmap)
+/**
+ * Free a bitmap.
+ */
+static void video_thread_bitmap_free(struct osd_bitmap* bitmap)
 {
-	if (bitmap)
+	if (bitmap) {
+		free(bitmap->ptr);
 		free(bitmap);
+	}
 }
 
 #endif
@@ -3120,8 +3166,7 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 		advance_estimate_common_begin(estimate_context);
 
 		if (!skip_flag) {
-			context->state.thread_state_game = bitmap_duplicate(context->state.thread_state_game, game);
-			mame_ui_swap();
+			context->state.thread_state_game = video_thread_bitmap_duplicate(context->state.thread_state_game, game);
 		}
 
 		context->state.thread_state_led = led;
@@ -3129,15 +3174,15 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 		context->state.thread_state_skip_flag = skip_flag;
 
 		if (sample_count > context->state.thread_state_sample_max) {
-			log_std(("advance:thread: realloc sample buffer %d samples -> %d samples, %d bytes\n", context->state.thread_state_sample_max, 2*sample_count, sound_context->state.input_bytes_per_sample * 2*sample_count));
-			context->state.thread_state_sample_max = 2*sample_count;
+			log_std(("advance:thread: realloc sample buffer %d samples -> %d samples, %d bytes\n", context->state.thread_state_sample_max, 2*sample_count, sound_context->state.input_bytes_per_sample * 2 * sample_count));
+			context->state.thread_state_sample_max = 2 * sample_count;
 			context->state.thread_state_sample_buffer = realloc(context->state.thread_state_sample_buffer, sound_context->state.input_bytes_per_sample * context->state.thread_state_sample_max);
 			assert(context->state.thread_state_sample_buffer);
 		}
 
-		memcpy(context->state.thread_state_sample_buffer, sample_buffer, sample_count * sound_context->state.input_bytes_per_sample );
+		memcpy(context->state.thread_state_sample_buffer, sample_buffer, sample_count * sound_context->state.input_bytes_per_sample);
 		context->state.thread_state_sample_count = sample_count;
-		context->state.thread_state_sample_count = sample_recount;
+		context->state.thread_state_sample_recount = sample_recount;
 
 		advance_estimate_common_end(estimate_context, skip_flag);
 
@@ -3146,6 +3191,12 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 #endif
 }
 
+/**
+ * Update the frame.
+ * If SMP is active only signals at the thread to start the
+ * update and returns immeditely. Otherwise it returns only then the
+ * frame is complete.
+ */
 static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, struct advance_safequit_context* safequit_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
 #ifdef USE_SMP
@@ -3262,14 +3313,24 @@ int osd2_thread_init(void)
 	context->state.thread_state_sample_max = 0;
 	context->state.thread_state_sample_buffer = 0;
 	context->state.thread_state_skip_flag = 0;
-	log_std(("advance:thread: start\n"));
-	if (pthread_mutex_init(&context->state.thread_video_mutex, NULL) != 0)
+	if (pthread_mutex_init(&context->state.thread_video_mutex, NULL) != 0) {
+		log_std(("ERROR:advance: error calling pthread_mutex_init()\n"));
+		target_err("Error initializing the thread system.\n");
 		return -1;
-	if (pthread_cond_init(&context->state.thread_video_cond, NULL) != 0)
+	}
+	if (pthread_cond_init(&context->state.thread_video_cond, NULL) != 0) {
+		log_std(("ERROR:advance: error calling pthread_cond_init()\n"));
+		target_err("Error initializing the thread system.\n");
 		return -1;
-	if (pthread_create(&context->state.thread_id, NULL, video_thread, NULL) != 0)
+	}
+	log_std(("advance:thread: create\n"));
+	if (pthread_create(&context->state.thread_id, NULL, video_thread, NULL) != 0) {
+		log_std(("ERROR:advance: error calling pthread_create()\n"));
+		target_err("Error initializing the thread system.\n");
 		return -1;
+	}
 #endif
+
 	return 0;
 }
 
@@ -3282,6 +3343,7 @@ void osd2_thread_done(void)
 	struct advance_video_context* context = &CONTEXT.video;
 
 	log_std(("osd: osd2_thread_done\n"));
+	video_thread_wait(context);
 
 	log_std(("advance:thread: exit signal\n"));
 	pthread_mutex_lock(&context->state.thread_video_mutex);
@@ -3293,7 +3355,7 @@ void osd2_thread_done(void)
 	pthread_join(context->state.thread_id, NULL);
 
 	log_std(("advance:thread: exit\n"));
-	bitmap_free(context->state.thread_state_game);
+	video_thread_bitmap_free(context->state.thread_state_game);
 	free(context->state.thread_state_sample_buffer);
 	pthread_cond_destroy(&context->state.thread_video_cond);
 	pthread_mutex_destroy(&context->state.thread_video_mutex);
@@ -3302,6 +3364,10 @@ void osd2_thread_done(void)
 #endif
 }
 
+/**
+ * Callback for the osd_parallelize() function.
+ * The threads are enabled only if the main SMP flag is activated.
+ */
 int thread_is_active(void)
 {
 #ifdef USE_SMP
@@ -3382,6 +3448,8 @@ void advance_video_change(struct advance_video_context* context, struct advance_
 
 	/* set the new config */
 	context->config = *config;
+
+	video_thread_wait(context);
 
 	log_std(("emu:video: select mode %s\n", context->config.resolution_buffer));
 
@@ -3672,10 +3740,10 @@ static int int_compare(const void* void_a, const void* void_b)
 	return 0;
 }
 
-/* Number of step, and maximum correction allowed, for small latency errors */
+/** Number of steps, and maximum correction allowed, for small latency errors. */
 #define AUDIOVIDEO_NEAR_STEP_COUNT 16
 
-/* Number of frames on which distribute the latency error */
+/** Number of frames on which distribute the latency error. */
 #define AUDIOVIDEO_DISTRIBUTE_COUNT 4
 
 int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count)
@@ -3757,8 +3825,8 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 			sample_limit = 16;
 
 		/* correction for a generic sound buffer underflow. */
-		/* generally happen that the DMA buffer underflow reporting */
-		/* a fill state instead of an empty one. */
+		/* generally happen that the DMA buffer underflow, */
+		/* reporting a fill state instead of an empty one. */
 		if (sample_recount < sample_limit) {
 			log_std(("WARNING:emu:video: too small sound samples %d adjusted to %d\n", sample_recount, sample_limit));
 			sample_recount = sample_limit;
@@ -4112,12 +4180,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 		if (mame_is_game_relative(GAME_BLIT_COMBINE_MAX[i], option->game))
 			break;
 	context->config.inlist_combinemax_flag = GAME_BLIT_COMBINE_MAX[i] != 0;
-	s = mame_software_name(option->game, cfg_context);
-	if (s==0 || s[0]==0)
-		s = mame_game_name(option->game);
-	if (s==0 || s[0]==0)
-		s = "";
-	sncpy(context->config.section_name_buffer, sizeof(context->config.section_name_buffer), s);
+	sncpy(context->config.section_name_buffer, sizeof(context->config.section_name_buffer), mame_section_name(option->game, cfg_context));
 	sncpy(context->config.section_resolution_buffer, sizeof(context->config.section_resolution_buffer), mame_game_resolution(option->game));
 	sncpy(context->config.section_resolutionclock_buffer, sizeof(context->config.section_resolutionclock_buffer), mame_game_resolutionclock(option->game));
 	if ((context->config.game_orientation & OSD_ORIENTATION_SWAP_XY) != 0)

@@ -39,7 +39,7 @@ const char* MONITOR[] = {
 "Wells Gardner:K7600 CGA/EGA Monitor:15.75, 25:47-63",
 "Wells Gardner:K7500 EGA Monitor:25:47-63",
 "Wells Gardner:U3100 VGA Monitor:31.5, 35.5:56-87",
-"Wells Gardner:D9200 Digital CGA to VGA:15.75-31.5:45-90",
+"Wells Gardner:D9200 Digital CGA to VGA:15.75, 25, 31.5:45-90",
 "# PC Monitors",
 "Generic:PC VGA (UNSUGGESTED - USE THE CUSTOM):31.5:55-130",
 "Generic:PC SVGA Low Res 800x600 (UNSUGGESTED - USE THE CUSTOM):30.5-50:55-90",

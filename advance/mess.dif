@@ -3,6 +3,37 @@ diff -U 5 --new-file --recursive mess.ori/advance.pat mess/advance.pat
 +++ mess/advance.pat	2004-06-12 18:24:02.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
+diff -U 5 --new-file --recursive mess.ori/expat/expat.h mess/expat/expat.h
+--- mess.ori/expat/expat.h	2004-03-12 21:40:17.000000000 +0100
++++ mess/expat/expat.h	2004-06-30 20:15:04.000000000 +0200
+@@ -41,15 +41,10 @@
+    Note that on at least some Unix versions, the Expat library must be
+    compiled with the cdecl calling convention as the default since
+    system headers may assume the cdecl convention.
+ */
+ #ifndef XMLCALL
+-#if defined(XML_USE_MSC_EXTENSIONS)
+-#define XMLCALL __cdecl
+-#elif defined(__GNUC__)
+-#define XMLCALL __attribute__((cdecl))
+-#else
+ /* For any platform which uses this definition and supports more than
+    one calling convention, we need to extend this definition to
+    declare the convention used on that platform, if it's possible to
+    do so.
+ 
+@@ -57,11 +52,10 @@
+    with information on how to identify your platform via the C
+    pre-processor and how to specify the same calling convention as the
+    platform's malloc() implementation.
+ */
+ #define XMLCALL
+-#endif
+ #endif  /* not defined XMLCALL */
+ 
+ 
+ #if !defined(XML_STATIC) && !defined(XMLIMPORT)
+ #ifndef XML_BUILDING_EXPAT
 diff -U 5 --new-file --recursive mess.ori/expat/expatcfg.h mess/expat/expatcfg.h
 --- mess.ori/expat/expatcfg.h	1970-01-01 01:00:00.000000000 +0100
 +++ mess/expat/expatcfg.h	2004-06-12 18:24:02.000000000 +0200
@@ -164,3 +195,80 @@ diff -U 5 --new-file --recursive mess.ori/inputx.c mess/inputx.c
  #include "mame.h"
  
  #define NUM_CODES		128
+diff -U 5 --new-file --recursive mess.ori/systems/coleco.c mess/systems/coleco.c
+--- mess.ori/systems/coleco.c	2004-04-29 05:15:45.000000000 +0200
++++ mess/systems/coleco.c	2004-06-26 00:04:04.000000000 +0200
+@@ -108,24 +108,24 @@
+ }
+ 
+ INPUT_PORTS_START( coleco )
+     PORT_START  /* IN0 */
+ 
+-    PORT_BITX( 0x01, IP_ACTIVE_LOW, IPT_TILT, "0 (pad 1)", KEYCODE_0, IP_JOY_DEFAULT)
+-    PORT_BITX( 0x02, IP_ACTIVE_LOW, IPT_TILT, "1 (pad 1)", KEYCODE_1, IP_JOY_DEFAULT)
+-    PORT_BITX( 0x04, IP_ACTIVE_LOW, IPT_TILT, "2 (pad 1)", KEYCODE_2, IP_JOY_DEFAULT)
+-    PORT_BITX( 0x08, IP_ACTIVE_LOW, IPT_TILT, "3 (pad 1)", KEYCODE_3, IP_JOY_DEFAULT)
+-    PORT_BITX( 0x10, IP_ACTIVE_LOW, IPT_TILT, "4 (pad 1)", KEYCODE_4, IP_JOY_DEFAULT)
+-    PORT_BITX( 0x20, IP_ACTIVE_LOW, IPT_TILT, "5 (pad 1)", KEYCODE_5, IP_JOY_DEFAULT)
+-    PORT_BITX( 0x40, IP_ACTIVE_LOW, IPT_TILT, "6 (pad 1)", KEYCODE_6, IP_JOY_DEFAULT)
+-    PORT_BITX( 0x80, IP_ACTIVE_LOW, IPT_TILT, "7 (pad 1)", KEYCODE_7, IP_JOY_DEFAULT)
++    PORT_BITX( 0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "0", KEYCODE_0, IP_JOY_DEFAULT)
++    PORT_BITX( 0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "1", KEYCODE_1, IP_JOY_DEFAULT)
++    PORT_BITX( 0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "2", KEYCODE_2, IP_JOY_DEFAULT)
++    PORT_BITX( 0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "3", KEYCODE_3, IP_JOY_DEFAULT)
++    PORT_BITX( 0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "4", KEYCODE_4, IP_JOY_DEFAULT)
++    PORT_BITX( 0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "5", KEYCODE_5, IP_JOY_DEFAULT)
++    PORT_BITX( 0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "6", KEYCODE_6, IP_JOY_DEFAULT)
++    PORT_BITX( 0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "7", KEYCODE_7, IP_JOY_DEFAULT)
+ 
+     PORT_START  /* IN1 */
+-    PORT_BITX( 0x01, IP_ACTIVE_LOW, IPT_TILT, "8 (pad 1)", KEYCODE_8, IP_JOY_DEFAULT)
+-    PORT_BITX( 0x02, IP_ACTIVE_LOW, IPT_TILT, "9 (pad 1)", KEYCODE_9, IP_JOY_DEFAULT)
+-    PORT_BITX( 0x04, IP_ACTIVE_LOW, IPT_TILT, "# (pad 1)", KEYCODE_MINUS, IP_JOY_DEFAULT)
+-    PORT_BITX( 0x08, IP_ACTIVE_LOW, IPT_TILT, ". (pad 1)", KEYCODE_EQUALS, IP_JOY_DEFAULT)
++    PORT_BITX( 0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "8", KEYCODE_8, IP_JOY_DEFAULT)
++    PORT_BITX( 0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "9", KEYCODE_9, IP_JOY_DEFAULT)
++    PORT_BITX( 0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "#", KEYCODE_MINUS, IP_JOY_DEFAULT)
++    PORT_BITX( 0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, ".", KEYCODE_EQUALS, IP_JOY_DEFAULT)
+     PORT_BIT ( 0x40, IP_ACTIVE_LOW, IPT_BUTTON2 )
+     PORT_BIT ( 0xB0, IP_ACTIVE_LOW, IPT_UNKNOWN )
+ 
+     PORT_START  /* IN2 */
+     PORT_BIT ( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )
+@@ -134,24 +134,24 @@
+     PORT_BIT ( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )
+     PORT_BIT ( 0x40, IP_ACTIVE_LOW, IPT_BUTTON1 )
+     PORT_BIT ( 0xB0, IP_ACTIVE_LOW, IPT_UNKNOWN )
+ 
+     PORT_START  /* IN3 */
+-    PORT_BITX( 0x01, IP_ACTIVE_LOW, IPT_TILT, "0 (pad 2)", KEYCODE_0_PAD, IP_JOY_DEFAULT )
+-    PORT_BITX( 0x02, IP_ACTIVE_LOW, IPT_TILT, "1 (pad 2)", KEYCODE_1_PAD, IP_JOY_DEFAULT )
+-    PORT_BITX( 0x04, IP_ACTIVE_LOW, IPT_TILT, "2 (pad 2)", KEYCODE_2_PAD, IP_JOY_DEFAULT )
+-    PORT_BITX( 0x08, IP_ACTIVE_LOW, IPT_TILT, "3 (pad 2)", KEYCODE_3_PAD, IP_JOY_DEFAULT )
+-    PORT_BITX( 0x10, IP_ACTIVE_LOW, IPT_TILT, "4 (pad 2)", KEYCODE_4_PAD, IP_JOY_DEFAULT )
+-    PORT_BITX( 0x20, IP_ACTIVE_LOW, IPT_TILT, "5 (pad 2)", KEYCODE_5_PAD, IP_JOY_DEFAULT )
+-    PORT_BITX( 0x40, IP_ACTIVE_LOW, IPT_TILT, "6 (pad 2)", KEYCODE_6_PAD, IP_JOY_DEFAULT )
+-    PORT_BITX( 0x80, IP_ACTIVE_LOW, IPT_TILT, "7 (pad 2)", KEYCODE_7_PAD, IP_JOY_DEFAULT )
++    PORT_BITX( 0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "0 (Keypad)", KEYCODE_0_PAD, IP_JOY_DEFAULT )
++    PORT_BITX( 0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "1 (Keypad)", KEYCODE_1_PAD, IP_JOY_DEFAULT )
++    PORT_BITX( 0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "2 (Keypad)", KEYCODE_2_PAD, IP_JOY_DEFAULT )
++    PORT_BITX( 0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "3 (Keypad)", KEYCODE_3_PAD, IP_JOY_DEFAULT )
++    PORT_BITX( 0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "4 (Keypad)", KEYCODE_4_PAD, IP_JOY_DEFAULT )
++    PORT_BITX( 0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "5 (Keypad)", KEYCODE_5_PAD, IP_JOY_DEFAULT )
++    PORT_BITX( 0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "6 (Keypad)", KEYCODE_6_PAD, IP_JOY_DEFAULT )
++    PORT_BITX( 0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "7 (Keypad)", KEYCODE_7_PAD, IP_JOY_DEFAULT )
+ 
+     PORT_START  /* IN4 */
+-    PORT_BITX( 0x01, IP_ACTIVE_LOW, IPT_TILT, "8 (pad 2)", KEYCODE_8_PAD, IP_JOY_DEFAULT )
+-    PORT_BITX( 0x02, IP_ACTIVE_LOW, IPT_TILT, "9 (pad 2)", KEYCODE_9_PAD, IP_JOY_DEFAULT )
+-    PORT_BITX( 0x04, IP_ACTIVE_LOW, IPT_TILT, "# (pad 2)", KEYCODE_MINUS_PAD, IP_JOY_DEFAULT )
+-    PORT_BITX( 0x08, IP_ACTIVE_LOW, IPT_TILT, ". (pad 2)", KEYCODE_PLUS_PAD, IP_JOY_DEFAULT )
++    PORT_BITX( 0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "8 (Keypad)", KEYCODE_8_PAD, IP_JOY_DEFAULT )
++    PORT_BITX( 0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "9 (Keypad)", KEYCODE_9_PAD, IP_JOY_DEFAULT )
++    PORT_BITX( 0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "# (Keypad)", KEYCODE_MINUS_PAD, IP_JOY_DEFAULT )
++    PORT_BITX( 0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, ". (Keypad)", KEYCODE_PLUS_PAD, IP_JOY_DEFAULT )
+     PORT_BIT ( 0x40, IP_ACTIVE_LOW, IPT_BUTTON2 | IPF_PLAYER2 )
+     PORT_BIT ( 0xB0, IP_ACTIVE_LOW, IPT_UNKNOWN )
+ 
+     PORT_START  /* IN5 */
+     PORT_BIT ( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP | IPF_PLAYER2 )

@@ -754,7 +754,7 @@ static void run_background_wait(config_state& rs, const resource& sound, bool id
 	}
 }
 
-static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_item_func* category_extract, bool silent)
+static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_item_func* category_extract, bool silent, string over_msg)
 {
 	int coln; // number of columns
 	int rown; // number of rows
@@ -1542,6 +1542,24 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			}
 		}
 
+		if (over_msg.length()) {
+			unsigned dx, dy;
+			int x = int_dx_get() / 2;
+			int y = int_dy_get() / 2;
+			int border = int_font_dx_get()/2;
+
+			// force an update to draw the first time the backdrop iamges
+			int_update(false);
+
+			dx = int_font_dx_get(over_msg);
+			dy = int_font_dy_get();
+
+			int_box(x-2*border-dx/2, y-border, dx+4*border, dy+border*2, 1, COLOR_CHOICE_NORMAL.foreground);
+			int_clear(x-2*border-dx/2+1, y-border+1, dx+4*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL.background);
+
+			int_put(x-dx/2, y, dx, over_msg, COLOR_CHOICE_TITLE);
+		}
+
 		int_update(rs.mode_effective != mode_full_mixed && rs.mode_effective != mode_list_mixed);
 
 		log_std(("menu: wait begin\n"));
@@ -1802,7 +1820,7 @@ int run_menu_idle_off()
 	return key;
 }
 
-int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* category_func, bool flipxy, bool silent)
+int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* category_func, bool flipxy, bool silent, string over_msg)
 {
 	menu_array gc;
 
@@ -1864,7 +1882,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 		}
 
 		if (!done) {
-			key = run_menu_user(rs, flipxy, gc, category_func, silent);
+			key = run_menu_user(rs, flipxy, gc, category_func, silent, over_msg);
 
 			// replay the sound and clip
 			silent = false;
@@ -2012,6 +2030,8 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		return INT_KEY_NONE;
 	}
 
+	string emu_msg;
+
 	// setup the emulator state
 	for(pemulator_container::iterator i=rs.emu.begin();i!=rs.emu.end();++i) {
 		bool state = false;
@@ -2024,6 +2044,11 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 					break;
 				}
 			}
+		}
+		if (state) {
+			if (emu_msg.length())
+				emu_msg += ", ";
+			emu_msg += (*i)->user_name_get();
 		}
 		(*i)->state_set(state);
 	}
@@ -2060,6 +2085,11 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		(*i)->state_set(state);
 	}
 
+	bool has_emu = false;
+	bool has_group = false;
+	bool has_type = false;
+	bool has_filter = false;
+
 	// recompute the preview mask
 	rs.preview_mask = 0;
 
@@ -2069,17 +2099,25 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		if (!i->emulator_get()->state_get())
 			continue;
 
+		has_emu = true;
+
 		// group
 		if (!i->group_derived_get()->state_get())
 			continue;
+
+		has_group = true;
 
 		// type
 		if (!i->type_derived_get()->state_get())
 			continue;
 
+		has_type = true;
+
 		// filter
 		if (!i->emulator_get()->filter(*i))
 			continue;
+
+		has_filter = true;
 
 		psc->insert(&*i);
 
@@ -2098,12 +2136,27 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 			rs.preview_mask |= preview_title;
 	}
 
+	/* prepare a warning message if the game list is empty */
+	string empty_msg;
+	if (rs.gar.empty())
+		empty_msg = "No game was found";
+	else if (!has_emu)
+		empty_msg = "No game was found for the emulator " + emu_msg;
+	else if (!has_group)
+		empty_msg = "No game matches the group selection for " + emu_msg;
+	else if (!has_type)
+		empty_msg = "No game matches the type selection for " + emu_msg;
+	else if (!has_filter)
+		empty_msg = "No game matches the filter selection for " + emu_msg;
+	else
+		empty_msg = "";
+
 	rs.mode_mask = ~rs.mode_skip_mask & (mode_full | mode_full_mixed
 		| mode_text | mode_list | mode_list_mixed | mode_tile_small
 		| mode_tile_normal | mode_tile_big | mode_tile_enormous
 		| mode_tile_giant | mode_tile_icon | mode_tile_marquee);
 
-	// remove some modes if now preview are available
+	// remove some modes if the corresponding preview are not available
 	if ((rs.preview_mask & preview_icon) == 0)
 		rs.mode_mask &= ~mode_tile_icon;
 	if ((rs.preview_mask & preview_marquee) == 0)
@@ -2124,7 +2177,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 	int key = 0;
 
 	while (!done) {
-		key = run_menu_sort(rs, *psc, category_func, flipxy, silent);
+		key = run_menu_sort(rs, *psc, category_func, flipxy, silent, empty_msg);
 
 		// don't replay the sound and clip
 		silent = true;

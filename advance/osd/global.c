@@ -79,11 +79,95 @@ void advance_global_lcd(struct advance_global_context* context, unsigned row, co
 }
 
 /***************************************************************************/
+/* Language */
+
+#define LANG_TAG_MAX 16
+
+struct language {
+	struct language* fallback;
+	const char* name;
+	const char* tag[LANG_TAG_MAX];
+};
+
+static struct language LANG_USA =
+{ 0, 0, { "USA", "US", "America", "American", "World", "England", "British" } };
+
+static struct language LANG_EUROPE =
+{ 0, 0, { "Europe", "Euro", "World", "England", "British", "USA", "US", "America", "American" } };
+
+static struct language LANG_ASIA =
+{ 0, 0, { "Asia", "Japan", "Japanese" } };
+
+static struct language LANG[] = {
+{ &LANG_USA, "usa", { "USA", "US", "America", "American" } },
+{ &LANG_USA, "canada", { "Canada" } },
+{ &LANG_EUROPE, "england", { "England", "British" } },
+{ &LANG_EUROPE, "italy", { "Italy", "Italian" } },
+{ &LANG_EUROPE, "germany", { "Germany", "German" } },
+{ &LANG_EUROPE, "spain", { "Spain", "Hispanic", "Spanish" } },
+{ &LANG_EUROPE, "austria", { "Austria" } },
+{ &LANG_EUROPE, "norway", { "Norway", "Norwegian" } },
+{ &LANG_EUROPE, "france", { "France", "French" } },
+{ &LANG_EUROPE, "denmark", { "Denmark" } },
+{ &LANG_ASIA, "japan", { "Japan", "Japanese" } },
+{ &LANG_ASIA, "korea", { "Korea" } },
+{ &LANG_ASIA, "china", { "China" } },
+{ &LANG_ASIA, "hongkong", { "Hong Kong", "Hong-Kong" } },
+{ &LANG_ASIA, "taiwan", { "Taiwan" } },
+{ 0, 0 }
+};
+
+static adv_bool lang_match(const struct language* id, const char* text)
+{
+	unsigned i;
+
+	for(i=0;id->tag[i];++i) {
+		const char* j = strstr(text, id->tag[i]);
+		if (j != 0) {
+			if (j == text || !isalpha(j[-1])) {
+				const char* e = j + strlen(id->tag[i]);
+				if (!isalpha(*e))
+					return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Identify a language definition in a text.
+ * \param id Language id to search.
+ * \param text Text to analyze.
+ * \return Match value. 0 for no match or a comparing score.
+ */
+unsigned lang_identify_text(int lang, const char* text)
+{
+	const struct language* id;
+	unsigned score = 100;
+
+	if (lang < 0)
+		return 0;
+
+	id = &LANG[lang];
+
+	while (id != 0 && score > 0) {
+		if (lang_match(id, text))
+			return score;
+
+		--score;
+		id = id->fallback;
+	}
+
+	return 0;
+}
+
+/***************************************************************************/
 /* OSD */
 
 /**
  * Function called while loading ROMs.
- * It's called with romdata == 0 to print a message.
+ * It's called with romdata == 0 to print the message in name.
  * \return
  *  - !=0 to abort loading
  *  - ==0 on success
@@ -119,12 +203,87 @@ void osd2_message(void)
 	}
 }
 
+/**
+ * User customization of the language dipswitch.
+ */
+static void customize_language(struct advance_global_context* context, struct InputPort* current)
+{
+	struct InputPort* i;
+	adv_bool at_least_one_found = 0;
+	adv_bool at_least_one_set = 0;
+
+	if (context->config.lang < 0)
+		return;
+
+	i = current;
+	while ((i->type & ~IPF_MASK) != IPT_END) {
+		if ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_NAME
+			&& (strstr(i->name, "Language")!=0 || strstr(i->name, "Territory")!=0 || strstr(i->name, "Country")!=0)) {
+			struct InputPort* j;
+			struct InputPort* best;
+			unsigned best_value;
+			struct InputPort* begin;
+			struct InputPort* end;
+			struct InputPort* value;
+
+			at_least_one_found = 1;
+
+			/* the value is stored in the NAME item */
+			value = i;
+
+			begin = ++i;
+
+			/* read the value */
+			while ((i->type & ~IPF_MASK) == IPT_DIPSWITCH_SETTING) {
+				++i;
+			}
+
+			end = i;
+
+			/* search the best */
+			best = begin;
+			best_value = lang_identify_text(context->config.lang, best->name);
+			for(j=begin;j!=end;++j) {
+				unsigned value = lang_identify_text(context->config.lang, j->name);
+				if (value > best_value) {
+					best_value = value;
+					best = j;
+				}
+			}
+
+			/* set the value */
+			if (best_value) {
+				at_least_one_set = 1;
+
+				value->default_value = best->default_value & value->mask;
+
+				log_std(("emu:global: language dip switch '%s' set to '%s'\n", value->name, best->name));
+			}
+		} else {
+			++i;
+		}
+	}
+
+	if (!at_least_one_found) {
+		log_std(("emu:global: language dip switch not found\n"));
+		return;
+	}
+
+	if (!at_least_one_set) {
+		log_std(("emu:global: language dip switch unknown\n"));
+		return;
+	}
+}
+
 const char* NAME_EASIEST[] = { "Easiest", "Very Easy", 0 };
 const char* NAME_EASY[] = { "Easy", "Easier", "Easy?", 0 };
 const char* NAME_MEDIUM[] = { "Medium", "Normal", "Normal?", 0 };
 const char* NAME_HARD[] = { "Hard", "Harder", "Difficult", "Hard?", 0 };
 const char* NAME_HARDEST[] = { "Hardest", "Very Hard", "Very Difficult", 0 };
 
+/**
+ * User customization of the difficulty dipswitch.
+ */
 static void customize_difficulty(struct advance_global_context* context, struct InputPort* current)
 {
 	const char** names;
@@ -261,9 +420,12 @@ static void customize_difficulty(struct advance_global_context* context, struct 
 	/* set the difficulty */
 	value->default_value = level->default_value & value->mask;
 
-	log_std(("emu:global: difficulty dip switch set to '%s'\n", level->name));
+	log_std(("emu:global: difficulty dip switch '%s' set to '%s'\n", value->name, level->name));
 }
 
+/**
+ * User customization of the freeplay dipswitch.
+ */
 static void customize_freeplay(struct advance_global_context* context, struct InputPort* current)
 {
 	struct InputPort* i;
@@ -318,6 +480,9 @@ static void customize_freeplay(struct advance_global_context* context, struct In
 	}
 }
 
+/**
+ * User customization of the mutedemo dipswitch.
+ */
 static void customize_mutedemo(struct advance_global_context* context, struct InputPort* current)
 {
 	struct InputPort* i;
@@ -373,6 +538,9 @@ static void customize_mutedemo(struct advance_global_context* context, struct In
 	}
 }
 
+/**
+ * User customization of the generic dipswitches.
+ */
 static void customize_switch(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current, const char* tag, unsigned ipt_name, unsigned ipt_setting)
 {
 	struct InputPort* i;
@@ -406,6 +574,9 @@ static void customize_switch(struct advance_global_context* context, adv_conf* c
 	}
 }
 
+/**
+ * User customization of the analog ports.
+ */
 static void customize_analog(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current)
 {
 	struct InputPort* i;
@@ -450,6 +621,9 @@ static void customize_analog(struct advance_global_context* context, adv_conf* c
 	}
 }
 
+/**
+ * User customization of the input code sequences.
+ */
 static void customize_input(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current)
 {
 	struct InputPort* i;
@@ -486,27 +660,24 @@ static void customize_input(struct advance_global_context* context, adv_conf* cf
 	}
 }
 
-void osd_customize_inputport_pre_game(struct InputPort* current)
+/**
+ * Customization of the GLOBAL ports.
+ * These are system depended customization and are used to
+ * to change the defaults values.
+ */
+void osd_customize_inputport_defaults(struct ipd* defaults)
 {
-	struct advance_global_context* context = &CONTEXT.global;
-	adv_conf* cfg_context = CONTEXT.cfg;
-	const mame_game* game = CONTEXT.game;
+	log_std(("emu:glue: osd_customize_inputport_defaults()\n"));
 
-	log_std(("emu:global: osd_customize_inputport_pre_game()\n"));
-
-	customize_difficulty(context, current);
-	customize_freeplay(context, current);
-	customize_mutedemo(context, current);
-
-	customize_switch(context, cfg_context, game, current, "input_dipswitch", IPT_DIPSWITCH_NAME, IPT_DIPSWITCH_SETTING);
-#ifdef MESS
-	customize_switch(context, cfg_context, game, current, "input_configswitch", IPT_CONFIG_NAME, IPT_CONFIG_SETTING);
-#endif
-
-	customize_analog(context, cfg_context, game, current);
-	customize_input(context, cfg_context, game, current);
+	/* no specific OS customization */
 }
 
+/**
+ * User customization of the GLOBAL ports.
+ * These customizations don't change the defaults values,
+ * to allow the user to restore the original values
+ * if he want.
+ */
 void osd_customize_inputport_pre_defaults(struct ipd* defaults)
 {
 	adv_conf* cfg_context = CONTEXT.cfg;
@@ -545,7 +716,40 @@ void osd_customize_inputport_pre_defaults(struct ipd* defaults)
 	}
 }
 
-void osd2_customize_port_post_game(const char* tag, const char* value)
+/**
+ * User customization of the GAME ports.
+ * These customizations don't change the defaults values,
+ * to allow the user to restore the original values
+ * if he want.
+ */
+void osd_customize_inputport_pre_game(struct InputPort* current)
+{
+	struct advance_global_context* context = &CONTEXT.global;
+	adv_conf* cfg_context = CONTEXT.cfg;
+	const mame_game* game = CONTEXT.game;
+
+	log_std(("emu:global: osd_customize_inputport_pre_game()\n"));
+
+	customize_language(context, current);
+	customize_difficulty(context, current);
+	customize_freeplay(context, current);
+	customize_mutedemo(context, current);
+
+	customize_switch(context, cfg_context, game, current, "input_dipswitch", IPT_DIPSWITCH_NAME, IPT_DIPSWITCH_SETTING);
+#ifdef MESS
+	customize_switch(context, cfg_context, game, current, "input_configswitch", IPT_CONFIG_NAME, IPT_CONFIG_SETTING);
+#endif
+
+	customize_analog(context, cfg_context, game, current);
+	customize_input(context, cfg_context, game, current);
+}
+
+/**
+ * Called after a user customization of a GAME port.
+ * Used for both dipswitch and analog ports.
+ * Called with a null value to delete the customization.
+ */
+void osd2_customize_genericport_post_game(const char* tag, const char* value)
 {
 	adv_conf* cfg_context = CONTEXT.cfg;
 	const mame_game* game = CONTEXT.game;
@@ -571,10 +775,24 @@ static adv_conf_enum_int OPTION_DIFFICULTY[] = {
 { "hardest", DIFFICULTY_HARDEST }
 };
 
+#define OPTION_LANG_MAX 64
+static adv_conf_enum_int OPTION_LANG[OPTION_LANG_MAX];
+
 adv_error advance_global_init(struct advance_global_context* context, adv_conf* cfg_context)
 {
+	unsigned i;
+
 	conf_bool_register_default(cfg_context, "misc_quiet", 0);
 	conf_int_register_enum_default(cfg_context, "misc_difficulty", conf_enum(OPTION_DIFFICULTY), DIFFICULTY_NONE);
+
+	OPTION_LANG[0].value = "none";
+	OPTION_LANG[0].map = -1;
+	for(i=0;LANG[i].name && i+1<OPTION_LANG_MAX;++i) {
+		OPTION_LANG[i+1].value = LANG[i].name;
+		OPTION_LANG[i+1].map = i;
+	}
+
+	conf_int_register_enum_default(cfg_context, "misc_lang", OPTION_LANG, i+1, -1);
 	conf_bool_register_default(cfg_context, "misc_freeplay", 0);
 	conf_bool_register_default(cfg_context, "misc_mutedemo", 0);
 	conf_float_register_limit_default(cfg_context, "display_pausebrightness", 0.0, 1.0, 1.0);
@@ -594,6 +812,9 @@ adv_error advance_global_config_load(struct advance_global_context* context, adv
 
 	context->config.quiet_flag = conf_bool_get_default(cfg_context, "misc_quiet");
 	context->config.difficulty = conf_int_get_default(cfg_context, "misc_difficulty");
+
+	context->config.lang = conf_int_get_default(cfg_context, "misc_lang");
+
 	context->config.freeplay_flag = conf_bool_get_default(cfg_context, "misc_freeplay");
 	context->config.mutedemo_flag = conf_bool_get_default(cfg_context, "misc_mutedemo");
 	context->config.pause_brightness = conf_float_get_default(cfg_context, "display_pausebrightness");

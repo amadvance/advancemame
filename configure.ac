@@ -312,7 +312,7 @@ if test $ac_host = unix ; then
 	AC_HEADER_TIOCGWINSZ
 	AC_CHECK_HEADERS([unistd.h sched.h netdb.h termios.h execinfo.h])
 	AC_CHECK_HEADERS([sys/utsname.h sys/types.h sys/stat.h sys/socket.h sys/select.h sys/ioctl.h sys/time.h sys/mman.h sys/io.h sys/kd.h sys/vt.h])
-	AC_CHECK_HEADERS([netinet/in.h])
+	AC_CHECK_HEADERS([netinet/in.h ucontext.h])
 	AC_C_CONST
 	AC_C_RESTRICT
 	AC_C_INLINE

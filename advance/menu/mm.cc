@@ -591,9 +591,9 @@ extern "C" void adv_svgalib_log_va(const char *text, va_list arg)
 //---------------------------------------------------------------------------
 // Signal
 
-void os_signal(int signum)
+void os_signal(int signum, void* info, void* context)
 {
-	os_default_signal(signum);
+	os_default_signal(signum, info, context);
 }
 
 //---------------------------------------------------------------------------
