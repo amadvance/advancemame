@@ -2,7 +2,7 @@ Name{number}
 	cardlinux - Supported Linux Video Cards
 
 	This is the list of the Linux video cards supported
-	by the Advance programs with the Linux drivers. 
+	by the Advance programs with the Linux drivers.
 
 	Please note that not all the OEM cards are listed. If your card has a
 	supported chipset, it's probably supported also if the OEM vendor is not
@@ -2409,11 +2409,24 @@ Information
 		+http://members.datafast.net.au/dft0802/downloads/pcidevs.txt
 		+http://pciids.sf.net/
 
-	The numbers in [] are the PCI device IDs of the video board
-	models. The numbers in () are the PCI vendor IDs of the
-	video board manufacturers. The idented names are submodels with
+	The numbers in [] are the PCI product IDs (PID) of the board
+	models. The numbers in () are the PCI vendor IDs (VID) of the
+	board manufacturers. The idented names are submodels with
 	the same chipset. The numbers in {} are the PCI OEM vendor IDs of
 	the submodel.
+
+	To get the PCI VID/PID of your video board you can use
+	the 'lspci -n' command and search for the class 0300.
+
+	For example :
+
+	:root@darkstar:~/tmp# lspci -n
+	:00:1f.3 Class 0c05: 8086:24c3 (rev 01)
+	:01:00.0 Class 0300: 1002:5159
+	:02:03.0 Class 0401: 13f6:0111 (rev 10)
+	:02:04.0 Class 0c00: 1033:00f2 (rev 01)
+
+	the PCI VID/PID is 1002:5159 for 'ATI Radeon 7000 Series'.
 
 	The cards marked with (*) don't support interlaced modes.
 

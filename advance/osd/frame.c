@@ -906,7 +906,7 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 		}
 	} else if (stretch == STRETCH_INTEGER_X_FRACTIONAL_Y) {
 		unsigned mx;
-		mx = floor(context->state.mode_visible_size_x / (double)context->state.game_used_size_x + 0.5);
+		mx = floor(context->state.mode_visible_size_x / (double)context->state.game_used_size_x);
 		if (mx < 1)
 			mx = 1;
 
@@ -923,11 +923,11 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 		unsigned mx;
 		unsigned my;
 
-		mx = floor(context->state.mode_visible_size_x / (double)context->state.game_used_size_x + 0.5);
+		mx = floor(context->state.mode_visible_size_x / (double)context->state.game_used_size_x);
 		if (mx < 1)
 			mx = 1;
 
-		my = floor(context->state.mode_visible_size_y / (double)context->state.game_used_size_y + 0.5);
+		my = floor(context->state.mode_visible_size_y / (double)context->state.game_used_size_y);
 		if (my < 1)
 			my = 1;
 

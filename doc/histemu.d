@@ -1,6 +1,15 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.92.1 2005/02
+	) Fixed the recognition of the `sync_resample' option.
+		If you notify sound problem try setting
+		`sync_resample emulation' in your configuration
+		file.
+	) In the `integer' and `mixed' modes, the integers
+		magnification factors are chosen to ensure that
+		the complete image is displayed.
+
 AdvanceMESS Version 0.92.0.0 2005/02
 	) All from AdvanceMAME 0.92.0.
 

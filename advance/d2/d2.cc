@@ -458,11 +458,11 @@ void convert::step(const string& r)
 
 unsigned convert::index_level(const string& s)
 {
-	if (isalpha(s[0])) {
+	if (isalnum(s[0])) {
 		return 0;
-	} else if (s[0] == ' ' && s[1] == ' ' && isalpha(s[2])) {
+	} else if (s[0] == ' ' && s[1] == ' ' && isalnum(s[2])) {
 		return 1;
-	} else if (s[0] == ' ' && s[1] == ' ' && s[2] == ' ' && s[3] == ' ' && isalpha(s[4])) {
+	} else if (s[0] == ' ' && s[1] == ' ' && s[2] == ' ' && s[3] == ' ' && isalnum(s[4])) {
 		return 2;
 	} else {
 		return 3;

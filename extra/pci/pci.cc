@@ -472,9 +472,9 @@ void print_id(ostream& os, entry_vendor_set& vs) {
 "\t\t+http://members.datafast.net.au/dft0802/downloads/pcidevs.txt\n" \
 "\t\t+http://pciids.sf.net/\n" \
 "\n" \
-"\tThe numbers in [] are the PCI device IDs of the video board\n" \
-"\tmodels. The numbers in () are the PCI vendor IDs of the\n" \
-"\tvideo board manufacturers. The idented names are submodels with\n" \
+"\tThe numbers in [] are the PCI product IDs (PID) of the board\n" \
+"\tmodels. The numbers in () are the PCI vendor IDs (VID) of the\n" \
+"\tboard manufacturers. The idented names are submodels with\n" \
 "\tthe same chipset. The numbers in {} are the PCI OEM vendor IDs of\n" \
 "\tthe submodel.\n" \
 "\n"
@@ -482,8 +482,42 @@ void print_id(ostream& os, entry_vendor_set& vs) {
 #define FOOTER_AUDIO \
 FOOTER
 
+#define FOOTER_AUDIO_LINUX \
+FOOTER \
+"\tTo get the PCI VID/PID of your audio board you can use\n" \
+"\tthe 'lspci -n' command and search for the class 0401.\n" \
+"\n" \
+"\tFor example :\n" \
+"\n" \
+"\t:root@darkstar:~/tmp# lspci -n\n" \
+"\t:00:1f.3 Class 0c05: 8086:24c3 (rev 01)\n" \
+"\t:01:00.0 Class 0300: 1002:5159\n" \
+"\t:02:03.0 Class 0401: 13f6:0111 (rev 10)\n" \
+"\t:02:04.0 Class 0c00: 1033:00f2 (rev 01)\n" \
+"\n" \
+"\tthe PCI VID/PID is 13f6:0111 for 'CMI8738/C3DX PCI Audio Device'.\n" \
+"\n"
+
 #define FOOTER_VIDEO \
 FOOTER \
+"\tThe cards marked with (*) don't support interlaced modes.\n" \
+"\n"
+
+#define FOOTER_VIDEO_LINUX \
+FOOTER \
+"\tTo get the PCI VID/PID of your video board you can use\n" \
+"\tthe 'lspci -n' command and search for the class 0300.\n" \
+"\n" \
+"\tFor example :\n" \
+"\n" \
+"\t:root@darkstar:~/tmp# lspci -n\n" \
+"\t:00:1f.3 Class 0c05: 8086:24c3 (rev 01)\n" \
+"\t:01:00.0 Class 0300: 1002:5159\n" \
+"\t:02:03.0 Class 0401: 13f6:0111 (rev 10)\n" \
+"\t:02:04.0 Class 0c00: 1033:00f2 (rev 01)\n" \
+"\n" \
+"\tthe PCI VID/PID is 1002:5159 for 'ATI Radeon 7000 Series'.\n" \
+"\n" \
 "\tThe cards marked with (*) don't support interlaced modes.\n" \
 "\n"
 
@@ -528,7 +562,7 @@ void print_linux(ostream& os, entry_vendor_set& vs_svgalib, entry_vendor_set& vs
 "\tcardlinux - Supported Linux Video Cards\n"
 "\n"
 "\tThis is the list of the Linux video cards supported\n"
-"\tby the Advance programs with the Linux drivers. \n"
+"\tby the Advance programs with the Linux drivers.\n"
 "\n"
 HEADER
 ;
@@ -560,7 +594,7 @@ HEADER
 
 	print_set(os,vs_svgalib);
 
-	os << FOOTER_VIDEO;
+	os << FOOTER_VIDEO_LINUX;
 }
 
 void print_cd(ostream& os, entry_vendor_set& vs_fb) {
@@ -582,7 +616,7 @@ HEADER
 
 	print_set(os,vs_fb);
 
-	os << FOOTER_VIDEO;
+	os << FOOTER_VIDEO_LINUX;
 }
 
 void print_audiocd(ostream& os, entry_vendor_set& vs_alsa) {
@@ -607,7 +641,7 @@ HEADER
 
 	print_set(os,vs_alsa);
 
-	os << FOOTER_AUDIO;
+	os << FOOTER_AUDIO_LINUX;
 }
 
 void print_win(ostream& os, entry_vendor_set& vs_svgaline) {

@@ -1,6 +1,11 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.92.1
+	This version is based on the MAME update 0.92u2000. This
+	is a very stable version of the MAME core. A good candidate
+	for your cabinet.
+
 AdvanceMAME 0.87.0
 	This version of AdvanceMAME adds a new `device_video_clock'
 	option which substitutes the previous `device_video_p/h/vclock'

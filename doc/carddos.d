@@ -1531,9 +1531,9 @@ Information
 		+http://members.datafast.net.au/dft0802/downloads/pcidevs.txt
 		+http://pciids.sf.net/
 
-	The numbers in [] are the PCI device IDs of the video board
-	models. The numbers in () are the PCI vendor IDs of the
-	video board manufacturers. The idented names are submodels with
+	The numbers in [] are the PCI product IDs (PID) of the board
+	models. The numbers in () are the PCI vendor IDs (VID) of the
+	board manufacturers. The idented names are submodels with
 	the same chipset. The numbers in {} are the PCI OEM vendor IDs of
 	the submodel.
 
