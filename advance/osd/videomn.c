@@ -405,6 +405,7 @@ int osd2_menu(int selected, unsigned input)
 		case COMBINE_FILTERX : menu_item[total] = "Resize Effect [filterx]"; break;
 		case COMBINE_FILTERY : menu_item[total] = "Resize Effect [filtery]"; break;
 		case COMBINE_SCALE2X : menu_item[total] = "Resize Effect [scale2x]"; break;
+		case COMBINE_SCALE3X : menu_item[total] = "Resize Effect [scale3x]"; break;
 		case COMBINE_SCALE4X : menu_item[total] = "Resize Effect [scale4x]"; break;
 	}
 	switch (context->config.combine) {
@@ -416,6 +417,7 @@ int osd2_menu(int selected, unsigned input)
 		case COMBINE_FILTERX : menu_subitem[total] = "filterx"; break;
 		case COMBINE_FILTERY : menu_subitem[total] = "filtery"; break;
 		case COMBINE_SCALE2X : menu_subitem[total] = "scale2x"; break;
+		case COMBINE_SCALE3X : menu_subitem[total] = "scale3x"; break;
 		case COMBINE_SCALE4X : menu_subitem[total] = "scale4x"; break;
 	}
 	flag[total] = 0;
@@ -605,7 +607,8 @@ int osd2_menu(int selected, unsigned input)
 				case COMBINE_FILTER : context->config.combine = COMBINE_FILTERX; break;
 				case COMBINE_FILTERX : context->config.combine = COMBINE_FILTERY; break;
 				case COMBINE_FILTERY : context->config.combine = COMBINE_SCALE2X; break;
-				case COMBINE_SCALE2X : context->config.combine = COMBINE_SCALE4X; break;
+				case COMBINE_SCALE2X : context->config.combine = COMBINE_SCALE3X; break;
+				case COMBINE_SCALE3X : context->config.combine = COMBINE_SCALE4X; break;
 				case COMBINE_SCALE4X : context->config.combine = COMBINE_AUTO; break;
 			}
 			advance_video_change(context);
@@ -686,7 +689,8 @@ int osd2_menu(int selected, unsigned input)
 				case COMBINE_FILTERX : context->config.combine = COMBINE_FILTER; break;
 				case COMBINE_FILTERY : context->config.combine = COMBINE_FILTERX; break;
 				case COMBINE_SCALE2X : context->config.combine = COMBINE_FILTERY; break;
-				case COMBINE_SCALE4X : context->config.combine = COMBINE_SCALE2X; break;
+				case COMBINE_SCALE3X : context->config.combine = COMBINE_SCALE2X; break;
+				case COMBINE_SCALE4X : context->config.combine = COMBINE_SCALE3X; break;
 			}
 			advance_video_change(context);
 			mame_ui_refresh();

@@ -176,7 +176,7 @@ Features
 	the image quality when it's strecthed.
 
 	There are five types of video effects: `none', `max', `mean',
-	`filter', `scale2x' and `scale4x'.
+	`filter', `scale2x', `scale3x' and `scale4x'.
         You can select the favorite effect with the `display_resizeeffect'
 	option.
 
@@ -191,16 +191,15 @@ Features
 	results are when the image is stretched almost by a double
 	factor. When the image is enlarged the filter is applied after
 	stretching; when reduced, it's applied before.
-	The `scale2x' and `scale4x' effects add missing pixels trying to
-	match the image patterns.
+	The `scale2x', `scale3x' and `scale4x' effects add missing pixels
+	trying to match the image patterns.
 
 	The `max', `mean' and `filter' effects work only in RGB video
 	modes (not palettized).
 
-	The `scale2x' effect works only if the image is magnified by a
-	factor of 2. To enable it you should also use the `magnify'
-	option. The `scale2x' effect works only if the image is magnified by a
-	factor of 4.
+	The `scale2x', `scale3x' and `scale4x' effects work only if the
+	image is magnified. To enable it you should also use the `magnify'
+	option.
 
   RGB Effects
 	AdvanceMAME supports also some special video effects to simulate
@@ -650,8 +649,8 @@ Configuration
 
     display_magnify
 	Used to suggest the use of a double or bigger resolution video mode.
-	It is mainly used to enable the `scale2x' and `scale4x' effect.
-	This option doesn't have any effect for vector games.
+	It is mainly used to enable the `scale2x', `scale3x' and `scale4x'
+	effects. This option doesn't have any effect for vector games.
 
 	:display_magnify 1 | 2 | 3 | 4
 
@@ -765,7 +764,7 @@ Configuration
 	transformation applied.
 
 	:display_resizeeffect auto | none | max | mean | filter
-	:	| filterx | filtery | scale2x | scale4x
+	:	| filterx | filtery | scale2x | scale3x | scale4x
 
 	Options:
 		auto - Selects automatically the best effect (default).
@@ -797,9 +796,12 @@ Configuration
 			equal value.
 			Supported only in RGB (not palettized) video
 			modes.
-		filterx - like `filter' but only in the x direction
-		filtery - like `filter' but only in the y direction
+		filterx - Like `filter' but only in the x direction
+		filtery - Like `filter' but only in the y direction
 		scale2x - It works only in expansion by a factor of 2.
+			It tries to add the missing pixels matching the
+			original bitmap pattern.
+		scale3x - It works only in expansion by a factor of 3.
 			It tries to add the missing pixels matching the
 			original bitmap pattern.
 		scale4x - It works only in expansion by a factor of 4.
@@ -1345,7 +1347,7 @@ Configuration
 	second thread. This behaviour requires a complete bitmap redraw
 	by MAME for the games that don't already do it.
 	Generally you get a big speed improvement only if you are using
-	a strong video effect like `magnify', `scale2x' or `scale4x'.
+	a strong video effect like `scale2x'.
 
 	:misc_smp yes | no
 

@@ -111,6 +111,7 @@ enum video_stage_enum {
 	pipe_y_reduction_filter, /**< Vertical reduction with the FIR filter. */
 	pipe_y_reduction_max, /**< Vertical reduction with the max effect. */
 	pipe_y_scale2x, /**< Scale 2x. */
+	pipe_y_scale3x, /**< Scale 3x. */
 	pipe_y_scale4x /**< Scale 4x. */
 };
 
@@ -162,7 +163,8 @@ struct video_stage_horz_struct {
 #define VIDEO_COMBINE_Y_MEAN 0x2 /**< Use the mean value in y transformations for added or removed lines. */
 #define VIDEO_COMBINE_Y_FILTER 0x3 /**< Apply a FIR lowpass filter with 2 point and fc 0.5 in the y direction. */
 #define VIDEO_COMBINE_Y_SCALE2X 0x4 /**< Scale 2x. */
-#define VIDEO_COMBINE_Y_SCALE4X 0x5 /**< Scale 4x. */
+#define VIDEO_COMBINE_Y_SCALE3X 0x5 /**< Scale 3x. */
+#define VIDEO_COMBINE_Y_SCALE4X 0x6 /**< Scale 4x. */
 #define VIDEO_COMBINE_Y_MASK 0x7 /**< Mask for the Y effect. */
 
 #define VIDEO_COMBINE_X_FILTER 0x8 /**< Apply a FIR lowpass filter with 2 point and fc 0.5 in the x direction. */

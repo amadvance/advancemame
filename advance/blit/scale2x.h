@@ -16,16 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * In addition, as a special exception, Andrea Mazzoleni
- * gives permission to link the code of this program with
- * the MAME library (or with modified versions of MAME that use the
- * same license as MAME), and distribute linked combinations including
- * the two.  You must obey the GNU General Public License in all
- * respects for all of the code used other than MAME.  If you modify
- * this file, you may extend this exception to your version of the
- * file, but you are not obligated to do so.  If you do not wish to
- * do so, delete this exception statement from your version.
  */
 
 /*
@@ -48,14 +38,140 @@
 #include <assert.h>
 
 /***************************************************************************/
-/* basic types */
+/* Basic types */
 
 typedef unsigned char scale2x_uint8;
 typedef unsigned short scale2x_uint16;
 typedef unsigned scale2x_uint32;
 
 /***************************************************************************/
-/* internal_scale2x */
+/* Scale2x C implementation */
+
+static void scale2x_8_def_single(scale2x_uint8* dst, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+{
+	assert(count >= 2);
+
+	/* first pixel */
+	dst[0] = src1[0];
+	if (src1[1] == src0[0] && src2[0] != src0[0])
+		dst[1] = src0[0];
+	else
+		dst[1] = src1[0];
+	++src0;
+	++src1;
+	++src2;
+	dst += 2;
+
+	/* central pixels */
+	count -= 2;
+	while (count) {
+		if (src1[-1] == src0[0] && src2[0] != src0[0] && src1[1] != src0[0])
+			dst[0] = src0[0];
+		else
+			dst[0] = src1[0];
+		if (src1[1] == src0[0] && src2[0] != src0[0] && src1[-1] != src0[0])
+			dst[1] = src0[0];
+		else
+			dst[1] = src1[0];
+
+		++src0;
+		++src1;
+		++src2;
+		dst += 2;
+		--count;
+	}
+
+	/* last pixel */
+	if (src1[-1] == src0[0] && src2[0] != src0[0])
+		dst[0] = src0[0];
+	else
+		dst[0] = src1[0];
+	dst[1] = src1[0];
+}
+
+static void scale2x_16_def_single(scale2x_uint16* dst, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+{
+	assert(count >= 2);
+
+	/* first pixel */
+	dst[0] = src1[0];
+	if (src1[1] == src0[0] && src2[0] != src0[0])
+		dst[1] = src0[0];
+	else
+		dst[1] = src1[0];
+	++src0;
+	++src1;
+	++src2;
+	dst += 2;
+
+	/* central pixels */
+	count -= 2;
+	while (count) {
+		if (src1[-1] == src0[0] && src2[0] != src0[0] && src1[1] != src0[0])
+			dst[0] = src0[0];
+		else
+			dst[0] = src1[0];
+		if (src1[1] == src0[0] && src2[0] != src0[0] && src1[-1] != src0[0])
+			dst[1] = src0[0];
+		else
+			dst[1] = src1[0];
+
+		++src0;
+		++src1;
+		++src2;
+		dst += 2;
+		--count;
+	}
+
+	/* last pixel */
+	if (src1[-1] == src0[0] && src2[0] != src0[0])
+		dst[0] = src0[0];
+	else
+		dst[0] = src1[0];
+	dst[1] = src1[0];
+}
+
+static void scale2x_32_def_single(scale2x_uint32* dst, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+{
+	assert(count >= 2);
+
+	/* first pixel */
+	dst[0] = src1[0];
+	if (src1[1] == src0[0] && src2[0] != src0[0])
+		dst[1] = src0[0];
+	else
+		dst[1] = src1[0];
+	++src0;
+	++src1;
+	++src2;
+	dst += 2;
+
+	/* central pixels */
+	count -= 2;
+	while (count) {
+		if (src1[-1] == src0[0] && src2[0] != src0[0] && src1[1] != src0[0])
+			dst[0] = src0[0];
+		else
+			dst[0] = src1[0];
+		if (src1[1] == src0[0] && src2[0] != src0[0] && src1[-1] != src0[0])
+			dst[1] = src0[0];
+		else
+			dst[1] = src1[0];
+
+		++src0;
+		++src1;
+		++src2;
+		dst += 2;
+		--count;
+	}
+
+	/* last pixel */
+	if (src1[-1] == src0[0] && src2[0] != src0[0])
+		dst[0] = src0[0];
+	else
+		dst[0] = src1[0];
+	dst[1] = src1[0];
+}
 
 /**
  * Scale by a factor of 2 a row of pixels of 8 bits.
@@ -70,67 +186,10 @@ typedef unsigned scale2x_uint32;
  * \param dst0 First destination row, double length in pixels.
  * \param dst1 Second destination row, double length in pixels.
  */
-static void scale2x_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+static inline void scale2x_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
 {
-	assert(count >= 2);
-
-	/* first pixel */
-	dst0[0] = src1[0];
-	dst1[0] = src1[0];
-	if (src1[1] == src0[0] && src2[0] != src0[0])
-		dst0[1] = src0[0];
-	else
-		dst0[1] = src1[0];
-	if (src1[1] == src2[0] && src0[0] != src2[0])
-		dst1[1] = src2[0];
-	else
-		dst1[1] = src1[0];
-	++src0;
-	++src1;
-	++src2;
-	dst0 += 2;
-	dst1 += 2;
-
-	/* central pixels */
-	count -= 2;
-	while (count) {
-		if (src1[-1] == src0[0] && src2[0] != src0[0] && src1[1] != src0[0])
-			dst0[0] = src0[0];
-		else
-			dst0[0] = src1[0];
-		if (src1[1] == src0[0] && src2[0] != src0[0] && src1[-1] != src0[0])
-			dst0[1] = src0[0];
-		else
-			dst0[1] = src1[0];
-
-		if (src1[-1] == src2[0] && src0[0] != src2[0] && src1[1] != src2[0])
-			dst1[0] = src2[0];
-		else
-			dst1[0] = src1[0];
-		if (src1[1] == src2[0] && src0[0] != src2[0] && src1[-1] != src2[0])
-			dst1[1] = src2[0];
-		else
-			dst1[1] = src1[0];
-
-		++src0;
-		++src1;
-		++src2;
-		dst0 += 2;
-		dst1 += 2;
-		--count;
-	}
-
-	/* last pixel */
-	if (src1[-1] == src0[0] && src2[0] != src0[0])
-		dst0[0] = src0[0];
-	else
-		dst0[0] = src1[0];
-	if (src1[-1] == src2[0] && src0[0] != src2[0])
-		dst1[0] = src2[0];
-	else
-		dst1[0] = src1[0];
-	dst0[1] = src1[0];
-	dst1[1] = src1[0];
+	scale2x_8_def_single(dst0, src0, src1, src2, count);
+	scale2x_8_def_single(dst1, src2, src1, src0, count);
 }
 
 /**
@@ -144,67 +203,10 @@ static void scale2x_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2
  * \param dst0 First destination row, double length in pixels.
  * \param dst1 Second destination row, double length in pixels.
  */
-static void scale2x_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+static inline void scale2x_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
 {
-	assert(count >= 2);
-
-	/* first pixel */
-	dst0[0] = src1[0];
-	dst1[0] = src1[0];
-	if (src1[1] == src0[0] && src2[0] != src0[0])
-		dst0[1] =src0[0];
-	else
-		dst0[1] =src1[0];
-	if (src1[1] == src2[0] && src0[0] != src2[0])
-		dst1[1] =src2[0];
-	else
-		dst1[1] =src1[0];
-	++src0;
-	++src1;
-	++src2;
-	dst0 += 2;
-	dst1 += 2;
-
-	/* central pixels */
-	count -= 2;
-	while (count) {
-		if (src1[-1] == src0[0] && src2[0] != src0[0] && src1[1] != src0[0])
-			dst0[0] = src0[0];
-		else
-			dst0[0] = src1[0];
-		if (src1[1] == src0[0] && src2[0] != src0[0] && src1[-1] != src0[0])
-			dst0[1] =src0[0];
-		else
-			dst0[1] =src1[0];
-
-		if (src1[-1] == src2[0] && src0[0] != src2[0] && src1[1] != src2[0])
-			dst1[0] =src2[0];
-		else
-			dst1[0] =src1[0];
-		if (src1[1] == src2[0] && src0[0] != src2[0] && src1[-1] != src2[0])
-			dst1[1] =src2[0];
-		else
-			dst1[1] =src1[0];
-
-		++src0;
-		++src1;
-		++src2;
-		dst0 += 2;
-		dst1 += 2;
-		--count;
-	}
-
-	/* last pixel */
-	if (src1[-1] == src0[0] && src2[0] != src0[0])
-		dst0[0] =src0[0];
-	else
-		dst0[0] =src1[0];
-	if (src1[-1] == src2[0] && src0[0] != src2[0])
-		dst1[0] =src2[0];
-	else
-		dst1[0] =src1[0];
-	dst0[1] =src1[0];
-	dst1[1] =src1[0];
+	scale2x_16_def_single(dst0, src0, src1, src2, count);
+	scale2x_16_def_single(dst1, src2, src1, src0, count);
 }
 
 /**
@@ -218,68 +220,14 @@ static void scale2x_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, const sca
  * \param dst0 First destination row, double length in pixels.
  * \param dst1 Second destination row, double length in pixels.
  */
-static void scale2x_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+static inline void scale2x_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
 {
-	assert(count >= 2);
-
-	/* first pixel */
-	dst0[0] = src1[0];
-	dst1[0] = src1[0];
-	if (src1[1] == src0[0] && src2[0] != src0[0])
-		dst0[1] = src0[0];
-	else
-		dst0[1] = src1[0];
-	if (src1[1] == src2[0] && src0[0] != src2[0])
-		dst1[1] = src2[0];
-	else
-		dst1[1] = src1[0];
-	++src0;
-	++src1;
-	++src2;
-	dst0 += 2;
-	dst1 += 2;
-
-	/* central pixels */
-	count -= 2;
-	while (count) {
-		if (src1[-1] == src0[0] && src2[0] != src0[0] && src1[1] != src0[0])
-			dst0[0] = src0[0];
-		else
-			dst0[0] = src1[0];
-		if (src1[1] == src0[0] && src2[0] != src0[0] && src1[-1] != src0[0])
-			dst0[1] = src0[0];
-		else
-			dst0[1] = src1[0];
-
-		if (src1[-1] == src2[0] && src0[0] != src2[0] && src1[1] != src2[0])
-			dst1[0] = src2[0];
-		else
-			dst1[0] = src1[0];
-		if (src1[1] == src2[0] && src0[0] != src2[0] && src1[-1] != src2[0])
-			dst1[1] = src2[0];
-		else
-			dst1[1] = src1[0];
-
-		++src0;
-		++src1;
-		++src2;
-		dst0 += 2;
-		dst1 += 2;
-		--count;
-	}
-
-	/* last pixel */
-	if (src1[-1] == src0[0] && src2[0] != src0[0])
-		dst0[0] = src0[0];
-	else
-		dst0[0] = src1[0];
-	if (src1[-1] == src2[0] && src0[0] != src2[0])
-		dst1[0] = src2[0];
-	else
-		dst1[0] = src1[0];
-	dst0[1] = src1[0];
-	dst1[1] = src1[0];
+	scale2x_32_def_single(dst0, src0, src1, src2, count);
+	scale2x_32_def_single(dst1, src2, src1, src0, count);
 }
+
+/***************************************************************************/
+/* Scale2x MMX implementation */
 
 #if defined(__GNUC__) && defined(__i386__)
 

@@ -637,6 +637,9 @@ static void video_update_effect(struct advance_video_context* context)
 		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 2*context->state.game_visible_size_y) {
 			context->state.combine = COMBINE_SCALE2X;
+		} else if (context->state.mode_visible_size_x == 3*context->state.game_visible_size_x
+			&& context->state.mode_visible_size_y == 3*context->state.game_visible_size_y) {
+			context->state.combine = COMBINE_SCALE3X;
 		} else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 4*context->state.game_visible_size_y) {
 			context->state.combine = COMBINE_SCALE4X;
@@ -676,6 +679,15 @@ static void video_update_effect(struct advance_video_context* context)
 		)
 	) {
 		log_std(("emu:video: resizeeffect=scale2x disabled because the wrong mode size\n"));
+		context->state.combine = COMBINE_NONE;
+	}
+
+	if (context->state.combine == COMBINE_SCALE3X
+		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x
+			|| context->state.mode_visible_size_y != 3*context->state.game_visible_size_y
+		)
+	) {
+		log_std(("emu:video: resizeeffect=scale3x disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
@@ -3029,6 +3041,7 @@ static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 { "filterx", COMBINE_FILTERX },
 { "filtery", COMBINE_FILTERY },
 { "scale2x", COMBINE_SCALE2X },
+{ "scale3x", COMBINE_SCALE3X },
 { "scale4x", COMBINE_SCALE4X }
 };
 

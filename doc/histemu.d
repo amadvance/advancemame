@@ -4,7 +4,7 @@ Name
 AdvanceMAME Version 0.67.1 2003/04
 	) Added the "-version" command line option.
 	) Removed some "buffer overflow".
-	) Added the `scale4x' effect.
+	) Added the `scale3x' and `scale4x' effects.
 	) The `magnify' option now accepts the input values 1, 2, 3 and 4.
 
 AdvanceMAME Version 0.67.0 2003/04
