@@ -10,6 +10,9 @@ AdvanceMENU Version 1.19.0 2002/06
 		snapshots are ignored.
 	) A better random selection of the screensaver
 		snapshot.
+	) In the Linux version if the HOME environment variable
+		is not set all the files are read and written on the
+		PREFIX/share/advance directory.
 	) Minor bugfix.
 
 AdvanceMENU Version 1.18.3 2002/05

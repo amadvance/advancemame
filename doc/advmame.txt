@@ -256,15 +256,25 @@ MODE OPTION
 
 CONFIGURATION
 	The DOS version of AdvanceMAME reads configuration options
-	from the file 'advmame.rc' or `advmess.rc' in the current
-	directory.
+	from the file 'advmame.rc', `advmess.rc' and `advpac.rc'
+	in the current directory.
 
-	The Linux version reads configuration options from the file
-	$prefix/share/advance/advmame.rc and from the file
-	$home/.advance/advmame.rc. Where $prefix is the installation
-	directory and $home is the user home directory.
-	The options in the $prefix directory overwrite the options in
+	The Linux version reads configuration options from the files
+	'advmame.rc', `advmess.rc' and `advpac.rc' in the $root and
+	the $home directory.
+	The $root directory is PREFIX/share/advance/ where
+	PREFIX is the installation directory configured in the
+	`makefile', generally it's `/usr/local'.
+	The $home directory is HOME/.advance/ where HOME is the
+	value of the HOME environment variable. If the HOME
+	environment variable is missing the same $root directory is
+	used.
+
+	The options in the $root directory overwrite the options in
 	the $home.
+
+	The $home directory is also used to write all the information
+	by the program. The files in the $root directory are only read.
 
 	The options are specified in this format :
 
@@ -387,17 +397,17 @@ DIRECTORY CONFIGURATION OPTIONS
 		dir_crc - "crc"
 
 	Defaults for the Linux version :
-		dir_rom - "$home/.advance/rom:$prefix/share/advance/rom"
-		dir_image - "$home/.advance/image:$prefix/share/advance/image"
-		dir_sample - "$home/.advance/sample:$prefix/share/advance/sample"
-		dir_artwork - "$home/.advance/artwork:$prefix/share/advance/artwork"
-		dir_nvram - "$home/.advance/nvram"
-		dir_hi - "$home/.advance/hi"
-		dir_cfg - "$home/.advance/cfg"
-		dir_inp - "$home/.advance/inp"
-		dir_sta - "$home/.advance/sta"
-		dir_snap - $home/.advance/snap"
-		dir_crc - $home/.advance/crc"
+		dir_rom - "$home/rom:$root/rom"
+		dir_image - "$home/image:$root/image"
+		dir_sample - "$home/sample:$root/sample"
+		dir_artwork - "$home/artwork:$root/artwork"
+		dir_nvram - "$home/nvram"
+		dir_hi - "$home/hi"
+		dir_cfg - "$home/cfg"
+		dir_inp - "$home/inp"
+		dir_sta - "$home/sta"
+		dir_snap - $home/snap"
+		dir_crc - $home/crc"
 
 	For the `dir_rom' and `dir_image' the following file
 	combinations are tried:
@@ -1161,8 +1171,8 @@ SUPPORT FILES
 		language.dat - Language database.
 
 	These files should reside in current directory for the
-	DOS version or in the $home/.advmame or $prefix/share/advmame
-	directories for the Linux version.
+	DOS version or in the $root or $home directories for the
+	Linux version.
 
 VERSION
 	2001/11/28 - Andrea Mazzoleni - First revision

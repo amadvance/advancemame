@@ -16,11 +16,11 @@
 #include "driver.h"
 #include "timing.h"
 #include "vgaregs.h"
-#include "interface.h"
+#include "interfac.h"
 #include "vgapci.h"
 #include "i810_reg.h"
-#include "i810_wmark.c"
-#include "vgammvgaio.h"
+#include "i810_wma.c"
+#include "vgammvga.h"
 #include <sys/ioctl.h>
 /* #include "svgalib_helper.h" */
 

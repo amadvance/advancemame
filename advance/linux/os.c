@@ -265,8 +265,9 @@ static int os_fixed(void) {
 
 	/* home */
 	home = getenv("HOME");
-	if (!home) {
-		strcpy(OSF.home_dir,"");
+	if (!home || !*home) {
+		/* use the root dir as home dir */
+		strcpy(OSF.home_dir,OSF.root_dir);
 	} else {
 		strcpy(OSF.home_dir,home);
 		strcatslash(OSF.home_dir);
@@ -319,12 +320,17 @@ int os_inner_init(void) {
 	os_clock_t start, stop;
 	struct utsname uts;
 
-	if (uname(&uts) == 0) {
+	if (uname(&uts) != 0) {
+		os_log(("ERROR: uname failed\n"));
+	} else {
 		os_log(("os: sys %s\n",uts.sysname));
 		os_log(("os: release %s\n",uts.release));
 		os_log(("os: version %s\n",uts.version));
 		os_log(("os: machine %s\n",uts.machine));
 	}
+
+	os_log(("os: root dir %s\n", OSF.root_dir));
+	os_log(("os: home dir %s\n", OSF.home_dir));
 
 	os_clock_setup();
 

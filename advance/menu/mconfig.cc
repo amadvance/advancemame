@@ -882,7 +882,7 @@ static string config_out(const string& a0) {
 	return "\"" + a0 + "\"";
 }
 
-void config_save(const config_state& rs, struct conf_context* config_context) {
+bool config_save(const config_state& rs, struct conf_context* config_context) {
 	conf_int_set(config_context,"","mode",rs.mode_orig);
 	conf_int_set(config_context,"","menu_base",rs.menu_base_orig);
 	conf_int_set(config_context,"","menu_rel",rs.menu_rel_orig);
@@ -964,10 +964,13 @@ void config_save(const config_state& rs, struct conf_context* config_context) {
 		}
 	}
 
-	conf_save(config_context,1);
+	if (conf_save(config_context,1) != 0)
+		return false;
 
 	// prevent data lost if crashing
 	sync();
+
+	return true;
 }
 
 // ------------------------------------------------------------------------

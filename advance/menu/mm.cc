@@ -395,7 +395,10 @@ int os_main(int argc, char* argv[]) {
 			goto err_init;
 		conf_sort(config_context);
 		conf_uncomment(config_context);
-		conf_save(config_context,1);
+		if (conf_save(config_context,1) != 0) {
+			cerr << "Error writing the configuration file '" << os_config_file_home("advmenu.rc") << endl;
+			goto err_init;
+		}
 		cout << "Configuration file '" << os_config_file_home("advmenu.rc") << "' created from '" <<  os_config_file_legacy("mm.cfg") << "'" << endl;
 		goto done_init;
 	}
@@ -451,7 +454,10 @@ int os_main(int argc, char* argv[]) {
 		config_default(config_context);
 		conf_set_default_if_missing(config_context,"");
 		conf_sort(config_context);
-		conf_save(config_context,1);
+		if (conf_save(config_context,1) != 0) {
+			cerr << "Error writing the configuration file '" << os_config_file_home("advmenu.rc") << endl;
+			goto err_init;
+		}
 		cout << "Configuration file '" << os_config_file_home("advmenu.rc") << "' created with all the default options" << endl;
 		goto done_init;
 	}
@@ -459,14 +465,20 @@ int os_main(int argc, char* argv[]) {
 	if (opt_default) {
 		config_default(config_context);
 		conf_set_default_if_missing(config_context,"");
-		conf_save(config_context,1);
+		if (conf_save(config_context,1) != 0) {
+			cerr << "Error writing the configuration file '" << os_config_file_home("advmenu.rc") << endl;
+			goto err_init;
+		}
 		cout << "Configuration file '" << os_config_file_home("advmenu.rc") << "' updated with all the default options" << endl;
 		goto done_init;
 	}
 
 	if (opt_remove) {
 		conf_remove_if_default(config_context,"");
-		conf_save(config_context,1);
+		if (conf_save(config_context,1) != 0) {
+			cerr << "Error writing the configuration file '" << os_config_file_home("advmenu.rc") << endl;
+			goto err_init;
+		}
 		cout << "Configuration file '" << os_config_file_home("advmenu.rc") << "' updated with all the default options removed" << endl;
 		goto done_init;
 	}

@@ -22,6 +22,10 @@ AdvanceMAME Version 0.61.0 2002/06
 		games.
 	) Prevented the use on the NT platform.
 	) Added some new MMX blitters to speedup the blit rotation.
+	) In the Linux version if the HOME environment variable
+		is not set all the files are read and written on the
+		PREFIX/share/advance directory.
+	) Minor bugfix.
 
 AdvanceMAME Version 0.60.1 2002/05
 	) Fixed the MNG recording for some games.

@@ -264,11 +264,20 @@ CONFIGURATION
 	prevent the automatic save at the exit with the `config' option.
 
 	The Linux version reads configuration options from the file
-	$prefix/share/advmame/advmenu.rc and from the file
-	$home/.advmame/advmenu.rc. Where $prefix is the installation
-	directory and $home is the user home directory.
-	The options in the $prefix directory overwrite the options in
+	'advmenu.rc' in the $root and the $home directory.
+	The $root directory is PREFIX/share/advance/ where
+	PREFIX is the installation directory configured in the
+	`makefile', generally it's `/usr/local'.
+	The $home directory is HOME/.advance/ where HOME is the
+	value of the HOME environment variable. If the HOME
+	environment variable is missing the same $root directory is
+	used.
+
+	The options in the $root directory overwrite the options in
 	the $home.
+
+	The $home directory is also used to write all the information
+	by the program. The files in the $root directory are only read.
 
 	You can force the creation of a default `advmenu.rc' with the
 	command `advmenu -default'.
@@ -902,7 +911,7 @@ OTHER CONFIGURATION OPTIONS
 	from an external file. The file formats supported are CATINI,
 	MacMAME and NMS.
 	The files are read in the current directory for the DOS version
-	and in the $home/.advance directory for the Linux version.
+	and in the $home directory for the Linux version.
 
 	WARNING - These option DON'T OVERWRITE any user explicit
 	choices made with the `game' option.

@@ -270,7 +270,7 @@ struct config_state {
 };
 
 void config_init(struct conf_context* config_context);
-void config_save(const config_state& rs, struct conf_context* config_context);
+bool config_save(const config_state& rs, struct conf_context* config_context);
 bool config_load(config_state& rs, struct conf_context* config_context, bool opt_verbose);
 void config_restore_load(config_state& rs);
 void config_restore_save(config_state& rs);
