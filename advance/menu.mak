@@ -140,6 +140,7 @@ endif
 
 ifeq ($(CONF_HOST),dos)
 MENUCFLAGS += \
+	-DUSE_ADV_SVGALIB_DOS \
 	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
@@ -266,6 +267,59 @@ MENUOBJS += \
 MENUCFLAGS += -DNO_STDIO_REDIRECT
 MENUOBJS += $(MENUOBJ)/windows/sdlmain.o
 endif
+ifeq ($(CONF_LIB_SVGAWIN),yes)
+MENUOBJDIRS += \
+	$(MENUOBJ)/svgalib \
+	$(MENUOBJ)/svgalib/ramdac \
+	$(MENUOBJ)/svgalib/clockchi \
+	$(MENUOBJ)/svgalib/drivers \
+	$(MENUOBJ)/svgalib/svgawin
+MENUCFLAGS += \
+	-DUSE_ADV_SVGALIB_WIN \
+	-I$(srcdir)/advance/svgalib \
+	-I$(srcdir)/advance/svgalib/clockchi \
+	-I$(srcdir)/advance/svgalib/ramdac \
+	-I$(srcdir)/advance/svgalib/drivers \
+	-I$(srcdir)/advance/svgalib/svgawin \
+	-DUSE_VIDEO_SVGAWIN
+MENUOBJS += \
+	$(MENUOBJ)/windows/vsvgawin.o \
+	$(MENUOBJ)/svgalib/svgalib.o \
+	$(MENUOBJ)/svgalib/svgawin/svgawin.o \
+	$(MENUOBJ)/svgalib/accel.o \
+	$(MENUOBJ)/svgalib/vgaio.o \
+	$(MENUOBJ)/svgalib/vgammvga.o \
+	$(MENUOBJ)/svgalib/vgaregs.o \
+	$(MENUOBJ)/svgalib/vgarelvg.o \
+	$(MENUOBJ)/svgalib/drivers/apm.o \
+	$(MENUOBJ)/svgalib/drivers/ark.o \
+	$(MENUOBJ)/svgalib/drivers/banshee.o \
+	$(MENUOBJ)/svgalib/drivers/et6000.o \
+	$(MENUOBJ)/svgalib/drivers/g400.o \
+	$(MENUOBJ)/svgalib/drivers/pm2.o \
+	$(MENUOBJ)/svgalib/drivers/i740.o \
+	$(MENUOBJ)/svgalib/drivers/laguna.o \
+	$(MENUOBJ)/svgalib/drivers/millenni.o \
+	$(MENUOBJ)/svgalib/drivers/mx.o \
+	$(MENUOBJ)/svgalib/drivers/nv3.o \
+	$(MENUOBJ)/svgalib/drivers/r128.o \
+	$(MENUOBJ)/svgalib/drivers/rage.o \
+	$(MENUOBJ)/svgalib/drivers/s3.o \
+	$(MENUOBJ)/svgalib/drivers/savage.o \
+	$(MENUOBJ)/svgalib/drivers/sis.o \
+	$(MENUOBJ)/svgalib/drivers/trident.o \
+	$(MENUOBJ)/svgalib/drivers/renditio.o \
+	$(MENUOBJ)/svgalib/ramdac/ibmrgb52.o \
+	$(MENUOBJ)/svgalib/ramdac/attdacs.o \
+	$(MENUOBJ)/svgalib/ramdac/icw.o \
+	$(MENUOBJ)/svgalib/ramdac/normal.o \
+	$(MENUOBJ)/svgalib/ramdac/ramdac.o \
+	$(MENUOBJ)/svgalib/ramdac/s3dacs.o \
+	$(MENUOBJ)/svgalib/ramdac/sierra.o \
+	$(MENUOBJ)/svgalib/ramdac/btdacs.o \
+	$(MENUOBJ)/svgalib/ramdac/ics_gend.o \
+	$(MENUOBJ)/svgalib/clockchi/icd2061a.o
+endif
 endif
 
 ifeq ($(CONF_MAP),yes)
@@ -338,12 +392,10 @@ MENU_DOC_SRC = \
 	$(srcdir)/doc/cost.d
 
 MENU_SUPPORT_SRC = \
-	$(RCSRC) \
 	$(srcdir)/support/advmenuv.bat \
 	$(srcdir)/support/advmenuc.bat
 
 MENU_DOC_BIN = \
-	$(DOCOBJ)/license.txt \
 	$(DOCOBJ)/advmenu.txt \
 	$(DOCOBJ)/build.txt \
 	$(DOCOBJ)/cost.txt \
@@ -352,7 +404,9 @@ MENU_DOC_BIN = \
 	$(DOCOBJ)/readmenu.txt \
 	$(DOCOBJ)/relemenu.txt \
 	$(DOCOBJ)/histmenu.txt \
-	$(DOCOBJ)/license.html \
+	$(DOCOBJ)/advv.txt \
+	$(DOCOBJ)/advcfg.txt \
+	$(DOCOBJ)/install.txt \
 	$(DOCOBJ)/advmenu.html \
 	$(DOCOBJ)/build.html \
 	$(DOCOBJ)/cost.html \
@@ -361,48 +415,53 @@ MENU_DOC_BIN = \
 	$(DOCOBJ)/readmenu.html \
 	$(DOCOBJ)/relemenu.html \
 	$(DOCOBJ)/histmenu.html \
-	$(DOCOBJ)/histmenu.html
-ifneq ($(CONF_HOST),windows)
-MENU_DOC_BIN += \
-	$(DOCOBJ)/advv.txt \
-	$(DOCOBJ)/advcfg.txt \
-	$(DOCOBJ)/install.txt \
-	$(DOCOBJ)/carddos.txt \
-	$(DOCOBJ)/cardlinx.txt \
+	$(DOCOBJ)/histmenu.html \
 	$(DOCOBJ)/advv.html \
 	$(DOCOBJ)/advcfg.html \
-	$(DOCOBJ)/install.html \
-	$(DOCOBJ)/carddos.html \
-	$(DOCOBJ)/cardlinx.html \
-	$(RCSRC)
+	$(DOCOBJ)/install.html
+ifeq ($(CONF_HOST),unix)
+MENU_DOC_BIN += \
+	$(DOCOBJ)/cardlinx.txt \
+	$(DOCOBJ)/cardlinx.html
+endif
+ifeq ($(CONF_HOST),dos)
+MENU_DOC_BIN += \
+	$(DOCOBJ)/carddos.txt \
+	$(DOCOBJ)/carddos.html
+endif
+ifeq ($(CONF_HOST),windows)
+MENU_DOC_BIN += \
+	$(DOCOBJ)/svgawin.txt \
+	$(DOCOBJ)/cardwin.txt \
+	$(DOCOBJ)/svgawin.html \
+	$(DOCOBJ)/cardwin.html
 endif
 
 MENU_ROOT_BIN = \
-	$(MENUOBJ)/advmenu$(EXE)
+	$(MENUOBJ)/advmenu$(EXE) \
+	$(VOBJ)/advv$(EXE) \
+	$(CFGOBJ)/advcfg$(EXE)
 ifeq ($(CONF_HOST),unix)
 MENU_ROOT_BIN += \
 	$(DOCOBJ)/advmenu.1 \
+	$(DOCOBJ)/advv.1 \
+	$(DOCOBJ)/advcfg.1 \
 	$(CONF_BIN)
 endif
 ifeq ($(CONF_HOST),dos)
 MENU_ROOT_BIN += \
+	$(srcdir)/support/cwsdpmi.exe \
 	$(srcdir)/support/advmenuv.bat \
 	$(srcdir)/support/advmenuc.bat
 endif
 ifeq ($(CONF_HOST),windows)
 MENU_ROOT_BIN += \
+	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
+	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
 	$(srcdir)/support/sdl.dll \
-	$(srcdir)/support/zlib.dll
-endif
-ifneq ($(CONF_HOST),windows)
-MENU_ROOT_BIN += \
-	$(VOBJ)/advv$(EXE) \
-	$(CFGOBJ)/advcfg$(EXE)
-ifeq ($(CONF_HOST),unix)
-MENU_ROOT_BIN += \
-	$(DOCOBJ)/advv.1 \
-	$(DOCOBJ)/advcfg.1
-endif
+	$(srcdir)/support/zlib.dll \
+	$(srcdir)/support/advmenuv.bat \
+	$(srcdir)/support/advmenuc.bat
 endif
 
 MENU_DIST_FILE_SRC = advancemenu-$(MENUVERSION)
@@ -410,7 +469,7 @@ MENU_DIST_FILE_BIN = advancemenu-$(MENUVERSION)-$(BINARYTAG)
 MENU_DIST_DIR_SRC = $(MENU_DIST_FILE_SRC)
 MENU_DIST_DIR_BIN = $(MENU_DIST_FILE_BIN)
 
-distmenu: $(RCSRC) $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histmenu.txt $(DOCOBJ)/build.txt
+distmenu: $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histmenu.txt $(DOCOBJ)/build.txt
 	mkdir $(MENU_DIST_DIR_SRC)
 	cp $(DOCOBJ)/readmenu.txt $(MENU_DIST_DIR_SRC)/README
 	cp $(DOCOBJ)/relemenu.txt $(MENU_DIST_DIR_SRC)/RELEASE

@@ -9,24 +9,38 @@
 #include <crt0.h>
 #include <sys/nearptr.h>
 #include <dos.h>
+#include <math.h>
 
 /**************************************************************************/
 /* misc */
 
-void adv_svgalib_enable(void) {
+void adv_svgalib_enable(void) 
+{
 	enable();
 }
 
-void adv_svgalib_disable(void) {
+void adv_svgalib_disable(void) 
+{
 	disable();
 }
 
-void adv_svgalib_usleep(unsigned n) {
+void adv_svgalib_usleep(unsigned n) 
+{
 	unsigned i;
 	n = n / 2;
 	for(i=0;i<n;++i) {
 		inportb(0x80);
 	}
+}
+
+void adv_svgalib_abort(void) 
+{
+	abort();
+}
+
+double ADV_SVGALIB_CALL adv_svgalib_logf(double v) 
+{
+	return log(v);
 }
 
 /**************************************************************************/
@@ -203,31 +217,3 @@ int adv_svgalib_iopl(int perm) {
 	(void)perm;
 	return 0;
 }
-
-/***************************************************************************/
-/* vga */
-
-void __svgalib_delay(void) {
-	__asm__ __volatile__ (
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		:
-		:
-		: "cc", "%eax"
-	);
-}
-

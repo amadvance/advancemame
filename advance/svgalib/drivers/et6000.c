@@ -688,7 +688,7 @@ DPRT("SVGADRV\n");
 	free(modeinfo);
 	return(1);
       }
-    moderegs = calloc(ET6000_TOTAL_REGS,1);
+    moderegs = malloc(ET6000_TOTAL_REGS);
     et6000_initializemode(moderegs,modetiming,modeinfo,mode);
     cursor_doublescan = modetiming->flags & DOUBLESCAN ?1:0;
 #ifdef DBG

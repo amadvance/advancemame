@@ -880,7 +880,7 @@ static int rage_setmode(int mode, int prv_mode)
 	return 1;
     }
 
-    moderegs = calloc(MAX_REGS,1);
+    moderegs = malloc(MAX_REGS);
     
     ATINewHWPtr=(ATIHWPtr)(moderegs+VGA_TOTAL_REGS); 
 

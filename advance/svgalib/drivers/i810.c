@@ -464,7 +464,7 @@ static int setmode(int mode, int prv_mode)
 	return 1;
     }
 
-    moderegs = calloc(I810_TOTAL_REGS,1);
+    moderegs = malloc(I810_TOTAL_REGS);
 
     initializemode(moderegs, modetiming, modeinfo, mode);
     free(modetiming);

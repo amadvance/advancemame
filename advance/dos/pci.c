@@ -172,8 +172,6 @@ int pci_write_dword(unsigned bus_device_func, unsigned reg, DWORD value) {
 
 int pci_bus_max(unsigned* bus_max) {
 	__dpmi_regs r;
-	unsigned bus;
-	unsigned i,j;
 
 	r.d.eax = 0x0000b101;
 	r.d.edi = 0x00000000;

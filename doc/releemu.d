@@ -1,8 +1,8 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS/PAC
 
-AdvanceMAME 0.61.5
-	You need to reinstall the SVGAWIN driver in Windows NT/2000/XP.
+AdvanceMAME 0.62.0
+	In Windows NT/2000/XP you need to reinstall the SVGAWIN driver.
 
 AdvanceMAME 0.61.4 / AdvanceMESS 0.61.1
 	This is the first Windows NT/2000/XP version able to directly 

@@ -90,6 +90,7 @@ OBJDIRS += \
 	$(OBJ)/advance/dos
 ADVANCECFLAGS += \
 	-DUSE_CONFIG_ALLEGRO_WRAPPER \
+	-DUSE_ADV_SVGALIB_DOS \
 	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
@@ -224,6 +225,7 @@ OBJDIRS += \
 	$(OBJ)/advance/svgalib/drivers \
 	$(OBJ)/advance/svgalib/svgawin
 ADVANCECFLAGS += \
+	-DUSE_ADV_SVGALIB_WIN \
 	-I$(srcdir)/advance/svgalib \
 	-I$(srcdir)/advance/svgalib/clockchi \
 	-I$(srcdir)/advance/svgalib/ramdac \
@@ -577,8 +579,6 @@ endif
 EMU_CONTRIB_SRC = \
 	$(wildcard $(srcdir)/contrib/mame/*)
 
-EMU_SUPPORT_SRC = \
-	$(RCSRC)
 ifeq ($(CONF_EMU),mame)
 EMU_SUPPORT_SRC += \
 	$(srcdir)/support/safequit.dat
@@ -658,8 +658,6 @@ EMU_DOC_BIN += \
 	$(DOCOBJ)/advs.txt \
 	$(DOCOBJ)/advj.txt \
 	$(DOCOBJ)/advm.txt \
-	$(DOCOBJ)/cardlinx.txt \
-	$(DOCOBJ)/cardlinx.html \
 	$(DOCOBJ)/carddos.html \
 	$(DOCOBJ)/advk.html \
 	$(DOCOBJ)/advs.html \
@@ -684,7 +682,6 @@ EMU_ROOT_BIN += \
 endif
 ifeq ($(CONF_HOST),unix)
 EMU_ROOT_BIN += \
-	$(CONF_BIN) \
 	$(KOBJ)/advk$(EXE) \
 	$(SOBJ)/advs$(EXE) \
 	$(JOBJ)/advj$(EXE) \
@@ -695,10 +692,12 @@ EMU_ROOT_BIN += \
 	$(DOCOBJ)/advk.1 \
 	$(DOCOBJ)/advs.1 \
 	$(DOCOBJ)/advj.1 \
-	$(DOCOBJ)/advm.1
+	$(DOCOBJ)/advm.1 \
+	$(CONF_BIN)
 endif
 ifeq ($(CONF_HOST),dos)
 EMU_ROOT_BIN += \
+	$(srcdir)/support/cwsdpmi.exe \
 	$(KOBJ)/advk$(EXE) \
 	$(SOBJ)/advs$(EXE) \
 	$(JOBJ)/advj$(EXE) \
@@ -713,24 +712,24 @@ EMU_ROOT_BIN += \
 endif
 
 ifeq ($(CONF_EMU),mess)
-ifeq ($(CONF_HOST),dos)
+ifneq ($(CONF_HOST),unix)
 EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif
 EMU_SUPPORT_SRC += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif
 ifeq ($(CONF_EMU),pac)
-ifeq ($(CONF_HOST),dos)
+ifneq ($(CONF_HOST),unix)
 EMU_ROOT_BIN += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
 endif
 EMU_SUPPORT_SRC += $(srcdir)/support/advpacv.bat $(srcdir)/support/advpacc.bat
 endif
 
-EMU_DISTFILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)
-EMU_DISTFILE_BIN = advance$(CONF_EMU)-$(EMUVERSION)-$(BINARYTAG)
-EMU_DIST_DIR_SRC = $(EMU_DISTFILE_SRC)
-EMU_DIST_DIR_BIN = $(EMU_DISTFILE_BIN)
+EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)
+EMU_DIST_FILE_BIN = advance$(CONF_EMU)-$(EMUVERSION)-$(BINARYTAG)
+EMU_DIST_DIR_SRC = $(EMU_DIST_FILE_SRC)
+EMU_DIST_DIR_BIN = $(EMU_DIST_FILE_BIN)
 
-dist: $(RCSRC) $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ)/build.txt
+dist: $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ)/build.txt
 	mkdir $(EMU_DIST_DIR_SRC)
 	cp $(DOCOBJ)/reademu.txt $(EMU_DIST_DIR_SRC)/README
 	cp $(DOCOBJ)/releemu.txt $(EMU_DIST_DIR_SRC)/RELEASE
@@ -800,8 +799,8 @@ dist: $(RCSRC) $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt
 	mkdir $(EMU_DIST_DIR_SRC)/contrib
 	mkdir $(EMU_DIST_DIR_SRC)/contrib/mame
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib/mame
-	rm -f $(EMU_DISTFILE_SRC).tar.gz
-	tar cfzo $(EMU_DISTFILE_SRC).tar.gz $(EMU_DIST_DIR_SRC)
+	rm -f $(EMU_DIST_FILE_SRC).tar.gz
+	tar cfzo $(EMU_DIST_FILE_SRC).tar.gz $(EMU_DIST_DIR_SRC)
 	rm -r $(EMU_DIST_DIR_SRC)
 
 distbin: $(EMU_ROOT_BIN) $(EMU_DOC_BIN)
@@ -823,12 +822,12 @@ ifeq ($(CONF_HOST),dos)
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_BIN)/contrib
 endif
 ifeq ($(CONF_HOST),unix)
-	rm -f $(EMU_DISTFILE_BIN).tar.gz
-	tar cfzo $(EMU_DISTFILE_BIN).tar.gz $(EMU_DIST_DIR_BIN)
+	rm -f $(EMU_DIST_FILE_BIN).tar.gz
+	tar cfzo $(EMU_DIST_FILE_BIN).tar.gz $(EMU_DIST_DIR_BIN)
 else
-	rm -f $(EMU_DISTFILE_BIN).zip
+	rm -f $(EMU_DIST_FILE_BIN).zip
 	find $(EMU_DIST_DIR_BIN) \( -name "*.txt" \) -type f -exec utod {} \;
-	cd $(EMU_DIST_DIR_BIN) && zip -r ../$(EMU_DISTFILE_BIN).zip *
+	cd $(EMU_DIST_DIR_BIN) && zip -r ../$(EMU_DIST_FILE_BIN).zip *
 endif
 	rm -r $(EMU_DIST_DIR_BIN)
 

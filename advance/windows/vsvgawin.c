@@ -282,7 +282,7 @@ static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned de
 
 	*(int*)_arg = 1;
 
-	log_std(("svgawin: PCI/AGP Board VendorID %04x, DeviceID %04x, Bus %d, Device %d\n", vendor, device, bus_device_func >> 8, bus_device_func & 0xFF));
+	log_std(("video:svgawin: PCI/AGP Board VendorID %04x, DeviceID %04x, Bus %d, Device %d\n", vendor, device, bus_device_func >> 8, bus_device_func & 0xFF));
 
 	return 0;
 }
@@ -294,11 +294,11 @@ static void probe(void) {
 	adv_svgalib_pci_scan_device(probe_callback,&found);
 
 	if (!found)
-		log_std(("svgawin: No PCI/AGP boards found\n"));
+		log_std(("video:svgawin: No PCI/AGP boards found\n"));
 
-	log_std(("svgawin: Video driver : %s\n", adv_svgalib_driver_get()));
+	log_std(("video:svgawin: Video driver : %s\n", adv_svgalib_driver_get()));
 
-	log_std(("svgawin: Bit depth : "));
+	log_std(("video:svgawin: Bit depth : "));
 	if (adv_svgalib_state.has_bit8) log_std(("8 "));
 	if (adv_svgalib_state.has_bit15) log_std(("15 "));
 	if (adv_svgalib_state.has_bit16) log_std(("16 "));
@@ -306,12 +306,12 @@ static void probe(void) {
 	if (adv_svgalib_state.has_bit32) log_std(("32 "));
 	log_std(("\n"));
 	if (adv_svgalib_state.has_interlace)
-		log_std(("svgawin: Interlace : yes\n"));
+		log_std(("video:svgawin: Interlace : yes\n"));
 	else
-		log_std(("svgawin: Interlace : no\n"));
-	log_std(("svgawin: Linear memory : %08x, %d Mbyte\n", adv_svgalib_linear_base_get(), adv_svgalib_linear_size_get() / (1024*1024)));
+		log_std(("video:svgawin: Interlace : no\n"));
+	log_std(("video:svgawin: Linear memory : %08x, %d Mbyte\n", adv_svgalib_linear_base_get(), adv_svgalib_linear_size_get() / (1024*1024)));
 	if (adv_svgalib_mmio_size_get()) {
-		log_std(("svgawin: MMIO memory : %08x, %d byte\n", adv_svgalib_mmio_base_get(), adv_svgalib_mmio_size_get()));
+		log_std(("video:svgawin: MMIO memory : %08x, %d byte\n", adv_svgalib_mmio_base_get(), adv_svgalib_mmio_size_get()));
 	}
 }
 
@@ -328,18 +328,18 @@ static adv_error svgalib_init(int device_id) {
 	name = j->name;
 
 	if (adv_svgalib_init(svgawin_option.divide_clock) != 0) {
-		log_std(("svgawin: error calling adv_svgalib_init()\n"));
+		log_std(("video:svgawin: error calling adv_svgalib_init()\n"));
 		return -1;
 	}
 
 	if (adv_svgalib_detect(name) != 0) {
-		log_std(("svgawin: error calling adv_svgalib_detect(%s)\n", name));
+		log_std(("video:svgawin: error calling adv_svgalib_detect(%s)\n", name));
 		return -1;
 	}
 	
 	probe();
 
-	log_std(("svgawin: found driver %s\n", adv_svgalib_driver_get()));
+	log_std(("video:svgawin: found driver %s\n", adv_svgalib_driver_get()));
 
 	svgawin_state.cap = VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN
 		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC;
@@ -618,9 +618,9 @@ static adv_error svgalib_mode_set(const svgawin_video_mode* mode)
 {
 	unsigned clock;
 
-	log_std(("svgawin: mode_set bits_per_pixel %d\n", mode->bits_per_pixel ));
-	log_std_modeline_c(("svgawin: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc) ));
-	log_std(("svgawin: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc) ));
+	log_std(("video:svgawin: mode_set bits_per_pixel %d\n", mode->bits_per_pixel ));
+	log_std_modeline_c(("video:svgawin: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc) ));
+	log_std(("video:svgawin: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc) ));
 
 	clock = mode->crtc.pixelclock;
 	if (svgawin_option.divide_clock)
@@ -639,7 +639,7 @@ static adv_error svgalib_mode_set(const svgawin_video_mode* mode)
 		return -1;
 	}
 
-	log_std(("svgawin: mode_set done\n"));
+	log_std(("video:svgawin: mode_set done\n"));
 
 	return 0;
 }
@@ -846,10 +846,17 @@ adv_error svgawin_mode_import(adv_mode* mode, const svgawin_video_mode* svgawin_
 
 adv_error svgawin_mode_generate(svgawin_video_mode* mode, const adv_crtc* crtc, unsigned bits, unsigned flags)
 {
+	assert( svgawin_is_active() );
+
 	log_std(("video:svgawin: svgawin_mode_generate(x:%d,y:%d,bits:%d)\n", crtc->hde, crtc->vde, bits));
 
 	if (video_mode_generate_check("svgawin",svgawin_flags(),8,2048,crtc,bits,flags)!=0)
 		return -1;
+
+	if (adv_svgalib_check(crtc->pixelclock, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt, crtc_is_doublescan(crtc), crtc_is_interlace(crtc), crtc_is_nhsync(crtc), crtc_is_nvsync(crtc), bits, 0, 0) != 0) {
+		error_nolog_cat("video:svgawin: Generic error checking the availability of the video mode\n");
+		return -1;
+	}
 
 	mode->crtc = *crtc;
 	mode->bits_per_pixel = bits;
@@ -861,7 +868,7 @@ adv_error svgawin_mode_generate(svgawin_video_mode* mode, const adv_crtc* crtc, 
 	if (a < b) \
 		return -1; \
 	if (a > b) \
-		return 1;
+		return 1
 
 int svgawin_mode_compare(const svgawin_video_mode* a, const svgawin_video_mode* b) {
 	COMPARE(a->bits_per_pixel,b->bits_per_pixel);

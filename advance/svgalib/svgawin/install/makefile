@@ -1,7 +1,30 @@
+#############################################################################
+# Configuration
+#
 
-CC = @/usr/local/cross-tools/bin/i386-mingw32msvc-gcc
+DEBUG = no
+ECHO = @echo
+CC = @i386-mingw32msvc-gcc
 #CC = @gcc
+EXE = .exe
 
-svgawin.exe : svgawin.c
-	$(CC) -Wall -O1 -march=i386 -o svgawin.exe svgawin.c
+#############################################################################
+# Rules
+#
+
+ifeq ($(DEBUG),yes)
+CFLAGS = -O0 -Wall -g
+LDFLAGS = -g
+MSG = "(debug)"
+else
+CFLAGS = -O1 -Wall -march=i386
+LDFLAGS = -s
+MSG =
+endif
+
+all: svgawin$(EXE)
+
+svgawin$(EXE) : svgawin.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 

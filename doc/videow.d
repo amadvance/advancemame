@@ -64,6 +64,30 @@ Cards
 	The program supports all the `svgawin' drivers listed in the
 	`cardwin.txt' file.
 
+	You can force the use of a specific driver using the `device_video'
+	option in the configuration file.
+
+	The available drivers are :
+		svgawin/auto - Auto detection.
+		svgawin/nv3 - nVidia Riva/GeForce.
+		svgawin/trident - Trident.
+		svgawin/rendition - Rendition.
+		svgawin/g400 - Matrox Mystique/G100/G200/G400/G450.
+		svgawin/pm2 - Permedia 2.
+		svgawin/savage - S3 Savage.
+		svgawin/millenium - Matrox Millennium/Millenium II.
+		svgawin/r128 - ATI Rage 128/Radeon.
+		svgawin/banshee - 3dfx Voodoo Banshee/3/4/5.
+		svgawin/sis - SIS.
+		svgawin/i740 - Intel i740.
+		svgawin/laguna - Cirrus Logic Laguna 5462/5464/5465.
+		svgawin/rage - ATI Rage.
+		svgawin/mx - MX.
+		svgawin/et6000 - ET6000.
+		svgawin/s3 - S3.
+		svgawin/ark - ARK.
+		svgawin/apm - APM.
+
 Limitations
 	* The program can only set the resolutions originally supported
 		by Windows. It cannot create new resolutions.
@@ -100,7 +124,7 @@ Examples
 
 Bugs
 	The configuration file is checked only for the
-	`device_video_modeline' options.
+	`device_video_modeline' and `device_video' options.
 	All the other options are ignored.
 
 Copyright

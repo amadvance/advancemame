@@ -1,13 +1,18 @@
 Name
 	history - History For AdvanceCAB
 
-AdvanceCAB Version 1.1.2 2002/11 (not yet released)
-	) Minor changes at the docs.
-	) The same fixes ad the advv utility from AdvanceMAME 0.61.5.
-	) The VIDEOW utility now correctly detect the current 
+AdvanceCAB Version 1.1.2 2002/11
+	) The VIDEOW utility now correctly detects the current
 		bytes per scanline.
+	) Updated the Windows SVGAWIN.SYS driver to the 1.1 version.
 	) Fixed a slowdown bug on the SVGALIB video board detection.
-	) Better error reporting on the SVGALIB drivers.
+	) Fixed a bug on the DOS/Windows SVGALIB Radeon driver. It should
+		help with the video modes at lower frequency generally used
+		in Arcade Monitors and TVs.
+	) Minor changes at the docs.
+	) Better error reporting on the DOS/Windows SVGALIB drivers.
+	) The VIDEOW utility now uses the `device_video' to force a specific
+		video driver.
 
 AdvanceCAB Version 1.1.1 2002/11
 	) Added the ADVV utility for Windows NT/2000/XP.

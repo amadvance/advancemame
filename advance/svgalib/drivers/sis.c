@@ -486,7 +486,7 @@ static int sis_setmode(int mode, int prv_mode)
 	return 1;
     }
 
-    moderegs = calloc(SIS_TOTAL_REGS,1);
+    moderegs = malloc(SIS_TOTAL_REGS);
     
     if(chip>=SIS_300) 
         sis_300_initializemode(moderegs, modetiming, modeinfo, mode); else

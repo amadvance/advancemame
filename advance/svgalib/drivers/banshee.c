@@ -305,7 +305,7 @@ static int banshee_setmode(int mode, int prv_mode)
 	return 1;
     }
 
-    moderegs = calloc(BANSHEE_TOTAL_REGS,1);
+    moderegs = malloc(BANSHEE_TOTAL_REGS);
 
     banshee_initializemode(moderegs, &modetiming, modeinfo, mode);
 

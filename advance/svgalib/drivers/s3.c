@@ -1126,7 +1126,7 @@ static int s3_setmode(int mode, int prv_mode)
     modeinfo->lineWidth = s3_adjlinewidth(modeinfo->lineWidth);
     CI.xbytes = modeinfo->lineWidth;
 
-    moderegs = calloc(S3_TOTAL_REGS,1);
+    moderegs = malloc(S3_TOTAL_REGS);
 
     s3_initializemode(moderegs, modetiming, modeinfo);
     free(modeinfo);

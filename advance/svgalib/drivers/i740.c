@@ -576,7 +576,7 @@ static int i740_setmode(int mode, int prv_mode)
 	return 1;
     }
 
-    moderegs = calloc(I740_TOTAL_REGS,1);
+    moderegs = malloc(I740_TOTAL_REGS);
 
     i740_initializemode(moderegs, modetiming, modeinfo, mode);
     free(modetiming);

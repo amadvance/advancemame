@@ -49,47 +49,42 @@ Options
 		Use an arbitary configuration file
 
 Cards
-	This is the list of all the supported cards with the vbeline
-	driver that support them.
+	The program supports only some of the `vbeline' drivers listed in the
+	`carddos.txt' file.
+
 	Some of these drivers require that you prevently load the
 	`Scitech Display Doctor' (SDD) program to work correctly.
 
-	3dfx - 3dfx (interlaced modes not supported)
-		:Banshee, Voodoo3, Voodoo5
-
-	cirrus - Cirrus Logic (with SDD)
-		:GD542?, GD5428, GD543?
-
-	s3 - S3 (with SDD)
-		:ViRGE, Vision 866, Vision 964, Trio32, Trio64, Trio64V+
-		:Aurora64V+, Trio64UV+, ViRGE/VX, 868, 928, 864, 964, 968,
-		:Trio64 V2/DX, Trio64V2, ViRGE/DX, ViRGE/GX, ViRGE/GX2
-
-	sis - SiS
-		:6326, 620, 530, 300, 630, 540
-
-	savage - S3 Savage
-		:Savage 3D, Savage 3DM, Savage 4
-
-	neomagic - NeoMagic (interlaced modes not supported)
-		:MagicGraph 128 (NM2070), 128V (NM2090), 128ZV (NM2093)
-		:128ZV+ (NM2097), 128XD (NM2160)
-		:MagicMedia 256AV (NM2200), 256ZX (NM2360), 256XL+ (NM2380)
-
-	trident - Trident (without SDD)
-		:TGUI 9320, TGUI 9420, TGUI 9440, TGUI 9660
-		:Providia 9682, Providia 9685
-		:Cyber 9397, Cyber 9397/DVD, Cyber 9385, Cyber 9385-1
-		:Cyber 9382, Cyber 9388, Cyber 9397, Cyber 939A/DVD, Cyber 9520
-		:Cyber 9525/DVD, Cyber 9540
-		:3DImage975, 3DImage985
-		:CyberBlade/i7, CyberBlade/DSTN/i7, CyberBlade/i1, CyberBlade/DSTN/i1
-		:Blade3D, Blade3D/T64
-
-	vbe3 - (interlaced modes rarely supported)
-		Any video boards with a VBE3 BIOS which is also VGA
-		compatible at registers level. Generally a recent board
-		should have a VBE3 BIOS.
+	The available drivers are :
+		vbeline/auto - Auto detection.
+		vbeline/3dfx - 3dfx
+			Banshee, Voodoo3, Voodoo5
+		vbeline/cirrus - Cirrus Logic (with SDD)
+			GD542?, GD5428, GD543?
+		vbeline/s3 - S3 (with SDD)
+			ViRGE, Vision 866, Vision 964, Trio32, Trio64, Trio64V+,
+			Aurora64V+, Trio64UV+, ViRGE/VX, 868, 928, 864, 964, 968,
+			Trio64 V2/DX, Trio64V2, ViRGE/DX, ViRGE/GX, ViRGE/GX2
+		vbeline/sis - SiS
+			6326, 620, 530, 300, 630, 540
+		vbeline/savage - S3
+			Savage 3D, Savage 3DM, Savage 4
+		vbeline/neomagic - NeoMagic
+			MagicGraph 128 (NM2070), 128V (NM2090), 128ZV (NM2093),
+			128ZV+ (NM2097), 128XD (NM2160),
+			MagicMedia 256AV (NM2200), 256ZX (NM2360), 256XL+ (NM2380)
+		vbeline/trident - Trident (without SDD)
+			TGUI 9320, TGUI 9420, TGUI 9440, TGUI 9660,
+			Providia 9682, Providia 9685,
+			Cyber 9397, Cyber 9397/DVD, Cyber 9385, Cyber 9385-1,
+			Cyber 9382, Cyber 9388, Cyber 9397, Cyber 939A/DVD, Cyber 9520,
+			Cyber 9525/DVD, Cyber 9540,
+			3DImage975, 3DImage985,
+			CyberBlade/i7, CyberBlade/DSTN/i7, CyberBlade/i1, CyberBlade/DSTN/i1,
+			Blade3D, Blade3D/T64
+		vbeline/vbe3 - Any video boards with a VBE3 BIOS which is also VGA
+			compatible at registers level. Generally a recent board
+			should have a VBE3 BIOS.
 
 Limitations
 	AdvanceVBE isn't a complete VBE 2.0 bios. It requires an

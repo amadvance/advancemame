@@ -36,8 +36,8 @@ extern void far * int_10_old;
 /* OEM information */
 #define OEM_VENDOR_STR "Andrea Mazzoleni"
 #define OEM_PRODUCT_STR "AdvanceVBE"
-#define OEM_VERSION_NUM 0x000B
-#define OEM_VERSION_STR "0.11 " __DATE__
+#define OEM_VERSION_NUM 0x000C
+#define OEM_VERSION_STR "0.12 " __DATE__
 #define OEM_STR OEM_VENDOR_STR " " OEM_PRODUCT_STR " " OEM_VERSION_STR
 
 #define VBE_CUSTOM_MODE 0x140
@@ -420,16 +420,14 @@ int mode_insert(mode_info far* mode_ptr, int bits_per_pixel) {
 	return 0;
 }
 
-const char* cfg_separator = " \t";
-
 int modeline_load(mode_info far* mode_ptr) {
 	char far* s;
 
 	/* skip the name */
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\n\r");
 	if (!s) return -1;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\n\r");
 	if (!s) return -1;
 	if (!(s[0]>='0' && s[0]<='9'))
 		return -1;
@@ -437,39 +435,39 @@ int modeline_load(mode_info far* mode_ptr) {
 	if (!mode_ptr->param.dotclockHz)
 		return -1;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\n\r");
 	if (!s) return -1;
 	mode_ptr->param.HDisp = mode_ptr->current.width = strtol(s,10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\n\r");
 	if (!s) return -1;
 	mode_ptr->param.HSStart = strtol(s,10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\n\r");
 	if (!s) return -1;
 	mode_ptr->param.HSEnd = strtol(s,10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\n\r");
 	if (!s) return -1;
 	mode_ptr->param.HTotal = strtol(s,10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\n\r");
 	if (!s) return -1;
 	mode_ptr->param.VDisp = mode_ptr->current.height = strtol(s,10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\n\r");
 	if (!s) return -1;
 	mode_ptr->param.VSStart = strtol(s,10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\n\r");
 	if (!s) return -1;
 	mode_ptr->param.VSEnd = strtol(s,10);
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\n\r");
 	if (!s) return -1;
 	mode_ptr->param.VTotal = strtol(s,10);
 
-	while ((s = strtok(0,cfg_separator))!=0) {
+	while ((s = strtok(0," \t\n\r"))!=0) {
 		if (s[0]=='#')
 			break;
 		else if (strcmp(s,"doublescan")==0)
@@ -531,9 +529,9 @@ int mode_load(const char far* file) {
 	mode_max = 0;
 
 	while (gets(handle, buffer, sizeof(buffer))) {
-		char far* s = strtok(buffer,cfg_separator);
+		char far* s = strtok(buffer," \t\n\r");
 
-		if (strcmp(s,"device_video_modeline")==0) {
+		if (s && strcmp(s,"device_video_modeline")==0) {
 			mode_info info;
 			memset(&info,0,sizeof(mode_info));
 			if (modeline_load(&info)==0) {
@@ -541,13 +539,13 @@ int mode_load(const char far* file) {
 				mode_insert(&info,15);
 				mode_insert(&info,16);
 			}
-		} else if (strcmp(s,"device_video")==0) {
-			s = strtok(0,cfg_separator);
+		} else if (s && strcmp(s,"device_video")==0) {
+			s = strtok(0," \t\n\r");
 			while (s) {
 				if (memcmp(s,"vbeline/",8)==0) {
 					strcpy(driver_name,s+8);
 				}
-				s = strtok(0,cfg_separator);
+				s = strtok(0," \t\n\r");
 			}
 		}
 	}

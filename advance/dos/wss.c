@@ -46,7 +46,7 @@
 #define osd_cycles() os_clock()
 #define osd_cycles_per_second() OS_CLOCKS_PER_SEC
 
-static void logerror_(const char *text,...) {
+__attribute__((format(printf,1,0))) static void logerror_(const char *text,...) {
 	va_list arg;
 	va_start(arg,text);
 	log_va(text,arg);

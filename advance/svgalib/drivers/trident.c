@@ -888,7 +888,7 @@ static int setmode(int mode, int prv_mode)
 	return 1;
     }
 
-    moderegs = calloc(TOTAL_REGS,1);
+    moderegs = malloc(TOTAL_REGS);
 
     initializemode(moderegs, modetiming, modeinfo, mode);
     free(modetiming);

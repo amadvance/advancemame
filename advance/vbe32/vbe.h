@@ -26,8 +26,8 @@
 /* OEM information */
 #define OEM_VENDOR_STR "Andrea Mazzoleni"
 #define OEM_PRODUCT_STR "AdvanceVBE32"
-#define OEM_VERSION_NUM 0x0101
-#define OEM_VERSION_STR "1.1 " __DATE__
+#define OEM_VERSION_NUM 0x0102
+#define OEM_VERSION_STR "1.2 " __DATE__
 #define OEM_STR OEM_VENDOR_STR " " OEM_PRODUCT_STR " " OEM_VERSION_STR
 
 #define TSR_RUTACK1 0xAD17

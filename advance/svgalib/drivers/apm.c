@@ -386,7 +386,7 @@ static int apm_setmode(int mode, int prv_mode)
 	return 1;
     }
 
-    moderegs = calloc(APM_TOTAL_REGS,1);
+    moderegs = malloc(APM_TOTAL_REGS);
 
     apm_initializemode(moderegs, modetiming, modeinfo, mode);
     free(modetiming);

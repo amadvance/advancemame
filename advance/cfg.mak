@@ -69,6 +69,7 @@ endif
 
 ifeq ($(CONF_HOST),dos)
 CFGCFLAGS += \
+	-DUSE_ADV_SVGALIB_DOS \
 	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
@@ -163,7 +164,7 @@ CFGOBJS += \
 	$(CFGOBJ)/sdl/isdl.o
 # Customize the SDL_main function
 CFGCFLAGS += -DNO_STDIO_REDIRECT
-CFGOBJS += $(CFGOBJ)/windows/sdlmain.o		
+CFGOBJS += $(CFGOBJ)/windows/sdlmain.o
 endif
 ifeq ($(CONF_LIB_SVGAWIN),yes)
 CFGOBJDIRS += \
@@ -173,6 +174,7 @@ CFGOBJDIRS += \
 	$(CFGOBJ)/svgalib/drivers \
 	$(CFGOBJ)/svgalib/svgawin
 CFGCFLAGS += \
+	-DUSE_ADV_SVGALIB_WIN \
 	-I$(srcdir)/advance/svgalib \
 	-I$(srcdir)/advance/svgalib/clockchi \
 	-I$(srcdir)/advance/svgalib/ramdac \

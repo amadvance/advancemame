@@ -1,14 +1,26 @@
 Name
 	history - History For AdvanceMENU
 
-AdvanceMENU Version 2.2.0 2002/10 (not yet released)
+AdvanceMENU Version 2.2.0 2002/11
+	) In the Linux target the `shutdown' event runs "/sbin/poweroff".
 	) Merged the sdl and native system of the Linux target.
 		You can now mix the SDL input/output drivers with the
 		native drivers.
 	) Better ./configure script. It detects and automatically 
 		enables all the available libraries.
-	) In the Linux target the `shutdown' event runs "/sbin/poweroff".
+	) Fixed a precision error checking the clock in the DOS vgaline
+		driver.
+	) Removed the limitation of 8 bit crtc multiplier in the DOS
+		vgaline driver.
 	) Revised the SVGALIB DOS compatibility layer. Some bugs fixed.
+	) Added the support for the SVGALIB video drivers in Windows NT/2000/XP.
+	) Fixed a slowdown bug on the SVGALIB video board detection.
+	) Fixed a bug on the DOS/Windows SVGALIB Radeon driver. It should
+		help with the video modes at lower frequency generally used
+		in Arcade Monitors and TVs.
+	) Fixed a bug on the SDL sound management. It should help the
+		interaction of AdvanceMENU and AdvanceMAME.
+	) Better error reporting on the DOS/Windows SVGALIB drivers.
 
 AdvanceMENU Version 2.1.2 2002/09
 	) Added the support of the VSyncMAME audio drivers. This add

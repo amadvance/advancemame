@@ -233,13 +233,7 @@ Configuration
 			svgalib, fb, sdl, slang. And for Windows :
 			svgawin, sdl.
 
-	Options for DOS:
-		svgaline - SVGA generated graphics modes.
-		vbeline - VBE generated graphics modes.
-		vgaline - VGA generated text and graphics modes.
-		vbe - VBE graphics modes.
-
-	Options for Linux:
+	Options for the Linux version:
 		svgalib - SVGA generated graphics modes with the
 			SVGALIB 1.9.x library.
 		fb - SVGA generated grahics modes with the Linux Console
@@ -247,9 +241,17 @@ Configuration
 		slang - Text video modes with the sLang library.
 		sdl - SDL graphics and fake text modes.
 
-	Options for Windows:
+	Options for the DOS version:
+		svgaline - SVGA generated graphics modes.
+		vbeline - VBE generated graphics modes.
+		vgaline - VGA generated text and graphics modes.
+		vbe - VBE graphics modes.
+
+	Options for the Windows version:
 		svgawin - SVGA generated graphics modes with the
-			SVGAWIN included library.
+			SVGAWIN included library. To use this driver you
+			need to install the `svgawin.sys' driver with the
+			`svgawin.exe' command line utility.
 		sdl - SDL graphics and fake text modes.
 
 	Please note that to use the utilities `advv' and `advcfg' you

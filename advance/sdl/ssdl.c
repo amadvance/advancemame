@@ -141,7 +141,7 @@ void sound_sdl_done(void) {
 	if (sdl_state.active_flag) {
 		sdl_state.active_flag = 0;
 		SDL_CloseAudio();
-		SDL_InitSubSystem(SDL_INIT_AUDIO);
+		SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	}
 }
 

@@ -370,7 +370,7 @@ static int mx_setmode(int mode, int prv_mode)
 	return 1;
     }
 
-    moderegs = calloc(MX_TOTAL_REGS,1);
+    moderegs = malloc(MX_TOTAL_REGS);
 
     mx_initializemode(moderegs, modetiming, modeinfo, mode);
     free(modetiming);

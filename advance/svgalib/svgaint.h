@@ -6,16 +6,29 @@
 #define __SVGAINT_H
 
 /**************************************************************************/
-/* os */
+/* os and compiler */
+
+#if !defined(__GNUC__) 
+#define inline
+#define __attribute__()
+#endif
 
 #define MAP_SHARED 0x1
 #define MAP_FIXED 0x2
 #define MAP_FAILED ((void*)(-1))
 
-#ifndef __WIN32__ /* TODO */
-#include <sys/types.h>
-#include <sys/mman.h>
-#else
+#if defined(USE_ADV_SVGALIB_WINK)
+
+#define ADV_SVGALIB_CALL __stdcall
+#define PROT_READ 0
+#define PROT_WRITE 0
+#define sigemptyset(a) do { (void)(a); } while (0)
+#define sigaddset(a,b)
+#define sigprocmask(a,b,c)
+
+#elif defined(USE_ADV_SVGALIB_WIN)
+
+#define ADV_SVGALIB_CALL
 #ifdef TEXT
 #undef TEXT
 #define TEXT 0
@@ -25,6 +38,15 @@
 #define sigemptyset(a) do { (void)(a); } while (0)
 #define sigaddset(a,b)
 #define sigprocmask(a,b,c)
+
+#elif defined(USE_ADV_SVGALIB_DOS)
+
+#define ADV_SVGALIB_CALL
+#include <sys/types.h>
+#include <sys/mman.h>
+
+#else
+#error No USE_ADV_SVGALIB_* defined
 #endif
 
 /**************************************************************************/
@@ -36,8 +58,9 @@ typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned long uint32_t;
 
-void adv_svgalib_log_va(const char *text, va_list arg);
-void adv_svgalib_log(const char *text, ...) __attribute__((format(printf,1,2)));
+void ADV_SVGALIB_CALL adv_svgalib_log_va(const char *text, va_list arg);
+
+void ADV_SVGALIB_CALL adv_svgalib_log(const char *text, ...) __attribute__((format(printf,1,2)));
 
 /**
  * Map a memory region.
@@ -46,43 +69,47 @@ void adv_svgalib_log(const char *text, ...) __attribute__((format(printf,1,2)));
  *  - ==MAP_FAILED on error (MAP_FAILED is !=0)
  *  - !=MAP_FAILED the pointer.
  */
-void* adv_svgalib_mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned offset);
+void* ADV_SVGALIB_CALL adv_svgalib_mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned offset);
 
 /**
  * UnMap a memory region.
-  * Same calling convetion of unmap().
+ * Same calling convetion of unmap().
  */
-int adv_svgalib_munmap(void* start, unsigned length);
-int adv_svgalib_iopl(int perm);
-void* adv_svgalib_malloc(unsigned size);
-void* adv_svgalib_calloc(unsigned n, unsigned size);
-void adv_svgalib_free(void*);
-void adv_svgalib_fprintf(void*, const char* format, ...);
-void adv_svgalib_printf(const char* format, ...);
-void* adv_svgalib_stderr();
-int adv_svgalib_open(void);
-void adv_svgalib_close(void);
-void adv_svgalib_usleep(unsigned);
-void adv_svgalib_mode_init(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc);
-void adv_svgalib_mode_done(void);
-void adv_svgalib_enable(void);
-void adv_svgalib_disable(void);
-unsigned char adv_svgalib_inportb(unsigned port);
-unsigned short adv_svgalib_inportw(unsigned port);
-unsigned adv_svgalib_inportl(unsigned port);
-void adv_svgalib_outportb(unsigned port, unsigned char data);
-void adv_svgalib_outportw(unsigned port, unsigned short data);
-void adv_svgalib_outportl(unsigned port, unsigned data);
-int adv_svgalib_pci_bus_max(unsigned* bus_max);
-int adv_svgalib_pci_read_byte(unsigned bus_device_func, unsigned reg, unsigned char* value);
-int adv_svgalib_pci_read_word(unsigned bus_device_func, unsigned reg, unsigned short* value);
-int adv_svgalib_pci_read_dword(unsigned bus_device_func, unsigned reg, unsigned* value);
-int adv_svgalib_pci_read_dword_nolog(unsigned bus_device_func, unsigned reg, unsigned* value);
-int adv_svgalib_pci_write_byte(unsigned bus_device_func, unsigned reg, unsigned char value);
-int adv_svgalib_pci_write_word(unsigned bus_device_func, unsigned reg, unsigned short value);
-int adv_svgalib_pci_write_dword(unsigned bus_device_func, unsigned reg, unsigned value);
-int adv_svgalib_pci_read_dword_aperture_len(unsigned bus_device_func, unsigned reg, unsigned* value);
-int adv_svgalib_pci_scan_device(int (*callback)(unsigned bus_device_func,unsigned vendor,unsigned device, void* arg), void* arg);
+int ADV_SVGALIB_CALL adv_svgalib_munmap(void* start, unsigned length);
+int ADV_SVGALIB_CALL adv_svgalib_iopl(int perm);
+void* ADV_SVGALIB_CALL adv_svgalib_malloc(unsigned size);
+void* ADV_SVGALIB_CALL adv_svgalib_calloc(unsigned n, unsigned size);
+void ADV_SVGALIB_CALL adv_svgalib_free(void*);
+void ADV_SVGALIB_CALL adv_svgalib_fprintf(void*, const char* format, ...);
+void ADV_SVGALIB_CALL adv_svgalib_printf(const char* format, ...);
+void* ADV_SVGALIB_CALL adv_svgalib_stderr();
+int ADV_SVGALIB_CALL adv_svgalib_open(void);
+void ADV_SVGALIB_CALL adv_svgalib_close(void);
+void ADV_SVGALIB_CALL adv_svgalib_usleep(unsigned);
+void ADV_SVGALIB_CALL adv_svgalib_enable(void);
+void ADV_SVGALIB_CALL adv_svgalib_disable(void);
+unsigned char ADV_SVGALIB_CALL adv_svgalib_inportb(unsigned port);
+unsigned short ADV_SVGALIB_CALL adv_svgalib_inportw(unsigned port);
+unsigned ADV_SVGALIB_CALL adv_svgalib_inportl(unsigned port);
+void ADV_SVGALIB_CALL adv_svgalib_outportb(unsigned port, unsigned char data);
+void ADV_SVGALIB_CALL adv_svgalib_outportw(unsigned port, unsigned short data);
+void ADV_SVGALIB_CALL adv_svgalib_outportl(unsigned port, unsigned data);
+int ADV_SVGALIB_CALL adv_svgalib_pci_bus_max(unsigned* bus_max);
+int ADV_SVGALIB_CALL adv_svgalib_pci_read_byte(unsigned bus_device_func, unsigned reg, unsigned char* value);
+int ADV_SVGALIB_CALL adv_svgalib_pci_read_word(unsigned bus_device_func, unsigned reg, unsigned short* value);
+int ADV_SVGALIB_CALL adv_svgalib_pci_read_dword(unsigned bus_device_func, unsigned reg, unsigned* value);
+int ADV_SVGALIB_CALL adv_svgalib_pci_read_dword_nolog(unsigned bus_device_func, unsigned reg, unsigned* value);
+int ADV_SVGALIB_CALL adv_svgalib_pci_write_byte(unsigned bus_device_func, unsigned reg, unsigned char value);
+int ADV_SVGALIB_CALL adv_svgalib_pci_write_word(unsigned bus_device_func, unsigned reg, unsigned short value);
+int ADV_SVGALIB_CALL adv_svgalib_pci_write_dword(unsigned bus_device_func, unsigned reg, unsigned value);
+int ADV_SVGALIB_CALL adv_svgalib_pci_read_dword_aperture_len(unsigned bus_device_func, unsigned reg, unsigned* value);
+int ADV_SVGALIB_CALL adv_svgalib_pci_scan_device(int (*callback)(unsigned bus_device_func,unsigned vendor,unsigned device, void* arg), void* arg);
+void ADV_SVGALIB_CALL adv_svgalib_exit(int code);
+char* ADV_SVGALIB_CALL adv_svgalib_strtok(const char* s, const char* t);
+double ADV_SVGALIB_CALL adv_svgalib_atof(const char* s);
+int ADV_SVGALIB_CALL adv_svgalib_strcasecmp(const char* s1, const char* s2);
+double ADV_SVGALIB_CALL adv_svgalib_logf(double v);
+void ADV_SVGALIB_CALL adv_svgalib_abort(void);
 
 /* Override of os functions. */
 #ifndef USE_SVGALIB_EXTERNAL
@@ -99,6 +126,11 @@ int adv_svgalib_pci_scan_device(int (*callback)(unsigned bus_device_func,unsigne
 #endif
 #define stderr adv_svgalib_stderr()
 #define usleep adv_svgalib_usleep
+#define exit adv_svgalib_exit
+#define strtok adv_svgalib_strtok
+#define atof adv_svgalib_atof
+#define strcasecmp adv_svgalib_strcasecmp
+#define log adv_svgalib_logf
 #endif
 
 /**************************************************************************/
@@ -115,7 +147,7 @@ int adv_svgalib_pci_scan_device(int (*callback)(unsigned bus_device_func,unsigne
 #define INCLUDE_BANSHEE_DRIVER
 #define INCLUDE_SIS_DRIVER
 #define INCLUDE_I740_DRIVER
-/* #define INCLUDE_I810_DRIVER */ /* TODO No linear mode from 1.9.15. It requires special kernel support. */
+/* #define INCLUDE_I810_DRIVER */ /* It requires special kernel support. */
 #define INCLUDE_LAGUNA_DRIVER
 #define INCLUDE_RAGE_DRIVER
 #define INCLUDE_MX_DRIVER
@@ -243,67 +275,68 @@ extern struct adv_svgalib_state_struct adv_svgalib_state;
 
 #ifdef USE_SVGALIB_EXTERNAL
 
-int adv_svgalib_init(int divide_clock_with_sequencer);
-void adv_svgalib_done(void);
+int ADV_SVGALIB_CALL adv_svgalib_init(int divide_clock_with_sequencer);
+void ADV_SVGALIB_CALL adv_svgalib_done(void);
 
-int adv_svgalib_detect(const char* name);
+int ADV_SVGALIB_CALL adv_svgalib_detect(const char* name);
 
-int adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc);
-void adv_svgalib_unset(void);
+int ADV_SVGALIB_CALL adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc);
+void ADV_SVGALIB_CALL adv_svgalib_unset(void);
+int ADV_SVGALIB_CALL adv_svgalib_check(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc);
 
-void adv_svgalib_save(unsigned char* regs);
-void adv_svgalib_restore(unsigned char* regs);
+void ADV_SVGALIB_CALL adv_svgalib_save(unsigned char* regs);
+void ADV_SVGALIB_CALL adv_svgalib_restore(unsigned char* regs);
 
-void adv_svgalib_linear_map(void);
-void adv_svgalib_linear_unmap(void);
+void ADV_SVGALIB_CALL adv_svgalib_linear_map(void);
+void ADV_SVGALIB_CALL adv_svgalib_linear_unmap(void);
 
-void adv_svgalib_scroll_set(unsigned offset);
-void adv_svgalib_scanline_set(unsigned byte_length);
-void adv_svgalib_palette_set(unsigned index, unsigned r, unsigned g, unsigned b);
-void adv_svgalib_wait_vsync(void);
+void ADV_SVGALIB_CALL adv_svgalib_scroll_set(unsigned offset);
+void ADV_SVGALIB_CALL adv_svgalib_scanline_set(unsigned byte_length);
+void ADV_SVGALIB_CALL adv_svgalib_palette_set(unsigned index, unsigned r, unsigned g, unsigned b);
+void ADV_SVGALIB_CALL adv_svgalib_wait_vsync(void);
 
-void adv_svgalib_on(void);
-void adv_svgalib_off(void);
+void ADV_SVGALIB_CALL adv_svgalib_on(void);
+void ADV_SVGALIB_CALL adv_svgalib_off(void);
 
-void adv_svgalib_cursor_on(void);
-void adv_svgalib_cursor_off(void);
+void ADV_SVGALIB_CALL adv_svgalib_cursor_on(void);
+void ADV_SVGALIB_CALL adv_svgalib_cursor_off(void);
 
-static inline const char* adv_svgalib_driver_get() {
+static inline const char* ADV_SVGALIB_CALL adv_svgalib_driver_get() {
 	if (adv_svgalib_state.driver)
 		return adv_svgalib_state.driver->name;
 	else
 		return 0;
 }
 
-static inline unsigned char* adv_svgalib_linear_pointer_get(void) {
+static inline unsigned char* ADV_SVGALIB_CALL adv_svgalib_linear_pointer_get(void) {
 	return __svgalib_linear_pointer;
 }
 
-static inline unsigned adv_svgalib_linear_base_get(void) {
+static inline unsigned ADV_SVGALIB_CALL adv_svgalib_linear_base_get(void) {
 	return __svgalib_linear_mem_base;
 }
 
-static inline unsigned adv_svgalib_linear_size_get(void) {
+static inline unsigned ADV_SVGALIB_CALL adv_svgalib_linear_size_get(void) {
 	return __svgalib_linear_mem_size;
 }
 
-static inline unsigned char* adv_svgalib_mmio_pointer_get(void) {
+static inline unsigned char* ADV_SVGALIB_CALL adv_svgalib_mmio_pointer_get(void) {
 	return __svgalib_mmio_pointer;
 }
 
-static inline unsigned adv_svgalib_mmio_base_get(void) {
+static inline unsigned ADV_SVGALIB_CALL adv_svgalib_mmio_base_get(void) {
 	return __svgalib_mmio_base;
 }
 
-static inline unsigned adv_svgalib_mmio_size_get(void) {
+static inline unsigned ADV_SVGALIB_CALL adv_svgalib_mmio_size_get(void) {
 	return __svgalib_mmio_size;
 }
 
-static inline unsigned adv_svgalib_scanline_get(void) {
+static inline unsigned ADV_SVGALIB_CALL adv_svgalib_scanline_get(void) {
 	return adv_svgalib_state.mode.bytes_per_scanline;
 }
 
-static inline unsigned adv_svgalib_pixel_get(void) {
+static inline unsigned ADV_SVGALIB_CALL adv_svgalib_pixel_get(void) {
 	return adv_svgalib_state.mode.bytes_per_pixel;
 }
 

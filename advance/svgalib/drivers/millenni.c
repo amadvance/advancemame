@@ -695,7 +695,7 @@ static int mil_setmode(int mode, int prv_mode)
 	return 1;
     }
 
-    moderegs = calloc(MIL_TOTAL_REGS + 60,1);
+    moderegs = malloc(MIL_TOTAL_REGS + 60);
 
     mil_initializemode(moderegs, modetiming, modeinfo, mode);
     free(modetiming);

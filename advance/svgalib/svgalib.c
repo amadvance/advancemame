@@ -11,8 +11,6 @@
 #include "vgaio.h"
 #include "ramdac/ramdac.h"
 
-#include <assert.h>
-
 struct adv_svgalib_state_struct adv_svgalib_state;
 
 /**************************************************************************/
@@ -63,9 +61,10 @@ static void heap_init(void) {
 	heap_list->size = HEAP_SIZE - SLOT_SIZE;
 }
 
-void* adv_svgalib_malloc(unsigned size) {
+void* ADV_SVGALIB_CALL adv_svgalib_malloc(unsigned size) {
 	struct heap_slot* h = heap_list;
 	struct heap_slot* n;
+	void* r;
 
 	if (size % SLOT_SIZE)
 		size = size + SLOT_SIZE - size % SLOT_SIZE;
@@ -86,10 +85,15 @@ void* adv_svgalib_malloc(unsigned size) {
 	h->used = 1;
 	h->size = size;
 
-	return heap_slot_to(h);
+	r = heap_slot_to(h);
+
+	/* ensure a constant behaviour */
+	memset(r, 0, size);
+
+	return r;
 }
 
-void adv_svgalib_free(void* ptr) {
+void ADV_SVGALIB_CALL adv_svgalib_free(void* ptr) {
 	struct heap_slot* h = heap_slot_from(ptr);
 
 	if (h->prev->used == 0 && heap_slot_end(h->prev) == heap_slot_begin(h)
@@ -116,7 +120,7 @@ void adv_svgalib_free(void* ptr) {
 	}
 }
 
-void* adv_svgalib_calloc(unsigned n, unsigned size) {
+void* ADV_SVGALIB_CALL adv_svgalib_calloc(unsigned n, unsigned size) {
 	void* r = adv_svgalib_malloc(n * size);
 	if (r)
 		memset(r, 0, n*size);
@@ -124,22 +128,51 @@ void* adv_svgalib_calloc(unsigned n, unsigned size) {
 }
 
 /**************************************************************************/
-/* printf */
+/* compatibility */
 
-void adv_svgalib_printf(const char* format, ...) {
+void ADV_SVGALIB_CALL adv_svgalib_printf(const char* format, ...) {
+	adv_svgalib_log("svgalib: invalid adv_svgalib_printf() call\n");
+	adv_svgalib_abort();
 }
 
-void adv_svgalib_fprintf(void* file, const char* format, ...) {
+void ADV_SVGALIB_CALL adv_svgalib_fprintf(void* file, const char* format, ...) {
+	adv_svgalib_log("svgalib: invalid adv_svgalib_fprintf() call\n");
+	adv_svgalib_abort();
 }
 
-void* adv_svgalib_stderr() {
+void* ADV_SVGALIB_CALL adv_svgalib_stderr() {
+	adv_svgalib_log("svgalib: invalid adv_svgalib_stderr() call\n");
+	adv_svgalib_abort();
+	return 0;
+}
+
+void ADV_SVGALIB_CALL adv_svgalib_exit(int code) {
+	adv_svgalib_log("svgalib: invalid adv_svgalib_exit() call\n");
+	adv_svgalib_abort();
+}
+	
+char* ADV_SVGALIB_CALL adv_svgalib_strtok(const char* s, const char* t) {
+	adv_svgalib_log("svgalib: invalid adv_svgalib_strtok() call\n");
+	adv_svgalib_abort();
+	return 0;
+}	
+	
+double ADV_SVGALIB_CALL adv_svgalib_atof(const char* s) {
+	adv_svgalib_log("svgalib: invalid adv_svgalib_atof() call\n");
+	adv_svgalib_abort();
+	return 0;
+}
+
+int ADV_SVGALIB_CALL adv_svgalib_strcasecmp(const char* s1, const char* s2) {
+	adv_svgalib_log("svgalib: invalid adv_svgalib_strcasecmp() call\n");
+	adv_svgalib_abort();
 	return 0;
 }
 
 /**************************************************************************/
 /* pci */
 
-int adv_svgalib_pci_read_dword_aperture_len(unsigned bus_device_func, unsigned reg, unsigned* value) {
+int ADV_SVGALIB_CALL adv_svgalib_pci_read_dword_aperture_len(unsigned bus_device_func, unsigned reg, unsigned* value) {
 	unsigned ori;
 	unsigned mask;
 	unsigned len;
@@ -165,7 +198,7 @@ int adv_svgalib_pci_read_dword_aperture_len(unsigned bus_device_func, unsigned r
 	return 0;
 }
 
-int adv_svgalib_pci_scan_device(int (*callback)(unsigned bus_device_func,unsigned vendor,unsigned device, void* arg), void* arg)
+int ADV_SVGALIB_CALL adv_svgalib_pci_scan_device(int (*callback)(unsigned bus_device_func,unsigned vendor,unsigned device, void* arg), void* arg)
 {
 	unsigned i,j;
 	unsigned bus_max;
@@ -707,6 +740,30 @@ void unmap_linear(unsigned long size) {
     munmap(LINEAR_POINTER, size);
 }
 
+void __svgalib_delay(void) {
+	__asm__ __volatile__ (
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		"xorl %%eax,%%eax\n"
+		:
+		:
+		: "cc", "%eax"
+	);
+}
+
 /***************************************************************************/
 /* vgamisc */
 
@@ -731,7 +788,8 @@ int vga_drawscansegment(unsigned char *colors, int x, int y, int length) {
 	(void)y;
 	(void)length;
 	/* used only for cursor */
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vga_drawscansegment() call\n");
+	adv_svgalib_abort();
 	return 0;
 }
 
@@ -743,7 +801,8 @@ int vga_getpalvec(int start, int num, int *pal) {
 	(void)num;
 	(void)pal;
 	/* used only for cursor */
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vga_getpalvec() call\n");	
+	adv_svgalib_abort();
 	return num;
 }
 
@@ -767,26 +826,31 @@ int vga_setpalette(int index, int red, int green, int blue) {
 
 int vgadrv_saveregs(unsigned char regs[]) {
 	(void)regs;
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_saveregs() call\n");
+	adv_svgalib_abort();
 	return 0;
 }
 
 void vgadrv_setregs(const unsigned char regs[], int mode) {
 	(void)regs;
 	(void)mode;
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_setregs() call\n");
+	adv_svgalib_abort();
 }
 
 void vgadrv_unlock(void) {
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_unlock() call\n");
+	adv_svgalib_abort();
 }
 
 void vgadrv_lock(void) {
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_lock() call\n");
+	adv_svgalib_abort();
 }
 
 int vgadrv_test(void) {
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_test() call\n");
+	adv_svgalib_abort();
 	return 0;
 }
 
@@ -794,52 +858,60 @@ int vgadrv_init(int force, int par1, int par2) {
 	(void)force;
 	(void)par1;
 	(void)par2;
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_init() call\n");
+	adv_svgalib_abort();
 	return 0;
 }
 
 void vgadrv_setpage(int page) {
 	(void)page;
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_setpage() call\n");
+	adv_svgalib_abort();
 }
 
 void vgadrv_setrdpage(int page) {
 	(void)page;
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_setrdpage() call\n");
+	adv_svgalib_abort();
 }
 
 void vgadrv_setwrpage(int page) {
 	(void)page;
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_setwrpage() call\n");
+	adv_svgalib_abort();
 }
 
 int vgadrv_setmode(int mode, int prv_mode) {
 	(void)mode;
 	(void)prv_mode;
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_setmode() call\n");
+	adv_svgalib_abort();
 	return 0;
 }
 
 int vgadrv_modeavailable(int mode) {
 	(void)mode;
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_modeavailable() call\n");
+	adv_svgalib_abort();
 	return 0;
 }
 
 void vgadrv_setdisplaystart(int address) {
 	(void)address;
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_setdisplaystart() call\n");
+	adv_svgalib_abort();
 }
 
 void vgadrv_setlogicalwidth(int width) {
 	(void)width;
-	assert(0);
+	adv_svgalib_log("svgalib: invalid vgadrv_setlogicalwidth() call\n");
+	adv_svgalib_abort();
 }
 
 void vgadrv_getmodeinfo(int mode, vga_modeinfo * modeinfo) {
 	(void)mode;
 	(void)modeinfo;
-	assert(0);
+	adv_svgalib_abort();
 }
 
 DriverSpecs __svgalib_vga_driverspecs = {
@@ -886,7 +958,7 @@ ModeInfo* __svgalib_createModeInfoStructureForSvgalibMode(int mode)
 		return 0;
 
 	modeinfo = malloc(sizeof(ModeInfo));
-	assert(modeinfo);
+	
 	memset(modeinfo,0,sizeof(ModeInfo));
 
 	modeinfo->width = adv_svgalib_state.mode.width;
@@ -1234,7 +1306,7 @@ static struct adv_svgalib_chipset_struct cards[] = {
 	{ 0, 0, 0, 0 }
 };
 
-void adv_svgalib_mode_init(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc)
+static void mode_init(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc)
 {
 	/* mode */
 	memset(&adv_svgalib_state.mode,0,sizeof(adv_svgalib_state.mode));
@@ -1307,7 +1379,7 @@ void adv_svgalib_mode_init(unsigned pixelclock, unsigned hde, unsigned hrs, unsi
 	__svgalib_cur_info = __svgalib_infotable[__svgalib_cur_mode];
 }
 
-void adv_svgalib_mode_done(void)
+static void mode_done(void)
 {
 	__svgalib_cur_mode = 0;
 	__svgalib_cur_info = __svgalib_infotable[__svgalib_cur_mode];
@@ -1320,7 +1392,7 @@ void adv_svgalib_mode_done(void)
  *  - ==0 on success
  *  - !=0 on error
  */
-int adv_svgalib_init(int divide_clock_with_sequencer)
+int ADV_SVGALIB_CALL adv_svgalib_init(int divide_clock_with_sequencer)
 {
 	adv_svgalib_log("svgalib: adv_svgalib_init()\n");
 	
@@ -1357,7 +1429,7 @@ int adv_svgalib_init(int divide_clock_with_sequencer)
  * Deinitialize the SVGALIB library.
  * You must call this function if adv_svgalib_init() complete with success.
  */
-void adv_svgalib_done(void)
+void ADV_SVGALIB_CALL adv_svgalib_done(void)
 {
 	adv_svgalib_log("svgalib: adv_svgalib_done()\n");
 	
@@ -1372,7 +1444,7 @@ void adv_svgalib_done(void)
  *  - ==0 on success
  *  - !=0 on error
  */
-int adv_svgalib_detect(const char* name) {
+int ADV_SVGALIB_CALL adv_svgalib_detect(const char* name) {
 	unsigned bit_map[5] = { 8,15,16,24,32 };
 	unsigned i;
 
@@ -1426,7 +1498,7 @@ int adv_svgalib_detect(const char* name) {
 	for(i=0;i<5;++i) {
 		unsigned bit = bit_map[i];
 
-		adv_svgalib_mode_init(25200000/2,640/2,656/2,752/2,800/2,480,490,492,525,0,0,1,1,bit,0,0);
+		mode_init(25200000/2,640/2,656/2,752/2,800/2,480,490,492,525,0,0,1,1,bit,0,0);
 
 		if (adv_svgalib_state.driver->drv->modeavailable(adv_svgalib_state.mode_number) == 0) {
 			switch (bit) {
@@ -1438,7 +1510,7 @@ int adv_svgalib_detect(const char* name) {
 			}
 		}
 
-		adv_svgalib_mode_done();
+		mode_done();
 	}
 
 	if (adv_svgalib_state.has_bit8 == 0 && adv_svgalib_state.has_bit15 == 0 && adv_svgalib_state.has_bit16 == 0 && adv_svgalib_state.has_bit24 == 0 && adv_svgalib_state.has_bit32 == 0) {
@@ -1450,13 +1522,13 @@ int adv_svgalib_detect(const char* name) {
 	adv_svgalib_state.has_interlace = 0;
 	if ((adv_svgalib_state.driver->cap & FLAGS_INTERLACE) != 0) {
 		adv_svgalib_state.has_interlace = 1;
-		adv_svgalib_mode_init(40280300,1024,1048,1200,1280,768,784,787,840,0,1,1,1,8,0,0);
+		mode_init(40280300,1024,1048,1200,1280,768,784,787,840,0,1,1,1,8,0,0);
 
 		if (adv_svgalib_state.driver->drv->modeavailable(adv_svgalib_state.mode_number) == 0) {
 			adv_svgalib_state.has_interlace = 0;
 		}
 
-		adv_svgalib_mode_done();
+		mode_done();
 	}
 
 	if ((adv_svgalib_state.driver->cap & FLAGS_TV) != 0) {
@@ -1471,16 +1543,36 @@ int adv_svgalib_detect(const char* name) {
 }
 
 /**
+ * Check a video mode.
+ * \return
+ *  - ==0 on success
+ *  - !=0 on error
+ */
+int ADV_SVGALIB_CALL adv_svgalib_check(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc)
+{
+	mode_init(pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, hsync, vsync, bits_per_pixel, tvpal, tvntsc);
+
+	if (adv_svgalib_state.driver->drv->modeavailable(adv_svgalib_state.mode_number) == 0) {
+		mode_done();
+		return -1;
+	}
+
+	mode_done();
+
+	return 0;
+}
+
+/**
  * Set a video mode.
  * \return
  *  - ==0 on success
  *  - !=0 on error
  */
-int adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc)
+int ADV_SVGALIB_CALL adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc)
 {
 	adv_svgalib_log("svgalib: adv_svgalib_set()\n");
 	
-	adv_svgalib_mode_init(pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, hsync, vsync, bits_per_pixel, tvpal, tvntsc);
+	mode_init(pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, hsync, vsync, bits_per_pixel, tvpal, tvntsc);
 
 	if (adv_svgalib_state.driver->drv->unlock)
 		adv_svgalib_state.driver->drv->unlock();
@@ -1494,7 +1586,7 @@ int adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hr
 		adv_svgalib_log("svgalib: setmode() failed\n");		
 		adv_svgalib_enable();
 		vga_screenon();
-		adv_svgalib_mode_done();
+		mode_done();
 		return -1;
 	}
 	adv_svgalib_enable();
@@ -1505,7 +1597,7 @@ int adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hr
 
 	if (adv_svgalib_state.driver->drv->linear(LINEAR_ENABLE, __svgalib_linear_mem_base)!=0) {
 		adv_svgalib_log("svgalib: linear() failed\n");	
-		adv_svgalib_mode_done();
+		mode_done();
 		return -1;
 	}
 
@@ -1519,7 +1611,7 @@ int adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hr
  *  - ==0 on success
  *  - !=0 on error
  */
-void adv_svgalib_unset(void) 
+void ADV_SVGALIB_CALL adv_svgalib_unset(void) 
 {
 	adv_svgalib_log("svgalib: adv_svgalib_unset()\n");
 	
@@ -1528,14 +1620,14 @@ void adv_svgalib_unset(void)
 
 	adv_svgalib_state.driver->drv->linear(LINEAR_DISABLE, __svgalib_linear_mem_base);
 
-	adv_svgalib_mode_done();
+	mode_done();
 }
 
 /**
  * Save the video board state.
  * \param regs Destination of the state. It must be ADV_SVGALIB_STATE_SIZE bytes long.
  */
-void adv_svgalib_save(unsigned char* regs) 
+void ADV_SVGALIB_CALL adv_svgalib_save(unsigned char* regs) 
 {
 	adv_svgalib_log("svgalib: adv_svgalib_save()\n");
 	
@@ -1553,7 +1645,7 @@ void adv_svgalib_save(unsigned char* regs)
  * Restore the video board state.
  * \param regs Source of the state. It must be previous obtained by adv_svgalib_save.
  */
-void adv_svgalib_restore(unsigned char* regs) 
+void ADV_SVGALIB_CALL adv_svgalib_restore(unsigned char* regs) 
 {
 	adv_svgalib_log("svgalib: adv_svgalib_restore()\n");
 	
@@ -1576,7 +1668,7 @@ void adv_svgalib_restore(unsigned char* regs)
 /**
  * Map the video board linear memory.
  */
-void adv_svgalib_linear_map(void) 
+void ADV_SVGALIB_CALL adv_svgalib_linear_map(void) 
 {
 	adv_svgalib_log("svgalib: adv_svgalib_linear_map()\n");
 	
@@ -1590,7 +1682,7 @@ void adv_svgalib_linear_map(void)
 /**
  * Unmap the video board linear memory.
  */
-void adv_svgalib_linear_unmap(void) 
+void ADV_SVGALIB_CALL adv_svgalib_linear_unmap(void) 
 {
 	adv_svgalib_log("svgalib: adv_svgalib_linear_unmap()\n");
 	
@@ -1603,7 +1695,7 @@ void adv_svgalib_linear_unmap(void)
  * Set the display start offset in the video memory.
  * \param offset Display start offset in bytes.
  */
-void adv_svgalib_scroll_set(unsigned offset) 
+void ADV_SVGALIB_CALL adv_svgalib_scroll_set(unsigned offset) 
 {
 	if (adv_svgalib_state.driver->drv->setdisplaystart)
 		adv_svgalib_state.driver->drv->setdisplaystart(offset);
@@ -1613,7 +1705,7 @@ void adv_svgalib_scroll_set(unsigned offset)
  * Set the scanline length.
  * \param offset Scanline length in bytes.
  */
-void adv_svgalib_scanline_set(unsigned byte_length) {
+void ADV_SVGALIB_CALL adv_svgalib_scanline_set(unsigned byte_length) {
 	adv_svgalib_state.mode.bytes_per_scanline = byte_length;
 
 	if (adv_svgalib_state.driver->drv->setlogicalwidth)
@@ -1625,35 +1717,35 @@ void adv_svgalib_scanline_set(unsigned byte_length) {
  * \param index Index of the palette entry. From 0 to 255.
  * \param r,g,b RGB values of 8 bits.
  */
-void adv_svgalib_palette_set(unsigned index, unsigned r, unsigned g, unsigned b) {
+void ADV_SVGALIB_CALL adv_svgalib_palette_set(unsigned index, unsigned r, unsigned g, unsigned b) {
 	vga_setpalette(index, r >> 2, g >> 2, b >> 2);
 }
 
 /**
  * Wait a vertical retrace.
  */
-void adv_svgalib_wait_vsync(void) {
+void ADV_SVGALIB_CALL adv_svgalib_wait_vsync(void) {
 	vga_waitretrace();
 }
 
 /**
  * Enable the hardware video output.
  */
-void adv_svgalib_on(void) {
+void ADV_SVGALIB_CALL adv_svgalib_on(void) {
 	vga_screenon();
 }
 
 /**
  * Disable the hardware video output.
  */
-void adv_svgalib_off(void) {
+void ADV_SVGALIB_CALL adv_svgalib_off(void) {
 	vga_screenoff();
 }
 
 /**
  * Enable the hardware mouse pointer.
  */
-void adv_svgalib_cursor_on(void) {
+void ADV_SVGALIB_CALL adv_svgalib_cursor_on(void) {
 	if (adv_svgalib_state.driver->drv->cursor)
 		adv_svgalib_state.driver->drv->cursor(CURSOR_SHOW, 0, 0, 0, 0, 0);
 }
@@ -1661,12 +1753,12 @@ void adv_svgalib_cursor_on(void) {
 /**
  * Disable the hardware mosue pointer.
  */
-void adv_svgalib_cursor_off(void) {
+void ADV_SVGALIB_CALL adv_svgalib_cursor_off(void) {
 	if (adv_svgalib_state.driver->drv->cursor)
 		adv_svgalib_state.driver->drv->cursor(CURSOR_HIDE, 0, 0, 0, 0, 0);
 }
 
-void adv_svgalib_log(const char *text, ...) {
+void ADV_SVGALIB_CALL adv_svgalib_log(const char *text, ...) {
 	va_list arg;
 	va_start(arg, text);
 	adv_svgalib_log_va(text, arg);

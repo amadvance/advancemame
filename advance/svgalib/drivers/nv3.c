@@ -404,7 +404,7 @@ static int nv3_setmode(int mode, int prv_mode)
 	return 1;
     }
 
-    moderegs = calloc(NV3_TOTAL_REGS,1);
+    moderegs = malloc(NV3_TOTAL_REGS);
 
     nv3_initializemode(moderegs, modetiming, modeinfo, mode);
     free(modetiming);

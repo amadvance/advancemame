@@ -50,7 +50,7 @@ VIDEOWIN_SRC = \
 
 CAB_ROOT_SRC = \
 	$(srcdir)/COPYING \
-	$(srcdir)/Makefile.in
+	$(CONF_SRC)
 
 CAB_ADVANCE_SRC = \
 	$(srcdir)/advance/advance.mak \
@@ -206,8 +206,8 @@ distcab: $(RCSRC)
 	mkdir $(CAB_DIST_DIR_SRC)/contrib
 	mkdir $(CAB_DIST_DIR_SRC)/contrib/cab
 	cp -R $(CAB_CONTRIB_SRC) $(CAB_DIST_DIR_SRC)/contrib/cab
-	rm -f $(CAB_DIST_FILE_SRC).zip
-	cd $(CAB_DIST_DIR_SRC) && zip -r ../$(CAB_DIST_FILE_SRC).zip *
+	rm -f $(CAB_DIST_FILE_SRC).tar.gz
+	tar cfzo $(CAB_DIST_FILE_SRC).tar.gz $(CAB_DIST_DIR_SRC)
 	rm -r $(CAB_DIST_DIR_SRC)
 
 distcabbin: $(CAB_ROOT_BIN) $(CAB_DOC_BIN)

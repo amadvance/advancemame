@@ -70,7 +70,7 @@ ctrident+
 vbe
 vbe.com
 |
-	upx --best $@
+
 
 clean:
 	rm -f *.obj *.bak *.map *.tds

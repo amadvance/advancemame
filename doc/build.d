@@ -12,7 +12,7 @@ Preparing The Sources
 	need first to download and unzip the emulator source with the same
 	version of the Advance source. Please note that you must use the
 	original emulator source, you cannot use the source of another MAME
-	clone like Xmame.
+	clone like xmame.
 
 	The source of the MAME emulator must be unzipped in the `src/' directory,
 	the MESS source in `srcmess/' and the PacMAME source in `srcpac/'.
@@ -122,7 +122,7 @@ Requirements
 
 	To build on Linux you need the additional following software:
 		:Linux 2.4.5 (or newer)
-		:SVGALIB 1.9.11 (or newer)
+		:SVGALIB 1.9.15 (or newer)
 		:S-Lang 1.4.3 (or newer)
 		:LibSDL 1.2.4 (or newer)
 
@@ -130,6 +130,8 @@ Requirements
 
 	The SVGALIB 1.4.x versions are NOT supported.
 	Download the latest ALPHA 1.9.x version from http://www.svgalib.org.
+	Some users have reported problems with the 1.9.16 version, eventually
+	downgrade at the 1.9.15 version.
 
 	If your distribution doesn't contain the S-Lang library you
 	can download it from http://www.s-lang.org/.

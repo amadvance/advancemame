@@ -200,16 +200,16 @@ adv_error svgaline_init(int device_id) {
 	}
 
 	if (adv_svgalib_init(svgaline_option.divide_clock) != 0) {
-		log_std(("svgaline: error calling adv_svgalib_init()\n"));
+		log_std(("video:svgaline: error calling adv_svgalib_init()\n"));
 		return -1;
 	}
 
 	if (adv_svgalib_detect(name) != 0) {
-		log_std(("svgaline: error calling adv_svgalib_detect(%s)\n", name));
+		log_std(("video:svgaline: error calling adv_svgalib_detect(%s)\n", name));
 		return -1;
 	}
 
-	log_std(("svgaline: found driver %s\n", adv_svgalib_driver_get()));
+	log_std(("video:svgaline: found driver %s\n", adv_svgalib_driver_get()));
 
 	svgaline_state.cap = VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN
 		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC;
@@ -261,11 +261,13 @@ adv_error svgaline_mode_set(const svgaline_video_mode* mode)
 {
 	unsigned clock;
 
+	log_std(("video:svgaline: svgawin_mode_set()\n"));
+
 	assert(svgaline_is_active() && !svgaline_mode_is_active());
 
-	log_std(("svgaline: mode_set bits_per_pixel %d\n", mode->bits_per_pixel ));
-	log_std_modeline_c(("svgaline: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc) ));
-	log_std(("svgaline: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc) ));
+	log_std(("video:svgaline: mode_set bits_per_pixel %d\n", mode->bits_per_pixel ));
+	log_std_modeline_c(("video:svgaline: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc) ));
+	log_std(("video:svgaline: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc) ));
 
 	clock = mode->crtc.pixelclock;
 	if (svgaline_option.divide_clock)
@@ -285,7 +287,7 @@ adv_error svgaline_mode_set(const svgaline_video_mode* mode)
 
 	svgaline_state.mode_active = 1;
 
-	log_std(("svgaline: mode_set done\n"));
+	log_std(("video:svgaline: mode_set done\n"));
 
 	return 0;
 }
@@ -407,19 +409,15 @@ adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc
 {
 	assert( svgaline_is_active() );
 
+	log_std(("video:svgaline: svgaline_mode_generate(x:%d,y:%d,bits:%d)\n", crtc->hde, crtc->vde, bits));
+
 	if (video_mode_generate_check("svgaline",svgaline_flags(),8,2048,crtc,bits,flags)!=0)
 		return -1;
 
-	/* try the internal driver */
-	adv_svgalib_mode_init(crtc->pixelclock, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt, crtc_is_doublescan(crtc), crtc_is_interlace(crtc), crtc_is_nhsync(crtc), crtc_is_nvsync(crtc), bits, 0, 0);
-
-	if (adv_svgalib_state.driver->drv->modeavailable(adv_svgalib_state.mode_number) == 0) {
-		error_nolog_cat("svgaline: Generic error checking the availability of the video mode\n");
-		adv_svgalib_mode_done();
+	if (adv_svgalib_check(crtc->pixelclock, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt, crtc_is_doublescan(crtc), crtc_is_interlace(crtc), crtc_is_nhsync(crtc), crtc_is_nvsync(crtc), bits, 0, 0) != 0) {
+		error_nolog_cat("video:svgaline: Generic error checking the availability of the video mode\n");
 		return -1;
 	}
-
-	adv_svgalib_mode_done();
 
 	mode->crtc = *crtc;
 	mode->bits_per_pixel = bits;

@@ -1,5 +1,5 @@
 #############################################################################
-# User configuration
+# Configuration
 #
 
 srcdir = ..
@@ -7,13 +7,15 @@ VBEOBJ = obj
 DEBUG = no
 ECHO = @echo
 MD = @mkdir
+#CC = @i586-pc-msdosdjgpp-gcc
+#LD = @i586-pc-msdosdjgpp-gcc
 CC = @gcc
 LD = @gcc
 EXE = .exe
 STUBEDIT = @stubedit
 
 #############################################################################
-#
+# Rules
 #
 
 ifeq ($(DEBUG),yes)
@@ -38,6 +40,7 @@ VBEOBJDIRS += \
 	$(VBEOBJ)/svgalib/ramdac \
 	$(VBEOBJ)/svgalib/drivers
 VBECFLAGS += \
+	-DUSE_ADV_SVGALIB_DOS \
 	-I$(srcdir)/dos \
 	-I$(srcdir)/svgalib \
 	-I$(srcdir)/svgalib/svgados \

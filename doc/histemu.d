@@ -1,18 +1,28 @@
 Name
 	history - History For Advance Emulators
 
-AdvanceMAME Version 0.61.5 2002/11 (not yet released)
-	) The SVGAWIN drivers now use the framebuffer reported by 
-		Windows. This fixes the crash problem with the Cirrus
-		Laguna boards and probably others.
+AdvanceMAME Version 0.62.0 2002/11
+	) The Windows SVGAWIN driver now use the framebuffer reported by
+		Windows if the Windows SVGALIB isn't able to get it.
+		This fixes the crash problem with the Cirrus Laguna boards
+		and probably others.
+	) Updated the Windows SVGAWIN.SYS driver to the 1.1 version.
 	) Added the `display_aspect_x' and `display_aspect_y' to arbitary
 		selects the aspect ratio of the monitor used.
+	) Fixed a slowdown bug on the SVGALIB video board detection.
+	) Fixed a bug on the DOS/Windows SVGALIB Radeon driver. It should
+		help with the video modes at lower frequency generally used
+		in Arcade Monitors and TVs.
+	) Fixed a bug on the SDL sound management. It should help the
+		interaction of AdvanceMENU and AdvanceMAME.
+	) Better error reporting on the DOS/Windows SVGALIB drivers.
 
-AdvanceMESS Version 0.61.2 2002/11 (not yet released)
+AdvanceMESS Version 0.61.2 2002/11
 	) The MESS threads are now used only if the SMP runtime option
 		is activated. Previously on a SMP compile the threads was
 		always used.
-	) All from AdvanceMAME 0.61.5
+	) All from MESS 0.61.2.
+	) All from AdvanceMAME 0.62.0.
 
 AdvanceMAME Version 0.61.4 2002/11
 	) Merged the sdl and native system of the Linux target.
@@ -30,8 +40,8 @@ AdvanceMAME Version 0.61.4 2002/11
 
 AdvanceMESS Version 0.61.1 2002/11
 	) Fixed the name of the .nv files
-	) All from MESS 0.61.1
-	) All from AdvanceMAME 0.61.4
+	) All from MESS 0.61.1.
+	) All from AdvanceMAME 0.61.4.
 
 AdvanceMAME Version 0.61.3 2002/09
 	) Fixed the window title and the icon in the sdl system.

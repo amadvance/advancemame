@@ -467,7 +467,7 @@ static int ark_setmode(int mode, int prv_mode)
 	free(modeinfo);
 	return 1;
     }
-    moderegs = calloc(ARK_TOTAL_REGS,1);
+    moderegs = malloc(ARK_TOTAL_REGS);
 
     ark_initializemode(moderegs, modetiming, modeinfo);
     free(modetiming);
@@ -876,6 +876,8 @@ static int ark_init(int force, int par1, int par2)
 	else if ((id == 0x13) || (id == 0x14) || (id == 0x20))
 	    ark_chip = ARK2000PV;
 	else {
+	    fprintf(stderr,"svgalib: ark: Unknown chiptype %d.\n",
+		   id);
 	    return -1;
 	}
 	val = __svgalib_inSR(0x10);

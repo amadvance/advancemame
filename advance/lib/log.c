@@ -44,37 +44,10 @@ struct log_context {
 static struct log_context LOG;
 
 /**
- * Print something with the printv format in the log file.
- * This function must not be called directly. One of the log_* macro must be used.
- */
-void log_va(const char *text, va_list arg) {
-	if (LOG.msg) {
-		vfprintf(LOG.msg,text,arg);
-
-		if (LOG.msg_sync_flag) {
-			fflush(LOG.msg);
-			target_sync();
-		}
-	}
-}
-
-/**
- * Print something with the printf format in the log file.
- * This function must not be called directly. One of the log_* macro must be used.
- */
-void log_f(const char *text, ...) {
-	va_list arg;
-	va_start(arg, text);
-	log_va(text, arg);
-	va_end(arg);
-}
-
-
-/**
  * Print a modeline with blanking information in the log file.
  * This function must not be called directly. One of the log_* macro must be used. 
  */
-void log_f_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace)
+void log_f_modeline_cb(const char* text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace)
 {
 	const char* flag1 = hsync_pol ? " -hsync" : " +hsync";
 	const char* flag2 = vsync_pol ? " -vsync" : " +vsync";
@@ -92,7 +65,7 @@ void log_f_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde, uns
  * Print a modeline in the log file.
  * This function must not be called directly. One of the log_* macro must be used.
  */
-void log_f_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace)
+void log_f_modeline_c(const char* text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace)
 {
 	const char* flag1 = hsync_pol ? " -hsync" : " +hsync";
 	const char* flag2 = vsync_pol ? " -vsync" : " +vsync";
@@ -104,6 +77,32 @@ void log_f_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsi
 		vde, vrs, vre, vt,
 		flag1, flag2, flag3, flag4
 	);
+}
+
+/**
+ * Print something with the printf format in the log file.
+ * This function must not be called directly. One of the log_* macro must be used.
+ */
+void log_f(const char* text, ...) {
+	va_list arg;
+	va_start(arg, text);
+	log_va(text, arg);
+	va_end(arg);
+}
+
+/**
+ * Print something with the printv format in the log file.
+ * This function must not be called directly. One of the log_* macro must be used.
+ */
+void log_va(const char* text, va_list arg) {
+	if (LOG.msg) {
+		vfprintf(LOG.msg,text,arg);
+
+		if (LOG.msg_sync_flag) {
+			fflush(LOG.msg);
+			target_sync();
+		}
+	}
 }
 
 /** 

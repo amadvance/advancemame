@@ -2,12 +2,6 @@
 
 #include "svgacode.h"
 
-#if DBG
-#define svgalibKdPrint(arg) DbgPrint arg
-#else
-#define svgalibKdPrint(arg)
-#endif
-
 NTSTATUS svgalib_map(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
 {
 	SVGALIB_MAP_IN* in = (SVGALIB_MAP_IN*)IoBuffer;
@@ -30,7 +24,7 @@ NTSTATUS svgalib_map(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBuf
 	PVOID virtualAddress;
 
 	if (InputBufferLength != sizeof(SVGALIB_MAP_IN) || OutputBufferLength != sizeof(SVGALIB_MAP_OUT)) {
-		svgalibKdPrint(("SVGAWIN: Invalid input or output buffer\n"));
+		DbgPrint("svgalib: Invalid input or output buffer\n");
 		status = STATUS_INVALID_PARAMETER;
 		goto err;
 	}
@@ -53,14 +47,14 @@ NTSTATUS svgalib_map(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBuf
 
 	status = ZwOpenSection(&physicalMemoryHandle, SECTION_ALL_ACCESS, &objectAttributes);
 	if (!NT_SUCCESS(status)) {
-		svgalibKdPrint(("SVGAWIN: ZwOpenSection failed\n"));
+		DbgPrint("svgalib: ZwOpenSection failed\n");
 		goto err;
 	}
 
 	status = ObReferenceObjectByHandle(physicalMemoryHandle, SECTION_ALL_ACCESS, (POBJECT_TYPE) NULL, KernelMode, &PhysicalMemorySection, (POBJECT_HANDLE_INFORMATION) NULL);
 
 	if (!NT_SUCCESS(status)){
-		svgalibKdPrint(("SVGAWIN: ObReferenceObjectByHandle failed\n"));
+		DbgPrint("svgalib: ObReferenceObjectByHandle failed\n");
 		goto err_handle;
 	}
 
@@ -72,7 +66,7 @@ NTSTATUS svgalib_map(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBuf
 	translateEndAddress = HalTranslateBusAddress(PCIBus, busNumber, physicalAddressEnd, &inIoSpace2, &physicalAddressEnd);
 
 	if (!(translateBaseAddress && translateEndAddress)) {
-		svgalibKdPrint(("SVGAWIN: HalTranslatephysicalAddress failed\n"));
+		DbgPrint("svgalib: HalTranslatephysicalAddress failed\n");
 		status = STATUS_UNSUCCESSFUL;
 		goto err_handle;
 	}
@@ -83,7 +77,7 @@ NTSTATUS svgalib_map(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBuf
 	/* if the mappedlength is zero, something very weird happened in the HAL */
 	/* since the Length was checked against zero */
 	if (mappedLength.LowPart == 0) {
-		svgalibKdPrint(("SVGAWIN: mappedLength.LowPart == 0\n"));
+		DbgPrint("svgalib: mappedLength.LowPart == 0\n");
 		status = STATUS_UNSUCCESSFUL;
 		goto err_handle;
 	}
@@ -101,7 +95,7 @@ NTSTATUS svgalib_map(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBuf
 	status = ZwMapViewOfSection(physicalMemoryHandle, (HANDLE)-1, &virtualAddress, 0L, length, &viewBase, &length, ViewShare, 0, PAGE_READWRITE | PAGE_NOCACHE);
 
 	if (!NT_SUCCESS(status)) {
-		svgalibKdPrint(("SVGAWIN: ZwMapViewOfSection failed\n"));
+		DbgPrint("svgalib: ZwMapViewOfSection failed\n");
 		goto err_handle;
 	}
 
@@ -129,14 +123,14 @@ NTSTATUS svgalib_unmap(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputB
 	NTSTATUS status;
 
 	if (InputBufferLength != sizeof(SVGALIB_UNMAP_IN) || OutputBufferLength != 0) {
-		svgalibKdPrint(("SVGAWIN: Invalid input or output buffer\n"));
+		DbgPrint("svgalib: Invalid input or output buffer\n");
 		status = STATUS_INVALID_PARAMETER;
 		goto err;
 	}
 
 	status = ZwUnmapViewOfSection((HANDLE)-1, in->address);
 	if (!NT_SUCCESS(status)) {
-		svgalibKdPrint(("SVGAWIN: ZwUnmapViewOfSection failed\n"));
+		DbgPrint("svgalib: ZwUnmapViewOfSection failed\n");
 		goto err;
 	}
 
@@ -149,7 +143,7 @@ err:
 
 unsigned char inportb(unsigned _port) {
 	unsigned char rv;
-	__asm mov edx,[_port]
+	__asm mov edx, [_port]
 	__asm in al, dx
 	__asm mov [rv], al
 	return rv;
@@ -157,7 +151,7 @@ unsigned char inportb(unsigned _port) {
 
 unsigned short inportw(unsigned _port) {
 	unsigned short rv;
-	__asm mov edx,[_port]
+	__asm mov edx, [_port]
 	__asm in ax, dx
 	__asm mov [rv], ax
 	return rv;
@@ -165,7 +159,7 @@ unsigned short inportw(unsigned _port) {
 
 unsigned inportl(unsigned _port) {
 	unsigned rv;
-	__asm mov edx,[_port]
+	__asm mov edx, [_port]
 	__asm in eax, dx
 	__asm mov [rv], eax
 	return rv;
@@ -196,7 +190,7 @@ NTSTATUS svgalib_port_read(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG In
 	NTSTATUS status;
 
 	if (InputBufferLength != sizeof(SVGALIB_PORT_READ_IN) || OutputBufferLength != sizeof(SVGALIB_PORT_READ_OUT)) {
-		svgalibKdPrint(("SVGAWIN: Invalid input or output buffer\n"));
+		DbgPrint("svgalib: Invalid input or output buffer\n");
 		status = STATUS_INVALID_PARAMETER;
 		goto err;
 	}
@@ -229,7 +223,7 @@ NTSTATUS svgalib_port_write(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG I
 	NTSTATUS status;
 
 	if (InputBufferLength != sizeof(SVGALIB_PORT_WRITE_IN) || OutputBufferLength != 0) {
-		svgalibKdPrint(("SVGAWIN: Invalid input or output buffer\n"));
+		DbgPrint("svgalib: Invalid input or output buffer\n");
 		status = STATUS_INVALID_PARAMETER;
 		goto err;
 	}
@@ -264,7 +258,7 @@ NTSTATUS svgalib_pci_bus(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG Inpu
 	UCHAR data[4];
 
 	if (InputBufferLength != 0 || OutputBufferLength != sizeof(SVGALIB_PCI_BUS_OUT)) {
-		svgalibKdPrint(("SVGAWIN: Invalid input or output buffer\n"));
+		DbgPrint("svgalib: Invalid input or output buffer\n");
 		status = STATUS_INVALID_PARAMETER;
 		goto err;
 	}
@@ -290,7 +284,7 @@ NTSTATUS svgalib_pci_read(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG Inp
 	NTSTATUS status;
 
 	if (InputBufferLength != sizeof(SVGALIB_PCI_READ_IN) || OutputBufferLength != sizeof(SVGALIB_PCI_READ_OUT)) {
-		svgalibKdPrint(("SVGAWIN: Invalid input or output buffer\n"));
+		DbgPrint("svgalib: Invalid input or output buffer\n");
 		status = STATUS_INVALID_PARAMETER;
 		goto err;
 	}
@@ -320,7 +314,7 @@ NTSTATUS svgalib_pci_write(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG In
 	NTSTATUS status;
 
 	if (InputBufferLength != sizeof(SVGALIB_PCI_WRITE_IN) || OutputBufferLength != 0) {
-		svgalibKdPrint(("SVGAWIN: Invalid input or output buffer\n"));
+		DbgPrint("svgalib: Invalid input or output buffer\n");
 		status = STATUS_INVALID_PARAMETER;
 		goto err;
 	}
@@ -487,27 +481,16 @@ NTSTATUS svgalib_video_ioctl(PDEVICE_OBJECT DeviceObject, ULONG IoControlCode, P
 	IO_STATUS_BLOCK status_block;
 	KEVENT event;
 	NTSTATUS status;
-	PWSTR symbolic;
-	FILE_OBJECT* file_object;
 	DEVICE_OBJECT* video_device;
 	UNICODE_STRING video_name;
 
 	RtlInitUnicodeString(&video_name, L"\\Device\\Video0");
 
-#if 0
-	/* In Windows 2000 this fail with ACCESS_DENIED because the device is exclusive and already opened by win32k.sys */
-	status = IoGetDeviceObjectPointer(symbolic, FILE_READ_DATA, &file_object, &video_name);
-	if (!NT_SUCCESS(status)) {
-		svgalibKdPrint(("SVGAWIN: IoGetDeviceObjectPointer failed\n"));
-		goto err;
-	}
-#else
 	status = IoAttachDevice(DeviceObject, &video_name, &video_device);
 	if (!NT_SUCCESS(status)) {
-		svgalibKdPrint(("SVGAWIN: IoAttachDevice failed\n"));
+		DbgPrint("svgalib: IoAttachDevice failed\n");
 		goto err;
 	}
-#endif
 
 	KeInitializeEvent(&event, NotificationEvent, FALSE);
 
@@ -524,7 +507,7 @@ NTSTATUS svgalib_video_ioctl(PDEVICE_OBJECT DeviceObject, ULONG IoControlCode, P
 	);
 
 	if (irp == 0) {
-		svgalibKdPrint(("SVGAWIN: IoBuildDeviceIoControlRequest failed\n"));
+		DbgPrint("svgalib: IoBuildDeviceIoControlRequest failed\n");
 		status = STATUS_INSUFFICIENT_RESOURCES;
 		goto err_file;
 	}
@@ -542,13 +525,11 @@ NTSTATUS svgalib_video_ioctl(PDEVICE_OBJECT DeviceObject, ULONG IoControlCode, P
 
 	*ResultBufferLength = status_block.Information;
 
-err_file:
-#if 0
-	if (file_object != 0)
-		ObDereferenceObject(file_object);
-#else
 	IoDetachDevice(video_device);
-#endif
+	return status;
+
+err_file:
+	IoDetachDevice(video_device);
 err:
 	return status;
 }
@@ -559,7 +540,7 @@ NTSTATUS svgalib_version(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG Inpu
 	NTSTATUS status;
 
 	if (InputBufferLength != 0 || OutputBufferLength != sizeof(SVGALIB_VERSION_OUT)) {
-		svgalibKdPrint(("SVGAWIN: Invalid input or output buffer\n"));
+		DbgPrint("svgalib: Invalid input or output buffer\n");
 		status = STATUS_INVALID_PARAMETER;
 		goto err;
 	}
@@ -580,6 +561,7 @@ NTSTATUS svgalibDispatch(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 	ULONG inputBufferLength;
 	ULONG outputBufferLength;
 	ULONG ioControlCode;
+	ULONG device_code;
 	NTSTATUS status;
 
 	irpStack = IoGetCurrentIrpStackLocation(Irp);
@@ -641,13 +623,13 @@ NTSTATUS svgalibDispatch(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 			status = STATUS_SUCCESS;
 			break;
 		default:
-			ioControlCode = (irpStack->Parameters.DeviceIoControl.IoControlCode >> 2) & 0xFFF;
-			if (ioControlCode < SVGALIB_IOCTL_INDEX) {
+			device_code = (irpStack->Parameters.DeviceIoControl.IoControlCode >> 16) & 0xFFFF;
+			if (device_code == FILE_DEVICE_SVGALIB) {
 				/* adjust the ioctl with FILE_DEVICE_VIDEO */
 				ioControlCode = (irpStack->Parameters.DeviceIoControl.IoControlCode & 0x0000FFFF) | ((ULONG)FILE_DEVICE_VIDEO << 16);
 				status = svgalib_video_ioctl(DeviceObject, ioControlCode, ioBuffer, inputBufferLength, outputBufferLength, &outputBufferLength);
 			} else {
-				svgalibKdPrint(("SVGAWIN: unknown IRP_MJ_DEVICE_CONTROL\n"));
+				DbgPrint("svgalib: unknown IRP_MJ_DEVICE_CONTROL\n");
 				status = STATUS_INVALID_DEVICE_REQUEST;
 			}
 			break;
@@ -655,7 +637,7 @@ NTSTATUS svgalibDispatch(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 
 		break;
 	default:
-		svgalibKdPrint(("SVGAWIN: unknown IRP_MJ\n"));
+		DbgPrint("svgalib: unknown IRP_MJ\n");
 		status = STATUS_INVALID_DEVICE_REQUEST;
 		break;
 	}
@@ -677,15 +659,15 @@ VOID svgalibUnload(PDRIVER_OBJECT DriverObject)
 	WCHAR deviceLinkBuffer[] = L"\\DosDevices\\SVGALIB";
 	UNICODE_STRING deviceLinkUnicodeString;
 
-	if (IOPM_local)
-		MmFreeNonCachedMemory(IOPM_local, sizeof(IOPM));
-
 	/* delete the symbolic link */
 	RtlInitUnicodeString(&deviceLinkUnicodeString, deviceLinkBuffer);
 	IoDeleteSymbolicLink(&deviceLinkUnicodeString);
 
 	/* delete the device object */
 	IoDeleteDevice(DriverObject->DeviceObject);
+
+	if (IOPM_local)
+		MmFreeNonCachedMemory(IOPM_local, sizeof(IOPM));
 }
 
 NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
@@ -700,7 +682,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 	/* Allocate a buffer for the local IOPM and zero it. */
 	IOPM_local = MmAllocateNonCachedMemory(sizeof(IOPM));
 	if (IOPM_local == 0) {
-		svgalibKdPrint(("SVGAWIN: MmAllocateNonCachedMemory failed\n"));
+		DbgPrint("svgalib: MmAllocateNonCachedMemory failed\n");
 		status = STATUS_INSUFFICIENT_RESOURCES;
 		return status;
 	}
@@ -709,7 +691,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 	RtlInitUnicodeString(&deviceNameUnicodeString, deviceNameBuffer);
 	status = IoCreateDevice(DriverObject, 0, &deviceNameUnicodeString, FILE_DEVICE_SVGALIB, 0, FALSE, &deviceObject);
 	if (!NT_SUCCESS(status)) {
-		svgalibKdPrint(("SVGAWIN: IoCreateDevice failed\n"));
+		DbgPrint("svgalib: IoCreateDevice failed\n");
 		return status;
 	}
 
@@ -722,7 +704,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 	RtlInitUnicodeString(&deviceLinkUnicodeString, deviceLinkBuffer);
 	status = IoCreateSymbolicLink(&deviceLinkUnicodeString, &deviceNameUnicodeString);
 	if (!NT_SUCCESS(status)) {
-		svgalibKdPrint(("SVGAWIN: IoCreateSymbolicLink failed\n"));
+		DbgPrint("svgalib: IoCreateSymbolicLink failed\n");
 		IoDeleteDevice(deviceObject);
 		return status;
 	}

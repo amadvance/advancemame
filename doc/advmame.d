@@ -302,8 +302,8 @@ Other Ports
 	The Arcade/TV support is limited at the mode 640x480 for the
 	ATI boards.
 
-  Xmame
-	The Xmame port has nearly the same video capabilities of
+  xmame
+	The xmame port has nearly the same video capabilities of
 	AdvanceMAME. The only drawback is that it requires a manual
 	modeline creation. AdvanceMAME uses the latest SVGALIB
 	library on witch you can create modeline dinamically and
@@ -911,6 +911,10 @@ Configuration
 		none - No sound.
 		auto - Automatic detection (default).
 
+	Options for the Linux version:
+		oss - OSS automatic detection.
+		sdl - SDL automatic detection.
+
 	Options for the DOS version:
 		seal - SEAL automatic detection.
 		seal/sb - Sound Blaster.
@@ -943,8 +947,8 @@ Configuration
 
 		http://vsyncmame.mameworld.net
 
-	Options for the Linux version:
-		oss - OSS automatic detection.
+	Options for the Windows version:
+		sdl - SDL automatic detection.
 
     sound_samplerate
 	Sets the audio sample rate.
@@ -1004,11 +1008,22 @@ Configuration
 		none - No mouse (default).
 		auto - Automatic detection.
 
-	The DOS version uses standard DOS service for the first mouse 
-	and the special `optimous' driver for a second mouse.
-	The `optimous' driver is available in the `contrib/' directory.
-	The Linux version uses `svgalib' mouse support. So you must 
-	configure the correct mouse in `svgalib' configuration file.
+	Options for the Linux version:
+		svgalib - SVGALIB automatic detection.
+		sdl - SDL automatic detection.
+
+	If you use the `svgalib' driver remember to configure the
+	correct mouse in the SVGALIB configuration file.
+
+	Options for the DOS version:
+		allegro - Allegro automatic detection.
+
+	The Allegro driver also uses the special `optimous' driver
+	for a second mouse. The `optimous' driver is available in
+	the `contrib/' directory.
+
+	Options for the Windows version:
+		sdl - SDL automatic detection.
 
     device_joystick
 	Enables or disables joystick support.
@@ -1019,11 +1034,15 @@ Configuration
 		none - No joystick (default).
 		auto - Automatic detection.
 
-	The DOS version uses the Allegro library for joystick support.
-	The Linux version uses always the Kernel joystick interface with
-	the svgalib library
+	Options for the Linux version:
+		svgalib - SVGALIB automatic detection.
+		sdl - SDL automatic detection.
 
-	Options for DOS Allegro library:
+	If you use the `svgalib' driver remember to configure the
+	correct joystick in the SVGALIB configuration file.
+
+	Options for the DOS version:
+		allegro - Allegro automatic detection.
 		allegro/standard - Standard joystick.
 		allegro/dual - Dual joysticks.
 		allegro/4button - 4-button joystick.
@@ -1055,6 +1074,9 @@ Configuration
 		allegro/segapci - IF-SEGA2/PCI.
 		allegro/segapcifast - IF-SEGA2/PCI (normal).
 		allegro/wingwarrior - Wingman Warrior.
+
+	Options for the Windows version:
+		sdl - SDL automatic detection.
 
     input_steadykey
 	Helps recognition of very long key sequences. But slows a bit

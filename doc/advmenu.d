@@ -660,6 +660,10 @@ Configuration
 		none - No sound.
 		auto - Automatic detection (default).
 
+	Options for the Linux version:
+		oss - OSS automatic detection.
+		sdl - SDL automatic detection.
+
 	Options for the DOS version:
 		seal - SEAL automatic detection.
 		seal/sb - Sound Blaster.
@@ -690,10 +694,10 @@ Configuration
 	The vsync/ drivers came from th VSyncMAME emulator. More info
 	are in the VSyncMAME page :
 
-		http://vsynchmame.mameworld.net
+		http://vsyncmame.mameworld.net
 
-	Options for the Linux version:
-		oss - OSS automatic detection.
+	Options for the Windows version:
+		sdl - SDL automatic detection.
 
     sound_volume
 	Sets the startup volume.
@@ -800,10 +804,15 @@ Configuration
 		none - No joystick (default).
 		auto - Automatic detection.
 
-	The DOS version uses the Allegro library for joystick support.
-	The Linux version uses always the Kernel joystick interface.
+	Options for the Linux version:
+		svgalib - SVGALIB automatic detection.
+		sdl - SDL automatic detection.
 
-	Options for DOS Allegro library:
+	If you use the `svgalib' driver remember to configure the
+	correct joystick in the SVGALIB configuration file.
+
+	Options for the DOS version:
+		allegro - Allegro automatic detection.
 		allegro/standard - Standard joystick.
 		allegro/dual - Dual joysticks.
 		allegro/4button - 4-button joystick.
@@ -836,6 +845,9 @@ Configuration
 		allegro/segapcifast - IF-SEGA2/PCI (normal).
 		allegro/wingwarrior - Wingman Warrior.
 
+	Options for the Windows version:
+		sdl - SDL automatic detection.
+
     device_mouse
 	Enables or disables mouse support.
 
@@ -845,11 +857,22 @@ Configuration
 		none - No mouse (default).
 		auto - Automatic detection.
 
-	The DOS version uses standard DOS service for the first mouse 
-	and the special `optimous' driver for a second mouse.
-	The `optimous' driver is available in the `contrib/' directory.
-	The Linux version uses `svgalib' mouse support. So you must 
-	configure the correct mouse in `svgalib' configuration file.
+	Options for the Linux version:
+		svgalib - SVGALIB automatic detection.
+		sdl - SDL automatic detection.
+
+	If you use the `svgalib' driver remember to configure the
+	correct mouse in the SVGALIB configuration file.
+
+	Options for the DOS version:
+		allegro - Allegro automatic detection.
+
+	The Allegro driver also uses the special `optimous' driver
+	for a second mouse. The `optimous' driver is available in
+	the `contrib/' directory.
+
+	Options for the Windows version:
+		sdl - SDL automatic detection.
 
     mouse_delta
 	Select the mouse/trackball sensitivity. Increase the value for

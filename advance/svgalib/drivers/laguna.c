@@ -398,7 +398,7 @@ static int laguna_setmode(int mode, int prv_mode)
 	return 1;
     }
 
-    moderegs = calloc(LAGUNA_TOTAL_REGS,1);
+    moderegs = malloc(LAGUNA_TOTAL_REGS);
 
     laguna_initializemode(moderegs, modetiming, modeinfo, mode);
     free(modetiming);

@@ -44,13 +44,62 @@ typedef struct mode_info_struct {
 	unsigned bits_per_pixel;
 } mode_info;
 
-static int driver_init(void) {
-	if (adv_svgalib_init(0) != 0) {
-		printf("Error initializing SVGALIB. Have you installed the driver?\n");
+static int video_load(const char* file) 
+{
+	char buffer[256];
+	int found;
+	int present;
+	FILE* f;
+	
+	f = fopen(file,"r");
+	if (!f) {
+		printf("Configuration file %s not found.\n", file);
 		return -1;
 	}
 
-	if (adv_svgalib_detect("auto") != 0) {
+	found = 0;
+	present = 0;
+	while (!found && fgets(buffer, sizeof(buffer), f)) {
+		char* s = strtok(buffer," \t\n\r");
+
+		if (s && strcmp(s,"device_video")==0) {
+			const char* tag;
+			
+			present = 1;
+
+			tag = strtok(0," \t\n\r");
+			while (!found && tag) {
+	
+				if (strcmp(tag,"svgawin")==0) {
+					if (adv_svgalib_detect("auto") == 0) {
+						found = 1;
+						break;
+					}
+				} else if (strncmp(tag,"svgawin/",8)==0) {
+					if (adv_svgalib_detect(tag + 8) == 0) {
+						found = 1;
+						break;
+					}
+				} else {
+					fclose(f);
+					printf("Invalid device_video option %s.\n", tag);
+					return -1;
+				}
+
+				tag = strtok(0," \t\n\r");
+			}
+		}
+	}
+
+	fclose(f);
+
+	if (!present) {
+		if (adv_svgalib_detect("auto") == 0) {
+			found = 1;
+		}
+	}
+
+	if (!found) {
 		printf("Unsupported video board.\n");
 		return -1;
 	}
@@ -58,7 +107,22 @@ static int driver_init(void) {
 	return 0;
 }
 
-static void driver_done(void) {
+static int driver_init(const char* file) 
+{
+	if (adv_svgalib_init(0) != 0) {
+		printf("Error initializing SVGALIB. Have you installed the driver?\n");
+		return -1;
+	}
+
+	if (video_load(file) != 0) {
+		return -1;
+	}
+
+	return 0;
+}
+
+static void driver_done(void) 
+{
 	adv_svgalib_done();
 }
 
@@ -84,60 +148,59 @@ static int mode_set(mode_info* mode)
 	return 0;
 }
 
-const char* cfg_separator = " \t";
-
-static int modeline_load(mode_info* mode_ptr) {
+static int modeline_load(mode_info* mode_ptr) 
+{
 	char* s;
 	char* name;
 	char* endp;
 
 	/* skip the name */
-	name = strtok(0,cfg_separator);
+	name = strtok(0," \t\r\n");
 	if (!name) goto err;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\r\n");
 	if (!s) goto err_name;
 
 	mode_ptr->pixelclock = strtod(s,&endp) * 1E6;
 	if (*endp) goto err_name;
 	if (!mode_ptr->pixelclock) goto err_name;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\r\n");
 	if (!s) goto err_name;
 	mode_ptr->hde = strtol(s,&endp,10);
 	if (*endp) goto err_name;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\r\n");
 	if (!s) goto err_name;
 	mode_ptr->hrs = strtol(s,&endp,10);
 	if (*endp) goto err_name;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\r\n");
 	if (!s) goto err_name;
 	mode_ptr->hre = strtol(s,&endp,10);
 	if (*endp) goto err_name;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\r\n");
 	if (!s) goto err_name;
 	mode_ptr->ht = strtol(s,&endp,10);
 	if (*endp) goto err_name;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\r\n");
 	if (!s) goto err_name;
 	mode_ptr->vde = strtol(s,&endp,10);
 	if (*endp) goto err_name;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\r\n");
 	if (!s) goto err_name;
 	mode_ptr->vrs = strtol(s,&endp,10);
 	if (*endp) goto err_name;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\r\n");
 	if (!s) goto err_name;
 	mode_ptr->vre = strtol(s,&endp,10);
 	if (*endp) goto err_name;
 
-	s = strtok(0,cfg_separator);
+	s = strtok(0," \t\r\n");
 	if (!s) goto err_name;
 	mode_ptr->vt = strtol(s,&endp,10);
 	if (*endp) goto err_name;
@@ -147,7 +210,7 @@ static int modeline_load(mode_info* mode_ptr) {
 	mode_ptr->nhsync = 0;
 	mode_ptr->nvsync = 0;
 
-	while ((s = strtok(0,cfg_separator))!=0) {
+	while ((s = strtok(0," \t\r\n"))!=0) {
 		if (s[0]=='#')
 			break;
 		else if (strcmp(s,"doublescan")==0)
@@ -170,7 +233,8 @@ err:
 	return -1;
 }
 
-static int load(const char* file, unsigned x, unsigned y, mode_info* mode_ptr) {
+static int mode_load(const char* file, unsigned x, unsigned y, mode_info* mode_ptr) 
+{
 	char buffer[256];
 	int found;
 	FILE* f;
@@ -183,9 +247,9 @@ static int load(const char* file, unsigned x, unsigned y, mode_info* mode_ptr) {
 
 	found = 0;
 	while (fgets(buffer, sizeof(buffer), f)) {
-		char* s = strtok(buffer,cfg_separator);
+		char* s = strtok(buffer," \t\r\n");
 
-		if (strcmp(s,"device_video_modeline")==0) {
+		if (s && strcmp(s,"device_video_modeline")==0) {
 			
 			if (modeline_load(mode_ptr)!=0) {
 				fclose(f);
@@ -209,7 +273,8 @@ static int load(const char* file, unsigned x, unsigned y, mode_info* mode_ptr) {
 	return 0;
 }
 
-static int change(unsigned x, unsigned y, unsigned bits) {
+static int change(unsigned x, unsigned y, unsigned bits) 
+{
 	DEVMODE mode;
 
 	memset(&mode, 0, sizeof(mode));
@@ -232,12 +297,14 @@ static int change(unsigned x, unsigned y, unsigned bits) {
 	return 0;
 }
 
-static void notify(void) {
+static void notify(void) 
+{
 	ShowCursor(FALSE);
 	ShowCursor(TRUE);	
 }	
 
-static int save(const char* file) {
+static int save(const char* file) 
+{
 	unsigned char regs[ADV_SVGALIB_STATE_SIZE];
 	FILE* f;
 
@@ -259,7 +326,8 @@ static int save(const char* file) {
 	return 0;
 }
 
-static int restore(const char* file) {
+static int restore(const char* file) 
+{
 	unsigned char regs[ADV_SVGALIB_STATE_SIZE];
 	FILE* f;
 
@@ -281,7 +349,8 @@ static int restore(const char* file) {
 	return 0;
 }
 
-static int set(const char* config, const char* spec) {
+static int set(const char* config, const char* spec) 
+{
 	mode_info mode;
 	unsigned x;
 	unsigned y;
@@ -298,7 +367,7 @@ static int set(const char* config, const char* spec) {
 	}
 
 	mode.bits_per_pixel = bits;
-	if (load(config,x,y,&mode) != 0) {
+	if (mode_load(config,x,y,&mode) != 0) {
 		return -1;
 	}
 
@@ -316,7 +385,8 @@ static int set(const char* config, const char* spec) {
 	return 0;
 }
 
-static int adjust(const char* config) {
+static int adjust(const char* config) 
+{
 	mode_info mode;
 	unsigned x;
 	unsigned y;
@@ -336,7 +406,7 @@ static int adjust(const char* config) {
 	y = mode_information.VisScreenHeight;
 
 	mode.bits_per_pixel = bits;
-	if (load(config,x,y,&mode) != 0) {
+	if (mode_load(config,x,y,&mode) != 0) {
 		return -1;
 	}
 
@@ -366,7 +436,8 @@ static int winrestore(void)
 	return 0;
 }
 
-static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* _arg) {
+static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned device, void* _arg) 
+{
 	unsigned dw;
 	unsigned base_class;
 
@@ -378,22 +449,26 @@ static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned de
 		return 0;
 
 	*(int*)_arg = 1;
-	
-	printf("PCI/AGP Board VendorID %04x, DeviceID %04x, Bus %d, Device %d, Function %d\n", vendor, device, (bus_device_func >> 8) & 0xFF, (bus_device_func >> 3) & 0x1F, bus_device_func & 0x7);
+
+	printf("VendorID %04x, DeviceID %04x, Bus %d, Device %d, Function %d\n", vendor, device, (bus_device_func >> 8) & 0xFF, (bus_device_func >> 3) & 0x1F, bus_device_func & 0x7);
 
 	return 0;
 }
 
-static void probe(void) {
+static void probe(void) 
+{
 	int found;
 	SVGALIB_MODE_INFORMATION mode_information;
 	
+	printf("Board\n");
 	found = 0;
 	adv_svgalib_pci_scan_device(probe_callback,&found);
 	if (!found)
-		printf("ISA Board (?)\n");
-
-	printf("Video driver : %s\n", adv_svgalib_driver_get());
+		printf("ISA (?)\n");
+	printf("\n");
+	
+	printf("Driver\n");
+	printf("Name : %s\n", adv_svgalib_driver_get());
 
 	printf("Bit depth : ");
 	if (adv_svgalib_state.has_bit8) printf("8 ");
@@ -442,7 +517,8 @@ static void adjust_scanline(void)
 	}
 }
 
-static void help(void) {
+static void help(void) 
+{
 	printf("AdvanceVIDEOW by Andrea Mazzoleni v0.3 " __DATE__ "\n");
 	printf(
 "Usage:\n"
@@ -464,7 +540,8 @@ static void help(void) {
 );
 }
 
-int optionmatch(const char* arg, const char* opt) {
+int optionmatch(const char* arg, const char* opt) 
+{
 	return (arg[0] == '-' || arg[0] == '/') && stricmp(arg+1,opt) == 0;
 }
 
@@ -537,7 +614,7 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	if (driver_init() != 0) {
+	if (driver_init(arg_config) != 0) {
 		exit(EXIT_FAILURE);
 	}
 

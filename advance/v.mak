@@ -68,6 +68,7 @@ endif
 
 ifeq ($(CONF_HOST),dos)
 VCFLAGS += \
+	-DUSE_ADV_SVGALIB_DOS \
 	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
@@ -162,7 +163,7 @@ VOBJS += \
 	$(VOBJ)/sdl/isdl.o
 # Customize the SDL_main function
 VCFLAGS += -DNO_STDIO_REDIRECT
-VOBJS += $(VOBJ)/windows/sdlmain.o	
+VOBJS += $(VOBJ)/windows/sdlmain.o
 endif
 ifeq ($(CONF_LIB_SVGAWIN),yes)
 VOBJDIRS += \
@@ -172,6 +173,7 @@ VOBJDIRS += \
 	$(VOBJ)/svgalib/drivers \
 	$(VOBJ)/svgalib/svgawin
 VCFLAGS += \
+	-DUSE_ADV_SVGALIB_WIN \
 	-I$(srcdir)/advance/svgalib \
 	-I$(srcdir)/advance/svgalib/clockchi \
 	-I$(srcdir)/advance/svgalib/ramdac \

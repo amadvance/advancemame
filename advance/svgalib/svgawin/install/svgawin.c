@@ -6,6 +6,8 @@
 #include <string.h>
 
 #define DRIVER_NAME "SVGAWIN"
+#define DISPLAY_NAME "SVGALIB Helper Driver"
+#define FILE_NAME "svgawin"
 
 int copy(char* srcpath, char* dstpath)
 {
@@ -17,14 +19,14 @@ int copy(char* srcpath, char* dstpath)
 		return -1;
 	}
 
-	sprintf(srcpath, "%s\\%s.sys", srcdir, DRIVER_NAME);
+	sprintf(srcpath, "%s\\%s.sys", srcdir, FILE_NAME);
 
 	if (!GetSystemDirectory( dstdir, MAX_PATH+1)) {
 		printf("Error getting the system directory.\n");
 		return -1;
 	}
 
-	sprintf(dstpath, "%s\\drivers\\%s.sys", dstdir, DRIVER_NAME);
+	sprintf(dstpath, "%s\\drivers\\%s.sys", dstdir, FILE_NAME);
 
 	if (!CopyFile(srcpath, dstpath, FALSE)) {
 		printf("Error copying the driver from %s to %s.\n", srcpath, dstpath);
@@ -93,7 +95,7 @@ static int install(SC_HANDLE schSCManager) {
 
 	schService = CreateService(
 		schSCManager, 
-		DRIVER_NAME, DRIVER_NAME,
+		DRIVER_NAME, DISPLAY_NAME,
 		SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER,
 		SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
 		dstpath,

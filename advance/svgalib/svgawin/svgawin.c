@@ -2,6 +2,8 @@
 
 #include "svgawin.h"
 
+#include <math.h>
+
 /**
  * If defined use the GIVEIO mode to access the IO port.
  */
@@ -15,14 +17,27 @@
 /**************************************************************************/
 /* misc */
 
-void adv_svgalib_enable(void) {
+void adv_svgalib_enable(void) 
+{
 }
 
-void adv_svgalib_disable(void) {
+void adv_svgalib_disable(void) 
+{
 }
 
-void adv_svgalib_usleep(unsigned n) {
+void adv_svgalib_usleep(unsigned n) 
+{
 	Sleep(n/1000);
+}
+
+void adv_svgalib_abort(void) 
+{
+	abort();
+}
+
+double ADV_SVGALIB_CALL adv_svgalib_logf(double v) 
+{
+	return log(v);
 }
 
 /**************************************************************************/
@@ -478,31 +493,3 @@ int adv_svgalib_iopl(int perm) {
 	(void)perm;
 	return 0;
 }
-
-/***************************************************************************/
-/* vga */
-
-void __svgalib_delay(void) {
-	__asm__ __volatile__ (
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		"xorl %%eax,%%eax\n"
-		:
-		:
-		: "cc", "%eax"
-	);
-}
-

@@ -1,20 +1,20 @@
 #############################################################################
-# User configuration
+# Configuration
 #
 
 srcdir = ..
-VIDEOOBJ = obj
+VIDEOWOBJ = obj
 DEBUG = no
 ECHO = @echo
 MD = @mkdir -p
-CC = @/usr/local/cross-tools/bin/i386-mingw32msvc-gcc
-LD = @/usr/local/cross-tools/bin/i386-mingw32msvc-gcc
+CC = @i386-mingw32msvc-gcc
+LD = @i386-mingw32msvc-gcc
 #CC = @gcc
 #LD = @gcc
 EXE = .exe
 
 #############################################################################
-#
+# Rules
 #
 
 ifeq ($(DEBUG),yes)
@@ -29,67 +29,68 @@ endif
 
 all: videow$(EXE)
 
-VIDEOOBJDIRS += \
-	$(VIDEOOBJ) \
-	$(VIDEOOBJ)/videow \
-	$(VIDEOOBJ)/svgalib \
-	$(VIDEOOBJ)/svgalib/svgawin \
-	$(VIDEOOBJ)/svgalib/clockchi \
-	$(VIDEOOBJ)/svgalib/ramdac \
-	$(VIDEOOBJ)/svgalib/drivers
-VIDEOFLAGS += \
+VIDEOWOBJDIRS += \
+	$(VIDEOWOBJ) \
+	$(VIDEOWOBJ)/videow \
+	$(VIDEOWOBJ)/svgalib \
+	$(VIDEOWOBJ)/svgalib/svgawin \
+	$(VIDEOWOBJ)/svgalib/clockchi \
+	$(VIDEOWOBJ)/svgalib/ramdac \
+	$(VIDEOWOBJ)/svgalib/drivers
+VIDEOWFLAGS += \
+	-DUSE_ADV_SVGALIB_WIN \
 	-I$(srcdir)/svgalib \
 	-I$(srcdir)/svgalib/svgawin \
 	-I$(srcdir)/svgalib/clockchi \
 	-I$(srcdir)/svgalib/ramdac \
 	-I$(srcdir)/svgalib/drivers
-VIDEOOBJS += \
-	$(VIDEOOBJ)/videow/videow.o \
-	$(VIDEOOBJ)/svgalib/svgalib.o \
-	$(VIDEOOBJ)/svgalib/svgawin/svgawin.o \
-	$(VIDEOOBJ)/svgalib/accel.o \
-	$(VIDEOOBJ)/svgalib/vgaio.o \
-	$(VIDEOOBJ)/svgalib/vgammvga.o \
-	$(VIDEOOBJ)/svgalib/vgaregs.o \
-	$(VIDEOOBJ)/svgalib/vgarelvg.o \
-	$(VIDEOOBJ)/svgalib/drivers/apm.o \
-	$(VIDEOOBJ)/svgalib/drivers/ark.o \
-	$(VIDEOOBJ)/svgalib/drivers/banshee.o \
-	$(VIDEOOBJ)/svgalib/drivers/et6000.o \
-	$(VIDEOOBJ)/svgalib/drivers/g400.o \
-	$(VIDEOOBJ)/svgalib/drivers/pm2.o \
-	$(VIDEOOBJ)/svgalib/drivers/i740.o \
-	$(VIDEOOBJ)/svgalib/drivers/laguna.o \
-	$(VIDEOOBJ)/svgalib/drivers/millenni.o \
-	$(VIDEOOBJ)/svgalib/drivers/mx.o \
-	$(VIDEOOBJ)/svgalib/drivers/nv3.o \
-	$(VIDEOOBJ)/svgalib/drivers/r128.o \
-	$(VIDEOOBJ)/svgalib/drivers/rage.o \
-	$(VIDEOOBJ)/svgalib/drivers/s3.o \
-	$(VIDEOOBJ)/svgalib/drivers/savage.o \
-	$(VIDEOOBJ)/svgalib/drivers/sis.o \
-	$(VIDEOOBJ)/svgalib/drivers/trident.o \
-	$(VIDEOOBJ)/svgalib/drivers/renditio.o \
-	$(VIDEOOBJ)/svgalib/ramdac/ibmrgb52.o \
-	$(VIDEOOBJ)/svgalib/ramdac/attdacs.o \
-	$(VIDEOOBJ)/svgalib/ramdac/icw.o \
-	$(VIDEOOBJ)/svgalib/ramdac/normal.o \
-	$(VIDEOOBJ)/svgalib/ramdac/ramdac.o \
-	$(VIDEOOBJ)/svgalib/ramdac/s3dacs.o \
-	$(VIDEOOBJ)/svgalib/ramdac/sierra.o \
-	$(VIDEOOBJ)/svgalib/ramdac/btdacs.o \
-	$(VIDEOOBJ)/svgalib/ramdac/ics_gend.o \
-	$(VIDEOOBJ)/svgalib/clockchi/icd2061a.o
+VIDEOWOBJS += \
+	$(VIDEOWOBJ)/videow/videow.o \
+	$(VIDEOWOBJ)/svgalib/svgalib.o \
+	$(VIDEOWOBJ)/svgalib/svgawin/svgawin.o \
+	$(VIDEOWOBJ)/svgalib/accel.o \
+	$(VIDEOWOBJ)/svgalib/vgaio.o \
+	$(VIDEOWOBJ)/svgalib/vgammvga.o \
+	$(VIDEOWOBJ)/svgalib/vgaregs.o \
+	$(VIDEOWOBJ)/svgalib/vgarelvg.o \
+	$(VIDEOWOBJ)/svgalib/drivers/apm.o \
+	$(VIDEOWOBJ)/svgalib/drivers/ark.o \
+	$(VIDEOWOBJ)/svgalib/drivers/banshee.o \
+	$(VIDEOWOBJ)/svgalib/drivers/et6000.o \
+	$(VIDEOWOBJ)/svgalib/drivers/g400.o \
+	$(VIDEOWOBJ)/svgalib/drivers/pm2.o \
+	$(VIDEOWOBJ)/svgalib/drivers/i740.o \
+	$(VIDEOWOBJ)/svgalib/drivers/laguna.o \
+	$(VIDEOWOBJ)/svgalib/drivers/millenni.o \
+	$(VIDEOWOBJ)/svgalib/drivers/mx.o \
+	$(VIDEOWOBJ)/svgalib/drivers/nv3.o \
+	$(VIDEOWOBJ)/svgalib/drivers/r128.o \
+	$(VIDEOWOBJ)/svgalib/drivers/rage.o \
+	$(VIDEOWOBJ)/svgalib/drivers/s3.o \
+	$(VIDEOWOBJ)/svgalib/drivers/savage.o \
+	$(VIDEOWOBJ)/svgalib/drivers/sis.o \
+	$(VIDEOWOBJ)/svgalib/drivers/trident.o \
+	$(VIDEOWOBJ)/svgalib/drivers/renditio.o \
+	$(VIDEOWOBJ)/svgalib/ramdac/ibmrgb52.o \
+	$(VIDEOWOBJ)/svgalib/ramdac/attdacs.o \
+	$(VIDEOWOBJ)/svgalib/ramdac/icw.o \
+	$(VIDEOWOBJ)/svgalib/ramdac/normal.o \
+	$(VIDEOWOBJ)/svgalib/ramdac/ramdac.o \
+	$(VIDEOWOBJ)/svgalib/ramdac/s3dacs.o \
+	$(VIDEOWOBJ)/svgalib/ramdac/sierra.o \
+	$(VIDEOWOBJ)/svgalib/ramdac/btdacs.o \
+	$(VIDEOWOBJ)/svgalib/ramdac/ics_gend.o \
+	$(VIDEOWOBJ)/svgalib/clockchi/icd2061a.o
 
-$(VIDEOOBJ)/%.o: $(srcdir)/%.c
+$(VIDEOWOBJ)/%.o: $(srcdir)/%.c
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(VIDEOFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(VIDEOWFLAGS) -c $< -o $@
 
-$(sort $(VIDEOOBJDIRS)):
+$(sort $(VIDEOWOBJDIRS)):
 	$(ECHO) $@
 	$(MD) $@
 
-videow$(EXE) : $(sort $(VIDEOOBJDIRS)) $(VIDEOOBJS)
+videow$(EXE) : $(sort $(VIDEOWOBJDIRS)) $(VIDEOWOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(LDFLAGS) $(VIDEOLDFLAGS) $(VIDEOOBJS) $(VIDEOLIBS) -o $@
+	$(LD) $(LDFLAGS) $(VIDEOWLDFLAGS) $(VIDEOWOBJS) $(VIDEOWLIBS) -o $@
 
