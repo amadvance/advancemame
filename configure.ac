@@ -8,7 +8,7 @@ AC_COPYRIGHT([Copyright 2002 Andrea Mazzoleni])
 
 case "$host" in
 	*-*-linux*)
-		ac_host=linux
+		ac_host=unix
 		AC_SUBST([ASMFLAGS],["-f elf"])
 		AC_SUBST([CFLAGS_BUILD],["-O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_ELF"])
 		AC_SUBST([EXE],[])
@@ -26,14 +26,18 @@ case "$host" in
 		AC_SUBST([EXE],[.exe])
 	;;
 	*)
-		AC_MSG_ERROR([Unsupported host environment: Please add to configure.ac])
-        ;;
+		AC_MSG_WARN([Never tried host platform! Please report if it's working])
+		ac_host=unix
+		AC_SUBST([ASMFLAGS],[""])
+		AC_SUBST([CFLAGS_BUILD],["-O0"])
+		AC_SUBST([EXE],[])
+	;;
 esac
 AC_SUBST([CONF_HOST],[$ac_host])
 
 case "$build" in
 	*-*-linux*)
-		ac_build=linux
+		ac_build=unix
 		AC_SUBST([EXE_BUILD],[])
 	;;
 	*-*-cygwin* | *-*-mingw32*)
@@ -45,36 +49,22 @@ case "$build" in
 		AC_SUBST([EXE_BUILD],[.exe])
 	;;
 	*)
-		AC_MSG_ERROR([Unsupported build environment: Please add to configure.ac])
-        ;;
+		AC_MSG_WARN([Never tried build platform! Please report if it's working])
+		ac_build=unix
+		AC_SUBST([EXE_BUILD],[])
+	;;
 esac
 AC_SUBST([CONF_BUILD],[$ac_build])
 
-AC_ARG_ENABLE(
-	[debug],
-	AC_HELP_STRING([--enable-debug],[enable the debug information (default no)]),
-	[ac_enable_debug=$enableval],
-	[ac_enable_debug=no]
-)
-AC_SUBST([CONF_DEBUG],[$ac_enable_debug])
-
 if test -z "$CFLAGS" ; then
-	if test $ac_enable_debug = yes ; then
-		CFLAGS="-O0 -g -Wall -Wno-sign-compare"
-	else
-		CFLAGS="-O3 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused"
-	fi
+	ac_auto_cflags=yes
+else
+	ac_auto_cflags=no
 fi
 if test -z "$LDFLAGS" ; then
-	if test $ac_enable_debug = yes ; then
-		if test $ac_host = linux ; then
-			LDFLAGS="-rdynamic"
-		else
-			LDFLAGS=""
-		fi
-	else
-		LDFLAGS="-s"
-	fi
+	ac_auto_ldflags=yes
+else
+	ac_auto_ldflags=no
 fi
 
 # Checks for programs.
@@ -95,9 +85,6 @@ AC_CHECK_PROGS(ASM, nasm)
 AC_CHECK_PROGS(CC_BUILD, gcc cc)
 AC_CHECK_PROGS(CXX_BUILD, g++ gxx c++ cxx)
 
-AC_SUBST([CONF_CFLAGS_OPT],[$CFLAGS])
-AC_SUBST([CONF_LDFLAGS],[$LDFLAGS])
-
 # Checks for libraries.
 AC_CHECK_LIB(
 	[z],
@@ -116,6 +103,45 @@ AC_SUBST([ZLIBS],[$ZLIBS])
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
 
+# Checks for optimizations
+AC_ARG_ENABLE(
+	[debug],
+	AC_HELP_STRING([--enable-debug],[enable the debug information (default no)]),
+	[ac_enable_debug=$enableval],
+	[ac_enable_debug=no]
+)
+AC_SUBST([CONF_DEBUG],[$ac_enable_debug])
+
+if test $ac_auto_cflags = yes; then
+	if test $ac_enable_debug = yes ; then
+		CFLAGS="-O0 -g -Wall -Wno-sign-compare"
+	else
+		CFLAGS=""
+		AC_CHECK_CC_OPT([-O3], [CFLAGS="$CFLAGS -O3"], [AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])])
+		AC_CHECK_CPU_ARCH
+		AC_CHECK_CC_ARCH
+		if test ! $ac_cc_arch = blend; then
+			CFLAGS="-march=$ac_cc_arch $CFLAGS"
+			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
+		fi
+		AC_CHECK_CC_OPT([-Wall -Wno-sign-compare -Wno-unused], [CFLAGS="$CFLAGS -Wall -Wno-sign-compare -Wno-unused"], [])
+	fi
+fi
+if test $ac_auto_ldflags = yes ; then
+	if test $ac_enable_debug = yes ; then
+		if test $ac_host = unix ; then
+			LDFLAGS="-rdynamic"
+		else
+			LDFLAGS=""
+		fi
+	else
+		LDFLAGS="-s"
+	fi
+fi
+
+AC_SUBST([CONF_CFLAGS_OPT],[$CFLAGS])
+AC_SUBST([CONF_LDFLAGS],[$LDFLAGS])
+
 # Checks for architecture
 AC_C_BIGENDIAN(
 	[ac_is_bigendian=yes],
@@ -127,35 +153,23 @@ else
 	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_LSB"
 fi
 
-AC_CHECK_CPU_ARCH
-
-AC_ARG_WITH(
-	[arch],
-	AC_HELP_STRING([--with-arch],[select the host cpu architecture: i586, i686, k6, athlon, blend... (default auto)]),
-	[ac_with_arch=$withval],
-	[ac_with_arch=auto]
-)
-if test $ac_with_arch = auto; then
-	AC_CHECK_CC_ARCH
-	ac_with_arch=$ac_cc_arch
-fi
-if test ! $ac_with_arch = blend; then
-	CFLAGS_ARCH="-march=$ac_with_arch $CFLAGS_ARCH"
-fi
-AC_SUBST([CONF_ARCH],[$ac_with_arch])
-
 AC_ARG_ENABLE(
 	[asm],
-	AC_HELP_STRING([--enable-asm],[enable the assembler 586 optimizations (default auto)]),
+	AC_HELP_STRING([--enable-asm],[enable the Pentium assembler optimizations (default auto)]),
 	[ac_enable_asm=$withval],
 	[ac_enable_asm=auto]
 )
 if test $ac_enable_asm = auto; then
-	if test $ac_cpu_family = 3 -o $ac_cpu_family = 4 ; then
-		ac_enable_asm=no
-	else
-		ac_enable_asm=yes
-	fi
+	AC_MSG_CHECKING([whether ${CC-cc} accepts Pentium assembler])
+	AC_TRY_COMPILE(
+		[],
+		[#if !defined(__i386__)
+		choke me
+		#endif],
+		[ac_enable_asm=yes],
+		[ac_enable_asm=no]
+	)
+	AC_MSG_RESULT([$ac_enable_asm])
 fi
 if test $ac_enable_asm = yes; then
 	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
@@ -216,22 +230,21 @@ AC_SUBST(CONF_EMU,$ac_with_emu)
 
 AC_ARG_WITH(
 	[system],
-	AC_HELP_STRING([--with-system],[select the system to use: native or sdl. (default auto)]),
+	AC_HELP_STRING([--with-system],[select the system to use: linux, dos or sdl. (default auto)]),
 	[ac_with_system=$withval],
 	[ac_with_system=auto]
 )
 if test $ac_with_system = auto; then
 	if test $ac_host = dos; then
-		ac_with_system=native
+		ac_with_system=dos
 	elif test $ac_host = windows; then
 		ac_with_system=sdl
 	elif test $ac_with_emu = none; then
 		ac_with_system=sdl
 	else
-		ac_with_system=native
+		ac_with_system=linux
 	fi
-fi
-if test $ac_with_system = sdl; then
+elif test $ac_with_system = sdl; then
 	if test -z ${host_alias} ; then
 		AC_CHECK_PROGS(
 			[SDLCONFIG],
@@ -260,61 +273,68 @@ if test $ac_with_system = sdl; then
 	)
 	AC_SUBST(SDLCFLAGS)
 	AC_SUBST(SDLLIBS)
-elif test $ac_with_system = native; then
-	if test $ac_host = dos; then
-		AC_CHECK_LIB(
-			[alleg],
-			[install_allegro],
-			[ac_library_allegro=yes],
-			[ac_library_allegro=no]
-		)
-		if test $ac_library_allegro = no; then
-			AC_MSG_ERROR([The Allegro library is required for the "native" system])
-		fi
-		AC_CHECK_LIB(
-			[audio],
-			[AInitialize],
-			[ac_library_seal=yes],
-			[ac_library_seal=no]
-		)
-		if test $ac_library_seal = no; then
-			AC_MSG_ERROR([The SEAL library is required for the "native" system])
-		fi
-	else
-		AC_CHECK_LIB(
-			[vga],
-			[vga_init],
-			[ac_library_vga=yes],
-			[ac_library_vga=no]
-		)
-		if test $ac_library_vga = no; then
-			AC_MSG_ERROR([The vgalib library is required for the "native" system])
-		fi
-		AC_TRY_COMPILE(
-			[#include <vga.h>],
-			[#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
-			choke me
-			#endif],
-			[ac_library_vga_version=yes],
-			[ac_library_vga_version=no]
-		)
-		if test $ac_library_vga_version = no; then
-			AC_MSG_ERROR([Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version])
-		fi
+elif test $ac_with_system = dos; then
+	AC_CHECK_LIB(
+		[alleg],
+		[install_allegro],
+		[ac_library_allegro=yes],
+		[ac_library_allegro=no]
+	)
+	if test $ac_library_allegro = no; then
+		AC_MSG_ERROR([The Allegro library is required for the "dos" system])
+	fi
+	AC_CHECK_LIB(
+		[audio],
+		[AInitialize],
+		[ac_library_seal=yes],
+		[ac_library_seal=no]
+	)
+	if test $ac_library_seal = no; then
+		AC_MSG_ERROR([The SEAL library is required for the "dos" system])
+	fi
+elif test $ac_with_system = linux; then
+	AC_CHECK_LIB(
+		[vga],
+		[vga_init],
+		[ac_library_vga=yes],
+		[ac_library_vga=no]
+	)
+	if test $ac_library_vga = no; then
+		AC_MSG_ERROR([The vgalib library is required for the "linux" system])
+	fi
+	AC_TRY_COMPILE(
+		[#include <vga.h>],
+		[#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
+		choke me
+		#endif],
+		[ac_library_vga_version=yes],
+		[ac_library_vga_version=no]
+	)
+	if test $ac_library_vga_version = no; then
+		AC_MSG_ERROR([Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version])
 	fi
 elif test $ac_with_system = none; then
 	AC_MSG_ERROR([You must specify a --with-system= option])
 else
-	AC_MSG_ERROR([Unknown system $ac_with_system])
+	AC_MSG_ERROR([Unknown system $ac_with_system, valid values are linux, dos and sdl])
 fi
 AC_SUBST([CONF_SYSTEM],[$ac_with_system])
 
 AC_ARG_ENABLE(
 	[smp],
-	AC_HELP_STRING([--enable-smp],[enable the multi processor support (default yes)]),
+	AC_HELP_STRING([--enable-smp],[enable the multi processor support (default auto)]),
 	[ac_enable_smp=$enableval],
-	[ac_enable_smp=yes]
+	[ac_enable_smp=auto]
 )
+if test $ac_enable_smp = auto; then
+	AC_CHECK_LIB(
+		[pthread],
+		[pthread_create],
+		[ac_enable_smp=yes],
+		[ac_enable_smp=no],
+		[]
+	)
+fi
 AC_SUBST([CONF_SMP],[$ac_enable_smp])
 
 AC_ARG_ENABLE(
@@ -355,7 +375,7 @@ AC_OUTPUT
 
 echo ""
 echo "== Host Architecture =="
-echo "Environment :" $ac_host "("$host")"
+echo "Environment :" $host
 if test $ac_is_bigendian = yes; then
 	echo "Endianess : big"
 else
@@ -367,11 +387,9 @@ if test $ac_enable_asm = yes; then
 else
 	echo "Assembler for Pentium : no"
 fi
-echo "CPU :" $ac_with_arch
 echo ""
 echo "== Compiler =="
-echo "CFLAGS (optimization) :" $CFLAGS
-echo "CFLAGS (architecture) :" $CFLAGS_ARCH
+echo "CFLAGS :" $CFLAGS
 echo "LDFLAGS :" $LDFLAGS
 echo ""
 echo "== Configuration =="

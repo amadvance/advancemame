@@ -53,7 +53,7 @@ KLIBS += $(SDLLIBS)
 KOBJS += \
 	$(KOBJ)/$(CONF_SYSTEM)/os.o \
 	$(KOBJ)/$(CONF_SYSTEM)/ksdl.o
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 KOBJS += \
 	$(KOBJ)/lib/filenix.o \
 	$(KOBJ)/lib/targnix.o

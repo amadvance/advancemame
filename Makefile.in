@@ -2,7 +2,7 @@
 # User configuration
 #
 
-# Installation prefix (only for Linux):
+# Installation prefix (only for Unix):
 PREFIX=@prefix@
 
 # Select the emu executable (mame by default)
@@ -10,12 +10,12 @@ PREFIX=@prefix@
 #CONF_EMU=mame
 
 # Uncommment the host operating system (default is the current one):
-#CONF_HOST=linux
+#CONF_HOST=unix
 #CONF_HOST=dos
 #CONF_HOST=windows
 
 # Uncomment the main system library to use.
-# The available choices for Linux are :
+# The available choices for unix are :
 #   linux, sdl (default is linux)
 # The available choices for DOS are :
 #   dos (default is dos)
@@ -116,7 +116,6 @@ CONF_LDFLAGS=@CONF_LDFLAGS@
 CONF_DEBUGGER=@CONF_DEBUGGER@
 CONF_COMPRESS=@CONF_COMPRESS@
 CONF_DEBUG=@CONF_DEBUG@
-CONF_ARCH=@CONF_ARCH@
 endif
 
 #############################################################################
@@ -143,7 +142,7 @@ endif
 ifndef CONF_BUILD
 UNAME := $(shell uname)
 ifneq (,$(findstring Linux,$(UNAME)))
-CONF_BUILD=linux
+CONF_BUILD=unix
 else
 ifneq (,$(findstring DOS,$(UNAME)))
 CONF_BUILD=dos
@@ -248,7 +247,7 @@ ECHO = @echo
 # Don't add the prefix @. This command must be used also in a shell
 INSTALL = install
 
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 UPX = @upx -q -q -q
 LN_S = @ln -s
 EXE =
@@ -273,7 +272,7 @@ CFLAGS_BUILD = -O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_COFF
 ZLIBS = -static -lz
 endif
 
-ifeq ($(CONF_BUILD),linux)
+ifeq ($(CONF_BUILD),unix)
 ASM = @nasm
 EXE_BUILD =
 CC_BUILD = @gcc
@@ -281,7 +280,7 @@ CXX_BUILD = @g++
 LD_BUILD = @gcc
 LDXX_BUILD = @g++
 TOUCH = @touch
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 AR = @ar
 CC = @gcc
 CXX = @g++
@@ -363,29 +362,31 @@ INSTALL_DATA = $(INSTALL) -c -o root -g bin -m 644
 #############################################################################
 # Derived options
 
-# Conversion of native
-ifeq ($(CONF_SYSTEM),native)
-CONF_SYSTEM=$(CONF_HOST)
-endif
-
 # Binaries
-ifeq ($(CONF_HOST),$(CONF_SYSTEM))
-BINARYTAG = $(CONF_HOST)-native-$(CONF_ARCH)
-else
 BINARYTAG = $(CONF_HOST)-$(CONF_SYSTEM)-$(CONF_ARCH)
+
+# Some conversion
+ifeq ($(CONF_HOST)-$(CONF_SYSTEM),dos-dos)
+BINARYTAG = dos-native-$(CONF_ARCH)
+else
+ifeq ($(CONF_HOST)-$(CONF_SYSTEM),unix-linux)
+BINARYTAG = linux-native-$(CONF_ARCH)
+endif
+ifeq ($(CONF_HOST)-$(CONF_SYSTEM),unix-sdl)
+BINARYTAG = linux-sdl-$(CONF_ARCH)
 endif
 BINARYDIR = $(CONF_HOST)/$(CONF_SYSTEM)/$(CONF_ARCH)
 BINARYDIR_BUILD = $(CONF_BUILD)
 
 # Checks
-ifeq (,$(findstring $(CONF_HOST),-linux-dos-windows-))
+ifeq (,$(findstring $(CONF_HOST),-unix-dos-windows-))
 $(error Invalid CONF_HOST=$(CONF_HOST))
 endif
-ifeq (,$(findstring $(CONF_SYSTEM),-linux-dos-sdl))
+ifeq (,$(findstring $(CONF_SYSTEM),-linux-dos-sdl-))
 $(error Invalid CONF_SYSTEM=$(CONF_SYSTEM))
 endif
-ifeq ($(CONF_HOST),linux)
-ifeq (,$(findstring $(CONF_SYSTEM),-linux-sdl-))
+ifeq ($(CONF_HOST),unix)
+ifeq (,$(findstring $(CONF_SYSTEM),-unix-sdl-))
 $(error Unsupported CONF_SYSTEM=$(CONF_SYSTEM) for CONF_HOST=$(CONF_HOST))
 endif
 endif

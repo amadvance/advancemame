@@ -59,7 +59,7 @@ MLIBS += $(SDLLIBS)
 MOBJS += \
 	$(MOBJ)/$(CONF_SYSTEM)/os.o \
 	$(MOBJ)/$(CONF_SYSTEM)/msdl.o
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 MOBJS += \
 	$(MOBJ)/lib/filenix.o \
 	$(MOBJ)/lib/targnix.o

@@ -60,7 +60,7 @@ JLIBS += $(SDLLIBS)
 JOBJS += \
 	$(JOBJ)/$(CONF_SYSTEM)/os.o \
 	$(JOBJ)/$(CONF_SYSTEM)/jsdl.o
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 JOBJS += \
 	$(JOBJ)/lib/filenix.o \
 	$(JOBJ)/lib/targnix.o

@@ -18,10 +18,10 @@ OBJDIRS += \
 
 TARGETLIBS += $(ZLIBS)
 
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 TARGETLIBS += -lm
 ifeq ($(CONF_SMP),yes)
-TARGETCFLAGS += -DUSE_SMP
+TARGETCFLAGS += -DUSE_SMP -D_REENTRANT
 TARGETLIBS += -lpthread
 endif
 endif
@@ -151,7 +151,7 @@ SYSTEMOBJS += \
 	$(OBJ)/advance/$(CONF_SYSTEM)/jsdl.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/ksdl.o \
 	$(OBJ)/advance/$(CONF_SYSTEM)/msdl.o
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 SYSTEMOBJS += \
 	$(OBJ)/advance/lib/filenix.o \
 	$(OBJ)/advance/lib/targnix.o
@@ -182,7 +182,7 @@ ifeq ($(CONF_EMU),pac)
 EMUCFLAGS += -DPAC
 endif
 
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 EMUCFLAGS += \
 	-DPI=M_PI \
 	-Dstricmp=strcasecmp \
@@ -444,10 +444,11 @@ $(srcdir)/advance/advmess.dif: $(srcdir)/srcmess $(srcdir)/srcmess.ori
 
 EMU_ROOT_SRC = \
 	$(srcdir)/COPYING \
-	$(CONF_BIN)
+	$(CONF_SRC)
 
 EMU_ADVANCE_SRC = \
 	$(srcdir)/advance/advance.mak \
+	$(srcdir)/advance/emu.mak \
 	$(srcdir)/advance/v.mak \
 	$(srcdir)/advance/cfg.mak \
 	$(srcdir)/advance/k.mak \
@@ -516,7 +517,7 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/histemu.html \
 	$(DOCOBJ)/faq.html \
 	$(DOCOBJ)/tips.html
-ifneq ($(CONF_HOST),sdl)
+ifneq ($(CONF_SYSTEM),sdl)
 EMU_DOC_BIN += \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
@@ -539,10 +540,10 @@ endif
 EMU_ROOT_BIN = \
 	$(OBJ)/$(EMUNAME)$(EXE) \
 	$(srcdir)/support/safequit.dat
-ifeq ($(CONF_SYSTEM),linux)
+ifeq ($(CONF_HOST),unix)
 EMU_ROOT_BIN += \
 	$(DOCOBJ)/advmame.1 \
-	$(CONF_SRC)
+	$(CONF_BIN)
 endif
 ifneq ($(CONF_SYSTEM),sdl)
 EMU_ROOT_BIN += \
@@ -552,7 +553,7 @@ EMU_ROOT_BIN += \
 	$(SOBJ)/advs$(EXE) \
 	$(JOBJ)/advj$(EXE) \
 	$(MOBJ)/advm$(EXE)
-ifeq ($(CONF_SYSTEM),linux)
+ifeq ($(CONF_HOST),unix)
 EMU_ROOT_BIN += \
 	$(DOCOBJ)/advv.1 \
 	$(DOCOBJ)/advcfg.1 \
@@ -651,7 +652,7 @@ dist: $(RCSRC) $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt
 
 distbin: $(EMU_ROOT_BIN) $(EMU_DOC_BIN)
 	mkdir $(EMU_DIST_DIR_BIN)
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 	cp $(DOCOBJ)/reademu.txt $(EMU_DIST_DIR_BIN)/README
 	cp $(DOCOBJ)/releemu.txt $(EMU_DIST_DIR_BIN)/RELEASE
 	cp $(DOCOBJ)/histemu.txt $(EMU_DIST_DIR_BIN)/HISTORY
@@ -665,7 +666,7 @@ endif
 	cp $(EMU_DOC_BIN) $(EMU_DIST_DIR_BIN)/doc
 	mkdir $(EMU_DIST_DIR_BIN)/contrib
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_BIN)/contrib
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 	rm -f $(EMU_DISTFILE_BIN).tar.gz
 	tar cfzo $(EMU_DISTFILE_BIN).tar.gz $(EMU_DIST_DIR_BIN)
 else

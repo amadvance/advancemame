@@ -1,26 +1,26 @@
-dnl @synopsis AC_CHECK_CC_OPT(flag, varname)
+dnl @synopsis AC_CHECK_CC_OPT(flag, ifyes, ifno)
 dnl 
-dnl AC_CHECK_CC_OPT(-fvomit-frame,vomitframe)
-dnl would show a message as like 
-dnl "checking wether gcc accepts -fvomit-frame ... no"
-dnl and sets the shell-variable $vomitframe to either "yes"
-dnl or "no".
+dnl Shows a message as like "checking wether gcc accepts flag ... no"
+dnl and executess ifyes or ifno.
 
 AC_DEFUN(AC_CHECK_CC_OPT,
 [
 AC_MSG_CHECKING([whether ${CC-cc} accepts $1])
 echo 'void f(){}' > conftest.c
 if test -z "`${CC-cc} -c $1 conftest.c 2>&1`"; then
-  $2="yes"
+  AC_MSG_RESULT([yes])
+  $2
 else
-  $2="no"
+  AC_MSG_RESULT([no])
+  $3
 fi
 rm -f conftest*
-AC_MSG_RESULT(${$2})
 ])
 
 dnl @synopsis AC_CHECK_CPU_ARCH
-dnl
+dnl 
+dnl Sets ac_cpu_arch and ac_cpu_family. If unrecognized set
+dnl ac_cpu_arch=blend and ac_cpu_family=0
 
 AC_DEFUN(AC_CHECK_CPU_ARCH,
 [
@@ -57,25 +57,33 @@ elif grep "family.*:.*6" /proc/cpuinfo > /dev/null ; then
 	fi
 	ac_cpu_family=6
 else
-	AC_MSG_WARN([Unrecognized /proc/cpuinfo, assuming i686])
-	ac_cpu_arch="i686"
-	ac_cpu_family=6
+	ac_cpu_arch=blend
+	ac_cpu_family=0
 fi
 AC_MSG_CHECKING([host cpu, family])
 AC_MSG_RESULT([$ac_cpu_arch, $ac_cpu_family])
 ])
 
+
+dnl @synopsis AC_CHECK_CC_ARCH
+dnl 
+dnl Sets ac_cc_arch. If unrecognized set ac_cc_arch=blend
+
 AC_DEFUN(AC_CHECK_CC_ARCH,
 [
-AC_CHECK_CC_OPT([-march=$ac_cpu_arch],ac_cc_cpu_arch)
-if test $ac_cc_cpu_arch = yes ; then
-	ac_cc_arch=$ac_cpu_arch
+if test $ac_cpu_arch = blend; then
+	ac_cc_arch=blend
 else
-	AC_CHECK_CC_OPT([-march=i${ac_cpu_family}86],ac_cc_family_arch)
-	if test $ac_cc_family_arch = yes ; then
-		ac_cc_arch=i${ac_cpu_family}86
+	AC_CHECK_CC_OPT([-march=$ac_cpu_arch],[ac_cc_cpu_arch=yes],[ac_cc_cpu_arch=no])
+	if test $ac_cc_cpu_arch = yes ; then
+		ac_cc_arch=$ac_cpu_arch
 	else
-		ac_cc_arch=blend
+		AC_CHECK_CC_OPT([-march=i${ac_cpu_family}86],[ac_cc_family_arch=yes],[ac_cc_family_arch=no])
+		if test $ac_cc_family_arch = yes ; then
+			ac_cc_arch=i${ac_cpu_family}86
+		else
+			ac_cc_arch=blend
+		fi
 	fi
 fi
 ])

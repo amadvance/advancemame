@@ -6,7 +6,7 @@ Name
 
   SVgaLine
 	These are DOS/Linux drivers based on the SVGALIB Linux
-	library (at the time of writing version 1.9.15).
+	library (at the time of writing version 1.9.16).
 
 	The numbers in [] are the PCI device IDs of the video board
 	models. The numbers in () are the PCI vendor IDs of the
@@ -61,9 +61,6 @@ Name
 
 	i740 - +Intel (8086) (interlaced modes not supported)
 		+740 [00d1,7800]
-
-	i810 - +Intel (8086) (interlaced modes not supported)
-		+810 [1132]
 
 	sis - +SiS (1039)
 		+SG86C201 [0001], 202 [0002], 205 [0205], 215 [0215], 225 [0225]

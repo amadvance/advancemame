@@ -199,7 +199,7 @@ MENUOBJS += \
 	$(MENUOBJ)/$(CONF_SYSTEM)/ksdl.o \
 	$(MENUOBJ)/$(CONF_SYSTEM)/msdl.o \
 	$(MENUOBJ)/$(CONF_SYSTEM)/jsdl.o
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 MENUOBJS += \
 	$(MENUOBJ)/lib/filenix.o \
 	$(MENUOBJ)/lib/targnix.o
@@ -303,7 +303,7 @@ MENU_DOC_BIN = \
 	$(DOCOBJ)/relemenu.html \
 	$(DOCOBJ)/histmenu.html \
 	$(DOCOBJ)/histmenu.html
-ifneq ($(CONF_HOST),sdl)
+ifneq ($(CONF_SYSTEM),sdl)
 MENU_DOC_BIN += \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
@@ -319,7 +319,7 @@ endif
 MENU_ROOT_BIN = \
 	$(srcdir)/COPYING \
 	$(MENUOBJ)/advmenu$(EXE)
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 MENU_ROOT_BIN += \
 	$(DOCOBJ)/advmenu.1 \
 	$(CONF_BIN)
@@ -337,7 +337,7 @@ ifneq ($(CONF_SYSTEM),sdl)
 MENU_ROOT_BIN += \
 	$(VOBJ)/advv$(EXE) \
 	$(CFGOBJ)/advcfg$(EXE)
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 MENU_ROOT_BIN += \
 	$(DOCOBJ)/advv.1 \
 	$(DOCOBJ)/advcfg.1
@@ -407,7 +407,7 @@ distmenu: $(RCSRC) $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histm
 
 distmenubin: $(MENU_ROOT_BIN) $(MENU_DOC_BIN)
 	mkdir $(MENU_DIST_DIR_BIN)
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 	cp $(DOCOBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/README
 	cp $(DOCOBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/RELEASE
 	cp $(DOCOBJ)/histmenu.txt $(MENU_DIST_DIR_BIN)/HISTORY
@@ -421,7 +421,7 @@ endif
 	cp $(MENU_DOC_BIN) $(MENU_DIST_DIR_BIN)/doc
 	mkdir $(MENU_DIST_DIR_BIN)/contrib
 	cp -R $(MENU_CONTRIB_SRC) $(MENU_DIST_DIR_BIN)/contrib
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 	rm -f $(MENU_DIST_FILE_BIN).tar.gz
 	tar cfzo $(MENU_DIST_FILE_BIN).tar.gz $(MENU_DIST_DIR_BIN)
 else

@@ -797,9 +797,9 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-debug          enable the debug information (default no)
-  --enable-asm            enable the assembler 586 optimizations (default
+  --enable-asm            enable the Pentium assembler optimizations (default
                           auto)
-  --enable-smp            enable the multi processor support (default yes)
+  --enable-smp            enable the multi processor support (default auto)
   --enable-debugger       enable the emulator debugger (default no)
   --enable-compress       enable the compression of the executable (default
                           no)
@@ -807,12 +807,10 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-arch             select the host cpu architecture: i586, i686, k6,
-                          athlon, blend... (default auto)
   --with-emu              select the emulator to use: mame, mess, neomame,
                           cpmame, pac, none (default auto)
-  --with-system           select the system to use: native or sdl. (default
-                          auto)
+  --with-system           select the system to use: linux, dos or sdl.
+                          (default auto)
 
 Some influential environment variables:
   CXX         C++ compiler command
@@ -1270,7 +1268,7 @@ host_os=`echo $ac_cv_host | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`
 
 case "$host" in
 	*-*-linux*)
-		ac_host=linux
+		ac_host=unix
 		ASMFLAGS="-f elf"
 
 		CFLAGS_BUILD="-O0 -DCOMPILER_TARGET_GNUC -DOBJ_TARGET_ELF"
@@ -1296,17 +1294,22 @@ case "$host" in
 
 	;;
 	*)
-		{ { echo "$as_me:$LINENO: error: Unsupported host environment: Please add to configure.ac" >&5
-echo "$as_me: error: Unsupported host environment: Please add to configure.ac" >&2;}
-   { (exit 1); exit 1; }; }
-        ;;
+		{ echo "$as_me:$LINENO: WARNING: Never tried host platform! Please report if it's working" >&5
+echo "$as_me: WARNING: Never tried host platform! Please report if it's working" >&2;}
+		ac_host=unix
+		ASMFLAGS=""
+
+		CFLAGS_BUILD="-O0"
+
+
+	;;
 esac
 CONF_HOST=$ac_host
 
 
 case "$build" in
 	*-*-linux*)
-		ac_build=linux
+		ac_build=unix
 
 	;;
 	*-*-cygwin* | *-*-mingw32*)
@@ -1320,42 +1323,24 @@ case "$build" in
 
 	;;
 	*)
-		{ { echo "$as_me:$LINENO: error: Unsupported build environment: Please add to configure.ac" >&5
-echo "$as_me: error: Unsupported build environment: Please add to configure.ac" >&2;}
-   { (exit 1); exit 1; }; }
-        ;;
+		{ echo "$as_me:$LINENO: WARNING: Never tried build platform! Please report if it's working" >&5
+echo "$as_me: WARNING: Never tried build platform! Please report if it's working" >&2;}
+		ac_build=unix
+
+	;;
 esac
 CONF_BUILD=$ac_build
 
 
-# Check whether --enable-debug or --disable-debug was given.
-if test "${enable_debug+set}" = set; then
-  enableval="$enable_debug"
-  ac_enable_debug=$enableval
-else
-  ac_enable_debug=no
-
-fi;
-CONF_DEBUG=$ac_enable_debug
-
-
 if test -z "$CFLAGS" ; then
-	if test $ac_enable_debug = yes ; then
-		CFLAGS="-O0 -g -Wall -Wno-sign-compare"
-	else
-		CFLAGS="-O3 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused"
-	fi
+	ac_auto_cflags=yes
+else
+	ac_auto_cflags=no
 fi
 if test -z "$LDFLAGS" ; then
-	if test $ac_enable_debug = yes ; then
-		if test $ac_host = linux ; then
-			LDFLAGS="-rdynamic"
-		else
-			LDFLAGS=""
-		fi
-	else
-		LDFLAGS="-s"
-	fi
+	ac_auto_ldflags=yes
+else
+	ac_auto_ldflags=no
 fi
 
 # Checks for programs.
@@ -3102,11 +3087,6 @@ fi
 done
 
 
-CONF_CFLAGS_OPT=$CFLAGS
-
-CONF_LDFLAGS=$LDFLAGS
-
-
 # Checks for libraries.
 
 
@@ -3190,6 +3170,191 @@ ZLIBS=$ZLIBS
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
+
+# Checks for optimizations
+# Check whether --enable-debug or --disable-debug was given.
+if test "${enable_debug+set}" = set; then
+  enableval="$enable_debug"
+  ac_enable_debug=$enableval
+else
+  ac_enable_debug=no
+
+fi;
+CONF_DEBUG=$ac_enable_debug
+
+
+if test $ac_auto_cflags = yes; then
+	if test $ac_enable_debug = yes ; then
+		CFLAGS="-O0 -g -Wall -Wno-sign-compare"
+	else
+		CFLAGS=""
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -O3" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -O3... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -O3 conftest.c 2>&1`"; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+  CFLAGS="$CFLAGS -O3"
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -O2" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -O2... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -O2 conftest.c 2>&1`"; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+  CFLAGS="$CFLAGS -O2"
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+  CFLAGS="$CFLAGS -O"
+fi
+rm -f conftest*
+
+fi
+rm -f conftest*
+
+
+if grep -i "family.*:.*3" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="i386"
+	ac_cpu_family=3
+elif grep -i "family.*:.*4" /proc/cpuinfo > /dev/null ; then
+	ac_cpu_arch="i486"
+	ac_cpu_family=4
+elif grep -i "family.*:.*5" /proc/cpuinfo > /dev/null ; then
+	if grep -i "model name.*:.*K6" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="k6"
+	elif grep -i "model name.*:.*Pentium MMX" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentium-mmx"
+	elif grep -i "model name.*:.*Pentium" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentium"
+	else
+		ac_cpu_arch="i586"
+	fi
+	ac_cpu_family=5
+elif grep "family.*:.*6" /proc/cpuinfo > /dev/null ; then
+	if grep -i "model name.*:.*Athlon" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="athlon"
+	elif grep -i "model name.*:.*Pentium IV" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentium4"
+	elif grep -i "model name.*:.*Pentium III" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentium3"
+	elif grep -i "model name.*:.*Pentium II" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentium2"
+	elif grep -i "model name.*:.*Pentium Pro" /proc/cpuinfo > /dev/null ; then
+		ac_cpu_arch="pentiumpro"
+	else
+		ac_cpu_arch="i686"
+	fi
+	ac_cpu_family=6
+else
+	ac_cpu_arch=blend
+	ac_cpu_family=0
+fi
+echo "$as_me:$LINENO: checking host cpu, family" >&5
+echo $ECHO_N "checking host cpu, family... $ECHO_C" >&6
+echo "$as_me:$LINENO: result: $ac_cpu_arch, $ac_cpu_family" >&5
+echo "${ECHO_T}$ac_cpu_arch, $ac_cpu_family" >&6
+
+
+if test $ac_cpu_arch = blend; then
+	ac_cc_arch=blend
+else
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -march=$ac_cpu_arch" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -march=$ac_cpu_arch... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -march=$ac_cpu_arch conftest.c 2>&1`"; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+  ac_cc_cpu_arch=yes
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+  ac_cc_cpu_arch=no
+fi
+rm -f conftest*
+
+	if test $ac_cc_cpu_arch = yes ; then
+		ac_cc_arch=$ac_cpu_arch
+	else
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -march=i${ac_cpu_family}86" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -march=i${ac_cpu_family}86... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -march=i${ac_cpu_family}86 conftest.c 2>&1`"; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+  ac_cc_family_arch=yes
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+  ac_cc_family_arch=no
+fi
+rm -f conftest*
+
+		if test $ac_cc_family_arch = yes ; then
+			ac_cc_arch=i${ac_cpu_family}86
+		else
+			ac_cc_arch=blend
+		fi
+	fi
+fi
+
+		if test ! $ac_cc_arch = blend; then
+			CFLAGS="-march=$ac_cc_arch $CFLAGS"
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -fomit-frame-pointer" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -fomit-frame-pointer... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -fomit-frame-pointer conftest.c 2>&1`"; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+  CFLAGS="$CFLAGS -fomit-frame-pointer"
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+
+fi
+rm -f conftest*
+
+		fi
+
+echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -Wall -Wno-sign-compare -Wno-unused" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts -Wall -Wno-sign-compare -Wno-unused... $ECHO_C" >&6
+echo 'void f(){}' > conftest.c
+if test -z "`${CC-cc} -c -Wall -Wno-sign-compare -Wno-unused conftest.c 2>&1`"; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+  CFLAGS="$CFLAGS -Wall -Wno-sign-compare -Wno-unused"
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+
+fi
+rm -f conftest*
+
+	fi
+fi
+if test $ac_auto_ldflags = yes ; then
+	if test $ac_enable_debug = yes ; then
+		if test $ac_host = unix ; then
+			LDFLAGS="-rdynamic"
+		else
+			LDFLAGS=""
+		fi
+	else
+		LDFLAGS="-s"
+	fi
+fi
+
+CONF_CFLAGS_OPT=$CFLAGS
+
+CONF_LDFLAGS=$LDFLAGS
+
 
 # Checks for architecture
 echo "$as_me:$LINENO: checking whether byte ordering is bigendian" >&5
@@ -3397,106 +3562,6 @@ else
 	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_LSB"
 fi
 
-
-if grep -i "family.*:.*3" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="i386"
-	ac_cpu_family=3
-elif grep -i "family.*:.*4" /proc/cpuinfo > /dev/null ; then
-	ac_cpu_arch="i486"
-	ac_cpu_family=4
-elif grep -i "family.*:.*5" /proc/cpuinfo > /dev/null ; then
-	if grep -i "model name.*:.*K6" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="k6"
-	elif grep -i "model name.*:.*Pentium MMX" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium-mmx"
-	elif grep -i "model name.*:.*Pentium" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium"
-	else
-		ac_cpu_arch="i586"
-	fi
-	ac_cpu_family=5
-elif grep "family.*:.*6" /proc/cpuinfo > /dev/null ; then
-	if grep -i "model name.*:.*Athlon" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="athlon"
-	elif grep -i "model name.*:.*Pentium IV" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium4"
-	elif grep -i "model name.*:.*Pentium III" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium3"
-	elif grep -i "model name.*:.*Pentium II" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentium2"
-	elif grep -i "model name.*:.*Pentium Pro" /proc/cpuinfo > /dev/null ; then
-		ac_cpu_arch="pentiumpro"
-	else
-		ac_cpu_arch="i686"
-	fi
-	ac_cpu_family=6
-else
-	{ echo "$as_me:$LINENO: WARNING: Unrecognized /proc/cpuinfo, assuming i686" >&5
-echo "$as_me: WARNING: Unrecognized /proc/cpuinfo, assuming i686" >&2;}
-	ac_cpu_arch="i686"
-	ac_cpu_family=6
-fi
-echo "$as_me:$LINENO: checking host cpu, family" >&5
-echo $ECHO_N "checking host cpu, family... $ECHO_C" >&6
-echo "$as_me:$LINENO: result: $ac_cpu_arch, $ac_cpu_family" >&5
-echo "${ECHO_T}$ac_cpu_arch, $ac_cpu_family" >&6
-
-
-
-# Check whether --with-arch or --without-arch was given.
-if test "${with_arch+set}" = set; then
-  withval="$with_arch"
-  ac_with_arch=$withval
-else
-  ac_with_arch=auto
-
-fi;
-if test $ac_with_arch = auto; then
-
-
-echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -march=$ac_cpu_arch" >&5
-echo $ECHO_N "checking whether ${CC-cc} accepts -march=$ac_cpu_arch... $ECHO_C" >&6
-echo 'void f(){}' > conftest.c
-if test -z "`${CC-cc} -c -march=$ac_cpu_arch conftest.c 2>&1`"; then
-  ac_cc_cpu_arch="yes"
-else
-  ac_cc_cpu_arch="no"
-fi
-rm -f conftest*
-echo "$as_me:$LINENO: result: ${ac_cc_cpu_arch}" >&5
-echo "${ECHO_T}${ac_cc_cpu_arch}" >&6
-
-if test $ac_cc_cpu_arch = yes ; then
-	ac_cc_arch=$ac_cpu_arch
-else
-
-echo "$as_me:$LINENO: checking whether ${CC-cc} accepts -march=i${ac_cpu_family}86" >&5
-echo $ECHO_N "checking whether ${CC-cc} accepts -march=i${ac_cpu_family}86... $ECHO_C" >&6
-echo 'void f(){}' > conftest.c
-if test -z "`${CC-cc} -c -march=i${ac_cpu_family}86 conftest.c 2>&1`"; then
-  ac_cc_family_arch="yes"
-else
-  ac_cc_family_arch="no"
-fi
-rm -f conftest*
-echo "$as_me:$LINENO: result: ${ac_cc_family_arch}" >&5
-echo "${ECHO_T}${ac_cc_family_arch}" >&6
-
-	if test $ac_cc_family_arch = yes ; then
-		ac_cc_arch=i${ac_cpu_family}86
-	else
-		ac_cc_arch=blend
-	fi
-fi
-
-	ac_with_arch=$ac_cc_arch
-fi
-if test ! $ac_with_arch = blend; then
-	CFLAGS_ARCH="-march=$ac_with_arch $CFLAGS_ARCH"
-fi
-CONF_ARCH=$ac_with_arch
-
-
 # Check whether --enable-asm or --disable-asm was given.
 if test "${enable_asm+set}" = set; then
   enableval="$enable_asm"
@@ -3506,11 +3571,50 @@ else
 
 fi;
 if test $ac_enable_asm = auto; then
-	if test $ac_cpu_family = 3 -o $ac_cpu_family = 4 ; then
-		ac_enable_asm=no
-	else
-		ac_enable_asm=yes
-	fi
+	echo "$as_me:$LINENO: checking whether ${CC-cc} accepts Pentium assembler" >&5
+echo $ECHO_N "checking whether ${CC-cc} accepts Pentium assembler... $ECHO_C" >&6
+	cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+#ifdef F77_DUMMY_MAIN
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+#endif
+int
+main ()
+{
+#if !defined(__i386__)
+		choke me
+		#endif
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_enable_asm=yes
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+ac_enable_asm=no
+
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+	echo "$as_me:$LINENO: result: $ac_enable_asm" >&5
+echo "${ECHO_T}$ac_enable_asm" >&6
 fi
 if test $ac_enable_asm = yes; then
 	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_i586"
@@ -3595,16 +3699,15 @@ else
 fi;
 if test $ac_with_system = auto; then
 	if test $ac_host = dos; then
-		ac_with_system=native
+		ac_with_system=dos
 	elif test $ac_host = windows; then
 		ac_with_system=sdl
 	elif test $ac_with_emu = none; then
 		ac_with_system=sdl
 	else
-		ac_with_system=native
+		ac_with_system=linux
 	fi
-fi
-if test $ac_with_system = sdl; then
+elif test $ac_with_system = sdl; then
 	if test -z ${host_alias} ; then
 		for ac_prog in sdl-config
 do
@@ -3772,9 +3875,8 @@ fi
 
 
 
-elif test $ac_with_system = native; then
-	if test $ac_host = dos; then
-		echo "$as_me:$LINENO: checking for install_allegro in -lalleg" >&5
+elif test $ac_with_system = dos; then
+	echo "$as_me:$LINENO: checking for install_allegro in -lalleg" >&5
 echo $ECHO_N "checking for install_allegro in -lalleg... $ECHO_C" >&6
 if test "${ac_cv_lib_alleg_install_allegro+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3836,12 +3938,12 @@ else
 
 fi
 
-		if test $ac_library_allegro = no; then
-			{ { echo "$as_me:$LINENO: error: The Allegro library is required for the \"native\" system" >&5
-echo "$as_me: error: The Allegro library is required for the \"native\" system" >&2;}
+	if test $ac_library_allegro = no; then
+		{ { echo "$as_me:$LINENO: error: The Allegro library is required for the \"dos\" system" >&5
+echo "$as_me: error: The Allegro library is required for the \"dos\" system" >&2;}
    { (exit 1); exit 1; }; }
-		fi
-		echo "$as_me:$LINENO: checking for AInitialize in -laudio" >&5
+	fi
+	echo "$as_me:$LINENO: checking for AInitialize in -laudio" >&5
 echo $ECHO_N "checking for AInitialize in -laudio... $ECHO_C" >&6
 if test "${ac_cv_lib_audio_AInitialize+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3903,13 +4005,13 @@ else
 
 fi
 
-		if test $ac_library_seal = no; then
-			{ { echo "$as_me:$LINENO: error: The SEAL library is required for the \"native\" system" >&5
-echo "$as_me: error: The SEAL library is required for the \"native\" system" >&2;}
+	if test $ac_library_seal = no; then
+		{ { echo "$as_me:$LINENO: error: The SEAL library is required for the \"dos\" system" >&5
+echo "$as_me: error: The SEAL library is required for the \"dos\" system" >&2;}
    { (exit 1); exit 1; }; }
-		fi
-	else
-		echo "$as_me:$LINENO: checking for vga_init in -lvga" >&5
+	fi
+elif test $ac_with_system = linux; then
+	echo "$as_me:$LINENO: checking for vga_init in -lvga" >&5
 echo $ECHO_N "checking for vga_init in -lvga... $ECHO_C" >&6
 if test "${ac_cv_lib_vga_vga_init+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3971,12 +4073,12 @@ else
 
 fi
 
-		if test $ac_library_vga = no; then
-			{ { echo "$as_me:$LINENO: error: The vgalib library is required for the \"native\" system" >&5
-echo "$as_me: error: The vgalib library is required for the \"native\" system" >&2;}
+	if test $ac_library_vga = no; then
+		{ { echo "$as_me:$LINENO: error: The vgalib library is required for the \"linux\" system" >&5
+echo "$as_me: error: The vgalib library is required for the \"linux\" system" >&2;}
    { (exit 1); exit 1; }; }
-		fi
-		cat >conftest.$ac_ext <<_ACEOF
+	fi
+	cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 #include "confdefs.h"
 #include <vga.h>
@@ -3990,8 +4092,8 @@ int
 main ()
 {
 #if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
-			choke me
-			#endif
+		choke me
+		#endif
   ;
   return 0;
 }
@@ -4016,19 +4118,18 @@ ac_library_vga_version=no
 
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
-		if test $ac_library_vga_version = no; then
-			{ { echo "$as_me:$LINENO: error: Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version" >&5
+	if test $ac_library_vga_version = no; then
+		{ { echo "$as_me:$LINENO: error: Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version" >&5
 echo "$as_me: error: Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version" >&2;}
    { (exit 1); exit 1; }; }
-		fi
 	fi
 elif test $ac_with_system = none; then
 	{ { echo "$as_me:$LINENO: error: You must specify a --with-system= option" >&5
 echo "$as_me: error: You must specify a --with-system= option" >&2;}
    { (exit 1); exit 1; }; }
 else
-	{ { echo "$as_me:$LINENO: error: Unknown system $ac_with_system" >&5
-echo "$as_me: error: Unknown system $ac_with_system" >&2;}
+	{ { echo "$as_me:$LINENO: error: Unknown system $ac_with_system, valid values are linux, dos and sdl" >&5
+echo "$as_me: error: Unknown system $ac_with_system, valid values are linux, dos and sdl" >&2;}
    { (exit 1); exit 1; }; }
 fi
 CONF_SYSTEM=$ac_with_system
@@ -4039,9 +4140,73 @@ if test "${enable_smp+set}" = set; then
   enableval="$enable_smp"
   ac_enable_smp=$enableval
 else
-  ac_enable_smp=yes
+  ac_enable_smp=auto
 
 fi;
+if test $ac_enable_smp = auto; then
+	echo "$as_me:$LINENO: checking for pthread_create in -lpthread" >&5
+echo $ECHO_N "checking for pthread_create in -lpthread... $ECHO_C" >&6
+if test "${ac_cv_lib_pthread_pthread_create+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpthread
+	 $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char pthread_create ();
+#ifdef F77_DUMMY_MAIN
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+#endif
+int
+main ()
+{
+pthread_create ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_pthread_pthread_create=yes
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+ac_cv_lib_pthread_pthread_create=no
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_pthread_pthread_create" >&5
+echo "${ECHO_T}$ac_cv_lib_pthread_pthread_create" >&6
+if test $ac_cv_lib_pthread_pthread_create = yes; then
+  ac_enable_smp=yes
+else
+  ac_enable_smp=no
+fi
+
+fi
 CONF_SMP=$ac_enable_smp
 
 
@@ -4759,7 +4924,6 @@ s,@EXE@,$EXE,;t t
 s,@CONF_HOST@,$CONF_HOST,;t t
 s,@EXE_BUILD@,$EXE_BUILD,;t t
 s,@CONF_BUILD@,$CONF_BUILD,;t t
-s,@CONF_DEBUG@,$CONF_DEBUG,;t t
 s,@CXX@,$CXX,;t t
 s,@CXXFLAGS@,$CXXFLAGS,;t t
 s,@LDFLAGS@,$LDFLAGS,;t t
@@ -4788,10 +4952,10 @@ s,@ZIP@,$ZIP,;t t
 s,@ASM@,$ASM,;t t
 s,@CC_BUILD@,$CC_BUILD,;t t
 s,@CXX_BUILD@,$CXX_BUILD,;t t
+s,@ZLIBS@,$ZLIBS,;t t
+s,@CONF_DEBUG@,$CONF_DEBUG,;t t
 s,@CONF_CFLAGS_OPT@,$CONF_CFLAGS_OPT,;t t
 s,@CONF_LDFLAGS@,$CONF_LDFLAGS,;t t
-s,@ZLIBS@,$ZLIBS,;t t
-s,@CONF_ARCH@,$CONF_ARCH,;t t
 s,@CONF_CFLAGS_ARCH@,$CONF_CFLAGS_ARCH,;t t
 s,@CONF_EMU@,$CONF_EMU,;t t
 s,@SDLCONFIG@,$SDLCONFIG,;t t
@@ -5034,7 +5198,7 @@ fi
 
 echo ""
 echo "== Host Architecture =="
-echo "Environment :" $ac_host "("$host")"
+echo "Environment :" $host
 if test $ac_is_bigendian = yes; then
 	echo "Endianess : big"
 else
@@ -5046,11 +5210,9 @@ if test $ac_enable_asm = yes; then
 else
 	echo "Assembler for Pentium : no"
 fi
-echo "CPU :" $ac_with_arch
 echo ""
 echo "== Compiler =="
-echo "CFLAGS (optimization) :" $CFLAGS
-echo "CFLAGS (architecture) :" $CFLAGS_ARCH
+echo "CFLAGS :" $CFLAGS
 echo "LDFLAGS :" $LDFLAGS
 echo ""
 echo "== Configuration =="

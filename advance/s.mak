@@ -64,7 +64,7 @@ SLIBS += $(ZLIBS) -lm $(SDLLIBS)
 SOBJS += \
 	$(SOBJ)/$(CONF_SYSTEM)/os.o \
 	$(SOBJ)/$(CONF_SYSTEM)/ssdl.o
-ifeq ($(CONF_HOST),linux)
+ifeq ($(CONF_HOST),unix)
 SOBJS += \
 	$(SOBJ)/lib/filenix.o \
 	$(SOBJ)/lib/targnix.o

@@ -371,8 +371,8 @@ wholemenu:
 	$(MAKE) CONF=no distmenu
 	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_SYSTEM=dos CONF_MAP=yes CONF_COMPRESS=yes distmenubin
 	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows CONF_SYSTEM=sdl CONF_MAP=yes CONF_COMPRESS=yes distmenubin
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=linux CONF_SYSTEM=sdl CONF_MAP=yes distmenubin
-	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=linux CONF_SYSTEM=linux CONF_MAP=yes distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_SYSTEM=sdl CONF_MAP=yes distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_SYSTEM=linux CONF_MAP=yes distmenubin
 
 wholecab:
 	$(MAKE) CONF=no CONF_HOST=dos distcab
