@@ -12,6 +12,8 @@ AdvanceMAME Version 0.67.1 2003/05
 	) The `display_adjust' value `generate' is now renamed `generate_yclock'.
 		A bunch of new `generate_*' values are available for a fine
 		control on the generated modes.
+	) Fixed the mouse handling in Linux with the SVGALIB library
+		[by Fabio Cavallo].
 
 AdvanceMAME Version 0.67.0 2003/04
 	) Updated with autoconf 2.57.

@@ -1431,9 +1431,9 @@ Configuration
 
 	Options:
 		auto - Automatic (default).
-		15 - 15 bit RGB mode
-		16 - 16 bit Palette mode
-		32 - 32 bit RGB mode
+		15 - 15 bit RGB mode.
+		16 - 16 bit Palette mode.
+		32 - 32 bit RGB mode.
 
 	The use of this option is discouraged. Use the default value.
 
@@ -1527,8 +1527,8 @@ Configuration
 Signals
 	The program intercepts the following signals:
 
-		SIGQUIT - Exit normally
-		SIGTERM - Exit restoring only the video
+		SIGQUIT - Exit normally.
+		SIGTERM - Abort restoring the output devices.
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni, Filipe Estima.
