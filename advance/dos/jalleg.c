@@ -188,7 +188,7 @@ static device DEVICE[] = {
 	{ 0, 0, 0 }
 };
 
-video_error joystickb_allegro_init(int id)
+adv_error joystickb_allegro_init(int id)
 {
 	log_std(("joystickb:allegro: joystickb_allegro_init(id:%d)\n",id));
 
@@ -379,7 +379,7 @@ unsigned joystickb_allegro_flags(void)
 	return 0;
 }
 
-video_error joystickb_allegro_load(struct conf_context* context)
+adv_error joystickb_allegro_load(struct conf_context* context)
 {
 	return 0;
 }

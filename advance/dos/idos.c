@@ -74,7 +74,7 @@ static struct keyb_pair {
 { OS_INPUT_MAX, 0 }
 };
 
-video_error inputb_dos_init(int inputb_id)
+adv_error inputb_dos_init(int inputb_id)
 {
 	log_std(("input:dos: inputb_dos_init(id:%d)\n",inputb_id));
 
@@ -86,7 +86,7 @@ void inputb_dos_done(void)
 	log_std(("input:dos: inputb_dos_done()\n"));
 }
 
-video_bool inputb_dos_hit(void)
+adv_bool inputb_dos_hit(void)
 {
 	log_debug(("inputb:dos: inputb_dos_count_get()\n"));
 
@@ -110,7 +110,7 @@ unsigned inputb_dos_flags(void)
 	return 0;
 }
 
-video_error inputb_dos_load(struct conf_context* context)
+adv_error inputb_dos_load(struct conf_context* context)
 {
 	return 0;
 }

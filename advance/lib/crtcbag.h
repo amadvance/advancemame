@@ -50,7 +50,7 @@ int video_crtc_compare(const video_crtc* a,const video_crtc* b);
 void video_crtc_container_init(video_crtc_container* cc);
 void video_crtc_container_done(video_crtc_container* cc);
 
-video_error video_crtc_container_load(struct conf_context* context, video_crtc_container* cc);
+adv_error video_crtc_container_load(struct conf_context* context, video_crtc_container* cc);
 void video_crtc_container_save(struct conf_context* context, video_crtc_container* cc);
 void video_crtc_container_clear(struct conf_context* context);
 void video_crtc_container_register(struct conf_context* context);
@@ -59,7 +59,7 @@ const video_crtc* video_crtc_container_has(video_crtc_container* cc, const video
 void video_crtc_container_remove(video_crtc_container* cc, int (*modeselect)(const video_crtc*, void*), void*);
 const video_crtc* video_crtc_container_insert(video_crtc_container* cc, const video_crtc* vm);
 const video_crtc* video_crtc_container_insert_sort(video_crtc_container* cc, const video_crtc* vm, int (*compare)(const video_crtc* a,const video_crtc* b));
-video_bool video_crtc_container_is_empty(const video_crtc_container* cc);
+adv_bool video_crtc_container_is_empty(const video_crtc_container* cc);
 
 typedef struct video_crtc_container_iterator_struct {
 	video_crtc* base;
@@ -67,13 +67,14 @@ typedef struct video_crtc_container_iterator_struct {
 
 void video_crtc_container_iterator_begin(video_crtc_container_iterator* cci, video_crtc_container* cc);
 void video_crtc_container_iterator_next(video_crtc_container_iterator* cci);
-video_bool video_crtc_container_iterator_is_end(video_crtc_container_iterator* cci);
+adv_bool video_crtc_container_iterator_is_end(video_crtc_container_iterator* cci);
 video_crtc* video_crtc_container_iterator_get(video_crtc_container_iterator* cci);
 
-video_error video_crtc_container_insert_default_modeline_vga(video_crtc_container* cc);
-video_error video_crtc_container_insert_default_modeline_svga(video_crtc_container* cc);
-video_error video_crtc_container_insert_default_bios_vga(video_crtc_container* cc);
-video_error video_crtc_container_insert_default_bios_vbe(video_crtc_container* cc);
+adv_error video_crtc_container_insert_default_modeline_vga(video_crtc_container* cc);
+adv_error video_crtc_container_insert_default_modeline_svga(video_crtc_container* cc);
+adv_error video_crtc_container_insert_default_bios_vga(video_crtc_container* cc);
+adv_error video_crtc_container_insert_default_bios_vbe(video_crtc_container* cc);
+void video_crtc_container_insert_default_system(video_crtc_container* cc);
 
 #ifdef __cplusplus
 }

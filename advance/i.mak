@@ -2,15 +2,13 @@
 # I
 
 ICFLAGS += \
-	-I$(srcdir)/advance/$(CONF_SYSTEM) \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/common
-IOBJDIRS = \
+IOBJDIRS += \
 	$(IOBJ) \
 	$(IOBJ)/i \
-	$(IOBJ)/lib \
-	$(IOBJ)/$(CONF_SYSTEM)
-IOBJS = \
+	$(IOBJ)/lib
+IOBJS += \
 	$(IOBJ)/i/i.o \
 	$(IOBJ)/lib/log.o \
 	$(IOBJ)/lib/conf.o \
@@ -19,49 +17,40 @@ IOBJS = \
 	$(IOBJ)/lib/inputdrv.o \
 	$(IOBJ)/lib/inputall.o \
 	$(IOBJ)/lib/inone.o \
+	$(IOBJ)/lib/error.o
 
-ifeq ($(CONF_SYSTEM),linux)
-ICFLAGS += -DPREFIX=\"$(PREFIX)\"
-ILIBS = -lslang
+ifeq ($(CONF_HOST),unix)
+ICFLAGS += \
+	-DPREFIX=\"$(PREFIX)\" \
+	-I$(srcdir)/advance/linux \
+	-DUSE_INPUT_NONE
+IOBJDIRS += \
+	$(IOBJ)/linux
 IOBJS += \
 	$(IOBJ)/lib/filenix.o \
 	$(IOBJ)/lib/targnix.o \
-	$(IOBJ)/$(CONF_SYSTEM)/os.o \
-	$(IOBJ)/$(CONF_SYSTEM)/islang.o
+	$(IOBJ)/linux/os.o
+ifeq ($(CONF_LIB_SLANG),yes)
 ICFLAGS += \
-	-DUSE_INPUT_SLANG -DUSE_INPUT_NONE
+	-DUSE_INPUT_SLANG 
+ILIBS += -lslang
+IOBJS += \
+	$(IOBJ)/linux/islang.o
+endif
 endif
 
-ifeq ($(CONF_SYSTEM),dos)
-ILIBS = -lalleg
+ifeq ($(CONF_HOST),dos)
+ICFLAGS += \
+	-I$(srcdir)/advance/dos \
+	-DUSE_INPUT_DOS -DUSE_INPUT_NONE
+ILIBS += -lalleg
+IOBJDIRS += \
+	$(IOBJ)/dos
 IOBJS += \
 	$(IOBJ)/lib/filedos.o \
 	$(IOBJ)/lib/targdos.o \
-	$(IOBJ)/$(CONF_SYSTEM)/os.o \
-	$(IOBJ)/$(CONF_SYSTEM)/idos.o
-ICFLAGS += \
-	-DUSE_INPUT_DOS -DUSE_INPUT_NONE
-endif
-
-ifeq ($(CONF_SYSTEM),sdl)
-ICFLAGS += \
-	$(SDLCFLAGS) \
-	-DPREFIX=\"$(PREFIX)\" \
-	-DUSE_INPUT_SDL -DUSE_INPUT_NONE
-ILIBS += $(SDLLIBS)
-IOBJS += \
-	$(IOBJ)/$(CONF_SYSTEM)/os.o \
-	$(IOBJ)/$(CONF_SYSTEM)/isdl.o
-ifeq ($(CONF_HOST),unix)
-IOBJS += \
-	$(IOBJ)/lib/filenix.o \
-	$(IOBJ)/lib/targnix.o
-endif
-ifeq ($(CONF_HOST),windows)
-IOBJS += \
-	$(IOBJ)/lib/filedos.o \
-	$(IOBJ)/lib/targwin.o
-endif
+	$(IOBJ)/dos/os.o \
+	$(IOBJ)/dos/idos.o
 endif
 
 $(IOBJ)/%.o: $(srcdir)/advance/%.c

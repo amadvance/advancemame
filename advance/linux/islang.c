@@ -31,7 +31,7 @@
 #include "islang.h"
 #include "log.h"
 #include "target.h"
-#include "osint.h"
+#include "oslinux.h"
 
 #include <sys/select.h>
 #include <stdio.h>
@@ -49,7 +49,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-video_error inputb_slang_init(int inputb_id)
+adv_error inputb_slang_init(int inputb_id)
 {
 	log_std(("inputb:slang: inputb_slang_init(id:%d)\n",inputb_id));
 
@@ -89,7 +89,7 @@ static int slang_getkey(void)
 	return 0;
 }
 
-video_bool inputb_slang_hit(void)
+adv_bool inputb_slang_hit(void)
 {
 	log_debug(("inputb:slang: inputb_slang_count_get()\n"));
 
@@ -180,7 +180,7 @@ unsigned inputb_slang_flags(void)
 	return 0;
 }
 
-video_error inputb_slang_load(struct conf_context* context)
+adv_error inputb_slang_load(struct conf_context* context)
 {
 	return 0;
 }

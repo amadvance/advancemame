@@ -87,8 +87,8 @@ Xlib functions. The problem is that you lose the Vsync capability.
 /* State */
 
 typedef struct dga_internal_struct {
-	video_bool active;
-	video_bool mode_active;
+	adv_bool active;
+	adv_bool mode_active;
 
 	XDGADevice* device; /**< DGA device of the video surface. */
 
@@ -127,7 +127,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-video_error dga_init(int device_id) {
+adv_error dga_init(int device_id) {
 	/* assume that vga_init() is already called */
 	assert( !dga_is_active() );
 
@@ -162,11 +162,11 @@ void dga_done(void)
 	dga_state.active = 0;
 }
 
-video_bool dga_is_active(void) {
+adv_bool dga_is_active(void) {
 	return dga_state.active != 0;
 }
 
-video_bool dga_mode_is_active(void) {
+adv_bool dga_mode_is_active(void) {
 	return dga_state.mode_active != 0;
 }
 
@@ -229,7 +229,7 @@ static void dga_print(void) {
 	XFree(modes);
 }
 
-video_error dga_mode_set(const dga_video_mode* mode)
+adv_error dga_mode_set(const dga_video_mode* mode)
 {
 	XF86VidModeModeInfo modeline;
 	Status st;
@@ -312,7 +312,7 @@ video_error dga_mode_set(const dga_video_mode* mode)
 	return -1;
 }
 
-video_error dga_mode_change(const dga_video_mode* mode) {
+adv_error dga_mode_change(const dga_video_mode* mode) {
 	assert( dga_is_active() && dga_mode_is_active() );
 
 	log_std(("video:dga: dga_mode_change()\n"));
@@ -323,7 +323,7 @@ video_error dga_mode_change(const dga_video_mode* mode) {
 	return dga_mode_set(mode);
 }
 
-void dga_mode_done(video_bool restore)
+void dga_mode_done(adv_bool restore)
 {
 	assert( dga_is_active() && dga_mode_is_active() );
 
@@ -368,7 +368,7 @@ void dga_wait_vsync(void) {
 */
 }
 
-video_error dga_scroll(unsigned offset, video_bool waitvsync) {
+adv_error dga_scroll(unsigned offset, adv_bool waitvsync) {
 	assert(dga_is_active() && dga_mode_is_active());
 /* TODO
 	if (waitvsync)
@@ -379,7 +379,7 @@ video_error dga_scroll(unsigned offset, video_bool waitvsync) {
 	return 0;
 }
 
-video_error dga_scanline_set(unsigned byte_length) {
+adv_error dga_scanline_set(unsigned byte_length) {
 	assert(dga_is_active() && dga_mode_is_active());
 /* TODO
 	vga_setlogicalwidth(byte_length);
@@ -396,7 +396,7 @@ video_error dga_scanline_set(unsigned byte_length) {
 	return 0;
 }
 
-video_error dga_palette8_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync) {
+adv_error dga_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 /* TODO
 	if (waitvsync)
 		vga_waitretrace();
@@ -414,7 +414,7 @@ video_error dga_palette8_set(const video_color* palette, unsigned start, unsigne
 
 #define DRIVER(mode) ((dga_video_mode*)(&mode->driver_mode))
 
-video_error dga_mode_import(video_mode* mode, const dga_video_mode* dga_mode)
+adv_error dga_mode_import(video_mode* mode, const dga_video_mode* dga_mode)
 {
 	strcpy(mode->name, dga_mode->crtc.name);
 
@@ -440,7 +440,7 @@ video_error dga_mode_import(video_mode* mode, const dga_video_mode* dga_mode)
 	return 0;
 }
 
-video_error dga_mode_generate(dga_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags)
+adv_error dga_mode_generate(dga_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags)
 {
 	assert( dga_is_active() );
 
@@ -471,7 +471,7 @@ void dga_reg(struct conf_context* context) {
 	assert( !dga_is_active() );
 }
 
-video_error dga_load(struct conf_context* context) {
+adv_error dga_load(struct conf_context* context) {
 	assert( !dga_is_active() );
 	return 0;
 }
@@ -479,19 +479,19 @@ video_error dga_load(struct conf_context* context) {
 /***************************************************************************/
 /* Driver */
 
-static video_error dga_mode_set_void(const void* mode) {
+static adv_error dga_mode_set_void(const void* mode) {
 	return dga_mode_set((const dga_video_mode*)mode);
 }
 
-static video_error dga_mode_change_void(const void* mode) {
+static adv_error dga_mode_change_void(const void* mode) {
 	return dga_mode_change((const dga_video_mode*)mode);
 }
 
-static video_error dga_mode_import_void(video_mode* mode, const void* dga_mode) {
+static adv_error dga_mode_import_void(video_mode* mode, const void* dga_mode) {
 	return dga_mode_import(mode, (const dga_video_mode*)dga_mode);
 }
 
-static video_error dga_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+static adv_error dga_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
 	return dga_mode_generate((dga_video_mode*)mode,crtc,bits,flags);
 }
 

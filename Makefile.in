@@ -9,50 +9,39 @@ PREFIX=@prefix@
 # The available choices are: mame, neomame, cpmame, mess, pac
 #CONF_EMU=mame
 
-# Uncommment the host operating system (default is the current one):
-#CONF_HOST=unix
-#CONF_HOST=dos
-#CONF_HOST=windows
-
-# Uncomment the main system library to use.
-# The available choices for unix are :
-#   linux, sdl (default is linux)
-# The available choices for DOS are :
-#   dos (default is dos)
-# The available choices for Windows are :
-#   sdl (default is sdl)
+# Uncomment the host operating system.
+# The available choices are unix, linux, windows.
 #
-# The dos system uses:
+# The dos host uses:
 #   SVGALIB, VESAtweak and VGAtweak for the graphics output
 #   VGAtweak for the text output
-#   SEAL and Allegro for the sound output
+#   SEAL, Allegro and VSYNC for the sound output
 #   Allegro for the input
-# This system is able to directly access and completly control the graphics
-# output of your video board.
 #
-# The linux system uses:
-#   SVGALIB and Frame Buffer Consolle for the graphics output
+# The linux host uses:
+#   SVGALIB, Frame Buffer, SDLfor the graphics output
 #   SLang for the text output
-#   OSS for the sound output
-#   SVGALIB for the input
-# This system is able to directly access and completly control the graphics
-# output of your video board.
+#   OSS, SDL for the sound output
+#   SVGALIB, SDL for the input
+#   pthread for the Multiprocessor support
 #
-# The sdl system uses:
+# The windows host system uses:
 #   SDL for the graphics output
 #   none for the text output (no text mode programs available)
 #   SDL for the sound output
 #   SDL for the input
-# This system can be used to show the programs in a Window Manager, but
-# it's unable to completly control the graphics output. It isn't a good
-# choice for a fullscreen use of the programs.
 #
-#CONF_SYSTEM=linux
-#CONF_SYSTEM=dos
-#CONF_SYSTEM=sdl
+#CONF_HOST=unix
+#CONF_HOST=dos
+#CONF_HOST=windows
 
-# Uncomment and set to "yes" to enable the SMP (Multiprocessor) code (default yes):
-#CONF_SMP=yes
+# Uncomment and set to "no" to disable some libraries:
+#CONF_LIB_SVGALIB=yes
+#CONF_LIB_SDL=yes
+#CONF_LIB_FB=yes
+#CONF_LIB_OSS=yes
+#CONF_LIB_PTHREAD=yes
+#CONF_LIB_SLANG=yes
 
 # Select the optimization flags: (optimized build for 586 by default)
 # The available choices for the -march= option with gcc-2.95 are:
@@ -100,8 +89,12 @@ ifeq ($(CONF),yes)
 CONF_EMU=@CONF_EMU@
 CONF_BUILD=@CONF_BUILD@
 CONF_HOST=@CONF_HOST@
-CONF_SYSTEM=@CONF_SYSTEM@
-CONF_SMP=@CONF_SMP@
+CONF_LIB_SVGALIB=@CONF_LIB_SVGALIB@
+CONF_LIB_FB=@CONF_LIB_FB@
+CONF_LIB_OSS=@CONF_LIB_OSS@
+CONF_LIB_SDL=@CONF_LIB_SDL@
+CONF_LIB_PTHREAD=@CONF_LIB_PTHREAD@
+CONF_LIB_SLANGD=@CONF_LIB_SLANG@
 CONF_CFLAGS_ARCH=@CONF_CFLAGS_ARCH@
 CONF_CFLAGS_OPT=@CONF_CFLAGS_OPT@
 CONF_LDFLAGS=@CONF_LDFLAGS@
@@ -148,20 +141,28 @@ ifndef CONF_HOST
 CONF_HOST=$(CONF_BUILD)
 endif
 
-ifndef CONF_SYSTEM
-ifeq ($(CONF_HOST),windows)
-CONF_SYSTEM=sdl
+ifndef CONF_LIB_SVGALIB
+CONF_LIB_SVGALIB=yes
 endif
-ifeq ($(CONF_HOST),dos)
-CONF_SYSTEM=dos
-endif
-ifeq ($(CONF_HOST),unix)
-CONF_SYSTEM=linux
-endif
+     
+ifndef CONF_LIB_FB
+CONF_LIB_FB=yes
 endif
 
-ifndef CONF_SMP
-CONF_SMP=yes
+ifndef CONF_LIB_OSS
+CONF_LIB_OSS=yes
+endif
+     
+ifndef CONF_LIB_SDL
+CONF_LIB_SDL=yes
+endif
+
+ifndef CONF_LIB_PTHREAD
+CONF_LIB_PTHREAD=yes
+endif
+     
+ifndef CONF_LIB_SLANG
+CONF_LIB_SLANG=yes
 endif
 
 ifndef CONF_CFLAGS_ARCH
@@ -361,42 +362,15 @@ INSTALL_DATA = $(INSTALL) -c -o root -g bin -m 644
 # Derived options
 
 # Binaries
-BINARYTAG = $(CONF_HOST)-$(CONF_SYSTEM)-$(CONF_ARCH)
+BINARYTAG = $(CONF_HOST)-$(CONF_ARCH)
 
 # Some conversion
-ifeq ($(CONF_HOST)-$(CONF_SYSTEM),dos-dos)
-BINARYTAG = dos-native-$(CONF_ARCH)
-endif
-ifeq ($(CONF_HOST)-$(CONF_SYSTEM),unix-linux)
-BINARYTAG = linux-native-$(CONF_ARCH)
-endif
-ifeq ($(CONF_HOST)-$(CONF_SYSTEM),unix-sdl)
-BINARYTAG = linux-sdl-$(CONF_ARCH)
-endif
-BINARYDIR = $(CONF_HOST)/$(CONF_SYSTEM)/$(CONF_ARCH)
+BINARYDIR = $(CONF_HOST)/$(CONF_ARCH)
 BINARYDIR_BUILD = $(CONF_BUILD)
 
 # Checks
 ifeq (,$(findstring $(CONF_HOST),-unix-dos-windows-))
 $(error Invalid CONF_HOST=$(CONF_HOST))
-endif
-ifeq (,$(findstring $(CONF_SYSTEM),-linux-dos-sdl-))
-$(error Invalid CONF_SYSTEM=$(CONF_SYSTEM))
-endif
-ifeq ($(CONF_HOST),unix)
-ifeq (,$(findstring $(CONF_SYSTEM),-linux-sdl-))
-$(error Unsupported CONF_SYSTEM=$(CONF_SYSTEM) for CONF_HOST=$(CONF_HOST))
-endif
-endif
-ifeq ($(CONF_HOST),dos)
-ifeq (,$(findstring $(CONF_SYSTEM),-dos-))
-$(error Unsupported CONF_SYSTEM=$(CONF_SYSTEM) for CONF_HOST=$(CONF_HOST))
-endif
-endif
-ifeq ($(CONF_HOST),windows)
-ifeq (,$(findstring $(CONF_SYSTEM),-sdl-))
-$(error Unsupported CONF_SYSTEM=$(CONF_SYSTEM) for CONF_HOST=$(CONF_HOST))
-endif
 endif
 
 #############################################################################

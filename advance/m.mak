@@ -2,15 +2,13 @@
 # M
 
 MCFLAGS += \
-	-I$(srcdir)/advance/$(CONF_SYSTEM) \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/common
-MOBJDIRS = \
+MOBJDIRS += \
 	$(MOBJ) \
 	$(MOBJ)/m \
-	$(MOBJ)/lib \
-	$(MOBJ)/$(CONF_SYSTEM)
-MOBJS = \
+	$(MOBJ)/lib
+MOBJS += \
 	$(MOBJ)/m/m.o \
 	$(MOBJ)/lib/log.o \
 	$(MOBJ)/lib/conf.o \
@@ -18,21 +16,32 @@ MOBJS = \
 	$(MOBJ)/lib/device.o \
 	$(MOBJ)/lib/mousedrv.o \
 	$(MOBJ)/lib/mouseall.o \
-	$(MOBJ)/lib/mnone.o
-ifeq ($(CONF_SYSTEM),linux)
-MCFLAGS += -DPREFIX=\"$(PREFIX)\"
+	$(MOBJ)/lib/mnone.o \
+	$(MOBJ)/lib/error.o
+
+ifeq ($(CONF_HOST),unix)
 MCFLAGS += \
-	-DUSE_MOUSE_SVGALIB -DUSE_MOUSE_NONE
-MLIBS = -lvga
+	-DPREFIX=\"$(PREFIX)\" \
+	-I$(srcdir)/advance/linux \
+	-DUSE_MOUSE_NONE
+MOBJDIRS += \
+	$(MOBJ)/linux
 MOBJS += \
 	$(MOBJ)/lib/filenix.o \
 	$(MOBJ)/lib/targnix.o \
-	$(MOBJ)/$(CONF_SYSTEM)/os.o \
-	$(MOBJ)/$(CONF_SYSTEM)/msvgab.o
+	$(MOBJ)/linux/os.o
+ifeq ($(CONF_LIB_SVGALIB),yes)
+MCFLAGS += \
+	-DUSE_MOUSE_SVGALIB 
+MLIBS += -lvga
+MOBJS += \
+	$(MOBJ)/linux/msvgab.o
+endif
 endif
 
-ifeq ($(CONF_SYSTEM),dos)
+ifeq ($(CONF_HOST),dos)
 MCFLAGS += \
+	-I$(srcdir)/advance/dos \
 	-DUSE_CONFIG_ALLEGRO_WRAPPER \
 	-DUSE_MOUSE_ALLEGRO -DUSE_MOUSE_NONE
 MLDFLAGS += \
@@ -42,33 +51,14 @@ MLDFLAGS += \
 	-Xlinker --wrap -Xlinker set_config_int \
 	-Xlinker --wrap -Xlinker get_config_id \
 	-Xlinker --wrap -Xlinker set_config_id
-MLIBS = -lalleg
+MLIBS += -lalleg
+MOBJDIRS += \
+	$(MOBJ)/dos
 MOBJS += \
 	$(MOBJ)/lib/filedos.o \
 	$(MOBJ)/lib/targdos.o \
-	$(MOBJ)/$(CONF_SYSTEM)/os.o \
-	$(MOBJ)/$(CONF_SYSTEM)/malleg.o
-endif
-
-ifeq ($(CONF_SYSTEM),sdl)
-MCFLAGS += \
-	$(SDLCFLAGS) \
-	-DPREFIX=\"$(PREFIX)\" \
-	-DUSE_MOUSE_SDL -DUSE_MOUSE_NONE
-MLIBS += $(SDLLIBS)
-MOBJS += \
-	$(MOBJ)/$(CONF_SYSTEM)/os.o \
-	$(MOBJ)/$(CONF_SYSTEM)/msdl.o
-ifeq ($(CONF_HOST),unix)
-MOBJS += \
-	$(MOBJ)/lib/filenix.o \
-	$(MOBJ)/lib/targnix.o
-endif
-ifeq ($(CONF_HOST),windows)
-MOBJS += \
-	$(MOBJ)/lib/filedos.o \
-	$(MOBJ)/lib/targwin.o
-endif
+	$(MOBJ)/dos/os.o \
+	$(MOBJ)/dos/malleg.o
 endif
 
 $(MOBJ)/%.o: $(srcdir)/advance/%.c

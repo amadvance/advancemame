@@ -2,11 +2,10 @@
 # S
 
 SCFLAGS += \
-	-I$(srcdir)/advance/$(CONF_SYSTEM) \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/mpglib \
 	-I$(srcdir)/advance/common
-SOBJS = \
+SOBJS += \
 	$(SOBJ)/lib/log.o \
 	$(SOBJ)/lib/conf.o \
 	$(SOBJ)/lib/incstr.o \
@@ -16,6 +15,7 @@ SOBJS = \
 	$(SOBJ)/lib/wave.o \
 	$(SOBJ)/lib/fz.o \
 	$(SOBJ)/lib/soundall.o \
+	$(SOBJ)/lib/error.o \
 	$(SOBJ)/mpglib/dct64.o \
 	$(SOBJ)/mpglib/decode.o \
 	$(SOBJ)/mpglib/interfac.o \
@@ -23,57 +23,79 @@ SOBJS = \
 	$(SOBJ)/mpglib/layer3.o \
 	$(SOBJ)/mpglib/tabinit.o \
 	$(SOBJ)/s/s.o
-SOBJDIRS = \
+SOBJDIRS += \
 	$(SOBJ) \
 	$(SOBJ)/s \
 	$(SOBJ)/lib \
-	$(SOBJ)/mpglib \
-	$(SOBJ)/$(CONF_SYSTEM)
+	$(SOBJ)/mpglib
 
-ifeq ($(CONF_SYSTEM),linux)
-SCFLAGS += -DPREFIX=\"$(PREFIX)\"
+ifeq ($(CONF_HOST),unix)
 SCFLAGS += \
-	-DUSE_SOUND_OSS
-SLIBS = $(ZLIBS) -lm
+	-DPREFIX=\"$(PREFIX)\" \
+	-I$(srcdir)/advance/linux
+SLIBS += $(ZLIBS) -lm
+SOBJDIRS += \
+	$(SOBJ)/linux
 SOBJS += \
 	$(SOBJ)/lib/filenix.o \
 	$(SOBJ)/lib/targnix.o \
-	$(SOBJ)/$(CONF_SYSTEM)/os.o \
-	$(SOBJ)/$(CONF_SYSTEM)/soss.o
+	$(SOBJ)/linux/os.o
+ifeq ($(CONF_LIB_OSS),yes)
+SCFLAGS += \
+	-DUSE_SOUND_OSS
+SOBJS += \
+	$(SOBJ)/linux/soss.o
+endif
+ifeq ($(CONF_LIB_SDL),yes)
+SCFLAGS += \
+	$(SDLCFLAGS) \
+	-I$(srcdir)/advance/sdl \
+	-DUSE_SOUND_SDL
+SLIBS += $(SDLLIBS)
+SOBJDIRS += \
+	$(SOBJ)/sdl
+SOBJS += \
+	$(SOBJ)/sdl/ssdl.o
+endif
 endif
 
-ifeq ($(CONF_SYSTEM),dos)
+ifeq ($(CONF_HOST),dos)
 SCFLAGS += \
+	-I$(srcdir)/advance/dos \
 	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO -DUSE_SOUND_VSYNC
-SLIBS = -laudio -lalleg $(ZLIBS) -lm
+SLIBS += -laudio -lalleg $(ZLIBS) -lm
 SLDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
+SOBJDIRS += \
+	$(SOBJ)/dos
 SOBJS += \
 	$(SOBJ)/lib/filedos.o \
 	$(SOBJ)/lib/targdos.o \
-	$(SOBJ)/$(CONF_SYSTEM)/os.o \
-	$(SOBJ)/$(CONF_SYSTEM)/sseal.o \
-	$(SOBJ)/$(CONF_SYSTEM)/salleg.o \
-	$(SOBJ)/$(CONF_SYSTEM)/svsync.o
+	$(SOBJ)/dos/os.o \
+	$(SOBJ)/dos/sseal.o \
+	$(SOBJ)/dos/salleg.o \
+	$(SOBJ)/dos/svsync.o
 endif
 
-ifeq ($(CONF_SYSTEM),sdl)
-SCFLAGS += \
-	$(SDLCFLAGS) \
-	-DPREFIX=\"$(PREFIX)\" \
-	-DUSE_SOUND_SDL
-SLIBS += $(ZLIBS) -lm $(SDLLIBS)
-SOBJS += \
-	$(SOBJ)/$(CONF_SYSTEM)/os.o \
-	$(SOBJ)/$(CONF_SYSTEM)/ssdl.o
-ifeq ($(CONF_HOST),unix)
-SOBJS += \
-	$(SOBJ)/lib/filenix.o \
-	$(SOBJ)/lib/targnix.o
-endif
 ifeq ($(CONF_HOST),windows)
+SCFLAGS += \
+	-I$(srcdir)/advance/windows
+SLIBS += $(ZLIBS) -lm
+SOBJDIRS += \
+	$(SOBJ)/windows
 SOBJS += \
 	$(SOBJ)/lib/filedos.o \
-	$(SOBJ)/lib/targwin.o
+	$(SOBJ)/lib/targwin.o \
+	$(SOBJ)/windows/os.o
+ifeq ($(CONF_LIB_SDL),yes)
+SCFLAGS += \
+	$(SDLCFLAGS) \
+	-I$(srcdir)/advance/sdl \
+	-DUSE_SOUND_SDL
+SLIBS += $(SDLLIBS)
+SOBJDIRS += \
+	$(SOBJ)/sdl
+SOBJS += \
+	$(SOBJ)/sdl/ssdl.o
 endif
 endif
 

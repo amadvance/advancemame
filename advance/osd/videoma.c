@@ -1133,9 +1133,11 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	if (context->config.adjust != ADJUST_NONE
 		&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0  /* not for programmable driver */
 	) {
-		target_err("Your current video driver doesn't support hardware programming.\n");
-		target_err("Try changing the video driver with the `device_video' option or\n");
-		target_err("disable the `display_adjust' option.\n");
+		target_err(
+			"Your current video driver doesn't support hardware programming.\n"
+			"Try changing the video driver with the `device_video' option or\n"
+			"disable the `display_adjust' option.\n"
+		);
 		return -1;
 	}
 
@@ -1249,10 +1251,9 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 
 		log_std(("advance:video: best aspect factor %dx%d (expansion %g)\n", (unsigned)factor_x, (unsigned)factor_y, (double)context->config.aspect_expansion_factor));
 
-		/* Some video drivers have problem with 8 bit modes and */
-		/* not exactly a 16 pixel multiplier size */
-		/* Currently nVidia in doublescan mode */
-		step_x = 16; /* TODO the correct value is 8 */
+		/* Some video cards require a size multiple of 16. */
+		/* (for example GeForge in doublescan with 8 bit modes) */
+		step_x = 16;
 
 		/* compute the best mode */
 		if (pc_aspect_ratio_x * arcade_aspect_ratio_y > arcade_aspect_ratio_x * pc_aspect_ratio_y) {
@@ -2462,28 +2463,28 @@ int osd2_video_init(struct osd_video_option* req)
 	log_std(("osd: bits_per_pixel %d, rgb_flag %d, colors %d\n", req->bits_per_pixel, req->rgb_flag, req->colors));
 	log_std(("osd: vector_flag %d\n", req->vector_flag));
 	log_std(("osd: fps %g\n", req->fps));
-
+    
 	if (video_init_state(context,req) != 0) {
-		goto err;
+		return -1;
 	}
 
 	if (video_update_depthindex(context)!=0) {
-		goto err;
+		return -1;
 	}
 
 	if (video_update_crtc(context) != 0) {
-		goto err;
+		return -1;
 	}
 
 	if (video_make_crtc(context, &context->state.crtc_effective, context->state.crtc_selected) != 0) {
-		goto err;
+		return -1;
 	}
 
 	video_update_visible(context, &context->state.crtc_effective);
 	video_update_effect(context);
 
 	if (video_make_mode(context, &mode, &context->state.crtc_effective) != 0) {
-		goto err;
+		return -1;
 	}
 
 	video_init_color(context, req);
@@ -2491,7 +2492,7 @@ int osd2_video_init(struct osd_video_option* req)
 	video_update_pan(context);
 
 	if (video_update_mode(context,&mode) != 0) {
-		goto err;
+		return -1;
 	}
 
 	video_update_skip(context);
@@ -2500,23 +2501,20 @@ int osd2_video_init(struct osd_video_option* req)
 	hardware_script_start(HARDWARE_SCRIPT_VIDEO);
 
 	if (keyb_init(input_context->config.disable_special_flag) != 0) {
-		goto err_mode;
+		video_done_mode(context, 0);
+		video_mode_restore();
+		target_err("%s\n",error_description_get());
+		return -1;
 	}
 
 	if (video_init_thread(context) != 0) {
-		goto err_os;
+		keyb_done();
+		video_done_mode(context, 0);
+		video_mode_restore();
+		return -1;
 	}
 
 	return 0;
-
-err_os:
-	keyb_done();
-err_mode:
-	video_done_mode(context, 0);
-	video_mode_restore();
-err:
-	target_err("%s\n",video_error_description_get());
-	return -1;
 }
 
 void osd2_video_done(void)
@@ -3096,7 +3094,7 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	/* load context->config.monitor config */
 	err = monitor_load(cfg_context, &context->config.monitor);
 	if (err<0) {
-		target_err("%s\n", video_error_description_get());
+		target_err("%s\n", error_description_get());
 		target_err("Please read the file `install.txt' and `advv.txt'.\n");
 		return -1;
 	}
@@ -3117,7 +3115,7 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	/* load generate_linear config */
 	err = generate_interpolate_load(cfg_context, &context->config.interpolate);
 	if (err<0) {
-		target_err("%s\n", video_error_description_get());
+		target_err("%s\n", error_description_get());
 		target_err("Please read the file `install.txt' and `advv.txt'.\n");
 		return -1;
 	} else if (err>0) {
@@ -3150,7 +3148,7 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	}
 
 	if (video_crtc_container_load(cfg_context, &context->config.crtc_bag)!=0) {
-		target_err("%s\n",video_error_description_get());
+		target_err("%s\n",error_description_get());
 		target_err("Invalid modeline.\n");
 		return -1;
 	}
@@ -3165,18 +3163,17 @@ void advance_video_done(struct advance_video_context* context) {
 int advance_video_inner_init(struct advance_video_context* context, struct mame_option* option)
 {
 	if (video_init() != 0) {
-		target_err("Error initializing the video system.\n");
+		target_err("%s\n", error_description_get());
 		return -1;
 	}
 
 	if (video_blit_init() != 0) {
-		target_err("Error initializing the blit system.\n");
 		video_done();
+		target_err("%s\n", error_description_get());
 		return -1;
 	}
 
 	video_config_mode(context,option);
-
 	return 0;
 }
 

@@ -37,7 +37,7 @@
  */
 
 /*****************************************************************************/
-/* Advance Glue code */
+/* Advance glue code */
 
 #include "log.h"
 #include "os.h"
@@ -52,7 +52,8 @@ static void logerror_(const char *text,...) {
 	log_va(text,arg);
 	va_end(arg);
 }
-
+    
+/* unused */
 #define W_WATERMARK_UNDERRUN 0
 #define W_WATERMARK_FULL 0
 #define W_WATERMARK_GOOD 0
@@ -61,7 +62,7 @@ static void logerror_(const char *text,...) {
 #define W_WATERMARK_UNDERRUN 0
 
 /*****************************************************************************/
-/* wss.h from the VSyncMAME source */
+/* wss.c from the VSyncMAME source */
 
 #include <stdio.h>
 #include <stdlib.h>

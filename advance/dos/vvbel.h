@@ -42,16 +42,16 @@ typedef struct vbeline_video_mode_struct {
 	video_crtc crtc; /**< CRTC values */
 } vbeline_video_mode;
 
-video_error vbeline_init(int device_id);
+adv_error vbeline_init(int device_id);
 void vbeline_done(void);
 
-video_bool vbeline_is_active(void);
-video_bool vbeline_mode_is_active(void);
+adv_bool vbeline_is_active(void);
+adv_bool vbeline_mode_is_active(void);
 
 unsigned vbeline_flags(void);
 
-video_error vbeline_mode_set(const vbeline_video_mode* mode);
-void vbeline_mode_done(video_bool restore);
+adv_error vbeline_mode_set(const vbeline_video_mode* mode);
+void vbeline_mode_done(adv_bool restore);
 
 unsigned vbeline_virtual_x(void);
 unsigned vbeline_virtual_y(void);
@@ -59,17 +59,17 @@ unsigned vbeline_virtual_y(void);
 extern unsigned char* (*vbeline_write_line)(unsigned y);
 
 void vbeline_wait_vsync(void);
-video_error vbeline_palette8_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync);
-video_error vbeline_pixelclock_getnext(unsigned* pixelclock, unsigned mode);
-video_error vbeline_pixelclock_getpred(unsigned* pixelclock, unsigned mode);
+adv_error vbeline_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
+adv_error vbeline_pixelclock_getnext(unsigned* pixelclock, unsigned mode);
+adv_error vbeline_pixelclock_getpred(unsigned* pixelclock, unsigned mode);
 
 unsigned vbeline_mode_size(void);
-video_error vbeline_mode_import(video_mode* mode, const vbeline_video_mode* vbeline_mode);
-video_error vbeline_mode_generate(vbeline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+adv_error vbeline_mode_import(video_mode* mode, const vbeline_video_mode* vbeline_mode);
+adv_error vbeline_mode_generate(vbeline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
 int vbeline_mode_compare(const vbeline_video_mode* a, const vbeline_video_mode* b);
 
 void vbeline_default(void);
-video_error vbeline_load(struct conf_context* context);
+adv_error vbeline_load(struct conf_context* context);
 void vbeline_reg(struct conf_context* context);
 
 extern video_driver video_vbeline_driver;

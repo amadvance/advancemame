@@ -511,7 +511,7 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 				if (video_mode_set(&mode)!=0) {
 					text_done();
 					fprintf(stderr,"Error setting the calibration mode.\n");
-					fprintf(stderr,"%s\n",video_error_description_get());
+					fprintf(stderr,"%s\n",error_description_get());
 					exit(EXIT_FAILURE);
 				}
 				*crtc = current;
@@ -521,7 +521,7 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 				if (first) {
 					text_done();
 					fprintf(stderr,"Error in the test mode.\n");
-					fprintf(stderr,"%s\n",video_error_description_get());
+					fprintf(stderr,"%s\n",error_description_get());
 					exit(EXIT_FAILURE);
 				}
 				sound_error();
@@ -636,7 +636,7 @@ static void adjust_fix(const char* msg, video_crtc* crtc, unsigned bits, const v
 		if (video_mode_set(&mode)!=0) {
 			text_done();
 			fprintf(stderr,"Error setting the calibration mode.\n");
-			fprintf(stderr,"%s\n",video_error_description_get());
+			fprintf(stderr,"%s\n",error_description_get());
 			exit(EXIT_FAILURE);
 		}
 		draw_test(2,2,msg,&current,0);
@@ -674,7 +674,7 @@ static int cmd_adjust(const char* msg, video_generate_interpolate* entry, const 
 	if (crtc_adjust_clock(&crtc, monitor)!=0) {
 		text_done();
 		fprintf(stderr,"Calibration mode unsupported.\n");
-		fprintf(stderr,"%s\n",video_error_description_get());
+		fprintf(stderr,"%s\n",error_description_get());
 		exit(EXIT_FAILURE);
 	}
 
@@ -1509,7 +1509,7 @@ int os_main(int argc, char* argv[]) {
 
 	if (video_load(config, "") != 0) {
 		fprintf(stderr,"Error loading the video options from the configuration file %s.\n", opt_rc);
-		fprintf(stderr,"%s\n",video_error_description_get());
+		fprintf(stderr,"%s\n",error_description_get());
 		goto err_os;
 	}
 

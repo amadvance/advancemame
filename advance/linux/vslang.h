@@ -42,16 +42,16 @@ typedef struct slang_video_mode_struct {
 	unsigned font_size_y;
 } slang_video_mode;
 
-video_error slang_init(int device_id);
+adv_error slang_init(int device_id);
 void slang_done(void);
 
-video_bool slang_is_active(void);
-video_bool slang_mode_is_active(void);
+adv_bool slang_is_active(void);
+adv_bool slang_mode_is_active(void);
 
 unsigned slang_flags(void);
 
-video_error slang_mode_set(const slang_video_mode* mode);
-void slang_mode_done(video_bool restore);
+adv_error slang_mode_set(const slang_video_mode* mode);
+void slang_mode_done(adv_bool restore);
 
 unsigned slang_virtual_x(void);
 unsigned slang_virtual_y(void);
@@ -62,17 +62,17 @@ video_rgb_def slang_rgb_def(void);
 extern unsigned char* (*slang_write_line)(unsigned y);
 
 void slang_wait_vsync(void);
-video_error slang_scroll(unsigned offset, video_bool waitvsync);
-video_error slang_scanline_set(unsigned byte_length);
-video_error slang_palette8_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync);
+adv_error slang_scroll(unsigned offset, adv_bool waitvsync);
+adv_error slang_scanline_set(unsigned byte_length);
+adv_error slang_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
 
-video_error slang_mode_import(video_mode* mode, const slang_video_mode* slang_mode);
-video_error slang_mode_generate(slang_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+adv_error slang_mode_import(video_mode* mode, const slang_video_mode* slang_mode);
+adv_error slang_mode_generate(slang_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
 int slang_mode_compare(const slang_video_mode* a, const slang_video_mode* b);
 
 void slang_default(void);
 void slang_reg(struct conf_context* context);
-video_error slang_load(struct conf_context* context);
+adv_error slang_load(struct conf_context* context);
 
 extern video_driver video_slang_driver;
 

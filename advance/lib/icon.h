@@ -22,7 +22,7 @@
 #define __ICON_H
 
 #include "bitmap.h"
-#include "videostd.h"
+#include "advstd.h"
 #include "fz.h"
 
 #ifdef __cplusplus

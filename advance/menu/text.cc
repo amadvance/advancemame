@@ -39,6 +39,7 @@
 #include "keyall.h"
 #include "mouseall.h"
 #include "joyall.h"
+#include "log.h"
 
 #include <list>
 #include <iostream>
@@ -404,7 +405,7 @@ bool mode_graphics_less(const video_mode* A, const video_mode* B) {
 
 static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_container& modelines) {
 	video_crtc_container_iterator i;
-	video_error err;
+	adv_error err;
 
 	// search the default name
 	for(video_crtc_container_iterator_begin(&i,&modelines);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
@@ -440,7 +441,7 @@ static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_containe
 				if (video_mode_generate(&mode,&crtc,depth,VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)==0) {
 					text_current_mode = mode;
 					mode_found = true;
-					video_log("text: generating a perfect mode from the format option.\n");
+					log_std(("text: generating a perfect mode from the format option.\n"));
 					return true;
 				}
 			}
@@ -457,7 +458,7 @@ static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_containe
 		if (video_mode_generate(&mode,&crtc,depth,VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)==0) {
 			text_current_mode = mode;
 			mode_found = true;
-			video_log("text: generating a perfect mode for the window manager.\n");
+			log_std(("text: generating a perfect mode for the window manager.\n"));
 			return true;
 		}
 	}
@@ -530,7 +531,7 @@ void text_init(struct conf_context* config_context) {
 }
 
 bool text_load(struct conf_context* config_context) {
-	video_error err;
+	adv_error err;
 
 	if (!text_joystick_load(config_context))
 		return false;
@@ -541,19 +542,19 @@ bool text_load(struct conf_context* config_context) {
 
 	err = generate_interpolate_load(config_context, &text_interpolate);
 	if (err<0) {
-		target_err("%s\n", video_error_description_get());
+		target_err("%s\n", error_description_get());
 		return false;
 	}
 	if (err==0) {
 		text_has_generate = true;
 	} else {
 		text_has_generate = false;
-		video_log("text: format option not found.\n");
+		log_std(("text: format option not found.\n"));
 	}
 
 	err = monitor_load(config_context,&text_monitor);
 	if (err<0) {
-		target_err("%s\n", video_error_description_get());
+		target_err("%s\n", error_description_get());
 		return false;
 	}
 	if (err==0) {
@@ -561,18 +562,18 @@ bool text_load(struct conf_context* config_context) {
 	} else {
 		text_has_clock = false;
 		monitor_parse(&text_monitor, "10 - 80", "30.5 - 60", "55 - 90");
-		video_log("text: clock options not found. Use default SVGA monitor clocks.\n");
+		log_std(("text: clock options not found. Use default SVGA monitor clocks.\n"));
 	}
 
 	err = video_load(config_context, "");
 	if (err != 0) {
-		target_err("%s\n", video_error_description_get());
+		target_err("%s\n", error_description_get());
 		return false;
 	}
 
 	err = video_crtc_container_load(config_context,&text_modelines);
 	if (err!=0) {
-		target_err("%s\n", video_error_description_get());
+		target_err("%s\n", error_description_get());
 		return false;
 	}
 

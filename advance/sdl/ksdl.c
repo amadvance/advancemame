@@ -157,12 +157,18 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-video_error keyb_sdl_init(int keyb_id, video_bool disable_special)
+adv_error keyb_sdl_init(int keyb_id, adv_bool disable_special)
 {
 	struct keyb_pair* i;
 	unsigned j;
 
 	log_std(("keyb:sdl: keyb_sdl_init(id:%d,disable_special:%d)\n",keyb_id,(int)disable_special));
+	 
+	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
+		log_std(("keyb:sdl: not supported without the SDL video driver\n"));
+		error_description_nolog_cat("sdl: Not supported without the SDL video driver\n");
+		return -1; 
+	}
 
 	for(j=0;j<OS_KEY_MAX;++j) {
 		sdl_state.map_os_to_code[j] = 0;
@@ -232,7 +238,7 @@ unsigned keyb_sdl_flags(void)
 	return 0;
 }
 
-video_error keyb_sdl_load(struct conf_context* context)
+adv_error keyb_sdl_load(struct conf_context* context)
 {
 	return 0;
 }

@@ -644,6 +644,10 @@ void convert_man::tag_text(const string& s) {
 //---------------------------------------------------------------------------
 // convert_html
 
+#define HTML_H1 "h2"
+#define HTML_H2 "h3"
+#define HTML_H3 "h4"
+
 class convert_html : public convert {
 protected:
 	unsigned level0;
@@ -721,7 +725,7 @@ void convert_html::header(const string& a, const string& b) {
 	os << "</head>" << endl;
 	os << "<body>" << endl;
 	if (b.length()) {
-		os << "<h1><center>" << mask(b) << "</center></h1>" << endl;
+		os << "<" HTML_H1 "><center>" << mask(b) << "</center></" HTML_H1 ">" << endl;
 	}
 	level0 = 0;
 	level1 = 0;
@@ -738,24 +742,24 @@ void convert_html::section_begin(unsigned level) {
 		++level0;
 		level1 = 0;
 		level2 = 0;
-		os << "<h1>" << level0 << " " << endl;
+		os << "<" HTML_H1 ">" << level0 << " " << endl;
 	} else if (level == 1) {
 		++level1;
 		level2 = 0;
-		os << "<h2>" << level0 << "." << level1 << " " << endl;
+		os << "<" HTML_H2 ">" << level0 << "." << level1 << " " << endl;
 	} else {
 		++level2;
-		os << "<h3>" << level0 << "." << level1 << "." << level2 << " " << endl;
+		os << "<" HTML_H3 ">" << level0 << "." << level1 << "." << level2 << " " << endl;
 	}
 }
 
 void convert_html::section_end() {
 	if (state == state_section0)
-		os << "</h1>" << endl;
+		os << "</" HTML_H1 ">" << endl;
 	else if (state == state_section0)
-		os << "</h2>" << endl;
+		os << "</" HTML_H2 ">" << endl;
 	else
-		os << "</h3>" << endl;
+		os << "</" HTML_H3 ">" << endl;
 	state = state_filled;
 }
 
@@ -895,7 +899,7 @@ public:
 
 void convert_frame::header(const string& a, const string& b) {
 	if (b.length()) {
-		os << "<h1><center>" << mask(b) << "</center></h1>" << endl;
+		os << "<" HTML_H1 "><center>" << mask(b) << "</center></" HTML_H1 ">" << endl;
 	}
 
 	level0 = 0;

@@ -2,7 +2,6 @@
 # EMU Target and System
 
 ADVANCECFLAGS += \
-	-I$(srcdir)/advance/$(CONF_SYSTEM) \
 	-I$(srcdir)/advance/osd \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/common \
@@ -13,44 +12,83 @@ OBJDIRS += \
 	$(OBJ)/advance \
 	$(OBJ)/advance/lib \
 	$(OBJ)/advance/osd \
-	$(OBJ)/advance/blit \
-	$(OBJ)/advance/$(CONF_SYSTEM)
+	$(OBJ)/advance/blit
 
 ADVANCELIBS += $(ZLIBS)
 
 ifeq ($(CONF_HOST),unix)
+OBJDIRS += \
+	$(OBJ)/advance/linux
+ADVANCECFLAGS += \
+	-I$(srcdir)/advance/linux \
+	-DPREFIX=\"$(PREFIX)\" \
+	-DUSE_VIDEO_NONE \
+	-DUSE_SOUND_NONE \
+	-DUSE_KEYBOARD_NONE \
+	-DUSE_MOUSE_NONE \
+	-DUSE_JOYSTICK_NONE
+ADVANCEOBJS += \
+	$(OBJ)/advance/lib/filenix.o \
+	$(OBJ)/advance/lib/targnix.o \
+	$(OBJ)/advance/linux/os.o
 ADVANCELIBS += -lm
-ifeq ($(CONF_SMP),yes)
+ifeq ($(CONF_LIB_PTHREAD),yes)
 CFLAGS += -D_REENTRANT
 ADVANCECFLAGS += -DUSE_SMP
 ADVANCELIBS += -lpthread
 endif
-endif
-
-ifeq ($(CONF_SYSTEM),linux)
-ADVANCECFLAGS += -DPREFIX=\"$(PREFIX)\"
+ifeq ($(CONF_LIB_SDL),yes)
+OBJDIRS += \
+	$(OBJ)/advance/sdl
 ADVANCECFLAGS += \
-	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_NONE \
-	-DUSE_SOUND_OSS -DUSE_SOUND_NONE \
-	-DUSE_KEYBOARD_SVGALIB -DUSE_KEYBOARD_NONE \
-	-DUSE_MOUSE_SVGALIB -DUSE_MOUSE_NONE \
-	-DUSE_JOYSTICK_SVGALIB -DUSE_JOYSTICK_NONE
+	$(SDLCFLAGS) \
+	-I$(srcdir)/advance/sdl \
+	-DUSE_VIDEO_SDL \
+	-DUSE_SOUND_SDL \
+	-DUSE_KEYBOARD_SDL \
+	-DUSE_MOUSE_SDL \
+	-DUSE_JOYSTICK_SDL 
+ADVANCELIBS += $(SDLLIBS)
+ADVANCEOBJS += \
+	$(OBJ)/advance/sdl/ssdl.o \
+	$(OBJ)/advance/sdl/msdl.o \
+	$(OBJ)/advance/sdl/ksdl.o \
+	$(OBJ)/advance/sdl/jsdl.o \
+	$(OBJ)/advance/sdl/vsdl.o
+endif
+ifeq ($(CONF_LIB_FB),yes)
+ADVANCECFLAGS += \
+	-DUSE_VIDEO_FB
+ADVANCEOBJS += \
+	$(OBJ)/advance/linux/vfb.o
+endif
+ifeq ($(CONF_LIB_SVGALIB),yes)
+ADVANCECFLAGS += \
+	-DUSE_VIDEO_SVGALIB \
+	-DUSE_KEYBOARD_SVGALIB  \
+	-DUSE_MOUSE_SVGALIB  \
+	-DUSE_JOYSTICK_SVGALIB 
 ADVANCELIBS += -lvga
 ADVANCEOBJS += \
-	$(OBJ)/advance/lib/filenix.o \
-	$(OBJ)/advance/lib/targnix.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/os.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/vsvgab.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/vfb.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/soss.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/jsvgab.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/ksvgab.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/msvgab.o
+	$(OBJ)/advance/linux/vsvgab.o \
+	$(OBJ)/advance/linux/jsvgab.o \
+	$(OBJ)/advance/linux/ksvgab.o \
+	$(OBJ)/advance/linux/msvgab.o
+endif
+ifeq ($(CONF_LIB_OSS),yes)
+ADVANCECFLAGS += \
+	-DUSE_SOUND_OSS
+ADVANCEOBJS += \
+	$(OBJ)/advance/linux/soss.o
+endif
 endif
 
-ifeq ($(CONF_SYSTEM),dos)
+ifeq ($(CONF_HOST),dos)
+OBJDIRS += \
+	$(OBJ)/advance/dos
 ADVANCECFLAGS += \
 	-DUSE_CONFIG_ALLEGRO_WRAPPER \
+	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
 	-I$(srcdir)/advance/svgalib/clockchi \
@@ -80,20 +118,20 @@ OBJDIRS += \
 ADVANCEOBJS += \
 	$(OBJ)/advance/lib/filedos.o \
 	$(OBJ)/advance/lib/targdos.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/os.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/sseal.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/salleg.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/svsync.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/vvbe.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/vvgal.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/vvbel.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/vsvgal.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/scrvbe.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/scrvga.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/jalleg.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/kalleg.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/malleg.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/snprintf.o \
+	$(OBJ)/advance/dos/os.o \
+	$(OBJ)/advance/dos/sseal.o \
+	$(OBJ)/advance/dos/salleg.o \
+	$(OBJ)/advance/dos/svsync.o \
+	$(OBJ)/advance/dos/vvbe.o \
+	$(OBJ)/advance/dos/vvgal.o \
+	$(OBJ)/advance/dos/vvbel.o \
+	$(OBJ)/advance/dos/vsvgal.o \
+	$(OBJ)/advance/dos/scrvbe.o \
+	$(OBJ)/advance/dos/scrvga.o \
+	$(OBJ)/advance/dos/jalleg.o \
+	$(OBJ)/advance/dos/kalleg.o \
+	$(OBJ)/advance/dos/malleg.o \
+	$(OBJ)/advance/dos/snprintf.o \
 	$(OBJ)/advance/card/card.o \
 	$(OBJ)/advance/card/pci.o \
 	$(OBJ)/advance/card/map.o \
@@ -135,37 +173,42 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/clockchi/icd2061a.o
 endif
 
-ifeq ($(CONF_SYSTEM),sdl)
-ADVANCECFLAGS += \
-	$(SDLCFLAGS) \
-	-DPREFIX=\"$(PREFIX)\"
-ADVANCECFLAGS += \
-	-DUSE_VIDEO_SDL -DUSE_VIDEO_NONE \
-	-DUSE_SOUND_SDL -DUSE_SOUND_NONE \
-	-DUSE_KEYBOARD_SDL -DUSE_KEYBOARD_NONE \
-	-DUSE_MOUSE_SDL -DUSE_MOUSE_NONE \
-	-DUSE_JOYSTICK_SDL -DUSE_JOYSTICK_NONE
-ADVANCELIBS += $(SDLLIBS)
-ADVANCEOBJS += \
-	$(OBJ)/advance/$(CONF_SYSTEM)/os.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/vsdl.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/ssdl.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/jsdl.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/ksdl.o \
-	$(OBJ)/advance/$(CONF_SYSTEM)/msdl.o
-ifeq ($(CONF_HOST),unix)
-ADVANCEOBJS += \
-	$(OBJ)/advance/lib/filenix.o \
-	$(OBJ)/advance/lib/targnix.o
-endif
 ifeq ($(CONF_HOST),windows)
+OBJDIRS += \
+	$(OBJ)/advance/windows
+ADVANCECFLAGS += \
+	-I$(srcdir)/advance/windows \
+	-DUSE_VIDEO_NONE \
+	-DUSE_SOUND_NONE \
+	-DUSE_KEYBOARD_NONE \
+	-DUSE_MOUSE_NONE \
+	-DUSE_JOYSTICK_NONE
 ADVANCEOBJS += \
 	$(OBJ)/advance/lib/filedos.o \
 	$(OBJ)/advance/lib/targwin.o \
-	$(OBJ)/advance/lib/icondef.o
+	$(OBJ)/advance/lib/icondef.o \
+	$(OBJ)/advance/windows/os.o
+ifeq ($(CONF_LIB_SDL),yes)
+OBJDIRS += \
+	$(OBJ)/advance/sdl
+ADVANCECFLAGS += \
+	$(SDLCFLAGS) \
+	-I$(srcdir)/advance/sdl \
+	-DUSE_VIDEO_SDL \
+	-DUSE_SOUND_SDL \
+	-DUSE_KEYBOARD_SDL \
+	-DUSE_MOUSE_SDL \
+	-DUSE_JOYSTICK_SDL
+ADVANCELIBS += $(SDLLIBS)
+ADVANCEOBJS += \
+	$(OBJ)/advance/sdl/vsdl.o \
+	$(OBJ)/advance/sdl/ssdl.o \
+	$(OBJ)/advance/sdl/jsdl.o \
+	$(OBJ)/advance/sdl/ksdl.o \
+	$(OBJ)/advance/sdl/msdl.o
 # Customize the SDL_main function
 ADVANCECFLAGS += -DNO_STDIO_REDIRECT
-ADVANCEOBJS += $(OBJ)/advance/sdl/sdlmwin.o
+ADVANCEOBJS += $(OBJ)/advance/windows/sdlmain.o
 endif
 endif
 
@@ -244,7 +287,8 @@ EMUOBJS += \
 	$(OBJ)/advance/lib/knone.o \
 	$(OBJ)/advance/lib/mouseall.o \
 	$(OBJ)/advance/lib/mousedrv.o \
-	$(OBJ)/advance/lib/mnone.o
+	$(OBJ)/advance/lib/mnone.o \
+	$(OBJ)/advance/lib/error.o
 
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c
 	$(ECHO) $@ $(MSG)
@@ -527,7 +571,7 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/histemu.html \
 	$(DOCOBJ)/faq.html \
 	$(DOCOBJ)/tips.html
-ifneq ($(CONF_SYSTEM),sdl)
+ifneq ($(CONF_HOST),windows)
 EMU_DOC_BIN += \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
@@ -565,7 +609,7 @@ EMU_ROOT_BIN += \
 	$(srcdir)/support/sdl.dll \
 	$(srcdir)/support/zlib.dll
 endif
-ifneq ($(CONF_SYSTEM),sdl)
+ifneq ($(CONF_HOST),windows)
 EMU_ROOT_BIN += \
 	$(VOBJ)/advv$(EXE) \
 	$(CFGOBJ)/advcfg$(EXE) \
@@ -619,6 +663,8 @@ dist: $(RCSRC) $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt
 	cp $(LINUX_SRC) $(EMU_DIST_DIR_SRC)/advance/linux
 	mkdir $(EMU_DIST_DIR_SRC)/advance/dos
 	cp $(DOS_SRC) $(EMU_DIST_DIR_SRC)/advance/dos
+	mkdir $(EMU_DIST_DIR_SRC)/advance/windows
+	cp $(WINDOWS_SRC) $(EMU_DIST_DIR_SRC)/advance/windows
 	mkdir $(EMU_DIST_DIR_SRC)/advance/sdl
 	cp $(SDL_SRC) $(EMU_DIST_DIR_SRC)/advance/sdl
 	mkdir $(EMU_DIST_DIR_SRC)/advance/osd

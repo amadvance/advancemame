@@ -312,6 +312,7 @@ int os_inner_init(const char* title) {
 
 	log_std(("os: sys DOS\n"));
 
+	/* print the compiler version */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
 #define COMPILER_RESOLVE(a) #a
 #define COMPILER(a,b,c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)

@@ -30,9 +30,13 @@
 
 #include "ksvgab.h"
 #include "log.h"
-#include "osint.h"
+#include "oslinux.h"
 
 #include <vgakeyboard.h>
+
+#ifdef USE_VIDEO_SDL
+#include "SDL.h"
+#endif
 
 struct keyb_svgalib_context {
 	unsigned map_os_to_code[OS_KEY_MAX];
@@ -157,7 +161,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-video_error keyb_svgalib_init(int keyb_id, video_bool disable_special)
+adv_error keyb_svgalib_init(int keyb_id, adv_bool disable_special)
 {
 	struct keyb_pair* i;
 	unsigned j;
@@ -166,8 +170,17 @@ video_error keyb_svgalib_init(int keyb_id, video_bool disable_special)
 
 	if (!os_internal_svgalib_get()) {
 		log_std(("keyb:svgalib: svgalib not initialized\n"));
+		error_description_nolog_cat("svgalib: Not supported without the svgalib library\n");
 		return -1;
 	}
+	
+#ifdef USE_VIDEO_SDL
+	if (SDL_WasInit(SDL_INIT_VIDEO)) {
+		log_std(("keyb:svgalib: Incompatible with the SDL video driver\n"));
+		error_description_nolog_cat("svgalib: Incompatible with the SDL video driver\n");
+		return -1; 
+	}
+#endif
 
 	for(j=0;j<OS_KEY_MAX;++j) {
 		svgalib_state.map_os_to_code[j] = 0;
@@ -243,7 +256,7 @@ unsigned keyb_svgalib_flags(void)
 	return 0;
 }
 
-video_error keyb_svgalib_load(struct conf_context* context)
+adv_error keyb_svgalib_load(struct conf_context* context)
 {
 	return 0;
 }

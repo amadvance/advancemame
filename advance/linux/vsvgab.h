@@ -42,17 +42,17 @@ typedef struct svgalib_video_mode_struct {
 	video_crtc crtc; /**< CRTC values */
 } svgalib_video_mode;
 
-video_error svgalib_init(int device_id);
+adv_error svgalib_init(int device_id);
 void svgalib_done(void);
 
-video_bool svgalib_is_active(void);
-video_bool svgalib_mode_is_active(void);
+adv_bool svgalib_is_active(void);
+adv_bool svgalib_mode_is_active(void);
 
 unsigned svgalib_flags(void);
 
-video_error svgalib_mode_set(const svgalib_video_mode* mode);
-video_error svgalib_mode_change(const svgalib_video_mode* mode);
-void svgalib_mode_done(video_bool restore);
+adv_error svgalib_mode_set(const svgalib_video_mode* mode);
+adv_error svgalib_mode_change(const svgalib_video_mode* mode);
+void svgalib_mode_done(adv_bool restore);
 
 unsigned svgalib_virtual_x(void);
 unsigned svgalib_virtual_y(void);
@@ -63,17 +63,17 @@ video_rgb_def svgalib_rgb_def(void);
 extern unsigned char* (*svgalib_write_line)(unsigned y);
 
 void svgalib_wait_vsync(void);
-video_error svgalib_scroll(unsigned offset, video_bool waitvsync);
-video_error svgalib_scanline_set(unsigned byte_length);
-video_error svgalib_palette8_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync);
+adv_error svgalib_scroll(unsigned offset, adv_bool waitvsync);
+adv_error svgalib_scanline_set(unsigned byte_length);
+adv_error svgalib_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
 
-video_error svgalib_mode_import(video_mode* mode, const svgalib_video_mode* svgalib_mode);
-video_error svgalib_mode_generate(svgalib_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+adv_error svgalib_mode_import(video_mode* mode, const svgalib_video_mode* svgalib_mode);
+adv_error svgalib_mode_generate(svgalib_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
 int svgalib_mode_compare(const svgalib_video_mode* a, const svgalib_video_mode* b);
 
 void svgalib_default(void);
 void svgalib_reg(struct conf_context* context);
-video_error svgalib_load(struct conf_context* context);
+adv_error svgalib_load(struct conf_context* context);
 
 extern video_driver video_svgalib_driver;
 

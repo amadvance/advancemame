@@ -81,17 +81,17 @@ struct inputb_driver_struct {
 	const device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	video_error (*load)(struct conf_context* context);
+	adv_error (*load)(struct conf_context* context);
 
 	/** Register the load options. Call before load(). */
 	void (*reg)(struct conf_context* context);
 
-	video_error (*init)(int device_id); /**< Initialize the driver */
+	adv_error (*init)(int device_id); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
 
-	video_bool (*hit)(void);
+	adv_bool (*hit)(void);
 	unsigned (*get)(void);
 };
 
@@ -100,8 +100,8 @@ typedef struct inputb_driver_struct inputb_driver;
 #define INPUT_DRIVER_MAX 8
 
 struct inputb_state_struct {
-	video_bool is_initialized_flag;
-	video_bool is_active_flag;
+	adv_bool is_initialized_flag;
+	adv_bool is_active_flag;
 	unsigned driver_mac;
 	inputb_driver* driver_map[INPUT_DRIVER_MAX];
 	inputb_driver* driver_current;
@@ -110,14 +110,14 @@ struct inputb_state_struct {
 
 extern struct inputb_state_struct inputb_state;
 
-void inputb_reg(struct conf_context* config_context, video_bool auto_detect);
+void inputb_reg(struct conf_context* config_context, adv_bool auto_detect);
 void inputb_reg_driver(struct conf_context* config_context, inputb_driver* driver);
-video_error inputb_load(struct conf_context* config_context);
-video_error inputb_init(void);
+adv_error inputb_load(struct conf_context* config_context);
+adv_error inputb_init(void);
 void inputb_done(void);
 void inputb_abort(void);
 
-static __inline__ video_bool inputb_hit(void) {
+static __inline__ adv_bool inputb_hit(void) {
 	assert( inputb_state.is_active_flag );
 
 	return inputb_state.driver_current->hit();

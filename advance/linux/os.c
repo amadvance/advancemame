@@ -29,7 +29,7 @@
  */
 
 #include "os.h"
-#include "osint.h"
+#include "oslinux.h"
 #include "log.h"
 #include "target.h"
 #include "file.h"
@@ -56,10 +56,18 @@
 #endif
 
 /* Check if dga is used in some way */
-#if defined(USE_VIDEO_DGA) || defined(USE_KEYBOARD_DGA) || defined(USE_MOUSE_DGA)
-#define USE_DGA
+#if defined(USE_VIDEO_X) || defined(USE_KEYBOARD_X) || defined(USE_MOUSE_X)
+#define USE_X
 #include <X11/Xlib.h>
-#include <X11/extensions/xf86dga.h>
+#endif
+
+/* Check if SDL is used in some way */
+#if defined(USE_VIDEO_SDL) || defined(USE_KEYBOARD_SDL) || defined(USE_MOUSE_SDL) || defined(USE_JOYSTICK_SDL) || defined(USE_SOUND_SDL)
+#define USE_SDL
+#include "ossdl.h"
+#include "SDL.h"
+#include "ksdl.h"
+#include "msdl.h"
 #endif
 
 struct os_context {
@@ -71,12 +79,17 @@ struct os_context {
 	int slang_active; /**< Slang initialized. */
 #endif
 
-#ifdef USE_DGA
-	int dga_active; /**< DGA initialized. */
-	Display* dga_display; /**< DGA Display. */
+#ifdef USE_X
+	int x_active; /**< X initialized. */
+	Display* x_display; /**< X display. */
+#endif
+
+#ifdef USE_SDL
+	int sdl_active; /**< SDL initialized. */
 #endif
 
 	int is_term; /**< Is termination requested. */
+	char title[128]; /**< Title of the window. */
 };
 
 static struct os_context OS;
@@ -112,6 +125,9 @@ int os_inner_init(const char* title) {
 	const char* display;
 	os_clock_t start, stop;
 	struct utsname uts;
+#ifdef USE_SDL
+	SDL_version compiled;
+#endif
 
 	if (uname(&uts) != 0) {
 		log_std(("ERROR: uname failed\n"));
@@ -122,6 +138,7 @@ int os_inner_init(const char* title) {
 		log_std(("os: machine %s\n",uts.machine));
 	}
 
+	/* print the compiler version */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
 #define COMPILER_RESOLVE(a) #a
 #define COMPILER(a,b,c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
@@ -170,8 +187,25 @@ int os_inner_init(const char* title) {
 		}
 		OS.svgalib_active = 1;
 	} else {
-		target_err("The SVGALIB video isn't supported in X Window.\n");
+		log_std(("os: vga_init() skipped\n"));
 	}
+#endif
+#if defined(USE_SDL)
+	log_std(("os: SDL_Init(SDL_INIT_NOPARACHUTE)\n"));
+	if (SDL_Init(SDL_INIT_NOPARACHUTE) != 0) {
+		log_std(("os: SDL_Init() failed, %s\n", SDL_GetError()));
+		target_err("Error initializing the SDL video support.\n");
+		return -1;
+	} 
+	OS.sdl_active = 1;
+	SDL_VERSION(&compiled);
+
+	log_std(("os: compiled with sdl %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch));
+	log_std(("os: linked with sdl %d.%d.%d\n", SDL_Linked_Version()->major, SDL_Linked_Version()->minor, SDL_Linked_Version()->patch));
+	if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+		log_std(("os: little endian system\n"));
+	else
+		log_std(("os: big endian system\n"));
 #endif
 #if defined(USE_SLANG)
 	SLtt_get_terminfo();
@@ -179,8 +213,8 @@ int os_inner_init(const char* title) {
 	SLsmg_init_smg();
 	OS.slang_active = 1;
 #endif
-#if defined(USE_DGA)
-	OS.dga_active = 0;
+#if defined(USE_X)
+	OS.x_active = 0;
 	if (display != 0) {
 		int event_base, error_base;
 		int major_version, minor_version;
@@ -192,31 +226,12 @@ int os_inner_init(const char* title) {
 			target_err("Couldn't open X11 display.");
 			return -1;
 		}
-		/* check for the DGA extension */
-		log_std(("video:dga: XDGAQueryExtension()\n"));
-		if (!XDGAQueryExtension(OS.dga_display, &event_base, &error_base)) {
-			log_std(("video:dga: XDGAQueryExtension() failed\n"));
-			XCloseDisplay(OS.dga_display);
-			target_err("DGA extensions not available");
-			return -1;
-		}
-		log_std(("video:dga: XDGAQueryExtension() event_base:%d error_base:%d\n", event_base, error_base));
-		log_std(("video:dga: XDGAQueryVersion()\n"));
-		if (!XDGAQueryVersion(OS.dga_display, &major_version, &minor_version)) {
-			log_std(("video:dga: XDGAQueryVersion() failed\n"));
-			XCloseDisplay(OS.dga_display);
-			target_err("DGA version not available");
-			return -1;
-		}
-		log_std(("video:dga: XDGAQueryVersion() major_version:%d, minor_version:%d\n", major_version, minor_version));
-		if (major_version < 2) {
-			XCloseDisplay(OS.dga_display);
-			target_err("DGA driver requires DGA 2.0 or newer");
-			return -1;
-		}
-		OS.dga_active = 1;
+		OS.x_active = 1;
 	}
 #endif
+      
+	/* set the titlebar */
+	strcpy(OS.title, title);
 
 	/* set some signal handlers */
 	signal(SIGABRT, os_signal);
@@ -248,39 +263,117 @@ void* os_internal_slang_get(void) {
 	return 0;
 }
 
-void* os_internal_dga_get(void) {
-#if defined(USE_DGA)
-	if (OS.dga_active)
-		return OS.dga_display;
+void* os_internal_x_get(void) {
+#if defined(USE_X)
+	if (OS.x_active)
+		return OS.x_display;
+#endif
+	return 0;
+}
+
+void* os_internal_sdl_get(void) {
+#if defined(USE_SDL)
+	if (OS.sdl_active)
+		return &OS.sdl_active;
 #endif
 	return 0;
 }
 
 void os_inner_done(void) {
-#ifdef USE_MOUSE_SVGALIB
-	if (OS.svgalib_active) {
-		mouse_close(); /* always called */
+#ifdef USE_X
+	if (OS.x_display) {
+		log_std(("os: XCloseDisplay()\n"));
+		XCloseDisplay(OS.x_display);
+		OS.x_active = 0;
+	}
+#endif
+#ifdef USE_SLANG
+	if (OS.slang_active) {
+		SLsmg_reset_smg();
+		SLang_reset_tty();
+		OS.slang_active = 0;
+	}
+#endif
+#ifdef USE_SDL
+	if (OS.sdl_active) {
+		log_std(("os: SDL_Quit()\n"));
+		SDL_Quit();
+		OS.sdl_active = 0;
 	}
 #endif
 #ifdef USE_SVGALIB
-	OS.svgalib_active = 0;
+	if (OS.svgalib_active) {
+#ifdef USE_MOUSE_SVGALIB
+		mouse_close(); /* always called */
 #endif
-#ifdef USE_SLANG
-	OS.slang_active = 0;
-	SLsmg_reset_smg();
-	SLang_reset_tty();
-#endif
-#ifdef USE_DGA
-	/* close up the display */
-	if (OS.dga_display) {
-		log_std(("os: XCloseDisplay()\n"));
-		XCloseDisplay(OS.dga_display);
-		OS.dga_active = 0;
+		OS.svgalib_active = 0;
 	}
 #endif
 }
 
+const char* os_internal_title_get(void) {
+	return OS.title;
+}
+
 void os_poll(void) {
+#ifdef USE_SDL
+	SDL_Event event;
+
+	/* The event queue works only with the video initialized */
+	if (!SDL_WasInit(SDL_INIT_VIDEO))
+		return;
+
+	log_debug(("os: SDL_PollEvent()\n"));
+	while (SDL_PollEvent(&event)) {
+		log_debug(("os: SDL_PollEvent() -> event.type:%d\n",(int)event.type));
+		switch (event.type) {
+			case SDL_KEYDOWN :
+#ifdef USE_KEYBOARD_SDL
+				keyb_sdl_event_press(event.key.keysym.sym);
+#endif
+
+				/* toggle fullscreen check */
+				if (event.key.keysym.sym == SDLK_RETURN
+					&& (event.key.keysym.mod & KMOD_ALT) != 0) {
+					if (SDL_WasInit(SDL_INIT_VIDEO) && SDL_GetVideoSurface()) {
+						SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
+
+						if ((SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0) {
+							SDL_ShowCursor(SDL_DISABLE);
+						} else {
+							SDL_ShowCursor(SDL_ENABLE);
+						}
+					}
+				}
+			break;
+			case SDL_KEYUP :
+#ifdef USE_KEYBOARD_SDL
+				keyb_sdl_event_release(event.key.keysym.sym);
+#endif
+			break;
+			case SDL_MOUSEMOTION :
+#ifdef USE_MOUSE_SDL
+				mouseb_sdl_event_move(event.motion.xrel, event.motion.yrel);
+#endif
+			break;
+			case SDL_MOUSEBUTTONDOWN :
+#ifdef USE_MOUSE_SDL
+				if (event.button.button > 0)
+					mouseb_sdl_event_press(event.button.button-1);
+#endif
+			break;
+			case SDL_MOUSEBUTTONUP :
+#ifdef USE_MOUSE_SDL
+				if (event.button.button > 0)
+					mouseb_sdl_event_release(event.button.button-1);
+#endif
+			break;
+			case SDL_QUIT :
+				OS.is_term = 1;
+				break;
+		}
+	}
+#endif	
 }
 
 /***************************************************************************/
@@ -302,7 +395,7 @@ void os_default_signal(int signum)
 {
 	log_std(("os: signal %d\n",signum));
 
-#if defined(USE_KEYBOARD_SVGALIB)
+#if defined(USE_KEYBOARD_SVGALIB) || defined(USE_KEYBOARD_SDL)
 	log_std(("os: keyb_abort\n"));
 	{
 		extern void keyb_abort(void);
@@ -310,7 +403,7 @@ void os_default_signal(int signum)
 	}
 #endif
 
-#if defined(USE_VIDEO_SVGALIB) || defined(USE_VIDEO_FB) || defined(USE_VIDEO_DGA)
+#if defined(USE_VIDEO_SVGALIB) || defined(USE_VIDEO_FB) || defined(USE_VIDEO_X) || defined(USE_VIDEO_SDL)
 	log_std(("os: video_abort\n"));
 	{
 		extern void video_abort(void);
@@ -318,7 +411,7 @@ void os_default_signal(int signum)
 	}
 #endif
 
-#if defined(USE_SOUND_OSS)
+#if defined(USE_SOUND_OSS) || defined(USE_SOUND_SDL)
 	log_std(("os: sound_abort\n"));
 	{
 		extern void sound_abort(void);

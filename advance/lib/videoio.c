@@ -45,7 +45,7 @@
 /** Last parse error */
 static char video_mode_parse_error[1024];
 
-static video_error parse_int(int* r, const char** begin, const char* end) {
+static adv_error parse_int(int* r, const char** begin, const char* end) {
 	char* e;
 	*r = strtol(*begin,&e,10);
 	if (e==*begin || e > end) {
@@ -61,7 +61,7 @@ static void parse_separator(const char* separator, const char** begin, const cha
 		++*begin;
 }
 
-static video_error parse_token(char* token, unsigned size, const char* separator, const char** begin, const char* end) {
+static adv_error parse_token(char* token, unsigned size, const char* separator, const char** begin, const char* end) {
 	unsigned pos = 0;
 
 	while (*begin < end && !strchr(separator,**begin)) {
@@ -81,7 +81,7 @@ static video_error parse_token(char* token, unsigned size, const char* separator
 	return 0;
 }
 
-static video_error parse_quote(char* token, unsigned size, const char** begin, const char* end) {
+static adv_error parse_quote(char* token, unsigned size, const char** begin, const char* end) {
 	if (*begin == end || **begin != '"')
 		return -1;
 	++*begin;
@@ -96,7 +96,7 @@ static video_error parse_quote(char* token, unsigned size, const char** begin, c
 	return 0;
 }
 
-static video_error parse_double(double* r, const char** begin, const char* end) {
+static adv_error parse_double(double* r, const char** begin, const char* end) {
 	char* e;
 	*r = strtod(*begin,&e);
 	if (e==*begin || e > end) {
@@ -110,7 +110,7 @@ static video_error parse_double(double* r, const char** begin, const char* end) 
 /***************************************************************************/
 /* Video crtc container */
 
-static video_error parse_crtc(video_crtc* crtc, const char* begin, const char* end) {
+static adv_error parse_crtc(video_crtc* crtc, const char* begin, const char* end) {
 	int v;
 	double d;
 
@@ -200,7 +200,7 @@ static video_error parse_crtc(video_crtc* crtc, const char* begin, const char* e
  *  - ==0 on success
  *  - !=0 on error
  */
-video_error video_crtc_parse(video_crtc* crtc, const char* begin, const char* end) {
+adv_error video_crtc_parse(video_crtc* crtc, const char* begin, const char* end) {
 
 	/* defaults */
 	crtc_reset_all(crtc);
@@ -249,7 +249,7 @@ void video_crtc_print(char* buffer, const video_crtc* crtc) {
 }
 
 /* Load the list of video mode */
-video_error video_crtc_container_load(struct conf_context* context, video_crtc_container* cc) {
+adv_error video_crtc_container_load(struct conf_context* context, video_crtc_container* cc) {
 	conf_iterator i;
 	int error = 0;
 
@@ -262,7 +262,7 @@ video_error video_crtc_container_load(struct conf_context* context, video_crtc_c
 		} else {
 			if (!error) {
 				error = 1;
-				video_error_description_set("%s in argument '%s' for option 'device_video_modeline'",video_mode_parse_error,s);
+				error_description_set("%s in argument '%s' for option 'device_video_modeline'",video_mode_parse_error,s);
 			}
 		}
 		conf_iterator_next(&i);
@@ -295,7 +295,7 @@ void video_crtc_container_clear(struct conf_context* context) {
 /***************************************************************************/
 /* Monitor */
 
-static video_error monitor_range_parse(video_monitor_range* range, const char* begin, const char* end, double mult) {
+static adv_error monitor_range_parse(video_monitor_range* range, const char* begin, const char* end, double mult) {
 	unsigned i = 0;
 	parse_separator(" \t",&begin,end);
 	while (begin < end) {
@@ -344,7 +344,7 @@ static video_error monitor_range_parse(video_monitor_range* range, const char* b
 	return 0;
 }
 
-static video_error monitor_single_parse(video_monitor_range* range, const char* begin, const char* end, double mult) {
+static adv_error monitor_single_parse(video_monitor_range* range, const char* begin, const char* end, double mult) {
 	double v0;
 	double v1;
 
@@ -394,17 +394,17 @@ void monitor_print(char* buffer, const video_monitor_range* range_begin, const v
 		strcpy(buffer,"0");
 }
 
-video_error monitor_parse(video_monitor* monitor, const char* p, const char* h, const char* v) {
+adv_error monitor_parse(video_monitor* monitor, const char* p, const char* h, const char* v) {
 	if (monitor_single_parse(&monitor->pclock,p,p+strlen(p),1E6)!=0) {
-		video_error_description_set("Invalid monitor 'pclock' specification");
+		error_description_set("Invalid monitor 'pclock' specification");
 		return -1;
 	}
 	if (monitor_range_parse(monitor->hclock,h,h+strlen(h),1E3)!=0) {
-		video_error_description_set("Invalid monitor 'hclock' specification");
+		error_description_set("Invalid monitor 'hclock' specification");
 		return -1;
 	}
 	if (monitor_range_parse(monitor->vclock,v,v+strlen(v),1)!=0) {
-		video_error_description_set("Invalid monitor 'vclock' specification");
+		error_description_set("Invalid monitor 'vclock' specification");
 		return -1;
 	}
 	return 0;
@@ -416,7 +416,7 @@ video_error monitor_parse(video_monitor* monitor, const char* p, const char* h, 
  *   <0 error
  *   >0 configuration missing, video_monitor_is_empty(monitor)!=0
  */
-video_error monitor_load(struct conf_context* context, video_monitor* monitor) {
+adv_error monitor_load(struct conf_context* context, video_monitor* monitor) {
 	conf_error p_present;
 	conf_error h_present;
 	conf_error v_present;
@@ -430,34 +430,34 @@ video_error monitor_load(struct conf_context* context, video_monitor* monitor) {
 
 	if (p_present!=0 && h_present!=0 && v_present!=0) {
 		monitor_reset(monitor);
-		video_error_description_set("Missing options 'device_video_p/h/vclock'");
+		error_description_set("Missing options 'device_video_p/h/vclock'");
 		return 1;
 	}
 
 	if (p_present!=0) {
-		video_error_description_set("Missing option 'device_video_pclock'");
+		error_description_set("Missing option 'device_video_pclock'");
 		return -1;
 	}
 	if (monitor_single_parse(&monitor->pclock,p,p+strlen(p),1E6)!=0) {
-		video_error_description_set("Invalid argument '%s' for option 'device_video_pclock'",p);
+		error_description_set("Invalid argument '%s' for option 'device_video_pclock'",p);
 		return -1;
 	}
 
 	if (h_present!=0) {
-		video_error_description_set("Missing option 'device_video_hclock'");
+		error_description_set("Missing option 'device_video_hclock'");
 		return -1;
 	}
 	if (monitor_range_parse(monitor->hclock,h,h+strlen(h),1000)!=0) {
-		video_error_description_set("Invalid argument '%s' for option 'device_video_hclock'",h);
+		error_description_set("Invalid argument '%s' for option 'device_video_hclock'",h);
 		return -1;
 	}
 
 	if (v_present!=0) {
-		video_error_description_set("Missing option 'device_video_vclock'");
+		error_description_set("Missing option 'device_video_vclock'");
 		return -1;
 	}
 	if (monitor_range_parse(monitor->vclock,v,v+strlen(v),1)!=0) {
-		video_error_description_set("Invalid argument '%s' for option 'device_video_vclock'",v);
+		error_description_set("Invalid argument '%s' for option 'device_video_vclock'",v);
 		return -1;
 	}
 
@@ -486,7 +486,7 @@ void monitor_register(struct conf_context* context) {
 /***************************************************************************/
 /* Generate */
 
-static video_error parse_generate(const char* begin, const char* end, video_generate* data) {
+static adv_error parse_generate(const char* begin, const char* end, video_generate* data) {
 	double d;
 	parse_separator(" \t",&begin,end);
 	if (parse_double(&d,&begin,end))
@@ -543,7 +543,7 @@ static video_error parse_generate(const char* begin, const char* end, video_gene
 	return 0;
 }
 
-static video_error parse_generate_interpolate(const char* begin, const char* end, video_generate_interpolate* interpolate) {
+static adv_error parse_generate_interpolate(const char* begin, const char* end, video_generate_interpolate* interpolate) {
 	double d;
 	video_generate* data = &interpolate->gen;
 
@@ -603,9 +603,9 @@ static void out_generate_interpolate(char* buffer, const video_generate_interpol
 		out.vactive, out.vfront, out.vsync, out.vback);
 }
 
-video_error generate_parse(video_generate* generate, const char* g) {
+adv_error generate_parse(video_generate* generate, const char* g) {
 	if (parse_generate(g,g+strlen(g),generate)!=0) {
-		video_error_description_set("Invalid specification");
+		error_description_set("Invalid specification");
 		return -1;
 	}
 
@@ -622,7 +622,7 @@ static int generate_interpolate_cmp(const void* e0, const void* e1) {
 	return 0;
 }
 
-video_error generate_interpolate_load(struct conf_context* context, video_generate_interpolate_set* interpolate) {
+adv_error generate_interpolate_load(struct conf_context* context, video_generate_interpolate_set* interpolate) {
 	conf_iterator i;
 	unsigned mac = 0;
 
@@ -631,7 +631,7 @@ video_error generate_interpolate_load(struct conf_context* context, video_genera
 		const char* s = conf_iterator_string_get(&i);
 
 		if (parse_generate_interpolate(s,s+strlen(s),&interpolate->map[mac])!=0) {
-			video_error_description_set("Invalid argument '%s' in option 'device_video_format'",s);
+			error_description_set("Invalid argument '%s' in option 'device_video_format'",s);
 			return -1;
 		}
 
@@ -642,7 +642,7 @@ video_error generate_interpolate_load(struct conf_context* context, video_genera
 
 	if (!mac) {
 		generate_interpolate_reset(interpolate);
-		video_error_description_set("Missing 'device_video_format' specification");
+		error_description_set("Missing 'device_video_format' specification");
 		return 1;
 	}
 
@@ -675,7 +675,7 @@ void generate_interpolate_register(struct conf_context* context) {
 /***************************************************************************/
 /* GTF */
 
-static video_error parse_gtf(const char* begin, const char* end, video_gtf* data) {
+static adv_error parse_gtf(const char* begin, const char* end, video_gtf* data) {
 	double d;
 	int i;
 	parse_separator(" \t",&begin,end);
@@ -724,25 +724,25 @@ static video_error parse_gtf(const char* begin, const char* end, video_gtf* data
 	return 0;
 }
 
-video_error gtf_parse(video_gtf* gtf, const char* g) {
+adv_error gtf_parse(video_gtf* gtf, const char* g) {
 	if (parse_gtf(g,g+strlen(g),gtf)!=0) {
-		video_error_description_set("Invalid 'gtf' specification");
+		error_description_set("Invalid 'gtf' specification");
 		return -1;
 	}
 
 	return 0;
 }
 
-video_error gtf_load(struct conf_context* context, video_gtf* gtf) {
+adv_error gtf_load(struct conf_context* context, video_gtf* gtf) {
 	const char* s;
 
 	if (conf_string_get(context,"device_video_gtf",&s) != 0) {
-		video_error_description_set("Missing option 'device_video_gtf'");
+		error_description_set("Missing option 'device_video_gtf'");
 		return 1;
 	}
 
 	if (parse_gtf(s,s+strlen(s),gtf)!=0) {
-		video_error_description_set("Invalid argument '%s' for option 'device_video_gtf'",s);
+		error_description_set("Invalid argument '%s' for option 'device_video_gtf'",s);
 		return -1;
 	}
 
@@ -798,7 +798,7 @@ typedef struct tagBITMAPINFOHEADER {
 	uint32 biClrImportant __attribute__ ((packed));
 } BITMAPINFOHEADER;
 
-video_error video_snapshot_save(const char* snapshot_name, int start_x, int start_y) {
+adv_error video_snapshot_save(const char* snapshot_name, int start_x, int start_y) {
 	BITMAPFILEHEADER bmfh;
 	BITMAPINFOHEADER bmih;
 	FILE* f;

@@ -42,7 +42,7 @@ void inputb_default(void) {
 	strcpy(inputb_state.name, "none");
 }
 
-void inputb_reg(struct conf_context* context, video_bool auto_detect) {
+void inputb_reg(struct conf_context* context, adv_bool auto_detect) {
 	conf_string_register_default(context, "device_input", auto_detect ? "auto" : "none");
 }
 
@@ -57,7 +57,7 @@ void inputb_reg_driver(struct conf_context* context, inputb_driver* driver) {
 	++inputb_state.driver_mac;
 }
 
-video_error inputb_load(struct conf_context* context) {
+adv_error inputb_load(struct conf_context* context) {
 	unsigned i;
 	int at_least_one;
 
@@ -90,7 +90,7 @@ video_error inputb_load(struct conf_context* context) {
 	return 0;
 }
 
-video_error inputb_init(void) {
+adv_error inputb_init(void) {
 	unsigned i;
 
 	assert(inputb_state.driver_current == 0);
@@ -100,6 +100,9 @@ video_error inputb_init(void) {
 	if (!inputb_state.is_initialized_flag) {
 		inputb_default();
 	}
+
+	/* store the error prefix */
+	error_description_nolog_set("Unable to inizialize a input driver. The following are the errors:\n");
 
 	for(i=0;i<inputb_state.driver_mac;++i) {
 		const device* dev;

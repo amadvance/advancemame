@@ -159,7 +159,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-video_error keyb_allegro_init(int keyb_id, video_bool disable_special)
+adv_error keyb_allegro_init(int keyb_id, adv_bool disable_special)
 {
 	struct keyb_pair* i;
 	unsigned j;
@@ -252,7 +252,7 @@ unsigned keyb_allegro_flags(void)
 	return 0;
 }
 
-video_error keyb_allegro_load(struct conf_context* context)
+adv_error keyb_allegro_load(struct conf_context* context)
 {
 	return 0;
 }

@@ -25,12 +25,12 @@ First Time Configuration
 	This mode of operation should be used only if the `automatic' mode
 	doesn't work.
 
-	If you are using the special `sdl' system library, the programs
+	Please note that if you are using the `sdl' video driver, the programs
 	aren't able to create or adjust video modes.
 	In this case you don't need to configure anything because the programs
 	can use only the video modes which your system reports as available.
 
-	The `sdl' system is only indicated to use AdvanceMAME in a Window
+	The `sdl' video driver is only indicated to use AdvanceMAME in a Window
 	Manager system. Instead it's the prefered choice for AdvanceMENU
 	for the use with a normal PC monitor.
 

@@ -40,27 +40,27 @@ extern "C" {
 
 typedef struct vgaline_video_mode_struct {
 	video_crtc crtc; /**< CRTC values */
-	video_bool is_text; /**< is a text mode */
+	adv_bool is_text; /**< is a text mode */
 	unsigned font_x; /**< X size of the font, valid only in text mode */
 	unsigned font_y;  /**< Y size of the font, valid only in text mode */
 } vgaline_video_mode;
 
-video_error vgaline_init(int device_id);
+adv_error vgaline_init(int device_id);
 void vgaline_done(void);
 
-video_bool vgaline_is_active(void);
-video_bool vgaline_mode_is_active(void);
+adv_bool vgaline_is_active(void);
+adv_bool vgaline_mode_is_active(void);
 unsigned vgaline_flags(void);
 
-video_error vgaline_mode_set(const vgaline_video_mode* mode);
-void vgaline_mode_done(video_bool restore);
+adv_error vgaline_mode_set(const vgaline_video_mode* mode);
+void vgaline_mode_done(adv_bool restore);
 
-video_error vgaline_mode_grab(vgaline_video_mode* mode);
-video_error vgaline_mode_import(video_mode* mode, const vgaline_video_mode* vgaline_mode);
-video_error vgaline_mode_generate(vgaline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+adv_error vgaline_mode_grab(vgaline_video_mode* mode);
+adv_error vgaline_mode_import(video_mode* mode, const vgaline_video_mode* vgaline_mode);
+adv_error vgaline_mode_generate(vgaline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
 int vgaline_mode_compare(const vgaline_video_mode* a, const vgaline_video_mode* b);
 
-video_error video_crtc_import(video_crtc* crtc, struct vga_info* info, unsigned size_x, unsigned size_y, double vclock);
+adv_error video_crtc_import(video_crtc* crtc, struct vga_info* info, unsigned size_x, unsigned size_y, double vclock);
 
 extern video_driver video_vgaline_driver;
 

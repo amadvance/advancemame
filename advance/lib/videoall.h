@@ -60,9 +60,6 @@ extern "C" {
 #ifdef USE_VIDEO_FB
 #include "vfb.h"
 #endif
-#ifdef USE_VIDEO_DGA
-#include "vdga.h"
-#endif
 #ifdef USE_VIDEO_SLANG
 #include "vslang.h"
 #endif

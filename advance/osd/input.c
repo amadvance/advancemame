@@ -30,6 +30,7 @@
 
 #include "advance.h"
 #include "log.h"
+#include "target.h"
 
 #include "mame2.h"
 
@@ -462,12 +463,13 @@ int advance_input_inner_init(struct advance_input_context* context)
 {
 	unsigned i;
 
-	if (joystickb_init() != 0)
-		return -1;
+	if (joystickb_init() != 0) {
+		goto err;
+	}
 
 	if (mouseb_init() != 0) {
 		joystickb_done();
-		return -1;
+		goto err;
 	}
 
 	log_std(("advance:mouse: %d available\n", mouseb_count_get() ));
@@ -486,6 +488,9 @@ int advance_input_inner_init(struct advance_input_context* context)
 	context->state.input_on_this_frame_flag = 0;
 
 	return 0;
+err:
+	target_err("%s\n", error_description_get());
+	return -1;
 }
 
 void advance_input_inner_done(struct advance_input_context* context) {

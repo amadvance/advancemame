@@ -29,8 +29,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#include <vga.h>
-
 static int done;
 
 void sigint(int signum) {

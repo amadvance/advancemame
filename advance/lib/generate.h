@@ -72,9 +72,9 @@ void generate_vert_clock(video_crtc* crtc, double clock);
 #define GENERATE_ADJUST_EXACT CRTC_ADJUST_EXACT
 #define GENERATE_ADJUST_VCLOCK CRTC_ADJUST_VCLOCK
 #define GENERATE_ADJUST_VTOTAL CRTC_ADJUST_VTOTAL
-video_error generate_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate* generate, unsigned capability, unsigned adjust);
-video_error generate_find_interpolate(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust);
-video_error generate_find_interpolate_double(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust);
+adv_error generate_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate* generate, unsigned capability, unsigned adjust);
+adv_error generate_find_interpolate(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust);
+adv_error generate_find_interpolate_double(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust);
 
 void generate_default_vga(video_generate* generate);
 void generate_default_atari_standard(video_generate* generate);
@@ -89,9 +89,9 @@ void generate_normalize(video_generate* generate);
 void generate_interpolate_h(video_generate* monitor, unsigned hclock, const video_generate_interpolate_set* interpolate);
 
 void generate_interpolate_reset(video_generate_interpolate_set* interpolate);
-video_bool generate_interpolate_is_empty(const video_generate_interpolate_set* interpolate);
-video_error generate_parse(video_generate* generate, const char* g);
-video_error generate_interpolate_load(struct conf_context* context, video_generate_interpolate_set* interpolate);
+adv_bool generate_interpolate_is_empty(const video_generate_interpolate_set* interpolate);
+adv_error generate_parse(video_generate* generate, const char* g);
+adv_error generate_interpolate_load(struct conf_context* context, video_generate_interpolate_set* interpolate);
 void generate_interpolate_save(struct conf_context* context, const video_generate_interpolate_set* interpolate);
 void generate_interpolate_clear(struct conf_context* context);
 void generate_interpolate_register(struct conf_context* context);

@@ -286,6 +286,10 @@ GPL FAQ
 
 		http://www.gnu.org/licenses/gpl-faq.html#WritingFSWithNFLibs
 
+	and
+
+		http://www.gnu.org/licenses/gpl-faq.html#TOCDeveloperViolate
+
   I am writing free software that uses non-free libraries.
   What legal issues come up if I use the GPL?
 
@@ -349,6 +353,18 @@ GPL FAQ
 	whether to do so.
 
 	Adding this exception eliminates the legal issue, ...
+	
+  Is the developer of a GPL-covered program bound by the GPL? Could the
+  developer's actions ever be a violation of the GPL?
+  
+	Strictly speaking, the GPL is a license from the developer for others
+	to use, distribute and change the program. The developer itself is
+	not bound by it, so no matter what the developer does, this is not a
+	"violation" of the GPL.
+
+	However, if the developer does something that would violate the GPL
+	if done by someone else, the developer will surely lose moral
+	standing in the community.
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni.

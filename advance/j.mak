@@ -2,15 +2,13 @@
 # J
 
 JCFLAGS += \
-	-I$(srcdir)/advance/$(CONF_SYSTEM) \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/common
-JOBJDIRS = \
+JOBJDIRS += \
 	$(JOBJ) \
 	$(JOBJ)/j \
-	$(JOBJ)/lib \
-	$(JOBJ)/$(CONF_SYSTEM)
-JOBJS = \
+	$(JOBJ)/lib
+JOBJS += \
 	$(JOBJ)/j/j.o \
 	$(JOBJ)/lib/log.o \
 	$(JOBJ)/lib/conf.o \
@@ -18,22 +16,43 @@ JOBJS = \
 	$(JOBJ)/lib/device.o \
 	$(JOBJ)/lib/joyall.o \
 	$(JOBJ)/lib/joydrv.o \
-	$(JOBJ)/lib/jnone.o
+	$(JOBJ)/lib/jnone.o \
+	$(JOBJ)/lib/error.o
 
-ifeq ($(CONF_SYSTEM),linux)
-JCFLAGS += -DPREFIX=\"$(PREFIX)\"
+ifeq ($(CONF_HOST),unix)
 JCFLAGS += \
-	-DUSE_JOYSTICK_SVGALIB -DUSE_JOYSTICK_NONE
-JLIBS = -lvga
+	-DPREFIX=\"$(PREFIX)\" \
+	-I$(srcdir)/advance/linux \
+	-DUSE_JOYSTICK_NONE
+JOBJDIRS += \
+	$(JOBJ)/linux
 JOBJS += \
 	$(JOBJ)/lib/filenix.o \
 	$(JOBJ)/lib/targnix.o \
-	$(JOBJ)/$(CONF_SYSTEM)/os.o \
-	$(JOBJ)/$(CONF_SYSTEM)/jsvgab.o
+	$(JOBJ)/linux/os.o
+ifeq ($(CONF_LIB_SVGALIB),yes)
+JCFLAGS += \
+	-DUSE_JOYSTICK_SVGALIB 
+JLIBS += -lvga
+JOBJS += \
+	$(JOBJ)/linux/jsvgab.o
+endif
+ifeq ($(CONF_LIB_SDL),yes)
+JCFLAGS += \
+	$(SDLCFLAGS) \
+	-I$(srcdir)/advance/sdl \
+	-DUSE_JOYSTICK_SDL
+JLIBS += $(SDLLIBS)
+JOBJDIRS += \
+	$(JOBJ)/sdl
+JOBJS += \
+	$(JOBJ)/sdl/jsdl.o
+endif
 endif
 
-ifeq ($(CONF_SYSTEM),dos)
+ifeq ($(CONF_HOST),dos)
 JCFLAGS += \
+	-I$(srcdir)/advance/dos \
 	-DUSE_CONFIG_ALLEGRO_WRAPPER \
 	-DUSE_JOYSTICK_ALLEGRO -DUSE_JOYSTICK_NONE
 JLDFLAGS += \
@@ -43,32 +62,36 @@ JLDFLAGS += \
 	-Xlinker --wrap -Xlinker set_config_int \
 	-Xlinker --wrap -Xlinker get_config_id \
 	-Xlinker --wrap -Xlinker set_config_id
-JLIBS = -lalleg
+JLIBS += -lalleg
+JOBJDIRS += \
+	$(JOBJ)/dos
 JOBJS += \
 	$(JOBJ)/lib/filedos.o \
 	$(JOBJ)/lib/targdos.o \
-	$(JOBJ)/$(CONF_SYSTEM)/os.o \
-	$(JOBJ)/$(CONF_SYSTEM)/jalleg.o
+	$(JOBJ)/dos/os.o \
+	$(JOBJ)/dos/jalleg.o
 endif
 
-ifeq ($(CONF_SYSTEM),sdl)
-JCFLAGS += \
-	$(SDLCFLAGS) \
-	-DPREFIX=\"$(PREFIX)\" \
-	-DUSE_JOYSTICK_SDL -DUSE_JOYSTICK_NONE
-JLIBS += $(SDLLIBS)
-JOBJS += \
-	$(JOBJ)/$(CONF_SYSTEM)/os.o \
-	$(JOBJ)/$(CONF_SYSTEM)/jsdl.o
-ifeq ($(CONF_HOST),unix)
-JOBJS += \
-	$(JOBJ)/lib/filenix.o \
-	$(JOBJ)/lib/targnix.o
-endif
 ifeq ($(CONF_HOST),windows)
+JCFLAGS += \
+	-I$(srcdir)/advance/windows \
+	-DUSE_JOYSTICK_NONE
+JOBJDIRS += \
+	$(JOBJ)/windows
 JOBJS += \
 	$(JOBJ)/lib/filedos.o \
-	$(JOBJ)/lib/targwin.o
+	$(JOBJ)/lib/targwin.o \
+	$(JOBJ)/windows/os.o
+ifeq ($(CONF_LIB_SDL),yes)
+JCFLAGS += \
+	$(SDLCFLAGS) \
+	-I$(srcdir)/advance/sdl \
+	-DUSE_JOYSTICK_SDL
+JLIBS += $(SDLLIBS)
+JOBJDIRS += \
+	$(JOBJ)/sdl
+JOBJS += \
+	$(JOBJ)/sdl/jsdl.o
 endif
 endif
 

@@ -56,8 +56,8 @@ Options
 		The default is `advmame'.
 
 Video Drivers
-	For the DOS `native' version of the programs the following
-	drivers are available:
+	For the DOS version of the programs the following drivers are 
+	available:
 		vgaline - Tweaked VGA modes.
 			Video modes obtained tweaking the hardware
 			registers of the standard VGA. Usually these modes
@@ -120,8 +120,8 @@ Video Drivers
 			because it cannot control how the video modes are
 			generated.
 
-	For the Linux `native' version of the programs the following
-	drivers are available:
+	For the Linux version of the programs the following drivers are 
+	available:
 		svgalib - Tweaked SVGA modes.
 			SVGA Graphics modes from the SVGALIB library.
 			You must install the SVGALIB library version 1.9.x.
@@ -129,13 +129,19 @@ Video Drivers
 			SVGA Graphics modes from the Linux Kernel Console Frame
 			Buffer. You must activate the Console Frame Buffer
 			support in your kernel.
+		sdl - SDL modes.
+			This driver is able to use only the video modes
+			reported by the SDL system.
+			It doesn't require any `device_p/h/vclock' options
+			because it cannot control how the video modes are
+			generated.
 		slang - sLang text modes.
 			Text modes from the sLang library. This driver is only
 			able to use the current text mode. It can't really
 			change the video mode.
 
-	For the Linux and Windows `sdl' version of the programs the
-	following drivers are available:
+	For the Windows version of the programs the following drivers are 
+	available:
 		sdl - SDL modes.
 			This driver is able to use only the video modes
 			reported by the SDL system.
@@ -235,7 +241,7 @@ Configuration
 
 	You can force the detection of a specific model of video board
 	adding the name of the model driver after the driver name using
-	the '/` separator. For example to force the `vbe3' model
+	the `/' separator. For example to force the `vbe3' model
 	detection of the `vbeline' driver you must specify
 	`vbeline/vbe3'. A complete list of all the available model is in
 	the `card.txt' file. Plese note that forcing a specific video
@@ -430,7 +436,7 @@ Configuration
 
   VbeLine Configuration Options
 	The following are the common video configuration options
-	available only for the `vbeline' driver.
+	available only for the `vbeline' video driver.
 
     device_vbeline_driver
 	Select the video driver used. The program uses the specified
@@ -472,7 +478,7 @@ Configuration
 
   SDL Configuration Options
 	The following are the common video configuration options
-	available only for the `sdl' driver.
+	available only for the `sdl' video driver.
 
     device_sdl_fullscreen
 	Force the use of a fullscreen mode also if a Window Manager

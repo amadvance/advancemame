@@ -2,11 +2,10 @@
 # V
 
 VCFLAGS += \
-	-I$(srcdir)/advance/$(CONF_SYSTEM) \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
 	-I$(srcdir)/advance/common
-VOBJS = \
+VOBJS += \
 	$(VOBJ)/lib/log.o \
 	$(VOBJ)/lib/video.o \
 	$(VOBJ)/lib/conf.o \
@@ -22,54 +21,80 @@ VOBJS = \
 	$(VOBJ)/lib/inputall.o \
 	$(VOBJ)/lib/inputdrv.o \
 	$(VOBJ)/lib/videoall.o \
+	$(VOBJ)/lib/error.o \
 	$(VOBJ)/blit/blit.o \
 	$(VOBJ)/blit/clear.o \
 	$(VOBJ)/v/v.o \
 	$(VOBJ)/v/draw.o
-VOBJDIRS = \
+VOBJDIRS += \
 	$(VOBJ) \
 	$(VOBJ)/v \
 	$(VOBJ)/lib \
-	$(VOBJ)/blit \
-	$(VOBJ)/$(CONF_SYSTEM)
+	$(VOBJ)/blit
 
-ifeq ($(CONF_SYSTEM),linux)
-VCFLAGS += -DPREFIX=\"$(PREFIX)\"
+ifeq ($(CONF_HOST),unix)
 VCFLAGS += \
-	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_SLANG \
-	-DUSE_INPUT_SLANG
-VLIBS = -lslang -lvga
+	-DPREFIX=\"$(PREFIX)\" \
+	-I$(srcdir)/advance/linux
+VOBJDIRS += \
+	$(VOBJ)/linux
 VOBJS += \
 	$(VOBJ)/lib/filenix.o \
 	$(VOBJ)/lib/targnix.o \
-	$(VOBJ)/$(CONF_SYSTEM)/os.o \
-	$(VOBJ)/$(CONF_SYSTEM)/vsvgab.o \
-	$(VOBJ)/$(CONF_SYSTEM)/vfb.o \
-	$(VOBJ)/$(CONF_SYSTEM)/vslang.o \
-	$(VOBJ)/$(CONF_SYSTEM)/islang.o
+	$(VOBJ)/linux/os.o
+ifeq ($(CONF_LIB_SLANG),yes)
+VCFLAGS += \
+	-DUSE_VIDEO_SLANG \
+	-DUSE_INPUT_SLANG
+VLIBS += -lslang
+VOBJS += \
+	$(VOBJ)/linux/vslang.o \
+	$(VOBJ)/linux/islang.o
+endif
+ifeq ($(CONF_LIB_SVGALIB),yes)
+VCFLAGS += \
+	-DUSE_VIDEO_SVGALIB
+VLIBS += -lvga
+VOBJS += \
+	$(VOBJ)/linux/vsvgab.o
+endif
+ifeq ($(CONF_LIB_FB),yes)
+VCFLAGS += \
+	-DUSE_VIDEO_FB
+VOBJS += \
+	$(VOBJ)/linux/vfb.o
+endif
 endif
 
-ifeq ($(CONF_SYSTEM),dos)
+ifeq ($(CONF_HOST),dos)
 VCFLAGS += \
-	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE \
-	-DUSE_INPUT_DOS \
+	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
 	-I$(srcdir)/advance/svgalib/clockchi \
 	-I$(srcdir)/advance/svgalib/ramdac \
-	-I$(srcdir)/advance/svgalib/drivers
-VLIBS = -lalleg
+	-I$(srcdir)/advance/svgalib/drivers \
+	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE \
+	-DUSE_INPUT_DOS
+VLIBS += -lalleg
+VOBJDIRS += \
+	$(VOBJ)/dos \
+	$(VOBJ)/card \
+	$(VOBJ)/svgalib \
+	$(VOBJ)/svgalib/ramdac \
+	$(VOBJ)/svgalib/clockchi \
+	$(VOBJ)/svgalib/drivers
 VOBJS += \
 	$(VOBJ)/lib/filedos.o \
 	$(VOBJ)/lib/targdos.o \
-	$(VOBJ)/$(CONF_SYSTEM)/os.o \
-	$(VOBJ)/$(CONF_SYSTEM)/vvgal.o \
-	$(VOBJ)/$(CONF_SYSTEM)/vvbe.o \
-	$(VOBJ)/$(CONF_SYSTEM)/vvbel.o \
-	$(VOBJ)/$(CONF_SYSTEM)/vsvgal.o \
-	$(VOBJ)/$(CONF_SYSTEM)/scrvbe.o \
-	$(VOBJ)/$(CONF_SYSTEM)/scrvga.o \
-	$(VOBJ)/$(CONF_SYSTEM)/idos.o \
+	$(VOBJ)/dos/os.o \
+	$(VOBJ)/dos/vvgal.o \
+	$(VOBJ)/dos/vvbe.o \
+	$(VOBJ)/dos/vvbel.o \
+	$(VOBJ)/dos/vsvgal.o \
+	$(VOBJ)/dos/scrvbe.o \
+	$(VOBJ)/dos/scrvga.o \
+	$(VOBJ)/dos/idos.o \
 	$(VOBJ)/card/card.o \
 	$(VOBJ)/card/pci.o \
 	$(VOBJ)/card/map.o \
@@ -109,12 +134,6 @@ VOBJS += \
 	$(VOBJ)/svgalib/ramdac/btdacs.o \
 	$(VOBJ)/svgalib/ramdac/ics_gend.o \
 	$(VOBJ)/svgalib/clockchi/icd2061a.o
-VOBJDIRS += \
-	$(VOBJ)/card \
-	$(VOBJ)/svgalib \
-	$(VOBJ)/svgalib/ramdac \
-	$(VOBJ)/svgalib/clockchi \
-	$(VOBJ)/svgalib/drivers
 endif
 
 $(VOBJ)/%.o: $(srcdir)/advance/%.c

@@ -31,7 +31,7 @@
 #ifndef __UPDATE_H
 #define __UPDATE_H
 
-#include "videostd.h"
+#include "advstd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +46,7 @@ void update_init(int max_buffer);
 void update_done(void);
 
 void update_start(void);
-void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, video_bool wait_retrace);
+void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool wait_retrace);
 
 #ifdef __cplusplus
 }

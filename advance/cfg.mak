@@ -2,19 +2,17 @@
 # CFG
 
 CFGCFLAGS += \
-	-I$(srcdir)/advance/$(CONF_SYSTEM) \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
 	-I$(srcdir)/advance/v \
 	-I$(srcdir)/advance/common
-CFGOBJDIRS = \
+CFGOBJDIRS += \
 	$(CFGOBJ) \
 	$(CFGOBJ)/cfg \
 	$(CFGOBJ)/lib \
 	$(CFGOBJ)/blit \
-	$(CFGOBJ)/v \
-	$(CFGOBJ)/$(CONF_SYSTEM)
-CFGOBJS = \
+	$(CFGOBJ)/v
+CFGOBJS += \
 	$(CFGOBJ)/lib/log.o \
 	$(CFGOBJ)/lib/video.o \
 	$(CFGOBJ)/lib/conf.o \
@@ -30,51 +28,73 @@ CFGOBJS = \
 	$(CFGOBJ)/lib/inputall.o \
 	$(CFGOBJ)/lib/inputdrv.o \
 	$(CFGOBJ)/lib/videoall.o \
+	$(CFGOBJ)/lib/error.o \
 	$(CFGOBJ)/blit/blit.o \
 	$(CFGOBJ)/blit/clear.o \
 	$(CFGOBJ)/cfg/cfg.o \
 	$(CFGOBJ)/cfg/list.o \
 	$(CFGOBJ)/v/draw.o
 
-ifeq ($(CONF_SYSTEM),linux)
-CFGCFLAGS += -DPREFIX=\"$(PREFIX)\"
+ifeq ($(CONF_HOST),unix)
 CFGCFLAGS += \
-	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_SLANG \
-	-DUSE_INPUT_SLANG \
-	-I$(srcdir)/advance/$(CONF_SYSTEM)
-CFGLIBS = -lslang -lvga
+	-DPREFIX=\"$(PREFIX)\" \
+	-I$(srcdir)/advance/linux
+CFGOBJDIRS += \
+	$(CFGOBJ)/linux
 CFGOBJS += \
 	$(CFGOBJ)/lib/filenix.o \
 	$(CFGOBJ)/lib/targnix.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/os.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/vsvgab.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/vfb.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/vslang.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/islang.o
+	$(CFGOBJ)/linux/os.o
+ifeq ($(CONF_LIB_SLANG),yes)
+CFGCFLAGS += \
+	-DUSE_VIDEO_SLANG \
+	-DUSE_INPUT_SLANG
+CFGLIBS += -lslang
+CFGOBJS += \
+	$(CFGOBJ)/linux/vslang.o \
+	$(CFGOBJ)/linux/islang.o
+endif
+ifeq ($(CONF_LIB_SVGALIB),yes)
+CFGCFLAGS += \
+	-DUSE_VIDEO_SVGALIB
+CFGLIBS += -lvga
+CFGOBJS += \
+	$(CFGOBJ)/linux/vsvgab.o
+endif
+ifeq ($(CONF_LIB_FB),yes)
+CFGOBJS += \
+	$(CFGOBJ)/linux/vfb.o
+endif
 endif
 
-ifeq ($(CONF_SYSTEM),dos)
-CFGCFLAGS += -DPREFIX=\"$(PREFIX)\"
+ifeq ($(CONF_HOST),dos)
 CFGCFLAGS += \
-	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE \
-	-DUSE_INPUT_DOS \
-	-I$(srcdir)/advance/$(CONF_SYSTEM) \
+	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
 	-I$(srcdir)/advance/svgalib/clockchi \
 	-I$(srcdir)/advance/svgalib/ramdac \
-	-I$(srcdir)/advance/svgalib/drivers
-CFGLIBS = -lalleg
+	-I$(srcdir)/advance/svgalib/drivers \
+	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE \
+	-DUSE_INPUT_DOS
+CFGLIBS += -lalleg
+CFGOBJDIRS += \
+	$(CFGOBJ)/dos \
+	$(CFGOBJ)/card \
+	$(CFGOBJ)/svgalib \
+	$(CFGOBJ)/svgalib/ramdac \
+	$(CFGOBJ)/svgalib/clockchi \
+	$(CFGOBJ)/svgalib/drivers
 CFGOBJS += \
 	$(CFGOBJ)/lib/filedos.o \
 	$(CFGOBJ)/lib/targdos.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/os.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/vvgal.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/vvbel.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/vsvgal.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/scrvbe.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/scrvga.o \
-	$(CFGOBJ)/$(CONF_SYSTEM)/idos.o \
+	$(CFGOBJ)/dos/os.o \
+	$(CFGOBJ)/dos/vvgal.o \
+	$(CFGOBJ)/dos/vvbel.o \
+	$(CFGOBJ)/dos/vsvgal.o \
+	$(CFGOBJ)/dos/scrvbe.o \
+	$(CFGOBJ)/dos/scrvga.o \
+	$(CFGOBJ)/dos/idos.o \
 	$(CFGOBJ)/card/card.o \
 	$(CFGOBJ)/card/pci.o \
 	$(CFGOBJ)/card/map.o \
@@ -114,12 +134,6 @@ CFGOBJS += \
 	$(CFGOBJ)/svgalib/ramdac/btdacs.o \
 	$(CFGOBJ)/svgalib/ramdac/ics_gend.o \
 	$(CFGOBJ)/svgalib/clockchi/icd2061a.o
-CFGOBJDIRS += \
-	$(CFGOBJ)/card \
-	$(CFGOBJ)/svgalib \
-	$(CFGOBJ)/svgalib/ramdac \
-	$(CFGOBJ)/svgalib/clockchi \
-	$(CFGOBJ)/svgalib/drivers
 endif
 
 $(CFGOBJ)/%.o: $(srcdir)/advance/%.c

@@ -31,7 +31,7 @@
 #ifndef __SCRVGA_H
 #define __SCRVGA_H
 
-#include <videostd.h>
+#include "advstd.h"
 
 /* VGA port address */
 #define VGAREG_ATTRCON_ADDR 0x3c0 /* Attribute Controller Address */
@@ -96,13 +96,13 @@ struct vga_info {
 	unsigned bytes_per_clock; /*<* Byte per clock */
 	unsigned partial_y; /**< Unused but shown rows */
 
-	video_bool hsync; /**< Horizontal sync polarity 1==negative, 0==positive */
-	video_bool vsync; /**< Vertical sync polarity 1==negative, 0==positive */
+	adv_bool hsync; /**< Horizontal sync polarity 1==negative, 0==positive */
+	adv_bool vsync; /**< Vertical sync polarity 1==negative, 0==positive */
 
-	video_bool is_doublescan; /**< boolean, hardware bit */
+	adv_bool is_doublescan; /**< boolean, hardware bit */
 	unsigned memory_mode; /**< 1==byte mode, 2==word mode, 4 dword mode */
 
-	video_bool is_linear; /* boolean, ==0 access by 4 plane (unchained), !=0 linear access (chained) */
+	adv_bool is_linear; /* boolean, ==0 access by 4 plane (unchained), !=0 linear access (chained) */
 
 	unsigned clocks_per_scanline; /**< Number of clocks per scanline */
 	unsigned pixels_per_clock; /**< Number of pixels per clock */
@@ -110,13 +110,13 @@ struct vga_info {
 	unsigned scanlines_per_line; /**< Number of scanlines for one chars row, include char_size_y and doublescan */
 	unsigned bits_per_pixel; /**< Number of bits per pixel */
 
-	video_bool is_graphics_mode; /**< ==0 text, ==1 graphics mode */
+	adv_bool is_graphics_mode; /**< ==0 text, ==1 graphics mode */
 
 	unsigned char_size_x; /**< Size of char in dot */
 	unsigned char_size_y; /**< Size of char in scanline */
 
-	video_bool dotclock_middle; /**< Dot clock is Master clock/2 */
-	video_bool dotclock_master; /**< Master clock 0==25 1==28 */
+	adv_bool dotclock_middle; /**< Dot clock is Master clock/2 */
+	adv_bool dotclock_master; /**< Master clock 0==25 1==28 */
 
 	double pixel_clock; /**< Pixel frequency in Hz */
 	double dot_clock; /**< Dot frequency in Hz */
@@ -159,7 +159,7 @@ void vga_regs_char_size_y_set(struct vga_regs* regs, unsigned value);
 void vga_regs_hsync_set(struct vga_regs* regs, unsigned value);
 void vga_regs_vsync_set(struct vga_regs* regs, unsigned value);
 void vga_regs_offset_set(struct vga_regs* regs, unsigned value);
-void vga_regs_chained_set(struct vga_regs* regs, video_bool chained);
+void vga_regs_chained_set(struct vga_regs* regs, adv_bool chained);
 void vga_regs_info_get(struct vga_regs* regs, struct vga_info* info);
 
 /***************************************************************************/
@@ -210,7 +210,7 @@ static __inline__ unsigned vga_font_size_y(void) {
 /**
  * Check if unchained mode is active.
  */
-static __inline__ video_bool vga_unchained_is_active(void) {
+static __inline__ adv_bool vga_unchained_is_active(void) {
 	return !vga_state.info.is_linear;
 }
 
@@ -218,22 +218,22 @@ void vga_mode_set(const struct vga_regs* regs);
 void vga_mode_get(struct vga_regs* regs);
 void vga_palette_raw_set(const unsigned char* palette, unsigned start, unsigned count);
 void vga_palette_raw_get(unsigned char* palette, unsigned start, unsigned count);
-video_error vga_palette6_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync);
-video_error vga_palette8_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync);
+adv_error vga_palette6_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
+adv_error vga_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
 void vga_wait_vsync(void);
 void vga_scroll(unsigned offset);
 void vga_scanline_set(unsigned byte_length);
 void vga_unchained_plane_mask_set(unsigned plane_mask);
 void vga_unchained_plane_set(unsigned plane);
 
-void vga_font_copy(unsigned char* font, unsigned row, unsigned slot, video_bool set);
-unsigned vga_font_map_get(video_bool bit);
+void vga_font_copy(unsigned char* font, unsigned row, unsigned slot, adv_bool set);
+unsigned vga_font_map_get(adv_bool bit);
 void vga_font_map_set(unsigned bit_0_slot, unsigned bit_1_slot);
-void vga_font_size_set(video_bool use_512);
+void vga_font_size_set(adv_bool use_512);
 
 unsigned vga_dotclock_nearest_get(unsigned dotclock);
-unsigned vga_pixelclock_nearest_get(unsigned pixelclock, video_bool is_text);
-unsigned vga_pixelclock_next_get(unsigned pixelclock, video_bool is_text);
-unsigned vga_pixelclock_pred_get(unsigned pixelclock, video_bool is_text);
+unsigned vga_pixelclock_nearest_get(unsigned pixelclock, adv_bool is_text);
+unsigned vga_pixelclock_next_get(unsigned pixelclock, adv_bool is_text);
+unsigned vga_pixelclock_pred_get(unsigned pixelclock, adv_bool is_text);
 
 #endif

@@ -52,12 +52,12 @@ struct keyb_driver_struct {
 	const device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	video_error (*load)(struct conf_context* context);
+	adv_error (*load)(struct conf_context* context);
 
 	/** Register the load options. Call before load(). */
 	void (*reg)(struct conf_context* context);
 
-	video_error (*init)(int device_id, video_bool disable_special); /**< Initialize the driver */
+	adv_error (*init)(int device_id, adv_bool disable_special); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
@@ -72,8 +72,8 @@ typedef struct keyb_driver_struct keyb_driver;
 #define KEYB_DRIVER_MAX 8
 
 struct keyb_state_struct {
-	video_bool is_initialized_flag;
-	video_bool is_active_flag;
+	adv_bool is_initialized_flag;
+	adv_bool is_active_flag;
 	unsigned driver_mac;
 	keyb_driver* driver_map[KEYB_DRIVER_MAX];
 	keyb_driver* driver_current;
@@ -82,10 +82,10 @@ struct keyb_state_struct {
 
 extern struct keyb_state_struct keyb_state;
 
-void keyb_reg(struct conf_context* config_context, video_bool auto_detect);
+void keyb_reg(struct conf_context* config_context, adv_bool auto_detect);
 void keyb_reg_driver(struct conf_context* config_context, keyb_driver* driver);
-video_error keyb_load(struct conf_context* config_context);
-video_error keyb_init(int disable_special);
+adv_error keyb_load(struct conf_context* config_context);
+adv_error keyb_init(int disable_special);
 void keyb_done(void);
 void keyb_abort(void);
 

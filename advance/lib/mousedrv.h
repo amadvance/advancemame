@@ -51,12 +51,12 @@ struct mouseb_driver_struct {
 	const device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	video_error (*load)(struct conf_context* context);
+	adv_error (*load)(struct conf_context* context);
 
 	/** Register the load options. Call before load(). */
 	void (*reg)(struct conf_context* context);
 
-	video_error (*init)(int device_id); /**< Initialize the driver */
+	adv_error (*init)(int device_id); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
@@ -73,8 +73,8 @@ typedef struct mouseb_driver_struct mouseb_driver;
 #define MOUSE_DRIVER_MAX 8
 
 struct mouseb_state_struct {
-	video_bool is_initialized_flag;
-	video_bool is_active_flag;
+	adv_bool is_initialized_flag;
+	adv_bool is_active_flag;
 	unsigned driver_mac;
 	mouseb_driver* driver_map[MOUSE_DRIVER_MAX];
 	mouseb_driver* driver_current;
@@ -83,10 +83,10 @@ struct mouseb_state_struct {
 
 extern struct mouseb_state_struct mouseb_state;
 
-void mouseb_reg(struct conf_context* config_context, video_bool auto_detect);
+void mouseb_reg(struct conf_context* config_context, adv_bool auto_detect);
 void mouseb_reg_driver(struct conf_context* config_context, mouseb_driver* driver);
-video_error mouseb_load(struct conf_context* config_context);
-video_error mouseb_init(void);
+adv_error mouseb_load(struct conf_context* config_context);
+adv_error mouseb_init(void);
 void mouseb_done(void);
 void mouseb_abort(void);
 

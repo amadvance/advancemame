@@ -30,6 +30,7 @@
 
 #include "scrvbe.h"
 #include "scrvga.h"
+#include "log.h"
 
 #include "map.h"
 
@@ -100,7 +101,7 @@ static unsigned vbe_adjust_scanline_size(unsigned size) {
  *   *pixel_length length in pixel
  *   *scanlines number of scanlines
  */
-static video_error vbe_scanline_get(unsigned* byte_length, unsigned* pixel_length, unsigned* scanlines) {
+static adv_error vbe_scanline_get(unsigned* byte_length, unsigned* pixel_length, unsigned* scanlines) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -112,7 +113,7 @@ static video_error vbe_scanline_get(unsigned* byte_length, unsigned* pixel_lengt
 
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F06/01 (GetScanlineLength)",(unsigned)r.x.ax);
+		error_description_set("Error %x in the VESA call 4F06/01 (GetScanlineLength)",(unsigned)r.x.ax);
 		return r.x.ax;
 	}
 
@@ -130,7 +131,7 @@ static video_error vbe_scanline_get(unsigned* byte_length, unsigned* pixel_lengt
  *   Update correctly      vbe_state
  *   Length is incremented to an acceptable value
  */
-video_error vbe_scanline_set(unsigned byte_length) {
+adv_error vbe_scanline_set(unsigned byte_length) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -140,7 +141,7 @@ video_error vbe_scanline_set(unsigned byte_length) {
 	/* adjust */
 	byte_length = vbe_adjust_scanline_size(byte_length);
 	if (!byte_length) {
-		video_error_description_set("Invalid byte length for vbe_scanline_set");
+		error_description_set("Invalid byte length for vbe_scanline_set");
 		return -1;
 	}
 
@@ -156,7 +157,7 @@ video_error vbe_scanline_set(unsigned byte_length) {
 
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F06/02 (SetScanlineLength)",(unsigned)r.x.ax);
+		error_description_set("Error %x in the VESA call 4F06/02 (SetScanlineLength)",(unsigned)r.x.ax);
 		return r.x.ax;
 	}
 
@@ -165,7 +166,7 @@ video_error vbe_scanline_set(unsigned byte_length) {
 	vbe_state.virtual_x = r.x.cx;
 	vbe_state.virtual_y = r.x.dx;
 
-	video_log("vbe: scanline_set, request:%d [bytes], result: %d [bytes], %d [pixel]\n",byte_length,vbe_state.bytes_per_scanline,vbe_state.virtual_x);
+	log_std(("vbe: scanline_set, request:%d [bytes], result: %d [bytes], %d [pixel]\n",byte_length,vbe_state.bytes_per_scanline,vbe_state.virtual_x));
 
 	return 0;
 }
@@ -176,11 +177,11 @@ video_error vbe_scanline_set(unsigned byte_length) {
  * note:
  *   Length is incremented to an acceptable value
  */
-video_error vbe_scanline_pixel_set(unsigned pixel_length) {
+adv_error vbe_scanline_pixel_set(unsigned pixel_length) {
 	return vbe_scanline_set(pixel_length * vbe_state.bytes_per_pixel);
 }
 
-video_error vbe_scanline_pixel_request(unsigned pixel_length) {
+adv_error vbe_scanline_pixel_request(unsigned pixel_length) {
 	if (pixel_length > vbe_state.virtual_x) {
 		if (vbe_scanline_pixel_set(pixel_length) != 0) {
 			return -1;
@@ -189,7 +190,7 @@ video_error vbe_scanline_pixel_request(unsigned pixel_length) {
 
 	/* retest */
 	if (pixel_length > vbe_state.virtual_x) {
-		video_error_description_set("Unexpected virtual x size");
+		error_description_set("Unexpected virtual x size");
 		return -1;
 	}
 
@@ -207,14 +208,14 @@ static unsigned char* vbe_linear_write_line(unsigned y) {
  * return:
  *      0 on successfull
  */
-static video_error vbe_linear_init(void) {
+static adv_error vbe_linear_init(void) {
 	unsigned long linear;
 
 	assert( vbe_mode_is_active() );
 	assert( !vbe_linear_is_active() );
 
 	if (vbe_state.info.VESAVersion < 0x200) {
-		video_error_description_set("Linear frame buffer is avaliable only with VBE2 or greather");
+		error_description_set("Linear frame buffer is avaliable only with VBE2 or greather");
 		return -1;
 	}
 
@@ -313,7 +314,7 @@ static __inline__ void vbe_pm_call_ptr(uint32 addr, uint32 ebx, uint32 ecx, uint
  * note:
  *   Call after the mode set
  */
-static video_error vbe_pm_init(void) {
+static adv_error vbe_pm_init(void) {
 	__dpmi_regs r;
 	unsigned len;
 
@@ -330,7 +331,7 @@ static video_error vbe_pm_init(void) {
 	vbe_state.pm_mmio_size = 0;
 
 	if (vbe_state.info.VESAVersion < 0x200) {
-		video_error_description_set("Protect mode interface avaliable only with VBE2 or greather");
+		error_description_set("Protect mode interface avaliable only with VBE2 or greather");
 		return -1;
 	}
 
@@ -338,7 +339,7 @@ static video_error vbe_pm_init(void) {
 	r.x.bx = 0;
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F0A/00 (GetProtectModeInterface)",(unsigned)r.x.ax);
+		error_description_set("Error %x in the VESA call 4F0A/00 (GetProtectModeInterface)",(unsigned)r.x.ax);
 		return r.x.ax;
 	}
 
@@ -357,14 +358,14 @@ static video_error vbe_pm_init(void) {
 		vbe_state.pm_info->setPalette >= len ||
 		vbe_state.pm_info->IOPrivInfo >= len) {
 		if (vbe_state.pm_info->setWindow >= len)
-			video_error_description_set("Invalid setWindow addr");
+			error_description_set("Invalid setWindow addr");
 		if (vbe_state.pm_info->setDisplayStart >= len)
-			video_error_description_set("Invalid setDisplayStart addr");
+			error_description_set("Invalid setDisplayStart addr");
 		if (vbe_state.pm_info->setPalette >= len)
-			video_error_description_set("Invalid setPalette addr");
+			error_description_set("Invalid setPalette addr");
 		if (vbe_state.pm_info->IOPrivInfo >= len)
-			video_error_description_set("Invalid IOPrivInfo addr");
-		video_error_description_set("Inconsistent information from the VESA call 4F0A/00 (GetProtectModeInterface)");
+			error_description_set("Invalid IOPrivInfo addr");
+		error_description_set("Inconsistent information from the VESA call 4F0A/00 (GetProtectModeInterface)");
 
 		free(vbe_state.pm_info);
 		vbe_state.pm_info = 0;
@@ -436,7 +437,7 @@ static unsigned char* vbe_text_write_line(unsigned y) {
 /***************************************************************************/
 /* Mode */
 
-void vbe_mode_done(video_bool restore) {
+void vbe_mode_done(adv_bool restore) {
 	assert( vbe_mode_is_active() );
 
 	if (vbe_linear_is_active())
@@ -457,7 +458,7 @@ void vbe_mode_done(video_bool restore) {
 }
 
 #if 0 /* not used */
-static video_error vbe_dac_set(unsigned width) {
+static adv_error vbe_dac_set(unsigned width) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -469,12 +470,12 @@ static video_error vbe_dac_set(unsigned width) {
 	r.h.bh = width;
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F08 (SetPalette)",(unsigned)r.x.ax);
+		error_description_set("Error %x in the VESA call 4F08 (SetPalette)",(unsigned)r.x.ax);
 		return r.x.ax;
 	}
 
 	vbe_state.palette_width = r.h.bh;
-	video_log("vbe: palette set to %d bit\n",(unsigned)vbe_state.palette_width);
+	log_std(("vbe: palette set to %d bit\n",(unsigned)vbe_state.palette_width));
 
 	return 0;
 }
@@ -497,25 +498,25 @@ static void vbe_rgb_data(int* shift, unsigned* mask, unsigned posbit, unsigned m
  *   inizialize linear frambuffer if requested
  *   if fail, video mode can be bronken
  */
-video_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc) {
+adv_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc) {
 	vbe_ModeInfoBlock info;
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
 
-	video_log("vbe: mode_set %x\n",mode);
+	log_std(("vbe: mode_set %x\n",mode));
 
 	assert( vbe_is_active() );
 
 	/* check support for CRTC */
 	if (crtc && vbe_state.info.VESAVersion < 0x300) {
-		video_error_description_set("CRTC programming is available only with VBE3 or greather");
+		error_description_set("CRTC programming is available only with VBE3 or greather");
 		return -1;
 	}
 
 	/* check support for linear frame buffer */
 	if ((mode & vbeLinearBuffer)!=0 && vbe_state.info.VESAVersion < 0x200) {
-		video_error_description_set("Linear Frame Buffer is available only with VBE2 or greather");
+		error_description_set("Linear Frame Buffer is available only with VBE2 or greather");
 		return -1;
 	}
 
@@ -539,7 +540,7 @@ video_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc) {
 
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F02/%x (ModeSet)",(unsigned)r.x.ax,(unsigned)mode);
+		error_description_set("Error %x in the VESA call 4F02/%x (ModeSet)",(unsigned)r.x.ax,(unsigned)mode);
 		return r.x.ax;
 	}
 
@@ -588,9 +589,9 @@ video_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc) {
 			vbe_state.palette_width = 6; /* VBE default */
 #if 0 /* disabled for no testing possibility */
 			if ((vbe_state.info.Capabilities & vbe8BitDAC) != 0) {
-				video_log("vbe: try setting 8 bit palette\n");
+				log_std(("vbe: try setting 8 bit palette\n"));
 				if (vbe_dac_set(8)!=0) {
-					video_log("vbe: set 8 bit palette FAILED\n");
+					log_std(("vbe: set 8 bit palette FAILED\n"));
 					/* ignore error, if failed the default is 6 bit */
 				}
 			}
@@ -631,7 +632,7 @@ video_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc) {
 
 /* Get the current graphics mode
  */
-video_error vbe_mode_get(unsigned* mode) {
+adv_error vbe_mode_get(unsigned* mode) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -641,7 +642,7 @@ video_error vbe_mode_get(unsigned* mode) {
 	r.x.ax = 0x4F03;
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F03 (ModeGet)",(unsigned)r.x.ax);
+		error_description_set("Error %x in the VESA call 4F03 (ModeGet)",(unsigned)r.x.ax);
 		return r.x.ax;
 	}
 
@@ -691,7 +692,7 @@ static void dosmodezcpy(unsigned* dst, unsigned segoff, unsigned len) {
  * return:
  *      0 on successfull
  */
-video_error vbe_init(void) {
+adv_error vbe_init(void) {
 	__dpmi_regs r;
 	char oem_string[256];
 	char oem_vendor[256];
@@ -709,8 +710,8 @@ video_error vbe_init(void) {
 
 		ret = __dpmi_allocate_dos_memory(size / 16, &ret_selector_or_max);
 		if (ret == -1) {
-			video_log("vbe: error allocationg the VBE stack\n");
-			video_error_description_set("Error allocatiog the VBE stack");
+			log_std(("vbe: error allocationg the VBE stack\n"));
+			error_description_set("Error allocatiog the VBE stack");
 			return -1;
 		}
 
@@ -738,8 +739,8 @@ video_error vbe_init(void) {
 	if (r.x.ax!=0x004F) {
 		unsigned char sign[4];
 		dosmemget(__tb, 4, &sign);
-		video_log("vbe: not found, status %04x, sign %02x%02x%02x%02x \n",(unsigned)r.x.ax, (unsigned)sign[0],(unsigned)sign[1],(unsigned)sign[2],(unsigned)sign[3]);
-		video_error_description_set("Error %x in the VESA call 4F00 (GetVesaInfo)",(unsigned)r.x.ax);
+		log_std(("vbe: not found, status %04x, sign %02x%02x%02x%02x \n",(unsigned)r.x.ax, (unsigned)sign[0],(unsigned)sign[1],(unsigned)sign[2],(unsigned)sign[3]));
+		error_description_set("Error %x in the VESA call 4F00 (GetVesaInfo)",(unsigned)r.x.ax);
 		return -1;
 	}
 
@@ -747,8 +748,8 @@ video_error vbe_init(void) {
 
 	/* reject too old bios */
 	if (vbe_state.info.VESAVersion < 0x102) {
-		video_log("vbe: version lower than 1.2\n");
-		video_error_description_set("The VESA BIOS is of a version prior 1.2");
+		log_std(("vbe: version lower than 1.2\n"));
+		error_description_set("The VESA BIOS is of a version prior 1.2");
 		return -1;
 	}
 
@@ -771,20 +772,20 @@ video_error vbe_init(void) {
 		strcpy(oem_product_rev,"");
 	}
 
-	video_log("vbe: version %d.%d\n",(unsigned)vbe_state.info.VESAVersion >> 8, (unsigned)vbe_state.info.VESAVersion & 0xFF);
-	video_log("vbe: memory %d\n", (unsigned)vbe_state.info.TotalMemory * 0x10000);
+	log_std(("vbe: version %d.%d\n",(unsigned)vbe_state.info.VESAVersion >> 8, (unsigned)vbe_state.info.VESAVersion & 0xFF));
+	log_std(("vbe: memory %d\n", (unsigned)vbe_state.info.TotalMemory * 0x10000));
 	if (vbe_state.info.Capabilities & vbeNonVGA)
-		video_log("vbe: controller is NOT VGA compatible\n");
+		log_std(("vbe: controller is NOT VGA compatible\n"));
 	else
-		video_log("vbe: controller is VGA compatible\n");
+		log_std(("vbe: controller is VGA compatible\n"));
 
-	video_log("vbe: oem %s\n",oem_string);
+	log_std(("vbe: oem %s\n",oem_string));
 
 	if (vbe_state.info.VESAVersion >= 0x200) {
-		video_log("vbe: oem software rev %d.%d\n",vbe_state.info.OemSoftwareRev >> 8,vbe_state.info.OemSoftwareRev & 0xFF);
-		video_log("vbe: oem vendor name ptr %s\n",oem_vendor);
-		video_log("vbe: oem product name ptr %s\n",oem_product);
-		video_log("vbe: oem product rev ptr %s\n",oem_product_rev);
+		log_std(("vbe: oem software rev %d.%d\n",vbe_state.info.OemSoftwareRev >> 8,vbe_state.info.OemSoftwareRev & 0xFF));
+		log_std(("vbe: oem vendor name ptr %s\n",oem_vendor));
+		log_std(("vbe: oem product name ptr %s\n",oem_product));
+		log_std(("vbe: oem product rev ptr %s\n",oem_product_rev));
 	}
 
 	/* enable */
@@ -794,14 +795,14 @@ video_error vbe_init(void) {
 	for(i=0;vbe_mode_map[i]!=0xFFFF;++i) {
 		vbe_ModeInfoBlock info;
 		if (vbe_mode_info_get(&info, vbe_mode_map[i])!=0) {
-			video_log("vbe: error getting info for mode %x\n",(unsigned)vbe_mode_map[i]);
+			log_std(("vbe: error getting info for mode %x\n",(unsigned)vbe_mode_map[i]));
 		} else {
 			if (!(info.ModeAttributes & vbeMdGraphMode)) {
-				video_log("vbe: mode %4xh %4dx%4d text\n",vbe_mode_map[i],info.XResolution,info.YResolution);
+				log_std(("vbe: mode %4xh %4dx%4d text\n",vbe_mode_map[i],info.XResolution,info.YResolution));
 			} else if (info.MemoryModel != vbeMemPK && info.MemoryModel != vbeMemRGB) {
-				video_log("vbe: mode %4xh %4dx%4d %2d not packed/rgb\n",vbe_mode_map[i],info.XResolution,info.YResolution,info.BitsPerPixel);
+				log_std(("vbe: mode %4xh %4dx%4d %2d not packed/rgb\n",vbe_mode_map[i],info.XResolution,info.YResolution,info.BitsPerPixel));
 			} else if (info.NumberOfPlanes > 1) {
-				video_log("vbe: mode %4xh %4dx%4d %2d planar\n",vbe_mode_map[i],info.XResolution,info.YResolution,info.BitsPerPixel);
+				log_std(("vbe: mode %4xh %4dx%4d %2d planar\n",vbe_mode_map[i],info.XResolution,info.YResolution,info.BitsPerPixel));
 			} else {
 				const char* flag_doublescan = info.ModeAttributes & vbeMdDoubleScan ? " doublescan": "";
 				const char* flag_interlace = info.ModeAttributes & vbeMdInterlace ? " interlace": "";
@@ -809,7 +810,7 @@ video_error vbe_init(void) {
 				const char* flag_linear = info.ModeAttributes & vbeMdLinear ? " linear": "";
 				const char* flag_banked = !(info.ModeAttributes & vbeMdNonBanked) ? " banked": "";
 				const char* flag_vga = !(info.ModeAttributes & vbeMdNonVGA) ? " vga": "";
-				video_log("vbe: mode %4xh %4dx%4d %2d%s%s%s%s%s%s \n",vbe_mode_map[i],info.XResolution,info.YResolution,info.BitsPerPixel,flag_doublescan,flag_interlace,flag_triple,flag_linear,flag_banked,flag_vga);
+				log_std(("vbe: mode %4xh %4dx%4d %2d%s%s%s%s%s%s \n",vbe_mode_map[i],info.XResolution,info.YResolution,info.BitsPerPixel,flag_doublescan,flag_interlace,flag_triple,flag_linear,flag_banked,flag_vga));
 			}
 		}
 	}
@@ -843,7 +844,7 @@ unsigned vbe_adjust_bytes_per_page(unsigned bytes_per_page) {
  * note:
  *   VBE 3.0 information are always filled, also if VBE is less than 3.0
  */
-video_error vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
+adv_error vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -861,7 +862,7 @@ video_error vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
 
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F01/%x (GetModeInfo)",(unsigned)r.x.ax,(unsigned)mode);
+		error_description_set("Error %x in the VESA call 4F01/%x (GetModeInfo)",(unsigned)r.x.ax,(unsigned)mode);
 		return -1;
 	}
 
@@ -935,7 +936,7 @@ video_error vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
 	return 0;
 }
 
-video_error vga_as_vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
+adv_error vga_as_vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
 	memset(info,0,sizeof(vbe_ModeInfoBlock));
 	if (mode == 0x13) {
 		info->ModeAttributes = vbeMdAvailable | vbeMdTTYOutput | vbeMdColorMode | vbeMdGraphMode | vbeMdDoubleScan;
@@ -956,7 +957,7 @@ video_error vga_as_vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
 		info->BitsPerPixel = 4;
 		info->MemoryModel = vbeMemTXT;
 	} else {
-      		video_error_description_set("VBE emulation only for mode VGA 13h,03h");
+      		error_description_set("VBE emulation only for mode VGA 13h,03h");
 		return -1;
 	}
 
@@ -964,7 +965,7 @@ video_error vga_as_vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode) {
 }
 
 
-video_error vbe_scroll(unsigned offset, video_bool waitvsync) {
+adv_error vbe_scroll(unsigned offset, adv_bool waitvsync) {
 	assert( vbe_is_active() && vbe_mode_is_active() );
 
 #ifndef VBE_BOGUS
@@ -999,7 +1000,7 @@ video_error vbe_scroll(unsigned offset, video_bool waitvsync) {
 		}
 		vbe_int(0x10, &r);
 		if (r.x.ax!=0x004F) {
-			video_error_description_set("Error %x in the VESA call 4F07 (ScrollSet)",(unsigned)r.x.ax);
+			error_description_set("Error %x in the VESA call 4F07 (ScrollSet)",(unsigned)r.x.ax);
 			return -1;
 		}
 	}
@@ -1009,7 +1010,7 @@ video_error vbe_scroll(unsigned offset, video_bool waitvsync) {
 	return 0;
 }
 
-video_error vbe_request_scroll(unsigned offset) {
+adv_error vbe_request_scroll(unsigned offset) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -1022,7 +1023,7 @@ video_error vbe_request_scroll(unsigned offset) {
 
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F07/02 (ScrollRequest)",(unsigned)r.x.ax);
+		error_description_set("Error %x in the VESA call 4F07/02 (ScrollRequest)",(unsigned)r.x.ax);
 		return -1;
 	}
 
@@ -1035,7 +1036,7 @@ video_error vbe_request_scroll(unsigned offset) {
  * note:
  *   This function is not supported by protected mode interface
  */
-video_error vbe_poll_scroll(unsigned* done) {
+adv_error vbe_poll_scroll(unsigned* done) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -1047,7 +1048,7 @@ video_error vbe_poll_scroll(unsigned* done) {
 
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F07/04 (ScrollPoll)",(unsigned)r.x.ax);
+		error_description_set("Error %x in the VESA call 4F07/04 (ScrollPoll)",(unsigned)r.x.ax);
 		return -1;
 	}
 	
@@ -1074,7 +1075,7 @@ void vbe_wait_vsync(void) {
 #define VBE_PIXELCLOCK_MIN (1*1000*1000)
 
 /* Return the next avaliable pixel clock */
-video_error vbe_pixelclock_getnext(unsigned* pixelclock, unsigned mode) {
+adv_error vbe_pixelclock_getnext(unsigned* pixelclock, unsigned mode) {
 	unsigned newpixelclock = *pixelclock + VBE_PIXELCLOCK_DELTA;
 	while (newpixelclock < VBE_PIXELCLOCK_MAX) {
 		unsigned testpixelclock = newpixelclock;
@@ -1091,7 +1092,7 @@ video_error vbe_pixelclock_getnext(unsigned* pixelclock, unsigned mode) {
 }
 
 /* Return the pred avaliable pixel clock */
-video_error vbe_pixelclock_getpred(unsigned* pixelclock, unsigned mode) {
+adv_error vbe_pixelclock_getpred(unsigned* pixelclock, unsigned mode) {
 	unsigned newpixelclock = *pixelclock - VBE_PIXELCLOCK_DELTA;
 	while (newpixelclock > VBE_PIXELCLOCK_MIN) {
 		unsigned testpixelclock = newpixelclock;
@@ -1114,7 +1115,7 @@ video_error vbe_pixelclock_getpred(unsigned* pixelclock, unsigned mode) {
  * out:
  *   *pixelclock nearest pixelclock in Hz
  */
-video_error vbe_pixelclock_get(unsigned* pixelclock, unsigned mode) {
+adv_error vbe_pixelclock_get(unsigned* pixelclock, unsigned mode) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -1128,7 +1129,7 @@ video_error vbe_pixelclock_get(unsigned* pixelclock, unsigned mode) {
 
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F0B/00 (PixelClockGet)",(unsigned)r.x.ax);
+		error_description_set("Error %x in the VESA call 4F0B/00 (PixelClockGet)",(unsigned)r.x.ax);
 		return -1;
 	}
 
@@ -1143,20 +1144,20 @@ video_error vbe_pixelclock_get(unsigned* pixelclock, unsigned mode) {
  * note:
  *   Prefferred are not real-protected switch required method
  */
-video_error vbe_palette_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync) {
+adv_error vbe_palette_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 	unsigned mode = waitvsync ? 0x80 : 0x0;
 
 	assert( vbe_is_active() && vbe_mode_is_active() );
 
 	if (vbe_state.pm_active && vbe_state.pm_palette) {
-		/* video_log("vbe: palette set (%d bit) with VBE pm call\n",(unsigned)vbe_state.palette_width); */
+		log_debug(("vbe: palette set (%d bit) with VBE pm call\n",(unsigned)vbe_state.palette_width));
 		vbe_pm_call_ptr(vbe_state.pm_palette, mode, count, start, _my_ds(), (unsigned)palette);
 	} else if ((vbe_state.info.Capabilities & vbeNonVGA)==0 && vbe_state.palette_width==6) {
-		/* video_log("vbe: palette set (6 bit) with VGA registers\n"); */
+		log_debug(("vbe: palette set (6 bit) with VGA registers\n"));
 		vga_palette6_set(palette,start,count,waitvsync);
 #if 0 /* if the palette is set to 8 bit the BIOS call must be used */
 	} else if ((vbe_state.info.Capabilities & vbeNonVGA)==0 && vbe_state.palette_width==8) {
-		/* video_log("vbe: palette set (8 bit) with VGA registers\n"); */
+		log_debug(("vbe: palette set (8 bit) with VGA registers\n"));
 		vga_palette8_set(palette,start,count,waitvsync);
 #endif
 	} else {
@@ -1164,7 +1165,7 @@ video_error vbe_palette_set(const video_color* palette, unsigned start, unsigned
 
 		memset(&r,0,sizeof(r));
 
-		/* video_log("vbe: palette set (%d bit) with VBE bios\n",(unsigned)vbe_state.palette_width); */
+		log_debug(("vbe: palette set (%d bit) with VBE bios\n",(unsigned)vbe_state.palette_width));
 
 		dosmemput(palette, count * sizeof(video_color), __tb);
 
@@ -1177,7 +1178,7 @@ video_error vbe_palette_set(const video_color* palette, unsigned start, unsigned
 
 		vbe_int(0x10, &r);
 		if (r.x.ax!=0x004F) {
-			video_error_description_set("Error %x in the VESA call 4F07 (PaletteSet)",(unsigned)r.x.ax);
+			error_description_set("Error %x in the VESA call 4F07 (PaletteSet)",(unsigned)r.x.ax);
 			return -1;
 		}
 	}
@@ -1194,7 +1195,7 @@ unsigned vbe_mode_iterator_get(vbe_mode_iterator* vmi) {
 	return vbe_mode_map[vmi->mode_ptr];
 }
 
-video_bool vbe_mode_iterator_end(vbe_mode_iterator* vmi) {
+adv_bool vbe_mode_iterator_end(vbe_mode_iterator* vmi) {
 	return vbe_mode_map[vmi->mode_ptr] == 0xFFFF;
 }
 
@@ -1202,7 +1203,7 @@ void vbe_mode_iterator_next(vbe_mode_iterator* vmi) {
 	vmi->mode_ptr += 1;
 }
 
-video_error vbe_save_state(unsigned* psize, void** pptr) {
+adv_error vbe_save_state(unsigned* psize, void** pptr) {
 	__dpmi_regs r;
 	unsigned size;
 	void* ptr;
@@ -1216,13 +1217,13 @@ video_error vbe_save_state(unsigned* psize, void** pptr) {
 	r.h.dl = 0x00;
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F04/00 (SaveRestoreState)",(unsigned)r.x.ax);
+		error_description_set("Error %x in the VESA call 4F04/00 (SaveRestoreState)",(unsigned)r.x.ax);
 		return -1;
 	}
 
 	size = r.x.bx * 64;
 	if (size > 4096)
-		video_log( "vbe: WARNING! save state size %d, probably to big for the DJGPP real mode buffer\n",size);
+		log_std(( "vbe: WARNING! save state size %d, probably to big for the DJGPP real mode buffer\n",size));
 
 	r.x.ax = 0x4F04;
 	r.x.cx = 0xF;
@@ -1232,7 +1233,7 @@ video_error vbe_save_state(unsigned* psize, void** pptr) {
 
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F04/01 (SaveRestoreState)",(unsigned)r.x.ax);
+		error_description_set("Error %x in the VESA call 4F04/01 (SaveRestoreState)",(unsigned)r.x.ax);
 		return -1;
 	}
 
@@ -1245,7 +1246,7 @@ video_error vbe_save_state(unsigned* psize, void** pptr) {
 	return 0;
 }
 
-video_error vbe_restore_state(unsigned size, void* ptr) {
+adv_error vbe_restore_state(unsigned size, void* ptr) {
 	__dpmi_regs r;
 
 	memset(&r,0,sizeof(r));
@@ -1262,7 +1263,7 @@ video_error vbe_restore_state(unsigned size, void* ptr) {
 
 	vbe_int(0x10, &r);
 	if (r.x.ax!=0x004F) {
-		video_error_description_set("Error %x in the VESA call 4F04/02 (SaveRestoreState)",(unsigned)r.x.ax);
+		error_description_set("Error %x in the VESA call 4F04/02 (SaveRestoreState)",(unsigned)r.x.ax);
 		return -1;
 	}
 

@@ -60,6 +60,34 @@ void log_f(const char *text, ...) {
 	va_end(arg);
 }
 
+void log_f_modeline_cb(const char *text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace)
+{
+	const char* flag1 = hsync_pol ? " -hsync" : " +hsync";
+	const char* flag2 = vsync_pol ? " -vsync" : " +vsync";
+	const char* flag3 = doublescan ? " doublescan" : "";
+	const char* flag4 = interlace ? " interlace" : "";
+	log_f("%s %g %d %d %d %d %d %d %d %d %d %d %d %d%s%s%s%s\n",
+		text, (double)pixel_clock / 1E6,
+		hde, hbs, hrs, hre, hbe, ht,
+		vde, vbs, vrs, vre, vbe, vt,
+		flag1, flag2, flag3, flag4
+	);
+}
+
+void log_f_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int hsync_pol, int vsync_pol, int doublescan, int interlace)
+{
+	const char* flag1 = hsync_pol ? " -hsync" : " +hsync";
+	const char* flag2 = vsync_pol ? " -vsync" : " +vsync";
+	const char* flag3 = doublescan ? " doublescan" : "";
+	const char* flag4 = interlace ? " interlace" : "";
+	log_f("%s %g %d %d %d %d %d %d %d %d%s%s%s%s\n",
+		text, (double)pixel_clock / 1E6,
+		hde, hrs, hre, ht,
+		vde, vrs, vre, vt,
+		flag1, flag2, flag3, flag4
+	);
+}
+
 int log_init(const char* file, int sync_flag) {
 
 	LOG.msg_sync_flag = sync_flag;

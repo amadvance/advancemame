@@ -69,12 +69,12 @@ typedef struct video_crtc_struct {
 
 unsigned crtc_step(double v, unsigned st);
 
-video_error crtc_adjust_clock(video_crtc* crtc, const video_monitor* monitor);
+adv_error crtc_adjust_clock(video_crtc* crtc, const video_monitor* monitor);
 
 #define CRTC_ADJUST_EXACT 0x0001 /**< Find the exact modes */
 #define CRTC_ADJUST_VCLOCK 0x0002 /**< Find also modes with different vclock */
 #define CRTC_ADJUST_VTOTAL 0x0004 /**< Find also modes with different vtotal */
-video_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor, const video_monitor* monitor, unsigned cap, unsigned adjust);
+adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor, const video_monitor* monitor, unsigned cap, unsigned adjust);
 
 double crtc_hclock_get(const video_crtc* crtc);
 double crtc_vclock_get(const video_crtc* crtc);
@@ -85,43 +85,43 @@ static __inline__ double crtc_pclock_get(const video_crtc* crtc) {
 
 int crtc_scan_get(const video_crtc* crtc);
 
-static __inline__  video_bool crtc_is_interlace(const video_crtc* crtc) {
+static __inline__  adv_bool crtc_is_interlace(const video_crtc* crtc) {
 	return (crtc->flags & CRTC_FLAGS_INTERLACE) != 0;
 }
 
-static __inline__  video_bool crtc_is_doublescan(const video_crtc* crtc) {
+static __inline__  adv_bool crtc_is_doublescan(const video_crtc* crtc) {
 	return (crtc->flags & CRTC_FLAGS_DOUBLESCAN) != 0;
 }
 
-static __inline__  video_bool crtc_is_singlescan(const video_crtc* crtc) {
+static __inline__  adv_bool crtc_is_singlescan(const video_crtc* crtc) {
 	return !crtc_is_doublescan(crtc) && !crtc_is_interlace(crtc);
 }
 
-static __inline__  video_bool crtc_is_tvpal(const video_crtc* crtc) {
+static __inline__  adv_bool crtc_is_tvpal(const video_crtc* crtc) {
 	return (crtc->flags & CRTC_FLAGS_TVPAL) != 0;
 }
 
-static __inline__  video_bool crtc_is_tvntsc(const video_crtc* crtc) {
+static __inline__  adv_bool crtc_is_tvntsc(const video_crtc* crtc) {
 	return (crtc->flags & CRTC_FLAGS_TVNTSC) != 0;
 }
 
-static __inline__  video_bool crtc_is_notv(const video_crtc* crtc) {
+static __inline__  adv_bool crtc_is_notv(const video_crtc* crtc) {
 	return !crtc_is_tvpal(crtc) && !crtc_is_tvntsc(crtc);
 }
 
-static __inline__  video_bool crtc_is_nhsync(const video_crtc* crtc) {
+static __inline__  adv_bool crtc_is_nhsync(const video_crtc* crtc) {
 	return (crtc->flags & CRTC_FLAGS_NHSYNC) != 0;
 }
 
-static __inline__  video_bool crtc_is_phsync(const video_crtc* crtc) {
+static __inline__  adv_bool crtc_is_phsync(const video_crtc* crtc) {
 	return !crtc_is_nhsync(crtc);
 }
 
-static __inline__  video_bool crtc_is_nvsync(const video_crtc* crtc) {
+static __inline__  adv_bool crtc_is_nvsync(const video_crtc* crtc) {
 	return (crtc->flags & CRTC_FLAGS_NVSYNC) != 0;
 }
 
-static __inline__  video_bool crtc_is_pvsync(const video_crtc* crtc) {
+static __inline__  adv_bool crtc_is_pvsync(const video_crtc* crtc) {
 	return !crtc_is_nvsync(crtc);
 }
 
@@ -193,15 +193,15 @@ static __inline__  unsigned crtc_vsize_get(const video_crtc* crtc) {
 	return crtc->vde;
 }
 
-video_bool crtc_clock_check(const video_monitor* monitor, const video_crtc* crtc);
+adv_bool crtc_clock_check(const video_monitor* monitor, const video_crtc* crtc);
 
 int video_crtc_compare(const video_crtc* A, const video_crtc* B);
 
-video_error video_crtc_parse(video_crtc* crtc, const char* begin, const char* end);
+adv_error video_crtc_parse(video_crtc* crtc, const char* begin, const char* end);
 void video_crtc_print(char* buffer, const video_crtc* crtc);
 
 void crtc_fake_set(video_crtc* crtc, unsigned size_x, unsigned size_y);
-video_bool crtc_is_fake(const video_crtc* crtc);
+adv_bool crtc_is_fake(const video_crtc* crtc);
 
 #ifdef __cplusplus
 }

@@ -2,15 +2,13 @@
 # K
 
 KCFLAGS += \
-	-I$(srcdir)/advance/$(CONF_SYSTEM) \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/common
-KOBJDIRS = \
+KOBJDIRS += \
 	$(KOBJ) \
 	$(KOBJ)/k \
-	$(KOBJ)/lib \
-	$(KOBJ)/$(CONF_SYSTEM)
-KOBJS = \
+	$(KOBJ)/lib
+KOBJS += \
 	$(KOBJ)/k/k.o \
 	$(KOBJ)/lib/log.o \
 	$(KOBJ)/lib/conf.o \
@@ -20,49 +18,40 @@ KOBJS = \
 	$(KOBJ)/lib/keydrv.o \
 	$(KOBJ)/lib/keyall.o \
 	$(KOBJ)/lib/knone.o \
+	$(KOBJ)/lib/error.o
 
-ifeq ($(CONF_SYSTEM),linux)
-KCFLAGS += -DPREFIX=\"$(PREFIX)\"
-KLIBS = -lvga
+ifeq ($(CONF_HOST),unix)
+KCFLAGS += \
+	-DPREFIX=\"$(PREFIX)\" \
+	-I$(srcdir)/advance/linux \
+	-DUSE_KEYBOARD_NONE
+KOBJDIRS += \
+	$(KOBJ)/linux
 KOBJS += \
 	$(KOBJ)/lib/filenix.o \
 	$(KOBJ)/lib/targnix.o \
-	$(KOBJ)/$(CONF_SYSTEM)/os.o \
-	$(KOBJ)/$(CONF_SYSTEM)/ksvgab.o
+	$(KOBJ)/linux/os.o
+ifeq ($(CONF_LIB_SVGALIB),yes)
 KCFLAGS += \
-	-DUSE_KEYBOARD_SVGALIB -DUSE_KEYBOARD_NONE
+	-DUSE_KEYBOARD_SVGALIB 
+KLIBS += -lvga
+KOBJS += \
+	$(KOBJ)/linux/ksvgab.o
+endif
 endif
 
-ifeq ($(CONF_SYSTEM),dos)
-KLIBS = -lalleg
+ifeq ($(CONF_HOST),dos)
+KCFLAGS += \
+	-I$(srcdir)/advance/dos \
+	-DUSE_KEYBOARD_ALLEGRO -DUSE_KEYBOARD_NONE
+KLIBS += -lalleg
+KOBJDIRS += \
+	$(KOBJ)/dos
 KOBJS += \
 	$(KOBJ)/lib/filedos.o \
 	$(KOBJ)/lib/targdos.o \
-	$(KOBJ)/$(CONF_SYSTEM)/os.o \
-	$(KOBJ)/$(CONF_SYSTEM)/kalleg.o
-KCFLAGS += \
-	-DUSE_KEYBOARD_ALLEGRO -DUSE_KEYBOARD_NONE
-endif
-
-ifeq ($(CONF_SYSTEM),sdl)
-KCFLAGS += \
-	$(SDLCFLAGS) \
-	-DPREFIX=\"$(PREFIX)\" \
-	-DUSE_KEYBOARD_SDL -DUSE_KEYBOARD_NONE
-KLIBS += $(SDLLIBS)
-KOBJS += \
-	$(KOBJ)/$(CONF_SYSTEM)/os.o \
-	$(KOBJ)/$(CONF_SYSTEM)/ksdl.o
-ifeq ($(CONF_HOST),unix)
-KOBJS += \
-	$(KOBJ)/lib/filenix.o \
-	$(KOBJ)/lib/targnix.o
-endif
-ifeq ($(CONF_HOST),windows)
-KOBJS += \
-	$(KOBJ)/lib/filedos.o \
-	$(KOBJ)/lib/targwin.o
-endif
+	$(KOBJ)/dos/os.o \
+	$(KOBJ)/dos/kalleg.o
 endif
 
 $(KOBJ)/%.o: $(srcdir)/advance/%.c

@@ -2,7 +2,6 @@
 # Menu build
 
 MENUCFLAGS += \
-	-I$(srcdir)/advance/$(CONF_SYSTEM) \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
 	-I$(srcdir)/advance/mpglib \
@@ -12,8 +11,7 @@ MENUOBJDIRS += \
 	$(MENUOBJ)/menu \
 	$(MENUOBJ)/lib \
 	$(MENUOBJ)/blit \
-	$(MENUOBJ)/mpglib \
-	$(MENUOBJ)/$(CONF_SYSTEM)
+	$(MENUOBJ)/mpglib
 MENUOBJS += \
 	$(MENUOBJ)/menu/category.o \
 	$(MENUOBJ)/menu/choice.o \
@@ -67,6 +65,7 @@ MENUOBJS += \
 	$(MENUOBJ)/lib/soundall.o \
 	$(MENUOBJ)/lib/videoall.o \
 	$(MENUOBJ)/lib/vnone.o \
+	$(MENUOBJ)/lib/error.o \
 	$(MENUOBJ)/blit/clear.o \
 	$(MENUOBJ)/blit/blit.o \
 	$(MENUOBJ)/mpglib/interfac.o \
@@ -77,29 +76,74 @@ MENUOBJS += \
 	$(MENUOBJ)/mpglib/tabinit.o
 MENULIBS += $(ZLIBS)
 
-ifeq ($(CONF_SYSTEM),linux)
-MENUCFLAGS += -DPREFIX=\"$(PREFIX)\"
+ifeq ($(CONF_HOST),unix)
+MENUOBJDIRS += \
+	$(MENUOBJ)/linux
+MENUCFLAGS +=  \
+	-I$(srcdir)/advance/linux \
+	-DPREFIX=\"$(PREFIX)\"
 MENUCFLAGS += \
-	-DUSE_VIDEO_SVGALIB -DUSE_VIDEO_FB -DUSE_VIDEO_NONE \
-	-DUSE_SOUND_OSS -DUSE_SOUND_NONE \
-	-DUSE_KEYBOARD_SVGALIB -DUSE_KEYBOARD_NONE \
-	-DUSE_MOUSE_SVGALIB -DUSE_MOUSE_NONE \
-	-DUSE_JOYSTICK_SVGALIB -DUSE_JOYSTICK_NONE
-MENULIBS += -lvga
+	-DUSE_VIDEO_NONE -DUSE_VIDEO_RESTORE \
+	-DUSE_SOUND_NONE \
+	-DUSE_KEYBOARD_NONE \
+	-DUSE_MOUSE_NONE \
+	-DUSE_JOYSTICK_NONE
 MENUOBJS += \
 	$(MENUOBJ)/lib/filenix.o \
 	$(MENUOBJ)/lib/targnix.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/os.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/vsvgab.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/vfb.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/soss.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/ksvgab.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/msvgab.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/jsvgab.o
+	$(MENUOBJ)/linux/os.o
+ifeq ($(CONF_LIB_SVGALIB),yes)
+MENUCFLAGS += \
+	-DUSE_VIDEO_SVGALIB \
+	-DUSE_KEYBOARD_SVGALIB \
+	-DUSE_MOUSE_SVGALIB \
+	-DUSE_JOYSTICK_SVGALIB
+MENULIBS += -lvga
+MENUOBJS += \
+	$(MENUOBJ)/linux/vsvgab.o \
+	$(MENUOBJ)/linux/ksvgab.o \
+	$(MENUOBJ)/linux/msvgab.o \
+	$(MENUOBJ)/linux/jsvgab.o
+endif
+ifeq ($(CONF_LIB_FB),yes)
+MENUCFLAGS += \
+	-DUSE_VIDEO_FB
+MENUOBJS += \
+	$(MENUOBJ)/linux/vfb.o
+endif
+ifeq ($(CONF_LIB_OSS),yes)
+MENUCFLAGS += \
+	-DUSE_SOUND_OSS
+MENUOBJS += \
+	$(MENUOBJ)/linux/soss.o
+endif
+ifeq ($(CONF_LIB_SDL),yes)
+MENUOBJDIRS += \
+	$(MENUOBJ)/sdl
+MENUCFLAGS += \
+	$(SDLCFLAGS) \
+	-I$(srcdir)/advance/sdl \
+	-DUSE_VIDEO_SDL \
+	-DUSE_SOUND_SDL \
+	-DUSE_KEYBOARD_SDL \
+	-DUSE_MOUSE_SDL \
+	-DUSE_JOYSTICK_SDL
+MENULIBS += $(SDLLIBS)
+MENUOBJS += \
+	$(MENUOBJ)/sdl/os.o \
+	$(MENUOBJ)/sdl/vsdl.o \
+	$(MENUOBJ)/sdl/ssdl.o \
+	$(MENUOBJ)/sdl/ksdl.o \
+	$(MENUOBJ)/sdl/msdl.o \
+	$(MENUOBJ)/sdl/jsdl.o
+endif
 endif
 
-ifeq ($(CONF_SYSTEM),dos)
+ifeq ($(CONF_HOST),dos)
+MENUOBJDIRS += \
+	$(MENUOBJ)/dos
 MENUCFLAGS += \
+	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
 	-I$(srcdir)/advance/svgalib/clockchi \
@@ -123,19 +167,19 @@ MENULIBS += -lalleg -laudio
 MENUOBJS += \
 	$(MENUOBJ)/lib/filedos.o \
 	$(MENUOBJ)/lib/targdos.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/os.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/vvgal.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/vvbe.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/vvbel.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/vsvgal.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/scrvbe.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/scrvga.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/salleg.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/sseal.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/svsync.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/malleg.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/kalleg.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/jalleg.o \
+	$(MENUOBJ)/dos/os.o \
+	$(MENUOBJ)/dos/vvgal.o \
+	$(MENUOBJ)/dos/vvbe.o \
+	$(MENUOBJ)/dos/vvbel.o \
+	$(MENUOBJ)/dos/vsvgal.o \
+	$(MENUOBJ)/dos/scrvbe.o \
+	$(MENUOBJ)/dos/scrvga.o \
+	$(MENUOBJ)/dos/salleg.o \
+	$(MENUOBJ)/dos/sseal.o \
+	$(MENUOBJ)/dos/svsync.o \
+	$(MENUOBJ)/dos/malleg.o \
+	$(MENUOBJ)/dos/kalleg.o \
+	$(MENUOBJ)/dos/jalleg.o \
 	$(MENUOBJ)/card/card.o \
 	$(MENUOBJ)/card/pci.o \
 	$(MENUOBJ)/card/map.o \
@@ -183,36 +227,42 @@ MENUOBJDIRS += \
 	$(MENUOBJ)/svgalib/drivers
 endif
 
-ifeq ($(CONF_SYSTEM),sdl)
-MENUCFLAGS += \
-	$(SDLCFLAGS) \
-	-DPREFIX=\"$(PREFIX)\" \
-	-DUSE_VIDEO_SDL -DUSE_VIDEO_RESTORE -DUSE_VIDEO_NONE \
-	-DUSE_SOUND_SDL -DUSE_SOUND_NONE \
-	-DUSE_KEYBOARD_SDL -DUSE_KEYBOARD_NONE \
-	-DUSE_MOUSE_SDL -DUSE_MOUSE_NONE \
-	-DUSE_JOYSTICK_SDL -DUSE_JOYSTICK_NONE
-MENULIBS += $(SDLLIBS)
-MENUOBJS += \
-	$(MENUOBJ)/$(CONF_SYSTEM)/os.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/vsdl.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/ssdl.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/ksdl.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/msdl.o \
-	$(MENUOBJ)/$(CONF_SYSTEM)/jsdl.o
-ifeq ($(CONF_HOST),unix)
-MENUOBJS += \
-	$(MENUOBJ)/lib/filenix.o \
-	$(MENUOBJ)/lib/targnix.o
-endif
 ifeq ($(CONF_HOST),windows)
+MENUCFLAGS += \
+	-I$(srcdir)/advance/windows \
+	-DUSE_VIDEO_RESTORE -DUSE_VIDEO_NONE \
+	-DUSE_SOUND_NONE \
+	-DUSE_KEYBOARD_NONE \
+	-DUSE_MOUSE_NONE \
+	-DUSE_JOYSTICK_NONE
+MENUOBJDIRS += \
+	$(MENUOBJ)/windows
 MENUOBJS += \
 	$(MENUOBJ)/lib/filedos.o \
 	$(MENUOBJ)/lib/targwin.o \
-	$(MENUOBJ)/lib/icondef.o
+	$(MENUOBJ)/lib/icondef.o \
+	$(MENUOBJ)/windows/os.o
+ifeq ($(CONF_LIB_SDL),yes)
+MENUOBJDIRS += \
+	$(MENUOBJ)/sdl
+MENUCFLAGS += \
+	$(SDLCFLAGS) \
+	-I$(srcdir)/advance/sdl \
+	-DUSE_VIDEO_SDL \
+	-DUSE_SOUND_SDL \
+	-DUSE_KEYBOARD_SDL \
+	-DUSE_MOUSE_SDL \
+	-DUSE_JOYSTICK_SDL
+MENULIBS += $(SDLLIBS)
+MENUOBJS += \
+	$(MENUOBJ)/sdl/vsdl.o \
+	$(MENUOBJ)/sdl/ssdl.o \
+	$(MENUOBJ)/sdl/ksdl.o \
+	$(MENUOBJ)/sdl/msdl.o \
+	$(MENUOBJ)/sdl/jsdl.o
 # Customize the SDL_main function
 MENUCFLAGS += -DNO_STDIO_REDIRECT
-MENUOBJS += $(MENUOBJ)/sdl/sdlmwin.o
+MENUOBJS += $(MENUOBJ)/windows/sdlmain.o
 endif
 endif
 
@@ -310,7 +360,7 @@ MENU_DOC_BIN = \
 	$(DOCOBJ)/relemenu.html \
 	$(DOCOBJ)/histmenu.html \
 	$(DOCOBJ)/histmenu.html
-ifneq ($(CONF_SYSTEM),sdl)
+ifneq ($(CONF_HOST),windows)
 MENU_DOC_BIN += \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
@@ -342,7 +392,7 @@ MENU_ROOT_BIN += \
 	$(srcdir)/support/sdl.dll \
 	$(srcdir)/support/zlib.dll
 endif
-ifneq ($(CONF_SYSTEM),sdl)
+ifneq ($(CONF_HOST),windows)
 MENU_ROOT_BIN += \
 	$(VOBJ)/advv$(EXE) \
 	$(CFGOBJ)/advcfg$(EXE)
@@ -375,6 +425,8 @@ distmenu: $(RCSRC) $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histm
 	cp $(LINUX_SRC) $(MENU_DIST_DIR_SRC)/advance/linux
 	mkdir $(MENU_DIST_DIR_SRC)/advance/dos
 	cp $(DOS_SRC) $(MENU_DIST_DIR_SRC)/advance/dos
+	mkdir $(MENU_DIST_DIR_SRC)/advance/windows
+	cp $(WINDOWS_SRC) $(MENU_DIST_DIR_SRC)/advance/windows
 	mkdir $(MENU_DIST_DIR_SRC)/advance/sdl
 	cp $(SDL_SRC) $(MENU_DIST_DIR_SRC)/advance/sdl
 	mkdir $(MENU_DIST_DIR_SRC)/advance/menu

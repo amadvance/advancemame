@@ -30,7 +30,7 @@
 
 #include "vslang.h"
 #include "log.h"
-#include "osint.h"
+#include "oslinux.h"
 
 #include <slang/slang.h>
 #include <stdlib.h>
@@ -41,8 +41,8 @@
 /* State */
 
 typedef struct slang_internal_struct {
-	video_bool active;
-	video_bool mode_active;
+	adv_bool active;
+	adv_bool mode_active;
 
 	unsigned size_x;
 	unsigned size_y;
@@ -71,7 +71,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-video_error slang_init(int device_id) {
+adv_error slang_init(int device_id) {
 	assert( !slang_is_active() );
 
 	log_std(("video:slang: slang_init()\n"));
@@ -96,11 +96,11 @@ void slang_done(void) {
 	slang_state.active = 0;
 }
 
-video_bool slang_is_active(void) {
+adv_bool slang_is_active(void) {
 	return slang_state.active != 0;
 }
 
-video_bool slang_mode_is_active(void) {
+adv_bool slang_mode_is_active(void) {
 	return slang_state.mode_active != 0;
 }
 
@@ -109,7 +109,7 @@ unsigned slang_flags(void) {
 	return VIDEO_DRIVER_FLAGS_MODE_TEXT;
 }
 
-video_error slang_mode_set(const slang_video_mode* mode) 
+adv_error slang_mode_set(const slang_video_mode* mode) 
 {
 	unsigned size;
 	unsigned i;
@@ -135,7 +135,7 @@ video_error slang_mode_set(const slang_video_mode* mode)
 	return 0;
 }
 
-void slang_mode_done(video_bool restore)
+void slang_mode_done(adv_bool restore)
 {
 	assert(slang_is_active() && slang_mode_is_active());
 
@@ -231,7 +231,7 @@ void slang_wait_vsync(void) {
 
 #define DRIVER(mode) ((slang_video_mode*)(&mode->driver_mode))
 
-video_error slang_mode_import(video_mode* mode, const slang_video_mode* slang_mode)
+adv_error slang_mode_import(video_mode* mode, const slang_video_mode* slang_mode)
 {
 	strcpy(mode->name, "slang");
 
@@ -252,7 +252,7 @@ video_error slang_mode_import(video_mode* mode, const slang_video_mode* slang_mo
 	return 0;
 }
 
-video_error slang_mode_grab(slang_video_mode* mode) {
+adv_error slang_mode_grab(slang_video_mode* mode) {
 	assert( slang_is_active() );
 
 	mode->font_size_x = 9;
@@ -261,11 +261,11 @@ video_error slang_mode_grab(slang_video_mode* mode) {
 	return 0;
 }
 
-video_error slang_mode_generate(slang_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags)
+adv_error slang_mode_generate(slang_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags)
 {
 	assert( slang_is_active() );
 
-	video_error_description_nolog_cat("slang: Mode generation not supported\n");
+	error_description_nolog_cat("slang: Mode generation not supported\n");
 
 	/* always fail, no hardware control (only the grabbed mode is used) */
 	return -1;
@@ -298,7 +298,7 @@ void slang_reg(struct conf_context* context) {
 	assert( !slang_is_active() );
 }
 
-video_error slang_load(struct conf_context* context) {
+adv_error slang_load(struct conf_context* context) {
 	assert( !slang_is_active() );
 	return 0;
 }
@@ -310,15 +310,15 @@ video_rgb_def slang_rgb_def(void) {
 /***************************************************************************/
 /* Driver */
 
-static video_error slang_mode_set_void(const void* mode) {
+static adv_error slang_mode_set_void(const void* mode) {
 	return slang_mode_set((const slang_video_mode*)mode);
 }
 
-static video_error slang_mode_import_void(video_mode* mode, const void* slang_mode) {
+static adv_error slang_mode_import_void(video_mode* mode, const void* slang_mode) {
 	return slang_mode_import(mode, (const slang_video_mode*)slang_mode);
 }
 
-static video_error slang_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+static adv_error slang_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
 	return slang_mode_generate((slang_video_mode*)mode,crtc,bits,flags);
 }
 
@@ -330,7 +330,7 @@ static unsigned slang_mode_size(void) {
 	return sizeof(slang_video_mode);
 }
 
-static video_error slang_mode_grab_void(void* mode) {
+static adv_error slang_mode_grab_void(void* mode) {
 	return slang_mode_grab((slang_video_mode*)mode);
 }
 

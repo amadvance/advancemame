@@ -40,7 +40,7 @@ void sound_default(void) {
 	strcpy(sound_state.name, "auto");
 }
 
-void sound_reg(struct conf_context* context, video_bool auto_detect) {
+void sound_reg(struct conf_context* context, adv_bool auto_detect) {
 	conf_string_register_default(context, "device_sound", auto_detect ? "auto" : "none");
 }
 
@@ -55,7 +55,7 @@ void sound_reg_driver(struct conf_context* context, sound_driver* driver) {
 	++sound_state.driver_mac;
 }
 
-video_error sound_load(struct conf_context* context) {
+adv_error sound_load(struct conf_context* context) {
 	unsigned i;
 	int at_least_one;
 
@@ -88,7 +88,7 @@ video_error sound_load(struct conf_context* context) {
 	return 0;
 }
 
-video_error sound_init(unsigned* rate, video_bool stereo_flag, double buffer_time) {
+adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time) {
 	unsigned i;
 
 	assert(sound_state.driver_current == 0);
@@ -100,6 +100,9 @@ video_error sound_init(unsigned* rate, video_bool stereo_flag, double buffer_tim
 	if (!sound_state.is_initialized_flag) {
 		sound_default();
 	}
+
+	/* store the error prefix */
+	error_description_nolog_set("Unable to inizialize a sound driver. The following are the errors:\n");
 
 	for(i=0;i<sound_state.driver_mac;++i) {
 		const device* dev;

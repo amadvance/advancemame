@@ -42,7 +42,7 @@ void keyb_default(void) {
 	strcpy(keyb_state.name, "auto");
 }
 
-void keyb_reg(struct conf_context* context, video_bool auto_detect) {
+void keyb_reg(struct conf_context* context, adv_bool auto_detect) {
 	conf_string_register_default(context, "device_keyboard", auto_detect ? "auto" : "none");
 }
 
@@ -57,7 +57,7 @@ void keyb_reg_driver(struct conf_context* context, keyb_driver* driver) {
 	++keyb_state.driver_mac;
 }
 
-video_error keyb_load(struct conf_context* context) {
+adv_error keyb_load(struct conf_context* context) {
 	unsigned i;
 	int at_least_one;
 
@@ -90,7 +90,7 @@ video_error keyb_load(struct conf_context* context) {
 	return 0;
 }
 
-video_error keyb_init(video_bool disable_special) {
+adv_error keyb_init(adv_bool disable_special) {
 	unsigned i;
 
 	assert(keyb_state.driver_current == 0);
@@ -100,6 +100,9 @@ video_error keyb_init(video_bool disable_special) {
 	if (!keyb_state.is_initialized_flag) {
 		keyb_default();
 	}
+
+	/* store the error prefix */
+	error_description_nolog_set("Unable to inizialize a keyboard driver. The following are the errors:\n");
 
 	for(i=0;i<keyb_state.driver_mac;++i) {
 		const device* dev;

@@ -238,7 +238,7 @@ static __inline__ const struct video_stage_horz_struct* video_pipeline_pivot(con
 /***************************************************************************/
 /* blit */
 
-video_error video_blit_init(void);
+adv_error video_blit_init(void);
 void video_blit_done(void);
 
 /***************************************************************************/

@@ -38,9 +38,6 @@ void video_reg_driver_all(struct conf_context* context) {
 #ifdef USE_VIDEO_FB
 	video_reg_driver(context, &video_fb_driver);
 #endif
-#ifdef USE_VIDEO_DGA
-	video_reg_driver(context, &video_dga_driver);
-#endif
 #ifdef USE_VIDEO_SVGALINE
 	video_reg_driver(context, &video_svgaline_driver);
 #endif

@@ -31,7 +31,7 @@
 #ifndef __MODE_H
 #define __MODE_H
 
-#include "videostd.h"
+#include "advstd.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -143,23 +143,23 @@ static __inline__  unsigned video_mode_memory(const video_mode* mode) {
 	return video_mode_flags(mode) & VIDEO_FLAGS_MEMORY_MASK;
 }
 
-static __inline__  video_bool video_mode_is_text(const video_mode* mode) {
+static __inline__  adv_bool video_mode_is_text(const video_mode* mode) {
 	return video_mode_type(mode) == VIDEO_FLAGS_TYPE_TEXT;
 }
 
-static __inline__  video_bool video_mode_is_graphics(const video_mode* mode) {
+static __inline__  adv_bool video_mode_is_graphics(const video_mode* mode) {
 	return video_mode_type(mode) == VIDEO_FLAGS_TYPE_GRAPHICS;
 }
 
-static __inline__  video_bool video_mode_is_linear(const video_mode* mode) {
+static __inline__  adv_bool video_mode_is_linear(const video_mode* mode) {
 	return video_mode_memory(mode) == VIDEO_FLAGS_MEMORY_LINEAR;
 }
 
-static __inline__  video_bool video_mode_is_unchained(const video_mode* mode) {
+static __inline__  adv_bool video_mode_is_unchained(const video_mode* mode) {
 	return video_mode_memory(mode) == VIDEO_FLAGS_MEMORY_UNCHAINED;
 }
 
-static __inline__  video_bool video_mode_is_banked(const video_mode* mode) {
+static __inline__  adv_bool video_mode_is_banked(const video_mode* mode) {
 	return video_mode_memory(mode) == VIDEO_FLAGS_MEMORY_BANKED;
 }
 

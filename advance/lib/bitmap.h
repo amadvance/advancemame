@@ -21,7 +21,7 @@
 #ifndef __BITMAP_H
 #define __BITMAP_H
 
-#include "videostd.h"
+#include "advstd.h"
 
 #ifdef __cplusplus
 extern "C" {

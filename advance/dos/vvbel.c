@@ -31,6 +31,7 @@
 #include "vvbel.h"
 #include "scrvbe.h"
 #include "video.h"
+#include "log.h"
 
 #include "board.h"
 
@@ -55,10 +56,10 @@ typedef struct vbeline_chipset_struct {
 } vbeline_chipset;
 
 typedef struct vbeline_internal_struct {
-	video_bool active; /* !=0 if present */
+	adv_bool active; /* !=0 if present */
 	vbeline_chipset* driver;
-	video_bool mode_active; /* !=0 if mode set */
-	video_bool enable_vbe; /**< !=0 if vbe_init() was called */
+	adv_bool mode_active; /* !=0 if mode set */
+	adv_bool enable_vbe; /**< !=0 if vbe_init() was called */
 
 	unsigned size_x;
 	unsigned size_y;
@@ -87,7 +88,7 @@ unsigned char* (*vbeline_write_line)(unsigned y);
 #define VBELINE_OPTION_CHOICE_800 8
 
 struct vbeline_option_struct {
-	video_bool initialized;
+	adv_bool initialized;
 	double clock_16bit_multiplier;
 	double clock_8bit_multiplier;
 	double clock_multiplier;
@@ -196,20 +197,20 @@ static void vbeline_card_setup(card_crtc* cp, card_mode* cm, const vbe_ModeInfoB
 
 	cp->dotclockHz = crtc->pixelclock;
 
-	video_log_modeline_cb("card: mode_set modeline", cp->dotclockHz, cp->HDisp, cp->HBStart, cp->HSStart, cp->HSEnd, cp->HBEnd, cp->HTotal,cp->VDisp, cp->VBStart, cp->VSStart, cp->VSEnd, cp->VBEnd, cp->VTotal, cp->hpolarity, cp->vpolarity, cp->doublescan, cp->interlace);
+	log_std_modeline_cb(("card: mode_set modeline", cp->dotclockHz, cp->HDisp, cp->HBStart, cp->HSStart, cp->HSEnd, cp->HBEnd, cp->HTotal,cp->VDisp, cp->VBStart, cp->VSStart, cp->VSEnd, cp->VBEnd, cp->VTotal, cp->hpolarity, cp->vpolarity, cp->doublescan, cp->interlace));
 }
 
 void card_log(const char* text,...) {
 	va_list arg;
 	va_start(arg,text);
-	video_log_va(text,arg);
+	log_va(text,arg);
 	va_end(arg);
 }
 
 /***************************************************************************/
 /* Public */
 
-video_error vbeline_init(int device_id) {
+adv_error vbeline_init(int device_id) {
 	unsigned i;
 	const char* name;
 	const device* j;
@@ -227,7 +228,7 @@ video_error vbeline_init(int device_id) {
 	vbeline_state.enable_vbe = 0;
 	if (!vbe_is_active()) {
 		if (vbe_init() != 0) {
-			video_log("vbeline: a vbe bios is required\n");
+			log_std(("vbeline: a vbe bios is required\n"));
 			return -1;
 		}
 		vbeline_state.enable_vbe = 1;
@@ -242,7 +243,7 @@ video_error vbeline_init(int device_id) {
 		if (strcmp(name,"auto")==0 || strcmp(name,cards[i].name)==0) {
 			if ((cards[i].cap & VBELINE_FLAGS_REQUIRES_VBE3_SET)==0 || vbe_state.info.VESAVersion >= 0x300) {
 				if (cards[i].detect && cards[i].detect() > 0) {
-					video_log("vbeline: found driver %s\n",cards[i].name);
+					log_std(("vbeline: found driver %s\n",cards[i].name));
 					vbeline_state.driver = cards + i;
 					break;
 				}
@@ -279,11 +280,11 @@ void vbeline_done(void) {
 	vbeline_state.active = 0;
 }
 
-video_bool vbeline_is_active(void) {
+adv_bool vbeline_is_active(void) {
 	return vbeline_state.active != 0;
 }
 
-video_bool vbeline_mode_is_active(void) {
+adv_bool vbeline_mode_is_active(void) {
 	return vbeline_state.mode_active != 0;
 }
 
@@ -304,22 +305,22 @@ unsigned vbeline_flags(void) {
 
 static int vbe3_mode_preset(const card_crtc* ccp, vbe_ModeInfoBlock* info, vbe_CRTCInfoBlock* crtc) {
 	if ((info->ModeAttributes & vbeMdAvailable) == 0) {
-		video_error_description_set("VBE report that the selected mode isn't avaliable");
+		error_description_set("VBE report that the selected mode isn't avaliable");
 		return -1;
 	}
 
 	if (ccp->interlace && (info->ModeAttributes & vbeMdInterlace)==0) {
-		video_error_description_set("VBE report that the selected mode doesn't support interlace");
+		error_description_set("VBE report that the selected mode doesn't support interlace");
 		return -1;
 	}
 
 	if (ccp->doublescan && (info->ModeAttributes & vbeMdDoubleScan)==0) {
-		video_error_description_set("VBE report that the selected mode doesn't support doublescan");
+		error_description_set("VBE report that the selected mode doesn't support doublescan");
 		return -1;
 	}
 
 	if (ccp->interlace && ccp->doublescan) {
-		video_error_description_set("VBE doesn't support interlaced and doublescan at the same time");
+		error_description_set("VBE doesn't support interlaced and doublescan at the same time");
 		return -1;
 	}
 
@@ -379,12 +380,12 @@ static int vbe3_mode_preset(const card_crtc* ccp, vbe_ModeInfoBlock* info, vbe_C
 	crtc->PixelClock = ccp->dotclockHz;
 	crtc->RefreshRate = (long)crtc->PixelClock * 100 / ((long)crtc->HorizontalTotal * crtc->VerticalTotal);
 
-	video_log("vbeline: mode_preset %dx%d (%.2f %d %d %d %d %d %d)\n",(unsigned)info->XResolution,(unsigned)info->YResolution,(double)crtc->PixelClock/1E6,(unsigned)crtc->HorizontalSyncStart,(unsigned)crtc->HorizontalSyncEnd,(unsigned)crtc->HorizontalTotal,(unsigned)crtc->VerticalSyncStart,(unsigned)crtc->VerticalSyncEnd,(unsigned)crtc->VerticalTotal);
+	log_std(("vbeline: mode_preset %dx%d (%.2f %d %d %d %d %d %d)\n",(unsigned)info->XResolution,(unsigned)info->YResolution,(double)crtc->PixelClock/1E6,(unsigned)crtc->HorizontalSyncStart,(unsigned)crtc->HorizontalSyncEnd,(unsigned)crtc->HorizontalTotal,(unsigned)crtc->VerticalSyncStart,(unsigned)crtc->VerticalSyncEnd,(unsigned)crtc->VerticalTotal));
 
 	return 0;
 }
 
-video_error vbeline_mode_set(const vbeline_video_mode* mode) {
+adv_error vbeline_mode_set(const vbeline_video_mode* mode) {
 	unsigned mode_request = mode->mode;
 	video_crtc crtc_request = mode->crtc;
 	vbe_CRTCInfoBlock vbe3_crtc_request;
@@ -397,12 +398,12 @@ video_error vbeline_mode_set(const vbeline_video_mode* mode) {
 	assert( vbeline_is_active() );
 	assert( !vbeline_mode_is_active() );
 
-	video_log("vbeline: mode_set number 0x%x\n", mode->mode );
-	video_log_modeline_c("vbeline: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc) );
-	video_log("vbeline: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc) );
+	log_std(("vbeline: mode_set number 0x%x\n", mode->mode ));
+	log_std_modeline_c(("vbeline: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc) ));
+	log_std(("vbeline: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc) ));
 
 	if ((vbeline_flags() & VBELINE_FLAGS_REQUIRES_VBE_SAVE)!=0) {
-		video_log("vbeline: save video board state\n");
+		log_std(("vbeline: save video board state\n"));
 		if (vbe_save_state(&vbeline_state.state_size,&vbeline_state.state_ptr) != 0) {
 			return -1;
 		}
@@ -412,17 +413,17 @@ video_error vbeline_mode_set(const vbeline_video_mode* mode) {
 		return -1;
 
 	if (vbeline_option.clock_multiplier!=1.0) {
-		video_log("vbeline: clock multiplier: %.2f\n",vbeline_option.clock_multiplier);
+		log_std(("vbeline: clock multiplier: %.2f\n",vbeline_option.clock_multiplier));
 		crtc_request.pixelclock *= vbeline_option.clock_multiplier;
 	}
 
 	if (vbe_info_request.BitsPerPixel==8 && vbeline_option.clock_8bit_multiplier!=1.0) {
-		video_log("vbeline: 8bit_clock multiplier: %.2f\n",vbeline_option.clock_8bit_multiplier);
+		log_std(("vbeline: 8bit_clock multiplier: %.2f\n",vbeline_option.clock_8bit_multiplier));
 		crtc_request.pixelclock *= vbeline_option.clock_8bit_multiplier;
 	}
 
 	if ((vbe_info_request.BitsPerPixel==15 || vbe_info_request.BitsPerPixel==16) && vbeline_option.clock_16bit_multiplier!=1.0) {
-		video_log("vbeline: 16bit_clock multiplier: %.2f\n",vbeline_option.clock_16bit_multiplier);
+		log_std(("vbeline: 16bit_clock multiplier: %.2f\n",vbeline_option.clock_16bit_multiplier));
 		crtc_request.pixelclock *= vbeline_option.clock_16bit_multiplier;
 	}
 
@@ -452,9 +453,9 @@ video_error vbeline_mode_set(const vbeline_video_mode* mode) {
 	}
 
 	if (vbeline_state.driver->set(&cp,&cm,&co) <= 0) {
-		video_log("vbeline: error in the video driver mode set\n");
+		log_std(("vbeline: error in the video driver mode set\n"));
 		vbe_mode_done(1);
-		video_error_description_set("Error in the video driver mode set");
+		error_description_set("Error in the video driver mode set");
 		return -1;
 	}
 
@@ -472,12 +473,12 @@ video_error vbeline_mode_set(const vbeline_video_mode* mode) {
 	return 0;
 }
 
-void vbeline_mode_done(video_bool restore) {
+void vbeline_mode_done(adv_bool restore) {
 	assert( vbeline_is_active() );
 	assert( vbeline_mode_is_active() );
 
 	if ((vbeline_flags() & VBELINE_FLAGS_REQUIRES_VBE_SAVE)!=0) {
-		video_log("vbeline: restore video board state\n");
+		log_std(("vbeline: restore video board state\n"));
 		vbe_restore_state(vbeline_state.state_size,vbeline_state.state_ptr);
 	}
 
@@ -486,7 +487,7 @@ void vbeline_mode_done(video_bool restore) {
 	vbeline_state.mode_active = 0;
 }
 
-video_error vbeline_mode_change(const vbeline_video_mode* mode) {
+adv_error vbeline_mode_change(const vbeline_video_mode* mode) {
 	vbeline_mode_done(0);
 
 	return vbeline_mode_set(mode);
@@ -504,7 +505,7 @@ void vbeline_wait_vsync(void) {
 	vbe_wait_vsync();
 }
 
-video_error vbeline_palette8_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync) {
+adv_error vbeline_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 	video_color vbe_pal[256];
 	unsigned shift = 8 - vbe_state.palette_width;
 
@@ -562,14 +563,14 @@ unsigned vbeline_mode_size(void) {
 
 #define DRIVER(mode) ((vbeline_video_mode*)(&mode->driver_mode))
 
-video_error vbeline_mode_import(video_mode* mode, const vbeline_video_mode* vbeline_mode) {
+adv_error vbeline_mode_import(video_mode* mode, const vbeline_video_mode* vbeline_mode) {
 	vbe_ModeInfoBlock info;
 
 	strcpy(mode->name, vbeline_mode->crtc.name);
 	*DRIVER(mode) = *vbeline_mode;
 
 	if (!vbeline_is_active()) {
-		video_error_description_nolog_set("VBE CRTC programming isn't avaliable on VBE version prior of 3 or without the dedicated driver");
+		error_description_nolog_set("VBE CRTC programming isn't avaliable on VBE version prior of 3 or without the dedicated driver");
 		return -1;
 	}
 
@@ -578,36 +579,36 @@ video_error vbeline_mode_import(video_mode* mode, const vbeline_video_mode* vbel
 	}
 
 	if ((info.ModeAttributes & vbeMdAvailable) == 0) {
-		video_error_description_set("VBE report that mode %d is not avaliable", DRIVER(mode)->mode);
+		error_description_set("VBE report that mode %d is not avaliable", DRIVER(mode)->mode);
 		return -1;
 	}
 	if ((info.ModeAttributes & vbeMdGraphMode) == 0) {
-		video_error_description_nolog_set("Text modes are unsupported");
+		error_description_nolog_set("Text modes are unsupported");
 		return -1;
 	} else {
 		if ((DRIVER(mode)->mode & vbeLinearBuffer) != 0) {
 			if (vbe_state.info.VESAVersion < 0x200) {
-				video_error_description_nolog_set("Linear frame buffer isn't available on VBE version prior 2");
+				error_description_nolog_set("Linear frame buffer isn't available on VBE version prior 2");
 				return -1;
 			}
 			if ((info.ModeAttributes & vbeMdLinear) == 0) {
-				video_error_description_nolog_set("Linear frame buffer isn't available in mode %x", DRIVER(mode)->mode);
+				error_description_nolog_set("Linear frame buffer isn't available in mode %x", DRIVER(mode)->mode);
 				return -1;
 			}
 		} else {
 			if ((info.ModeAttributes & vbeMdNonBanked) != 0) {
-				video_error_description_nolog_set("Banked frame buffer isn't available in mode %x",DRIVER(mode)->mode);
+				error_description_nolog_set("Banked frame buffer isn't available in mode %x",DRIVER(mode)->mode);
 				return -1;
 			}
 		}
 		/* Packed or RGB memory model */
 		if (info.MemoryModel!=vbeMemPK && info.MemoryModel!=vbeMemRGB) {
-			video_error_description_nolog_set("Unsupported memory model");
+			error_description_nolog_set("Unsupported memory model");
 			return -1;
 		}
 		/* Non planar mode */
 		if (info.NumberOfPlanes!=1) {
-			video_error_description_nolog_set("Unsupported number of planes");
+			error_description_nolog_set("Unsupported number of planes");
 			return -1;
 		}
 	}
@@ -804,7 +805,7 @@ static int vbeline_search_target_mode(unsigned req_x, unsigned req_y, unsigned b
 	return -1;
 }
 
-video_error vbeline_mode_generate(vbeline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+adv_error vbeline_mode_generate(vbeline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
 	int number;
 	unsigned model;
 	unsigned vbeflags = vbeMdAvailable | vbeMdGraphMode | vbeMdLinear;
@@ -834,7 +835,7 @@ video_error vbeline_mode_generate(vbeline_video_mode* mode, const video_crtc* cr
 		number = vbeline_search_target_mode(mode->crtc.hde,mode->crtc.vde,bits,model,vbeflags);
 	}
 	if (number < 0) {
-		video_error_description_nolog_cat("vbeline: No compatible VBE mode found\n");
+		error_description_nolog_cat("vbeline: No compatible VBE mode found\n");
 		return -1;
 	}
 
@@ -892,7 +893,7 @@ void vbeline_reg(struct conf_context* context) {
 	conf_float_register_limit_default(context, "device_vbeline_16bit_clock_multiplier", 0.25, 4.0, 1.0);
 }
 
-video_error vbeline_load(struct conf_context* context) {
+adv_error vbeline_load(struct conf_context* context) {
 
 	/* Options must be loaded before initialization */
 	assert( !vbeline_is_active() );
@@ -910,19 +911,19 @@ video_error vbeline_load(struct conf_context* context) {
 /***************************************************************************/
 /* Driver */
 
-static video_error vbeline_mode_change_void(const void* mode) {
+static adv_error vbeline_mode_change_void(const void* mode) {
 	return vbeline_mode_change((const vbeline_video_mode*)mode);
 }
 
-static video_error vbeline_mode_set_void(const void* mode) {
+static adv_error vbeline_mode_set_void(const void* mode) {
 	return vbeline_mode_set((const vbeline_video_mode*)mode);
 }
 
-static video_error vbeline_mode_import_void(video_mode* mode, const void* vbeline_mode) {
+static adv_error vbeline_mode_import_void(video_mode* mode, const void* vbeline_mode) {
 	return vbeline_mode_import(mode, (const vbeline_video_mode*)vbeline_mode);
 }
 
-static video_error vbeline_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+static adv_error vbeline_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
 	return vbeline_mode_generate((vbeline_video_mode*)mode, crtc, bits, flags);
 }
 

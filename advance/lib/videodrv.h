@@ -31,7 +31,7 @@
 #ifndef __VIDEODRV_H
 #define __VIDEODRV_H
 
-#include "videostd.h"
+#include "advstd.h"
 #include "device.h"
 #include "conf.h"
 #include "crtc.h"
@@ -77,19 +77,19 @@ struct video_driver_struct {
 	const device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	video_error (*load)(struct conf_context* context);
+	adv_error (*load)(struct conf_context* context);
 
 	/** Register the load options. Call before load(). */
 	void (*reg)(struct conf_context* context);
 
-	video_error (*init)(int id); /**< Initialize the driver */
+	adv_error (*init)(int id); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
 
-	video_error (*mode_set)(const void* mode); /**< Set a video mode */
-	video_error (*mode_change)(const void* mode); /**< Change the video mode */
-	void (*mode_done)(video_bool restore); /**< Reset a video mode */
+	adv_error (*mode_set)(const void* mode); /**< Set a video mode */
+	adv_error (*mode_change)(const void* mode); /**< Change the video mode */
+	void (*mode_done)(adv_bool restore); /**< Reset a video mode */
 
 	/* Information of the current video mode */
 	unsigned (*virtual_x)(void);
@@ -106,16 +106,16 @@ struct video_driver_struct {
 
 	/* Operations on the current video mode */
 	void (*wait_vsync)(void);
-	video_error (*scroll)(unsigned offset, int waitvsync);
-	video_error (*scanline_set)(unsigned byte_length);
-	video_error (*palette8_set)(const video_color* palette, unsigned start, unsigned count, int waitvsync);
+	adv_error (*scroll)(unsigned offset, int waitvsync);
+	adv_error (*scanline_set)(unsigned byte_length);
+	adv_error (*palette8_set)(const video_color* palette, unsigned start, unsigned count, int waitvsync);
 	void (*unchained_plane_mask_set)(unsigned plane_mask);
 
 	/** Return the size of the driver video mode struct */
 	unsigned (*mode_size)(void);
-	video_error (*mode_grab)(void* mode);
-	video_error (*mode_generate)(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
-	video_error (*mode_import)(video_mode* mode, const void* driver_mode);
+	adv_error (*mode_grab)(void* mode);
+	adv_error (*mode_generate)(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+	adv_error (*mode_import)(video_mode* mode, const void* driver_mode);
 	int (*mode_compare)(const void* a, const void* b);
 
 	/** Insert a set of default modelines */

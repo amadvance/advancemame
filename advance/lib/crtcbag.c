@@ -29,11 +29,12 @@
  */
 
 #include "crtcbag.h"
+#include "video.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-video_bool video_crtc_container_is_empty(const video_crtc_container* cc) {
+adv_bool video_crtc_container_is_empty(const video_crtc_container* cc) {
 	return cc->base == 0;
 }
 
@@ -141,7 +142,7 @@ void video_crtc_container_iterator_next(video_crtc_container_iterator* cci) {
 	cci->base = cci->base->container_next;
 }
 
-video_bool video_crtc_container_iterator_is_end(video_crtc_container_iterator* cci) {
+adv_bool video_crtc_container_iterator_is_end(video_crtc_container_iterator* cci) {
 	return cci->base == 0;
 }
 
@@ -229,7 +230,7 @@ static const char* MODELINE_SVGA[] = {
 0
 };
 
-static video_error video_crtc_container_insert_default(video_crtc_container* cc, const char** modes) {
+static adv_error video_crtc_container_insert_default(video_crtc_container* cc, const char** modes) {
 	while (*modes) {
 		video_crtc crtc;
 		if (video_crtc_parse(&crtc,*modes,*modes + strlen(*modes))!=0)
@@ -240,25 +241,36 @@ static video_error video_crtc_container_insert_default(video_crtc_container* cc,
 	return 0;
 }
 
-video_error video_crtc_container_insert_default_bios_vga(video_crtc_container* cc) {
+adv_error video_crtc_container_insert_default_bios_vga(video_crtc_container* cc) {
 	return video_crtc_container_insert_default(cc,BIOS_VGA);
 }
 
-video_error video_crtc_container_insert_default_bios_vbe(video_crtc_container* cc) {
+adv_error video_crtc_container_insert_default_bios_vbe(video_crtc_container* cc) {
 	return video_crtc_container_insert_default(cc,BIOS_VBE);
 }
 
 /**
  * Insert some standard video modes than can be made with a standard VGA.
  */
-video_error video_crtc_container_insert_default_modeline_vga(video_crtc_container* cc) {
+adv_error video_crtc_container_insert_default_modeline_vga(video_crtc_container* cc) {
 	return video_crtc_container_insert_default(cc,MODELINE_VGA);
 }
 
 /**
  * Insert some standard video modes than can be made with a complete programmable SVGA.
  */
-video_error video_crtc_container_insert_default_modeline_svga(video_crtc_container* cc) {
+adv_error video_crtc_container_insert_default_modeline_svga(video_crtc_container* cc) {
 	return video_crtc_container_insert_default(cc,MODELINE_SVGA);
 }
 
+/**
+ * Insert the standard video modes of the first active video driver.
+ */
+void video_crtc_container_insert_default_system(video_crtc_container* cc) {
+	if (video_driver_vector_max() > 0) {
+		const video_driver* driver = video_driver_vector_pos(0);
+		if (driver->crtc_container_insert_default) {
+			driver->crtc_container_insert_default(cc);
+		}
+	}
+}

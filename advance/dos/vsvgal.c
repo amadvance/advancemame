@@ -30,6 +30,7 @@
 
 #include "vsvgal.h"
 #include "video.h"
+#include "log.h"
 
 #include "libvga.h"
 #include "driver.h"
@@ -70,7 +71,7 @@ unsigned char* (*svgaline_write_line)(unsigned y);
 /* Options */
 
 struct svgaline_option_struct {
-	video_bool initialized;
+	adv_bool initialized;
 	int divide_clock;
 };
 
@@ -306,18 +307,18 @@ static device DEVICE[] = {
 #define CARD_MAX (sizeof(cards)/sizeof(cards[0]) - 1)
 
 /** Test the capability of the driver */
-static video_error svgaline_test_capability(struct svgaline_chipset_struct* driver) {
+static adv_error svgaline_test_capability(struct svgaline_chipset_struct* driver) {
 	unsigned bit_map[5] = { 8,15,16,24,32 };
 	unsigned i;
 
 	/* linear frame buffer */
 	if (__svgalib_linear_mem_size == 0) {
-		video_log("svgaline: linear_size 0, skip\n");
+		log_std(("svgaline: linear_size 0, skip\n"));
 		return -1;
 	}
 
 	if (__svgalib_linear_mem_base == 0) {
-		video_log("svgaline: linear_base 0, skip\n");
+		log_std(("svgaline: linear_base 0, skip\n"));
 		return -1;
 	}
 
@@ -329,7 +330,7 @@ static video_error svgaline_test_capability(struct svgaline_chipset_struct* driv
 		|| !driver->drv->setmode
 		|| !driver->drv->modeavailable
 		|| !driver->drv->linear) {
-		video_log("svgaline: missing function, skip\n");
+		log_std(("svgaline: missing function, skip\n"));
 	}
 
 	/* bit depth */
@@ -348,14 +349,14 @@ static video_error svgaline_test_capability(struct svgaline_chipset_struct* driv
 				case 32 : cap = VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT; break;
 			}
 			driver->cap &= ~cap;
-			video_log("svgaline: mode bit %d not supported, removed\n", bit);
+			log_std(("svgaline: mode bit %d not supported, removed\n", bit));
 		}
 
 		libdos_mode_done();
 	}
 
 	if ((driver->cap & VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) == 0) {
-		video_log("svgaline: no modes supported, skip\n");
+		log_std(("svgaline: no modes supported, skip\n"));
 		return -1;
 	}
 
@@ -365,7 +366,7 @@ static video_error svgaline_test_capability(struct svgaline_chipset_struct* driv
 
 		if (driver->drv->modeavailable(libdos_mode_number) == 0) {
 			driver->cap &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
-			video_log("svgaline: interlace not supported, removed\n");
+			log_std(("svgaline: interlace not supported, removed\n"));
 		}
 
 		libdos_mode_done();
@@ -385,20 +386,20 @@ static void svgaline_mode_print(void) {
 	k = __svgalib_saveregs(driver_regs);
 
 	for(i=0;i<k;i+=32) {
-		video_log("svgaline: regs %04x:",i);
+		log_std(("svgaline: regs %04x:",i));
 		for(j=0;j<32 && i+j<k;++j)
-			video_log("%02x",(unsigned)driver_regs[i+j]);
-		video_log("\n");
+			log_std(("%02x",(unsigned)driver_regs[i+j]));
+		log_std(("\n"));
 	}
 #endif
 
-	video_log("svgaline: svgalib mmap(linear) address %x, size %d\n", svgaline_state.linear_base, svgaline_state.linear_size);
+	log_std(("svgaline: svgalib mmap(linear) address %x, size %d\n", svgaline_state.linear_base, svgaline_state.linear_size));
 }
 
 /***************************************************************************/
 /* Public */
 
-video_error svgaline_init(int device_id) {
+adv_error svgaline_init(int device_id) {
 	unsigned i;
 	const char* name;
 	const device* j;
@@ -421,7 +422,7 @@ video_error svgaline_init(int device_id) {
 	for(i=0;cards[i].name;++i) {
 		if (strcmp(name,"auto")==0 || strcmp(name,cards[i].name)==0) {
 			if (cards[i].drv->test()) {
-				video_log("svgaline: found driver %s\n",cards[i].name);
+				log_std(("svgaline: found driver %s\n",cards[i].name));
 				if (svgaline_test_capability(&cards[i]) != 0) {
 					continue;
 				}
@@ -447,11 +448,11 @@ void svgaline_done(void) {
 	libdos_done();
 }
 
-video_bool svgaline_is_active(void) {
+adv_bool svgaline_is_active(void) {
 	return svgaline_state.active != 0;
 }
 
-video_bool svgaline_mode_is_active(void) {
+adv_bool svgaline_mode_is_active(void) {
 	return svgaline_state.mode_active != 0;
 }
 
@@ -460,15 +461,15 @@ unsigned svgaline_flags(void) {
 	return svgaline_state.driver->cap;
 }
 
-static video_error svgaline_mode_set_noint(const svgaline_video_mode* mode)
+static adv_error svgaline_mode_set_noint(const svgaline_video_mode* mode)
 {
 	unsigned clock;
 
 	assert(svgaline_is_active() && !svgaline_mode_is_active());
 
-	video_log("svgaline: mode_set bits_per_pixel %d\n", mode->bits_per_pixel );
-	video_log_modeline_c("svgaline: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc) );
-	video_log("svgaline: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc) );
+	log_std(("svgaline: mode_set bits_per_pixel %d\n", mode->bits_per_pixel ));
+	log_std_modeline_c(("svgaline: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc) ));
+	log_std(("svgaline: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc) ));
 
 	clock = mode->crtc.pixelclock;
 	if (svgaline_option.divide_clock)
@@ -477,63 +478,63 @@ static video_error svgaline_mode_set_noint(const svgaline_video_mode* mode)
 	libdos_mode_init(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), mode->bits_per_pixel, crtc_is_tvpal(&mode->crtc), crtc_is_tvntsc(&mode->crtc));
 
 	if (!__svgalib_linear_mem_size) {
-		video_error_description_set("The current driver does't support the linear frame buffer");
+		error_description_set("The current driver does't support the linear frame buffer");
 		return -1;
 	}
 
 	svgaline_state.linear_base = __svgalib_linear_mem_base;
 	svgaline_state.linear_size = __svgalib_linear_mem_size;
 
-	video_log("svgaline: svgalib mmap(linear) address %x, size %d\n", svgaline_state.linear_base, svgaline_state.linear_size);
+	log_std(("svgaline: svgalib mmap(linear) address %x, size %d\n", svgaline_state.linear_base, svgaline_state.linear_size));
 	svgaline_state.linear_pointer = mmap(0, svgaline_state.linear_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, svgaline_state.linear_base);
 
-	video_log("svgaline: svgalib linear pointer %p\n", svgaline_state.linear_pointer);
+	log_std(("svgaline: svgalib linear pointer %p\n", svgaline_state.linear_pointer));
 	__svgalib_linear_pointer = svgaline_state.linear_pointer;
 
 	if (__svgalib_mmio_size) {
-		video_log("svgaline: svgalib mmap(mmio) address %x, size %d\n", (unsigned)__svgalib_mmio_base, (unsigned)__svgalib_mmio_size);
+		log_std(("svgaline: svgalib mmap(mmio) address %x, size %d\n", (unsigned)__svgalib_mmio_base, (unsigned)__svgalib_mmio_size));
 		__svgalib_mmio_pointer = mmap(0, __svgalib_mmio_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base);
-		video_log("svgaline: svgalib mmio pointer %x\n",(unsigned)__svgalib_mmio_pointer);
+		log_std(("svgaline: svgalib mmio pointer %x\n",(unsigned)__svgalib_mmio_pointer));
 	} else
 		__svgalib_mmio_pointer = 0;
 
-	video_log("svgaline: svgalib unlock()\n");
+	log_std(("svgaline: svgalib unlock()\n"));
 
 	if (svgaline_state.driver->drv->unlock)
 		svgaline_state.driver->drv->unlock();
 
-	video_log("svgaline: svgalib saveregs()\n");
+	log_std(("svgaline: svgalib saveregs()\n"));
 
 	__svgalib_saveregs(svgaline_state.driver_regs);
 
 #ifdef NDEBUG
-	video_log("svgaline: svgalib screenoff()\n");
+	log_std(("svgaline: svgalib screenoff()\n"));
 	vga_screenoff();
 #endif
 
-	video_log("svgaline: svgalib setmode()\n");
+	log_std(("svgaline: svgalib setmode()\n"));
 
 	if (svgaline_state.driver->drv->setmode(libdos_mode_number, TEXT)) {
-		video_error_description_set("Generic error setting the svgaline mode");
+		error_description_set("Generic error setting the svgaline mode");
 		return -1;
 	}
 
-	video_log("svgaline: svgalib print()\n");
+	log_std(("svgaline: svgalib print()\n"));
 
 	svgaline_mode_print();
 
-	video_log("svgaline: svgalib delay()\n");
+	log_std(("svgaline: svgalib delay()\n"));
 
 	usleep(10000); /* wait for signal to stabilize */
 
-	video_log("svgaline: svgalib screenon()\n");
+	log_std(("svgaline: svgalib screenon()\n"));
 
 	vga_screenon();
 
-	video_log("svgaline: svgalib linear(LINEAR_ENABLE)\n");
+	log_std(("svgaline: svgalib linear(LINEAR_ENABLE)\n"));
 
 	if (svgaline_state.driver->drv->linear(LINEAR_ENABLE,svgaline_state.linear_base)!=0) {
-		video_error_description_set("Generic error setting the linear mode");
+		error_description_set("Generic error setting the linear mode");
 		return -1;
 	}
 
@@ -541,13 +542,13 @@ static video_error svgaline_mode_set_noint(const svgaline_video_mode* mode)
 
 	svgaline_state.mode_active = 1;
 
-	video_log("svgaline: mode_set done\n");
+	log_std(("svgaline: mode_set done\n"));
 
 	return 0;
 }
 
-video_error svgaline_mode_set(const svgaline_video_mode* mode) {
-	video_error r;
+adv_error svgaline_mode_set(const svgaline_video_mode* mode) {
+	adv_error r;
 
 #ifdef NDEBUG
 	/* disable the interrupts */
@@ -561,20 +562,20 @@ video_error svgaline_mode_set(const svgaline_video_mode* mode) {
 	return r;
 }
 
-video_error svgaline_mode_change(const svgaline_video_mode* mode) {
+adv_error svgaline_mode_change(const svgaline_video_mode* mode) {
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 
 	/* fast unset */
-	video_log("svgaline: svgalib unlock()\n");
+	log_std(("svgaline: svgalib unlock()\n"));
 
 	if (svgaline_state.driver->drv->unlock)
 		svgaline_state.driver->drv->unlock();
 
-	video_log("svgaline: svgalib linear(LINEAR_DISABLE)\n");
+	log_std(("svgaline: svgalib linear(LINEAR_DISABLE)\n"));
 
 	svgaline_state.driver->drv->linear(LINEAR_DISABLE,svgaline_state.linear_base);
 
-	video_log("svgaline: svgalib unmap(linear)\n");
+	log_std(("svgaline: svgalib unmap(linear)\n"));
 
 	munmap(svgaline_state.linear_pointer, svgaline_state.linear_size);
 	svgaline_state.linear_size = 0;
@@ -583,7 +584,7 @@ video_error svgaline_mode_change(const svgaline_video_mode* mode) {
 	__svgalib_linear_pointer = 0;
 
 	if (__svgalib_mmio_size) {
-		video_log("svgaline: svgalib unmap(mmio)\n");
+		log_std(("svgaline: svgalib unmap(mmio)\n"));
 		munmap(__svgalib_mmio_pointer, __svgalib_mmio_size);
 		__svgalib_mmio_pointer = 0;
 	}
@@ -595,42 +596,42 @@ video_error svgaline_mode_change(const svgaline_video_mode* mode) {
 	return svgaline_mode_set(mode);
 }
 
-static void svgaline_mode_done_noint(video_bool restore) {
+static void svgaline_mode_done_noint(adv_bool restore) {
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 
 	/* complete unset */
-	video_log("svgaline: svgalib unlock()\n");
+	log_std(("svgaline: svgalib unlock()\n"));
 
 	if (svgaline_state.driver->drv->unlock)
 		svgaline_state.driver->drv->unlock();
 
-	video_log("svgaline: svgalib linear(LINEAR_DISABLE)\n");
+	log_std(("svgaline: svgalib linear(LINEAR_DISABLE)\n"));
 
 	svgaline_state.driver->drv->linear(LINEAR_DISABLE,svgaline_state.linear_base);
 
 	if (restore) {
 #ifdef NDEBUG
-		video_log("svgaline: svgalib screenoff()\n");
+		log_std(("svgaline: svgalib screenoff()\n"));
 		vga_screenoff();
 #endif
-		video_log("svgaline: svgalib vgasetregs()\n");
+		log_std(("svgaline: svgalib vgasetregs()\n"));
 
 		__svgalib_setregs(svgaline_state.driver_regs);
 
-		video_log("svgaline: svgalib setregs()\n");
+		log_std(("svgaline: svgalib setregs()\n"));
 
 		svgaline_state.driver->drv->setregs(svgaline_state.driver_regs, TEXT);
 
-		video_log("svgaline: svgalib delay()\n");
+		log_std(("svgaline: svgalib delay()\n"));
 
 		usleep(10000); /* wait for signal to stabilize */
 
-		video_log("svgaline: svgalib screenon()\n");
+		log_std(("svgaline: svgalib screenon()\n"));
 
 		vga_screenon();
 	}
 
-	video_log("svgaline: svgalib unmap(linear)\n");
+	log_std(("svgaline: svgalib unmap(linear)\n"));
 
 	munmap(svgaline_state.linear_pointer, svgaline_state.linear_size);
 	svgaline_state.linear_size = 0;
@@ -639,7 +640,7 @@ static void svgaline_mode_done_noint(video_bool restore) {
 	__svgalib_linear_pointer = 0;
 
 	if (__svgalib_mmio_size) {
-		video_log("svgaline: svgalib unmap(mmio)\n");
+		log_std(("svgaline: svgalib unmap(mmio)\n"));
 		munmap(__svgalib_mmio_pointer, __svgalib_mmio_size);
 		__svgalib_mmio_pointer = 0;
 	}
@@ -649,7 +650,7 @@ static void svgaline_mode_done_noint(video_bool restore) {
 	svgaline_state.mode_active = 0;
 }
 
-void svgaline_mode_done(video_bool restore) {
+void svgaline_mode_done(adv_bool restore) {
 	/* disable the interrupts */
 	disable();
 	svgaline_mode_done_noint(restore);
@@ -685,7 +686,7 @@ void svgaline_wait_vsync(void) {
 	vga_waitretrace();
 }
 
-video_error svgaline_scroll(unsigned offset, video_bool waitvsync) {
+adv_error svgaline_scroll(unsigned offset, adv_bool waitvsync) {
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 
 	if (!svgaline_state.driver->drv->setdisplaystart)
@@ -698,7 +699,7 @@ video_error svgaline_scroll(unsigned offset, video_bool waitvsync) {
 	return 0;
 }
 
-video_error svgaline_scanline_set(unsigned byte_length) {
+adv_error svgaline_scanline_set(unsigned byte_length) {
 	assert(svgaline_is_active() && svgaline_mode_is_active());
 	if (!svgaline_state.driver->drv->setlogicalwidth)
 		return -1;
@@ -706,7 +707,7 @@ video_error svgaline_scanline_set(unsigned byte_length) {
 	return 0;
 }
 
-video_error svgaline_palette8_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync) {
+adv_error svgaline_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
 	if (waitvsync)
 		svgaline_wait_vsync();
 
@@ -722,7 +723,7 @@ video_error svgaline_palette8_set(const video_color* palette, unsigned start, un
 
 #define DRIVER(mode) ((svgaline_video_mode*)(&mode->driver_mode))
 
-video_error svgaline_mode_import(video_mode* mode, const svgaline_video_mode* svgaline_mode)
+adv_error svgaline_mode_import(video_mode* mode, const svgaline_video_mode* svgaline_mode)
 {
 	strcpy(mode->name, svgaline_mode->crtc.name);
 
@@ -747,7 +748,7 @@ video_error svgaline_mode_import(video_mode* mode, const svgaline_video_mode* sv
 	return 0;
 }
 
-video_error svgaline_mode_generate(svgaline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags)
+adv_error svgaline_mode_generate(svgaline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags)
 {
 	assert( svgaline_is_active() );
 
@@ -758,7 +759,7 @@ video_error svgaline_mode_generate(svgaline_video_mode* mode, const video_crtc* 
 	libdos_mode_init(crtc->pixelclock, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt, crtc_is_doublescan(crtc), crtc_is_interlace(crtc), crtc_is_nhsync(crtc), crtc_is_nvsync(crtc), bits, 0, 0);
 
 	if (svgaline_state.driver->drv->modeavailable(libdos_mode_number) == 0) {
-		video_error_description_nolog_cat("svgaline: Generic error checking the availability of the video mode\n");
+		error_description_nolog_cat("svgaline: Generic error checking the availability of the video mode\n");
 		libdos_mode_done();
 		return -1;
 	}
@@ -795,7 +796,7 @@ void svgaline_reg(struct conf_context* context) {
 	svgaline_option.initialized = 1;
 }
 
-video_error svgaline_load(struct conf_context* context) {
+adv_error svgaline_load(struct conf_context* context) {
 	assert( !svgaline_is_active() );
 
 	svgaline_option.divide_clock = conf_bool_get_default(context, "device_svgaline_divide_clock");
@@ -808,19 +809,19 @@ video_error svgaline_load(struct conf_context* context) {
 /***************************************************************************/
 /* Driver */
 
-static video_error svgaline_mode_set_void(const void* mode) {
+static adv_error svgaline_mode_set_void(const void* mode) {
 	return svgaline_mode_set((const svgaline_video_mode*)mode);
 }
 
-static video_error svgaline_mode_change_void(const void* mode) {
+static adv_error svgaline_mode_change_void(const void* mode) {
 	return svgaline_mode_change((const svgaline_video_mode*)mode);
 }
 
-static video_error svgaline_mode_import_void(video_mode* mode, const void* svgaline_mode) {
+static adv_error svgaline_mode_import_void(video_mode* mode, const void* svgaline_mode) {
 	return svgaline_mode_import(mode, (const svgaline_video_mode*)svgaline_mode);
 }
 
-static video_error svgaline_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+static adv_error svgaline_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
 	return svgaline_mode_generate((svgaline_video_mode*)mode,crtc,bits,flags);
 }
 

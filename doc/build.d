@@ -49,18 +49,9 @@ Configuring
     Linux
 	In Linux you need to run the `./configure' script with the proper options.
 	You can get a complete option list with the `./configure --help' command.
-	Generally, you need only to specify the --with-system option choosing
-	the `sdl' or the `native' system library.
-
-	The `native' system uses the svgalib 1.9 and framebuffer graphics libraries
-	and it's able to directly access and completly control the graphics output
-	of your video board and automatically generate video modes with the correct
-	size and frequency.
-
-	The `sdl' system uses the LibSDL graphics library, it can be used to show
-	the program in a Window Manager, but it's unable to completly control the
-	graphics output. It isn't a good choice for the fullscreen use of the
-	emulators, but it works good for the frontend.
+	
+	The configure script automatically detect all the available libraries.
+	All the libraries found are used.
 
 	If you want to customize the compilation CFLAGS you can set them before
 	calling the ./configure script, for example:

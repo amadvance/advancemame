@@ -25,8 +25,9 @@
 extern "C" {
 #endif
 
+#include "advstd.h"
+
 #include <stdio.h>
-#include "videostd.h"
 
 /**************************************************************************/
 /* Generic flags */

@@ -573,12 +573,13 @@ Configuration
     device_video_*
 	All the `device_video_*' options defined in the `advv.txt' file can
 	be used.
+   
+	If you are using the `sdl' video driver you don't need to set these 
+	options. 
 
-	If you are using the `sdl' target you don't need to set these options.
-
-	On the other targets these options are used to select and create the
-	correct video mode. If missing the settings for a standard Multisync
-	SVGA monitor are used.
+	With the other video drivers these options are used to select 
+	and create the correct video mode. 
+	If missing the settings for a standard Multisync SVGA monitor are used.
 
     video_size
 	Select the desired size of the video mode.

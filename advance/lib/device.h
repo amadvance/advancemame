@@ -34,7 +34,7 @@
 /***************************************************************************/
 /* Driver */
 
-#include "videostd.h"
+#include "advstd.h"
 
 /** Max number of devices */
 #define DEVICE_MAX 8
@@ -57,8 +57,8 @@ struct driver_struct {
 
 typedef struct driver_struct driver;
 
-const device* device_match(const char* tag, const driver* drv, video_bool allow_none);
-video_error device_check(const char* option, const char* arg, const driver** driver_map, unsigned driver_mac, const char* driver_ignore);
+const device* device_match(const char* tag, const driver* drv, adv_bool allow_none);
+adv_error device_check(const char* option, const char* arg, const driver** driver_map, unsigned driver_mac, const char* driver_ignore);
 void device_error(const char* option, const char* arg, const driver** driver_map, unsigned driver_mac);
 
 #endif

@@ -54,19 +54,19 @@ struct sound_driver_struct {
 	const device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	video_error (*load)(struct conf_context* context);
+	adv_error (*load)(struct conf_context* context);
 
 	/** Register the load options. Call before load(). */
 	void (*reg)(struct conf_context* context);
 
-	video_error (*init)(int device_id, unsigned* rate, video_bool stereo_flag, double buffer_time); /**< Initialize the driver */
+	adv_error (*init)(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
 
 	void (*play)(const sound_sample_t* sample_map, unsigned sample_count);
 	unsigned (*buffered)(void);
-	video_error (*start)(double silence_time);
+	adv_error (*start)(double silence_time);
 	void (*stop)(void);
 	void (*volume)(double v);
 };
@@ -76,9 +76,9 @@ typedef struct sound_driver_struct sound_driver;
 #define SOUND_DRIVER_MAX 8
 
 struct sound_state_struct {
-	video_bool is_initialized_flag;
-	video_bool is_active_flag;
-	video_bool is_playing_flag;
+	adv_bool is_initialized_flag;
+	adv_bool is_active_flag;
+	adv_bool is_playing_flag;
 	unsigned driver_mac;
 	sound_driver* driver_map[SOUND_DRIVER_MAX];
 	sound_driver* driver_current;
@@ -87,10 +87,10 @@ struct sound_state_struct {
 
 struct sound_state_struct sound_state;
 
-void sound_reg(struct conf_context* config_context, video_bool auto_detect);
+void sound_reg(struct conf_context* config_context, adv_bool auto_detect);
 void sound_reg_driver(struct conf_context* config_context, sound_driver* driver);
-video_error sound_load(struct conf_context* config_context);
-video_error sound_init(unsigned* rate, int stereo_flag, double buffer_time);
+adv_error sound_load(struct conf_context* config_context);
+adv_error sound_init(unsigned* rate, int stereo_flag, double buffer_time);
 void sound_done(void);
 void sound_abort(void);
 
@@ -114,7 +114,7 @@ static __inline__ void sound_stop(void) {
 	sound_state.is_playing_flag = 0;
 }
 
-static __inline__ video_error sound_start(double silence_time) {
+static __inline__ adv_error sound_start(double silence_time) {
 	assert( sound_state.is_active_flag && !sound_state.is_playing_flag );
 
 	if (sound_state.driver_current->start(silence_time) != 0)

@@ -7,10 +7,10 @@ else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
 else
-EMUVERSION = 0.61.3
+EMUVERSION = 0.61.4
 endif
 endif
-MENUVERSION = 2.1.2
+MENUVERSION = 2.1.3
 CABVERSION = 0.11.3
 
 ############################################################################
@@ -45,7 +45,7 @@ ifneq ($(wildcard $(srcdir)/advance/menu.mak),)
 INSTALL_BINFILES += $(MENUOBJ)/advmenu$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advmenu.1
 endif
-ifneq ($(CONF_SYSTEM),sdl)
+ifneq ($(CONF_HOST),windows)
 ifneq ($(wildcard $(srcdir)/advance/v.mak),)
 INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advv.1
@@ -188,6 +188,10 @@ DOS_SRC = \
 	$(wildcard $(srcdir)/advance/dos/*.c) \
 	$(wildcard $(srcdir)/advance/dos/*.h) \
 	$(wildcard $(srcdir)/advance/dos/*.dat)
+
+WINDOWS_SRC = \
+	$(wildcard $(srcdir)/advance/windows/*.c) \
+	$(wildcard $(srcdir)/advance/windows/*.h)
 
 SDL_SRC = \
 	$(wildcard $(srcdir)/advance/sdl/*.c) \
@@ -342,15 +346,13 @@ wholemame:
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos distbin
 	$(MAKE) $(ARCH_I686) CONF=no CONF_HOST=dos distbin
 	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos distbin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_SYSTEM=sdl distbin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_SYSTEM=linux distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix distbin
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distbin
 
 wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_SYSTEM=sdl CONF_EMU=mess distbin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_SYSTEM=linux CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_EMU=mess distbin
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
 
 wholepac:
@@ -361,10 +363,9 @@ wholepac:
 
 wholemenu:
 	$(MAKE) CONF=no distmenu
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos CONF_SYSTEM=dos distmenubin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows CONF_SYSTEM=sdl distmenubin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_SYSTEM=sdl distmenubin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_SYSTEM=linux distmenubin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos distmenubin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distmenubin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix distmenubin
 
 wholecab:
 	$(MAKE) CONF=no CONF_HOST=dos distcab

@@ -51,12 +51,12 @@ struct joystickb_driver_struct {
 	const device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	video_error (*load)(struct conf_context* context);
+	adv_error (*load)(struct conf_context* context);
 
 	/** Register the load options. Call before load(). */
 	void (*reg)(struct conf_context* context);
 
-	video_error (*init)(int device_id); /**< Initialize the driver */
+	adv_error (*init)(int device_id); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
@@ -81,8 +81,8 @@ typedef struct joystickb_driver_struct joystickb_driver;
 #define JOYSTICK_DRIVER_MAX 8
 
 struct joystickb_state_struct {
-	video_bool is_initialized_flag;
-	video_bool is_active_flag;
+	adv_bool is_initialized_flag;
+	adv_bool is_active_flag;
 	unsigned driver_mac;
 	joystickb_driver* driver_map[JOYSTICK_DRIVER_MAX];
 	joystickb_driver* driver_current;
@@ -91,10 +91,10 @@ struct joystickb_state_struct {
 
 extern struct joystickb_state_struct joystickb_state;
 
-void joystickb_reg(struct conf_context* config_context, video_bool auto_detect);
+void joystickb_reg(struct conf_context* config_context, adv_bool auto_detect);
 void joystickb_reg_driver(struct conf_context* config_context, joystickb_driver* driver);
-video_error joystickb_load(struct conf_context* config_context);
-video_error joystickb_init(void);
+adv_error joystickb_load(struct conf_context* config_context);
+adv_error joystickb_init(void);
 void joystickb_done(void);
 void joystickb_abort(void);
 

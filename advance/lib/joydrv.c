@@ -42,7 +42,7 @@ void joystickb_default(void) {
 	strcpy(joystickb_state.name, "none");
 }
 
-void joystickb_reg(struct conf_context* context, video_bool auto_detect) {
+void joystickb_reg(struct conf_context* context, adv_bool auto_detect) {
 	conf_string_register_default(context, "device_joystick", auto_detect ? "auto" : "none");
 }
 
@@ -57,7 +57,7 @@ void joystickb_reg_driver(struct conf_context* context, joystickb_driver* driver
 	++joystickb_state.driver_mac;
 }
 
-video_error joystickb_load(struct conf_context* context) {
+adv_error joystickb_load(struct conf_context* context) {
 	unsigned i;
 	int at_least_one;
 
@@ -90,7 +90,7 @@ video_error joystickb_load(struct conf_context* context) {
 	return 0;
 }
 
-video_error joystickb_init(void) {
+adv_error joystickb_init(void) {
 	unsigned i;
 
 	assert(joystickb_state.driver_current == 0);
@@ -100,6 +100,9 @@ video_error joystickb_init(void) {
 	if (!joystickb_state.is_initialized_flag) {
 		joystickb_default();
 	}
+
+	/* store the error prefix */
+	error_description_nolog_set("Unable to inizialize a joystick driver. The following are the errors:\n");
 
 	for(i=0;i<joystickb_state.driver_mac;++i) {
 		const device* dev;

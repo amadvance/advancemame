@@ -29,7 +29,6 @@
  */
 
 #include "blit.h"
-#include "target.h"
 #include "log.h"
 
 #include <assert.h>
@@ -268,11 +267,11 @@ static void video_buffer_done(void) {
 /***************************************************************************/
 /* init/done */
 
-video_error video_blit_init(void) {
+adv_error video_blit_init(void) {
 	unsigned i;
 
 	if (blit_set_mmx() != 0) {
-		target_err("This executable requires an MMX processor.\n");
+		error_description_set("This executable requires an MMX processor.\n");
 		return -1;
 	}
 

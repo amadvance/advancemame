@@ -43,10 +43,10 @@ typedef struct vbe_video_mode_struct {
 
 unsigned vbe_flags(void);
 
-video_error vbe_mode_generate(vbe_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
-video_error vbe_mode_import(video_mode* mode, const vbe_video_mode* vbe_mode);
-video_error vbe_mode_grab(vbe_video_mode* mode);
-video_error vbe_palette8_set(const video_color* palette, unsigned start, unsigned count, video_bool waitvsync);
+adv_error vbe_mode_generate(vbe_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+adv_error vbe_mode_import(video_mode* mode, const vbe_video_mode* vbe_mode);
+adv_error vbe_mode_grab(vbe_video_mode* mode);
+adv_error vbe_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
 int vbe_mode_compare(const vbe_video_mode* a, const vbe_video_mode* b);
 
 extern video_driver video_vbe_driver;

@@ -36,7 +36,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-video_error mouseb_none_init(int mouseb_id)
+adv_error mouseb_none_init(int mouseb_id)
 {
 	log_std(("mouseb:none: mouseb_none_init(id:%d)\n",mouseb_id));
 
@@ -93,7 +93,7 @@ unsigned mouseb_none_flags(void)
 	return 0;
 }
 
-video_error mouseb_none_load(struct conf_context* context)
+adv_error mouseb_none_load(struct conf_context* context)
 {
 	return 0;
 }

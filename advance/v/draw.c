@@ -189,7 +189,7 @@ static int text_default_set(void) {
 void text_init(void) {
 	if (text_default_set()!=0) {
 		video_mode_restore();
-		printf("Error inizialing the default video mode\n\"%s\"",video_error_description_get());
+		printf("Error inizialing the default video mode\n\"%s\"", error_description_get());
 		exit(EXIT_FAILURE);
 	}
 

@@ -21,6 +21,7 @@ case "$host" in
 	;;
 	*-*-msdos*)
 		ac_host=dos
+		ac_lib="Allegro SEAL VSYNC VBELINE SVGALINE VGALINE"
 		AC_SUBST([ASMFLAGS],["-f coff"])
 		AC_SUBST([CFLAGS_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS"])
 		AC_SUBST([EXE],[.exe])
@@ -231,71 +232,39 @@ if test -f $srcdir/makefile ; then
 fi
 AC_SUBST(CONF_EMU,$ac_with_emu)
 
-AC_ARG_WITH(
-	[system],
-	AC_HELP_STRING([--with-system],[select the system to use: linux, dos or sdl. (default auto)]),
-	[ac_with_system=$withval],
-	[ac_with_system=auto]
+AC_ARG_ENABLE(
+	[svgalib],
+	AC_HELP_STRING([--enable-svgalib],[enable the use of the SVGALIB library. (default auto)]),
+	[ac_lib_svgalib=$withval],
+	[ac_lib_svgalib=auto]
 )
-if test $ac_with_system = auto; then
-	if test $ac_host = dos; then
-		ac_with_system=dos
-	elif test $ac_host = windows; then
-		ac_with_system=sdl
-	elif test $ac_with_emu = none; then
-		ac_with_system=sdl
-	else
-		ac_with_system=linux
-	fi
-fi
-if test $ac_with_system = sdl; then
-	if test -z ${host_alias} ; then
-		AC_CHECK_PROGS(
-			[SDLCONFIG],
-			[sdl-config],
-			[none]
+if test $ac_lib_svgalib = auto; then
+	if test $ac_host = unix; then
+		AC_CHECK_LIB(
+			[vga],
+			[vga_init],
+			[ac_lib_svgalib=yes],
+			[ac_lib_svgalib=no]
 		)
-	else
-		AC_CHECK_PROGS(
-			[SDLCONFIG],
-			[${host_alias}-sdl-config],
-			[none]
+		AC_MSG_CHECKING([for svgalib version])
+		AC_TRY_COMPILE(
+			[#include <vga.h>],
+			[#if !defined(SVGALIB_VER) || (SVGALIB_VER<0x010900)
+			choke me
+			#endif],
+			[],
+			[ac_lib_svgalib=no]
 		)
+		AC_MSG_RESULT([$ac_lib_svgalib])
+	else
+		ac_lib_svgalib=no
 	fi
-	if test $SDLCONFIG = none; then
-		AC_MSG_ERROR([The sdl-config script is required for the "sdl" system])
-	fi
-
-	SDLCFLAGS=`$SDLCONFIG --cflags`
-	SDLLIBS=`$SDLCONFIG --libs`
-	AC_CHECK_LIB(
-		[SDL],
-		[SDL_Init],
-		[],
-		[AC_MSG_ERROR([The SDL library is required for the "sdl" system])],
-		[$SDLLIBS]
-	)
-	AC_SUBST(SDLCFLAGS)
-	AC_SUBST(SDLLIBS)
-elif test $ac_with_system = dos; then
-	AC_CHECK_LIB(
-		[alleg],
-		[install_allegro],
-		[],
-		[AC_MSG_ERROR([The Allegro library is required for the "dos" system])]
-	)
-	AC_CHECK_LIB(
-		[audio],
-		[AInitialize],
-		[],
-		[AC_MSG_ERROR([The SEAL library is required for the "dos" system])]
-	)
-elif test $ac_with_system = linux; then
+elif test $ac_lib_svgalib = yes; then
 	AC_CHECK_LIB(
 		[vga],
 		[vga_init],
-		[ac_library_vga=yes],
-		[AC_MSG_ERROR([The vgalib library is required for the "linux" system])]
+		[],
+		[AC_MSG_ERROR([The SVGALIB library is missing])]
 	)
 	AC_TRY_COMPILE(
 		[#include <vga.h>],
@@ -303,39 +272,213 @@ elif test $ac_with_system = linux; then
 		choke me
 		#endif],
 		[],
-		[AC_MSG_ERROR([Your vgalib library is too old. Please upgrade to the 1.9 or 2.0 version])]
+		[AC_MSG_ERROR([The SVGALIB library is too old. Please upgrade to the 1.9 or 2.0 version])]
 	)
-elif test $ac_with_system = none; then
-	AC_MSG_ERROR([You must specify a --with-system= option])
-else
-	AC_MSG_ERROR([Unknown system $ac_with_system, valid values are linux, dos and sdl])
 fi
-AC_SUBST([CONF_SYSTEM],[$ac_with_system])
+if test $ac_lib_svgalib = yes; then
+	ac_lib="$ac_lib SVGALIB"
+fi
+AC_SUBST([CONF_LIB_SVGALIB],[$ac_lib_svgalib])
 
 AC_ARG_ENABLE(
-	[smp],
-	AC_HELP_STRING([--enable-smp],[enable the multi processor support (default auto)]),
-	[ac_enable_smp=$enableval],
-	[ac_enable_smp=auto]
+	[fb],
+	AC_HELP_STRING([--enable-fb],[enable the use of the Frame Buffer library. (default auto)]),
+	[ac_lib_fb=$withval],
+	[ac_lib_fb=auto]
 )
-if test $ac_enable_smp = auto; then
-	AC_CHECK_LIB(
-		[pthread],
-		[pthread_create],
-		[ac_enable_smp=yes],
-		[ac_enable_smp=no],
-		[]
+if test $ac_lib_fb = auto; then
+	if test $ac_host = unix; then
+		AC_MSG_CHECKING([for FrameBuffer])
+		AC_TRY_COMPILE(
+			[#include <linux/fb.h>],
+			[struct fb_var_screeninfo dummy;],
+			[ac_lib_fb=yes],
+			[ac_lib_fb=no]
+		)
+		AC_MSG_RESULT([$ac_lib_fb])
+	else
+		ac_lib_fb=no
+	fi
+elif test $ac_lib_fb = yes; then
+	AC_MSG_CHECKING([for FrameBuffer])
+	AC_TRY_COMPILE(
+		[#include <linux/fb.h>],
+		[struct fb_var_screeninfo dummy;],
+		[],
+		[AC_MSG_ERROR([The Frame Buffer library is missing])]
 	)
-elif test $ac_enable_smp = yes; then
+	AC_MSG_RESULT([yes])
+fi
+if test $ac_lib_fb = yes; then
+	ac_lib="$ac_lib FrameBuffer"
+fi
+AC_SUBST([CONF_LIB_FB],[$ac_lib_fb])
+
+AC_ARG_ENABLE(
+	[oss],
+	AC_HELP_STRING([--enable-oss],[enable the use of the OSS library. (default auto)]),
+	[ac_lib_oss=$withval],
+	[ac_lib_oss=auto]
+)
+if test $ac_lib_oss = auto; then
+	if test $ac_host = unix; then
+		AC_MSG_CHECKING([for OSS])
+		AC_TRY_COMPILE(
+			[#include <sys/soundcard.h>],
+			[int dummy = SNDCTL_DSP_SETFMT;],
+			[ac_lib_oss=yes],
+			[ac_lib_oss=no]
+		)
+		AC_MSG_RESULT([$ac_lib_oss])
+	else
+		ac_lib_oss=no
+	fi
+elif test $ac_lib_oss = yes; then
+	AC_MSG_CHECKING([for OSS])
+	AC_TRY_COMPILE(
+		[#include <sys/soundcard.h>],
+		[int dummy = SNDCTL_DSP_SETFMT;],
+		[],
+		[AC_MSG_ERROR([The OSS library is missing])]
+	)
+	AC_MSG_RESULT([yes])
+fi
+if test $ac_lib_oss = yes; then
+	ac_lib="$ac_lib OSS"
+fi
+AC_SUBST([CONF_LIB_OSS],[$ac_lib_oss])
+
+AC_ARG_ENABLE(
+	[pthread],
+	AC_HELP_STRING([--enable-pthread],[enable the use of the pthread library (default auto)]),
+	[ac_lib_pthread=$enableval],
+	[ac_lib_pthread=auto]
+)
+if test $ac_lib_pthread = auto; then
+	if test $ac_host = unix; then
+		AC_CHECK_LIB(
+			[pthread],
+			[pthread_create],
+			[ac_lib_pthread=yes],
+			[ac_lib_pthread=no],
+			[]
+		)
+	else
+		ac_lib_pthread=no
+	fi
+elif test $ac_lib_pthread = yes; then
 	AC_CHECK_LIB(
 		[pthread],
 		[pthread_create],
 		[],
-		[AC_MSG_ERROR([The pthread library is required for the Multiprocessor support])],
+		[AC_MSG_ERROR([The pthread library is missing])],
 		[]
 	)
 fi
-AC_SUBST([CONF_SMP],[$ac_enable_smp])
+if test $ac_lib_pthread = yes; then
+	ac_lib="$ac_lib pthread"
+fi
+AC_SUBST([CONF_LIB_PTHREAD],[$ac_lib_pthread])
+
+AC_ARG_ENABLE(
+	[slang],
+	AC_HELP_STRING([--enable-slang],[enable the use of the sLang library (default auto)]),
+	[ac_lib_slang=$enableval],
+	[ac_lib_slang=auto]
+)
+if test $ac_lib_slang = auto; then
+	if test $ac_host = unix; then
+		AC_CHECK_LIB(
+			[slang],
+			[SLang_init_tty],
+			[ac_lib_slang=yes],
+			[ac_lib_slang=no],
+			[]
+		)
+	else
+		ac_lib_slang=no
+	fi
+elif test $ac_lib_slang = yes; then
+	AC_CHECK_LIB(
+		[slang],
+		[SLang_init_tty],
+		[],
+		[AC_MSG_ERROR([The sLang library is missing])],
+		[]
+	)
+fi
+if test $ac_lib_slang = yes; then
+	ac_lib="$ac_lib sLang"
+fi
+AC_SUBST([CONF_LIB_SLANG],[$ac_lib_slang])
+
+AC_ARG_ENABLE(
+	[sdl],
+	AC_HELP_STRING([--enable-sdl],[enable the use of the SDL library. (default auto)]),
+	[ac_lib_sdl=$withval],
+	[ac_lib_sdl=auto]
+)
+if test $ac_lib_sdl = auto; then
+	if test $ac_host = dos; then
+		ac_lib_sdl=no
+	else
+		if test -z ${host_alias} ; then
+			AC_CHECK_PROGS(
+				[SDLCONFIG],
+				[sdl-config],
+				[no]
+			)
+		else
+			AC_CHECK_PROGS(
+				[SDLCONFIG],
+				[${host_alias}-sdl-config],
+				[no]
+			)
+		fi
+		if test ! $SDLCONFIG = no; then
+			SDLCFLAGS=`$SDLCONFIG --cflags`
+			SDLLIBS=`$SDLCONFIG --libs`
+		fi
+		AC_CHECK_LIB(
+			[SDL],
+			[SDL_Init],
+			[ac_lib_sdl=yes],
+			[ac_lib_sdl=no],
+			[$SDLLIBS]
+		)
+	fi
+elif test $ac_lib_sdl = yes; then
+	if test -z ${host_alias} ; then
+		AC_CHECK_PROGS(
+			[SDLCONFIG],
+			[sdl-config],
+			[no]
+		)
+	else
+		AC_CHECK_PROGS(
+			[SDLCONFIG],
+			[${host_alias}-sdl-config],
+			[no]
+		)
+	fi
+	if test ! $SDLCONFIG = no; then
+		SDLCFLAGS=`$SDLCONFIG --cflags`
+		SDLLIBS=`$SDLCONFIG --libs`
+	fi
+	AC_CHECK_LIB(
+		[SDL],
+		[SDL_Init],
+		[],
+		[AC_MSG_ERROR([The SDL library is missing])],
+		[$SDLLIBS]
+	)
+fi
+if test $ac_lib_sdl = yes; then
+	ac_lib="$ac_lib SDL"
+fi
+AC_SUBST([SDLCFLAGS])
+AC_SUBST([SDLLIBS])
+AC_SUBST([CONF_LIB_SDL],[$ac_lib_sdl])
 
 AC_ARG_ENABLE(
 	[debugger],
@@ -381,12 +524,12 @@ if test $ac_is_bigendian = yes; then
 else
 	echo "Endianess : little"
 fi
-echo "Multiprocessor :" $ac_enable_smp
 if test $ac_enable_asm = yes; then
 	echo "Assembler for Pentium : yes"
 else
 	echo "Assembler for Pentium : no"
 fi
+echo "Libraries :" $ac_lib
 echo ""
 echo "== Compiler =="
 echo "CC :" $CC
@@ -394,7 +537,6 @@ echo "CFLAGS :" $CFLAGS $CFLAGS_OPTOPT
 echo "LDFLAGS :" $LDFLAGS
 echo ""
 echo "== Configuration =="
-echo "System library :" $ac_with_system
 echo "Emulator :" $ac_with_emu
 if test ! $ac_with_emu = none ; then
 	echo "Debugger :" $ac_enable_debugger
