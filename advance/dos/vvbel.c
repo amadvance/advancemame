@@ -104,16 +104,17 @@ static struct vbeline_option_struct vbeline_option;
 static device DEVICE[] = {
 { "auto", 1, "VBELINE automatic detection" },
 { "laguna", 2, "Cirrus Laguna" },
-{ "savage", 3, "S3 Savage" },
-{ "sis", 4, "SiS" },
-{ "matrox", 5, "Matrox" },
-{ "r128", 6, "ATI Rage 128" },
-{ "neomagic", 7, "NeoMagic" },
-{ "s3", 8, "S3" },
-{ "trident", 9, "Trident" },
-{ "ati", 10, "ATI" },
-{ "cirrus", 11, "Cirrus Logic" },
-{ "vbe3", 12, "VESA VBE3" },
+{ "3dfx", 3, "3dfx" },
+{ "savage", 4, "S3 Savage" },
+{ "sis", 5, "SiS" },
+{ "matrox", 6, "Matrox" },
+{ "r128", 7, "ATI Rage 128" },
+{ "neomagic", 8, "NeoMagic" },
+{ "s3", 9, "S3" },
+{ "trident", 10, "Trident" },
+{ "ati", 11, "ATI" },
+{ "cirrus", 12, "Cirrus Logic" },
+{ "vbe3", 13, "VESA VBE3" },
 { 0, 0, 0 }
 };
 

@@ -237,9 +237,9 @@ static void video_line_palette16to8_step2_def(const struct video_stage_horz_stru
 
 #if defined(USE_ASM_i586)
 static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	assert_align(((unsigned)dst & 0x7)==0);
-
 	unsigned count = stage->slice.count;
+
+	assert_align(((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
 		"shrl $3,%2\n"
@@ -365,9 +365,9 @@ static void video_line_palette16to16_step2_def(const struct video_stage_horz_str
 
 #if defined(USE_ASM_i586)
 static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
-
 	unsigned count = stage->slice.count;
+
+	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
 		"shrl $2,%2\n"
@@ -464,9 +464,9 @@ static void video_line_palette16to32_step2_def(const struct video_stage_horz_str
 
 #if defined(USE_ASM_i586)
 static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* stage, void* dst, void* src) {
-	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
-
 	unsigned count = stage->slice.count;
+
+	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
 
 	__asm__ __volatile__(
 		"shrl $1,%2\n"
