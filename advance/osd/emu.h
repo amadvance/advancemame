@@ -176,6 +176,8 @@ struct advance_video_config_context {
 	char section_orientation[256]; /**< Section used to store the option for the orientation. */
 	int smp_flag; /**< Use threads */
 	int crash_flag; /**< If enable the crash menu entry. */
+	unsigned monitor_aspect_x; /**< Horizontal aspect of the monitor (4 for a standard monitor) */
+	unsigned monitor_aspect_y; /**< Vertical aspect of the monitor (3 for a standard monitor) */
 };
 
 /* Internal options for the video part */

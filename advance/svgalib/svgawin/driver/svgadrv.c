@@ -8,7 +8,7 @@
 #define svgalibKdPrint(arg)
 #endif
 
-NTSTATUS svgalib_map(IN PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
+NTSTATUS svgalib_map(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
 {
 	SVGALIB_MAP_IN* in = (SVGALIB_MAP_IN*)IoBuffer;
 	SVGALIB_MAP_OUT* out = (SVGALIB_MAP_OUT*)IoBuffer;
@@ -41,12 +41,12 @@ NTSTATUS svgalib_map(IN PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG Input
 	inIoSpace2 = 0;
 	length = in->size;
 
-	// Get a pointer to physical memory...
-	// - Create the name
-	// - Initialize the data to find the object
-	// - Open a handle to the oject and check the status
-	// - Get a pointer to the object
-	// - Free the handle
+	/* get a pointer to physical memory... */
+	/* - create the name */
+	/* - initialize the data to find the object */
+	/* - open a handle to the oject and check the status */
+	/* - get a pointer to the object */
+	/* - free the handle */
 	RtlInitUnicodeString(&physicalMemoryUnicodeString, L"\\Device\\PhysicalMemory");
 
 	InitializeObjectAttributes(&objectAttributes, &physicalMemoryUnicodeString, OBJ_CASE_INSENSITIVE, (HANDLE) NULL, (PSECURITY_DESCRIPTOR) NULL);
@@ -64,10 +64,10 @@ NTSTATUS svgalib_map(IN PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG Input
 		goto err_handle;
 	}
 
-	// Initialize the physical addresses that will be translated
+	/* initialize the physical addresses that will be translated */
 	physicalAddressEnd = RtlLargeIntegerAdd(physicalAddress, RtlConvertUlongToLargeInteger(length));
 
-	// Translate the physical addresses.
+	/* translate the physical addresses */
 	translateBaseAddress = HalTranslateBusAddress(PCIBus, busNumber, physicalAddress, &inIoSpace1, &physicalAddressBase);
 	translateEndAddress = HalTranslateBusAddress(PCIBus, busNumber, physicalAddressEnd, &inIoSpace2, &physicalAddressEnd);
 
@@ -77,11 +77,11 @@ NTSTATUS svgalib_map(IN PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG Input
 		goto err_handle;
 	}
 
-	// Calculate the length of the memory to be mapped
+	/* calculate the length of the memory to be mapped */
 	mappedLength = RtlLargeIntegerSubtract(physicalAddressEnd, physicalAddressBase);
 
-	// If the mappedlength is zero, something very weird happened in the HAL
-	// since the Length was checked against zero.
+	/* if the mappedlength is zero, something very weird happened in the HAL */
+	/* since the Length was checked against zero */
 	if (mappedLength.LowPart == 0) {
 		svgalibKdPrint(("SVGAWIN: mappedLength.LowPart == 0\n"));
 		status = STATUS_UNSUCCESSFUL;
@@ -90,14 +90,14 @@ NTSTATUS svgalib_map(IN PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG Input
 
 	length = mappedLength.LowPart;
 
-	// initialize view base that will receive the physical mapped
-	// address after the MapViewOfSection call.
+	/* initialize view base that will receive the physical mapped */
+	/* address after the MapViewOfSection call */
 	viewBase = physicalAddressBase;
 
-	// Let ZwMapViewOfSection pick an address
+	/* let ZwMapViewOfSection pick an address */
 	virtualAddress = NULL;
 
-	// Map the section
+	/* map the section */
 	status = ZwMapViewOfSection(physicalMemoryHandle, (HANDLE)-1, &virtualAddress, 0L, length, &viewBase, &length, ViewShare, 0, PAGE_READWRITE | PAGE_NOCACHE);
 
 	if (!NT_SUCCESS(status)) {
@@ -105,9 +105,9 @@ NTSTATUS svgalib_map(IN PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG Input
 		goto err_handle;
 	}
 
-	// Mapping the section above rounded the physical address down to the
-	// nearest 64 K boundary. Now return a virtual address that sits where
-	// we want by adding in the offset from the beginning of the section.
+	/* mapping the section above rounded the physical address down to the */
+	/* nearest 64 K boundary. Now return a virtual address that sits where */
+	/* we want by adding in the offset from the beginning of the section. */
 	(ULONG) virtualAddress += (ULONG)physicalAddressBase.LowPart - (ULONG)viewBase.LowPart;
 
 	out->address = virtualAddress;
@@ -123,7 +123,7 @@ err:
 	return status;
 }
 
-NTSTATUS svgalib_unmap(IN PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
+NTSTATUS svgalib_unmap(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
 {
 	SVGALIB_UNMAP_IN* in = (SVGALIB_UNMAP_IN*)IoBuffer;
 	NTSTATUS status;
@@ -167,7 +167,7 @@ unsigned inportl(unsigned _port) {
 	unsigned rv;
 	__asm mov edx,[_port]
 	__asm in eax, dx
-	__asm mov [rv], eax  
+	__asm mov [rv], eax
 	return rv;
 }
 
@@ -189,7 +189,7 @@ void outportl(unsigned _port, unsigned _data) {
 	__asm out dx, eax
 }
 
-NTSTATUS svgalib_port_read(IN PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
+NTSTATUS svgalib_port_read(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
 {
 	SVGALIB_PORT_READ_IN* in = (SVGALIB_PORT_READ_IN*)IoBuffer;
 	SVGALIB_PORT_READ_OUT* out = (SVGALIB_PORT_READ_OUT*)IoBuffer;
@@ -223,7 +223,7 @@ err:
 	return status;
 }
 
-NTSTATUS svgalib_port_write(IN PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
+NTSTATUS svgalib_port_write(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
 {
 	SVGALIB_PORT_WRITE_IN* in = (SVGALIB_PORT_WRITE_IN*)IoBuffer;
 	NTSTATUS status;
@@ -256,7 +256,7 @@ err:
 	return status;
 }
 
-NTSTATUS svgalib_pci_bus(IN PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
+NTSTATUS svgalib_pci_bus(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
 {
 	SVGALIB_PCI_BUS_OUT* out = (SVGALIB_PCI_BUS_OUT*)IoBuffer;
 	NTSTATUS status;
@@ -283,7 +283,7 @@ err:
 	return status;
 }
 
-NTSTATUS svgalib_pci_read(IN PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
+NTSTATUS svgalib_pci_read(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
 {
 	SVGALIB_PCI_READ_IN* in = (SVGALIB_PCI_READ_IN*)IoBuffer;
 	SVGALIB_PCI_READ_OUT* out = (SVGALIB_PCI_READ_OUT*)IoBuffer;
@@ -314,7 +314,7 @@ err:
 	return status;
 }
 
-NTSTATUS svgalib_pci_write(IN PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
+NTSTATUS svgalib_pci_write(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
 {
 	SVGALIB_PCI_WRITE_IN* in = (SVGALIB_PCI_WRITE_IN*)IoBuffer;
 	NTSTATUS status;
@@ -345,12 +345,12 @@ err:
 }
 
 /**
- * This is the "structure" of the IOPM.  It is just a simple
+ * This is the "structure" of the IOPM. It is just a simple
  * character array of length 0x2000.
  *
  * This holds 8K * 8 bits -> 64K bits of the IOPM, which maps the
- * entire 64K I/O space of the x86 processor.  Any 0 bits will give
- * access to the corresponding port for user mode processes.  Any 1
+ * entire 64K I/O space of the x86 processor. Any 0 bits will give
+ * access to the corresponding port for user mode processes. Any 1
  * bits will disallow I/O access to the corresponding port.
  */
 #define IOPM_SIZE 0x2000
@@ -370,7 +370,7 @@ IOPM* IOPM_local = 0;
  * Ke386IoSetAccessMap() copies the passed map to the TSS.
  *
  * Ke386IoSetAccessProcess() adjusts the IOPM offset pointer so that
- * the newly copied map is actually used.  Otherwise, the IOPM offset
+ * the newly copied map is actually used. Otherwise, the IOPM offset
  * points beyond the end of the TSS segment limit, causing any I/O
  * access by the user mode process to generate an exception.
  */
@@ -380,7 +380,7 @@ void Ke386IoSetAccessProcess(PEPROCESS, int);
 
 /***
  * Set the IOPM (I/O permission map) of the calling process so that it
- * is given full I/O access.  Our IOPM_local[] array is all zeros, so
+ * is given full I/O access. Our IOPM_local[] array is all zeros, so
  * the IOPM will be all zeros.
  */
 VOID svgalib_giveio_on()
@@ -403,7 +403,7 @@ VOID svgalib_giveio_off()
 
 /**
  * Structures for manipulating the GDT register and a GDT segment
- * descriptor entry.  Documented in Intel processor handbooks.
+ * descriptor entry. Documented in Intel processor handbooks.
  */
 typedef struct {
 	unsigned limit : 16;
@@ -430,8 +430,8 @@ typedef struct {
 
 /**
  * This is the lowest level for setting the TSS segment descriptor
- * limit field.  We get the selector ID from the STR instruction,
- * index into the GDT, and poke in the new limit.  In order for the
+ * limit field. We get the selector ID from the STR instruction,
+ * index into the GDT, and poke in the new limit. In order for the
  * new limit to take effect, we must then read the task segment
  * selector back into the task register (TR).
  */
@@ -441,29 +441,29 @@ void SetTSSLimit(int size)
 	GDTENT* g;
 	short TaskSeg;
 
-	_asm cli; // don't get interrupted!
-	_asm sgdt gdtreg; // get GDT address
-	_asm str TaskSeg; // get TSS selector index
-	g = gdtreg.base + (TaskSeg >> 3); // get ptr to TSS descriptor
-	g->limit = size; // modify TSS segment limit
+	_asm cli; /* don't get interrupted! */
+	_asm sgdt gdtreg; /* get GDT address */
+	_asm str TaskSeg; /* get TSS selector index */
+	g = gdtreg.base + (TaskSeg >> 3); /* get ptr to TSS descriptor */
+	g->limit = size; /* modify TSS segment limit */
 
-// MUST set selector type field to 9, to indicate the task is
-// NOT BUSY.  Otherwise the LTR instruction causes a fault.
+/* MUST set selector type field to 9, to indicate the task is */
+/* NOT BUSY. Otherwise the LTR instruction causes a fault. */
 
-	g->type = 9; // mark TSS as "not busy"
+	g->type = 9; /* mark TSS as "not busy" */
 
-// We must do a load of the Task register, else the processor
-// never sees the new TSS selector limit.
+/* We must do a load of the Task register, else the processor */
+/* never sees the new TSS selector limit. */
 
-	_asm ltr TaskSeg; // reload task register (TR)
-	_asm sti; // let interrupts continue
+	_asm ltr TaskSeg; /* reload task register (TR) */
+	_asm sti; /* let interrupts continue */
 }
 
 /**
  * This routine gives total I/O access across the whole system.
  * It does this by modifying the limit of the TSS segment by direct
  * modification of the TSS descriptor entry in the GDT.
- * This descriptor is set up just once at sysetem init time.  Once we
+ * This descriptor is set up just once at sysetem init time. Once we
  * modify it, it stays untouched across all processes.
  */
 void svgalib_totalio_on(void)
@@ -480,7 +480,100 @@ void svgalib_totalio_off(void)
 	SetTSSLimit(0x20ab);
 }
 
-NTSTATUS svgalibDispatch(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
+NTSTATUS svgalib_video_ioctl(PDEVICE_OBJECT DeviceObject, ULONG IoControlCode, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength, ULONG* ResultBufferLength)
+{
+	PIRP irp;
+	PIO_STACK_LOCATION stack;
+	IO_STATUS_BLOCK status_block;
+	KEVENT event;
+	NTSTATUS status;
+	PWSTR symbolic;
+	FILE_OBJECT* file_object;
+	DEVICE_OBJECT* video_device;
+	UNICODE_STRING video_name;
+
+	RtlInitUnicodeString(&video_name, L"\\Device\\Video0");
+
+#if 0
+	/* In Windows 2000 this fail with ACCESS_DENIED because the device is exclusive and already opened by win32k.sys */
+	status = IoGetDeviceObjectPointer(symbolic, FILE_READ_DATA, &file_object, &video_name);
+	if (!NT_SUCCESS(status)) {
+		svgalibKdPrint(("SVGAWIN: IoGetDeviceObjectPointer failed\n"));
+		goto err;
+	}
+#else
+	status = IoAttachDevice(DeviceObject, &video_name, &video_device);
+	if (!NT_SUCCESS(status)) {
+		svgalibKdPrint(("SVGAWIN: IoAttachDevice failed\n"));
+		goto err;
+	}
+#endif
+
+	KeInitializeEvent(&event, NotificationEvent, FALSE);
+
+	irp = IoBuildDeviceIoControlRequest(
+		IRP_MJ_DEVICE_CONTROL,
+		video_device,
+		InputBufferLength != 0 ? IoBuffer : 0,
+		InputBufferLength,
+		OutputBufferLength != 0 ? IoBuffer : 0,
+		OutputBufferLength,
+		FALSE,
+		&event,
+		&status_block
+	);
+
+	if (irp == 0) {
+		svgalibKdPrint(("SVGAWIN: IoBuildDeviceIoControlRequest failed\n"));
+		status = STATUS_INSUFFICIENT_RESOURCES;
+		goto err_file;
+	}
+
+	stack = IoGetNextIrpStackLocation(irp);
+	stack->Parameters.DeviceIoControl.IoControlCode = IoControlCode;
+	irp->AssociatedIrp.SystemBuffer = IoBuffer;
+
+	status = IoCallDriver(video_device, irp);
+
+	if (status == STATUS_PENDING) {
+		KeWaitForSingleObject(&event,Executive,KernelMode,TRUE,NULL);
+		status = status_block.Status;
+	}
+
+	*ResultBufferLength = status_block.Information;
+
+err_file:
+#if 0
+	if (file_object != 0)
+		ObDereferenceObject(file_object);
+#else
+	IoDetachDevice(video_device);
+#endif
+err:
+	return status;
+}
+
+NTSTATUS svgalib_version(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
+{
+	SVGALIB_VERSION_OUT* out = (SVGALIB_VERSION_OUT*)IoBuffer;
+	NTSTATUS status;
+
+	if (InputBufferLength != 0 || OutputBufferLength != sizeof(SVGALIB_VERSION_OUT)) {
+		svgalibKdPrint(("SVGAWIN: Invalid input or output buffer\n"));
+		status = STATUS_INVALID_PARAMETER;
+		goto err;
+	}
+
+	out->version = SVGALIB_VERSION;
+
+	status = STATUS_SUCCESS;
+	return status;
+
+err:
+	return status;
+}
+
+NTSTATUS svgalibDispatch(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 {
 	PIO_STACK_LOCATION irpStack;
 	PVOID ioBuffer;
@@ -507,6 +600,9 @@ NTSTATUS svgalibDispatch(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 		ioControlCode = irpStack->Parameters.DeviceIoControl.IoControlCode;
 
 		switch (ioControlCode) {
+		case IOCTL_SVGALIB_VERSION :
+			status = svgalib_version(DeviceObject, ioBuffer, inputBufferLength, outputBufferLength);
+			break;
 		case IOCTL_SVGALIB_MAP :
 			status = svgalib_map(DeviceObject, ioBuffer, inputBufferLength, outputBufferLength);
 			break;
@@ -545,8 +641,15 @@ NTSTATUS svgalibDispatch(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 			status = STATUS_SUCCESS;
 			break;
 		default:
-			svgalibKdPrint(("SVGAWIN: unknown IRP_MJ_DEVICE_CONTROL\n"));
-			status = STATUS_INVALID_DEVICE_REQUEST;
+			ioControlCode = (irpStack->Parameters.DeviceIoControl.IoControlCode >> 2) & 0xFFF;
+			if (ioControlCode < SVGALIB_IOCTL_INDEX) {
+				/* adjust the ioctl with FILE_DEVICE_VIDEO */
+				ioControlCode = (irpStack->Parameters.DeviceIoControl.IoControlCode & 0x0000FFFF) | ((ULONG)FILE_DEVICE_VIDEO << 16);
+				status = svgalib_video_ioctl(DeviceObject, ioControlCode, ioBuffer, inputBufferLength, outputBufferLength, &outputBufferLength);
+			} else {
+				svgalibKdPrint(("SVGAWIN: unknown IRP_MJ_DEVICE_CONTROL\n"));
+				status = STATUS_INVALID_DEVICE_REQUEST;
+			}
 			break;
 		}
 
@@ -569,19 +672,19 @@ NTSTATUS svgalibDispatch(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 	return status;
 }
 
-VOID svgalibUnload(IN PDRIVER_OBJECT DriverObject)
+VOID svgalibUnload(PDRIVER_OBJECT DriverObject)
 {
-	WCHAR deviceLinkBuffer[]  = L"\\DosDevices\\SVGALIB";
-	UNICODE_STRING  deviceLinkUnicodeString;
+	WCHAR deviceLinkBuffer[] = L"\\DosDevices\\SVGALIB";
+	UNICODE_STRING deviceLinkUnicodeString;
 
 	if (IOPM_local)
 		MmFreeNonCachedMemory(IOPM_local, sizeof(IOPM));
 
-	// delete the symbolic link
+	/* delete the symbolic link */
 	RtlInitUnicodeString(&deviceLinkUnicodeString, deviceLinkBuffer);
 	IoDeleteSymbolicLink(&deviceLinkUnicodeString);
 
-	// delete the device object
+	/* delete the device object */
 	IoDeleteDevice(DriverObject->DeviceObject);
 }
 
@@ -596,13 +699,15 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 
 	/* Allocate a buffer for the local IOPM and zero it. */
 	IOPM_local = MmAllocateNonCachedMemory(sizeof(IOPM));
-	if (IOPM_local == 0)
-		return STATUS_INSUFFICIENT_RESOURCES;
+	if (IOPM_local == 0) {
+		svgalibKdPrint(("SVGAWIN: MmAllocateNonCachedMemory failed\n"));
+		status = STATUS_INSUFFICIENT_RESOURCES;
+		return status;
+	}
 	RtlZeroMemory(IOPM_local, sizeof(IOPM));
 
 	RtlInitUnicodeString(&deviceNameUnicodeString, deviceNameBuffer);
-	status = IoCreateDevice(DriverObject, 0, &deviceNameUnicodeString, FILE_DEVICE_SVGALIB, 0, TRUE, &deviceObject);
-
+	status = IoCreateDevice(DriverObject, 0, &deviceNameUnicodeString, FILE_DEVICE_SVGALIB, 0, FALSE, &deviceObject);
 	if (!NT_SUCCESS(status)) {
 		svgalibKdPrint(("SVGAWIN: IoCreateDevice failed\n"));
 		return status;
@@ -613,7 +718,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 	DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = svgalibDispatch;
 	DriverObject->DriverUnload = svgalibUnload;
 
-	// create the symbolic link
+	/* create the symbolic link */
 	RtlInitUnicodeString(&deviceLinkUnicodeString, deviceLinkBuffer);
 	status = IoCreateSymbolicLink(&deviceLinkUnicodeString, &deviceNameUnicodeString);
 	if (!NT_SUCCESS(status)) {

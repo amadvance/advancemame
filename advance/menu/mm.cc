@@ -341,7 +341,7 @@ int run_all(adv_conf* config_context, config_state& rs) {
 //---------------------------------------------------------------------------
 // main
 
-void video_log_va(const char *text, va_list arg)
+extern "C" void adv_svgalib_log_va(const char *text, va_list arg)
 {
 	log_va(text,arg);
 }

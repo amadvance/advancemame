@@ -8,6 +8,8 @@ Description
 	The `svgawin' utility installs and uninstalls the svgawin.sys
 	driver in Windows NT/2000/XP.
 
+	You must run it as Administrator.
+
 Options
 	These are the command line options supported:
 

@@ -36,24 +36,22 @@ typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned long uint32_t;
 
-/* Override of os functions. */
-#ifndef USE_SVGALIB_EXTERNAL
-#define malloc adv_svgalib_malloc
-#define calloc adv_svgalib_calloc
-#define free adv_svgalib_free
-#define mmap adv_svgalib_mmap
-#define munmap adv_svgalib_munmap
-#define iopl adv_svgalib_iopl
-#define printf adv_svgalib_printf
-#define fprintf adv_svgalib_fprintf
-#ifdef stderr
-#undef stderr
-#endif
-#define stderr adv_svgalib_stderr()
-#define usleep adv_svgalib_usleep
-#endif
+void adv_svgalib_log_va(const char *text, va_list arg);
+void adv_svgalib_log(const char *text, ...) __attribute__((format(printf,1,2)));
 
+/**
+ * Map a memory region.
+ * Same calling convetion of map().
+ * \return
+ *  - ==MAP_FAILED on error (MAP_FAILED is !=0)
+ *  - !=MAP_FAILED the pointer.
+ */
 void* adv_svgalib_mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned offset);
+
+/**
+ * UnMap a memory region.
+  * Same calling convetion of unmap().
+ */
 int adv_svgalib_munmap(void* start, unsigned length);
 int adv_svgalib_iopl(int perm);
 void* adv_svgalib_malloc(unsigned size);
@@ -75,14 +73,33 @@ unsigned adv_svgalib_inportl(unsigned port);
 void adv_svgalib_outportb(unsigned port, unsigned char data);
 void adv_svgalib_outportw(unsigned port, unsigned short data);
 void adv_svgalib_outportl(unsigned port, unsigned data);
+int adv_svgalib_pci_bus_max(unsigned* bus_max);
 int adv_svgalib_pci_read_byte(unsigned bus_device_func, unsigned reg, unsigned char* value);
 int adv_svgalib_pci_read_word(unsigned bus_device_func, unsigned reg, unsigned short* value);
 int adv_svgalib_pci_read_dword(unsigned bus_device_func, unsigned reg, unsigned* value);
+int adv_svgalib_pci_read_dword_nolog(unsigned bus_device_func, unsigned reg, unsigned* value);
 int adv_svgalib_pci_write_byte(unsigned bus_device_func, unsigned reg, unsigned char value);
 int adv_svgalib_pci_write_word(unsigned bus_device_func, unsigned reg, unsigned short value);
 int adv_svgalib_pci_write_dword(unsigned bus_device_func, unsigned reg, unsigned value);
 int adv_svgalib_pci_read_dword_aperture_len(unsigned bus_device_func, unsigned reg, unsigned* value);
 int adv_svgalib_pci_scan_device(int (*callback)(unsigned bus_device_func,unsigned vendor,unsigned device, void* arg), void* arg);
+
+/* Override of os functions. */
+#ifndef USE_SVGALIB_EXTERNAL
+#define malloc adv_svgalib_malloc
+#define calloc adv_svgalib_calloc
+#define free adv_svgalib_free
+#define mmap adv_svgalib_mmap
+#define munmap adv_svgalib_munmap
+#define iopl adv_svgalib_iopl
+#define printf adv_svgalib_printf
+#define fprintf adv_svgalib_fprintf
+#ifdef stderr
+#undef stderr
+#endif
+#define stderr adv_svgalib_stderr()
+#define usleep adv_svgalib_usleep
+#endif
 
 /**************************************************************************/
 /* driver */

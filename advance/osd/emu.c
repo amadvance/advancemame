@@ -55,7 +55,7 @@ struct advance_context CONTEXT;
 /***************************************************************************/
 /* Log */
 
-void video_log_va(const char *text, va_list arg)
+void adv_svgalib_log_va(const char *text, va_list arg)
 {
 	log_va(text,arg);
 }

@@ -12,4 +12,6 @@
 /* ioctl commands */
 #include "driver/svgacode.h"
 
+int adv_svgalib_ioctl(unsigned code, void* input, unsigned input_size, void* output, unsigned output_size);
+
 #endif

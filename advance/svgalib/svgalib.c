@@ -168,8 +168,13 @@ int adv_svgalib_pci_read_dword_aperture_len(unsigned bus_device_func, unsigned r
 int adv_svgalib_pci_scan_device(int (*callback)(unsigned bus_device_func,unsigned vendor,unsigned device, void* arg), void* arg)
 {
 	unsigned i,j;
+	unsigned bus_max;
 
-	for(i=0;i<255;++i) {
+	if (adv_svgalib_pci_bus_max(&bus_max) != 0) {
+		return -1;
+	}
+
+	for(i=0;i<bus_max;++i) {
 		for(j=0;j<32;++j) {
 			int r;
 			unsigned dw;
@@ -177,7 +182,7 @@ int adv_svgalib_pci_scan_device(int (*callback)(unsigned bus_device_func,unsigne
 			unsigned device;
 			unsigned vendor;
 
-			if (adv_svgalib_pci_read_dword(bus_device_func,0,&dw)!=0)
+			if (adv_svgalib_pci_read_dword_nolog(bus_device_func,0,&dw)!=0)
 				continue;
 
 			vendor = dw & 0xFFFF;
@@ -1317,6 +1322,8 @@ void adv_svgalib_mode_done(void)
  */
 int adv_svgalib_init(int divide_clock_with_sequencer)
 {
+	adv_svgalib_log("svgalib: adv_svgalib_init()\n");
+	
 	memset(&adv_svgalib_state, 0, sizeof(adv_svgalib_state));
 
 	if (adv_svgalib_open() != 0)
@@ -1352,6 +1359,8 @@ int adv_svgalib_init(int divide_clock_with_sequencer)
  */
 void adv_svgalib_done(void)
 {
+	adv_svgalib_log("svgalib: adv_svgalib_done()\n");
+	
 	adv_svgalib_close();
 }
 
@@ -1367,9 +1376,12 @@ int adv_svgalib_detect(const char* name) {
 	unsigned bit_map[5] = { 8,15,16,24,32 };
 	unsigned i;
 
+	adv_svgalib_log("svgalib: adv_svgalib_detect()\n");
+
 	adv_svgalib_state.driver = 0;
 	for(i=0;cards[i].name;++i) {
 		if (strcmp(name,"auto")==0 || strcmp(name,cards[i].name)==0) {
+			adv_svgalib_log("svgalib: testing for driver %s\n", cards[i].name);
 			if (cards[i].drv->test()) {
 				adv_svgalib_state.driver = &cards[i];
 				__svgalib_chipset = adv_svgalib_state.driver->chipset;
@@ -1379,14 +1391,17 @@ int adv_svgalib_detect(const char* name) {
 	}
 
 	if (adv_svgalib_state.driver == 0) {
+		adv_svgalib_log("svgalib: no driver found\n");
 		return -1;
 	}
 
 	if (__svgalib_linear_mem_size == 0) {
+		adv_svgalib_log("svgalib: invalid linear size\n");
 		return -1;
 	}
 
 	if (__svgalib_linear_mem_base == 0) {
+		adv_svgalib_log("svgalib: invalid linear base\n");
 		return -1;
 	}
 
@@ -1397,6 +1412,7 @@ int adv_svgalib_detect(const char* name) {
 		|| !adv_svgalib_state.driver->drv->setmode
 		|| !adv_svgalib_state.driver->drv->modeavailable
 		|| !adv_svgalib_state.driver->drv->linear) {
+		adv_svgalib_log("svgalib: invalid driver function table\n");
 		return -1;
 	}
 
@@ -1426,6 +1442,7 @@ int adv_svgalib_detect(const char* name) {
 	}
 
 	if (adv_svgalib_state.has_bit8 == 0 && adv_svgalib_state.has_bit15 == 0 && adv_svgalib_state.has_bit16 == 0 && adv_svgalib_state.has_bit24 == 0 && adv_svgalib_state.has_bit32 == 0) {
+		adv_svgalib_log("svgalib: invalid color depth\n");
 		return -1;
 	}
 
@@ -1461,6 +1478,8 @@ int adv_svgalib_detect(const char* name) {
  */
 int adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc)
 {
+	adv_svgalib_log("svgalib: adv_svgalib_set()\n");
+	
 	adv_svgalib_mode_init(pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, hsync, vsync, bits_per_pixel, tvpal, tvntsc);
 
 	if (adv_svgalib_state.driver->drv->unlock)
@@ -1472,6 +1491,7 @@ int adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hr
 #endif
 
 	if (adv_svgalib_state.driver->drv->setmode(adv_svgalib_state.mode_number, TEXT)) {
+		adv_svgalib_log("svgalib: setmode() failed\n");		
 		adv_svgalib_enable();
 		vga_screenon();
 		adv_svgalib_mode_done();
@@ -1484,6 +1504,7 @@ int adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hr
 	vga_screenon();
 
 	if (adv_svgalib_state.driver->drv->linear(LINEAR_ENABLE, __svgalib_linear_mem_base)!=0) {
+		adv_svgalib_log("svgalib: linear() failed\n");	
 		adv_svgalib_mode_done();
 		return -1;
 	}
@@ -1498,7 +1519,10 @@ int adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hr
  *  - ==0 on success
  *  - !=0 on error
  */
-void adv_svgalib_unset(void) {
+void adv_svgalib_unset(void) 
+{
+	adv_svgalib_log("svgalib: adv_svgalib_unset()\n");
+	
 	if (adv_svgalib_state.driver->drv->unlock)
 		adv_svgalib_state.driver->drv->unlock();
 
@@ -1511,7 +1535,10 @@ void adv_svgalib_unset(void) {
  * Save the video board state.
  * \param regs Destination of the state. It must be ADV_SVGALIB_STATE_SIZE bytes long.
  */
-void adv_svgalib_save(unsigned char* regs) {
+void adv_svgalib_save(unsigned char* regs) 
+{
+	adv_svgalib_log("svgalib: adv_svgalib_save()\n");
+	
 	memset(regs, ADV_SVGALIB_STATE_SIZE, 0);
 
 	if (adv_svgalib_state.driver->drv->unlock)
@@ -1526,7 +1553,10 @@ void adv_svgalib_save(unsigned char* regs) {
  * Restore the video board state.
  * \param regs Source of the state. It must be previous obtained by adv_svgalib_save.
  */
-void adv_svgalib_restore(unsigned char* regs) {
+void adv_svgalib_restore(unsigned char* regs) 
+{
+	adv_svgalib_log("svgalib: adv_svgalib_restore()\n");
+	
 	if (adv_svgalib_state.driver->drv->unlock)
 		adv_svgalib_state.driver->drv->unlock();
 
@@ -1546,7 +1576,10 @@ void adv_svgalib_restore(unsigned char* regs) {
 /**
  * Map the video board linear memory.
  */
-void adv_svgalib_linear_map(void) {
+void adv_svgalib_linear_map(void) 
+{
+	adv_svgalib_log("svgalib: adv_svgalib_linear_map()\n");
+	
 	if (__svgalib_linear_mem_size) {
 		__svgalib_linear_pointer = adv_svgalib_mmap(0, __svgalib_linear_mem_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_linear_mem_base);
 	} else {
@@ -1557,7 +1590,10 @@ void adv_svgalib_linear_map(void) {
 /**
  * Unmap the video board linear memory.
  */
-void adv_svgalib_linear_unmap(void) {
+void adv_svgalib_linear_unmap(void) 
+{
+	adv_svgalib_log("svgalib: adv_svgalib_linear_unmap()\n");
+	
 	if (__svgalib_linear_mem_size) {
 		adv_svgalib_munmap(__svgalib_linear_pointer, __svgalib_linear_mem_size);
 	}
@@ -1567,7 +1603,8 @@ void adv_svgalib_linear_unmap(void) {
  * Set the display start offset in the video memory.
  * \param offset Display start offset in bytes.
  */
-void adv_svgalib_scroll_set(unsigned offset) {
+void adv_svgalib_scroll_set(unsigned offset) 
+{
 	if (adv_svgalib_state.driver->drv->setdisplaystart)
 		adv_svgalib_state.driver->drv->setdisplaystart(offset);
 }
@@ -1629,3 +1666,9 @@ void adv_svgalib_cursor_off(void) {
 		adv_svgalib_state.driver->drv->cursor(CURSOR_HIDE, 0, 0, 0, 0, 0);
 }
 
+void adv_svgalib_log(const char *text, ...) {
+	va_list arg;
+	va_start(arg, text);
+	adv_svgalib_log_va(text, arg);
+	va_end(arg);
+}

@@ -350,7 +350,7 @@ EMUOBJS += \
 	$(OBJ)/advance/lib/mnone.o \
 	$(OBJ)/advance/lib/error.o
 
-$(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c
+$(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) $(EMUCFLAGS) -c $< -o $@
 
@@ -361,7 +361,6 @@ $(OBJ)/advance/%.o: $(srcdir)/advance/%.c
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
 	$(RC) $(RCFLAGS) $< -o $@
-
 
 ############################################################################
 # EMU MAME specific build

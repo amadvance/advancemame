@@ -170,6 +170,22 @@ int pci_write_dword(unsigned bus_device_func, unsigned reg, DWORD value) {
 	return 0;
 }
 
+int pci_bus_max(unsigned* bus_max) {
+	__dpmi_regs r;
+	unsigned bus;
+	unsigned i,j;
+
+	r.d.eax = 0x0000b101;
+	r.d.edi = 0x00000000;
+	__dpmi_int(0x1a, &r);
+	if (r.d.edx != 0x20494350)
+		return -1;
+
+	*bus_max = r.h.cl + 1;
+
+	return 0;
+}
+
 int pci_scan_device(int (*callback)(unsigned bus_device_func,unsigned vendor,unsigned device, void* arg), void* arg) {
 	__dpmi_regs r;
 	unsigned bus;

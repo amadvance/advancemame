@@ -29,6 +29,7 @@
  */
 
 #include "emu.h"
+#include "thread.h"
 #include "glue.h"
 
 #include "os.h"
@@ -52,15 +53,10 @@
 #include <math.h>
 #include <limits.h>
 #include <string.h>
+#include <limits.h>
 
 /** Max framskip factor */
 #define SYNC_MAX 12
-
-/** Default monitor aspect ratio X */
-#define pc_aspect_ratio_x 4
-
-/** Default monitor aspect ratio Y */
-#define pc_aspect_ratio_y 3
 
 /***************************************************************************/
 /*
@@ -787,8 +783,8 @@ static void video_update_visible(struct advance_video_context* context, const ad
 		unsigned long long arcade_aspect_ratio_x;
 		unsigned long long arcade_aspect_ratio_y;
 
-		screen_aspect_ratio_x = crtc_hsize_get(crtc) * pc_aspect_ratio_y;
-		screen_aspect_ratio_y = crtc_vsize_get(crtc) * pc_aspect_ratio_x;
+		screen_aspect_ratio_x = crtc_hsize_get(crtc) * context->config.monitor_aspect_y;
+		screen_aspect_ratio_y = crtc_vsize_get(crtc) * context->config.monitor_aspect_x;
 		video_aspect_reduce(&screen_aspect_ratio_x,&screen_aspect_ratio_y);
 
 		arcade_aspect_ratio_x = context->state.game_used_size_x * context->state.game_aspect_y;
@@ -800,7 +796,7 @@ static void video_update_visible(struct advance_video_context* context, const ad
 		video_aspect_reduce(&factor_x,&factor_y);
 
 		/* compute screen_visible size */
-		if (pc_aspect_ratio_x * arcade_aspect_ratio_y > arcade_aspect_ratio_x * pc_aspect_ratio_y) {
+		if (context->config.monitor_aspect_x * arcade_aspect_ratio_y > arcade_aspect_ratio_x * context->config.monitor_aspect_y) {
 			/* vertical game in horizontal screen */
 			context->state.mode_visible_size_y = crtc_vsize_get(crtc);
 			/* adjust to 8 pixel */
@@ -1096,7 +1092,7 @@ static void video_init_crtc_make_vector(struct advance_video_context* context, c
 
 	/* adjust the horizontal size */
 	size_y = crtc_vsize_get(&crtc);
-	size_x = size_y * pc_aspect_ratio_x / pc_aspect_ratio_y;
+	size_x = size_y * context->config.monitor_aspect_x / context->config.monitor_aspect_y;
 	size_x &= ~0x7;
 
 	crtc_hsize_set(&crtc, size_x);
@@ -1222,21 +1218,21 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		}
 
 		/* expand the arcade aspect ratio */
-		if (arcade_aspect_ratio_y * pc_aspect_ratio_x < pc_aspect_ratio_y * arcade_aspect_ratio_x) {
+		if (arcade_aspect_ratio_y * context->config.monitor_aspect_x < context->config.monitor_aspect_y * arcade_aspect_ratio_x) {
 			arcade_aspect_ratio_x *= 100;
 			arcade_aspect_ratio_y *= 100 * context->config.aspect_expansion_factor;
 			/* limit */
-			if (arcade_aspect_ratio_y * pc_aspect_ratio_x > pc_aspect_ratio_y * arcade_aspect_ratio_x) {
-				arcade_aspect_ratio_x = pc_aspect_ratio_x;
-				arcade_aspect_ratio_y = pc_aspect_ratio_y;
+			if (arcade_aspect_ratio_y * context->config.monitor_aspect_x > context->config.monitor_aspect_y * arcade_aspect_ratio_x) {
+				arcade_aspect_ratio_x = context->config.monitor_aspect_x;
+				arcade_aspect_ratio_y = context->config.monitor_aspect_y;
 			}
 		} else {
 			arcade_aspect_ratio_y *= 100;
 			arcade_aspect_ratio_x *= 100 * context->config.aspect_expansion_factor;
 			/* limit */
-			if (arcade_aspect_ratio_y * pc_aspect_ratio_x < pc_aspect_ratio_y * arcade_aspect_ratio_x) {
-				arcade_aspect_ratio_x = pc_aspect_ratio_x;
-				arcade_aspect_ratio_y = pc_aspect_ratio_y;
+			if (arcade_aspect_ratio_y * context->config.monitor_aspect_x < context->config.monitor_aspect_y * arcade_aspect_ratio_x) {
+				arcade_aspect_ratio_x = context->config.monitor_aspect_x;
+				arcade_aspect_ratio_y = context->config.monitor_aspect_y;
 			}
 		}
 
@@ -1247,8 +1243,8 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		context->state.game_aspect_y = context->state.game_used_size_y * arcade_aspect_ratio_x;
 		video_aspect_reduce(&context->state.game_aspect_x, &context->state.game_aspect_y);
 
-		factor_x = pc_aspect_ratio_x * context->state.game_aspect_x;
-		factor_y = pc_aspect_ratio_y * context->state.game_aspect_y;
+		factor_x = context->config.monitor_aspect_x * context->state.game_aspect_x;
+		factor_y = context->config.monitor_aspect_y * context->state.game_aspect_y;
 		video_aspect_reduce(&factor_x, &factor_y);
 
 		log_std(("advance:video: best aspect factor %dx%d (expansion %g)\n", (unsigned)factor_x, (unsigned)factor_y, (double)context->config.aspect_expansion_factor));
@@ -1258,7 +1254,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		step_x = 16;
 
 		/* compute the best mode */
-		if (pc_aspect_ratio_x * arcade_aspect_ratio_y > arcade_aspect_ratio_x * pc_aspect_ratio_y) {
+		if (context->config.monitor_aspect_x * arcade_aspect_ratio_y > arcade_aspect_ratio_x * context->config.monitor_aspect_y) {
 			best_size_y = context->state.game_used_size_y;
 			best_size_x = best_step((double)context->state.game_used_size_y * factor_x / factor_y, step_x);
 			best_size_2y = 2*context->state.game_used_size_y;
@@ -2418,6 +2414,19 @@ static void video_done_thread(struct advance_video_context* context) {
 }
 
 /***************************************************************************/
+/* thread callback */
+
+int thread_is_active(void)
+{
+#ifdef USE_SMP
+	struct advance_video_context* context = &CONTEXT.video;
+	return context->config.smp_flag;
+#else
+	return 0;
+#endif
+}
+
+/***************************************************************************/
 /* OSD */
 
 /**
@@ -2887,6 +2896,9 @@ int advance_video_init(struct advance_video_context* context, adv_conf* cfg_cont
 	conf_int_register_enum_default(cfg_context, "display_depth", conf_enum(OPTION_DEPTH), 0);
 	conf_bool_register_default(cfg_context, "display_restore", 1);
 	conf_float_register_limit_default(cfg_context, "display_expand", 1.0, 10.0, 1.0);
+	conf_int_register_limit_default(cfg_context, "display_aspectx", 1, INT_MAX, 4);
+	conf_int_register_limit_default(cfg_context, "display_aspecty", 1, INT_MAX, 3);
+
 #ifdef USE_SMP
 	conf_bool_register_default(cfg_context, "misc_smp", 0);
 #endif
@@ -3027,6 +3039,9 @@ int advance_video_config_load(struct advance_video_context* context, adv_conf* c
 	context->config.magnify_flag = conf_bool_get_default(cfg_context, "display_magnify");
 	context->config.rgb_flag = conf_bool_get_default(cfg_context, "display_rgb");
 	context->config.adjust = conf_int_get_default(cfg_context, "display_adjust");
+
+	context->config.monitor_aspect_x = conf_int_get_default(cfg_context, "display_aspectx");
+	context->config.monitor_aspect_y = conf_int_get_default(cfg_context, "display_aspecty");
 
 	s = conf_string_get_default(cfg_context, "display_skiplines");
 	if (strcmp(s,"auto")==0) {

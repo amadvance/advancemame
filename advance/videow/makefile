@@ -12,7 +12,6 @@ LD = @/usr/local/cross-tools/bin/i386-mingw32msvc-gcc
 #CC = @gcc
 #LD = @gcc
 EXE = .exe
-VIDEOLIBS = -lgdi32
 
 #############################################################################
 #

@@ -13,21 +13,21 @@ int copy(char* srcpath, char* dstpath)
 	CHAR dstdir[MAX_PATH];
 
 	if (!GetCurrentDirectory(MAX_PATH+1, srcdir)) {
-		printf("Error getting the current directory\n");
+		printf("Error getting the current directory.\n");
 		return -1;
 	}
 
 	sprintf(srcpath, "%s\\%s.sys", srcdir, DRIVER_NAME);
 
 	if (!GetSystemDirectory( dstdir, MAX_PATH+1)) {
-		printf("Error getting the system directory\n");
+		printf("Error getting the system directory.\n");
 		return -1;
 	}
 
 	sprintf(dstpath, "%s\\drivers\\%s.sys", dstdir, DRIVER_NAME);
 
 	if (!CopyFile(srcpath, dstpath, FALSE)) {
-		printf("Error copying the driver from %s to %s\n", srcpath, dstpath);
+		printf("Error copying the driver from %s to %s.\n", srcpath, dstpath);
 		return -1;
 	}
 
@@ -41,22 +41,22 @@ static int uninstall(SC_HANDLE schSCManager) {
 	schService = OpenService(schSCManager, DRIVER_NAME, SERVICE_ALL_ACCESS);
 	if (schService == NULL) {
 		if (GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST) {
-			printf("The driver isn't installed\n");
+			printf("The driver isn't installed.\n");
 			return -1;
 		}
-		printf("Error querying the driver\n");
+		printf("Error querying the driver.\n");
 		return -1;
 	}
 
 	if (!QueryServiceStatus(schService, &serviceStatus)) {
-		printf("Error querying the driver\n");
+		printf("Error querying the driver.\n");
 		CloseServiceHandle(schService);
 		return -1;
 	}
 
 	if (serviceStatus.dwCurrentState != SERVICE_STOPPED) {
 		if (ControlService(schService, SERVICE_CONTROL_STOP, &serviceStatus) == 0) {
-			printf("Error stopping the driver\n");
+			printf("Error stopping the driver.\n");
 			return -1;
 		}
 
@@ -64,7 +64,7 @@ static int uninstall(SC_HANDLE schSCManager) {
 			Sleep(100);
 
 			if (!QueryServiceStatus(schService, &serviceStatus)) {
-				printf("Error querying the driver\n");
+				printf("Error querying the driver.\n");
 				CloseServiceHandle(schService);
 				return -1;
 			}
@@ -72,7 +72,7 @@ static int uninstall(SC_HANDLE schSCManager) {
 	}
 
 	if (!DeleteService(schService)) {
-		printf("Error deleting the driver\n");
+		printf("Error deleting the driver.\n");
 		CloseServiceHandle(schService);
 		return -1;
 	}
@@ -101,15 +101,15 @@ static int install(SC_HANDLE schSCManager) {
 	);
 	if (schService == NULL) {
 		if (GetLastError() == ERROR_SERVICE_EXISTS) {
-			printf("The driver is already installed\n");
+			printf("The driver is already installed.\n");
 			return -1;
 		}
-		printf("Error installing the driver\n");
+		printf("Error installing the driver.\n");
 		return -1;
 	}
 
 	if (!StartService(schService,0,NULL)) {
-		printf("Error starting the driver\n");
+		printf("Error starting the driver.\n");
 		CloseServiceHandle(schService);
 		return -1;
 	}
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 		} else if (optionmatch(argv[i],"u")) {
 			arg_uninstall = 1;
 		} else {
-			printf("Unknown option %s\n", argv[i]);
+			printf("Unknown option %s.\n", argv[i]);
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -173,18 +173,18 @@ int main(int argc, char *argv[])
 
 	VersionInformation.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	if (!GetVersionEx(&VersionInformation)) {
-		printf("Error getting the Windows version\n");
+		printf("Error getting the Windows version.\n");
 		exit(EXIT_FAILURE);
 	}
 
 	if (VersionInformation.dwPlatformId != VER_PLATFORM_WIN32_NT) {
-		printf("This program runs only on Windows NT/2000/XP\n");
+		printf("This program runs only on Windows NT/2000/XP.\n");
 		exit(EXIT_FAILURE);
 	}
 
 	schSCManager = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 	if (schSCManager == NULL) {
-		printf("Error opening the services database\n");
+		printf("Error opening the services database. Are you Administrator ?\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
 			CloseServiceHandle(schSCManager);
 			exit(EXIT_FAILURE);
 		}
-		printf("Driver uninstalled\n");
+		printf("Driver uninstalled.\n");
 	}
 
 	if (arg_install) {
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 			CloseServiceHandle(schSCManager);
 			exit(EXIT_FAILURE);
 		}
-		printf("Driver installed\n");
+		printf("Driver installed.\n");
 	}
 
 	CloseServiceHandle(schSCManager);

@@ -2,9 +2,9 @@
 # CAB dist
 
 TSR_SRC = \
-	$(wildcard advance/tsr/*.asm) \
-	$(wildcard advance/tsr/*.c) \
-	$(wildcard advance/tsr/*.h)
+	$(wildcard $(srcdir)/advance/tsr/*.asm) \
+	$(wildcard $(srcdir)/advance/tsr/*.c) \
+	$(wildcard $(srcdir)/advance/tsr/*.h)
 
 DOS16_SRC = \
 	$(wildcard $(srcdir)/advance/dos/pci.*) \
@@ -12,66 +12,66 @@ DOS16_SRC = \
 	$(wildcard $(srcdir)/advance/dos/compil.h)
 
 VBE_SRC = \
-	advance/vbe/makefile \
-	$(wildcard advance/vbe/*.asm) \
-	$(wildcard advance/vbe/*.c) \
-	$(wildcard advance/vbe/*.h)
+	$(srcdir)/advance/vbe/makefile \
+	$(wildcard $(srcdir)/advance/vbe/*.asm) \
+	$(wildcard $(srcdir)/advance/vbe/*.c) \
+	$(wildcard $(srcdir)/advance/vbe/*.h)
 
 VBE32_SRC = \
-	advance/vbe32/makefile \
-	$(wildcard advance/vbe32/*.c) \
-	$(wildcard advance/vbe32/*.h)
+	$(srcdir)/advance/vbe32/makefile \
+	$(wildcard $(srcdir)/advance/vbe32/*.c) \
+	$(wildcard $(srcdir)/advance/vbe32/*.h)
 
 VGA_SRC = \
-	advance/vga/makefile \
-	$(wildcard advance/vga/*.asm) \
-	$(wildcard advance/vga/*.c) \
-	$(wildcard advance/vga/*.h)
+	$(srcdir)/advance/vga/makefile \
+	$(wildcard $(srcdir)/advance/vga/*.asm) \
+	$(wildcard $(srcdir)/advance/vga/*.c) \
+	$(wildcard $(srcdir)/advance/vga/*.h)
 
 OFF_SRC = \
-	advance/off/makefile \
-	$(wildcard advance/off/*.c) \
-	$(wildcard advance/off/*.h)
+	$(srcdir)/advance/off/makefile \
+	$(wildcard $(srcdir)/advance/off/*.c) \
+	$(wildcard $(srcdir)/advance/off/*.h)
 
 PORTIO_SRC = \
-	advance/portio/makefile \
-	$(wildcard advance/portio/*.c) \
-	$(wildcard advance/portio/*.h)
+	$(srcdir)/advance/portio/makefile \
+	$(wildcard $(srcdir)/advance/portio/*.c) \
+	$(wildcard $(srcdir)/advance/portio/*.h)
 
 VIDEO_SRC = \
-	advance/video/makefile \
-	$(wildcard advance/video/*.c) \
-	$(wildcard advance/video/*.h)
+	$(srcdir)/advance/video/makefile \
+	$(wildcard $(srcdir)/advance/video/*.c) \
+	$(wildcard $(srcdir)/advance/video/*.h)
 
 VIDEOWIN_SRC = \
-	advance/videow/makefile \
-	$(wildcard advance/videow/*.c) \
-	$(wildcard advance/videow/*.h)
+	$(srcdir)/advance/videow/makefile \
+	$(wildcard $(srcdir)/advance/videow/*.c) \
+	$(wildcard $(srcdir)/advance/videow/*.h)
 
 CAB_ROOT_SRC = \
 	$(srcdir)/COPYING \
-	Makefile.in
+	$(srcdir)/Makefile.in
 
 CAB_ADVANCE_SRC = \
-	advance/advance.mak \
-	advance/cab.mak \
-	advance/d2.mak
+	$(srcdir)/advance/advance.mak \
+	$(srcdir)/advance/cab.mak \
+	$(srcdir)/advance/d2.mak
 
 CAB_DOC_SRC = \
-	doc/license.d \
-	doc/vbe.d \
-	doc/vbe32.d \
-	doc/vga.d \
-	doc/video.d \
-	doc/off.d \
-	doc/portio.d \
-	doc/videow.d \
-	doc/svgawin.d \
-	doc/carddos.d \
-	doc/cardwin.d \
-	doc/histcab.d \
-	doc/readcab.d \
-	doc/relecab.d
+	$(srcdir)/doc/license.d \
+	$(srcdir)/doc/vbe.d \
+	$(srcdir)/doc/vbe32.d \
+	$(srcdir)/doc/vga.d \
+	$(srcdir)/doc/video.d \
+	$(srcdir)/doc/off.d \
+	$(srcdir)/doc/portio.d \
+	$(srcdir)/doc/videow.d \
+	$(srcdir)/doc/svgawin.d \
+	$(srcdir)/doc/carddos.d \
+	$(srcdir)/doc/cardwin.d \
+	$(srcdir)/doc/histcab.d \
+	$(srcdir)/doc/readcab.d \
+	$(srcdir)/doc/relecab.d
 
 CAB_DOC_BIN += \
 	$(DOCOBJ)/license.txt \
@@ -83,8 +83,7 @@ CAB_DOC_BIN += \
 	$(DOCOBJ)/histcab.html \
 	$(DOCOBJ)/readcab.html \
 	$(DOCOBJ)/relecab.html \
-	$(DOCOBJ)/advv.html \
-	$(RCSRC)
+	$(DOCOBJ)/advv.html
 ifeq ($(CONF_HOST),dos)
 CAB_DOC_BIN += \
 	$(DOCOBJ)/vbe.txt \
@@ -114,37 +113,40 @@ endif
 
 CAB_SUPPORT_SRC = \
 	$(RCSRC) \
-	support/video.pcx \
-	support/videobis.pcx \
-	support/vbev.bat \
-	support/vgav.bat \
-	support/videowv.bat
+	$(srcdir)/support/video.pcx \
+	$(srcdir)/support/videobis.pcx \
+	$(srcdir)/support/vbev.bat \
+	$(srcdir)/support/vgav.bat \
+	$(srcdir)/support/videowv.bat
 
 CAB_CONTRIB_SRC = \
 	$(wildcard contrib/cab/*)
 
+CAB_ROOT_BIN += \
+	$(RCSRC)
 ifeq ($(CONF_HOST),dos)
 CAB_ROOT_BIN += \
-	advance/vbe/vbe.com \
-	advance/vbe32/vbe32.exe \
-	advance/vga/vga.exe \
-	advance/video/video.exe \
-	advance/off/off.com \
-	advance/portio/portio.exe \
-	support/vbev.bat \
-	support/vgav.bat \
-	support/cwsdpmi.exe \
+	$(srcdir)/advance/vbe/vbe.com \
+	$(srcdir)/advance/vbe32/vbe32.exe \
+	$(srcdir)/advance/vga/vga.exe \
+	$(srcdir)/advance/video/video.exe \
+	$(srcdir)/advance/off/off.com \
+	$(srcdir)/advance/portio/portio.exe \
+	$(srcdir)/support/vbev.bat \
+	$(srcdir)/support/vgav.bat \
+	$(srcdir)/support/cwsdpmi.exe \
 	$(VOBJ)/advv$(EXE) \
-	support/video.pcx \
-	support/videobis.pcx
+	$(srcdir)/support/video.pcx \
+	$(srcdir)/support/videobis.pcx
 endif
 ifeq ($(CONF_HOST),windows)
 CAB_ROOT_BIN += \
-	support/videowv.bat \
+	$(srcdir)/support/sdl.dll \
+	$(srcdir)/support/videowv.bat \
 	$(VOBJ)/advv$(EXE) \
-	advance/videow/videow.exe \
-	advance/svgalib/svgawin/driver/svgawin.sys \
-	advance/svgalib/svgawin/install/svgawin.exe
+	$(srcdir)/advance/videow/videow.exe \
+	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
+	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe
 endif
 
 CAB_DIST_FILE_SRC = advancecab-$(CABVERSION)

@@ -219,8 +219,7 @@ void group_wait(struct group_t* group) {
 	pthread_mutex_unlock(&work_mutex);
 }
 
-/** Initialize the thread support. */
-int thread_init(void) 
+int thread_init(void)
 {
 	unsigned i;
 
@@ -249,8 +248,7 @@ int thread_init(void)
 	return 0;
 }
 
-/** Deinitialize the thread system. */
-void thread_done(void) 
+void thread_done(void)
 {
 	unsigned i;
 
@@ -278,6 +276,11 @@ void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int m
 	struct group_t group;
 	unsigned limit;
 	unsigned i;
+
+	if (!thread_is_active()) {
+		func(arg,0,1);
+		return;
+	}
 
 	/* get the number of suggested work items */
 	limit = work_free_get();

@@ -41,6 +41,7 @@ int pci_read_word(unsigned bus_device_func, unsigned reg, WORD STACK_PTR* value)
 int pci_write_word(unsigned bus_device_func, unsigned reg, WORD value);
 int pci_read_byte(unsigned bus_device_func, unsigned reg, BYTE STACK_PTR* value);
 int pci_write_byte(unsigned bus_device_func, unsigned reg, BYTE value);
+int pci_bus_max(unsigned* bus_max);
 int pci_scan_device(int (*callback)(unsigned bus_device_func,unsigned vendor,unsigned device, void* arg), void* arg);
 int pci_read_dword_aperture_len(unsigned bus_device_func, unsigned reg, DWORD STACK_PTR* value);
 

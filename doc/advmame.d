@@ -687,10 +687,27 @@ Configuration
 
 	Options:
 		FACTOR - Expansion float factor from 1.0 to 2.0
-			(default 1.0)
+			(default 1.0).
 
 	Examples:
 		:display_expand 1.2
+
+    display_aspectx/aspecty
+	Select the aspect of the monitor used.
+
+	display_aspectx INT
+	display_aspecty INT
+
+	Options:
+		INT - Integer number starting from 1 (default 4 and 3).
+
+	For 16/9 TV you can use the 16 and 9 values. For truly vertical
+	monitors (not horizontal monitors rotated) you can simply swap the
+	values, for example 3 and 4 instead of 4 and 3.
+
+	Examples:
+		:display_aspectx 16
+		:display_aspecty 9
 
   Display Effect Configuration Options
 

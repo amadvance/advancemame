@@ -76,16 +76,18 @@ Limitations
 Troubleshotting
 	) If the mouse pointer disappers try to reanable it with the /m option.
 
-	) If the screen image is stable but garbled is probably because the
-		Windows video driver use a not standard scanline size.
+	) If the screen image is stable but garbled it's probably because
+		the Windows video driver uses a not standard scanline size.
 		Try to guess it with the /n option. You should start
-		with the resolution width multiplied by the bytes per pixel,
-		and increase this value until the screen become readable.
+		with the resolution width multiplied by the bytes per pixe.,
+		Then, increase this value until the screen become readable.
+		Generally the correct value is multiplier of 2^n where n
+		may vary from 1 to 8.
 
 	) Try decreasing the video hardware acceleration.
 
 Tests
-	+Windows 2000 with the `nv3' driver
+	+Windows 2000 with the `nv3' driver using a GeForce 2 board
 
 Examples
 	Set a 640x480 mode with 16 bits per pixel:

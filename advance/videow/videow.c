@@ -28,6 +28,7 @@
 #include <windows.h>
 
 #include "svgalib.h"
+#include "svgawin.h"
 
 /****************************************************************************/
 /* Mode */
@@ -222,7 +223,7 @@ static int change(unsigned x, unsigned y, unsigned bits) {
 
 	/* Windows 2000 requires CDS_UPDATEREGISTRY otherwise the task bar is not repositioned */
 	if (ChangeDisplaySettings(&mode, CDS_RESET | CDS_UPDATEREGISTRY) != DISP_CHANGE_SUCCESSFUL) {
-		printf("Windows doesn't support this mode\n");
+		printf("Windows doesn't support this mode.\n");
 		return -1;
 	}
 
@@ -244,12 +245,12 @@ static int save(const char* file) {
 
 	f = fopen(file,"wb");
 	if (!f) {
-		printf("Error opening file %s\n",file);
+		printf("Error opening file %s.\n",file);
 		return -1;
 	}
 
 	if (fwrite(regs,sizeof(regs),1,f) != 1) {
-		printf("Error writing file %s\n",file);
+		printf("Error writing file %s.\n",file);
 		return -1;
 	}
 
@@ -264,12 +265,12 @@ static int restore(const char* file) {
 
 	f = fopen(file,"rb");
 	if (!f) {
-		printf("Error opening file %s\n",file);
+		printf("Error opening file %s.\n",file);
 		return -1;
 	}
 
 	if (fread(regs,sizeof(regs),1,f) != 1) {
-		printf("Error reading file %s\n",file);
+		printf("Error reading file %s.\n",file);
 		return -1;
 	}
 
@@ -287,12 +288,12 @@ static int set(const char* config, const char* spec) {
 	unsigned bits;
 
 	if (sscanf(spec,"%dx%dx%d",&x,&y,&bits) != 3) {
-		printf("Invalid mode specification\n");
+		printf("Invalid mode specification.\n");
 		return -1;
 	}
 
 	if (bits != 8 && bits != 15 && bits != 16 && bits != 24 && bits != 32) {
-		printf("Invalid bit depth specification\n");
+		printf("Invalid bit depth specification.\n");
 		return -1;
 	}
 
@@ -306,7 +307,7 @@ static int set(const char* config, const char* spec) {
 	}
 
 	if (mode_set(&mode) != 0) {
-		printf("Error setting the mode\n");
+		printf("Error setting the mode.\n");
 		return -1;
 	}
 	
@@ -320,54 +321,47 @@ static int adjust(const char* config) {
 	unsigned x;
 	unsigned y;
 	unsigned bits;
-	HDC dc;
 
-	dc = GetDC(0);
-	if (!dc) {
-		printf("Error getting the DC\n");
-		return -1;
+	SVGALIB_MODE_INFORMATION mode_information;
+
+	memset(&mode_information, 0, sizeof(SVGALIB_MODE_INFORMATION));
+	mode_information.Length = sizeof(SVGALIB_MODE_INFORMATION);
+	if (adv_svgalib_ioctl(IOCTL_SVGALIB_QUERY_CURRENT_MODE, 0, 0, &mode_information, sizeof(SVGALIB_MODE_INFORMATION)) != 0) {
+		printf("Error getting the video mode information.\n");
+		return - 1;
 	}
 
-	bits = GetDeviceCaps(dc,BITSPIXEL);
-	x = GetDeviceCaps(dc,HORZRES);
-	y = GetDeviceCaps(dc,VERTRES);
-	ReleaseDC(0, dc);
+	bits = mode_information.BitsPerPlane * mode_information.NumberOfPlanes;
+	x = mode_information.VisScreenWidth;
+	y = mode_information.VisScreenHeight;
 
 	mode.bits_per_pixel = bits;
 	if (load(config,x,y,&mode) != 0) {
 		return -1;
 	}
-	
+
 	if (mode_set(&mode) != 0) {
-		printf("Error setting the mode\n");
+		printf("Error setting the mode.\n");
 		return -1;
 	}
-	
+
 	notify();
 
 	return 0;
 }
 
-static int winrestore(void) {
-	unsigned x;
-	unsigned y;
-	unsigned bits;
-	HDC dc;
+static int winrestore(void) 
+{
+	DEVMODE mode;
 
-	dc = GetDC(0);
-	if (!dc) {
-		printf("Error getting the DC\n");
+	memset(&mode, 0, sizeof(mode));
+	mode.dmSize = sizeof(mode);
+	mode.dmFields = 0;
+
+	if (ChangeDisplaySettings(&mode, CDS_RESET) != DISP_CHANGE_SUCCESSFUL) {
+		printf("Windows isn't able to reset the mode.\n");
 		return -1;
 	}
-
-	bits = GetDeviceCaps(dc,BITSPIXEL);
-	x = GetDeviceCaps(dc,HORZRES);
-	y = GetDeviceCaps(dc,VERTRES);
-	ReleaseDC(0, dc);
-
-	change(x,y,bits);
-
-	notify();
 
 	return 0;
 }
@@ -385,19 +379,19 @@ static int probe_callback(unsigned bus_device_func, unsigned vendor, unsigned de
 
 	*(int*)_arg = 1;
 	
-	printf("PCI/AGP Board VendorID %04x, DeviceID %04x, Bus %d, Device %d\n", vendor, device, bus_device_func >> 8, bus_device_func & 0xFF);
+	printf("PCI/AGP Board VendorID %04x, DeviceID %04x, Bus %d, Device %d, Function %d\n", vendor, device, (bus_device_func >> 8) & 0xFF, (bus_device_func >> 3) & 0x1F, bus_device_func & 0x7);
 
 	return 0;
 }
 
 static void probe(void) {
 	int found;
+	SVGALIB_MODE_INFORMATION mode_information;
+	
 	found = 0;
-	
 	adv_svgalib_pci_scan_device(probe_callback,&found);
-	
 	if (!found)
-		printf("No PCI/AGP boards found\n");
+		printf("ISA Board (?)\n");
 
 	printf("Video driver : %s\n", adv_svgalib_driver_get());
 
@@ -416,10 +410,40 @@ static void probe(void) {
 	if (adv_svgalib_mmio_size_get()) {
 		printf("MMIO memory : %08x, %d byte\n", adv_svgalib_mmio_base_get(), adv_svgalib_mmio_size_get());
 	}
+
+	printf("\n");
+
+	memset(&mode_information, 0, sizeof(SVGALIB_MODE_INFORMATION));
+	mode_information.Length = sizeof(SVGALIB_MODE_INFORMATION);
+	if (adv_svgalib_ioctl(IOCTL_SVGALIB_QUERY_CURRENT_MODE, 0, 0, &mode_information, sizeof(SVGALIB_MODE_INFORMATION)) != 0) {
+		printf("No video mode information\n");
+	} else {
+		printf("Current Mode\n");
+		printf("Width : %d\n", (unsigned)mode_information.VisScreenWidth);
+		printf("Height : %d\n", (unsigned)mode_information.VisScreenHeight);
+		printf("Bits per pixel : %d\n", (unsigned)(mode_information.BitsPerPlane * mode_information.NumberOfPlanes));
+		printf("Bytes per scanline : %d\n", (unsigned)mode_information.ScreenStride);
+	}
+}
+
+static void adjust_scanline(void) 
+{
+	SVGALIB_MODE_INFORMATION mode_information;
+
+	memset(&mode_information, 0, sizeof(SVGALIB_MODE_INFORMATION));
+	mode_information.Length = sizeof(SVGALIB_MODE_INFORMATION);
+	if (adv_svgalib_ioctl(IOCTL_SVGALIB_QUERY_CURRENT_MODE, 0, 0, &mode_information, sizeof(SVGALIB_MODE_INFORMATION)) != 0) {
+		printf("Error detecting the bytes per scanline. Continuing anyway.\n");
+		return;
+	}
+
+	if (adv_svgalib_scanline_get() != mode_information.ScreenStride) {
+		adv_svgalib_scanline_set(mode_information.ScreenStride);
+	}
 }
 
 static void help(void) {
-	printf("AdvanceVIDEOW by Andrea Mazzoleni v0.2 " __DATE__ "\n");
+	printf("AdvanceVIDEOW by Andrea Mazzoleni v0.3 " __DATE__ "\n");
 	printf(
 "Usage:\n"
 "    videow [/c CONFIG] [/a] [/s XxYxBITS] [/w FILE] [/r FILE]\n"
@@ -444,9 +468,12 @@ int optionmatch(const char* arg, const char* opt) {
 	return (arg[0] == '-' || arg[0] == '/') && stricmp(arg+1,opt) == 0;
 }
 
-int main(int argc, char* argv[]) {
-	OSVERSIONINFO VersionInformation;
+void adv_svgalib_log_va(const char *text, va_list arg)
+{
+}
 
+int main(int argc, char* argv[]) {
+	OSVERSIONINFO version_information;
 	int i;
 	int arg_adjust = 0;
 	const char* arg_save = 0;
@@ -465,14 +492,14 @@ int main(int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	VersionInformation.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	if (!GetVersionEx(&VersionInformation)) {
-		printf("Error getting the Windows version\n");
+	version_information.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	if (!GetVersionEx(&version_information)) {
+		printf("Error getting the Windows version.\n");
 		exit(EXIT_FAILURE);
 	}
 
-	if (VersionInformation.dwPlatformId != VER_PLATFORM_WIN32_NT) {
-		printf("This program runs only on Windows NT/2000/XP\n");
+	if (version_information.dwPlatformId != VER_PLATFORM_WIN32_NT) {
+		printf("This program runs only on Windows NT/2000/XP.\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -505,7 +532,7 @@ int main(int argc, char* argv[]) {
 		} else if (optionmatch(argv[i],"o")) {
 			arg_winrestore = 1;
 		} else {
-			printf("Unknown option %s\n", argv[i]);
+			printf("Unknown option %s.\n", argv[i]);
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -513,7 +540,7 @@ int main(int argc, char* argv[]) {
 	if (driver_init() != 0) {
 		exit(EXIT_FAILURE);
 	}
-	
+
 	if (arg_probe) {
 		probe();
 	}
@@ -545,6 +572,8 @@ int main(int argc, char* argv[]) {
 			driver_done();
 			exit(EXIT_FAILURE);
 		}
+
+		adjust_scanline();
 	}
 
 	if (arg_mode) {
@@ -552,6 +581,8 @@ int main(int argc, char* argv[]) {
 			driver_done();
 			exit(EXIT_FAILURE);
 		}
+
+		adjust_scanline();
 	}
 
 	if (arg_scanline) {

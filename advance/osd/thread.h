@@ -31,8 +31,25 @@
 #ifndef __THREAD_H
 #define __THREAD_H
 
+/**
+ * Initialize the thread support.
+ */
 int thread_init(void);
+
+/**
+ * Deinitialize the thread system.
+ */
 void thread_done(void);
+
+/**
+ * Callback used to enable and disable the thread support at runtime.
+ * This function is called every time a thread need to be started.
+ * If it return 0, a single thread implementation is used.
+ * \return
+ *  - ==0 Don't start new threads.
+ *  - !=0 Starts new threads.
+ */
+int thread_is_active(void);
 
 #endif
 

@@ -2,16 +2,16 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.61.1
+EMUVERSION = 0.61.2
 else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
 else
-EMUVERSION = 0.61.4
+EMUVERSION = 0.61.5
 endif
 endif
 MENUVERSION = 2.2.0
-CABVERSION = 1.1.1
+CABVERSION = 1.1.2
 
 ############################################################################
 # Common dir
@@ -45,7 +45,6 @@ ifneq ($(wildcard $(srcdir)/advance/menu.mak),)
 INSTALL_BINFILES += $(MENUOBJ)/advmenu$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advmenu.1
 endif
-ifneq ($(CONF_HOST),windows)
 ifneq ($(wildcard $(srcdir)/advance/v.mak),)
 INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advv.1
@@ -54,6 +53,7 @@ ifneq ($(wildcard $(srcdir)/advance/cfg.mak),)
 INSTALL_BINFILES += $(CFGOBJ)/advcfg$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advcfg.1
 endif
+ifneq ($(CONF_HOST),windows)
 ifneq ($(wildcard $(srcdir)/advance/s.mak),)
 INSTALL_BINFILES += $(SOBJ)/advs$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advs.1
@@ -341,11 +341,14 @@ RCFLAGS += --include-dir advance/lib
 ############################################################################
 # Special Rules
 
-WHOLE_CFLAGS_OPT = -O3 -Wall -Wno-sign-compare -Wno-unused
-WHOLE_CFLAGS_EMU = -fomit-frame-pointer
-# with debug info
+# Debug
+#WHOLE_CFLAGS_OPT = -O3 -Wall -Wno-sign-compare -Wno-unused
+#WHOLE_CFLAGS_EMU = -fomit-frame-pointer
 #WHOLE_LDFLAGS = -rdynamic
-# without debug info
+
+# Optimized
+WHOLE_CFLAGS_OPT = -O3 -Wall -Wno-sign-compare -Wno-unused -fomit-frame-pointer
+WHOLE_CFLAGS_EMU =
 WHOLE_LDFLAGS = -s
 
 ARCH_I386 = CONF_ARCH=i386 CONF_CFLAGS_OPT="-march=i386 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
@@ -375,9 +378,6 @@ wholemame:
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos distbin
 	$(MAKE) $(ARCH_I686) CONF=no CONF_HOST=dos distbin
 	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos distbin
-
-dosmess:
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
 
 wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist

@@ -1,11 +1,19 @@
 Name
 	history - History For AdvanceCAB
 
+AdvanceCAB Version 1.1.2 2002/11 (not yet released)
+	) Minor changes at the docs.
+	) The same fixes ad the advv utility from AdvanceMAME 0.61.5.
+	) The VIDEOW utility now correctly detect the current 
+		bytes per scanline.
+	) Fixed a slowdown bug on the SVGALIB video board detection.
+	) Better error reporting on the SVGALIB drivers.
+
 AdvanceCAB Version 1.1.1 2002/11
 	) Added the ADVV utility for Windows NT/2000/XP.
-	) Added an new option at the VIDEOW utility to enable the
+	) Added a new option at the VIDEOW utility to enable the
 		hardware mouse pointer.
-	) Added an new option at the VIDEOW utility to change the
+	) Added a new option at the VIDEOW utility to change the
 		scanline size.
 
 AdvanceCAB Version 1.1.0 2002/11

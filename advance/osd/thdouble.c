@@ -113,7 +113,12 @@ void thread_done(void)
 }
 
 void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int max) 
-{     
+{
+	if (!thread_is_active()) {
+		func(arg,0,1);
+		return;
+	}
+
 	if (max <= 1) {
 		func(arg,0,1);
 		return;

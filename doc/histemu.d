@@ -1,6 +1,19 @@
 Name
 	history - History For Advance Emulators
 
+AdvanceMAME Version 0.61.5 2002/11 (not yet released)
+	) The SVGAWIN drivers now use the framebuffer reported by 
+		Windows. This fixes the crash problem with the Cirrus
+		Laguna boards and probably others.
+	) Added the `display_aspect_x' and `display_aspect_y' to arbitary
+		selects the aspect ratio of the monitor used.
+
+AdvanceMESS Version 0.61.2 2002/11 (not yet released)
+	) The MESS threads are now used only if the SMP runtime option
+		is activated. Previously on a SMP compile the threads was
+		always used.
+	) All from AdvanceMAME 0.61.5
+
 AdvanceMAME Version 0.61.4 2002/11
 	) Merged the sdl and native system of the Linux target.
 		You can now mix the SDL input/output drivers with the

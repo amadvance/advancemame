@@ -88,9 +88,14 @@ static struct svgawin_option_struct svgawin_option;
 /***************************************************************************/
 /* Internal */
 
-static unsigned char* svgawin_linear_write_line(unsigned y) {
+static unsigned char* svgawin_svgalib_write_line(unsigned y) {
 	assert( svgawin_state.lock_active );
 	return (unsigned char*)adv_svgalib_linear_pointer_get() + adv_svgalib_scanline_get() * y;
+}
+
+static unsigned char* svgawin_sdl_write_line(unsigned y) {
+	assert( svgawin_state.lock_active );
+	return (unsigned char*)svgawin_state.surface->pixels + adv_svgalib_scanline_get() * y;;
 }
 
 /* Keep the same order of svgawin_chipset_struct cards */
@@ -370,6 +375,15 @@ adv_error svgawin_init(int device_id)
 	svgawin_state.mode_active = 0;
 	svgawin_state.lock_active = 0;
 
+	switch (svgawin_option.stub) {
+	case STUB_NONE : log_std(("video:svgawin: stub none\n")); break;
+	case STUB_WINDOW : log_std(("video:svgawin: stub window\n")); break;
+	case STUB_FULLSCREEN : log_std(("video:svgawin: stub fullscreen\n")); break;
+	default: 
+		log_std(("video:svgawin: stub unknow\n")); 
+		return -1;
+	}
+
 	if (svgawin_option.stub != STUB_NONE) {
 		if (sdl_init(device_id) != 0)
 			return -1;
@@ -445,6 +459,64 @@ void svgawin_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size
 	}
 
 	svgawin_state.lock_active = 0;
+}
+
+static void sdl_mode_done(void) {
+	if (SDL_WasInit(SDL_INIT_VIDEO)!=0) {
+		log_std(("video:svgawin: call SDL_QuitSubSystem(SDL_INIT_VIDEO)\n"));
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	}
+
+	svgawin_state.surface = 0;
+}
+
+static void windows_restore(void) {
+	DEVMODE mode;
+
+	memset(&mode, 0, sizeof(mode));
+	mode.dmSize = sizeof(mode);
+	mode.dmFields = 0;
+
+	ShowCursor(FALSE);
+
+	if (ChangeDisplaySettings(&mode, CDS_RESET) != DISP_CHANGE_SUCCESSFUL) {
+		return;
+	}
+
+	ShowCursor(TRUE);
+}
+
+static void svgalib_mode_done(void)
+{
+	adv_svgalib_unset();
+
+	adv_svgalib_linear_unmap();
+}
+
+void svgawin_mode_done(adv_bool restore) {
+	assert( svgawin_is_active() );
+	assert( svgawin_mode_is_active() );
+
+	log_std(("video:svgawin: svgawin_mode_done()\n"));
+
+	svgalib_mode_done();
+
+	if (svgawin_option.stub != STUB_FULLSCREEN) {
+		/* restore the register only if required */
+		if (restore) {
+			adv_svgalib_restore(svgawin_state.regs_saved);
+			windows_restore();
+		}		
+	}
+	if (svgawin_option.stub != STUB_NONE) {
+		sdl_mode_done();
+	}
+	if (svgawin_option.stub == STUB_FULLSCREEN) {
+		/* on fullscreen stub mode the sdl always reset the screen, so we need to always restore the registers */
+		adv_svgalib_restore(svgawin_state.regs_saved);
+	}
+
+	svgawin_state.mode_active = 0;
 }
 
 static adv_error sdl_mode_set(const svgawin_video_mode* mode) {
@@ -556,6 +628,11 @@ static adv_error svgalib_mode_set(const svgawin_video_mode* mode)
 
 	adv_svgalib_linear_map();
 
+	if (svgawin_option.stub != STUB_FULLSCREEN && adv_svgalib_linear_pointer_get() == MAP_FAILED) {
+		error_set("Error mapping the video memory");
+		return -1;
+	}
+
 	if (adv_svgalib_set(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), mode->bits_per_pixel, crtc_is_tvpal(&mode->crtc), crtc_is_tvntsc(&mode->crtc)) != 0) {
 		adv_svgalib_linear_unmap();
 		error_set("Generic error setting the svgawin mode");
@@ -565,31 +642,6 @@ static adv_error svgalib_mode_set(const svgawin_video_mode* mode)
 	log_std(("svgawin: mode_set done\n"));
 
 	return 0;
-}
-
-static void sdl_mode_done(void) {
-	if (SDL_WasInit(SDL_INIT_VIDEO)!=0) {
-		log_std(("video:svgawin: call SDL_QuitSubSystem(SDL_INIT_VIDEO)\n"));
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-	}
-
-	svgawin_state.surface = 0;
-}
-
-static void windows_restore(void) {
-	DEVMODE mode;
-
-	memset(&mode, 0, sizeof(mode));
-	mode.dmSize = sizeof(mode);
-	mode.dmFields = 0;
-
-	ShowCursor(FALSE);
-
-	if (ChangeDisplaySettings(&mode, CDS_RESET) != DISP_CHANGE_SUCCESSFUL) {
-		return;
-	}
-
-	ShowCursor(TRUE);
 }
 
 adv_error svgawin_mode_set(const svgawin_video_mode* mode) {
@@ -603,74 +655,63 @@ adv_error svgawin_mode_set(const svgawin_video_mode* mode) {
 	}
 	if (svgawin_option.stub != STUB_NONE) {
 		if (sdl_mode_set(mode) != 0)
-			return -1;
+			goto err;
 	} 
 	if (svgawin_option.stub != STUB_FULLSCREEN) {
 		adv_svgalib_save(svgawin_state.regs_saved);
 	}
 
 	if (svgalib_mode_set(mode) != 0) {
-		if (svgawin_option.stub != STUB_FULLSCREEN) {
-			adv_svgalib_restore(svgawin_state.regs_saved);
-			windows_restore();
-		}
-		if (svgawin_option.stub != STUB_NONE) {
-			sdl_mode_done();
-		}
-		if (svgawin_option.stub == STUB_FULLSCREEN) {
-			adv_svgalib_restore(svgawin_state.regs_saved);
-		}
-		return -1;
+		goto err_sdl;
 	}
 
-	/* write handler */
-	svgawin_write_line = svgawin_linear_write_line;
-
-	svgawin_state.mode_active = 1;
+	/* if the svgalib linear pointer is invalid use the sdl value */
+	if (svgawin_option.stub == STUB_FULLSCREEN && adv_svgalib_linear_pointer_get() == MAP_FAILED) {
+		svgawin_write_line = svgawin_sdl_write_line;
+	} else {
+		svgawin_write_line = svgawin_svgalib_write_line;
+	}
 
 	log_std(("video:svgawin: lock the video memory\n"));
 	svgawin_write_lock();
 
+	if (svgawin_option.stub == STUB_FULLSCREEN) {
+		log_std(("video:svgawin: sdl linear pointer %08x\n", (unsigned)svgawin_state.surface->pixels));
+	}
+	log_std(("video:svgawin: svgalib linear pointer %08x\n", (unsigned)adv_svgalib_linear_pointer_get()));
+	log_std(("video:svgawin: used linear pointer %08x\n", (unsigned)svgawin_write_line(0)));
+
+	/* final integrity check */
+	if (svgawin_write_line(0) == MAP_FAILED) {
+		svgawin_write_unlock(0,0,0,0);
+		goto err_svgalib;
+	}
+
 	log_std(("video:svgawin: clear the video memory\n"));
-	memset(adv_svgalib_linear_pointer_get(), 0, adv_svgalib_scanline_get() * mode->crtc.vde);
+	memset(svgawin_write_line(0), 0, adv_svgalib_scanline_get() * mode->crtc.vde);
 
 	log_std(("video:svgawin: unlock the video memory\n"));
 	svgawin_write_unlock(0,0,0,0);
+	
+	svgawin_state.mode_active = 1;
 
 	return 0;
-}
 
-static void svgalib_mode_done(void)
-{
-	adv_svgalib_unset();
-
-	adv_svgalib_linear_unmap();
-}
-
-void svgawin_mode_done(adv_bool restore) {
-	assert( svgawin_is_active() );
-	assert( svgawin_mode_is_active() );
-
-	log_std(("video:svgawin: svgawin_mode_done()\n"));
-
+err_svgalib:
 	svgalib_mode_done();
-
+err_sdl:
 	if (svgawin_option.stub != STUB_FULLSCREEN) {
-		/* restore the register only if required */
-		if (restore) {
-			adv_svgalib_restore(svgawin_state.regs_saved);
-			windows_restore();
-		}		
+		adv_svgalib_restore(svgawin_state.regs_saved);
+		windows_restore();
 	}
 	if (svgawin_option.stub != STUB_NONE) {
 		sdl_mode_done();
 	}
 	if (svgawin_option.stub == STUB_FULLSCREEN) {
-		/* on fullscreen stub mode the sdl always reset the screen, so we need to always restore the registers */
 		adv_svgalib_restore(svgawin_state.regs_saved);
 	}
-
-	svgawin_state.mode_active = 0;
+err:
+	return -1;
 }
 
 adv_error svgawin_mode_change(const svgawin_video_mode* mode) {
@@ -697,7 +738,11 @@ adv_error svgawin_mode_change(const svgawin_video_mode* mode) {
 	}
 
 	/* write handler */
-	svgawin_write_line = svgawin_linear_write_line;
+	if (svgawin_option.stub == STUB_FULLSCREEN) {
+		svgawin_write_line = svgawin_sdl_write_line;
+	} else {
+		svgawin_write_line = svgawin_svgalib_write_line;
+	}
 
 	svgawin_state.mode_active = 1;
 

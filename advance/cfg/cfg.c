@@ -1405,7 +1405,7 @@ void cmd_save(adv_conf* config, const adv_generate_interpolate_set* interpolate,
 /***************************************************************************/
 /* Main */
 
-void video_log_va(const char *text, va_list arg)
+void adv_svgalib_log_va(const char *text, va_list arg)
 {
 	log_va(text,arg);
 }
@@ -1542,7 +1542,10 @@ int os_main(int argc, char* argv[]) {
 	}
 
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
-		target_err("No driver supports your video board.\nEnsure that all the required drivers are installed and correctly configured.\n");
+		target_err("No driver supports your video board.\n");
+#ifdef __WIN32__		
+		target_err("Ensure to have installed the svgawin.sys driver with the svgawin.exe utility.\n");
+#endif		
 		goto err_blit;
 	}
 
