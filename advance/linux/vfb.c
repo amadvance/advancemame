@@ -823,6 +823,10 @@ void fb_mode_done(adv_bool restore)
 	}
 
 	if (restore) {
+		log_std(("video:fb: restore old\n"));
+
+		fb_log(0, &fb_state.oldinfo);
+
 		fb_setvar(&fb_state.oldinfo);
 		/* ignore error */
 	} else {

@@ -41,57 +41,48 @@
 
 static int video_mode_menu(struct advance_video_context* context, struct advance_ui_context* ui_context, int selected, unsigned input)
 {
-	const char *menu_item[VIDEO_CRTC_MAX + 2];
-	char flag[VIDEO_CRTC_MAX + 2];
-	const adv_crtc* entry[VIDEO_CRTC_MAX + 2];
-	int i;
-	int total;
+	struct ui_menu menu;
+	unsigned mac;
+	int exit_index;
+	int auto_index;
+	unsigned i;
+	const adv_crtc* crtc;
 
 	if (selected >= 1)
 		selected = selected - 1;
 	else
 		selected = 0;
 
-	total = 0;
+	advance_ui_menu_init(&menu);
 
-	menu_item[total] = strdup("Auto");
-	entry[total] = 0;
-	flag[total] = strcmp("auto", context->config.resolution_buffer)==0;
-	++total;
+	advance_ui_menu_title_insert(&menu, "Video Mode");
 
+	auto_index = advance_ui_menu_text_insert(&menu, "Auto");
+
+	crtc = 0;
 	for(i=0;i<context->state.crtc_mac;++i) {
 		char buffer[128];
-		const adv_crtc* crtc = context->state.crtc_map[i];
-		entry[total] = crtc;
-		mode_desc_print(context, buffer, sizeof(buffer), crtc);
-		menu_item[total] = strdup(buffer);
-		flag[total] = strcmp(crtc_name_get(crtc), context->config.resolution_buffer)==0;
-		++total;
+		mode_desc_print(context, buffer, sizeof(buffer), context->state.crtc_map[i]);
+		if (advance_ui_menu_text_insert(&menu, buffer) == selected)
+			crtc = context->state.crtc_map[i];
 	}
 
-	menu_item[total] = strdup("Return to Main Menu");
-	flag[total] = 0;
-	++total;
+	exit_index = advance_ui_menu_text_insert(&menu, "Return to Main Menu");
 
-	menu_item[total] = 0;
-	flag[total] = 0;
+	mac = advance_ui_menu_done(&menu, ui_context, selected);
 
-	advance_ui_menu_vect(ui_context, "Video Mode", menu_item, 0, flag, selected, 0);
-
-	if (input == OSD_INPUT_DOWN)
-	{
-		selected = (selected + 1) % total;
+	if (input == OSD_INPUT_DOWN) {
+		selected = (selected + 1) % mac;
 	}
 
-	if (input == OSD_INPUT_UP)
-	{
-		selected = (selected + total - 1) % total;
+	if (input == OSD_INPUT_UP) {
+		selected = (selected + mac - 1) % mac;
 	}
 
-	if (input == OSD_INPUT_SELECT)
-	{
-		if (selected == total - 1) selected = -1;
-		else if (selected == 0) {
+	if (input == OSD_INPUT_SELECT) {
+		if (selected == exit_index) {
+			selected = -1;
+		} else if (selected == auto_index) {
 			struct advance_video_config_context config = context->config;
 
 			sncpy(config.resolution_buffer, sizeof(config.resolution_buffer), "auto");
@@ -103,7 +94,7 @@ static int video_mode_menu(struct advance_video_context* context, struct advance
 		} else {
 			struct advance_video_config_context config = context->config;
 
-			sncpy(config.resolution_buffer, sizeof(config.resolution_buffer), crtc_name_get(entry[selected]));
+			sncpy(config.resolution_buffer, sizeof(config.resolution_buffer), crtc_name_get(crtc));
 
 			advance_video_reconfigure(context, &config);
 		}
@@ -115,97 +106,73 @@ static int video_mode_menu(struct advance_video_context* context, struct advance
 	if (input == OSD_INPUT_CONFIGURE)
 		selected = -2;
 
-	for(i=0;i<total-1;++i) {
-		free((char*)menu_item[i]);
-	}
-
 	return selected + 1;
 }
 
 static int video_pipeline_menu(struct advance_video_context* context, struct advance_ui_context* ui_context, int selected, unsigned input)
 {
-	const char* menu_item[64];
-	char flag[64];
-	char buffer[256];
-
-	int total;
-
-	int i;
+	struct ui_menu menu;
+	unsigned mac;
+	int exit_index;
+	unsigned i;
 	const struct video_stage_horz_struct* stage;
+	char buffer[256];
 
 	if (selected >= 1)
 		selected = selected - 1;
 	else
 		selected = 0;
 
-	total = 0;
+	advance_ui_menu_init(&menu);
 
-	for(i=1, stage=video_pipeline_begin(&context->state.blit_pipeline_video);stage!=video_pipeline_end(&context->state.blit_pipeline_video);++stage, ++i) {
+	advance_ui_menu_title_insert(&menu, "Video Pipeline");
+
+	for(i=1,stage=video_pipeline_begin(&context->state.blit_pipeline_video);stage!=video_pipeline_end(&context->state.blit_pipeline_video);++stage,++i) {
 		if (stage == video_pipeline_pivot(&context->state.blit_pipeline_video)) {
 			snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline_video)->type));
+			advance_ui_menu_text_insert(&menu, buffer);
 			++i;
-			menu_item[total] = strdup(buffer);
-			flag[total] = 0;
-			++total;
 		}
 		if (stage->sbpp != stage->sdp)
 			snprintf(buffer, sizeof(buffer), "(%d) %s, p %d, dp %d", i, pipe_name(stage->type), stage->sbpp, stage->sdp);
 		else
 			snprintf(buffer, sizeof(buffer), "(%d) %s, p %d", i, pipe_name(stage->type), stage->sbpp);
-		menu_item[total] = strdup(buffer);
-		flag[total] = 0;
-		++total;
+		advance_ui_menu_text_insert(&menu, buffer);
 	}
 	if (stage == video_pipeline_pivot(&context->state.blit_pipeline_video)) {
 		snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline_video)->type));
+		advance_ui_menu_text_insert(&menu, buffer);
 		++i;
-		menu_item[total] = strdup(buffer);
-		flag[total] = 0;
-		++total;
 	}
 
-	menu_item[total] = strdup("#Blit Time");
-	flag[total] = 0;
-	++total;
+	advance_ui_menu_title_insert(&menu, "Blit Time");
 
 	if (context->state.pipeline_measure_flag) {
-		menu_item[total] = strdup("Time measure not completed");
-		flag[total] = 0;
-		++total;
+		advance_ui_menu_text_insert(&menu, "Time measure not completed");
 	} else {
-		snprintf(buffer, sizeof(buffer), "Direct write %.2f ms", context->state.pipeline_measure_direct_result * 1000);
-		menu_item[total] = strdup(buffer);
-		flag[total] = 0;
-		++total;
+		snprintf(buffer, sizeof(buffer), "Direct write %.2f (ms)", context->state.pipeline_measure_direct_result * 1000);
+		advance_ui_menu_text_insert(&menu, buffer);
 
-		snprintf(buffer, sizeof(buffer), "Buffer write %.2f ms", context->state.pipeline_measure_buffer_result * 1000);
-		menu_item[total] = strdup(buffer);
-		flag[total] = 0;
-		++total;
+		snprintf(buffer, sizeof(buffer), "Buffer write %.2f (ms)", context->state.pipeline_measure_buffer_result * 1000);
+		advance_ui_menu_text_insert(&menu, buffer);
 	}
 
-	menu_item[total] = strdup("Return to Main Menu");
-	flag[total] = 0;
-	++total;
+	exit_index = advance_ui_menu_text_insert(&menu, "Return to Main Menu");
 
-	menu_item[total] = 0;
-	flag[total] = 0;
+	mac = advance_ui_menu_done(&menu, ui_context, selected);
 
-	advance_ui_menu_vect(ui_context, "Video Pipeline", menu_item, 0, flag, selected, 0);
-
-	if (input == OSD_INPUT_DOWN)
-	{
-		selected = (selected + 1) % total;
+	if (input == OSD_INPUT_DOWN) {
+		selected = (selected + 1) % mac;
 	}
 
-	if (input == OSD_INPUT_UP)
-	{
-		selected = (selected + total - 1) % total;
+	if (input == OSD_INPUT_UP) {
+		selected = (selected + mac - 1) % mac;
 	}
 
-	if (input == OSD_INPUT_SELECT)
-	{
-		if (selected == total - 1) selected = -1;
+	if (input == OSD_INPUT_SELECT) {
+		if (selected == exit_index) {
+			selected = -1;
+		}
 	}
 
 	if (input == OSD_INPUT_CANCEL)
@@ -214,23 +181,17 @@ static int video_pipeline_menu(struct advance_video_context* context, struct adv
 	if (input == OSD_INPUT_CONFIGURE)
 		selected = -2;
 
-	for(i=0;i<total-1;++i) {
-		free((char*)menu_item[i]);
-	}
-
 	return selected + 1;
 }
 
 int osd2_video_menu(int selected, unsigned input)
 {
-	const char* menu_item[32];
-	const char* menu_subitem[32];
-	char flag[32];
-	char buffer[128];
+	struct advance_video_context* video_context = &CONTEXT.video;
+	struct advance_global_context* global_context = &CONTEXT.global;
+	struct advance_ui_context* ui_context = &CONTEXT.ui;
 
-	int total;
-	int arrowize;
-
+	struct ui_menu menu;
+	unsigned mac;
 	int resolution_index;
 	int stretch_index;
 	int vsync_index;
@@ -245,18 +206,17 @@ int osd2_video_menu(int selected, unsigned input)
 	int index_index;
 	int smp_index;
 	int crash_index;
-
-	struct advance_video_context* video_context = &CONTEXT.video;
-	struct advance_global_context* global_context = &CONTEXT.global;
-	struct advance_ui_context* ui_context = &CONTEXT.ui;
+	int exit_index;
+	char buffer[128];
+	const char* text = 0;
+	const char* option = 0;
 
 	if (selected >= 1)
 		selected = selected - 1;
 	else
 		selected = 0;
 
-	if (video_context->state.menu_sub_flag)
-	{
+	if (video_context->state.menu_sub_flag) {
 		int ret = 0;
 		switch (video_context->state.menu_sub_flag) {
 		case 1 : ret = video_mode_menu(video_context, ui_context, video_context->state.menu_sub_selected, input); break;
@@ -270,9 +230,11 @@ int osd2_video_menu(int selected, unsigned input)
 		return selected + 1;
 	}
 
-	total = 0;
+	advance_ui_menu_init(&menu);
 
-	snprintf(buffer, sizeof(buffer), "#%dx%dx%d %.1f/%.1f/%.1f",
+	advance_ui_menu_title_insert(&menu, "Video Menu");
+
+	snprintf(buffer, sizeof(buffer), "%dx%dx%d %.1f/%.1f/%.1f",
 		video_size_x(),
 		video_size_y(),
 		video_bits_per_pixel(),
@@ -280,253 +242,208 @@ int osd2_video_menu(int selected, unsigned input)
 		(double)crtc_hclock_get(&video_context->state.crtc_effective) / 1E3,
 		(double)crtc_vclock_get(&video_context->state.crtc_effective)
 	);
-	menu_item[total] = strdup(buffer);
-	menu_subitem[total] = 0;
-	flag[total] = 0;
-	++total;
+	advance_ui_menu_title_insert(&menu, buffer);
 
-	resolution_index = total;
-	menu_item[total] = "Mode...";
-	menu_subitem[total] = video_context->config.resolution_buffer;
-	flag[total] = 0;
-	++total;
+	resolution_index = advance_ui_menu_option_insert(&menu, "Mode...", video_context->config.resolution_buffer);
 
 	if (!video_context->state.game_vector_flag) {
 		if (strcmp(video_context->config.resolution_buffer, "auto")==0) {
-			magnify_index = total;
 			switch (mode_current_magnify(video_context)) {
 			default :
-			case 1 : menu_item[total] = "Magnify [1]"; break;
-			case 2 : menu_item[total] = "Magnify [2]"; break;
-			case 3 : menu_item[total] = "Magnify [3]"; break;
-			case 4 : menu_item[total] = "Magnify [4]"; break;
+			case 1 : text = "Magnify [1]"; break;
+			case 2 : text = "Magnify [2]"; break;
+			case 3 : text = "Magnify [3]"; break;
+			case 4 : text = "Magnify [4]"; break;
 			}
 			switch (video_context->config.magnify_factor) {
 			default :
-			case 0 : menu_subitem[total] = "auto"; break;
-			case 1 : menu_subitem[total] = "1"; break;
-			case 2 : menu_subitem[total] = "2"; break;
-			case 3 : menu_subitem[total] = "3"; break;
-			case 4 : menu_subitem[total] = "4"; break;
+			case 0 : option = "auto"; break;
+			case 1 : option = "1"; break;
+			case 2 : option = "2"; break;
+			case 3 : option = "3"; break;
+			case 4 : option = "4"; break;
 			}
-			flag[total] = 0;
-			++total;
+			magnify_index = advance_ui_menu_option_insert(&menu, text, option);
 
-			scanline_index = total;
 			switch (video_scan()) {
-			case 0 : menu_item[total] = "Scanline [single]"; break;
-			case 1 : menu_item[total] = "Scanline [double]"; break;
-			case -1 : menu_item[total] = "Scanline [interlace]"; break;
+			case 0 : text = "Scanline [single]"; break;
+			case 1 : text = "Scanline [double]"; break;
+			case -1 : text = "Scanline [interlace]"; break;
 			}
 			if (video_context->config.scanlines_flag)
-				menu_subitem[total] = "yes";
+				option = "yes";
 			else
-				menu_subitem[total] = "no";
-			flag[total] = 0;
-			++total;
-
+				option = "no";
+			scanline_index = advance_ui_menu_option_insert(&menu, text, option);
 		} else {
 			magnify_index = -1;
 			scanline_index = -1;
 		}
 
-		menu_item[total] = "#Options";
-		menu_subitem[total] = 0;
-		flag[total] = 0;
-		++total;
+		advance_ui_menu_title_insert(&menu, "Options");
 
-		stretch_index = total;
 		switch (mode_current_stretch(video_context)) {
-		case STRETCH_NONE : menu_item[total] = "Resize [no]"; break;
-		case STRETCH_INTEGER_XY : menu_item[total] = "Resize [integer]"; break;
-		case STRETCH_INTEGER_X_FRACTIONAL_Y : menu_item[total] = "Resize [mixed]"; break;
-		case STRETCH_FRACTIONAL_XY : menu_item[total] = "Resize [fractional]"; break;
+		case STRETCH_NONE : text = "Resize [no]"; break;
+		case STRETCH_INTEGER_XY : text = "Resize [integer]"; break;
+		case STRETCH_INTEGER_X_FRACTIONAL_Y : text = "Resize [mixed]"; break;
+		case STRETCH_FRACTIONAL_XY : text = "Resize [fractional]"; break;
 		}
 		switch (video_context->config.stretch) {
-		case STRETCH_NONE : menu_subitem[total] = "no"; break;
-		case STRETCH_INTEGER_XY : menu_subitem[total] = "integer"; break;
-		case STRETCH_INTEGER_X_FRACTIONAL_Y : menu_subitem[total] = "mixed"; break;
-		case STRETCH_FRACTIONAL_XY : menu_subitem[total] = "fractional"; break;
+		case STRETCH_NONE : option = "no"; break;
+		case STRETCH_INTEGER_XY : option = "integer"; break;
+		case STRETCH_INTEGER_X_FRACTIONAL_Y : option = "mixed"; break;
+		case STRETCH_FRACTIONAL_XY : option = "fractional"; break;
 		}
-		flag[total] = 0;
-		++total;
+		stretch_index = advance_ui_menu_option_insert(&menu, text, option);
 	} else {
 		magnify_index = -1;
 		scanline_index = -1;
 
-		menu_item[total] = "Options";
-		menu_subitem[total] = 0;
-		flag[total] = 0;
-		++total;
+		advance_ui_menu_title_insert(&menu, "Options");
 
 		stretch_index = -1;
 	}
 
-	index_index = total;
 	switch (video_index()) {
 	case MODE_FLAGS_INDEX_PALETTE8 :
-		menu_item[total] = "Color [palette8]";
+		text = "Color [palette8]";
 		break;
 	case MODE_FLAGS_INDEX_BGR8 :
-		menu_item[total] = "Color [bgr8]";
+		text = "Color [bgr8]";
 		break;
 	case MODE_FLAGS_INDEX_BGR15 :
-		menu_item[total] = "Color [bgr15]";
+		text = "Color [bgr15]";
 		break;
 	case MODE_FLAGS_INDEX_BGR16 :
-		menu_item[total] = "Color [bgr16]";
+		text = "Color [bgr16]";
 		break;
 	case MODE_FLAGS_INDEX_BGR32 :
-		menu_item[total] = "Color [bgr32]";
+		text = "Color [bgr32]";
 		break;
 	case MODE_FLAGS_INDEX_YUY2 :
-		menu_item[total] = "Color [yuy2]";
+		text = "Color [yuy2]";
 		break;
 	default:
-		menu_item[total] = "Color [unknown]";
+		text = "Color [unknown]";
 		break;
 	}
 	switch (video_context->config.index) {
 	case MODE_FLAGS_INDEX_NONE :
-	menu_subitem[total] = "auto";
+		option = "auto";
 			break;
 	case MODE_FLAGS_INDEX_PALETTE8 :
-	menu_subitem[total] = "palette8";
+		option = "palette8";
 		break;
 	case MODE_FLAGS_INDEX_BGR8 :
-		menu_subitem[total] = "bgr8";
+		option = "bgr8";
 		break;
 	case MODE_FLAGS_INDEX_BGR15 :
-		menu_subitem[total] = "bgr15";
+		option = "bgr15";
 		break;
 	case MODE_FLAGS_INDEX_BGR16 :
-		menu_subitem[total] = "bgr16";
+		option = "bgr16";
 		break;
 	case MODE_FLAGS_INDEX_BGR32 :
-		menu_subitem[total] = "bgr32";
+		option = "bgr32";
 		break;
 	case MODE_FLAGS_INDEX_YUY2 :
-		menu_subitem[total] = "yuy2";
+		option = "yuy2";
 		break;
 	default:
-		menu_subitem[total] = "unknown";
+		option = "unknown";
 		break;
 	}
-	flag[total] = 0;
-	++total;
+	index_index = advance_ui_menu_option_insert(&menu, text, option);
 
-	combine_index = total;
 	switch (video_context->state.combine) {
-	case COMBINE_NONE : menu_item[total] = "Resize Effect [no]"; break;
-	case COMBINE_MAXMIN : menu_item[total] = "Resize Effect [max]"; break;
-	case COMBINE_MEAN : menu_item[total] = "Resize Effect [mean]"; break;
-	case COMBINE_FILTER : menu_item[total] = "Resize Effect [filter]"; break;
-	case COMBINE_SCALE : menu_item[total] = "Resize Effect [scale]"; break;
-	case COMBINE_LQ : menu_item[total] = "Resize Effect [lq]"; break;
-	case COMBINE_HQ : menu_item[total] = "Resize Effect [hq]"; break;
+	case COMBINE_NONE : text = "Resize Effect [no]"; break;
+	case COMBINE_MAXMIN : text = "Resize Effect [max]"; break;
+	case COMBINE_MEAN : text = "Resize Effect [mean]"; break;
+	case COMBINE_FILTER : text = "Resize Effect [filter]"; break;
+	case COMBINE_SCALE : text = "Resize Effect [scale]"; break;
+	case COMBINE_LQ : text = "Resize Effect [lq]"; break;
+	case COMBINE_HQ : text = "Resize Effect [hq]"; break;
 	}
 	switch (video_context->config.combine) {
-	case COMBINE_AUTO : menu_subitem[total] = "auto"; break;
-	case COMBINE_NONE : menu_subitem[total] = "no"; break;
-	case COMBINE_MAXMIN : menu_subitem[total] = "max"; break;
-	case COMBINE_MEAN : menu_subitem[total] = "mean"; break;
-	case COMBINE_FILTER : menu_subitem[total] = "filter"; break;
-	case COMBINE_SCALE : menu_subitem[total] = "scale"; break;
-	case COMBINE_LQ : menu_subitem[total] = "lq"; break;
-	case COMBINE_HQ : menu_subitem[total] = "hq"; break;
+	case COMBINE_AUTO : option = "auto"; break;
+	case COMBINE_NONE : option = "no"; break;
+	case COMBINE_MAXMIN : option = "max"; break;
+	case COMBINE_MEAN : option = "mean"; break;
+	case COMBINE_FILTER : option = "filter"; break;
+	case COMBINE_SCALE : option = "scale"; break;
+	case COMBINE_LQ : option = "lq"; break;
+	case COMBINE_HQ : option = "hq"; break;
 	}
-	flag[total] = 0;
-	++total;
+	combine_index = advance_ui_menu_option_insert(&menu, text, option);
 
-	effect_index = total;
 	switch (video_context->state.rgb_effect) {
-	case EFFECT_NONE : menu_item[total] = "Rgb Effect [no]"; break;
-	case EFFECT_RGB_TRIAD3PIX : menu_item[total] = "Rgb Effect [triad3dot]"; break;
-	case EFFECT_RGB_TRIAD6PIX : menu_item[total] = "Rgb Effect [triad6dot]"; break;
-	case EFFECT_RGB_TRIAD16PIX : menu_item[total] = "Rgb Effect [triad16dot]"; break;
-	case EFFECT_RGB_TRIADSTRONG3PIX : menu_item[total] = "Rgb Effect [triadstrong3dot]"; break;
-	case EFFECT_RGB_TRIADSTRONG6PIX : menu_item[total] = "Rgb Effect [triadstrong6dot]"; break;
-	case EFFECT_RGB_TRIADSTRONG16PIX : menu_item[total] = "Rgb Effect [triadstrong16dot]"; break;
-	case EFFECT_RGB_SCANDOUBLEHORZ : menu_item[total] = "Rgb Effect [scan2horz]"; break;
-	case EFFECT_RGB_SCANTRIPLEHORZ : menu_item[total] = "Rgb Effect [scan3horz]"; break;
-	case EFFECT_RGB_SCANDOUBLEVERT : menu_item[total] = "Rgb Effect [scan2vert]"; break;
-	case EFFECT_RGB_SCANTRIPLEVERT : menu_item[total] = "Rgb Effect [scan3vert]"; break;
+	case EFFECT_NONE : text = "Rgb Effect [no]"; break;
+	case EFFECT_RGB_TRIAD3PIX : text = "Rgb Effect [triad3dot]"; break;
+	case EFFECT_RGB_TRIAD6PIX : text = "Rgb Effect [triad6dot]"; break;
+	case EFFECT_RGB_TRIAD16PIX : text = "Rgb Effect [triad16dot]"; break;
+	case EFFECT_RGB_TRIADSTRONG3PIX : text = "Rgb Effect [triadstrong3dot]"; break;
+	case EFFECT_RGB_TRIADSTRONG6PIX : text = "Rgb Effect [triadstrong6dot]"; break;
+	case EFFECT_RGB_TRIADSTRONG16PIX : text = "Rgb Effect [triadstrong16dot]"; break;
+	case EFFECT_RGB_SCANDOUBLEHORZ : text = "Rgb Effect [scan2horz]"; break;
+	case EFFECT_RGB_SCANTRIPLEHORZ : text = "Rgb Effect [scan3horz]"; break;
+	case EFFECT_RGB_SCANDOUBLEVERT : text = "Rgb Effect [scan2vert]"; break;
+	case EFFECT_RGB_SCANTRIPLEVERT : text = "Rgb Effect [scan3vert]"; break;
 	}
 	switch (video_context->config.rgb_effect) {
-	case EFFECT_NONE : menu_subitem[total] = "no"; break;
-	case EFFECT_RGB_TRIAD3PIX : menu_subitem[total] = "triad3dot"; break;
-	case EFFECT_RGB_TRIAD6PIX : menu_subitem[total] = "triad6dot"; break;
-	case EFFECT_RGB_TRIAD16PIX : menu_subitem[total] = "triad16dot"; break;
-	case EFFECT_RGB_TRIADSTRONG3PIX : menu_subitem[total] = "triadstrong3dot"; break;
-	case EFFECT_RGB_TRIADSTRONG6PIX : menu_subitem[total] = "triadstrong6dot"; break;
-	case EFFECT_RGB_TRIADSTRONG16PIX : menu_subitem[total] = "triadstrong16dot"; break;
-	case EFFECT_RGB_SCANDOUBLEHORZ : menu_subitem[total] = "scan2horz"; break;
-	case EFFECT_RGB_SCANTRIPLEHORZ : menu_subitem[total] = "scan3horz"; break;
-	case EFFECT_RGB_SCANDOUBLEVERT : menu_subitem[total] = "scan2vert"; break;
-	case EFFECT_RGB_SCANTRIPLEVERT : menu_subitem[total] = "scan3vert"; break;
+	case EFFECT_NONE : option = "no"; break;
+	case EFFECT_RGB_TRIAD3PIX : option = "triad3dot"; break;
+	case EFFECT_RGB_TRIAD6PIX : option = "triad6dot"; break;
+	case EFFECT_RGB_TRIAD16PIX : option = "triad16dot"; break;
+	case EFFECT_RGB_TRIADSTRONG3PIX : option = "triadstrong3dot"; break;
+	case EFFECT_RGB_TRIADSTRONG6PIX : option = "triadstrong6dot"; break;
+	case EFFECT_RGB_TRIADSTRONG16PIX : option = "triadstrong16dot"; break;
+	case EFFECT_RGB_SCANDOUBLEHORZ : option = "scan2horz"; break;
+	case EFFECT_RGB_SCANTRIPLEHORZ : option = "scan3horz"; break;
+	case EFFECT_RGB_SCANDOUBLEVERT : option = "scan2vert"; break;
+	case EFFECT_RGB_SCANTRIPLEVERT : option = "scan3vert"; break;
 	}
-	flag[total] = 0;
-	++total;
+	effect_index = advance_ui_menu_option_insert(&menu, text, option);
 
-	vsync_index = total;
 	switch (video_context->state.vsync_flag) {
-	case 0 : menu_item[total] = "Vsync [no]"; break;
-	case 1 : menu_item[total] = "Vsync [yes]"; break;
+	case 0 : text = "Vsync [no]"; break;
+	case 1 : text = "Vsync [yes]"; break;
 	}
 	switch (video_context->config.vsync_flag) {
-	case 0 : menu_subitem[total] = "no"; break;
-	case 1 : menu_subitem[total] = "yes"; break;
+	case 0 : option = "no"; break;
+	case 1 : option = "yes"; break;
 	}
-	flag[total] = 0;
-	++total;
+	vsync_index = advance_ui_menu_option_insert(&menu, text, option);
 
 #ifdef USE_SMP
-	smp_index = total;
 	switch (video_context->config.smp_flag) {
-	case 0 : menu_item[total] = "SMP [no]"; break;
-	case 1 : menu_item[total] = "SMP [yes]"; break;
+	case 0 : text = "SMP [no]"; break;
+	case 1 : text = "SMP [yes]"; break;
 	}
 	switch (video_context->config.smp_flag) {
-	case 0 : menu_subitem[total] = "no"; break;
-	case 1 : menu_subitem[total] = "yes"; break;
+	case 0 : option = "no"; break;
+	case 1 : option = "yes"; break;
 	}
-	flag[total] = 0;
-	++total;
+	smp_index = advance_ui_menu_option_insert(&menu, text, option);
 #else
 	smp_index = -1;
 #endif
 
-	pipeline_index = total;
-	menu_item[total] = "Details...";
-	menu_subitem[total] = 0;
-	flag[total] = 0;
-	++total;
+	pipeline_index = advance_ui_menu_text_insert(&menu, "Details...");
 
 	if (global_context->state.is_config_writable) {
-		save_game_index = total;
-		menu_item[total] = "Save for this game";
-		menu_subitem[total] = 0;
-		flag[total] = 0;
-		++total;
+		save_game_index = advance_ui_menu_text_insert(&menu, "Save for this game");
 
 		if (!video_context->state.game_vector_flag) {
-			save_resolutionclock_index = total;
-			menu_item[total] = "Save for this game size/freq";
-			menu_subitem[total] = 0;
-			flag[total] = 0;
-			++total;
+			save_resolutionclock_index = advance_ui_menu_text_insert(&menu, "Save for this game size/freq");
 		} else {
 			save_resolutionclock_index = -1;
 		}
 
-		save_resolution_index = total;
 		if (video_context->state.game_vector_flag)
-			menu_item[total] = "Save for all vector games";
+			text = "Save for all vector games";
 		else
-			menu_item[total] = "Save for this game size";
-		menu_subitem[total] = 0;
-		flag[total] = 0;
-		++total;
+			text = "Save for this game size";
+		save_resolution_index = advance_ui_menu_text_insert(&menu, text);
 	} else {
 		save_game_index = -1;
 		save_resolution_index = -1;
@@ -534,52 +451,25 @@ int osd2_video_menu(int selected, unsigned input)
 	}
 
 	if (video_context->config.crash_flag) {
-		crash_index = total;
-		menu_item[total] = "Crash";
-		menu_subitem[total] = 0;
-		flag[total] = 0;
-		++total;
+		crash_index = advance_ui_menu_text_insert(&menu, "Crash");
 	} else {
 		crash_index = -1;
 	}
 
-	menu_item[total] = "Return to Main Menu";
-	menu_subitem[total] = 0;
-	flag[total] = 0;
-	++total;
+	exit_index = advance_ui_menu_text_insert(&menu, "Return to Main Menu");
 
-	menu_item[total] = 0;
-	menu_subitem[total] = 0;
-	flag[total] = 0;
+	mac = advance_ui_menu_done(&menu, ui_context, selected);
 
-	if (selected == vsync_index
-		|| selected == smp_index
-		|| selected == stretch_index
-		|| selected == combine_index
-		|| selected == effect_index
-		|| selected == magnify_index
-		|| selected == index_index
-		|| selected == scanline_index
-	)
-		arrowize = 3;
-	else
-		arrowize = 0;
-
-	advance_ui_menu_vect(ui_context, "Video Menu", menu_item, menu_subitem, flag, selected, arrowize);
-
-	if (input == OSD_INPUT_DOWN)
-	{
-		selected = (selected + 1) % total;
+	if (input == OSD_INPUT_DOWN) {
+		selected = (selected + 1) % mac;
 	}
 
-	if (input == OSD_INPUT_UP)
-	{
-		selected = (selected + total - 1) % total;
+	if (input == OSD_INPUT_UP) {
+		selected = (selected + mac - 1) % mac;
 	}
 
-	if (input == OSD_INPUT_SELECT)
-	{
-		if (selected == total - 1) {
+	if (input == OSD_INPUT_SELECT) {
+		if (selected == exit_index) {
 			selected = -1;
 		} else if (selected == resolution_index) {
 			video_context->state.menu_sub_flag = 1;
@@ -596,8 +486,7 @@ int osd2_video_menu(int selected, unsigned input)
 		}
 	}
 
-	if (input == OSD_INPUT_RIGHT)
-	{
+	if (input == OSD_INPUT_RIGHT) {
 		if (selected == combine_index) {
 			struct advance_video_config_context config = video_context->config;
 			switch (config.combine) {
@@ -676,8 +565,7 @@ int osd2_video_menu(int selected, unsigned input)
 		}
 	}
 
-	if (input == OSD_INPUT_LEFT)
-	{
+	if (input == OSD_INPUT_LEFT) {
 		if (selected == combine_index) {
 			struct advance_video_config_context config = video_context->config;
 			switch (config.combine) {
@@ -767,45 +655,40 @@ int osd2_video_menu(int selected, unsigned input)
 
 static int audio_pipeline_menu(struct advance_sound_context* sound_context, struct advance_ui_context* ui_context, int selected, unsigned input)
 {
-	const char* menu_item[64];
-	char flag[64];
-	char buffer[256];
-
-	int total;
-
-	int i;
+	struct ui_menu menu;
+	unsigned mac;
+	int exit_index;
+	char buffer[128];
+	unsigned i;
 
 	if (selected >= 1)
 		selected = selected - 1;
 	else
 		selected = 0;
 
-	total = 0;
-
 	i = 1;
+
+	advance_ui_menu_init(&menu);
+
+	advance_ui_menu_title_insert(&menu, "Audio Pipeline");
 
 	if (sound_context->config.normalize_flag) {
 		snprintf(buffer, sizeof(buffer), "(%d) normalize", i);
-		menu_item[total] = strdup(buffer);
-		flag[total] = 0;
-		++total;
+		advance_ui_menu_text_insert(&menu, buffer);
 		++i;
 	}
 
-	if (sound_context->state.sample_mult != SAMPLE_MULT_BASE) {
+	if (sound_context->state.sample_mult != SAMPLE_MULT_BASE
+		&& sound_context->state.sample_mult != 0) {
 		int preamp = 20 * log10((double)sound_context->state.sample_mult / SAMPLE_MULT_BASE);
 		snprintf(buffer, sizeof(buffer), "(%d) preamp %d (dB)", i, preamp);
-		menu_item[total] = strdup(buffer);
-		flag[total] = 0;
-		++total;
+		advance_ui_menu_text_insert(&menu, buffer);
 		++i;
 	}
 
 	if (sound_context->state.equalizer_flag) {
 		snprintf(buffer, sizeof(buffer), "(%d) equalizer", i);
-		menu_item[total] = strdup(buffer);
-		flag[total] = 0;
-		++total;
+		advance_ui_menu_text_insert(&menu, buffer);
 		++i;
 	}
 
@@ -827,49 +710,44 @@ static int audio_pipeline_menu(struct advance_sound_context* sound_context, stru
 		}
 
 		snprintf(buffer, sizeof(buffer), "(%d) %s to %s", i, from, to);
-		menu_item[total] = strdup(buffer);
-		flag[total] = 0;
-		++total;
+		advance_ui_menu_text_insert(&menu, buffer);
 		++i;
 	}
 
 	snprintf(buffer, sizeof(buffer), "(%d) write", i);
-	menu_item[total] = strdup(buffer);
-	flag[total] = 0;
-	++total;
+	advance_ui_menu_text_insert(&menu, buffer);
 	++i;
 
-	menu_item[total] = strdup("#Play Time");
-	flag[total] = 0;
-	++total;
+	advance_ui_menu_title_insert(&menu, "Play Time");
 
-	snprintf(buffer, sizeof(buffer), "Write %.2f ms", sound_context->state.time * 1000);
-	menu_item[total] = strdup(buffer);
-	flag[total] = 0;
-	++total;
+	snprintf(buffer, sizeof(buffer), "Write %.2f (ms)", sound_context->state.time * 1000);
+	advance_ui_menu_text_insert(&menu, buffer);
 
-	menu_item[total] = strdup("Return to Main Menu");
-	flag[total] = 0;
-	++total;
+	advance_ui_menu_title_insert(&menu, "Play Overflow");
 
-	menu_item[total] = 0;
-	flag[total] = 0;
+	snprintf(buffer, sizeof(buffer), "Overflow %d (samples)", sound_context->state.overflow);
+	advance_ui_menu_text_insert(&menu, buffer);
 
-	advance_ui_menu_vect(ui_context, "Audio Pipeline", menu_item, 0, flag, selected, 0);
+	advance_ui_menu_title_insert(&menu, "Spectrum (dB/Hz)");
 
-	if (input == OSD_INPUT_DOWN)
-	{
-		selected = (selected + 1) % total;
+	advance_ui_menu_dft_insert(&menu, sound_context->state.dft_post_X, sound_context->state.dft_padded_size, sound_context->config.eql_cut1, sound_context->config.eql_cut2);
+
+	exit_index = advance_ui_menu_text_insert(&menu, "Return to Main Menu");
+
+	mac = advance_ui_menu_done(&menu, ui_context, selected);
+
+	if (input == OSD_INPUT_DOWN) {
+		selected = (selected + 1) % mac;
 	}
 
-	if (input == OSD_INPUT_UP)
-	{
-		selected = (selected + total - 1) % total;
+	if (input == OSD_INPUT_UP) {
+		selected = (selected + mac - 1) % mac;
 	}
 
-	if (input == OSD_INPUT_SELECT)
-	{
-		if (selected == total - 1) selected = -1;
+	if (input == OSD_INPUT_SELECT) {
+		if (selected == exit_index) {
+			selected = -1;
+		}
 	}
 
 	if (input == OSD_INPUT_CANCEL)
@@ -878,28 +756,18 @@ static int audio_pipeline_menu(struct advance_sound_context* sound_context, stru
 	if (input == OSD_INPUT_CONFIGURE)
 		selected = -2;
 
-	for(i=0;i<total-1;++i) {
-		free((char*)menu_item[i]);
-	}
-
 	return selected + 1;
 }
 
 int osd2_audio_menu(int selected, unsigned input)
 {
-	const char* menu_item[32];
-	const char* menu_subitem[32];
-	char flag[32];
-	char buffer[128];
-
-	int total;
-	int arrowize;
-
 	struct advance_video_context* video_context = &CONTEXT.video;
 	struct advance_sound_context* sound_context = &CONTEXT.sound;
 	struct advance_global_context* global_context = &CONTEXT.global;
 	struct advance_ui_context* ui_context = &CONTEXT.ui;
 
+	struct ui_menu menu;
+	unsigned mac;
 	int mode_index;
 	int adjust_index;
 	int volume_index;
@@ -909,6 +777,10 @@ int osd2_audio_menu(int selected, unsigned input)
 	int eqh_index;
 	int save_game_index;
 	int pipeline_index;
+	int exit_index;
+	char buffer[128];
+	const char* text = 0;
+	const char* option = 0;
 
 	if (selected >= 1)
 		selected = selected - 1;
@@ -928,129 +800,82 @@ int osd2_audio_menu(int selected, unsigned input)
 		return selected + 1;
 	}
 
-	total = 0;
+	advance_ui_menu_init(&menu);
 
-	mode_index = total;
+	advance_ui_menu_title_insert(&menu, "Audio Menu");
+
 	switch (sound_context->state.output_mode) {
-	case SOUND_MODE_MONO : menu_item[total] = "Mode [mono]"; break;
-	case SOUND_MODE_STEREO : menu_item[total] = "Mode [stereo]"; break;
-	case SOUND_MODE_SURROUND : menu_item[total] = "Mode [surround]"; break;
+	case SOUND_MODE_MONO : text = "Mode [mono]"; break;
+	case SOUND_MODE_STEREO : text = "Mode [stereo]"; break;
+	case SOUND_MODE_SURROUND : text = "Mode [surround]"; break;
 	}
 	switch (sound_context->config.mode) {
-	case SOUND_MODE_AUTO : menu_subitem[total] = "auto"; break;
-	case SOUND_MODE_MONO : menu_subitem[total] = "mono"; break;
-	case SOUND_MODE_STEREO : menu_subitem[total] = "stereo"; break;
-	case SOUND_MODE_SURROUND : menu_subitem[total] = "surround"; break;
+	case SOUND_MODE_AUTO : option = "auto"; break;
+	case SOUND_MODE_MONO : option = "mono"; break;
+	case SOUND_MODE_STEREO : option = "stereo"; break;
+	case SOUND_MODE_SURROUND : option = "surround"; break;
 	}
-	flag[total] = 0;
-	++total;
+	mode_index = advance_ui_menu_option_insert(&menu, text, option);
 
-	volume_index = total;
-	menu_item[total] = "Attenuation (dB)";
-	snprintf(buffer, sizeof(buffer), "%d", sound_context->config.attenuation);
-	menu_subitem[total] = strdup(buffer);
-	flag[total] = 0;
-	++total;
+	if (sound_context->config.attenuation > -40)
+		snprintf(buffer, sizeof(buffer), "%d", sound_context->config.attenuation);
+	else
+		sncpy(buffer, sizeof(buffer), "mute");
+	volume_index = advance_ui_menu_option_insert(&menu, "Attenuation (dB)", buffer);
 
-	menu_item[total] = "#Normalize";
-	menu_subitem[total] = 0;
-	flag[total] = 0;
-	++total;
+	advance_ui_menu_title_insert(&menu, "Normalize");
 
-	normalize_index = total;
-	menu_item[total] = "Auto limit";
 	if (sound_context->config.normalize_flag)
-		menu_subitem[total] = "yes";
+		option = "yes";
 	else
-		menu_subitem[total] = "no";
-	flag[total] = 0;
-	++total;
+		option = "no";
+	normalize_index = advance_ui_menu_option_insert(&menu, "Auto normalize", option);
 
-	adjust_index = total;
-	menu_item[total] = "Amplifier (dB)";
-	if (sound_context->config.adjust >= 0)
-		snprintf(buffer, sizeof(buffer), "%d", sound_context->config.adjust);
+	snprintf(buffer, sizeof(buffer), "%d", sound_context->config.adjust);
+	adjust_index = advance_ui_menu_option_insert(&menu, "Amplifier (dB)", buffer);
+
+	advance_ui_menu_title_insert(&menu, "Equalizer");
+
+	if (sound_context->config.equalizer_low > -40)
+		snprintf(buffer, sizeof(buffer), "%d", sound_context->config.equalizer_low);
 	else
-		sncpy(buffer, sizeof(buffer), "none");
-	menu_subitem[total] = strdup(buffer);
-	flag[total] = 0;
-	++total;
+		sncpy(buffer, sizeof(buffer), "mute");
+	eql_index = advance_ui_menu_option_insert(&menu, "Low Freq (dB)", buffer);
 
-	menu_item[total] = "#Equalizer";
-	menu_subitem[total] = 0;
-	flag[total] = 0;
-	++total;
+	if (sound_context->config.equalizer_mid > -40)
+		snprintf(buffer, sizeof(buffer), "%d", sound_context->config.equalizer_mid);
+	else
+		sncpy(buffer, sizeof(buffer), "mute");
+	eqm_index = advance_ui_menu_option_insert(&menu, "Mid Freq (dB)", buffer);
 
-	eql_index = total;
-	menu_item[total] = "Low Freq (dB)";
-	snprintf(buffer, sizeof(buffer), "%d", sound_context->config.equalizer_low);
-	menu_subitem[total] = strdup(buffer);
-	flag[total] = 0;
-	++total;
+	if (sound_context->config.equalizer_high > -40)
+		snprintf(buffer, sizeof(buffer), "%d", sound_context->config.equalizer_high);
+	else
+		sncpy(buffer, sizeof(buffer), "mute");
+	eqh_index = advance_ui_menu_option_insert(&menu, "High Freq (dB)", buffer);
 
-	eqm_index = total;
-	menu_item[total] = "Mid Freq (dB)";
-	snprintf(buffer, sizeof(buffer), "%d", sound_context->config.equalizer_mid);
-	menu_subitem[total] = strdup(buffer);
-	flag[total] = 0;
-	++total;
-
-	eqh_index = total;
-	menu_item[total] = "High Freq (dB)";
-	snprintf(buffer, sizeof(buffer), "%d", sound_context->config.equalizer_high);
-	menu_subitem[total] = strdup(buffer);
-	flag[total] = 0;
-	++total;
-
-	pipeline_index = total;
-	menu_item[total] = "Details...";
-	menu_subitem[total] = 0;
-	flag[total] = 0;
-	++total;
+	pipeline_index = advance_ui_menu_text_insert(&menu, "Details...");
 
 	if (global_context->state.is_config_writable) {
-		save_game_index = total;
-		menu_item[total] = "Save for this game";
-		menu_subitem[total] = 0;
-		flag[total] = 0;
-		++total;
+		save_game_index = advance_ui_menu_text_insert(&menu, "Save for this game");
 	} else {
 		save_game_index = -1;
 	}
 
-	menu_item[total] = "Return to Main Menu";
-	menu_subitem[total] = 0;
-	flag[total] = 0;
-	++total;
+	exit_index = advance_ui_menu_text_insert(&menu, "Return to Main Menu");
 
-	menu_item[total] = 0;
-	menu_subitem[total] = 0;
-	flag[total] = 0;
+	mac = advance_ui_menu_done(&menu, ui_context, selected);
 
-	if (selected == mode_index
-		|| selected == volume_index
-		|| selected == adjust_index
-		|| selected == normalize_index
-	)
-		arrowize = 3;
-	else
-		arrowize = 0;
-
-	advance_ui_menu_vect(ui_context, "Audio Menu", menu_item, menu_subitem, flag, selected, arrowize);
-
-	if (input == OSD_INPUT_DOWN)
-	{
-		selected = (selected + 1) % total;
+	if (input == OSD_INPUT_DOWN) {
+		selected = (selected + 1) % mac;
 	}
 
-	if (input == OSD_INPUT_UP)
-	{
-		selected = (selected + total - 1) % total;
+	if (input == OSD_INPUT_UP) {
+		selected = (selected + mac - 1) % mac;
 	}
 
-	if (input == OSD_INPUT_SELECT)
-	{
-		if (selected == total - 1) {
+	if (input == OSD_INPUT_SELECT) {
+		if (selected == exit_index) {
 			selected = -1;
 		} else if (selected == pipeline_index) {
 			sound_context->state.menu_sub_flag = 1;
@@ -1059,8 +884,7 @@ int osd2_audio_menu(int selected, unsigned input)
 		}
 	}
 
-	if (input == OSD_INPUT_RIGHT)
-	{
+	if (input == OSD_INPUT_RIGHT) {
 		if (selected == volume_index) {
 			struct advance_sound_config_context config = sound_context->config;
 			config.attenuation = sound_context->config.attenuation + 1;
@@ -1084,21 +908,20 @@ int osd2_audio_menu(int selected, unsigned input)
 			advance_sound_reconfigure(sound_context, &config);
 		} else if (selected == eql_index) {
 			struct advance_sound_config_context config = sound_context->config;
-			config.equalizer_low = sound_context->config.equalizer_low + 1;
+			config.equalizer_low = sound_context->config.equalizer_low + 2;
 			advance_sound_reconfigure(sound_context, &config);
 		} else if (selected == eqm_index) {
 			struct advance_sound_config_context config = sound_context->config;
-			config.equalizer_mid = sound_context->config.equalizer_mid + 1;
+			config.equalizer_mid = sound_context->config.equalizer_mid + 2;
 			advance_sound_reconfigure(sound_context, &config);
 		} else if (selected == eqh_index) {
 			struct advance_sound_config_context config = sound_context->config;
-			config.equalizer_high = sound_context->config.equalizer_high + 1;
+			config.equalizer_high = sound_context->config.equalizer_high + 2;
 			advance_sound_reconfigure(sound_context, &config);
 		}
 	}
 
-	if (input == OSD_INPUT_LEFT)
-	{
+	if (input == OSD_INPUT_LEFT) {
 		if (selected == volume_index) {
 			struct advance_sound_config_context config = sound_context->config;
 			config.attenuation = sound_context->config.attenuation - 1;
@@ -1122,15 +945,15 @@ int osd2_audio_menu(int selected, unsigned input)
 			advance_sound_reconfigure(sound_context, &config);
 		} else if (selected == eql_index) {
 			struct advance_sound_config_context config = sound_context->config;
-			config.equalizer_low = sound_context->config.equalizer_low - 1;
+			config.equalizer_low = sound_context->config.equalizer_low - 2;
 			advance_sound_reconfigure(sound_context, &config);
 		} else if (selected == eqm_index) {
 			struct advance_sound_config_context config = sound_context->config;
-			config.equalizer_mid = sound_context->config.equalizer_mid - 1;
+			config.equalizer_mid = sound_context->config.equalizer_mid - 2;
 			advance_sound_reconfigure(sound_context, &config);
 		} else if (selected == eqh_index) {
 			struct advance_sound_config_context config = sound_context->config;
-			config.equalizer_high = sound_context->config.equalizer_high - 1;
+			config.equalizer_high = sound_context->config.equalizer_high - 2;
 			advance_sound_reconfigure(sound_context, &config);
 		}
 	}

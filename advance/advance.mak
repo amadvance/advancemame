@@ -266,9 +266,6 @@ CONF_SRC = \
 	$(srcdir)/root.mak \
 	$(srcdir)/configure.ac \
 	$(srcdir)/configure \
-	$(srcdir)/configure.dos \
-	$(srcdir)/configure.windows \
-	$(srcdir)/configure.darwin \
 	$(srcdir)/aclocal.m4 \
 	$(srcdir)/config.guess \
 	$(srcdir)/config.sub \

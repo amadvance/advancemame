@@ -43,6 +43,7 @@
 #include "crtcbag.h"
 #include "blit.h"
 #include "filter.h"
+#include "dft.h"
 #include "font.h"
 
 #ifdef USE_LCD
@@ -252,6 +253,29 @@ adv_bool advance_input_digital_pressed(struct advance_input_context* context, un
 #define UI_COLOR_MAX 11 /**< Max number of colors. */
 /*@}*/
 
+enum ui_menu_entry_enum {
+	ui_menu_title,
+	ui_menu_text,
+	ui_menu_option,
+	ui_menu_dft
+};
+
+struct ui_menu_entry {
+	enum ui_menu_entry_enum type;
+	char text_buffer[128];
+	char option_buffer[128];
+	double* m; /**< DFT modules. */
+	unsigned n; /**< DFT size. */
+	double cut1; /**< DFT 1st frequency vert line. */
+	double cut2; /**< DFT 2nd frequency vert line. */
+};
+
+struct ui_menu {
+	struct ui_menu_entry* map;
+	unsigned mac; /**< Counter of inserted elements. */
+	unsigned max;
+};
+
 struct advance_ui_config_context {
 	unsigned help_mac; /**< Number of help entries. */
 	struct help_entry help_map[INPUT_HELP_MAX]; /**< Help map. */
@@ -273,7 +297,6 @@ struct advance_ui_state_context {
 	adv_font* ui_font; /**< User interface font. */
 	adv_font* ui_font_oriented; /**< User interface font with blit orientation. */
 	adv_bool ui_menu_flag; /**< Menu display flag. */
-	const char* ui_menu_title; /**< Menu title. 0 for none. */
 	struct ui_menu_entry* ui_menu_map;
 	unsigned ui_menu_mac;
 	unsigned ui_menu_sel;
@@ -309,8 +332,14 @@ void advance_ui_direct_text(struct advance_ui_context* context, const char* text
 void advance_ui_direct_slow(struct advance_ui_context* context, int flag);
 void advance_ui_direct_fast(struct advance_ui_context* context, int flag);
 void advance_ui_help(struct advance_ui_context* context);
-void advance_ui_menu(struct advance_ui_context* context, const char* menu_title, struct ui_menu_entry* menu_map, unsigned menu_mac, unsigned menu_sel);
-void advance_ui_menu_vect(struct advance_ui_context* context, const char* title, const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem);
+
+unsigned advance_ui_menu_done(struct ui_menu* menu, struct advance_ui_context* context, unsigned menu_sel);
+void advance_ui_menu_init(struct ui_menu* menu);
+void advance_ui_menu_title_insert(struct ui_menu* menu, const char* title);
+unsigned advance_ui_menu_text_insert(struct ui_menu* menu, const char* text);
+unsigned advance_ui_menu_option_insert(struct ui_menu* menu, const char* text, const char* option);
+void advance_ui_menu_dft_insert(struct ui_menu* menu, double* m, unsigned n, double cut0, double cut1);
+
 void advance_ui_buffer_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max);
 void advance_ui_direct_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max);
 adv_error advance_ui_init(struct advance_ui_context* context, adv_conf* cfg_context);
@@ -431,17 +460,24 @@ void advance_estimate_common_end(struct advance_estimate_context* context, adv_b
  */
 #define SAMPLE_MULT_BASE 4096
 
+/**
+ * Range in dB for the power initialization.
+ */
+#define SOUND_POWER_DB_MAX 120
+
 struct advance_sound_config_context {
 	double latency_time; /**< Requested minimum latency in seconds */
 	int mode; /**< Channel mode. */
 	int attenuation; /**< Sound volume in db (0 == full volume). */
-	int adjust; /**< Initial adjust factor int db for sound normalization. */
+	int adjust; /**< Sound adjust factor int db for sound normalization. */
 	adv_bool normalize_flag; /**< Adjust the sound volume. */
 	adv_bool mutedemo_flag; /**< Mute on demo. */
 	adv_bool mutestartup_flag; /**< Mute on startup. */
-	int equalizer_low;
-	int equalizer_mid;
-	int equalizer_high;
+	int equalizer_low; /**< Equalizer amplification in db for low frequencies. */
+	int equalizer_mid; /**< Equalizer amplification in db for mid frequencies. */
+	int equalizer_high; /**< Equalizer amplification in db for high frequencies. */
+	double eql_cut1; /**< First cut frequency of the equalizer < 0.5. */
+	double eql_cut2; /**< Second cut frequency of the equalizer < 0.5. */
 };
 
 struct advance_sound_state_context {
@@ -449,7 +485,7 @@ struct advance_sound_state_context {
 
 	double time; /**< Estimate of play time. */
 
-	int adjust; /**< Current adjust factor int db for sound normalization. */
+	unsigned overflow; /**< Overflow in samples. */
 
 	unsigned latency_min; /**< Expected minum latency in samples. */
 	unsigned latency_max; /**< Maximum latency, limitated by the lower driver buffer. */
@@ -463,12 +499,11 @@ struct advance_sound_state_context {
 
 	unsigned sample_mult; /**< Current volume sample multiplicator. */
 
-	unsigned adjust_power_counter; /**< Sample counter for the power computation. */
-	unsigned adjust_power_counter_limit; /**< Limit for the counter. */
-	long long adjust_power_accumulator; /**< Power accumulator. */
-	long long adjust_power_maximum; /**< Current max normalized power. */
-	double adjust_power_factor; /**< Current power adjustment. */
-	adv_bool adjust_power_waitfirstsound_flag; /**< If the adjust process must be delayed. */
+	unsigned adjust_power_db_map[SOUND_POWER_DB_MAX]; /**< Power normalization table. */
+	unsigned adjust_power_db_counter; /**< Counter of the insertion in the ::adjust_power_db_map table. */
+	unsigned char* adjust_power_history_map; /**< History of the power measures. */
+	unsigned adjust_power_history_max; /**< Size of the history. */
+	unsigned adjust_power_history_mac; /**< Current position in the history. */
 
 	adv_bool mute_flag; /**< Mute state for demo mode. */
 	adv_bool disabled_flag; /**< Mute state for disable mode from OSD. */
@@ -487,6 +522,18 @@ struct advance_sound_state_context {
 	/* Menu state */
 	adv_bool menu_sub_flag; /**< If the sub menu is active. */
 	int menu_sub_selected; /**< Index of the selected sub menu voice. */
+
+	unsigned dft_size; /**< DFT samples to accumulate. */
+	unsigned dft_padded_size; /**< DFT padded size. */
+	double* dft_window; /**< Window coefficients (dft_size elements). */
+	double* dft_equal_loudness; /**< Equal loudness courve (dft_padded_size elements). */
+	adv_dft dft_plan; /**< DFT plan to execute. */
+	unsigned dft_post_counter; /**< DFT post samples accumulator. */
+	double* dft_post_x; /**< Current post sample data (dft_size elements). */
+	double* dft_post_X; /**< Last post frequency modulo data (dft_padded_size elements). */
+	unsigned dft_pre_counter; /**< DFT post samples accumulator. */
+	double* dft_pre_x; /**< Current post sample data (dft_size elements). */
+	double* dft_pre_X; /**< Last post frequency modulo data (dft_padded_size elements). */
 };
 
 struct advance_sound_context {
@@ -626,14 +673,6 @@ struct advance_video_config_context {
 
 /** Number of measures of the audio/video syncronization. */
 #define AUDIOVIDEO_MEASURE_MAX 17
-
-struct ui_menu_entry {
-	char text_buffer[128];
-	char option_buffer[128];
-	adv_bool flag;
-	adv_bool arrow_left_flag;
-	adv_bool arrow_right_flag;
-};
 
 #define PIPELINE_MEASURE_MAX 13
 
@@ -852,7 +891,7 @@ void advance_video_reconfigure(struct advance_video_context* context, struct adv
 void advance_video_skip(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context);
 void advance_video_sync(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, adv_bool skip_flag);
 void advance_video_frame(struct advance_video_context* context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, adv_bool skip_flag);
-void advance_sound_frame(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, struct advance_safequit_context* safequit_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool compute_power);
+void advance_sound_frame(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, struct advance_safequit_context* safequit_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool normal_speed);
 
 /***************************************************************************/
 /* Global */

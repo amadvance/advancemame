@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,6 +75,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <signal.h>
+#include <math.h>
 
 #if HAVE_UNISTD_H
 #include <unistd.h>
@@ -154,14 +155,58 @@ extern "C" {
 #endif
 
 #ifdef __MSDOS__
-int snprintf(char* str, size_t count, const char* fmt, ...);
-int vsnprintf(char* str, size_t count, const char* fmt, va_list arg);
+int rpl_snprintf(char* str, size_t count, const char* fmt, ...);
+int rpl_vsnprintf(char* str, size_t count, const char* fmt, va_list arg);
+#define snprintf rpl_snprintf
+#define vsnprintf rpl_vsnprintf
 #endif
 
 #ifdef __WIN32__
 #define snprintf _snprintf
 #define vsnprintf _vsnprintf
 #endif
+
+#ifdef __WIN32__
+#if __GNUC__ == 2
+/* math functions for gcc 2.95.3 for Windows */
+double rpl_asinh(double x);
+double rpl_acosh(double x);
+double rpl_alogb(double x);
+int rpl_isnan(double x);
+int rpl_isunordered(double x, double y);
+#define asinh rpl_asinh
+#define acosh rpl_acosh
+#define logb rpl_logb
+#define isnan rpl_isnan
+#define isunordered rpl_isunordered
+#endif
+#endif
+
+/* M_PI isn't a POSIX standard */
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+/* faster lrint implementation */
+#if defined(__GNUC__) && defined(__i386__)
+static inline int rpl_lrint(double x)
+{
+	int r;
+	__asm__ __volatile__ (
+		"fistpl %0"
+		: "=m" (r)
+		: "t" (x)
+		: "st"
+	);
+	return r;
+}
+#else
+static inline int rpl_lrint(double x)
+{
+	return (int)x;
+}
+#endif
+#define lrint rpl_lrint
 
 #ifdef __cplusplus
 }

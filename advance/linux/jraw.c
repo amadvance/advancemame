@@ -158,6 +158,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 adv_error joystickb_raw_init(int joystickb_id)
 {
 	unsigned i;
+	adv_bool eacces = 0;
 
 	log_std(("josytickb:raw: joystickb_raw_init(id:%d)\n", joystickb_id));
 
@@ -177,6 +178,9 @@ adv_error joystickb_raw_init(int joystickb_id)
 		if (f == -1) {
 			if (errno != ENODEV) {
 				log_std(("joystickb:raw: error opening device %s, errno %d (%s)\n", file, errno, strerror(errno)));
+			}
+			if (errno == EACCES) {
+				eacces = 1;
 			}
 
 			snprintf(file, sizeof(file), "/dev/input/js%d", i);
@@ -208,7 +212,10 @@ adv_error joystickb_raw_init(int joystickb_id)
 	}
 
 	if (!raw_state.mac) {
-		error_set("No joystick found.\n");
+		if (eacces)
+			error_set("No joystick found. Check the /dev/js* and /dev/input/js* permissions.\n");
+		else
+			error_set("No joystick found.\n");
 		return -1;
 	}
 

@@ -39,8 +39,6 @@
 #include "fz.h"
 #include "rgb.h"
 
-#include <assert.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -1,9 +1,22 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.86.0 2004/09
+	) Added an audio spectrum analyzer in the "Audio" menu.
+	) The sound normalization now uses the Fletcher-Munson
+		"Equal Loudness Curve" at 80 dB to remove inaudible
+		frequencies. The sound power is now also increased if
+		required.
+	) Fixed the compilation of the chdman utility.
+	) Fixed the joystick recognition with some low level drivers.
+
+AdvanceMESS Version 0.86.0.0 2004/09
+	) All from AdvanceMAME 0.86.0.
+	) Fixed the recognition of the `Start' and `Select' buttons.
+
 AdvanceMAME Version 0.85.0 2004/08
 	) The modeline generation now always use horizontal
-		values which are multipler of 16 to solve
+		values which are multiplier of 16 to solve
 		memory corruption problems on some video cards.
 	) Fixed a crash bug on vector games with artwork.
 	) Added the `ui_color[*]' options to customize the user
@@ -25,7 +38,7 @@ AdvanceMAME Version 0.84.0 2004/07
 		text modeline.
 
 AdvanceMAME Version 0.83.1 2004/07
-	) Enabled the MIPS dinamic recompilation in DOS and
+	) Enabled the MIPS dynamic recompilation in DOS and
 		Windows.
 	) On Linux you can now specify relative directories
 		in the `dir_*' options.
@@ -45,7 +58,7 @@ AdvanceMESS Version 0.83.0.1 2004/06
 	) All from AdvanceMAME 0.83.1.
 
 AdvanceMAME Version 0.83.0 2004/06
-	) Added the option "ui_speedmark" to enable or disable the onscreen
+	) Added the option "ui_speedmark" to enable or disable the on-screen
 		speed red mark.
 	) Fixed the option "sync_startuptime 0".
 	) Added volume control at the `oss' audio driver.
@@ -69,11 +82,11 @@ AdvanceMAME Version 0.82.0 2004/05
 	) Added a new option `misc_freeplay' to enable the freeplay mode
 		changing the game dipswitches.
 	) Added a new option `misc_mutedemo' to mute the sound on game demo.
-	) Improved the audio/video syncronization. It should fixes the problems
+	) Improved the audio/video synchronization. It should fixes the problems
 		on system which are not able to return the correct number of
 		samples in the audio board buffer.
 	) The `sync_resample' default value is now set to use
-		internal resampling.
+		internal re-sampling.
 	) Fixed the loading of .rc files from the /etc directory.
 	) Improved the loading speed of the history/mameinfo databases in
 		Linux using the unlocked file API.
@@ -139,7 +152,7 @@ AdvanceMAME Version 0.79.1 2004/02
 	) The `max' effect now works also in vertical and horizontal expansion.
 	) Fixed some compilation problems on Mac OS X.
 	) General improvement of the video blit speed. The program now
-		evalutes at runtime the best approach to write video
+		evaluates at runtime the best approach to write video
 		memory. Or direct or buffered writing.
 	) Improved the speed of the `lq', `hq', `mean' and `filter' effects
 		using a different method to compute mean pixels.
@@ -730,7 +743,7 @@ AdvanceMAME Version 0.59.1 2002/04
 	) Fixed some issues on the directory paths.
 
 AdvanceMAME Version 0.59.0 2002/03
-	) Added the option "-r" at the zmng utility. This fixs the
+	) Added the option "-r" at the zmng utility. This fixes the
 		bug when compressing 24 bit image which cannot be
 		converted to 8 bit.
 	) Added the device_video_singlescan/doublescan/interlace
@@ -741,7 +754,7 @@ AdvanceMAME Version 0.59.0 2002/03
 		precise timing.
 	) Added the `misc_quiet' option to disable the text message :
 		"AdvanceMAME - Copyright (C) 1999-2002 by..."
-	) Fixed some imprecisions on the image stretch.
+	) Fixed some imprecision on the image stretch.
 	) Completed the color conversion functions.
 
 AdvanceMAME Version 0.58.1 2002/03

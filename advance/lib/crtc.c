@@ -36,8 +36,6 @@
 #include "error.h"
 #include "snstring.h"
 
-#include <math.h>
-
 /**
  * Find the nearest value.
  */

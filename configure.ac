@@ -44,7 +44,6 @@ case "$host" in
 		AC_SUBST([EXE],[.exe])
 	;;
 	*)
-		AC_MSG_WARN([Never tried host platform! Please report if it's working])
 		ac_system=unix
 		ac_host=generic
 		ac_host_cflags=
@@ -75,7 +74,6 @@ case "$build" in
 		AC_SUBST([EXE_BUILD],[.exe])
 	;;
 	*)
-		AC_MSG_WARN([Never tried build platform! Please report if it's working])
 		ac_build=unix
 		AC_SUBST([EXE_BUILD],[])
 	;;

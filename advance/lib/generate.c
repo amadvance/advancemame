@@ -33,8 +33,6 @@
 #include "generate.h"
 #include "log.h"
 
-#include <math.h>
-
 /**
  * Normalize the generation values.
  */

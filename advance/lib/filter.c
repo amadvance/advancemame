@@ -16,7 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * In addition, as a special exception, Andrea Mazzoleni
+ * gives permission to link the code of this program with
+ * the MAME library (or with modified versions of MAME that use the
+ * same license as MAME), and distribute linked combinations including
+ * the two.  You must obey the GNU General Public License in all
+ * respects for all of the code used other than MAME.  If you modify
+ * this file, you may extend this exception to your version of the
+ * file, but you are not obligated to do so.  If you do not wish to
+ * do so, delete this exception statement from your version.
  */
+
+#include "portable.h"
+
+#include "filter.h"
+
+#include "complex.h"
+
+/****************************************************************************/
+/* IIR */
 
 /*
   IIR Filter generation from:
@@ -25,22 +44,6 @@
     A.J. Fisher, University of York   <fisher@minster.york.ac.uk>
     September 1992
 */
-
-#include "portable.h"
-
-#include "filter.h"
-
-#include "complex.h"
-
-#include <assert.h>
-#include <math.h>
-
-#ifndef M_PI
-#define M_PI acos(-1.0)
-#endif
-
-/****************************************************************************/
-/* IIR */
 
 static void filter_iir_reset(adv_filter* f, adv_filter_state* s)
 {
@@ -194,6 +197,12 @@ static adv_complex cone = { 1.0, 0.0 };
 static adv_complex ctwo = { 2.0, 0.0 };
 static adv_complex chalf = { 0.5, 0.0 };
 
+/**
+ * Transform the analog filter prototype into the appropriate analog filter type.
+ * The prototype filter is an analog low pass filter with
+ * a cut frequency of 1 Hz.
+ * The frequency is warped for the next application of the bilinear transform.
+ */
 static void filter_normalize(struct adv_filter_struct_iir* f, double raw_alpha1, double raw_alpha2, adv_filter_type type)
 {
 	adv_complex w1, w2;
@@ -207,8 +216,7 @@ static void filter_normalize(struct adv_filter_struct_iir* f, double raw_alpha1,
 
 	w1 = adv_creal(2.0 * M_PI * warped_alpha1);
 	w2 = adv_creal(2.0 * M_PI * warped_alpha2);
-	
-	/* transform prototype into appropriate filter type */
+
 	switch (type) {
 	case adv_filter_lp :
 		for(i=0;i<f->spoles_mac;++i)
@@ -257,7 +265,9 @@ static void filter_normalize(struct adv_filter_struct_iir* f, double raw_alpha1,
 	}
 }
 
-/* bilinear trasformation */
+/**
+ * Bilinear trasformation.
+ */
 static adv_complex cblt(adv_complex z)
 {
 	adv_complex top, bot;
@@ -266,7 +276,11 @@ static adv_complex cblt(adv_complex z)
 	return adv_cdiv(top, bot);
 }
 
-/* given S-plane poles, compute Z-plane poles */
+/**
+ * Transform the analog filter in a digital filter.
+ * Given S-plane poles, compute Z-plane poles using
+ * the bilinear transformation.
+ */
 static void filter_compute_z(struct adv_filter_struct_iir* f, adv_filter_type type)
 {
 	int i;
@@ -284,7 +298,9 @@ static void filter_compute_z(struct adv_filter_struct_iir* f, adv_filter_type ty
 		f->zzeros_map[f->zzeros_mac++] = cmone;
 }
 
-/* multiply factor (z-w) into coeffs */
+/**
+ * Multiply factor (z-w) into coeffs.
+ */
 static void filter_multin(adv_complex w, int npz, adv_complex coeffs[])
 {
 	adv_complex nw;
@@ -296,7 +312,9 @@ static void filter_multin(adv_complex w, int npz, adv_complex coeffs[])
 	coeffs[0] = adv_cmul(nw, coeffs[0]);
 }
 
-/* compute product of poles or zeros as a polynomial of z */
+/**
+ * Compute product of poles or zeros as a polynomial of z.
+ */
 static void filter_expand(adv_complex pz[], int npz, adv_complex coeffs[])
 {
 	int i;
@@ -310,6 +328,10 @@ static void filter_expand(adv_complex pz[], int npz, adv_complex coeffs[])
 		filter_multin(pz[i], npz, coeffs);
 }
 
+/**
+ * Compute the filter coefficients expanding the transform function.
+ * The filter gain is also computed.
+ */
 static void filter_expand_poly(struct adv_filter_struct_iir* f, double raw_alpha1, double raw_alpha2, adv_filter_type type)
 {
 	adv_complex topcoeffs[FILTER_POLE_MAX + 1], botcoeffs[FILTER_POLE_MAX + 1];
@@ -318,8 +340,8 @@ static void filter_expand_poly(struct adv_filter_struct_iir* f, double raw_alpha
 	adv_complex gain;
 	int i;
 
-	/* (1 - ZERO[0]*z^-1)(1 - ZERO[1]*z^-1)...(1 - ZERO[M-1]*z^-1) */
-	/* top[M] + top[M-1]*z^-1 + ... + top[0]*z^-M */
+	/* expand from: (1 - ZERO[0]*z^-1)(1 - ZERO[1]*z^-1)...(1 - ZERO[M-1]*z^-1) */
+	/* to: top[M] + top[M-1]*z^-1 + ... + top[0]*z^-M */
 	filter_expand(f->zzeros_map, f->zzeros_mac, topcoeffs);
 	filter_expand(f->zpoles_map, f->zpoles_mac, botcoeffs);
 
@@ -355,7 +377,9 @@ static void filter_expand_poly(struct adv_filter_struct_iir* f, double raw_alpha
 	f->N = f->zpoles_mac;
 }
 
-#ifndef __WIN32__
+/**
+ * Compute the prototype Chebyshev analog filter.
+ */
 static void filter_chebyshev_compute_s(struct adv_filter_struct_iir* f, unsigned order, double ripple)
 {
 	int i;
@@ -381,8 +405,10 @@ static void filter_chebyshev_compute_s(struct adv_filter_struct_iir* f, unsigned
 		f->spoles_map[i].im *= cosh(y);
 	}
 }
-#endif
 
+/**
+ * Compute the prototype Bessel analog filter.
+ */
 static void filter_bessel_compute_s(struct adv_filter_struct_iir* f, unsigned order)
 {
 	int i;
@@ -400,6 +426,9 @@ static void filter_bessel_compute_s(struct adv_filter_struct_iir* f, unsigned or
 	}
 }
 
+/**
+ * Compute the prototype Butterworth analog filter.
+ */
 static void filter_butterworth_compute_s(struct adv_filter_struct_iir* f, unsigned order)
 {
 	int i;
@@ -411,8 +440,7 @@ static void filter_butterworth_compute_s(struct adv_filter_struct_iir* f, unsign
 	}
 }
 
-#ifndef __WIN32__
-void adv_filter_lp_chebyshev_set(adv_filter* f, double freq, unsigned order, double rippler)
+void adv_filter_lp_chebyshev_set(adv_filter* f, double freq, unsigned order, double ripple)
 {
 	struct adv_filter_struct_iir* iir = &f->data.iir;
 
@@ -422,14 +450,13 @@ void adv_filter_lp_chebyshev_set(adv_filter* f, double freq, unsigned order, dou
 		order = FILTER_ORDER_IIR_MAX;
 
 	filter_init(iir);
-	filter_chebyshev_compute_s(iir, order, rippler);
+	filter_chebyshev_compute_s(iir, order, ripple);
 	filter_normalize(iir, freq, freq, adv_filter_lp);
 	filter_compute_z(iir, adv_filter_lp);
 	filter_expand_poly(iir, freq, freq, adv_filter_lp);
 
 	filter_iir_setup(f, adv_filter_lp, adv_filter_iir_chebyshev);
 }
-#endif
 
 void adv_filter_lp_bessel_set(adv_filter* f, double freq, unsigned order)
 {
@@ -467,6 +494,24 @@ void adv_filter_lp_butterworth_set(adv_filter* f, double freq, unsigned order)
 	filter_iir_setup(f, adv_filter_lp, adv_filter_iir_butterworth);
 }
 
+void adv_filter_hp_chebyshev_set(adv_filter* f, double freq, unsigned order, double ripple)
+{
+	struct adv_filter_struct_iir* iir = &f->data.iir;
+
+	assert(0 < freq && freq <= 0.5);
+
+	if (order > FILTER_ORDER_IIR_MAX)
+		order = FILTER_ORDER_IIR_MAX;
+
+	filter_init(iir);
+	filter_chebyshev_compute_s(iir, order, ripple);
+	filter_normalize(iir, freq, freq, adv_filter_hp);
+	filter_compute_z(iir, adv_filter_hp);
+	filter_expand_poly(iir, freq, freq, adv_filter_hp);
+
+	filter_iir_setup(f, adv_filter_hp, adv_filter_iir_chebyshev);
+}
+
 void adv_filter_hp_bessel_set(adv_filter* f, double freq, unsigned order)
 {
 	struct adv_filter_struct_iir* iir = &f->data.iir;
@@ -501,6 +546,24 @@ void adv_filter_hp_butterworth_set(adv_filter* f, double freq, unsigned order)
 	filter_expand_poly(iir, freq, freq, adv_filter_hp);
 
 	filter_iir_setup(f, adv_filter_hp, adv_filter_iir_butterworth);
+}
+
+void adv_filter_bp_chebyshev_set(adv_filter* f, double freq_low, double freq_high, unsigned order, double ripple)
+{
+	struct adv_filter_struct_iir* iir = &f->data.iir;
+
+	assert(0 < freq_low && freq_low < freq_high && freq_high <= 0.5);
+
+	if (order > FILTER_ORDER_IIR_MAX)
+		order = FILTER_ORDER_IIR_MAX;
+
+	filter_init(iir);
+	filter_chebyshev_compute_s(iir, order, ripple);
+	filter_normalize(iir, freq_low, freq_high, adv_filter_bp);
+	filter_compute_z(iir, adv_filter_bp);
+	filter_expand_poly(iir, freq_low, freq_high, adv_filter_bp);
+
+	filter_iir_setup(f, adv_filter_bp, adv_filter_iir_chebyshev);
 }
 
 void adv_filter_bp_bessel_set(adv_filter* f, double freq_low, double freq_high, unsigned order)

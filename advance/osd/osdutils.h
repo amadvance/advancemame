@@ -132,8 +132,10 @@ extern "C" {
 #endif
 
 #ifdef __MSDOS__
-int snprintf(char* str, size_t count, const char* fmt, ...);
-int vsnprintf(char* str, size_t count, const char* fmt, va_list arg);
+int rpl_snprintf(char* str, size_t count, const char* fmt, ...);
+int rpl_vsnprintf(char* str, size_t count, const char* fmt, va_list arg);
+#define snprintf rpl_snprintf
+#define vsnprintf rpl_vsnprintf
 #endif
 
 #ifdef __WIN32__
@@ -142,7 +144,19 @@ int vsnprintf(char* str, size_t count, const char* fmt, va_list arg);
 #endif
 
 #ifdef __WIN32__
-#define logb(a) floor(log(a) / 0.69314718055994530942)
+#if __GNUC__ == 2
+/* math functions for gcc 2.95.3 for Windows */
+double rpl_asinh(double x);
+double rpl_acosh(double x);
+double rpl_alogb(double x);
+int rpl_isnan(double x);
+int rpl_isunordered(double x, double y);
+#define asinh rpl_asinh
+#define acosh rpl_acosh
+#define logb rpl_logb
+#define isnan rpl_isnan
+#define isunordered rpl_isunordered
+#endif
 #endif
 
 #ifdef __cplusplus

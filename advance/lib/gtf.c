@@ -32,8 +32,6 @@
 
 #include "gtf.h"
 
-#include <math.h>
-
 static adv_error gtf_find_nomargin(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_gtf* gtf, unsigned capability, unsigned adjust)
 {
 	unsigned vtotal;

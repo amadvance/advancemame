@@ -31,7 +31,7 @@
 #include "portable.h"
 
 #ifdef __MSDOS__
-int snprintf(char* str, size_t count, const char* fmt, ...)
+int rpl_snprintf(char* str, size_t count, const char* fmt, ...)
 {
 	int r;
 
@@ -45,9 +45,39 @@ int snprintf(char* str, size_t count, const char* fmt, ...)
 	return r;
 }
 
-int vsnprintf(char* str, size_t count, const char* fmt, va_list arg)
+int rpl_vsnprintf(char* str, size_t count, const char* fmt, va_list arg)
 {
 	return vsprintf(str, fmt, arg);
 }
+#endif
+
+#ifdef __WIN32__
+#if __GNUC__ == 2
+double rpl_asinh(double x)
+{
+	return log(x + sqrt(x*x + 1));
+}
+
+double rpl_acosh(double x)
+{
+	return log(x + sqrt(x*x - 1));
+}
+
+double rpl_logb(double x)
+{
+	return floor(log(x) / 0.69314718055994530942);
+}
+
+int rpl_isnan(double x)
+{
+	/* NaNs are the only values unordered */
+	return x != x;
+}
+
+int rpl_isunordered(double x, double y)
+{
+	return rpl_isnan(x) || rpl_isnan(y);
+}
+#endif
 #endif
 

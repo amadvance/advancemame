@@ -487,6 +487,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 adv_error joystickb_event_init(int joystickb_id)
 {
 	unsigned i;
+	adv_bool eacces = 0;
 
 	log_std(("josytickb:event: joystickb_event_init(id:%d)\n", joystickb_id));
 
@@ -505,8 +506,12 @@ adv_error joystickb_event_init(int joystickb_id)
 		snprintf(file, sizeof(file), "/dev/input/event%d", i);
 
 		f = event_open(file, event_state.map[event_state.mac].evtype_bitmask);
-		if (f == -1)
+		if (f == -1) {
+			if (errno == EACCES) {
+				eacces = 1;
+			}
 			continue;
+		}
 
 		event_log(f, event_state.map[event_state.mac].evtype_bitmask);
 
@@ -525,7 +530,10 @@ adv_error joystickb_event_init(int joystickb_id)
 	}
 
 	if (!event_state.mac) {
-		error_set("No joystick found.\n");
+		if (eacces)
+			error_set("No joystick found. Check the /dev/input/event* permissions.\n");
+		else
+			error_set("No joystick found.\n");
 		return -1;
 	}
 

@@ -50,15 +50,19 @@ AdvanceMENU FAQ
 
 DOS FAQ
   How can I solve the compiler error "Argument list too long (E2BIG)"
-	If compiling you get the "Argument list too long" error, you need
-	to use the DJGPP stubedit utility to increase bufsize for both
-	gcc.exe and collect2.exe, with the following commands:
+  and "Error -1" ?
+	If compiling you get the "Argument list too long" error,
+	or "Error -1" you need to use the DJGPP stubedit utility
+	to increase bufsize value for some DJGPP tools, with the
+	following commands:
 
 	:stubedit c:\djgpp\bin\gcc.exe bufsize=32k
+	:stubedit c:\djgpp\bin\ld.exe bufsize=32k
+	:stubedit c:\djgpp\bin\make.exe bufsize=32k
 	:stubedit c:\djgpp\lib\gcc-lib\djgpp\3.23\collect2.exe bufsize=32k
 
-	You may need to use different paths to the files, especially for
-	collect2.exe.
+	You may need to use different paths to the files,
+	especially for collect2.exe.
 
   What's the best configuration in PURE DOS ?
 	My favorite choice is to use HIMEM, EMM386 and a little

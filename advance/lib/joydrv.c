@@ -223,7 +223,10 @@ const char* joystickb_stick_name_get(unsigned joystick, unsigned stick)
 	if (joystickb_state.driver_current->stick_name_get)
 		return joystickb_state.driver_current->stick_name_get(joystick, stick);
 
-	snprintf(joystickb_state.stick_name_buffer, sizeof(joystickb_state.stick_name_buffer), "stick%d", stick+1);
+	if (stick == 0)
+		snprintf(joystickb_state.stick_name_buffer, sizeof(joystickb_state.stick_name_buffer), "stick");
+	else
+		snprintf(joystickb_state.stick_name_buffer, sizeof(joystickb_state.stick_name_buffer), "stick%d", stick+1);
 
 	return joystickb_state.stick_name_buffer;
 }
@@ -350,3 +353,4 @@ const char* joystickb_name(void)
 
 	return joystickb_state.driver_current->name;
 }
+

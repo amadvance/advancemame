@@ -85,8 +85,7 @@ static void sound_volume_update(struct advance_sound_context* context)
 		volume = 0;
 
 	/* add the current power normalization factor */
-	if (!context->state.adjust_power_waitfirstsound_flag)
-		volume *= context->state.adjust_power_factor;
+	volume *= pow(10, (double)context->config.adjust / 20.0);
 
 	if ((soundb_flags() & SOUND_DRIVER_FLAGS_VOLUME_SAMPLE) != 0
 		|| volume > SOUND_MIXER_MAX) {
@@ -110,98 +109,202 @@ static void sound_volume_update(struct advance_sound_context* context)
 	context->state.sample_mult = mult;
 }
 
-/* Adjust the sound volume computing the maximum normalized power */
-static void sound_normalize(struct advance_sound_context* context, unsigned channel, const short* sample, unsigned sample_count, adv_bool compute_power)
+static void sound_dft_normalize(struct advance_sound_context* context, double* X)
 {
 	unsigned i;
+	int j;
+	double power;
+	unsigned count;
+	double gain;
+	double* loudness = context->state.dft_equal_loudness;
+	double m;
+	int index;
 
-	if (compute_power) {
-		long long power;
-		unsigned count;
+	/* compute the power of the DFT using the equal loudness curve */
+	power = 0;
+	for(i=1;i<context->state.dft_padded_size/2;++i) {
+		m = X[i] * loudness[i];
+		power += m * m;
+	}
+	/* duplicate the two halve */
+	power *= 2;
+	/* add the first and central samples */
+	m = X[0] * loudness[0];
+	power += m * m;
+	m = X[i] * loudness[i];
+	power += m * m;
+	power /= context->state.dft_padded_size;
 
-		/* use a local variable for faster access */
-		power = context->state.adjust_power_accumulator;
+	/* normalize the power */
+	power = sqrt(power);
 
-		i = 0;
-		count = sample_count * channel;
+	log_debug(("emu:sound: normalized power %g\n", power));
 
-		while (i < count) {
-			unsigned run_sample = count - i;
-			unsigned run_counter = context->state.adjust_power_counter_limit - context->state.adjust_power_counter;
-			unsigned run = run_sample < run_counter ? run_sample : run_counter;
+	/* ignore silence (and prevent error in the log operation) */
+	if (power < 1E-6)
+		return;
 
-			context->state.adjust_power_counter += run;
+	/* compute the normalized power in dB */
+	m = 20 * log10(power);
 
+	/* convert to integer and shift in the range 0 - SOUND_POWER_DB_MAX-1 */
+	j = m + SOUND_POWER_DB_MAX;
+	if (j < 0)
+		j = 0;
+	if (j >= SOUND_POWER_DB_MAX)
+		j = SOUND_POWER_DB_MAX - 1;
+
+	/* ignore silence */
+	if (j == 0)
+		return;
+
+	/* add the new power */
+	++context->state.adjust_power_db_map[j];
+	++context->state.adjust_power_db_counter;
+
+	/* remove the oldest power */
+	if (context->state.adjust_power_db_counter > context->state.adjust_power_history_max) {
+		unsigned k = context->state.adjust_power_history_map[context->state.adjust_power_history_mac];
+		--context->state.adjust_power_db_map[k];
+		--context->state.adjust_power_db_counter;
+	}
+
+	/* save the current measure */
+	context->state.adjust_power_history_map[context->state.adjust_power_history_mac] = j;
+	++context->state.adjust_power_history_mac;
+	if (context->state.adjust_power_history_mac == context->state.adjust_power_history_max)
+		context->state.adjust_power_history_mac = 0;
+
+	/* wait to have some data */
+	if (context->state.adjust_power_db_counter < 20)
+		return;
+
+	/* find the first 5% with higher power */
+	j = context->state.adjust_power_db_counter / 20;
+	i = SOUND_POWER_DB_MAX - 1;
+	while (i > 0 && j > 0) {
+		j -= context->state.adjust_power_db_map[i];
+		--i;
+	}
+
+	/* use the median power at the 5% */
+	power = pow(10, (i - (double)SOUND_POWER_DB_MAX) / 20);
+
+	/* compute the amplification factor using the normalized power */
+	gain = ADJUST_EXPECTED_FACTOR / power;
+
+	/* limit the gain */
+	if (gain < 1)
+		gain = 1;
+	if (gain > 100)
+		gain = 100;
+
+	log_debug(("osd:sound: normalize factor %g, time %g (power %g, expected %g)\n", (double)gain, advance_timer(), power, (double)ADJUST_EXPECTED_FACTOR));
+
+	j = 20 * log10(gain);
+
+	if (j < 0)
+		j = 0;
+	if (j > 40)
+		j = 40;
+
+	/* change only if different */
+	if (j != context->config.adjust) {
+		context->config.adjust = j;
+
+		log_std(("osd:sound: normalize factor dB %d\n", j));
+
+		sound_volume_update(context);
+	}
+}
+
+static void sound_dft_process(struct advance_sound_context* context, double* x, double* X)
+{
+	unsigned i;
+	double* xr = adv_dft_re_get(&context->state.dft_plan);
+	double* xi = adv_dft_im_get(&context->state.dft_plan);
+	double* w = context->state.dft_window;
+	unsigned size = context->state.dft_size;
+	unsigned padded_size = context->state.dft_padded_size;
+	double normalize;
+
+	/* copy the input samples and use a window function */
+	for(i=0;i<size;++i) {
+		xr[i] = x[i] * w[i];
+	}
+
+	/* pad with 0 if required */
+	for(;i<padded_size;++i) {
+		xr[i] = 0;
+	}
+
+	/* note that isn't required to fill xi with 0 because the */
+	/* real version of the DFT is used */
+	adv_dft_execute(&context->state.dft_plan);
+
+	/* power normalization factor, required to have the same power */
+	/* after the DFT computation */
+	normalize = sqrt(padded_size);
+
+	/* compute the modulus (only the first halve+1) */
+	for(i=0;i<padded_size/2+1;++i) {
+		X[i] = hypot(xr[i], xi[i]) / normalize;
+	}
+}
+
+/* Compute the DFT */
+static void sound_dft(struct advance_sound_context* context, unsigned channel, const short* sample, unsigned sample_count, double* x, double* X, unsigned* pcounter, void (*callback)(struct advance_sound_context* context, double* X))
+{
+	unsigned i;
+	unsigned counter = *pcounter;
+
+	i = 0;
+
+	while (i < sample_count) {
+		unsigned run = sample_count - i;
+
+		if (counter + run > context->state.dft_size)
+			run = context->state.dft_size - counter;
+
+		if (channel == 1) {
 			while (run) {
-				int y = sample[i];
-
-				power += y*y;
+				x[counter] = (double)sample[i] / 32768.0;
+				++counter;
 
 				++i;
 				--run;
 			}
+		} else if (channel == 2) {
+			while (run) {
+				x[counter] = ((double)sample[i*2] + (double)sample[i*2+1]) / 65536.0;
+				++counter;
 
-			if (context->state.adjust_power_counter == context->state.adjust_power_counter_limit) {
-				/* mean power */
-				power /= context->state.adjust_power_counter_limit;
-
-				/* check for the maximum power */
-				if (power != 0 && power > context->state.adjust_power_maximum) {
-					double n;
-
-					/* now the process is started */
-					context->state.adjust_power_waitfirstsound_flag = 0;
-
-					context->state.adjust_power_maximum = power;
-
-					/* normalized power */
-					n = sqrt((double)power) / 32768.0;
-
-					n = ADJUST_EXPECTED_FACTOR / n;
-
-					/* limit the maximum gain */
-					if (n > 100.0)
-						n = 100.0;
-
-					log_std(("osd:sound: normalize factor %g, time %g\n", (double)n, advance_timer()));
-
-					if (n < context->state.adjust_power_factor) {
-						char buffer[64];
-						int adjust_db;
-
-						context->state.adjust_power_factor = n;
-
-						adjust_db = 20 * log10(context->state.adjust_power_factor);
-						if (adjust_db < 0)
-							adjust_db = 0;
-						if (adjust_db > 40)
-							adjust_db = 40;
-
-						context->config.adjust = adjust_db;
-
-						log_std(("osd:sound: normalize factor save adjust dB %d\n", adjust_db));
-
-						snprintf(buffer, sizeof(buffer), "%d", adjust_db);
-
-						conf_set_if_different(CONTEXT.cfg, mame_section_name(CONTEXT.game, CONTEXT.cfg), "sound_adjust", buffer);
-					}
-
-					sound_volume_update(context);
-				}
-
-				/* restart the computation */
-				power = 0;
-
-				context->state.adjust_power_counter = 0;
+				++i;
+				--run;
 			}
+		} else {
+			i += run;
 		}
 
-		context->state.adjust_power_accumulator = power;
-	} else {
-		/* restart the computation */
-		context->state.adjust_power_accumulator = 0;
-		context->state.adjust_power_counter = 0;
+		if (counter == context->state.dft_size) {
+			sound_dft_process(context, x, X);
+			counter = 0;
+			if (callback)
+				callback(context, X);
+		}
 	}
+
+	*pcounter = counter;
+}
+
+static void sound_dft_pre(struct advance_sound_context* context, unsigned channel, const short* sample, unsigned sample_count)
+{
+	sound_dft(context, channel, sample, sample_count, context->state.dft_pre_x, context->state.dft_pre_X, &context->state.dft_pre_counter, sound_dft_normalize);
+}
+
+static void sound_dft_post(struct advance_sound_context* context, unsigned channel, const short* sample, unsigned sample_count)
+{
+	sound_dft(context, channel, sample, sample_count, context->state.dft_post_x, context->state.dft_post_X, &context->state.dft_post_counter, 0);
 }
 
 /* Adjust the sound volume */
@@ -222,10 +325,14 @@ static void sound_adjust(struct advance_sound_context* context, unsigned channel
 
 		v = v * mult / SAMPLE_MULT_BASE;
 
-		if (v > 32767)
+		if (v > 32767) {
+			++context->state.overflow;
 			v = 32767;
-		if (v < -32768)
+		}
+		if (v < -32768) {
+			++context->state.overflow;
 			v = -32768;
+		}
 
 		output_sample[i] = v;
 	}
@@ -239,29 +346,39 @@ static void sound_equalizer(struct advance_sound_context* context, unsigned chan
 	for(j=0;j<channel;++j) {
 		unsigned off = j;
 		for(i=0;i<sample_count;++i) {
-			double v, vl, vm, vh;
+			double v, vl, vm, vh, vr;
 			int vi;
 
 			v = input_sample[off];
 
-			adv_filter_insert(&context->state.equalizer_low, &context->state.equalizer_low_state[j], v);
-			adv_filter_insert(&context->state.equalizer_mid, &context->state.equalizer_mid_state[j], v);
-			adv_filter_insert(&context->state.equalizer_high, &context->state.equalizer_high_state[j], v);
+			vr = 0;
 
-			vl = adv_filter_extract(&context->state.equalizer_low, &context->state.equalizer_low_state[j]);
-			vm = adv_filter_extract(&context->state.equalizer_mid, &context->state.equalizer_mid_state[j]);
-			vh = adv_filter_extract(&context->state.equalizer_high, &context->state.equalizer_high_state[j]);
+			if (context->config.equalizer_low > -40) {
+				adv_filter_insert(&context->state.equalizer_low, &context->state.equalizer_low_state[j], v);
+				vr += context->state.equalizer_low_factor * adv_filter_extract(&context->state.equalizer_low, &context->state.equalizer_low_state[j]);
+			}
 
-			v = vl * context->state.equalizer_low_factor
-				+ vm * context->state.equalizer_mid_factor
-				+ vh * context->state.equalizer_high_factor;
+			if (context->config.equalizer_mid > -40) {
+				adv_filter_insert(&context->state.equalizer_mid, &context->state.equalizer_mid_state[j], v);
+				vr += context->state.equalizer_mid_factor * adv_filter_extract(&context->state.equalizer_mid, &context->state.equalizer_mid_state[j]);
+			}
 
-			vi = v;
+			if (context->config.equalizer_high > -40) {
+				adv_filter_insert(&context->state.equalizer_high, &context->state.equalizer_high_state[j], v);
+				vr += context->state.equalizer_high_factor * adv_filter_extract(&context->state.equalizer_high, &context->state.equalizer_high_state[j]);
+			}
 
-			if (vi > 32767)
+			/* lrint is potentially faster than a cast to int */
+			vi = lrint(vr);
+
+			if (vi > 32767) {
+				++context->state.overflow;
 				vi = 32767;
-			if (vi < -32768)
+			}
+			if (vi < -32768) {
+				++context->state.overflow;
 				vi = -32768;
+			}
 
 			output_sample[off] = vi;
 			off += channel;
@@ -378,6 +495,12 @@ static void sound_play_recount(struct advance_sound_context* context, const shor
 
 static void sound_play_effect(struct advance_sound_context* context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount)
 {
+	unsigned input_channel = context->state.input_mode != SOUND_MODE_MONO ? 2 : 1;
+
+	/* compute the DFT only if the menu is active */
+	if (context->state.menu_sub_flag)
+		sound_dft_post(context, input_channel, sample_buffer, sample_count);
+
 	if (context->state.input_mode != context->state.output_mode) {
 		short* sample_mix = (short*)malloc(sample_count * context->state.output_bytes_per_sample);
 
@@ -454,12 +577,13 @@ static void sound_play_equalizer(struct advance_sound_context* context, const sh
 	}
 }
 
-static void sound_play_adjust(struct advance_sound_context* context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool compute_power)
+static void sound_play_adjust(struct advance_sound_context* context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool normal_speed)
 {
 	unsigned input_channel = context->state.input_mode != SOUND_MODE_MONO ? 2 : 1;
 
-	if (context->config.normalize_flag)
-		sound_normalize(context, input_channel, sample_buffer, sample_count, compute_power);
+	if (context->config.normalize_flag) {
+		sound_dft_pre(context, input_channel, sample_buffer, sample_count);
+	}
 
 	if (context->state.sample_mult != SAMPLE_MULT_BASE) {
 		short* sample_mix = (short*)malloc(sample_count * context->state.input_bytes_per_sample);
@@ -481,7 +605,7 @@ static void sound_play_adjust(struct advance_sound_context* context, const short
  * \param sample_count Number of samples (not multiplied by 2 if stereo).
  * \param sample_diff Correction of the number of sample to output.
  */
-void advance_sound_frame(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, struct advance_safequit_context* safequit_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool compute_power)
+void advance_sound_frame(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, struct advance_safequit_context* safequit_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool normal_speed)
 {
 	adv_bool mute;
 	double start, stop;
@@ -515,11 +639,13 @@ void advance_sound_frame(struct advance_sound_context* context, struct advance_r
 
 	start = advance_timer();
 
-	sound_play_adjust(context, sample_buffer, sample_count, sample_recount, compute_power);
+	sound_play_adjust(context, sample_buffer, sample_count, sample_recount, normal_speed);
 
 	stop = advance_timer();
 
-	context->state.time = (stop - start) * 0.05 + context->state.time * 0.95;
+	/* update the time only if the menu is not active */
+	if (!context->state.menu_sub_flag)
+		context->state.time = (stop - start) * 0.05 + context->state.time * 0.95;
 
 	if (!video_context->state.pause_flag)
 		advance_record_sound_update(record_context, sample_buffer, sample_count);
@@ -568,9 +694,9 @@ adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cf
 {
 	conf_int_register_enum_default(cfg_context, "sound_mode", conf_enum(OPTION_CHANNELS), SOUND_MODE_AUTO);
 	conf_int_register_limit_default(cfg_context, "sound_volume", -40, 0, -3);
-	conf_int_register_limit_default(cfg_context, "sound_equalizer_lowvolume", -20, 20, 0);
-	conf_int_register_limit_default(cfg_context, "sound_equalizer_midvolume", -20, 20, 0);
-	conf_int_register_limit_default(cfg_context, "sound_equalizer_highvolume", -20, 20, 0);
+	conf_int_register_limit_default(cfg_context, "sound_equalizer_lowvolume", -40, 20, 0);
+	conf_int_register_limit_default(cfg_context, "sound_equalizer_midvolume", -40, 20, 0);
+	conf_int_register_limit_default(cfg_context, "sound_equalizer_highvolume", -40, 20, 0);
 	conf_string_register_default(cfg_context, "sound_adjust", "auto");
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
 	conf_bool_register_default(cfg_context, "sound_normalize", 1);
@@ -603,7 +729,7 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 
 	s = conf_string_get_default(cfg_context, "sound_adjust");
 	if (strcmp(s, "none") == 0) {
-		i = -1;
+		i = 0;
 	} else if (strcmp(s, "auto") == 0) {
 		for(i=0;GAME_ADJUST[i].name != 0;++i)
 			if (mame_is_game_relative(GAME_ADJUST[i].name, option->game))
@@ -611,7 +737,7 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 		if (GAME_ADJUST[i].name != 0)
 			i = GAME_ADJUST[i].gain;
 		else
-			i = -1;
+			i = 0;
 	} else {
 		char* e;
 		i = strtol(s, &e, 10);
@@ -621,7 +747,6 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 		}
 	}
 	context->config.adjust = i;
-	log_std(("emu:sound: normalize factor load adjust dB %d\n", context->config.adjust));
 
 	context->config.latency_time = conf_float_get_default(cfg_context, "sound_latency");
 	context->config.normalize_flag = conf_bool_get_default(cfg_context, "sound_normalize");
@@ -644,15 +769,11 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 void advance_sound_config_save(struct advance_sound_context* context, const char* section)
 {
 	adv_conf* cfg_context = CONTEXT.cfg;
+	char buffer[16];
 
 	conf_int_set_if_different(cfg_context, section, "sound_mode", context->config.mode);
-	if (context->config.adjust < 0) {
-		conf_string_set_if_different(cfg_context, section, "sound_adjust", "none");
-	} else {
-		char buffer[16];
-		snprintf(buffer, sizeof(buffer), "%d", context->config.adjust);
-		conf_string_set_if_different(cfg_context, section, "sound_adjust", buffer);
-	}
+	snprintf(buffer, sizeof(buffer), "%d", context->config.adjust);
+	conf_string_set_if_different(cfg_context, section, "sound_adjust", buffer);
 	conf_bool_set_if_different(cfg_context, section, "sound_normalize", context->config.normalize_flag);
 	conf_int_set_if_different(cfg_context, section, "sound_equalizer_lowvolume", context->config.equalizer_low);
 	conf_int_set_if_different(cfg_context, section, "sound_equalizer_midvolume", context->config.equalizer_mid);
@@ -695,18 +816,18 @@ void osd_sound_enable(int enable_it)
 
 static void sound_equalizer_update(struct advance_sound_context* context)
 {
-	if (context->config.equalizer_low < -20)
-		context->config.equalizer_low = -20;
+	if (context->config.equalizer_low < -40)
+		context->config.equalizer_low = -40;
 	if (context->config.equalizer_low > 20)
 		context->config.equalizer_low = 20;
 
-	if (context->config.equalizer_mid < -20)
-		context->config.equalizer_mid = -20;
+	if (context->config.equalizer_mid < -40)
+		context->config.equalizer_mid = -40;
 	if (context->config.equalizer_mid > 20)
 		context->config.equalizer_mid = 20;
 
-	if (context->config.equalizer_high < -20)
-		context->config.equalizer_high = -20;
+	if (context->config.equalizer_high < -40)
+		context->config.equalizer_high = -40;
 	if (context->config.equalizer_high > 20)
 		context->config.equalizer_high = 20;
 
@@ -719,9 +840,9 @@ static void sound_equalizer_update(struct advance_sound_context* context)
 
 		context->state.equalizer_flag = 1;
 
-		adv_filter_lp_butterworth_set(&context->state.equalizer_low, 0.018, 3);
-		adv_filter_bp_butterworth_set(&context->state.equalizer_mid, 0.018, 0.18, 3);
-		adv_filter_hp_butterworth_set(&context->state.equalizer_high, 0.18, 3);
+		adv_filter_lp_chebyshev_set(&context->state.equalizer_low, context->config.eql_cut1, 5, -1);
+		adv_filter_bp_chebyshev_set(&context->state.equalizer_mid, context->config.eql_cut1, context->config.eql_cut2, 5, -1);
+		adv_filter_hp_chebyshev_set(&context->state.equalizer_high, context->config.eql_cut2, 5, -1);
 
 		if (reset) {
 			unsigned i;
@@ -740,32 +861,10 @@ static void sound_equalizer_update(struct advance_sound_context* context)
 
 static void sound_normalize_update(struct advance_sound_context* context)
 {
-	unsigned i;
-
-	context->state.adjust_power_maximum = 0;
-
 	if (context->config.adjust > 40)
 		context->config.adjust = 40;
-
-	if (context->config.adjust < -1)
-		context->config.adjust = -1;
-
-	if (context->config.adjust < 0) {
-		/* first run, don't apply the correction until the */
-		/* first power computation is not zero */
-		context->state.adjust_power_waitfirstsound_flag = 1;
-		context->state.adjust_power_factor = 100; /* fake high value, never used */
-	} else {
-		/* use the stored initial value */
-		context->state.adjust_power_waitfirstsound_flag = 0;
-		context->state.adjust_power_factor = pow(10, (double)context->config.adjust / 20.0);
-	}
-
-	context->state.adjust_power_accumulator = 0;
-	context->state.adjust_power_counter = 0;
-	context->state.adjust_power_counter_limit = context->state.rate * 1; /* recompute every 1 second */
-	if (context->state.input_mode != SOUND_MODE_MONO)
-		context->state.adjust_power_counter_limit *= 2; /* stereo */
+	if (context->config.adjust < 0)
+		context->config.adjust = 0;
 }
 
 static adv_error sound_mode_update(struct advance_sound_context* context)
@@ -855,11 +954,55 @@ void advance_sound_reconfigure(struct advance_sound_context* context, struct adv
 	}
 }
 
+struct loudness {
+	int f; /**< Frequency in Hz. */
+	double m; /**< Attenuation in dB. */
+} LOUDNESS[] = {
+{ 0, 120 },
+{ 20, 113 },
+{ 30, 103 },
+{ 40, 97 },
+{ 50, 93 },
+{ 60, 91 },
+{ 70, 89 },
+{ 80, 87 },
+{ 90, 86 },
+{ 100, 85 },
+{ 200, 78 },
+{ 300, 76 },
+{ 400, 76 },
+{ 500, 76 },
+{ 600, 76 },
+{ 700, 77 },
+{ 800, 78 },
+{ 900, 79.5 },
+{ 1000, 80 },
+{ 1500, 79 },
+{ 2000, 77 },
+{ 2500, 74 },
+{ 3000, 71.5 },
+{ 3700, 70 },
+{ 4000, 70.5 },
+{ 5000, 74 },
+{ 6000, 79 },
+{ 7000, 84 },
+{ 8000, 86 },
+{ 9000, 86 },
+{ 10000, 85 },
+{ 12000, 95 },
+{ 15000, 110 },
+{ 20000, 125 },
+{ 22050, 140 }
+};
+
+#define LOUDNESS_MAX (sizeof(LOUDNESS)/sizeof(LOUDNESS[0]))
+
 int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 {
 	struct advance_sound_context* context = &CONTEXT.sound;
 	double low_buffer_time;
 	double d;
+	unsigned i;
 
 	log_std(("osd: osd2_sound_init(sample_rate:%d, stereo_flag:%d)\n", *sample_rate, stereo_flag));
 
@@ -906,6 +1049,105 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	context->state.mute_flag = 0;
 	context->state.disabled_flag = 0;
 	context->state.equalizer_flag = 0;
+
+	context->state.dft_size = 20 * *sample_rate / 1000; /* 20 ms */
+	if (context->state.dft_size < 64)
+		context->state.dft_size = 64;
+	context->state.dft_padded_size = 1;
+	while (context->state.dft_padded_size < context->state.dft_size)
+		context->state.dft_padded_size *= 2;
+	context->state.dft_size = context->state.dft_padded_size;
+	log_std(("emu:sound: dft sample %d, size %d\n", context->state.dft_size, context->state.dft_padded_size));
+
+	context->state.dft_pre_counter = 0;
+	context->state.dft_pre_x = (double*)malloc(context->state.dft_size * sizeof(double));
+	context->state.dft_pre_X = (double*)malloc(context->state.dft_padded_size * sizeof(double));
+	for(i=0;i<context->state.dft_padded_size;++i)
+		context->state.dft_pre_X[i] = 0;
+
+	context->state.dft_post_counter = 0;
+	context->state.dft_post_x = (double*)malloc(context->state.dft_size * sizeof(double));
+	context->state.dft_post_X = (double*)malloc(context->state.dft_padded_size * sizeof(double));
+	for(i=0;i<context->state.dft_padded_size;++i)
+		context->state.dft_post_X[i] = 0;
+
+	/* set the DFT plan */
+	adv_dftr_init(&context->state.dft_plan, context->state.dft_padded_size);
+
+	/* set the DFT window */
+	context->state.dft_window = (double*)malloc(context->state.dft_size * sizeof(double));
+	d = 0;
+	for(i=0;i<context->state.dft_size;++i) {
+		double w;
+		w = 0.54 - 0.46 * cos(2*M_PI*i/(context->state.dft_size-1)); /* Hamming */
+		/* w = 0.42 - 0.5 * cos(2*M_PI*i/(context->state.dft_size-1)) + 0.08 * cos(4*M_PI*i/(size-1)); */ /* Blackman */
+		/* w = 1.0; */
+		context->state.dft_window[i] = w;
+		d += context->state.dft_window[i];
+	}
+	/* adjust the window gain */
+	d /= context->state.dft_size;
+	for(i=0;i<context->state.dft_size;++i) {
+		context->state.dft_window[i] /= d;
+	}
+
+	/* set the equal loudness coefficients */
+	context->state.dft_equal_loudness = (double*)malloc(context->state.dft_padded_size * sizeof(double));
+	for(i=0;i<context->state.dft_padded_size/2+1;++i) {
+		unsigned j;
+		double f = *sample_rate * (double)i / context->state.dft_padded_size;
+		double a;
+
+		j = 0;
+		while (j<LOUDNESS_MAX) {
+			if (LOUDNESS[j].f > f)
+				break;
+			++j;
+		}
+		if (j == 0) {
+			a = LOUDNESS[0].m;
+		} else if (j == LOUDNESS_MAX) {
+			a = LOUDNESS[LOUDNESS_MAX-1].m;
+		} else {
+			double ml = LOUDNESS[j-1].m;
+			double mr = LOUDNESS[j].m;
+			double fl = LOUDNESS[j-1].f;
+			double fr = LOUDNESS[j].f;
+
+			/* linear interpolation */
+			a = ml + (mr - ml) * (f - fl) / (fr - fl);
+		}
+
+		/* convert from decibel */
+		a = pow(10,(80-a) / 20);
+
+		log_debug(("emu:sound: normalize freq:%g magnitute:%g\n", f, a));
+
+		context->state.dft_equal_loudness[i] = a;
+	}
+	/* second halve of the spectrum to 0 */
+	for(;i<context->state.dft_padded_size;++i) {
+		context->state.dft_equal_loudness[i] = 0;
+	}
+
+	for(i=0;i<SOUND_POWER_DB_MAX;++i)
+		context->state.adjust_power_db_map[i] = 0;
+	context->state.adjust_power_db_counter = 0;
+
+	context->state.adjust_power_history_max = 3 * 60 * *sample_rate / context->state.dft_size; /* 3 minutes */
+	context->state.adjust_power_history_map = (unsigned char*)malloc(context->state.adjust_power_history_max * sizeof(unsigned char));
+	for(i=0;i<context->state.adjust_power_history_max;++i)
+		context->state.adjust_power_history_map[i] = 0;
+	context->state.adjust_power_history_mac = 0;
+
+	context->config.eql_cut1 = 800. / *sample_rate;
+	context->config.eql_cut2 = 8000. / *sample_rate;
+	if (context->config.eql_cut1 > 0.1)
+		context->config.eql_cut1 = 0.1;
+	if (context->config.eql_cut2 > 0.5)
+		context->config.eql_cut2 = 0.5;
+
+	context->state.overflow = 0;
 
 	soundb_start(context->config.latency_time);
 

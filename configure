@@ -1498,8 +1498,6 @@ case "$host" in
 
 	;;
 	*)
-		{ echo "$as_me:$LINENO: WARNING: Never tried host platform! Please report if it's working" >&5
-echo "$as_me: WARNING: Never tried host platform! Please report if it's working" >&2;}
 		ac_system=unix
 		ac_host=generic
 		ac_host_cflags=
@@ -1536,8 +1534,6 @@ case "$build" in
 
 	;;
 	*)
-		{ echo "$as_me:$LINENO: WARNING: Never tried build platform! Please report if it's working" >&5
-echo "$as_me: WARNING: Never tried build platform! Please report if it's working" >&2;}
 		ac_build=unix
 
 	;;

@@ -39,8 +39,6 @@
 #include "conf.h"
 #include "key.h"
 
-#include <assert.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

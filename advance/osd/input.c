@@ -2460,6 +2460,8 @@ INT32 osd_get_analog_value(unsigned type, unsigned player, int* analog_type)
 		break;
 	}
 
+	log_debug(("emu:input: osd_get_analog_value() -> %d, %s\n", value, value_type == ANALOG_TYPE_RELATIVE ? "relative" : value_type == ANALOG_TYPE_ABSOLUTE ? "absolute" : "none"));
+
 	*analog_type = value_type;
 	return value;
 }

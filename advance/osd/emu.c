@@ -452,6 +452,10 @@ static adv_conf_conv STANDARD[] = {
 { "*", "input_map[p3_pedal2_autorelease]", "*", "%s", "input_map[p3_pedalbrake_release]", "%s", 0 }, /* rename */
 { "*", "input_map[p4_pedal1_autorelease]", "*", "%s", "input_map[p4_pedalgas_release]", "%s", 0 }, /* rename */
 { "*", "input_map[p4_pedal2_autorelease]", "*", "%s", "input_map[p4_pedalbrake_release]", "%s", 0 }, /* rename */
+/* 0.86.0 */
+{ "*", "misc_crash", "*", "%s", "debug_crash", "%s", 0 }, /* rename */
+{ "*", "misc_rawsound", "*", "%s", "debug_rawsound", "%s", 0 }, /* rename */
+{ "*", "misc_internaldepth", "*", "%s", "debug_internaldepth", "%s", 0 } /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

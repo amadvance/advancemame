@@ -45,8 +45,6 @@ extern "C" {
 #include "extra.h"
 #include "videodrv.h"
 
-#include <assert.h>
-
 #include "crtc.h"
 #include "crtcbag.h"
 

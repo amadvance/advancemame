@@ -308,11 +308,14 @@ Features
 	3ms delay granularity, but not in Linux 2.4 which has a 20ms
 	granularity.
 
-  Volume Control
-	The audio volume is automatically adjusted to ensure that all the
-	emulated games have the same volume power.
+  Audio Control
+	The audio volume is automatically adjusted to ensure
+	that all the emulated games have the same volume power.
 
-	More details are in the description of the `sound_normalize' option.
+	An equalizer and a spectrum analyzer are also available.
+
+	More details are in the description of the `sound_normalize'
+	and `sound_equalizer' options.
 
   Exit Control
 	If you have a real Arcade Cabinet you can configure AdvanceMAME
@@ -1250,37 +1253,40 @@ Configuration
 	adjust the volume of some games to have all the games with
 	the same volume.
 	If the `sound_normalize' option is active this value is
-	also automatically updated during the game play.
+	also automatically updated in the game play and you cannot
+	change it manually.
 
-	:sound_adjust auto | none | VOLUME
+	:sound_adjust auto | VOLUME
 
 	Options:
 		auto - Get the value for the current game from
 			an internal database.
-		none - Starts with no volume adjutment. If the
-			`sound_normalize' option is active the
-			initial volume is automatically computed.
 		VOLUME - The volume gain in dB (default 0).
 			The gain is a positive value from 0 to 40.
 			If the `sound_normalize' option is active the
-			volume is automatically decreased when
-			necessary.
+			volume is automatically updated in the game
+			play.
 
 	Examples:
 		:sound_adjust 16
 
     sound_normalize
-	Automatically decreases the sound gain to prevent too high
-	volume condition. Precisely, the maximum audio normalized
-	power is made constant for all the games.
-
-	The last computed gain is saved in the `sound_adjust'
-	option.
+	Automatically increases and decreases the sound volume.
 
 	:sound_normalize yes | no
 
+	Precisely, the program continously measures the normalized
+	sound power adjusting it with the Fletcher-Munson "Equal
+	Loudness Courve" at 80 dB to remove inaudible frequencies.
+	It tries to keep constant the 95% median power of the
+	last 3 minutes.
+
+	For more details check:
+
+		+http://replaygain.hydrogenaudio.org/equal_loudness.html
+
 	Options:
-		yes - Enable the power computation (default).
+		yes - Enable the volume normalization (default).
 		no - Disable it.
 
     sound_equalizer_*
@@ -2173,10 +2179,10 @@ Configuration
 	The use of these options is discouraged. They are present only
 	for testing purpose.
 
-    misc_internaldepth
+    debug_internaldepth
 	Controls the bits per pixel of the internal MAME bitmap.
 
-	:misc_internaldepth auto | 15 | 16 | 32
+	:debug_internaldepth auto | 15 | 16 | 32
 
 	Options:
 		auto - Automatic (default).
@@ -2184,17 +2190,26 @@ Configuration
 		16 - 16 bit Palette mode.
 		32 - 32 bit RGB mode.
 
-    misc_crash
-	Crashes the program. It can be used to ensure that the correct video
-	mode is restored on aborting conditions.
+    debug_crash
+	Crashes the program. It can be used to ensure that the correct
+	video mode is restored on aborting conditions.
 
-	:misc_crash yes | no
+	:debug_crash yes | no
 
 	Options:
 		no - Don't crash the program (default).
 		yes - Add a "Crash" menu entry in the video menu.
 			If selected the program crash with a Segmentation
 			Fault.
+
+    debug_rawsound
+	Disables the sound output syncronization with the video.
+
+	:debug_rawsound yes | no
+
+	Options:
+		no - Normal operation (default).
+		yes - Sound output without any syncronization.
 
 Signals
 	The program intercepts the following signals:

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,21 +29,75 @@
  */
 
 /** \file
- * Measure.
+ * DFT.
  */
 
-#ifndef __MEASURE_H
-#define __MEASURE_H
+#ifndef __DFT_H
+#define __DFT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "extra.h"
 
-double adv_measure_median(double low, double high, double* map, unsigned count);
-double adv_measure_step(void (*wait)(void), double low, double high, unsigned count);
+struct adv_dft_stage_struct {
+	unsigned n; /**< Size. */
+	int log2n; /**< Computation of log2(n). */
 
-#ifdef __cplusplus
+	double* ss; /**< Sin table. */
+	double* cc; /**< Cos table. */
+	unsigned* brev; /**< Bit reversal table. */
+};
+
+struct adv_dft_struct;
+
+typedef void (*adv_dft_execute_proc)(struct adv_dft_struct* context);
+
+typedef struct adv_dft_struct {
+	struct adv_dft_stage_struct stage;
+
+	adv_dft_execute_proc execute;
+
+	unsigned n;
+
+	double* xr;
+	double* xi;
+} adv_dft;
+
+/** \addtogroup DFT */
+/*@{*/
+
+adv_error adv_dft_init(adv_dft* context, unsigned n);
+adv_error adv_idft_init(adv_dft* context, unsigned n);
+adv_error adv_dftr_init(adv_dft* context, unsigned n);
+
+/**
+ * Get the vector of real values.
+ */
+static inline double* adv_dft_re_get(adv_dft* context)
+{
+	return context->xr;
 }
-#endif
+
+/**
+ * Get the vector of imagnary values.
+ */
+static inline double* adv_dft_im_get(adv_dft* context)
+{
+	return context->xi;
+}
+
+/**
+ * Execute the DFT.
+ * The input must be stored using the adv_dft_re_get() and
+ * adv_dft_im_get() functions. The output must be read
+ * using the same functions.
+ */
+static inline void adv_dft_execute(adv_dft* context)
+{
+	context->execute(context);
+}
+
+void adv_dft_free(adv_dft* context);
+
+/*@}*/
 
 #endif
+

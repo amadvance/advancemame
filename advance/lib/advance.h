@@ -16,6 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * In addition, as a special exception, Andrea Mazzoleni
+ * gives permission to link the code of this program with
+ * the MAME library (or with modified versions of MAME that use the
+ * same license as MAME), and distribute linked combinations including
+ * the two.  You must obey the GNU General Public License in all
+ * respects for all of the code used other than MAME.  If you modify
+ * this file, you may extend this exception to your version of the
+ * file, but you are not obligated to do so.  If you do not wish to
+ * do so, delete this exception statement from your version.
  */
 
 /** \file
@@ -32,6 +42,7 @@
 /** \defgroup BitMap BitMap */
 /** \defgroup Configuration Configuration */
 /** \defgroup Crtc Crtc */
+/** \defgroup DFT DFT */
 /** \defgroup Generate Crtc Generation */
 /** \defgroup Filter Filter */
 /** \defgroup Font Font */
@@ -126,6 +137,8 @@
 #include "videodrv.h"
 #include "vnone.h"
 #include "wave.h"
+#include "filter.h"
+#include "dft.h"
 
 #include "clear.h"
 #include "blit.h"

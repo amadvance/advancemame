@@ -1259,8 +1259,8 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_string_register_default(cfg_context, "sync_fps", "auto");
 	conf_float_register_limit_default(cfg_context, "sync_speed", 0.1, 10.0, 1.0);
 	conf_float_register_limit_default(cfg_context, "sync_turbospeed", 0.1, 30.0, 3.0);
-	conf_bool_register_default(cfg_context, "misc_crash", 0);
-	conf_bool_register_default(cfg_context, "misc_rawsound", 0);
+	conf_bool_register_default(cfg_context, "debug_crash", 0);
+	conf_bool_register_default(cfg_context, "debug_rawsound", 0);
 	conf_string_register_default(cfg_context, "sync_startuptime", "auto");
 	conf_int_register_limit_default(cfg_context, "misc_timetorun", 0, 3600, 0);
 	conf_string_register_default(cfg_context, "display_mode", "auto");
@@ -1441,8 +1441,8 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	}
 	context->config.fastest_time = d;
 	context->config.measure_time = conf_int_get_default(cfg_context, "misc_timetorun");
-	context->config.crash_flag = conf_bool_get_default(cfg_context, "misc_crash");
-	context->config.rawsound_flag = conf_bool_get_default(cfg_context, "misc_rawsound");
+	context->config.crash_flag = conf_bool_get_default(cfg_context, "debug_crash");
+	context->config.rawsound_flag = conf_bool_get_default(cfg_context, "debug_rawsound");
 
 	s = conf_string_get_default(cfg_context, "display_mode");
 	sncpy(context->config.resolution_buffer, sizeof(context->config.resolution_buffer), s);

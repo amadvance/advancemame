@@ -322,27 +322,6 @@ unsigned joystickb_allegro_button_count_get(unsigned j)
 	return joy[j].num_buttons;
 }
 
-const char* joystickb_allegro_stick_name_get(unsigned j, unsigned s)
-{
-	log_debug(("joystickb:allegro: joystickb_allegro_stick_name_get()\n"));
-
-	return joy[j].stick[s].name;
-}
-
-const char* joystickb_allegro_stick_axe_name_get(unsigned j, unsigned s, unsigned a)
-{
-	log_debug(("joystickb:allegro: joystickb_allegro_stick_axe_name_get()\n"));
-
-	return joy[j].stick[s].axis[a].name;
-}
-
-const char* joystickb_allegro_button_name_get(unsigned j, unsigned b)
-{
-	log_debug(("joystickb:allegro: joystickb_allegro_button_name_get()\n"));
-
-	return joy[j].button[b].name;
-}
-
 unsigned joystickb_allegro_button_get(unsigned j, unsigned b)
 {
 	log_debug(("joystickb:allegro: joystickb_allegro_button_get()\n"));
@@ -455,12 +434,12 @@ joystickb_driver joystickb_allegro_driver = {
 	joystickb_allegro_count_get,
 	joystickb_allegro_stick_count_get,
 	joystickb_allegro_stick_axe_count_get,
-	joystickb_allegro_stick_name_get,
-	joystickb_allegro_stick_axe_name_get,
+	0,
+	0,
 	joystickb_allegro_stick_axe_digital_get,
 	joystickb_allegro_stick_axe_analog_get,
 	joystickb_allegro_button_count_get,
-	joystickb_allegro_button_name_get,
+	0,
 	joystickb_allegro_button_get,
 	0,
 	0,

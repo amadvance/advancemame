@@ -121,18 +121,95 @@ static void ui_messagebox_center(struct advance_ui_context* context, adv_bitmap*
 		adv_font_put_string(context->state.ui_font, dst, pos_x + border_x, pos_y + border_y, begin, end, cf.p, cb.p);
 }
 
-static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, const char* menu_title, struct ui_menu_entry* menu_map, unsigned menu_mac, int menu_sel, struct ui_color entry_f, struct ui_color entry_b, struct ui_color select_f, struct ui_color select_b, struct ui_color title_f, struct ui_color title_b, adv_color_def def)
+static void ui_dft(struct advance_ui_context* context, adv_bitmap* dst, unsigned x, unsigned y, unsigned dx, unsigned dy, double* m, unsigned n, double cut1, double cut2, struct ui_color cf, struct ui_color cb, struct ui_color ct, adv_color_def def)
+{
+	unsigned i;
+	char buffer[32];
+	const char* begin;
+	const char* end;
+	int xv1, xv2;
+
+	adv_bitmap_box(dst, x, y, dx, dy, 1, ct.p);
+
+	++x;
+	++y;
+	dx -= 2;
+	dy -= 2;
+
+	adv_bitmap_clear(dst, x, y, dx, dy, cf.p);
+
+	for(i=0;i<dx;++i) {
+		int vi;
+		double v;
+
+		v = m[i * (n/2) /(dx-1)];
+
+		v /= 10;
+
+		if (v < 1E-4)
+			v = 1E-4;
+		if (v > 1)
+			v = 1;
+
+		v = 20.0 * log10( v );
+
+		vi = v * dy / -80.0;
+		if (vi < 0)
+			vi = 0;
+		if (vi > dy)
+			vi = dy;
+
+		adv_bitmap_clear(dst, x + i, y + vi, 1, dy - vi, cb.p);
+	}
+
+	xv1 = x+cut1*2*dx;
+	xv2 = x+cut2*2*dx;
+
+	adv_bitmap_clear(dst, xv1, y, 1, dy, ct.p);
+	adv_bitmap_clear(dst, xv2, y, 1, dy, ct.p);
+
+	adv_bitmap_clear(dst, x, y+dy/4, dx, 1, ct.p);
+	adv_bitmap_clear(dst, x, y+dy/2, dx, 1, ct.p);
+	adv_bitmap_clear(dst, x, y+dy*3/4, dx, 1, ct.p);
+
+	snprintf(buffer, sizeof(buffer), "800");
+	begin = buffer;
+	end = buffer + strlen(buffer);
+	if (ui_alpha(def))
+		adv_font_put_string_alpha(context->state.ui_font, dst, xv1, y, begin, end, &ct.c, &cf.c, def);
+	else
+		adv_font_put_string(context->state.ui_font, dst, xv1, y, begin, end, ct.p, cf.p);
+
+	snprintf(buffer, sizeof(buffer), "8000");
+	begin = buffer;
+	end = buffer + strlen(buffer);
+	if (ui_alpha(def))
+		adv_font_put_string_alpha(context->state.ui_font, dst, xv2, y, begin, end, &ct.c, &cf.c, def);
+	else
+		adv_font_put_string(context->state.ui_font, dst, xv2, y, begin, end, ct.p, cf.p);
+}
+
+static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, struct ui_menu_entry* menu_map, unsigned menu_mac, int menu_sel, struct ui_color entry_f, struct ui_color entry_b, struct ui_color select_f, struct ui_color select_b, struct ui_color title_f, struct ui_color title_b, adv_color_def def)
 {
 	int step_x, step_y;
 	int border_x, border_y;
 	int size_x, size_y;
 	int pos_x, pos_y;
-	int posr;
+	int pos_r;
+	int pos_s;
 	int size_r;
 	unsigned i;
+	unsigned y;
+	unsigned dft_dx;
+	unsigned dft_dy;
+	int up;
+	int down;
 
 	step_x = adv_font_sizex(context->state.ui_font);
 	step_y = adv_font_sizey(context->state.ui_font);
+
+	dft_dx = dst->size_x * 3 / 4;
+	dft_dy = dst->size_y * 2 / 5;
 
 	border_x = step_x;
 	border_y = step_y / 2;
@@ -141,24 +218,89 @@ static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, const c
 
 	size_x = border_x * 2;
 	size_y = border_y * 2;
-	if (menu_title)
-		size_y += step_y;
-	size_r = 0;
+
+	/* search the selected position */
+	pos_r = 0;
+	pos_s = 0;
 	for(i=0;i<menu_mac;++i) {
+		switch (menu_map[i].type) {
+		case ui_menu_text :
+		case ui_menu_option :
+			if (menu_sel == pos_r) {
+				pos_s = i;
+			}
+			++pos_r;
+			break;
+		default:
+			break;
+		}
+	}
+
+	up = 0;
+	down = 0;
+	size_r = 0;
+	pos_r = pos_s;
+
+	while (1) {
 		unsigned width;
+		unsigned height;
 
-		if (size_y + step_y < dst->size_y) {
-			size_y += step_y;
-			++size_r;
+		if (size_r == 0) {
+			i = pos_r;
+		} else if (up <= down && pos_r > 0) {
+			i = pos_r - 1;
+		} else if (up > down && pos_r + size_r < menu_mac) {
+			i = pos_r + size_r;
+		} else if (pos_r > 0) {
+			i = pos_r - 1;
+		} else if (pos_r + size_r < menu_mac) {
+			i = pos_r + size_r;
+		} else {
+			break;
 		}
 
-		width = border_x * 2 + adv_font_sizex_string(context->state.ui_font, menu_map[i].text_buffer, menu_map[i].text_buffer + strlen(menu_map[i].text_buffer));
-		if (*menu_map[i].option_buffer) {
+		switch (menu_map[i].type) {
+		case ui_menu_title :
+			width = border_x * 2 + adv_font_sizex_string(context->state.ui_font, menu_map[i].text_buffer, menu_map[i].text_buffer + strlen(menu_map[i].text_buffer));
+			height = step_y;
+			break;
+		case ui_menu_text :
+			width = border_x * 2 + adv_font_sizex_string(context->state.ui_font, menu_map[i].text_buffer, menu_map[i].text_buffer + strlen(menu_map[i].text_buffer));
+			height = step_y;
+			break;
+		case ui_menu_option :
+			width = border_x * 2 + adv_font_sizex_string(context->state.ui_font, menu_map[i].text_buffer, menu_map[i].text_buffer + strlen(menu_map[i].text_buffer));
 			width += border_x * 3 + adv_font_sizex_string(context->state.ui_font, menu_map[i].option_buffer, menu_map[i].option_buffer + strlen(menu_map[i].option_buffer));
+			height = step_y;
+			break;
+		case ui_menu_dft :
+			width = dft_dx;
+			height = dft_dy;
+			break;
+		default:
+			width = 0;
+			height = 0;
+			break;
 		}
+
+		if (size_y + height > dst->size_y)
+			break;
+
+		size_y += height;
 
 		if (size_x < width)
 			size_x = width;
+
+		if (i == pos_r) {
+			++size_r;
+		} else if (i < pos_r) {
+			up += height;
+			--pos_r;
+			++size_r;
+		} else if (i > pos_r) {
+			down += height;
+			++size_r;
+		}
 	}
 
 	if (size_x > dst->size_x)
@@ -168,43 +310,23 @@ static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, const c
 	pos_x = dst->size_x / 2 - size_x / 2;
 	pos_y = dst->size_y / 2 - size_y / 2;
 
-	/* position in the menu */
-	if (size_r < menu_mac) {
-		posr = menu_sel - size_r / 2;
-		if (posr < 0)
-			posr = 0;
-		if (posr + size_r > menu_mac)
-			posr = menu_mac - size_r;
-	} else {
-		posr = 0;
-	}
-
 	/* put */
 	adv_bitmap_box(dst, pos_x, pos_y, size_x, size_y, 1, entry_f.p);
 	adv_bitmap_clear(dst, pos_x + 1, pos_y + 1, size_x - 2, size_y - 2, entry_b.p);
 
-	if (menu_title) {
-		const char* begin = menu_title;
-		const char* end = begin + strlen(begin);
-		unsigned width = size_x - 2 * border_x;
-
-		end = adv_font_sizex_limit(context->state.ui_font, begin, end, width);
-
-		ui_text_center(context, dst, pos_x + size_x / 2, pos_y + border_y, begin, end, title_f, title_b, def);
-	}
+	y = pos_y + border_y;
 
 	for(i=0;i<size_r;++i) {
-		struct ui_menu_entry* e = &menu_map[i + posr];
+		struct ui_menu_entry* e = &menu_map[i + pos_r];
 		struct ui_color cef;
 		struct ui_color ceb;
 		struct ui_color ctf;
 		struct ui_color ctb;
+
+		unsigned height = e->type == ui_menu_dft ? dft_dy : step_y;
 		unsigned width = size_x - 2 * border_x;
-		unsigned y = pos_y + border_y + step_y * i;
-		if (menu_title)
-			y += step_y;
-		
-		if (i + posr == menu_sel) {
+
+		if (i + pos_r == pos_s) {
 			cef = select_f;
 			ceb = select_b;
 			ctf = select_f;
@@ -216,9 +338,9 @@ static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, const c
 			ctb = title_b;
 		}
 
-		adv_bitmap_clear(dst, pos_x + border_x / 2, y, size_x - border_x, step_y, ceb.p);
+		adv_bitmap_clear(dst, pos_x + border_x, y, size_x - border_x * 2, height, ceb.p);
 
-		if (e->option_buffer[0]) {
+		if (e->type == ui_menu_option) {
 			const char* begin = e->text_buffer;
 			const char* end = e->text_buffer + strlen(e->text_buffer);
 
@@ -234,19 +356,20 @@ static void ui_menu(struct advance_ui_context* context, adv_bitmap* dst, const c
 			end = adv_font_sizex_limit(context->state.ui_font, begin, end, width);
 			
 			ui_text_right(context, dst, pos_x + size_x - border_x, y, begin, end, ctf, ctb, def);
-		} else {
+		} else if (e->type == ui_menu_title || e->type == ui_menu_text) {
 			const char* begin = e->text_buffer;
 			const char* end = e->text_buffer + strlen(e->text_buffer);
 
-			adv_bool title = *begin == '#';
-			if (title)
-				++begin;
+			adv_bool title = e->type == ui_menu_title;
 
 			end = adv_font_sizex_limit(context->state.ui_font, begin, end, width);
 
-
 			ui_text_center(context, dst, pos_x + size_x / 2, y, begin, end, title ? ctf : cef, title ? ctb : ceb, def);
+		} else if (e->type == ui_menu_dft) {
+			ui_dft(context, dst, pos_x + border_x, y + border_y, size_x - border_x * 2, height - border_y * 2, e->m, e->n, e->cut1, e->cut2, cef, ceb, ctf, def);
 		}
+
+		y += height;
 	}
 }
 
@@ -406,58 +529,109 @@ static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, char*
 /**************************************************************************/
 /* Commands */
 
-/**
- * Display a menu.
- */
-void advance_ui_menu(struct advance_ui_context* context, const char* menu_title, struct ui_menu_entry* menu_map, unsigned menu_mac, unsigned menu_sel)
+void advance_ui_menu_init(struct ui_menu* menu)
 {
-	context->state.ui_menu_flag = 1;
-	free(context->state.ui_menu_map);
-	context->state.ui_menu_title = menu_title;
-	context->state.ui_menu_map = menu_map;
-	context->state.ui_menu_mac = menu_mac;
-	context->state.ui_menu_sel = menu_sel;
+	menu->mac = 0;
+	menu->max = 256;
+	menu->map = (struct ui_menu_entry*)malloc(menu->max * sizeof(struct ui_menu_entry));
 }
 
-void advance_ui_menu_vect(struct advance_ui_context* context, const char* title, const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem)
+static unsigned ui_menu_select(struct ui_menu* menu)
 {
-	unsigned menu_mac;
-	struct ui_menu_entry* menu_map;
-	unsigned menu_sel;
-	unsigned i;
+	unsigned i, count;
 
-	/* count elements */
-	menu_mac = 0;
-	while (items[menu_mac])
-		++menu_mac;
-
-	menu_map = malloc(menu_mac * sizeof(struct ui_menu_entry));
-
-	for(i=0;i<menu_mac;++i) {
-		sncpy(menu_map[i].text_buffer, sizeof(menu_map[i].text_buffer), items[i]);
-		if (subitems && subitems[i])
-			sncpy(menu_map[i].option_buffer, sizeof(menu_map[i].option_buffer), subitems[i]);
-		else
-			menu_map[i].option_buffer[0] = 0;
-		if (flag && flag[i])
-			menu_map[i].flag = flag[i] != 0;
-		else
-			menu_map[i].flag = 0;
-		if (i == selected) {
-			menu_map[i].arrow_left_flag = (arrowize_subitem & 1) != 0;
-			menu_map[i].arrow_right_flag = (arrowize_subitem & 2) != 0 ;
-		} else {
-			menu_map[i].arrow_left_flag = 0;
-			menu_map[i].arrow_right_flag = 0;
+	count = 0;
+	for(i=0;i<menu->mac;++i) {
+		switch (menu->map[i].type) {
+		case ui_menu_text :
+		case ui_menu_option :
+			++count;
+			break;
+		default:
+			break;
 		}
 	}
 
-	if (selected >= 0 && selected < menu_mac)
-		menu_sel = selected;
-	else
-		menu_sel = menu_mac;
+	return count;
+}
 
-	advance_ui_menu(context, title, menu_map, menu_mac, menu_sel);
+void advance_ui_menu_dft_insert(struct ui_menu* menu, double* m, unsigned n, double cut1, double cut2)
+{
+	struct ui_menu_entry* entry = &menu->map[menu->mac];
+
+	assert(menu->mac < menu->max);
+	if (menu->mac == menu->max)
+		return;
+
+	entry->type = ui_menu_dft;
+	entry->m = m;
+	entry->n = n;
+	entry->cut1 = cut1;
+	entry->cut2 = cut2;
+
+	++menu->mac;
+}
+
+void advance_ui_menu_title_insert(struct ui_menu* menu, const char* title)
+{
+	struct ui_menu_entry* entry = &menu->map[menu->mac];
+
+	assert(menu->mac < menu->max);
+	if (menu->mac == menu->max)
+		return;
+
+	entry->type = ui_menu_title;
+	sncpy(entry->text_buffer, sizeof(entry->text_buffer), title);
+
+	++menu->mac;
+}
+
+unsigned advance_ui_menu_text_insert(struct ui_menu* menu, const char* text)
+{
+	struct ui_menu_entry* entry = &menu->map[menu->mac];
+
+	assert(menu->mac < menu->max);
+	if (menu->mac == menu->max)
+		return -1;
+
+	entry->type = ui_menu_text;
+	sncpy(entry->text_buffer, sizeof(entry->text_buffer), text);
+
+	++menu->mac;
+
+	return ui_menu_select(menu) - 1;
+}
+
+unsigned advance_ui_menu_option_insert(struct ui_menu* menu, const char* text, const char* option)
+{
+	struct ui_menu_entry* entry = &menu->map[menu->mac];
+
+	assert(menu->mac < menu->max);
+	if (menu->mac == menu->max)
+		return -1;
+
+	entry->type = ui_menu_option;
+	sncpy(entry->text_buffer, sizeof(entry->text_buffer), text);
+	sncpy(entry->option_buffer, sizeof(entry->option_buffer), option);
+	++menu->mac;
+
+	return ui_menu_select(menu) - 1;
+}
+
+/**
+ * Display a menu.
+ */
+unsigned advance_ui_menu_done(struct ui_menu* menu, struct advance_ui_context* context, unsigned menu_sel)
+{
+	unsigned count, i;
+
+	context->state.ui_menu_flag = 1;
+	free(context->state.ui_menu_map);
+	context->state.ui_menu_map = menu->map;
+	context->state.ui_menu_mac = menu->mac;
+	context->state.ui_menu_sel = menu_sel;
+
+	return ui_menu_select(menu);
 }
 
 /**
@@ -722,9 +896,8 @@ static void ui_help_update(struct advance_ui_context* context, adv_bitmap* dst, 
 
 static void ui_menu_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
 {
-	ui_menu(context, dst, context->state.ui_menu_title, context->state.ui_menu_map, context->state.ui_menu_mac, context->state.ui_menu_sel, color->ui_f, color->ui_b, color->select_f, color->select_b, color->title_f, color->title_b, color->def);
+	ui_menu(context, dst, context->state.ui_menu_map, context->state.ui_menu_mac, context->state.ui_menu_sel, color->ui_f, color->ui_b, color->select_f, color->select_b, color->title_f, color->title_b, color->def);
 
-	context->state.ui_menu_title = 0;
 	free(context->state.ui_menu_map);
 	context->state.ui_menu_map = 0;
 	context->state.ui_menu_flag = 0;
@@ -950,7 +1123,6 @@ adv_error advance_ui_init(struct advance_ui_context* context, adv_conf* cfg_cont
 	context->state.ui_extra_flag = 0;
 	context->state.ui_message_flag = 0;
 	context->state.ui_help_flag = 0;
-	context->state.ui_menu_title = 0;
 	context->state.ui_menu_map = 0;
 	context->state.ui_osd_flag = 0;
 	context->state.ui_scroll_flag = 0;
@@ -1270,10 +1442,9 @@ void osd_ui_message(const char* s, int second)
 void osd_ui_menu(const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem)
 {
 	unsigned menu_mac;
-	struct ui_menu_entry* menu_map;
+	struct ui_menu menu;
 	unsigned menu_sel;
 	unsigned i;
-	const char* menu_title;
 
 	struct advance_ui_context* context = &CONTEXT.ui;
 
@@ -1282,35 +1453,23 @@ void osd_ui_menu(const char** items, const char** subitems, char* flag, int sele
 	while (items[menu_mac])
 		++menu_mac;
 
-	menu_map = malloc(menu_mac * sizeof(struct ui_menu_entry));
+	advance_ui_menu_init(&menu);
+
+	/* HACK: Recongnize main menu */
+	if (items && strstr(items[0], "Input") != 0)
+		advance_ui_menu_title_insert(&menu, ADVANCE_TITLE);
 
 	for(i=0;i<menu_mac;++i) {
-		sncpy(menu_map[i].text_buffer, sizeof(menu_map[i].text_buffer), items[i]);
 		if (subitems && subitems[i]) {
-
 			/* HACK: Recongnize options "None" and "n/a" */
 			if (strcmp(subitems[i], "None") == 0
-				|| strcmp(subitems[i], "n/a") == 0)
-				sncpy(menu_map[i].option_buffer, sizeof(menu_map[i].option_buffer), "<none>");
-			else
-				sncpy(menu_map[i].option_buffer, sizeof(menu_map[i].option_buffer), subitems[i]);
-
-			if (flag && flag[i]) {
-				menu_map[i].flag = flag[i] != 0;
+				|| strcmp(subitems[i], "n/a") == 0) {
+				advance_ui_menu_option_insert(&menu, items[i], "<none>");
 			} else {
-				menu_map[i].flag = 0;
+				advance_ui_menu_option_insert(&menu, items[i], subitems[i]);
 			}
 		} else {
-			menu_map[i].option_buffer[0] = 0;
-			menu_map[i].flag = 0;
-		}
-
-		if (i == selected) {
-			menu_map[i].arrow_left_flag = (arrowize_subitem & 1) != 0;
-			menu_map[i].arrow_right_flag = (arrowize_subitem & 2) != 0 ;
-		} else {
-			menu_map[i].arrow_left_flag = 0;
-			menu_map[i].arrow_right_flag = 0;
+			advance_ui_menu_text_insert(&menu, items[i]);
 		}
 	}
 
@@ -1319,13 +1478,7 @@ void osd_ui_menu(const char** items, const char** subitems, char* flag, int sele
 	else
 		menu_sel = menu_mac;
 
-	/* HACK: Recongnize main menu */
-	if (menu_mac > 0 && strstr(menu_map[0].text_buffer, "Input") != 0)
-		menu_title = ADVANCE_TITLE;
-	else
-		menu_title = 0;
-
-	advance_ui_menu(context, menu_title, menu_map, menu_mac, menu_sel);
+	advance_ui_menu_done(&menu, context, menu_sel);
 }
 
 void osd_ui_osd(const char *text, int percentage, int default_percentage)

@@ -41,8 +41,6 @@
 #include "device.h"
 #include "conf.h"
 
-#include <assert.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

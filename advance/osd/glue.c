@@ -1759,10 +1759,14 @@ adv_bool glue_is_portplayer(unsigned type)
 	/* both have the player number 0 in the InputPort and InputPortDefinition vectors */
 	if ((type >= __ipt_digital_joystick_start && type <= __ipt_digital_joystick_end)
 		|| (type >= __ipt_analog_start && type <= __ipt_analog_end)
-		|| (type >= IPT_BUTTON1 && type <= IPT_BUTTON10))
+		|| (type >= IPT_BUTTON1 && type <= IPT_BUTTON10)
+		|| (type == IPT_SELECT) /* MESS specific */
+		|| (type == IPT_START) /* MESS specific */
+	) {
 		return 1;
-	else
+	} else {
 		return 0;
+	}
 }
 
 /**
@@ -3035,7 +3039,7 @@ adv_error mame_init(struct advance_context* context)
 
 	conf_float_register_limit_default(context->cfg, "display_gamma", 0.5, 2.0, 1.0);
 	conf_float_register_limit_default(context->cfg, "display_brightness", 0.1, 10.0, 1.0);
-	conf_int_register_enum_default(context->cfg, "misc_internaldepth", conf_enum(OPTION_DEPTH), 0);
+	conf_int_register_enum_default(context->cfg, "debug_internaldepth", conf_enum(OPTION_DEPTH), 0);
 
 	conf_bool_register_default(context->cfg, "misc_cheat", 0);
 	conf_string_register_default(context->cfg, "misc_languagefile", "english.lng");
@@ -3098,7 +3102,7 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 	option->gamma = conf_float_get_default(cfg_context, "display_gamma");
 	option->brightness = conf_float_get_default(cfg_context, "display_brightness");
 
-	option->color_depth = conf_int_get_default(cfg_context, "misc_internaldepth");
+	option->color_depth = conf_int_get_default(cfg_context, "debug_internaldepth");
 
 	option->cheat_flag = conf_bool_get_default(cfg_context, "misc_cheat");
 

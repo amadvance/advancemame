@@ -31,6 +31,7 @@
 #include "portable.h"
 
 #include "emu.h"
+#include "input.h"
 
 #include "advance.h"
 
@@ -1903,7 +1904,7 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 		{
 			struct advance_input_context* input_context = &CONTEXT.input;
 			if (advance_input_digital_pressed(input_context, DIGITAL_KBD(0, KEYB_ENTER_PAD))) {
-				FILE* f;
+				adv_fz* f;
 				static unsigned in = 1;
 				char buffer[64];
 

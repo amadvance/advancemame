@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive srcmess.ori/advance.pat srcmess/advance.pat
 --- srcmess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ srcmess/advance.pat	2004-08-12 11:36:58.000000000 +0200
++++ srcmess/advance.pat	2004-08-29 14:22:00.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive srcmess.ori/common.c srcmess/common.c
---- srcmess.ori/common.c	2004-08-07 19:16:48.000000000 +0200
-+++ srcmess/common.c	2004-08-12 11:36:58.000000000 +0200
+--- srcmess.ori/common.c	2004-07-25 12:42:30.000000000 +0200
++++ srcmess/common.c	2004-08-29 14:22:00.000000000 +0200
 @@ -765,10 +765,11 @@
  	the given filename
  -------------------------------------------------*/
@@ -70,7 +70,7 @@ diff -U 5 --new-file --recursive srcmess.ori/common.c srcmess/common.c
  			int k;
 diff -U 5 --new-file --recursive srcmess.ori/cpu/i8085/i8085.c srcmess/cpu/i8085/i8085.c
 --- srcmess.ori/cpu/i8085/i8085.c	2004-06-27 18:40:06.000000000 +0200
-+++ srcmess/cpu/i8085/i8085.c	2004-08-12 11:36:58.000000000 +0200
++++ srcmess/cpu/i8085/i8085.c	2004-08-29 14:22:00.000000000 +0200
 @@ -110,10 +110,16 @@
   * 
   *****************************************************************************/
@@ -90,7 +90,7 @@ diff -U 5 --new-file --recursive srcmess.ori/cpu/i8085/i8085.c srcmess/cpu/i8085
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive srcmess.ori/cpu/m68000/make68k.c srcmess/cpu/m68000/make68k.c
 --- srcmess.ori/cpu/m68000/make68k.c	2004-05-06 18:22:10.000000000 +0200
-+++ srcmess/cpu/m68000/make68k.c	2004-08-12 11:36:58.000000000 +0200
++++ srcmess/cpu/m68000/make68k.c	2004-08-29 14:22:00.000000000 +0200
 @@ -191,11 +191,11 @@
  
  
@@ -139,7 +139,7 @@ diff -U 5 --new-file --recursive srcmess.ori/cpu/m68000/make68k.c srcmess/cpu/m6
  
 diff -U 5 --new-file --recursive srcmess.ori/cpu/z80/z80.c srcmess/cpu/z80/z80.c
 --- srcmess.ori/cpu/z80/z80.c	2004-06-27 18:40:08.000000000 +0200
-+++ srcmess/cpu/z80/z80.c	2004-08-12 11:36:58.000000000 +0200
++++ srcmess/cpu/z80/z80.c	2004-08-29 14:22:00.000000000 +0200
 @@ -82,10 +82,16 @@
  #include "cpuintrf.h"
  #include "state.h"
@@ -158,8 +158,8 @@ diff -U 5 --new-file --recursive srcmess.ori/cpu/z80/z80.c srcmess/cpu/z80/z80.c
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive srcmess.ori/cpuexec.c srcmess/cpuexec.c
---- srcmess.ori/cpuexec.c	2004-08-07 19:16:48.000000000 +0200
-+++ srcmess/cpuexec.c	2004-08-12 11:36:58.000000000 +0200
+--- srcmess.ori/cpuexec.c	2004-07-24 10:09:40.000000000 +0200
++++ srcmess/cpuexec.c	2004-08-29 14:22:00.000000000 +0200
 @@ -307,10 +307,13 @@
  	watchdog_counter = -1;
  
@@ -175,15 +175,17 @@ diff -U 5 --new-file --recursive srcmess.ori/cpuexec.c srcmess/cpuexec.c
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
---- srcmess.ori/inptport.c	2004-08-07 19:16:50.000000000 +0200
-+++ srcmess/inptport.c	2004-08-12 11:36:58.000000000 +0200
-@@ -808,24 +808,21 @@
+--- srcmess.ori/inptport.c	2004-08-22 21:16:14.000000000 +0200
++++ srcmess/inptport.c	2004-08-29 15:23:00.000000000 +0200
+@@ -824,26 +824,21 @@
  	
  	/* start with the raw defaults and ask the OSD to customize them in the backup array */
  	memcpy(inputport_list_backup, inputport_list_defaults, sizeof(inputport_list_backup));
  	osd_customize_inputport_list(inputport_list_backup);
  	
--	/* load the controller-specific info */
+-	/* load the controller-specific info -- note that even though we are still modifying */
+-	/* the inputport_list_backup, token_to_port_type relies on inputport_list being valid */
+-	memcpy(inputport_list, inputport_list_backup, sizeof(inputport_list));
 -	if (options.controller != NULL)
 -	{
 -		loaded = config_load_controller(options.controller, inputport_list_backup);
@@ -210,7 +212,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  	inputport_init();
  
  	/* if we didn't find a saved config, return 0 so the main core knows that it */
-@@ -835,12 +832,16 @@
+@@ -853,12 +848,16 @@
  
  
  void save_input_port_settings(void)
@@ -229,7 +231,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  
  
  /*************************************
-@@ -1299,13 +1300,19 @@
+@@ -1320,13 +1319,19 @@
  {
  	int listnum;
  
@@ -252,7 +254,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  
  
  int input_ui_pressed(int code)
-@@ -1315,10 +1322,13 @@
+@@ -1336,10 +1341,13 @@
  profiler_mark(PROFILER_INPUT);
  	
  	/* get the status of this key (assumed to be only in the defaults) */
@@ -266,7 +268,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  	{
  		/* if this is the first press, leave pressed = 1 */
  		if (ui_memory[code] == 0)
-@@ -1348,10 +1358,13 @@
+@@ -1369,10 +1377,13 @@
  profiler_mark(PROFILER_INPUT);
  
  	/* get the status of this key (assumed to be only in the defaults) */
@@ -280,7 +282,21 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  	{
  		/* if this is the first press, set a 3x delay and leave pressed = 1 */
  		if (ui_memory[code] == 0)
-@@ -1454,11 +1467,16 @@
+@@ -1441,10 +1452,13 @@
+ void inputport_vblank_start(void)
+ {
+ 	int ui_visible = setup_active() || onscrd_active();
+ 	int portnum, bitnum;
+ 
++	/* AdvanceMAME: Never disable the input port. */
++	ui_visible = 0;
++
+ profiler_mark(PROFILER_INPUT);
+ 
+ 	/* update the digital joysticks first */
+ 	update_digital_joysticks();
+ 
+@@ -1475,11 +1489,16 @@
  			
  			/* handle non-analog types, but only when the UI isn't visible */
  			else if (!IS_ANALOG(port) && !ui_visible)
@@ -298,7 +314,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  					/* (MESS-specific) check for disabled keyboard */
  					if (port->type == IPT_KEYBOARD && osd_keyboard_disabled())
  						continue;
-@@ -1586,17 +1604,18 @@
+@@ -1607,17 +1626,18 @@
  			{
  				info->previous = info->current;
  				info->current = 0;
@@ -321,7 +337,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  				/* lock out opposing directions (left + right or up + down) */
  				if ((info->current & (JOYDIR_UP_BIT | JOYDIR_DOWN_BIT)) == (JOYDIR_UP_BIT | JOYDIR_DOWN_BIT))
  					info->current &= ~(JOYDIR_UP_BIT | JOYDIR_DOWN_BIT);
-@@ -1707,31 +1726,33 @@
+@@ -1728,31 +1748,33 @@
  		int analog_type, keypressed = 0;
  			
  		/* clamp the previous value to the min/max range and remember it */
@@ -361,9 +377,9 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  		}
  		
 diff -U 5 --new-file --recursive srcmess.ori/input.c srcmess/input.c
---- srcmess.ori/input.c	2004-08-07 19:16:50.000000000 +0200
-+++ srcmess/input.c	2004-08-12 11:36:58.000000000 +0200
-@@ -538,11 +538,33 @@
+--- srcmess.ori/input.c	2004-08-22 21:14:00.000000000 +0200
++++ srcmess/input.c	2004-08-29 14:22:00.000000000 +0200
+@@ -555,11 +555,33 @@
  	code_count = 0;
  	free(code_map);
  	code_map = NULL;
@@ -398,9 +414,9 @@ diff -U 5 --new-file --recursive srcmess.ori/input.c srcmess/input.c
   *	Return the analog value of a code.
   *
 diff -U 5 --new-file --recursive srcmess.ori/input.h srcmess/input.h
---- srcmess.ori/input.h	2004-08-07 19:16:50.000000000 +0200
-+++ srcmess/input.h	2004-08-12 12:28:24.000000000 +0200
-@@ -430,10 +430,17 @@
+--- srcmess.ori/input.h	2004-08-22 21:14:00.000000000 +0200
++++ srcmess/input.h	2004-08-29 14:22:00.000000000 +0200
+@@ -431,10 +431,17 @@
  	CODE_NOT,					/* operators for sequences */
  	CODE_OR						/* operators for sequences */
  };
@@ -418,7 +434,7 @@ diff -U 5 --new-file --recursive srcmess.ori/input.h srcmess/input.h
   *
   *	Type definitions
   *
-@@ -481,10 +488,13 @@
+@@ -482,10 +489,13 @@
  
  /* single code functions */
  int code_init(void);
@@ -433,8 +449,8 @@ diff -U 5 --new-file --recursive srcmess.ori/input.h srcmess/input.h
  int code_pressed_memory_repeat(input_code_t code, int speed);
  input_code_t code_read_async(void);
 diff -U 5 --new-file --recursive srcmess.ori/mame.c srcmess/mame.c
---- srcmess.ori/mame.c	2004-08-10 05:24:51.000000000 +0200
-+++ srcmess/mame.c	2004-08-12 11:36:58.000000000 +0200
+--- srcmess.ori/mame.c	2004-08-24 03:34:11.000000000 +0200
++++ srcmess/mame.c	2004-08-29 14:22:00.000000000 +0200
 @@ -537,10 +537,15 @@
  		if (options.skip_warnings || showgamewarnings(artwork_get_ui_bitmap()) == 0)
  		{
@@ -452,8 +468,8 @@ diff -U 5 --new-file --recursive srcmess.ori/mame.c srcmess/mame.c
  				artwork_enable(1);
  
 diff -U 5 --new-file --recursive srcmess.ori/osdepend.h srcmess/osdepend.h
---- srcmess.ori/osdepend.h	2004-08-07 19:16:50.000000000 +0200
-+++ srcmess/osdepend.h	2004-08-20 19:36:27.000000000 +0200
+--- srcmess.ori/osdepend.h	2004-07-24 15:05:10.000000000 +0200
++++ srcmess/osdepend.h	2004-08-29 14:22:00.000000000 +0200
 @@ -347,10 +347,48 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
@@ -504,8 +520,8 @@ diff -U 5 --new-file --recursive srcmess.ori/osdepend.h srcmess/osdepend.h
  
  #endif
 diff -U 5 --new-file --recursive srcmess.ori/rules.mak srcmess/rules.mak
---- srcmess.ori/rules.mak	2004-08-07 19:16:50.000000000 +0200
-+++ srcmess/rules.mak	2004-08-12 11:36:58.000000000 +0200
+--- srcmess.ori/rules.mak	2004-08-22 21:16:14.000000000 +0200
++++ srcmess/rules.mak	2004-08-29 14:22:00.000000000 +0200
 @@ -1143,16 +1143,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
@@ -542,7 +558,7 @@ diff -U 5 --new-file --recursive srcmess.ori/rules.mak srcmess/rules.mak
  endif
  
  CPU=$(strip $(findstring E132XS@,$(CPUS)))
-@@ -1255,13 +1255,13 @@
+@@ -1285,13 +1285,13 @@
  
  SOUND=$(strip $(findstring DISCRETE@,$(SOUNDS)))
  ifneq ($(SOUND),)
@@ -560,9 +576,9 @@ diff -U 5 --new-file --recursive srcmess.ori/rules.mak srcmess/rules.mak
  
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
 diff -U 5 --new-file --recursive srcmess.ori/ui_text.c srcmess/ui_text.c
---- srcmess.ori/ui_text.c	2004-08-07 19:16:50.000000000 +0200
-+++ srcmess/ui_text.c	2004-08-20 19:35:03.000000000 +0200
-@@ -216,10 +216,14 @@
+--- srcmess.ori/ui_text.c	2004-08-22 21:14:00.000000000 +0200
++++ srcmess/ui_text.c	2004-08-29 14:22:00.000000000 +0200
+@@ -191,10 +191,14 @@
  	"One match found - added to list",
  
  	/* refresh rate */
@@ -578,8 +594,8 @@ diff -U 5 --new-file --recursive srcmess.ori/ui_text.c srcmess/ui_text.c
  
  
 diff -U 5 --new-file --recursive srcmess.ori/ui_text.h srcmess/ui_text.h
---- srcmess.ori/ui_text.h	2004-08-07 19:16:50.000000000 +0200
-+++ srcmess/ui_text.h	2004-08-20 19:35:16.000000000 +0200
+--- srcmess.ori/ui_text.h	2004-07-28 22:26:24.000000000 +0200
++++ srcmess/ui_text.h	2004-08-29 14:22:00.000000000 +0200
 @@ -185,10 +185,14 @@
  	UI_search_one_match_found_added,
  	
@@ -596,8 +612,8 @@ diff -U 5 --new-file --recursive srcmess.ori/ui_text.h srcmess/ui_text.h
  #ifdef MESS
  #include "mui_text.h"
 diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
---- srcmess.ori/usrintrf.c	2004-08-07 19:16:50.000000000 +0200
-+++ srcmess/usrintrf.c	2004-08-20 19:36:12.000000000 +0200
+--- srcmess.ori/usrintrf.c	2004-08-05 22:34:08.000000000 +0200
++++ srcmess/usrintrf.c	2004-08-29 15:12:31.000000000 +0200
 @@ -821,10 +821,13 @@
  
  
@@ -906,7 +922,23 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  		setup_selected = -1;
  		if (osd_selected != 0)
  		{
-@@ -4158,11 +4195,11 @@
+@@ -4120,12 +4157,15 @@
+ 
+ #ifndef MESS
+ 	if (single_step || input_ui_pressed(IPT_UI_PAUSE)) /* pause the game */
+ 	{
+ #else
++
++#if 0 /* AdvanceMAME: The game is not paused when the UI is active */
+ 	if (setup_selected)
+ 		mess_pause_for_ui = 1;
++#endif
+ 
+ 	if (single_step || input_ui_pressed(IPT_UI_PAUSE) || mess_pause_for_ui) /* pause the game */
+ 	{
+ #endif
+ /*		osd_selected = 0;	   disable on screen display, since we are going   */
+@@ -4158,11 +4198,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -919,7 +951,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  			{
  				setup_selected = -1;
  				if (osd_selected != 0)
-@@ -4241,16 +4278,18 @@
+@@ -4241,16 +4281,18 @@
  	}
  
  	if (show_profiler) profiler_show(bitmap);
@@ -940,7 +972,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	{
 diff -U 5 --new-file --recursive srcmess.ori/x86drc.c srcmess/x86drc.c
 --- srcmess.ori/x86drc.c	2004-06-27 18:40:38.000000000 +0200
-+++ srcmess/x86drc.c	2004-08-12 11:36:58.000000000 +0200
++++ srcmess/x86drc.c	2004-08-29 14:22:00.000000000 +0200
 @@ -677,10 +677,11 @@
  
  

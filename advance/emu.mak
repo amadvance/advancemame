@@ -431,6 +431,7 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/lib/fontdef.o \
 	$(OBJ)/advance/lib/bitmap.o \
 	$(OBJ)/advance/lib/filter.o \
+	$(OBJ)/advance/lib/dft.o \
 	$(OBJ)/advance/lib/complex.o \
 	$(OBJ)/advance/lib/png.o \
 	$(OBJ)/advance/lib/pngdef.o \
@@ -502,7 +503,7 @@ $(OBJ)/advance/libz.a: $(OBJ)/advance/zlib/adler32.o $(OBJ)/advance/zlib/crc32.o
 
 ifeq ($(CONF_LIB_ZLIB),yes)
 ADVANCELIBS += -lz
-EMUCHDMANLIBS += -lz
+EMUCHDMANLDFLAGS += -lz
 else
 CFLAGS += \
 	-I$(srcdir)/advance/zlib
@@ -643,7 +644,7 @@ endif
 
 $(OBJ)/chdman$(EXE): $(EMUCHDMANOBJS) $(EMUCHDMANLIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(EMUCHDMANOBJS) $(EMUCHDMANLIBS) $(LDFLAGS) -o $@
+	$(LD) $(EMUCHDMANOBJS) $(EMUCHDMANLIBS) $(EMUCHDMANLDFLAGS) $(LDFLAGS) -o $@
 
 $(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)
@@ -767,7 +768,6 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/releemu.d \
 	$(srcdir)/doc/histemu.d \
 	$(srcdir)/doc/faq.d \
-	$(srcdir)/doc/tips.d \
 	$(srcdir)/doc/build.d \
 	$(srcdir)/doc/cost.d \
 	$(srcdir)/doc/advv.d \
@@ -795,7 +795,6 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/releemu.txt \
 	$(DOCOBJ)/histemu.txt \
 	$(DOCOBJ)/faq.txt \
-	$(DOCOBJ)/tips.txt \
 	$(DOCOBJ)/install.txt \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
@@ -810,7 +809,6 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/releemu.html \
 	$(DOCOBJ)/histemu.html \
 	$(DOCOBJ)/faq.html \
-	$(DOCOBJ)/tips.html \
 	$(DOCOBJ)/install.html \
 	$(DOCOBJ)/advv.html \
 	$(DOCOBJ)/advcfg.html
