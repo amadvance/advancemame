@@ -46,21 +46,36 @@
 struct target_context {
 	char buffer_out[BUFFER_SIZE];
 	char buffer_err[BUFFER_SIZE];
-	
+
+	target_clock_t last; /**< Last clock. */
+
 	unsigned usleep_granularity; /**< Minimun sleep time in microseconds. */
 };
 
 static struct target_context TARGET;
+
+target_clock_t TARGET_CLOCKS_PER_SEC;
 
 /***************************************************************************/
 /* Init */
 
 adv_error target_init(void)
 {
-	memset(&TARGET, 0, sizeof(TARGET));
-	
+	LARGE_INTEGER f;
+	LARGE_INTEGER c;
+
+	TARGET.buffer_out[0] = 0;
+	TARGET.buffer_err[0] = 0;
+	TARGET.last = 0;
 	TARGET.usleep_granularity = 0;
-	
+
+	if (!QueryPerformanceFrequency(&f) || !QueryPerformanceCounter(&c)) {
+		target_err("Error initializing the high-resolution performance counter.\n");
+		return -1;
+	}
+
+	TARGET_CLOCKS_PER_SEC = f.QuadPart;
+
 	return 0;
 }
 
@@ -123,11 +138,24 @@ void target_usleep(unsigned us)
 /***************************************************************************/
 /* Clock */
 
-target_clock_t TARGET_CLOCKS_PER_SEC = 1000;
-
 target_clock_t target_clock(void)
 {
-	return SDL_GetTicks();
+	LARGE_INTEGER c;
+	target_clock_t r;
+    
+	if (!QueryPerformanceCounter(&c)) {
+		return TARGET.last;
+	}
+
+	r = c.QuadPart;
+
+	/* on some laptops strange things may happen when the CPU change its speed */
+	if (r < TARGET.last)
+		r = TARGET.last;
+
+	TARGET.last = r;
+
+	return r;
 }
 
 /***************************************************************************/

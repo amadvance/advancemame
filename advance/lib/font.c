@@ -789,15 +789,7 @@ static adv_font* adv_font_adjust(adv_font* font)
 /****************************************************************************/
 /* Load */
 
-/**
- * Load a font from a file.
- * The following formats are supported:
- *  - GRX
- *  - PSF
- *  - RAW
- *  - TTF (with FreeType2)
- */
-adv_font* adv_font_load(adv_fz* f, unsigned sizex, unsigned sizey)
+static adv_font* font_load_unscaled(adv_fz* f, unsigned sizex, unsigned sizey)
 {
 	adv_font* font;
 	long pos;
@@ -829,6 +821,43 @@ adv_font* adv_font_load(adv_fz* f, unsigned sizex, unsigned sizey)
 		return adv_font_adjust(font);
 
 	return 0;
+}
+
+/**
+ * Load a font from a file.
+ * The following formats are supported:
+ *  - GRX
+ *  - PSF
+ *  - RAW
+ *  - TTF (with FreeType2)
+ */
+adv_font* adv_font_load(adv_fz* f, unsigned sizex, unsigned sizey)
+{
+	adv_font* font;
+	unsigned fx;
+	unsigned fy;
+
+	font = font_load_unscaled(f, sizex, sizey);
+
+	if (!font)
+		return 0;
+
+	fx = 0;
+	if (adv_font_sizex_char(font, 'M'))
+		fx = sizex / adv_font_sizex_char(font, 'M');
+	if (fx == 0)
+		fx = 1;
+
+	fy = 0;
+	if (adv_font_sizey_char(font, 'M'))
+		fy = sizey / adv_font_sizey_char(font, 'M');
+	if (fy == 0)
+		fy = 1;
+
+	if (fx!=1 || fy!=1)
+		adv_font_scale(font, fx, fy);
+
+	return font;
 }
 
 #if 0 /* OSDEF Reference code */

@@ -43,8 +43,6 @@ adv_font* adv_font_default(unsigned sizex, unsigned sizey, adv_bool disable_alph
 {
 	adv_fz* f;
 	adv_font* font;
-	unsigned fx;
-	unsigned fy;
 
 #ifdef USE_FREETYPE
 	if (!disable_alpha && sizey>=13) {
@@ -69,21 +67,6 @@ adv_font* adv_font_default(unsigned sizex, unsigned sizey, adv_bool disable_alph
 	}
 
 	font = adv_font_load(f, sizex, sizey);
-
-	fx = 0;
-	if (adv_font_sizex_char(font, 'M'))
-		fx = sizex / adv_font_sizex_char(font, 'M');
-	if (fx == 0)
-		fx = 1;
-
-	fy = 0;
-	if (adv_font_sizey_char(font, 'M'))
-		fy = sizey / adv_font_sizey_char(font, 'M');
-	if (fy == 0)
-		fy = 1;
-
-	if (fx!=1 || fy!=1)
-		adv_font_scale(font, fx, fy);
 
 	fzclose(f);
 

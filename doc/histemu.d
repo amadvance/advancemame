@@ -1,6 +1,14 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.87.1 2004/10
+	) Improved the timer precision in the Windows version.
+	) Added support for scaling bitmapped fonts by an
+		integer factor.
+
+AdvanceMESS Version 0.87.0.0 2004/10
+	) All from AdvanceMAME 0.87.0.
+
 AdvanceMAME Version 0.87.0 2004/09
 	) Added support for translucency in the user interface
 		with the `ui_translucency' option.
