@@ -511,18 +511,18 @@ int os_main(int argc, char* argv[])
 
 	if (advance_video_inner_init(&context->video, &option) != 0)
 		goto err_os_inner;
-	if (advance_input_inner_init(&context->input) != 0)
-		goto err_os_inner;
+	if (advance_input_inner_init(&context->input, cfg_context) != 0)
+		goto err_inner_video;
 	if (advance_safequit_inner_init(&context->safequit, &option)!=0)
-		goto err_os_inner;
+		goto err_inner_input;
 	if (hardware_script_inner_init()!=0)
-		goto err_os_inner;
+		goto err_inner_safequit;
 
 	log_std(("advance: mame_game_run()\n"));
 
 	r = mame_game_run(context, &option);
 	if (r < 0)
-		goto err_os_inner;
+		goto err_inner_script;
 
 	log_std(("advance: *_inner_done()\n"));
 
@@ -575,6 +575,14 @@ done_os:
 	conf_done(cfg_context);
 	return 0;
 
+err_inner_script:
+	hardware_script_inner_done();
+err_inner_safequit:
+	advance_safequit_inner_done(&context->safequit);
+err_inner_input:
+	advance_input_inner_done(&context->input);
+err_inner_video:
+	advance_video_inner_done(&context->video);
 err_os_inner:
 	os_inner_done();
 err_os:

@@ -267,8 +267,6 @@ extern "C" {
 
 const char* key_name(unsigned code);
 unsigned key_code(const char* name);
-
-adv_bool key_is_standard(unsigned code);
 adv_bool key_is_defined(unsigned code);
 
 #ifdef __cplusplus

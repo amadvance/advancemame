@@ -425,695 +425,7 @@ static char* input_trak_map_desc[INPUT_TRAK_MAX] = {
 };
 
 /**************************************************************************/
-/* Input */
-
-static inline void input_something_pressed(struct advance_input_context* context)
-{
-	context->state.input_on_this_frame_flag = 1;
-}
-
-/*
- * Since the keyboard controller is slow, it is not capable of reporting multiple
- * key presses fast enough. We have to delay them in order not to lose special moves
- * tied to simultaneous button presses.
- */
-static void input_keyboard_update(struct advance_input_context* context)
-{
-	unsigned char last[INPUT_KEYBOARD_MAX][KEYB_MAX];
-	unsigned size = KEYB_MAX * keyb_count_get();
-	unsigned i;
-
-	/* read the keys for all the keyboards */
-	for(i=0;i<keyb_count_get();++i) {
-		keyb_all_get(i, last[i]);
-	}
-
-	if (context->config.steadykey_flag) {
-		if (memcmp(last, context->state.key_old, size)!=0) {
-			/* store the new copy */
-			memcpy(context->state.key_old, last, size);
-			input_something_pressed(context);
-		} else {
-			/* if the keyboard state is stable, copy it */
-			memcpy(context->state.key_current, last, size);
-		}
-	} else {
-		if (memcmp(last, context->state.key_current, size)!=0) {
-			/* refresh the new copy */
-			memcpy(context->state.key_current, last, size);
-			input_something_pressed(context);
-		}
-	}
-}
-
-static unsigned search_joy_axe(unsigned player, const char* stick_name, const char* axe_name)
-{
-	unsigned axe;
-	unsigned stick;
-
-	if (player < joystickb_count_get()) {
-		for(stick=0;stick<joystickb_stick_count_get(player);++stick) {
-			if (strcmp(stick_name, joystickb_stick_name_get(player, stick)) == 0) {
-				for(axe=0;axe<joystickb_stick_axe_count_get(player, stick);++axe) {
-					if (strcmp(axe_name, joystickb_stick_axe_name_get(player, stick, axe)) == 0) {
-						return ANALOG_JOY(player, stick, axe, 0);
-					}
-				}
-			}
-		}
-	}
-
-	return ANALOG_SPECIAL_NONE;
-}
-
-static unsigned search_mouse_axe(unsigned player, const char* axe_name)
-{
-	unsigned axe;
-
-	if (player < mouseb_count_get()) {
-		for(axe=0;axe<mouseb_axe_count_get(player);++axe) {
-			if (strcmp(axe_name, mouseb_axe_name_get(player, axe)) == 0) {
-				return ANALOG_MOUSE(player, axe, 0);
-			}
-		}
-	}
-
-	return ANALOG_SPECIAL_NONE;
-}
-
-static void input_setup_config(struct advance_input_context* context)
-{
-	unsigned i, j;
-
-	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		unsigned mac;
-		unsigned v;
-
-		/* This code tries to map the input device to the axe */
-		/* effectively used by MAME. It's an hack heavily depended */
-		/* on the current MAME behaviour (at present version 0.71). */
-		/* A better approach is not possible due limitations of the */
-		/* MAME input interface */
-
-		/* To check the MAME behaviour see the update_analog_port() */
-		/* function in the inpport.c file */
-
-		j = 0; /* X_AXIS (in osdepend.h) */
-		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
-			mac = 0;
-			v = search_joy_axe(i, "stick", "x");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "stick", "rx");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "hat", "x");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "wheel", "mono");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "rudder", "mono");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
-		}
-
-		j = 1; /* Y_AXIS (in osdepend.h) */
-		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
-			mac = 0;
-			v = search_joy_axe(i, "stick", "y");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "stick", "ry");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "hat", "y");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
-		}
-
-		j = 2; /* Z_AXIS (in osdepend.h) */
-		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
-			mac = 0;
-			v = search_joy_axe(i, "stick", "z");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "stick", "rz");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			v = search_joy_axe(i, "brake", "mono");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
-		}
-
-		j = 3; /* PEDAL_AXIS (in osdepend.h) */
-		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
-			mac = 0;
-			v = search_joy_axe(i, "gas", "mono");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.analog_map[i][j].seq[mac++] = v;
-			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
-		}
-	}
-
-	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-
-		j = 0; /* trakx */
-		if (context->config.trak_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
-			unsigned mac = 0;
-			unsigned v = search_mouse_axe(i, "x");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.trak_map[i][j].seq[mac++] = v;
-			context->config.trak_map[i][j].seq[mac] = ANALOG_SPECIAL_NONE;
-		}
-
-		j = 1; /* traky */
-		if (context->config.trak_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
-			unsigned mac = 0;
-			unsigned v = search_mouse_axe(i, "y");
-			if (v != ANALOG_SPECIAL_NONE)
-				context->config.trak_map[i][j].seq[mac++] = v;
-			context->config.trak_map[i][j].seq[mac] = ANALOG_SPECIAL_NONE;
-		}
-	}
-}
-
-static void input_log_config(struct advance_input_context* context)
-{
-	unsigned i, j, k;
-
-	log_std(("advance:keyboard: %d available\n", keyb_count_get() ));
-	for(i=0;i<keyb_count_get();++i) {
-		log_std(("advance:keyboard: %d\n", i));
-	}
-	log_std(("advance:mouse: %d available\n", mouseb_count_get() ));
-	for(i=0;i<mouseb_count_get();++i) {
-		log_std(("advance:mouse: %d, buttons %d\n", i, mouseb_button_count_get(i)));
-	}
-	log_std(("advance:joystick: %d available\n", joystickb_count_get() ));
-	for(i=0;i<joystickb_count_get();++i) {
-		log_std(("advance:joystick: %d, buttons %d, stick %d\n", i, joystickb_button_count_get(i), joystickb_stick_count_get(i)));
-	}
-
-	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		for(j=0;j<INPUT_ANALOG_MAX;++j) {
-			log_std(("advance: input analog mapping player:%d axe:%d (%s) :", i, j, input_analog_map_desc[j]));
-			for(k=0;k<INPUT_MAP_MAX;++k) {
-				unsigned v = context->config.analog_map[i][j].seq[k];
-				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_JOY) {
-					unsigned j = ANALOG_JOY_DEV_GET(v);
-					unsigned s = ANALOG_JOY_STICK_GET(v);
-					unsigned a = ANALOG_JOY_AXE_GET(v);
-					int negate = ANALOG_JOY_NEGATE_GET(v);
-					if (negate)
-						log_std((" -joystick[%d,%d,%d]", j, s, a));
-					else
-						log_std((" joystick[%d,%d,%d]", j, s, a));
-				} else {
-					if (k == 0)
-						log_std((" <none>"));
-					break;
-				}
-			}
-			log_std(("\n"));
-		}
-	}
-
-	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		for(j=0;j<INPUT_TRAK_MAX;++j) {
-			log_std(("advance: input trak mapping player:%d axe:%d (%s) :", i, j, input_trak_map_desc[j]));
-			for(k=0;k<INPUT_MAP_MAX;++k) {
-				unsigned v = context->config.trak_map[i][j].seq[k];
-				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
-					unsigned m = ANALOG_MOUSE_DEV_GET(v);
-					unsigned a = ANALOG_MOUSE_AXE_GET(v);
-					int negate = ANALOG_MOUSE_NEGATE_GET(v);
-					if (negate)
-						log_std((" -mouse[%d,%d]", m, a));
-					else
-						log_std((" mouse[%d,%d]", m, a));
-				} else {
-					if (k == 0)
-						log_std((" <none>"));
-					break;
-				}
-			}
-			log_std(("\n"));
-		}
-	}
-
-#if 0
-	/* print the key list */
-	{
-		j = 0;
-		log_std(("advance: Keys\t\t"));
-		for(i=0;i<KEYB_MAX;++i) {
-			if (key_is_defined(i)) {
-				log_std(("%s, ", key_name(i)));
-				j += 2 + strlen(key_name(i));
-			}
-			if (j > 60) {
-				j = 0;
-				log_std(("\n\t\t"));
-			}
-		}
-		log_std(("\n"));
-	}
-
-	/* print the port list */
-	{
-		struct mame_port* p;
-		j = 0;
-		log_std(("advance: Ports\t\t"));
-		for(p=mame_port_list();p->name;++p) {
-			log_std(("%s, ", p->name));
-			j += 2 + strlen(p->name);
-			if (j > 60) {
-				j = 0;
-				log_std(("\n\t\t"));
-			}
-		}
-		log_std(("\n"));
-	}
-#endif
-}
-
-static void input_init(struct advance_input_context* context)
-{
-	unsigned i, j, k, w;
-
-	/* initialize the mouse state */
-	for(i=0;i<INPUT_MOUSE_MAX;++i) {
-		for(j=0;j<INPUT_AXE_MAX;++j) {
-			context->state.mouse_analog_current[i][j] = 0;
-		}
-		for(j=0;j<INPUT_BUTTON_MAX;++j) {
-			context->state.mouse_button_current[i][j] = 0;
-		}
-	}
-
-	/* initialize the joystick state */
-	for(i=0;i<INPUT_JOY_MAX;++i) {
-		for(j=0;j<INPUT_STICK_MAX;++j) {
-			for(k=0;k<INPUT_AXE_MAX;++k) {
-				context->state.joystick_analog_current[i][j][k] = 0;
-				for(w=0;w<INPUT_DIR_MAX;++w) {
-					context->state.joystick_digital_current[i][j][k][w] = 0;
-				}
-			}
-		}
-
-		for(j=0;j<INPUT_BUTTON_MAX;++j) {
-			context->state.joystick_button_current[i][j] = 0;
-		}
-	}
-
-	/* initialize the keyboard state */
-	memset(&context->state.key_old, sizeof(context->state.key_old), 0);
-	memset(&context->state.key_current, sizeof(context->state.key_current), 0);
-
-	/* initialize the input state */
-	context->state.input_forced_exit_flag = 0;
-	context->state.input_on_this_frame_flag = 0;
-
-	input_joy_map[0].name = 0;
-	input_joy_map[0].code = 0;
-	input_joy_map[0].standardcode = 0;
-
-	input_key_map[0].name = 0;
-	input_key_map[0].code = 0;
-	input_key_map[0].standardcode = 0;
-}
-
-static void input_refresh(struct advance_input_context* context)
-{
-	unsigned i, j, k;
-	unsigned mac;
-
-	/* fill the joystick/mouse vector */
-	mac = 0;
-
-	/* add the available mouse buttons */
-	for(i=0;i<mouseb_count_get() && i<INPUT_MOUSE_MAX;++i) {
-		for(j=0;j<mouseb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
-			if (mac+1 < INPUT_JOYMOUSE_MAX) {
-				if (i == 0)
-					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "m:%s", mouseb_button_name_get(i,j));
-				else
-					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "m%d:%s", i+1, mouseb_button_name_get(i,j));
-				input_joy_map[mac].name = input_joyname_map[mac];
-				input_joy_map[mac].code = DIGITAL_MOUSE_BUTTON(i, j);
-				++mac;
-			}
-		}
-	}
-
-	/* add the available joystick buttons/axes */
-	for(i=0;i<joystickb_count_get() && i<INPUT_JOY_MAX;++i) {
-		for(j=0;j<joystickb_stick_count_get(i) && j<INPUT_STICK_MAX;++j) {
-			for(k=0;k<joystickb_stick_axe_count_get(i, j) && k<INPUT_AXE_MAX;++k) {
-				if (mac+1 < INPUT_JOYMOUSE_MAX) {
-					if (i == 0)
-						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j:%s:%s-", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
-					else
-						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j%d:%s:%s-", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
-					input_joy_map[mac].name = input_joyname_map[mac];
-					input_joy_map[mac].code = DIGITAL_JOY(i, j, k, 0);
-					++mac;
-				}
-				if (mac+1 < INPUT_JOYMOUSE_MAX) {
-					if (i == 0)
-						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j:%s:%s+", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
-					else
-						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j%d:%s:%s+", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
-					input_joy_map[mac].name = input_joyname_map[mac];
-					input_joy_map[mac].code = DIGITAL_JOY(i, j, k, 1);
-					++mac;
-				}
-			}
-		}
-
-		for(j=0;j<joystickb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
-			if (mac+1 < INPUT_JOYMOUSE_MAX) {
-				if (i == 0)
-					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j:%s", joystickb_button_name_get(i, j));
-				else
-					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j%d:%s", i+1, joystickb_button_name_get(i, j));
-				input_joy_map[mac].name = input_joyname_map[mac];
-				input_joy_map[mac].code = DIGITAL_JOY_BUTTON(i, j);
-				++mac;
-			}
-		}
-	}
-
-	/* terminate the joystick vector */
-	input_joy_map[mac].name = 0;
-	input_joy_map[mac].code = 0;
-	input_joy_map[mac].standardcode = 0;
-
-	log_std(("advance: input digital joystick code %d\n", mac));
-
-	/* set the equivalence */
-	for(i=0;i<mac;++i) {
-		input_joy_map[i].standardcode = CODE_OTHER;
-		for(j=0;j<sizeof(input_joyequiv_map)/sizeof(input_joyequiv_map[0]);++j) {
-			if (input_joyequiv_map[j].os_code == input_joy_map[i].code) {
-				input_joy_map[i].standardcode = input_joyequiv_map[j].mame_code;
-				break;
-			}
-		}
-	}
-
-	/* fill the keyboard vector */
-	mac = 0;
-	for(i=0;i<INPUT_KEYBOARD_MAX && i<keyb_count_get();++i) {
-		for(j=0;j<KEYB_MAX;++j) {
-			if (keyb_has(i, j)) {
-				if (mac+1 < INPUT_DIGITAL_MAX) {
-					if (i == 0)
-						snprintf(input_keyname_map[mac], sizeof(input_keyname_map[mac]), "%s", key_name(j));
-					else
-						snprintf(input_keyname_map[mac], sizeof(input_keyname_map[mac]), "k%d:%s", i+1, key_name(j));
-					input_key_map[mac].name = input_keyname_map[mac];
-					input_key_map[mac].code = DIGITAL_KBD(i, j);
-					++mac;
-				}
-			}
-		}
-	}
-
-	/* terminate the keyboard vector */
-	input_key_map[mac].name = 0;
-	input_key_map[mac].code = 0;
-	input_key_map[mac].standardcode = 0;
-
-	/* set the equivalence */
-	for(i=0;i<mac;++i) {
-		input_key_map[i].standardcode = CODE_OTHER;
-		for(j=0;j<sizeof(input_keyequiv_map)/sizeof(input_keyequiv_map[0]);++j) {
-			if (input_keyequiv_map[j].os_code == input_key_map[i].code) {
-				input_key_map[i].standardcode = input_keyequiv_map[j].mame_code;
-				break;
-			}
-		}
-	}
-
-	log_std(("advance: input digital keyboard code %d\n", mac));
-
-	/* set the auto config */
-	input_setup_config(context);
-
-	/* print the config */
-	input_log_config(context);
-}
-
-void osd_customize_inputport_defaults(struct ipd* defaults)
-{
-	struct advance_input_context* context = &CONTEXT.input;
-	struct ipd* i = defaults;
-
-	log_std(("advance: osd_customize_inputport_defaults()\n"));
-
-	while (i->type != IPT_END) {
-		unsigned port = i->type & (IPF_PLAYERMASK | ~IPF_MASK);
-		unsigned j;
-
-		for(j=0;j<context->config.digital_mac;++j)
-			if (context->config.digital_map[j].port == port)
-				break;
-
-		if (j<context->config.digital_mac) {
-			unsigned* seq = context->config.digital_map[j].seq;
-
-			if (seq[0] != DIGITAL_SPECIAL_AUTO) {
-				unsigned k;
-
-				struct mame_port* p = mame_port_list();
-				while (p->name) {
-					if (p->port == port)
-						break;
-					++p;
-				}
-				if (p->name)
-					log_std(("advance: customize input %s\n", p->name));
-				else
-					log_std(("advance: customize input 0x%x\n", port));
-
-				for(k=0;k<SEQ_MAX && k<INPUT_MAP_MAX;++k) {
-					unsigned v;
-					switch (seq[k]) {
-					case DIGITAL_SPECIAL_NONE : v = CODE_NONE; break;
-					case DIGITAL_SPECIAL_OR : v = CODE_OR; break;
-					case DIGITAL_SPECIAL_NOT : v = CODE_NOT; break;
-					default:
-						switch (DIGITAL_TYPE_GET(seq[k])) {
-						case DIGITAL_TYPE_KBD : v = mame_ui_code_from_oskey(seq[k]); break;
-						case DIGITAL_TYPE_JOY : v = mame_ui_code_from_osjoystick(seq[k]); break;
-						default : v = CODE_NONE;
-						}
-					}
-					i->seq[k] = v;
-				}
-				for(;k<SEQ_MAX;++k)
-					i->seq[k] = CODE_NONE;
-			}
-		}
-
-		++i;
-	}
-}
-
-/***************************************************************************/
-/* Advance interface */
-
-adv_error advance_input_init(struct advance_input_context* context, adv_conf* cfg_context)
-{
-	unsigned i;
-	struct mame_port* p;
-
-	conf_bool_register_default(cfg_context, "input_hotkey", 1);
-	conf_bool_register_default(cfg_context, "input_steadykey", 0);
-	conf_int_register_default(cfg_context, "input_idleexit", 0);
-
-	/* analog */
-	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		unsigned j;
-		for(j=0;j<INPUT_ANALOG_MAX;++j) {
-			char tag_buffer[64];
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, input_analog_map_desc[j]);
-			conf_string_register_default(cfg_context, tag_buffer, "auto");
-		}
-	}
-
-	/* trak */
-	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		unsigned j;
-		for(j=0;j<INPUT_TRAK_MAX;++j) {
-			char tag_buffer[64];
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, input_trak_map_desc[j]);
-			conf_string_register_default(cfg_context, tag_buffer, "auto");
-		}
-	}
-
-	/* digital */
-	p = mame_port_list();
-	while (p->name) {
-		char tag_buffer[64];
-		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
-		conf_string_register_default(cfg_context, tag_buffer, "auto");
-		++p;
-	}
-
-	joystickb_reg(cfg_context, 0);
-	joystickb_reg_driver_all(cfg_context);
-	mouseb_reg(cfg_context, 0);
-	mouseb_reg_driver_all(cfg_context);
-	keyb_reg(cfg_context, 1);
-	keyb_reg_driver_all(cfg_context);
-
-	context->state.active_flag = 0;
-	context->config.digital_mac = 0;
-
-	return 0;
-}
-
-void advance_input_done(struct advance_input_context* context)
-{
-	assert(context->state.active_flag == 0);
-}
-
-adv_error advance_input_inner_init(struct advance_input_context* context)
-{
-	unsigned i;
-
-	assert(context->state.active_flag == 0);
-
-	if (joystickb_init() != 0) {
-		goto err;
-	}
-
-	if (mouseb_init() != 0) {
-		joystickb_done();
-		goto err;
-	}
-
-	if (keyb_init(context->config.disable_special_flag) != 0) {
-		mouseb_done();
-		joystickb_done();
-		goto err;
-	}
-
-	/* init the state */
-	input_init(context);
-	input_refresh(context);
-
-	context->state.input_current_clock = target_clock();
-	context->state.input_idle_clock = context->state.input_current_clock;
-	context->state.input_on_this_frame_flag = 0;
-
-	context->state.active_flag = 1;
-
-	return 0;
-err:
-	target_err("%s\n", error_get());
-	return -1;
-}
-
-void advance_input_inner_done(struct advance_input_context* context)
-{
-	keyb_done();
-	mouseb_done();
-	joystickb_done();
-
-	context->state.active_flag = 0;
-}
-
-static void input_mouse_update(struct advance_input_context* context)
-{
-	unsigned i, j;
-
-	for(i=0;i<mouseb_count_get() && i<INPUT_MOUSE_MAX;++i) {
-		for(j=0;j<mouseb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
-			context->state.mouse_button_current[i][j] = mouseb_button_get(i, j);
-			if (context->state.mouse_button_current[i][j])
-				input_something_pressed(context);
-		}
-
-		for(j=0;j<mouseb_axe_count_get(i) && j<INPUT_AXE_MAX;++j) {
-			context->state.mouse_analog_current[i][j] = mouseb_axe_get(i, j);
-			if (context->state.mouse_analog_current[i][j])
-				input_something_pressed(context);
-		}
-	}
-}
-
-static void input_joystick_update(struct advance_input_context* context)
-{
-	unsigned i, j, k, w;
-
-	for(i=0;i<joystickb_count_get() && i<INPUT_JOY_MAX;++i) {
-		for(j=0;j<joystickb_stick_count_get(i) && j<INPUT_STICK_MAX;++j) {
-			for(k=0;k<joystickb_stick_axe_count_get(i, j) && k<INPUT_AXE_MAX;++k) {
-				context->state.joystick_analog_current[i][j][k] = joystickb_stick_axe_analog_get(i, j, k);
-				if (context->state.joystick_analog_current[i][j][k])
-					input_something_pressed(context);
-
-				for(w=0;w<2 && w<INPUT_DIR_MAX;++w) {
-					context->state.joystick_digital_current[i][j][k][w] = joystickb_stick_axe_digital_get(i, j, k, w);
-					if (context->state.joystick_digital_current[i][j][k][w])
-						input_something_pressed(context);
-				}
-			}
-		}
-
-		for(j=0;j<joystickb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
-			context->state.joystick_button_current[i][j] = joystickb_button_get(i, j);
-			if (context->state.joystick_button_current[i][j])
-				input_something_pressed(context);
-		}
-	}
-}
-
-void advance_input_force_exit(struct advance_input_context* context)
-{
-	assert(context->state.active_flag != 0);
-
-	context->state.input_forced_exit_flag = 1;
-}
-
-void advance_input_update(struct advance_input_context* context, adv_bool is_pause)
-{
-	assert(context->state.active_flag != 0);
-
-	os_poll();
-	keyb_poll();
-	mouseb_poll();
-	joystickb_poll();
-
-	input_keyboard_update(context);
-	input_mouse_update(context);
-	input_joystick_update(context);
-
-	/* forced exit due idle timeout */
-	if (context->config.input_idle_limit && (context->state.input_current_clock - context->state.input_idle_clock) > context->config.input_idle_limit * TARGET_CLOCKS_PER_SEC) {
-		context->state.input_forced_exit_flag = 1;
-	}
-
-	/* forced exit requested by the operating system */
-	if (os_is_quit()) {
-		context->state.input_forced_exit_flag = 1;
-	}
-
-	context->state.input_current_clock = target_clock();
-
-	if (context->state.input_on_this_frame_flag || is_pause) {
-		context->state.input_on_this_frame_flag = 0;
-		context->state.input_idle_clock = context->state.input_current_clock;
-	}
-}
+/* Parse */
 
 static void parse_skip(int* p, const char* s, const char* sep)
 {
@@ -1145,7 +457,7 @@ static const char* parse_token(char* c, int* p, char* s, const char* sep, const 
 	return s + v;
 }
 
-static int parse_int(int* v, const char* s)
+static adv_error parse_int(int* v, const char* s)
 {
 	char* e;
 
@@ -1157,7 +469,81 @@ static int parse_int(int* v, const char* s)
 	return 0;
 }
 
-static int parse_analog(int* map, char* s)
+static adv_error parse_joystick_stick(int* v, const char* s, unsigned joystick)
+{
+	unsigned i;
+
+	if (strspn(s, "0123456789") == strlen(s)) {
+		return parse_int(v, s);
+	}
+
+	if (joystick < 0 || joystick >= joystickb_count_get()) {
+		*v = 0; /* fake value, doesn't fail if you remove a device */
+		return 0;
+	}
+
+	for(i=0;i<joystickb_stick_count_get(joystick);++i) {
+		if (strcmp(joystickb_stick_name_get(joystick,i), s) == 0) {
+			*v = i;
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+static adv_error parse_joystick_stick_axe(int* v, const char* s, unsigned joystick, unsigned stick)
+{
+	unsigned i;
+
+	if (strspn(s, "0123456789") == strlen(s)) {
+		return parse_int(v, s);
+	}
+
+	if (joystick < 0 || joystick >= joystickb_count_get()) {
+		*v = 0; /* fake value, doesn't fail if you remove a device */
+		return 0;
+	}
+
+	if (stick < 0 || stick >= joystickb_stick_count_get(joystick)) {
+		*v = 0; /* fake value, doesn't fail if you remove a device */
+		return 0;
+	}
+
+	for(i=0;i<joystickb_stick_axe_count_get(joystick, stick);++i) {
+		if (strcmp(joystickb_stick_axe_name_get(joystick, stick, i), s) == 0) {
+			*v = i;
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+static adv_error parse_mouse_axe(int* v, const char* s, unsigned mouse)
+{
+	unsigned i;
+
+	if (strspn(s, "0123456789") == strlen(s)) {
+		return parse_int(v, s);
+	}
+
+	if (mouse < 0 || mouse >= mouseb_count_get()) {
+		*v = 0; /* fake value, doesn't fail if you remove a device */
+		return 0;
+	}
+
+	for(i=0;i<mouseb_axe_count_get(mouse);++i) {
+		if (strcmp(mouseb_axe_name_get(mouse, i), s) == 0) {
+			*v = i;
+			return 0;
+		}
+	}
+
+	return -1;
+}
+
+static adv_error parse_analog(int* map, char* s)
 {
 	unsigned p;
 	unsigned mac;
@@ -1218,8 +604,8 @@ static int parse_analog(int* map, char* s)
 			return -1;
 
 		if (parse_int(&joystick, v0) != 0
-			|| parse_int(&stick, v1) != 0
-			|| parse_int(&axe, v2) != 0)
+			|| parse_joystick_stick(&stick, v1, joystick) != 0
+			|| parse_joystick_stick_axe(&axe, v2, joystick, stick) != 0)
 			return -1;
 
 		if (joystick < 0 || joystick >= INPUT_JOY_MAX)
@@ -1300,7 +686,7 @@ static int parse_trak(int* map, char* s)
 			return -1;
 
 		if (parse_int(&mouse, v0) != 0
-			|| parse_int(&axe, v1) != 0)
+			|| parse_mouse_axe(&axe, v1, mouse) != 0)
 			return -1;
 
 		if (mouse < 0 || mouse >= INPUT_MOUSE_MAX)
@@ -1481,15 +867,454 @@ static int parse_digital(unsigned* map, char* s)
 	return 0;
 }
 
-adv_error advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context)
-{
-	const char* s;
-	unsigned i, j;
-	struct mame_port* p;
+/**************************************************************************/
+/* Input */
 
-	context->config.disable_special_flag = !conf_bool_get_default(cfg_context, "input_hotkey");
-	context->config.steadykey_flag = conf_bool_get_default(cfg_context, "input_steadykey");
-	context->config.input_idle_limit = conf_int_get_default(cfg_context, "input_idleexit");
+static inline void input_something_pressed(struct advance_input_context* context)
+{
+	context->state.input_on_this_frame_flag = 1;
+}
+
+/*
+ * Since the keyboard controller is slow, it is not capable of reporting multiple
+ * key presses fast enough. We have to delay them in order not to lose special moves
+ * tied to simultaneous button presses.
+ */
+static void input_keyboard_update(struct advance_input_context* context)
+{
+	unsigned char last[INPUT_KEYBOARD_MAX][KEYB_MAX];
+	unsigned size = KEYB_MAX * keyb_count_get();
+	unsigned i;
+
+	/* read the keys for all the keyboards */
+	for(i=0;i<keyb_count_get();++i) {
+		keyb_all_get(i, last[i]);
+	}
+
+	if (context->config.steadykey_flag) {
+		if (memcmp(last, context->state.key_old, size)!=0) {
+			/* store the new copy */
+			memcpy(context->state.key_old, last, size);
+			input_something_pressed(context);
+		} else {
+			/* if the keyboard state is stable, copy it */
+			memcpy(context->state.key_current, last, size);
+		}
+	} else {
+		if (memcmp(last, context->state.key_current, size)!=0) {
+			/* refresh the new copy */
+			memcpy(context->state.key_current, last, size);
+			input_something_pressed(context);
+		}
+	}
+}
+
+static unsigned search_joy_axe(unsigned player, const char* stick_name, const char* axe_name)
+{
+	unsigned axe;
+	unsigned stick;
+
+	if (player < joystickb_count_get()) {
+		for(stick=0;stick<joystickb_stick_count_get(player);++stick) {
+			if (strcmp(stick_name, joystickb_stick_name_get(player, stick)) == 0) {
+				for(axe=0;axe<joystickb_stick_axe_count_get(player, stick);++axe) {
+					if (strcmp(axe_name, joystickb_stick_axe_name_get(player, stick, axe)) == 0) {
+						return ANALOG_JOY(player, stick, axe, 0);
+					}
+				}
+			}
+		}
+	}
+
+	return ANALOG_SPECIAL_NONE;
+}
+
+static unsigned search_mouse_axe(unsigned player, const char* axe_name)
+{
+	unsigned axe;
+
+	if (player < mouseb_count_get()) {
+		for(axe=0;axe<mouseb_axe_count_get(player);++axe) {
+			if (strcmp(axe_name, mouseb_axe_name_get(player, axe)) == 0) {
+				return ANALOG_MOUSE(player, axe, 0);
+			}
+		}
+	}
+
+	return ANALOG_SPECIAL_NONE;
+}
+
+static void input_setup_config(struct advance_input_context* context)
+{
+	unsigned i, j;
+
+	for(i=0;i<INPUT_PLAYER_MAX;++i) {
+		unsigned mac;
+		unsigned v;
+
+		/* This code tries to map the input device to the axe */
+		/* effectively used by MAME. It's an hack heavily depended */
+		/* on the current MAME behaviour (at present version 0.71). */
+		/* A better approach is not possible due limitations of the */
+		/* MAME input interface */
+
+		/* To check the MAME behaviour see the update_analog_port() */
+		/* function in the inpport.c file */
+
+		j = 0; /* X_AXIS (in osdepend.h) */
+		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
+			mac = 0;
+			v = search_joy_axe(i, "stick", "x");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			v = search_joy_axe(i, "stick", "rx");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			v = search_joy_axe(i, "hat", "x");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			v = search_joy_axe(i, "wheel", "mono");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			v = search_joy_axe(i, "rudder", "mono");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
+		}
+
+		j = 1; /* Y_AXIS (in osdepend.h) */
+		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
+			mac = 0;
+			v = search_joy_axe(i, "stick", "y");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			v = search_joy_axe(i, "stick", "ry");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			v = search_joy_axe(i, "hat", "y");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
+		}
+
+		j = 2; /* Z_AXIS (in osdepend.h) */
+		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
+			mac = 0;
+			v = search_joy_axe(i, "stick", "z");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			v = search_joy_axe(i, "stick", "rz");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			v = search_joy_axe(i, "brake", "mono");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
+		}
+
+		j = 3; /* PEDAL_AXIS (in osdepend.h) */
+		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
+			mac = 0;
+			v = search_joy_axe(i, "gas", "mono");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
+		}
+	}
+
+	for(i=0;i<INPUT_PLAYER_MAX;++i) {
+		j = 0; /* trakx */
+		if (context->config.trak_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
+			unsigned mac = 0;
+			unsigned v = search_mouse_axe(i, "x");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.trak_map[i][j].seq[mac++] = v;
+			context->config.trak_map[i][j].seq[mac] = ANALOG_SPECIAL_NONE;
+		}
+
+		j = 1; /* traky */
+		if (context->config.trak_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
+			unsigned mac = 0;
+			unsigned v = search_mouse_axe(i, "y");
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.trak_map[i][j].seq[mac++] = v;
+			context->config.trak_map[i][j].seq[mac] = ANALOG_SPECIAL_NONE;
+		}
+	}
+}
+
+static void input_setup_log(struct advance_input_context* context)
+{
+	unsigned i, j, k;
+
+	log_std(("advance:keyboard: %d available\n", keyb_count_get() ));
+	for(i=0;i<keyb_count_get();++i) {
+		log_std(("advance:keyboard: %d\n", i));
+	}
+	log_std(("advance:mouse: %d available\n", mouseb_count_get() ));
+	for(i=0;i<mouseb_count_get();++i) {
+		log_std(("advance:mouse: %d, buttons %d\n", i, mouseb_button_count_get(i)));
+	}
+	log_std(("advance:joystick: %d available\n", joystickb_count_get() ));
+	for(i=0;i<joystickb_count_get();++i) {
+		log_std(("advance:joystick: %d, buttons %d, stick %d\n", i, joystickb_button_count_get(i), joystickb_stick_count_get(i)));
+	}
+
+	for(i=0;i<INPUT_PLAYER_MAX;++i) {
+		for(j=0;j<INPUT_ANALOG_MAX;++j) {
+			log_std(("advance: input analog mapping player:%d axe:%d (%s) :", i, j, input_analog_map_desc[j]));
+			for(k=0;k<INPUT_MAP_MAX;++k) {
+				unsigned v = context->config.analog_map[i][j].seq[k];
+				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_JOY) {
+					unsigned j = ANALOG_JOY_DEV_GET(v);
+					unsigned s = ANALOG_JOY_STICK_GET(v);
+					unsigned a = ANALOG_JOY_AXE_GET(v);
+					int negate = ANALOG_JOY_NEGATE_GET(v);
+					if (negate)
+						log_std((" -joystick[%d,%d,%d]", j, s, a));
+					else
+						log_std((" joystick[%d,%d,%d]", j, s, a));
+				} else {
+					if (k == 0)
+						log_std((" <none>"));
+					break;
+				}
+			}
+			log_std(("\n"));
+		}
+	}
+
+	for(i=0;i<INPUT_PLAYER_MAX;++i) {
+		for(j=0;j<INPUT_TRAK_MAX;++j) {
+			log_std(("advance: input trak mapping player:%d axe:%d (%s) :", i, j, input_trak_map_desc[j]));
+			for(k=0;k<INPUT_MAP_MAX;++k) {
+				unsigned v = context->config.trak_map[i][j].seq[k];
+				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
+					unsigned m = ANALOG_MOUSE_DEV_GET(v);
+					unsigned a = ANALOG_MOUSE_AXE_GET(v);
+					int negate = ANALOG_MOUSE_NEGATE_GET(v);
+					if (negate)
+						log_std((" -mouse[%d,%d]", m, a));
+					else
+						log_std((" mouse[%d,%d]", m, a));
+				} else {
+					if (k == 0)
+						log_std((" <none>"));
+					break;
+				}
+			}
+			log_std(("\n"));
+		}
+	}
+
+#if 0
+	/* print the key list */
+	{
+		j = 0;
+		log_std(("advance: Keys\t\t"));
+		for(i=0;i<KEYB_MAX;++i) {
+			if (key_is_defined(i)) {
+				log_std(("%s, ", key_name(i)));
+				j += 2 + strlen(key_name(i));
+			}
+			if (j > 60) {
+				j = 0;
+				log_std(("\n\t\t"));
+			}
+		}
+		log_std(("\n"));
+	}
+
+	/* print the port list */
+	{
+		struct mame_port* p;
+		j = 0;
+		log_std(("advance: Ports\t\t"));
+		for(p=mame_port_list();p->name;++p) {
+			log_std(("%s, ", p->name));
+			j += 2 + strlen(p->name);
+			if (j > 60) {
+				j = 0;
+				log_std(("\n\t\t"));
+			}
+		}
+		log_std(("\n"));
+	}
+#endif
+}
+
+static void input_setup_list(struct advance_input_context* context)
+{
+	unsigned i, j, k;
+	unsigned mac;
+
+	/* fill the joystick/mouse vector */
+	mac = 0;
+
+	/* add the available mouse buttons */
+	for(i=0;i<mouseb_count_get() && i<INPUT_MOUSE_MAX;++i) {
+		for(j=0;j<mouseb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
+			if (mac+1 < INPUT_JOYMOUSE_MAX) {
+				if (i == 0)
+					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "m:%s", mouseb_button_name_get(i,j));
+				else
+					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "m%d:%s", i+1, mouseb_button_name_get(i,j));
+				input_joy_map[mac].name = input_joyname_map[mac];
+				input_joy_map[mac].code = DIGITAL_MOUSE_BUTTON(i, j);
+				++mac;
+			}
+		}
+	}
+
+	/* add the available joystick buttons/axes */
+	for(i=0;i<joystickb_count_get() && i<INPUT_JOY_MAX;++i) {
+		for(j=0;j<joystickb_stick_count_get(i) && j<INPUT_STICK_MAX;++j) {
+			for(k=0;k<joystickb_stick_axe_count_get(i, j) && k<INPUT_AXE_MAX;++k) {
+				if (mac+1 < INPUT_JOYMOUSE_MAX) {
+					if (i == 0)
+						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j:%s:%s-", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					else
+						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j%d:%s:%s-", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					input_joy_map[mac].name = input_joyname_map[mac];
+					input_joy_map[mac].code = DIGITAL_JOY(i, j, k, 0);
+					++mac;
+				}
+				if (mac+1 < INPUT_JOYMOUSE_MAX) {
+					if (i == 0)
+						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j:%s:%s+", joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					else
+						snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j%d:%s:%s+", i+1, joystickb_stick_name_get(i, j), joystickb_stick_axe_name_get(i, j, k));
+					input_joy_map[mac].name = input_joyname_map[mac];
+					input_joy_map[mac].code = DIGITAL_JOY(i, j, k, 1);
+					++mac;
+				}
+			}
+		}
+
+		for(j=0;j<joystickb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
+			if (mac+1 < INPUT_JOYMOUSE_MAX) {
+				if (i == 0)
+					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j:%s", joystickb_button_name_get(i, j));
+				else
+					snprintf(input_joyname_map[mac], INPUT_NAME_MAX, "j%d:%s", i+1, joystickb_button_name_get(i, j));
+				input_joy_map[mac].name = input_joyname_map[mac];
+				input_joy_map[mac].code = DIGITAL_JOY_BUTTON(i, j);
+				++mac;
+			}
+		}
+	}
+
+	/* terminate the joystick vector */
+	input_joy_map[mac].name = 0;
+	input_joy_map[mac].code = 0;
+	input_joy_map[mac].standardcode = 0;
+
+	log_std(("advance: input digital joystick code %d\n", mac));
+
+	/* set the equivalence */
+	for(i=0;i<mac;++i) {
+		input_joy_map[i].standardcode = CODE_OTHER;
+		for(j=0;j<sizeof(input_joyequiv_map)/sizeof(input_joyequiv_map[0]);++j) {
+			if (input_joyequiv_map[j].os_code == input_joy_map[i].code) {
+				input_joy_map[i].standardcode = input_joyequiv_map[j].mame_code;
+				break;
+			}
+		}
+	}
+
+	/* fill the keyboard vector */
+	mac = 0;
+	for(i=0;i<INPUT_KEYBOARD_MAX && i<keyb_count_get();++i) {
+		for(j=0;j<KEYB_MAX;++j) {
+			if (keyb_has(i, j)) {
+				if (mac+1 < INPUT_DIGITAL_MAX) {
+					if (i == 0)
+						snprintf(input_keyname_map[mac], sizeof(input_keyname_map[mac]), "%s", key_name(j));
+					else
+						snprintf(input_keyname_map[mac], sizeof(input_keyname_map[mac]), "k%d:%s", i+1, key_name(j));
+					input_key_map[mac].name = input_keyname_map[mac];
+					input_key_map[mac].code = DIGITAL_KBD(i, j);
+					++mac;
+				}
+			}
+		}
+	}
+
+	/* terminate the keyboard vector */
+	input_key_map[mac].name = 0;
+	input_key_map[mac].code = 0;
+	input_key_map[mac].standardcode = 0;
+
+	/* set the equivalence */
+	for(i=0;i<mac;++i) {
+		input_key_map[i].standardcode = CODE_OTHER;
+		for(j=0;j<sizeof(input_keyequiv_map)/sizeof(input_keyequiv_map[0]);++j) {
+			if (input_keyequiv_map[j].os_code == input_key_map[i].code) {
+				input_key_map[i].standardcode = input_keyequiv_map[j].mame_code;
+				break;
+			}
+		}
+	}
+
+	log_std(("advance: input digital keyboard code %d\n", mac));
+}
+
+static void input_setup_init(struct advance_input_context* context)
+{
+	unsigned i, j, k, w;
+	unsigned mac;
+
+	/* initialize the mouse state */
+	for(i=0;i<INPUT_MOUSE_MAX;++i) {
+		for(j=0;j<INPUT_AXE_MAX;++j) {
+			context->state.mouse_analog_current[i][j] = 0;
+		}
+		for(j=0;j<INPUT_BUTTON_MAX;++j) {
+			context->state.mouse_button_current[i][j] = 0;
+		}
+	}
+
+	/* initialize the joystick state */
+	for(i=0;i<INPUT_JOY_MAX;++i) {
+		for(j=0;j<INPUT_STICK_MAX;++j) {
+			for(k=0;k<INPUT_AXE_MAX;++k) {
+				context->state.joystick_analog_current[i][j][k] = 0;
+				for(w=0;w<INPUT_DIR_MAX;++w) {
+					context->state.joystick_digital_current[i][j][k][w] = 0;
+				}
+			}
+		}
+
+		for(j=0;j<INPUT_BUTTON_MAX;++j) {
+			context->state.joystick_button_current[i][j] = 0;
+		}
+	}
+
+	/* initialize the keyboard state */
+	memset(&context->state.key_old, sizeof(context->state.key_old), 0);
+	memset(&context->state.key_current, sizeof(context->state.key_current), 0);
+
+	/* initialize the input state */
+	context->state.input_forced_exit_flag = 0;
+	context->state.input_on_this_frame_flag = 0;
+}
+
+static void input_setup(struct advance_input_context* context)
+{
+	input_setup_init(context);
+
+	input_setup_list(context);
+
+	input_setup_config(context);
+
+	input_setup_log(context);
+}
+
+static adv_error input_load_map(struct advance_input_context* context, adv_conf* cfg_context)
+{
+	unsigned i, j;
+	const char* s;
+	const struct mame_port* p;
 
 	/* analog */
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
@@ -1502,8 +1327,8 @@ adv_error advance_input_config_load(struct advance_input_context* context, adv_c
 			d = strdup(s);
 			if (parse_analog(context->config.analog_map[i][j].seq, d)!=0) {
 				free(d);
-				printf("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
-				printf("Valid format is [-]joystick[JOYSTICK,STICK,AXE] ...\n");
+				target_err("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
+				target_err("Valid format is [-]joystick[JOYSTICK,STICK,AXE] ...\n");
 				return -1;
 			}
 			free(d);
@@ -1521,8 +1346,8 @@ adv_error advance_input_config_load(struct advance_input_context* context, adv_c
 			d = strdup(s);
 			if (parse_trak(context->config.trak_map[i][j].seq, d)!=0) {
 				free(d);
-				printf("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
-				printf("Valid format is [-]mouse[MOUSE,AXE] [-]joystick[JOY,STICK,AXE]...\n");
+				target_err("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
+				target_err("Valid format is [-]mouse[MOUSE,AXE] [-]joystick[JOY,STICK,AXE]...\n");
 				return -1;
 			}
 			free(d);
@@ -1544,8 +1369,8 @@ adv_error advance_input_config_load(struct advance_input_context* context, adv_c
 			context->config.digital_map[i].port = p->port;
 			if (parse_digital(context->config.digital_map[i].seq, d) != 0) {
 				free(d);
-				printf("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
-				printf("Valid format is kbd[...] or joystickb[...] or not mouseb[...]\n");
+				target_err("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
+				target_err("Valid format is kbd[...] or joystickb[...] or not mouseb[...]\n");
 				return -1;
 			}
 			++i;
@@ -1555,6 +1380,272 @@ adv_error advance_input_config_load(struct advance_input_context* context, adv_c
 		++p;
 	}
 	context->config.digital_mac = i;
+
+	return 0;
+}
+
+void osd_customize_inputport_defaults(struct ipd* defaults)
+{
+	struct advance_input_context* context = &CONTEXT.input;
+	struct ipd* i = defaults;
+
+	log_std(("advance: osd_customize_inputport_defaults()\n"));
+
+	while (i->type != IPT_END) {
+		unsigned port = i->type & (IPF_PLAYERMASK | ~IPF_MASK);
+		unsigned j;
+
+		for(j=0;j<context->config.digital_mac;++j)
+			if (context->config.digital_map[j].port == port)
+				break;
+
+		if (j<context->config.digital_mac) {
+			unsigned* seq = context->config.digital_map[j].seq;
+
+			if (seq[0] != DIGITAL_SPECIAL_AUTO) {
+				unsigned k;
+
+				struct mame_port* p = mame_port_list();
+				while (p->name) {
+					if (p->port == port)
+						break;
+					++p;
+				}
+				if (p->name)
+					log_std(("advance: customize input %s\n", p->name));
+				else
+					log_std(("advance: customize input 0x%x\n", port));
+
+				for(k=0;k<SEQ_MAX && k<INPUT_MAP_MAX;++k) {
+					unsigned v;
+					switch (seq[k]) {
+					case DIGITAL_SPECIAL_NONE : v = CODE_NONE; break;
+					case DIGITAL_SPECIAL_OR : v = CODE_OR; break;
+					case DIGITAL_SPECIAL_NOT : v = CODE_NOT; break;
+					default:
+						switch (DIGITAL_TYPE_GET(seq[k])) {
+						case DIGITAL_TYPE_KBD : v = mame_ui_code_from_oskey(seq[k]); break;
+						case DIGITAL_TYPE_JOY : v = mame_ui_code_from_osjoystick(seq[k]); break;
+						default : v = CODE_NONE;
+						}
+					}
+					i->seq[k] = v;
+				}
+				for(;k<SEQ_MAX;++k)
+					i->seq[k] = CODE_NONE;
+			}
+		}
+
+		++i;
+	}
+}
+
+/***************************************************************************/
+/* Advance interface */
+
+adv_error advance_input_init(struct advance_input_context* context, adv_conf* cfg_context)
+{
+	unsigned i;
+	struct mame_port* p;
+
+	conf_bool_register_default(cfg_context, "input_hotkey", 1);
+	conf_bool_register_default(cfg_context, "input_steadykey", 0);
+	conf_int_register_default(cfg_context, "input_idleexit", 0);
+
+	/* analog */
+	for(i=0;i<INPUT_PLAYER_MAX;++i) {
+		unsigned j;
+		for(j=0;j<INPUT_ANALOG_MAX;++j) {
+			char tag_buffer[64];
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, input_analog_map_desc[j]);
+			conf_string_register_default(cfg_context, tag_buffer, "auto");
+		}
+	}
+
+	/* trak */
+	for(i=0;i<INPUT_PLAYER_MAX;++i) {
+		unsigned j;
+		for(j=0;j<INPUT_TRAK_MAX;++j) {
+			char tag_buffer[64];
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, input_trak_map_desc[j]);
+			conf_string_register_default(cfg_context, tag_buffer, "auto");
+		}
+	}
+
+	/* digital */
+	p = mame_port_list();
+	while (p->name) {
+		char tag_buffer[64];
+		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
+		conf_string_register_default(cfg_context, tag_buffer, "auto");
+		++p;
+	}
+
+	joystickb_reg(cfg_context, 0);
+	joystickb_reg_driver_all(cfg_context);
+	mouseb_reg(cfg_context, 0);
+	mouseb_reg_driver_all(cfg_context);
+	keyb_reg(cfg_context, 1);
+	keyb_reg_driver_all(cfg_context);
+
+	context->state.active_flag = 0;
+	context->config.digital_mac = 0;
+
+	return 0;
+}
+
+void advance_input_done(struct advance_input_context* context)
+{
+	assert(context->state.active_flag == 0);
+}
+
+adv_error advance_input_inner_init(struct advance_input_context* context, adv_conf* cfg_context)
+{
+	unsigned i;
+
+	assert(context->state.active_flag == 0);
+
+	if (joystickb_init() != 0) {
+		target_err("%s\n", error_get());
+		goto err;
+	}
+
+	if (mouseb_init() != 0) {
+		target_err("%s\n", error_get());
+		goto err_joystick;
+	}
+
+	if (keyb_init(context->config.disable_special_flag) != 0) {
+		target_err("%s\n", error_get());
+		goto err_mouse;
+	}
+
+	/* the map loading requires the joystick/mouse/keyboard initialized */
+	if (input_load_map(context, cfg_context) != 0) {
+		goto err_key;
+	}
+
+	input_setup(context);
+
+	context->state.input_current_clock = target_clock();
+	context->state.input_idle_clock = context->state.input_current_clock;
+	context->state.input_on_this_frame_flag = 0;
+
+	context->state.active_flag = 1;
+
+	return 0;
+err_key:
+	keyb_done();
+err_mouse:
+	mouseb_done();
+err_joystick:
+	joystickb_done();
+err:
+	return -1;
+}
+
+void advance_input_inner_done(struct advance_input_context* context)
+{
+	keyb_done();
+	mouseb_done();
+	joystickb_done();
+
+	context->state.active_flag = 0;
+}
+
+static void input_mouse_update(struct advance_input_context* context)
+{
+	unsigned i, j;
+
+	for(i=0;i<mouseb_count_get() && i<INPUT_MOUSE_MAX;++i) {
+		for(j=0;j<mouseb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
+			context->state.mouse_button_current[i][j] = mouseb_button_get(i, j);
+			if (context->state.mouse_button_current[i][j])
+				input_something_pressed(context);
+		}
+
+		for(j=0;j<mouseb_axe_count_get(i) && j<INPUT_AXE_MAX;++j) {
+			context->state.mouse_analog_current[i][j] = mouseb_axe_get(i, j);
+			if (context->state.mouse_analog_current[i][j])
+				input_something_pressed(context);
+		}
+	}
+}
+
+static void input_joystick_update(struct advance_input_context* context)
+{
+	unsigned i, j, k, w;
+
+	for(i=0;i<joystickb_count_get() && i<INPUT_JOY_MAX;++i) {
+		for(j=0;j<joystickb_stick_count_get(i) && j<INPUT_STICK_MAX;++j) {
+			for(k=0;k<joystickb_stick_axe_count_get(i, j) && k<INPUT_AXE_MAX;++k) {
+				context->state.joystick_analog_current[i][j][k] = joystickb_stick_axe_analog_get(i, j, k);
+				if (context->state.joystick_analog_current[i][j][k])
+					input_something_pressed(context);
+
+				for(w=0;w<2 && w<INPUT_DIR_MAX;++w) {
+					context->state.joystick_digital_current[i][j][k][w] = joystickb_stick_axe_digital_get(i, j, k, w);
+					if (context->state.joystick_digital_current[i][j][k][w])
+						input_something_pressed(context);
+				}
+			}
+		}
+
+		for(j=0;j<joystickb_button_count_get(i) && j<INPUT_BUTTON_MAX;++j) {
+			context->state.joystick_button_current[i][j] = joystickb_button_get(i, j);
+			if (context->state.joystick_button_current[i][j])
+				input_something_pressed(context);
+		}
+	}
+}
+
+void advance_input_force_exit(struct advance_input_context* context)
+{
+	assert(context->state.active_flag != 0);
+
+	context->state.input_forced_exit_flag = 1;
+}
+
+void advance_input_update(struct advance_input_context* context, adv_bool is_pause)
+{
+	assert(context->state.active_flag != 0);
+
+	os_poll();
+	keyb_poll();
+	mouseb_poll();
+	joystickb_poll();
+
+	input_keyboard_update(context);
+	input_mouse_update(context);
+	input_joystick_update(context);
+
+	/* forced exit due idle timeout */
+	if (context->config.input_idle_limit && (context->state.input_current_clock - context->state.input_idle_clock) > context->config.input_idle_limit * TARGET_CLOCKS_PER_SEC) {
+		context->state.input_forced_exit_flag = 1;
+	}
+
+	/* forced exit requested by the operating system */
+	if (os_is_quit()) {
+		context->state.input_forced_exit_flag = 1;
+	}
+
+	context->state.input_current_clock = target_clock();
+
+	if (context->state.input_on_this_frame_flag || is_pause) {
+		context->state.input_on_this_frame_flag = 0;
+		context->state.input_idle_clock = context->state.input_current_clock;
+	}
+}
+
+adv_error advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context)
+{
+	const char* s;
+	unsigned i, j;
+	struct mame_port* p;
+
+	context->config.disable_special_flag = !conf_bool_get_default(cfg_context, "input_hotkey");
+	context->config.steadykey_flag = conf_bool_get_default(cfg_context, "input_steadykey");
+	context->config.input_idle_limit = conf_int_get_default(cfg_context, "input_idleexit");
 
 	if (joystickb_load(cfg_context) != 0) {
 		return -1;

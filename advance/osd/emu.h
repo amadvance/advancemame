@@ -588,7 +588,7 @@ struct advance_input_context {
 
 adv_error advance_input_init(struct advance_input_context* context, adv_conf* cfg_context);
 void advance_input_done(struct advance_input_context* context);
-adv_error advance_input_inner_init(struct advance_input_context* context);
+adv_error advance_input_inner_init(struct advance_input_context* context, adv_conf* cfg_context);
 void advance_input_inner_done(struct advance_input_context* context);
 void advance_input_update(struct advance_input_context* context, adv_bool is_pause);
 adv_error advance_input_config_load(struct advance_input_context* context, adv_conf* cfg_context);

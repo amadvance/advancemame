@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 1999-2003 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -293,13 +293,5 @@ adv_bool key_is_defined(unsigned code)
 			return 1;
 
 	return 0;
-}
-
-/**
- * Check if a key code is a defined code and if it's a standard key.
- */
-adv_bool key_is_standard(unsigned code)
-{
-	return code < KEYB_STOP && key_is_defined(code);
 }
 
