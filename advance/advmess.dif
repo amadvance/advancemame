@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive srcmess.ori/advance.pat srcmess/advance.pat
 --- srcmess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ srcmess/advance.pat	2003-08-15 09:00:26.000000000 +0200
++++ srcmess/advance.pat	2003-09-08 19:09:02.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive srcmess.ori/common.c srcmess/common.c
---- srcmess.ori/common.c	2003-08-10 16:47:51.000000000 +0200
-+++ srcmess/common.c	2003-08-22 13:48:10.000000000 +0200
+--- srcmess.ori/common.c	2003-08-09 02:53:08.000000000 +0200
++++ srcmess/common.c	2003-09-08 19:09:02.000000000 +0200
 @@ -733,10 +733,11 @@
  /*-------------------------------------------------
  	save_screen_snapshot_as - save a snapshot to
@@ -64,8 +64,8 @@ diff -U 5 --new-file --recursive srcmess.ori/common.c srcmess/common.c
  		{
  			int k;
 diff -U 5 --new-file --recursive srcmess.ori/cpu/i8085/i8085.c srcmess/cpu/i8085/i8085.c
---- srcmess.ori/cpu/i8085/i8085.c	2002-12-09 21:48:46.000000000 +0100
-+++ srcmess/cpu/i8085/i8085.c	2003-08-15 09:00:26.000000000 +0200
+--- srcmess.ori/cpu/i8085/i8085.c	2003-09-03 22:05:58.000000000 +0200
++++ srcmess/cpu/i8085/i8085.c	2003-09-08 19:09:02.000000000 +0200
 @@ -80,10 +80,16 @@
   * 
   *****************************************************************************/
@@ -85,7 +85,7 @@ diff -U 5 --new-file --recursive srcmess.ori/cpu/i8085/i8085.c srcmess/cpu/i8085
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive srcmess.ori/cpu/m68000/make68k.c srcmess/cpu/m68000/make68k.c
 --- srcmess.ori/cpu/m68000/make68k.c	2003-06-09 20:34:00.000000000 +0200
-+++ srcmess/cpu/m68000/make68k.c	2003-08-15 09:00:26.000000000 +0200
++++ srcmess/cpu/m68000/make68k.c	2003-09-08 19:09:02.000000000 +0200
 @@ -188,11 +188,11 @@
  
  
@@ -134,7 +134,7 @@ diff -U 5 --new-file --recursive srcmess.ori/cpu/m68000/make68k.c srcmess/cpu/m6
  
 diff -U 5 --new-file --recursive srcmess.ori/cpu/z80/z80.c srcmess/cpu/z80/z80.c
 --- srcmess.ori/cpu/z80/z80.c	2003-02-27 23:02:44.000000000 +0100
-+++ srcmess/cpu/z80/z80.c	2003-08-15 09:00:26.000000000 +0200
++++ srcmess/cpu/z80/z80.c	2003-09-08 19:09:02.000000000 +0200
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -154,7 +154,7 @@ diff -U 5 --new-file --recursive srcmess.ori/cpu/z80/z80.c srcmess/cpu/z80/z80.c
  #else
 diff -U 5 --new-file --recursive srcmess.ori/cpuexec.c srcmess/cpuexec.c
 --- srcmess.ori/cpuexec.c	2003-06-09 20:33:52.000000000 +0200
-+++ srcmess/cpuexec.c	2003-08-15 09:00:26.000000000 +0200
++++ srcmess/cpuexec.c	2003-09-08 19:09:02.000000000 +0200
 @@ -310,10 +310,13 @@
  	watchdog_counter = -1;
  
@@ -169,101 +169,9 @@ diff -U 5 --new-file --recursive srcmess.ori/cpuexec.c srcmess/cpuexec.c
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
-diff -U 5 --new-file --recursive srcmess.ori/info.c srcmess/info.c
---- srcmess.ori/info.c	2003-08-10 16:47:52.000000000 +0200
-+++ srcmess/info.c	2003-08-27 16:58:50.000000000 +0200
-@@ -811,10 +811,41 @@
- 	fprintf(out, SELECT(L2P "palettesize %d" L2N, " palettesize=\"%d\""), driver.total_colors);
- 
- 	fprintf(out, SELECT(L2E L1N, "/>\n"));
- }
- 
-+#ifdef MESS
-+static void print_game_device(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
-+{
-+	const struct IODevice* dev = device_first(game);
-+
-+	while (dev) {
-+		fprintf(out, SELECT(L1P "device" L2B, "\t\t<device"));
-+		fprintf(out, SELECT(L2P "name ", " name=\""));
-+		print_statement_string(OUTPUT_XML, out, device_typename(dev->type));
-+		fprintf(out, "%s", SELECT(L2N, "\""));
-+		fprintf(out, "%s", SELECT("", ">\n"));
-+
-+		if (dev->file_extensions) {
-+			const char* ext = dev->file_extensions;
-+			while (*ext) {
-+				fprintf(out, SELECT(L2P "ext ", "\t\t\t<extension"));
-+				fprintf(out, "%s", SELECT("", " name=\""));
-+				print_free_string(OUTPUT_XML, out, ext);
-+				fprintf(out, "%s", SELECT(L2N, "\""));
-+				fprintf(out, "%s", SELECT("", "/>\n"));
-+				ext += strlen(ext) + 1;
-+			}
-+		}
-+
-+		fprintf(out, SELECT(L2E L1N, "\t\t</device>\n"));
-+
-+		dev = device_next(game, dev);
-+	}
-+}
-+#endif
-+
- /* Print the MAME info record for a game */
- static void print_game_info(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
- {
- 	extern struct GameDriver driver_0;
- 
-@@ -858,10 +889,13 @@
- 	print_game_video(OUTPUT_XML, out, game);
- 	print_game_sound(OUTPUT_XML, out, game);
- 	print_game_input(OUTPUT_XML, out, game);
- 	print_game_switch(OUTPUT_XML, out, game);
- 	print_game_driver(OUTPUT_XML, out, game);
-+#ifdef MESS
-+	print_game_device(OUTPUT_XML, out, game);
-+#endif
- 
- 	fprintf(out, SELECT(L1E, "\t</" XML_TOP ">\n"));
- }
- 
- #if !defined(MESS) && !defined(TINY_COMPILE) && !defined(CPSMAME) && !defined(MMSND)
-@@ -943,11 +977,15 @@
- {
- 	fprintf(out,
- 		"<?xml version=\"1.0\"?>\n"
- 		"<!DOCTYPE " XML_ROOT " [\n"
- 		"<!ELEMENT " XML_ROOT " (" XML_TOP "+)>\n"
-+#ifdef MESS
-+		"\t<!ELEMENT " XML_TOP " (description, year?, manufacturer, history?, biosset*, rom*, disk*, sample*, chip*, video?, sound?, input?, dipswitch*, driver?, device*)>\n"
-+#else
- 		"\t<!ELEMENT " XML_TOP " (description, year?, manufacturer, history?, biosset*, rom*, disk*, sample*, chip*, video?, sound?, input?, dipswitch*, driver?)>\n"
-+#endif
- 		"\t\t<!ATTLIST " XML_TOP " name CDATA #REQUIRED>\n"
- 		"\t\t<!ATTLIST " XML_TOP " runnable (yes|no) \"yes\">\n"
- 		"\t\t<!ATTLIST " XML_TOP " cloneof CDATA #IMPLIED>\n"
- 		"\t\t<!ATTLIST " XML_TOP " romof CDATA #IMPLIED>\n"
- 		"\t\t<!ATTLIST " XML_TOP " sampleof CDATA #IMPLIED>\n"
-@@ -1010,10 +1048,16 @@
- 		"\t\t<!ELEMENT driver EMPTY>\n"
- 		"\t\t\t<!ATTLIST driver status (good|preliminary|test) #REQUIRED>\n"
- 		"\t\t\t<!ATTLIST driver color (good|imperfect|preliminary) #REQUIRED>\n"
- 		"\t\t\t<!ATTLIST driver sound (good|imperfect|preliminary) #REQUIRED>\n"
- 		"\t\t\t<!ATTLIST driver palettesize CDATA #REQUIRED>\n"
-+#ifdef MESS
-+		"\t\t<!ELEMENT device (extension*)>\n"
-+		"\t\t\t<!ATTLIST device name CDATA #REQUIRED>\n"
-+		"\t\t\t<!ELEMENT extension EMPTY>\n"
-+		"\t\t\t\t<!ATTLIST extension name CDATA #REQUIRED>\n"
-+#endif
- 		"]>\n\n"
- 		"<" XML_ROOT ">\n"
- 	);
- 
- 	print_mame_data(1, out, games);
 diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
---- srcmess.ori/inptport.c	2003-07-29 05:02:11.000000000 +0200
-+++ srcmess/inptport.c	2003-08-15 09:00:26.000000000 +0200
+--- srcmess.ori/inptport.c	2003-09-04 23:11:25.000000000 +0200
++++ srcmess/inptport.c	2003-09-08 19:09:05.000000000 +0200
 @@ -200,10 +200,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
@@ -291,7 +199,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
-@@ -1883,14 +1888,16 @@
+@@ -2332,14 +2337,16 @@
  		int new, prev;
  
  		/* center stick */
@@ -313,8 +221,8 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
 diff -U 5 --new-file --recursive srcmess.ori/inptport.h srcmess/inptport.h
---- srcmess.ori/inptport.h	2003-08-10 16:47:52.000000000 +0200
-+++ srcmess/inptport.h	2003-08-15 09:00:26.000000000 +0200
+--- srcmess.ori/inptport.h	2003-09-03 22:06:04.000000000 +0200
++++ srcmess/inptport.h	2003-09-08 19:09:05.000000000 +0200
 @@ -87,10 +87,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
@@ -332,9 +240,9 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.h srcmess/inptport.h
  	IPT_UI_RESET_MACHINE,
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive srcmess.ori/input.c srcmess/input.c
---- srcmess.ori/input.c	2003-08-10 16:47:52.000000000 +0200
-+++ srcmess/input.c	2003-08-15 09:00:26.000000000 +0200
-@@ -789,11 +789,11 @@
+--- srcmess.ori/input.c	2003-09-03 22:06:04.000000000 +0200
++++ srcmess/input.c	2003-09-08 19:09:05.000000000 +0200
+@@ -812,11 +812,11 @@
  {
  	int pressed;
  
@@ -347,7 +255,7 @@ diff -U 5 --new-file --recursive srcmess.ori/input.c srcmess/input.c
  	{
  		if (ui_map[code].memory == 0)
  		{
-@@ -813,11 +813,11 @@
+@@ -836,11 +836,11 @@
  	static int counter,inputdelay;
  	int pressed;
  
@@ -362,7 +270,7 @@ diff -U 5 --new-file --recursive srcmess.ori/input.c srcmess/input.c
  		{
 diff -U 5 --new-file --recursive srcmess.ori/mame.c srcmess/mame.c
 --- srcmess.ori/mame.c	2003-08-08 19:23:15.000000000 +0200
-+++ srcmess/mame.c	2003-08-15 09:00:26.000000000 +0200
++++ srcmess/mame.c	2003-09-08 19:09:05.000000000 +0200
 @@ -986,26 +986,20 @@
  	to a given resolution
  -------------------------------------------------*/
@@ -402,7 +310,7 @@ diff -U 5 --new-file --recursive srcmess.ori/mame.c srcmess/mame.c
  /*-------------------------------------------------
 diff -U 5 --new-file --recursive srcmess.ori/mame.h srcmess/mame.h
 --- srcmess.ori/mame.h	2003-06-11 05:14:49.000000000 +0200
-+++ srcmess/mame.h	2003-08-15 09:00:26.000000000 +0200
++++ srcmess/mame.h	2003-09-08 19:09:05.000000000 +0200
 @@ -363,8 +363,9 @@
  /* return the index of the given CPU, or -1 if not found */
  int mame_find_cpu_index(const char *tag);
@@ -414,8 +322,8 @@ diff -U 5 --new-file --recursive srcmess.ori/mame.h srcmess/mame.h
  
  #endif
 diff -U 5 --new-file --recursive srcmess.ori/osdepend.h srcmess/osdepend.h
---- srcmess.ori/osdepend.h	2003-08-10 16:47:52.000000000 +0200
-+++ srcmess/osdepend.h	2003-08-25 18:36:22.000000000 +0200
+--- srcmess.ori/osdepend.h	2003-08-09 02:53:02.000000000 +0200
++++ srcmess/osdepend.h	2003-09-08 19:09:05.000000000 +0200
 @@ -391,10 +391,38 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
@@ -456,8 +364,8 @@ diff -U 5 --new-file --recursive srcmess.ori/osdepend.h srcmess/osdepend.h
  
  #endif
 diff -U 5 --new-file --recursive srcmess.ori/rules.mak srcmess/rules.mak
---- srcmess.ori/rules.mak	2003-08-10 16:47:52.000000000 +0200
-+++ srcmess/rules.mak	2003-08-15 09:11:28.000000000 +0200
+--- srcmess.ori/rules.mak	2003-09-03 22:06:06.000000000 +0200
++++ srcmess/rules.mak	2003-09-08 19:09:05.000000000 +0200
 @@ -1010,16 +1010,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
@@ -481,7 +389,7 @@ diff -U 5 --new-file --recursive srcmess.ori/rules.mak srcmess/rules.mak
  endif
  
  CPU=$(strip $(findstring SPC700@,$(CPUS)))
-@@ -1060,13 +1060,13 @@
+@@ -1070,13 +1070,13 @@
  
  SOUND=$(strip $(findstring DISCRETE@,$(SOUNDS)))
  ifneq ($(SOUND),)
@@ -499,8 +407,8 @@ diff -U 5 --new-file --recursive srcmess.ori/rules.mak srcmess/rules.mak
  
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
 diff -U 5 --new-file --recursive srcmess.ori/ui_text.c srcmess/ui_text.c
---- srcmess.ori/ui_text.c	2003-07-24 22:35:02.000000000 +0200
-+++ srcmess/ui_text.c	2003-08-15 09:00:26.000000000 +0200
+--- srcmess.ori/ui_text.c	2003-09-03 22:06:06.000000000 +0200
++++ srcmess/ui_text.c	2003-09-08 19:09:05.000000000 +0200
 @@ -240,10 +240,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -517,8 +425,8 @@ diff -U 5 --new-file --recursive srcmess.ori/ui_text.c srcmess/ui_text.c
  int uistring_init (mame_file *langfile)
  {
 diff -U 5 --new-file --recursive srcmess.ori/ui_text.h srcmess/ui_text.h
---- srcmess.ori/ui_text.h	2003-07-24 22:35:02.000000000 +0200
-+++ srcmess/ui_text.h	2003-08-15 09:00:26.000000000 +0200
+--- srcmess.ori/ui_text.h	2003-09-03 22:06:06.000000000 +0200
++++ srcmess/ui_text.h	2003-09-08 19:09:05.000000000 +0200
 @@ -206,10 +206,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -535,8 +443,8 @@ diff -U 5 --new-file --recursive srcmess.ori/ui_text.h srcmess/ui_text.h
  struct lang_struct
  {
 diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
---- srcmess.ori/usrintrf.c	2003-07-24 22:35:02.000000000 +0200
-+++ srcmess/usrintrf.c	2003-08-25 18:54:05.000000000 +0200
+--- srcmess.ori/usrintrf.c	2003-09-04 23:11:47.000000000 +0200
++++ srcmess/usrintrf.c	2003-09-08 19:09:05.000000000 +0200
 @@ -858,12 +858,16 @@
  	while (items[i])
  	{
@@ -718,7 +626,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  #ifdef XMAME
  extern int setrapidfire(struct mame_bitmap *bitmap, int selected);
-@@ -3189,10 +3237,11 @@
+@@ -3210,10 +3258,11 @@
  #endif
  #endif
  #endif
@@ -730,7 +638,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3259,10 +3308,13 @@
+@@ -3280,10 +3329,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -744,7 +652,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  #ifndef CPSMAME
  #ifndef MMSND
  			case UI_MEMCARD:
-@@ -3317,10 +3369,11 @@
+@@ -3338,10 +3390,11 @@
  			case UI_CONFIGURATION:
  #endif /* !MESS */
  			case UI_HISTORY:
@@ -756,7 +664,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				break;
  
  			case UI_RESET:
-@@ -4006,22 +4059,23 @@
+@@ -4027,22 +4080,23 @@
  {
  #ifdef MESS
  	extern int mess_pause_for_ui;
@@ -787,7 +695,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  		setup_selected = -1;
  		if (osd_selected != 0)
  		{
-@@ -4132,12 +4186,15 @@
+@@ -4153,12 +4207,15 @@
  				draw_screen();
  			}
  			profiler_mark(PROFILER_END);
@@ -805,7 +713,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4146,11 +4203,11 @@
+@@ -4167,11 +4224,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);

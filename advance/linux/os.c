@@ -138,12 +138,13 @@ int os_inner_init(const char* title)
 		log_std(("os: machine %s\n", uts.machine));
 	}
 
-	/* save term */
+	/* save term if possible */
 	if (tcgetattr(fileno(stdin), &OS.term) != 0) {
-		target_err("Error getting the tty state.\n");
-		return -1;
+		log_std(("ERROR:os: error getting the tty state.\n"));
+		OS.term_active = 0;
+	} else {
+		OS.term_active = 1;
 	}
-	OS.term_active = 1;
 
 	/* print the compiler version */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
@@ -484,9 +485,11 @@ void os_default_signal(int signum)
 
 	target_mode_reset();
 
-	if (tcsetattr(fileno(stdin), TCSAFLUSH, &OS.term) != 0) {
-		/* ignore error */
-		log_std(("os: tcsetattr(TCSAFLUSH) failed\n"));
+	if (OS.term_active) {
+		if (tcsetattr(fileno(stdin), TCSAFLUSH, &OS.term) != 0) {
+			/* ignore error */
+			log_std(("os: tcsetattr(TCSAFLUSH) failed\n"));
+		}
 	}
 
 	log_std(("os: close log\n"));

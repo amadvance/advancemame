@@ -2,11 +2,11 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.72.0.0
+EMUVERSION = 0.73.0.0
 else
-EMUVERSION = 0.72.0
+EMUVERSION = 0.73.0
 endif
-MENUVERSION = 2.2.10
+MENUVERSION = 2.2.11
 CABVERSION = 1.1.4
 
 ############################################################################
@@ -34,7 +34,9 @@ endif
 
 ifneq ($(wildcard $(EMUSRC)),)
 INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
+ifneq ($(CONF_EMU),mess)
 INSTALL_DATAFILES += $(srcdir)/support/event.dat
+endif
 INSTALL_MANFILES += $(DOCOBJ)/advmame.1
 ifeq ($(CONF_EMU),mess)
 INSTALL_MANFILES += $(srcdir)/support/advmess.1
@@ -432,9 +434,9 @@ wholecab:
 	$(MAKE) $(ARCH_I386) CONF=no CONF_HOST=windows distcabbin
 
 wholewin:
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=windows distbin
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
-	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=windows distmenubin
+	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distbin
+	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distmenubin
 
 distmess:
 	$(MAKE) CONF=no CONF_EMU=mess dist

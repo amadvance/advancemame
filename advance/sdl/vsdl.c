@@ -999,4 +999,3 @@ int os_internal_sdl_is_video_mode_active(void)
 	return sdl_is_active() && sdl_mode_is_active();
 }
 
-

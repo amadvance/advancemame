@@ -1,6 +1,16 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.73.0 2003/09
+	) Fixed some problems on the SDL keyboard driver in the
+		Windows version.
+	) Added a preliminary support for newer Radeon boards for the
+		DOS version.
+	) The Linux version now works also if it cannot read the tty state.
+
+AdvanceMESS Version 0.73.0.0 2003/09
+	) All from AdvanceMAME 0.73.0.
+
 AdvanceMAME Version 0.72.0 2003/09
 	) Added a new option `sound_normalize' which automatically increase
 		the volume of games with a too lower one. It's enabled by default.
@@ -1147,4 +1157,34 @@ AdvanceMAME Version 0.35.0 1999/07
 AdvanceMAME Version 0.35rc2.0 1999/06
 
 AdvanceMAME Version 0.35rc1.0 1999/06
+
+AdvanceMAME Version 0.34rc1.0 1998/12
+
+AdvanceMAME Version 0.34b8.0 1998/12
+
+AdvanceMAME Version 0.34b7.0 1998/12
+
+AdvanceMAME Version 0.34b6.0 1998/11
+
+AdvanceMAME Version 0.34b5.0 1998/10
+
+AdvanceMAME Version 0.34b4.0 1998/10
+
+AdvanceMAME Version 0.34b3.0 1998/09
+
+AdvanceMAME Version 0.34b2.0 1998/09
+
+AdvanceMAME Version 0.34b1.0 1998/08
+
+AdvanceMAME Version 0.33.0 1998/08
+
+AdvanceMAME Version 0.33b8.0 1998/08
+
+AdvanceMAME Version 0.33b7.0 1998/07
+
+AdvanceMAME Version 0.33b6.0 1998/07
+
+AdvanceMAME Version 0.33b5.0 1998/06
+
+AdvanceMAME Version 0.31.0 1998/05
 

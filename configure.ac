@@ -245,7 +245,7 @@ if test $ac_with_emu = mame -o $ac_with_emu = neomame -o $ac_with_emu = cpmame -
 		AC_MSG_ERROR([you must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch. Check the BUILD file for instructions.])
 	fi
 elif test $ac_with_emu = mess; then
-	if test ! -f $srcdir/srcmess/mame.mak ; then
+	if test ! -f $srcdir/srcmess/core.mak ; then
 		AC_MSG_ERROR([you need the MESS source in the $srcdir/srcmess/ directory. Check the BUILD file for instructions.])
 	fi
 	if test ! -f $srcdir/mess/mess.mak ; then

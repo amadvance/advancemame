@@ -8,7 +8,6 @@ cheat.h
 common.c
 common.h
 core.mak
-cpmame.mak
 cpuexec.c
 cpuexec.h
 cpuint.c
@@ -27,7 +26,6 @@ harddisk.c
 harddisk.h
 hash.c
 hash.h
-hdcomp.c
 hiscore.c
 hiscore.h
 info.c
@@ -57,7 +55,6 @@ png.c
 png.h
 profiler.c
 profiler.h
-romcmp.c
 sha1.c
 sha1.h
 sndintrf.c
@@ -79,11 +76,7 @@ window.c
 window.h
 x86drc.c
 x86drc.h
-makelist.pl
-mame.mak
-neomame.mak
 rules.mak
-tiny.mak
 cpu/arm
 cpu/g65816
 cpu/h6280

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if ! test -f $1/mame.mak ; then
-	echo Syntax: stripmame src
+if ! test -f $1/core.mak ; then
+	echo Syntax: stripmess src
 	exit 1
 fi
 

@@ -1,0 +1,5 @@
+This is an adaption of the expat-1.95.6 library to be directly
+included in a source project.
+
+The patch expat-1.95.6.diff contains the difference
+from the original library.

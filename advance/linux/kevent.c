@@ -720,7 +720,7 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 	log_std(("keyb:event: keyb_event_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
 	if (getenv("DISPLAY")) {
-		error_set("Unsupported in X.\n");
+		error_set("Unsupported in X. Try unsetting the DISPLAY environemnt variable.\n");
 		return -1;
 	}
 

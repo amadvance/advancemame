@@ -218,7 +218,7 @@ void os_default_signal(int signum)
 {
 	log_std(("os: signal %d\n", signum));
 
-#if defined(USE_VIDEO_SDL)
+#if defined(USE_VIDEO_SDL) || defined(USE_VIDEO_SVGAWIN)
 	log_std(("os: video_abort\n"));
 	{
 		extern void video_abort(void);

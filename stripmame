@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ! test -f $1/mame.mak ; then
+if ! test -f $1/core.mak ; then
 	echo Syntax: stripmame src
 	exit 1
 fi
@@ -10,10 +10,17 @@ if test -e $1.complete ; then
 	exit 1
 fi
 
-cp -a $1 $1.complete
+mv $1 $1.complete
 
-rm -rf $1/windows
-rm -rf $1/unix
-rm -rf $1/msdos
-rm -rf $1/xml2info
+mkdir $1
+
+LIST=`cat stripmame.lst`
+
+if test -e $1.complete/advance.pat ; then
+	cp -a $1.complete/advance.pat $1
+fi
+
+for FILE in $LIST ; do
+	cp -a $1.complete/$FILE $1/$FILE
+done
 

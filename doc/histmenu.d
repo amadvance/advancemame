@@ -1,6 +1,13 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.2.11 2003/09
+	) Fixed some problems on the SDL keyboard driver in the
+		Windows version.
+	) Added a preliminary support for newer Radeon boards for the
+		DOS version.
+	) The Linux version now works also if it cannot read the tty state.
+
 AdvanceMENU Version 2.2.10 2003/09
 	) Added a new set of Linux input driver for keyboards, mice
 		and joysticks based on the Linux input-event interfaces.

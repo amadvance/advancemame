@@ -357,7 +357,7 @@ static adv_error fb_detect(void)
 
 	if (strstr(fb_state.fixinfo.id, "nVidia")!=0) {
 		log_std(("video:fb: disable doublescan modes, not supported by the nVidia driver\n"));
-		/* the Linux 2.4.20/2.4.21 driver doesn't support doublescan */
+		/* the Linux 2.4.20/2.4.21/2.4.22 driver doesn't support doublescan */
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
 	}
 
@@ -387,7 +387,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 	}
 
 	if (getenv("DISPLAY")) {
-		error_set("Unsupported in X.\n");
+		error_set("Unsupported in X. Try unsetting the DISPLAY environemnt variable.\n");
 		return -1;
 	}
 

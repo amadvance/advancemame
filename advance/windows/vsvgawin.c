@@ -253,7 +253,7 @@ static void SDL_WM_DefIcon(void)
 
 adv_bool svgawin_is_active(void)
 {
-	 return svgawin_state.active != 0;
+	return svgawin_state.active != 0;
 }
 
 adv_bool svgawin_mode_is_active(void)
@@ -405,7 +405,7 @@ adv_error svgawin_init(int device_id, adv_output output, unsigned zoom_size, adv
 	if (!svgawin_option.initialized) {
 		svgawin_default();
 	}
-	
+
 	svgawin_state.mode_active = 0;
 	svgawin_state.lock_active = 0;
 
@@ -476,7 +476,7 @@ void svgawin_write_lock(void)
 				SDL_Delay(1);
 			}
 		}
-	}		
+	}
 
 	svgawin_state.lock_active = 1;
 }
@@ -540,7 +540,7 @@ void svgawin_mode_done(adv_bool restore)
 		/* restore the register only if required */
 		if (restore) {
 			/* first return to the original Windows mode */
-			windows_restore();			
+			windows_restore();
 			/* set the original registers */
 			adv_svgalib_restore(svgawin_state.regs_saved);
 		}
@@ -550,9 +550,9 @@ void svgawin_mode_done(adv_bool restore)
 	}
 	if (svgawin_option.stub == STUB_FULLSCREEN) {
 		/* on fullscreen stub mode the sdl always reset the screen, so we need to always restore the registers */
-		
+
 		/* first return to the original Windows mode */
-		windows_restore();			
+		windows_restore();
 		/* set the original registers */
 		adv_svgalib_restore(svgawin_state.regs_saved);
 	}
@@ -610,7 +610,7 @@ static adv_error sdl_mode_set(const svgawin_video_mode* mode)
 		sflags = "SDL_FULLSCREEN | SDL_HWSURFACE";
 	} else {
 		flags = 0;
-		sflags = "0";		
+		sflags = "0";
 	}
 
 	log_std(("video:svgawin: call SDL_SetVideoMode(%d, %d, %d, %s)\n", x, y, bits, sflags));
@@ -740,7 +740,7 @@ adv_error svgawin_mode_set(const svgawin_video_mode* mode)
 
 	log_std(("video:svgawin: unlock the video memory\n"));
 	svgawin_write_unlock(0, 0, 0, 0);
-	
+
 	svgawin_state.mode_active = 1;
 
 	return 0;
@@ -918,7 +918,7 @@ adv_error svgawin_mode_generate(svgawin_video_mode* mode, const adv_crtc* crtc, 
 		error_nolog_set("Generic error checking the availability of the video mode.\n");
 		return -1;
 	}
-	
+
 	mode->crtc = *crtc;
 	mode->index = flags & MODE_FLAGS_INDEX_MASK;
 
@@ -1045,4 +1045,18 @@ adv_video_driver video_svgawin_driver = {
 	svgawin_mode_compare_void,
 	svgawin_crtc_container_insert_default
 };
+
+/***************************************************************************/
+/* Internal interface */
+
+int os_internal_svgawin_is_video_active(void)
+{
+	return svgawin_is_active();
+}
+
+int os_internal_svgawin_is_video_mode_active(void)
+{
+	return svgawin_is_active() && svgawin_mode_is_active();
+}
+
 

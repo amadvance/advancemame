@@ -438,7 +438,8 @@ endif
 ifeq ($(CONF_EMU),mess)
 EMUCFLAGS += \
 	-I$(srcdir)/mess \
-	-DUNIX
+	-DUNIX \
+	-Dvga_init=mess_vga_init
 # -DUNIX is required by the MESS source
 endif
 EMUCFLAGS += \
