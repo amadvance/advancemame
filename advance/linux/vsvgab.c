@@ -171,6 +171,7 @@ adv_error svgalib_init(int device_id, adv_output output)
 	}
 
 	switch (chipset) {
+	case NV3 : /* TNT support interlace, but GeForge not */
 	case RENDITION :
 	case PM2 :
 	case I740 :

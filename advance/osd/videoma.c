@@ -198,7 +198,7 @@ static adv_bool video_is_generable(struct advance_video_context* context)
  * Adjust the CRTC value.
  * \return 0 on success
  */
-static int video_make_crtc(struct advance_video_context* context, adv_crtc* crtc, const adv_crtc* original_crtc)
+static adv_error video_make_crtc(struct advance_video_context* context, adv_crtc* crtc, const adv_crtc* original_crtc)
 {
 	*crtc = *original_crtc;
 
@@ -335,7 +335,7 @@ static void video_update_sync(struct advance_video_context* context)
  * Select the video depth.
  * \return 0 on success
  */
-static int video_update_index(struct advance_video_context* context)
+static adv_error video_update_index(struct advance_video_context* context)
 {
 	unsigned select_pref_palette8[] = { MODE_FLAGS_INDEX_PALETTE8, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR8, MODE_FLAGS_INDEX_YUY2, 0 };
 	unsigned select_pref_bgr8[] = { MODE_FLAGS_INDEX_BGR8, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_YUY2, 0 };
@@ -447,7 +447,7 @@ static int video_update_index(struct advance_video_context* context)
  * Create the video mode from the crtc.
  * \return 0 on success
  */
-static int video_make_mode(struct advance_video_context* context, adv_mode* mode, const adv_crtc* crtc)
+static adv_error video_make_mode(struct advance_video_context* context, adv_mode* mode, const adv_crtc* crtc)
 {
 	if (video_mode_generate(mode, crtc, context->state.mode_index)!=0) {
 		log_std(("ERROR:emu:video: video_mode_generate failed '%s'\n", error_get()));
@@ -485,7 +485,7 @@ static void video_invalidate_screen(void)
  * The mode is copyed in the context if it is set with success.
  * \return 0 on success
  */
-static int video_init_mode(struct advance_video_context* context, adv_mode* mode)
+static adv_error video_init_mode(struct advance_video_context* context, adv_mode* mode)
 {
 	assert( !context->state.mode_flag );
 
@@ -511,7 +511,7 @@ static int video_init_mode(struct advance_video_context* context, adv_mode* mode
 	return 0;
 }
 
-static void video_done_mode(struct advance_video_context* context, int restore)
+static void video_done_mode(struct advance_video_context* context, adv_bool restore)
 {
 	assert( context->state.mode_flag );
 
@@ -529,7 +529,7 @@ static void video_done_mode(struct advance_video_context* context, int restore)
 	context->state.mode_flag = 0;
 }
 
-static int video_update_mode(struct advance_video_context* context, adv_mode* mode)
+static adv_error video_update_mode(struct advance_video_context* context, adv_mode* mode)
 {
 	/* destroy the pipeline, this force the pipeline update */
 	if (context->state.blit_pipeline_flag) {
@@ -788,7 +788,7 @@ static adv_bool is_crtc_acceptable(struct advance_video_context* context, const 
  *  - !=0 ok
  *  - ==0 error
  */
-static int is_crtc_acceptable_preventive(struct advance_video_context* context, const adv_crtc* crtc)
+static adv_bool is_crtc_acceptable_preventive(struct advance_video_context* context, const adv_crtc* crtc)
 {
 	adv_mode mode;
 	adv_crtc temp_crtc = *crtc;
@@ -983,7 +983,7 @@ static int video_resolution_cmp(const char* resolution, const char* name)
 /**
  * Select the current video configuration.
  */
-static int video_update_crtc(struct advance_video_context* context)
+static adv_error video_update_crtc(struct advance_video_context* context)
 {
 	adv_crtc_container_iterator i;
 	const adv_crtc* crtc = 0;
@@ -1059,11 +1059,11 @@ static int video_update_crtc(struct advance_video_context* context)
 /**
  * Compute and insert in the main list a new modeline with the specified parameter.
  */
-static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y, double vclock, int force_scanline, int force_interlace)
+static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y, double vclock, adv_bool force_scanline, adv_bool force_interlace)
 {
 	char buffer[256];
 	adv_crtc crtc;
-	int err = -1;
+	adv_error err = -1;
 	const adv_crtc* ret;
 
 	if (force_scanline) {
@@ -1140,7 +1140,7 @@ static void video_init_crtc_make_vector(struct advance_video_context* context, c
 {
 	char buffer[256];
 	adv_crtc crtc;
-	int err = -1;
+	adv_error err = -1;
 
 	/* try with a perfect mode */
 	if (err != 0)
@@ -1184,7 +1184,7 @@ static unsigned best_step(unsigned value, unsigned step)
  * Initialize the state.
  * \return 0 on success
  */
-static int video_init_state(struct advance_video_context* context, struct osd_video_option* req)
+static adv_error video_init_state(struct advance_video_context* context, struct osd_video_option* req)
 {
 	unsigned best_size_x;
 	unsigned best_size_y;
@@ -1406,7 +1406,7 @@ static void video_done_state(struct advance_video_context* context)
  * Initialize the color mode
  * \return 0 on success
  */
-static int video_init_color(struct advance_video_context* context, struct osd_video_option* req)
+static adv_error video_init_color(struct advance_video_context* context, struct osd_video_option* req)
 {
 	unsigned colors;
 	unsigned i;
@@ -1476,11 +1476,14 @@ static void video_done_color(struct advance_video_context* context)
 /***************************************************************************/
 /* Frame */
 
-static inline void video_frame_resolution(struct advance_video_context* context, unsigned input)
+static inline adv_error video_frame_resolution(struct advance_video_context* context, unsigned input)
 {
-	int modify = 0;
-	int show = 0;
-	
+	adv_bool modify = 0;
+	adv_bool show = 0;
+	char old[MODE_NAME_MAX];
+
+	strcpy(old, context->config.resolution);
+
 	if (input == OSD_INPUT_MODE_NEXT) {
 		show = 1;
 		if (strcmp(context->config.resolution, "auto")==0) {
@@ -1519,17 +1522,28 @@ static inline void video_frame_resolution(struct advance_video_context* context,
 		log_std(("emu:video: select mode %s\n", context->config.resolution));
 
 		/* update all the complete state, the configuration is choosen by the name */
-		advance_video_change(context);
+		if (advance_video_change(context) != 0) {
+
+			/* it fails in some strange conditions, generally when a not supported feature is used */
+			/* for example if a interlaced mode is requested and the lower driver refuses to use it */
+			strcpy(context->config.resolution, old);
+			log_std(("emu:video: retrying old mode %s\n", context->config.resolution));
+			if (advance_video_change(context) != 0) {
+				return -1;
+			}
+		}
 	}
 
 	if (show) {
 		mame_ui_message(context->config.resolution);
 	}
+
+	return 0;
 }
 
 static inline void video_frame_pan(struct advance_video_context* context, unsigned input)
 {
-	int modify = 0;
+	adv_bool modify = 0;
 
 	if (input == OSD_INPUT_PAN_RIGHT) {
 		if (context->state.game_visible_pos_x + context->state.game_visible_size_x + context->state.game_visible_pos_x_increment <= context->state.game_used_size_x) {
@@ -1767,7 +1781,7 @@ static void event_compare(unsigned previous, unsigned current, int id)
 	}
 }
 
-void video_frame_event(struct advance_video_context* context, int leds_status, int turbo_status, unsigned input)
+void video_frame_event(struct advance_video_context* context, int leds_status, adv_bool turbo_status, unsigned input)
 {
 	unsigned event_mask = 0;
 
@@ -1800,7 +1814,7 @@ void video_frame_event(struct advance_video_context* context, int leds_status, i
 	context->state.event_mask_old = event_mask;
 }
 
-static int video_skip_dec(struct advance_video_context* context)
+static adv_bool video_skip_dec(struct advance_video_context* context)
 {
 	if (context->state.skip_level_full >= SYNC_MAX) {
 		context->state.skip_level_full = SYNC_MAX - 1;
@@ -1820,7 +1834,7 @@ static int video_skip_dec(struct advance_video_context* context)
 	return 0;
 }
 
-static int video_skip_inc(struct advance_video_context* context)
+static adv_bool video_skip_inc(struct advance_video_context* context)
 {
 	if (context->state.skip_level_skip > 1) {
 		context->state.skip_level_full = 1;
@@ -1840,30 +1854,35 @@ static int video_skip_inc(struct advance_video_context* context)
 	return 0;
 }
 
+static void video_time(struct advance_video_context* context, struct advance_estimate_context* estimate_context, double* full, double* skip)
+{
+	if (context->config.smp_flag) {
+		/* if SMP is active the time estimation take care of it */
+		/* the times are not added, but the max value is used */
+		*full = estimate_context->estimate_mame_full;
+		if (*full < estimate_context->estimate_osd_full)
+			*full = estimate_context->estimate_osd_full;
+		*skip = estimate_context->estimate_mame_skip;
+		if (*skip < estimate_context->estimate_osd_skip)
+			*skip = estimate_context->estimate_osd_skip;
+	} else {
+		/* standard time estimation */
+		*full = estimate_context->estimate_mame_full + estimate_context->estimate_osd_full;
+		*skip = estimate_context->estimate_mame_skip + estimate_context->estimate_osd_skip;
+	}
+
+	/* common time */
+	*full += estimate_context->estimate_common_full;
+	*skip += estimate_context->estimate_common_skip;
+}
+
 static void video_skip_recompute(struct advance_video_context* context, struct advance_estimate_context* estimate_context)
 {
 	double step = context->state.skip_step;
 	double full;
 	double skip;
 
-	if (context->config.smp_flag) {
-		/* if SMP is active the time estimation take care of it */
-		/* the times are not added, but the max value is used */
-		full = estimate_context->estimate_mame_full;
-		if (full < estimate_context->estimate_osd_full)
-			full = estimate_context->estimate_osd_full;
-		skip = estimate_context->estimate_mame_skip;
-		if (skip < estimate_context->estimate_osd_skip)
-			skip = estimate_context->estimate_osd_skip;
-	} else {
-		/* standard time estimation */
-		full = estimate_context->estimate_mame_full + estimate_context->estimate_osd_full;
-		skip = estimate_context->estimate_mame_skip + estimate_context->estimate_osd_skip;
-	}
-
-	/* common time */
-	full += estimate_context->estimate_common_full;
-	skip += estimate_context->estimate_common_skip;
+	video_time(context, estimate_context, &full, &skip);
 
 	log_debug(("advance:skip: step %g [sec]\n", step));
 	log_debug(("advance:skip: frame full %g [sec], frame skip %g [sec]\n", estimate_context->estimate_mame_full + estimate_context->estimate_osd_full, estimate_context->estimate_mame_skip + estimate_context->estimate_osd_skip));
@@ -2005,10 +2024,13 @@ static void video_frame_sync_free(struct advance_video_context* context)
 	}
 }
 
-static void video_sync_update(struct advance_video_context* context, struct advance_sound_context* sound_context, int skip_flag)
+static void video_sync_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, adv_bool skip_flag)
 {
 	if (!skip_flag) {
-		double skip_time;
+		double full;
+		double skip;
+		double delay;
+
 		if (!context->state.fastest_flag
 			&& !context->state.measure_flag
 			&& context->state.sync_throttle_flag)
@@ -2016,11 +2038,16 @@ static void video_sync_update(struct advance_video_context* context, struct adva
 		else
 			video_frame_sync_free(context);
 
-		/* compute for how much time the sound may not be updated */
-		/* the +1 is for the single frame computation, plus any additional skipped frame */
-		skip_time = (context->state.skip_level_skip + 1) * context->state.skip_step;
+		video_time(context, estimate_context, &full, &skip);
 
-		context->state.latency_diff = advance_sound_latency_diff(sound_context, skip_time);
+		/* if we sync the full frame computation cannot be lower than the frame time */
+		if (full < context->state.skip_step)
+			full = context->state.skip_step;
+
+		/* compute for how much time the sound may not be updated */
+		delay = context->state.skip_level_skip * skip + full;
+
+		context->state.latency_diff = advance_sound_latency_diff(sound_context, delay);
 	} else {
 		++context->state.sync_skip_counter;
 	}
@@ -2098,7 +2125,7 @@ static void video_skip_update(struct advance_video_context* context, struct adva
 	}
 }
 
-static void video_cmd_update(struct advance_video_context* context, struct advance_estimate_context* estimate_context, int leds_status, unsigned input, int skip_flag)
+static void video_cmd_update(struct advance_video_context* context, struct advance_estimate_context* estimate_context, int leds_status, unsigned input, adv_bool skip_flag)
 {
 
 	/* events */
@@ -2190,7 +2217,7 @@ static void video_cmd_update(struct advance_video_context* context, struct advan
 	}
 }
 
-static void video_frame_game(struct advance_video_context* context, struct advance_record_context* record_context, const struct osd_bitmap *bitmap, unsigned input, int skip_flag)
+static void video_frame_game(struct advance_video_context* context, struct advance_record_context* record_context, const struct osd_bitmap *bitmap, unsigned input, adv_bool skip_flag)
 {
 
 	/* bitmap */
@@ -2252,7 +2279,10 @@ static void video_frame_game(struct advance_video_context* context, struct advan
 	}
 
 	/* mode */
-	video_frame_resolution(context, input);
+	if (video_frame_resolution(context, input) != 0) {
+		/* no way to recover if you lose the video mode */
+		abort();
+	}
 
 	/* pan */
 	video_frame_pan(context, input);
@@ -2298,7 +2328,7 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 	}
 }
 
-static void advance_video_update(struct advance_video_context* context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned input, int skip_flag)
+static void advance_video_update(struct advance_video_context* context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned input, adv_bool skip_flag)
 {
 	if (context->state.debugger_flag) {
 		video_frame_debugger(context, debug, debug_palette, debug_palette_size);
@@ -2307,7 +2337,7 @@ static void advance_video_update(struct advance_video_context* context, struct a
 	}
 }
 
-static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, int skip_flag)
+static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, adv_bool skip_flag)
 {
 	/* Do a yield immediatly before time the syncronization. */
 	/* If a schedule will be done, it's better to have it now when */
@@ -2316,7 +2346,7 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 	target_yield();
 
 	/* the frame syncronization is out of the time estimation */
-	video_sync_update(context, sound_context, skip_flag);
+	video_sync_update(context, sound_context, estimate_context, skip_flag);
 
 	/* estimate the time */
 	advance_estimate_osd_begin(estimate_context);
@@ -2366,7 +2396,7 @@ static void bitmap_free(struct osd_bitmap* bitmap)
  * Precomputation of the frame before updating.
  * Mainly used to duplicate the data for the video thread.
  */
-static void video_frame_prepare(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, int skip_flag)
+static void video_frame_prepare(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, adv_bool skip_flag)
 {
 #ifdef USE_SMP
 	/* don't use the thread if the debugger is active */
@@ -2408,7 +2438,7 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 #endif
 }
 
-static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, int skip_flag)
+static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, adv_bool skip_flag)
 {
 #ifdef USE_SMP
 	if (context->config.smp_flag && !context->state.debugger_flag) {
@@ -2905,7 +2935,7 @@ void osd2_info(char* buffer, unsigned size)
 /* Init/Done/Load */
 
 /* Adjust the orientation with the requested rol/ror/flipx/flipy operations */
-static unsigned video_orientation_compute(unsigned orientation, int rol, int ror, int flipx, int flipy)
+static unsigned video_orientation_compute(unsigned orientation, adv_bool rol, adv_bool ror, adv_bool flipx, adv_bool flipy)
 {
 	if (ror) {
 		/* if only one of the components is inverted, switch them */
@@ -2936,8 +2966,8 @@ static unsigned video_orientation_compute(unsigned orientation, int rol, int ror
 static unsigned video_orientation_inverse(unsigned orientation)
 {
 	if ((orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
-		int flipx = (orientation & OSD_ORIENTATION_FLIP_X) != 0;
-		int flipy = (orientation & OSD_ORIENTATION_FLIP_Y) != 0;
+		adv_bool flipx = (orientation & OSD_ORIENTATION_FLIP_X) != 0;
+		adv_bool flipy = (orientation & OSD_ORIENTATION_FLIP_Y) != 0;
 
 		orientation = OSD_ORIENTATION_SWAP_XY;
 
@@ -3168,10 +3198,10 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 adv_error advance_video_config_load(struct advance_video_context* context, adv_conf* cfg_context, struct mame_option* option)
 {
 	const char* s;
-	int err;
+	adv_error err;
 	unsigned i;
 	int rotate;
-	int ror, rol, flipx, flipy;
+	adv_bool ror, rol, flipx, flipy;
 
 	assert( cfg_context == context->state.cfg_context );
 

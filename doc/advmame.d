@@ -41,6 +41,44 @@ Description
 		thread architecture (only for Linux).
 	* Sound and video recording in WAV, PNG and MNG files.
 
+Keys
+	In the game play you can use the following keys :
+
+	ESC - Exit.
+	F2 - Reset the game.
+	F7 - Load a save game.
+	F8 - Previous frameskip value.
+	F9 - Next frameskip value or automatic frameskip.
+	F10 - Throttle.
+	F11 - Display frame per second.
+	F12 - Save a snapshot.
+	P - Pause.
+	PAD * - Turbo mode until pressed.
+	CTRL + ENTER - Start the sound and video recording.
+	ENTER - Stop the sound and video recording.
+	, - Previous video mode.
+	. - Next video mode.
+	TILDE - Volume Menu.
+	TAB - Main Menu.
+
+	for player 1 you can use the keys:
+
+	1 - Play.
+	5 - Insert coin.
+	ARROW - Move.
+	CTRL - First button.
+	ALT - Second button.
+	SPACE - Third button.
+
+	for player 2 you can use the keys:
+
+	2 - Play.
+	6 - Insert coin.
+	R, F, D, G - Move.
+	A - First button.
+	S - Second button.
+	Q - Third button.
+
 Options
 	This is the list of the available command line options:
 
@@ -315,7 +353,7 @@ Other Ports
 
 Configuration
 	The DOS and Windows versions of AdvanceMAME read configuration 
-	options	from the file `advmame.rc', `advmess.rc' and `advpac.rc'
+	options from the file `advmame.rc', `advmess.rc' and `advpac.rc'
 	in the current directory.
 
 	The Linux version reads configuration options from the files
@@ -990,16 +1028,17 @@ Configuration
 
 	Options:
 		TIME - Latency in seconds from 0 to 2.0
-			(default 0.01).
+			(default 0.05).
 
 	If in the game play you hear some sound ticks you can try to
-	increase the latency.
+	increase the latency. Try doubling the value until the ticks
+	go away.
 
-	The emulator automatically increase the latency if the game
-	requires to skip some frames to improve the emulation speed.
-
-	You can use the sound_latency option to set an additional
-	latency time.
+	The emulator automatically increase (and decrease) the latency
+	if the game requires to skip some frames. Anyway, it cannot
+	correctly compute the latency of the first too long frame.
+	So, you need to use a latency greater than zero to play these
+	games.
 
   Input Configuration Options
 

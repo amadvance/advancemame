@@ -395,7 +395,7 @@ unsigned emulator::compile(const game& g, const char** argv, unsigned argc, cons
 	return argc;
 }
 
-bool emulator::run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const {
+bool emulator::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -821,10 +821,11 @@ static bool fskip(unsigned size, FILE* f)
 	return fseek(f, size, SEEK_CUR)==0;
 }
 
-mame_mame::mame_mame(const string& Aname, const string& Aexe_path, const string& Acmd_arg, bool Asupport_difficulty)
+mame_mame::mame_mame(const string& Aname, const string& Aexe_path, const string& Acmd_arg, bool Asupport_difficulty, bool Asupport_attenuation)
 	: mame_info(Aname, Aexe_path, Acmd_arg)
 {
 	support_difficulty = Asupport_difficulty;
+	support_attenuation = Asupport_attenuation;
 	exclude_neogeo_orig = include;
 	exclude_deco_orig = exclude;
 	exclude_playchoice_orig = exclude;
@@ -1022,7 +1023,7 @@ bool mame_mame::load_software(game_set&)
 	return true;
 }
 
-bool mame_mame::run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const {
+bool mame_mame::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -1057,8 +1058,21 @@ bool mame_mame::run(const game& g, unsigned orientation, difficulty_t difficulty
 			argv[argc++] = strdup(opt);
 		}
 	}
+
+	if (support_attenuation) {
+		if (attenuation < -32)
+			attenuation = -32;
+		if (attenuation > 0)
+			attenuation = 0;
+		argv[argc++] = strdup("-sound_volume");
+		char buf[16];
+		sprintf(buf,"%d",attenuation);
+		argv[argc++] = strdup(buf);
+	}
+
 	argc = compile(g, argv, argc, user_cmd_arg, orientation);
 	argv[argc] = 0;
+
 
 	time_t duration;
 	bool ret = run_process(duration, exe_dir_get(), argc, argv, ignore_error);
@@ -1082,7 +1096,7 @@ bool mame_mame::run(const game& g, unsigned orientation, difficulty_t difficulty
 // dmame
 
 dmame::dmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
-	: mame_mame(Aname, Aexe_path, Acmd_arg, false)
+	: mame_mame(Aname, Aexe_path, Acmd_arg, false, false)
 {
 }
 
@@ -1163,7 +1177,7 @@ bool dmame::load_cfg(const game_set& gar)
 // wmame
 
 wmame::wmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
-	: mame_mame(Aname, Aexe_path, Acmd_arg, false)
+	: mame_mame(Aname, Aexe_path, Acmd_arg, false, false)
 {
 }
 
@@ -1244,7 +1258,7 @@ bool wmame::load_cfg(const game_set& gar)
 // wmame
 
 xmame::xmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
-	: mame_mame(Aname, Aexe_path, Acmd_arg, false)
+	: mame_mame(Aname, Aexe_path, Acmd_arg, false, false)
 {
 }
 
@@ -1331,7 +1345,7 @@ bool xmame::load_cfg(const game_set& gar)
 // advmame
 
 advmame::advmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
-	: mame_mame(Aname, Aexe_path, Acmd_arg, true)
+	: mame_mame(Aname, Aexe_path, Acmd_arg, true, true)
 {
 }
 
@@ -1412,7 +1426,7 @@ bool advmame::load_cfg(const game_set& gar)
 // advpac
 
 advpac::advpac(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
-	: mame_mame(Aname, Aexe_path, Acmd_arg, false)
+	: mame_mame(Aname, Aexe_path, Acmd_arg, false, false)
 {
 }
 
@@ -1814,7 +1828,7 @@ string dmess::image_name_get(const string& snap_create, const string& name)
 	return path;
 }
 
-bool dmess::run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const {
+bool dmess::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	string snapshot_rename_dir;
 	string image_create_file;
 	string image_rename_file;
@@ -2202,7 +2216,7 @@ bool advmess::compile_file(const game& g, unsigned& argc, const char* argv[], co
 		return compile_single(g, argc, argv, file);
 }
 
-bool advmess::run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const {
+bool advmess::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	string snapshot_rename_dir;
 	string image_create_file;
 	string image_rename_file;
@@ -2256,6 +2270,15 @@ bool advmess::run(const game& g, unsigned orientation, difficulty_t difficulty, 
 		argv[argc++] = strdup(cpath_export(file_file(config_exe_path)));
 		argv[argc++] = strdup(g.name_without_emulator_get().c_str());
 	}
+
+	if (attenuation < -32)
+		attenuation = -32;
+	if (attenuation > 0)
+		attenuation = 0;
+	argv[argc++] = strdup("-sound_volume");
+	char buf[16];
+	sprintf(buf,"%d",attenuation);
+	argv[argc++] = strdup(buf);
 
 	argc = compile(g, argv, argc, user_cmd_arg, orientation);
 
@@ -2669,7 +2692,7 @@ bool draine::load_cfg(const game_set& gar)
 	return true;
 }
 
-bool draine::run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const {
+bool draine::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
@@ -2860,10 +2883,10 @@ bool generic::is_runnable() const {
 	return emulator::is_runnable();
 }
 
-bool generic::run(const game& g, unsigned orientation, difficulty_t difficulty, bool ignore_error) const {
+bool generic::run(const game& g, unsigned orientation, difficulty_t difficulty, int attenuation, bool ignore_error) const {
 	// if empty don't run
 	if (user_exe_path.length()==0)
 		return false;
 
-	return emulator::run(g, orientation, difficulty, ignore_error);
+	return emulator::run(g, orientation, difficulty, attenuation, ignore_error);
 }

@@ -142,24 +142,30 @@ bool play_init()
 	if (mixer_init(play_rate, CHANNEL_MAX, 1, play_buffer_time + play_latency_time, play_latency_time) != 0)
 		return false;
 
-	play_volume(play_attenuation);
+	play_attenuation_set(play_attenuation);
 
 	return true;
 }
 
-void play_volume(int attenuation)
+void play_attenuation_set(int attenuation)
 {
 	double volume;
 
 	if (attenuation <= -32) {
+		play_attenuation = -32;
 		volume = 0;
 	} else {
+		play_attenuation = attenuation;
 		volume = 1.0;
 		while (attenuation++ < 0)
 			volume /= 1.122018454; /* = (10 ^ (1/20)) = 1dB */
 	}
 
 	mixer_volume(volume);
+}
+
+int play_attenuation_get() {
+	return play_attenuation;
 }
 
 void play_done()

@@ -11,12 +11,16 @@ AdvanceMENU Version 2.2.3 2003/01
 	) Renamed the "Attrib" menu to "Selection".
 	) Added a new `difficulty' option and menu to globaly control
 		the difficulty level of the games. It works only
-		with AdvanceMAME.
+		for the `advmame' emulator type and only for games
+		with a difficulty dip switch.
 	) The `generic' emulator type is now able to import games
 		information from a MAME like information file
 		written manually.
 	) The default key configuration now uses the numeric-pad keys
 		as arrows. It helps with HotRod.
+	) For the `advmame' and `advmess' emulator types the
+		sound volume is automatically set at the same
+		level of the menu.
 
 AdvanceMENU Version 2.2.2 2002/12
 	) Fixed the MNG playing in 32 bits modes. This is potentially

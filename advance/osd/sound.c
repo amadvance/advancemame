@@ -268,7 +268,7 @@ adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cf
 	conf_int_register_limit_default(cfg_context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
 	conf_bool_register_default(cfg_context, "sound_resamplefilter", 1);
-	conf_float_register_limit_default(cfg_context, "sound_latency", 0.0, 2.0, 0.01);
+	conf_float_register_limit_default(cfg_context, "sound_latency", 0.0, 2.0, 0.05);
 
 	sound_reg(cfg_context, 1);
 	sound_reg_driver_all(cfg_context);

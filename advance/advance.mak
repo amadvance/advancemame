@@ -2,7 +2,7 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.62.0.1
+EMUVERSION = 0.62.0.2
 else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
@@ -370,7 +370,6 @@ wholemame:
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distbin
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos distbin
 	$(MAKE) $(ARCH_I686) CONF=no CONF_HOST=dos distbin
-	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos distbin
 
 WHOLECD_FLAGS = \
 		CONF_ARCH=cd CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
@@ -382,8 +381,8 @@ WHOLECD_FLAGS = \
 
 wholecd:
 	$(MAKE) $(WHOLECD_FLAGS) distbin
-	$(MAKE) $(WHOLECD_FLAGS) CONF_EMU=mess distbin
 	$(MAKE) $(WHOLECD_FLAGS) distmenubin
+	$(MAKE) $(WHOLECD_FLAGS) CONF_EMU=mess distbin
 
 wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist

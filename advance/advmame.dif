@@ -144,6 +144,22 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/datafile.c src/datafile.c
+--- src.ori/datafile.c	2002-11-21 06:49:00.000000000 +0100
++++ src/datafile.c	2003-01-17 18:37:46.000000000 +0100
+@@ -40,11 +40,11 @@
+ 
+ 
+ /****************************************************************************
+  *      datafile constants
+  ****************************************************************************/
+-#define MAX_DATAFILE_ENTRIES 3000
++#define MAX_DATAFILE_ENTRIES 5000
+ #define DATAFILE_TAG '$'
+ 
+ const char *DATAFILE_TAG_KEY = "$info";
+ const char *DATAFILE_TAG_BIO = "$bio";
+ const char *DATAFILE_TAG_MAME = "$mame";
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/neogeo.c src/drivers/neogeo.c
 --- src.ori/drivers/neogeo.c	2002-12-24 18:25:06.000000000 +0100
 +++ src/drivers/neogeo.c	2003-01-13 18:30:48.000000000 +0100
@@ -511,7 +527,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/usrintrf.c src/usrintrf.c
 --- src.ori/usrintrf.c	2002-12-09 19:31:18.000000000 +0100
-+++ src/usrintrf.c	2003-01-13 18:30:48.000000000 +0100
++++ src/usrintrf.c	2003-01-19 09:59:10.000000000 +0100
 @@ -843,12 +843,16 @@
  	while (items[i])
  	{
@@ -871,3 +887,24 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{	tiledim_0 = cave_vctrl_0[ 1 ] & 0x2000;
  		if (tiledim_0 != old_tiledim_0)	tilemap_mark_all_tiles_dirty(tilemap_0);
  		old_tiledim_0 = tiledim_0;		}
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/vidhrdw/gaelco2.c src/vidhrdw/gaelco2.c
+--- src.ori/vidhrdw/gaelco2.c	2002-12-31 13:49:24.000000000 +0100
++++ src/vidhrdw/gaelco2.c	2003-01-14 20:34:52.000000000 +0100
+@@ -457,15 +457,16 @@
+ 								int xpos = (((sx + ex*16 + px) & 0x3ff) + spr_x_adjust) & 0x3ff;
+ 								UINT16 *pixel = srcy + xpos;
+ 								int src_color = *pixel;
+ 
+ 								int gfx_px = xflip ? (gfx->width - 1 - px) : px;
++								int gfx_pen;
+ 
+ 								if ((xpos < cliprect->min_x) || (xpos > cliprect->max_x)) continue;
+ 
+ 								/* get asociated pen for the current sprite pixel */
+-								int gfx_pen = gfx_src[gfx->line_modulo*gfx_py + gfx_px];
++								gfx_pen = gfx_src[gfx->line_modulo*gfx_py + gfx_px];
+ 
+ 								if ((gfx_pen == 0) || (gfx_pen >= 16)) continue;
+ 
+ 								/* make background color darker or brighter */
+ 								*pixel = src_color + 4096*gfx_pen;

@@ -1,6 +1,10 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS/PAC
 
+AdvanceMAME 0.63.0
+	The .chd files must now be placed in a subdirectory of the same name.
+	For example C:\CHD\AREA51\AREA51.CHD.
+
 AdvanceMAME 0.62.2 / AdvanceMESS 0.62.0.0
 	The display_rgb and display_depth options are gone. They are now
 	substituted with the new display_color option.

@@ -147,12 +147,22 @@ int osd_get_path_info(int pathtype, int pathindex, const char* filename)
 
 	strcpy(path, file_abs(i->dir_map[pathindex], filename));
 
-	if (stat(path, &st) != 0)
+	log_std(("osd: osd_get_path_info() -> %s\n", path));
+
+	if (stat(path, &st) != 0) {
+		log_std(("osd: osd_get_path_info() -> failed\n"));
 		return PATH_NOT_FOUND;
-	if (S_ISDIR(st.st_mode))
+	}
+	if (S_ISDIR(st.st_mode)) {
+		log_std(("osd: osd_get_path_info() -> directory\n"));
 		return PATH_IS_DIRECTORY;
-	if (S_ISREG(st.st_mode));
+	}
+	if (S_ISREG(st.st_mode)); {
+		log_std(("osd: osd_get_path_info() -> file\n"));
 		return PATH_IS_FILE;
+	}
+
+	log_std(("osd: osd_get_path_info() -> failed\n"));
 	return PATH_NOT_FOUND;
 }
 
@@ -172,7 +182,11 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 
 	strcpy(path, file_abs(i->dir_map[pathindex], filename));
 
+	log_std(("osd: osd_fopen() -> %s\n", path));
+
 	h = fopen(path, mode);
+
+	log_std(("osd: osd_fopen() -> %s\n", h ? "success" : "failed"));
 
 	return (osd_file*)h;
 }

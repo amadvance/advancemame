@@ -33,7 +33,8 @@ void play_done();
 
 void play_poll();
 void play_fill();
-void play_volume(int attenuation);
+void play_attenuation_set(int attenuation);
+int play_attenuation_get();
 
 #define PLAY_PRIORITY_END 4
 #define PLAY_PRIORITY_EVENT 3

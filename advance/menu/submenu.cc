@@ -577,23 +577,28 @@ void run_volume(config_state& rs)
 	choice_bag ch;
 
 	ch.insert( ch.end(), choice("Full", 0) );
-	ch.insert( ch.end(), choice("-1 db", -1) );
 	ch.insert( ch.end(), choice("-2 db", -2) );
-	ch.insert( ch.end(), choice("-3 db", -3) );
 	ch.insert( ch.end(), choice("-4 db", -4) );
-	ch.insert( ch.end(), choice("-5 db", -5) );
 	ch.insert( ch.end(), choice("-6 db", -6) );
-	ch.insert( ch.end(), choice("-7 db", -7) );
 	ch.insert( ch.end(), choice("-8 db", -8) );
-	ch.insert( ch.end(), choice("-9 db", -9) );
 	ch.insert( ch.end(), choice("-10 db", -10) );
+	ch.insert( ch.end(), choice("-12 db", -12) );
+	ch.insert( ch.end(), choice("-14 db", -14) );
+	ch.insert( ch.end(), choice("-16 db", -16) );
+	ch.insert( ch.end(), choice("-18 db", -18) );
+	ch.insert( ch.end(), choice("-20 db", -20) );
 	ch.insert( ch.end(), choice("Silence", -100) );
 
-	choice_bag::iterator i = ch.begin();
+	choice_bag::iterator i = ch.find_by_value(play_attenuation_get());
+	if (i == ch.end())
+		i = ch.find_by_value(play_attenuation_get() - 1); // if the value is odd
+	if (i == ch.end())
+		i = ch.begin();
+
 	int key = ch.run(" Volume", SECOND_CHOICE_X, SECOND_CHOICE_Y, VOLUME_CHOICE_DX, i);
 
 	if (key == INT_KEY_ENTER) {
-		play_volume(i->value_get());
+		play_attenuation_set(i->value_get());
 	}
 }
 

@@ -158,7 +158,7 @@ struct advance_video_config_context {
 	adv_bool triplebuf_flag; /**< If triple buffering is active. */
 	int skiplines; /**< Centering value for screen, -1 for auto centering. */
 	int skipcolumns; /**< Centering value for screen, -1 for auto centering. */
-	char resolution[256]; /**< Name of the resolution. "auto" for automatic. */
+	char resolution[MODE_NAME_MAX]; /**< Name of the resolution. "auto" for automatic. */
 	adv_bool scanlines_flag; /**< If hardware scanlines are active */
 	int stretch; /**< Type of stretch. One of STRETCH_*. */
 	int adjust; /**< Type of hardware stretch. One of ADJUST_*. */

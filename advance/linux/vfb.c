@@ -60,6 +60,8 @@ typedef struct fb_internal_struct {
 	unsigned bytes_per_scanline;
 	unsigned bytes_per_pixel;
 	unsigned char* ptr;
+
+	unsigned flags;
 } fb_internal;
 
 static fb_internal fb_state;
@@ -87,9 +89,7 @@ static adv_bool fb_mode_is_active(void)
 static unsigned fb_flags(void)
 {
 	assert( fb_is_active() );
-	return VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
-		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+	return fb_state.flags;
 }
 
 static unsigned char* fb_linear_write_line(unsigned y)
@@ -101,6 +101,7 @@ static void fb_log(void)
 {
 	double v;
 
+	log_std(("video:fb: fix info\n"));
 	log_std(("video:fb: id %s\n", fb_state.fixinfo.id));
 	log_std(("video:fb: smem_start:%08x, smem_len:%08x\n", (unsigned)fb_state.fixinfo.smem_start, (unsigned)fb_state.fixinfo.smem_len));
 	log_std(("video:fb: mmio_start:%08x, mmio_len:%08x\n", (unsigned)fb_state.fixinfo.mmio_start, (unsigned)fb_state.fixinfo.mmio_len));
@@ -108,6 +109,7 @@ static void fb_log(void)
 	log_std(("video:fb: xpanstep:%d, ypanstep:%d, ywrapstep:%d\n", (unsigned)fb_state.fixinfo.xpanstep, (unsigned)fb_state.fixinfo.ypanstep, (unsigned)fb_state.fixinfo.ywrapstep));
 	log_std(("video:fb: line_length:%d\n", (unsigned)fb_state.fixinfo.line_length));
 	log_std(("video:fb: accel:%d\n", (unsigned)fb_state.fixinfo.accel));
+	log_std(("video:fb: variable info\n"));
 	log_std(("video:fb: xres:%d, yres:%d\n", (unsigned)fb_state.varinfo.xres, (unsigned)fb_state.varinfo.yres));
 	log_std(("video:fb: xres_virtual:%d, yres_virtual:%d\n", (unsigned)fb_state.varinfo.xres_virtual, (unsigned)fb_state.varinfo.yres_virtual));
 	log_std(("video:fb: xoffset:%d, yoffset:%d\n", (unsigned)fb_state.varinfo.xoffset, (unsigned)fb_state.varinfo.yoffset));
@@ -171,6 +173,36 @@ adv_error fb_init(int device_id, adv_output output)
 		log_std(("video:fb: Error opening the frame buffer %s\n", fb));
 		error_nolog_cat("fb: Error opening the frame buffer %s\n", fb);
 		return -1;
+	}
+
+	/* get the fixed info */
+	if (ioctl(fb_state.fd, FBIOGET_FSCREENINFO, &fb_state.fixinfo) != 0) {
+		error_set("Error in FBIOGET_FSCREENINFO");
+		return -1;
+	}
+
+	/* get the variable info */
+	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.varinfo) != 0) {
+		error_set("Error in FBIOGET_VSCREENINFO");
+		return -1;
+	}
+
+	fb_log();
+
+	fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
+		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
+		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+
+	if (strstr(fb_state.fixinfo.id, "nVidia")!=0) {
+		log_std(("video:fb: disable doublescan modes not supported by this driver\n"));
+		/* in Linux 2.4.20 it doesn't support doublescan */
+		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
+	}
+
+	if (strstr(fb_state.fixinfo.id, "GeForce")!=0) {
+		log_std(("video:fb: disable interlace modes not supported by this driver\n"));
+		/* in Linux 2.4.20 it doesn't support interlace */
+		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
 	}
 
 	fb_state.active = 1;
@@ -272,7 +304,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		fb_state.varinfo.vmode |= FB_VMODE_INTERLACED;
 	}
 
-	fb_log();
+	log_std(("video:fb: FBIOPUT_VSCREENINFO\n"));
 
 	/* set the mode */
 	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, &fb_state.varinfo) != 0) {
@@ -280,11 +312,15 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		return -1;
 	}
 
+	log_std(("video:fb: FBIOGET_FSCREENINFO\n"));
+
 	/* get the fixed info */
 	if (ioctl(fb_state.fd, FBIOGET_FSCREENINFO, &fb_state.fixinfo) != 0) {
 		error_set("Error in FBIOGET_FSCREENINFO");
 		return -1;
 	}
+
+	log_std(("video:fb: FBIOGET_VSCREENINFO\n"));
 
 	/* get the variable info */
 	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.varinfo) != 0) {
@@ -379,19 +415,38 @@ void fb_wait_vsync(void)
 
 	assert(fb_is_active() && fb_mode_is_active());
 
-	do {
-		if (ioctl(fb_state.fd, FBIOGET_VBLANK, &blank) != 0) {
-			log_std(("ERROR:video:fb: FBIOGET_VBLANK not supported\n"));
-			/* not supported */
-			return;
-		}
+	if (ioctl(fb_state.fd, FBIOGET_VBLANK, &blank) != 0) {
+		log_std(("ERROR:video:fb: FBIOGET_VBLANK not supported\n"));
+		/* not supported */
+		return;
+	}
 
-		if ((blank.flags & FB_VBLANK_HAVE_VSYNC) == 0) {
-			log_std(("ERROR:video:fb: FB_VBLANK_HAVE_VSYNC not supported\n"));
-			/* not supported */
-			return;
+	if ((blank.flags & FB_VBLANK_HAVE_COUNT) != 0) {
+		/* favorite choice because you cannot lose sync, generally is irq driven  */
+		unsigned start = blank.count;
+		log_debug(("video:fb: using FB_VBLANK_HAVE_COUNT\n"));
+		while (start == blank.count) {
+			if (ioctl(fb_state.fd, FBIOGET_VBLANK, &blank) != 0) {
+				return;
+			}
 		}
-	} while ((blank.flags & FB_VBLANK_VSYNCING) == 0);
+	} else if ((blank.flags & FB_VBLANK_HAVE_VSYNC) != 0) {
+		log_debug(("video:fb: using FB_VBLANK_HAVE_VSYNC\n"));
+		while ((blank.flags & FB_VBLANK_VSYNCING) == 0) {
+			if (ioctl(fb_state.fd, FBIOGET_VBLANK, &blank) != 0) {
+				return;
+			}
+		}
+	} else if ((blank.flags & FB_VBLANK_HAVE_VBLANK) != 0) {
+		log_debug(("video:fb: using FB_VBLANK_HAVE_VBLANK\n"));
+		while ((blank.flags & FB_VBLANK_VBLANKING) == 0) {
+			if (ioctl(fb_state.fd, FBIOGET_VBLANK, &blank) != 0) {
+				return;
+			}
+		}
+	} else {
+		log_std(("video:fb: VBLANK unusable\n"));
+	}
 }
 
 adv_error fb_scroll(unsigned offset, adv_bool waitvsync)
