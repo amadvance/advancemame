@@ -38,7 +38,7 @@ CFGOBJS += \
 
 ifeq ($(CONF_HOST),unix)
 CFGCFLAGS += \
-	-DPREFIX=\"$(PREFIX)\" \
+	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/linux
 CFGOBJDIRS += \
 	$(CFGOBJ)/linux
@@ -146,7 +146,7 @@ endif
 
 ifeq ($(CONF_HOST),windows)
 CFGCFLAGS += \
-	-DPREFIX=\"$(PREFIX)\" \
+	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/windows
 CFGOBJDIRS += \
 	$(CFGOBJ)/windows

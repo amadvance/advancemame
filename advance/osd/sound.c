@@ -54,9 +54,13 @@ void osd_set_mastervolume(int attenuation)
 	context->config.attenuation = attenuation;
 
 	if (context->state.active_flag) {
-		volume = 1;
-		while (attenuation++ < 0)
-			volume /= 1.122018454; /* = (10 ^ (1/20)) = 1dB */
+		if (attenuation <= -32) {
+			volume = 0;
+		} else {
+			volume = 1;
+			while (attenuation++ < 0)
+				volume /= 1.122018454; /* = (10 ^ (1/20)) = 1dB */
+		}
 
 		context->state.volume = volume;
 
@@ -86,6 +90,7 @@ void osd_sound_enable(int enable_it)
 int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 {
 	struct advance_sound_context* context = &CONTEXT.sound;
+	double low_buffer_time;
 
 	log_std(("osd: osd2_sound_init(sample_rate:%d, stereo_flag:%d)\n", *sample_rate, stereo_flag));
 
@@ -112,10 +117,14 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	else
 		context->state.output_mode = context->config.mode;
 
+	low_buffer_time = context->config.latency_time;
+	if (low_buffer_time < 0.3)
+		low_buffer_time = 0.3; /* allow always a big maximum latency */
+
 	/* *2.0 is to increase a the lower driver buffer */
 	/* the value is guessed with some tries, don't change it */
 	/* without testing on all the drivers */
-	if (sound_init(sample_rate, context->state.output_mode != SOUND_MODE_MONO, 2.0 * context->config.latency_time) != 0) {
+	if (sound_init(sample_rate, context->state.output_mode != SOUND_MODE_MONO, 2.0 * low_buffer_time) != 0) {
 		return -1;
 	}
 
@@ -123,7 +132,8 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	context->state.rate = *sample_rate;
 	context->state.input_bytes_per_sample = context->state.input_mode != SOUND_MODE_MONO ? 4 : 2;
 	context->state.output_bytes_per_sample = context->state.output_mode != SOUND_MODE_MONO ? 4 : 2;
-	context->state.latency = context->state.rate * context->config.latency_time;
+	context->state.latency_min = context->state.rate * context->config.latency_time;
+	context->state.latency_max = context->state.rate * low_buffer_time;
 	context->state.active_flag = 1;
 
 	sound_start(context->config.latency_time);
@@ -222,16 +232,24 @@ void advance_sound_update(struct advance_sound_context* context, struct advance_
  * Return the current sound latency error.
  * If this value is positive the stream needs less samples.
  * If this values is negative the stream needs more samples.
+ * \param extra_latency Extra latency time for the skipped samples.
  * \return Error in samples
  */
-int advance_sound_latency_diff(struct advance_sound_context* context)
+int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency)
 {
 	if (context->state.active_flag) {
-		int latency = sound_buffered();
+		int buffered = sound_buffered();
+		int expected;
 
-		log_debug(("advance: sound latency %d, dif %d\n", latency, latency - context->state.latency));
+		expected = context->state.latency_min + context->state.rate * extra_latency;
+		if (expected < context->state.latency_min)
+			expected = context->state.latency_min;
+		if (expected > context->state.latency_max)
+			expected = context->state.latency_max;
 
-		return latency - context->state.latency;
+		log_debug(("advance: sound buffered %d, expected %d, diff %d, min %d, max %d\n", buffered, expected, buffered - expected, context->state.latency_min, context->state.latency_max));
+
+		return buffered - expected;
 	} else {
 		return 0;
 	}
@@ -250,7 +268,7 @@ int advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_cont
 	conf_int_register_limit_default(cfg_context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
 	conf_bool_register_default(cfg_context, "sound_resamplefilter", 1);
-	conf_float_register_limit_default(cfg_context, "sound_latency", 0.01, 2.0, 0.1);
+	conf_float_register_limit_default(cfg_context, "sound_latency", 0.0, 2.0, 0.01);
 
 	sound_reg(cfg_context, 1);
 	sound_reg_driver_all(cfg_context);

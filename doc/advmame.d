@@ -903,6 +903,7 @@ Configuration
 		auto - Automatic detection (default).
 
 	Options for the Linux version:
+		alsa - ALSA automatic detection.
 		oss - OSS automatic detection.
 		sdl - SDL automatic detection.
 
@@ -979,22 +980,22 @@ Configuration
 		:sound_volume -12
 
     sound_latency
-	Sets the audio latency.
+	Sets the minimum audio latency.
 
 	:sound_latency TIME
 
 	Options:
-		TIME - Latency in seconds from 0.01 to 2.0
-			(default 0.1).
+		TIME - Latency in seconds from 0 to 2.0
+			(default 0.01).
 
 	If in the game play you hear some sound ticks you can try to
 	increase the latency.
 
-	The default value is relatively high because it should work also
-	with high frame skip rates. Supposing a skip of 6 consecutive frames
-	the sound buffer should contain 6 * 1/60 = 0.1 seconds of samples.
-	If you always play at full frame rate you can safely decrease
-	the latency down to 0.02 seconds.
+	The emulator automatically increase the latency if the game
+	requires to skip some frames to improve the emulation speed.
+
+	You can use the sound_latency option to set an additional
+	latency time.
 
   Input Configuration Options
 
@@ -1398,7 +1399,7 @@ Configuration
 	Activates safe quit mode. If enabled, to stop the
 	emulation, you need to confirm on a simple menu.
 
-	:misc_safequit_safeexit yes | no
+	:misc_safequit yes | no
 
 	If the file `safequit.dat' is found the exit menu is shown only 
 	if a coin is inserted or if you are playing.

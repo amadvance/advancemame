@@ -20,7 +20,7 @@ JOBJS += \
 
 ifeq ($(CONF_HOST),unix)
 JCFLAGS += \
-	-DPREFIX=\"$(PREFIX)\" \
+	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/linux \
 	-DUSE_JOYSTICK_NONE
 JOBJDIRS += \

@@ -21,7 +21,7 @@ KOBJS += \
 
 ifeq ($(CONF_HOST),unix)
 KCFLAGS += \
-	-DPREFIX=\"$(PREFIX)\" \
+	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/linux \
 	-DUSE_KEYBOARD_NONE
 KOBJDIRS += \

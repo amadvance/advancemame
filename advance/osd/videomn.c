@@ -227,6 +227,7 @@ int osd2_menu(int selected, unsigned input)
 	char mode_buffer[128];
 
 	struct advance_video_context* context = &CONTEXT.video;
+	struct advance_global_context* context_global = &CONTEXT.global;
 
 	if (selected >= 1)
 		selected = selected - 1;
@@ -483,38 +484,45 @@ int osd2_menu(int selected, unsigned input)
 	flag[total] = 0;
 	++total;
 
-	save_game_index = total;
-	menu_item[total] = mame_ui_gettext("Save for this game");
-	menu_subitem[total] = 0;
-	flag[total] = 0;
-	++total;
-
-	save_resolution_index = total;
-	if (context->state.game_vector_flag)
-		menu_item[total] = mame_ui_gettext("Save for all vector games");
-	else
-		menu_item[total] = mame_ui_gettext("Save for this game size");
-	menu_subitem[total] = 0;
-	flag[total] = 0;
-	++total;
-
-	if (!context->state.game_vector_flag) {
-		save_resolutionclock_index = total;
-		menu_item[total] = mame_ui_gettext("Save for this game size/freq");
+	if (context_global->state.is_config_writable) {
+		save_game_index = total;
+		menu_item[total] = mame_ui_gettext("Save for this game");
 		menu_subitem[total] = 0;
 		flag[total] = 0;
 		++total;
+
+		save_resolution_index = total;
+		if (context->state.game_vector_flag)
+			menu_item[total] = mame_ui_gettext("Save for all vector games");
+		else
+			menu_item[total] = mame_ui_gettext("Save for this game size");
+		menu_subitem[total] = 0;
+		flag[total] = 0;
+		++total;
+
+		if (!context->state.game_vector_flag) {
+			save_resolutionclock_index = total;
+			menu_item[total] = mame_ui_gettext("Save for this game size/freq");
+			menu_subitem[total] = 0;
+			flag[total] = 0;
+			++total;
+		} else {
+			save_resolutionclock_index = -1;
+		}
+
+		if (!context->state.game_vector_flag) {
+			save_all_index = total;
+			menu_item[total] = mame_ui_gettext("Save for all games");
+			menu_subitem[total] = 0;
+			flag[total] = 0;
+			++total;
+		} else {
+			save_all_index = -1;
+		}
 	} else {
+		save_game_index = -1;
+		save_resolution_index = -1;
 		save_resolutionclock_index = -1;
-	}
-
-	if (!context->state.game_vector_flag) {
-		save_all_index = total;
-		menu_item[total] = mame_ui_gettext("Save for all games");
-		menu_subitem[total] = 0;
-		flag[total] = 0;
-		++total;
-	} else {
 		save_all_index = -1;
 	}
 

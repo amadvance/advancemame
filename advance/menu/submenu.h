@@ -23,7 +23,8 @@
 
 #include "mconfig.h"
 
-void run_help();
+void run_help(config_state& rs);
+void run_volume(config_state& rs);
 void run_sort(config_state& rs);
 void run_exclude(config_state& rs);
 void run_type(config_state& rs);

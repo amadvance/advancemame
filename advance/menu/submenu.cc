@@ -20,6 +20,7 @@
 
 #include "submenu.h"
 #include "text.h"
+#include "play.h"
 #include "joydrv.h"
 
 #include <sstream>
@@ -560,6 +561,36 @@ void run_calib(config_state& rs)
 }
 
 // ------------------------------------------------------------------------
+// Volume
+
+#define VOLUME_CHOICE_DX 10*int_font_dx_get()
+
+void run_volume(config_state& rs)
+{
+	choice_bag ch;
+
+	ch.insert( ch.end(), choice("Full", 0) );
+	ch.insert( ch.end(), choice("-1 db", -1) );
+	ch.insert( ch.end(), choice("-2 db", -2) );
+	ch.insert( ch.end(), choice("-3 db", -3) );
+	ch.insert( ch.end(), choice("-4 db", -4) );
+	ch.insert( ch.end(), choice("-5 db", -5) );
+	ch.insert( ch.end(), choice("-6 db", -6) );
+	ch.insert( ch.end(), choice("-7 db", -7) );
+	ch.insert( ch.end(), choice("-8 db", -8) );
+	ch.insert( ch.end(), choice("-9 db", -9) );
+	ch.insert( ch.end(), choice("-10 db", -10) );
+	ch.insert( ch.end(), choice("Silence", -100) );
+
+	choice_bag::iterator i = ch.begin();
+	int key = ch.run(" Volume", SECOND_CHOICE_X, SECOND_CHOICE_Y, VOLUME_CHOICE_DX, i);
+
+	if (key == INT_KEY_ENTER) {
+		play_volume(i->value_get());
+	}
+}
+
+// ------------------------------------------------------------------------
 // Sub Menu
 
 #define MENU_CHOICE_DX 25*int_font_dx_get()
@@ -577,6 +608,7 @@ bool run_submenu(config_state& rs)
 	ch.insert( ch.end(), choice("Config/Mode", 5) );
 	ch.insert( ch.end(), choice("Config/Preview", 6) );
 	ch.insert( ch.end(), choice("Config/Calibration", 13) );
+	ch.insert( ch.end(), choice("Config/Volume", 16) );
 	ch.insert( ch.end(), choice("Config/Lock-Unlock", 12) );
 	ch.insert( ch.end(), choice("Config/Save as Default", 11) );
 	ch.insert( ch.end(), choice("Game/Type", 8) );
@@ -626,7 +658,7 @@ bool run_submenu(config_state& rs)
 				run_group_move(rs);
 				break;
 			case 10 :
-				run_help();
+				run_help(rs);
 				break;
 			case 11 :
 				rs.restore_save();
@@ -645,16 +677,19 @@ bool run_submenu(config_state& rs)
 				if (rs.current_clone != 0)
 					ret = true;
 				break;
+			case 16 :
+				run_volume(rs);
+				break;
 		}
 	}
-	
+
 	return ret;
 }
 
 // ------------------------------------------------------------------------
 // Help menu
 
-void run_help()
+void run_help(config_state& rs)
 {
 	int_clear(0, 0, int_dx_get(), int_dy_get(), COLOR_HELP_NORMAL.background);
 	int_clear(0, 0, int_dx_get(), int_font_dy_get(), COLOR_MENU_BAR.background);
@@ -675,8 +710,23 @@ void run_help()
 	int_put(xt, y, "TAB", COLOR_HELP_TAG);
 	int_put(xd, y, "Next menu mode", COLOR_HELP_NORMAL);
 	y += int_font_dy_get();
-	int_put(xt, y, "ESC", COLOR_HELP_TAG);
-	int_put(xd, y, "Exit (CTRL+ESC to shutdown)", COLOR_HELP_NORMAL);
+	if (rs.exit_count > 0) {
+		switch (rs.exit_count) {
+		case 1 :
+			int_put(xt, y, "ESC", COLOR_HELP_TAG);
+		break;
+		case 2 :
+			int_put(xt, y, "ESC+ESC", COLOR_HELP_TAG);
+		break;
+		default:
+		case 3 :
+			int_put(xt, y, "ESC+ESC+ESC", COLOR_HELP_TAG);
+		break;
+		}
+		int_put(xd, y, "Exit", COLOR_HELP_NORMAL);
+	}
+	int_put(xt, y, "CTRL-ESC", COLOR_HELP_TAG);
+	int_put(xd, y, "Shutdown", COLOR_HELP_NORMAL);
 	y += int_font_dy_get();
 	int_put(xt, y, "F2", COLOR_HELP_TAG);
 	int_put(xd, y, "Next game group", COLOR_HELP_NORMAL);

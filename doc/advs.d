@@ -4,7 +4,7 @@ Name
 Synopsys
 	:advs [-device_sound DEVICE] [-sound_samplerate RATE]
 	:	[-sound_latency TIME] [-sound_buffer TIME]
-	:	[-sound_volume VOLUME]
+	:	[-sound_volume VOLUME] [-log] [-logsync]
 	:	FILES...
 
 Description
@@ -14,7 +14,7 @@ Description
 
 	Press Break to terminate before the end.
 
-	Check the `advmame.txt' and `advmenu.txt' file for the description
+	Check the `advmame.txt' or `advmenu.txt' file for the description
 	of the `device_sound' and other options.
 
 Copyright

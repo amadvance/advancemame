@@ -91,6 +91,8 @@ struct os_context {
 
 	int is_quit; /**< Is termination requested. */
 	char title[128]; /**< Title of the window. */
+
+	os_clock_t last; /**< Last clock. */
 };
 
 static struct os_context OS;
@@ -103,8 +105,19 @@ os_clock_t OS_CLOCKS_PER_SEC = 1000000LL;
 os_clock_t os_clock(void)
 {
 	struct timeval tv;
+	os_clock_t r;
+
 	gettimeofday(&tv, NULL);
-	return tv.tv_sec * 1000000LL + tv.tv_usec;
+	r = tv.tv_sec * 1000000LL + tv.tv_usec;
+
+	/* on some laptops strange things may happen when the CPU change it's speed */
+	/* an back step of 20ms is reported in Linux */
+	if (r < OS.last)
+		r = OS.last;
+
+	OS.last = r;
+
+	return OS.last;
 }
 
 /***************************************************************************/
@@ -113,6 +126,8 @@ os_clock_t os_clock(void)
 int os_init(adv_conf* context)
 {
 	memset(&OS, 0, sizeof(OS));
+
+	OS.last = 0;
 
 	return 0;
 }

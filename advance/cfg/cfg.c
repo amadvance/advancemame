@@ -47,6 +47,13 @@ enum advance_t {
 	advance_mame, advance_mess, advance_pac, advance_menu
 } the_advance; /* The current operating mode */
 
+unsigned x_from_y(unsigned y) {
+	unsigned x;
+	x = y*2/3;
+	x = (x + 0xf) & ~0xF;
+	return x;
+}
+
 /***************************************************************************/
 /* Draw */
 
@@ -490,12 +497,10 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 	double hclock = crtc->pixelclock / crtc->ht;
 
 	adv_mode mode;
-	mode_reset(&mode);
 
 	while (!done) {
-		unsigned pred_t;
-
 		if (modify) {
+			mode_reset(&mode);
 			if (crtc_adjust_clock(&current, monitor)==0
 				&& crtc_is_valid(&current)
 				&& crtc_clock_check(monitor,&current)
@@ -556,14 +561,12 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 				done = 1;
 				break;
 			case 'i' :
-				pred_t = current.ht;
 				current.ht -= current.ht % 8;
 				current.ht -= 8;
 				current.pixelclock = hclock * current.ht;
 				modify = 1;
 				break;
 			case 'I' :
-				pred_t = current.ht;
 				current.ht -= current.ht % 8;
 				current.ht += 8;
 				current.pixelclock = hclock * current.ht;
@@ -627,8 +630,8 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned index, const ad
 	adv_crtc current = *crtc;
 
 	adv_mode mode;
-	mode_reset(&mode);
 
+	mode_reset(&mode);
 	if (crtc_adjust_clock(&current, monitor)==0
 		&& crtc_is_valid(&current)
 		&& crtc_clock_check(monitor,&current)
@@ -659,8 +662,7 @@ static adv_error cmd_adjust(const char* msg, adv_generate_interpolate* entry, co
 
 	crtc_reset(&crtc);
 
-	x = y*4/3;
-	x = x & ~0xF;
+	x = x_from_y(y);
 
 	generate_crtc(&crtc,x,y,generate);
 	crtc_hclock_set(&crtc,horz_clock);
@@ -898,8 +900,8 @@ static adv_error interpolate_test(const char* msg, adv_crtc* crtc, const adv_mon
 	adv_error res;
 
 	adv_mode mode;
-	mode_reset(&mode);
 
+	mode_reset(&mode);
 	if (video_mode_generate(&mode, crtc, index)!=0) {
 		return -1;
 	}
@@ -956,7 +958,7 @@ static adv_error cmd_interpolate_many(adv_generate_interpolate_set* interpolate,
 	data[mac].selected = 0;
 	data[mac].type = interpolate_mode;
 	data[mac].y = ymin;
-	data[mac].x = (ymin*4/3 + 0xf) & ~0xf;
+	data[mac].x = x_from_y(ymin);
 	data[mac].valid = 0;
 	ymin += 16;
 	++mac;
@@ -965,7 +967,7 @@ static adv_error cmd_interpolate_many(adv_generate_interpolate_set* interpolate,
 		data[mac].selected = 0;
 		data[mac].type = interpolate_mode;
 		data[mac].y = ymin;
-		data[mac].x = (ymin*4/3 + 0xf) & ~0xf;
+		data[mac].x = x_from_y(ymin);
 		data[mac].valid = 0;
 		ymin += 16;
 		++mac;
@@ -1149,12 +1151,12 @@ adv_error cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_mon
 	adv_crtc crtc;
 
 	adv_mode mode;
-	mode_reset(&mode);
 
 	if (generate_find_interpolate_double(&crtc, x, y, vclock, monitor, interpolate, cap, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL)!=0) {
 		return -1;
 	}
 
+	mode_reset(&mode);
 	if (video_mode_generate(&mode, &crtc, index)!=0) {
 		return -1;
 	}
@@ -1304,14 +1306,14 @@ static adv_error cmd_test(adv_generate_interpolate_set* interpolate, const adv_m
 	if (ymin != ymins) {
 		data[mac].type = test_mode;
 		data[mac].y = ymins;
-		data[mac].x = (ymins*4/3 + 0x7) & ~0x7;
+		data[mac].x = x_from_y(ymins);
 		++mac;
 	}
 
 	while (ymin <= ymax) {
 		data[mac].type = test_mode;
 		data[mac].y = ymin;
-		data[mac].x = (ymin*4/3 + 0x7) & ~0x7;
+		data[mac].x = x_from_y(ymin);
 		ymin += 16;
 		++mac;
 	}
@@ -1319,7 +1321,7 @@ static adv_error cmd_test(adv_generate_interpolate_set* interpolate, const adv_m
 	if (ymax != ymaxs) {
 		data[mac].type = test_mode;
 		data[mac].y = ymaxs;
-		data[mac].x = (ymaxs*4/3 + 0x7) & ~0x7;
+		data[mac].x = x_from_y(ymaxs);
 		++mac;
 	}
 

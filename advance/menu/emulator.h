@@ -190,8 +190,17 @@ public:
 };
 
 class mame_mess : public mame_info {
+protected:
+	tristate_t exclude_empty_effective;
+	tristate_t exclude_empty_orig;
 public:
 	mame_mess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
+
+	virtual void attrib_load();
+	virtual void attrib_save();
+	virtual bool attrib_set(const std::string& value0, const std::string& value1);
+	virtual void attrib_get(adv_conf* config_context, const char* section, const char* tag);
+	virtual bool filter(const game& g) const;
 
 	virtual void attrib_run();
 };

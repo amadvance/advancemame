@@ -54,7 +54,7 @@ extern unsigned char FIRE_DATA[];
 static unsigned play_rate;
 static double play_latency_time;
 static double play_buffer_time;
-static double play_volume;
+static int play_attenuation;
 static unsigned play_priority[CHANNEL_MAX];
 
 static bool play_memory(unsigned channel, unsigned char* data_begin, unsigned char* data_end, bool loop)
@@ -124,13 +124,10 @@ bool play_load(adv_conf* context)
 		return false;
 	}
 
-	attenuation = conf_int_get_default(context, "sound_volume");
+	play_attenuation = conf_int_get_default(context, "sound_volume");
 	play_latency_time = conf_float_get_default(context, "sound_latency");
 	play_buffer_time = conf_float_get_default(context, "sound_buffer");
 	play_rate = conf_int_get_default(context, "sound_samplerate");
-	play_volume = 1.0;
-	while (attenuation++ < 0)
-		play_volume /= 1.122018454; /* = (10 ^ (1/20)) = 1dB */
 
 	return true;
 }
@@ -145,9 +142,24 @@ bool play_init()
 	if (mixer_init(play_rate, CHANNEL_MAX, 1, play_buffer_time + play_latency_time, play_latency_time) != 0)
 		return false;
 
-	mixer_volume(play_volume);
+	play_volume(play_attenuation);
 
 	return true;
+}
+
+void play_volume(int attenuation)
+{
+	double volume;
+
+	if (attenuation <= -32) {
+		volume = 0;
+	} else {
+		volume = 1.0;
+		while (attenuation++ < 0)
+			volume /= 1.122018454; /* = (10 ^ (1/20)) = 1dB */
+	}
+
+	mixer_volume(volume);
 }
 
 void play_done()

@@ -20,7 +20,7 @@ OBJDIRS += \
 	$(OBJ)/advance/linux
 ADVANCECFLAGS += \
 	-I$(srcdir)/advance/linux \
-	-DPREFIX=\"$(PREFIX)\" \
+	-DDATADIR=\"$(DATADIR)\" \
 	-DUSE_VIDEO_NONE \
 	-DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_NONE \

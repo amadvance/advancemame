@@ -30,7 +30,7 @@ SOBJDIRS += \
 
 ifeq ($(CONF_HOST),unix)
 SCFLAGS += \
-	-DPREFIX=\"$(PREFIX)\" \
+	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/linux
 SLIBS += $(ZLIBS) -lm
 SOBJDIRS += \

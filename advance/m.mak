@@ -20,7 +20,7 @@ MOBJS += \
 
 ifeq ($(CONF_HOST),unix)
 MCFLAGS += \
-	-DPREFIX=\"$(PREFIX)\" \
+	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/linux \
 	-DUSE_MOUSE_NONE
 MOBJDIRS += \

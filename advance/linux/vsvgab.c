@@ -154,6 +154,65 @@ void svgalib_done(void)
 #define SVGALIB_TVMODE          0x200   /* Enable the TV output. */
 #define SVGALIB_TVPAL           0x400   /* Use the PAL format. */
 #define SVGALIB_TVNTSC          0x800   /* Use the NTSC format. */
+#define SVGALIB_FORCE           0x1000  /* Force the use of this modeline. */
+
+#if 0
+int svgalib_forcetimings(unsigned clock,
+	unsigned hde, unsigned hrs, unsigned hre, unsigned ht,
+	unsigned vde, unsigned vrs, unsigned vre, unsigned vt,
+	unsigned flags
+) {
+	int current_clock;
+	int current_hde;
+	int current_hrs;
+	int current_hre;
+	int current_ht;
+	int current_vde;
+	int current_vrs;
+	int current_vre;
+	int current_vt;
+	int current_flags;
+
+	unsigned flags_mask = SVGALIB_PHSYNC | SVGALIB_NHSYNC | SVGALIB_PVSYNC | SVGALIB_NVSYNC | SVGALIB_INTERLACED | SVGALIB_DOUBLESCAN | SVGALIB_TVMODE | SVGALIB_TVPAL | SVGALIB_TVNTSC;
+
+	log_std(("video:svgalib: vga_currenttiming()\n"));
+	if (vga_getcurrenttiming(&current_clock,
+		&current_hde, &current_hrs, &current_hre, &current_ht,
+		&current_vde, &current_vrs, &current_vre, &current_vt,
+		&current_flags
+		) != 0) {
+		error_set("Error in vga_getcurrenttiming");
+		return -1;
+	}
+
+	if (clock != current_clock
+		|| current_hde != hde || current_hrs != hrs || current_hre != hre || current_ht != ht
+		|| current_vde != vde || current_vrs != vrs || current_vre != vre || current_vt != vt
+		|| (current_flags & flags_mask) != (flags & flags_mask)
+	) {
+		current_clock = clock - current_clock;
+		current_hde = hde - current_hde;
+		current_hrs = hrs - current_hrs;
+		current_hre = hre - current_hre;
+		current_ht = ht - current_ht;
+		current_vde = vde - current_vde;
+		current_vrs = vhs - current_vrs;
+		current_vre = vre - current_vre;
+		current_vt = vt - current_vt;
+		current_flags = flags;
+
+		log_std(("video:svgalib: vga_changetiming()\n"));
+		/* the return value is always 1 in 1.9.17 */
+		vga_changetiming(current_clock,
+			current_hde, current_hrs, current_hre, current_ht,
+			current_vde, current_vrs, current_vre, current_vt,
+			current_flags
+		);
+	}
+
+	return 0;
+}
+#endif
 
 adv_error svgalib_mode_set(const svgalib_video_mode* mode) 
 {
@@ -168,7 +227,7 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 
 	log_std(("video:svgalib: svgalib_mode_set()\n"));
 
-	flags = 0;
+	flags = SVGALIB_FORCE;
 	if (crtc_is_doublescan(&mode->crtc))
 		flags |= SVGALIB_DOUBLESCAN;
 	if (crtc_is_interlace(&mode->crtc))

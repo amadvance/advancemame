@@ -656,6 +656,7 @@ Configuration
 		auto - Automatic detection (default).
 
 	Options for the Linux version:
+		alsa - ALSA automatic detection.
 		oss - OSS automatic detection.
 		sdl - SDL automatic detection.
 
@@ -779,7 +780,7 @@ Configuration
 	Note that this directory must be used only for your music.
 	The emulated game recordings, played when the cursor is moved on
 	the game, are stored in the snap directory defined in your
-	`mame.rc' or with the `emulator_altss' option.
+	`advmame/mess/pac.rc' or with the `emulator_altss' option.
 
 	:sound_background_loop_dir "DIR"
 

@@ -213,6 +213,10 @@ ifndef CONF_DEBUG
 CONF_DEBUG=no
 endif
 
+ifndef DATADIR
+DATADIR=$(PREFIX)/share/advance
+endif
+
 #############################################################################
 # Extra configuration (common for ./configure and autotected)
 

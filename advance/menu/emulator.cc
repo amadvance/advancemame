@@ -751,7 +751,9 @@ bool mame_info::load_game(game_set& gar)
 
 	if (file_ext(config_exe_path_get()) != ".bat"
 		&& err_exe==0
-		&& (err_info!=0 || st_info.st_mtime < st_mame.st_mtime || st_info.st_size == 0)) {
+		&& (err_info!=0 || st_info.st_mtime < st_mame.st_mtime || st_info.st_size == 0)
+		&& (err_info!=0 || access(cpath_export(info_file), W_OK)==0)
+	) {
 		target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
 
 		char cmd[TARGET_MAXCMD];
@@ -1468,6 +1470,57 @@ bool advpac::load_cfg(const game_set& gar)
 
 mame_mess::mame_mess(const string& Aname, const string& Aexe_path, const string& Acmd_arg) :
 	mame_info(Aname, Aexe_path, Acmd_arg) {
+	exclude_empty_orig = exclude;
+}
+
+void mame_mess::attrib_load()
+{
+	mame_info::attrib_load();
+	exclude_empty_effective = exclude_empty_orig;
+}
+
+void mame_mess::attrib_save()
+{
+	mame_info::attrib_save();
+	exclude_empty_orig = exclude_empty_effective;
+}
+
+bool mame_mess::attrib_set(const std::string& value0, const std::string& value1)
+{
+	if (mame_info::attrib_set(value0, value1))
+		return true;
+
+	if (value0 == "empty") {
+		if (!tristate(exclude_empty_orig, value1))
+			return false;
+	} else {
+		return false;
+	}
+
+	return true;
+}
+
+void mame_mess::attrib_get(adv_conf* config_context, const char* section, const char* tag)
+{
+	mame_info::attrib_get(config_context, section, tag);
+	conf_string_set(config_context, section, tag, attrib_compile("empty", tristate(exclude_empty_orig)).c_str() );
+}
+
+bool mame_mess::filter(const game& g) const {
+	if (!mame_info::filter(g))
+		return false;
+
+	const game& bios = g.bios_get();
+
+	// include always the software
+	if (!g.software_get()) {
+		if (exclude_empty_effective == exclude && bios.size_get() == 0)
+			return false;
+		if (exclude_empty_effective == exclude_not && bios.size_get() != 0)
+			return false;
+	}
+
+	return true;
 }
 
 void mame_mess::attrib_run()
@@ -1479,6 +1532,7 @@ void mame_mess::attrib_run()
 	ch.insert( ch.end(), choice("Parent or Clone", " Only\tParent", " Only\tClone", exclude_clone_effective, 0) );
 	ch.insert( ch.end(), choice("Any Screen Type", " Only\tScreen Raster", " Only\tScreen Vector", exclude_vector_effective, 0) );
 	ch.insert( ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", exclude_vertical_effective, 0) );
+	ch.insert( ch.end(), choice("With BIOS or not", " Only\tWith BIOS", " Only\tWithout BIOS", exclude_empty_effective, 0) );
 
 	choice_bag::iterator i = ch.begin();
 	int key = ch.run(" " + user_name_get() + " Attrib", SECOND_CHOICE_X, SECOND_CHOICE_Y, ATTRIB_CHOICE_DX, i);
@@ -1489,6 +1543,7 @@ void mame_mess::attrib_run()
 		exclude_clone_effective = ch[2].tristate_get();
 		exclude_vector_effective = ch[3].tristate_get();
 		exclude_vertical_effective = ch[4].tristate_get();
+		exclude_empty_effective = ch[5].tristate_get();
 	}
 }
 
@@ -2458,7 +2513,9 @@ bool raine_info::load_game(game_set& gar)
 
 	if (file_ext(config_exe_path_get()) != ".bat"
 		&& err_exe==0
-		&& (err_info!=0 || st_info.st_mtime < st_mame.st_mtime)) {
+		&& (err_info!=0 || st_info.st_mtime < st_mame.st_mtime)
+		&& (err_info!=0 || access(cpath_export(info_file), W_OK)==0)
+	) {
 		target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
 
 		char cmd[TARGET_MAXCMD];

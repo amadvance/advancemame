@@ -14,7 +14,19 @@ Name
 		* License FAQ
 
 AdvanceMAME FAQ
-	<empty>
+  Is the Linux version of AdvanceMAME able to program my video board ?
+	Yes. It uses both the SVGALIB library and FrameBuffer kernel service
+	to directly program the video board.
+
+  Is the DOS version of AdvanceMAME able to program my video board ?
+	Yes. It uses a modified version of the Linux SVGALIB library that
+	allows the direct programming the video board.
+
+  Is the Windows version of AdvanceMAME able to program my video board ?
+	Yes in Windows NT/2000/XP. It uses a modified version of the
+	Linux SVGALIB library, called SVGAWIN, that allows the direct
+	programming of the video board. In Windows 98/Me you can use
+	the DOS version to directly program your video board.
 
 AdvanceMENU FAQ
   Can I use AdvanceMENU to list my MP3 and MNG collection ?
@@ -102,6 +114,25 @@ Linux Configuration FAQ
 
 		:man dga
 
+  Can I run AdvanceMENU directly from /etc/inittab ?
+	The SVGALIB library needs a controlling tty and programs using it
+	cannot be run directly from init. You can anyway start them in
+	a shell, like :
+
+		:::respawn:-/bin/sh -c advmenu
+
+	or write a simple program wrapper which sets a tty and
+	execs the program you want, like :
+
+		:i=open("/dev/tty1", O_RDWR);
+		:ioctl(i, TIOCSCTTY, 1);
+		:exec(...)
+
+  Can I run the Advance programs in a readonly filesystem ?
+	Yes. All the writable files are put in the $HOME directory.
+	If you don't set a HOME environment variable no file is
+	written.
+
 Windows Configuration FAQ
 	<empty>
 
@@ -155,6 +186,14 @@ Video Configuration FAQ
 
 	The only exception is for frequencies which are multipler of
 	the original game refresh rate.
+
+  Why the smaller video modes like 256x224 are not working ?
+	Probably your video board isn't able to generate very low
+	pixelclocks. You can try to increase the minimun value of the
+	`device_video_pclock' option. The video mode generation will
+	automatically generate video modes with double or triple
+	horizontal resolutions to force the use of a pixelclock in
+	the specified range.
 
 License FAQ
   Why SourceForge accepted the AdvanceMAME project and not the

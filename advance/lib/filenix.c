@@ -43,8 +43,8 @@
 #include <sys/utsname.h>
 #include <sys/wait.h>
 
-#ifndef PREFIX
-#error Macro PREFIX undefined
+#ifndef DATADIR
+#error Macro DATADIR undefined
 #endif
 
 struct file_context {
@@ -74,15 +74,14 @@ int file_init(void)
 	memset(&FL, 0, sizeof(FL));
 
 	/* root */
-	strcpy(FL.root_dir, PREFIX);
-	strcatslash(FL.root_dir);
-	strcat(FL.root_dir, "share/advance");
+	strcat(FL.root_dir, DATADIR);
 
 	/* home */
 	home = getenv("HOME");
 	if (!home || !*home) {
 		/* use the root dir as home dir */
 		strcpy(FL.home_dir, FL.root_dir);
+
 		/* clear the root dir */
 		FL.root_dir[0] = 0;
 	} else {
@@ -93,7 +92,6 @@ int file_init(void)
 
 	if (FL.home_dir[0]) {
 		struct stat st;
-
 		if (stat(FL.home_dir, &st) == 0) {
 			if (!S_ISDIR(st.st_mode)) {
 				target_err("Failure: A file named %s exists\n", FL.home_dir);
@@ -101,7 +99,7 @@ int file_init(void)
 			}
 		} else {
 			if (mkdir(FL.home_dir, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0) {
-				target_err("Failure: Error creating the directory %s\n", FL.home_dir);
+				target_err("Failure: Error creating the directory %s.\nTry unsetting the HOME variable.\n", FL.home_dir);
 				return -1;
 			}
 		}

@@ -257,27 +257,27 @@ CONF_BIN = \
 # Common install
 
 installdirs:
-	-$(INSTALL_DATA_DIR) $(PREFIX)/doc/advance
+	-$(INSTALL_DATA_DIR) $(DATADIR)
+	-$(INSTALL_DATA_DIR) $(DATADIR)/doc
 	-$(INSTALL_MAN_DIR) $(PREFIX)/man/man1
-	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance
 ifneq ($(wildcard $(EMUSRC)),)
-	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/rom
-	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/sample
-	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/artwork
-	-$(INSTALL_DATA_DIR) $(PREFIX)/share/advance/image
+	-$(INSTALL_DATA_DIR) $(DATADIR)/rom
+	-$(INSTALL_DATA_DIR) $(DATADIR)/sample
+	-$(INSTALL_DATA_DIR) $(DATADIR)/artwork
+	-$(INSTALL_DATA_DIR) $(DATADIR)/image
 endif
 
 install-data: $(INSTALL_DATAFILES)
 ifdef INSTALL_DATAFILES
 	@for i in $(INSTALL_DATAFILES); do \
-		$(INSTALL_DATA) $$i $(PREFIX)/share/advance; \
+		$(INSTALL_DATA) $$i $(DATADIR); \
 	done
 endif
 
 uninstall-data:
 ifdef INSTALL_DATAFILES
 	@for i in $(INSTALL_DATAFILES); do \
-		rm -f $(PREFIX)/share/advance/$$i; \
+		rm -f $(DATADIR)/$$i; \
 	done
 endif
 
@@ -294,14 +294,14 @@ uninstall-bin:
 install-doc: $(INSTALL_DOCFILES)
 ifdef INSTALL_DOCFILES
 	@for i in $(INSTALL_DOCFILES); do \
-		$(INSTALL_DATA) $$i $(PREFIX)/doc/advance; \
+		$(INSTALL_DATA) $$i $(DATADIR)/doc; \
 	done
 endif
 
 uninstall-doc:
 ifdef INSTALL_DOCFILES
 	@for i in $(INSTALL_DOCFILES); do \
-		rm -f $(PREFIX)/doc/advance/$$i; \
+		rm -f $(DATADIR)/doc/$$i; \
 	done
 endif
 
@@ -371,6 +371,18 @@ wholemame:
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos distbin
 	$(MAKE) $(ARCH_I686) CONF=no CONF_HOST=dos distbin
 	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos distbin
+
+WHOLECD_FLAGS = \
+		CONF_ARCH=cd CONF_CFLAGS_OPT="-march=i586 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
+		CONF=no CONF_HOST=unix \
+		CONF_LIB_SVGALIB=yes CONF_LIB_ALSA=yes CONF_LIB_KRAW=yes \
+		CONF_LIB_FB=yes CONF_LIB_OSS=yes CONF_LIB_PTHREAD=yes \
+		CONF_LIB_SDL=no \
+		DATADIR=/advance
+wholecd:
+	$(MAKE) $(WHOLECD_FLAGS) distbin
+	$(MAKE) $(WHOLECD_FLAGS) CONF_EMU=mess distbin
+	$(MAKE) $(WHOLECD_FLAGS) distmenubin
 
 wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist

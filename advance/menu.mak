@@ -81,7 +81,7 @@ ifeq ($(CONF_HOST),unix)
 MENUOBJDIRS += \
 	$(MENUOBJ)/linux
 MENUCFLAGS +=  \
-	-DPREFIX=\"$(PREFIX)\" \
+	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/linux
 MENUCFLAGS += \
 	-DUSE_VIDEO_NONE -DUSE_VIDEO_RESTORE \

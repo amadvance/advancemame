@@ -63,7 +63,7 @@ int run_sub(config_state& rs, bool silent)
 		if (!rs.lock_effective)
 		switch (key) {
 			case INT_KEY_HELP :
-				run_help();
+				run_help(rs);
 				break;
 			case INT_KEY_GROUP :
 				// replay the sound and clip

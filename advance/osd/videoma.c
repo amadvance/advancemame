@@ -178,6 +178,23 @@ void advance_video_save(struct advance_video_context* context, const char* secti
 /* Update */
 
 /**
+ * Check if the video output is programmable.
+ */
+static adv_bool video_is_programmable(struct advance_video_context* context)
+{
+	return (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0;
+}
+
+/**
+ * Check if the video generation is active.
+ */
+static adv_bool video_is_generable(struct advance_video_context* context)
+{
+	return (context->config.adjust & ADJUST_GENERATE) != 0
+		&& video_is_programmable(context);
+}
+
+/**
  * Adjust the CRTC value.
  * \return 0 on success
  */
@@ -185,7 +202,7 @@ static int video_make_crtc(struct advance_video_context* context, adv_crtc* crtc
 {
 	*crtc = *original_crtc;
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
+	if (!video_is_programmable(context)) {
 		return 0; /* always ok if the driver is not programmable */
 	}
 
@@ -780,7 +797,7 @@ static int is_crtc_acceptable_preventive(struct advance_video_context* context, 
 
 	mode_reset(&mode);
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
+	if (!video_is_programmable(context)) {
 		return 1; /* always ok if the driver is not programmable */
 	}
 
@@ -811,8 +828,20 @@ static int is_crtc_acceptable_preventive(struct advance_video_context* context, 
 
 static void video_update_visible(struct advance_video_context* context, const adv_crtc* crtc)
 {
+	unsigned stretch;
 
 	assert( crtc );
+
+	stretch = context->config.stretch;
+
+	if ((context->config.adjust & (ADJUST_ADJUST_X | ADJUST_GENERATE)) != 0
+		&& video_is_programmable(context)
+	) {
+		if (stretch == STRETCH_FRACTIONAL_XY) {
+			log_std(("emu:video: fractional converted in mixed because generate/x is active\n"));
+			stretch = STRETCH_INTEGER_X_FRACTIONAL_Y;
+		}
+	}
 
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
 		/* only for window */
@@ -853,7 +882,7 @@ static void video_update_visible(struct advance_video_context* context, const ad
 		}
 	}
 
-	if (context->config.stretch == STRETCH_FRACTIONAL_XY) {
+	if (stretch == STRETCH_FRACTIONAL_XY) {
 		context->state.game_visible_size_x = context->state.game_used_size_x;
 		context->state.game_visible_size_y = context->state.game_used_size_y;
 
@@ -867,7 +896,7 @@ static void video_update_visible(struct advance_video_context* context, const ad
 			context->state.mode_visible_size_y = context->state.game_used_size_y;
 		}
 
-	} else if (context->config.stretch == STRETCH_INTEGER_X_FRACTIONAL_Y) {
+	} else if (stretch == STRETCH_INTEGER_X_FRACTIONAL_Y) {
 
 		unsigned mx;
 		mx = floor(context->state.mode_visible_size_x / (double)context->state.game_used_size_x + 0.5);
@@ -883,7 +912,7 @@ static void video_update_visible(struct advance_video_context* context, const ad
 		}
 
 		context->state.game_visible_size_y = context->state.game_used_size_y;
-	} else if (context->config.stretch == STRETCH_INTEGER_XY) {
+	} else if (stretch == STRETCH_INTEGER_XY) {
 		unsigned mx;
 		unsigned my;
 
@@ -1080,11 +1109,6 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 
 	ret = crtc_container_insert(&context->config.crtc_bag, &crtc);
 
-	if (context->config.stretch == STRETCH_FRACTIONAL_XY) {
-		log_std(("emu:video: fractional coverted in mixed because generate/adjustx is active\n"));
-		context->config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y;
-	}
-
 	return ret;
 }
 
@@ -1157,15 +1181,6 @@ static unsigned best_step(unsigned value, unsigned step)
 }
 
 /**
- * Check if the video output is programmable.
- */
-static adv_bool video_is_programmable(struct advance_video_context* context)
-{
-	return (context->config.adjust & ADJUST_GENERATE) != 0
-		&& (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0;
-}
-
-/**
  * Initialize the state.
  * \return 0 on success
  */
@@ -1183,11 +1198,11 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	unsigned long long arcade_aspect_ratio_y;
 
 	if (context->config.adjust != ADJUST_NONE
-		&& (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0  /* not for programmable driver */
+		&& !video_is_programmable(context)
 	) {
 #if 1
 		context->config.adjust = ADJUST_NONE;
-		log_std(("emu:video: adjust=* disabled because the graphics driver is not programmable\n"));
+		log_std(("emu:video: display_adjust=* disabled because the graphics driver is not programmable\n"));
 #else
 		target_err(
 			"Your current video driver doesn't support hardware programming.\n"
@@ -1268,7 +1283,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		unsigned step_x;
 
 		/* if the clock is programmable the monitor specification must be present */
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+		if (video_is_programmable(context)) {
 			if (monitor_is_empty(&context->config.monitor)) {
 				target_err("Missing options `device_video_p/h/vclock'.\n");
 				target_err("Please read the file `install.txt' and `advv.txt'.\n");
@@ -1332,7 +1347,7 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		best_vclock = context->state.game_fps;
 
 		if (!context->state.game_vector_flag) { /* nonsense for vector games */
-			if (video_is_programmable(context) && context->config.interpolate.mac > 0) {
+			if (video_is_generable(context) && context->config.interpolate.mac > 0) {
 				/* generate modes for a programmable driver */
 				const adv_crtc* crtc;
 				crtc = video_init_crtc_make_raster(context, "generate", best_size_x, best_size_y, best_vclock, 0, 0);
@@ -1358,7 +1373,10 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 
 	log_std(("emu:video: best mode %dx%d, mode2x %dx%d, mode3x %dx%d, bits_per_pixel %d, vclock %g\n", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_bits, (double)best_vclock));
 
-	if (context->state.game_vector_flag) {
+	if (context->state.game_vector_flag
+		&& context->config.stretch != STRETCH_NONE
+	) {
+		log_std(("emu:video: stretch disabled because it's a vector game\n"));
 		context->config.stretch = STRETCH_NONE;
 	}
 
@@ -1837,13 +1855,15 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 		skip = estimate_context->estimate_mame_skip;
 		if (skip < estimate_context->estimate_osd_skip)
 			skip = estimate_context->estimate_osd_skip;
-		full += estimate_context->estimate_common_full;
-		skip += estimate_context->estimate_common_skip;
 	} else {
 		/* standard time estimation */
 		full = estimate_context->estimate_mame_full + estimate_context->estimate_osd_full;
 		skip = estimate_context->estimate_mame_skip + estimate_context->estimate_osd_skip;
 	}
+
+	/* common time */
+	full += estimate_context->estimate_common_full;
+	skip += estimate_context->estimate_common_skip;
 
 	log_debug(("advance:skip: step %g [sec]\n", step));
 	log_debug(("advance:skip: frame full %g [sec], frame skip %g [sec]\n", estimate_context->estimate_mame_full + estimate_context->estimate_osd_full, estimate_context->estimate_mame_skip + estimate_context->estimate_osd_skip));
@@ -1852,21 +1872,28 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 	log_debug(("advance:skip: full %g [sec], skip %g [sec]\n", full, skip));
 
 	if (full < step) {
+		/* full frame rate */
 		context->state.skip_level_full = SYNC_MAX;
 		context->state.skip_level_skip = 0;
 	} else if (skip > step) {
+		/* null frame rate */
 		context->state.skip_level_full = 1;
 		context->state.skip_level_skip = SYNC_MAX - 1;
 	} else {
 		double v = (step - skip) / (full - step);
-		if (v > 1) {
-			context->state.skip_level_full = floor( v );
+		double f = (full - skip) / step;
+		if (v >= 1) {
+			/* The use of ceil() instead of floor() generates a frame rate a little lower than 100% */
+			/* but it ensures to use all the CPU time */
+			context->state.skip_level_full = ceil( v );
 			context->state.skip_level_skip = 1;
 			if (context->state.skip_level_full >= SYNC_MAX)
 				context->state.skip_level_full = SYNC_MAX - 1;
 		} else {
 			context->state.skip_level_full = 1;
-			context->state.skip_level_skip = ceil( 1 / v );
+			/* The use of floor() instead of ceil() generates a frame rate a little lower than 100% */
+			/* but it ensures to use all the CPU time */
+			context->state.skip_level_skip = floor( 1 / v );
 			if (context->state.skip_level_skip >= SYNC_MAX)
 				context->state.skip_level_skip = SYNC_MAX - 1;
 		}
@@ -1981,13 +2008,19 @@ static void video_frame_sync_free(struct advance_video_context* context)
 static void video_sync_update(struct advance_video_context* context, struct advance_sound_context* sound_context, int skip_flag)
 {
 	if (!skip_flag) {
+		double skip_time;
 		if (!context->state.fastest_flag
 			&& !context->state.measure_flag
 			&& context->state.sync_throttle_flag)
 			video_frame_sync(context);
 		else
 			video_frame_sync_free(context);
-		context->state.latency_diff = advance_sound_latency_diff(sound_context);
+
+		/* compute for how much time the sound may not be updated */
+		/* the +1 is for the single frame computation, plus any additional skipped frame */
+		skip_time = (context->state.skip_level_skip + 1) * context->state.skip_step;
+
+		context->state.latency_diff = advance_sound_latency_diff(sound_context, skip_time);
 	} else {
 		++context->state.sync_skip_counter;
 	}
@@ -3046,10 +3079,10 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 	int best_size;
 
 	/* insert some default modeline if no generate option is present and the modeline set is empty */
-	if (!video_is_programmable(context)
+	if (!video_is_generable(context)
 		&& crtc_container_is_empty(&context->config.crtc_bag)) {
 
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
+		if (video_is_programmable(context)) {
 			crtc_container_insert_default_modeline_svga(&context->config.crtc_bag);
 			crtc_container_insert_default_modeline_vga(&context->config.crtc_bag);
 		} else {
@@ -3081,7 +3114,7 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 		mode_size_x = 640;
 		mode_size_y = 480;
 
-		if (video_is_programmable(context)
+		if (video_is_generable(context)
 			&& context->config.interpolate.mac > 0
 		) {
 			/* insert the default mode for vector games */

@@ -87,16 +87,16 @@
 /* Video */
 
 /* Software strecth (enumeration) */
-#define STRETCH_NONE 0 /**< not at all */
-#define STRETCH_INTEGER_XY 1 /**< only integer strech x2, x3, ... */
-#define STRETCH_INTEGER_X_FRACTIONAL_Y 2 /**< integer on x, fractional on y */
-#define STRETCH_FRACTIONAL_XY 3 /**< fractional on x and y */
+#define STRETCH_NONE 0 /**< No stretch. */
+#define STRETCH_INTEGER_XY 1 /**< Only integer strech x2, x3, ... */
+#define STRETCH_INTEGER_X_FRACTIONAL_Y 2 /**< Integer stretch on x, fractional on y. */
+#define STRETCH_FRACTIONAL_XY 3 /**< Stretch fractional on x and y. */
 
 /* Hardware stretch (enumeration) */
-#define ADJUST_NONE 0 /**< not at all */
-#define ADJUST_ADJUST_X 0x1
-#define ADJUST_ADJUST_CLOCK 0x2
-#define ADJUST_GENERATE 0x4
+#define ADJUST_NONE 0 /**< No mode adjust. */
+#define ADJUST_ADJUST_X 0x1 /**< Adjust the x size. */
+#define ADJUST_ADJUST_CLOCK 0x2 /**< Adjuts the clock. */
+#define ADJUST_GENERATE 0x4 /**< Generate. */
 
 /* Special combine effect (enumeration) */
 #define COMBINE_AUTO -1
@@ -403,15 +403,16 @@ int advance_record_snapshot_is_active(struct advance_record_context* context);
 #define SOUND_MODE_SURROUND 2
 
 struct advance_sound_config_context {
-	double latency_time; /**< Requested latency in seconds */
+	double latency_time; /**< Requested minimum latency in seconds */
 	int mode; /**< Channel mode. */
 	int attenuation;
 };
 
 struct advance_sound_state_context {
-	int active_flag; /**< Flag for active sound */
-	double volume; /**< Current volume. [0 - 1] */
-	unsigned latency; /**< Expected latency in samples */
+	int active_flag; /**< Flag for active sound. */
+	double volume; /**< Current volume. [0 - 1]. */
+	unsigned latency_min; /**< Expected minum latency in samples. */
+	unsigned latency_max; /**< Maximum latency, limitated by the lower driver buffer. */
 	unsigned rate; /**< Current sample rate */
 	int input_mode; /**< Input mode format. */
 	int output_mode; /**< Output mode format. */
@@ -429,7 +430,7 @@ int advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_cont
 void advance_sound_done(struct advance_sound_context* context);
 int advance_sound_config_load(struct advance_sound_context* context, adv_conf* cfg_context, struct mame_option* game_options);
 void advance_sound_update(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, const short* sample_buffer, unsigned sample_count);
-int advance_sound_latency_diff(struct advance_sound_context* context);
+int advance_sound_latency_diff(struct advance_sound_context* context, double extra_latency);
 
 /***************************************************************************/
 /* Estimate */
@@ -545,10 +546,22 @@ int advance_input_config_load(struct advance_input_context* context, adv_conf* c
 int advance_input_exit_filter(struct advance_input_context* context, struct advance_safequit_context* safequit_context, int result_memory);
 
 /***************************************************************************/
+/* Global */
+
+struct advance_global_state_context {
+	adv_bool is_config_writable; /**< Is the configuration file writable ? */
+};
+
+struct advance_global_context {
+	struct advance_global_state_context state;
+};
+
+/***************************************************************************/
 /* State */
 
 struct advance_context {
 	const mame_game* game;
+	struct advance_global_context global;
 	struct advance_video_context video;
 	struct advance_estimate_context estimate;
 	struct advance_input_context input;

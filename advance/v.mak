@@ -35,7 +35,7 @@ VOBJDIRS += \
 
 ifeq ($(CONF_HOST),unix)
 VCFLAGS += \
-	-DPREFIX=\"$(PREFIX)\" \
+	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/linux
 VOBJDIRS += \
 	$(VOBJ)/linux
@@ -143,7 +143,7 @@ endif
 
 ifeq ($(CONF_HOST),windows)
 VCFLAGS += \
-	-DPREFIX=\"$(PREFIX)\" \
+	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/windows
 VOBJDIRS += \
 	$(VOBJ)/windows

@@ -20,7 +20,7 @@ IOBJS += \
 
 ifeq ($(CONF_HOST),unix)
 ICFLAGS += \
-	-DPREFIX=\"$(PREFIX)\" \
+	-DDATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/linux \
 	-DUSE_INPUT_NONE
 IOBJDIRS += \

@@ -549,6 +549,13 @@ int os_main(int argc, char* argv[])
 	if (conf_input_file_load_adv(cfg_context, 0, file_config_file_home(ADVANCE_NAME ".rc"), file_config_file_home(ADVANCE_NAME ".rc"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
 		goto err_os;
 
+	/* check if the configuration file is writable */
+	if (access(file_config_file_home(ADVANCE_NAME ".rc"), F_OK)) {
+		context->global.state.is_config_writable = access(file_config_file_home(ADVANCE_NAME ".rc"), W_OK)==0;
+	} else {
+		context->global.state.is_config_writable = access(file_config_file_home("."), W_OK)==0;
+	}
+
 	if (conf_input_args_load(cfg_context, 1, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
@@ -597,21 +604,30 @@ int os_main(int argc, char* argv[])
 		&& !(file_config_file_home(ADVANCE_NAME ".rc") != 0 && access(file_config_file_home(ADVANCE_NAME ".rc"), R_OK)==0)) {
 		conf_set_default_if_missing(cfg_context, "");
 		conf_sort(cfg_context);
-		conf_save(cfg_context, 1);
+		if (conf_save(cfg_context, 1) != 0) {
+			target_err("Error writing the configuration file '%s'\n", file_config_file_home(ADVANCE_NAME ".rc"));
+			goto err_os;
+		}
 		target_out("Configuration file '%s' created with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
 
 	if (opt_default) {
 		conf_set_default_if_missing(cfg_context, "");
-		conf_save(cfg_context, 1);
+		if (conf_save(cfg_context, 1) != 0) {
+			target_err("Error writing the configuration file '%s'\n", file_config_file_home(ADVANCE_NAME ".rc"));
+			goto err_os;
+		}
 		target_out("Configuration file '%s' updated with all the default options\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
 
 	if (opt_remove) {
 		conf_remove_if_default(cfg_context, "");
-		conf_save(cfg_context, 1);
+		if (conf_save(cfg_context, 1) !=0) {
+			target_err("Error writing the configuration file '%s'\n", file_config_file_home(ADVANCE_NAME ".rc"));
+			goto err_os;
+		}
 		target_out("Configuration file '%s' updated with all the default options removed\n", file_config_file_home(ADVANCE_NAME ".rc"));
 		goto done_os;
 	}
@@ -622,10 +638,10 @@ int os_main(int argc, char* argv[])
 			goto err_os;
 		}
 
-		/* we need to know where search the playback file. Without knowing the */
+		/* we need to know where to search the playback file. Without knowing the */
 		/* game only the global options can be used. */
 		/* It implies that after the game is know the playback directory may */
-		/* differ becase a specific option for the game is present in the */
+		/* differ because a specific option for the game may be present in the */
 		/* configuration */
 		section_map[0] = "";
 		conf_section_set(cfg_context, section_map, 1);

@@ -229,7 +229,82 @@ unsigned sound_alsa_buffered(void)
 
 void sound_alsa_volume(double volume)
 {
+	snd_mixer_t* handle;
+	snd_mixer_elem_t* elem;
+	snd_mixer_selem_id_t* sid;
+	const char* card = "default";
+	unsigned c;
+	long pmin, pmax;
+	long v;
+	int r;
+
+	snd_mixer_selem_id_alloca(&sid);
+
 	log_std(("sound:alsa: sound_alsa_volume(volume:%g)\n", (double)volume));
+
+	snd_mixer_selem_id_set_name(sid, "Master");
+
+	r = snd_mixer_open(&handle, 0);
+	if (r < 0) {
+		log_std(("sound:alsa: Mixer open error: %s\n", snd_strerror(r)));
+		goto err;
+	}
+
+	r = snd_mixer_attach(handle, card);
+	if (r < 0) {
+		log_std(("sound:alsa: Mixer attach error: %s", snd_strerror(r)));
+		goto err_close;
+	}
+
+	if ((r = snd_mixer_selem_register(handle, NULL, NULL)) < 0) {
+		log_std(("sound:alsa: Mixer register error: %s", snd_strerror(r)));
+		goto err_close;
+	}
+
+	r = snd_mixer_load(handle);
+	if (r < 0) {
+		log_std(("sound:alsa: Mixer load error: %s", snd_strerror(r)));
+		goto err_close;
+	}
+
+	elem = snd_mixer_find_selem(handle, sid);
+	if (!elem) {
+		log_std(("sound:alsa: Unable to find simple control '%s',%i\n", snd_mixer_selem_id_get_name(sid), snd_mixer_selem_id_get_index(sid)));
+		goto err_close;
+	}
+
+	if (volume > 0) {
+		for(c=0;c<=SND_MIXER_SCHN_LAST;++c) {
+			snd_mixer_selem_set_playback_switch(elem, c, 1);
+		}
+
+		if (snd_mixer_selem_has_playback_volume(elem)) {
+			snd_mixer_selem_get_playback_volume_range(elem, &pmin, &pmax);
+
+			v = pmin + (pmax - pmin) * volume;
+			if (v < pmin)
+				v = pmin;
+			if (v > pmax)
+				v = pmax;
+
+			for(c=0;c<=SND_MIXER_SCHN_LAST;++c) {
+				snd_mixer_selem_set_playback_volume(elem, c, v);
+			}
+		}
+	} else {
+		for(c=0;c<=SND_MIXER_SCHN_LAST;++c) {
+			snd_mixer_selem_set_playback_switch(elem, c, 0);
+		}
+	}
+
+	snd_mixer_close(handle);
+
+	return;
+
+err_close:
+	snd_mixer_close(handle);
+err:
+	return;
 }
 
 void sound_alsa_play(const short* sample_map, unsigned sample_count)
