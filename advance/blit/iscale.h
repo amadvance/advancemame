@@ -28,6 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+/*
+ * Alternatively at the previous license terms, you are allowed to use this
+ * code in your program with these conditions:
+ * - the program is not used in commercial activities.
+ * - the whole source code of the program is released with the binary.
+ */
+
 #ifndef __ISCALE_H
 #define __ISCALE_H
 

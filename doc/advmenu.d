@@ -686,6 +686,10 @@ Configuration
 		vsync/wss - Windows Sound System.
 		vsync/ess- Ensoniq Soundscape.
 
+	The vsync/ drivers came from th VSyncMAME emulator. More info
+	are in the VSyncMAME page :
+
+		http://vsynchmame.mameworld.net
 
 	Options for the Linux version:
 		oss - OSS automatic detection.

@@ -134,7 +134,7 @@ if test $ac_auto_ldflags = yes ; then
 			LDFLAGS="-g"
 		fi
 	else
-		LDFLAGS="-s"
+		LDFLAGS="-g"
 	fi
 fi
 
