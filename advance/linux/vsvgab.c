@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -459,17 +459,46 @@ adv_color_def svgalib_color_def(void)
 void svgalib_wait_vsync(void)
 {
 	assert(svgalib_is_active() && svgalib_mode_is_active());
+
 	vga_waitretrace();
 }
 
 adv_error svgalib_scroll(unsigned offset, adv_bool waitvsync)
 {
+	vga_modeinfo* modeinfo;
+	adv_bool sync_flag;
+
 	assert(svgalib_is_active() && svgalib_mode_is_active());
 
-	if (waitvsync)
-		vga_waitretrace();
+	modeinfo = vga_getmodeinfo(svgalib_state.mode_number);
+	if (!modeinfo) {
+		error_set("Function vga_getmodeinfo() failed.\n");
+		return -1;
+	}
 
-	vga_setdisplaystart(offset);
+#ifdef IOCTL_SETDISPLAY /* IOCTL_SETDISPLAY is present only from SVGALIB 1.9.19 */
+	if ((modeinfo->flags & IOCTL_SETDISPLAY) != 0) {
+		sync_flag = 1;
+	} else {
+		sync_flag = 0;
+	}
+#else
+	sync_flag = 0;
+#endif
+
+	if (sync_flag) {
+		/* if the change is syncronous, the display function must be called before the wait */
+		vga_setdisplaystart(offset);
+
+		if (waitvsync)
+			vga_waitretrace();
+	} else {
+		/* if the change is asyncronous, the display function must be called after the wait */
+		if (waitvsync)
+			vga_waitretrace();
+
+		vga_setdisplaystart(offset);
+	}
 
 	return 0;
 }

@@ -163,7 +163,7 @@ static int vdd_ioctl(unsigned ioctl, void* in, unsigned in_size, void* out, unsi
 
 	r.x.cs = vdd_memory_segment;
 	r.x.ds = vdd_memory_segment;
-	r.x.es = vdd_memory_segment;	
+	r.x.es = vdd_memory_segment;
 
 	r.x.ip = vdd_allocate(&address, vdd_dispatch_call, sizeof(vdd_dispatch_call));
 
@@ -197,7 +197,7 @@ static int vdd_ioctl(unsigned ioctl, void* in, unsigned in_size, void* out, unsi
 
 int adv_svgalib_ioctl(unsigned code, void* input, unsigned input_size, void* output, unsigned output_size)
 {
-	unsigned output_returned;	
+	unsigned output_returned;
 
 	if (vdd_ioctl(code, input, input_size, output, output_size, &output_returned) != 0) {
 		return -1;
@@ -595,10 +595,10 @@ void* adv_svgalib_mmap(void* start, unsigned length, int prot, int flags, int fd
 		return MAP_FAILED;
 
 #warning TODO
-	/* The 	__djgpp_nearptr_enable() call always fails. An interaction with the lower driver */
+	/* The  __djgpp_nearptr_enable() call always fails. An interaction with the lower driver */
 	/* is required to change the segment limits. */
 	return MAP_FAILED;
-		
+
 	if ((_crt0_startup_flags & _CRT0_FLAG_NEARPTR) == 0) {
 		if (!__djgpp_nearptr_enable())
 			return MAP_FAILED;
@@ -612,7 +612,7 @@ void* adv_svgalib_mmap(void* start, unsigned length, int prot, int flags, int fd
 	adv_svgalib_log("svgalib: mapping address %08x, size %d, bus %d\n", offset, length, the_bus);
 
 	if (adv_svgalib_ioctl(IOCTL_SVGALIB_MAP, &in, sizeof(in), &out, sizeof(out)) != 0) {
-		adv_svgalib_log("svgalib: ioctl IOCTL_SVGALIB_MAP failed\n");	
+		adv_svgalib_log("svgalib: ioctl IOCTL_SVGALIB_MAP failed\n");
 		return MAP_FAILED;
 	}
 
@@ -621,7 +621,7 @@ void* adv_svgalib_mmap(void* start, unsigned length, int prot, int flags, int fd
 	linear += __djgpp_conventional_base;
 
 	adv_svgalib_log("svgalib: mapped pointer %08x\n", (unsigned)linear);
-	
+
 	return (void*)linear;
 }
 

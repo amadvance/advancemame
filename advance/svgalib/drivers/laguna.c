@@ -184,7 +184,7 @@ static void laguna_setregs(const unsigned char regs[], int mode)
 
 static int laguna_modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 

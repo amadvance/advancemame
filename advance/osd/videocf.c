@@ -155,6 +155,27 @@ static int score_compare_scanline(const struct advance_video_context* context, c
 }
 
 /**
+ * Check if a factor has an good scale effect.
+ */
+static adv_bool factor_has_effect(unsigned x, unsigned y)
+{
+	if (x == 1 && y == 1) /* real size is assumed a good scale effect */
+		return 1;
+	if (x == 2 && y == 2)
+		return 1;
+	if (x == 2 && y == 3)
+		return 1;
+	if (x == 2 && y == 4)
+		return 1;
+	if (x == 3 && y == 3)
+		return 1;
+	if (x == 4 && y == 4)
+		return 1;
+
+	return 0;
+}
+
+/**
  * Score modes comparing two dimensions. 
  * Modes which have a both dimensions as an exact multipler of the requested size
  * are scored better. All the modes which are not exact multiplier all scored all
@@ -165,13 +186,62 @@ static int score_compare_dim2(
 	unsigned bx, unsigned by,
 	unsigned rx, unsigned ry,
 	unsigned mx0, unsigned mx1, unsigned mx2, unsigned mx3,
-	unsigned my0, unsigned my1, unsigned my2, unsigned my3
+	unsigned my0, unsigned my1, unsigned my2, unsigned my3,
+	adv_bool best_auto
 ) {
 	adv_bool ae;
 	adv_bool be;
+	unsigned axi;
+	unsigned ayi;
+	unsigned bxi;
+	unsigned byi;
 
-	ae = (ax == mx0 || ax == mx1 || ax == mx2 || ax == mx3) && (ay == my0 || ay == my1 || ay == my2 || ay == my3);
-	be = (bx == mx0 || bx == mx1 || bx == mx2 || bx == mx3) && (by == my0 || by == my1 || by == my2 || by == my3);
+	if (ax == mx0)
+		axi = 1;
+	else if (ax == mx1)
+		axi = 2;
+	else if (ax == mx2)
+		axi = 3;
+	else if (ax == mx3)
+		axi = 4;
+	else
+		axi = 0;
+
+	if (ay == my0)
+		ayi = 1;
+	else if (ay == my1)
+		ayi = 2;
+	else if (ay == my2)
+		ayi = 3;
+	else if (ay == my3)
+		ayi = 4;
+	else
+		ayi = 0;
+
+	if (bx == mx0)
+		bxi = 1;
+	else if (bx == mx1)
+		bxi = 2;
+	else if (bx == mx2)
+		bxi = 3;
+	else if (bx == mx3)
+		bxi = 4;
+	else
+		bxi = 0;
+
+	if (by == my0)
+		byi = 1;
+	else if (by == my1)
+		byi = 2;
+	else if (by == my2)
+		byi = 3;
+	else if (by == my3)
+		byi = 4;
+	else
+		byi = 0;
+
+	ae = axi > 0 && ayi > 0;
+	be = bxi > 0 && byi > 0;
 
 	if (ae && !be) {
 		return -1;
@@ -194,10 +264,19 @@ static int score_compare_dim2(
 		else if (as < rs && bs >= rs)
 			return 1;
 
+		/* if the scale factor is automatically choosen, favorite factors with effects */
+		if (best_auto) {
+			/* use the same x and y scale factors */
+			if (factor_has_effect(axi,ayi) && !factor_has_effect(bxi,byi))
+				return -1;
+			else if (!factor_has_effect(axi,ayi) && factor_has_effect(bxi,byi))
+				return 1;
+		}
+
 		if (ad != bd)
-			return ad - bd; /* smaller difference is better */
+			return ad - bd; /* smaller surface difference is better */
 		else
-			return as - bs; /* smaller value is better */
+			return as - bs; /* smaller surface is better */
 	}
 }
 
@@ -242,6 +321,9 @@ static int score_compare_size(const struct advance_video_context* context, const
 	unsigned best_size_y;
 	unsigned av;
 	unsigned bv;
+	adv_bool best_auto;
+
+	best_auto = 0;
 
 	if (!context->state.game_vector_flag) {
 		switch (context->config.magnify_factor) {
@@ -275,6 +357,8 @@ static int score_compare_size(const struct advance_video_context* context, const
 				best_size_x = context->state.mode_best_size_4x;
 				best_size_y = context->state.mode_best_size_4y;
 			}
+
+			best_auto = 1;
 			break;
 		}
 	} else {
@@ -289,7 +373,8 @@ static int score_compare_size(const struct advance_video_context* context, const
 		crtc_hsize_get(b), crtc_vsize_get(b),
 		best_size_x, best_size_y,
 		context->state.mode_best_size_x, context->state.mode_best_size_2x, context->state.mode_best_size_3x, context->state.mode_best_size_4x,
-		context->state.mode_best_size_y, context->state.mode_best_size_2y, context->state.mode_best_size_3y, context->state.mode_best_size_4y
+		context->state.mode_best_size_y, context->state.mode_best_size_2y, context->state.mode_best_size_3y, context->state.mode_best_size_4y,
+		best_auto
 	);
 	if (r)
 		return r;

@@ -708,7 +708,7 @@ DPRT("SVGADRV\n");
 static int  et6000_modeavailable(int mode)
 {
   int rtn;
-  struct info *info;
+  struct vgainfo *info;
   ModeTiming *modetiming;
   ModeInfo *modeinfo;
 

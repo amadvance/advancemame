@@ -154,7 +154,7 @@ static void ark_getmodeinfo(int mode, vga_modeinfo * modeinfo)
 
 static int ark_modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeInfo *modeinfo;
     ModeTiming *modetiming;
 

@@ -197,7 +197,8 @@ void soundb_volume(double v)
 {
 	assert(soundb_state.is_active_flag);
 
-	soundb_state.driver_current->volume(v);
+	if (soundb_state.driver_current->volume)
+		soundb_state.driver_current->volume(v);
 }
 
 const char* soundb_name(void)
@@ -205,5 +206,15 @@ const char* soundb_name(void)
 	assert(soundb_state.is_active_flag);
 
 	return soundb_state.driver_current->name;
+}
+
+unsigned soundb_flags(void)
+{
+	assert(soundb_state.is_active_flag);
+
+	if (soundb_state.driver_current->flags)
+		return soundb_state.driver_current->flags();
+	else
+		return 0;
 }
 

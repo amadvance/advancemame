@@ -452,7 +452,11 @@ adv_error soundb_alsa_start(double silence_time)
 
 unsigned soundb_alsa_flags(void)
 {
-	return 0;
+	unsigned flags = 0;
+	if (alsa_option.initialized
+		&& strcmp(alsa_option.mixer_buffer, "channel") == 0)
+		flags |= SOUND_DRIVER_FLAGS_VOLUME_SAMPLE;
+	return flags;
 }
 
 adv_error soundb_alsa_load(adv_conf* context)

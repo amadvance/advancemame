@@ -483,7 +483,7 @@ static void video_done_pipeline(struct advance_video_context* context)
 
 static void video_invalidate_pipeline(struct advance_video_context* context)
 {
-	/* destroy the pipeline, this force the pipeline update at th enext draw */
+	/* destroy the pipeline, this force the pipeline update at the next frame */
 	video_done_pipeline(context);
 }
 
@@ -516,7 +516,9 @@ static adv_error video_init_vidmode(struct advance_video_context* context, adv_m
 	context->state.buffer_ptr_alloc = 0;
 
 	/* initialize the update system */
-	update_init( context->config.triplebuf_flag!=0 ? 3 : 1 );
+	update_init( context->config.triplebuf_flag != 0 ? 3 : 1 );
+
+	log_std(("emu:video: using %d hardware video buffers\n", update_page_max_get()));
 
 	video_invalidate_screen();
 	video_invalidate_color(context);
@@ -1499,7 +1501,7 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 				video_init_crtc_make_raster(context, "generate-triple", best_size_3x, best_size_3y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0, 1);
 				video_init_crtc_make_raster(context, "generate-quad", best_size_4x, best_size_4y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0, 1);
 			}
-			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM) != 0) {
+			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY) != 0) {
 				/* generate modes for a zoom driver */
 				video_init_crtc_make_fake(context, "generate", best_size_x, best_size_y);
 				video_init_crtc_make_fake(context, "generate-double", best_size_2x, best_size_2y);
@@ -1507,7 +1509,7 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 				video_init_crtc_make_fake(context, "generate-quad", best_size_4x, best_size_4y);
 			}
 		} else {
-			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM) != 0) {
+			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY) != 0) {
 				/* generate modes for a zoom driver */
 				video_init_crtc_make_fake(context, "generate", best_size_x, best_size_y);
 			}
@@ -1971,6 +1973,8 @@ static void video_update_pipeline(struct advance_video_context* context, const s
 		int i;
 		const struct video_stage_horz_struct* stage;
 		char buffer[256];
+
+		log_std(("emu:video: pipeline scale from %dx%d to %dx%d\n", context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.mode_visible_size_x, context->state.mode_visible_size_y));
 
 		log_std(("emu:video: pipeline_video\n"));
 		for(i=1, stage=video_pipeline_begin(&context->state.blit_pipeline_video);stage!=video_pipeline_end(&context->state.blit_pipeline_video);++stage, ++i) {
@@ -3336,8 +3340,9 @@ adv_error advance_video_set(struct advance_video_context* context)
 		goto err;
 	}
 
-	video_update_visible(context, &context->state.crtc_effective);
 	video_update_ui(context, &context->state.crtc_effective);
+
+	video_update_visible(context, &context->state.crtc_effective);
 	video_update_effect(context);
 
 	if (video_make_vidmode(context, &mode, &context->state.crtc_effective) != 0) {
@@ -3438,8 +3443,9 @@ int osd2_video_init(struct osd_video_option* req)
 		return -1;
 	}
 
-	video_update_visible(context, &context->state.crtc_effective);
 	video_update_ui(context, &context->state.crtc_effective);
+
+	video_update_visible(context, &context->state.crtc_effective);
 	video_update_effect(context);
 
 	if (video_make_vidmode(context, &mode, &context->state.crtc_effective) != 0) {
@@ -3535,8 +3541,14 @@ void osd2_area(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 	context->state.game_used_size_x = size_x;
 	context->state.game_used_size_y = size_y;
 
-	video_invalidate_pipeline(context);
+	/* recompute the scale factor on game size change (you can test it with the game ehrgeiz) */
+	video_update_visible(context, &context->state.crtc_effective);
+	video_update_effect(context);
+
+	/* recenter */
 	video_update_pan(context);
+
+	video_invalidate_pipeline(context);
 }
 
 void osd2_palette(const osd_mask_t* mask, const osd_rgb_t* palette, unsigned size)
@@ -4182,7 +4194,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	} else {
 		char* e;
 		d = strtod(s, &e);
-		if (*e != 0 || d < 1 || d > 180) {
+		if (*e != 0 || d < 0 || d > 180) {
 			target_err("Invalid argument '%s' for option 'sync_startuptime'.\n", s);
 			return -1;
 		}

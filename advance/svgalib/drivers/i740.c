@@ -284,7 +284,7 @@ static void i740_setregs(const unsigned char regs[], int mode)
 
 static int i740_modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 

@@ -325,7 +325,7 @@ if test $ac_host = unix ; then
 	AC_CHECK_FUNCS([strcasecmp strerror])
 	AC_CHECK_FUNCS([uname sysconf backtrace backtrace_symbols])
 	AC_CHECK_FUNCS([flockfile funlockfile fread_unlocked fwrite_unlocked fgetc_unlocked feof_unlocked])
-	AC_CHECK_FUNCS([iopl])
+	AC_CHECK_FUNCS([iopl mprotect])
 	AC_MSG_CHECKING([for port in/out])
 	AC_TRY_LINK([
 			#include <sys/io.h>

@@ -1032,7 +1032,7 @@ static void r128_setregs(const unsigned char regs[], int mode)
 
 static int r128_modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 
@@ -1118,7 +1118,8 @@ static void r128_lock(void)
 /* Indentify chipset, initialize and return non-zero if detected */
 static int r128_test(void)
 {
-    return r128_init(0,0,0);
+    if (r128_init(0,0,0) != 0)
+        return 0;
     return 1;
 }
 
@@ -1314,7 +1315,7 @@ static int r128_init(int force, int par1, int par2)
 
     found=__svgalib_pci_find_vendor_vga(VENDOR_ID,buf,0);
 
-    if(found) return 0;
+    if(found) return -1;
     
     chiptype=-1;
     id=(buf[0]>>16)&0xffff;
@@ -1341,13 +1342,17 @@ static int r128_init(int force, int par1, int par2)
         ((id>>8)==0x59)) /* Radeon 9200 */
         chiptype = Radeon;
 	
-    if(chiptype==-1) return 0;
+    if(chiptype==-1) return -1;
     
     r128_linear_base=buf[4]&0xffffff00;
     r128_mmio_base=buf[6]&0xffffff00;
 
-    MMIO_POINTER = mmap(0, 16*1024, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd,
-       			r128_mmio_base);
+    __svgalib_mmio_base=r128_mmio_base;
+    __svgalib_mmio_size=16*1024;
+
+    map_mmio();
+    if (MMIO_POINTER == MAP_FAILED)
+        return -1;
 
     r128_memory      = INREG(R128_CONFIG_MEMSIZE) / 1024;
     BusCntl            = INREG(R128_BUS_CNTL);
@@ -1394,6 +1399,8 @@ static int r128_init(int force, int par1, int par2)
         uint16_t pll_info_block;
         BIOS_POINTER = mmap(0, 64*1024, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd,
        			    0xc0000);
+        if (BIOS_POINTER == MAP_FAILED)
+            return -1;
         bios_header    = R128_BIOS16(0x48);
         pll_info_block = R128_BIOS16(bios_header + 0x30);
         pll.reference_freq = R128_BIOS16(pll_info_block + 0x0e);
@@ -1407,8 +1414,6 @@ static int r128_init(int force, int par1, int par2)
 fprintf(stderr,"pll: %i %i %i %i %i\n",pll.reference_freq,pll.reference_div,
     pll.min_pll_freq,    pll.max_pll_freq, pll.xclk);
 #endif
-
-    munmap(MMIO_POINTER, 16*1024);
 
     r128_mapio();
 	
@@ -1437,12 +1442,10 @@ fprintf(stderr,"pll: %i %i %i %i %i\n",pll.reference_freq,pll.reference_div,
     __svgalib_banked_mem_size=0x10000;
     __svgalib_linear_mem_base=r128_linear_base;
     __svgalib_linear_mem_size=r128_memory*0x400;
-    __svgalib_mmio_base=r128_mmio_base;
-    __svgalib_mmio_size=16*1024;
     if(chiptype==Radeon) {
         __svgalib_banked_mem_base=r128_linear_base;
         __svgalib_r128_driverspecs.__svgalib_setpage = __svgalib_emul_setpage;
     }
 
-    return 1;
+    return 0;
 }

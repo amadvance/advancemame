@@ -1189,7 +1189,7 @@ Configuration
 			The dB is a negative value from -40 to 0.
 
 	Examples:
-		:sound_volume -12
+		:sound_volume -2
 
     sound_latency
 	Sets the minimum audio latency.
@@ -1608,6 +1608,17 @@ Configuration
 
 	The data used for the default image is in the `contrib/help' dir.
 
+    ui_speedmark
+	Selects if display or not the speed mark on screen. A red square is
+	displayed if the game is too slow. A red triangle when you press the
+	`turbo' key or when the game is accelerated for other reasons.
+
+	:ui_speedmark yes | no
+
+	Options:
+		yes - Display the speed mark when required.
+		no - Don't display the speed mark (default).
+
     ui_font
 	Selects a font file. The formats TrueType (TTF), GRX, PSF and
 	RAW are supported. You can find a collection of fonts in the
@@ -1731,9 +1742,14 @@ Configuration
 	Options:
 		FACTOR - Float speed factor (default 3.0).
 
+	With the `ui_speedmark' option you can enable a visual mark
+	of the current turbo state.
+
     sync_startuptime
 	Selects the time in seconds of the duration of the startup
-	speed up.
+	speed up. You can press the `startup' key to save the current
+	game time as startup time. The default `startup' key
+	is `minus_pad'.
 
 	:sync_startuptime auto | TIME
 
@@ -1744,6 +1760,9 @@ Configuration
 		TIME - Time in seconds.
 
 	Use 0 seconds to disable the startup turbo effect.
+
+	With the `ui_speedmark' option you can enable a visual mark
+	of the current startup state.
 
     sync_resample
 	Select the audio resampling mode.
@@ -1773,7 +1792,7 @@ Configuration
 
 		:http://lcdproc.sourceforge.net
 
-	More details and some examples of how display information on the LCD
+	More details and some examples of how to display information on the LCD
 	using the scripts are in the `script.txt' documentation file.
 
     lcd_server

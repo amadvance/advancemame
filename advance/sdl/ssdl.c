@@ -269,7 +269,7 @@ adv_error soundb_sdl_start(double silence_time)
 
 unsigned soundb_sdl_flags(void)
 {
-	return 0;
+	return SOUND_DRIVER_FLAGS_VOLUME_SAMPLE;
 }
 
 static adv_conf_enum_int OPTION[] = {

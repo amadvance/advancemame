@@ -628,7 +628,7 @@ static void mil_setregs(const unsigned char regs[], int mode)
 
 static int mil_modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 
@@ -741,7 +741,8 @@ static int mil_test(void)
         case 0x519:
         case 0x51b:
         case 0x51f:
-            mil_init(0,0,0);
+            if (mil_init(0,0,0) != 0)
+                return 0;
             return 1;
             break;
         default:
@@ -888,8 +889,12 @@ static int mil_init(int force, int par1, int par2)
 
     if(!mil_memory) {
         map_linear(mil_linear_base, 8*1024*1024);
-        mil_memory=memorytest(LINEAR_POINTER, 8);
-        unmap_linear(8*1024*1024);
+        if (LINEAR_POINTER == MAP_FAILED) {
+            mil_memory=8*1024;
+        } else {
+            mil_memory=memorytest(LINEAR_POINTER, 8);
+            unmap_linear(8*1024*1024);
+        }
     }
 
     __svgalib_mmio_base=mil_mmio_base;

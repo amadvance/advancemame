@@ -355,7 +355,9 @@ int adv_svgalib_open(void) {
 		the_handle = INVALID_HANDLE_VALUE;
 		return -1;
 	}
-	if (version.version < SVGALIB_VERSION) {
+
+	/* compare only the upper digit */
+	if ((version.version & 0xff000000) < (SVGALIB_VERSION & 0xff000000)) {
 		adv_svgalib_log("svgalib: invalid SVGALIB version %08x. Minimun required is %08x.\n", (unsigned)version.version, (unsigned)SVGALIB_VERSION);
 		CloseHandle(the_handle);
 		the_handle = INVALID_HANDLE_VALUE;
@@ -373,7 +375,7 @@ int adv_svgalib_open(void) {
 #endif
 
 #ifdef USE_GIVEIO
-	/* get the permission on all the IO port */
+	/* get the permission on all the IO port for only this process */
 	if (adv_svgalib_ioctl(IOCTL_SVGALIB_GIVEIO_ON,0,0,0,0) != 0) {
 		adv_svgalib_log("svgalib: ioctl IOCTL_SVGALIB_GIVEIO_ON failed, GetLastError() = %d\n", (unsigned)GetLastError());
 		CloseHandle(the_handle);
@@ -455,7 +457,7 @@ void* adv_svgalib_mmap(void* start, unsigned length, int prot, int flags, int fd
 			/* try all the other bus */
 			for(i=0;i<bus_max;++i) {
 				if (i != bus) {
-					r = adv_svgalib_mmap_try(offset, bus, length);
+					r = adv_svgalib_mmap_try(offset, i, length);
 					if (r != MAP_FAILED) {
 						break;
 					}
@@ -471,6 +473,9 @@ int adv_svgalib_munmap(void* start, unsigned length) {
 	SVGALIB_UNMAP_IN in;
 
 	adv_svgalib_log("svgalib: unmapping pointer %08x, size %d\n", (unsigned)start, length);
+
+	if (start == MAP_FAILED)
+		return -1;
 
 	in.address = start;
 

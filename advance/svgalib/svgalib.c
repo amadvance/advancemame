@@ -162,11 +162,11 @@ void* ADV_SVGALIB_CALL adv_svgalib_calloc(unsigned n, unsigned size) {
 /* compatibility */
 
 void ADV_SVGALIB_CALL adv_svgalib_printf(const char* format, ...) {
-	adv_svgalib_log("svgalib: ignored adv_svgalib_printf() call\n");
+	adv_svgalib_log("svgalib: ignored adv_svgalib_printf(\"%s\",...) call\n", format);
 }
 
 void ADV_SVGALIB_CALL adv_svgalib_fprintf(void* file, const char* format, ...) {
-	adv_svgalib_log("svgalib: ignored adv_svgalib_fprintf() call\n");
+	adv_svgalib_log("svgalib: ignored adv_svgalib_fprintf(%p,\"%s\",...) call\n", file, format);
 }
 
 void* ADV_SVGALIB_CALL adv_svgalib_stderr() {
@@ -505,18 +505,17 @@ int __svgalib_driver_report = 0; /* report driver used after chipset detection *
 
 unsigned char* __svgalib_banked_pointer = (unsigned char*)0x80000000; /* UNUSED */
 unsigned long int __svgalib_banked_mem_base, __svgalib_banked_mem_size; /* UNUSED */
-unsigned char* __svgalib_linear_pointer = (unsigned char*)0x80000000; /* UNUSED */
+unsigned char* __svgalib_linear_pointer = MAP_FAILED; /* aka LINEAR_POINTER */
 unsigned long int __svgalib_linear_mem_base, __svgalib_linear_mem_size;
-unsigned char* __svgalib_mmio_pointer;
+unsigned char* __svgalib_mmio_pointer = MAP_FAILED; /* aka MMIO_POINTER */
 unsigned long int __svgalib_mmio_base, __svgalib_mmio_size;
-static int mmio_mapped=0;
 
 int inrestore; /* UNUSED */
 
 DriverSpecs* __svgalib_driverspecs;
-struct info __svgalib_infotable[16];
+struct vgainfo __svgalib_infotable[16];
 int __svgalib_cur_mode; /* Current mode */
-struct info __svgalib_cur_info; /* Current mode info */
+struct vgainfo __svgalib_cur_info; /* Current mode info */
 unsigned char __svgalib_novga = 0; /* fix to 0 */
 int __svgalib_chipset;
 int __svgalib_mem_fd = 0; /* fix to 0 */
@@ -736,43 +735,40 @@ void __svgalib_emul_setpage(int page) {
 	/* used only for banked modes */
 }
 
-void map_mmio() {
-    unsigned long offset;
+void map_mmio(void) {
+	if (MMIO_POINTER != MAP_FAILED)
+		return;
 
-    if(mmio_mapped) return;
+	if (!__svgalib_mmio_size)
+		return;
+        	
+        MMIO_POINTER = adv_svgalib_mmap(0, __svgalib_mmio_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base);
+}
 
-#ifdef __alpha__
-    offset = 0x300000000;
-#else
-    offset = 0;
-#endif
+void unmap_mmio(void)
+{
+	if (MMIO_POINTER == MAP_FAILED)
+		return;
 
-    if(__svgalib_mmio_size) {
-        mmio_mapped=1;
-        MMIO_POINTER=adv_svgalib_mmap( 0, __svgalib_mmio_size, PROT_READ | PROT_WRITE,
-            		   MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base + offset);
-    } else {
-        MMIO_POINTER=NULL;
-    }
+	adv_svgalib_munmap(MMIO_POINTER, __svgalib_mmio_size);
+
+	MMIO_POINTER = MAP_FAILED;
 }
 
 void map_linear(unsigned long base, unsigned long size) {
-    unsigned long offset;
-    
-#ifdef __alpha__
-    offset = 0x300000000;
-#else
-    offset = 0;
-#endif
-    
-    LINEAR_POINTER=adv_svgalib_mmap(0, size,
-  	                PROT_READ | PROT_WRITE, MAP_SHARED,
-			__svgalib_mem_fd,
-                        base + offset);
+	if (LINEAR_POINTER != MAP_FAILED)
+		return;
+		
+	LINEAR_POINTER = adv_svgalib_mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, base);
 }
 
 void unmap_linear(unsigned long size) {
-    adv_svgalib_munmap(LINEAR_POINTER, size);
+	if (LINEAR_POINTER == MAP_FAILED)
+		return;
+
+	adv_svgalib_munmap(LINEAR_POINTER, size);
+
+	LINEAR_POINTER = MAP_FAILED;
 }
 
 void __svgalib_delay(void) {
@@ -1471,6 +1467,8 @@ void ADV_SVGALIB_CALL adv_svgalib_done(void)
 {
 	adv_svgalib_log("svgalib: adv_svgalib_done()\n");
 
+	unmap_mmio();
+
 	adv_svgalib_close();
 }
 
@@ -1715,11 +1713,7 @@ void ADV_SVGALIB_CALL adv_svgalib_linear_map(void)
 {
 	adv_svgalib_log("svgalib: adv_svgalib_linear_map()\n");
 	
-	if (__svgalib_linear_mem_size) {
-		__svgalib_linear_pointer = adv_svgalib_mmap(0, __svgalib_linear_mem_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_linear_mem_base);
-	} else {
-		__svgalib_linear_pointer = 0;
-	}
+	map_linear(__svgalib_linear_mem_base, __svgalib_linear_mem_size);
 }
 
 /**
@@ -1729,9 +1723,7 @@ void ADV_SVGALIB_CALL adv_svgalib_linear_unmap(void)
 {
 	adv_svgalib_log("svgalib: adv_svgalib_linear_unmap()\n");
 	
-	if (__svgalib_linear_mem_size) {
-		adv_svgalib_munmap(__svgalib_linear_pointer, __svgalib_linear_mem_size);
-	}
+	unmap_linear(__svgalib_linear_mem_size);
 }
 
 /**
@@ -1807,4 +1799,3 @@ void ADV_SVGALIB_CALL_VARARGS adv_svgalib_log(const char *text, ...) {
 	adv_svgalib_log_va(text, arg);
 	va_end(arg);
 }
-

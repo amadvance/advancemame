@@ -50,6 +50,13 @@ extern "C" {
 /***************************************************************************/
 /* Driver */
 
+/** \name Sound Flags
+ * Sound driver flags for volume.
+ */
+/*@{*/
+#define SOUND_DRIVER_FLAGS_VOLUME_SAMPLE 0x1 /**< Fake volume control made changing the samples. */
+/*@}*/
+
 #define SOUND_DRIVER_FLAGS_USER_BIT0 0x10000
 #define SOUND_DRIVER_FLAGS_USER_MASK 0xFFFF0000
 
@@ -104,6 +111,11 @@ adv_error soundb_load(adv_conf* config_context);
 adv_error soundb_init(unsigned* rate, adv_bool stereo_flag, double buffer_time);
 void soundb_done(void);
 void soundb_abort(void);
+
+/**
+ * Get the capabilities of the driver.
+ */
+unsigned soundb_flags(void);
 
 /**
  * Play the specified samples.

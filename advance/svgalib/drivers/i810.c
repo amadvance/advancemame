@@ -271,7 +271,7 @@ static void setregs(const unsigned char regs[], int mode)
 
 static int modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 

@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.3.5 2004/06
+	) Added volume control at the `oss' audio driver.
+
 AdvanceMENU Version 2.3.4 2004/05
 	) The program doesn't try to effectively load the
 		"none" image file used to disable the image

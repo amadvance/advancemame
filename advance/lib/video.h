@@ -345,7 +345,7 @@ unsigned video_font_size_x(void);
 unsigned video_font_size_y(void);
 unsigned video_virtual_x(void);
 unsigned video_virtual_y(void);
-adv_error video_display_set_async(unsigned offset, adv_bool waitvsync);
+adv_error video_display_set(unsigned offset, adv_bool waitvsync);
 unsigned video_bytes_per_scanline(void);
 unsigned video_bytes_per_page(void);
 
@@ -367,8 +367,7 @@ void video_mode_print(char* buffer, const adv_mode* vm);
 
 double video_measure_step(void (*wait)(void), double low, double high);
 
-adv_error video_display_set_async(unsigned offset, int waitvsync);
-adv_error video_display_set_sync(unsigned offset);
+adv_error video_display_set(unsigned offset, int waitvsync);
 void video_put_pixel(unsigned x, unsigned y, unsigned color);
 void video_put_pixel_clip(unsigned x, unsigned y, unsigned color);
 void video_put_char(unsigned x, unsigned y, char c, unsigned color);

@@ -198,7 +198,7 @@ inrestore=0;
 
 static int g400_modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 
@@ -659,7 +659,8 @@ static int g400_test(void)
     
     if((id==0x51a)||(id==0x51e)||(id==0x520)||(id==0x521)||(id==0x525)||(id==0x1000)||(id==0x1001)
                   ||(id==0x2527) ){
-       g400_init(0,0,0);
+       if (g400_init(0,0,0) != 0)
+          return 0;
        return 1;
     };
     return 0;
@@ -833,8 +834,7 @@ static int g400_init(int force, int par1, int par2)
     found=__svgalib_pci_find_vendor_vga_pos(VENDOR_ID,buf,0);
     
     if(found==-1) {
-        fprintf(stderr,"Error: Must use Matrox driver, but no card found\n");
-        exit(1);
+        return -1;
     }
 
     g400_pciposition=found;
@@ -879,8 +879,12 @@ static int g400_init(int force, int par1, int par2)
 
     if(!g400_memory) {
         map_linear(g400_linear_base, max_mem*1024*1024);
-        g400_memory=memorytest(LINEAR_POINTER,max_mem);
-        unmap_linear(max_mem*1024*1024);
+        if (LINEAR_POINTER == MAP_FAILED) {
+            g400_memory=max_mem*1024;
+        } else {
+            g400_memory=memorytest(LINEAR_POINTER,max_mem);
+            unmap_linear(max_mem*1024*1024);
+        }
     }
 
     __svgalib_modeinfo_linearset |= IS_LINEAR;

@@ -1,6 +1,20 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.83.0 2004/06
+	) Added the option "ui_speedmark" to enable or disable the onscreen
+		speed red mark.
+	) Fixed the option "sync_startuptime 0".
+	) Added volume control at the `oss' audio driver.
+	) Added support for the `mprotect' os call to allow execution
+		of MIPS DRC also on systems with memory protected from
+		execution.
+	) Fixed the use of fgetc_unlocked() on Mac OS X 10.3.
+	) Upgraded the DOS/Windows SVGALIB drivers at version 1.9.19.
+
+AdvanceMESS Version 0.83.0.0 2004/06
+	) All from AdvanceMAME 0.83.0.
+
 AdvanceMAME Version 0.82.0 2004/05
 	) Added a new "Startup End" key (minus on numeric pad) to store
 		in the configuration file the startuptime required for

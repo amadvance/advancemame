@@ -101,7 +101,7 @@
 #define GPLANE16   G640x350x16
 
 /* graphics mode information */
-struct info {
+struct vgainfo {
     int xdim;
     int ydim;
     int colors;
@@ -125,10 +125,10 @@ extern unsigned long __svgalib_banked_mem_base, __svgalib_banked_mem_size;
 extern unsigned long __svgalib_mmio_base, __svgalib_mmio_size;
 extern unsigned long __svgalib_linear_mem_base, __svgalib_linear_mem_size;
 extern unsigned long __svgalib_mmio_base, __svgalib_mmio_size;
-extern struct info CI;		/* current video parameters */
+extern struct vgainfo CI;		/* current video parameters */
 extern int COL;			/* current color            */
 extern int CM;			/* current video mode       */
-extern struct info infotable[];
+extern struct vgainfo infotable[];
 extern int SCREENON;		/* screen visible if != 0 */
 extern unsigned long __svgalib_graph_base;
 extern unsigned char *GM;	/* graphics memory frame */

@@ -42,135 +42,52 @@
 #define ADJUST_MULT_BASE 4096
 
 /**
- * Expected maximum normalized power.
+ * Expected volume factor.
  * Value guessed with some tries.
  */
-#define ADJUST_EXPECTED_POWER ((32768LL * 32768LL) / 8)
-
-/***************************************************************************/
-/* OSD interface */
-
-/**
- * Set the attenuation in dB.
- */
-void osd_set_mastervolume(int attenuation)
-{
-	struct advance_sound_context* context = &CONTEXT.sound;
-
-	double volume;
-
-	if (attenuation > 0) attenuation = 0;
-	if (attenuation < -40) attenuation = -40;
-
-	context->config.attenuation = attenuation;
-
-	if (context->state.active_flag) {
-		if (attenuation <= -40) {
-			volume = 0;
-		} else {
-			volume = 1;
-			while (attenuation++ < 0)
-				volume /= 1.122018454; /* = (10 ^ (1/20)) = 1dB */
-		}
-
-		context->state.volume = volume;
-
-		if (!context->state.mute_flag)
-			soundb_volume(volume);
-	}
-}
-
-int osd_get_mastervolume(void)
-{
-	struct advance_sound_context* context = &CONTEXT.sound;
-
-	return context->config.attenuation;
-}
-
-void osd_sound_enable(int enable_it)
-{
-	struct advance_sound_context* context = &CONTEXT.sound;
-
-	if (context->state.active_flag) {
-		if (enable_it)
-			soundb_volume(context->state.volume);
-		else
-			soundb_volume(0);
-	}
-}
-
-int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
-{
-	struct advance_sound_context* context = &CONTEXT.sound;
-	double low_buffer_time;
-
-	log_std(("osd: osd2_sound_init(sample_rate:%d, stereo_flag:%d)\n", *sample_rate, stereo_flag));
-
-	assert(context->state.active_flag == 0);
-
-	/* note that if this function returns !=0, MAME disables the sound */
-	/* and doesn't call sd2_sound_done function */
-
-	if (stereo_flag)
-		context->state.input_mode = SOUND_MODE_STEREO;
-	else
-		context->state.input_mode = SOUND_MODE_MONO;
-	if (context->config.mode == SOUND_MODE_AUTO)
-		context->state.output_mode = context->state.input_mode;
-	else
-		context->state.output_mode = context->config.mode;
-
-	/* size the buffer to allow a double latency, the specified latency */
-	/* is the target latency, a latency bigger than the target must be allowed */
-	low_buffer_time = context->config.latency_time * 2;
-
-	/* allow always a big maximum latency. Note that this is the upper */
-	/* limit latency, not the effective latency. It's used in case of "turbo" */
-	/* mode, on which there are a lot of generated samples */
-	if (low_buffer_time < 0.3)
-		low_buffer_time = 0.3;
-
-	if (soundb_init(sample_rate, context->state.output_mode != SOUND_MODE_MONO, low_buffer_time) != 0) {
-		return -1;
-	}
-
-	context->state.active_flag = 1;
-	context->state.rate = *sample_rate;
-	context->state.input_bytes_per_sample = context->state.input_mode != SOUND_MODE_MONO ? 4 : 2;
-	context->state.output_bytes_per_sample = context->state.output_mode != SOUND_MODE_MONO ? 4 : 2;
-	context->state.latency_min = context->state.rate * context->config.latency_time;
-	context->state.latency_max = context->state.rate * low_buffer_time;
-	context->state.adjust_mult = ADJUST_MULT_BASE;
-	context->state.adjust_power_accumulator = 0;
-	context->state.adjust_power_counter = 0;
-	context->state.adjust_power_counter_limit = context->state.rate / 2; /* recompute every 1/2 seconds */
-	if (context->state.input_mode != SOUND_MODE_MONO)
-		context->state.adjust_power_counter_limit *= 2; /* stereo */
-	context->state.adjust_power = 0;
-	context->state.active_flag = 1;
-	context->state.mute_flag = 0;
-
-	soundb_start(context->config.latency_time);
-
-	osd_set_mastervolume(context->config.attenuation);
-
-	return 0;
-}
-
-void osd2_sound_done(void)
-{
-	struct advance_sound_context* context = &CONTEXT.sound;
-
-	log_std(("osd: osd2_sound_done()\n"));
-
-	assert(context->state.active_flag);
-
-	soundb_stop();
-	soundb_done();
-}
+#define ADJUST_EXPECTED_FACTOR 0.25 /* -12 dB */
 
 /***************************************************************************/
 /* Advance interface */
+
+static void sound_volume_recompute(struct advance_sound_context* context)
+{
+	double volume = context->state.volume;
+
+	/* if mute, zero the volume */
+	if (context->state.mute_flag)
+		volume = 0;
+
+	/* if disabled, zero the volume */
+	if (context->state.disabled_flag)
+		volume = 0;
+
+	/* if already changing the volume, don't use the mixer */
+	if (context->config.adjust_flag) {
+		double n;
+
+		if ((soundb_flags() & SOUND_DRIVER_FLAGS_VOLUME_SAMPLE) != 0) {
+			/* adjust the volume internally */
+			context->state.adjust_volume_factor = volume;
+			soundb_volume(1.0);
+		} else {
+			context->state.adjust_volume_factor = 1.0;
+			soundb_volume(volume);
+		}
+
+		n = ADJUST_MULT_BASE * context->state.adjust_power_factor * context->state.adjust_volume_factor;
+
+		/* prevent multiplication overflow */
+		if (n > 65535)
+			n = 65535;
+		if (n < 0)
+			n = 0;
+
+		context->state.adjust_mult = n;
+	} else {
+		soundb_volume(volume);
+	}
+}
 
 /* Adjust the sound volume computing the maximum normalized power */
 static void sound_adjust(struct advance_sound_context* context, unsigned channel, const short* input_sample, short* output_sample, unsigned sample_count, adv_bool compute_power)
@@ -205,28 +122,29 @@ static void sound_adjust(struct advance_sound_context* context, unsigned channel
 			}
 
 			if (context->state.adjust_power_counter == context->state.adjust_power_counter_limit) {
-				/* normalized power */
+				/* mean power */
 				power /= context->state.adjust_power_counter_limit;
 
 				/* check for the maximum power */
 				if (power != 0 && power > context->state.adjust_power) {
+					double n;
+
 					context->state.adjust_power = power;
 
-					/* compute the new gain */
-					mult = sqrt( ADJUST_EXPECTED_POWER / (double)power ) * ADJUST_MULT_BASE;
+					/* normalized power */
+					n = sqrt(power) / 32768;
+
+					n = ADJUST_EXPECTED_FACTOR / n;
 
 					/* limit the maximum gain */
-					if (mult > 64 * ADJUST_MULT_BASE)
-						mult = 64 * ADJUST_MULT_BASE;
+					if (n > 64)
+						n = 64;
 
-					/* prevent overflow */
-					if (mult > 65536)
-						mult = 65536;
+					log_std(("osd:sound: normalize factor %g, time %g\n", (double)n, advance_timer()));
 
-					if (context->state.adjust_mult != mult)
-						log_std(("osd:sound: normalize factor %g, time %g\n", (double)mult / ADJUST_MULT_BASE, advance_timer()));
+					context->state.adjust_power_factor = n;
 
-					context->state.adjust_mult = mult;
+					sound_volume_recompute(context);
 				}
 
 				/* restart the computation */
@@ -430,10 +348,7 @@ void advance_sound_update(struct advance_sound_context* context, struct advance_
 	/* update the mute state */
 	if (context->state.mute_flag != mute) {
 		context->state.mute_flag = mute;
-		if (context->state.mute_flag)
-			soundb_volume(0);
-		else
-			soundb_volume(context->state.volume);
+		sound_volume_recompute(context);
 	}
 
 	if (context->state.input_mode != context->state.output_mode) {
@@ -578,4 +493,125 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 	return 0;
 }
 
+/***************************************************************************/
+/* OSD interface */
+
+/**
+ * Set the attenuation in dB.
+ */
+void osd_set_mastervolume(int attenuation)
+{
+	struct advance_sound_context* context = &CONTEXT.sound;
+
+	double volume;
+
+	if (attenuation > 0) attenuation = 0;
+	if (attenuation < -40) attenuation = -40;
+
+	context->config.attenuation = attenuation;
+
+	if (context->state.active_flag) {
+		if (attenuation <= -40) {
+			volume = 0;
+		} else {
+			volume = 1;
+			while (attenuation++ < 0)
+				volume /= 1.122018454; /* = (10 ^ (1/20)) = 1dB */
+		}
+
+		context->state.volume = volume;
+		sound_volume_recompute(context);
+	}
+}
+
+int osd_get_mastervolume(void)
+{
+	struct advance_sound_context* context = &CONTEXT.sound;
+
+	return context->config.attenuation;
+}
+
+void osd_sound_enable(int enable_it)
+{
+	struct advance_sound_context* context = &CONTEXT.sound;
+
+	if (context->state.active_flag) {
+		context->state.disabled_flag = !enable_it;
+		sound_volume_recompute(context);
+	}
+}
+
+int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
+{
+	struct advance_sound_context* context = &CONTEXT.sound;
+	double low_buffer_time;
+
+	log_std(("osd: osd2_sound_init(sample_rate:%d, stereo_flag:%d)\n", *sample_rate, stereo_flag));
+
+	assert(context->state.active_flag == 0);
+
+	/* note that if this function returns !=0, MAME disables the sound */
+	/* and doesn't call sd2_sound_done function */
+
+	if (stereo_flag)
+		context->state.input_mode = SOUND_MODE_STEREO;
+	else
+		context->state.input_mode = SOUND_MODE_MONO;
+	if (context->config.mode == SOUND_MODE_AUTO)
+		context->state.output_mode = context->state.input_mode;
+	else
+		context->state.output_mode = context->config.mode;
+
+	/* size the buffer to allow a double latency, the specified latency */
+	/* is the target latency, a latency bigger than the target must be allowed */
+	low_buffer_time = context->config.latency_time * 2;
+
+	/* allow always a big maximum latency. Note that this is the upper */
+	/* limit latency, not the effective latency. It's used in case of "turbo" */
+	/* mode, on which there are a lot of generated samples */
+	if (low_buffer_time < 0.3)
+		low_buffer_time = 0.3;
+
+	if (soundb_init(sample_rate, context->state.output_mode != SOUND_MODE_MONO, low_buffer_time) != 0) {
+		return -1;
+	}
+
+	context->state.active_flag = 1;
+	context->state.rate = *sample_rate;
+	context->state.input_bytes_per_sample = context->state.input_mode != SOUND_MODE_MONO ? 4 : 2;
+	context->state.output_bytes_per_sample = context->state.output_mode != SOUND_MODE_MONO ? 4 : 2;
+	context->state.latency_min = context->state.rate * context->config.latency_time;
+	context->state.latency_max = context->state.rate * low_buffer_time;
+	context->state.adjust_mult = ADJUST_MULT_BASE;
+	context->state.adjust_power_factor = 1;
+	context->state.adjust_volume_factor = 1;
+	context->state.adjust_power_accumulator = 0;
+	context->state.adjust_power_counter = 0;
+	context->state.adjust_power_counter_limit = context->state.rate / 2; /* recompute every 1/2 seconds */
+	if (context->state.input_mode != SOUND_MODE_MONO)
+		context->state.adjust_power_counter_limit *= 2; /* stereo */
+	context->state.adjust_power = 0;
+	context->state.active_flag = 1;
+	context->state.mute_flag = 0;
+	context->state.disabled_flag = 0;
+
+	soundb_start(context->config.latency_time);
+
+	/* set the internal volume, it may be faked changing the samples */
+	osd_set_mastervolume(context->config.attenuation);
+
+	return 0;
+}
+
+void osd2_sound_done(void)
+{
+	struct advance_sound_context* context = &CONTEXT.sound;
+
+	log_std(("osd: osd2_sound_done()\n"));
+
+	assert(context->state.active_flag);
+
+	soundb_stop();
+	soundb_done();
+}
 

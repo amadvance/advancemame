@@ -110,14 +110,14 @@ static unsigned sdl_mode_flags(void)
 	case adv_output_fullscreen :
 		flags = SDL_FULLSCREEN;
 		break;
-	case adv_output_zoom :
+	case adv_output_overlay :
 		flags = SDL_FULLSCREEN;
 		break;
 #else
 	case adv_output_fullscreen :
 		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* hardware surface */
 		break;
-	case adv_output_zoom :
+	case adv_output_overlay :
 		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* hardware surface */
 		break;
 #endif
@@ -346,7 +346,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 			error_set("No fullscreen bit depth available.\n");
 			goto err_quit;
 		}
-	} else if (sdl_state.output == adv_output_zoom) {
+	} else if (sdl_state.output == adv_output_overlay) {
 		unsigned mode_x;
 		unsigned mode_y;
 		adv_bool mode_flag;
@@ -354,7 +354,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 
 		log_std(("video:sdl: use overlay output\n"));
 
-		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM;
+		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;
 
 		if (map == 0 || map == (SDL_Rect **)-1) {
@@ -555,7 +555,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 
 	sdl_state.index = mode->index;
 
-	if (sdl_state.output == adv_output_zoom) {
+	if (sdl_state.output == adv_output_overlay) {
 		if (sdl_state.index != MODE_FLAGS_INDEX_YUY2) {
 			log_std(("video:sdl: only YUY2 is supported\n"));
 			return -1;
@@ -679,7 +679,7 @@ adv_error sdl_mode_change(const sdl_video_mode* mode)
 
 	log_std(("video:sdl: sdlb_mode_change()\n"));
 
-	if (sdl_state.output == adv_output_zoom) {
+	if (sdl_state.output == adv_output_overlay) {
 		SDL_FreeYUVOverlay(sdl_state.overlay);
 
 		sdl_state.mode_active = 0;
@@ -837,7 +837,7 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 	case MODE_FLAGS_INDEX_BGR16 :
 	case MODE_FLAGS_INDEX_BGR24 :
 	case MODE_FLAGS_INDEX_BGR32 :
-		if (sdl_state.output == adv_output_zoom) {
+		if (sdl_state.output == adv_output_overlay) {
 			error_nolog_set("Only yuy2 is supported in overlay mode.\n");
 			return -1;
 		}
@@ -862,7 +862,7 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 		}
 		break;
 	case MODE_FLAGS_INDEX_YUY2 :
-		if (sdl_state.output != adv_output_zoom) {
+		if (sdl_state.output != adv_output_overlay) {
 			error_nolog_set("yuy2 supported only in overlay mode.\n");
 			return -1;
 		}

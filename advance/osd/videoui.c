@@ -256,7 +256,7 @@ static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, char*
 	}
 
 	/* count size_r and compute width and wrap long line */
-	limit_x = dst->size_x - 4 * border_x;
+	limit_x = dst->size_x - 6 * border_x;
 	size_r = 0;
 	size_x = 0;
 	i = begin;
@@ -308,7 +308,7 @@ static void ui_scroll(struct advance_ui_context* context, adv_bitmap* dst, char*
 	size_x += 2 * border_x;
 	if (size_x > dst->size_x)
 		size_x = dst->size_x;
-	size_v = (dst->size_y - 2 * border_y) / step_y;
+	size_v = (dst->size_y - 4 * border_y) / step_y;
 	if (size_v > size_r)
 		size_v = size_r;
 	size_y = size_v * step_y + 2 * border_y;
@@ -428,12 +428,14 @@ void advance_ui_direct_text(struct advance_ui_context* context, const char* text
 
 void advance_ui_direct_slow(struct advance_ui_context* context, int flag)
 {
-	context->state.ui_direct_slow_flag = flag;
+	if (context->config.ui_speedmark_flag)
+		context->state.ui_direct_slow_flag = flag;
 }
 
 void advance_ui_direct_fast(struct advance_ui_context* context, int flag)
 {
-	context->state.ui_direct_fast_flag = flag;
+	if (context->config.ui_speedmark_flag)
+		context->state.ui_direct_fast_flag = flag;
 }
 
 void advance_ui_help(struct advance_ui_context* context)
@@ -879,6 +881,7 @@ adv_error advance_ui_init(struct advance_ui_context* context, adv_conf* cfg_cont
 	context->state.ui_font = 0;
 	context->state.ui_font_oriented = 0;
 
+	conf_bool_register_default(cfg_context, "ui_speedmark", 0);
 	conf_string_register_multi(cfg_context, "ui_helptag");
 	conf_string_register_default(cfg_context, "ui_helpimage", "auto");
 	conf_string_register_default(cfg_context, "ui_font", "auto");
@@ -891,6 +894,8 @@ adv_error advance_ui_config_load(struct advance_ui_context* context, adv_conf* c
 {
 	const char* s;
 	char* e;
+
+	context->config.ui_speedmark_flag = conf_bool_get_default(cfg_context, "ui_speedmark");
 
 	sncpy(context->config.help_image_buffer, sizeof(context->config.help_image_buffer), conf_string_get_default(cfg_context, "ui_helpimage"));
 	sncpy(context->config.ui_font_buffer, sizeof(context->config.ui_font_buffer), conf_string_get_default(cfg_context, "ui_font"));

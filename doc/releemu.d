@@ -1,7 +1,7 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
-AdvanceMAME 0.80.2
+AdvanceMAME 0.82.0
 	This version has a reworked audio/video syncronization algorithm.
 	It should fix any remaining problem of distorted sound present on
 	some specific systems.

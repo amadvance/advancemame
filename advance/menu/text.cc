@@ -579,7 +579,7 @@ bool int_init(unsigned size, const string& sound_event_key)
 		goto int_video;
 	}
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM)!=0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY)!=0) {
 		target_err("Zoom output mode not supported by this program.\n");
 		goto int_blit;
 	}

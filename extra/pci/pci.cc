@@ -533,10 +533,10 @@ HEADER
 "\tThe `fb' driver uses the Linux Kernel Frame Buffer Driver.\n"
 "\tIt supports all the video board supported by your Linux\n"
 "\tKernel which are able to create new video modes.\n"
-"\tThis exclude the `vesafb' and `sisfb' drivers.\n"
+"\tThis exclude the `vesafb' driver.\n"
 "\n"
 "\tThe following is the list of the drivers available on the\n"
-"\tLinux Kernel 2.4.22. More recent kernel may have most\n"
+"\tLinux Kernel 2.4.26. More recent kernels may have more\n"
 "\trecent models supported.\n"
 "\n"
 ;
@@ -549,7 +549,7 @@ HEADER
 "\tIt supports all the video boards supported by the library.\n"
 "\n"
 "\tThe following is the list of the drivers available on the\n"
-"\tSVGALIB 1.9.18 with the AdvanceMAME patches applied.\n"
+"\tSVGALIB 1.9.19 with the AdvanceMAME patches applied.\n"
 "\n"
 ;
 

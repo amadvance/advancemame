@@ -89,6 +89,7 @@ cpu/arm
 cpu/g65816
 cpu/h6280
 cpu/hd6309
+cpu/i386
 cpu/i8039
 cpu/i8085
 cpu/i86

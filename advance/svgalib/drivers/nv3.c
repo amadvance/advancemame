@@ -84,9 +84,11 @@ static void nv3_getmodeinfo(int mode, vga_modeinfo *modeinfo)
    modeinfo->flags &= ~HAVE_RWPAGE;
 
    if (modeinfo->bytesperpixel >= 1) {
-	modeinfo->flags |= CAPABLE_LINEAR;
-        if (__svgalib_nv3_inlinearmode())
-	    modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
+	   modeinfo->flags |= CAPABLE_LINEAR;
+	   if (__svgalib_nv3_inlinearmode())
+		   modeinfo->flags |= IS_LINEAR | LINEAR_MODE;
+//	   if(chip==Riva128)
+//		   modeinfo->flags |= IOCTL_SETDISPLAY;
    }
 }
 
@@ -129,7 +131,7 @@ static void nv3_setregs(const unsigned char regs[], int mode)
    __svgalib_outcrtc(NV_PCRTC_HORIZ_EXTRA,regs[REG(4)]); 
    __svgalib_outcrtc(NV_PCRTC_FIFO_CONTROL,regs[REG(5)]); 
    __svgalib_outcrtc(NV_PCRTC_FIFO,regs[REG(6)]); 
-   if(chip>= GEFORCE)
+   if(chip >= GEFORCE)
        __svgalib_outcrtc(NV_PCRTC_SCREEN,regs[REG(7)]); 
 
    __svgalib_outcrtc(0x1c,regs[88]); /* this enables banking at 0xa0000 */
@@ -152,7 +154,7 @@ static void nv3_setregs(const unsigned char regs[], int mode)
 
 static int nv3_modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 
@@ -456,7 +458,8 @@ static int nv3_test(void)
 
    MMIOBASE=0; /* let nv3_init() find those */
    LINEARBASE=0;
-   nv3_init(0,0,0);
+   if (nv3_init(0,0,0) != 0)
+       return 0;
    return 1;
 }
 
@@ -666,6 +669,11 @@ static int nv3_init(int force, int par1, int par2)
           case 0x1A:
           case 0x20:
           case 0x25:
+          case 0x28: /* untested */
+          case 0x30: /* untested */
+          case 0x31: /* untested */
+          case 0x32: /* untested */
+          case 0x33: /* untested */
           default:
              flags = NO_INTERLACE;
              chip=GEFORCE; 
@@ -687,11 +695,14 @@ static int nv3_init(int force, int par1, int par2)
     __svgalib_mmio_size=8*1024*1024;
 
     map_mmio();
+    if (MMIO_POINTER == MAP_FAILED)
+        return -1;
     
     if(!force){
        int boot0;
        
        boot0=v_readl(NV_PFB_BOOT_0);
+//fprintf(stderr, "BOOT0=%08x\n",boot0);
        switch(chip){
           case Riva128:
                  if(boot0&0x20)memory=8192; else memory=1024<<(boot0&3); 

@@ -613,7 +613,7 @@ static void rage_setregs(const unsigned char regs[], int mode)
 
 static int rage_modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 
@@ -920,7 +920,8 @@ static int rage_test(void)
    found=__svgalib_pci_find_vendor_vga(0x1002,buf,0);
    if(found)return 0;
    
-   rage_init(0,0,0);
+   if (rage_init(0,0,0) != 0)
+       return 0;
    return 1;
    
    ATIIOBase=buf[5]&BLOCK_IO_BASE;
@@ -1168,8 +1169,7 @@ static int rage_init(int force, int par1, int par2)
       };
 
    if(found || !i){
-      fprintf(stderr,"svgalib: Rage driver must be used, but not found\n");
-      exit(1);
+      return -1;
    };
 
    rage_chiptyperev=(buf[0]&0xffff0000) | (buf[2]&0xff);

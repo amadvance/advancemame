@@ -8,7 +8,7 @@ touch configure.ac
 
 # Regenerate configuration files
 autoconf
-autoheader && touch advance/lib/osconf.hin
+autoheader && touch advance/lib/config.hin
 
 # Run configure for this platform
 echo "Now you are ready to run ./configure"

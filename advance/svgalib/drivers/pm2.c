@@ -214,7 +214,7 @@ static void setregs(const unsigned char regs[], int mode)
 
 static int modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 
@@ -741,7 +741,7 @@ static int init(int force, int par1, int par2)
             __svgalib_pm2_driverspecs.cursor = pm2v_cursor;
             break;
         default:
-            break;
+			break;
     }
     
     if (__svgalib_driver_report) {

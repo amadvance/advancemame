@@ -212,7 +212,7 @@ static void sis_setregs(const unsigned char regs[], int mode)
 
 static int sis_modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 

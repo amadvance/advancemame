@@ -5,7 +5,7 @@ DST=.
 
 if [[ ! $1 ]] ; then
 	echo "Syntax: upgrade SVGALIBDIR"
-	echo "Example: upgrade ../../../svgalib"
+	echo "Example: upgrade ../svgalib.ori"
 	exit 1
 fi
 
@@ -13,6 +13,10 @@ if [[ ! -e $SRC/libvga.h ]] ; then
 	echo Wrong source dir
 	exit 1
 fi
+
+mkdir $DST/ramdac
+mkdir $DST/clockchi
+mkdir $DST/drivers
 
 cp $SRC/8514a.h $DST
 cp $SRC/accel.c $DST

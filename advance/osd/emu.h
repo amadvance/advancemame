@@ -558,7 +558,9 @@ struct advance_sound_config_context {
 
 struct advance_sound_state_context {
 	adv_bool active_flag; /**< Flag for active sound. */
+
 	double volume; /**< Current volume. [0 - 1]. */
+
 	unsigned latency_min; /**< Expected minum latency in samples. */
 	unsigned latency_max; /**< Maximum latency, limitated by the lower driver buffer. */
 	unsigned rate; /**< Current sample rate */
@@ -573,8 +575,11 @@ struct advance_sound_state_context {
 	long long adjust_power_accumulator; /**< Power accumulator. */
 	long long adjust_power; /**< Current max normalized power. */
 	unsigned adjust_mult; /**< Sample multiplicator. */
+	double adjust_power_factor; /**< Current power adjustment. */
+	double adjust_volume_factor; /**< Current volume adjustment. Used only if adjust_flag is set. */
 
-	adv_bool mute_flag; /**< Mute state. */
+	adv_bool mute_flag; /**< Mute state for demo mode. */
+	adv_bool disabled_flag; /**< Mute state for disable mode from OSD. */
 };
 
 struct advance_sound_context {
@@ -783,6 +788,7 @@ struct advance_ui_config_context {
 	struct help_entry help_map[INPUT_HELP_MAX]; /**< Help map. */
 	char help_image_buffer[256]; /**< File name of the help image. */
 	char ui_font_buffer[256]; /**< File name of the font. */
+	adv_bool ui_speedmark_flag; /**< If display of not the speed mark on screen. */
 	unsigned ui_font_orientation; /**< Orientation for the font. */
 	unsigned ui_font_sizex; /**< X size of the font. */
 	unsigned ui_font_sizey; /**< Y size of the font. */

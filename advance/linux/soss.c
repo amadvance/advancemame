@@ -40,12 +40,17 @@
 #include <sys/ioctl.h>
 #endif
 
+/**
+ * Base for the volume adjustment.
+ */
+#define OSS_VOLUME_BASE 32768
+
 struct soundb_oss_context {
 	unsigned channel;
 	unsigned rate;
 	unsigned sample_length;
-
 	int handle;
+	int volume; /**< Volume adjustement. OSS_VOLUME_BASE == full volume. */
 };
 
 static struct soundb_oss_context oss_state;
@@ -70,9 +75,11 @@ adv_error soundb_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 		oss_state.channel = 1;
 	}
 
+	oss_state.volume = OSS_VOLUME_BASE;
+
 	oss_state.handle = open("/dev/dsp", O_WRONLY | O_NONBLOCK, 0);
 	if (!oss_state.handle) {
-		log_std(("sound:oss: open(/dev/dep, O_WRONLY | O_NONBLOCK, 0) failed\n"));
+		log_std(("sound:oss: open(/dev/dsp, O_WRONLY | O_NONBLOCK, 0) failed\n"));
 		goto err;
 	}
 
@@ -147,7 +154,7 @@ unsigned soundb_oss_buffered(void)
 	audio_buf_info info;
 
 	if (ioctl(oss_state.handle, SNDCTL_DSP_GETOSPACE, &info) < 0) {
-		log_std(("sound:oss: ioctl(SNDCTL_DSP_GETOSPACE) failed\n"));
+		log_std(("ERROR:sound:oss: ioctl(SNDCTL_DSP_GETOSPACE) failed\n"));
 		return 0;
 	}
 
@@ -161,6 +168,12 @@ unsigned soundb_oss_buffered(void)
 void soundb_oss_volume(double volume)
 {
 	log_std(("sound:oss: soundb_oss_volume(volume:%g)\n", (double)volume));
+
+	oss_state.volume = volume * OSS_VOLUME_BASE;
+	if (oss_state.volume < 0)
+		oss_state.volume = 0;
+	if (oss_state.volume > OSS_VOLUME_BASE)
+		oss_state.volume = OSS_VOLUME_BASE;
 }
 
 void soundb_oss_play(const adv_sample* sample_map, unsigned sample_count)
@@ -170,11 +183,40 @@ void soundb_oss_play(const adv_sample* sample_map, unsigned sample_count)
 	log_debug(("sound:oss: soundb_oss_play(count:%d)\n", sample_count));
 
 	/* calling write with a 0 size result in wrong output */
-	if (sample_count) {
-		r = write(oss_state.handle, sample_map, sample_count * oss_state.sample_length);
+	while (sample_count) {
+		unsigned channel_length = oss_state.sample_length / oss_state.channel;
 
-		if (r != sample_count * oss_state.sample_length) {
-			log_std(("ERROR:sound:oss write() failed %d\n", r));
+		if (oss_state.volume == OSS_VOLUME_BASE) {
+			r = write(oss_state.handle, sample_map, sample_count * oss_state.sample_length);
+		} else {
+			/* adjust the volume and write */
+			const unsigned buf_size = 2048;
+			adv_sample buf_map[buf_size];
+			unsigned run;
+			unsigned i;
+
+			run = sample_count * oss_state.channel;
+			if (run > buf_size)
+				run = buf_size;
+
+			for(i=0;i<run;++i)
+				buf_map[i] = (int)sample_map[i] * oss_state.volume / OSS_VOLUME_BASE;
+
+			r = write(oss_state.handle, buf_map, run * channel_length);
+		}
+
+		if (r < 0) {
+			if (errno == EAGAIN) {
+				/* audio buffer full, it should never happen */
+				log_std(("WARNING:sound:oss: write() failed: internal buffer full\n"));
+				/* retry */
+				continue;
+			}
+
+			break;
+		} else {
+			sample_count -= r / oss_state.sample_length;
+			sample_map += r / channel_length;
 		}
 	}
 }
@@ -207,7 +249,7 @@ adv_error soundb_oss_start(double silence_time)
 
 unsigned soundb_oss_flags(void)
 {
-	return 0;
+	return SOUND_DRIVER_FLAGS_VOLUME_SAMPLE;
 }
 
 adv_error soundb_oss_load(adv_conf* context)

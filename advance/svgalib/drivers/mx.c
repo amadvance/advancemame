@@ -181,7 +181,7 @@ static void mx_setregs(const unsigned char regs[], int mode)
 
 static int mx_modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 

@@ -2,6 +2,7 @@
 
 #include "svgacode.h"
 
+#if 0
 NTSTATUS svgalib_map(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
 {
 	SVGALIB_MAP_IN* in = (SVGALIB_MAP_IN*)IoBuffer;
@@ -140,6 +141,163 @@ NTSTATUS svgalib_unmap(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputB
 err:
 	return status;
 }
+
+#else
+
+/* Alternate method found in the libdha library (from mplayer) */
+
+/* Reference: Map Adapter RAM into Process Address Space */
+/* http://support.microsoft.com/default.aspx?scid=kb;en-us;q189327 */
+
+KSPIN_LOCK map_spin;
+
+struct map_entry {
+	PMDL mdl;
+	PVOID sys_address;
+	PVOID user_address;
+	ULONG size;
+	struct map_entry* next;
+};
+
+static struct map_entry* map_list = 0;
+
+NTSTATUS svgalib_map(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
+{
+	SVGALIB_MAP_IN* in = (SVGALIB_MAP_IN*)IoBuffer;
+	SVGALIB_MAP_OUT* out = (SVGALIB_MAP_OUT*)IoBuffer;
+	PKIRQL irql;
+	PMDL mdl;
+	PVOID sys_address;
+	struct map_entry* entry;
+	MEMORY_CACHING_TYPE cache;
+	PVOID user_address;
+    
+	if (InputBufferLength != sizeof(SVGALIB_MAP_IN) || OutputBufferLength != sizeof(SVGALIB_MAP_OUT)) {
+		DbgPrint("svgalib: Invalid input or output buffer\n");
+		return STATUS_INVALID_PARAMETER;
+	}
+
+	DbgPrint("svgalib: svgalib_map(%x, %u)\n", (unsigned)in->address.LowPart, (unsigned)in->size);
+
+	__try {
+		cache = MmNonCached;
+		// cache = MmWriteCombined;
+
+		sys_address = MmMapIoSpace(in->address, in->size, cache);
+		if (!sys_address){
+			DbgPrint("svgalib: MmMapIoSpace failed\n");
+			return STATUS_INVALID_PARAMETER;
+		}
+
+		mdl = IoAllocateMdl(sys_address, in->size, FALSE, FALSE, NULL);
+		if (!mdl) {
+			DbgPrint("svgalib: IoAllocateMdl failed\n");
+			return STATUS_INSUFFICIENT_RESOURCES;
+		}
+
+		MmBuildMdlForNonPagedPool(mdl);
+
+		user_address = (PVOID)(((ULONG)PAGE_ALIGN(MmMapLockedPages(mdl,UserMode))) + MmGetMdlByteOffset(mdl));
+		if (!user_address) {
+			DbgPrint("svgalib: MmMapLockedPages failed\n");
+			return STATUS_INSUFFICIENT_RESOURCES;
+		}
+
+	} __except(EXCEPTION_EXECUTE_HANDLER) {
+		NTSTATUS status; 
+		status = GetExceptionCode(); 
+		DbgPrint("svgalib: svgalib_map failed due to exception 0x%x\n", status);
+		return status;       
+	}
+
+	entry = MmAllocateNonCachedMemory(sizeof(struct map_entry));
+
+	if (!entry) {
+		MmUnmapLockedPages(user_address, mdl); 
+		IoFreeMdl(mdl);
+		MmUnmapIoSpace(sys_address, in->size);
+		DbgPrint("svgalib: MmAllocateNonCachedMemory failed\n");
+		return STATUS_INSUFFICIENT_RESOURCES;
+	}
+
+	entry->mdl = mdl;
+	entry->sys_address = sys_address;
+	entry->user_address = user_address;
+	entry->size = in->size;
+
+	KeAcquireSpinLock(&map_spin, &irql);
+
+	entry->next = map_list;
+	map_list = entry;
+
+	KeReleaseSpinLock(&map_spin, irql);
+
+	DbgPrint("svgalib: svgalib_map(%x, %u) -> %x\n", (unsigned)in->address.LowPart, (unsigned)in->size, (unsigned)user_address);
+
+	out->address = user_address;
+ 
+	return STATUS_SUCCESS;
+}
+
+NTSTATUS svgalib_unmap(PDEVICE_OBJECT DeviceObject, PVOID IoBuffer, ULONG InputBufferLength, ULONG OutputBufferLength)
+{
+	SVGALIB_UNMAP_IN* in = (SVGALIB_UNMAP_IN*)IoBuffer;
+	PKIRQL irql;
+	NTSTATUS status;
+	struct map_entry* entry;
+
+	if (InputBufferLength != sizeof(SVGALIB_UNMAP_IN) || OutputBufferLength != 0) {
+		DbgPrint("svgalib: Invalid input or output buffer\n");
+		return STATUS_INVALID_PARAMETER;
+	}
+
+	DbgPrint("svgalib: svgalib_unmap(%x)\n", (unsigned)in->address);
+
+	KeAcquireSpinLock(&map_spin, &irql);
+
+	if (!map_list) {
+		entry = 0;
+	} else if (map_list->user_address == in->address) {
+		entry = map_list;
+		map_list = entry->next;
+	} else {
+		struct map_entry* pivot = map_list;
+		while (pivot->next && pivot->next->user_address != in->address) {
+			pivot = pivot->next;
+		}
+		if (!pivot->next) {
+			entry = 0;
+		} else {
+			entry = pivot->next;
+			pivot->next = pivot->next->next;
+		}
+	}
+
+	KeReleaseSpinLock(&map_spin, irql);
+
+	if (!entry) {
+		DbgPrint("svgalib: svgalib_unmap entry not found\n");
+		return STATUS_INVALID_PARAMETER;
+	}
+
+	__try {
+		MmUnmapLockedPages(entry->user_address, entry->mdl);
+		IoFreeMdl(entry->mdl);
+		MmUnmapIoSpace(entry->sys_address, entry->size);
+	} __except(EXCEPTION_EXECUTE_HANDLER) {
+		NTSTATUS status;
+		status = GetExceptionCode();
+		DbgPrint("svgalib: svgalib_unmap failed due to exception 0x%x\n", status);
+		return status;
+	}
+
+	DbgPrint("svgalib: svgalib_unmap(%x) -> ok\n", (unsigned)in->address);
+
+	MmFreeNonCachedMemory(entry, sizeof(struct map_entry));
+
+	return STATUS_SUCCESS;
+}
+#endif
 
 unsigned char inportb(unsigned _port) {
 	unsigned char rv;
@@ -679,6 +837,8 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 	WCHAR deviceLinkBuffer[] = L"\\DosDevices\\SVGALIB";
 	UNICODE_STRING deviceLinkUnicodeString;
 
+	DbgPrint("svgalib: load\n");
+
 	/* Allocate a buffer for the local IOPM and zero it. */
 	IOPM_local = MmAllocateNonCachedMemory(sizeof(IOPM));
 	if (IOPM_local == 0) {
@@ -687,6 +847,8 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 		return status;
 	}
 	RtlZeroMemory(IOPM_local, sizeof(IOPM));
+
+	KeInitializeSpinLock(&map_spin);
 
 	RtlInitUnicodeString(&deviceNameUnicodeString, deviceNameBuffer);
 	status = IoCreateDevice(DriverObject, 0, &deviceNameUnicodeString, FILE_DEVICE_SVGALIB, 0, FALSE, &deviceObject);
@@ -712,3 +874,4 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 	status = STATUS_SUCCESS;
 	return status;
 }
+

@@ -259,7 +259,7 @@ static inline unsigned video_fake_text_virtual_y(void)
 	return video_state.fake_text_dy * 16;
 }
 
-static inline adv_error video_fake_text_display_set_async(unsigned offset, adv_bool waitvsync)
+static inline adv_error video_fake_text_display_set(unsigned offset, adv_bool waitvsync)
 {
 	return 0;
 }
@@ -304,7 +304,7 @@ static adv_conf_enum_int OPTION_OUTPUT[] = {
 { "auto", adv_output_auto },
 { "window", adv_output_window },
 { "fullscreen", adv_output_fullscreen },
-{ "overlay", adv_output_zoom }
+{ "overlay", adv_output_overlay }
 };
 
 static adv_conf_enum_int OPTION_CURSOR[] = {
@@ -1010,8 +1010,9 @@ void video_wait_vsync(void)
 	}
 }
 
-
-/** X size of the font for text mode. */
+/**
+ * X size of the font for text mode.
+ */
 unsigned video_font_size_x(void)
 {
 	assert( video_mode_is_active() && video_is_text() );
@@ -1024,7 +1025,9 @@ unsigned video_font_size_x(void)
 	}
 }
 
-/** Y size of the font for text mode. */
+/**
+ * Y size of the font for text mode.
+ */
 unsigned video_font_size_y(void)
 {
 	assert( video_mode_is_active() && video_is_text() );
@@ -1037,7 +1040,9 @@ unsigned video_font_size_y(void)
 	}
 }
 
-/** Horizontal virtual size of the current video mode. */
+/**
+ * Horizontal virtual size of the current video mode.
+ */
 unsigned video_virtual_x(void)
 {
 	assert( video_mode_is_active() );
@@ -1048,7 +1053,9 @@ unsigned video_virtual_x(void)
 		return video_current_driver()->virtual_x();
 }
 
-/** Vertical virtual size of the current video mode. */
+/**
+ * Vertical virtual size of the current video mode.
+ */
 unsigned video_virtual_y(void)
 {
 	assert( video_mode_is_active() );
@@ -1058,12 +1065,19 @@ unsigned video_virtual_y(void)
 		return video_current_driver()->virtual_y();
 }
 
-adv_error video_display_set_async(unsigned offset, adv_bool waitvsync)
+/**
+ * Set the screen display start.
+ * \param waitvsync If a wait vsync is required before the display start change.
+ * The display start change may be immediate (asyncronous) or delayed
+ * to the next wait retrace (syncronous) depending of the video
+ * driver used.
+ */
+adv_error video_display_set(unsigned offset, adv_bool waitvsync)
 {
 	assert( video_mode_is_active() );
 
 	if ((video_flags() & MODE_FLAGS_INTERNAL_FAKETEXT) != 0) {
-		return video_fake_text_display_set_async(offset, waitvsync);
+		return video_fake_text_display_set(offset, waitvsync);
 	} else {
 		return video_current_driver()->scroll(offset, waitvsync);
 	}

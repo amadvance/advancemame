@@ -415,7 +415,7 @@ static void setregs(const unsigned char regs[], int mode)
 
 static int modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 
@@ -895,6 +895,8 @@ static int test(void)
         case 0x8c12:
         case 0x8c13:
         case 0x9102:
+		case 0x8d03:
+		case 0x8d04:
             init(0,0,0);
             return 1;
             break;
@@ -1213,6 +1215,9 @@ static int init(int force, int par1, int par2)
             break;
         case 0x8a22:
         case 0x8a23:
+
+		case 0x8d03:
+		case 0x8d04:
             chipset = SAVAGE4;
             break;
         case 0x9102:

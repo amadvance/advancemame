@@ -29,6 +29,7 @@ INSTALL_MANFILES += $(DOCOBJ)/advmame.1
 INSTALL_MANFILES += $(DOCOBJ)/advdev.1
 ifeq ($(CONF_EMU),mame)
 INSTALL_DATAFILES += $(srcdir)/support/event.dat
+INSTALL_DATAFILES += $(srcdir)/support/history.dat
 INSTALL_BINFILES += $(OBJ)/chdman$(EXE)
 endif
 ifeq ($(CONF_EMU),mess)

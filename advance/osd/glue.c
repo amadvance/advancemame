@@ -41,6 +41,10 @@
 
 #include <math.h>
 
+#if HAVE_SYS_MMAN_H
+#include <sys/mman.h> /* for mprotect */
+#endif
+
 /* Used in os_inline.h */
 __extension__ unsigned long long mmx_8to64_map[256] = {
 	0x0000000000000000ULL,
@@ -1644,6 +1648,24 @@ struct mame_analog* mame_analog_find(unsigned type)
 	return 0;
 }
 
+/* This is the list of the MESS recognized devices, it must be syncronized */
+/* with the devices names present in the mess/device.c file */
+static const char* DEVICES[] = {
+	"cartridge",
+	"floppydisk",
+	"harddisk",
+	"cylinder",
+	"cassette",
+	"punchcard",
+	"punchtape",
+	"printer",
+	"serial",
+	"parallel",
+	"snapshot",
+	"quickload",
+	0
+};
+
 const char* mame_software_name(const mame_game* game, adv_conf* context)
 {
 #ifdef MESS
@@ -1843,7 +1865,17 @@ void osd_die(const char* text,...)
 
 void* osd_alloc_executable(size_t size)
 {
-	return malloc(size);
+	void* p = malloc(size);
+#if HAVE_MPROTECT
+	if (p) {
+		int r;
+		r = mprotect(p, size, PROT_READ | PROT_WRITE | PROT_EXEC);
+		if (r != 0) {
+			log_std(("ERROR:osd: mprotect(%p,%d,...) failed, %s\n", p, size, strerror(errno)));
+		}
+	}
+#endif
+	return p;
 }
 
 void osd_free_executable(void* p)
@@ -2472,24 +2504,6 @@ static adv_conf_enum_int OPTION_DEPTH[] = {
 };
 
 #ifdef MESS
-
-/* This is the list of the MESS recognized devices, it must be syncronized */
-/* with the devices names present in the mess/device.c file */
-static const char* DEVICES[] = {
-	"cartridge",
-	"floppydisk",
-	"harddisk",
-	"cylinder",
-	"cassette",
-	"punchcard",
-	"punchtape",
-	"printer",
-	"serial",
-	"parallel",
-	"snapshot",
-	"quickload",
-	0
-};
 
 static int mess_printf_callback(const char* fmt, va_list arg)
 {

@@ -250,18 +250,18 @@ extern "C"
 #define HAVE_BLITWAIT 16
 
 /* other flags */
-#define HAVE_RWPAGE 1		/* vga_setreadpage() / vga_setwritepage() available */
-#define IS_INTERLACED 2		/* mode is interlaced */
-#define IS_MODEX 4		/* ModeX style 256 colors */
-#define IS_DYNAMICMODE 8	/* Dynamic defined mode */
-#define CAPABLE_LINEAR 16	/* Can go to linear addressing mode. */
-#define IS_LINEAR 32		/* Linear addressing can be used. */
-#define LINEAR_MODE 512		/* Linear mode is enabled */
-#define EXT_INFO_AVAILABLE 64	/* Returned modeinfo contains valid extended fields */
-#define RGB_MISORDERED 128	/* Mach32 32bpp uses 0BGR instead of BGR0. */
-    /* As of this version 1.25 also used to signal if real RGB
-       (red first in memory) is used instead of BGR (Mach32 DAC 4) */
-#define HAVE_EXT_SET 256	/* vga_ext_set() available */
+#define HAVE_RWPAGE 		   1	/* vga_setreadpage() / vga_setwritepage() available */
+#define IS_INTERLACED		   2	/* mode is interlaced */
+#define IS_MODEX			   4	/* ModeX style 256 colors */
+#define IS_DYNAMICMODE		   8	/* Dynamic defined mode */
+#define CAPABLE_LINEAR		  16	/* Can go to linear addressing mode. */
+#define IS_LINEAR			  32	/* Linear addressing can be used. */
+#define EXT_INFO_AVAILABLE	  64	/* Returned modeinfo contains valid extended fields */
+#define RGB_MISORDERED		 128	/* Mach32 32bpp uses 0BGR instead of BGR0. */
+#define HAVE_EXT_SET		 256	/* vga_ext_set() available */
+#define LINEAR_MODE			 512	/* Linear mode is enabled */
+#define IOCTL_SETDISPLAY	1024	/* The card supports ioctl method for setting display
+										start at next vertical blank time */
 
     typedef struct {
 	int width;
@@ -533,6 +533,10 @@ extern "C"
 /* Flags for SetMode (accelerator interface). */
 #define BLITS_SYNC			0
 #define BLITS_IN_BACKGROUND		0x1
+
+#ifdef ROP_XOR
+#undef ROP_XOR
+#endif
 
 /* Raster ops. */
 #define ROP_COPY			0	/* Straight copy. */

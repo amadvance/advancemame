@@ -13,3 +13,4 @@ alsa:
 
 pcismall.txt: pcidevs.txt
 	grep -E "^(D|V)" pcidevs.txt > pcismall.txt
+

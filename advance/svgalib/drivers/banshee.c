@@ -134,7 +134,7 @@ static void banshee_setregs(const uint8_t regs[], int mode)
 
 static int banshee_modeavailable(int mode)
 {
-    struct info *info;
+    struct vgainfo *info;
     ModeTiming *modetiming;
     ModeInfo *modeinfo;
 

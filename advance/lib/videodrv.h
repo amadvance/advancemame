@@ -113,11 +113,11 @@
 #define VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW 0x200000
 
 /**
- * If the program is runned in fullscreen with zoom.
+ * If the program is runned in fullscreen with an overlay.
  * It imply that the game is always zoomed to fit the whole screen.
  * So, all the screen sizes are possible.
  */
-#define VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM 0x400000
+#define VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY 0x400000
 
 #define VIDEO_DRIVER_FLAGS_OUTPUT_MASK 0xF00000 /**< Mask for the VIDEO_DRIVER_FLAGS_OUTPUT_* flags. */
 /*@}*/
@@ -126,7 +126,15 @@
  * Video driver flags used internally by the drivers.
  */
 /*@{*/
-#define VIDEO_DRIVER_FLAGS_INTERNAL_DANGEROUSCHANGE 0x10000000 /**< Dangerous mode change. */
+/**
+ * Dangerous mode change.
+ * If this flag is reported the video mode change from a graphics
+ * video mode to another graphics mode is done directly only the
+ * the device_video_fastchange option is set. Otherwise the video mode is
+ * first restored to the initial state before setting the new
+ * graphics mode.
+ */
+#define VIDEO_DRIVER_FLAGS_INTERNAL_DANGEROUSCHANGE 0x10000000
 #define VIDEO_DRIVER_FLAGS_INTERNAL_BIT0 0x20000000 /**< First internal flag for the user. */
 #define VIDEO_DRIVER_FLAGS_INTERNAL_MASK 0xF0000000 /**< Available internal flags. */
 /*@}*/
@@ -138,7 +146,7 @@ typedef enum adv_output_enum {
 	adv_output_auto = -1, /**< Automatically detected. */
 	adv_output_fullscreen = 0, /**< Fullscreen mode of operation. */
 	adv_output_window = 1, /**< Window mode of operation. */
-	adv_output_zoom = 2 /**< Fullscreen zoomed mode of operation. */
+	adv_output_overlay = 2 /**< Fullscreen overlay mode of operation. */
 } adv_output;
 
 /**

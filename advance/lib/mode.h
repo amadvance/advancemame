@@ -51,8 +51,8 @@ extern "C" {
  * Flags describing the sync support of a video mode.
  */
 /*@{*/
-#define MODE_FLAGS_SCROLL_SYNC  0x0020 /**< The syncronous (triple buffer) setpage command is supported. */
-#define MODE_FLAGS_SCROLL_ASYNC 0x0040 /**< The asyncronous (double buffer) setpage command is supported. */
+#define MODE_FLAGS_SCROLL_SYNC  0x0020 /**< The syncronous (triple buffer) set display start operation is supported. */
+#define MODE_FLAGS_SCROLL_ASYNC 0x0040 /**< The asyncronous (double buffer) set display start operation is supported. */
 #define MODE_FLAGS_SCROLL_MASK  0x00F0 /**< Mask. */
 /*@}*/
 

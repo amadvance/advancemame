@@ -41,6 +41,11 @@
 
 #include <linux/fb.h>
 
+/* FrameBuffer extension from DirectFB */
+#ifndef FBIO_WAITFORVSYNC
+#define FBIO_WAITFORVSYNC _IOW('F', 0x20, int)
+#endif
+
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
@@ -54,6 +59,7 @@
 enum fb_wait_enum {
 	fb_wait_detect,
 	fb_wait_none,
+	fb_wait_ext,
 	fb_wait_api,
 	fb_wait_vga
 };
@@ -874,6 +880,24 @@ adv_color_def fb_color_def(void)
 }
 
 /**
+ * Wait a vsync using the FB extension.
+ */
+static adv_error fb_wait_vsync_ext(void)
+{
+	assert(fb_is_active() && fb_mode_is_active());
+
+	log_debug(("video:fb: ioctl(FBIO_WAITFORVSYNC)\n"));
+
+	if (ioctl(fb_state.fd, FBIO_WAITFORVSYNC, 0) != 0) {
+		log_std(("WARNING:video:fb: ioctl(FBIO_WAITFORVSYNC) failed\n"));
+		/* it may be not supported, it isn't an error */
+		return -1;
+	}
+
+	return 0;
+}
+
+/**
  * Wait a vsync using the FB API.
  */
 static adv_error fb_wait_vsync_api(void)
@@ -959,55 +983,18 @@ static adv_error fb_wait_vsync_vga(void)
 	return 0;
 }
 
-#if 0
-static adv_error fb_wait_vsync_vga_clocked(void)
-{
-	unsigned counter;
-	target_clock_t now, max_duration, limit;
-
-	assert(fb_is_active() && fb_mode_is_active());
-
-	now = target_clock();
-
-	if (fb_state.freq) {
-		max_duration = 1.1 * TARGET_CLOCKS_PER_SEC / fb_state.freq;
-	} else {
-		max_duration = TARGET_CLOCKS_PER_SEC / 25;
-	}
-
-	if (fb_state.wait_last != 0 && fb_state.wait_last + max_duration > now) {
-		limit = fb_state.wait_last + max_duration;
-	} else {
-		limit = now + max_duration;
-	}
-
-	counter = 0;
-
-	while ((target_port_get(0x3da) & 0x8) != 0) {
-		if (counter > VSYNC_LIMIT || target_clock() > limit) {
-			log_std(("ERROR:fb: wait timeout\n"));
-			return -1;
-		}
-		++counter;
-	}
-
-	while ((target_port_get(0x3da) & 0x8) == 0) {
-		if (counter > VSYNC_LIMIT || target_clock() > limit) {
-			log_std(("ERROR:fb: wait timeout\n"));
-			return -1;
-		}
-		++counter;
-	}
-
-	fb_state.wait_last = target_clock();
-
-	return 0;
-}
-#endif
-
 void fb_wait_vsync(void)
 {
 	switch (fb_state.wait) {
+	case fb_wait_ext :
+		if (fb_wait_vsync_ext() != 0) {
+			++fb_state.wait_error;
+			if (fb_state.wait_error > WAIT_ERROR_MAX)
+				fb_state.wait = fb_wait_none;
+		} else {
+			fb_state.wait_error = 0;
+		}
+		break;
 	case fb_wait_api :
 		if (fb_wait_vsync_api() != 0) {
 			++fb_state.wait_error;
@@ -1027,7 +1014,10 @@ void fb_wait_vsync(void)
 		}
 		break;
 	case fb_wait_detect:
-		if (fb_wait_vsync_api() == 0) {
+		if (fb_wait_vsync_ext() == 0) {
+			fb_state.wait = fb_wait_ext;
+			fb_state.wait_error = 0;
+		} else if (fb_wait_vsync_api() == 0) {
 			fb_state.wait = fb_wait_api;
 			fb_state.wait_error = 0;
 		} else if (fb_wait_vsync_vga() == 0) {

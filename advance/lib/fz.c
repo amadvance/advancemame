@@ -93,7 +93,7 @@ static int feof_lock(FILE* f)
 
 static int fgetc_lock(FILE* f)
 {
-#if HAVE_FEOF_UNLOCKED
+#if HAVE_FGETC_UNLOCKED
 	return fgetc_unlocked(f);
 #else
 	return fgetc(f);

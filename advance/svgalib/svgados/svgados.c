@@ -195,6 +195,9 @@ int adv_svgalib_munmap(void* start, unsigned length) {
 
 	adv_svgalib_log("svgalib: unmapping pointer %08x, size %d\n", (unsigned)start, length);
 
+	if (start == MAP_FAILED)
+		return -1;
+
 	offset = (unsigned)start;
 
 	offset -= __djgpp_conventional_base;

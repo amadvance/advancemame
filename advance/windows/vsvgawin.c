@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003, 2004 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,9 +89,24 @@ struct svgawin_option_struct {
 
 static struct svgawin_option_struct svgawin_option;
 
-
 /***************************************************************************/
 /* Internal */
+
+static adv_bool is_svgalib_framebuffer_valid(void)
+{
+	return adv_svgalib_linear_pointer_get() != MAP_FAILED;
+}
+
+static adv_bool is_sdl_framebuffer_valid(void)
+{
+	if (svgawin_option.stub == STUB_FULLSCREEN) {
+		unsigned flags = SDL_FULLSCREEN | SDL_HWSURFACE;
+
+		return (svgawin_state.surface->flags & flags) == flags;
+	} else {
+		return 0;
+	}
+}
 
 static unsigned char* svgawin_svgalib_write_line(unsigned y)
 {
@@ -548,6 +563,7 @@ void svgawin_mode_done(adv_bool restore)
 
 		/* first return to the original Windows mode */
 		windows_restore();
+
 		/* set the original registers */
 		adv_svgalib_restore(svgawin_state.regs_saved);
 	}
@@ -597,8 +613,14 @@ static adv_error sdl_mode_set(const svgawin_video_mode* mode)
 	x = 640;
 	y = 480;
 
-	/* the nv3 driver displays incorrectly with 15 bit modes if the same bit depth of the video mode is used */
-	bits = 8;
+	/* use the same bit depth of the requested mode */
+	bits = index_bits_per_pixel(mode->index);
+
+	/* HACK the nv3 driver displays incorrectly with 15 bit modes if the same bit depth of the video mode is used */
+	if (strcmp(adv_svgalib_driver_get(), "nv3") == 0 && bits == 15) {
+		log_std(("video:svgawin: adjusting bit depth from %d to 16 for nv3 driver", bits));
+		bits = 16;
+	}
 
 	if (svgawin_option.stub == STUB_FULLSCREEN) {
 		flags = SDL_FULLSCREEN | SDL_HWSURFACE;
@@ -609,9 +631,10 @@ static adv_error sdl_mode_set(const svgawin_video_mode* mode)
 	}
 
 	log_std(("video:svgawin: call SDL_SetVideoMode(%d, %d, %d, %s)\n", x, y, bits, sflags));
-	svgawin_state.surface = SDL_SetVideoMode(x, y, bits, flags );
+	svgawin_state.surface = SDL_SetVideoMode(x, y, bits, flags);
 	if (!svgawin_state.surface) {
 		log_std(("video:svgawin: SDL_SetVideoMode(%d, %d, %d, %s) failed, %s\n", x, y, bits, sflags, SDL_GetError()));
+		error_set("SDL is unable to set the video mode %dx%d, %d bits, %s flags.\n", x, y, bits, sflags);
 		return -1;
 	}
 
@@ -641,11 +664,6 @@ static adv_error sdl_mode_set(const svgawin_video_mode* mode)
 	if ((svgawin_state.surface->flags & SDL_PREALLOC) != 0)
 		log_std(("video:svgawin: surface flag SDL_PREALLOC\n"));
 
-	if ((svgawin_state.surface->flags & flags) != flags) {
-		log_std(("video:svgawin: Invalid flags, %d instead of %d\n", svgawin_state.surface->flags & flags, flags));
-		return -1;
-	}
-
 	/* disable the mouse cursor on fullscreen mode */
 	if ((svgawin_state.surface->flags & SDL_FULLSCREEN) != 0) {
 		SDL_ShowCursor(SDL_DISABLE);
@@ -670,14 +688,9 @@ static adv_error svgalib_mode_set(const svgawin_video_mode* mode)
 
 	adv_svgalib_linear_map();
 
-	if (svgawin_option.stub != STUB_FULLSCREEN && adv_svgalib_linear_pointer_get() == MAP_FAILED) {
-		error_set("Error mapping the video memory\n.");
-		return -1;
-	}
-
 	if (adv_svgalib_set(clock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc), crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), index_bits_per_pixel(mode->index), 0, 0) != 0) {
 		adv_svgalib_linear_unmap();
-		error_set("Generic error setting the svgawin mode\n.");
+		error_set("Generic error setting the svgalib mode\n.");
 		return -1;
 	}
 
@@ -708,26 +721,19 @@ adv_error svgawin_mode_set(const svgawin_video_mode* mode)
 		goto err_sdl;
 	}
 
-	/* if the svgalib linear pointer is invalid use the sdl value */
-	if (svgawin_option.stub == STUB_FULLSCREEN && adv_svgalib_linear_pointer_get() == MAP_FAILED) {
-		svgawin_write_line = svgawin_sdl_write_line;
-	} else {
-		svgawin_write_line = svgawin_svgalib_write_line;
-	}
-
 	log_std(("video:svgawin: lock the video memory\n"));
 	svgawin_write_lock();
 
-	if (svgawin_option.stub == STUB_FULLSCREEN) {
-		log_std(("video:svgawin: sdl linear pointer %08x\n", (unsigned)svgawin_state.surface->pixels));
-	}
-	log_std(("video:svgawin: svgalib linear pointer %08x\n", (unsigned)adv_svgalib_linear_pointer_get()));
-	log_std(("video:svgawin: used linear pointer %08x\n", (unsigned)svgawin_write_line(0)));
-
-	/* final integrity check */
-	if (svgawin_write_line(0) == MAP_FAILED) {
-		svgawin_write_unlock(0, 0, 0, 0);
-		goto err_svgalib;
+	/* select the framebuffer to use */
+	if (is_svgalib_framebuffer_valid()) {
+		svgawin_write_line = svgawin_svgalib_write_line;
+		log_std(("video:svgawin: using svgalib linear pointer %08x\n", (unsigned)adv_svgalib_linear_pointer_get()));
+	} else if (is_sdl_framebuffer_valid()) {
+		svgawin_write_line = svgawin_sdl_write_line;
+		log_std(("video:svgawin: using sdl linear pointer %08x\n", (unsigned)svgawin_state.surface->pixels));
+	} else {
+		error_set("Unusable framebuffer pointer.\n");
+		goto err_svgalib_lock;
 	}
 
 	log_std(("video:svgawin: clear the video memory\n"));
@@ -740,6 +746,8 @@ adv_error svgawin_mode_set(const svgawin_video_mode* mode)
 
 	return 0;
 
+err_svgalib_lock:
+	svgawin_write_unlock(0, 0, 0, 0);
 err_svgalib:
 	svgalib_mode_done();
 err_sdl:

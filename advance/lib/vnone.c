@@ -101,8 +101,8 @@ static adv_error none_init(int device_id, adv_output output, unsigned zoom_size,
 	case adv_output_window :
 		none_state.cap |= VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW;
 		break;
-	case adv_output_zoom :
-		none_state.cap |= VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM;
+	case adv_output_overlay :
+		none_state.cap |= VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
 		break;
 	}
 

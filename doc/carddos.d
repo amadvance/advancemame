@@ -58,6 +58,7 @@ SVGALINE
 		+OEM Giga-Byte Technology {1458} : RV200 QW [RADEON 7500 PRO MAYA AR] 
 		+OEM Giga-Byte Technology {1458} : Radeon 7500 PRO MAYA AR 
 		+OEM Hightech Information Systems Ltd {17af} : Excalibur Radeon 7500LE 
+		+OEM PC Partner Ltd {174b} : RV200 QW [Radeon 7500 LE] 
 		+OEM PC Partner Ltd {174b} : Radeon 7500LE 
 		+OEM PC Partner Ltd {174b} : Radeon RV200 QW [Radeon 7500 LE] 
 		+OEM PowerColor (C.P. Technology Co Ltd) {148c} : Radeon 7500 Evil Master Multi-display Edition 
@@ -93,6 +94,7 @@ SVGALINE
 	+Radeon 9200 SE Series (RV280) [5964] 
 		+OEM Ge-Cube {18bc} : Radeon 9200 SE 128Mb Game Buster 
 		+OEM Giga-Byte Technology {1458} : Radeon 9200 SE 
+		+OEM PC Partner Ltd {174b} : Sapphire Radeon 9200 SE 
 		+OEM PowerColor (C.P. Technology Co Ltd) {148c} : R92LE-C3S 
 	+Radeon 9200 Series (RV280) [5961] 
 		+ALL-IN-WONDER 9200 SERIES 
@@ -124,6 +126,7 @@ SVGALINE
 		+OEM PowerColor (C.P. Technology Co Ltd) {148c} : PowerColor R96A-C3N 
 		+OEM Yuan Yuan Enterprise Co Ltd {12ab} : Radeon 9600 
 	+Radeon 9600 XT (V350) [4152] 
+		+OEM ASUSTeK Computer Inc {1043} : Radeon 9600 XT TVD 
 		+OEM PC Partner Ltd {174b} : Sapphire Radeon 9600 XT 
 	+Radeon 9600TX (R300) [4e46] 
 	+Radeon 9700 (R300) [4145] 
@@ -671,19 +674,25 @@ SVGALINE
 		+OEM ELSA GmbH {1048} : ERAZOR X 
 		+OEM Guillemot Corp {14af} : 3D Prophet 
 		+OEM Guillemot Corp {14af} : 3D Prophet SE 
+	+GeForce FX 5100 [NV34.7] [0327] (*)
 	+GeForce FX 5200 Ultra [NV34.2] [0321] (*)
 	+GeForce FX 5200 [NV34.3] [0322] (*)
 		+OEM ASUSTeK Computer Inc {1043} : V9520TD (*)
 		+OEM Leadtek Research {107d} : WinFast A340 TDH (*)
 		+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-8917 (FX5200-T128) (*)
+	+GeForce FX 5200LE [NV34.3] [0323] (*)
+	+GeForce FX 5500 [NV34.6] [0326] (*)
 	+GeForce FX 5600 Ultra [NV31.1] [0311] (*)
 	+GeForce FX 5600 [NV31.2] [0312] (*)
 		+OEM ASUSTeK Computer Inc {1043} : V9560TD (*)
 		+OEM Leadtek Research {107d} : WinFast A310TD (*)
 	+GeForce FX 5600XT [NV31.4] [0314] (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9560XT/TD (*)
 		+OEM Leadtek Research {107d} : A310XTTD 5600 (*)
 	+GeForce FX 5700 Ultra [NV36.1] [0341] (*)
 	+GeForce FX 5700 [NV36.2] [0342] (*)
+	+GeForce FX 5700LE [NV36.3] [0343] (*)
+	+GeForce FX 5700VE [NV36.4] [0344] (*)
 	+GeForce FX 5800 Ultra [NV30.2] [0301] (*)
 	+GeForce FX 5800 [NV30.3] [0302] (*)
 	+GeForce FX 5900 Ultra [NV35.0] [0330] (*)
@@ -691,6 +700,7 @@ SVGALINE
 		+OEM Leadtek Research {107d} : WinFast A350 Ultra (*)
 	+GeForce FX 5900 [NV35.1] [0331] (*)
 	+GeForce FX 5900XT [NV35.2] [0332] (*)
+	+GeForce FX 5900ZT [NV35.4] [0334] (*)
 	+GeForce FX 5950 Ultra [NV35.3] [0333] (*)
 	+GeForce FX Go 5200 32M/64M [0328] (*)
 		+OEM Wistron Corporation {17c0} : GeForce FX Go 5200 32M/64M (*)
@@ -703,6 +713,8 @@ SVGALINE
 	+GeForce FX Go 5600 [031a] (*)
 		+OEM Wistron Corporation {17c0} : GeForce FX Go 5600 (*)
 	+GeForce FX Go 5650 [031b] (*)
+	+GeForce FX Go5100 [NV34M] [032d] (*)
+	+GeForce FX Go5600 [NV36M] [0348] (*)
 	+GeForce FX [NV30.1] [0300] (*)
 	+GeForce2 GTS/PRO [NV15] [0150] 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V770/64M 
@@ -811,6 +823,8 @@ SVGALINE
 		+OEM Aopen Inc {a0a0} : GeForce4 420 Go 64M [NV17M] (*)
 		+OEM Wistron Corporation {17c0} : GeForce4 420 Go 64M [NV17M] (*)
 	+GeForce4 440 Go [NV17M] [0174] (*)
+	+GeForce4 448 Go [NV18M] [0186] (*)
+	+GeForce4 448 Go [NV18M] [018d] (*)
 	+GeForce4 460 Go [NV17M] [0177] (*)
 	+GeForce4 MX 4000 [0185] (*)
 	+GeForce4 MX 420 [NV17.3] [0172] (*)
@@ -897,13 +911,10 @@ SVGALINE
 	+NV31 [0313] (*)
 	+NV31GL.1 [0318] (*)
 	+NV31GL.2 [0319] (*)
-	+NV34.4 [0323] (*)
 	+NV34GL [032f] (*)
-	+NV34GL.3 [032a] (*)
 	+NV34M [GeForce FX Go5200] [0329] (*)
-	+NV36 [0343] (*)
+	+NV36.5 [0345] (*)
 	+NV36GL [034f] (*)
-	+NV38 [0334] (*)
 	+NVIDIA Quadro FX 700 Go [031c] (*)
 	+Quadro (GeForce 256 GL) [NV10GL] [0103] 
 		+OEM ASUSTeK Computer Inc {1043} : V6600GL 
@@ -914,6 +925,8 @@ SVGALINE
 	+Quadro FX 2000 [NV30GL.1] [0308] (*)
 	+Quadro FX 3000 [NV35GL] [0338] (*)
 	+Quadro FX 500 [NV34GL.4] [032b] (*)
+	+Quadro FX 700 [NV35GL] [033f] (*)
+	+Quadro NVS 280 [NV34GL.3] [032a] (*)
 	+Quadro NVS with AGP 8X [NV18GL.2] [018a] (*)
 	+Quadro2 MXR/EX/Go [NV11GL] [0113] (*)
 		+OEM ELSA GmbH {1048} : Synergy 2000 (*)
@@ -924,6 +937,7 @@ SVGALINE
 	+Quadro4 500/550 XGL [NV17GL.1] [0178] (*)
 	+Quadro4 550 XGL [NV17GL.3] [017b] (*)
 	+Quadro4 580 XGL [NV18GL.1] [0188] (*)
+	+Quadro4 700 GoGL [NV28GL] [028c] (*)
 	+Quadro4 700 XGL [NV25GL.4] [025b] (*)
 	+Quadro4 750 XGL [NV25GL.2] [0259] (*)
 	+Quadro4 780 XGL [NV28GL.2] [0289] (*)
@@ -995,6 +1009,7 @@ SVGALINE
 		+OEM Giga-Byte Technology {1458} : GA-660 Plus 
 		+OEM Guillemot Corp {14af} : Maxi Gamer Phoenix 2 
 		+OEM Guillemot Corp {14af} : Maxi Gamer Xentor 
+		+OEM Leadtek Research {107d} : WinFast 3D S320 II + TV-Out 
 	+Riva 128 Graphics Accelerator [NV3] [0018] 
 	+Riva 128ZX GUI+3D Accelerator [NV3] [0019] 
 	+Riva TNT GUI+3D Accelerator [NV4] [0020] 
@@ -1103,6 +1118,7 @@ SVGALINE
 		+Santa Ana PCL (*)
 		+Scirocco (*)
 		+OEM AccelGraphics Inc (Kubota Pacific) {1040} : AccelStar II (*)
+		+OEM Intraserver Technology Inc {13e9} : 6221L-4U (*)
 
   S3 Inc. (5333)
 	+82C270-294 Savage/MX [8c11] 
