@@ -52,9 +52,9 @@
 #if defined(MESS)
 
 #define ADVANCE_COPY \
-	"AdvanceMESS - Copyright (C) 2001-2002 by Andrea Mazzoleni\n" \
-	"MESS - Copyright (C) 1998-2002 by the MESS Team\n" \
-	"MAME - Copyright (C) 1997-2002 by Nicola Salmoria and the MAME Team\n"
+	"AdvanceMESS - Copyright (C) 2001-2003 by Andrea Mazzoleni\n" \
+	"MESS - Copyright (C) 1998-2003 by the MESS Team\n" \
+	"MAME - Copyright (C) 1997-2003 by Nicola Salmoria and the MAME Team\n"
 
 #define ADVANCE_TITLE "AdvanceMESS"
 #define ADVANCE_NAME "advmess"
@@ -63,9 +63,9 @@
 #elif defined(PAC)
 
 #define ADVANCE_COPY \
-	"AdvancePAC - Copyright (C) 2002 by Andrea Mazzoleni\n" \
-	"PacMAME - Copyright (C) 2001-2002 by Brian Glam \n" \
-	"MAME - Copyright (C) 1997-2002 by Nicola Salmoria and the MAME Team\n"
+	"AdvancePAC - Copyright (C) 2002-2003 by Andrea Mazzoleni\n" \
+	"PacMAME - Copyright (C) 2001-2003 by Brian Glam\n" \
+	"MAME - Copyright (C) 1997-2003 by Nicola Salmoria and the MAME Team\n"
 
 #define ADVANCE_TITLE "AdvancePAC"
 #define ADVANCE_NAME "advpac"
@@ -74,8 +74,8 @@
 #else
 
 #define ADVANCE_COPY \
-	"AdvanceMAME - Copyright (C) 1999-2002 by Andrea Mazzoleni\n" \
-	"MAME - Copyright (C) 1997-2002 by Nicola Salmoria and the MAME Team\n"
+	"AdvanceMAME - Copyright (C) 1999-2003 by Andrea Mazzoleni\n" \
+	"MAME - Copyright (C) 1997-2003 by Nicola Salmoria and the MAME Team\n"
 
 #define ADVANCE_TITLE "AdvanceMAME"
 #define ADVANCE_NAME "advmame"

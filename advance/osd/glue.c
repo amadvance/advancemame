@@ -471,7 +471,7 @@ const struct mame_game* mame_playback_look(const char* file)
 	INP_HEADER inp_header;
 	void* playback;
 
-	playback= osd_fopen(0, file, OSD_FILETYPE_INPUTLOG, 0);
+	playback = osd_fopen(FILETYPE_INPUTLOG, 0, file, "rb");
 	if (!playback) {
 		target_err("Error opening the input playback file '%s'.\n", file);
 		return 0;
@@ -519,26 +519,27 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 
 	options.record = 0;
 	options.playback = 0;
+	options.language_file = 0;
 	options.mame_debug = advance->debug_flag;
 	options.cheat = advance->cheat_flag;
 	options.gui_host = 1; /* this prevents text mode messages that may stop the execution */
+	options.skip_disclaimer = context->global.config.quiet_flag;
+	options.skip_gameinfo = context->global.config.quiet_flag;
 	options.samplerate = advance->samplerate;
 	options.use_samples = advance->samples_flag;
 	options.use_filter = advance->filter_flag;
+	options.brightness = advance->brightness;
+	options.pause_bright = 1.0;
+	options.gamma = advance->gamma;
 	options.color_depth = advance->color_depth;
 	options.vector_width = advance->vector_width;
 	options.vector_height = advance->vector_height;
-	options.debug_width = advance->debug_width;
-	options.debug_height = advance->debug_height;
-	options.debug_depth = 8;
 	options.ui_orientation = advance->ui_orientation;
-	options.antialias = advance->antialias;
-	options.translucency = advance->translucency;
 	options.beam = advance->beam;
 	options.vector_flicker = advance->vector_flicker;
 	options.vector_intensity = advance->vector_intensity;
-	options.brightness = advance->brightness;
-	options.gamma = advance->gamma;
+	options.translucency = advance->translucency;
+	options.antialias = advance->antialias;
 	options.use_artwork = 0;
 	if (advance->artwork_backdrop_flag)
 		options.use_artwork |= ARTWORK_USE_BACKDROPS;
@@ -548,18 +549,20 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		options.use_artwork |= ARTWORK_USE_BEZELS;
 	options.artwork_res = 1; /* no artwork scaling */
 	options.artwork_crop = advance->artwork_crop_flag;
-
 	options.savegame = advance->savegame;
+	options.debug_width = advance->debug_width;
+	options.debug_height = advance->debug_height;
+	options.debug_depth = 8;
 
 	if (advance->language_file[0])
-		options.language_file = osd_fopen(0, advance->language_file, OSD_FILETYPE_LANGUAGE, 0);
+		options.language_file = mame_fopen(0, advance->language_file, FILETYPE_LANGUAGE, 0);
 	else
 		options.language_file = 0;
 
 	if (advance->record_file[0]) {
 		INP_HEADER inp_header;
 
-		options.record = osd_fopen(0, advance->record_file, OSD_FILETYPE_INPUTLOG, 1);
+		options.record = mame_fopen(advance->record_file, 0, FILETYPE_INPUTLOG, 1);
 		if (!options.record) {
 			target_err("Error opening the input record file '%s'.\n", advance->record_file);
 			return -1;
@@ -572,7 +575,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		inp_header.version[1] = 0;
 		inp_header.version[2] = 0;
 
-		if (osd_fwrite(options.record, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
+		if (mame_fwrite(options.record, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
 			target_err("Error writing the input record file '%s'.\n", advance->record_file);
 			return -1;
 		}
@@ -582,21 +585,21 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	if (advance->playback_file[0]) {
 		INP_HEADER inp_header;
 
-		options.playback = osd_fopen(0, advance->playback_file, OSD_FILETYPE_INPUTLOG, 0);
+		options.playback = mame_fopen(0, advance->playback_file, FILETYPE_INPUTLOG, 0);
 		if (!options.playback) {
 			target_err("Error opening the input playback file '%s'.\n", advance->playback_file);
 			return -1;
 		}
 
 		/* read playback header */
-		if (osd_fread(options.playback, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
+		if (mame_fread(options.playback, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
 			target_err("Error reading the input playback file '%s'.\n", advance->playback_file);
 			return -1;
 		}
 
 		if (!isalnum(inp_header.name[0])) {
 			/* without header */
-			osd_fseek(options.playback, 0, SEEK_SET);
+			mame_fseek(options.playback, 0, SEEK_SET);
 		} else {
 			unsigned i;
 			const struct mame_game* game = mame_game_at(0);
@@ -662,11 +665,11 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	r = run_game(game_index);
 
 	if (options.language_file)
-		osd_fclose(options.language_file);
+		mame_fclose(options.language_file);
 	if (options.record)
-		osd_fclose(options.record);
+		mame_fclose(options.record);
 	if (options.playback)
-		osd_fclose(options.playback);
+		mame_fclose(options.playback);
 
 	return r;
 }
@@ -1134,6 +1137,11 @@ cycles_t osd_cycles(void)
 cycles_t osd_cycles_per_second(void)
 {
 	return OS_CLOCKS_PER_SEC;
+}
+
+cycles_t osd_profiling_ticks(void)
+{
+	return os_clock();
 }
 
 /* Filter the user interface input state */

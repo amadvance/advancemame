@@ -30,6 +30,7 @@
 
 #include "conf.h"
 #include "incstr.h"
+#include "log.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -43,11 +44,32 @@
 /***************************************************************************/
 /* Local */
 
+static adv_bool partial_match_whole(const char* s, const char* partial)
+{
+	const char* p = s;
+	unsigned l = strlen(partial);
+
+	while (1) {
+		if (memcmp(p, partial, l)==0 && (p[l]==0 || p[l]=='_'))
+			return 1;
+
+		p = strchr(p, '_');
+		if (!p)
+			return 0;
+
+		++p; /* skip the '_' */
+	}
+
+	return 0;
+}
+
 static adv_bool partial_match(const char* s, const char* partial)
 {
 	const char* p = s;
+	unsigned l = strlen(partial);
+
 	while (1) {
-		if (memcmp(p, partial, strlen(partial))==0)
+		if (memcmp(p, partial, l)==0)
 			return 1;
 
 		p = strchr(p, '_');
@@ -154,6 +176,32 @@ static struct adv_conf_option_struct* option_search_tag(adv_conf* context, const
 }
 
 /**
+ * Search a option for partial match for a whole subtag.
+ * The search complete with success only if an unique option is found.
+ */
+static struct adv_conf_option_struct* option_search_tag_partial_whole(adv_conf* context, const char* tag)
+{
+	struct adv_conf_option_struct* found = 0;
+
+	if (context->option_list) {
+		struct adv_conf_option_struct* option = context->option_list;
+		do {
+			if (partial_match_whole(option->tag, tag)) {
+				if (found) {
+					log_std(("conf: multiple match %s and %s for %s\n", found->tag, option->tag, tag));
+					return 0; /* multiple match */
+				}
+				found = option;
+			}
+			option = option->next;
+		} while (option != context->option_list);
+	}
+
+
+	return found;
+}
+
+/**
  * Search a option for partial match.
  * The search complete with success only if an unique option is found.
  */
@@ -166,7 +214,7 @@ static struct adv_conf_option_struct* option_search_tag_partial(adv_conf* contex
 		do {
 			if (partial_match(option->tag, tag)) {
 				if (found) {
-					/* printf("conf: multiple match %s and %s for %s\n", found->tag, option->tag, tag); */
+					log_std(("conf: multiple match %s and %s for %s\n", found->tag, option->tag, tag));
 					return 0; /* multiple match */
 				}
 				found = option;
@@ -1612,9 +1660,13 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 		++tag;
 
 		noformat = 0;
+		option = 0;
 
 		/* exact search */
-		option = option_search_tag(context, tag);
+		if (!option) {
+			option = option_search_tag(context, tag);
+		}
+
 		if (!option) {
 			if (tag[0]=='n' && tag[1]=='o') {
 				option = option_search_tag(context, tag + 2);
@@ -1626,9 +1678,28 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 			}
 		}
 
+		/* partial search whole */
+		if (!option) {
+			option = option_search_tag_partial_whole(context, tag);
+		}
+
+		if (!option) {
+			if (tag[0]=='n' && tag[1]=='o') {
+				option = option_search_tag_partial_whole(context, tag + 2);
+				if (option && option->type == conf_type_bool) {
+					noformat = 1;
+				} else {
+					option = 0;
+				}
+			}
+		}
+
 		/* partial search */
 		if (!option) {
 			option = option_search_tag_partial(context, tag);
+		}
+
+		if (!option) {
 			if (tag[0]=='n' && tag[1]=='o') {
 				option = option_search_tag_partial(context, tag + 2);
 				if (option && option->type == conf_type_bool) {

@@ -1,7 +1,6 @@
 Name
 	history - History For AdvanceCAB
 
-
 AdvanceCAB Version 1.1.4 2003/01
 	) Upgraded at the SVGALIB 1.9.17 library.
 

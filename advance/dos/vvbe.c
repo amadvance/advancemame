@@ -43,7 +43,7 @@ static adv_device DEVICE[] = {
 };
 
 typedef struct vbe_internal_struct2 {
-	unsigned cap;
+	unsigned flags;
 } vbe_internal2;
 
 static vbe_internal2 vbe_state2;
@@ -86,15 +86,15 @@ static void vbe_probe(void)
 
 	/* remove unsupported bit depth */
 	if (!has8bit)
-		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
+		vbe_state2.flags &= ~VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
 	if (!has15bit)
-		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR15;
+		vbe_state2.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR15;
 	if (!has16bit)
-		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR16;
+		vbe_state2.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR16;
 	if (!has24bit)
-		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR24;
+		vbe_state2.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR24;
 	if (!has32bit)
-		vbe_state2.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
+		vbe_state2.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
 }
 
 static adv_error vbe_init2(int device_id, adv_output output)
@@ -119,7 +119,7 @@ static adv_error vbe_init2(int device_id, adv_output output)
 	if (vbe_init() != 0)
 		return -1;
 
-	vbe_state2.cap = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
+	vbe_state2.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
 		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
 	vbe_probe();
@@ -129,7 +129,7 @@ static adv_error vbe_init2(int device_id, adv_output output)
 
 unsigned vbe_flags(void)
 {
-	return vbe_state2.cap;
+	return vbe_state2.flags;
 }
 
 /**

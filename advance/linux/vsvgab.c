@@ -56,6 +56,7 @@ typedef struct svgalib_internal_struct {
 	unsigned green_pos;
 	unsigned blue_len;
 	unsigned blue_pos;
+	unsigned flags;
 } svgalib_internal;
 
 static svgalib_internal svgalib_state;
@@ -83,9 +84,7 @@ static adv_bool svgalib_mode_is_active(void)
 static unsigned svgalib_flags(void)
 {
 	assert( svgalib_is_active() );
-	return VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
-		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+	return svgalib_state.flags;
 }
 
 static unsigned char* svgalib_linear_write_line(unsigned y)
@@ -135,6 +134,7 @@ adv_error svgalib_init(int device_id, adv_output output)
 	chipset = vga_getcurrentchipset();
 	log_std(("video:svgalib: chipset number %d\n", chipset));
 
+	/* remove some incomplete/not working drivers (at version 1.9.17) */
 	switch (chipset) {
 	case UNDEFINED :
 	case NEOMAGIC :
@@ -157,6 +157,29 @@ adv_error svgalib_init(int device_id, adv_output output)
 		error_nolog_cat("svgalib: Video board unsupported\n");
 		return -1;
 	}
+
+	svgalib_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
+		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
+		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+
+	switch (chipset) {
+	case BANSHEE :
+		/* the banshee driver doesn't work in 16 bit mode, only with the 15 bit (at version 1.9.17) */
+		log_std(("video:svgalib: disable 16 bit modes not supported by this driver\n"));
+		svgalib_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR16;
+		break;
+	}
+
+	switch (chipset) {
+	case RENDITION :
+	case PM2 :
+	case I740 :
+	case I810 :
+	case APM :
+		log_std(("video:svgalib: disable interlace modes not supported by this driver\n"));
+		svgalib_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
+		break;
+	};
 
 	svgalib_state.active = 1;
 	return 0;
@@ -182,64 +205,6 @@ void svgalib_done(void)
 #define SVGALIB_TVPAL           0x400   /* Use the PAL format. */
 #define SVGALIB_TVNTSC          0x800   /* Use the NTSC format. */
 #define SVGALIB_FORCE           0x1000  /* Force the use of this modeline. */
-
-#if 0
-int svgalib_forcetimings(unsigned clock,
-	unsigned hde, unsigned hrs, unsigned hre, unsigned ht,
-	unsigned vde, unsigned vrs, unsigned vre, unsigned vt,
-	unsigned flags
-) {
-	int current_clock;
-	int current_hde;
-	int current_hrs;
-	int current_hre;
-	int current_ht;
-	int current_vde;
-	int current_vrs;
-	int current_vre;
-	int current_vt;
-	int current_flags;
-
-	unsigned flags_mask = SVGALIB_PHSYNC | SVGALIB_NHSYNC | SVGALIB_PVSYNC | SVGALIB_NVSYNC | SVGALIB_INTERLACED | SVGALIB_DOUBLESCAN | SVGALIB_TVMODE | SVGALIB_TVPAL | SVGALIB_TVNTSC;
-
-	log_std(("video:svgalib: vga_currenttiming()\n"));
-	if (vga_getcurrenttiming(&current_clock,
-		&current_hde, &current_hrs, &current_hre, &current_ht,
-		&current_vde, &current_vrs, &current_vre, &current_vt,
-		&current_flags
-		) != 0) {
-		error_set("Error in vga_getcurrenttiming");
-		return -1;
-	}
-
-	if (clock != current_clock
-		|| current_hde != hde || current_hrs != hrs || current_hre != hre || current_ht != ht
-		|| current_vde != vde || current_vrs != vrs || current_vre != vre || current_vt != vt
-		|| (current_flags & flags_mask) != (flags & flags_mask)
-	) {
-		current_clock = clock - current_clock;
-		current_hde = hde - current_hde;
-		current_hrs = hrs - current_hrs;
-		current_hre = hre - current_hre;
-		current_ht = ht - current_ht;
-		current_vde = vde - current_vde;
-		current_vrs = vhs - current_vrs;
-		current_vre = vre - current_vre;
-		current_vt = vt - current_vt;
-		current_flags = flags;
-
-		log_std(("video:svgalib: vga_changetiming()\n"));
-		/* the return value is always 1 in 1.9.17 */
-		vga_changetiming(current_clock,
-			current_hde, current_hrs, current_hre, current_ht,
-			current_vde, current_vrs, current_vre, current_vt,
-			current_flags
-		);
-	}
-
-	return 0;
-}
-#endif
 
 adv_error svgalib_mode_set(const svgalib_video_mode* mode) 
 {
@@ -319,7 +284,11 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 	log_std(("video:svgalib: vga_addmode(%d, %d, %d, %d, %d) = %d\n", mode->crtc.hde, mode->crtc.vde, colors, bytes_per_scanline, bytes_per_pixel, res));
 
 	if (!vga_hasmode(res)) {
-		error_nolog_set("Error in the SVGALIB function vga_hasmode(). Have you adjusted\nthe HorizSync and VertRefresh in /etc/vga/libvga.config ?\n");
+		if (crtc_is_interlace(&mode->crtc)) {
+			error_nolog_set("Error in the SVGALIB function vga_hasmode(). Have you adjusted\nthe HorizSync and VertRefresh in /etc/vga/libvga.config ?\nTry also disabling the interlaced modes.");
+		} else {
+			error_nolog_set("Error in the SVGALIB function vga_hasmode(). Have you adjusted\nthe HorizSync and VertRefresh in /etc/vga/libvga.config ?\n");
+		}
 		log_std(("video:svgalib: Error in vga_hasmode(%d)\n", res));
 		log_std(("video:svgalib: Have you adjusted the HorizSync and VertRefresh in /etc/vga/libvga.config ?\n"));
 		return -1;

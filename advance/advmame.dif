@@ -1,12 +1,12 @@
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2002-11-15 22:19:50.000000000 +0100
++++ src/advance.pat	2003-01-13 18:30:42.000000000 +0100
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/common.c src/common.c
---- src.ori/common.c	2002-11-02 14:53:00.000000000 +0100
-+++ src/common.c	2002-12-18 19:25:36.000000000 +0100
-@@ -429,17 +429,11 @@
+--- src.ori/common.c	2002-12-03 10:33:52.000000000 +0100
++++ src/common.c	2003-01-13 20:03:48.000000000 +0100
+@@ -411,17 +411,11 @@
  	coin_counter_w - sets input for coin counter
  -------------------------------------------------*/
  
@@ -25,50 +25,22 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  /*-------------------------------------------------
  	coin_lockout_w - locks out one coin input
-@@ -1134,11 +1128,11 @@
+@@ -1117,11 +1111,11 @@
  		}
  		else
  			strcat(romdata->errorbuf, "WARNING: the game might not run correctly.\n");
  
  		/* display the result */
 -		printf("%s", romdata->errorbuf);
-+		osd_display_loading_rom_message(romdata->errorbuf, -1, -1);
++		osd_display_loading_rom_message(romdata->errorbuf, 0);
  
  		/* if we're not getting out of here, wait for a keypress */
  		if (!options.gui_host && !bailing)
  		{
  			int k;
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/common.h src/common.h
---- src.ori/common.h	2002-11-02 14:53:28.000000000 +0100
-+++ src/common.h	2002-11-16 17:04:14.000000000 +0100
-@@ -281,17 +281,19 @@
- #define ROM_REGION16_BE(length,type,flags)			ROM_REGION(length, type, (flags) | ROMREGION_16BIT | ROMREGION_BE)
- #define ROM_REGION32_LE(length,type,flags)			ROM_REGION(length, type, (flags) | ROMREGION_32BIT | ROMREGION_LE)
- #define ROM_REGION32_BE(length,type,flags)			ROM_REGION(length, type, (flags) | ROMREGION_32BIT | ROMREGION_BE)
- 
- /* ----- core ROM loading macros ----- */
--#define ROMX_LOAD(name,offset,length,crc,flags)		{ name, offset, length, flags, crc },
-+#define ROMX_LOAD_P(name,offset,length,crc,flags)		{ name, offset, length, flags, crc },
-+#define ROMX_LOAD(name,offset,length,crc,flags)		{ name "\0", offset, length, flags, crc },
-+#define ROM_LOAD_P(name,offset,length,crc)			ROMX_LOAD_P(name, offset, length, crc, 0)
- #define ROM_LOAD(name,offset,length,crc)			ROMX_LOAD(name, offset, length, crc, 0)
- #define ROM_LOAD_OPTIONAL(name,offset,length,crc)	ROMX_LOAD(name, offset, length, crc, ROM_OPTIONAL)
--#define ROM_CONTINUE(offset,length)					ROMX_LOAD(ROMENTRY_CONTINUE, offset, length, 0, ROM_INHERITFLAGS)
--#define ROM_RELOAD(offset,length)					ROMX_LOAD(ROMENTRY_RELOAD, offset, length, 0, ROM_INHERITFLAGS)
--#define ROM_FILL(offset,length,value)				ROM_LOAD(ROMENTRY_FILL, offset, length, value)
--#define ROM_COPY(rgn,srcoffset,offset,length)		ROMX_LOAD(ROMENTRY_COPY, offset, length, srcoffset, (rgn) << 24)
-+#define ROM_CONTINUE(offset,length)					ROMX_LOAD_P(ROMENTRY_CONTINUE, offset, length, 0, ROM_INHERITFLAGS)
-+#define ROM_RELOAD(offset,length)					ROMX_LOAD_P(ROMENTRY_RELOAD, offset, length, 0, ROM_INHERITFLAGS)
-+#define ROM_FILL(offset,length,value)				ROM_LOAD_P(ROMENTRY_FILL, offset, length, value)
-+#define ROM_COPY(rgn,srcoffset,offset,length)		ROMX_LOAD_P(ROMENTRY_COPY, offset, length, srcoffset, (rgn) << 24)
- 
- /* ----- nibble loading macros ----- */
- #define ROM_LOAD_NIB_HIGH(name,offset,length,crc)	ROMX_LOAD(name, offset, length, crc, ROM_NIBBLE | ROM_SHIFT_NIBBLE_HI)
- #define ROM_LOAD_NIB_LOW(name,offset,length,crc)	ROMX_LOAD(name, offset, length, crc, ROM_NIBBLE | ROM_SHIFT_NIBBLE_LO)
- 
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
 --- src.ori/cpu/i8085/i8085.c	2002-08-25 00:51:26.000000000 +0200
-+++ src/cpu/i8085/i8085.c	2002-11-15 22:19:50.000000000 +0100
++++ src/cpu/i8085/i8085.c	2003-01-13 18:30:42.000000000 +0100
 @@ -61,10 +61,16 @@
   *
   *****************************************************************************/
@@ -87,8 +59,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #include "state.h"
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
---- src.ori/cpu/m68000/make68k.c	2002-10-28 21:48:50.000000000 +0100
-+++ src/cpu/m68000/make68k.c	2002-11-15 22:19:50.000000000 +0100
+--- src.ori/cpu/m68000/make68k.c	2002-11-15 19:08:24.000000000 +0100
++++ src/cpu/m68000/make68k.c	2003-01-13 18:30:42.000000000 +0100
 @@ -188,11 +188,11 @@
  
  
@@ -122,7 +94,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  /* ---------- VC++ deosn't preserve EDI? (Kenjo, 110399) ---------- */
  static char SavedRegs[] = "-B--S-B";
  
-@@ -8038,11 +8038,11 @@
+@@ -8037,11 +8037,11 @@
  	fprintf(fp, "\t\tDW   0,0,0\n\n");
  
  
@@ -136,8 +108,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #else
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
---- src.ori/cpu/z80/z80.c	2002-10-01 22:09:34.000000000 +0200
-+++ src/cpu/z80/z80.c	2002-11-15 22:19:50.000000000 +0100
+--- src.ori/cpu/z80/z80.c	2002-12-12 20:01:26.000000000 +0100
++++ src/cpu/z80/z80.c	2003-01-13 18:30:42.000000000 +0100
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -156,8 +128,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/cpuexec.c src/cpuexec.c
---- src.ori/cpuexec.c	2002-10-21 15:02:40.000000000 +0200
-+++ src/cpuexec.c	2002-11-15 22:19:50.000000000 +0100
+--- src.ori/cpuexec.c	2002-12-08 13:32:24.000000000 +0100
++++ src/cpuexec.c	2003-01-13 18:30:42.000000000 +0100
 @@ -233,10 +233,13 @@
  	watchdog_counter = -1;
  
@@ -171,26 +143,10 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	for (cpunum = 0; cpunum < cpu_gettotalcpu(); cpunum++)
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
- 		if (!(Machine->drv->cpu[cpunum].cpu_type & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/flower.c src/drivers/flower.c
---- src.ori/drivers/flower.c	2002-11-01 11:20:46.000000000 +0100
-+++ src/drivers/flower.c	2002-11-15 23:32:20.000000000 +0100
-@@ -35,11 +35,11 @@
- 12       16E         "       "
- 13       17E         "       "
- 14       19E         "       "
- */
- 
--#include "vidhrdw\generic.h"
-+#include "vidhrdw/generic.h"
- 
- data8_t *flower_sharedram;
- 
- READ_HANDLER( flower_sharedram_r );
- WRITE_HANDLER( flower_sharedram_w );
+ 		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/neogeo.c src/drivers/neogeo.c
---- src.ori/drivers/neogeo.c	2002-10-25 17:25:00.000000000 +0200
-+++ src/drivers/neogeo.c	2002-11-15 22:19:58.000000000 +0100
+--- src.ori/drivers/neogeo.c	2002-12-24 18:25:06.000000000 +0100
++++ src/drivers/neogeo.c	2003-01-13 18:30:48.000000000 +0100
 @@ -289,11 +289,11 @@
  			}
  			fc++;
@@ -204,382 +160,24 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		vblank_int = 1;	   /* vertical blank */
  	}
  
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/drivers/polyplay.c src/drivers/polyplay.c
---- src.ori/drivers/polyplay.c	2002-05-11 13:58:46.000000000 +0200
-+++ src/drivers/polyplay.c	2003-01-06 13:57:38.000000000 +0100
-@@ -1,37 +1,37 @@
- /***************************************************************************
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/fileio.c src/fileio.c
+--- src.ori/fileio.c	2002-12-09 11:19:32.000000000 +0100
++++ src/fileio.c	2003-01-13 20:17:10.000000000 +0100
+@@ -4,11 +4,10 @@
  
--      Poly-Play
-+	  Poly-Play
- 	  (c) 1985 by VEB Polytechnik Karl-Marx-Stadt
- 
--      driver by Martin Buchholz (buchholz@mail.uni-greifswald.de)
-+	  driver by Martin Buchholz (buchholz@mail.uni-greifswald.de)
- 
--      Very special thanks to the following people, each one of them spent
-+	  Very special thanks to the following people, each one of them spent
- 	  some of their spare time to make this driver working:
- 	  - Juergen Oppermann and Volker Hann for electronical assistance,
- 	    repair work and ROM dumping.
- 	  - Jan-Ole Christian from the Videogamemuseum in Berlin, which houses
- 	    one of the last existing Poly-Play arcade automatons. He also
--		provided me with schematics and service manuals.
-+	    provided me with schematics and service manuals.
- 
- 
- memory map:
- 
- 0000 - 03ff OS ROM
- 0400 - 07ff Game ROM (used for Abfahrtslauf)
- 0800 - 0cff Menu Screen ROM
- 
- 0d00 - 0fff work RAM
- 
--1000 - 4fff GAME ROM (pcb 2 - Abfahrtslauf          (1000 - 1bff),
--                              Hirschjagd            (1c00 - 27ff),
--							  Hase und Wolf         (2800 - 3fff),
-+1000 - 4fff GAME ROM (pcb 2 - Abfahrtslauf          (1000 - 1bff)
-+                              Hirschjagd            (1c00 - 27ff)
-+                              Hase und Wolf         (2800 - 3fff)
-                               Schmetterlingsfang    (4000 - 4fff)
- 5000 - 8fff GAME ROM (pcb 1 - Schiessbude           (5000 - 5fff)
-                               Autorennen            (6000 - 73ff)
--							  opto-akust. Merkspiel (7400 - 7fff)
--							  Wasserrohrbruch       (8000 - 8fff)
-+                              opto-akust. Merkspiel (7400 - 7fff)
-+                              Wasserrohrbruch       (8000 - 8fff)
- 
- e800 - ebff character ROM (chr 00..7f) 1 bit per pixel
- ec00 - f7ff character RAM (chr 80..ff) 3 bit per pixel
- f800 - ffff video RAM
- 
-@@ -52,11 +52,11 @@
-           bit 6 = Summe Spiele
-           bit 7 = coinage (+IRQ to make the game acknowledge it)
- 
- 85        bit 0-4 = light organ (unemulated :)) )
-           bit 5-7 = sound parameter (unemulated, it's very difficult to
--		            figure out how those work)
-+                    figure out how those work)
- 
- 86        ???
- 
- 87        PIO Control register
- 
-@@ -80,46 +80,40 @@
+ ***************************************************************************/
  
  #include "driver.h"
- #include "vidhrdw/generic.h"
- #include "cpu/z80/z80.h"
+ #include "unzip.h"
+-#include "rc.h"
  
--static unsigned char *polyplay_ram;
--
--void polyplay_reset(void);
--
- /* video hardware access */
- extern unsigned char *polyplay_characterram;
- PALETTE_INIT( polyplay );
- VIDEO_UPDATE( polyplay );
- READ_HANDLER( polyplay_characterram_r );
- WRITE_HANDLER( polyplay_characterram_w );
+ #ifdef MESS
+ #include "image.h"
+ #endif
  
- /* I/O Port handling */
--READ_HANDLER( polyplay_input_read );
--READ_HANDLER( polyplay_random_read );
-+static READ_HANDLER( polyplay_random_read );
- 
- /* sound handling */
--void poly_sound(void);
- void set_channel1(int active);
- void set_channel2(int active);
--int prescale1, prescale2;
-+static int prescale1;
-+static int prescale2;
- static int channel1_active;
- static int channel1_const;
- static int channel2_active;
- static int channel2_const;
--static DRIVER_INIT( polyplay_sound );
- void play_channel1(int data);
- void play_channel2(int data);
- int  polyplay_sh_start(const struct MachineSound *msound);
- void polyplay_sh_stop(void);
- void polyplay_sh_update(void);
- 
- /* timer handling */
--static void polyplay_timer(int param);
--int timer2_active;
--WRITE_HANDLER( polyplay_start_timer2 );
--WRITE_HANDLER( polyplay_sound_channel );
-+static void timer_callback(int param);
-+static void* polyplay_timer;
-+static WRITE_HANDLER( polyplay_start_timer2 );
-+static WRITE_HANDLER( polyplay_sound_channel );
- 
- 
- /* Polyplay Sound Interface */
- static struct CustomSound_interface custom_interface =
- {
-@@ -127,59 +121,75 @@
- 	polyplay_sh_stop,
- 	polyplay_sh_update
- };
- 
- 
--MACHINE_INIT( polyplay )
-+static MACHINE_INIT( polyplay )
- {
- 	channel1_active = 0;
- 	channel1_const = 0;
- 	channel2_active = 0;
- 	channel2_const = 0;
-+
- 	set_channel1(0);
- 	play_channel1(0);
- 	set_channel2(0);
- 	play_channel2(0);
-+
-+	polyplay_timer = timer_alloc(timer_callback);
- }
- 
- 
--/* work RAM access */
--WRITE_HANDLER( polyplay_ram_w )
-+static INTERRUPT_GEN( periodic_interrupt )
- {
--	polyplay_ram[offset] = data;
-+	cpu_set_irq_line_and_vector(0, 0, HOLD_LINE, 0x4e);
- }
- 
--READ_HANDLER( polyplay_ram_r )
-+
-+static INTERRUPT_GEN( coin_interrupt )
- {
--	return polyplay_ram[offset];
-+	static int last = 0;
-+
-+	if (readinputport(0) & 0x80)
-+	{
-+		last = 0;
-+	}
-+	else
-+	{
-+		if (last == 0)    /* coin inserted */
-+		{
-+			cpu_set_irq_line_and_vector(0, 0, HOLD_LINE, 0x50);
-+		}
-+
-+		last = 1;
-+	}
- }
- 
-+
- /* memory mapping */
- static MEMORY_READ_START( polyplay_readmem )
- 	{ 0x0000, 0x0bff, MRA_ROM },
--	{ 0x0c00, 0x0fff, polyplay_ram_r },
-+	{ 0x0c00, 0x0fff, MRA_RAM },
- 	{ 0x1000, 0x8fff, MRA_ROM },
--
--	{ 0xe800, 0xebff, MRA_ROM},
-+	{ 0xe800, 0xebff, MRA_ROM },
- 	{ 0xec00, 0xf7ff, polyplay_characterram_r },
- 	{ 0xf800, 0xffff, videoram_r },
- MEMORY_END
- 
- static MEMORY_WRITE_START( polyplay_writemem )
- 	{ 0x0000, 0x0bff, MWA_ROM },
--	{ 0x0c00, 0x0fff, polyplay_ram_w, &polyplay_ram },
-+	{ 0x0c00, 0x0fff, MWA_RAM },
- 	{ 0x1000, 0x8fff, MWA_ROM },
--
- 	{ 0xe800, 0xebff, MWA_ROM },
- 	{ 0xec00, 0xf7ff, polyplay_characterram_w, &polyplay_characterram },
- 	{ 0xf800, 0xffff, videoram_w, &videoram, &videoram_size },
- MEMORY_END
- 
- 
- /* port mapping */
- static PORT_READ_START( readport_polyplay )
--	{ 0x84, 0x84, polyplay_input_read },
-+	{ 0x84, 0x84, input_port_0_r },
- 	{ 0x83, 0x83, polyplay_random_read },
- PORT_END
- 
- static PORT_WRITE_START( writeport_polyplay )
- 	{ 0x80, 0x81, polyplay_sound_channel },
-@@ -193,15 +203,15 @@
- 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  | IPF_8WAY )
- 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    | IPF_8WAY )
- 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  | IPF_8WAY )
- 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNKNOWN )
- 	PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_SERVICE, "Bookkeeping Info", KEYCODE_F2, IP_JOY_NONE )
--	PORT_BIT_IMPULSE( 0x80, IP_ACTIVE_LOW, IPT_COIN1, 10)
-+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN1 )
- INPUT_PORTS_END
- 
- 
--WRITE_HANDLER( polyplay_sound_channel )
-+static WRITE_HANDLER( polyplay_sound_channel )
- {
- 	switch(offset) {
- 	case 0x00:
- 		if (channel1_const) {
- 			if (data <= 1) {
-@@ -245,56 +255,51 @@
- 		}
- 		break;
- 	}
- }
- 
--WRITE_HANDLER( polyplay_start_timer2 )
-+static WRITE_HANDLER( polyplay_start_timer2 )
- {
--	if (data == 0x03) {
--		timer2_active = 0;
--	}
--	else {
--		if (data == 0xb5) {
--			timer_set(TIME_IN_HZ(40), 1, polyplay_timer);
--			timer2_active = 1;
--		}
--	}
-+	if (data == 0x03) 
-+		timer_adjust(polyplay_timer, TIME_NEVER, 0, 0);
-+
-+	if (data == 0xb5)
-+		timer_adjust(polyplay_timer, TIME_IN_HZ(40), 0, TIME_IN_HZ(40));
- }
- 
--/* random number generator */
--READ_HANDLER( polyplay_random_read )
-+static READ_HANDLER( polyplay_random_read )
- {
--	return rand() % 0xff;
-+	return rand() & 0xff;
- }
- 
--/* graphic sturctures */
-+/* graphic structures */
- static struct GfxLayout charlayout_1_bit =
- {
- 	8,8,	/* 8*8 characters */
- 	128,	/* 128 characters */
--	1,	    /* 1 bit per pixel */
-+	1,  	/* 1 bit per pixel */
- 	{ 0 },
--	{ 0, 1, 2, 3, 4, 5, 6, 7 },	/* pretty straightforward layout */
-+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
- 	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
- 	8*8	/* every char takes 8 consecutive bytes */
- };
- 
- static struct GfxLayout charlayout_3_bit =
- {
- 	8,8,	/* 8*8 characters */
- 	128,	/* 128 characters */
--	3,	    /* 3 bit per pixel */
-+	3,  	/* 3 bit per pixel */
- 	{ 0, 128*8*8, 128*8*8 + 128*8*8 },    /* offset for each bitplane */
--	{ 0, 1, 2, 3, 4, 5, 6, 7 },	/* pretty straightforward layout */
-+	{ 0, 1, 2, 3, 4, 5, 6, 7 },
- 	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
- 	8*8	/* every char takes 8 consecutive bytes */
- };
- 
- static struct GfxDecodeInfo gfxdecodeinfo[] =
- {
--	{ 0, 0xe800, &charlayout_1_bit, 0, 1 },
--	{ 0, 0xec00, &charlayout_3_bit, 2, 1 },
-+	{ REGION_CPU1, 0xe800, &charlayout_1_bit, 0, 1 },
-+	{ REGION_CPU1, 0xec00, &charlayout_3_bit, 2, 1 },
- 	{ -1 }	/* end of array */
- };
- 
- 
- /* the machine driver */
-@@ -303,13 +308,14 @@
- 
- 	/* basic machine hardware */
- 	MDRV_CPU_ADD(Z80, 9830400/4)
- 	MDRV_CPU_MEMORY(polyplay_readmem,polyplay_writemem)
- 	MDRV_CPU_PORTS(readport_polyplay,writeport_polyplay)
-+	MDRV_CPU_PERIODIC_INT(periodic_interrupt,75)
-+	MDRV_CPU_VBLANK_INT(coin_interrupt,1)
- 
- 	MDRV_FRAMES_PER_SECOND(50)
--	MDRV_VBLANK_DURATION(0)	/* frames per second, vblank duration */
- 
- 	MDRV_MACHINE_INIT(polyplay)
- 
- 	/* video hardware */
- 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
-@@ -325,11 +331,10 @@
- 	/* sound hardware */
- 	MDRV_SOUND_ADD(CUSTOM, custom_interface)
- MACHINE_DRIVER_END
- 
- 
--
- /* ROM loading and mapping */
- ROM_START( polyplay )
- 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
- 	ROM_LOAD( "cpu_0000.37",       0x0000, 0x0400, 0x87884c5f )
- 	ROM_LOAD( "cpu_0400.36",       0x0400, 0x0400, 0xd5c84829 )
-@@ -368,46 +373,12 @@
- 	ROM_LOAD( "1_-_8c00.21",       0x8c00, 0x0400, 0x0c7dec2d )
- 	ROM_LOAD( "char.1",            0xe800, 0x0400, 0x5242dd6b )
- ROM_END
- 
- 
--/* interrupt handling, the game runs in IM 2 */
--READ_HANDLER( polyplay_input_read )
--{
--	int inp = input_port_0_r(offset);
--
--	if ((inp & 0x80) == 0) {    /* Coin inserted */
--		cpu_set_irq_line_and_vector(0, 0, HOLD_LINE, 0x50);
--		coin_counter_w(0, 1);
--		timer_set(TIME_IN_SEC(1), 2, polyplay_timer);
--	}
--
--	return inp;
--}
--
--static void polyplay_timer(int param)
--{
--	switch(param) {
--	case 0:
--		cpu_set_irq_line_and_vector(0, 0, HOLD_LINE, 0x4e);
--		break;
--	case 1:
--		if (timer2_active) {
--			timer_set(TIME_IN_HZ(40), 1, polyplay_timer);
--			cpu_set_irq_line_and_vector(0, 0, HOLD_LINE, 0x4c);
--		}
--		break;
--	case 2:
--		coin_counter_w(0, 0);
--		break;
--	}
--}
--
--/* initialization */
--static DRIVER_INIT( polyplay_sound )
-+static void timer_callback(int param)
- {
--	timer_pulse(TIME_IN_HZ(75), 0, polyplay_timer);
--	timer2_active = 0;
-+	cpu_set_irq_line_and_vector(0, 0, HOLD_LINE, 0x4c);
- }
- 
- /* game driver */
--GAME( 1985, polyplay, 0, polyplay, polyplay, polyplay_sound, ROT0, "VEB Polytechnik Karl-Marx-Stadt", "Poly-Play" )
-+GAME( 1985, polyplay, 0, polyplay, polyplay, 0, ROT0, "VEB Polytechnik Karl-Marx-Stadt", "Poly-Play" )
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/inptport.c src/inptport.c
---- src.ori/inptport.c	2002-07-22 11:41:32.000000000 +0200
-+++ src/inptport.c	2003-01-05 14:56:42.000000000 +0100
+--- src.ori/inptport.c	2002-11-20 21:21:00.000000000 +0100
++++ src/inptport.c	2003-01-13 18:32:00.000000000 +0100
 @@ -147,10 +147,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
@@ -607,20 +205,19 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
-@@ -1151,10 +1156,12 @@
+@@ -1151,10 +1156,11 @@
  		if (readint(f,&dispensed_tickets) != 0)
  			goto getout;
  
  		mixer_read_config(f);
  
 +		osd_customize_inputport_current(Machine->input_ports);
-+
  getout:
- 		osd_fclose(f);
+ 		mame_fclose(f);
  	}
  
  	/* All analog ports need initialization */
-@@ -1694,14 +1701,16 @@
+@@ -1694,14 +1700,16 @@
  		int new, prev;
  
  		/* center stick */
@@ -641,7 +238,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		/* An analog joystick which is not at zero position (or has just */
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
-@@ -1959,16 +1968,23 @@
+@@ -1959,16 +1967,23 @@
  #define MAX_INPUT_BITS 1024
  	static int impulsecount[MAX_INPUT_BITS];
  	static int waspressed[MAX_INPUT_BITS];
@@ -665,7 +262,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	for (port = 0;port < MAX_INPUT_PORTS;port++)
  	{
  		input_port_value[port] = 0;
-@@ -2057,18 +2073,20 @@
+@@ -2057,18 +2072,20 @@
  				}
  				else
  				{
@@ -693,7 +290,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  						/* if IPF_RESET set, reset the first CPU */
  						if ((in->type & IPF_RESETCPU) && waspressed[ib] == 0 && !playback)
  						{
-@@ -2196,10 +2214,14 @@
+@@ -2196,10 +2213,14 @@
  #ifdef MAME_NET
  	if ( net_active() && (default_player != NET_SPECTATOR) )
  		net_input_sync((unsigned char *) input_port_value, (unsigned char *) input_port_defaults, MAX_INPUT_PORTS);
@@ -709,8 +306,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/inptport.h src/inptport.h
---- src.ori/inptport.h	2002-06-30 20:57:44.000000000 +0200
-+++ src/inptport.h	2002-11-15 22:19:58.000000000 +0100
+--- src.ori/inptport.h	2002-11-15 18:36:20.000000000 +0100
++++ src/inptport.h	2003-01-13 18:30:48.000000000 +0100
 @@ -81,10 +81,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
@@ -729,7 +326,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/input.c src/input.c
 --- src.ori/input.c	2002-06-30 20:57:54.000000000 +0200
-+++ src/input.c	2002-11-15 22:19:58.000000000 +0100
++++ src/input.c	2003-01-13 18:30:48.000000000 +0100
 @@ -782,11 +782,11 @@
  {
  	int pressed;
@@ -757,9 +354,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  		if (ui_map[code].memory == 0)
  		{
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/mame.c src/mame.c
---- src.ori/mame.c	2002-11-02 14:54:30.000000000 +0100
-+++ src/mame.c	2002-11-15 22:23:02.000000000 +0100
-@@ -950,26 +950,20 @@
+--- src.ori/mame.c	2003-01-02 17:52:20.000000000 +0100
++++ src/mame.c	2003-01-13 18:30:48.000000000 +0100
+@@ -953,26 +953,20 @@
  	to a given resolution
  -------------------------------------------------*/
  
@@ -796,131 +393,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  
  /*-------------------------------------------------
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/memory.c src/memory.c
---- src.ori/memory.c	2002-10-04 16:28:34.000000000 +0200
-+++ src/memory.c	2002-12-18 21:24:16.000000000 +0100
-@@ -149,10 +149,11 @@
- 
- offs_t						mem_amask;						/* memory address mask */
- static offs_t				port_amask;						/* port address mask */
- 
- UINT8 *						cpu_bankbase[STATIC_COUNT];		/* array of bank bases */
-+int ext_entries = 0;										/* number of entries ext_memory[] entries used */
- struct ExtMemory			ext_memory[MAX_EXT_MEMORY];		/* externally-allocated memory */
- 
- static data32_t				unmap_value;					/* unmapped memory value */
- 
- static opbase_handler		opbasefunc;						/* opcode base override */
-@@ -269,10 +270,11 @@
- -------------------------------------------------*/
- 
- void memory_shutdown(void)
- {
- 	struct ExtMemory *ext;
-+	int ext_entry;
- 	int cpunum;
- 
- 	/* free all the tables */
- 	for (cpunum = 0; cpunum < MAX_CPU; cpunum++ )
- 	{
-@@ -286,13 +288,18 @@
- 			free(cpudata[cpunum].port.write.table);
- 	}
- 	memset(&cpudata, 0, sizeof(cpudata));
- 
- 	/* free all the external memory */
--	for (ext = ext_memory; ext->data; ext++)
--		free(ext->data);
-+	ext = ext_memory;
-+	for( ext_entry = 0; ext_entry < ext_entries; ext_entry++ )
-+	{
-+		free( ext->data );
-+		ext++;
-+	}
- 	memset(ext_memory, 0, sizeof(ext_memory));
-+	ext_entries = 0;
- }
- 
- 
- /*-------------------------------------------------
- 	memory_set_opcode_base - set the base of
-@@ -721,17 +728,24 @@
- 	and offset
- -------------------------------------------------*/
- 
- void *memory_find_base(int cpunum, offs_t offset)
- {
-+	int ext_entry;
- 	int region = REGION_CPU1 + cpunum;
- 	struct ExtMemory *ext;
- 
- 	/* look in external memory first */
--	for (ext = ext_memory; ext->data; ext++)
-+	ext = ext_memory;
-+	for( ext_entry = 0; ext_entry < ext_entries; ext_entry++ )
-+	{
- 		if (ext->region == region && ext->start <= offset && ext->end >= offset)
-+		{
- 			return (void *)((UINT8 *)ext->data + (offset - ext->start));
-+		}
-+		ext++;
-+	}
- 
- 	return (UINT8 *)cpudata[cpunum].rambase + offset;
- }
- 
- 
-@@ -1243,10 +1257,12 @@
- static int allocate_memory(void)
- {
- 	struct ExtMemory *ext = ext_memory;
- 	int cpunum;
- 
-+	ext_entries = 0;
-+
- 	/* don't do it for drivers that don't have ROM (MESS needs this) */
- 	if (Machine->gamedrv->rom == 0)
- 		return 1;
- 
- 	/* loop over all CPUs */
-@@ -1295,10 +1311,16 @@
- 					if (!IS_MEMPORT_MARKER(mwa))
- 						if (mwa->start <= end+1 && mwa->end > end && (mwa->base || needs_ram(cpunum, (void *)mwa->handler)))
- 							end = mwa->end;
- 			}
- 
-+			ext_entries++;
-+			if( ext_entries > MAX_EXT_MEMORY )
-+			{
-+				return fatalerror("MAX_EXT_MEMORY too small (%d)\n", ext_entries);
-+			}
-+
- 			/* fill in the data structure */
- 			ext->start = lowest;
- 			ext->end = end;
- 			ext->region = region;
- 
-@@ -1310,15 +1332,16 @@
- 			/* reset the memory */
- 			memset(ext->data, 0, end+1 - lowest);
- 
- 			/* prepare for the next loop */
- 			size = ext->end + 1;
--			ext++;
- 
- 			/* check for wraparound */
- 			if (size < ext->end)
- 				break;
-+
-+			ext++;
- 		}
- 	}
- 	return 1;
- }
- 
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/neomame.mak src/neomame.mak
 --- src.ori/neomame.mak	2001-02-16 16:13:54.000000000 +0100
-+++ src/neomame.mak	2002-11-15 22:20:08.000000000 +0100
++++ src/neomame.mak	2003-01-13 18:30:48.000000000 +0100
 @@ -8,17 +8,19 @@
  EMULATOR_EXE = neomame.exe
  
@@ -942,16 +417,16 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  # MAME specific core objs
  COREOBJS += $(OBJ)/driver.o $(OBJ)/cheat.o
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/osdepend.h src/osdepend.h
---- src.ori/osdepend.h	2002-06-30 20:58:46.000000000 +0200
-+++ src/osdepend.h	2003-01-05 14:57:38.000000000 +0100
-@@ -400,10 +400,37 @@
- #include "osd_dir.h"
- #endif
- 
- void CLIB_DECL logerror(const char *text,...);
+--- src.ori/osdepend.h	2002-12-21 18:07:36.000000000 +0100
++++ src/osdepend.h	2003-01-13 18:33:32.000000000 +0100
+@@ -358,11 +358,37 @@
+ /* things like changing the title bar or darkening the display. */
+ /* Note that the OS dependant code must NOT stop processing input, since the user */
+ /* interface is still active while the game is paused. */
+ void osd_pause(int paused);
  
 +/******************************************************************************
-+
+ 
 +  Additions
 +
 +******************************************************************************/
@@ -975,32 +450,32 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
 +void osd_record_start(void);
 +void osd_record_stop(void);
 +
++/* customize the inputport after they are read from the .cfg file */
 +void osd_customize_inputport_current(struct InputPort* current);
-+
- #ifdef __cplusplus
- }
- #endif
  
- #endif
+ #ifdef MAME_NET
+ /* network */
+ int osd_net_init(void);
+ int osd_net_send(int player, unsigned char buf[], int *size);
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/sound/fm.c src/sound/fm.c
---- src.ori/sound/fm.c	2002-01-01 22:15:36.000000000 +0100
-+++ src/sound/fm.c	2002-11-15 22:20:08.000000000 +0100
-@@ -160,11 +160,11 @@
- #define LFO_RATE 0x10000
+--- src.ori/sound/fm.c	2002-12-21 22:38:58.000000000 +0100
++++ src/sound/fm.c	2003-01-13 20:19:02.000000000 +0100
+@@ -365,11 +365,11 @@
  #define PMS_RATE 0x400
  /* LFO runtime work */
  static UINT32 lfo_amd;
  static INT32 lfo_pmd;
+ 
 -#if BUILD_YM2610B
 +#if BUILD_YM2610B || BUILD_OPNB
  static UINT32 LFOCnt,LFOIncr;	/* LFO Phase Generator */
  #endif
+ 
  /* OPN LFO waveform table */
  static INT32 OPN_LFO_wave[LFO_ENT];
- 
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/ui_text.c src/ui_text.c
---- src.ori/ui_text.c	2001-09-30 10:27:00.000000000 +0200
-+++ src/ui_text.c	2002-11-15 22:20:08.000000000 +0100
+--- src.ori/ui_text.c	2002-11-20 21:54:00.000000000 +0100
++++ src/ui_text.c	2003-01-13 18:30:48.000000000 +0100
 @@ -202,10 +202,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -1014,11 +489,11 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	NULL
  };
  
- int uistring_init (void *langfile)
+ int uistring_init (mame_file *langfile)
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/ui_text.h src/ui_text.h
---- src.ori/ui_text.h	2001-09-30 10:27:04.000000000 +0200
-+++ src/ui_text.h	2002-11-15 22:20:08.000000000 +0100
+--- src.ori/ui_text.h	2002-11-21 06:42:00.000000000 +0100
++++ src/ui_text.h	2003-01-13 18:30:48.000000000 +0100
 @@ -169,10 +169,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -1035,8 +510,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  struct lang_struct
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/usrintrf.c src/usrintrf.c
---- src.ori/usrintrf.c	2002-08-24 18:43:14.000000000 +0200
-+++ src/usrintrf.c	2002-11-15 22:26:00.000000000 +0100
+--- src.ori/usrintrf.c	2002-12-09 19:31:18.000000000 +0100
++++ src/usrintrf.c	2003-01-13 18:30:48.000000000 +0100
 @@ -843,12 +843,16 @@
  	while (items[i])
  	{
@@ -1186,7 +661,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  	if (input_ui_pressed(IPT_UI_SELECT))
  	{
-@@ -3024,15 +3072,15 @@
+@@ -3030,15 +3078,15 @@
  
  
  #ifndef MESS
@@ -1204,7 +679,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  
  #define MAX_SETUPMENU_ITEMS 20
  static const char *menu_item[MAX_SETUPMENU_ITEMS];
-@@ -3105,10 +3153,11 @@
+@@ -3111,10 +3159,11 @@
  #endif
  #endif
  #endif
@@ -1216,7 +691,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3165,10 +3214,13 @@
+@@ -3171,10 +3220,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -1230,7 +705,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  #ifndef CPSMAME
  #ifndef MMSND
  			case UI_MEMCARD:
-@@ -3219,10 +3271,11 @@
+@@ -3225,10 +3277,11 @@
  			case UI_TAPECONTROL:
  			#endif
  			case UI_HISTORY:
@@ -1242,7 +717,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  				break;
  
  			case UI_RESET:
-@@ -3660,10 +3713,63 @@
+@@ -3666,10 +3719,63 @@
  	vsprintf(messagetext,text,arg);
  	va_end(arg);
  	messagecounter = seconds * Machine->drv->frames_per_second;
@@ -1306,7 +781,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	int file = 0;
  
  	mame_pause(1);
-@@ -3841,17 +3947,42 @@
+@@ -3847,17 +3953,42 @@
  
  	/* if the user pressed F12, save the screen to a file */
  	if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -1351,7 +826,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  	{
  		setup_selected = -1;
  		if (osd_selected != 0)
-@@ -3954,10 +4085,14 @@
+@@ -3960,10 +4091,14 @@
  			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -1366,7 +841,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -3966,11 +4101,11 @@
+@@ -3972,11 +4107,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -1381,7 +856,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  				if (osd_selected != 0)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
 --- src.ori/vidhrdw/cave.c	2002-05-25 12:32:48.000000000 +0200
-+++ src/vidhrdw/cave.c	2002-11-15 22:20:08.000000000 +0100
++++ src/vidhrdw/cave.c	2003-01-13 18:30:48.000000000 +0100
 @@ -1532,10 +1532,13 @@
  {
  	int pri, pri2;

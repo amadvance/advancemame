@@ -61,700 +61,162 @@ struct fileio_handle {
 /** Directory handle used by all the osd_dir_* functions. */
 struct dirio_handle {
 	DIR* h; /**< Dir opened. */
-
 	char* dir; /**< Name of the directory opened. */
 	char* pattern; /** Pattern applyed at the directory. */
 };
 
-#define FILEIO_MODE_GAME 0 /**< Single file named like the game/machine placed in a single dir. */
-#define FILEIO_MODE_NAME 1 /**< Single file named as specified in the open call placed in a single dir. */
-#define FILEIO_MODE_ROOT 2 /**< Single file named as specified in the open call placed in the root dir. */
-#define FILEIO_MODE_COLLECTION 3 /**< Collection of files. */
-
-#define FILEIO_OPEN_NONE 0 /**< Open not allowed. */
-#define FILEIO_OPEN_READ 1 /**< Open for reading "rb". */
-#define FILEIO_OPEN_WRITE 2 /**< Open for writing "wb". */
-#define FILEIO_OPEN_READWRITE 3 /**< Open for reading and writing an existing file "r+b". */
-#define FILEIO_OPEN_READWRITECREATE 4 /**< Open for reading and writing a file, if it exists "r+b" otherwise "w+b". */
+#define FILEIO_MODE_FILE 0 /**< Single file. */
+#define FILEIO_MODE_SINGLE 1 /**< Single dir. */
+#define FILEIO_MODE_MULTI 2 /**< Multi dir. */
 
 struct fileio_item {
-	int type; /**< OSD_FILETYPE_* */
-
-	const char* config; /**< Configuration directory tag */
-	const char* def; /**< Default directory */
-	const char* extension; /**< Default extension if any, otherwise 0 */
-
-	unsigned mode; /**< FILEIO_MODE_* */
-
-	unsigned open_0; /**< Open mode for mode 0 (arg of osd_fopen) */
-	unsigned open_1; /**< Open mode for mode 1 (arg of osd_fopen) */
-	unsigned open_2; /**< Open mode for mode 2 (arg of osd_fopen) */
-	unsigned open_3; /**< Open mode for mode 3 (arg of osd_fopen) */
-
-	unsigned dir_mac; /**< Number of directories */
-	char** dir_map; /**< Vector of directories */
+	int type; /**< FILETYPE_* */
+	const char* config; /**< Configuration directory tag. */
+	const char* def; /**< Default directory. */
+	unsigned mode; /**< Mode type. */
+	unsigned dir_mac; /**< Number of directories. */
+	char** dir_map; /**< Vector of directories. */
 };
 
 static struct fileio_item CONFIG[] = {
-	{ OSD_FILETYPE_ROM, "dir_rom", "rom", 0, FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-/* TODO implement OSD_FILETYPE_ROM_NOCRC */
-/*	{ OSD_FILETYPE_ROM_NOCRC, "dir_rom", "rom", 0, FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, */
-#ifdef MESS
-/* MESS requires full access capabilities on image files */
-	{ OSD_FILETYPE_IMAGE, "dir_image", "image", 0, FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_READWRITE, FILEIO_OPEN_READWRITECREATE, 0, 0 },
-#else
-/* MAME requires only read access. */
-	{ OSD_FILETYPE_IMAGE_R, "dir_image", "image", ".chd", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-/* OSD_FILETYPE_IMAGE_RW is not used. It's present only for MESS compatibility */
-#endif
-	{ OSD_FILETYPE_IMAGE_DIFF, "dir_diff", "diff", ".dif", FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_READWRITECREATE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_SAMPLE, "dir_sample", "sample", ".wav", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_ARTWORK, "dir_artwork", "artwork", ".png", FILEIO_MODE_COLLECTION, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-#ifdef MESS
-/* MESS uses the game name for the .nv file and not the machine name. */
-/* for example zelda.nv and not nes.nv */
-	{ OSD_FILETYPE_NVRAM, "dir_nvram" , "nvram", ".nv", FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-#else
-	{ OSD_FILETYPE_NVRAM, "dir_nvram" , "nvram", ".nv", FILEIO_MODE_GAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-#endif
-	{ OSD_FILETYPE_HIGHSCORE, "dir_hi", "hi", ".hi", FILEIO_MODE_GAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_HIGHSCORE_DB, 0, 0, 0, FILEIO_MODE_ROOT, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for hiscore.dat */
-	{ OSD_FILETYPE_CONFIG, "dir_cfg", "cfg", ".cfg", FILEIO_MODE_GAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_INPUTLOG, "dir_inp", "inp", ".inp", FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_STATE, "dir_sta", "sta", ".sta", FILEIO_MODE_GAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_MEMCARD, "dir_memcard", "memcard", ".mem", FILEIO_MODE_NAME, FILEIO_OPEN_READ, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_SCREENSHOT, "dir_snap", "snap", ".png", FILEIO_MODE_NAME, FILEIO_OPEN_NONE, FILEIO_OPEN_WRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 },
-	{ OSD_FILETYPE_HISTORY, 0, 0, 0, FILEIO_MODE_ROOT, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for history.dat, mameinfo.dat, safequit.dat */
-	{ OSD_FILETYPE_CHEAT, 0, 0, 0, FILEIO_MODE_ROOT, FILEIO_OPEN_READ, FILEIO_OPEN_READWRITE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for cheat.dat */
-	{ OSD_FILETYPE_LANGUAGE, 0, 0, 0, FILEIO_MODE_ROOT, FILEIO_OPEN_READ, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, FILEIO_OPEN_NONE, 0, 0 }, /* used for language file */
-	{ OSD_FILETYPE_end, 0, 0, 0, 0, 0, 0, 0, 0 }
+	/* FILETYPE_RAW */
+	{ FILETYPE_ROM, "dir_rom", "rom", FILEIO_MODE_MULTI, 0, 0 },
+	/* FILETYPE_ROM_NOCRC */
+	{ FILETYPE_IMAGE, "dir_image", "image", FILEIO_MODE_MULTI,0, 0 },
+	{ FILETYPE_IMAGE_DIFF, "dir_diff", "diff", FILEIO_MODE_SINGLE, 0, 0 },
+	{ FILETYPE_SAMPLE, "dir_sample", "sample", FILEIO_MODE_MULTI, 0, 0 },
+	{ FILETYPE_ARTWORK, "dir_artwork", "artwork", FILEIO_MODE_MULTI, 0, 0 },
+	{ FILETYPE_NVRAM, "dir_nvram" , "nvram", FILEIO_MODE_SINGLE, 0, 0 },
+	{ FILETYPE_HIGHSCORE, "dir_hi", "hi", FILEIO_MODE_SINGLE, 0, 0 },
+	{ FILETYPE_HIGHSCORE_DB, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for hiscore.dat */
+	{ FILETYPE_CONFIG, "dir_cfg", "cfg", FILEIO_MODE_SINGLE, 0, 0 },
+	{ FILETYPE_INPUTLOG, "dir_inp", "inp", FILEIO_MODE_SINGLE, 0, 0 },
+	{ FILETYPE_STATE, "dir_sta", "sta", FILEIO_MODE_SINGLE, 0, 0 },
+	{ FILETYPE_MEMCARD, "dir_memcard", "memcard", FILEIO_MODE_SINGLE, 0, 0 },
+	{ FILETYPE_SCREENSHOT, "dir_snap", "snap", FILEIO_MODE_SINGLE, 0, 0 },
+	{ FILETYPE_HISTORY, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for history.dat, mameinfo.dat, safequit.dat */
+	{ FILETYPE_CHEAT, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for cheat.dat */
+	{ FILETYPE_LANGUAGE, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for language file */
+	/* FILETYPE_CTRLR */
+	/* FILETYPE_INI */
+	{ FILETYPE_end, 0, 0, 0, 0 }
 };
 
-/***************************************************************************/
-/* Internal interface */
-
-static int item_has_ext(const char* file)
-{
-	const char* slash = strrchr(file, file_dir_slash());
-	const char* dot = strrchr(file, '.');
-
-	return dot!=0 && (slash==0 || slash < dot);
-}
-
-static int item_is_match(const char* str, const char* pattern)
-{
-	while (*str && *pattern) {
-		if (*pattern == '*') {
-			if (item_is_match(str+1, pattern))
-				return 1;
-			++pattern;
-		} else if (*pattern == '?') {
-			++str;
-			++pattern;
-		} else if (toupper(*str) == toupper(*pattern)) {
-			++str;
-			++pattern;
-		} else
+struct fileio_item* fileio_find(int type) {
+	struct fileio_item* i = CONFIG;
+	while (i->type != type) {
+		if (i->type == FILETYPE_end) {
 			return 0;
-	}
-
-	while (*pattern == '*' || *pattern == '?')
-		++pattern;
-
-	return !*str && !*pattern;
-}
-
-static int item_is_partialequal(const char* zipfile, const char* file)
-{
-	const char* s1 = file;
-	/* start comparison after last / */
-	const char* s2 = strrchr(zipfile, '/');
-	if (s2)
-		++s2;
-	else
-		s2 = zipfile;
-	while (*s1 && toupper(*s1)==toupper(*s2)) {
-		++s1;
-		++s2;
-	}
-	return !*s1 && !*s2;
-}
-
-static int item_open_raw(const char* file, const char* ext, unsigned  mode, struct fileio_handle* h)
-{
-	char file_complete[FILE_MAXPATH];
-
-	if (ext && !item_has_ext(file))
-		sprintf(file_complete, "%s%s", file, ext);
-	else
-		strcpy(file_complete, file);
-
-	log_std(("osd: osd_fopen() try %s\n", file_complete));
-
-	h->crc = 0;
-	h->is_crc_set = 0;
-	h->f = 0;
-
-	switch (mode) {
-	case FILEIO_OPEN_NONE :
-		log_std(("ERROR: osd_fopen() invalid open in unsupported mode\n"));
-		return -1;
-	case FILEIO_OPEN_READ :
-		h->f = fzopen(file_complete, "rb");
-		break;
-	case FILEIO_OPEN_WRITE :
-		h->f = fzopen(file_complete, "wb");
-		break;
-	case FILEIO_OPEN_READWRITE :
-		h->f = fzopen(file_complete, "r+b");
-		break;
-	case FILEIO_OPEN_READWRITECREATE :
-		h->f = fzopen(file_complete, "r+b");
-		if (!h->f)
-			h->f = fzopen(file_complete, "w+b");
-		break;
-	default:
-		log_std(("ERROR: osd_fopen() invalid open in not specified mode\n"));
-		return -1;
-	}
-
-	if (!h->f)
-		return -1;
-
-	log_std(("osd: osd_fopen() -> %s\n", file_complete));
-
-	return 0;
-}
-
-static int item_open_zip(const char* zip_file, const char* file, const char* ext, struct fileio_handle* h)
-{
-	adv_zip* zip;
-	adv_zipent* ent;
-	int found;
-	char file_complete[FILE_MAXPATH];
-
-	if (ext && !item_has_ext(file))
-		sprintf(file_complete, "%s%s", file, ext);
-	else
-		strcpy(file_complete, file);
-
-	log_std(("osd: osd_fopen() try %s/%s\n", zip_file, file_complete));
-
-	if (access(zip_file, R_OK)!=0)
-		return -1;
-
-	zip = openzip(zip_file);
-	if (!zip)
-		return -1;
-
-	found = 0;
-	while (!found && (ent = readzip(zip))!=0) {
-		char crc[9];
-		sprintf(crc, "%08x", ent->crc32);
-		if (item_is_partialequal(ent->name, file_complete) || (ent->crc32 && strcmp(crc, file)==0)) {
-			if (ent->compression_method == 0) {
-				h->crc = ent->crc32;
-				h->is_crc_set = 1;
-				h->f = fzopenzipuncompressed(zip_file, ent->offset_lcl_hdr_frm_frst_disk, ent->uncompressed_size);
-				found = 1;
-			} else if (ent->compression_method == 8) {
-				h->crc = ent->crc32;
-				h->is_crc_set = 1;
-				h->f = fzopenzipcompressed(zip_file, ent->offset_lcl_hdr_frm_frst_disk, ent->compressed_size, ent->uncompressed_size);
-				found = 1;
-			}
 		}
+		++i;
 	}
-
-	closezip(zip);
-
-	if (!found)
-		return -1;
-
-	log_std(("osd: osd_fopen() -> %s/%s\n", zip_file, file_complete));
-
-	return 0;
-}
-
-static struct fileio_handle* item_open(int type, const char* game, const char* name, unsigned mode)
-{
-	int i;
-	struct fileio_handle* h = malloc(sizeof(struct fileio_handle));
-
-	/* find the item */
-	const struct fileio_item* item = CONFIG;
-	while (item->type != OSD_FILETYPE_end && item->type != type)
-		++item;
-	if (!item->type == OSD_FILETYPE_end) {
-		log_std(("ERROR: osd_fopen() invalid open with unknow type\n"));
-		return 0;
-	}
-
-	switch (mode) {
-	case 0 :
-		mode = item->open_0;
-		break;
-	case 1 :
-		mode = item->open_1;
-		break;
-	case 2 :
-		mode = item->open_2;
-		break;
-	case 3 :
-		mode = item->open_3;
-		break;
-	default:
-		log_std(("ERROR: osd_fopen() invalid open in unknow mode\n"));
-		return 0;
-	}
-
-	switch (mode) {
-	case FILEIO_OPEN_NONE :
-		log_std(("ERROR: osd_fopen() invalid open in unsupported mode\n"));
-		return 0;
-	case FILEIO_OPEN_READ :
-	case FILEIO_OPEN_WRITE :
-	case FILEIO_OPEN_READWRITE :
-	case FILEIO_OPEN_READWRITECREATE :
-		break;
-	default:
-		log_std(("ERROR: osd_fopen() invalid open in not specified mode\n"));
-		return 0;
-	}
-
-	h->crc = 0;
-	h->is_crc_set = 0;
-	h->f = 0;
-
-	for(i=0;!h->f && i<item->dir_mac;++i) {
-		/* file not compressed (DIR/GAME) */
-		if (!h->f
-			&& item->mode == FILEIO_MODE_GAME
-			&& game) {
-			char file[FILE_MAXPATH];
-			strcpy(file, file_abs(item->dir_map[i], game));
-			item_open_raw(file, item->extension, mode, h);
-		}
-
-		/* file not compressed (DIR/NAME) */
-		if (!h->f
-			&& (item->mode == FILEIO_MODE_NAME || item->mode == FILEIO_MODE_ROOT)
-			&& name) {
-			char file[FILE_MAXPATH];
-			strcpy(file, file_abs(item->dir_map[i], name));
-			item_open_raw(file, item->extension, mode, h);
-		}
-
-		/* file not compressed (DIR/GAME/NAME) */
-		if (!h->f
-			&& item->mode == FILEIO_MODE_COLLECTION
-			&& game
-			&& name) {
-			char file[FILE_MAXPATH];
-			char sub[FILE_MAXPATH];
-			sprintf(sub, "%s%c%s", game, file_dir_slash(), name);
-			strcpy(file, file_abs(item->dir_map[i], sub));
-			item_open_raw(file, item->extension, mode, h);
-		}
-
-		/* file compressed in a zip named as the game (DIR/GAME.ZIP/NAME) */
-		if (!h->f
-			&& item->mode == FILEIO_MODE_COLLECTION
-			&& mode == FILEIO_OPEN_READ
-			&& game
-			&& name) {
-			char file[FILE_MAXPATH];
-			char sub[FILE_MAXPATH];
-			sprintf(sub, "%s.zip", game);
-			strcpy(file, file_abs(item->dir_map[i], sub));
-			item_open_zip(file, name, item->extension, h);
-		}
-
-#ifdef MESS
-		/* file compressed in a zip named as the file (DIR/NAME.ZIP/NAME) */
-		if (!h->f
-			&& item->mode == FILEIO_MODE_COLLECTION
-			&& mode == FILEIO_OPEN_READ
-			&& game
-			&& name
-			&& strchr(name, '=')==0) {
-
-			char zip_file[FILE_MAXPATH];
-			char file[FILE_MAXPATH];
-			char sub[FILE_MAXPATH];
-			const char* end;
-
-			end = strchr(name, '.');
-			if (!end)
-				end = name + strlen(name);
-
-			strncpy(file, name, end - name);
-			file[end - name] = 0;
-
-			sprintf(sub, "%s%c%s.zip", game, file_dir_slash(), file);
-			strcpy(zip_file, file_abs(item->dir_map[i], sub));
-			item_open_zip(zip_file, name, item->extension, h);
-		}
-
-		/* file compressed in a zip with the specified name (DIR/GAME/FILE1.ZIP/FILE0) */
-		/* for example alpiner=alpinerc.bin search alpinerc.bin in alpiner.zip */
-		if (!h->f
-			&& item->mode == FILEIO_MODE_COLLECTION
-			&& mode == FILEIO_OPEN_READ
-			&& game
-			&& name
-			&& strchr(name, '=')!=0) {
-
-			char zip_file[FILE_MAXPATH];
-			char file[FILE_MAXPATH];
-			char sub[FILE_MAXPATH];
-			const char* end;
-			const char* real_name;
-
-			end = strchr(name, '=');
-			real_name = end + 1;
-
-			strncpy(file, name, end - name);
-			file[end - name] = 0;
-
-			sprintf(sub, "%s%c%s.zip", game, file_dir_slash(), file);
-			strcpy(zip_file, file_abs(item->dir_map[i], sub));
-			item_open_zip(zip_file, real_name, item->extension, h);
-		}
-#endif
-
-		/* file not compressed in the root dir (DIR/NAME) */
-		if (!h->f
-			&& item->mode == FILEIO_MODE_COLLECTION
-			&& name) {
-			char file[FILE_MAXPATH];
-			char sub[FILE_MAXPATH];
-			sprintf(sub, "%s", name);
-			strcpy(file, file_abs(item->dir_map[i], sub));
-			item_open_raw(file, item->extension, mode, h);
-		}
-	}
-
-	if (!h->f) {
-		log_std(("osd: osd_fopen() leave with failure\n"));
-		free(h);
-		return 0;
-	}
-
-	return h;
-}
-
-static void item_close(struct fileio_handle* f)
-{
-	if (f)
-		fzclose(f->f);
-	free(f);
-}
-
-static int item_stat(int type, const char* name)
-{
-	int i;
-	int found;
-
-	/* find the item */
-	const struct fileio_item* item = CONFIG;
-	while (item->type != OSD_FILETYPE_end && item->type != type)
-		++item;
-	if (!item->type == OSD_FILETYPE_end) {
-		return -1;
-	}
-
-	found = 0;
-	for(i=0;!found && i<item->dir_mac;++i) {
-		char file[FILE_MAXPATH];
-		char path[FILE_MAXPATH];
-		struct stat st;
-
-		switch (item->mode) {
-			case FILEIO_MODE_GAME :
-			case FILEIO_MODE_NAME :
-			case FILEIO_MODE_ROOT :
-				sprintf(file, "%s", name);
-				if (item->extension && !item_has_ext(file))
-					strcat(file, item->extension);
-				sprintf(path, "%s/%s", item->dir_map[i], file);
-
-				log_std(("osd: osd_faccess() try %s\n", path));
-
-				found = stat(path, &st) == 0 && !S_ISDIR(st.st_mode);
-			break;
-                        case FILEIO_MODE_COLLECTION :
-				sprintf(file, "%s", name);
-				sprintf(path, "%s/%s", item->dir_map[i], file);
-
-				log_std(("osd: osd_faccess() try %s\n", path));
-
-				found = stat(path, &st) == 0 && S_ISDIR(st.st_mode);
-				if (!found) {
-					sprintf(path, "%s/%s.zip", item->dir_map[i], name);
-
-					log_std(("osd: osd_faccess() try %s\n", path));
-
-					found = stat(path, &st) == 0 && !S_ISDIR(st.st_mode);
-				}
-			break;
-		}
-	}
-
-	if (!found)
-		return -1;
-
-	return 0;
+	return i;
 }
 
 /***************************************************************************/
 /* OSD interface */
 
-/**
- * Check if roms/samples for a game exist at all.
- * \return
- *   !=0 if exist
- *   ==0 if not exist
- */
-int osd_faccess(const char *newfilename, int filetype)
+int osd_get_path_count(int pathtype)
 {
-	log_std(("osd: osd_faccess(newfilename:%s, filetype:%d)\n", newfilename, filetype));
+	struct fileio_item* i;
 
-	/* used for audit and also for screenshot saving */
-	return item_stat(filetype, newfilename) == 0 ? 1 : 0;
-}
+	log_std(("osd: osd_get_path_count(pathtype:%d)\n", pathtype));
 
-void* osd_fopen(const char *game, const char *filename, int filetype, int mode)
-{
-	log_std(("osd: osd_fopen(game:%s, filename:%s, filetype:%d, mode:%d)\n", game, filename, filetype, mode));
-
-	return item_open(filetype, game, filename, mode);
-}
-
-int osd_fread(void* void_h, void* buffer, int length)
-{
-	struct fileio_handle* h = (struct fileio_handle*)void_h;
-
-	log_pedantic(("osd: osd_fread(void_h, buffer, length:%d)\n", length));
-
-	return fzread(buffer, 1, length, h->f);
-}
-
-int osd_fread_swap(void* void_h, void* buffer, int length)
-{
-	int i;
-	unsigned char* buf = (unsigned char*)buffer;
-	int res;
-
-	log_debug(("osd: osd_fread_swap(void_h, buffer, length:%d)\n", length));
-
-	res = osd_fread(void_h, buf, length);
-
-	for(i = 0; i < length; i += 2) {
-		unsigned char t = buf[i];
-		buf[i] = buf[i + 1];
-		buf[i + 1] = t;
+	i = fileio_find(pathtype);
+	if (!i) {
+		log_std(("ERROR:fileio: file type %d unknown\n", pathtype));
+		return 0;
 	}
 
-	return res;
+	return i->dir_mac;
 }
 
-int osd_fwrite(void* void_h, const void* buffer, int length)
+int osd_get_path_info(int pathtype, int pathindex, const char* filename)
 {
-	struct fileio_handle* h = (struct fileio_handle*)void_h;
+	struct fileio_item* i;
+	char path[FILE_MAXPATH];
+	struct stat st;
 
-	log_pedantic(("osd: osd_fwrite(void_h, buffer, length:%d)\n", length));
+	log_std(("osd: osd_get_path_info(pathtype:%d,pathindex:%d,filename:%s)\n", pathtype, pathindex, filename));
 
-	return fzwrite(buffer, 1, length, h->f);
-}
-
-int osd_fwrite_swap(void* void_h, const void *buffer, int length)
-{
-	int i;
-	unsigned char *buf = (unsigned char *)buffer;
-	int res;
-
-	log_debug(("osd: osd_fwrite_swap(void_h, buffer, length:%d)\n", length));
-
-	for(i=0;i<length;i+=2) {
-		unsigned char temp = buf[i];
-		buf[i] = buf[i + 1];
-		buf[i + 1] = temp;
+	i = fileio_find(pathtype);
+	if (!i) {
+		log_std(("ERROR:fileio: file type %d unknown\n", pathtype));
+		return PATH_NOT_FOUND;
 	}
 
-	res = osd_fwrite(void_h, buf, length);
+	strcpy(path, file_abs(i->dir_map[pathindex], filename));
 
-	for(i=0;i<length;i+=2) {
-		unsigned char temp = buf[i];
-		buf[i] = buf[i + 1];
-		buf[i + 1] = temp;
+	if (stat(path, &st) != 0)
+		return PATH_NOT_FOUND;
+	if (S_ISDIR(st.st_mode))
+		return PATH_IS_DIRECTORY;
+	if (S_ISREG(st.st_mode));
+		return PATH_IS_FILE;
+	return PATH_NOT_FOUND;
+}
+
+osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const char* mode)
+{
+	struct fileio_item* i;
+	char path[FILE_MAXPATH];
+	FILE* h;
+
+	log_std(("osd: osd_fopen(pathtype:%d,pathindex:%d,filename:%s,mode:%s)\n", pathtype, pathindex, filename, mode));
+
+	i = fileio_find(pathtype);
+	if (!i) {
+		log_std(("ERROR:fileio: file type %d unknown\n", pathtype));
+		return 0;
 	}
 
-	return res;
+	strcpy(path, file_abs(i->dir_map[pathindex], filename));
+
+	h = fopen(path, mode);
+
+	return (osd_file*)h;
 }
 
-int osd_fread_scatter(void* void_h, void* buffer, int length, int increment)
+int osd_fseek(osd_file* file, INT64 offset, int whence)
 {
-	unsigned char* buf = (unsigned char*)buffer;
-	unsigned done = 0;
+	FILE* h = (FILE*)file;
 
-	log_debug(("osd: osd_fread_scatter(void_h, buffer, length:%d, increment:%d)\n", length, increment));
-
-	while (done < length) {
-		unsigned i;
-		unsigned char data[4096];
-		unsigned run = length - done;
-		if (run > sizeof(data))
-			run = sizeof(data);
-		run = osd_fread(void_h, data, run);
-		if (run == 0)
-			return done;
-		for(i = 0; i < run; i++) {
-			*buf = data[i];
-			buf += increment;
-		}
-		done += run;
-	}
-
-	return done;
+	return fseek(h, offset, whence);
 }
 
-int osd_fseek(void* void_h, int offset, int whence)
+UINT64 osd_ftell(osd_file* file)
 {
-	struct fileio_handle* h = (struct fileio_handle*)void_h;
-	int r;
+	FILE* h = (FILE*)file;
 
-	log_debug(("osd: osd_fseek(void_h, offset:%d, whence:%d)\n", offset, whence));
-
-	r = fzseek(h->f, offset, whence);;
-
-	log_debug(("osd: osd_fseek() -> %d\n", r));
-
-	return r;
+	return ftell(h);
 }
 
-void osd_fclose(void* void_h)
+int osd_feof(osd_file* file)
 {
-	struct fileio_handle* h = (struct fileio_handle*)void_h;
+	FILE* h = (FILE*)file;
 
-	log_debug(("osd: osd_fclose(void_h)\n"));
-
-	item_close(h);
+	return feof(h);
 }
 
-int osd_fchecksum(const char* game, const char* filename, unsigned int* length, unsigned int* sum)
+UINT32 osd_fread(osd_file* file, void* buffer, UINT32 length)
 {
-	(void)game;
-	(void)filename;
-	(void)length;
-	(void)sum;
+	FILE* h = (FILE*)file;
 
-	log_debug(("osd: osd_fchecksm(game:%s,  filename:%s, length, sum)\n", game, filename));
-
-	assert( 0 );
-
-	/* used only for audit pourpuse */
-	return -1;
+	return fread(buffer, 1, length, h);
 }
 
-int osd_fsize(void* void_h)
+UINT32 osd_fwrite(osd_file* file, const void* buffer, UINT32 length)
 {
-	struct fileio_handle* h = (struct fileio_handle*)void_h;
+	FILE* h = (FILE*)file;
 
-	log_debug(("osd: osd_fsize(void_h)\n"));
-
-	return fzsize(h->f);
+	return fwrite(buffer, 1, length, h);
 }
 
-unsigned int osd_fcrc(void* void_h)
+void osd_fclose(osd_file* file)
 {
-	struct fileio_handle* h = (struct fileio_handle*)void_h;
+	FILE* h = (FILE*)file;
 
-	log_debug(("osd: osd_fcrc(void_h)\n"));
-
-	if (!h->is_crc_set) {
-		unsigned char data[4096];
-		unsigned size = fzsize(h->f);
-
-		h->crc = 0;
-
-		/* restart */
-		fzseek(h->f, 0, SEEK_SET);
-
-		while (size) {
-			unsigned run = sizeof(data);
-			if (run > size)
-				run = size;
-			if (fzread(data, run, 1, h->f)!=1) {
-				break;
-			}
-			size -= run;
-			h->crc = crc32(h->crc, data, run);
-		}
-
-		if (size == 0) {
-			h->is_crc_set = 1;
-		} else {
-			h->crc = 0;
-		}
-
-		/* restart */
-		fzseek(h->f, 0, SEEK_SET);
-	}
-
-	log_std(("osd: osd_fcrc() -> %08x\n", h->crc));
-
-	return h->crc;
-}
-
-int osd_fgetc(void* void_h)
-{
-	struct fileio_handle* h = (struct fileio_handle*)void_h;
-
-	log_pedantic(("osd: osd_fgetc(void_h)\n"));
-
-	return fzgetc(h->f);
-}
-
-int osd_ungetc(int c, void* void_h)
-{
-	struct fileio_handle* h = (struct fileio_handle*)void_h;
-
-	log_pedantic(("osd: osd_ungetc(c:%d, void_h)\n", c));
-
-	return fzungetc(c, h->f);
-}
-
-char *osd_fgets(char* s, int n, void* void_h)
-{
-	struct fileio_handle* h = (struct fileio_handle*)void_h;
-
-	log_pedantic(("osd: osd_fgets(s, n, void_h)\n"));
-
-	return fzgets(s, n, h->f);
-}
-
-int osd_feof(void* void_h)
-{
-	struct fileio_handle* h = (struct fileio_handle*)void_h;
-
-	log_pedantic(("osd: osd_feof(void_h)\n"));
-
-	return fzeof(h->f);
-}
-
-int osd_ftell(void* void_h)
-{
-	struct fileio_handle* h = (struct fileio_handle*)void_h;
-	int r;
-
-	log_debug(("osd: osd_ftell(void_h)\n"));
-
-	r = fztell(h->f);
-
-	log_debug(("osd: osd_ftell() -> %d\n", r));
-
-	return r;
+	fclose(h);
 }
 
 /***************************************************************************/
@@ -994,19 +456,18 @@ adv_error advance_fileio_init(adv_conf* context)
 {
 
 	struct fileio_item* i;
-	for(i=CONFIG;i->type != OSD_FILETYPE_end;++i) {
+	for(i=CONFIG;i->type != FILETYPE_end;++i) {
 		i->dir_map = 0;
 		i->dir_mac = 0;
 	}
 
-	for(i=CONFIG;i->type != OSD_FILETYPE_end;++i) {
+	for(i=CONFIG;i->type != FILETYPE_end;++i) {
 		if (i->config) {
 			const char* def = 0;
 			switch (i->mode) {
-				case FILEIO_MODE_COLLECTION : def = file_config_dir_multidir(i->def); break;
-				case FILEIO_MODE_GAME : def = file_config_dir_singledir(i->def); break;
-				case FILEIO_MODE_NAME : def = file_config_dir_singledir(i->def); break;
-				case FILEIO_MODE_ROOT : def = file_config_dir_singlefile(); break;
+				case FILEIO_MODE_MULTI : def = file_config_dir_multidir(i->def); break;
+				case FILEIO_MODE_SINGLE : def = file_config_dir_singledir(i->def); break;
+				case FILEIO_MODE_FILE : def = file_config_dir_singlefile(); break;
 			}
 			if (def)
 				conf_string_register_default(context, i->config, def);
@@ -1023,7 +484,7 @@ adv_error advance_fileio_init(adv_conf* context)
 void advance_fileio_done(void)
 {
 	struct fileio_item* i;
-	for(i=CONFIG;i->type != OSD_FILETYPE_end;++i) {
+	for(i=CONFIG;i->type != FILETYPE_end;++i) {
 		path_free(i->dir_map, i->dir_mac);
 	}
 }
@@ -1045,7 +506,7 @@ static void dir_create(char** dir_map, unsigned dir_mac)
 adv_error advance_fileio_config_load(adv_conf* context, struct mame_option* option)
 {
 	struct fileio_item* i;
-	for(i=CONFIG;i->type != OSD_FILETYPE_end;++i) {
+	for(i=CONFIG;i->type != FILETYPE_end;++i) {
 		/* free a previously loaded value */
 		path_free(i->dir_map, i->dir_mac);
 		i->dir_map = 0;

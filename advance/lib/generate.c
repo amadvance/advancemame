@@ -268,21 +268,48 @@ adv_error generate_find_interpolate_double(adv_crtc* crtc, unsigned hsize, unsig
 
 	err = generate_find_interpolate(crtc, hsize, vsize, vclock, monitor, interpolate, capability, adjust);
 
-	/* try with the double or more vclock only if the vclock isn't already changed */
-	if (err != 0 && (adjust & GENERATE_ADJUST_VCLOCK) == 0)
-		err = generate_find_interpolate(crtc, hsize, vsize, vclock*2, monitor, interpolate, capability, adjust);
-	if (err != 0 && (adjust & GENERATE_ADJUST_VCLOCK) == 0)
-		err = generate_find_interpolate(crtc, hsize, vsize, vclock*3, monitor, interpolate, capability, adjust);
-	if (err != 0 && (adjust & GENERATE_ADJUST_VCLOCK) == 0)
-		err = generate_find_interpolate(crtc, hsize, vsize, vclock*4, monitor, interpolate, capability, adjust);
+	/* only if the vclock isn't already changed */
+	if ((adjust & GENERATE_ADJUST_VCLOCK) == 0) {
+		/* try with the double or more vclock */
+		if (err != 0)
+			err = generate_find_interpolate(crtc, hsize, vsize, vclock*2, monitor, interpolate, capability, adjust);
+		if (err != 0)
+			err = generate_find_interpolate(crtc, hsize, vsize, vclock*3, monitor, interpolate, capability, adjust);
+		if (err != 0)
+			err = generate_find_interpolate(crtc, hsize, vsize, vclock*4, monitor, interpolate, capability, adjust);
+	}
 
 	/* try with double or more horizontal size */
 	if (err != 0)
 		err = generate_find_interpolate(crtc, 2*hsize, vsize, vclock, monitor, interpolate, capability, adjust);
+	if ((adjust & GENERATE_ADJUST_VCLOCK) == 0) {
+		if (err != 0)
+			err = generate_find_interpolate(crtc, 2*hsize, vsize, 2*vclock, monitor, interpolate, capability, adjust);
+	}
 	if (err != 0)
 		err = generate_find_interpolate(crtc, 3*hsize, vsize, vclock, monitor, interpolate, capability, adjust);
+	if ((adjust & GENERATE_ADJUST_VCLOCK) == 0) {
+		if (err != 0)
+			err = generate_find_interpolate(crtc, 3*hsize, vsize, 2*vclock, monitor, interpolate, capability, adjust);
+	}
 	if (err != 0)
 		err = generate_find_interpolate(crtc, 4*hsize, vsize, vclock, monitor, interpolate, capability, adjust);
+
+	/* try with double or more vertical size */
+	if (err != 0)
+		err = generate_find_interpolate(crtc, hsize, 2*vsize, vclock, monitor, interpolate, capability, adjust);
+	if ((adjust & GENERATE_ADJUST_VCLOCK) == 0) {
+		if (err != 0)
+			err = generate_find_interpolate(crtc, hsize, 2*vsize, 2*vclock, monitor, interpolate, capability, adjust);
+	}
+	if (err != 0)
+		err = generate_find_interpolate(crtc, hsize, 3*vsize, vclock, monitor, interpolate, capability, adjust);
+	if ((adjust & GENERATE_ADJUST_VCLOCK) == 0) {
+		if (err != 0)
+			err = generate_find_interpolate(crtc, hsize, 3*vsize, 2*vclock, monitor, interpolate, capability, adjust);
+	}
+	if (err != 0)
+		err = generate_find_interpolate(crtc, hsize, 4*vsize, vclock, monitor, interpolate, capability, adjust);
 
 	return err;
 }
@@ -310,7 +337,7 @@ static void generate_interpolate_from2(adv_generate* generate, unsigned hclock, 
 		generate->hback = pos(e0->gen.hback * f0 + e1->gen.hback * f1);
 #else
 		/* I have some doubts on the correctness of this approach */
-		/* It compute correctly the size, but you may */
+		/* It computes correctly the size, but it may */
 		/* lose the correct centering */
 
 		/* compute the horizontal format with the gtf interpolation */

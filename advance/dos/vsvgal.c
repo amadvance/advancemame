@@ -45,10 +45,10 @@
 /* State */
 
 typedef struct svgaline_internal_struct {
-	int active;
-	int mode_active;
+	adv_bool active;
+	adv_bool mode_active;
 
-	unsigned cap;
+	unsigned flags;
 	unsigned char saved[ADV_SVGALIB_STATE_SIZE];
 } svgaline_internal;
 
@@ -222,26 +222,26 @@ adv_error svgaline_init(int device_id, adv_output output)
 
 	log_std(("video:svgaline: found driver %s\n", adv_svgalib_driver_get()));
 
-	svgaline_state.cap = VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN
+	svgaline_state.flags = VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN
 		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC
 		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
 	if (adv_svgalib_state.has_bit8)
-		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
+		svgaline_state.flags |= VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
 	if (adv_svgalib_state.has_bit15)
-		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_MODE_BGR15;
+		svgaline_state.flags |= VIDEO_DRIVER_FLAGS_MODE_BGR15;
 	if (adv_svgalib_state.has_bit16)
-		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_MODE_BGR16;
+		svgaline_state.flags |= VIDEO_DRIVER_FLAGS_MODE_BGR16;
 	if (adv_svgalib_state.has_bit24)
-		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_MODE_BGR24;
+		svgaline_state.flags |= VIDEO_DRIVER_FLAGS_MODE_BGR24;
 	if (adv_svgalib_state.has_bit32)
-		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_MODE_BGR32;
+		svgaline_state.flags |= VIDEO_DRIVER_FLAGS_MODE_BGR32;
 	if (adv_svgalib_state.has_interlace)
-		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
+		svgaline_state.flags |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
 	if (adv_svgalib_state.has_tvpal)
-		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL;
+		svgaline_state.flags |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL;
 	if (adv_svgalib_state.has_tvntsc)
-		svgaline_state.cap |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC;
+		svgaline_state.flags |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC;
 
 	svgaline_state.active = 1;
 
@@ -270,7 +270,7 @@ adv_bool svgaline_mode_is_active(void)
 unsigned svgaline_flags(void)
 {
 	assert( svgaline_is_active() );
-	return svgaline_state.cap;
+	return svgaline_state.flags;
 }
 
 adv_error svgaline_mode_set(const svgaline_video_mode* mode)

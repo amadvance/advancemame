@@ -124,12 +124,12 @@
 #define VIDEO_DRIVER_FLAGS_OUTPUT_MASK 0xF00000 /**< Mask for the VIDEO_DRIVER_FLAGS_OUTPUT_* flags. */
 /*@}*/
 
-/** \name User Flags
- * Video driver flags for the user.
+/** \name Internal Flags
+ * Video driver flags used internally by the drivers.
  */
 /*@{*/
-#define VIDEO_DRIVER_FLAGS_USER_BIT0 0x01000000 /**< First user flags. */
-#define VIDEO_DRIVER_FLAGS_USER_MASK 0xFF000000 /**< Available user flags. */
+#define VIDEO_DRIVER_FLAGS_INTERNAL_BIT0 0x01000000 /**< First internal flags. */
+#define VIDEO_DRIVER_FLAGS_INTERNAL_MASK 0xFF000000 /**< Available internal flags. */
 /*@}*/
 
 /**

@@ -2042,11 +2042,11 @@ struct key_cvt {
 #define OP_NOT (KEYB_MAX + 2)
 
 static struct key_cvt KEYTAB[] = {
-{"up", INT_KEY_UP, { KEYB_UP, KEYB_MAX } },
-{"down", INT_KEY_DOWN, { KEYB_DOWN, KEYB_MAX } },
-{"left", INT_KEY_LEFT, { KEYB_LEFT, KEYB_MAX } },
-{"right", INT_KEY_RIGHT, { KEYB_RIGHT, KEYB_MAX } },
-{"enter", INT_KEY_ENTER, { KEYB_ENTER, KEYB_MAX } },
+{"up", INT_KEY_UP, { KEYB_UP, OP_OR, KEYB_8_PAD, KEYB_MAX } },
+{"down", INT_KEY_DOWN, { KEYB_DOWN, OP_OR, KEYB_2_PAD, KEYB_MAX } },
+{"left", INT_KEY_LEFT, { KEYB_LEFT, OP_OR, KEYB_4_PAD, KEYB_MAX } },
+{"right", INT_KEY_RIGHT, { KEYB_RIGHT, OP_OR, KEYB_6_PAD, KEYB_MAX } },
+{"enter", INT_KEY_ENTER, { KEYB_ENTER, OP_OR, KEYB_ENTER_PAD, KEYB_MAX } },
 {"shutdown", INT_KEY_OFF, { KEYB_LCONTROL, KEYB_ESC, KEYB_MAX } },
 {"esc", INT_KEY_ESC, { KEYB_ESC, KEYB_MAX } },
 {"space", INT_KEY_SPACE, { KEYB_SPACE, KEYB_MAX } },

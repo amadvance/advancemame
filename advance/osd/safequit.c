@@ -97,26 +97,26 @@ static void AddDatabaseEntry(char * buf)
 	entryList[entryListLength].mask = mask;
 	entryList[entryListLength].result = result;
 
-	logerror("%s:%d:%lx:%d:%lx:%lx\n", event, cpu, address, action, mask, result);
+	logerror("%s:%d:%x:%d:%x:%x\n", event, cpu, address, action, mask, result);
 
 	entryListLength++;
 }
 
 static void LoadSafeQuitDatabase(const char* file, const char* game_name)
 {
-	void* theFile;
+	mame_file* theFile;
 	char buf[2048];
 	char gameName[32];
 	UINT8 foundGameName = 0;
 
-	theFile = osd_fopen(NULL, file, OSD_FILETYPE_HISTORY, 0);
+	theFile = mame_fopen(NULL, file, FILETYPE_HISTORY, 0);
 
 	if (!theFile)
 		return;
 
 	sprintf(gameName, "%s:", game_name);
 
-	while ((osd_fgets(buf, 2048, theFile) != NULL) && (entryListLength < MAX_ACTIONS))
+	while ((mame_fgets(buf, 2048, theFile) != NULL) && (entryListLength < MAX_ACTIONS))
 	{
 		unsigned len = strlen(buf);
 
@@ -138,7 +138,7 @@ static void LoadSafeQuitDatabase(const char* file, const char* game_name)
 
 	done:
 
-	osd_fclose(theFile);
+	mame_fclose(theFile);
 }
 
 static int ConditionSatisfied(ActionEntry * action)

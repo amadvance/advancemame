@@ -1331,10 +1331,8 @@ Configuration
 	Use 0 seconds to disable the startup turbo effect.
 
     misc_quiet
-	Doesn't print the copyright text message at the startup :
-
-	:AdvanceMAME - Copyright (C) 1999-200X by Andrea Mazzoleni
-	:MAME - Copyright (C) 1997-200X by Nicola Salmoria and the MAME Team
+	Doesn't print the copyright text message at the startup, the
+	disclaimer and the generic game information screens.
 
 	:misc_quiet yes | no
 

@@ -45,12 +45,12 @@
 /* State */
 
 /* Driver capability */
-#define VBELINE_FLAGS_REQUIRES_VBE3_SET VIDEO_DRIVER_FLAGS_USER_BIT0 /* Require a vbe3 mode set */
-#define VBELINE_FLAGS_REQUIRES_VBE_SAVE (VIDEO_DRIVER_FLAGS_USER_BIT0 << 1) /* Require a mode save/restore with the vbe services */
+#define VBELINE_FLAGS_REQUIRES_VBE3_SET VIDEO_DRIVER_FLAGS_INTERNAL_BIT0 /* Require a vbe3 mode set */
+#define VBELINE_FLAGS_REQUIRES_VBE_SAVE (VIDEO_DRIVER_FLAGS_INTERNAL_BIT0 << 1) /* Require a mode save/restore with the vbe services */
 
 typedef struct vbeline_chipset_struct {
 	const char* name; /* Driver name */
-	unsigned cap; /* Driver capability */
+	unsigned flags; /* Driver capability */
 	int (*detect)(void);
 	int (*set)(const card_crtc*, const card_mode*, const card_mode*);
 	void (*reset)(void);
@@ -70,7 +70,7 @@ typedef struct vbeline_internal_struct {
 	void* state_ptr;
 	unsigned state_size;
 
-	unsigned cap;
+	unsigned flags;
 } vbeline_internal;
 
 static vbeline_internal vbeline_state;
@@ -255,15 +255,15 @@ static void vbeline_probe(void)
 
 	/* remove unsupported bit depth */
 	if (!has8bit)
-		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
+		vbeline_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_PALETTE8;
 	if (!has15bit)
-		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR15;
+		vbeline_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR15;
 	if (!has16bit)
-		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR16;
+		vbeline_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR16;
 	if (!has24bit)
-		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR24;
+		vbeline_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR24;
 	if (!has32bit)
-		vbeline_state.cap &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
+		vbeline_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
 }
 
 adv_error vbeline_init(int device_id, adv_output output)
@@ -307,11 +307,11 @@ adv_error vbeline_init(int device_id, adv_output output)
 	vbeline_state.driver = 0;
 	for(i=0;cards[i].name;++i) {
 		if (strcmp(name, "auto")==0 || strcmp(name, cards[i].name)==0) {
-			if ((cards[i].cap & VBELINE_FLAGS_REQUIRES_VBE3_SET)==0 || vbe_state.info.VESAVersion >= 0x300) {
+			if ((cards[i].flags & VBELINE_FLAGS_REQUIRES_VBE3_SET)==0 || vbe_state.info.VESAVersion >= 0x300) {
 				if (cards[i].detect && cards[i].detect() > 0) {
 					log_std(("vbeline: found driver %s\n", cards[i].name));
 					vbeline_state.driver = cards + i;
-					vbeline_state.cap = vbeline_state.driver->cap;
+					vbeline_state.flags = vbeline_state.driver->flags;
 					break;
 				}
 			}
@@ -327,7 +327,7 @@ adv_error vbeline_init(int device_id, adv_output output)
 		return -1;
 	}
 
-	vbeline_state.cap |= VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+	vbeline_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
 	vbeline_probe();
 
@@ -377,7 +377,7 @@ const char* vbeline_driver_description(void)
 unsigned vbeline_flags(void)
 {
 	assert( vbeline_is_active() );
-	return vbeline_state.cap;
+	return vbeline_state.flags;
 }
 
 static int vbe3_mode_preset(const card_crtc* ccp, vbe_ModeInfoBlock* info, vbe_CRTCInfoBlock* crtc)
@@ -621,7 +621,7 @@ adv_error vbeline_palette8_set(const adv_color_rgb* palette, unsigned start, uns
 int vbeline_pixelclock_getnext(unsigned* pixelclock, unsigned mode)
 {
 	assert( vbeline_is_active() );
-	if ((vbeline_state.cap & VBELINE_FLAGS_REQUIRES_VBE3_SET)!=0) {
+	if ((vbeline_state.flags & VBELINE_FLAGS_REQUIRES_VBE3_SET)!=0) {
 		return vbe_pixelclock_getnext(pixelclock, mode);
 	} else {
 		/* assume all clocks avaliable */
@@ -634,7 +634,7 @@ int vbeline_pixelclock_getnext(unsigned* pixelclock, unsigned mode)
 int vbeline_pixelclock_getpred(unsigned* pixelclock, unsigned mode)
 {
 	assert( vbeline_is_active() );
-	if ((vbeline_state.cap & VBELINE_FLAGS_REQUIRES_VBE3_SET)!=0) {
+	if ((vbeline_state.flags & VBELINE_FLAGS_REQUIRES_VBE3_SET)!=0) {
 		return vbe_pixelclock_getpred(pixelclock, mode);
 	} else {
 		/* assume all clocks avaliable */
@@ -702,7 +702,7 @@ adv_error vbeline_mode_import(adv_mode* mode, const vbeline_video_mode* vbeline_
 		}
 	}
 
-	if ((vbeline_state.cap & VBELINE_FLAGS_REQUIRES_VBE3_SET)!=0) {
+	if ((vbeline_state.flags & VBELINE_FLAGS_REQUIRES_VBE3_SET)!=0) {
 		if (vbe_pixelclock_get(&DRIVER(mode)->crtc.pixelclock, DRIVER(mode)->mode)!=0) {
 			return -1;
 		}

@@ -15,6 +15,8 @@ AdvanceMENU Version 2.2.3 2003/01
 	) The `generic' emulator type is now able to import games
 		information from a MAME like information file
 		written manually.
+	) The default key configuration now uses the numeric-pad keys
+		as arrows. It helps with HotRod.
 
 AdvanceMENU Version 2.2.2 2002/12
 	) Fixed the MNG playing in 32 bits modes. This is potentially

@@ -153,7 +153,7 @@ static adv_error sdl_init(int device_id, adv_output output)
 	char name[64];
 	const adv_device* i;
 	unsigned j;
-	SDL_Rect** map;
+	SDL_Rect** map; /* it must not be released */
 	const SDL_VideoInfo* info;
 
 	assert( !sdl_is_active() );
@@ -721,7 +721,7 @@ int sdl_mode_compare(const sdl_video_mode* a, const sdl_video_mode* b)
 void sdl_crtc_container_insert_default(adv_crtc_container* cc)
 {
 	unsigned i;
-	SDL_Rect** map;
+	SDL_Rect** map; /* it must not be released */
 
 	log_std(("video:sdl: sdl_crtc_container_insert_default()\n"));
 

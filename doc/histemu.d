@@ -1,8 +1,8 @@
 Name
 	history - History For Advance Emulators
 
-AdvanceMAME Version 0.62.3 2003/01
-	) Added the Alsa sound driver for Linux. It's now the
+AdvanceMAME Version 0.63.0 2003/01
+	) Added the ALSA sound driver for Linux. It's now the
 		preferred choice over OSS.
 	) Fixed another bug in the ./configure script if the
 		SDL library is missing.
@@ -16,6 +16,12 @@ AdvanceMAME Version 0.62.3 2003/01
 		difficulty from the command line.
 	) The `misc_quiet' option now also disable the NO GOOD DUMP
 		messages.
+	) The SVGALIB `banshee' driver in Linux now doesn't tries to
+		use 16 bit video modes. They are not working.
+	) The `misc_quiet' options, if activated, now skips also the graphics
+		information screens.
+	) If the doublescan modes are disabled, a mode with a double
+		vertical size may be automatically used instead.
 
 AdvanceMAME Version 0.62.2 2002/12
 	) Added a new raw keyboard driver for Linux [Kari Hautio].
