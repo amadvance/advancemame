@@ -55,6 +55,13 @@ VLIBS += -lslang
 VOBJS += \
 	$(VOBJ)/linux/vslang.o
 endif
+ifeq ($(CONF_LIB_NCURSES),yes)
+VCFLAGS += \
+	-DUSE_VIDEO_CURSES
+VLIBS += -lncurses
+VOBJS += \
+	$(VOBJ)/linux/vcurses.o
+endif
 VCFLAGS += \
 	-DUSE_INPUT_TTY
 VOBJS += \
