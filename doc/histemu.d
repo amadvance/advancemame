@@ -7,6 +7,13 @@ AdvanceMAME Version 0.74.1 2003/09
 	) The effects names `scale2/3/4x', `lq2/3/4x' and `hq2/3/4x' are now
 		unified in `scale', `lq' and `hq'. The correct scale
 		factor if automatically detected from the video mode size.
+	) Updated the `vsync/ac97' audio driver for VIA VT823x built
+		in AC97 audio [Shigeaki Sakamaki].
+	) Fixed the `advv' utility to display and use all the available
+		default modelines.
+
+AdvanceMESS Version 0.74.0.0 2003/09
+	) All from AdvanceMAME 0.74.1.
 
 AdvanceMAME Version 0.74.0 2003/09
 	) Added a bunch of new video effects: `lq2x', `hq2x', `lq3x' and `hq3x'.

@@ -229,7 +229,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/m68000/make68k.c src/cpu/m68000/mak
  
 diff -U 5 --new-file --recursive src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
 --- src.ori/cpu/z80/z80.c	2003-02-27 23:02:44.000000000 +0100
-+++ src/cpu/z80/z80.c	2003-09-21 16:36:13.000000000 +0200
++++ src/cpu/z80/z80.c	2003-09-23 21:13:27.000000000 +0200
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX

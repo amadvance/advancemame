@@ -404,7 +404,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 	}
 
 	if (getenv("DISPLAY")) {
-		error_set("Unsupported in X. Try unsetting the DISPLAY environemnt variable.\n");
+		error_set("Unsupported in X. Try unsetting the DISPLAY environment variable.\n");
 		return -1;
 	}
 

@@ -677,7 +677,7 @@ bool int_init(unsigned size, const string& sound_event_key)
 			crtc_container_insert_default_modeline_svga(&int_modelines);
 			crtc_container_insert_default_modeline_vga(&int_modelines);
 		} else {
-			crtc_container_insert_default_system(&int_modelines);
+			crtc_container_insert_default_active(&int_modelines);
 		}
 	}
 

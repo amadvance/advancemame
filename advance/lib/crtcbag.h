@@ -84,7 +84,8 @@ adv_error crtc_container_insert_default_modeline_vga(adv_crtc_container* cc);
 adv_error crtc_container_insert_default_modeline_svga(adv_crtc_container* cc);
 adv_error crtc_container_insert_default_bios_vga(adv_crtc_container* cc);
 adv_error crtc_container_insert_default_bios_vbe(adv_crtc_container* cc);
-void crtc_container_insert_default_system(adv_crtc_container* cc);
+void crtc_container_insert_default_active(adv_crtc_container* cc);
+void crtc_container_insert_default_all(adv_crtc_container* cc);
 
 #ifdef __cplusplus
 }

@@ -3358,7 +3358,7 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 			crtc_container_insert_default_modeline_svga(&context->config.crtc_bag);
 			crtc_container_insert_default_modeline_vga(&context->config.crtc_bag);
 		} else {
-			crtc_container_insert_default_system(&context->config.crtc_bag);
+			crtc_container_insert_default_active(&context->config.crtc_bag);
 		}
 	}
 

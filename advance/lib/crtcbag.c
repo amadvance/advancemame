@@ -248,7 +248,9 @@ static adv_error crtc_container_insert_default(adv_crtc_container* cc, const cha
 		adv_crtc crtc;
 		if (crtc_parse(&crtc, *modes, *modes + strlen(*modes))!=0)
 			return -1;
-		crtc_container_insert(cc, &crtc);
+		/* insert only if unique */
+		if (!crtc_container_has(cc, &crtc, &crtc_compare))
+			crtc_container_insert(cc, &crtc);
 		++modes;
 	}
 	return 0;
@@ -283,10 +285,24 @@ adv_error crtc_container_insert_default_modeline_svga(adv_crtc_container* cc)
 /**
  * Insert the standard video modes of the first active video driver.
  */
-void crtc_container_insert_default_system(adv_crtc_container* cc)
+void crtc_container_insert_default_active(adv_crtc_container* cc)
 {
 	if (video_driver_vector_max() > 0) {
 		const adv_video_driver* driver = video_driver_vector_pos(0);
+		if (driver->crtc_container_insert_default) {
+			driver->crtc_container_insert_default(cc);
+		}
+	}
+}
+
+/**
+ * Insert the standard video modes of all the active video driver.
+ */
+void crtc_container_insert_default_all(adv_crtc_container* cc)
+{
+	unsigned i;
+	for(i=0;i<video_driver_vector_max();++i) {
+		const adv_video_driver* driver = video_driver_vector_pos(i);
 		if (driver->crtc_container_insert_default) {
 			driver->crtc_container_insert_default(cc);
 		}

@@ -1618,7 +1618,8 @@ int os_main(int argc, char* argv[]) {
 		goto err_input;
 	}
 
-	crtc_container_insert_default_system(&mode_unsorted);
+	/* insert modes */
+	crtc_container_insert_default_active(&mode_unsorted);
 
 	crtc_container_init(&mode);
 	for(crtc_container_iterator_begin(&i, &mode_unsorted);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {

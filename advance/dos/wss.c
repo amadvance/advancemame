@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project
  *
- * Copyright (C) 2002 Shigeaki Sakamaki
+ * Copyright (C) 2002, 2003 Shigeaki Sakamaki
  * Copyright (C) 2002 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
@@ -53,7 +53,7 @@ __attribute__((format(printf, 1, 0))) static void logerror_(const char *text, ..
 	log_va(text, arg);
 	va_end(arg);
 }
-    
+
 /* unused */
 #define W_WATERMARK_UNDERRUN 0
 #define W_WATERMARK_FULL 0
@@ -777,6 +777,8 @@ static BOOL vds_helper_lock(DWORD buffer_addr, DWORD *physical_addr_table, int p
 	unsigned long dos_addr;
 	BOOL vds_available;
 
+	// determine Virtual DMA Services is available or not
+	// if VDS is not available, assume running in Pure DOS (no EMM386 present)
 	vds_available = is_vds_available();
 
 	if(_dma_allocate_mem4k(&sel, &dos_addr) == FALSE){
@@ -787,35 +789,46 @@ static BOOL vds_helper_lock(DWORD buffer_addr, DWORD *physical_addr_table, int p
 
 	d0 = 0;
 	while(d0 < pages){
+		// page block size is 4096 bytes
 		temp = buffer_addr + (4096 * d0);
 		if(vds_available == TRUE){
-			/* vds available */
+			// VDS is available
 			dds.Region_Size   = 4096;
 			dds.Offset		  = temp & 0x0F;
 			dds.Seg_or_Select = temp >> 4;
 //			printf("%08x : %08x : %08x\n", temp, dds.Offset, dds.Seg_or_Select);
+
+			// copy DDS struct to dos memory to call VDS service
 			copy_to_dos_memory(dos_addr, (BYTE*)&dds, sizeof(dds));
 			r.x.ax = 0x8103;			// LOCK DMA BUFFER REGION
 			r.x.dx = 0x0000;
 			r.x.di = dos_addr & 0xF;
 			r.x.es = dos_addr >> 4;
+
+			// call Virtual DMA Services 0x8103 (LOCK DMA BUFFER REGION)
 			__dpmi_int(0x4B, &r);
 			if((r.x.flags & 0x01) != 0){
 				set_error_message("vds_helper_lock: LOCK DMA BUFFER REGION error\n");
 				__dpmi_free_dos_memory(sel);
 				return FALSE;
 			}
+
+			// copy the result of calling VDS service from dos memory
 			copy_from_dos_memory(dos_addr, (BYTE*)&dds, sizeof(dds));
 			if(dds.Buffer_ID != 0){
+				// a buffer in dos memory was allocated, instead of the buffer was prepared
+				// but only need the physical address of the buffer was prepared
 				set_error_message("vds_helper_lock: Buffer_ID allocated. error\n");
 				__dpmi_free_dos_memory(sel);
 				return FALSE;
 			}
 			physical_addr_table[d0] = dds.Physical_Address;
 		}else{
-			/* vds not available */
+			// VDS is not available
+			// assume running in Pure DOS (no EMM386 present), no need to get the physical address
 			physical_addr_table[d0] = temp;
 		}
+		// next page block
 		d0 += 1;
 	}
 	__dpmi_free_dos_memory(sel);
@@ -1160,7 +1173,7 @@ typedef struct {
 	VIA 686/8233 driver
 
  note:
-	This driver may not work with 8233 yet.
+	This driver works with 8233 perhaps.
  ********************************************************************/
 
 
@@ -1175,24 +1188,33 @@ typedef struct {
 
 #define VIA686_PrimaryCodec    0x00000000
 
-#define VIA_REG_OFFSET_STATUS		0x00	/* byte - channel status */
-#define VIA_REG_OFFSET_TYPE 		0x02	/* byte - channel type */
-#define VIA_REG_OFFSET_CURR_PTR 	0x04	/* dword - channel current pointer */
-#define VIA_REG_PLAYBACK_CURR_COUNT 0x0C	/* dword - channel current count */
+#define VIA_REG_OFFSET_STATUS			0x00	/* byte - channel status */
+#define VIA_REG_OFFSET_TYPE 			0x02	/* byte - channel type */
+#define VIA_REG_OFFSET_CURR_PTR 		0x04	/* dword - channel current pointer */
+#define VIA_REG_PLAYBACK_CURR_COUNT 	0x0C	/* dword - channel current count */
 
-#define VIA_REG_OFFSET_CONTROL		0x01	/* byte - channel control */
-#define   VIA_REG_CTRL_START		0x80	/* WO */
-#define   VIA_REG_CTRL_TERMINATE	0x40	/* WO */
-#define   VIA_REG_CTRL_PAUSE		0x08	/* RW */
-#define   VIA_REG_CTRL_RESET		0x01	/* RW - probably reset? undocumented */
+#define VIA_REG_OFFSET_CONTROL			0x01	/* byte - channel control */
+#define   VIA_REG_CTRL_START			0x80	/* WO */
+#define   VIA_REG_CTRL_TERMINATE		0x40	/* WO */
+#define   VIA_REG_CTRL_PAUSE			0x08	/* RW */
+#define   VIA_REG_CTRL_RESET			0x01	/* RW - probably reset? undocumented */
 // VT8233
-#define   VIA_REG_CTRL_AUTOSTART	0x20
+#define   VIA_REG_CTRL_AUTOSTART		0x20
 
 // VT8233
-#define VIA_REG_OFFSET_STOP_IDX 	0x08	/* dword - stop index, channel type, sample rate */
-#define   VIA_REG_TYPE_16BIT		0x00200000	/* RW */
-#define   VIA_REG_TYPE_STEREO		0x00100000	/* RW */
-#define VIA_REG_OFFSET_CURR_INDEX	0x0f	/* byte - channel current index */
+/* multi-channel playback */
+#define VIA_REG_MULTPLAY_STATUS 		0x40	/* byte - channel status */
+#define VIA_REG_MULTPLAY_CONTROL		0x41	/* byte - channel control */
+#define VIA_REG_MULTPLAY_FORMAT 		0x42	/* byte - format and channels */
+#define VIA_REG_MULTPLAY_FMT_8BIT		0x00
+#define VIA_REG_MULTPLAY_FMT_16BIT		0x80
+#define VIA_REG_MULTPLAY_FMT_CH_MASK	0x70	/* # channels << 4 (valid = 1,2,4,6) */
+#define VIA_REG_MULTPLAY_SCRATCH		0x43	/* byte - nop */
+#define VIA_REG_MULTPLAY_TABLE_PTR		0x44	/* dword - channel table pointer */
+#define VIA_REG_MULTPLAY_CURR_PTR		0x44	/* dword - channel current pointer */
+#define VIA_REG_MULTPLAY_STOP_IDX		0x48	/* dword - stop index, slots */
+#define VIA_REG_MULTPLAY_CURR_COUNT 	0x4c	/* dword - channel current count (24 bit) */
+#define VIA_REG_MULTIPLAY_CURR_INDEX	0x4f	/* byte - channel current index */
 
 
 #define DEVICE_VT82C686    0
@@ -1276,17 +1298,22 @@ static void via686_WriteAC97Codec(BYTE idx, WORD data)
 
 static void via686_channel_reset(void)
 {
-	int via_sound_iobase = g_pci.base0;
-
-	outportb(via_sound_iobase + VIA_REG_OFFSET_CONTROL,
-				VIA_REG_CTRL_PAUSE | VIA_REG_CTRL_TERMINATE | VIA_REG_CTRL_RESET);
-	udelay(50);
-	outportb(via_sound_iobase + VIA_REG_OFFSET_CONTROL, 0x00);
-	outportb(via_sound_iobase + VIA_REG_OFFSET_STATUS, 0xFF);
 	if(via686_device_type == DEVICE_VT82C686){
-		outportb(via_sound_iobase + VIA_REG_OFFSET_TYPE, 0x00);
+		outportb(g_pci.base0 + VIA_REG_OFFSET_CONTROL,
+					VIA_REG_CTRL_PAUSE | VIA_REG_CTRL_TERMINATE | VIA_REG_CTRL_RESET);
+		udelay(50);
+		outportb(g_pci.base0 + VIA_REG_OFFSET_CONTROL, 0x00);
+		outportb(g_pci.base0 + VIA_REG_OFFSET_STATUS, 0xFF);
+		outportb(g_pci.base0 + VIA_REG_OFFSET_TYPE, 0x00);
+		outportl(g_pci.base0 + VIA_REG_OFFSET_CURR_PTR, 0);
+	}else{
+		outportb(g_pci.base0 + VIA_REG_MULTPLAY_CONTROL, VIA_REG_CTRL_TERMINATE);
+		udelay(50);
+		/* disable interrupts */
+		outportb(g_pci.base0 + VIA_REG_MULTPLAY_CONTROL, 0x00);
+		/* clear interrupts */
+		outportb(g_pci.base0 + VIA_REG_MULTPLAY_STATUS, 0x03);
 	}
-	outportl(via_sound_iobase + VIA_REG_OFFSET_CURR_PTR, 0);
 }
 
 static DWORD via686_current_pos(void)
@@ -1298,19 +1325,40 @@ static DWORD via686_current_pos(void)
 
 	w_enter_critical();
 	while(limit > 0){
-		d0 = inportl(g_pci.base0 + VIA_REG_OFFSET_CURR_PTR);
-		d1 = inportl(g_pci.base0 + VIA_REG_PLAYBACK_CURR_COUNT);
-		d2 = inportl(g_pci.base0 + VIA_REG_OFFSET_CURR_PTR);
+	   if(via686_device_type == DEVICE_VT82C686){
+			d0 = inportl(g_pci.base0 + VIA_REG_OFFSET_CURR_PTR);
+			d1 = inportl(g_pci.base0 + VIA_REG_PLAYBACK_CURR_COUNT);
+			d2 = inportl(g_pci.base0 + VIA_REG_OFFSET_CURR_PTR);
+		}else{
+			d0 = inportl(g_pci.base0 + VIA_REG_MULTPLAY_CURR_PTR);
+			d1 = inportl(g_pci.base0 + VIA_REG_MULTPLAY_CURR_COUNT);
+			d2 = inportl(g_pci.base0 + VIA_REG_MULTPLAY_CURR_PTR);
+		}
 		if(d0 == d2) break;
+
+		// the pointer of lookup table has been advanced while polling
+		// try again
 		limit -= 1;
 	}
 	w_exit_critical();
 
-	d0 = d0 - g_dosmem4k_phys_table[0];
-	d0 = d0 >> 3;
+
+	// g_dosmem4k_phys_table[0] is top address of lookup table of physical addresses for 4096 bytes blocks.
+	//
+	// *(g_dosmem4k_phys_table[0] +  0) physical address of 1st 4096 bytes block
+	// *(g_dosmem4k_phys_table[0] +  4) 0x00001000 (size of 1st block, always 4096)
+	// *(g_dosmem4k_phys_table[0] +  8) physical address of 2nd 4096 bytes block
+	// *(g_dosmem4k_phys_table[0] + 12) 0x00001000 (size of 2nd block, always 4096)
+	//									.
+	//									.
+	//									.
+
+	// compute playback cursor position
+	d0 = d0 - g_dosmem4k_phys_table[0]; 	// d0 is address of lookup table of playing cursor
+	d0 = d0 >> 3;							// current block number of playing cursor
 	d0 = d0 - 1;
-	d0 = (15 - d0) & 0x0F;
-	d0 = (d0 * 4096) + (d1 & 0x00FFFFFF);
+	d0 = (15 - d0) & 0x0F;					// the number of buffers is 16, for the cyclic buffer
+	d0 = (d0 * 4096) + (d1 & 0x00FFFFFF);	// d1 is byte offset of 4096 bytes block.
 	d0 = d0 & 0x0000FFFF;
 
 	return d0;
@@ -1480,16 +1528,6 @@ static BOOL via686_start(int rate, BOOL initialize)
 		d0 += 1;
 	}
 
-	/* set scatter/gather table pointer */
-	outportl(g_pci.base0 + VIA_REG_OFFSET_CURR_PTR, g_dosmem4k_phys_table[0]);
-
-	if(via686_device_type == DEVICE_VT82C686){
-		/* auto-start, 16bitpcm, stereo */
-		outportb(g_pci.base0 + VIA_REG_OFFSET_TYPE, 0xB0);
-	}else{
-		outportl(g_pci.base0 + VIA_REG_OFFSET_STOP_IDX,
-				VIA_REG_TYPE_16BIT | VIA_REG_TYPE_STEREO | 0xFF000000);
-	}
 	/* force playback rate 48000Hz */
 	data = via686_ReadAC97Codec(AC97_EXTENDED_ID);
 	if( (data & AC97_EA_VRA) != 0 ){
@@ -1499,11 +1537,36 @@ static BOOL via686_start(int rate, BOOL initialize)
 //	  via686_WriteAC97Codec(AC97_PCM_FRONT_DAC_RATE, 0x80BB);
 	udelay(100);
 
-	/* start playing */
 	if(via686_device_type == DEVICE_VT82C686){
+		/* VT82C686 */
+
+		/* set scatter/gather table pointer */
+		outportl(g_pci.base0 + VIA_REG_OFFSET_CURR_PTR, g_dosmem4k_phys_table[0]);
+
+		/* auto-start, 16bitpcm, stereo */
+		outportb(g_pci.base0 + VIA_REG_OFFSET_TYPE, 0xB0);
+
+		/* start playing */
 		outportb(g_pci.base0 + VIA_REG_OFFSET_CONTROL, VIA_REG_CTRL_START);
+
 	}else{
-		outportb(g_pci.base0 + VIA_REG_OFFSET_CONTROL, VIA_REG_CTRL_START | VIA_REG_CTRL_AUTOSTART);
+		/* VT8233 */
+
+		/* set scatter/gather table pointer */
+		outportl(g_pci.base0 + VIA_REG_MULTPLAY_TABLE_PTR, g_dosmem4k_phys_table[0]);
+
+		// stereo (2ch), 16bitpcm
+		data  = 2 << 4;
+		data |= VIA_REG_MULTPLAY_FMT_16BIT;
+		outportb(g_pci.base0 + VIA_REG_MULTPLAY_FORMAT, (BYTE)data);
+
+		// slot 2ch
+		data = (1<<0) | (2<<4);
+		/* STOP index is never reached */
+		outportl(g_pci.base0 + VIA_REG_MULTPLAY_STOP_IDX, 0xFF000000 | data);
+
+		/* start playing */
+		outportb(g_pci.base0 + VIA_REG_MULTPLAY_CONTROL, VIA_REG_CTRL_START | VIA_REG_CTRL_AUTOSTART);
 	}
 
 	wd.device_name	   = device_name_via686;

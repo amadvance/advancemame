@@ -249,14 +249,14 @@ static void menu_item_draw(int x, int y, int dx, int pos, adv_bool selected)
 		} else {
 			if (crtc->user_flags & MODE_FLAGS_USER_BIT0) {
 				tag = 'þ';
-				if (crtc_clock_check(&the_monitor, crtc)) {
+				if (crtc_is_fake(crtc) || crtc_clock_check(&the_monitor, crtc)) {
 					color = COLOR_MARK;
 				} else {
 					color = COLOR_MARK_BAD;
 				}
 			} else {
 				tag = ' ';
-				if (crtc_clock_check(&the_monitor, crtc)) {
+				if (crtc_is_fake(crtc) || crtc_clock_check(&the_monitor, crtc)) {
 					color = COLOR_NORMAL;
 				} else {
 					color = COLOR_BAD;
@@ -348,8 +348,12 @@ static void draw_text_info(int x, int y, int dx, int dy, int pos)
 	draw_text_left(x, y+2, dx, buffer[2], COLOR_INFO_NORMAL);
 
 	if (crtc) {
-		if (!crtc_clock_check(&the_monitor, crtc)) {
+		if (crtc_is_fake(crtc)) {
+			draw_text_left(x+dx-8, y, 8, " SYSTEM ", COLOR_INFO_NORMAL);
+		} else if (!crtc_clock_check(&the_monitor, crtc)) {
 			draw_text_left(x+dx-14, y, 14, " OUT OF RANGE ", COLOR_ERROR);
+		} else {
+			draw_text_left(x+dx-14, y, 14, " PROGRAMMABLE ", COLOR_INFO_NORMAL);
 		}
 	} else {
 		draw_text_fillrect(x, y, ' ', dx, dy, COLOR_INFO_NORMAL);
@@ -1066,7 +1070,7 @@ static adv_error cmd_onvideo_test(void)
 	if (!crtc)
 		return -1;
 
-	if (!crtc_clock_check(&the_monitor, crtc))
+	if (!crtc_is_fake(crtc) && !crtc_clock_check(&the_monitor, crtc))
 		return -1;
 
 	if (video_mode_generate(&mode, crtc, the_mode_index)!=0) {
@@ -1123,7 +1127,7 @@ static adv_error cmd_onvideo_test(void)
 				the_modes_modified = 1;
 				dirty = 1;
 
-				if (crtc_clock_check(&the_monitor, crtc)
+				if ((crtc_is_fake(crtc) || crtc_clock_check(&the_monitor, crtc))
 					&& video_mode_generate(&mode, crtc, the_mode_index)==0) {
 					if (text_mode_set(&mode) != 0) {
 						text_reset();
@@ -1168,7 +1172,7 @@ static adv_error cmd_onvideo_calib(void)
 	if (!crtc)
 		return -1;
 
-	if (!crtc_clock_check(&the_monitor, crtc))
+	if (!crtc_is_fake(crtc) && !crtc_clock_check(&the_monitor, crtc))
 		return -1;
 
 	if (video_mode_generate(&mode, crtc, the_mode_index)!=0) {
@@ -1222,7 +1226,7 @@ static adv_error cmd_onvideo_animate(void)
 	if (!crtc)
 		return -1;
 
-	if (!crtc_clock_check(&the_monitor, crtc))
+	if (!crtc_is_fake(crtc) && !crtc_clock_check(&the_monitor, crtc))
 		return -1;
 
 	if (video_mode_generate(&mode, crtc, the_mode_index)!=0) {
@@ -1977,7 +1981,7 @@ int os_main(int argc, char* argv[])
 	crtc_container_init(&selected);
 
 	/* insert modes */
-	crtc_container_insert_default_system(&selected);
+	crtc_container_insert_default_all(&selected);
 
 	/* sort */
 	crtc_container_init(&the_modes);

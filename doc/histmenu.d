@@ -1,4 +1,4 @@
-33;1R114RName
+Name
 	history - History For AdvanceMENU
 
 AdvanceMENU Version 2.2.12 2003/09

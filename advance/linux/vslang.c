@@ -97,7 +97,7 @@ adv_error slang_init(int device_id, adv_output output, unsigned zoom_size, adv_c
 	log_std(("video:slang: slang_init()\n"));
 
 	if (getenv("DISPLAY")) {
-		error_set("Unsupported in X. Try unsetting the DISPLAY environemnt variable.\n");
+		error_set("Unsupported in X. Try unsetting the DISPLAY environment variable.\n");
 		return -1;
 	}
 

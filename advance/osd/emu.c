@@ -717,12 +717,6 @@ int os_main(int argc, char* argv[])
 	advance_global_done(&context->global);
 	mame_done(context);
 
-	log_std(("advance: os_msg_done()\n"));
-
-	if (opt_log || opt_logsync) {
-		log_done();
-	}
-
 	log_std(("advance: os_done()\n"));
 
 	os_done();
@@ -735,6 +729,10 @@ int os_main(int argc, char* argv[])
 	}
 
 	log_std(("advance: conf_done()\n"));
+
+	if (opt_log || opt_logsync) {
+		log_done();
+	}
 
 	conf_done(config_context);
 
