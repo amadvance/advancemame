@@ -11,10 +11,10 @@ else
 ifeq ($(EMU),pac)
 EMUVERSION = 0.58.x
 else
-EMUVERSION = 0.61.1
+EMUVERSION = 0.61.2
 endif
 endif
-MENUVERSION = 1.19.1
+MENUVERSION = 1.19.2
 CABVERSION = 0.11.2
 
 ############################################################################
@@ -82,7 +82,7 @@ SYSTEMCFLAGS += \
 	-Iadvance/svgalib/ramdac \
 	-Iadvance/svgalib/drivers
 SYSTEMCFLAGS += \
-	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE \
+	-DUSE_VIDEO_SVGALINE -DUSE_VIDEO_VBELINE -DUSE_VIDEO_VGALINE -DUSE_VIDEO_VBE \
 	-DUSE_SOUND_ALLEGRO -DUSE_SOUND_SEAL -DUSE_SOUND_NONE
 SYSTEMLDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
 SYSTEMLIBS += -laudio -lalleg
@@ -211,11 +211,13 @@ ifneq ($(wildcard advance/osd),)
 INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
 INSTALL_DATAFILES += support/safequit.dat
 endif
+ifneq ($(HOST_SYSTEM),sdl)
 ifneq ($(wildcard advance/v),)
 INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
 endif
 ifneq ($(wildcard advance/cfg),)
 INSTALL_BINFILES += $(CFGOBJ)/advcfg$(EXE)
+endif
 endif
 ifneq ($(wildcard advance/s),)
 INSTALL_BINFILES += $(SOBJ)/advs$(EXE)
@@ -1156,7 +1158,7 @@ RCSRC = support/pcvga.rc support/pcsvga60.rc \
 
 advance/advmame.dif: src src.ori
 	find src \( -name "*.orig" -o -name "*.rej" -o -name "*~" -o -name "*.bak" \)
-	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" src.ori src > advance/advmame.dif
+	-diff -U 5 --new-file --recursive -x "msdos" -x "unix" -x "windows" -x "windowsui" -x "--linux-.---" -x "driver.c" src.ori src > advance/advmame.dif
 	ls -l advance/advmame.dif
 
 advance/advpac.dif: srcpac srcpac.ori

@@ -51,6 +51,12 @@
 /** Max framskip factor */
 #define SYNC_MAX 12
 
+/** Default monitor aspect ratio X */
+#define pc_aspect_ratio_x 4
+
+/** Default monitor aspect ratio Y */
+#define pc_aspect_ratio_y 3
+
 /***************************************************************************/
 /*
 	Description of the various coordinate systems and variables :
@@ -182,6 +188,10 @@ void advance_video_save(struct advance_video_context* context, const char* secti
 static int video_make_crtc(struct advance_video_context* context, video_crtc* crtc, const video_crtc* original_crtc)
 {
 	*crtc = *original_crtc;
+
+	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
+		return 0; /* always ok if driver is not programmable */
+	}
 
 	if ((context->config.adjust & ADJUST_ADJUST_X) != 0) {
 		unsigned best_size_x;
@@ -324,12 +334,24 @@ static int video_update_depthindex(struct advance_video_context* context) {
 		&& !context->config.rgb_flag;
 
 	if (context->config.depth == 0) {
-		if (mode_may_be_palette) {
-			bits_per_pixel = 8; /* for hardware palette */
+		/* get the video driver preferred bit depth */
+		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_8BIT) != 0) {
+			bits_per_pixel = 8;
+		} else if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_15BIT) != 0) {
+			bits_per_pixel = 15;
+		} else if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_16BIT) != 0) {
+			bits_per_pixel = 16;
+		} else if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_32BIT) != 0) {
+			bits_per_pixel = 32;
 		} else {
-			bits_per_pixel = context->state.game_bits_per_pixel;
+			if (mode_may_be_palette) {
+				bits_per_pixel = 8; /* for hardware palette */
+			} else {
+				bits_per_pixel = context->state.game_bits_per_pixel;
+			}
 		}
 	} else {
+		/* user choice */
 		bits_per_pixel = context->config.depth;
 	}
 
@@ -660,6 +682,9 @@ static void video_invalidate_color(struct advance_video_context* context)
 /**
  * Check if a modeline is acceptable.
  * The complete modeline processing is done.
+ * \return
+ *  - !=0 ok
+ *  - ==0 error
  */
 static int is_crtc_acceptable(struct advance_video_context* context, const video_crtc* crtc) {
 	video_mode mode;
@@ -684,10 +709,17 @@ static int is_crtc_acceptable(struct advance_video_context* context, const video
  * Check if a modeline is acceptable.
  * Only a partial processing is done. No information on the game are used.
  * This function is theorically equivalent at the is_crtc_acceptable function.
+ * \return
+ *  - !=0 ok
+ *  - ==0 error
  */
 static int is_crtc_acceptable_preventive(struct advance_video_context* context, const video_crtc* crtc) {
 	video_mode mode;
 	video_crtc temp_crtc = *crtc;
+
+	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0) {
+		return 1; /* always ok if the driver is not programmable */
+	}
 
 	if ((context->config.adjust & ADJUST_ADJUST_CLOCK) != 0) {
 		if (!crtc_clock_check(&context->config.monitor, &temp_crtc)) {
@@ -713,39 +745,46 @@ static int is_crtc_acceptable_preventive(struct advance_video_context* context, 
 }
 
 static void video_update_visible(struct advance_video_context* context, const video_crtc* crtc) {
-	unsigned factor_x;
-	unsigned factor_y;
-	unsigned screen_aspect_ratio_x;
-	unsigned screen_aspect_ratio_y;
-	unsigned arcade_aspect_ratio_x;
-	unsigned arcade_aspect_ratio_y;
 
 	assert( crtc );
 
-	screen_aspect_ratio_x = crtc_hsize_get(crtc) * pc_aspect_ratio_y;
-	screen_aspect_ratio_y = crtc_vsize_get(crtc) * pc_aspect_ratio_x;
-	video_aspect_reduce(&screen_aspect_ratio_x,&screen_aspect_ratio_y);
-
-	arcade_aspect_ratio_x = context->state.game_used_size_x * context->state.game_aspect_y;
-	arcade_aspect_ratio_y = context->state.game_used_size_y * context->state.game_aspect_x;
-	video_aspect_reduce(&arcade_aspect_ratio_x,&arcade_aspect_ratio_y);
-
-	factor_x = screen_aspect_ratio_x * arcade_aspect_ratio_x;
-	factor_y = screen_aspect_ratio_y * arcade_aspect_ratio_y;
-	video_aspect_reduce(&factor_x,&factor_y);
-
-	/* compute screen_visible size */
-	if (pc_aspect_ratio_x * arcade_aspect_ratio_y > arcade_aspect_ratio_x * pc_aspect_ratio_y) {
-		/* vertical game in horizontal screen */
-		context->state.mode_visible_size_y = crtc_vsize_get(crtc);
-		/* adjust to 8 pixel */
-		context->state.mode_visible_size_x = crtc_step( (double)context->state.mode_visible_size_y * factor_x / factor_y, 8);
-		if (context->state.mode_visible_size_x > crtc_hsize_get(crtc))
-			context->state.mode_visible_size_x = crtc_hsize_get(crtc);
-	} else {
-		/* orizontal game in vertical screen */
+	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)!=0) {
+		/* only for window manager drivers */
 		context->state.mode_visible_size_x = crtc_hsize_get(crtc);
-		context->state.mode_visible_size_y = context->state.mode_visible_size_x * factor_y / factor_x;
+		context->state.mode_visible_size_y = crtc_vsize_get(crtc);
+	} else {
+		unsigned factor_x;
+		unsigned factor_y;
+		unsigned screen_aspect_ratio_x;
+		unsigned screen_aspect_ratio_y;
+		unsigned arcade_aspect_ratio_x;
+		unsigned arcade_aspect_ratio_y;
+
+		screen_aspect_ratio_x = crtc_hsize_get(crtc) * pc_aspect_ratio_y;
+		screen_aspect_ratio_y = crtc_vsize_get(crtc) * pc_aspect_ratio_x;
+		video_aspect_reduce(&screen_aspect_ratio_x,&screen_aspect_ratio_y);
+
+		arcade_aspect_ratio_x = context->state.game_used_size_x * context->state.game_aspect_y;
+		arcade_aspect_ratio_y = context->state.game_used_size_y * context->state.game_aspect_x;
+		video_aspect_reduce(&arcade_aspect_ratio_x,&arcade_aspect_ratio_y);
+
+		factor_x = screen_aspect_ratio_x * arcade_aspect_ratio_x;
+		factor_y = screen_aspect_ratio_y * arcade_aspect_ratio_y;
+		video_aspect_reduce(&factor_x,&factor_y);
+
+		/* compute screen_visible size */
+		if (pc_aspect_ratio_x * arcade_aspect_ratio_y > arcade_aspect_ratio_x * pc_aspect_ratio_y) {
+			/* vertical game in horizontal screen */
+			context->state.mode_visible_size_y = crtc_vsize_get(crtc);
+			/* adjust to 8 pixel */
+			context->state.mode_visible_size_x = crtc_step( (double)context->state.mode_visible_size_y * factor_x / factor_y, 8);
+			if (context->state.mode_visible_size_x > crtc_hsize_get(crtc))
+				context->state.mode_visible_size_x = crtc_hsize_get(crtc);
+		} else {
+			/* orizontal game in vertical screen */
+			context->state.mode_visible_size_x = crtc_hsize_get(crtc);
+			context->state.mode_visible_size_y = context->state.mode_visible_size_x * factor_y / factor_x;
+		}
 	}
 
 	if (context->config.stretch == STRETCH_FRACTIONAL_XY) {
@@ -914,6 +953,12 @@ static int video_update_crtc(struct advance_video_context* context) {
 
 	context->state.crtc_selected = crtc;
 
+	{
+		char buffer[256];
+		video_crtc_print(buffer, crtc);
+		os_log(("advance:selected: modeline:\"%s\"\n", buffer));
+	}
+
 	return 0;
 }
 
@@ -960,45 +1005,6 @@ static const video_crtc* video_init_crtc_smaller_find(struct advance_video_conte
 	}
 
 	return best_crtc;
-}
-
-/**
- * Compute and insert in the main list an X size adjusted modeline.
- */
-static void video_init_crtc_make_adjustx(struct advance_video_context* context, const char* name, unsigned best_size_x, unsigned best_size_y, const video_crtc* original_crtc) {
-	char buffer[256];
-	video_crtc crtc;
-	unsigned x_factor;
-
-	double y_factor = crtc_vsize_get(original_crtc) / (double)best_size_y;
-	int y_factor_int = floor(y_factor + 0.5);
-	unsigned x_streched;
-	if (y_factor_int < 1)
-		y_factor_int = 1;
-
-	crtc = *original_crtc;
-	x_streched = best_size_x * y_factor_int;
-
-	for(x_factor=1;x_factor<5;++x_factor) {
-		crtc_hsize_set(&crtc,x_streched * x_factor);
-		if (monitor_pclock_min(&context->config.monitor) < crtc_pclock_get(&crtc))
-			break;
-	}
-
-	if (!crtc_clock_check(&context->config.monitor,&crtc))
-		return;
-
-	strcpy(crtc.name,name);
-
-	video_crtc_print(buffer,&crtc);
-	os_log(("advance:generate: modeline \"%s\"\n",buffer));
-
-	video_crtc_container_insert(&context->config.crtc_bag,&crtc);
-
-	if (context->config.stretch == STRETCH_FRACTIONAL_XY) {
-		os_log(("advance:video: fractional coverted in mixed because generate/adjustx is active\n"));
-		context->config.stretch = STRETCH_INTEGER_X_FRACTIONAL_Y;
-	}
 }
 
 /**
@@ -1062,6 +1068,25 @@ static const video_crtc* video_init_crtc_make_raster(struct advance_video_contex
 }
 
 /**
+ * Crete a fake video mode.
+ * The fake video modes are for exclusive use with video driver with a fake mode set,
+ * i.e. drivers for a window manager.
+ */
+static void video_init_crtc_make_fake(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y) {
+	char buffer[256];
+
+	video_crtc crtc;
+	crtc_fake_set(&crtc, size_x, size_y);
+
+	strcpy(crtc.name,name);
+	video_crtc_print(buffer,&crtc);
+
+	os_log(("advance:generate: fake \"%s\"\n",buffer));
+
+	video_crtc_container_insert(&context->config.crtc_bag,&crtc);
+}
+
+/**
  * Compute and insert in the main list a new modeline guessing the specified parameters.
  * This is mainly used for vector games.
  */
@@ -1121,12 +1146,8 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 	unsigned best_size_3y;
 	unsigned best_bits;
 	double best_vclock;
-	unsigned factor_x;
-	unsigned factor_y;
 	unsigned arcade_aspect_ratio_x;
 	unsigned arcade_aspect_ratio_y;
-
-	unsigned step_x;
 
 	if (context->config.adjust != ADJUST_NONE
 		&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0  /* not for programmable driver */
@@ -1188,103 +1209,110 @@ static int video_init_state(struct advance_video_context* context, struct osd_vi
 		context->state.game_colors = req->colors;
 	}
 
-	/* expand the arcade aspect ratio */
-	if (arcade_aspect_ratio_y * pc_aspect_ratio_x < pc_aspect_ratio_y * arcade_aspect_ratio_x) {
-		arcade_aspect_ratio_x *= 100;
-		arcade_aspect_ratio_y *= 100 * context->config.aspect_expansion_factor;
-		/* limit */
-		if (arcade_aspect_ratio_y * pc_aspect_ratio_x > pc_aspect_ratio_y * arcade_aspect_ratio_x) {
-			arcade_aspect_ratio_x = pc_aspect_ratio_x;
-			arcade_aspect_ratio_y = pc_aspect_ratio_y;
-		}
-	} else {
-		arcade_aspect_ratio_y *= 100;
-		arcade_aspect_ratio_x *= 100 * context->config.aspect_expansion_factor;
-		/* limit */
-		if (arcade_aspect_ratio_y * pc_aspect_ratio_x < pc_aspect_ratio_y * arcade_aspect_ratio_x) {
-			arcade_aspect_ratio_x = pc_aspect_ratio_x;
-			arcade_aspect_ratio_y = pc_aspect_ratio_y;
-		}
-	}
-
-	video_aspect_reduce(&arcade_aspect_ratio_x, &arcade_aspect_ratio_y);
-
-	/* compute the game aspect ratio */
-	context->state.game_aspect_x = context->state.game_used_size_x * arcade_aspect_ratio_y;
-	context->state.game_aspect_y = context->state.game_used_size_y * arcade_aspect_ratio_x;
-	video_aspect_reduce(&context->state.game_aspect_x, &context->state.game_aspect_y);
-
-	factor_x = pc_aspect_ratio_x * context->state.game_aspect_x;
-	factor_y = pc_aspect_ratio_y * context->state.game_aspect_y;
-	video_aspect_reduce(&factor_x, &factor_y);
-
-	os_log(("advance:video: best aspect factor %dx%d (expansion %g)\n", factor_x, factor_y, (double)context->config.aspect_expansion_factor));
-
-	/* Some video drivers have problem with 8 bit modes and */
-	/* not exactly a 16 pixel multiplier size */
-	/* Currently nVidia in doublescan mode */
-	step_x = 16; /* TODO the correct value is 8 */
-
-	/* compute the best mode */
-	if (pc_aspect_ratio_x * arcade_aspect_ratio_y > arcade_aspect_ratio_x * pc_aspect_ratio_y) {
+	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER) != 0) {
+		best_size_x = context->state.game_used_size_x;
 		best_size_y = context->state.game_used_size_y;
-		best_size_x = best_step((double)context->state.game_used_size_y * factor_x / factor_y, step_x);
-		best_size_2y = 2*context->state.game_used_size_y;
-		best_size_2x = best_step((double)2*context->state.game_used_size_y * factor_x / factor_y, step_x);
-		best_size_3y = 3*context->state.game_used_size_y;
-		best_size_3x = best_step((double)3*context->state.game_used_size_y * factor_x / factor_y, step_x);
+		best_size_2x = 2 * context->state.game_used_size_x;
+		best_size_2y = 2 * context->state.game_used_size_y;
+		best_size_3x = 3 * context->state.game_used_size_x;
+		best_size_3y = 3 * context->state.game_used_size_y;
+		best_bits = context->state.game_bits_per_pixel;
+		best_vclock = context->state.game_fps;
+
+		video_init_crtc_make_fake(context, "generate", best_size_x, best_size_y);
+		video_init_crtc_make_fake(context, "generate-double", best_size_2x, best_size_2y);
+		video_init_crtc_make_fake(context, "generate-triple", best_size_3x, best_size_3y);
 	} else {
-		best_size_x = best_step(context->state.game_used_size_x, step_x);
-		best_size_y = context->state.game_used_size_x * factor_y / factor_x;
-		best_size_2x = best_step(2*context->state.game_used_size_x, step_x);
-		best_size_2y = 2*context->state.game_used_size_x * factor_y / factor_x;
-		best_size_3x = best_step(3*context->state.game_used_size_x, step_x);
-		best_size_3y = 3*context->state.game_used_size_x * factor_y / factor_x;
+		unsigned factor_x;
+		unsigned factor_y;
+		unsigned step_x;
+
+		/* if the clock is programmable the monitor specification must be present */
+		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+			if (monitor_is_empty(&context->config.monitor)) {
+				fprintf(stderr,"Missing options `device_video_p/h/vclock'\n");
+				fprintf(stderr,"Please read the file `install.txt' and `mv.txt'\n");
+				return -1;
+			}
+		}
+
+		/* expand the arcade aspect ratio */
+		if (arcade_aspect_ratio_y * pc_aspect_ratio_x < pc_aspect_ratio_y * arcade_aspect_ratio_x) {
+			arcade_aspect_ratio_x *= 100;
+			arcade_aspect_ratio_y *= 100 * context->config.aspect_expansion_factor;
+			/* limit */
+			if (arcade_aspect_ratio_y * pc_aspect_ratio_x > pc_aspect_ratio_y * arcade_aspect_ratio_x) {
+				arcade_aspect_ratio_x = pc_aspect_ratio_x;
+				arcade_aspect_ratio_y = pc_aspect_ratio_y;
+			}
+		} else {
+			arcade_aspect_ratio_y *= 100;
+			arcade_aspect_ratio_x *= 100 * context->config.aspect_expansion_factor;
+			/* limit */
+			if (arcade_aspect_ratio_y * pc_aspect_ratio_x < pc_aspect_ratio_y * arcade_aspect_ratio_x) {
+				arcade_aspect_ratio_x = pc_aspect_ratio_x;
+				arcade_aspect_ratio_y = pc_aspect_ratio_y;
+			}
+		}
+
+		video_aspect_reduce(&arcade_aspect_ratio_x, &arcade_aspect_ratio_y);
+
+		/* compute the game aspect ratio */
+		context->state.game_aspect_x = context->state.game_used_size_x * arcade_aspect_ratio_y;
+		context->state.game_aspect_y = context->state.game_used_size_y * arcade_aspect_ratio_x;
+		video_aspect_reduce(&context->state.game_aspect_x, &context->state.game_aspect_y);
+
+		factor_x = pc_aspect_ratio_x * context->state.game_aspect_x;
+		factor_y = pc_aspect_ratio_y * context->state.game_aspect_y;
+		video_aspect_reduce(&factor_x, &factor_y);
+
+		os_log(("advance:video: best aspect factor %dx%d (expansion %g)\n", factor_x, factor_y, (double)context->config.aspect_expansion_factor));
+
+		/* Some video drivers have problem with 8 bit modes and */
+		/* not exactly a 16 pixel multiplier size */
+		/* Currently nVidia in doublescan mode */
+		step_x = 16; /* TODO the correct value is 8 */
+
+		/* compute the best mode */
+		if (pc_aspect_ratio_x * arcade_aspect_ratio_y > arcade_aspect_ratio_x * pc_aspect_ratio_y) {
+			best_size_y = context->state.game_used_size_y;
+			best_size_x = best_step((double)context->state.game_used_size_y * factor_x / factor_y, step_x);
+			best_size_2y = 2*context->state.game_used_size_y;
+			best_size_2x = best_step((double)2*context->state.game_used_size_y * factor_x / factor_y, step_x);
+			best_size_3y = 3*context->state.game_used_size_y;
+			best_size_3x = best_step((double)3*context->state.game_used_size_y * factor_x / factor_y, step_x);
+		} else {
+			best_size_x = best_step(context->state.game_used_size_x, step_x);
+			best_size_y = context->state.game_used_size_x * factor_y / factor_x;
+			best_size_2x = best_step(2*context->state.game_used_size_x, step_x);
+			best_size_2y = 2*context->state.game_used_size_x * factor_y / factor_x;
+			best_size_3x = best_step(3*context->state.game_used_size_x, step_x);
+			best_size_3y = 3*context->state.game_used_size_x * factor_y / factor_x;
+		}
+		best_bits = context->state.game_bits_per_pixel;
+		best_vclock = context->state.game_fps;
+
+		if ((context->config.adjust & ADJUST_GENERATE) != 0
+			&& !context->state.game_vector_flag /* nonsense for vector games */
+			&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0 /* only for programmable driver */
+			&& context->config.interpolate.mac > 0
+		) {
+			const video_crtc* crtc;
+			crtc = video_init_crtc_make_raster(context, "generate",best_size_x, best_size_y, best_vclock, 0, 0);
+			if (!crtc || !crtc_is_singlescan(crtc))
+				video_init_crtc_make_raster(context, "generate-scanline",best_size_x, best_size_y, best_vclock, 1, 0);
+			if (!crtc || !crtc_is_interlace(crtc))
+				video_init_crtc_make_raster(context, "generate-interlace",best_size_x, best_size_y, best_vclock, 0, 1);
+			crtc = video_init_crtc_make_raster(context, "generate-double",best_size_2x, best_size_2y, best_vclock, 0, 0);
+			if (!crtc || !crtc_is_singlescan(crtc))
+				video_init_crtc_make_raster(context, "generate-double-scanline",best_size_2x, best_size_2y, best_vclock, 1, 0);
+			if (!crtc || !crtc_is_interlace(crtc))
+				video_init_crtc_make_raster(context, "generate-double-interlace",best_size_2x, best_size_2y, best_vclock, 0, 1);
+			video_init_crtc_make_raster(context, "generate-triple",best_size_3x, best_size_3y, best_vclock, 0, 0);
+		}
 	}
-	best_bits = context->state.game_bits_per_pixel;
-	best_vclock = context->state.game_fps;
 
 	os_log(("advance:video: best mode %dx%d, mode2x %dx%d, mode3x %dx%d, bits_per_pixel %d, vclock %g\n",best_size_x,best_size_y,best_size_2x,best_size_2y,best_size_3x,best_size_3y,best_bits,(double)best_vclock));
-
-#if 0
-	/* create some modelines */
-	if ((context->config.adjust & ADJUST_ADJUST_X) != 0
-		&& !context->state.game_vector_flag /* nonsense for vector games */
-		&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0 /* only for programmable driver */
-	) {
-		const video_crtc* best_crtc = 0;
-		/* search the nearest video mode */
-		best_crtc = video_init_crtc_bigger_find(context, best_size_y);
-		if (!best_crtc)
-			best_crtc = video_init_crtc_smaller_find(context, best_size_y);
-		if (best_crtc)
-			video_init_crtc_make_adjustx(context, "generate",best_size_x, best_size_y, best_crtc);
-		best_crtc = video_init_crtc_bigger_find(context, best_size_2y);
-		if (!best_crtc)
-			best_crtc = video_init_crtc_smaller_find(context, best_size_2y);
-		if (best_crtc)
-			video_init_crtc_make_adjustx(context, "generate-double", best_size_2x, best_size_2y, best_crtc);
-	}
-#endif
-
-	if ((context->config.adjust & ADJUST_GENERATE) != 0
-		&& !context->state.game_vector_flag /* nonsense for vector games */
-		&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0 /* only for programmable driver */
-		&& context->config.interpolate.mac > 0
-	) {
-		const video_crtc* crtc;
-		crtc = video_init_crtc_make_raster(context, "generate",best_size_x, best_size_y, best_vclock, 0, 0);
-		if (!crtc || !crtc_is_singlescan(crtc))
-			video_init_crtc_make_raster(context, "generate-scanline",best_size_x, best_size_y, best_vclock, 1, 0);
-		if (!crtc || !crtc_is_interlace(crtc))
-			video_init_crtc_make_raster(context, "generate-interlace",best_size_x, best_size_y, best_vclock, 0, 1);
-		crtc = video_init_crtc_make_raster(context, "generate-double",best_size_2x, best_size_2y, best_vclock, 0, 0);
-		if (!crtc || !crtc_is_singlescan(crtc))
-			video_init_crtc_make_raster(context, "generate-double-scanline",best_size_2x, best_size_2y, best_vclock, 1, 0);
-		if (!crtc || !crtc_is_interlace(crtc))
-			video_init_crtc_make_raster(context, "generate-double-interlace",best_size_2x, best_size_2y, best_vclock, 0, 1);
-		video_init_crtc_make_raster(context, "generate-triple",best_size_3x, best_size_3y, best_vclock, 0, 0);
-	}
 
 	if (context->state.game_vector_flag) {
 		context->config.stretch = STRETCH_NONE;
@@ -2862,8 +2890,13 @@ static int video_config_mode(struct advance_video_context* context, struct mame_
 	/* insert some default modeline if no generate option is present and the modeline set is empty */
 	if ((context->config.adjust & ADJUST_GENERATE) == 0
 		&& video_crtc_container_is_empty(&context->config.crtc_bag)) {
-		video_crtc_container_insert_default_modeline_svga(&context->config.crtc_bag);
-		video_crtc_container_insert_default_modeline_vga(&context->config.crtc_bag);
+
+		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
+			video_crtc_container_insert_default_modeline_svga(&context->config.crtc_bag);
+			video_crtc_container_insert_default_modeline_vga(&context->config.crtc_bag);
+		} else {
+			video_crtc_container_insert_default_system(&context->config.crtc_bag);
+		}
 	}
 
 	/* set the debugger size */
@@ -2891,7 +2924,7 @@ static int video_config_mode(struct advance_video_context* context, struct mame_
 		mode_size_y = 480;
 
 		if ((context->config.adjust & ADJUST_GENERATE) != 0
-			&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0
+			&& (video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0 /* only for programmable driver */
 			&& context->config.interpolate.mac > 0
 		) {
 			/* insert the default mode for vector games */
@@ -3068,20 +3101,19 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 		fprintf(stderr,"Please read the file `install.txt' and `mv.txt'\n");
 		return -1;
 	}
-	if (err>0) {
-		fprintf(stderr,"%s\n", video_error_description_get());
-		fprintf(stderr,"Please read the file `install.txt' and `mv.txt'\n");
-		return -1;
+	if (err == 0) {
+		/* print the clock ranges */
+		os_log(("advance:video: pclock %.3f - %.3f\n",(double)context->config.monitor.pclock.low,(double)context->config.monitor.pclock.high));
+		for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i)
+			if (context->config.monitor.hclock[i].low)
+				os_log(("advance:video: hclock %.3f - %.3f\n",(double)context->config.monitor.hclock[i].low,(double)context->config.monitor.hclock[i].high));
+		for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i)
+			if (context->config.monitor.vclock[i].low)
+				os_log(("advance:video: vclock %.3f - %.3f\n",(double)context->config.monitor.vclock[i].low,(double)context->config.monitor.vclock[i].high));
 	}
-
-	/* print the clock ranges */
-	os_log(("advance:video: pclock %.3f - %.3f\n",(double)context->config.monitor.pclock.low,(double)context->config.monitor.pclock.high));
-	for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i)
-		if (context->config.monitor.hclock[i].low)
-			os_log(("advance:video: hclock %.3f - %.3f\n",(double)context->config.monitor.hclock[i].low,(double)context->config.monitor.hclock[i].high));
-	for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i)
-		if (context->config.monitor.vclock[i].low)
-			os_log(("advance:video: vclock %.3f - %.3f\n",(double)context->config.monitor.vclock[i].low,(double)context->config.monitor.vclock[i].high));
+	if (err > 0) {
+		monitor_reset(&context->config.monitor);
+	}
 
 	/* load generate_linear config */
 	err = generate_interpolate_load(cfg_context, &context->config.interpolate);

@@ -41,5 +41,6 @@ EXAMPLES
 
 		device=c:\mame\portio.exe lpt1 ff
 
-VERSION
-	2001/11/28 - Andrea Mazzoleni - First revision
+COPYRIGHT
+	Copyright (C) 2001 Andrea Mazzoleni
+

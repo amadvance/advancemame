@@ -41,6 +41,7 @@ extern "C" {
 #include <assert.h>
 
 #include "crtc.h"
+#include "crtcbag.h"
 
 /***************************************************************************/
 /* Option */
@@ -402,6 +403,13 @@ static __inline__ unsigned video_driver_vector_max(void) {
 
 static __inline__ video_driver* video_driver_vector_pos(unsigned i) {
 	return video_state.driver_map[i];
+}
+
+static __inline__ void video_crtc_container_insert_default_system(video_crtc_container* cc) {
+	if (video_driver_vector_max() > 0
+		&& video_driver_vector_pos(0)->crtc_container_insert_default) {
+		video_driver_vector_pos(0)->crtc_container_insert_default(cc);
+	}
 }
 
 #ifdef __cplusplus

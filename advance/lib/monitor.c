@@ -30,6 +30,12 @@
 
 #include "monitor.h"
 
+#include <string.h>
+
+void monitor_reset(video_monitor* monitor) {
+	memset(monitor, 0, sizeof(video_monitor));
+}
+
 video_bool monitor_is_empty(const video_monitor* monitor) {
 	int i;
 	for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i)

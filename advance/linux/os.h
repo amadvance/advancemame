@@ -31,6 +31,10 @@
 #ifndef __OS_H
 #define __OS_H
 
+#ifdef __MSDOS__
+#error The Linux system is not supported by the DOS target
+#endif
+
 #include "conf.h"
 
 #include <vga.h>

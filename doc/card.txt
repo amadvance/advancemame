@@ -156,7 +156,7 @@ FB
 	It supports all the video board supported by your Linux
 	Kernel.
 
-VERSION
-	2001/11/28 - Andrea Mazzoleni - First revision
-	2001/12/10 - Randy Schnedler - Minor edits
+COPYRIGHT
+	Copyright (C) 2001 Andrea Mazzoleni
+	Copyright (C) 2001 Randy Schnedler
 

@@ -14,6 +14,6 @@ DESCRIPTION
 	Check the `advmame.txt' file for the description of the
 	`device_joystick' option.
 
-VERSION
-	2001/12/15 - Andrea Mazzoleni - First revision
+COPYRIGHT
+	Copyright (C) 2002 Andrea Mazzoleni
 

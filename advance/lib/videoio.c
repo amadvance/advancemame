@@ -546,7 +546,7 @@ video_error monitor_load(struct conf_context* context, video_monitor* monitor) {
 	v_present = conf_string_get(context,"device_video_vclock",&v);
 
 	if (p_present!=0 && h_present!=0 && v_present!=0) {
-		memset(monitor,sizeof(video_monitor),0);
+		monitor_reset(monitor);
 		video_error_description_set("Missing options 'device_video_p/h/vclock'");
 		return 1;
 	}
@@ -758,6 +758,7 @@ video_error generate_interpolate_load(struct conf_context* context, video_genera
 	}
 
 	if (!mac) {
+		generate_interpolate_reset(interpolate);
 		video_error_description_set("Missing 'device_video_format' specification");
 		return 1;
 	}

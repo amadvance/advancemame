@@ -88,6 +88,8 @@ void generate_default_lcd(video_generate* generate);
 void generate_normalize(video_generate* generate);
 void generate_interpolate_h(video_generate* monitor, unsigned hclock, const video_generate_interpolate_set* interpolate);
 
+void generate_interpolate_reset(video_generate_interpolate_set* interpolate);
+video_bool generate_interpolate_is_empty(const video_generate_interpolate_set* interpolate);
 video_error generate_parse(video_generate* generate, const char* g);
 video_error generate_interpolate_load(struct conf_context* context, video_generate_interpolate_set* interpolate);
 void generate_interpolate_save(struct conf_context* context, const video_generate_interpolate_set* interpolate);

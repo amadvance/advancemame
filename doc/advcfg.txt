@@ -38,5 +38,6 @@ OPTIONS
 		Select the bit depth of the test video modes.
 		If omitted the 8 bit modes are used.
 
-VERSION
-	2002/04/20 - Andrea Mazzoleni - Created
+COPYRIGHT
+	Copyright (C) 2002 Andrea Mazzoleni
+

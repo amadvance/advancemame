@@ -293,7 +293,6 @@ GPL FAQ
 	Adding this exception eliminates the legal issue, ...
 	-- GPL FAQ --
 
-VERSION
-	2002/01/03 - Andrea Mazzoleni - First revision
-	2002/03/20 - Andrea Mazzoleni - Revision and additions
+COPYRIGHT
+	Copyright (C) 2002 Andrea Mazzoleni
 

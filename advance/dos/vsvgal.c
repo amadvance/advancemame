@@ -862,6 +862,7 @@ video_driver video_svgaline_driver = {
 	0,
 	svgaline_mode_generate_void,
 	svgaline_mode_import_void,
-	svgaline_mode_compare_void
+	svgaline_mode_compare_void,
+	0
 };
 

@@ -35,33 +35,42 @@
 #include "device.h"
 #include "conf.h"
 #include "crtc.h"
+#include "crtcbag.h"
 #include "mode.h"
 
 /***************************************************************************/
 /* Driver */
 
 /* Flags for driver */
-#define VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT 0x1 /**< Support 8 bit modes */
-#define VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT 0x2 /**< Support 15 bit modes */
-#define VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT 0x4 /**< Support 16 bit modes */
-#define VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT 0x8 /**< Support 24 bit modes */
-#define VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT 0x10 /**< Support 32 bit modes */
+#define VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT 0x1 /**< Support 8 bit modes. */
+#define VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT 0x2 /**< Support 15 bit modes. */
+#define VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT 0x4 /**< Support 16 bit modes. */
+#define VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT 0x8 /**< Support 24 bit modes. */
+#define VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT 0x10 /**< Support 32 bit modes. */
 #define VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL (VIDEO_DRIVER_FLAGS_MODE_GRAPH_8BIT | VIDEO_DRIVER_FLAGS_MODE_GRAPH_15BIT | VIDEO_DRIVER_FLAGS_MODE_GRAPH_16BIT | VIDEO_DRIVER_FLAGS_MODE_GRAPH_24BIT | VIDEO_DRIVER_FLAGS_MODE_GRAPH_32BIT)
-#define VIDEO_DRIVER_FLAGS_MODE_TEXT 0x20 /**< Support text mode */
-#define VIDEO_DRIVER_FLAGS_MODE_MASK 0xFF /**< Mask for the MODE flags */
+#define VIDEO_DRIVER_FLAGS_MODE_TEXT 0x20 /**< Support text mode. */
+#define VIDEO_DRIVER_FLAGS_MODE_MASK 0xFF /**< Mask for the VIDEO_DRIVER_FLAGS_MODE_* flags. */
 
-#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN 0x100 /**< Single scan mode */
-#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN 0x200 /**< Double scan mode */
-#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE 0x400 /**< Interlaced modes */
-#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK 0x800 /**< Programmable clock */
-#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC 0x1000 /**< Programmable size */
-#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL 0x2000 /**< Output TV-PAL */
-#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC 0x4000 /**< Output TV-NTSC */
+#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN 0x100 /**< Single scan mode. */
+#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN 0x200 /**< Double scan mode. */
+#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE 0x400 /**< Interlaced modes. */
+#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK 0x800 /**< Programmable clock. */
+#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC 0x1000 /**< Programmable size. */
+#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL 0x2000 /**< Output TV-PAL. */
+#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC 0x4000 /**< Output TV-NTSC. */
 #define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL (VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC)
-#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK 0xFF00
+#define VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK 0xFF00 /**< Mask for the VIDEO_DRIVER_FLAGS_PROGRAMMABLE_* flags. */
 
-#define VIDEO_DRIVER_FLAGS_USER_BIT0 0x10000
-#define VIDEO_DRIVER_FLAGS_USER_MASK 0xFFFF0000
+#define VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_8BIT 0x10000 /**< 8 bit depth is the preferred choice. */
+#define VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_15BIT 0x20000 /**< 15 bit depth is the preferred choice. */
+#define VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_16BIT 0x40000 /**< 16 bit depth is the preferred choice. */
+#define VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_24BIT 0x80000 /**< 24 bit depth is the preferred choice. */
+#define VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_32BIT 0x100000 /**< 32 bit depth is the preferred choice. */
+#define VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER 0x200000 /**< If is a Window Manager environment. */
+#define VIDEO_DRIVER_FLAGS_INFO_MASK 0xFF0000 /**< Mask for the VIDEO_DRIVER_FLAGS_INFO_* flags. */
+
+#define VIDEO_DRIVER_FLAGS_USER_BIT0 0x1000000
+#define VIDEO_DRIVER_FLAGS_USER_MASK 0xFF000000
 
 struct video_driver_struct {
 	const char* name; /**< Name of the main driver */
@@ -108,6 +117,9 @@ struct video_driver_struct {
 	video_error (*mode_generate)(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
 	video_error (*mode_import)(video_mode* mode, const void* driver_mode);
 	int (*mode_compare)(const void* a, const void* b);
+
+	/** Insert a set of default modelines */
+	void (*crtc_container_insert_default)(video_crtc_container* cc);
 };
 
 typedef struct video_driver_struct video_driver;

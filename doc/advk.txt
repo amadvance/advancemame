@@ -16,7 +16,8 @@ DESCRIPTION
 	Check the `advmame.txt' file for the description of the
 	`device_keyboard' option.
 
-VERSION
-	2001/11/28 - Andrea Mazzoleni - First revision
-	2001/12/08 - Filipe Estima - Second revision
-	2002/01/14 - Randy Schnedler - Minor edits
+COPYRIGHT
+	Copyright (C) 2001 Andrea Mazzoleni
+	Copyright (C) 2001 Filipe Estima
+	Copyright (C) 2002 Randy Schnedler
+

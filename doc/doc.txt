@@ -50,5 +50,6 @@ NEXT SECTION TITLE
 
 		advancemame-devel@lists.sourceforge.net
 
-VERSION
-	2001/11/28 - Andrea Mazzoleni - First revision
+COPYRIGHT
+	Copyright (C) 2001 Andrea Mazzoleni
+

@@ -3,7 +3,7 @@
 #
 
 #############################################################################
-# Basic configuration (change options only in this section)
+# Basic configuration
 #
 
 # Installation prefix (only for Linux):
@@ -44,14 +44,40 @@ USE_SMP=1
 #HOST_TARGET=linux
 #HOST_TARGET=dos
 
-# Uncomment the system main library to use.
-# The available choices for Linux are : (default is linux)
-#   linux, sdl
-# The available choices for DOS are : (default is dos)
-#   dos
-#HOST_SYSTEM=sdl
+# Uncomment the main system library to use.
+# The available choices for Linux are :
+#   linux, sdl (default is linux)
+# The available choices for DOS are :
+#   dos (default is dos)
+#
+# The dos system uses:
+#   SVGALIB, VESAtweak and VGAtweak for the graphics output
+#   VGAtweak for the text output
+#   SEAL and Allegro for the sound output
+#   Allegro for the input
+# This system is able to directly access and completly control the graphics
+# output of your video board.
+#
+# The linux system uses:
+#   SVGALIB for the graphics output
+#   SLang for the text output
+#   OSS for the sound output
+#   SVGALIB for the input
+# This system is able to directly access and completly control the graphics
+# output of your video board.
+#
+# The sdl system uses:
+#   SDL for the graphics output
+#   none for the text output (no text mode programs available)
+#   SDL for the sound output
+#   SDL for the input
+# This system can be used to show the programs in a Window Manager, but
+# it's unable to completly control the graphics output. It isn't a good
+# choice for a fullscreen use of the programs.
+#
 #HOST_SYSTEM=linux
 #HOST_SYSTEM=dos
+#HOST_SYSTEM=sdl
 
 # Compilation option for the optimized build
 CFLAGS_OPTIMIZE = -O3 -fomit-frame-pointer -fstrict-aliasing
@@ -72,10 +98,11 @@ CFLAGS_DEBUG = -O0
 #MAP=1
 
 # Uncomment to compress the executable:
-#COMPRESS=1
+COMPRESS=1
 
 #############################################################################
 # System options
+#
 
 # Build environment
 HOST := $(shell uname)

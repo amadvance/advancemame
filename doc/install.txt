@@ -1,13 +1,33 @@
 FIRST TIME CONFIGURATION
-	AdvanceMAME supports two basic mode of operation: the
-	automatic and the manual mode.
+	AdvanceMAME has the ability to directly control your video
+	board to get the best possibile video modes with always the
+	correct size and aspect ratio.
 
-	The automatic mode is the simplest and should get the best
-	results.
-	
-	The manual mode gives to you the total control on which video
-	modes are used. This mode of operation should be used only
-	if the automatic mode doesn't work.
+	To made it possible it needs some information on your monitor
+	capability in the form of the supported pixel, horizontal and
+	vertical clocks.
+
+	With these info AdvanceMAME is able to always generate a
+	`perfect' video mode for the emulated game.
+
+	AdvanceMAME supports two basic way to generated video modes:
+	the automatic and the manual operation mode.
+
+	In the automatic mode AdvanceMAME always automatically generate
+	a video mode from scratch. It's the simplest mode of operation.
+
+	In the manual mode AdvanceMAME picks the video mode from a
+	predefined list of modelines, eventually adjsting them to match
+	the game clock or size requirements.
+	This mode of operation should be used only if the automatic mode
+	doesn't work.
+
+	If you are using the special `sdl' or `vbe' video drivers,
+	AdvanceMAME isn't able to create or adjust video modes. In this
+	case you don't need to configure anything because AdvanceMAME
+	can use only the video modes which your system reports as available.
+	These drivers are only indicated to use AdvanceMAME or AdvanceMENU
+	in a Window Manager system.
 
 AUTOMATIC OPERATION MODE
 	In the automatic operation mode AdvanceMAME automatically
@@ -32,44 +52,6 @@ AUTOMATIC OPERATION MODE
 		device_video_hclock ?
 		device_video_vclock ?
 		device_video_format ?
-
-TROUBLESHOTTING
-	) Delete any old configuration files and restart from scratch.
-
-	) If you are using a PC Multisync monitor and the image is
-	instable or the monitor automatically switch off, you have
-	probably entered wrong clock values.
-	Try with a shorter horizontal clock range and check your
-	monitor manual.
-	Try for example with:
-
-		device_video_hclock 31 - 50
-
-	) If you are using an Arcade Monitor/TV and the image is
-	instable try increasing the lower pclock limit.
-	Try for example with:
-
-		device_video_pclock 12 - 50
-
-	) In DOS try forcing the use of the `vbeline' driver instead of the
-	`svgaline' driver with the option:
-
-		device_video vbeline vgaline
-
-	) In DOS, if your board has a VESA VBE 3.0 BIOS, try forcing the
-	`vbeline/vbe3' driver with the options:
-
-		device_video vbeline/vbe3 vgaline
-
-	) In DOS try changing the `vbeline_mode' option:
-
-		device_video vbeline vgaline
-		device_vbeline_mode smaller
-
-	) In Linux try forcing the use of the `fb' driver instead of the
-	`svgalib' driver with the option:
-
-		device_video fb slang
 
 MANUAL OPERATION MODE
 	In the manual operation mode AdvanceMAME scan a list of `good'
@@ -158,5 +140,44 @@ MANUAL OPERATION MODE
 
 	) Run `advmame' or the front-end `advmenu'
 
-VERSION
-	2001/11/28 - Andrea Mazzoleni - First revision
+TROUBLESHOTTING
+	) Delete any old configuration files and restart from scratch.
+
+	) If you are using a PC Multisync monitor and the image is
+	instable or the monitor automatically switch off, you have
+	probably entered wrong clock values.
+	Try with a shorter horizontal clock range and check your
+	monitor manual.
+	Try for example with:
+
+		device_video_hclock 31 - 50
+
+	) If you are using an Arcade Monitor/TV and the image is
+	instable try increasing the lower pclock limit.
+	Try for example with:
+
+		device_video_pclock 12 - 50
+
+	) In DOS try forcing the use of the `vbeline' driver instead of the
+	`svgaline' driver with the option:
+
+		device_video vbeline vgaline
+
+	) In DOS, if your board has a VESA VBE 3.0 BIOS, try forcing the
+	`vbeline/vbe3' driver with the options:
+
+		device_video vbeline/vbe3 vgaline
+
+	) In DOS try changing the `vbeline_mode' option:
+
+		device_video vbeline vgaline
+		device_vbeline_mode smaller
+
+	) In Linux try forcing the use of the `fb' driver instead of the
+	`svgalib' driver with the option:
+
+		device_video fb slang
+
+COPYRIGHT
+	Copyright (C) 2001 Andrea Mazzoleni
+

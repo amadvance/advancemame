@@ -100,9 +100,22 @@ video_bool sdl_mode_is_active(void) {
 }
 
 unsigned sdl_flags(void) {
-	return VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
+	const SDL_VideoInfo* info;
+	unsigned flags = VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL;
+
+	info = SDL_GetVideoInfo();
+
+	if (info->wm_available) {
+		flags |= VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER;
+		switch (info->vfmt->BitsPerPixel) {
+			case 8 : flags |= VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_8BIT; break;
+			case 15 : flags |= VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_15BIT; break;
+			case 16 : flags |= VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_16BIT; break;
+			case 32 : flags |= VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_32BIT; break;
+		}
+	}
+
+	return flags;
 }
 
 static unsigned char* sdl_linear_write_line(unsigned y) {
@@ -123,15 +136,42 @@ void sdl_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y) 
 	SDL_UpdateRect(sdl_state.surface, x, y, size_x, size_y);
 }
 
+static unsigned SDL_ModeFlags(void) {
+	unsigned flags;
+
+	if ((sdl_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER) != 0) {
+		/* use a window if a window manager is present */
+		flags = 0;
+	} else {
+		/* use fullscreen direct access otherwise */
+		flags = SDL_FULLSCREEN | SDL_HWSURFACE;
+	}
+
+	return flags;
+}
+
 video_error sdl_mode_set(const sdl_video_mode* mode) {
+	const SDL_VideoInfo* info;
+
 	assert( sdl_is_active() );
 	assert( !sdl_mode_is_active() );
 
-	unsigned flags = SDL_HWSURFACE;
-
 	os_log(("video:sdl: sdl_mode_set()\n"));
 
-	sdl_state.surface = SDL_SetVideoMode(mode->size_x, mode->size_y, mode->bits_per_pixel, flags);
+	info = SDL_GetVideoInfo();
+
+	video_log("video:sdl: video hw_available:%d\n", (unsigned)info->hw_available);
+	video_log("video:sdl: video wm_available:%d\n", (unsigned)info->wm_available);
+	video_log("video:sdl: video blit_hw:%d\n", (unsigned)info->blit_hw);
+	video_log("video:sdl: video blit_hw_CC:%d\n", (unsigned)info->blit_hw_CC);
+	video_log("video:sdl: video blit_hw_A:%d\n", (unsigned)info->blit_hw_A);
+	video_log("video:sdl: video blit_sw:%d\n", (unsigned)info->blit_sw);
+	video_log("video:sdl: video blit_sw_CC:%d\n", (unsigned)info->blit_sw_CC);
+	video_log("video:sdl: video blit_sw_A:%d\n", (unsigned)info->blit_sw_A);
+	video_log("video:sdl: video blit_fill:%d\n", (unsigned)info->blit_fill);
+	video_log("video:sdl: video video_mem:%d\n", (unsigned)info->video_mem);
+
+	sdl_state.surface = SDL_SetVideoMode(mode->size_x, mode->size_y, mode->bits_per_pixel, SDL_ModeFlags() );
 	if (!sdl_state.surface) {
 		os_log(("video:sdl: SDL_SetVideoMode(%d,%d,%d,SDL_HWSURFACE) failed, %s\n", mode->size_x, mode->size_y, mode->bits_per_pixel, SDL_GetError()));
 		return -1;
@@ -146,29 +186,29 @@ video_error sdl_mode_set(const sdl_video_mode* mode) {
 
 	video_log("video:sdl: surface %dx%dx%d\n", (unsigned)sdl_state.surface->w, (unsigned)sdl_state.surface->h, (unsigned)sdl_state.surface->format->BitsPerPixel);
 	if ((sdl_state.surface->flags & SDL_SWSURFACE) != 0)
-		video_log("video:sdl: surface SDL_SWSURFACE\n");
+		video_log("video:sdl: surface flag SDL_SWSURFACE\n");
 	if ((sdl_state.surface->flags & SDL_HWSURFACE) != 0)
-		video_log("video:sdl: surface SDL_HWSURFACE\n");
+		video_log("video:sdl: surface flag SDL_HWSURFACE\n");
 	if ((sdl_state.surface->flags & SDL_ASYNCBLIT) != 0)
-		video_log("video:sdl: surface SDL_ASYNCBLIT\n");
+		video_log("video:sdl: surface flag SDL_ASYNCBLIT\n");
 	if ((sdl_state.surface->flags & SDL_ANYFORMAT) != 0)
-		video_log("video:sdl: surface SDL_ANYFORMAT\n");
+		video_log("video:sdl: surface flag SDL_ANYFORMAT\n");
 	if ((sdl_state.surface->flags & SDL_HWPALETTE) != 0)
-		video_log("video:sdl: surface SDL_HWPALETTE\n");
+		video_log("video:sdl: surface flag SDL_HWPALETTE\n");
 	if ((sdl_state.surface->flags & SDL_DOUBLEBUF) != 0)
-		video_log("video:sdl: surface SDL_DOUBLEBUF\n");
+		video_log("video:sdl: surface flag SDL_DOUBLEBUF\n");
 	if ((sdl_state.surface->flags & SDL_FULLSCREEN) != 0)
-		video_log("video:sdl: surface SDL_FULLSCREEN\n");
+		video_log("video:sdl: surface flag SDL_FULLSCREEN\n");
 	if ((sdl_state.surface->flags & SDL_RESIZABLE) != 0)
-		video_log("video:sdl: surface SDL_RESIZABLE\n");
+		video_log("video:sdl: surface flag SDL_RESIZABLE\n");
 	if ((sdl_state.surface->flags & SDL_HWACCEL) != 0)
-		video_log("video:sdl: surface SDL_HWACCEL\n");
+		video_log("video:sdl: surface flag SDL_HWACCEL\n");
 	if ((sdl_state.surface->flags & SDL_SRCCOLORKEY) != 0)
-		video_log("video:sdl: surface SDL_SRCCOLORKEY\n");
+		video_log("video:sdl: surface flag SDL_SRCCOLORKEY\n");
 	if ((sdl_state.surface->flags & SDL_SRCALPHA) != 0)
-		video_log("video:sdl: surface SDL_SRCALPHA\n");
+		video_log("video:sdl: surface flag SDL_SRCALPHA\n");
 	if ((sdl_state.surface->flags & SDL_PREALLOC) != 0)
-		video_log("video:sdl: surface SDL_PREALLOC\n");
+		video_log("video:sdl: surface flag SDL_PREALLOC\n");
 
 	/* write handler */
 	sdl_write_line = sdl_linear_write_line;
@@ -294,13 +334,21 @@ video_error sdl_mode_import(video_mode* mode, const sdl_video_mode* sdl_mode) {
 video_error sdl_mode_generate(sdl_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
 	int number;
 	unsigned model;
+	unsigned suggested_bits;
 
-	if (video_mode_generate_check("sdl",sdl_flags(),1,2048,crtc,bits,flags)!=0)
-		return -1;
+	suggested_bits = SDL_VideoModeOK(crtc->hde, crtc->vde, bits, SDL_ModeFlags() );
 
-	if (SDL_VideoModeOK(crtc->hde, crtc->vde, bits, 0) != bits) {
+	if (!suggested_bits) {
 		video_error_description_nolog_cat("No compatible SDL mode found\n");
 		return -1;
+	}
+
+	if (suggested_bits != bits) {
+		/* if a window manager is active accepts any bit depths */
+		if ((sdl_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)==0) {
+			video_error_description_nolog_cat("No compatible SDL bit depth found\n");
+			return -1;
+		}
 	}
 
 	mode->size_x = crtc->hde;
@@ -321,6 +369,34 @@ int sdl_mode_compare(const sdl_video_mode* a, const sdl_video_mode* b) {
 	COMPARE(a->size_x,b->size_x)
 	COMPARE(a->bits_per_pixel,b->bits_per_pixel)
 	return 0;
+}
+
+void sdl_crtc_container_insert_default(video_crtc_container* cc) {
+	unsigned i;
+	SDL_Rect** map;
+
+	os_log(("video:sdl: sdl_crtc_container_insert_default()\n"));
+
+	map = SDL_ListModes(0, SDL_ModeFlags() );
+
+	if (!map) {
+		/* no resolutions */
+		return;
+	}
+
+	if (map == (SDL_Rect **)-1) {
+		/* all resolutions available */
+		return;
+	}
+
+	for(i=0;map[i];++i) {
+		video_crtc crtc;
+		crtc_fake_set(&crtc, map[i]->w, map[i]->h);
+
+		os_log(("video:sdl: mode %dx%d\n", (unsigned)map[i]->w, (unsigned)map[i]->h));
+
+		video_crtc_container_insert(cc, &crtc);
+	}
 }
 
 /***************************************************************************/
@@ -383,6 +459,7 @@ video_driver video_sdl_driver = {
 	0,
 	sdl_mode_generate_void,
 	sdl_mode_import_void,
-	sdl_mode_compare_void
+	sdl_mode_compare_void,
+	sdl_crtc_container_insert_default
 };
 

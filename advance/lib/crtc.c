@@ -33,6 +33,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 /**
@@ -667,4 +668,19 @@ void crtc_reset_all(video_crtc* crtc) {
 void crtc_name_set(video_crtc* crtc, const char* name) {
 	memset(crtc->name, 0, sizeof(crtc->name));
 	strncpy(crtc->name, name, sizeof(crtc->name) - 1);
+}
+
+void crtc_fake_set(video_crtc* crtc, unsigned size_x, unsigned size_y) {
+	crtc->hde = size_x;
+	crtc->hrs = crtc->hde;
+	crtc->hre = crtc->hde;
+	crtc->ht = crtc->hde;
+	crtc->vde = size_y;
+	crtc->vrs = crtc->vde;
+	crtc->vre = crtc->vde;
+	crtc->vt = crtc->vde;
+	crtc->pixelclock = 0;
+	crtc->flags = 0;
+
+	sprintf(crtc->name, "%dx%d", size_x, size_y);
 }

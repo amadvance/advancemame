@@ -509,6 +509,7 @@ video_driver video_svgalib_driver = {
 	0,
 	svgalib_mode_generate_void,
 	svgalib_mode_import_void,
-	svgalib_mode_compare_void
+	svgalib_mode_compare_void,
+	0
 };
 

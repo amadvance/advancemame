@@ -274,9 +274,9 @@ video_error video_load(struct conf_context* context, const char* driver_ignore) 
 
 unsigned video_internal_flags(void) {
 	unsigned flags =
-		VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL
-		| VIDEO_DRIVER_FLAGS_MODE_TEXT
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL;
+		VIDEO_DRIVER_FLAGS_MODE_MASK
+		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK
+		| VIDEO_DRIVER_FLAGS_INFO_MASK;
 
 	if (!video_option.scan_double)
 		flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
@@ -552,6 +552,7 @@ unsigned video_mode_generate_driver_flags(void) {
 		if (video_state.driver_map[i]) {
 			/* limit the flags with the video internal options */
 			unsigned new_flags = video_state.driver_map[i]->flags() & video_internal_flags();
+
 			/* add flags only with the same programmable capabilities */
 			if (!flags || (flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK) == (new_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK))
 				flags |= new_flags;

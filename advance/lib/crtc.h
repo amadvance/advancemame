@@ -200,6 +200,8 @@ int video_crtc_compare(const video_crtc* A, const video_crtc* B);
 video_error video_crtc_parse(video_crtc* crtc, const char* begin, const char* end);
 void video_crtc_print(char* buffer, const video_crtc* crtc);
 
+void crtc_fake_set(video_crtc* crtc, unsigned size_x, unsigned size_y);
+
 #ifdef __cplusplus
 }
 #endif

@@ -669,6 +669,7 @@ video_driver video_vgaline_driver = {
 	vgaline_mode_grab_void,
 	vgaline_mode_generate_void,
 	vgaline_mode_import_void,
-	vgaline_mode_compare_void
+	vgaline_mode_compare_void,
+	0
 };
 

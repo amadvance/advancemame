@@ -318,6 +318,7 @@ video_driver video_none_driver = {
 	0,
 	none_mode_generate_void,
 	none_mode_import_void,
-	none_mode_compare_void
+	none_mode_compare_void,
+	0
 };
 

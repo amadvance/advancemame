@@ -81,17 +81,13 @@
 /***************************************************************************/
 /* Video */
 
-/* Default monitor aspect ratio */
-#define pc_aspect_ratio_x 4
-#define pc_aspect_ratio_y 3
-
 /* Software strecth (enumeration) */
 #define STRETCH_NONE 0 /**< not at all */
 #define STRETCH_INTEGER_XY 1 /**< only integer strech x2,x3,... */
 #define STRETCH_INTEGER_X_FRACTIONAL_Y 2 /**< integer on x, fractional on y */
 #define STRETCH_FRACTIONAL_XY 3 /**< fractional on x and y */
 
-/* Hardware strecth (enumeration) */
+/* Hardware stretch (enumeration) */
 #define ADJUST_NONE 0 /**< not at all */
 #define ADJUST_ADJUST_X 0x1
 #define ADJUST_ADJUST_CLOCK 0x2

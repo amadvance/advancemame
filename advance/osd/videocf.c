@@ -217,11 +217,15 @@ static int score_compare_crtc(const struct advance_video_context* context, const
 	r = score_compare_size(context, a, b);
 	if (r) return r;
 
-	r = score_compare_scanline(context, a, b);
-	if (r) return r;
+	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+		/* only for programamble drivers */
 
-	r = score_compare_frequency(context, a, b);
-	if (r) return r;
+		r = score_compare_scanline(context, a, b);
+		if (r) return r;
+
+		r = score_compare_frequency(context, a, b);
+		if (r) return r;
+	}
 
 	if (strcmp(crtc_name_get(a),crtc_name_get(b))!=0)
 		os_log(("video config compare indecision for %s, %s\n", crtc_name_get(a), crtc_name_get(b)));

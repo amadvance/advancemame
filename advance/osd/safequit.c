@@ -1,8 +1,8 @@
 /*
  * This file is part of the AdvanceMAME project.
  *
- * Copyright (C) 2001-2002 Ian Patterson
- * Copyright (C) 2001-2002 Andrea Mazzoleni
+ * Copyright (C) 2002 Ian Patterson
+ * Copyright (C) 2002 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

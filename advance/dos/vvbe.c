@@ -265,6 +265,36 @@ int vbe_mode_compare(const vbe_video_mode* a, const vbe_video_mode* b) {
 	return 0;
 }
 
+void vbe_crtc_container_insert_default(video_crtc_container* cc) {
+	vbe_mode_iterator i;
+
+	video_log("video:vbe: vbe_crtc_container_insert_default()\n");
+
+	vbe_mode_iterator_begin(&i);
+	while (!vbe_mode_iterator_end(&i)) {
+		unsigned mode;
+		vbe_ModeInfoBlock info;
+		unsigned flags = vbeMdAvailable | vbeMdGraphMode | vbeMdLinear;
+
+		mode = vbe_mode_iterator_get(&i) | vbeLinearBuffer;
+
+		if (vbe_mode_info_get(&info, mode) == 0
+			&& (info.ModeAttributes & flags) == flags
+			&& info.NumberOfPlanes == 1
+			&& (info.MemoryModel == vbeMemRGB || info.MemoryModel == vbeMemPK)) {
+
+			video_crtc crtc;
+			crtc_fake_set(&crtc, info.XResolution, info.YResolution);
+
+			video_log("video:vbe: mode %dx%d\n", (unsigned)info.XResolution, (unsigned)info.YResolution);
+
+			video_crtc_container_insert(cc, &crtc);
+		}
+
+		vbe_mode_iterator_next(&i);
+	}
+}
+
 /***************************************************************************/
 /* Driver */
 
@@ -329,6 +359,7 @@ video_driver video_vbe_driver = {
 	vbe_mode_grab_void,
 	vbe_mode_generate_void,
 	vbe_mode_import_void,
-	vbe_mode_compare_void
+	vbe_mode_compare_void,
+	vbe_crtc_container_insert_default
 };
 

@@ -54,8 +54,6 @@ typedef struct video_monitor_struct {
 	video_monitor_range pclock;
 } video_monitor;
 
-video_bool monitor_is_empty(const video_monitor* monitor);
-
 video_bool monitor_hclock_check(const video_monitor* monitor, double hclock);
 video_bool monitor_vclock_check(const video_monitor* monitor, double vclock);
 video_bool monitor_pclock_check(const video_monitor* monitor, double pclock);
@@ -69,6 +67,8 @@ double monitor_vclock_max(const video_monitor* monitor);
 double monitor_pclock_min(const video_monitor* monitor);
 double monitor_pclock_max(const video_monitor* monitor);
 
+void monitor_reset(video_monitor* monitor);
+video_bool monitor_is_empty(const video_monitor* monitor);
 void monitor_print(char* buffer, const video_monitor_range* range_begin, const video_monitor_range* range_end, double mult);
 video_error monitor_parse(video_monitor* monitor, const char* p, const char* h, const char* v);
 video_error monitor_load(struct conf_context* context, video_monitor* monitor);

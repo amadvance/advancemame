@@ -231,5 +231,7 @@ TIMINGS
 
 	Pixel Clock 20.00 MHz
 
-VERSION
-	2001/12/05 - Andrea Mazzoleni - First revision
+COPYRIGHT
+	Copyright (C) 2001 Andrea Mazzoleni
+
+

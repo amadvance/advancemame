@@ -365,3 +365,11 @@ void generate_crtc(video_crtc* crtc, unsigned hsize, unsigned vsize, const video
 	generate_crtc_h(crtc,hsize,vsize,&generate_norm);
 	generate_crtc_v(crtc,hsize,vsize,&generate_norm);
 }
+
+void generate_interpolate_reset(video_generate_interpolate_set* interpolate) {
+	interpolate->mac = 0;
+}
+
+video_bool generate_interpolate_is_empty(const video_generate_interpolate_set* interpolate) {
+	return interpolate->mac == 0;
+}

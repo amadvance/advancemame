@@ -20,4 +20,5 @@ LIBRARIES
 	MPGLIB - http://www.mpg123.de - Copyright Michael Hipp
 	zlib - Copyright Jean-loup Gailly and Mark Adler
 	sLang - Copyright John E. Davis
+	SDL - http://www.libsdl.org
 

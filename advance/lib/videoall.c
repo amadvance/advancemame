@@ -56,12 +56,6 @@ void video_reg_driver_all(struct conf_context* context) {
 #ifdef USE_VIDEO_VBE
 	video_reg_driver(context, &video_vbe_driver);
 #endif
-#ifdef USE_VIDEO_VGA
-	video_reg_driver(context, &video_vga_driver);
-#endif
-#ifdef USE_VIDEO_DOS
-	video_reg_driver(context, &video_dos_driver);
-#endif
 #ifdef USE_VIDEO_NONE
 	video_reg_driver(context, &video_none_driver);
 #endif

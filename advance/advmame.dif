@@ -1,4 +1,4 @@
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/common.c src/common.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/common.c src/common.c
 --- src.ori/common.c	Sat Jul  6 18:36:58 2002
 +++ src/common.c	Sat Jul  6 18:38:12 2002
 @@ -424,17 +424,11 @@
@@ -20,7 +20,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  /*-------------------------------------------------
  	coin_lockout_w - locks out one coin input
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
 --- src.ori/cpu/i8085/i8085.c	Sat Jul  6 18:36:58 2002
 +++ src/cpu/i8085/i8085.c	Sat Jul  6 18:38:12 2002
 @@ -61,10 +61,16 @@
@@ -40,7 +40,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #include "driver.h"
  #include "state.h"
  #include "osd_cpu.h"
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/cpu/m68000/make68k.c src/cpu/m68000/make68k.c
 --- src.ori/cpu/m68000/make68k.c	Sat Jul  6 18:37:00 2002
 +++ src/cpu/m68000/make68k.c	Sun Jul  7 06:15:10 2002
 @@ -188,11 +188,11 @@
@@ -76,7 +76,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  /* ---------- VC++ deosn't preserve EDI? (Kenjo, 110399) ---------- */
  static char SavedRegs[] = "-B--S-B";
  
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
 --- src.ori/cpu/z80/z80.c	Sat Jul  6 18:37:02 2002
 +++ src/cpu/z80/z80.c	Sat Jul  6 18:38:12 2002
 @@ -80,10 +80,16 @@
@@ -96,7 +96,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #if VERBOSE
  #define LOG(x)	logerror x
  #else
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/cpuexec.c src/cpuexec.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/cpuexec.c src/cpuexec.c
 --- src.ori/cpuexec.c	Sat Jul  6 18:37:02 2002
 +++ src/cpuexec.c	Sat Jul  6 18:38:12 2002
 @@ -233,10 +233,13 @@
@@ -113,7 +113,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	{
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_type & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/drivers/equites.c src/drivers/equites.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/drivers/equites.c src/drivers/equites.c
 --- src.ori/drivers/equites.c	Sat Jul  6 18:37:16 2002
 +++ src/drivers/equites.c	Sat Jul  6 19:42:18 2002
 @@ -132,11 +132,11 @@
@@ -129,7 +129,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #define EASY_TEST_MODE	0
  
  // Equites Hardware
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/drivers/neogeo.c src/drivers/neogeo.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/drivers/neogeo.c src/drivers/neogeo.c
 --- src.ori/drivers/neogeo.c	Sat Jul  6 18:37:12 2002
 +++ src/drivers/neogeo.c	Wed Jul 10 04:33:48 2002
 @@ -287,11 +287,11 @@
@@ -145,7 +145,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  		vblank_int = 1;	   /* vertical blank */
  	}
  
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/inptport.c src/inptport.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/inptport.c src/inptport.c
 --- src.ori/inptport.c	Sat Jul  6 18:37:18 2002
 +++ src/inptport.c	Sat Jul  6 18:38:12 2002
 @@ -147,10 +147,13 @@
@@ -263,7 +263,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  
  
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/inptport.h src/inptport.h
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/inptport.h src/inptport.h
 --- src.ori/inptport.h	Sat Jul  6 18:37:18 2002
 +++ src/inptport.h	Sat Jul  6 18:38:12 2002
 @@ -81,10 +81,15 @@
@@ -282,7 +282,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	IPT_UI_PAUSE,
  	IPT_UI_RESET_MACHINE,
  	IPT_UI_SHOW_GFX,
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/input.c src/input.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/input.c src/input.c
 --- src.ori/input.c	Sat Jul  6 18:37:18 2002
 +++ src/input.c	Sat Jul  6 18:38:12 2002
 @@ -782,11 +782,11 @@
@@ -311,7 +311,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	{
  		if (ui_map[code].memory == 0)
  		{
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/machine/equites.c src/machine/equites.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/machine/equites.c src/machine/equites.c
 --- src.ori/machine/equites.c	Sat Jul  6 18:37:20 2002
 +++ src/machine/equites.c	Sat Jul  6 19:42:02 2002
 @@ -10,11 +10,11 @@
@@ -327,7 +327,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  #if 0 // ** cut-and-paste to driver module **
  
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/mame.c src/mame.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/mame.c src/mame.c
 --- src.ori/mame.c	Sat Jul  6 18:37:18 2002
 +++ src/mame.c	Sat Jul  6 18:40:12 2002
 @@ -1018,34 +1018,20 @@
@@ -369,7 +369,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  
  /*-------------------------------------------------
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/neomame.mak src/neomame.mak
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/neomame.mak src/neomame.mak
 --- src.ori/neomame.mak	Sat Jul  6 18:37:20 2002
 +++ src/neomame.mak	Sat Jul  6 18:38:22 2002
 @@ -8,17 +8,19 @@
@@ -392,7 +392,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  # MAME specific core objs
  COREOBJS += $(OBJ)/driver.o $(OBJ)/cheat.o
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/osdepend.h src/osdepend.h
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	Sat Jul  6 18:37:20 2002
 +++ src/osdepend.h	Sat Jul  6 18:38:22 2002
 @@ -400,10 +400,36 @@
@@ -432,7 +432,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #endif
  
  #endif
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/sound/fm.c src/sound/fm.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/sound/fm.c src/sound/fm.c
 --- src.ori/sound/fm.c	Sat Jul  6 18:37:22 2002
 +++ src/sound/fm.c	Sat Jul  6 18:38:22 2002
 @@ -160,11 +160,11 @@
@@ -448,7 +448,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  /* OPN LFO waveform table */
  static INT32 OPN_LFO_wave[LFO_ENT];
  
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/ui_text.c src/ui_text.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	Sat Jul  6 18:37:22 2002
 +++ src/ui_text.c	Sat Jul  6 18:38:22 2002
 @@ -202,10 +202,14 @@
@@ -466,7 +466,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  int uistring_init (void *langfile)
  {
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/ui_text.h src/ui_text.h
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	Sat Jul  6 18:37:22 2002
 +++ src/ui_text.h	Sat Jul  6 18:38:22 2002
 @@ -169,10 +169,14 @@
@@ -484,7 +484,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  struct lang_struct
  {
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/usrintrf.c src/usrintrf.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/usrintrf.c src/usrintrf.c
 --- src.ori/usrintrf.c	Sat Jul  6 18:37:22 2002
 +++ src/usrintrf.c	Sat Jul  6 18:38:22 2002
 @@ -663,12 +663,16 @@
@@ -829,7 +829,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  			{
  				setup_selected = -1;
  				if (osd_selected != 0)
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- -x driver.c src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
 --- src.ori/vidhrdw/cave.c	Sat Jul  6 18:37:22 2002
 +++ src/vidhrdw/cave.c	Sat Jul  6 18:38:22 2002
 @@ -1532,10 +1532,13 @@

@@ -357,6 +357,7 @@ video_driver video_slang_driver = {
 	slang_mode_grab_void,
 	slang_mode_generate_void,
 	slang_mode_import_void,
-	slang_mode_compare_void
+	slang_mode_compare_void,
+	0
 };
 

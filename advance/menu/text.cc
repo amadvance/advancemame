@@ -438,12 +438,11 @@ static bool text_has_generate = false;
 bool mode_graphics_less(const video_mode* A, const video_mode* B) {
 	int areaA = A->size_x * A->size_y;
 	int areaB = B->size_x * B->size_y;
+
 	int difA = abs( areaA - static_cast<int>(text_mode_size*text_mode_size*3/4) );
 	int difB = abs( areaB - static_cast<int>(text_mode_size*text_mode_size*3/4) );
-	if (difA > difB) return true;
-	if (difA < difB) return false;
 
-	return false;
+	return difA < difB;
 }
 
 static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_container& modelines) {
@@ -453,11 +452,14 @@ static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_containe
 	// search the default name
 	for(video_crtc_container_iterator_begin(&i,&modelines);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
 		const video_crtc* crtc = video_crtc_container_iterator_get(&i);
-
 		if (strcmp(crtc->name,DEFAULT_GRAPH_MODE)==0) {
-			if (!crtc_clock_check(&text_monitor,crtc)) {
-				cerr << "The selected mode '" << DEFAULT_GRAPH_MODE << "' is out of your monitor capabilities" << endl;
-				return false;
+
+			// check the clocks only if the driver is programmable
+			if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+				if (!crtc_clock_check(&text_monitor,crtc)) {
+					cerr << "The selected mode '" << DEFAULT_GRAPH_MODE << "' is out of your monitor capabilities" << endl;
+					return false;
+				}
 			}
 
 			if (video_mode_generate(&text_current_mode,crtc,depth,VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)!=0) {
@@ -466,12 +468,12 @@ static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_containe
 			}
 
 			mode_found = true;
-			break;
+			return true;
 		}
 	}
 
-	// generate an exact mode
-	if (text_has_generate && text_has_clock) {
+	// generate an exact mode with clock
+	if (text_has_generate) {
 		video_crtc crtc;
 		err = generate_find_interpolate(&crtc, text_mode_size, text_mode_size*3/4, 70, &text_monitor, &text_interpolate, video_mode_generate_driver_flags(), GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK);
 		if (err == 0) {
@@ -481,23 +483,42 @@ static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_containe
 					text_current_mode = mode;
 					mode_found = true;
 					video_log("text: generating a perfect mode from the format option.\n");
+					return true;
 				}
 			}
 		}
 	}
 
+	// generate any resolution for a window manager
+	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)!=0) {
+		video_crtc crtc;
+		crtc_fake_set(&crtc, text_mode_size, text_mode_size*3/4);
+
+		video_mode mode;
+		if (video_mode_generate(&mode,&crtc,depth,VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)==0) {
+			text_current_mode = mode;
+			mode_found = true;
+			video_log("text: generating a perfect mode for the window manager.\n");
+			return true;
+		}
+	}
+
 	// search the best on the list
-	if (!mode_found) {
-		for(video_crtc_container_iterator_begin(&i,&modelines);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
-			const video_crtc* crtc = video_crtc_container_iterator_get(&i);
-			if (crtc_clock_check(&text_monitor,crtc)) {
-				video_mode mode;
-				if (video_mode_generate(&mode,crtc,depth,VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)==0) {
-					if (!mode_found || mode_graphics_less(&text_current_mode,&mode)) {
-						text_current_mode = mode;
-						mode_found = true;
-					}
-				}
+	for(video_crtc_container_iterator_begin(&i,&modelines);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
+		const video_crtc* crtc = video_crtc_container_iterator_get(&i);
+
+		// check the clocks only if the driver is programmable
+		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+			if (!crtc_clock_check(&text_monitor,crtc)) {
+				continue;
+			}
+		}
+
+		video_mode mode;
+		if (video_mode_generate(&mode, crtc, depth, VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB)==0) {
+			if (!mode_found || mode_graphics_less(&mode, &text_current_mode)) {
+				text_current_mode = mode;
+				mode_found = true;
 			}
 		}
 	}
@@ -616,28 +637,51 @@ bool text_init2(unsigned size, unsigned depth, const string& sound_event_key) {
 
 	video_init();
 
+	// disable generate if the clocks are not available
+	if (!text_has_clock)
+		text_has_generate = false;
+
+	// disable generate if the driver is not programmable
+	if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0)
+		text_has_generate = false;
+
 	// add modes if the list is empty and no generation is possibile
-	if (!text_has_clock || !text_has_generate) {
-		if (video_crtc_container_is_empty(&text_modelines)) {
-			if (text_has_clock) {
-				video_log("text: inserting default modes.\n");
-				video_crtc_container_insert_default_modeline_vga(&text_modelines);
-				video_crtc_container_insert_default_modeline_svga(&text_modelines);
-			} else {
-				video_log("text: inserting default bios modes.\n");
-				video_crtc_container_insert_default_bios_vbe(&text_modelines);
-				video_crtc_container_insert_default_bios_vga(&text_modelines);
-			}
+	if (!text_has_generate
+		&& video_crtc_container_is_empty(&text_modelines)) {
+		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
+			video_crtc_container_insert_default_modeline_svga(&text_modelines);
+			video_crtc_container_insert_default_modeline_vga(&text_modelines);
+		} else {
+			video_crtc_container_insert_default_system(&text_modelines);
 		}
 	}
 
 	if (!text_mode_find(mode_found,text_mode_depth,text_modelines))
 		goto out_video;
 
-	if (!mode_found && text_mode_depth != 8) {
-		text_mode_depth = 8;
-		if (!text_mode_find(mode_found,text_mode_depth,text_modelines))
-			goto out_video;
+	// if no mode found retry with a different bit depth
+	if (!mode_found) {
+		unsigned bits_per_pixel;
+
+		// check if the video driver has a default bit depth
+		if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_8BIT) != 0) {
+			bits_per_pixel = 8;
+		} else if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_15BIT) != 0) {
+			bits_per_pixel = 15;
+		} else if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_16BIT) != 0) {
+			bits_per_pixel = 16;
+		} else if ((video_mode_generate_driver_flags() & VIDEO_DRIVER_FLAGS_INFO_DEFAULTDEPTH_32BIT) != 0) {
+			bits_per_pixel = 32;
+		} else {
+			bits_per_pixel = 8; // as default uses the 8 bit depth
+		}
+
+		// retry only if different
+		if (bits_per_pixel != text_mode_depth) {
+			text_mode_depth = bits_per_pixel;
+			if (!text_mode_find(mode_found,text_mode_depth,text_modelines))
+				goto out_video;
+		}
 	}
 
 	if (!mode_found) {

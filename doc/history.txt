@@ -1,3 +1,10 @@
+AdvanceMAME Version 0.61.2 2002/07
+	) Added the `sdl' system which uses the libSDL graphics
+		library. This system enable the use of the program
+		in a Window Manager. But it isn't a good choice for
+		a fullscreen use of the program.
+	) Added the HOST_SYSTEM section in the makefile.
+
 AdvanceMAME Version 0.61.1 2002/07
 	) Fixed a stupid bug on some neogeo games.
 

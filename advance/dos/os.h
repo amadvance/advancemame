@@ -31,6 +31,10 @@
 #ifndef __OS_H
 #define __OS_H
 
+#ifndef __MSDOS__
+#error The DOS system is supported only by the DOS target
+#endif
+
 #include "conf.h"
 
 #include "allegro2.h"

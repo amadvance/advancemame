@@ -60,9 +60,9 @@ VIDEO DRIVER
 
 	This is the list of the drivers used by the various
 	applications:
-		AdvanceMAME for DOS - svgaline, vbeline, vgaline.
-		AdvanceMENU for DOS - svgaline, vbeline, vgaline, vbe.
-		AdvanceMAME/MENU for Linux - svgalib, fb.
+		AdvanceMAME for DOS - svgaline, vbeline, vgaline, vbe, sdl.
+		AdvanceMENU for DOS - svgaline, vbeline, vgaline, vbe, sdl.
+		AdvanceMAME/MENU for Linux - svgalib, fb, sdl.
 		AdvanceVBE - vbeline
 		AdvanceVGA - vgaline
 
@@ -72,6 +72,7 @@ VIDEO DRIVER
 		Video modes obtained tweaking the hardware
 		registers of the standard VGA. Usually these modes
 		are called Tweaked, XMode, ZMode.
+
 		Only the standard VGA pixel clocks 6.29, 7.08, 12.59,
 		14.16 MHz are available. Only 8 bit color modes. Only
 		256 kBytes of video memory.
@@ -81,8 +82,8 @@ VIDEO DRIVER
 
 	svgaline - Tweaked SVGA modes
 		Video modes obtained tweaking the hardware
-		registers of the recognized SVGA.
-		These are the most powerful modes.
+		registers of the recognized SVGA boards.
+
 		All clocks, all bit depths are available.
 
 		To use these modes your video board must be supported
@@ -98,6 +99,8 @@ VIDEO DRIVER
 	vbeline - Tweaked VBE (VESA) modes
 		Video modes obtained tweaking the standard VBE BIOS mode
 		changing the hardware registers of the SVGA.
+
+		All clocks, all bit depths are available.
 
 		To use these modes your video board must be supported
 		by a `vbeline' driver listed in the `card.txt' file.
@@ -124,9 +127,17 @@ VIDEO DRIVER
 		you don't have a VBE3 BIOS you can try installing a
 		software VESA BIOS like the SciTech Display Doctor.
 
+	vbe - VBE modes
+		This driver is able to use only the video modes
+		reported by your VESA BIOS.
+
+		It doesn't require any `device_p/h/vclock' options
+		because it cannot control how the video modes are
+		generated.
+
     Drivers for Linux:
 
-	svgalib - Tweaked SVGA
+	svgalib - Tweaked SVGA modes
 		SVGA Graphics modes from the SVGALIB library.
 		You must install the SVGALIB library version 1.9.x.
 
@@ -140,8 +151,16 @@ VIDEO DRIVER
 		able to use the current text mode. It can't really
 		change the video mode.
 
-	If you have correctly configured the `clock' options
-	in your configuration file, the video modes out of
+	sdl - SDL modes
+		This driver is able to use only the video modes
+		reported by the SDL system.
+
+		It doesn't require any `device_p/h/vclock' options
+		because it cannot control how the video modes are
+		generated.
+
+	If you have correctly configured the `device_p/h/vclock'
+	options in your configuration file, the video modes out of
 	the frequency range supported by your monitor are displayed
 	in red, and you are prevented to use them.
 
@@ -207,16 +226,18 @@ CONFIGURATION
 			svgalib, fb, slang.
 
 	Options for DOS:
-		svgaline - SVGA graphics modes.
-		vbeline - VBE graphics modes.
-		vgaline - VGA text and graphics video modes.
+		svgaline - SVGA tweaked graphics modes.
+		vbeline - VBE tweaked graphics modes.
+		vgaline - VGA tweaked text and graphics video modes.
+		vbe - VBE graphics modes.
 
 	Options for Linux:
-		svgalib - SVGA graphics modes with the SVGALIB 1.9.x
-			library.
-		fb - SVGA grahics modes with the Linux Console Frame
-			Buffer.
+		svgalib - SVGA tweaked graphics modes with the
+			SVGALIB 1.9.x library.
+		fb - SVGA tweaked grahics modes with the Linux Console
+			Frame Buffer.
 		slang - Text video modes with the sLang library.
+		sdl - SDL graphics modes.
 
 	Please note that to use the utilities `advv' and `advcfg' you
 	must at least select a graphics and a text video driver. The
@@ -374,7 +395,7 @@ CONFIGURATION
     "device_video_fastchange"
 	Enable or disable the fast video mode change. If enabled the
 	current video mode is not reset before setting another video
-	mode. The reset should generally not required, but some
+	mode. The reset should be generally not required, but some
 	limited BIOS need it. So, the fast change is disabled for
 	default.
 
@@ -425,6 +446,6 @@ VBELINE CONFIGURATION
 		640 - Use always the 640x480 mode.
 		800 - Use always the 800x600 mode.
 
-VERSION
-	2001/11/28 - Andrea Mazzoleni - First revision
-	2002/01/05 - Andrea Mazzoleni - Updates
+COPYRIGHT
+	Copyright (C) 2002 Andrea Mazzoleni
+

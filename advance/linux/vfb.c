@@ -522,6 +522,7 @@ video_driver video_fb_driver = {
 	0,
 	fb_mode_generate_void,
 	fb_mode_import_void,
-	fb_mode_compare_void
+	fb_mode_compare_void,
+	0
 };
 

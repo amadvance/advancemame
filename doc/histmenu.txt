@@ -1,6 +1,11 @@
 AdvanceMENU Version 1.19.2 2002/07
+	) Added the `sdl' system which uses the libSDL graphics
+		library. This system enable the use of the program
+		in a Window Manager. But it isn't a good choice for
+		a fullscreen use of the program.
+	) Added the HOST_SYSTEM section in the makefile.
 	) The key specification in the config file are now by
-		name and not by number. The list of available
+		name and not by scancode. The list of available
 		names is in the advmenu.txt file.
 
 AdvanceMENU Version 1.19.1 2002/07

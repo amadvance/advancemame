@@ -960,6 +960,7 @@ video_driver video_vbeline_driver = {
 	0,
 	vbeline_mode_generate_void,
 	vbeline_mode_import_void,
-	vbeline_mode_compare_void
+	vbeline_mode_compare_void,
+	0
 };
 
