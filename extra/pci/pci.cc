@@ -524,7 +524,7 @@ HEADER
 
 void print_linux(ostream& os, entry_vendor_set& vs_svgalib, entry_vendor_set& vs_fb) {
 	os <<
-"Name\n"
+"Name{number}\n"
 "\tcardlinux - Supported Linux Video Cards\n"
 "\n"
 "\tThis is the list of the Linux video cards supported\n"
