@@ -80,8 +80,10 @@ static adv_bool none_mode_is_active(void)
 	return none_state.mode_active != 0;
 }
 
-static adv_error none_init(int device_id, adv_output output)
+static adv_error none_init(int device_id, adv_output output, adv_cursor cursor)
 {
+	(void)cursor;
+
 	assert( !none_is_active() );
 
 	if (sizeof(none_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)

@@ -7,6 +7,8 @@ AdvanceMENU Version 2.2.4 2003/02
 		DSP is already in use.
 	) Fixed the Linux Frame Buffer driver when a DIRECTCOLOR mode
 		is used displaying fuzzy colors.
+	) Added a new `device_video_cursor' option to control the visibility
+		of the mouse cursor.
 
 AdvanceMENU Version 2.2.3 2003/01
 	) Added a new attrib for the AdvanceMESS emulator

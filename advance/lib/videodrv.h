@@ -143,6 +143,15 @@ typedef enum adv_output_enum {
 } adv_output;
 
 /**
+ * Cursort mode of a video driver.
+ */
+typedef enum adv_cursor_enum {
+	adv_cursor_auto = -1, /**< Automatically choice. On on window modes, off on fullscreen modes. */
+	adv_cursor_off = 0, /**< Always off. */
+	adv_cursor_on = 1, /**< Always on. */
+} adv_cursor;
+
+/**
  * Video driver.
  * This struct abstract all the driver funtionalities.
  */
@@ -167,7 +176,7 @@ typedef struct adv_video_driver_struct {
 	 * \param id Choosen device from ::device_map.
 	 * \param output Output mode.
 	 */
-	adv_error (*init)(int id, adv_output output);
+	adv_error (*init)(int id, adv_output output, adv_cursor cursor);
 
 	/**
 	 * Deinitialize the driver.

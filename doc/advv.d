@@ -107,7 +107,7 @@ Video Drivers
 			12.59, 14.16, 25.17, 28.32 MHz.
 			
 			This driver is completly indipendent of the VGA BIOS
-			of your board.			
+			of your board.
 		vbe - Available VBE modes.
 			This driver is able to use only the video modes
 			reported by the VBE BIOS.
@@ -480,6 +480,18 @@ Configuration
 	need to convert it to the YUY2 format before displaying it.
 	It requires some time.
 
+    device_video_cursor
+	Select the mouse cursor mode.
+
+	:device_video_cursor auto | off | on
+
+	Options:
+		auto - Automatically choose (default). The cursor
+			is enabled in window modes, and disabled
+			in fullscreen modes.
+		off - Always off.
+		on - Always on, only if the video mode support it.
+
     device_video_fastchange
 	Enable or disable the fast video mode change. If enabled the
 	current video mode is not reset before setting another video
@@ -536,7 +548,7 @@ Configuration
 		800 - Use always the 800x600 mode.
 
   SVGALine Configuration Options
-  	The following are the common video configuration options
+	The following are the common video configuration options
 	available only for the `svgaline' DOS video driver.
 
     device_svgaline_divideclock
@@ -552,19 +564,19 @@ Configuration
 		no - Don't divide the clock (default).
  
   SVGAWin Configuration Options
-  	The following are the common video configuration options
+	The following are the common video configuration options
 	available only for the `svgawin' Windows video driver.
 
     device_svgawin_stub
-    	Select how the driver uses the Windows graphics.
+	Select how the driver uses the Windows graphics.
 
 	The use of this option is discouraged, it's present only for testing.
 
-    	Options:
-    		none - Don't use the Windows graphics support.
-    		window - Create a stub window before setting the video mode.
-    		fullscreen - Create a stub fullscreen window before setting 
-    			the video mode (default).
+	Options:
+		none - Don't use the Windows graphics support.
+		window - Create a stub window before setting the video mode.
+		fullscreen - Create a stub fullscreen window before setting
+			the video mode (default).
 
     device_svgawin_divideclock
 	Divide the pixelclock using the VGA sequencer. It should help to support 

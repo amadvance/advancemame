@@ -182,11 +182,13 @@ static adv_device DEVICE[] = {
 /***************************************************************************/
 /* Public */
 
-adv_error svgaline_init(int device_id, adv_output output)
+adv_error svgaline_init(int device_id, adv_output output, adv_cursor cursor)
 {
 	unsigned i;
 	const char* name;
 	const adv_device* j;
+
+	(void)cursor;
 
 	assert( !svgaline_is_active() );
 

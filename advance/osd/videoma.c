@@ -1059,7 +1059,7 @@ static adv_error video_update_crtc(struct advance_video_context* context)
 /**
  * Compute and insert in the main list a new modeline with the specified parameter.
  */
-static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y, double vclock, adv_bool force_scanline, adv_bool force_interlace)
+static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context* context, const char* name, unsigned size_x0, unsigned size_y0, unsigned size_x1, unsigned size_y1, unsigned size_x2, unsigned size_y2, unsigned size_x3, unsigned size_y3, double vclock, adv_bool force_scanline, adv_bool force_interlace)
 {
 	char buffer[256];
 	adv_crtc crtc;
@@ -1071,29 +1071,29 @@ static const adv_crtc* video_init_crtc_make_raster(struct advance_video_context*
 		unsigned cap = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE);
 		/* try with a perfect mode */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_EXACT);
+			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_EXACT);
 		/* try with a mode with different vclock but correct vtotal */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VCLOCK);
+			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VCLOCK);
 	} else if (force_interlace) {
 		/* use only interlace modes */
 		unsigned cap = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN);
 		/* try with a perfect mode */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_EXACT);
+			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_EXACT);
 		/* try with a mode with different vclock but correct vtotal */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VCLOCK);
+			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, cap, GENERATE_ADJUST_VCLOCK);
 	} else {
 		/* try with a perfect mode */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_EXACT);
+			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_EXACT);
 		/* try with a mode with different vclock but correct vtotal */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VCLOCK);
+			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VCLOCK);
 		/* try with a mode with different vtotal and different vclock */
 		if (err != 0)
-			err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
+			err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
 	}
 
 	if (err != 0)
@@ -1136,7 +1136,7 @@ static void video_init_crtc_make_fake(struct advance_video_context* context, con
  * Compute and insert in the main list a new modeline guessing the specified parameters.
  * This is mainly used for vector games.
  */
-static void video_init_crtc_make_vector(struct advance_video_context* context, const char* name, unsigned size_x, unsigned size_y, double vclock)
+static void video_init_crtc_make_vector(struct advance_video_context* context, const char* name, unsigned size_x0, unsigned size_y0, unsigned size_x1, unsigned size_y1, unsigned size_x2, unsigned size_y2, unsigned size_x3, unsigned size_y3, double vclock)
 {
 	char buffer[256];
 	adv_crtc crtc;
@@ -1144,13 +1144,13 @@ static void video_init_crtc_make_vector(struct advance_video_context* context, c
 
 	/* try with a perfect mode */
 	if (err != 0)
-		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_EXACT);
+		err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_EXACT);
 	/* try with a mode with different vtotal but correct vclock */
 	if (err != 0)
-		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL);
+		err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL);
 	/* try with a mode with different vtotal and different vclock */
 	if (err != 0)
-		err = generate_find_interpolate_double(&crtc, size_x, size_y, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
+		err = generate_find_interpolate_multi(&crtc, size_x0, size_y0, size_x1, size_y1, size_x2, size_y2, size_x3, size_y3, vclock, &context->config.monitor, &context->config.interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_VTOTAL | GENERATE_ADJUST_VCLOCK);
 
 	if (err != 0)
 		return;
@@ -1159,11 +1159,11 @@ static void video_init_crtc_make_vector(struct advance_video_context* context, c
 		return;
 
 	/* adjust the horizontal size */
-	size_y = crtc_vsize_get(&crtc);
-	size_x = size_y * context->config.monitor_aspect_x / context->config.monitor_aspect_y;
-	size_x &= ~0x7;
+	size_y0 = crtc_vsize_get(&crtc);
+	size_x0 = size_y0 * context->config.monitor_aspect_x / context->config.monitor_aspect_y;
+	size_x0 &= ~0x7;
 
-	crtc_hsize_set(&crtc, size_x);
+	crtc_hsize_set(&crtc, size_x0);
 
 	strcpy(crtc.name, name);
 
@@ -1192,6 +1192,8 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	unsigned best_size_2y;
 	unsigned best_size_3x;
 	unsigned best_size_3y;
+	unsigned best_size_4x;
+	unsigned best_size_4y;
 	unsigned best_bits;
 	double best_vclock;
 	unsigned long long arcade_aspect_ratio_x;
@@ -1271,6 +1273,8 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		best_size_2y = 2 * context->state.game_used_size_y;
 		best_size_3x = 3 * context->state.game_used_size_x;
 		best_size_3y = 3 * context->state.game_used_size_y;
+		best_size_4x = 4 * context->state.game_used_size_x;
+		best_size_4y = 4 * context->state.game_used_size_y;
 		best_bits = context->state.game_bits_per_pixel;
 		best_vclock = context->state.game_fps;
 
@@ -1335,6 +1339,8 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 			best_size_2x = best_step((double)2*context->state.game_used_size_y * factor_x / factor_y, step_x);
 			best_size_3y = 3*context->state.game_used_size_y;
 			best_size_3x = best_step((double)3*context->state.game_used_size_y * factor_x / factor_y, step_x);
+			best_size_4y = 4*context->state.game_used_size_y;
+			best_size_4x = best_step((double)4*context->state.game_used_size_y * factor_x / factor_y, step_x);
 		} else {
 			best_size_x = best_step(context->state.game_used_size_x, step_x);
 			best_size_y = context->state.game_used_size_x * factor_y / factor_x;
@@ -1342,6 +1348,8 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 			best_size_2y = 2*context->state.game_used_size_x * factor_y / factor_x;
 			best_size_3x = best_step(3*context->state.game_used_size_x, step_x);
 			best_size_3y = 3*context->state.game_used_size_x * factor_y / factor_x;
+			best_size_4x = best_step(4*context->state.game_used_size_x, step_x);
+			best_size_4y = 4*context->state.game_used_size_x * factor_y / factor_x;
 		}
 		best_bits = context->state.game_bits_per_pixel;
 		best_vclock = context->state.game_fps;
@@ -1350,17 +1358,17 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 			if (video_is_generable(context) && context->config.interpolate.mac > 0) {
 				/* generate modes for a programmable driver */
 				const adv_crtc* crtc;
-				crtc = video_init_crtc_make_raster(context, "generate", best_size_x, best_size_y, best_vclock, 0, 0);
+				crtc = video_init_crtc_make_raster(context, "generate", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 0, 0);
 				if (!crtc || !crtc_is_singlescan(crtc))
-					video_init_crtc_make_raster(context, "generate-scanline", best_size_x, best_size_y, best_vclock, 1, 0);
+					video_init_crtc_make_raster(context, "generate-scanline", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 1, 0);
 				if (!crtc || !crtc_is_interlace(crtc))
-					video_init_crtc_make_raster(context, "generate-interlace", best_size_x, best_size_y, best_vclock, 0, 1);
-				crtc = video_init_crtc_make_raster(context, "generate-double", best_size_2x, best_size_2y, best_vclock, 0, 0);
+					video_init_crtc_make_raster(context, "generate-interlace", best_size_x, best_size_y, best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, best_vclock, 0, 1);
+				crtc = video_init_crtc_make_raster(context, "generate-double", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 0, 0);
 				if (!crtc || !crtc_is_singlescan(crtc))
-					video_init_crtc_make_raster(context, "generate-double-scanline", best_size_2x, best_size_2y, best_vclock, 1, 0);
+					video_init_crtc_make_raster(context, "generate-double-scanline", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 1, 0);
 				if (!crtc || !crtc_is_interlace(crtc))
-					video_init_crtc_make_raster(context, "generate-double-interlace", best_size_2x, best_size_2y, best_vclock, 0, 1);
-				video_init_crtc_make_raster(context, "generate-triple", best_size_3x, best_size_3y, best_vclock, 0, 0);
+					video_init_crtc_make_raster(context, "generate-double-interlace", best_size_2x, best_size_2y, best_size_4x, best_size_4y, 0, 0, 0, 0, best_vclock, 0, 1);
+				video_init_crtc_make_raster(context, "generate-triple", best_size_3x, best_size_3y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0);
 			}
 			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_ZOOM) != 0) {
 				/* generate modes for a zoom driver */
@@ -3148,7 +3156,7 @@ static void video_config_mode(struct advance_video_context* context, struct mame
 			&& context->config.interpolate.mac > 0
 		) {
 			/* insert the default mode for vector games */
-			video_init_crtc_make_vector(context, "generate", mode_size_x, mode_size_y, mame_game_fps(option->game));
+			video_init_crtc_make_vector(context, "generate", mode_size_x, mode_size_y, mode_size_x*2, mode_size_y*2, 0, 0, 0, 0, mame_game_fps(option->game));
 		}
 
 		/* select the size of the mode near at the 640x480 size */

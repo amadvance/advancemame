@@ -163,9 +163,10 @@ static void fb_log(void)
 	log_std(("video:fb: expected vclock:%g\n", v));
 }
 
-adv_error fb_init(int device_id, adv_output output)
+adv_error fb_init(int device_id, adv_output output, adv_cursor cursor)
 {
 	const char* fb;
+	(void)cursor;
 
 	assert( !fb_is_active() );
 
@@ -376,6 +377,8 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		if (l < blue_l)
 			l = blue_l;
 
+		log_std(("video:fb: set ramp %d:%d:%d %d\n", red_l, green_l, blue_l, l));
+
 		red_map = malloc(sizeof(__u16) * l);
 		green_map = malloc(sizeof(__u16) * l);
 		blue_map = malloc(sizeof(__u16) * l);
@@ -387,6 +390,8 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 			blue_map[i] = 65535 * i / (blue_l-1);
 			trasp_map[i] = 0;
 		}
+
+		log_std(("video:fb: limit ramp %d:%d:%d %d:%d:%d\n", (unsigned)red_map[0], (unsigned)green_map[0], (unsigned)blue_map[0], (unsigned)red_map[red_l - 1], (unsigned)green_map[green_l - 1], (unsigned)blue_map[blue_l - 1]));
 
 		cmap.start = 0;
 		cmap.len = l;

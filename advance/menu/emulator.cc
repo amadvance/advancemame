@@ -2173,12 +2173,17 @@ bool advmess::compile_zip(const game& g, unsigned& argc, const char* argv[], con
 		string zext = file_ext(zfile);
 
                 if (compile_ext(g, argc, argv, zext)) {
-			if (zname != name) {
+#if 0 // always use the advmess = extension, MESS 0.64 does't search in the zip.
+			if (!case_equal(zname,name)) {
 				string spec = name + '=' + zfile;
 				argv[argc] = strdup( spec.c_str() );
 			} else {
 				argv[argc] = strdup( zfile.c_str() );
 			}
+#else
+			string spec = name + '=' + zfile;
+			argv[argc] = strdup( spec.c_str() );
+#endif
 			++argc;
 			something_found = true;
 		}

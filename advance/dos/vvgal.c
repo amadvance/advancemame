@@ -369,9 +369,11 @@ static adv_device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error vgaline_init(int device_id, adv_output output)
+adv_error vgaline_init(int device_id, adv_output output, adv_cursor cursor)
 {
 	const adv_device* i;
+
+	(void)cursor;
 
 	assert( !vgaline_is_active() );
 

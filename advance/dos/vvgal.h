@@ -49,7 +49,7 @@ typedef struct vgaline_video_mode_struct {
 	unsigned font_y;  /**< Y size of the font, valid only in text mode. */
 } vgaline_video_mode;
 
-adv_error vgaline_init(int device_id, adv_output output);
+adv_error vgaline_init(int device_id, adv_output output, adv_cursor cursor);
 void vgaline_done(void);
 
 adv_bool vgaline_is_active(void);

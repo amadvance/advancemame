@@ -7,6 +7,10 @@ AdvanceMAME Version 0.65.0 2003/02
 		DSP is already in use.
 	) Fixed the Linux Frame Buffer driver when a DIRECTCOLOR mode
 		is used displaying fuzzy colors.
+	) Added some patches for the Linux SVGALIB in the contrib/ dir.
+	) Added a new `device_video_cursor' option to control the visibility
+		of the mouse cursor.
+	) Minor fix computing the size of double sized modes.
 
 AdvanceMESS Version 0.64.0.0 2003/02
 	) All from AdvanceMAME 0.65.0.

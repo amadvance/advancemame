@@ -56,6 +56,7 @@ typedef struct sdl_internal_struct {
 	SDL_Surface* surface; /**< Screen surface. */
 	SDL_Overlay* overlay; /**< Screen overlay. */
 	adv_output output; /**< Output mode. */
+	adv_cursor cursor; /**< Cursor mode. */
 	unsigned zoom_x;
 	unsigned zoom_y;
 	unsigned zoom_bit;
@@ -88,7 +89,6 @@ static unsigned sdl_flags(void)
 {
 	return sdl_state.flags;
 }
-
 
 static unsigned SDL_ModeFlags(void)
 {
@@ -148,7 +148,7 @@ static void SDL_WM_DefIcon(void)
 	SDL_FreeSurface(surface);
 }
 
-static adv_error sdl_init(int device_id, adv_output output)
+static adv_error sdl_init(int device_id, adv_output output, adv_cursor cursor)
 {
 	char name[64];
 	const adv_device* i;
@@ -196,6 +196,8 @@ static adv_error sdl_init(int device_id, adv_output output)
 	info = SDL_GetVideoInfo();
 
 	sdl_state.flags = 0;
+
+	sdl_state.cursor = cursor;
 
 	if (output == adv_output_auto) {
 		if (info->wm_available)
@@ -456,10 +458,20 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 	}
 
 	/* disable the mouse cursor on fullscreen mode */
-	if ((sdl_state.surface->flags & SDL_FULLSCREEN) != 0) {
-		SDL_ShowCursor(SDL_DISABLE);
-	} else {
+	switch (sdl_state.cursor) {
+	case adv_cursor_auto :
+		if ((sdl_state.surface->flags & SDL_FULLSCREEN) != 0) {
+			SDL_ShowCursor(SDL_DISABLE);
+		} else {
+			SDL_ShowCursor(SDL_ENABLE);
+		}
+		break;
+	case adv_cursor_on :
 		SDL_ShowCursor(SDL_ENABLE);
+		break;
+	case adv_cursor_off :
+		SDL_ShowCursor(SDL_DISABLE);
+		break;
 	}
 
 	log_std(("video:sdl: surface %dx%dx%d\n", (unsigned)sdl_state.surface->w, (unsigned)sdl_state.surface->h, (unsigned)sdl_state.surface->format->BitsPerPixel));

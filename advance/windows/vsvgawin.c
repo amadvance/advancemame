@@ -389,8 +389,10 @@ static adv_error svgalib_init(int device_id)
 	return 0;
 }
 
-adv_error svgawin_init(int device_id, adv_output output)
+adv_error svgawin_init(int device_id, adv_output output, adv_cursor cursor)
 {
+	(void)cursor;
+
 	log_std(("video:svgawin: svgawin_init(device_id:%d,output:%x)\n", device_id, (unsigned)output));
 
 	if (sizeof(svgawin_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)

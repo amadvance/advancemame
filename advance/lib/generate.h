@@ -81,7 +81,7 @@ void generate_vert_clock(adv_crtc* crtc, double clock);
 #define GENERATE_ADJUST_VTOTAL CRTC_ADJUST_VTOTAL
 adv_error generate_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_generate* generate, unsigned capability, unsigned adjust);
 adv_error generate_find_interpolate(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust);
-adv_error generate_find_interpolate_double(adv_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const adv_monitor* monitor, const adv_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust);
+adv_error generate_find_interpolate_multi(adv_crtc* crtc, unsigned hsize0, unsigned vsize0, unsigned hsize1, unsigned vsize1, unsigned hsize2, unsigned vsize2, unsigned hsize3, unsigned vsize3, double vclock, const adv_monitor* monitor, const adv_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust);
 
 void generate_default_vga(adv_generate* generate);
 void generate_default_atari_standard(adv_generate* generate);

@@ -117,7 +117,7 @@ const char* file_abs(const char* dir, const char* file)
 
 static char* import_conv(char* dst_begin, char* dst_end, const char* begin, const char* end)
 {
-	adb_bool need_slash;
+	adv_bool need_slash;
 
 	if (end - begin == 2 && begin[1]==':') {
 		/* only drive spec */

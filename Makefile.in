@@ -54,19 +54,17 @@ PREFIX=@prefix@
 #CONF_LIB_SLANG=yes
 #CONF_LIB_KRAW=yes
 
-# Select the optimization flags: (optimized build for 586 by default)
-# The available choices for the -march= option with gcc-2.95.3 are:
-#   i386, i486, i586, i686
-# The available choices for the -march= option with gcc-3.2.1 are:
-#   i386, i486, pentium, pentium-mmx, pentiumpro, pentium2,
-#   pentium3, pentium4, k6, k6-2, k6-3, athlon, athlon-tbird, athlon-4,
-#   athlon-xp, athlon-mp
-# Optimized build for i586
-#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=i586 -Wall -Wno-sign-compare -Wno-unused
-# Optimized build for i686
-#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=i686 -Wall -Wno-sign-compare -Wno-unused
-# Optimized build for k6
+# Select the optimization flags: (optimized build for 386 by default)
+# Optimized build for Pentium
+#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=pentium -Wall -Wno-sign-compare -Wno-unused
+# Optimized build for Pentium Pro, Pentium II, Pentium III, Celeron
+#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=pentiumpro -Wall -Wno-sign-compare -Wno-unused
+# Optimized build for Pentium IV
+#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=pentium4 -Wall -Wno-sign-compare -Wno-unused
+# Optimized build for K6, K6-II, K6-III
 #CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=k6 -Wall -Wno-sign-compare -Wno-unused
+# Optimized build for Duron, Athlon, Athlon XP, Athlon MP
+#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -march=athlon -Wall -Wno-sign-compare -Wno-unused
 # Profile build
 #CONF_CFLAGS_OPT=-O3 -pg -Wall -Wno-sign-compare -Wno-unused
 # Debug build
@@ -319,7 +317,7 @@ endif
 ifeq ($(CONF_HOST),dos)
 # Probably you need to changes these to cross compile:
 CROSSTARGET = i586-pc-msdosdjgpp
-CROSSDIR = /usr/local/gcc-3.2.1-i586-pc-msdosdjgpp
+CROSSDIR = /usr/local/gcc-3.2.2-i586-pc-msdosdjgpp
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
 CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++

@@ -68,6 +68,7 @@ struct video_option_struct {
 	adv_bool mode_bgr32; /**< Allow bgr32 modes. */
 	adv_bool mode_yuy2; /**< Allow yuy2 modes. */
 	adv_output output; /**< Output mode. */
+	adv_cursor cursor; /**< Cursor mode. */
 	char name[DEVICE_NAME_MAX]; /**< Name of the device. */
 };
 
@@ -336,6 +337,7 @@ void video_default(void)
 	video_option.mode_yuy2 = 1;
 	video_option.fast_change = 0;
 	video_option.output = adv_output_auto;
+	video_option.cursor = adv_cursor_auto;
 	strcpy(video_option.name, "auto");
 }
 
@@ -344,6 +346,12 @@ static adv_conf_enum_int OPTION_OUTPUT[] = {
 { "window", adv_output_window },
 { "fullscreen", adv_output_fullscreen },
 { "zoom", adv_output_zoom }
+};
+
+static adv_conf_enum_int OPTION_CURSOR[] = {
+{ "auto", adv_cursor_auto },
+{ "off", adv_cursor_off },
+{ "on", adv_cursor_on },
 };
 
 /**
@@ -364,6 +372,7 @@ void video_reg(adv_conf* context, adv_bool auto_detect)
 	conf_bool_register_default(context, "device_color_bgr32", 1);
 	conf_bool_register_default(context, "device_color_yuy2", 1);
 	conf_int_register_enum_default(context, "device_video_output", conf_enum(OPTION_OUTPUT), adv_output_auto);
+	conf_int_register_enum_default(context, "device_video_cursor", conf_enum(OPTION_CURSOR), adv_cursor_auto);
 }
 
 /**
@@ -452,7 +461,7 @@ adv_error video_init(void)
 
 		dev = device_match(video_option.name, (const adv_driver*)video_state.driver_map[j], 0);
 
-		if (dev && video_state.driver_map[j]->init(dev->id, video_option.output) == 0) {
+		if (dev && video_state.driver_map[j]->init(dev->id, video_option.output, video_option.cursor) == 0) {
 			log_std(("video: select driver %s\n", video_state.driver_map[j]->name));
 			at_least_one = 1;
 		} else {
@@ -556,6 +565,7 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 	video_option.mode_bgr32 = conf_bool_get_default(context, "device_color_bgr32");
 	video_option.mode_yuy2 = conf_bool_get_default(context, "device_color_yuy2");
 	video_option.output = conf_int_get_default(context, "device_video_output");
+	video_option.cursor = conf_int_get_default(context, "device_video_cursor");
 
 	strcpy(video_option.name, conf_string_get_default(context, "device_video"));
 

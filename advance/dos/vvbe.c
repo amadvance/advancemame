@@ -97,9 +97,11 @@ static void vbe_probe(void)
 		vbe_state2.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
 }
 
-static adv_error vbe_init2(int device_id, adv_output output)
+static adv_error vbe_init2(int device_id, adv_output output, adv_cursor cursor)
 {
 	const adv_device* i;
+
+	(void)cursor;
 
 	if (sizeof(vbe_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;

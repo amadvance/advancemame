@@ -10,7 +10,7 @@ else
 EMUVERSION = 0.65.0
 endif
 endif
-MENUVERSION = 2.2.3
+MENUVERSION = 2.2.4
 CABVERSION = 1.1.4
 
 ############################################################################
@@ -345,9 +345,11 @@ WHOLE_CFLAGS_EMU =
 WHOLE_LDFLAGS = -s
 
 ARCH_I386 = CONF_ARCH=i386 CONF_CFLAGS_OPT="-march=i386 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
-ARCH_I586 = CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=pentium $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
-ARCH_I686 = CONF_ARCH=pentium2 CONF_CFLAGS_OPT="-march=pentium2 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
+ARCH_PENTIUM = CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=pentium $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
+ARCH_PENTIUM2 = CONF_ARCH=pentium2 CONF_CFLAGS_OPT="-march=pentium2 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
+ARCH_PENTIUM4 = CONF_ARCH=pentium4 CONF_CFLAGS_OPT="-march=pentium4 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
 ARCH_K6 = CONF_ARCH=k6 CONF_CFLAGS_OPT="-march=k6 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
+ARCH_ATHLON = CONF_ARCH=athlon CONF_CFLAGS_OPT="-march=athlon $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
 
 mame:
 	$(MAKE) CONF=no CONF_EMU=mame emu
@@ -366,16 +368,17 @@ pacmame:
 
 wholemame:
 	$(MAKE) CONF=no dist
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix distbin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distbin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos distbin
-	$(MAKE) $(ARCH_I686) CONF=no CONF_HOST=dos distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos distbin
+	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos distbin
+	$(MAKE) $(ARCH_ATHLON) CONF=no CONF_HOST=dos distbin
 
 WHOLECD_FLAGS = \
 		CONF_ARCH=cd CONF_CFLAGS_OPT="-march=pentium -mcpu=pentium2 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
 		CONF=no CONF_HOST=unix \
 		CONF_LIB_SVGALIB=yes CONF_LIB_ALSA=yes CONF_LIB_KRAW=yes \
-		CONF_LIB_FB=yes CONF_LIB_OSS=yes CONF_LIB_PTHREAD=yes \
+		CONF_LIB_FB=yes CONF_LIB_OSS=no CONF_LIB_PTHREAD=yes \
 		CONF_LIB_SDL=no \
 		DATADIR=/advance
 
@@ -386,21 +389,21 @@ wholecd:
 
 wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_EMU=mess distbin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
 
 wholepac:
 	$(MAKE) CONF=no CONF_EMU=pac dist
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos CONF_EMU=pac distbin
-	$(MAKE) $(ARCH_I686) CONF=no CONF_HOST=dos CONF_EMU=pac distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos CONF_EMU=pac distbin
+	$(MAKE) $(ARCH_PENTIUM2) CONF=no CONF_HOST=dos CONF_EMU=pac distbin
 	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos CONF_EMU=pac distbin
 
 wholemenu:
 	$(MAKE) CONF=no distmenu
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix distmenubin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distmenubin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=unix distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=dos distmenubin
 
 wholecab:
 	$(MAKE) CONF=no distcab
@@ -413,9 +416,9 @@ wholedist:
 	$(MAKE) CONF=no distmenu
 
 wholewin:
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distbin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distmenubin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_PENTIUM) CONF=no CONF_HOST=windows distmenubin
 
 distmess:
 	$(MAKE) CONF=no CONF_EMU=mess dist

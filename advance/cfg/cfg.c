@@ -890,7 +890,7 @@ static void interpolate_update(adv_generate_interpolate_set* interpolate, struct
 	if (interpolate->mac) {
 		for(i=0;i<mac;++i) {
 			if (data[i].type == interpolate_mode && !data[i].selected) {
-				data[i].valid = generate_find_interpolate_double(&data[i].crtc, data[i].x, data[i].y, vclock, monitor, interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL)==0;
+				data[i].valid = generate_find_interpolate_multi(&data[i].crtc, data[i].x, data[i].y, data[i].x*2, data[i].y*2, data[i].x*3, data[i].y*3, data[i].x*4, data[i].y*4, vclock, monitor, interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL)==0;
 			}
 		}
 	} else {
@@ -1154,7 +1154,7 @@ adv_error cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_mon
 
 	adv_mode mode;
 
-	if (generate_find_interpolate_double(&crtc, x, y, vclock, monitor, interpolate, cap, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL)!=0) {
+	if (generate_find_interpolate_multi(&crtc, x, y, x*2, y*2, x*3, y*3, x*4, y*4, vclock, monitor, interpolate, cap, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL)!=0) {
 		return -1;
 	}
 
