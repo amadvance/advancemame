@@ -1,1 +1,0 @@
-advv -advmenuv %1

@@ -1,1 +1,0 @@
-advcfg -advmenuc %1
