@@ -196,6 +196,7 @@ Requirements
 		:SVGALIB 1.9.14 (or newer)
 		:SDL 1.2.4 (or newer)
 		:S-Lang 1.4.3 (or newer)
+		:ncurses 5.4 (or newer)
 		:FreeType 2.1.7 (or newer)
 		:zlib 1.1.4 (or newer)
 		:expat 1.95.6 (or newer)

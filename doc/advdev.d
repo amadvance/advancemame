@@ -192,6 +192,10 @@ Video Drivers
 	This driver works in Linux and is able to use current terminal text
 	mode from the Linux sLang library.
 
+    curses - System curses text video (Linux)
+	This driver works in Linux and is able to use current terminal text
+	mode from the Linux ncurses library.
+
     vbe - System VBE video (DOS)
 	This driver works in DOS and is able to use video modes reported
 	by the VBE BIOS.
@@ -446,7 +450,7 @@ Video Drivers Configuration
 
 	The order of detection:
 		DOS - svgaline, vbeline, vgaline, vbe.
-		Linux - svgalib, fb, sdl, slang.
+		Linux - svgalib, fb, sdl, slang, curses.
 		Mac OS X - sdl.
 		Windows - svgawin, sdl.
 
@@ -456,6 +460,7 @@ Video Drivers Configuration
 		fb - SVGA generated graphics modes with the Linux Console
 			Frame Buffer.
 		slang - Text video modes with the sLang library.
+		curses - Text video modes with the ncurses library.
 		sdl - SDL graphics and fake text modes.
 
 	Options for Mac OS X:
@@ -476,8 +481,8 @@ Video Drivers Configuration
 
 	Please note that to use the utilities `advv' and `advcfg' you
 	must at least select a graphics and a text video driver. The
-	available text video drivers are `vgaline' for DOS, `slang' and 
-	`sdl' for Linux and `sdl' for Windows.
+	available text video drivers are `vgaline' for DOS, `slang',
+	`curses' for Linux and `sdl' for Windows.
 
 	You can force the detection of a specific model of video board
 	adding the name of the model driver after the driver name using

@@ -46,6 +46,7 @@
  *  - USE_VIDEO_SDL
  *  - USE_VIDEO_VBE
  *  - USE_VIDEO_SLANG
+ *  - USE_VIDEO_CURSES
  *  - USE_VIDEO_NONE
  */
 void video_reg_driver_all(adv_conf* context)
@@ -76,6 +77,9 @@ void video_reg_driver_all(adv_conf* context)
 #endif
 #ifdef USE_VIDEO_SLANG
 	video_reg_driver(context, &video_slang_driver);
+#endif
+#ifdef USE_VIDEO_CURSES
+	video_reg_driver(context, &video_curses_driver);
 #endif
 #ifdef USE_VIDEO_NONE
 	video_reg_driver(context, &video_none_driver);

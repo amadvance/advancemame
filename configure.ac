@@ -353,6 +353,7 @@ fi
 # Checks for libraries.
 
 ac_lib_video_flag=no
+ac_lib_text_flag=no
 ac_lib_sound_flag=no
 ac_lib_keyboard_flag=no
 
@@ -365,6 +366,11 @@ if test $ac_system = dos; then
 	ac_lib_video_flag=yes
 	ac_lib_sound_flag=yes
 	ac_lib_keyboard_flag=yes
+	ac_lib_text_flag=yes
+fi
+
+if test $ac_system = windows; then
+	ac_lib_text_flag=yes
 fi
 
 # Checks for zlib
@@ -631,8 +637,39 @@ fi
 if test $ac_lib_slang = yes; then
 	AC_CHECK_HEADERS([slang.h slang/slang.h], [break])
 	ac_lib_video="$ac_lib_video slang"
+	ac_lib_text_flag=yes
 fi
 AC_SUBST([CONF_LIB_SLANG],[$ac_lib_slang])
+
+# Checks for ncurses
+AC_ARG_ENABLE(
+	[ncurses],
+	AC_HELP_STRING([--enable-ncurses],[enable the use of the ncurses library (default auto)]),
+	[ac_lib_ncurses=$enableval],
+	[ac_lib_ncurses=auto]
+)
+if test $ac_lib_ncurses = auto; then
+	AC_CHECK_LIB(
+		[ncurses],
+		[endwin],
+		[ac_lib_ncurses=yes],
+		[ac_lib_ncurses=no],
+		[]
+	)
+elif test $ac_lib_ncurses = yes; then
+	AC_CHECK_LIB(
+		[ncurses],
+		[endwin],
+		[],
+		[AC_MSG_ERROR([the sLang library is missing])],
+		[]
+	)
+fi
+if test $ac_lib_ncurses = yes; then
+	ac_lib_video="$ac_lib_video ncurses"
+	ac_lib_text_flag=yes
+fi
+AC_SUBST([CONF_LIB_NCURSES],[$ac_lib_ncurses])
 
 # Checks for freetype
 ac_lib_freetype_args=
@@ -1086,9 +1123,10 @@ if test $ac_enable_debug = no ; then
 	if test $ac_lib_sound_flag = no; then
 		AC_MSG_ERROR([no sound library found])
 	fi
-	if test $ac_lib_keyboard_flag = no; then
-		AC_MSG_ERROR([no keyboard library found])
+	if test $ac_lib_text_flag = no; then
+		AC_MSG_WARN([no text video mode library found. The advv/advcfg utilities will not work!])
 	fi
+	echo ""
 fi
 
 echo "== Compiler =="

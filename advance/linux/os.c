@@ -63,6 +63,10 @@
 #endif
 #endif
 
+#if defined(USE_CURSES)
+#include <curses.h>
+#endif
+
 #if defined(USE_X)
 #include <X11/Xlib.h>
 #endif
@@ -87,6 +91,10 @@ struct os_context {
 
 #ifdef USE_SLANG
 	adv_bool slang_active; /**< Slang initialized. */
+#endif
+
+#ifdef USE_CURSES
+	adv_bool curses_active; /**< Curses initialized. */
 #endif
 
 #ifdef USE_X
@@ -505,7 +513,21 @@ int os_inner_init(const char* title)
 		log_std(("WARNING:os: SLang_init_tty() skipped because X is active. All the SLang drivers will be disabled.\n"));
 	}
 #endif
-      
+#if defined(USE_CURSES)
+	OS.curses_active = 0;
+	if (!os_internal_wm_active()) {
+		log_std(("os: initscr()\n"));
+		initscr();
+		start_color();
+		cbreak();
+		noecho();
+		nonl();
+		OS.curses_active = 1;
+	} else {
+		log_std(("WARNING:os: curses initscr() skipped because X is active. All the curses drivers will be disabled.\n"));
+	}
+#endif
+
 	/* set the titlebar */
 	sncpy(OS.title_buffer, sizeof(OS.title_buffer), title);
 
@@ -572,6 +594,15 @@ void* os_internal_slang_get(void)
 }
 #endif
 
+#if defined(USE_CURSES)
+void* os_internal_curses_get(void)
+{
+	if (OS.curses_active)
+		return &OS.curses_active;
+	return 0;
+}
+#endif
+
 #if defined(USE_X)
 void* os_internal_x_get(void)
 {
@@ -618,6 +649,13 @@ void os_inner_done(void)
 		log_std(("os: XCloseDisplay()\n"));
 		XCloseDisplay(OS.x_display);
 		OS.x_active = 0;
+	}
+#endif
+#ifdef USE_CURSES
+	if (OS.curses_active) {
+		log_std(("os: endwin()\n"));
+		endwin();
+		OS.curses_active = 0;
 	}
 #endif
 #ifdef USE_SLANG

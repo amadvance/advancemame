@@ -32,8 +32,8 @@
  * Video driver "slang".
  */
 
-#ifndef __DRVSLANG_H
-#define __DRVSLANG_H
+#ifndef __VSLANG_H
+#define __VSLANG_H
 
 #include "videodrv.h"
 

@@ -66,6 +66,11 @@ int os_internal_fb_is_video_mode_active(void);
 void* os_internal_slang_get(void);
 #endif
 
+#if defined(USE_VIDEO_CURSES)
+#define USE_CURSES
+void* os_internal_curses_get(void);
+#endif
+
 /* Check if X is used in some way */
 #if defined(USE_VIDEO_X) || defined(USE_KEYBOARD_X) || defined(USE_MOUSE_X)
 #define USE_X

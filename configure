@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os ASMFLAGS CFLAGS_FOR_BUILD EXE CONF_SYSTEM CONF_HOST EXE_FOR_BUILD CONF_BUILD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S AR ac_ct_AR RC ac_ct_RC RM CP MKDIR ECHO TAR GZIP ZIP CC_FOR_BUILD CXX_FOR_BUILD CONF_DEBUG CONF_CFLAGS_OPT CONF_LDFLAGS ASM CONF_CFLAGS_ARCH CONF_EMU CONF_DEBUGGER CPP EGREP ALLOCA CONF_LIB_ZLIB CONF_LIB_EXPAT CONF_LIB_SVGALIB CONF_LIB_FB CONF_LIB_ALSA CONF_LIB_OSS CONF_LIB_PTHREAD CONF_LIB_SLANG ac_lib_freetype_config FREETYPECFLAGS FREETYPELIBS CONF_LIB_FREETYPE ac_lib_sdl_config SDLCFLAGS SDLLIBS CONF_LIB_SDL CONF_LIB_SVGAWIN CONF_LIB_KRAW CONF_LIB_JRAW CONF_LIB_MRAW CONF_LIB_MEVENT CONF_LIB_KEVENT CONF_LIB_JEVENT LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os ASMFLAGS CFLAGS_FOR_BUILD EXE CONF_SYSTEM CONF_HOST EXE_FOR_BUILD CONF_BUILD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S AR ac_ct_AR RC ac_ct_RC RM CP MKDIR ECHO TAR GZIP ZIP CC_FOR_BUILD CXX_FOR_BUILD CONF_DEBUG CONF_CFLAGS_OPT CONF_LDFLAGS ASM CONF_CFLAGS_ARCH CONF_EMU CONF_DEBUGGER CPP EGREP ALLOCA CONF_LIB_ZLIB CONF_LIB_EXPAT CONF_LIB_SVGALIB CONF_LIB_FB CONF_LIB_ALSA CONF_LIB_OSS CONF_LIB_PTHREAD CONF_LIB_SLANG CONF_LIB_NCURSES ac_lib_freetype_config FREETYPECFLAGS FREETYPELIBS CONF_LIB_FREETYPE ac_lib_sdl_config SDLCFLAGS SDLLIBS CONF_LIB_SDL CONF_LIB_SVGAWIN CONF_LIB_KRAW CONF_LIB_JRAW CONF_LIB_MRAW CONF_LIB_MEVENT CONF_LIB_KEVENT CONF_LIB_JEVENT LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -877,6 +877,7 @@ Optional Features:
   --enable-oss            enable the use of the OSS library. (default auto)
   --enable-pthread        enable the use of the pthread library (default auto)
   --enable-slang          enable the use of the sLang library (default auto)
+  --enable-ncurses        enable the use of the ncurses library (default auto)
   --enable-freetype       enable the use of the FreeType2 library. (default
                           auto)
   --enable-sdl            enable the use of the SDL library. (default auto)
@@ -7678,6 +7679,7 @@ fi
 # Checks for libraries.
 
 ac_lib_video_flag=no
+ac_lib_text_flag=no
 ac_lib_sound_flag=no
 ac_lib_keyboard_flag=no
 
@@ -7690,6 +7692,11 @@ if test $ac_system = dos; then
 	ac_lib_video_flag=yes
 	ac_lib_sound_flag=yes
 	ac_lib_keyboard_flag=yes
+	ac_lib_text_flag=yes
+fi
+
+if test $ac_system = windows; then
+	ac_lib_text_flag=yes
 fi
 
 # Checks for zlib
@@ -9179,8 +9186,178 @@ fi
 done
 
 	ac_lib_video="$ac_lib_video slang"
+	ac_lib_text_flag=yes
 fi
 CONF_LIB_SLANG=$ac_lib_slang
+
+
+# Checks for ncurses
+# Check whether --enable-ncurses or --disable-ncurses was given.
+if test "${enable_ncurses+set}" = set; then
+  enableval="$enable_ncurses"
+  ac_lib_ncurses=$enableval
+else
+  ac_lib_ncurses=auto
+
+fi;
+if test $ac_lib_ncurses = auto; then
+	echo "$as_me:$LINENO: checking for endwin in -lncurses" >&5
+echo $ECHO_N "checking for endwin in -lncurses... $ECHO_C" >&6
+if test "${ac_cv_lib_ncurses_endwin+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lncurses
+	 $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char endwin ();
+int
+main ()
+{
+endwin ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_ncurses_endwin=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_ncurses_endwin=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_ncurses_endwin" >&5
+echo "${ECHO_T}$ac_cv_lib_ncurses_endwin" >&6
+if test $ac_cv_lib_ncurses_endwin = yes; then
+  ac_lib_ncurses=yes
+else
+  ac_lib_ncurses=no
+fi
+
+elif test $ac_lib_ncurses = yes; then
+
+echo "$as_me:$LINENO: checking for endwin in -lncurses" >&5
+echo $ECHO_N "checking for endwin in -lncurses... $ECHO_C" >&6
+if test "${ac_cv_lib_ncurses_endwin+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lncurses
+	 $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char endwin ();
+int
+main ()
+{
+endwin ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_ncurses_endwin=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_ncurses_endwin=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_ncurses_endwin" >&5
+echo "${ECHO_T}$ac_cv_lib_ncurses_endwin" >&6
+if test $ac_cv_lib_ncurses_endwin = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBNCURSES 1
+_ACEOF
+
+  LIBS="-lncurses $LIBS"
+
+else
+  { { echo "$as_me:$LINENO: error: the sLang library is missing" >&5
+echo "$as_me: error: the sLang library is missing" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+fi
+if test $ac_lib_ncurses = yes; then
+	ac_lib_video="$ac_lib_video ncurses"
+	ac_lib_text_flag=yes
+fi
+CONF_LIB_NCURSES=$ac_lib_ncurses
 
 
 # Checks for freetype
@@ -11216,6 +11393,7 @@ s,@CONF_LIB_ALSA@,$CONF_LIB_ALSA,;t t
 s,@CONF_LIB_OSS@,$CONF_LIB_OSS,;t t
 s,@CONF_LIB_PTHREAD@,$CONF_LIB_PTHREAD,;t t
 s,@CONF_LIB_SLANG@,$CONF_LIB_SLANG,;t t
+s,@CONF_LIB_NCURSES@,$CONF_LIB_NCURSES,;t t
 s,@ac_lib_freetype_config@,$ac_lib_freetype_config,;t t
 s,@FREETYPECFLAGS@,$FREETYPECFLAGS,;t t
 s,@FREETYPELIBS@,$FREETYPELIBS,;t t
@@ -11771,11 +11949,11 @@ echo "$as_me: error: no video library found. If you have the SDL library install
 echo "$as_me: error: no sound library found" >&2;}
    { (exit 1); exit 1; }; }
 	fi
-	if test $ac_lib_keyboard_flag = no; then
-		{ { echo "$as_me:$LINENO: error: no keyboard library found" >&5
-echo "$as_me: error: no keyboard library found" >&2;}
-   { (exit 1); exit 1; }; }
+	if test $ac_lib_text_flag = no; then
+		{ echo "$as_me:$LINENO: WARNING: no text video mode library found. The advv/advcfg utilities will not work!" >&5
+echo "$as_me: WARNING: no text video mode library found. The advv/advcfg utilities will not work!" >&2;}
 	fi
+	echo ""
 fi
 
 echo "== Compiler =="

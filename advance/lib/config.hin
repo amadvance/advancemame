@@ -67,6 +67,9 @@
 /* Define to 1 if you have the `asound' library (-lasound). */
 #undef HAVE_LIBASOUND
 
+/* Define to 1 if you have the `ncurses' library (-lncurses). */
+#undef HAVE_LIBNCURSES
+
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
 
@@ -75,9 +78,6 @@
 
 /* Define to 1 if you have the `vga' library (-lvga). */
 #undef HAVE_LIBVGA
-
-/* Define to 1 if you have the `z' library (-lz). */
-#undef HAVE_LIBZ
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H

@@ -32,8 +32,8 @@
  * Video driver "svgalib".
  */
 
-#ifndef __SVGALIB_H
-#define __SVGALIB_H
+#ifndef __VSVGAB_H
+#define __VSVGAB_H
 
 #include "videodrv.h"
 

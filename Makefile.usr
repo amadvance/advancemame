@@ -55,6 +55,7 @@ prefix=/usr/local
 #CONF_LIB_OSS=yes
 #CONF_LIB_PTHREAD=yes
 #CONF_LIB_SLANG=yes
+#CONF_LIB_NCURSES=yes
 #CONF_LIB_KRAW=yes
 #CONF_LIB_JRAW=yes
 #CONF_LIB_MRAW=yes
@@ -170,6 +171,10 @@ endif
      
 ifndef CONF_LIB_SLANG
 CONF_LIB_SLANG=yes
+endif
+
+ifndef CONF_LIB_NCURSES
+CONF_LIB_NCURSES=yes
 endif
 
 ifndef CONF_LIB_KRAW

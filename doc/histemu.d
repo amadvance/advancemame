@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.88.1 2004/11
+	) Added a ncurses driver for text mode in Linux.
+
 AdvanceMAME Version 0.88.0 2004/11
 	) Improved the timer precision in the Windows version.
 	) Added support for scaling bitmapped fonts by an
