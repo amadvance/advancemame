@@ -119,13 +119,18 @@ Manual Operation Mode
 
 	Generic Arcade Monitor Medium Resolution 25 kHz (EGA) :
 		:device_video_pclock 5 - 50
-		:device_video_hclock 24.84
+		:device_video_hclock 25
 		:device_video_vclock 49 - 61
 
 	Generic Atari Monitor Extended Resolution 16 kHz
 		:device_video_pclock 5 - 50
 		:device_video_hclock 16.5
 		:device_video_vclock 53
+
+	Please note that the manuals of some Arcade Monitors incorrectly
+	state a wide range of horizontal frequency like 15 - 31 kHz.
+	Generally these monitors support only the three fixed frequency
+	15.75, 25, 31.1 kHz. For example the Wells Gardner D9200.
 
 	) Run the `advv' program for AdvanceMAME or `advv -advmenuv' for
 		AdvanceMENU.

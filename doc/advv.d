@@ -355,13 +355,19 @@ Configuration
 
 	Example for a Generic Arcade Monitor Medium Resolution 25 kHz (EGA) :
 		:device_video_pclock 5 - 50
-		:device_video_hclock 24.84
+		:device_video_hclock 25
 		:device_video_vclock 50 - 60
 
 	Example for a Generic Atari Monitor Extended Resolution 16 kHz
 		:device_video_pclock 5 - 50
 		:device_video_hclock 16.5
 		:device_video_vclock 53
+
+	Please note that the manuals of some Arcade Monitors incorrectly
+	state to support a wide range of horizontal frequency
+	like 15 - 31 kHz. Generally these monitors support only the
+	three fixed frequency 15.75, 25, 31.1 kHz. For example the
+	Wells Gardner D9200.
 
     device_video_modeline
 	Define a video modeline. The modeline format is compatible with
