@@ -46,7 +46,14 @@ script_emulation delay(5000); \
 2 ADVANCEMENU FAQ
 =================
 
-2.1 Can I use AdvanceMENU to list my MP3 and MNG collection ?
+2.1 I have always the message "Updating the ... information file ..."
+---------------------------------------------------------------------
+
+The information file is recreated if the emulator executable
+is newer. If this happen all the time, probably you have
+a wrong time setting on your system.
+
+2.2 Can I use AdvanceMENU to list my MP3 and MNG collection ?
 -------------------------------------------------------------
 
 Yes. You can create a fake emulator to play all your music

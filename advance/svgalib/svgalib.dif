@@ -254,7 +254,7 @@ diff -u ../svgalib.ori/drivers/mx.c drivers/mx.c
  #define MXREG_SAVE(i) (VGA_TOTAL_REGS+i)
 diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
 --- ../svgalib.ori/drivers/nv3.c	2005-03-16 10:40:43.000000000 +0100
-+++ drivers/nv3.c	2005-03-18 22:00:58.000000000 +0100
++++ drivers/nv3.c	2005-04-04 20:52:23.000000000 +0200
 @@ -22,12 +22,12 @@
  #include <unistd.h>
  #include "vga.h"
@@ -270,7 +270,17 @@ diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
  #include "nv3ref.h"
  #include "nvreg.h"
  #include "vgapci.h"
-@@ -504,7 +504,8 @@
+@@ -407,8 +407,7 @@
+ 	return;
+ }
+ 
+-
+-static int setmode(int mode, int prv_mode)
++static int nvsetmode(int mode, int prv_mode)
+ {
+     unsigned char *moderegs;
+     ModeTiming *modetiming;
+@@ -504,7 +503,8 @@
  	
   	MMIOBASE=0; /* let init() find those */
   	LINEARBASE=0;
@@ -280,7 +290,16 @@ diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
  
  	return 1;
  }
-@@ -766,6 +767,8 @@
+@@ -640,7 +640,7 @@
+     setpage,
+     0,
+     0,
+-    setmode,
++    nvsetmode,
+     modeavailable,
+     setdisplaystart,
+     setlogicalwidth,
+@@ -766,6 +766,8 @@
  	__svgalib_mmio_size=8*1024*1024;
  	
  	map_mmio();
@@ -289,7 +308,7 @@ diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
  	
  	if(!force){
   		int boot0;
-@@ -884,7 +887,7 @@
+@@ -884,7 +886,7 @@
      for (P = 0; P <= P_MAX; P ++)
      {
          Freq = VClk << P;
@@ -298,6 +317,15 @@ diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
          {
              for (M = M_MIN; M <= M_MAX; M++)
              {
+@@ -927,7 +929,7 @@
+ 	
+ 	for (P = 0; P <= 6; P++) {
+ 		Freq = VClk << P;
+-		if ((Freq >= 400000) && (Freq <= 1000000)) {
++		if ((Freq >= 400000 || P == 6) && (Freq <= 1000000)) {
+ 			for (M = 1; M <= 13; M++) {
+ 				N = ((VClk << P) * M) / (PLL_INPUT_FREQ << 2);
+ 				if((N >= 5) && (N <= 255)) {
 diff -u ../svgalib.ori/drivers/pm2.c drivers/pm2.c
 --- ../svgalib.ori/drivers/pm2.c	2004-09-10 12:59:25.000000000 +0200
 +++ drivers/pm2.c	2005-03-18 21:58:01.000000000 +0100

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -225,7 +225,7 @@ bool convert::is_option(const string& s, string& a)
 
 bool convert::is_tag(const string& s, string& a, string& b, bool root_tag)
 {
-	if (s.length() > 0 && s[0] == ':')
+	if (s.length() > 0 && (s[0] == ':' || s[0] == '+'))
 		return false;
 	unsigned d = s.find(" - ");
 	if (d == string::npos)

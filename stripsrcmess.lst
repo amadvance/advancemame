@@ -108,6 +108,7 @@ includes/snes.h
 includes/jaguar.h
 includes/cps1.h
 includes/psx.h
+includes/rc.h
 machine/6522via.c
 machine/6522via.h
 machine/6532riot.c

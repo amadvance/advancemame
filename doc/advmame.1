@@ -3703,7 +3703,20 @@ misc_safequit yes | no
 .PP
 .PD
 .PP
-If the file \(oqevent.dat\(cq is found the exit menu is shown only
+Options:
+.RS 4
+.PD 0
+.HP 4
+.I no
+Disabled.
+.HP 4
+.I yes
+Enabled (default).
+.PD
+.RE
+.PP
+If the file \(oqevent.dat\(cq (specified with the \(oqmisc_eventfile\(cq
+option) is found the exit menu is shown only
 if one or more coins are inserted or if you are playing.
 .SS misc_eventdebug 
 Activates the debug mode for the event/safequit feature. On the top
@@ -3716,6 +3729,18 @@ misc_eventdebug yes | no
 .PD 0
 .PP
 .PD
+.PP
+Options:
+.RS 4
+.PD 0
+.HP 4
+.I no
+Disabled (default).
+.HP 4
+.I yes
+Enabled.
+.PD
+.RE
 .SS misc_eventfile 
 Selects the event/safequit database to use.
 .PP

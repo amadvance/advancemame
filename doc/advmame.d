@@ -2195,7 +2195,12 @@ Configuration
 
 	:misc_safequit yes | no
 
-	If the file `event.dat' is found the exit menu is shown only
+	Options:
+		no - Disabled.
+		yes - Enabled (default).
+
+	If the file `event.dat' (specified with the `misc_eventfile'
+	option) is found the exit menu is shown only
 	if one or more coins are inserted or if you are playing.
 
     misc_eventdebug
@@ -2206,6 +2211,10 @@ Configuration
 	without prompting. Other values are the 6 generic events.
 
 	:misc_eventdebug yes | no
+
+	Options:
+		no - Disabled (default).
+		yes - Enabled.
 
     misc_eventfile
 	Selects the event/safequit database to use.

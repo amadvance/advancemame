@@ -209,7 +209,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 	if (is_first) {
 		if (rs.ui_startup != "none") {
 			if (int_enable(-1, -1, "none", rs.video_orientation_effective)) {
-				int_clip(rs.ui_startup);
+				int_clip(rs.ui_startup, false);
 				int_disable();
 			}
 		}
@@ -283,7 +283,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 	if (is_terminate) {
 		if (rs.ui_exit != "none") {
 			if (int_enable(-1, -1, "none", rs.video_orientation_effective)) {
-				wait = int_clip(rs.ui_exit);
+				wait = int_clip(rs.ui_exit, false);
 				int_disable();
 			}
 		}

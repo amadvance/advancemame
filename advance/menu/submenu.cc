@@ -1023,7 +1023,7 @@ void run_help(config_state& rs)
 	int_clear(COLOR_HELP_NORMAL.background);
 
 	if (rs.ui_help != "none") {
-		wait = int_clip(rs.ui_help);
+		wait = int_clip(rs.ui_help, true);
 	} else {
 		if (rs.ui_back != "none") {
 			unsigned x, y;

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2003 Andrea Mazzoleni
+ * Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,10 +36,6 @@
 #include "error.h"
 #include "snstring.h"
 #include "event.h"
-
-#ifdef USE_VIDEO_SDL
-#include "ossdl.h"
-#endif
 
 #if defined(USE_SVGALIB)
 #include <vga.h>
@@ -200,15 +196,6 @@ adv_error mouseb_event_init(int mouseb_id)
 	unsigned mac;
 
 	log_std(("mouseb:event: mouseb_event_init(id:%d)\n", mouseb_id));
-
-#ifdef USE_VIDEO_SDL
-	/* If the SDL video driver is used, also the SDL */
-	/* keyboard input must be used. */
-	if (os_internal_sdl_is_video_active()) {
-		error_set("Incompatible with the SDL video driver\n");
-		return -1; 
-	}
-#endif
 
 #if defined(USE_SVGALIB)
 	/* close the SVGALIB mouse device. SVGALIB always call mouse_init(), also */

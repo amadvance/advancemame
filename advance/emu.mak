@@ -468,6 +468,7 @@ EMULIBS += \
 EMUCHDMANOBJS += \
 	$(OBJ)/chdman.o \
 	$(OBJ)/chd.o \
+	$(OBJ)/cdrom.o \
 	$(OBJ)/chdcd.o \
 	$(OBJ)/sha1.o \
 	$(OBJ)/md5.o \

@@ -3,6 +3,13 @@
                             =======================
 
 
+ADVANCEMENU VERSION 2.4.8 2005/03
+=================================
+
+* The help screen exits when the played mng clip is
+  terminated.
+
+
 ADVANCEMENU VERSION 2.4.7 2005/03
 =================================
 

@@ -36,15 +36,18 @@
 /**
  * Register all the mouse drivers.
  * The drivers are registered on the basis of the following defines:
+ *  - USE_MOUSE_SDL
  *  - USE_MOUSE_EVENT
  *  - USE_MOUSE_SVGALIB
  *  - USE_MOUSE_RAW
- *  - USE_MOUSE_SDL
  *  - USE_MOUSE_ALLEGRO
  *  - USE_MOUSE_NONE
  */
 void mouseb_reg_driver_all(adv_conf* context)
 {
+#ifdef USE_MOUSE_SDL
+	mouseb_reg_driver(context, &mouseb_sdl_driver);
+#endif
 #ifdef USE_MOUSE_EVENT
 	mouseb_reg_driver(context, &mouseb_event_driver);
 #endif
@@ -53,9 +56,6 @@ void mouseb_reg_driver_all(adv_conf* context)
 #endif
 #ifdef USE_MOUSE_RAW
 	mouseb_reg_driver(context, &mouseb_raw_driver);
-#endif
-#ifdef USE_MOUSE_SDL
-	mouseb_reg_driver(context, &mouseb_sdl_driver);
 #endif
 #ifdef USE_MOUSE_ALLEGRO
 	mouseb_reg_driver(context, &mouseb_allegro_driver);

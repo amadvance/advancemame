@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.4.8 2005/03
+	) The help screen exits when the played mng clip is
+		terminated.
+
 AdvanceMENU Version 2.4.7 2005/03
 	) Added a new `ui_startup' option to display a clip/image
 		at the menu startup.

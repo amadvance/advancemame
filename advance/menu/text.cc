@@ -2456,7 +2456,7 @@ void int_clear_alpha(int x, int y, int dx, int dy, const adv_color_rgb& color)
 	gen_clear_alpha(x, y, dx, dy, color);
 }
 
-bool int_clip(const string& file)
+bool int_clip(const string& file, bool loop)
 {
 	unsigned aspectx = int_dx_get();
 	unsigned aspecty = int_dy_get();
@@ -2479,6 +2479,9 @@ bool int_clip(const string& file)
 		}
 
 		int_clip_clear(0);
+
+		if (loop)
+			wait = false;
 	} else {
 		int_backdrop_set(0, res, false, aspectx, aspecty);
 

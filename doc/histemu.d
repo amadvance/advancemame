@@ -1,8 +1,17 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMESS Version 0.95.0.0 2005/04
+	) Based on MAME 0.95 and AdvanceMAME 0.95.0.
+
+AdvanceMAME Version 0.95.0 2005/04
+	) Based on MAME 0.95
+	) The `event' and `raw' mouse driver are now enabled
+		in X. The default choice is for the `sdl' driver
+		but you can force another driver if you want.
+
 AdvanceMESS Version 0.94.0.0 2005/03
-	) All from AdvanceMAME 0.94.0.
+	) Based on MAME 0.94 and AdvanceMAME 0.94.0.
 
 AdvanceMAME Version 0.94.0 2005/03
 	) The install target now create the bin/ directory if

@@ -929,7 +929,7 @@ static void CalcVClock2Stage (
 	
 	for (P = 0; P <= 6; P++) {
 		Freq = VClk << P;
-		if ((Freq >= 400000) && (Freq <= 1000000)) {
+		if ((Freq >= 400000 || P == 6) && (Freq <= 1000000)) {
 			for (M = 1; M <= 13; M++) {
 				N = ((VClk << P) * M) / (PLL_INPUT_FREQ << 2);
 				if((N >= 5) && (N <= 255)) {
