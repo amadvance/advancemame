@@ -10,11 +10,11 @@ PREFIX=@prefix@
 #CONF_EMU=mame
 
 # Uncomment the host operating system.
-# The available choices are unix, linux, windows.
+# The available choices are unix, dos, windows.
 #
-# The linux host uses:
+# The unix host uses:
 #   SVGALIB, Frame Buffer, SDL for the video
-#   SLang for the text
+#   SLang, SDL for the text
 #   OSS, SDL for the sound
 #   SVGALIB, SDL for the keyboard
 #   SVGALIB, SDL for the joystick
@@ -30,9 +30,9 @@ PREFIX=@prefix@
 #   Allegro for the mouse
 #   none for the Multiprocessor support (no Multiprocessor support)
 #
-# The windows host system uses:
+# The windows host uses:
 #   SVGAWIN, SDL for the video
-#   none for the text (no text mode programs are available)
+#   SDL for the text
 #   SDL for the sound
 #   SDL for the keyboard
 #   SDL for the joystick
@@ -53,11 +53,9 @@ PREFIX=@prefix@
 #CONF_LIB_SLANG=yes
 
 # Select the optimization flags: (optimized build for 586 by default)
-# The available choices for the -march= option with gcc-2.95 are:
+# The available choices for the -march= option with gcc-2.95.3 are:
 #   i386, i486, i586, i686
-# The available choices for the -march= option with gcc-3.0 are:
-#   i386, i486, i586, pentium, pentium-mmx, i686, pentiumpro, k6, athlon
-# The available choices for the -march= option with gcc-3.1 are:
+# The available choices for the -march= option with gcc-3.2.1 are:
 #   i386, i486, i586, pentium, pentium-mmx, i686, pentiumpro, pentium2,
 #   pentium3, pentium4, k6, k6-2, k6-3, athlon, athlon-tbird, athlon-4,
 #   athlon-xp, athlon-mp

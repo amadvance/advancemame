@@ -31,6 +31,7 @@ CFGOBJS += \
 	$(CFGOBJ)/lib/error.o \
 	$(CFGOBJ)/blit/blit.o \
 	$(CFGOBJ)/blit/clear.o \
+	$(CFGOBJ)/blit/slice.o \
 	$(CFGOBJ)/cfg/cfg.o \
 	$(CFGOBJ)/cfg/list.o \
 	$(CFGOBJ)/v/draw.o

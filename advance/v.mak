@@ -24,6 +24,7 @@ VOBJS += \
 	$(VOBJ)/lib/error.o \
 	$(VOBJ)/blit/blit.o \
 	$(VOBJ)/blit/clear.o \
+	$(VOBJ)/blit/slice.o \
 	$(VOBJ)/v/v.o \
 	$(VOBJ)/v/draw.o
 VOBJDIRS += \

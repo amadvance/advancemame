@@ -322,7 +322,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  #endif
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/osdepend.h srcmess/osdepend.h
 --- srcmess.ori/osdepend.h	2002-09-27 05:08:54.000000000 +0200
-+++ srcmess/osdepend.h	2002-11-16 18:33:55.000000000 +0100
++++ srcmess/osdepend.h	2002-11-16 18:33:54.000000000 +0100
 @@ -404,10 +404,36 @@
  #include "osd_mess.h"
  #endif

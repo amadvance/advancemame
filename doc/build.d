@@ -93,15 +93,28 @@ Targets
 Requirements
 	To compile the Advance projects you need the following
 	software :
-		:GNU gcc 2.95.3/3.0.4/3.1.x/3.2 (with c and c++ support)
-		:NASM 0.98 (or newer)
+		:GNU gcc 2.95.3 or 3.0.4 or 3.2.1 (with c and c++ support)
+		:NASM 0.98.33 (or newer)
 		:zlib 1.1.3 (or newer)
-		:UPX 1.20 (or newer)
 		:Make 3.79.1 (or newer)
 
-	The gcc compiler versions 2.96.x, 3.0, 3.0.1 and 3.0.2 are
-	NOT supported. In DOS there are some problems with the 3.1.x
-	compiler, don't use it.
+	The gcc compiler versions 2.96.x, 3.0, 3.0.1 and 3.0.2 are NOT
+	supported. In DOS also the versions 3.1, 3.1.1 and 3.2 are
+	NOT supported. Other versions may work.
+
+	To build on Linux you need the additional following software:
+		:Linux 2.4.5 (or newer)
+		:SVGALIB 1.9.14 (or newer)
+		:S-Lang 1.4.3 (or newer)
+		:LibSDL 1.2.4 (or newer)
+
+	The SVGALIB 1.4.x versions are NOT supported.
+	Download the latest ALPHA 1.9.x version from http://www.svgalib.org.
+	Some users have reported problems with the 1.9.16 version, eventually
+	downgrade at the 1.9.15 or 1.9.14 version.
+
+	If your distribution doesn't contain the S-Lang library you
+	can download it from http://www.s-lang.org/.
 
 	To build in DOS you need the additional following software:
 		:DJGPP development kit 2.03 (djdev*.zip)
@@ -112,32 +125,13 @@ Requirements
 		:DJGPP GNU shellutils (shl*b.zip)
 		:DJGPP GNU patch (pat*b.zip)
 		:SEAL 1.0.7 + mame patch
-		:Allegro 3.9.40 (or newer)
+		:Allegro 4.0.0 (or newer)
 
 	The patched SEAL library is available at http://www.mame.net
 
 	Ensure to have the DOS version of NASM. If you have the Windows
 	version named `nasmw.exe' you must rename it as `nasm.exe' or
 	change the `Makefile' to use it.
-
-	To build on Linux you need the additional following software:
-		:Linux 2.4.5 (or newer)
-		:SVGALIB 1.9.14 (or newer)
-		:S-Lang 1.4.3 (or newer)
-		:LibSDL 1.2.4 (or newer)
-
-	Linux 2.2 is not tested, anyway it should work.
-
-	The SVGALIB 1.4.x versions are NOT supported.
-	Download the latest ALPHA 1.9.x version from http://www.svgalib.org.
-	Some users have reported problems with the 1.9.16 version, eventually
-	downgrade at the 1.9.15 or 1.9.14 version.
-
-	If your distribution doesn't contain the S-Lang library you
-	can download it from http://www.s-lang.org/.
-
-	Previous versions of these libraries may work, anyway they
-	are not tested.
 
 	To build on Windows you need the additional following software:
 		:MINGW 1.1 (or newer)

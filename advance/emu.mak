@@ -321,6 +321,7 @@ EMUOBJS += \
 	$(OBJ)/advance/osd/fuzzy.o \
 	$(OBJ)/advance/blit/blit.o \
 	$(OBJ)/advance/blit/clear.o \
+	$(OBJ)/advance/blit/slice.o \
 	$(OBJ)/advance/lib/log.o \
 	$(OBJ)/advance/lib/video.o \
 	$(OBJ)/advance/lib/rgb.o \

@@ -39,49 +39,11 @@
 #define __BLIT_H
 
 #include "video.h"
+#include "slice.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- * Run-length slice context.
- * This context must be initialized with the video_slice_init() function.
- */
-struct video_slice {
-	int whole; /**< Segment length. */
-	int up; /**< Up step. */
-	int down; /**< Down step. */
-	int count; /**< Number of segment. */
-	int error; /**< Start error_t. */
-};
-
-/**
- * Initialize the run-length slice algoritm.
- * This is a modification of the Bresenhams run-length slice algoritm
- * adapted to work with bitmap resize.
- * Refere to Dr. Dobb's Journal Nov 1992 "The good, the bad, and the run-sliced"
- * by Michael Abrash.
- *
- * The basic use is:
-\code
-	while (count) {
-		unsigned run = whole;
-		if ((error_t += up) > 0) {
-			++run;
-			error_t -= down;
-		}
-
-		... draw a segment of "run" pixel ...
-
-		--count;
-	}
-\endcode
- * \param slice Slice context to initialize.
- * \param sd Source size.
- * \param dd Destination size.
- */
-void video_slice_init(struct video_slice* slice, unsigned sd, unsigned dd);
 
 /***************************************************************************/
 /* stage/pipeline */
@@ -177,7 +139,7 @@ struct video_stage_horz_struct {
 	unsigned sdx; /**< Size of the source (in bytes). */
 	unsigned sbpp; /**< Bytes per pixel of the source. */
 
-	struct video_slice slice; /**< Stretch slice. */
+	adv_slice slice; /**< Stretch slice. */
 
 	unsigned* palette; /**< Palette conversion table. */
 
@@ -242,7 +204,7 @@ struct video_stage_vert_struct {
 	unsigned ddy;
 
 	/* stretch slice */
-	struct video_slice slice;
+	adv_slice slice;
 
 	/* pipeline */
 	const struct video_stage_horz_struct* stage_begin;

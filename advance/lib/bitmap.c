@@ -22,6 +22,7 @@
 #include "bitmap.h"
 #include "endianrw.h"
 #include "rgb.h"
+#include "slice.h"
 
 #include <assert.h>
 #include <string.h>
@@ -495,54 +496,55 @@ unsigned bitmap_reduce(unsigned* convert, adv_color* palette, unsigned size, con
  */
 adv_bitmap* bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned dx, unsigned dy, unsigned sx, unsigned sy, unsigned orientation_mask) {
 	adv_bitmap* newbmp;
+	unsigned* map_x;
+	unsigned* map_y;
 	unsigned i,j;
-	unsigned* x_map;
 
 	if (!sx || !sy || !dx || !dy)
 		return 0;
 
 	/* new ptr */
-	newbmp = bitmap_alloc(sx,sy,bmp->bytes_per_pixel * 8);
-	assert( newbmp );
+	newbmp = bitmap_alloc(sx, sy, bmp->bytes_per_pixel * 8);
+	map_x = malloc(sizeof(unsigned) * sx);
+	map_y = malloc(sizeof(unsigned) * sy);
 
-	x_map = malloc(sizeof(unsigned) * sx);
-	assert(x_map);
+	slice_vector(map_x, dx, sx);
+	if (orientation_mask & ORIENTATION_MIRROR_X) {
+		for(i=0;i<sx;++i)
+			map_x[i] = x + dx - map_x[i] - 1;
+	} else {
+		for(i=0;i<sx;++i)
+			map_x[i] = x + map_x[i];
+	}
 
-	// set orientation_mask (only mirror) and scaling
-	for(i=0;i<sx;++i) {
-		unsigned xv = i * (dx-1) / (sx-1);
-		if (orientation_mask & ORIENTATION_MIRROR_X)
-			xv = dx - xv - 1;
-		x_map[i] = xv + x;
+	slice_vector(map_y, dy, sy);
+	if (orientation_mask & ORIENTATION_MIRROR_Y) {
+		for(i=0;i<sy;++i)
+			map_y[i] = y + dy - map_y[i] - 1;
+	} else {
+		for(i=0;i<sy;++i)
+			map_y[i] = y + map_y[i];
 	}
 
 	if (bmp->bytes_per_pixel == 1) {
-		// 8 bit
 		for(j=0;j<sy;++j) {
 			uint8* src;
 			uint8* dst;
-			unsigned yv = j * (dy-1) / (sy-1);
-			if (orientation_mask & ORIENTATION_MIRROR_Y)
-				yv = dy - yv - 1;
-			src = (uint8*)bitmap_line(bmp,yv + y);
-			dst = (uint8*)bitmap_line(newbmp,j);
+			src = (uint8*)bitmap_line(bmp, map_y[j]);
+			dst = (uint8*)bitmap_line(newbmp, j);
 			for(i=0;i<sx;++i) {
-				*dst = src[x_map[i]];
+				*dst = src[map_x[i]];
 				++dst;
 			}
 		}
 	} else if (bmp->bytes_per_pixel == 3) {
-		// 24 bit
 		for(j=0;j<sy;++j) {
 			uint8* src;
 			uint8* dst;
-			unsigned yv = j * dy / sy;
-			if (orientation_mask & ORIENTATION_MIRROR_Y)
-				yv = dy - yv - 1;
-			src = (uint8*)bitmap_line(bmp,yv + y);
-			dst = (uint8*)bitmap_line(newbmp,j);
+			src = (uint8*)bitmap_line(bmp, map_y[j]);
+			dst = (uint8*)bitmap_line(newbmp, j);
 			for(i=0;i<sx;++i) {
-				unsigned off = x_map[i] * 3;
+				unsigned off = map_x[i] * 3;
 				dst[0] = src[off];
 				dst[1] = src[off+1];
 				dst[2] = src[off+2];
@@ -551,7 +553,9 @@ adv_bitmap* bitmap_resize(adv_bitmap* bmp, unsigned x, unsigned y, unsigned dx, 
 		}
 	}
 
-	free(x_map);
+	free(map_x);
+	free(map_y);
+
 	return newbmp;
 }
 

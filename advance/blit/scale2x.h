@@ -1,7 +1,7 @@
 /*
- * This file is part of the Advance project.
+ * This file is part of the Scale2x project.
  *
- * Copyright (C) 1999-2002 Andrea Mazzoleni
+ * Copyright (C) 2000-2002 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,12 +29,11 @@
  */
 
 /*
- * This file contains a C and MMX implentation of the "AdvanceMAME Scale2x"
- * effect.
+ * This file contains a C and MMX implentation of the Scale2x effect.
  *
  * You can found an high level description of the effect at :
  *
- * http://advancemame.sourceforge.net/scale2x.html
+ * http://scale2x.sourceforge.net/scale2x.html
  *
  * Alternatively at the previous license terms, you are allowed to use this
  * code in your program with these conditions:
@@ -43,24 +42,38 @@
  * - derivative works of the program are allowed.
  */
 
-#ifndef __ISCALE_H
-#define __ISCALE_H
+#ifndef __SCALE2X_H
+#define __SCALE2X_H
 
-#include "icommon.h"
+#include <assert.h>
+
+/***************************************************************************/
+/* basic types */
+
+typedef unsigned char scale2x_uint8;
+typedef unsigned short scale2x_uint16;
+typedef unsigned scale2x_uint32;
 
 /***************************************************************************/
 /* internal_scale2x */
 
 /**
- * Scale by a factor of 2
- * \param src0 Previous row, normal length.
- * \param src1 Current row, normal length.
- * \param src2 Next row, normal length.
- * \param count Length in pixel.
- * \param dst0 First destination row, double length.
- * \param dst1 Second destination row, double length.
+ * Scale by a factor of 2 a row of pixels of 8 bits.
+ * The function is implemented in C.
+ * The pixels over the left and right borders are assumed of the same color of
+ * the pixels on the border.
+ * \param src0 Pointer at the first pixel of the previous row.
+ * \param src1 Pointer at the first pixel of the current row.
+ * \param src2 Pointer at the first pixel of the next row.
+ * \param count Length in pixels of the src0, src1 and src2 rows.
+ * It must be at least 2.
+ * \param dst0 First destination row, double length in pixels.
+ * \param dst1 Second destination row, double length in pixels.
  */
-static void internal_scale2x_8_def(uint8* dst0, uint8* dst1, const uint8* src0, const uint8* src1, const uint8* src2, unsigned count) {
+static void scale2x_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+{
+	assert(count >= 2);
+
 	/* first pixel */
 	dst0[0] = src1[0];
 	dst1[0] = src1[0];
@@ -120,7 +133,21 @@ static void internal_scale2x_8_def(uint8* dst0, uint8* dst1, const uint8* src0, 
 	dst1[1] = src1[0];
 }
 
-static void internal_scale2x_16_def(uint16* dst0, uint16* dst1, const uint16* src0, const uint16* src1, const uint16* src2, unsigned count) {
+/**
+ * Scale by a factor of 2 a row of pixels of 16 bits.
+ * This function operates like scale2x_8_def() but for 16 bits pixels.
+ * \param src0 Pointer at the first pixel of the previous row.
+ * \param src1 Pointer at the first pixel of the current row.
+ * \param src2 Pointer at the first pixel of the next row.
+ * \param count Length in pixels of the src0, src1 and src2 rows.
+ * It must be at least 2.
+ * \param dst0 First destination row, double length in pixels.
+ * \param dst1 Second destination row, double length in pixels.
+ */
+static void scale2x_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+{
+	assert(count >= 2);
+
 	/* first pixel */
 	dst0[0] = src1[0];
 	dst1[0] = src1[0];
@@ -180,7 +207,21 @@ static void internal_scale2x_16_def(uint16* dst0, uint16* dst1, const uint16* sr
 	dst1[1] =src1[0];
 }
 
-static void internal_scale2x_32_def(uint32* dst0, uint32* dst1, const uint32* src0, const uint32* src1, const uint32* src2, unsigned count) {
+/**
+ * Scale by a factor of 2 a row of pixels of 32 bits.
+ * This function operates like scale2x_8_def() but for 32 bits pixels.
+ * \param src0 Pointer at the first pixel of the previous row.
+ * \param src1 Pointer at the first pixel of the current row.
+ * \param src2 Pointer at the first pixel of the next row.
+ * \param count Length in pixels of the src0, src1 and src2 rows.
+ * It must be at least 2.
+ * \param dst0 First destination row, double length in pixels.
+ * \param dst1 Second destination row, double length in pixels.
+ */
+static void scale2x_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+{
+	assert(count >= 2);
+
 	/* first pixel */
 	dst0[0] = src1[0];
 	dst1[0] = src1[0];
@@ -240,65 +281,63 @@ static void internal_scale2x_32_def(uint32* dst0, uint32* dst1, const uint32* sr
 	dst1[1] = src1[0];
 }
 
-#if defined(USE_ASM_i586)
+#if defined(__GNUC__) && defined(__i386__)
 
 /*
-This is a very fast MMX implementation of the Scale2x effect.
+ * Apply the Scale2x effect at a single row.
+ * This function must be called only by the other scale2x functions.
+ *
+ * Considering the pixel map :
+ *
+ *      ABC (src0)
+ *      DEF (src1)
+ *      GHI (src2)
+ *
+ * this functions compute 2 new pixels in substitution of the source pixel E
+ * like this map :
+ *
+ *      ab (dst)
+ *
+ * with these variables :
+ *
+ *      &current -> E
+ *      &current_left -> D
+ *      &current_right -> F
+ *      &current_upper -> B
+ *      &current_lower -> H
+ *
+ *      %0 -> current_upper
+ *      %1 -> current
+ *      %2 -> current_lower
+ *      %3 -> dst
+ *      %4 -> counter
+ *
+ *      %mm0 -> *current_left
+ *      %mm1 -> *current_next
+ *      %mm2 -> tmp0
+ *      %mm3 -> tmp1
+ *      %mm4 -> tmp2
+ *      %mm5 -> tmp3
+ *      %mm6 -> *current_upper
+ *      %mm7 -> *current
+ */
+static __inline__ void scale2x_8_mmx_single(scale2x_uint8* dst, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+{
+	assert(count >= 16);
+	assert(count % 8 == 0);
 
-The implementation uses a combination of cmp/and/not operations to
-completly remove the need of conditional jumps. This trick give the
-major speed improvement.
-Also, using the 8 bytes MMX registers more than one pixel are computed
-at the same time.
-
-Considering the pixel map :
-
-	ABC (src0)
-	DEF (src1)
-	GHI (src2)
-
-the functions compute 4 new pixels in substitution of the source pixel E
-like this map :
-
-	ab (dst0)
-	cd (dst1)
-
-with these variables :
-
-	&current -> E
-	&current_left -> D
-	&current_right -> F
-	&current_upper -> B
-	&current_lower -> H
-
-	%0 -> B (src0)
-	%1 -> E (src1)
-	%2 -> H (src2)
-	%3 -> dst
-	%4 -> counter
-
-	%mm0 -> current_left
-	%mm1 -> current_next
-	%mm2 -> tmp0
-	%mm3 -> tmp1
-	%mm4 -> tmp2
-	%mm5 -> tmp3
-	%mm6 -> current_upper
-	%mm7 -> current
-*/
-
-static __inline__ void internal_scale2x_8_mmx_single(uint8* dst, const uint8* src0, const uint8* src1, const uint8* src2, unsigned count) {
 	/* always do the first and last run */
 	count -= 2*8;
 
 	__asm__ __volatile__(
 /* first run */
 		/* set the current, current_pre, current_next registers */
-		"pxor %%mm0,%%mm0\n" /* use a fake black out of screen */
+		"movq 0(%1),%%mm0\n"
 		"movq 0(%1),%%mm7\n"
 		"movq 8(%1),%%mm1\n"
-		"psrlq $56,%%mm0\n"
+		"psllq $56,%%mm0\n"
 		"psllq $56,%%mm1\n"
+		"psrlq $56,%%mm0\n"
 		"movq %%mm7,%%mm2\n"
 		"movq %%mm7,%%mm3\n"
 		"psllq $8,%%mm2\n"
@@ -309,8 +348,8 @@ static __inline__ void internal_scale2x_8_mmx_single(uint8* dst, const uint8* sr
 		/* current_upper */
 		"movq (%0),%%mm6\n"
 
-		/* compute the upper-left pixel for dst0 on %%mm2 */
-		/* compute the upper-right pixel for dst0 on %%mm4 */
+		/* compute the upper-left pixel for dst on %%mm2 */
+		/* compute the upper-right pixel for dst on %%mm4 */
 		"movq %%mm0,%%mm2\n"
 		"movq %%mm1,%%mm4\n"
 		"movq %%mm0,%%mm3\n"
@@ -336,7 +375,7 @@ static __inline__ void internal_scale2x_8_mmx_single(uint8* dst, const uint8* sr
 		"por %%mm3,%%mm2\n"
 		"por %%mm5,%%mm4\n"
 
-		/* set *dst0 */
+		/* set *dst */
 		"movq %%mm2,%%mm3\n"
 		"punpcklbw %%mm4,%%mm2\n"
 		"punpckhbw %%mm4,%%mm3\n"
@@ -352,7 +391,7 @@ static __inline__ void internal_scale2x_8_mmx_single(uint8* dst, const uint8* sr
 /* central runs */
 		"shrl $3,%4\n"
 		"jz 1f\n"
-		ASM_JUMP_ALIGN
+
 		"0:\n"
 
 		/* set the current, current_pre, current_next registers */
@@ -371,8 +410,8 @@ static __inline__ void internal_scale2x_8_mmx_single(uint8* dst, const uint8* sr
 		/* current_upper */
 		"movq (%0),%%mm6\n"
 
-		/* compute the upper-left pixel for dst0 on %%mm2 */
-		/* compute the upper-right pixel for dst0 on %%mm4 */
+		/* compute the upper-left pixel for dst on %%mm2 */
+		/* compute the upper-right pixel for dst on %%mm4 */
 		"movq %%mm0,%%mm2\n"
 		"movq %%mm1,%%mm4\n"
 		"movq %%mm0,%%mm3\n"
@@ -398,7 +437,7 @@ static __inline__ void internal_scale2x_8_mmx_single(uint8* dst, const uint8* sr
 		"por %%mm3,%%mm2\n"
 		"por %%mm5,%%mm4\n"
 
-		/* set *dst0 */
+		/* set *dst */
 		"movq %%mm2,%%mm3\n"
 		"punpcklbw %%mm4,%%mm2\n"
 		"punpckhbw %%mm4,%%mm3\n"
@@ -417,9 +456,10 @@ static __inline__ void internal_scale2x_8_mmx_single(uint8* dst, const uint8* sr
 
 /* final run */
 		/* set the current, current_pre, current_next registers */
-		"movq -8(%1),%%mm0\n"
+		"movq (%1),%%mm1\n"
 		"movq (%1),%%mm7\n"
-		"pxor %%mm1,%%mm1\n" /* use a fake black out of screen */
+		"movq -8(%1),%%mm0\n"
+		"psrlq $56,%%mm1\n"
 		"psrlq $56,%%mm0\n"
 		"psllq $56,%%mm1\n"
 		"movq %%mm7,%%mm2\n"
@@ -432,8 +472,8 @@ static __inline__ void internal_scale2x_8_mmx_single(uint8* dst, const uint8* sr
 		/* current_upper */
 		"movq (%0),%%mm6\n"
 
-		/* compute the upper-left pixel for dst0 on %%mm2 */
-		/* compute the upper-right pixel for dst0 on %%mm4 */
+		/* compute the upper-left pixel for dst on %%mm2 */
+		/* compute the upper-right pixel for dst on %%mm4 */
 		"movq %%mm0,%%mm2\n"
 		"movq %%mm1,%%mm4\n"
 		"movq %%mm0,%%mm3\n"
@@ -459,7 +499,7 @@ static __inline__ void internal_scale2x_8_mmx_single(uint8* dst, const uint8* sr
 		"por %%mm3,%%mm2\n"
 		"por %%mm5,%%mm4\n"
 
-		/* set *dst0 */
+		/* set *dst */
 		"movq %%mm2,%%mm3\n"
 		"punpcklbw %%mm4,%%mm2\n"
 		"punpckhbw %%mm4,%%mm3\n"
@@ -472,24 +512,23 @@ static __inline__ void internal_scale2x_8_mmx_single(uint8* dst, const uint8* sr
 	);
 }
 
-static void internal_scale2x_8_mmx(uint8* dst0, uint8* dst1, const uint8* src0, const uint8* src1, const uint8* src2, unsigned count) {
-	assert( count >= 2*8 );
-	internal_scale2x_8_mmx_single(dst0, src0, src1, src2, count);
-	internal_scale2x_8_mmx_single(dst1, src2, src1, src0, count);
-}
+static __inline__ void scale2x_16_mmx_single(scale2x_uint16* dst, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+{
+	assert(count >= 8);
+	assert(count % 4 == 0);
 
-static __inline__ void internal_scale2x_16_mmx_single(uint16* dst, const uint16* src0, const uint16* src1, const uint16* src2, unsigned count) {
 	/* always do the first and last run */
 	count -= 2*4;
 
 	__asm__ __volatile__(
 /* first run */
 		/* set the current, current_pre, current_next registers */
-		"pxor %%mm0,%%mm0\n" /* use a fake black out of screen */
+		"movq 0(%1),%%mm0\n"
 		"movq 0(%1),%%mm7\n"
 		"movq 8(%1),%%mm1\n"
-		"psrlq $48,%%mm0\n"
+		"psllq $48,%%mm0\n"
 		"psllq $48,%%mm1\n"
+		"psrlq $48,%%mm0\n"
 		"movq %%mm7,%%mm2\n"
 		"movq %%mm7,%%mm3\n"
 		"psllq $16,%%mm2\n"
@@ -500,8 +539,8 @@ static __inline__ void internal_scale2x_16_mmx_single(uint16* dst, const uint16*
 		/* current_upper */
 		"movq (%0),%%mm6\n"
 
-		/* compute the upper-left pixel for dst0 on %%mm2 */
-		/* compute the upper-right pixel for dst0 on %%mm4 */
+		/* compute the upper-left pixel for dst on %%mm2 */
+		/* compute the upper-right pixel for dst on %%mm4 */
 		"movq %%mm0,%%mm2\n"
 		"movq %%mm1,%%mm4\n"
 		"movq %%mm0,%%mm3\n"
@@ -527,7 +566,7 @@ static __inline__ void internal_scale2x_16_mmx_single(uint16* dst, const uint16*
 		"por %%mm3,%%mm2\n"
 		"por %%mm5,%%mm4\n"
 
-		/* set *dst0 */
+		/* set *dst */
 		"movq %%mm2,%%mm3\n"
 		"punpcklwd %%mm4,%%mm2\n"
 		"punpckhwd %%mm4,%%mm3\n"
@@ -543,7 +582,7 @@ static __inline__ void internal_scale2x_16_mmx_single(uint16* dst, const uint16*
 /* central runs */
 		"shrl $2,%4\n"
 		"jz 1f\n"
-		ASM_JUMP_ALIGN
+
 		"0:\n"
 
 		/* set the current, current_pre, current_next registers */
@@ -562,8 +601,8 @@ static __inline__ void internal_scale2x_16_mmx_single(uint16* dst, const uint16*
 		/* current_upper */
 		"movq (%0),%%mm6\n"
 
-		/* compute the upper-left pixel for dst0 on %%mm2 */
-		/* compute the upper-right pixel for dst0 on %%mm4 */
+		/* compute the upper-left pixel for dst on %%mm2 */
+		/* compute the upper-right pixel for dst on %%mm4 */
 		"movq %%mm0,%%mm2\n"
 		"movq %%mm1,%%mm4\n"
 		"movq %%mm0,%%mm3\n"
@@ -589,7 +628,7 @@ static __inline__ void internal_scale2x_16_mmx_single(uint16* dst, const uint16*
 		"por %%mm3,%%mm2\n"
 		"por %%mm5,%%mm4\n"
 
-		/* set *dst0 */
+		/* set *dst */
 		"movq %%mm2,%%mm3\n"
 		"punpcklwd %%mm4,%%mm2\n"
 		"punpckhwd %%mm4,%%mm3\n"
@@ -608,9 +647,10 @@ static __inline__ void internal_scale2x_16_mmx_single(uint16* dst, const uint16*
 
 /* final run */
 		/* set the current, current_pre, current_next registers */
-		"movq -8(%1),%%mm0\n"
+		"movq (%1),%%mm1\n"
 		"movq (%1),%%mm7\n"
-		"pxor %%mm1,%%mm1\n" /* use a fake black out of screen */
+		"movq -8(%1),%%mm0\n"
+		"psrlq $48,%%mm1\n"
 		"psrlq $48,%%mm0\n"
 		"psllq $48,%%mm1\n"
 		"movq %%mm7,%%mm2\n"
@@ -623,8 +663,8 @@ static __inline__ void internal_scale2x_16_mmx_single(uint16* dst, const uint16*
 		/* current_upper */
 		"movq (%0),%%mm6\n"
 
-		/* compute the upper-left pixel for dst0 on %%mm2 */
-		/* compute the upper-right pixel for dst0 on %%mm4 */
+		/* compute the upper-left pixel for dst on %%mm2 */
+		/* compute the upper-right pixel for dst on %%mm4 */
 		"movq %%mm0,%%mm2\n"
 		"movq %%mm1,%%mm4\n"
 		"movq %%mm0,%%mm3\n"
@@ -650,7 +690,7 @@ static __inline__ void internal_scale2x_16_mmx_single(uint16* dst, const uint16*
 		"por %%mm3,%%mm2\n"
 		"por %%mm5,%%mm4\n"
 
-		/* set *dst0 */
+		/* set *dst */
 		"movq %%mm2,%%mm3\n"
 		"punpcklwd %%mm4,%%mm2\n"
 		"punpckhwd %%mm4,%%mm3\n"
@@ -663,24 +703,23 @@ static __inline__ void internal_scale2x_16_mmx_single(uint16* dst, const uint16*
 	);
 }
 
-static void internal_scale2x_16_mmx(uint16* dst0, uint16* dst1, const uint16* src0, const uint16* src1, const uint16* src2, unsigned count) {
-	assert( count >= 2*4 );
-	internal_scale2x_16_mmx_single(dst0, src0, src1, src2, count);
-	internal_scale2x_16_mmx_single(dst1, src2, src1, src0, count);
-}
+static __inline__ void scale2x_32_mmx_single(scale2x_uint32* dst, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+{
+	assert(count >= 4);
+	assert(count % 2 == 0);
 
-static __inline__ void internal_scale2x_32_mmx_single(uint32* dst, const uint32* src0, const uint32* src1, const uint32* src2, unsigned count) {
 	/* always do the first and last run */
 	count -= 2*2;
 
 	__asm__ __volatile__(
 /* first run */
 		/* set the current, current_pre, current_next registers */
-		"pxor %%mm0,%%mm0\n" /* use a fake black out of screen */
+		"movq 0(%1),%%mm0\n"
 		"movq 0(%1),%%mm7\n"
 		"movq 8(%1),%%mm1\n"
-		"psrlq $32,%%mm0\n"
+		"psllq $32,%%mm0\n"
 		"psllq $32,%%mm1\n"
+		"psrlq $32,%%mm0\n"
 		"movq %%mm7,%%mm2\n"
 		"movq %%mm7,%%mm3\n"
 		"psllq $32,%%mm2\n"
@@ -691,8 +730,8 @@ static __inline__ void internal_scale2x_32_mmx_single(uint32* dst, const uint32*
 		/* current_upper */
 		"movq (%0),%%mm6\n"
 
-		/* compute the upper-left pixel for dst0 on %%mm2 */
-		/* compute the upper-right pixel for dst0 on %%mm4 */
+		/* compute the upper-left pixel for dst on %%mm2 */
+		/* compute the upper-right pixel for dst on %%mm4 */
 		"movq %%mm0,%%mm2\n"
 		"movq %%mm1,%%mm4\n"
 		"movq %%mm0,%%mm3\n"
@@ -718,7 +757,7 @@ static __inline__ void internal_scale2x_32_mmx_single(uint32* dst, const uint32*
 		"por %%mm3,%%mm2\n"
 		"por %%mm5,%%mm4\n"
 
-		/* set *dst0 */
+		/* set *dst */
 		"movq %%mm2,%%mm3\n"
 		"punpckldq %%mm4,%%mm2\n"
 		"punpckhdq %%mm4,%%mm3\n"
@@ -734,7 +773,7 @@ static __inline__ void internal_scale2x_32_mmx_single(uint32* dst, const uint32*
 /* central runs */
 		"shrl $1,%4\n"
 		"jz 1f\n"
-		ASM_JUMP_ALIGN
+
 		"0:\n"
 
 		/* set the current, current_pre, current_next registers */
@@ -753,8 +792,8 @@ static __inline__ void internal_scale2x_32_mmx_single(uint32* dst, const uint32*
 		/* current_upper */
 		"movq (%0),%%mm6\n"
 
-		/* compute the upper-left pixel for dst0 on %%mm2 */
-		/* compute the upper-right pixel for dst0 on %%mm4 */
+		/* compute the upper-left pixel for dst on %%mm2 */
+		/* compute the upper-right pixel for dst on %%mm4 */
 		"movq %%mm0,%%mm2\n"
 		"movq %%mm1,%%mm4\n"
 		"movq %%mm0,%%mm3\n"
@@ -780,7 +819,7 @@ static __inline__ void internal_scale2x_32_mmx_single(uint32* dst, const uint32*
 		"por %%mm3,%%mm2\n"
 		"por %%mm5,%%mm4\n"
 
-		/* set *dst0 */
+		/* set *dst */
 		"movq %%mm2,%%mm3\n"
 		"punpckldq %%mm4,%%mm2\n"
 		"punpckhdq %%mm4,%%mm3\n"
@@ -799,9 +838,10 @@ static __inline__ void internal_scale2x_32_mmx_single(uint32* dst, const uint32*
 
 /* final run */
 		/* set the current, current_pre, current_next registers */
-		"movq -8(%1),%%mm0\n"
+		"movq (%1),%%mm1\n"
 		"movq (%1),%%mm7\n"
-		"pxor %%mm1,%%mm1\n" /* use a fake black out of screen */
+		"movq -8(%1),%%mm0\n"
+		"psrlq $32,%%mm1\n"
 		"psrlq $32,%%mm0\n"
 		"psllq $32,%%mm1\n"
 		"movq %%mm7,%%mm2\n"
@@ -814,8 +854,8 @@ static __inline__ void internal_scale2x_32_mmx_single(uint32* dst, const uint32*
 		/* current_upper */
 		"movq (%0),%%mm6\n"
 
-		/* compute the upper-left pixel for dst0 on %%mm2 */
-		/* compute the upper-right pixel for dst0 on %%mm4 */
+		/* compute the upper-left pixel for dst on %%mm2 */
+		/* compute the upper-right pixel for dst on %%mm4 */
 		"movq %%mm0,%%mm2\n"
 		"movq %%mm1,%%mm4\n"
 		"movq %%mm0,%%mm3\n"
@@ -841,7 +881,7 @@ static __inline__ void internal_scale2x_32_mmx_single(uint32* dst, const uint32*
 		"por %%mm3,%%mm2\n"
 		"por %%mm5,%%mm4\n"
 
-		/* set *dst0 */
+		/* set *dst */
 		"movq %%mm2,%%mm3\n"
 		"punpckldq %%mm4,%%mm2\n"
 		"punpckhdq %%mm4,%%mm3\n"
@@ -854,10 +894,74 @@ static __inline__ void internal_scale2x_32_mmx_single(uint32* dst, const uint32*
 	);
 }
 
-static void internal_scale2x_32_mmx(uint32* dst0, uint32* dst1, const uint32* src0, const uint32* src1, const uint32* src2, unsigned count) {
-	assert( count >= 2*2 );
-	internal_scale2x_32_mmx_single(dst0, src0, src1, src2, count);
-	internal_scale2x_32_mmx_single(dst1, src2, src1, src0, count);
+/**
+ * Scale by a factor of 2 a row of pixels of 8 bits.
+ * This is a very fast MMX implementation.
+ * The implementation uses a combination of cmp/and/not operations to
+ * completly remove the need of conditional jumps. This trick give the
+ * major speed improvement.
+ * Also, using the 8 bytes MMX registers more than one pixel are computed
+ * at the same time.
+ * Before calling this function you must ensure that the currenct CPU supports
+ * the MMX instruction set. After calling it you must be sure to call the EMMS
+ * instruction before any floating-point operation.
+ * The pixels over the left and right borders are assumed of the same color of
+ * the pixels on the border.
+ * \param src0 Pointer at the first pixel of the previous row.
+ * \param src1 Pointer at the first pixel of the current row.
+ * \param src2 Pointer at the first pixel of the next row.
+ * \param count Length in pixels of the src0, src1 and src2 rows. It must
+ * be at least 16 and a multiple of 8.
+ * \param dst0 First destination row, double length in pixels.
+ * \param dst1 Second destination row, double length in pixels.
+ */
+static void scale2x_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+{
+	assert(count >= 16);
+	assert(count % 8 == 0);
+
+	scale2x_8_mmx_single(dst0, src0, src1, src2, count);
+	scale2x_8_mmx_single(dst1, src2, src1, src0, count);
+}
+
+/**
+ * Scale by a factor of 2 a row of pixels of 16 bits.
+ * This function operates like scale2x_8_mmx() but for 16 bits pixels.
+ * \param src0 Pointer at the first pixel of the previous row.
+ * \param src1 Pointer at the first pixel of the current row.
+ * \param src2 Pointer at the first pixel of the next row.
+ * \param count Length in pixels of the src0, src1 and src2 rows. It must
+ * be at least 8 and a multiple of 4.
+ * \param dst0 First destination row, double length in pixels.
+ * \param dst1 Second destination row, double length in pixels.
+ */
+static void scale2x_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+{
+	assert(count >= 8);
+	assert(count % 4 == 0);
+
+	scale2x_16_mmx_single(dst0, src0, src1, src2, count);
+	scale2x_16_mmx_single(dst1, src2, src1, src0, count);
+}
+
+/**
+ * Scale by a factor of 2 a row of pixels of 32 bits.
+ * This function operates like scale2x_8_mmx() but for 32 bits pixels.
+ * \param src0 Pointer at the first pixel of the previous row.
+ * \param src1 Pointer at the first pixel of the current row.
+ * \param src2 Pointer at the first pixel of the next row.
+ * \param count Length in pixels of the src0, src1 and src2 rows. It must
+ * be at least 4 and a multiple of 2.
+ * \param dst0 First destination row, double length in pixels.
+ * \param dst1 Second destination row, double length in pixels.
+ */
+static void scale2x_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+{
+	assert(count >= 4);
+	assert(count % 2 == 0);
+
+	scale2x_32_mmx_single(dst0, src0, src1, src2, count);
+	scale2x_32_mmx_single(dst1, src2, src1, src0, count);
 }
 
 #endif

@@ -2,16 +2,16 @@
 # Common version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.61.2.1
+EMUVERSION = 0.61.2.2
 else
 ifeq ($(CONF_EMU),pac)
 EMUVERSION = 0.58.x
 else
-EMUVERSION = 0.62.1
+EMUVERSION = 0.62.2
 endif
 endif
-MENUVERSION = 2.2.1
-CABVERSION = 1.1.3
+MENUVERSION = 2.2.2
+CABVERSION = 1.1.4
 
 ############################################################################
 # Common dir

@@ -1,6 +1,12 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.2.2 2002/12
+	) Fixed the MNG playing in 32 bits modes. This is potentially
+		a crash bug fix.
+	) The bitmap scaler now uses the same algo of the MNG player.
+	) The Linux and DOS binaries are now compiled with gcc 3.2.1.
+
 AdvanceMENU Version 2.2.1 2002/11
 	) Reduced the startup load time.
 	) The event `group' and `type' now select the next group and type
