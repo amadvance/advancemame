@@ -990,38 +990,52 @@ INPUT CONFIGURATION OPTIONS
 	If the file `safequit.dat' is found the exit menu is shown only 
 	if any coin is inserted or if you are playing.
 
-    "input_analog[]"
-	Changes the analog control mapping. The M'n joystick is mapped
-	on the N'n analog control.
+    "input_map[,x|y|z|pedal]"
+	Changes the analog control mapping. Map the physical A'n
+	joystick, B'n stick, C'n axe on the J'n axe of the I'n player.
 
-	input_analog[N] joystick[M,S]
-
-	Options:
-		N - Numer of analog control 0,1,2,3.
-		M - Numer of joystick 0,1,2,3.
-		S - Number of stick of the josytick 0,1,2,3.
-
-	Default:
-		input_analog[0] joystick[0,0]
-		input_analog[1] joystick[1,0]
-		input_analog[2] joystick[2,0]
-		input_analog[3] joystick[3,0]
-
-    "input_track[]"
-	Changes the track control mapping. The M'n mouse is mapped
-	on the N'n track control.
-
-	input_trak[N] mouse[M]
+	input_map[I,J] joystick[A,B,C]
 
 	Options:
-		N - Numer of track control 0,1,2,3.
-		M - Numer of mouse 0,1,2,3.
+		I - Number of player 0, 1, 2, 3.
+		J - Number of player axe x, y, z, pedal.
+		A - Number of physical joystick 0, 1, 2, 3...
+		B - Number of physical stick of the josytick 0, 1, 2, 3, ...
+		C - Number of physical axe of the stick 0, 1, 2, 3, ...
 
 	Default:
-		input_trak[0] mouse[0]
-		input_trak[1] mouse[1]
-		input_trak[2] mouse[2]
-		input_trak[3] mouse[3]
+		input_map[0,x] joystick[0,0,0]
+		input_map[0,y] joystick[0,0,1]
+		input_map[0,z] joystick[0,0,2]
+		input_map[0,pedal] joystick[0,0,3]
+		input_map[1,x] joystick[1,0,0]
+		input_map[1,y] joystick[1,0,1]
+		input_map[1,z] joystick[1,0,2]
+		input_map[1,pedal] joystick[1,0,3]
+		input_map[2,x] joystick[2,0,0]
+		input_map[2,y] joystick[2,0,1]
+		input_map[2,z] joystick[2,0,2]
+		input_map[2,pedal] joystick[2,0,3]
+		input_map[3,x] joystick[3,0,0]
+		input_map[3,y] joystick[3,0,1]
+		input_map[3,z] joystick[3,0,2]
+		input_map[3,pedal] joystick[3,0,3]
+
+    "input_map[,track]"
+	Changes the track control mapping. Map the physical A'n mouse
+	on the I'n player track control.
+
+	input_map[I,track] mouse[A]
+
+	Options:
+		I - Number of player track control 0, 1, 2, 3.
+		A - Number of physical mouse 0, 1, 2, 3...
+
+	Default:
+		input_map[0,track] mouse[0]
+		input_map[1,track] mouse[1]
+		input_map[2,track] mouse[2]
+		input_map[3,track] mouse[3]
 
 RECORD CONFIGURATION OPTIONS
 	This section describes the options used for the recoring

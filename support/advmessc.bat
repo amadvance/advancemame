@@ -1,0 +1,1 @@
+advcfg -advmessc %1

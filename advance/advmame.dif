@@ -1,6 +1,6 @@
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/common.c src/common.c
---- src.ori/common.c	Fri Jun  7 04:03:12 2002
-+++ src/common.c	Fri Jun  7 04:03:58 2002
+--- src.ori/common.c	Sat Jul  6 18:36:58 2002
++++ src/common.c	Sat Jul  6 18:38:12 2002
 @@ -424,17 +424,11 @@
  	coin_counter_w - sets input for coin counter
  -------------------------------------------------*/
@@ -21,9 +21,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  /*-------------------------------------------------
  	coin_lockout_w - locks out one coin input
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/cpu/i8085/i8085.c src/cpu/i8085/i8085.c
---- src.ori/cpu/i8085/i8085.c	Sun May 26 20:37:28 2002
-+++ src/cpu/i8085/i8085.c	Mon Jun 10 01:43:42 2002
-@@ -51,10 +51,16 @@
+--- src.ori/cpu/i8085/i8085.c	Sat Jul  6 18:36:58 2002
++++ src/cpu/i8085/i8085.c	Sat Jul  6 18:38:12 2002
+@@ -61,10 +61,16 @@
   *
   *****************************************************************************/
  
@@ -41,8 +41,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #include "state.h"
  #include "osd_cpu.h"
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/cpu/z80/z80.c src/cpu/z80/z80.c
---- src.ori/cpu/z80/z80.c	Sun May 26 20:37:30 2002
-+++ src/cpu/z80/z80.c	Sun May 26 20:38:16 2002
+--- src.ori/cpu/z80/z80.c	Sat Jul  6 18:37:02 2002
++++ src/cpu/z80/z80.c	Sat Jul  6 18:38:12 2002
 @@ -80,10 +80,16 @@
  
  #ifdef Z80_MSX
@@ -61,8 +61,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #define LOG(x)	logerror x
  #else
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/cpuexec.c src/cpuexec.c
---- src.ori/cpuexec.c	Fri Jun  7 04:03:12 2002
-+++ src/cpuexec.c	Fri Jun  7 04:04:02 2002
+--- src.ori/cpuexec.c	Sat Jul  6 18:37:03 2002
++++ src/cpuexec.c	Sat Jul  6 18:38:12 2002
 @@ -233,10 +233,13 @@
  	watchdog_counter = -1;
  
@@ -78,25 +78,25 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  		/* enable all CPUs (except for audio CPUs if the sound is off) */
  		if (!(Machine->drv->cpu[cpunum].cpu_type & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/drivers/neogeo.c src/drivers/neogeo.c
---- src.ori/drivers/neogeo.c	Sun May 26 20:37:38 2002
-+++ src/drivers/neogeo.c	Sun May 26 20:38:28 2002
-@@ -247,11 +247,11 @@
+--- src.ori/drivers/neogeo.c	Sat Jul  6 18:37:12 2002
++++ src/drivers/neogeo.c	Sat Jul  6 18:41:38 2002
+@@ -287,11 +287,11 @@
  			}
  			fc++;
  		}
  
- 		if (irq2control & 0x10)
+ 		if (irq2control & IRQ2CTRL_ENABLE)
 -			usrintf_showmessage("IRQ2 enabled, need raster driver");
-+			/* usrintf_showmessage("IRQ2 enabled, need raster driver") */ ;
++			/* usrintf_showmessage("IRQ2 enabled, need raster driver"); */
  
  		/* return a standard vblank interrupt */
  		vblank_int = 1;	   /* vertical blank */
  	}
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/inptport.c src/inptport.c
---- src.ori/inptport.c	Sun May 26 20:37:46 2002
-+++ src/inptport.c	Fri Jun  7 03:55:30 2002
-@@ -137,10 +137,13 @@
+--- src.ori/inptport.c	Sat Jul  6 18:37:18 2002
++++ src/inptport.c	Sat Jul  6 18:38:13 2002
+@@ -147,10 +147,13 @@
  	{ IPT_UI_SHOW_PROFILER,     "Show Profiler",		SEQ_DEF_2(KEYCODE_F11, KEYCODE_LSHIFT) },
  #ifdef MESS
  	{ IPT_UI_TOGGLE_UI,         "UI Toggle",			SEQ_DEF_1(KEYCODE_SCRLOCK) },
@@ -110,7 +110,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	{ IPT_UI_DOWN,              "UI Down",				SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) },
  	{ IPT_UI_LEFT,              "UI Left",				SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) },
  	{ IPT_UI_RIGHT,             "UI Right",				SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) },
-@@ -148,10 +151,12 @@
+@@ -158,10 +161,12 @@
  	{ IPT_UI_CANCEL,            "UI Cancel",			SEQ_DEF_1(KEYCODE_ESC) },
  	{ IPT_UI_PAN_UP,            "Pan Up",				SEQ_DEF_3(KEYCODE_PGUP, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_PAN_DOWN,          "Pan Down",				SEQ_DEF_3(KEYCODE_PGDN, CODE_NOT, KEYCODE_LSHIFT) },
@@ -123,7 +123,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	{ IPT_UI_LOAD_STATE,        "Load State",			SEQ_DEF_3(KEYCODE_F7, CODE_NOT, KEYCODE_LSHIFT) },
  	{ IPT_UI_ADD_CHEAT,			"Add Cheat",			SEQ_DEF_1(KEYCODE_A) },
  	{ IPT_UI_DELETE_CHEAT,		"Delete Cheat",			SEQ_DEF_1(KEYCODE_D) },
-@@ -1564,14 +1569,16 @@
+@@ -1694,14 +1699,16 @@
  		int new, prev;
  
  		/* center stick */
@@ -144,7 +144,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  		/* An analog joystick which is not at zero position (or has just */
  		/* moved there) takes precedence over all other computations */
  		/* analog_x/y holds values from -128 to 128 (yes, 128, not 127) */
-@@ -1821,16 +1828,23 @@
+@@ -1959,16 +1966,23 @@
  #define MAX_INPUT_BITS 1024
  	static int impulsecount[MAX_INPUT_BITS];
  	static int waspressed[MAX_INPUT_BITS];
@@ -168,7 +168,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	for (port = 0;port < MAX_INPUT_PORTS;port++)
  	{
  		input_port_value[port] = 0;
-@@ -1918,18 +1932,20 @@
+@@ -2057,18 +2071,20 @@
  				}
  				else
  				{
@@ -196,7 +196,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  						/* if IPF_RESET set, reset the first CPU */
  						if ((in->type & IPF_RESETCPU) && waspressed[ib] == 0 && !playback)
  						{
-@@ -2057,10 +2073,14 @@
+@@ -2196,10 +2212,14 @@
  #ifdef MAME_NET
  	if ( net_active() && (default_player != NET_SPECTATOR) )
  		net_input_sync((unsigned char *) input_port_value, (unsigned char *) input_port_defaults, MAX_INPUT_PORTS);
@@ -212,9 +212,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/inptport.h src/inptport.h
---- src.ori/inptport.h	Sun May 26 20:37:46 2002
-+++ src/inptport.h	Sun May 26 20:38:38 2002
-@@ -80,10 +80,15 @@
+--- src.ori/inptport.h	Sat Jul  6 18:37:18 2002
++++ src/inptport.h	Sat Jul  6 18:38:13 2002
+@@ -81,10 +81,15 @@
  	IPT_OSD_4,
  	IPT_EXTENSION,	/* this is an extension on the previous InputPort, not a real inputport. */
  					/* It is used to store additional parameters for analog inputs */
@@ -231,8 +231,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	IPT_UI_RESET_MACHINE,
  	IPT_UI_SHOW_GFX,
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/input.c src/input.c
---- src.ori/input.c	Sun May 26 20:37:46 2002
-+++ src/input.c	Sun May 26 20:38:38 2002
+--- src.ori/input.c	Sat Jul  6 18:37:18 2002
++++ src/input.c	Sat Jul  6 18:38:13 2002
 @@ -782,11 +782,11 @@
  {
  	int pressed;
@@ -260,9 +260,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  		if (ui_map[code].memory == 0)
  		{
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/mame.c src/mame.c
---- src.ori/mame.c	Fri Jun  7 04:03:14 2002
-+++ src/mame.c	Fri Jun  7 04:04:08 2002
-@@ -1017,34 +1017,20 @@
+--- src.ori/mame.c	Sat Jul  6 18:37:19 2002
++++ src/mame.c	Sat Jul  6 18:40:13 2002
+@@ -1018,34 +1018,20 @@
  	to a given resolution
  -------------------------------------------------*/
  
@@ -285,7 +285,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
 +		*width = gfx_width;
 +		*height = gfx_height;
  	}
--	
+-
 -	/* pick the smaller scale factor */
 -	scale = (x_scale < y_scale) ? x_scale : y_scale;
 -
@@ -301,25 +301,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  
  /*-------------------------------------------------
-diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/mame.mak src/mame.mak
---- src.ori/mame.mak	Sun May 26 20:37:48 2002
-+++ src/mame.mak	Sun May 26 20:38:38 2002
-@@ -524,11 +524,11 @@
- 	$(OBJ)/sndhrdw/exidy440.o $(OBJ)/vidhrdw/exidy440.o $(OBJ)/drivers/exidy440.o \
- 
- $(OBJ)/atari.a: \
- 	$(OBJ)/machine/atari_vg.o \
- 	$(OBJ)/machine/asteroid.o $(OBJ)/sndhrdw/asteroid.o \
--	$(OBJ)/vidhrdw/llander.o $(OBJ)/sndhrdw/llander.o $(OBJ)/drivers/asteroid.o \
-+	$(OBJ)/sndhrdw/llander.o $(OBJ)/drivers/asteroid.o \
- 	$(OBJ)/drivers/bwidow.o \
- 	$(OBJ)/sndhrdw/bzone.o	$(OBJ)/drivers/bzone.o \
- 	$(OBJ)/sndhrdw/redbaron.o \
- 	$(OBJ)/drivers/tempest.o \
- 	$(OBJ)/machine/starwars.o \
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/neomame.mak src/neomame.mak
---- src.ori/neomame.mak	Sun May 26 20:37:48 2002
-+++ src/neomame.mak	Sun May 26 20:38:40 2002
+--- src.ori/neomame.mak	Sat Jul  6 18:37:20 2002
++++ src/neomame.mak	Sat Jul  6 18:38:22 2002
 @@ -8,17 +8,19 @@
  EMULATOR_EXE = neomame.exe
  
@@ -341,9 +325,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  # MAME specific core objs
  COREOBJS += $(OBJ)/driver.o $(OBJ)/cheat.o
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/osdepend.h src/osdepend.h
---- src.ori/osdepend.h	Fri Jun  7 04:03:12 2002
-+++ src/osdepend.h	Fri Jun  7 04:04:12 2002
-@@ -397,10 +397,36 @@
+--- src.ori/osdepend.h	Sat Jul  6 18:37:20 2002
++++ src/osdepend.h	Sat Jul  6 18:38:22 2002
+@@ -400,10 +400,36 @@
  #include "osd_dir.h"
  #endif
  
@@ -381,8 +365,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  #endif
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/sound/fm.c src/sound/fm.c
---- src.ori/sound/fm.c	Sun May 26 20:37:50 2002
-+++ src/sound/fm.c	Sun May 26 20:38:40 2002
+--- src.ori/sound/fm.c	Sat Jul  6 18:37:22 2002
++++ src/sound/fm.c	Sat Jul  6 18:38:22 2002
 @@ -160,11 +160,11 @@
  #define LFO_RATE 0x10000
  #define PMS_RATE 0x400
@@ -397,8 +381,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  static INT32 OPN_LFO_wave[LFO_ENT];
  
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/ui_text.c src/ui_text.c
---- src.ori/ui_text.c	Sun May 26 20:37:52 2002
-+++ src/ui_text.c	Sun May 26 20:38:42 2002
+--- src.ori/ui_text.c	Sat Jul  6 18:37:22 2002
++++ src/ui_text.c	Sat Jul  6 18:38:22 2002
 @@ -202,10 +202,14 @@
  	"Restoration successful",
  	"Select a value",
@@ -415,8 +399,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  int uistring_init (void *langfile)
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/ui_text.h src/ui_text.h
---- src.ori/ui_text.h	Sun May 26 20:37:52 2002
-+++ src/ui_text.h	Sun May 26 20:38:42 2002
+--- src.ori/ui_text.h	Sat Jul  6 18:37:22 2002
++++ src/ui_text.h	Sat Jul  6 18:38:22 2002
 @@ -169,10 +169,14 @@
  	UI_search_OK,
  	UI_search_select_value,
@@ -433,8 +417,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  struct lang_struct
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/usrintrf.c src/usrintrf.c
---- src.ori/usrintrf.c	Fri Jun  7 04:03:14 2002
-+++ src/usrintrf.c	Tue Jun 11 02:18:32 2002
+--- src.ori/usrintrf.c	Sat Jul  6 18:37:22 2002
++++ src/usrintrf.c	Sat Jul  6 18:38:22 2002
 @@ -663,12 +663,16 @@
  	while (items[i])
  	{
@@ -487,7 +471,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	}
  
  	i = selected - topitem;
-@@ -1856,13 +1872,13 @@
+@@ -1866,13 +1882,13 @@
  		in++;
  	}
  
@@ -503,7 +487,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  	menu_item[total2] = ui_getstring (UI_returntomain);
  	menu_item[total2 + 1] = 0;	/* terminate array */
-@@ -1875,15 +1891,17 @@
+@@ -1885,15 +1901,17 @@
  		{
  			char label[30][40];
  			char setting[30][40];
@@ -521,7 +505,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  			switch (i%ENTRIES)
  			{
  				case 0:
-@@ -1902,10 +1920,18 @@
+@@ -1912,10 +1930,18 @@
  				case 2:
  					strcat (label[i], ui_getstring (UI_sensitivity));
  					sprintf(setting[i],"%3d%%",sensitivity);
@@ -540,7 +524,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  			menu_item[i] = label[i];
  			menu_subitem[i] = setting[i];
  
-@@ -1953,10 +1979,21 @@
+@@ -1963,10 +1989,21 @@
  
  				val --;
  				if (val < 1) val = 1;
@@ -562,7 +546,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  	if (input_ui_pressed_repeat(IPT_UI_RIGHT,8))
  	{
-@@ -1989,10 +2026,21 @@
+@@ -1999,10 +2036,21 @@
  
  				val ++;
  				if (val > 255) val = 255;
@@ -584,7 +568,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  	if (input_ui_pressed(IPT_UI_SELECT))
  	{
-@@ -2843,15 +2891,15 @@
+@@ -2853,15 +2901,15 @@
  
  
  #ifndef MESS
@@ -602,7 +586,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  
  #define MAX_SETUPMENU_ITEMS 20
  static const char *menu_item[MAX_SETUPMENU_ITEMS];
-@@ -2924,10 +2972,11 @@
+@@ -2934,10 +2982,11 @@
  #endif
  #endif
  #endif
@@ -614,7 +598,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -2984,10 +3033,13 @@
+@@ -2994,10 +3043,13 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -628,7 +612,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  #ifndef CPSMAME
  #ifndef MMSND
  			case UI_MEMCARD:
-@@ -3038,10 +3090,11 @@
+@@ -3048,10 +3100,11 @@
  			case UI_TAPECONTROL:
  			#endif
  			case UI_HISTORY:
@@ -640,7 +624,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  				break;
  
  			case UI_RESET:
-@@ -3479,10 +3532,63 @@
+@@ -3489,10 +3542,63 @@
  	vsprintf(messagetext,text,arg);
  	va_end(arg);
  	messagecounter = seconds * Machine->drv->frames_per_second;
@@ -704,7 +688,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	int file = 0;
  
  	mame_pause(1);
-@@ -3660,17 +3766,42 @@
+@@ -3670,17 +3776,42 @@
  
  	/* if the user pressed F12, save the screen to a file */
  	if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -749,7 +733,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  	{
  		setup_selected = -1;
  		if (osd_selected != 0)
-@@ -3773,10 +3904,14 @@
+@@ -3783,10 +3914,14 @@
  			profiler_mark(PROFILER_END);
  
  			if (input_ui_pressed(IPT_UI_SNAPSHOT))
@@ -764,7 +748,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -3785,11 +3920,11 @@
+@@ -3795,11 +3930,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -778,8 +762,8 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --l
  				setup_selected = -1;
  				if (osd_selected != 0)
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui -x --linux-.--- src.ori/vidhrdw/cave.c src/vidhrdw/cave.c
---- src.ori/vidhrdw/cave.c	Fri Jun  7 04:03:12 2002
-+++ src/vidhrdw/cave.c	Fri Jun  7 04:04:16 2002
+--- src.ori/vidhrdw/cave.c	Sat Jul  6 18:37:22 2002
++++ src/vidhrdw/cave.c	Sat Jul  6 18:38:22 2002
 @@ -1532,10 +1532,13 @@
  {
  	int pri, pri2;

@@ -14,8 +14,8 @@ else
 TARGETVERSION = 0.61.0
 endif
 endif
-MENUVERSION = 1.19.x
-CABVERSION = 0.11.x
+MENUVERSION = 1.19.1
+CABVERSION = 0.11.2
 
 ############################################################################
 # Utilities dir
@@ -1099,10 +1099,10 @@ endif
 ############################################################################
 # RC
 
-RCSRC = doc/pcvga.rc doc/pcsvga60.rc \
-	doc/standard.rc doc/medium.rc \
-	doc/extended.rc doc/pal.rc \
-	doc/ntsc.rc
+RCSRC = support/pcvga.rc support/pcsvga60.rc \
+	support/standard.rc support/medium.rc \
+	support/extended.rc support/pal.rc \
+	support/ntsc.rc
 
 ############################################################################
 # Diff
@@ -1237,6 +1237,7 @@ TARGET_CONTRIB_SRC = \
 	$(wildcard contrib/mame/*)
 
 TARGET_SUPPORT_SRC = \
+	$(RCSRC) \
 	support/safequit.dat
 
 TARGET_DOC_COMMON = \
@@ -1258,8 +1259,7 @@ TARGET_DOC_COMMON = \
 	doc/history.txt \
 	doc/copying \
 	doc/faq.txt \
-	doc/tips.txt \
-	$(RCSRC)
+	doc/tips.txt
 
 TARGET_DOC_SRC = \
 	$(TARGET_DOC_COMMON) \
@@ -1278,12 +1278,12 @@ TARGET_ROOT_BIN = \
 	$(LINEOBJ)/advline$(EXE)
 
 ifeq ($(TARGET),mess)
-TARGET_ROOT_BIN += doc/advmessv.bat doc/advmessc.bat
-TARGET_DOC_SRC += doc/advmessv.bat doc/advmessc.bat
+TARGET_ROOT_BIN += support/advmessv.bat support/advmessc.bat
+TARGET_DOC_SRC += support/advmessv.bat support/advmessc.bat
 endif
 ifeq ($(TARGET),pac)
-TARGET_ROOT_BIN += doc/advpacv.bat doc/advpacc.bat
-TARGET_DOC_SRC += doc/advpacv.bat doc/advpacc.bat
+TARGET_ROOT_BIN += support/advpacv.bat support/advpacc.bat
+TARGET_DOC_SRC += support/advpacv.bat support/advpacc.bat
 endif
 
 TARGET_DISTFILE_SRC = advance$(TARGET)-$(TARGETVERSION)
@@ -1411,25 +1411,26 @@ MENU_DOC_COMMON = \
 	doc/card.txt \
 	doc/license.txt \
 	doc/authors.txt \
-	doc/copying \
-	$(RCSRC)
+	doc/copying
 
 MENU_DOC_SRC = \
 	$(MENU_DOC_COMMON) \
 	doc/build.txt \
 	doc/histmenu.txt \
 	doc/readmenu.txt \
-	doc/relemenu.txt \
-	doc/advmenuv.bat \
-	doc/advmenuc.bat
+	doc/relemenu.txt
+
+MENU_SUPPORT_SRC = \
+	$(RCSRC) \
+	support/advmenuv.bat \
+	support/advmenuc.bat
 
 MENU_ROOT_BIN = \
 	$(MENU_DOC_COMMON) \
+	$(MENU_SUPPORT_SRC) \
 	$(MENUOBJ)/advmenu$(EXE) \
 	$(VOBJ)/advv$(EXE) \
-	$(CFGOBJ)/advcfg$(EXE) \
-	doc/advmenuv.bat \
-	doc/advmenuc.bat
+	$(CFGOBJ)/advcfg$(EXE)
 
 MENU_DIST_FILE_SRC = advancemenu-$(MENUVERSION)
 MENU_DIST_FILE_BIN = advancemenu-$(MENUVERSION)-$(HOST_TARGET)-$(ARCH)
@@ -1447,6 +1448,8 @@ distmenu: testmake $(RCSRC)
 	cp $(MENU_ROOT_SRC) $(MENU_DIST_DIR_SRC)
 	mkdir $(MENU_DIST_DIR_SRC)/doc
 	cp $(MENU_DOC_SRC) $(MENU_DIST_DIR_SRC)/doc
+	mkdir $(MENU_DIST_DIR_SRC)/support
+	cp $(MENU_SUPPORT_SRC) $(MENU_DIST_DIR_SRC)/support
 	mkdir $(MENU_DIST_DIR_SRC)/advance
 	cp $(MENU_ADVANCE_SRC) $(MENU_DIST_DIR_SRC)/advance
 	mkdir $(MENU_DIST_DIR_SRC)/advance/linux
@@ -1538,21 +1541,21 @@ VIDEO_SRC = \
 	$(wildcard advance/video/*.c) \
 	$(wildcard advance/video/*.h)
 
-COMMONCABDOC = \
+CAB_DOC_COMMON = \
 	doc/vbe.txt \
 	doc/vga.txt \
 	doc/video.txt \
 	doc/off.txt \
 	doc/portio.txt \
-	doc/copying \
-	$(RCSRC)
+	doc/copying
 
-SRCCABDOC = \
-	$(COMMONCABDOC) \
+CAB_DOC_SRC = \
+	$(CAB_DOC_COMMON) \
 	doc/histcab.txt \
 	doc/readcab.txt
 
-SRCCABSUPPORT = \
+CAB_SUPPORT_SRC = \
+	$(RCSRC) \
 	support/video.pcx \
 	support/videobis.pcx \
 	support/vbev.bat \
@@ -1562,8 +1565,8 @@ CAB_CONTRIB_SRC = \
 	$(wildcard contrib/cab/*)
 
 CAB_ROOT_BIN = \
-        $(COMMONCABDOC) \
-	$(SRCCABSUPPORT) \
+        $(CAB_DOC_COMMON) \
+	$(CAB_SUPPORT_SRC) \
 	doc/advline.txt \
 	doc/advv.txt \
 	advance/vbe/vbe.com \
@@ -1574,49 +1577,49 @@ CAB_ROOT_BIN = \
 	$(VOBJ)/advv$(EXE) \
 	$(LINEOBJ)/advline$(EXE)
 
-CABDISTDIRSRC = tmpcab
-CABDISTDIRBIN = tmpcabbin
+CAB_DIST_DIR_SRC = tmpcab
+CAB_DIST_DIR_BIN = tmpcabbin
 
 distcab: $(RCSRC)
-	mkdir $(CABDISTDIRSRC)
-	mkdir $(CABDISTDIRSRC)/doc
-	cp $(SRCCABDOC) $(CABDISTDIRSRC)/doc
-	mkdir $(CABDISTDIRSRC)/support
-	cp $(SRCCABSUPPORT) $(CABDISTDIRSRC)/support
-	mkdir $(CABDISTDIRSRC)/advance
-	mkdir $(CABDISTDIRSRC)/advance/common
-	cp $(COMMON_SRC) $(CABDISTDIRSRC)/advance/common
-	mkdir $(CABDISTDIRSRC)/advance/card
-	cp $(CARD_SRC) $(CABDISTDIRSRC)/advance/card
-	mkdir $(CABDISTDIRSRC)/advance/tsr
-	cp $(TSR_SRC) $(CABDISTDIRSRC)/advance/tsr
-	mkdir $(CABDISTDIRSRC)/advance/vbe
-	cp $(VBE_SRC) $(CABDISTDIRSRC)/advance/vbe
-	mkdir $(CABDISTDIRSRC)/advance/vga
-	cp $(VGA_SRC) $(CABDISTDIRSRC)/advance/vga
-	mkdir $(CABDISTDIRSRC)/advance/video
-	cp $(VIDEO_SRC) $(CABDISTDIRSRC)/advance/video
-	mkdir $(CABDISTDIRSRC)/advance/off
-	cp $(OFF_SRC) $(CABDISTDIRSRC)/advance/off
-	mkdir $(CABDISTDIRSRC)/advance/portio
-	cp $(PORTIO_SRC) $(CABDISTDIRSRC)/advance/portio
-	mkdir $(CABDISTDIRSRC)/contrib
-	mkdir $(CABDISTDIRSRC)/contrib/cab
-	cp -R $(CAB_CONTRIB_SRC) $(CABDISTDIRSRC)/contrib/cab
+	mkdir $(CAB_DIST_DIR_SRC)
+	mkdir $(CAB_DIST_DIR_SRC)/doc
+	cp $(CAB_DOC_SRC) $(CAB_DIST_DIR_SRC)/doc
+	mkdir $(CAB_DIST_DIR_SRC)/support
+	cp $(CAB_SUPPORT_SRC) $(CAB_DIST_DIR_SRC)/support
+	mkdir $(CAB_DIST_DIR_SRC)/advance
+	mkdir $(CAB_DIST_DIR_SRC)/advance/common
+	cp $(COMMON_SRC) $(CAB_DIST_DIR_SRC)/advance/common
+	mkdir $(CAB_DIST_DIR_SRC)/advance/card
+	cp $(CARD_SRC) $(CAB_DIST_DIR_SRC)/advance/card
+	mkdir $(CAB_DIST_DIR_SRC)/advance/tsr
+	cp $(TSR_SRC) $(CAB_DIST_DIR_SRC)/advance/tsr
+	mkdir $(CAB_DIST_DIR_SRC)/advance/vbe
+	cp $(VBE_SRC) $(CAB_DIST_DIR_SRC)/advance/vbe
+	mkdir $(CAB_DIST_DIR_SRC)/advance/vga
+	cp $(VGA_SRC) $(CAB_DIST_DIR_SRC)/advance/vga
+	mkdir $(CAB_DIST_DIR_SRC)/advance/video
+	cp $(VIDEO_SRC) $(CAB_DIST_DIR_SRC)/advance/video
+	mkdir $(CAB_DIST_DIR_SRC)/advance/off
+	cp $(OFF_SRC) $(CAB_DIST_DIR_SRC)/advance/off
+	mkdir $(CAB_DIST_DIR_SRC)/advance/portio
+	cp $(PORTIO_SRC) $(CAB_DIST_DIR_SRC)/advance/portio
+	mkdir $(CAB_DIST_DIR_SRC)/contrib
+	mkdir $(CAB_DIST_DIR_SRC)/contrib/cab
+	cp -R $(CAB_CONTRIB_SRC) $(CAB_DIST_DIR_SRC)/contrib/cab
 	rm -f advancecab-$(CABVERSION).zip
-	cd $(CABDISTDIRSRC) && zip -r ../advancecab-$(CABVERSION).zip *
-	rm -r $(CABDISTDIRSRC)
+	cd $(CAB_DIST_DIR_SRC) && zip -r ../advancecab-$(CABVERSION).zip *
+	rm -r $(CAB_DIST_DIR_SRC)
 
 distcabbin: $(CAB_ROOT_BIN)
-	mkdir $(CABDISTDIRBIN)
-	cp doc/readcab.txt $(CABDISTDIRBIN)/readme.txt
-	cp doc/histcab.txt $(CABDISTDIRBIN)/history.txt
-	cp $(CAB_ROOT_BIN) $(CABDISTDIRBIN)
-	mkdir $(CABDISTDIRBIN)/contrib
-	cp -r $(CAB_CONTRIB_SRC) $(CABDISTDIRBIN)/contrib
+	mkdir $(CAB_DIST_DIR_BIN)
+	cp doc/readcab.txt $(CAB_DIST_DIR_BIN)/readme.txt
+	cp doc/histcab.txt $(CAB_DIST_DIR_BIN)/history.txt
+	cp $(CAB_ROOT_BIN) $(CAB_DIST_DIR_BIN)
+	mkdir $(CAB_DIST_DIR_BIN)/contrib
+	cp -r $(CAB_CONTRIB_SRC) $(CAB_DIST_DIR_BIN)/contrib
 	rm -f advancecab-$(CABVERSION)-$(HOST_TARGET)-$(ARCH).zip
-	cd $(CABDISTDIRBIN) && zip -r ../advancecab-$(CABVERSION)-$(HOST_TARGET)-$(ARCH).zip *
-	rm -r $(CABDISTDIRBIN)
+	cd $(CAB_DIST_DIR_BIN) && zip -r ../advancecab-$(CABVERSION)-$(HOST_TARGET)-$(ARCH).zip *
+	rm -r $(CAB_DIST_DIR_BIN)
 
 ############################################################################
 # ...
@@ -1624,41 +1627,58 @@ distcabbin: $(CAB_ROOT_BIN)
 ARCH_ALL = ARCH=i386 CFLAGS_ARCH_OVERRIDE="-march=i386 -DUSE_LSB"
 ARCH_PENTIUM = ARCH=i586 CFLAGS_ARCH_OVERRIDE="-march=i586 -DUSE_LSB -DUSE_ASM_i586"
 ARCH_PENTIUM2 = ARCH=i686 CFLAGS_ARCH_OVERRIDE="-march=i686 -DUSE_LSB -DUSE_ASM_i586 -DUSE_ASM_MMX"
+ARCH_K6 = ARCH=k6 CFLAGS_ARCH_OVERRIDE="-march=k6 -DUSE_LSB -DUSE_ASM_i586 -DUSE_ASM_MMX"
 
-dosmame2:
+dosmame:
 	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos TARGET=mame emu
 
-dosmess2:
+dosmess:
 	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos TARGET=mess emu
 
-dospac2:
+dospac:
 	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos TARGET=pac emu
 
-dosmenu2:
-	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos TARGET=mame menu
+dosmenu:
+	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos TARGET=mame menu
 
-dosdistbin:
+dosdistbin: dosdistbinpentium2
+
+dosdistbinpentium:
+	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos distbin
+
+dosdistbinpentium2:
 	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos distbin
+
+dosdistbink6:
+	$(MAKE) $(ARCH_K6) HOST_TARGET=dos distbin
 
 dosdistcabbin:
 	$(MAKE) $(ARCH_ALL) HOST_TARGET=dos distcabbin
 
-dosdistmenubin:
+dosdistmenubin: dosdistmenubinpentium
+
+dosdistmenubinpentium:
 	$(MAKE) $(ARCH_PENTIUM) HOST_TARGET=dos distmenubin
 
-mame2:
+dosdistmenubinpentium2:
+	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos distmenubin
+
+dosdistmenubink6:
+	$(MAKE) $(ARCH_PENTIUM2) HOST_TARGET=dos distmenubin
+
+mame:
 	$(MAKE) TARGET=mame emu
 
-neomame2:
+neomame:
 	$(MAKE) TARGET=neomame emu
 
-cpmame2:
+cpmame:
 	$(MAKE) TARGET=cpmame emu
 
-mess2:
+messmame:
 	$(MAKE) TARGET=mess emu
 
-pac2:
+pacmame:
 	$(MAKE) TARGET=pac emu
 
 wholemame:

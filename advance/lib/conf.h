@@ -192,9 +192,9 @@ struct conf_conv {
 	char* section_glob; /**< Option to recognize. * any char. */
 	char* tag_glob; /**< Option to recognize. * any char. */
 	char* value_glob; /**< Value to recognize. * any char. */
-	char* section_result; /**< Conversion. %s for original. */
-	char* tag_result; /**< Conversion. %s for original. */
-	char* value_result; /**< Conversion. %s for original. */
+	char* section_result; /**< Conversion. %s for the whole original record. */
+	char* tag_result; /**< Conversion. %s for the whole original record. Setting an empty tag automatically ignore the option. */
+	char* value_result; /**< Conversion. %s for the whole original record. */
 	conf_bool autoreg; /**< Auto registration */
 };
 

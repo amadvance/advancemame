@@ -82,7 +82,7 @@ static char* glob_subst(const char* format, char* own_s) {
 		return own_s;
 	} else {
 		char* token = strstr(format,"%s");
-		/* assume no more than one token */
+		/* assume no more than one %s token */
 		if (token) {
 			char* n = malloc(strlen(format) + strlen(own_s) - 1);
 			sprintf(n,format,own_s);
@@ -983,6 +983,16 @@ static conf_error input_value_insert(struct conf_context* context, struct conf_i
 			free(own_format);
 			own_format = strdup(own_value);
 		}
+	}
+
+	if (!*own_tag) {
+		/* empty tag, ignore it */
+		free(own_section);
+		free(own_tag);
+		free(own_comment);
+		free(own_value);
+		free(own_format);
+		return 0;
 	}
 
 	option = option_search_tag(context, own_tag);

@@ -22,7 +22,7 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
-#include <strstream>
+#include <sstream>
 #include <iomanip>
 #include <set>
 
@@ -398,10 +398,9 @@ Vert. Sync Polarity    NEG     POS     NEG
 }
 
 void output::svga_graph_out_internal(const string& name, double f, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, bool interlace, bool doublescan) {
-	ostrstream n;
+	ostringstream n;
 	n << name << "_" << hde << "x" << vde << ends;
 	string ns = n.str();
-	n.freeze(0);
 
 	if (!insert(ns))
 		return;
@@ -495,10 +494,9 @@ void output::vga_text_out(const string& name, double f, unsigned hde, unsigned h
 		mode = "3";
 	}
 
-	ostrstream n;
+	ostringstream n;
 	n << name << "_vga_text" << cols << "_" << hde/cols << "x" << vde/25 << ends;
 	string ns = n.str();
-	n.freeze(0);
 
 	if (!insert(ns))
 		return;
@@ -526,10 +524,9 @@ void output::vga_graph_out(const string& name, double f, unsigned hde, unsigned 
 		doublescan = true;
 	}
 
-	ostrstream n;
+	ostringstream n;
 	n << name << "_vga_" << hde << "x" << vde << ends;
 	string ns = n.str();
-	n.freeze(0);
 
 	if (!insert(ns))
 		return;
@@ -943,7 +940,7 @@ int main(int argc, char* argv[]) {
 			name = "pc_mult57";
 			out.horz_clock_min_set( 30E3 );
 		} else if (optionmatch(opt,"fh") && has_arg) {
-			istrstream is(arg.c_str());
+			istringstream is(arg);
 			double A,F,S,B;
 			char s1,s2,s3;
 			is >> A >> s1 >> F >> s2 >> S >> s3 >> B;
@@ -954,7 +951,7 @@ int main(int argc, char* argv[]) {
 			g.line_horz_set( line( A, F, S, B ) );
 			used_arg = true;
 		} else if (optionmatch(opt,"fv") && has_arg) {
-			istrstream is(arg.c_str());
+			istringstream is(arg);
 			double A,F,S,B;
 			char s1,s2,s3;
 			is >> A >> s1 >> F >> s2 >> S >> s3 >> B;
@@ -1027,7 +1024,7 @@ int main(int argc, char* argv[]) {
 			int fix_x;
 			int fix_y;
 			char s;
-			istrstream is(argv[optarg]);
+			istringstream is(argv[optarg]);
 			is >> fix_x >> s >> fix_y;
 			if (s!='x') {
 				cerr << "Invalid separator " << s << endl;

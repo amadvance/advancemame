@@ -1,12 +1,14 @@
-AdvanceMAME Version 0.61.0 2002/06
+AdvanceMAME Version 0.61.0 2002/07
+	) Removed the input_analog[] and input_track[] options. They
+		are now substituted by the new input_map[] option.
 	) Upgraded at the SVGALIB 1.9.15 library.
 	) Added the `vertical' and `horizontal' sections on the
 		config file. With these sections you can have
 		different configuration for vertical and horizontal
-		games. If you have a rotating monitor, you can
+		games. If you have a rotating monitor, you can now
 		always configure the correct orientation.
-	) The `display_rotate auto' option now select always the
-		`blit' rotation. The reasion of this change is that
+	) The `display_rotate auto' option now selects always the
+		`blit' rotation. The reason of this change is that
 		the `core' rotation will be completly removed on the
 		next MAME version (0.62).
 		On monoprocessor machines this may result in a

@@ -489,40 +489,12 @@ static struct conf_conv STANDARD[] = {
 #ifdef __MSDOS__
 { "", "allegro_*", "*", "%s", "%s", "%s", 1 }, /* auto registration of the Allegro options */
 #endif
-{ "*", "misc_mameinfofile", "*", "%s", "misc_infofile", "%s", 0 }, /* 0.57.0 (last version using the previous definition) */
-{ "*", "sound_recordtime", "*", "%s", "record_sound_time", "%s", 0 }, /* 0.57.1 */
-{ "*", "input_analog[0]", "joy[0,1]", "%s", "%s", "joystick[0,0]", 0 },
-{ "*", "input_analog[0]", "joy[1,1]", "%s", "%s", "joystick[1,0]", 0 },
-{ "*", "input_analog[0]", "joy[2,1]", "%s", "%s", "joystick[2,0]", 0 },
-{ "*", "input_analog[0]", "joy[3,1]", "%s", "%s", "joystick[3,0]", 0 },
-{ "*", "input_analog[1]", "joy[0,1]", "%s", "%s", "joystick[0,0]", 0 },
-{ "*", "input_analog[1]", "joy[1,1]", "%s", "%s", "joystick[1,0]", 0 },
-{ "*", "input_analog[1]", "joy[2,1]", "%s", "%s", "joystick[2,0]", 0 },
-{ "*", "input_analog[1]", "joy[3,1]", "%s", "%s", "joystick[3,0]", 0 },
-{ "*", "input_analog[2]", "joy[0,1]", "%s", "%s", "joystick[0,0]", 0 },
-{ "*", "input_analog[2]", "joy[1,1]", "%s", "%s", "joystick[1,0]", 0 },
-{ "*", "input_analog[2]", "joy[2,1]", "%s", "%s", "joystick[2,0]", 0 },
-{ "*", "input_analog[2]", "joy[3,1]", "%s", "%s", "joystick[3,0]", 0 },
-{ "*", "input_analog[3]", "joy[0,1]", "%s", "%s", "joystick[0,0]", 0 },
-{ "*", "input_analog[3]", "joy[1,1]", "%s", "%s", "joystick[1,0]", 0 },
-{ "*", "input_analog[3]", "joy[2,1]", "%s", "%s", "joystick[2,0]", 0 },
-{ "*", "input_analog[3]", "joy[3,1]", "%s", "%s", "joystick[3,0]", 0 },
-{ "*", "input_analog[0]", "joy[0,2]", "%s", "%s", "joystick[0,1]", 0 },
-{ "*", "input_analog[0]", "joy[1,2]", "%s", "%s", "joystick[1,1]", 0 },
-{ "*", "input_analog[0]", "joy[2,2]", "%s", "%s", "joystick[2,1]", 0 },
-{ "*", "input_analog[0]", "joy[3,2]", "%s", "%s", "joystick[3,1]", 0 },
-{ "*", "input_analog[1]", "joy[0,2]", "%s", "%s", "joystick[0,1]", 0 },
-{ "*", "input_analog[1]", "joy[1,2]", "%s", "%s", "joystick[1,1]", 0 },
-{ "*", "input_analog[1]", "joy[2,2]", "%s", "%s", "joystick[2,1]", 0 },
-{ "*", "input_analog[1]", "joy[3,2]", "%s", "%s", "joystick[3,1]", 0 },
-{ "*", "input_analog[2]", "joy[0,2]", "%s", "%s", "joystick[0,1]", 0 },
-{ "*", "input_analog[2]", "joy[1,2]", "%s", "%s", "joystick[1,1]", 0 },
-{ "*", "input_analog[2]", "joy[2,2]", "%s", "%s", "joystick[2,1]", 0 },
-{ "*", "input_analog[2]", "joy[3,2]", "%s", "%s", "joystick[3,1]", 0 },
-{ "*", "input_analog[3]", "joy[0,2]", "%s", "%s", "joystick[0,1]", 0 },
-{ "*", "input_analog[3]", "joy[1,2]", "%s", "%s", "joystick[1,1]", 0 },
-{ "*", "input_analog[3]", "joy[2,2]", "%s", "%s", "joystick[2,1]", 0 },
-{ "*", "input_analog[3]", "joy[3,2]", "%s", "%s", "joystick[3,1]", 0 } /* 0.59.1 */
+/* 0.57.1 */
+{ "*", "misc_mameinfofile", "*", "%s", "misc_infofile", "%s", 0 },
+{ "*", "sound_recordtime", "*", "%s", "record_sound_time", "%s", 0 },
+/* 0.61.0 */
+{ "*", "input_analog[*]", "*", "", "", "", 0 }, /* ignore */
+{ "*", "input_track[*]", "*", "", "", "", 0 }, /* ignore */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {

@@ -452,6 +452,7 @@ void advance_estimate_common_end(struct advance_estimate_context* context, int s
 /* Input */
 
 #define INPUT_PLAYER_MAX 4 /**< Max numer of player */
+#define INPUT_PLAYER_AXE_MAX 4 /** Max number of axes for player */
 
 struct advance_input_config {
 	int input_idle_limit; /**< Limit of no input to exit */
@@ -462,7 +463,7 @@ struct advance_input_config {
 	int steadykey_flag;
 	int disable_special_flag; /**< Disable the special OS key sequences */
 
-	unsigned analog_map[INPUT_PLAYER_MAX]; /**< Mapping of the analog control */
+	unsigned analog_map[INPUT_PLAYER_MAX][INPUT_PLAYER_AXE_MAX]; /**< Mapping of the analog control */
 	unsigned trak_map[INPUT_PLAYER_MAX]; /**< Mapping of the trak control */
 };
 

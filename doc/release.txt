@@ -1,9 +1,15 @@
 RELEASE NOTES FOR AdvanceMAME
 
+AdvanceMAME 0.61.0
+
+The `input_analog' and `input_track' options are now substituted
+by the new `input_map' option.
+
+
 AdvanceMAME 0.59.1
 
 The option `input_analog[] joy[]' is now changed in
-`input_analog[] joystick[]', there the joystick stick index is
+`input_analog[] joystick[]', where the joystick stick index is
 decremented by 1. The conversion is done automatically.
 
 
