@@ -9,6 +9,7 @@ AdvanceMAME Version 0.92.1 2005/02
 	) In the `integer' and `mixed' modes, the integers
 		magnification factors are chosen to ensure that
 		the complete image is displayed.
+	) Based on MAME 0.92u2000.
 
 AdvanceMESS Version 0.92.0.0 2005/02
 	) All from AdvanceMAME 0.92.0.

@@ -69,10 +69,13 @@ This is a collection of Frequently Asked Questions.
 <a href="#4.4">4.4 How can I enable the XFree86 DGA extension ?</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.5">4.5 Can I run AdvanceMENU directly from /etc/inittab ?</a><br>
+<a href="#4.5">4.5 I have some background system activity, and the emulate game are not playing smootly. How fix this ?</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.6">4.6 Can I run the Advance programs in a readonly filesystem ?</a><br>
+<a href="#4.6">4.6 Can I run AdvanceMENU directly from /etc/inittab ?</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.7">4.7 Can I run the Advance programs in a readonly filesystem ?</a><br>
 </td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#5">5 Windows FAQ</a><br>
@@ -364,6 +367,15 @@ man dga
 </pre>
 </td></tr></table>
 <h3><a name="4.5">4.5</a> 
+I have some background system activity, and the emulate game are
+not playing smootly. How fix this ?
+</h3>
+To run AdvanceMAME the system must be almost in idle state.
+<p>
+Anyway, to reduce "jumpy" effect you can disable the vertical
+vsync. The problem with vsync is that if the system is busy on
+a vsync the result is a complete frame drop (a wait of 17 ms).
+<h3><a name="4.6">4.6</a> 
 Can I run AdvanceMENU directly from /etc/inittab ?
 </h3>
 The SVGALIB library needs a controlling tty and programs using it
@@ -386,7 +398,7 @@ ioctl(i, TIOCSCTTY, 1);
 exec(...)
 </pre>
 </td></tr></table>
-<h3><a name="4.6">4.6</a> 
+<h3><a name="4.7">4.7</a> 
 Can I run the Advance programs in a readonly filesystem ?
 </h3>
 Yes. All the writable files are put in the $HOME/.advance

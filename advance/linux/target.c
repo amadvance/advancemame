@@ -317,6 +317,7 @@ static adv_bool io_port(void)
 
 void target_port_set(unsigned addr, unsigned value)
 {
+	log_std(("linux: port_set(0x%x,0x%02x)\n", addr, value));
 #ifdef USE_DIRECT_PORT
 	if (io_port()) {
 		outb(addr, value);
@@ -328,22 +329,27 @@ void target_port_set(unsigned addr, unsigned value)
 
 unsigned target_port_get(unsigned addr)
 {
+	unsigned v;
 #ifdef USE_DIRECT_PORT
 	if (io_port()) {
-		return inb(addr);
+		v = inb(addr);
+		log_std(("linux: port_get(0x%x) = 0x%02x\n", addr, v));
+		return v;
 	}
 #endif
-	return dev_port_get(addr);
+	v = dev_port_get(addr);
+	log_std(("linux: port_get(0x%x) = 0x%02x\n", addr, v));
+	return v;
 }
 
 void target_writeb(unsigned addr, unsigned char c)
 {
-	log_std(("ERROR:linux: write at address 0x%x not allowed, you must be root\n", addr));
+	log_std(("ERROR:linux: write at address 0x%x not allowed in this architecture\n", addr));
 }
 
 unsigned char target_readb(unsigned addr)
 {
-	log_std(("ERROR:linux: read at address 0x%x not allowed, you must be root\n", addr));
+	log_std(("ERROR:linux: read at address 0x%x not allowed in this architecture\n", addr));
 	return 0;
 }
 
@@ -964,7 +970,7 @@ void target_signal(int signum, void* void_info, void* void_context)
 
 void target_crash(void)
 {
-	unsigned* i = (unsigned*)0xDEADBEAF;
+	unsigned* i = (unsigned*)0xDEADBEAF; /* highest bit set, ensure a crash */
 	*i = *i;
 	abort();
 }

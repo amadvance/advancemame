@@ -68,6 +68,10 @@ Video Drivers
 	This driver is not available in X (when the environment DISPLAY
 	variable is defined).
 
+	In the `contrib/svgalib' directory there are various
+	SVGALIB patches to fix some problems with recent video
+	boards, and to work with systems with kernel 2.6 and udev.
+
     fb - Generate Frame Buffer video (Linux)
 	This driver works in Linux and is able to create video modes
 	using the Linux Kernel Frame Buffer interface.

@@ -183,7 +183,17 @@ the `dga' utility. Run :
 
     man dga
 
-4.5 Can I run AdvanceMENU directly from /etc/inittab ?
+4.5 I have some background system activity, and the emulate game are
+not playing smootly. How fix this ?
+--------------------------------------------------------------------
+
+To run AdvanceMAME the system must be almost in idle state.
+
+Anyway, to reduce "jumpy" effect you can disable the vertical
+vsync. The problem with vsync is that if the system is busy on
+a vsync the result is a complete frame drop (a wait of 17 ms).
+
+4.6 Can I run AdvanceMENU directly from /etc/inittab ?
 ------------------------------------------------------
 
 The SVGALIB library needs a controlling tty and programs using it
@@ -199,7 +209,7 @@ execs the program you want, like :
     ioctl(i, TIOCSCTTY, 1);
     exec(...)
 
-4.6 Can I run the Advance programs in a readonly filesystem ?
+4.7 Can I run the Advance programs in a readonly filesystem ?
 -------------------------------------------------------------
 
 Yes. All the writable files are put in the $HOME/.advance

@@ -76,9 +76,9 @@
 // MODEM { 0x00001022, 0x00007446, "" }, /* snd-intel8x0m */ 
 // MODEM { 0x00001039, 0x00007013, "" }, /* snd-intel8x0m */
 // MODEM { 0x000010de, 0x000001c1, "" }, /* snd-intel8x0m */
-{ 0x000010de, 0x00000069, "" }, /* snd-intel8x0m */ 
-{ 0x000010de, 0x00000089, "" }, /* snd-intel8x0m */ 
-{ 0x000010de, 0x000000d9, "" }, /* snd-intel8x0m */ 
+// MODEM { 0x000010de, 0x00000069, "" }, /* snd-intel8x0m */ 
+// MODEM { 0x000010de, 0x00000089, "" }, /* snd-intel8x0m */ 
+// MODEM { 0x000010de, 0x000000d9, "" }, /* snd-intel8x0m */ 
 // ? { 0x000010b5, 0x0000906d, "" }, /* snd-korg1212 */ 
 { 0x0000125d, 0x00001988, "" }, /* snd-maestro3 */ 
 // MODEM { 0x0000125d, 0x00001989, "" }, /* snd-maestro3 */ 

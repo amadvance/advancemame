@@ -911,7 +911,9 @@ Configuration
 	Options:
 		auto - Auto frame skip (default).
 		FACTOR - Float factor for the fraction of frames
-			to display. From 0 to 1.
+			to display. From 0 to 1. To completely
+			disable the frame skipping use the
+			value 1.
 
 	Use `f11' to display the speed your computer is actually
 	reaching. If it is below 100%, increase the frame skip value.

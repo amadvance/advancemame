@@ -3,6 +3,14 @@
                        ==================================
 
 
+ADVANCEMAME 0.92.1
+==================
+
+This version is based on the MAME update 0.92u2000. This
+is a very stable version of the MAME core. A good candidate
+for your cabinet.
+
+
 ADVANCEMAME 0.87.0
 ==================
 

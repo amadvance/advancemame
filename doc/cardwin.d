@@ -22,7 +22,6 @@ SVGAWIN Drivers
 
   ATI Technologies (1002)
 	+M22 [FireGL GL] [5464] 
-	+M22 [Radeon Mobility M300] [5460] 
 	+Mach64 CT (215CT222) [4354] 
 	+Mach64 ET [4554] 
 	+Mach64 GX (210888GX) [4758] 
@@ -31,6 +30,8 @@ SVGAWIN Drivers
 	+Mach64 VT3 [5655] 
 	+Mach64 VT4 PCI (PQFP Package) [5656] 
 	+Mobility Radeon 9000 [4c66] 
+	+Mobility Radeon X300 [5460] 
+	+Mobility Radeon XPRESS 200 [5955] 
 	+R200 QT [Radeon 8500] [5154] 
 	+R200 QU [Radeon 9100] [5155] 
 	+RV280 [Radeon 9200 SE (PCI)] [5944] 
@@ -104,13 +105,12 @@ SVGAWIN Drivers
 	+Radeon 9000U Family [5962] 
 	+Radeon 9100 Series (R200) [514d] 
 		+OEM Visiontek {1545} : VISIONTEK XTASY Radeon 9100 
-	+Radeon 9200 Pro (RV280) [5960] 
-		+Radeon 9200 PRO 
 	+Radeon 9200 SE Series (RV280) [5964] 
 		+OEM ASUSTeK Computer Inc {1043} : A9200SE 
 		+OEM Ge-Cube {18bc} : GC-R9200L(SE)-C3H [Radeon 9200 Game Buster] 
 		+OEM Ge-Cube {18bc} : Radeon 9200 SE 128Mb Game Buster 
 		+OEM Giga-Byte Technology {1458} : Radeon 9200 SE 
+		+OEM Hightech Information System Ltd (Medion??) {1787} : Excalibur 9200SE VIVO 128M 
 		+OEM Hightech Information Systems Ltd {17af} : Radeon 9200 SE Excalibur 
 		+OEM PC Partner Ltd {174b} : Sapphire Radeon 9200 SE 
 		+OEM PowerColor (C.P. Technology Co Ltd) {148c} : R92LE-C3S 
@@ -126,6 +126,8 @@ SVGAWIN Drivers
 		+OEM Hightech Information Systems Ltd {17af} : Excalibur Radeon 9200 
 		+OEM PC Partner Ltd {174b} : Sapphire Radeon 9200 
 		+OEM Yuan Yuan Enterprise Co Ltd {12ab} : SMARTVGA Radeon 9200 
+	+Radeon 9250 (RV280) [5960] 
+		+Radeon 9250 
 	+Radeon Mobility M6 LY [4c59] 
 		+Radeon Mobility 
 		+OEM Acer Inc {1025} : Radeon Mobility 
@@ -161,6 +163,7 @@ SVGAWIN Drivers
 	+Radeon RV250 Id [Radeon 9000] [4964] 
 	+Radeon RV250 Ie [Radeon 9000] [4965] 
 	+Radeon VE QZ [515a] 
+	+Radeon XPRESS 200 [5954] 
 	+Rage 128 4x [5348] 
 	+Rage 128 4x [534e] 
 	+Rage 128 GL AGP 2x [5246] 
@@ -454,8 +457,8 @@ SVGAWIN Drivers
 	+315H PCI/AGP VGA Display Adapter [0310] 
 	+SiS300/SiS305 GUI Accelerator+3D [0300] 
 		+SiS300/SiS305 GUI Accelerator+3D 
+		+OEM AOpen Inc {a0a0} : PA 305 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V300C 
-		+OEM Aopen Inc {a0a0} : PA 305 
 		+OEM CardExpert Technology {10b0} : CARDEXpert SiS305 
 		+OEM Chaintech Computer Co Ltd {270f} : SI40 
 		+OEM Elitegroup Computer Sys {1019} : AG305-32M 
@@ -469,14 +472,14 @@ SVGAWIN Drivers
 	+SiS315 2D/3D Accelerator [0315] 
 	+SiS325 2D/3D Accelerator [0325] 
 		+SiS325 2D/3D Accelerator 
+		+OEM AOpen Inc {a0a0} : PA315 
+		+OEM AOpen Inc {a0a0} : PA315 Pro 
 		+OEM Abit Computer Corp {147b} : AS315D 
 		+OEM Abit Computer Corp {147b} : AS315E 
 		+OEM Abit Computer Corp {147b} : AS315P 
 		+OEM Abit Computer Corp {147b} : AS315T 
 		+OEM Abit Computer Corp {147b} : AS315V 
 		+OEM Acer Inc {1025} : SI10S 
-		+OEM Aopen Inc {a0a0} : PA315 
-		+OEM Aopen Inc {a0a0} : PA315 Pro 
 		+OEM Bitland {1642} : SiS315-BD3169-128M 
 		+OEM Bitland {1642} : SiS315-BD3169-32M 
 		+OEM Bitland {1642} : SiS315-BD3169-64M 
@@ -539,11 +542,11 @@ SVGAWIN Drivers
 	+SiS6205 GUI Accelerator with RAM-DAC, UMA-Support [0205] 
 	+SiS630,730 GUI Accelerator+3D [6300] 
 		+SiS 630 
+		+OEM AOpen Inc {a0a0} : SiS 630 
 		+OEM ASUSTeK Computer Inc {1043} : CUSI-FX motherboard 
 		+OEM ASUSTeK Computer Inc {1043} : SiS 630 
 		+OEM Acer Inc {1025} : SiS 630 
 		+OEM Alpha-Top Corp {156d} : SiS 630 
-		+OEM Aopen Inc {a0a0} : SiS 630 
 		+OEM Chaintech Computer Co Ltd {270f} : SiS 630 
 		+OEM Clevo/Kapok Computer {1558} : SiS 630 
 		+OEM Elitegroup Computer Sys {1019} : SiS 630 
@@ -572,6 +575,9 @@ SVGAWIN Drivers
 		+OEM Joytech Computer Co Ltd {1496} : SiS6326 GUI Accelerator 
 	+SiS650/1/GL/GX,740 GUI 2D/3D Accelerator [6325] 
 		+SiS650/GX,M650,651,740 GUI 2D/3D Accelerator 
+		+OEM AOpen Inc {a0a0} : SiS650 GUI 2D/3D Accelerator 
+		+OEM AOpen Inc {a0a0} : SiS650GX GUI 2D/3D Accelerator 
+		+OEM AOpen Inc {a0a0} : SiS651 GUI 2D/3D Accelerator 
 		+OEM ASUSTeK Computer Inc {1043} : SiS650 GUI 2D/3D Accelerator 
 		+OEM ASUSTeK Computer Inc {1043} : SiS651 GUI 2D/3D Accelerator 
 		+OEM ASUSTeK Computer Inc {1043} : SiS740 GUI 2D/3D Accelerator 
@@ -581,9 +587,6 @@ SVGAWIN Drivers
 		+OEM Albatron Corp {17f2} : SiS650GX GUI 2D/3D Accelerator 
 		+OEM Albatron Corp {17f2} : SiS651 GUI 2D/3D Accelerator 
 		+OEM Alpha-Top Corp {156d} : SiS650 GUI 2D/3D Accelerator 
-		+OEM Aopen Inc {a0a0} : SiS650 GUI 2D/3D Accelerator 
-		+OEM Aopen Inc {a0a0} : SiS650GX GUI 2D/3D Accelerator 
-		+OEM Aopen Inc {a0a0} : SiS651 GUI 2D/3D Accelerator 
 		+OEM Biostar Microtech Int'l Corp {1565} : SiS650 GUI 2D/3D Accelerator 
 		+OEM Chaintech Computer Co Ltd {270f} : SiS650 GUI 2D/3D Accelerator 
 		+OEM Chaintech Computer Co Ltd {270f} : SiS740 GUI 2D/3D Accelerator 
@@ -666,11 +669,11 @@ SVGAWIN Drivers
 		+OEM Leadtek Research {107d} : WinFast GeForce 256 
 	+GeForce 256 Ultra [NV10] [0102] 
 	+GeForce 256 [NV10] [0100] 
+		+OEM AOpen Inc {a0a0} : PA256 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V6600 PRO SDRAM 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V6600 SDRAM 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V6600 SGRAM 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V6600MX 
-		+OEM Aopen Inc {a0a0} : PA256 
 		+OEM Creative Labs {1102} : CT6941 GeForce 256 
 		+OEM Creative Labs {1102} : CT6960 GeForce 256 
 		+OEM Creative Labs {1102} : CT6961 GeForce 256 
@@ -690,6 +693,8 @@ SVGAWIN Drivers
 		+OEM ASUSTeK Computer Inc {1043} : V9520TD (*)
 		+OEM Leadtek Research {107d} : WinFast A340 TDH (*)
 		+OEM Micro-Star International Co Ltd (MSI) {1462} : MS-8917 (FX5200-T128) (*)
+		+OEM Pine Technology Ltd {1682} : XFX Geforce FX 5200 (*)
+		+OEM Prolink Microsystems Corp {1554} : Point of View Geforce FX 5200 (*)
 	+GeForce FX 5200LE [NV34.3] [0323] (*)
 	+GeForce FX 5500 [NV34.6] [0326] (*)
 	+GeForce FX 5600 Ultra [NV31.1] [0311] (*)
@@ -706,8 +711,10 @@ SVGAWIN Drivers
 	+GeForce FX 5700 Ultra [NV36.1] [0341] (*)
 	+GeForce FX 5700 [NV36.2] [0342] (*)
 		+OEM ASUSTeK Computer Inc {1043} : V9570 (*)
+		+OEM ASUSTeK Computer Inc {1043} : V9570TD (*)
 	+GeForce FX 5700LE [NV36.3] [0343] (*)
 		+OEM ASUSTeK Computer Inc {1043} : V9570LE (*)
+		+OEM Jaton Corp {1b13} : 3DFORCE FX5700LE (*)
 	+GeForce FX 5700VE [NV36.4] [0344] (*)
 	+GeForce FX 5800 Ultra [NV30.2] [0301] (*)
 		+OEM ASUSTeK Computer Inc {1043} : V9900 Ultra (*)
@@ -728,17 +735,25 @@ SVGAWIN Drivers
 		+OEM Wistron Corporation {17c0} : GeForce FX Go 5200 32M/64M (*)
 	+GeForce FX Go 5200 [0324] (*)
 		+OEM Mitac {1071} : MIM2000 (*)
+	+GeForce FX Go 5200 [NV34M] [0329] (*)
 	+GeForce FX Go 5250 [0325] (*)
 		+OEM Wistron Corporation {17c0} : GeForce FX Go 5250 (*)
 	+GeForce FX Go 5300 [032c] (*)
 		+OEM Wistron Corporation {17c0} : GeForce FX Go 5300 (*)
 	+GeForce FX Go 5600 [031a] (*)
 		+OEM Wistron Corporation {17c0} : GeForce FX Go 5600 (*)
+	+GeForce FX Go 5600 [NV36M] [0348] (*)
 	+GeForce FX Go 5650 [031b] (*)
+	+GeForce FX Go 5700 [NV36] [0347] (*)
 	+GeForce FX Go5100 [NV34M] [032d] (*)
-	+GeForce FX Go5600 [NV36M] [0348] (*)
 	+GeForce FX [NV30.1] [0300] (*)
 	+GeForce2 GTS/PRO [NV15] [0150] 
+		+OEM AOpen Inc {a0a0} : Afterburner Deluxe 
+		+OEM AOpen Inc {a0a0} : Afterburner Deluxe II 
+		+OEM AOpen Inc {a0a0} : GF2PRO-VO 
+		+OEM AOpen Inc {a0a0} : PA256 Deluxe 
+		+OEM AOpen Inc {a0a0} : PA256 Deluxe II 
+		+OEM AOpen Inc {a0a0} : PA256 Pro 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V770/64M 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7700 DDR SDRAM 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7700 DDR SGRAM 
@@ -748,12 +763,6 @@ SVGAWIN Drivers
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7700Pro Deluxe SDRAM 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7700Pro Deluxe SGRAM 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7700ULTRA 
-		+OEM Aopen Inc {a0a0} : Afterburner Deluxe 
-		+OEM Aopen Inc {a0a0} : Afterburner Deluxe II 
-		+OEM Aopen Inc {a0a0} : GF2PRO-VO 
-		+OEM Aopen Inc {a0a0} : PA256 Deluxe 
-		+OEM Aopen Inc {a0a0} : PA256 Deluxe II 
-		+OEM Aopen Inc {a0a0} : PA256 Pro 
 		+OEM Creative Labs {1102} : Annihilator 2 
 		+OEM ELSA GmbH {1048} : Gladiac GeForce2 GTS 
 		+OEM Guillemot Corp {14af} : 3D Prophet II GTS 
@@ -774,6 +783,12 @@ SVGAWIN Drivers
 		+OEM Leadtek Research {107d} : GeForce2 MX 100/200 (*)
 	+GeForce2 MX/MX 400 [NV11] [0110] (*)
 		+Dell OEM GeForce 2 MX 400 (*)
+		+OEM AOpen Inc {a0a0} : PA256MX Deluxe (*)
+		+OEM AOpen Inc {a0a0} : PA256MX Diamond (*)
+		+OEM AOpen Inc {a0a0} : PA256MX II (*)
+		+OEM AOpen Inc {a0a0} : PA256MX Platinum (*)
+		+OEM AOpen Inc {a0a0} : Video Station MX400-A (*)
+		+OEM AOpen Inc {a0a0} : Video Station MX400-AII (*)
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7100 (*)
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7100 DVI SDRAM (*)
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7100 Deluxe Combo (*)
@@ -788,12 +803,6 @@ SVGAWIN Drivers
 		+OEM Abit Computer Corp {147b} : Siluro MX400 (*)
 		+OEM Abit Computer Corp {147b} : Siluro T400 (*)
 		+OEM Abit Computer Corp {147b} : Siluro V400 (*)
-		+OEM Aopen Inc {a0a0} : PA256MX Deluxe (*)
-		+OEM Aopen Inc {a0a0} : PA256MX Diamond (*)
-		+OEM Aopen Inc {a0a0} : PA256MX II (*)
-		+OEM Aopen Inc {a0a0} : PA256MX Platinum (*)
-		+OEM Aopen Inc {a0a0} : Video Station MX400-A (*)
-		+OEM Aopen Inc {a0a0} : Video Station MX400-AII (*)
 		+OEM ELSA GmbH {1048} : GLADIAC 311 (*)
 		+OEM ELSA GmbH {1048} : GLADIAC 511 (*)
 		+OEM ELSA GmbH {1048} : GLADIAC 511 PCI (*)
@@ -808,11 +817,11 @@ SVGAWIN Drivers
 		+OEM Micro-Star International Co Ltd (MSI) {1462} : MSI-8817 Starforce 8817 (*)
 		+OEM Micro-Star International Co Ltd (MSI) {1462} : MSI-8818 Starforce 8818 (*)
 	+GeForce2 Ti (DDR) [NV15DDR] [0151] 
+		+OEM AOpen Inc {a0a0} : GeForce2 Ti-VO 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7700 Ti SDRAM 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V7700 Ti SGRAM 
 		+OEM ASUSTeK Computer Inc {1043} : V7700 Tivx SDRAM 
 		+OEM ASUSTeK Computer Inc {1043} : V7700 Tivx SGRAM 
-		+OEM Aopen Inc {a0a0} : GeForce2 Ti-VO 
 		+OEM Micro-Star International Co Ltd (MSI) {1462} : Creative 3D Blaster Geforce2 Titanium 
 	+GeForce2 Ultra (BladeRunner) [NV15BR] [0152] 
 		+GeForce2 Ultra (Gateway) 
@@ -837,13 +846,14 @@ SVGAWIN Drivers
 		+OEM ELSA GmbH {1048} : GLADIAC 920 (*)
 		+OEM Hercules {1681} : 3D Prophet III (*)
 	+GeForce3 [NV25.3] [0252] (*)
+	+GeForce4 410 Go [NV17] [017d] (*)
 	+GeForce4 420 Go 32M [NV17M] [0176] (*)
 		+OEM SBS Technologies (AKA: SBS-Or Industrial Computers) {4c53} : Cx9 / Vx9 mainboard (*)
 		+OEM Wistron Corporation {17c0} : GeForce4 420 Go 32M [NV17M] (*)
 	+GeForce4 420 Go [NV17M] [0175] (*)
 	+GeForce4 440 Go 64M [NV17M] [0179] (*)
 		+GeForce4 MX (Mac) (*)
-		+OEM Aopen Inc {a0a0} : GeForce4 420 Go 64M [NV17M] (*)
+		+OEM AOpen Inc {a0a0} : GeForce4 420 Go 64M [NV17M] (*)
 		+OEM Wistron Corporation {17c0} : GeForce4 420 Go 64M [NV17M] (*)
 	+GeForce4 440 Go [NV17M] [0174] (*)
 	+GeForce4 448 Go [NV18M] [0186] (*)
@@ -903,6 +913,7 @@ SVGAWIN Drivers
 	+GeForce4 MX 460 [NV17.1] [0170] (*)
 		+OEM ASUSTeK Computer Inc {1043} : V8170 PRO (*)
 		+OEM ASUSTeK Computer Inc {1043} : V8170 PRO DELUXE (*)
+	+GeForce4 Ti 4200 Go AGP 8x [NV28] [0286] (*)
 	+GeForce4 Ti 4200 [NV25.4] [0253] (*)
 		+OEM ASUSTeK Computer Inc {1043} : V8420 Deluxe (*)
 		+OEM ASUSTeK Computer Inc {1043} : V8420 NTSC 128Mb (*)
@@ -938,8 +949,6 @@ SVGAWIN Drivers
 		+OEM Wistron Corporation {17c0} : Geforce4 488 Go (*)
 	+ICE FX 2000 [030a] (*)
 	+Mutara V08 [NV2] [0010] 
-	+NV17 [GeForce4 410 Go 16M] [017d] (*)
-	+NV28 [GeForce4 Ti 4200 Go AGP 8x] [0286] (*)
 	+NV31 [0313] (*)
 	+NV31 [0316] (*)
 	+NV31 [0317] (*)
@@ -949,11 +958,8 @@ SVGAWIN Drivers
 	+NV31GL.1 [0318] (*)
 	+NV31GL.2 [0319] (*)
 	+NV34GL [032f] (*)
-	+NV34M [GeForce FX Go5200] [0329] (*)
 	+NV36 [0349] (*)
 	+NV36 [034b] (*)
-	+NV36 [GeForce FX Go5700] [0347] (*)
-	+NV36 [Quadro FX Go1000] [034c] (*)
 	+NV36.5 [0345] (*)
 	+NV36GL [034f] (*)
 	+NVIDIA Quadro FX 700 Go [031c] (*)
@@ -967,6 +973,7 @@ SVGAWIN Drivers
 	+Quadro FX 3000 [NV35GL] [0338] (*)
 	+Quadro FX 500/600 [NV34GL.4] [032b] (*)
 	+Quadro FX 700 [NV35GL] [033f] (*)
+	+Quadro FX Go 1000 [NV36] [034c] (*)
 	+Quadro NVS 280 PCI [NV34GL.3] [032a] (*)
 	+Quadro NVS with AGP 8X [NV18GL.2] [018a] (*)
 	+Quadro2 MXR/EX/Go [NV11GL] [0113] (*)
@@ -989,11 +996,11 @@ SVGAWIN Drivers
 		+OEM Guillemot Corp {14af} : Maxi Gamer Xentor 
 	+RIVA TNT2 Model 64 [NVM64] [002d] 
 		+M64 AGP4x 
+		+OEM AOpen Inc {a0a0} : PA3000 Plus 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800 PURE 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800 TV 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800M 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800M SDRAM 
-		+OEM Aopen Inc {a0a0} : PA3000 Plus 
 		+OEM Creative Labs {1102} : CT6892 RIVA TNT2 Value 
 		+OEM Creative Labs {1102} : CT6931 RIVA TNT2 Value 
 		+OEM Creative Labs {1102} : CT6931 RIVA TNT2 Value (Jumper) 
@@ -1009,11 +1016,11 @@ SVGAWIN Drivers
 		+OEM Prolink Microsystems Corp {1554} : Pixelview RIVA TNT2 M64 
 		+OEM Visiontek {1545} : RIVA TNT2 Model 64 (Gateway) 
 	+RIVA TNT2 Ultra [NVULTRA] [0029] 
+		+OEM AOpen Inc {a0a0} : PA3020 
+		+OEM AOpen Inc {a0a0} : PA3030 Ultra 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800 Ultra SDRAM 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800 Ultra SGRAM 
 		+OEM ASUSTeK Computer Inc {1043} : PCI-V3800 Ultra 
-		+OEM Aopen Inc {a0a0} : PA3020 
-		+OEM Aopen Inc {a0a0} : PA3030 Ultra 
 		+OEM Creative Labs {1102} : 3D Blaster RIVA TNT2 Ultra 
 		+OEM ELSA GmbH {1048} : ERAZOR III 
 		+OEM ELSA GmbH {1048} : ERAZOR III (Video) 
@@ -1026,13 +1033,13 @@ SVGAWIN Drivers
 	+RIVA TNT2 [NV5] [0028] 
 		+RIVA TNT2 Pro 
 		+RIVA TNT2/TNT2 Pro 
+		+OEM AOpen Inc {a0a0} : PA3010 
+		+OEM AOpen Inc {a0a0} : PA3020 Pro 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800 SDRAM 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800 SGRAM 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800PRO 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800PRO SDRAM 
 		+OEM ASUSTeK Computer Inc {1043} : PCI-V3800 
-		+OEM Aopen Inc {a0a0} : PA3010 
-		+OEM Aopen Inc {a0a0} : PA3020 Pro 
 		+OEM Creative (Was: Ensoniq) {1274} : RIVA TNT2 Pro (Gateway) 
 		+OEM Creative Labs {1102} : 3D Blaster RIVA TNT2 
 		+OEM Creative Labs {1102} : 3D Blaster RIVA TNT2 Digital 
@@ -1085,14 +1092,14 @@ SVGAWIN Drivers
 		+OEM ELSA GmbH {1048} : ERAZOR III Pro (Video) 
 		+OEM ELSA GmbH {1048} : ERAZOR III Ultra 
 	+VANTA / VANTA LT [NVVANTA] [002c] 
+		+OEM AOpen Inc {a0a0} : PA3000 
+		+OEM AOpen Inc {a0a0} : PA3000 LT 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800 Combat 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800 VANTA16 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800C Combat 
 		+OEM ASUSTeK Computer Inc {1043} : AGP-V3800C Combat SDRAM 
 		+OEM ASUSTeK Computer Inc {1043} : VANTA2000 
 		+OEM ASUSTeK Computer Inc {1043} : VANTA2000 SGRAM 
-		+OEM Aopen Inc {a0a0} : PA3000 
-		+OEM Aopen Inc {a0a0} : PA3000 LT 
 		+OEM CardExpert Technology {10b0} : Gainward Vanta TNT2 
 		+OEM Creative Labs {1102} : CT6894 VANTA 16MB 
 		+OEM Creative Labs {1102} : CT6934 VANTA 

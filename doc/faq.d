@@ -140,6 +140,14 @@ Linux FAQ
 
 		:man dga
 
+  I have some background system activity, and the emulate game are
+  not playing smootly. How fix this ?
+	To run AdvanceMAME the system must be almost in idle state.
+
+	Anyway, to reduce "jumpy" effect you can disable the vertical
+	vsync. The problem with vsync is that if the system is busy on
+	a vsync the result is a complete frame drop (a wait of 17 ms).
+
   Can I run AdvanceMENU directly from /etc/inittab ?
 	The SVGALIB library needs a controlling tty and programs using it
 	cannot be run directly from init. You can anyway start them in
