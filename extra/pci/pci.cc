@@ -489,7 +489,7 @@ FOOTER \
 
 void print_dos(ostream& os, entry_vendor_set& vs_svgaline, entry_vendor_set& vs_vbeline) {
 	os <<
-"Name\n"
+"Name{number}\n"
 "\tcarddos - Supported DOS Video Cards\n"
 "\n"
 "\tThis is the list of the DOS video cards supported\n"
@@ -565,7 +565,7 @@ HEADER
 
 void print_cd(ostream& os, entry_vendor_set& vs_fb) {
 	os <<
-"Name\n"
+"Name{number}\n"
 "\tcardcd - Supported AdvanceCD Video Cards\n"
 "\n"
 "\tThis is the list of the video cards supported by AdvanceCD.\n"
@@ -587,7 +587,7 @@ HEADER
 
 void print_audiocd(ostream& os, entry_vendor_set& vs_alsa) {
 	os <<
-"Name\n"
+"Name{number}\n"
 "\taudiocd - Supported AdvanceCD Sound Cards\n"
 "\n"
 "\tThis is the list of the sound cards supported by AdvanceCD.\n"
@@ -612,7 +612,7 @@ HEADER
 
 void print_win(ostream& os, entry_vendor_set& vs_svgaline) {
 	os <<
-"Name\n"
+"Name{number}\n"
 "\tcardwin - Supported Windows Video Cards\n"
 "\n"
 "\tThis is the list of the Windows video cards supported\n"
