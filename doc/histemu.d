@@ -5,6 +5,8 @@ AdvanceMAME Version 0.87.1 2004/10
 	) Improved the timer precision in the Windows version.
 	) Added support for scaling bitmapped fonts by an
 		integer factor.
+	) Added support at the Linux keyboard `event' driver to
+		disable the hotkeys like CTRL+C and ALT+Fx.
 
 AdvanceMESS Version 0.87.0.0 2004/10
 	) All from AdvanceMAME 0.87.0.

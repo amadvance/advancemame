@@ -38,8 +38,17 @@
 
 #include <linux/input.h>
 
+#if HAVE_TERMIOS_H
+#include <termios.h>
+#endif
+#if HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif
 #if HAVE_SYS_KD_H
 #include <sys/kd.h>
+#endif
+#if HAVE_SYS_VT_H
+#include <sys/vt.h>
 #endif
 
 #define EVENT_KEYBOARD_MAX 8
@@ -55,10 +64,14 @@ struct keyboard_item_context {
 #define LOW_INVALID ((unsigned)0xFFFFFFFF)
 
 struct keyb_event_context {
+	struct termios oldkbdtermios;
+	struct termios newkbdtermios;
+	int oldkbmode;
+	int f; /**< Handle of the console interface. */
+	adv_bool disable_special_flag; /**< Disable special hotkeys. */
 	unsigned map_up_to_low[KEYB_MAX];
 	unsigned mac;
 	struct keyboard_item_context map[EVENT_KEYBOARD_MAX];
-	int fc; /**< Handle of the console interface. */
 	adv_bool graphics_flag; /**< Set the terminal in graphics mode. */
 	adv_bool passive_flag; /**< Be passive on some actions. Required for compatibility with other libs. */
 
@@ -745,7 +758,7 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 
 		event_log(f, event_state.map[event_state.mac].evtype_bitmask);
 
-		if (!event_is_keyboard(event_state.map[event_state.mac].evtype_bitmask)) {
+		if (0 && !event_is_keyboard(event_state.map[event_state.mac].evtype_bitmask)) {
 			log_std(("keyb:event: not a keyboard on device %s\n", file));
 			event_close(f);
 			continue;
@@ -763,6 +776,8 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 		error_set("No keyboard found.\n");
 		return -1;
 	}
+
+	event_state.disable_special_flag = disable_special;
 
 	return 0;
 }
@@ -801,19 +816,50 @@ adv_error keyb_event_enable(adv_bool graphics)
 
 	event_state.graphics_flag = graphics;
 
-	event_state.fc = open("/dev/tty", O_RDONLY | O_NONBLOCK);
-	if (event_state.fc == -1) {
+	event_state.f = open("/dev/tty", O_RDONLY | O_NONBLOCK);
+	if (event_state.f == -1) {
 		error_set("Error enabling the event keyboard driver. Function open(/dev/tty) failed.\n");
 		goto err;
+	}
+
+	if (ioctl(event_state.f, KDGKBMODE, &event_state.oldkbmode) != 0) {
+		error_set("Error enabling the event keyboard driver. Function ioctl(KDGKBMODE) failed.\n");
+		goto err_close;
+	}
+
+	if (tcgetattr(event_state.f, &event_state.oldkbdtermios) != 0) {
+		error_set("Error enabling the event keyboard driver. Function tcgetattr() failed.\n");
+		goto err_close;
+	}
+
+	event_state.newkbdtermios = event_state.oldkbdtermios;
+
+	/* setting taken from SVGALIB */
+	event_state.newkbdtermios.c_lflag &= ~(ICANON | ECHO | ISIG);
+	event_state.newkbdtermios.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | IXOFF | IXON);
+	event_state.newkbdtermios.c_cc[VMIN] = 0;
+	event_state.newkbdtermios.c_cc[VTIME] = 0;
+
+	if (tcsetattr(event_state.f, TCSAFLUSH, &event_state.newkbdtermios) != 0) {
+		error_set("Error enabling the event keyboard driver. Function tcsetattr(TCSAFLUSH) failed.\n");
+		goto err_close;
+	}
+
+	if (event_state.disable_special_flag) {
+		/* enter in raw mode only to disable the ALT+Fx sequences */
+		if (ioctl(event_state.f, KDSKBMODE, K_MEDIUMRAW) != 0) {
+			error_set("Error enabling the event keyboard driver. Function ioctl(KDSKBMODE) failed.\n");
+			goto err_term;
+		}
 	}
 
 	if (!event_state.passive_flag && event_state.graphics_flag) {
 		/* set the console in graphics mode, it only disable the cursor and the echo */
 		log_std(("keyb:event: ioctl(KDSETMODE, KD_GRAPHICS)\n"));
-		if (ioctl(event_state.fc, KDSETMODE, KD_GRAPHICS) < 0) {
+		if (ioctl(event_state.f, KDSETMODE, KD_GRAPHICS) < 0) {
 			log_std(("keyb:event: ioctl(KDSETMODE, KD_GRAPHICS) failed\n"));
 			error_set("Error setting the tty in graphics mode.\n");
-			goto err_close;
+			goto err_mode;
 		}
 	}
 
@@ -821,8 +867,18 @@ adv_error keyb_event_enable(adv_bool graphics)
 
 	return 0;
 
+err_mode:
+	if (ioctl(event_state.f, KDSKBMODE, event_state.oldkbmode) < 0) {
+		/* ignore error */
+		log_std(("keyb:event: ioctl(KDSKBMODE,old) failed\n"));
+	}
+err_term:
+	if (tcsetattr(event_state.f, TCSAFLUSH, &event_state.oldkbdtermios) != 0) {
+		/* ignore error */
+		log_std(("keyb:event: tcsetattr(TCSAFLUSH) failed\n"));
+	}
 err_close:
-	close(event_state.fc);
+	close(event_state.f);
 err:
 	return -1;
 }
@@ -832,13 +888,23 @@ void keyb_event_disable(void)
 	log_std(("keyb:event: keyb_event_disable()\n"));
 
 	if (!event_state.passive_flag && event_state.graphics_flag) {
-		if (ioctl(event_state.fc, KDSETMODE, KD_TEXT) < 0) {
+		if (ioctl(event_state.f, KDSETMODE, KD_TEXT) < 0) {
 			/* ignore error */
 			log_std(("ERROR:keyb:event: ioctl(KDSETMODE, KD_TEXT) failed\n"));
 		}
 	}
 
-	close(event_state.fc);
+	if (ioctl(event_state.f, KDSKBMODE, event_state.oldkbmode) < 0) {
+		/* ignore error */
+		log_std(("ERROR:keyb:event: ioctl(KDSKBMODE,old) failed\n"));
+	}
+
+	if (tcsetattr(event_state.f, TCSAFLUSH, &event_state.oldkbdtermios) != 0) {
+		/* ignore error */
+		log_std(("ERROR:keyb:event: tcsetattr(TCSAFLUSH) failed\n"));
+	}
+
+	close(event_state.f);
 }
 
 unsigned keyb_event_count_get(void)

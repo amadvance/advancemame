@@ -68,9 +68,9 @@ struct keyb_raw_context {
 	struct termios newkbdtermios;
 	int oldkbmode;
 	int f; /**< Handle. */
+	adv_bool disable_special_flag; /**< Disable special hotkeys. */
 	unsigned map_up_to_low[KEYB_MAX]; /**< Key mapping. */
 	unsigned char state[RAW_MAX]; /**< Key state. */
-	adv_bool disable_special_flag; /**< Disable special hotkeys. */
 	adv_bool graphics_flag; /**< Set the terminal in graphics mode. */
 	adv_bool passive_flag; /**< Be passive on some actions. Required for compatibility with other libs. */
 #ifdef USE_FIRST_HACK
@@ -259,6 +259,7 @@ adv_error keyb_raw_enable(adv_bool graphics)
 #endif
 
 	raw_state.graphics_flag = graphics;
+	raw_state.first_state = 0;
 
 	raw_state.f = open("/dev/tty", O_RDONLY | O_NONBLOCK);
 	if (raw_state.f == -1) {
@@ -304,8 +305,6 @@ adv_error keyb_raw_enable(adv_bool graphics)
 		}
 	}
 
-	raw_state.first_state = 0;
-
 	keyb_raw_clear();
 
 	return 0;
@@ -333,18 +332,18 @@ void keyb_raw_disable(void)
 	if (!raw_state.passive_flag && raw_state.graphics_flag) {
 		if (ioctl(raw_state.f, KDSETMODE, KD_TEXT) < 0) {
 			/* ignore error */
-			log_std(("keyb:raw: ioctl(KDSETMODE, KD_TEXT) failed\n"));
+			log_std(("ERROR:keyb:raw: ioctl(KDSETMODE, KD_TEXT) failed\n"));
 		}
 	}
 
 	if (ioctl(raw_state.f, KDSKBMODE, raw_state.oldkbmode) < 0) {
 		/* ignore error */
-		log_std(("keyb:raw: ioctl(KDSKBMODE,old) failed\n"));
+		log_std(("ERROR:keyb:raw: ioctl(KDSKBMODE,old) failed\n"));
 	}
 
 	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.oldkbdtermios) != 0) {
 		/* ignore error */
-		log_std(("keyb:raw: tcsetattr(TCSAFLUSH) failed\n"));
+		log_std(("ERROR:keyb:raw: tcsetattr(TCSAFLUSH) failed\n"));
 	}
 
 	close(raw_state.f);
@@ -462,7 +461,6 @@ static void keyb_raw_vt_switch(unsigned char code)
 	}
 
 	/* check for ALT+Fx */
-
 	if (!raw_state.state[SCANCODE_ALT] && !raw_state.state[SCANCODE_ALTGR]) {
 		return;
 	}

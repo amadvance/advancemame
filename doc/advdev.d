@@ -249,20 +249,43 @@ Input Drivers
 
 	It supports more than one keyboard at the same time.
 
+	You can change console with ALT+Fx. No other hotkeys are
+	available. The hotkeys can be optionally disabled.
+
+	For an emergency keyboard restore you can use the emergency
+	Linux SysRq key. Check:
+
+		:http:///usr/src/linux/Documentation/sysrq.txt
+
     raw - Kernel keyboard (Linux)
 	This driver works in Linux and it uses directly the Linux kernel
 	keyboard interface.
 
 	It supports only one keyboard.
 
-	You can change console with ALT+Fx and break the program with CTRL+C.
+	You can change console with ALT+Fx and break the program
+	with CTRL+C. No other hotkeys are available. The hotkeys can
+	be optionally disabled.
+
+	For an emergency keyboard restore you can use the emergency
+	Linux SysRq key. Check:
+
+		:http:///usr/src/linux/Documentation/sysrq.txt
 
     svgalib - SVGALIB keyboard (Linux)
 	This driver works in Linux and it uses the SVGALIB library.
 
 	It supports only one keyboard.
 
-	You can change console with ALT+Fx and break the program with CTRL+C.
+	You can change console with ALT+Fx and break the program
+	with CTRL+C. No other hotkeys are available. The CTRL+C hotkey
+	can be optionally disabled. The ALT+Fx hotkeys are always
+	enabled.
+
+	For an emergency keyboard restore you can use the emergency
+	Linux SysRq key. Check:
+
+		:http:///usr/src/linux/Documentation/sysrq.txt
 
     sdl - SDL keyboard (Linux, Windows and Mac OS X)
 	This driver works in Linux, Windows and Mac OS X and it uses

@@ -941,8 +941,8 @@ Configuration
     display_aspectx/aspecty
 	Selects the aspect of the monitor used.
 
-	display_aspectx INT
-	display_aspecty INT
+	:display_aspectx INT
+	:display_aspecty INT
 
 	Options:
 		INT - Integer number starting from 1 (default 4 and 3).
