@@ -411,7 +411,41 @@ static struct conf_conv STANDARD[] = {
 { "*", "select_bad", "*", "", "", "", 0 }, /* remove */
 { "*", "select_missing", "*", "", "", "", 0 }, /* remove */
 { "*", "select_vector", "*", "", "", "", 0 }, /* remove */
-{ "*", "select_vertical", "*", "", "", "", 0 } /* remove */
+{ "*", "select_vertical", "*", "", "", "", 0 }, /* remove */
+{ "*", "type_import", "none", "", "", "", 0 }, /* remove */
+{ "*", "group_import", "none", "", "", "", 0 }, /* remove */
+{ "*", "desc_import", "none", "", "", "", 0 }, /* remove */
+{ "*", "device_joystick", "standard", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "dual", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "4button", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "6button", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "8button", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "fspro", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "wingex", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "sidewinder", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "sidewinderag", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "gamepadpro", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "grip", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "grip4", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "sneslpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "sneslpt2", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "sneslpt3", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "psxlpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "psxlpt2", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "psxlpt3", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "n64lpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "n64lpt2", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "n64lpt3", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "db9lpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "db9lp2", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "db9lp3", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "tgxlpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "tgxlpt2", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "tgxlpt3", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "segaisa", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "segapci", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "segapcifast", "%s", "%s", "allegro/%s", 0 }, /* rename */
+{ "*", "device_joystick", "wingwarrior", "%s", "%s", "allegro/%s", 0 } /* rename */
 };
 
 void os_signal(int signum) {

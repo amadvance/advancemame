@@ -163,7 +163,6 @@ unsigned sound_oss_buffered(void) {
 
 void sound_oss_volume(double volume) {
 	log_std(("sound:oss: sound_oss_volume(volume:%g)\n",(double)volume));
-
 	/* TODO OSS volume control */
 }
 

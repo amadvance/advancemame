@@ -38,7 +38,8 @@ enum game_sort_t {
 	sort_by_type,
 	sort_by_size,
 	sort_by_coin,
-	sort_by_res
+	sort_by_res,
+	sort_by_info
 };
 
 inline bool sort_by_root_name_func(const game* A, const game* B) {
@@ -79,6 +80,10 @@ inline bool sort_by_type_func(const game* A, const game* B) {
 
 inline bool sort_by_size_func(const game* A, const game* B) {
 	return pgame_combine_less(A,B,pgame_by_size_less,pgame_by_desc_less,pgame_by_name_less);
+}
+
+inline bool sort_by_info_func(const game* A, const game* B) {
+	return pgame_combine_less(A,B,pgame_by_info_less,pgame_by_desc_less,pgame_by_name_less);
 }
 
 typedef bool (*pgame_sort_func)(const game*, const game*);
@@ -132,6 +137,12 @@ struct config_state {
 
 	bool load_game(const std::string& name, const std::string& group, const std::string& type, const std::string& time, const std::string& coin, const std::string& desc);
 	bool load_iterator_game(struct conf_context* config_context, const std::string& tag);
+	bool load_iterator_import(struct conf_context* config_context, const std::string& tag, void (config_state::*set)(const game&, const std::string&), bool opt_verbose);
+
+	void import_desc(const game& g, const std::string& text);
+	void import_info(const game& g, const std::string& text);
+	void import_type(const game& g, const std::string& text);
+	void import_group(const game& g, const std::string& text);
 
 public:
 	game_set gar; ///< Main game list.
@@ -160,23 +171,6 @@ public:
 	double video_brightness; ///< Video brightness.
 	unsigned video_orientation_orig; ///< Original video orientation.
 	unsigned video_orientation_effective; ///< Video orientation.
-
-	// desc import
-	std::string desc_import_type;
-	std::string desc_import_sub;
-	std::string desc_import_file;
-
-	// type import
-	std::string type_import_type;
-	std::string type_import_sub;
-	std::string type_import_file;
-	std::string type_import_section;
-
-	// group import
-	std::string group_import_type;
-	std::string group_import_sub;
-	std::string group_import_file;
-	std::string group_import_section;
 
 	preview_t preview_orig; ///< Original preview type selected.
 	preview_t preview_effective; ///< Preview type selected.
@@ -265,6 +259,24 @@ public:
 
 	static void conf_register(struct conf_context* config_context);
 	static void conf_default(struct conf_context* config_context);
+};
+
+// ------------------------------------------------------------------------
+// config_import
+
+class config_import {
+	std::string type;
+	std::string emulator;
+	std::string file;
+	std::string section;
+
+	void import_ini(game_set& gar, config_state& config, void (config_state::*set)(const game&, const std::string& text));
+	void import_mac(game_set& gar, config_state& config, void (config_state::*set)(const game&, const std::string& text));
+	void import_nms(game_set& gar, config_state& config, void (config_state::*set)(const game&, const std::string& text));
+public:
+	config_import(const std::string Atype, const std::string Aemulator,  const std::string Afile,  const std::string Asection);
+
+	void import(game_set& gar, config_state& config, void (config_state::*set)(const game&, const std::string& text));
 };
 
 #endif

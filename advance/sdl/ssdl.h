@@ -39,6 +39,8 @@ extern "C" {
 
 extern sound_driver sound_sdl_driver;
 
+void sound_sdl_default(void);
+
 #ifdef __cplusplus
 }
 #endif

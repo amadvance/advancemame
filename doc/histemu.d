@@ -15,9 +15,11 @@ AdvanceMAME Version 0.61.2 2002/08 (not yet released)
 	) Readded the basic `vbe' driver.
 	) Added the MMX detection in the linux and windows targets.
 		Previously the MMX presence was assumed.
-	) Splitted the input_map[,trak] option in the input_map[,trakx]
-		and input_map[,traky] options. Now you can assign
+	) Splitted the `input_map[,trak]' option in the input_map[,trakx]
+		and `input_map[,traky]' options. Now you can assign
 		different axes from different mouses.
+	) The `input_map[]' option now supports multiple input sources
+		and eventually allow to negate them.
 	) Renamed the option `misc_language' to `misc_languagefile'.
 	) Fixed the saving of the cheats.
 	) Documented the various `misc_*file' options.

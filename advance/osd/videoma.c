@@ -2181,7 +2181,7 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 	video_sync_update(context, sound_context, skip_flag);
 
 	/* do a yield immediatly after the syncronization. */
-	/* If a schedule will be done, better to have it now and not */
+	/* If a schedule will be done, it's better to have it now and not */
 	/* when waiting for the next vsync. */
 	target_yield();
 

@@ -323,28 +323,6 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 			draw_tag_right("   BETA",xl,xr,y,in_separator,COLOR_MENU_BAR_TAG);
 		else
 			draw_tag_right("       ",xl,xr,y,in_separator,COLOR_MENU_BAR_TAG);
-
-		draw_tag_left(g->manufacturer_get(),xl,xr,y,0,COLOR_MENU_BAR);
-
-		if (g->year_get().length())
-			draw_tag_left(", " + g->year_get(),xl,xr,y,0,COLOR_MENU_BAR);
-
-		if (g->clone_get() > 0) {
-			ostringstream os;
-			os << ", " << g->clone_get() << " clones";
-			draw_tag_left(os.str(),xl,xr,y,0,COLOR_MENU_BAR);
-		}
-
-		if (g->parent_get()) {
-			ostringstream os;
-			os << ", ";
-			if (g->software_get())
-				os << "software of";
-			else
-				os << "clone of";
-			os << " " << g->parent_get()->name_get();
-			draw_tag_left(os.str(),xl,xr,y,in_separator,COLOR_MENU_BAR);
-		}
 	}
 
 	if (lock)
@@ -370,17 +348,35 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 		case sort_by_type : draw_tag_right("type",xl,xr,y,in_separator,COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_size : draw_tag_right("size",xl,xr,y,in_separator,COLOR_MENU_BAR_HIDDEN); break;
 		case sort_by_res : draw_tag_right("res",xl,xr,y,in_separator,COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_info : draw_tag_right("info",xl,xr,y,in_separator,COLOR_MENU_BAR_HIDDEN); break;
 	}
 
-#ifdef __MSDOS__
-	{
-		ostringstream os;
-		os << _go32_dpmi_remaining_physical_memory() / (1024*1024);
-		os << "/" << _go32_dpmi_remaining_virtual_memory() / (1024*1024);
-		draw_tag_right(os.str(),xl,xr,y,in_separator,COLOR_MENU_BAR);
-	}
-#endif
+	if (g) {
+		if (g->info_get().length())
+			draw_tag_right(g->info_get(),xl,xr,y,0,COLOR_MENU_BAR_TAG);
 
+		draw_tag_left(g->manufacturer_get(),xl,xr,y,0,COLOR_MENU_BAR);
+
+		if (g->year_get().length())
+			draw_tag_left(", " + g->year_get(),xl,xr,y,0,COLOR_MENU_BAR);
+
+		if (g->clone_get() > 0) {
+			ostringstream os;
+			os << ", " << g->clone_get() << " clones";
+			draw_tag_left(os.str(),xl,xr,y,0,COLOR_MENU_BAR);
+		}
+
+		if (g->parent_get()) {
+			ostringstream os;
+			os << ", ";
+			if (g->software_get())
+				os << "software of";
+			else
+				os << "clone of";
+			os << " " << g->parent_get()->name_get();
+			draw_tag_left(os.str(),xl,xr,y,in_separator,COLOR_MENU_BAR);
+		}
+	}
 }
 
 struct cell_t {
@@ -1809,6 +1805,10 @@ int run_menu(config_state& rs, bool flipxy, bool silent) {
 		case sort_by_res :
 			psc = new pgame_sort_set(sort_by_res_func);
 			category_func = sort_item_res;
+			break;
+		case sort_by_info :
+			psc = new pgame_sort_set(sort_by_info_func);
+			category_func = sort_item_info;
 			break;
 		default:
 			return TEXT_KEY_NONE;

@@ -45,7 +45,8 @@ static struct conf_enum_int OPTION_SORT[] = {
 { "manufacturer", sort_by_manufacturer },
 { "type", sort_by_type },
 { "size", sort_by_size },
-{ "resolution", sort_by_res }
+{ "resolution", sort_by_res },
+{ "info", sort_by_info }
 };
 
 static struct conf_enum_int OPTION_RESTORE[] = {
@@ -117,7 +118,7 @@ static void config_error_a(const string& arg) {
 	target_err("Invalid argument '%s'.\n", arg.c_str());
 }
 
-static bool config_import(const string& s, string& a0) {
+static bool config_path_import(const string& s, string& a0) {
 	if (!arg_split(s, a0)) {
 		config_error_a(s);
 		return false;
@@ -176,9 +177,10 @@ void config_state::conf_register(struct conf_context* config_context) {
 	conf_string_register_multi(config_context, "type");
 	conf_string_register_multi(config_context, "group_include");
 	conf_string_register_multi(config_context, "type_include");
-	conf_string_register_default(config_context,"type_import","none");
-	conf_string_register_default(config_context, "group_import", "none");
-	conf_string_register_default(config_context, "desc_import", "none");
+	conf_string_register_multi(config_context,"type_import");
+	conf_string_register_multi(config_context, "group_import");
+	conf_string_register_multi(config_context, "desc_import");
+	conf_string_register_multi(config_context, "info_import");
 	conf_string_register_multi(config_context, "game");
 	conf_int_register_enum_default(config_context, "sort", conf_enum(OPTION_SORT), sort_by_root_name);
 	conf_bool_register_default(config_context, "lock", 0);
@@ -233,6 +235,14 @@ void config_state::conf_register(struct conf_context* config_context) {
 
 // -------------------------------------------------------------------------
 // Configuration load
+
+static bool config_is_emulator(const pemulator_container& ec, const string& emulator) {
+	for(pemulator_container::const_iterator i=ec.begin();i!=ec.end();++i) {
+		if ((*i)->user_name_get() == emulator)
+			return true;
+	}
+	return false;
+}
 
 static bool config_load_background_dir(const string& dir, path_container& c) {
 	if (dir=="none")
@@ -441,6 +451,46 @@ static bool config_load_iterator_pcategory(struct conf_context* config_context, 
 	return true;
 }
 
+bool config_state::load_iterator_import(struct conf_context* config_context, const string& tag, void (config_state::*set)(const game&, const string&), bool opt_verbose) {
+	conf_iterator i;
+	conf_iterator_begin(&i, config_context, tag.c_str());
+	while (!conf_iterator_is_end(&i)) {
+		string a0,a1,a2,a3;
+		string s = conf_iterator_string_get(&i);
+
+		if (!config_split(s,a0,a1,a2,a3))
+			return false;
+
+		if (a0 != "nms" && a0 != "ini" && a0 != "mac") {
+			config_error_oa(tag, a0);
+			return false;
+		}
+
+		if (!config_is_emulator(emu,a1)) {
+			config_error_oa(tag,a1);
+			return false;
+		}
+
+		if (a2.length() == 0) {
+			config_error_oa(tag,a2);
+			return false;
+		}
+
+		a2 = path_import(a2);
+
+		config_import j(a0,a1,a2,a3);
+
+		if (opt_verbose)
+			target_nfo("log: importing from %s\n", a2.c_str());
+
+		j.import(gar,*this,set);
+
+		conf_iterator_next(&i);
+	}
+
+	return true;
+}
+
 static bool config_load_iterator_category(struct conf_context* config_context, const string& tag, category_container& cat) {
 	conf_iterator i;
 	conf_iterator_begin(&i, config_context, tag.c_str());
@@ -535,14 +585,6 @@ static bool config_load_orientation(struct conf_context* config_context, unsigne
 	return true;
 }
 
-static bool config_is_emulator(const pemulator_container& ec, const string& emulator) {
-	for(pemulator_container::const_iterator i=ec.begin();i!=ec.end();++i) {
-		if ((*i)->user_name_get() == emulator)
-			return true;
-	}
-	return false;
-}
-
 bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 	string a0,a1;
 
@@ -553,15 +595,6 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 	current_backdrop = resource();
 	current_sound = resource();
 
-	if (!config_split(conf_string_get_default(config_context, "desc_import"),desc_import_type,desc_import_sub,desc_import_file))
-		return false;
-	desc_import_file = path_import(desc_import_file);
-	if (!config_split(conf_string_get_default(config_context, "type_import"),type_import_type,type_import_sub,type_import_file,type_import_section))
-		return false;
-	type_import_file = path_import(type_import_file);
-	if (!config_split(conf_string_get_default(config_context, "group_import"),group_import_type,group_import_sub,group_import_file,group_import_section))
-		return false;
-	group_import_file = path_import(group_import_file);
 	sort_orig = (game_sort_t)conf_int_get_default(config_context, "sort");
 	lock_orig = (bool)conf_bool_get_default(config_context, "lock");
 	restore = (restore_t)conf_int_get_default(config_context, "config");
@@ -589,7 +622,7 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 	repeat_rep = atoi( a1.c_str() );
 	video_size = conf_int_get_default(config_context, "video_size");
 	video_depth = conf_int_get_default(config_context, "video_depth");
-	if (!config_import(conf_string_get_default(config_context, "video_font"), a0))
+	if (!config_path_import(conf_string_get_default(config_context, "video_font"), a0))
 		return false;
 	video_font_path = a0;
 	if (!config_load_orientation(config_context,video_orientation_orig))
@@ -604,19 +637,19 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 	preview_orig = (preview_t)conf_int_get_default(config_context, "preview");
 	idle_saver_type = (saver_t)conf_int_get_default(config_context, "idle_screensaver_preview");
 	preview_expand = conf_float_get_default(config_context, "preview_expand");
-	if (!config_import(conf_string_get_default(config_context, "preview_default"),preview_default))
+	if (!config_path_import(conf_string_get_default(config_context, "preview_default"),preview_default))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "preview_default_snap"),preview_default_snap))
+	if (!config_path_import(conf_string_get_default(config_context, "preview_default_snap"),preview_default_snap))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "preview_default_flyer"),preview_default_flyer))
+	if (!config_path_import(conf_string_get_default(config_context, "preview_default_flyer"),preview_default_flyer))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "preview_default_cabinet"),preview_default_cabinet))
+	if (!config_path_import(conf_string_get_default(config_context, "preview_default_cabinet"),preview_default_cabinet))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "preview_default_icon"),preview_default_icon))
+	if (!config_path_import(conf_string_get_default(config_context, "preview_default_icon"),preview_default_icon))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "preview_default_marquee"),preview_default_marquee))
+	if (!config_path_import(conf_string_get_default(config_context, "preview_default_marquee"),preview_default_marquee))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "preview_default_title"),preview_default_title))
+	if (!config_path_import(conf_string_get_default(config_context, "preview_default_title"),preview_default_title))
 		return false;
 	preview_fast = (bool)conf_int_get_default(config_context, "event_mode");
 	alpha_mode = (bool)conf_bool_get_default(config_context, "event_alpha");
@@ -624,27 +657,27 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 	merge = (merge_t)conf_int_get_default(config_context, "merge");
 	icon_space = conf_int_get_default(config_context, "icon_space");
 
-	if (!config_import(conf_string_get_default(config_context, "sound_foreground_begin"),sound_foreground_begin))
+	if (!config_path_import(conf_string_get_default(config_context, "sound_foreground_begin"),sound_foreground_begin))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "sound_foreground_end"),sound_foreground_end))
+	if (!config_path_import(conf_string_get_default(config_context, "sound_foreground_end"),sound_foreground_end))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "sound_foreground_key"),sound_foreground_key))
+	if (!config_path_import(conf_string_get_default(config_context, "sound_foreground_key"),sound_foreground_key))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "sound_foreground_start"),sound_foreground_start))
+	if (!config_path_import(conf_string_get_default(config_context, "sound_foreground_start"),sound_foreground_start))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "sound_foreground_stop"),sound_foreground_stop))
+	if (!config_path_import(conf_string_get_default(config_context, "sound_foreground_stop"),sound_foreground_stop))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "sound_background_begin"),sound_background_begin))
+	if (!config_path_import(conf_string_get_default(config_context, "sound_background_begin"),sound_background_begin))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "sound_background_end"),sound_background_end))
+	if (!config_path_import(conf_string_get_default(config_context, "sound_background_end"),sound_background_end))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "sound_background_start"),sound_background_start))
+	if (!config_path_import(conf_string_get_default(config_context, "sound_background_start"),sound_background_start))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "sound_background_stop"),sound_background_stop))
+	if (!config_path_import(conf_string_get_default(config_context, "sound_background_stop"),sound_background_stop))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "sound_background_loop"),sound_background_loop))
+	if (!config_path_import(conf_string_get_default(config_context, "sound_background_loop"),sound_background_loop))
 		return false;
-	if (!config_import(conf_string_get_default(config_context, "sound_background_loop_dir"),sound_background_loop_dir))
+	if (!config_path_import(conf_string_get_default(config_context, "sound_background_loop_dir"),sound_background_loop_dir))
 		return false;
 	if (!config_load_iterator_emu(config_context, "emulator", emu))
 		return false;
@@ -781,58 +814,14 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 		}
 	}
 
-	if (desc_import_type != "none") {
-		if (!config_is_emulator(emu,desc_import_sub)) {
-			config_error_oa("desc_import",desc_import_sub);
-			return false;
-		}
-	}
-	if (desc_import_type == "nms") {
-		if (opt_verbose)
-			target_nfo("log: importing from %s\n", desc_import_file.c_str());
-		gar.import_nms(desc_import_file,desc_import_sub,&game::auto_description_set);
-	} else if (desc_import_type != "none") {
-		config_error_oa("desc_import", desc_import_type);
+	if (!load_iterator_import(config_context, "desc_import", &config_state::import_desc, opt_verbose))
 		return false;
-	}
-
-	if (type_import_type != "none") {
-		if (!config_is_emulator(emu,type_import_sub)) {
-			config_error_oa("type_import",type_import_sub);
-			return false;
-		}
-	}
-	if (type_import_type == "ini") {
-		if (opt_verbose)
-			target_nfo("log: importing from %s\n", type_import_file.c_str());
-		type.import_ini(gar,type_import_file,type_import_section,type_import_sub,&game::auto_type_set,include_type_orig);
-	} else if (type_import_type == "mac") {
-		if (opt_verbose)
-			target_nfo("log: importing from %s\n", type_import_file.c_str());
-		type.import_mac(gar,type_import_file,type_import_section,type_import_sub,&game::auto_type_set,include_type_orig);
-	} else if (type_import_type != "none") {
-		config_error_oa("type_import", type_import_type);
+	if (!load_iterator_import(config_context, "info_import", &config_state::import_info, opt_verbose))
 		return false;
-	}
-
-	if (group_import_type != "none") {
-		if (!config_is_emulator(emu,group_import_sub)) {
-			config_error_oa("group_import",group_import_sub);
-			return false;
-		}
-	}
-	if (group_import_type == "ini") {
-		if (opt_verbose)
-			target_nfo("log: importing from %s\n", group_import_file.c_str());
-		group.import_ini(gar,group_import_file,group_import_section,group_import_sub,&game::auto_group_set,include_group_orig);
-	} else if (group_import_type == "mac") {
-		if (opt_verbose)
-			target_nfo("log: importing from %s\n", group_import_file.c_str());
-		group.import_mac(gar,group_import_file,group_import_section,group_import_sub,&game::auto_group_set,include_group_orig);
-	} else if (group_import_type != "none") {
-		config_error_oa("group_import", group_import_type);
+	if (!load_iterator_import(config_context, "type_import", &config_state::import_type, opt_verbose))
 		return false;
-	}
+	if (!load_iterator_import(config_context, "group_import", &config_state::import_group, opt_verbose))
+		return false;
 
 	if (opt_verbose)
 		target_nfo("log: load background music list\n");
@@ -843,6 +832,22 @@ bool config_state::load(struct conf_context* config_context, bool opt_verbose) {
 		target_nfo("log: start\n");
 
 	return true;
+}
+
+void config_state::import_desc(const game& g, const string& text) {
+	g.auto_description_set(text);
+}
+
+void config_state::import_info(const game& g, const string& text) {
+	g.auto_info_set(text);
+}
+
+void config_state::import_type(const game& g, const string& text) {
+	g.auto_type_set(type.insert_double(text,include_type_orig));
+}
+
+void config_state::import_group(const game& g, const string& text) {
+	g.auto_group_set(group.insert_double(text,include_group_orig));
 }
 
 void config_state::conf_default(struct conf_context* config_context) {
@@ -1091,3 +1096,115 @@ config_state::~config_state() {
 		delete *i;
 	}
 }
+
+// ------------------------------------------------------------------------
+// config_import
+
+config_import::config_import(const std::string Atype, const std::string Aemulator, const std::string Afile, const std::string Asection)
+	: type(Atype), emulator(Aemulator), file(Afile), section(Asection) {
+}
+
+void config_import::import_ini(game_set& gar, config_state& config, void (config_state::*set)(const game&, const std::string&)) {
+	int j = 0;
+
+	string ss = file_read( file );
+
+	bool in = false;
+	while (j < ss.length()) {
+		string s = token_get(ss,j,"\r\n");
+		token_skip(ss,j,"\r\n");
+
+		int i = 0;
+		token_skip(s, i," \t");
+
+		if (i<s.length() && s[i]=='[') {
+			token_skip(s, i, "[");
+			string cmd = token_get(s, i, "]");
+			in = cmd == section;
+		} else if (in && i<s.length() && isalnum(s[i])) {
+			string tag = token_get(s, i, " =");
+			token_skip(s, i, " =");
+			string text = token_get(s, i, "");
+			if (text.length()) {
+				string name = emulator + "/" + tag;
+				game_set::const_iterator k = gar.find( game( name ) );
+				if (k!=gar.end()) {
+					(config.*set)(*k,text);
+				}
+			}
+		}
+	}
+}
+
+void config_import::import_mac(game_set& gar, config_state& config, void (config_state::*set)(const game&, const std::string&)) {
+	int j = 0;
+
+	string ss = file_read( file );
+
+	string main_text;
+	while (j < ss.length()) {
+
+		string s = token_get(ss,j,"\r\n");
+		token_skip(ss,j,"\r\n");
+
+		int i = 0;
+		token_skip(s, i," \t");
+
+		if (i<s.length() && isalnum(s[i])) {
+			string tag = token_get(s, i, " \t");
+			token_skip(s, i," \t");
+			string text = token_get(s, i, "");
+			if (text.length()) {
+				main_text = text;
+				// remove special chars
+				if (main_text.length() && main_text[main_text.length()-1]=='-')
+					main_text.erase(main_text.length()-1,1);
+				if (main_text.length() && main_text[0] == '¥')
+					main_text.erase(0,1);
+			}
+			if (main_text.length()) {
+				string name = emulator + "/" + tag;
+				game_set::const_iterator k = gar.find( game( name ) );
+				if (k!=gar.end()) {
+					(config.*set)(*k,main_text);
+				}
+			}
+		}
+	}
+}
+
+void config_import::import_nms(game_set& gar, config_state& config, void (config_state::*set)(const game&, const std::string&)) {
+	int j = 0;
+
+	string ss = file_read( file );
+
+	while (j < ss.length()) {
+		string s = token_get(ss,j,"\r\n");
+		token_skip(ss,j,"\r\n");
+
+		int i = 0;
+		token_skip(s, i," \t");
+
+		string text = token_get(s, i, '|');
+		token_skip(s, i, "|");
+		string tag = token_get(s, i, "");
+
+		if (text.length() && tag.length()) {
+			string name = emulator + "/" + tag;
+			game_set::iterator k = gar.find( game( name ) );
+			if (k!=gar.end()) {
+				(config.*set)(*k,text);
+			}
+		}
+	}
+}
+
+void config_import::import(game_set& gar, config_state& config, void (config_state::*set)(const game&, const std::string&)) {
+	if (type == "ini")
+		import_ini(gar, config, set);
+	else if (type == "mac")
+		import_mac(gar, config, set);
+	else if (type == "nms")
+		import_nms(gar, config, set);
+}
+

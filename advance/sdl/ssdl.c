@@ -37,6 +37,13 @@
 
 #define FIFO_MAX 32768
 
+struct sdl_option_struct {
+	video_bool initialized;
+	unsigned samples;
+};
+
+static struct sdl_option_struct sdl_option;
+
 struct sound_sdl_context {
 	video_bool active_flag;
 
@@ -87,6 +94,10 @@ video_error sound_sdl_init(int sound_id, unsigned* rate, video_bool stereo_flag,
 
 	log_std(("sound:sdl: sound_sdl_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",(unsigned)sound_id, (unsigned)*rate, (int)stereo_flag, (double)buffer_time));
 
+	if (!sdl_option.initialized) {
+		sound_sdl_default();
+	}
+
 	sdl_state.underflow_flag = 0;
 	sdl_state.fifo_pos = 0;
 	sdl_state.fifo_mac = 0;
@@ -103,7 +114,7 @@ video_error sound_sdl_init(int sound_id, unsigned* rate, video_bool stereo_flag,
 	sdl_state.info.freq = *rate;
 	sdl_state.info.format = AUDIO_S16LSB;
 	sdl_state.info.channels = stereo_flag ? 2 : 1;
-	sdl_state.info.samples = 512;
+	sdl_state.info.samples = sdl_option.samples;
 	sdl_state.info.callback = sound_sdl_callback;
 	sdl_state.info.userdata = &sdl_state;
 
@@ -213,11 +224,29 @@ unsigned sound_sdl_flags(void) {
 	return 0;
 }
 
+static struct conf_enum_int OPTION[] = {
+{ "512", 512 },
+{ "1024", 1024 },
+{ "2048", 2048 },
+{ "4096", 4096 },
+{ "8192", 8192 }
+};
+
 video_error sound_sdl_load(struct conf_context* context) {
+	sdl_option.samples = conf_int_get_default(context, "device_sdl_samples");
+
+	sdl_option.initialized = 1;
+
 	return 0;
 }
 
 void sound_sdl_reg(struct conf_context* context) {
+	conf_int_register_enum_default(context, "device_sdl_samples", conf_enum(OPTION), 512);
+}
+
+void sound_sdl_default(void) {
+	sdl_option.samples = 512;
+	sdl_option.initialized = 1;
 }
 
 /***************************************************************************/

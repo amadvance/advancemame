@@ -76,7 +76,7 @@ game::game(const game& A) :
 	flag(A.flag),
 	play(A.play), play_best(A.play_best),
 	name(A.name), romof(A.romof),cloneof(A.cloneof),
-	description(A.description), year(A.year),
+	description(A.description), info(A.info), year(A.year),
 	manufacturer(A.manufacturer), software_path(A.software_path),
 	sizex(A.sizex), sizey(A.sizey),
 	aspectx(A.aspectx), aspecty(A.aspecty),
@@ -600,32 +600,6 @@ bool game_set::preview_software_list_set(const string& list, const string& emula
 	return almost_one;
 }
 
-void game_set::import_nms(const string& file, const string& emulator, void (game::*set)(const string& s) const) {
-	int j = 0;
-
-	string ss = file_read( file );
-
-	while (j < ss.length()) {
-		string s = token_get(ss,j,"\r\n");
-		token_skip(ss,j,"\r\n");
-
-		int i = 0;
-		token_skip(s, i," \t");
-
-		string desc = token_get(s, i, '|');
-		token_skip(s, i, "|");
-		string tag = token_get(s, i, "");
-
-		if (desc.length() && tag.length()) {
-			string name = emulator + "/" + tag;
-			game_set::iterator k = find( game( name ) );
-			if (k!=end()) {
-				((*k).*set)(desc);
-			}
-		}
-	}
-}
-
 // -------------------------------------------------------------------------
 // Sort category
 
@@ -663,7 +637,7 @@ string sort_item_manufacturer(const game& g) {
 
 string sort_item_year(const game& g) {
 	if (!g.year_get().length())
-		return "unknown";
+		return "<unknown>";
 	else
 		return g.year_get();
 }
@@ -692,8 +666,19 @@ string sort_item_size(const game& g) {
 }
 
 string sort_item_res(const game& g) {
-	char buffer[32];
-	sprintf(buffer,"%dx%d", g.sizex_get(), g.sizey_get());
-	return buffer;
+	if (g.sizex_get() && g.sizey_get()) {
+		char buffer[32];
+		sprintf(buffer,"%dx%d", g.sizex_get(), g.sizey_get());
+		return buffer;
+	} else {
+		return "<unknown>";
+	}
+}
+
+string sort_item_info(const game& g) {
+	if (g.info_get().length())
+		return g.info_get();
+	else
+		return "<undefined>";
 }
 

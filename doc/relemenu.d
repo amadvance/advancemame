@@ -1,12 +1,6 @@
 Name
 	advmenu - Release Notes For AdvanceMENU
 
-AdvanceMENU 2.1.0
-	On the argument of the device_joystick and device_mouse configuration
-	options you must always prepend the main driver name. For example:
-	`device_joystick 4button' must be changed in
-	`device_joystick allegro/4button'.
-
 AdvanceMENU 2.0.0
 	The emulator type `mame' is now used for the Windows MAME.
 	The DOS MAME now requires the `dmame' emulator type.

@@ -92,6 +92,7 @@ class game {
 	std::string cloneof;
 	std::string sampleof;
 	mutable std::string description;
+	mutable std::string info;
 	std::string year;
 	std::string manufacturer;
 	mutable std::string software_path;
@@ -161,6 +162,9 @@ public:
 	void user_description_set(const std::string& A) const { flag |= flag_user_description_set; description = A; }
 	const std::string& description_get() const { return description; }
 	std::string description_tree_get() const { return strip_comment(description_get()); }
+
+	void auto_info_set(const std::string& A) const { info = A; }
+	const std::string& info_get() const { return info; }
 
 	bool is_user_group_set() const { return flag_get(flag_user_group_set); }
 	void auto_group_set(const category* A) const;
@@ -300,8 +304,6 @@ public:
 
 	bool preview_software_dir_set(const std::string& dir, const std::string& emulator_name, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1);
 	bool preview_software_list_set(const std::string& list, const std::string& emulator_name, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1);
-
-	void import_nms(const std::string& file, const std::string& emulator, void (game::*set)(const std::string& s) const);
 };
 
 inline bool pgame_combine_less(const game* A, const game* B, bool (*FA)(const game*, const game*), bool (*FB)(const game*, const game*) ) {
@@ -377,6 +379,10 @@ inline bool pgame_by_res_less(const game* A, const game* B) {
 	return A->sizex_get() < B->sizex_get();
 }
 
+inline bool pgame_by_info_less(const game* A, const game* B) {
+	return A->info_get() < B->info_get();
+}
+
 inline bool pgame_by_clone_less(const game* A, const game* B) {
 	return (A->parent_get()!=0) < (B->parent_get()!=0);
 }
@@ -401,5 +407,6 @@ std::string sort_item_group(const game& g);
 std::string sort_item_type(const game& g);
 std::string sort_item_size(const game& g);
 std::string sort_item_res(const game& g);
+std::string sort_item_info(const game& g);
 
 #endif

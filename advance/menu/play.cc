@@ -113,8 +113,8 @@ void play_reg(struct conf_context* context) {
 	mixer_reg(context);
 	conf_int_register_limit_default(context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(context, "sound_samplerate", 5000, 96000, 44100);
-	conf_float_register_limit_default(context, "sound_latency", 0.05, 1.5, 0.1);
-	conf_float_register_limit_default(context, "sound_buffer", 0.05, 1.5, 0.1);
+	conf_float_register_limit_default(context, "sound_latency", 0.01, 2.0, 0.1);
+	conf_float_register_limit_default(context, "sound_buffer", 0.05, 2.0, 0.1);
 }
 
 bool play_load(struct conf_context* context) {

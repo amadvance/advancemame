@@ -4,7 +4,7 @@ Name
 	This file contains the instructions to build AdvanceMAME, AdvanceMESS,
 	AdvancePAC and AdvanceMENU from the source archives.
 
-Preparing The Source
+Preparing The Sources
 	To compile AdvanceMENU you don't need to prepare the source, they are
 	already complete.
 
@@ -46,10 +46,11 @@ Preparing The Source
 		patch -p1 < ../advance/advmame.dif
 
 Configuring
+    Linux
 	In Linux you need to run the `./configure' script with the proper options.
-	You can get a complete list with the `./configure --help' command.
-	Generally, you need only to specify the the --with-system option choosing
-	the `sdl' or `native' system library.
+	You can get a complete option list with the `./configure --help' command.
+	Generally, you need only to specify the --with-system option choosing
+	the `sdl' or the `native' system library.
 
 	The `native' system uses the svgalib 1.9 and framebuffer graphics libraries
 	and it's able to directly access and completly control the graphics output
@@ -57,16 +58,17 @@ Configuring
 	size and frequency.
 
 	The `sdl' system uses the LibSDL graphics library, it can be used to show
-	the programs in a Window Manager, but it's unable to completly control the
+	the program in a Window Manager, but it's unable to completly control the
 	graphics output. It isn't a good choice for the fullscreen use of the
-	emulator.
+	emulators, but it works good for the frontend.
 
 	If you want to customize the compilation CFLAGS you can set them before
 	calling the ./configure script, for example:
 
-		:CFLAGS="-O3 -march=i686 -fomit-frame-pointer -fstrict-aliasing" ./configure
+		:CFLAGS="-O3 -march=pentium3 -fomit-frame-pointer" ./configure
 
-	In a DOS/Windows you need to manually rename the `Makefile.in' file
+    DOS/Windows
+	In DOS/Windows you need to manually rename the `Makefile.in' file
 	as `Makefile' and edit the first section to match your requirements.
 
 Compiling
@@ -91,18 +93,17 @@ Targets
 Requirements
 	To compile the Advance projects you need the following
 	software :
-		:GNU gcc 2.95.3 or 3.0.4 or 3.1 (with c and c++ support)
+		:GNU gcc 2.95.3/3.0.4/3.1.x/3.2 (with c and c++ support)
 		:NASM 0.98 (or newer)
 		:zlib 1.1.3 (or newer)
 		:UPX 1.20 (or newer)
 		:Make 3.79.1 (or newer)
 
 	The gcc compiler versions 2.96.x, 3.0, 3.0.1 and 3.0.2 are
-	NOT supported.
+	NOT supported. In DOS there are some problems with the 3.1.x
+	compiler, don't use it.
 
 	To build in DOS you need the additional following software:
-		:DOS 6.22 or Windows 9x/Me
-		:CWSDPMI
 		:DJGPP development kit 2.03
 		:DJGPP GNU binutils
 		:DJGPP GNU C/C++ compiler
@@ -116,7 +117,7 @@ Requirements
 
 	Ensure to have the DOS version of NASM. If you have the Windows
 	version named `nasmw.exe' you must rename it as `nasm.exe' or
-	change the `makefile' to use it.
+	change the `Makefile' to use it.
 
 	To build on Linux you need the additional following software:
 		:Linux 2.4.5 (or newer)
@@ -136,7 +137,9 @@ Requirements
 	are not tested.
 
 	To build on Windows you need the additional following software:
-		:Windows (any version)
 		:MINGW 1.1 (or newer)
 		:LibSDL 1.2.4 (or newer)
+
+Copyright
+	This file is Copyright (C) 2002 Andrea Mazzoleni.
 

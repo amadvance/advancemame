@@ -106,8 +106,8 @@ int os_main(int argc, char* argv[]) {
 
 	conf_int_register_limit_default(context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(context, "sound_samplerate", 5000, 96000, 44100);
-	conf_float_register_limit_default(context, "sound_latency", 0.05, 1.5, 0.1);
-	conf_float_register_limit_default(context, "sound_buffer", 0.05, 1.5, 0.1);
+	conf_float_register_limit_default(context, "sound_latency", 0.01, 2.0, 0.1);
+	conf_float_register_limit_default(context, "sound_buffer", 0.05, 2.0, 0.1);
 
 	if (conf_input_args_load(context, 0, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
@@ -142,7 +142,7 @@ int os_main(int argc, char* argv[]) {
 		goto err_os_inner;
 	}
 
-	if (mixer_init(rate,n,1,buffer_time + latency_time, latency_time) != 0) {
+	if (mixer_init(rate,n, 1, buffer_time + latency_time, latency_time) != 0) {
 		fprintf(stderr,"Error initializing the mixer\n");
 		goto err_os_inner;
 	}

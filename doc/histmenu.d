@@ -39,6 +39,12 @@ AdvanceMENU Version 2.1.0 2002/08
 		is automatically disabled.
 	) When returning from a idle start event the game clip and sound
 		aren't played.
+	) Added a new `info_import' option to display arbitrary information
+		for every game.
+	) You can now specify more than one `desc_import', `type_import'
+		and `group_import' options.
+	) Added in the contrib/ dir the hiscore.ini file to display the top
+		hiscore of the MAME games.
 
 AdvanceMENU Version 2.0.0 2002/08
 	) Added the `sdl' system which uses the libSDL graphics

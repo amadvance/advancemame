@@ -50,6 +50,7 @@ void run_sort(config_state& rs) {
 	ch.insert( ch.end(), choice("Year", sort_by_year) );
 	ch.insert( ch.end(), choice("Size", sort_by_size) );
 	ch.insert( ch.end(), choice("Resolution", sort_by_res) );
+	ch.insert( ch.end(), choice("Info", sort_by_info) );
 
 	choice_bag::iterator i = ch.find_by_value(rs.sort_effective);
 	if (i==ch.end())

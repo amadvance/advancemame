@@ -32,7 +32,7 @@ Options
 	-advmamec, -advmessc, -advpacc, -advmenuc
 		Select the mode of operation for the programs `advmame',
 		`advmess', `advpac' and `advmenu'.
-		The default is `advmame'.
+		The default is for `advmame'.
 
 	-bit N
 		Select the bit depth of the test video modes.

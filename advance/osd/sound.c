@@ -97,7 +97,8 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	}
 #endif
 
-	if (sound_init(sample_rate, stereo_flag, 2 * context->config.latency_time) != 0) {
+	/* 1.1 is to increase a little the lower driver latency */
+	if (sound_init(sample_rate, stereo_flag, 1.1 * context->config.latency_time) != 0) {
 		return -1;
 	}
 
@@ -172,7 +173,7 @@ int advance_sound_init(struct advance_sound_context* context, struct conf_contex
 	conf_int_register_limit_default(cfg_context, "sound_volume", -32, 0, 0);
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
 	conf_bool_register_default(cfg_context, "sound_resamplefilter", 1);
-	conf_float_register_limit_default(cfg_context, "sound_latency", 0.02, 2.0, 0.1);
+	conf_float_register_limit_default(cfg_context, "sound_latency", 0.01, 2.0, 0.1);
 
 	sound_reg(cfg_context, 1);
 	sound_reg_driver_all(cfg_context);

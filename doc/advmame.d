@@ -924,7 +924,7 @@ Configuration
 	:sound_latency TIME
 
 	Options:
-		TIME - Latency in seconds from 0.02 to 2.0.
+		TIME - Latency in seconds from 0.01 to 2.0.
 			(default 0.1)
 
 	If in the game play you hear some sound ticks you can try to
@@ -970,37 +970,37 @@ Configuration
 	the svgalib library
 
 	Options for DOS Allegro library:
-		standard - Standard joystick.
-		dual - Dual joysticks.
-		4button - 4-button joystick.
-		6button - 6-button joystick.
-		8button - 8-button joystick.
-		fspro - CH Flightstick Pro.
-		wingex - Logitech Wingman Extreme.
-		sidewinder - Sidewinder.
-		sidewinderag - Sidewinder Aggressive.
-		gamepadpro - GamePad Pro.
-		grip - GrIP.
-		grip4 - GrIP 4-way.
-		sneslpt1 - SNESpad LPT1.
-		sneslpt2 - SNESpad LPT2.
-		sneslpt3 - SNESpad LPT3.
-		psxlpt1 - PSXpad LPT1.
-		psxlpt2 - PSXpad LPT2.
-		psxlpt3 - PSXpad LPT3.
-		n64lpt1 - N64pad LPT1.
-		n64lpt2 - N64pad LPT2.
-		n64lpt3 - N64pad LPT3.
-		db9lpt1 - DB9 LPT1.
-		db9lpt2 - DB9 LPT2.
-		db9lpt3 - DB9 LPT3.
-		tgxlpt1 - TGX-LPT1.
-		tgxlpt2 - TGX LPT2.
-		tgxlpt3 - TGX LPT3.
-		segaisa - IF-SEGA/ISA.
-		segapci - IF-SEGA2/PCI.
-		segapcifast - IF-SEGA2/PCI (normal).
-		wingwarrior - Wingman Warrior.
+		allegro/standard - Standard joystick.
+		allegro/dual - Dual joysticks.
+		allegro/4button - 4-button joystick.
+		allegro/6button - 6-button joystick.
+		allegro/8button - 8-button joystick.
+		allegro/fspro - CH Flightstick Pro.
+		allegro/wingex - Logitech Wingman Extreme.
+		allegro/sidewinder - Sidewinder.
+		allegro/sidewinderag - Sidewinder Aggressive.
+		allegro/gamepadpro - GamePad Pro.
+		allegro/grip - GrIP.
+		allegro/grip4 - GrIP 4-way.
+		allegro/sneslpt1 - SNESpad LPT1.
+		allegro/sneslpt2 - SNESpad LPT2.
+		allegro/sneslpt3 - SNESpad LPT3.
+		allegro/psxlpt1 - PSXpad LPT1.
+		allegro/psxlpt2 - PSXpad LPT2.
+		allegro/psxlpt3 - PSXpad LPT3.
+		allegro/n64lpt1 - N64pad LPT1.
+		allegro/n64lpt2 - N64pad LPT2.
+		allegro/n64lpt3 - N64pad LPT3.
+		allegro/db9lpt1 - DB9 LPT1.
+		allegro/db9lpt2 - DB9 LPT2.
+		allegro/db9lpt3 - DB9 LPT3.
+		allegro/tgxlpt1 - TGX-LPT1.
+		allegro/tgxlpt2 - TGX LPT2.
+		allegro/tgxlpt3 - TGX LPT3.
+		allegro/segaisa - IF-SEGA/ISA.
+		allegro/segapci - IF-SEGA2/PCI.
+		allegro/segapcifast - IF-SEGA2/PCI (normal).
+		allegro/wingwarrior - Wingman Warrior.
 
     input_steadykey
 	Helps recognition of very long key sequences. But slows a bit
@@ -1041,16 +1041,17 @@ Configuration
 	Changes the analog control mapping. Map the physical A'n
 	joystick, B'n stick, C'n axe on the J'n axe of the I'n player.
 
-	:input_map[I,J] joystick[A,B,C]
+	:input_map[I,J] [-]joystick[A,B,C] ...
 
 	Options:
+		- - Invert the effect of the movement.
 		I - Number of player: 0, 1, 2, 3.
 		J - Name of player axe: x, y, z, pedal.
 		A - Number of physical joystick: 0, 1, 2, 3...
 		B - Number of physical stick of the josytick: 0, 1, 2, 3, ...
 		C - Number of physical axe of the stick: 0, 1, 2, 3, ...
 
-	Default:
+	Defaults:
 		input_map[0,x] - joystick[0,0,0]
 		input_map[0,y] - joystick[0,0,1]
 		input_map[0,z] - joystick[0,0,2]
@@ -1068,18 +1069,23 @@ Configuration
 		input_map[3,z] - joystick[3,0,2]
 		input_map[3,pedal] - joystick[3,0,3]
 
+	Examples:
+		input_map[0,x] - joystick[0,0,0] joystick[0,1,0]
+		input_map[0,y] - joystick[0,0,1] -joystick[0,1,1]
+
     input_map[,trakx|traky]
 	Changes the trak control mapping. Map the physical A'n mouse
 	on the I'n player trak control.
 
-	:input_map[I,trakx|traky] mouse[M,A]
+	:input_map[I,trakx|traky] [-]mouse[M,A] ...
 
 	Options:
+		- - Invert the effect of the movement.
 		I - Number of player trak control: 0, 1, 2, 3.
 		M - Number of physical mouse: 0, 1, 2, 3...
 		A - Number of physical mouse axe: 0, 1...
 
-	Default:
+	Defaults:
 		input_map[0,trakx] - mouse[0,0]
 		input_map[0,traky] - mouse[0,1]
 		input_map[1,trakx] - mouse[1,0]
@@ -1088,6 +1094,10 @@ Configuration
 		input_map[2,traky] - mouse[2,1]
 		input_map[3,trakx] - mouse[3,0]
 		input_map[3,traky] - mouse[3,1]
+
+	Examples:
+		input_map[0,trakx] - mouse[0,0] -mouse[1,0]
+		input_map[0,traky] - mouse[0,1] -mouse[1,1]
 
   Record Configuration Options
 	This section describes the options used for the recoring

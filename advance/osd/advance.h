@@ -474,33 +474,45 @@ void advance_safequit_update(struct advance_safequit_context* context);
 /***************************************************************************/
 /* Input */
 
-#define INPUT_PLAYER_MAX 4 /**< Max numer of player */
-#define INPUT_PLAYER_AXE_MAX 4 /** Max number of axes for player */
+#define INPUT_PLAYER_MAX 4 /**< Max numer of player. */
+#define INPUT_PLAYER_AXE_MAX 4 /** Max number of axes for player. */
+
+#define INPUT_MAP_MAX 8 /**< Max number of mapping codes. */
+
+#define INPUT_JOY_MAX 8 /**< Max number of joysticks. */
+#define INPUT_STICK_MAX 8 /**< Max number of sticks for a joystick. */
+#define INPUT_AXE_MAX 8 /**< Max number of axes for a stick or mouse. */
+#define INPUT_DIR_MAX 2 /**< Max number of direction for a stick. */
+#define INPUT_MOUSE_MAX 8 /**< Max number of mouses. */
+#define INPUT_BUTTON_MAX 16 /**< Max number buttons for a joystick or mouses. */
 
 struct advance_input_config {
 	int input_idle_limit; /**< Limit of no input to exit */
 	int steadykey_flag;
 	int disable_special_flag; /**< Disable the special OS key sequences */
 
-	unsigned analog_map[INPUT_PLAYER_MAX][INPUT_PLAYER_AXE_MAX]; /**< Mapping of the analog control */
-	unsigned trakx_map[INPUT_PLAYER_MAX]; /**< Mapping of the trakx control */
-	unsigned traky_map[INPUT_PLAYER_MAX]; /**< Mapping of the traky control */
+	unsigned analog_map[INPUT_PLAYER_MAX][INPUT_PLAYER_AXE_MAX][INPUT_MAP_MAX]; /**< Mapping of the analog control */
+	unsigned trakx_map[INPUT_PLAYER_MAX][INPUT_MAP_MAX]; /**< Mapping of the trakx control */
+	unsigned traky_map[INPUT_PLAYER_MAX][INPUT_MAP_MAX]; /**< Mapping of the traky control */
 };
 
 struct advance_input_state {
 	/* Clock */
-	os_clock_t input_current_clock; /**< Current clock */
-	os_clock_t input_idle_clock; /**< Clock of last input */
+	os_clock_t input_current_clock; /**< Current clock. */
+	os_clock_t input_idle_clock; /**< Clock of last input. */
 
-	int input_forced_exit_flag; /**< Flag to signal the forced exit */
-	int input_on_this_frame_flag; /**< Flag used to signal an input on the current frame */
+	int input_forced_exit_flag; /**< Flag to signal the forced exit. */
+	int input_on_this_frame_flag; /**< Flag used to signal an input on the current frame. */
 
-	unsigned char key_old[OS_KEY_MAX]; /**< Keyboard previous frame state */
-	unsigned char key_current[OS_KEY_MAX]; /**< Keyboard current frame state */
+	unsigned char key_old[OS_KEY_MAX]; /**< Keyboard previous frame state. */
+	unsigned char key_current[OS_KEY_MAX]; /**< Keyboard current frame state. */
 
-	/* Keyboard pause state */
-	int pause_pressed;
-	int pause_counter;
+	int joystick_button_current[INPUT_JOY_MAX][INPUT_BUTTON_MAX]; /**< Joystick button state. */
+	int joystick_analog_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX]; /**< Joystick analog state. */
+	int joystick_digital_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX][INPUT_DIR_MAX]; /**< Joystick digital state. */
+
+	int mouse_button_current[INPUT_MOUSE_MAX][INPUT_BUTTON_MAX]; /**< Mouse button state. */
+	int mouse_analog_current[INPUT_MOUSE_MAX][INPUT_AXE_MAX]; /**< Mouse analog state. */
 };
 
 struct advance_input_context {

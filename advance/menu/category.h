@@ -63,7 +63,6 @@ inline bool pgame_by_type_less(const game* A, const game* B) {
 	return *A->type_derived_get() < *B->type_derived_get();
 }
 
-
 // ------------------------------------------------------------------------
 // category_container
 
@@ -89,9 +88,6 @@ public:
 
 	const category* insert(const std::string& name);
 	const category* insert_double(const std::string& name, category_container& cat_include);
-
-	void import_ini(game_set& gar, const std::string& file, const std::string& section, const std::string& emulator, void (game::*set)(const category*) const, category_container& include);
-	void import_mac(game_set& gar, const std::string& file, const std::string& section, const std::string& emulator, void (game::*set)(const category*) const, category_container& include);
 };
 
 #endif
