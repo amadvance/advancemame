@@ -307,6 +307,19 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmes
  
  
  /*-------------------------------------------------
+diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/mame.h srcmess/mame.h
+--- srcmess.ori/mame.h	2002-06-07 14:37:36.000000000 +0200
++++ srcmess/mame.h	2002-11-06 00:29:00.000000000 +0100
+@@ -356,8 +356,9 @@
+ const struct performance_info *mame_get_performance_info(void);
+ 
+ 
+ #ifdef MESS
+ #include "mess.h"
++#include "osdutils.h"
+ #endif /* MESS */
+ 
+ #endif
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui srcmess.ori/osdepend.h srcmess/osdepend.h
 --- srcmess.ori/osdepend.h	2002-09-27 05:08:54.000000000 +0200
 +++ srcmess/osdepend.h	2002-11-01 22:27:56.000000000 +0100

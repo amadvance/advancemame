@@ -1,7 +1,7 @@
 Name
-	advmenu - History For AdvanceMENU
+	history - History For AdvanceMENU
 
-AdvanceMENU Version 2.1.3 2002/10 (not yet released)
+AdvanceMENU Version 2.2.0 2002/10 (not yet released)
 	) Merged the sdl and native system of the Linux target.
 		You can now mix the SDL input/output drivers with the
 		native drivers.

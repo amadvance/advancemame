@@ -67,11 +67,6 @@ enum advance_t {
 
 adv_conf* the_config;
 
-#ifdef __MSDOS__
-int the_advance_vbe_active; /* if AdvanceVBE is active */
-int the_advance_vga_active; /* if AdvanceVGA is active */
-#endif
-
 int the_mode_bit = 8;
 int the_mode_type = MODE_FLAGS_TYPE_GRAPHICS | MODE_FLAGS_INDEX_RGB;
 
@@ -121,6 +116,7 @@ static void draw_text_help(void) {
 	video_wait_vsync();
 
 	do {
+		target_idle();
 		os_poll();
 	} while (inputb_get()==INPUTB_NONE);
 }
@@ -155,6 +151,7 @@ static void draw_text_error(void) {
 	video_wait_vsync();
 
 	do {
+		target_idle();
 		os_poll();
 	} while (inputb_get()==INPUTB_NONE);
 }
@@ -1020,6 +1017,7 @@ static int cmd_onvideo_test(void) {
 
 		video_wait_vsync();
 
+		target_idle();
 		os_poll();
 
 		userkey = inputb_get();
@@ -1114,6 +1112,7 @@ static int cmd_onvideo_calib(void) {
 	video_wait_vsync();
 
 	do {
+		target_idle();
 		os_poll();
 	} while (inputb_get()==INPUTB_NONE);	
 
@@ -1173,6 +1172,7 @@ static int cmd_onvideo_animate(void) {
 	update_done();
 
 	do {
+		target_idle();
 		os_poll();
 	} while (inputb_get()==INPUTB_NONE);	
 
@@ -1208,6 +1208,7 @@ static int cmd_input_key(const char* tag, const char* keys) {
 
 		video_wait_vsync();
 
+		target_idle();
 		os_poll();
 
 		k = inputb_get();
@@ -1508,6 +1509,7 @@ static int menu_run(void) {
 
 		video_wait_vsync();
 
+		target_idle();
 		os_poll();
 
 		userkey = inputb_get();
@@ -1633,13 +1635,16 @@ static int menu_run(void) {
 
 #ifdef __MSDOS__
 
+int the_advance_vbe_active; /* if AdvanceVBE is active */
+int the_advance_vga_active; /* if AdvanceVGA is active */
+
 /* RUThere code for int2f */
 #define VBE_RUT_ACK1 0xAD17
 #define VBE_RUT_ACK2 0x17BE
 #define VGA_RUT_ACK1 0xAD17
 #define VGA_RUT_ACK2 0x175A
 
-static void rut(void) {
+static void msdos_rut(void) {
 	__dpmi_regs r;
 	unsigned i;
 
@@ -1727,6 +1732,12 @@ int os_main(int argc, char* argv[]) {
 	generate_interpolate_register(the_config);
 	gtf_register(the_config);
 	inputb_reg(the_config, 1);
+	inputb_reg_driver_all(the_config);
+	
+	/* MSDOS requires a special driver sub set */
+#ifndef __MSDOS__
+	video_reg_driver_all(the_config);
+#endif	
 
 	if (conf_input_args_load(the_config, 1, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
@@ -1748,12 +1759,16 @@ int os_main(int argc, char* argv[]) {
 			the_advance = advance_pac;
 		} else if (target_option(argv[j],"advmenuv")) {
 			the_advance = advance_menu;
+#ifdef __MSDOS__
 		} else if (target_option(argv[j],"vgav")) {
 			the_advance = advance_vga;
 		} else if (target_option(argv[j],"vbev")) {
 			the_advance = advance_vbe;
+#endif
+#ifdef __WIN32__
 		} else if (target_option(argv[j],"videowv")) {
-			the_advance = advance_videowv;
+			the_advance = advance_videow;
+#endif
 		} else {
 			target_err("Unknown option %s\n",argv[j]);
 			goto err;
@@ -1761,37 +1776,27 @@ int os_main(int argc, char* argv[]) {
 	}
 
 #ifdef __MSDOS__
-	rut();
-#endif
+	/* WARNING the MSDOS drivers are registered after the command line management. */
+	/* It implyes taht you cannot specify any driver options on the command line */
+	msdos_rut();
 
 	if (the_advance == advance_vga) {
-#ifdef __MSDOS__
 		if (the_advance_vga_active) {
 			target_err("The AdvanceVGA utility is active. Disable it before running vgav.\n");
 			goto err;
 		}
 		video_reg_driver(the_config, &video_vgaline_driver);
-#else
-		target_err("The AdvanceVGA utility works only in DOS.\n");
-		goto err;
-#endif
 	} else if (the_advance == advance_vbe) {
-#ifdef __MSDOS__
 		if (the_advance_vbe_active) {
 			target_err("The AdvanceVBE utility is active. Disable it before running vbev.\n");
 			goto err;
 		}
 		video_reg_driver(the_config, &video_vbeline_driver);
 		video_reg_driver(the_config, &video_vgaline_driver); /* for the text modes */
-#else
-		target_err("The AdvanceVBE utility works only in DOS.\n");
-		goto err;
-#endif
 	} else {
 		video_reg_driver_all(the_config);
 	}
-
-	inputb_reg_driver_all(the_config);
+#endif
 
 	if (!opt_rc) {
 		switch (the_advance) {

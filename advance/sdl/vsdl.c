@@ -58,6 +58,7 @@ typedef struct sdl_internal_struct {
 	SDL_Surface* surface; /**< Screen surface. */
 
 	unsigned char* text_map; /**< Text buffer. */
+	unsigned char* text_last_map; /**< Text last buffer. */
 	unsigned text_dx; /**< Text columns. */
 	unsigned text_dy; /**< Text rows. */
 } sdl_internal;
@@ -332,7 +333,10 @@ adv_error sdl_mode_set(const sdl_video_mode* mode) {
 		sdl_state.text_dx = mode->size_x / 8;
 		sdl_state.text_dy = mode->size_y / 16;
 		sdl_state.text_map = malloc(sdl_state.text_dx * sdl_state.text_dy * 2);
+		sdl_state.text_last_map = malloc(sdl_state.text_dx * sdl_state.text_dy * 2);
+		
 		memset(sdl_state.text_map, 0, sdl_state.text_dx * sdl_state.text_dy * 2);
+		memset(sdl_state.text_last_map, 0, sdl_state.text_dx * sdl_state.text_dy * 2);
 	} else {
 		sdl_state.surface = SDL_SetVideoMode(mode->size_x, mode->size_y, mode->bits_per_pixel, SDL_ModeFlags() );
 		if (!sdl_state.surface) {
@@ -342,6 +346,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode) {
 		sdl_state.text_dx = 0;
 		sdl_state.text_dy = 0;
 		sdl_state.text_map = 0;
+		sdl_state.text_last_map = 0;
 	}
 
 	/* disable the mouse cursor on fullscreen mode */
@@ -408,7 +413,9 @@ void sdl_mode_done(adv_bool restore) {
 	sdl_state.surface = 0;
 
 	free(sdl_state.text_map);
+	free(sdl_state.text_last_map);
 	sdl_state.text_map = 0;
+	sdl_state.text_last_map = 0;
 	sdl_state.text_dx = 0;
 	sdl_state.text_dy = 0;
 
@@ -509,10 +516,19 @@ void sdl_wait_vsync(void) {
 	unsigned x, y;
 	unsigned i;
 	unsigned color[16];
+	unsigned size;
 
 	/* not available in graphics mode */
 	if (!sdl_state.text_map)
 		return;
+
+	/* no change required */
+	size = sdl_state.text_dy * sdl_state.text_dx * 2;
+	if (memcmp(sdl_state.text_map, sdl_state.text_last_map, size) == 0)
+		return;
+
+	/* update the last buffer */
+	memcpy(sdl_state.text_last_map, sdl_state.text_map, size);
 
 	for(i=0;i<16;++i)
 		color[i] = SDL_MapRGB(sdl_state.surface->format, sdl_palette[i].red, sdl_palette[i].green, sdl_palette[i].blue);

@@ -6,6 +6,11 @@ TSR_SRC = \
 	$(wildcard advance/tsr/*.c) \
 	$(wildcard advance/tsr/*.h)
 
+DOS16_SRC = \
+	$(wildcard $(srcdir)/advance/dos/pci.*) \
+	$(wildcard $(srcdir)/advance/dos/map.*) \
+	$(wildcard $(srcdir)/advance/dos/compil.h)
+
 VBE_SRC = \
 	advance/vbe/makefile \
 	$(wildcard advance/vbe/*.asm) \
@@ -176,6 +181,8 @@ distcab: $(RCSRC)
 	cp $(VIDEOWIN_SRC) $(CAB_DIST_DIR_SRC)/advance/videow
 	mkdir $(CAB_DIST_DIR_SRC)/advance/d2
 	cp $(D2_SRC) $(CAB_DIST_DIR_SRC)/advance/d2
+	mkdir $(CAB_DIST_DIR_SRC)/advance/dos
+	cp $(DOS16_SRC) $(CAB_DIST_DIR_SRC)/advance/dos
 	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib
 	cp $(SVGALIB_SRC) $(CAB_DIST_DIR_SRC)/advance/svgalib
 	mkdir $(CAB_DIST_DIR_SRC)/advance/svgalib/clockchi

@@ -10,7 +10,7 @@ else
 EMUVERSION = 0.61.4
 endif
 endif
-MENUVERSION = 2.1.3
+MENUVERSION = 2.2.0
 CABVERSION = 1.1.1
 
 ############################################################################
@@ -129,6 +129,7 @@ SVGALIB_SRC = \
 	$(wildcard $(srcdir)/advance/svgalib/*.dif) \
 	$(wildcard $(srcdir)/advance/svgalib/*.txt) \
 	$(wildcard $(srcdir)/advance/svgalib/*.bat) \
+	$(wildcard $(srcdir)/advance/svgalib/*.sh) \
 	$(wildcard $(srcdir)/advance/svgalib/*.cfg) \
 	$(wildcard $(srcdir)/advance/svgalib/*.html)
 
@@ -342,7 +343,10 @@ RCFLAGS += --include-dir advance/lib
 
 WHOLE_CFLAGS_OPT = -O3 -Wall -Wno-sign-compare -Wno-unused
 WHOLE_CFLAGS_EMU = -fomit-frame-pointer
-WHOLE_LDFLAGS = -rdynamic
+# with debug info
+#WHOLE_LDFLAGS = -rdynamic
+# without debug info
+WHOLE_LDFLAGS = -s
 
 ARCH_I386 = CONF_ARCH=i386 CONF_CFLAGS_OPT="-march=i386 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
 ARCH_I586 = CONF_ARCH=i586 CONF_CFLAGS_OPT="-march=i586 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
@@ -366,17 +370,20 @@ pacmame:
 
 wholemame:
 	$(MAKE) CONF=no dist
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distbin
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos distbin
 	$(MAKE) $(ARCH_I686) CONF=no CONF_HOST=dos distbin
 	$(MAKE) $(ARCH_K6) CONF=no CONF_HOST=dos distbin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix distbin
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows distbin
+
+dosmess:
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
 
 wholemess:
 	$(MAKE) CONF=no CONF_EMU=mess dist
-	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=unix CONF_EMU=mess distbin
 	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=windows CONF_EMU=mess distbin
+	$(MAKE) $(ARCH_I586) CONF=no CONF_HOST=dos CONF_EMU=mess distbin
 
 wholepac:
 	$(MAKE) CONF=no CONF_EMU=pac dist

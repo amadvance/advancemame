@@ -446,7 +446,7 @@ void svgaline_default(void) {
 void svgaline_reg(adv_conf* context) {
 	assert( !svgaline_is_active() );
 
-	conf_bool_register_default(context, "device_svgaline_divide_clock", 0);
+	conf_bool_register_default(context, "device_svgaline_divideclock", 0);
 
 	svgaline_option.initialized = 1;
 }
@@ -454,7 +454,7 @@ void svgaline_reg(adv_conf* context) {
 adv_error svgaline_load(adv_conf* context) {
 	assert( !svgaline_is_active() );
 
-	svgaline_option.divide_clock = conf_bool_get_default(context, "device_svgaline_divide_clock");
+	svgaline_option.divide_clock = conf_bool_get_default(context, "device_svgaline_divideclock");
 
 	svgaline_option.initialized = 1;
 

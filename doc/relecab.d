@@ -1,5 +1,5 @@
 Name
-	advcab - Release Notes For AdvanceCAB
+	release notes - Release Notes For AdvanceCAB
 
 AdvanceCAB 1.1.0
 	The first version with a preliminary Windows NT/2000/XP support.

@@ -46,6 +46,8 @@ typedef struct svgawin_video_mode_struct {
 	adv_crtc crtc; /**< CRTC values */
 } svgawin_video_mode;
 
+void svgawin_default(void);
+
 /**
  * Video driver "svgawin".
  * \ingroup Video

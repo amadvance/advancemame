@@ -109,7 +109,7 @@ static void draw_text_bar(void) {
 	char buffer[256];
 	unsigned i;
 
-	sprintf(buffer," AdvanceMAME Config - " __DATE__ );
+	sprintf(buffer," AdvanceCONFIG - " __DATE__ );
 	draw_text_left(0,0,text_size_x(),buffer,COLOR_BAR);
 
 	strcpy(buffer,"");
@@ -535,6 +535,7 @@ static int adjust(const char* msg, adv_crtc* crtc, unsigned bits, const adv_moni
 
 		current = *crtc;
 
+		target_idle();
 		os_poll();
 
 		userkey = inputb_get();
@@ -651,6 +652,7 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned bits, const adv
 		video_write_unlock(0,0,0,0);
 
 		do {
+			target_idle();
 			os_poll();
 		} while (inputb_get()==INPUTB_NONE);
 	}
@@ -1067,7 +1069,7 @@ int cmd_adjust_msg(int type, enum adjust_enum* adjust_type) {
 "Generally this doesn't happen with modern PC MultiSync monitor)"
 "\n\n"
 "If you can't correctly adjust the video modes you can't use the automatic "
-"configuration of AdvanceMAME and you should follow the manual configuration."
+"configuration of the Advance programs and you should follow the manual configuration."
 "\n\n"
 "When the image is centered and fit the whole screen press ENTER to go forward."
 	,COLOR_LOW);
@@ -1172,6 +1174,7 @@ int cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_monitor* 
 		draw_graphics_calib(0,0,video_size_x(),video_size_y());
 		
 		do {
+			target_idle();
 			os_poll();
 		} while (inputb_get()==INPUTB_NONE);
 	} else {

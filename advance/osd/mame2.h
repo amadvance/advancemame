@@ -31,7 +31,7 @@
 #ifndef __MAME2_H
 #define __MAME2_H
 
-#ifdef __MSDOS__
+#if defined(__MSDOS__) || defined(__WIN32__)
 /** Prevent the inclusion of the svgalib driver.h file */
 #define _DRIVER_H
 #endif

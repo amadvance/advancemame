@@ -375,9 +375,12 @@ INSTALL_DATA = $(INSTALL) -c -o root -g bin -m 644
 # Derived options
 
 # Binaries
+ifeq ($(CONF_HOST),unix)
+BINARYTAG = linux-$(CONF_ARCH)
+else
 BINARYTAG = $(CONF_HOST)-$(CONF_ARCH)
+endif
 
-# Some conversion
 BINARYDIR = $(CONF_HOST)/$(CONF_ARCH)
 BINARYDIR_BUILD = $(CONF_BUILD)
 

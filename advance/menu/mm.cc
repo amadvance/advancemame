@@ -447,7 +447,9 @@ static adv_conf_conv STANDARD[] = {
 { "*", "device_joystick", "segaisa", "%s", "%s", "allegro/%s", 0 }, /* rename */
 { "*", "device_joystick", "segapci", "%s", "%s", "allegro/%s", 0 }, /* rename */
 { "*", "device_joystick", "segapcifast", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "wingwarrior", "%s", "%s", "allegro/%s", 0 } /* rename */
+{ "*", "device_joystick", "wingwarrior", "%s", "%s", "allegro/%s", 0 }, /* rename */
+/* 2.2.0 */
+{ "*", "device_svgaline_divide_clock", "*", "%s", "device_svgaline_divideclock", "%s", 0 } /* rename */
 };
 
 void os_signal(int signum) {

@@ -461,6 +461,7 @@ int draw_text_read(int x, int y, char* s, int dx, unsigned color) {
 
 		video_wait_vsync();
 
+		target_idle();
 		os_poll();
 
 		userkey = inputb_get();
@@ -868,6 +869,7 @@ int draw_text_menu(int x, int y, int dx, int dy, void* data, int mac, entry_prin
 
 		video_wait_vsync();
 
+		target_idle();
 		os_poll();
 
 		key = inputb_get();

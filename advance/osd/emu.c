@@ -435,7 +435,9 @@ static adv_conf_conv STANDARD[] = {
 { "*", "device_joystick", "segapcifast", "%s", "%s", "allegro/%s", 0 }, /* rename */
 { "*", "device_joystick", "wingwarrior", "%s", "%s", "allegro/%s", 0 }, /* rename */
 /* 0.61.3 */
-{ "*", "display_waitvsync", "*", "", "", "", 0 } /* ignore */
+{ "*", "display_waitvsync", "*", "", "", "", 0 }, /* ignore */
+/* 0.61.4 */
+{ "*", "device_svgaline_divide_clock", "*", "%s", "device_svgaline_divideclock", "%s", 0 } /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...) {
@@ -594,7 +596,7 @@ int os_main(int argc, char* argv[])
 
 	if (!opt_gamename) {
 		if (!option.playback_file[0]) {
-			target_err("No game specified.\n");
+			target_err("No game specified on the command line.\n");
 			goto err_os;
 		}
 

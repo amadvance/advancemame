@@ -1,5 +1,5 @@
 Name
-	advmenu - Release Notes For AdvanceMENU
+	release notes - Release Notes For AdvanceMENU
 
 AdvanceMENU 2.0.0
 	The emulator type `mame' is now used for the Windows MAME.

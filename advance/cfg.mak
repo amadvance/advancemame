@@ -72,6 +72,7 @@ CFGCFLAGS += \
 	-I$(srcdir)/advance/dos \
 	-I$(srcdir)/advance/card \
 	-I$(srcdir)/advance/svgalib \
+	-I$(srcdir)/advance/svgalib/svgados \
 	-I$(srcdir)/advance/svgalib/clockchi \
 	-I$(srcdir)/advance/svgalib/ramdac \
 	-I$(srcdir)/advance/svgalib/drivers \
@@ -82,6 +83,7 @@ CFGOBJDIRS += \
 	$(CFGOBJ)/dos \
 	$(CFGOBJ)/card \
 	$(CFGOBJ)/svgalib \
+	$(CFGOBJ)/svgalib/svgados \
 	$(CFGOBJ)/svgalib/ramdac \
 	$(CFGOBJ)/svgalib/clockchi \
 	$(CFGOBJ)/svgalib/drivers
@@ -100,7 +102,8 @@ CFGOBJS += \
 	$(CFGOBJ)/dos/pcimap.o \
 	$(CFGOBJ)/dos/map.o \
 	$(CFGOBJ)/card/board.o \
-	$(CFGOBJ)/svgalib/libdos.o \
+	$(CFGOBJ)/svgalib/svgalib.o \
+	$(CFGOBJ)/svgalib/svgados/svgados.o \
 	$(CFGOBJ)/svgalib/accel.o \
 	$(CFGOBJ)/svgalib/vgaio.o \
 	$(CFGOBJ)/svgalib/vgammvga.o \

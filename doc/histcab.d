@@ -1,10 +1,12 @@
 Name
-	advcab - History For AdvanceCAB
+	history - History For AdvanceCAB
 
-AdvanceCAB Version 1.1.1 2002/11 (not yet released)
-	) Added the ADVV utiluty for Windows NT/2000/XP.
-	) Added an new option at the VIDEOWIN utility to enable the
+AdvanceCAB Version 1.1.1 2002/11
+	) Added the ADVV utility for Windows NT/2000/XP.
+	) Added an new option at the VIDEOW utility to enable the
 		hardware mouse pointer.
+	) Added an new option at the VIDEOW utility to change the
+		scanline size.
 
 AdvanceCAB Version 1.1.0 2002/11
 	) Added the VIDEOWIN utility. It's able to set an arbitrary

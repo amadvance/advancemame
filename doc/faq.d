@@ -7,10 +7,11 @@ Name
 
 		* AdvanceMAME FAQ
 		* AdvanceMENU FAQ
-		* DOS CONFIGURATION FAQ
-		* LINUX CONFIGURATION FAQ
-		* VIDEO CONFIGURATION FAQ
-		* LICENSE FAQ
+		* DOS Configuration FAQ
+		* Linux Configuration FAQ
+		* Windows Configuration FAQ
+		* Video Configuration FAQ
+		* License FAQ
 
 AdvanceMAME FAQ
 	<empty>
@@ -100,6 +101,9 @@ Linux Configuration FAQ
 	the `dga' utility. Run :
 
 		:man dga
+
+Windows Configuration FAQ
+	<empty>
 
 Video Configuration FAQ
   Which is the "tearing" effect ?

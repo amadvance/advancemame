@@ -419,10 +419,11 @@ static void probe(void) {
 }
 
 static void help(void) {
-	printf("AdvanceVIDEOWIN by Andrea Mazzoleni v0.1 " __DATE__ "\n");
+	printf("AdvanceVIDEOW by Andrea Mazzoleni v0.2 " __DATE__ "\n");
 	printf(
 "Usage:\n"
-"    videowin [/c CONFIG] [/a] [/s XxYxBITS] [/w FILE] [/r FILE] [/d] [/e]\n"
+"    videow [/c CONFIG] [/a] [/s XxYxBITS] [/w FILE] [/r FILE]\n"
+"           [/d] [/e] [/m] [/n SIZE]\n"
 "Commands:\n"
 "    /p          Probe the video board.\n"
 "    /a          Adjust the current video mode.\n"
@@ -435,7 +436,7 @@ static void help(void) {
 "    /m          Enable the hardware mouse pointer.\n"
 "    /n SIZE     Set the scanline size in bytes.\n"
 "Options:\n"
-"    /c CONFIG  Use this config file instead of videowin.rc\n"
+"    /c CONFIG  Use this config file instead of videow.rc\n"
 );
 }
 
@@ -457,7 +458,7 @@ int main(int argc, char* argv[]) {
 	int arg_winrestore = 0;
 	int arg_scanline = 0;
 	int arg_mouse = 0;
-	const char* arg_config = "videowin.rc";
+	const char* arg_config = "videow.rc";
 
 	if (argc <= 1) {
 		help();
@@ -569,4 +570,3 @@ int main(int argc, char* argv[]) {
 
 	return EXIT_SUCCESS;
 }
-

@@ -3,7 +3,8 @@ Name
 
 Synopsys
 	:advv [-advmamev] [-advmessv] [-advpacv] [-advmenuv]
-	:	[-vbev] [-vgav] [-log] [-logsync] [-rc RCFILE]
+	:	[-vbev] [-vgav] [-videowv] [-log] [-logsync]
+	:	[-rc RCFILE]
 
 Description
 	The `advv' utility is the main video configuration program
@@ -12,12 +13,12 @@ Description
 	It selects, creates and tweaks video modes interactively.
 
 	This utility works differently if one of the -advmamev,
-	-advmessv, -advpacv, -advmenuv, -vbev and -vgav option is
-	specified.
+	-advmessv, -advpacv, -advmenuv, -vbev, -vgav and -videowv
+	options is specified.
 	The main difference is the the name of the configuration
 	file used to store the video modes. Respectively they
 	are `advmame.rc', `advmess.rc', `advpac.rc', `advmenu.rc',
-	`vbe.rc' and `vga.rc'.
+	`vbe.rc', `vga.rc' and `videow.rc'.
 
 	When the program starts a list of modelines is printed. You can
 	walk on the list with the UP and DOWN arrows of your keyboard. 
@@ -50,9 +51,9 @@ Options
 		buffered. This option must be used to get a complete
 		log file in presence of a machine crash.
 
-	-advmamev, -advmessv, -advpacv, -advmenuv, -vbev, -vgav
+	-advmamev, -advmessv, -advpacv, -advmenuv, -vbev, -vgav, -videowv
 		Select the mode of operation for the programs `advmame',
-		`advmess', `advpac', `advmenu', `vbe' and `vga'.
+		`advmess', `advpac', `advmenu', `vbe', `vga' and `videow'.
 		The default is `advmame'.
 
 Video Drivers
@@ -69,6 +70,9 @@ Video Drivers
 
 			This driver supports also text modes with pixel clocks
 			12.59, 14.16, 25.17, 28.32 MHz.
+			
+			This driver is completly indipendent of the VGA BIOS
+			of your board.
 		svgaline - Generated SVGA modes.
 			Video modes obtained tweaking the hardware
 			registers of the recognized SVGA boards.
@@ -76,11 +80,6 @@ Video Drivers
 			All clocks, all bit depths are available.
 			To use these modes your video board must be supported
 			by a `svgaline' driver listed in the `carddos.txt' file.
-
-			The drivers are probed at the startup, and the first
-			detected is used. The name of the video driver active
-			is displayed in the upper right corner of the first
-			screen of the utility `advv'.
 
 			This driver is completly indipendent of the VBE BIOS
 			of your board.
@@ -91,10 +90,6 @@ Video Drivers
 
 			To use these modes your video board must be supported
 			by a `vbeline' driver listed in the `carddos.txt' file.
-			The drivers are probed at the startup, and the first
-			detected is used. The name of the video driver active
-			is displayed in the upper right corner of the first
-			screen of the utility `advv'.
 
 			These drivers work setting a video mode using the
 			default VBE2 services and tweak some hardware SVGA
@@ -122,9 +117,16 @@ Video Drivers
 
 	For the Linux version of the programs the following drivers are 
 	available:
-		svgalib - Generated SVGALIB modes.
-			SVGA Graphics modes from the SVGALIB library.
-			You must install the SVGALIB library version 1.9.x.
+		svgalib - Generated SVGA modes.
+			Video modes obtained tweaking the hardware
+			registers of the recognized SVGA boards.
+
+			All clocks, all bit depths are available.
+			To use these modes your video board must be supported
+			by a `svgalib' driver listed in the `cardlinx.txt' file.
+		
+			To use this driver you need to install the SVGALIB library 
+			version 1.9.x.
 		fb - Generated Frame Buffer modes.
 			SVGA Graphics modes from the Linux Kernel Console Frame
 			Buffer. You must activate the Console Frame Buffer
@@ -142,7 +144,17 @@ Video Drivers
 
 	For the Windows version of the programs the following drivers are 
 	available:
-		sdl - SDL modes.
+		svgawin - Generated SVGA modes. (only for Windows NT/2000/XP)
+			Video modes obtained tweaking the hardware
+			registers of the recognized SVGA boards.
+
+			All clocks, all bit depths are available.
+			To use these modes your video board must be supported
+			by a `svgawin' driver listed in the `cardwin.txt' file.
+
+			To use this driver you need to install the included SVGAWIN 
+			driver.
+		sdl - Available SDL modes.
 			This driver is able to use only the video modes
 			reported by the SDL graphics library.
 			It doesn't require any `device_video_*' options
@@ -217,39 +229,43 @@ Configuration
 	Options:
 		auto - Automatic detection of all the available drivers
 			(default). The order of detection is for DOS :
-			svgaline, vbeline, vgaline. And for Linux :
-			svgalib, fb, slang.
+			svgaline, vbeline, vgaline, vbe. And for Linux :
+			svgalib, fb, sdl, slang. And for Windows :
+			svgawin, sdl.
 
 	Options for DOS:
-		svgaline - SVGA tweaked graphics modes.
-		vbeline - VBE tweaked graphics modes.
-		vgaline - VGA tweaked text and graphics video modes.
+		svgaline - SVGA generated graphics modes.
+		vbeline - VBE generated graphics modes.
+		vgaline - VGA generated text and graphics modes.
 		vbe - VBE graphics modes.
 
 	Options for Linux:
-		svgalib - SVGA tweaked graphics modes with the
+		svgalib - SVGA generated graphics modes with the
 			SVGALIB 1.9.x library.
-		fb - SVGA tweaked grahics modes with the Linux Console
+		fb - SVGA generated grahics modes with the Linux Console
 			Frame Buffer.
 		slang - Text video modes with the sLang library.
-		sdl - SDL graphics modes.
+		sdl - SDL graphics and fake text modes.
 
 	Options for Windows:
-		sdl - SDL graphics modes.
+		svgawin - SVGA generated graphics modes with the
+			SVGAWIN included library.
+		sdl - SDL graphics and fake text modes.
 
 	Please note that to use the utilities `advv' and `advcfg' you
 	must at least select a graphics and a text video driver. The
-	available text video drivers are `vgaline' for DOS and `slang'
-	for Linux.
+	available text video drivers are `vgaline' for DOS, `slang' and 
+	`sdl' for Linux and `sdl' for Windows.
 
 	You can force the detection of a specific model of video board
 	adding the name of the model driver after the driver name using
 	the `/' separator. For example to force the `vbe3' model
 	detection of the `vbeline' driver you must specify
 	`vbeline/vbe3'. A complete list of all the available model is in
-	the `carddos.txt' file. Plese note that forcing a specific video
-	driver is discouraged with the only exception of the
-	`vbeline/vbe3' model.
+	the `card*.txt' files. 
+	
+	Plese note that forcing a specific video driver is discouraged.
+	Generally you on't need it.
 
 	For a more complete description of the drivers check the
 	previous `VIDEO DRIVER' section.
@@ -258,14 +274,14 @@ Configuration
 	with autodetection for DOS :
 		:device_video vbeline vgaline
 
-	Example to enable the `vbeline/vbe3' driver and the `vgaline'
+	Example to force the `vbeline/vbe3' driver and the `vgaline'
 	driver for DOS :
 		:device_video vbeline/vbe3 vgaline
 
 	Example to enable the `fb' and `slang' driver for Linux :
 		:device_video fb slang
 
-  Native Video Configuration Options
+  Common Video Configuration Options
 	The following are the common video configuration options
 	available for all `native' video drivers, i.e. all the
 	video drivers with the exception of `sdl' and `vbe'.
@@ -285,8 +301,8 @@ Configuration
 	If you are using the svgalib driver in Linux you need also to
 	adjust the SVGALIB configuration file /etc/vga/libvga.config
 	and correctly set the HorizSync and VertRefresh options.
-	You must use range equal or larger ranges than specified with the
-	hclock and vclock options.
+	You must use a range equal or larger ranges than specified with
+	the hclock and vclock options.
 
 	Options:
 		P_LOW - P_HIGH - Pixel clock range in MHz
@@ -396,8 +412,8 @@ Configuration
 
 		:31500 0.800 0.020 0.120 0.060 0.914 0.019 0.004 0.063
 
-	Which one is used depend on the setting of the device_video_hclock
-	option.
+	Which one of these defaults is used depends on the setting of the 
+	device_video_hclock option.
 
     device_video_singlescan/doublescan/interlace
 	Limit the use of certains features.
@@ -428,8 +444,8 @@ Configuration
 	Enable or disable the fast video mode change. If enabled the
 	current video mode is not reset before setting another video
 	mode. The reset should be generally not required, but some
-	limited BIOS need it. So, the fast change is disabled for
-	default.
+	limited DOS video BIOS need it. So, the fast change is disabled 
+	for default.
 
 	:device_video_fastchange yes | no
 
@@ -437,15 +453,15 @@ Configuration
 		yes - Enable the fast video mode change.
 		no - Disable the fast video mode change (default).
 
-  VbeLine Configuration Options
+  VBELine Configuration Options
 	The following are the common video configuration options
-	available only for the `vbeline' video driver.
+	available only for the `vbeline' DOS video driver.
 
     device_vbeline_driver
 	Select the video driver used. The program uses the specified
 	driver ONLY if it's correctly detected.
-	Generally you should use this option only to force the
-	`vbe3' driver.
+	
+	You should use this option only to force the `vbe3' driver.
 
 	:device_video_vbeline_driver none | auto | vbe3 | ...
 
@@ -478,6 +494,49 @@ Configuration
 		512 - Use always the 512x384 mode.
 		640 - Use always the 640x480 mode.
 		800 - Use always the 800x600 mode.
+
+  SVGALine Configuration Options
+  	The following are the common video configuration options
+	available only for the `svgaline' DOS video driver.
+
+    device_svgaline_divideclock
+	Divide the pixelclock using the VGA sequencer. It should help to support 
+	lower pixel clocks on some boards.
+
+	The use of this option is discouraged, it's present only for testing.	
+
+	:device_svgaline_divideclock yes | no
+
+	Options:
+		yes - Divide the clock by 2.
+		no - Don't divide the clock (default).
+ 
+  SVGAWin Configuration Options
+  	The following are the common video configuration options
+	available only for the `svgawin' Windows video driver.
+
+    device_svgawin_stub
+    	Select how the driver uses the Windows graphics.
+
+	The use of this option is discouraged, it's present only for testing.
+
+    	Options:
+    		none - Don't use the Windows graphics support.
+    		window - Create a stub window before setting the video mode.
+    		fullscreen - Create a stub fullscreen window before seting 
+    			the video mode (default).
+
+    device_svgawin_divideclock
+	Divide the pixelclock using the VGA sequencer. It should help to support 
+	lower pixel clocks on some boards.
+
+	The use of this option is discouraged, it's present only for testing.	
+
+	:device_svgawin_divideclock yes | no
+
+	Options:
+		yes - Divide the clock by 2.
+		no - Don't divide the clock (default).
 
   SDL Configuration Options
 	The following are the common video configuration options

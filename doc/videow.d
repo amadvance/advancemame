@@ -66,9 +66,15 @@ Limitations
 		reset the original video mode.
 
 Troubleshotting
-	Try decreasing the video hardware acceleration. For example
-	with the nVidia Windows drivers the mouse pointer disappers if
-	you use full optimization.
+	) If the mouse pointer disappers try to reanable it with the /m option.
+
+	) If the screen image is stable but garbled is probably because the
+		Windows video driver use a not standard scanline size.
+		Try to guess it with the /n option. You should start
+		with the resolution width multiplied by the bytes per pixel,
+		and increase this value until the screen become readable.
+
+	) Try decreasing the video hardware acceleration.
 
 Tests
 	+Windows 2000 with the `nv3' driver

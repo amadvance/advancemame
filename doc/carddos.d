@@ -1,8 +1,8 @@
 Name
-	carddos - Supported DOS PCI Video Cards
+	carddos - Supported DOS Video Cards
 
-	This is the list of the DOS PCI video cards supported
-	by AdvanceMAME and AvanceMENU with the DOS drivers. 
+	This is the list of the DOS video cards supported
+	by the Advance programs with the DOS drivers. 
 	Only the cards recognized by their PCI ID are in this list.
 	If a card isn't in this list it may be supported by a driver with
 	a custom detection. Anyway, any recent supported card is present.
