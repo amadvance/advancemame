@@ -635,6 +635,7 @@ static __inline__ void internal_scale2x_16_mmx_single(uint16* dst, const uint16*
 		"punpckhwd %%mm4,%%mm3\n"
 		"movq %%mm2,(%3)\n"
 		"movq %%mm3,8(%3)\n"
+
 		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst), "+r" (count)
 		:
 		: "cc"

@@ -1059,19 +1059,19 @@ static void video_stage_stretchy_scale2x(const struct video_stage_vert_struct* s
 	partial1 = video_pipeline_run_partial_on_buffer(buffer[1], stage_begin, stage_pivot, src1);
 	partial2_index = 2;
 
-	// first row
+	/* first row */
 	if (stage_pivot == stage_end) {
 		void* dst0;
 		void* dst1;
 
-		// first row
+		/* first row */
 		dst0 = video_write_line(y) + x_off;
 		++y;
 		dst1 = video_write_line(y) + x_off;
 		++y;
 		stage_scale2x_last(stage_vert, dst0, dst1, partial0, partial0, partial1);
 
-		// central rows
+		/* central rows */
 		count -= 2;
 		while (count) {
 			partial2 = video_pipeline_run_partial_on_buffer(buffer[partial2_index], stage_begin, stage_pivot, src2);
@@ -1090,7 +1090,7 @@ static void video_stage_stretchy_scale2x(const struct video_stage_vert_struct* s
 			--count;
 		}
 
-		// last row
+		/* last row */
 		dst0 = video_write_line(y) + x_off;
 		++y;
 		dst1 = video_write_line(y) + x_off;
@@ -1099,7 +1099,7 @@ static void video_stage_stretchy_scale2x(const struct video_stage_vert_struct* s
 	} else {
 		void* dst;
 
-		// first row
+		/* first row */
 		stage_scale2x(stage_pivot, final0, final1, partial0, partial0, partial1);
 		dst = video_write_line(y) + x_off;
 		video_pipeline_run_plain(stage_pivot, stage_end, dst, final0);
@@ -1108,7 +1108,7 @@ static void video_stage_stretchy_scale2x(const struct video_stage_vert_struct* s
 		video_pipeline_run_plain(stage_pivot, stage_end, dst, final1);
 		++y;
 
-		// central rows
+		/* central rows */
 		count -= 2;
 		while (count) {
 			partial2 = video_pipeline_run_partial_on_buffer(buffer[partial2_index], stage_begin, stage_pivot, src2);
@@ -1129,7 +1129,7 @@ static void video_stage_stretchy_scale2x(const struct video_stage_vert_struct* s
 			--count;
 		}
 
-		// last row
+		/* last row */
 		stage_scale2x(stage_pivot, final0, final1, partial0, partial1, partial1);
 		dst = video_write_line(y) + x_off;
 		video_pipeline_run_plain(stage_pivot, stage_end, dst, final0);

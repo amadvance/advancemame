@@ -234,6 +234,7 @@ static __inline__ void internal_copy8_step_mmx(uint8* dst, uint8* src, unsigned 
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+
 		:
 		: "S" (src), "D" (dst), "c" (count), "b" (step1)
 		: "cc"

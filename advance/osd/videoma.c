@@ -1578,7 +1578,7 @@ static __inline__ void video_frame_put(struct advance_video_context* context, co
 	/* compute the source pointer */
 	src_offset = context->state.blit_src_offset + context->state.game_visible_pos_y * context->state.blit_src_dw + context->state.game_visible_pos_x * context->state.blit_src_dp;
 
-	video_blit_pipeline(&context->state.blit_pipeline, dst_x, dst_y, bitmap->ptr + src_offset);
+	video_blit_pipeline(&context->state.blit_pipeline, dst_x, dst_y, (unsigned char*)bitmap->ptr + src_offset);
 }
 
 static __inline__ void video_frame_screen(struct advance_video_context* context, const struct osd_bitmap *bitmap, unsigned input) {
@@ -2072,6 +2072,7 @@ static void video_frame_game(struct advance_video_context* context, struct advan
 			unsigned size_y = context->state.game_used_size_y;
 			int dp = context->state.game_bytes_per_pixel;
 			int dw = bitmap->bytes_per_scanline;
+			int offset;
 
 			/* restore the original orientation */
 			if ((context->config.blit_orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
@@ -2079,12 +2080,12 @@ static void video_frame_game(struct advance_video_context* context, struct advan
 				SWAP(unsigned, size_x, size_y);
 			}
 
-			int offset = pos_x * dp + pos_y * dw;
+			offset = pos_x * dp + pos_y * dw;
 
 			if (context->state.game_rgb_flag) {
-				advance_record_video_update(record_context, bitmap->ptr + offset, size_x, size_y, dp, dw, context->state.game_rgb_def, 0, 0, context->config.game_orientation);
+				advance_record_video_update(record_context, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, context->state.game_rgb_def, 0, 0, context->config.game_orientation);
 			} else {
-				advance_record_video_update(record_context, bitmap->ptr + offset, size_x, size_y, dp, dw, 0, context->state.palette_map, context->state.palette_total, context->config.game_orientation);
+				advance_record_video_update(record_context, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, 0, context->state.palette_map, context->state.palette_total, context->config.game_orientation);
 			}
 		}
 
@@ -2097,6 +2098,7 @@ static void video_frame_game(struct advance_video_context* context, struct advan
 			unsigned size_y = context->state.game_used_size_y;
 			int dp = context->state.game_bytes_per_pixel;
 			int dw = bitmap->bytes_per_scanline;
+			int offset;
 
 			/* restore the original orientation */
 			if ((context->config.blit_orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
@@ -2104,12 +2106,12 @@ static void video_frame_game(struct advance_video_context* context, struct advan
 				SWAP(unsigned, size_x, size_y);
 			}
 
-			int offset = pos_x * dp + pos_y * dw;
+			offset = pos_x * dp + pos_y * dw;
 
 			if (context->state.game_rgb_flag) {
-				advance_record_snapshot_update(record_context, bitmap->ptr + offset, size_x, size_y, dp, dw, context->state.game_rgb_def, 0, 0, context->config.game_orientation);
+				advance_record_snapshot_update(record_context, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, context->state.game_rgb_def, 0, 0, context->config.game_orientation);
 			} else {
-				advance_record_snapshot_update(record_context, bitmap->ptr + offset, size_x, size_y, dp, dw, 0, context->state.palette_map, context->state.palette_total, context->config.game_orientation);
+				advance_record_snapshot_update(record_context, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, 0, context->state.palette_map, context->state.palette_total, context->config.game_orientation);
 			}
 		}
 	}
@@ -2606,7 +2608,7 @@ void osd_reset(void)
 
 	hardware_script_start(HARDWARE_SCRIPT_EMULATION);
 
-	// if not in "fastest" mode, the playing is already started
+	/* if not in "fastest" mode, the playing is already started */
 	if (!context->state.fastest_flag)
 		hardware_script_start(HARDWARE_SCRIPT_PLAY);
 }

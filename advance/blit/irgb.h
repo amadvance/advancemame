@@ -81,6 +81,7 @@ static __inline__ void internal_rgb_raw128_012carry_mmx(void* dst, void* src, vo
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+
 		:
 		: "S" (src), "D" (dst), "c" (count), "r" (mask), "r" (carry)
 		: "cc"
@@ -329,6 +330,7 @@ static __inline__ void internal_rgb_raw64x3_012nocarry_mmx(void* dst, void* src,
 		"jnz 0b\n"
 
 		"1:\n"
+
 		:
 		: "S" (src), "D" (dst), "c" (count), "b" (mask)
 		: "cc"

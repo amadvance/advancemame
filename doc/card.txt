@@ -17,7 +17,7 @@ SVGALINE
 		GeForce2 [x15x]
 		GeForce2 MX [x11x], [x17x], [x1Ax] (interlaced modes not supported)
 		GeForce3 [x20x] (interlaced modes not supported)
-		? [x25x] (interlaced modes not supported)
+		GeForce4 [x25x] (interlaced modes not supported)
 
 	r128 - ATI (1002)
 		Rage 128 [4c45, 4c56, 4d46, 4d4c, 50xx, 52xx, 53xx, 54xx]
@@ -29,10 +29,10 @@ SVGALINE
 		G200 [0520, 0521]
 		G400 [0525], G450 [0525]
 
-	banshee - 3dfx (121A) (interlaced modes not supported)
-		Banshee [0003]
-		Voodoo3 [0005]
-		Voodoo5 [0009]
+	banshee - 3dfx (121A)
+		Voodoo Banshee [0003] (interlaced modes not supported)
+		Voodoo 3 [0005]
+		Voodoo 4/5 [0009]
 
 	pm2 - Permedia (3d3d) (interlaced modes not supported)
 		PM2 [0007]
@@ -123,7 +123,7 @@ VBELINE
 		GD5462 Laguna, GD5464 Laguna, GD5465 Laguna
 
 	3dfx - 3dfx (interlaced modes not supported)
-		Banshee, Voodoo3, Voodoo5
+		Voodoo Banshee, Voodoo 3, Voodoo 4/5
 
 	r128 - ATI Rage 128
 		Rage 128 Mobility LE/LF/MF/ML, Rage 128 Pro PF/PR,

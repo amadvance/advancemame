@@ -212,6 +212,7 @@ static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_stru
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+
 		:
 		: "S" (src), "D" (dst), "c" (stage->slice.count), "b" (stage->palette)
 		: "cc", "eax", "edx"
@@ -284,6 +285,7 @@ static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* st
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+
 		:
 		: "S" (src), "D" (dst), "m" (count), "b" (stage->palette), "c" (stage->sdp)
 		: "cc", "eax", "edx"

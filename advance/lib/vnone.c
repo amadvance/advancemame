@@ -56,7 +56,7 @@ unsigned char* (*none_write_line)(unsigned y);
 /* Internal */
 
 static unsigned char* none_linear_write_line(unsigned y) {
-	return none_state.pointer + none_state.bytes_per_scanline * y;
+	return (unsigned char*)none_state.pointer + none_state.bytes_per_scanline * y;
 }
 
 static device DEVICE[] = {
@@ -127,7 +127,7 @@ static video_error none_mode_set(const none_video_mode* mode) {
 	}
 
 	assert( !none_state.pointer );
-	none_state.pointer = malloc(none_state.size);
+	none_state.pointer = (unsigned char*)malloc(none_state.size);
 
 	none_state.bytes_per_scanline = (none_state.bytes_per_pixel * mode->crtc.hde + 3) & ~3;
 	none_state.mode_active = 1;

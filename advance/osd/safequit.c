@@ -71,10 +71,10 @@ static void AddDatabaseEntry(char * buf)
 {
 	char event[4096];
 	int cpu;
-	UINT32 address;
+	unsigned address;
 	int action;
-	int mask;
-	int result;
+	unsigned mask;
+	unsigned result;
 
 	if(entryListLength >= MAX_ACTIONS)
 		return;

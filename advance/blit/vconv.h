@@ -126,6 +126,7 @@ static void video_line_rgb8888to332_step4_mmx(const struct video_stage_horz_stru
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+
 		: "+S" (src), "+D" (dst), "+c" (count)
 		: "r" (rgb8888to332_mask)
 		: "cc"
@@ -342,6 +343,7 @@ static void video_line_rgb8888to555_step4_mmx(const struct video_stage_horz_stru
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+
 		: "+S" (src), "+D" (dst), "+c" (count)
 		: "r" (rgb8888to555_mask)
 		: "cc"
@@ -448,6 +450,7 @@ static void video_line_rgb555to332_step2_mmx(const struct video_stage_horz_struc
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
+
 		: "+S" (src), "+D" (dst), "+c" (count)
 		: "r" (rgb555to332_mask)
 		: "cc"

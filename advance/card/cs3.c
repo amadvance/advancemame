@@ -142,7 +142,7 @@ static void s3_interlace_set(int flag, card_crtc STACK_PTR *cp)
 	}else{
 		d1 = ((cp->HTotal >> 3) - 5) / 2;
 		d1 = (d1 * cp->interlaceratio) / 100;
-		card_crtc_set(0x3C, d1);                                           // interlace offset
+		card_crtc_set(0x3C, d1); /* interlace offset */
 		d1 = card_crtc_get(0x42) | 0x20;
 		card_crtc_set(0x42, d1);
 	}
@@ -177,8 +177,8 @@ static void s3_ext_set(card_crtc STACK_PTR *cp)
 		d0 = card_bitmov(d0, 5, 1, 0);
 	d0 = card_bitmov(d0, 6, d1, 8);
 
-	card_crtc_set(0x5D, d0);                                           // ext horz reg
-	card_crtc_set(0x3B, d1);                                           // data transfer exec pos
+	card_crtc_set(0x5D, d0); /* ext horz reg */
+	card_crtc_set(0x3B, d1); /* data transfer exec pos */
 	CARD_LOG(("s3: data transfer exec pos %d\n", d1 << 3));
 
 	d0 = 0;
@@ -186,8 +186,8 @@ static void s3_ext_set(card_crtc STACK_PTR *cp)
 	d0 = card_bitmov(d0, 1, cp->VDisp   - 1, 10);
 	d0 = card_bitmov(d0, 2, cp->VBStart,         10);
 	d0 = card_bitmov(d0, 4, cp->VSStart,         10);
-	d0 = card_bitmov(d0, 6, 1, 0);                                       // line compare
-	card_crtc_set(0x5E, d0);                                           // ext vert reg
+	d0 = card_bitmov(d0, 6, 1, 0); /* line compare */
+	card_crtc_set(0x5E, d0); /* ext vert reg */
 
 	s3_doublescan_set(cp->doublescan);
 	s3_interlace_set(cp->interlace, cp);

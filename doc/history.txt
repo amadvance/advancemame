@@ -25,6 +25,8 @@ AdvanceMAME Version 0.61.0 2002/06
 	) In the Linux version if the HOME environment variable
 		is not set all the files are read and written on the
 		PREFIX/share/advance directory.
+	) Fixed a bug when forcing the use of the vbeline/3dfx driver.
+	) Enabled the interlaced modes with the 3dfx svgalib driver.
 	) Minor bugfix.
 
 AdvanceMAME Version 0.60.1 2002/05

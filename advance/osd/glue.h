@@ -46,8 +46,8 @@ struct mame_image {
 };
 #endif
 
-typedef struct mame_game_struct {
-} mame_game;
+/** Virtual type of a mame game. */
+typedef void mame_game;
 
 struct mame_option {
 	const mame_game* game;

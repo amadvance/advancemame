@@ -169,8 +169,6 @@ void vga_regs_info_get(struct vga_regs* regs, struct vga_info* info);
 typedef struct vga_internal_struct {
 	struct vga_info info;
 	struct vga_regs regs;
-
-//	unsigned unchained_plane_mask; /* unchained plane mask */
 } vga_internal;
 
 extern vga_internal vga_state;

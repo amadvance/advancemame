@@ -51,11 +51,11 @@ video_bool monitor_hclock_check(const video_monitor* monitor, double hclock) {
 	for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i) {
 		if (monitor->hclock[i].low != 0 && monitor->hclock[i].high != 0) {
 			if (monitor->hclock[i].low == monitor->hclock[i].high) {
-				// use a % error
+				/* use a % error */
 				if (monitor->hclock[i].low * (1-monitor_hfix_error) <= hclock && hclock <= monitor->hclock[i].high * (1+monitor_hfix_error))
 					break;
 			} else {
-				// use 1 unit error
+				/* use 1 unit error */
 				if (monitor->hclock[i].low * (1-monitor_hrange_error) <= hclock && hclock <= monitor->hclock[i].high * (1+monitor_hrange_error))
 					break;
 			}

@@ -1,3 +1,7 @@
+AdvanceMENU Version 1.19.1 2002/06
+	) Fixed a bug when forcing the use of the vbeline/3dfx driver.
+	) Enabled the interlaced modes with the 3dfx svgalib driver.
+
 AdvanceMENU Version 1.19.0 2002/06
 	) Upgraded at the SVGALIB 1.9.15 library.
 	) Added the joystick calibration on the main menu.

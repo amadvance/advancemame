@@ -452,7 +452,7 @@ static video_error monitor_range_parse(video_monitor_range* range, const char* b
 		parse_separator(" \t",&begin,end);
 	}
 	if (i==0)
-		return -1; // empty
+		return -1; /* empty */
 	while (i<VIDEO_MONITOR_RANGE_MAX) {
 		range[i].low = 0;
 		range[i].high = 0;

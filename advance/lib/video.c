@@ -599,6 +599,8 @@ static int video_double_cmp(const void* _a, const void* _b) {
 	return 0;
 }
 
+#define VIDEO_MEASURE_COUNT 7
+
 /**
  * Measure the time beetween two event.
  * \param low low limit time in second.
@@ -608,8 +610,7 @@ static int video_double_cmp(const void* _a, const void* _b) {
  *   - !=0 the frequency of the event
  */
 double video_measure_step(void (*wait)(void), double low, double high) {
-	const unsigned mac = 7;
-	double map[mac];
+	double map[VIDEO_MEASURE_COUNT];
 	os_clock_t start, stop;
 	unsigned map_start,map_end;
 	unsigned median;
@@ -622,7 +623,7 @@ double video_measure_step(void (*wait)(void), double low, double high) {
 	i = 0;
 	wait();
 	start = os_clock();
-	while (i < mac) {
+	while (i < VIDEO_MEASURE_COUNT) {
 		wait();
 		stop = os_clock();
 		map[i] = stop - start;
@@ -630,10 +631,10 @@ double video_measure_step(void (*wait)(void), double low, double high) {
 		++i;
 	}
 
-	qsort(map,mac,sizeof(double),video_double_cmp);
+	qsort(map,VIDEO_MEASURE_COUNT,sizeof(double),video_double_cmp);
 
 	map_start = 0;
-	map_end = mac;
+	map_end = VIDEO_MEASURE_COUNT;
 
 	/* reject low values */
 	while (map_start < map_end && map[map_start] <= low)

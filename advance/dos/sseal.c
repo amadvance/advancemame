@@ -38,7 +38,7 @@
 #include "audio.h"
 
 #ifdef USE_SOUND_INT
-// from allgro/aintdos.h
+/* from allgro/aintdos.h */
 #include "allegro.h"
 AL_FUNC(void, _dos_irq_init, (void));
 AL_FUNC(void, _dos_irq_exit, (void));
@@ -107,11 +107,14 @@ video_error sound_seal_init(int device_id, unsigned* rate, video_bool stereo_fla
 	}
 
 	if (device_id == AUDIO_DEVICE_MAPPER) {
+		UINT id = device_id;
 
-		if (APingAudio(&device_id) != AUDIO_ERROR_NONE) {
+		if (APingAudio(&id) != AUDIO_ERROR_NONE) {
 			os_log(("sound:seal: error in APingAudio\n"));
 			return -1;
 		}
+
+		device_id = id;
 
 		os_log(("sound:seal: ping %d\n",device_id));
 

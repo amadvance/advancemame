@@ -47,7 +47,6 @@ struct svgaline_chipset_struct {
 	DriverSpecs* drv;
 	int chipset;
 	const char* name;
-	const char* description;
 	unsigned cap;
 };
 
@@ -81,7 +80,7 @@ static struct svgaline_option_struct svgaline_option;
 /* Internal */
 
 static unsigned char* svgaline_linear_write_line(unsigned y) {
-	return svgaline_state.linear_pointer + libdos_mode.bytes_per_scanline * y;
+	return (unsigned char*)svgaline_state.linear_pointer + libdos_mode.bytes_per_scanline * y;
 }
 
 /* Short names for the most common flags */
@@ -91,120 +90,119 @@ static unsigned char* svgaline_linear_write_line(unsigned y) {
 
 static struct svgaline_chipset_struct cards[] = {
 #ifdef INCLUDE_NV3_DRIVER
-	{ &__svgalib_nv3_driverspecs, NV3, "nv3", "nVidia Riva/GeForce", FLAGS_ALL },
+	{ &__svgalib_nv3_driverspecs, NV3, "nv3", FLAGS_ALL },
 #endif
 #ifdef INCLUDE_TRIDENT_DRIVER
-	{ &__svgalib_trident_driverspecs, TRIDENT, "trident", "Trident", FLAGS_NOTV },
+	{ &__svgalib_trident_driverspecs, TRIDENT, "trident", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_RENDITION_DRIVER
 	/* The driver doesn't check the INTERLACED flags */
-	{ &__svgalib_rendition_driverspecs, RENDITION, "rendition", "Rendition", FLAGS_NOTVINTERLACE },
+	{ &__svgalib_rendition_driverspecs, RENDITION, "rendition", FLAGS_NOTVINTERLACE },
 #endif
 #ifdef INCLUDE_G400_DRIVER
-	{ &__svgalib_g400_driverspecs, G400, "g400", "Matrox Mystique/Gxxx", FLAGS_NOTV },
+	{ &__svgalib_g400_driverspecs, G400, "g400", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_PM2_DRIVER
 	/* The driver doesn't check the INTERLACED flags */
-	{ &__svgalib_pm2_driverspecs, PM2, "pm2", "Permedia 2", FLAGS_NOTVINTERLACE },
+	{ &__svgalib_pm2_driverspecs, PM2, "pm2", FLAGS_NOTVINTERLACE },
 #endif
 #ifdef INCLUDE_SAVAGE_DRIVER
-	{ &__svgalib_savage_driverspecs, SAVAGE, "savage", "Savage", FLAGS_NOTV },
+	{ &__svgalib_savage_driverspecs, SAVAGE, "savage", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_MILLENNIUM_DRIVER
-	{ &__svgalib_mil_driverspecs, MILLENNIUM, "millenium", "Matrox Millennium", FLAGS_NOTV },
+	{ &__svgalib_mil_driverspecs, MILLENNIUM, "millenium", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_R128_DRIVER
-	{ &__svgalib_r128_driverspecs, R128, "r128", "ATI Rage", FLAGS_NOTV },
+	{ &__svgalib_r128_driverspecs, R128, "r128", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_BANSHEE_DRIVER
-	/* The driver doesn't check the INTERLACED flags */
-	{ &__svgalib_banshee_driverspecs, BANSHEE, "banshee", "3dfx Voodoo Banshee", FLAGS_NOTVINTERLACE },
+	{ &__svgalib_banshee_driverspecs, BANSHEE, "banshee", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_SIS_DRIVER
-	{ &__svgalib_sis_driverspecs, SIS, "sis", "SIS", FLAGS_NOTV },
+	{ &__svgalib_sis_driverspecs, SIS, "sis", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_I740_DRIVER
 	/* A comment in the driver report that interlaced modes don't work  */
-	{ &__svgalib_i740_driverspecs, I740, "i740", "i740", FLAGS_NOTVINTERLACE },
+	{ &__svgalib_i740_driverspecs, I740, "i740", FLAGS_NOTVINTERLACE },
 #endif
 #ifdef INCLUDE_I810_DRIVER
 	/* A comment in the driver report that interlaced modes don't work  */
-	{ &__svgalib_i810_driverspecs, I810, "i810", "i810", FLAGS_NOTVINTERLACE },
+	{ &__svgalib_i810_driverspecs, I810, "i810", FLAGS_NOTVINTERLACE },
 #endif
 #ifdef INCLUDE_LAGUNA_DRIVER
-	{ &__svgalib_laguna_driverspecs, LAGUNA, "laguna", "Cirrus Logic Laguna 5462, 5464, 5465", FLAGS_NOTV },
+	{ &__svgalib_laguna_driverspecs, LAGUNA, "laguna", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_RAGE_DRIVER
-	{ &__svgalib_rage_driverspecs, RAGE, "rage", "ATI Rage", FLAGS_NOTV },
+	{ &__svgalib_rage_driverspecs, RAGE, "rage", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_MX_DRIVER
-	{ &__svgalib_mx_driverspecs, MX, "mx", "MX", FLAGS_NOTV },
+	{ &__svgalib_mx_driverspecs, MX, "mx", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_NEO_DRIVER
-	{ &__svgalib_neo_driverspecs, NEOMAGIC, "neomagic", "NeoMagic", FLAGS_NOTV },
+	{ &__svgalib_neo_driverspecs, NEOMAGIC, "neomagic", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_CHIPS_DRIVER
-	{ &__svgalib_chips_driverspecs, CHIPS, "chips", "Chips & Technologies", FLAGS_NOTV },
+	{ &__svgalib_chips_driverspecs, CHIPS, "chips", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_MACH64_DRIVER
-	{ &__svgalib_mach64_driverspecs, MACH64, "mach64", "ATI Mach 64", FLAGS_NOTV },
+	{ &__svgalib_mach64_driverspecs, MACH64, "mach64", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_MACH32_DRIVER
-	{ &__svgalib_mach32_driverspecs, MACH32, "mach32",  "ATI Mach 32", FLAGS_NOTV },
+	{ &__svgalib_mach32_driverspecs, MACH32, "mach32", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_EGA_DRIVER
-	{ &__svgalib_ega_driverspecs, EGA, "ega", "EGA", FLAGS_NOTV },
+	{ &__svgalib_ega_driverspecs, EGA, "ega", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_ET6000_DRIVER
 	/* This must be before ET4000 */
-	{ &__svgalib_et6000_driverspecs, ET6000, "et6000", "ET6000", FLAGS_NOTV },
+	{ &__svgalib_et6000_driverspecs, ET6000, "et6000", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_ET4000_DRIVER
-	{ &__svgalib_et4000_driverspecs, ET4000, "et4000", "ET4000", FLAGS_NOTV },
+	{ &__svgalib_et4000_driverspecs, ET4000, "et4000", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_TVGA_DRIVER
-	{ &__svgalib_tvga8900_driverspecs, TVGA8900, "tvga8900", "TVGA8900", FLAGS_NOTV }
+	{ &__svgalib_tvga8900_driverspecs, TVGA8900, "tvga8900", FLAGS_NOTV }
 #endif
 #ifdef INCLUDE_CIRRUS_DRIVER
-	{ &__svgalib_cirrus_driverspecs, CIRRUS, "cirrus", "Cirrus Logic", FLAGS_NOTV },
+	{ &__svgalib_cirrus_driverspecs, CIRRUS, "cirrus", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_OAK_DRIVER
-	{ &__svgalib_oak_driverspecs, OAK, "oak", "OAK", FLAGS_NOTV },
+	{ &__svgalib_oak_driverspecs, OAK, "oak", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_PARADISE_DRIVER
-	{ &__svgalib_paradise_driverspecs, PARADISE, "paradise", "Paradise", FLAGS_NOTV },
+	{ &__svgalib_paradise_driverspecs, PARADISE, "paradise", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_S3_DRIVER
-	{ &__svgalib_s3_driverspecs, S3, "s3", "S3", FLAGS_NOTV },
+	{ &__svgalib_s3_driverspecs, S3, "s3", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_ET3000_DRIVER
-	{ &__svgalib_et3000_driverspecs, ET3000, "et3000", "ET3000", FLAGS_NOTV },
+	{ &__svgalib_et3000_driverspecs, ET3000, "et3000", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_ARK_DRIVER
-	{ &__svgalib_ark_driverspecs, ARK, "ark", "ARK", FLAGS_NOTV },
+	{ &__svgalib_ark_driverspecs, ARK, "ark", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_GVGA6400_DRIVER
-	{ &__svgalib_gvga6400_driverspecs, GVGA6400, "gvga6400", "GVGA6400", FLAGS_NOTV },
+	{ &__svgalib_gvga6400_driverspecs, GVGA6400, "gvga6400", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_ATI_DRIVER
-	{ &__svgalib_ati_driverspecs, ATI, "ati", "ATI", FLAGS_NOTV },
+	{ &__svgalib_ati_driverspecs, ATI, "ati", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_ALI_DRIVER
-	{ &__svgalib_ali_driverspecs, ALI, "ali", "ALI", FLAGS_NOTV },
+	{ &__svgalib_ali_driverspecs, ALI, "ali", FLAGS_NOTV },
 #endif
 #ifdef INCLUDE_APM_DRIVER
 	/* The driver doesn't check the INTERLACED flags */
 	/* On certain cards this may toggle the video signal on/off which is ugly. Hence we test this last. */
-	{ &__svgalib_apm_driverspecs, APM, "apm", "APM", FLAGS_NOTVINTERLACE },
+	{ &__svgalib_apm_driverspecs, APM, "apm", FLAGS_NOTVINTERLACE },
 #endif
-	{ 0, 0, 0, 0, 0 }
+	{ 0, 0, 0, 0 }
 };
 
 /* Keep the same order of svgaline_chipset_struct cards */
 static device DEVICE[] = {
 	{ "auto", -1, "SVGALINE automatic detection" },
 #ifdef INCLUDE_NV3_DRIVER
-	{ "nv3", NV3, "NVidia Riva 128" },
+	{ "nv3", NV3, "nVidia Riva/GeForce" },
 #endif
 #ifdef INCLUDE_TRIDENT_DRIVER
 	{ "trident", TRIDENT, "Trident" },
@@ -213,34 +211,34 @@ static device DEVICE[] = {
 	{ "rendition", RENDITION, "Rendition" },
 #endif
 #ifdef INCLUDE_G400_DRIVER
-	{ "g400", G400, "Matrox Mystique(1064)/G100/G200/G400/G450" },
+	{ "g400", G400, "Matrox Mystique/G100/G200/G400/G450" },
 #endif
 #ifdef INCLUDE_PM2_DRIVER
 	{ "pm2", PM2, "Permedia 2" },
 #endif
 #ifdef INCLUDE_SAVAGE_DRIVER
-	{ "savage", SAVAGE, "Savage" },
+	{ "savage", SAVAGE, "S3 Savage" },
 #endif
 #ifdef INCLUDE_MILLENNIUM_DRIVER
-	{ "millenium", MILLENNIUM, "Matrox Millennium / Millenium II" },
+	{ "millenium", MILLENNIUM, "Matrox Millennium/Millenium II" },
 #endif
 #ifdef INCLUDE_R128_DRIVER
-	{ "r128", R128, "ATI Rage 128" },
+	{ "r128", R128, "ATI Rage 128/Radeon" },
 #endif
 #ifdef INCLUDE_BANSHEE_DRIVER
-	{ "banshee", BANSHEE, "3dfx Voodoo Banshee" },
+	{ "banshee", BANSHEE, "3dfx Voodoo Banshee/3/4/5" },
 #endif
 #ifdef INCLUDE_SIS_DRIVER
 	{ "sis", SIS, "SIS" },
 #endif
 #ifdef INCLUDE_I740_DRIVER
-	{ "i740", I740, "i740" },
+	{ "i740", I740, "Intel i740" },
 #endif
 #ifdef INCLUDE_I810_DRIVER
-	{ "i810", I810, "i810" },
+	{ "i810", I810, "Intel i810" },
 #endif
 #ifdef INCLUDE_LAGUNA_DRIVER
-	{ "laguna", LAGUNA, "Cirrus Logic Laguna 5462, 5464, 5465" },
+	{ "laguna", LAGUNA, "Cirrus Logic Laguna 5462/5464/5465" },
 #endif
 #ifdef INCLUDE_RAGE_DRIVER
 	{ "rage", RAGE, "ATI Rage" },
