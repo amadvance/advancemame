@@ -103,15 +103,22 @@ static void lq2x_16_def(interp_uint16* dst0, interp_uint16* dst1, const interp_u
 #define MDL (c[7] != c[3])
 #define MUL (c[3] != c[1])
 #define IC(p0) c[p0]
+#define I11(p0,p1) interp_16_11(c[p0], c[p1])
 #define I211(p0,p1,p2) interp_16_211(c[p0], c[p1], c[p2])
 #define I31(p0,p1) interp_16_31(c[p0], c[p1])
 #define I332(p0,p1,p2) interp_16_332(c[p0], c[p1], c[p2])
+#define I431(p0,p1,p2) interp_16_431(c[p0], c[p1], c[p2])
 #define I521(p0,p1,p2) interp_16_521(c[p0], c[p1], c[p2])
+#define I53(p0,p1) interp_16_53(c[p0], c[p1])
 #define I611(p0,p1,p2) interp_16_611(c[p0], c[p1], c[p2])
+#define I71(p0,p1) interp_16_71(c[p0], c[p1])
+#define I772(p0,p1,p2) interp_16_772(c[p0], c[p1], c[p2])
+#define I97(p0,p1) interp_16_97(c[p0], c[p1])
 #define I1411(p0,p1,p2) interp_16_1411(c[p0], c[p1], c[p2])
+#define I151(p0,p1) interp_16_151(c[p0], c[p1])
 
 		switch (mask) {
-		#include "hq2x.dat"
+		#include "lq2x.dat"
 		}
 
 #undef P0
@@ -123,12 +130,19 @@ static void lq2x_16_def(interp_uint16* dst0, interp_uint16* dst1, const interp_u
 #undef MDL
 #undef MUL
 #undef IC
+#undef I11
 #undef I211
 #undef I31
 #undef I332
+#undef I431
 #undef I521
+#undef I53
 #undef I611
+#undef I71
+#undef I772
+#undef I97
 #undef I1411
+#undef I151
 
 		src0 += 1;
 		src1 += 1;
@@ -199,15 +213,22 @@ static void lq2x_32_def(interp_uint32* dst0, interp_uint32* dst1, const interp_u
 #define MDL (c[7] != c[3])
 #define MUL (c[3] != c[1])
 #define IC(p0) c[p0]
+#define I11(p0,p1) interp_32_11(c[p0], c[p1])
 #define I211(p0,p1,p2) interp_32_211(c[p0], c[p1], c[p2])
 #define I31(p0,p1) interp_32_31(c[p0], c[p1])
 #define I332(p0,p1,p2) interp_32_332(c[p0], c[p1], c[p2])
+#define I431(p0,p1,p2) interp_32_431(c[p0], c[p1], c[p2])
 #define I521(p0,p1,p2) interp_32_521(c[p0], c[p1], c[p2])
+#define I53(p0,p1) interp_32_53(c[p0], c[p1])
 #define I611(p0,p1,p2) interp_32_611(c[p0], c[p1], c[p2])
+#define I71(p0,p1) interp_32_71(c[p0], c[p1])
+#define I772(p0,p1,p2) interp_32_772(c[p0], c[p1], c[p2])
+#define I97(p0,p1) interp_32_97(c[p0], c[p1])
 #define I1411(p0,p1,p2) interp_32_1411(c[p0], c[p1], c[p2])
+#define I151(p0,p1) interp_32_151(c[p0], c[p1])
 
 		switch (mask) {
-		#include "hq2x.dat"
+		#include "lq2x.dat"
 		}
 
 #undef P0
@@ -219,12 +240,19 @@ static void lq2x_32_def(interp_uint32* dst0, interp_uint32* dst1, const interp_u
 #undef MDL
 #undef MUL
 #undef IC
+#undef I11
 #undef I211
 #undef I31
 #undef I332
+#undef I431
 #undef I521
+#undef I53
 #undef I611
+#undef I71
+#undef I772
+#undef I97
 #undef I1411
+#undef I151
 
 		src0 += 1;
 		src1 += 1;

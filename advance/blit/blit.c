@@ -2942,7 +2942,7 @@ static void video_stage_stretchy_set(struct video_stage_vert_struct* stage_vert,
 	if (index_is_rgb(video_index())) {
 #ifndef USE_BLIT_TINY
 		if (combine_y == VIDEO_COMBINE_Y_LQ2X || combine_y == VIDEO_COMBINE_Y_LQ3X || combine_y == VIDEO_COMBINE_Y_LQ4X
-			|| combine_y == VIDEO_COMBINE_Y_HQ2X || combine_y == VIDEO_COMBINE_Y_HQ3X || combine_y == VIDEO_COMBINE_Y_HQ3X)
+			|| combine_y == VIDEO_COMBINE_Y_HQ2X || combine_y == VIDEO_COMBINE_Y_HQ3X || combine_y == VIDEO_COMBINE_Y_HQ4X)
 			interp_set(video_bits_per_pixel());
 #endif
 
