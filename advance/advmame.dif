@@ -524,7 +524,7 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
  {
 diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.ori/usrintrf.c src/usrintrf.c
 --- src.ori/usrintrf.c	2003-02-09 13:43:45.000000000 +0100
-+++ src/usrintrf.c	2003-02-13 01:18:47.000000000 +0100
++++ src/usrintrf.c	2003-02-24 17:35:55.000000000 +0100
 @@ -843,12 +843,16 @@
  	while (items[i])
  	{
@@ -620,9 +620,9 @@ diff -U 5 --new-file --recursive -x msdos -x unix -x windows -x windowsui src.or
 +				case 3:
 +					strcat (label[i], ui_getstring (UI_center));
 +					if (center)
-+						sprintf(setting[i],ui_getstring (UI_on));
++						strcpy(setting[i],ui_getstring (UI_on));
 +					else
-+						sprintf(setting[i],ui_getstring (UI_off));
++						strcpy(setting[i],ui_getstring (UI_off));
 +					if (i == sel) arrowize = 3;
 +					break;
  			}

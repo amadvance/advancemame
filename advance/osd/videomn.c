@@ -266,10 +266,7 @@ int osd2_menu(int selected, unsigned input)
 
 	resolution_index = total;
 	menu_item[total] = "Mode";
-	if (strcmp(context->config.resolution, "auto")==0)
-		menu_subitem[total] = "auto";
-	else
-		menu_subitem[total] = "custom";
+	menu_subitem[total] = context->config.resolution;
 	flag[total] = 0;
 	++total;
 
@@ -302,21 +299,13 @@ int osd2_menu(int selected, unsigned input)
 
 		} else {
 			magnify_index = -1;
-			menu_item[total] = "Magnify";
-			menu_subitem[total] = "custom";
-			flag[total] = 0;
-			++total;
-
 			scanline_index = -1;
-			switch (video_scan()) {
-				case 0 : menu_item[total] = "Scanline [single]"; break;
-				case 1 : menu_item[total] = "Scanline [double]"; break;
-				case -1 : menu_item[total] = "Scanline [interlace]"; break;
-			}
-			menu_subitem[total] = "custom";
-			flag[total] = 0;
-			++total;
 		}
+
+		menu_item[total] = "Options";
+		menu_subitem[total] = 0;
+		flag[total] = 0;
+		++total;
 
 		stretch_index = total;
 		switch (mode_current_stretch(context)) {
@@ -334,9 +323,15 @@ int osd2_menu(int selected, unsigned input)
 		flag[total] = 0;
 		++total;
 	} else {
-		stretch_index = -1;
 		magnify_index = -1;
 		scanline_index = -1;
+
+		menu_item[total] = "Options";
+		menu_subitem[total] = 0;
+		flag[total] = 0;
+		++total;
+
+		stretch_index = -1;
 	}
 
 	index_index = total;
@@ -389,11 +384,6 @@ int osd2_menu(int selected, unsigned input)
 		menu_subitem[total] = "unknown";
 		break;
 	}
-	flag[total] = 0;
-	++total;
-
-	menu_item[total] = "Options";
-	menu_subitem[total] = 0;
 	flag[total] = 0;
 	++total;
 

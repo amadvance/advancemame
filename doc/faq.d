@@ -142,6 +142,13 @@ Windows Configuration FAQ
 	<empty>
 
 Video Configuration FAQ
+  How can I enable the TV-OUT signal of the video board ?
+	You cannot. If the TV-OUT signal is not enabled automatically
+	by your video board you cannot enable it manually.
+
+	If you have a TV with SCART input (all european TVs) you can buy
+	or build a VGA to SCART cable.
+
   Which is the "tearing" effect ?
 	The tearing effect is a defects of the animation caused by a wrong
 	syncronization with the game refresh rate and the video mode refresh

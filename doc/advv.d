@@ -434,7 +434,7 @@ Configuration
 		no - Disable completly the feature.
 
     device_color_palette8/br8/bgr15/bgr16/bgr24/bgr32/yuy2
-	Limit the use of certains bit depths. If you known that
+	Limit the use of some bit depths. If you known that
 	the program doesn't work well with a specific bit depth you
 	can disable it.
 

@@ -986,7 +986,7 @@ static int video_resolution_cmp(const char* resolution, const char* name)
 static adv_error video_update_crtc(struct advance_video_context* context)
 {
 	adv_crtc_container_iterator i;
-	const adv_crtc* crtc = 0;
+	const adv_crtc* crtc;
 	int j;
 
 	/* build the vector of config pointer */
@@ -1010,6 +1010,10 @@ static adv_error video_update_crtc(struct advance_video_context* context)
 
 	log_std(("advance:mode:sort %d modes\n", context->state.crtc_mac));
 
+	if (!context->state.crtc_mac) {
+		return -1;
+	}
+
 	crtc_sort(context, context->state.crtc_map, context->state.crtc_mac);
 
 	for(j=0;j<context->state.crtc_mac;++j) {
@@ -1018,28 +1022,20 @@ static adv_error video_update_crtc(struct advance_video_context* context)
 		log_std(("advance:mode: %3d modeline:\"%s\"\n", j, buffer));
 	}
 
+	crtc = 0;
 	if (strcmp(context->config.resolution, "auto")!=0) {
 		int i;
 		for(i=0;i<context->state.crtc_mac;++i) {
-			if (video_resolution_cmp(context->config.resolution, crtc_name_get(context->state.crtc_map[i])) == 0
-				&& is_crtc_acceptable(context, context->state.crtc_map[i]))
-			{
-				crtc = context->state.crtc_map[i];
-				break;
-			}
-		}
-	} else {
-		int i;
-		for(i=0;i<context->state.crtc_mac;++i) {
-			if (is_crtc_acceptable(context, context->state.crtc_map[i])) {
+			if (video_resolution_cmp(context->config.resolution, crtc_name_get(context->state.crtc_map[i])) == 0) {
 				crtc = context->state.crtc_map[i];
 				break;
 			}
 		}
 	}
 
-	if (!crtc) {
-		return -1;
+	if (crtc == 0) {
+		/* the first mode is the best mode */
+		crtc = context->state.crtc_map[0];
 	}
 
 	context->state.crtc_selected = crtc;
@@ -1495,8 +1491,8 @@ static inline adv_error video_frame_resolution(struct advance_video_context* con
 	if (input == OSD_INPUT_MODE_NEXT) {
 		show = 1;
 		if (strcmp(context->config.resolution, "auto")==0) {
-			if (context->state.crtc_mac > 0) {
-				strcpy(context->config.resolution, crtc_name_get(context->state.crtc_map[0]));
+			if (context->state.crtc_mac > 1) {
+				strcpy(context->config.resolution, crtc_name_get(context->state.crtc_map[1]));
 				modify = 1;
 			}
 		} else {
@@ -1516,10 +1512,7 @@ static inline adv_error video_frame_resolution(struct advance_video_context* con
 			for(i=0;i<context->state.crtc_mac;++i)
 				if (context->state.crtc_map[i] == context->state.crtc_selected)
 					break;
-			if (i==0) {
-				strcpy(context->config.resolution, "auto");
-				modify = 1;
-			} else if (i<context->state.crtc_mac && i>0) {
+			if (i<context->state.crtc_mac && i>0) {
 				strcpy(context->config.resolution, crtc_name_get(context->state.crtc_map[i-1]));
 				modify = 1;
 			}

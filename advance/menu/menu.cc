@@ -1480,14 +1480,17 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 					oldfast.insert(oldfast.length(), 1, key);
 					menu_array::const_iterator i;
 					for(i=gc.begin();i!=gc.end();++i) {
-						if (menu_fast_compare((*i)->desc_get(), oldfast))
+						if (menu_fast_compare((*i)->desc_get(), oldfast)) {
 							break;
+						}
 					}
 					if (i==gc.end()) {
 						for(i=gc.begin();i!=gc.end();++i) {
 							if ((*i)->has_game()) {
-								if (menu_fast_compare((*i)->game_get().name_without_emulator_get(), oldfast))
+								const game& g = (*i)->game_get().clone_best_get();
+								if (menu_fast_compare(g.name_without_emulator_get(), oldfast)) {
 									break;
+								}
 							}
 						}
 					}

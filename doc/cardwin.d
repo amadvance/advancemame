@@ -9,7 +9,7 @@ Name
 
 	This list is automatically generated from the `pcidevs.txt' file:
 
-		http://members.hyperlink.net.au/~chart/download/pcidevs.txt
+		http://members.datafast.net.au/dft0802/downloads/pcidevs.txt
 
 	The numbers in [] are the PCI device IDs of the video board
 	models. The numbers in () are the PCI vendor IDs of the
