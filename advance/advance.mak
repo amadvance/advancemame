@@ -238,8 +238,10 @@ CONF_SRC = \
 	$(srcdir)/configure.ac \
 	$(srcdir)/configure.msdos \
 	$(srcdir)/configure.windows \
+	$(srcdir)/aclocal.m4 \
 	$(srcdir)/install-sh \
-	$(srcdir)/mkinstalldirs
+	$(srcdir)/mkinstalldirs \
+	$(srcdir)/missing
 
 CONF_BIN = \
 	$(srcdir)/support/confbin/INSTALL \

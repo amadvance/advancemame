@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.2.5 2003/03
+	) Fixed the default colors.
+
 AdvanceMENU Version 2.2.4 2003/02
 	) Fixed the CPU detection by the configure script.
 	) The Linux ALSA sound drivers now doesn't block the execution if the
