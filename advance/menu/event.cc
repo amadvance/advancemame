@@ -49,6 +49,7 @@ struct event_item {
 	unsigned seq[SEQ_MAX];
 	target_clock_t time;
 	unsigned counter;
+	bool simulate;
 };
 
 #define OP_NONE KEYB_MAX
@@ -336,28 +337,6 @@ std::string event_name(unsigned event)
 	return s;
 }
 
-void event_poll()
-{
-	for(struct event_item* i=EVENT_TAB;i->name;++i) {
-		if (seq_pressed(i->seq)) {
-			event_push(i->event);
-		} else {
-			i->counter = 0;
-			i->time = 0;
-		}
-	}
-
-	if (event_alpha_mode) {
-		for(unsigned i=0;EVENT_CONV[i].code != KEYB_MAX;++i) {
-			for(unsigned k=0;k<keyb_count_get();++k) {
-				if (keyb_get(k, EVENT_CONV[i].code)) {
-					event_push(EVENT_CONV[i].c);
-				}
-			}
-		}
-	}
-}
-
 void event_push_repeat(int event)
 {
 	if (event == EVENT_NONE)
@@ -409,7 +388,7 @@ static void event_push_norepeat(int event, target_clock_t& time, unsigned& count
 	}
 }
 
-void event_push(int event)
+static void event_push_filter(int event)
 {
 	if (event == EVENT_NONE)
 		return;
@@ -425,12 +404,46 @@ void event_push(int event)
 	if (i->name) {
 		event_push_norepeat(event, i->time, i->counter);
 	} else {
+		// for alphanumeric keys
 		if (event_last_code != event) {
 			event_last_time = 0;
 			event_last_counter = 0;
 		}
 		event_push_norepeat(event, event_last_time, event_last_counter);
 		event_last_code = event;
+	}
+}
+
+void event_poll()
+{
+	for(struct event_item* i=EVENT_TAB;i->name;++i) {
+		if (seq_pressed(i->seq) || i->simulate) {
+			event_push_filter(i->event);
+			i->simulate = false;
+		} else {
+			i->counter = 0;
+			i->time = 0;
+		}
+	}
+
+	if (event_alpha_mode) {
+		for(unsigned i=0;EVENT_CONV[i].code != KEYB_MAX;++i) {
+			for(unsigned k=0;k<keyb_count_get();++k) {
+				if (keyb_get(k, EVENT_CONV[i].code)) {
+					event_push_filter(EVENT_CONV[i].c);
+				}
+			}
+		}
+	}
+}
+
+void event_push(int event)
+{
+	for(struct event_item* i=EVENT_TAB;i->name;++i) {
+		if (i->event == event) {
+			i->simulate = true;
+			break;
+		}
 	}
 }
 

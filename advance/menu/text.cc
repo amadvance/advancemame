@@ -2629,11 +2629,11 @@ static void key_poll()
 		event_push(EVENT_ESC);
 	}
 
-	event_poll();
 	int_joystick_button_raw_poll();
 	int_joystick_move_raw_poll();
 	int_mouse_button_raw_poll();
 	int_mouse_move_raw_poll();
+	event_poll();
 }
 
 void int_idle_time_reset()
