@@ -171,7 +171,7 @@ Video Drivers
 	It supports all RGB/YUY2 bit depths available.
 	The output in the YUY2 modes is generally accelerated, and can be used
         to scale the video output to an arbitrary size. You can enable this
-	feature with the `-device_output zoom' option.
+	feature with the `-device_video_output overlay' option.
 
 	You can change some options of this driver using the SDL specific
 	environment variables described in the contrib/sdl/env.txt file.
@@ -278,7 +278,7 @@ Input Drivers
 	This driver works in Linux and it uses the new style input-event
 	interface of the Linux kernel.
 
-	It supports more than one joystick at the same time.
+	It supports more than one joystick or lightgun at the same time.
 
 	For USB devices this driver doesn't require any configuration.
 	It's able to autodetect all the present hardware.
@@ -287,8 +287,12 @@ Input Drivers
 	found. You should for example expect to have the gas pedal mapped
 	on the gas control of the game.
 
-	Details on how to build the Parallel Port hardware interfaces are
+	It can also be used with some custom devices connected at the
+	Paralle Port. Details on how to build these custom interfaces are
 	in the /usr/src/linux/Documentation/input/joystick-parport.txt file.
+
+	It has a special support for the ACT Lightgun to fix the wrong
+	behaviour of the lightgun when shooting out of screen.
 
 	The joysticks are searched on the /dev/input/eventX devices.
 
@@ -448,33 +452,33 @@ Video Drivers Configuration
     device_video_output
 	Select the output mode.
 
-	:device_video_output auto | window | fullscreen | zoom
+	:device_video_output auto | window | fullscreen | overlay
 
 	Options:
 		auto - Automatically chosen (default).
 		window - Use a window display.
 		fullscreen - Use a fullscreen display.
-		zoom - Zoom the image to fullscreen using the
-			video board hardware. This mode uses a
-			YUV overlay available only in some environments,
-			like xv in X Window and DirectX in Windows.
-			The specific format used is YUY2.
+		overlay - Use a YUV fullscreen overlay using the video board
+			hardware acceleration to display and stretch it.
+			This mode is available only in some environments, like
+			xv in X Window and DirectX in Windows. The specific
+			color format used is YUY2.
 
 	Please note that with the zoom mode, if the original image is in the
 	RGB format instead of a palette format, the program
 	needs to convert it to the YUY2 format before displaying it.
 	It requires some time.
 
-    device_video_zoom
-	Select the favorite horizontal size to use with the `zoom' output
+    device_video_overlay
+	Select the favorite horizontal size to use with the `overlay' output
 	mode. The program selects the nearest available video mode.
 
-	device_video_zoom SIZE
+	device_video_overlay SIZE
 
 	Options:
 		SIZE - The favorite horizontal size (default 1024).
 
-	This option has effect only with the `zoom' output mode.
+	This option has effect only with the `overlay' output mode.
 
     device_video_cursor
 	Select the mouse cursor mode.
