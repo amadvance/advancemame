@@ -50,6 +50,7 @@ struct file_context {
 	char file_abs_buffer[FILE_MAXPATH]; /**< Absolute path returned by file_abs_buffer. */
 	char data_dir_buffer[FILE_MAXPATH]; /**< Data directory. */
 	char home_dir_buffer[FILE_MAXPATH]; /**< Home directory. */
+	char current_dir_buffer[FILE_MAXPATH]; /**< Current directory. */
 	char dir_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
 	char file_host_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
 	char file_data_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
@@ -66,6 +67,16 @@ adv_error file_init(void)
 	char* home;
 
 	memset(&FL, 0, sizeof(FL));
+
+	/* current */
+	if (getcwd(FL.current_dir_buffer, sizeof(FL.current_dir_buffer)) == 0) {
+		target_err("Unable to get the current directory.\n");
+		return -1;
+	}
+	/* clear the leading slash if present */
+	if (FL.current_dir_buffer[0] && FL.current_dir_buffer[strlen(FL.current_dir_buffer)-1]=='/')
+		FL.current_dir_buffer[strlen(FL.current_dir_buffer)-1] = 0;
+
 
 	/* root */
 	snprintf(FL.data_dir_buffer, sizeof(FL.data_dir_buffer), "%s", DATADIR);
@@ -95,7 +106,7 @@ adv_error file_init(void)
 	}
 
 	if (!FL.home_dir_buffer[0]) {
-		target_err("Failure: Empty $home directory specification.\nCheck the ADVANCE environment variable.");
+		target_err("Undefined $home directory.\nCheck your HOME and ADVANCE environment variables.\n");
 		return -1;
 	}
 
@@ -107,7 +118,7 @@ adv_error file_init(void)
 	if (FL.home_dir_buffer[0]) {
 		if (mkdir(FL.home_dir_buffer, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0) {
 			if (errno != EEXIST) {
-				target_err("Failure: Error creating the $home directory %s.\nTry setting the ADVANCE environment variable.\n", FL.home_dir_buffer);
+				target_err("Error creating the $home directory %s.\n", FL.home_dir_buffer);
 				return -1;
 			}
 		}
@@ -172,7 +183,9 @@ const char* file_export(const char* path)
 
 const char* file_config_file_host(const char* file)
 {
-	if (file[0] == '/')
+	if (strncmp(file, "./", 2) == 0)
+		snprintf(FL.file_host_buffer, sizeof(FL.file_host_buffer), "%s/%s", FL.current_dir_buffer, file + 2);
+	else if (file[0] == '/')
 		snprintf(FL.file_host_buffer, sizeof(FL.file_host_buffer), "%s", file);
 	else
 		/* if relative add the root data dir */
@@ -183,7 +196,9 @@ const char* file_config_file_host(const char* file)
 const char* file_config_file_data(const char* file)
 {
 	if (FL.data_dir_buffer[0]) {
-		if (file[0] == '/')
+		if (strncmp(file, "./", 2) == 0)
+			snprintf(FL.file_data_buffer, sizeof(FL.file_data_buffer), "%s/%s", FL.current_dir_buffer, file + 2);
+		else if (file[0] == '/')
 			snprintf(FL.file_data_buffer, sizeof(FL.file_data_buffer), "%s", file);
 		else
 			/* if relative add the root data dir */
@@ -196,7 +211,9 @@ const char* file_config_file_data(const char* file)
 
 const char* file_config_file_home(const char* file)
 {
-	if (file_path_is_abs(file))
+	if (strncmp(file, "./", 2) == 0)
+		snprintf(FL.file_home_buffer, sizeof(FL.file_home_buffer), "%s/%s", FL.current_dir_buffer, file + 2);
+	else if (file[0] == '/')
 		snprintf(FL.file_home_buffer, sizeof(FL.file_home_buffer), "%s", file);
 	else
 		/* if relative add the home data dir */

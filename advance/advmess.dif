@@ -420,8 +420,8 @@ diff -U 5 --new-file --recursive srcmess.ori/mame.h srcmess/mame.h
  #endif
 diff -U 5 --new-file --recursive srcmess.ori/osdepend.h srcmess/osdepend.h
 --- srcmess.ori/osdepend.h	2003-08-10 16:47:52.000000000 +0200
-+++ srcmess/osdepend.h	2003-08-15 09:01:21.000000000 +0200
-@@ -391,10 +391,35 @@
++++ srcmess/osdepend.h	2003-08-25 18:36:22.000000000 +0200
+@@ -391,10 +391,38 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
  void CLIB_DECL logerror(const char *text,...);
@@ -451,6 +451,9 @@ diff -U 5 --new-file --recursive srcmess.ori/osdepend.h srcmess/osdepend.h
 +
 +/* customize the inputport after they are read from the .cfg file */
 +void osd_customize_inputport_current(struct InputPort* current);
++
++/* handle the specific user interface */
++int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active);
 +
  #ifdef __cplusplus
  }
@@ -538,7 +541,7 @@ diff -U 5 --new-file --recursive srcmess.ori/ui_text.h srcmess/ui_text.h
  {
 diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
 --- srcmess.ori/usrintrf.c	2003-07-24 22:35:02.000000000 +0200
-+++ srcmess/usrintrf.c	2003-08-15 09:19:54.000000000 +0200
++++ srcmess/usrintrf.c	2003-08-25 18:54:05.000000000 +0200
 @@ -858,12 +858,16 @@
  	while (items[i])
  	{
@@ -758,77 +761,16 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				break;
  
  			case UI_RESET:
-@@ -3854,10 +3907,63 @@
- 	vsprintf(messagetext,text,arg);
- 	va_end(arg);
- 	messagecounter = seconds * Machine->drv->frames_per_second;
- }
- 
-+int on_exit_menu(struct mame_bitmap* bitmap, int selected)
-+{
-+	const char * exit_menu_item[8];
-+	char flag[8];
-+
-+	int sel;
-+	int total;
-+
-+	sel = selected - 1;
-+
-+	total = 0;
-+
-+	exit_menu_item[total] = "Continue";
-+	flag[total] = 0;
-+	++total;
-+
-+	exit_menu_item[total] = "Exit";
-+	flag[total] = 0;
-+	++total;
-+
-+	exit_menu_item[total] = 0;
-+	flag[total] = 0;
-+
-+	ui_displaymenu(bitmap,exit_menu_item,0,flag,sel,0);
-+
-+	if (input_ui_pressed_repeat(IPT_UI_DOWN,8)) {
-+		sel = (sel + 1) % total;
-+	}
-+
-+	if (input_ui_pressed_repeat(IPT_UI_UP,8)) {
-+		sel = (sel + total - 1) % total;
-+	}
-+
-+	if (input_ui_pressed(IPT_UI_SELECT)) {
-+		if (sel == 1)
-+			sel = -2;
-+		if (sel == 0)
-+			sel = -1;
-+	}
-+
-+	if (input_ui_pressed(IPT_UI_CANCEL)) {
-+		sel = -1;
-+	}
-+
-+	if (sel == -1 || sel == -2)
-+	{
-+		/* tell updatescreen() to clean after us */
-+		schedule_full_refresh();
-+	}
-+
-+	return sel + 1;
-+}
-+
- void do_loadsave(struct mame_bitmap *bitmap, int request_loadsave)
- {
- 	int file = 0;
- 
- 	mame_pause(1);
-@@ -4006,21 +4112,43 @@
+@@ -4006,22 +4059,23 @@
  {
  #ifdef MESS
  	extern int mess_pause_for_ui;
  #endif
  
 -	/* if the user pressed F12, save the screen to a file */
++	if (osd_handle_user_interface(bitmap, setup_selected != 0) != 0)
++		return 1;
++
  	if (input_ui_pressed(IPT_UI_SNAPSHOT))
 -		save_screen_snapshot(bitmap);
 +		osd_save_snapshot();
@@ -840,37 +782,17 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	/* This call is for the cheat, it must be called once a frame */
  	if (options.cheat) DoCheat(bitmap);
  
- 	/* if the user pressed ESC, stop the emulation */
- 	/* but don't quit if the setup menu is on screen */
+-	/* if the user pressed ESC, stop the emulation */
+-	/* but don't quit if the setup menu is on screen */
 -	if (setup_selected == 0 && input_ui_pressed(IPT_UI_CANCEL))
 -		return 1;
-+	if (setup_selected == 0) {
-+		int res = osd_input_exit_filter(input_ui_pressed(IPT_UI_CANCEL));
-+		if (res > 1)
-+			return 1;
-+		if (res != 0) {
-+			osd_sound_enable(0);
-+			osd_pause(1);
-+
-+			res = 1;
-+			while (res > 0) {
-+				res = on_exit_menu(bitmap,res);
-+				update_video_and_audio();
-+			}
-+
-+			osd_pause(0);
-+			osd_sound_enable(1);
-+
-+			if (res < 0)
-+				return 1;
-+		}
-+	}
- 
+-
  	if (setup_selected == 0 && input_ui_pressed(IPT_UI_CONFIGURE))
  	{
  		setup_selected = -1;
  		if (osd_selected != 0)
-@@ -4132,12 +4260,15 @@
+ 		{
+@@ -4132,12 +4186,15 @@
  				draw_screen();
  			}
  			profiler_mark(PROFILER_END);
@@ -888,7 +810,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4146,11 +4277,11 @@
+@@ -4146,11 +4203,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);

@@ -36,9 +36,13 @@ AdvanceMAME Version 0.72.0 2003/09
 		the files in */share/advance have now less priority
 		of the user specified options. They can be used
 		to set default options.
+	) The `-version' option now lists the low level drivers compiled
+		in the executable.
 
 AdvanceMESS Version 0.72.0.0 2003/09
 	) All from AdvanceMAME 0.72.0.
+	) The specific AdvanceMAME keys are now disabled in the full
+		keyboard emulation like any other MAME key.
 
 AdvanceMAME Version 0.71.1 2003/07
 	) Added a new mouse driver for Linux which supports up to 4 mice

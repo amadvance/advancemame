@@ -294,7 +294,8 @@ Configuration
 	You can include an additional configuration files with the `include'
 	option. In DOS and Windows the files are searched in the current directory.
 	In Linux and Mac OS X the files are searched in the $home directory if
-	they are expressed as a relative path.
+	they are expressed as a relative path. You can force the search in the
+	current directory prefixing the file with `./'.
 	To include more than one file you must separe the names with `;' in
 	DOS and Windows, and with `:' in Linux and Mac OS X.
 

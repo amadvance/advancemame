@@ -330,6 +330,8 @@ struct advance_glue_context {
 
 	char resolution_buffer[32]; /**< Buffer used by mame_resolution(). */
 	char resolutionclock_buffer[32]; /**< Buffer used by mame_resolutionclock(). */
+
+	unsigned input; /**< Last user interface input. */
 };
 
 static struct advance_glue_context GLUE;
@@ -1069,8 +1071,8 @@ int osd_menu(struct mame_bitmap *bitmap, int selected)
 	/* save the bitmap */
 	GLUE.bitmap = bitmap;
 
-	/* update the input */
 	input = 0;
+
 	/* one shot input */
 	if (input_ui_pressed(IPT_UI_SELECT))
 		input |= OSD_INPUT_SELECT;
@@ -1169,47 +1171,7 @@ void osd_update_video_and_audio(struct mame_display *display)
 	}
 
 	/* update the input */
-	input = 0;
-	/* one shot input */
-	if (input_ui_pressed(IPT_UI_THROTTLE))
-		input |= OSD_INPUT_THROTTLE;
-	if (input_ui_pressed(IPT_UI_FRAMESKIP_DEC))
-		input |= OSD_INPUT_FRAMESKIP_DEC;
-	if (input_ui_pressed(IPT_UI_FRAMESKIP_INC))
-		input |= OSD_INPUT_FRAMESKIP_INC;
-	if (input_ui_pressed(IPT_UI_TOGGLE_DEBUG))
-		input |= OSD_INPUT_TOGGLE_DEBUG;
-	if (input_ui_pressed(IPT_UI_MODE_PRED))
-		input |= OSD_INPUT_MODE_PRED;
-	if (input_ui_pressed(IPT_UI_MODE_NEXT))
-		input |= OSD_INPUT_MODE_NEXT;
-	/* continous input */
-	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_RIGHT)))
-		input |= OSD_INPUT_PAN_RIGHT;
-	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_LEFT)))
-		input |= OSD_INPUT_PAN_LEFT;
-	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_UP)))
-		input |= OSD_INPUT_PAN_UP;
-	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_DOWN)))
-		input |= OSD_INPUT_PAN_DOWN;
-	if (seq_pressed(input_port_type_seq(IPT_UI_TURBO)))
-		input |= OSD_INPUT_TURBO;
-	if (seq_pressed(input_port_type_seq(IPT_COIN1)))
-		input |= OSD_INPUT_COIN1;
-	if (seq_pressed(input_port_type_seq(IPT_COIN2)))
-		input |= OSD_INPUT_COIN2;
-	if (seq_pressed(input_port_type_seq(IPT_COIN3)))
-		input |= OSD_INPUT_COIN3;
-	if (seq_pressed(input_port_type_seq(IPT_COIN4)))
-		input |= OSD_INPUT_COIN4;
-	if (seq_pressed(input_port_type_seq(IPT_START1)))
-		input |= OSD_INPUT_START1;
-	if (seq_pressed(input_port_type_seq(IPT_START2)))
-		input |= OSD_INPUT_START2;
-	if (seq_pressed(input_port_type_seq(IPT_START3)))
-		input |= OSD_INPUT_START3;
-	if (seq_pressed(input_port_type_seq(IPT_START4)))
-		input |= OSD_INPUT_START4;
+	input = GLUE.input;
 
 	/* update the sound */
 	if (GLUE.sound_flag) {
@@ -1621,3 +1583,131 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 
 	return 0;
 }
+
+static int on_exit_menu(struct mame_bitmap* bitmap, int selected)
+{
+	const char * exit_menu_item[8];
+	char flag[8];
+
+	int sel;
+	int total;
+
+	sel = selected - 1;
+
+	total = 0;
+
+	exit_menu_item[total] = "Continue";
+	flag[total] = 0;
+	++total;
+
+	exit_menu_item[total] = "Exit";
+	flag[total] = 0;
+	++total;
+
+	exit_menu_item[total] = 0;
+	flag[total] = 0;
+
+	ui_displaymenu(bitmap,exit_menu_item,0,flag,sel,0);
+
+	if (input_ui_pressed_repeat(IPT_UI_DOWN,8)) {
+		sel = (sel + 1) % total;
+	}
+
+	if (input_ui_pressed_repeat(IPT_UI_UP,8)) {
+		sel = (sel + total - 1) % total;
+	}
+
+	if (input_ui_pressed(IPT_UI_SELECT)) {
+		if (sel == 1)
+			sel = -2;
+		if (sel == 0)
+			sel = -1;
+	}
+
+	if (input_ui_pressed(IPT_UI_CANCEL)) {
+		sel = -1;
+	}
+
+	if (sel == -1 || sel == -2)
+	{
+		/* tell updatescreen() to clean after us */
+		schedule_full_refresh();
+	}
+
+	return sel + 1;
+}
+
+int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active)
+{
+	unsigned input;
+
+	if (!is_menu_active) {
+		int res = osd_input_exit_filter(input_ui_pressed(IPT_UI_CANCEL));
+		if (res > 1)
+			return 1;
+		if (res != 0) {
+			osd_sound_enable(0);
+			osd_pause(1);
+
+			res = 1;
+			while (res > 0) {
+				res = on_exit_menu(bitmap, res);
+				update_video_and_audio();
+			}
+
+			osd_pause(0);
+			osd_sound_enable(1);
+
+			if (res < 0)
+				return 1;
+		}
+	}
+
+	input = 0;
+
+	/* one shot input */
+	if (input_ui_pressed(IPT_UI_THROTTLE))
+		input |= OSD_INPUT_THROTTLE;
+	if (input_ui_pressed(IPT_UI_FRAMESKIP_DEC))
+		input |= OSD_INPUT_FRAMESKIP_DEC;
+	if (input_ui_pressed(IPT_UI_FRAMESKIP_INC))
+		input |= OSD_INPUT_FRAMESKIP_INC;
+	if (input_ui_pressed(IPT_UI_TOGGLE_DEBUG))
+		input |= OSD_INPUT_TOGGLE_DEBUG;
+	if (input_ui_pressed(IPT_UI_MODE_PRED))
+		input |= OSD_INPUT_MODE_PRED;
+	if (input_ui_pressed(IPT_UI_MODE_NEXT))
+		input |= OSD_INPUT_MODE_NEXT;
+	/* continous input */
+	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_RIGHT)))
+		input |= OSD_INPUT_PAN_RIGHT;
+	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_LEFT)))
+		input |= OSD_INPUT_PAN_LEFT;
+	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_UP)))
+		input |= OSD_INPUT_PAN_UP;
+	if (seq_pressed(input_port_type_seq(IPT_UI_PAN_DOWN)))
+		input |= OSD_INPUT_PAN_DOWN;
+	if (seq_pressed(input_port_type_seq(IPT_UI_TURBO)))
+		input |= OSD_INPUT_TURBO;
+	if (seq_pressed(input_port_type_seq(IPT_COIN1)))
+		input |= OSD_INPUT_COIN1;
+	if (seq_pressed(input_port_type_seq(IPT_COIN2)))
+		input |= OSD_INPUT_COIN2;
+	if (seq_pressed(input_port_type_seq(IPT_COIN3)))
+		input |= OSD_INPUT_COIN3;
+	if (seq_pressed(input_port_type_seq(IPT_COIN4)))
+		input |= OSD_INPUT_COIN4;
+	if (seq_pressed(input_port_type_seq(IPT_START1)))
+		input |= OSD_INPUT_START1;
+	if (seq_pressed(input_port_type_seq(IPT_START2)))
+		input |= OSD_INPUT_START2;
+	if (seq_pressed(input_port_type_seq(IPT_START3)))
+		input |= OSD_INPUT_START3;
+	if (seq_pressed(input_port_type_seq(IPT_START4)))
+		input |= OSD_INPUT_START4;
+
+	GLUE.input = input;
+
+	return 0;
+}
+

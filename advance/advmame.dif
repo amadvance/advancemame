@@ -645,8 +645,8 @@ diff -U 5 --new-file --recursive src.ori/neomame.mak src/neomame.mak
  
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2003-08-10 16:47:52.000000000 +0200
-+++ src/osdepend.h	2003-08-10 17:22:58.000000000 +0200
-@@ -391,10 +391,35 @@
++++ src/osdepend.h	2003-08-25 18:46:40.000000000 +0200
+@@ -391,10 +391,38 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
  void CLIB_DECL logerror(const char *text,...);
@@ -676,6 +676,9 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 +
 +/* customize the inputport after they are read from the .cfg file */
 +void osd_customize_inputport_current(struct InputPort* current);
++
++/* handle the specific user interface */
++int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active);
 +
  #ifdef __cplusplus
  }
@@ -776,7 +779,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  {
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
 --- src.ori/usrintrf.c	2003-08-10 16:47:52.000000000 +0200
-+++ src/usrintrf.c	2003-08-10 17:20:49.000000000 +0200
++++ src/usrintrf.c	2003-08-25 18:47:05.000000000 +0200
 @@ -853,12 +853,16 @@
  	while (items[i])
  	{
@@ -946,13 +949,13 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	int i;
  	char buf[2048];
 +	unsigned mask = GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_WRONG_COLORS | GAME_NO_SOUND;
++
++	if (!options.skip_gameinfo)
++		mask |= GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL;
  
 -	if (Machine->gamedrv->flags &
 -			(GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_WRONG_COLORS | GAME_IMPERFECT_COLORS |
 -			  GAME_NO_SOUND | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL))
-+	if (!options.skip_gameinfo)
-+		mask |= GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL;
-+
 +	if ((Machine->gamedrv->flags & mask) != 0)
  	{
  		int done;
@@ -1015,119 +1018,32 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  				break;
  
  			case UI_RESET:
-@@ -3821,10 +3876,63 @@
- 	vsprintf(messagetext,text,arg);
- 	va_end(arg);
- 	messagecounter = seconds * Machine->drv->frames_per_second;
- }
- 
-+int on_exit_menu(struct mame_bitmap* bitmap, int selected)
-+{
-+	const char * exit_menu_item[8];
-+	char flag[8];
-+
-+	int sel;
-+	int total;
-+
-+	sel = selected - 1;
-+
-+	total = 0;
-+
-+	exit_menu_item[total] = "Continue";
-+	flag[total] = 0;
-+	++total;
-+
-+	exit_menu_item[total] = "Exit";
-+	flag[total] = 0;
-+	++total;
-+
-+	exit_menu_item[total] = 0;
-+	flag[total] = 0;
-+
-+	ui_displaymenu(bitmap,exit_menu_item,0,flag,sel,0);
-+
-+	if (input_ui_pressed_repeat(IPT_UI_DOWN,8)) {
-+		sel = (sel + 1) % total;
-+	}
-+
-+	if (input_ui_pressed_repeat(IPT_UI_UP,8)) {
-+		sel = (sel + total - 1) % total;
-+	}
-+
-+	if (input_ui_pressed(IPT_UI_SELECT)) {
-+		if (sel == 1)
-+			sel = -2;
-+		if (sel == 0)
-+			sel = -1;
-+	}
-+
-+	if (input_ui_pressed(IPT_UI_CANCEL)) {
-+		sel = -1;
-+	}
-+
-+	if (sel == -1 || sel == -2)
-+	{
-+		/* tell updatescreen() to clean after us */
-+		schedule_full_refresh();
-+	}
-+
-+	return sel + 1;
-+}
-+
- void do_loadsave(struct mame_bitmap *bitmap, int request_loadsave)
- {
- 	int file = 0;
- 
- 	mame_pause(1);
-@@ -3973,21 +4081,43 @@
+@@ -3973,22 +4028,16 @@
  {
  #ifdef MESS
  	extern int mess_pause_for_ui;
  #endif
  
 -	/* if the user pressed F12, save the screen to a file */
- 	if (input_ui_pressed(IPT_UI_SNAPSHOT))
+-	if (input_ui_pressed(IPT_UI_SNAPSHOT))
 -		save_screen_snapshot(bitmap);
-+		osd_save_snapshot();
-+	if (input_ui_pressed(IPT_UI_RECORD_START))
-+		osd_record_start();
-+	if (input_ui_pressed(IPT_UI_RECORD_STOP))
-+		osd_record_stop();
++	if (osd_handle_user_interface(bitmap, setup_selected != 0) != 0)
++		return 1;
  
  	/* This call is for the cheat, it must be called once a frame */
  	if (options.cheat) DoCheat(bitmap);
  
- 	/* if the user pressed ESC, stop the emulation */
- 	/* but don't quit if the setup menu is on screen */
+-	/* if the user pressed ESC, stop the emulation */
+-	/* but don't quit if the setup menu is on screen */
 -	if (setup_selected == 0 && input_ui_pressed(IPT_UI_CANCEL))
 -		return 1;
-+	if (setup_selected == 0) {
-+		int res = osd_input_exit_filter(input_ui_pressed(IPT_UI_CANCEL));
-+		if (res > 1)
-+			return 1;
-+		if (res != 0) {
-+			osd_sound_enable(0);
-+			osd_pause(1);
-+
-+			res = 1;
-+			while (res > 0) {
-+				res = on_exit_menu(bitmap,res);
-+				update_video_and_audio();
-+			}
-+
-+			osd_pause(0);
-+			osd_sound_enable(1);
-+
-+			if (res < 0)
-+				return 1;
-+		}
-+	}
- 
+-
  	if (setup_selected == 0 && input_ui_pressed(IPT_UI_CONFIGURE))
  	{
  		setup_selected = -1;
  		if (osd_selected != 0)
-@@ -4091,12 +4221,15 @@
+ 		{
+@@ -4091,12 +4140,15 @@
  				draw_screen();
  			}
  			profiler_mark(PROFILER_END);
@@ -1145,7 +1061,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  				do_loadsave(bitmap, LOADSAVE_SAVE);
  
  			if (input_ui_pressed(IPT_UI_LOAD_STATE))
-@@ -4105,11 +4238,11 @@
+@@ -4105,11 +4157,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
