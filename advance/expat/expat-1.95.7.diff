@@ -1,0 +1,161 @@
+diff -u --new-file expat-1.95.7.ori/expat.h expat/expat.h
+--- expat-1.95.7.ori/expat.h	2003-10-16 06:20:54.000000000 +0200
++++ expat/expat.h	2004-04-20 19:14:49.000000000 +0200
+@@ -43,11 +43,6 @@
+    system headers may assume the cdecl convention.
+ */
+ #ifndef XMLCALL
+-#if defined(XML_USE_MSC_EXTENSIONS)
+-#define XMLCALL __cdecl
+-#elif defined(__GNUC__)
+-#define XMLCALL __attribute__((cdecl))
+-#else
+ /* For any platform which uses this definition and supports more than
+    one calling convention, we need to extend this definition to
+    declare the convention used on that platform, if it's possible to
+@@ -59,7 +54,6 @@
+    platform's malloc() implementation.
+ */
+ #define XMLCALL
+-#endif
+ #endif  /* not defined XMLCALL */
+ 
+ 
+diff -u --new-file expat-1.95.7.ori/expatcfg.h expat/expatcfg.h
+--- expat-1.95.7.ori/expatcfg.h	1970-01-01 01:00:00.000000000 +0100
++++ expat/expatcfg.h	2004-04-20 19:14:05.000000000 +0200
+@@ -0,0 +1,16 @@
++#include <stdlib.h>
++#include <string.h>
++
++#define XML_NS 1
++#define XML_DTD 1
++#define XML_CONTEXT_BYTES 1024
++
++#if defined(USE_LSB) || defined(LSB_FIRST)
++#define BYTEORDER 1234
++#else
++#define BYTEORDER 4321
++#endif
++
++#define HAVE_MEMMOVE
++
++
+diff -u --new-file expat-1.95.7.ori/internal.h expat/internal.h
+--- expat-1.95.7.ori/internal.h	2003-09-28 23:57:22.000000000 +0200
++++ expat/internal.h	2003-08-30 15:58:25.000000000 +0200
+@@ -20,54 +20,7 @@
+          and therefore subject to change.
+ */
+ 
+-#if defined(__GNUC__) && defined(__i386__)
+-/* We'll use this version by default only where we know it helps.
+-
+-   regparm() generates warnings on Solaris boxes.   See SF bug #692878.
+-
+-   Instability reported with egcs on a RedHat Linux 7.3.
+-   Let's comment out:
+-   #define FASTCALL __attribute__((stdcall, regparm(3)))
+-   and let's try this:
+-*/
+-#define FASTCALL __attribute__((regparm(3)))
+-#define PTRFASTCALL __attribute__((regparm(3)))
+-#endif
+-
+-/* Using __fastcall seems to have an unexpected negative effect under
+-   MS VC++, especially for function pointers, so we won't use it for
+-   now on that platform. It may be reconsidered for a future release
+-   if it can be made more effective.
+-   Likely reason: __fastcall on Windows is like stdcall, therefore
+-   the compiler cannot perform stack optimizations for call clusters.
+-*/
+-
+-/* Make sure all of these are defined if they aren't already. */
+-
+-#ifndef FASTCALL
+ #define FASTCALL
+-#endif
+-
+-#ifndef PTRCALL
+ #define PTRCALL
+-#endif
+-
+-#ifndef PTRFASTCALL
+ #define PTRFASTCALL
+-#endif
+-
+-#ifndef XML_MIN_SIZE
+-#if !defined(__cplusplus) && !defined(inline)
+-#ifdef __GNUC__
+-#define inline __inline
+-#endif /* __GNUC__ */
+-#endif
+-#endif /* XML_MIN_SIZE */
+ 
+-#ifdef __cplusplus
+-#define inline inline
+-#else
+-#ifndef inline
+-#define inline
+-#endif
+-#endif
+diff -u --new-file expat-1.95.7.ori/xmlparse.c expat/xmlparse.c
+--- expat-1.95.7.ori/xmlparse.c	2003-10-18 06:46:02.000000000 +0200
++++ expat/xmlparse.c	2004-04-13 16:02:16.000000000 +0200
+@@ -7,15 +7,7 @@
+ 
+ #define XML_BUILDING_EXPAT 1
+ 
+-#ifdef COMPILED_FROM_DSP
+-#include "winconfig.h"
+-#elif defined(MACOS_CLASSIC)
+-#include "macconfig.h"
+-#else
+-#ifdef HAVE_EXPAT_CONFIG_H
+-#include <expat_config.h>
+-#endif
+-#endif /* ndef COMPILED_FROM_DSP */
++#include "expatcfg.h"
+ 
+ #include "expat.h"
+ 
+diff -u --new-file expat-1.95.7.ori/xmlrole.c expat/xmlrole.c
+--- expat-1.95.7.ori/xmlrole.c	2003-10-16 06:51:11.000000000 +0200
++++ expat/xmlrole.c	2004-04-13 16:02:03.000000000 +0200
+@@ -2,15 +2,7 @@
+    See the file COPYING for copying permission.
+ */
+ 
+-#ifdef COMPILED_FROM_DSP
+-#include "winconfig.h"
+-#elif defined(MACOS_CLASSIC)
+-#include "macconfig.h"
+-#else
+-#ifdef HAVE_EXPAT_CONFIG_H
+-#include <expat_config.h>
+-#endif
+-#endif /* ndef COMPILED_FROM_DSP */
++#include "expatcfg.h"
+ 
+ #include "internal.h"
+ #include "xmlrole.h"
+diff -u --new-file expat-1.95.7.ori/xmltok.c expat/xmltok.c
+--- expat-1.95.7.ori/xmltok.c	2003-10-16 06:51:11.000000000 +0200
++++ expat/xmltok.c	2004-04-13 16:01:53.000000000 +0200
+@@ -2,15 +2,7 @@
+    See the file COPYING for copying permission.
+ */
+ 
+-#ifdef COMPILED_FROM_DSP
+-#include "winconfig.h"
+-#elif defined(MACOS_CLASSIC)
+-#include "macconfig.h"
+-#else
+-#ifdef HAVE_EXPAT_CONFIG_H
+-#include <expat_config.h>
+-#endif
+-#endif /* ndef COMPILED_FROM_DSP */
++#include "expatcfg.h"
+ 
+ #include "internal.h"
+ #include "xmltok.h"
