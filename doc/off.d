@@ -11,5 +11,5 @@ Description
 	flushed using the standard BIOS service 2F-4A10.
 
 Copyright
-	This file is Copyright (C) 2002 Andrea Mazzoleni, Randy Schnedler.
+	This file is Copyright (C) 2003 Andrea Mazzoleni, Randy Schnedler.
 

@@ -18,5 +18,5 @@ Description
 	the `device_sound' option.
 
 Copyright
-	This file is Copyright (C) 2002 Andrea Mazzoleni.
+	This file is Copyright (C) 2003 Andrea Mazzoleni.
 

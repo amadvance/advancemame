@@ -7,6 +7,8 @@ AdvanceMAME Version 0.71.0 2003/07
 		volume control.
 	) Fixed a possible bug on the SVGALIB Rage 128/Radeon drivers.
 		Also updated the SVGALIB patch in the contrib/ dir.
+	) The information on the supported drivers is now in the
+		device.txt file.
 
 AdvanceMAME Version 0.70.0 2003/06
 	) Added some patches for Linux 2.4.20 Frame Buffer for ATI Radeon

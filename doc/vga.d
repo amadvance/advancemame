@@ -142,5 +142,5 @@ Bugs
 	All the other options are ignored.
 
 Copyright
-	This file is Copyright (C) 2002 Andrea Mazzoleni.
+	This file is Copyright (C) 2003 Andrea Mazzoleni.
 

@@ -17,6 +17,6 @@ Description
 	`device_keyboard' option.
 
 Copyright
-	This file is Copyright (C) 2002 Andrea Mazzoleni, Filipe Estima,
+	This file is Copyright (C) 2003 Andrea Mazzoleni, Filipe Estima,
 	Randy Schnedler.
 

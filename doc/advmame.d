@@ -1,11 +1,8 @@
 Name
-	advmame, advmess, advpac - The AdvanceMAME Emulator
+	advmame, advmess - The AdvanceMAME/MESS Emulator
 
 Synopsis
 	:advmame GAME [-default] [-remove] [-log] [-listinfo] [-listxml]
-	:	[-record FILE] [-playback FILE] [-version]
-
-	:advpac GAME [-default] [-remove] [-log] [-listinfo] [-listxml]
 	:	[-record FILE] [-playback FILE] [-version]
 
 	:advmess MACHINE [images...] [-default] [-remove] [-log] [-listinfo]
@@ -360,11 +357,11 @@ Other Ports
 
 Configuration
 	In DOS and Windows the configuration options are read from the
-	file `advmame.rc', `advmess.rc' and `advpac.rc' in the current
+	file `advmame.rc' and `advmess.rc' in the current
 	directory.
 
 	In Linux and Mac OS X the configuration options are read from the
-	files `advmame.rc', `advmess.rc' and `advpac.rc' in the $root and
+	files `advmame.rc' and `advmess.rc' in the $root and
 	the $home directory.
 	The $root directory is `$DATA/advance/', where $DATA is the
 	data directory configured with the `configure' script.
@@ -997,9 +994,12 @@ Configuration
 			are mixed.
 		stereo - Use always stereo. The game mono channel
 			is duplicated.
-		surround - Use a fake surround effect. The right channel
-			plays part of the left channel as negate samples
-			and vice-versa.
+		surround - Use a fake surround effect. With stereo games
+			the right channel plays part of the left channel
+			as negate samples and vice-versa.
+			With mono games the left channel is the negation of
+			the right channel. This means that with surround enabled
+			the output is always stereo.
 
     sound_samplerate
 	Sets the audio sample rate.
@@ -1405,5 +1405,5 @@ Signals
 		SIGTERM - Abort restoring the output devices.
 
 Copyright
-	This file is Copyright (C) 2002 Andrea Mazzoleni, Filipe Estima.
+	This file is Copyright (C) 2003 Andrea Mazzoleni, Filipe Estima.
 

@@ -118,8 +118,10 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 		context->state.output_mode = context->config.mode;
 
 	low_buffer_time = context->config.latency_time;
+	/* allow always a big maximum latency. note that this is the upper */
+	/* limit latency, not the effective latency. */
 	if (low_buffer_time < 0.3)
-		low_buffer_time = 0.3; /* allow always a big maximum latency */
+		low_buffer_time = 0.3;
 
 	if (sound_init(sample_rate, context->state.output_mode != SOUND_MODE_MONO, low_buffer_time) != 0) {
 		return -1;

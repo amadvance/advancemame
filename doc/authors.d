@@ -19,7 +19,6 @@ Acknowledgments
 Libraries
 	MAME - http://www.mame.net
 	MESS - http://mess.emuverse.com
-	PacMAME - http://www.mameworld.net/pacmame
 	SVGALIB - http://www.svgalib.org
 	Allegro - http://www.allegro.org
 	SEAL - unknown

@@ -2,16 +2,15 @@ Name
 	advcfg - The AdvanceCFG Automatic Configurator
 
 Synopsis
-	:advcfg [-advmamec] [-advmessc] [-advpacc] [-advmenuc]
+	:advcfg [-advmamec] [-advmessc] [-advmenuc]
 	:	[-log] [-logsync] [-rc RCFILE] [-bit N]
 
 Description
 	The `advcfg' utility is the automatic video configuration
-	program for AdvanceMAME, AdvanceMESS, AdvancePAC and
-	AdvanceMENU.
+	program for AdvanceMAME, AdvanceMESS and AdvanceMENU.
 
 	This utility works differently if one of the -advmamec,
-	-advmessc, -advpacc and -advmenuc option is specified.
+	-advmessc and -advmenuc option is specified.
 	The main difference is the the name of the configuration
 	file used to store the video modes.
 
@@ -28,9 +27,9 @@ Options
 		buffered. This option must be used to get a complete
 		log file in presence of a machine crash.
 
-	-advmamec, -advmessc, -advpacc, -advmenuc
+	-advmamec, -advmessc, -advmenuc
 		Select the mode of operation for the programs `advmame',
-		`advmess', `advpac' and `advmenu'.
+		`advmess' and `advmenu'.
 		The default is for `advmame'.
 
 	-bit N
@@ -40,12 +39,12 @@ Options
 
 Configuration
 	Depending one the command line options used one of the `advmame.rc',
-	`advmess.rc', `advpac.rc' and `advmenu.rc' file is used to load and save
+	`advmess.rc' and `advmenu.rc' file is used to load and save
 	the video configuration.
 
 	Check the `device.txt' file for more details on the video drivers
 	and video options supported.
 
 Copyright
-	This file is Copyright (C) 2002 Andrea Mazzoleni.
+	This file is Copyright (C) 2003 Andrea Mazzoleni.
 

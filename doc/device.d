@@ -12,7 +12,7 @@ Video Drivers
 	* System drivers able to use only the available video modes.
 
     Generate drivers
-	This set of drivers is able to program the directly the video board
+	This set of drivers is able to program directly the video board
 	to always generate a perfect video mode with the correct size
 	and frequency.
 
@@ -140,6 +140,44 @@ Video Drivers
 	To use this driver you need to install the included SVGAWIN
 	driver. Please read the `svgawin.txt' file carefully.
 
+	This driver is experimental. At present it's only tested on Windows
+	2000 with a GeForce 2 board. It may not work will all the other boards.
+
+Sound Drivers
+  Available Drivers
+	The following is the list of all the sound drivers supported.
+
+    alsa - Linux ALSA sound
+	This driver works in Linux and it use the ALSA sound library.
+
+    oss - Linux OSS sound
+	This driver works in Linux and it use the OSS sound library.
+
+    seal - DOS SEAL sound
+	This driver works in DOS and it use the SEAL sound library with
+	some specific changes for MAME.
+
+    allegro - DOS Allegro sound
+	This driver works in DOS and it use the Allegro library.
+
+    vsync - DOS VSYNC sound
+	This driver works in DOS and it use the VSync sound drivers
+	from the VSyncMAME emulator.
+
+	More info is in the VSyncMAME page :
+
+		http://vsyncmame.mameworld.net
+
+    sdl - SDL sound
+	This driver works in Linux, Windows and Mac OS X and it uses
+	the SDL library.
+
+	It isn't able to use the hardware volume control of the sound card.
+	The volume changes are simulated reducing the sample values.
+
+	It isn't able to precisely control the amount of bufferized samples.
+	This means that it may add a small latency on the sound output.
+
 Video Drivers Configuration
 	The following are the video configuration options available for
 	all the programs.
@@ -171,6 +209,10 @@ Video Drivers Configuration
 			variable is defined).
 		slang - Text video modes with the sLang library.
 		sdl - SDL graphics and fake text modes.
+
+	If you use the `svgalib' driver remember to configure the
+	correct monitor clock in the SVGALIB configuration file generally
+	placed in /etc/vga/libvga.config.
 
 	Options for Mac OS X:
 		sdl - SDL graphics and fake text modes.
@@ -452,7 +494,7 @@ Video Drivers Configuration
 		yes - Enable the fast video mode change.
 		no - Disable the fast video mode change (default).
 
-  VBELine Configuration Options
+  vbeline Configuration Options
 	The following are the common video configuration options
 	available only for the `vbeline' DOS video driver.
 
@@ -478,7 +520,7 @@ Video Drivers Configuration
 		640 - Use always the 640x480 mode.
 		800 - Use always the 800x600 mode.
 
-  SVGALine Configuration Options
+  svgaline Configuration Options
 	The following are the common video configuration options
 	available only for the `svgaline' DOS video driver.
 
@@ -494,7 +536,7 @@ Video Drivers Configuration
 		yes - Divide the clock by 2.
 		no - Don't divide the clock (default).
  
-  SVGAWin Configuration Options
+  svgawin Configuration Options
 	The following are the common video configuration options
 	available only for the `svgawin' Windows video driver.
 
@@ -520,41 +562,6 @@ Video Drivers Configuration
 	Options:
 		yes - Divide the clock by 2.
 		no - Don't divide the clock (default).
-
-Sound Drivers
-  Available Drivers
-	The following is the list of all the sound drivers supported.
-
-    alsa - Linux ALSA sound
-	This driver works in Linux and it use the ALSA sound library.
-
-    oss - Linux OSS sound
-	This driver works in Linux and it use the OSS sound library.
-
-    seal - DOS SEAL sound
-	This driver works in DOS and it use the SEAL sound library with
-	some specific changes for MAME.
-
-    allegro - DOS Allegro sound
-	This driver works in DOS and it use the Allegro library.
-
-    vsync - DOS VSYNC sound
-	This driver works in DOS and it use the VSync sound drivers
-	from the VSyncMAME emulator.
-
-	More info is in the VSyncMAME page :
-
-		http://vsyncmame.mameworld.net
-
-    sdl - SDL sound
-	This driver works in Linux, Windows and Mac OS X and it use
-	the SDL library.
-
-	It isn't able to use the hardware volume control of the sound card.
-	The volume changes are simulated reducing the sample value.
-
-	It isn't able precisely control the amount of bufferized samples.
-	This means that it may add a small latency on the sound output.
 
 Sound Drivers Configuration
     device_sound
@@ -645,7 +652,8 @@ Input Drivers Configuration
 		sdl - SDL automatic detection.
 
 	If you use the `svgalib' driver remember to configure the
-	correct joystick in the SVGALIB configuration file.
+	correct joystick in the SVGALIB configuration file generally
+	placed in /etc/vga/libvga.config.
 
 	Options for Mac OS X:
 		sdl - SDL automatic detection.
@@ -676,13 +684,16 @@ Input Drivers Configuration
 		allegro/db9lpt1 - DB9 LPT1.
 		allegro/db9lpt2 - DB9 LPT2.
 		allegro/db9lpt3 - DB9 LPT3.
-		allegro/tgxlpt1 - TGX-LPT1.
+		allegro/tgxlpt1 - TGX LPT1.
 		allegro/tgxlpt2 - TGX LPT2.
 		allegro/tgxlpt3 - TGX LPT3.
 		allegro/segaisa - IF-SEGA/ISA.
 		allegro/segapci - IF-SEGA2/PCI.
-		allegro/segapcifast - IF-SEGA2/PCI (normal).
+		allegro/segapcifast - IF-SEGA2/PCI.
 		allegro/wingwarrior - Wingman Warrior.
+
+	Details on how to build the LPT hardware interfaces for SNES, PSX,
+	N64 and other pads are in the Allegro sources.
 
 	Options for Windows:
 		sdl - SDL automatic detection.
@@ -701,7 +712,8 @@ Input Drivers Configuration
 		sdl - SDL automatic detection.
 
 	If you use the `svgalib' driver remember to configure the
-	correct mouse in the SVGALIB configuration file.
+	correct mouse in the SVGALIB configuration file generally
+	placed in /etc/vga/libvga.config.
 
 	Options for Mac OS X:
 		sdl - SDL automatic detection.

@@ -50,8 +50,8 @@ Tech
 	* Map and umap physical memory.
 	* Call specific IOCTL_VIDEO_* ioctl on the Windows VIDEO driver.
 
-	It doesn't contains any specific video board code. It only exports these basic 
-	services.
+	It doesn't contains any specific video board code. It only exports
+	these basic services.
 
 	The services interface is detailed in the advance/svgalib/svgawin/driver/svgacode.h
 	file.

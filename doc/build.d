@@ -1,21 +1,21 @@
 Name
 	build - How To Build
 
-	This file contains the instructions to build AdvanceMAME, AdvanceMESS,
-	AdvancePAC and AdvanceMENU from the source archives.
+	This file contains the instructions to build AdvanceMAME, AdvanceMESS
+	and AdvanceMENU from the source archives.
 
 Preparing The Sources
 	To compile AdvanceMENU you don't need to prepare the source, they are
 	already complete.
 
-	To build one of the Advance emulators (MAME, MESS, PacMAME) you
+	To build one of the Advance emulators (MAME, MESS) you
 	need first to download and unzip the emulator source with the same
 	version of the Advance source. Please note that you must use the
 	original emulator source, you cannot use the source of another MAME
 	clone like xmame.
 
-	The source of the MAME emulator must be unzipped in the `src/' directory,
-	the MESS source in `srcmess/' and the PacMAME source in `srcpac/'.
+	The source of the MAME emulator must be unzipped in the `src/' directory
+	and the MESS source in `srcmess/'.
 	For MESS you need also the additional `mess/' source directory.
 
 	In Linux remember to unzip the original .zip archives with the
@@ -31,9 +31,9 @@ Preparing The Sources
 		:./src/mame.mak
 
 	After unpacked, you need to patch the original MAME source with the
-	patch `advance/advmame.dif', the MESS source with `advance/advmess.dif' and
-	the PacMAME source with `advance/advpac.dif'. If the patch isn't applied
-	correctly, probably you are using the wrong version of the emulator source.
+	patch `advance/advmame.dif' and the MESS source with `advance/advmess.dif'.
+	If the patch isn't applied correctly, probably you are using the wrong
+	version of the emulator source.
 
 	For example the command for patching the source for AdvanceMAME in DOS is :
 

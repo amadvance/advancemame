@@ -373,6 +373,7 @@ pacmame:
 
 wholemame:
 	$(MAKE) CONF=no dist
+	$(MAKE) CONF=no CONF_WHOLESRC=yes dist
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix distbin
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=dos distbin

@@ -60,7 +60,7 @@ Options
 
 Emulators
 	The program supports many type of emulators. The emulators
-	AdvanceMAME, AdvancePAC, AdvanceMESS, MAME, Xmame, DMAME,
+	AdvanceMAME, AdvanceMESS, MAME, Xmame, DMAME,
 	DMESS and DRAINE are directly supported  and the only thing
 	you should do is to run the AdvanceMENU program in the same
 	directory of the emulator.
@@ -124,11 +124,6 @@ Emulators
 
 	The directories specified in `dir_snap', `dir_cfg' are used to
 	detect the list of available snapshots and .cfg files.
-
-  advpac (The AdvancePAC emulator)
-	Exactly like the `advmame' emulator type with the exception
-	of the use of the `advpac.rc' configuration file instead of
-	`advmame.rc'.
 
   advmess (The AdvanceMESS emulator)
 	For the `advmess' emulator the rom information is gathered
@@ -754,8 +749,8 @@ Configuration
 
 	Note that this directory must be used only for your music.
 	The emulated game recordings, played when the cursor is moved on
-	the game, are stored in the snap directory defined in your
-	`advmame/mess/pac.rc' or with the `emulator_altss' option.
+	the game, are stored in the snap directory defined in the emulator
+	configuration file or with the `emulator_altss' option.
 
 	:sound_background_loop_dir "DIR"
 
@@ -1107,5 +1102,5 @@ Signals
 		SIGTERM - Exit restoring only the video
 
 Copyright
-	This file is Copyright (C) 2002 Andrea Mazzoleni, Randy Schnedler.
+	This file is Copyright (C) 2003 Andrea Mazzoleni, Randy Schnedler.
 

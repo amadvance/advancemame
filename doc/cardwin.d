@@ -22,8 +22,8 @@ Name
 SVGAWIN
 	The `svgawin' driver is a subset of the Linux SVGALIB library.
 
-	THE USE OF THIS DRIVER IS EXPERIMENTAL, BE PREPARED TO REBOOT YOUR PC IF YOU 
-	USE IT. AT PRESENT IT'S ONLY TESTED ON WINDOWS 2000 WITH A GEFORCE 2 BOARD.
+	This driver is experimental. At present it's only tested on Windows
+	2000 with a GeForce 2 board. It may not work will all the other boards.
 
   ATI Technologies (1002)
 	+FireGL Mobility [4c58] 
