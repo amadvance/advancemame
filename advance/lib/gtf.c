@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static adv_error gtf_find_nomargin(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_gtf* gtf, unsigned capability, unsigned adjust) {
+static error gtf_find_nomargin(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_gtf* gtf, unsigned capability, unsigned adjust) {
 	unsigned vtotal;
 	double factor;
 
@@ -100,7 +100,7 @@ static adv_error gtf_find_nomargin(video_crtc* crtc, unsigned hsize, unsigned vs
 	return 0;
 }
 
-adv_error gtf_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_gtf* gtf, unsigned capability, unsigned adjust) {
+error gtf_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_gtf* gtf, unsigned capability, unsigned adjust) {
 	unsigned vmargin = crtc_step( vsize * gtf->margin_frac, CRTC_VSTEP );
 	unsigned hmargin = crtc_step( hsize * gtf->margin_frac, CRTC_HSTEP );
 

@@ -20,7 +20,6 @@
 
 #include "play.h"
 #include "common.h"
-#include "advstd.h"
 #include "mixer.h"
 #include "os.h"
 

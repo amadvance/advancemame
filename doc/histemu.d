@@ -1,12 +1,13 @@
 Name
 	advmame - History For Advance Emulators
-  
+
 AdvanceMAME Version 0.61.4 2002/09 (not yet released)
 	) Merged the sdl and native system of the Linux target.
 		You can now mix the SDL input/output drivers with the
 		native drivers.
 	) Better ./configure script. It detects and automatically 
 		enables all the available libraries.
+	) The configuration file now recognizes the SIZEXxSIZEYxFREQ section.
 
 AdvanceMAME Version 0.61.3 2002/09
 	) Fixed the window title and the icon in the sdl system.

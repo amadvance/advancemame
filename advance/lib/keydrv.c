@@ -30,6 +30,7 @@
 
 #include "keydrv.h"
 #include "log.h"
+#include "error.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -42,7 +43,7 @@ void keyb_default(void) {
 	strcpy(keyb_state.name, "auto");
 }
 
-void keyb_reg(struct conf_context* context, adv_bool auto_detect) {
+void keyb_reg(struct conf_context* context, boolean auto_detect) {
 	conf_string_register_default(context, "device_keyboard", auto_detect ? "auto" : "none");
 }
 
@@ -57,7 +58,7 @@ void keyb_reg_driver(struct conf_context* context, keyb_driver* driver) {
 	++keyb_state.driver_mac;
 }
 
-adv_error keyb_load(struct conf_context* context) {
+error keyb_load(struct conf_context* context) {
 	unsigned i;
 	int at_least_one;
 
@@ -90,7 +91,7 @@ adv_error keyb_load(struct conf_context* context) {
 	return 0;
 }
 
-adv_error keyb_init(adv_bool disable_special) {
+error keyb_init(boolean disable_special) {
 	unsigned i;
 
 	assert(keyb_state.driver_current == 0);
@@ -102,7 +103,7 @@ adv_error keyb_init(adv_bool disable_special) {
 	}
 
 	/* store the error prefix */
-	error_description_nolog_set("Unable to inizialize a keyboard driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize a keyboard driver. The following are the errors:\n");
 
 	for(i=0;i<keyb_state.driver_mac;++i) {
 		const device* dev;

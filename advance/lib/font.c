@@ -20,6 +20,7 @@
 
 #include "font.h"
 #include "video.h"
+#include "endianrw.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,14 +29,31 @@
 
 static struct bitmap null_char = { 0,0,0,0,0,0 };
 
+/**
+ * Get the Y size of the font.
+ * The height of the 'A' letter is used.
+ */
 unsigned bitmapfont_size_y(struct bitmapfont* font) {
-	return font->data['A']->size_y;
+	if (font->data['A'])
+		return font->data['A']->size_y;
+	else
+		return 0;
 }
 
+/**
+ * Get the X size of the font.
+ * The width of the 'A' letter is used.
+ */
 unsigned bitmapfont_size_x(struct bitmapfont* font) {
-	return font->data['A']->size_x;
+	if (font->data['A'])
+		return font->data['A']->size_x;
+	else
+		return 0;
 }
 
+/**
+ * Free a font.
+ */
 void bitmapfont_free(struct bitmapfont* bitmapfont) {
 	if (bitmapfont) {
 		int i;
@@ -417,6 +435,12 @@ out:
 	return 0;
 }
 
+/**
+ * Inport a RAW font from a memory area.
+ * \param data Font data.
+ * \param data_size Size of the font data.
+ * \return Font allocated.
+ */
 struct bitmapfont* bitmapfont_inport_raw(unsigned char* data, unsigned data_size) {
 	unsigned height;
 	unsigned width;
@@ -452,16 +476,8 @@ out:
 
 /****************************************************************************/
 /* GRX */
-/* GRX font */
-#define GRX_FONT_MAGIC    0x19590214L
 
-static unsigned le_uint32_read(unsigned char* data) {
-	return ((unsigned)data[0]) | ((unsigned)data[1]) << 8 | ((unsigned)data[2]) << 16 | ((unsigned)data[3]) << 24;
-}
-
-static unsigned le_uint16_read(unsigned char* data) {
-	return ((unsigned)data[0]) | ((unsigned)data[1]) << 8;
-}
+#define GRX_FONT_MAGIC 0x19590214L
 
 static struct bitmapfont* load_bitmapfont_grx(const char* file) {
 	unsigned height;
@@ -547,6 +563,12 @@ out_font:
 out:
 	return 0;
 }
+
+/**
+ * Inport a GRX font from a memory area.
+ * \param data Font data.
+ * \return Font allocated.
+ */
 struct bitmapfont* bitmapfont_inport_grx(unsigned char* data) {
 	unsigned height;
 	unsigned width;
@@ -607,8 +629,15 @@ out:
 }
 
 /****************************************************************************/
-/* LOAD */
+/* Load */
 
+/**
+ * Load a font from a file.
+ * The following formats are supported:
+ *  - GRX
+ *  - PSF
+ *  - RAW
+ */
 struct bitmapfont* bitmapfont_load(const char* file) {
 	struct bitmapfont* load_bitmapfont;
 
@@ -675,6 +704,11 @@ int bitmapfont_set(struct bitmapfont* font) {
 }
 #endif
 
+/**
+ * Change the orientation of a font.
+ * \param font Font to change.
+ * \param orientation_mask Orientation operation to apply.
+ */
 void bitmapfont_orientation(struct bitmapfont* font, unsigned orientation_mask) {
 	if (orientation_mask) {
 		unsigned i;

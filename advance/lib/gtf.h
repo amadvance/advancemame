@@ -28,6 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * CRTC generation with the GTF.
+ */
+
+/** \addtogroup Generate */
+/*@{*/
+
 #ifndef __GTF_H
 #define __GTF_H
 
@@ -51,12 +58,12 @@ typedef struct video_gtf_struct {
 #define GTF_ADJUST_EXACT CRTC_ADJUST_EXACT
 #define GTF_ADJUST_VCLOCK CRTC_ADJUST_VCLOCK
 #define GTF_ADJUST_VTOTAL CRTC_ADJUST_VTOTAL
-adv_error gtf_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_gtf* gtf, unsigned capability, unsigned adjust);
+error gtf_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_gtf* gtf, unsigned capability, unsigned adjust);
 
 void gtf_default_vga(video_gtf* gtf);
 
-adv_error gtf_parse(video_gtf* gtf, const char* g);
-adv_error gtf_load(struct conf_context* context, video_gtf* gtf);
+error gtf_parse(video_gtf* gtf, const char* g);
+error gtf_load(struct conf_context* context, video_gtf* gtf);
 void gtf_save(struct conf_context* context, const video_gtf* gtf);
 void gtf_clear(struct conf_context* context);
 void gtf_register(struct conf_context* context);
@@ -66,3 +73,5 @@ void gtf_register(struct conf_context* context);
 #endif
 
 #endif
+
+/*@}*/

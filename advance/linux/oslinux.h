@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Internal interface for the "linux" host.
+ */
+
 #ifndef __OSLINUX_H
 #define __OSLINUX_H
 

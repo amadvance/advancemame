@@ -370,7 +370,7 @@ void os_led_set(unsigned mask) {
 /***************************************************************************/
 /* Signal */
 
-int os_is_term(void) {
+int os_is_quit(void) {
 	return 0;
 }
 

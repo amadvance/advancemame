@@ -8,6 +8,7 @@ VCFLAGS += \
 VOBJS += \
 	$(VOBJ)/lib/log.o \
 	$(VOBJ)/lib/video.o \
+	$(VOBJ)/lib/rgb.o \
 	$(VOBJ)/lib/conf.o \
 	$(VOBJ)/lib/incstr.o \
 	$(VOBJ)/lib/videoio.o \

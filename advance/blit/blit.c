@@ -30,6 +30,7 @@
 
 #include "blit.h"
 #include "log.h"
+#include "error.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -143,6 +144,31 @@ static __inline__ void internal_end(void)
 /***************************************************************************/
 /* video stage */
 
+#define STAGE_SIZE(stage,_type,_sdx,_sdp,_sbpp,_ddx,_dbpp) \
+	stage->type = (_type); \
+	stage->sdx = (_sdx); \
+	stage->sdp = (_sdp); \
+	stage->sbpp = (_sbpp); \
+	video_slice_init(&stage->slice,(_sdx),(_ddx)); \
+	stage->palette = 0; \
+	stage->buffer_size = (_dbpp)*(_ddx); \
+	stage->buffer_extra_size = 0; \
+	stage->plane_num = 0; \
+	stage->plane_put_plain = 0; \
+	stage->plane_put = 0; \
+	stage->put_plain = 0; \
+	stage->put = 0
+
+#define STAGE_PUT(stage,_put_plain,_put) \
+	stage->put_plain = (_put_plain); \
+	stage->put = (stage->sbpp == stage->sdp) ? stage->put_plain : (_put)
+
+#define STAGE_EXTRA(stage) \
+	stage->buffer_extra_size = stage->buffer_size
+
+#define STAGE_PALETTE(stage,_palette) \
+	stage->palette = _palette
+
 #include "vstretch.h"
 #include "vcopy.h"
 #include "vrot.h"
@@ -156,13 +182,6 @@ static __inline__ void internal_end(void)
 /***************************************************************************/
 /* slice */
 
-/**
- * Initialize the run-length slice algoritm.
- * This is a modification of the Bresenhams run-length slice algoritm
- * adapted to work with bitmap resize.
- * Refere to Dr. Dobb's Journal Nov 1992 "The good, the bad, and the run-sliced"
- * by Michael Abrash.
- */
 void video_slice_init(struct video_slice* slice, unsigned sd, unsigned dd) {
 	if (sd < dd) {
 		/* expansion */
@@ -267,11 +286,11 @@ static void video_buffer_done(void) {
 /***************************************************************************/
 /* init/done */
 
-adv_error video_blit_init(void) {
+error video_blit_init(void) {
 	unsigned i;
 
 	if (blit_set_mmx() != 0) {
-		error_description_set("This executable requires an MMX processor.\n");
+		error_set("This executable requires an MMX processor.\n");
 		return -1;
 	}
 
@@ -1670,7 +1689,7 @@ static __inline__ void video_pipeline_make(struct video_pipeline_struct* pipelin
 	}
 }
 
-int video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, video_rgb_def src_rgb_def, unsigned combine) {
+error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, video_rgb_def src_rgb_def, unsigned combine) {
 	video_rgb_def dst_rgb_def = video_current_rgb_def_get();
 	unsigned bytes_per_pixel = video_bytes_per_pixel();
 

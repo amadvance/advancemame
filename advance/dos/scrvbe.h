@@ -207,8 +207,8 @@ typedef struct vbe_CRTCInfoBlock_struct {
 
 /* VBE Internal Mode Information */
 typedef struct vbe_internal_struct {
-	adv_bool active; /* !=0 if vbe present */
-	adv_bool mode_active; /* !=0 if mode set */
+	boolean active; /* !=0 if vbe present */
+	boolean mode_active; /* !=0 if mode set */
 	unsigned mode; /* Actual mode */
 
 	/* Scroll position offset in bytes */
@@ -223,11 +223,11 @@ typedef struct vbe_internal_struct {
 	unsigned bytes_per_pixel;
 
 	/* Linear frame buffer */
-	adv_bool linear_active; /* !=0 if linear frame buffer active */
+	boolean linear_active; /* !=0 if linear frame buffer active */
 	unsigned char* linear_pointer; /* ptr at the linear frame buffer */
 
 	/* Protect Mode Interface VBE 2.0 */
-	adv_bool pm_active; /* !=0 if protect mode interface active */
+	boolean pm_active; /* !=0 if protect mode interface active */
 	vbe_PMInterface* pm_info;
 
 	/* PM MMIO selector */
@@ -276,15 +276,15 @@ extern vbe_internal vbe_state;
 /* Return the offset for accessing in writing the video memory */
 extern unsigned char* (*vbe_write_line)(unsigned y);
 
-static __inline__ adv_bool vbe_is_active(void) {
+static __inline__ boolean vbe_is_active(void) {
 	return vbe_state.active != 0;
 }
 
-static __inline__ adv_bool vbe_mode_is_active(void) {
+static __inline__ boolean vbe_mode_is_active(void) {
 	return vbe_state.mode_active != 0;
 }
 
-static __inline__ adv_bool vbe_linear_is_active(void) {
+static __inline__ boolean vbe_linear_is_active(void) {
 	return vbe_state.linear_active != 0;
 }
 
@@ -306,7 +306,7 @@ static __inline__ video_rgb_def vbe_rgb_def(void) {
 	return video_rgb_def_make_from_maskshift(vbe_state.rgb_red_mask,vbe_state.rgb_red_shift,vbe_state.rgb_green_mask,vbe_state.rgb_green_shift,vbe_state.rgb_blue_mask,vbe_state.rgb_blue_shift);
 }
 
-static __inline__ adv_bool vbe_pm_is_active(void) {
+static __inline__ boolean vbe_pm_is_active(void) {
 	return vbe_state.pm_active != 0;
 }
 
@@ -320,25 +320,25 @@ static __inline__ unsigned vbe_font_size_y(void) {
 	return vbe_state.mode_info.YCharSize;
 }
 
-adv_error vbe_init(void);
+error vbe_init(void);
 void vbe_done(void);
-adv_error vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode);
-adv_error vga_as_vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode);
-adv_error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc);
-adv_error vbe_mode_get(unsigned* mode);
-void vbe_mode_done(adv_bool restore);
+error vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode);
+error vga_as_vbe_mode_info_get(vbe_ModeInfoBlock* info, unsigned mode);
+error vbe_mode_set(unsigned mode, const vbe_CRTCInfoBlock* crtc);
+error vbe_mode_get(unsigned* mode);
+void vbe_mode_done(boolean restore);
 
-adv_error vbe_scanline_set(unsigned byte_length);
-adv_error vbe_scanline_pixel_set(unsigned pixel_length);
-adv_error vbe_scanline_pixel_request(unsigned pixel_length);
+error vbe_scanline_set(unsigned byte_length);
+error vbe_scanline_pixel_set(unsigned pixel_length);
+error vbe_scanline_pixel_request(unsigned pixel_length);
 
-adv_error vbe_scroll(unsigned offset, adv_bool waitvsync);
-adv_error vbe_request_scroll(unsigned offset);
-adv_error vbe_poll_scroll(unsigned* done);
+error vbe_scroll(unsigned offset, boolean waitvsync);
+error vbe_request_scroll(unsigned offset);
+error vbe_poll_scroll(unsigned* done);
 
-adv_error vbe_pixelclock_get(unsigned* pixelclock, unsigned mode);
-adv_error vbe_pixelclock_getnext(unsigned* pixelclock, unsigned mode);
-adv_error vbe_pixelclock_getpred(unsigned* pixelclock, unsigned mode);
+error vbe_pixelclock_get(unsigned* pixelclock, unsigned mode);
+error vbe_pixelclock_getnext(unsigned* pixelclock, unsigned mode);
+error vbe_pixelclock_getpred(unsigned* pixelclock, unsigned mode);
 
 void vbe_wait_vsync(void);
 
@@ -348,12 +348,12 @@ typedef struct vbe_mode_iterator_struct {
 
 void vbe_mode_iterator_begin(vbe_mode_iterator* vmi);
 unsigned vbe_mode_iterator_get(vbe_mode_iterator* vmi);
-adv_bool vbe_mode_iterator_end(vbe_mode_iterator* vmi);
+boolean vbe_mode_iterator_end(vbe_mode_iterator* vmi);
 void vbe_mode_iterator_next(vbe_mode_iterator* vmi);
 
-adv_error vbe_palette_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
+error vbe_palette_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync);
 
-adv_error vbe_restore_state(unsigned size, void* ptr);
-adv_error vbe_save_state(unsigned* psize, void** pptr);
+error vbe_restore_state(unsigned size, void* ptr);
+error vbe_save_state(unsigned* psize, void** pptr);
 
 #endif

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Mouse driver "none".
+ */
+
 #ifndef __MNONE_H
 #define __MNONE_H
 
@@ -37,7 +41,16 @@
 extern "C" {
 #endif
 
+/** \addtogroup Mouse */
+/*@{*/
+
+/**
+ * Mouse driver "none".
+ * This driver implement a null mouse. No event is generated.
+ */
 extern mouseb_driver mouseb_none_driver;
+
+/*@}*/
 
 #ifdef __cplusplus
 }

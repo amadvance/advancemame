@@ -59,7 +59,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error sound_vsync_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time) {
+error sound_vsync_init(int device_id, unsigned* rate, boolean stereo_flag, double buffer_time) {
 	log_std(("sound:vsync: sound_vsync_init(id:%d,rate:%d,stereo:%d,buffer_time:%g)\n",device_id,*rate,stereo_flag,buffer_time));
 
 	if (stereo_flag) {
@@ -104,7 +104,7 @@ unsigned sound_vsync_buffered(void) {
 	return w_get_latency();
 }
 
-adv_error sound_vsync_start(double silence_time) {
+error sound_vsync_start(double silence_time) {
 	unsigned sample_count;
 
 	log_std(("sound:vsync: sound_vsync_start(silence_time:%g)\n",silence_time));
@@ -156,7 +156,7 @@ unsigned sound_vsync_flags(void) {
 	return 0;
 }
 
-adv_error sound_vsync_load(struct conf_context* context) {
+error sound_vsync_load(struct conf_context* context) {
 	return 0;
 }
 

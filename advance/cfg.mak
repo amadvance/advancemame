@@ -15,6 +15,7 @@ CFGOBJDIRS += \
 CFGOBJS += \
 	$(CFGOBJ)/lib/log.o \
 	$(CFGOBJ)/lib/video.o \
+	$(CFGOBJ)/lib/rgb.o \
 	$(CFGOBJ)/lib/conf.o \
 	$(CFGOBJ)/lib/incstr.o \
 	$(CFGOBJ)/lib/videoio.o \

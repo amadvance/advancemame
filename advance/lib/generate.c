@@ -132,7 +132,7 @@ void generate_default_lcd(video_generate* generate) {
 	generate->vback = 0;
 }
 
-adv_error generate_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate* generate, unsigned capability, unsigned adjust) {
+error generate_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate* generate, unsigned capability, unsigned adjust) {
 	video_generate norm = *generate;
 	unsigned vtotal;
 	double factor;
@@ -189,7 +189,7 @@ adv_error generate_find(video_crtc* crtc, unsigned hsize, unsigned vsize, double
 	return 0;
 }
 
-adv_error generate_find_interpolate(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust) {
+error generate_find_interpolate(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust) {
 	video_generate norm = interpolate->map[0].gen;
 	unsigned vtotal;
 	double factor;
@@ -250,8 +250,8 @@ adv_error generate_find_interpolate(video_crtc* crtc, unsigned hsize, unsigned v
 	return 0;
 }
 
-adv_error generate_find_interpolate_double(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust) {
-	adv_error err;
+error generate_find_interpolate_double(video_crtc* crtc, unsigned hsize, unsigned vsize, double vclock, const video_monitor* monitor, const video_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust) {
+	error err;
 
 	err = generate_find_interpolate(crtc, hsize, vsize, vclock, monitor, interpolate, capability, adjust);
 
@@ -370,6 +370,6 @@ void generate_interpolate_reset(video_generate_interpolate_set* interpolate) {
 	interpolate->mac = 0;
 }
 
-adv_bool generate_interpolate_is_empty(const video_generate_interpolate_set* interpolate) {
+boolean generate_interpolate_is_empty(const video_generate_interpolate_set* interpolate) {
 	return interpolate->mac == 0;
 }

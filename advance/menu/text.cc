@@ -40,6 +40,7 @@
 #include "mouseall.h"
 #include "joyall.h"
 #include "log.h"
+#include "error.h"
 
 #include <list>
 #include <iostream>
@@ -405,7 +406,7 @@ bool mode_graphics_less(const video_mode* A, const video_mode* B) {
 
 static bool text_mode_find(bool& mode_found, unsigned depth, video_crtc_container& modelines) {
 	video_crtc_container_iterator i;
-	adv_error err;
+	error err;
 
 	// search the default name
 	for(video_crtc_container_iterator_begin(&i,&modelines);!video_crtc_container_iterator_is_end(&i);video_crtc_container_iterator_next(&i)) {
@@ -531,7 +532,7 @@ void text_init(struct conf_context* config_context) {
 }
 
 bool text_load(struct conf_context* config_context) {
-	adv_error err;
+	error err;
 
 	if (!text_joystick_load(config_context))
 		return false;
@@ -542,7 +543,7 @@ bool text_load(struct conf_context* config_context) {
 
 	err = generate_interpolate_load(config_context, &text_interpolate);
 	if (err<0) {
-		target_err("%s\n", error_description_get());
+		target_err("%s\n", error_get());
 		return false;
 	}
 	if (err==0) {
@@ -554,7 +555,7 @@ bool text_load(struct conf_context* config_context) {
 
 	err = monitor_load(config_context,&text_monitor);
 	if (err<0) {
-		target_err("%s\n", error_description_get());
+		target_err("%s\n", error_get());
 		return false;
 	}
 	if (err==0) {
@@ -567,13 +568,13 @@ bool text_load(struct conf_context* config_context) {
 
 	err = video_load(config_context, "");
 	if (err != 0) {
-		target_err("%s\n", error_description_get());
+		target_err("%s\n", error_get());
 		return false;
 	}
 
 	err = video_crtc_container_load(config_context,&text_modelines);
 	if (err!=0) {
-		target_err("%s\n", error_description_get());
+		target_err("%s\n", error_get());
 		return false;
 	}
 
@@ -1444,7 +1445,7 @@ static unsigned text_clip_aspectx;
 static unsigned text_clip_aspecty;
 os_clock_t text_clip_wait;
 unsigned text_clip_count;
-void* text_mng_context;
+struct mng_context* text_mng_context;
 
 void text_clip_clear() {
 	if (text_clip_f) {
@@ -1700,14 +1701,14 @@ static struct bitmap* backdrop_load(const resource& res, video_color* rgb, unsig
 	}
 
 	if (ext == ".mng") {
-		void* mng_context;
+		struct mng_context* mng;
 
 		FZ* f = res.open();
 		if (!f)
 			return 0;
 
-		mng_context = mng_init(f);
-		if (mng_context == 0) {
+		mng = mng_init(f);
+		if (mng == 0) {
 			fzclose(f);
 			return 0;
 		}
@@ -1723,9 +1724,9 @@ static struct bitmap* backdrop_load(const resource& res, video_color* rgb, unsig
 		unsigned pal_size;
 		unsigned tick;
 
-		int r = mng_read(mng_context, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
+		int r = mng_read(mng, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
 		if (r != 0) {
-			mng_done(mng_context);
+			mng_done(mng);
 			fzclose(f);
 			return 0;
 		}
@@ -1734,7 +1735,7 @@ static struct bitmap* backdrop_load(const resource& res, video_color* rgb, unsig
 		if (!bitmap) {
 			free(dat_ptr);
 			free(pal_ptr);
-			mng_done(mng_context);
+			mng_done(mng);
 			fzclose(f);
 			return 0;
 		}
@@ -1751,7 +1752,7 @@ static struct bitmap* backdrop_load(const resource& res, video_color* rgb, unsig
 		}
 
 		bitmap_free(bitmap);
-		mng_done(mng_context);
+		mng_done(mng);
 		fzclose(f);
 
 		return dup_bitmap;
@@ -2110,40 +2111,40 @@ struct key_cvt {
 };
 
 // Special operator
-#define OP_NONE OS_KEY_MAX
-#define OP_OR (OS_KEY_MAX + 1)
-#define OP_NOT (OS_KEY_MAX + 2)
+#define OP_NONE KEYB_MAX
+#define OP_OR (KEYB_MAX + 1)
+#define OP_NOT (KEYB_MAX + 2)
 
 static struct key_cvt KEYTAB[] = {
-{"up", TEXT_KEY_UP, { OS_KEY_UP, OS_KEY_MAX } },
-{"down", TEXT_KEY_DOWN, { OS_KEY_DOWN, OS_KEY_MAX } },
-{"left", TEXT_KEY_LEFT, { OS_KEY_LEFT, OS_KEY_MAX } },
-{"right", TEXT_KEY_RIGHT, { OS_KEY_RIGHT, OS_KEY_MAX } },
-{"enter", TEXT_KEY_ENTER, { OS_KEY_ENTER, OS_KEY_MAX } },
-{"shutdown", TEXT_KEY_OFF, { OS_KEY_LCONTROL, OS_KEY_ESC, OS_KEY_MAX } },
-{"esc", TEXT_KEY_ESC, { OS_KEY_ESC, OS_KEY_MAX } },
-{"space", TEXT_KEY_SPACE, { OS_KEY_SPACE, OS_KEY_MAX } },
-{"mode", TEXT_KEY_MODE, { OS_KEY_TAB, OS_KEY_MAX } },
-{"home", TEXT_KEY_HOME, { OS_KEY_HOME, OS_KEY_MAX } },
-{"end", TEXT_KEY_END, { OS_KEY_END, OS_KEY_MAX } },
-{"pgup", TEXT_KEY_PGUP, { OS_KEY_PGUP, OS_KEY_MAX } },
-{"pgdn", TEXT_KEY_PGDN, { OS_KEY_PGDN, OS_KEY_MAX } },
-{"help", TEXT_KEY_HELP, { OS_KEY_F1, OS_KEY_MAX } },
-{"group", TEXT_KEY_GROUP, { OS_KEY_F2, OS_KEY_MAX } },
-{"type", TEXT_KEY_TYPE, { OS_KEY_F3, OS_KEY_MAX } },
-{"exclude", TEXT_KEY_EXCLUDE, { OS_KEY_F4, OS_KEY_MAX } },
-{"sort", TEXT_KEY_SORT, { OS_KEY_F5, OS_KEY_MAX } },
-{"setgroup", TEXT_KEY_SETGROUP, { OS_KEY_F9, OS_KEY_MAX } },
-{"settype", TEXT_KEY_SETTYPE, { OS_KEY_F10, OS_KEY_MAX } },
-{"runclone", TEXT_KEY_RUN_CLONE, { OS_KEY_F12, OS_KEY_MAX } },
-{"del", TEXT_KEY_DEL, { OS_KEY_DEL, OS_KEY_MAX } },
-{"ins", TEXT_KEY_INS, { OS_KEY_INSERT, OS_KEY_MAX } },
-{"command", TEXT_KEY_COMMAND, { OS_KEY_F8, OS_KEY_MAX } },
-{"menu", TEXT_KEY_MENU, { OS_KEY_BACKQUOTE, OP_OR, OS_KEY_BACKSLASH, OS_KEY_MAX } },
-{"emulator", TEXT_KEY_EMU, { OS_KEY_F6, OS_KEY_MAX } },
-{"snapshot", TEXT_KEY_SNAPSHOT, { OS_KEY_PERIOD_PAD, OS_KEY_MAX } },
-{"rotate", TEXT_KEY_ROTATE, { OS_KEY_0_PAD, OS_KEY_MAX } },
-{"lock", TEXT_KEY_LOCK, { OS_KEY_SCRLOCK, OS_KEY_MAX } },
+{"up", TEXT_KEY_UP, { KEYB_UP, KEYB_MAX } },
+{"down", TEXT_KEY_DOWN, { KEYB_DOWN, KEYB_MAX } },
+{"left", TEXT_KEY_LEFT, { KEYB_LEFT, KEYB_MAX } },
+{"right", TEXT_KEY_RIGHT, { KEYB_RIGHT, KEYB_MAX } },
+{"enter", TEXT_KEY_ENTER, { KEYB_ENTER, KEYB_MAX } },
+{"shutdown", TEXT_KEY_OFF, { KEYB_LCONTROL, KEYB_ESC, KEYB_MAX } },
+{"esc", TEXT_KEY_ESC, { KEYB_ESC, KEYB_MAX } },
+{"space", TEXT_KEY_SPACE, { KEYB_SPACE, KEYB_MAX } },
+{"mode", TEXT_KEY_MODE, { KEYB_TAB, KEYB_MAX } },
+{"home", TEXT_KEY_HOME, { KEYB_HOME, KEYB_MAX } },
+{"end", TEXT_KEY_END, { KEYB_END, KEYB_MAX } },
+{"pgup", TEXT_KEY_PGUP, { KEYB_PGUP, KEYB_MAX } },
+{"pgdn", TEXT_KEY_PGDN, { KEYB_PGDN, KEYB_MAX } },
+{"help", TEXT_KEY_HELP, { KEYB_F1, KEYB_MAX } },
+{"group", TEXT_KEY_GROUP, { KEYB_F2, KEYB_MAX } },
+{"type", TEXT_KEY_TYPE, { KEYB_F3, KEYB_MAX } },
+{"exclude", TEXT_KEY_EXCLUDE, { KEYB_F4, KEYB_MAX } },
+{"sort", TEXT_KEY_SORT, { KEYB_F5, KEYB_MAX } },
+{"setgroup", TEXT_KEY_SETGROUP, { KEYB_F9, KEYB_MAX } },
+{"settype", TEXT_KEY_SETTYPE, { KEYB_F10, KEYB_MAX } },
+{"runclone", TEXT_KEY_RUN_CLONE, { KEYB_F12, KEYB_MAX } },
+{"del", TEXT_KEY_DEL, { KEYB_DEL, KEYB_MAX } },
+{"ins", TEXT_KEY_INS, { KEYB_INSERT, KEYB_MAX } },
+{"command", TEXT_KEY_COMMAND, { KEYB_F8, KEYB_MAX } },
+{"menu", TEXT_KEY_MENU, { KEYB_BACKQUOTE, OP_OR, KEYB_BACKSLASH, KEYB_MAX } },
+{"emulator", TEXT_KEY_EMU, { KEYB_F6, KEYB_MAX } },
+{"snapshot", TEXT_KEY_SNAPSHOT, { KEYB_PERIOD_PAD, KEYB_MAX } },
+{"rotate", TEXT_KEY_ROTATE, { KEYB_0_PAD, KEYB_MAX } },
+{"lock", TEXT_KEY_LOCK, { KEYB_SCRLOCK, KEYB_MAX } },
 { 0, 0, { 0 } }
 };
 
@@ -2221,43 +2222,43 @@ static struct key_conv {
 	int code;
 	char c;
 } KEY_CONV[] = {
-{ OS_KEY_A, 'a' },
-{ OS_KEY_B, 'b' },
-{ OS_KEY_C, 'c' },
-{ OS_KEY_D, 'd' },
-{ OS_KEY_E, 'e' },
-{ OS_KEY_F, 'f' },
-{ OS_KEY_G, 'g' },
-{ OS_KEY_H, 'h' },
-{ OS_KEY_I, 'i' },
-{ OS_KEY_J, 'j' },
-{ OS_KEY_K, 'k' },
-{ OS_KEY_L, 'l' },
-{ OS_KEY_M, 'm' },
-{ OS_KEY_N, 'n' },
-{ OS_KEY_O, 'o' },
-{ OS_KEY_P, 'p' },
-{ OS_KEY_Q, 'q' },
-{ OS_KEY_R, 'r' },
-{ OS_KEY_S, 's' },
-{ OS_KEY_T, 't' },
-{ OS_KEY_U, 'u' },
-{ OS_KEY_V, 'v' },
-{ OS_KEY_W, 'w' },
-{ OS_KEY_X, 'x' },
-{ OS_KEY_Y, 'y' },
-{ OS_KEY_Z, 'z' },
-{ OS_KEY_0, '0' },
-{ OS_KEY_1, '1' },
-{ OS_KEY_2, '2' },
-{ OS_KEY_3, '3' },
-{ OS_KEY_4, '4' },
-{ OS_KEY_5, '5' },
-{ OS_KEY_6, '6' },
-{ OS_KEY_7, '7' },
-{ OS_KEY_8, '8' },
-{ OS_KEY_9, '9' },
-{ OS_KEY_MAX, ' ' },
+{ KEYB_A, 'a' },
+{ KEYB_B, 'b' },
+{ KEYB_C, 'c' },
+{ KEYB_D, 'd' },
+{ KEYB_E, 'e' },
+{ KEYB_F, 'f' },
+{ KEYB_G, 'g' },
+{ KEYB_H, 'h' },
+{ KEYB_I, 'i' },
+{ KEYB_J, 'j' },
+{ KEYB_K, 'k' },
+{ KEYB_L, 'l' },
+{ KEYB_M, 'm' },
+{ KEYB_N, 'n' },
+{ KEYB_O, 'o' },
+{ KEYB_P, 'p' },
+{ KEYB_Q, 'q' },
+{ KEYB_R, 'r' },
+{ KEYB_S, 's' },
+{ KEYB_T, 't' },
+{ KEYB_U, 'u' },
+{ KEYB_V, 'v' },
+{ KEYB_W, 'w' },
+{ KEYB_X, 'x' },
+{ KEYB_Y, 'y' },
+{ KEYB_Z, 'z' },
+{ KEYB_0, '0' },
+{ KEYB_1, '1' },
+{ KEYB_2, '2' },
+{ KEYB_3, '3' },
+{ KEYB_4, '4' },
+{ KEYB_5, '5' },
+{ KEYB_6, '6' },
+{ KEYB_7, '7' },
+{ KEYB_8, '8' },
+{ KEYB_9, '9' },
+{ KEYB_MAX, ' ' },
 };
 
 static int keyboard_raw_poll() {
@@ -2267,7 +2268,7 @@ static int keyboard_raw_poll() {
 	}
 
 	if (text_alpha_mode) {
-		for(unsigned i=0;KEY_CONV[i].code != OS_KEY_MAX;++i)
+		for(unsigned i=0;KEY_CONV[i].code != KEYB_MAX;++i)
 			if (keyb_get(KEY_CONV[i].code))
 				return KEY_CONV[i].c;
 	}
@@ -2284,7 +2285,7 @@ static int key_poll() {
 	int r = TEXT_KEY_NONE;
 
 	if (r == TEXT_KEY_NONE) {
-		if (os_is_term())
+		if (os_is_quit())
 			r = TEXT_KEY_ESC;
 	}
 
@@ -2599,7 +2600,7 @@ bool text_key_in(const string& s) {
 			/* nothing */
 		} else {
 			unsigned key = key_code(skey.c_str());
-			if (key == OS_KEY_MAX)
+			if (key == KEYB_MAX)
 				return false;
 			seq[seq_count++] = key;
 		}
@@ -2620,7 +2621,7 @@ void text_key_out(struct conf_context* config_context, const char* tag) {
 		string s;
 		s += KEYTAB[i].name;
 		s += " ";
-		for(unsigned j=0;KEYTAB[i].seq[j] != OS_KEY_MAX && j<SEQ_MAX;++j) {
+		for(unsigned j=0;KEYTAB[i].seq[j] != KEYB_MAX && j<SEQ_MAX;++j) {
 			unsigned k = KEYTAB[i].seq[j];
 			if (j != 0)
 				s += " ";

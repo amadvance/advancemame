@@ -29,7 +29,7 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "advance.h"
+#include "emu.h"
 #include "mame2.h"
 
 #include <ctype.h>

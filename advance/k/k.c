@@ -56,9 +56,9 @@ void run(void) {
 		char newcmd[256];
 		*newcmd = 0;
 
-		for(i=0;i<OS_KEY_MAX;++i) {
+		for(i=0;i<KEYB_MAX;++i) {
 			if (keyb_get(i)) {
-				if (i==OS_KEY_ESC)
+				if (i==KEYB_ESC)
 					esc_pressed = 1;
 				++count;
 				sprintf(newcmd + strlen(newcmd), "%s ", key_name(i));

@@ -18,6 +18,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * PNG file support.
+ */
+
 #ifndef __PNG_H
 #define __PNG_H
 
@@ -27,15 +31,13 @@
 extern "C" {
 #endif
 
+/** \name PNG_CHUNK */
+/*@{*/
 #define PNG_CN_IHDR 0x49484452
 #define PNG_CN_PLTE 0x504C5445
 #define PNG_CN_IDAT 0x49444154
 #define PNG_CN_IEND 0x49454E44
-
-const char* png_error_get(void);
-int png_error_unsupported_get(void);
-void png_error(const char* s, ...) __attribute__((format(printf,1,2)));
-void png_error_unsupported(const char* s, ...) __attribute__((format(printf,1,2)));
+/*@}*/
 
 int png_read_chunk(FZ* f, unsigned char** data, unsigned* size, unsigned* type);
 int png_write_chunk(FZ* f, unsigned type, const unsigned char* data, unsigned size, unsigned* count);
@@ -51,13 +53,6 @@ int png_read_ihdr(
 	unsigned char** pal_ptr, unsigned* pal_size,
 	FZ* f, const unsigned char* data, unsigned data_size
 );
-int png_read(
-	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
-	unsigned char** dat_ptr, unsigned* dat_size,
-	unsigned char** pix_ptr, unsigned* pix_scanline,
-	unsigned char** pal_ptr, unsigned* pal_size,
-	FZ* f
-);
 
 void png_expand_4(unsigned width, unsigned height, unsigned char* ptr);
 void png_expand_2(unsigned width, unsigned height, unsigned char* ptr);
@@ -66,9 +61,23 @@ void png_unfilter_8(unsigned width, unsigned height, unsigned char* ptr, unsigne
 void png_unfilter_24(unsigned width, unsigned height, unsigned char* ptr, unsigned line);
 void png_unfilter_32(unsigned width, unsigned height, unsigned char* ptr, unsigned line);
 
+/** \addtogroup VideoFile */
+/*@{*/
+
+int png_read(
+	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
+	unsigned char** dat_ptr, unsigned* dat_size,
+	unsigned char** pix_ptr, unsigned* pix_scanline,
+	unsigned char** pal_ptr, unsigned* pal_size,
+	FZ* f
+);
+
+/*@}*/
+
 #ifdef __cplusplus
 };
 #endif
 
 #endif
+
 

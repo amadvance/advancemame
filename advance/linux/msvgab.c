@@ -31,6 +31,7 @@
 #include "msvgab.h"
 #include "log.h"
 #include "oslinux.h"
+#include "error.h"
 
 #include <vgamouse.h>
 
@@ -51,7 +52,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error mouseb_svgalib_init(int mouseb_id)
+error mouseb_svgalib_init(int mouseb_id)
 {
 	struct MouseCaps mouse_caps;
 	unsigned i;
@@ -70,7 +71,7 @@ adv_error mouseb_svgalib_init(int mouseb_id)
 
 	if (!os_internal_svgalib_get()) {
 		log_std(("mouseb:svgalib: svgalib not initialized\n"));
-		error_description_nolog_cat("svgalib: Not supported without the svgalib library\n");
+		error_nolog_cat("svgalib: Not supported without the svgalib library\n");
 		return -1;
 	}
 
@@ -78,7 +79,7 @@ adv_error mouseb_svgalib_init(int mouseb_id)
 
 	if (mouse_getcaps(&mouse_caps)!=0) {
 		log_std(("mouseb:svgalib: mouse_getcaps() failed\n"));
-		error_description_nolog_cat("svgalib: Error getting mouse capabilities\n");
+		error_nolog_cat("svgalib: Error getting mouse capabilities\n");
 		return -1;
 	}
 
@@ -161,7 +162,7 @@ unsigned mouseb_svgalib_flags(void)
 	return 0;
 }
 
-adv_error mouseb_svgalib_load(struct conf_context* context)
+error mouseb_svgalib_load(struct conf_context* context)
 {
 	return 0;
 }

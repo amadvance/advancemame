@@ -28,7 +28,7 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "advance.h"
+#include "emu.h"
 #include "hscript.h"
 #include "conf.h"
 #include "video.h"
@@ -67,106 +67,6 @@ void os_signal(int signum)
 	hardware_script_abort();
 	os_default_signal(signum);
 }
-
-/***************************************************************************/
-/* Thread interface */
-
-/* Currently not used. The thread sincronization is too slow */
-
-/*
-pthread_t thread_id;
-int thread_exit_flag;
-pthread_t thread_id;
-pthread_cond_t thread_cond0;
-pthread_mutex_t thread_mutex0;
-pthread_cond_t thread_cond1;
-pthread_mutex_t thread_mutex1;
-void (*thread_call)(void);
-
-void* thread_func(void* arg) {
-	pthread_mutex_lock(&thread_mutex0);
-
-	while (1) {
-		pthread_cond_wait(&thread_cond0, &thread_mutex0);
-
-		if (thread_exit_flag) {
-			pthread_mutex_unlock(&thread_mutex0);
-			pthread_exit(0);
-		}
-
-		if (thread_call)
-			thread_call();
-
-		pthread_mutex_lock(&thread_mutex1);
-		pthread_cond_signal(&thread_cond1);
-		pthread_mutex_unlock(&thread_mutex1);
-	}
-}
-
-int thread_init(void) {
-	thread_exit_flag = 0;
-
-	if (pthread_mutex_init(&thread_mutex0,NULL) != 0)
-		return -1;
-	if (pthread_cond_init(&thread_cond0,NULL) != 0)
-		return -1;
-	if (pthread_mutex_init(&thread_mutex1,NULL) != 0)
-		return -1;
-	if (pthread_cond_init(&thread_cond1,NULL) != 0)
-		return -1;
-	if (pthread_create(&thread_id, NULL, thread_func, 0) != 0)
-		return -1;
-
-	return 0;
-}
-
-void thread_done(void) {
-	pthread_mutex_lock(&thread_mutex0);
-	thread_exit_flag = 1;
-	pthread_cond_signal(&thread_cond0);
-	pthread_mutex_unlock(&thread_mutex0);
-	pthread_join(thread_id, NULL);
-}
-
-struct thread_helper_data {
-	void (*func)(void);
-};
-
-static void* thread_helper(void* arg) {
-	struct thread_helper_data* p = (struct thread_helper_data*)arg;
-	p->func();
-	return 0;
-}
-
-int osd_thread(void (*func0)(void), void (*func1)(void))
-{
-	struct advance_video_context* context = &CONTEXT.video;
-
-	if (context->config.smp_flag) {
-
-		pthread_mutex_lock(&thread_mutex1);
-		
-		pthread_mutex_lock(&thread_mutex0);
-		thread_call = func1;
-		pthread_cond_signal(&thread_cond0);
-		pthread_mutex_unlock(&thread_mutex0);
-
-		func0();
-
-		pthread_cond_wait(&thread_cond1, &thread_mutex1);
-		pthread_mutex_unlock(&thread_mutex1);
-
-		return 0;
-	} else {
-
-		func0();
-		func1();
-
-		return 0;
-	}
-}
-
-*/
 
 /***************************************************************************/
 /* Select */
@@ -560,7 +460,7 @@ int os_main(int argc, char* argv[])
 	char* opt_gamename;
 	struct advance_context* context = &CONTEXT;
 	struct conf_context* cfg_context;
-	const char* section_map[4];
+	const char* section_map[5];
 
 	opt_info = 0;
 	opt_log = 0;
@@ -688,7 +588,11 @@ int os_main(int argc, char* argv[])
 			goto err_os;
 		}
 
-		/* read the global configuration only */
+		/* we need to know where search the playback file. Without knowing the */
+		/* game only the global options can be used. */
+		/* It implies that after the game is know the playback directory may */
+		/* differ becase a specific option for the game is present in the */
+		/* configuration */
 		section_map[0] = "";
 		conf_section_set(cfg_context, section_map, 1);
 
@@ -705,22 +609,25 @@ int os_main(int argc, char* argv[])
 			goto err_os;
 	}
 
-	/* set the used section */
-	section_map[0] = mame_game_name(option.game);
-	section_map[1] = mame_game_resolution(option.game);
-	if ((mame_game_orientation(option.game) & OSD_ORIENTATION_SWAP_XY) != 0)
-		section_map[2] = "vertical";
-	else
-		section_map[2] = "horizontal";
-	section_map[3] = "";
-	conf_section_set(cfg_context, section_map, 4);
-
 	if (opt_log || opt_logsync) {
 		if (log_init(ADVANCE_NAME ".log", opt_logsync) != 0) {
 			target_err("Error opening the log file '" ADVANCE_NAME ".log'.\n");
 			goto err_os;
 		}
 	}
+
+	/* set the used section */
+	section_map[0] = mame_game_name(option.game);
+	section_map[1] = mame_game_resolutionclock(option.game);
+	section_map[2] = mame_game_resolution(option.game);
+	if ((mame_game_orientation(option.game) & OSD_ORIENTATION_SWAP_XY) != 0)
+		section_map[3] = "vertical";
+	else
+		section_map[3] = "horizontal";
+	section_map[4] = "";
+	conf_section_set(cfg_context, section_map, 5);
+	for(i=0;i<5;++i)
+		log_std(("advance: use configuration section '%s'", section_map[i]));
 
 	log_std(("advance: *_load()\n"));
 

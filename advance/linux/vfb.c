@@ -32,6 +32,7 @@
 #include "video.h"
 #include "log.h"
 #include "oslinux.h"
+#include "error.h"
 
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -46,8 +47,8 @@
 /* State */
 
 typedef struct fb_internal_struct {
-	adv_bool active;
-	adv_bool mode_active;
+	boolean active;
+	boolean mode_active;
 	int fd; /** File handle */
 
 	struct fb_var_screeninfo oldinfo; /** Old variable info */
@@ -113,7 +114,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error fb_init(int device_id) {
+error fb_init(int device_id) {
 	const char* fb;
 
 	assert( !fb_is_active() );
@@ -122,7 +123,7 @@ adv_error fb_init(int device_id) {
 
 	if (getenv("DISPLAY")) {
 		log_std(("video:fb: DISPLAY set\n"));
-		error_description_nolog_cat("fb: Unsupported in X\n");
+		error_nolog_cat("fb: Unsupported in X\n");
 		return -1;
 	}
 
@@ -132,14 +133,14 @@ adv_error fb_init(int device_id) {
 
 	if (access(fb,R_OK | W_OK)!=0) {
 		log_std(("video:fb: R/W access denied at the frame buffer %s\n", fb));
-		error_description_nolog_cat("fb: R/W access denied at the frame buffer %s\n", fb);
+		error_nolog_cat("fb: R/W access denied at the frame buffer %s\n", fb);
 		return -1;
 	}
 
 	fb_state.fd = open(fb, O_RDWR);
 	if (fb_state.fd < 0) {
 		log_std(("video:fb: Error opening the frame buffer %s\n", fb));
-		error_description_nolog_cat("fb: Error opening the frame buffer %s\n", fb);
+		error_nolog_cat("fb: Error opening the frame buffer %s\n", fb);
 		return -1;
 	}
 
@@ -158,11 +159,11 @@ void fb_done(void) {
 	fb_state.active = 0;
 }
 
-adv_bool fb_is_active(void) {
+boolean fb_is_active(void) {
 	return fb_state.active != 0;
 }
 
-adv_bool fb_mode_is_active(void) {
+boolean fb_mode_is_active(void) {
 	return fb_state.mode_active != 0;
 }
 
@@ -171,7 +172,7 @@ unsigned fb_flags(void) {
 	return VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL;
 }
 
-adv_error fb_mode_set(const fb_video_mode* mode)
+error fb_mode_set(const fb_video_mode* mode)
 {
 	assert( fb_is_active() && !fb_mode_is_active() );
 
@@ -179,7 +180,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	/* get the current info */
 	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.oldinfo) != 0) {
-		error_description_set("Error in FBIOGET_VSCREENINFO");
+		error_set("Error in FBIOGET_VSCREENINFO");
 		return -1;
 	}
 
@@ -260,19 +261,19 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	/* set the mode */
 	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, &fb_state.varinfo) != 0) {
-		error_description_set("Error in FBIOPUT_VSCREENINFO");
+		error_set("Error in FBIOPUT_VSCREENINFO");
 		return -1;
 	}
 
 	/* get the fixed info */
 	if (ioctl(fb_state.fd, FBIOGET_FSCREENINFO, &fb_state.fixinfo) != 0) {
-		error_description_set("Error in FBIOGET_FSCREENINFO");
+		error_set("Error in FBIOGET_FSCREENINFO");
 		return -1;
 	}
 
 	/* get the variable info */
 	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.varinfo) != 0) {
-		error_description_set("Error in FBIOGET_VSCREENINFO");
+		error_set("Error in FBIOGET_VSCREENINFO");
 		return -1;
 	}
 
@@ -300,7 +301,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	return 0;
 }
 
-void fb_mode_done(adv_bool restore) {
+void fb_mode_done(boolean restore) {
 	assert( fb_is_active() && fb_mode_is_active() );
 
 	log_std(("video:fb: fb_mode_done()\n"));
@@ -309,7 +310,7 @@ void fb_mode_done(adv_bool restore) {
 
 	if (restore) {
 		if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, &fb_state.oldinfo) != 0) {
-			error_description_set("Error in FBIOPUT_VSCREENINFO");
+			error_set("Error in FBIOPUT_VSCREENINFO");
 		}
 	}
 
@@ -362,7 +363,7 @@ void fb_wait_vsync(void) {
 	} while ((blank.flags & FB_VBLANK_VSYNCING) == 0);
 }
 
-adv_error fb_scroll(unsigned offset, adv_bool waitvsync) {
+error fb_scroll(unsigned offset, boolean waitvsync) {
 	assert(fb_is_active() && fb_mode_is_active());
 
 	if (waitvsync)
@@ -372,20 +373,20 @@ adv_error fb_scroll(unsigned offset, adv_bool waitvsync) {
 	fb_state.varinfo.xoffset = (offset % fb_state.bytes_per_scanline) / fb_state.bytes_per_pixel;
 
         if (ioctl(fb_state.fd, FBIOPAN_DISPLAY, &fb_state.varinfo) != 0) {
-		error_description_set("Error in FBIOPAN_DISPLAY");
+		error_set("Error in FBIOPAN_DISPLAY");
 		return -1;
 	}
 
 	return 0;
 }
 
-adv_error fb_scanline_set(unsigned byte_length) {
+error fb_scanline_set(unsigned byte_length) {
 	assert(fb_is_active() && fb_mode_is_active());
 
 	return -1;
 }
 
-adv_error fb_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+error fb_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync) {
 	__u16 r[256], g[256], b[256], t[256];
 	struct fb_cmap cmap;
 	unsigned i;
@@ -408,7 +409,7 @@ adv_error fb_palette8_set(const video_color* palette, unsigned start, unsigned c
 	cmap.transp = t;
 
 	if (ioctl(fb_state.fd, FBIOPUTCMAP, &cmap) != 0) {
-		error_description_set("Error in FBIOPUTCMAP");
+		error_set("Error in FBIOPUTCMAP");
 		return -1;
 	}
 
@@ -417,7 +418,7 @@ adv_error fb_palette8_set(const video_color* palette, unsigned start, unsigned c
 
 #define DRIVER(mode) ((fb_video_mode*)(&mode->driver_mode))
 
-adv_error fb_mode_import(video_mode* mode, const fb_video_mode* fb_mode)
+error fb_mode_import(video_mode* mode, const fb_video_mode* fb_mode)
 {
 	strcpy(mode->name, fb_mode->crtc.name);
 
@@ -442,7 +443,7 @@ adv_error fb_mode_import(video_mode* mode, const fb_video_mode* fb_mode)
 	return 0;
 }
 
-adv_error fb_mode_generate(fb_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags)
+error fb_mode_generate(fb_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags)
 {
 	assert( fb_is_active() );
 
@@ -473,7 +474,7 @@ void fb_reg(struct conf_context* context) {
 	assert( !fb_is_active() );
 }
 
-adv_error fb_load(struct conf_context* context) {
+error fb_load(struct conf_context* context) {
 	assert( !fb_is_active() );
 	return 0;
 }
@@ -481,15 +482,15 @@ adv_error fb_load(struct conf_context* context) {
 /***************************************************************************/
 /* Driver */
 
-static adv_error fb_mode_set_void(const void* mode) {
+static error fb_mode_set_void(const void* mode) {
 	return fb_mode_set((const fb_video_mode*)mode);
 }
 
-static adv_error fb_mode_import_void(video_mode* mode, const void* fb_mode) {
+static error fb_mode_import_void(video_mode* mode, const void* fb_mode) {
 	return fb_mode_import(mode, (const fb_video_mode*)fb_mode);
 }
 
-static adv_error fb_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+static error fb_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
 	return fb_mode_generate((fb_video_mode*)mode,crtc,bits,flags);
 }
 

@@ -30,11 +30,12 @@
 
 #include "ksdl.h"
 #include "log.h"
+#include "error.h"
 
 #include "SDL.h"
 
 struct keyb_sdl_context {
-	unsigned map_os_to_code[OS_KEY_MAX];
+	unsigned map_os_to_code[KEYB_MAX];
 	unsigned char state[SDLK_LAST];
 };
 
@@ -42,112 +43,112 @@ static struct keyb_pair {
 	int os;
 	int code;
 } KEYS[] = {
-{ OS_KEY_A, SDLK_a },
-{ OS_KEY_B, SDLK_b },
-{ OS_KEY_C, SDLK_c },
-{ OS_KEY_D, SDLK_d },
-{ OS_KEY_E, SDLK_e },
-{ OS_KEY_F, SDLK_f },
-{ OS_KEY_G, SDLK_g },
-{ OS_KEY_H, SDLK_h },
-{ OS_KEY_I, SDLK_i },
-{ OS_KEY_J, SDLK_j },
-{ OS_KEY_K, SDLK_k },
-{ OS_KEY_L, SDLK_l },
-{ OS_KEY_M, SDLK_m },
-{ OS_KEY_N, SDLK_n },
-{ OS_KEY_O, SDLK_o },
-{ OS_KEY_P, SDLK_p },
-{ OS_KEY_Q, SDLK_q },
-{ OS_KEY_R, SDLK_r },
-{ OS_KEY_S, SDLK_s },
-{ OS_KEY_T, SDLK_t },
-{ OS_KEY_U, SDLK_u },
-{ OS_KEY_V, SDLK_v },
-{ OS_KEY_W, SDLK_w },
-{ OS_KEY_X, SDLK_x },
-{ OS_KEY_Y, SDLK_y },
-{ OS_KEY_Z, SDLK_z },
-{ OS_KEY_0, SDLK_0 },
-{ OS_KEY_1, SDLK_1 },
-{ OS_KEY_2, SDLK_2 },
-{ OS_KEY_3, SDLK_3 },
-{ OS_KEY_4, SDLK_4 },
-{ OS_KEY_5, SDLK_5 },
-{ OS_KEY_6, SDLK_6 },
-{ OS_KEY_7, SDLK_7 },
-{ OS_KEY_8, SDLK_8 },
-{ OS_KEY_9, SDLK_9 },
-{ OS_KEY_0_PAD, SDLK_KP0 },
-{ OS_KEY_1_PAD, SDLK_KP1 },
-{ OS_KEY_2_PAD, SDLK_KP2 },
-{ OS_KEY_3_PAD, SDLK_KP3 },
-{ OS_KEY_4_PAD, SDLK_KP4 },
-{ OS_KEY_5_PAD, SDLK_KP5 },
-{ OS_KEY_6_PAD, SDLK_KP6 },
-{ OS_KEY_7_PAD, SDLK_KP7 },
-{ OS_KEY_8_PAD, SDLK_KP8 },
-{ OS_KEY_9_PAD, SDLK_KP9 },
-{ OS_KEY_F1, SDLK_F1 },
-{ OS_KEY_F2, SDLK_F2 },
-{ OS_KEY_F3, SDLK_F3 },
-{ OS_KEY_F4, SDLK_F4 },
-{ OS_KEY_F5, SDLK_F5 },
-{ OS_KEY_F6, SDLK_F6 },
-{ OS_KEY_F7, SDLK_F7 },
-{ OS_KEY_F8, SDLK_F8 },
-{ OS_KEY_F9, SDLK_F9 },
-{ OS_KEY_F10, SDLK_F10 },
-{ OS_KEY_F11, SDLK_F11 },
-{ OS_KEY_F12, SDLK_F12 },
-{ OS_KEY_ESC, SDLK_ESCAPE },
-{ OS_KEY_BACKQUOTE, SDLK_BACKQUOTE },
-{ OS_KEY_MINUS, SDLK_MINUS },
-{ OS_KEY_EQUALS, SDLK_EQUALS },
-{ OS_KEY_BACKSPACE, SDLK_BACKSPACE },
-{ OS_KEY_TAB, SDLK_TAB },
-{ OS_KEY_OPENBRACE, SDLK_LEFTBRACKET },
-{ OS_KEY_CLOSEBRACE, SDLK_RIGHTBRACKET },
-{ OS_KEY_ENTER, SDLK_RETURN },
-{ OS_KEY_SEMICOLON, SDLK_SEMICOLON },
-{ OS_KEY_QUOTE, SDLK_QUOTE },
-{ OS_KEY_BACKSLASH, SDLK_BACKSLASH },
-{ OS_KEY_LESS, SDLK_LESS },
-{ OS_KEY_COMMA, SDLK_COMMA },
-{ OS_KEY_PERIOD, SDLK_PERIOD },
-{ OS_KEY_SLASH, SDLK_SLASH },
-{ OS_KEY_SPACE, SDLK_SPACE },
-{ OS_KEY_INSERT, SDLK_INSERT },
-{ OS_KEY_DEL, SDLK_DELETE },
-{ OS_KEY_HOME, SDLK_HOME },
-{ OS_KEY_END, SDLK_END },
-{ OS_KEY_PGUP, SDLK_PAGEUP },
-{ OS_KEY_PGDN, SDLK_PAGEDOWN },
-{ OS_KEY_LEFT, SDLK_LEFT },
-{ OS_KEY_RIGHT, SDLK_RIGHT },
-{ OS_KEY_UP, SDLK_UP },
-{ OS_KEY_DOWN, SDLK_DOWN },
-{ OS_KEY_SLASH_PAD, SDLK_KP_DIVIDE },
-{ OS_KEY_ASTERISK, SDLK_KP_MULTIPLY },
-{ OS_KEY_MINUS_PAD, SDLK_KP_MINUS },
-{ OS_KEY_PLUS_PAD, SDLK_KP_PLUS },
-{ OS_KEY_PERIOD_PAD, SDLK_KP_PERIOD },
-{ OS_KEY_ENTER_PAD, SDLK_KP_ENTER },
-{ OS_KEY_PRTSCR, SDLK_PRINT },
-{ OS_KEY_PAUSE, SDLK_PAUSE },
-{ OS_KEY_LSHIFT, SDLK_LSHIFT },
-{ OS_KEY_RSHIFT, SDLK_RSHIFT },
-{ OS_KEY_LCONTROL, SDLK_LCTRL },
-{ OS_KEY_RCONTROL, SDLK_RCTRL },
-{ OS_KEY_ALT, SDLK_LALT },
-{ OS_KEY_ALTGR, SDLK_RALT },
-{ OS_KEY_LWIN, SDLK_LMETA },
-{ OS_KEY_RWIN, SDLK_COMPOSE },
-{ OS_KEY_MENU, SDLK_MENU },
-{ OS_KEY_SCRLOCK, SDLK_SCROLLOCK },
-{ OS_KEY_NUMLOCK, SDLK_NUMLOCK },
-{ OS_KEY_CAPSLOCK, SDLK_CAPSLOCK },
-{ OS_KEY_MAX, 0 }
+{ KEYB_A, SDLK_a },
+{ KEYB_B, SDLK_b },
+{ KEYB_C, SDLK_c },
+{ KEYB_D, SDLK_d },
+{ KEYB_E, SDLK_e },
+{ KEYB_F, SDLK_f },
+{ KEYB_G, SDLK_g },
+{ KEYB_H, SDLK_h },
+{ KEYB_I, SDLK_i },
+{ KEYB_J, SDLK_j },
+{ KEYB_K, SDLK_k },
+{ KEYB_L, SDLK_l },
+{ KEYB_M, SDLK_m },
+{ KEYB_N, SDLK_n },
+{ KEYB_O, SDLK_o },
+{ KEYB_P, SDLK_p },
+{ KEYB_Q, SDLK_q },
+{ KEYB_R, SDLK_r },
+{ KEYB_S, SDLK_s },
+{ KEYB_T, SDLK_t },
+{ KEYB_U, SDLK_u },
+{ KEYB_V, SDLK_v },
+{ KEYB_W, SDLK_w },
+{ KEYB_X, SDLK_x },
+{ KEYB_Y, SDLK_y },
+{ KEYB_Z, SDLK_z },
+{ KEYB_0, SDLK_0 },
+{ KEYB_1, SDLK_1 },
+{ KEYB_2, SDLK_2 },
+{ KEYB_3, SDLK_3 },
+{ KEYB_4, SDLK_4 },
+{ KEYB_5, SDLK_5 },
+{ KEYB_6, SDLK_6 },
+{ KEYB_7, SDLK_7 },
+{ KEYB_8, SDLK_8 },
+{ KEYB_9, SDLK_9 },
+{ KEYB_0_PAD, SDLK_KP0 },
+{ KEYB_1_PAD, SDLK_KP1 },
+{ KEYB_2_PAD, SDLK_KP2 },
+{ KEYB_3_PAD, SDLK_KP3 },
+{ KEYB_4_PAD, SDLK_KP4 },
+{ KEYB_5_PAD, SDLK_KP5 },
+{ KEYB_6_PAD, SDLK_KP6 },
+{ KEYB_7_PAD, SDLK_KP7 },
+{ KEYB_8_PAD, SDLK_KP8 },
+{ KEYB_9_PAD, SDLK_KP9 },
+{ KEYB_F1, SDLK_F1 },
+{ KEYB_F2, SDLK_F2 },
+{ KEYB_F3, SDLK_F3 },
+{ KEYB_F4, SDLK_F4 },
+{ KEYB_F5, SDLK_F5 },
+{ KEYB_F6, SDLK_F6 },
+{ KEYB_F7, SDLK_F7 },
+{ KEYB_F8, SDLK_F8 },
+{ KEYB_F9, SDLK_F9 },
+{ KEYB_F10, SDLK_F10 },
+{ KEYB_F11, SDLK_F11 },
+{ KEYB_F12, SDLK_F12 },
+{ KEYB_ESC, SDLK_ESCAPE },
+{ KEYB_BACKQUOTE, SDLK_BACKQUOTE },
+{ KEYB_MINUS, SDLK_MINUS },
+{ KEYB_EQUALS, SDLK_EQUALS },
+{ KEYB_BACKSPACE, SDLK_BACKSPACE },
+{ KEYB_TAB, SDLK_TAB },
+{ KEYB_OPENBRACE, SDLK_LEFTBRACKET },
+{ KEYB_CLOSEBRACE, SDLK_RIGHTBRACKET },
+{ KEYB_ENTER, SDLK_RETURN },
+{ KEYB_SEMICOLON, SDLK_SEMICOLON },
+{ KEYB_QUOTE, SDLK_QUOTE },
+{ KEYB_BACKSLASH, SDLK_BACKSLASH },
+{ KEYB_LESS, SDLK_LESS },
+{ KEYB_COMMA, SDLK_COMMA },
+{ KEYB_PERIOD, SDLK_PERIOD },
+{ KEYB_SLASH, SDLK_SLASH },
+{ KEYB_SPACE, SDLK_SPACE },
+{ KEYB_INSERT, SDLK_INSERT },
+{ KEYB_DEL, SDLK_DELETE },
+{ KEYB_HOME, SDLK_HOME },
+{ KEYB_END, SDLK_END },
+{ KEYB_PGUP, SDLK_PAGEUP },
+{ KEYB_PGDN, SDLK_PAGEDOWN },
+{ KEYB_LEFT, SDLK_LEFT },
+{ KEYB_RIGHT, SDLK_RIGHT },
+{ KEYB_UP, SDLK_UP },
+{ KEYB_DOWN, SDLK_DOWN },
+{ KEYB_SLASH_PAD, SDLK_KP_DIVIDE },
+{ KEYB_ASTERISK, SDLK_KP_MULTIPLY },
+{ KEYB_MINUS_PAD, SDLK_KP_MINUS },
+{ KEYB_PLUS_PAD, SDLK_KP_PLUS },
+{ KEYB_PERIOD_PAD, SDLK_KP_PERIOD },
+{ KEYB_ENTER_PAD, SDLK_KP_ENTER },
+{ KEYB_PRTSCR, SDLK_PRINT },
+{ KEYB_PAUSE, SDLK_PAUSE },
+{ KEYB_LSHIFT, SDLK_LSHIFT },
+{ KEYB_RSHIFT, SDLK_RSHIFT },
+{ KEYB_LCONTROL, SDLK_LCTRL },
+{ KEYB_RCONTROL, SDLK_RCTRL },
+{ KEYB_ALT, SDLK_LALT },
+{ KEYB_ALTGR, SDLK_RALT },
+{ KEYB_LWIN, SDLK_LMETA },
+{ KEYB_RWIN, SDLK_COMPOSE },
+{ KEYB_MENU, SDLK_MENU },
+{ KEYB_SCRLOCK, SDLK_SCROLLOCK },
+{ KEYB_NUMLOCK, SDLK_NUMLOCK },
+{ KEYB_CAPSLOCK, SDLK_CAPSLOCK },
+{ KEYB_MAX, 0 }
 };
 
 static struct keyb_sdl_context sdl_state;
@@ -157,7 +158,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error keyb_sdl_init(int keyb_id, adv_bool disable_special)
+error keyb_sdl_init(int keyb_id, boolean disable_special)
 {
 	struct keyb_pair* i;
 	unsigned j;
@@ -166,14 +167,14 @@ adv_error keyb_sdl_init(int keyb_id, adv_bool disable_special)
 	 
 	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
 		log_std(("keyb:sdl: not supported without the SDL video driver\n"));
-		error_description_nolog_cat("sdl: Not supported without the SDL video driver\n");
+		error_nolog_cat("sdl: Not supported without the SDL video driver\n");
 		return -1; 
 	}
 
-	for(j=0;j<OS_KEY_MAX;++j) {
+	for(j=0;j<KEYB_MAX;++j) {
 		sdl_state.map_os_to_code[j] = 0;
 	}
-	for(i=KEYS;i->os != OS_KEY_MAX;++i) {
+	for(i=KEYS;i->os != KEYB_MAX;++i) {
 		sdl_state.map_os_to_code[i->os] = i->code;
 	}
 	for(j=0;j<SDLK_LAST;++j) {
@@ -192,12 +193,12 @@ unsigned keyb_sdl_get(unsigned code)
 {
 	unsigned sdl_code;
 
-	assert(code < OS_KEY_MAX);
+	assert(code < KEYB_MAX);
 
 	log_debug(("keyb:sdl: keyb_sdl_get(code:%d)\n",code));
 
 	/* disable the pause key */
-	if (code == OS_KEY_PAUSE)
+	if (code == KEYB_PAUSE)
 		return 0;
 
 	sdl_code = sdl_state.map_os_to_code[code];
@@ -216,7 +217,7 @@ void keyb_sdl_all_get(unsigned char* code_map)
 
 	log_debug(("keyb:sdl: keyb_sdl_all_get()\n"));
 
-	for(i=0;i<OS_KEY_MAX;++i) {
+	for(i=0;i<KEYB_MAX;++i) {
 		unsigned sdl_code = sdl_state.map_os_to_code[i];
 		if (sdl_code)
 			code_map[i] = sdl_state.state[sdl_code];
@@ -225,7 +226,7 @@ void keyb_sdl_all_get(unsigned char* code_map)
 	}
 
 	/* disable the pause key */
-	code_map[OS_KEY_PAUSE] = 0;
+	code_map[KEYB_PAUSE] = 0;
 }
 
 void keyb_sdl_poll()
@@ -238,7 +239,7 @@ unsigned keyb_sdl_flags(void)
 	return 0;
 }
 
-adv_error keyb_sdl_load(struct conf_context* context)
+error keyb_sdl_load(struct conf_context* context)
 {
 	return 0;
 }

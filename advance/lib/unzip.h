@@ -18,6 +18,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * ZIP file support.
+ */
+
 #ifndef __UNZIP_H
 #define __UNZIP_H
 
@@ -25,7 +29,7 @@
 extern "C" {
 #endif
 
-#include "advstd.h"
+#include "extra.h"
 
 #include <stdio.h>
 
@@ -126,9 +130,9 @@ immediately following the compressed data and in the central directory. */
 #define ZIP_LO_FIXED				0x1E /* size of fixed data structure */
 #define ZIP_LO_filename				0x1E
 
-uint16 zip_read_word(void* _data);
-uint32 zip_read_dword(void* _data);
-
+/**
+ * ZIP entry context.
+ */
 struct zipent {
 	uint32 cent_file_header_sig;
 	uint8 version_made_by;
@@ -149,22 +153,25 @@ struct zipent {
 	uint16 internal_file_attrib;
 	uint32 external_file_attrib;
 	uint32 offset_lcl_hdr_frm_frst_disk;
-	char* name; /* 0 terminated */
+	char* name; /**< Name of the entry. 0 terminated. */
 };
 
-typedef struct _ZIP {
-	char* zip; /* zip name */
-	FILE* fp; /* zip handler */
-	long length; /* length of zip file */
+/**
+ * ZIP file context.
+ */
+typedef struct ZIP_struct {
+	char* zip; /**< Zip name. */
+	FILE* fp; /**< Zip handler. */
+	long length; /**< Length of zip file. */
 
-	char* ecd; /* end_of_cent_dir data */
-	unsigned ecd_length; /* end_of_cent_dir length */
+	char* ecd; /**< end_of_cent_dir data. */
+	unsigned ecd_length; /**< end_of_cent_dir length. */
 
-	char* cd; /* cent_dir data */
+	char* cd; /**< cent_dir data. */
 
-	unsigned cd_pos; /* position in cent_dir */
+	unsigned cd_pos; /** Current position in cent_dir. */
 
-	struct zipent ent; /* buffer for readzip */
+	struct zipent ent; /**< Buffer for readzip. */
 
 	/* end_of_cent_dir */
 	uint32 end_of_cent_dir_sig;
@@ -175,50 +182,59 @@ typedef struct _ZIP {
 	uint32 size_of_cent_dir;
 	uint32 offset_to_start_of_cent_dir;
 	uint16 zipfile_comment_length;
-	char* zipfile_comment; /* pointer in ecd */
+
+	char* zipfile_comment; /**< Comment as pointer in the ecd. */
 } ZIP;
 
-/* Opens a zip stream for reading
-   return:
-     !=0 success, zip stream
-     ==0 error
-*/
+/** \addtogroup ZIPFile */
+/*@{*/
+
+/**
+ * Opens a zip stream for reading.
+ * \return
+ *  - !=0 success, zip stream
+ *  - ==0 error
+ */
 ZIP* openzip(const char* path);
 
-/* Closes a zip stream */
+/**
+ * Closes a zip stream.
+ */
 void closezip(ZIP* zip);
 
-/* Reads the current entry from a zip stream
-   in:
-     zip opened zip
-   return:
-     !=0 success
-     ==0 error
-*/
+/**
+ * Reads the current entry from a zip stream.
+ * \param zip Opened zip
+ * \return
+ *  - !=0 success
+ *  - ==0 error
+ */
 struct zipent* readzip(ZIP* zip);
 
-/* Resets a zip stream to the first entry
-   in:
-     zip opened zip
-   note:
-     ZIP file must be opened and not suspended
-*/
+/**
+ * Resets a zip stream to the first entry.
+ * \note The ZIP file must be opened and not suspended.
+ * \param zip opened zip
+ */
 void rewindzip(ZIP* zip);
 
-/* Read compressed data from a zip entry
-   in:
-     zip opened zip
-     ent entry to read
-   out:
-     data buffer for data, ent.compressed_size bytes allocated by the caller
-   return:
-     ==0 success
-     <0 error
-*/
+/**
+ * Read compressed data from a zip entry.
+ * \param zip Opened zip.
+ * \param ent Entry to read.
+ * \param data Buffer for data, ent.compressed_size bytes allocated by the caller.
+ * \return
+ *  - ==0 success
+ *  - <0 error
+ */
 int readcompresszip(ZIP* zip, struct zipent* ent, char* data);
+
+/*@}*/
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+
+

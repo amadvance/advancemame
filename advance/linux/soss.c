@@ -39,7 +39,7 @@
 #include <sys/soundcard.h>
 
 struct sound_oss_context {
-	adv_bool active_flag;
+	boolean active_flag;
 
 	unsigned channel;
 	unsigned rate;
@@ -55,7 +55,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error sound_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
+error sound_oss_init(int sound_id, unsigned* rate, boolean stereo_flag, double buffer_time)
 {
 	int i;
 	audio_buf_info info;
@@ -181,7 +181,7 @@ void sound_oss_play(const short* sample_map, unsigned sample_count) {
 	}
 }
 
-adv_error sound_oss_start(double silence_time) {
+error sound_oss_start(double silence_time) {
 	short buf[256];
 	unsigned sample;
 	unsigned i;
@@ -210,7 +210,7 @@ unsigned sound_oss_flags(void) {
 	return 0;
 }
 
-adv_error sound_oss_load(struct conf_context* context) {
+error sound_oss_load(struct conf_context* context) {
 	return 0;
 }
 

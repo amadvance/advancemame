@@ -20,8 +20,10 @@
 
 #include "draw.h"
 #include "video.h"
+#include "error.h"
 #include "update.h"
 #include "blit.h"
+#include "clear.h"
 #include "font.h"
 #include "conf.h"
 #include "os.h"
@@ -122,7 +124,7 @@ static int draw_text_help(void) {
 
 	do {
 		userkey = inputb_get();
-	} while (userkey!=OS_INPUT_ESC);
+	} while (userkey!=INPUTB_ESC);
 
 	return userkey;
 }
@@ -147,10 +149,10 @@ static int draw_text_error(void) {
 "unsupported feature by your hardware or software."
 	,COLOR_NORMAL);
 
-	if (*error_description_get()) {
+	if (*error_get()) {
 		y = draw_text_para(x,y,dx,dy-y,"\nThe video software report this error:",COLOR_NORMAL);
-		log_std(("v: error \"%s\"\n", error_description_get() ));
-		y = draw_text_para(x,y,dx,dy-y, error_description_get(),COLOR_ERROR);
+		log_std(("v: error \"%s\"\n", error_get() ));
+		y = draw_text_para(x,y,dx,dy-y, error_get(),COLOR_ERROR);
 	}
 
 	y = draw_text_para(x,y,dx,dy-y,"\nPress ESC",COLOR_NORMAL);
@@ -159,7 +161,7 @@ static int draw_text_error(void) {
 
 	do {
 		userkey = inputb_get();
-	} while (userkey!=OS_INPUT_ESC);
+	} while (userkey!=INPUTB_ESC);
 
 	return userkey;
 }
@@ -747,26 +749,26 @@ static int test_exe_crtc(int userkey, video_crtc* crtc) {
 			crtc->vt += 1;
 			modify = 1;
 			break;
-		case OS_INPUT_LEFT :
+		case INPUTB_LEFT :
 			crtc->hrs -= crtc->hrs % xdelta;
 			crtc->hrs += xdelta;
 			crtc->hre -= crtc->hre % xdelta;
 			crtc->hre += xdelta;
 			modify = 1;
 			break;
-		case OS_INPUT_RIGHT :
+		case INPUTB_RIGHT :
 			crtc->hrs -= crtc->hrs % xdelta;
 			crtc->hrs -= xdelta;
 			crtc->hre -= crtc->hre % xdelta;
 			crtc->hre -= xdelta;
 			modify = 1;
 			break;
-		case OS_INPUT_DOWN :
+		case INPUTB_DOWN :
 			crtc->vrs -= 1;
 			crtc->vre -= 1;
 			modify = 1;
 			break;
-		case OS_INPUT_UP :
+		case INPUTB_UP :
 			crtc->vrs += 1;
 			crtc->vre += 1;
 			modify = 1;
@@ -907,7 +909,7 @@ static int test_exe_crtc(int userkey, video_crtc* crtc) {
 /* Menu command */
 
 static void cmd_type(int key) {
-	if (key == OS_INPUT_RIGHT) {
+	if (key == INPUTB_RIGHT) {
 		switch (the_mode_bit) {
 			case 0 : the_mode_bit = 8; the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB; break;
 			case 8 : the_mode_bit = 15; the_mode_type = VIDEO_FLAGS_TYPE_GRAPHICS | VIDEO_FLAGS_INDEX_RGB; break;
@@ -1022,13 +1024,13 @@ static int cmd_onvideo_test(void) {
 		userkey = inputb_get();
 
 		switch (userkey) {
-			case OS_INPUT_ESC :
+			case INPUTB_ESC :
 				done = 1;
 				/* restore */
 				*crtc = crtc_save;
 				the_modes_modified = crtc_save_modified;
 				break;
-			case OS_INPUT_ENTER :
+			case INPUTB_ENTER :
 				done = 1;
 				break;
 		}
@@ -1075,7 +1077,7 @@ static int cmd_onvideo_calib(void) {
 	video_mode_reset(&mode);
 
 	if ((the_mode_type & VIDEO_FLAGS_TYPE_MASK) != VIDEO_FLAGS_TYPE_GRAPHICS) {
-		error_description_set("Command supported only in graphics mode");
+		error_set("Command supported only in graphics mode");
 		return -1;
 	}
 
@@ -1120,7 +1122,7 @@ static int cmd_onvideo_animate(void) {
 	video_mode_reset(&mode);
 
 	if ((the_mode_type & VIDEO_FLAGS_TYPE_MASK) != VIDEO_FLAGS_TYPE_GRAPHICS) {
-		error_description_set("Command supported only in graphics mode");
+		error_set("Command supported only in graphics mode");
 		return -1;
 	}
 
@@ -1196,7 +1198,7 @@ static int cmd_input_key(const char* tag, const char* keys) {
 		video_wait_vsync();
 
 		k = inputb_get();
-		if (k == OS_INPUT_ESC)
+		if (k == INPUTB_ESC)
 			return -1;
 
 		for(i=0;keys[i];++i)
@@ -1209,7 +1211,7 @@ static int cmd_input_string(const char* tag, char* buffer, unsigned length) {
 	draw_text_fill(0,text_size_y()-1,' ',text_size_x(),COLOR_REVERSE);
 	draw_text_string(2,text_size_y()-1,tag,COLOR_REVERSE);
 
-	if (draw_text_read(2 + strlen(tag),text_size_y()-1,buffer,length,COLOR_INPUT) == OS_INPUT_ENTER) {
+	if (draw_text_read(2 + strlen(tag),text_size_y()-1,buffer,length,COLOR_INPUT) == INPUTB_ENTER) {
 		return 0;
 	}
 
@@ -1225,7 +1227,7 @@ static void cmd_rename(void) {
 		return;
 
 	strcpy(buffer,"");
-	if (cmd_input_string(" Name : ",buffer,VIDEO_NAME_MAX)!=0)
+	if (cmd_input_string(" Name : ",buffer, MODE_NAME_MAX)!=0)
 		return;
 
 	strcpy(crtc->name,buffer);
@@ -1253,7 +1255,7 @@ static int cmd_modeline_create(int favourite_vtotal) {
 	double freq = 0;
 	unsigned x;
 	unsigned y;
-	adv_error res;
+	error res;
 
 	strcpy(crtc.name,"format_created");
 
@@ -1262,7 +1264,7 @@ static int cmd_modeline_create(int favourite_vtotal) {
 		return 0;
 	freq = strtod(buffer,0);
 	if (freq < 10 || freq > 200) {
-		error_description_set("Invalid vertical clock value, usually in the range 10 - 200.0 [Hz]");
+		error_set("Invalid vertical clock value, usually in the range 10 - 200.0 [Hz]");
 		return -1;
 	}
 
@@ -1271,7 +1273,7 @@ static int cmd_modeline_create(int favourite_vtotal) {
 		return 0;
 	x = atoi(buffer);
 	if (x < 64 || x > 2048) {
-		error_description_set("Invalid x resolution value");
+		error_set("Invalid x resolution value");
 		return -1;
 	}
 
@@ -1280,7 +1282,7 @@ static int cmd_modeline_create(int favourite_vtotal) {
 		return 0;
 	y = atoi(buffer);
 	if (y < 64 || y > 2048) {
-		error_description_set("Invalid y resolution value");
+		error_set("Invalid y resolution value");
 		return -1;
 	}
 
@@ -1295,7 +1297,7 @@ static int cmd_modeline_create(int favourite_vtotal) {
 	if (res != 0)
 		res = generate_find_interpolate_double(&crtc, x, y, freq, &the_monitor, &the_interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC, GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL);
 	if (res != 0) {
-		error_description_set("Requests out of your monitor range");
+		error_set("Requests out of your monitor range");
 		return -1;
 	}
 
@@ -1319,7 +1321,7 @@ static int cmd_modeline_create_gtf(void) {
 		return 0;
 	freq = strtod(buffer,0);
 	if (freq < 10 || freq > 200) {
-		error_description_set("Invalid vertical clock value, usually in the range 10 - 200.0 [Hz]");
+		error_set("Invalid vertical clock value, usually in the range 10 - 200.0 [Hz]");
 		return -1;
 	}
 
@@ -1328,7 +1330,7 @@ static int cmd_modeline_create_gtf(void) {
 		return 0;
 	x = atoi(buffer);
 	if (x < 64 || x > 2048) {
-		error_description_set("Invalid x resolution value");
+		error_set("Invalid x resolution value");
 		return -1;
 	}
 
@@ -1337,12 +1339,12 @@ static int cmd_modeline_create_gtf(void) {
 		return 0;
 	y = atoi(buffer);
 	if (y < 64 || y > 2048) {
-		error_description_set("Invalid y resolution value");
+		error_set("Invalid y resolution value");
 		return -1;
 	}
 
 	if (gtf_find(&crtc, x, y, freq, &the_monitor, &the_gtf, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC, GTF_ADJUST_EXACT | GTF_ADJUST_VCLOCK) != 0) {
-		error_description_set("Request out of your monitor range");
+		error_set("Request out of your monitor range");
 		return -1;
 	}
 
@@ -1371,7 +1373,7 @@ static int cmd_mode_clock(void) {
 				return 0;
 			freq = strtod(buffer,0);
 			if (freq < 10 || freq > 200) {
-				error_description_set("Invalid vertical clock value, usually in the range 10 - 200.0 [Hz]");
+				error_set("Invalid vertical clock value, usually in the range 10 - 200.0 [Hz]");
 				return -1;
 			}
 			crtc->pixelclock = freq * crtc->ht * crtc->vt;
@@ -1385,7 +1387,7 @@ static int cmd_mode_clock(void) {
 				return 0;
 			freq = strtod(buffer,0) * 1E3;
 			if (freq < 10*1E3 || freq > 100*1E3) {
-				error_description_set("Invalid horizontal clock value, usually in the range 15.0 - 80.0 [kHz]");
+				error_set("Invalid horizontal clock value, usually in the range 15.0 - 80.0 [kHz]");
 				return -1;
 			}
 			crtc->pixelclock = freq * crtc->ht;
@@ -1395,7 +1397,7 @@ static int cmd_mode_clock(void) {
 				return 0;
 			freq = strtod(buffer,0) * 1E6;
 			if (freq < 1*1E6 || freq > 300*1E6) {
-				error_description_set("Invalid pixel clock value, usually in the range 1.0 - 300.0 [MHz]");
+				error_set("Invalid pixel clock value, usually in the range 1.0 - 300.0 [MHz]");
 				return -1;
 			}
 			crtc->pixelclock = freq;
@@ -1496,13 +1498,13 @@ static int menu_run(void) {
 		userkey = inputb_get();
 
 		switch (userkey) {
-			case OS_INPUT_UP:
+			case INPUTB_UP:
 				cmd_gotopos( menu_base + menu_rel - 1);
 				break;
-			case OS_INPUT_DOWN:
+			case INPUTB_DOWN:
 				cmd_gotopos( menu_base + menu_rel + 1 );
 				break;
-			case OS_INPUT_HOME: {
+			case INPUTB_HOME: {
 				int i = menu_base + menu_rel - 1;
 				if (i<0)
 					i = 0;
@@ -1511,7 +1513,7 @@ static int menu_run(void) {
 				cmd_gotopos( i );
 				break;
 			}
-			case OS_INPUT_END: {
+			case INPUTB_END: {
 				int i = menu_base + menu_rel + 1;
 				if (i >= menu_max)
 					i = menu_max - 1;
@@ -1520,27 +1522,27 @@ static int menu_run(void) {
 				cmd_gotopos( i );
 				break;
 			}
-			case OS_INPUT_PGDN:
+			case INPUTB_PGDN:
 				cmd_gotopos( menu_base + menu_rel + menu_rel_max );
 				break;
-			case OS_INPUT_PGUP:
+			case INPUTB_PGUP:
 				cmd_gotopos( menu_base + menu_rel - menu_rel_max );
 				break;
-			case OS_INPUT_F2:
+			case INPUTB_F2:
 				cmd_save();
 				break;
-			case OS_INPUT_LEFT :
-			case OS_INPUT_RIGHT :
+			case INPUTB_LEFT :
+			case INPUTB_RIGHT :
 				cmd_type(userkey);
 				break;
-			case OS_INPUT_ESC:
+			case INPUTB_ESC:
 				done = cmd_exit();
 				break;
-			case OS_INPUT_SPACE:
+			case INPUTB_SPACE:
 				cmd_select();
 				cmd_gotopos( menu_base + menu_rel + 1 );
 				break;
-			case OS_INPUT_ENTER:
+			case INPUTB_ENTER:
 				if (cmd_onvideo_test() != 0) {
 					text_reset();
 					draw_text_error();
@@ -1548,7 +1550,7 @@ static int menu_run(void) {
 					text_reset();
 				}
 				break;
-			case OS_INPUT_F9:
+			case INPUTB_F9:
 				if (cmd_onvideo_calib() != 0) {
 					text_reset();
 					draw_text_error();
@@ -1556,7 +1558,7 @@ static int menu_run(void) {
 					text_reset();
 				}
 				break;
-			case OS_INPUT_F10:
+			case INPUTB_F10:
 				if (cmd_onvideo_animate() != 0) {
 					text_reset();
 					draw_text_error();
@@ -1564,10 +1566,10 @@ static int menu_run(void) {
 					text_reset();
 				}
 				break;
-			case OS_INPUT_TAB :
+			case INPUTB_TAB :
 				cmd_rename();
 				break;
-			case OS_INPUT_F5 :
+			case INPUTB_F5 :
 				if (cmd_modeline_create(1) !=0) {
 					text_reset();
 					draw_text_error();
@@ -1575,7 +1577,7 @@ static int menu_run(void) {
 					text_reset();
 				}
 				break;
-			case OS_INPUT_F6 :
+			case INPUTB_F6 :
 				if (cmd_modeline_create(0) !=0) {
 					text_reset();
 					draw_text_error();
@@ -1583,10 +1585,10 @@ static int menu_run(void) {
 					text_reset();
 				}
 				break;
-			case OS_INPUT_F7 :
+			case INPUTB_F7 :
 				cmd_copy();
 				break;
-			case OS_INPUT_F8 :
+			case INPUTB_F8 :
 				if (cmd_mode_clock() !=0) {
 					text_reset();
 					draw_text_error();
@@ -1594,11 +1596,11 @@ static int menu_run(void) {
 					text_reset();
 				}
 				break;
-			case OS_INPUT_DEL :
+			case INPUTB_DEL :
 				cmd_del();
 				cmd_gotopos( menu_base + menu_rel );
 				break;
-			case OS_INPUT_F1:
+			case INPUTB_F1:
 				draw_text_help();
 				break;
 			default:
@@ -1816,7 +1818,7 @@ int os_main(int argc, char* argv[]) {
 
 	if (video_load(the_config, "") != 0) {
 		fprintf(stderr,"Error loading the video options from the configuration file %s\n", opt_rc);
-		fprintf(stderr,"%s\n", error_description_get());
+		fprintf(stderr,"%s\n", error_get());
 		goto err_os;
 	}
 
@@ -1842,7 +1844,7 @@ int os_main(int argc, char* argv[]) {
 
 	if (monitor_load(the_config, &the_monitor) != 0) {
 		printf("Error loading the clock options from the configuration file %s\n", opt_rc);
-		printf("%s\n", error_description_get());
+		printf("%s\n", error_get());
 		goto err_input;
 	}
 
@@ -1858,7 +1860,7 @@ int os_main(int argc, char* argv[]) {
 	res = generate_interpolate_load(the_config, &the_interpolate);
 	if (res<0) {
 		fprintf(stderr,"Error loading the format options from the configuration file %s.\n", opt_rc);
-		fprintf(stderr,"%s\n", error_description_get());
+		fprintf(stderr,"%s\n", error_get());
 		goto err_input;
 	}
 	if (res>0) {
@@ -1871,7 +1873,7 @@ int os_main(int argc, char* argv[]) {
 	res = gtf_load(the_config, &the_gtf);
 	if (res<0) {
 		fprintf(stderr,"Error loading the gtf options from the configuration file %s.\n", opt_rc);
-		fprintf(stderr,"%s\n", error_description_get());
+		fprintf(stderr,"%s\n", error_get());
 		goto err_input;
 	}
 	if (res>0) {
@@ -1903,7 +1905,7 @@ int os_main(int argc, char* argv[]) {
 	video_crtc_container_init(&selected);
 
 	if (video_crtc_container_load(the_config, &selected) != 0) {
-		fprintf(stderr,error_description_get());
+		fprintf(stderr,error_get());
 		goto err_input;
 	}
 

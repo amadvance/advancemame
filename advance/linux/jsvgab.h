@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Joystick driver "svgalib".
+ */
+
 #ifndef __JSVGAB_H
 #define __JSVGAB_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Joystick driver "svgalib".
+ * \ingroup Joystick
+ */
 extern joystickb_driver joystickb_svgalib_driver;
 
 #ifdef __cplusplus

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Keyboard driver "none".
+ */
+
 #ifndef __KNONE_H
 #define __KNONE_H
 
@@ -37,7 +41,16 @@
 extern "C" {
 #endif
 
+/** \addtogroup Keyboard */
+/*@{*/
+
+/**
+ * Keyboard driver "none".
+ * This driver implement a null keyboard. No event is generated.
+ */
 extern keyb_driver keyb_none_driver;
+
+/*@}*/
 
 #ifdef __cplusplus
 }

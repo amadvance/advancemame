@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Video driver "svgalib".
+ */
+
 #ifndef __SVGALIB_H
 #define __SVGALIB_H
 
@@ -42,17 +46,17 @@ typedef struct svgalib_video_mode_struct {
 	video_crtc crtc; /**< CRTC values */
 } svgalib_video_mode;
 
-adv_error svgalib_init(int device_id);
+error svgalib_init(int device_id);
 void svgalib_done(void);
 
-adv_bool svgalib_is_active(void);
-adv_bool svgalib_mode_is_active(void);
+boolean svgalib_is_active(void);
+boolean svgalib_mode_is_active(void);
 
 unsigned svgalib_flags(void);
 
-adv_error svgalib_mode_set(const svgalib_video_mode* mode);
-adv_error svgalib_mode_change(const svgalib_video_mode* mode);
-void svgalib_mode_done(adv_bool restore);
+error svgalib_mode_set(const svgalib_video_mode* mode);
+error svgalib_mode_change(const svgalib_video_mode* mode);
+void svgalib_mode_done(boolean restore);
 
 unsigned svgalib_virtual_x(void);
 unsigned svgalib_virtual_y(void);
@@ -63,18 +67,22 @@ video_rgb_def svgalib_rgb_def(void);
 extern unsigned char* (*svgalib_write_line)(unsigned y);
 
 void svgalib_wait_vsync(void);
-adv_error svgalib_scroll(unsigned offset, adv_bool waitvsync);
-adv_error svgalib_scanline_set(unsigned byte_length);
-adv_error svgalib_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
+error svgalib_scroll(unsigned offset, boolean waitvsync);
+error svgalib_scanline_set(unsigned byte_length);
+error svgalib_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync);
 
-adv_error svgalib_mode_import(video_mode* mode, const svgalib_video_mode* svgalib_mode);
-adv_error svgalib_mode_generate(svgalib_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+error svgalib_mode_import(video_mode* mode, const svgalib_video_mode* svgalib_mode);
+error svgalib_mode_generate(svgalib_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
 int svgalib_mode_compare(const svgalib_video_mode* a, const svgalib_video_mode* b);
 
 void svgalib_default(void);
 void svgalib_reg(struct conf_context* context);
-adv_error svgalib_load(struct conf_context* context);
+error svgalib_load(struct conf_context* context);
 
+/**
+ * Video driver "svgalib".
+ * \ingroup Video
+ */
 extern video_driver video_svgalib_driver;
 
 #ifdef __cplusplus

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * All the joystick drivers.
+ */
+
 #ifndef __JOYALL_H
 #define __JOYALL_H
 
@@ -51,7 +55,12 @@ extern "C" {
 #include "jnone.h"
 #endif
 
+/** \addtogroup Joystick */
+/*@{*/
+
 void joystickb_reg_driver_all(struct conf_context* context);
+
+/*@}*/
 
 #ifdef __cplusplus
 }

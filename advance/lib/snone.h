@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Sound driver "none".
+ */
+
 #ifndef __SNONE_H
 #define __SNONE_H
 
@@ -37,7 +41,16 @@
 extern "C" {
 #endif
 
+/** \addtogroup Sound */
+/*@{*/
+
+/**
+ * Sound driver "none".
+ * This driver implement a null sound. No output is generated.
+ */
 extern sound_driver sound_none_driver;
+
+/*@}*/
 
 #ifdef __cplusplus
 }

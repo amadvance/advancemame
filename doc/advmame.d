@@ -325,9 +325,9 @@ Configuration
 	PREFIX is the installation directory configured in the
 	`makefile', generally it's `/usr/local'.
 	The $home directory is HOME/.advance/ where HOME is the
-	value of the HOME environment variable. If the HOME
-	environment variable is missing the same $root directory is
-	used.
+	value of the HOME environment variable.
+	If the HOME environment variable is missing the $root
+	directory became the $home directory.
 
 	The options in the $root directory overwrite the options in
 	the $home directory.
@@ -353,6 +353,11 @@ Configuration
 	sections in the following order:
 
 		`game' - The short game name, like `pacman'.
+		`resolutionclock' - The resolution and the clock of the
+			game, like `244x288x60' for raster games or
+			`vector' for vector games. If the vertical clock
+			is a real value, it's rounded downwards to the
+			nearest integer.
 		`resolution' - The resolution of the game, like
 			`244x288' for raster games or `vector' for
 			vector games.
@@ -367,6 +372,7 @@ Configuration
 		:display_scanlines no
 		:pacman/display_scanlines yes
 		:pacman/dir_rom C:\PACMAN
+		:244x288x60/display_scanlines yes
 		:vertical/display_ror yes
 		:horizontal/display_ror no
 
@@ -1357,6 +1363,12 @@ Configuration
 
 	Options:
 		FILE - SafeQuit file to load (default safequit.dat).
+
+Signals
+	The program intercepts the following signals:
+
+		SIGQUIT - Exit normally
+		SIGTERM - Exit restoring only the video
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni, Filipe Estima.

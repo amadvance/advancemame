@@ -513,8 +513,8 @@ struct advance_input_state {
 	int input_forced_exit_flag; /**< Flag to signal the forced exit. */
 	int input_on_this_frame_flag; /**< Flag used to signal an input on the current frame. */
 
-	unsigned char key_old[OS_KEY_MAX]; /**< Keyboard previous frame state. */
-	unsigned char key_current[OS_KEY_MAX]; /**< Keyboard current frame state. */
+	unsigned char key_old[KEYB_MAX]; /**< Keyboard previous frame state. */
+	unsigned char key_current[KEYB_MAX]; /**< Keyboard current frame state. */
 
 	int joystick_button_current[INPUT_JOY_MAX][INPUT_BUTTON_MAX]; /**< Joystick button state. */
 	int joystick_analog_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX]; /**< Joystick analog state. */

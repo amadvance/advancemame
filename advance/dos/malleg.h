@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Mouse driver "allegro".
+ */
+
 #ifndef __MALLEG_H
 #define __MALLEG_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Mouse driver "allegro".
+ * \ingroup Mouse
+ */
 extern mouseb_driver mouseb_allegro_driver;
 
 #ifdef __cplusplus

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Log.
+ */
+
 #ifndef __LOG_H
 #define __LOG_H
 
@@ -39,6 +43,9 @@ extern "C" {
 
 /***************************************************************************/
 /* Log */
+
+/** \addtogroup Log */
+/*@{*/
 
 int log_init(const char* file, int sync_flag);
 void log_done(void);
@@ -53,12 +60,15 @@ void log_f_modeline_c(const char *text, unsigned pixel_clock, unsigned hde, unsi
 #define log_std(a) log_f a
 #define log_std_modeline_cb(a) log_f_modeline_cb a
 #define log_std_modeline_c(a) log_f_modeline_c a
+
 #ifndef NDEBUG
 #define log_debug(a) log_f a
 #else
 #define log_debug(a) do { } while (0)
 #endif
 #define log_pedantic(a) do { } while (0)
+
+/*@}*/
 
 #ifdef __cplusplus
 }

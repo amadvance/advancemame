@@ -38,14 +38,14 @@
 #define FIFO_MAX 32768
 
 struct sdl_option_struct {
-	adv_bool initialized;
+	boolean initialized;
 	unsigned samples;
 };
 
 static struct sdl_option_struct sdl_option;
 
 struct sound_sdl_context {
-	adv_bool active_flag;
+	boolean active_flag;
 
 	SDL_AudioSpec info;
 
@@ -88,7 +88,7 @@ static void sound_sdl_callback(void *userdata, Uint8 *stream, int len) {
 	}
 }
 
-adv_error sound_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
+error sound_sdl_init(int sound_id, unsigned* rate, boolean stereo_flag, double buffer_time)
 {
 	char name[64];
 
@@ -193,7 +193,7 @@ void sound_sdl_play(const sound_sample_t* sample_map, unsigned sample_count) {
 	SDL_UnlockAudio();
 }
 
-adv_error sound_sdl_start(double silence_time) {
+error sound_sdl_start(double silence_time) {
 	sound_sample_t buf[256];
 	unsigned sample;
 	unsigned i;
@@ -239,7 +239,7 @@ static struct conf_enum_int OPTION[] = {
 { "16384", 16384 }
 };
 
-adv_error sound_sdl_load(struct conf_context* context) {
+error sound_sdl_load(struct conf_context* context) {
 	sdl_option.samples = conf_int_get_default(context, "device_sdl_samples");
 
 	sdl_option.initialized = 1;

@@ -40,6 +40,7 @@ MENUOBJS += \
 	$(MENUOBJ)/lib/fontdef.o \
 	$(MENUOBJ)/lib/font.o \
 	$(MENUOBJ)/lib/video.o \
+	$(MENUOBJ)/lib/rgb.o \
 	$(MENUOBJ)/lib/conf.o \
 	$(MENUOBJ)/lib/key.o \
 	$(MENUOBJ)/lib/incstr.o \

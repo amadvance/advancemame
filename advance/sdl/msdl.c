@@ -30,6 +30,7 @@
 
 #include "msdl.h"
 #include "log.h"
+#include "error.h"
 
 #include "SDL.h"
 
@@ -46,13 +47,13 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error mouseb_sdl_init(int mouseb_id)
+error mouseb_sdl_init(int mouseb_id)
 {
 	log_std(("mouseb:sdl: mouseb_sdl_init(id:%d)\n",mouseb_id));
 
 	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
 		log_std(("mouseb:sdl: not supported without the SDL video driver\n"));
-		error_description_nolog_cat("sdl: Not supported without the SDL video driver\n");
+		error_nolog_cat("sdl: Not supported without the SDL video driver\n");
 		return -1; 
 	}
 
@@ -118,7 +119,7 @@ unsigned mouseb_sdl_flags(void)
 	return 0;
 }
 
-adv_error mouseb_sdl_load(struct conf_context* context)
+error mouseb_sdl_load(struct conf_context* context)
 {
 	return 0;
 }

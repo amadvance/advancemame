@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Target OS operations.
+ */
+
 #ifndef __TARGET_H
 #define __TARGET_H
 
@@ -48,6 +52,9 @@
 extern "C" {
 #endif
 
+/** \addtogroup Target */
+/*@{*/
+
 /** Max command line length. */
 #define TARGET_MAXCMD 1024
 
@@ -57,7 +64,16 @@ extern "C" {
 /***************************************************************************/
 /* Init */
 
+/**
+ * Initialize the target system.
+ * It's called in the main() function.
+ */
 int target_init(void);
+
+/** 
+ * Deinitialize the target system.
+ * It's called in the main() function.
+ */
 void target_done(void);
 
 /***************************************************************************/
@@ -240,8 +256,12 @@ void target_signal(int signum);
  */
 void target_crash(void);
 
+/*@}*/
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+
+

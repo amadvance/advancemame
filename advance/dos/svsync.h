@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Sound driver "vsync".
+ */
+
 #ifndef __SVSYNC_H
 #define __SVSYNC_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Sound driver "vsync".
+ * \ingroup Sound
+ */
 extern sound_driver sound_vsync_driver;
 
 #ifdef __cplusplus

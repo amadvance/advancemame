@@ -18,6 +18,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * INFO file support.
+ */
+
 #ifndef __READINFO_H
 #define __READINFO_H
 
@@ -26,6 +30,9 @@ extern "C" {
 #endif
 
 #include <stdio.h>
+
+/** \addtogroup Info */
+/*@{*/
 
 enum info_t {
 	info_error,      /* generic error in reading */
@@ -46,6 +53,8 @@ enum info_t info_skip_value(FILE* f);
 unsigned info_row_get(void);
 unsigned info_col_get(void);
 unsigned info_pos_get(void);
+
+/*@}*/
 
 #ifdef __cplusplus
 }

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Sound driver "allegro".
+ */
+
 #ifndef __SALLEG_H
 #define __SALLEG_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Sound driver "allegro".
+ * \ingroup Sound
+ */
 extern sound_driver sound_allegro_driver;
 
 #ifdef __cplusplus

@@ -23,6 +23,7 @@
 #include "blit.h"
 #include "font.h"
 #include "generate.h"
+#include "error.h"
 #include "os.h"
 #include "videoall.h"
 #include "inputall.h"
@@ -276,7 +277,7 @@ static int cmd_monitor_custom(video_generate* generate) {
 	*buffer = 0;
 	done = 0;
 	while (!done) {
-		if (draw_text_read(9,2,buffer,64,COLOR_REVERSE)!=OS_INPUT_ENTER)
+		if (draw_text_read(9,2,buffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
 			return -1;
 		done = generate_parse(generate,buffer) == 0;
 		if (!done)
@@ -449,19 +450,19 @@ static int cmd_model_custom(video_monitor* monitor) {
 		draw_text_left(9,4,64,vbuffer,COLOR_NORMAL);
 		switch (state) {
 			case 0 :
-				if (draw_text_read(9,2,pbuffer,64,COLOR_REVERSE)!=OS_INPUT_ENTER)
+				if (draw_text_read(9,2,pbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
 					state = -1;
 				else
 					state = 1;
 				break;
 			case 1 :
-				if (draw_text_read(9,3,hbuffer,64,COLOR_REVERSE)!=OS_INPUT_ENTER)
+				if (draw_text_read(9,3,hbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
 					state = 0;
 				else
 					state = 2;
 				break;
 			case 2 :
-				if (draw_text_read(9,4,vbuffer,64,COLOR_REVERSE)!=OS_INPUT_ENTER)
+				if (draw_text_read(9,4,vbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
 					state = 1;
 				else
 					state = 3;
@@ -491,7 +492,7 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 	int done = 0;
 	int modify = 1;
 	int first = 1;
-	int userkey = OS_INPUT_ESC;
+	int userkey = INPUTB_ESC;
 	video_crtc current = *crtc;
 
 	double hclock = crtc->pixelclock / crtc->ht;
@@ -511,7 +512,7 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 				if (video_mode_set(&mode)!=0) {
 					text_done();
 					fprintf(stderr,"Error setting the calibration mode.\n");
-					fprintf(stderr,"%s\n",error_description_get());
+					fprintf(stderr,"%s\n",error_get());
 					exit(EXIT_FAILURE);
 				}
 				*crtc = current;
@@ -521,7 +522,7 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 				if (first) {
 					text_done();
 					fprintf(stderr,"Error in the test mode.\n");
-					fprintf(stderr,"%s\n",error_description_get());
+					fprintf(stderr,"%s\n",error_get());
 					exit(EXIT_FAILURE);
 				}
 				sound_error();
@@ -536,12 +537,12 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 
 		if (only_h_center) {
 			switch (userkey) {
-				case OS_INPUT_LEFT :
-				case OS_INPUT_RIGHT :
+				case INPUTB_LEFT :
+				case INPUTB_RIGHT :
 				case 'i' :
 				case 'I' :
-				case OS_INPUT_ENTER:
-				case OS_INPUT_ESC:
+				case INPUTB_ENTER:
+				case INPUTB_ESC:
 				break;
 				default:
 					sound_warn();
@@ -550,8 +551,8 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 		}
 
 		switch (userkey) {
-			case OS_INPUT_ENTER:
-			case OS_INPUT_ESC:
+			case INPUTB_ENTER:
+			case INPUTB_ESC:
 				done = 1;
 				break;
 			case 'i' :
@@ -576,42 +577,42 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 				current.vde += 1;
 				modify = 1;
 				break;
-			case OS_INPUT_HOME :
+			case INPUTB_HOME :
 				current.hre -= 8;
 				modify = 1;
 				break;
-			case OS_INPUT_END :
+			case INPUTB_END :
 				current.hre += 8;
 				modify = 1;
 				break;
-			case OS_INPUT_PGUP :
+			case INPUTB_PGUP :
 				current.vre -= 1;
 				modify = 1;
 				break;
-			case OS_INPUT_PGDN :
+			case INPUTB_PGDN :
 				current.vre += 1;
 				modify = 1;
 				break;
-			case OS_INPUT_LEFT :
+			case INPUTB_LEFT :
 				current.hrs -= current.hrs % 8;
 				current.hrs += 8;
 				current.hre -= current.hre % 8;
 				current.hre += 8;
 				modify = 1;
 				break;
-			case OS_INPUT_RIGHT :
+			case INPUTB_RIGHT :
 				current.hrs -= current.hrs % 8;
 				current.hrs -= 8;
 				current.hre -= current.hre % 8;
 				current.hre -= 8;
 				modify = 1;
 				break;
-			case OS_INPUT_DOWN :
+			case INPUTB_DOWN :
 				current.vrs -= 1;
 				current.vre -= 1;
 				modify = 1;
 				break;
-			case OS_INPUT_UP :
+			case INPUTB_UP :
 				current.vrs += 1;
 				current.vre += 1;
 				modify = 1;
@@ -619,7 +620,7 @@ static int adjust(const char* msg, video_crtc* crtc, unsigned bits, const video_
 		}
 	}
 
-	return userkey == OS_INPUT_ENTER ? 0 : -1;
+	return userkey == INPUTB_ENTER ? 0 : -1;
 }
 
 static void adjust_fix(const char* msg, video_crtc* crtc, unsigned bits, const video_monitor* monitor) {
@@ -636,7 +637,7 @@ static void adjust_fix(const char* msg, video_crtc* crtc, unsigned bits, const v
 		if (video_mode_set(&mode)!=0) {
 			text_done();
 			fprintf(stderr,"Error setting the calibration mode.\n");
-			fprintf(stderr,"%s\n",error_description_get());
+			fprintf(stderr,"%s\n",error_get());
 			exit(EXIT_FAILURE);
 		}
 		draw_test(2,2,msg,&current,0);
@@ -674,7 +675,7 @@ static int cmd_adjust(const char* msg, video_generate_interpolate* entry, const 
 	if (crtc_adjust_clock(&crtc, monitor)!=0) {
 		text_done();
 		fprintf(stderr,"Calibration mode unsupported.\n");
-		fprintf(stderr,"%s\n",error_description_get());
+		fprintf(stderr,"%s\n",error_get());
 		exit(EXIT_FAILURE);
 	}
 
@@ -990,7 +991,7 @@ static int cmd_interpolate_many(video_generate_interpolate_set* interpolate, con
 		res = draw_text_menu(2,y,text_size_x() - 4,text_size_y() - 2 - y,&data,mac,entry_interpolate,0, &base, &pos, &key);
 
 		if (res >= 0 && data[res].type == interpolate_mode) {
-			if (key == OS_INPUT_ENTER) {
+			if (key == INPUTB_ENTER) {
 				if (data[res].valid) {
 					if (interpolate_test("Center and resize the screen", &data[res].crtc,monitor,bits)==0)
 						data[res].selected = 1;
@@ -1193,19 +1194,19 @@ static int cmd_test_custom(int* x, int* y, double* vclock) {
 		draw_text_left(16,4,64,vbuffer,COLOR_NORMAL);
 		switch (state) {
 			case 0 :
-				if (draw_text_read(16,2,xbuffer,64,COLOR_REVERSE)!=OS_INPUT_ENTER)
+				if (draw_text_read(16,2,xbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
 					state = -1;
 				else
 					state = 1;
 				break;
 			case 1 :
-				if (draw_text_read(16,3,ybuffer,64,COLOR_REVERSE)!=OS_INPUT_ENTER)
+				if (draw_text_read(16,3,ybuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
 					state = 0;
 				else
 					state = 2;
 				break;
 			case 2 :
-				if (draw_text_read(16,4,vbuffer,64,COLOR_REVERSE)!=OS_INPUT_ENTER)
+				if (draw_text_read(16,4,vbuffer,64,COLOR_REVERSE)!=INPUTB_ENTER)
 					state = 1;
 				else
 					state = 3;
@@ -1509,7 +1510,7 @@ int os_main(int argc, char* argv[]) {
 
 	if (video_load(config, "") != 0) {
 		fprintf(stderr,"Error loading the video options from the configuration file %s.\n", opt_rc);
-		fprintf(stderr,"%s\n",error_description_get());
+		fprintf(stderr,"%s\n",error_get());
 		goto err_os;
 	}
 

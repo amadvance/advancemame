@@ -31,6 +31,7 @@
 #include "ksvgab.h"
 #include "log.h"
 #include "oslinux.h"
+#include "error.h"
 
 #include <vgakeyboard.h>
 
@@ -39,119 +40,119 @@
 #endif
 
 struct keyb_svgalib_context {
-	unsigned map_os_to_code[OS_KEY_MAX];
+	unsigned map_os_to_code[KEYB_MAX];
 };
 
 static struct keyb_pair {
 	int os;
 	int code;
 } KEYS[] = {
-{ OS_KEY_A, SCANCODE_A },
-{ OS_KEY_B, SCANCODE_B },
-{ OS_KEY_C, SCANCODE_C },
-{ OS_KEY_D, SCANCODE_D },
-{ OS_KEY_E, SCANCODE_E },
-{ OS_KEY_F, SCANCODE_F },
-{ OS_KEY_G, SCANCODE_G },
-{ OS_KEY_H, SCANCODE_H },
-{ OS_KEY_I, SCANCODE_I },
-{ OS_KEY_J, SCANCODE_J },
-{ OS_KEY_K, SCANCODE_K },
-{ OS_KEY_L, SCANCODE_L },
-{ OS_KEY_M, SCANCODE_M },
-{ OS_KEY_N, SCANCODE_N },
-{ OS_KEY_O, SCANCODE_O },
-{ OS_KEY_P, SCANCODE_P },
-{ OS_KEY_Q, SCANCODE_Q },
-{ OS_KEY_R, SCANCODE_R },
-{ OS_KEY_S, SCANCODE_S },
-{ OS_KEY_T, SCANCODE_T },
-{ OS_KEY_U, SCANCODE_U },
-{ OS_KEY_V, SCANCODE_V },
-{ OS_KEY_W, SCANCODE_W },
-{ OS_KEY_X, SCANCODE_X },
-{ OS_KEY_Y, SCANCODE_Y },
-{ OS_KEY_Z, SCANCODE_Z },
-{ OS_KEY_0, SCANCODE_0 },
-{ OS_KEY_1, SCANCODE_1 },
-{ OS_KEY_2, SCANCODE_2 },
-{ OS_KEY_3, SCANCODE_3 },
-{ OS_KEY_4, SCANCODE_4 },
-{ OS_KEY_5, SCANCODE_5 },
-{ OS_KEY_6, SCANCODE_6 },
-{ OS_KEY_7, SCANCODE_7 },
-{ OS_KEY_8, SCANCODE_8 },
-{ OS_KEY_9, SCANCODE_9 },
-{ OS_KEY_0_PAD, SCANCODE_KEYPAD0 },
-{ OS_KEY_1_PAD, SCANCODE_KEYPAD1 },
-{ OS_KEY_2_PAD, SCANCODE_KEYPAD2 },
-{ OS_KEY_3_PAD, SCANCODE_KEYPAD3 },
-{ OS_KEY_4_PAD, SCANCODE_KEYPAD4 },
-{ OS_KEY_5_PAD, SCANCODE_KEYPAD5 },
-{ OS_KEY_6_PAD, SCANCODE_KEYPAD6 },
-{ OS_KEY_7_PAD, SCANCODE_KEYPAD7 },
-{ OS_KEY_8_PAD, SCANCODE_KEYPAD8 },
-{ OS_KEY_9_PAD, SCANCODE_KEYPAD9 },
-{ OS_KEY_F1, SCANCODE_F1 },
-{ OS_KEY_F2, SCANCODE_F2 },
-{ OS_KEY_F3, SCANCODE_F3 },
-{ OS_KEY_F4, SCANCODE_F4 },
-{ OS_KEY_F5, SCANCODE_F5 },
-{ OS_KEY_F6, SCANCODE_F6 },
-{ OS_KEY_F7, SCANCODE_F7 },
-{ OS_KEY_F8, SCANCODE_F8 },
-{ OS_KEY_F9, SCANCODE_F9 },
-{ OS_KEY_F10, SCANCODE_F10 },
-{ OS_KEY_F11, SCANCODE_F11 },
-{ OS_KEY_F12, SCANCODE_F12 },
-{ OS_KEY_ESC, SCANCODE_ESCAPE },
-{ OS_KEY_BACKQUOTE, SCANCODE_GRAVE },
-{ OS_KEY_MINUS, SCANCODE_MINUS },
-{ OS_KEY_EQUALS, SCANCODE_EQUAL },
-{ OS_KEY_BACKSPACE, SCANCODE_BACKSPACE },
-{ OS_KEY_TAB, SCANCODE_TAB },
-{ OS_KEY_OPENBRACE, SCANCODE_BRACKET_LEFT },
-{ OS_KEY_CLOSEBRACE, SCANCODE_BRACKET_RIGHT },
-{ OS_KEY_ENTER, SCANCODE_ENTER },
-{ OS_KEY_SEMICOLON, SCANCODE_SEMICOLON },
-{ OS_KEY_QUOTE, SCANCODE_APOSTROPHE },
-{ OS_KEY_BACKSLASH, SCANCODE_BACKSLASH },
-{ OS_KEY_LESS, SCANCODE_LESS },
-{ OS_KEY_COMMA, SCANCODE_COMMA },
-{ OS_KEY_PERIOD, SCANCODE_PERIOD },
-{ OS_KEY_SLASH, SCANCODE_SLASH },
-{ OS_KEY_SPACE, SCANCODE_SPACE },
-{ OS_KEY_INSERT, SCANCODE_INSERT },
-{ OS_KEY_DEL, SCANCODE_REMOVE },
-{ OS_KEY_HOME, SCANCODE_HOME },
-{ OS_KEY_END, SCANCODE_END },
-{ OS_KEY_PGUP, SCANCODE_PAGEUP },
-{ OS_KEY_PGDN, SCANCODE_PAGEDOWN },
-{ OS_KEY_LEFT, SCANCODE_CURSORBLOCKLEFT },
-{ OS_KEY_RIGHT, SCANCODE_CURSORBLOCKRIGHT },
-{ OS_KEY_UP, SCANCODE_CURSORBLOCKUP },
-{ OS_KEY_DOWN, SCANCODE_CURSORBLOCKDOWN },
-{ OS_KEY_SLASH_PAD, SCANCODE_KEYPADDIVIDE },
-{ OS_KEY_ASTERISK, SCANCODE_KEYPADMULTIPLY },
-{ OS_KEY_MINUS_PAD, SCANCODE_KEYPADMINUS },
-{ OS_KEY_PLUS_PAD, SCANCODE_KEYPADPLUS },
-{ OS_KEY_PERIOD_PAD, SCANCODE_KEYPADPERIOD },
-{ OS_KEY_ENTER_PAD, SCANCODE_KEYPADENTER },
-{ OS_KEY_PRTSCR, SCANCODE_PRINTSCREEN },
-{ OS_KEY_PAUSE, SCANCODE_BREAK },
-{ OS_KEY_LSHIFT, SCANCODE_LEFTSHIFT },
-{ OS_KEY_RSHIFT, SCANCODE_RIGHTSHIFT },
-{ OS_KEY_LCONTROL, SCANCODE_LEFTCONTROL },
-{ OS_KEY_RCONTROL, SCANCODE_RIGHTCONTROL },
-{ OS_KEY_ALT, SCANCODE_LEFTALT },
-{ OS_KEY_ALTGR, SCANCODE_RIGHTALT },
-{ OS_KEY_LWIN, SCANCODE_LEFTWIN },
-{ OS_KEY_RWIN, SCANCODE_RIGHTWIN },
-{ OS_KEY_MENU, 127 /* Not defined by SVGALIB */ },
-{ OS_KEY_SCRLOCK, SCANCODE_SCROLLLOCK },
-{ OS_KEY_NUMLOCK, SCANCODE_NUMLOCK },
-{ OS_KEY_CAPSLOCK, SCANCODE_CAPSLOCK },
-{ OS_KEY_MAX, 0 }
+{ KEYB_A, SCANCODE_A },
+{ KEYB_B, SCANCODE_B },
+{ KEYB_C, SCANCODE_C },
+{ KEYB_D, SCANCODE_D },
+{ KEYB_E, SCANCODE_E },
+{ KEYB_F, SCANCODE_F },
+{ KEYB_G, SCANCODE_G },
+{ KEYB_H, SCANCODE_H },
+{ KEYB_I, SCANCODE_I },
+{ KEYB_J, SCANCODE_J },
+{ KEYB_K, SCANCODE_K },
+{ KEYB_L, SCANCODE_L },
+{ KEYB_M, SCANCODE_M },
+{ KEYB_N, SCANCODE_N },
+{ KEYB_O, SCANCODE_O },
+{ KEYB_P, SCANCODE_P },
+{ KEYB_Q, SCANCODE_Q },
+{ KEYB_R, SCANCODE_R },
+{ KEYB_S, SCANCODE_S },
+{ KEYB_T, SCANCODE_T },
+{ KEYB_U, SCANCODE_U },
+{ KEYB_V, SCANCODE_V },
+{ KEYB_W, SCANCODE_W },
+{ KEYB_X, SCANCODE_X },
+{ KEYB_Y, SCANCODE_Y },
+{ KEYB_Z, SCANCODE_Z },
+{ KEYB_0, SCANCODE_0 },
+{ KEYB_1, SCANCODE_1 },
+{ KEYB_2, SCANCODE_2 },
+{ KEYB_3, SCANCODE_3 },
+{ KEYB_4, SCANCODE_4 },
+{ KEYB_5, SCANCODE_5 },
+{ KEYB_6, SCANCODE_6 },
+{ KEYB_7, SCANCODE_7 },
+{ KEYB_8, SCANCODE_8 },
+{ KEYB_9, SCANCODE_9 },
+{ KEYB_0_PAD, SCANCODE_KEYPAD0 },
+{ KEYB_1_PAD, SCANCODE_KEYPAD1 },
+{ KEYB_2_PAD, SCANCODE_KEYPAD2 },
+{ KEYB_3_PAD, SCANCODE_KEYPAD3 },
+{ KEYB_4_PAD, SCANCODE_KEYPAD4 },
+{ KEYB_5_PAD, SCANCODE_KEYPAD5 },
+{ KEYB_6_PAD, SCANCODE_KEYPAD6 },
+{ KEYB_7_PAD, SCANCODE_KEYPAD7 },
+{ KEYB_8_PAD, SCANCODE_KEYPAD8 },
+{ KEYB_9_PAD, SCANCODE_KEYPAD9 },
+{ KEYB_F1, SCANCODE_F1 },
+{ KEYB_F2, SCANCODE_F2 },
+{ KEYB_F3, SCANCODE_F3 },
+{ KEYB_F4, SCANCODE_F4 },
+{ KEYB_F5, SCANCODE_F5 },
+{ KEYB_F6, SCANCODE_F6 },
+{ KEYB_F7, SCANCODE_F7 },
+{ KEYB_F8, SCANCODE_F8 },
+{ KEYB_F9, SCANCODE_F9 },
+{ KEYB_F10, SCANCODE_F10 },
+{ KEYB_F11, SCANCODE_F11 },
+{ KEYB_F12, SCANCODE_F12 },
+{ KEYB_ESC, SCANCODE_ESCAPE },
+{ KEYB_BACKQUOTE, SCANCODE_GRAVE },
+{ KEYB_MINUS, SCANCODE_MINUS },
+{ KEYB_EQUALS, SCANCODE_EQUAL },
+{ KEYB_BACKSPACE, SCANCODE_BACKSPACE },
+{ KEYB_TAB, SCANCODE_TAB },
+{ KEYB_OPENBRACE, SCANCODE_BRACKET_LEFT },
+{ KEYB_CLOSEBRACE, SCANCODE_BRACKET_RIGHT },
+{ KEYB_ENTER, SCANCODE_ENTER },
+{ KEYB_SEMICOLON, SCANCODE_SEMICOLON },
+{ KEYB_QUOTE, SCANCODE_APOSTROPHE },
+{ KEYB_BACKSLASH, SCANCODE_BACKSLASH },
+{ KEYB_LESS, SCANCODE_LESS },
+{ KEYB_COMMA, SCANCODE_COMMA },
+{ KEYB_PERIOD, SCANCODE_PERIOD },
+{ KEYB_SLASH, SCANCODE_SLASH },
+{ KEYB_SPACE, SCANCODE_SPACE },
+{ KEYB_INSERT, SCANCODE_INSERT },
+{ KEYB_DEL, SCANCODE_REMOVE },
+{ KEYB_HOME, SCANCODE_HOME },
+{ KEYB_END, SCANCODE_END },
+{ KEYB_PGUP, SCANCODE_PAGEUP },
+{ KEYB_PGDN, SCANCODE_PAGEDOWN },
+{ KEYB_LEFT, SCANCODE_CURSORBLOCKLEFT },
+{ KEYB_RIGHT, SCANCODE_CURSORBLOCKRIGHT },
+{ KEYB_UP, SCANCODE_CURSORBLOCKUP },
+{ KEYB_DOWN, SCANCODE_CURSORBLOCKDOWN },
+{ KEYB_SLASH_PAD, SCANCODE_KEYPADDIVIDE },
+{ KEYB_ASTERISK, SCANCODE_KEYPADMULTIPLY },
+{ KEYB_MINUS_PAD, SCANCODE_KEYPADMINUS },
+{ KEYB_PLUS_PAD, SCANCODE_KEYPADPLUS },
+{ KEYB_PERIOD_PAD, SCANCODE_KEYPADPERIOD },
+{ KEYB_ENTER_PAD, SCANCODE_KEYPADENTER },
+{ KEYB_PRTSCR, SCANCODE_PRINTSCREEN },
+{ KEYB_PAUSE, SCANCODE_BREAK },
+{ KEYB_LSHIFT, SCANCODE_LEFTSHIFT },
+{ KEYB_RSHIFT, SCANCODE_RIGHTSHIFT },
+{ KEYB_LCONTROL, SCANCODE_LEFTCONTROL },
+{ KEYB_RCONTROL, SCANCODE_RIGHTCONTROL },
+{ KEYB_ALT, SCANCODE_LEFTALT },
+{ KEYB_ALTGR, SCANCODE_RIGHTALT },
+{ KEYB_LWIN, SCANCODE_LEFTWIN },
+{ KEYB_RWIN, SCANCODE_RIGHTWIN },
+{ KEYB_MENU, 127 /* Not defined by SVGALIB */ },
+{ KEYB_SCRLOCK, SCANCODE_SCROLLLOCK },
+{ KEYB_NUMLOCK, SCANCODE_NUMLOCK },
+{ KEYB_CAPSLOCK, SCANCODE_CAPSLOCK },
+{ KEYB_MAX, 0 }
 };
 
 static struct keyb_svgalib_context svgalib_state;
@@ -161,7 +162,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error keyb_svgalib_init(int keyb_id, adv_bool disable_special)
+error keyb_svgalib_init(int keyb_id, boolean disable_special)
 {
 	struct keyb_pair* i;
 	unsigned j;
@@ -170,22 +171,22 @@ adv_error keyb_svgalib_init(int keyb_id, adv_bool disable_special)
 
 	if (!os_internal_svgalib_get()) {
 		log_std(("keyb:svgalib: svgalib not initialized\n"));
-		error_description_nolog_cat("svgalib: Not supported without the svgalib library\n");
+		error_nolog_cat("svgalib: Not supported without the svgalib library\n");
 		return -1;
 	}
 	
 #ifdef USE_VIDEO_SDL
 	if (SDL_WasInit(SDL_INIT_VIDEO)) {
 		log_std(("keyb:svgalib: Incompatible with the SDL video driver\n"));
-		error_description_nolog_cat("svgalib: Incompatible with the SDL video driver\n");
+		error_nolog_cat("svgalib: Incompatible with the SDL video driver\n");
 		return -1; 
 	}
 #endif
 
-	for(j=0;j<OS_KEY_MAX;++j) {
+	for(j=0;j<KEYB_MAX;++j) {
 		svgalib_state.map_os_to_code[j] = 0;
 	}
-	for(i=KEYS;i->os != OS_KEY_MAX;++i) {
+	for(i=KEYS;i->os != KEYB_MAX;++i) {
 		svgalib_state.map_os_to_code[i->os] = i->code;
 	}
 
@@ -208,12 +209,12 @@ unsigned keyb_svgalib_get(unsigned code)
 {
 	unsigned svgalib_code;
 
-	assert( code < OS_KEY_MAX);
+	assert( code < KEYB_MAX);
 
 	log_debug(("keyb:svgalib: keyb_svgalib_get(code:%d)\n",code));
 
 	/* disable the pause key */
-	if (code == OS_KEY_PAUSE)
+	if (code == KEYB_PAUSE)
 		return 0;
 
 	svgalib_code = svgalib_state.map_os_to_code[code];
@@ -232,7 +233,7 @@ void keyb_svgalib_all_get(unsigned char* code_map)
 
 	log_debug(("keyb:svgalib: keyb_svgalib_all_get()\n"));
 
-	for(i=0;i<OS_KEY_MAX;++i) {
+	for(i=0;i<KEYB_MAX;++i) {
 		unsigned svgalib_code = svgalib_state.map_os_to_code[i];
 		if (svgalib_code)
 			code_map[i] = keyboard_keypressed(svgalib_code);
@@ -241,7 +242,7 @@ void keyb_svgalib_all_get(unsigned char* code_map)
 	}
 
 	/* disable the pause key */
-	code_map[OS_KEY_PAUSE] = 0;
+	code_map[KEYB_PAUSE] = 0;
 }
 
 void keyb_svgalib_poll()
@@ -256,7 +257,7 @@ unsigned keyb_svgalib_flags(void)
 	return 0;
 }
 
-adv_error keyb_svgalib_load(struct conf_context* context)
+error keyb_svgalib_load(struct conf_context* context)
 {
 	return 0;
 }

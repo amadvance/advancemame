@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Keyboard driver "sdl".
+ */
+
 #ifndef __KSDL_H
 #define __KSDL_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Keyboard driver "sdl".
+ * \ingroup Keyboard
+ */
 extern keyb_driver keyb_sdl_driver;
 
 void keyb_sdl_event_press(unsigned code);

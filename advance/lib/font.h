@@ -18,6 +18,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * Font.
+ */
+
 #ifndef __FONT_H
 #define __FONT_H
 
@@ -27,11 +31,20 @@ extern "C" {
 
 #include "bitmap.h"
 
+/**
+ * Max number of chars in a font.
+ */
 #define BITMAP_FONT_MAX 256
 
+/**
+ * Font.
+ */
 struct bitmapfont {
-	struct bitmap* data[BITMAP_FONT_MAX];
+	struct bitmap* data[BITMAP_FONT_MAX]; /**< A bitmap for every ASCII char. */
 };
+
+/** \addtogroup Font */
+/*@{*/
 
 struct bitmapfont* bitmapfont_inport_raw(unsigned char* data, unsigned data_size);
 struct bitmapfont* bitmapfont_inport_grx(unsigned char* data);
@@ -44,8 +57,12 @@ unsigned bitmapfont_size_y(struct bitmapfont* font);
 
 void bitmapfont_orientation(struct bitmapfont* font, unsigned orientation_mask);
 
+/*@}*/
+
 #ifdef __cplusplus
 };
 #endif
 
 #endif
+
+

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Joystick driver "sdl".
+ */
+
 #ifndef __JSDL_H
 #define __JSDL_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Joystick driver "sdl".
+ * \ingroup Joystick
+ */
 extern joystickb_driver joystickb_sdl_driver;
 
 #ifdef __cplusplus

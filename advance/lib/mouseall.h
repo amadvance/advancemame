@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * All the mouse drivers.
+ */
+
 #ifndef __MOUSEALL_H
 #define __MOUSEALL_H
 
@@ -51,7 +55,12 @@ extern "C" {
 #include "mnone.h"
 #endif
 
+/** \addtogroup Mouse */
+/*@{*/
+
 void mouseb_reg_driver_all(struct conf_context* context);
+
+/*@}*/
 
 #ifdef __cplusplus
 }

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Sound driver "sdl".
+ */
+
 #ifndef __SSDL_H
 #define __SSDL_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Sound driver "sdl".
+ * \ingroup Sound
+ */
 extern sound_driver sound_sdl_driver;
 
 void sound_sdl_default(void);

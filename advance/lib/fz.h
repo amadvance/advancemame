@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Generic compressed file support.
+ */
+
 #ifndef __FZ_H
 #define __FZ_H
 
@@ -44,6 +48,9 @@ enum fz_type {
 	fz_file_compressed /* compressed file, eventually only a part */
 };
 
+/**
+ * Compressed file context.
+ */
 typedef struct fz {
 	unsigned type; /* type of file, fz_* */
 	unsigned virtual_pos; /* current position on the virtual file */
@@ -64,26 +71,31 @@ typedef struct fz {
 	unsigned remaining;
 } FZ;
 
+/** \addtogroup CompressedFile */
+/*@{*/
+
 FZ* fzopen(const char* file, const char* mode);
 FZ* fzopenzipuncompressed(const char* file, unsigned offset, unsigned size);
 FZ* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_compressed, unsigned size_uncompressed);
 FZ* fzopenmemory(const unsigned char* data, unsigned size);
 
 unsigned fzread(void *buffer, unsigned size, unsigned number, FZ* f);
+unsigned fzwrite(const void *buffer, unsigned size, unsigned number, FZ* f);
 int fzclose(FZ* f);
 long fztell(FZ* f);
 long fzsize(FZ* f);
 int fzseek(FZ* f, long offset, int mode);
-
-/* only for plain file */
 int fzgetc(FZ* f);
 int fzungetc(int c, FZ* f);
 char* fzgets(char *s, int n, FZ* f);
 int fzeof(FZ* f);
-unsigned fzwrite(const void *buffer, unsigned size, unsigned number, FZ* f);
+
+/*@}*/
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+
+

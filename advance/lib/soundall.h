@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * All the sound drivers.
+ */
+
 #ifndef __SOUNDALL_H
 #define __SOUNDALL_H
 
@@ -57,7 +61,12 @@ extern "C" {
 #include "snone.h"
 #endif
 
+/** \addtogroup Sound */
+/*@{*/
+
 void sound_reg_driver_all(struct conf_context* context);
+
+/*@}*/
 
 #ifdef __cplusplus
 }

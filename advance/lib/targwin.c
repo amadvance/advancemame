@@ -163,7 +163,7 @@ static int exec(char* cmdline) {
 			break;
 		}
 
-		if (os_is_term()) {
+		if (os_is_quit()) {
 			log_std(("win: GetExitCodeProcess() aborted due TERM signal\n"));
 			exitcode = -1;
 			break;

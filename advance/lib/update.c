@@ -115,7 +115,7 @@ void update_start(void) {
 }
 
 /* End drawing to page */
-void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool wait_retrace) {
+void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, boolean wait_retrace) {
 	assert( video_update_draw_allowed );
 	video_update_draw_allowed = 0;
 

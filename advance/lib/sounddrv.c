@@ -30,6 +30,7 @@
 
 #include "sounddrv.h"
 #include "log.h"
+#include "error.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -40,7 +41,7 @@ void sound_default(void) {
 	strcpy(sound_state.name, "auto");
 }
 
-void sound_reg(struct conf_context* context, adv_bool auto_detect) {
+void sound_reg(struct conf_context* context, boolean auto_detect) {
 	conf_string_register_default(context, "device_sound", auto_detect ? "auto" : "none");
 }
 
@@ -55,7 +56,7 @@ void sound_reg_driver(struct conf_context* context, sound_driver* driver) {
 	++sound_state.driver_mac;
 }
 
-adv_error sound_load(struct conf_context* context) {
+error sound_load(struct conf_context* context) {
 	unsigned i;
 	int at_least_one;
 
@@ -88,7 +89,7 @@ adv_error sound_load(struct conf_context* context) {
 	return 0;
 }
 
-adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time) {
+error sound_init(unsigned* rate, boolean stereo_flag, double buffer_time) {
 	unsigned i;
 
 	assert(sound_state.driver_current == 0);
@@ -102,7 +103,7 @@ adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time) {
 	}
 
 	/* store the error prefix */
-	error_description_nolog_set("Unable to inizialize a sound driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize a sound driver. The following are the errors:\n");
 
 	for(i=0;i<sound_state.driver_mac;++i) {
 		const device* dev;

@@ -28,6 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * OS services.
+ */
+
+/** \addtogroup System */
+/*@{*/
+
 #ifndef __OS_H
 #define __OS_H
 
@@ -40,27 +47,73 @@ extern "C" {
 /***************************************************************************/
 /* Init/Done */
 
+/**
+ * Initialize the OS.
+ */
 int os_init(struct conf_context* context);
+
+/**
+ * Deinitialize the OS.
+ */
 void os_done(void);
+
+/**
+ * Initialize the inner OS.
+ */
 int os_inner_init(const char* title);
+
+/**
+ * Deinitialize the inner OS.
+ */
 void os_inner_done(void);
+
+/**
+ * Poll the OS event queue.
+ */
 void os_poll(void);
+
+/**
+ * Main program function.
+ * The user must implement this function instead of main().
+ */
 int os_main(int argc, char* argv[]);
 
 /***************************************************************************/
 /* Signal */
 
-int os_is_term(void);
+/**
+ * Check if program termination was requested.
+ */
+int os_is_quit(void);
+
+/**
+ * Manage a signal.
+ * The user must implement this function. Eventually call simply os_default_signal().
+ */
 void os_signal(int signum);
+
+/**
+ * Default behaviour for a signal.
+ */
 void os_default_signal(int signum);
 
 /***************************************************************************/
 /* Clocks */
 
+/**
+ * Type for the os_clock() function.
+ */
 typedef long long os_clock_t;
 
+/**
+ * Number of clock ticks per second.
+ */
 extern os_clock_t OS_CLOCKS_PER_SEC;
 
+/**
+ * Get the current clock value.
+ * The base unit is ::OS_CLOCKS_PER_SEC.
+ */
 os_clock_t os_clock(void);
 
 /***************************************************************************/
@@ -70,6 +123,9 @@ os_clock_t os_clock(void);
 #define OS_LED_CAPSLOCK 0x2
 #define OS_LED_SCROLOCK 0x4
 
+/**
+ * Set the keyboard led status.
+ */
 void os_led_set(unsigned mask);
 
 #ifdef __cplusplus
@@ -77,3 +133,5 @@ void os_led_set(unsigned mask);
 #endif
 
 #endif
+
+/*@}*/

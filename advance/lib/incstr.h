@@ -28,6 +28,11 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Incremental string.
+ */
+
+
 #ifndef __INCSTR_H
 #define __INCSTR_H
 
@@ -35,15 +40,18 @@
 #include <string.h>
 
 /**
- * Length of the first substring. 2^length.
+ * \internal Length of the first substring. 2^length.
  */
 #define STR_MIN 8
 
 /**
- * Max length of a substring. 2^length.
+ * \internal Max length of a substring. 2^length.
  */
 #define STR_MAX (31 - STR_MIN)
 
+/**
+ * Incremental string.
+ */
 struct inc_str {
 	char buffer_map0[1 << STR_MIN]; /**< First substring */
 	char* buffer_map[STR_MAX]; /**< Vector of substring */
@@ -53,6 +61,10 @@ struct inc_str {
 	char* current; /**< Current substring */
 	unsigned result_mac; /**< Current length */
 };
+
+/** \addtogroup String */
+/*@{*/
+
 
 /**
  * Initialize the string.
@@ -66,17 +78,36 @@ void inc_str_done(struct inc_str* str);
 
 /**
  * Cat a string.
+ * \param str Destination string.
+ * \param s String to cat.
+ * \param len Max number of char to cat.
  * \return
  *  - ==0 if ok
  *  - !=0 if error, errno set
  */
-/**{*/
 int inc_str_catm(struct inc_str* str, const char* s, unsigned len);
+
+/**
+ * Cat a string.
+ * \param str Destination string.
+ * \param c Char to cat.
+ * \return
+ *  - ==0 if ok
+ *  - !=0 if error, errno set
+ */
 int inc_str_catc(struct inc_str* str, char c);
+
+/**
+ * Cat a string.
+ * \param str Destination string.
+ * \param s String to cat. 
+ * \return
+ *  - ==0 if ok
+ *  - !=0 if error, errno set
+ */
 static __inline__ int inc_str_cat(struct inc_str* str, const char* s) {
 	return inc_str_catm(str,s,strlen(s));
 }
-/**}*/
 
 /**
  * Get the current string.
@@ -90,4 +121,7 @@ char* inc_str_alloc(struct inc_str* str);
  */
 unsigned inc_str_len(struct inc_str* str);
 
+/*@}*/
+
 #endif
+

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Mouse driver "svgalib".
+ */
+
 #ifndef __MSVGAB_H
 #define __MSVGAB_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Mouse driver "svgalib".
+ * \ingroup Mouse
+ */
 extern mouseb_driver mouseb_svgalib_driver;
 
 #ifdef __cplusplus

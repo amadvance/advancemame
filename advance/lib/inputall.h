@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * All the input drivers.
+ */
+
 #ifndef __INPUTALL_H
 #define __INPUTALL_H
 
@@ -48,7 +52,12 @@ extern "C" {
 #include "inone.h"
 #endif
 
+/** \addtogroup Input */
+/*@{*/
+
 void inputb_reg_driver_all(struct conf_context* context);
+
+/*@}*/
 
 #ifdef __cplusplus
 }

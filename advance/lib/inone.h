@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Input driver "none".
+ */
+
 #ifndef __INONE_H
 #define __INONE_H
 
@@ -37,7 +41,16 @@
 extern "C" {
 #endif
 
+/** \addtogroup Input */
+/*@{*/
+
+/**
+ * Input driver "none".
+ * This driver implement a null input. No event is generated.
+ */
 extern inputb_driver inputb_none_driver;
+
+/*@}*/
 
 #ifdef __cplusplus
 }

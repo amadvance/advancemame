@@ -20,30 +20,23 @@
 
 #include "zlib.h"
 #include "unzip.h"
+#include "endianrw.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
 
-uint32 zip_read_dword(void* _data) {
-	uint8* data = (uint8*)_data;
-	return (uint32)data[0] | (((uint32)data[1]) << 8) | (((uint32)data[2]) << 16) | (((uint32)data[3]) << 24);
-}
-
-uint16 zip_read_word(void* _data) {
-	uint8* data = (uint8*)_data;
-	return (uint16)data[0] | (((uint16)data[1]) << 8);
-}
-
-/* Locate end-of-central-dir sig in buffer and return offset
-   out:
-	*offset offset of cent dir start in buffer
-   return:
-	==0 not found
-	!=0 found, *offset valid
-*/
-static int ecd_find_sig (char *buffer, int buflen, int *offset)
+/**
+ * Locate end-of-central-dir sig in buffer and return offset.
+ * \param buffer Buffer in which search.
+ * \param buflen Buffer length.
+ * \param offset Where to set the found offset.
+ * \return
+ *  - ==0 not found
+ *  - !=0 found, *offset valid
+ */
+static int ecd_find_sig(char *buffer, int buflen, int *offset)
 {
 	static char ecdsig[] = { 'P', 'K', 0x05, 0x06 };
 	int i;
@@ -56,7 +49,8 @@ static int ecd_find_sig (char *buffer, int buflen, int *offset)
 	return 0;
 }
 
-/* Read ecd data in zip structure
+/*
+   Read ecd data in zip structure.
    in:
      zip->fp, zip->length zip file
    out:
@@ -121,11 +115,6 @@ static int ecd_read(ZIP* zip, char** data, unsigned* size) {
 	}
 }
 
-/* Opens a zip stream for reading
-   return:
-     !=0 success, zip stream
-     ==0 error
-*/
 ZIP* openzip(const char* zipfile) {
 	char* ezdata = 0;
 	unsigned ezsize = 0;
@@ -171,14 +160,14 @@ ZIP* openzip(const char* zipfile) {
 	}
 
 	/* compile ecd info */
-	zip->end_of_cent_dir_sig = zip_read_dword (zip->ecd+ZIP_EO_end_of_central_dir_signature);
-	zip->number_of_this_disk = zip_read_word (zip->ecd+ZIP_EO_number_of_this_disk);
-	zip->number_of_disk_start_cent_dir = zip_read_word (zip->ecd+ZIP_EO_number_of_disk_start_cent_dir);
-	zip->total_entries_cent_dir_this_disk = zip_read_word (zip->ecd+ZIP_EO_total_entries_cent_dir_this_disk);
-	zip->total_entries_cent_dir = zip_read_word (zip->ecd+ZIP_EO_total_entries_cent_dir);
-	zip->size_of_cent_dir = zip_read_dword (zip->ecd+ZIP_EO_size_of_cent_dir);
-	zip->offset_to_start_of_cent_dir = zip_read_dword (zip->ecd+ZIP_EO_offset_to_start_of_cent_dir);
-	zip->zipfile_comment_length = zip_read_word (zip->ecd+ZIP_EO_zipfile_comment_length);
+	zip->end_of_cent_dir_sig = le_uint32_read(zip->ecd+ZIP_EO_end_of_central_dir_signature);
+	zip->number_of_this_disk = le_uint16_read(zip->ecd+ZIP_EO_number_of_this_disk);
+	zip->number_of_disk_start_cent_dir = le_uint16_read(zip->ecd+ZIP_EO_number_of_disk_start_cent_dir);
+	zip->total_entries_cent_dir_this_disk = le_uint16_read(zip->ecd+ZIP_EO_total_entries_cent_dir_this_disk);
+	zip->total_entries_cent_dir = le_uint16_read(zip->ecd+ZIP_EO_total_entries_cent_dir);
+	zip->size_of_cent_dir = le_uint32_read(zip->ecd+ZIP_EO_size_of_cent_dir);
+	zip->offset_to_start_of_cent_dir = le_uint32_read(zip->ecd+ZIP_EO_offset_to_start_of_cent_dir);
+	zip->zipfile_comment_length = le_uint16_read(zip->ecd+ZIP_EO_zipfile_comment_length);
 	zip->zipfile_comment = zip->ecd+ZIP_EO_zipfile_comment;
 
 	/* verify that we can work with this zipfile (no disk spanning allowed) */
@@ -250,13 +239,6 @@ ZIP* openzip(const char* zipfile) {
 	return zip;
 }
 
-/* Reads the current entry from a zip stream
-   in:
-     zip opened zip
-   return:
-     !=0 success
-     ==0 error
-*/
 struct zipent* readzip(ZIP* zip) {
 	unsigned i;
 
@@ -265,25 +247,25 @@ struct zipent* readzip(ZIP* zip) {
 		return 0;
 
 	/* compile zipent info */
-	zip->ent.cent_file_header_sig = zip_read_dword (zip->cd+zip->cd_pos+ZIP_CO_central_file_header_signature);
+	zip->ent.cent_file_header_sig = le_uint32_read(zip->cd+zip->cd_pos+ZIP_CO_central_file_header_signature);
 	zip->ent.version_made_by = *(zip->cd+zip->cd_pos+ZIP_CO_version_made_by);
 	zip->ent.host_os = *(zip->cd+zip->cd_pos+ZIP_CO_host_os);
 	zip->ent.version_needed_to_extract = *(zip->cd+zip->cd_pos+ZIP_CO_version_needed_to_extract);
 	zip->ent.os_needed_to_extract = *(zip->cd+zip->cd_pos+ZIP_CO_os_needed_to_extract);
-	zip->ent.general_purpose_bit_flag = zip_read_word (zip->cd+zip->cd_pos+ZIP_CO_general_purpose_bit_flag);
-	zip->ent.compression_method = zip_read_word (zip->cd+zip->cd_pos+ZIP_CO_compression_method);
-	zip->ent.last_mod_file_time = zip_read_word (zip->cd+zip->cd_pos+ZIP_CO_last_mod_file_time);
-	zip->ent.last_mod_file_date = zip_read_word (zip->cd+zip->cd_pos+ZIP_CO_last_mod_file_date);
-	zip->ent.crc32 = zip_read_dword (zip->cd+zip->cd_pos+ZIP_CO_crc32);
-	zip->ent.compressed_size = zip_read_dword (zip->cd+zip->cd_pos+ZIP_CO_compressed_size);
-	zip->ent.uncompressed_size = zip_read_dword (zip->cd+zip->cd_pos+ZIP_CO_uncompressed_size);
-	zip->ent.filename_length = zip_read_word (zip->cd+zip->cd_pos+ZIP_CO_filename_length);
-	zip->ent.extra_field_length = zip_read_word (zip->cd+zip->cd_pos+ZIP_CO_extra_field_length);
-	zip->ent.file_comment_length = zip_read_word (zip->cd+zip->cd_pos+ZIP_CO_file_comment_length);
-	zip->ent.disk_number_start = zip_read_word (zip->cd+zip->cd_pos+ZIP_CO_disk_number_start);
-	zip->ent.internal_file_attrib = zip_read_word (zip->cd+zip->cd_pos+ZIP_CO_internal_file_attributes);
-	zip->ent.external_file_attrib = zip_read_dword (zip->cd+zip->cd_pos+ZIP_CO_external_file_attributes);
-	zip->ent.offset_lcl_hdr_frm_frst_disk = zip_read_dword (zip->cd+zip->cd_pos+ZIP_CO_relative_offset_of_local_header);
+	zip->ent.general_purpose_bit_flag = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_general_purpose_bit_flag);
+	zip->ent.compression_method = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_compression_method);
+	zip->ent.last_mod_file_time = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_last_mod_file_time);
+	zip->ent.last_mod_file_date = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_last_mod_file_date);
+	zip->ent.crc32 = le_uint32_read(zip->cd+zip->cd_pos+ZIP_CO_crc32);
+	zip->ent.compressed_size = le_uint32_read(zip->cd+zip->cd_pos+ZIP_CO_compressed_size);
+	zip->ent.uncompressed_size = le_uint32_read(zip->cd+zip->cd_pos+ZIP_CO_uncompressed_size);
+	zip->ent.filename_length = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_filename_length);
+	zip->ent.extra_field_length = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_extra_field_length);
+	zip->ent.file_comment_length = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_file_comment_length);
+	zip->ent.disk_number_start = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_disk_number_start);
+	zip->ent.internal_file_attrib = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_internal_file_attributes);
+	zip->ent.external_file_attrib = le_uint32_read(zip->cd+zip->cd_pos+ZIP_CO_external_file_attributes);
+	zip->ent.offset_lcl_hdr_frm_frst_disk = le_uint32_read(zip->cd+zip->cd_pos+ZIP_CO_relative_offset_of_local_header);
 
 	/* check to see if filename length is illegally long (past the size of this directory entry) */
 	if (zip->cd_pos + ZIP_LO_FIXED + zip->ent.filename_length > zip->size_of_cent_dir)
@@ -305,7 +287,6 @@ struct zipent* readzip(ZIP* zip) {
 	return &zip->ent;
 }
 
-/* Closes a zip stream */
 void closezip(ZIP* zip) {
 	/* release all */
 	free(zip->ent.name);
@@ -316,12 +297,6 @@ void closezip(ZIP* zip) {
 	free(zip);
 }
 
-/* Reset a zip stream to the first entry
-   in:
-     zip opened zip
-   note:
-     ZIP file must be opened and not suspended
-*/
 void rewindzip(ZIP* zip) {
 	zip->cd_pos = 0;
 }
@@ -344,8 +319,8 @@ static int seekcompresszip(ZIP* zip, struct zipent* ent) {
 	}
 
 	{
-		uint16 filename_length = zip_read_word (buf+ZIP_LO_filename_length);
-		uint16 extra_field_length = zip_read_word (buf+ZIP_LO_extra_field_length);
+		uint16 filename_length = le_uint16_read(buf+ZIP_LO_filename_length);
+		uint16 extra_field_length = le_uint16_read(buf+ZIP_LO_extra_field_length);
 
 		/* calculate offset to data and seek there */
 		offset = ent->offset_lcl_hdr_frm_frst_disk + ZIP_LO_FIXED + filename_length + extra_field_length;
@@ -359,13 +334,6 @@ static int seekcompresszip(ZIP* zip, struct zipent* ent) {
 	return 0;
 }
 
-/* Read compressed data
-   out:
-	data compressed data read
-   return:
-	==0 success
-	<0 error
-*/
 int readcompresszip(ZIP* zip, struct zipent* ent, char* data) {
 	int err = seekcompresszip(zip,ent);
 	if (err!=0)

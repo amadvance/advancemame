@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * All the video drivers.
+ */
+
 #ifndef __VIDEOALL_H
 #define __VIDEOALL_H
 
@@ -70,7 +74,12 @@ extern "C" {
 #include "vnone.h"
 #endif
 
+/** \addtogroup Video */
+/*@{*/
+
 void video_reg_driver_all(struct conf_context* context);
+
+/*@}*/
 
 #ifdef __cplusplus
 }

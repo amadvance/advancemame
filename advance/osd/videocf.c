@@ -28,7 +28,7 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "advance.h"
+#include "emu.h"
 #include "log.h"
 
 #include <stdio.h>

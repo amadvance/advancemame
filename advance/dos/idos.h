@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Input driver "dos".
+ */
+
 #ifndef __IDOS_H
 #define __IDOS_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Input driver "dos".
+ * \ingroup Input
+ */
 extern inputb_driver inputb_dos_driver;
 
 #ifdef __cplusplus

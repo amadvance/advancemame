@@ -18,6 +18,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * Key.
+ */
+
+/** \addtogroup Keyboard */
+/*@{*/
+
 #ifndef __KEY_H
 #define __KEY_H
 
@@ -26,114 +33,114 @@ extern "C" {
 #endif
 
 /* Key definitions. They are chosen like the Allegro library 4.0.1 */
-#define OS_KEY_A 1
-#define OS_KEY_B 2
-#define OS_KEY_C 3
-#define OS_KEY_D 4
-#define OS_KEY_E 5
-#define OS_KEY_F 6
-#define OS_KEY_G 7
-#define OS_KEY_H 8
-#define OS_KEY_I 9
-#define OS_KEY_J 10
-#define OS_KEY_K 11
-#define OS_KEY_L 12
-#define OS_KEY_M 13
-#define OS_KEY_N 14
-#define OS_KEY_O 15
-#define OS_KEY_P 16
-#define OS_KEY_Q 17
-#define OS_KEY_R 18
-#define OS_KEY_S 19
-#define OS_KEY_T 20
-#define OS_KEY_U 21
-#define OS_KEY_V 22
-#define OS_KEY_W 23
-#define OS_KEY_X 24
-#define OS_KEY_Y 25
-#define OS_KEY_Z 26
-#define OS_KEY_0 27
-#define OS_KEY_1 28
-#define OS_KEY_2 29
-#define OS_KEY_3 30
-#define OS_KEY_4 31
-#define OS_KEY_5 32
-#define OS_KEY_6 33
-#define OS_KEY_7 34
-#define OS_KEY_8 35
-#define OS_KEY_9 36
-#define OS_KEY_0_PAD 37
-#define OS_KEY_1_PAD 38
-#define OS_KEY_2_PAD 39
-#define OS_KEY_3_PAD 40
-#define OS_KEY_4_PAD 41
-#define OS_KEY_5_PAD 42
-#define OS_KEY_6_PAD 43
-#define OS_KEY_7_PAD 44
-#define OS_KEY_8_PAD 45
-#define OS_KEY_9_PAD 46
-#define OS_KEY_F1 47
-#define OS_KEY_F2 48
-#define OS_KEY_F3 49
-#define OS_KEY_F4 50
-#define OS_KEY_F5 51
-#define OS_KEY_F6 52
-#define OS_KEY_F7 53
-#define OS_KEY_F8 54
-#define OS_KEY_F9 55
-#define OS_KEY_F10 56
-#define OS_KEY_F11 57
-#define OS_KEY_F12 58
-#define OS_KEY_ESC 59
-#define OS_KEY_BACKQUOTE 60
-#define OS_KEY_MINUS 61
-#define OS_KEY_EQUALS 62
-#define OS_KEY_BACKSPACE 63
-#define OS_KEY_TAB 64
-#define OS_KEY_OPENBRACE 65
-#define OS_KEY_CLOSEBRACE 66
-#define OS_KEY_ENTER 67
-#define OS_KEY_SEMICOLON 68
-#define OS_KEY_QUOTE 69
-#define OS_KEY_BACKSLASH 70
-#define OS_KEY_LESS 71
-#define OS_KEY_COMMA 72
-#define OS_KEY_PERIOD 73
-#define OS_KEY_SLASH 74
-#define OS_KEY_SPACE 75
-#define OS_KEY_INSERT 76
-#define OS_KEY_DEL 77
-#define OS_KEY_HOME 78
-#define OS_KEY_END 79
-#define OS_KEY_PGUP 80
-#define OS_KEY_PGDN 81
-#define OS_KEY_LEFT 82
-#define OS_KEY_RIGHT 83
-#define OS_KEY_UP 84
-#define OS_KEY_DOWN 85
-#define OS_KEY_SLASH_PAD 86
-#define OS_KEY_ASTERISK 87
-#define OS_KEY_MINUS_PAD 88
-#define OS_KEY_PLUS_PAD 89
-#define OS_KEY_PERIOD_PAD 90
-#define OS_KEY_ENTER_PAD 91
-#define OS_KEY_PRTSCR 92
-#define OS_KEY_PAUSE 93
+#define KEYB_A 1
+#define KEYB_B 2
+#define KEYB_C 3
+#define KEYB_D 4
+#define KEYB_E 5
+#define KEYB_F 6
+#define KEYB_G 7
+#define KEYB_H 8
+#define KEYB_I 9
+#define KEYB_J 10
+#define KEYB_K 11
+#define KEYB_L 12
+#define KEYB_M 13
+#define KEYB_N 14
+#define KEYB_O 15
+#define KEYB_P 16
+#define KEYB_Q 17
+#define KEYB_R 18
+#define KEYB_S 19
+#define KEYB_T 20
+#define KEYB_U 21
+#define KEYB_V 22
+#define KEYB_W 23
+#define KEYB_X 24
+#define KEYB_Y 25
+#define KEYB_Z 26
+#define KEYB_0 27
+#define KEYB_1 28
+#define KEYB_2 29
+#define KEYB_3 30
+#define KEYB_4 31
+#define KEYB_5 32
+#define KEYB_6 33
+#define KEYB_7 34
+#define KEYB_8 35
+#define KEYB_9 36
+#define KEYB_0_PAD 37
+#define KEYB_1_PAD 38
+#define KEYB_2_PAD 39
+#define KEYB_3_PAD 40
+#define KEYB_4_PAD 41
+#define KEYB_5_PAD 42
+#define KEYB_6_PAD 43
+#define KEYB_7_PAD 44
+#define KEYB_8_PAD 45
+#define KEYB_9_PAD 46
+#define KEYB_F1 47
+#define KEYB_F2 48
+#define KEYB_F3 49
+#define KEYB_F4 50
+#define KEYB_F5 51
+#define KEYB_F6 52
+#define KEYB_F7 53
+#define KEYB_F8 54
+#define KEYB_F9 55
+#define KEYB_F10 56
+#define KEYB_F11 57
+#define KEYB_F12 58
+#define KEYB_ESC 59
+#define KEYB_BACKQUOTE 60
+#define KEYB_MINUS 61
+#define KEYB_EQUALS 62
+#define KEYB_BACKSPACE 63
+#define KEYB_TAB 64
+#define KEYB_OPENBRACE 65
+#define KEYB_CLOSEBRACE 66
+#define KEYB_ENTER 67
+#define KEYB_SEMICOLON 68
+#define KEYB_QUOTE 69
+#define KEYB_BACKSLASH 70
+#define KEYB_LESS 71
+#define KEYB_COMMA 72
+#define KEYB_PERIOD 73
+#define KEYB_SLASH 74
+#define KEYB_SPACE 75
+#define KEYB_INSERT 76
+#define KEYB_DEL 77
+#define KEYB_HOME 78
+#define KEYB_END 79
+#define KEYB_PGUP 80
+#define KEYB_PGDN 81
+#define KEYB_LEFT 82
+#define KEYB_RIGHT 83
+#define KEYB_UP 84
+#define KEYB_DOWN 85
+#define KEYB_SLASH_PAD 86
+#define KEYB_ASTERISK 87
+#define KEYB_MINUS_PAD 88
+#define KEYB_PLUS_PAD 89
+#define KEYB_PERIOD_PAD 90
+#define KEYB_ENTER_PAD 91
+#define KEYB_PRTSCR 92
+#define KEYB_PAUSE 93
 /* hole */
-#define OS_KEY_LSHIFT 103
-#define OS_KEY_RSHIFT 104
-#define OS_KEY_LCONTROL 105
-#define OS_KEY_RCONTROL 106
-#define OS_KEY_ALT 107
-#define OS_KEY_ALTGR 108
-#define OS_KEY_LWIN 109
-#define OS_KEY_RWIN 110
-#define OS_KEY_MENU 111
-#define OS_KEY_SCRLOCK 112
-#define OS_KEY_NUMLOCK 113
-#define OS_KEY_CAPSLOCK 114
+#define KEYB_LSHIFT 103
+#define KEYB_RSHIFT 104
+#define KEYB_LCONTROL 105
+#define KEYB_RCONTROL 106
+#define KEYB_ALT 107
+#define KEYB_ALTGR 108
+#define KEYB_LWIN 109
+#define KEYB_RWIN 110
+#define KEYB_MENU 111
+#define KEYB_SCRLOCK 112
+#define KEYB_NUMLOCK 113
+#define KEYB_CAPSLOCK 114
 /* hole */
-#define OS_KEY_MAX 128
+#define KEYB_MAX 128
 
 const char* key_name(unsigned code);
 unsigned key_code(const char* name);
@@ -143,3 +150,5 @@ unsigned key_code(const char* name);
 #endif
 
 #endif
+
+/*@}*/

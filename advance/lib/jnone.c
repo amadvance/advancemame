@@ -36,7 +36,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error joystickb_none_init(int joystickb_id)
+error joystickb_none_init(int joystickb_id)
 {
 	log_std(("joystickb:none: joystickb_none_init(id:%d)\n",joystickb_id));
 
@@ -158,7 +158,7 @@ unsigned joystickb_none_flags(void)
 	return 0;
 }
 
-adv_error joystickb_none_load(struct conf_context* context)
+error joystickb_none_load(struct conf_context* context)
 {
 	return 0;
 }

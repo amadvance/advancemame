@@ -28,6 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Input drivers.
+ */
+
+/** \addtogroup Input */
+/*@{*/
+
 #ifndef __INPUTDRV_H
 #define __INPUTDRV_H
 
@@ -43,32 +50,32 @@ extern "C" {
 /***************************************************************************/
 /* Codes */
 
-#define OS_INPUT_TAB 9
-#define OS_INPUT_ENTER 13
-#define OS_INPUT_ESC 27
-#define OS_INPUT_SPACE 32
-#define OS_INPUT_UP 256
-#define OS_INPUT_DOWN 257
-#define OS_INPUT_LEFT 258
-#define OS_INPUT_RIGHT 259
-#define OS_INPUT_HOME 264
-#define OS_INPUT_END 265
-#define OS_INPUT_PGUP 266
-#define OS_INPUT_PGDN 267
-#define OS_INPUT_F1 268
-#define OS_INPUT_F2 269
-#define OS_INPUT_F3 270
-#define OS_INPUT_F4 271
-#define OS_INPUT_F5 272
-#define OS_INPUT_F6 273
-#define OS_INPUT_F7 274
-#define OS_INPUT_F8 275
-#define OS_INPUT_F9 276
-#define OS_INPUT_F10 277
-#define OS_INPUT_DEL 278
-#define OS_INPUT_INS 279
-#define OS_INPUT_BACKSPACE 280
-#define OS_INPUT_MAX 512
+#define INPUTB_TAB 9
+#define INPUTB_ENTER 13
+#define INPUTB_ESC 27
+#define INPUTB_SPACE 32
+#define INPUTB_UP 256
+#define INPUTB_DOWN 257
+#define INPUTB_LEFT 258
+#define INPUTB_RIGHT 259
+#define INPUTB_HOME 264
+#define INPUTB_END 265
+#define INPUTB_PGUP 266
+#define INPUTB_PGDN 267
+#define INPUTB_F1 268
+#define INPUTB_F2 269
+#define INPUTB_F3 270
+#define INPUTB_F4 271
+#define INPUTB_F5 272
+#define INPUTB_F6 273
+#define INPUTB_F7 274
+#define INPUTB_F8 275
+#define INPUTB_F9 276
+#define INPUTB_F10 277
+#define INPUTB_DEL 278
+#define INPUTB_INS 279
+#define INPUTB_BACKSPACE 280
+#define INPUTB_MAX 512
 
 /***************************************************************************/
 /* Driver */
@@ -76,32 +83,34 @@ extern "C" {
 #define INPUT_DRIVER_FLAGS_USER_BIT0 0x10000
 #define INPUT_DRIVER_FLAGS_USER_MASK 0xFFFF0000
 
-struct inputb_driver_struct {
+/**
+ * Input driver.
+ * This struct abstract all the driver funtionalities.
+ */
+typedef struct inputb_driver_struct {
 	const char* name; /**< Name of the driver */
 	const device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	adv_error (*load)(struct conf_context* context);
+	error (*load)(struct conf_context* context);
 
 	/** Register the load options. Call before load(). */
 	void (*reg)(struct conf_context* context);
 
-	adv_error (*init)(int device_id); /**< Initialize the driver */
+	error (*init)(int device_id); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
 
-	adv_bool (*hit)(void);
+	boolean (*hit)(void);
 	unsigned (*get)(void);
-};
-
-typedef struct inputb_driver_struct inputb_driver;
+} inputb_driver;
 
 #define INPUT_DRIVER_MAX 8
 
 struct inputb_state_struct {
-	adv_bool is_initialized_flag;
-	adv_bool is_active_flag;
+	boolean is_initialized_flag;
+	boolean is_active_flag;
 	unsigned driver_mac;
 	inputb_driver* driver_map[INPUT_DRIVER_MAX];
 	inputb_driver* driver_current;
@@ -110,14 +119,14 @@ struct inputb_state_struct {
 
 extern struct inputb_state_struct inputb_state;
 
-void inputb_reg(struct conf_context* config_context, adv_bool auto_detect);
+void inputb_reg(struct conf_context* config_context, boolean auto_detect);
 void inputb_reg_driver(struct conf_context* config_context, inputb_driver* driver);
-adv_error inputb_load(struct conf_context* config_context);
-adv_error inputb_init(void);
+error inputb_load(struct conf_context* config_context);
+error inputb_init(void);
 void inputb_done(void);
 void inputb_abort(void);
 
-static __inline__ adv_bool inputb_hit(void) {
+static __inline__ boolean inputb_hit(void) {
 	assert( inputb_state.is_active_flag );
 
 	return inputb_state.driver_current->hit();
@@ -129,6 +138,10 @@ static __inline__ unsigned inputb_get(void) {
 	return inputb_state.driver_current->get();
 }
 
+/**
+ * Get the driver/device name.
+ * \return Pointer at a static buffer.
+ */
 static __inline__ const char* inputb_name(void) {
 	return inputb_state.name;
 }
@@ -138,3 +151,5 @@ static __inline__ const char* inputb_name(void) {
 #endif
 
 #endif
+
+/*@}*/

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Video driver "vbeline".
+ */
+
 #ifndef __VBELINE_H
 #define __VBELINE_H
 
@@ -42,16 +46,16 @@ typedef struct vbeline_video_mode_struct {
 	video_crtc crtc; /**< CRTC values */
 } vbeline_video_mode;
 
-adv_error vbeline_init(int device_id);
+error vbeline_init(int device_id);
 void vbeline_done(void);
 
-adv_bool vbeline_is_active(void);
-adv_bool vbeline_mode_is_active(void);
+boolean vbeline_is_active(void);
+boolean vbeline_mode_is_active(void);
 
 unsigned vbeline_flags(void);
 
-adv_error vbeline_mode_set(const vbeline_video_mode* mode);
-void vbeline_mode_done(adv_bool restore);
+error vbeline_mode_set(const vbeline_video_mode* mode);
+void vbeline_mode_done(boolean restore);
 
 unsigned vbeline_virtual_x(void);
 unsigned vbeline_virtual_y(void);
@@ -59,19 +63,23 @@ unsigned vbeline_virtual_y(void);
 extern unsigned char* (*vbeline_write_line)(unsigned y);
 
 void vbeline_wait_vsync(void);
-adv_error vbeline_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
-adv_error vbeline_pixelclock_getnext(unsigned* pixelclock, unsigned mode);
-adv_error vbeline_pixelclock_getpred(unsigned* pixelclock, unsigned mode);
+error vbeline_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync);
+error vbeline_pixelclock_getnext(unsigned* pixelclock, unsigned mode);
+error vbeline_pixelclock_getpred(unsigned* pixelclock, unsigned mode);
 
 unsigned vbeline_mode_size(void);
-adv_error vbeline_mode_import(video_mode* mode, const vbeline_video_mode* vbeline_mode);
-adv_error vbeline_mode_generate(vbeline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+error vbeline_mode_import(video_mode* mode, const vbeline_video_mode* vbeline_mode);
+error vbeline_mode_generate(vbeline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
 int vbeline_mode_compare(const vbeline_video_mode* a, const vbeline_video_mode* b);
 
 void vbeline_default(void);
-adv_error vbeline_load(struct conf_context* context);
+error vbeline_load(struct conf_context* context);
 void vbeline_reg(struct conf_context* context);
 
+/**
+ * Video driver "vbeline".
+ * \ingroup Video
+ */
 extern video_driver video_vbeline_driver;
 
 #ifdef __cplusplus

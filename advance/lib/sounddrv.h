@@ -28,6 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Sound drivers.
+ */
+
+/** \addtogroup Sound */
+/*@{*/
+
 #ifndef __SOUNDDRV_H
 #define __SOUNDDRV_H
 
@@ -46,39 +53,43 @@ extern "C" {
 #define SOUND_DRIVER_FLAGS_USER_BIT0 0x10000
 #define SOUND_DRIVER_FLAGS_USER_MASK 0xFFFF0000
 
-/** 16 bit signed sound sample. */
+/**
+ * 16 bit signed sound sample.
+ */
 typedef short sound_sample_t;
 
-struct sound_driver_struct {
+/**
+ * Sound driver.
+ * This struct abstract all the driver funtionalities.
+ */
+typedef struct sound_driver_struct {
 	const char* name; /**< Name of the driver */
 	const device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	adv_error (*load)(struct conf_context* context);
+	error (*load)(struct conf_context* context);
 
 	/** Register the load options. Call before load(). */
 	void (*reg)(struct conf_context* context);
 
-	adv_error (*init)(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time); /**< Initialize the driver */
+	error (*init)(int device_id, unsigned* rate, boolean stereo_flag, double buffer_time); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
 
 	void (*play)(const sound_sample_t* sample_map, unsigned sample_count);
 	unsigned (*buffered)(void);
-	adv_error (*start)(double silence_time);
+	error (*start)(double silence_time);
 	void (*stop)(void);
 	void (*volume)(double v);
-};
-
-typedef struct sound_driver_struct sound_driver;
+} sound_driver;
 
 #define SOUND_DRIVER_MAX 8
 
 struct sound_state_struct {
-	adv_bool is_initialized_flag;
-	adv_bool is_active_flag;
-	adv_bool is_playing_flag;
+	boolean is_initialized_flag;
+	boolean is_active_flag;
+	boolean is_playing_flag;
 	unsigned driver_mac;
 	sound_driver* driver_map[SOUND_DRIVER_MAX];
 	sound_driver* driver_current;
@@ -87,10 +98,10 @@ struct sound_state_struct {
 
 struct sound_state_struct sound_state;
 
-void sound_reg(struct conf_context* config_context, adv_bool auto_detect);
+void sound_reg(struct conf_context* config_context, boolean auto_detect);
 void sound_reg_driver(struct conf_context* config_context, sound_driver* driver);
-adv_error sound_load(struct conf_context* config_context);
-adv_error sound_init(unsigned* rate, int stereo_flag, double buffer_time);
+error sound_load(struct conf_context* config_context);
+error sound_init(unsigned* rate, int stereo_flag, double buffer_time);
 void sound_done(void);
 void sound_abort(void);
 
@@ -114,7 +125,7 @@ static __inline__ void sound_stop(void) {
 	sound_state.is_playing_flag = 0;
 }
 
-static __inline__ adv_error sound_start(double silence_time) {
+static __inline__ error sound_start(double silence_time) {
 	assert( sound_state.is_active_flag && !sound_state.is_playing_flag );
 
 	if (sound_state.driver_current->start(silence_time) != 0)
@@ -125,12 +136,20 @@ static __inline__ adv_error sound_start(double silence_time) {
 	return 0;
 }
 
+/**
+ * Set the output volume.
+ * \param v Volume. 1 is the maximum. 0 is silence.
+ */
 static __inline__ void sound_volume(double v) {
 	assert( sound_state.is_active_flag );
 
 	sound_state.driver_current->volume(v);
 }
 
+/**
+ * Get the driver/device name.
+ * \return Pointer at a static buffer.
+ */
 static __inline__ const char* sound_name(void) {
 	return sound_state.name;
 }
@@ -140,3 +159,5 @@ static __inline__ const char* sound_name(void) {
 #endif
 
 #endif
+
+/*@}*/

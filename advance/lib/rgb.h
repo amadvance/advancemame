@@ -28,45 +28,30 @@
  * do so, delete this exception statement from your version.
  */
 
-#ifndef __ADVSTD_H
-#define __ADVSTD_H
+/** \file
+ * RGB.
+ */
 
-#include <stdarg.h>
+#ifndef __RGB_H
+#define __RGB_H
+
+#include "extra.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/***************************************************************************/
-/* types */
+/** \addtogroup Color */
+/*@{*/
+
+/** \name RGB
+ * Basic RGB types.
+ */
+/*@{*/
 
 /**
- * Code used to check the result of operation.
- *  - ==0 is ok
- *  - <0 is not ok
- *  - >0 special conditions
+ * RGB color.
  */
-typedef int adv_error;
-
-/**
- * Code used to check the result of a boolean operation.
- *  - ==0 false
- *  - !=0 true
- */
-typedef int adv_bool;
-
-/**
- * Max length of video mode name
- */
-#define VIDEO_NAME_MAX 128
-
-typedef unsigned char uint8;
-typedef signed char int8;
-typedef unsigned short uint16;
-typedef signed short int16;
-typedef unsigned int uint32;
-typedef signed int int32;
-
 typedef struct video_color_struct {
 	uint8 blue __attribute__ ((packed));
 	uint8 green __attribute__ ((packed));
@@ -74,7 +59,14 @@ typedef struct video_color_struct {
 	uint8 alpha __attribute__ ((packed));
 } video_color;
 
-/* RGB nibble definition */
+/**
+ * RGB as ordinal value.
+ */
+typedef unsigned video_rgb;
+
+/**
+ * RGB nibble.
+ */
 struct video_rgb_def_bits {
 	unsigned red_len : 4; /* bit used for the red channel */
 	unsigned red_pos : 5; /* shift for the red channel */
@@ -86,15 +78,18 @@ struct video_rgb_def_bits {
 	unsigned dummy : 5;
 };
 
-/* Ordinal RGB nibble definiton */
+/**
+ * RGB nibble as ordinal value.
+ */
 typedef unsigned video_rgb_def;
 
+/**
+ * RGB nibble multiformat.
+ */
 union video_rgb_def_union {
 	video_rgb_def ordinal;
 	struct video_rgb_def_bits nibble;
 };
-
-typedef unsigned video_rgb;
 
 const char* video_rgb_def_name_make(video_rgb_def rgb_def);
 video_rgb_def video_rgb_def_make(unsigned red_len, unsigned red_pos, unsigned green_len, unsigned green_pos, unsigned blue_len, unsigned blue_pos);
@@ -109,27 +104,26 @@ static __inline__ unsigned video_rgb_mask_make_from_def(unsigned len, unsigned p
 	return ((1 << len) - 1) << pos;
 }
 
-/***************************************************************************/
-/* Align */
+unsigned video_color_dist(const video_color* A, const video_color* B);
 
-/* Normal alignment */
-#define ALIGN_BIT 3
-#define ALIGN (1U << ALIGN_BIT)
-#define ALIGN_MASK (ALIGN - 1U)
+static __inline__ unsigned video_rgb_shift(unsigned value, int shift) {
+	if (shift >= 0)
+		return value >> shift;
+	else
+		return value << -shift;
+}
 
-/* Unchained alignment */
-#define ALIGN_UNCHAINED_BIT 4
-#define ALIGN_UNCHAINED (1U << ALIGN_UNCHAINED_BIT)
-#define ALIGN_UNCHAINED_MASK (ALIGN_UNCHAINED - 1U)
+static __inline__ unsigned video_rgb_nibble_insert(unsigned value, int shift, unsigned mask) {
+	return video_rgb_shift(value,-shift) & mask;
+}
 
-/***************************************************************************/
-/* error/log */
+static __inline__ unsigned video_rgb_nibble_extract(unsigned value, int shift, unsigned mask) {
+	return video_rgb_shift(value & mask,shift);
+}
 
-const char* error_description_get(void);
+/*@}*/
 
-void error_description_set(const char* error, ...) __attribute__((format(printf,1,2)));
-void error_description_nolog_set(const char* error, ...) __attribute__((format(printf,1,2)));
-void error_description_nolog_cat(const char* error, ...) __attribute__((format(printf,1,2)));
+/*@}*/
 
 #ifdef __cplusplus
 }

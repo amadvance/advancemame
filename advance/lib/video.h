@@ -28,14 +28,21 @@
  * do so, delete this exception statement from your version.
  */
 
-#ifndef __SCREEN_H
-#define __SCREEN_H
+/** \file
+ * Video definitions.
+ */
+
+/** \addtogroup Video */
+/*@{*/
+
+#ifndef __VIDEO_H
+#define __VIDEO_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "advstd.h"
+#include "extra.h"
 #include "videodrv.h"
 
 #include <assert.h>
@@ -46,23 +53,23 @@ extern "C" {
 /***************************************************************************/
 /* Option */
 
-void video_reg(struct conf_context* context, adv_bool auto_detect);
+void video_reg(struct conf_context* context, boolean auto_detect);
 void video_reg_driver(struct conf_context* context, video_driver* driver);
-adv_error video_load(struct conf_context* context, const char* driver_ignore);
+error video_load(struct conf_context* context, const char* driver_ignore);
 
 /***************************************************************************/
 /* Private */
 
 typedef struct video_internal_struct {
-	adv_bool active; /**< !=0 if active. */
+	boolean active; /**< !=0 if active. */
 
 	unsigned driver_mac; /**< Number of video driver available. */
 	video_driver* driver_map[DEVICE_MAX]; /**< Video drivers available. */
 
-	adv_bool old_mode_required; /**< If at least one mode is set. */
+	boolean old_mode_required; /**< If at least one mode is set. */
 
 	/* Mode */
-	adv_bool mode_active; /**< !=0 if a mode is selected. */
+	boolean mode_active; /**< !=0 if a mode is selected. */
 	video_mode mode; /**< Current mode. */
 	unsigned virtual_x;
 	unsigned virtual_y;
@@ -92,12 +99,12 @@ extern video_internal video_state;
 unsigned video_internal_flags(void);
 
 /** If the video library is initialized. */
-static __inline__ adv_bool video_is_active(void) {
+static __inline__ boolean video_is_active(void) {
 	return video_state.active != 0;
 }
 
 /** If a video mode is active. */
-static __inline__ adv_bool video_mode_is_active(void) {
+static __inline__ boolean video_mode_is_active(void) {
 	assert( video_is_active() );
 	return video_state.mode_active;
 }
@@ -136,27 +143,27 @@ static __inline__ unsigned video_bytes_per_pixel(void) {
 }
 
 /** If the current video mode is a text mode. */
-static __inline__ adv_bool video_is_text(void) {
+static __inline__ boolean video_is_text(void) {
 	return video_mode_is_text(video_current_mode());
 }
 
 /** If the current video mode is a graphics mode. */
-static __inline__ adv_bool video_is_graphics(void) {
+static __inline__ boolean video_is_graphics(void) {
 	return video_mode_is_graphics(video_current_mode());
 }
 
 /** If the current video mode is a linear mode. */
-static __inline__ adv_bool video_is_linear(void) {
+static __inline__ boolean video_is_linear(void) {
 	return video_mode_is_linear(video_current_mode());
 }
 
 /** If the current video mode is an unchained mode. */
-static __inline__ adv_bool video_is_unchained(void) {
+static __inline__ boolean video_is_unchained(void) {
 	return video_mode_is_unchained(video_current_mode());
 }
 
 /** If the current video mode is a banked mode. */
-static __inline__ adv_bool video_is_banked(void) {
+static __inline__ boolean video_is_banked(void) {
 	return video_mode_is_banked(video_current_mode());
 }
 
@@ -238,10 +245,10 @@ static __inline__ unsigned video_offset(unsigned x) {
 /***************************************************************************/
 /* Colors */
 
-void video_index_packed_to_rgb(adv_bool waitvsync);
-adv_bool video_index_rgb_to_packed_is_available(void);
+void video_index_packed_to_rgb(boolean waitvsync);
+boolean video_index_rgb_to_packed_is_available(void);
 void video_index_rgb_to_packed(void);
-adv_bool video_index_packed_to_rgb_is_available(void);
+boolean video_index_packed_to_rgb_is_available(void);
 
 /** Get the RGB format of the current video mode. */
 static __inline__ video_rgb_def video_current_rgb_def_get(void) {
@@ -249,29 +256,12 @@ static __inline__ video_rgb_def video_current_rgb_def_get(void) {
 }
 
 video_color* video_palette_get(void);
-adv_error video_palette_set(video_color* palette, unsigned start, unsigned count, int waitvsync);
+error video_palette_set(video_color* palette, unsigned start, unsigned count, int waitvsync);
 
 static __inline__ void video_palette_make(video_color* vp, unsigned r, unsigned g, unsigned b) {
 	vp->red = r;
 	vp->green = g;
 	vp->blue = b;
-}
-
-unsigned video_color_dist(const video_color* A, const video_color* B);
-
-static __inline__ unsigned video_rgb_shift(unsigned value, int shift) {
-	if (shift >= 0)
-		return value >> shift;
-	else
-		return value << -shift;
-}
-
-static __inline__ unsigned video_rgb_nibble_insert(unsigned value, int shift, unsigned mask) {
-	return video_rgb_shift(value,-shift) & mask;
-}
-
-static __inline__ unsigned video_rgb_nibble_extract(unsigned value, int shift, unsigned mask) {
-	return video_rgb_shift(value & mask,shift);
 }
 
 static __inline__ video_rgb video_rgb_get(unsigned r, unsigned g, unsigned b) {
@@ -327,7 +317,7 @@ unsigned video_blue_get_approx(unsigned rgb);
 /***************************************************************************/
 /* Commands */
 
-static __inline__ adv_error video_display_set_async(unsigned offset, adv_bool waitvsync) {
+static __inline__ error video_display_set_async(unsigned offset, boolean waitvsync) {
 	assert( video_mode_is_active() );
 
 	return video_current_driver()->scroll(offset, waitvsync);
@@ -358,31 +348,31 @@ static __inline__ void video_unchained_plane_set(unsigned plane) {
 
 void video_wait_vsync(void);
 
-adv_error video_init(void);
+error video_init(void);
 void video_done(void);
 void video_abort(void);
 
-adv_error video_mode_set(video_mode* mode);
-void video_mode_done(adv_bool restore);
+error video_mode_set(video_mode* mode);
+void video_mode_done(boolean restore);
 void video_mode_restore(void);
-adv_error video_mode_grab(video_mode* mode);
+error video_mode_grab(video_mode* mode);
 int video_mode_compare(const video_mode* a, const video_mode* b);
 
-adv_error video_mode_generate(video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
-adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const video_crtc* crtc, unsigned bits, unsigned flags);
+error video_mode_generate(video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+error video_mode_generate_check(const char* driver, unsigned driver_flags, unsigned hstep, unsigned hvmax, const video_crtc* crtc, unsigned bits, unsigned flags);
 unsigned video_mode_generate_driver_flags(void);
 
 void video_mode_print(char* buffer, const video_mode* vm);
 
 double video_measure_step(void (*wait)(void), double low, double high);
 
-adv_error video_display_set_async(unsigned offset, int waitvsync);
-adv_error video_display_set_sync(unsigned offset);
+error video_display_set_async(unsigned offset, int waitvsync);
+error video_display_set_sync(unsigned offset);
 void video_put_pixel(unsigned x, unsigned y, unsigned color);
 void video_put_pixel_clip(unsigned x, unsigned y, unsigned color);
 void video_put_char(unsigned x, unsigned y, char c, unsigned color);
 
-adv_error video_snapshot_save(const char* snapshot_name, int start_x, int start_y);
+error video_snapshot_save(const char* snapshot_name, int start_x, int start_y);
 
 unsigned video_driver_vector_max(void);
 const video_driver* video_driver_vector_pos(unsigned i);
@@ -393,3 +383,4 @@ const video_driver* video_driver_vector_pos(unsigned i);
 
 #endif
 
+/*@}*/

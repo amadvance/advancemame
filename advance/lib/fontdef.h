@@ -18,6 +18,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * Default fonts.
+ */
+
+/** \addtogroup Font */
+/*@{*/
+
 #ifndef __FONTDEF_
 #define __FONTDEF_
 
@@ -34,3 +41,5 @@ struct bitmapfont* font_default(unsigned height);
 #endif
 
 #endif
+
+/*@}*/

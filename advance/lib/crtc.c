@@ -30,6 +30,7 @@
 
 #include "crtc.h"
 #include "video.h"
+#include "error.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -57,7 +58,7 @@ unsigned crtc_step(double v, unsigned st) {
  * The pixel clock limits are NOT checked.
  * \return 0 if successful
  */
-adv_error crtc_adjust_clock(video_crtc* crtc, const video_monitor* monitor) {
+error crtc_adjust_clock(video_crtc* crtc, const video_monitor* monitor) {
 	double hclock;
 	double vclock;
 	double factor;
@@ -136,7 +137,7 @@ adv_error crtc_adjust_clock(video_crtc* crtc, const video_monitor* monitor) {
 		crtc->pixelclock = best_hclock * crtc->ht;
 		return 0;
 	} else {
-		error_description_nolog_set("The video mode is incompatible with the monitor limitations");
+		error_nolog_set("The video mode is incompatible with the monitor limitations");
 		return -1;
 	}
 }
@@ -144,7 +145,7 @@ adv_error crtc_adjust_clock(video_crtc* crtc, const video_monitor* monitor) {
 /**
  * Check if the exact mode is available.
  */
-static adv_error crtc_find_exact(unsigned req_vtotal, double req_vclock, const video_monitor* monitor) {
+static error crtc_find_exact(unsigned req_vtotal, double req_vclock, const video_monitor* monitor) {
 	if (!monitor_hvclock_check(monitor, req_vclock * req_vtotal, req_vclock))
 		return -1;
 	return 0;
@@ -153,7 +154,7 @@ static adv_error crtc_find_exact(unsigned req_vtotal, double req_vclock, const v
 /**
  * Find the nearest vclock available.
  */
-static adv_error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vclock, const video_monitor* monitor) {
+static error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vclock, const video_monitor* monitor) {
 	double vclock;
 	double best_vclock = 0;
 	int best_found = 0;
@@ -225,7 +226,7 @@ static adv_error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vcloc
 /**
  * Find the nearest vtotal available.
  */
-static adv_error crtc_find_nearest_vtotal(unsigned* req_vtotal, double* req_vclock, const video_monitor* monitor) {
+static error crtc_find_nearest_vtotal(unsigned* req_vtotal, double* req_vclock, const video_monitor* monitor) {
 	int vtotal;
 	unsigned best_vtotal = 0;
 	double best_vclock = 0;
@@ -286,7 +287,7 @@ static adv_error crtc_find_nearest_vtotal(unsigned* req_vtotal, double* req_vclo
 /**
  * Find the nearest vtotal available without changing the vclock
  */
-static adv_error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, double req_vclock, const video_monitor* monitor) {
+static error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, double req_vclock, const video_monitor* monitor) {
 	int vtotal;
 	unsigned best_vtotal = 0;
 	int best_found = 0;
@@ -337,7 +338,7 @@ static adv_error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, doubl
  *   - with different vtotal if CRTC_ADJUST_VTOTAL and not CRTC_ADJUST_VCLOCK
  *   - with different vtotal and vclock if if CRTC_ADJUST_VTOTAL and CRTC_ADJUST_VCLOCK
  */
-adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor, const video_monitor* monitor, unsigned cap, unsigned adjust) {
+error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor, const video_monitor* monitor, unsigned cap, unsigned adjust) {
 	int best_found = 0;
 	double best_vclock = 0;
 	double best_factor = 0;
@@ -623,7 +624,7 @@ int video_crtc_compare(const video_crtc* a,const video_crtc* b) {
 	return 0;
 }
 
-adv_bool crtc_clock_check(const video_monitor* monitor, const video_crtc* crtc) {
+boolean crtc_clock_check(const video_monitor* monitor, const video_crtc* crtc) {
 	return monitor_clock_check(monitor, crtc_pclock_get(crtc), crtc_hclock_get(crtc), crtc_vclock_get(crtc));
 }
 
@@ -687,6 +688,6 @@ void crtc_fake_set(video_crtc* crtc, unsigned size_x, unsigned size_y) {
 	sprintf(crtc->name, "%dx%d", size_x, size_y);
 }
 
-adv_bool crtc_is_fake(const video_crtc* crtc) {
+boolean crtc_is_fake(const video_crtc* crtc) {
 	return crtc->pixelclock == 0;
 }

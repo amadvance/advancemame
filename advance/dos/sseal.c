@@ -91,7 +91,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error sound_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time) {
+error sound_seal_init(int device_id, unsigned* rate, boolean stereo_flag, double buffer_time) {
 	unsigned i;
 	AUDIOINFO info;
 	AUDIOCAPS caps;
@@ -222,7 +222,7 @@ unsigned sound_seal_buffered(void) {
 	return missing;
 }
 
-static adv_bool sound_seal_overflow(unsigned pos, unsigned length) {
+static boolean sound_seal_overflow(unsigned pos, unsigned length) {
 	unsigned play_pos;
 
 	play_pos = sound_seal_current();
@@ -256,7 +256,7 @@ static void sound_seal_update(void) {
 }
 #endif
 
-adv_error sound_seal_start(double silence_time) {
+error sound_seal_start(double silence_time) {
 	unsigned i;
 
 	log_std(("sound:seal: sound_seal_start(silecen_time:%g)\n",silence_time));
@@ -402,7 +402,7 @@ unsigned sound_seal_flags(void) {
 	return 0;
 }
 
-adv_error sound_seal_load(struct conf_context* context) {
+error sound_seal_load(struct conf_context* context) {
 	return 0;
 }
 

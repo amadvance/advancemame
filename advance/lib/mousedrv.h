@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Mouse drivers.
+ */
+
 #ifndef __MOUSEDRV_H
 #define __MOUSEDRV_H
 
@@ -43,20 +47,21 @@ extern "C" {
 /***************************************************************************/
 /* Driver */
 
-#define MOUSE_DRIVER_FLAGS_USER_BIT0 0x10000
-#define MOUSE_DRIVER_FLAGS_USER_MASK 0xFFFF0000
-
-struct mouseb_driver_struct {
+/**
+ * Mouse driver.
+ * This struct abstract all the driver funtionalities.
+ */
+typedef struct mouseb_driver_struct {
 	const char* name; /**< Name of the driver */
-	const device* device_map; /**< List of supported devices */
+	const device* device_map;  /**< Vector of supported devices. 0 terminated. */
 
 	/** Load the configuration options. Call before init() */
-	adv_error (*load)(struct conf_context* context);
+	error (*load)(struct conf_context* context);
 
 	/** Register the load options. Call before load(). */
 	void (*reg)(struct conf_context* context);
 
-	adv_error (*init)(int device_id); /**< Initialize the driver */
+	error (*init)(int device_id); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
@@ -66,27 +71,40 @@ struct mouseb_driver_struct {
 	void (*pos_get)(unsigned mouse, int* x, int* y);
 	unsigned (*button_get)(unsigned mouse, unsigned button);
 	void (*poll)(void);
-};
+} mouseb_driver;
 
-typedef struct mouseb_driver_struct mouseb_driver;
-
+/**
+ * Max number of drivers registrable.
+ */
 #define MOUSE_DRIVER_MAX 8
 
+/**
+ * State of the driver system.
+ */
 struct mouseb_state_struct {
-	adv_bool is_initialized_flag;
-	adv_bool is_active_flag;
-	unsigned driver_mac;
-	mouseb_driver* driver_map[MOUSE_DRIVER_MAX];
-	mouseb_driver* driver_current;
-	char name[DEVICE_NAME_MAX];
+	boolean is_initialized_flag; /**< If the keyb_load() or keyb_default() function was called. */
+	boolean is_active_flag; /**< If the keyb_init() function was called. */
+	unsigned driver_mac; /**< Number of registered drivers. */
+	mouseb_driver* driver_map[MOUSE_DRIVER_MAX]; /**< Registered drivers. */
+	mouseb_driver* driver_current; /**< Current driver active. 0 if none. */
+	char name[DEVICE_NAME_MAX]; /**< Name of the driver to use. */
 };
 
+/**
+ * Global state of the driver system.
+ */
 extern struct mouseb_state_struct mouseb_state;
 
-void mouseb_reg(struct conf_context* config_context, adv_bool auto_detect);
+/** \addtogroup Mouse */
+/*@{*/
+
+#define MOUSE_DRIVER_FLAGS_USER_BIT0 0x10000
+#define MOUSE_DRIVER_FLAGS_USER_MASK 0xFFFF0000
+
+void mouseb_reg(struct conf_context* config_context, boolean auto_detect);
 void mouseb_reg_driver(struct conf_context* config_context, mouseb_driver* driver);
-adv_error mouseb_load(struct conf_context* config_context);
-adv_error mouseb_init(void);
+error mouseb_load(struct conf_context* config_context);
+error mouseb_init(void);
 void mouseb_done(void);
 void mouseb_abort(void);
 
@@ -120,12 +138,20 @@ static __inline__ void mouseb_poll(void) {
 	mouseb_state.driver_current->poll();
 }
 
+/**
+ * Get the driver/device name.
+ * \return Pointer at a static buffer.
+ */
 static __inline__ const char* mouseb_name(void) {
 	return mouseb_state.name;
 }
+
+/*@}*/
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+
+

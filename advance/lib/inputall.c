@@ -30,6 +30,13 @@
 
 #include "inputall.h"
 
+/**
+ * Register all the input drivers.
+ * The drivers are registered on the basis of the following defines:
+ *  - USE_INPUT_DOS
+ *  - USE_INPUT_SLANG
+ *  - USE_INPUT_NONE
+ */
 void inputb_reg_driver_all(struct conf_context* context) {
 #ifdef USE_INPUT_DOS
 	inputb_reg_driver(context, &inputb_dos_driver);

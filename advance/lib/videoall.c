@@ -31,6 +31,19 @@
 #include "videoall.h"
 #include "video.h"
 
+/**
+ * Register all the video drivers.
+ * The drivers are registered on the basis of the following defines:
+ *  - USE_VIDEO_SVGALIB
+ *  - USE_VIDEO_FB
+ *  - USE_VIDEO_SVGALINE
+ *  - USE_VIDEO_VBELINE
+ *  - USE_VIDEO_VGALINE
+ *  - USE_VIDEO_SLANG
+ *  - USE_VIDEO_SDL
+ *  - USE_VIDEO_VBE
+ *  - USE_VIDEO_NONE
+ */
 void video_reg_driver_all(struct conf_context* context) {
 #ifdef USE_VIDEO_SVGALIB
 	video_reg_driver(context, &video_svgalib_driver);

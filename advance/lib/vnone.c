@@ -38,8 +38,8 @@
 /* State */
 
 typedef struct none_internal_struct {
-	adv_bool active;
-	adv_bool mode_active;
+	boolean active;
+	boolean mode_active;
 
 	video_rgb_def rgb_def;
 	unsigned bytes_per_pixel;
@@ -67,15 +67,15 @@ static device DEVICE[] = {
 /***************************************************************************/
 /* Public */
 
-static adv_bool none_is_active(void) {
+static boolean none_is_active(void) {
 	return none_state.active != 0;
 }
 
-static adv_bool none_mode_is_active(void) {
+static boolean none_mode_is_active(void) {
 	return none_state.mode_active != 0;
 }
 
-static adv_error none_init(int device_id) {
+static error none_init(int device_id) {
 	assert( !none_is_active() );
 
 	none_state.size = 4*1024*1024;
@@ -98,7 +98,7 @@ static unsigned none_flags(void) {
 	return VIDEO_DRIVER_FLAGS_MODE_GRAPH_ALL | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL;
 }
 
-static adv_error none_mode_set(const none_video_mode* mode) {
+static error none_mode_set(const none_video_mode* mode) {
 
 	none_write_line = none_linear_write_line;
 	switch (mode->bits_per_pixel) {
@@ -135,7 +135,7 @@ static adv_error none_mode_set(const none_video_mode* mode) {
 	return 0;
 }
 
-static void none_mode_done(adv_bool restore) {
+static void none_mode_done(boolean restore) {
 	assert(none_is_active() && none_mode_is_active());
 
 	assert( none_state.pointer );
@@ -147,7 +147,7 @@ static void none_mode_done(adv_bool restore) {
 	none_state.mode_active = 0;
 }
 
-static adv_error none_mode_change(const none_video_mode* mode) {
+static error none_mode_change(const none_video_mode* mode) {
 	none_mode_done(1);
 	return none_mode_set(mode);
 }
@@ -181,25 +181,25 @@ static void none_wait_vsync(void) {
 	assert(none_is_active() && none_mode_is_active());
 }
 
-static adv_error none_scroll(unsigned offset, adv_bool waitvsync) {
+static error none_scroll(unsigned offset, boolean waitvsync) {
 	assert(none_is_active() && none_mode_is_active());
 	return 0;
 }
 
-static adv_error none_scanline_set(unsigned byte_length) {
+static error none_scanline_set(unsigned byte_length) {
 	assert(none_is_active() && none_mode_is_active());
 	none_state.bytes_per_scanline = (byte_length + 3) & ~3;
 	return 0;
 }
 
-static adv_error none_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+static error none_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync) {
 	assert(none_is_active() && none_mode_is_active());
 	return 0;
 }
 
 #define DRIVER(mode) ((none_video_mode*)(&mode->driver_mode))
 
-static adv_error none_mode_import(video_mode* mode, const none_video_mode* none_mode)
+static error none_mode_import(video_mode* mode, const none_video_mode* none_mode)
 {
 	strcpy(mode->name, none_mode->crtc.name);
 
@@ -230,7 +230,7 @@ static adv_error none_mode_import(video_mode* mode, const none_video_mode* none_
 	return 0;
 }
 
-static adv_error none_mode_generate(none_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags)
+static error none_mode_generate(none_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags)
 {
 	assert( none_is_active() );
 
@@ -257,26 +257,26 @@ static int none_mode_compare(const none_video_mode* a, const none_video_mode* b)
 static void none_reg(struct conf_context* context) {
 }
 
-static adv_error none_load(struct conf_context* context) {
+static error none_load(struct conf_context* context) {
 	return 0;
 }
 
 /***************************************************************************/
 /* Driver */
 
-static adv_error none_mode_set_void(const void* mode) {
+static error none_mode_set_void(const void* mode) {
 	return none_mode_set((const none_video_mode*)mode);
 }
 
-static adv_error none_mode_change_void(const void* mode) {
+static error none_mode_change_void(const void* mode) {
 	return none_mode_change((const none_video_mode*)mode);
 }
 
-static adv_error none_mode_import_void(video_mode* mode, const void* none_mode) {
+static error none_mode_import_void(video_mode* mode, const void* none_mode) {
 	return none_mode_import(mode, (const none_video_mode*)none_mode);
 }
 
-static adv_error none_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+static error none_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
 	return none_mode_generate((none_video_mode*)mode,crtc,bits,flags);
 }
 

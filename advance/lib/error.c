@@ -28,7 +28,7 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "advstd.h"
+#include "extra.h"
 #include "log.h"
 
 #include <ctype.h>
@@ -43,42 +43,92 @@
  */
 #define ERROR_DESC_MAX 2048
 
-static char error[ERROR_DESC_MAX]; /**< Last error description. */
-
-/** 
- * Description of the last error. 
+/**
+ * Last error description.
  */
-const char* error_description_get(void) {
+static char error_buffer[ERROR_DESC_MAX];
+
+/**
+ * Flag set if an unsupported PNG feature is found.
+ */
+static boolean error_unsupported_flag;
+
+/**
+ * Get the current error description.
+ */
+const char* error_get(void) {
 	/* remove the trailing \n */
-	while (error[0] && isspace(error[strlen(error)-1]))
-		error[strlen(error)-1] = 0;
-	return error;
+	while (error_buffer[0] && isspace(error_buffer[strlen(error_buffer)-1]))
+		error_buffer[strlen(error_buffer)-1] = 0;
+	return error_buffer;
 }
 
 /**
  * Set the description of the last error.
+ * The previous description is overwritten.
  * \note The description IS logged.
  */
-void error_description_set(const char* text, ...)
+void error_set(const char* text, ...)
 {
 	va_list arg;
+
+	error_unsupported_flag = 0;
+
 	va_start(arg,text);
-	vsprintf(error,text,arg);
+	vsprintf(error_buffer,text,arg);
+
 	log_std(("video: set_error_description \""));
 	log_va(text,arg);
 	log_std(("\"\n"));
+
 	va_end(arg);
 }
 
 /**
- * Set the description of the last error.
- * \note The description IS NOT logged.
+ * Set the description of the last error due unsupported feature.
+ * \note The description IS logged.
  */
-void error_description_nolog_set(const char* text, ...)
+void error_unsupported_set(const char* text, ...)
 {
 	va_list arg;
+
+	error_unsupported_flag = 1;
+
 	va_start(arg,text);
-	vsprintf(error,text,arg);
+	vsprintf(error_buffer,text,arg);
+
+	log_std(("video: set_error_description \""));
+	log_va(text,arg);
+	log_std(("\"\n"));
+
+	va_end(arg);
+}
+
+/**
+ * Check if a unsupported feature is found.
+ * This function can be called only if another function returns with error.
+ * \return
+ *  - ==0 Not found.
+ *  - !=0 Unsupported feature found.
+ */
+boolean error_unsupported_get(void)
+{
+	return error_unsupported_flag;
+}
+
+/**
+ * Set the error description.
+ * The previous description is overwritten.
+ * The description is not logged.
+ */
+void error_nolog_set(const char* text, ...)
+{
+	va_list arg;
+
+	error_unsupported_flag = 0;
+
+	va_start(arg,text);
+	vsprintf(error_buffer,text,arg);
 	va_end(arg);
 }
 
@@ -86,15 +136,16 @@ void error_description_nolog_set(const char* text, ...)
  * Add some text at the description of the last error.
  * \note The description IS NOT logged.
  */
-void error_description_nolog_cat(const char* text, ...)
+void error_nolog_cat(const char* text, ...)
 {
 	va_list arg;
 	char buffer[ERROR_DESC_MAX];
+
 	va_start(arg,text);
 	vsprintf(buffer,text,arg);
 
-	strncat(error,buffer,ERROR_DESC_MAX);
-	error[ERROR_DESC_MAX-1] = 0;
+	strncat(error_buffer,buffer,ERROR_DESC_MAX);
+	error_buffer[ERROR_DESC_MAX-1] = 0;
 
 	va_end(arg);
 }

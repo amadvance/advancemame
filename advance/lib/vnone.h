@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Video driver "none".
+ */
+
 #ifndef __VNONE_H
 #define __VNONE_H
 
@@ -37,12 +41,25 @@
 extern "C" {
 #endif
 
+/**
+ * Video driver "none" mode information.
+ */
 typedef struct none_video_mode_struct {
 	unsigned bits_per_pixel; /**< bits per pixel (8 bit modes are always palettized) */
 	video_crtc crtc; /**< CRTC values */
 } none_video_mode;
 
+/** \addtogroup Video */
+/*@{*/
+
+/**
+ * Video driver "none".
+ * This driver implement a null video. All the video output is directed to a
+ * virtual frame buffer in memory.
+ */
 extern video_driver video_none_driver;
+
+/*@}*/
 
 #ifdef __cplusplus
 }

@@ -22,6 +22,10 @@
 
 #include "fontdef.dat"
 
+/**
+ * Return the default font.
+ * \param height Height in pixel of the required font. The effective height may differs.
+ */
 struct bitmapfont* font_default(unsigned height) {
 	if (height >= 17)
 		return bitmapfont_inport_grx(FONT_HELV17);

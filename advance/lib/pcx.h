@@ -18,6 +18,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * PCX file support.
+ */
+
+/** \addtogroup VideoFile */
+/*@{*/
+
 #ifndef __PCX_H
 #define __PCX_H
 
@@ -36,3 +43,5 @@ struct bitmap* pcx_load(FZ* f, video_color* rgb, unsigned* rgb_max);
 #endif
 
 #endif
+
+/*@}*/

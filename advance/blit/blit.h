@@ -28,6 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Blit.
+ */
+
+/** \addtogroup Blit */
+/*@{*/
+
 #ifndef __BLIT_H
 #define __BLIT_H
 
@@ -37,14 +44,43 @@
 extern "C" {
 #endif
 
+/**
+ * Run-length slice context.
+ * This context must be initialized with the video_slice_init() function.
+ */
 struct video_slice {
-	int whole; /* segment length */
-	int up; /* up step */
-	int down; /* down step */
-	int count; /* number of segment */
-	int error; /* start error */
+	int whole; /**< Segment length. */
+	int up; /**< Up step. */
+	int down; /**< Down step. */
+	int count; /**< Number of segment. */
+	int error; /**< Start error. */
 };
 
+/**
+ * Initialize the run-length slice algoritm.
+ * This is a modification of the Bresenhams run-length slice algoritm
+ * adapted to work with bitmap resize.
+ * Refere to Dr. Dobb's Journal Nov 1992 "The good, the bad, and the run-sliced"
+ * by Michael Abrash.
+ *
+ * The basic use is:
+\code
+	while (count) {
+		unsigned run = whole;
+		if ((error += up) > 0) {
+			++run;
+			error -= down;
+		}
+
+		... draw a segment of "run" pixel ...
+
+		--count;
+	}
+\endcode
+ * \param slice Slice context to initialize.
+ * \param sd Source size.
+ * \param dd Destination size.
+ */
 void video_slice_init(struct video_slice* slice, unsigned sd, unsigned dd);
 
 /***************************************************************************/
@@ -52,61 +88,76 @@ void video_slice_init(struct video_slice* slice, unsigned sd, unsigned dd);
 
 struct video_stage_horz_struct;
 
+/**
+ * Template for an horizontal pipeline stage.
+ * \param stage Stage context.
+ * \param dst Destination data.
+ * \param src Source data.
+ */
 typedef void video_stage_hook(const struct video_stage_horz_struct* stage, void* dst, void* src);
 
+/**
+ * Pipeline stage types.
+ */
 enum video_stage_enum {
-	pipe_x_stretch,
-	pipe_x_double,
-	pipe_x_triple,
-	pipe_x_quadruple,
-	pipe_x_filter,
-	pipe_x_copy,
-	pipe_rotation,
-	pipe_x_rgb_triad3pix,
-	pipe_x_rgb_triad6pix,
-	pipe_x_rgb_triad16pix,
-	pipe_x_rgb_triadstrong3pix,
-	pipe_x_rgb_triadstrong6pix,
-	pipe_x_rgb_triadstrong16pix,
-	pipe_x_rgb_scandoublehorz,
-	pipe_x_rgb_scantriplehorz,
-	pipe_x_rgb_scandoublevert,
-	pipe_x_rgb_scantriplevert,
-	pipe_swap_even,
-	pipe_swap_odd,
-	pipe_unchained,
-	pipe_unchained_palette16to8,
-	pipe_unchained_x_double,
-	pipe_unchained_x_double_palette16to8,
-	pipe_palette8to8,
-	pipe_palette8to16,
-	pipe_palette8to32,
-	pipe_palette16to8,
-	pipe_palette16to16,
-	pipe_palette16to32,
-	pipe_rgb8888to332,
-	pipe_rgb8888to565,
-	pipe_rgb8888to555,
-	pipe_rgb555to332,
-	pipe_rgb555to565,
-	pipe_rgb555to8888,
-	pipe_rgbRGB888to8888,
-	pipe_y_copy,
-	pipe_y_reduction_copy,
-	pipe_y_expansion_copy,
-	pipe_y_mean,
-	pipe_y_reduction_mean,
-	pipe_y_expansion_mean,
-	pipe_y_filter,
-	pipe_y_expansion_filter,
-	pipe_y_reduction_filter,
-	pipe_y_reduction_max,
-	pipe_y_scale2x
+	pipe_x_stretch, /**< Horizontal stretch by a fractional factor. */
+	pipe_x_double, /**< Horizontal stretch by double factor. */
+	pipe_x_triple, /**< Horizontal stretch by triple factor. */
+	pipe_x_quadruple, /**< Horizontal stretch by quadruple factor. */
+	pipe_x_filter, /**< Horizontal FIR filter. */
+	pipe_x_copy, /**< Horizontal copy. */
+	pipe_rotation, /**< Horizontal copy with a not standard pixel step. */
+	pipe_x_rgb_triad3pix, /**< RGB triad of 3 pixel. */
+	pipe_x_rgb_triad6pix, /**< RGB triad of 6 pixel. */
+	pipe_x_rgb_triad16pix, /**< RGB triad of 16 pixel. */
+	pipe_x_rgb_triadstrong3pix, /**< RGB strong triad of 3 pixel. */
+	pipe_x_rgb_triadstrong6pix, /**< RGB strong triad of 6 pixel. */
+	pipe_x_rgb_triadstrong16pix, /**< RGB strong triad of 16 pixel. */
+	pipe_x_rgb_scandoublehorz, /**< Horizontal double scanline. */
+	pipe_x_rgb_scantriplehorz, /**< Horizontal triple scanline. */
+	pipe_x_rgb_scandoublevert, /**< Vertical double scanline. */
+	pipe_x_rgb_scantriplevert, /**< Vertical triple scanline. */
+	pipe_swap_even, /**< Swap every two even rows. */
+	pipe_swap_odd, /**< Swap every two odd rows. */
+	pipe_unchained, /**< Put in unchained modes (XModes). */
+	pipe_unchained_palette16to8, /**< Put in unchained modes (XModes) with a palette conversion. */
+	pipe_unchained_x_double, /**< Put in unchained modes (XModes) with a horizontal double stretch. */
+	pipe_unchained_x_double_palette16to8, /**< Put in unchained modes (XModes) with a horizontal double stretch and with a palette conversion. */
+	pipe_palette8to8, /**< Palette conversion 8 -\> 8. */
+	pipe_palette8to16, /**< Palette conversion 8 -\> 16. */
+	pipe_palette8to32, /**< Palette conversion 8 -\> 32. */
+	pipe_palette16to8, /**< Palette conversion 16 -\> 8. */
+	pipe_palette16to16, /**< Palette conversion 16 -\> 16. */
+	pipe_palette16to32, /**< Palette conversion 16 -\> 32. */
+	pipe_rgb8888to332, /**< RGB conversion 8888 (bgra) -> 332 (bgr). */
+	pipe_rgb8888to565, /**< RGB conversion 8888 (bgra) -> 565 (bgr). */
+	pipe_rgb8888to555, /**< RGB conversion 8888 (bgra) -> 555 (bgr). */
+	pipe_rgb555to332, /**< RGB conversion 555 (bgr) -> 332 (bgr). */
+	pipe_rgb555to565, /**< RGB conversion 555 (bgr) -> 565 (bgr). */
+	pipe_rgb555to8888, /**< RGB conversion 555 (bgr) -> 8888 (bgra). */
+	pipe_rgbRGB888to8888, /**< RGB conversion 888 (rgb) -> 8888 (bgra). */
+	pipe_y_copy, /**< Vertical copy. */
+	pipe_y_reduction_copy, /**< Vertical reduction. */
+	pipe_y_expansion_copy, /**< Vertical expansion. */
+	pipe_y_mean, /**< Vertical copy with the mean effect. */
+	pipe_y_reduction_mean, /**< Vertical reduction with the mean effect. */
+	pipe_y_expansion_mean, /**< Vertical expansion with the mean effect. */
+	pipe_y_filter, /**< Vertical copy with the FIR filter. */
+	pipe_y_expansion_filter, /**< Vertical expansion with the FIR filter. */
+	pipe_y_reduction_filter, /**< Vertical reduction with the FIR filter. */
+	pipe_y_reduction_max, /**< Vertical reduction with the max effect. */
+	pipe_y_scale2x /**< Scale 2x. */
 };
 
+/**
+ * Get the name of a pipeline stage type.
+ * \return Pointer at a static buffer.
+ */
 const char* pipe_name(enum video_stage_enum pipe_type);
 
-/* Pipeline horizontal trasformation stage */
+/**
+ * Pipeline horizontal trasformation stage.
+ */
 struct video_stage_horz_struct {
 	video_stage_hook* put; /**< Hook. */
 	video_stage_hook* put_plain; /**< Hook assuming sdp == sbpp. */
@@ -139,7 +190,8 @@ struct video_stage_horz_struct {
 	unsigned state_mutable; /**< State value zeroed at the startup. */
 };
 
-/* Special effect */
+/** \name Effects */
+/*@{*/
 #define VIDEO_COMBINE_Y_NONE 0 /**< No effect. */
 #define VIDEO_COMBINE_Y_MAX 0x1 /**< Use the max value in y reductions. */
 #define VIDEO_COMBINE_Y_MEAN 0x2 /**< Use the mean value in y transformations for added or removed lines. */
@@ -158,14 +210,21 @@ struct video_stage_horz_struct {
 #define VIDEO_COMBINE_X_RGB_SCANTRIPLEHORZ 0x800 /**< Triple scanline. */
 #define VIDEO_COMBINE_X_RGB_SCANDOUBLEVERT 0x1000 /**< Double scanline vertical. */
 #define VIDEO_COMBINE_X_RGB_SCANTRIPLEVERT 0x2000 /**< Triple scanline vertical. */
+
 #define VIDEO_COMBINE_SWAP_EVEN 0x4000 /**< Swap every two even line. */
 #define VIDEO_COMBINE_SWAP_ODD 0x8000 /**< Swap every two odd line. */
+/*@}*/
 
 struct video_stage_vert_struct;
 
+/**
+ * Template for a vertical pipeline stage.
+ */
 typedef void video_stage_vert_hook(const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, void* src);
 
-/* Pipeline vertical trasformation stage */
+/**
+ * Pipeline vertical trasformation stage.
+ */
 struct video_stage_vert_struct {
 	video_stage_vert_hook* put; /**< Hook. */
 
@@ -204,33 +263,71 @@ struct video_stage_vert_struct {
 	video_stage_vert_hook* plane_put; /**< Hook for plane put, !=0 if plane put supported */
 };
 
+/**
+ * Max number of stages in a blit pipeline.
+ */
 #define VIDEO_STAGE_MAX 8
 
+/**
+ * Blit pipeline.
+ * A blit pipeline is a sequence of blit stages which operates on the images pixels.
+ * The stages are differentiated in horizontal and vertical stages.
+ * Many horizontal stages are allowed in the same pipeline. The vertical stage is always only one.
+ *
+ * The horizontal stages operate on rows. They can change the row length but they cannot
+ * change the number of rows.
+ * The vertical stage instead can change anything.
+ *
+ * The vertical stage cannot be the last stage in the pipeline, the horizontal stage
+ * immediatly after the vertical stage is called "pivot" stage.
+ */
 struct video_pipeline_struct {
-	struct video_stage_vert_struct stage_vert;
-	struct video_stage_horz_struct stage_map[VIDEO_STAGE_MAX];
-	unsigned stage_mac;
+	struct video_stage_vert_struct stage_vert; /**< Vertical stage. */
+	struct video_stage_horz_struct stage_map[VIDEO_STAGE_MAX]; /**< Horizontal stages. */
+	unsigned stage_mac; /**< Number of horizontal stages. */
 };
 
+/**
+ * Initialize an empty blit pipeline.
+ */
 void video_pipeline_init(struct video_pipeline_struct* pipeline);
+
+/**
+ * Deinitialize a blit pipeline.
+ */
 void video_pipeline_done(struct video_pipeline_struct* pipeline);
 
+/**
+ * Get the number of the horizontal stage in a blit pipeline.
+ */
 static __inline__ unsigned video_pipeline_size(const struct video_pipeline_struct* pipeline) {
 	return pipeline->stage_mac;
 }
 
+/**
+ * Get the first horizontal stage of a blit pipeline.
+ */
 static __inline__ const struct video_stage_horz_struct* video_pipeline_begin(const struct video_pipeline_struct* pipeline) {
 	return pipeline->stage_map;
 }
 
+/**
+ * Get the last horizontal stage in a blit pipeline.
+ */
 static __inline__ const struct video_stage_horz_struct* video_pipeline_end(const struct video_pipeline_struct* pipeline) {
 	return pipeline->stage_map + pipeline->stage_mac;
 }
 
+/**
+ * Get vertical stage of a blit pipeline.
+ */
 static __inline__ const struct video_stage_vert_struct* video_pipeline_vert(const struct video_pipeline_struct* pipeline) {
 	return &pipeline->stage_vert;
 }
 
+/**
+ * Get the horizontal pivot stage of a blit pipeline.
+ */
 static __inline__ const struct video_stage_horz_struct* video_pipeline_pivot(const struct video_pipeline_struct* pipeline) {
 	return video_pipeline_vert(pipeline)->stage_pivot;
 }
@@ -238,24 +335,72 @@ static __inline__ const struct video_stage_horz_struct* video_pipeline_pivot(con
 /***************************************************************************/
 /* blit */
 
-adv_error video_blit_init(void);
+/**
+ * Initialize the blit system.
+ */
+error video_blit_init(void);
+
+/**
+ * Deinitialize the blit system.
+ */
 void video_blit_done(void);
 
 /***************************************************************************/
 /* pipeline blit */
 
-int video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, video_rgb_def src_rgb_def, unsigned combine);
+/**
+ * Initialize a pipeline for a stretch blit.
+ * Check the video_stretch() for more details.
+ */
+error video_stretch_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, video_rgb_def src_rgb_def, unsigned combine);
+
+/**
+ * Initialize a pipeline for a stretch blit with an hardware palette.
+ * Check the video_stretch_palette_hw() for more details.
+ */
 void video_stretch_palette_hw_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine);
+
+/**
+ * Initialize a pipeline for a stretch blit with a software 8 bit palette.
+ * Check the video_stretch_palette_8() for more details.
+ */
 void video_stretch_palette_8_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned* palette, unsigned combine);
+
+/**
+ * Initialize a pipeline for a stretch blit with a software 16 bit palette.
+ * Check the video_stretch_palette_16() for more details.
+ */
 void video_stretch_palette_16_pipeline_init(struct video_pipeline_struct* pipeline, unsigned dst_dx, unsigned dst_dy, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned* palette, unsigned combine);
+
+/**
+ * Blit using a precomputed pipeline.
+ * \param pipeline Pipeline to use.
+ * \param dst_x Destination x.
+ * \param dst_y Destination y.
+ * \param src Source data.
+ */
 void video_blit_pipeline(const struct video_pipeline_struct* pipeline, unsigned dst_x, unsigned dst_y, void* src);
 
 /***************************************************************************/
 /* blit */
 
-void video_clear(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, unsigned src);
-
-static __inline__ int video_stretch(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, video_rgb_def src_rgb_def, unsigned combine) {
+/**
+ * Blit and stretch a bitmap.
+ * The source bitmap can have any bit depth.
+ * \note This function may fail if a unsupported color conversion is required.
+ * \param dst_x Destination x.
+ * \param dst_y Destination y.
+ * \param dst_dx Destination size x.
+ * \param dst_dy Destination size y.
+ * \param src Source data.
+ * \param src_dx Source size x.
+ * \param src_dy Source size y.
+ * \param src_dw Source row step expressed in bytes.
+ * \param src_dp Source pixel step expressed in bytes.
+ * \param src_rgb_def Source RGB format.
+ * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
+ */
+static __inline__ error video_stretch(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, video_rgb_def src_rgb_def, unsigned combine) {
 	struct video_pipeline_struct pipeline;
 
 	if (video_stretch_pipeline_init(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, src_dp, src_rgb_def, combine) != 0)
@@ -268,6 +413,24 @@ static __inline__ int video_stretch(unsigned dst_x, unsigned dst_y, unsigned dst
 	return 0;
 }
 
+/**
+ * Blit and stretch a bitmap with an hardware palette.
+ * The source bitmap must have the same bit depth of the screen.
+ *
+ * With correct choice of the src_dw and src_dp parameters you can also
+ * rotate and/or flip the image.
+ *
+ * \param dst_x Destination x.
+ * \param dst_y Destination y.
+ * \param dst_dx Destination size x.
+ * \param dst_dy Destination size y.
+ * \param src Source data.
+ * \param src_dx Source size x.
+ * \param src_dy Source size y.
+ * \param src_dw Source row step expressed in bytes.
+ * \param src_dp Source pixel step expressed in bytes.
+ * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
+ */
 static __inline__ void video_stretch_palette_hw(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, void* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned combine) {
 	struct video_pipeline_struct pipeline;
 
@@ -278,6 +441,21 @@ static __inline__ void video_stretch_palette_hw(unsigned dst_x, unsigned dst_y, 
 	video_pipeline_done(&pipeline);
 }
 
+/**
+ * Blit and stretch a bitmap with a software 8 bit palette.
+ * The source bitmap must be a 8 bit bitmap.
+ * \param dst_x Destination x.
+ * \param dst_y Destination y.
+ * \param dst_dx Destination size x.
+ * \param dst_dy Destination size y.
+ * \param src Source data.
+ * \param src_dx Source size x.
+ * \param src_dy Source size y.
+ * \param src_dw Source row step expressed in bytes.
+ * \param src_dp Source pixel step expressed in bytes.
+ * \param palette Palette data.
+ * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
+ */
 static __inline__ void video_stretch_palette_8(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, uint8* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned* palette, unsigned combine) {
 	struct video_pipeline_struct pipeline;
 
@@ -288,6 +466,21 @@ static __inline__ void video_stretch_palette_8(unsigned dst_x, unsigned dst_y, u
 	video_pipeline_done(&pipeline);
 }
 
+/**
+ * Blit and stretch a bitmap with a software 16 bit palette.
+ * The source bitmap must be a 16 bit bitmap.
+ * \param dst_x Destination x.
+ * \param dst_y Destination y.
+ * \param dst_dx Destination size x.
+ * \param dst_dy Destination size y.
+ * \param src Source data.
+ * \param src_dx Source size x.
+ * \param src_dy Source size y.
+ * \param src_dw Source row step expressed in bytes.
+ * \param src_dp Source pixel step expressed in bytes.
+ * \param palette Palette data.
+ * \param combine Effect mask. A combination of the VIDEO_COMBINE codes.
+ */
 static __inline__ void video_stretch_palette_16(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, uint16* src, unsigned src_dx, unsigned src_dy, int src_dw, int src_dp, unsigned* palette, unsigned combine) {
 	struct video_pipeline_struct pipeline;
 
@@ -298,33 +491,11 @@ static __inline__ void video_stretch_palette_16(unsigned dst_x, unsigned dst_y, 
 	video_pipeline_done(&pipeline);
 }
 
-#define STAGE_SIZE(stage,_type,_sdx,_sdp,_sbpp,_ddx,_dbpp) \
-	stage->type = (_type); \
-	stage->sdx = (_sdx); \
-	stage->sdp = (_sdp); \
-	stage->sbpp = (_sbpp); \
-	video_slice_init(&stage->slice,(_sdx),(_ddx)); \
-	stage->palette = 0; \
-	stage->buffer_size = (_dbpp)*(_ddx); \
-	stage->buffer_extra_size = 0; \
-	stage->plane_num = 0; \
-	stage->plane_put_plain = 0; \
-	stage->plane_put = 0; \
-	stage->put_plain = 0; \
-	stage->put = 0
-
-#define STAGE_PUT(stage,_put_plain,_put) \
-	stage->put_plain = (_put_plain); \
-	stage->put = (stage->sbpp == stage->sdp) ? stage->put_plain : (_put)
-
-#define STAGE_EXTRA(stage) \
-	stage->buffer_extra_size = stage->buffer_size
-
-#define STAGE_PALETTE(stage,_palette) \
-	stage->palette = _palette
-
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+
+/*@}*/
+

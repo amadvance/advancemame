@@ -18,12 +18,23 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * Endinaess.
+ */
+
+/** \addtogroup Endian */
+/*@{*/
+
 #ifndef __ENDIAN_H
 #define __ENDIAN_H
 
-// -------------------------------------------------------------------------
-// Endian
+/***************************************************************************/
+/* Endian */
 
+/** \name Read
+ * Read a value in the Little or Big endian format.
+ */
+/*@{*/
 static inline unsigned char le_uint8_read(const void* ptr) {
 	const unsigned char* ptr8 = (const unsigned char*)ptr;
 	return (unsigned char)ptr8[0];
@@ -48,7 +59,12 @@ static inline unsigned be_uint32_read(const void* ptr) {
 	const unsigned char* ptr8 = (const unsigned char*)ptr;
 	return (unsigned)ptr8[3] | (unsigned)ptr8[2] << 8 | (unsigned)ptr8[1] << 16 | (unsigned)ptr8[0] << 24;
 }
+/*@}*/
 
+/** \name Write
+ * Write a value in the Little or Big endian format.
+ */
+/*@{*/
 static inline void le_uint8_write(void* ptr, unsigned char v) {
 	unsigned char* ptr8 = (unsigned char*)ptr;
 	ptr8[0] = v;
@@ -81,6 +97,8 @@ static inline void be_uint32_write(void* ptr, unsigned v) {
 	ptr8[1] = (v >> 16) & 0xFF;
 	ptr8[0] = (v >> 24) & 0xFF;
 }
+/*@}*/
 
 #endif
 
+/*@}*/

@@ -18,6 +18,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * Mixer.
+ */
+
 #ifndef __MIXER_H
 #define __MIXER_H
 
@@ -27,6 +31,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** \addtogroup Mixer */
+/*@{*/
 
 #define MIXER_CHANNEL_MAX 8 /**< Max number of channels */
 
@@ -48,6 +55,8 @@ void mixer_stop(unsigned channel);
 
 int mixer_is_pushing(unsigned channel);
 int mixer_is_playing(unsigned channel);
+
+/*@}*/
 
 #ifdef __cplusplus
 }

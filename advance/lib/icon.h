@@ -18,11 +18,18 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * ICON file support.
+ */
+
+/** \addtogroup VideoFile */
+/*@{*/
+
 #ifndef __ICON_H
 #define __ICON_H
 
 #include "bitmap.h"
-#include "advstd.h"
+#include "extra.h"
 #include "fz.h"
 
 #ifdef __cplusplus
@@ -36,4 +43,6 @@ struct bitmap* icon_load(FZ* f, video_color* rgb, unsigned* rgb_max, struct bitm
 #endif
 
 #endif
+
+/*@}*/
 

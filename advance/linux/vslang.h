@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Video driver "slang".
+ */
+
 #ifndef __DRVSLANG_H
 #define __DRVSLANG_H
 
@@ -42,16 +46,16 @@ typedef struct slang_video_mode_struct {
 	unsigned font_size_y;
 } slang_video_mode;
 
-adv_error slang_init(int device_id);
+error slang_init(int device_id);
 void slang_done(void);
 
-adv_bool slang_is_active(void);
-adv_bool slang_mode_is_active(void);
+boolean slang_is_active(void);
+boolean slang_mode_is_active(void);
 
 unsigned slang_flags(void);
 
-adv_error slang_mode_set(const slang_video_mode* mode);
-void slang_mode_done(adv_bool restore);
+error slang_mode_set(const slang_video_mode* mode);
+void slang_mode_done(boolean restore);
 
 unsigned slang_virtual_x(void);
 unsigned slang_virtual_y(void);
@@ -62,18 +66,22 @@ video_rgb_def slang_rgb_def(void);
 extern unsigned char* (*slang_write_line)(unsigned y);
 
 void slang_wait_vsync(void);
-adv_error slang_scroll(unsigned offset, adv_bool waitvsync);
-adv_error slang_scanline_set(unsigned byte_length);
-adv_error slang_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
+error slang_scroll(unsigned offset, boolean waitvsync);
+error slang_scanline_set(unsigned byte_length);
+error slang_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync);
 
-adv_error slang_mode_import(video_mode* mode, const slang_video_mode* slang_mode);
-adv_error slang_mode_generate(slang_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+error slang_mode_import(video_mode* mode, const slang_video_mode* slang_mode);
+error slang_mode_generate(slang_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
 int slang_mode_compare(const slang_video_mode* a, const slang_video_mode* b);
 
 void slang_default(void);
 void slang_reg(struct conf_context* context);
-adv_error slang_load(struct conf_context* context);
+error slang_load(struct conf_context* context);
 
+/**
+ * Video driver "slang".
+ * \ingroup Video
+ */
 extern video_driver video_slang_driver;
 
 #ifdef __cplusplus

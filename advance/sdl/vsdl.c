@@ -32,6 +32,7 @@
 #include "video.h"
 #include "log.h"
 #include "ossdl.h"
+#include "error.h"
 
 #include "SDL.h"
 
@@ -42,16 +43,16 @@
 /* Options */
 
 struct sdl_option_struct {
-	adv_bool initialized;
-	adv_bool fullscreen;
+	boolean initialized;
+	boolean fullscreen;
 };
 
 static struct sdl_option_struct sdl_option;
 
 typedef struct sdl_internal_struct {
-	adv_bool active; /**< !=0 if present. */
-	adv_bool mode_active; /**< !=0 if mode set. */
-	adv_bool lock_active; /**< !=0 if lock active. */
+	boolean active; /**< !=0 if present. */
+	boolean mode_active; /**< !=0 if mode set. */
+	boolean lock_active; /**< !=0 if lock active. */
 	unsigned flags; /**< Precomputed driver flags. */
 	SDL_Surface* surface;
 } sdl_internal;
@@ -115,7 +116,7 @@ static void SDL_WM_DefIcon(void) {
 	SDL_FreeSurface(surface);
 }
 
-adv_error sdl_init(int device_id) {
+error sdl_init(int device_id) {
 	char name[64];
 	const device* i;
 	unsigned j;
@@ -229,11 +230,11 @@ void sdl_done(void) {
 	sdl_state.active = 0;
 }
 
-adv_bool sdl_is_active(void) {
+boolean sdl_is_active(void) {
 	 return sdl_state.active != 0;
 }
 
-adv_bool sdl_mode_is_active(void) {
+boolean sdl_mode_is_active(void) {
 	return sdl_state.mode_active != 0;
 }
 
@@ -269,7 +270,7 @@ void sdl_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y) 
 	sdl_state.lock_active = 0;
 }
 
-adv_error sdl_mode_set(const sdl_video_mode* mode) {
+error sdl_mode_set(const sdl_video_mode* mode) {
 	const SDL_VideoInfo* info;
 
 	assert( sdl_is_active() );
@@ -349,7 +350,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode) {
 	return 0;
 }
 
-void sdl_mode_done(adv_bool restore) {
+void sdl_mode_done(boolean restore) {
 	assert( sdl_is_active() );
 	assert( sdl_mode_is_active() );
 
@@ -398,7 +399,7 @@ void sdl_wait_vsync(void) {
 	/* not available */
 }
 
-adv_error sdl_scroll(unsigned offset, adv_bool waitvsync) {
+error sdl_scroll(unsigned offset, boolean waitvsync) {
 	assert(sdl_is_active() && sdl_mode_is_active());
 
 	if (offset != 0)
@@ -407,7 +408,7 @@ adv_error sdl_scroll(unsigned offset, adv_bool waitvsync) {
 	return 0;
 }
 
-adv_error sdl_scanline_set(unsigned byte_length) {
+error sdl_scanline_set(unsigned byte_length) {
 	assert(sdl_is_active() && sdl_mode_is_active());
 
 	if (byte_length != sdl_state.surface->pitch)
@@ -416,7 +417,7 @@ adv_error sdl_scanline_set(unsigned byte_length) {
 	return 0;
 }
 
-adv_error sdl_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+error sdl_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync) {
 	SDL_Color sdl_pal[256];
 	unsigned i;
 
@@ -440,7 +441,7 @@ adv_error sdl_palette8_set(const video_color* palette, unsigned start, unsigned 
  * Import information for one video mode.
  * \return 0 if successful
  */
-adv_error sdl_mode_import(video_mode* mode, const sdl_video_mode* sdl_mode) {
+error sdl_mode_import(video_mode* mode, const sdl_video_mode* sdl_mode) {
 	log_std(("video:sdl: sdl_mode_import()\n"));
 
 	sprintf(mode->name,"sdl_%dx%dx%d",sdl_mode->size_x, sdl_mode->size_y, sdl_mode->bits_per_pixel);
@@ -476,7 +477,7 @@ adv_error sdl_mode_import(video_mode* mode, const sdl_video_mode* sdl_mode) {
 	return 0;
 }
 
-adv_error sdl_mode_generate(sdl_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+error sdl_mode_generate(sdl_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
 	unsigned suggested_bits;
 
 	log_std(("video:sdl: sdl_mode_generate(x:%d,y:%d,bits:%d)\n", crtc->hde, crtc->vde, bits));
@@ -484,14 +485,14 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const video_crtc* crtc, unsign
 	suggested_bits = SDL_VideoModeOK(crtc->hde, crtc->vde, bits, SDL_ModeFlags() );
 
 	if (!suggested_bits) {
-		error_description_nolog_cat("No compatible SDL mode found\n");
+		error_nolog_cat("No compatible SDL mode found\n");
 		return -1;
 	}
 
 	if (suggested_bits != bits) {
 		/* if a window manager is active accepts any bit depths */
 		if ((sdl_flags() & VIDEO_DRIVER_FLAGS_INFO_WINDOWMANAGER)==0) {
-			error_description_nolog_cat("No compatible SDL bit depth found\n");
+			error_nolog_cat("No compatible SDL bit depth found\n");
 			return -1;
 		}
 	}
@@ -548,7 +549,7 @@ void sdl_reg(struct conf_context* context) {
 	conf_bool_register_default(context, "device_sdl_fullscreen", 0);
 }
 
-adv_error sdl_load(struct conf_context* context) {
+error sdl_load(struct conf_context* context) {
 	/* Options must be loaded before initialization */
 	assert( !sdl_is_active() );
 
@@ -562,15 +563,15 @@ adv_error sdl_load(struct conf_context* context) {
 /***************************************************************************/
 /* Driver */
 
-static adv_error sdl_mode_set_void(const void* mode) {
+static error sdl_mode_set_void(const void* mode) {
 	return sdl_mode_set((const sdl_video_mode*)mode);
 }
 
-static adv_error sdl_mode_import_void(video_mode* mode, const void* sdl_mode) {
+static error sdl_mode_import_void(video_mode* mode, const void* sdl_mode) {
 	return sdl_mode_import(mode, (const sdl_video_mode*)sdl_mode);
 }
 
-static adv_error sdl_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+static error sdl_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
 	return sdl_mode_generate((sdl_video_mode*)mode, crtc, bits, flags);
 }
 

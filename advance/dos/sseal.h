@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Sound driver "seal".
+ */
+
 #ifndef __SSEAL_H
 #define __SSEAL_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Sound driver "seal".
+ * \ingroup Sound
+ */
 extern sound_driver sound_seal_driver;
 
 #ifdef __cplusplus

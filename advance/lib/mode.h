@@ -28,10 +28,17 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Video mode.
+ */
+
+/** \addtogroup Mode */
+/*@{*/
+
 #ifndef __MODE_H
 #define __MODE_H
 
-#include "advstd.h"
+#include "extra.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,11 +80,16 @@ extern "C" {
 /** Max size of a driver video mode */
 #define VIDEO_DRIVER_MODE_SIZE_MAX (sizeof(video_crtc)+16)
 
-struct video_driver_struct; /**< Forward declaration */
+/**
+ * Max length of video mode name.
+ */
+#define MODE_NAME_MAX 128
+
+struct video_driver_struct;
 
 typedef struct video_mode_struct {
 	unsigned flags;
-	char name[VIDEO_NAME_MAX];
+	char name[MODE_NAME_MAX];
 	unsigned size_x;
 	unsigned size_y;
 	double vclock; /**< Vertical freq, ==0 if not computable */
@@ -143,23 +155,23 @@ static __inline__  unsigned video_mode_memory(const video_mode* mode) {
 	return video_mode_flags(mode) & VIDEO_FLAGS_MEMORY_MASK;
 }
 
-static __inline__  adv_bool video_mode_is_text(const video_mode* mode) {
+static __inline__  boolean video_mode_is_text(const video_mode* mode) {
 	return video_mode_type(mode) == VIDEO_FLAGS_TYPE_TEXT;
 }
 
-static __inline__  adv_bool video_mode_is_graphics(const video_mode* mode) {
+static __inline__  boolean video_mode_is_graphics(const video_mode* mode) {
 	return video_mode_type(mode) == VIDEO_FLAGS_TYPE_GRAPHICS;
 }
 
-static __inline__  adv_bool video_mode_is_linear(const video_mode* mode) {
+static __inline__  boolean video_mode_is_linear(const video_mode* mode) {
 	return video_mode_memory(mode) == VIDEO_FLAGS_MEMORY_LINEAR;
 }
 
-static __inline__  adv_bool video_mode_is_unchained(const video_mode* mode) {
+static __inline__  boolean video_mode_is_unchained(const video_mode* mode) {
 	return video_mode_memory(mode) == VIDEO_FLAGS_MEMORY_UNCHAINED;
 }
 
-static __inline__  adv_bool video_mode_is_banked(const video_mode* mode) {
+static __inline__  boolean video_mode_is_banked(const video_mode* mode) {
 	return video_mode_memory(mode) == VIDEO_FLAGS_MEMORY_BANKED;
 }
 
@@ -181,3 +193,6 @@ void video_mode_reset(video_mode* mode);
 #endif
 
 #endif
+
+/*@}*/
+

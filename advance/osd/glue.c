@@ -28,7 +28,7 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "advance.h"
+#include "emu.h"
 #include "glue.h"
 #include "mame2.h"
 #include "log.h"
@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <math.h>
 
 /* Used in os_inline.h */
 __extension__ unsigned long long mmx_8to64_map[256] = {
@@ -325,6 +326,9 @@ struct advance_glue_context {
 	char crc_file[MAME_MAXPATH]; /**< Storage for the the crcfile MESS pointer. */
 	char parent_crc_file[MAME_MAXPATH]; /**< Storage for the the pcrcfile MESS pointer. */
 #endif
+
+	char resolution_buffer[32]; /**< Buffer used by mame_resolution(). */
+	char resolutionclock_buffer[32]; /**< Buffer used by mame_resolutionclock(). */
 };
 
 static struct advance_glue_context GLUE;
@@ -350,7 +354,6 @@ void logerror(const char *text,...)
 }
 
 const char* mame_game_resolution(const mame_game* game) {
-	static char resolution[32];
 	const struct GameDriver* driver = (const struct GameDriver*)game;
 	struct InternalMachineDriver machine;
 	expand_machine_driver(driver->drv, &machine);
@@ -364,11 +367,34 @@ const char* mame_game_resolution(const mame_game* game) {
 			dx = machine.default_visible_area.max_x - machine.default_visible_area.min_x + 1;
 			dy = machine.default_visible_area.max_y - machine.default_visible_area.min_y + 1;
 		}
-		sprintf(resolution,"%dx%d",dx,dy);
+		sprintf(GLUE.resolution_buffer,"%dx%d",dx,dy);
 	} else {
-		strcpy(resolution,"vector");
+		strcpy(GLUE.resolution_buffer,"vector");
 	}
-	return resolution;
+	return GLUE.resolution_buffer;
+}
+
+const char* mame_game_resolutionclock(const mame_game* game) {
+	const struct GameDriver* driver = (const struct GameDriver*)game;
+	struct InternalMachineDriver machine;
+	expand_machine_driver(driver->drv, &machine);
+	if ((machine.video_attributes & VIDEO_TYPE_VECTOR) == 0) {
+		unsigned dx;
+		unsigned dy;
+		unsigned clock;
+		if (driver->flags & ORIENTATION_SWAP_XY) {
+			dx = machine.default_visible_area.max_y - machine.default_visible_area.min_y + 1;
+			dy = machine.default_visible_area.max_x - machine.default_visible_area.min_x + 1;
+		} else {
+			dx = machine.default_visible_area.max_x - machine.default_visible_area.min_x + 1;
+			dy = machine.default_visible_area.max_y - machine.default_visible_area.min_y + 1;
+		}
+		clock = floor(machine.frames_per_second);
+		sprintf(GLUE.resolutionclock_buffer,"%dx%dx%d",dx,dy,clock);
+	} else {
+		strcpy(GLUE.resolutionclock_buffer,"vector");
+	}
+	return GLUE.resolutionclock_buffer;
 }
 
 double mame_game_fps(const mame_game* game) {

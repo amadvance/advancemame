@@ -29,6 +29,7 @@
  */
 
 #include "monitor.h"
+#include "error.h"
 
 #include <string.h>
 
@@ -36,7 +37,7 @@ void monitor_reset(video_monitor* monitor) {
 	memset(monitor, 0, sizeof(video_monitor));
 }
 
-adv_bool monitor_is_empty(const video_monitor* monitor) {
+boolean monitor_is_empty(const video_monitor* monitor) {
 	int i;
 	for(i=0;i<VIDEO_MONITOR_RANGE_MAX;++i)
 		if (monitor->hclock[i].low != 0 || monitor->hclock[i].high != 0)
@@ -50,7 +51,7 @@ adv_bool monitor_is_empty(const video_monitor* monitor) {
 /**
  * Check if a video mode is acceptable for the specified monitor.
  */
-adv_bool monitor_hclock_check(const video_monitor* monitor, double hclock) {
+boolean monitor_hclock_check(const video_monitor* monitor, double hclock) {
 	const double monitor_hfix_error = 0.02;
 	const double monitor_hrange_error = 0.01;
 	unsigned i;
@@ -68,13 +69,13 @@ adv_bool monitor_hclock_check(const video_monitor* monitor, double hclock) {
 		}
 	}
 	if (i==VIDEO_MONITOR_RANGE_MAX) {
-		error_description_nolog_set("Horizontal clock of %.2f kHz is out of range of your monitor", (double)hclock / 1E3);
+		error_nolog_set("Horizontal clock of %.2f kHz is out of range of your monitor", (double)hclock / 1E3);
 		return 0;
 	}
 	return 1;
 }
 
-adv_bool monitor_vclock_check(const video_monitor* monitor, double vclock) {
+boolean monitor_vclock_check(const video_monitor* monitor, double vclock) {
 	const double monitor_vfix_error = 0.02;
 	const double monitor_vrange_error = 0.01;
 	unsigned i;
@@ -90,27 +91,27 @@ adv_bool monitor_vclock_check(const video_monitor* monitor, double vclock) {
 		}
 	}
 	if (i==VIDEO_MONITOR_RANGE_MAX) {
-		error_description_nolog_set("Vertical clock of %.2f Hz is out of range of your monitor", (double)vclock);
+		error_nolog_set("Vertical clock of %.2f Hz is out of range of your monitor", (double)vclock);
 		return 0;
 	}
 	return 1;
 }
 
-adv_bool monitor_pclock_check(const video_monitor* monitor, double pclock) {
+boolean monitor_pclock_check(const video_monitor* monitor, double pclock) {
 	if (monitor->pclock.low <= pclock && pclock <= monitor->pclock.high)
 		return 1;
 
-	error_description_nolog_set("Pixel clock of %.2f Hz is out of range of your video board", (double)pclock);
+	error_nolog_set("Pixel clock of %.2f Hz is out of range of your video board", (double)pclock);
 	return 0;
 }
 
-adv_bool monitor_clock_check(const video_monitor* monitor, double pclock, double hclock, double vclock) {
+boolean monitor_clock_check(const video_monitor* monitor, double pclock, double hclock, double vclock) {
 	return monitor_pclock_check(monitor,pclock)
 		&& monitor_hclock_check(monitor,hclock)
 		&& monitor_vclock_check(monitor,vclock);
 }
 
-adv_bool monitor_hvclock_check(const video_monitor* monitor, double hclock, double vclock) {
+boolean monitor_hvclock_check(const video_monitor* monitor, double hclock, double vclock) {
 	return monitor_hclock_check(monitor,hclock)
 		&& monitor_vclock_check(monitor,vclock);
 }

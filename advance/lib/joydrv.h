@@ -28,6 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Joystick drivers.
+ */
+
+/** \addtogroup Joystick */
+/*@{*/
+
 #ifndef __JOYDRV_H
 #define __JOYDRV_H
 
@@ -46,17 +53,21 @@ extern "C" {
 #define JOYSTICK_DRIVER_FLAGS_USER_BIT0 0x10000
 #define JOYSTICK_DRIVER_FLAGS_USER_MASK 0xFFFF0000
 
-struct joystickb_driver_struct {
+/**
+ * Joystick driver.
+ * This struct abstract all the driver funtionalities.
+ */
+typedef struct joystickb_driver_struct {
 	const char* name; /**< Name of the driver */
 	const device* device_map; /**< List of supported devices */
 
 	/** Load the configuration options. Call before init() */
-	adv_error (*load)(struct conf_context* context);
+	error (*load)(struct conf_context* context);
 
 	/** Register the load options. Call before load(). */
 	void (*reg)(struct conf_context* context);
 
-	adv_error (*init)(int device_id); /**< Initialize the driver */
+	error (*init)(int device_id); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
@@ -74,15 +85,13 @@ struct joystickb_driver_struct {
 	void (*calib_start)(void);
 	const char* (*calib_next)(void);
 	void (*poll)(void);
-};
-
-typedef struct joystickb_driver_struct joystickb_driver;
+} joystickb_driver;
 
 #define JOYSTICK_DRIVER_MAX 8
 
 struct joystickb_state_struct {
-	adv_bool is_initialized_flag;
-	adv_bool is_active_flag;
+	boolean is_initialized_flag;
+	boolean is_active_flag;
 	unsigned driver_mac;
 	joystickb_driver* driver_map[JOYSTICK_DRIVER_MAX];
 	joystickb_driver* driver_current;
@@ -91,10 +100,10 @@ struct joystickb_state_struct {
 
 extern struct joystickb_state_struct joystickb_state;
 
-void joystickb_reg(struct conf_context* config_context, adv_bool auto_detect);
+void joystickb_reg(struct conf_context* config_context, boolean auto_detect);
 void joystickb_reg_driver(struct conf_context* config_context, joystickb_driver* driver);
-adv_error joystickb_load(struct conf_context* config_context);
-adv_error joystickb_init(void);
+error joystickb_load(struct conf_context* config_context);
+error joystickb_init(void);
 void joystickb_done(void);
 void joystickb_abort(void);
 
@@ -176,6 +185,10 @@ static __inline__ void joystickb_poll(void) {
 	joystickb_state.driver_current->poll();
 }
 
+/**
+ * Get the driver/device name.
+ * \return Pointer at a static buffer.
+ */
 static __inline__ const char* joystickb_name(void) {
 	return joystickb_state.name;
 }
@@ -185,3 +198,5 @@ static __inline__ const char* joystickb_name(void) {
 #endif
 
 #endif
+
+/*@}*/

@@ -163,7 +163,15 @@ static int fread_fmt_PCM(FZ* f, record_fmt_specific_PCM* p) {
 		? 0 : -1;
 }
 
-/* Read a WAVE header from memory */
+/**
+ * Read a WAVE header from memory.
+ * \param data_begin Pointer at the data. The pointer is incremented to the first sample byte.
+ * \param data_end Pointer at the end of the data.
+ * \param data_nchannel Where to put the number of channels. 1 or 2.
+ * \param data_bit Where to put the bit of the samples. 8 or 16.
+ * \param data_size Where to put the number of samples.
+ * \param data_freq Where to put the frequency.
+ */
 int wave_memory(const unsigned char** data_begin, const unsigned char* data_end, unsigned* data_nchannel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq) {
 	record_id riff_id;
 	char wave_id[4];
@@ -228,7 +236,14 @@ int wave_memory(const unsigned char** data_begin, const unsigned char* data_end,
 	return 0;
 }
 
-/* Read a WAVE header from a file */
+/**
+ * Read a WAVE header from a file.
+ * \param f File to read.
+ * \param data_nchannel Where to put the number of channels. 1 or 2.
+ * \param data_bit Where to put the bit of the samples. 8 or 16.
+ * \param data_size Where to put the number of samples.
+ * \param data_freq Where to put the frequency. 
+ */
 int wave_file(FZ* f, unsigned* data_nchannel, unsigned* data_bit, unsigned* data_size, unsigned* data_freq) {
 	record_id riff_id;
 	char wave_id[4];

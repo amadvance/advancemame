@@ -37,14 +37,18 @@ n*(
 )
 */
 
-/* ICON file header */
+/**
+ * ICON file header.
+ */
 struct icon_header_t {
 	uint16 reserved __attribute__ ((packed));
 	uint16 type __attribute__ ((packed));
 	uint16 count __attribute__ ((packed));
 } __attribute__ ((packed));
 
-/* ICON image entry */
+/**
+ * ICON image entry.
+ */
 struct icon_entry_t {
 	uint8 width __attribute__ ((packed));
 	uint8 height __attribute__ ((packed));
@@ -79,13 +83,22 @@ struct bitmap_header_t {
 	uint32 color_important __attribute__ ((packed));
 } __attribute__ ((packed));
 
+/**
+ * Load a .ico file in a bitmap.
+ * Only the 16 and 256 color format are supported.
+ * \param f File to load.
+ * \param rgb Where to put the palette information. it must point to a vector of 256 elements.
+ * \param rgb_max Where to put the number of palette entries.
+ * \param bitmap_mask Where to put the mask bitmap. 
+ * \return The loaded bitmap or 0 on error.
+ */
 struct bitmap* icon_load(FZ* f, video_color* rgb, unsigned* rgb_max, struct bitmap** bitmap_mask) {
 	struct bitmap* bitmap;
 	struct icon_header_t header;
 	struct icon_entry_t* entry;
 	int i;
 
-	if (fzread(&header,sizeof(struct icon_header_t),1,f)!=1)
+	if (fzread(&header,sizeof(struct icon_header_t),1,f)!=1) /* ENDIAN */
 		goto out;
 
 	if (header.reserved != 0)
@@ -101,7 +114,7 @@ struct bitmap* icon_load(FZ* f, video_color* rgb, unsigned* rgb_max, struct bitm
 	if (!entry)
 		goto out;
 
-	if (fzread(entry,sizeof(struct icon_entry_t),header.count,f)!=header.count)
+	if (fzread(entry,sizeof(struct icon_entry_t),header.count,f)!=header.count) /* ENDIAN */
 		goto out_entry;
 
 	for(i=0;i<header.count;++i) {
@@ -128,7 +141,7 @@ struct bitmap* icon_load(FZ* f, video_color* rgb, unsigned* rgb_max, struct bitm
 		if (fzseek(f,entry[i].offset,SEEK_SET)!=0)
 			goto out_entry;
 
-		if (fzread(&size,sizeof(uint32),1,f)!=1)
+		if (fzread(&size,sizeof(uint32),1,f)!=1) /* ENDIAN */
 			goto out_entry;
 
 		memset(&bitmap_header,0,sizeof(struct bitmap_header_t));
@@ -137,7 +150,7 @@ struct bitmap* icon_load(FZ* f, video_color* rgb, unsigned* rgb_max, struct bitm
 		else
 			bitmap_header.size = size;
 		
-		if (fzread(&bitmap_header.width,bitmap_header.size - 4,1,f)!=1)
+		if (fzread(&bitmap_header.width,bitmap_header.size - 4,1,f)!=1) /* ENDIAN */
 			goto out_entry;
 
 		if (size > bitmap_header.size)

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Joystick driver "none".
+ */
+
 #ifndef __JNONE_H
 #define __JNONE_H
 
@@ -37,7 +41,16 @@
 extern "C" {
 #endif
 
+/** \addtogroup Joystick */
+/*@{*/
+
+/**
+ * Joystick driver "none".
+ * This driver implement a null joystick. No event is generated.
+ */
 extern joystickb_driver joystickb_none_driver;
+
+/*@}*/
 
 #ifdef __cplusplus
 }

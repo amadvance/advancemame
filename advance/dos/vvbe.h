@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Video driver "vbe".
+ */
+
 #ifndef __VBE_H
 #define __VBE_H
 
@@ -43,12 +47,16 @@ typedef struct vbe_video_mode_struct {
 
 unsigned vbe_flags(void);
 
-adv_error vbe_mode_generate(vbe_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
-adv_error vbe_mode_import(video_mode* mode, const vbe_video_mode* vbe_mode);
-adv_error vbe_mode_grab(vbe_video_mode* mode);
-adv_error vbe_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
+error vbe_mode_generate(vbe_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+error vbe_mode_import(video_mode* mode, const vbe_video_mode* vbe_mode);
+error vbe_mode_grab(vbe_video_mode* mode);
+error vbe_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync);
 int vbe_mode_compare(const vbe_video_mode* a, const vbe_video_mode* b);
 
+/**
+ * Video driver "vbe".
+ * \ingroup Video
+ */
 extern video_driver video_vbe_driver;
 
 #ifdef __cplusplus

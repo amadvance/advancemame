@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Internal interface for the "sdl" host.
+ */
+
 #ifndef __OSSDL_H
 #define __OSSDL_H
 

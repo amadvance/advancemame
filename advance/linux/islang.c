@@ -49,7 +49,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error inputb_slang_init(int inputb_id)
+error inputb_slang_init(int inputb_id)
 {
 	log_std(("inputb:slang: inputb_slang_init(id:%d)\n",inputb_id));
 
@@ -89,7 +89,7 @@ static int slang_getkey(void)
 	return 0;
 }
 
-adv_bool inputb_slang_hit(void)
+boolean inputb_slang_hit(void)
 {
 	log_debug(("inputb:slang: inputb_slang_count_get()\n"));
 
@@ -127,45 +127,45 @@ unsigned inputb_slang_get(void)
 	map[mac] = 0;
 
 	if (strcmp(map,"\033[A")==0)
-		return OS_INPUT_UP;
+		return INPUTB_UP;
 	if (strcmp(map,"\033[B")==0)
-		return OS_INPUT_DOWN;
+		return INPUTB_DOWN;
 	if (strcmp(map,"\033[D")==0)
-		return OS_INPUT_LEFT;
+		return INPUTB_LEFT;
 	if (strcmp(map,"\033[C")==0)
-		return OS_INPUT_RIGHT;
+		return INPUTB_RIGHT;
 	if (strcmp(map,"\033[1~")==0)
-		return OS_INPUT_HOME;
+		return INPUTB_HOME;
 	if (strcmp(map,"\033[4~")==0)
-		return OS_INPUT_END;
+		return INPUTB_END;
 	if (strcmp(map,"\033[5~")==0)
-		return OS_INPUT_PGUP;
+		return INPUTB_PGUP;
 	if (strcmp(map,"\033[6~")==0)
-		return OS_INPUT_PGDN;
+		return INPUTB_PGDN;
 	if (strcmp(map,"\033[[A")==0)
-		return OS_INPUT_F1;
+		return INPUTB_F1;
 	if (strcmp(map,"\033[[B")==0)
-		return OS_INPUT_F2;
+		return INPUTB_F2;
 	if (strcmp(map,"\033[[C")==0)
-		return OS_INPUT_F3;
+		return INPUTB_F3;
 	if (strcmp(map,"\033[[D")==0)
-		return OS_INPUT_F4;
+		return INPUTB_F4;
 	if (strcmp(map,"\033[[E")==0)
-		return OS_INPUT_F5;
+		return INPUTB_F5;
 	if (strcmp(map,"\033[17~")==0)
-		return OS_INPUT_F6;
+		return INPUTB_F6;
 	if (strcmp(map,"\033[18~")==0)
-		return OS_INPUT_F7;
+		return INPUTB_F7;
 	if (strcmp(map,"\033[19~")==0)
-		return OS_INPUT_F8;
+		return INPUTB_F8;
 	if (strcmp(map,"\033[20~")==0)
-		return OS_INPUT_F9;
+		return INPUTB_F9;
 	if (strcmp(map,"\033[21~")==0)
-		return OS_INPUT_F10;
+		return INPUTB_F10;
 	if (strcmp(map,"\r")==0 || strcmp(map,"\n")==0)
-		return OS_INPUT_ENTER;
+		return INPUTB_ENTER;
 	if (strcmp(map,"\x7F")==0)
-		return OS_INPUT_BACKSPACE;
+		return INPUTB_BACKSPACE;
 
 	if (mac != 1)
 		return 0;
@@ -180,7 +180,7 @@ unsigned inputb_slang_flags(void)
 	return 0;
 }
 
-adv_error inputb_slang_load(struct conf_context* context)
+error inputb_slang_load(struct conf_context* context)
 {
 	return 0;
 }

@@ -18,10 +18,18 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * Bitmap.
+ */
+
+/** \addtogroup BitMap */
+/*@{*/
+
 #ifndef __BITMAP_H
 #define __BITMAP_H
 
-#include "advstd.h"
+#include "extra.h"
+#include "rgb.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,8 +40,8 @@ struct bitmap {
 	unsigned size_y;
 	unsigned bytes_per_pixel;
 	unsigned bytes_per_scanline;
-	uint8* ptr; /* pointer at the first pixel */
-	uint8* heap; /* pointer at the allocated data */
+	uint8* ptr; /**< Pointer at the first pixel. */
+	uint8* heap; /**< Pointer at the allocated data. */
 };
 
 struct bitmap* bitmap_alloc(unsigned x, unsigned y, unsigned bit);
@@ -82,3 +90,5 @@ void bitmap_cvt_24to32(struct bitmap* dst, struct bitmap* src);
 #endif
 
 #endif
+
+/*@}*/

@@ -30,6 +30,14 @@
 
 #include "joyall.h"
 
+/**
+ * Register all the joystick drivers.
+ * The drivers are registered on the basis of the following defines:
+ *  - USE_JOYSTICK_ALLEGRO
+ *  - USE_JOYSTICK_SVGALIB
+ *  - USE_JOYSTICK_SDL
+ *  - USE_JOYSTICK_NONE
+ */
 void joystickb_reg_driver_all(struct conf_context* context) {
 #ifdef USE_JOYSTICK_ALLEGRO
 	joystickb_reg_driver(context, &joystickb_allegro_driver);

@@ -28,6 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Filesystem.
+ */
+
+/** \addtogroup File */
+/*@{*/
+
 #ifndef __FILE_H
 #define __FILE_H
 
@@ -41,7 +48,16 @@ extern "C" {
 /***************************************************************************/
 /* Init */
 
+/**
+ * Initialize the file system.
+ * It's called in the main() function.
+ */
 int file_init(void);
+
+/**
+ * Deinitialize the file system.
+ * It's called in the main() function.
+ */
 void file_done(void);
 
 /***************************************************************************/
@@ -76,7 +92,7 @@ const char* file_abs(const char* dir, const char* file);
  */
 const char* file_import(const char* path);
 
-/*
+/**
  * Convert a path to the OS format from a standard UNIX format.
  * The returned buffer may be the same argument or a static buffer.
  * If a static buffer is used, you need at least two static buffer to use
@@ -141,3 +157,5 @@ const char* file_config_dir_singlefile(void);
 #endif
 
 #endif
+
+/*@}*/

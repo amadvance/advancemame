@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Input driver "slang".
+ */
+
 #ifndef __ISLANG_H
 #define __ISLANG_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Input driver "slang".
+ * \ingroup Input
+ */
 extern inputb_driver inputb_slang_driver;
 
 #ifdef __cplusplus

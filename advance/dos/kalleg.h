@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Keyboard driver "allegro".
+ */
+
 #ifndef __KALLEG_H
 #define __KALLEG_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Keyboard driver "allegro".
+ * \ingroup Keyboard
+ */
 extern keyb_driver keyb_allegro_driver;
 
 #ifdef __cplusplus

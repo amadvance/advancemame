@@ -88,7 +88,7 @@ static void mouse2_get(int* x, int* y) {
 /***************************************************************************/
 /* Allegro Mouse */
 
-adv_error mouseb_allegro_init(int mouseb_id)
+error mouseb_allegro_init(int mouseb_id)
 {
 	int err;
 
@@ -192,7 +192,7 @@ unsigned mouseb_allegro_flags(void)
 	return 0;
 }
 
-adv_error mouseb_allegro_load(struct conf_context* context)
+error mouseb_allegro_load(struct conf_context* context)
 {
 	return 0;
 }

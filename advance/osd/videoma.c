@@ -28,7 +28,7 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "advance.h"
+#include "emu.h"
 #include "glue.h"
 
 #include "os.h"
@@ -39,11 +39,13 @@
 #include "generate.h"
 #include "crtcbag.h"
 #include "blit.h"
+#include "clear.h"
 #include "hscript.h"
 #include "script.h"
 #include "conf.h"
 #include "videoall.h"
 #include "keydrv.h"
+#include "error.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -2531,7 +2533,7 @@ int osd2_video_init(struct osd_video_option* req)
 	if (keyb_init(input_context->config.disable_special_flag) != 0) {
 		video_done_mode(context, 0);
 		video_mode_restore();
-		target_err("%s\n",error_description_get());
+		target_err("%s\n", error_get());
 		return -1;
 	}
 
@@ -3122,7 +3124,7 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	/* load context->config.monitor config */
 	err = monitor_load(cfg_context, &context->config.monitor);
 	if (err<0) {
-		target_err("%s\n", error_description_get());
+		target_err("%s\n", error_get());
 		target_err("Please read the file `install.txt' and `advv.txt'.\n");
 		return -1;
 	}
@@ -3143,7 +3145,7 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	/* load generate_linear config */
 	err = generate_interpolate_load(cfg_context, &context->config.interpolate);
 	if (err<0) {
-		target_err("%s\n", error_description_get());
+		target_err("%s\n", error_get());
 		target_err("Please read the file `install.txt' and `advv.txt'.\n");
 		return -1;
 	} else if (err>0) {
@@ -3176,7 +3178,7 @@ int advance_video_config_load(struct advance_video_context* context, struct conf
 	}
 
 	if (video_crtc_container_load(cfg_context, &context->config.crtc_bag)!=0) {
-		target_err("%s\n",error_description_get());
+		target_err("%s\n",error_get());
 		target_err("Invalid modeline.\n");
 		return -1;
 	}
@@ -3191,13 +3193,13 @@ void advance_video_done(struct advance_video_context* context) {
 int advance_video_inner_init(struct advance_video_context* context, struct mame_option* option)
 {
 	if (video_init() != 0) {
-		target_err("%s\n", error_description_get());
+		target_err("%s\n", error_get());
 		return -1;
 	}
 
 	if (video_blit_init() != 0) {
 		video_done();
-		target_err("%s\n", error_description_get());
+		target_err("%s\n", error_get());
 		return -1;
 	}
 

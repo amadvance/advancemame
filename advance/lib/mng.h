@@ -18,6 +18,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * MNG file support.
+ */
+
 #ifndef __MNG_H
 #define __MNG_H
 
@@ -27,6 +31,8 @@
 extern "C" {
 #endif
 
+/** \name MNG_CHUNK */
+/*@{*/
 #define MNG_CN_DHDR 0x44484452
 #define MNG_CN_MHDR 0x4D484452
 #define MNG_CN_MEND 0x4D454E44
@@ -40,14 +46,46 @@ extern "C" {
 #define MNG_CN_ENDL 0x454e444c
 #define MNG_CN_BACK 0x4241434b
 #define MNG_CN_FRAM 0x4652414d
+/*@}*/
+
+/**
+ * MNG context.
+ */
+struct mng_context {
+	int end_flag; /**< End flag. */
+	unsigned pixel; /**< Bytes per pixel. */
+	unsigned char* dat_ptr; /**< Current image buffer. */
+	unsigned dat_size; /**< Size of the buffer image. */
+	unsigned dat_line; /**< Bytes per scanline. */
+	
+	int dat_x; /**< X position of the displayed area in the working area. */
+	int dat_y; /**< Y position of the displayed area in the working area. */
+	unsigned dat_width; /**< Width of the working area. */
+	unsigned dat_height; /**< height of the working area. */
+
+	unsigned char* dlt_ptr; /**< Delta buffer. */
+	unsigned dlt_size; /**< Delta buffer size. */
+	unsigned dlt_line; /**< Delta bufer bytes per scanline. */
+
+	unsigned char pal_ptr[256*3]; /**< Palette data. */
+	unsigned pal_size; /**< Palette data size in bytes. */
+
+	unsigned frame_frequency; /**< Base frame rate. */
+	unsigned frame_tick; /**< Ticks for a generic frame. */
+	unsigned frame_width; /**< Frame width. */
+	unsigned frame_height; /**< Frame height. */
+};
 
 int mng_read_signature(FZ* f);
 int mng_write_signature(FZ* f, unsigned* count);
 
-void* mng_init(FZ* f);
-void mng_done(void* void_mng);
+/** \addtogroup VideoFile */
+/*@{*/
+
+struct mng_context* mng_init(FZ* f);
+void mng_done(struct mng_context* mng);
 int mng_read(
-	void* void_mng,
+	struct mng_context* mng,
 	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
@@ -55,12 +93,16 @@ int mng_read(
 	unsigned* tick,
 	FZ* f
 );
-unsigned mng_frequency_get(void* void_mng);
-unsigned mng_width_get(void* void_mng);
-unsigned mng_height_get(void* void_mng);
+unsigned mng_frequency_get(struct mng_context* mng);
+unsigned mng_width_get(struct mng_context* mng);
+unsigned mng_height_get(struct mng_context* mng);
+
+/*@}*/
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+
+

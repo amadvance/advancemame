@@ -42,17 +42,17 @@ typedef struct dga_video_mode_struct {
 	video_crtc crtc; /**< CRTC values */
 } dga_video_mode;
 
-adv_error dga_init(int device_id);
+error dga_init(int device_id);
 void dga_done(void);
 
-adv_bool dga_is_active(void);
-adv_bool dga_mode_is_active(void);
+boolean dga_is_active(void);
+boolean dga_mode_is_active(void);
 
 unsigned dga_flags(void);
 
-adv_error dga_mode_set(const dga_video_mode* mode);
-adv_error dga_mode_change(const dga_video_mode* mode);
-void dga_mode_done(adv_bool restore);
+error dga_mode_set(const dga_video_mode* mode);
+error dga_mode_change(const dga_video_mode* mode);
+void dga_mode_done(boolean restore);
 
 unsigned dga_virtual_x(void);
 unsigned dga_virtual_y(void);
@@ -63,17 +63,17 @@ video_rgb_def dga_rgb_def(void);
 extern unsigned char* (*dga_write_line)(unsigned y);
 
 void dga_wait_vsync(void);
-adv_error dga_scroll(unsigned offset, adv_bool waitvsync);
-adv_error dga_scanline_set(unsigned byte_length);
-adv_error dga_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
+error dga_scroll(unsigned offset, boolean waitvsync);
+error dga_scanline_set(unsigned byte_length);
+error dga_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync);
 
-adv_error dga_mode_import(video_mode* mode, const dga_video_mode* dga_mode);
-adv_error dga_mode_generate(dga_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+error dga_mode_import(video_mode* mode, const dga_video_mode* dga_mode);
+error dga_mode_generate(dga_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
 int dga_mode_compare(const dga_video_mode* a, const dga_video_mode* b);
 
 void dga_default(void);
 void dga_reg(struct conf_context* context);
-adv_error dga_load(struct conf_context* context);
+error dga_load(struct conf_context* context);
 
 extern video_driver video_dga_driver;
 

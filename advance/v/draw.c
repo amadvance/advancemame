@@ -21,9 +21,11 @@
 #include "draw.h"
 #include "video.h"
 #include "blit.h"
+#include "clear.h"
 #include "os.h"
 #include "inputdrv.h"
 #include "target.h"
+#include "error.h"
 
 #ifdef __MSDOS__
 #include <scrvga.h>
@@ -189,7 +191,7 @@ static int text_default_set(void) {
 void text_init(void) {
 	if (text_default_set()!=0) {
 		video_mode_restore();
-		printf("Error inizialing the default video mode\n\"%s\"", error_description_get());
+		printf("Error inizialing the default video mode\n\"%s\"", error_get());
 		exit(EXIT_FAILURE);
 	}
 
@@ -460,14 +462,14 @@ int draw_text_read(int x, int y, char* s, int dx, unsigned color) {
 		video_wait_vsync();
 		userkey = inputb_get();
 		switch (userkey) {
-			case OS_INPUT_BACKSPACE :
-			case OS_INPUT_DEL :
+			case INPUTB_BACKSPACE :
+			case INPUTB_DEL :
 				if (len) {
 					s[len-1] = 0;
 				}
 				break;
-			case OS_INPUT_ENTER :
-			case OS_INPUT_ESC :
+			case INPUTB_ENTER :
+			case INPUTB_ESC :
 				return userkey;
 			default:
 				if (len < maxlen) {
@@ -864,16 +866,16 @@ int draw_text_menu(int x, int y, int dx, int dy, void* data, int mac, entry_prin
 		key = inputb_get();
 
 		switch (key) {
-			case OS_INPUT_SPACE:
+			case INPUTB_SPACE:
 				done = 1;
 				break;
-			case OS_INPUT_ENTER:
+			case INPUTB_ENTER:
 				done = 1;
 				break;
-			case OS_INPUT_ESC:
+			case INPUTB_ESC:
 				done = 1;
 				break;
-			case OS_INPUT_DOWN :
+			case INPUTB_DOWN :
 				if (base + pos + 1 < mac) {
 					if (pos + 1 < dy)
 						++pos;
@@ -882,7 +884,7 @@ int draw_text_menu(int x, int y, int dx, int dy, void* data, int mac, entry_prin
 				}
 				dir = 1;
 				break;
-			case OS_INPUT_PGDN :
+			case INPUTB_PGDN :
 				for(i=0;i<dy;++i)
 				if (base + pos + 1 < mac) {
 					if (pos + 1 < dy)
@@ -892,7 +894,7 @@ int draw_text_menu(int x, int y, int dx, int dy, void* data, int mac, entry_prin
 				}
 				dir = 1;
 				break;
-			case OS_INPUT_UP :
+			case INPUTB_UP :
 				if (base + pos > 0) {
 					if (pos > 0)
 						--pos;
@@ -901,7 +903,7 @@ int draw_text_menu(int x, int y, int dx, int dy, void* data, int mac, entry_prin
 				}
 				dir = 0;
 				break;
-			case OS_INPUT_PGUP :
+			case INPUTB_PGUP :
 				for(i=0;i<dy;++i)
 				if (base + pos > 0) {
 					if (pos > 0)
@@ -943,6 +945,6 @@ int draw_text_menu(int x, int y, int dx, int dy, void* data, int mac, entry_prin
 		*akey = key;
 	}
 
-	return key != OS_INPUT_ESC ? base + pos : -1;
+	return key != INPUTB_ESC ? base + pos : -1;
 }
 

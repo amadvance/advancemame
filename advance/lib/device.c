@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-static const device* device_match_one(const char* tag, const driver* drv, adv_bool allow_none) {
+static const device* device_match_one(const char* tag, const driver* drv, boolean allow_none) {
 	char tag_driver[DEVICE_NAME_MAX];
 	char* tag_device;
 	const device* i;
@@ -83,7 +83,7 @@ static const device* device_match_one(const char* tag, const driver* drv, adv_bo
  *   isn't specified. Otherwise the "none" driver is used only if explictly
  *   specified. It isn't used from "auto".
  */
-const device* device_match(const char* tag, const driver* drv, adv_bool allow_none) {
+const device* device_match(const char* tag, const driver* drv, boolean allow_none) {
 	char buffer[DEVICE_NAME_MAX];
 	const char* tag_one;
 	strcpy(buffer, tag);
@@ -121,7 +121,7 @@ void device_error(const char* option, const char* arg, const driver** driver_map
 	}
 }
 
-adv_error device_check(const char* option, const char* arg, const driver** driver_map, unsigned driver_mac, const char* driver_ignore) {
+error device_check(const char* option, const char* arg, const driver** driver_map, unsigned driver_mac, const char* driver_ignore) {
 	char buffer[DEVICE_NAME_MAX];
 	const char* tag_one;
 	unsigned i,j;

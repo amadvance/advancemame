@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Video driver "svgaline".
+ */
+
 #ifndef __SVGALINE_H
 #define __SVGALINE_H
 
@@ -42,16 +46,16 @@ typedef struct svgaline_video_mode_struct {
 	video_crtc crtc; /**< CRTC values */
 } svgaline_video_mode;
 
-adv_error svgaline_init(int device_id);
+error svgaline_init(int device_id);
 void svgaline_done(void);
 
-adv_bool svgaline_is_active(void);
-adv_bool svgaline_mode_is_active(void);
+boolean svgaline_is_active(void);
+boolean svgaline_mode_is_active(void);
 
 unsigned svgaline_flags(void);
 
-adv_error svgaline_mode_set(const svgaline_video_mode* mode);
-void svgaline_mode_done(adv_bool restore);
+error svgaline_mode_set(const svgaline_video_mode* mode);
+void svgaline_mode_done(boolean restore);
 
 unsigned svgaline_virtual_x(void);
 unsigned svgaline_virtual_y(void);
@@ -62,18 +66,22 @@ video_rgb_def svgaline_rgb_def(void);
 extern unsigned char* (*svgaline_write_line)(unsigned y);
 
 void svgaline_wait_vsync(void);
-adv_error svgaline_scroll(unsigned offset, adv_bool waitvsync);
-adv_error svgaline_scanline_set(unsigned byte_length);
-adv_error svgaline_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync);
+error svgaline_scroll(unsigned offset, boolean waitvsync);
+error svgaline_scanline_set(unsigned byte_length);
+error svgaline_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync);
 
-adv_error svgaline_mode_import(video_mode* mode, const svgaline_video_mode* svgaline_mode);
-adv_error svgaline_mode_generate(svgaline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
+error svgaline_mode_import(video_mode* mode, const svgaline_video_mode* svgaline_mode);
+error svgaline_mode_generate(svgaline_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags);
 int svgaline_mode_compare(const svgaline_video_mode* a, const svgaline_video_mode* b);
 
 void svgaline_default(void);
 void svgaline_reg(struct conf_context* context);
-adv_error svgaline_load(struct conf_context* context);
+error svgaline_load(struct conf_context* context);
 
+/**
+ * Video driver "svgaline".
+ * \ingroup Video
+ */
 extern video_driver video_svgaline_driver;
 
 #ifdef __cplusplus

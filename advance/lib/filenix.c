@@ -81,6 +81,8 @@ int file_init(void) {
 	if (!home || !*home) {
 		/* use the root dir as home dir */
 		strcpy(FL.home_dir,FL.root_dir);
+		/* clear the root dir */
+		FL.root_dir[0] = 0;
 	} else {
 		strcpy(FL.home_dir,home);
 		strcatslash(FL.home_dir);
@@ -165,12 +167,16 @@ const char* file_export(const char* path) {
 /* Files */
 
 const char* file_config_file_root(const char* file) {
-	if (file[0] == '/')
-		sprintf(FL.file_root_buffer,"%s",file);
-	else
-		/* if relative add the root data dir */
-		sprintf(FL.file_root_buffer,"%s/%s",FL.root_dir,file);
-	return FL.file_root_buffer;
+	if (FL.root_dir[0]) {
+		if (file[0] == '/')
+			sprintf(FL.file_root_buffer,"%s",file);
+		else
+			/* if relative add the root data dir */
+			sprintf(FL.file_root_buffer,"%s/%s",FL.root_dir,file);
+		return FL.file_root_buffer;
+	} else {
+		return 0;
+	}
 }
 
 const char* file_config_file_home(const char* file) {
@@ -188,7 +194,10 @@ const char* file_config_file_legacy(const char* file) {
 
 const char* file_config_dir_multidir(const char* tag) {
 	assert( tag[0] != '/' );
-	sprintf(FL.dir_buffer,"%s/%s:%s/%s",FL.home_dir,tag,FL.root_dir,tag);
+	if (FL.root_dir[0])
+		sprintf(FL.dir_buffer,"%s/%s:%s/%s",FL.home_dir,tag,FL.root_dir,tag);
+	else
+		sprintf(FL.dir_buffer,"%s/%s",FL.home_dir,tag);
 	return FL.dir_buffer;
 }
 
@@ -199,7 +208,10 @@ const char* file_config_dir_singledir(const char* tag) {
 }
 
 const char* file_config_dir_singlefile(void) {
-	sprintf(FL.dir_buffer,"%s:%s",FL.home_dir,FL.root_dir);
+	if (FL.root_dir[0])
+		sprintf(FL.dir_buffer,"%s:%s",FL.home_dir,FL.root_dir);
+	else
+		sprintf(FL.dir_buffer,"%s",FL.home_dir);
 	return FL.dir_buffer;
 }
 

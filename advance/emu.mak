@@ -244,7 +244,7 @@ EMUCFLAGS += -I$(srcdir)/advance/osd
 M68000FLAGS += -I$(srcdir)/advance/osd
 
 EMUOBJS += \
-	$(OBJ)/advance/osd/advance.o \
+	$(OBJ)/advance/osd/emu.o \
 	$(OBJ)/advance/osd/glue.o \
 	$(OBJ)/advance/osd/videoma.o \
 	$(OBJ)/advance/osd/videocf.o \
@@ -264,6 +264,7 @@ EMUOBJS += \
 	$(OBJ)/advance/blit/clear.o \
 	$(OBJ)/advance/lib/log.o \
 	$(OBJ)/advance/lib/video.o \
+	$(OBJ)/advance/lib/rgb.o \
 	$(OBJ)/advance/lib/conf.o \
 	$(OBJ)/advance/lib/incstr.o \
 	$(OBJ)/advance/lib/fz.o \

@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * All the keyboard drivers.
+ */
+
 #ifndef __KEYALL_H
 #define __KEYALL_H
 
@@ -51,10 +55,16 @@ extern "C" {
 #include "knone.h"
 #endif
 
+/** \addtogroup Keyboard */
+/*@{*/
+
 void keyb_reg_driver_all(struct conf_context* context);
+
+/*@}*/
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+

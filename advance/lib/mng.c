@@ -21,6 +21,7 @@
 #include "mng.h"
 #include "png.h"
 #include "endianrw.h"
+#include "error.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -30,27 +31,36 @@
 
 static unsigned char MNG_Signature[] = "\x8A\x4D\x4E\x47\x0D\x0A\x1A\x0A";
 
+/**
+ * Read the MNG file signature.
+ * \param f File to read. 
+ */
 int mng_read_signature(FZ* f)
 {
 	unsigned char signature[8];
 
 	if (fzread(signature,8,1,f) != 1) {
-		png_error("Error reading the signature");
+		error_set("Error reading the signature");
 		return -1;
 	}
 
 	if (memcmp(signature,MNG_Signature,8)!=0) {
-		png_error("Invalid MNG signature");
+		error_set("Invalid MNG signature");
 		return -1;
 	}
 
 	return 0;
 }
 
+/**
+ * Write the MNG file signature.
+ * \param f File to write.
+ * \param count Pointer at the number of bytes written. It may be 0.
+ */
 int mng_write_signature(FZ* f, unsigned* count)
 {
 	if (fzwrite(MNG_Signature, 8, 1, f) != 1) {
-		png_error("Error writing the signature");
+		error_set("Error writing the signature");
 		return -1;
 	}
 
@@ -60,30 +70,6 @@ int mng_write_signature(FZ* f, unsigned* count)
 	return 0;
 }
 
-struct mng_context {
-	int end_flag; /**< End flag */
-	unsigned pixel; /**< Bytes per pixel */
-	unsigned char* dat_ptr; /**< Current image buffer */
-	unsigned dat_size; /**< Size of the buffer image */
-	unsigned dat_line; /**< Bytes per scanline */
-	int dat_x;
-	int dat_y;
-	unsigned dat_width;
-	unsigned dat_height;
-
-	unsigned char* dlt_ptr; /**< Delta buffer */
-	unsigned dlt_size;
-	unsigned dlt_line; /**< Bytes per scanline */
-
-	unsigned char pal_ptr[256*3];
-	unsigned pal_size;
-
-	unsigned frame_frequency; /**< Base frame rate */
-	unsigned frame_tick; /**< Ticks for a generic frame */
-	unsigned frame_width; /**< Frame width */
-	unsigned frame_height; /**< Frame height */
-};
-
 static int mng_read_ihdr(struct mng_context* mng, FZ* f, const unsigned char* ihdr, unsigned ihdr_size)
 {
 	unsigned type;
@@ -92,23 +78,23 @@ static int mng_read_ihdr(struct mng_context* mng, FZ* f, const unsigned char* ih
 	unsigned long dat_size;
 
 	if (ihdr_size != 13) {
-		png_error("Invalid IHDR size");
+		error_set("Invalid IHDR size");
 		goto err;
 	}
 
 	mng->dat_width = be_uint32_read(ihdr + 0);
 	mng->dat_height = be_uint32_read(ihdr + 4);
 	if (mng->dat_x + mng->frame_width > mng->dat_width) {
-		png_error("Frame not complete");
+		error_set("Frame not complete");
 		goto err;
 	}
 	if (mng->dat_y + mng->frame_height > mng->dat_height) {
-		png_error("Frame not complete");
+		error_set("Frame not complete");
 		goto err;
 	}
 
 	if (ihdr[8] != 8) { /* bit depth */
-		png_error_unsupported("Unsupported bit depth");
+		error_unsupported_set("Unsupported bit depth");
 		goto err;
 	}
 	if (ihdr[9] == 3) /* color type */
@@ -118,19 +104,19 @@ static int mng_read_ihdr(struct mng_context* mng, FZ* f, const unsigned char* ih
 	else if (ihdr[9] == 6)
 		mng->pixel = 4;
 	else {
-		png_error_unsupported("Unsupported color type");
+		error_unsupported_set("Unsupported color type");
 		goto err;
 	}
 	if (ihdr[10] != 0) { /* compression */
-		png_error_unsupported("Unsupported compression type");
+		error_unsupported_set("Unsupported compression type");
 		goto err;
 	}
 	if (ihdr[11] != 0) { /* filter */
-		png_error_unsupported("unsupported Filter type");
+		error_unsupported_set("unsupported Filter type");
 		goto err;
 	}
 	if (ihdr[12] != 0) { /* interlace */
-		png_error_unsupported("Unsupported interlace type");
+		error_unsupported_set("Unsupported interlace type");
 		goto err;
 	}
 
@@ -141,7 +127,7 @@ static int mng_read_ihdr(struct mng_context* mng, FZ* f, const unsigned char* ih
 	} else {
 		if (mng->dat_line != mng->dat_width * mng->pixel + 1
 			|| mng->dat_size != mng->dat_height * mng->dat_line) {
-			png_error_unsupported("Unsupported size change");
+			error_unsupported_set("Unsupported size change");
 			goto err;
 		}
 	}
@@ -156,12 +142,12 @@ static int mng_read_ihdr(struct mng_context* mng, FZ* f, const unsigned char* ih
 			goto err;
 
 		if (type != PNG_CN_PLTE) {
-			png_error("Missing PLTE chunk");
+			error_set("Missing PLTE chunk");
 			goto err_data;
 		}
 
 		if (size % 3 != 0 || size / 3 > 256) {
-			png_error("Invalid palette size in PLTE chunk");
+			error_set("Invalid palette size in PLTE chunk");
 			goto err_data;
 		}
 
@@ -175,20 +161,20 @@ static int mng_read_ihdr(struct mng_context* mng, FZ* f, const unsigned char* ih
 		goto err;
 
 	if (type != PNG_CN_IDAT) {
-		png_error("Missing IDAT chunk");
+		error_set("Missing IDAT chunk");
 		goto err_data;
 	}
 
 	dat_size = mng->dat_size;
 	if (uncompress(mng->dat_ptr, &dat_size, data, size) != Z_OK) {
-		png_error("Corrupt compressed data");
+		error_set("Corrupt compressed data");
 		goto err_data;
 	}
 
 	free(data);
 
 	if (dat_size != mng->dat_size) {
-		png_error("Corrupt compressed data");
+		error_set("Corrupt compressed data");
 		goto err;
 	}
 
@@ -220,21 +206,21 @@ static int mng_read_defi(struct mng_context* mng, unsigned char* defi, unsigned 
 	unsigned id;
 
 	if (defi_size != 4 && defi_size != 12) {
-		png_error_unsupported("Unsupported DEFI size");
+		error_unsupported_set("Unsupported DEFI size");
 		return -1;
 	}
 
 	id = be_uint16_read(defi + 0);
 	if (id != 1) {
-		png_error_unsupported("Unsupported id number in DEFI chunk");
+		error_unsupported_set("Unsupported id number in DEFI chunk");
 		return -1;
 	}
 	if (defi[2] != 0) { /* visible */
-		png_error_unsupported("Unsupported visible type in DEFI chunk");
+		error_unsupported_set("Unsupported visible type in DEFI chunk");
 		return -1;
 	}
 	if (defi[3] != 1) { /* concrete */
-		png_error_unsupported("Unsupported concrete type in DEFI chunk");
+		error_unsupported_set("Unsupported concrete type in DEFI chunk");
 		return -1;
 	}
 
@@ -254,19 +240,19 @@ static int mng_read_move(struct mng_context* mng, FZ* f, unsigned char* move, un
 	unsigned id;
 
 	if (move_size != 13) {
-		png_error_unsupported("Unsupported MOVE size in MOVE chunk");
+		error_unsupported_set("Unsupported MOVE size in MOVE chunk");
 		return -1;
 	}
 
 	id = be_uint16_read(move + 0);
 	if (id != 1) {
-		png_error_unsupported("Unsupported id number in MOVE chunk");
+		error_unsupported_set("Unsupported id number in MOVE chunk");
 		return -1;
 	}
 
 	id = be_uint16_read(move + 2);
 	if (id != 1) {
-		png_error_unsupported("Unsupported id number in MOVE chunk");
+		error_unsupported_set("Unsupported id number in MOVE chunk");
 		return -1;
 	}
 
@@ -277,7 +263,7 @@ static int mng_read_move(struct mng_context* mng, FZ* f, unsigned char* move, un
 		mng->dat_x += - (int)be_uint32_read(move + 5);
 		mng->dat_y += - (int)be_uint32_read(move + 9);
 	} else {
-		png_error_unsupported("Unsupported move type in MOVE chunk");
+		error_unsupported_set("Unsupported move type in MOVE chunk");
 		return -1;
 	}
 
@@ -329,29 +315,29 @@ static int mng_read_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 	unsigned ope;
 
 	if (dhdr_size != 4 && dhdr_size != 12 && dhdr_size != 20) {
-		png_error_unsupported("Unsupported DHDR size");
+		error_unsupported_set("Unsupported DHDR size");
 		goto err;
 	}
 
 	id = be_uint16_read(dhdr + 0);
 	if (id != 1) /* object id 1 */ {
-		png_error_unsupported("Unsupported id number in DHDR chunk");
+		error_unsupported_set("Unsupported id number in DHDR chunk");
 		goto err;
 	}
 
 	if (dhdr[2] != 1) /* PNG stream without IHDR header */ {
-		png_error_unsupported("Unsupported delta type in DHDR chunk");
+		error_unsupported_set("Unsupported delta type in DHDR chunk");
 		goto err;
 	}
 
 	ope = dhdr[3];
 	if (ope != 0 && ope != 1 && ope != 4 && ope != 7) {
-		png_error_unsupported("Unsupported delta operation in DHDR chunk");
+		error_unsupported_set("Unsupported delta operation in DHDR chunk");
 		goto err;
 	}
 
 	if (!mng->dat_ptr || !mng->dlt_ptr) {
-		png_error("Invalid delta context in DHDR chunk");
+		error_set("Invalid delta context in DHDR chunk");
 		goto err;
 	}
 
@@ -376,12 +362,12 @@ static int mng_read_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 
 	if (type == PNG_CN_PLTE) {
 		if (mng->pixel != 1) {
-			png_error("Unexpected PLTE chunk");
+			error_set("Unexpected PLTE chunk");
 			goto err_data;
 		}
 
 		if (size % 3 != 0 || size / 3 > 256) {
-			png_error("Invalid palette size");
+			error_set("Invalid palette size");
 			goto err_data;
 		}
 
@@ -397,12 +383,12 @@ static int mng_read_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 	if (type == MNG_CN_PPLT) {
 		unsigned i;
 		if (mng->pixel != 1) {
-			png_error("Unexpected PPLT chunk");
+			error_set("Unexpected PPLT chunk");
 			goto err_data;
 		}
 
 		if (data[0] != 0) { /* RGB replacement */
-			png_error("Unsupported palette operation in PPLT chunk");
+			error_set("Unsupported palette operation in PPLT chunk");
 			goto err_data;
 		}
 
@@ -410,14 +396,14 @@ static int mng_read_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 		while (i < size) {
 			unsigned v0,v1,delta_size;
 			if (i + 2 > size) {
-				png_error("Invalid palette size in PPLT chunk");
+				error_set("Invalid palette size in PPLT chunk");
 				goto err_data;
 			}
 			v0 = data[i++];
 			v1 = data[i++];
 			delta_size = (v1 - v0 + 1) * 3;
 			if (i + delta_size > size) {
-				png_error("Invalid palette format in PPLT chunk");
+				error_set("Invalid palette format in PPLT chunk");
 				goto err_data;
 			}
 			memcpy(mng->pal_ptr + v0 * 3, data + i, delta_size);
@@ -434,13 +420,13 @@ static int mng_read_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 		unsigned long dlt_size;
 
 		if (pos_x + width > mng->dat_width || pos_y + height > mng->dat_height) {
-			png_error("Frame not complete in IDAT chunk");
+			error_set("Frame not complete in IDAT chunk");
 			goto err_data;
 		}
 
 		dlt_size = mng->dat_size;
 		if (uncompress(mng->dlt_ptr, &dlt_size, data, size) != Z_OK) {
-			png_error("Corrupt compressed data in IDAT chunk");
+			error_set("Corrupt compressed data in IDAT chunk");
 			goto err_data;
 		}
 
@@ -449,7 +435,7 @@ static int mng_read_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 		} else if (ope == 1) {
 			mng_delta_addition(mng, pos_x, pos_y, width, height);
 		} else {
-			png_error_unsupported("Unsupported delta operation");
+			error_unsupported_set("Unsupported delta operation");
 			goto err_data;
 		}
 
@@ -459,7 +445,7 @@ static int mng_read_delta(struct mng_context* mng, FZ* f, unsigned char* dhdr, u
 			goto err;
 	} else {
 		if (ope != 7) {
-			png_error_unsupported("Unsupported delta operation");
+			error_unsupported_set("Unsupported delta operation");
 			goto err_data;
 		}
 	}
@@ -508,13 +494,25 @@ static void mng_import(
 
 /**
  * Read a MNG image.
+ * \param mng MNG context previously returned by mng_init().
+ * \param pix_width Where to put the image width.
+ * \param pix_height Where to put the image height.
+ * \param pix_pixel Where to put the image bytes per pixel.
+ * \param dat_ptr Where to put the allocated data pointer.
+ * \param dat_size Where to put the allocated data size.
+ * \param pix_ptr Where to put pointer at the start of the image data.
+ * \param pix_scanline Where to put the length of a scanline in bytes.
+ * \param pal_ptr Where to put the allocated palette data pointer. Set to 0 if the image is RGB.
+ * \param pal_size Where to put the palette size in number of colors. Set to 0 if the image is RGB.
+ * \param tick Where to put the number of tick of the frame. The effective time can be computed dividing by mng_frequency_get().
+ * \param f File to read. 
  * \return
  *   - == 0 ok
  *   - == 1 end of the mng stream
  *   - < 0 error
  */
 int mng_read(
-	void* void_mng,
+	struct mng_context* mng,
 	unsigned* pix_width, unsigned* pix_height, unsigned* pix_pixel,
 	unsigned char** dat_ptr, unsigned* dat_size,
 	unsigned char** pix_ptr, unsigned* pix_scanline,
@@ -522,7 +520,6 @@ int mng_read(
 	unsigned* tick,
 	FZ* f
 ) {
-	struct mng_context* mng = (struct mng_context*)void_mng;
 	unsigned type;
 	unsigned char* data;
 	unsigned size;
@@ -597,7 +594,7 @@ int mng_read(
 				if ((type & 0x20000000) == 0) {
 					char buf[4];
 					be_uint32_write(buf, type);
-					png_error_unsupported("Unsupported critical chunk '%c%c%c%c'", buf[0], buf[1], buf[2], buf[3]);
+					error_unsupported_set("Unsupported critical chunk '%c%c%c%c'", buf[0], buf[1], buf[2], buf[3]);
 					goto err_data;
 				}
 				/* ignored */
@@ -616,7 +613,12 @@ err:
 	return 0;
 }
 
-void* mng_init(FZ* f)
+/**
+ * Inizialize a MNG reading stream.
+ * \param f File to read.
+ * \return Return the MNG context. It must be destroied calling mng_done(). On error return 0.
+ */
+struct mng_context* mng_init(FZ* f)
 {
 	struct mng_context* mng;
 
@@ -649,12 +651,12 @@ void* mng_init(FZ* f)
 		goto err_mng;
 
 	if (type != MNG_CN_MHDR) {
-		png_error("Missing MHDR chunk\n");
+		error_set("Missing MHDR chunk\n");
 		goto err_data;
 	}
 
 	if (size != 28) {
-		png_error("Invalid MHDR size\n");
+		error_set("Invalid MHDR size\n");
 		goto err_data;
 	}
 
@@ -678,29 +680,41 @@ err:
 	return 0;
 }
 
-void mng_done(void* void_mng)
+/**
+ * Destory a MNG context.
+ * \param mng MNG context previously returned by mng_init().
+ */
+void mng_done(struct mng_context* mng)
 {
-	struct mng_context* mng = (struct mng_context*)void_mng;
-
 	free(mng->dat_ptr);
 	free(mng->dlt_ptr);
 	free(mng);
 }
 
-unsigned mng_frequency_get(void* void_mng) {
-	struct mng_context* mng = (struct mng_context*)void_mng;
-
+/**
+ * Get the base frequency of the MNG.
+ * This value can be used to convert the number of tick per frame in a time.
+ * \param mng MNG context.
+ * \return Frequency in Hz.
+ */
+unsigned mng_frequency_get(struct mng_context* mng) {
 	return mng->frame_frequency;
 }
 
-unsigned mng_width_get(void* void_mng) {
-	struct mng_context* mng = (struct mng_context*)void_mng;
-
+/**
+ * Get the width of the frame.
+ * \param mng MNG context.
+ * \return Width in pixel.
+ */
+unsigned mng_width_get(struct mng_context* mng) {
 	return mng->frame_width;
 }
 
-unsigned mng_height_get(void* void_mng) {
-	struct mng_context* mng = (struct mng_context*)void_mng;
-
+/**
+ * Get the height of the frame.
+ * \param mng MNG context.
+ * \return height in pixel.
+ */
+unsigned mng_height_get(struct mng_context* mng) {
 	return mng->frame_height;
 }

@@ -22,26 +22,29 @@
 
 #include <stdio.h>
 
+/**
+ * Header of the PCX image.
+ */
 struct pcx_header {
-	uint8 manufacturer; /* Constant Flag, 10 = ZSoft .pcx */
-	uint8 version; /* Version informatio */
-	uint8 encoding; /* 1 = .PCX run length encoding */
-	uint8 bits_per_pixel; /*  Number of bits to represent a pixel (per Plane) - 1, 2, 4, or 8 */
-	uint16 x_min; /* Image Dimensions */
-	uint16 y_min;
-	uint16 x_max;
-	uint16 y_max;
-	uint16 hdpi; /* Horizontal Resolution of image in DPI */
-	uint16 vdpi; /*	Vertical Resolution of image in DPI*  */
-	uint8 colornmap[48]; /*	Color palette setting */
-	uint8 reserverd;
-	uint8 planes; /* Number of color planes  */
-	uint16 bytes_per_line; /* Number of bytes to allocate for a scanline plane.  MUST be an EVEN number.  Do NOT calculate from Xmax-Xmin. */
-	uint16 palette_info; /* 1 = Color/BW, 2 = Grayscale (ignored in PB IV/ IV +) */
-	uint16 h_screen_size; /* Horizontal screen size in pixels */
-	uint16 v_screen_size; /* Vertical screen size in pixels.  */
-	uint8 filler[54];
-};
+	uint8 manufacturer __attribute__ ((packed)); /**< Constant Flag, 10 = ZSoft .pcx. */
+	uint8 version __attribute__ ((packed)); /**< Version information. */
+	uint8 encoding __attribute__ ((packed)); /**< 1 = .PCX run length encoding. */
+	uint8 bits_per_pixel; /**< Number of bits to represent a pixel (per Plane) - 1, 2, 4, or 8. */
+	uint16 x_min __attribute__ ((packed)); /**< Image Dimensions. */
+	uint16 y_min __attribute__ ((packed));
+	uint16 x_max __attribute__ ((packed));
+	uint16 y_max __attribute__ ((packed));
+	uint16 hdpi __attribute__ ((packed)); /**< Horizontal Resolution of image in DPI. */
+	uint16 vdpi __attribute__ ((packed)); /**< Vertical Resolution of image in DPI. */
+	uint8 colornmap[48] __attribute__ ((packed)); /**< Color palette setting. */
+	uint8 reserverd __attribute__ ((packed));
+	uint8 planes __attribute__ ((packed)); /**< Number of color planes. */
+	uint16 bytes_per_line __attribute__ ((packed)); /**< Number of bytes to allocate for a scanline plane.  MUST be an EVEN number.  Do NOT calculate from Xmax-Xmin. */
+	uint16 palette_info __attribute__ ((packed)); /**< 1 = Color/BW, 2 = Grayscale (ignored in PB IV/ IV +). */
+	uint16 h_screen_size __attribute__ ((packed)); /**< Horizontal screen size in pixels. */
+	uint16 v_screen_size __attribute__ ((packed)); /**< Vertical screen size in pixels. */
+	uint8 filler[54] __attribute__ ((packed));
+} __attribute__ ((packed));
 
 struct pcx_decode_state {
 	unsigned count;
@@ -49,7 +52,7 @@ struct pcx_decode_state {
 };
 
 static void pcx_decode(uint8* buffer, unsigned size, FZ* f, struct pcx_decode_state* state, unsigned delta) {
-    	while (size) {
+	while (size) {
 		unsigned run;
 		if (!state->count) {
 			uint8 c = fzgetc(f);
@@ -75,7 +78,7 @@ static void pcx_decode(uint8* buffer, unsigned size, FZ* f, struct pcx_decode_st
 }
 
 static void pcx_ignore(unsigned size, FZ* f, struct pcx_decode_state* state) {
-    	while (size) {
+	while (size) {
 		unsigned run;
 		if (!state->count) {
 			uint8 c = fzgetc(f);
@@ -95,12 +98,20 @@ static void pcx_ignore(unsigned size, FZ* f, struct pcx_decode_state* state) {
 	}
 }
 
+/**
+ * Load a .pcx file in a bitmap.
+ * Only the 8 and 24 bits format are supported.
+ * \param f File to load.
+ * \param rgb Where to put the palette information. it must point to a vector of 256 elements.
+ * \param rgb_max Where to put the number of palette entries.
+ * \return The loaded bitmap or 0 on error.
+ */
 struct bitmap* pcx_load(FZ* f, video_color* rgb, unsigned* rgb_max) {
 	struct pcx_header h;
 	struct bitmap* bitmap;
-	unsigned width,height,depth;
+	unsigned width, height, depth;
 
-	if (fzread(&h,sizeof(h),1,f)!=1) {
+	if (fzread(&h,sizeof(h),1,f)!=1) { /* ENDIAN */
 		goto out;
 	}
 
@@ -140,9 +151,9 @@ struct bitmap* pcx_load(FZ* f, video_color* rgb, unsigned* rgb_max) {
 			goto out_bitmap;
 
 		for (i=0;i<256;++i) {
-		       rgb[i].red = fzgetc(f);
-		       rgb[i].green = fzgetc(f);
-		       rgb[i].blue = fzgetc(f);
+			rgb[i].red = fzgetc(f);
+			rgb[i].green = fzgetc(f);
+			rgb[i].blue = fzgetc(f);
 		}
 		*rgb_max = 256;
 	} else {

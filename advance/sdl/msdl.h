@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Mouse driver "sdl".
+ */
+
 #ifndef __MSDL_H
 #define __MSDL_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Mouse driver "sdl".
+ * \ingroup Mouse
+ */
 extern mouseb_driver mouseb_sdl_driver;
 
 void mouseb_sdl_event_move(int x, int y);

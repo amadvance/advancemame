@@ -88,7 +88,7 @@ struct os_context {
 	int sdl_active; /**< SDL initialized. */
 #endif
 
-	int is_term; /**< Is termination requested. */
+	int is_quit; /**< Is termination requested. */
 	char title[128]; /**< Title of the window. */
 };
 
@@ -117,8 +117,8 @@ int os_init(struct conf_context* context) {
 void os_done(void) {
 }
 
-static void os_term_signal(int signum) {
-	OS.is_term = 1;
+static void os_quit_signal(int signum) {
+	OS.is_quit = 1;
 }
 
 int os_inner_init(const char* title) {
@@ -239,10 +239,10 @@ int os_inner_init(const char* title) {
 	signal(SIGILL, os_signal);
 	signal(SIGINT, os_signal);
 	signal(SIGSEGV, os_signal);
-	signal(SIGTERM, os_term_signal);
+	signal(SIGTERM, os_signal);
 	signal(SIGHUP, os_signal);
 	signal(SIGPIPE, os_signal);
-	signal(SIGQUIT, os_term_signal);
+	signal(SIGQUIT, os_quit_signal);
 
 	return 0;
 }
@@ -369,7 +369,7 @@ void os_poll(void) {
 #endif
 			break;
 			case SDL_QUIT :
-				OS.is_term = 1;
+				OS.is_quit = 1;
 				break;
 		}
 	}
@@ -387,8 +387,8 @@ void os_led_set(unsigned mask)
 /***************************************************************************/
 /* Signal */
 
-int os_is_term(void) {
-	return OS.is_term;
+int os_is_quit(void) {
+	return OS.is_quit;
 }
 
 void os_default_signal(int signum)

@@ -36,7 +36,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error inputb_none_init(int inputb_id)
+error inputb_none_init(int inputb_id)
 {
 	log_std(("inputb:none: inputb_none_init(id:%d)\n",inputb_id));
 
@@ -48,7 +48,7 @@ void inputb_none_done(void)
 	log_std(("inputb:none: inputb_none_done()\n"));
 }
 
-adv_bool inputb_none_hit(void)
+boolean inputb_none_hit(void)
 {
 	log_debug(("inputb:none: inputb_none_pos_get()\n"));
 
@@ -67,7 +67,7 @@ unsigned inputb_none_flags(void)
 	return 0;
 }
 
-adv_error inputb_none_load(struct conf_context* context)
+error inputb_none_load(struct conf_context* context)
 {
 	return 0;
 }

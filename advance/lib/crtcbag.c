@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-adv_bool video_crtc_container_is_empty(const video_crtc_container* cc) {
+boolean video_crtc_container_is_empty(const video_crtc_container* cc) {
 	return cc->base == 0;
 }
 
@@ -77,10 +77,11 @@ const video_crtc* video_crtc_container_has(video_crtc_container* cc, const video
 /**
  * Remove some crtc from the container.
  * All the crtc for which the select function returns !=0 are removed.
- * \param select selection function
- * \param arg arg passed at the selection function
+ * \param cc Container to process.
+ * \param select Selection function.
+ * \param arg Arg passed at the selection function.
  */
-void video_crtc_container_remove(video_crtc_container* cc, int (*select)(const video_crtc*, void*), void* arg) {
+void video_crtc_container_remove(video_crtc_container* cc, boolean (*select)(const video_crtc*, void*), void* arg) {
 	while (cc->base && select(cc->base,arg)) {
 		video_crtc* todelete = cc->base;
 		cc->base = cc->base->container_next;
@@ -142,7 +143,7 @@ void video_crtc_container_iterator_next(video_crtc_container_iterator* cci) {
 	cci->base = cci->base->container_next;
 }
 
-adv_bool video_crtc_container_iterator_is_end(video_crtc_container_iterator* cci) {
+boolean video_crtc_container_iterator_is_end(video_crtc_container_iterator* cci) {
 	return cci->base == 0;
 }
 
@@ -230,7 +231,7 @@ static const char* MODELINE_SVGA[] = {
 0
 };
 
-static adv_error video_crtc_container_insert_default(video_crtc_container* cc, const char** modes) {
+static error video_crtc_container_insert_default(video_crtc_container* cc, const char** modes) {
 	while (*modes) {
 		video_crtc crtc;
 		if (video_crtc_parse(&crtc,*modes,*modes + strlen(*modes))!=0)
@@ -241,25 +242,25 @@ static adv_error video_crtc_container_insert_default(video_crtc_container* cc, c
 	return 0;
 }
 
-adv_error video_crtc_container_insert_default_bios_vga(video_crtc_container* cc) {
+error video_crtc_container_insert_default_bios_vga(video_crtc_container* cc) {
 	return video_crtc_container_insert_default(cc,BIOS_VGA);
 }
 
-adv_error video_crtc_container_insert_default_bios_vbe(video_crtc_container* cc) {
+error video_crtc_container_insert_default_bios_vbe(video_crtc_container* cc) {
 	return video_crtc_container_insert_default(cc,BIOS_VBE);
 }
 
 /**
  * Insert some standard video modes than can be made with a standard VGA.
  */
-adv_error video_crtc_container_insert_default_modeline_vga(video_crtc_container* cc) {
+error video_crtc_container_insert_default_modeline_vga(video_crtc_container* cc) {
 	return video_crtc_container_insert_default(cc,MODELINE_VGA);
 }
 
 /**
  * Insert some standard video modes than can be made with a complete programmable SVGA.
  */
-adv_error video_crtc_container_insert_default_modeline_svga(video_crtc_container* cc) {
+error video_crtc_container_insert_default_modeline_svga(video_crtc_container* cc) {
 	return video_crtc_container_insert_default(cc,MODELINE_SVGA);
 }
 

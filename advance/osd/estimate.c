@@ -28,7 +28,7 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "advance.h"
+#include "emu.h"
 
 static __inline__ double estimate_merge(double estimator, double v) {
 	return 0.95 * estimator + 0.05 * v;

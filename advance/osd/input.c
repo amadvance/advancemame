@@ -28,9 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
-#include "advance.h"
+#include "emu.h"
 #include "log.h"
 #include "target.h"
+#include "error.h"
 
 #include "mame2.h"
 
@@ -47,111 +48,111 @@
 /* Internals */
 
 static struct KeyboardInfo input_key_map[] = {
-	{ "A", OS_KEY_A, KEYCODE_A },
-	{ "B", OS_KEY_B, KEYCODE_B },
-	{ "C", OS_KEY_C, KEYCODE_C },
-	{ "D", OS_KEY_D, KEYCODE_D },
-	{ "E", OS_KEY_E, KEYCODE_E },
-	{ "F", OS_KEY_F, KEYCODE_F },
-	{ "G", OS_KEY_G, KEYCODE_G },
-	{ "H", OS_KEY_H, KEYCODE_H },
-	{ "I", OS_KEY_I, KEYCODE_I },
-	{ "J", OS_KEY_J, KEYCODE_J },
-	{ "K", OS_KEY_K, KEYCODE_K },
-	{ "L", OS_KEY_L, KEYCODE_L },
-	{ "M", OS_KEY_M, KEYCODE_M },
-	{ "N", OS_KEY_N, KEYCODE_N },
-	{ "O", OS_KEY_O, KEYCODE_O },
-	{ "P", OS_KEY_P, KEYCODE_P },
-	{ "Q", OS_KEY_Q, KEYCODE_Q },
-	{ "R", OS_KEY_R, KEYCODE_R },
-	{ "S", OS_KEY_S, KEYCODE_S },
-	{ "T", OS_KEY_T, KEYCODE_T },
-	{ "U", OS_KEY_U, KEYCODE_U },
-	{ "V", OS_KEY_V, KEYCODE_V },
-	{ "W", OS_KEY_W, KEYCODE_W },
-	{ "X", OS_KEY_X, KEYCODE_X },
-	{ "Y", OS_KEY_Y, KEYCODE_Y },
-	{ "Z", OS_KEY_Z, KEYCODE_Z },
-	{ "0", OS_KEY_0, KEYCODE_0 },
-	{ "1", OS_KEY_1, KEYCODE_1 },
-	{ "2", OS_KEY_2, KEYCODE_2 },
-	{ "3", OS_KEY_3, KEYCODE_3 },
-	{ "4", OS_KEY_4, KEYCODE_4 },
-	{ "5", OS_KEY_5, KEYCODE_5 },
-	{ "6", OS_KEY_6, KEYCODE_6 },
-	{ "7", OS_KEY_7, KEYCODE_7 },
-	{ "8", OS_KEY_8, KEYCODE_8 },
-	{ "9", OS_KEY_9, KEYCODE_9 },
-	{ "0PAD", OS_KEY_0_PAD, KEYCODE_0_PAD },
-	{ "1PAD", OS_KEY_1_PAD, KEYCODE_1_PAD },
-	{ "2PAD", OS_KEY_2_PAD, KEYCODE_2_PAD },
-	{ "3PAD", OS_KEY_3_PAD, KEYCODE_3_PAD },
-	{ "4PAD", OS_KEY_4_PAD, KEYCODE_4_PAD },
-	{ "5PAD", OS_KEY_5_PAD, KEYCODE_5_PAD },
-	{ "6PAD", OS_KEY_6_PAD, KEYCODE_6_PAD },
-	{ "7PAD", OS_KEY_7_PAD, KEYCODE_7_PAD },
-	{ "8PAD", OS_KEY_8_PAD, KEYCODE_8_PAD },
-	{ "9PAD", OS_KEY_9_PAD, KEYCODE_9_PAD },
-	{ "F1", OS_KEY_F1, KEYCODE_F1 },
-	{ "F2", OS_KEY_F2, KEYCODE_F2 },
-	{ "F3", OS_KEY_F3, KEYCODE_F3 },
-	{ "F4", OS_KEY_F4, KEYCODE_F4 },
-	{ "F5", OS_KEY_F5, KEYCODE_F5 },
-	{ "F6", OS_KEY_F6, KEYCODE_F6 },
-	{ "F7", OS_KEY_F7, KEYCODE_F7 },
-	{ "F8", OS_KEY_F8, KEYCODE_F8 },
-	{ "F9", OS_KEY_F9, KEYCODE_F9 },
-	{ "F10", OS_KEY_F10, KEYCODE_F10 },
-	{ "F11", OS_KEY_F11, KEYCODE_F11 },
-	{ "F12", OS_KEY_F12, KEYCODE_F12 },
-	{ "ESC", OS_KEY_ESC, KEYCODE_ESC },
-	{ "~", OS_KEY_BACKQUOTE, KEYCODE_TILDE },
-	{ "-", OS_KEY_MINUS, KEYCODE_MINUS },
-	{ "=", OS_KEY_EQUALS, KEYCODE_EQUALS },
-	{ "BKSPACE", OS_KEY_BACKSPACE, KEYCODE_BACKSPACE },
-	{ "TAB", OS_KEY_TAB, KEYCODE_TAB },
-	{ "[", OS_KEY_OPENBRACE, KEYCODE_OPENBRACE },
-	{ "]", OS_KEY_CLOSEBRACE, KEYCODE_CLOSEBRACE },
-	{ "ENTER", OS_KEY_ENTER, KEYCODE_ENTER },
-	{ ";", OS_KEY_SEMICOLON, KEYCODE_COLON },
-	{ ":", OS_KEY_QUOTE, KEYCODE_QUOTE },
-	{ "\\", OS_KEY_BACKSLASH, KEYCODE_BACKSLASH },
-	{ "<", OS_KEY_LESS, KEYCODE_BACKSLASH2 },
-	{ ", ", OS_KEY_COMMA, KEYCODE_COMMA },
-	{ ".", OS_KEY_PERIOD, KEYCODE_STOP },
-	{ "/", OS_KEY_SLASH, KEYCODE_SLASH },
-	{ "SPACE", OS_KEY_SPACE, KEYCODE_SPACE },
-	{ "INS", OS_KEY_INSERT, KEYCODE_INSERT },
-	{ "DEL", OS_KEY_DEL, KEYCODE_DEL },
-	{ "HOME", OS_KEY_HOME, KEYCODE_HOME },
-	{ "END", OS_KEY_END, KEYCODE_END },
-	{ "PGUP", OS_KEY_PGUP, KEYCODE_PGUP },
-	{ "PGDN", OS_KEY_PGDN, KEYCODE_PGDN },
-	{ "LEFT", OS_KEY_LEFT, KEYCODE_LEFT },
-	{ "RIGHT", OS_KEY_RIGHT, KEYCODE_RIGHT },
-	{ "UP", OS_KEY_UP, KEYCODE_UP },
-	{ "DOWN", OS_KEY_DOWN, KEYCODE_DOWN },
-	{ "/PAD", OS_KEY_SLASH_PAD, KEYCODE_SLASH_PAD },
-	{ "*PAD", OS_KEY_ASTERISK, KEYCODE_ASTERISK },
-	{ "-PAD", OS_KEY_MINUS_PAD, KEYCODE_MINUS_PAD },
-	{ "+PAD", OS_KEY_PLUS_PAD, KEYCODE_PLUS_PAD },
-	{ ".PAD", OS_KEY_PERIOD_PAD, KEYCODE_DEL_PAD },
-	{ "ENTERPAD", OS_KEY_ENTER_PAD, KEYCODE_ENTER_PAD },
-	{ "PRTSCR", OS_KEY_PRTSCR, KEYCODE_PRTSCR },
-	{ "PAUSE", OS_KEY_PAUSE, KEYCODE_PAUSE },
-	{ "LSHIFT", OS_KEY_LSHIFT, KEYCODE_LSHIFT },
-	{ "RSHIFT", OS_KEY_RSHIFT, KEYCODE_RSHIFT },
-	{ "LCTRL", OS_KEY_LCONTROL, KEYCODE_LCONTROL },
-	{ "RCTRL", OS_KEY_RCONTROL, KEYCODE_RCONTROL },
-	{ "ALT", OS_KEY_ALT, KEYCODE_LALT },
-	{ "ALTGR", OS_KEY_ALTGR, KEYCODE_RALT },
-	{ "LWIN", OS_KEY_LWIN, KEYCODE_OTHER },
-	{ "RWIN", OS_KEY_RWIN, KEYCODE_OTHER },
-	{ "MENU", OS_KEY_MENU, KEYCODE_OTHER },
-	{ "SCRLOCK", OS_KEY_SCRLOCK, KEYCODE_SCRLOCK },
-	{ "NUMLOCK", OS_KEY_NUMLOCK, KEYCODE_NUMLOCK },
-	{ "CAPSLOCK", OS_KEY_CAPSLOCK, KEYCODE_CAPSLOCK },
+	{ "A", KEYB_A, KEYCODE_A },
+	{ "B", KEYB_B, KEYCODE_B },
+	{ "C", KEYB_C, KEYCODE_C },
+	{ "D", KEYB_D, KEYCODE_D },
+	{ "E", KEYB_E, KEYCODE_E },
+	{ "F", KEYB_F, KEYCODE_F },
+	{ "G", KEYB_G, KEYCODE_G },
+	{ "H", KEYB_H, KEYCODE_H },
+	{ "I", KEYB_I, KEYCODE_I },
+	{ "J", KEYB_J, KEYCODE_J },
+	{ "K", KEYB_K, KEYCODE_K },
+	{ "L", KEYB_L, KEYCODE_L },
+	{ "M", KEYB_M, KEYCODE_M },
+	{ "N", KEYB_N, KEYCODE_N },
+	{ "O", KEYB_O, KEYCODE_O },
+	{ "P", KEYB_P, KEYCODE_P },
+	{ "Q", KEYB_Q, KEYCODE_Q },
+	{ "R", KEYB_R, KEYCODE_R },
+	{ "S", KEYB_S, KEYCODE_S },
+	{ "T", KEYB_T, KEYCODE_T },
+	{ "U", KEYB_U, KEYCODE_U },
+	{ "V", KEYB_V, KEYCODE_V },
+	{ "W", KEYB_W, KEYCODE_W },
+	{ "X", KEYB_X, KEYCODE_X },
+	{ "Y", KEYB_Y, KEYCODE_Y },
+	{ "Z", KEYB_Z, KEYCODE_Z },
+	{ "0", KEYB_0, KEYCODE_0 },
+	{ "1", KEYB_1, KEYCODE_1 },
+	{ "2", KEYB_2, KEYCODE_2 },
+	{ "3", KEYB_3, KEYCODE_3 },
+	{ "4", KEYB_4, KEYCODE_4 },
+	{ "5", KEYB_5, KEYCODE_5 },
+	{ "6", KEYB_6, KEYCODE_6 },
+	{ "7", KEYB_7, KEYCODE_7 },
+	{ "8", KEYB_8, KEYCODE_8 },
+	{ "9", KEYB_9, KEYCODE_9 },
+	{ "0PAD", KEYB_0_PAD, KEYCODE_0_PAD },
+	{ "1PAD", KEYB_1_PAD, KEYCODE_1_PAD },
+	{ "2PAD", KEYB_2_PAD, KEYCODE_2_PAD },
+	{ "3PAD", KEYB_3_PAD, KEYCODE_3_PAD },
+	{ "4PAD", KEYB_4_PAD, KEYCODE_4_PAD },
+	{ "5PAD", KEYB_5_PAD, KEYCODE_5_PAD },
+	{ "6PAD", KEYB_6_PAD, KEYCODE_6_PAD },
+	{ "7PAD", KEYB_7_PAD, KEYCODE_7_PAD },
+	{ "8PAD", KEYB_8_PAD, KEYCODE_8_PAD },
+	{ "9PAD", KEYB_9_PAD, KEYCODE_9_PAD },
+	{ "F1", KEYB_F1, KEYCODE_F1 },
+	{ "F2", KEYB_F2, KEYCODE_F2 },
+	{ "F3", KEYB_F3, KEYCODE_F3 },
+	{ "F4", KEYB_F4, KEYCODE_F4 },
+	{ "F5", KEYB_F5, KEYCODE_F5 },
+	{ "F6", KEYB_F6, KEYCODE_F6 },
+	{ "F7", KEYB_F7, KEYCODE_F7 },
+	{ "F8", KEYB_F8, KEYCODE_F8 },
+	{ "F9", KEYB_F9, KEYCODE_F9 },
+	{ "F10", KEYB_F10, KEYCODE_F10 },
+	{ "F11", KEYB_F11, KEYCODE_F11 },
+	{ "F12", KEYB_F12, KEYCODE_F12 },
+	{ "ESC", KEYB_ESC, KEYCODE_ESC },
+	{ "~", KEYB_BACKQUOTE, KEYCODE_TILDE },
+	{ "-", KEYB_MINUS, KEYCODE_MINUS },
+	{ "=", KEYB_EQUALS, KEYCODE_EQUALS },
+	{ "BKSPACE", KEYB_BACKSPACE, KEYCODE_BACKSPACE },
+	{ "TAB", KEYB_TAB, KEYCODE_TAB },
+	{ "[", KEYB_OPENBRACE, KEYCODE_OPENBRACE },
+	{ "]", KEYB_CLOSEBRACE, KEYCODE_CLOSEBRACE },
+	{ "ENTER", KEYB_ENTER, KEYCODE_ENTER },
+	{ ";", KEYB_SEMICOLON, KEYCODE_COLON },
+	{ ":", KEYB_QUOTE, KEYCODE_QUOTE },
+	{ "\\", KEYB_BACKSLASH, KEYCODE_BACKSLASH },
+	{ "<", KEYB_LESS, KEYCODE_BACKSLASH2 },
+	{ ", ", KEYB_COMMA, KEYCODE_COMMA },
+	{ ".", KEYB_PERIOD, KEYCODE_STOP },
+	{ "/", KEYB_SLASH, KEYCODE_SLASH },
+	{ "SPACE", KEYB_SPACE, KEYCODE_SPACE },
+	{ "INS", KEYB_INSERT, KEYCODE_INSERT },
+	{ "DEL", KEYB_DEL, KEYCODE_DEL },
+	{ "HOME", KEYB_HOME, KEYCODE_HOME },
+	{ "END", KEYB_END, KEYCODE_END },
+	{ "PGUP", KEYB_PGUP, KEYCODE_PGUP },
+	{ "PGDN", KEYB_PGDN, KEYCODE_PGDN },
+	{ "LEFT", KEYB_LEFT, KEYCODE_LEFT },
+	{ "RIGHT", KEYB_RIGHT, KEYCODE_RIGHT },
+	{ "UP", KEYB_UP, KEYCODE_UP },
+	{ "DOWN", KEYB_DOWN, KEYCODE_DOWN },
+	{ "/PAD", KEYB_SLASH_PAD, KEYCODE_SLASH_PAD },
+	{ "*PAD", KEYB_ASTERISK, KEYCODE_ASTERISK },
+	{ "-PAD", KEYB_MINUS_PAD, KEYCODE_MINUS_PAD },
+	{ "+PAD", KEYB_PLUS_PAD, KEYCODE_PLUS_PAD },
+	{ ".PAD", KEYB_PERIOD_PAD, KEYCODE_DEL_PAD },
+	{ "ENTERPAD", KEYB_ENTER_PAD, KEYCODE_ENTER_PAD },
+	{ "PRTSCR", KEYB_PRTSCR, KEYCODE_PRTSCR },
+	{ "PAUSE", KEYB_PAUSE, KEYCODE_PAUSE },
+	{ "LSHIFT", KEYB_LSHIFT, KEYCODE_LSHIFT },
+	{ "RSHIFT", KEYB_RSHIFT, KEYCODE_RSHIFT },
+	{ "LCTRL", KEYB_LCONTROL, KEYCODE_LCONTROL },
+	{ "RCTRL", KEYB_RCONTROL, KEYCODE_RCONTROL },
+	{ "ALT", KEYB_ALT, KEYCODE_LALT },
+	{ "ALTGR", KEYB_ALTGR, KEYCODE_RALT },
+	{ "LWIN", KEYB_LWIN, KEYCODE_OTHER },
+	{ "RWIN", KEYB_RWIN, KEYCODE_OTHER },
+	{ "MENU", KEYB_MENU, KEYCODE_OTHER },
+	{ "SCRLOCK", KEYB_SCRLOCK, KEYCODE_SCRLOCK },
+	{ "NUMLOCK", KEYB_NUMLOCK, KEYCODE_NUMLOCK },
+	{ "CAPSLOCK", KEYB_CAPSLOCK, KEYCODE_CAPSLOCK },
 	{ 0, 0, 0 }
 };
 
@@ -268,7 +269,7 @@ static int input_joyequiv_map[][2] = {
 static void input_keyboard_update(struct advance_input_context* context)
 {
 	if (context->config.steadykey_flag) {
-		unsigned char last[OS_KEY_MAX];
+		unsigned char last[KEYB_MAX];
 
 		keyb_all_get(last);
 
@@ -290,7 +291,7 @@ static void input_keyboard_update(struct advance_input_context* context)
 
 static __inline__ int input_is_key_pressed(struct advance_input_context* context, int keycode)
 {
-	if (keycode >= OS_KEY_MAX)
+	if (keycode >= KEYB_MAX)
 		return 0;
 
 	return context->state.key_current[keycode];
@@ -327,7 +328,7 @@ static void input_init(struct advance_input_context* context)
 		}
 	}
 
-	for(i=0;i<OS_KEY_MAX;++i) {
+	for(i=0;i<KEYB_MAX;++i) {
 		context->state.key_old[i] = 0;
 		context->state.key_current[i] = 0;
 	}
@@ -489,7 +490,7 @@ int advance_input_inner_init(struct advance_input_context* context)
 
 	return 0;
 err:
-	target_err("%s\n", error_description_get());
+	target_err("%s\n", error_get());
 	return -1;
 }
 
@@ -563,7 +564,7 @@ void advance_input_update(struct advance_input_context* context, int is_pause)
 	}
 
 	/* forced exit requested by the operating system */
-	if (os_is_term()) {
+	if (os_is_quit()) {
 		context->state.input_forced_exit_flag = 1;
 	}
 

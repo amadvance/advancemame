@@ -30,6 +30,14 @@
 
 #include "keyall.h"
 
+/**
+ * Register all the keyboard drivers.
+ * The drivers are registered on the basis of the following defines:
+ *  - USE_KEYBOARD_ALLEGRO
+ *  - USE_KEYBOARD_SVGALIB
+ *  - USE_KEYBOARD_SDL
+ *  - USE_KEYBOARD_NONE
+ */
 void keyb_reg_driver_all(struct conf_context* context) {
 #ifdef USE_KEYBOARD_ALLEGRO
 	keyb_reg_driver(context, &keyb_allegro_driver);

@@ -31,6 +31,7 @@
 #include "jsvgab.h"
 #include "log.h"
 #include "oslinux.h"
+#include "error.h"
 
 #include <vgajoystick.h>
 
@@ -52,7 +53,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error joystickb_svgalib_init(int joystickb_id)
+error joystickb_svgalib_init(int joystickb_id)
 {
 	unsigned i;
 
@@ -60,7 +61,7 @@ adv_error joystickb_svgalib_init(int joystickb_id)
 
 	if (!os_internal_svgalib_get()) {
 		log_std(("joystickb:svgalib: svgalib not initialized\n"));
-		error_description_nolog_cat("svgalib: Not supported without the svgalib library\n");
+		error_nolog_cat("svgalib: Not supported without the svgalib library\n");
 		return -1;
 	}
 
@@ -72,7 +73,7 @@ adv_error joystickb_svgalib_init(int joystickb_id)
 
 	if (i==0) {
 		log_std(("joystickb:svgalib: no joystick found\n"));
-		error_description_nolog_cat("svgalib: No joystick found\n");
+		error_nolog_cat("svgalib: No joystick found\n");
 		return -1;
 	}
 
@@ -238,7 +239,7 @@ unsigned joystickb_svgalib_flags(void)
 	return 0;
 }
 
-adv_error joystickb_svgalib_load(struct conf_context* context)
+error joystickb_svgalib_load(struct conf_context* context)
 {
 	return 0;
 }

@@ -36,7 +36,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error keyb_none_init(int keyb_id, adv_bool disable_special)
+error keyb_none_init(int keyb_id, boolean disable_special)
 {
 	log_std(("keyb:none: keyb_none_init(id:%d,disable_special:%d)\n",keyb_id,(int)disable_special));
 
@@ -61,7 +61,7 @@ void keyb_none_all_get(unsigned char* code_map)
 
 	log_debug(("keyb:none: keyb_none_all_get()\n"));
 
-	for(i=0;i<OS_KEY_MAX;++i) {
+	for(i=0;i<KEYB_MAX;++i) {
 		code_map[i] = 0;
 	}
 }
@@ -76,7 +76,7 @@ unsigned keyb_none_flags(void)
 	return 0;
 }
 
-adv_error keyb_none_load(struct conf_context* context)
+error keyb_none_load(struct conf_context* context)
 {
 	return 0;
 }

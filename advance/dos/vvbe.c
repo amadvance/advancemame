@@ -32,6 +32,7 @@
 #include "scrvbe.h"
 #include "video.h"
 #include "log.h"
+#include "error.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,7 +42,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-static adv_error vbe_init2(int device_id) {
+static error vbe_init2(int device_id) {
 	const device* i = DEVICE;
 	while (i->name && i->id != device_id)
 		++i;
@@ -61,7 +62,7 @@ unsigned vbe_flags(void) {
  * Grab the current video mode.
  * \return 0 if successful
  */
-adv_error vbe_mode_grab(vbe_video_mode* mode) {
+error vbe_mode_grab(vbe_video_mode* mode) {
 	if (!vbe_is_active())
 		return -1;
 
@@ -78,51 +79,52 @@ adv_error vbe_mode_grab(vbe_video_mode* mode) {
 
 /**
  * Import information for one video mode.
- * \param mode->driver.vbe.mode video mode VBE number
+ * \param mode Mode to write.
+ * \param vbe_mode Mode to import.
  * \return 0 if successful
  */
-adv_error vbe_mode_import(video_mode* mode, const vbe_video_mode* vbe_mode) {
+error vbe_mode_import(video_mode* mode, const vbe_video_mode* vbe_mode) {
 	vbe_ModeInfoBlock info;
 
 	sprintf(mode->name,"vbe_bios_%x",vbe_mode->mode);
 	*DRIVER(mode) = *vbe_mode;
 
 	if (vbe_mode_info_get(&info, DRIVER(mode)->mode)!=0) {
-		error_description_set("VBE report that mode %d is unsupported", DRIVER(mode)->mode);
+		error_set("VBE report that mode %d is unsupported", DRIVER(mode)->mode);
 		return -1;
 	}
 	if ((info.ModeAttributes & vbeMdAvailable) == 0) {
-		error_description_set("VBE report that mode %d is not avaliable", DRIVER(mode)->mode);
+		error_set("VBE report that mode %d is not avaliable", DRIVER(mode)->mode);
 		return -1;
 	}
 
 	if ((info.ModeAttributes & vbeMdGraphMode) == 0) {
-		error_description_nolog_set("Text modes are unsupported");
+		error_nolog_set("Text modes are unsupported");
 		return -1;
 	} else {
 		if ((DRIVER(mode)->mode & vbeLinearBuffer) != 0) {
 			if (vbe_state.info.VESAVersion < 0x200) {
-				error_description_nolog_set("Linear frame buffer not available on VBE version prior 2.0");
+				error_nolog_set("Linear frame buffer not available on VBE version prior 2.0");
 				return -1;
 			}
 			if ((info.ModeAttributes & vbeMdLinear) == 0) {
-				error_description_nolog_set("Linear frame buffer not available in this mode");
+				error_nolog_set("Linear frame buffer not available in this mode");
 				return -1;
 			}
 		} else {
 			if ((info.ModeAttributes & vbeMdNonBanked) != 0) {
-				error_description_nolog_set("Banked frame buffer not available in this mode");
+				error_nolog_set("Banked frame buffer not available in this mode");
 				return -1;
 			}
 		}
 		/* Packed or RGB memory model */
 		if (info.MemoryModel!=vbeMemPK && info.MemoryModel!=vbeMemRGB) {
-			error_description_nolog_set("Unsupported memory model");
+			error_nolog_set("Unsupported memory model");
 			return -1;
 		}
 		/* Non planar mode */
 		if (info.NumberOfPlanes!=1) {
-			error_description_nolog_set("Unsupported number of planes");
+			error_nolog_set("Unsupported number of planes");
 			return -1;
 		}
 	}
@@ -167,7 +169,7 @@ adv_error vbe_mode_import(video_mode* mode, const vbe_video_mode* vbe_mode) {
 	return 0;
 }
 
-adv_error vbe_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync) {
+error vbe_palette8_set(const video_color* palette, unsigned start, unsigned count, boolean waitvsync) {
 	video_color vbe_pal[256];
 	unsigned shift = 8 - vbe_state.palette_width;
 
@@ -192,7 +194,7 @@ adv_error vbe_palette8_set(const video_color* palette, unsigned start, unsigned 
 	return vbe_palette_set(vbe_pal,start,count,waitvsync);
 }
 
-static adv_error vbe_search_target_mode(unsigned req_x, unsigned req_y, unsigned bits, unsigned model, unsigned flags) {
+static error vbe_search_target_mode(unsigned req_x, unsigned req_y, unsigned bits, unsigned model, unsigned flags) {
 	vbe_mode_iterator i;
 
 	vbe_mode_iterator_begin(&i);
@@ -218,7 +220,7 @@ static adv_error vbe_search_target_mode(unsigned req_x, unsigned req_y, unsigned
 	return -1;
 }
 
-adv_error vbe_mode_generate(vbe_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+error vbe_mode_generate(vbe_video_mode* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
 	int number;
 	unsigned model;
 	unsigned vbeflags = vbeMdAvailable | vbeMdGraphMode | vbeMdLinear;
@@ -246,7 +248,7 @@ adv_error vbe_mode_generate(vbe_video_mode* mode, const video_crtc* crtc, unsign
 		number = vbe_search_target_mode(crtc->hde,crtc->vde,bits,model,vbeflags);
 	}
 	if (number < 0) {
-		error_description_nolog_cat("vbe: No compatible VBE mode found\n");
+		error_nolog_cat("vbe: No compatible VBE mode found\n");
 		return -1;
 	}
 
@@ -298,15 +300,15 @@ void vbe_crtc_container_insert_default(video_crtc_container* cc) {
 /***************************************************************************/
 /* Driver */
 
-static adv_error vbe_mode_set_void(const void* mode) {
+static error vbe_mode_set_void(const void* mode) {
 	return vbe_mode_set(((const vbe_video_mode*)mode)->mode,0);
 }
 
-static adv_error vbe_mode_import_void(video_mode* mode, const void* vbe_mode) {
+static error vbe_mode_import_void(video_mode* mode, const void* vbe_mode) {
 	return vbe_mode_import(mode, (const vbe_video_mode*)vbe_mode);
 }
 
-static adv_error vbe_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
+static error vbe_mode_generate_void(void* mode, const video_crtc* crtc, unsigned bits, unsigned flags) {
 	return vbe_mode_generate((vbe_video_mode*)mode, crtc, bits, flags);
 }
 
@@ -317,7 +319,7 @@ static int vbe_mode_compare_void(const void* a, const void* b) {
 static void vbe_reg_dummy(struct conf_context* context) {
 }
 
-static adv_error vbe_load_dummy(struct conf_context* context) {
+static error vbe_load_dummy(struct conf_context* context) {
 	return 0;
 }
 
@@ -325,7 +327,7 @@ static unsigned vbe_mode_size(void) {
 	return sizeof(vbe_video_mode);
 }
 
-static adv_error vbe_mode_grab_void(void* mode) {
+static error vbe_mode_grab_void(void* mode) {
 	return vbe_mode_grab((vbe_video_mode*)mode);
 }
 

@@ -50,7 +50,7 @@ static device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error joystickb_sdl_init(int joystickb_id)
+error joystickb_sdl_init(int joystickb_id)
 {
 	unsigned i;
 
@@ -231,7 +231,7 @@ unsigned joystickb_sdl_flags(void)
 	return 0;
 }
 
-adv_error joystickb_sdl_load(struct conf_context* context)
+error joystickb_sdl_load(struct conf_context* context)
 {
 	return 0;
 }

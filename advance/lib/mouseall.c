@@ -30,6 +30,14 @@
 
 #include "mouseall.h"
 
+/**
+ * Register all the mouse drivers.
+ * The drivers are registered on the basis of the following defines:
+ *  - USE_MOUSE_ALLEGRO
+ *  - USE_MOUSE_SVGALIB
+ *  - USE_MOUSE_SDL
+ *  - USE_MOUSE_NONE
+ */
 void mouseb_reg_driver_all(struct conf_context* context) {
 #ifdef USE_MOUSE_ALLEGRO
 	mouseb_reg_driver(context, &mouseb_allegro_driver);

@@ -30,6 +30,16 @@
 
 #include "soundall.h"
 
+/**
+ * Register all the sound drivers.
+ * The drivers are registered on the basis of the following defines:
+ *  - USE_SOUND_SEAL
+ *  - USE_SOUND_ALLEGRO
+ *  - USE_SOUND_VSYNC
+ *  - USE_SOUND_OSS
+ *  - USE_SOUND_SDL
+ *  - USE_SOUND_NONE
+ */
 void sound_reg_driver_all(struct conf_context* context) {
 #ifdef USE_SOUND_SEAL
 	sound_reg_driver(context, &sound_seal_driver);

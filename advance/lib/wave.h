@@ -18,6 +18,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/** \file
+ * WAVE file support.
+ */
+
+/** \addtogroup AudioFile */
+/*@{*/
+
 #ifndef __WAVE_H
 #define __WAVE_H
 
@@ -34,6 +41,7 @@ int wave_file(FZ* f, unsigned* data_channel, unsigned* data_bit, unsigned* data_
 }
 #endif
 
-
 #endif
+
+/*@}*/
 

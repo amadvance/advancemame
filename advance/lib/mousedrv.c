@@ -30,6 +30,7 @@
 
 #include "mousedrv.h"
 #include "log.h"
+#include "error.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -42,7 +43,7 @@ void mouseb_default(void) {
 	strcpy(mouseb_state.name, "none");
 }
 
-void mouseb_reg(struct conf_context* context, adv_bool auto_detect) {
+void mouseb_reg(struct conf_context* context, boolean auto_detect) {
 	conf_string_register_default(context, "device_mouse", auto_detect ? "auto" : "none");
 }
 
@@ -57,7 +58,7 @@ void mouseb_reg_driver(struct conf_context* context, mouseb_driver* driver) {
 	++mouseb_state.driver_mac;
 }
 
-adv_error mouseb_load(struct conf_context* context) {
+error mouseb_load(struct conf_context* context) {
 	unsigned i;
 	int at_least_one;
 
@@ -90,7 +91,7 @@ adv_error mouseb_load(struct conf_context* context) {
 	return 0;
 }
 
-adv_error mouseb_init(void) {
+error mouseb_init(void) {
 	unsigned i;
 
 	assert(mouseb_state.driver_current == 0);
@@ -102,7 +103,7 @@ adv_error mouseb_init(void) {
 	}
 
 	/* store the error prefix */
-	error_description_nolog_set("Unable to inizialize a mouse driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize a mouse driver. The following are the errors:\n");
 
 	for(i=0;i<mouseb_state.driver_mac;++i) {
 		const device* dev;

@@ -28,6 +28,13 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Clear.
+ */
+
+/** \addtogroup Blit */
+/*@{*/
+
 #ifndef __CLEAR_H
 #define __CLEAR_H
 
@@ -37,11 +44,21 @@
 extern "C" {
 #endif
 
+/**
+ * Clear the specified screen range.
+ * \param dst_x Destination x.
+ * \param dst_y Destination y.
+ * \param dst_dx Destination size x.
+ * \param dst_dy Destination size y.
+ * \param src Value to put in every pixel.
+ */
 void video_clear(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, unsigned src);
 
 #ifdef __cplusplus
 }
 #endif
 
-
 #endif
+
+/*@}*/
+

@@ -267,9 +267,9 @@ Configuration
 	PREFIX is the installation directory configured in the
 	`makefile', generally it's `/usr/local'.
 	The $home directory is HOME/.advance/ where HOME is the
-	value of the HOME environment variable. If the HOME
-	environment variable is missing the same $root directory is
-	used.
+	value of the HOME environment variable.
+	If the HOME environment variable is missing the $root
+	directory became the $home directory.
 
 	The options in the $root directory overwrite the options in
 	the $home.
@@ -1177,6 +1177,12 @@ Formats Supported
 
 	Archives:
 		ZIP - The ZIP format.
+
+Signals
+	The program intercepts the following signals:
+
+		SIGQUIT - Exit normally
+		SIGTERM - Exit restoring only the video
 
 Copyright
 	This file is Copyright (C) 2002 Andrea Mazzoleni, Randy Schnedler.

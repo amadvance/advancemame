@@ -109,6 +109,7 @@ struct mame_option {
 
 const mame_game* mame_game_at(unsigned index);
 const char* mame_game_resolution(const mame_game* game);
+const char* mame_game_resolutionclock(const mame_game* game);
 double mame_game_fps(const mame_game* game);
 unsigned mame_game_orientation(const mame_game* game);
 const char* mame_game_name(const mame_game* game);

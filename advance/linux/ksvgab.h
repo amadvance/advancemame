@@ -28,6 +28,10 @@
  * do so, delete this exception statement from your version.
  */
 
+/** \file
+ * Keyboard driver "svgalib".
+ */
+
 #ifndef __KSVGAB_H
 #define __KSVGAB_H
 
@@ -37,6 +41,10 @@
 extern "C" {
 #endif
 
+/**
+ * Keyboard driver "svgalib".
+ * \ingroup Keyboard
+ */
 extern keyb_driver keyb_svgalib_driver;
 
 #ifdef __cplusplus
