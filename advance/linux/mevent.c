@@ -98,26 +98,54 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 		int code;
 		const char* name;
 	} button_map[] = {
+		#ifdef BTN_LEFT
 		{ BTN_LEFT, "left" },
+		#endif
+		#ifdef BTN_RIGHT
 		{ BTN_RIGHT, "right" },
+		#endif
+		#ifdef BTN_MIDDLE
 		{ BTN_MIDDLE, "middle" },
+		#endif
+		#ifdef BTN_SIDE
 		{ BTN_SIDE, "side" },
+		#endif
+		#ifdef BTN_EXTRA
 		{ BTN_EXTRA, "extra" },
+		#endif
+		#ifdef BTN_FORWARD
 		{ BTN_FORWARD, "forward" },
+		#endif
+		#ifdef BTN_BACK
 		{ BTN_BACK, "back" }
+		#endif
 	};
 
 	struct axe_entry {
 		int code;
 		const char* name;
 	} axe_map[] = {
+		#ifdef REL_X
 		{ REL_X, "x" },
+		#endif
+		#ifdef REL_Y
 		{ REL_Y, "y" },
+		#endif
+		#ifdef REL_Z
 		{ REL_Z, "z" },
+		#endif
+		#ifdef REL_WHEEL
 		{ REL_WHEEL, "wheel" },
+		#endif
+		#ifdef REL_HWHEEL
 		{ REL_HWHEEL, "hwheel" },
+		#endif
+		#ifdef REL_DIAL
 		{ REL_DIAL, "dial" },
+		#endif
+		#ifdef REL_MISC
 		{ REL_MISC, "misc" }
+		#endif
 	};
 
 	item->f = f;

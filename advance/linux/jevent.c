@@ -116,55 +116,147 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		int code;
 		const char* name;
 	} button_map[] = {
+		#ifdef BTN_TRIGGER
 		{ BTN_TRIGGER, "trigger" }, /* joystick */
+		#endif
+		#ifdef BTN_TOP
 		{ BTN_TOP, "top" }, /* joystick */
+		#endif
+		#ifdef BTN_TOP2
 		{ BTN_TOP2, "top2" }, /* joystick */
+		#endif
+		#ifdef BTN_THUMB
 		{ BTN_THUMB, "thumb" }, /* joystick */
+		#endif
+		#ifdef BTN_THUMB2
 		{ BTN_THUMB2, "thumb2" }, /* joystick */
+		#endif
+		#ifdef BTN_PINKIE
 		{ BTN_PINKIE, "pinkie" }, /* joystick */
+		#endif
+		#ifdef BTN_BASE
 		{ BTN_BASE, "base" }, /* joystick */
+		#endif
+		#ifdef BTN_BASE2
 		{ BTN_BASE2, "base2" }, /* joystick */
+		#endif
+		#ifdef BTN_BASE3
 		{ BTN_BASE3, "base3" }, /* joystick */
+		#endif
+		#ifdef BTN_BASE4
 		{ BTN_BASE4, "base4" }, /* joystick */
+		#endif
+		#ifdef BTN_BASE5
 		{ BTN_BASE5, "base5" }, /* joystick */
+		#endif
+		#ifdef BTN_BASE6
 		{ BTN_BASE6, "base6" }, /* joystick */
+		#endif
+		#ifdef BTN_DEAD
 		{ BTN_DEAD, "dead" }, /* joystick */
+		#endif
+		#ifdef BTN_A
 		{ BTN_A, "a" }, /* gamepad */
+		#endif
+		#ifdef BTN_B
 		{ BTN_B, "b" }, /* gamepad */
+		#endif
+		#ifdef BTN_C
 		{ BTN_C, "c" }, /* gamepad */
+		#endif
+		#ifdef BTN_X
 		{ BTN_X, "x" }, /* gamepad */
+		#endif
+		#ifdef BTN_Y
 		{ BTN_Y, "y" }, /* gamepad */
+		#endif
+		#ifdef BTN_Z
 		{ BTN_Z, "z" }, /* gamepad */
+		#endif
+		#ifdef BTN_TL
 		{ BTN_TL, "tl" }, /* gamepad */
+		#endif
+		#ifdef BTN_TR
 		{ BTN_TR, "tr" }, /* gamepad */
+		#endif
+		#ifdef BTN_TL2
 		{ BTN_TL2, "tl2" }, /* gamepad */
+		#endif
+		#ifdef BTN_TR2
 		{ BTN_TR2, "tr2" }, /* gamepad */
+		#endif
+		#ifdef BTN_SELECT
 		{ BTN_SELECT, "select" }, /* gamepad */
+		#endif
+		#ifdef BTN_START
 		{ BTN_START, "start" }, /* gamepad */
+		#endif
+		#ifdef BTN_MODE
 		{ BTN_MODE, "mode" }, /* gamepad */
+		#endif
+		#ifdef BTN_THUMBL
 		{ BTN_THUMBL, "thumbl" }, /* gamepad */
+		#endif
+		#ifdef BTN_THUMBR
 		{ BTN_THUMBR, "thumbr" }, /* gamepad */
-#if defined(BTN_GEAR_DOWN) && defined(BTN_GEAR_DOWN) /* only in Linux 2.6 */
+		#endif
+		#ifdef BTN_GEAR_DOWN
 		{ BTN_GEAR_DOWN, "gear_down" }, /* wheel */
+		#endif
+		#ifdef BTN_GEAR_UP
 		{ BTN_GEAR_UP, "gear_up" }, /* wheel */
-#endif
+		#endif
+		#ifdef BTN_0
 		{ BTN_0, "0" }, /* misc */
+		#endif
+		#ifdef BTN_1
 		{ BTN_1, "1" }, /* misc */
+		#endif
+		#ifdef BTN_2
 		{ BTN_2, "2" }, /* misc */
+		#endif
+		#ifdef BTN_3
 		{ BTN_3, "3" }, /* misc */
+		#endif
+		#ifdef BTN_4
 		{ BTN_4, "4" }, /* misc */
+		#endif
+		#ifdef BTN_5
 		{ BTN_5, "5" }, /* misc */
+		#endif
+		#ifdef BTN_6
 		{ BTN_6, "6" }, /* misc */
+		#endif
+		#ifdef BTN_7
 		{ BTN_7, "7" }, /* misc */
+		#endif
+		#ifdef BTN_8
 		{ BTN_8, "8" }, /* misc */
+		#endif
+		#ifdef BTN_9
 		{ BTN_9, "9" }, /* misc */
+		#endif
+		#ifdef BTN_LEFT
 		{ BTN_LEFT, "left" }, /* ball */
+		#endif
+		#ifdef BTN_RIGHT
 		{ BTN_RIGHT, "right" }, /* ball */
+		#endif
+		#ifdef BTN_MIDDLE
 		{ BTN_MIDDLE, "middle" }, /* ball */
+		#endif
+		#ifdef BTN_SIDE
 		{ BTN_SIDE, "side" }, /* ball */
+		#endif
+		#ifdef BTN_EXTRA
 		{ BTN_EXTRA, "extra" }, /* ball */
+		#endif
+		#ifdef BTN_FORWARD
 		{ BTN_FORWARD, "forward" }, /* ball */
+		#endif
+		#ifdef BTN_BACK
 		{ BTN_BACK, "back" } /* ball */
+		#endif
 	};
 
 	struct stick_entry {
@@ -175,33 +267,67 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		const char* name;
 	} stick_map[] = {
 		{ { { ABS_X, "x" }, { ABS_Y, "y" }, { ABS_Z, "z" }, { ABS_RX, "rx" }, { ABS_RY, "ry" }, { ABS_RZ, "rz" }, { ABS_UNASSIGNED, 0 } }, "stick" },
+		#ifdef ABS_GAS
 		{ { { ABS_GAS, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "gas" }, /* acceleratore */
+		#endif
+		#ifdef ABS_BRAKE
 		{ { { ABS_BRAKE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "brake" }, /* freno */
+		#endif
+		#ifdef ABS_WHEEL
 		{ { { ABS_WHEEL, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "wheel" }, /* volante */
+		#endif
+		#ifdef ABS_HAT0X
 		{ { { ABS_HAT0X, "x" }, { ABS_HAT0Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat" },
+		#endif
+		#ifdef ABS_HAT1X
 		{ { { ABS_HAT1X, "x" }, { ABS_HAT1Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat2" },
+		#endif
+		#ifdef ABS_HAT2X
 		{ { { ABS_HAT2X, "x" }, { ABS_HAT2Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat3" },
+		#endif
+		#ifdef ABS_HAT3X
 		{ { { ABS_HAT3X, "x" }, { ABS_HAT3Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat4" },
+		#endif
+		#ifdef ABS_THROTTLE
 		{ { { ABS_THROTTLE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "throttle" },
+		#endif
+		#ifdef ABS_RUDDER
 		{ { { ABS_RUDDER, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "rudder" }, /* timone */
+		#endif
 		/* { { { ABS_PRESSURE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "pressure" }, */ /* tablet */
 		/* { { { ABS_DISTANCE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "distance" }, */ /* tablet */
 		/* { { { ABS_TILT_X, "x" }, { ABS_TILT_Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "tilt" }, */ /* tablet */
 		/* { { { ABS_VOLUME, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "volume" }, */ /* not an action control */
+		#ifdef ABS_MISC
 		{ { { ABS_MISC, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "misc" }
+		#endif
 	};
 
 	struct rel_entry {
 		int code;
 		const char* name;
 	} rel_map[] = {
+		#ifdef REL_X
 		{ REL_X, "x" },
+		#endif
+		#ifdef REL_Y
 		{ REL_Y, "y" },
+		#endif
+		#ifdef REL_Z
 		{ REL_Z, "z" },
+		#endif
+		#ifdef REL_WHEEL
 		{ REL_WHEEL, "wheel" },
+		#endif
+		#ifdef REL_HWHEEL
 		{ REL_HWHEEL, "hwheel" },
+		#endif
+		#ifdef REL_DIAL
 		{ REL_DIAL, "dial" },
+		#endif
+		#ifdef REL_MISC
 		{ REL_MISC, "misc" }
+		#endif
 	};
 
 	item->f = f;

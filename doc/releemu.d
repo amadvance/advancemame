@@ -28,6 +28,11 @@ AdvanceMAME 0.72.0
 	doesn't exist a MAME code for it. This also remove any limitation
 	on the number of joystick and mouse buttons.
 
+	In Linux the host configuration files are now read in /etc,
+	the files in */share/advance have now less priority
+	of the user specified options. They can be used
+	to set default options.
+
 AdvanceMAME 0.68.0
 	This release supports the new `scale3x' and `scale4x' effects.
 	To use them you must ensure to use an high pclock upper limit.

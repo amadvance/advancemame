@@ -222,9 +222,6 @@ Input Drivers
 
 	It supports more than one keyboard at the same time.
 
-	For USB devices this driver doesn't requires any configuration.
-	It's able to autodetect all the present hardware.
-
     svgalib - SVGALIB keyboard
 	This driver works in Linux and it uses the SVGALIB library.
 
@@ -268,7 +265,7 @@ Input Drivers
 
 	It supports more than one joystick at the same time.
 
-	For USB devices this driver doesn't requires any configuration.
+	For USB devices this driver doesn't require any configuration.
 	It's able to autodetect all the present hardware.
 
 	This driver is also able to correctly report the type of devices
@@ -321,7 +318,7 @@ Input Drivers
 
 	It supports more than one mouse at the same time.
 
-	For USB devices this driver doesn't requires any configuration.
+	For USB devices this driver doesn't require any configuration.
 	It's able to autodetect all the present hardware.
 
 	The mouses are searched on the /dev/input/eventX devices.
@@ -575,7 +572,7 @@ Video Drivers Configuration
 		tvntsc - Modeline converted to NTSC format by the internal
 			video board scan converter.
 
-	Example:
+	Examples:
 		:device_video_modeline tweak320x240 12.59 320 336 356 400 240 249 254 262 doublescan -hsync -vsync
 
 	The `tvpal' and `tvntsc' are available only for the nVidia
@@ -915,6 +912,10 @@ Input Drivers Configuration
 	The Linux mouses under /dev/input/* are always of type ps2,
 	imps2 or exps2.
 
+	Examples:
+		:device_raw_mousetype[0] ms3
+		:device_raw_mousetype[1] ms
+
     device_raw_mousedev[0,1,2,3]
 	Select the mouse device to use.
 
@@ -924,11 +925,9 @@ Input Drivers Configuration
 		auto - Automatically map to /dev/mouse or /dev/input/mouseX.
 		DEVICE - Complete path of the mouse device.
 
-	Example:
-		device_raw_mousetype[0] ms3
-		device_raw_mousedev[0] /dev/mouse
-		device_raw_mousetype[1] ms
-		device_raw_mousedev[1] /dev/ttyS2
+	Examples:
+		:device_raw_mousedev[0] /dev/input/mouse0
+		:device_raw_mousedev[1] /dev/ttyS2
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.

@@ -501,13 +501,19 @@ static void keyb_raw_vt_switch(unsigned char code)
 
 void keyb_raw_poll(void)
 {
-	unsigned char c;
-
 	log_debug(("keyb:raw: keyb_raw_poll()\n"));
 
-	while ((1 == read(raw_state.f, &c, 1)) && (c)) {
-		unsigned char code = c & 0x7f;
-		adv_bool pressed = (c & 0x80) == 0;
+	while (1) {
+		unsigned char c;
+		unsigned char code;
+		adv_bool pressed;
+
+		if (read(raw_state.f, &c, 1) != 1) {
+			break;
+		}
+
+		code = c & 0x7f;
+		pressed = (c & 0x80) == 0;
 
 		raw_state.state[code] = pressed;
 

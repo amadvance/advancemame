@@ -171,40 +171,35 @@ diff -U 5 --new-file --recursive srcmess.ori/cpuexec.c srcmess/cpuexec.c
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_AUDIO_CPU) || Machine->sample_rate != 0)
 diff -U 5 --new-file --recursive srcmess.ori/info.c srcmess/info.c
 --- srcmess.ori/info.c	2003-08-10 16:47:52.000000000 +0200
-+++ srcmess/info.c	2003-08-15 09:26:28.000000000 +0200
-@@ -811,10 +811,46 @@
++++ srcmess/info.c	2003-08-27 16:58:50.000000000 +0200
+@@ -811,10 +811,41 @@
  	fprintf(out, SELECT(L2P "palettesize %d" L2N, " palettesize=\"%d\""), driver.total_colors);
  
  	fprintf(out, SELECT(L2E L1N, "/>\n"));
  }
  
 +#ifdef MESS
-+static void print_game_device(int OUTPUT_XML, FILE* out, const struct GameDriver* game) {
++static void print_game_device(int OUTPUT_XML, FILE* out, const struct GameDriver* game)
++{
 +	const struct IODevice* dev = device_first(game);
 +
 +	while (dev) {
-+		const char* ext = dev->file_extensions;
-+
 +		fprintf(out, SELECT(L1P "device" L2B, "\t\t<device"));
 +		fprintf(out, SELECT(L2P "name ", " name=\""));
 +		print_statement_string(OUTPUT_XML, out, device_typename(dev->type));
 +		fprintf(out, "%s", SELECT(L2N, "\""));
 +		fprintf(out, "%s", SELECT("", ">\n"));
 +
-+		while (*ext) {
-+			/* some drivers have the extension separated by a , */
-+			char* ext_list = strdup(ext);
-+			char* ext_item = strtok(ext_list, ",");
-+			while (ext_item && ext_item[0]) {
++		if (dev->file_extensions) {
++			const char* ext = dev->file_extensions;
++			while (*ext) {
 +				fprintf(out, SELECT(L2P "ext ", "\t\t\t<extension"));
 +				fprintf(out, "%s", SELECT("", " name=\""));
-+				print_free_string(OUTPUT_XML, out, ext_item);
++				print_free_string(OUTPUT_XML, out, ext);
 +				fprintf(out, "%s", SELECT(L2N, "\""));
 +				fprintf(out, "%s", SELECT("", "/>\n"));
-+				ext_item = strtok(0, ",");
++				ext += strlen(ext) + 1;
 +			}
-+			free(ext_list);
-+			ext += strlen(ext) + 1;
 +		}
 +
 +		fprintf(out, SELECT(L2E L1N, "\t\t</device>\n"));
@@ -219,7 +214,7 @@ diff -U 5 --new-file --recursive srcmess.ori/info.c srcmess/info.c
  {
  	extern struct GameDriver driver_0;
  
-@@ -858,10 +894,13 @@
+@@ -858,10 +889,13 @@
  	print_game_video(OUTPUT_XML, out, game);
  	print_game_sound(OUTPUT_XML, out, game);
  	print_game_input(OUTPUT_XML, out, game);
@@ -233,7 +228,7 @@ diff -U 5 --new-file --recursive srcmess.ori/info.c srcmess/info.c
  }
  
  #if !defined(MESS) && !defined(TINY_COMPILE) && !defined(CPSMAME) && !defined(MMSND)
-@@ -943,11 +982,15 @@
+@@ -943,11 +977,15 @@
  {
  	fprintf(out,
  		"<?xml version=\"1.0\"?>\n"
@@ -249,7 +244,7 @@ diff -U 5 --new-file --recursive srcmess.ori/info.c srcmess/info.c
  		"\t\t<!ATTLIST " XML_TOP " cloneof CDATA #IMPLIED>\n"
  		"\t\t<!ATTLIST " XML_TOP " romof CDATA #IMPLIED>\n"
  		"\t\t<!ATTLIST " XML_TOP " sampleof CDATA #IMPLIED>\n"
-@@ -1010,10 +1053,16 @@
+@@ -1010,10 +1048,16 @@
  		"\t\t<!ELEMENT driver EMPTY>\n"
  		"\t\t\t<!ATTLIST driver status (good|preliminary|test) #REQUIRED>\n"
  		"\t\t\t<!ATTLIST driver color (good|imperfect|preliminary) #REQUIRED>\n"

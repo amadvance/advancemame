@@ -1,6 +1,23 @@
 Name
 	release notes - Release Notes For AdvanceMENU
 
+AdvanceMENU 2.2.10
+	This release contains a new set of `event' Linux
+	drivers for keyboards, mice and joysticks based on the Linux
+	input-event interfaces.
+	These drivers remove any limitations on the number of
+	keyboards, mice and joysticks, and they give the best
+	support for the new USB HID devices.
+
+	The `raw' set of Linux drivers has now the same functionality
+	of the `svgalib' set. If you don't need the SVGALIB video you can
+	now completely remove this library.
+
+	In Linux the host configuration files are now read in /etc,
+	the files in */share/advance have now less priority
+	of the user specified options. They can be used
+	to set default options.
+
 AdvanceMENU 2.2.7
 	This release adds support for the new MAME -listxml option. It's now
 	used as default. The old -listinfo is still supported and it's used

@@ -3,10 +3,10 @@ Name
 
 Synopsis
 	:advmame GAME [-default] [-remove] [-log] [-listinfo] [-listxml]
-	:	[-record FILE] [-playback FILE] [-version]
+	:	[-record FILE] [-playback FILE] [-version] [-help]
 
 	:advmess MACHINE [images...] [-default] [-remove] [-log] [-listinfo]
-	:	[-listxml] [-record FILE] [-playback FILE] [-version]
+	:	[-listxml] [-record FILE] [-playback FILE] [-version] [-help]
 
 Description
 	AdvanceMAME is an unofficial MAME version for GNU/Linux, Mac OS X, DOS
@@ -113,7 +113,11 @@ Options
 		specified file.
 
 	-version
-		Print the version number.
+		Print the version number and the low level device drivers
+		supported.
+
+	-help
+		Print a short command line help.
 
 	On the command line you can also specify all configuration
 	options with the format -OPTION ARGUMENT. For boolean options
@@ -126,6 +130,9 @@ Options
 	any prepending tag separated with `_' or truncate it.
 	For example `-dev_cartdrige' can be written as `-dev_cart',
 	`-cartdrige', `-cart', ...
+
+	In Linux and Mac OS X you can also use `--' before options instead of `-'.
+	In DOS and Windows you can also use `/'.
 
 Features
 	This section contains a brief description of all the features
@@ -1153,8 +1160,8 @@ Configuration
 		PLAYER_pedal - This axe is generally used for the first pedal (gas).
 
 	Examples:
-		input_map[p1_x] -joystick[0,0,0] joystick[0,1,0]
-		input_map[p1_y] -joystick[0,0,1] -joystick[0,1,1]
+		:input_map[p1_x] -joystick[0,0,0] joystick[0,1,0]
+		:input_map[p1_y] -joystick[0,0,1] -joystick[0,1,1]
 
     input_map[p1|2|3|4_trakx|traky]
 	Changes the trak control mapping. Map a mouse axe or a joystick ball axe on
@@ -1191,8 +1198,8 @@ Configuration
 			with a trackball.
 
 	Examples:
-		input_map[p1_trakx] -mouse[0,0] -mouse[1,0]
-		input_map[p1_traky] -mouse[0,1] -mouse[1,1]
+		:input_map[p1_trakx] -mouse[0,0] -mouse[1,0]
+		:input_map[p1_traky] -mouse[0,1] -mouse[1,1]
 
     input_map[*]
 	Changes the digital control mapping. Map a sequence of
@@ -1200,9 +1207,9 @@ Configuration
 	simulation digital control.
 
 	:input_map[DIGITAL] auto | keyboard[KEYBOARD,KEY]
-		| mouse_button[MOUSE,MOUSE_BUTTON] | joystick_button[JOY,JOY_BUTTON]
-		| joystick_digital[JOY,CONTROL,AXE,DIR]
-		| or | not | ...
+	:	| mouse_button[MOUSE,MOUSE_BUTTON] | joystick_button[JOY,JOY_BUTTON]
+	:	| joystick_digital[JOY,CONTROL,AXE,DIR]
+	:	| or | not | ...
 
 	The default is always `auto' which uses the standard mapping. If the
 	definition starts with `or', the mapping is concatenated with the `or'
@@ -1326,9 +1333,9 @@ Configuration
 		0, 1, 2, 3, 4, 5, 6, 7, 8, 9 - Misc buttons.
 
 	Examples:
-		input_map[p1_left] keyboard[0,left] or joystick_digital[0,stick,x,left]
-		input_map[p1_right] keyboard[0,right] or joystick_digital[0,stick,x,right]
-		input_map[p1_button1] keyboard[0,lshit] or joystick_button[0,trigger] or mouse_button[0,left]
+		:input_map[p1_left] keyboard[0,left] or joystick_digital[0,stick,x,left]
+		:input_map[p1_right] keyboard[0,right] or joystick_digital[0,stick,x,right]
+		:input_map[p1_button1] keyboard[0,lshit] or joystick_button[0,trigger] or mouse_button[0,left]
 
   Record Configuration Options
 	This section describes the options used for the recording
@@ -1392,12 +1399,6 @@ Configuration
 	Examples:
 		:record_video_interleave 1
 
-    record_video_stoploop
-	Automatically stop the recording if a looping is detected.
-	This option can be used to automatically record the attract mode.
-
-	:record_video_stoploop yes | no
-
   Misc Configuration Options
 
     misc_bios
@@ -1420,7 +1421,7 @@ Configuration
 			'M' (1024^2) or 'G' (1024^3) multiplier.
 
 	Examples:
-		misc_ramsize 1024k
+		:misc_ramsize 1024k
 
     misc_difficulty
 	Selects the game difficulty.

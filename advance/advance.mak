@@ -379,7 +379,7 @@ tiny:
 mess:
 	$(MAKE) CONF=no CONF_EMU=mess emu
 
-wholemame:
+wholemame: mamedif
 	$(MAKE) CONF=no dist
 	$(MAKE) CONF=no CONF_DIFFSRC=yes dist
 	$(MAKE) $(ARCH_PENTIUM_BLEND_GCCOLD) CONF=no CONF_HOST=windows distbin
@@ -405,7 +405,7 @@ wholecd:
 	$(MAKE) $(WHOLECD_FLAGS) distmenubin
 	$(MAKE) $(WHOLECD_FLAGS) CONF_EMU=mess distbin
 
-wholemess:
+wholemess: messdif
 	$(MAKE) CONF=no CONF_EMU=mess dist
 	$(MAKE) CONF=no CONF_EMU=mess CONF_DIFFSRC=yes dist
 	$(MAKE) $(ARCH_PENTIUM_BLEND) CONF=no CONF_HOST=unix CONF_EMU=mess distbin

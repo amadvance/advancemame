@@ -33,10 +33,7 @@ AdvanceMAME Version 0.72.0 2003/09
 	) Substituted the Linux input driver `slang' with a new `tty' driver
 		which always works correctly with the advv and advcfg utility.
 		Specifically it works when using the `fb' video driver.
-	) In Linux the host configuration files are now read in /etc,
-		the files in */share/advance have now less priority
-		of the user specified options. They can be used
-		to set default options.
+	) In Linux the host configuration files are now read in /etc.
 	) The `-version' option now lists the low level drivers compiled
 		in the executable.
 	) The Linux version can now access hardware ports in scripts using

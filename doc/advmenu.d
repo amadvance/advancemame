@@ -2,7 +2,7 @@ Name
 	advmenu - The AdvanceMENU Frontend
 
 Synopsis
-	:advmenu [-default] [-remove] [-log] [-logsync] [-version]
+	:advmenu [-default] [-remove] [-log] [-logsync] [-version] [-help]
 
 Description
 	The AdvanceMENU utility is a frontend to run the AdvanceMAME,
@@ -56,7 +56,14 @@ Options
 		Print some startup information.
 
 	-version
-		Print the version number.
+		Print the version number and the low level device drivers
+		supported.
+
+	-help
+		Print a short command line help.
+
+	In Linux and Mac OS X you can also use `--' before options instead of `-'.
+	In DOS and Windows you can also use `/'.
 
 Emulators
 	The program supports many type of emulators. The emulators

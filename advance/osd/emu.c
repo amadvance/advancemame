@@ -154,16 +154,35 @@ static void version(void)
 {
 	char report_buffer[128];
 	target_out("%s %s\n\n", ADVANCE_TITLE, VERSION);
+
+	target_out("Drivers (in priority order):\n");
 	video_report_driver_all(report_buffer, sizeof(report_buffer));
-	target_out("Video:%s\n", report_buffer);
+	target_out("  Video:%s\n", report_buffer);
 	soundb_report_driver_all(report_buffer, sizeof(report_buffer));
-	target_out("Sound:%s\n", report_buffer);
+	target_out("  Sound:%s\n", report_buffer);
 	keyb_report_driver_all(report_buffer, sizeof(report_buffer));
-	target_out("Keyboard:%s\n", report_buffer);
+	target_out("  Keyboard:%s\n", report_buffer);
 	joystickb_report_driver_all(report_buffer, sizeof(report_buffer));
-	target_out("Joystick:%s\n", report_buffer);
+	target_out("  Joystick:%s\n", report_buffer);
 	mouseb_report_driver_all(report_buffer, sizeof(report_buffer));
-	target_out("Mouse:%s\n", report_buffer);
+	target_out("  Mouse:%s\n", report_buffer);
+	target_out("\n");
+
+	target_out("Directories:\n");
+#ifdef DATADIR
+	target_out("  Data: %s\n", DATADIR);
+#else
+	target_out("  Data: . (current directory)\n");
+#endif
+	target_out("\n");
+
+	target_out("Configuration (in priority order):\n");
+	if (file_config_file_host(ADVANCE_NAME ".rc") != 0)
+		target_out("  Host configuration file (R): %s\n", file_config_file_host(ADVANCE_NAME ".rc"));
+	target_out("  Command line (R)\n");
+	target_out("  Home configuration file (RW): %s\n", file_config_file_home(ADVANCE_NAME ".rc"));
+	if (file_config_file_data(ADVANCE_NAME ".rc") != 0)
+		target_out("  Data configuration file (R): %s\n", file_config_file_data(ADVANCE_NAME ".rc"));
 }
 
 static void help(void)

@@ -11,10 +11,7 @@ AdvanceMENU Version 2.2.10 2003/09
 		clone of the BIOS to use.
 	) The `Types' and `Group' menus are shown only if the group and
 		type set are not empty.
-	) In Linux the host configuration files are now read in /etc,
-		the files in */share/advance have now less priority
-		of the user specified options. They can be used
-		to set default options.
+	) In Linux the host configuration files are now read in /etc.
 
 AdvanceMENU Version 2.2.9 2003/07
 	) Added support for importing the XML output of AdvanceMESS 0.71.0.0.
