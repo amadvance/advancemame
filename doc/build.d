@@ -5,48 +5,72 @@ Name
 	AdvancePAC and AdvanceMENU from the source archives.
 
 Preparing The Source
-	To compile AdvanceMENU you don't need to add anything at the source, they are
+	To compile AdvanceMENU you don't need to prepare the source, they are
 	already complete.
 
-	To build one of the Advance version of the MAME, MESS, PacMAME emulators you
-	need first to download and unzip the original emulator source. You must
-	use the same version of the Advance source.
+	To build one of the Advance emulators (MAME, MESS, PacMAME) you
+	need first to download and unzip the emulator source with the same
+	version of the Advance source. Please note that you must use the
+	original emulator source, you cannot use the source of another MAME
+	clone like XMAME.
 
 	The source of the MAME emulator must be unzipped in the `src/' directory,
 	the MESS source in `srcmess/' and the PacMAME source in `srcpac/'.
-	In a Unix system remember to unzip the original .zip archives with the
-	`unzip -aa' command to convert all the files from the DOS/Windows CR/LF format
-	to the Unix CR format.
+	For MESS you need also the additional `mess/' source directory.
 
-	After unpacking the emulator sources you need to patch the MAME source with the
-	patch `advance/advmame.dif', the MESS source with `advance/advmess.dif' and the
-	PacMAME source with `advance/advpac.dif'. If the patch aren't applied correctly
-	probably you are using the wrong version of the emulator source.
+	In Linux remember to unzip the original .zip archives with the
+	`unzip -aa' command to convert the files from the DOS/Windows CR/LF
+	format to the Unix CR format.
+
+	The original `makefile' of the emulator must be manually deleted.
+
+	For example the final directory tree for AdvanceMAME must be :
+
+		./configure
+		./advance/advance.mak
+		./src/mame.mak
+
+	After unpacked, you need to patch the original MAME source with the
+	patch `advance/advmame.dif', the MESS source with `advance/advmess.dif' and
+	the PacMAME source with `advance/advpac.dif'. If the patch isn't applied
+	correctly, probably you are using the wrong version of the emulator source.
+
+	For example the command for patching the source for AdvanceMAME in DOS is :
+
+		cd src
+		patch -p1 < ..\advance\advmame.dif
+
+	and in Linux is :
+
+		cd src
+		patch -p1 < ../advance/advmame.dif
 
 Configuring
-	In a Unix system you need to run the `./configure' script with the
-	proper options. You can get a complete list with the `./configure --help' command.
-	Generally, you need only to specify the the --with-system option choosing the
-	`sdl' or `native' system library.
+	In Linux you need to run the `./configure' script with the proper options.
+	You can get a complete list with the `./configure --help' command.
+	Generally, you need only to specify the the --with-system option choosing
+	the `sdl' or `native' system library.
 
-	The `native' system uses the svgalib 1.9 and framebuffer graphics libraries and it's
-	able to directly access and completly control the graphics output of your video
-	board and automatically generate video modes with the correct size and frequency.
+	The `native' system uses the svgalib 1.9 and framebuffer graphics libraries
+	and it's able to directly access and completly control the graphics output
+	of your video board and automatically generate video modes with the correct
+	size and frequency.
 
-	The `sdl' system uses the LibSDL graphics library, it can be used to show the
-	programs in a Window Manager, but it's unable to completly control the graphics
-	output. It isn't a good choice for the fullscreen use of the emulator.
+	The `sdl' system uses the LibSDL graphics library, it can be used to show
+	the programs in a Window Manager, but it's unable to completly control the
+	graphics output. It isn't a good choice for the fullscreen use of the
+	emulator.
 
 	If you want to customize the compilation CFLAGS you can set them before
 	calling the ./configure script, for example:
 
-		:CFLAGS="-O3 -march=pentiumii -fomit-frame-pointer -fstrict-aliasing" ./configure
+		:CFLAGS="-O3 -march=i686 -fomit-frame-pointer -fstrict-aliasing" ./configure
 
-	In a DOS/Windows system you need to manually rename the `Makefile.in' file
-	as `Makefile', and edit the its first section to match your requirements.
+	In a DOS/Windows you need to manually rename the `Makefile.in' file
+	as `Makefile' and edit the first section to match your requirements.
 
 Compiling
-	Finally you can run `make' to compile all, and in a Unix system `make install'
+	Finally you can run `make' to compile all, and in Linux `make install'
 	to install the binaries and the documentation.
 
 Targets

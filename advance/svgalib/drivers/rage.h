@@ -9,8 +9,6 @@
                 outb(_Register, _Index),                        \
                 inb(_Register + 1)                              \
         )
-#define PutReg(_Register, _Index, _Value)                       \
-        outw(_Register, ((_Value) << 8) | (_Index))
 
 #define ATIIOPort(_PortTag)							\
         (((ATIIODecoding == SPARSE_IO) ?					\

@@ -16,8 +16,11 @@
 #include "libvga.h"
 #include "timing.h"
 #include "accel.h"
+#include "io.h"
 
 #define MAX_REGS 5000 /* VESA needs a lot of storage space */
+
+extern int inrestore;
 
 typedef struct {
     void (*savepalette)(unsigned char *red, unsigned char *green, unsigned char *blue);

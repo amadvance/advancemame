@@ -639,8 +639,8 @@
 #define NV_UBLIT                              0x00501FFF:0x00500000 /* -W--D */
 #define NV_UBITMAP                            0x00521FFF:0x00520000 /* -W--D */
 
-#define NV_PVGA0			      0x000C0FFF:0x000C0000
-#define NV_PVGA1			      0x00601FFF:0x00601000
-#define NV_PVGA2			      0x00681FFF:0x00681000
+#define NV_PVGA0			      0x000C0000
+#define NV_PVGA1			      0x00601000
+#define NV_PVGA2			      0x00681000
 
 #endif

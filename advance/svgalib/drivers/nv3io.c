@@ -1,88 +1,88 @@
 static int __svgalib_nv3_inmisc(void)
 {
-   return *((unsigned char *)nvPVGA0Port+MIS_R);
+   return v_readb(NV_PVGA0+MIS_R);
 }
 
 static void __svgalib_nv3_outmisc(int i)
 {
-   *((unsigned char *)nvPVGA0Port+MIS_W) = i;
+   v_writeb(i, NV_PVGA0+MIS_W);
 }
 
 static int __svgalib_nv3_incrtc(int i)
 {
-   *((unsigned char *)nvPVGA1Port+__svgalib_CRT_I)=i;
-   return *((unsigned char *)nvPVGA1Port+__svgalib_CRT_D);
+   v_writeb(i, NV_PVGA1+__svgalib_CRT_I);
+   return v_readb(NV_PVGA1+__svgalib_CRT_D);
 }
 
 static void __svgalib_nv3_outcrtc(int i, int d)
 {
-   *((unsigned char *)nvPVGA1Port+__svgalib_CRT_I)=i;
-   *((unsigned char *)nvPVGA1Port+__svgalib_CRT_D)=d;
+   v_writeb(i, NV_PVGA1+__svgalib_CRT_I);
+   v_writeb(d, NV_PVGA1+__svgalib_CRT_D);
 }
 
 static int __svgalib_nv3_inseq(int index)
 {
-   *((unsigned char *)nvPVGA0Port+SEQ_I)=index;
-   return *((unsigned char *)nvPVGA0Port+SEQ_D);
+   v_writeb(index, NV_PVGA0+SEQ_I);
+   return v_readb(NV_PVGA0+SEQ_D);
 }
 
 static void __svgalib_nv3_outseq(int index, int val)
 {
-   *((unsigned char *)nvPVGA0Port+SEQ_I)=index;
-   *((unsigned char *)nvPVGA0Port+SEQ_D)=val;
+   v_writeb(index, NV_PVGA0+SEQ_I);
+   v_writeb(val, NV_PVGA0+SEQ_D);
 }
 
 static int __svgalib_nv3_ingra(int index)
 {
-   *((unsigned char *)nvPVGA0Port+GRA_I)=index;
-   return *((unsigned char *)nvPVGA0Port+GRA_D);
+   v_writeb(index, NV_PVGA0+GRA_I);
+   return v_readb(NV_PVGA0+GRA_D);
 }
 
 static void __svgalib_nv3_outgra(int index, int val)
 {
-   *((unsigned char *)nvPVGA0Port+GRA_I)=index;
-   *((unsigned char *)nvPVGA0Port+GRA_D)=val;
+   v_writeb(index, NV_PVGA0+GRA_I);
+   v_writeb(val, NV_PVGA0+GRA_D);
 }
 
 static int __svgalib_nv3_inis1(void)
 {
-    return *((unsigned char *)nvPVGA1Port+__svgalib_IS1_R);
+    return v_readb(NV_PVGA1+__svgalib_IS1_R);
 }
 
 static int __svgalib_nv3_inatt(int index)
 {
     __svgalib_nv3_inis1();
-    *((unsigned char *)nvPVGA1Port+ATT_IW)=index;
-    return *((unsigned char *)nvPVGA1Port+ATT_R);
+    v_writeb(index, NV_PVGA1+ATT_IW);
+    return v_readb(NV_PVGA1+ATT_R);
 }
 
 static void __svgalib_nv3_outatt(int index, int val)
 {
     __svgalib_nv3_inis1();
-    *((unsigned char *)nvPVGA1Port+ATT_IW)=index;
-    *((unsigned char *)nvPVGA1Port+ATT_IW)=val;
+    v_writeb(index, NV_PVGA1+ATT_IW);
+    v_writeb(val, NV_PVGA1+ATT_IW);
 }
 
 static void __svgalib_nv3_attscreen(int i)
 {
     __svgalib_nv3_inis1();
-    *((unsigned char *)nvPVGA1Port+ATT_IW)=i;
+    v_writeb(i, NV_PVGA1+ATT_IW);
 }
 
 static void __svgalib_nv3_inpal(int i, int *r, int *g, int *b)
 {
-    *((unsigned char *)nvPVGA2Port+PEL_IR)=i;
-    *r=*((unsigned char *)nvPVGA2Port+PEL_D);
-    *g=*((unsigned char *)nvPVGA2Port+PEL_D);
-    *b=*((unsigned char *)nvPVGA2Port+PEL_D);
+    v_writeb(i, NV_PVGA2+PEL_IR);
+    *r=v_readb(NV_PVGA2+PEL_D);
+    *g=v_readb(NV_PVGA2+PEL_D);
+    *b=v_readb(NV_PVGA2+PEL_D);
 }
 
 static void __svgalib_nv3_outpal(int i, int r, int g, int b)
 {
-    *((unsigned char *)nvPVGA2Port+PEL_IW)=i;
-    *((unsigned char *)nvPVGA2Port+PEL_D)=r;
-    *((unsigned char *)nvPVGA2Port+PEL_D)=g;
-    *((unsigned char *)nvPVGA2Port+PEL_D)=b;
+    v_writeb(i, NV_PVGA2+PEL_IW);
+    v_writeb(r, NV_PVGA2+PEL_D);
+    v_writeb(g, NV_PVGA2+PEL_D);
+    v_writeb(b, NV_PVGA2+PEL_D);
 }
 
 static void nv3_mapio(void)

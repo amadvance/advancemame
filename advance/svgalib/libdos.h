@@ -15,12 +15,18 @@ Copyright (C) 1999-2001 Andrea Mazzoleni
 #error This module is for MSDOS only
 #endif
 
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned long uint32_t;
+
 /**************************************************************************/
 /* os */
 
 #define MAP_SHARED 0x1
 #define MAP_FIXED 0x2
 #define MAP_FAILED ((void*)(-1))
+#define PROT_READ 0
+#define PROT_WRITE 0
 
 void* mmap(void* start, unsigned length, int prot, int flags, int fd, unsigned offset);
 int munmap(void* start, unsigned length);
@@ -40,7 +46,7 @@ int iopl(int perm);
 #define INCLUDE_BANSHEE_DRIVER
 #define INCLUDE_SIS_DRIVER
 #define INCLUDE_I740_DRIVER
-#define INCLUDE_I810_DRIVER /* TODO No linear mode from 1.9.15. It requires special kernel support. */
+/* #define INCLUDE_I810_DRIVER */ /* TODO No linear mode from 1.9.15. It requires special kernel support. */
 #define INCLUDE_LAGUNA_DRIVER
 #define INCLUDE_RAGE_DRIVER
 #define INCLUDE_MX_DRIVER

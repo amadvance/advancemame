@@ -79,14 +79,14 @@ static int i740_inxr_io(int index)
 
 static void i740_outxr_mm(int index, int val)
 {
-    *(__svgalib_vgammbase+XRX)=index;
-    *(__svgalib_vgammbase+XRX+1)=val;
+    v_writeb(index, __svgalib_vgammbase+XRX);
+    v_writeb(val, __svgalib_vgammbase+XRX+1);
 }
 
 static int i740_inxr_mm(int index)
 {
-    *(__svgalib_vgammbase+XRX)=index;
-    return *(__svgalib_vgammbase+XRX+1);
+    v_writeb(index, __svgalib_vgammbase+XRX);
+    return v_readb(__svgalib_vgammbase+XRX+1);
 }
 
 static void (*i740_outxr)(int,int)=i740_outxr_io;
@@ -791,8 +791,13 @@ static int i740_init(int force, int par1, int par2)
        i740_mmio_base=buf[5]&0xffffff00;
     };
 
-    __svgalib_vgammbase=mmap(0,0x1000,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,i740_mmio_base);
+    __svgalib_mmio_base=i740_mmio_base;
+    __svgalib_mmio_size=512*0x400;
+    map_mmio();
+    
+    __svgalib_vgammbase=0;
     __svgalib_mm_io_mapio();
+    
     i740_inxr=i740_inxr_mm;
     i740_outxr=i740_outxr_mm;
     
@@ -831,7 +836,5 @@ static int i740_init(int force, int par1, int par2)
     __svgalib_banked_mem_size=0x10000;
     __svgalib_linear_mem_base=i740_linear_base;
     __svgalib_linear_mem_size=i740_memory*0x400;
-    __svgalib_mmio_base=i740_mmio_base;
-    __svgalib_mmio_size=512*0x400;
     return 0;
 }

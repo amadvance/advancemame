@@ -1206,8 +1206,10 @@ static int init(int force, int par1, int par2)
 #if 1 /* You need to write linear address to CR59 5A, and enable MMIO in CR53 - 
          But how to do it if it's a secondary card??? */
         if(__svgalib_secondary) {
-            __svgalib_vgammbase=mmap(0,0x1000,PROT_READ|PROT_WRITE,MAP_SHARED,
-                		     __svgalib_mem_fd,mmio_base+0x8000); 
+            __svgalib_mmio_base = mmio_base;
+            __svgalib_mmio_size = 0x10000;
+            map_mmio();
+            __svgalib_vgammbase=0x8000; 
             __svgalib_mm_io_mapio();
         }
 #endif
@@ -1217,8 +1219,11 @@ static int init(int force, int par1, int par2)
     } else {
         linear_base=buf[5]&0xffffff00;
         mmio_base  =buf[4]&0xffffff00;
+        __svgalib_mmio_base = mmio_base;
+        __svgalib_mmio_size = 0x10000;
+        map_mmio();
     
-        __svgalib_vgammbase=mmap(0,0x1000,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,mmio_base+0x8000);
+        __svgalib_vgammbase=0x8000;
         __svgalib_mm_io_mapio();
         unlock();
     
@@ -1263,7 +1268,5 @@ static int init(int force, int par1, int par2)
     __svgalib_banked_mem_size=0x10000;
     __svgalib_linear_mem_base=linear_base;
     __svgalib_linear_mem_size=memory*0x400;
-    __svgalib_mmio_base = mmio_base;
-    __svgalib_mmio_size = 0x10000;
     return 0;
 }

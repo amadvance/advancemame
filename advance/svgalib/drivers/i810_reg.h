@@ -1,11 +1,11 @@
-#define INREG(addr) *(volatile unsigned long *)(MMIO_POINTER + (addr))
-#define OUTREG(addr, val) *(volatile unsigned long *)(MMIO_POINTER + (addr)) = (val)
+#define INREG(addr) v_readl(addr)
+#define OUTREG(addr, val) v_writel(val, addr)
 
-#define INREG8(addr) *(volatile unsigned char *)(MMIO_POINTER + (addr))
-#define OUTREG8(addr, val) *(volatile unsigned char *)(MMIO_POINTER + (addr)) = (val)
+#define INREG8(addr) v_readb(addr)
+#define OUTREG8(addr, val) v_writeb(val, addr)
 
-#define INREG16(addr) *(volatile unsigned short *)(MMIO_POINTER + (addr))
-#define OUTREG16(addr, val) *(volatile unsigned short *)(MMIO_POINTER + (addr)) = (val)
+#define INREG16(addr) v_readw(addr)
+#define OUTREG16(addr, val) v_writew(val, addr)
 
 #define START_ADDR_HI        0x0C /* p246 */
 #define START_ADDR_LO        0x0D /* p247 */

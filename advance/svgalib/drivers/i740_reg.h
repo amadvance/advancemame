@@ -33,8 +33,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * $PI: i740_reg.h,v 1.8 1999/02/18 20:50:59 martin Exp martin $
  */
 
-#define INREG(addr) *(unsigned long *)(MMIO_POINTER + (addr))
-#define OUTREG(addr, val) *(unsigned long *)(MMIO_POINTER + (addr)) = (val)
+#define INREG(addr) v_readl(addr)
+#define OUTREG(addr, val) v_writel(val, addr)
 
 /* I/O register offsets */
 #define SRX SEQ_I

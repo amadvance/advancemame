@@ -62,7 +62,7 @@ if test -z "$CFLAGS" ; then
 	if test $ac_enable_debug = yes ; then
 		CFLAGS="-O0 -gstabs+3 -Wall -Wno-sign-compare"
 	else
-		CFLAGS="-O3 -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused"
+		CFLAGS="-O3 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused"
 	fi
 fi
 if test -z "$LDFLAGS" ; then
@@ -143,30 +143,33 @@ if test $ac_with_emu = auto; then
 fi
 if test $ac_with_emu = mame -o $ac_with_emu = neomame -o $ac_with_emu = cpmame; then
 	if test ! -f $srcdir/src/mame.mak ; then
-		AC_MSG_ERROR([You need the MAME source in the $srcdir/src/ directory])
+		AC_MSG_WARN([You need the MAME source in the $srcdir/src/ directory])
 	fi
 	if test ! -f $srcdir/src/advance.pat ; then
-		AC_MSG_ERROR([You must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch])
+		AC_MSG_WARN([You must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch])
 	fi
 elif test $ac_with_emu = mess; then
 	if test ! -f $srcdir/srcmess/mame.mak ; then
-		AC_MSG_ERROR([You need the MESS source in the $srcdir/srcmess/ directory])
+		AC_MSG_WARN([You need the MESS source in the $srcdir/srcmess/ directory])
 	fi
 	if test ! -f $srcdir/mess/mess.mak ; then
-		AC_MSG_ERROR([You need the MESS source in the $srcdir/srcmess/ directory])
+		AC_MSG_WARN([You need the MESS source in the $srcdir/srcmess/ directory])
 	fi
 	if test ! -f $srcdir/srcmess/advance.pat ; then
-		AC_MSG_ERROR([You must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch])
+		AC_MSG_WARN([You must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch])
 	fi
 elif test $ac_with_emu = pac; then
 	if test ! -f $srcdir/srcpac/mame.mak ; then
-		AC_MSG_ERROR([You need the PacMAME source in the $srcdir/srcpac/ directory])
+		AC_MSG_WARN([You need the PacMAME source in the $srcdir/srcpac/ directory])
 	fi
 	if test ! -f $srcdir/srcpac/advance.pat ; then
-		AC_MSG_ERROR([You must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch])
+		AC_MSG_WARN([You must patch the PacMAME source in $srcdir/srcpac/ with the advance/advpac.dif patch])
 	fi
 elif test ! $ac_with_emu = none; then
 	AC_MSG_ERROR([Unknown emulator $ac_with_emu])
+fi
+if test -f $srcdir/makefile ; then
+	AC_MSG_WARN([A lowercase makefile exists! Have you deleted the original emulator makefile ?])
 fi
 AC_SUBST(CONF_EMU,$ac_with_emu)
 

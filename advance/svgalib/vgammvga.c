@@ -1,92 +1,93 @@
 #include "libvga.h"
+#include "io.h"
 
-unsigned char *__svgalib_vgammbase;
+unsigned long __svgalib_vgammbase;
 
 int __svgalib_mm_inmisc(void)
 {
-   return *((volatile unsigned char *)__svgalib_vgammbase+MIS_R);
+   return v_readb(__svgalib_vgammbase+MIS_R);
 }
 
 void __svgalib_mm_outmisc(int i)
 {
-   *((volatile unsigned char *)__svgalib_vgammbase+MIS_W) = i;
+   v_writeb(i, __svgalib_vgammbase+MIS_W);
 }
 
 int __svgalib_mm_incrtc(int i)
 {
-   *((volatile unsigned char *)__svgalib_vgammbase+__svgalib_CRT_I)=i;
-   return *((volatile unsigned char *)__svgalib_vgammbase+__svgalib_CRT_D);
+   v_writeb(i, __svgalib_vgammbase+__svgalib_CRT_I);
+   return v_readb(__svgalib_vgammbase+__svgalib_CRT_D);
 }
 
 void __svgalib_mm_outcrtc(int i, int d)
 {
-   *((volatile unsigned char *)__svgalib_vgammbase+__svgalib_CRT_I)=i;
-   *((volatile unsigned char *)__svgalib_vgammbase+__svgalib_CRT_D)=d;
+   v_writeb(i, __svgalib_vgammbase+__svgalib_CRT_I);
+   v_writeb(d, __svgalib_vgammbase+__svgalib_CRT_D);
 }
 
-int __svgalib_mm_inseq(int index)
+int __svgalib_mm_inseq(int i)
 {
-   *((volatile unsigned char *)__svgalib_vgammbase+SEQ_I)=index;
-   return *((volatile unsigned char *)__svgalib_vgammbase+SEQ_D);
+   v_writeb(i, __svgalib_vgammbase+SEQ_I);
+   return v_readb(__svgalib_vgammbase+SEQ_D);
 }
 
-void __svgalib_mm_outseq(int index, int val)
+void __svgalib_mm_outseq(int i, int val)
 {
-   *((volatile unsigned char *)__svgalib_vgammbase+SEQ_I)=index;
-   *((volatile unsigned char *)__svgalib_vgammbase+SEQ_D)=val;
+   v_writeb(i, __svgalib_vgammbase+SEQ_I);
+   v_writeb(val, __svgalib_vgammbase+SEQ_D);
 }
 
 int __svgalib_mm_ingra(int index)
 {
-   *((volatile unsigned char *)__svgalib_vgammbase+GRA_I)=index;
-   return *((volatile unsigned char *)__svgalib_vgammbase+GRA_D);
+   v_writeb(index, __svgalib_vgammbase+GRA_I);
+   return v_readb(__svgalib_vgammbase+GRA_D);
 }
 
 void __svgalib_mm_outgra(int index, int val)
 {
-   *((volatile unsigned char *)__svgalib_vgammbase+GRA_I)=index;
-   *((volatile unsigned char *)__svgalib_vgammbase+GRA_D)=val;
+   v_writeb(index, __svgalib_vgammbase+GRA_I);
+   v_writeb(val, __svgalib_vgammbase+GRA_D);
 }
 
 int __svgalib_mm_inis1(void)
 {
-   return *((volatile unsigned char *)__svgalib_vgammbase+__svgalib_IS1_R);
+   return v_readb(__svgalib_vgammbase+__svgalib_IS1_R);
 }
 
 int __svgalib_mm_inatt(int index)
 {
     __svgalib_mm_inis1();
-    *((volatile unsigned char *)__svgalib_vgammbase+ATT_IW)=index;
-    return *((volatile unsigned char *)__svgalib_vgammbase+ATT_R);
+    v_writeb(index, __svgalib_vgammbase+ATT_IW);
+    return v_readb(__svgalib_vgammbase+ATT_R);
 }
 
 void __svgalib_mm_outatt(int index, int val)
 {
     __svgalib_mm_inis1();
-    *((volatile unsigned char *)__svgalib_vgammbase+ATT_IW)=index;
-    *((volatile unsigned char *)__svgalib_vgammbase+ATT_IW)=val;
+    v_writeb(index, __svgalib_vgammbase+ATT_IW);
+    v_writeb(val, __svgalib_vgammbase+ATT_IW);
 }
 
 void __svgalib_mm_attscreen(int i)
 {
     __svgalib_mm_inis1();
-    *((volatile unsigned char *)__svgalib_vgammbase+ATT_IW)=i;
+    v_writeb(i, __svgalib_vgammbase+ATT_IW);
 }
 
 void __svgalib_mm_inpal(int i, int *r, int *g, int *b)
 {
-    *((volatile unsigned char *)__svgalib_vgammbase+PEL_IR)=i;
-    *r=*((volatile unsigned char *)__svgalib_vgammbase+PEL_D);
-    *g=*((volatile unsigned char *)__svgalib_vgammbase+PEL_D);
-    *b=*((volatile unsigned char *)__svgalib_vgammbase+PEL_D);
+    v_writeb(i, __svgalib_vgammbase+PEL_IR);
+    *r=v_readb(__svgalib_vgammbase+PEL_D);
+    *g=v_readb(__svgalib_vgammbase+PEL_D);
+    *b=v_readb(__svgalib_vgammbase+PEL_D);
 }
 
 void __svgalib_mm_outpal(int i, int r, int g, int b)
 {
-    *((volatile unsigned char *)__svgalib_vgammbase+PEL_IW)=i;
-    *((volatile unsigned char *)__svgalib_vgammbase+PEL_D)=r;
-    *((volatile unsigned char *)__svgalib_vgammbase+PEL_D)=g;
-    *((volatile unsigned char *)__svgalib_vgammbase+PEL_D)=b;
+    v_writeb(i, __svgalib_vgammbase+PEL_IW);
+    v_writeb(r, __svgalib_vgammbase+PEL_D);
+    v_writeb(g, __svgalib_vgammbase+PEL_D);
+    v_writeb(b, __svgalib_vgammbase+PEL_D);
 }
 
 void __svgalib_mm_io_mapio(void)

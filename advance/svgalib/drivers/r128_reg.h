@@ -50,13 +50,13 @@
 
 #define R128_TIMEOUT 2000000
 
-#define MMIO_IN8(dummy, addr)  (*(volatile unsigned char *)(MMIO_POINTER + addr))
-#define MMIO_IN16(dummy, addr)  (*(volatile unsigned short *)(MMIO_POINTER + addr))
-#define MMIO_IN32(dummy, addr)  LE32(*(volatile unsigned int *)(MMIO_POINTER + addr))
+#define MMIO_IN8(dummy, addr)  v_readb(addr)
+#define MMIO_IN16(dummy, addr)  v_readw(addr)
+#define MMIO_IN32(dummy, addr)  LE32(v_readl(addr))
 
-#define MMIO_OUT8(dummy, addr, val)  (*(volatile unsigned char *)(MMIO_POINTER + addr) = val)
-#define MMIO_OUT16(dummy, addr, val)  (*(volatile unsigned short *)(MMIO_POINTER + addr) = val)
-#define MMIO_OUT32(dummy, addr, val)  (*(volatile unsigned int *)(MMIO_POINTER + addr) = LE32(val))
+#define MMIO_OUT8(dummy, addr, val)  v_writeb(val, addr)
+#define MMIO_OUT16(dummy, addr, val) v_writew(val, addr)
+#define MMIO_OUT32(dummy, addr, val) v_writel(LE32(val), addr)
 
 				/* Memory mapped register access macros */
 #define INREG8(addr)        MMIO_IN8(R128MMIO, addr)
@@ -65,8 +65,6 @@
 #define OUTREG8(addr, val)  MMIO_OUT8(R128MMIO, addr, val)
 #define OUTREG16(addr, val) MMIO_OUT16(R128MMIO, addr, val)
 #define OUTREG(addr, val)   MMIO_OUT32(R128MMIO, addr, val)
-
-#define ADDRREG(addr)       ((volatile CARD32 *)(R128MMIO + (addr)))
 
 #if 0
 #define R128_BIOS8(v)  (VBIOS[v])
@@ -80,7 +78,7 @@
                         
 #define OUTREGP(addr, val, mask)   \
     do {                           \
-	CARD32 tmp = INREG(addr);  \
+	uint32_t tmp = INREG(addr);  \
 	tmp &= (mask);             \
 	tmp |= (val);              \
 	OUTREG(addr, tmp);         \
@@ -96,7 +94,7 @@
 
 #define OUTPLLP(addr, val, mask)                                   \
     do {                                                                  \
-	CARD32 tmp = INPLL(addr);                                  \
+	uint32_t tmp = INPLL(addr);                                  \
 	tmp &= (mask);                                                    \
 	tmp |= (val);                                                     \
 	OUTPLL(addr, tmp);                                                \
@@ -112,7 +110,7 @@
 	OUTREG(R128_PALETTE_DATA, ((r) << 16) | ((g) << 8) | (b));        \
     } while (0)
 
-#define OUTPAL_NEXT_CARD32(v)                                             \
+#define OUTPAL_NEXT_uint32_t(v)                                             \
     do {                                                                  \
 	OUTREG(R128_PALETTE_DATA, (v & 0x00ffffff));                      \
     } while (0)

@@ -9,13 +9,10 @@
 #define _LIBVGA_H
 
 #include <string.h>
-# if defined __GLIBC__ && __GLIBC__ >= 2
-#include <sys/io.h>
-#endif
 
-typedef unsigned int CARD32;
-typedef unsigned short CARD16;
-typedef unsigned char CARD8;
+//typedef unsigned int CARD32;
+//typedef unsigned short CARD16;
+//typedef unsigned char CARD8;
 
 #include "libdos.h"
 
@@ -126,6 +123,7 @@ extern int __svgalib_CRT_D;		/* current CRT data register address */
 extern int __svgalib_IS1_R;		/* current input status register address */
 extern unsigned char * BANKED_POINTER, * LINEAR_POINTER;
 extern unsigned char * MMIO_POINTER;
+extern unsigned char * SPARSE_MMIO;
 extern unsigned long int __svgalib_banked_mem_base, __svgalib_banked_mem_size;
 extern unsigned long int __svgalib_mmio_base, __svgalib_mmio_size;
 extern unsigned long int __svgalib_linear_mem_base, __svgalib_linear_mem_size;
@@ -186,7 +184,6 @@ extern int __svgalib_getchipset(void);
 extern int __svgalib_name2number(char *modename);
 extern void __svgalib_delay(void);
 extern int __svgalib_addmode(int xdim, int ydim, int cols, int xbytes, int bytespp);
-extern int __svgalib_physmem(void);
 extern void __svgalib_waitvtactive(void);
 extern void __svgalib_open_devconsole(void);
 extern void __svgalib_flipaway(void);
@@ -202,6 +199,11 @@ extern int __svgalib_mapkeyname(const char *keyname);
 extern void __svgalib_mouse_update_keymap(void);
 extern int __svgalib_vgacolor(void);
 extern void __svgalib_cursor_restore(void);
+extern void map_mmio(void);
+extern void map_mem(void);
+extern void map_linear(unsigned long, unsigned long);
+extern void unmap_linear(unsigned long);
+extern void __svgalib_emul_setpage(int);
 
 #if 0 
 /* remove this part ? */

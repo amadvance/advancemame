@@ -17,6 +17,7 @@ copy readme.txt %dst%
 copy svgalib.dif %dst%
 copy upgrade.bat %dst%
 copy makedif.bat %dst%
+copy makedif %dst%
 copy svgalib.gdt %dst%
 copy svgalib.gpr %dst%
 copy libdos.c %dst%
@@ -28,6 +29,7 @@ copy %src%\accel.h %dst%
 copy %src%\driver.h %dst%
 copy %src%\endianes.h %dst%
 copy %src%\interfac.h %dst%
+copy %src%\io.h %dst%
 copy %src%\libvga.h %dst%
 copy %src%\timing.h %dst%
 copy %src%\vga.h %dst%
@@ -100,5 +102,6 @@ set dst=
 goto end
 :help
 echo Syntax: upgrade ORIDIR NEWDIR
+echo Example: upgrade ..\..\..\svgalib ..\svgalib
 goto end
 :end

@@ -43,13 +43,6 @@ there are still the following problems:
 
 #define GET15BITCOLOR(r,g,b) ((((r)&0xf8)<<7)|(((g)&0xf8)<<2)|((b)>>3))
 
-static volatile unsigned  *nvPFBPort;
-static volatile unsigned  *nvPRAMDACPort;
-static volatile unsigned  *nvPEXTDEVPort;
-static volatile unsigned  *nvPVGA0Port;
-static volatile unsigned  *nvPVGA1Port;
-static volatile unsigned  *nvPVGA2Port;
-
 #include "nv3io.c"
 
 static int nv3_init(int, int, int);
@@ -113,11 +106,11 @@ static int nv3_saveregs(unsigned char regs[])
     regs[REG(6)] = __svgalib_incrtc(NV_PCRTC_FIFO);
     regs[REG(7)] = __svgalib_incrtc(NV_PCRTC_SCREEN);
 
-    *(unsigned int *)(regs+REG(8)) = PFB_Read(CONFIG_0); 
-    *(unsigned int *)(regs+REG(12)) = PRAMDAC_Read(VPLL_COEFF); 
-    *(unsigned int *)(regs+REG(16)) = PRAMDAC_Read(PLL_COEFF_SELECT); 
-    *(unsigned int *)(regs+REG(20)) = PRAMDAC_Read(GENERAL_CONTROL); 
-    *(unsigned int *)(regs+REG(56)) = PRAMDAC_Read(GRCURSOR_START_POS); 
+    *(uint32_t *)(regs+REG(8)) = v_readl(NV_PFB_CONFIG_0); 
+    *(uint32_t *)(regs+REG(12)) = v_readl(NV_PRAMDAC_VPLL_COEFF); 
+    *(uint32_t *)(regs+REG(16)) = v_readl(NV_PRAMDAC_PLL_COEFF_SELECT); 
+    *(uint32_t *)(regs+REG(20)) = v_readl(NV_PRAMDAC_GENERAL_CONTROL); 
+    *(uint32_t *)(regs+REG(56)) = v_readl(NV_PRAMDAC_GRCURSOR_START_POS); 
     for(i=0x18;i<0x3A;i++)regs[84+i-0x18]=__svgalib_incrtc(i);
     
     return NV3_TOTAL_REGS - VGA_TOTAL_REGS;
@@ -146,12 +139,12 @@ static void nv3_setregs(const unsigned char regs[], int mode)
    __svgalib_outcrtc(0x31,regs[109]); 
    __svgalib_outcrtc(0x39,regs[117]); 
 
-   PFB_Write(CONFIG_0, *(unsigned int *)(regs+REG(8)));
+   v_writel(*(uint32_t *)(regs+REG(8)), NV_PFB_CONFIG_0);
 
-   PRAMDAC_Write(VPLL_COEFF, *(unsigned int *)(regs+REG(12)));
-   PRAMDAC_Write(PLL_COEFF_SELECT, *(unsigned int *)(regs+REG(16)));
-   PRAMDAC_Write(GENERAL_CONTROL, *(unsigned int *)(regs+REG(20)));
-   PRAMDAC_Write(GRCURSOR_START_POS, *(unsigned int *)(regs+REG(56)));
+   v_writel(*(uint32_t *)(regs+REG(12)), NV_PRAMDAC_VPLL_COEFF);
+   v_writel(*(uint32_t *)(regs+REG(16)), NV_PRAMDAC_PLL_COEFF_SELECT);
+   v_writel(*(uint32_t *)(regs+REG(20)), NV_PRAMDAC_GENERAL_CONTROL);
+   v_writel(*(uint32_t *)(regs+REG(56)), NV_PRAMDAC_GRCURSOR_START_POS);
 }
 
 
@@ -379,8 +372,8 @@ static int nv3_setmode(int mode, int prv_mode)
 	unsigned int k;
 
 	if(chip==Riva128)
-            PRAMDAC_Write(PLL_COEFF_SELECT,0x00000100);
-            else PRAMDAC_Write(PLL_COEFF_SELECT,0x00000500);
+            v_writel(0x00000100, NV_PRAMDAC_PLL_COEFF_SELECT);
+            else v_writel(0x00000500, NV_PRAMDAC_PLL_COEFF_SELECT);
         __svgalib_outcrtc(NV_PCRTC_REPAINT0,0);
         __svgalib_outcrtc(NV_PCRTC_REPAINT1,0x3d);
         __svgalib_outcrtc(NV_PCRTC_EXTRA,0);
@@ -392,9 +385,9 @@ static int nv3_setmode(int mode, int prv_mode)
         __svgalib_outcrtc(0x1e,0);
         __svgalib_outcrtc(0x30,0);
         __svgalib_outcrtc(0x31,0);
-        k =  PRAMDAC_Read(GENERAL_CONTROL);
+        k =  v_readl(NV_PRAMDAC_GENERAL_CONTROL);
         k &= ~0x00100000;
-        PRAMDAC_Write(GENERAL_CONTROL,k);
+        v_writel(k, NV_PRAMDAC_GENERAL_CONTROL);
 
 	return __svgalib_vga_driverspecs.setmode(mode, prv_mode);
     }
@@ -529,7 +522,7 @@ static int nv3_cursor( int cmd, int p1, int p2, int p3, int p4, void *p5) {
             __svgalib_outcrtc(0x31,__svgalib_incrtc(0x31)|1); /* enable cursor */
             break;
         case CURSOR_POSITION:
-            PRAMDAC_Write(GRCURSOR_START_POS,p1+(p2<<16));
+            v_writel(p1+(p2<<16), NV_PRAMDAC_GRCURSOR_START_POS);
             break;
         case CURSOR_SELECT:
             i=memory/2-(p1+1);
@@ -622,11 +615,6 @@ DriverSpecs __svgalib_nv3_driverspecs =
     nv3_cursor
 };
 
-#define MapDevice(device,base) \
-  nv##device##Port=(unsigned*)(mmap(0, \
-     	DEVICE_SIZE(device),PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,\
-        (MMIOBASE)+DEVICE_BASE(device)))
-
 /* Initialize chipset (called after detection) */
 
 static int nv3_init(int force, int par1, int par2)
@@ -692,18 +680,15 @@ static int nv3_init(int force, int par1, int par2)
 	memory = par1;
 	chip = par2;
     };
-    
-    MapDevice(PRAMDAC,regBase);
-    MapDevice(PFB,regBase);
-    MapDevice(PEXTDEV,regBase);
-    MapDevice(PVGA0,regBase);
-    MapDevice(PVGA1,regBase);
-    MapDevice(PVGA2,regBase);
+
+    __svgalib_mmio_base=MMIOBASE;
+    __svgalib_mmio_size=8*1024*1024;
+    map_mmio();
     
     if(!force){
        int boot0;
        
-       boot0=PFB_Read(BOOT_0);
+       boot0=v_readl(NV_PFB_BOOT_0);
        switch(chip){
           case Riva128:
                  if(boot0&0x20)memory=8192; else memory=1024<<(boot0&3); 
@@ -714,7 +699,7 @@ static int nv3_init(int force, int par1, int par2)
                  if(memory==2048)memory=32768;
                  break;
           case GEFORCE:
-              	 memory=(PFB_Read(BOOT_10)>>10) & 0x3fc00;
+              	 memory=(v_readl(NV_PFB_BOOT_10)>>10) & 0x3fc00;
              	 if(memory<8192)memory=8192; /* do this later */
                  break;
        }
@@ -726,7 +711,7 @@ static int nv3_init(int force, int par1, int par2)
     {
        int temp;
        
-       temp=PEXTDEV_Read(0);
+       temp=v_readl(NV_PEXTDEV_0);
        switch(chip){
           case Riva128:
              PLL_INPUT_FREQ= (temp&0x20) ? 14318 : 13500;
@@ -744,8 +729,10 @@ static int nv3_init(int force, int par1, int par2)
              break;
           case GEFORCE:
           default:
-             PLL_INPUT_FREQ= (temp&0x400000) ? 27000 :
-                 	     (temp&0x40  ) ? 14318 : 13500;
+             PLL_INPUT_FREQ= (temp&0x40  ) ? 14318 : 13500;
+             if(nvnum==0x17 ||  nvnum==0x25) {
+                 if(temp&0x400000) PLL_INPUT_FREQ=27000;
+             }
              MAXVCLOCK=350000;
              P_MAX=4;
              if(PLL_INPUT_FREQ==13500)M_MAX=13; else M_MAX=14;

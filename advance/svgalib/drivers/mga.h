@@ -3,12 +3,12 @@ typedef int Bool;
 #define TRUE 1
 #define FALSE 0
 
-#define INREG8(addr)		*(MMIO_POINTER + addr)
-#define INREG16(addr)		*(unsigned short *)(MMIO_POINTER + addr)
-#define INREG(addr)		*(unsigned int *)(MMIO_POINTER + addr)
-#define OUTREG8(addr, val)	*(MMIO_POINTER + addr) = (val)
-#define OUTREG16(addr, val)	*(unsigned short *)(MMIO_POINTER + addr)= (val)
-#define OUTREG(addr, val)	*(unsigned int *)(MMIO_POINTER + addr)= (val)
+#define INREG8(addr)		v_readb(addr)
+#define INREG16(addr)		v_readw(addr)
+#define INREG(addr)		v_readl(addr)
+#define OUTREG8(addr, val)	v_writeb(val, addr)
+#define OUTREG16(addr, val)	v_writew(val, addr)
+#define OUTREG(addr, val)	v_writel(val, addr)
 
 #define RAMDAC_OFFSET 0x3c00
 #define MGA1064_INDEX 0

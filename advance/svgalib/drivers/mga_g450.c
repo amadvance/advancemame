@@ -2,7 +2,7 @@
 #define CLKSEL_MGA     0x0c
 #define PLLLOCK        0x40
 
-static CARD32 G450ApplyPFactor(CARD8 ucP, CARD32 *pulFIn)
+static uint32_t G450ApplyPFactor(uint8_t ucP, uint32_t *pulFIn)
 {
    if(!(ucP & 0x40))
    {
@@ -13,7 +13,7 @@ static CARD32 G450ApplyPFactor(CARD8 ucP, CARD32 *pulFIn)
 }
 
 
-static CARD32 G450RemovePFactor(CARD8 ucP, CARD32 *pulFIn)
+static uint32_t G450RemovePFactor(uint8_t ucP, uint32_t *pulFIn)
 {
    if(!(ucP & 0x40))
    {
@@ -24,13 +24,13 @@ static CARD32 G450RemovePFactor(CARD8 ucP, CARD32 *pulFIn)
 }
 
 
-static CARD32 G450CalculVCO(CARD32 ulMNP, CARD32 *pulF)
+static uint32_t G450CalculVCO(uint32_t ulMNP, uint32_t *pulF)
 {
-   CARD8 ucM, ucN, ucP;
+   uint8_t ucM, ucN, ucP;
 
-   ucM = (CARD8)((ulMNP >> 16) & 0xff);
-   ucN = (CARD8)((ulMNP >>  8) & 0xff);
-   ucP = (CARD8)(ulMNP & 0x03);
+   ucM = (uint8_t)((ulMNP >> 16) & 0xff);
+   ucN = (uint8_t)((ulMNP >>  8) & 0xff);
+   ucP = (uint8_t)(ulMNP & 0x03);
 
    *pulF = (27000 * (2 * (ucN + 2)) + ((ucM + 1) >> 1)) / (ucM + 1);
    
@@ -38,7 +38,7 @@ static CARD32 G450CalculVCO(CARD32 ulMNP, CARD32 *pulF)
 }
 
 
-static CARD32 G450CalculDeltaFreq(CARD32 ulF1, CARD32 ulF2, CARD32 *pulDelta)
+static uint32_t G450CalculDeltaFreq(uint32_t ulF1, uint32_t ulF2, uint32_t *pulDelta)
 {
    if(ulF2 < ulF1)
    {
@@ -55,14 +55,14 @@ static CARD32 G450CalculDeltaFreq(CARD32 ulF1, CARD32 ulF2, CARD32 *pulDelta)
 
 
 
-static CARD32 G450FindNextPLLParam(CARD32 ulFout, CARD32 *pulPLLMNP)
+static uint32_t G450FindNextPLLParam(uint32_t ulFout, uint32_t *pulPLLMNP)
 {
-   CARD8 ucM, ucN, ucP, ucS;
-   CARD32 ulVCO, ulVCOMin;
+   uint8_t ucM, ucN, ucP, ucS;
+   uint32_t ulVCO, ulVCOMin;
 
-   ucM = (CARD8)((*pulPLLMNP >> 16) & 0xff);
-   ucN = (CARD8)((*pulPLLMNP >>  8) & 0xff);
-   ucP = (CARD8)(*pulPLLMNP &  0x43);
+   ucM = (uint8_t)((*pulPLLMNP >> 16) & 0xff);
+   ucN = (uint8_t)((*pulPLLMNP >>  8) & 0xff);
+   ucP = (uint8_t)(*pulPLLMNP &  0x43);
 
    ulVCOMin = 256000;
 
@@ -102,7 +102,7 @@ static CARD32 G450FindNextPLLParam(CARD32 ulFout, CARD32 *pulPLLMNP)
 
    if(*pulPLLMNP != 0xffffffff)
    {
-      ucN = (CARD8)(((ulVCO * (ucM+1) + 27000)/(27000 * 2)) - 2);
+      ucN = (uint8_t)(((ulVCO * (ucM+1) + 27000)/(27000 * 2)) - 2);
 
       ucS = 5;
       /* I guess those limits depend on the other clocks / fifo settings - MZ */
@@ -112,23 +112,23 @@ static CARD32 G450FindNextPLLParam(CARD32 ulFout, CARD32 *pulPLLMNP)
       if(ulVCO <  800000) ucS = 1;
       if(ulVCO <  580000) ucS = 0;
 
-      ucP |= (CARD8)(ucS << 3);
+      ucP |= (uint8_t)(ucS << 3);
 
       *pulPLLMNP &= 0xff000000;
-      *pulPLLMNP |= (CARD32)ucM << 16;
-      *pulPLLMNP |= (CARD32)ucN << 8;
-      *pulPLLMNP |= (CARD32)ucP;
+      *pulPLLMNP |= (uint32_t)ucM << 16;
+      *pulPLLMNP |= (uint32_t)ucN << 8;
+      *pulPLLMNP |= (uint32_t)ucP;
   }
 
    return TRUE;
 }
 
  
-static CARD32 G450FindFirstPLLParam(CARD32 ulFout, CARD32 *pulPLLMNP)
+static uint32_t G450FindFirstPLLParam(uint32_t ulFout, uint32_t *pulPLLMNP)
 {
-   CARD8 ucP;
-   CARD32 ulVCO;
-   CARD32 ulVCOMax;
+   uint8_t ucP;
+   uint32_t ulVCO;
+   uint32_t ulVCOMax;
 
    /* Default value */
    ulVCOMax = 1300000;
@@ -167,32 +167,32 @@ static CARD32 G450FindFirstPLLParam(CARD32 ulFout, CARD32 *pulPLLMNP)
 }
 
 
-static CARD32 G450WriteMNP(CARD32 ulMNP)
+static uint32_t G450WriteMNP(uint32_t ulMNP)
 {
    if ( !SECONDCRTC ) {
-      outMGAdac(MGA1064_PIX_PLLC_M, (CARD8)(ulMNP >> 16));   
-      outMGAdac(MGA1064_PIX_PLLC_N, (CARD8)(ulMNP >>  8));   
-      outMGAdac(MGA1064_PIX_PLLC_P, (CARD8) ulMNP );   
+      outMGAdac(MGA1064_PIX_PLLC_M, (uint8_t)(ulMNP >> 16));   
+      outMGAdac(MGA1064_PIX_PLLC_N, (uint8_t)(ulMNP >>  8));   
+      outMGAdac(MGA1064_PIX_PLLC_P, (uint8_t) ulMNP );   
    } else {
-      outMGAdac(MGA1064_VID_PLL_M, (CARD8)(ulMNP >> 16));
-      outMGAdac(MGA1064_VID_PLL_N, (CARD8)(ulMNP >> 8)); 
-      outMGAdac(MGA1064_VID_PLL_P, (CARD8) ulMNP);
+      outMGAdac(MGA1064_VID_PLL_M, (uint8_t)(ulMNP >> 16));
+      outMGAdac(MGA1064_VID_PLL_N, (uint8_t)(ulMNP >> 8)); 
+      outMGAdac(MGA1064_VID_PLL_P, (uint8_t) ulMNP);
    }
    return TRUE;
 }
 
 
-static CARD32 G450CompareMNP(CARD32 ulFout, CARD32 ulMNP1,
-                      CARD32 ulMNP2, long *pulResult)
+static uint32_t G450CompareMNP(uint32_t ulFout, uint32_t ulMNP1,
+                      uint32_t ulMNP2, long *pulResult)
 {
-   CARD32 ulFreq, ulDelta1, ulDelta2;
+   uint32_t ulFreq, ulDelta1, ulDelta2;
 
    G450CalculVCO(ulMNP1, &ulFreq);
-   G450ApplyPFactor((CARD8) ulMNP1, &ulFreq);
+   G450ApplyPFactor((uint8_t) ulMNP1, &ulFreq);
    G450CalculDeltaFreq(ulFout, ulFreq, &ulDelta1);
 
    G450CalculVCO(ulMNP2, &ulFreq);
-   G450ApplyPFactor((CARD8) ulMNP2, &ulFreq);
+   G450ApplyPFactor((uint8_t) ulMNP2, &ulFreq);
    G450CalculDeltaFreq(ulFout, ulFreq, &ulDelta2);
 
    if(ulDelta1 < ulDelta2)
@@ -224,10 +224,10 @@ static CARD32 G450CompareMNP(CARD32 ulFout, CARD32 ulMNP1,
 }
 
 
-static CARD32 G450IsPllLocked(Bool *lpbLocked)
+static uint32_t G450IsPllLocked(Bool *lpbLocked)
 {
-   CARD32 ulFallBackCounter, ulLockCount, ulCount;
-   CARD8  ucPLLStatus;
+   uint32_t ulFallBackCounter, ulLockCount, ulCount;
+   uint8_t  ucPLLStatus;
 
    /* Pixel PLL */
    if ( !SECONDCRTC )
@@ -266,12 +266,12 @@ static double G450SetPLLFreq(long f_out)
 {
    Bool bFoundValidPLL;
    Bool bLocked;
-   CARD8  ucMisc;
-   CARD32 ulMaxIndex;
-   CARD32 ulMNP;
-   CARD32 ulMNPTable[MNP_TABLE_SIZE];
-   CARD32 ulIndex;
-   CARD32 ulTryMNP;
+   uint8_t  ucMisc;
+   uint32_t ulMaxIndex;
+   uint32_t ulMNP;
+   uint32_t ulMNPTable[MNP_TABLE_SIZE];
+   uint32_t ulIndex;
+   uint32_t ulTryMNP;
    long lCompareResult;
 
    G450FindFirstPLLParam(f_out, &ulMNP);
@@ -327,7 +327,7 @@ static double G450SetPLLFreq(long f_out)
 
    /* For pixel pll */
    ucMisc = INREG8(0x1FCC);
-   OUTREG8(0x1fc2, (CARD8)(ucMisc | CLKSEL_MGA));    
+   OUTREG8(0x1fc2, (uint8_t)(ucMisc | CLKSEL_MGA));    
 
    for(ulIndex = 0; !bFoundValidPLL && (ulIndex < ulMaxIndex); ulIndex++)
    {
@@ -336,7 +336,7 @@ static double G450SetPLLFreq(long f_out)
 /*    for(ucS = 0; !bFoundValidPLL && (ucS < 0x40); ucS += 8)*/
       {
 /*         ulTryMNP &= 0xffffffc7;*/
-/*         ulTryMNP |= (CARD32)ucS;*/
+/*         ulTryMNP |= (uint32_t)ucS;*/
          
          bLocked = TRUE;
          if((ulMNPTable[ulIndex] & 0xff00) < 0x300 ||

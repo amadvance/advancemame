@@ -221,6 +221,17 @@ int __svgalib_pci_read_config_dword(int pos, int address)
 	return r;
 }
 
+int __svgalib_pci_read_aperture_len(int pos, int reg)
+{
+	DWORD r;
+	unsigned address;
+	address = 16+4*reg; /* this is the memory register number */
+	if (pci_read_dword_aperture_len(pos,address,&r) != 0)
+		return 0;
+	else
+		return r;
+}
+
 void __svgalib_pci_write_config_byte(int pos, int address, unsigned char data)
 {
 	pci_write_byte(pos,address,data);
@@ -319,7 +330,7 @@ void __svgalib_delay(void) {
 		"xorl %%eax,%%eax\n"
 		:
 		:
-		: "cc", "eax"
+		: "cc", "%eax"
 	);
 }
 
@@ -327,12 +338,17 @@ int __svgalib_CRT_I = CRT_IC; /* fix */
 int __svgalib_CRT_D = CRT_DC; /* fix */
 int __svgalib_IS1_R = IS1_RC; /* fix */
 int __svgalib_driver_report = 0; /* report driver used after chipset detection */
+
 unsigned char* __svgalib_banked_pointer = (unsigned char*)0x80000000; /* UNUSED */
 unsigned long int __svgalib_banked_mem_base, __svgalib_banked_mem_size; /* UNUSED */
 unsigned char* __svgalib_linear_pointer = (unsigned char*)0x80000000; /* UNUSED */
 unsigned long int __svgalib_linear_mem_base, __svgalib_linear_mem_size;
 unsigned char* __svgalib_mmio_pointer;
 unsigned long int __svgalib_mmio_base, __svgalib_mmio_size;
+static int mmio_mapped=0, mem_mapped=0;
+
+int inrestore; /* UNUSED */
+
 DriverSpecs* __svgalib_driverspecs;
 struct info __svgalib_infotable[16];
 int __svgalib_cur_mode; /* Current mode */
@@ -554,6 +570,78 @@ vga_modeinfo *vga_getmodeinfo(int mode)
 	return &modeinfo;
 }
 
+void __svgalib_emul_setpage(int page) {
+	/* used only for banked modes */
+}
+
+void map_mmio() {
+    unsigned long offset;
+
+    if(mmio_mapped) return;
+
+#ifdef __alpha__
+    offset = 0x300000000;
+#else
+    offset = 0;
+#endif
+
+    if(__svgalib_mmio_size) {
+        mmio_mapped=1;
+        MMIO_POINTER=mmap( 0, __svgalib_mmio_size, PROT_READ | PROT_WRITE,
+            		   MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base + offset);
+    } else {
+        MMIO_POINTER=NULL;
+    }
+}
+
+void map_linear(unsigned long base, unsigned long size) {
+    unsigned long offset;
+    
+#ifdef __alpha__
+    offset = 0x300000000;
+#else
+    offset = 0;
+#endif
+    
+    LINEAR_POINTER=mmap(0, size,
+  	                PROT_READ | PROT_WRITE, MAP_SHARED,
+			__svgalib_mem_fd,
+                        base + offset);
+}
+
+void unmap_linear(unsigned long size) {
+    munmap(LINEAR_POINTER, size);
+}
+
+/***************************************************************************/
+/* io */
+
+#if 0 /* Actually they are define */
+uint8_t v_readb(unsigned long addr) {
+	return *(volatile uint8_t*)(__svgalib_mmio_pointer+addr);
+}
+
+uint16_t v_readw(unsigned long addr) {
+	return *(volatile uint16_t*)(__svgalib_mmio_pointer+addr);
+}
+
+uint32_t v_readl(unsigned long addr) {
+	return *(volatile uint32_t*)(__svgalib_mmio_pointer+addr);
+}
+
+void v_writeb(uint8_t b, unsigned long addr) {
+	*(volatile uint8_t*)(__svgalib_mmio_pointer+addr) = b;
+}
+
+void v_writew(uint16_t b, unsigned long addr) {
+	*(volatile uint16_t*)(__svgalib_mmio_pointer+addr) = b;
+}
+
+void v_writel(uint32_t b, unsigned long addr) {
+	*(volatile uint32_t*)(__svgalib_mmio_pointer+addr) = b;
+}
+#endif
+
 /***************************************************************************/
 /* vgamisc */
 
@@ -562,18 +650,10 @@ void vga_waitretrace(void)
 	if (__svgalib_driverspecs->emul && __svgalib_driverspecs->emul->waitretrace) {
 		__svgalib_driverspecs->emul->waitretrace();
 	} else {
-#if 0
-		clock_t stop = clock() + CLOCKS_PER_SEC / 4;
-		while ((__svgalib_inis1() & 8)==0 && (clock() <= stop))
-			;
-		while ((__svgalib_inis1() & 8)!=0 && (clock() <= stop))
-			;
-#else
 		while ((__svgalib_inis1() & 8)==0)
 			;
 		while ((__svgalib_inis1() & 8)!=0)
 			;
-#endif
 	}
 }
 

@@ -32,6 +32,7 @@ AdvanceMAME Version 0.61.2 2002/08
 	) Fixed an overflow bug on the aspect computation. It prevented
 		"Elevator Action" to run.
 	) Fixed some bugs on the SVGALIB r128 driver.
+	) Upgraded at the SVGALIB 1.9.16 library.
 
 AdvanceMAME Version 0.61.1 2002/07
 	) Fixed a stupid bug on some neogeo games.

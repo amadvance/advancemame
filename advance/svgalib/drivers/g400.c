@@ -13,7 +13,6 @@ TODO: SDRAM, reference frequency checking.
 #include <stdio.h>		
 #include <string.h>
 #include <unistd.h>
-#include <sys/mman.h>
 #include "vga.h"
 #include "libvga.h"
 #include "driver.h"
@@ -43,39 +42,39 @@ static int HasSDRAM;
 static CardSpecs *cardspecs;
 
 static int g400_inExt(int i) {
-    *(__svgalib_vgammbase + 0x3de) = i;
-    return *(__svgalib_vgammbase + 0x3df);
+    v_writeb(i, 0x1fde);
+    return v_readb(0x1fdf);
 }
 
 static void g400_outExt(int i, int d) {
-    *(unsigned short *)(__svgalib_vgammbase + 0x3de) = i;
-    *(unsigned short *)(__svgalib_vgammbase + 0x3df) = d;
+    v_writeb(i, 0x1fde);
+    v_writeb(d, 0x1fdf);
 }
 
 static int g400_inDAC(int i) {
-    *(MMIO_POINTER + 0x3c00) = i;
-    return *(MMIO_POINTER + 0x3c0a);
+    v_writeb(i, 0x3c00);
+    return v_readb(0x3c0a);
 }
 
 static void g400_outDAC(int i, int d) {
-    *(MMIO_POINTER + 0x3c00) = i;
-    *(MMIO_POINTER + 0x3c0a) = d;
+    v_writeb(i, 0x3c00);
+    v_writeb(d, 0x3c0a);
 }
 
 static void inpal(int i, int *r, int *g, int *b)
 {
-    *(MMIO_POINTER + 0x3c03) = i;
-    *r = *(MMIO_POINTER + 0x3c01);
-    *g = *(MMIO_POINTER + 0x3c01);
-    *b = *(MMIO_POINTER + 0x3c01);
+    v_writeb(i, 0x3c03);
+    *r = v_readb(0x3c01);
+    *g = v_readb(0x3c01);
+    *b = v_readb(0x3c01);
 }
 
 static void outpal(int i, int r, int g, int b)
 {
-    *(MMIO_POINTER + 0x3c00) = i;
-    *(MMIO_POINTER + 0x3c01) = r;
-    *(MMIO_POINTER + 0x3c01) = g;
-    *(MMIO_POINTER + 0x3c01) = b;
+    v_writeb(i, 0x3c00);
+    v_writeb(r, 0x3c01);
+    v_writeb(g, 0x3c01);
+    v_writeb(b, 0x3c01);
 }
 
 static void g400_setpage(int page)
@@ -150,6 +149,8 @@ static void g400_setregs(const unsigned char regs[], int mode)
     unsigned int t;
     unsigned int *iregs=(unsigned int *)(regs+VGA_TOTAL_REGS);
 
+inrestore=1;
+	
     g400_unlock();		
     for(i=0;i<0x50;i++) {
 #if 0
@@ -188,6 +189,8 @@ static void g400_setregs(const unsigned char regs[], int mode)
 
     for(i=0;i<6;i++) g400_outExt(i, regs[VGA_TOTAL_REGS + i]);
 
+inrestore=0;
+	
 }
 
 
@@ -654,7 +657,8 @@ static int g400_test(void)
     
     id=(buf[0]>>16)&0xffff;
     
-    if((id==0x51a)||(id==0x51e)||(id==0x520)||(id==0x521)||(id==0x525)||(id==0x1000)||(id==0x1001)){
+    if((id==0x51a)||(id==0x51e)||(id==0x520)||(id==0x521)||(id==0x525)||(id==0x1000)||(id==0x1001)
+                  ||(id==0x2527) ){
        g400_init(0,0,0);
        return 1;
     };
@@ -851,6 +855,8 @@ static int g400_init(int force, int par1, int par2)
         case 0x51e:
             	id = ID_1064;
                 break;
+        case 0x2527:
+            	id = ID_G450;
 	default:
 		id = ID_G100;
     }
@@ -858,39 +864,23 @@ static int g400_init(int force, int par1, int par2)
     g400_linear_base = buf[4]&0xffffff00;
     g400_mmio_base = buf[5]&0xffffff00;
         
-    __svgalib_vgammbase=mmap(0,0x1000,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,g400_mmio_base+0x1000) + 0xc00;
-    __svgalib_mm_io_mapio();
-
     if(id == ID_1064){
-        /* For some mystique boards, the primary aperture is
-           for memory mapped registers. We detect this by writing
-           and reading from the bus FIFO status register, which is
-           read only and the upper 21 bits read 0.
-           -- Mihai */
-        unsigned int sav;
-
-        sav = *((unsigned int *)(__svgalib_vgammbase + 0x210));
-        *((int *)(__svgalib_vgammbase + 0x210)) = 0x1234;
-
-        if(*((int *) (__svgalib_vgammbase + 0x210)) == 0x1234){
-            *(unsigned int *)(__svgalib_vgammbase + 0x210) = sav;
-            munmap(__svgalib_vgammbase - 0xc00, 0x1000);
+        if(__svgalib_pci_read_aperture_len(g400_pciposition, 0) < 1024*1024) {
             g400_linear_base = buf[5]&0xffffff00;
             g400_mmio_base = buf[4]&0xffffff00;
-            __svgalib_vgammbase=mmap(0,0x1000,
-                                     PROT_READ|PROT_WRITE,
-                                     MAP_SHARED,
-                                     __svgalib_mem_fd,
-                                     g400_mmio_base+0x1000) + 0xc00;
-        };
+        }
     }
 
-    if(!g400_memory) {
-        unsigned char *m;
+    __svgalib_mmio_base=g400_mmio_base;
+    __svgalib_mmio_size=16384;
+    map_mmio();
+    __svgalib_vgammbase = 0x1c00;
+    __svgalib_mm_io_mapio();
 
-        m=mmap(0,max_mem*1024*1024,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,g400_linear_base);
-        g400_memory=memorytest(m,max_mem);
-        munmap(m, max_mem*1024*1024);
+    if(!g400_memory) {
+        map_linear(g400_linear_base, max_mem*1024*1024);
+        g400_memory=memorytest(LINEAR_POINTER,max_mem);
+        unmap_linear(max_mem*1024*1024);
     }
     
     __svgalib_inpal=inpal;

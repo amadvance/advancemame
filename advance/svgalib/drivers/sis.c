@@ -76,7 +76,6 @@ enum { SIS_OLD=1, SIS_5597, SIS_6326, SIS_530, SIS_300, SIS_315 };
 #define write_xr(num,val) {__svgalib_outseq(num,val);}
 #define read_xr(num,var) {var=__svgalib_inseq(num);} 
 #define in_xr(num) __svgalib_inseq(num)
-#define cs(i) (*(unsigned int *)(MMIO_POINTER + 0x8500 + (i*4)))
 
 static int sis_init(int, int, int);
 static void sis_unlock(void);
@@ -102,8 +101,8 @@ static void sis_setpage(int page)
 
 static void sis_300_setpage(int page)
 {
-        outb(0x3cb+__svgalib_io_reloc,(page>>4)&0x0f);
-        outb(0x3cd+__svgalib_io_reloc,page&0x0f);
+        outb(0x3cb+__svgalib_io_reloc,((page>>4)&0x0f) | (page&0xf0));
+        outb(0x3cd+__svgalib_io_reloc,(page&0x0f) | ((page&0x0f)<<4));
 }
 
 static int __svgalib_sis_inlinearmode(void)
@@ -161,11 +160,11 @@ static int sis_saveregs(unsigned char regs[])
         for(i=0x19; i<0x40;i++)regs[CR(i)]=__svgalib_incrtc(i);
         read_xr(0x20,tmp);
         write_xr(0x20,tmp|0x01);
-        *(unsigned int *)(regs+CR(0x40))=cs(0);
-        *(unsigned int *)(regs+CR(0x44))=cs(1);
-        *(unsigned int *)(regs+CR(0x48))=cs(2);
-        *(unsigned int *)(regs+CR(0x4c))=cs(3);
-        *(unsigned int *)(regs+CR(0x50))=cs(4);
+        *(uint32_t *)(regs+CR(0x40))=v_readl(0x8500 + 0);
+        *(uint32_t *)(regs+CR(0x44))=v_readl(0x8500 + 4);
+        *(uint32_t *)(regs+CR(0x48))=v_readl(0x8500 + 8);
+        *(uint32_t *)(regs+CR(0x4c))=v_readl(0x8500 + 12);
+        *(uint32_t *)(regs+CR(0x50))=v_readl(0x8500 + 16);
         write_xr(0x20,tmp);
     }
     
@@ -197,11 +196,11 @@ static void sis_setregs(const unsigned char regs[], int mode)
 
     if(chip>=SIS_300) {
         write_xr(0x20,in_xr(0x20)|0x01);
-        cs(0)=*(unsigned int *)(regs+CR(0x40));
-        cs(1)=*(unsigned int *)(regs+CR(0x44));
-        cs(2)=*(unsigned int *)(regs+CR(0x48));
-        cs(3)=*(unsigned int *)(regs+CR(0x4c));
-        cs(4)=*(unsigned int *)(regs+CR(0x50));
+        v_writel(*(uint32_t *)(regs+CR(0x40)), 0x8500 + 0);
+        v_writel(*(uint32_t *)(regs+CR(0x44)), 0x8500 + 4);
+        v_writel(*(uint32_t *)(regs+CR(0x48)), 0x8500 + 8);
+        v_writel(*(uint32_t *)(regs+CR(0x4c)), 0x8500 + 12);
+        v_writel(*(uint32_t *)(regs+CR(0x50)), 0x8500 + 16);
         for(i=0x19; i<0x40;i++)__svgalib_outcrtc(i,regs[CR(i)]);
     }
     
@@ -449,6 +448,7 @@ static void sis_300_initializemode(unsigned char *moderegs,
     moderegs[XR(0x21)] = 0xa5; /* What is this ??? */
 
     moderegs[ATT + 0x10] = 1;
+    moderegs[ATT + 0x11] = 0;
     moderegs[ATT + 0x12] = 0;
     
     moderegs[MIS] |= 0x0c; /* Use programmed clock */
@@ -635,7 +635,7 @@ static unsigned char cur_colors[16*6];
 static int sis_cursor( int cmd, int p1, int p2, int p3, int p4, void *p5) {
     unsigned long *b3;
     int i, j, k, l; 
-    unsigned int l1, l2;
+    uint32_t l1, l2;
     unsigned char c;
     
     switch(cmd){
@@ -713,29 +713,30 @@ static int sis_cursor( int cmd, int p1, int p2, int p3, int p4, void *p5) {
 static int sis_300_cursor( int cmd, int p1, int p2, int p3, int p4, void *p5) {
     unsigned long *b3;
     int i, j; 
-    unsigned int l1, l2;
+    uint32_t l1, l2;
     
     switch(cmd){
         case CURSOR_INIT:
             return 1;
         case CURSOR_HIDE:
-            cs(0) &= 0x3fffffff;
+            l1 = v_readl(0x8500 + 0);
+            v_writel(l1 & 0x3fffffff, 0x8500 + 0);
             break;
         case CURSOR_SHOW:
-            cs(0) &= 0x3fffffff;
-            cs(0) |= 0x40000000;
+            l1 = v_readl(0x8500 + 0);
+            v_writel((l1 & 0x3fffffff) | 0x40000000, 0x8500 + 0);
             break;
         case CURSOR_POSITION:
-            cs(3)=p1;
-            cs(4)=p2;
+            v_writel(p1, 0x8500 + 12);
+            v_writel(p2, 0x8500 + 16);
             break;
         case CURSOR_SELECT:
             i=sis_memory-16+p1;
             if(i>=0x10000)i&=0xffff; /* can use more that 64MB ? */
-            cs(1)=cur_colors[p1*6+2]+(cur_colors[p1*6+1]<<8)+(cur_colors[p1*6+0]<<16);
-            cs(2)=cur_colors[p1*6+5]+(cur_colors[p1*6+4]<<8)+(cur_colors[p1*6+3]<<16);
-            cs(0)&=0xf0fe0000;
-            cs(0)|=i;
+            v_writel(cur_colors[p1*6+2]+(cur_colors[p1*6+1]<<8)+(cur_colors[p1*6+0]<<16), 0x8500 + 4);
+            v_writel(cur_colors[p1*6+5]+(cur_colors[p1*6+4]<<8)+(cur_colors[p1*6+3]<<16), 0x8500 + 8);
+            l1 = v_readl(0x8500 + 0);
+            v_writel((l1 & 0xf0fe0000) | i, 0x8500 + 0);
             break;
         case CURSOR_IMAGE:
             i=(sis_memory-16+p1)*1024;
@@ -754,16 +755,16 @@ static int sis_300_cursor( int cmd, int p1, int p2, int p3, int p4, void *p5) {
                         l2=~(*(b3+32+j));
                         l1=(l1<<24) | ((l1&0xff00)<<8) | ((l1>>8)&0xff00) | (l1>>24);
                         l2=(l2<<24) | ((l2&0xff00)<<8) | ((l2>>8)&0xff00) | (l2>>24);
-                        *(unsigned int *)(LINEAR_POINTER+i+16*j)=l2;
-                        *(unsigned int *)(LINEAR_POINTER+i+16*j+8)=l1;
-                        *(unsigned int *)(LINEAR_POINTER+i+16*j+4)=0xffffffff;
-                        *(unsigned int *)(LINEAR_POINTER+i+16*j+12)=0;
+                        *(uint32_t *)(LINEAR_POINTER+i+16*j)=l2;
+                        *(uint32_t *)(LINEAR_POINTER+i+16*j+8)=l1;
+                        *(uint32_t *)(LINEAR_POINTER+i+16*j+4)=0xffffffff;
+                        *(uint32_t *)(LINEAR_POINTER+i+16*j+12)=0;
                     }
                     for(j=32;j<64;j++) {
-                        *(unsigned int *)(LINEAR_POINTER+i+16*j)=0xffffffff;
-                        *(unsigned int *)(LINEAR_POINTER+i+16*j+8)=0;
-                        *(unsigned int *)(LINEAR_POINTER+i+16*j+4)=0xffffffff;
-                        *(unsigned int *)(LINEAR_POINTER+i+16*j+12)=0;
+                        *(uint32_t *)(LINEAR_POINTER+i+16*j)=0xffffffff;
+                        *(uint32_t *)(LINEAR_POINTER+i+16*j+8)=0;
+                        *(uint32_t *)(LINEAR_POINTER+i+16*j+4)=0xffffffff;
+                        *(uint32_t *)(LINEAR_POINTER+i+16*j+12)=0;
                     }
                     break;
             }
@@ -823,6 +824,7 @@ DriverSpecs __svgalib_sis_driverspecs =
 static int sis_init(int force, int par1, int par2)
 {
     unsigned long buf[64];
+    int pci_id;
     int found=0;
 
     sis_unlock();
@@ -838,7 +840,8 @@ static int sis_init(int force, int par1, int par2)
     chip=0;
     if (!found){
        sis_linear_base=buf[4]&0xffffff00;
-       switch((buf[0]>>16)&0xffff) {
+       pci_id=(buf[0]>>16)&0xffff;
+       switch(pci_id) {
             case PCI_CHIP_SG86C201:
             case PCI_CHIP_SG86C202: 
             case PCI_CHIP_SG86C205:
@@ -962,15 +965,16 @@ static int sis_init(int force, int par1, int par2)
     cardspecs->mapHorizontalCrtc = sis_map_horizontal_crtc;
     cardspecs->matchProgrammableClock=sis_match_programmable_clock;
 
-    if(chip>=SIS_300) {
-        __svgalib_sis_driverspecs.__svgalib_setpage=sis_300_setpage;
+    if(chip==SIS_300 || chip==SIS_315) {
+        if(pci_id!=PCI_CHIP_SIS630) /* maybe it's all 300 */
+            __svgalib_sis_driverspecs.__svgalib_setpage=sis_300_setpage;
         __svgalib_sis_driverspecs.cursor=sis_300_cursor;
         cardspecs->maxPixelClock8bpp = 250000;	
         cardspecs->maxPixelClock16bpp = 250000;	
         cardspecs->maxPixelClock32bpp = 250000;
         cardspecs->maxPixelClock24bpp = 0;
         __svgalib_mmio_base=buf[5]&0xfffff000;
-        __svgalib_mmio_size=0x40000;
+        __svgalib_mmio_size=0x10000;
     }
 
     __svgalib_driverspecs = &__svgalib_sis_driverspecs;

@@ -31,30 +31,6 @@ static enum {cPM2=1, cPM2V} chiptype;
 
 static CardSpecs *cardspecs;
 
-static void setpage(int page)
-{
-	static int oldpage = 0;
-
-	if (page != oldpage)
-	{
-		if (page)
-			mmap(BANKED_POINTER,
-			     __svgalib_banked_mem_size,
-			     PROT_READ | PROT_WRITE,
-			     MAP_SHARED | MAP_FIXED,
-			     __svgalib_mem_fd, 
-                             __svgalib_banked_mem_base +  (page << 16));
-		else
-			mmap(BANKED_POINTER,
-			     __svgalib_banked_mem_size,
-			     PROT_READ | PROT_WRITE,
-			     MAP_SHARED | MAP_FIXED,
-			     __svgalib_mem_fd,
-			     __svgalib_banked_mem_base);
-		oldpage = page;
-	}
-}
-
 static int __svgalib_inlinearmode(void)
 {
 return is_linear;
@@ -700,7 +676,7 @@ DriverSpecs __svgalib_pm2_driverspecs =
     lock,
     test,
     init,
-    setpage,
+    __svgalib_emul_setpage,
     NULL,
     NULL,
     setmode,
@@ -754,8 +730,9 @@ static int init(int force, int par1, int par2)
 
     linear_base = buf[6] & 0xffffc000;
     mmio_base = buf[4] & 0xffffc000;
-    MMIO_POINTER = mmap(0, 64*1024, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, 
-		    mmio_base);
+    __svgalib_mmio_base=mmio_base;
+    __svgalib_mmio_size=64*1024;
+    map_mmio();
     
     memory = (((GLINT_READ_REG(PMMemConfig) >> 29) & 0x03) + 1) * 2048;
 
@@ -782,7 +759,7 @@ static int init(int force, int par1, int par2)
     cardspecs->maxPixelClock16bpp = 230000;	
     cardspecs->maxPixelClock24bpp = 150000;
     cardspecs->maxPixelClock32bpp = 110000;
-    cardspecs->flags = INTERLACE_DIVIDE_VERT | CLOCK_PROGRAMMABLE;
+    cardspecs->flags = INTERLACE_DIVIDE_VERT | CLOCK_PROGRAMMABLE | EMULATE_BANK;
     cardspecs->maxHorizontalCrtc = 4080;
     cardspecs->maxPixelClock4bpp = 0;
     cardspecs->nClocks =0;
@@ -794,7 +771,5 @@ static int init(int force, int par1, int par2)
     __svgalib_banked_mem_size=0x10000;
     __svgalib_linear_mem_base=linear_base;
     __svgalib_linear_mem_size=memory*0x400;
-    __svgalib_mmio_base=mmio_base;
-    __svgalib_mmio_size=64*1024;
     return 0;
 }

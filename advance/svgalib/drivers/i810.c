@@ -3,6 +3,7 @@
   written by Matan Ziv-Av.
 */
 
+/* TODO Implement GTT for MSDOS. It's used by the i810 driver */
 /* #define USE_GTT 1 */
 
 #include <stdlib.h>
@@ -74,36 +75,10 @@ static int is_linear, linear_base, mmio_base;
 static unsigned int cur_base;
 static CardSpecs *cardspecs;
 
-#ifdef USE_GTT
-static void setpage(int page)
-{
-	static int oldpage = 0;
-
-	if (page != oldpage)
-	{
-		if (page)
-			mmap(BANKED_POINTER,
-			     __svgalib_banked_mem_size,
-			     PROT_READ | PROT_WRITE,
-			     MAP_SHARED | MAP_FIXED,
-			     __svgalib_mem_fd, 
-                             __svgalib_banked_mem_base +  (page << 16));
-		else
-			mmap(BANKED_POINTER,
-			     __svgalib_banked_mem_size,
-			     PROT_READ | PROT_WRITE,
-			     MAP_SHARED | MAP_FIXED,
-			     __svgalib_mem_fd,
-			     __svgalib_banked_mem_base);
-		oldpage = page;
-	}
-}
-#else /* USE_GTT */
 static void setpage(int page)
 {
    __svgalib_outgra(0x11,page);
 }
-#endif
 
 static int __svgalib_inlinearmode(void)
 {
@@ -668,7 +643,11 @@ DriverSpecs __svgalib_i810_driverspecs =
     lock,
     test,
     init,
+#ifdef USE_GTT
+    __svgalib_emul_setpage,
+#else
     setpage,
+#endif
     NULL,
     NULL,
     setmode,
@@ -706,7 +685,10 @@ static int init(int force, int par1, int par2)
     } else return -1; 
     ;
 
-    __svgalib_vgammbase=mmap(0,0x20000,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,mmio_base);
+    __svgalib_mmio_base=mmio_base;
+    __svgalib_mmio_size=512*0x400;
+    map_mmio();
+    __svgalib_vgammbase=0;
     __svgalib_mm_io_mapio();
     
     if (force) {
@@ -766,7 +748,5 @@ static int init(int force, int par1, int par2)
     __svgalib_banked_mem_size=0x10000;
     __svgalib_linear_mem_base=linear_base;
     __svgalib_linear_mem_size=memory*0x400;
-    __svgalib_mmio_base=mmio_base;
-    __svgalib_mmio_size=512*0x400;
     return 0;
 }

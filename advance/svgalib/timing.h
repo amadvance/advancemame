@@ -112,6 +112,8 @@ typedef struct {
 #define NO_RGB16_565			0x8
 /* Card (or driver) can't do interlaced modes */
 #define NO_INTERLACE			0x10
+/* Don't have banked memory - emulated with mmap from linear memory */
+#define EMULATE_BANK			0x20
 
 /* Mode info. */
 typedef struct {

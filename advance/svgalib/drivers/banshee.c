@@ -69,7 +69,7 @@ typedef struct {
                 hwCurPatAddr, hwCurLoc, hwCurC0, hwCurC1;
 } *HWRecPtr;
 
-static int banshee_saveregs(unsigned char regs[])
+static int banshee_saveregs(uint8_t regs[])
 { 
   HWRecPtr save;
 
@@ -99,7 +99,7 @@ static int banshee_saveregs(unsigned char regs[])
 
 /* Set chipset-specific registers */
 
-static void banshee_setregs(const unsigned char regs[], int mode)
+static void banshee_setregs(const uint8_t regs[], int mode)
 {  
     HWRecPtr restore;
 
@@ -170,7 +170,7 @@ static int CalcPLL(int freq, int isBanshee);
 
 /* Local, called by banshee_setmode(). */
 
-static void banshee_initializemode(unsigned char *moderegs,
+static void banshee_initializemode(uint8_t *moderegs,
 			    ModeTiming * modetiming, ModeInfo * modeinfo, int mode)
 { /* long k; */
 
@@ -282,7 +282,7 @@ return ;
 
 static int banshee_setmode(int mode, int prv_mode)
 {
-    unsigned char *moderegs;
+    uint8_t *moderegs;
     ModeTiming modetiming;
     ModeInfo *modeinfo;
 

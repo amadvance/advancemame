@@ -89,7 +89,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>		/* iopl() */
+#include <unistd.h>
 #include "vga.h"
 #include "libvga.h"
 #include "driver.h"
@@ -620,7 +620,7 @@ static void s3_setregs(const unsigned char regs[], int mode)
     /* save a private copy */
     memcpy(s3_8514regs, regs + S3_8514_OFFSET, S3_8514_COUNT * 2);
     /*
-     * set this first, so if we segfault on this (e.g. we didn't do a iopl(3))
+     * set this first, so if we segfault on this
      * we don't get a screwed up display
      */
     outw(ADVFUNC_CNTL, s3_8514regs[S3_ADVFUNC_CNTL]);
@@ -1688,12 +1688,6 @@ static int s3_init(int force, int par1, int par2)
 	}
     }
 /* begin: Initialize cardspecs. */
-    /* If IOPERM is set, assume permissions have already been set by Olaf Titz' */
-    /* ioperm(1). */
-    if (getenv("IOPERM") == NULL) {
-	if (0 > iopl(3))
-	    fprintf(stderr,"svgalib: s3: cannot get I/O permissions for 8514.\n");
-    }
 #ifdef S3_LINEAR_SUPPORT
     if (s3_chiptype > S3_805) {
     	int found_pciconfig;

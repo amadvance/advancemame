@@ -21,18 +21,18 @@ static int io_base;
 #include "renditio.h"
 
 typedef struct {
-    CARD8  memendian;
-    CARD8  mode;
-    CARD8  bankselect;
-    CARD32 sclkpll;
-    CARD32 dramctl;
-    CARD32 pclkpll;
-    CARD32 crtchorz;
-    CARD32 crtcvert;
-    CARD32 crtcctl;
-    CARD32 framebasea;
-    CARD32 crtcoffset;
-    CARD8  dac[17];
+    uint8_t  memendian;
+    uint8_t  mode;
+    uint8_t  bankselect;
+    uint32_t sclkpll;
+    uint32_t dramctl;
+    uint32_t pclkpll;
+    uint32_t crtchorz;
+    uint32_t crtcvert;
+    uint32_t crtcctl;
+    uint32_t framebasea;
+    uint32_t crtcoffset;
+    uint8_t  dac[17];
 } hwregs, *hwregsptr;
 
 #define TOTAL_REGS (VGA_TOTAL_REGS + sizeof(hwregs))
@@ -211,9 +211,9 @@ static double V2200CalcClock(double target, int *m, int *n, int *p)
 }
 
 #define combineNMP(N, M, P) \
-    (((CARD32)(M-2)<<10) | ((CARD32)P<<8) | (CARD32)(N-2))
+    (((uint32_t)(M-2)<<10) | ((uint32_t)P<<8) | (uint32_t)(N-2))
 
-#define v2kcombineNMP(N, M, P) (((CARD32)N<<13) | ((CARD32)P<<9) | (CARD32)M)
+#define v2kcombineNMP(N, M, P) (((uint32_t)N<<13) | ((uint32_t)P<<9) | (uint32_t)M)
 
 #define CTL(ldbl, hsynchi, vsynchi) \
   (((ldbl) ? CRTCCTL_LINEDOUBLE : 0) \
@@ -222,36 +222,36 @@ static double V2200CalcClock(double target, int *m, int *n, int *p)
   |(CRTCCTL_VSYNCENABLE | CRTCCTL_HSYNCENABLE))
 
 #define HORZ(fp, sy, bp, ac) \
-(((((CARD32)(((fp)>>3)-1))&7)<<21)|((((CARD32)(((sy)>>3)-1))&0x1F)<<16)|\
-((((CARD32)(((bp)>>3)-1))&0x3f)<<9)|((((CARD32)(((ac)>>3)-1))&0xff)))
+(((((uint32_t)(((fp)>>3)-1))&7)<<21)|((((uint32_t)(((sy)>>3)-1))&0x1F)<<16)|\
+((((uint32_t)(((bp)>>3)-1))&0x3f)<<9)|((((uint32_t)(((ac)>>3)-1))&0xff)))
 
 #define VERT(fp, sy, bp, ac) \
-(((((CARD32)(fp-1))&0x3f)<<20)|((((CARD32)(sy-1))&0x7)<<17)|\
-((((CARD32)(bp-1))&0x3f)<<11)|((((CARD32)(ac-1))&0x7ff)))
+(((((uint32_t)(fp-1))&0x3f)<<20)|((((uint32_t)(sy-1))&0x7)<<17)|\
+((((uint32_t)(bp-1))&0x3f)<<11)|((((uint32_t)(ac-1))&0x7ff)))
 
 #define HORZAC(crtchorz) \
-  (((((CARD32)crtchorz)&CRTCHORZ_ACTIVE_MASK)+1)<<3)
+  (((((uint32_t)crtchorz)&CRTCHORZ_ACTIVE_MASK)+1)<<3)
 
 #define HORZBP(crtchorz) \
-  ((((((CARD32)crtchorz)&CRTCHORZ_BACKPORCH_MASK)>>9)+1)<<3)
+  ((((((uint32_t)crtchorz)&CRTCHORZ_BACKPORCH_MASK)>>9)+1)<<3)
 
 #define HORZSY(crtchorz) \
-  ((((((CARD32)crtchorz)&CRTCHORZ_SYNC_MASK)>>16)+1)<<3)
+  ((((((uint32_t)crtchorz)&CRTCHORZ_SYNC_MASK)>>16)+1)<<3)
 
 #define HORZFP(crtchorz) \
-  ((((((CARD32)crtchorz)&CRTCHORZ_FRONTPORCH_MASK)>>21)+1)<<3)
+  ((((((uint32_t)crtchorz)&CRTCHORZ_FRONTPORCH_MASK)>>21)+1)<<3)
 
 #define VERTAC(crtcvert) \
-  ((((CARD32)crtcvert)&CRTCVERT_ACTIVE_MASK)+1)
+  ((((uint32_t)crtcvert)&CRTCVERT_ACTIVE_MASK)+1)
 
 #define VERTBP(crtcvert) \
-  (((((CARD32)crtcvert)&CRTCVERT_BACKPORCH_MASK)>>11)+1)
+  (((((uint32_t)crtcvert)&CRTCVERT_BACKPORCH_MASK)>>11)+1)
 
 #define VERTSY(crtcvert) \
-  (((((CARD32)crtcvert)&CRTCVERT_SYNC_MASK)>>17)+1)
+  (((((uint32_t)crtcvert)&CRTCVERT_SYNC_MASK)>>17)+1)
 
 #define VERTFP(crtcvert) \
-  (((((CARD32)crtcvert)&CRTCVERT_FRONTPORCH_MASK)>>20)+1)
+  (((((uint32_t)crtcvert)&CRTCVERT_FRONTPORCH_MASK)>>20)+1)
 
 
 static void initializemode(unsigned char *moderegs,

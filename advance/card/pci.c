@@ -105,6 +105,32 @@ int pci_read_dword(unsigned bus_device_func, unsigned reg, DWORD STACK_PTR* valu
 	return 0;
 }
 
+int pci_read_dword_aperture_len(unsigned bus_device_func, unsigned reg, DWORD STACK_PTR* value) {
+	DWORD ori;
+	DWORD mask;
+	DWORD len;
+
+	if (pci_read_dword(bus_device_func, reg, &ori) != 0)
+		return -1;
+	if (!ori)
+		return -1;
+	if (pci_write_dword(bus_device_func, reg, 0xffffffff) != 0)
+		return -1;
+	if (pci_read_dword(bus_device_func, reg, &mask) != 0)
+		return -1;
+	if (pci_write_dword(bus_device_func, reg, ori) != 0)
+		return -1;
+
+	len = ~(mask & ~0xf) + 1;
+
+	if (!len)
+		return -1;
+
+	*value = len;
+
+	return 0;
+}
+
 int pci_write_byte(unsigned bus_device_func, unsigned reg, BYTE value) {
 	__dpmi_regs r;
 	r.d.eax = 0x0000b10b;

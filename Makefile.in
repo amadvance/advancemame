@@ -7,7 +7,7 @@ PREFIX=@prefix@
 
 # Select the emu executable (mame by default)
 # The available choices are: mame, neomame, cpmame, mess, pac
-#CONF_EMU = mame
+#CONF_EMU=mame
 
 # Uncommment the host operating system (default is the current one):
 #CONF_HOST=linux
@@ -51,7 +51,7 @@ PREFIX=@prefix@
 #CONF_SYSTEM=dos
 #CONF_SYSTEM=sdl
 
-# Uncomment and set to "yes" to enable the SMP (Multiprocessor) code:
+# Uncomment and set to "yes" to enable the SMP (Multiprocessor) code (default yes):
 #CONF_SMP=yes
 
 # Select the architecture CFLAGS (i686 by default)
@@ -64,40 +64,47 @@ PREFIX=@prefix@
 #   pentium3, pentium4, k6, k6-2, k6-3, athlon, athlon-tbird, athlon-4,
 #   athlon-xp, athlon-mp
 # for i586
-#CONF_CFLAGS_ARCH = -march=i586 -DUSE_LSB -DUSE_ASM_i586
+#CONF_CFLAGS_ARCH=-march=i586 -DUSE_LSB -DUSE_ASM_i586
 # for i686
-#CONF_CFLAGS_ARCH = -march=i686 -DUSE_LSB -DUSE_ASM_i586
+#CONF_CFLAGS_ARCH=-march=i686 -DUSE_LSB -DUSE_ASM_i586
 # for k6
-#CONF_CFLAGS_ARCH = -march=k6 -DUSE_LSB -DUSE_ASM_i586
+#CONF_CFLAGS_ARCH=-march=k6 -DUSE_LSB -DUSE_ASM_i586
 # for generic LittleEndian
-#CONF_CFLAGS_ARCH = -DUSE_LSB
+#CONF_CFLAGS_ARCH=-DUSE_LSB
 # for generic BigEndian
-#CONF_CFLAGS_ARCH = -DUSE_MSB
+#CONF_CFLAGS_ARCH=-DUSE_MSB
 
 # Select the optimization flags: (optimized build by default)
 # Optimized build
-#CONF_CFLAGS_OPT = -O3 -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused
+#CONF_CFLAGS_OPT=-O3 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
 # Profile build
-#CONF_CFLAGS_OPT = -O3 -pg -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused
+#CONF_CFLAGS_OPT=-O3 -pg -Wall -Wno-sign-compare -Wno-unused
 # Debug build
-#CONF_CFLAGS_OPT = -O0 -g -Wall -Wno-sign-compare -Wno-unused
+#CONF_CFLAGS_OPT=-O0 -g -Wall -Wno-sign-compare -Wno-unused
 
 # Select the optimization linker flags: (optimized build by default)
-#CONF_LDFLAGS = -s
+# Optimized build
+#CONF_LDFLAGS=-s
+# Debug/Profile build
+#CONF_LDFLAGS=
 
-# Uncomment and set to "yes" to compile the MAME debugger:
+# Uncomment and set to "yes" to compile the MAME debugger (default no):
 #CONF_DEBUGGER=no
 
-# Uncomment and set to "yes" to compress the executable:
+# Uncomment and set to "yes" to compress the executable (default no):
 #CONF_COMPRESS=no
 
-# Uncomment and set to "yes" to enable the debug code:
+# Uncomment and set to "yes" to enable the debug code (default no):
 #CONF_DEBUG=no
 
 #############################################################################
 # Override configuration
 
-ifeq (@CONF@,yes)
+ifndef CONF
+CONF=@CONF@
+endif
+
+ifeq ($(CONF),yes)
 CONF_EMU=@CONF_EMU@
 CONF_BUILD=@CONF_BUILD@
 CONF_HOST=@CONF_HOST@
@@ -110,6 +117,7 @@ CONF_DEBUGGER=@CONF_DEBUGGER@
 CONF_COMPRESS=@CONF_COMPRESS@
 CONF_DEBUG=@CONF_DEBUG@
 endif
+
 
 #############################################################################
 # Default configuration
@@ -166,7 +174,7 @@ CONF_CFLAGS_ARCH = -march=i686 -DUSE_LSB -DUSE_ASM_i586
 endif
 
 ifndef CONF_CFLAGS_OPT
-CONF_CFLAGS_OPT = -O3 -fomit-frame-pointer -fstrict-aliasing -Wall -Wno-sign-compare -Wno-unused
+CONF_CFLAGS_OPT = -O3 -fomit-frame-pointer -Wall -Wno-sign-compare -Wno-unused
 endif
 
 ifndef CONF_LDFLAGS
@@ -193,7 +201,7 @@ ifndef CONF_MAP
 CONF_MAP=no
 endif
 
-# Name of the architecture. Used in the distribution name files.
+# Name of the architecture. Used in the distribution file names.
 ifndef CONF_ARCH
 CONF_ARCH=def
 endif
@@ -202,7 +210,7 @@ endif
 # Tools configuration
 
 # From the ./configure script
-ifeq (@CONF@,yes)
+ifeq ($(CONF),yes)
 srcdir=@srcdir@
 INSTALL=@INSTALL@
 CC=@@CC@
@@ -232,7 +240,7 @@ CFLAGS_BUILD=@CFLAGS_BUILD@
 endif
 
 # Autotected
-ifneq (@CONF@,yes)
+ifneq ($(CONF),yes)
 srcdir=.
 MD = -@mkdir -p
 RM = @rm -f
@@ -342,6 +350,7 @@ SDLLIBS = -lSDL -mwindows
 endif
 
 endif
+
 
 # Common
 INSTALL_PROGRAM_DIR = $(INSTALL) -d -o root -g bin -m 755

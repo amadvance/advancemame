@@ -7,5 +7,6 @@ extern void __svgalib_pci_write_config_dword(int pos, int address, unsigned int 
 extern int __svgalib_pci_read_config_byte(int pos, int address);
 extern int __svgalib_pci_read_config_word(int pos, int address);
 extern int __svgalib_pci_read_config_dword(int pos, int address);
+extern int __svgalib_pci_read_aperture_len(int pos, int address);
 extern int memorytest(unsigned char *m, int max_mem);
 

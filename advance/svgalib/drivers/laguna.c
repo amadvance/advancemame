@@ -13,7 +13,6 @@ Problems:
 #include <stdio.h>		
 #include <string.h>
 #include <unistd.h>
-#include <sys/mman.h>
 #include "vga.h"
 #include "libvga.h"
 #include "driver.h"
@@ -602,6 +601,7 @@ static int laguna_init(int force, int par1, int par2)
 
     found=__svgalib_pci_find_vendor_vga(VENDOR_ID,buf,0);
     laguna_linear_base=0;
+
     if (!found){
        int i,j;
        laguna_mmio_base=buf[4]&0xffffff00;
@@ -618,14 +618,15 @@ static int laguna_init(int force, int par1, int par2)
                break;
        }
        if(__svgalib_secondary)laguna_mapio();
-       MMIO_POINTER = mmap(0, 16*1024, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd,
-       			laguna_mmio_base);
+
+       __svgalib_mmio_base=laguna_mmio_base;
+       __svgalib_mmio_size=4096;
+       map_mmio();
+
        i=*(MMIO_POINTER + 0x200);
        j=*(MMIO_POINTER + 0x201);
     
-       munmap(MMIO_POINTER, 16*1024);
        laguna_memory = 512*(1<<((j&0xc0)>>6))*((i&7)+1);
-//       laguna_memory=((__svgalib_inseq(0x14)&0x07)+1)*1024;
     } else return -1;
 
     if(laguna_memory<4096) pagemul<<=2;
@@ -666,7 +667,5 @@ static int laguna_init(int force, int par1, int par2)
     __svgalib_banked_mem_size=0x10000;
     __svgalib_linear_mem_base=laguna_linear_base;
     __svgalib_linear_mem_size=laguna_memory*0x400;
-    __svgalib_mmio_base=laguna_mmio_base;
-    __svgalib_mmio_size=4096;
     return 0;
 }

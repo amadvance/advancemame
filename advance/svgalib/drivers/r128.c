@@ -34,79 +34,79 @@ static int r128_ramtype;
 static int BusCntl, CRTOnly, HasPanelRegs;
 
 typedef struct {
-    CARD16        reference_freq;
-    CARD16        reference_div;
-    CARD32        min_pll_freq;
-    CARD32        max_pll_freq;
-    CARD16        xclk;
+    uint16_t        reference_freq;
+    uint16_t        reference_div;
+    uint32_t        min_pll_freq;
+    uint32_t        max_pll_freq;
+    uint16_t        xclk;
 } R128PLLRec, *R128PLLPtr;
 
 typedef struct {
 				/* Common registers */
-    CARD32     ovr_clr;
-    CARD32     ovr_wid_left_right;
-    CARD32     ovr_wid_top_bottom;
-    CARD32     ov0_scale_cntl;
-    CARD32     mpp_tb_config;
-    CARD32     mpp_gp_config;
-    CARD32     subpic_cntl;
-    CARD32     viph_control;
-    CARD32     i2c_cntl_1;
-    CARD32     gen_int_cntl;
-    CARD32     cap0_trig_cntl;
-    CARD32     cap1_trig_cntl;
-    CARD32     bus_cntl;
-    CARD32     config_cntl;
-    CARD32     mem_vga_wp_sel;
-    CARD32     mem_vga_rp_sel;
-    CARD32     surface_cntl;
+    uint32_t     ovr_clr;
+    uint32_t     ovr_wid_left_right;
+    uint32_t     ovr_wid_top_bottom;
+    uint32_t     ov0_scale_cntl;
+    uint32_t     mpp_tb_config;
+    uint32_t     mpp_gp_config;
+    uint32_t     subpic_cntl;
+    uint32_t     viph_control;
+    uint32_t     i2c_cntl_1;
+    uint32_t     gen_int_cntl;
+    uint32_t     cap0_trig_cntl;
+    uint32_t     cap1_trig_cntl;
+    uint32_t     bus_cntl;
+    uint32_t     config_cntl;
+    uint32_t     mem_vga_wp_sel;
+    uint32_t     mem_vga_rp_sel;
+    uint32_t     surface_cntl;
 				/* Other registers to save for VT switches */
-    CARD32     dp_datatype;
-    CARD32     gen_reset_cntl;
-    CARD32     clock_cntl_index;
-    CARD32     amcgpio_en_reg;
-    CARD32     amcgpio_mask;
+    uint32_t     dp_datatype;
+    uint32_t     gen_reset_cntl;
+    uint32_t     clock_cntl_index;
+    uint32_t     amcgpio_en_reg;
+    uint32_t     amcgpio_mask;
 				/* CRTC registers */
-    CARD32     crtc_gen_cntl;
-    CARD32     crtc_ext_cntl;
-    CARD32     dac_cntl;
-    CARD32     crtc_h_total_disp;
-    CARD32     crtc_h_sync_strt_wid;
-    CARD32     crtc_v_total_disp;
-    CARD32     crtc_v_sync_strt_wid;
-    CARD32     crtc_offset;
-    CARD32     crtc_offset_cntl;
-    CARD32     crtc_pitch;
+    uint32_t     crtc_gen_cntl;
+    uint32_t     crtc_ext_cntl;
+    uint32_t     dac_cntl;
+    uint32_t     crtc_h_total_disp;
+    uint32_t     crtc_h_sync_strt_wid;
+    uint32_t     crtc_v_total_disp;
+    uint32_t     crtc_v_sync_strt_wid;
+    uint32_t     crtc_offset;
+    uint32_t     crtc_offset_cntl;
+    uint32_t     crtc_pitch;
 				/* CRTC2 registers */
-    CARD32     crtc2_gen_cntl;
+    uint32_t     crtc2_gen_cntl;
 				/* Flat panel registers */
-    CARD32     fp_crtc_h_total_disp;
-    CARD32     fp_crtc_v_total_disp;
-    CARD32     fp_gen_cntl;
-    CARD32     fp_h_sync_strt_wid;
-    CARD32     fp_horz_stretch;
-    CARD32     fp_panel_cntl;
-    CARD32     fp_v_sync_strt_wid;
-    CARD32     fp_vert_stretch;
-    CARD32     lvds_gen_cntl;
-    CARD32     tmds_crc;
+    uint32_t     fp_crtc_h_total_disp;
+    uint32_t     fp_crtc_v_total_disp;
+    uint32_t     fp_gen_cntl;
+    uint32_t     fp_h_sync_strt_wid;
+    uint32_t     fp_horz_stretch;
+    uint32_t     fp_panel_cntl;
+    uint32_t     fp_v_sync_strt_wid;
+    uint32_t     fp_vert_stretch;
+    uint32_t     lvds_gen_cntl;
+    uint32_t     tmds_crc;
 				/* Computed values for PLL */
-    CARD32     dot_clock_freq;
-    CARD32     pll_output_freq;
+    uint32_t     dot_clock_freq;
+    uint32_t     pll_output_freq;
     int        feedback_div;
     int        post_div;
 				/* PLL registers */
-    CARD32     ppll_ref_div;
-    CARD32     ppll_div_3;
-    CARD32     htotal_cntl;
+    uint32_t     ppll_ref_div;
+    uint32_t     ppll_div_3;
+    uint32_t     htotal_cntl;
 				/* DDA register */
-    CARD32     dda_config;
-    CARD32     dda_on_off;
-    CARD32     vga_dda_config;
-    CARD32     vga_dda_on_off;
+    uint32_t     dda_config;
+    uint32_t     dda_on_off;
+    uint32_t     vga_dda_config;
+    uint32_t     vga_dda_on_off;
 				/* Pallet */
     Bool       palette_valid;
-    CARD32     palette[256];
+    uint32_t     palette[256];
 } R128SaveRec, *R128SavePtr;
 
 typedef struct {        /* All values in XCLKS    */
@@ -221,7 +221,7 @@ static void R128RestoreCrtcRegisters(R128SavePtr restore)
 #if 0
 static void R128RestoreFPRegisters(R128SavePtr restore)
 {
-    CARD32        tmp;
+    uint32_t        tmp;
 
     OUTREG(R128_CRTC2_GEN_CNTL,       restore->crtc2_gen_cntl);
     OUTREG(R128_FP_CRTC_H_TOTAL_DISP, restore->fp_crtc_h_total_disp);
@@ -362,7 +362,7 @@ if (!restore->palette_valid) return;
 //    if (info->HasPanelRegs) PAL_SELECT(0);
 
     OUTPAL_START(0);
-    for (i = 0; i < 256; i++) OUTPAL_NEXT_CARD32(restore->palette[i]);
+    for (i = 0; i < 256; i++) OUTPAL_NEXT_uint32_t(restore->palette[i]);
 }
 
 /* Write out state to define a new video mode.  */
@@ -941,30 +941,6 @@ static int r128_is_linear, r128_linear_base, r128_mmio_base;
 
 static CardSpecs *cardspecs;
 
-static void radeon_setpage(int page)
-{
-	static int oldpage = 0;
-
-	if (page != oldpage)
-	{
-		if (page)
-			mmap(BANKED_POINTER,
-			     __svgalib_banked_mem_size,
-			     PROT_READ | PROT_WRITE,
-			     MAP_SHARED | MAP_FIXED,
-			     __svgalib_mem_fd, 
-                             __svgalib_banked_mem_base +  (page << 16));
-		else
-			mmap(BANKED_POINTER,
-			     __svgalib_banked_mem_size,
-			     PROT_READ | PROT_WRITE,
-			     MAP_SHARED | MAP_FIXED,
-			     __svgalib_mem_fd,
-			     __svgalib_banked_mem_base);
-		oldpage = page;
-	}
-}
-
 static void r128_setpage(int page)
 {
     page*=2;
@@ -1377,8 +1353,8 @@ static int r128_init(int force, int par1, int par2)
 #define R128_BIOS16(x) (*(unsigned short *)(BIOS_POINTER + x))
 #define R128_BIOS32(x) (*(unsigned int *)(BIOS_POINTER + x))
     {
-        CARD16 bios_header;
-        CARD16 pll_info_block;
+        uint16_t bios_header;
+        uint16_t pll_info_block;
         BIOS_POINTER = mmap(0, 64*1024, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd,
        			    0xc0000);
         bios_header    = R128_BIOS16(0x48);
@@ -1426,7 +1402,7 @@ fprintf(stderr,"pll: %i %i %i %i %i\n",pll.reference_freq,pll.reference_div,
     __svgalib_mmio_size=16*1024;
     if(chiptype==Radeon) {
         __svgalib_banked_mem_base=r128_linear_base;
-        __svgalib_r128_driverspecs.__svgalib_setpage = radeon_setpage;
+        __svgalib_r128_driverspecs.__svgalib_setpage = __svgalib_emul_setpage;
     }
 
     return 1;

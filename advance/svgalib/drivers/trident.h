@@ -64,21 +64,18 @@ enum {
 #endif
 
 #define OUTW_3C4(reg) \
-    	OUTW(0x3C4, (tridentReg->tridentRegs3C4[reg])<<8 | (reg))
+    	__svgalib_outseq(reg, tridentReg->tridentRegs3C4[reg])
 #define OUTW_3CE(reg) \
-    	OUTW(0x3CE, (tridentReg->tridentRegs3CE[reg])<<8 | (reg))
+    	__svgalib_outgra(reg, tridentReg->tridentRegs3CE[reg])
 #define OUTW_3x4(reg) \
-    	OUTW(0x3D4, (tridentReg->tridentRegs3x4[reg])<<8 | (reg))
+    	__svgalib_outcrtc(reg, tridentReg->tridentRegs3x4[reg])
 
 #define INB_3x4(reg) \
-    	OUTB(0x3D4, reg); \
-    	tridentReg->tridentRegs3x4[reg] = INB(0x3D5)
+    	tridentReg->tridentRegs3x4[reg] = __svgalib_incrtc(reg)
 #define INB_3C4(reg) \
-    	OUTB(0x3C4, reg); \
-    	tridentReg->tridentRegs3C4[reg] = INB(0x3C5);
+    	tridentReg->tridentRegs3C4[reg] = __svgalib_inseq(reg)
 #define INB_3CE(reg) \
-    	OUTB(0x3CE, reg); \
-    	tridentReg->tridentRegs3CE[reg] = INB(0x3CF);
+    	tridentReg->tridentRegs3CE[reg] = __svgalib_ingra(reg)
 
 /* 3C4 */
 #define RevisionID 0x09

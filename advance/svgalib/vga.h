@@ -197,7 +197,9 @@ extern "C"
 
 #define G400x300x256X 145
 
-#define __GLASTMODE G400x300x256X
+#define G320x200x256V 146
+
+#define __GLASTMODE G320x200x256V
 #define GLASTMODE vga_lastmodenumber()
 
 #define IS_IN_STANDARD_VGA_DRIVER(mode) ( \

@@ -1152,8 +1152,8 @@
 #define CI8     14
 #define CI4     15
 
-#define GLINT_WRITE_REG(v,r) *(volatile unsigned int *) ( MMIO_POINTER + (r))=(v)
-#define GLINT_READ_REG(r) (*(volatile unsigned int *) ( MMIO_POINTER + (r)))
+#define GLINT_WRITE_REG(v,r) v_writel(v, r)
+#define GLINT_READ_REG(r) v_readl(r)
 
 #define mem_barrier() 
 
@@ -1235,15 +1235,15 @@ do{								\
     	ramdacReg->DacRegs[address] = value;
 
 typedef struct {
-	CARD32 glintRegs[0x2000];
-	CARD32 DacRegs[0x100];
-	CARD8 cmap[0x300];
+	uint32_t glintRegs[0x2000];
+	uint32_t DacRegs[0x100];
+	uint8_t cmap[0x300];
 } GLINTRegRec, *GLINTRegPtr;
 
 #define GLINTPTR(p)	((GLINTPtr)((p)->driverPrivate))
 
 void
-Permedia2ReadAddress (CARD32 index)
+Permedia2ReadAddress (uint32_t index)
 {
     GLINT_SLOW_WRITE_REG(0xFF, PM2DACReadMask);
     GLINT_SLOW_WRITE_REG(index, PM2DACReadAddress);
@@ -1257,7 +1257,7 @@ Permedia2ReadData (void)
 }
 
 void
-Permedia2WriteAddress (CARD32 index)
+Permedia2WriteAddress (uint32_t index)
 {
     GLINT_SLOW_WRITE_REG(index, PM2DACWriteAddress);
 }
@@ -1269,7 +1269,7 @@ Permedia2WriteData (unsigned char data)
 }
 
 void
-Permedia2OutIndReg( CARD32 reg, unsigned char mask, unsigned char data)
+Permedia2OutIndReg( uint32_t reg, unsigned char mask, unsigned char data)
 {
   unsigned char tmp = 0x00;
 
@@ -1282,7 +1282,7 @@ Permedia2OutIndReg( CARD32 reg, unsigned char mask, unsigned char data)
 }
 
 unsigned char
-Permedia2InIndReg (CARD32 reg)
+Permedia2InIndReg (uint32_t reg)
 {
   unsigned char ret;
 
@@ -1294,7 +1294,7 @@ Permedia2InIndReg (CARD32 reg)
 
 
 void
-Permedia2vOutIndReg( CARD32 reg, unsigned char mask, unsigned char data)
+Permedia2vOutIndReg( uint32_t reg, unsigned char mask, unsigned char data)
 {
   unsigned char tmp = 0x00;
 
@@ -1308,7 +1308,7 @@ Permedia2vOutIndReg( CARD32 reg, unsigned char mask, unsigned char data)
 }
 
 unsigned char
-Permedia2vInIndReg (CARD32 reg)
+Permedia2vInIndReg (uint32_t reg)
 {
   unsigned char ret;
 

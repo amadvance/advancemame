@@ -5,7 +5,6 @@ Matrox Millennium / Millenium II driver
 #include <stdio.h>		
 #include <string.h>
 #include <unistd.h>
-#include <sys/mman.h>
 #include "vga.h"
 #include "libvga.h"
 #include "driver.h"
@@ -888,14 +887,15 @@ static int mil_init(int force, int par1, int par2)
     }
 
     if(!mil_memory) {
-        unsigned char *m;
-
-        m=mmap(0,8*1024*1024,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,mil_linear_base);
-        mil_memory=memorytest(m, 8);
-        munmap(m, 8*1024*1024);
+        map_linear(mil_linear_base, 8*1024*1024);
+        mil_memory=memorytest(LINEAR_POINTER, 8);
+        unmap_linear(8*1024*1024);
     }
 
-    __svgalib_vgammbase=mmap(0,0x1000,PROT_READ|PROT_WRITE,MAP_SHARED,__svgalib_mem_fd,mil_mmio_base+0x1000) + 0xc00;
+    __svgalib_mmio_base=mil_mmio_base;
+    __svgalib_mmio_size=16384;
+    map_mmio();
+    __svgalib_vgammbase = 0x1c00;
     __svgalib_mm_io_mapio();
 
     __svgalib_inpal=__svgalib_mil_inpal;

@@ -83,8 +83,8 @@ static int saveregs(unsigned char regs[])
     	INB_3C4(Protection);
     
     /* Unprotect registers */
-    OUTW(0x3C4, ((0xC0 ^ 0x02) << 8) | NewMode1);
-    OUTW(0x3D4, (0x92 << 8) | NewMode1);
+    __svgalib_outseq(NewMode1, 0xC0 ^ 0x02);
+    __svgalib_outcrtc(NewMode1, 0x92);
 
     INB_3x4(Offset);
     INB_3x4(LinearAddReg);
@@ -108,7 +108,7 @@ static int saveregs(unsigned char regs[])
     if (chip == CYBERBLADEE4) INB_3x4(New32);
 #if 0
     if (pTrident->IsCyber) {
-	CARD8 tmp;
+	uint8_t tmp;
 	INB_3CE(VertStretch);
 	INB_3CE(HorStretch);
 	INB_3CE(BiosMode);
@@ -184,6 +184,7 @@ static void setregs(const unsigned char regs[], int mode)
     tridentReg = (TRIDENTRegPtr)(regs+60);
 
     unlock();		
+
     if (chip > PROVIDIA9685) {
     	OUTB(0x3C4, Protection);
     	OUTB(0x3C5, 0x92);
@@ -193,7 +194,7 @@ static void setregs(const unsigned char regs[], int mode)
     temp = INB(0x3C5);
 
     /* Unprotect registers */
-    OUTW(0x3C4, ((0xC0 ^ 0x02) << 8) | NewMode1);
+    __svgalib_outseq(NewMode1, 0xC0 ^ 0x02);
     
     temp = INB(0x3C8);
     temp = INB(0x3C6);
@@ -229,7 +230,7 @@ static void setregs(const unsigned char regs[], int mode)
     if (chip == CYBERBLADEE4) OUTW_3x4(New32);
 #if 0
     if (pTrident->IsCyber) {
-	CARD8 tmp;
+	uint8_t tmp;
 
 	OUTW_3CE(VertStretch);
 	OUTW_3CE(HorStretch);
@@ -253,8 +254,8 @@ static void setregs(const unsigned char regs[], int mode)
     
     if (Is3Dchip) {
 	{
-	    OUTW(0x3C4, (tridentReg->tridentRegsClock[0x01])<<8 | ClockLow);
-	    OUTW(0x3C4, (tridentReg->tridentRegsClock[0x02])<<8 | ClockHigh);
+            __svgalib_outseq(ClockLow, tridentReg->tridentRegsClock[0x01]);
+            __svgalib_outseq(ClockHigh, tridentReg->tridentRegsClock[0x02]);
 	}
 #if 0
 	if (pTrident->MCLK > 0) {
@@ -286,7 +287,7 @@ static void setregs(const unsigned char regs[], int mode)
     	OUTB(0x3C5, tridentReg->tridentRegs3C4[Protection]);
     }
 
-    OUTW(0x3C4, ((tridentReg->tridentRegs3C4[NewMode1] ^ 0x02) << 8)| NewMode1);
+    __svgalib_outseq(NewMode1, tridentReg->tridentRegs3C4[NewMode1] ^ 0x02);
 
 }
 
@@ -321,7 +322,7 @@ static int modeavailable(int mode)
     return SVGADRV;
 }
 
-static void TGUISetClock(int clock, CARD8 *a, CARD8 *b)
+static void TGUISetClock(int clock, uint8_t *a, uint8_t *b)
 {
 	int powerup[4] = { 1,2,4,8 };
 	int clock_diff = 750;
@@ -768,7 +769,7 @@ static void initializemode(unsigned char *moderegs,
     pReg->tridentRegs3x4[Offset] = offset & 0xFF;
 
     {
-	CARD8 a, b;
+	uint8_t a, b;
 	TGUISetClock(clock, &a, &b);
 	pReg->tridentRegsClock[0x00] = (INB(0x3CC) & 0xF3) | 0x08;
 	pReg->tridentRegsClock[0x01] = a;
