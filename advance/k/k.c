@@ -24,6 +24,7 @@
 #include "target.h"
 #include "portable.h"
 #include "log.h"
+#include "error.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +35,7 @@ void probe(void)
 {
 	int i, j;
 
-	printf("Keyboards %d\n", keyb_count_get());
+	printf("Driver %s, keyboards %d\n", keyb_name(), keyb_count_get());
 	for(i=0;i<keyb_count_get();++i) {
 		printf("keyboard %d\n", i);
 	}
@@ -172,12 +173,21 @@ int os_main(int argc, char* argv[])
 	if (os_inner_init("AdvanceKEY") != 0)
 		goto err_os;
 
-	if (keyb_init(0) != 0)
+	if (keyb_init(0) != 0) {
+		target_err("%s\n", error_get());
 		goto err_os_inner;
+	}
 
 	probe();
+
+	if (keyb_enable() != 0) {
+		target_err("%s\n", error_get());
+		goto err_done;
+	}
+
 	run();
 
+	keyb_disable();
 	keyb_done();
 	os_inner_done();
 
@@ -192,6 +202,8 @@ int os_main(int argc, char* argv[])
 
 	return EXIT_SUCCESS;
 
+err_done:
+	keyb_done();
 err_os_inner:
 	os_inner_done();
 	log_done();
@@ -200,6 +212,5 @@ err_os:
 err_conf:
 	conf_done(context);
 	return EXIT_FAILURE;
-
 }
 

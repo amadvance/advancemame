@@ -63,7 +63,12 @@ void* os_internal_x_get(void);
 /* Check if SDL is used in some way */
 #if defined(USE_VIDEO_SDL) || defined(USE_KEYBOARD_SDL) || defined(USE_MOUSE_SDL) || defined(USE_JOYSTICK_SDL) || defined(USE_SOUND_SDL) || defined(USE_INPUT_SDL)
 #define USE_SDL
-void* os_internal_sdl_get(void);
+#include "ossdl.h"
+#endif
+
+/* Check if input-event is used in some way */
+#if defined(USE_KEYBOARD_EVENT) || defined(USE_MOUSE_EVENT) || defined(USE_JOYSTICK_EVENT)
+#define USE_EVENT
 #endif
 
 #ifdef __cplusplus

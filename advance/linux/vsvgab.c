@@ -110,55 +110,53 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned zoom_size, adv
 		return -1;
 
 	if (getenv("DISPLAY")) {
-		log_std(("video:svgalib: DISPLAY set\n"));
-		error_nolog_cat("svgalib: Unsupported in X\n");
+		error_set("Unsupported in X.\n");
 		return -1;
 	}
 
 	if (output != adv_output_auto && output != adv_output_fullscreen) {
-		log_std(("video:svgalib: Only fullscreen output is supported\n"));
-		error_nolog_cat("svgalib: Only fullscreen output is supported\n");
+		error_set("Only fullscreen output is supported.\n");
 		return -1;
 	}
 
 	if (!os_internal_svgalib_get()) {
-		log_std(("video:svgalib: svgalib not initialized\n"));
-		error_nolog_cat("svgalib: Unsupported without the svgalib library\n");
+		error_set("Unsupported without the svgalib library.\n");
 		return -1;
 	}
 
 	/* check the version of the SVGALIB */
 	res = vga_setmode(-1);
 	if (res < 0 || res < 0x1911) { /* 1.9.11 */
-		log_std(("video:svgalib: svgalib wrong version\n"));
-		error_nolog_cat("svgalib: You need the svgalib version 1.9.x or 2.0.x. Please upgrade.\n");
+		error_set("You need the svgalib version 1.9.x or 2.0.x. Please upgrade.\n");
 		return -1;
 	}
 
 	chipset = vga_getcurrentchipset();
 	log_std(("video:svgalib: chipset number %d\n", chipset));
 
-	/* remove some incomplete/not working drivers (at version 1.9.17) */
+	/* allow only a subset of drivers */
 	switch (chipset) {
-	case UNDEFINED :
-	case NEOMAGIC :
-	case CHIPS :
-	case MACH64 :
-	case MACH32 :
-	case EGA :
-	case ET4000 :
-	case TVGA8900 :
-	case CIRRUS :
-	case OAK :
-	case PARADISE :
-	case ET3000 :
-	case GVGA6400 :
-	case ATI :
-	case ALI :
-	case VESA :
-	case VGA :
-		log_std(("video:svgalib: chipset doesn't support modelines, aborting\n"));
-		error_nolog_cat("svgalib: Video board unsupported\n");
+	case NV3 :
+	case TRIDENT :
+	case RENDITION :
+	case G400 :
+	case SAVAGE :
+	case MILLENNIUM :
+	case R128 :
+	case BANSHEE :
+	case SIS :
+	case I740 :
+/*	case I810 : */ /* Version 1.9.17 does't work with most recent Intel boards */
+	case LAGUNA :
+	case RAGE :
+	case MX :
+	case ET6000 :
+	case S3 :
+	case ARK :
+	case APM :
+		break;
+	default:
+		error_set("Video board unsupported.\n");
 		return -1;
 	}
 
@@ -529,7 +527,7 @@ adv_error svgalib_mode_generate(svgalib_video_mode* mode, const adv_crtc* crtc, 
 	assert( svgalib_is_active() );
 
 	if (crtc_is_fake(crtc)) {
-		error_nolog_cat("svgalib: Not programmable modes not supported\n");
+		error_set("Not programmable modes are not supported.\n");
 		return -1;
 	}
 

@@ -2,7 +2,7 @@ Name
 	advk - The AdvanceKEYBOARD Tester
 
 Synopsis
-	:advk [-device_keyboard DEVICE]
+	:advk [-device_keyboard DEVICE] [-log] [-logsync]
 
 Description
 	The `advk' utility shows the set of keys pressed at any time.

@@ -30,14 +30,10 @@
 
 #include "ksvgab.h"
 #include "log.h"
-#include "oslinux.h"
 #include "error.h"
+#include "oslinux.h"
 
 #include <vgakeyboard.h>
-
-#ifdef USE_VIDEO_SDL
-#include "SDL.h"
-#endif
 
 struct keyb_svgalib_context {
 	unsigned map_os_to_code[KEYB_MAX];
@@ -170,20 +166,9 @@ adv_error keyb_svgalib_init(int keyb_id, adv_bool disable_special)
 	log_std(("keyb:svgalib: keyb_svgalib_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
 	if (!os_internal_svgalib_get()) {
-		log_std(("keyb:svgalib: svgalib not initialized\n"));
-		error_nolog_cat("svgalib: Not supported without the svgalib library\n");
+		error_set("Not supported without the svgalib library.\n");
 		return -1;
 	}
-
-#ifdef USE_VIDEO_SDL
-	/* If the SDL video driver is used, also the SDL */
-	/* keyboard input must be used. */
-	if (SDL_WasInit(SDL_INIT_VIDEO)) {
-		log_std(("keyb:svgalib: Incompatible with the SDL video driver\n"));
-		error_nolog_cat("svgalib: Incompatible with the SDL video driver\n");
-		return -1; 
-	}
-#endif
 
 	for(j=0;j<KEYB_MAX;++j) {
 		svgalib_state.map_os_to_code[j] = 0;
@@ -192,26 +177,56 @@ adv_error keyb_svgalib_init(int keyb_id, adv_bool disable_special)
 		svgalib_state.map_os_to_code[i->os] = i->code;
 	}
 
-	if (keyboard_init() != 0) {
-		log_std(("keyb:svgalib: keyboard_init() failed\n"));
-		return -1;
-	}
-
 	return 0;
 }
 
 void keyb_svgalib_done(void)
 {
 	log_std(("keyb:svgalib: keyb_svgalib_done()\n"));
+}
+
+adv_error keyb_svgalib_enable(void)
+{
+	struct keyb_pair* i;
+	unsigned j;
+
+	log_std(("keyb:svgalib: keyb_svgalib_enable()\n"));
+
+#if defined(USE_VIDEO_SDL)
+	if (os_internal_sdl_is_video_active()) {
+		error_set("The svgalib keyboard driver cannot be used with the SDL video driver.\n");
+		return -1;
+	}
+#endif
+
+	if (keyboard_init() != 0) {
+		log_std(("keyb:svgalib: keyboard_init() failed\n"));
+		error_set("Error enablin the svgalib keyboard driver. Function keyboard_init() failed.\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+void keyb_svgalib_disable(void)
+{
+	log_std(("keyb:svgalib: keyb_svgalib_disable()\n"));
 
 	keyboard_close();
 }
 
 unsigned keyb_svgalib_count_get(void)
 {
-	log_std(("keyb:svgalib: keyb_svgalib_count_get(void)\n"));
+	log_debug(("keyb:svgalib: keyb_svgalib_count_get(void)\n"));
 
 	return 1;
+}
+
+adv_bool keyb_svgalib_has(unsigned keyboard, unsigned code)
+{
+	log_debug(("keyb:svgalib: keyb_svgalib_has()\n"));
+
+	return key_is_standard(code);
 }
 
 unsigned keyb_svgalib_get(unsigned keyboard, unsigned code)
@@ -288,8 +303,11 @@ keyb_driver keyb_svgalib_driver = {
 	keyb_svgalib_reg,
 	keyb_svgalib_init,
 	keyb_svgalib_done,
+	keyb_svgalib_enable,
+	keyb_svgalib_disable,
 	keyb_svgalib_flags,
 	keyb_svgalib_count_get,
+	keyb_svgalib_has,
 	keyb_svgalib_get,
 	keyb_svgalib_all_get,
 	keyb_svgalib_poll

@@ -60,8 +60,11 @@ typedef struct keyb_driver_struct {
 	void (*reg)(adv_conf* context);
 	adv_error (*init)(int device_id, adv_bool disable_special);
 	void (*done)(void);
+	adv_error (*enable)(void);
+	void (*disable)(void);
 	unsigned (*flags)(void);
 	unsigned (*count_get)(void);
+	adv_bool (*has)(unsigned keyboard, unsigned code);
 	unsigned (*get)(unsigned keyboard, unsigned code);
 	void (*all_get)(unsigned keyboard, unsigned char* code_map);
 	void (*poll)(void);
@@ -78,6 +81,7 @@ typedef struct keyb_driver_struct {
 struct keyb_state_struct {
 	adv_bool is_initialized_flag; /**< If the keyb_load() or keyb_default() function was called. */
 	adv_bool is_active_flag; /**< If the keyb_init() function was called. */
+	adv_bool is_enabled_flag; /**< If the keyb_enable() function was called. */
 	unsigned driver_mac; /**< Number of registered drivers. */
 	keyb_driver* driver_map[KEYB_DRIVER_MAX]; /**< Registered drivers. */
 	keyb_driver* driver_current; /**< Current driver active. 0 if none. */
@@ -135,6 +139,17 @@ adv_error keyb_init(adv_bool disable_special);
 void keyb_done(void);
 
 /**
+ * Enable the keyboard driver.
+ * The keyboard driver must be enabled after the video mode set.
+ */
+adv_error keyb_enable(void);
+
+/**
+ * Disable the keyboard driver.
+ */
+void keyb_disable(void);
+
+/**
  * Abort the keyboard driver.
  * This function can be called from a signal handler, also if the keyboard
  * driver isn't initialized.
@@ -148,7 +163,6 @@ static inline unsigned keyb_count_get(void)
 	return keyb_state.driver_current->count_get();
 }
 
-
 /**
  * Return the capabilities flag of the keyboard driver.
  */
@@ -160,6 +174,17 @@ static inline unsigned keyb_flags(void)
 }
 
 /**
+ * Check if a keyboard has the specified key.
+ * \param code One of the KEYB_* codes.
+ */
+static inline adv_bool keyb_has(unsigned keyboard, unsigned code)
+{
+	assert( keyb_state.is_active_flag );
+
+	return keyb_state.driver_current->has(keyboard, code);
+}
+
+/**
  * Get the status of the specified key.
  * \param code One of the KEYB_* codes.
  * \return
@@ -168,7 +193,7 @@ static inline unsigned keyb_flags(void)
  */
 static inline unsigned keyb_get(unsigned keyboard, unsigned code)
 {
-	assert( keyb_state.is_active_flag );
+	assert( keyb_state.is_active_flag && keyb_state.is_enabled_flag );
 
 	return keyb_state.driver_current->get(keyboard, code);
 }
@@ -179,7 +204,7 @@ static inline unsigned keyb_get(unsigned keyboard, unsigned code)
  */
 static inline void keyb_all_get(unsigned keyboard, unsigned char* code_map)
 {
-	assert( keyb_state.is_active_flag );
+	assert( keyb_state.is_active_flag && keyb_state.is_enabled_flag );
 
 	keyb_state.driver_current->all_get(keyboard, code_map);
 }
@@ -191,7 +216,7 @@ static inline void keyb_all_get(unsigned keyboard, unsigned char* code_map)
  */
 static inline void keyb_poll(void)
 {
-	assert( keyb_state.is_active_flag );
+	assert( keyb_state.is_active_flag && keyb_state.is_enabled_flag );
 
 	keyb_state.driver_current->poll();
 }
@@ -202,7 +227,9 @@ static inline void keyb_poll(void)
  */
 static inline const char* keyb_name(void)
 {
-	return keyb_state.name;
+	assert( keyb_state.is_active_flag );
+
+	return keyb_state.driver_current->name;
 }
 
 /*@}*/

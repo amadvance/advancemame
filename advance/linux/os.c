@@ -294,6 +294,11 @@ void* os_internal_x_get(void)
 #endif
 
 #if defined(USE_SDL)
+const char* os_internal_sdl_title_get(void)
+{
+	return OS.title_buffer;
+}
+
 void* os_internal_sdl_get(void)
 {
 	if (OS.sdl_active)
@@ -331,11 +336,6 @@ void os_inner_done(void)
 		OS.svgalib_active = 0;
 	}
 #endif
-}
-
-const char* os_internal_title_get(void)
-{
-	return OS.title_buffer;
 }
 
 void os_poll(void)
@@ -403,7 +403,7 @@ void os_poll(void)
 				break;
 		}
 	}
-#endif	
+#endif
 }
 
 /***************************************************************************/
@@ -425,7 +425,7 @@ void os_default_signal(int signum)
 
 	log_std(("os: signal %d\n", signum));
 
-#if defined(USE_KEYBOARD_SVGALIB) || defined(USE_KEYBOARD_SDL) || defined(USE_KEYBOARD_RAW)
+#if defined(USE_KEYBOARD_SVGALIB) || defined(USE_KEYBOARD_SDL) || defined(USE_KEYBOARD_RAW) || defined(USE_KEYBOARD_EVENT)
 	log_std(("os: keyb_abort\n"));
 	{
 		extern void keyb_abort(void);
@@ -433,7 +433,7 @@ void os_default_signal(int signum)
 	}
 #endif
 
-#if defined(USE_MOUSE_SVGALIB) || defined(USE_MOUSE_SDL) || defined(USE_MOUSE_RAW)
+#if defined(USE_MOUSE_SVGALIB) || defined(USE_MOUSE_SDL) || defined(USE_MOUSE_RAW) || defined(USE_MOUSE_EVENT)
 	log_std(("os: mouseb_abort\n"));
 	{
 		extern void mouseb_abort(void);

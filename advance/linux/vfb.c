@@ -42,6 +42,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include <linux/fb.h>
 
@@ -377,14 +378,12 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 		return -1;
 
 	if (getenv("DISPLAY")) {
-		log_std(("video:fb: DISPLAY set\n"));
-		error_nolog_cat("fb: Unsupported in X\n");
+		error_set("Unsupported in X.\n");
 		return -1;
 	}
 
 	if (output != adv_output_auto && output != adv_output_fullscreen) {
-		log_std(("video:fb: Only fullscreen output is supported\n"));
-		error_nolog_cat("fb: Only fullscreen output is supported\n");
+		error_set("Only fullscreen output is supported.\n");
 		return -1;
 	}
 
@@ -392,28 +391,21 @@ adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_curs
 	if (!fb)
 		fb = "/dev/fb0";
 
-	if (access(fb, R_OK | W_OK)!=0) {
-		log_std(("video:fb: R/W access denied at the frame buffer %s\n", fb));
-		error_nolog_cat("fb: R/W access denied at the frame buffer %s\n", fb);
-		return -1;
-	}
-
 	fb_state.fd = open(fb, O_RDWR);
 	if (fb_state.fd < 0) {
-		log_std(("video:fb: Error opening the frame buffer %s\n", fb));
-		error_nolog_cat("fb: Error opening the frame buffer %s\n", fb);
+		error_set("Error opening the frame buffer %s. Error %d (%s).\n", fb, errno, strerror(errno));
 		return -1;
 	}
 
 	/* get the fixed info */
 	if (ioctl(fb_state.fd, FBIOGET_FSCREENINFO, &fb_state.fixinfo) != 0) {
-		error_set("Error in FBIOGET_FSCREENINFO");
+		error_set("Function ioctl(FBIOGET_FSCREENINFO) failed.");
 		goto err_close;
 	}
 
 	/* get the variable info */
 	if (ioctl(fb_state.fd, FBIOGET_VSCREENINFO, &fb_state.varinfo) != 0) {
-		error_set("Error in FBIOGET_VSCREENINFO");
+		error_set("Function ioctl(FBIOGET_VSCREENINFO( failed.");
 		goto err_close;
 	}
 
@@ -761,7 +753,7 @@ adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned f
 	assert( fb_is_active() );
 
 	if (crtc_is_fake(crtc)) {
-		error_nolog_cat("fb: Not programmable modes not supported\n");
+		error_set("Not programmable modes not supported\n");
 		return -1;
 	}
 

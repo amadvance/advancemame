@@ -30,7 +30,7 @@
 
 #include "salsa.h"
 #include "log.h"
-#include "target.h"
+#include "error.h"
 
 /* new ALSA API */
 #define ALSA_PCM_NEW_HW_PARAMS_API
@@ -187,7 +187,7 @@ adv_error sound_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 err_close:
 	snd_pcm_close(alsa_state.handle);
 err:
-	target_err("Error initializing the ALSA sound.\n");
+	error_set("Error initializing the ALSA library.\n");
 	return -1;
 }
 

@@ -30,11 +30,11 @@
 
 #include "hscript.h"
 #include "script.h"
-
+#include "key.h"
 #include "target.h"
 #include "keydrv.h"
 
-#include "mame2.h"
+#include "glue.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -105,195 +105,10 @@ struct symbol {
 	const char* name;
 	int value;
 } SYMBOL[] = {
-/* IO Ports */
 { "lpt1", 0x378 },
 { "lpt2", 0x278 },
 { "lpt3", 0x3bc },
 { "kdb", 0 },
-/* MAME Ports */
-{ "p1_up", IPT_JOYSTICK_UP | IPF_PLAYER1 },
-{ "p1_down", IPT_JOYSTICK_DOWN | IPF_PLAYER1 },
-{ "p1_left", IPT_JOYSTICK_LEFT | IPF_PLAYER1 },
-{ "p1_right", IPT_JOYSTICK_RIGHT | IPF_PLAYER1 },
-{ "p2_up", IPT_JOYSTICK_UP | IPF_PLAYER2 },
-{ "p2_down", IPT_JOYSTICK_DOWN | IPF_PLAYER2 },
-{ "p2_left", IPT_JOYSTICK_LEFT | IPF_PLAYER2 },
-{ "p2_right", IPT_JOYSTICK_RIGHT | IPF_PLAYER2 },
-{ "p1_button1", IPT_BUTTON1 | IPF_PLAYER1 },
-{ "p1_button2", IPT_BUTTON2 | IPF_PLAYER1 },
-{ "p1_button3", IPT_BUTTON3 | IPF_PLAYER1 },
-{ "p1_button4", IPT_BUTTON4 | IPF_PLAYER1 },
-{ "p1_button5", IPT_BUTTON5 | IPF_PLAYER1 },
-{ "p1_button6", IPT_BUTTON6 | IPF_PLAYER1 },
-{ "p1_button7", IPT_BUTTON7 | IPF_PLAYER1 },
-{ "p1_button8", IPT_BUTTON8 | IPF_PLAYER1 },
-{ "p1_button9", IPT_BUTTON9 | IPF_PLAYER1 },
-{ "p1_button10", IPT_BUTTON10 | IPF_PLAYER1 },
-{ "p2_button1", IPT_BUTTON1 | IPF_PLAYER2 },
-{ "p2_button2", IPT_BUTTON2 | IPF_PLAYER2 },
-{ "p2_button3", IPT_BUTTON3 | IPF_PLAYER2 },
-{ "p2_button4", IPT_BUTTON4 | IPF_PLAYER2 },
-{ "p2_button5", IPT_BUTTON5 | IPF_PLAYER2 },
-{ "p2_button6", IPT_BUTTON6 | IPF_PLAYER2 },
-{ "p2_button7", IPT_BUTTON7 | IPF_PLAYER2 },
-{ "p2_button8", IPT_BUTTON8 | IPF_PLAYER2 },
-{ "p2_button9", IPT_BUTTON9 | IPF_PLAYER2 },
-{ "p2_button10", IPT_BUTTON10 | IPF_PLAYER2 },
-{ "start1", IPT_START1 },
-{ "start2", IPT_START2 },
-{ "start3", IPT_START3 },
-{ "start4", IPT_START4 },
-{ "coin1", IPT_COIN1 },
-{ "coin2", IPT_COIN2 },
-{ "coin3", IPT_COIN3 },
-{ "coin4", IPT_COIN4 },
-{ "service_coin1", IPT_SERVICE1 },
-{ "service_coin2", IPT_SERVICE2 },
-{ "service_coin3", IPT_SERVICE3 },
-{ "service_coin4", IPT_SERVICE4 },
-{ "service", IPT_SERVICE },
-{ "tilt", IPT_TILT },
-{ "ui_mode_next", IPT_UI_MODE_NEXT },
-{ "ui_mode_pred", IPT_UI_MODE_PRED },
-{ "ui_record_start", IPT_UI_RECORD_START },
-{ "ui_record_stop", IPT_UI_RECORD_STOP },
-{ "ui_turbo", IPT_UI_TURBO },
-{ "ui_configure", IPT_UI_CONFIGURE },
-{ "ui_on_screen_display", IPT_UI_ON_SCREEN_DISPLAY },
-{ "ui_pause", IPT_UI_PAUSE },
-{ "ui_reset_machine", IPT_UI_RESET_MACHINE },
-{ "ui_show_gfx", IPT_UI_SHOW_GFX },
-{ "ui_frameskip_dec", IPT_UI_FRAMESKIP_DEC },
-{ "ui_frameskip_inc", IPT_UI_FRAMESKIP_INC },
-{ "ui_throttle", IPT_UI_THROTTLE },
-{ "ui_show_fps", IPT_UI_SHOW_FPS },
-{ "ui_snapshot", IPT_UI_SNAPSHOT },
-{ "ui_toggle_cheat", IPT_UI_TOGGLE_CHEAT },
-{ "ui_up", IPT_UI_UP },
-{ "ui_down", IPT_UI_DOWN },
-{ "ui_left", IPT_UI_LEFT },
-{ "ui_right", IPT_UI_RIGHT },
-{ "ui_select", IPT_UI_SELECT },
-{ "ui_cancel", IPT_UI_CANCEL },
-{ "ui_pan_up", IPT_UI_PAN_UP },
-{ "ui_pan_down", IPT_UI_PAN_DOWN },
-{ "ui_pan_left", IPT_UI_PAN_LEFT },
-{ "ui_pan_right", IPT_UI_PAN_RIGHT },
-{ "ui_show_profiler", IPT_UI_SHOW_PROFILER },
-{ "ui_toggle_ui", IPT_UI_TOGGLE_UI },
-{ "ui_toggle_debug", IPT_UI_TOGGLE_DEBUG },
-{ "ui_save_state", IPT_UI_SAVE_STATE },
-{ "ui_load_state", IPT_UI_LOAD_STATE },
-{ "ui_add_cheat", IPT_UI_ADD_CHEAT },
-{ "ui_delete_cheat", IPT_UI_DELETE_CHEAT },
-{ "ui_save_cheat", IPT_UI_SAVE_CHEAT },
-{ "ui_watch_value", IPT_UI_WATCH_VALUE },
-/* Keys */
-{ "key_a", KEYB_A },
-{ "key_b", KEYB_B },
-{ "key_c", KEYB_C },
-{ "key_d", KEYB_D },
-{ "key_e", KEYB_E },
-{ "key_f", KEYB_F },
-{ "key_g", KEYB_G },
-{ "key_h", KEYB_H },
-{ "key_i", KEYB_I },
-{ "key_j", KEYB_J },
-{ "key_k", KEYB_K },
-{ "key_l", KEYB_L },
-{ "key_m", KEYB_M },
-{ "key_n", KEYB_N },
-{ "key_o", KEYB_O },
-{ "key_p", KEYB_P },
-{ "key_q", KEYB_Q },
-{ "key_r", KEYB_R },
-{ "key_s", KEYB_S },
-{ "key_t", KEYB_T },
-{ "key_u", KEYB_U },
-{ "key_v", KEYB_V },
-{ "key_w", KEYB_W },
-{ "key_x", KEYB_X },
-{ "key_y", KEYB_Y },
-{ "key_z", KEYB_Z },
-{ "key_0", KEYB_0 },
-{ "key_1", KEYB_1 },
-{ "key_2", KEYB_2 },
-{ "key_3", KEYB_3 },
-{ "key_4", KEYB_4 },
-{ "key_5", KEYB_5 },
-{ "key_6", KEYB_6 },
-{ "key_7", KEYB_7 },
-{ "key_8", KEYB_8 },
-{ "key_9", KEYB_9 },
-{ "key_0_pad", KEYB_0_PAD },
-{ "key_1_pad", KEYB_1_PAD },
-{ "key_2_pad", KEYB_2_PAD },
-{ "key_3_pad", KEYB_3_PAD },
-{ "key_4_pad", KEYB_4_PAD },
-{ "key_5_pad", KEYB_5_PAD },
-{ "key_6_pad", KEYB_6_PAD },
-{ "key_7_pad", KEYB_7_PAD },
-{ "key_8_pad", KEYB_8_PAD },
-{ "key_9_pad", KEYB_9_PAD },
-{ "key_f1", KEYB_F1 },
-{ "key_f2", KEYB_F2 },
-{ "key_f3", KEYB_F3 },
-{ "key_f4", KEYB_F4 },
-{ "key_f5", KEYB_F5 },
-{ "key_f6", KEYB_F6 },
-{ "key_f7", KEYB_F7 },
-{ "key_f8", KEYB_F8 },
-{ "key_f9", KEYB_F9 },
-{ "key_f10", KEYB_F10 },
-{ "key_f11", KEYB_F11 },
-{ "key_f12", KEYB_F12 },
-{ "key_esc", KEYB_ESC },
-{ "key_backquote", KEYB_BACKQUOTE },
-{ "key_minus", KEYB_MINUS },
-{ "key_equals", KEYB_EQUALS },
-{ "key_backspace", KEYB_BACKSPACE },
-{ "key_tab", KEYB_TAB },
-{ "key_openbrace", KEYB_OPENBRACE },
-{ "key_closebrace", KEYB_CLOSEBRACE },
-{ "key_enter", KEYB_ENTER },
-{ "key_semicolon", KEYB_SEMICOLON },
-{ "key_quote", KEYB_QUOTE },
-{ "key_backslash", KEYB_BACKSLASH },
-{ "key_less", KEYB_LESS },
-{ "key_comma", KEYB_COMMA },
-{ "key_period", KEYB_PERIOD },
-{ "key_slash", KEYB_SLASH },
-{ "key_space", KEYB_SPACE },
-{ "key_insert", KEYB_INSERT },
-{ "key_del", KEYB_DEL },
-{ "key_home", KEYB_HOME },
-{ "key_end", KEYB_END },
-{ "key_pgup", KEYB_PGUP },
-{ "key_pgdn", KEYB_PGDN },
-{ "key_left", KEYB_LEFT },
-{ "key_right", KEYB_RIGHT },
-{ "key_up", KEYB_UP },
-{ "key_down", KEYB_DOWN },
-{ "key_slash_pad", KEYB_SLASH_PAD },
-{ "key_asterisk", KEYB_ASTERISK },
-{ "key_minus_pad", KEYB_MINUS_PAD },
-{ "key_plus_pad", KEYB_PLUS_PAD },
-{ "key_period_pad", KEYB_PERIOD_PAD },
-{ "key_enter_pad", KEYB_ENTER_PAD },
-{ "key_prtscr", KEYB_PRTSCR },
-{ "key_pause", KEYB_PAUSE },
-{ "key_lshift", KEYB_LSHIFT },
-{ "key_rshift", KEYB_RSHIFT },
-{ "key_lcontrol", KEYB_LCONTROL },
-{ "key_rcontrol", KEYB_RCONTROL },
-{ "key_lalt", KEYB_ALT },
-{ "key_ralt", KEYB_ALTGR },
-{ "key_scrlock", KEYB_SCRLOCK },
-{ "key_numlock", KEYB_NUMLOCK },
-{ "key_capslock", KEYB_CAPSLOCK },
-{ "key_lwin", KEYB_LWIN },
-{ "key_rwin", KEYB_RWIN },
-{ "key_menu", KEYB_MENU },
 { 0, 0 }
 };
 
@@ -307,6 +122,9 @@ static int script_symbol_get(union script_arg_extra argextra)
 script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg_extra* argextra)
 {
 	struct symbol* p = SYMBOL;
+	const struct mame_port* mp;
+
+	/* check for global symbol */
 	while (p->name) {
 		if (strcmp(sym, p->name)==0) {
 			argextra->value = p->value;
@@ -314,6 +132,31 @@ script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg
 		}
 		++p;
 	}
+
+	/* check for key names in the form key_NAME */
+	if (memcmp(sym, "key_", 4) == 0) {
+		unsigned i;
+		const char* sym_name = sym + 4;
+		for(i=0;i<KEYB_MAX;++i) {
+			const char* name = key_name(i);
+			if (name) {
+				if (strcmp(sym_name, name)==0) {
+					argextra->value = i;
+					return &script_symbol_get;
+				}
+			}
+		}
+	}
+
+	/* check for port names */
+	mp = mame_port_list();
+	while (mp->name) {
+		if (strcmp(sym, mp->name)==0) {
+			argextra->value = mp->port;
+			return &script_symbol_get;
+		}
+	}
+
 	return 0;
 }
 
@@ -331,10 +174,8 @@ int script_function2_get(int arg0, union script_arg_extra argextra)
 	switch (argextra.value) {
 		case 0 : /* get */
 			return script_port_read(arg0);
-		case 1 : { /* event */
-			InputSeq* seq = input_port_type_seq(arg0);
-			return seq_pressed(seq);
-		}
+		case 1 :  /* event */
+			return mame_ui_port_pressed(arg0);
 	}
 	return 0;
 }
@@ -419,7 +260,6 @@ void script_error(const char* s)
 
 int hardware_script_init(adv_conf* context)
 {
-
 	conf_string_register_default(context, "script_video", "wait(!event()); set(kdb, 0);");
 	conf_string_register_default(context, "script_emulation", "");
 	conf_string_register_default(context, "script_play", "");

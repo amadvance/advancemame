@@ -109,12 +109,14 @@ adv_error mouseb_init(void)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a mouse driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize the mouse driver. The following are the errors:\n");
 
 	for(i=0;i<mouseb_state.driver_mac;++i) {
 		const adv_device* dev;
 
 		dev = device_match(mouseb_state.name, (const adv_driver*)mouseb_state.driver_map[i], 1);
+
+		error_cat_set(mouseb_state.driver_map[i]->name, 1);
 
 		if (dev && mouseb_state.driver_map[i]->init(dev->id) == 0) {
 			mouseb_state.driver_current = mouseb_state.driver_map[i];
@@ -122,8 +124,12 @@ adv_error mouseb_init(void)
 		}
 	}
 
+	error_cat_set(0, 0);
+
 	if (!mouseb_state.driver_current)
 		return -1;
+
+	error_reset();
 
 	log_std(("mouseb: select driver %s\n", mouseb_state.driver_current->name));
 

@@ -31,6 +31,7 @@
 #include "ksdl.h"
 #include "log.h"
 #include "error.h"
+#include "ossdl.h"
 
 #include "SDL.h"
 
@@ -164,10 +165,11 @@ adv_error keyb_sdl_init(int keyb_id, adv_bool disable_special)
 	unsigned j;
 
 	log_std(("keyb:sdl: keyb_sdl_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
-	 
+
+	/* check that SDL video support is enabled. It will be detected anyway in the */
+	/* enable() function. This check allows an early detection of the erroneous condition. */
 	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
-		log_std(("keyb:sdl: not supported without the SDL video driver\n"));
-		error_nolog_cat("sdl: Not supported without the SDL video driver\n");
+		error_set("The SDL keyboard driver requires the SDL video driver.\n");
 		return -1; 
 	}
 
@@ -189,11 +191,37 @@ void keyb_sdl_done(void)
 	log_std(("keyb:sdl: keyb_sdl_done()\n"));
 }
 
+adv_error keyb_sdl_enable(void)
+{
+	log_std(("keyb:sdl: keyb_sdl_enable()\n"));
+
+	/* check that the video mode is a SDL video mode */
+	if (!os_internal_sdl_is_video_active()) {
+		log_std(("keyb:raw: The SDL keyboard driver requires the SDL video driver\n"));
+		error_nolog_set("The SDL keyboard driver requires the SDL video driver\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+void keyb_sdl_disable(void)
+{
+	log_std(("keyb:sdl: keyb_sdl_disable()\n"));
+}
+
 unsigned keyb_sdl_count_get(void)
 {
-	log_std(("keyb:sdl: keyb_sdl_count_get(void)\n"));
+	log_debug(("keyb:sdl: keyb_sdl_count_get(void)\n"));
 
 	return 1;
+}
+
+adv_bool keyb_sdl_has(unsigned keyboard, unsigned code)
+{
+	log_debug(("keyb:sdl: keyb_sdl_has()\n"));
+
+	return key_is_standard(code);
 }
 
 unsigned keyb_sdl_get(unsigned keyboard, unsigned code)
@@ -242,6 +270,8 @@ void keyb_sdl_all_get(unsigned keyboard, unsigned char* code_map)
 void keyb_sdl_poll(void)
 {
 	log_debug(("keyb:sdl: keyb_sdl_poll()\n"));
+
+	/* the polling is done in the os interface which call the keyb_sdl_event_* function */
 }
 
 unsigned keyb_sdl_flags(void)
@@ -279,7 +309,6 @@ void keyb_sdl_event_release_all(void)
 	}
 }
 
-
 /***************************************************************************/
 /* Driver */
 
@@ -290,11 +319,13 @@ keyb_driver keyb_sdl_driver = {
 	keyb_sdl_reg,
 	keyb_sdl_init,
 	keyb_sdl_done,
+	keyb_sdl_enable,
+	keyb_sdl_disable,
 	keyb_sdl_flags,
 	keyb_sdl_count_get,
+	keyb_sdl_has,
 	keyb_sdl_get,
 	keyb_sdl_all_get,
 	keyb_sdl_poll
 };
-
 

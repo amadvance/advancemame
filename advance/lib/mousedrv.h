@@ -173,7 +173,9 @@ static inline void mouseb_poll(void)
  */
 static inline const char* mouseb_name(void)
 {
-	return mouseb_state.name;
+	assert( mouseb_state.is_active_flag );
+
+	return mouseb_state.driver_current->name;
 }
 
 /*@}*/

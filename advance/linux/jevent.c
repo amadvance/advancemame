@@ -271,8 +271,7 @@ adv_error joystickb_event_init(int joystickb_id)
 	}
 
 	if (!event_state.mac) {
-		log_std(("joystickb:event: no joystick found\n"));
-		error_nolog_cat("event: No joystick found\n");
+		error_set("No joystick found.\n");
 		return -1;
 	}
 

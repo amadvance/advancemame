@@ -2,7 +2,7 @@ Name
 	advj - The AdvanceJOYSTICK Tester
 
 Synopsis
-	:advj [-device_joystick DEVICE]
+	:advj [-device_joystick DEVICE] [-log] [-logsync]
 
 Description
 	The `advj' utility calibrates and tests the joystick.

@@ -514,6 +514,9 @@ const struct mame_game* mame_playback_look(const char* file)
 	}
 }
 
+/**
+ * Run a game
+ */
 int mame_game_run(struct advance_context* context, const struct mame_option* advance)
 {
 	int r;
@@ -691,8 +694,174 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	return r;
 }
 
+/* Single port */
+#define S(name, NAME) \
+	{ name, IPT_##NAME }, \
+
+/* Player port */
+#define P(name, NAME) \
+	{ "p1_" name, IPT_##NAME | IPF_PLAYER1 }, \
+	{ "p2_" name, IPT_##NAME | IPF_PLAYER2 }, \
+	{ "p3_" name, IPT_##NAME | IPF_PLAYER3 }, \
+	{ "p4_" name, IPT_##NAME | IPF_PLAYER4 },
+
+/* Player port with extension */
+#define PE(name1, name2, NAME) \
+	{ "p1_" #name1, IPT_##NAME | IPF_PLAYER1 }, \
+	{ "p1_" #name2, (IPT_##NAME | IPF_PLAYER1) + IPT_EXTENSION }, \
+	{ "p2_" #name1, IPT_##NAME | IPF_PLAYER2 }, \
+	{ "p2_" #name2, (IPT_##NAME | IPF_PLAYER2) + IPT_EXTENSION }, \
+	{ "p3_" #name1, IPT_##NAME | IPF_PLAYER3 }, \
+	{ "p3_" #name2, (IPT_##NAME | IPF_PLAYER3) + IPT_EXTENSION }, \
+	{ "p4_" #name1, IPT_##NAME | IPF_PLAYER4 }, \
+	{ "p4_" #name2, (IPT_##NAME | IPF_PLAYER4) + IPT_EXTENSION }, \
+
+static struct mame_port PORT[] = {
+	/* same order of IPT_ declaration in inptport.h */
+
+	/* JOYSTICK */
+	P("up", JOYSTICK_UP)
+	P("down", JOYSTICK_DOWN)
+	P("left", JOYSTICK_LEFT)
+	P("right", JOYSTICK_RIGHT)
+
+	/* BUTTON */
+	P("button1", BUTTON1)
+	P("button2", BUTTON2)
+	P("button3", BUTTON3)
+	P("button4", BUTTON4)
+	P("button5", BUTTON5)
+	P("button6", BUTTON6)
+	P("button7", BUTTON7)
+	P("button8", BUTTON8)
+	P("button9", BUTTON9)
+	P("button10", BUTTON10)
+
+	/* PADDLE */
+	PE("paddle_left", "paddle_right", PADDLE)
+	PE("paddle_up", "paddle_down", PADDLE_V)
+
+	/* DIAL */
+	PE("dial_left", "dial_right", DIAL)
+	PE("dial_up", "dial_down", DIAL_V)
+
+	/* TRACKBALL */
+	PE("trackball_left", "trackball_right", TRACKBALL_X)
+	PE("trackball_up", "trackball_down", TRACKBALL_Y)
+
+	/* AD_STICK */
+	PE("stick_left", "stick_right", AD_STICK_X)
+	PE("stick_up", "stick_down", AD_STICK_Y)
+	PE("stick_forward", "stick_backward", AD_STICK_Z)
+
+	/* LIGHTGUN */
+	PE("lightgun_left", "lightgun_right", LIGHTGUN_X)
+	PE("lightgun_up", "lightgun_down", LIGHTGUN_Y)
+
+	/* PEDAL */
+	PE("pedal_up", "pedal_down", PEDAL)
+	PE("pedal2_up", "pedal2_down", PEDAL2)
+
+	/* START */
+	S("start1", START1)
+	S("start2", START2)
+	S("start3", START3)
+	S("start4", START4)
+
+	/* COIN */
+	S("coin1", COIN1)
+	S("coin2", COIN2)
+	S("coin3", COIN3)
+	S("coin4", COIN4)
+
+	/* SERVICEK */
+	S("service_coin1", SERVICE1)
+	S("service_coin2", SERVICE2)
+	S("service_coin3", SERVICE3)
+	S("service_coin4", SERVICE4)
+
+	/* SERVICE */
+	S("service", SERVICE)
+
+	/* TILT */
+	S("tilt", TILT)
+
+	/* UI */
+	S("ui_mode_next", UI_MODE_NEXT)
+	S("ui_mode_pred", UI_MODE_PRED)
+	S("ui_record_start", UI_RECORD_START)
+	S("ui_record_stop", UI_RECORD_STOP)
+	S("ui_turbo", UI_TURBO)
+	S("ui_configure", UI_CONFIGURE)
+	S("ui_on_screen_display", UI_ON_SCREEN_DISPLAY)
+	S("ui_pause", UI_PAUSE)
+	S("ui_reset_machine", UI_RESET_MACHINE)
+	S("ui_show_gfx", UI_SHOW_GFX)
+	S("ui_frameskip_dec", UI_FRAMESKIP_DEC)
+	S("ui_frameskip_inc", UI_FRAMESKIP_INC)
+	S("ui_throttle", UI_THROTTLE)
+	S("ui_show_fps", UI_SHOW_FPS)
+	S("ui_snapshot", UI_SNAPSHOT)
+	S("ui_toggle_cheat", UI_TOGGLE_CHEAT)
+	S("ui_up", UI_UP)
+	S("ui_down", UI_DOWN)
+	S("ui_left", UI_LEFT)
+	S("ui_right", UI_RIGHT)
+	S("ui_select", UI_SELECT)
+	S("ui_cancel", UI_CANCEL)
+	S("ui_pan_up", UI_PAN_UP)
+	S("ui_pan_down", UI_PAN_DOWN)
+	S("ui_pan_left", UI_PAN_LEFT)
+	S("ui_pan_right", UI_PAN_RIGHT)
+	S("ui_show_profiler", UI_SHOW_PROFILER)
+	S("ui_toggle_ui", UI_TOGGLE_UI)
+	S("ui_toggle_debug", UI_TOGGLE_DEBUG)
+	S("ui_save_state", UI_SAVE_STATE)
+	S("ui_load_state", UI_LOAD_STATE)
+	S("ui_add_cheat", UI_ADD_CHEAT)
+	S("ui_delete_cheat", UI_DELETE_CHEAT)
+	S("ui_save_cheat", UI_SAVE_CHEAT)
+	S("ui_watch_value", UI_WATCH_VALUE)
+
+	{ 0, 0 }
+};
+
+struct mame_port* mame_port_list(void)
+{
+	return PORT;
+}
+
 /***************************************************************************/
-/* MAME user interface */
+/* MAME callback interface */
+
+/**
+ * Check if a MAME port is active.
+ * A port is active if the associated key sequence is pressed.
+ * The port values are only values get from the mame_port_list() function.
+ */
+int mame_ui_port_pressed(unsigned port)
+{
+	InputSeq* seq = input_port_type_seq(port);
+	if (!seq)
+		return 0;
+	return seq_pressed(seq);
+}
+
+/**
+ * Convert a os depended key code in a MAME code.
+ */
+unsigned mame_ui_code_from_oskey(unsigned oscode)
+{
+	return keyoscode_to_code(oscode);
+}
+
+/**
+ * Convert a os depended joystick code in a MAME code.
+ */
+unsigned mame_ui_code_from_osjoystick(unsigned oscode)
+{
+	return joyoscode_to_code(oscode);
+}
 
 void mame_ui_area_set(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 {

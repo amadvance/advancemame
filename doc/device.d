@@ -191,6 +191,9 @@ Input Drivers
 
 	It supports more than one keyboard at the same time.
 
+	For USB devices this driver doesn't requires any configuration.
+	It's able to autodetect all the present harware.
+
     raw - Linux Kernel keyboard
 	This driver works in Linux and it uses directly the Linux kernel
 	keyboard interface.
@@ -215,6 +218,13 @@ Input Drivers
 	interface of the Linux kernel.
 
 	It supports more than one joystick at the same time.
+
+	For USB devices this driver doesn't requires any configuration.
+	It's able to autodetect all the present harware.
+
+	This driver is also able to correctly report the type of devices
+	found. You should for example expect to have the gas pedal mapped
+	on the gas control of the game.
 
     allegro - Allegro joystick
 	This driver works in DOS and it uses the Allegro library.
@@ -243,6 +253,9 @@ Input Drivers
 	interface of the Linux kernel.
 
 	It supports more than one mouse at the same time.
+
+	For USB devices this driver doesn't requires any configuration.
+	It's able to autodetect all the present harware.
 
     raw - Serial mouse
 	This driver works in Linux and it communicates directly with
@@ -711,14 +724,14 @@ Input Drivers Configuration
 		auto - Automatic detection (default).
 
 	Options for Linux:
-		svgalib - SVGALIB keyboard. This driver is not available
-			if the SDL video output is used.
-		event - Linux input-event interface. This driver
-			is not available if the SDL video output is used.
-		raw - Linux kernel keyboard interface. This driver
-			is not available if the SDL video output is used.
+		svgalib - SVGALIB keyboard.
+		event - Linux input-event interface.
+		raw - Linux kernel keyboard interface.
 		sdl - SDL keyboard. This driver is available
 			only if the SDL video output is used.
+
+	If you are using the SDL video driver you must also use the SDL
+	keyboard driver.
 
 	Options for Mac OS X:
 		sdl - SDL keyboard.
@@ -742,10 +755,6 @@ Input Drivers Configuration
 		svgalib - SVGALIB automatic detection.
 		event - Linux input-event interface.
 		sdl - SDL automatic detection.
-
-	If you use the `svgalib' driver remember to configure the
-	correct joystick in the SVGALIB configuration file generally
-	placed in /etc/vga/libvga.config.
 
 	Options for Mac OS X:
 		sdl - SDL automatic detection.
@@ -805,13 +814,6 @@ Input Drivers Configuration
 		raw - Direct serial communication.
 		sdl - SDL automatic detection.
 
-	If you use the `svgalib' driver remember to configure the
-	correct mouse in the SVGALIB configuration file generally
-	placed in /etc/vga/libvga.config.
-
-	If you use the `raw' driver remember to configure also
-	the required device_raw_* options.
-
 	Options for Mac OS X:
 		sdl - SDL automatic detection.
 
@@ -850,8 +852,8 @@ Input Drivers Configuration
 		wacomgraphire - Wacom Graphire tablet/mouse.
 		drmousee4ds - Digital Research double-wheeled mouse.
 
-	The Linux USB mouses under /dev/input/* are always of type imps2
-	or exps2.
+	The Linux mouses under /dev/input/* are always of type ps2,
+	imps2 or exps2.
 
     device_raw_mousedev[0,1,2,3]
 	Select the mouse device to use.

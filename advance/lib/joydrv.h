@@ -204,7 +204,9 @@ static inline void joystickb_poll(void)
  */
 static inline const char* joystickb_name(void)
 {
-	return joystickb_state.name;
+	assert( joystickb_state.is_active_flag );
+
+	return joystickb_state.driver_current->name;
 }
 
 #ifdef __cplusplus

@@ -277,4 +277,29 @@ unsigned key_code(const char* name)
 	return KEYB_MAX;
 }
 
+/**
+ * Check if a key code is a defined code.
+ * Not all the codes from 0 to KEYB_MAX are defined.
+ */
+adv_bool key_is_defined(unsigned code)
+{
+	struct key_entry* i;
+
+	if (code >= KEYB_MAX)
+		return 0;
+
+	for(i=KEY;i->name;++i)
+		if (i->code == code)
+			return 1;
+
+	return 0;
+}
+
+/**
+ * Check if a key code is a defined code and if it's a standard key.
+ */
+adv_bool key_is_standard(unsigned code)
+{
+	return code < KEYB_STOP && key_is_defined(code);
+}
 

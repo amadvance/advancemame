@@ -147,7 +147,9 @@ static inline unsigned inputb_get(void)
  */
 static inline const char* inputb_name(void)
 {
-	return inputb_state.name;
+	assert( inputb_state.is_active_flag );
+
+	return inputb_state.driver_current->name;
 }
 
 #ifdef __cplusplus

@@ -1083,58 +1083,100 @@ Configuration
 		TIME - Number of seconds to wait, if 0 (default)
 			never exits automatically.
 
-    input_map[,x|y|z|pedal]
+    input_map[p1|2|3|4_x|y|z|pedal]
 	Changes the analog control mapping. Map a joystick/control axe
 	on a player analog control.
 
-	:input_map[PLAYER,CONTROL] auto | [-]joystick[JOY,STICK,AXE] ...
+	:input_map[CONTROL] auto | [-]joystick[JOY,STICK,AXE] ...
 
 	The default is always `auto'.
 
 	Options:
+		CONTROL - Player analog control. One of: p1_x, p1_y, p1_z, p1_pedal,
+			p2_x, p2_y, p2_z, p2_pedal, p3_x, p3_y, p3_z, p3_pedal,
+			p4_x, p4_y, p4_z, p4_pedal.
 		- - Invert the direction of the movement.
-		PLAYER - Number of player: 0, 1, 2, 3.
-		CONTROL - Name of player control: x, y, z, pedal.
 		JOY - Number of physical joystick: 0, 1, 2, 3, ...
 		STICK - Number of physical stick of the joystick: 0, 1, 2, 3, ...
 		AXE - Number of physical axe of the stick: 0, 1, 2, 3, ...
 
 	Controls:
-		x - This axe is generally used for all the horizontal movements
+		p1_AXE - Player 1.
+		p2_AXE - Player 2.
+		p3_AXE - Player 3.
+		p4_AXE - Player 4.
+		PLAYER_x - This axe is generally used for all the horizontal movements
 			and for steering wheel.
-		y - This axe is generally used for all the vertical movements.
-		z - This axe is generally used for all the in deep movements
+		PLAYER_y - This axe is generally used for all the vertical movements.
+		PLAYER_z - This axe is generally used for all the in deep movements
 			and for the second pedal (brake).
-		pedal - This axe is generally used for the first pedal (gas).
+		PLAYER_pedal - This axe is generally used for the first pedal (gas).
 
 	Examples:
-		input_map[0,x] -joystick[0,0,0] joystick[0,1,0]
-		input_map[0,y] -joystick[0,0,1] -joystick[0,1,1]
+		input_map[p1_x] -joystick[0,0,0] joystick[0,1,0]
+		input_map[p1_y] -joystick[0,0,1] -joystick[0,1,1]
 
-    input_map[,trakx|traky]
+    input_map[p1|2|3|4_trakx|traky]
 	Changes the trak control mapping. Map a mouse axe on a player
-	track control.
+	trak control.
 
-	:input_map[PLAYER,CONTROL] auto | [-]mouse[MOUSE,AXE] ...
+	:input_map[CONTROL] auto | [-]mouse[MOUSE,AXE] ...
 
 	The default is always `auto'.
 
 	Options:
+		CONTROL - Player trak. One of: p1_trakx, p1_traky,
+			p2_trakx, p2_traky, p3_trakx, p3_traky, p4_trakx, p4_traky.
 		- - Invert the direction of the movement.
-		PLAYER - Number of player trak control: 0, 1, 2, 3.
-		CONTROL - Name of player control: trackx, tracky.
 		MOUSE - Number of physical mouse: 0, 1, 2, 3, ...
 		AXE - Number of physical mouse axe: 0, 1, 2, ...
 
 	Controls:
-		trackx - This axe is generally used for all the horizontal
+		p1_AXE - Player 1.
+		p2_AXE - Player 2.
+		p3_AXE - Player 3.
+		p4_AXE - Player 4.
+		PLAYER_trackx - This axe is generally used for all the horizontal
 			movements with a trackball.
-		tracky - This axe is generally used for all the vertical movements
+		PLAYER_tracky - This axe is generally used for all the vertical movements
 			with a trackball.
 
 	Examples:
-		input_map[0,trakx] -mouse[0,0] -mouse[1,0]
-		input_map[0,traky] -mouse[0,1] -mouse[1,1]
+		input_map[p1_trakx] -mouse[0,0] -mouse[1,0]
+		input_map[p1_traky] -mouse[0,1] -mouse[1,1]
+
+    input_map[*]
+	Changes the keyboard control mapping. Map a sequence of
+	keyboard/mouse/joystick keys on a player button or analog
+	simulation control.
+
+	:input_map[CONTROL] auto | kbd[KEYBOARD,KEY]
+		| mouse[MOUSE,MOUSE_BUTTON] | joystick[JOY,JOY_BUTTON]
+		| or | not | ...
+
+	The default is always `auto'.
+
+	Options:
+		CONTROL - Player button or analog simulation control.
+		KEYBOARD - Number of physical keyboard: 0, 1, 2, 3, ...
+		KEY - Name of physical key.
+		MOUSE - Number of physical mouse: 0, 1, 2, 3, ...
+		MOUSE_BUTTON -
+		JOY - Number of physical joystick: 0, 1, 2, 3, ...
+		JOY_BUTTON - Joystick button. A number: 0, 1, 2, 3, ... or
+			a name: trigger, top, thumb, ...
+		or - Or operand.
+		not - Not operand.
+
+	Controls:
+		p1_left, ...
+
+	Keys:
+		left, ...
+
+	Examples:
+		input_map[p1_left] kbd[0,left]
+		input_map[p1_right] kbd[0,right]
 
   Record Configuration Options
 	This section describes the options used for the recording

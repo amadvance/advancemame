@@ -434,7 +434,7 @@ const adv_video_driver* video_driver_vector_pos(unsigned i)
 adv_error video_init(void)
 {
 	unsigned i;
-	int at_least_one;
+	adv_bool at_least_one;
 
 	assert( !video_is_active() );
 
@@ -451,7 +451,7 @@ adv_error video_init(void)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a video driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize the video driver. The following are the errors:\n");
 
 	/* enable all the video driver */
 	/* backward order is used to respect the dependencies */
@@ -464,6 +464,8 @@ adv_error video_init(void)
 
 		dev = device_match(video_option.name, (const adv_driver*)video_state.driver_map[j], 0);
 
+		error_cat_set(video_state.driver_map[j]->name, 1);
+
 		if (dev && video_state.driver_map[j]->init(dev->id, video_option.output, video_option.zoom_size, video_option.cursor) == 0) {
 			log_std(("video: select driver %s\n", video_state.driver_map[j]->name));
 			at_least_one = 1;
@@ -471,6 +473,8 @@ adv_error video_init(void)
 			video_state.driver_map[j] = 0; /* deactivate the driver */
 		}
 	}
+
+	error_cat_set(0,0);
 
 	if (!at_least_one) {
 		log_std(("video: no video driver activated\n"));
@@ -790,7 +794,7 @@ adv_error video_mode_grab(adv_mode* mode)
 /**
  * Generate a video mode.
  * \param mode Destination of the new video mode.
- * \param crtc Required crtc of the new video mode.
+ * \param crtc Required crtc of the new video mode. It can be a fake crtc (with most valuess at 0).
  * \param flags Required flags of the new video mode.
  */
 adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned flags)
@@ -802,22 +806,31 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned fla
 	/* store the error prefix */
 	error_nolog_set("No driver is capable to do the specified video mode.\n\nThe following is the detailed list of errors for every driver:\n");
 
+	/* try any enabled driver */
 	for(i=0;i<video_state.driver_mac;++i) {
 		if (video_state.driver_map[i]) {
 			driver_flags = video_capability_flags(video_state.driver_map[i]->flags());
 
-			/* allow also faked crtc */
-			if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, flags)==0 && video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
+			error_cat_set(video_state.driver_map[i]->name, 1);
+
+			/* allow also faked crtc (with all values at 0), the driver */
+			/* must reject them if they are not allowed  */
+			if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, flags)==0
+				&& video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
+				error_cat_set(0,0);
 				error_reset();
 				log_pedantic(("video: using driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
 				return 0;
 			}
 
-			/* convert PALETTE8 in BGR8 */
+			/* convert a BGR8 mode in a PALETTE8 mode if the driver doesn't support BGR8 */
 			if ((flags & MODE_FLAGS_INDEX_MASK) == MODE_FLAGS_INDEX_BGR8
-				&& (driver_flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) != 0) {
+				&& (driver_flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) != 0
+				&& (driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR8) == 0
+			) {
 				unsigned fake_flags = (flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_PALETTE8;
 				if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, fake_flags)==0 && video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
+					error_cat_set(0,0);
 					error_reset();
 					/* adjust the flags */
 					mode->flags = (mode->flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_BGR8 | MODE_FLAGS_INTERNAL_FAKERGB;
@@ -826,12 +839,16 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned fla
 				}
 			}
 
-			/* convert BGR16 in TEXT, only on a Window Manager */
+			/* convert a TEXT mode in a BGR16 mode if the driver doesn't support */
+			/* text modes. Only on a Window Manager. */
 			if ((flags & MODE_FLAGS_INDEX_MASK) == MODE_FLAGS_INDEX_TEXT
 				&& (driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) != 0
-				&& (driver_flags & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0) {
+				&& (driver_flags & VIDEO_DRIVER_FLAGS_MODE_TEXT) == 0
+				&& (driver_flags & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0
+			) {
 				unsigned fake_flags = (flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_BGR16;
 				if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, fake_flags)==0 && video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
+					error_cat_set(0,0);
 					error_reset();
 					/* adjust the flags */
 					mode->flags = (mode->flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_BGR16 | MODE_FLAGS_INTERNAL_FAKETEXT;
@@ -842,6 +859,8 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned fla
 		}
 	}
 
+	error_cat_set(0,0);
+
 	return -1;
 }
 
@@ -851,45 +870,45 @@ adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, u
 	driver_flags = video_capability_flags(driver_flags);
 
 	if (crtc->hde % hstep != 0 || crtc->hrs % hstep != 0 || crtc->hre % hstep != 0 || crtc->ht % hstep != 0) {
-		error_nolog_cat("%s: Horizontal crtc values are not a %d dot multiple\n", driver, hstep);
+		error_set("Horizontal crtc values are not a %d dot multiple.\n", hstep);
 		return -1;
 	}
 	if (crtc->ht >= hvmax || crtc->vt >= hvmax) {
-		error_nolog_cat("%s: Horizontal or vertical crtc total value bigger than %d\n", driver, hvmax);
+		error_set("Horizontal or vertical crtc total value bigger than %d.\n", hvmax);
 		return -1;
 	}
 
 	if (crtc_is_interlace(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) == 0) {
-			error_nolog_cat("%s: Interlace not supported\n", driver);
+			error_set("Mode interlace not supported.\n");
 			return -1;
 		}
 	}
 
 	if (crtc_is_doublescan(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) == 0) {
-			error_nolog_cat("%s: Doublescan not supported\n", driver);
+			error_set("Mode dDoublescan not supported.\n");
 			return -1;
 		}
 	}
 
 	if (crtc_is_singlescan(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) == 0) {
-			error_nolog_cat("%s: Singlescan not supported\n", driver);
+			error_set("Mode singlescan not supported.\n");
 			return -1;
 		}
 	}
 
 	if (crtc_is_tvpal(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVPAL) == 0) {
-			error_nolog_cat("%s: TV-PAL not supported\n", driver);
+			error_set("Mode TV-PAL not supported.\n");
 			return -1;
 		}
 	}
 
 	if (crtc_is_tvntsc(crtc)) {
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_TVNTSC) == 0) {
-			error_nolog_cat("%s: TV-NTSC not supported\n", driver);
+			error_set("Mode TV-NTSC not supported.\n");
 			return -1;
 		}
 	}
@@ -897,54 +916,54 @@ adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, u
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
 	case MODE_FLAGS_INDEX_PALETTE8 :
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) == 0) {
-			error_nolog_cat("%s: palette8 not supported\n", driver);
+			error_set("Mode palette8 not supported.\n");
 			return -1;
 		}
 		break;
 	case MODE_FLAGS_INDEX_BGR8 :
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR8) == 0) {
-			error_nolog_cat("%s: bgr8 not supported\n", driver);
+			error_set("Mode bgr8 not supported.\n");
 			return -1;
 		}
 		break;
 	case MODE_FLAGS_INDEX_BGR15 :
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR15) == 0) {
-			error_nolog_cat("%s: bgr15 not supported\n", driver);
+			error_set("Mode bgr15 not supported.\n");
 			return -1;
 		}
 		break;
 	case MODE_FLAGS_INDEX_BGR16 :
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) == 0) {
-			error_nolog_cat("%s: bgr16 not supported\n", driver);
+			error_set("Mode bgr16 not supported.\n");
 			return -1;
 		}
 		break;
 	case MODE_FLAGS_INDEX_BGR24 :
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR24) == 0) {
-			error_nolog_cat("%s: bgr24 not supported\n", driver);
+			error_set("Mode bgr24 not supported.\n");
 			return -1;
 		}
 		break;
 	case MODE_FLAGS_INDEX_BGR32 :
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR32) == 0) {
-			error_nolog_cat("%s: bgr32 not supported\n", driver);
+			error_set("Mode bgr32 not supported.\n");
 			return -1;
 		}
 		break;
 	case MODE_FLAGS_INDEX_YUY2 :
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_YUY2) == 0) {
-			error_nolog_cat("%s: yuy2 not supported\n", driver);
+			error_set("Mode yuy2 not supported.\n");
 			return -1;
 		}
 		break;
 	case MODE_FLAGS_INDEX_TEXT :
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_TEXT) == 0) {
-			error_nolog_cat("%s: text not supported\n", driver);
+			error_set("Mode text not supported.\n");
 			return -1;
 		}
 		break;
 	default:
-		error_nolog_cat("%s: unknown mode not supported\n", driver);
+		error_set("Unknown index mode.\n");
 		return -1;
 	}
 

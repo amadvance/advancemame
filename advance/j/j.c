@@ -24,6 +24,7 @@
 #include "target.h"
 #include "portable.h"
 #include "log.h"
+#include "error.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +35,7 @@ void probe(void)
 {
 	int i, j, k;
 
-	printf("Joysticks %d\n", joystickb_count_get());
+	printf("Driver %s, joysticks %d\n", joystickb_name(), joystickb_count_get());
 	for(i=0;i<joystickb_count_get();++i) {
 		printf("joy %d, buttons %d, controls %d\n", i, joystickb_button_count_get(i), joystickb_stick_count_get(i));
 		for(j=0;j<joystickb_stick_count_get(i);++j) {
@@ -237,8 +238,10 @@ int os_main(int argc, char* argv[])
 	if (os_inner_init("AdvanceJOYSTICK") != 0)
 		goto err_os;
 
-	if (joystickb_init() != 0)
+	if (joystickb_init() != 0) {
+		target_err("%s\n", error_get());
 		goto err_os_inner;
+	}
 
 	probe();
 	calibrate();

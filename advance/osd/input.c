@@ -56,225 +56,252 @@ struct input_equiv {
 #define INPUT_NAME_MAX 64
 
 /**************************************************************************/
+/* Digital */
+
+/* The DIGITAL values are also saved in the .cfg file. If you change them */
+/* the cfg become invalid. */
+#define DIGITAL_TYPE_SPECIAL 0 /* Special codes */
+#define DIGITAL_TYPE_JOY 1 /* Joy digital move - DAAASSSDDDTTT */
+#define DIGITAL_TYPE_JOY_BUTTON 2 /* Joy button - BBBBDDDTTT */
+#define DIGITAL_TYPE_MOUSE_BUTTON 3 /* Mouse button - BBBBDDDTTT */
+#define DIGITAL_TYPE_KBD 4 /* Keyboard button - KKKKKKKKKKBBBTTT */
+#define DIGITAL_TYPE_GET(i) ((i) & 0x7)
+
+#define DIGITAL_SPECIAL(code) (DIGITAL_TYPE_SPECIAL | (code) << 3)
+
+#define DIGITAL_SPECIAL_NONE DIGITAL_SPECIAL(1)
+#define DIGITAL_SPECIAL_OR DIGITAL_SPECIAL(2)
+#define DIGITAL_SPECIAL_NOT DIGITAL_SPECIAL(3)
+#define DIGITAL_SPECIAL_AUTO DIGITAL_SPECIAL(4)
+
+/**************************************************************************/
 /* Keyboard */
+
+#define DIGITAL_KBD_BOARD_GET(i) (((i) >> 3) & 0x7)
+#define DIGITAL_KBD_KEY_GET(i) (((i) >> 6) & 0x3FF)
+#define DIGITAL_KBD(board, key) (DIGITAL_TYPE_KBD | (board) << 3 | (key) << 6)
 
 /**
  * Equivalence from system key code and MAME key code.
  */
 static struct input_equiv input_keyequiv_map[] = {
-{ KEYB_A, KEYCODE_A },
-{ KEYB_B, KEYCODE_B },
-{ KEYB_C, KEYCODE_C },
-{ KEYB_D, KEYCODE_D },
-{ KEYB_E, KEYCODE_E },
-{ KEYB_F, KEYCODE_F },
-{ KEYB_G, KEYCODE_G },
-{ KEYB_H, KEYCODE_H },
-{ KEYB_I, KEYCODE_I },
-{ KEYB_J, KEYCODE_J },
-{ KEYB_K, KEYCODE_K },
-{ KEYB_L, KEYCODE_L },
-{ KEYB_M, KEYCODE_M },
-{ KEYB_N, KEYCODE_N },
-{ KEYB_O, KEYCODE_O },
-{ KEYB_P, KEYCODE_P },
-{ KEYB_Q, KEYCODE_Q },
-{ KEYB_R, KEYCODE_R },
-{ KEYB_S, KEYCODE_S },
-{ KEYB_T, KEYCODE_T },
-{ KEYB_U, KEYCODE_U },
-{ KEYB_V, KEYCODE_V },
-{ KEYB_W, KEYCODE_W },
-{ KEYB_X, KEYCODE_X },
-{ KEYB_Y, KEYCODE_Y },
-{ KEYB_Z, KEYCODE_Z },
-{ KEYB_0, KEYCODE_0 },
-{ KEYB_1, KEYCODE_1 },
-{ KEYB_2, KEYCODE_2 },
-{ KEYB_3, KEYCODE_3 },
-{ KEYB_4, KEYCODE_4 },
-{ KEYB_5, KEYCODE_5 },
-{ KEYB_6, KEYCODE_6 },
-{ KEYB_7, KEYCODE_7 },
-{ KEYB_8, KEYCODE_8 },
-{ KEYB_9, KEYCODE_9 },
-{ KEYB_0_PAD, KEYCODE_0_PAD },
-{ KEYB_1_PAD, KEYCODE_1_PAD },
-{ KEYB_2_PAD, KEYCODE_2_PAD },
-{ KEYB_3_PAD, KEYCODE_3_PAD },
-{ KEYB_4_PAD, KEYCODE_4_PAD },
-{ KEYB_5_PAD, KEYCODE_5_PAD },
-{ KEYB_6_PAD, KEYCODE_6_PAD },
-{ KEYB_7_PAD, KEYCODE_7_PAD },
-{ KEYB_8_PAD, KEYCODE_8_PAD },
-{ KEYB_9_PAD, KEYCODE_9_PAD },
-{ KEYB_F1, KEYCODE_F1 },
-{ KEYB_F2, KEYCODE_F2 },
-{ KEYB_F3, KEYCODE_F3 },
-{ KEYB_F4, KEYCODE_F4 },
-{ KEYB_F5, KEYCODE_F5 },
-{ KEYB_F6, KEYCODE_F6 },
-{ KEYB_F7, KEYCODE_F7 },
-{ KEYB_F8, KEYCODE_F8 },
-{ KEYB_F9, KEYCODE_F9 },
-{ KEYB_F10, KEYCODE_F10 },
-{ KEYB_F11, KEYCODE_F11 },
-{ KEYB_F12, KEYCODE_F12 },
-{ KEYB_ESC, KEYCODE_ESC },
-{ KEYB_BACKQUOTE, KEYCODE_TILDE },
-{ KEYB_MINUS, KEYCODE_MINUS },
-{ KEYB_EQUALS, KEYCODE_EQUALS },
-{ KEYB_BACKSPACE, KEYCODE_BACKSPACE },
-{ KEYB_TAB, KEYCODE_TAB },
-{ KEYB_OPENBRACE, KEYCODE_OPENBRACE },
-{ KEYB_CLOSEBRACE, KEYCODE_CLOSEBRACE },
-{ KEYB_ENTER, KEYCODE_ENTER },
-{ KEYB_SEMICOLON, KEYCODE_COLON },
-{ KEYB_QUOTE, KEYCODE_QUOTE },
-{ KEYB_BACKSLASH, KEYCODE_BACKSLASH },
-{ KEYB_LESS, KEYCODE_BACKSLASH2 },
-{ KEYB_COMMA, KEYCODE_COMMA },
-{ KEYB_PERIOD, KEYCODE_STOP },
-{ KEYB_SLASH, KEYCODE_SLASH },
-{ KEYB_SPACE, KEYCODE_SPACE },
-{ KEYB_INSERT, KEYCODE_INSERT },
-{ KEYB_DEL, KEYCODE_DEL },
-{ KEYB_HOME, KEYCODE_HOME },
-{ KEYB_END, KEYCODE_END },
-{ KEYB_PGUP, KEYCODE_PGUP },
-{ KEYB_PGDN, KEYCODE_PGDN },
-{ KEYB_LEFT, KEYCODE_LEFT },
-{ KEYB_RIGHT, KEYCODE_RIGHT },
-{ KEYB_UP, KEYCODE_UP },
-{ KEYB_DOWN, KEYCODE_DOWN },
-{ KEYB_SLASH_PAD, KEYCODE_SLASH_PAD },
-{ KEYB_ASTERISK, KEYCODE_ASTERISK },
-{ KEYB_MINUS_PAD, KEYCODE_MINUS_PAD },
-{ KEYB_PLUS_PAD, KEYCODE_PLUS_PAD },
-{ KEYB_PERIOD_PAD, KEYCODE_DEL_PAD },
-{ KEYB_ENTER_PAD, KEYCODE_ENTER_PAD },
-{ KEYB_PRTSCR, KEYCODE_PRTSCR },
-{ KEYB_PAUSE, KEYCODE_PAUSE },
-{ KEYB_LSHIFT, KEYCODE_LSHIFT },
-{ KEYB_RSHIFT, KEYCODE_RSHIFT },
-{ KEYB_LCONTROL, KEYCODE_LCONTROL },
-{ KEYB_RCONTROL, KEYCODE_RCONTROL },
-{ KEYB_ALT, KEYCODE_LALT },
-{ KEYB_ALTGR, KEYCODE_RALT },
-{ KEYB_LWIN, CODE_OTHER },
-{ KEYB_RWIN, CODE_OTHER },
-{ KEYB_MENU, CODE_OTHER },
-{ KEYB_SCRLOCK, KEYCODE_SCRLOCK },
-{ KEYB_NUMLOCK, KEYCODE_NUMLOCK },
-{ KEYB_CAPSLOCK, KEYCODE_CAPSLOCK },
-{ KEYB_STOP, CODE_OTHER },
-{ KEYB_AGAIN, CODE_OTHER },
-{ KEYB_PROPS, CODE_OTHER },
-{ KEYB_UNDO, CODE_OTHER },
-{ KEYB_FRONT, CODE_OTHER },
-{ KEYB_COPY, CODE_OTHER },
-{ KEYB_OPEN, CODE_OTHER },
-{ KEYB_PASTE, CODE_OTHER },
-{ KEYB_FIND, CODE_OTHER },
-{ KEYB_CUT, CODE_OTHER },
-{ KEYB_HELP, CODE_OTHER },
-{ KEYB_MENU, CODE_OTHER },
-{ KEYB_CALC, CODE_OTHER },
-{ KEYB_SETUP, CODE_OTHER },
-{ KEYB_SLEEP, CODE_OTHER },
-{ KEYB_WAKEUP, CODE_OTHER },
-{ KEYB_FILE, CODE_OTHER },
-{ KEYB_SENDFILE, CODE_OTHER },
-{ KEYB_DELETEFILE, CODE_OTHER },
-{ KEYB_XFER, CODE_OTHER },
-{ KEYB_PROG1, CODE_OTHER },
-{ KEYB_PROG2, CODE_OTHER },
-{ KEYB_WWW, CODE_OTHER },
-{ KEYB_MSDOS, CODE_OTHER },
-{ KEYB_COFFEE, CODE_OTHER },
-{ KEYB_DIRECTION, CODE_OTHER },
-{ KEYB_CYCLEWINDOWS, CODE_OTHER },
-{ KEYB_MAIL, CODE_OTHER },
-{ KEYB_BOOKMARKS, CODE_OTHER },
-{ KEYB_COMPUTER, CODE_OTHER },
-{ KEYB_BACK, CODE_OTHER },
-{ KEYB_FORWARD, CODE_OTHER },
-{ KEYB_CLOSECD, CODE_OTHER },
-{ KEYB_EJECTCD, CODE_OTHER },
-{ KEYB_EJECTCLOSECD, CODE_OTHER },
-{ KEYB_NEXTSONG, CODE_OTHER },
-{ KEYB_PLAYPAUSE, CODE_OTHER },
-{ KEYB_PREVIOUSSONG, CODE_OTHER },
-{ KEYB_STOPCD, CODE_OTHER },
-{ KEYB_RECORD, CODE_OTHER },
-{ KEYB_REWIND, CODE_OTHER },
-{ KEYB_PHONE, CODE_OTHER },
-{ KEYB_ISO, CODE_OTHER },
-{ KEYB_CONFIG, CODE_OTHER },
-{ KEYB_HOMEPAGE, CODE_OTHER },
-{ KEYB_REFRESH, CODE_OTHER },
-{ KEYB_EXIT, CODE_OTHER },
-{ KEYB_MOVE, CODE_OTHER },
-{ KEYB_EDIT, CODE_OTHER },
-{ KEYB_SCROLLUP, CODE_OTHER },
-{ KEYB_SCROLLDOWN, CODE_OTHER },
-{ KEYB_KPLEFTPAREN, CODE_OTHER },
-{ KEYB_KPRIGHTPAREN, CODE_OTHER },
-{ KEYB_INTL1, CODE_OTHER },
-{ KEYB_INTL2, CODE_OTHER },
-{ KEYB_INTL3, CODE_OTHER },
-{ KEYB_INTL4, CODE_OTHER },
-{ KEYB_INTL5, CODE_OTHER },
-{ KEYB_INTL6, CODE_OTHER },
-{ KEYB_INTL7, CODE_OTHER },
-{ KEYB_INTL8, CODE_OTHER },
-{ KEYB_INTL9, CODE_OTHER },
-{ KEYB_LANG1, CODE_OTHER },
-{ KEYB_LANG2, CODE_OTHER },
-{ KEYB_LANG3, CODE_OTHER },
-{ KEYB_LANG4, CODE_OTHER },
-{ KEYB_LANG5, CODE_OTHER },
-{ KEYB_LANG6, CODE_OTHER },
-{ KEYB_LANG7, CODE_OTHER },
-{ KEYB_LANG8, CODE_OTHER },
-{ KEYB_LANG9, CODE_OTHER },
-{ KEYB_PLAYCD, CODE_OTHER },
-{ KEYB_PAUSECD, CODE_OTHER },
-{ KEYB_PROG3, CODE_OTHER },
-{ KEYB_PROG4, CODE_OTHER },
-{ KEYB_SUSPEND, CODE_OTHER },
-{ KEYB_CLOSE, CODE_OTHER },
-{ KEYB_BRIGHTNESSDOWN, CODE_OTHER },
-{ KEYB_BRIGHTNESSUP, CODE_OTHER },
-{ KEYB_MACRO, CODE_OTHER },
-{ KEYB_MUTE, CODE_OTHER },
-{ KEYB_VOLUMEDOWN, CODE_OTHER },
-{ KEYB_VOLUMEUP, CODE_OTHER },
-{ KEYB_POWER, CODE_OTHER },
-{ KEYB_COMPOSE, CODE_OTHER },
-{ KEYB_F13, CODE_OTHER },
-{ KEYB_F14, CODE_OTHER },
-{ KEYB_F15, CODE_OTHER },
-{ KEYB_F16, CODE_OTHER },
-{ KEYB_F17, CODE_OTHER },
-{ KEYB_F18, CODE_OTHER },
-{ KEYB_F19, CODE_OTHER },
-{ KEYB_F20, CODE_OTHER },
-{ KEYB_F21, CODE_OTHER },
-{ KEYB_F22, CODE_OTHER },
-{ KEYB_F23, CODE_OTHER },
-{ KEYB_F24, CODE_OTHER }
+{ DIGITAL_KBD(0, KEYB_A), KEYCODE_A },
+{ DIGITAL_KBD(0, KEYB_B), KEYCODE_B },
+{ DIGITAL_KBD(0, KEYB_C), KEYCODE_C },
+{ DIGITAL_KBD(0, KEYB_D), KEYCODE_D },
+{ DIGITAL_KBD(0, KEYB_E), KEYCODE_E },
+{ DIGITAL_KBD(0, KEYB_F), KEYCODE_F },
+{ DIGITAL_KBD(0, KEYB_G), KEYCODE_G },
+{ DIGITAL_KBD(0, KEYB_H), KEYCODE_H },
+{ DIGITAL_KBD(0, KEYB_I), KEYCODE_I },
+{ DIGITAL_KBD(0, KEYB_J), KEYCODE_J },
+{ DIGITAL_KBD(0, KEYB_K), KEYCODE_K },
+{ DIGITAL_KBD(0, KEYB_L), KEYCODE_L },
+{ DIGITAL_KBD(0, KEYB_M), KEYCODE_M },
+{ DIGITAL_KBD(0, KEYB_N), KEYCODE_N },
+{ DIGITAL_KBD(0, KEYB_O), KEYCODE_O },
+{ DIGITAL_KBD(0, KEYB_P), KEYCODE_P },
+{ DIGITAL_KBD(0, KEYB_Q), KEYCODE_Q },
+{ DIGITAL_KBD(0, KEYB_R), KEYCODE_R },
+{ DIGITAL_KBD(0, KEYB_S), KEYCODE_S },
+{ DIGITAL_KBD(0, KEYB_T), KEYCODE_T },
+{ DIGITAL_KBD(0, KEYB_U), KEYCODE_U },
+{ DIGITAL_KBD(0, KEYB_V), KEYCODE_V },
+{ DIGITAL_KBD(0, KEYB_W), KEYCODE_W },
+{ DIGITAL_KBD(0, KEYB_X), KEYCODE_X },
+{ DIGITAL_KBD(0, KEYB_Y), KEYCODE_Y },
+{ DIGITAL_KBD(0, KEYB_Z), KEYCODE_Z },
+{ DIGITAL_KBD(0, KEYB_0), KEYCODE_0 },
+{ DIGITAL_KBD(0, KEYB_1), KEYCODE_1 },
+{ DIGITAL_KBD(0, KEYB_2), KEYCODE_2 },
+{ DIGITAL_KBD(0, KEYB_3), KEYCODE_3 },
+{ DIGITAL_KBD(0, KEYB_4), KEYCODE_4 },
+{ DIGITAL_KBD(0, KEYB_5), KEYCODE_5 },
+{ DIGITAL_KBD(0, KEYB_6), KEYCODE_6 },
+{ DIGITAL_KBD(0, KEYB_7), KEYCODE_7 },
+{ DIGITAL_KBD(0, KEYB_8), KEYCODE_8 },
+{ DIGITAL_KBD(0, KEYB_9), KEYCODE_9 },
+{ DIGITAL_KBD(0, KEYB_0_PAD), KEYCODE_0_PAD },
+{ DIGITAL_KBD(0, KEYB_1_PAD), KEYCODE_1_PAD },
+{ DIGITAL_KBD(0, KEYB_2_PAD), KEYCODE_2_PAD },
+{ DIGITAL_KBD(0, KEYB_3_PAD), KEYCODE_3_PAD },
+{ DIGITAL_KBD(0, KEYB_4_PAD), KEYCODE_4_PAD },
+{ DIGITAL_KBD(0, KEYB_5_PAD), KEYCODE_5_PAD },
+{ DIGITAL_KBD(0, KEYB_6_PAD), KEYCODE_6_PAD },
+{ DIGITAL_KBD(0, KEYB_7_PAD), KEYCODE_7_PAD },
+{ DIGITAL_KBD(0, KEYB_8_PAD), KEYCODE_8_PAD },
+{ DIGITAL_KBD(0, KEYB_9_PAD), KEYCODE_9_PAD },
+{ DIGITAL_KBD(0, KEYB_F1), KEYCODE_F1 },
+{ DIGITAL_KBD(0, KEYB_F2), KEYCODE_F2 },
+{ DIGITAL_KBD(0, KEYB_F3), KEYCODE_F3 },
+{ DIGITAL_KBD(0, KEYB_F4), KEYCODE_F4 },
+{ DIGITAL_KBD(0, KEYB_F5), KEYCODE_F5 },
+{ DIGITAL_KBD(0, KEYB_F6), KEYCODE_F6 },
+{ DIGITAL_KBD(0, KEYB_F7), KEYCODE_F7 },
+{ DIGITAL_KBD(0, KEYB_F8), KEYCODE_F8 },
+{ DIGITAL_KBD(0, KEYB_F9), KEYCODE_F9 },
+{ DIGITAL_KBD(0, KEYB_F10), KEYCODE_F10 },
+{ DIGITAL_KBD(0, KEYB_F11), KEYCODE_F11 },
+{ DIGITAL_KBD(0, KEYB_F12), KEYCODE_F12 },
+{ DIGITAL_KBD(0, KEYB_ESC), KEYCODE_ESC },
+{ DIGITAL_KBD(0, KEYB_BACKQUOTE), KEYCODE_TILDE },
+{ DIGITAL_KBD(0, KEYB_MINUS), KEYCODE_MINUS },
+{ DIGITAL_KBD(0, KEYB_EQUALS), KEYCODE_EQUALS },
+{ DIGITAL_KBD(0, KEYB_BACKSPACE), KEYCODE_BACKSPACE },
+{ DIGITAL_KBD(0, KEYB_TAB), KEYCODE_TAB },
+{ DIGITAL_KBD(0, KEYB_OPENBRACE), KEYCODE_OPENBRACE },
+{ DIGITAL_KBD(0, KEYB_CLOSEBRACE), KEYCODE_CLOSEBRACE },
+{ DIGITAL_KBD(0, KEYB_ENTER), KEYCODE_ENTER },
+{ DIGITAL_KBD(0, KEYB_SEMICOLON), KEYCODE_COLON },
+{ DIGITAL_KBD(0, KEYB_QUOTE), KEYCODE_QUOTE },
+{ DIGITAL_KBD(0, KEYB_BACKSLASH), KEYCODE_BACKSLASH },
+{ DIGITAL_KBD(0, KEYB_LESS), KEYCODE_BACKSLASH2 },
+{ DIGITAL_KBD(0, KEYB_COMMA), KEYCODE_COMMA },
+{ DIGITAL_KBD(0, KEYB_PERIOD), KEYCODE_STOP },
+{ DIGITAL_KBD(0, KEYB_SLASH), KEYCODE_SLASH },
+{ DIGITAL_KBD(0, KEYB_SPACE), KEYCODE_SPACE },
+{ DIGITAL_KBD(0, KEYB_INSERT), KEYCODE_INSERT },
+{ DIGITAL_KBD(0, KEYB_DEL), KEYCODE_DEL },
+{ DIGITAL_KBD(0, KEYB_HOME), KEYCODE_HOME },
+{ DIGITAL_KBD(0, KEYB_END), KEYCODE_END },
+{ DIGITAL_KBD(0, KEYB_PGUP), KEYCODE_PGUP },
+{ DIGITAL_KBD(0, KEYB_PGDN), KEYCODE_PGDN },
+{ DIGITAL_KBD(0, KEYB_LEFT), KEYCODE_LEFT },
+{ DIGITAL_KBD(0, KEYB_RIGHT), KEYCODE_RIGHT },
+{ DIGITAL_KBD(0, KEYB_UP), KEYCODE_UP },
+{ DIGITAL_KBD(0, KEYB_DOWN), KEYCODE_DOWN },
+{ DIGITAL_KBD(0, KEYB_SLASH_PAD), KEYCODE_SLASH_PAD },
+{ DIGITAL_KBD(0, KEYB_ASTERISK), KEYCODE_ASTERISK },
+{ DIGITAL_KBD(0, KEYB_MINUS_PAD), KEYCODE_MINUS_PAD },
+{ DIGITAL_KBD(0, KEYB_PLUS_PAD), KEYCODE_PLUS_PAD },
+{ DIGITAL_KBD(0, KEYB_PERIOD_PAD), KEYCODE_DEL_PAD },
+{ DIGITAL_KBD(0, KEYB_ENTER_PAD), KEYCODE_ENTER_PAD },
+{ DIGITAL_KBD(0, KEYB_PRTSCR), KEYCODE_PRTSCR },
+{ DIGITAL_KBD(0, KEYB_PAUSE), KEYCODE_PAUSE },
+{ DIGITAL_KBD(0, KEYB_LSHIFT), KEYCODE_LSHIFT },
+{ DIGITAL_KBD(0, KEYB_RSHIFT), KEYCODE_RSHIFT },
+{ DIGITAL_KBD(0, KEYB_LCONTROL), KEYCODE_LCONTROL },
+{ DIGITAL_KBD(0, KEYB_RCONTROL), KEYCODE_RCONTROL },
+{ DIGITAL_KBD(0, KEYB_ALT), KEYCODE_LALT },
+{ DIGITAL_KBD(0, KEYB_ALTGR), KEYCODE_RALT },
+/*
+{ DIGITAL_KBD(0, KEYB_LWIN, CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_RWIN, CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_MENU, CODE_OTHER },
+*/
+{ DIGITAL_KBD(0, KEYB_SCRLOCK), KEYCODE_SCRLOCK },
+{ DIGITAL_KBD(0, KEYB_NUMLOCK), KEYCODE_NUMLOCK },
+{ DIGITAL_KBD(0, KEYB_CAPSLOCK), KEYCODE_CAPSLOCK },
+/*
+{ DIGITAL_KBD(0, KEYB_STOP), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_AGAIN), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_PROPS), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_UNDO), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_FRONT), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_COPY), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_OPEN), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_PASTE), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_FIND), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_CUT), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_HELP), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_MENU), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_CALC), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_SETUP), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_SLEEP), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_WAKEUP), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_FILE), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_SENDFILE), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_DELETEFILE), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_XFER), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_PROG1), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_PROG2), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_WWW), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_MSDOS), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_COFFEE), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_DIRECTION), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_CYCLEWINDOWS), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_MAIL), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_BOOKMARKS), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_COMPUTER), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_BACK), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_FORWARD), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_CLOSECD), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_EJECTCD), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_EJECTCLOSECD), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_NEXTSONG), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_PLAYPAUSE), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_PREVIOUSSONG), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_STOPCD), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_RECORD), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_REWIND), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_PHONE), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_ISO), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_CONFIG), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_HOMEPAGE), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_REFRESH), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_EXIT), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_MOVE), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_EDIT), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_SCROLLUP), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_SCROLLDOWN), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_KPLEFTPAREN), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_KPRIGHTPAREN), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_INTL1), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_INTL2), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_INTL3), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_INTL4), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_INTL5), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_INTL6), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_INTL7), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_INTL8), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_INTL9), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_LANG1), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_LANG2), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_LANG3), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_LANG4), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_LANG5), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_LANG6), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_LANG7), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_LANG8), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_LANG9), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_PLAYCD), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_PAUSECD), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_PROG3), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_PROG4), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_SUSPEND), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_CLOSE), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_BRIGHTNESSDOWN), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_BRIGHTNESSUP), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_MACRO), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_MUTE), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_VOLUMEDOWN), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_VOLUMEUP), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_POWER), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_COMPOSE), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_F13), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_F14), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_F15), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_F16), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_F17), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_F18), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_F19), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_F20), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_F21), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_F22), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_F23), CODE_OTHER },
+{ DIGITAL_KBD(0, KEYB_F24), CODE_OTHER }
+*/
 };
 
 /**
  * Used to store the key names.
  */
-static char input_keyname_map[INPUT_KEY_MAX + 1][INPUT_NAME_MAX];
+static char input_keyname_map[INPUT_DIGITAL_MAX][INPUT_NAME_MAX];
 
 /**
  * Used to store the key list.
  */
-static struct KeyboardInfo input_key_map[INPUT_KEY_MAX + 1];
+static struct KeyboardInfo input_key_map[INPUT_DIGITAL_MAX];
 
 /**************************************************************************/
 /* Joystick/Mouse */
@@ -290,55 +317,22 @@ static struct KeyboardInfo input_key_map[INPUT_KEY_MAX + 1];
 
 /* Warning! Check the INPUT_*_MAX, they must match with the following macros. */
 
-/* The DIGITAL values are also saved in the .cfg file. If you change them */
-/* the cfg become invalid. */
-#define DIGITAL_TYPE_JOY 0 /* Joy digital move - DAAASSSDDDTT */
-#define DIGITAL_TYPE_JOY_BUTTON 1 /* Joy button - BBBBDDDTT */
-#define DIGITAL_TYPE_MOUSE_BUTTON 2 /* Mouse button - BBBBDDDTT */
-#define DIGITAL_TYPE_GET(i) ((i) & 0x3)
+#define DIGITAL_JOY_DEV_GET(i) (((i) >> 3) & 0x7)
+#define DIGITAL_JOY_STICK_GET(i) (((i) >> 6) & 0x7)
+#define DIGITAL_JOY_AXE_GET(i) (((i) >> 9) & 0x7)
+#define DIGITAL_JOY_DIR_GET(i) (((i) >> 12) & 0x1)
+#define DIGITAL_JOY(joy, stick, axe, dir) (DIGITAL_TYPE_JOY | (joy) << 3 | (stick) << 6 | (axe) << 9 | (dir) << 12)
 
-#define DIGITAL_JOY_DEV_GET(i) (((i) >> 2) & 0x7)
-#define DIGITAL_JOY_STICK_GET(i) (((i) >> 5) & 0x7)
-#define DIGITAL_JOY_AXE_GET(i) (((i) >> 8) & 0x7)
-#define DIGITAL_JOY_DIR_GET(i) (((i) >> 11) & 0x1)
-#define DIGITAL_JOY(joy, stick, axe, dir) (DIGITAL_TYPE_JOY | (joy) << 2 | (stick) << 5 | (axe) << 8 | (dir) << 11)
+#define DIGITAL_JOY_BUTTON_DEV_GET(i) (((i) >> 3) & 0x7)
+#define DIGITAL_JOY_BUTTON_BUTTON_GET(i) (((i) >> 6) & 0xF)
+#define DIGITAL_JOY_BUTTON(joy, button) (DIGITAL_TYPE_JOY_BUTTON | (joy) << 3 | (button) << 6)
 
-#define DIGITAL_JOY_BUTTON_DEV_GET(i) (((i) >> 2) & 0x7)
-#define DIGITAL_JOY_BUTTON_BUTTON_GET(i) (((i) >> 5) & 0xF)
-#define DIGITAL_JOY_BUTTON(joy, button) (DIGITAL_TYPE_JOY_BUTTON | (joy) << 2 | (button) << 5)
-
-#define DIGITAL_MOUSE_BUTTON_DEV_GET(i) (((i) >> 2) & 0x7)
-#define DIGITAL_MOUSE_BUTTON_BUTTON_GET(i) (((i) >> 5) & 0xF)
-#define DIGITAL_MOUSE_BUTTON(mouse, button) (DIGITAL_TYPE_MOUSE_BUTTON | (mouse) << 2 | (button) << 5)
+#define DIGITAL_MOUSE_BUTTON_DEV_GET(i) (((i) >> 3) & 0x7)
+#define DIGITAL_MOUSE_BUTTON_BUTTON_GET(i) (((i) >> 6) & 0xF)
+#define DIGITAL_MOUSE_BUTTON(mouse, button) (DIGITAL_TYPE_MOUSE_BUTTON | (mouse) << 3 | (button) << 6)
 
 /** Max number of joystick/mouse digital input. */
 #define INPUT_JOYMOUSE_MAX 1024
-
-/* The ANALOG value can be changed without limitation. */
-#define ANALOG_TYPE_NONE 0
-#define ANALOG_TYPE_MOUSE 1 /* Mouse - NAAADDDTT */
-#define ANALOG_TYPE_JOY 2 /* Joy - NAAASSSDDDTT */
-#define ANALOG_TYPE_AUTO 3 /* Automatic choice. This isn't a real code */
-#define ANALOG_TYPE_GET(i) ((i) & 0x3)
-
-/* Analog None */
-#define ANALOG_NONE (ANALOG_TYPE_NONE)
-
-/* Analog Auto */
-#define ANALOG_AUTO (ANALOG_TYPE_AUTO)
-
-/* Analog Mouse */
-#define ANALOG_MOUSE_DEV_GET(i) (((i) >> 2) & 0x7)
-#define ANALOG_MOUSE_AXE_GET(i) (((i) >> 5) & 0x7)
-#define ANALOG_MOUSE_NEGATE_GET(i) (((i) >> 8) & 0x1)
-#define ANALOG_MOUSE(dev, axe, negate) (ANALOG_TYPE_MOUSE | (dev) << 2 | (axe) << 5 | (negate) << 8)
-
-/* Analog Joy */
-#define ANALOG_JOY_DEV_GET(i) (((i) >> 2) & 0x7)
-#define ANALOG_JOY_STICK_GET(i) (((i) >> 5) & 0x7)
-#define ANALOG_JOY_AXE_GET(i) (((i) >> 8) & 0x7)
-#define ANALOG_JOY_NEGATE_GET(i) (((i) >> 11) & 0x1)
-#define ANALOG_JOY(joy, stick, axe, negate) (ANALOG_TYPE_JOY | (joy) << 2 | (stick) << 5 | (axe) << 8 | (negate) << 11)
 
 /**
  * Equivalence from system joystick/mouse code and MAME joystick/mouse code.
@@ -396,9 +390,45 @@ static struct JoystickInfo input_joy_map[INPUT_JOYMOUSE_MAX + 1];
  */
 static char input_joyname_map[INPUT_JOYMOUSE_MAX + 1][INPUT_NAME_MAX];
 
-static char* input_map_axe_desc[INPUT_PLAYER_AXE_MAX] = {
+/**************************************************************************/
+/* Analog */
+
+/* The ANALOG value can be changed without limitation. */
+#define ANALOG_TYPE_SPECIAL DIGITAL_TYPE_SPECIAL
+#define ANALOG_TYPE_MOUSE 5 /* Mouse - NAAADDDTTT */
+#define ANALOG_TYPE_JOY 6 /* Joy - NAAASSSDDDTTT */
+#define ANALOG_TYPE_AUTO 7 /* Automatic choice. This isn't a real code */
+#define ANALOG_TYPE_GET(i) DIGITAL_TYPE_GET(i)
+
+#define ANALOG_SPECIAL_NONE DIGITAL_SPECIAL_NONE
+#define ANALOG_SPECIAL_AUTO DIGITAL_SPECIAL_AUTO
+
+/* Analog Mouse */
+#define ANALOG_MOUSE_DEV_GET(i) (((i) >> 3) & 0x7)
+#define ANALOG_MOUSE_AXE_GET(i) (((i) >> 6) & 0x7)
+#define ANALOG_MOUSE_NEGATE_GET(i) (((i) >> 9) & 0x1)
+#define ANALOG_MOUSE(dev, axe, negate) (ANALOG_TYPE_MOUSE | (dev) << 3 | (axe) << 6 | (negate) << 9)
+
+/* Analog Joy */
+#define ANALOG_JOY_DEV_GET(i) (((i) >> 3) & 0x7)
+#define ANALOG_JOY_STICK_GET(i) (((i) >> 6) & 0x7)
+#define ANALOG_JOY_AXE_GET(i) (((i) >> 9) & 0x7)
+#define ANALOG_JOY_NEGATE_GET(i) (((i) >> 12) & 0x1)
+#define ANALOG_JOY(joy, stick, axe, negate) (ANALOG_TYPE_JOY | (joy) << 3 | (stick) << 6 | (axe) << 9 | (negate) << 12)
+
+static char* input_analog_map_desc[INPUT_ANALOG_MAX] = {
 	"x", "y", "z", "pedal"
 };
+
+static char* input_trak_map_desc[INPUT_TRAK_MAX] = {
+	"trakx", "traky"
+};
+
+
+static inline void input_something_pressed(struct advance_input_context* context)
+{
+	context->state.input_on_this_frame_flag = 1;
+}
 
 /*
  * Since the keyboard controller is slow, it is not capable of reporting multiple
@@ -407,7 +437,7 @@ static char* input_map_axe_desc[INPUT_PLAYER_AXE_MAX] = {
  */
 static void input_keyboard_update(struct advance_input_context* context)
 {
-	unsigned char last[INPUT_KEY_MAX];
+	unsigned char last[INPUT_KEYBOARD_MAX][KEYB_MAX];
 	unsigned i;
 
 	/* clear the state */
@@ -415,29 +445,25 @@ static void input_keyboard_update(struct advance_input_context* context)
 
 	/* read the keys for all the keyboards */
 	for(i=0;i<INPUT_KEYBOARD_MAX && i<keyb_count_get();++i) {
-		keyb_all_get(i, last + i * KEYB_MAX);
+		keyb_all_get(i, last[i]);
 	}
 
 	if (context->config.steadykey_flag) {
-		if (memcmp(last, context->state.key_old, sizeof(last))==0) {
+		if (memcmp(last, context->state.key_old, sizeof(last))!=0) {
+			/* store the new copy */
+			memcpy(context->state.key_old, last, sizeof(last));
+			input_something_pressed(context);
+		} else {
 			/* if keyboard state is stable, copy it over */
 			memcpy(context->state.key_current, last, sizeof(last));
-		} else {
-			/* save the new copy */
-			memcpy(context->state.key_old, last, sizeof(last));
 		}
 	} else {
-		/* set the new state */
-		memcpy(context->state.key_current, last, sizeof(last));
+		if (memcmp(last, context->state.key_current, sizeof(last))!=0) {
+			/* refresh the new copy */
+			memcpy(context->state.key_current, last, sizeof(last));
+			input_something_pressed(context);
+		}
 	}
-}
-
-static inline int input_is_key_pressed(struct advance_input_context* context, int keycode)
-{
-	if (keycode >= INPUT_KEY_MAX)
-		return 0;
-
-	return context->state.key_current[keycode];
 }
 
 static unsigned search_joy_axe(unsigned player, const char* stick_name, const char* axe_name)
@@ -457,7 +483,7 @@ static unsigned search_joy_axe(unsigned player, const char* stick_name, const ch
 		}
 	}
 
-	return ANALOG_NONE;
+	return ANALOG_SPECIAL_NONE;
 }
 
 static unsigned search_mouse_axe(unsigned player, const char* axe_name)
@@ -472,7 +498,7 @@ static unsigned search_mouse_axe(unsigned player, const char* axe_name)
 		}
 	}
 
-	return ANALOG_NONE;
+	return ANALOG_SPECIAL_NONE;
 }
 
 static void input_setup_config(struct advance_input_context* context)
@@ -493,81 +519,84 @@ static void input_setup_config(struct advance_input_context* context)
 		/* function in the inpport.c file */
 
 		j = 0; /* X_AXIS (in osdepend.h) */
-		if (context->config.analog_map[i][j][0] == ANALOG_AUTO) {
+		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
 			mac = 0;
 			v = search_joy_axe(i, "stick", "x");
-			if (v != ANALOG_NONE)
-				context->config.analog_map[i][j][mac++] = v;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
 			v = search_joy_axe(i, "stick", "rx");
-			if (v != ANALOG_NONE)
-				context->config.analog_map[i][j][mac++] = v;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
 			v = search_joy_axe(i, "hat", "x");
-			if (v != ANALOG_NONE)
-				context->config.analog_map[i][j][mac++] = v;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
 			v = search_joy_axe(i, "wheel", "mono");
-			if (v != ANALOG_NONE)
-				context->config.analog_map[i][j][mac++] = v;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
 			v = search_joy_axe(i, "rudder", "mono");
-			if (v != ANALOG_NONE)
-				context->config.analog_map[i][j][mac++] = v;
-			context->config.analog_map[i][j][mac++] = ANALOG_NONE;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
 		}
 
 		j = 1; /* Y_AXIS (in osdepend.h) */
-		if (context->config.analog_map[i][j][0] == ANALOG_AUTO) {
+		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
 			mac = 0;
 			v = search_joy_axe(i, "stick", "y");
-			if (v != ANALOG_NONE)
-				context->config.analog_map[i][j][mac++] = v;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
 			v = search_joy_axe(i, "stick", "ry");
-			if (v != ANALOG_NONE)
-				context->config.analog_map[i][j][mac++] = v;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
 			v = search_joy_axe(i, "hat", "y");
-			if (v != ANALOG_NONE)
-				context->config.analog_map[i][j][mac++] = v;
-			context->config.analog_map[i][j][mac++] = ANALOG_NONE;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
 		}
 
 		j = 2; /* Z_AXIS (in osdepend.h) */
-		if (context->config.analog_map[i][j][0] == ANALOG_AUTO) {
+		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
 			mac = 0;
 			v = search_joy_axe(i, "stick", "z");
-			if (v != ANALOG_NONE)
-				context->config.analog_map[i][j][mac++] = v;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
 			v = search_joy_axe(i, "stick", "rz");
-			if (v != ANALOG_NONE)
-				context->config.analog_map[i][j][mac++] = v;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
 			v = search_joy_axe(i, "brake", "mono");
-			if (v != ANALOG_NONE)
-				context->config.analog_map[i][j][mac++] = v;
-			context->config.analog_map[i][j][mac++] = ANALOG_NONE;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
 		}
 
 		j = 3; /* PEDAL_AXIS (in osdepend.h) */
-		if (context->config.analog_map[i][j][0] == ANALOG_AUTO) {
+		if (context->config.analog_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
 			mac = 0;
 			v = search_joy_axe(i, "gas", "mono");
-			if (v != ANALOG_NONE)
-				context->config.analog_map[i][j][mac++] = v;
-			context->config.analog_map[i][j][mac++] = ANALOG_NONE;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.analog_map[i][j].seq[mac++] = v;
+			context->config.analog_map[i][j].seq[mac++] = ANALOG_SPECIAL_NONE;
 		}
 	}
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		if (context->config.trakx_map[i][0] == ANALOG_AUTO) {
+
+		j = 0; /* trakx */
+		if (context->config.trak_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
 			unsigned mac = 0;
 			unsigned v = search_mouse_axe(i, "x");
-			if (v != ANALOG_NONE)
-				context->config.trakx_map[i][mac++] = v;
-			context->config.trakx_map[i][mac] = ANALOG_NONE;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.trak_map[i][j].seq[mac++] = v;
+			context->config.trak_map[i][j].seq[mac] = ANALOG_SPECIAL_NONE;
 		}
 
-		if (context->config.traky_map[i][0] == ANALOG_AUTO) {
+		j = 1; /* traky */
+		if (context->config.trak_map[i][j].seq[0] == ANALOG_SPECIAL_AUTO) {
 			unsigned mac = 0;
 			unsigned v = search_mouse_axe(i, "y");
-			if (v != ANALOG_NONE)
-				context->config.traky_map[i][mac++] = v;
-			context->config.traky_map[i][mac] = ANALOG_NONE;
+			if (v != ANALOG_SPECIAL_NONE)
+				context->config.trak_map[i][j].seq[mac++] = v;
+			context->config.trak_map[i][j].seq[mac] = ANALOG_SPECIAL_NONE;
 		}
 	}
 }
@@ -576,11 +605,24 @@ static void input_log_config(struct advance_input_context* context)
 {
 	unsigned i, j, k;
 
+	log_std(("advance:keyboard: %d available\n", keyb_count_get() ));
+	for(i=0;i<keyb_count_get();++i) {
+		log_std(("advance:keyboard: %d\n", i));
+	}
+	log_std(("advance:mouse: %d available\n", mouseb_count_get() ));
+	for(i=0;i<mouseb_count_get();++i) {
+		log_std(("advance:mouse: %d, buttons %d\n", i, mouseb_button_count_get(i)));
+	}
+	log_std(("advance:joystick: %d available\n", joystickb_count_get() ));
+	for(i=0;i<joystickb_count_get();++i) {
+		log_std(("advance:joystick: %d, buttons %d, stick %d, axes %d\n", i, joystickb_button_count_get(i), joystickb_stick_count_get(i), joystickb_stick_axe_count_get(i, 0)));
+	}
+
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		for(j=0;j<INPUT_PLAYER_AXE_MAX;++j) {
-			log_std(("advance: input analog mapping player:%d axe:%d (%s) :", i, j, input_map_axe_desc[j]));
+		for(j=0;j<INPUT_ANALOG_MAX;++j) {
+			log_std(("advance: input analog mapping player:%d axe:%d (%s) :", i, j, input_analog_map_desc[j]));
 			for(k=0;k<INPUT_MAP_MAX;++k) {
-				unsigned v = context->config.analog_map[i][j][k];
+				unsigned v = context->config.analog_map[i][j].seq[k];
 				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_JOY) {
 					unsigned j = ANALOG_JOY_DEV_GET(v);
 					unsigned s = ANALOG_JOY_STICK_GET(v);
@@ -601,50 +643,32 @@ static void input_log_config(struct advance_input_context* context)
 	}
 
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		log_std(("advance: input trakx mapping player:%d :", i));
-		for(k=0;k<INPUT_MAP_MAX;++k) {
-			unsigned v = context->config.trakx_map[i][k];
-			if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
-				unsigned m = ANALOG_MOUSE_DEV_GET(v);
-				unsigned a = ANALOG_MOUSE_AXE_GET(v);
-				int negate = ANALOG_MOUSE_NEGATE_GET(v);
-				if (negate)
-					log_std((" -mouse[%d,%d]", m, a));
-				else
-					log_std((" mouse[%d,%d]", m, a));
-			} else {
-				if (k == 0)
-					log_std((" <none>"));
-				break;
+		for(j=0;j<INPUT_TRAK_MAX;++j) {
+			log_std(("advance: input trak mapping player:%d axe:%d (%s) :", i, j, input_trak_map_desc[j]));
+			for(k=0;k<INPUT_MAP_MAX;++k) {
+				unsigned v = context->config.trak_map[i][j].seq[k];
+				if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
+					unsigned m = ANALOG_MOUSE_DEV_GET(v);
+					unsigned a = ANALOG_MOUSE_AXE_GET(v);
+					int negate = ANALOG_MOUSE_NEGATE_GET(v);
+					if (negate)
+						log_std((" -mouse[%d,%d]", m, a));
+					else
+						log_std((" mouse[%d,%d]", m, a));
+				} else {
+					if (k == 0)
+						log_std((" <none>"));
+					break;
+				}
 			}
+			log_std(("\n"));
 		}
-		log_std(("\n"));
-
-		log_std(("advance: input traky mapping player:%d :", i));
-		for(k=0;k<INPUT_MAP_MAX;++k) {
-			unsigned v = context->config.traky_map[i][k];
-			if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
-				unsigned m = ANALOG_MOUSE_DEV_GET(v);
-				unsigned a = ANALOG_MOUSE_AXE_GET(v);
-				int negate = ANALOG_MOUSE_NEGATE_GET(v);
-				if (negate)
-					log_std((" -mouse[%d,%d]", m, a));
-				else
-					log_std((" mouse[%d,%d]", m, a));
-			} else {
-				if (k == 0)
-					log_std((" <none>"));
-				break;
-			}
-		}
-		log_std(("\n"));
 	}
 }
 
 static void input_init(struct advance_input_context* context)
 {
 	unsigned i, j, k, w;
-	unsigned mac;
 
 	/* initialize the mouse state */
 	for(i=0;i<INPUT_MOUSE_MAX;++i) {
@@ -673,14 +697,27 @@ static void input_init(struct advance_input_context* context)
 	}
 
 	/* initialize the keyboard state */
-	for(i=0;i<INPUT_KEY_MAX;++i) {
-		context->state.key_old[i] = 0;
-		context->state.key_current[i] = 0;
-	}
+	memset(&context->state.key_old, sizeof(context->state.key_old), 0);
+	memset(&context->state.key_current, sizeof(context->state.key_current), 0);
+
 
 	/* initialize the input state */
 	context->state.input_forced_exit_flag = 0;
 	context->state.input_on_this_frame_flag = 0;
+
+	input_joy_map[0].name = 0;
+	input_joy_map[0].code = 0;
+	input_joy_map[0].standardcode = 0;
+
+	input_key_map[0].name = 0;
+	input_key_map[0].code = 0;
+	input_key_map[0].standardcode = 0;
+}
+
+static void input_refresh(struct advance_input_context* context)
+{
+	unsigned i, j, k;
+	unsigned mac;
 
 	/* fill the joystick/mouse vector */
 	mac = 0;
@@ -743,6 +780,8 @@ static void input_init(struct advance_input_context* context)
 	input_joy_map[mac].code = 0;
 	input_joy_map[mac].standardcode = 0;
 
+	log_std(("advance: input digital joystick code %d\n", mac));
+
 	/* set the equivalence */
 	for(i=0;i<mac;++i) {
 		input_joy_map[i].standardcode = CODE_OTHER;
@@ -757,15 +796,18 @@ static void input_init(struct advance_input_context* context)
 	/* fill the keyboard vector */
 	mac = 0;
 	for(i=0;i<INPUT_KEYBOARD_MAX && i<keyb_count_get();++i) {
-		for(j=0;j<sizeof(input_keyequiv_map)/sizeof(input_keyequiv_map[0]);++j) {
-			if (i == 0)
-				snprintf(input_keyname_map[mac], sizeof(input_keyname_map[mac]), "%s", key_name(input_keyequiv_map[j].os_code));
-			else
-				snprintf(input_keyname_map[mac], sizeof(input_keyname_map[mac]), "k%d:%s", i+1, key_name(input_keyequiv_map[j].os_code));
-			input_key_map[mac].name = input_keyname_map[mac];
-			input_key_map[mac].code = input_keyequiv_map[j].os_code + i*KEYB_MAX;
-			input_key_map[mac].standardcode = input_keyequiv_map[j].mame_code;
-			++mac;
+		for(j=0;j<KEYB_MAX;++j) {
+			if (keyb_has(i, j)) {
+				if (mac+1 < INPUT_DIGITAL_MAX) {
+					if (i == 0)
+						snprintf(input_keyname_map[mac], sizeof(input_keyname_map[mac]), "%s", key_name(j));
+					else
+						snprintf(input_keyname_map[mac], sizeof(input_keyname_map[mac]), "k%d:%s", i+1, key_name(j));
+					input_key_map[mac].name = input_keyname_map[mac];
+					input_key_map[mac].code = DIGITAL_KBD(i, j);
+					++mac;
+				}
+			}
 		}
 	}
 
@@ -773,11 +815,81 @@ static void input_init(struct advance_input_context* context)
 	input_key_map[mac].name = 0;
 	input_key_map[mac].code = 0;
 	input_key_map[mac].standardcode = 0;
+
+	/* set the equivalence */
+	for(i=0;i<mac;++i) {
+		input_key_map[i].standardcode = CODE_OTHER;
+		for(j=0;j<sizeof(input_keyequiv_map)/sizeof(input_keyequiv_map[0]);++j) {
+			if (input_keyequiv_map[j].os_code == input_key_map[i].code) {
+				input_key_map[i].standardcode = input_keyequiv_map[j].mame_code;
+				break;
+			}
+		}
+	}
+
+	log_std(("advance: input digital keyboard code %d\n", mac));
+
+	/* set the auto config */
+	input_setup_config(context);
+
+	/* print the config */
+	input_log_config(context);
 }
 
-static inline void input_something_pressed(struct advance_input_context* context)
+void osd_customize_inputport_defaults(struct ipd* defaults)
 {
-	context->state.input_on_this_frame_flag = 1;
+	struct advance_input_context* context = &CONTEXT.input;
+	struct ipd* i = defaults;
+
+	log_std(("advance: osd_customize_inputport_defaults()\n"));
+
+	while (i->type != IPT_END) {
+		unsigned port = i->type & (IPF_PLAYERMASK | ~IPF_MASK);
+		unsigned j;
+
+		for(j=0;j<context->config.digital_mac;++j)
+			if (context->config.digital_map[j].port == port)
+				break;
+
+		if (j<context->config.digital_mac) {
+			unsigned* seq = context->config.digital_map[j].seq;
+
+			if (seq[0] != DIGITAL_SPECIAL_AUTO) {
+				unsigned k;
+
+				struct mame_port* p = mame_port_list();
+				while (p->name) {
+					if (p->port == port)
+						break;
+					++p;
+				}
+				if (p->name)
+					log_std(("advance: customize input %s\n", p->name));
+				else
+					log_std(("advance: customize input 0x%x\n", port));
+
+				for(k=0;k<SEQ_MAX && k<INPUT_MAP_MAX;++k) {
+					unsigned v;
+					switch (seq[k]) {
+					case DIGITAL_SPECIAL_NONE : v = CODE_NONE; break;
+					case DIGITAL_SPECIAL_OR : v = CODE_OR; break;
+					case DIGITAL_SPECIAL_NOT : v = CODE_NOT; break;
+					default:
+						switch (DIGITAL_TYPE_GET(seq[k])) {
+						case DIGITAL_TYPE_KBD : v = mame_ui_code_from_oskey(seq[k]); break;
+						case DIGITAL_TYPE_JOY : v = mame_ui_code_from_osjoystick(seq[k]); break;
+						default : v = CODE_NONE;
+						}
+					}
+					i->seq[k] = v;
+				}
+				for(;k<SEQ_MAX;++k)
+					i->seq[k] = CODE_NONE;
+			}
+		}
+
+		++i;
+	}
 }
 
 /***************************************************************************/
@@ -786,28 +898,41 @@ static inline void input_something_pressed(struct advance_input_context* context
 adv_error advance_input_init(struct advance_input_context* context, adv_conf* cfg_context)
 {
 	unsigned i;
+	struct mame_port* p;
 
 	conf_bool_register_default(cfg_context, "input_hotkey", 1);
 	conf_bool_register_default(cfg_context, "input_steadykey", 0);
 	conf_int_register_default(cfg_context, "input_idleexit", 0);
 
+	/* analog */
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
 		unsigned j;
-		for(j=0;j<INPUT_PLAYER_AXE_MAX;++j) {
+		for(j=0;j<INPUT_ANALOG_MAX;++j) {
 			char tag_buffer[64];
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%d,%s]", i, input_map_axe_desc[j]);
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, input_analog_map_desc[j]);
 			conf_string_register_default(cfg_context, tag_buffer, "auto");
 		}
 	}
 
+	/* trak */
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
+		unsigned j;
+		for(j=0;j<INPUT_TRAK_MAX;++j) {
+			char tag_buffer[64];
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, input_trak_map_desc[j]);
+			conf_string_register_default(cfg_context, tag_buffer, "auto");
+		}
+	}
+
+	/* digital */
+	p = mame_port_list();
+	while (p->name) {
 		char tag_buffer[64];
 
-		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%d,trakx]", i);
+		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
 		conf_string_register_default(cfg_context, tag_buffer, "auto");
 
-		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%d,traky]", i);
-		conf_string_register_default(cfg_context, tag_buffer, "auto");
+		++p;
 	}
 
 	joystickb_reg(cfg_context, 0);
@@ -816,6 +941,9 @@ adv_error advance_input_init(struct advance_input_context* context, adv_conf* cf
 	mouseb_reg_driver_all(cfg_context);
 	keyb_reg(cfg_context, 1);
 	keyb_reg_driver_all(cfg_context);
+
+	context->state.active_flag = 0;
+	context->config.digital_mac = 0;
 
 	return 0;
 }
@@ -846,23 +974,9 @@ adv_error advance_input_inner_init(struct advance_input_context* context)
 		goto err;
 	}
 
-	log_std(("advance:mouse: %d available\n", mouseb_count_get() ));
-	for(i=0;i<mouseb_count_get();++i) {
-		log_std(("advance:mouse: %d, buttons %d\n", i, mouseb_button_count_get(i)));
-	}
-	log_std(("advance:joystick: %d available\n", joystickb_count_get() ));
-	for(i=0;i<joystickb_count_get();++i) {
-		log_std(("advance:joystick: %d, buttons %d, stick %d, axes %d\n", i, joystickb_button_count_get(i), joystickb_stick_count_get(i), joystickb_stick_axe_count_get(i, 0)));
-	}
-
 	/* init the state */
 	input_init(context);
-
-	/* set the auto config */
-	input_setup_config(context);
-
-	/* print the config */
-	input_log_config(context);
+	input_refresh(context);
 
 	context->state.input_current_clock = target_clock();
 	context->state.input_idle_clock = context->state.input_current_clock;
@@ -878,8 +992,6 @@ err:
 
 void advance_input_inner_done(struct advance_input_context* context)
 {
-	assert(context->state.active_flag != 0);
-
 	keyb_done();
 	mouseb_done();
 	joystickb_done();
@@ -1001,7 +1113,19 @@ static const char* parse_token(char* c, int* p, char* s, const char* sep, const 
 	return s + v;
 }
 
-static int parse_joystick(int* map, char* s)
+static int parse_int(int* v, const char* s)
+{
+	char* e;
+
+	*v = strtol(s,&e,10);
+
+	if (*e)
+		return -1;
+
+	return 0;
+}
+
+static int parse_analog(int* map, char* s)
 {
 	unsigned p;
 	unsigned mac;
@@ -1023,11 +1147,10 @@ static int parse_joystick(int* map, char* s)
 		const char* v0;
 		const char* v1;
 		const char* v2;
-		int joy, stick, axe, negate;
+		int joystick, stick, axe, negate;
 
 		t = parse_token(&c, &p, s, "[", " \t");
 		if (first && strcmp(t,"auto")==0) {
-
 			parse_skip(&p, s, " \t");
 
 			if (s[p] || c == '[')
@@ -1036,50 +1159,51 @@ static int parse_joystick(int* map, char* s)
 			if (mac >= INPUT_MAP_MAX)
 				return -1;
 
-			map[mac] = ANALOG_AUTO;
-			++mac;
-		} else {
-			if (strcmp(t, "joystick")!=0 && strcmp(t, "-joystick")!=0)
-				return -1;
-			if (c!='[')
-				return -1;
-
-			if (strcmp(t, "joystick")==0)
-				negate = 0;
-			else
-				negate = 1;
-
-			v0 = parse_token(&c, &p, s, ",", " \t");
-			if (c!=',')
-				return -1;
-
-			v1 = parse_token(&c, &p, s, ",", " \t");
-			if (c!=',')
-				return -1;
-
-			v2 = parse_token(&c, &p, s, "]", " \t");
-			if (c!=']')
-				return -1;
-
-			joy = atoi(v0);
-			stick = atoi(v1);
-			axe = atoi(v2);
-
-			if (joy < 0 || joy >= INPUT_JOY_MAX)
-				return -1;
-			if (stick < 0 || stick >= INPUT_STICK_MAX)
-				return -1;
-			if (axe < 0 || axe >= INPUT_AXE_MAX)
-				return -1;
-
-			if (mac >= INPUT_MAP_MAX)
-				return -1;
-
-			map[mac] = ANALOG_JOY(joy, stick, axe, negate);
-			++mac;
-
-			parse_skip(&p, s, " \t");
+			map[mac] = ANALOG_SPECIAL_AUTO;
+			return 0;
 		}
+
+		if (strcmp(t, "joystick")!=0 && strcmp(t, "-joystick")!=0)
+			return -1;
+		if (c!='[')
+			return -1;
+
+		if (strcmp(t, "joystick")==0)
+			negate = 0;
+		else
+			negate = 1;
+
+		v0 = parse_token(&c, &p, s, ",", " \t");
+		if (c!=',')
+			return -1;
+
+		v1 = parse_token(&c, &p, s, ",", " \t");
+		if (c!=',')
+			return -1;
+
+		v2 = parse_token(&c, &p, s, "]", " \t");
+		if (c!=']')
+			return -1;
+
+		if (parse_int(&joystick, v0) != 0
+			|| parse_int(&stick, v1) != 0
+			|| parse_int(&axe, v2) != 0)
+			return -1;
+
+		if (joystick < 0 || joystick >= INPUT_JOY_MAX)
+			return -1;
+		if (stick < 0 || stick >= INPUT_STICK_MAX)
+			return -1;
+		if (axe < 0 || axe >= INPUT_AXE_MAX)
+			return -1;
+
+		if (mac >= INPUT_MAP_MAX)
+			return -1;
+
+		map[mac] = ANALOG_JOY(joystick, stick, axe, negate);
+		++mac;
+
+		parse_skip(&p, s, " \t");
 
 		first = 0;
 	}
@@ -1087,7 +1211,7 @@ static int parse_joystick(int* map, char* s)
 	return 0;
 }
 
-static int parse_mouse(int* map, char* s)
+static int parse_trak(int* map, char* s)
 {
 	unsigned p;
 	unsigned mac;
@@ -1112,7 +1236,6 @@ static int parse_mouse(int* map, char* s)
 
 		t = parse_token(&c, &p, s, "[", " \t");
 		if (first && strcmp(t,"auto")==0) {
-
 			parse_skip(&p, s, " \t");
 
 			if (s[p] || c == '[')
@@ -1121,18 +1244,93 @@ static int parse_mouse(int* map, char* s)
 			if (mac >= INPUT_MAP_MAX)
 				return -1;
 
-			map[mac] = ANALOG_AUTO;
-			++mac;
-		} else {
-			if (strcmp(t, "mouse")!=0 && strcmp(t, "-mouse")!=0)
-				return -1;
-			if (c!='[')
+			map[mac] = ANALOG_SPECIAL_AUTO;
+
+			return 0;
+		}
+
+		if (strcmp(t, "mouse")!=0 && strcmp(t, "-mouse")!=0)
+			return -1;
+		if (c!='[')
+			return -1;
+
+		if (strcmp(t, "mouse")==0)
+			negate = 0;
+		else
+			negate = 1;
+
+		v0 = parse_token(&c, &p, s, ",", " \t");
+		if (c!=',')
+			return -1;
+
+		v1 = parse_token(&c, &p, s, "]", " \t");
+		if (c!=']')
+			return -1;
+
+		if (parse_int(&mouse, v0) != 0
+			|| parse_int(&axe, v1) != 0)
+			return -1;
+
+		if (mouse < 0 || mouse >= INPUT_MOUSE_MAX)
+			return -1;
+		if (axe < 0 || axe >= INPUT_AXE_MAX)
+			return -1;
+
+		if (mac >= INPUT_MAP_MAX)
+			return -1;
+
+		map[mac] = ANALOG_MOUSE(mouse, axe, negate);
+		++mac;
+
+		parse_skip(&p, s, " \t");
+
+		first = 0;
+	}
+
+	return 0;
+}
+
+static int parse_digital(unsigned* map, char* s)
+{
+	unsigned p;
+	unsigned mac;
+	unsigned i;
+	adv_bool first;
+
+	/* initialize */
+	for(i=0;i<INPUT_MAP_MAX;++i)
+		map[i] = DIGITAL_SPECIAL_NONE;
+
+	/* parse */
+	first = 1;
+	mac = 0;
+	p = 0;
+	parse_skip(&p, s, " \t");
+	while (s[p]) {
+		char c;
+		const char* t;
+		const char* v0;
+		const char* v1;
+		const char* v2;
+
+		t = parse_token(&c, &p, s, "[", " \t");
+		if (first && strcmp(t,"auto")==0) {
+			parse_skip(&p, s, " \t");
+
+			if (s[p] || c == '[')
 				return -1;
 
-			if (strcmp(t, "mouse")==0)
-				negate = 0;
-			else
-				negate = 1;
+			map[0] = DIGITAL_SPECIAL_AUTO;
+
+			return 0;
+		}
+
+		if (strcmp(t, "kbd")==0) {
+			int board;
+			int key;
+
+			if (c!='[')
+				return -1;
 
 			v0 = parse_token(&c, &p, s, ",", " \t");
 			if (c!=',')
@@ -1142,22 +1340,108 @@ static int parse_mouse(int* map, char* s)
 			if (c!=']')
 				return -1;
 
-			mouse = atoi(v0);
-			axe = atoi(v1);
-
-			if (mouse < 0 || mouse >= INPUT_MOUSE_MAX)
+			if (parse_int(&board, v0) != 0)
 				return -1;
-			if (axe < 0 || axe >= INPUT_AXE_MAX)
+
+			for(key=0;key<KEYB_MAX;++key)
+				if (strcmp(key_name(key), v1) == 0)
+					break;
+			if (key == KEYB_MAX)
+				return -1;
+
+			if (board < 0 || board >= INPUT_KEYBOARD_MAX)
+				return -1;
+			if (key < 0 || key >= KEYB_MAX)
 				return -1;
 
 			if (mac >= INPUT_MAP_MAX)
 				return -1;
 
-			map[mac] = ANALOG_MOUSE(mouse, axe, negate);
+			map[mac] = DIGITAL_KBD(board, key);
 			++mac;
+		} else if (strcmp(t, "joystickb")==0) {
+			int joystick;
+			int button;
 
-			parse_skip(&p, s, " \t");
+			if (c!='[')
+				return -1;
+
+			v0 = parse_token(&c, &p, s, ",", " \t");
+			if (c!=',')
+				return -1;
+
+			v1 = parse_token(&c, &p, s, "]", " \t");
+			if (c!=']')
+				return -1;
+
+			if (parse_int(&joystick, v0) != 0)
+				return -1;
+			if (parse_int(&button, v1) != 0)
+				return -1;
+
+			if (joystick < 0 || joystick >= INPUT_JOY_MAX)
+				return -1;
+			if (button < 0 || button >= INPUT_BUTTON_MAX)
+				return -1;
+
+			if (mac >= INPUT_MAP_MAX)
+				return -1;
+
+			map[mac] = DIGITAL_JOY_BUTTON(joystick, button);
+			++mac;
+		} else if (strcmp(t, "mouseb")==0) {
+			int mouse;
+			int button;
+
+			if (c!='[')
+				return -1;
+
+			v0 = parse_token(&c, &p, s, ",", " \t");
+			if (c!=',')
+				return -1;
+
+			v1 = parse_token(&c, &p, s, "]", " \t");
+			if (c!=']')
+				return -1;
+
+			if (parse_int(&mouse, v0) != 0)
+				return -1;
+			if (parse_int(&button, v1) != 0)
+				return -1;
+
+			if (mouse < 0 || mouse >= INPUT_MOUSE_MAX)
+				return -1;
+			if (button < 0 || button >= INPUT_BUTTON_MAX)
+				return -1;
+
+			if (mac >= INPUT_MAP_MAX)
+				return -1;
+
+			map[mac] = DIGITAL_MOUSE_BUTTON(mouse, button);
+			++mac;
+		} else if (strcmp(t, "or")==0) {
+			if (c=='[')
+				return -1;
+
+			if (mac >= INPUT_MAP_MAX)
+				return -1;
+
+			map[mac] = DIGITAL_SPECIAL_OR;
+			++mac;
+		} else if (strcmp(t, "not")==0) {
+			if (c=='[')
+				return -1;
+
+			if (mac >= INPUT_MAP_MAX)
+				return -1;
+
+			map[mac] = DIGITAL_SPECIAL_NOT;
+			++mac;
+		} else {
+			return -1;
 		}
+
+		parse_skip(&p, s, " \t");
 
 		first = 0;
 	}
@@ -1169,20 +1453,22 @@ adv_error advance_input_config_load(struct advance_input_context* context, adv_c
 {
 	const char* s;
 	unsigned i, j;
+	struct mame_port* p;
 
 	context->config.disable_special_flag = !conf_bool_get_default(cfg_context, "input_hotkey");
 	context->config.steadykey_flag = conf_bool_get_default(cfg_context, "input_steadykey");
 	context->config.input_idle_limit = conf_int_get_default(cfg_context, "input_idleexit");
 
+	/* analog */
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		for(j=0;j<INPUT_PLAYER_AXE_MAX;++j) {
+		for(j=0;j<INPUT_ANALOG_MAX;++j) {
 			char tag_buffer[32];
 			char* d;
-			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%d,%s]", i, input_map_axe_desc[j]);
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, input_analog_map_desc[j]);
 
 			s = conf_string_get_default(cfg_context, tag_buffer);
 			d = strdup(s);
-			if (parse_joystick(context->config.analog_map[i][j], d)!=0) {
+			if (parse_analog(context->config.analog_map[i][j].seq, d)!=0) {
 				free(d);
 				printf("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
 				printf("Valid format is [-]joystick[JOYSTICK,STICK,AXE] ...\n");
@@ -1192,32 +1478,51 @@ adv_error advance_input_config_load(struct advance_input_context* context, adv_c
 		}
 	}
 
+	/* trak */
 	for(i=0;i<INPUT_PLAYER_MAX;++i) {
-		char tag_buffer[32];
+		for(j=0;j<INPUT_TRAK_MAX;++j) {
+			char tag_buffer[32];
+			char* d;
+
+			snprintf(tag_buffer, sizeof(tag_buffer), "input_map[p%d_%s]", i+1, input_trak_map_desc[j]);
+			s = conf_string_get_default(cfg_context, tag_buffer);
+			d = strdup(s);
+			if (parse_trak(context->config.trak_map[i][j].seq, d)!=0) {
+				free(d);
+				printf("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
+				printf("Valid format is [-]mouse[MOUSE,AXE] [-]joystick[JOY,STICK,AXE]...\n");
+				return -1;
+			}
+			free(d);
+		}
+	}
+
+	/* digital */
+	p = mame_port_list();
+	i = 0;
+	while (p->name) {
+		char tag_buffer[64];
 		char* d;
 
-		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%d,trakx]", i);
+		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
 		s = conf_string_get_default(cfg_context, tag_buffer);
-		d = strdup(s);
-		if (parse_mouse(context->config.trakx_map[i], d)!=0) {
-			free(d);
-			printf("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
-			printf("Valid format is [-]mouse[MOUSE,AXE] ...\n");
-			return -1;
-		}
-		free(d);
 
-		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%d,traky]", i);
-		s = conf_string_get_default(cfg_context, tag_buffer);
-		d = strdup(s);
-		if (parse_mouse(context->config.traky_map[i], d)!=0) {
+		if (i<INPUT_DIGITAL_MAX) {
+			d = strdup(s);
+			context->config.digital_map[i].port = p->port;
+			if (parse_digital(context->config.digital_map[i].seq, d) != 0) {
+				free(d);
+				printf("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
+				printf("Valid format is kbd[...] or joystickb[...] or not mouseb[...]\n");
+				return -1;
+			}
+			++i;
 			free(d);
-			printf("Invalid argument '%s' for option '%s'\n", s, tag_buffer);
-			printf("Valid format is [-]mouse[MOUSE,AXE] ...\n");
-			return -1;
 		}
-		free(d);
+
+		++p;
 	}
+	context->config.digital_mac = i;
 
 	if (joystickb_load(cfg_context) != 0) {
 		return -1;
@@ -1267,17 +1572,12 @@ int advance_input_exit_filter(struct advance_input_context* context, struct adva
 /***************************************************************************/
 /* OSD interface */
 
-static struct KeyboardInfo input_key_empty[1];
-
 /* return a list of all available keys */
 const struct KeyboardInfo* osd_get_key_list(void)
 {
 	struct advance_input_context* context = &CONTEXT.input;
 
-	/* if the input layer is not already initialized return an empty list */
-	if (!context->state.active_flag) {
-		return input_key_empty;
-	}
+	assert(context->state.active_flag != 0);
 
 	return input_key_map;
 }
@@ -1285,21 +1585,32 @@ const struct KeyboardInfo* osd_get_key_list(void)
 int osd_is_key_pressed(int keycode)
 {
 	struct advance_input_context* context = &CONTEXT.input;
+	unsigned type;
 
-	/* if the input layer is not already initialized return a fake state */
-	if (!context->state.active_flag)
-		return 0;
+	log_debug(("advance: osd_is_key_pressed(keycode:0x%08x)\n", keycode));
 
 	assert(context->state.active_flag != 0);
 
-	if (input_is_key_pressed(context, keycode)) {
-		input_something_pressed(context);
-		return 1;
+	type = DIGITAL_TYPE_GET(keycode);
+
+	switch (type) {
+	case DIGITAL_TYPE_KBD : {
+		unsigned b = DIGITAL_KBD_BOARD_GET(keycode);
+		unsigned k = DIGITAL_KBD_KEY_GET(keycode);
+		if (b < INPUT_KEYBOARD_MAX && k < KEYB_MAX) {
+			if (context->state.key_current[b][k])
+				return 1;
+			/* simulate keys on all the keyboards */
+			if (hardware_is_input_simulated(SIMULATE_KEY, k)) {
+				return 1;
+			}
+			return 0;
+		}
+		break;
+		}
 	}
 
-	if (hardware_is_input_simulated(SIMULATE_KEY, keycode)) {
-		return 1;
-	}
+	log_std(("ERROR:advance: osd_is_key_pressed(keycode:0x%08x) is not a correct code\n", keycode));
 
 	return 0;
 }
@@ -1309,17 +1620,12 @@ int osd_readkey_unicode(int flush)
 	return 0; /* no unicode support */
 }
 
-static struct JoystickInfo input_joy_empty[1];
-
 /* return a list of all available joys */
 const struct JoystickInfo* osd_get_joy_list(void)
 {
 	struct advance_input_context* context = &CONTEXT.input;
 
-	/* if the input layer is not already initialized return an empty list */
-	if (!context->state.active_flag) {
-		return input_joy_empty;
-	}
+	assert(context->state.active_flag != 0);
 
 	return input_joy_map;
 }
@@ -1327,38 +1633,41 @@ const struct JoystickInfo* osd_get_joy_list(void)
 int osd_is_joy_pressed(int joycode)
 {
 	struct advance_input_context* context = &CONTEXT.input;
+	unsigned type;
 
-	/* if the input layer is not already initialized return a fake state */
-	if (!context->state.active_flag)
-		return 0;
+	log_debug(("advance: osd_is_joy_pressed(joycode:0x%08x)\n", joycode));
 
-	unsigned type = DIGITAL_TYPE_GET(joycode);
+	assert(context->state.active_flag != 0);
+
+	type = DIGITAL_TYPE_GET(joycode);
 
 	switch (type) {
-		case DIGITAL_TYPE_JOY : {
-			unsigned j = DIGITAL_JOY_DEV_GET(joycode);
-			unsigned s = DIGITAL_JOY_STICK_GET(joycode);
-			unsigned a = DIGITAL_JOY_AXE_GET(joycode);
-			unsigned d = DIGITAL_JOY_DIR_GET(joycode);
-			if (j < INPUT_JOY_MAX && s < INPUT_STICK_MAX && a < INPUT_AXE_MAX)
-				return context->state.joystick_digital_current[j][s][a][d];
-			break;
+	case DIGITAL_TYPE_JOY : {
+		unsigned j = DIGITAL_JOY_DEV_GET(joycode);
+		unsigned s = DIGITAL_JOY_STICK_GET(joycode);
+		unsigned a = DIGITAL_JOY_AXE_GET(joycode);
+		unsigned d = DIGITAL_JOY_DIR_GET(joycode);
+		if (j < INPUT_JOY_MAX && s < INPUT_STICK_MAX && a < INPUT_AXE_MAX)
+			return context->state.joystick_digital_current[j][s][a][d];
+		break;
 		}
-		case DIGITAL_TYPE_JOY_BUTTON : {
-			unsigned j = DIGITAL_JOY_BUTTON_DEV_GET(joycode);
-			unsigned b = DIGITAL_JOY_BUTTON_BUTTON_GET(joycode);
-			if (j < INPUT_JOY_MAX && b < INPUT_BUTTON_MAX)
-				return context->state.joystick_button_current[j][b];
-			break;
+	case DIGITAL_TYPE_JOY_BUTTON : {
+		unsigned j = DIGITAL_JOY_BUTTON_DEV_GET(joycode);
+		unsigned b = DIGITAL_JOY_BUTTON_BUTTON_GET(joycode);
+		if (j < INPUT_JOY_MAX && b < INPUT_BUTTON_MAX)
+			return context->state.joystick_button_current[j][b];
+		break;
 		}
-		case DIGITAL_TYPE_MOUSE_BUTTON : {
-			unsigned m = DIGITAL_MOUSE_BUTTON_DEV_GET(joycode);
-			unsigned b = DIGITAL_MOUSE_BUTTON_BUTTON_GET(joycode);
-			if (m < INPUT_MOUSE_MAX && b < INPUT_BUTTON_MAX)
-				return context->state.mouse_button_current[m][b];
-			break;
+	case DIGITAL_TYPE_MOUSE_BUTTON : {
+		unsigned m = DIGITAL_MOUSE_BUTTON_DEV_GET(joycode);
+		unsigned b = DIGITAL_MOUSE_BUTTON_BUTTON_GET(joycode);
+		if (m < INPUT_MOUSE_MAX && b < INPUT_BUTTON_MAX)
+			return context->state.mouse_button_current[m][b];
+		break;
 		}
 	}
+
+	log_std(("ERROR:advance: osd_is_joy_pressed(joycode:0x%08x) is not a correct code\n", joycode));
 
 	return 0;
 }
@@ -1377,9 +1686,9 @@ void osd_analogjoy_read(int player, int analog_axis[MAX_ANALOG_AXES], InputCode 
 		for(i=0;i<MAX_ANALOG_AXES;++i) {
 			analog_axis[i] = 0;
 
-			if (i < INPUT_PLAYER_AXE_MAX) {
+			if (i < INPUT_ANALOG_MAX) {
 				for(n=0;n<INPUT_MAP_MAX;++n) {
-					unsigned v = context->config.analog_map[player][i][n];
+					unsigned v = context->config.analog_map[player][i].seq[n];
 					if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_JOY) {
 						unsigned j = ANALOG_JOY_DEV_GET(v);
 						unsigned s = ANALOG_JOY_STICK_GET(v);
@@ -1447,7 +1756,7 @@ void osd_trak_read(int player, int* x, int* y)
 
 	if (player < INPUT_PLAYER_MAX) {
 		for(n=0;n<INPUT_MAP_MAX;++n) {
-			unsigned v = context->config.trakx_map[player][n];
+			unsigned v = context->config.trak_map[player][0].seq[n];
 			if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
 				unsigned m = ANALOG_MOUSE_DEV_GET(v);
 				unsigned a = ANALOG_MOUSE_AXE_GET(v);
@@ -1464,7 +1773,7 @@ void osd_trak_read(int player, int* x, int* y)
 		}
 
 		for(n=0;n<INPUT_MAP_MAX;++n) {
-			unsigned v = context->config.traky_map[player][n];
+			unsigned v = context->config.trak_map[player][1].seq[n];
 			if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
 				unsigned m = ANALOG_MOUSE_DEV_GET(v);
 				unsigned a = ANALOG_MOUSE_AXE_GET(v);

@@ -102,19 +102,19 @@ adv_error keyb_init(adv_bool disable_special)
 
 	assert(keyb_state.driver_current == 0);
 
-	assert( !keyb_state.is_active_flag );
-
 	if (!keyb_state.is_initialized_flag) {
 		keyb_default();
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a keyboard driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize the keyboard driver. The following are the errors:\n");
 
 	for(i=0;i<keyb_state.driver_mac;++i) {
 		const adv_device* dev;
 
 		dev = device_match(keyb_state.name, (const adv_driver*)keyb_state.driver_map[i], 0);
+
+		error_cat_set(keyb_state.driver_map[i]->name, 1);
 
 		if (dev && keyb_state.driver_map[i]->init(dev->id, disable_special) == 0) {
 			keyb_state.driver_current = keyb_state.driver_map[i];
@@ -122,20 +122,25 @@ adv_error keyb_init(adv_bool disable_special)
 		}
 	}
 
+	error_cat_set(0, 0);
+
 	if (!keyb_state.driver_current)
 		return -1;
+
+	error_reset();
 
 	log_std(("keyb: select driver %s\n", keyb_state.driver_current->name));
 
 	keyb_state.is_active_flag = 1;
+	keyb_state.is_enabled_flag = 0;
 
 	return 0;
 }
 
 void keyb_done(void)
 {
-	assert( keyb_state.driver_current );
-	assert( keyb_state.is_active_flag );
+	assert(keyb_state.driver_current);
+	assert(keyb_state.is_active_flag && !keyb_state.is_enabled_flag);
 
 	keyb_state.driver_current->done();
 
@@ -143,8 +148,33 @@ void keyb_done(void)
 	keyb_state.is_active_flag = 0;
 }
 
+adv_error keyb_enable(void)
+{
+	assert(keyb_state.is_active_flag && !keyb_state.is_enabled_flag);
+
+	if (keyb_state.driver_current->enable() != 0)
+		return -1;
+
+	keyb_state.is_enabled_flag = 1;
+
+	return 0;
+}
+
+void keyb_disable(void)
+{
+	assert(keyb_state.is_active_flag && keyb_state.is_enabled_flag);
+
+	keyb_state.driver_current->disable();
+
+	keyb_state.is_enabled_flag = 0;
+}
+
 void keyb_abort(void)
 {
+	if (keyb_state.is_enabled_flag) {
+		keyb_disable();
+	}
+
 	if (keyb_state.is_active_flag) {
 		keyb_done();
 	}

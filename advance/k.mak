@@ -23,8 +23,7 @@ KOBJS += \
 ifeq ($(CONF_HOST),unix)
 KCFLAGS += \
 	-DDATADIR=\"$(DATADIR)\" \
-	-I$(srcdir)/advance/linux \
-	-DUSE_KEYBOARD_NONE
+	-I$(srcdir)/advance/linux
 KOBJDIRS += \
 	$(KOBJ)/linux
 KOBJS += \
@@ -56,7 +55,7 @@ endif
 ifeq ($(CONF_HOST),dos)
 KCFLAGS += \
 	-I$(srcdir)/advance/dos \
-	-DUSE_KEYBOARD_ALLEGRO -DUSE_KEYBOARD_NONE
+	-DUSE_KEYBOARD_ALLEGRO
 KLIBS += -lalleg
 KOBJDIRS += \
 	$(KOBJ)/dos

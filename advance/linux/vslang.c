@@ -97,19 +97,19 @@ adv_error slang_init(int device_id, adv_output output, unsigned zoom_size, adv_c
 
 	if (getenv("DISPLAY")) {
 		log_std(("video:vslang: DISPLAY set\n"));
-		error_nolog_cat("vslang: Unsupported in X\n");
+		error_nolog_cat("vslang: Unsupported in X.\n");
 		return -1;
 	}
 
 	if (output != adv_output_auto && output != adv_output_fullscreen) {
 		log_std(("video:slang: Only fullscreen output is supported\n"));
-		error_nolog_cat("slang: Only fullscreen output is supported\n");
+		error_nolog_cat("slang: Only fullscreen output is supported.\n");
 		return -1;
 	}
 
 	if (!os_internal_slang_get()) {
 		log_std(("video:vslang: vslang not initialized\n"));
-		error_nolog_cat("vslang: Unsupported without the slang library\n");
+		error_nolog_cat("vslang: Unsupported without the slang library.\n");
 		return -1;
 	}
 

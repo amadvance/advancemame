@@ -60,8 +60,7 @@ adv_error joystickb_svgalib_init(int joystickb_id)
 	log_std(("josytickb:svgalib: joystickb_svgalib_init(id:%d)\n", joystickb_id));
 
 	if (!os_internal_svgalib_get()) {
-		log_std(("joystickb:svgalib: svgalib not initialized\n"));
-		error_nolog_cat("svgalib: Not supported without the svgalib library\n");
+		error_set("Not supported without the svgalib library.\n");
 		return -1;
 	}
 
@@ -72,8 +71,7 @@ adv_error joystickb_svgalib_init(int joystickb_id)
 	}
 
 	if (i==0) {
-		log_std(("joystickb:svgalib: no joystick found\n"));
-		error_nolog_cat("svgalib: No joystick found\n");
+		error_set("No joystick found.\n");
 		return -1;
 	}
 

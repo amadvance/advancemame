@@ -519,28 +519,46 @@ void advance_safequit_update(struct advance_safequit_context* context);
 
 /** Max supported input devices. */
 /*@{*/
-#define INPUT_KEYBOARD_MAX 4 /**< Max number of keyboard. */
 #define INPUT_PLAYER_MAX 4 /**< Max numer of player. */
-#define INPUT_PLAYER_AXE_MAX 4 /** Max number of axes for player. */
-#define INPUT_MAP_MAX 8 /**< Max number of mapping codes. */
+
+#define INPUT_ANALOG_MAX 4 /**< Max number of analog control for player. */
+#define INPUT_TRAK_MAX 2 /**< Max number of trak control for player. */
+#define INPUT_DIGITAL_MAX 2048 /**< Max number of digital port definition. */
+
+#define INPUT_MAP_MAX 16 /**< Max number of mapping codes. */
+
+#define INPUT_KEYBOARD_MAX 4 /**< Max number of keyboard. */
 #define INPUT_JOY_MAX 8 /**< Max number of joysticks. */
 #define INPUT_STICK_MAX 8 /**< Max number of sticks for a joystick. */
 #define INPUT_AXE_MAX 8 /**< Max number of axes for a stick or mouse. */
 #define INPUT_DIR_MAX 2 /**< Max number of direction for an axe (up/down or left/right). */
 #define INPUT_MOUSE_MAX 8 /**< Max number of mouses. */
 #define INPUT_BUTTON_MAX 16 /**< Max number buttons for a joystick or mouses. */
+
 /*@}*/
 
-#define INPUT_KEY_MAX (KEYB_MAX * INPUT_KEYBOARD_MAX) /**< Max key number. */
+struct analog_map_entry {
+	unsigned seq[INPUT_MAP_MAX]; /**< Sequence assigned. */
+};
+
+struct trak_map_entry {
+	unsigned seq[INPUT_MAP_MAX]; /**< Sequence assigned. */
+};
+
+struct digital_map_entry {
+	unsigned port; /**< Digital port. */
+	unsigned seq[INPUT_MAP_MAX]; /**< Sequence assigned. */
+};
 
 struct advance_input_config_context {
 	int input_idle_limit; /**< Limit of no input to exit. */
 	adv_bool steadykey_flag; /**< Enable the steady-key management. */
 	adv_bool disable_special_flag; /**< Disable the special OS key sequences. */
 
-	unsigned analog_map[INPUT_PLAYER_MAX][INPUT_PLAYER_AXE_MAX][INPUT_MAP_MAX]; /**< Mapping of the analog control. */
-	unsigned trakx_map[INPUT_PLAYER_MAX][INPUT_MAP_MAX]; /**< Mapping of the trakx control. */
-	unsigned traky_map[INPUT_PLAYER_MAX][INPUT_MAP_MAX]; /**< Mapping of the traky control. */
+	struct analog_map_entry analog_map[INPUT_PLAYER_MAX][INPUT_ANALOG_MAX]; /**< Mapping of the analog controls. */
+	struct trak_map_entry trak_map[INPUT_PLAYER_MAX][INPUT_TRAK_MAX]; /**< Mapping of the trak controls. */
+	unsigned digital_mac; /**< Number of digital map. */
+	struct digital_map_entry digital_map[INPUT_DIGITAL_MAX]; /**< Mapping of the digital controls. */
 };
 
 struct advance_input_state_context {
@@ -552,8 +570,8 @@ struct advance_input_state_context {
 	adv_bool input_forced_exit_flag; /**< Flag to signal the forced exit. */
 	adv_bool input_on_this_frame_flag; /**< Flag used to signal an input on the current frame. */
 
-	unsigned char key_old[INPUT_KEY_MAX]; /**< Keyboard previous frame state. */
-	unsigned char key_current[INPUT_KEY_MAX]; /**< Keyboard current frame state. */
+	unsigned char key_old[INPUT_KEYBOARD_MAX][KEYB_MAX]; /**< Keyboard previous frame state. */
+	unsigned char key_current[INPUT_KEYBOARD_MAX][KEYB_MAX]; /**< Keyboard current frame state. */
 
 	int joystick_button_current[INPUT_JOY_MAX][INPUT_BUTTON_MAX]; /**< Joystick button state. */
 	int joystick_analog_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX]; /**< Joystick analog state. */

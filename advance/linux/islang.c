@@ -68,7 +68,7 @@ adv_error inputb_slang_init(int inputb_id)
 	/* keyboard input must be used. */
 	if (SDL_WasInit(SDL_INIT_VIDEO)) {
 		log_std(("inputb:slang: Incompatible with the SDL video driver\n"));
-		error_nolog_cat("slang: Incompatible with the SDL video driver\n");
+		error_nolog_cat("slang: Incompatible with the SDL video driver.\n");
 		return -1; 
 	}
 #endif

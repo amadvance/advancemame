@@ -34,8 +34,10 @@
 
 #include "SDL.h"
 
+#define SDL_MOUSE_BUTTON_MAX 3
+
 struct mouseb_sdl_context {
-	int button_map[3];
+	int button_map[SDL_MOUSE_BUTTON_MAX];
 	int x;
 	int y;
 };
@@ -52,8 +54,7 @@ adv_error mouseb_sdl_init(int mouseb_id)
 	log_std(("mouseb:sdl: mouseb_sdl_init(id:%d)\n", mouseb_id));
 
 	if (!SDL_WasInit(SDL_INIT_VIDEO)) {
-		log_std(("mouseb:sdl: not supported without the SDL video driver\n"));
-		error_nolog_cat("sdl: Not supported without the SDL video driver\n");
+		error_set("The SDL mouse driver requires the SDL video driver.\n");
 		return -1; 
 	}
 
@@ -105,7 +106,7 @@ unsigned mouseb_sdl_button_count_get(unsigned mouse)
 
 	assert(mouse < mouseb_sdl_count_get());
 
-	return 3;
+	return SDL_MOUSE_BUTTON_MAX;
 }
 
 const char* mouseb_sdl_button_name_get(unsigned mouse, unsigned button)
@@ -121,7 +122,7 @@ const char* mouseb_sdl_button_name_get(unsigned mouse, unsigned button)
 	case 5 : return "sixth";
 	}
 
-	return 0;
+	return "unknown";
 }
 
 int mouseb_sdl_axe_get(unsigned mouse, unsigned axe)
@@ -131,7 +132,7 @@ int mouseb_sdl_axe_get(unsigned mouse, unsigned axe)
 	log_debug(("mouseb:sdl: mouseb_sdl_pos_get()\n"));
 
 	assert(mouse < mouseb_sdl_count_get());
-	assert(axe < mouseb_sdl_axe_count_get());
+	assert(axe < mouseb_sdl_axe_count_get(mouse));
 
 	switch (axe) {
 	case 0 : r = sdl_state.x; sdl_state.x = 0; break;
@@ -179,13 +180,13 @@ void mouseb_sdl_event_move(int x, int y)
 
 void mouseb_sdl_event_press(unsigned code)
 {
-	if (code < 3)
+	if (code < SDL_MOUSE_BUTTON_MAX)
 		sdl_state.button_map[code] = 1;
 }
 
 void mouseb_sdl_event_release(unsigned code)
 {
-	if (code < 3)
+	if (code < SDL_MOUSE_BUTTON_MAX)
 		sdl_state.button_map[code] = 0;
 }
 

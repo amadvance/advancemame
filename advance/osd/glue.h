@@ -126,9 +126,19 @@ int mame_is_game_in_list(const char* list[], const mame_game* game);
 int mame_is_game_vector(const mame_game* game);
 const struct mame_game* mame_playback_look(const char* file);
 
+struct mame_port {
+	const char* name; /**< Name of the port. */
+	unsigned port; /**< Port value. */
+};
+
+struct mame_port* mame_port_list(void);
+
 /***************************************************************************/
 /* MAME callback interface */
 
+int mame_ui_port_pressed(unsigned port);
+unsigned mame_ui_code_from_oskey(unsigned oscode);
+unsigned mame_ui_code_from_osjoystick(unsigned oscode);
 void mame_ui_area_set(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void mame_ui_text(const char* s, unsigned x, unsigned y);
 void mame_ui_message(const char* s, ...);

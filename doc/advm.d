@@ -2,7 +2,7 @@ Name
 	advm - The AdvanceMOUSE Tester
 
 Synopsis
-	:advm [-device_mouse DEVICE]
+	:advm [-device_mouse DEVICE] [-log] [-logsync]
 
 Description
 	The `advm' utility tests the mouse.

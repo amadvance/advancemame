@@ -217,7 +217,32 @@ static adv_conf_conv STANDARD[] = {
 /* 0.68.0 */
 { "*", "display_magnify", "yes", "%s", "%s", "2", 0 }, /* rename */
 { "*", "display_magnify", "no", "%s", "%s", "1", 0 }, /* rename */
-{ "*", "display_adjust", "generate", "%s", "%s", "generate_yclock", 0 } /* rename */
+{ "*", "display_adjust", "generate", "%s", "%s", "generate_yclock", 0 }, /* rename */
+/* 0.72.0 */
+{ "*", "input_map[0,trakx]", "*", "%s", "input_map[p1_trakx]", "%s", 0 }, /* rename */
+{ "*", "input_map[1,trakx]", "*", "%s", "input_map[p2_trakx]", "%s", 0 }, /* rename */
+{ "*", "input_map[2,trakx]", "*", "%s", "input_map[p3_trakx]", "%s", 0 }, /* rename */
+{ "*", "input_map[3,trakx]", "*", "%s", "input_map[p4_trakx]", "%s", 0 }, /* rename */
+{ "*", "input_map[0,traky]", "*", "%s", "input_map[p1_traky]", "%s", 0 }, /* rename */
+{ "*", "input_map[1,traky]", "*", "%s", "input_map[p2_traky]", "%s", 0 }, /* rename */
+{ "*", "input_map[2,traky]", "*", "%s", "input_map[p3_traky]", "%s", 0 }, /* rename */
+{ "*", "input_map[3,traky]", "*", "%s", "input_map[p4_traky]", "%s", 0 }, /* rename */
+{ "*", "input_map[0,x]", "*", "%s", "input_map[p1_x]", "%s", 0 }, /* rename */
+{ "*", "input_map[1,x]", "*", "%s", "input_map[p2_x]", "%s", 0 }, /* rename */
+{ "*", "input_map[2,x]", "*", "%s", "input_map[p3_x]", "%s", 0 }, /* rename */
+{ "*", "input_map[3,x]", "*", "%s", "input_map[p4_x]", "%s", 0 }, /* rename */
+{ "*", "input_map[0,y]", "*", "%s", "input_map[p1_y]", "%s", 0 }, /* rename */
+{ "*", "input_map[1,y]", "*", "%s", "input_map[p2_y]", "%s", 0 }, /* rename */
+{ "*", "input_map[2,y]", "*", "%s", "input_map[p3_y]", "%s", 0 }, /* rename */
+{ "*", "input_map[3,y]", "*", "%s", "input_map[p4_y]", "%s", 0 }, /* rename */
+{ "*", "input_map[0,z]", "*", "%s", "input_map[p1_z]", "%s", 0 }, /* rename */
+{ "*", "input_map[1,z]", "*", "%s", "input_map[p2_z]", "%s", 0 }, /* rename */
+{ "*", "input_map[2,z]", "*", "%s", "input_map[p3_z]", "%s", 0 }, /* rename */
+{ "*", "input_map[3,z]", "*", "%s", "input_map[p4_z]", "%s", 0 }, /* rename */
+{ "*", "input_map[0,pedal]", "*", "%s", "input_map[p1_pedal]", "%s", 0 }, /* rename */
+{ "*", "input_map[1,pedal]", "*", "%s", "input_map[p2_pedal]", "%s", 0 }, /* rename */
+{ "*", "input_map[2,pedal]", "*", "%s", "input_map[p3_pedal]", "%s", 0 }, /* rename */
+{ "*", "input_map[3,pedal]", "*", "%s", "input_map[p4_pedal]", "%s", 0 }, /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)
@@ -486,6 +511,8 @@ int os_main(int argc, char* argv[])
 
 	if (advance_video_inner_init(&context->video, &option) != 0)
 		goto err_os_inner;
+	if (advance_input_inner_init(&context->input) != 0)
+		goto err_os_inner;
 	if (advance_safequit_inner_init(&context->safequit, &option)!=0)
 		goto err_os_inner;
 	if (hardware_script_inner_init()!=0)
@@ -501,6 +528,7 @@ int os_main(int argc, char* argv[])
 
 	hardware_script_inner_done();
 	advance_safequit_inner_done(&context->safequit);
+	advance_input_inner_done(&context->input);
 	advance_video_inner_done(&context->video);
 
 	log_std(("advance: os_inner_done()\n"));

@@ -189,14 +189,14 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 
 	if (SDL_WasInit(SDL_INIT_VIDEO)==0) {
 		log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
+
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
-			log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
-			error_nolog_cat("sdl: Unable to inizialize the SDL library\n");
+			error_set("Unable to inizialize the SDL library.\n");
 			return -1;
 		}
 
 		/* set the window information */
-		SDL_WM_SetCaption(os_internal_title_get(), os_internal_title_get());
+		SDL_WM_SetCaption(os_internal_sdl_title_get(), os_internal_sdl_title_get());
 		SDL_WM_DefIcon();
 	}
 
@@ -256,8 +256,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 	}
 
 	if (sdl_state.output == adv_output_window && !has_window_manager) {
-		log_std(("video:sdl: Window output not available\n"));
-		error_nolog_cat("sdl: Window output not available\n");
+		error_set("Window output not available\n");
 		return -1;
 	}
 
@@ -294,8 +293,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
 		if (map == 0 || map == (SDL_Rect **)-1) {
-			log_std(("video:sdl: No fullscreen video mode available\n"));
-			error_nolog_cat("sdl: No fullscreen mode available\n");
+			error_set("No fullscreen mode available\n");
 			return -1;
 		}
 
@@ -314,8 +312,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 			sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_BGR32;
 
 		if ((sdl_state.flags & VIDEO_DRIVER_FLAGS_MODE_MASK) == 0) {
-			log_std(("video:sdl: No fullscreen bit depth available\n"));
-			error_nolog_cat("sdl: No fullscreen bit depth available\n");
+			error_set("No fullscreen bit depth available\n");
 			return -1;
 		}
 	} else if (sdl_state.output == adv_output_zoom) {
@@ -330,8 +327,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;
 
 		if (map == 0 || map == (SDL_Rect **)-1) {
-			log_std(("video:sdl: No fullscreen video mode available\n"));
-			error_nolog_cat("sdl: No fullscreen mode available\n");
+			error_set("No fullscreen mode available\n");
 			return -1;
 		}
 
@@ -358,8 +354,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 		}
 
 		if (!mode_flag) {
-			log_std(("video:sdl: No fullscreen video mode available\n"));
-			error_nolog_cat("sdl: No fullscreen mode available\n");
+			error_set(" No fullscreen mode available\n");
 			return -1;
 		}
 
@@ -490,7 +485,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 		}
 
 		/* set the window information */
-		SDL_WM_SetCaption(os_internal_title_get(), os_internal_title_get());
+		SDL_WM_SetCaption(os_internal_sdl_title_get(), os_internal_sdl_title_get());
 		SDL_WM_DefIcon();
 	}
 
@@ -793,7 +788,7 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 	log_std(("video:sdl: sdl_mode_generate(x:%d, y:%d)\n", crtc->hde, crtc->vde));
 
 	if (!crtc_is_fake(crtc)) {
-		error_nolog_cat("sdl: Programmable modes not supported\n");
+		error_set("Programmable modes not supported.\n");
 		return -1;
 	}
 
@@ -804,7 +799,7 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 	case MODE_FLAGS_INDEX_BGR24 :
 	case MODE_FLAGS_INDEX_BGR32 :
 		if (sdl_state.output == adv_output_zoom) {
-			error_nolog_cat("sdl: only yuy2 is supported in zoom mode\n");
+			error_set("Only yuy2 is supported in zoom mode.\n");
 			return -1;
 		}
 
@@ -815,26 +810,26 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 		suggested_bits = SDL_VideoModeOK(request_x, request_y, request_bits, SDL_ModeFlags() );
 
 		if (!suggested_bits) {
-			error_nolog_cat("sdl: No compatible SDL mode found\n");
+			error_set("No compatible SDL mode found.\n");
 			return -1;
 		}
 
 		if (suggested_bits != request_bits) {
 			/* if it's a window accepts any bit depths */
 			if (sdl_state.output != adv_output_window) {
-				error_nolog_cat("sdl: No compatible SDL bit depth found\n");
+				error_set("No compatible SDL bit depth found.\n");
 				return -1;
 			}
 		}
 		break;
 	case MODE_FLAGS_INDEX_YUY2 :
 		if (sdl_state.output != adv_output_zoom) {
-			error_nolog_cat("sdl: yuy2 supported only in zoom mode\n");
+			error_set("yuy2 supported only in zoom mode.\n");
 			return -1;
 		}
 		break;
 	default:
-		error_nolog_cat("sdl: Index mode not supported\n");
+		error_set("Index mode not supported.\n");
 		return -1;
 	}
 
@@ -957,4 +952,13 @@ adv_video_driver video_sdl_driver = {
 	sdl_mode_compare_void,
 	sdl_crtc_container_insert_default
 };
+
+/***************************************************************************/
+/* Internal interface */
+
+int os_internal_sdl_is_video_active(void)
+{
+	return sdl_is_active() && sdl_mode_is_active();
+}
+
 

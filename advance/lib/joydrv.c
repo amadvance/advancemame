@@ -109,12 +109,14 @@ adv_error joystickb_init(void)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a joystick driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize the joystick driver. The following are the errors:\n");
 
 	for(i=0;i<joystickb_state.driver_mac;++i) {
 		const adv_device* dev;
 
 		dev = device_match(joystickb_state.name, (const adv_driver*)joystickb_state.driver_map[i], 1);
+
+		error_cat_set(joystickb_state.driver_map[i]->name, 1);
 
 		if (dev && joystickb_state.driver_map[i]->init(dev->id) == 0) {
 			joystickb_state.driver_current = joystickb_state.driver_map[i];
@@ -122,8 +124,12 @@ adv_error joystickb_init(void)
 		}
 	}
 
+	error_cat_set(0, 0);
+
 	if (!joystickb_state.driver_current)
 		return -1;
+
+	error_reset();
 
 	log_std(("joystickb: select driver %s\n", joystickb_state.driver_current->name));
 

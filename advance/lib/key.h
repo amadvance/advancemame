@@ -28,6 +28,8 @@
 #ifndef __KEY_H
 #define __KEY_H
 
+#include "extra.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -126,7 +128,9 @@ extern "C" {
 #define KEYB_ENTER_PAD 91
 #define KEYB_PRTSCR 92
 #define KEYB_PAUSE 93
+
 /* hole */
+
 #define KEYB_LSHIFT 103
 #define KEYB_RSHIFT 104
 #define KEYB_LCONTROL 105
@@ -139,6 +143,7 @@ extern "C" {
 #define KEYB_SCRLOCK 112
 #define KEYB_NUMLOCK 113
 #define KEYB_CAPSLOCK 114
+
 /* hole */
 
 /* Extra Key definitions. They are chosen like linux/input.h */
@@ -153,7 +158,10 @@ extern "C" {
 #define KEYB_FIND 136
 #define KEYB_CUT 137
 #define KEYB_HELP 138
+
 /* #define KEYB_MENU 139 */ /* already present in the previous list */
+/* hole */
+
 #define KEYB_CALC 140
 #define KEYB_SETUP 141
 #define KEYB_SLEEP 142
@@ -213,16 +221,24 @@ extern "C" {
 #define KEYB_LANG7 196
 #define KEYB_LANG8 197
 #define KEYB_LANG9 198
+
 /* hole */
+
 #define KEYB_PLAYCD 200
 #define KEYB_PAUSECD 201
 #define KEYB_PROG3 202
 #define KEYB_PROG4 203
+
+/* hole */
+
 #define KEYB_SUSPEND 205
 #define KEYB_CLOSE 206
+
 /* hole */
+
 #define KEYB_BRIGHTNESSDOWN 224
 #define KEYB_BRIGHTNESSUP 225
+
 /* hole */
 
 /* Extra Key definitions. They are chosen like linux/input.h with different number */
@@ -244,11 +260,16 @@ extern "C" {
 #define KEYB_F22 245
 #define KEYB_F23 246
 #define KEYB_F24 247
+
 /* hole */
+
 #define KEYB_MAX 256
 
 const char* key_name(unsigned code);
 unsigned key_code(const char* name);
+
+adv_bool key_is_standard(unsigned code);
+adv_bool key_is_defined(unsigned code);
 
 #ifdef __cplusplus
 };

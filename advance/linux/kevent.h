@@ -29,7 +29,7 @@
  */
 
 /** \file
- * Keyboard driver "svgalib".
+ * Keyboard driver "event".
  */
 
 #ifndef __KEVENT_H

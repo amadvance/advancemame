@@ -36,14 +36,13 @@
 
 struct mouse_context {
 	unsigned buttons_counter; /**< Number of buttons. */
-	int skip; /**< Skip flag to alternate the movement. */
 	int x; /**< Current x pos. */
 	int y; /**< Current y pos. */
 };
 
 struct mouseb_allegro_context {
 	struct mouse_context mouse[2]; /**< Mouse context. */
-	unsigned shift; /**< Relative position of the secondary mouse. */
+	unsigned secondary_at_index; /**< Relative position of the secondary mouse. */
 	unsigned counter; /**< Number of active mouses. */
 
 	int mouse2_button; /**< State of secondary mouse buttons. */
@@ -96,20 +95,24 @@ adv_error mouseb_allegro_init(int mouseb_id)
 
 	log_std(("mouseb:allegro: mouseb_allegro_init(id:%d)\n", mouseb_id));
 
-	allegro_state.shift = 0;
 	allegro_state.counter = 0;
 
 	err = install_mouse();
 	if (err != -1) {
 		allegro_state.mouse[allegro_state.counter].buttons_counter = err;
+		allegro_state.mouse[allegro_state.counter].x = 0;
+		allegro_state.mouse[allegro_state.counter].y = 0;
 		++allegro_state.counter;
 		log_std(("mouseb:allegro: allegro mouse found\n"));
+		allegro_state.secondary_at_index = 1;
 	} else {
 		log_std(("mouseb:allegro: allegro mouse NOT found\n"));
-		++allegro_state.shift;
+		allegro_state.secondary_at_index = 0;
 	}
 	if (mouse2_init() == 0) {
 		allegro_state.mouse[allegro_state.counter].buttons_counter = 2;
+		allegro_state.mouse[allegro_state.counter].x = 0;
+		allegro_state.mouse[allegro_state.counter].y = 0;
 		++allegro_state.counter;
 		log_std(("mouseb:allegro: secondary mouse found\n"));
 	} else {
@@ -133,54 +136,87 @@ unsigned mouseb_allegro_count_get(void)
 	return allegro_state.counter;
 }
 
-unsigned mouseb_allegro_button_count_get(unsigned m)
+unsigned mouseb_allegro_axe_count_get(unsigned mouse)
+{
+	log_debug(("mouseb:allegro: mouseb_allegro_axe_count_get()\n"));
+
+	assert(mouse < mouseb_allegro_count_get());
+
+	return 2;
+}
+
+const char* mouseb_allegro_axe_name_get(unsigned mouse, unsigned axe)
+{
+	log_debug(("mouseb:allegro: mouseb_allegro_axe_count_get()\n"));
+
+	assert(mouse < mouseb_allegro_count_get());
+	assert(axe < mouseb_allegro_axe_count_get());
+
+	switch (axe) {
+	case 0 : return "x";
+	case 1 : return "y";
+	}
+
+	return 0;
+}
+
+unsigned mouseb_allegro_button_count_get(unsigned mouse)
 {
 	log_debug(("mouseb:allegro: mouseb_allegro_button_count_get()\n"));
 
-	assert( m < mouseb_allegro_count_get());
+	assert(mouse < mouseb_allegro_count_get());
 
-	return allegro_state.mouse[m].buttons_counter;
+	return allegro_state.mouse[mouse].buttons_counter;
 }
 
-void mouseb_allegro_pos_get(unsigned m, int* x, int* y, int* z)
+const char* mouseb_allegro_button_name_get(unsigned mouse, unsigned button)
 {
+	log_debug(("mouseb:allegro: mouseb_allegro_button_count_get()\n"));
+
+	assert(mouse < mouseb_allegro_count_get());
+	assert(button < mouseb_allegro_button_count_get());
+
+	switch (button) {
+	case 0 : return "left";
+	case 1 : return "right";
+	case 2 : return "middle";
+	case 3 : return "forth";
+	case 4 : return "fifth";
+	case 5 : return "sixth";
+	}
+
+	return "unknown";
+}
+
+int mouseb_allegro_axe_get(unsigned mouse, unsigned axe)
+{
+	int r;
+
 	log_debug(("mouseb:allegro: mouseb_allegro_pos_get()\n"));
 
-	assert( m < mouseb_allegro_count_get());
+	assert(mouse < mouseb_allegro_count_get());
+	assert(axe < mouseb_allegro_axe_count_get());
 
-	*z = 0;
-
-	if (allegro_state.mouse[m].skip) {
-		*x = allegro_state.mouse[m].x;
-		*y = allegro_state.mouse[m].y;
-		allegro_state.mouse[m].skip = 0;
-	} else {
-		switch (m + allegro_state.shift) {
-		case 0 :
-			get_mouse_mickeys(&allegro_state.mouse[m].x, &allegro_state.mouse[m].y);
-			break;
-		case 1 :
-			mouse2_get(&allegro_state.mouse[m].x, &allegro_state.mouse[m].y);
-			break;
-		}
-		*x = allegro_state.mouse[m].x/2;
-		*y = allegro_state.mouse[m].y/2;
-		allegro_state.mouse[m].x -= *x;
-		allegro_state.mouse[m].y -= *y;
-		allegro_state.mouse[m].skip = 1;
+	switch (axe) {
+	case 0 : r = allegro_state.mouse[mouse].x; allegro_state.mouse[mouse].x = 0; break;
+	case 1 : r = allegro_state.mouse[mouse].y; allegro_state.mouse[mouse].y = 0; break;
+	default : r = 0;
 	}
+
+	return r;
 }
 
-unsigned mouseb_allegro_button_get(unsigned m, unsigned b)
+unsigned mouseb_allegro_button_get(unsigned mouse, unsigned button)
 {
 	log_debug(("mouseb:allegro: mouseb_allegro_button_get()\n"));
 
-	assert( m < mouseb_allegro_count_get());
-	assert( b < mouseb_allegro_button_count_get(m) );
+	assert(mouse < mouseb_allegro_count_get());
+	assert(button < mouseb_allegro_button_count_get(mouse) );
 
-	switch (m + allegro_state.shift) {
-		case 0 : return (mouse_b & (1 << b)) != 0;
-		case 1 : return (allegro_state.mouse2_button & (1 << b)) != 0;
+	if (mouse == allegro_state.secondary_at_index) {
+		return (allegro_state.mouse2_button & (1 << button)) != 0;
+	} else {
+		return (mouse_b & (1 << button)) != 0;
 	}
 
 	return 0;
@@ -188,7 +224,21 @@ unsigned mouseb_allegro_button_get(unsigned m, unsigned b)
 
 void mouseb_allegro_poll(void)
 {
+	unsigned i;
+
 	log_debug(("mouseb:allegro: mouseb_allegro_poll()\n"));
+
+	for(i=0;i<allegro_state.counter;++i) {
+		int ax, ay;
+		if (i == allegro_state.secondary_at_index) {
+			mouse2_get(&ax, &ay);
+		} else {
+			get_mouse_mickeys(&ax, &ay);
+		}
+
+		allegro_state.mouse[i].x += ax;
+		allegro_state.mouse[i].y += ay;
+	}
 }
 
 unsigned mouseb_allegro_flags(void)
@@ -217,8 +267,11 @@ mouseb_driver mouseb_allegro_driver = {
 	mouseb_allegro_done,
 	mouseb_allegro_flags,
 	mouseb_allegro_count_get,
+	mouseb_allegro_axe_count_get,
+	mouseb_allegro_axe_name_get,
 	mouseb_allegro_button_count_get,
-	mouseb_allegro_pos_get,
+	mouseb_allegro_button_name_get,
+	mouseb_allegro_axe_get,
 	mouseb_allegro_button_get,
 	mouseb_allegro_poll
 };

@@ -87,12 +87,6 @@ void osd2_message(void)
 	}
 }
 
-void osd_customize_inputport_defaults(struct ipd* defaults)
-{
-	/* nothing */
-	(void)defaults;
-}
-
 const char* NAME_EASIEST[] = { "Easiest", "Very Easy", 0 };
 const char* NAME_EASY[] = { "Easy", "Easier", "Easy?", 0 };
 const char* NAME_MEDIUM[] = { "Medium", "Normal", "Normal?", 0 };

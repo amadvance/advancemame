@@ -35,10 +35,6 @@
 #include "event.h"
 #include "portable.h"
 
-#ifdef USE_VIDEO_SDL
-#include "SDL.h"
-#endif
-
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
@@ -294,16 +290,6 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 
 	log_std(("keyb:event: keyb_event_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
-#ifdef USE_VIDEO_SDL
-	/* If the SDL video driver is used, also the SDL */
-	/* keyboard input must be used. */
-	if (SDL_WasInit(SDL_INIT_VIDEO)) {
-		log_std(("keyb:event: Incompatible with the SDL video driver\n"));
-		error_nolog_cat("event: Incompatible with the SDL video driver\n");
-		return -1; 
-	}
-#endif
-
 	for(i=0;i<KEYB_MAX;++i) {
 		event_state.map_os_to_code[i] = 0;
 	}
@@ -342,8 +328,7 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 	}
 
 	if (!event_state.mac) {
-		log_std(("keyb:event: no keyboard found\n"));
-		error_nolog_cat("event: No keyboard found\n");
+		error_set("No keyboard found.\n");
 		return -1;
 	}
 
@@ -362,11 +347,30 @@ void keyb_event_done(void)
 	event_state.mac = 0;
 }
 
+adv_error keyb_event_enable(void)
+{
+	log_std(("keyb:event: keyb_event_enable()\n"));
+
+	return 0;
+}
+
+void keyb_event_disable(void)
+{
+	log_std(("keyb:event: keyb_event_disable()\n"));
+}
+
 unsigned keyb_event_count_get(void)
 {
-	log_std(("keyb:event: keyb_event_count_get(void)\n"));
+	log_debug(("keyb:event: keyb_event_count_get(void)\n"));
 
 	return event_state.mac;
+}
+
+adv_bool keyb_event_has(unsigned keyboard, unsigned code)
+{
+	log_debug(("keyb:event: keyb_event_has()\n"));
+
+	return key_is_defined(code); /* TODO check if a key is really present in the keyboard */
 }
 
 unsigned keyb_event_get(unsigned keyboard, unsigned code)
@@ -454,8 +458,11 @@ keyb_driver keyb_event_driver = {
 	keyb_event_reg,
 	keyb_event_init,
 	keyb_event_done,
+	keyb_event_enable,
+	keyb_event_disable,
 	keyb_event_flags,
 	keyb_event_count_get,
+	keyb_event_has,
 	keyb_event_get,
 	keyb_event_all_get,
 	keyb_event_poll

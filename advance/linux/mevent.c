@@ -169,8 +169,7 @@ adv_error mouseb_event_init(int mouseb_id)
 	/* If the SDL video driver is used, also the SDL */
 	/* keyboard input must be used. */
 	if (SDL_WasInit(SDL_INIT_VIDEO)) {
-		log_std(("mouseb:event: Incompatible with the SDL video driver\n"));
-		error_nolog_cat("event: Incompatible with the SDL video driver\n");
+		error_set("Incompatible with the SDL video driver\n");
 		return -1; 
 	}
 #endif
@@ -216,8 +215,7 @@ adv_error mouseb_event_init(int mouseb_id)
 	}
 
 	if (!event_state.mac) {
-		log_std(("mouseb:event: no mouse found\n"));
-		error_nolog_cat("event: No mouse found\n");
+		error_set("No mouse found.\n");
 		return -1;
 	}
 

@@ -22,8 +22,7 @@ MOBJS += \
 ifeq ($(CONF_HOST),unix)
 MCFLAGS += \
 	-DDATADIR=\"$(DATADIR)\" \
-	-I$(srcdir)/advance/linux \
-	-DUSE_MOUSE_NONE
+	-I$(srcdir)/advance/linux
 MOBJDIRS += \
 	$(MOBJ)/linux
 MOBJS += \
@@ -56,7 +55,7 @@ ifeq ($(CONF_HOST),dos)
 MCFLAGS += \
 	-I$(srcdir)/advance/dos \
 	-DUSE_CONFIG_ALLEGRO_WRAPPER \
-	-DUSE_MOUSE_ALLEGRO -DUSE_MOUSE_NONE
+	-DUSE_MOUSE_ALLEGRO
 MLDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_string \
 	-Xlinker --wrap -Xlinker get_config_int \

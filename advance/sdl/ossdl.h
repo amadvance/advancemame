@@ -42,7 +42,13 @@ extern "C" {
 /***************************************************************************/
 /* Internal */
 
-const char* os_internal_title_get(void);
+void* os_internal_sdl_get(void);
+
+const char* os_internal_sdl_title_get(void);
+
+#if defined(USE_VIDEO_SDL)
+int os_internal_sdl_is_video_active(void);
+#endif
 
 #ifdef __cplusplus
 }

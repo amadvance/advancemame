@@ -195,7 +195,12 @@ void os_poll(void)
 	}
 }
 
-const char* os_internal_title_get(void)
+void* os_internal_sdl_get(void)
+{
+	return 1;
+}
+
+const char* os_internal_sdl_title_get(void)
 {
 	return OS.title_buffer;
 }

@@ -111,12 +111,14 @@ adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a sound driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize the sound driver. The following are the errors:\n");
 
 	for(i=0;i<sound_state.driver_mac;++i) {
 		const adv_device* dev;
 
 		dev = device_match(sound_state.name, (const adv_driver*)sound_state.driver_map[i], 1);
+
+		error_cat_set(sound_state.driver_map[i]->name, 1);
 
 		if (dev && sound_state.driver_map[i]->init(dev->id, rate, stereo_flag, buffer_time) == 0) {
 			sound_state.driver_current = sound_state.driver_map[i];
@@ -124,8 +126,12 @@ adv_error sound_init(unsigned* rate, adv_bool stereo_flag, double buffer_time)
 		}
 	}
 
+	error_cat_set(0, 0);
+
 	if (!sound_state.driver_current)
 		return -1;
+
+	error_reset();
 
 	log_std(("sound: select driver %s\n", sound_state.driver_current->name));
 

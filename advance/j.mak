@@ -22,8 +22,7 @@ JOBJS += \
 ifeq ($(CONF_HOST),unix)
 JCFLAGS += \
 	-DDATADIR=\"$(DATADIR)\" \
-	-I$(srcdir)/advance/linux \
-	-DUSE_JOYSTICK_NONE
+	-I$(srcdir)/advance/linux
 JOBJDIRS += \
 	$(JOBJ)/linux
 JOBJS += \
@@ -61,7 +60,7 @@ ifeq ($(CONF_HOST),dos)
 JCFLAGS += \
 	-I$(srcdir)/advance/dos \
 	-DUSE_CONFIG_ALLEGRO_WRAPPER \
-	-DUSE_JOYSTICK_ALLEGRO -DUSE_JOYSTICK_NONE
+	-DUSE_JOYSTICK_ALLEGRO
 JLDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_string \
 	-Xlinker --wrap -Xlinker get_config_int \
@@ -81,8 +80,7 @@ endif
 
 ifeq ($(CONF_HOST),windows)
 JCFLAGS += \
-	-I$(srcdir)/advance/windows \
-	-DUSE_JOYSTICK_NONE
+	-I$(srcdir)/advance/windows
 JOBJDIRS += \
 	$(JOBJ)/windows
 JOBJS += \

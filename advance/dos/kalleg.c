@@ -199,13 +199,19 @@ void keyb_allegro_done(void)
 	remove_keyboard();
 }
 
-unsigned keyb_allegro_get(unsigned code)
+unsigned keyb_allegro_count_get(void)
+{
+	log_debug(("keyb:allegro: keyb_allegro_count_get()\n"));
+}
+
+unsigned keyb_allegro_get(unsigned keyboard, unsigned code)
 {
 	unsigned allegro_code;
 
+	assert(keyboard < keyb_event_count_get());
 	assert(code < KEYB_MAX);
 
-	log_debug(("keyb:allegro: keyb_allegro_get(code:%d)\n", code));
+	log_debug(("keyb:allegro: keyb_allegro_get(keyboard:%d,code:%d)\n", keyboard, code));
 
 	/* disable the pause key */
 	if (code == KEYB_PAUSE)
@@ -221,11 +227,13 @@ unsigned keyb_allegro_get(unsigned code)
 	return key[allegro_code];
 }
 
-void keyb_allegro_all_get(unsigned char* code_map)
+void keyb_allegro_all_get(unsigned keyboard, unsigned char* code_map)
 {
 	unsigned i;
 
-	log_debug(("keyb:allegro: keyb_allegro_all_get()\n"));
+	assert(keyboard < keyb_event_count_get());
+
+	log_debug(("keyb:allegro: keyb_allegro_all_get(keyboard:%d)\n", keyboard));
 
 	for(i=0;i<KEYB_MAX;++i) {
 		unsigned allegro_code = allegro_state.map_os_to_code[i];
@@ -239,7 +247,7 @@ void keyb_allegro_all_get(unsigned char* code_map)
 	code_map[KEYB_PAUSE] = 0;
 }
 
-void keyb_allegro_poll()
+void keyb_allegro_poll(void)
 {
 	log_debug(("keyb:allegro: keyb_allegro_poll()\n"));
 
@@ -272,9 +280,9 @@ keyb_driver keyb_allegro_driver = {
 	keyb_allegro_init,
 	keyb_allegro_done,
 	keyb_allegro_flags,
+	keyb_allegro_count_get,
 	keyb_allegro_get,
 	keyb_allegro_all_get,
 	keyb_allegro_poll
 };
-
 

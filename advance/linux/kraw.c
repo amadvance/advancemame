@@ -30,13 +30,9 @@
  */
 
 #include "kraw.h"
-
 #include "log.h"
 #include "error.h"
-
-#ifdef USE_VIDEO_SDL
-#include "SDL.h"
-#endif
+#include "oslinux.h"
 
 #include <fcntl.h>
 #include <stdlib.h>
@@ -90,30 +86,44 @@ adv_error keyb_raw_init(int keyb_id, adv_bool disable_special)
 {
 	log_std(("keyb:raw: keyb_raw_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
-#ifdef USE_VIDEO_SDL
-	/* If the SDL video driver is used, also the SDL */
-	/* keyboard input must be used. */
-	if (SDL_WasInit(SDL_INIT_VIDEO)) {
-		log_std(("keyb:raw: Incompatible with the SDL video driver\n"));
-		error_nolog_cat("raw: Incompatible with the SDL video driver\n");
-		return -1; 
+	if (getenv("DISPLAY")) {
+		error_set("Unsupported in X.\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+void keyb_raw_done(void)
+{
+	log_std(("keyb:raw: keyb_raw_done()\n"));
+}
+
+adv_error keyb_raw_enable(void)
+{
+	log_std(("keyb:raw: keyb_raw_enable()\n"));
+
+#if defined(USE_VIDEO_SDL)
+	if (os_internal_sdl_is_video_active()) {
+		error_set("The raw keyboard driver cannot be used with the SDL video driver\n");
+		return -1;
 	}
 #endif
 
 	raw_state.kbd_fd = open("/dev/tty", O_RDONLY);
 	if (raw_state.kbd_fd == -1) {
-		log_std(("keyb:raw: open(\"/dev/tty\") failed\n"));
+		error_set("Error enabling the raw keyboard driver. Function open(/dev/tty) failed.\n");
 		return -1;
 	}
 
 	if (ioctl(raw_state.kbd_fd, KDGKBMODE, &raw_state.oldkbmode) != 0) {
-		log_std(("keyb:raw: ioctl(KDGKBMODE) failed\n"));
+		error_set("Error enabling the raw keyboard driver. Function ioctl(KDGKBMODE) failed.\n");
 		close(raw_state.kbd_fd);
 		return -1;
 	}
 
 	if (tcgetattr(raw_state.kbd_fd, &raw_state.oldkbdtermios) != 0) {
-		log_std(("keyb:raw: tcgetattr() failed\n"));
+		error_set("Error enabling the raw keyboard driver. Function tcgetattr() failed.\n");
 		close(raw_state.kbd_fd);
 		return -1;
 	}
@@ -122,17 +132,17 @@ adv_error keyb_raw_init(int keyb_id, adv_bool disable_special)
 
 	raw_state.newkbdtermios.c_lflag &= ~(ICANON | ECHO | ISIG);
 	raw_state.newkbdtermios.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | IXOFF | IXON);
-	raw_state.newkbdtermios.c_cc[VMIN] = 0; /* Making these 0 seems to have the */
-	raw_state.newkbdtermios.c_cc[VTIME] = 0; /* desired effect. */
+	raw_state.newkbdtermios.c_cc[VMIN] = 0; /* Making these 0 seems to have the desired effect. */
+	raw_state.newkbdtermios.c_cc[VTIME] = 0;
 
 	if (tcsetattr(raw_state.kbd_fd, TCSAFLUSH, &raw_state.newkbdtermios) != 0) {
-		log_std(("keyb:raw: tcsetattr(TCSAFLUSH) failed\n"));
+		error_set("Error enabling the raw keyboard driver. Function tcsetattr() failed.\n");
 		close(raw_state.kbd_fd);
 		return -1;
 	}
 
 	if (ioctl(raw_state.kbd_fd, KDSKBMODE, K_MEDIUMRAW) != 0) {
-		log_std(("keyb:raw: ioctl(KDGKBMODE) failed\n"));
+		error_set("Error enabling the raw keyboard driver. Function ioctl(KDSKBMODE) failed.\n");
 		close(raw_state.kbd_fd);
 		return -1;
 	}
@@ -142,9 +152,9 @@ adv_error keyb_raw_init(int keyb_id, adv_bool disable_special)
 	return 0;
 }
 
-void keyb_raw_done(void)
+void keyb_raw_disable(void)
 {
-	log_std(("keyb:raw: keyb_raw_done()\n"));
+	log_std(("keyb:raw: keyb_raw_disable()\n"));
 
 	ioctl(raw_state.kbd_fd, KDSKBMODE, raw_state.oldkbmode);
 	tcsetattr(raw_state.kbd_fd, 0, &raw_state.oldkbdtermios);
@@ -153,24 +163,42 @@ void keyb_raw_done(void)
 
 unsigned keyb_raw_count_get(void)
 {
+	log_debug(("keyb:raw: keyb_raw_count_get(void)\n"));
+
 	return 1;
 }
 
-unsigned keyb_raw_get(unsigned k, unsigned code)
+adv_bool keyb_raw_has(unsigned keyboard, unsigned code)
 {
+	log_debug(("keyb:raw: keyb_raw_has()\n"));
+
+	return key_is_standard(code);
+}
+
+unsigned keyb_raw_get(unsigned keyboard, unsigned code)
+{
+	assert(keyboard < keyb_raw_count_get());
+	assert(code < KEYB_MAX);
+
+	log_debug(("keyb:raw: keyb_raw_get(keyboard:%d,code:%d)\n", keyboard, code));
+
 	return raw_state.keystate[code];
 }
 
-void keyb_raw_all_get(unsigned k, unsigned char* code_map)
-{ 
+void keyb_raw_all_get(unsigned keyboard, unsigned char* code_map)
+{
+	assert(keyboard < keyb_raw_count_get());
+
+	log_debug(("keyb:raw: keyb_raw_all_get(keyboard:%d)\n", keyboard));
+
 	memcpy(code_map, raw_state.keystate, KEYB_MAX);
 }
 
-void keyb_raw_poll()
+void keyb_raw_poll(void)
 {
 	unsigned char c;
 
-	log_debug(("keyb:svgalib: keyb_svgalib_poll()\n"));
+	log_debug(("keyb:raw: keyb_raw_poll()\n"));
 
 	while ((1==read(raw_state.kbd_fd, &c, 1)) && (c)) {
 		raw_state.keystate[scan2keycode[c & 0x7f]] = (c & 0x80) ? 0 : 1;
@@ -201,8 +229,11 @@ keyb_driver keyb_raw_driver = {
 	keyb_raw_reg,
 	keyb_raw_init,
 	keyb_raw_done,
+	keyb_raw_enable,
+	keyb_raw_disable,
 	keyb_raw_flags,
 	keyb_raw_count_get,
+	keyb_raw_has,
 	keyb_raw_get,
 	keyb_raw_all_get,
 	keyb_raw_poll

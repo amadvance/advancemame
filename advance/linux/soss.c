@@ -30,7 +30,7 @@
 
 #include "soss.h"
 #include "log.h"
-#include "target.h"
+#include "error.h"
 
 #include <assert.h>
 #include <fcntl.h>
@@ -123,7 +123,7 @@ adv_error sound_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, dou
 err_close:
 	close(oss_state.handle);
 err:
-	target_err("Error initializing the OSS sound.\n");
+	error_set("Error initializing the OSS interface.\n");
 	return -1;
 }
 

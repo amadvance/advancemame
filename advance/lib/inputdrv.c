@@ -109,12 +109,14 @@ adv_error inputb_init(void)
 	}
 
 	/* store the error prefix */
-	error_nolog_set("Unable to inizialize a input driver. The following are the errors:\n");
+	error_nolog_set("Unable to inizialize the input driver. The following are the errors:\n");
 
 	for(i=0;i<inputb_state.driver_mac;++i) {
 		const adv_device* dev;
 
 		dev = device_match(inputb_state.name, (const adv_driver*)inputb_state.driver_map[i], 0);
+
+		error_cat_set(inputb_state.driver_map[i]->name, 1);
 
 		if (dev && inputb_state.driver_map[i]->init(dev->id) == 0) {
 			inputb_state.driver_current = inputb_state.driver_map[i];
@@ -122,8 +124,12 @@ adv_error inputb_init(void)
 		}
 	}
 
+	error_cat_set(0, 0);
+
 	if (!inputb_state.driver_current)
 		return -1;
+
+	error_reset();
 
 	log_std(("inputb: select driver %s\n", inputb_state.driver_current->name));
 

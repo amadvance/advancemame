@@ -25,6 +25,7 @@
 #include "sounddrv.h"
 #include "target.h"
 #include "log.h"
+#include "error.h"
 
 #include <string.h>
 
@@ -171,7 +172,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (mixer_init(rate, file_mac, 1, buffer_time + latency_time, latency_time) != 0) {
-		fprintf(stderr, "Error initializing the mixer\n");
+		target_err("%s\n", error_get());
 		goto err_os_inner;
 	}
 

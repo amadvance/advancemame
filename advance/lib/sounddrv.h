@@ -173,7 +173,9 @@ static inline void sound_volume(double v)
  */
 static inline const char* sound_name(void)
 {
-	return sound_state.name;
+	assert( sound_state.is_active_flag );
+
+	return sound_state.driver_current->name;
 }
 
 #ifdef __cplusplus

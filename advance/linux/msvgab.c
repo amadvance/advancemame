@@ -70,16 +70,14 @@ adv_error mouseb_svgalib_init(int mouseb_id)
 	log_std(("mouseb:svgalib: mouseb_svgalib_init(id:%d)\n", mouseb_id));
 
 	if (!os_internal_svgalib_get()) {
-		log_std(("mouseb:svgalib: svgalib not initialized\n"));
-		error_nolog_cat("svgalib: Not supported without the svgalib library\n");
+		error_set("Not supported without the svgalib library.\n");
 		return -1;
 	}
 
 	/* already opened internally by svgalib */
 
 	if (mouse_getcaps(&mouse_caps)!=0) {
-		log_std(("mouseb:svgalib: mouse_getcaps() failed\n"));
-		error_nolog_cat("svgalib: Error getting mouse capabilities\n");
+		error_set("No mouse found.\n");
 		return -1;
 	}
 
@@ -157,7 +155,7 @@ const char* mouseb_svgalib_button_name_get(unsigned mouse, unsigned button)
 	case 5 : return "sixth";
 	}
 
-	return 0;
+	return "unknown";
 }
 
 int mouseb_svgalib_axe_get(unsigned mouse, unsigned axe)

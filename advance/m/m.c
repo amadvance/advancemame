@@ -24,6 +24,7 @@
 #include "target.h"
 #include "portable.h"
 #include "log.h"
+#include "error.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +35,7 @@ void probe(void)
 {
 	int i, j;
 
-	printf("Mouses %d\n", mouseb_count_get());
+	printf("Driver %s, mouses %d\n", mouseb_name(), mouseb_count_get());
 	for(i=0;i<mouseb_count_get();++i) {
 		printf("mouse %d, buttons %d\n", i, mouseb_button_count_get(i));
 		for(j=0;j<mouseb_axe_count_get(i);++j) {
@@ -174,8 +175,10 @@ int os_main(int argc, char* argv[])
 	if (os_inner_init("AdvanceMOUSE") != 0)
 		goto err_os;
 
-	if (mouseb_init() != 0)
+	if (mouseb_init() != 0) {
+		target_err("%s\n", error_get());
 		goto err_os_inner;
+	}
 
 	probe();
 	run();
