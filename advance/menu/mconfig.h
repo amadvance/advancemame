@@ -353,6 +353,7 @@ public:
 	saver_t idle_saver_type; ///< Screensaver type.
 	unsigned repeat; // Keyboard first repeat period.
 	unsigned repeat_rep; ///< Keyboard next repeat period.
+	bool disable_special; ///< Disable special hotkeys.
 
 	merge_t merge; ///< Rom merge type.
 

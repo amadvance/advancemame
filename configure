@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os ASMFLAGS CFLAGS_BUILD EXE CONF_SYSTEM CONF_HOST EXE_BUILD CONF_BUILD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S AR ac_ct_AR RC ac_ct_RC RM CP MKDIR ECHO TAR GZIP ZIP CC_BUILD CXX_BUILD CONF_DEBUG CONF_CFLAGS_OPT CONF_LDFLAGS ASM CONF_CFLAGS_ARCH CONF_EMU CONF_DEBUGGER CPP EGREP ALLOCA CONF_LIB_ZLIB CONF_LIB_EXPAT CONF_LIB_SVGALIB CONF_LIB_FB CONF_LIB_ALSA CONF_LIB_OSS CONF_LIB_PTHREAD CONF_LIB_SLANG ac_lib_freetype_config FREETYPECFLAGS FREETYPELIBS CONF_LIB_FREETYPE ac_lib_sdl_config SDLCFLAGS SDLLIBS CONF_LIB_SDL CONF_LIB_SVGAWIN CONF_LIB_KRAW CONF_LIB_JRAW CONF_LIB_MRAW CONF_LIB_MEVENT CONF_LIB_KEVENT CONF_LIB_JEVENT LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os ASMFLAGS CFLAGS_FOR_BUILD EXE CONF_SYSTEM CONF_HOST EXE_FOR_BUILD CONF_BUILD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S AR ac_ct_AR RC ac_ct_RC RM CP MKDIR ECHO TAR GZIP ZIP CC_FOR_BUILD CXX_FOR_BUILD CONF_DEBUG CONF_CFLAGS_OPT CONF_LDFLAGS ASM CONF_CFLAGS_ARCH CONF_EMU CONF_DEBUGGER CPP EGREP ALLOCA CONF_LIB_ZLIB CONF_LIB_EXPAT CONF_LIB_SVGALIB CONF_LIB_FB CONF_LIB_ALSA CONF_LIB_OSS CONF_LIB_PTHREAD CONF_LIB_SLANG ac_lib_freetype_config FREETYPECFLAGS FREETYPELIBS CONF_LIB_FREETYPE ac_lib_sdl_config SDLCFLAGS SDLLIBS CONF_LIB_SDL CONF_LIB_SVGAWIN CONF_LIB_KRAW CONF_LIB_JRAW CONF_LIB_MRAW CONF_LIB_MEVENT CONF_LIB_KEVENT CONF_LIB_JEVENT LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1458,7 +1458,7 @@ case "$host" in
 		ac_host_ldflags=
 		ASMFLAGS="-f elf"
 
-		CFLAGS_BUILD="-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX"
+		CFLAGS_FOR_BUILD="-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX"
 
 
 	;;
@@ -1469,7 +1469,7 @@ case "$host" in
 		ac_host_ldflags=
 		ASMFLAGS=""
 
-		CFLAGS_BUILD="-O0"
+		CFLAGS_FOR_BUILD="-O0"
 
 
 	;;
@@ -1480,7 +1480,7 @@ case "$host" in
 		ac_host_ldflags=
 		ASMFLAGS="-f coff"
 
-		CFLAGS_BUILD="-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS"
+		CFLAGS_FOR_BUILD="-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS"
 
 		EXE=.exe
 
@@ -1492,7 +1492,7 @@ case "$host" in
 		ac_host_ldflags=
 		ASMFLAGS="-f coff"
 
-		CFLAGS_BUILD="-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS"
+		CFLAGS_FOR_BUILD="-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS"
 
 		EXE=.exe
 
@@ -1504,7 +1504,7 @@ case "$host" in
 		ac_host_ldflags=
 		ASMFLAGS=""
 
-		CFLAGS_BUILD="-O0"
+		CFLAGS_FOR_BUILD="-O0"
 
 
 	;;
@@ -1525,12 +1525,12 @@ case "$build" in
 	;;
 	*-*-cygwin* | *-*-mingw32*)
 		ac_build=windows
-		EXE_BUILD=.exe
+		EXE_FOR_BUILD=.exe
 
 	;;
 	*-*-msdos*)
 		ac_build=dos
-		EXE_BUILD=.exe
+		EXE_FOR_BUILD=.exe
 
 	;;
 	*)
@@ -3380,18 +3380,20 @@ fi
   test -n "$ZIP" && break
 done
 
-# Like PROG_CC without cross compiling
-for ac_prog in gcc cc
+
+if test "x$cross_compiling" = "xyes"; then
+	# if cross compiling autodetect the system compilers
+	for ac_prog in gcc cc
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_CC_BUILD+set}" = set; then
+if test "${ac_cv_prog_CC_FOR_BUILD+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  if test -n "$CC_BUILD"; then
-  ac_cv_prog_CC_BUILD="$CC_BUILD" # Let the user override the test.
+  if test -n "$CC_FOR_BUILD"; then
+  ac_cv_prog_CC_FOR_BUILD="$CC_FOR_BUILD" # Let the user override the test.
 else
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
@@ -3400,7 +3402,7 @@ do
   test -z "$as_dir" && as_dir=.
   for ac_exec_ext in '' $ac_executable_extensions; do
   if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_CC_BUILD="$ac_prog"
+    ac_cv_prog_CC_FOR_BUILD="$ac_prog"
     echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -3409,30 +3411,29 @@ done
 
 fi
 fi
-CC_BUILD=$ac_cv_prog_CC_BUILD
-if test -n "$CC_BUILD"; then
-  echo "$as_me:$LINENO: result: $CC_BUILD" >&5
-echo "${ECHO_T}$CC_BUILD" >&6
+CC_FOR_BUILD=$ac_cv_prog_CC_FOR_BUILD
+if test -n "$CC_FOR_BUILD"; then
+  echo "$as_me:$LINENO: result: $CC_FOR_BUILD" >&5
+echo "${ECHO_T}$CC_FOR_BUILD" >&6
 else
   echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
-  test -n "$CC_BUILD" && break
+  test -n "$CC_FOR_BUILD" && break
 done
 
-# Like PROG_CXX without cross compiling
-for ac_prog in g++ gxx c++ gpp aCC CC cxx cc++ cl FCC KCC RCC xlC_r xlC
+	for ac_prog in g++ gxx c++ gpp aCC CC cxx cc++ cl FCC KCC RCC xlC_r xlC
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_CXX_BUILD+set}" = set; then
+if test "${ac_cv_prog_CXX_FOR_BUILD+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  if test -n "$CXX_BUILD"; then
-  ac_cv_prog_CXX_BUILD="$CXX_BUILD" # Let the user override the test.
+  if test -n "$CXX_FOR_BUILD"; then
+  ac_cv_prog_CXX_FOR_BUILD="$CXX_FOR_BUILD" # Let the user override the test.
 else
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
 for as_dir in $PATH
@@ -3441,7 +3442,7 @@ do
   test -z "$as_dir" && as_dir=.
   for ac_exec_ext in '' $ac_executable_extensions; do
   if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_CXX_BUILD="$ac_prog"
+    ac_cv_prog_CXX_FOR_BUILD="$ac_prog"
     echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
     break 2
   fi
@@ -3450,18 +3451,25 @@ done
 
 fi
 fi
-CXX_BUILD=$ac_cv_prog_CXX_BUILD
-if test -n "$CXX_BUILD"; then
-  echo "$as_me:$LINENO: result: $CXX_BUILD" >&5
-echo "${ECHO_T}$CXX_BUILD" >&6
+CXX_FOR_BUILD=$ac_cv_prog_CXX_FOR_BUILD
+if test -n "$CXX_FOR_BUILD"; then
+  echo "$as_me:$LINENO: result: $CXX_FOR_BUILD" >&5
+echo "${ECHO_T}$CXX_FOR_BUILD" >&6
 else
   echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
 fi
 
-  test -n "$CXX_BUILD" && break
+  test -n "$CXX_FOR_BUILD" && break
 done
 
+else
+	#if not cross compiling use the already detected compilers
+	CC_FOR_BUILD=$CC
+	CXX_FOR_BUILD=$CXX
+
+
+fi
 
 # Checks for optimizations
 # Check whether --enable-debug or --disable-debug was given.
@@ -11157,11 +11165,11 @@ s,@host_cpu@,$host_cpu,;t t
 s,@host_vendor@,$host_vendor,;t t
 s,@host_os@,$host_os,;t t
 s,@ASMFLAGS@,$ASMFLAGS,;t t
-s,@CFLAGS_BUILD@,$CFLAGS_BUILD,;t t
+s,@CFLAGS_FOR_BUILD@,$CFLAGS_FOR_BUILD,;t t
 s,@EXE@,$EXE,;t t
 s,@CONF_SYSTEM@,$CONF_SYSTEM,;t t
 s,@CONF_HOST@,$CONF_HOST,;t t
-s,@EXE_BUILD@,$EXE_BUILD,;t t
+s,@EXE_FOR_BUILD@,$EXE_FOR_BUILD,;t t
 s,@CONF_BUILD@,$CONF_BUILD,;t t
 s,@CC@,$CC,;t t
 s,@CFLAGS@,$CFLAGS,;t t
@@ -11188,8 +11196,8 @@ s,@ECHO@,$ECHO,;t t
 s,@TAR@,$TAR,;t t
 s,@GZIP@,$GZIP,;t t
 s,@ZIP@,$ZIP,;t t
-s,@CC_BUILD@,$CC_BUILD,;t t
-s,@CXX_BUILD@,$CXX_BUILD,;t t
+s,@CC_FOR_BUILD@,$CC_FOR_BUILD,;t t
+s,@CXX_FOR_BUILD@,$CXX_FOR_BUILD,;t t
 s,@CONF_DEBUG@,$CONF_DEBUG,;t t
 s,@CONF_CFLAGS_OPT@,$CONF_CFLAGS_OPT,;t t
 s,@CONF_LDFLAGS@,$CONF_LDFLAGS,;t t

@@ -12,7 +12,7 @@ SOBJ = obj/s/$(BINARYDIR)
 CFGOBJ = obj/cfg/$(BINARYDIR)
 LINEOBJ = obj/line/$(BINARYBUILDDIR)
 D2OBJ = obj/d2/$(BINARYBUILDDIR)
-DOCOBJ = obj/doc
+DOCOBJ = $(srcdir)/doc
 
 ############################################################################
 # Common targets
@@ -24,7 +24,6 @@ endif
 ifneq ($(wildcard $(EMUSRC)),)
 INSTALL_DIRS += $(OBJ)
 INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
-INSTALL_DIRS += $(DOCOBJ)
 INSTALL_MANFILES += $(DOCOBJ)/advmame.1
 INSTALL_MANFILES += $(DOCOBJ)/advdev.1
 ifeq ($(CONF_EMU),mame)
@@ -38,38 +37,38 @@ INSTALL_MANFILES += $(srcdir)/support/advmess.1
 endif
 endif
 ifneq ($(wildcard $(srcdir)/advance/menu.mak),)
-INSTALL_DIRS += $(MENUOBJ) $(DOCOBJ)
+INSTALL_DIRS += $(MENUOBJ)
 INSTALL_BINFILES += $(MENUOBJ)/advmenu$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advmenu.1
 endif
 ifneq ($(wildcard $(srcdir)/advance/cfg.mak),)
-INSTALL_DIRS += $(CFGOBJ) $(DOCOBJ)
+INSTALL_DIRS += $(CFGOBJ)
 INSTALL_BINFILES += $(CFGOBJ)/advcfg$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advcfg.1
 endif
 ifneq ($(wildcard $(srcdir)/advance/v.mak),)
-INSTALL_DIRS += $(VOBJ) $(DOCOBJ)
+INSTALL_DIRS += $(VOBJ)
 INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advv.1
 endif
 ifneq ($(CONF_SYSTEM),windows)
 ifneq ($(wildcard $(srcdir)/advance/s.mak),)
-INSTALL_DIRS += $(SOBJ) $(DOCOBJ)
+INSTALL_DIRS += $(SOBJ)
 INSTALL_BINFILES += $(SOBJ)/advs$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advs.1
 endif
 ifneq ($(wildcard $(srcdir)/advance/k.mak),)
-INSTALL_DIRS += $(KOBJ) $(DOCOBJ)
+INSTALL_DIRS += $(KOBJ)
 INSTALL_BINFILES += $(KOBJ)/advk$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advk.1
 endif
 ifneq ($(wildcard $(srcdir)/advance/j.mak),)
-INSTALL_DIRS += $(JOBJ) $(DOCOBJ)
+INSTALL_DIRS += $(JOBJ)
 INSTALL_BINFILES += $(JOBJ)/advj$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advj.1
 endif
 ifneq ($(wildcard $(srcdir)/advance/m.mak),)
-INSTALL_DIRS += $(MOBJ) $(DOCOBJ)
+INSTALL_DIRS += $(MOBJ)
 INSTALL_BINFILES += $(MOBJ)/advm$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advm.1
 endif
@@ -89,14 +88,14 @@ k: $(KOBJ) $(KOBJ)/advk$(EXE)
 i: $(IOBJ) $(IOBJ)/advi$(EXE)
 j: $(JOBJ) $(JOBJ)/advj$(EXE)
 m: $(MOBJ) $(MOBJ)/advm$(EXE)
-line: $(LINEOBJ) $(LINEOBJ)/advline$(EXE_BUILD)
-d2: $(D2OBJ) $(D2OBJ)/advd2$(EXE_BUILD)
-web: $(DOCOBJ) $(WEB_DOCFILES)
+line: $(LINEOBJ) $(LINEOBJ)/advline$(EXE_FOR_BUILD)
+d2: $(D2OBJ) $(D2OBJ)/advd2$(EXE_FOR_BUILD)
+web: $(WEB_DOCFILES)
 
 # Ensure that the doc target is always created also if a doc directory exists
 .PHONY: doc
 
-doc: $(DOCOBJ) $(INSTALL_DOCFILES)
+doc: $(INSTALL_DOCFILES)
 
 ############################################################################
 # Common SRC
@@ -327,7 +326,7 @@ uninstall-bin:
 		rm -f $(bindir)/$$i; \
 	done
 
-install-doc: $(DOCOBJ) $(INSTALL_DOCFILES)
+install-doc: $(INSTALL_DOCFILES)
 ifdef INSTALL_DOCFILES
 	@for i in $(INSTALL_DOCFILES); do \
 		echo "$(INSTALL_DATA) $$i $(pkgdocdir)"; \
@@ -342,7 +341,7 @@ ifdef INSTALL_DOCFILES
 	done
 endif
 
-install-man: $(DOCOBJ) $(INSTALL_MANFILES)
+install-man: $(INSTALL_MANFILES)
 ifdef INSTALL_MANFILES
 	@for i in $(INSTALL_MANFILES); do \
 		echo "$(INSTALL_DATA) $$i $(mandir)/man1"; \
@@ -440,9 +439,9 @@ devflags: obj
 	$(ECHO) CXXFLAGS=$(CXXFLAGS)
 	$(ECHO) LD=$(LD)
 	$(ECHO) LDFLAGS=$(LDFLAGS)
-	$(ECHO) CC_BUILD=$(CC_BUILD)
-	$(ECHO) CFLAGS_BUILD=$(CFLAGS_BUILD)
-	$(ECHO) LD_BUILD=$(LD_BUILD)
+	$(ECHO) CC_FOR_BUILD=$(CC_FOR_BUILD)
+	$(ECHO) CFLAGS_FOR_BUILD=$(CFLAGS_FOR_BUILD)
+	$(ECHO) LD_FOR_BUILD=$(LD_FOR_BUILD)
 	$(ECHO) SDLCFLAGS=$(SDLCFLAGS)
 	$(ECHO) SDLLIBS=$(SDLLIBS)
 	$(ECHO) FREETYPECFLAGS=$(FREETYPECFLAGS)

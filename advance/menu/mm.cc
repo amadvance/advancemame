@@ -176,7 +176,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 {
 	log_std(("menu: int_set call\n"));
 
-	if (!int_set(rs.video_gamma, rs.video_brightness, rs.idle_start_first, rs.idle_start_rep, rs.idle_saver_first, rs.idle_saver_rep, rs.preview_fast, rs.ui_translucency)) {
+	if (!int_set(rs.video_gamma, rs.video_brightness, rs.idle_start_first, rs.idle_start_rep, rs.idle_saver_first, rs.idle_saver_rep, rs.preview_fast, rs.ui_translucency, rs.disable_special)) {
 		return EVENT_ESC;
 	}
 

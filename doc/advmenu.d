@@ -1079,113 +1079,34 @@ Configuration
 	minimal commands, and the sound volume is propagated to the
 	emulators if possible.
 
-  Other Configuration Options
+  Input Configuration Options
+	This section describes the options used to customize the user
+	input.
 
-    idle_start
-	Automatically starts a random game after some time of inactivity.
-	You can also configure the AdvanceMAME option `input_idleexit'
-	in the file `advmame.rc' to create a continuous demo mode.
+    device_keyboard/joystick/mouse_*
+	These options are used to customize the input drivers.
 
-	:idle_start START_TIMEOUT REPEAT_TIMEOUT
+	All the `device_keyboard/joystick/mouse_*' options defined in
+	the `advdev.txt' file can be used.
 
-	Options:
-		START_TIMEOUT - Number of seconds to wait for the
-			first run. 0 means do nothing (default).
-		REPEAT_TIMEOUT - Number of seconds to wait for the
-			next run. 0 means do nothing (default).
+    input_hotkey
+	Enables or disables the recognition of the special OS keyboard
+	sequences.
 
-	Examples:
-		:idle_start 400 60
-
-    idle_screensaver
-	Selects the start time of the default screen saver. The screensaver
-	is a slide show of the available snapshots.
-
-	:idle_screensaver START_TIMEOUT REPEAT_TIMEOUT
+	:input_hotkey yes | no
 
 	Options:
-		START_TIMEOUT - Number of seconds to wait for the
-			first run. 0 means never (default).
-		REPEAT_TIMEOUT - Number of seconds to wait for the
-			next run. 0 means never (default).
+		no - No hot key recognition.
+		yes - Hot key recognition (default).
 
-	Examples:
-		:idle_screensaver 40 5
+	In DOS the hotkey recognized are:
+		CTRL+ALT+DEL - Reset.
+		CTRL+ALT+END - Quit.
+		CTRL+BREAK (Pause) - Break.
 
-    idle_screensaver_preview
-	Selects the preview type to use in the screensaver. Like 
-	the preview option.
-
-	:idle_screensaver_preview none | play | snap | flyers
-	:	| cabinets | titles
-
-	Options:
-		none - Shutdown the monitor using the VESA/PM services
-			if available. Otherwise use a black image.
-		snap, flyers, cabinets, titles - Start a mute slide show
-			of the specified image type (default snap).
-		play - Start a snap slide show using the animated
-			snapshots and the game sounds. The static
-			snapshots are ignored.
-
-    group/type
-	Selects the available `group' and `type' category names and
-	which of them to show.
-
-	:group "STRING"
-	:type "STRING"
-	:[EMULATOR/]group_include "STRING"
-	:[EMULATOR/]type_include "STRING"
-
-	Commands:
-		group, type - Define a category.
-		group_include, type_include - Show a category.
-
-	Options:
-		EMULATOR/ - Nothing for the default value, or an emulator
-			name for a specific emulator option.
-		STRING - name of the category
-
-    group/type/desc/info_import
-	Selects the automatic import of the groups, types, descriptions
-	and extra information from an external file. The extra info are
-	additional information displayed for every game.
-
-	The file formats supported are CATINI, MacMAME and NMS.
-	The files are read in the current directory in DOS and Windows
-	and in the $home directory in Linux and Mac OS X.
-
-	WARNING! These options DON'T OVERRIDE any user explicit
-	choices made with the `game' option.
-
-	:group_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-	:type_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-	:desc_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-	:info_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-
-	Options:
-		none - Don't import.
-		ini - Import in CATLIST format.
-		mac - Import in the MacMAME format.
-		nms - Import in the NMS format.
-		EMULATOR - The emulator tag name as specified in
-			the `emulator' option.
-		FILE - The file name.
-		SECTION - The section name (only for the `ini' format).
-
-	Examples:
-		:group_import ini "advmame" "catver.ini" "Category"
-		:type_import mac "advmame" "Genre 37b14.txt"
-		:desc_import nms "raine" "raine.nms"
-		:info_import ini "advmame" "catver.ini" "VerAdded"
-
-	The CATLIST files can be downloaded at:
-
-		+http://www.mameworld.net/catlist/
-
-	The MacMAME files can downloaded at:
-
-		+http://www.tznet.com/cmader/categories.html
+	In Linux the hotkey recognized generally are:
+		CTRL+C - Break.
+		ALT+Fx - Change virtual console.
 
     lock
 	Locks or unlocks the user interface. When locked, the user can
@@ -1193,7 +1114,7 @@ Configuration
 	cannot exit.
 
 	:lock yes | no
-	
+
 	Options:
 		yes - Locked mode activate.
 		no - Locked mode deactivate (default).
@@ -1289,6 +1210,117 @@ Configuration
 	Options:
 		yes - Enable (default).
 		no - Disable.
+
+  Other Configuration Options
+
+    idle_start
+	Automatically starts a random game after some time of inactivity.
+	You can also configure the AdvanceMAME option `input_idleexit'
+	in the file `advmame.rc' to create a continuous demo mode.
+
+	:idle_start START_TIMEOUT REPEAT_TIMEOUT
+
+	Options:
+		START_TIMEOUT - Number of seconds to wait for the
+			first run. 0 means do nothing (default).
+		REPEAT_TIMEOUT - Number of seconds to wait for the
+			next run. 0 means do nothing (default).
+
+	Examples:
+		:idle_start 400 60
+
+    idle_screensaver
+	Selects the start time of the default screen saver. The screensaver
+	is a slide show of the available snapshots.
+
+	:idle_screensaver START_TIMEOUT REPEAT_TIMEOUT
+
+	Options:
+		START_TIMEOUT - Number of seconds to wait for the
+			first run. 0 means never (default).
+		REPEAT_TIMEOUT - Number of seconds to wait for the
+			next run. 0 means never (default).
+
+	Examples:
+		:idle_screensaver 40 5
+
+    idle_screensaver_preview
+	Selects the preview type to use in the screensaver. Like 
+	the preview option.
+
+	:idle_screensaver_preview none | play | snap | flyers
+	:	| cabinets | titles
+
+	Options:
+		none - Shutdown the monitor using the VESA/PM services
+			if available. Otherwise use a black image.
+		snap, flyers, cabinets, titles - Start a mute slide show
+			of the specified image type (default snap).
+		play - Start a snap slide show using the animated
+			snapshots and the game sounds. The static
+			snapshots are ignored.
+
+    group/type
+	Selects the available `group' and `type' category names and
+	which of them to show.
+
+	:group "STRING"
+	:type "STRING"
+	:[EMULATOR/]group_include "STRING"
+	:[EMULATOR/]type_include "STRING"
+
+	Commands:
+		group, type - Define a category.
+		group_include, type_include - Show a category.
+
+	Options:
+		EMULATOR/ - Nothing for the default value, or an emulator
+			name for a specific emulator option.
+		STRING - name of the category
+
+    group/type/desc/info_import
+	Selects the automatic import of the groups, types, descriptions
+	and extra information from an external file. The extra info are
+	additional information displayed for every game.
+
+	The file formats supported are CATINI, MacMAME and NMS.
+	The files are read in the current directory in DOS and Windows
+	and in the $home directory in Linux and Mac OS X.
+
+	WARNING! These options DON'T OVERRIDE any user explicit
+	choices made with the `game' option.
+
+	:desc_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+	:info_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+	:group_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+	:type_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+
+	Commands:
+		desc_import - Imports the game names shown in the menu.
+		info_import - Imports additional information printed on
+			bottom bar of the menu.
+		group_import - Imports the group names of the game.
+		type_import - Imports the type names of the game.
+
+	Options:
+		none - Don't import.
+		ini - Import in CATLIST format.
+		mac - Import in the MacMAME format.
+		nms - Import in the NMS format.
+		EMULATOR - The emulator tag name as specified in
+			the `emulator' option.
+		FILE - The file name.
+		SECTION - The section name (only for the `ini' format).
+
+	Examples:
+		:group_import ini "advmame" "catver.ini" "Category"
+		:type_import mac "advmame" "Genre 37b14.txt"
+		:desc_import nms "raine" "raine.nms"
+		:info_import ini "advmame" "catver.ini" "VerAdded"
+
+	The CATLIST files can be downloaded at:
+
+		+http://www.mameworld.net/catlist/
 
     misc_exit
 	Selects the exit mode.

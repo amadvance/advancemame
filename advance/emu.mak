@@ -15,7 +15,7 @@ OBJDIRS += \
 ifeq ($(CONF_SYSTEM),unix)
 
 # Dependencies on DATADIR/SYSCONFDIR
-$(OBJ)/advance/linux/file.o: $(srcdir)/Makefile
+$(OBJ)/advance/linux/file.o: Makefile
 
 # Allow external customization for special targets
 ifndef DATADIR
@@ -353,7 +353,7 @@ endif
 # emu
 
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
-$(OBJ)/advance/osd/emu.o: $(srcdir)/advance/version.mak $(srcdir)/Makefile
+$(OBJ)/advance/osd/emu.o: $(srcdir)/advance/version.mak Makefile
 
 EMUCFLAGS += -DVERSION=\"$(EMUVERSION)\"
 
@@ -655,30 +655,30 @@ $(OBJ)/mess/%.o: $(srcdir)/mess/%.c
 	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
 
 # Generate C source files for the 68000 emulator
-$(M68000_GENERATED_OBJS): $(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD)
+$(M68000_GENERATED_OBJS): $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $*.c -o $@
 
 # Additional rule, because m68kcpu.c includes the generated m68kops.h
-$(OBJ)/cpu/m68000/m68kcpu.o: $(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD)
+$(OBJ)/cpu/m68000/m68kcpu.o: $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
 
-$(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD): $(EMUSRC)/cpu/m68000/m68kmake.c
-	$(ECHO) $(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD)
-	$(CC_BUILD) $(CFLAGS_BUILD) -o $(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD) $<
-	@$(OBJ)/cpu/m68000/m68kmake$(EXE_BUILD) $(OBJ)/cpu/m68000 $(EMUSRC)/cpu/m68000/m68k_in.c > /dev/null
+$(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD): $(EMUSRC)/cpu/m68000/m68kmake.c
+	$(ECHO) $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
+	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $<
+	@$(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $(OBJ)/cpu/m68000 $(EMUSRC)/cpu/m68000/m68k_in.c > /dev/null
 
 # Generate asm source files for the 68000/68020 emulators
-$(OBJ)/cpu/m68000/make68k$(EXE_BUILD): $(EMUSRC)/cpu/m68000/make68k.c
+$(OBJ)/cpu/m68000/make68k$(EXE_FOR_BUILD): $(EMUSRC)/cpu/m68000/make68k.c
 	$(ECHO) $@
-	$(CC_BUILD) $(CFLAGS_BUILD) -o $(OBJ)/cpu/m68000/make68k$(EXE_BUILD) $<
+	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o $(OBJ)/cpu/m68000/make68k$(EXE_FOR_BUILD) $<
 
-$(OBJ)/cpu/m68000/68000.asm: $(OBJ)/cpu/m68000/make68k$(EXE_BUILD)
+$(OBJ)/cpu/m68000/68000.asm: $(OBJ)/cpu/m68000/make68k$(EXE_FOR_BUILD)
 	$(ECHO) $@
-	@$(OBJ)/cpu/m68000/make68k$(EXE_BUILD) $@ $(OBJ)/cpu/m68000/68000tab.asm 00 > /dev/null
+	@$(OBJ)/cpu/m68000/make68k$(EXE_FOR_BUILD) $@ $(OBJ)/cpu/m68000/68000tab.asm 00 > /dev/null
 
-$(OBJ)/cpu/m68000/68020.asm: $(OBJ)/cpu/m68000/make68k$(EXE_BUILD)
+$(OBJ)/cpu/m68000/68020.asm: $(OBJ)/cpu/m68000/make68k$(EXE_FOR_BUILD)
 	$(ECHO) $@
-	@$(OBJ)/cpu/m68000/make68k$(EXE_BUILD) $@ $(OBJ)/cpu/m68000/68020tab.asm 20 > /dev/null
+	@$(OBJ)/cpu/m68000/make68k$(EXE_FOR_BUILD) $@ $(OBJ)/cpu/m68000/68020tab.asm 20 > /dev/null
 
 $(OBJ)/cpu/m68000/68000.o: $(OBJ)/cpu/m68000/68000.asm
 	$(ECHO) $@
@@ -781,7 +781,61 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/cardlinx.d \
 	$(srcdir)/doc/cardwin.d \
 	$(srcdir)/doc/install.d \
-	$(srcdir)/doc/svgawin.d
+	$(srcdir)/doc/svgawin.d \
+	$(srcdir)/doc/advdev.txt \
+	$(srcdir)/doc/license.txt \
+	$(srcdir)/doc/advmame.txt \
+	$(srcdir)/doc/authors.txt \
+	$(srcdir)/doc/script.txt \
+	$(srcdir)/doc/reademu.txt \
+	$(srcdir)/doc/releemu.txt \
+	$(srcdir)/doc/histemu.txt \
+	$(srcdir)/doc/faq.txt \
+	$(srcdir)/doc/build.txt \
+	$(srcdir)/doc/cost.txt \
+	$(srcdir)/doc/advv.txt \
+	$(srcdir)/doc/advcfg.txt \
+	$(srcdir)/doc/advk.txt \
+	$(srcdir)/doc/advs.txt \
+	$(srcdir)/doc/advj.txt \
+	$(srcdir)/doc/advm.txt \
+	$(srcdir)/doc/advline.txt \
+	$(srcdir)/doc/carddos.txt \
+	$(srcdir)/doc/cardlinx.txt \
+	$(srcdir)/doc/cardwin.txt \
+	$(srcdir)/doc/install.txt \
+	$(srcdir)/doc/svgawin.txt \
+	$(srcdir)/doc/advdev.html \
+	$(srcdir)/doc/license.html \
+	$(srcdir)/doc/advmame.html \
+	$(srcdir)/doc/authors.html \
+	$(srcdir)/doc/script.html \
+	$(srcdir)/doc/reademu.html \
+	$(srcdir)/doc/releemu.html \
+	$(srcdir)/doc/histemu.html \
+	$(srcdir)/doc/faq.html \
+	$(srcdir)/doc/build.html \
+	$(srcdir)/doc/cost.html \
+	$(srcdir)/doc/advv.html \
+	$(srcdir)/doc/advcfg.html \
+	$(srcdir)/doc/advk.html \
+	$(srcdir)/doc/advs.html \
+	$(srcdir)/doc/advj.html \
+	$(srcdir)/doc/advm.html \
+	$(srcdir)/doc/advline.html \
+	$(srcdir)/doc/carddos.html \
+	$(srcdir)/doc/cardlinx.html \
+	$(srcdir)/doc/cardwin.html \
+	$(srcdir)/doc/install.html \
+	$(srcdir)/doc/svgawin.html \
+	$(srcdir)/doc/advdev.1 \
+	$(srcdir)/doc/advmame.1 \
+	$(srcdir)/doc/advv.1 \
+	$(srcdir)/doc/advcfg.1 \
+	$(srcdir)/doc/advk.1 \
+	$(srcdir)/doc/advs.1 \
+	$(srcdir)/doc/advj.1 \
+	$(srcdir)/doc/advm.1
 
 EMU_DOC_BIN = \
 	$(DOCOBJ)/advdev.txt \

@@ -226,9 +226,9 @@ static bool int_key_load(adv_conf* config_context)
 	return true;
 }
 
-static bool int_key_init()
+static bool int_key_init(bool disable_special)
 {
-	if (keyb_init(0) != 0)
+	if (keyb_init(disable_special) != 0)
 		return false;
 
 	return true;
@@ -645,7 +645,7 @@ void int_done()
 	video_done();
 }
 
-bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast, unsigned translucency)
+bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast, unsigned translucency, bool disable_special)
 {
 	int_idle_time_current = time(0);
 	int_idle_0 = idle_0;
@@ -660,7 +660,7 @@ bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_r
 	int_gamma = 1.0 / gamma;
 	int_brightness = brightness;
 
-	if (!int_key_init()) {
+	if (!int_key_init(disable_special)) {
 		target_err("%s\n", error_get());
 		goto err;
 	}

@@ -266,6 +266,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_int_register_default(config_context, "menu_base", 0);
 	conf_int_register_default(config_context, "menu_rel", 0);
 	conf_string_register_default(config_context, "event_repeat", "500 50");
+	conf_bool_register_default(config_context, "input_hotkey", 1);
 	conf_string_register_default(config_context, "ui_gamemsg", "\"Loading\"");
 	conf_int_register_enum_default(config_context, "ui_game", conf_enum(OPTION_GAMESAVER), saver_snap);
 	conf_int_register_enum_default(config_context, "difficulty", conf_enum(OPTION_DIFFICULTY), difficulty_none);
@@ -804,6 +805,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	repeat = atoi(a0.c_str());
 	repeat_rep = atoi(a1.c_str());
+	disable_special = !conf_bool_get_default(config_context, "input_hotkey");
 	video_size = conf_int_get_default(config_context, "display_size");
 	if (!config_path(conf_string_get_default(config_context, "ui_font"), video_font_path))
 		return false;

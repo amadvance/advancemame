@@ -13,7 +13,7 @@ case "$host" in
 		ac_host_cflags=
 		ac_host_ldflags=
 		AC_SUBST([ASMFLAGS],["-f elf"])
-		AC_SUBST([CFLAGS_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX"])
+		AC_SUBST([CFLAGS_FOR_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_ELF -DUSE_OS_UNIX"])
 		AC_SUBST([EXE],[])
 	;;
 	*-*-darwin*)
@@ -22,7 +22,7 @@ case "$host" in
 		ac_host_cflags=-no-cpp-precomp
 		ac_host_ldflags=
 		AC_SUBST([ASMFLAGS],[""])
-		AC_SUBST([CFLAGS_BUILD],["-O0"])
+		AC_SUBST([CFLAGS_FOR_BUILD],["-O0"])
 		AC_SUBST([EXE],[])
 	;;
 	*-*-cygwin* | *-*-mingw32*)
@@ -31,7 +31,7 @@ case "$host" in
 		ac_host_cflags=
 		ac_host_ldflags=
 		AC_SUBST([ASMFLAGS],["-f coff"])
-		AC_SUBST([CFLAGS_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS"])
+		AC_SUBST([CFLAGS_FOR_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_WINDOWS"])
 		AC_SUBST([EXE],[.exe])
 	;;
 	*-*-msdos*)
@@ -40,7 +40,7 @@ case "$host" in
 		ac_host_cflags=
 		ac_host_ldflags=
 		AC_SUBST([ASMFLAGS],["-f coff"])
-		AC_SUBST([CFLAGS_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS"])
+		AC_SUBST([CFLAGS_FOR_BUILD],["-O0 -DUSE_COMPILER_GNUC -DUSE_OBJ_COFF -DUSE_OS_DOS"])
 		AC_SUBST([EXE],[.exe])
 	;;
 	*)
@@ -49,7 +49,7 @@ case "$host" in
 		ac_host_cflags=
 		ac_host_ldflags=
 		AC_SUBST([ASMFLAGS],[""])
-		AC_SUBST([CFLAGS_BUILD],["-O0"])
+		AC_SUBST([CFLAGS_FOR_BUILD],["-O0"])
 		AC_SUBST([EXE],[])
 	;;
 esac
@@ -59,23 +59,23 @@ AC_SUBST([CONF_HOST],[$ac_host])
 case "$build" in
 	*-*-linux*)
 		ac_build=linux
-		AC_SUBST([EXE_BUILD],[])
+		AC_SUBST([EXE_FOR_BUILD],[])
 	;;
 	*-*-darwin*)
 		ac_build=darwin
-		AC_SUBST([EXE_BUILD],[])
+		AC_SUBST([EXE_FOR_BUILD],[])
 	;;
 	*-*-cygwin* | *-*-mingw32*)
 		ac_build=windows
-		AC_SUBST([EXE_BUILD],[.exe])
+		AC_SUBST([EXE_FOR_BUILD],[.exe])
 	;;
 	*-*-msdos*)
 		ac_build=dos
-		AC_SUBST([EXE_BUILD],[.exe])
+		AC_SUBST([EXE_FOR_BUILD],[.exe])
 	;;
 	*)
 		ac_build=unix
-		AC_SUBST([EXE_BUILD],[])
+		AC_SUBST([EXE_FOR_BUILD],[])
 	;;
 esac
 AC_SUBST([CONF_BUILD],[$ac_build])
@@ -105,10 +105,18 @@ AC_CHECK_PROGS(ECHO, echo)
 AC_CHECK_PROGS(TAR, tar)
 AC_CHECK_PROGS(GZIP, gzip)
 AC_CHECK_PROGS(ZIP, zip)
-# Like PROG_CC without cross compiling
-AC_CHECK_PROGS(CC_BUILD, gcc cc)
-# Like PROG_CXX without cross compiling
-AC_CHECK_PROGS(CXX_BUILD, g++ gxx c++ gpp aCC CC cxx cc++ cl FCC KCC RCC xlC_r xlC)
+
+if test "x$cross_compiling" = "xyes"; then
+	# if cross compiling autodetect the system compilers
+	AC_CHECK_PROGS(CC_FOR_BUILD, gcc cc)
+	AC_CHECK_PROGS(CXX_FOR_BUILD, g++ gxx c++ gpp aCC CC cxx cc++ cl FCC KCC RCC xlC_r xlC)
+else
+	#if not cross compiling use the already detected compilers
+	CC_FOR_BUILD=$CC
+	CXX_FOR_BUILD=$CXX
+	AC_SUBST(CC_FOR_BUILD)
+	AC_SUBST(CXX_FOR_BUILD)
+fi
 
 # Checks for optimizations
 AC_ARG_ENABLE(

@@ -9,7 +9,7 @@ LINELIBS = -lm
 
 $(LINEOBJ)/%.o: $(srcdir)/advance/%.cc
 	$(ECHO) $@ $(MSG)
-	$(CXX_BUILD) $(CFLAGS_BUILD) $(LINECFLAGS) -c $< -o $@
+	$(CXX_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LINECFLAGS) -c $< -o $@
 
 $(LINEOBJ):
 	$(ECHO) $@
@@ -19,8 +19,8 @@ $(sort $(LINEOBJDIRS)):
 	$(ECHO) $@
 	$(MD) $@
 
-$(LINEOBJ)/advline$(EXE_BUILD) : $(sort $(LINEOBJDIRS)) $(LINEOBJS)
+$(LINEOBJ)/advline$(EXE_FOR_BUILD) : $(sort $(LINEOBJDIRS)) $(LINEOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LDXX_BUILD) $(LDFLAGS_BUILD) $(LINELDFLAGS) $(LINEOBJS) $(LINELIBS) -o $@
+	$(LDXX_FOR_BUILD) $(LDFLAGS_FOR_BUILD) $(LINELDFLAGS) $(LINEOBJS) $(LINELIBS) -o $@
 	$(RM) advline$(EXE)
 	$(LN_S) $@ advline$(EXE)

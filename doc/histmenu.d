@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.4.2 2004/10
+	) Added a new `input_hotkey' option to disable OS
+		hotkeys like CTRL+C.
+
 AdvanceMENU Version 2.4.1 2004/09
 	) Added support for translucency in the user interface
 		with the `ui_translucency' option. Note that without

@@ -183,6 +183,10 @@ Windows FAQ
 	Windows and the other for the game display. Check the
 	`device_svgawin_skipboard' option to control which video board to use.
 
+  How disable the Windows hotkeys ?
+	Check the Microsoft online documents "Disabling the Windows Key
+	on Microsoft Natural Keyboard" at http://support.microsoft.com/?kbid=181348.
+
 Video FAQ
   How can I enable the TV-OUT signal (S-VIDEO) of the video board ?
 	You cannot. If the TV-OUT signal is not enabled automatically

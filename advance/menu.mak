@@ -2,7 +2,7 @@
 # system
 
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
-$(MENUOBJ)/menu/mm.o: $(srcdir)/advance/version.mak $(srcdir)/Makefile
+$(MENUOBJ)/menu/mm.o: $(srcdir)/advance/version.mak Makefile
 
 MENUCFLAGS += -DVERSION=\"$(MENUVERSION)\"
 
@@ -93,7 +93,7 @@ MENUOBJS += \
 ifeq ($(CONF_SYSTEM),unix)
 
 # Dependencies on DATADIR/SYSCONFDIR
-$(MENUOBJ)/linux/file.o: $(srcdir)/Makefile
+$(MENUOBJ)/linux/file.o: Makefile
 
 # Allow external customization for special targets
 ifndef DATADIR
@@ -536,7 +536,39 @@ MENU_DOC_SRC = \
 	$(srcdir)/doc/advcfg.d \
 	$(srcdir)/doc/install.d \
 	$(srcdir)/doc/carddos.d \
-	$(srcdir)/doc/cardlinx.d
+	$(srcdir)/doc/cardlinx.d \
+	$(srcdir)/doc/advdev.txt \
+	$(srcdir)/doc/advmenu.txt \
+	$(srcdir)/doc/build.txt \
+	$(srcdir)/doc/cost.txt \
+	$(srcdir)/doc/authors.txt \
+	$(srcdir)/doc/faq.txt \
+	$(srcdir)/doc/histmenu.txt \
+	$(srcdir)/doc/readmenu.txt \
+	$(srcdir)/doc/relemenu.txt \
+	$(srcdir)/doc/advv.txt \
+	$(srcdir)/doc/advcfg.txt \
+	$(srcdir)/doc/install.txt \
+	$(srcdir)/doc/carddos.txt \
+	$(srcdir)/doc/cardlinx.txt \
+	$(srcdir)/doc/advdev.html \
+	$(srcdir)/doc/advmenu.html \
+	$(srcdir)/doc/build.html \
+	$(srcdir)/doc/cost.html \
+	$(srcdir)/doc/authors.html \
+	$(srcdir)/doc/faq.html \
+	$(srcdir)/doc/histmenu.html \
+	$(srcdir)/doc/readmenu.html \
+	$(srcdir)/doc/relemenu.html \
+	$(srcdir)/doc/advv.html \
+	$(srcdir)/doc/advcfg.html \
+	$(srcdir)/doc/install.html \
+	$(srcdir)/doc/carddos.html \
+	$(srcdir)/doc/cardlinx.html \
+	$(srcdir)/doc/advdev.1 \
+	$(srcdir)/doc/advmenu.1 \
+	$(srcdir)/doc/advv.1 \
+	$(srcdir)/doc/advcfg.1 \
 
 MENU_SUPPORT_SRC = \
 	$(srcdir)/support/advmenuv.bat \

@@ -38,7 +38,7 @@ void int_unreg();
 bool int_load(adv_conf* config_context);
 bool int_init(unsigned video_size);
 void int_done();
-bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast, unsigned translucency);
+bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast, unsigned translucency, bool disable_special);
 void int_unset(bool reset_video_mode);
 bool int_enable(int fontx, int fonty, const std::string& font, unsigned orientation);
 void int_disable();
