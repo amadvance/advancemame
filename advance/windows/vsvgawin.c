@@ -124,106 +124,64 @@ static unsigned char* svgawin_sdl_write_line(unsigned y)
 static adv_device DEVICE[] = {
 	{ "auto", -1, "SVGAWIN video" },
 #ifdef INCLUDE_NV3_DRIVER
-	{ "nv3", NV3, "nVidia Riva/GeForce" },
+	{ "nv3", 0, "nVidia Riva/GeForce" },
+#endif
+#ifdef INCLUDE_NV3_DRIVER
+	{ "nv3_19", 1, "nVidia Riva/GeForce (SVGALIB 1.9.19)" },
 #endif
 #ifdef INCLUDE_TRIDENT_DRIVER
-	{ "trident", TRIDENT, "Trident" },
+	{ "trident", 2, "Trident" },
 #endif
 #ifdef INCLUDE_RENDITION_DRIVER
-	{ "rendition", RENDITION, "Rendition" },
+	{ "rendition", 3, "Rendition" },
 #endif
 #ifdef INCLUDE_G400_DRIVER
-	{ "g400", G400, "Matrox Mystique/G100/G200/G400/G450" },
+	{ "g400", 4, "Matrox Mystique/G100/G200/G400/G450" },
 #endif
 #ifdef INCLUDE_PM2_DRIVER
-	{ "pm2", PM2, "Permedia 2" },
+	{ "pm2", 5, "Permedia 2" },
 #endif
 #ifdef INCLUDE_UNICHROME_DRIVER
-	{ "unichrome", UNICHROME, "VIA Unichrome" },
+	{ "unichrome", 6, "VIA Unichrome" },
 #endif
 #ifdef INCLUDE_SAVAGE_DRIVER
-	{ "savage", SAVAGE, "S3 Savage" },
+	{ "savage", 7, "S3 Savage" },
+#endif
+#ifdef INCLUDE_SAVAGE_DRIVER
+	{ "savage_18", 8, "S3 Savage (SVGALIB 1.9.18)" },
 #endif
 #ifdef INCLUDE_MILLENNIUM_DRIVER
-	{ "millenium", MILLENNIUM, "Matrox Millennium/Millenium II" },
+	{ "millenium", 9, "Matrox Millennium/Millenium II" },
 #endif
 #ifdef INCLUDE_R128_DRIVER
-	{ "r128", R128, "ATI Rage 128/Radeon" },
+	{ "r128", 10, "ATI Rage 128/Radeon" },
 #endif
 #ifdef INCLUDE_BANSHEE_DRIVER
-	{ "banshee", BANSHEE, "3dfx Voodoo Banshee/3/4/5" },
+	{ "banshee", 11, "3dfx Voodoo Banshee/3/4/5" },
 #endif
 #ifdef INCLUDE_SIS_DRIVER
-	{ "sis", SIS, "SIS" },
-#endif
-#ifdef INCLUDE_I740_DRIVER
-	{ "i740", I740, "Intel i740" },
-#endif
-#ifdef INCLUDE_I810_DRIVER
-	{ "i810", I810, "Intel i810" },
+	{ "sis", 12, "SIS" },
 #endif
 #ifdef INCLUDE_LAGUNA_DRIVER
-	{ "laguna", LAGUNA, "Cirrus Logic Laguna 5462/5464/5465" },
+	{ "laguna", 13, "Cirrus Logic Laguna 5462/5464/5465" },
 #endif
 #ifdef INCLUDE_RAGE_DRIVER
-	{ "rage", RAGE, "ATI Rage" },
+	{ "rage", 14, "ATI Rage" },
 #endif
 #ifdef INCLUDE_MX_DRIVER
-	{ "mx", MX, "MX" },
-#endif
-#ifdef INCLUDE_NEO_DRIVER
-	{ "neomagic", NEOMAGIC, "NeoMagic" },
-#endif
-#ifdef INCLUDE_CHIPS_DRIVER
-	{ "chips", CHIPS, "Chips & Technologies" },
-#endif
-#ifdef INCLUDE_MACH64_DRIVER
-	{ "mach64", MACH64, "ATI Mach 64" },
-#endif
-#ifdef INCLUDE_MACH32_DRIVER
-	{ "mach32", MACH32, "ATI Mach 32" },
-#endif
-#ifdef INCLUDE_EGA_DRIVER
-	{ "ega", EGA, "EGA" },
+	{ "mx", 15, "MX" },
 #endif
 #ifdef INCLUDE_ET6000_DRIVER
-	{ "et6000", ET6000, "ET6000" },
-#endif
-#ifdef INCLUDE_ET4000_DRIVER
-	{ "et4000", ET4000, "ET4000" },
-#endif
-#ifdef INCLUDE_TVGA_DRIVER
-	{ "tvga8900", TVGA8900, "TVGA8900" }
-#endif
-#ifdef INCLUDE_CIRRUS_DRIVER
-	{ "cirrus", CIRRUS, "Cirrus Logic" },
-#endif
-#ifdef INCLUDE_OAK_DRIVER
-	{ "oak", OAK, "OAK" },
-#endif
-#ifdef INCLUDE_PARADISE_DRIVER
-	{ "paradise", PARADISE, "Paradise" },
+	{ "et6000", 16, "ET6000" },
 #endif
 #ifdef INCLUDE_S3_DRIVER
-	{ "s3", S3, "S3" },
-#endif
-#ifdef INCLUDE_ET3000_DRIVER
-	{ "et3000", ET3000, "ET3000" },
+	{ "s3", 17, "S3" },
 #endif
 #ifdef INCLUDE_ARK_DRIVER
-	{ "ark", ARK, "ARK" },
-#endif
-#ifdef INCLUDE_GVGA6400_DRIVER
-	{ "gvga6400", GVGA6400, "GVGA6400" },
-#endif
-#ifdef INCLUDE_ATI_DRIVER
-	{ "ati", ATI, "ATI" },
-#endif
-#ifdef INCLUDE_ALI_DRIVER
-	{ "ali", ALI, "ALI" },
+	{ "ark", 18, "ARK" },
 #endif
 #ifdef INCLUDE_APM_DRIVER
-	{ "apm", APM, "APM" },
+	{ "apm", 19, "APM" },
 #endif
 	{ 0, 0, 0 }
 };

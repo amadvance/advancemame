@@ -678,7 +678,7 @@ static int init(int force, int par1, int par2)
  		found=__svgalib_pci_find_vendor_vga(0x12d2,buf,0);
  		if (found) {
   			found=__svgalib_pci_find_vendor_vga(0x10de,buf,0);
-  			if(found)return 0;
+  			if(found)return -1;
  		} 
  		switch((buf[0]>>20)&0xff){
   			case 0x1: 

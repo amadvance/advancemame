@@ -26,7 +26,7 @@ diff -u ../svgalib.ori/endianes.h ./endianes.h
  #endif
 diff -u ../svgalib.ori/libvga.h ./libvga.h
 --- ../svgalib.ori/libvga.h	2004-09-10 13:04:03.000000000 +0200
-+++ ./libvga.h	2005-03-18 21:56:59.000000000 +0100
++++ ./libvga.h	2005-04-06 19:09:58.000000000 +0200
 @@ -9,11 +9,9 @@
  #define _LIBVGA_H
  
@@ -41,6 +41,37 @@ diff -u ../svgalib.ori/libvga.h ./libvga.h
  
  /* --------------------- Macro definitions shared by library modules */
  
+@@ -217,22 +215,14 @@
+ #define gr_writew(v,off)	(*(uint16_t*)((GM)+(off)) = (v))
+ #define gr_writel(v,off)	(*(uint32_t*)((GM)+(off)) = (v))
+ 
+-extern void __svgalib_port_out(int value, int port);
+-extern void __svgalib_port_outw(int value, int port);
+-extern void __svgalib_port_outl(int value, int port);
+-extern void __svgalib_port_rep_outb(unsigned char* string, int length, int port);
+-
+-extern int __svgalib_port_in(int port);
+-extern int __svgalib_port_inw(int port);
+-extern int __svgalib_port_inl(int port);
+-
+-#define port_in __svgalib_port_in
+-#define port_inw __svgalib_port_inw
+-#define port_inl __svgalib_port_inl
+-#define port_out __svgalib_port_out
+-#define port_outw __svgalib_port_outw
+-#define port_outl __svgalib_port_outl
+-#define port_rep_outb __svgalib_port_rep_outb
++extern void port_out(int value, int port);
++extern void port_outw(int value, int port);
++extern void port_outl(int value, int port);
++extern void port_rep_outb(unsigned char* string, int length, int port);
++
++extern int port_in(int port);
++extern int port_inw(int port);
++extern int port_inl(int port);
+ 
+ /* Note that the arguments of outb/w are reversed compared with the */
+ /* kernel sources. The XFree86 drivers also use this format. */
 diff -u ../svgalib.ori/memio.h ./memio.h
 --- ../svgalib.ori/memio.h	2002-07-06 20:24:57.000000000 +0200
 +++ ./memio.h	2005-03-18 21:56:59.000000000 +0100
@@ -51,7 +82,7 @@ diff -u ../svgalib.ori/memio.h ./memio.h
  
 diff -u ../svgalib.ori/svgadriv.h ./svgadriv.h
 --- ../svgalib.ori/svgadriv.h	2005-02-03 12:33:04.000000000 +0100
-+++ ./svgadriv.h	2005-03-18 21:56:59.000000000 +0100
++++ ./svgadriv.h	2005-04-06 19:12:25.000000000 +0200
 @@ -16,7 +16,7 @@
  #include "libvga.h"
  #include "timing.h"
@@ -61,9 +92,25 @@ diff -u ../svgalib.ori/svgadriv.h ./svgadriv.h
  
  #define MAX_REGS 5000 /* VESA needs a lot of storage space */
  
+@@ -86,6 +86,7 @@
+ extern DriverSpecs __svgalib_chips_driverspecs;
+ extern DriverSpecs __svgalib_apm_driverspecs;
+ extern DriverSpecs __svgalib_nv3_driverspecs;
++extern DriverSpecs __svgalib_nv3_19_driverspecs;
+ extern DriverSpecs __svgalib_et6000_driverspecs;
+ extern DriverSpecs __svgalib_vesa_driverspecs;
+ extern DriverSpecs __svgalib_mx_driverspecs;
+@@ -100,6 +101,7 @@
+ extern DriverSpecs __svgalib_r128_driverspecs;
+ extern DriverSpecs __svgalib_g400_driverspecs;
+ extern DriverSpecs __svgalib_savage_driverspecs;
++extern DriverSpecs __svgalib_savage_18_driverspecs;
+ extern DriverSpecs __svgalib_mil_driverspecs;
+ extern DriverSpecs __svgalib_trident_driverspecs;
+ extern DriverSpecs __svgalib_rendition_driverspecs;
 diff -u ../svgalib.ori/vga.h ./vga.h
 --- ../svgalib.ori/vga.h	2005-02-03 12:30:02.000000000 +0100
-+++ ./vga.h	2005-03-18 21:56:59.000000000 +0100
++++ ./vga.h	2005-04-06 19:11:37.000000000 +0200
 @@ -560,8 +560,10 @@
   * NULL is a valid argument for any of the ptrs.
   */
@@ -254,7 +301,7 @@ diff -u ../svgalib.ori/drivers/mx.c drivers/mx.c
  #define MXREG_SAVE(i) (VGA_TOTAL_REGS+i)
 diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
 --- ../svgalib.ori/drivers/nv3.c	2005-03-16 10:40:43.000000000 +0100
-+++ drivers/nv3.c	2005-04-04 20:52:23.000000000 +0200
++++ drivers/nv3.c	2005-04-06 19:15:47.000000000 +0200
 @@ -22,12 +22,12 @@
  #include <unistd.h>
  #include "vga.h"
@@ -299,6 +346,15 @@ diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
      modeavailable,
      setdisplaystart,
      setlogicalwidth,
+@@ -678,7 +678,7 @@
+  		found=__svgalib_pci_find_vendor_vga(0x12d2,buf,0);
+  		if (found) {
+   			found=__svgalib_pci_find_vendor_vga(0x10de,buf,0);
+-  			if(found)return 0;
++  			if(found)return -1;
+  		} 
+  		switch((buf[0]>>20)&0xff){
+   			case 0x1: 
 @@ -766,6 +766,8 @@
  	__svgalib_mmio_size=8*1024*1024;
  	
@@ -326,6 +382,88 @@ diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
  			for (M = 1; M <= 13; M++) {
  				N = ((VClk << P) * M) / (PLL_INPUT_FREQ << 2);
  				if((N >= 5) && (N <= 255)) {
+diff -u ../svgalib.ori/drivers/nv319.c drivers/nv319.c
+--- ../svgalib.ori/drivers/nv319.c	2004-05-24 17:45:33.000000000 +0200
++++ drivers/nv319.c	2005-04-07 17:30:08.000000000 +0200
+@@ -22,12 +22,12 @@
+ #include <unistd.h>
+ #include "vga.h"
+ #include "libvga.h"
+-#include "driver.h"
++#include "svgadriv.h"
+ 
+ /* New style driver interface. */
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "nv3ref.h"
+ #include "nvreg.h"
+ #include "vgapci.h"
+@@ -458,7 +458,8 @@
+ 
+    MMIOBASE=0; /* let nv3_init() find those */
+    LINEARBASE=0;
+-   nv3_init(0,0,0);
++   if (nv3_init(0,0,0) != 0)
++       return 0;
+    return 1;
+ }
+ 
+@@ -588,7 +589,7 @@
+ }
+ /* Function table (exported) */
+ 
+-DriverSpecs __svgalib_nv3_driverspecs =
++DriverSpecs __svgalib_nv3_19_driverspecs =
+ {
+     nv3_saveregs,
+     nv3_setregs,
+@@ -634,7 +635,7 @@
+        found=__svgalib_pci_find_vendor_vga(0x12d2,buf,0);
+        if (found) {
+           found=__svgalib_pci_find_vendor_vga(0x10de,buf,0);
+-          if(found)return 0;
++          if(found)return -1;
+        } 
+        switch((buf[0]>>20)&0xff){
+           case 0x1: 
+@@ -694,6 +695,8 @@
+     __svgalib_mmio_size=8*1024*1024;
+ 
+     map_mmio();
++    if (MMIO_POINTER == MAP_FAILED)
++        return -1;
+     
+     if(!force){
+        int boot0;
+@@ -716,7 +719,7 @@
+        }
+     }
+ 
+-    nv3_mapio();
++    mapio();
+     nv3_unlock();
+ 
+     {
+@@ -779,7 +782,7 @@
+     cardspecs->mapClock = nv3_map_clock;
+     cardspecs->mapHorizontalCrtc = nv3_map_horizontal_crtc;
+     cardspecs->matchProgrammableClock=nv3_match_programmable_clock;
+-    __svgalib_driverspecs = &__svgalib_nv3_driverspecs;
++    __svgalib_driverspecs = &__svgalib_nv3_19_driverspecs;
+     
+     __svgalib_banked_mem_base=0xa0000;
+     __svgalib_banked_mem_size=0x10000;
+@@ -812,7 +815,7 @@
+     for (P = 0; P <= P_MAX; P ++)
+     {
+         Freq = VClk << P;
+-        if ((Freq >= 128000) && (Freq <= MAXVCLOCK))
++        if ((Freq >= 128000 || P == P_MAX) && (Freq <= MAXVCLOCK))
+         {
+             for (M = M_MIN; M <= M_MAX; M++)
+             {
 diff -u ../svgalib.ori/drivers/pm2.c drivers/pm2.c
 --- ../svgalib.ori/drivers/pm2.c	2004-09-10 12:59:25.000000000 +0200
 +++ drivers/pm2.c	2005-03-18 21:58:01.000000000 +0100
@@ -490,7 +628,7 @@ diff -u ../svgalib.ori/drivers/r128.c drivers/r128.c
  }
 diff -u ../svgalib.ori/drivers/rage.c drivers/rage.c
 --- ../svgalib.ori/drivers/rage.c	2004-09-10 12:59:25.000000000 +0200
-+++ drivers/rage.c	2005-03-18 21:58:06.000000000 +0100
++++ drivers/rage.c	2005-04-06 18:45:14.000000000 +0200
 @@ -33,12 +33,12 @@
  #include <sys/mman.h>
  #include "vga.h"
@@ -516,7 +654,15 @@ diff -u ../svgalib.ori/drivers/rage.c drivers/rage.c
     return 1;
     
     ATIIOBase=buf[5]&BLOCK_IO_BASE;
-@@ -1170,8 +1171,7 @@
+@@ -942,7 +943,6 @@
+          };
+       };
+ 
+-printf("i=%i\n", i);
+ 	  
+     if(!i)return 0;  
+    
+@@ -1170,8 +1170,7 @@
        };
  
     if(found || !i){
@@ -526,7 +672,7 @@ diff -u ../svgalib.ori/drivers/rage.c drivers/rage.c
     };
  
     rage_chiptyperev=(buf[0]&0xffff0000) | (buf[2]&0xff);
-@@ -1278,6 +1278,7 @@
+@@ -1278,6 +1277,7 @@
  
  #define BIOSWord(x) ((int)BIOS[x]+256*(int)BIOS[x+1])
  
@@ -534,7 +680,7 @@ diff -u ../svgalib.ori/drivers/rage.c drivers/rage.c
     if(biosparams) {
  	  fref=biosparam[1];
  	  ATIClockToProgram=biosparam[0];
-@@ -1289,8 +1290,14 @@
+@@ -1289,8 +1289,14 @@
  	  Nadj=0;
  	  Madj=0;
  	  fref*=2; /* X says double for all chips */
@@ -606,8 +752,39 @@ diff -u ../svgalib.ori/drivers/s3.c drivers/s3.c
  }
  
 diff -u ../svgalib.ori/drivers/savage.c drivers/savage.c
---- ../svgalib.ori/drivers/savage.c	2004-05-24 17:45:33.000000000 +0200
-+++ drivers/savage.c	2005-03-18 22:13:58.000000000 +0100
+--- ../svgalib.ori/drivers/savage.c	2004-09-10 12:59:25.000000000 +0200
++++ drivers/savage.c	2005-04-04 21:41:54.000000000 +0200
+@@ -15,13 +15,13 @@
+ #include <sys/mman.h>
+ #include "vga.h"
+ #include "libvga.h"
+-#include "driver.h"
++#include "svgadriv.h"
+ #include "timing.h"
+ #include "vgaregs.h"
+-#include "interface.h"
++#include "interfac.h"
+ #include "vgapci.h"
+-#include "endianess.h"
+-#include "vgammvgaio.h"
++#include "endianes.h"
++#include "vgammvga.h"
+ 
+ #define SAVAGEREG_SAVE(i) (VGA_TOTAL_REGS+i)
+ #define TOTAL_REGS (VGA_TOTAL_REGS + 96)
+@@ -999,7 +999,9 @@
+         case 0x8a25:
+         case 0x8a26:
+         case 0x8c10:
++        case 0x8c11:
+         case 0x8c12:
++        case 0x8c13:
+         case 0x9102:
+ 		case 0x8d01:
+ 		case 0x8d02:
+diff -u ../svgalib.ori/drivers/savage18.c drivers/savage18.c
+--- ../svgalib.ori/drivers/savage18.c	2004-05-24 17:45:33.000000000 +0200
++++ drivers/savage18.c	2005-04-07 17:30:12.000000000 +0200
 @@ -15,13 +15,13 @@
  #include <sys/mman.h>
  #include "vga.h"
@@ -663,6 +840,15 @@ diff -u ../svgalib.ori/drivers/savage.c drivers/savage.c
          case 0x9102:
  		case 0x8d03:
  		case 0x8d04:
+@@ -1108,7 +1110,7 @@
+ }       
+ 
+ /* Function table (exported) */
+-DriverSpecs __svgalib_savage_driverspecs =
++DriverSpecs __svgalib_savage_18_driverspecs =
+ {
+     saveregs,
+     setregs,
 @@ -1206,7 +1208,9 @@
              chipset = SAVAGE3D;
              break;
@@ -673,37 +859,15 @@ diff -u ../svgalib.ori/drivers/savage.c drivers/savage.c
              chipset = SAVAGEMX;
              break;
          case 0x8a22:
-diff -u ../svgalib.ori/drivers/savage20.c drivers/savage20.c
---- ../svgalib.ori/drivers/savage20.c	2004-09-10 12:59:25.000000000 +0200
-+++ drivers/savage20.c	2005-03-18 21:58:14.000000000 +0100
-@@ -15,13 +15,13 @@
- #include <sys/mman.h>
- #include "vga.h"
- #include "libvga.h"
--#include "driver.h"
-+#include "svgadriv.h"
- #include "timing.h"
- #include "vgaregs.h"
--#include "interface.h"
-+#include "interfac.h"
- #include "vgapci.h"
--#include "endianess.h"
--#include "vgammvgaio.h"
-+#include "endianes.h"
-+#include "vgammvga.h"
- 
- #define SAVAGEREG_SAVE(i) (VGA_TOTAL_REGS+i)
- #define TOTAL_REGS (VGA_TOTAL_REGS + 96)
-@@ -999,7 +999,9 @@
-         case 0x8a25:
-         case 0x8a26:
-         case 0x8c10:
-+        case 0x8c11:
-         case 0x8c12:
-+        case 0x8c13:
-         case 0x9102:
- 		case 0x8d01:
- 		case 0x8d02:
+@@ -1285,7 +1289,7 @@
+     cardspecs->mapClock = map_clock;
+     cardspecs->mapHorizontalCrtc = map_horizontal_crtc;
+     cardspecs->matchProgrammableClock=match_programmable_clock;
+-    __svgalib_driverspecs = &__svgalib_savage_driverspecs;
++    __svgalib_driverspecs = &__svgalib_savage_18_driverspecs;
+     __svgalib_banked_mem_base=0xa0000;
+     __svgalib_banked_mem_size=0x10000;
+     __svgalib_linear_mem_base=linear_base;
 diff -u ../svgalib.ori/drivers/sis.c drivers/sis.c
 --- ../svgalib.ori/drivers/sis.c	2004-09-10 12:59:25.000000000 +0200
 +++ drivers/sis.c	2005-03-18 21:58:23.000000000 +0100

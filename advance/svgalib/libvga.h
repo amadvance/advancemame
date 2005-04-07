@@ -215,22 +215,14 @@ extern void __svgalib_acquirevt_signal(int n);
 #define gr_writew(v,off)	(*(uint16_t*)((GM)+(off)) = (v))
 #define gr_writel(v,off)	(*(uint32_t*)((GM)+(off)) = (v))
 
-extern void __svgalib_port_out(int value, int port);
-extern void __svgalib_port_outw(int value, int port);
-extern void __svgalib_port_outl(int value, int port);
-extern void __svgalib_port_rep_outb(unsigned char* string, int length, int port);
+extern void port_out(int value, int port);
+extern void port_outw(int value, int port);
+extern void port_outl(int value, int port);
+extern void port_rep_outb(unsigned char* string, int length, int port);
 
-extern int __svgalib_port_in(int port);
-extern int __svgalib_port_inw(int port);
-extern int __svgalib_port_inl(int port);
-
-#define port_in __svgalib_port_in
-#define port_inw __svgalib_port_inw
-#define port_inl __svgalib_port_inl
-#define port_out __svgalib_port_out
-#define port_outw __svgalib_port_outw
-#define port_outl __svgalib_port_outl
-#define port_rep_outb __svgalib_port_rep_outb
+extern int port_in(int port);
+extern int port_inw(int port);
+extern int port_inl(int port);
 
 /* Note that the arguments of outb/w are reversed compared with the */
 /* kernel sources. The XFree86 drivers also use this format. */

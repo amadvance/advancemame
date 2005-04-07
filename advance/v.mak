@@ -135,10 +135,12 @@ VOBJS += \
 	$(VOBJ)/svgalib/drivers/millenni.o \
 	$(VOBJ)/svgalib/drivers/mx.o \
 	$(VOBJ)/svgalib/drivers/nv3.o \
+	$(VOBJ)/svgalib/drivers/nv319.o \
 	$(VOBJ)/svgalib/drivers/r128.o \
 	$(VOBJ)/svgalib/drivers/rage.o \
 	$(VOBJ)/svgalib/drivers/s3.o \
 	$(VOBJ)/svgalib/drivers/savage.o \
+	$(VOBJ)/svgalib/drivers/savage18.o \
 	$(VOBJ)/svgalib/drivers/sis.o \
 	$(VOBJ)/svgalib/drivers/trident.o \
 	$(VOBJ)/svgalib/drivers/renditio.o \
@@ -215,10 +217,12 @@ VOBJS += \
 	$(VOBJ)/svgalib/drivers/millenni.o \
 	$(VOBJ)/svgalib/drivers/mx.o \
 	$(VOBJ)/svgalib/drivers/nv3.o \
+	$(VOBJ)/svgalib/drivers/nv319.o \
 	$(VOBJ)/svgalib/drivers/r128.o \
 	$(VOBJ)/svgalib/drivers/rage.o \
 	$(VOBJ)/svgalib/drivers/s3.o \
 	$(VOBJ)/svgalib/drivers/savage.o \
+	$(VOBJ)/svgalib/drivers/savage18.o \
 	$(VOBJ)/svgalib/drivers/sis.o \
 	$(VOBJ)/svgalib/drivers/trident.o \
 	$(VOBJ)/svgalib/drivers/renditio.o \

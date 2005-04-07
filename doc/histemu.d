@@ -1,6 +1,15 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.95.1 2005/04
+	) Improved the support for low clocks of the SVGALIB
+		nVidia driver for DOS and Windows.
+	) Readded in the DOS and Windows version the old
+		SVGALIB drivers for GeForce and Savage boards.
+		If you have problem with the new driver
+		you can still use the old ones with the
+		names "savage_18" and "nv3_19".
+
 AdvanceMESS Version 0.95.0.0 2005/04
 	) Based on MAME 0.95 and AdvanceMAME 0.95.0.
 

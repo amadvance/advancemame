@@ -1230,6 +1230,9 @@ static struct adv_svgalib_chipset_struct cards[] = {
 #ifdef INCLUDE_NV3_DRIVER
 	{ &__svgalib_nv3_driverspecs, NV3, "nv3", FLAGS_INTERLACE | FLAGS_TV },
 #endif
+#ifdef INCLUDE_NV3_DRIVER
+	{ &__svgalib_nv3_19_driverspecs, NV3, "nv3_19", FLAGS_INTERLACE | FLAGS_TV },
+#endif
 #ifdef INCLUDE_TRIDENT_DRIVER
 	{ &__svgalib_trident_driverspecs, TRIDENT, "trident", FLAGS_INTERLACE },
 #endif
@@ -1247,6 +1250,9 @@ static struct adv_svgalib_chipset_struct cards[] = {
 #ifdef INCLUDE_SAVAGE_DRIVER
 	{ &__svgalib_savage_driverspecs, SAVAGE, "savage", FLAGS_INTERLACE },
 #endif
+#ifdef INCLUDE_SAVAGE_DRIVER
+	{ &__svgalib_savage_18_driverspecs, SAVAGE, "savage_18", FLAGS_INTERLACE },
+#endif
 #ifdef INCLUDE_MILLENNIUM_DRIVER
 	{ &__svgalib_mil_driverspecs, MILLENNIUM, "millenium", FLAGS_INTERLACE },
 #endif
@@ -1259,14 +1265,6 @@ static struct adv_svgalib_chipset_struct cards[] = {
 #ifdef INCLUDE_SIS_DRIVER
 	{ &__svgalib_sis_driverspecs, SIS, "sis", FLAGS_INTERLACE },
 #endif
-#ifdef INCLUDE_I740_DRIVER
-	/* A comment in the driver report that interlaced modes don't work  */
-	{ &__svgalib_i740_driverspecs, I740, "i740", FLAGS_NONE },
-#endif
-#ifdef INCLUDE_I810_DRIVER
-	/* A comment in the driver report that interlaced modes don't work  */
-	{ &__svgalib_i810_driverspecs, I810, "i810", FLAGS_NONE },
-#endif
 #ifdef INCLUDE_LAGUNA_DRIVER
 	{ &__svgalib_laguna_driverspecs, LAGUNA, "laguna", FLAGS_INTERLACE },
 #endif
@@ -1276,57 +1274,15 @@ static struct adv_svgalib_chipset_struct cards[] = {
 #ifdef INCLUDE_MX_DRIVER
 	{ &__svgalib_mx_driverspecs, MX, "mx", FLAGS_INTERLACE },
 #endif
-#ifdef INCLUDE_NEO_DRIVER
-	{ &__svgalib_neo_driverspecs, NEOMAGIC, "neomagic", FLAGS_INTERLACE },
-#endif
-#ifdef INCLUDE_CHIPS_DRIVER
-	{ &__svgalib_chips_driverspecs, CHIPS, "chips", FLAGS_INTERLACE },
-#endif
-#ifdef INCLUDE_MACH64_DRIVER
-	{ &__svgalib_mach64_driverspecs, MACH64, "mach64", FLAGS_INTERLACE },
-#endif
-#ifdef INCLUDE_MACH32_DRIVER
-	{ &__svgalib_mach32_driverspecs, MACH32, "mach32", FLAGS_INTERLACE },
-#endif
-#ifdef INCLUDE_EGA_DRIVER
-	{ &__svgalib_ega_driverspecs, EGA, "ega", FLAGS_INTERLACE },
-#endif
 #ifdef INCLUDE_ET6000_DRIVER
 	/* This must be before ET4000 */
 	{ &__svgalib_et6000_driverspecs, ET6000, "et6000", FLAGS_INTERLACE },
 #endif
-#ifdef INCLUDE_ET4000_DRIVER
-	{ &__svgalib_et4000_driverspecs, ET4000, "et4000", FLAGS_INTERLACE },
-#endif
-#ifdef INCLUDE_TVGA_DRIVER
-	{ &__svgalib_tvga8900_driverspecs, TVGA8900, "tvga8900", FLAGS_INTERLACE }
-#endif
-#ifdef INCLUDE_CIRRUS_DRIVER
-	{ &__svgalib_cirrus_driverspecs, CIRRUS, "cirrus", FLAGS_INTERLACE },
-#endif
-#ifdef INCLUDE_OAK_DRIVER
-	{ &__svgalib_oak_driverspecs, OAK, "oak", FLAGS_INTERLACE },
-#endif
-#ifdef INCLUDE_PARADISE_DRIVER
-	{ &__svgalib_paradise_driverspecs, PARADISE, "paradise", FLAGS_INTERLACE },
-#endif
 #ifdef INCLUDE_S3_DRIVER
 	{ &__svgalib_s3_driverspecs, S3, "s3", FLAGS_INTERLACE },
 #endif
-#ifdef INCLUDE_ET3000_DRIVER
-	{ &__svgalib_et3000_driverspecs, ET3000, "et3000", FLAGS_INTERLACE },
-#endif
 #ifdef INCLUDE_ARK_DRIVER
 	{ &__svgalib_ark_driverspecs, ARK, "ark", FLAGS_INTERLACE },
-#endif
-#ifdef INCLUDE_GVGA6400_DRIVER
-	{ &__svgalib_gvga6400_driverspecs, GVGA6400, "gvga6400", FLAGS_INTERLACE },
-#endif
-#ifdef INCLUDE_ATI_DRIVER
-	{ &__svgalib_ati_driverspecs, ATI, "ati", FLAGS_INTERLACE },
-#endif
-#ifdef INCLUDE_ALI_DRIVER
-	{ &__svgalib_ali_driverspecs, ALI, "ali", FLAGS_INTERLACE },
 #endif
 #ifdef INCLUDE_APM_DRIVER
 	/* The driver doesn't check the INTERLACED flags */
@@ -1492,6 +1448,7 @@ int ADV_SVGALIB_CALL adv_svgalib_detect(const char* name) {
 			adv_svgalib_log("svgalib: testing for driver %s\n", cards[i].name);
 			if (cards[i].drv->test()) {
 				adv_svgalib_state.driver = &cards[i];
+				__svgalib_driverspecs = adv_svgalib_state.driver->drv;
 				__svgalib_chipset = adv_svgalib_state.driver->chipset;
 				break;
 			}

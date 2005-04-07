@@ -137,10 +137,12 @@ CFGOBJS += \
 	$(CFGOBJ)/svgalib/drivers/millenni.o \
 	$(CFGOBJ)/svgalib/drivers/mx.o \
 	$(CFGOBJ)/svgalib/drivers/nv3.o \
+	$(CFGOBJ)/svgalib/drivers/nv319.o \
 	$(CFGOBJ)/svgalib/drivers/r128.o \
 	$(CFGOBJ)/svgalib/drivers/rage.o \
 	$(CFGOBJ)/svgalib/drivers/s3.o \
 	$(CFGOBJ)/svgalib/drivers/savage.o \
+	$(CFGOBJ)/svgalib/drivers/savage18.o \
 	$(CFGOBJ)/svgalib/drivers/sis.o \
 	$(CFGOBJ)/svgalib/drivers/trident.o \
 	$(CFGOBJ)/svgalib/drivers/renditio.o \
@@ -217,10 +219,12 @@ CFGOBJS += \
 	$(CFGOBJ)/svgalib/drivers/millenni.o \
 	$(CFGOBJ)/svgalib/drivers/mx.o \
 	$(CFGOBJ)/svgalib/drivers/nv3.o \
+	$(CFGOBJ)/svgalib/drivers/nv319.o \
 	$(CFGOBJ)/svgalib/drivers/r128.o \
 	$(CFGOBJ)/svgalib/drivers/rage.o \
 	$(CFGOBJ)/svgalib/drivers/s3.o \
 	$(CFGOBJ)/svgalib/drivers/savage.o \
+	$(CFGOBJ)/svgalib/drivers/savage18.o \
 	$(CFGOBJ)/svgalib/drivers/sis.o \
 	$(CFGOBJ)/svgalib/drivers/trident.o \
 	$(CFGOBJ)/svgalib/drivers/renditio.o \

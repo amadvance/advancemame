@@ -222,10 +222,12 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/drivers/millenni.o \
 	$(OBJ)/advance/svgalib/drivers/mx.o \
 	$(OBJ)/advance/svgalib/drivers/nv3.o \
+	$(OBJ)/advance/svgalib/drivers/nv319.o \
 	$(OBJ)/advance/svgalib/drivers/r128.o \
 	$(OBJ)/advance/svgalib/drivers/rage.o \
 	$(OBJ)/advance/svgalib/drivers/s3.o \
 	$(OBJ)/advance/svgalib/drivers/savage.o \
+	$(OBJ)/advance/svgalib/drivers/savage18.o \
 	$(OBJ)/advance/svgalib/drivers/sis.o \
 	$(OBJ)/advance/svgalib/drivers/trident.o \
 	$(OBJ)/advance/svgalib/drivers/renditio.o \
@@ -321,10 +323,12 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/drivers/millenni.o \
 	$(OBJ)/advance/svgalib/drivers/mx.o \
 	$(OBJ)/advance/svgalib/drivers/nv3.o \
+	$(OBJ)/advance/svgalib/drivers/nv319.o \
 	$(OBJ)/advance/svgalib/drivers/r128.o \
 	$(OBJ)/advance/svgalib/drivers/rage.o \
 	$(OBJ)/advance/svgalib/drivers/s3.o \
 	$(OBJ)/advance/svgalib/drivers/savage.o \
+	$(OBJ)/advance/svgalib/drivers/savage18.o \
 	$(OBJ)/advance/svgalib/drivers/sis.o \
 	$(OBJ)/advance/svgalib/drivers/trident.o \
 	$(OBJ)/advance/svgalib/drivers/renditio.o \
