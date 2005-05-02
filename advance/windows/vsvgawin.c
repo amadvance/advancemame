@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003, 2004, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -127,7 +127,7 @@ static adv_device DEVICE[] = {
 	{ "nv3", 0, "nVidia Riva/GeForce" },
 #endif
 #ifdef INCLUDE_NV3_DRIVER
-	{ "nv3_19", 1, "nVidia Riva/GeForce (SVGALIB 1.9.19)" },
+	{ "nv3_leg", 1, "nVidia Riva/GeForce (SVGALIB 1.9.19)" },
 #endif
 #ifdef INCLUDE_TRIDENT_DRIVER
 	{ "trident", 2, "Trident" },
@@ -148,7 +148,7 @@ static adv_device DEVICE[] = {
 	{ "savage", 7, "S3 Savage" },
 #endif
 #ifdef INCLUDE_SAVAGE_DRIVER
-	{ "savage_18", 8, "S3 Savage (SVGALIB 1.9.18)" },
+	{ "savage_leg", 8, "S3 Savage (SVGALIB 1.9.18)" },
 #endif
 #ifdef INCLUDE_MILLENNIUM_DRIVER
 	{ "millenium", 9, "Matrox Millennium/Millenium II" },
@@ -631,6 +631,9 @@ static adv_error sdl_mode_set(const svgawin_video_mode* mode)
 	} else {
 		SDL_ShowCursor(SDL_ENABLE);
 	}
+
+	/* enable window manager events */
+	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
 	return 0;
 }

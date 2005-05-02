@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@
 #include "oswin.h"
 
 #include "SDL.h"
+#include "SDL_syswm.h"
 
 #include <windows.h>
 
@@ -182,6 +183,8 @@ void os_poll(void)
 					}
 				}
 			break;
+			case SDL_SYSWMEVENT :
+			break;
 			case SDL_KEYUP :
 #ifdef USE_KEYBOARD_SDL
 				keyb_sdl_event_release(event.key.keysym.sym);
@@ -219,6 +222,18 @@ void* os_internal_sdl_get(void)
 const char* os_internal_sdl_title_get(void)
 {
 	return OS.title_buffer;
+}
+
+void* os_internal_window_get(void)
+{
+	SDL_SysWMinfo info;
+
+	SDL_VERSION(&info.version);
+
+	if (!SDL_GetWMInfo(&info))
+		return 0;
+
+	return info.window;
 }
 
 /***************************************************************************/

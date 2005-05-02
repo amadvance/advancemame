@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2003, 2005 Andrea Mazzoleni
+ * Copyright (C) 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -29,44 +29,26 @@
  */
 
 /** \file
- * Internal interface for the "linux" host.
+ * Mouse driver "rawinput".
  */
 
-#ifndef __OSWIN_H
-#define __OSWIN_H
+#ifndef __MRAWINPUT_H
+#define __MRAWINPUT_H
+
+#include "mousedrv.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/***************************************************************************/
-/* Internal */
-
-void target_usleep_granularity(unsigned us);
-
-/* Check if SVGAWIN is used in some way */
-#if defined(USE_VIDEO_SVGAWIN)
-#define USE_SVGAWIN
-void* os_internal_svgawin_get(void);
-int os_internal_svgawin_is_video_active(void);
-int os_internal_svgawin_is_video_mode_active(void);
-#endif
-
-/* Check if SDL is used in some way */
-#if defined(USE_VIDEO_SDL) || defined(USE_KEYBOARD_SDL) || defined(USE_MOUSE_SDL) || defined(USE_JOYSTICK_SDL) || defined(USE_SOUND_SDL) || defined(USE_INPUT_SDL)
-#define USE_SDL
-#include "ossdl.h"
-#endif
-
-#if defined(USE_MOUSE_RAWINPUT)
-void mouseb_rawinput_event_msg(unsigned msg, unsigned wparam, unsigned lparam);
-#endif
-
-void* os_internal_window_get(void);
+/**
+ * Mouse driver "rawinput".
+ * \ingroup Mouse
+ */
+extern mouseb_driver mouseb_rawinput_driver;
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-
