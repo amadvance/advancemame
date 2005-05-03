@@ -337,7 +337,8 @@ on the gas control of the game.
 .PP
 It can also be used with some custom devices connected at the
 Parallel Port. Details on how to build these custom interfaces are
-in the file:///usr/src/linux/Documentation/input/joystick\(hyparport.txt file.
+in the file:///usr/src/linux/Documentation/input/joystick\(hyparport.txt
+file.
 .PP
 It has a special support for the ACT Light\(hygun to fix the wrong
 behavior of the light\(hygun when shooting out of screen.
@@ -403,7 +404,7 @@ probably simpler to use the \(oqraw\(cq mouse driver.
 The mice are searched on the /dev/input/eventX devices.
 .SS raw \(hy Serial mouse (Linux) 
 This driver works in Linux and it communicates directly with
-the configured serial mice. It\(cqs also support USB mice
+the configured serial mice. It also supports USB mice
 using the Linux mousedev module which maps mice to the
 /dev/input/mouseX devices.
 .PP
@@ -432,6 +433,40 @@ This driver works in DOS and it uses the Allegro library.
 .PP
 It supports up to 2 mice at the same time using the
 special \(oqoptimous\(cq driver present in the \(oqcontrib/\(cq directory.
+.SS rawinput \(hy Raw input interface (Windows) 
+This driver works in Windows XP using the raw input interface.
+.PP
+It supports more than one mouse at the same time.
+.PP
+For any mouse up to two axes, one wheel and five buttons
+are supported.
+.PP
+This driver is the preferred choice for Windows XP.
+.SS Please note that this driver is not intented to be used in a window environment. The application takes the control of the mouse and doesn\(cqt allow to switch to other applications. It\(cqs mainly intented for a fullscreen environment. 
+.SS cpn \(hy CPN custom driver interface (Windows) 
+This driver works in Windows 2000/XP using the custom CPN
+mouse driver.
+.PP
+It supports more than one mouse at the same time.
+.PP
+For any mouse up to two axes, and three buttons are supported.
+.PP
+The CPN mouse driver is available at:
+.PP
+.RS 4
+http://cpnmouse.sourceforge.net/
+.PD 0
+.PP
+.PD
+.RE
+.PP
+and in the \(oqcontrib/cpn\(cq directory. Check the \(oqinstall\(cq
+and \(oqunknown\(cq files for install instructions.
+.PP
+Please note that this driver is not intented to be used in a window
+environment. The application takes the control of the mouse and
+doesn\(cqt allow to switch to other applications. It\(cqs mainly intented
+for a fullscreen environment.
 .SH VIDEO DRIVERS CONFIGURATION 
 The following are the video configuration options available for
 all the programs.
@@ -511,6 +546,14 @@ Options for DOS:
 .I svgaline
 SVGA generated graphics modes.
 .HP 4
+.I svgaline/nv3_leg
+SVGA legacy driver for nVidia boards.
+If the new driver doesn\(cqt work try this one.
+.HP 4
+.I svgaline/savage_leg
+SVGA legacy driver for S3 boards.
+If the new driver doesn\(cqt work try this one.
+.HP 4
 .I vbeline
 VBE generated graphics modes.
 .HP 4
@@ -532,6 +575,14 @@ SVGAWIN included library. To use this driver you
 need to install the \(oqsvgawin.sys\(cq driver with the
 \(oqsvgawin.exe\(cq command line utility.
 .HP 4
+.I svgawin/nv3_leg
+SVGA legacy driver for nVidia boards.
+If the new driver doesn\(cqt work try this one.
+.HP 4
+.I svgawin/savage_leg
+SVGA legacy driver for S3 boards.
+If the new driver doesn\(cqt work try this one.
+.HP 4
 .I sdl
 SDL graphics and fake text modes.
 .PD
@@ -546,8 +597,10 @@ You can force the detection of a specific model of video board
 adding the name of the model driver after the driver name using
 the \(oq/\(cq separator. For example to force the \(oqvbe3\(cq model
 detection of the \(oqvbeline\(cq driver you must specify
-\(oqvbeline/vbe3\(cq. A complete list of all the available model is in
-the \(oqcard*.txt\(cq files.
+\(oqvbeline/vbe3\(cq.
+.PP
+To get the list of all the available models try using the
+\(oqhelp\(cq model name. A short help will be printed.
 .PP
 Please note that forcing a specific video driver is discouraged.
 Generally you don\(cqt need it.
@@ -613,13 +666,13 @@ color format used is YUY2.
 .PD
 .RE
 .PP
-Please note that with the zoom mode, if the original image is in the
-RGB format instead of a palette format, the program
+Please note that with overlay mode, if the original image is
+in the RGB format instead of a palette format, the program
 needs to convert it to the YUY2 format before displaying it.
 It requires some time.
 .SS device_video_overlaysize 
-Select the favorite horizontal size to use with the \(oqoverlay\(cq output
-mode. The program selects the nearest available video mode.
+Select the favorite horizontal size to use with the \(oqoverlay\(cq
+output mode. The program selects the nearest available video mode.
 .PP
 device_video_overlaysize SIZE
 .PP
@@ -1853,4 +1906,4 @@ device_raw_mousedev[1] /dev/ttyS2
 .PD
 .RE
 .SH COPYRIGHT 
-This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
+This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni.

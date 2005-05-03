@@ -2285,15 +2285,18 @@ int osd_menu(unsigned menu, struct mame_bitmap *bitmap, int selected)
 static unsigned glue_sound_sample(void)
 {
 	int samples = GLUE.sound_step - GLUE.sound_latency;
+	int limit;
 
 	/* Correction for a generic sound buffer underflow. */
 	/* Generally happen that the DMA buffer underflow reporting */
 	/* a fill state instead of an empty one. */
-	/* The value of 16 is a standard value which should not generated problems */
-	/* on the MAME core */
-	if (samples < 16) {
-		log_std(("WARNING:glue: too small sound samples %d adjusted to 16\n", samples));
-		samples = 16;
+	/* The value is a guessed estimation which should not */
+	/* generated problems on the MAME core */
+	limit = 16;
+
+	if (samples < limit) {
+		log_std(("WARNING:glue: too small sound samples %d adjusted to %d\n", samples, limit));
+		samples = limit;
 	}
 
 	GLUE.sound_last_count = samples;

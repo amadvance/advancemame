@@ -60,24 +60,24 @@
 
 #if defined(MESS)
 
-#define ADVANCE_COPY \
+#define ADV_COPY \
 	"AdvanceMESS - Copyright (C) 2001-2003 by Andrea Mazzoleni\n" \
 	"MESS - Copyright (C) 1998-2003 by the MESS Team\n" \
 	"MAME - Copyright (C) 1997-2003 by Nicola Salmoria and the MAME Team\n"
 
-#define ADVANCE_TITLE "AdvanceMESS"
-#define ADVANCE_NAME "advmess"
-#define ADVANCE_NAME_LEGACY "mess"
+#define ADV_TITLE "AdvanceMESS"
+#define ADV_NAME "advmess"
+#define ADV_NAME_LEGACY "mess"
 
 #else
 
-#define ADVANCE_COPY \
+#define ADV_COPY \
 	"AdvanceMAME - Copyright (C) 1999-2003 by Andrea Mazzoleni\n" \
 	"MAME - Copyright (C) 1997-2003 by Nicola Salmoria and the MAME Team\n"
 
-#define ADVANCE_TITLE "AdvanceMAME"
-#define ADVANCE_NAME "advmame"
-#define ADVANCE_NAME_LEGACY "mame"
+#define ADV_TITLE "AdvanceMAME"
+#define ADV_NAME "advmame"
+#define ADV_NAME_LEGACY "mame"
 
 #endif
 

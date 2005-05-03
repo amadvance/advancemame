@@ -900,7 +900,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 
 	// print the copyright message before other messages
 	if (!quiet) {
-		target_nfo(ADVANCE_COPY);
+		target_nfo(ADV_COPY);
 	}
 
 	// select the active emulators

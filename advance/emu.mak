@@ -29,8 +29,8 @@ OBJDIRS += \
 	$(OBJ)/advance/linux
 ADVANCECFLAGS += \
 	-I$(srcdir)/advance/linux \
-	-DDATADIR=\"$(DATADIR)\" \
-	-DSYSCONFDIR=\"$(SYSCONFDIR)\" \
+	-DADV_DATADIR=\"$(DATADIR)\" \
+	-DADV_SYSCONFDIR=\"$(SYSCONFDIR)\" \
 	-DUSE_VIDEO_NONE \
 	-DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_NONE \
@@ -344,6 +344,19 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/svgalib/ramdac/ics_gend.o \
 	$(OBJ)/advance/svgalib/clockchi/icd2061a.o
 endif
+ifeq ($(CONF_LIB_MCPN),yes)
+ADVANCECFLAGS += \
+	-DUSE_MOUSE_CPN
+ADVANCEOBJS += \
+	$(OBJ)/advance/windows/mcpn.o
+ADVANCELIBS += -lsetupapi
+endif
+ifeq ($(CONF_LIB_MRAWINPUT),yes)
+ADVANCECFLAGS += \
+	-DUSE_MOUSE_RAWINPUT
+ADVANCEOBJS += \
+	$(OBJ)/advance/windows/mraw.o
+endif
 ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
 ifeq ($(CONF_LIB_FREETYPE),yes)
 ADVANCECFLAGS += \
@@ -359,7 +372,7 @@ endif
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(OBJ)/advance/osd/emu.o: $(srcdir)/advance/version.mak Makefile
 
-ADVANCECFLAGS += -DVERSION=\"$(EMUVERSION)\"
+ADVANCECFLAGS += -DADV_VERSION=\"$(EMUVERSION)\"
 
 ifeq ($(CONF_EMU),mess)
 EMUCFLAGS += -DMESS

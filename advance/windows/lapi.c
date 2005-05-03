@@ -8,20 +8,21 @@
  * Released with LGPL license according with the SourceForge catalog.
  */
 
-#define MAXLENGTH 1000
+#define INITGUID
 
 #include <windows.h>
+#include <setupapi.h>
+#include <initguid.h>
 
 #include "lapi.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <setupapi.h>
-#include <initguid.h>
 
 // {DB4BBC1E-CAC8-47e9-8414-7365167FECA3}
-DEFINE_GUID( GUID_CLASS_MOUSE_CPNTOOLS, 0xdb4bbc1e, 0xcac8, 0x47e9,
-		0x84, 0x14, 0x73, 0x65, 0x16, 0x7f, 0xec, 0xa3);
+DEFINE_GUID( GUID_CLASS_MOUSE_CPNTOOLS, 0xdb4bbc1e, 0xcac8, 0x47e9, 0x84, 0x14, 0x73, 0x65, 0x16, 0x7f, 0xec, 0xa3);
+
+#define MAXLENGTH 1000
 
 typedef struct {
 	HANDLE handle;
@@ -161,14 +162,15 @@ void __cdecl lUnGetMouse(int number) {
 		mice[number].handle = NULL;
 		free(mice[number].devicename);
 		mice[number].devicename = NULL;
-		while ((maxused > 0) && (lHasMouse(maxused))) maxused--;
+		while ((maxused > 0) && (!lHasMouse(maxused))) maxused--;
 	}
 }
 
 void __cdecl lUnGetAllMice() {
 	int i;
-	for (i = 0; i < maxused; ++i)
-		lUnGetMouse(i);
+	for (i = 1; i <= maxused; ++i) {
+	    lUnGetMouse(i);
+    }
 }
 
 void __cdecl lSuspendMouse(number) {

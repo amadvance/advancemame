@@ -174,6 +174,8 @@ mouseb_driver mouseb_sdl_driver = {
 	mouseb_sdl_load,
 	mouseb_sdl_reg,
 	mouseb_sdl_init,
+	0,
+	0,
 	mouseb_sdl_done,
 	mouseb_sdl_flags,
 	mouseb_sdl_count_get,

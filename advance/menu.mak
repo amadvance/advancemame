@@ -4,7 +4,7 @@
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(MENUOBJ)/menu/mm.o: $(srcdir)/advance/version.mak Makefile
 
-MENUCFLAGS += -DVERSION=\"$(MENUVERSION)\"
+MENUCFLAGS += -DADV_VERSION=\"$(MENUVERSION)\"
 
 MENUCFLAGS += \
 	-I$(srcdir)/advance/lib \
@@ -106,8 +106,8 @@ endif
 MENUOBJDIRS += \
 	$(MENUOBJ)/linux
 MENUCFLAGS +=  \
-	-DDATADIR=\"$(DATADIR)\" \
-	-DSYSCONFDIR=\"$(SYSCONFDIR)\" \
+	-DADV_DATADIR=\"$(DATADIR)\" \
+	-DADV_SYSCONFDIR=\"$(SYSCONFDIR)\" \
 	-I$(srcdir)/advance/linux
 MENUCFLAGS += \
 	-DUSE_VIDEO_NONE -DUSE_VIDEO_RESTORE \
@@ -232,7 +232,8 @@ MENUCFLAGS += \
 	-DUSE_SOUND_SEAL -DUSE_SOUND_ALLEGRO -DUSE_SOUND_VSYNC -DUSE_SOUND_NONE -DUSE_SOUND_INT \
 	-DUSE_KEYBOARD_ALLEGRO -DUSE_KEYBOARD_NONE \
 	-DUSE_MOUSE_ALLEGRO -DUSE_MOUSE_NONE \
-	-DUSE_JOYSTICK_ALLEGRO -DUSE_JOYSTICK_NONE
+	-DUSE_JOYSTICK_ALLEGRO -DUSE_JOYSTICK_NONE \
+	-DUSE_CHDIR_BEFORE_RUN
 MENULDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
 MENUCFLAGS += -DUSE_CONFIG_ALLEGRO_WRAPPER
 MENULDFLAGS += \
@@ -283,10 +284,12 @@ MENUOBJS += \
 	$(MENUOBJ)/svgalib/drivers/millenni.o \
 	$(MENUOBJ)/svgalib/drivers/mx.o \
 	$(MENUOBJ)/svgalib/drivers/nv3.o \
+	$(MENUOBJ)/svgalib/drivers/nv319.o \
 	$(MENUOBJ)/svgalib/drivers/r128.o \
 	$(MENUOBJ)/svgalib/drivers/rage.o \
 	$(MENUOBJ)/svgalib/drivers/s3.o \
 	$(MENUOBJ)/svgalib/drivers/savage.o \
+	$(MENUOBJ)/svgalib/drivers/savage18.o \
 	$(MENUOBJ)/svgalib/drivers/sis.o \
 	$(MENUOBJ)/svgalib/drivers/trident.o \
 	$(MENUOBJ)/svgalib/drivers/renditio.o \
@@ -319,11 +322,12 @@ endif
 ifeq ($(CONF_SYSTEM),windows)
 MENUCFLAGS += \
 	-I$(srcdir)/advance/windows \
-	-DUSE_VIDEO_RESTORE -DUSE_VIDEO_NONE \
+	-DUSE_VIDEO_NONE -DUSE_VIDEO_RESTORE \
 	-DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_NONE \
 	-DUSE_MOUSE_NONE \
 	-DUSE_JOYSTICK_NONE \
+	-DUSE_CHDIR_BEFORE_RUN \
 	-DM_PI=3.1415927
 MENUOBJDIRS += \
 	$(MENUOBJ)/windows \
@@ -333,6 +337,19 @@ MENUOBJS += \
 	$(MENUOBJ)/windows/target.o \
 	$(MENUOBJ)/lib/icondef.o \
 	$(MENUOBJ)/windows/os.o
+ifeq ($(CONF_LIB_MCPN),yes)
+MENUCFLAGS += \
+	-DUSE_MOUSE_CPN
+MENUOBJS += \
+	$(MENUOBJ)/windows/mcpn.o
+MENULIBS += -lsetupapi
+endif
+ifeq ($(CONF_LIB_MRAWINPUT),yes)
+MENUCFLAGS += \
+	-DUSE_MOUSE_RAWINPUT
+MENUOBJS += \
+	$(MENUOBJ)/windows/mraw.o
+endif
 ifeq ($(CONF_LIB_SDL),yes)
 MENUOBJDIRS += \
 	$(MENUOBJ)/sdl
@@ -389,10 +406,12 @@ MENUOBJS += \
 	$(MENUOBJ)/svgalib/drivers/millenni.o \
 	$(MENUOBJ)/svgalib/drivers/mx.o \
 	$(MENUOBJ)/svgalib/drivers/nv3.o \
+	$(MENUOBJ)/svgalib/drivers/nv319.o \
 	$(MENUOBJ)/svgalib/drivers/r128.o \
 	$(MENUOBJ)/svgalib/drivers/rage.o \
 	$(MENUOBJ)/svgalib/drivers/s3.o \
 	$(MENUOBJ)/svgalib/drivers/savage.o \
+	$(MENUOBJ)/svgalib/drivers/savage18.o \
 	$(MENUOBJ)/svgalib/drivers/sis.o \
 	$(MENUOBJ)/svgalib/drivers/trident.o \
 	$(MENUOBJ)/svgalib/drivers/renditio.o \

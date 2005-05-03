@@ -205,6 +205,8 @@ joystickb_driver joystickb_sdl_driver = {
 	joystickb_sdl_reg,
 	joystickb_sdl_init,
 	joystickb_sdl_done,
+	0,
+	0,
 	joystickb_sdl_flags,
 	joystickb_sdl_count_get,
 	joystickb_sdl_stick_count_get,

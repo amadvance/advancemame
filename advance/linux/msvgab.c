@@ -209,6 +209,8 @@ mouseb_driver mouseb_svgalib_driver = {
 	mouseb_svgalib_reg,
 	mouseb_svgalib_init,
 	mouseb_svgalib_done,
+	0,
+	0,
 	mouseb_svgalib_flags,
 	mouseb_svgalib_count_get,
 	mouseb_svgalib_axe_count_get,

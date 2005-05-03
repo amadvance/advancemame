@@ -33,8 +33,8 @@ SOBJDIRS += \
 
 ifeq ($(CONF_SYSTEM),unix)
 SCFLAGS += \
-	-DDATADIR=\"$(datadir)\" \
-	-DSYSCONFDIR=\"$(sysconfdir)\" \
+	-DADV_DATADIR=\"$(datadir)\" \
+	-DADV_SYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux
 SLIBS += -lm
 SOBJDIRS += \

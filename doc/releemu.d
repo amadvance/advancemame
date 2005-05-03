@@ -1,6 +1,20 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.95.1
+	The DOS and Windows version now includes the old SVGALIB
+	drivers for GeForce and Savage boards. If you have problem
+	with the new driver you can still use the old ones with the
+	names "savage_leg" and "nv3_leg".
+	Use the "device_video sdl svgawin/savage_leg" option
+	for Windows and "device_video vga svgaline/savage_leg" for
+	DOS.
+
+	The Windows version includes two new mouse driver called
+	`rawinput' and `cpu' to allow the use of multiple mice
+	in Windows 2000 and XP. Check the documentation in the
+	advdev.txt file.
+
 AdvanceMAME 0.94.0
 	This version uses for DOS the new SVGALIB 1.9.20 library that
 	adds support for the latest Radeon and nVidia video boards.

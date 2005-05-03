@@ -17,8 +17,8 @@ DOCOBJ = $(srcdir)/doc
 ############################################################################
 # Common targets
 
-ifdef ADVANCE_ALL
-all_override: $(ADVANCE_ALL)
+ifdef ADV_ALL
+all_override: $(ADV_ALL)
 endif
 
 ifneq ($(wildcard $(EMUSRC)),)
@@ -41,6 +41,7 @@ INSTALL_DIRS += $(MENUOBJ)
 INSTALL_BINFILES += $(MENUOBJ)/advmenu$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advmenu.1
 endif
+ifeq ($(CONF_LIB_DIRECT),yes)
 ifneq ($(wildcard $(srcdir)/advance/cfg.mak),)
 INSTALL_DIRS += $(CFGOBJ)
 INSTALL_BINFILES += $(CFGOBJ)/advcfg$(EXE)
@@ -50,6 +51,7 @@ ifneq ($(wildcard $(srcdir)/advance/v.mak),)
 INSTALL_DIRS += $(VOBJ)
 INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
 INSTALL_MANFILES += $(DOCOBJ)/advv.1
+endif
 endif
 ifneq ($(CONF_SYSTEM),windows)
 ifneq ($(wildcard $(srcdir)/advance/s.mak),)
@@ -392,7 +394,7 @@ ARCH_PENTIUM_BLEND_GCC2 = CONF_MAP=yes CONF_ARCH=pentium CONF_CFLAGS_OPT="-march
 MANUAL=-f Makefile.usr
 
 WHOLECD_FLAGS = \
-	DATADIR="/root" SYSCONFDIR="/etc" \
+	ADV_DATADIR="/root" ADV_SYSCONFDIR="/etc" \
 	CONF_ARCH=cd CONF_CFLAGS_OPT="-march=pentium -mtune=pentium2 $(WHOLE_CFLAGS_OPT) -fno-merge-constants" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
 	CONF_DEFS="$(DEFS_LINUX)" \
 	CONF_HOST=linux \

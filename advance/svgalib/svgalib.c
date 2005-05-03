@@ -741,8 +741,8 @@ void map_mmio(void) {
 
 	if (!__svgalib_mmio_size)
 		return;
-        	
-        MMIO_POINTER = adv_svgalib_mmap(0, __svgalib_mmio_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base);
+
+	MMIO_POINTER = adv_svgalib_mmap(0, __svgalib_mmio_size, PROT_READ | PROT_WRITE, MAP_SHARED, __svgalib_mem_fd, __svgalib_mmio_base);
 }
 
 void unmap_mmio(void)
@@ -995,7 +995,6 @@ ModeInfo* __svgalib_createModeInfoStructureForSvgalibMode(int mode)
 	modeinfo->height = adv_svgalib_state.mode.height;
 	modeinfo->bytesPerPixel = adv_svgalib_state.mode.bytes_per_pixel;
 
-
 	switch (adv_svgalib_state.mode.bits_per_pixel) {
 		case 8 :
 			modeinfo->colorBits = 8;
@@ -1231,27 +1230,28 @@ static struct adv_svgalib_chipset_struct cards[] = {
 	{ &__svgalib_nv3_driverspecs, NV3, "nv3", FLAGS_INTERLACE | FLAGS_TV },
 #endif
 #ifdef INCLUDE_NV3_DRIVER
-	{ &__svgalib_nv3_19_driverspecs, NV3, "nv3_19", FLAGS_INTERLACE | FLAGS_TV },
+	{ &__svgalib_nv3_19_driverspecs, NV3, "nv3_leg", FLAGS_INTERLACE | FLAGS_TV },
 #endif
 #ifdef INCLUDE_TRIDENT_DRIVER
 	{ &__svgalib_trident_driverspecs, TRIDENT, "trident", FLAGS_INTERLACE },
 #endif
 #ifdef INCLUDE_RENDITION_DRIVER
-	/* The driver doesn't check the INTERLACED flags */
 	{ &__svgalib_rendition_driverspecs, RENDITION, "rendition", FLAGS_NONE },
 #endif
 #ifdef INCLUDE_G400_DRIVER
 	{ &__svgalib_g400_driverspecs, G400, "g400", FLAGS_INTERLACE },
 #endif
 #ifdef INCLUDE_PM2_DRIVER
-	/* The driver doesn't check the INTERLACED flags */
 	{ &__svgalib_pm2_driverspecs, PM2, "pm2", FLAGS_NONE },
+#endif
+#ifdef INCLUDE_UNICHROME_DRIVER
+	{ &__svgalib_unichrome_driverspecs, UNICHROME, "unichrome", FLAGS_NONE },
 #endif
 #ifdef INCLUDE_SAVAGE_DRIVER
 	{ &__svgalib_savage_driverspecs, SAVAGE, "savage", FLAGS_INTERLACE },
 #endif
 #ifdef INCLUDE_SAVAGE_DRIVER
-	{ &__svgalib_savage_18_driverspecs, SAVAGE, "savage_18", FLAGS_INTERLACE },
+	{ &__svgalib_savage_18_driverspecs, SAVAGE, "savage_leg", FLAGS_INTERLACE },
 #endif
 #ifdef INCLUDE_MILLENNIUM_DRIVER
 	{ &__svgalib_mil_driverspecs, MILLENNIUM, "millenium", FLAGS_INTERLACE },
@@ -1275,7 +1275,6 @@ static struct adv_svgalib_chipset_struct cards[] = {
 	{ &__svgalib_mx_driverspecs, MX, "mx", FLAGS_INTERLACE },
 #endif
 #ifdef INCLUDE_ET6000_DRIVER
-	/* This must be before ET4000 */
 	{ &__svgalib_et6000_driverspecs, ET6000, "et6000", FLAGS_INTERLACE },
 #endif
 #ifdef INCLUDE_S3_DRIVER
@@ -1381,7 +1380,7 @@ static void mode_done(void)
 int ADV_SVGALIB_CALL adv_svgalib_init(int divide_clock_with_sequencer, int skip_board)
 {
 	adv_svgalib_log("svgalib: adv_svgalib_init()\n");
-	
+
 	memset(&adv_svgalib_state, 0, sizeof(adv_svgalib_state));
 
 	if (adv_svgalib_open() != 0)
@@ -1547,7 +1546,7 @@ int ADV_SVGALIB_CALL adv_svgalib_check(unsigned pixelclock, unsigned hde, unsign
 		&& hde <= hrs && hrs < hre && hre <= ht
 		&& vde <= vrs && vrs < vre && vre <= vt))
 		return -1;
-	
+
 	mode_init(pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, hsync, vsync, bits_per_pixel, tvpal, tvntsc);
 
 	if (adv_svgalib_state.driver->drv->modeavailable(adv_svgalib_state.mode_number) == 0) {
@@ -1569,7 +1568,7 @@ int ADV_SVGALIB_CALL adv_svgalib_check(unsigned pixelclock, unsigned hde, unsign
 int ADV_SVGALIB_CALL adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, int doublescan, int interlace, int hsync, int vsync, unsigned bits_per_pixel, int tvpal, int tvntsc)
 {
 	adv_svgalib_log("svgalib: adv_svgalib_set()\n");
-	
+
 	mode_init(pixelclock, hde, hrs, hre, ht, vde, vrs, vre, vt, doublescan, interlace, hsync, vsync, bits_per_pixel, tvpal, tvntsc);
 
 	if (adv_svgalib_state.driver->drv->unlock)
@@ -1581,7 +1580,7 @@ int ADV_SVGALIB_CALL adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned
 #endif
 
 	if (adv_svgalib_state.driver->drv->setmode(adv_svgalib_state.mode_number, TEXT)) {
-		adv_svgalib_log("svgalib: setmode() failed\n");		
+		adv_svgalib_log("svgalib: setmode() failed\n");
 		adv_svgalib_enable();
 		vga_screenon();
 		mode_done();
@@ -1594,7 +1593,7 @@ int ADV_SVGALIB_CALL adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned
 	vga_screenon();
 
 	if (adv_svgalib_state.driver->drv->linear(LINEAR_ENABLE, __svgalib_linear_mem_base)!=0) {
-		adv_svgalib_log("svgalib: linear() failed\n");	
+		adv_svgalib_log("svgalib: linear() failed\n");
 		mode_done();
 		return -1;
 	}
@@ -1612,7 +1611,7 @@ int ADV_SVGALIB_CALL adv_svgalib_set(unsigned pixelclock, unsigned hde, unsigned
 void ADV_SVGALIB_CALL adv_svgalib_unset(void) 
 {
 	adv_svgalib_log("svgalib: adv_svgalib_unset()\n");
-	
+
 	if (adv_svgalib_state.driver->drv->unlock)
 		adv_svgalib_state.driver->drv->unlock();
 
@@ -1628,7 +1627,7 @@ void ADV_SVGALIB_CALL adv_svgalib_unset(void)
 void ADV_SVGALIB_CALL adv_svgalib_save(unsigned char* regs) 
 {
 	adv_svgalib_log("svgalib: adv_svgalib_save()\n");
-	
+
 	memset(regs, ADV_SVGALIB_STATE_SIZE, 0);
 
 	if (adv_svgalib_state.driver->drv->unlock)
@@ -1646,7 +1645,7 @@ void ADV_SVGALIB_CALL adv_svgalib_save(unsigned char* regs)
 void ADV_SVGALIB_CALL adv_svgalib_restore(unsigned char* regs) 
 {
 	adv_svgalib_log("svgalib: adv_svgalib_restore()\n");
-	
+
 	if (adv_svgalib_state.driver->drv->unlock)
 		adv_svgalib_state.driver->drv->unlock();
 
@@ -1669,7 +1668,7 @@ void ADV_SVGALIB_CALL adv_svgalib_restore(unsigned char* regs)
 void ADV_SVGALIB_CALL adv_svgalib_linear_map(void) 
 {
 	adv_svgalib_log("svgalib: adv_svgalib_linear_map()\n");
-	
+
 	map_linear(__svgalib_linear_mem_base, __svgalib_linear_mem_size);
 }
 
@@ -1756,3 +1755,4 @@ void ADV_SVGALIB_CALL_VARARGS adv_svgalib_log(const char *text, ...) {
 	adv_svgalib_log_va(text, arg);
 	va_end(arg);
 }
+

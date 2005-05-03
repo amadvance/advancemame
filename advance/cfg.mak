@@ -41,8 +41,8 @@ CFGOBJS += \
 
 ifeq ($(CONF_SYSTEM),unix)
 CFGCFLAGS += \
-	-DDATADIR=\"$(datadir)\" \
-	-DSYSCONFDIR=\"$(sysconfdir)\" \
+	-DADV_DATADIR=\"$(datadir)\" \
+	-DADV_SYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux
 CFGOBJDIRS += \
 	$(CFGOBJ)/linux
@@ -161,7 +161,7 @@ endif
 
 ifeq ($(CONF_SYSTEM),windows)
 CFGCFLAGS += \
-	-DDATADIR=\"$(DATADIR)\" \
+	-DADV_DATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/windows
 CFGOBJDIRS += \
 	$(CFGOBJ)/windows \

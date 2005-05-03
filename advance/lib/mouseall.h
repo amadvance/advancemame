@@ -54,6 +54,12 @@ extern "C" {
 #ifdef USE_MOUSE_RAW
 #include "mraw.h"
 #endif
+#ifdef USE_MOUSE_RAWINPUT
+#include "mraw.h"
+#endif
+#ifdef USE_MOUSE_CPN
+#include "mcpn.h"
+#endif
 #ifdef USE_MOUSE_SDL
 #include "msdl.h"
 #endif

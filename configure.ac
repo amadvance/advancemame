@@ -3,7 +3,7 @@ AC_INIT([advance],[source])
 AC_CONFIG_HEADERS([advance/lib/config.h:advance/lib/config.hin])
 AC_CANONICAL_HOST
 AC_PREREQ(2.57)
-AC_COPYRIGHT([Copyright 2004 Andrea Mazzoleni])
+AC_COPYRIGHT([Copyright 2005 Andrea Mazzoleni])
 
 # Checks for system.
 case "$host" in
@@ -339,6 +339,7 @@ fi
 
 # Checks for libraries.
 
+ac_lib_direct_flag=no
 ac_lib_video_flag=no
 ac_lib_text_flag=no
 ac_lib_sound_flag=no
@@ -350,6 +351,7 @@ if test $ac_system = dos; then
 	ac_lib_keyboard="$ac_lib_keyboard allegro"
 	ac_lib_joystick="$ac_lib_joystick allegro"
 	ac_lib_mouse="$ac_lib_mouse allegro"
+	ac_lib_direct_flag=yes
 	ac_lib_video_flag=yes
 	ac_lib_sound_flag=yes
 	ac_lib_keyboard_flag=yes
@@ -453,6 +455,7 @@ if test $ac_lib_svgalib = yes; then
 	ac_lib_keyboard="$ac_lib_keyboard svgalib"
 	ac_lib_mouse="$ac_lib_mouse svgalib"
 	ac_lib_joystick="$ac_lib_joystick svgalib"
+	ac_lib_direct_flag=yes
 	ac_lib_video_flag=yes
 	ac_lib_keyboard_flag=yes
 fi
@@ -484,6 +487,7 @@ elif test $ac_lib_fb = yes; then
 fi
 if test $ac_lib_fb = yes; then
 	ac_lib_video="$ac_lib_video fb"
+	ac_lib_direct_flag=yes
 	ac_lib_video_flag=yes
 fi
 AC_SUBST([CONF_LIB_FB],[$ac_lib_fb])
@@ -862,7 +866,7 @@ if test $ac_lib_svgawin = auto; then
 fi
 if test $ac_lib_svgawin = yes; then
 	if test ! $ac_system = windows; then
-		AC_MSG_ERROR([the SVGAWIN library not supported in this host])
+		AC_MSG_ERROR([the SVGAWIN library is not supported in this host])
 	fi
 	if test $ac_lib_sdl = no; then
 		AC_MSG_ERROR([the SVGAWIN library requires the SDL library])
@@ -870,9 +874,58 @@ if test $ac_lib_svgawin = yes; then
 fi
 if test $ac_lib_svgawin = yes; then
 	ac_lib_video="$ac_lib_video svgawin"
+	ac_lib_direct_flag=yes
 	ac_lib_video_flag=yes
 fi
 AC_SUBST([CONF_LIB_SVGAWIN],[$ac_lib_svgawin])
+
+# Checks for mrawinput
+AC_ARG_ENABLE(
+	[mrawinput],
+	AC_HELP_STRING([--enable-mrawinput],[enable the use of the Windows Raw input mouse interface. (default auto)]),
+	[ac_lib_mrawinput=$enableval],
+	[ac_lib_mrawinput=auto]
+)
+if test $ac_lib_mrawinput = auto; then
+	if test $ac_system = windows; then
+		ac_lib_mrawinput=yes
+	else
+		ac_lib_mrawinput=no
+	fi
+fi
+if test $ac_lib_mrawinput = yes; then
+	if test ! $ac_system = windows; then
+		AC_MSG_ERROR([the rawinput library is not supported in this host])
+	fi
+fi
+if test $ac_lib_mrawinput = yes; then
+	ac_lib_mouse="$ac_lib_mouse rawinput"
+fi
+AC_SUBST([CONF_LIB_MRAWINPUT],[$ac_lib_mrawinput])
+
+# Checks for mcpn
+AC_ARG_ENABLE(
+	[mcpn],
+	AC_HELP_STRING([--enable-mcpn],[enable the use of the Windows CPN mouse interface. (default auto)]),
+	[ac_lib_mcpn=$enableval],
+	[ac_lib_mcpn=auto]
+)
+if test $ac_lib_mcpn = auto; then
+	if test $ac_system = windows; then
+		ac_lib_mcpn=yes
+	else
+		ac_lib_mcpn=no
+	fi
+fi
+if test $ac_lib_mcpn = yes; then
+	if test ! $ac_system = windows; then
+		AC_MSG_ERROR([the cpn library is not supported in this host])
+	fi
+fi
+if test $ac_lib_mcpn = yes; then
+	ac_lib_mouse="$ac_lib_mouse cpn"
+fi
+AC_SUBST([CONF_LIB_MCPN],[$ac_lib_mcpn])
 
 # Checks for kraw
 AC_ARG_ENABLE(
@@ -1065,6 +1118,7 @@ fi
 AC_SUBST([CONF_LIB_JEVENT],[$ac_lib_jevent])
 
 # Final
+AC_SUBST([CONF_LIB_DIRECT],[$ac_lib_direct])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 
@@ -1090,13 +1144,18 @@ fi
 
 echo ""
 echo "== Drivers/Libraries =="
-echo "Video :" $ac_lib_video
+if test $ac_lib_direct_flag = no ; then
+	echo "Video :" $ac_lib_video
+	echo "(No video driver is capable to program directly your video board."
+	echo "You will not be able to use not standard video modes.)"
+else
+	echo "Video :" $ac_lib_video
+fi
 echo "Sound :" $ac_lib_sound
 echo "Keyboard :" $ac_lib_keyboard
 echo "Joystick :" $ac_lib_joystick
 echo "Mouse :" $ac_lib_mouse
 echo "Misc :" $ac_lib_other
-echo ""
 
 if test $ac_enable_debug = no ; then
 	if test $ac_lib_video_flag = no; then
@@ -1108,8 +1167,8 @@ if test $ac_enable_debug = no ; then
 	if test $ac_lib_text_flag = no; then
 		AC_MSG_WARN([no text video mode library found. The advv/advcfg utilities will not work!])
 	fi
-	echo ""
 fi
+echo ""
 
 echo "== Compiler =="
 echo "CC :" $CC

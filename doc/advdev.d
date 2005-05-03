@@ -332,7 +332,8 @@ Input Drivers
 
 	It can also be used with some custom devices connected at the
 	Parallel Port. Details on how to build these custom interfaces are
-	in the file:///usr/src/linux/Documentation/input/joystick-parport.txt file.
+	in the file:///usr/src/linux/Documentation/input/joystick-parport.txt
+	file.
 
 	It has a special support for the ACT Light-gun to fix the wrong
 	behavior of the light-gun when shooting out of screen.
@@ -405,7 +406,7 @@ Input Drivers
 
     raw - Serial mouse (Linux)
 	This driver works in Linux and it communicates directly with
-	the configured serial mice. It's also support USB mice
+	the configured serial mice. It also supports USB mice
 	using the Linux mousedev module which maps mice to the
 	/dev/input/mouseX devices.
 
@@ -437,6 +438,41 @@ Input Drivers
 
 	It supports up to 2 mice at the same time using the
 	special `optimous' driver present in the `contrib/' directory.
+
+    rawinput - Raw input interface (Windows)
+	This driver works in Windows XP using the raw input interface.
+
+	It supports more than one mouse at the same time.
+
+	For any mouse up to two axes, one wheel and five buttons
+	are supported.
+
+	This driver is the preferred choice for Windows XP.
+
+    Please note that this driver is not intented to be used in a window 
+    environment. The application takes the control of the mouse and 
+    doesn't allow to switch to other applications. It's mainly intented 
+    for a fullscreen environment.	
+
+    cpn - CPN custom driver interface (Windows)
+	This driver works in Windows 2000/XP using the custom CPN
+	mouse driver.
+
+	It supports more than one mouse at the same time.
+
+	For any mouse up to two axes, and three buttons are supported.
+
+	The CPN mouse driver is available at:
+
+		+http://cpnmouse.sourceforge.net/
+
+	and in the `contrib/cpn' directory. Check the `install'
+	and `unknown' files for install instructions.
+
+	Please note that this driver is not intented to be used in a window 
+	environment. The application takes the control of the mouse and 
+	doesn't allow to switch to other applications. It's mainly intented 
+	for a fullscreen environment.
 
 Video Drivers Configuration
 	The following are the video configuration options available for
@@ -472,6 +508,10 @@ Video Drivers Configuration
 
 	Options for DOS:
 		svgaline - SVGA generated graphics modes.
+		svgaline/nv3_leg - SVGA legacy driver for nVidia boards.
+			If the new driver doesn't work try this one.
+		svgaline/savage_leg - SVGA legacy driver for S3 boards.
+			If the new driver doesn't work try this one.
 		vbeline - VBE generated graphics modes.
 		vgaline - VGA generated text and graphics modes.
 		vbe - VBE graphics modes.
@@ -481,6 +521,10 @@ Video Drivers Configuration
 			SVGAWIN included library. To use this driver you
 			need to install the `svgawin.sys' driver with the
 			`svgawin.exe' command line utility.
+		svgawin/nv3_leg - SVGA legacy driver for nVidia boards.
+			If the new driver doesn't work try this one.
+		svgawin/savage_leg - SVGA legacy driver for S3 boards.
+			If the new driver doesn't work try this one.
 		sdl - SDL graphics and fake text modes.
 
 	Please note that to use the utilities `advv' and `advcfg' you
@@ -492,9 +536,11 @@ Video Drivers Configuration
 	adding the name of the model driver after the driver name using
 	the `/' separator. For example to force the `vbe3' model
 	detection of the `vbeline' driver you must specify
-	`vbeline/vbe3'. A complete list of all the available model is in
-	the `card*.txt' files. 
-	
+	`vbeline/vbe3'.
+
+	To get the list of all the available models try using the
+	`help' model name. A short help will be printed.
+
 	Please note that forcing a specific video driver is discouraged.
 	Generally you don't need it.
 
@@ -527,14 +573,14 @@ Video Drivers Configuration
 			xv in X Window and DirectX in Windows. The specific
 			color format used is YUY2.
 
-	Please note that with the zoom mode, if the original image is in the
-	RGB format instead of a palette format, the program
+	Please note that with overlay mode, if the original image is
+	in the RGB format instead of a palette format, the program
 	needs to convert it to the YUY2 format before displaying it.
 	It requires some time.
 
     device_video_overlaysize
-	Select the favorite horizontal size to use with the `overlay' output
-	mode. The program selects the nearest available video mode.
+	Select the favorite horizontal size to use with the `overlay'
+	output mode. The program selects the nearest available video mode.
 
 	device_video_overlaysize SIZE
 
@@ -1080,5 +1126,5 @@ Input Drivers Configuration
 		:device_raw_mousedev[1] /dev/ttyS2
 
 Copyright
-	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
+	This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni.
 

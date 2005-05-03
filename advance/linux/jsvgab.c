@@ -182,6 +182,8 @@ joystickb_driver joystickb_svgalib_driver = {
 	joystickb_svgalib_reg,
 	joystickb_svgalib_init,
 	joystickb_svgalib_done,
+	0,
+	0,
 	joystickb_svgalib_flags,
 	joystickb_svgalib_count_get,
 	joystickb_svgalib_stick_count_get,

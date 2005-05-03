@@ -357,6 +357,8 @@ mouseb_driver mouseb_raw_driver = {
 	mouseb_raw_reg,
 	mouseb_raw_init,
 	mouseb_raw_done,
+	0,
+	0,
 	mouseb_raw_flags,
 	mouseb_raw_count_get,
 	mouseb_raw_axe_count_get,

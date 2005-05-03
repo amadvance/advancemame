@@ -38,12 +38,12 @@
 #include <sys/utsname.h>
 #endif
 
-#ifndef DATADIR
-#error Macro DATADIR undefined
+#ifndef ADV_DATADIR
+#error Macro ADV_DATADIR undefined
 #endif
 
-#ifndef SYSCONFDIR
-#error Macro SYSCONFDIR undefined
+#ifndef ADV_SYSCONFDIR
+#error Macro ADV_SYSCONFDIR undefined
 #endif
 
 struct file_context {
@@ -80,7 +80,7 @@ adv_error file_init(void)
 
 
 	/* root */
-	snprintf(FL.data_dir_buffer, sizeof(FL.data_dir_buffer), "%s", DATADIR);
+	snprintf(FL.data_dir_buffer, sizeof(FL.data_dir_buffer), "%s", ADV_DATADIR);
 
 	/* home */
 
@@ -192,10 +192,10 @@ const char* file_config_file_host(const char* file)
 		/* if relative add the root data dir */
 		const char* sysconfdir;
 		/* never use /usr/etc */
-		if (strcmp(SYSCONFDIR, "/usr/etc") == 0)
+		if (strcmp(ADV_SYSCONFDIR, "/usr/etc") == 0)
 			sysconfdir = "/etc";
 		else
-			sysconfdir = SYSCONFDIR;
+			sysconfdir = ADV_SYSCONFDIR;
 		snprintf(FL.file_host_buffer, sizeof(FL.file_host_buffer), "%s/%s", sysconfdir, file);
 	}
 	return FL.file_host_buffer;

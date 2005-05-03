@@ -39,8 +39,8 @@ VLIBS += -lm
 
 ifeq ($(CONF_SYSTEM),unix)
 VCFLAGS += \
-	-DDATADIR=\"$(datadir)\" \
-	-DSYSCONFDIR=\"$(sysconfdir)\" \
+	-DADV_DATADIR=\"$(datadir)\" \
+	-DADV_SYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux
 VOBJDIRS += \
 	$(VOBJ)/linux
@@ -159,7 +159,7 @@ endif
 
 ifeq ($(CONF_SYSTEM),windows)
 VCFLAGS += \
-	-DDATADIR=\"$(DATADIR)\" \
+	-DADV_DATADIR=\"$(DATADIR)\" \
 	-I$(srcdir)/advance/windows
 VOBJDIRS += \
 	$(VOBJ)/windows \

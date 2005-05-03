@@ -37,7 +37,7 @@ Description
 	* Support of Symmetric Multi-Processing (SMP) with a multiple
 		thread architecture (only for Linux).
 	* Sound and video recording in WAV, PNG and MNG files.
-	* Support for up to 4 mice in Linux and 2 in DOS.
+	* Multiple mice support in Linux, DOS, Windows 2000 and Windows XP.
 	* Automatic exit after some time of inactivity.
 	* Scripts capabilities to drive external hardware devices
 		like LCDs and lights.
@@ -1960,6 +1960,12 @@ Configuration
 	depend on the number of audio sample requested, information that
 	is not stored in the recorded input file.
 
+	Also, the `emulation' mode may trigger some bugs in the MAME
+	core.
+
+	Anyway, the `emulation' mode generates more stable sound
+	if the CPU load isn't totally empty.
+
   LCD Configuration Options
 	AdvanceMAME is able to display arbitrary information on a LCD display
 	using the integrated script capabilities.
@@ -2268,5 +2274,5 @@ Signals
 		SIGHUP - Restart the program.
 
 Copyright
-	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni, Filipe Estima.
+	This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni, Filipe Estima.
 

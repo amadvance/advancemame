@@ -66,7 +66,7 @@ thread architecture (only for Linux).
 .IP \(bu
 Sound and video recording in WAV, PNG and MNG files.
 .IP \(bu
-Support for up to 4 mice in Linux and 2 in DOS.
+Multiple mice support in Linux, DOS, Windows 2000 and Windows XP.
 .IP \(bu
 Automatic exit after some time of inactivity.
 .IP \(bu
@@ -3274,6 +3274,12 @@ using the \(oq\(hyrecord\(cq or \(oq\(hyplayback\(cq command line option due inc
 behavior of the emulation. Specifically some implementations may
 depend on the number of audio sample requested, information that
 is not stored in the recorded input file.
+.PP
+Also, the \(oqemulation\(cq mode may trigger some bugs in the MAME
+core.
+.PP
+Anyway, the \(oqemulation\(cq mode generates more stable sound
+if the CPU load isn\(cqt totally empty.
 .SS LCD Configuration Options 
 AdvanceMAME is able to display arbitrary information on a LCD display
 using the integrated script capabilities.
@@ -3838,4 +3844,4 @@ Restart the program.
 .PD
 .RE
 .SH COPYRIGHT 
-This file is Copyright (C) 2003, 2004 Andrea Mazzoleni, Filipe Estima.
+This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni, Filipe Estima.

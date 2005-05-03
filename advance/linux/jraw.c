@@ -389,6 +389,8 @@ joystickb_driver joystickb_raw_driver = {
 	joystickb_raw_reg,
 	joystickb_raw_init,
 	joystickb_raw_done,
+	0,
+	0,
 	joystickb_raw_flags,
 	joystickb_raw_count_get,
 	joystickb_raw_stick_count_get,

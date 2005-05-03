@@ -23,8 +23,8 @@ MOBJS += \
 
 ifeq ($(CONF_SYSTEM),unix)
 MCFLAGS += \
-	-DDATADIR=\"$(datadir)\" \
-	-DSYSCONFDIR=\"$(sysconfdir)\" \
+	-DADV_DATADIR=\"$(datadir)\" \
+	-DADV_SYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux
 MOBJDIRS += \
 	$(MOBJ)/linux

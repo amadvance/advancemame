@@ -167,18 +167,22 @@ int rpl_vsnprintf(char* str, size_t count, const char* fmt, va_list arg);
 #endif
 
 #ifdef __WIN32__
-#if __GNUC__ == 2
-/* math functions for gcc 2.95.3 for Windows */
+#if (__GNUC__ == 2)
+/* math functions for gcc for Windows */
+int rpl_isnan(double x);
+int rpl_isunordered(double x, double y);
+#define isnan rpl_isnan
+#define isunordered rpl_isunordered
+#endif
+
+#if (__GNUC__ == 2) || (__GNUC__ == 3 && __GNUC_MINOR__ <= 2)
+/* math functions for gcc for Windows */
 double rpl_asinh(double x);
 double rpl_acosh(double x);
 double rpl_alogb(double x);
-int rpl_isnan(double x);
-int rpl_isunordered(double x, double y);
 #define asinh rpl_asinh
 #define acosh rpl_acosh
 #define logb rpl_logb
-#define isnan rpl_isnan
-#define isunordered rpl_isunordered
 #endif
 #endif
 

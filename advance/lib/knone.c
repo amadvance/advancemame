@@ -50,18 +50,6 @@ void keyb_none_done(void)
 	log_std(("keyb:none: keyb_none_done()\n"));
 }
 
-adv_error keyb_none_enable(adv_bool graphics)
-{
-	log_std(("keyb:none: keyb_none_enable(graphics:%d)\n", (int)graphics));
-
-	return 0;
-}
-
-void keyb_none_disable(void)
-{
-	log_std(("keyb:none: keyb_none_disable()\n"));
-}
-
 unsigned keyb_none_count_get(void)
 {
 	log_std(("keyb:none: keyb_none_count_get()\n"));
@@ -123,8 +111,8 @@ keyb_driver keyb_none_driver = {
 	keyb_none_reg,
 	keyb_none_init,
 	keyb_none_done,
-	keyb_none_enable,
-	keyb_none_disable,
+	0,
+	0,
 	keyb_none_flags,
 	keyb_none_count_get,
 	keyb_none_has,

@@ -1594,7 +1594,7 @@ void osd_ui_menu(const char** items, const char** subitems, char* flag, int sele
 
 	/* HACK: Recognize main menu */
 	if (items && strstr(items[0], "Input") != 0)
-		advance_ui_menu_title_insert(&menu, ADVANCE_TITLE);
+		advance_ui_menu_title_insert(&menu, ADV_TITLE);
 
 	for(i=0;i<menu_mac;++i) {
 		if (subitems && subitems[i]) {

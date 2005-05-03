@@ -1,14 +1,21 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.95.1 2005/04
+AdvanceMAME Version 0.96.0 2005/05
 	) Improved the support for low clocks of the SVGALIB
 		nVidia driver for DOS and Windows.
 	) Readded in the DOS and Windows version the old
 		SVGALIB drivers for GeForce and Savage boards.
 		If you have problem with the new driver
 		you can still use the old ones with the
-		names "savage_18" and "nv3_19".
+		names "savage_leg" and "nv3_leg".
+	) The `advv' and `advcfg' utilities are now compiled
+		and installed only if needed.
+	) Fixed the detection of the new `unichrome' driver in DOS.
+	) Added support for multiple mice in Windows XP using the
+		new `rawinput' mouse driver.
+	) Added support for multiple mice in Windows 2000 using the
+		new `cpn' mouse driver.
 
 AdvanceMESS Version 0.95.0.0 2005/04
 	) Based on MAME 0.95 and AdvanceMAME 0.95.0.

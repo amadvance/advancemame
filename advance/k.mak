@@ -24,8 +24,8 @@ KOBJS += \
 
 ifeq ($(CONF_SYSTEM),unix)
 KCFLAGS += \
-	-DDATADIR=\"$(datadir)\" \
-	-DSYSCONFDIR=\"$(sysconfdir)\" \
+	-DADV_DATADIR=\"$(datadir)\" \
+	-DADV_SYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux
 KOBJDIRS += \
 	$(KOBJ)/linux

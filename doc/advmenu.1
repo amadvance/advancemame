@@ -1466,6 +1466,22 @@ These options are used to customize the input drivers.
 .PP
 All the \(oqdevice_keyboard/joystick/mouse_*\(cq options defined in
 the \(oqadvdev.txt\(cq file can be used.
+.PP
+As default the mouse and the joystick support is disabled.
+To enable it you must add the options:
+.PP
+.RS 4
+device_mouse auto
+.PD 0
+.PP
+.PD
+device_joystick auto
+.PD 0
+.PP
+.PD
+.RE
+.PP
+in your advmenu.rc file.
 .SS mouse_delta 
 Selects the mouse/trackball sensitivity. Increase the value for
 a slower movement. Decrease it for a faster movement.
@@ -2559,4 +2575,4 @@ Restart the program.
 .PD
 .RE
 .SH COPYRIGHT 
-This file is Copyright (C) 2003, 2004 Andrea Mazzoleni, Randy Schnedler.
+This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni, Randy Schnedler.

@@ -3,6 +3,28 @@
                             =======================
 
 
+ADVANCEMENU VERSION 2.4.9 2005/05
+=================================
+
+* The directory is not chaged before running an
+  emulator in the *nix platforms. Instead the
+  full path name of the emulator is used.
+* Improved the support for low clocks of the SVGALIB
+  nVidia driver for DOS and Windows.
+* Readded in the DOS and Windows version the old
+  SVGALIB drivers for GeForce and Savage boards.
+  If you have problem with the new driver
+  you can still use the old ones with the
+  names "savage_leg" and "nv3_leg".
+* The `advv' and `advcfg' utilities are now compiled
+  and installed only if needed.
+* Fixed the detection of the new `unichrome' driver in DOS.
+* Added support for multiple mice in Windows XP using the
+  new `rawinput' mouse driver.
+* Added support for multiple mice in Windows 2000 using the
+  new `cpn' mouse driver.
+
+
 ADVANCEMENU VERSION 2.4.8 2005/03
 =================================
 

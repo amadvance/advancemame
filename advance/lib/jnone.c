@@ -86,6 +86,8 @@ joystickb_driver joystickb_none_driver = {
 	joystickb_none_reg,
 	joystickb_none_init,
 	joystickb_none_done,
+	0,
+	0,
 	joystickb_none_flags,
 	joystickb_none_count_get,
 	0,

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,7 @@
  */
 void joystickb_reg_driver_all(adv_conf* context)
 {
+	/* the order is also the detection precedence */
 #ifdef USE_JOYSTICK_EVENT
 	joystickb_reg_driver(context, &joystickb_event_driver);
 #endif
@@ -72,6 +73,8 @@ void joystickb_reg_driver_all(adv_conf* context)
 void joystickb_report_driver_all(char* s, unsigned size)
 {
 	*s = 0;
+
+	/* the order is not relevant */
 #ifdef USE_JOYSTICK_EVENT
 	sncat(s, size, " event");
 #endif

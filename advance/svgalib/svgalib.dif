@@ -301,7 +301,7 @@ diff -u ../svgalib.ori/drivers/mx.c drivers/mx.c
  #define MXREG_SAVE(i) (VGA_TOTAL_REGS+i)
 diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
 --- ../svgalib.ori/drivers/nv3.c	2005-03-16 10:40:43.000000000 +0100
-+++ drivers/nv3.c	2005-04-06 19:15:47.000000000 +0200
++++ drivers/nv3.c	2005-04-13 21:09:45.000000000 +0200
 @@ -22,12 +22,12 @@
  #include <unistd.h>
  #include "vga.h"
@@ -355,7 +355,23 @@ diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
   		} 
   		switch((buf[0]>>20)&0xff){
    			case 0x1: 
-@@ -766,6 +766,8 @@
+@@ -716,6 +716,7 @@
+   			case 0x19:
+   			case 0x1D:
+   			case 0x21:
++				flags = NO_INTERLACE;
+ 				twostagepll=1;
+    				chip=GEFORCE;
+    				nvnum=0x40;
+@@ -728,6 +729,7 @@
+   			case 0x18:
+   			case 0x1A:
+   			case 0x1F:
++				flags = NO_INTERLACE;
+    				dualhead=0;
+    				chip=GEFORCE; 
+    				nvnum=(buf[0]>>20)&0xff;
+@@ -766,6 +768,8 @@
  	__svgalib_mmio_size=8*1024*1024;
  	
  	map_mmio();
@@ -364,7 +380,7 @@ diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
  	
  	if(!force){
   		int boot0;
-@@ -884,7 +886,7 @@
+@@ -884,7 +888,7 @@
      for (P = 0; P <= P_MAX; P ++)
      {
          Freq = VClk << P;
@@ -373,7 +389,7 @@ diff -u ../svgalib.ori/drivers/nv3.c drivers/nv3.c
          {
              for (M = M_MIN; M <= M_MAX; M++)
              {
-@@ -927,7 +929,7 @@
+@@ -927,7 +931,7 @@
  	
  	for (P = 0; P <= 6; P++) {
  		Freq = VClk << P;

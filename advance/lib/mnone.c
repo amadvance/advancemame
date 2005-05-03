@@ -114,6 +114,8 @@ mouseb_driver mouseb_none_driver = {
 	mouseb_none_reg,
 	mouseb_none_init,
 	mouseb_none_done,
+	0,
+	0,
 	mouseb_none_flags,
 	mouseb_none_count_get,
 	mouseb_none_axe_count_get,

@@ -370,6 +370,8 @@ mouseb_driver mouseb_event_driver = {
 	mouseb_event_reg,
 	mouseb_event_init,
 	mouseb_event_done,
+	0,
+	0,
 	mouseb_event_flags,
 	mouseb_event_count_get,
 	mouseb_event_axe_count_get,

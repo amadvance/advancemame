@@ -716,6 +716,7 @@ static int init(int force, int par1, int par2)
   			case 0x19:
   			case 0x1D:
   			case 0x21:
+				flags = NO_INTERLACE;
 				twostagepll=1;
    				chip=GEFORCE;
    				nvnum=0x40;
@@ -728,6 +729,7 @@ static int init(int force, int par1, int par2)
   			case 0x18:
   			case 0x1A:
   			case 0x1F:
+				flags = NO_INTERLACE;
    				dualhead=0;
    				chip=GEFORCE; 
    				nvnum=(buf[0]>>20)&0xff;

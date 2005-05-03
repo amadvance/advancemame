@@ -169,7 +169,8 @@ adv_error keyb_enable(adv_bool graphics)
 {
 	assert(keyb_state.is_active_flag && !keyb_state.is_enabled_flag);
 
-	if (keyb_state.driver_current->enable(graphics) != 0)
+	if (keyb_state.driver_current->enable
+		&& keyb_state.driver_current->enable(graphics) != 0)
 		return -1;
 
 	keyb_state.is_enabled_flag = 1;
@@ -181,7 +182,8 @@ void keyb_disable(void)
 {
 	assert(keyb_state.is_active_flag && keyb_state.is_enabled_flag);
 
-	keyb_state.driver_current->disable();
+	if (keyb_state.driver_current->disable)
+		keyb_state.driver_current->disable();
 
 	keyb_state.is_enabled_flag = 0;
 }

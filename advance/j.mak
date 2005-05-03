@@ -23,8 +23,8 @@ JOBJS += \
 
 ifeq ($(CONF_SYSTEM),unix)
 JCFLAGS += \
-	-DDATADIR=\"$(datadir)\" \
-	-DSYSCONFDIR=\"$(sysconfdir)\" \
+	-DADV_DATADIR=\"$(datadir)\" \
+	-DADV_SYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux
 JOBJDIRS += \
 	$(JOBJ)/linux

@@ -836,6 +836,14 @@ Configuration
 	All the `device_keyboard/joystick/mouse_*' options defined in
 	the `advdev.txt' file can be used.
 
+	As default the mouse and the joystick support is disabled.
+	To enable it you must add the options:
+
+		:device_mouse auto
+		:device_joystick auto
+
+	in your advmenu.rc file.
+
     mouse_delta
 	Selects the mouse/trackball sensitivity. Increase the value for
 	a slower movement. Decrease it for a faster movement.
@@ -1384,5 +1392,5 @@ Signals
 		SIGHUP - Restart the program.
 
 Copyright
-	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni, Randy Schnedler.
+	This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni, Randy Schnedler.
 

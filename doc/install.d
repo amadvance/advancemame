@@ -121,7 +121,7 @@ Configuration
 	If you want to run it as standard applications in a Window 
 	Manager environment like X Window, Windows or Mac OS X Acqua, 
 	you don't need to configure any video options. Instead, if you 
-	want to  enable the direct programming of the video board 
+	want to enable the direct programming of the video board
 	you need to carefully follow the "Video Setup" chapter
 	in this file.
 
@@ -296,7 +296,9 @@ Video Setup
 	This feature is available in Linux with the SVGALIB and Frame
 	Buffer libraries, in DOS with the SVGALIB and VBELINE libraries
 	and in Windows with the SVGAWIN library.
-	It isn't available in Mac OS X and other Unix.
+
+	It isn't available in Mac OS X and other Unix, or generally if
+	your only detected video driver is the SDL library.
 
 	To make it possible, the programs need some information on your
 	monitor capability in the form of the supported pixel, horizontal

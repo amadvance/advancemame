@@ -52,7 +52,6 @@ int rpl_vsnprintf(char* str, size_t count, const char* fmt, va_list arg)
 #endif
 
 #ifdef __WIN32__
-#if __GNUC__ == 2
 double rpl_asinh(double x)
 {
 	return log(x + sqrt(x*x + 1));
@@ -78,6 +77,5 @@ int rpl_isunordered(double x, double y)
 {
 	return rpl_isnan(x) || rpl_isnan(y);
 }
-#endif
 #endif
 

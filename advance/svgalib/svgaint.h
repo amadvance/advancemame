@@ -87,6 +87,7 @@ void* ADV_SVGALIB_CALL adv_svgalib_mmap(void* start, unsigned length, int prot, 
  * Same calling convetion of unmap().
  */
 int ADV_SVGALIB_CALL adv_svgalib_munmap(void* start, unsigned length);
+
 int ADV_SVGALIB_CALL adv_svgalib_iopl(int perm);
 void* ADV_SVGALIB_CALL adv_svgalib_malloc(unsigned size);
 void* ADV_SVGALIB_CALL adv_svgalib_calloc(unsigned n, unsigned size);

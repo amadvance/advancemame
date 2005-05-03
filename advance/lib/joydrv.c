@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -133,6 +133,7 @@ adv_error joystickb_init(void)
 	log_std(("joystickb: select driver %s\n", joystickb_state.driver_current->name));
 
 	joystickb_state.is_active_flag = 1;
+	joystickb_state.is_enabled_flag = 1;
 
 	return 0;
 }
@@ -146,6 +147,29 @@ void joystickb_done(void)
 
 	joystickb_state.driver_current = 0;
 	joystickb_state.is_active_flag = 0;
+}
+
+adv_error joystickb_enable(void) 
+{
+	assert(joystickb_state.is_active_flag && !joystickb_state.is_enabled_flag);
+
+	if (joystickb_state.driver_current->enable
+		&& joystickb_state.driver_current->enable() != 0)
+		return -1;
+
+	joystickb_state.is_enabled_flag = 1;
+
+	return 0;
+}
+
+void joystickb_disable(void)
+{
+	assert(joystickb_state.is_active_flag && joystickb_state.is_enabled_flag);
+
+	if (joystickb_state.driver_current->disable)
+		joystickb_state.driver_current->disable();
+
+	joystickb_state.is_enabled_flag = 0;
 }
 
 void joystickb_init_null(void)

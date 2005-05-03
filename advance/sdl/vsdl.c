@@ -51,6 +51,11 @@
 
 #include "SDL.h"
 
+/* If defined it ensures to close any screen reference/handle when calling */
+/* the sdl_done() function. It's required to allow to start subprocess */
+/* which need exclusive access at the screen */
+/* #defined USE_VIDEO_RESTORE */
+
 /***************************************************************************/
 /* Options */
 
@@ -115,10 +120,10 @@ static unsigned sdl_mode_flags(void)
 		break;
 #else
 	case adv_output_fullscreen :
-		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* hardware surface */
+		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* use hardware surface */
 		break;
 	case adv_output_overlay :
-		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* hardware surface */
+		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* use hardware surface */
 		break;
 #endif
 	}
@@ -604,6 +609,9 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 		SDL_ShowCursor(SDL_DISABLE);
 		break;
 	}
+
+	/* enable window manager events */
+	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
 
 	log_std(("video:sdl: surface %dx%d\n", (unsigned)sdl_state.surface->w, (unsigned)sdl_state.surface->h));
 	log_std(("video:sdl: surface bit:%d byte:%d %d/%d:%d/%d:%d/%d\n",

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,6 +61,8 @@ typedef struct mouseb_driver_struct {
 
 	adv_error (*init)(int device_id); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
+	adv_error (*enable)(void); /**< Enable the driver */
+	void (*disable)(void); /**< Disable the driver */
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
 
@@ -83,8 +85,9 @@ typedef struct mouseb_driver_struct {
  * State of the driver system.
  */
 struct mouseb_state_struct {
-	adv_bool is_initialized_flag; /**< If the keyb_load() or keyb_default() function was called. */
-	adv_bool is_active_flag; /**< If the keyb_init() function was called. */
+	adv_bool is_initialized_flag; /**< If the mouseb_load() or mouseb_default() function was called. */
+	adv_bool is_active_flag; /**< If the mouseb_init() function was called. */
+	adv_bool is_enabled_flag; /**< If the mouseb_enable() function was called. */	
 	unsigned driver_mac; /**< Number of registered drivers. */
 	mouseb_driver* driver_map[MOUSE_DRIVER_MAX]; /**< Registered drivers. */
 	mouseb_driver* driver_current; /**< Current driver active. 0 if none. */
@@ -110,6 +113,8 @@ adv_error mouseb_load(adv_conf* config_context);
 adv_error mouseb_init(void);
 void mouseb_init_null(void);
 void mouseb_done(void);
+adv_error mouseb_enable(void);
+void mouseb_disable(void);
 void mouseb_abort(void);
 unsigned mouseb_count_get(void);
 unsigned mouseb_axe_count_get(unsigned mouse);

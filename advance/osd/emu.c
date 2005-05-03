@@ -176,7 +176,7 @@ static const mame_game* select_lang(int lang, const mame_game* parent)
 static void version(void)
 {
 	char report_buffer[128];
-	target_out("%s %s\n", ADVANCE_TITLE, VERSION);
+	target_out("%s %s\n", ADV_TITLE, ADV_VERSION);
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__) /* OSDEF Detect compiler version */
 #define COMPILER_RESOLVE(a) #a
 #define COMPILER(a, b, c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
@@ -198,20 +198,20 @@ static void version(void)
 	target_out("\n");
 
 	target_out("Directories:\n");
-#ifdef DATADIR
-	target_out("  Data: %s\n", DATADIR);
+#ifdef ADV_DATADIR
+	target_out("  Data: %s\n", ADV_DATADIR);
 #else
 	target_out("  Data: . (current directory)\n");
 #endif
 	target_out("\n");
 
 	target_out("Configuration (in priority order):\n");
-	if (file_config_file_host(ADVANCE_NAME ".rc") != 0)
-		target_out("  Host configuration file (R): %s\n", file_config_file_host(ADVANCE_NAME ".rc"));
+	if (file_config_file_host(ADV_NAME ".rc") != 0)
+		target_out("  Host configuration file (R): %s\n", file_config_file_host(ADV_NAME ".rc"));
 	target_out("  Command line (R)\n");
-	target_out("  Home configuration file (RW): %s\n", file_config_file_home(ADVANCE_NAME ".rc"));
-	if (file_config_file_data(ADVANCE_NAME ".rc") != 0)
-		target_out("  Data configuration file (R): %s\n", file_config_file_data(ADVANCE_NAME ".rc"));
+	target_out("  Home configuration file (RW): %s\n", file_config_file_home(ADV_NAME ".rc"));
+	if (file_config_file_data(ADV_NAME ".rc") != 0)
+		target_out("  Data configuration file (R): %s\n", file_config_file_data(ADV_NAME ".rc"));
 }
 
 static void help(void)
@@ -221,9 +221,9 @@ static void help(void)
 #else
 	const char* slash = "-";
 #endif
-	target_out(ADVANCE_COPY);
+	target_out(ADV_COPY);
 	target_out("\n");
-	target_out("Usage: %s [options] GAME\n\n", ADVANCE_NAME);
+	target_out("Usage: %s [options] GAME\n\n", ADV_NAME);
 	target_out("Options:\n");
 	target_out("%sdefault        add all the default options at the configuration file\n", slash);
 	target_out("%sremove         remove all the default option from the configuration file\n", slash);
@@ -234,15 +234,15 @@ static void help(void)
 	target_out("%sversion        print the version\n", slash);
 	target_out("\n");
 #ifdef MESS
-	target_out("Example: %s ti99_4a\n", ADVANCE_NAME);
+	target_out("Example: %s ti99_4a\n", ADV_NAME);
 #else
-	target_out("Example: %s polyplay\n", ADVANCE_NAME);
+	target_out("Example: %s polyplay\n", ADV_NAME);
 #endif
 	target_out("\n");
 #if !defined(__MSDOS__) && !defined(__WIN32__)
-	target_out("To get help type 'man %s'.\n", ADVANCE_NAME);
-#ifdef DATADIR
-	target_out("Extensive documentation is located at '%s'\n", DATADIR "/doc");
+	target_out("To get help type 'man %s'.\n", ADV_NAME);
+#ifdef ADV_DATADIR
+	target_out("Extensive documentation is located at '%s'\n", ADV_DATADIR "/doc");
 #endif
 	target_out("\n");
 #endif
@@ -704,7 +704,7 @@ int os_main(int argc, char* argv[])
 	if (opt_cfg) {
 		sncpy(cfg_buffer, sizeof(cfg_buffer), file_config_file_home(opt_cfg));
 	} else {
-		sncpy(cfg_buffer, sizeof(cfg_buffer), file_config_file_home(ADVANCE_NAME ".rc"));
+		sncpy(cfg_buffer, sizeof(cfg_buffer), file_config_file_home(ADV_NAME ".rc"));
 	}
 
 	if (opt_xml) {
@@ -723,20 +723,20 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (opt_log || opt_logsync) {
-		if (log_init(ADVANCE_NAME ".log", opt_logsync) != 0) {
-			target_err("Error opening the log file '" ADVANCE_NAME ".log'.\n");
+		if (log_init(ADV_NAME ".log", opt_logsync) != 0) {
+			target_err("Error opening the log file '" ADV_NAME ".log'.\n");
 			goto err_os;
 		}
 	}
 
-	if (file_config_file_host(ADVANCE_NAME ".rc")!=0) {
-		if (conf_input_file_load_adv(context->cfg, 4, file_config_file_host(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+	if (file_config_file_host(ADV_NAME ".rc")!=0) {
+		if (conf_input_file_load_adv(context->cfg, 4, file_config_file_host(ADV_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
 			goto err_os;
 		}
 	}
 
-	if (file_config_file_data(ADVANCE_NAME ".rc")!=0) {
-		if (conf_input_file_load_adv(context->cfg, 0, file_config_file_data(ADVANCE_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+	if (file_config_file_data(ADV_NAME ".rc")!=0) {
+		if (conf_input_file_load_adv(context->cfg, 0, file_config_file_data(ADV_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
 			goto err_os;
 		}
 	}
@@ -751,7 +751,7 @@ int os_main(int argc, char* argv[])
 		context->global.state.is_config_writable = 1;
 	}
 
-	if (access(file_config_file_home(ADVANCE_NAME ".rc"), F_OK)!=0) {
+	if (access(file_config_file_home(ADV_NAME ".rc"), F_OK)!=0) {
 		target_out("Creating a standard configuration file...\n");
 		advance_fileio_default_dir();
 		conf_set_default_if_missing(context->cfg, "");
@@ -759,7 +759,7 @@ int os_main(int argc, char* argv[])
 		if (conf_save(context->cfg, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
-		target_out("Configuration file `%s' created with all the default options.\n", file_config_file_home(ADVANCE_NAME ".rc"));
+		target_out("Configuration file `%s' created with all the default options.\n", file_config_file_home(ADV_NAME ".rc"));
 
 		/* set the empty section for reading the default options to print */
 		section_map[0] = "";
@@ -778,7 +778,7 @@ int os_main(int argc, char* argv[])
 		if (conf_save(context->cfg, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
-		target_out("Configuration file `%s' updated with all the default options.\n", file_config_file_home(ADVANCE_NAME ".rc"));
+		target_out("Configuration file `%s' updated with all the default options.\n", file_config_file_home(ADV_NAME ".rc"));
 		goto done_os;
 	}
 
@@ -787,7 +787,7 @@ int os_main(int argc, char* argv[])
 		if (conf_save(context->cfg, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
-		target_out("Configuration file `%s' updated with all the default options removed.\n", file_config_file_home(ADVANCE_NAME ".rc"));
+		target_out("Configuration file `%s' updated with all the default options removed.\n", file_config_file_home(ADV_NAME ".rc"));
 		goto done_os;
 	}
 
@@ -801,7 +801,12 @@ int os_main(int argc, char* argv[])
 
 	if (!opt_gamename) {
 		if (!option.playback_file_buffer[0]) {
-			target_err("No game specified on the command line.\n");
+			target_err("No game specified in the command line.\n");
+#if defined(__WIN32__)
+			target_err("You must start this program from a command shell\n");
+			target_err("and specify a game name in the command line.\n");
+			target_err("For example type '" ADV_NAME " polyplay'\n");
+#endif
 			goto err_os;
 		}
 
@@ -893,12 +898,12 @@ int os_main(int argc, char* argv[])
 		goto err_os;
 
 	if (!context->global.config.quiet_flag) {
-		target_nfo(ADVANCE_COPY);
+		target_nfo(ADV_COPY);
 	}
 
 	log_std(("emu: os_inner_init()\n"));
 
-	if (os_inner_init(ADVANCE_TITLE) != 0) {
+	if (os_inner_init(ADV_TITLE) != 0) {
 		goto err_os;
 	}
 
@@ -956,10 +961,10 @@ int os_main(int argc, char* argv[])
 	log_std(("emu: conf_save()\n"));
 
 	/* save the configuration only if modified (force_flag=0), ignore the error but print the messages (if quiet_flag is not 0) */
-	if (access(file_config_file_home(ADVANCE_NAME ".rc"), W_OK)==0) {
+	if (access(file_config_file_home(ADV_NAME ".rc"), W_OK)==0) {
 		conf_save(context->cfg, 0, context->global.config.quiet_flag, error_callback, 0);
 	} else {
-		log_std(("WARNING:emu: configuration file %s not writable\n", file_config_file_home(ADVANCE_NAME ".rc")));
+		log_std(("WARNING:emu: configuration file %s not writable\n", file_config_file_home(ADV_NAME ".rc")));
 	}
 
 	log_std(("emu: conf_done()\n"));

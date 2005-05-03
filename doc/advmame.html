@@ -70,7 +70,7 @@ thread architecture (only for Linux).
 Sound and video recording in WAV, PNG and MNG files.
 </li>
 <li>
-Support for up to 4 mice in Linux and 2 in DOS.
+Multiple mice support in Linux, DOS, Windows 2000 and Windows XP.
 </li>
 <li>
 Automatic exit after some time of inactivity.
@@ -4174,6 +4174,12 @@ using the `-record' or `-playback' command line option due incorrect
 behavior of the emulation. Specifically some implementations may
 depend on the number of audio sample requested, information that
 is not stored in the recorded input file.
+<p>
+Also, the `emulation' mode may trigger some bugs in the MAME
+core.
+<p>
+Anyway, the `emulation' mode generates more stable sound
+if the CPU load isn't totally empty.
 <h3><a name="8.13">8.13</a> 
 LCD Configuration Options
 </h3>
@@ -4816,6 +4822,6 @@ Restart the program.
 <h2><a name="10">10</a> 
 Copyright
 </h2>
-This file is Copyright (C) 2003, 2004 Andrea Mazzoleni, Filipe Estima.
+This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni, Filipe Estima.
 </body>
 </html>

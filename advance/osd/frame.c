@@ -538,7 +538,7 @@ static void vidmode_done(struct advance_video_context* context, adv_bool restore
 	context->state.mode_flag = 0;
 }
 
-static adv_error vidmode_update(struct advance_video_context* context, adv_mode* mode, adv_bool ignore_key)
+static adv_error vidmode_update(struct advance_video_context* context, adv_mode* mode, adv_bool ignore_input)
 {
 	advance_video_invalidate_pipeline(context);
 
@@ -548,7 +548,9 @@ static adv_error vidmode_update(struct advance_video_context* context, adv_mode*
 		if (context->state.mode_flag)
 			vidmode_done(context, 0);
 
-		if (!ignore_key) {
+		if (!ignore_input) {
+			joystickb_disable();
+			mouseb_disable();
 			keyb_disable();
 		}
 
@@ -556,9 +558,20 @@ static adv_error vidmode_update(struct advance_video_context* context, adv_mode*
 			return -1;
 		}
 
-		if (!ignore_key) {
+		if (!ignore_input) {
 			if (keyb_enable(1) != 0) {
 				log_std(("ERROR:emu:video: calling keyb_enable() '%s'\n", error_get()));
+				return -1;
+			}
+			if (mouseb_enable() != 0) {
+				keyb_disable();
+				log_std(("ERROR:emu:video: calling mouseb_enable() '%s'\n", error_get()));
+				return -1;
+			}
+			if (joystickb_enable() != 0) {
+				mouseb_disable();
+				keyb_disable();
+				log_std(("ERROR:emu:video: calling joystickb_enable() '%s'\n", error_get()));
 				return -1;
 			}
 		}

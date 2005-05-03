@@ -241,14 +241,26 @@ static void int_key_done()
 
 static bool int_key_enable()
 {
-	if (keyb_enable(1) != 0)
+	if (keyb_enable(1) != 0) {
 		return false;
+    }		
+	if (mouseb_enable() != 0) {
+	    keyb_disable();
+		return false;
+    }		
+	if (joystickb_enable() != 0) {
+	    mouseb_disable();
+	    keyb_disable();
+		return false;		
+    }		
 
 	return true;
 }
 
 static void int_key_disable()
 {
+    joystickb_disable();
+    mouseb_disable();
 	keyb_disable();
 }
 
@@ -706,6 +718,8 @@ err:
 
 void int_unplug()
 {
+    joystickb_disable();
+    mouseb_disable();
 	keyb_disable();
 	mouseb_done();
 	joystickb_done();
@@ -715,12 +729,26 @@ void int_plug()
 {
 	if (joystickb_init() != 0)
 		joystickb_init_null();
+
 	if (mouseb_init() != 0)
 		mouseb_init_null();
+
 	if (keyb_enable(1) != 0) {
 		keyb_done();
 		keyb_init_null();
 		keyb_enable(1);
+	}
+
+	if (mouseb_enable() != 0) {
+		mouseb_done();
+		mouseb_init_null();
+		mouseb_enable();
+	}
+
+	if (joystickb_enable() != 0) {
+		joystickb_done();
+		joystickb_init_null();
+		joystickb_enable();
 	}
 }
 

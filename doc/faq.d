@@ -33,6 +33,11 @@ AdvanceMAME FAQ
 	:	simulate_event(ui_cancel, 50);
 
 AdvanceMENU FAQ
+  Why the mouse and the joystick don't work ?
+	As default, the mouse and joystick inputs are disabled.
+	To enable them you can use the `device_mouse auto' and
+	`device_joystick auto' options.
+
   I have always the message "Updating the ... information file ..."
 	The information file is recreated if the emulator executable
 	is newer. If this happen all the time, probably you have

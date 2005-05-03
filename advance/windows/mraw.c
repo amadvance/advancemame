@@ -433,23 +433,26 @@ adv_error mouseb_rawinput_enable(void)
 
 	raw_state.window = os_internal_window_get();
 	if (!raw_state.window) {
-		error_set("Error getting the window handle\n");
+	    log_std(("ERROR:mouseb:rawinput: os_internal_window_get() failed with error %d\n", (unsigned)GetLastError()));
+		error_set("Error getting the window handle.\n");
 		return -1;
 	}
 
 	/* grab the window proc */
 	raw_state.proc = (WNDPROC)SetWindowLong(raw_state.window, GWL_WNDPROC, (LONG)mouseb_rawinput_proc);
 	if (!raw_state.proc) {
-		error_set("Error %d setting the window proc for window 0x%x.\n", (unsigned)GetLastError(), (unsigned)raw_state.window);
+	    log_std(("ERROR:mouseb:rawinput: SetWindowLong(0x%x, GWL_WNDPROC) failed with error %d\n", (unsigned)raw_state.window, (unsigned)GetLastError()));
+		error_set("Error setting the window proc.\n");
 		return -1;
 	}
 
 	d[0].usUsagePage = 0x01;
-	d[0].usUsage = 0x02; 
-	d[0].dwFlags = 0; /* use RIDEV_INPUTSINK to capture events also in background */
+	d[0].usUsage = 0x02;
+	d[0].dwFlags = RIDEV_INPUTSINK; /* capture events also in background */
 	d[0].hwndTarget = raw_state.window;
 
 	if (!RegisterRawInputDevices_ptr(d, 1, sizeof(d[0]))) {
+	    log_std(("ERROR:mouseb:rawinput: RegisterRawInputDevices() failed with error %d\n", (unsigned)GetLastError()));
 		error_set("Error registering input.\n");
 		return -1;
 	}

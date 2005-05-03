@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,6 +67,8 @@ typedef struct joystickb_driver_struct {
 
 	adv_error (*init)(int device_id); /**< Initialize the driver */
 	void (*done)(void); /**< Deinitialize the driver */
+	adv_error (*enable)(void); /**< Enable the driver */
+	void (*disable)(void); /**< Disable the driver */	
 
 	unsigned (*flags)(void); /**< Get the capabilities of the driver */
 
@@ -93,6 +95,7 @@ typedef struct joystickb_driver_struct {
 struct joystickb_state_struct {
 	adv_bool is_initialized_flag;
 	adv_bool is_active_flag;
+	adv_bool is_enabled_flag;
 	unsigned driver_mac;
 	joystickb_driver* driver_map[JOYSTICK_DRIVER_MAX];
 	joystickb_driver* driver_current;
@@ -111,6 +114,8 @@ adv_error joystickb_load(adv_conf* config_context);
 adv_error joystickb_init(void);
 void joystickb_init_null(void);
 void joystickb_done(void);
+adv_error joystickb_enable(void);
+void joystickb_disable(void);
 void joystickb_abort(void);
 unsigned joystickb_count_get(void);
 unsigned joystickb_stick_count_get(unsigned joystick);

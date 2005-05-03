@@ -1789,6 +1789,18 @@ These options are used to customize the input drivers.
 <p>
 All the `device_keyboard/joystick/mouse_*' options defined in
 the `advdev.txt' file can be used.
+<p>
+As default the mouse and the joystick support is disabled.
+To enable it you must add the options:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+device_mouse auto
+device_joystick auto
+</pre>
+</td></tr></table>
+<p>
+in your advmenu.rc file.
 <h4><a name="5.4.2">5.4.2</a> 
 mouse_delta
 </h4>
@@ -3061,6 +3073,6 @@ Restart the program.
 <h2><a name="8">8</a> 
 Copyright
 </h2>
-This file is Copyright (C) 2003, 2004 Andrea Mazzoleni, Randy Schnedler.
+This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni, Randy Schnedler.
 </body>
 </html>

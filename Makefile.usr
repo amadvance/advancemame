@@ -38,7 +38,7 @@ prefix=/usr/local
 #   SDL for the sound
 #   SDL for the keyboard
 #   SDL for the joystick
-#   SDL for the mouse
+#   MRAWINPUT, MCPN, SDL for the mouse
 #   none for the Multiprocessor support (no Multiprocessor support)
 #
 #CONF_HOST=linux
@@ -46,6 +46,7 @@ prefix=/usr/local
 #CONF_HOST=windows
 
 # Uncomment and set to "no" to disable some libraries:
+#CONF_LIB_DIRECT=yes
 #CONF_LIB_SVGALIB=yes
 #CONF_LIB_SVGAWIN=yes
 #CONF_LIB_SDL=yes
@@ -62,6 +63,8 @@ prefix=/usr/local
 #CONF_LIB_KEVENT=yes
 #CONF_LIB_JEVENT=yes
 #CONF_LIB_MEVENT=yes
+#CONF_LIB_MRAWINPUT=yes
+#CONF_LIB_MCPN=yes
 
 # Select the optimization flags: (optimized build for Pentium by default)
 # Optimized build for Pentium
@@ -137,6 +140,10 @@ CONF_LIB_EXPAT=yes
 endif
 endif
 
+ifndef CONF_LIB_DIRECT
+CONF_LIB_DIRECT=yes
+endif
+
 ifndef CONF_LIB_SVGALIB
 CONF_LIB_SVGALIB=no
 endif
@@ -199,6 +206,14 @@ endif
 
 ifndef CONF_LIB_MEVENT
 CONF_LIB_MEVENT=yes
+endif
+
+ifndef CONF_LIB_MRAWINPUT
+CONF_LIB_MRAWINPUT=yes
+endif
+
+ifndef CONF_LIB_MCPN
+CONF_LIB_MCPN=yes
 endif
 
 ifndef CONF_CFLAGS_ARCH
@@ -349,9 +364,9 @@ ifeq ($(CONF_BUILD),windows)
 ASM = @nasmw
 EXE_FOR_BUILD = .exe
 CC_FOR_BUILD = @gcc
-LD_FOR_BUILD = @gcc
+LD_FOR_BUILD = @gcc "-LC:\MINGW\LIB" 
 CXX_FOR_BUILD = @g++
-LDXX_FOR_BUILD = @g++
+LDXX_FOR_BUILD = @g++ "-LC:\MINGW\LIB" 
 AR = @ar
 CC = @gcc
 CXX = @g++
@@ -362,7 +377,7 @@ RC = @windres
 SDLCFLAGS = "-IC:\MINGW\INCLUDE" "-IC:\MINGW\INCLUDE\SDL"
 SDLLIBS = "-LC:\MINGW\LIB" -lmingw32 -lSDL -mwindows
 FREETYPECFLAGS = "-IC:\MINGW\INCLUDE" "-IC:\MINGW\INCLUDE\FREETYPE2"
-FREETYPELIBS = "-LC:\MINGW\LIB" -lfreetype -lz
+FREETYPELIBS = -lfreetype -lz
 endif
 
 # No installation with the manual configuration

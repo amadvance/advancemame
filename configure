@@ -6,7 +6,7 @@
 # This configure script is free software; the Free Software Foundation
 # gives unlimited permission to copy, distribute and modify it.
 #
-# Copyright 2004 Andrea Mazzoleni
+# Copyright 2005 Andrea Mazzoleni
 ## --------------------- ##
 ## M4sh Initialization.  ##
 ## --------------------- ##
@@ -310,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os ASMFLAGS CFLAGS_FOR_BUILD EXE CONF_SYSTEM CONF_HOST EXE_FOR_BUILD CONF_BUILD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S AR ac_ct_AR RC ac_ct_RC RM CP MKDIR ECHO TAR GZIP ZIP CC_FOR_BUILD CXX_FOR_BUILD CONF_DEBUG CONF_CFLAGS_OPT CONF_LDFLAGS ASM CONF_CFLAGS_ARCH CONF_EMU CONF_DEBUGGER CPP EGREP ALLOCA CONF_LIB_ZLIB CONF_LIB_EXPAT CONF_LIB_SVGALIB CONF_LIB_FB CONF_LIB_ALSA CONF_LIB_OSS CONF_LIB_PTHREAD CONF_LIB_SLANG CONF_LIB_NCURSES ac_lib_freetype_config FREETYPECFLAGS FREETYPELIBS CONF_LIB_FREETYPE ac_lib_sdl_config SDLCFLAGS SDLLIBS CONF_LIB_SDL CONF_LIB_SVGAWIN CONF_LIB_KRAW CONF_LIB_JRAW CONF_LIB_MRAW CONF_LIB_MEVENT CONF_LIB_KEVENT CONF_LIB_JEVENT LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os ASMFLAGS CFLAGS_FOR_BUILD EXE CONF_SYSTEM CONF_HOST EXE_FOR_BUILD CONF_BUILD CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S AR ac_ct_AR RC ac_ct_RC RM CP MKDIR ECHO TAR GZIP ZIP CC_FOR_BUILD CXX_FOR_BUILD CONF_DEBUG CONF_CFLAGS_OPT CONF_LDFLAGS ASM CONF_CFLAGS_ARCH CONF_EMU CONF_DEBUGGER CPP EGREP ALLOCA CONF_LIB_ZLIB CONF_LIB_EXPAT CONF_LIB_SVGALIB CONF_LIB_FB CONF_LIB_ALSA CONF_LIB_OSS CONF_LIB_PTHREAD CONF_LIB_SLANG CONF_LIB_NCURSES ac_lib_freetype_config FREETYPECFLAGS FREETYPELIBS CONF_LIB_FREETYPE ac_lib_sdl_config SDLCFLAGS SDLLIBS CONF_LIB_SDL CONF_LIB_SVGAWIN CONF_LIB_MRAWINPUT CONF_LIB_MCPN CONF_LIB_KRAW CONF_LIB_JRAW CONF_LIB_MRAW CONF_LIB_MEVENT CONF_LIB_KEVENT CONF_LIB_JEVENT CONF_LIB_DIRECT LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -881,6 +881,10 @@ Optional Features:
   --enable-sdl            enable the use of the SDL library. (default auto)
   --enable-svgawin        enable the use of the SVGAWIN library. (default
                           auto)
+  --enable-mrawinput      enable the use of the Windows Raw input mouse
+                          interface. (default auto)
+  --enable-mcpn           enable the use of the Windows CPN mouse interface.
+                          (default auto)
   --enable-kraw           enable the use of the raw keyboard interface.
                           (default auto)
   --enable-jraw           enable the use of the raw joystick interface.
@@ -1019,7 +1023,7 @@ Copyright (C) 2003 Free Software Foundation, Inc.
 This configure script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it.
 
-Copyright 2004 Andrea Mazzoleni
+Copyright 2005 Andrea Mazzoleni
 _ACEOF
   exit 0
 fi
@@ -7659,6 +7663,7 @@ fi
 
 # Checks for libraries.
 
+ac_lib_direct_flag=no
 ac_lib_video_flag=no
 ac_lib_text_flag=no
 ac_lib_sound_flag=no
@@ -7670,6 +7675,7 @@ if test $ac_system = dos; then
 	ac_lib_keyboard="$ac_lib_keyboard allegro"
 	ac_lib_joystick="$ac_lib_joystick allegro"
 	ac_lib_mouse="$ac_lib_mouse allegro"
+	ac_lib_direct_flag=yes
 	ac_lib_video_flag=yes
 	ac_lib_sound_flag=yes
 	ac_lib_keyboard_flag=yes
@@ -8141,6 +8147,7 @@ if test $ac_lib_svgalib = yes; then
 	ac_lib_keyboard="$ac_lib_keyboard svgalib"
 	ac_lib_mouse="$ac_lib_mouse svgalib"
 	ac_lib_joystick="$ac_lib_joystick svgalib"
+	ac_lib_direct_flag=yes
 	ac_lib_video_flag=yes
 	ac_lib_keyboard_flag=yes
 fi
@@ -8269,6 +8276,7 @@ echo "${ECHO_T}yes" >&6
 fi
 if test $ac_lib_fb = yes; then
 	ac_lib_video="$ac_lib_video fb"
+	ac_lib_direct_flag=yes
 	ac_lib_video_flag=yes
 fi
 CONF_LIB_FB=$ac_lib_fb
@@ -9911,8 +9919,8 @@ if test $ac_lib_svgawin = auto; then
 fi
 if test $ac_lib_svgawin = yes; then
 	if test ! $ac_system = windows; then
-		{ { echo "$as_me:$LINENO: error: the SVGAWIN library not supported in this host" >&5
-echo "$as_me: error: the SVGAWIN library not supported in this host" >&2;}
+		{ { echo "$as_me:$LINENO: error: the SVGAWIN library is not supported in this host" >&5
+echo "$as_me: error: the SVGAWIN library is not supported in this host" >&2;}
    { (exit 1); exit 1; }; }
 	fi
 	if test $ac_lib_sdl = no; then
@@ -9923,9 +9931,68 @@ echo "$as_me: error: the SVGAWIN library requires the SDL library" >&2;}
 fi
 if test $ac_lib_svgawin = yes; then
 	ac_lib_video="$ac_lib_video svgawin"
+	ac_lib_direct_flag=yes
 	ac_lib_video_flag=yes
 fi
 CONF_LIB_SVGAWIN=$ac_lib_svgawin
+
+
+# Checks for mrawinput
+# Check whether --enable-mrawinput or --disable-mrawinput was given.
+if test "${enable_mrawinput+set}" = set; then
+  enableval="$enable_mrawinput"
+  ac_lib_mrawinput=$enableval
+else
+  ac_lib_mrawinput=auto
+
+fi;
+if test $ac_lib_mrawinput = auto; then
+	if test $ac_system = windows; then
+		ac_lib_mrawinput=yes
+	else
+		ac_lib_mrawinput=no
+	fi
+fi
+if test $ac_lib_mrawinput = yes; then
+	if test ! $ac_system = windows; then
+		{ { echo "$as_me:$LINENO: error: the rawinput library is not supported in this host" >&5
+echo "$as_me: error: the rawinput library is not supported in this host" >&2;}
+   { (exit 1); exit 1; }; }
+	fi
+fi
+if test $ac_lib_mrawinput = yes; then
+	ac_lib_mouse="$ac_lib_mouse rawinput"
+fi
+CONF_LIB_MRAWINPUT=$ac_lib_mrawinput
+
+
+# Checks for mcpn
+# Check whether --enable-mcpn or --disable-mcpn was given.
+if test "${enable_mcpn+set}" = set; then
+  enableval="$enable_mcpn"
+  ac_lib_mcpn=$enableval
+else
+  ac_lib_mcpn=auto
+
+fi;
+if test $ac_lib_mcpn = auto; then
+	if test $ac_system = windows; then
+		ac_lib_mcpn=yes
+	else
+		ac_lib_mcpn=no
+	fi
+fi
+if test $ac_lib_mcpn = yes; then
+	if test ! $ac_system = windows; then
+		{ { echo "$as_me:$LINENO: error: the cpn library is not supported in this host" >&5
+echo "$as_me: error: the cpn library is not supported in this host" >&2;}
+   { (exit 1); exit 1; }; }
+	fi
+fi
+if test $ac_lib_mcpn = yes; then
+	ac_lib_mouse="$ac_lib_mouse cpn"
+fi
+CONF_LIB_MCPN=$ac_lib_mcpn
 
 
 # Checks for kraw
@@ -10701,6 +10768,8 @@ CONF_LIB_JEVENT=$ac_lib_jevent
 
 
 # Final
+CONF_LIB_DIRECT=$ac_lib_direct
+
           ac_config_files="$ac_config_files Makefile"
 
 cat >confcache <<\_ACEOF
@@ -11384,12 +11453,15 @@ s,@SDLCFLAGS@,$SDLCFLAGS,;t t
 s,@SDLLIBS@,$SDLLIBS,;t t
 s,@CONF_LIB_SDL@,$CONF_LIB_SDL,;t t
 s,@CONF_LIB_SVGAWIN@,$CONF_LIB_SVGAWIN,;t t
+s,@CONF_LIB_MRAWINPUT@,$CONF_LIB_MRAWINPUT,;t t
+s,@CONF_LIB_MCPN@,$CONF_LIB_MCPN,;t t
 s,@CONF_LIB_KRAW@,$CONF_LIB_KRAW,;t t
 s,@CONF_LIB_JRAW@,$CONF_LIB_JRAW,;t t
 s,@CONF_LIB_MRAW@,$CONF_LIB_MRAW,;t t
 s,@CONF_LIB_MEVENT@,$CONF_LIB_MEVENT,;t t
 s,@CONF_LIB_KEVENT@,$CONF_LIB_KEVENT,;t t
 s,@CONF_LIB_JEVENT@,$CONF_LIB_JEVENT,;t t
+s,@CONF_LIB_DIRECT@,$CONF_LIB_DIRECT,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
@@ -11906,13 +11978,18 @@ fi
 
 echo ""
 echo "== Drivers/Libraries =="
-echo "Video :" $ac_lib_video
+if test $ac_lib_direct_flag = no ; then
+	echo "Video :" $ac_lib_video
+	echo "(No video driver is capable to program directly your video board."
+	echo "You will not be able to use not standard video modes.)"
+else
+	echo "Video :" $ac_lib_video
+fi
 echo "Sound :" $ac_lib_sound
 echo "Keyboard :" $ac_lib_keyboard
 echo "Joystick :" $ac_lib_joystick
 echo "Mouse :" $ac_lib_mouse
 echo "Misc :" $ac_lib_other
-echo ""
 
 if test $ac_enable_debug = no ; then
 	if test $ac_lib_video_flag = no; then
@@ -11929,8 +12006,8 @@ echo "$as_me: error: no sound library found" >&2;}
 		{ echo "$as_me:$LINENO: WARNING: no text video mode library found. The advv/advcfg utilities will not work!" >&5
 echo "$as_me: WARNING: no text video mode library found. The advv/advcfg utilities will not work!" >&2;}
 	fi
-	echo ""
 fi
+echo ""
 
 echo "== Compiler =="
 echo "CC :" $CC

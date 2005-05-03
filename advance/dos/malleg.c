@@ -223,6 +223,8 @@ mouseb_driver mouseb_allegro_driver = {
 	mouseb_allegro_reg,
 	mouseb_allegro_init,
 	mouseb_allegro_done,
+	0,
+	0,
 	mouseb_allegro_flags,
 	mouseb_allegro_count_get,
 	mouseb_allegro_axe_count_get,

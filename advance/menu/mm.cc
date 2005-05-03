@@ -385,7 +385,7 @@ int run_all(adv_conf* config_context, config_state& rs)
 static void version(void)
 {
 	char report_buffer[128];
-	target_out("AdvanceMENU %s\n", VERSION);
+	target_out("AdvanceMENU %s\n", ADV_VERSION);
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__) /* OSDEF Detect compiler version */
 #define COMPILER_RESOLVE(a) #a
 #define COMPILER(a, b, c) COMPILER_RESOLVE(a) "." COMPILER_RESOLVE(b) "." COMPILER_RESOLVE(c)
@@ -407,8 +407,8 @@ static void version(void)
 	target_out("\n");
 
 	target_out("Directories:\n");
-#ifdef DATADIR
-	target_out("  Data: %s\n", DATADIR);
+#ifdef ADV_DATADIR
+	target_out("  Data: %s\n", ADV_DATADIR);
 #else
 	target_out("  Data: . (current directory)\n");
 #endif
@@ -430,7 +430,7 @@ static void help(void)
 #else
 	const char* slash = "-";
 #endif
-	target_out(ADVANCE_COPY);
+	target_out(ADV_COPY);
 	target_out("\n");
 	target_out("Usage: advmenu [options]\n\n");
 	target_out("Options:\n");

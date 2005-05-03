@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -133,6 +133,7 @@ adv_error mouseb_init(void)
 	log_std(("mouseb: select driver %s\n", mouseb_state.driver_current->name));
 
 	mouseb_state.is_active_flag = 1;
+	mouseb_state.is_enabled_flag = 0;
 
 	return 0;
 }
@@ -146,6 +147,29 @@ void mouseb_done(void)
 
 	mouseb_state.driver_current = 0;
 	mouseb_state.is_active_flag = 0;
+}
+
+adv_error mouseb_enable(void) 
+{
+	assert(mouseb_state.is_active_flag && !mouseb_state.is_enabled_flag);
+
+	if (mouseb_state.driver_current->enable 
+		&& mouseb_state.driver_current->enable() != 0)
+		return -1;
+
+	mouseb_state.is_enabled_flag = 1;
+
+	return 0;
+}
+
+void mouseb_disable(void)
+{
+	assert(mouseb_state.is_active_flag && mouseb_state.is_enabled_flag);
+
+	if (mouseb_state.driver_current->disable)
+		mouseb_state.driver_current->disable();
+
+	mouseb_state.is_enabled_flag = 0;
 }
 
 void mouseb_init_null(void)

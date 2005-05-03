@@ -293,10 +293,15 @@ bool emulator::run_process(time_t& duration, const string& dir, int argc, const 
 
 	string olddir = dir_cwd();
 
+	log_std(("menu: cwd '%s'\n", cpath_export(olddir)));
+
+#ifdef USE_CHDIR_BEFORE_RUN
+	log_std(("menu: chdir '%s'\n", cpath_export(dir)));
 	if (chdir(cpath_export(dir))!=0) {
 		log_std(("menu: run error chdir '%s'\n", cpath_export(dir)));
 		return false;
 	}
+#endif
 
 	ostringstream cmdline;
 	for(int i=0;i<argc;++i) {
@@ -310,6 +315,7 @@ bool emulator::run_process(time_t& duration, const string& dir, int argc, const 
 			cmdline << argv[i];
 		}
 	}
+
 	log_std(("menu: run '%s'\n", cmdline.str().c_str()));
 
 	start = time(0);
@@ -330,7 +336,10 @@ bool emulator::run_process(time_t& duration, const string& dir, int argc, const 
 
 	int_idle_time_reset();
 
-	chdir(cpath_export(olddir));
+	log_std(("menu: chdir '%s'\n", cpath_export(olddir)));
+	if (chdir(cpath_export(olddir)) != 0) {
+		log_std(("ERROR:menu: chdir '%s' failed\n", cpath_export(olddir)));
+	}
 
 	return result;
 }
@@ -396,7 +405,7 @@ bool emulator::run(const game& g, const game* bios, unsigned orientation, bool s
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
-	argv[argc++] = strdup(cpath_export(file_file(config_exe_path_get())));
+	argv[argc++] = strdup(cpath_export(config_exe_path_get()));
 	argc = compile(g, argv, argc, user_cmd_arg, orientation);
 	argv[argc] = 0;
 
@@ -1091,7 +1100,7 @@ bool mame_mame::run(const game& g, const game* bios, unsigned orientation, bool 
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
-	argv[argc++] = strdup(cpath_export(file_file(config_exe_path_get())));
+	argv[argc++] = strdup(cpath_export(config_exe_path_get()));
 	argc = compile(g, argv, argc, "%s", orientation);
 
 	if (support_difficulty && set_difficulty) {
@@ -1903,7 +1912,7 @@ bool dmess::run(const game& g, const game* bios, unsigned orientation, bool set_
 		snapshot_rename_dir = slash_add(dir) + bios->name_without_emulator_get();
 		image_rename_file = snapshot_rename_dir + "/" + stripped_name + ".png";
 
-		argv[argc++] = strdup(cpath_export(file_file(config_exe_path)));
+		argv[argc++] = strdup(cpath_export(config_exe_path));
 		argv[argc++] = strdup(bios->name_without_emulator_get().c_str());
 
 		if (g.flag_get(flag_derived_alias)) {
@@ -1925,7 +1934,7 @@ bool dmess::run(const game& g, const game* bios, unsigned orientation, bool set_
 			argv[argc++] = strdup(rom.c_str());
 		}
 	} else {
-		argv[argc++] = strdup(cpath_export(file_file(config_exe_path)));
+		argv[argc++] = strdup(cpath_export(config_exe_path));
 		argv[argc++] = strdup(g.name_without_emulator_get().c_str());
 	}
 
@@ -2309,7 +2318,7 @@ bool advmess::run(const game& g, const game* bios, unsigned orientation, bool se
 		log_std(("%s: clip path %s\n", user_name_get().c_str(), cpath_export(clip_create_file)));
 		log_std(("%s: sound path %s\n", user_name_get().c_str(), cpath_export(sound_create_file)));
 
-		argv[argc++] = strdup(cpath_export(file_file(config_exe_path)));
+		argv[argc++] = strdup(cpath_export(config_exe_path));
 		argv[argc++] = strdup(bios->name_without_emulator_get().c_str());
 
 		// default rom (without extension)
@@ -2333,7 +2342,7 @@ bool advmess::run(const game& g, const game* bios, unsigned orientation, bool se
 
 		}
 	} else {
-		argv[argc++] = strdup(cpath_export(file_file(config_exe_path)));
+		argv[argc++] = strdup(cpath_export(config_exe_path));
 		argv[argc++] = strdup(g.name_without_emulator_get().c_str());
 	}
 
@@ -2782,7 +2791,7 @@ bool draine::run(const game& g, const game* bios, unsigned orientation, bool set
 	const char* argv[TARGET_MAXARG];
 	unsigned argc = 0;
 
-	argv[argc++] = strdup(cpath_export(file_file(config_exe_path_get())));
+	argv[argc++] = strdup(cpath_export(config_exe_path_get()));
 	argv[argc++] = strdup("-game");
 	argv[argc++] = strdup(g.name_without_emulator_get().c_str());
 	argv[argc++] = strdup("-nogui");

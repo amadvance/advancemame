@@ -430,6 +430,8 @@ joystickb_driver joystickb_allegro_driver = {
 	joystickb_allegro_reg,
 	joystickb_allegro_init,
 	joystickb_allegro_done,
+	0,
+	0,
 	joystickb_allegro_flags,
 	joystickb_allegro_count_get,
 	joystickb_allegro_stick_count_get,

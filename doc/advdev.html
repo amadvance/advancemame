@@ -138,6 +138,15 @@ and keyboard drivers used by the Advance programs.
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#3.3.5">3.3.5 allegro - Allegro mouse (DOS)</a><br>
 </td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#3.3.6">3.3.6 rawinput - Raw input interface (Windows)</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#3.3.7">3.3.7 Please note that this driver is not intented to be used in a window environment. The application takes the control of the mouse and doesn't allow to switch to other applications. It's mainly intented for a fullscreen environment.</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#3.3.8">3.3.8 cpn - CPN custom driver interface (Windows)</a><br>
+</td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#4">4 Video Drivers Configuration</a><br>
 </td></tr>
@@ -628,7 +637,8 @@ on the gas control of the game.
 <p>
 It can also be used with some custom devices connected at the
 Parallel Port. Details on how to build these custom interfaces are
-in the <a href="file:///usr/src/linux/Documentation/input/joystick-parport.txt">file:///usr/src/linux/Documentation/input/joystick-parport.txt</a> file.
+in the <a href="file:///usr/src/linux/Documentation/input/joystick-parport.txt">file:///usr/src/linux/Documentation/input/joystick-parport.txt</a>
+file.
 <p>
 It has a special support for the ACT Light-gun to fix the wrong
 behavior of the light-gun when shooting out of screen.
@@ -708,7 +718,7 @@ The mice are searched on the /dev/input/eventX devices.
 raw - Serial mouse (Linux)
 </h4>
 This driver works in Linux and it communicates directly with
-the configured serial mice. It's also support USB mice
+the configured serial mice. It also supports USB mice
 using the Linux mousedev module which maps mice to the
 /dev/input/mouseX devices.
 <p>
@@ -743,6 +753,47 @@ This driver works in DOS and it uses the Allegro library.
 <p>
 It supports up to 2 mice at the same time using the
 special `optimous' driver present in the `contrib/' directory.
+<h4><a name="3.3.6">3.3.6</a> 
+rawinput - Raw input interface (Windows)
+</h4>
+This driver works in Windows XP using the raw input interface.
+<p>
+It supports more than one mouse at the same time.
+<p>
+For any mouse up to two axes, one wheel and five buttons
+are supported.
+<p>
+This driver is the preferred choice for Windows XP.
+<h4><a name="3.3.7">3.3.7</a> 
+Please note that this driver is not intented to be used in a window
+environment. The application takes the control of the mouse and
+doesn't allow to switch to other applications. It's mainly intented
+for a fullscreen environment.
+</h4>
+<h4><a name="3.3.8">3.3.8</a> 
+cpn - CPN custom driver interface (Windows)
+</h4>
+This driver works in Windows 2000/XP using the custom CPN
+mouse driver.
+<p>
+It supports more than one mouse at the same time.
+<p>
+For any mouse up to two axes, and three buttons are supported.
+<p>
+The CPN mouse driver is available at:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<a href="http://cpnmouse.sourceforge.net/">http://cpnmouse.sourceforge.net/</a>
+<br>
+</td></tr></table>
+<p>
+and in the `contrib/cpn' directory. Check the `install'
+and `unknown' files for install instructions.
+<p>
+Please note that this driver is not intented to be used in a window
+environment. The application takes the control of the mouse and
+doesn't allow to switch to other applications. It's mainly intented
+for a fullscreen environment.
 <h2><a name="4">4</a> 
 Video Drivers Configuration
 </h2>
@@ -842,6 +893,18 @@ svgaline
 SVGA generated graphics modes.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgaline/nv3_leg
+</em></td><td width="90%">
+SVGA legacy driver for nVidia boards.
+If the new driver doesn't work try this one.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgaline/savage_leg
+</em></td><td width="90%">
+SVGA legacy driver for S3 boards.
+If the new driver doesn't work try this one.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 vbeline
 </em></td><td width="90%">
 VBE generated graphics modes.
@@ -869,6 +932,18 @@ need to install the `svgawin.sys' driver with the
 `svgawin.exe' command line utility.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/nv3_leg
+</em></td><td width="90%">
+SVGA legacy driver for nVidia boards.
+If the new driver doesn't work try this one.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+svgawin/savage_leg
+</em></td><td width="90%">
+SVGA legacy driver for S3 boards.
+If the new driver doesn't work try this one.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 sdl
 </em></td><td width="90%">
 SDL graphics and fake text modes.
@@ -884,8 +959,10 @@ You can force the detection of a specific model of video board
 adding the name of the model driver after the driver name using
 the `/' separator. For example to force the `vbe3' model
 detection of the `vbeline' driver you must specify
-`vbeline/vbe3'. A complete list of all the available model is in
-the `card*.txt' files.
+`vbeline/vbe3'.
+<p>
+To get the list of all the available models try using the
+`help' model name. A short help will be printed.
 <p>
 Please note that forcing a specific video driver is discouraged.
 Generally you don't need it.
@@ -952,15 +1029,15 @@ color format used is YUY2.
 </td></tr>
 </table>
 <p>
-Please note that with the zoom mode, if the original image is in the
-RGB format instead of a palette format, the program
+Please note that with overlay mode, if the original image is
+in the RGB format instead of a palette format, the program
 needs to convert it to the YUY2 format before displaying it.
 It requires some time.
 <h4><a name="4.1.3">4.1.3</a> 
 device_video_overlaysize
 </h4>
-Select the favorite horizontal size to use with the `overlay' output
-mode. The program selects the nearest available video mode.
+Select the favorite horizontal size to use with the `overlay'
+output mode. The program selects the nearest available video mode.
 <p>
 device_video_overlaysize SIZE
 <p>
@@ -2360,6 +2437,6 @@ device_raw_mousedev[1] /dev/ttyS2
 <h2><a name="7">7</a> 
 Copyright
 </h2>
-This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
+This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni.
 </body>
 </html>

@@ -96,6 +96,8 @@ static void __cdecl mouseb_callback(int number, signed int dx, signed int dy, un
 {
 	unsigned i;
 	struct raw_context* c;
+	POINT p;
+	unsigned flags;
 
 	log_debug(("mouseb:cpn: callback number:%d,dx,%d,dy:%d,buttons:0x%x,suspend:%d\n", number, dx, dy, buttons, suspended));
 
@@ -202,6 +204,8 @@ static DWORD WINAPI mouseb_thread(void* arg)
 
 	/* allocate */
 	lRegisterCallback(mouseb_callback);
+	
+	log_std(("mouseb:cpn: lRegisterCallback() completed\n"));
 
 	n = lGetMice(RAW_MOUSE_MAX);
 
@@ -216,14 +220,19 @@ static DWORD WINAPI mouseb_thread(void* arg)
 
 			context->number = i + 1;
 
-			if (!lHasMouse(i + 1)) {
+			if (!lHasMouse(context->number)) {
+			    log_std(("WARNING:mouseb:cpn: lHasMouse(%d) failed\n", context->number));
 				continue;
 			}
 
 			name = lGetDevicePath(context->number);
 			if (!name || !name[0]) {
+			    log_std(("WARNING:mouseb:cpn: lGetDevicePath(%d) failed\n", context->number));
 				continue;
 			}
+
+            /* suspend the mouse to allow Windows to get events */
+            lSuspendMouse(context->number);
 
 			memset(context->name, 0, sizeof(context->name));
 			strncpy(context->name, name, sizeof(context->name) - 1);
@@ -273,8 +282,12 @@ static DWORD WINAPI mouseb_thread(void* arg)
 
 	/* deallocate */
 	lUnGetAllMice();
+	
+	log_std(("mouseb:cpn: lUnGetAllMice() completed\n"));
 
 	lUnRegisterCallback();
+	
+	log_std(("mouseb:cpn: lUnRegisterCallback() completed\n"));
 
 	return 0;
 }

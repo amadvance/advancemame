@@ -840,6 +840,8 @@ joystickb_driver joystickb_event_driver = {
 	joystickb_event_reg,
 	joystickb_event_init,
 	joystickb_event_done,
+	0,
+	0,
 	joystickb_event_flags,
 	joystickb_event_count_get,
 	joystickb_event_stick_count_get,

@@ -44,7 +44,7 @@ The major features are:
 * Support of Symmetric Multi-Processing (SMP) with a multiple
   thread architecture (only for Linux).
 * Sound and video recording in WAV, PNG and MNG files.
-* Support for up to 4 mice in Linux and 2 in DOS.
+* Multiple mice support in Linux, DOS, Windows 2000 and Windows XP.
 * Automatic exit after some time of inactivity.
 * Scripts capabilities to drive external hardware devices
   like LCDs and lights.
@@ -2061,6 +2061,12 @@ behavior of the emulation. Specifically some implementations may
 depend on the number of audio sample requested, information that
 is not stored in the recorded input file.
 
+Also, the `emulation' mode may trigger some bugs in the MAME
+core.
+
+Anyway, the `emulation' mode generates more stable sound
+if the CPU load isn't totally empty.
+
 8.13 LCD Configuration Options
 ------------------------------
 
@@ -2383,4 +2389,4 @@ The program intercepts the following signals:
 10 COPYRIGHT
 ============
 
-This file is Copyright (C) 2003, 2004 Andrea Mazzoleni, Filipe Estima.
+This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni, Filipe Estima.

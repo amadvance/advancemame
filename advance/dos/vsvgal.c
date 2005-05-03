@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ static adv_device DEVICE[] = {
 	{ "nv3", 0, "nVidia Riva/GeForce" },
 #endif
 #ifdef INCLUDE_NV3_DRIVER
-	{ "nv3_19", 1, "nVidia Riva/GeForce (SVGALIB 1.9.19)" },
+	{ "nv3_leg", 1, "nVidia Riva/GeForce (SVGALIB 1.9.19)" },
 #endif
 #ifdef INCLUDE_TRIDENT_DRIVER
 	{ "trident", 2, "Trident" },
@@ -106,7 +106,7 @@ static adv_device DEVICE[] = {
 	{ "savage", 7, "S3 Savage" },
 #endif
 #ifdef INCLUDE_SAVAGE_DRIVER
-	{ "savage_18", 8, "S3 Savage (SVGALIB 1.9.18)" },
+	{ "savage_leg", 8, "S3 Savage (SVGALIB 1.9.18)" },
 #endif
 #ifdef INCLUDE_MILLENNIUM_DRIVER
 	{ "millenium", 9, "Matrox Millennium/Millenium II" },

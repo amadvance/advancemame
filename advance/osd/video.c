@@ -796,14 +796,28 @@ int osd2_video_init(struct osd_video_option* req)
 
 	/* enable the keyboard input. It must be done after the video mode set. */
 	if (keyb_enable(1) != 0) {
-		context->config.restore_flag = 1; /* force a video mode restore */
+		goto err;
+	}
 
-		advance_video_mode_done(context);
-		target_err("%s\n", error_get());
-		return -1;
+	if (mouseb_enable() != 0) {
+		keyb_disable();
+		goto err;
+	}
+
+	if (joystickb_enable() != 0) {
+		mouseb_disable();
+		keyb_disable();
+		goto err;
 	}
 
 	return 0;
+
+err:
+	context->config.restore_flag = 1; /* force a video mode restore */
+
+	advance_video_mode_done(context);
+	target_err("%s\n", error_get());
+	return -1;
 }
 
 void osd2_video_done(void)
@@ -817,6 +831,8 @@ void osd2_video_done(void)
 	hardware_script_terminate(HARDWARE_SCRIPT_EMULATION);
 	hardware_script_terminate(HARDWARE_SCRIPT_VIDEO);
 
+	joystickb_disable();
+	mouseb_disable();
 	keyb_disable();
 
 	advance_video_mode_done(context);
@@ -1472,10 +1488,10 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 #endif
 
 	i = conf_int_get_default(cfg_context, "sync_resample");
-	if (i == 0)
-		context->config.internalresample_flag = 0;
+	if (i==1 || i==-1)
+		context->config.internalresample_flag = 1; /* internal resampling */
 	else
-		context->config.internalresample_flag = 1;
+		context->config.internalresample_flag = 0; /* emulation resampling */
 
 	/* load context->config.monitor config */
 	err = monitor_load(cfg_context, &context->config.monitor);

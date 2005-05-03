@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,8 @@
 /**
  * Register all the mouse drivers.
  * The drivers are registered on the basis of the following defines:
+ *  - USE_MOUSE_RAWINPUT
+ *  - USE_MOUSE_CPN
  *  - USE_MOUSE_SDL
  *  - USE_MOUSE_EVENT
  *  - USE_MOUSE_SVGALIB
@@ -45,6 +47,13 @@
  */
 void mouseb_reg_driver_all(adv_conf* context)
 {
+	/* the order is also the detection precedence */
+#ifdef USE_MOUSE_RAWINPUT
+	mouseb_reg_driver(context, &mouseb_rawinput_driver);
+#endif
+#ifdef USE_MOUSE_CPN
+	mouseb_reg_driver(context, &mouseb_cpn_driver);
+#endif
 #ifdef USE_MOUSE_SDL
 	mouseb_reg_driver(context, &mouseb_sdl_driver);
 #endif
@@ -72,6 +81,14 @@ void mouseb_reg_driver_all(adv_conf* context)
 void mouseb_report_driver_all(char* s, unsigned size)
 {
 	*s = 0;
+
+	/* the order is not relevant */
+#ifdef USE_MOUSE_RAWINPUT
+	sncat(s, size, " rawinput");
+#endif
+#ifdef USE_MOUSE_CPN
+	sncat(s, size, " cpn");
+#endif
 #ifdef USE_MOUSE_EVENT
 	sncat(s, size, " event");
 #endif
