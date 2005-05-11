@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMESS Version 0.96.0.0 2005/05
+	) Based on MAME 0.96 and AdvanceMAME 0.96.0.
+
 AdvanceMAME Version 0.96.0 2005/05
 	) Improved the support for low clocks of the SVGALIB
 		nVidia driver for DOS and Windows.

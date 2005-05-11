@@ -87,13 +87,14 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_DISABLE))
 diff -U 5 --new-file --recursive src.ori/drivers/lockon.c src/drivers/lockon.c
 --- src.ori/drivers/lockon.c	2005-05-01 21:25:00.000000000 +0200
-+++ src/drivers/lockon.c	2005-05-03 21:46:09.000000000 +0200
-@@ -93,11 +93,12 @@
++++ src/drivers/lockon.c	2005-05-04 07:03:02.000000000 +0200
+@@ -92,12 +92,12 @@
+ 
          // Bits 12,13,14 = bank
          // Bits 0-11 obj
          for(index_y=0; index_y<8; index_y++)
          {
- 
+-
 -        for(int index_x=0; index_x<8; index_x++)
 +        int index_x;
 +        for(index_x=0; index_x<8; index_x++)

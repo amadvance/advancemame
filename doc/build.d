@@ -188,7 +188,7 @@ Requirements
   Linux
 	To build in Linux you need the following software:
 		:Linux 2.4.0 (or newer)
-		:GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.4 (or newer)
+		:GNU gcc C/C++ 3.2.3 or 3.3.4 (or newer)
 		:GNU make 3.79.1 (or newer)
 
 	The following software is also used if present:
@@ -201,7 +201,7 @@ Requirements
 		:zlib 1.1.4 (or newer)
 		:expat 1.95.6 (or newer)
 
-	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.4.
+	The suggested gcc compiler versions are 3.2.3 and 3.3.4.
 	The versions 2.96.x, 3.0.x don't work. Other versions should work.
 
 	The SVGALIB 1.4.x versions are NOT supported. Download the latest
@@ -218,7 +218,7 @@ Requirements
   Mac OS X
 	To build in Mac OS X and other Unix you need the following
 	software:
-		:GNU gcc C/C++ 2.95.3 (or newer)
+		:GNU gcc C/C++ 3.2.3 (or newer)
 		:GNU make 3.79.1 (or newer)
 		:SDL 1.2.4 (or newer)
 
@@ -241,7 +241,7 @@ Requirements
   DOS
 	To build in DOS you need the following software:
 		:DJGPP development kit 2.03 (or never) [djdev*.zip]
-		:DJGPP GNU gcc C/C++ 2.95.3 or 3.2.3 or 3.3.4 [gcc*b.zip gpp*b.zip]
+		:DJGPP GNU gcc C/C++ 3.2.3 or 3.3.4 [gcc*b.zip gpp*b.zip]
 		:DJGPP GNU make 3.79.1 (or newer) [mak*b.zip]
 		:DJGPP GNU binutils [bnu*b.zip]
 		:DJGPP GNU fileutils [fil*b.zip]
@@ -252,10 +252,10 @@ Requirements
 		:SEAL 1.0.7 + MAME patch
 		:FreeType 2.1.7 (or newer)
 
-	The suggested gcc compiler versions are 2.95.3, 3.2.3 and 3.3.4.
-	The versions 3.0.x don't work. The versions 3.4.x may have some
+	The suggested gcc compiler versions are 3.2.3 and 3.3.4.
+	The versions 3.0.x don't work. The version 3.4.x may have some
 	problems related to the new "unit-at-a-time" compilation,
-	don't use them, or disable this feature with the option
+	don't use it, or disable this feature with the option
 	-fnounit-at-a-time. Other versions should work.
 
 	The patched SEAL library is available at http://www.mame.net/.
@@ -280,18 +280,18 @@ Requirements
   Windows
 	To build in Windows you need the following software:
 		:MINGW 1.1 (or newer)
-		:MINGW GNU gcc C/C++ 2.95.3 (or never)
+		:MINGW GNU gcc C/C++ 3.2.3 (or never)
 		:NASM 0.98.33 (or newer)
 		:SDL 1.2.4 (or newer)
 		:FreeType 2.1.7 (or newer)
 
-	The only tested compiler version is 2.95.3. Other versions
+	The only tested compiler version is 3.2.3. Other versions
 	should work.
 
   Generic Unix
 	To build in a generic Unix environment you need the following
 	software:
-		:GNU gcc C/C++ 2.95.3 (or newer)
+		:GNU gcc C/C++ 3.2.3 (or newer)
 		:GNU make 3.79.1 (or newer)
 		:SDL 1.2.4 (or newer)
 

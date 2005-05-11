@@ -623,6 +623,11 @@ void osd_begin_final_unloading(void)
 	log_std(("osd: osd_begin_final_unloading()\n"));
 }
 
+void osd_config_save_xml(int type, struct _mame_file *file)
+{
+	log_std(("osd: osd_config_save_xml(type:%d,file:%p)\n", type, file));
+}
+
 #endif
 
 /***************************************************************************/

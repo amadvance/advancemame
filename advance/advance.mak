@@ -427,6 +427,9 @@ wholemess: messdif
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=windows CONF_EMU=mess distbin
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=dos CONF_EMU=mess distbin
 
+dosmess:
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=dos CONF_EMU=mess distbin
+
 winmess:
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=windows CONF_EMU=mess distbin
 

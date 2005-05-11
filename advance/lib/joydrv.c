@@ -133,7 +133,7 @@ adv_error joystickb_init(void)
 	log_std(("joystickb: select driver %s\n", joystickb_state.driver_current->name));
 
 	joystickb_state.is_active_flag = 1;
-	joystickb_state.is_enabled_flag = 1;
+	joystickb_state.is_enabled_flag = 0;
 
 	return 0;
 }

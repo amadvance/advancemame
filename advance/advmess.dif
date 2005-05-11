@@ -1,13 +1,13 @@
 diff -U 5 --new-file --recursive srcmess.ori/advance.pat srcmess/advance.pat
 --- srcmess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ srcmess/advance.pat	2005-03-30 20:17:09.000000000 +0200
++++ srcmess/advance.pat	2005-05-04 18:23:44.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive srcmess.ori/common.c srcmess/common.c
---- srcmess.ori/common.c	2005-03-27 15:42:10.000000000 +0200
-+++ srcmess/common.c	2005-03-30 20:17:09.000000000 +0200
+--- srcmess.ori/common.c	2005-05-02 21:40:40.000000000 +0200
++++ srcmess/common.c	2005-05-03 20:38:59.000000000 +0200
 @@ -593,10 +593,11 @@
- 	the given filename
+     the given filename
  -------------------------------------------------*/
  
  void save_screen_snapshot_as(mame_file *fp, struct mame_bitmap *bitmap)
@@ -30,7 +30,7 @@ diff -U 5 --new-file --recursive srcmess.ori/common.c srcmess/common.c
  
  
  /*-------------------------------------------------
- 	save_screen_snapshot - save a screen snapshot
+     save_screen_snapshot - save a screen snapshot
  -------------------------------------------------*/
  
  void save_screen_snapshot(struct mame_bitmap *bitmap)
@@ -69,8 +69,8 @@ diff -U 5 --new-file --recursive srcmess.ori/common.c srcmess/common.c
  		{
  			int k;
 diff -U 5 --new-file --recursive srcmess.ori/cpuexec.c srcmess/cpuexec.c
---- srcmess.ori/cpuexec.c	2005-03-27 15:42:36.000000000 +0200
-+++ srcmess/cpuexec.c	2005-03-30 20:17:09.000000000 +0200
+--- srcmess.ori/cpuexec.c	2005-05-02 21:40:40.000000000 +0200
++++ srcmess/cpuexec.c	2005-05-04 18:23:44.000000000 +0200
 @@ -323,10 +323,13 @@
  	watchdog_setup();
  
@@ -86,9 +86,9 @@ diff -U 5 --new-file --recursive srcmess.ori/cpuexec.c srcmess/cpuexec.c
  		/* enable all CPUs (except for disabled CPUs) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_DISABLE))
 diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
---- srcmess.ori/inptport.c	2005-03-27 15:42:14.000000000 +0200
-+++ srcmess/inptport.c	2005-03-30 20:17:09.000000000 +0200
-@@ -928,26 +928,21 @@
+--- srcmess.ori/inptport.c	2005-05-02 21:40:40.000000000 +0200
++++ srcmess/inptport.c	2005-05-03 20:37:16.000000000 +0200
+@@ -930,26 +930,21 @@
  
  	/* start with the raw defaults and ask the OSD to customize them in the backup array */
  	memcpy(inputport_list_backup, inputport_list_defaults, sizeof(inputport_list_backup));
@@ -122,8 +122,8 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  	/* initialize the various port states */
  	inputport_init();
  
- 	/* if we didn't find a saved config, return 0 so the main core knows that it */
-@@ -957,12 +952,16 @@
+ 	/* fill lookup table */
+@@ -964,12 +959,16 @@
  
  
  void save_input_port_settings(void)
@@ -142,28 +142,28 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  
  
  /*************************************
-@@ -1488,12 +1487,18 @@
- {
- 	int listnum;
+@@ -1480,12 +1479,18 @@
+  *
+  *************************************/
  
- 	/* search the defaults for the type */
- 	for (listnum = 0; inputport_list[listnum].type != IPT_END; listnum++)
--		if (inputport_list[listnum].type == type && inputport_list[listnum].player == player)
--			return seq_pressed(&inputport_list[listnum].defaultseq);
-+		if (inputport_list[listnum].type == type && inputport_list[listnum].player == player) {
-+			int pressed = seq_pressed(&inputport_list[listnum].defaultseq);
+ int input_port_type_pressed(int type, int player)
+ {
+-	if (inputport_list_lookup[type][player])
+-		return seq_pressed(&inputport_list_lookup[type][player]->defaultseq);
++	if (inputport_list_lookup[type][player]) {
++		int pressed = seq_pressed(&inputport_list_lookup[type][player]->defaultseq);
 +
-+			/* AdvanceMAME: Filter all the input ports */
-+			pressed = osd_input_port_filter(pressed, inputport_list[listnum].type, inputport_list[listnum].player, SEQ_TYPE_STANDARD);
++		/* AdvanceMAME: Filter all the input ports */
++		pressed = osd_input_port_filter(pressed, type, player, SEQ_TYPE_STANDARD);
 +
-+			return pressed;
-+		}
++		return pressed;
++	}
  
  	return 0;
  }
  
  
-@@ -1504,10 +1509,13 @@
+@@ -1496,10 +1501,13 @@
  profiler_mark(PROFILER_INPUT);
  
  	/* get the status of this key (assumed to be only in the defaults) */
@@ -177,7 +177,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  	{
  		/* if this is the first press, leave pressed = 1 */
  		if (ui_memory[code] == 0)
-@@ -1537,10 +1545,13 @@
+@@ -1529,10 +1537,13 @@
  profiler_mark(PROFILER_INPUT);
  
  	/* get the status of this key (assumed to be only in the defaults) */
@@ -191,7 +191,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  	{
  		/* if this is the first press, set a 3x delay and leave pressed = 1 */
  		if (ui_memory[code] == 0)
-@@ -1609,10 +1620,13 @@
+@@ -1601,10 +1612,13 @@
  void inputport_vblank_start(void)
  {
  	int ui_visible = setup_active() || onscrd_active();
@@ -205,7 +205,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  	/* update the digital joysticks first */
  	update_digital_joysticks();
  
-@@ -1643,11 +1657,16 @@
+@@ -1635,11 +1649,16 @@
  
  			/* handle non-analog types, but only when the UI isn't visible */
  			else if (!IS_ANALOG(port) && !ui_visible)
@@ -223,7 +223,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  					/* (MESS-specific) check for disabled keyboard */
  					if (port->type == IPT_KEYBOARD && osd_keyboard_disabled())
  						continue;
-@@ -1775,17 +1794,18 @@
+@@ -1767,17 +1786,18 @@
  			{
  				info->previous = info->current;
  				info->current = 0;
@@ -246,7 +246,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  				/* lock out opposing directions (left + right or up + down) */
  				if ((info->current & (JOYDIR_UP_BIT | JOYDIR_DOWN_BIT)) == (JOYDIR_UP_BIT | JOYDIR_DOWN_BIT))
  					info->current &= ~(JOYDIR_UP_BIT | JOYDIR_DOWN_BIT);
-@@ -1896,12 +1916,12 @@
+@@ -1888,12 +1908,12 @@
  		int analog_type, keypressed = 0;
  
  		/* clamp the previous value to the min/max range and remember it */
@@ -261,7 +261,7 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  		/* also note that the last input was not a digital one */
  		if (analog_type == ANALOG_TYPE_RELATIVE && rawvalue != 0)
  		{
-@@ -1909,18 +1929,20 @@
+@@ -1901,18 +1921,20 @@
  			info->lastdigital = 0;
  		}
  
@@ -284,9 +284,33 @@ diff -U 5 --new-file --recursive srcmess.ori/inptport.c srcmess/inptport.c
  			keypressed = info->lastdigital = 1;
  		}
  
+@@ -1926,15 +1948,18 @@
+ 		info->accum += delta;
+ 
+ 		/* if we got an absolute input, it overrides everything else */
+ 		if (analog_type == ANALOG_TYPE_ABSOLUTE)
+ 		{
+-			/* apply the inverse of the sensitivity to the raw value so that */
+-			/* it will still cover the full min->max range requested after */
+-			/* we apply the sensitivity adjustment */
+-			info->accum = APPLY_INVERSE_SENSITIVITY(rawvalue, port->analog.sensitivity);
+-			info->lastdigital = 0;
++			/* allow both the analog joystick and the keyboard to control the input port */
++			if (rawvalue != 0 || !info->lastdigital) {
++				/* apply the inverse of the sensitivity to the raw value so that */
++				/* it will still cover the full min->max range requested after */
++				/* we apply the sensitivity adjustment */
++				info->accum = APPLY_INVERSE_SENSITIVITY(rawvalue, port->analog.sensitivity);
++				info->lastdigital = 0;
++			}
+ 		}
+ 
+ 		/* if our last movement was due to a digital input, and if this control */
+ 		/* type autocenters, and if neither the increment nor the decrement seq */
+ 		/* was pressed, apply autocentering */
 diff -U 5 --new-file --recursive srcmess.ori/input.c srcmess/input.c
---- srcmess.ori/input.c	2004-09-21 20:02:10.000000000 +0200
-+++ srcmess/input.c	2005-03-30 20:17:09.000000000 +0200
+--- srcmess.ori/input.c	2005-05-02 21:40:40.000000000 +0200
++++ srcmess/input.c	2005-05-04 18:23:44.000000000 +0200
 @@ -603,11 +603,33 @@
  	code_count = 0;
  	free(code_map);
@@ -319,11 +343,11 @@ diff -U 5 --new-file --recursive srcmess.ori/input.c srcmess/input.c
  
  /*************************************
   *
-  *	Return the analog value of a code.
+  *  Return the analog value of a code.
   *
 diff -U 5 --new-file --recursive srcmess.ori/input.h srcmess/input.h
---- srcmess.ori/input.h	2004-09-21 20:02:10.000000000 +0200
-+++ srcmess/input.h	2005-03-30 20:17:09.000000000 +0200
+--- srcmess.ori/input.h	2005-05-02 21:40:40.000000000 +0200
++++ srcmess/input.h	2005-05-04 18:23:44.000000000 +0200
 @@ -479,10 +479,17 @@
  	CODE_NOT,					/* operators for sequences */
  	CODE_OR						/* operators for sequences */
@@ -340,7 +364,7 @@ diff -U 5 --new-file --recursive srcmess.ori/input.h srcmess/input.h
  
  /*************************************
   *
-  *	Type definitions
+  *  Type definitions
   *
 @@ -530,10 +537,13 @@
  
@@ -358,7 +382,7 @@ diff -U 5 --new-file --recursive srcmess.ori/input.h srcmess/input.h
  input_code_t code_read_async(void);
 diff -U 5 --new-file --recursive srcmess.ori/mame.c srcmess/mame.c
 --- srcmess.ori/mame.c	2005-03-27 20:49:09.000000000 +0200
-+++ srcmess/mame.c	2005-03-30 20:17:09.000000000 +0200
++++ srcmess/mame.c	2005-05-04 18:23:44.000000000 +0200
 @@ -570,10 +570,15 @@
  		if (options.skip_warnings || showgamewarnings(artwork_get_ui_bitmap()) == 0)
  		{
@@ -376,9 +400,9 @@ diff -U 5 --new-file --recursive srcmess.ori/mame.c srcmess/mame.c
  				artwork_enable(1);
  
 diff -U 5 --new-file --recursive srcmess.ori/osdepend.h srcmess/osdepend.h
---- srcmess.ori/osdepend.h	2005-01-29 00:22:26.000000000 +0100
-+++ srcmess/osdepend.h	2005-03-30 20:17:09.000000000 +0200
-@@ -350,10 +350,48 @@
+--- srcmess.ori/osdepend.h	2005-05-02 21:40:40.000000000 +0200
++++ srcmess/osdepend.h	2005-05-04 18:23:44.000000000 +0200
+@@ -353,10 +353,48 @@
        __attribute__ ((format (printf, 1, 2)));
  #else
  void CLIB_DECL logerror(const char *text,...);
@@ -428,8 +452,8 @@ diff -U 5 --new-file --recursive srcmess.ori/osdepend.h srcmess/osdepend.h
  
  #endif
 diff -U 5 --new-file --recursive srcmess.ori/rules.mak srcmess/rules.mak
---- srcmess.ori/rules.mak	2005-03-27 15:42:10.000000000 +0200
-+++ srcmess/rules.mak	2005-03-30 20:17:09.000000000 +0200
+--- srcmess.ori/rules.mak	2005-05-02 21:40:40.000000000 +0200
++++ srcmess/rules.mak	2005-05-04 18:23:44.000000000 +0200
 @@ -1166,16 +1166,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
@@ -484,8 +508,21 @@ diff -U 5 --new-file --recursive srcmess.ori/rules.mak srcmess/rules.mak
  
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
 diff -U 5 --new-file --recursive srcmess.ori/ui_text.c srcmess/ui_text.c
---- srcmess.ori/ui_text.c	2004-08-22 21:14:00.000000000 +0200
-+++ srcmess/ui_text.c	2005-03-30 20:17:09.000000000 +0200
+--- srcmess.ori/ui_text.c	2005-05-02 21:40:40.000000000 +0200
++++ srcmess/ui_text.c	2005-05-04 18:24:28.000000000 +0200
+@@ -82,11 +82,11 @@
+ 	"Dip Switches",
+ 	"Analog Controls",
+ 	"Calibrate Joysticks",
+ 	"Bookkeeping Info",
+ 
+-	"Input (this " CAPSTARTGAMENOUN")",
++	"Input (this " GAMENOUN")",
+ 	CAPSTARTGAMENOUN " Information",
+ 	CAPSTARTGAMENOUN " History",
+ 	"Reset " CAPSTARTGAMENOUN,
+ 	"Return to " CAPSTARTGAMENOUN,
+ 
 @@ -191,10 +191,14 @@
  	"One match found - added to list",
  
@@ -502,11 +539,11 @@ diff -U 5 --new-file --recursive srcmess.ori/ui_text.c srcmess/ui_text.c
  
  
 diff -U 5 --new-file --recursive srcmess.ori/ui_text.h srcmess/ui_text.h
---- srcmess.ori/ui_text.h	2004-07-28 22:26:24.000000000 +0200
-+++ srcmess/ui_text.h	2005-03-30 20:17:09.000000000 +0200
+--- srcmess.ori/ui_text.h	2005-05-02 21:40:40.000000000 +0200
++++ srcmess/ui_text.h	2005-05-04 18:23:44.000000000 +0200
 @@ -185,10 +185,14 @@
  	UI_search_one_match_found_added,
- 	
+ 
  	/* refresh rate */
  	UI_refresh_rate,
  
@@ -520,8 +557,8 @@ diff -U 5 --new-file --recursive srcmess.ori/ui_text.h srcmess/ui_text.h
  #ifdef MESS
  #include "mui_text.h"
 diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
---- srcmess.ori/usrintrf.c	2005-03-27 15:42:14.000000000 +0200
-+++ srcmess/usrintrf.c	2005-03-30 20:17:09.000000000 +0200
+--- srcmess.ori/usrintrf.c	2005-05-02 21:40:40.000000000 +0200
++++ srcmess/usrintrf.c	2005-05-04 18:23:44.000000000 +0200
 @@ -804,10 +804,13 @@
  
  
@@ -605,7 +642,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				seq[total] = &in->analog.decseq;
  				sprintf(menu_item_buffer[total], "%s Dec", input_port_name(in));
  				menu_item[total] = menu_item_buffer[total];
-@@ -2803,10 +2815,13 @@
+@@ -2804,10 +2816,13 @@
  }
  
  /* Display lines from buffer, starting with line 'scroll', in a width x height text window */
@@ -619,7 +656,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	const char *uparrow = ui_getstring (UI_uparrow);
  	const char *downarrow = ui_getstring (UI_downarrow);
  	char textcopy[2048];
-@@ -2909,10 +2924,11 @@
+@@ -2910,10 +2925,11 @@
  	}
  
  	dt[curr_dt].text = 0;	/* terminate array */
@@ -631,7 +668,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  /* Display text entry for current driver from history.dat and mameinfo.dat. */
  static int displayhistory (struct mame_bitmap *bitmap, int selected)
-@@ -2940,11 +2956,13 @@
+@@ -2941,11 +2957,13 @@
  		{
  			/* try to load entry */
  			if (load_driver_history (Machine->gamedrv, buf, bufsize) == 0)
@@ -645,7 +682,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				strcat(buf," ");
  				strcat(buf,ui_getstring (UI_returntomain));
  				strcat(buf," ");
-@@ -3153,16 +3171,16 @@
+@@ -3154,16 +3172,16 @@
  
  
  #ifndef MESS
@@ -665,7 +702,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  #define MAX_SETUPMENU_ITEMS 20
  static const char *menu_item[MAX_SETUPMENU_ITEMS];
-@@ -3293,10 +3311,13 @@
+@@ -3294,10 +3312,13 @@
  		memcard_intf.eject != NULL)
  	{
  		append_menu(UI_memorycard, UI_MEMCARD);
@@ -679,7 +716,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	menu_item[menu_total] = 0; /* terminate array */
  }
  
-@@ -3361,10 +3382,15 @@
+@@ -3362,10 +3383,15 @@
  				res = displayhistory(bitmap, sel >> SEL_BITS);
  				break;
  			case UI_CHEAT:
@@ -695,7 +732,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				break;
  		}
  
-@@ -3409,10 +3435,13 @@
+@@ -3410,10 +3436,13 @@
  			case UI_CATEGORIES:
  #endif /* !MESS */
  			case UI_HISTORY:
@@ -709,7 +746,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  				break;
  
  			case UI_RESET:
-@@ -3449,10 +3478,13 @@
+@@ -3450,10 +3479,13 @@
  
  *********************************************************************/
  
@@ -723,7 +760,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  
  	avail = (uirotwidth / uirotcharwidth) * 19 / 20;
-@@ -3474,10 +3506,11 @@
+@@ -3475,10 +3507,11 @@
  	dt[0].color = UI_COLOR_NORMAL;
  	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
  	dt[0].y = (uirotheight - 2*uirotcharheight) + 2;
@@ -735,7 +772,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  static void onscrd_adjuster(struct mame_bitmap *bitmap,int increment,int arg)
  {
  	struct InputPort *in = &Machine->input_ports[arg];
-@@ -3507,17 +3540,17 @@
+@@ -3508,17 +3541,17 @@
  	if (increment)
  	{
  		attenuation = osd_get_mastervolume();
@@ -755,7 +792,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  static void onscrd_mixervol(struct mame_bitmap *bitmap,int increment,int arg)
  {
  	static void *driver = 0;
-@@ -3862,10 +3895,13 @@
+@@ -3863,10 +3896,13 @@
  *********************************************************************/
  
  
@@ -769,7 +806,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  
  	if (uirotwidth < uirotcharwidth * strlen(text))
-@@ -3885,10 +3921,11 @@
+@@ -3886,10 +3922,11 @@
  	dt[0].color = UI_COLOR_NORMAL;
  	dt[0].x = (uirotwidth - uirotcharwidth * strlen(text)) / 2;
  	dt[0].y = uirotheight - 5*uirotcharheight/2;
@@ -781,7 +818,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  
  static char messagetext[200];
  static int messagecounter;
-@@ -4010,10 +4047,11 @@
+@@ -4011,10 +4048,11 @@
  	return show_profiler;
  }
  
@@ -793,7 +830,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	int done = 0;
  	int x, y = 0;
  	/* remember which area we cover so that we can
-@@ -4070,32 +4108,31 @@
+@@ -4071,32 +4109,31 @@
  	{
  		showfpstemp--;
  		if (!showfps && showfpstemp == 0)
@@ -830,7 +867,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  		setup_selected = -1;
  		if (osd_selected != 0)
  		{
-@@ -4131,12 +4168,15 @@
+@@ -4132,12 +4169,15 @@
  
  #ifndef MESS
  	if (single_step || input_ui_pressed(IPT_UI_PAUSE)) /* pause the game */
@@ -845,8 +882,8 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	if (single_step || input_ui_pressed(IPT_UI_PAUSE) || mess_pause_for_ui) /* pause the game */
  	{
  #endif
- /*		osd_selected = 0;	   disable on screen display, since we are going   */
-@@ -4169,11 +4209,11 @@
+ /*      osd_selected = 0;      disable on screen display, since we are going   */
+@@ -4170,11 +4210,11 @@
  			/* if the user pressed F4, show the character set */
  			if (input_ui_pressed(IPT_UI_SHOW_GFX))
  				showcharset(bitmap);
@@ -859,7 +896,7 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  			{
  				setup_selected = -1;
  				if (osd_selected != 0)
-@@ -4252,16 +4292,18 @@
+@@ -4253,16 +4293,18 @@
  	}
  
  	if (show_profiler) profiler_show(bitmap);
@@ -879,20 +916,20 @@ diff -U 5 --new-file --recursive srcmess.ori/usrintrf.c srcmess/usrintrf.c
  	if (input_ui_pressed(IPT_UI_SHOW_GFX))
  	{
 diff -U 5 --new-file --recursive srcmess.ori/x86drc.c srcmess/x86drc.c
---- srcmess.ori/x86drc.c	2005-03-27 15:42:14.000000000 +0200
-+++ srcmess/x86drc.c	2005-03-30 20:17:09.000000000 +0200
+--- srcmess.ori/x86drc.c	2005-05-02 21:40:40.000000000 +0200
++++ srcmess/x86drc.c	2005-05-04 18:24:14.000000000 +0200
 @@ -677,10 +677,11 @@
  
  
  /*------------------------------------------------------------------
- 	drc_x86_get_features()
+     drc_x86_get_features()
  ------------------------------------------------------------------*/
 +#if 0
  UINT32 drc_x86_get_features(void)
  {
  	UINT32 features = 0;
  #ifdef _MSC_VER
- 	__asm 
+ 	__asm
 @@ -706,10 +707,11 @@
  	: "%ebx", "%ecx", "%edx"	/* clobbers ebx, ecx and edx */
  	);
@@ -904,4 +941,4 @@ diff -U 5 --new-file --recursive srcmess.ori/x86drc.c srcmess/x86drc.c
  
  
  /*------------------------------------------------------------------
- 	log_dispatch
+     log_dispatch
