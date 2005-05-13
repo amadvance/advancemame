@@ -29,14 +29,14 @@
  */
 
 /** 
- * Implementation of a mouse driver using the Windows XP "Raw Input" API. 
- * More information in the MSDN documentation (GetRawInputDeviceList) and at the site:
- * http://link.mywwwserver.com/~jstookey/arcade/rawmouse/
+ * Implementation of a lightgun driver using the Windows XP "Raw Input" API.
+ * SMOG Lightgun (http://lightgun.splinder.com/)
+ * Acts Labs Lightgun (http://www.act-labs.com/)
  */
 
 #include "portable.h"
 
-#include "mraw.h"
+#include "jlgraw.h"
 #include "log.h"
 #include "oswin.h"
 #include "error.h"
@@ -47,13 +47,13 @@
 #define RAW_MOUSE_BUTTON_MAX 8
 #define RAW_MOUSE_AXE_MAX 8
 
-struct mouse_button_context {
+struct joystick_button_context {
 	unsigned code;
 	int* pvalue;
 	char name[RAW_MOUSE_NAME_MAX];
 };
 
-struct mouse_axe_context {
+struct joystick_axe_context {
 	unsigned code;
 	int* pvalue;
 	char name[RAW_MOUSE_NAME_MAX];
@@ -63,53 +63,54 @@ struct raw_context {
 	HANDLE h;
 	char name[256];
 	RID_DEVICE_INFO info;
-	int x, y, z;
-	int lx, ly;
+	int x, y;
+	int lx, hx, ly, hy;
+	int x_adj, y_adj;
 	unsigned button;
 };
 
-struct mouse_item_context {
+struct joystick_item_context {
 	struct raw_context context;
 	unsigned button_mac;
-	struct mouse_button_context button_map[RAW_MOUSE_BUTTON_MAX];
+	struct joystick_button_context button_map[RAW_MOUSE_BUTTON_MAX];
 	unsigned axe_mac;
-	struct mouse_axe_context axe_map[RAW_MOUSE_AXE_MAX];
+	struct joystick_axe_context axe_map[RAW_MOUSE_AXE_MAX];
 };
 
-struct mouseb_rawinput_context {
+struct joystickb_lgrawinput_context {
 	unsigned mac;
-	struct mouse_item_context map[RAW_MOUSE_MAX];
+	struct joystick_item_context map[RAW_MOUSE_MAX];
 	WNDPROC proc;
 	HWND window;
 };
 
-static struct mouseb_rawinput_context raw_state;
+static struct joystickb_lgrawinput_context raw_state;
 
 typedef INT (WINAPI* GetRawInputDeviceList_type)(RAWINPUTDEVICELIST* pRawInputDeviceList, PINT puiNumDevices, UINT cbSize);
 typedef INT (WINAPI* GetRawInputData_type)(HRAWINPUT hRawInput, UINT uiCommand, VOID* pData, INT* pcbSize, UINT cbSizeHeader);
 typedef INT (WINAPI* GetRawInputDeviceInfoA_type)(HANDLE hDevice, UINT uiCommand, VOID* pData, INT* pcbSize);
 typedef BOOL (WINAPI* RegisterRawInputDevices_type)(const RAWINPUTDEVICE* pRawInputDevices, UINT uiNumDevices, UINT cbSize);
 
-GetRawInputDeviceList_type GetRawInputDeviceList_ptr;
-GetRawInputData_type GetRawInputData_ptr;
-GetRawInputDeviceInfoA_type GetRawInputDeviceInfoA_ptr;
-RegisterRawInputDevices_type RegisterRawInputDevices_ptr;
+static GetRawInputDeviceList_type GetRawInputDeviceList_ptr;
+static GetRawInputData_type GetRawInputData_ptr;
+static GetRawInputDeviceInfoA_type GetRawInputDeviceInfoA_ptr;
+static RegisterRawInputDevices_type RegisterRawInputDevices_ptr;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "RAW mouse" },
+{ "auto", -1, "RAW Lightgun" },
 { 0, 0, 0 }
 };
 
-static void mouseb_setup(struct mouse_item_context* item, unsigned nbutton)
+static void joystickb_setup(struct joystick_item_context* item, unsigned nbutton)
 {
 	unsigned i;
 	struct button_entry {
 		int code;
 		const char* name;
 	} button_map[] = {
-		{ 0x1, "left" },
-		{ 0x2, "right" },
-		{ 0x4, "middle" },
+		{ 0x1, "button1" },
+		{ 0x2, "button2" },
+		{ 0x4, "button3" },
 		{ 0x8, "button4" },
 		{ 0x10, "button5" }
 	};
@@ -119,8 +120,7 @@ static void mouseb_setup(struct mouse_item_context* item, unsigned nbutton)
 		const char* name;
 	} axe_map[] = {
 		{ 0, "x" },
-		{ 1, "y" },
-		{ 2, "z" }
+		{ 1, "y" }
 	};
 
 	item->button_mac = 0;
@@ -140,9 +140,8 @@ static void mouseb_setup(struct mouse_item_context* item, unsigned nbutton)
 		if (item->axe_mac < RAW_MOUSE_AXE_MAX) {
 			item->axe_map[item->axe_mac].code = axe_map[i].code;
 			switch (axe_map[i].code) {
-			case 0 : item->axe_map[item->axe_mac].pvalue = &item->context.x; break;
-			case 1 : item->axe_map[item->axe_mac].pvalue = &item->context.y; break;
-			case 2 : item->axe_map[item->axe_mac].pvalue = &item->context.z; break;
+			case 0 : item->axe_map[item->axe_mac].pvalue = &item->context.x_adj; break;
+			case 1 : item->axe_map[item->axe_mac].pvalue = &item->context.y_adj; break;
 			}
 			sncpy(item->axe_map[item->axe_mac].name, sizeof(item->axe_map[item->axe_mac].name), axe_map[i].name);
 			++item->axe_mac;
@@ -150,10 +149,10 @@ static void mouseb_setup(struct mouse_item_context* item, unsigned nbutton)
 	}
 }
 
-static int mouseb_compare(const void* void_a, const void* void_b)
+static int joystickb_compare(const void* void_a, const void* void_b)
 {
-	const struct mouse_item_context* a = (const struct mouse_item_context*)void_a;
-	const struct mouse_item_context* b = (const struct mouse_item_context*)void_b;
+	const struct joystick_item_context* a = (const struct joystick_item_context*)void_a;
+	const struct joystick_item_context* b = (const struct joystick_item_context*)void_b;
 
 	/* Typical names are:
 
@@ -169,7 +168,7 @@ static int mouseb_compare(const void* void_a, const void* void_b)
 	return stricmp(b->context.name, a->context.name);
 }
 
-adv_error mouseb_rawinput_init(int mouseb_id)
+adv_error joystickb_lgrawinput_init(int joystickb_id)
 {
 	unsigned i;
 	HMODULE h;
@@ -177,7 +176,7 @@ adv_error mouseb_rawinput_init(int mouseb_id)
 	UINT size;
 	RAWINPUTDEVICELIST* l;
 
-	log_std(("mouseb:rawinput: mouseb_rawinput_init(id:%d)\n", mouseb_id));
+	log_std(("joystickb:lgrawinput: joystickb_lgrawinput_init(id:%d)\n", joystickb_id));
 
 	h = GetModuleHandle("user32.dll");
 	if (!h) {
@@ -215,7 +214,7 @@ adv_error mouseb_rawinput_init(int mouseb_id)
 		return -1;
 	}
 
-	log_std(("mouseb:rawinput: GetRawInputDeviceList() -> %d\n", (unsigned)n));
+	log_std(("joystickb:lgrawinput: GetRawInputDeviceList() -> %d\n", (unsigned)n));
 
 	raw_state.mac = 0;
 	for(i=0;i<n;++i) {
@@ -243,13 +242,9 @@ adv_error mouseb_rawinput_init(int mouseb_id)
 				rev = 0;
 			}
 
-			log_std(("mouseb:rawinput: GetRawInputDeviceInfo(%d) -> type:%d,vid:%04x,pid:%04x,rev:%04x,%s\n", i, (unsigned)context->info.dwType, vid, pid, rev, context->name));
+			log_std(("joystickb:lgrawinput: GetRawInputDeviceInfo(%d) -> type:%d,vid:%04x,pid:%04x,rev:%04x,%s\n", i, (unsigned)context->info.dwType, vid, pid, rev, context->name));
 
-			/* HACK skip the global mouse which is the combination of all the others */
-			if (strstr(context->name, "#RDP_MOU#") != 0) {
-				continue;
-			}
-
+			/* only mouse type lightgun are recognized */
 			if (context->info.dwType != RIM_TYPEMOUSE) {
 				continue;
 			}
@@ -260,15 +255,16 @@ adv_error mouseb_rawinput_init(int mouseb_id)
 				/* Acts Labs Lightgun (http://www.act-labs.com/) */
 				|| (vid == 0x061c && pid == 0xa800)
 			) {
-				/* ignore known lightguns */
+				/* recognized */
+			} else {
 				continue;
 			}
 
 			raw_state.map[raw_state.mac].context.h = l[i].hDevice;
 
-			log_std(("mouseb:rawinput: mouse id:%d,vid:%04x,pid:%04x,rev:%04x,buttons:%d,samplerate:%d\n", (unsigned)context->info.mouse.dwId, vid, pid, rev, (unsigned)context->info.mouse.dwNumberOfButtons, (unsigned)context->info.mouse.dwSampleRate));
+			log_std(("joystickb:lgrawinput: lightgun id:%d,vid:%04x,pid:%04x,rev:%04x,buttons:%d,samplerate:%d\n", (unsigned)context->info.mouse.dwId, vid, pid, rev, (unsigned)context->info.mouse.dwNumberOfButtons, (unsigned)context->info.mouse.dwSampleRate));
 
-			mouseb_setup(&raw_state.map[raw_state.mac], context->info.mouse.dwNumberOfButtons);
+			joystickb_setup(&raw_state.map[raw_state.mac], context->info.mouse.dwNumberOfButtons);
 
 			++raw_state.mac;
 		}
@@ -277,48 +273,48 @@ adv_error mouseb_rawinput_init(int mouseb_id)
 	free(l);
 
 	if (raw_state.mac == 0) {
-		error_set("No mouse found.\n");
+		error_set("No lightgun found.\n");
 		return -1;
 	}
 
-	qsort(raw_state.map, raw_state.mac, sizeof(raw_state.map[0]), mouseb_compare);
+	qsort(raw_state.map, raw_state.mac, sizeof(raw_state.map[0]), joystickb_compare);
 
 	return 0;
 }
 
-void mouseb_rawinput_done(void)
+void joystickb_lgrawinput_done(void)
 {
-	log_std(("mouseb:rawinput: mouseb_rawinput_done()\n"));
+	log_std(("joystickb:lgrawinput: joystickb_lgrawinput_done()\n"));
 
 	raw_state.mac = 0;
 }
 
-static LRESULT __stdcall mouseb_rawinput_proc(HWND h, UINT msg, WPARAM w, LPARAM l)
+static LRESULT __stdcall joystickb_lgrawinput_proc(HWND h, UINT msg, WPARAM w, LPARAM l)
 {
 	/* catch all the messages */
-	mouseb_rawinput_event_msg(msg, w, l);
+	joystickb_lgrawinput_event_msg(msg, w, l);
 
 	return raw_state.proc(h, msg, w, l);
 }
 
-adv_error mouseb_rawinput_enable(void)
+adv_error joystickb_lgrawinput_enable(void)
 {
 	RAWINPUTDEVICE d[1];
 	unsigned i;
 
-	log_std(("mouseb:rawinput: mouseb_rawinput_enable()\n"));
+	log_std(("joystickb:lgrawinput: joystickb_lgrawinput_enable()\n"));
 
 	raw_state.window = os_internal_window_get();
 	if (!raw_state.window) {
-	    log_std(("ERROR:mouseb:rawinput: os_internal_window_get() failed with error %d\n", (unsigned)GetLastError()));
+		log_std(("ERROR:joystickb:lgrawinput: os_internal_window_get() failed with error %d\n", (unsigned)GetLastError()));
 		error_set("Error getting the window handle.\n");
 		return -1;
 	}
 
 	/* grab the window proc */
-	raw_state.proc = (WNDPROC)SetWindowLong(raw_state.window, GWL_WNDPROC, (LONG)mouseb_rawinput_proc);
+	raw_state.proc = (WNDPROC)SetWindowLong(raw_state.window, GWL_WNDPROC, (LONG)joystickb_lgrawinput_proc);
 	if (!raw_state.proc) {
-	    log_std(("ERROR:mouseb:rawinput: SetWindowLong(0x%x, GWL_WNDPROC) failed with error %d\n", (unsigned)raw_state.window, (unsigned)GetLastError()));
+		log_std(("ERROR:joystickb:lgrawinput: SetWindowLong(0x%x, GWL_WNDPROC) failed with error %d\n", (unsigned)raw_state.window, (unsigned)GetLastError()));
 		error_set("Error setting the window proc.\n");
 		return -1;
 	}
@@ -329,7 +325,7 @@ adv_error mouseb_rawinput_enable(void)
 	d[0].hwndTarget = raw_state.window;
 
 	if (!RegisterRawInputDevices_ptr(d, 1, sizeof(d[0]))) {
-	    log_std(("ERROR:mouseb:rawinput: RegisterRawInputDevices() failed with error %d\n", (unsigned)GetLastError()));
+		log_std(("ERROR:joystickb:lgrawinput: RegisterRawInputDevices() failed with error %d\n", (unsigned)GetLastError()));
 		error_set("Error registering input.\n");
 		return -1;
 	}
@@ -338,20 +334,21 @@ adv_error mouseb_rawinput_enable(void)
 	for(i=0;i<raw_state.mac;++i) {
 		raw_state.map[i].context.x = 0;
 		raw_state.map[i].context.y = 0;
+		raw_state.map[i].context.button = 0;
 		raw_state.map[i].context.lx = 0;
 		raw_state.map[i].context.ly = 0;
-		raw_state.map[i].context.z = 0;
-		raw_state.map[i].context.button = 0;	
+		raw_state.map[i].context.hx = 0;
+		raw_state.map[i].context.hy = 0;
 	}
 
 	return 0;
 }
 
-void mouseb_rawinput_disable(void)
+void joystickb_lgrawinput_disable(void)
 {
 	RAWINPUTDEVICE d[1];
 
-	log_std(("mouseb:rawinput: mouseb_rawinput_disable()\n"));
+	log_std(("joystickb:lgrawinput: joystickb_lgrawinput_disable()\n"));
 
 	d[0].usUsagePage = 0x01;
 	d[0].usUsage = 0x02; 
@@ -359,67 +356,86 @@ void mouseb_rawinput_disable(void)
 	d[0].hwndTarget = raw_state.window;
 
 	if (!RegisterRawInputDevices_ptr(d, 1, sizeof(d[0]))) {
-		log_std(("WARNING:mouseb:rawinput: RegisterRawInputDevices(RIDEV_REMOVE) failed with error %d\n", (unsigned)GetLastError()));
+		log_std(("WARNING:joystickb:lgrawinput: RegisterRawInputDevices(RIDEV_REMOVE) failed with error %d\n", (unsigned)GetLastError()));
 	}
 
 	/* restore the window proc */
-	if (SetWindowLong(raw_state.window, GWL_WNDPROC, (LONG)raw_state.proc) != (LONG)mouseb_rawinput_proc) {
-		log_std(("WARNING:mouseb:rawinput: SetWindowLong(oldproc) failed\n"));
+	if (SetWindowLong(raw_state.window, GWL_WNDPROC, (LONG)raw_state.proc) != (LONG)joystickb_lgrawinput_proc) {
+		log_std(("WARNING:joystickb:lgrawinput: SetWindowLong(oldproc) failed\n"));
 	}
 }
 
-unsigned mouseb_rawinput_count_get(void)
+unsigned joystickb_lgrawinput_count_get(void)
 {
-	log_debug(("mouseb:rawinput: mouseb_rawinput_count_get()\n"));
+	log_debug(("joystickb:lgrawinput: joystickb_lgrawinput_count_get()\n"));
 
 	return raw_state.mac;
 }
 
-unsigned mouseb_rawinput_axe_count_get(unsigned mouse)
+unsigned joystickb_lgrawinput_stick_count_get(unsigned joystick)
 {
-	log_debug(("mouseb:rawinput: mouseb_rawinput_axe_count_get()\n"));
+	log_debug(("joystickb:lgrawinput: joystickb_lgrawinput_stick_count_get()\n"));
 
-	return raw_state.map[mouse].axe_mac;
+	return 1;
 }
 
-const char* mouseb_rawinput_axe_name_get(unsigned mouse, unsigned axe)
+unsigned joystickb_lgrawinput_stick_axe_count_get(unsigned joystick, unsigned stick)
 {
-	log_debug(("mouseb:rawinput: mouseb_rawinput_axe_name_get()\n"));
+	log_debug(("joystickb:lgrawinput: joystickb_sdl_stick_axe_count_get()\n"));
 
-	return raw_state.map[mouse].axe_map[axe].name;
+	return 2;
 }
 
-unsigned mouseb_rawinput_button_count_get(unsigned mouse)
+unsigned joystickb_lgrawinput_axe_count_get(unsigned joystick)
 {
-	log_debug(("mouseb:rawinput: mouseb_rawinput_button_count_get()\n"));
+	log_debug(("joystickb:lgrawinput: joystickb_lgrawinput_axe_count_get()\n"));
 
-	return raw_state.map[mouse].button_mac;
+	return raw_state.map[joystick].axe_mac;
 }
 
-const char* mouseb_rawinput_button_name_get(unsigned mouse, unsigned button)
+const char* joystickb_lgrawinput_axe_name_get(unsigned joystick, unsigned axe)
 {
-	log_debug(("mouseb:rawinput: mouseb_rawinput_button_name_get()\n"));
+	log_debug(("joystickb:lgrawinput: joystickb_lgrawinput_axe_name_get()\n"));
 
-	return raw_state.map[mouse].button_map[button].name;
+	return raw_state.map[joystick].axe_map[axe].name;
 }
 
-int mouseb_rawinput_axe_get(unsigned mouse, unsigned axe)
+unsigned joystickb_lgrawinput_button_count_get(unsigned joystick)
+{
+	log_debug(("joystickb:lgrawinput: joystickb_lgrawinput_button_count_get()\n"));
+
+	return raw_state.map[joystick].button_mac;
+}
+
+const char* joystickb_lgrawinput_button_name_get(unsigned joystick, unsigned button)
+{
+	log_debug(("joystickb:lgrawinput: joystickb_lgrawinput_button_name_get()\n"));
+
+	return raw_state.map[joystick].button_map[button].name;
+}
+
+unsigned joystickb_lgrawinput_stick_axe_digital_get(unsigned joystick, unsigned stick, unsigned axe, unsigned d)
 {
 	int r;
+	log_debug(("joystickb:lgrawinput: joystickb_lgrawinput_stick_axe_digital_get()\n"));
 
-	log_debug(("mouseb:rawinput: mouseb_rawinput_pos_get()\n"));
+	/* never use it for digital input */
 
-	r = *raw_state.map[mouse].axe_map[axe].pvalue;
-	*raw_state.map[mouse].axe_map[axe].pvalue -= r; /* thread safe */
-
-	return r;
+	return 0;
 }
 
-unsigned mouseb_rawinput_button_get(unsigned mouse, unsigned button)
+int joystickb_lgrawinput_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)
 {
-	log_debug(("mouseb:rawinput: mouseb_rawinput_button_get()\n"));
+	log_debug(("joystickb:lgrawinput: joystickb_lgrawinput_stick_axe_analog_get()\n"));
 
-	return (raw_state.map[mouse].button_map[button].code & *raw_state.map[mouse].button_map[button].pvalue) != 0;
+	return *raw_state.map[joystick].axe_map[axe].pvalue;
+}
+
+unsigned joystickb_lgrawinput_button_get(unsigned joystick, unsigned button)
+{
+	log_debug(("joystickb:lgrawinput: joystickb_lgrawinput_button_get()\n"));
+
+	return (raw_state.map[joystick].button_map[button].code & *raw_state.map[joystick].button_map[button].pvalue) != 0;
 }
 
 static void raw_event(RAWINPUT* r)
@@ -429,7 +445,7 @@ static void raw_event(RAWINPUT* r)
 	struct raw_context* c;
 
 	if (r->header.dwType != RIM_TYPEMOUSE) {
-		log_std(("WARNING:mouseb:rawinput: not a mouse device\n"));
+		log_std(("WARNING:joystickb:lgrawinput: not a mouse device\n"));
 		return;
 	}
 
@@ -439,29 +455,21 @@ static void raw_event(RAWINPUT* r)
 			break;
 
 	if (i == raw_state.mac) {
-		log_std(("WARNING:mouseb:rawinput: input device not found\n"));
+		log_std(("WARNING:joystickb:lgrawinput: input device not found\n"));
 		return;
 	}
 
 	m = &r->data.mouse;
 	c = &raw_state.map[i].context;
 
-	log_debug(("mouseb:rawinput: device:%d -> usFlags:%d,usButtonFlags:%d,ulRawButtons:%d,lLastX:%d,lLastY:%d,ulExtraInformation:%d\n", i, (unsigned)m->usFlags, (unsigned)m->usButtonFlags, (unsigned)m->ulRawButtons, (unsigned)m->lLastX, (unsigned)m->lLastY, (unsigned)m->ulExtraInformation));
+	log_std(("joystickb:lgrawinput: device:%d -> usFlags:%d,usButtonFlags:%d,ulRawButtons:%d,lLastX:%d,lLastY:%d,ulExtraInformation:%d\n", i, (unsigned)m->usFlags, (unsigned)m->usButtonFlags, (unsigned)m->ulRawButtons, (unsigned)m->lLastX, (unsigned)m->lLastY, (unsigned)m->ulExtraInformation));
 
 	if (m->usFlags & MOUSE_MOVE_ABSOLUTE) {
 		/* absolute */
-		c->x += m->lLastX - c->lx;
-		c->y += m->lLastY - c->ly;
-		c->lx = m->lLastX;
-		c->ly = m->lLastY;
+		c->x = m->lLastX;
+		c->y = m->lLastY;
 	} else {
-		/* relative */
-		c->x += m->lLastX;
-		c->y += m->lLastY;
-	}
-
-	if (m->usButtonFlags & RI_MOUSE_WHEEL) {
-		c->z += (SHORT)m->usButtonData;
+		log_std(("WARNING:joystickb:lgrawinput: device:%d relative move\n", i));
 	}
 
 	if (m->usButtonFlags & RI_MOUSE_BUTTON_1_DOWN) 
@@ -485,10 +493,33 @@ static void raw_event(RAWINPUT* r)
 	if (m->usButtonFlags & RI_MOUSE_BUTTON_5_UP) 
 		c->button &= ~0x10;
 
-	log_debug(("mouseb:rawinput: id:%d,x:%d,y:%d,z:%d,button:%d\n", i, c->x, c->y, c->z, c->button));
+	/* update autocalibration */
+	if (c->lx == 0 && c->hx == 0) {
+		c->lx = c->x;
+		c->hx = c->x;
+	} else {
+		if (c->x < c->lx)
+			c->lx = c->x;
+		if (c->x > c->hx)
+			c->hx = c->x;
+	}
+	if (c->ly == 0 && c->hy == 0) {
+		c->ly = c->y;
+		c->hy = c->y;
+	} else {
+		if (c->y < c->ly)
+			c->ly = c->y;
+		if (c->y > c->hy)
+			c->hy = c->y;
+	}
+
+	c->x_adj = joystickb_adjust_analog(c->x, c->lx, c->hx);
+	c->y_adj = joystickb_adjust_analog(c->y, c->ly, c->hy);
+
+	log_std(("joystickb:lgrawinput: id:%d,x:%d[%d:%d>%d],y:%d[%d:%d>%d],button:%d\n", i, c->x, c->lx, c->hx, c->x_adj, c->y, c->ly, c->hy, c->y_adj, c->button));
 }
 
-void mouseb_rawinput_event_msg(unsigned msg, unsigned wparam, unsigned lparam)
+void joystickb_lgrawinput_event_msg(unsigned msg, unsigned wparam, unsigned lparam)
 {
 	RAWINPUT* r;
 	HRAWINPUT h;
@@ -499,10 +530,10 @@ void mouseb_rawinput_event_msg(unsigned msg, unsigned wparam, unsigned lparam)
 	/* otherwise the input HANDLE will be invalidated. */
 	/* This prevent the use of the SDL event queuee. */
 
-	log_debug(("mouseb:rawinput: mouseb_rawinput_event_input(msg:%d,wparam:%x,lparam:%x)\n", msg, wparam, lparam));
+	log_debug(("joystickb:lgrawinput: joystickb_lgrawinput_event_input(msg:%d,wparam:%x,lparam:%x)\n", msg, wparam, lparam));
 
 	if (msg != WM_INPUT) {
-		log_debug(("WARNING:mouseb:rawinput: not an input message\n"));
+		log_debug(("WARNING:joystickb:lgrawinput: not an input message\n"));
 		return;
 	}
 
@@ -510,14 +541,14 @@ void mouseb_rawinput_event_msg(unsigned msg, unsigned wparam, unsigned lparam)
 
 	size = 0;
 	if (GetRawInputData_ptr(h, RID_INPUT, NULL, &size, sizeof(RAWINPUTHEADER)) == -1) {
-		log_std(("ERROR:mouseb:rawinput: GetRawInputData(NULL) failed with error %d\n", (unsigned)GetLastError()));
+		log_std(("ERROR:joystickb:lgrawinput: GetRawInputData(NULL) failed with error %d\n", (unsigned)GetLastError()));
 		return;
 	}
 
 	r = malloc(size);
 
 	if (GetRawInputData_ptr(h, RID_INPUT, r, &size, sizeof(RAWINPUTHEADER)) == -1) {
-		log_std(("ERROR:mouseb:rawinput: GetRawInputData(RAWINPUT) failed with error %d\n", (unsigned)GetLastError()));
+		log_std(("ERROR:joystickb:lgrawinput: GetRawInputData(RAWINPUT) failed with error %d\n", (unsigned)GetLastError()));
 		return;
 	}
 
@@ -526,45 +557,53 @@ void mouseb_rawinput_event_msg(unsigned msg, unsigned wparam, unsigned lparam)
 	free(r);
 }
 
-void mouseb_rawinput_poll(void)
+void joystickb_lgrawinput_poll(void)
 {
-	log_debug(("mouseb:rawinput: mouseb_rawinput_poll()\n"));
+	log_debug(("joystickb:lgrawinput: joystickb_lgrawinput_poll()\n"));
 }
 
-unsigned mouseb_rawinput_flags(void)
-{
-	return 0;
-}
-
-adv_error mouseb_rawinput_load(adv_conf* context)
+unsigned joystickb_lgrawinput_flags(void)
 {
 	return 0;
 }
 
-void mouseb_rawinput_reg(adv_conf* context)
+adv_error joystickb_lgrawinput_load(adv_conf* context)
+{
+	return 0;
+}
+
+void joystickb_lgrawinput_reg(adv_conf* context)
 {
 }
 
 /***************************************************************************/
 /* Driver */
 
-mouseb_driver mouseb_rawinput_driver = {
-	"rawinput",
+joystickb_driver joystickb_lgrawinput_driver = {
+	"lgrawinput",
 	DEVICE,
-	mouseb_rawinput_load,
-	mouseb_rawinput_reg,
-	mouseb_rawinput_init,
-	mouseb_rawinput_done,
-	mouseb_rawinput_enable,
-	mouseb_rawinput_disable,
-	mouseb_rawinput_flags,
-	mouseb_rawinput_count_get,
-	mouseb_rawinput_axe_count_get,
-	mouseb_rawinput_axe_name_get,
-	mouseb_rawinput_button_count_get,
-	mouseb_rawinput_button_name_get,
-	mouseb_rawinput_axe_get,
-	mouseb_rawinput_button_get,
-	mouseb_rawinput_poll
+	joystickb_lgrawinput_load,
+	joystickb_lgrawinput_reg,
+	joystickb_lgrawinput_init,
+	joystickb_lgrawinput_done,
+	joystickb_lgrawinput_enable,
+	joystickb_lgrawinput_disable,
+	joystickb_lgrawinput_flags,
+	joystickb_lgrawinput_count_get,
+	joystickb_lgrawinput_stick_count_get,
+	joystickb_lgrawinput_stick_axe_count_get,
+	0,
+	0,
+	joystickb_lgrawinput_stick_axe_digital_get,
+	joystickb_lgrawinput_stick_axe_analog_get,
+	joystickb_lgrawinput_button_count_get,
+	0,
+	joystickb_lgrawinput_button_get,
+	0,
+	0,
+	0,
+	0,
+	0,
+	joystickb_lgrawinput_poll
 };
 

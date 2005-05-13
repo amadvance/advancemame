@@ -275,6 +275,74 @@ void os_default_signal(int signum, void* info, void* context)
 }
 
 /***************************************************************************/
+/* Extension */
+
+typedef BOOLEAN (WINAPI* HidD_GetAttributes_type)(HANDLE HidDeviceObject, PHIDD_ATTRIBUTES Attributes);
+
+int GetRawInputDeviceHIDInfo(const char* name, unsigned* vid, unsigned* pid, unsigned* rev)
+{
+	char* buffer;
+	const char* last;
+	HANDLE h, l;
+	HIDD_ATTRIBUTES attr;
+	HidD_GetAttributes_type HidD_GetAttributes_ptr;
+	
+	last = strrchr(name, '\\');
+	if (!last)
+		last = name;
+	else
+		++last;
+
+	l = LoadLibrary("HID.DLL");
+	if (!l) {
+		log_std(("ERROR:GetRawInputDeviceHIDInfo: error loading HID.DLL\n"));
+		goto err;
+	}
+
+	HidD_GetAttributes_ptr = (HidD_GetAttributes_type)GetProcAddress(l, "HidD_GetAttributes");
+	if (!HidD_GetAttributes_ptr) {
+		log_std(("ERROR:GetRawInputDeviceHIDInfo: error getting HidD_GetAttributes\n"));
+		goto err_unload;
+	}
+
+	buffer = malloc(16 + strlen(name));
+	strcpy(buffer, "\\\\?\\");
+	strcat(buffer, last);
+
+	h = CreateFile(buffer, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);	
+	if (h == INVALID_HANDLE_VALUE) {
+		log_std(("ERROR:GetRawInputDeviceHIDInfo: error %d in CreateFile(%s)\n", (unsigned)GetLastError(), buffer));
+		goto err_free;
+	}
+
+	memset(&attr, 0, sizeof(HIDD_ATTRIBUTES));
+	attr.Size = sizeof(HIDD_ATTRIBUTES);
+	if (!HidD_GetAttributes_ptr(h, &attr)) {
+		if (GetLastError() != ERROR_INVALID_FUNCTION)
+			log_std(("ERROR:GetRawInputDeviceHIDInfo: error %d in HidD_GetAttributes(%s)\n", (unsigned)GetLastError(), buffer));
+		goto err_free;
+	}
+
+	*vid = attr.VendorID;
+	*pid = attr.ProductID;
+	*rev = attr.VersionNumber;
+
+	free(buffer);
+	FreeLibrary(l);
+
+	return 0;
+
+err_close:
+	CloseHandle(h);
+err_free:
+	free(buffer);
+err_unload:
+	FreeLibrary(l);
+err:
+	return -1;
+}
+
+/***************************************************************************/
 /* Main */
 
 int main(int argc, char* argv[])
