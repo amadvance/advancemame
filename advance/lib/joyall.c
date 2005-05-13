@@ -39,6 +39,7 @@
  *  - USE_JOYSTICK_EVENT
  *  - USE_JOYSTICK_SVGALIB
  *  - USE_JOYSTICK_RAW
+ *  - USE_JOYSTICK_LGRAWINPUT
  *  - USE_JOYSTICK_SDL
  *  - USE_JOYSTICK_ALLEGRO
  *  - USE_JOYSTICK_NONE
@@ -54,6 +55,9 @@ void joystickb_reg_driver_all(adv_conf* context)
 #endif
 #ifdef USE_JOYSTICK_RAW
 	joystickb_reg_driver(context, &joystickb_raw_driver);
+#endif
+#ifdef USE_JOYSTICK_LGRAWINPUT
+	joystickb_reg_driver(context, &joystickb_lgrawinput_driver);
 #endif
 #ifdef USE_JOYSTICK_SDL
 	joystickb_reg_driver(context, &joystickb_sdl_driver);
@@ -83,6 +87,9 @@ void joystickb_report_driver_all(char* s, unsigned size)
 #endif
 #ifdef USE_JOYSTICK_RAW
 	sncat(s, size, " raw");
+#endif
+#ifdef USE_JOYSTICK_LGRAWINPUT
+	sncat(s, size, " lgrawinput");
 #endif
 #ifdef USE_JOYSTICK_SDL
 	sncat(s, size, " sdl");
