@@ -120,6 +120,9 @@ and keyboard drivers used by the Advance programs.
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#3.2.5">3.2.5 allegro - Allegro joystick (DOS)</a><br>
 </td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#3.2.6">3.2.6 lgrawinput - Light Gun (Windows XP)</a><br>
+</td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
 <a href="#3.3">3.3 Available Mouse Drivers</a><br>
 </td></tr>
@@ -142,10 +145,7 @@ and keyboard drivers used by the Advance programs.
 <a href="#3.3.6">3.3.6 rawinput - Raw input interface (Windows)</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#3.3.7">3.3.7 Please note that this driver is not intented to be used in a window environment. The application takes the control of the mouse and doesn't allow to switch to other applications. It's mainly intented for a fullscreen environment.</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#3.3.8">3.3.8 cpn - CPN custom driver interface (Windows)</a><br>
+<a href="#3.3.7">3.3.7 cpn - CPN custom driver interface (Windows)</a><br>
 </td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#4">4 Video Drivers Configuration</a><br>
@@ -242,6 +242,12 @@ and keyboard drivers used by the Advance programs.
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#6.1.2">6.1.2 device_raw_mousedev[0,1,2,3]</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#6.2">6.2 lgrawinput Configuration Options</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#6.2.1">6.2.1 device_lgrawinput_calibration</a><br>
 </td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#7">7 Copyright</a><br>
@@ -640,7 +646,7 @@ Parallel Port. Details on how to build these custom interfaces are
 in the <a href="file:///usr/src/linux/Documentation/input/joystick-parport.txt">file:///usr/src/linux/Documentation/input/joystick-parport.txt</a>
 file.
 <p>
-It has a special support for the ACT Light-gun to fix the wrong
+It has a special support for the ACT Labs Lightgun to fix the wrong
 behavior of the light-gun when shooting out of screen.
 <p>
 The joysticks are searched on the /dev/input/eventX devices.
@@ -692,6 +698,27 @@ It supports only one joystick.
 <p>
 Details on how to build the Parallel Port hardware interfaces for
 SNES, PSX, N64 and other pads are in the Allegro sources.
+<h4><a name="3.2.6">3.2.6</a> 
+lgrawinput - Light Gun (Windows XP)
+</h4>
+This driver works in Windows XP and it support lightguns
+using the Windows mouse interface.
+<p>
+It supports more than one lightgun at the same time
+of the following types:
+<ul>
+<li>
+SMOG Lightgun (http://lightgun.splinder.com/)
+</li>
+<li>
+Acts Labs Lightgun (http://www.act-labs.com/)
+</li>
+</ul>
+<p>
+The lightgun is automatically calibrated before
+every use. You must move the lightgun over the whole
+screen every time the program starts or changes video
+mode.
 <h3><a name="3.3">3.3</a> 
 Available Mouse Drivers
 </h3>
@@ -764,13 +791,12 @@ For any mouse up to two axes, one wheel and five buttons
 are supported.
 <p>
 This driver is the preferred choice for Windows XP.
-<h4><a name="3.3.7">3.3.7</a> 
+<p>
 Please note that this driver is not intented to be used in a window
 environment. The application takes the control of the mouse and
 doesn't allow to switch to other applications. It's mainly intented
 for a fullscreen environment.
-</h4>
-<h4><a name="3.3.8">3.3.8</a> 
+<h4><a name="3.3.7">3.3.7</a> 
 cpn - CPN custom driver interface (Windows)
 </h4>
 This driver works in Windows 2000/XP using the custom CPN
@@ -2434,6 +2460,34 @@ device_raw_mousedev[0] /dev/input/mouse0
 device_raw_mousedev[1] /dev/ttyS2
 </pre>
 </td></tr></table>
+<h3><a name="6.2">6.2</a> 
+lgrawinput Configuration Options
+</h3>
+<h4><a name="6.2.1">6.2.1</a> 
+device_lgrawinput_calibration
+</h4>
+Select the type of calibration of the lightgun.
+<p>
+device_lgrawinput_calibration auto | none
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+auto
+</em></td><td width="90%">
+Automatically calibrates the lightgun before
+every use. You must move the lightgun over the
+whole screen every time the program starts or
+changes video mode (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+Never calibrates the lightguns, but it assumes
+that the returned values are already scaled in
+the range 0 - 65536.
+</td></tr>
+</table>
 <h2><a name="7">7</a> 
 Copyright
 </h2>

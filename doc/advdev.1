@@ -340,7 +340,7 @@ Parallel Port. Details on how to build these custom interfaces are
 in the file:///usr/src/linux/Documentation/input/joystick\(hyparport.txt
 file.
 .PP
-It has a special support for the ACT Light\(hygun to fix the wrong
+It has a special support for the ACT Labs Lightgun to fix the wrong
 behavior of the light\(hygun when shooting out of screen.
 .PP
 The joysticks are searched on the /dev/input/eventX devices.
@@ -384,6 +384,23 @@ It supports only one joystick.
 .PP
 Details on how to build the Parallel Port hardware interfaces for
 SNES, PSX, N64 and other pads are in the Allegro sources.
+.SS lgrawinput \(hy Light Gun (Windows XP) 
+This driver works in Windows XP and it support lightguns
+using the Windows mouse interface.
+.PP
+It supports more than one lightgun at the same time
+of the following types:
+.PD 0
+.IP \(bu
+SMOG Lightgun (http://lightgun.splinder.com/)
+.IP \(bu
+Acts Labs Lightgun (http://www.act\(hylabs.com/)
+.PD
+.PP
+The lightgun is automatically calibrated before
+every use. You must move the lightgun over the whole
+screen every time the program starts or changes video
+mode.
 .SS Available Mouse Drivers 
 The following is the list of all the mouse drivers supported.
 .SS event \(hy Kernel Input\(hyEvent interface (Linux) 
@@ -442,7 +459,11 @@ For any mouse up to two axes, one wheel and five buttons
 are supported.
 .PP
 This driver is the preferred choice for Windows XP.
-.SS Please note that this driver is not intented to be used in a window environment. The application takes the control of the mouse and doesn\(cqt allow to switch to other applications. It\(cqs mainly intented for a fullscreen environment. 
+.PP
+Please note that this driver is not intented to be used in a window
+environment. The application takes the control of the mouse and
+doesn\(cqt allow to switch to other applications. It\(cqs mainly intented
+for a fullscreen environment.
 .SS cpn \(hy CPN custom driver interface (Windows) 
 This driver works in Windows 2000/XP using the custom CPN
 mouse driver.
@@ -1903,6 +1924,28 @@ device_raw_mousedev[0] /dev/input/mouse0
 device_raw_mousedev[1] /dev/ttyS2
 .PD 0
 .PP
+.PD
+.RE
+.SS lgrawinput Configuration Options 
+.SS device_lgrawinput_calibration 
+Select the type of calibration of the lightgun.
+.PP
+device_lgrawinput_calibration auto | none
+.PP
+Options:
+.RS 4
+.PD 0
+.HP 4
+.I auto
+Automatically calibrates the lightgun before
+every use. You must move the lightgun over the
+whole screen every time the program starts or
+changes video mode (default).
+.HP 4
+.I none
+Never calibrates the lightguns, but it assumes
+that the returned values are already scaled in
+the range 0 \(hy 65536.
 .PD
 .RE
 .SH COPYRIGHT 

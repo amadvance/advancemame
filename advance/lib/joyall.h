@@ -54,6 +54,9 @@ extern "C" {
 #ifdef USE_JOYSTICK_RAW
 #include "jraw.h"
 #endif
+#ifdef USE_JOYSTICK_LGRAWINPUT
+#include "jlgraw.h"
+#endif
 #ifdef USE_JOYSTICK_SDL
 #include "jsdl.h"
 #endif

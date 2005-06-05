@@ -335,7 +335,7 @@ Input Drivers
 	in the file:///usr/src/linux/Documentation/input/joystick-parport.txt
 	file.
 
-	It has a special support for the ACT Light-gun to fix the wrong
+	It has a special support for the ACT Labs Lightgun to fix the wrong
 	behavior of the light-gun when shooting out of screen.
 
 	The joysticks are searched on the /dev/input/eventX devices.
@@ -383,6 +383,21 @@ Input Drivers
 
 	Details on how to build the Parallel Port hardware interfaces for
 	SNES, PSX, N64 and other pads are in the Allegro sources.
+
+    lgrawinput - Light Gun (Windows XP)
+	This driver works in Windows XP and it support lightguns
+	using the Windows mouse interface.
+
+	It supports more than one lightgun at the same time
+	of the following types:
+
+	* SMOG Lightgun (http://lightgun.splinder.com/)
+	* Acts Labs Lightgun (http://www.act-labs.com/)
+
+	The lightgun is automatically calibrated before
+	every use. You must move the lightgun over the whole
+	screen every time the program starts or changes video
+	mode.
 
   Available Mouse Drivers
 	The following is the list of all the mouse drivers supported.
@@ -449,10 +464,10 @@ Input Drivers
 
 	This driver is the preferred choice for Windows XP.
 
-    Please note that this driver is not intented to be used in a window 
-    environment. The application takes the control of the mouse and 
-    doesn't allow to switch to other applications. It's mainly intented 
-    for a fullscreen environment.	
+	Please note that this driver is not intented to be used in a window
+	environment. The application takes the control of the mouse and
+	doesn't allow to switch to other applications. It's mainly intented
+	for a fullscreen environment.
 
     cpn - CPN custom driver interface (Windows)
 	This driver works in Windows 2000/XP using the custom CPN
@@ -1124,6 +1139,21 @@ Input Drivers Configuration
 	Examples:
 		:device_raw_mousedev[0] /dev/input/mouse0
 		:device_raw_mousedev[1] /dev/ttyS2
+
+  lgrawinput Configuration Options
+    device_lgrawinput_calibration
+	Select the type of calibration of the lightgun.
+
+	device_lgrawinput_calibration auto | none
+
+	Options:
+		auto - Automatically calibrates the lightgun before
+			every use. You must move the lightgun over the
+			whole screen every time the program starts or
+			changes video mode (default).
+		none - Never calibrates the lightguns, but it assumes
+			that the returned values are already scaled in
+			the range 0 - 65536.
 
 Copyright
 	This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni.

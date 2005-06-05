@@ -146,18 +146,6 @@ unsigned joystickb_sdl_button_get(unsigned joystick, unsigned button)
 	return SDL_JoystickGetButton(sdl_state.map[joystick], button) != 0;
 }
 
-unsigned joystickb_sdl_stick_axe_digital_get(unsigned joystick, unsigned stick, unsigned axe, unsigned d)
-{
-	int r;
-	log_debug(("joystickb:sdl: joystickb_sdl_stick_axe_digital_get()\n"));
-
-	r = SDL_JoystickGetAxis(sdl_state.map[joystick], axe);
-	if (d)
-		return r < -8192; /* -1/8 of the whole range 65536 */
-	else
-		return r > 8192; /* +1/8 of the whole range 65536 */
-}
-
 int joystickb_sdl_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)
 {
 	int r;
@@ -165,13 +153,22 @@ int joystickb_sdl_stick_axe_analog_get(unsigned joystick, unsigned stick, unsign
 
 	r = SDL_JoystickGetAxis(sdl_state.map[joystick], axe);
 
-	r /= 256; /* adjust the upper limit from -128 to 128 */
-	if (r < -128)
-		r = -128;
-	if (r > 128)
-		r = 128;
+	r = joystickb_adjust_analog(r, -32768, 32768);
 
 	return r;
+}
+
+unsigned joystickb_sdl_stick_axe_digital_get(unsigned joystick, unsigned stick, unsigned axe, unsigned d)
+{
+	int r;
+	log_debug(("joystickb:sdl: joystickb_sdl_stick_axe_digital_get()\n"));
+
+	r = joystickb_sdl_stick_axe_analog_get(joystick, stick, axe);
+
+	if (d)
+		return r < -JOYSTICK_DRIVER_BASE/8; /* -1/8 of the partial range */
+	else
+		return r > JOYSTICK_DRIVER_BASE/8; /* +1/8 of the partial range */
 }
 
 void joystickb_sdl_poll(void)

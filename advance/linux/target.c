@@ -91,6 +91,8 @@ struct target_context {
 	adv_bool io_perm_flag; /**< IO Permission granted. */
 	adv_bool io_perm_iopl_flag; /**< IO iopl called. */
 #endif
+
+	adv_bool io_dev_port_flag; /**< /dev/port granted. */
 };
 
 static struct target_context TARGET;
@@ -119,6 +121,8 @@ adv_error target_init(void)
 	TARGET.io_perm_iopl_flag = 0;
 	TARGET.io_perm_flag = 0;
 #endif
+
+	TARGET.io_dev_port_flag = 1;
 
 	return 0;
 }
@@ -214,8 +218,12 @@ static void dev_port_set(unsigned addr, unsigned value)
 	size_t s;
 	unsigned char c;
 
+	if (!TARGET.io_dev_port_flag)
+		goto err;
+
 	f = open("/dev/port", O_WRONLY);
 	if (f == -1) {
+		TARGET.io_dev_port_flag = 0;
 		log_std(("ERROR:linux: port_set failed, error %d open(/dev/port), %s\n", errno, strerror(errno)));
 		goto err;
 	}
@@ -259,8 +267,12 @@ static unsigned dev_port_get(unsigned addr)
 	size_t s;
 	unsigned char c;
 
+	if (!TARGET.io_dev_port_flag)
+		goto err;
+
 	f = open("/dev/port", O_RDONLY);
 	if (f == -1) {
+		TARGET.io_dev_port_flag = 0;
 		log_std(("ERROR:linux: port_get failed, error %d open(/dev/port), %s\n", errno, strerror(errno)));
 		goto err;
 	}
@@ -317,19 +329,22 @@ static adv_bool io_port(void)
 
 void target_port_set(unsigned addr, unsigned value)
 {
-	log_std(("linux: port_set(0x%x,0x%02x)\n", addr, value));
+	log_debug(("linux: port_set(0x%x,0x%02x)\n", addr, value));
+
 #ifdef USE_DIRECT_PORT
 	if (io_port()) {
 		outb(addr, value);
 		return;
 	}
 #endif
+
 	dev_port_set(addr, value);
 }
 
 unsigned target_port_get(unsigned addr)
 {
 	unsigned v;
+
 #ifdef USE_DIRECT_PORT
 	if (io_port()) {
 		v = inb(addr);
@@ -337,8 +352,11 @@ unsigned target_port_get(unsigned addr)
 		return v;
 	}
 #endif
+
 	v = dev_port_get(addr);
-	log_std(("linux: port_get(0x%x) = 0x%02x\n", addr, v));
+
+	log_debug(("linux: port_get(0x%x) = 0x%02x\n", addr, v));
+
 	return v;
 }
 

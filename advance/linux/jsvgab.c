@@ -133,10 +133,13 @@ unsigned joystickb_svgalib_stick_axe_digital_get(unsigned joystick, unsigned sti
 	log_debug(("joystickb:svgalib: joystickb_svgalib_stick_axe_digital_get()\n"));
 
 	r = joystick_getaxis(joystick, axe);
+
+	r = joystickb_adjust_analog(r, -128, 127);
+
 	if (d)
-		return r < -32; /* -1/8 of the whole range 256 */
+		return r < -JOYSTICK_DRIVER_BASE/8; /* -1/8 of the partial range */
 	else
-		return r > 32; /* +1/8 of the whole range 256 */
+		return r > JOYSTICK_DRIVER_BASE/8; /* +1/8 of the partial range */
 }
 
 int joystickb_svgalib_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)
@@ -145,8 +148,8 @@ int joystickb_svgalib_stick_axe_analog_get(unsigned joystick, unsigned stick, un
 	log_debug(("joystickb:svgalib: joystickb_svgalib_stick_axe_analog_get()\n"));
 
 	r = joystick_getaxis(joystick, axe);
-	if (r > 64) /* adjust the upper limit from 127 to 128 */
-		++r;
+
+	r = joystickb_adjust_analog(r, -128, 127);
 
 	return r;
 }

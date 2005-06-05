@@ -52,9 +52,7 @@ struct joystick_button_context {
 struct joystick_axe_context {
 	int code;
 	int value;
-	int value_adj; /**< Value adjusted in range -128, 128. */
-	int digit_low;
-	int digit_high;
+	int value_adj; /**< Value adjusted in range -JOYSTICK_DRIVER_BASE, JOYSTICK_DRIVER_BASE. */
 };
 
 struct joystick_stick_context {
@@ -140,13 +138,9 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 			stick->axe_map[0].code = i*2;
 			stick->axe_map[0].value = 0;
 			stick->axe_map[0].value_adj = 0;
-			stick->axe_map[0].digit_low = -8192; /* -1/8 of the whole range 65536 */
-			stick->axe_map[0].digit_high = 8192; /* +1/8 of the whole range 65536 */
 			stick->axe_map[1].code = i*2+1;
 			stick->axe_map[1].value = 0;
 			stick->axe_map[1].value_adj = 0;
-			stick->axe_map[1].digit_low = -8192; /* -1/8 of the whole range 65536 */
-			stick->axe_map[1].digit_high = 8192; /* +1/8 of the whole range 65536 */
 
 			++item->stick_mac;
 		}
@@ -254,18 +248,6 @@ unsigned joystickb_raw_stick_axe_count_get(unsigned joystick, unsigned stick)
 	return raw_state.map[joystick].stick_map[stick].axe_mac;
 }
 
-unsigned joystickb_raw_stick_axe_digital_get(unsigned joystick, unsigned stick, unsigned axe, unsigned d)
-{
-	int r;
-	log_debug(("joystickb:raw: joystickb_raw_stick_axe_digital_get()\n"));
-
-	r = raw_state.map[joystick].stick_map[stick].axe_map[axe].value;
-	if (d)
-		return r < raw_state.map[joystick].stick_map[stick].axe_map[axe].digit_low;
-	else
-		return r > raw_state.map[joystick].stick_map[stick].axe_map[axe].digit_high;
-}
-
 int joystickb_raw_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)
 {
 	int r;
@@ -274,6 +256,19 @@ int joystickb_raw_stick_axe_analog_get(unsigned joystick, unsigned stick, unsign
 	r = raw_state.map[joystick].stick_map[stick].axe_map[axe].value_adj;
 
 	return r;
+}
+
+unsigned joystickb_raw_stick_axe_digital_get(unsigned joystick, unsigned stick, unsigned axe, unsigned d)
+{
+	int r;
+	log_debug(("joystickb:raw: joystickb_raw_stick_axe_digital_get()\n"));
+
+	r = joystickb_raw_stick_axe_analog_get(joystick, stick, axe);
+
+	if (d)
+		return r < -JOYSTICK_DRIVER_BASE/8; /* -1/8 of the partial range */
+	else
+		return r > JOYSTICK_DRIVER_BASE/8; /* +1/8 of the partial range */
 }
 
 unsigned joystickb_raw_button_count_get(unsigned joystick)
@@ -294,11 +289,7 @@ static void joystickb_raw_axe_set(struct joystick_axe_context* axe, int value)
 {
 	axe->value = value;
 
-	axe->value_adj = value / 256;
-	if (axe->value_adj < -128)
-		axe->value_adj = -128;
-	if (axe->value_adj > 128)
-		axe->value_adj = 128;
+	axe->value_adj = joystickb_adjust_analog(value, -32767, 32767);
 }
 
 static adv_error joystickb_read(int f, int* type, int* code, int* value)

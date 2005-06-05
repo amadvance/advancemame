@@ -37,7 +37,7 @@ prefix=/usr/local
 #   SDL for the text
 #   SDL for the sound
 #   SDL for the keyboard
-#   SDL for the joystick
+#   JLGRAWINPUT, SDL for the joystick
 #   MRAWINPUT, MCPN, SDL for the mouse
 #   none for the Multiprocessor support (no Multiprocessor support)
 #
@@ -64,6 +64,7 @@ prefix=/usr/local
 #CONF_LIB_JEVENT=yes
 #CONF_LIB_MEVENT=yes
 #CONF_LIB_MRAWINPUT=yes
+#CONF_LIB_JLGRAWINPUT=yes
 #CONF_LIB_MCPN=yes
 
 # Select the optimization flags: (optimized build for Pentium by default)
@@ -210,6 +211,10 @@ endif
 
 ifndef CONF_LIB_MRAWINPUT
 CONF_LIB_MRAWINPUT=yes
+endif
+
+ifndef CONF_LIB_JLGRAWINPUT
+CONF_LIB_JLGRAWINPUT=yes
 endif
 
 ifndef CONF_LIB_MCPN

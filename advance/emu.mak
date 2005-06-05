@@ -357,6 +357,12 @@ ADVANCECFLAGS += \
 ADVANCEOBJS += \
 	$(OBJ)/advance/windows/mraw.o
 endif
+ifeq ($(CONF_LIB_JLGRAWINPUT),yes)
+ADVANCECFLAGS += \
+	-DUSE_JOYSTICK_LGRAWINPUT
+ADVANCEOBJS += \
+	$(OBJ)/advance/windows/jlgraw.o
+endif
 ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
 ifeq ($(CONF_LIB_FREETYPE),yes)
 ADVANCECFLAGS += \

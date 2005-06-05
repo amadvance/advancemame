@@ -2389,7 +2389,6 @@ adv_bool advance_input_digital_pressed(struct advance_input_context* context, un
 /**
  * Get the analog control input for the specified player and control
  * Analog absolute inputs return a value between -65536 and +65536.
- * Analog relative inputs are scaled with a 512 units for 1 pixel movement.
  * \param player Player.
  * \param control Control to read. One of INPUT_ANALOG_*.
  * \param value Value read.
@@ -2453,9 +2452,6 @@ static int advance_input_analog_read(struct advance_input_context* context, unsi
 			break;
 		}
 	}
-
-	/* adjust from -128..128 to -65536..65536 */
-	absolute *= 512;
 
 	/* limit the range */
 	if (absolute < -65536)

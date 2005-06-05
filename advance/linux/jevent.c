@@ -44,8 +44,11 @@
 
 /**
  * Define to use the Acts Labs Lightgun Reload Hack.
- * This lightgun remap the shot out of screen to the second button (BTN_SIDE)
- * instead of the first button (BTN_MIDDLE).
+ * For the ACT LABS guns, shooting offscreen, or pressing the side button,
+ * causes a BTN_SIDE event code. Shooting directly at the screen produces
+ * an X and Y axis event, aswell as a BTN_MIDDLE event. For the second button
+ * BTN_SIDE, I set the abs values to offscreen and produce a normal first button
+ * event BTN_MIDDLE.
  */
 #define USE_ACTLABS_HACK
 
@@ -75,7 +78,7 @@ struct joystick_button_context {
 struct joystick_axe_context {
 	int code;
 	int value;
-	int value_adj; /**< Value adjusted in range -128, 128. */
+	int value_adj; /**< Value adjusted in range -JOYSTICK_DRIVER_BASE, JOYSTICK_DRIVER_BASE. */
 	int min;
 	int max;
 	int fuzz;
@@ -272,10 +275,10 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ BTN_RIGHT, "right" }, /* ball */
 		#endif
 		#ifdef BTN_MIDDLE
-		{ BTN_MIDDLE, "middle" }, /* ball/lightgun */
+		{ BTN_MIDDLE, "middle" }, /* ball/lightgun first button */
 		#endif
 		#ifdef BTN_SIDE
-		{ BTN_SIDE, "side" }, /* ball/lightgun */
+		{ BTN_SIDE, "side" }, /* ball/lightgun second button */
 		#endif
 		#ifdef BTN_EXTRA
 		{ BTN_EXTRA, "extra" }, /* ball */
@@ -607,7 +610,7 @@ int joystickb_event_stick_axe_analog_get(unsigned joystick, unsigned stick, unsi
 	if (stick == 0
 		&& axe < 2
 		&& event_state.map[joystick].actlabs_hack_enable) {
-		return -128;
+		return -JOYSTICK_DRIVER_BASE;
 	}
 #endif
 
@@ -692,7 +695,6 @@ static void joystickb_event_axe_set(struct joystick_axe_context* axe, int value)
 	int max = axe->max;
 	int fuzz = axe->fuzz;
 	int flat = axe->flat;
-	int a, d;
 
 	axe->value = value;
 
@@ -709,12 +711,12 @@ static void joystickb_event_axe_set(struct joystick_axe_context* axe, int value)
 		int fuzz_max = max - fuzz;
 
 		if (value < fuzz_min) {
-			axe->value_adj = -128;
+			axe->value_adj = -JOYSTICK_DRIVER_BASE;
 			return;
 		}
 
 		if (value > fuzz_max) {
-			axe->value_adj = 128;
+			axe->value_adj = JOYSTICK_DRIVER_BASE;
 			return;
 		}
 	}
@@ -748,14 +750,7 @@ static void joystickb_event_axe_set(struct joystick_axe_context* axe, int value)
 		}
 	}
 
-	a = value - min;
-	d = max - min;
-	axe->value_adj = a * 256 / d - 128;
-
-	if (axe->value_adj < -128)
-		axe->value_adj = -128;
-	if (axe->value_adj > 128)
-		axe->value_adj = 128;
+	axe->value_adj = joystickb_adjust_analog(value, min, max);
 }
 
 void joystickb_event_poll(void)

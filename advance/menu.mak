@@ -350,6 +350,12 @@ MENUCFLAGS += \
 MENUOBJS += \
 	$(MENUOBJ)/windows/mraw.o
 endif
+ifeq ($(CONF_LIB_JLGRAWINPUT),yes)
+MENUCFLAGS += \
+	-DUSE_JOYSTICK_LGRAWINPUT
+MENUOBJS += \
+	$(MENUOBJ)/windows/jlgraw.o
+endif
 ifeq ($(CONF_LIB_SDL),yes)
 MENUOBJDIRS += \
 	$(MENUOBJ)/sdl

@@ -378,3 +378,40 @@ const char* joystickb_name(void)
 	return joystickb_state.driver_current->name;
 }
 
+int joystickb_adjust_analog(int value, int low_limit, int high_limit)
+{
+	int r;
+	int a;
+	int b;
+	int c;
+
+	if (low_limit >= high_limit)
+		return 0;
+	if (value <= low_limit)
+		return -JOYSTICK_DRIVER_BASE;
+	if (value >= high_limit)
+		return JOYSTICK_DRIVER_BASE;
+
+	/* special case for -128, 127 */
+	if (-low_limit == high_limit + 1) {
+		++high_limit;
+		if (value > high_limit/2)
+			++value;
+	}
+
+	a = value - low_limit;
+	b = JOYSTICK_DRIVER_BASE * 2;
+	c = high_limit - low_limit;
+
+	r = a * (long long)b / c;
+
+	r -= JOYSTICK_DRIVER_BASE;
+
+	// ensure limits
+	if (r < -JOYSTICK_DRIVER_BASE)
+		r = -JOYSTICK_DRIVER_BASE;
+	if (r > JOYSTICK_DRIVER_BASE)
+		r = JOYSTICK_DRIVER_BASE;
+
+	return r;
+}

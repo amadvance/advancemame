@@ -345,9 +345,14 @@ unsigned joystickb_allegro_stick_axe_digital_get(unsigned j, unsigned s, unsigne
 
 int joystickb_allegro_stick_axe_analog_get(unsigned j, unsigned s, unsigned a)
 {
+	int r;
 	log_debug(("joystickb:allegro: joystickb_allegro_stick_axe_analog_get()\n"));
 
-	return joy[j].stick[s].axis[a].pos;
+	r = joy[j].stick[s].axis[a].pos;
+
+	r = joystickb_adjust_analog(r, -128, 128);
+
+	return r;
 }
 
 void joystickb_allegro_calib_start(void)

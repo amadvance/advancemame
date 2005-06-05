@@ -379,7 +379,7 @@ Public License instead of this License.
 MAME
 ====
 
-This is the MAME Licence. Note that it isn't an Open Source License.
+This is the MAME License. Note that it isn't an Open Source License.
 
 Copyright (c) 1997-2005, Nicola Salmoria and the MAME team
 All rights reserved.

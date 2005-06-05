@@ -42,6 +42,15 @@
 #include "error.h"
 #include "snstring.h"
 
+#define CALIBRATION_NONE 0
+#define CALIBRATION_AUTO 1
+
+struct lgrawinput_option_struct {
+	int calibration;
+};
+
+static struct lgrawinput_option_struct raw_option;
+
 #define RAW_MOUSE_MAX 8
 #define RAW_MOUSE_NAME_MAX 128
 #define RAW_MOUSE_BUTTON_MAX 8
@@ -462,7 +471,7 @@ static void raw_event(RAWINPUT* r)
 	m = &r->data.mouse;
 	c = &raw_state.map[i].context;
 
-	log_std(("joystickb:lgrawinput: device:%d -> usFlags:%d,usButtonFlags:%d,ulRawButtons:%d,lLastX:%d,lLastY:%d,ulExtraInformation:%d\n", i, (unsigned)m->usFlags, (unsigned)m->usButtonFlags, (unsigned)m->ulRawButtons, (unsigned)m->lLastX, (unsigned)m->lLastY, (unsigned)m->ulExtraInformation));
+	log_debug(("joystickb:lgrawinput: device:%d -> usFlags:%d,usButtonFlags:%d,ulRawButtons:%d,lLastX:%d,lLastY:%d,ulExtraInformation:%d\n", i, (unsigned)m->usFlags, (unsigned)m->usButtonFlags, (unsigned)m->ulRawButtons, (unsigned)m->lLastX, (unsigned)m->lLastY, (unsigned)m->ulExtraInformation));
 
 	if (m->usFlags & MOUSE_MOVE_ABSOLUTE) {
 		/* absolute */
@@ -513,10 +522,18 @@ static void raw_event(RAWINPUT* r)
 			c->hy = c->y;
 	}
 
-	c->x_adj = joystickb_adjust_analog(c->x, c->lx, c->hx);
-	c->y_adj = joystickb_adjust_analog(c->y, c->ly, c->hy);
+	if (raw_option.calibration == CALIBRATION_AUTO) {
+		c->x_adj = joystickb_adjust_analog(c->x, c->lx, c->hx);
+		c->y_adj = joystickb_adjust_analog(c->y, c->ly, c->hy);
+	} else if (raw_option.calibration == CALIBRATION_NONE) {
+		c->x_adj = joystickb_adjust_analog(c->x, 0, 65536);
+		c->y_adj = joystickb_adjust_analog(c->y, 0, 65536);
+	} else {
+		c->x_adj = 0;
+		c->y_adj = 0;
+	}
 
-	log_std(("joystickb:lgrawinput: id:%d,x:%d[%d:%d>%d],y:%d[%d:%d>%d],button:%d\n", i, c->x, c->lx, c->hx, c->x_adj, c->y, c->ly, c->hy, c->y_adj, c->button));
+	log_debug(("joystickb:lgrawinput: id:%d,x:%d[%d:%d>%d],y:%d[%d:%d>%d],button:%d\n", i, c->x, c->lx, c->hx, c->x_adj, c->y, c->ly, c->hy, c->y_adj, c->button));
 }
 
 void joystickb_lgrawinput_event_msg(unsigned msg, unsigned wparam, unsigned lparam)
@@ -569,11 +586,19 @@ unsigned joystickb_lgrawinput_flags(void)
 
 adv_error joystickb_lgrawinput_load(adv_conf* context)
 {
+	raw_option.calibration = conf_int_get_default(context, "device_lgrawinput_calibration");
+
 	return 0;
 }
 
+static adv_conf_enum_int OPTION_STUB[] = {
+{ "none", CALIBRATION_NONE },
+{ "auto", CALIBRATION_AUTO }
+};
+
 void joystickb_lgrawinput_reg(adv_conf* context)
 {
+	conf_int_register_enum_default(context, "device_lgrawinput_calibration", conf_enum(OPTION_STUB), CALIBRATION_AUTO);
 }
 
 /***************************************************************************/

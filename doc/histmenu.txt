@@ -3,6 +3,13 @@
                             =======================
 
 
+ADVANCEMENU VERSION 2.4.10 2005/06
+==================================
+
+* Improved the precision of all the joystick drivers.
+  Now a scale of 65536 values is used.
+
+
 ADVANCEMENU VERSION 2.4.9 2005/05
 =================================
 

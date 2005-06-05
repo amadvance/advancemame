@@ -1,6 +1,18 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.97.0
+	This version adds lightguns support in Windows XP.
+	The lightguns supported are:
+
+	* SMOG Lightgun (http://lightgun.splinder.com/)
+	* Acts Labs Lightgun (http://www.act-labs.com/)
+
+	The lightgun is automatically calibrated before
+	every use. You must move the lightgun over the whole
+	screen every time the program starts or changes video
+	mode.
+
 AdvanceMAME 0.95.1
 	The DOS and Windows version now includes the old SVGALIB
 	drivers for GeForce and Savage boards. If you have problem

@@ -441,6 +441,9 @@ wholemenu:
 dosmenu:
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=dos distmenubin
 
+winmenu:
+	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=windows distmenubin
+
 wholelinux:
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC3) CONF_HOST=linux CONF_DEFS="$(DEFS_LINUX)" distbin
 	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC3) CONF_HOST=linux CONF_EMU=mess CONF_DEFS="$(DEFS_LINUX)" distbin

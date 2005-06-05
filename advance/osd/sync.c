@@ -393,10 +393,10 @@ static void video_frame_sync(struct advance_video_context* context)
 		/* update the error state */
 		context->state.sync_pivot = expected - current;
 
-		if (fabs(context->state.sync_pivot) > context->state.skip_step / 100)
-			log_std(("advance:sync: tot %.5f (max %.5f), err %8.5f, frame %.5f, sleep %.5f, sync %.5f\n", current - context->state.sync_last, context->state.skip_step, context->state.sync_pivot, time_before_sync - context->state.sync_last, time_after_delay - time_before_sync, time_after_sync - time_after_delay));
+		if (fabs(context->state.sync_pivot) > context->state.skip_step / 50)
+			log_std(("advance:sync: %.5f (err %6.1f%%) = %.5f + %.5f + %.5f < %.5f (compute + sleep + sync < max)\n", current - context->state.sync_last, context->state.sync_pivot * 100 / context->state.skip_step, time_before_sync - context->state.sync_last, time_after_delay - time_before_sync, time_after_sync - time_after_delay, context->state.skip_step));
 
-		if (context->state.sync_pivot < -5) {
+		if (context->state.sync_pivot < - context->state.skip_step * 16) {
 			/* if the error is too big (negative) the delay is unrecoverable */
 			/* generally it happen with a virtual terminal switch */
 			/* the best solution is to restart the sync computation */

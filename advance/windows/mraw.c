@@ -64,7 +64,6 @@ struct raw_context {
 	char name[256];
 	RID_DEVICE_INFO info;
 	int x, y, z;
-	int lx, ly;
 	unsigned button;
 };
 
@@ -338,10 +337,8 @@ adv_error mouseb_rawinput_enable(void)
 	for(i=0;i<raw_state.mac;++i) {
 		raw_state.map[i].context.x = 0;
 		raw_state.map[i].context.y = 0;
-		raw_state.map[i].context.lx = 0;
-		raw_state.map[i].context.ly = 0;
 		raw_state.map[i].context.z = 0;
-		raw_state.map[i].context.button = 0;	
+		raw_state.map[i].context.button = 0;
 	}
 
 	return 0;
@@ -450,10 +447,7 @@ static void raw_event(RAWINPUT* r)
 
 	if (m->usFlags & MOUSE_MOVE_ABSOLUTE) {
 		/* absolute */
-		c->x += m->lLastX - c->lx;
-		c->y += m->lLastY - c->ly;
-		c->lx = m->lLastX;
-		c->ly = m->lLastY;
+		log_std(("WARNING:mouseb:rawinput: device:%d absolute move\n", i));
 	} else {
 		/* relative */
 		c->x += m->lLastX;

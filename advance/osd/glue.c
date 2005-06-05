@@ -601,6 +601,9 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	/* store the game pointer */
 	context->game = advance->game;
 
+	/* clear all, if some new options is added it should be safe to have them at 0 */
+	memset(&options, 0, sizeof(options));
+
 	options.record = 0;
 	options.playback = 0;
 	options.language_file = 0;

@@ -48,6 +48,11 @@ extern "C" {
 /***************************************************************************/
 /* Driver */
 
+/**
+ * Base unit of the analog axes.
+ */
+#define JOYSTICK_DRIVER_BASE 65536
+
 #define JOYSTICK_DRIVER_FLAGS_USER_BIT0 0x10000
 #define JOYSTICK_DRIVER_FLAGS_USER_MASK 0xFFFF0000
 
@@ -107,6 +112,15 @@ struct joystickb_state_struct {
 };
 
 extern struct joystickb_state_struct joystickb_state;
+
+/**
+ * Adjust a generic value to the library limit -JOYSTICK_DRIVER_BASE, JOYSTICK_DRIVER_BASE.
+ * \param value Value to adjust.
+ * \param min Low limit.
+ * \param max High limit.
+ * \return Adjusted value.
+ */
+int joystickb_adjust_analog(int value, int min, int max);
 
 void joystickb_reg(adv_conf* config_context, adv_bool auto_detect);
 void joystickb_reg_driver(adv_conf* config_context, joystickb_driver* driver);

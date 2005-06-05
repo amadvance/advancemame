@@ -149,7 +149,7 @@ void run(void)
 						digital = '/';
 					else
 						digital = '-';
-					sncatf(new_msg, sizeof(new_msg), " %d/%d [%4d %c]", j, k, joystickb_stick_axe_analog_get(i, j, k), digital);
+					sncatf(new_msg, sizeof(new_msg), " %d/%d [%6d %c]", j, k, joystickb_stick_axe_analog_get(i, j, k), digital);
 				}
 			}
 

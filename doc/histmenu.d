@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.4.10 2005/06
+	) Improved the precision of all the joystick drivers.
+		Now a scale of 65536 values is used.
+
 AdvanceMENU Version 2.4.9 2005/05
 	) The directory is not chaged before running an
 		emulator in the *nix platforms. Instead the

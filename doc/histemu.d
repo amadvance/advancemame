@@ -1,6 +1,12 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.97.0 2005/06
+	) Improved the precision of all the joystick drivers.
+		Now a scale of 65536 values is used.
+	) Added support for multiple lightgun in Windows XP
+		using the new `lgrawinput' joystick driver.
+
 AdvanceMESS Version 0.96.0.0 2005/05
 	) Based on MAME 0.96 and AdvanceMAME 0.96.0.
 
