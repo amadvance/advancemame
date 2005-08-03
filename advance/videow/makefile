@@ -59,15 +59,17 @@ VIDEOWOBJS += \
 	$(VIDEOWOBJ)/svgalib/drivers/et6000.o \
 	$(VIDEOWOBJ)/svgalib/drivers/g400.o \
 	$(VIDEOWOBJ)/svgalib/drivers/pm2.o \
-	$(VIDEOWOBJ)/svgalib/drivers/i740.o \
 	$(VIDEOWOBJ)/svgalib/drivers/laguna.o \
 	$(VIDEOWOBJ)/svgalib/drivers/millenni.o \
 	$(VIDEOWOBJ)/svgalib/drivers/mx.o \
 	$(VIDEOWOBJ)/svgalib/drivers/nv3.o \
+	$(VIDEOWOBJ)/svgalib/drivers/nv319.o \
 	$(VIDEOWOBJ)/svgalib/drivers/r128.o \
 	$(VIDEOWOBJ)/svgalib/drivers/rage.o \
 	$(VIDEOWOBJ)/svgalib/drivers/s3.o \
 	$(VIDEOWOBJ)/svgalib/drivers/savage.o \
+	$(VIDEOWOBJ)/svgalib/drivers/savage18.o \
+	$(VIDEOWOBJ)/svgalib/drivers/unichrom.o \
 	$(VIDEOWOBJ)/svgalib/drivers/sis.o \
 	$(VIDEOWOBJ)/svgalib/drivers/trident.o \
 	$(VIDEOWOBJ)/svgalib/drivers/renditio.o \

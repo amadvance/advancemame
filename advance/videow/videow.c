@@ -109,7 +109,7 @@ static int video_load(const char* file)
 
 static int driver_init(const char* file) 
 {
-	if (adv_svgalib_init(0) != 0) {
+	if (adv_svgalib_init(0, 0) != 0) {
 		printf("Error initializing SVGALIB. Have you installed the driver?\n");
 		return -1;
 	}
