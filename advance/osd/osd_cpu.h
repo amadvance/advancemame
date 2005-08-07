@@ -70,19 +70,8 @@ __extension__ typedef signed long long INT64;
 #define MUL_64_32_32(A, B) ((A)*(INT64)(B))
 #define MUL_U64_U32_U32(A, B) ((A)*(UINT64)(UINT32)(B))
 
-/* Common register (native endianess) */
-typedef union {
-#if defined(LSB_FIRST)
-        struct { UINT8 l, h, h2, h3; } b;
-        struct { UINT16 l, h; } w;
-#elif defined(MSB_FIRST)
-        struct { UINT8 h3, h2, h, l; } b;
-        struct { UINT16 h, l; } w;
-#else
-#error LSB_FIRST and MSB_FIRST not defined
-#endif
-	UINT32 d;
-} PAIR;
+/* Declaration of MAME functions with ... args */
+#define CLIB_DECL
 
 #endif
 

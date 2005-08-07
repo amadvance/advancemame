@@ -2155,6 +2155,15 @@ void osd_free_executable(void* p)
 }
 
 /**
+ * Ensure that a memory region is valid.
+ * It can return alwasy 0 if this check is not possible.
+ */
+int osd_is_bad_read_ptr(const void *ptr, size_t size)
+{
+	return 0;
+}
+
+/**
  * Create the video.
  * \return
  * - ==0 On success.

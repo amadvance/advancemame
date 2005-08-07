@@ -56,6 +56,7 @@ mame.c
 mame.h
 mame.mak
 mameblit.c
+mamecore.h
 md5.c
 md5.h
 memory.c
