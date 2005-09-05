@@ -1357,7 +1357,7 @@ void event_close(int f)
 void event_log(int f, unsigned char* evtype_bitmask)
 {
 	int version;
-	short device_info[4];
+	unsigned short device_info[4];
 	const char* bus;
 	char name[256];
 	unsigned i;
@@ -1410,10 +1410,10 @@ void event_log(int f, unsigned char* evtype_bitmask)
 		}
 
 		log_std(("event: device vendor:0x%04hx product:0x%04hx version:0x%04hx bus:0x%04hx (%s)\n",
-			device_info[ID_VENDOR],
-			device_info[ID_PRODUCT],
-			device_info[ID_VERSION],
-			device_info[ID_BUS],
+			(unsigned)device_info[ID_VENDOR],
+			(unsigned)device_info[ID_PRODUCT],
+			(unsigned)device_info[ID_VERSION],
+			(unsigned)device_info[ID_BUS],
 			bus
 		));
 	}
@@ -1628,7 +1628,7 @@ unsigned event_locate(struct event_location* event_map, unsigned event_max, adv_
 
 	event_mac = 0;
 	for(i=0;i<event_max;++i) {
-		short device_info[4];
+		unsigned short device_info[4];
 		unsigned char evtype_bitmask[EV_MAX/8 + 1];
 		int f;
 

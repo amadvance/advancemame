@@ -45,6 +45,7 @@ input.h
 mame.c
 mame.h
 mameblit.c
+mamecore.h
 md5.c
 md5.h
 memory.c
@@ -93,6 +94,7 @@ cpu/m6805
 cpu/m6809
 cpu/mips
 cpu/nec
+cpu/powerpc
 cpu/s2650
 cpu/sh2
 cpu/spc700
@@ -146,6 +148,13 @@ machine/tmp68301.h
 machine/z80fmly.c
 machine/z80fmly.h
 machine/atarigen.h
+machine/scsidev.h
+machine/scsihd.c
+machine/scsihd.c
+machine/intelfsh.c
+machine/intelfsh.h
+machine/53c810.c
+machine/53c810.h
 sndhrdw/jaguar.c
 sndhrdw/snes.c
 sound/2151intf.c

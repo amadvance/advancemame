@@ -5,23 +5,76 @@ Name{number}
 
 SubSubIndex
 
+General FAQ
+  What version is this FAQ ?
+	Since the FAQ is part of the AdvanceMAME documentation and included
+	with every version of AdvanceMAME, there has been no need to have a
+	separate version number. The version of the FAQ is therefore equal
+	to the version of AdvanceMAME that it was shipped with.
+
+  Where can I get the latest version of this FAQ ?
+	The latest version of the FAQ is included with the latest version
+	of AdvanceMAME, available for download from the project homepage
+	http://advancemame.sourceforge.net/.
+
+	The latest version of the FAQ is also available online at
+	http://advancemame.sourceforge.net/doc-faq.html.
+
+  What is MAME ?
+	MAME means Multiple Arcade Machine Emulator and is a huge effort
+	to create an emulator capable of running a lot of old arcade
+	games. The MAME homepage is at http://www.mame.net/.
+
+  How is AdvanceMAME different from MAME ?
+	AdvanceMAME is a port of MAME, written mainly by Andrea Mazzoleni, 
+	with contributions from various other people. The video support in
+	AdvanceMAME is made especially to be able to program the video
+	hardware (graphics adapter) to achieve a more faithful video 
+	emulation, also allowing the use with arcade monitors and TVs.
+
+	It also contains software filters to improve the image when used
+	on monitors with a higher resolution, such as PC monitors.
+
+  I have a question that is not answered in this FAQ. Where can I get help ?
+	If you have looked through the documentation and still haven't 
+	found an answer to your question, you could try posting it to the
+	AdvanceMAME mailing list. Before you post, however, you should
+	check the mailing list archives to make sure your question has not
+	already been answered there. Subscription to the mailing list and
+	archives can be found at
+	http://lists.sourceforge.net/lists/listinfo/advancemame-users.
+
+	Also, if possible, check your problem against the official MAME
+	before posting to the AdvanceMAME mailing list.
+
 AdvanceMAME FAQ
   Is the Linux version of AdvanceMAME able to program my video board ?
-	Yes. It uses both the SVGALIB library and FrameBuffer kernel service
-	to directly program the video board.
+	The Linux version of AdvanceMAME uses both the SVGALIB library and 
+	FrameBuffer kernel service to directly program the video board.
+
+	The file cardlinx.txt in the documentation directory contains a
+	list of supported graphics adaptors under Linux.
 
   Is the DOS version of AdvanceMAME able to program my video board ?
-	Yes. It uses a modified version of the Linux SVGALIB library that
-	allows the direct programming the video board.
+	The DOS version of AdvanceMAME uses a modified version of the Linux 
+	SVGALIB library that allows the direct programming the video board.
+
+	The file carddos.txt in the documentation directory contains a
+	list of supported graphics adaptors under DOS.
 
   Is the Windows version of AdvanceMAME able to program my video board ?
-	Yes in Windows NT/2000/XP. It uses a modified version of the
+	Under Windows NT/2000/XP AdvanceMAME uses a modified version of the
 	Linux SVGALIB library, called SVGAWIN, that allows the direct
-	programming of the video board. In Windows 98/Me you can use
-	the DOS version to directly program your video board.
+	programming of the video board. 
 
-  How to automatically record video and audio clips ?
-	Add this script in your advmame.rc. For any game started a 15 seconds
+	The file cardwin.txt in the documentation directory contains a
+	list of supported graphics adaptors under Linux.
+
+	Under Windows 98/Me you can use the DOS version to directly program 
+	your video board.
+
+  How do I automatically record video and audio clips ?
+	Add this script to your advmame.rc. For any game started a 15 seconds
 	clip is recorded.
 
 	:script_emulation delay(5000); \
@@ -32,16 +85,32 @@ AdvanceMAME FAQ
 	:	delay(100); \
 	:	simulate_event(ui_cancel, 50);
 
+  When I start a game with AdvanceMAME I see a copyright message before the
+  game starts. How do I get rid of it ?
+	Take a look at the `misc_quiet' option.
+
+  Where can I get ROM-files of games for AdvanceMAME ?
+	Well, not here in any case. And please do not ask for this on the
+	AdvanceMAME mailing list. Such requests are frowned upon on the 
+	list, and will only make you look bad to the AdvanceMAME community.
+
+	Also note that MAME and hence AdvanceMAME explicitly forbid the 
+	distribution of ROM files along with the emulator, and also 
+	strictly forbids the use of the emulators for any kind economic
+	gain, either by selling, or by creating systems where games are
+	paid for with coin mechanisms or bill acceptors.
+
 AdvanceMENU FAQ
-  Why the mouse and the joystick don't work ?
+  Why does the mouse and the joystick not work ?
 	As default, the mouse and joystick inputs are disabled.
 	To enable them you can use the `device_mouse auto' and
 	`device_joystick auto' options.
 
-  I have always the message "Updating the ... information file ..."
+  Each time I start AdvanceMENU, I see a message about 
+  "Updating the ... information file ..." How do I get rid of it ?
 	The information file is recreated if the emulator executable
-	is newer. If this happen all the time, probably you have
-	a wrong time setting on your system.
+	is newer than the named file. If this happens all the time, you probably
+	have a wrong time setting on your system.
 
   Can I use AdvanceMENU to list my MP3 and MNG collection ?
 	Yes. You can create a fake emulator to play all your music
@@ -57,6 +126,23 @@ AdvanceMENU FAQ
 	:emulator_altss "mp3" "C:\MP3;C:\MUSIC"
 	:emulator_roms "mp3" "C:\MP3;C:\MUSIC"
 	:emulator_roms_filter "mp3" "*.mp3"
+
+  Can I change the colors of AdvanceMENU (eg. to avoid burn-in on
+  arcade monitors) ?
+	Yes. All the colors of AdvanceMENU can be changed. Take a look at
+	the description of the `ui_color' option in the advmenu
+	documentation.
+
+  How do I configure AdvanceMENU to use a certain video-mode (for use on
+  my arcade monitor) ?
+	Simply copy the modeline (from advmame.rc) into advmenu.rc and
+	specify the width of the video-mode in the `display_size' option.
+
+  How do I avoid AdvanceMENU jumping to different games when I press
+  letter keys ?
+	Use `event_alpha no' in the AdvanceMENU configuration file. This
+	is most often used if you have a control panel wired to a keyboard
+	hack or keyboard controller.
 
 DOS FAQ
   How can I solve the compiler error "Argument list too long (E2BIG)"
@@ -109,36 +195,43 @@ DOS FAQ
 	any big speed loss. For the bigger games you may need 512
 	MB of virtual memory.
 
-  How can I use two mouse ?
-	To use the second mouse support you need the mouse driver
-	in the contrib/optimous directory. It's also present
+  How can I use two mice (or a trackball and a spinner) ?
+	To get support for a second mouse you need the mouse driver
+	in the contrib/optimous directory. This directory also contains
 	a short text instruction file.
 
 Linux FAQ
+  Is there a way I can test the Linux version of AdvanceMAME without
+  installing Linux on my system ?
+	Yes. You can try the AdvanceCD-package, which is a CDROM-image
+	of a small Linux-system configured to run AdvanceMENU and
+	AdvanceMAME on startup. AdvanceCD will autodetect most hardware,
+	but is mainly made for use with PC monitors.
+
   How can I load the svgalib_helper.o kernel module automatically ?
 	Insert this line :
 
 		:alias char-major-209 svgalib_helper
 
-	in your /etc/modules.conf file and run only one time :
+	in your /etc/modules.conf file and run the following command once :
 
 		:depmod -a
 
 	After that the module is loaded automatically every time is
 	needed.
 
-  On scrolling games I see a missing frame every 5/10 seconds, also
+  On scrolling games I see a missing frame every 5 or 10 seconds, also
   with vsync enabled. How can I fix it ?
 	If you are using a gameport joystick try disabling the joystick support
 	with the `device_joystick none' option.
 
-	Or upgrade at the svgalib 1.9.16 library which supports
-	for some boards the vsync IRQ.
+	Or upgrade the svgalib library to version 1.9.16, which supports
+	vsync IRQ for some more graphics adapters.
 
-  Using the last svgalib and enabling vsync I report random freeze
-  of the system.
+  Using the last svgalib and enabling vsync my system freezes randomly
+  from time to time.
 	Try using the svgalib patch in the contrib/svgalib directory or
-	downgrade at the version 1.9.15 or 1.9.14.
+	downgrade the version to 1.9.15 or 1.9.14.
 
   How can I enable the XFree86 DGA extension ?
 	Ensure that in your XF86Config file the line :
@@ -150,8 +243,8 @@ Linux FAQ
 
 		:man dga
 
-  I have some background system activity, and the emulate game are
-  not playing smootly. How fix this ?
+  I have some background system activity, and the emulated games are
+  not playing smoothly. How do I fix this ?
 	To run AdvanceMAME the system must be almost in idle state.
 
 	Anyway, to reduce "jumpy" effect you can disable the vertical
@@ -172,7 +265,7 @@ Linux FAQ
 		:ioctl(i, TIOCSCTTY, 1);
 		:exec(...)
 
-  Can I run the Advance programs in a readonly filesystem ?
+  Can I run the Advance programs from a readonly filesystem ?
 	Yes. All the writable files are put in the $HOME/.advance
 	directory. If they are readonly, they are not updated.
 
@@ -191,7 +284,7 @@ Windows FAQ
 	restore.
 
 	The only possible solution is to try to reduce the video hardware
-	acceleration at the minimum in
+	acceleration to a minimum in
 	DisplayProperties/Settings/Advanced/Troubleshooting.
 
 	If you want a stable solution you must use the Linux or DOS
@@ -201,7 +294,7 @@ Windows FAQ
 	Windows and the other for the game display. Check the
 	`device_svgawin_skipboard' option to control which video board to use.
 
-  How disable the Windows hotkeys ?
+  How do I disable the Windows hotkeys ?
 	Check the Microsoft online documents "Disabling the Windows Key
 	on Microsoft Natural Keyboard" at http://support.microsoft.com/?kbid=181348.
 
@@ -213,8 +306,48 @@ Video FAQ
 	If you have a TV with SCART input (all european TVs) you can buy
 	or build a VGA to SCART cable.
 
-  Which is the "tearing" effect ?
-	The tearing effect is a defects of the animation caused by a wrong
+  Can I connect my Arcade Monitor to the video board and use it with AdvanceMENU and
+  AdvanceMAME ?
+	Yes, this is one of the primary goals of the AdvanceMAME video output layer.
+	But remember that arcade monitors can only accept a certain range of signals
+	(in terms of horizontal and vertical refresh etc.), so make sure you 
+	configure these settings correctly in AdvanceMENU and AdvanceMAME before
+	you connect it to your monitor.
+
+  How can I connect my Arcade Monitor to the video board ?
+	If you do not want to use one of the available adaptors that ensure the 
+	signal is within specifications, to avoid damaging your monitor, you can
+	simply connect the monitor directly to the graphics card. If your monitor
+	only has one sync-line (so-called composite sync) you will need to convert
+	the separate sync signals of the video board to composite sync. This can be
+	achieved by a circuit such as 
+	http://www.tkk.fi/Misc/Electronics/circuits/vga2rgbs_ttl.gif
+
+	Some video boards can be configured to generate the composite sync signal.
+	An example is Matrox cards under Linux. Look at the matroxfb-documentation
+	in the kernel sources, and maybe the matroxset-utility.
+
+  How can I avoid damaging my arcade monitor due to the signals sent out during
+  system startup (before AdvanceMENU and AdvanceMAME starts) ?
+	There exists separate hardware adaptors that can be used for this
+	purpose, such as the J-PAC http://www.ultimarc.com/jpac.html
+
+	Other options include waiting until AdvanceMENU has started up, before
+	connecting the monitor. This can be achieved either manually, or by 
+	hardware controlled by the parallel port (as described in various places).
+
+	If your system is running DOS, you can use the "vga" and "video" utilities
+	of the AdvanceCAB package to set the graphics card in an acceptable mode
+	while the system is booting. Note that the POST (Power On Self Test) screen
+	of the BIOS will still be in the "bad" video-mode, so the problem is not 
+	solved entirely by these utilities, but they allow for a nice bootup-screen
+	to be displayed.
+
+	With some graphics adapters (eg. Matrox), a similar effect can be achieved 
+	under Linux by configuring the video mode of the kernel framebuffer.
+
+  What is the "tearing" effect ?
+	The tearing effect is a defect of the animation caused by a wrong
 	synchronization with the game refresh rate and the video mode refresh
 	rate. It generally appears as a horizontal image split line, on the
 	top of this line you see the previous game frame, on the bottom of this
@@ -263,11 +396,11 @@ Video FAQ
 	The only exception is for frequencies which are multiplier of
 	the original game refresh rate.
 
-  Why the smaller video modes like 256x224 are not working ?
-	Probably your video board isn't able to generate very low
-	pixelclocks. You can try to increase the minimum value of the
-	`device_video_pclock' option. The video mode generation will
-	automatically generate video modes with double or triple
+  Why are the smaller video modes like 256x224 not working ?
+	Your video board probably isn't able to generate the very low
+	pixelclocks needed. You can try to increase the minimum value 
+	of the `device_video_pclock' option. The video mode generation 
+	will automatically generate video modes with double or triple
 	horizontal resolutions to force the use of a pixelclock in
 	the specified range.
 
@@ -291,7 +424,7 @@ License FAQ
 	license exception which allow you to link the AdvanceMAME GPL
 	source with the not GPL MAME source.
 
-	The exception give also to you the rights to eliminate it
+	The exception also gives you the rights to eliminate it
 	if you don't like it or if you want to include the
 	AdvanceMAME source in another GPL program. So, AdvanceMAME
 	is 100% GPL.
@@ -355,8 +488,8 @@ License FAQ
 	the MAME core as a DLL (Dynamic Linked Library) and two
 	different frontends as .EXE files.
 
-	Anyway, calling a software program or library doesn't change
-	his license.
+	Anyway, calling a piece of software a program or a library 
+	doesn't change its license.
 
   The GPL FAQ say: "Combining two modules means connecting
   them together so that they form a single larger program. If
@@ -368,28 +501,29 @@ License FAQ
 
 	The license exception explicitly allows you to combine the
 	GPL program with MAME. These exceptions exist specifically
-	to solve this problem. Essentially, if your GPL program need
-	to use another not GPL module, you (as copyright holder) can
-	grant at the user the rights to link it with the not GPL
-	module.
+	to solve this problem. Essentially, if your GPL program needs
+	to use another module which is not under a GPL license, you 
+	(as copyright holder) can grant at the user the rights to link 
+	it with the not GPL module.
 
 	The GPL was made to protect the interests of the copyright
 	holder. But if the copyright holder wants, he can relax the
 	license adding specific exceptions that extend the rights of
 	the users. So, the users can do things not generally
-	permitted by the simple GPL license.
+	permitted by the standard GPL license.
 
-  Which is the license of the AdvanceMAME binary ?
+  What license is the AdvanceMAME binary under ?
 	The AdvanceMAME binary contains source from AdvanceMAME,
 	MAME, Allegro, SEAL, svgalib, zlib and FreeType2. You must
 	follow ALL these licenses when you use the binary.
-	So, you can do with it only things allowed by ALL these licenses.
+	So, you are only allowed to do things with it, if they are
+	permitted by ALL these licenses.
 
   Can I sell the AdvanceMAME binary ?
 	No. The AdvanceMAME binary contains compiled MAME source and
 	the "MAME License" prohibits selling.
 
-  Why SourceForge accepted the AdvanceMAME project and not the
+  Why has SourceForge accepted the AdvanceMAME project and not the
   xmame project ?
 	SourceForge accepts only Open Source licenses.
 
@@ -405,7 +539,7 @@ License FAQ
 
 	Some source and documentation files are also under the
 	copyright of Filipe Estima, Ian Patterson, Randy Schnedler,
-	S. Sakamaki.
+	S. Sakamaki, Mikkel Holm Olsen.
 
 GPL FAQ
 	This is an extract of the Official GPL FAQ present at :
@@ -508,5 +642,6 @@ GPL FAQ
 	+http://www.gnu.org/licenses/gpl-faq.html#TOCDistributingSourceIsInconvenient
 
 Copyright
-	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
+	This file is Copyright (C) 2003, 2004, 2005, Andrea Mazzoleni,
+	Mikkel Holm Olsen (http://symlink.dk/)
 

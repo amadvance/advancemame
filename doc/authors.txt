@@ -31,3 +31,4 @@ and generic comments. A special mention to:
 * Randy Schnedler (Randy Power)
 * Kari Hautio
 * Martin Adrian (wpcmame)
+* Mikkel Holm Olsen <http://symlink.dk/>

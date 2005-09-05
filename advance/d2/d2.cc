@@ -941,7 +941,7 @@ string convert_html::link(string s)
 	while (end<s.length() && !isspace(s[end]))
 		++end;
 
-	if (end>0 && (s[end-1] == '.' || s[end-1] == ',' || s[end-1] == ':' || s[end-1] == ';'))
+	if (end>0 && (s[end-1] == '.' || s[end-1] == ',' || s[end-1] == ':' || s[end-1] == ';' || s[end-1] == '>' || s[end-1] == ')'))
 		--end;
 
 	string address = s.substr(begin, end - begin);

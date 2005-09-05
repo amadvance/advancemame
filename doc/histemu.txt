@@ -3,6 +3,25 @@
                           ============================
 
 
+ADVANCEMESS VERSION 0.99.0.0 2005/08
+====================================
+
+* Based on AdvanceMAME 0.99.1.
+
+
+ADVANCEMAME VERSION 0.99.1 2005/08
+==================================
+
+* Fixed the recognition of the ActLabs guns in the Linux
+  version.
+
+
+ADVANCEMAME VERSION 0.99.0 2005/08
+==================================
+
+* Based on MAME 0.99
+
+
 ADVANCEMAME VERSION 0.97.0 2005/06
 ==================================
 

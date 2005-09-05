@@ -1084,7 +1084,7 @@ static void ui_color_alpha_set(adv_pixel* map, const adv_color_rgb* fore, const 
 
 			where always a+b+c = 1
 
-			the following relations are arbitrarily choseen :
+			the following relations are arbitrarily chosen :
 
 			a = I
 			b = T * (1-I)

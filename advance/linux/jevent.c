@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2003 Andrea Mazzoleni
+ * Copyright (C) 2003, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,17 +45,18 @@
 /**
  * Define to use the Acts Labs Lightgun Reload Hack.
  * For the ACT LABS guns, shooting offscreen, or pressing the side button,
- * causes a BTN_SIDE event code. Shooting directly at the screen produces
- * an X and Y axis event, aswell as a BTN_MIDDLE event. For the second button
- * BTN_SIDE, I set the abs values to offscreen and produce a normal first button
- * event BTN_MIDDLE.
+ * causes a BTN_RIGHT event code. Shooting directly at the screen produces
+ * an X and Y axis event, aswell as a BTN_LEFT event. For the second button
+ * BTN_RIGHT, I set the abs values to offscreen and produce a normal first button
+ * event BTN_LEFT.
  */
 #define USE_ACTLABS_HACK
 
 #ifdef USE_ACTLABS_HACK
 #define ACTLABS_VENDOR 0x061c
 #define ACTLABS_DEVICE 0xa800
-#define ACTLABS_BUTTON BTN_SIDE
+#define ACTLABS_BUTTON BTN_RIGHT
+#define ACTLABS_FRAME_DELAY 2
 #endif
 
 /***************************************************************************/
@@ -142,7 +143,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	unsigned char abs_bitmask[ABS_MAX/8 + 1];
 	unsigned char rel_bitmask[REL_MAX/8 + 1];
 	unsigned i;
-	short device_info[4];
+	unsigned short device_info[4];
 
 	struct button_entry {
 		int code;
@@ -640,8 +641,9 @@ unsigned joystickb_event_button_get(unsigned joystick, unsigned button)
 #ifdef USE_ACTLABS_HACK
 	if (button == 0
 		&& event_state.map[joystick].actlabs_hack_enable
-		&& event_state.map[joystick].actlabs_hack_counter + 4 < event_state.counter) {
-		/* delay at least 4 poll call before enabling the fake button */
+		&& event_state.counter >= event_state.map[joystick].actlabs_hack_counter + ACTLABS_FRAME_DELAY) {
+		/* delay at least ACTLABS_FRAME_DELAY poll call before enabling the fake button */
+		/* otherwise some games cannot detect the gun movement in time to recognize the shot out-of-screen */
 		return 1;
 	}
 

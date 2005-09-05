@@ -24,5 +24,6 @@ Acknowledgments
 	* Randy Schnedler (Randy Power)
 	* Kari Hautio
 	* Martin Adrian (wpcmame)
+	* Mikkel Holm Olsen <http://symlink.dk/>
 
 
