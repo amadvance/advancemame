@@ -753,7 +753,6 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 	context->config.mutedemo_flag = conf_bool_get_default(cfg_context, "misc_mutedemo");
 	context->config.mutestartup_flag = 1;
 	option->samplerate = conf_int_get_default(cfg_context, "sound_samplerate");
-	option->filter_flag = conf_bool_get_default(cfg_context, "sound_resamplefilter");
 
 	context->config.equalizer_low = conf_int_get_default(cfg_context, "sound_equalizer_lowvolume");
 	context->config.equalizer_mid = conf_int_get_default(cfg_context, "sound_equalizer_midvolume");

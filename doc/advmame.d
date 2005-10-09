@@ -2129,9 +2129,7 @@ Configuration
 
 		event.dat - The Event and Safequit database.
 		cheat.dat - Cheat database.
-		history.dat - Game history database.
 		hiscore.dat - Highscore database.
-		mameinfo.dat - MAME info database.
 		sysinfo.dat - MESS info database.
 		english.lng - Language database.
 
@@ -2176,24 +2174,6 @@ Configuration
 
 	Options:
 		FILE - High score file to load (default hiscore.dat).
-
-    misc_historyfile
-	Selects the history file.
-
-	:misc_historyfile FILE
-
-	Options:
-		FILE - History file to load (default history.dat
-			or sysinfo.dat for MESS).
-
-    misc_infofile
-	Selects the info file.
-
-	:misc_infofile FILE
-
-	Options:
-		FILE - Info file to load (default mameinfo.dat
-			or messinfo.dat for MESS).
 
     misc_safequit
 	Activates safe quit mode. If enabled, to stop the

@@ -54,7 +54,8 @@
 
 #ifdef USE_ACTLABS_HACK
 #define ACTLABS_VENDOR 0x061c
-#define ACTLABS_DEVICE 0xa800
+#define ACTLABS_DEVICE_1 0xa800
+#define ACTLABS_DEVICE_2 0xa700
 #define ACTLABS_BUTTON BTN_RIGHT
 #define ACTLABS_FRAME_DELAY 2
 #endif
@@ -779,7 +780,7 @@ void joystickb_event_poll(void)
 #ifdef USE_ACTLABS_HACK
 				/* recogize the special button and enable the hack */
 				if (item->vendor_id == ACTLABS_VENDOR
-					&& item->device_id == ACTLABS_DEVICE
+					&& (item->device_id == ACTLABS_DEVICE_1 || item->device_id == ACTLABS_DEVICE_2)
 					&& code == ACTLABS_BUTTON) {
 					if (value) {
 						item->actlabs_hack_enable = 1;

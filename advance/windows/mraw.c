@@ -258,6 +258,7 @@ adv_error mouseb_rawinput_init(int mouseb_id)
 				(vid == 0x0b9a && pid == 0x016a)
 				/* Acts Labs Lightgun (http://www.act-labs.com/) */
 				|| (vid == 0x061c && pid == 0xa800)
+				|| (vid == 0x061c && pid == 0xa700)
 			) {
 				/* ignore known lightguns */
 				continue;

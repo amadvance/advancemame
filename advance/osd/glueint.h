@@ -35,6 +35,7 @@
 
 #if defined(MESS)
 
+#include "../../srcmess/mamecore.h"
 #include "../../srcmess/mame.h"
 #include "../../srcmess/driver.h"
 #include "../../srcmess/info.h"
@@ -43,6 +44,7 @@
 
 #else
 
+#include "../../src/mamecore.h"
 #include "../../src/mame.h"
 #include "../../src/driver.h"
 #include "../../src/info.h"
@@ -60,10 +62,10 @@
 #define IPT_UI_RECORD_START IPT_OSD_7
 #define IPT_UI_RECORD_STOP IPT_OSD_8
 
-input_seq_t* glue_portdef_seq_get(struct InputPortDefinition* port, int seqtype);
-input_seq_t* glue_port_seq_get(struct InputPort* port, int seqtype);
-input_seq_t* glue_portdef_seqeval_get(struct InputPortDefinition* port, int seqtype);
-input_seq_t* glue_port_seqeval_get(struct InputPort* port, int seqtype);
+input_seq* glue_portdef_seq_get(input_port_default_entry* port, int seqtype);
+input_seq* glue_port_seq_get(input_port_entry* port, int seqtype);
+input_seq* glue_portdef_seqeval_get(input_port_default_entry* port, int seqtype);
+input_seq* glue_port_seqeval_get(input_port_entry* port, int seqtype);
 
 #endif
 

@@ -1,12 +1,14 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMESS Version 0.99.0.0 2005/08
-	) Based on AdvanceMAME 0.99.1.
-
-AdvanceMAME Version 0.99.1 2005/08
+AdvanceMAME Version 0.100.0 2005/10
 	) Fixed the recognition of the ActLabs guns in the Linux
 		version.
+	) Removed the `misc_historyfile' and `misc_infofile' like
+		the official version.
+
+AdvanceMESS Version 0.99.0.0 2005/08
+	) Based on AdvanceMAME 0.99.0.
 
 AdvanceMAME Version 0.99.0 2005/08
 	) Based on MAME 0.99

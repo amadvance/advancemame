@@ -268,7 +268,7 @@ static struct input_equiv input_equiv_map[] = {
 /**
  * Used to store the input list for MAME.
  */
-static struct OSCodeInfo input_code_map[INPUT_DIGITAL_MAX];
+static os_code_info input_code_map[INPUT_DIGITAL_MAX];
 
 /**************************************************************************/
 /* Names */
@@ -2522,7 +2522,7 @@ static int advance_input_analog_read(struct advance_input_context* context, unsi
 /**
  * Return a list of all available input codes.
  */
-const struct OSCodeInfo *osd_get_code_list(void)
+const os_code_info *osd_get_code_list(void)
 {
 	struct advance_input_context* context = &CONTEXT.input;
 
@@ -2538,7 +2538,7 @@ const struct OSCodeInfo *osd_get_code_list(void)
  * \param oscode is the OS dependent code specified in the list
  * returned by osd_get_code_list().
  */
-INT32 osd_get_code_value(os_code_t oscode)
+INT32 osd_get_code_value(os_code oscode)
 {
 	struct advance_input_context* context = &CONTEXT.input;
 

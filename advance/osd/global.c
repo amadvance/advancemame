@@ -180,7 +180,7 @@ unsigned lang_identify_text(int lang, const char* text)
  *  - !=0 to abort loading
  *  - ==0 on success
  */
-int osd_display_loading_rom_message(const char* name, struct rom_load_data* romdata)
+int osd_display_loading_rom_message(const char* name, rom_load_data* romdata)
 {
 	struct advance_global_context* context = &CONTEXT.global;
 
@@ -214,9 +214,9 @@ void osd2_message(void)
 /**
  * User customization of the language dipswitch.
  */
-static void config_customize_language(struct advance_global_context* context, struct InputPort* current)
+static void config_customize_language(struct advance_global_context* context, input_port_entry* current)
 {
-	struct InputPort* i;
+	input_port_entry* i;
 	adv_bool at_least_one_found = 0;
 	adv_bool at_least_one_set = 0;
 
@@ -227,12 +227,12 @@ static void config_customize_language(struct advance_global_context* context, st
 	while (i->type != IPT_END) {
 		if (i->type == IPT_DIPSWITCH_NAME
 			&& (strstr(i->name, "Language")!=0 || strstr(i->name, "Territory")!=0 || strstr(i->name, "Country")!=0)) {
-			struct InputPort* j;
-			struct InputPort* best;
+			input_port_entry* j;
+			input_port_entry* best;
 			unsigned best_value;
-			struct InputPort* begin;
-			struct InputPort* end;
-			struct InputPort* value;
+			input_port_entry* begin;
+			input_port_entry* end;
+			input_port_entry* value;
 
 			at_least_one_found = 1;
 
@@ -292,15 +292,15 @@ const char* NAME_HARDEST[] = { "Hardest", "Very Hard", "Very Difficult", 0 };
 /**
  * User customization of the difficulty dipswitch.
  */
-static void config_customize_difficulty(struct advance_global_context* context, struct InputPort* current)
+static void config_customize_difficulty(struct advance_global_context* context, input_port_entry* current)
 {
 	const char** names;
 	const char** names_secondary;
-	struct InputPort* value;
-	struct InputPort* level;
-	struct InputPort* begin;
-	struct InputPort* end;
-	struct InputPort* i;
+	input_port_entry* value;
+	input_port_entry* level;
+	input_port_entry* begin;
+	input_port_entry* end;
+	input_port_entry* i;
 
 	names = 0;
 	names_secondary = 0;
@@ -434,9 +434,9 @@ static void config_customize_difficulty(struct advance_global_context* context, 
 /**
  * User customization of the freeplay dipswitch.
  */
-static void config_customize_freeplay(struct advance_global_context* context, struct InputPort* current)
+static void config_customize_freeplay(struct advance_global_context* context, input_port_entry* current)
 {
-	struct InputPort* i;
+	input_port_entry* i;
 	adv_bool atleastone;
 
 	if (!context->config.freeplay_flag)
@@ -447,9 +447,9 @@ static void config_customize_freeplay(struct advance_global_context* context, st
 	i = current;
 	while (i->type != IPT_END) {
 		if (i->type == IPT_DIPSWITCH_NAME) {
-			struct InputPort* value;
-			struct InputPort* freeplay_exact;
-			struct InputPort* freeplay_in;
+			input_port_entry* value;
+			input_port_entry* freeplay_exact;
+			input_port_entry* freeplay_in;
 
 			/* the value is stored in the NAME item */
 			value = i;
@@ -491,9 +491,9 @@ static void config_customize_freeplay(struct advance_global_context* context, st
 /**
  * User customization of the mutedemo dipswitch.
  */
-static void config_customize_mutedemo(struct advance_global_context* context, struct InputPort* current)
+static void config_customize_mutedemo(struct advance_global_context* context, input_port_entry* current)
 {
-	struct InputPort* i;
+	input_port_entry* i;
 	adv_bool atleastone;
 
 	if (!context->config.mutedemo_flag)
@@ -504,8 +504,8 @@ static void config_customize_mutedemo(struct advance_global_context* context, st
 	i = current;
 	while (i->type != IPT_END) {
 		if (i->type == IPT_DIPSWITCH_NAME) {
-			struct InputPort* value;
-			struct InputPort* exact;
+			input_port_entry* value;
+			input_port_entry* exact;
 
 			adv_bool match_name = strcmp(i->name, "Demo Sounds") == 0
 				|| strcmp(i->name, "Demo Music") == 0;
@@ -549,9 +549,9 @@ static void config_customize_mutedemo(struct advance_global_context* context, st
 /**
  * User customization of the generic dipswitches.
  */
-static void config_customize_switch(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current, const char* tag, unsigned ipt_name, unsigned ipt_setting)
+static void config_customize_switch(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, input_port_entry* current, const char* tag, unsigned ipt_name, unsigned ipt_setting)
 {
-	struct InputPort* i;
+	input_port_entry* i;
 
 	i = current;
 	while (i->type != IPT_END) {
@@ -563,7 +563,7 @@ static void config_customize_switch(struct advance_global_context* context, adv_
 			snprintf(tag_buffer, sizeof(tag_buffer), "%s[%s]", tag, name_buffer);
 
 			if (conf_autoreg_string_get(cfg_context, tag_buffer, &value) == 0) {
-				struct InputPort* j;
+				input_port_entry* j;
 				j = i + 1;
 				while (j->type == ipt_setting) {
 					char value_buffer[256];
@@ -585,9 +585,9 @@ static void config_customize_switch(struct advance_global_context* context, adv_
 /**
  * User customization of the analog ports.
  */
-static void config_customize_analog(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current)
+static void config_customize_analog(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, input_port_entry* current)
 {
-	struct InputPort* i;
+	input_port_entry* i;
 
 	i = current;
 	while (i->type != IPT_END) {
@@ -634,9 +634,9 @@ static void config_customize_analog(struct advance_global_context* context, adv_
 /**
  * User customization of the input code sequences.
  */
-static void config_customize_input(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, struct InputPort* current)
+static void config_customize_input(struct advance_global_context* context, adv_conf* cfg_context, const mame_game* game, input_port_entry* current)
 {
-	struct InputPort* i;
+	input_port_entry* i;
 
 	i = current;
 	while (i->type != IPT_END) {
@@ -672,7 +672,7 @@ static void config_customize_input(struct advance_global_context* context, adv_c
 	}
 }
 
-static struct InputPortDefinition* config_portdef_find(struct InputPortDefinition* list, unsigned type)
+static input_port_default_entry* config_portdef_find(input_port_default_entry* list, unsigned type)
 {
 	while (list->type != IPT_END && list->type != type)
 		++list;
@@ -690,9 +690,9 @@ static struct InputPortDefinition* config_portdef_find(struct InputPortDefinitio
  * These are system depended customization and are used to
  * to change the defaults values.
  */
-void osd_customize_inputport_list(struct InputPortDefinition* defaults)
+void osd_customize_inputport_list(input_port_default_entry* defaults)
 {
-	struct InputPortDefinition* i;
+	input_port_default_entry* i;
 
 	log_std(("emu:global: osd_customize_inputport_defaults()\n"));
 
@@ -735,10 +735,10 @@ void osd_customize_inputport_list(struct InputPortDefinition* defaults)
  * to allow the user to restore the original values
  * if he want.
  */
-void osd_config_load_default(struct InputPortDefinition* backup, struct InputPortDefinition* list)
+void osd_config_load_default(input_port_default_entry* backup, input_port_default_entry* list)
 {
 	adv_conf* cfg_context = CONTEXT.cfg;
-	struct InputPortDefinition* i;
+	input_port_default_entry* i;
 
 	log_std(("emu:global: osd_customize_inputport_pre_defaults()\n"));
 
@@ -782,7 +782,7 @@ void osd_config_load_default(struct InputPortDefinition* backup, struct InputPor
  * to allow the user to restore the original values
  * if he want.
  */
-void osd_config_load(struct InputPort* backup, struct InputPort* list)
+void osd_config_load(input_port_entry* backup, input_port_entry* list)
 {
 	struct advance_global_context* context = &CONTEXT.global;
 	adv_conf* cfg_context = CONTEXT.cfg;
@@ -905,7 +905,7 @@ static void config_save_seq(unsigned port, unsigned* seq, unsigned seq_max)
  * \param def Default value of the input code combination.
  * \param current User chosen value of the input code combination.
  */
-static void config_save_seqport(struct InputPort* def, struct InputPort* current, int seqtype)
+static void config_save_seqport(input_port_entry* def, input_port_entry* current, int seqtype)
 {
 	unsigned seq[MAME_INPUT_MAP_MAX];
 	unsigned def_seq[MAME_INPUT_MAP_MAX];
@@ -935,7 +935,7 @@ static void config_save_seqport(struct InputPort* def, struct InputPort* current
  * \param def Default value of the input code combination.
  * \param current User chosen value of the input code combination.
  */
-static void config_save_seqport_default(struct InputPortDefinition* def, struct InputPortDefinition* current, int seqtype)
+static void config_save_seqport_default(input_port_default_entry* def, input_port_default_entry* current, int seqtype)
 {
 	unsigned def_seq[MAME_INPUT_MAP_MAX];
 	unsigned seq[MAME_INPUT_MAP_MAX];
@@ -963,12 +963,12 @@ static void config_save_seqport_default(struct InputPortDefinition* def, struct 
  * \param def Default value of the dipswitch.
  * \param current User chosen value of the dipswitch.
  */
-static void config_save_switchport(struct InputPort* def, struct InputPort* current)
+static void config_save_switchport(input_port_entry* def, input_port_entry* current)
 {
 	char name_buffer[256];
 	char tag_buffer[256];
 	char value_buffer[256];
-	struct InputPort* v;
+	input_port_entry* v;
 	const char* tag;
 	unsigned type;
 
@@ -1025,7 +1025,7 @@ static void config_save_switchport(struct InputPort* def, struct InputPort* curr
  * \param def Default value of the analog port.
  * \param current User chosen value of the analog port.
  */
-static void config_save_analogport(struct InputPort* def, struct InputPort* current)
+static void config_save_analogport(input_port_entry* def, input_port_entry* current)
 {
 	char value_buffer[256];
 	char default_buffer[256];
@@ -1055,10 +1055,10 @@ static void config_save_analogport(struct InputPort* def, struct InputPort* curr
 	}
 }
 
-void osd_config_save_default(struct InputPortDefinition* backup, struct InputPortDefinition* list)
+void osd_config_save_default(input_port_default_entry* backup, input_port_default_entry* list)
 {
-	struct InputPortDefinition* i;
-	struct InputPortDefinition* j;
+	input_port_default_entry* i;
+	input_port_default_entry* j;
 
 	i = list;
 	j = backup;
@@ -1081,10 +1081,10 @@ void osd_config_save_default(struct InputPortDefinition* backup, struct InputPor
 	}
 }
 
-void osd_config_save(struct InputPort* backup, struct InputPort* list)
+void osd_config_save(input_port_entry* backup, input_port_entry* list)
 {
-	struct InputPort* i;
-	struct InputPort* j;
+	input_port_entry* i;
+	input_port_entry* j;
 
 	i = list;
 	j = backup;

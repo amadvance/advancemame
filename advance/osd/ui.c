@@ -32,8 +32,9 @@
 
 #include "emu.h"
 #include "thread.h"
-#include "glue.h"
 #include "input.h"
+
+#include "glueint.h"
 
 #include "advance.h"
 
@@ -1576,7 +1577,7 @@ void osd_ui_message(const char* s, int second)
 	advance_ui_message(context, "%s", s);
 }
 
-void osd_ui_menu(const char** items, const char** subitems, char* flag, int selected, int arrowize_subitem)
+void osd_ui_menu(const ui_menu_item *items, int numitems, int selected)
 {
 	unsigned menu_mac;
 	struct ui_menu menu;
@@ -1586,27 +1587,25 @@ void osd_ui_menu(const char** items, const char** subitems, char* flag, int sele
 	struct advance_ui_context* context = &CONTEXT.ui;
 
 	/* count elements */
-	menu_mac = 0;
-	while (items[menu_mac])
-		++menu_mac;
+	menu_mac = numitems;
 
 	advance_ui_menu_init(&menu);
 
 	/* HACK: Recognize main menu */
-	if (items && strstr(items[0], "Input") != 0)
+	if (items && strstr(items[0].text, "Input") != 0)
 		advance_ui_menu_title_insert(&menu, ADV_TITLE);
 
 	for(i=0;i<menu_mac;++i) {
-		if (subitems && subitems[i]) {
+		if (items[i].subtext) {
 			/* HACK: Recongnize options "None" and "n/a" */
-			if (strcmp(subitems[i], "None") == 0
-				|| strcmp(subitems[i], "n/a") == 0) {
-				advance_ui_menu_option_insert(&menu, items[i], "<none>");
+			if (strcmp(items[i].subtext, "None") == 0
+				|| strcmp(items[i].subtext, "n/a") == 0) {
+				advance_ui_menu_option_insert(&menu, items[i].text, "<none>");
 			} else {
-				advance_ui_menu_option_insert(&menu, items[i], subitems[i]);
+				advance_ui_menu_option_insert(&menu, items[i].text, items[i].subtext);
 			}
 		} else {
-			advance_ui_menu_text_insert(&menu, items[i]);
+			advance_ui_menu_text_insert(&menu, items[i].text);
 		}
 	}
 

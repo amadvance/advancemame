@@ -263,6 +263,7 @@ adv_error joystickb_lgrawinput_init(int joystickb_id)
 				(vid == 0x0b9a && pid == 0x016a)
 				/* Acts Labs Lightgun (http://www.act-labs.com/) */
 				|| (vid == 0x061c && pid == 0xa800)
+				|| (vid == 0x061c && pid == 0xa700)
 			) {
 				/* recognized */
 			} else {

@@ -63,7 +63,6 @@ struct mame_option {
 
 	int samplerate;
 	int samples_flag;
-	int filter_flag;
 
 	int vector_width;
 	int vector_height;
@@ -96,9 +95,7 @@ struct mame_option {
 	char record_file_buffer[MAME_MAXPATH];
 	char playback_file_buffer[MAME_MAXPATH];
 	char cheat_file_buffer[MAME_MAXPATH];
-	char history_file_buffer[MAME_MAXPATH];
 	char hiscore_file_buffer[MAME_MAXPATH];
-	char info_file_buffer[MAME_MAXPATH];
 	char bios_buffer[MAME_MAXBIOS];
 
 #ifdef MESS

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -511,7 +511,11 @@ static adv_conf_conv STANDARD[] = {
 { "*", "input_setting[p4_mouse_y]", "*", "%s", "input_setting[p4_mousey]", "%s", 0 }, /* rename */
 { "*", "ui_speedmark", "*", "%s", "debug_speedmark", "%s", 0 }, /* rename */
 /* 0.88.0 */
-{ "*", "debug_internaldepth", "*", "", "", "", 0 } /* ignore */
+{ "*", "debug_internaldepth", "*", "", "", "", 0 }, /* ignore */
+/* 0.100.0 */
+{ "*", "misc_historyfile", "*", "", "", "", 0 }, /* ignore */
+{ "*", "misc_infofile", "*", "", "", "", 0 }, /* ignore */
+{ "*", "sound_resamplefilter", "*", "", "", "", 0 } /* ignore */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003, 2004, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,8 +65,8 @@ static const char* DEVICES[] = {
 #endif
 
 struct advance_glue_context {
-	struct mame_bitmap* bitmap;
-	struct mame_bitmap* bitmap_alt;
+	mame_bitmap* bitmap;
+	mame_bitmap* bitmap_alt;
 	struct osd_video_option option;
 
 	int video_flag; /** If the video initialization completed with success. */
@@ -103,8 +103,6 @@ static struct advance_glue_context GLUE;
 
 /* MAME internal variables */
 extern char* cheatfile;
-extern char* history_filename;
-extern char* mameinfo_filename;
 extern const char *db_filename;
 #ifdef MESS
 const char* crcfile;
@@ -116,7 +114,7 @@ const char* pcrcfile;
  */
 adv_bool mame_game_working(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
+	const game_driver* driver = (const game_driver*)game;
 
 	unsigned mask = GAME_NOT_WORKING
 		| GAME_UNEMULATED_PROTECTION
@@ -134,8 +132,8 @@ adv_bool mame_game_working(const mame_game* game)
 
 const char* mame_game_resolution(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
-	struct InternalMachineDriver machine;
+	const game_driver* driver = (const game_driver*)game;
+	machine_config machine;
 	expand_machine_driver(driver->drv, &machine);
 	if ((machine.video_attributes & VIDEO_TYPE_VECTOR) == 0) {
 		unsigned dx;
@@ -156,8 +154,8 @@ const char* mame_game_resolution(const mame_game* game)
 
 const char* mame_game_resolutionclock(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
-	struct InternalMachineDriver machine;
+	const game_driver* driver = (const game_driver*)game;
+	machine_config machine;
 	expand_machine_driver(driver->drv, &machine);
 	if ((machine.video_attributes & VIDEO_TYPE_VECTOR) == 0) {
 		unsigned dx;
@@ -180,15 +178,15 @@ const char* mame_game_resolutionclock(const mame_game* game)
 
 double mame_game_fps(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
-	struct InternalMachineDriver machine;
+	const game_driver* driver = (const game_driver*)game;
+	machine_config machine;
 	expand_machine_driver(driver->drv, &machine);
 	return machine.frames_per_second;
 }
 
 unsigned mame_game_orientation(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
+	const game_driver* driver = (const game_driver*)game;
 	unsigned orientation = 0;
 
 	if ((driver->flags & ORIENTATION_SWAP_XY) != 0)
@@ -209,7 +207,7 @@ unsigned mame_game_orientation(const mame_game* game)
  */
 const char* mame_game_name(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
+	const game_driver* driver = (const game_driver*)game;
 
 	if (strcmp(driver->name, "root") == 0)
 		return 0;
@@ -223,7 +221,7 @@ const char* mame_game_name(const mame_game* game)
  */
 const char* mame_game_description(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
+	const game_driver* driver = (const game_driver*)game;
 
 	if (strcmp(driver->name, "root") == 0)
 		return "";
@@ -341,7 +339,7 @@ const char* mame_section_name(const mame_game* game, adv_conf* context)
  */
 const mame_game* mame_game_parent(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
+	const game_driver* driver = (const game_driver*)game;
 
 	if (driver->clone_of!=0 && driver->clone_of->name!=0 && driver->clone_of->name[0]!=0)
 		return (const mame_game*)driver->clone_of;
@@ -355,7 +353,7 @@ const mame_game* mame_game_parent(const mame_game* game)
  */
 const char* mame_game_manufacturer(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
+	const game_driver* driver = (const game_driver*)game;
 
 	if (!driver->manufacturer)
 		return "";
@@ -369,7 +367,7 @@ const char* mame_game_manufacturer(const mame_game* game)
  */
 const char* mame_game_year(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
+	const game_driver* driver = (const game_driver*)game;
 
 	if (!driver->year)
 		return "";
@@ -383,8 +381,8 @@ const char* mame_game_year(const mame_game* game)
  */
 unsigned mame_game_players(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
-	struct InputPort* input;
+	const game_driver* driver = (const game_driver*)game;
+	input_port_entry* input;
 	int nplayer;
 
 	/* memory management for input_port_allocate */
@@ -412,8 +410,8 @@ unsigned mame_game_players(const mame_game* game)
  */
 const char* mame_game_control(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
-	const struct InputPort* input;
+	const game_driver* driver = (const game_driver*)game;
+	const input_port_entry* input;
 	const char* control = 0;
 
 	/* memory management for input_port_allocate */
@@ -523,8 +521,8 @@ void mame_print_xml(FILE* out)
  */
 adv_bool mame_is_game_vector(const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
-	struct InternalMachineDriver machine;
+	const game_driver* driver = (const game_driver*)game;
+	machine_config machine;
 	expand_machine_driver(driver->drv, &machine);
 	return (machine.video_attributes & VIDEO_TYPE_VECTOR) != 0;
 }
@@ -534,7 +532,7 @@ adv_bool mame_is_game_vector(const mame_game* game)
  */
 adv_bool mame_is_game_relative(const char* relative, const mame_game* game)
 {
-	const struct GameDriver* driver = (const struct GameDriver*)game;
+	const game_driver* driver = (const game_driver*)game;
 	while (driver && driver->name) {
 		unsigned i;
 		if (driver->name[0]!=0 && strcmp(driver->name, relative)==0)
@@ -549,7 +547,7 @@ adv_bool mame_is_game_relative(const char* relative, const mame_game* game)
  */
 const struct mame_game* mame_playback_look(const char* file)
 {
-	INP_HEADER inp_header;
+	inp_header ih;
 	void* playback;
 
 	playback = osd_fopen(FILETYPE_INPUTLOG, 0, file, "rb");
@@ -559,7 +557,7 @@ const struct mame_game* mame_playback_look(const char* file)
 	}
 
 	/* read playback header */
-	if (osd_fread(playback, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
+	if (osd_fread(playback, &ih, sizeof(inp_header)) != sizeof(inp_header)) {
 		osd_fclose(playback);
 		target_err("Error reading the input playback file '%s'.\n", file);
 		return 0;
@@ -567,7 +565,7 @@ const struct mame_game* mame_playback_look(const char* file)
 
 	osd_fclose(playback);
 
-	if (!isalnum(inp_header.name[0])) {
+	if (!isalnum(ih.name[0])) {
 		target_err("No game specified in the playback file '%s'.\n", file);
 		return 0;
 	} else {
@@ -575,14 +573,14 @@ const struct mame_game* mame_playback_look(const char* file)
 		const struct mame_game* game = mame_game_at(0);
 
 		for(i=0;game!=0;++i) {
-			if (strcmp(mame_game_name(game), inp_header.name) == 0) {
+			if (strcmp(mame_game_name(game), ih.name) == 0) {
 				break;
 			}
 			game = mame_game_at(i+1);
 		}
 
 		if (!game) {
-			target_err("Unknown game '%s' specified in the playback file.\n", inp_header.name);
+			target_err("Unknown game '%s' specified in the playback file.\n", ih.name);
 			return 0;
 		}
 
@@ -616,7 +614,6 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.skip_validitychecks = 1; /* always skip the validity checks at startup */
 	options.samplerate = advance->samplerate;
 	options.use_samples = advance->samples_flag;
-	options.use_filter = advance->filter_flag;
 	options.brightness = advance->brightness;
 	options.pause_bright = context->global.config.pause_brightness;
 	options.gamma = advance->gamma;
@@ -663,7 +660,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		options.language_file = 0;
 
 	if (advance->record_file_buffer[0]) {
-		INP_HEADER inp_header;
+		inp_header ih;
 
 		log_std(("glue: opening record file %s\n", advance->record_file_buffer));
 
@@ -673,14 +670,14 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 			return -1;
 		}
 
-		memset(&inp_header, 0, sizeof(INP_HEADER));
-		strncpy(inp_header.name, mame_game_name(advance->game), 8);
+		memset(&ih, 0, sizeof(inp_header));
+		strncpy(ih.name, mame_game_name(advance->game), 8);
 
-		inp_header.version[0] = 0;
-		inp_header.version[1] = 0;
-		inp_header.version[2] = 0;
+		ih.version[0] = 0;
+		ih.version[1] = 0;
+		ih.version[2] = 0;
 
-		if (mame_fwrite(options.record, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
+		if (mame_fwrite(options.record, &ih, sizeof(inp_header)) != sizeof(inp_header)) {
 			target_err("Error writing the input record file '%s'.\n", advance->record_file_buffer);
 			return -1;
 		}
@@ -688,7 +685,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		options.record = 0;
 
 	if (advance->playback_file_buffer[0]) {
-		INP_HEADER inp_header;
+		inp_header ih;
 
 		log_std(("glue: opening playback file %s\n", advance->playback_file_buffer));
 
@@ -699,12 +696,12 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		}
 
 		/* read playback header */
-		if (mame_fread(options.playback, &inp_header, sizeof(INP_HEADER)) != sizeof(INP_HEADER)) {
+		if (mame_fread(options.playback, &ih, sizeof(inp_header)) != sizeof(inp_header)) {
 			target_err("Error reading the input playback file '%s'.\n", advance->playback_file_buffer);
 			return -1;
 		}
 
-		if (!isalnum(inp_header.name[0])) {
+		if (!isalnum(ih.name[0])) {
 			/* without header */
 			mame_fseek(options.playback, 0, SEEK_SET);
 		} else {
@@ -712,14 +709,14 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 			const struct mame_game* game = mame_game_at(0);
 
 			for(i=0;game!=0;++i) {
-				if (strcmp(mame_game_name(game), inp_header.name) == 0) {
+				if (strcmp(mame_game_name(game), ih.name) == 0) {
 					break;
 				}
 				game = mame_game_at(i+1);
 			}
 
 			if (!game) {
-				target_err("Unknown game '%s' specified in the playback file.\n", inp_header.name);
+				target_err("Unknown game '%s' specified in the playback file.\n", ih.name);
 				return -1;
 			}
 
@@ -741,13 +738,11 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	}
 
 	cheatfile = (char*)advance->cheat_file_buffer;
-	history_filename = (char*)advance->history_file_buffer;
 	db_filename = advance->hiscore_file_buffer;
-	mameinfo_filename = (char*)advance->info_file_buffer;
 
 #ifdef MESS
 	{
-		const struct GameDriver* driver = (const struct GameDriver*)context->game;
+		const game_driver* driver = (const game_driver*)context->game;
 
 		snprintf(GLUE.crc_file_buffer, sizeof(GLUE.crc_file_buffer), "%s%c%s.crc", advance->crc_dir_buffer, file_dir_slash(), driver->name);
 		crcfile = GLUE.crc_file_buffer;
@@ -768,7 +763,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 #endif
 
 	for(game_index=0;drivers[game_index];++game_index)
-		if ((const struct GameDriver*)context->game == drivers[game_index])
+		if ((const game_driver*)context->game == drivers[game_index])
 			break;
 	assert(drivers[game_index] != 0);
 	if (!drivers[game_index])
@@ -1533,7 +1528,7 @@ int glue_port_seqtype(unsigned type, unsigned index)
  * \param seqtype Sequence type.
  * \return Sequence pointer, or 0 if not available.
  */
-input_seq_t* glue_portdef_seq_get(struct InputPortDefinition* port, int seqtype)
+input_seq* glue_portdef_seq_get(input_port_default_entry* port, int seqtype)
 {
 	switch (seqtype) {
 	case SEQ_TYPE_STANDARD :
@@ -1557,7 +1552,7 @@ input_seq_t* glue_portdef_seq_get(struct InputPortDefinition* port, int seqtype)
  * \param seqtype Sequence type.
  * \return Sequence pointer, or 0 if not available.
  */
-input_seq_t* glue_port_seq_get(struct InputPort* port, int seqtype)
+input_seq* glue_port_seq_get(input_port_entry* port, int seqtype)
 {
 	switch (seqtype) {
 	case SEQ_TYPE_STANDARD:
@@ -1583,7 +1578,7 @@ input_seq_t* glue_port_seq_get(struct InputPort* port, int seqtype)
  * \param seqtype Sequence type.
  * \return Sequence pointer. It's always available.
  */
-input_seq_t* glue_portdef_seqeval_get(struct InputPortDefinition* port, int seqtype)
+input_seq* glue_portdef_seqeval_get(input_port_default_entry* port, int seqtype)
 {
 	return input_port_default_seq(port->type, port->player, seqtype);
 }
@@ -1596,7 +1591,7 @@ input_seq_t* glue_portdef_seqeval_get(struct InputPortDefinition* port, int seqt
  * \param seqtype Sequence type.
  * \return Sequence pointer, or 0 if not available.
  */
-input_seq_t* glue_port_seqeval_get(struct InputPort* port, int seqtype)
+input_seq* glue_port_seqeval_get(input_port_entry* port, int seqtype)
 {
 	return input_port_seq(port, seqtype);
 }
@@ -1604,11 +1599,11 @@ input_seq_t* glue_port_seqeval_get(struct InputPort* port, int seqtype)
 adv_bool glue_is_portplayer(unsigned type)
 {
 	/* MAME is'nt able to differentiate from player 1 ports and global ports; */
-	/* both have the player number 0 in the InputPort and InputPortDefinition vectors */
+	/* both have the player number 0 in the input_port_entry and input_port_default_entry vectors */
 	if ((type >= __ipt_digital_joystick_start && type <= __ipt_digital_joystick_end)
 		|| (type >= __ipt_analog_start && type <= __ipt_analog_end)
 		|| (type >= IPT_BUTTON1 && type <= IPT_BUTTON10)
-		|| (type >= IPT_MAHJONG_A && type <= IPT_MAHJONG_FLIP_FLOP)
+		|| (type >= IPT_MAHJONG_A && type <= IPT_MAHJONG_SMALL)
 		|| (type == IPT_SELECT) /* MESS specific */
 		|| (type == IPT_START) /* MESS specific */
 	) {
@@ -1682,9 +1677,9 @@ unsigned glue_port_convert(unsigned type, unsigned player, unsigned seqtype, con
  * \param seqtype Resulting sequence type.
  * \return Pointer at the mame port found or 0.
  */
-struct InputPortDefinition* glue_port_convertback(unsigned port, int* seqtype)
+input_port_default_entry* glue_port_convertback(unsigned port, int* seqtype)
 {
-	struct InputPortDefinition* j;
+	input_port_default_entry* j;
 	unsigned type;
 	unsigned player;
 	unsigned index;
@@ -1868,8 +1863,8 @@ static unsigned PORT_TYPE_REPORT_GAME[] = {
 void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* digital_map, unsigned digital_max)
 {
 	unsigned digital_mac;
-	struct InputPort* i;
-	struct InputPortDefinition* j;
+	input_port_entry* i;
+	input_port_default_entry* j;
 
 	digital_mac = 0;
 
@@ -1890,7 +1885,7 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 						break;
 
 				if (PORT_TYPE_REPORT_DEFAULT[k]) {
-					input_seq_t* seq = glue_portdef_seqeval_get(j, glue_port_seqtype(j->type, n));
+					input_seq* seq = glue_portdef_seqeval_get(j, glue_port_seqtype(j->type, n));
 
 					digital_map[digital_mac].port = port;
 					digital_map[digital_mac].port_state = seq_pressed(seq);
@@ -1922,7 +1917,7 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 						break;
 
 				if (PORT_TYPE_REPORT_GAME[k]) {
-					input_seq_t* seq = glue_port_seqeval_get(i, glue_port_seqtype(i->type, n));
+					input_seq* seq = glue_port_seqeval_get(i, glue_port_seqtype(i->type, n));
 
 					digital_map[digital_mac].port = port;
 					digital_map[digital_mac].port_state = seq_pressed(seq);
@@ -2021,7 +2016,7 @@ unsigned mame_ui_frames_per_second(void)
 int mame_ui_port_pressed(unsigned port)
 {
 	struct advance_safequit_context* safequit_context = &CONTEXT.safequit;
-	struct InputPortDefinition* i;
+	input_port_default_entry* i;
 	unsigned type;
 	int seqtype;
 
@@ -2070,7 +2065,7 @@ int mame_ui_port_pressed(unsigned port)
 
 void mame_ui_area_set(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 {
-	set_ui_visarea(x1, y1, x2, y2);
+	ui_set_visible_area(x1, y1, x2, y2);
 }
 
 void mame_ui_refresh(void)
@@ -2169,7 +2164,7 @@ int osd_is_bad_read_ptr(const void *ptr, size_t size)
  * - ==0 On success.
  * - ==-1 On error.
  */
-int osd_create_display(const struct osd_create_params *params, UINT32 *rgb_components)
+int osd_create_display(const osd_create_params *params, UINT32 *rgb_components)
 {
 	unsigned width;
 	unsigned height;
@@ -2244,15 +2239,12 @@ void osd_close_display(void)
 /**
  * Display a menu.
  */
-int osd_menu(unsigned menu, struct mame_bitmap *bitmap, int selected)
+int osd_menu(unsigned menu, int selected)
 {
 	unsigned input;
 	int r;
 
 	log_pedantic(("osd: osd_menu(%d)\n", selected));
-
-	/* save the bitmap */
-	GLUE.bitmap = bitmap;
 
 	input = 0;
 
@@ -2320,7 +2312,7 @@ static unsigned glue_sound_sample(void)
  * Update the video frame.
  * \note Called after osd_update_audio_stream().
  */
-void osd_update_video_and_audio(struct mame_display *display)
+void osd_update_video_and_audio(mame_display *display)
 {
 	struct osd_bitmap game;
 	struct osd_bitmap debug;
@@ -2570,11 +2562,9 @@ int osd_input_port_filter(int result, unsigned type, unsigned player, int seqtyp
 	return result;
 }
 
-static int on_exit_menu(struct mame_bitmap* bitmap, int selected)
+static int on_exit_menu(int selected)
 {
-	const char * exit_menu_item[8];
-	char flag[8];
-
+	ui_menu_item exit_menu[8];
 	int sel;
 	int total;
 
@@ -2582,18 +2572,17 @@ static int on_exit_menu(struct mame_bitmap* bitmap, int selected)
 
 	total = 0;
 
-	exit_menu_item[total] = "Continue";
-	flag[total] = 0;
+	exit_menu[total].text = "Continue";
+	exit_menu[total].subtext = 0;
+	exit_menu[total].flags = 0;
 	++total;
 
-	exit_menu_item[total] = "Exit";
-	flag[total] = 0;
+	exit_menu[total].text = "Exit";
+	exit_menu[total].subtext = 0;
+	exit_menu[total].flags = 0;
 	++total;
 
-	exit_menu_item[total] = 0;
-	flag[total] = 0;
-
-	ui_displaymenu(bitmap, exit_menu_item, 0, flag, sel, 0);
+	osd_ui_menu(exit_menu, total, sel);
 
 	if (input_ui_pressed_repeat(IPT_UI_DOWN, 8)) {
 		sel = (sel + 1) % total;
@@ -2629,9 +2618,12 @@ static int on_exit_menu(struct mame_bitmap* bitmap, int selected)
  * - ==0 Normal condition.
  * - ==1 User asked to exit from the program.
  */
-int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active)
+int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active)
 {
 	unsigned input;
+
+	/* save the bitmap */
+	GLUE.bitmap = bitmap;
 
 	if (!is_menu_active) {
 		int res = osd_input_exit_filter(input_ui_pressed(IPT_UI_CANCEL));
@@ -2643,7 +2635,7 @@ int osd_handle_user_interface(struct mame_bitmap *bitmap, int is_menu_active)
 
 			res = 1;
 			while (res > 0) {
-				res = on_exit_menu(bitmap, res);
+				res = on_exit_menu(res);
 				update_video_and_audio();
 			}
 
@@ -2887,19 +2879,7 @@ adv_error mame_init(struct advance_context* context)
 
 	conf_string_register_default(context->cfg, "misc_hiscorefile", "hiscore.dat");
 
-#ifdef MESS
-	conf_string_register_default(context->cfg, "misc_historyfile", "sysinfo.dat");
-#else
-	conf_string_register_default(context->cfg, "misc_historyfile", "history.dat");
-#endif
-
 	conf_string_register_default(context->cfg, "misc_bios", "default");
-
-#ifdef MESS
-	conf_string_register_default(context->cfg, "misc_infofile", "messinfo.dat");
-#else
-	conf_string_register_default(context->cfg, "misc_infofile", "mameinfo.dat");
-#endif
 
 #ifdef MESS
 	mess_init(context->cfg);
@@ -2960,8 +2940,6 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 			*s = ';';
 
 	sncpy(option->hiscore_file_buffer, sizeof(option->hiscore_file_buffer), conf_string_get_default(cfg_context, "misc_hiscorefile"));
-	sncpy(option->history_file_buffer, sizeof(option->history_file_buffer), conf_string_get_default(cfg_context, "misc_historyfile"));
-	sncpy(option->info_file_buffer, sizeof(option->info_file_buffer), conf_string_get_default(cfg_context, "misc_infofile"));
 
 #ifdef MESS
 	if (mess_config_load(cfg_context, option) != 0) {
