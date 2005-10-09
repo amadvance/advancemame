@@ -3,6 +3,14 @@
                        ==================================
 
 
+ADVANCEMAME 0.100.0
+===================
+
+This version has some internal changes to adapt to the
+recent internal MAME changes. Please report any regression
+from the previous version.
+
+
 ADVANCEMAME 0.97.0
 ==================
 

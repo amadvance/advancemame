@@ -11,7 +11,6 @@ artwork.c
 artwork.h
 audit.c
 audit.h
-blitgen.c
 cdrom.c
 cdrom.h
 chd.c
@@ -32,8 +31,6 @@ cpuint.c
 cpuint.h
 cpuintrf.c
 cpuintrf.h
-datafile.c
-datafile.h
 drawgfx.c
 drawgfx.h
 driver.c
@@ -55,7 +52,6 @@ input.h
 mame.c
 mame.h
 mame.mak
-mameblit.c
 mamecore.h
 md5.c
 md5.h
@@ -89,3 +85,5 @@ usrintrf.h
 version.c
 x86drc.c
 x86drc.h
+xmlfile.c
+xmlfile.h

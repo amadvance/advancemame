@@ -1,6 +1,11 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 0.100.0
+	This version has some internal changes to adapt to the
+	recent internal MAME changes. Please report any regression
+	from the previous version.
+
 AdvanceMAME 0.97.0
 	This version adds lightguns support in Windows XP.
 	The lightguns supported are:
