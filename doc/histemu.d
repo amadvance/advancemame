@@ -6,7 +6,6 @@ AdvanceMAME Version 0.100.0 2005/10
 		version.
 	) Removed the `misc_historyfile' and `misc_infofile' like
 		the official version.
-	) Updated the FAQ [Mikkel Holm Olsen].
 
 AdvanceMESS Version 0.99.0.0 2005/08
 	) Based on AdvanceMAME 0.99.0.
