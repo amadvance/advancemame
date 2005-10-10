@@ -973,8 +973,52 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  #include "mui_text.h"
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
 --- src.ori/usrintrf.c	2005-09-08 08:30:46.000000000 +0200
-+++ src/usrintrf.c	2005-10-08 14:57:34.000000000 +0200
-@@ -803,10 +803,13 @@
++++ src/usrintrf.c	2005-10-10 19:17:24.000000000 +0200
+@@ -639,13 +639,17 @@
+  *
+  *************************************/
+ 
+ void ui_draw_text(const char *buf, int x, int y)
+ {
++#if 1 /* AdvanceMAME: Use custom ui code */
++	logerror("ERROR:mame:invalid UI call ui_draw_text(%s,%d,%d)\n", buf, x, y);
++#else
+ 	int ui_width, ui_height;
+ 	ui_get_bounds(&ui_width, &ui_height);
+ 	ui_draw_text_full(buf, x, y, ui_width - x, JUSTIFY_LEFT, WRAP_WORD, DRAW_OPAQUE, RGB_WHITE, RGB_BLACK, NULL, NULL);
++#endif
+ }
+ 
+ 
+ 
+ /*************************************
+@@ -654,10 +658,13 @@
+  *
+  *************************************/
+ 
+ void ui_draw_text_full(const char *s, int x, int y, int wrapwidth, int justify, int wrap, int draw, rgb_t fgcolor, rgb_t bgcolor, int *totalwidth, int *totalheight)
+ {
++#if 1 /* AdvanceMAME: Use custom ui code */
++	logerror("ERROR:mame:invalid UI call ui_draw_text_full(%s,%d,%d)\n", s, x, y);
++#else
+ 	const char *linestart;
+ 	int cury = y;
+ 	int maxwidth = 0;
+ 
+ 	/* if we don't want wrapping, guarantee a huge wrapwidth */
+@@ -791,10 +798,11 @@
+ 	/* report the width and height of the resulting space */
+ 	if (totalwidth)
+ 		*totalwidth = maxwidth;
+ 	if (totalheight)
+ 		*totalheight = cury - y;
++#endif
+ }
+ 
+ 
+ 
+ /*************************************
+@@ -803,10 +811,13 @@
   *
   *************************************/
  
@@ -988,7 +1032,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	const char *left_arrow = ui_getstring(UI_leftarrow);
  	const char *right_arrow = ui_getstring(UI_rightarrow);
  	const char *left_hilight = ui_getstring(UI_lefthilight);
-@@ -975,10 +978,11 @@
+@@ -975,10 +986,11 @@
  						target_x + target_width - 1 + UI_BOX_LR_BORDER,
  						target_y + target_height - 1 + UI_BOX_TB_BORDER);
  		ui_draw_text_full(item->subtext, target_x, target_y, target_width,
@@ -1000,7 +1044,27 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  /*************************************
-@@ -1113,11 +1117,15 @@
+@@ -1074,10 +1086,13 @@
+  *
+  *************************************/
+ 
+ static void draw_multiline_text_box(const char *text, int justify, float xpos, float ypos)
+ {
++#if 1 /* AdvanceMAME: Use custom ui code */
++	logerror("ERROR:mame:invalid UI call ui_draw_multiline_text_box(%s)\n", text);
++#else
+ 	int target_width, target_height;
+ 	int ui_width, ui_height;
+ 	int target_x, target_y;
+ 
+ 	/* start with the bounds */
+@@ -1108,16 +1123,21 @@
+ 					target_y - UI_BOX_TB_BORDER,
+ 					target_x + target_width - 1 + UI_BOX_LR_BORDER,
+ 					target_y + target_height - 1 + UI_BOX_TB_BORDER);
+ 	ui_draw_text_full(text, target_x, target_y, target_width,
+ 				justify, WRAP_WORD, DRAW_NORMAL, RGB_WHITE, RGB_BLACK, NULL, NULL);
++#endif
  }
  
  
@@ -1016,7 +1080,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  /*************************************
-@@ -1202,10 +1210,14 @@
+@@ -1202,10 +1222,14 @@
   *
   *************************************/
  
@@ -1031,7 +1095,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  		return 1;
  
  	/* if menus aren't up and the user has toggled them, turn them on */
-@@ -1268,21 +1280,25 @@
+@@ -1268,21 +1292,25 @@
  		}
  		else
  			mame_pause(!mame_is_paused());
@@ -1057,7 +1121,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	if (input_ui_pressed(IPT_UI_TOGGLE_CROSSHAIR))
  		drawgfx_toggle_crosshair();
  
-@@ -1295,10 +1311,27 @@
+@@ -1295,10 +1323,27 @@
   *
   *  Main menu
   *
@@ -1085,7 +1149,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  #define ADD_MENU(name, handler, param) \
  do { \
  	item_list[menu_items].text = ui_getstring(name); \
-@@ -1388,10 +1421,14 @@
+@@ -1388,10 +1433,14 @@
  
  	/* add memory card menu */
  	if (memcard_intf.create != NULL && memcard_intf.load != NULL && memcard_intf.save != NULL && memcard_intf.eject != NULL)
@@ -1100,7 +1164,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	ADD_MENU(UI_returntogame, NULL, 0);
  
  	/* draw the menu */
-@@ -1549,10 +1586,11 @@
+@@ -1549,10 +1598,11 @@
  			}
  
  			/* if we are analog, add three items */
@@ -1112,7 +1176,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  					selected_seq = &in->defaultseq;
  					selected_defseq = &indef->defaultseq;
  					selected_is_analog = TRUE;
-@@ -1570,10 +1608,11 @@
+@@ -1570,10 +1620,11 @@
  				{
  					selected_seq = &in->defaultincseq;
  					selected_defseq = &indef->defaultincseq;
@@ -1124,7 +1188,55 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  	/* if we're polling, just put an empty entry and arrows for the subitem */
  	if (polling)
-@@ -3265,10 +3304,13 @@
+@@ -3135,13 +3186,15 @@
+ 		{
+ 			int ui_width, ui_height;
+ 
+ 			erase_screen(bitmap);
+ 
++#if 0 /* AdvanceMAME: Use custom ui code */
+ 			ui_get_bounds(&ui_width, &ui_height);
+ 			add_filled_box(0, 0, ui_width - 1, ui_height - 1);
+ 			ui_draw_message_window(buf);
++#endif
+ 			render_ui(bitmap);
+ 
+ 			update_video_and_audio();
+ 			if (input_ui_pressed(IPT_UI_CANCEL))
+ 				return 1;
+@@ -3169,13 +3222,15 @@
+ 
+ 	while (code_read_async() == CODE_NONE)
+ 	{
+ 		char *bufptr = buf;
+ 
++#if 0 /* AdvanceMAME: Use custom ui code */
+ 		/* first draw a box around the whole screen */
+ 		ui_get_bounds(&ui_width, &ui_height);
+ 		add_filled_box(0, 0, ui_width - 1, ui_height - 1);
++#endif
+ 
+ 		/* add the game info */
+ 		bufptr += sprintf_game_info(bufptr);
+ 
+ 		/* append MAME version and ask for any key */
+@@ -3199,13 +3254,15 @@
+ 
+ 	while (code_read_async() == CODE_NONE)
+ 	{
+ 		char *bufptr = buf;
+ 
++#if 0 /* AdvanceMAME: Use custom ui code */
+ 		/* first draw a box around the whole screen */
+ 		ui_get_bounds(&ui_width, &ui_height);
+ 		add_filled_box(0, 0, ui_width - 1, ui_height - 1);
++#endif
+ 
+ 		/* add the game info */
+ 		bufptr += ui_sprintf_image_info(bufptr);
+ 
+ 		/* draw the window */
+@@ -3265,10 +3322,13 @@
  
  
  
@@ -1138,7 +1250,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	int ui_width, ui_height;
  	int text_height;
  
-@@ -3294,10 +3336,11 @@
+@@ -3294,10 +3354,11 @@
  			ui_width - 2 * space_width, line_height*3/4, percentage, default_percentage);
  
  	/* draw the actual text */
@@ -1150,7 +1262,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  static void onscrd_adjuster(int increment,int arg)
  {
  	input_port_entry *in = &Machine->input_ports[arg];
-@@ -3327,17 +3370,17 @@
+@@ -3327,17 +3388,17 @@
  	if (increment)
  	{
  		attenuation = osd_get_mastervolume();
@@ -1170,7 +1282,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  static void onscrd_mixervol(int increment,int arg)
  {
  	static void *driver = 0;
-@@ -3742,10 +3785,11 @@
+@@ -3742,10 +3803,11 @@
  }
  
  
@@ -1182,7 +1294,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	/* if we're not currently displaying, skip it */
  	if (!showfps && !showfpstemp)
  		return;
-@@ -3761,30 +3805,36 @@
+@@ -3761,30 +3823,36 @@
  	{
  		showfpstemp--;
  		if (!showfps && showfpstemp == 0)
@@ -1193,15 +1305,15 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  static void ui_display_profiler(void)
  {
++#if 0 /* AdvanceMAME: Use custom ui code */
  	int ui_width, ui_height;
  
  	if (show_profiler)
  	{
-+#if 0 /* AdvanceMAME: Use custom ui code */
  		ui_get_bounds(&ui_width, &ui_height);
  		ui_draw_text_full(profiler_get_text(), 0, 0, ui_width, JUSTIFY_LEFT, WRAP_WORD, DRAW_OPAQUE, RGB_WHITE, RGB_BLACK, NULL, NULL);
-+#endif
  	}
++#endif
  }
  
  static void ui_display_popup(void)
@@ -1220,22 +1332,40 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	}
  }
  
-@@ -3908,10 +3958,14 @@
+@@ -3861,10 +3929,11 @@
+ 		rect->max_y = temp;
+ 	}
  }
+ 
+ 
++#if 0 /* AdvanceMAME: Use custom ui code */
+ static void add_line(int x1, int y1, int x2, int y2, rgb_t color)
+ {
+ 	if (elemindex < ARRAY_LENGTH(elemlist))
+ 	{
+ 		elemlist[elemindex].x = (x1 < x2) ? x1 : x2;
+@@ -3904,14 +3973,20 @@
+ 	add_line(x1, y1, x2, y1, RGB_WHITE);
+ 	add_line(x2, y1, x2, y2, RGB_WHITE);
+ 	add_line(x2, y2, x1, y2, RGB_WHITE);
+ 	add_line(x1, y2, x1, y1, RGB_WHITE);
+ }
++#endif
  
  
  static void render_ui(mame_bitmap *dest)
  {
 +/* AdvanceMAME: Custom ui */
-+	if (elemindex != 0)
-+		osd_die("Invalid UI access");
++	if (elemindex != 0) {
++		logerror("Invalid UI access, %d", elemindex);
++	}
 +#if 0
  	int i;
  
  	uirotfont->colortable[0] = get_black_pen();
  	uirotfont->colortable[1] = get_white_pen();
  	uirotfont->colortable[2] = get_white_pen();
-@@ -3947,6 +4001,7 @@
+@@ -3947,6 +4022,7 @@
  				break;
  		}
  	}

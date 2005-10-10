@@ -3,6 +3,12 @@
                           ============================
 
 
+ADVANCEMAME VERSION 0.100.1 2005/10
+===================================
+
+* Fixed the crash problem without the -quiet option.
+
+
 ADVANCEMAME VERSION 0.100.0 2005/10
 ===================================
 
