@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.100.1 2005/10
+AdvanceMAME Version 0.101.0 2005/10
 	) Fixed the crash problem without the -quiet option.
 
 AdvanceMAME Version 0.100.0 2005/10

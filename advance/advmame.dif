@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2005-10-02 12:08:29.000000000 +0200
++++ src/advance.pat	2005-10-15 08:49:57.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive src.ori/common.c src/common.c
 --- src.ori/common.c	2005-09-05 17:31:36.000000000 +0200
-+++ src/common.c	2005-10-08 13:19:37.000000000 +0200
++++ src/common.c	2005-10-15 08:49:57.000000000 +0200
 @@ -662,10 +662,11 @@
  /*-------------------------------------------------
      save_frame_with - save a frame with a
@@ -123,7 +123,7 @@ diff -U 5 --new-file --recursive src.ori/common.c src/common.c
  		for (region = 0; region < MAX_MEMORY_REGIONS; region++)
 diff -U 5 --new-file --recursive src.ori/config.c src/config.c
 --- src.ori/config.c	2005-09-08 08:30:46.000000000 +0200
-+++ src/config.c	2005-10-08 14:54:58.000000000 +0200
++++ src/config.c	2005-10-15 08:49:57.000000000 +0200
 @@ -112,20 +112,27 @@
   *
   *  Settings save/load frontend
@@ -193,7 +193,7 @@ diff -U 5 --new-file --recursive src.ori/config.c src/config.c
  }
 diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
 --- src.ori/cpuexec.c	2005-09-08 08:30:46.000000000 +0200
-+++ src/cpuexec.c	2005-10-02 12:08:29.000000000 +0200
++++ src/cpuexec.c	2005-10-15 08:49:57.000000000 +0200
 @@ -374,10 +374,13 @@
  	watchdog_setup(TRUE);
  
@@ -210,7 +210,7 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_DISABLE))
 diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11.c
 --- src.ori/drivers/namcos11.c	2005-09-13 09:25:10.000000000 +0200
-+++ src/drivers/namcos11.c	2005-10-02 12:08:29.000000000 +0200
++++ src/drivers/namcos11.c	2005-10-15 08:49:57.000000000 +0200
 @@ -834,11 +834,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
@@ -226,7 +226,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/drivers/namcos12.c src/drivers/namcos12.c
 --- src.ori/drivers/namcos12.c	2005-09-12 06:39:04.000000000 +0200
-+++ src/drivers/namcos12.c	2005-10-02 12:08:29.000000000 +0200
++++ src/drivers/namcos12.c	2005-10-15 08:49:57.000000000 +0200
 @@ -1135,11 +1135,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
@@ -242,7 +242,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/namcos12.c src/drivers/namcos12
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/drivers/psikyo4.c src/drivers/psikyo4.c
 --- src.ori/drivers/psikyo4.c	2005-08-29 21:46:22.000000000 +0200
-+++ src/drivers/psikyo4.c	2005-10-02 12:08:29.000000000 +0200
++++ src/drivers/psikyo4.c	2005-10-15 08:49:57.000000000 +0200
 @@ -414,13 +414,13 @@
  	MDRV_NVRAM_HANDLER(93C56)
  
@@ -274,7 +274,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/psikyo4.c src/drivers/psikyo4.c
  
 diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
 --- src.ori/drivers/stv.c	2005-09-08 22:08:30.000000000 +0200
-+++ src/drivers/stv.c	2005-10-02 12:08:29.000000000 +0200
++++ src/drivers/stv.c	2005-10-15 08:49:57.000000000 +0200
 @@ -4393,11 +4393,11 @@
  	MDRV_NVRAM_HANDLER(stv) /* Actually 93c45 */
  
@@ -290,7 +290,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
  	MDRV_VIDEO_UPDATE(stv_vdp2)
 diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
 --- src.ori/drivers/zn.c	2005-08-29 09:13:22.000000000 +0200
-+++ src/drivers/zn.c	2005-10-02 12:08:30.000000000 +0200
++++ src/drivers/zn.c	2005-10-15 08:49:57.000000000 +0200
 @@ -652,11 +652,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
@@ -475,7 +475,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
 --- src.ori/inptport.c	2005-09-12 06:42:22.000000000 +0200
-+++ src/inptport.c	2005-10-08 14:29:35.000000000 +0200
++++ src/inptport.c	2005-10-15 08:49:57.000000000 +0200
 @@ -860,11 +860,13 @@
  	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_FRAMESKIP_DEC,	"Frameskip Dec",		SEQ_DEF_1(KEYCODE_F8) )
  	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_FRAMESKIP_INC,	"Frameskip Inc",		SEQ_DEF_1(KEYCODE_F9) )
@@ -691,7 +691,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  		/* was pressed, apply autocentering */
 diff -U 5 --new-file --recursive src.ori/input.c src/input.c
 --- src.ori/input.c	2005-08-25 08:17:12.000000000 +0200
-+++ src/input.c	2005-10-02 13:01:06.000000000 +0200
++++ src/input.c	2005-10-15 08:49:57.000000000 +0200
 @@ -605,11 +605,33 @@
  	code_count = 0;
  	free(code_map);
@@ -728,7 +728,7 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
   *
 diff -U 5 --new-file --recursive src.ori/input.h src/input.h
 --- src.ori/input.h	2005-08-25 08:17:12.000000000 +0200
-+++ src/input.h	2005-10-02 13:01:06.000000000 +0200
++++ src/input.h	2005-10-15 08:49:57.000000000 +0200
 @@ -481,10 +481,17 @@
  	CODE_NOT,					/* operators for sequences */
  	CODE_OR						/* operators for sequences */
@@ -763,7 +763,7 @@ diff -U 5 --new-file --recursive src.ori/input.h src/input.h
  input_code code_read_async(void);
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
 --- src.ori/mame.c	2005-09-08 08:30:46.000000000 +0200
-+++ src/mame.c	2005-10-02 12:13:57.000000000 +0200
++++ src/mame.c	2005-10-15 08:49:57.000000000 +0200
 @@ -571,10 +571,15 @@
  		if (options.skip_warnings || ui_display_game_warnings(artwork_get_ui_bitmap()) == 0)
  		{
@@ -782,7 +782,7 @@ diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
  				if (!gamedrv->rom)
 diff -U 5 --new-file --recursive src.ori/mame.mak src/mame.mak
 --- src.ori/mame.mak	2005-09-13 09:25:10.000000000 +0200
-+++ src/mame.mak	2005-10-02 12:08:30.000000000 +0200
++++ src/mame.mak	2005-10-15 08:49:57.000000000 +0200
 @@ -1311,11 +1311,11 @@
  
  
@@ -798,7 +798,7 @@ diff -U 5 --new-file --recursive src.ori/mame.mak src/mame.mak
  	$(OBJ)/machine/6821pia.o \
 diff -U 5 --new-file --recursive src.ori/mamecore.h src/mamecore.h
 --- src.ori/mamecore.h	2005-09-05 17:31:36.000000000 +0200
-+++ src/mamecore.h	2005-10-02 13:27:53.000000000 +0200
++++ src/mamecore.h	2005-10-15 08:49:57.000000000 +0200
 @@ -84,10 +84,18 @@
  	int min_y,max_y;
  };
@@ -820,7 +820,7 @@ diff -U 5 --new-file --recursive src.ori/mamecore.h src/mamecore.h
   * The upper bytes h2 and h3 normally contain zero (16 bit CPU cores)
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2005-08-29 09:13:22.000000000 +0200
-+++ src/osdepend.h	2005-10-08 13:32:03.000000000 +0200
++++ src/osdepend.h	2005-10-15 08:49:57.000000000 +0200
 @@ -324,6 +324,44 @@
  #include "osd_mess.h"
  #endif
@@ -868,7 +868,7 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
  #endif	/* __OSDEPEND_H__ */
 diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
 --- src.ori/rules.mak	2005-08-29 21:46:22.000000000 +0200
-+++ src/rules.mak	2005-10-02 12:08:30.000000000 +0200
++++ src/rules.mak	2005-10-15 08:49:57.000000000 +0200
 @@ -1179,16 +1179,16 @@
  CPUOBJS += $(OBJ)/$(G6D)/g65816o1.o
  CPUOBJS += $(OBJ)/$(G6D)/g65816o2.o
@@ -924,7 +924,7 @@ diff -U 5 --new-file --recursive src.ori/rules.mak src/rules.mak
  SOUND=$(strip $(findstring AY8910@,$(SOUNDS)))
 diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2005-08-25 08:26:00.000000000 +0200
-+++ src/ui_text.c	2005-10-02 12:08:30.000000000 +0200
++++ src/ui_text.c	2005-10-15 08:49:57.000000000 +0200
 @@ -83,11 +83,11 @@
  	"Dip Switches",
  	"Analog Controls",
@@ -955,7 +955,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  
 diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	2005-08-25 08:26:00.000000000 +0200
-+++ src/ui_text.h	2005-10-02 12:08:30.000000000 +0200
++++ src/ui_text.h	2005-10-15 08:49:57.000000000 +0200
 @@ -188,10 +188,14 @@
  	UI_search_one_match_found_added,
  
@@ -973,7 +973,7 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  #include "mui_text.h"
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
 --- src.ori/usrintrf.c	2005-09-08 08:30:46.000000000 +0200
-+++ src/usrintrf.c	2005-10-10 19:17:24.000000000 +0200
++++ src/usrintrf.c	2005-10-15 13:23:08.000000000 +0200
 @@ -639,13 +639,17 @@
   *
   *************************************/
@@ -1236,7 +1236,25 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  		bufptr += ui_sprintf_image_info(bufptr);
  
  		/* draw the window */
-@@ -3265,10 +3322,13 @@
+@@ -3238,10 +3295,11 @@
+ 
+ /*-------------------------------------------------
+     drawbar - draw a thermometer bar
+ -------------------------------------------------*/
+ 
++#if 0 /* AdvanceMAME: Use custom ui code */
+ static void drawbar(int leftx, int topy, int width, int height, int percentage, int default_percentage)
+ {
+ 	int current_x, default_x;
+ 	int bar_top, bar_bottom;
+ 
+@@ -3260,15 +3318,19 @@
+ 	add_line(default_x, bar_bottom, default_x, topy + height - 1, RGB_WHITE);
+ 
+ 	/* fill in the percentage */
+ 	add_fill(leftx, bar_top + 1, current_x, bar_bottom - 1, RGB_WHITE);
+ }
++#endif
  
  
  
@@ -1250,7 +1268,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	int ui_width, ui_height;
  	int text_height;
  
-@@ -3294,10 +3354,11 @@
+@@ -3294,10 +3356,11 @@
  			ui_width - 2 * space_width, line_height*3/4, percentage, default_percentage);
  
  	/* draw the actual text */
@@ -1262,7 +1280,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  static void onscrd_adjuster(int increment,int arg)
  {
  	input_port_entry *in = &Machine->input_ports[arg];
-@@ -3327,17 +3388,17 @@
+@@ -3327,17 +3390,17 @@
  	if (increment)
  	{
  		attenuation = osd_get_mastervolume();
@@ -1282,7 +1300,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  static void onscrd_mixervol(int increment,int arg)
  {
  	static void *driver = 0;
-@@ -3742,10 +3803,11 @@
+@@ -3742,10 +3805,11 @@
  }
  
  
@@ -1294,7 +1312,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	/* if we're not currently displaying, skip it */
  	if (!showfps && !showfpstemp)
  		return;
-@@ -3761,30 +3823,36 @@
+@@ -3761,30 +3825,36 @@
  	{
  		showfpstemp--;
  		if (!showfps && showfpstemp == 0)
@@ -1332,7 +1350,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	}
  }
  
-@@ -3861,10 +3929,11 @@
+@@ -3861,10 +3931,11 @@
  		rect->max_y = temp;
  	}
  }
@@ -1344,7 +1362,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	if (elemindex < ARRAY_LENGTH(elemlist))
  	{
  		elemlist[elemindex].x = (x1 < x2) ? x1 : x2;
-@@ -3904,14 +3973,20 @@
+@@ -3904,14 +3975,20 @@
  	add_line(x1, y1, x2, y1, RGB_WHITE);
  	add_line(x2, y1, x2, y2, RGB_WHITE);
  	add_line(x2, y2, x1, y2, RGB_WHITE);
@@ -1365,7 +1383,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	uirotfont->colortable[0] = get_black_pen();
  	uirotfont->colortable[1] = get_white_pen();
  	uirotfont->colortable[2] = get_white_pen();
-@@ -3947,6 +4022,7 @@
+@@ -3947,6 +4024,7 @@
  				break;
  		}
  	}
@@ -1375,7 +1393,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  }
 diff -U 5 --new-file --recursive src.ori/usrintrf.h src/usrintrf.h
 --- src.ori/usrintrf.h	2005-08-29 21:46:22.000000000 +0200
-+++ src/usrintrf.h	2005-10-02 13:27:53.000000000 +0200
++++ src/usrintrf.h	2005-10-15 08:49:57.000000000 +0200
 @@ -63,19 +63,10 @@
   *
   *************************************/
@@ -1398,7 +1416,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.h src/usrintrf.h
  	void (*save)(void);
 diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
 --- src.ori/vidhrdw/voodoo.c	2005-08-29 09:13:22.000000000 +0200
-+++ src/vidhrdw/voodoo.c	2005-10-02 12:08:30.000000000 +0200
++++ src/vidhrdw/voodoo.c	2005-10-15 08:49:57.000000000 +0200
 @@ -16,11 +16,11 @@
   *
   *  Math trickery
@@ -1414,7 +1432,7 @@ diff -U 5 --new-file --recursive src.ori/vidhrdw/voodoo.c src/vidhrdw/voodoo.c
  #include <float.h>
 diff -U 5 --new-file --recursive src.ori/x86drc.c src/x86drc.c
 --- src.ori/x86drc.c	2005-08-25 08:26:00.000000000 +0200
-+++ src/x86drc.c	2005-10-02 12:08:30.000000000 +0200
++++ src/x86drc.c	2005-10-15 08:49:57.000000000 +0200
 @@ -677,10 +677,11 @@
  
  
