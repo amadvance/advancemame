@@ -58,6 +58,7 @@
 #define EVENT_ROTATE (31 << 16)
 #define EVENT_LOCK (32 << 16)
 #define EVENT_PREVIEW (34 << 16)
+#define EVENT_MUTE (35 << 16)
 
 bool event_in(const std::string& s);
 void event_out(adv_conf* config_context, const char* tag);
@@ -68,7 +69,6 @@ void event_push(int event);
 void event_push_repeat(int event);
 int event_pop();
 int event_peek();
-int event_last();
 
 void event_setup(const std::string& press_sound, double delay_repeat_ms, double delay_repeat_next_ms, bool alpha_mode);
 

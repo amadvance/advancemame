@@ -715,6 +715,7 @@ int run_volume(config_state& rs)
 
 	if (key == EVENT_ENTER) {
 		play_attenuation_set(i->value_get());
+		play_mute_set(false);
 	}
 
 	return key;

@@ -57,6 +57,7 @@ static unsigned play_rate;
 static double play_latency_time;
 static double play_buffer_time;
 static int play_attenuation;
+static bool play_mute;
 static unsigned play_priority[CHANNEL_MAX];
 
 static bool play_memory(unsigned channel, unsigned char* data_begin, unsigned char* data_end, bool loop)
@@ -130,6 +131,7 @@ bool play_load(adv_conf* context)
 	play_latency_time = conf_float_get_default(context, "sound_latency");
 	play_buffer_time = conf_float_get_default(context, "sound_buffer");
 	play_rate = conf_int_get_default(context, "sound_samplerate");
+	play_mute = false;
 
 	return true;
 }
@@ -163,12 +165,28 @@ void play_attenuation_set(int attenuation)
 			volume /= 1.122018454; /* = (10 ^ (1/20)) = 1dB */
 	}
 
-	mixer_volume(volume);
+	if (play_mute)
+		mixer_volume(0);
+	else
+		mixer_volume(volume);
 }
 
 int play_attenuation_get()
 {
 	return play_attenuation;
+}
+
+void play_mute_set(bool mute)
+{
+	play_mute = mute;
+
+	// recompute the volume
+	play_attenuation_set(play_attenuation);
+}
+
+bool play_mute_get()
+{
+	return play_mute;
 }
 
 void play_done()

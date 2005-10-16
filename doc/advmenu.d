@@ -1168,6 +1168,7 @@ Configuration
 		command - The file command menu.
 		rotate - Rotate the screen of 90°.
 		lock - Lock/unlock the user interface.
+		mute - Mute/unmute the audio.
 
 	Options:
 		EXPRESSION - Definition of the key expression that
@@ -1241,9 +1242,9 @@ Configuration
 
 	Options:
 		START_TIMEOUT - Number of seconds to wait for the
-			first run. 0 means do nothing (default).
+			first run. 0 means never (default never).
 		REPEAT_TIMEOUT - Number of seconds to wait for the
-			next run. 0 means do nothing (default).
+			next run. 0 means never (default never).
 
 	Examples:
 		:idle_start 400 60
@@ -1256,9 +1257,9 @@ Configuration
 
 	Options:
 		START_TIMEOUT - Number of seconds to wait for the
-			first run. 0 means never (default).
+			first run. 0 means never (default 60).
 		REPEAT_TIMEOUT - Number of seconds to wait for the
-			next run. 0 means never (default).
+			next run. 0 means never (default 10).
 
 	Examples:
 		:idle_screensaver 40 5

@@ -86,6 +86,7 @@ static struct event_item EVENT_TAB[] = {
 {"rotate", EVENT_ROTATE, { KEYB_0_PAD, KEYB_MAX } },
 {"lock", EVENT_LOCK, { KEYB_SCRLOCK, KEYB_MAX } },
 {"preview", EVENT_PREVIEW, { KEYB_SPACE, KEYB_MAX } },
+{"mute", EVENT_MUTE, { KEYB_PERIOD_PAD, KEYB_MAX } },
 { 0, 0, { 0 } }
 };
 
@@ -479,8 +480,4 @@ void event_setup(const string& press_sound, double delay_repeat_ms, double delay
 	event_delay_repeat_next_ms = delay_repeat_next_ms;
 }
 
-int event_last()
-{
-	return event_last_push;
-}
 

@@ -481,6 +481,7 @@ static unsigned int_idle_1_rep; ///< Seconds before the second 1 event.
 static time_t int_idle_time_current; ///< Last time check in idle.
 static bool int_idle_0_state; ///< Idle event 0 enabler.
 static bool int_idle_1_state; ///< Idle event 1 enabler.
+static int int_last; ///< Last event.
 
 static bool int_wait_for_backdrop; ///< Wait for the backdrop draw completion before accepting events.
 
@@ -2709,6 +2710,7 @@ static void key_poll()
 void int_idle_time_reset()
 {
 	int_idle_time_current = time(0);
+	int_last = EVENT_NONE;
 }
 
 void int_idle_0_enable(bool state)
@@ -2728,7 +2730,7 @@ static void int_idle()
 
 	if (int_idle_0_state) {
 		if (int_idle_0_rep != 0
-			&& event_last() == EVENT_IDLE_0
+			&& int_last == EVENT_IDLE_0
 			&& elapsed > int_idle_0_rep
 		) {
 			log_std(("text: push IDLE_0 repeat\n"));
@@ -2743,7 +2745,7 @@ static void int_idle()
 
 	if (int_idle_1_state) {
 		if (int_idle_1_rep != 0
-			&& event_last() == EVENT_IDLE_1
+			&& int_last == EVENT_IDLE_1
 			&& elapsed > int_idle_1_rep
 		) {
 			log_std(("text: push IDLE_1 repeat\n"));
@@ -2782,6 +2784,12 @@ bool int_event_waiting()
 {
 	static target_clock_t key_pressed_last_time = 0;
 
+	// low level mute/unmute management
+	while (event_peek() == EVENT_MUTE) {
+		event_pop();
+		play_mute_set(!play_mute_get());
+	}
+
 	if (event_peek() != EVENT_NONE)
 		return 1;
 
@@ -2795,6 +2803,12 @@ bool int_event_waiting()
 		key_pressed_last_time = now;
 
 		key_poll();
+	}
+
+	// low level mute/unmute management
+	while (event_peek() == EVENT_MUTE) {
+		event_pop();
+		play_mute_set(!play_mute_get());
 	}
 
 	if (event_peek() != EVENT_NONE)
@@ -2829,7 +2843,7 @@ unsigned int_event_get(bool update_background)
 	}
 #endif
 
-	return event_pop();
+	return int_last = event_pop();
 }
 
 

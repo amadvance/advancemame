@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.4.11 2005/10
+	) Added a new `mute' event. Default to period key on the keypad.
+
 AdvanceMENU Version 2.4.10 2005/06
 	) Improved the precision of all the joystick drivers.
 		Now a scale of 65536 values is used.

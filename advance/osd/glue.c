@@ -611,7 +611,6 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.skip_disclaimer = context->global.config.quiet_flag;
 	options.skip_gameinfo = context->global.config.quiet_flag;
 	options.skip_warnings = context->global.config.quiet_flag;
-	options.skip_validitychecks = 1; /* always skip the validity checks at startup */
 	options.samplerate = advance->samplerate;
 	options.use_samples = advance->samples_flag;
 	options.brightness = advance->brightness;

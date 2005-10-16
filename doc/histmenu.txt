@@ -3,6 +3,12 @@
                             =======================
 
 
+ADVANCEMENU VERSION 2.4.11 2005/10
+==================================
+
+* Added a new `mute' event. Default to period key on the keypad.
+
+
 ADVANCEMENU VERSION 2.4.10 2005/06
 ==================================
 
