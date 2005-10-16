@@ -643,6 +643,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		options.savegame = advance->savegame_file_buffer;
 	else
 		options.savegame = 0; /* no savegame file to load */
+	options.auto_save = 0; /* 1 to automatically save/restore at startup/quitting time */
 	options.debug_width = advance->debug_width;
 	options.debug_height = advance->debug_height;
 	options.debug_depth = 8;

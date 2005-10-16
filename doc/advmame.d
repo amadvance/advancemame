@@ -1296,8 +1296,9 @@ Configuration
 		no - Disable it.
 
     sound_equalizer_*
-	Sets the equalizer volume. To disable the euqualizer set
-	all the VOLUME values to 0.
+	Sets the equalizer volume. To disable the equalizer set
+	all the VOLUME values to 0. The cut-off frequencies are 800
+	and 8000 Hz.
 
 	sound_equalizer_lowvolume VOLUME
 	sound_equalizer_midvolume VOLUME

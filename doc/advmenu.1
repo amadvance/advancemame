@@ -2101,6 +2101,9 @@ Rotate the screen of 90°.
 .HP 4
 .I lock
 Lock/unlock the user interface.
+.HP 4
+.I mute
+Mute/unmute the audio.
 .PD
 .RE
 .PP
@@ -2231,11 +2234,11 @@ Options:
 .HP 4
 .I START_TIMEOUT
 Number of seconds to wait for the
-first run. 0 means do nothing (default).
+first run. 0 means never (default never).
 .HP 4
 .I REPEAT_TIMEOUT
 Number of seconds to wait for the
-next run. 0 means do nothing (default).
+next run. 0 means never (default never).
 .PD
 .RE
 .PP
@@ -2262,11 +2265,11 @@ Options:
 .HP 4
 .I START_TIMEOUT
 Number of seconds to wait for the
-first run. 0 means never (default).
+first run. 0 means never (default 60).
 .HP 4
 .I REPEAT_TIMEOUT
 Number of seconds to wait for the
-next run. 0 means never (default).
+next run. 0 means never (default 10).
 .PD
 .RE
 .PP

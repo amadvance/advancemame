@@ -694,7 +694,7 @@ void osd_customize_inputport_list(input_port_default_entry* defaults)
 {
 	input_port_default_entry* i;
 
-	log_std(("emu:global: osd_customize_inputport_defaults()\n"));
+	log_std(("emu:global: osd_customize_inputport_list()\n"));
 
 	i = config_portdef_find(defaults, IPT_UI_HELP);
 	seq_set_1(&i->defaultseq, KEYCODE_F1_REAL);
@@ -740,7 +740,7 @@ void osd_config_load_default(input_port_default_entry* backup, input_port_defaul
 	adv_conf* cfg_context = CONTEXT.cfg;
 	input_port_default_entry* i;
 
-	log_std(("emu:global: osd_customize_inputport_pre_defaults()\n"));
+	log_std(("emu:global: osd_config_load_default()\n"));
 
 	i = list;
 	while (i->type != IPT_END) {
@@ -788,7 +788,7 @@ void osd_config_load(input_port_entry* backup, input_port_entry* list)
 	adv_conf* cfg_context = CONTEXT.cfg;
 	const mame_game* game = CONTEXT.game;
 
-	log_std(("emu:global: osd_customize_inputport_pre_game()\n"));
+	log_std(("emu:global: osd_config_load()\n"));
 
 	config_customize_language(context, list);
 	config_customize_difficulty(context, list);
@@ -814,7 +814,7 @@ static void config_save_generic(const char* tag, const char* value)
 	adv_conf* cfg_context = CONTEXT.cfg;
 	const mame_game* game = CONTEXT.game;
 
-	log_debug(("emu:global: osd2_customize_port_post_game(%s,%s)\n", tag, value));
+	log_debug(("emu:global: config_save_generic(%s,%s)\n", tag, value));
 
 	if (value) {
 		conf_autoreg_string_set(cfg_context, mame_game_name(game), tag, value);
