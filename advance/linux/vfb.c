@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -796,7 +796,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	fb_state.ptr = mmap(0,
 		fb_state.fixinfo.smem_len,
 		PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_FIXED,
+		MAP_SHARED,
 		fb_state.fd,
 		0
 	);
