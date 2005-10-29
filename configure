@@ -10768,7 +10768,7 @@ CONF_LIB_JEVENT=$ac_lib_jevent
 
 
 # Final
-CONF_LIB_DIRECT=$ac_lib_direct
+CONF_LIB_DIRECT=$ac_lib_direct_flag
 
           ac_config_files="$ac_config_files Makefile"
 

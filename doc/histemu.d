@@ -1,6 +1,12 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.101.1 2005/10
+	) Fixed a problem mapping the video memory
+		in the Linux FrambeBuffer driver.
+	) Fixed the conditional compilation of the advv and advcfg
+		utilities.
+
 AdvanceMAME Version 0.101.0 2005/10
 	) Fixed the crash problem without the -quiet option.
 
