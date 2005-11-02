@@ -189,6 +189,9 @@ void os_poll(void)
 #ifdef USE_KEYBOARD_SDL
 				keyb_sdl_event_release(event.key.keysym.sym);
 #endif
+#ifdef USE_INPUT_SDL
+				inputb_sdl_event_release(event.key.keysym.sym);
+#endif
 			break;
 			case SDL_MOUSEMOTION :
 #ifdef USE_MOUSE_SDL

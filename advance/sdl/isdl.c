@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,51 +103,79 @@ adv_bool inputb_sdl_hit(void)
 	return sdl_state.last != SDLK_LAST;
 }
 
+#define SHIFT(l, u) (sdl_state.shift ? (u) : (l))
+
+/* Extra SDL missing keys */
+#define SDLK_PERCENT (SDLK_LAST+1)
+#define SDLK_LEFTBRACE (SDLK_LAST+2)
+#define SDLK_VERTICALBAR (SDLK_LAST+3)
+#define SDLK_RIGHTBRACE (SDLK_LAST+4)
+#define SDLK_TILDE (SDLK_LAST+5)
+ 
 unsigned inputb_sdl_get(void)
 {
 	unsigned r;
-	int upper;
 
 	log_debug(("inputb:sdl: inputb_sdl_get()\n"));
 
 	r = sdl_state.last;
 	sdl_state.last = SDLK_LAST;
 
-	if (sdl_state.shift)
-		upper = 'A' - 'a';
-	else
-		upper = 0;
+	/* US keyboard mapping */
+	if (sdl_state.shift) {
+		switch (r) {
+		case SDLK_COMMA : r = SDLK_LESS; break;
+		case SDLK_PERIOD : r = SDLK_GREATER; break;
+		case SDLK_SLASH  : r = SDLK_QUESTION; break;
+		case SDLK_MINUS : r = SDLK_UNDERSCORE; break;
+		case SDLK_EQUALS : r = SDLK_PLUS; break;
+		case SDLK_BACKQUOTE : r = SDLK_TILDE; break;
+		case SDLK_BACKSLASH : r = SDLK_VERTICALBAR; break;
+		case SDLK_SEMICOLON : r = SDLK_COLON; break;
+		case SDLK_QUOTE : r = SDLK_QUOTEDBL; break;
+		case SDLK_LEFTBRACKET : r = SDLK_LEFTBRACE; break;
+		case SDLK_RIGHTBRACKET : r = SDLK_RIGHTBRACE; break;
+		case SDLK_0 : r = SDLK_RIGHTPAREN; break;
+		case SDLK_1 : r = SDLK_EXCLAIM; break;
+		case SDLK_2 : r = SDLK_AT; break;
+		case SDLK_3 : r = SDLK_HASH; break;
+		case SDLK_4 : r = SDLK_DOLLAR; break;
+		case SDLK_5 : r = SDLK_PERCENT; break;
+		case SDLK_6 : r = SDLK_CARET; break;
+		case SDLK_7 : r = SDLK_AMPERSAND; break;
+		case SDLK_8 : r = SDLK_ASTERISK; break;
+		case SDLK_9 : r = SDLK_LEFTPAREN; break;
+		}
+	}
 
 	switch (r) {
 	case SDLK_LAST : return INPUTB_NONE;
+
+	case SDLK_PERCENT : return '%';	
+	case SDLK_LEFTBRACE : return '{';
+	case SDLK_VERTICALBAR : return '|';	
+	case SDLK_RIGHTBRACE : return '}';
+	case SDLK_TILDE : return '~';
+
+	case SDLK_BACKSPACE : return INPUTB_BACKSPACE;
+	case SDLK_TAB : return INPUTB_TAB;
+	case SDLK_RETURN : return INPUTB_ENTER;	
+	case SDLK_ESCAPE : return INPUTB_ESC;
+	case SDLK_SPACE : return INPUTB_SPACE;
+	case SDLK_EXCLAIM : return '!';
+	case SDLK_QUOTEDBL : return '"';
+	case SDLK_HASH : return '#';
+	case SDLK_DOLLAR : return '$';
+	case SDLK_AMPERSAND : return '&';
+	case SDLK_QUOTE : return '\'';
+	case SDLK_LEFTPAREN : return '('; 
+	case SDLK_RIGHTPAREN : return ')';
+	case SDLK_ASTERISK : return '*';
+	case SDLK_PLUS : return '+';
 	case SDLK_COMMA : return ',';
+	case SDLK_MINUS : return '-';
 	case SDLK_PERIOD : return '.';
-	case SDLK_a : return 'a' + upper;
-	case SDLK_b : return 'b' + upper;
-	case SDLK_c : return 'c' + upper;
-	case SDLK_d : return 'd' + upper;
-	case SDLK_e : return 'e' + upper;
-	case SDLK_f : return 'f' + upper;
-	case SDLK_g : return 'g' + upper;
-	case SDLK_h : return 'h' + upper;
-	case SDLK_i : return 'i' + upper;
-	case SDLK_j : return 'j' + upper;
-	case SDLK_k : return 'k' + upper;
-	case SDLK_l : return 'l' + upper;
-	case SDLK_m : return 'm' + upper;
-	case SDLK_n : return 'n' + upper;
-	case SDLK_o : return 'o' + upper;
-	case SDLK_p : return 'p' + upper;
-	case SDLK_q : return 'q' + upper;
-	case SDLK_r : return 'r' + upper;
-	case SDLK_s : return 's' + upper;
-	case SDLK_t : return 't' + upper;
-	case SDLK_u : return 'u' + upper;
-	case SDLK_v : return 'v' + upper;
-	case SDLK_w : return 'w' + upper;
-	case SDLK_x : return 'x' + upper;
-	case SDLK_y : return 'y' + upper;
-	case SDLK_z : return 'z' + upper;
+	case SDLK_SLASH : return '/';
 	case SDLK_0 : return '0';
 	case SDLK_1 : return '1';
 	case SDLK_2 : return '2';
@@ -158,17 +186,68 @@ unsigned inputb_sdl_get(void)
 	case SDLK_7 : return '7';
 	case SDLK_8 : return '8';
 	case SDLK_9 : return '9';
-	case SDLK_MINUS : return '-';
-	case SDLK_PLUS : return '+';
+	case SDLK_COLON : return ':';
+	case SDLK_SEMICOLON : return ';';
+	case SDLK_LESS : return '<';
+	case SDLK_EQUALS : return '=';
+	case SDLK_GREATER : return '>';
+	case SDLK_QUESTION : return '?';
+	case SDLK_AT : return '@';
+	case SDLK_LEFTBRACKET : return ']';
+	case SDLK_BACKSLASH : return '\\';
+	case SDLK_RIGHTBRACKET : return '[';
+	case SDLK_CARET : return '^';
 	case SDLK_UNDERSCORE : return '_';
-	case SDLK_TAB : return INPUTB_TAB;
-	case SDLK_RETURN : return INPUTB_ENTER;
-	case SDLK_ESCAPE : return INPUTB_ESC;
-	case SDLK_SPACE : return INPUTB_SPACE;
+	case SDLK_BACKQUOTE : return '`';
+	case SDLK_a : return SHIFT('a', 'A');
+	case SDLK_b : return SHIFT('b', 'B');
+	case SDLK_c : return SHIFT('c', 'C');
+	case SDLK_d : return SHIFT('d', 'D');
+	case SDLK_e : return SHIFT('e', 'E');
+	case SDLK_f : return SHIFT('f', 'F');
+	case SDLK_g : return SHIFT('g', 'G');
+	case SDLK_h : return SHIFT('h', 'H');
+	case SDLK_i : return SHIFT('i', 'I');
+	case SDLK_j : return SHIFT('j', 'J');
+	case SDLK_k : return SHIFT('k', 'K');
+	case SDLK_l : return SHIFT('l', 'L');
+	case SDLK_m : return SHIFT('m', 'M');
+	case SDLK_n : return SHIFT('n', 'N');
+	case SDLK_o : return SHIFT('o', 'O');
+	case SDLK_p : return SHIFT('p', 'P');
+	case SDLK_q : return SHIFT('q', 'W');
+	case SDLK_r : return SHIFT('r', 'R');
+	case SDLK_s : return SHIFT('s', 'S');
+	case SDLK_t : return SHIFT('t', 'T');
+	case SDLK_u : return SHIFT('u', 'U');
+	case SDLK_v : return SHIFT('v', 'V');
+	case SDLK_w : return SHIFT('w', 'W');
+	case SDLK_x : return SHIFT('x', 'X');
+	case SDLK_y : return SHIFT('y', 'Y');
+	case SDLK_z : return SHIFT('z', 'Z');	
+	case SDLK_DELETE : return INPUTB_DEL;
+	case SDLK_KP0 : return '0';
+	case SDLK_KP1 : return '1';
+	case SDLK_KP2 : return '2';
+	case SDLK_KP3 : return '3';
+	case SDLK_KP4 : return '4';
+	case SDLK_KP5 : return '5';
+	case SDLK_KP6 : return '6';
+	case SDLK_KP7 : return '7';
+	case SDLK_KP8 : return '8';
+	case SDLK_KP9 : return '9';
+	case SDLK_KP_PERIOD : return '.';	
+	case SDLK_KP_DIVIDE : return '/';
+	case SDLK_KP_MULTIPLY : return '*';
+	case SDLK_KP_MINUS : return '-';
+	case SDLK_KP_PLUS : return '+';
+	case SDLK_KP_ENTER : return INPUTB_ENTER;
+	case SDLK_KP_EQUALS : return '=';
 	case SDLK_UP : return INPUTB_UP;
 	case SDLK_DOWN : return INPUTB_DOWN;
-	case SDLK_LEFT : return INPUTB_LEFT;
 	case SDLK_RIGHT : return INPUTB_RIGHT;
+	case SDLK_LEFT : return INPUTB_LEFT;
+	case SDLK_INSERT : return INPUTB_INS;
 	case SDLK_HOME : return INPUTB_HOME;
 	case SDLK_END : return INPUTB_END;
 	case SDLK_PAGEUP : return INPUTB_PGUP;
@@ -182,10 +261,7 @@ unsigned inputb_sdl_get(void)
 	case SDLK_F7 : return INPUTB_F7;
 	case SDLK_F8 : return INPUTB_F8;
 	case SDLK_F9 : return INPUTB_F9;
-	case SDLK_F10 : return INPUTB_F10;
-	case SDLK_DELETE : return INPUTB_DEL;
-	case SDLK_INSERT : return INPUTB_INS;
-	case SDLK_BACKSPACE : return INPUTB_BACKSPACE;
+	case SDLK_F10 : return INPUTB_F10;	
 	}
 
 	return INPUTB_NONE;
