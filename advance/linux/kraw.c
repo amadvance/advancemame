@@ -69,10 +69,10 @@
 #define RAW_MAX 128
 
 struct keyb_raw_context {
-	struct termios oldkbdtermios;
-	struct termios newkbdtermios;
-	int oldkbmode;
-	int oldtrmode;
+	struct termios old_kdbtermios;
+	struct termios kdbtermios;
+	int old_kdbmode;
+	int old_terminalmode;
 	int f; /**< Handle. */
 	adv_bool disable_special_flag; /**< Disable special hotkeys. */
 	unsigned map_up_to_low[KEYB_MAX]; /**< Key mapping. */
@@ -85,7 +85,7 @@ struct keyb_raw_context {
 	unsigned char first_code; /**< First key pressed. */
 	adv_bool first_state; /**< State of processing the first key. */
 #ifdef USE_LED
-	unsigned char led_state; /**< Startup led state. */
+	int old_led; /**< Startup led state. */
 #endif
 };
 
@@ -276,25 +276,25 @@ adv_error keyb_raw_enable(adv_bool graphics)
 		goto err;
 	}
 
-	if (ioctl(raw_state.f, KDGKBMODE, &raw_state.oldkbmode) != 0) {
+	if (ioctl(raw_state.f, KDGKBMODE, &raw_state.old_kdbmode) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function ioctl(KDGKBMODE) failed.\n");
 		goto err_close;
 	}
 
-	if (tcgetattr(raw_state.f, &raw_state.oldkbdtermios) != 0) {
+	if (tcgetattr(raw_state.f, &raw_state.old_kdbtermios) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function tcgetattr() failed.\n");
 		goto err_close;
 	}
 
-	raw_state.newkbdtermios = raw_state.oldkbdtermios;
+	raw_state.kdbtermios = raw_state.old_kdbtermios;
 
 	/* setting taken from SVGALIB */
-	raw_state.newkbdtermios.c_lflag &= ~(ICANON | ECHO | ISIG);
-	raw_state.newkbdtermios.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | IXOFF | IXON);
-	raw_state.newkbdtermios.c_cc[VMIN] = 0;
-	raw_state.newkbdtermios.c_cc[VTIME] = 0;
+	raw_state.kdbtermios.c_lflag &= ~(ICANON | ECHO | ISIG);
+	raw_state.kdbtermios.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | IXOFF | IXON);
+	raw_state.kdbtermios.c_cc[VMIN] = 0;
+	raw_state.kdbtermios.c_cc[VTIME] = 0;
 
-	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.newkbdtermios) != 0) {
+	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.kdbtermios) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function tcsetattr(TCSAFLUSH) failed.\n");
 		goto err_close;
 	}
@@ -305,12 +305,12 @@ adv_error keyb_raw_enable(adv_bool graphics)
 	}
 
 	if (raw_state.graphics_flag) {
-		if (ioctl(raw_state.f, KDGETMODE, &raw_state.oldtrmode) != 0) {
+		if (ioctl(raw_state.f, KDGETMODE, &raw_state.old_terminalmode) != 0) {
 			error_set("Error enabling the event keyboard driver. Function ioctl(KDGETMODE) failed.\n");
 			goto err_mode;
 		}
 
-		if (raw_state.oldtrmode == KD_GRAPHICS) {
+		if (raw_state.old_terminalmode == KD_GRAPHICS) {
 			log_std(("WARNING:keyb:raw: terminal already in KD_GRAPHICS mode\n"));
 		}
 
@@ -324,9 +324,9 @@ adv_error keyb_raw_enable(adv_bool graphics)
 	}
 
 #ifdef USE_LED
-	if (ioctl(raw_state.f, KDGETLED, &raw_state.led_state) != 0) {
+	if (ioctl(raw_state.f, KDGETLED, &raw_state.old_led) != 0) {
 		log_std(("WARNING:keyb:raw: ioctl(KDGETLED) failed\n"));
-		raw_state.led_state = 0;
+		raw_state.old_led = 0;
 	}
 #endif
 
@@ -335,12 +335,12 @@ adv_error keyb_raw_enable(adv_bool graphics)
 	return 0;
 
 err_mode:
-	if (ioctl(raw_state.f, KDSKBMODE, raw_state.oldkbmode) < 0) {
+	if (ioctl(raw_state.f, KDSKBMODE, raw_state.old_kdbmode) < 0) {
 		/* ignore error */
 		log_std(("keyb:raw: ioctl(KDSKBMODE,old) failed\n"));
 	}
 err_term:
-	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.oldkbdtermios) != 0) {
+	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.old_kdbtermios) != 0) {
 		/* ignore error */
 		log_std(("keyb:raw: tcsetattr(TCSAFLUSH) failed\n"));
 	}
@@ -355,24 +355,24 @@ void keyb_raw_disable(void)
 	log_std(("keyb:raw: keyb_raw_disable()\n"));
 
 #ifdef USE_LED
-	if (ioctl(raw_state.f, KDSETLED, raw_state.led_state) != 0) {
-		log_std(("WARNING:keyb:raw: ioctl(KDSETLED, 0x%x) failed\n", raw_state.led_state));
+	if (ioctl(raw_state.f, KDSETLED, raw_state.old_led) != 0) {
+		log_std(("WARNING:keyb:raw: ioctl(KDSETLED, 0x%x) failed\n", raw_state.old_led));
 	}
 #endif
 
 	if (raw_state.graphics_flag) {
-		if (ioctl(raw_state.f, KDSETMODE, raw_state.oldtrmode) < 0) {
+		if (ioctl(raw_state.f, KDSETMODE, raw_state.old_terminalmode) < 0) {
 			/* ignore error */
 			log_std(("ERROR:keyb:raw: ioctl(KDSETMODE, KD_TEXT) failed\n"));
 		}
 	}
 
-	if (ioctl(raw_state.f, KDSKBMODE, raw_state.oldkbmode) < 0) {
+	if (ioctl(raw_state.f, KDSKBMODE, raw_state.old_kdbmode) < 0) {
 		/* ignore error */
 		log_std(("ERROR:keyb:raw: ioctl(KDSKBMODE,old) failed\n"));
 	}
 
-	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.oldkbdtermios) != 0) {
+	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.old_kdbtermios) != 0) {
 		/* ignore error */
 		log_std(("ERROR:keyb:raw: tcsetattr(TCSAFLUSH) failed\n"));
 	}

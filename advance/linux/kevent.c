@@ -65,10 +65,10 @@ struct keyboard_item_context {
 #define LOW_INVALID ((unsigned)0xFFFFFFFF)
 
 struct keyb_event_context {
-	struct termios oldkbdtermios;
-	struct termios newkbdtermios;
-	int oldkbmode;
-	int oldtrmode;
+	struct termios old_kdbtermios;
+	struct termios kdbtermios;
+	int old_kdbmode;
+	int old_terminalmode;
 	int f; /**< Handle of the console interface. */
 	adv_bool disable_special_flag; /**< Disable special hotkeys. */
 	unsigned map_up_to_low[KEYB_MAX];
@@ -824,25 +824,25 @@ adv_error keyb_event_enable(adv_bool graphics)
 		goto err;
 	}
 
-	if (ioctl(event_state.f, KDGKBMODE, &event_state.oldkbmode) != 0) {
+	if (ioctl(event_state.f, KDGKBMODE, &event_state.old_kdbmode) != 0) {
 		error_set("Error enabling the event keyboard driver. Function ioctl(KDGKBMODE) failed.\n");
 		goto err_close;
 	}
 
-	if (tcgetattr(event_state.f, &event_state.oldkbdtermios) != 0) {
+	if (tcgetattr(event_state.f, &event_state.old_kdbtermios) != 0) {
 		error_set("Error enabling the event keyboard driver. Function tcgetattr() failed.\n");
 		goto err_close;
 	}
 
-	event_state.newkbdtermios = event_state.oldkbdtermios;
+	event_state.kdbtermios = event_state.old_kdbtermios;
 
 	/* setting taken from SVGALIB */
-	event_state.newkbdtermios.c_lflag &= ~(ICANON | ECHO | ISIG);
-	event_state.newkbdtermios.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | IXOFF | IXON);
-	event_state.newkbdtermios.c_cc[VMIN] = 0;
-	event_state.newkbdtermios.c_cc[VTIME] = 0;
+	event_state.kdbtermios.c_lflag &= ~(ICANON | ECHO | ISIG);
+	event_state.kdbtermios.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | IXOFF | IXON);
+	event_state.kdbtermios.c_cc[VMIN] = 0;
+	event_state.kdbtermios.c_cc[VTIME] = 0;
 
-	if (tcsetattr(event_state.f, TCSAFLUSH, &event_state.newkbdtermios) != 0) {
+	if (tcsetattr(event_state.f, TCSAFLUSH, &event_state.kdbtermios) != 0) {
 		error_set("Error enabling the event keyboard driver. Function tcsetattr(TCSAFLUSH) failed.\n");
 		goto err_close;
 	}
@@ -856,12 +856,12 @@ adv_error keyb_event_enable(adv_bool graphics)
 	}
 
 	if (event_state.graphics_flag) {
-		if (ioctl(event_state.f, KDGETMODE, &event_state.oldtrmode) != 0) {
+		if (ioctl(event_state.f, KDGETMODE, &event_state.old_terminalmode) != 0) {
 			error_set("Error enabling the event keyboard driver. Function ioctl(KDGETMODE) failed.\n");
 			goto err_mode;
 		}
 
-		if (event_state.oldtrmode == KD_GRAPHICS) {
+		if (event_state.old_terminalmode == KD_GRAPHICS) {
 			log_std(("WARNING:keyb:event: terminal already in KD_GRAPHICS mode\n"));
 		}
 
@@ -879,12 +879,12 @@ adv_error keyb_event_enable(adv_bool graphics)
 	return 0;
 
 err_mode:
-	if (ioctl(event_state.f, KDSKBMODE, event_state.oldkbmode) < 0) {
+	if (ioctl(event_state.f, KDSKBMODE, event_state.old_kdbmode) < 0) {
 		/* ignore error */
 		log_std(("keyb:event: ioctl(KDSKBMODE,old) failed\n"));
 	}
 err_term:
-	if (tcsetattr(event_state.f, TCSAFLUSH, &event_state.oldkbdtermios) != 0) {
+	if (tcsetattr(event_state.f, TCSAFLUSH, &event_state.old_kdbtermios) != 0) {
 		/* ignore error */
 		log_std(("keyb:event: tcsetattr(TCSAFLUSH) failed\n"));
 	}
@@ -899,18 +899,18 @@ void keyb_event_disable(void)
 	log_std(("keyb:event: keyb_event_disable()\n"));
 
 	if (event_state.graphics_flag) {
-		if (ioctl(event_state.f, KDSETMODE, event_state.oldtrmode) < 0) {
+		if (ioctl(event_state.f, KDSETMODE, event_state.old_terminalmode) < 0) {
 			/* ignore error */
 			log_std(("ERROR:keyb:event: ioctl(KDSETMODE, KD_TEXT) failed\n"));
 		}
 	}
 
-	if (ioctl(event_state.f, KDSKBMODE, event_state.oldkbmode) < 0) {
+	if (ioctl(event_state.f, KDSKBMODE, event_state.old_kdbmode) < 0) {
 		/* ignore error */
 		log_std(("ERROR:keyb:event: ioctl(KDSKBMODE,old) failed\n"));
 	}
 
-	if (tcsetattr(event_state.f, TCSAFLUSH, &event_state.oldkbdtermios) != 0) {
+	if (tcsetattr(event_state.f, TCSAFLUSH, &event_state.old_kdbtermios) != 0) {
 		/* ignore error */
 		log_std(("ERROR:keyb:event: tcsetattr(TCSAFLUSH) failed\n"));
 	}
