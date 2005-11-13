@@ -286,6 +286,13 @@ void keyb_svgalib_all_get(unsigned keyboard, unsigned char* code_map)
 	code_map[KEYB_PAUSE] = 0;
 }
 
+void keyb_svgalib_led_set(unsigned keyboard, unsigned led_mask)
+{
+	log_debug(("keyb:svgalib: keyb_svgalib_led_set(keyboard:%d,mask:%d)\n", keyboard, led_mask));
+
+	/* TODO led support */
+}
+
 void keyb_svgalib_poll(void)
 {
 	log_debug(("keyb:svgalib: keyb_svgalib_poll()\n"));
@@ -324,7 +331,7 @@ keyb_driver keyb_svgalib_driver = {
 	keyb_svgalib_has,
 	keyb_svgalib_get,
 	keyb_svgalib_all_get,
-	0,
+	keyb_svgalib_led_set,
 	keyb_svgalib_poll
 };
 

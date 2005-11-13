@@ -9,6 +9,8 @@ AdvanceMAME Version 0.101.1 2005/11
 	) Updated zlib to version 1.2.3.
 	) Fixed some keyboard input issues with the text mode
 		utilities in Windows.
+	) Added leds support at the `raw' and `event' keyboard
+		linux drivers.
 
 AdvanceMAME Version 0.101.0 2005/10
 	) Fixed the crash problem without the -quiet option.

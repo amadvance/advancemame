@@ -1600,6 +1600,27 @@ adv_error event_read(int f, int* type, int* code, int* value)
 	return 0;
 }
 
+adv_error event_write(int f, int type, int code, int value)
+{
+	int size;
+	struct input_event e;
+
+	e.type = type;
+	e.code = code;
+	e.value = value;
+
+	size = write(f, &e, sizeof(e));
+
+	if (size != sizeof(e)) {
+		log_std(("ERROR:event: invalid write size %d on the event interface, errno %d (%s)\n", size, errno, strerror(errno)));
+		return -1;
+	}
+
+	log_debug(("event: write type %d, code %d, value %d\n", e.type, e.code, e.value));
+
+	return 0;
+}
+
 int event_compare(const void* void_a, const void* void_b)
 {
 	const struct event_location* a = (const struct event_location*)void_a;

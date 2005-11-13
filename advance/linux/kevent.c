@@ -59,6 +59,7 @@ struct keyboard_item_context {
 	unsigned char evtype_bitmask[EV_MAX/8 + 1];
 	unsigned char key_bitmask[KEY_MAX/8 + 1];
 	adv_bool state[KEY_MAX];
+	unsigned led_state;
 };
 
 #define LOW_INVALID ((unsigned)0xFFFFFFFF)
@@ -704,6 +705,7 @@ static void keyb_event_clear(void)
 	for(i=0;i<event_state.mac;++i) {
 		for(j=0;j<KEY_MAX;++j) {
 			event_state.map[i].state[j] = 0;
+			event_state.map[i].led_state = 0;
 		}
 	}
 }
@@ -977,7 +979,38 @@ void keyb_event_led_set(unsigned keyboard, unsigned led_mask)
 {
 	log_debug(("keyb:event: keyb_event_led_set(keyboard:%d,mask:%d)\n", keyboard, led_mask));
 
-	/* TODO led support */
+#define led_update(i, k) \
+	do { \
+		if (((led_mask ^ event_state.map[keyboard].led_state) & k) != 0) \
+			event_write(event_state.map[keyboard].fe, EV_LED, i, (led_mask & k) != 0); \
+	} while (0)
+
+#ifdef LED_NUML
+	led_update(LED_NUML, KEYB_LED_NUML);
+#endif
+#ifdef LED_CAPSL
+	led_update(LED_CAPSL, KEYB_LED_CAPSL);
+#endif
+#ifdef LED_SCROLLL
+	led_update(LED_SCROLLL, KEYB_LED_SCROLLL);
+#endif
+#ifdef LED_COMPOSE
+	led_update(LED_COMPOSE, KEYB_LED_COMPOSE);
+#endif
+#ifdef LED_KANA
+	led_update(LED_KANA, KEYB_LED_KANA);
+#endif
+#ifdef LED_SLEEP
+	led_update(LED_SLEEP, KEYB_LED_SLEEP);
+#endif
+#ifdef LED_SUSPEND
+	led_update(LED_SUSPEND, KEYB_LED_SUSPEND);
+#endif
+#ifdef LED_MUTE
+	led_update(LED_MUTE, KEYB_LED_MUTE);
+#endif
+
+	event_state.map[keyboard].led_state = led_mask;
 }
 
 static void keyb_event_process(unsigned keyboard, unsigned code)

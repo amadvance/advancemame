@@ -265,6 +265,8 @@ http:///usr/src/linux/Documentation/sysrq.txt
 .PP
 .PD
 .RE
+.PP
+Leds control is supported.
 .SS raw \(hy Kernel keyboard (Linux) 
 This driver works in Linux and it uses directly the Linux kernel
 keyboard interface.
@@ -284,6 +286,8 @@ http:///usr/src/linux/Documentation/sysrq.txt
 .PP
 .PD
 .RE
+.PP
+Leds control is supported.
 .SS svgalib \(hy SVGALIB keyboard (Linux) 
 This driver works in Linux and it uses the SVGALIB library.
 .PP
@@ -303,6 +307,8 @@ http:///usr/src/linux/Documentation/sysrq.txt
 .PP
 .PD
 .RE
+.PP
+Leds control is not supported.
 .SS sdl \(hy SDL keyboard (Linux, Windows and Mac OS X) 
 This driver works in Linux, Windows and Mac OS X and it uses
 the SDL library.
@@ -314,12 +320,16 @@ environment variables described in the contrib/sdl/env.txt file.
 .PP
 In a Window Manager environment you can switch to fullscreen
 pressing ALT+ENTER.
+.PP
+Leds control is not supported.
 .SS allegro \(hy Allegro keyboard (DOS) 
 This driver works in DOS and it uses the Allegro library.
 .PP
 It supports only one keyboard.
 .PP
 You can break the program pressing CTRL+C, CTRL+BREAK or ALT+CTRL+END.
+.PP
+Leds control is supported.
 .SS Available Joystick Drivers 
 The following is the list of all the joystick drivers supported.
 .SS event \(hy Kernel Input\(hyEvent interface (Linux) 

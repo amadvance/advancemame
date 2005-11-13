@@ -265,6 +265,8 @@ Input Drivers
 
 		:http:///usr/src/linux/Documentation/sysrq.txt
 
+	Leds control is supported.
+
     raw - Kernel keyboard (Linux)
 	This driver works in Linux and it uses directly the Linux kernel
 	keyboard interface.
@@ -279,6 +281,8 @@ Input Drivers
 	Linux SysRq key. Check:
 
 		:http:///usr/src/linux/Documentation/sysrq.txt
+
+	Leds control is supported.
 
     svgalib - SVGALIB keyboard (Linux)
 	This driver works in Linux and it uses the SVGALIB library.
@@ -295,6 +299,8 @@ Input Drivers
 
 		:http:///usr/src/linux/Documentation/sysrq.txt
 
+	Leds control is not supported.
+
     sdl - SDL keyboard (Linux, Windows and Mac OS X)
 	This driver works in Linux, Windows and Mac OS X and it uses
 	the SDL library.
@@ -307,12 +313,16 @@ Input Drivers
 	In a Window Manager environment you can switch to fullscreen
 	pressing ALT+ENTER.
 
+	Leds control is not supported.
+
     allegro - Allegro keyboard (DOS)
 	This driver works in DOS and it uses the Allegro library.
 
 	It supports only one keyboard.
 
 	You can break the program pressing CTRL+C, CTRL+BREAK or ALT+CTRL+END.
+
+	Leds control is supported.
 
   Available Joystick Drivers
 	The following is the list of all the joystick drivers supported.

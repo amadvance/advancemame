@@ -37,6 +37,7 @@ int event_open(const char* file, unsigned char* evtype_bitmask, unsigned evtype_
 void event_close(int f);
 void event_log(int f, unsigned char* evtype_bitmask);
 adv_error event_read(int f, int* type, int* code, int* value);
+adv_error event_write(int f, int type, int code, int value);
 
 adv_bool event_is_mouse(int f, unsigned char* evtype_bitmask);
 adv_bool event_is_joystick(int f, unsigned char* evtype_bitmask);

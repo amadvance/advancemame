@@ -49,6 +49,11 @@
 #include <sys/vt.h>
 #endif
 
+#if defined(KDSETLED) && defined(KDGETLED) && defined(LED_NUM) && defined(LED_CAP) && defined(LED_SCR)
+#define USE_LED
+#endif
+
+
 /**
  * Define to enable the First key hack.
  * This is an HACK to solve a strange problem which happen
@@ -79,6 +84,9 @@ struct keyb_raw_context {
 #endif
 	unsigned char first_code; /**< First key pressed. */
 	adv_bool first_state; /**< State of processing the first key. */
+#ifdef USE_LED
+	unsigned char led_state; /**< Startup led state. */
+#endif
 };
 
 static struct keyb_pair {
@@ -243,7 +251,7 @@ adv_error keyb_raw_enable(adv_bool graphics)
 {
 	log_std(("keyb:raw: keyb_raw_enable()\n"));
 
-#if defined(USE_VIDEO_SDL)
+#ifdef USE_VIDEO_SDL
 	if (os_internal_sdl_is_video_active()) {
 		error_set("The raw keyboard driver cannot be used with the SDL video driver.\n");
 		return -1;
@@ -309,11 +317,18 @@ adv_error keyb_raw_enable(adv_bool graphics)
 		/* set the console in graphics mode, it only disable the cursor and the echo */
 		log_std(("keyb:raw: ioctl(KDSETMODE, KD_GRAPHICS)\n"));
 		if (ioctl(raw_state.f, KDSETMODE, KD_GRAPHICS) < 0) {
-			log_std(("keyb:raw: ioctl(KDSETMODE, KD_GRAPHICS) failed\n"));
+			log_std(("ERROR:keyb:raw: ioctl(KDSETMODE, KD_GRAPHICS) failed\n"));
 			error_set("Error setting the tty in graphics mode.\n");
 			goto err_mode;
 		}
 	}
+
+#ifdef USE_LED
+	if (ioctl(raw_state.f, KDGETLED, &raw_state.led_state) != 0) {
+		log_std(("WARNING:keyb:raw: ioctl(KDGETLED) failed\n"));
+		raw_state.led_state = 0;
+	}
+#endif
 
 	keyb_raw_clear();
 
@@ -338,6 +353,12 @@ err:
 void keyb_raw_disable(void)
 {
 	log_std(("keyb:raw: keyb_raw_disable()\n"));
+
+#ifdef USE_LED
+	if (ioctl(raw_state.f, KDSETLED, raw_state.led_state) != 0) {
+		log_std(("WARNING:keyb:raw: ioctl(KDSETLED, 0x%x) failed\n", raw_state.led_state));
+	}
+#endif
 
 	if (raw_state.graphics_flag) {
 		if (ioctl(raw_state.f, KDSETMODE, raw_state.oldtrmode) < 0) {
@@ -410,9 +431,24 @@ void keyb_raw_all_get(unsigned keyboard, unsigned char* code_map)
 
 void keyb_raw_led_set(unsigned keyboard, unsigned led_mask)
 {
+#ifdef USE_LED
+	unsigned char mask;
+
 	log_debug(("keyb:raw: keyb_raw_led_set(keyboard:%d,mask:%d)\n", keyboard, led_mask));
 
-	/* TODO led support */
+	mask = 0;
+
+	if ((led_mask & KEYB_LED_NUML) != 0)
+		mask |= LED_NUM;
+	if ((led_mask & KEYB_LED_CAPSL) != 0)
+		mask |= LED_CAP;
+	if ((led_mask & KEYB_LED_SCROLLL) != 0)
+		mask |= LED_SCR;
+
+	if (ioctl(raw_state.f, KDSETLED, mask) < 0) {
+		log_std(("ERROR:keyb:raw: ioctl(KDSETLED, 0x%x) failed\n", mask));
+	}
+#endif
 }
 
 #define SCANCODE_LCTRL 29
@@ -486,7 +522,7 @@ static void keyb_raw_process(unsigned char code)
 
 	/* get active vt */
 	if (ioctl(raw_state.f, VT_GETSTATE, &vts) < 0) {
-		log_std(("keyb:raw: ioctl(VT_GETSTATE) failed\n"));
+		log_std(("ERROR:keyb:raw: ioctl(VT_GETSTATE) failed\n"));
 		return;
 	}
 
@@ -496,7 +532,7 @@ static void keyb_raw_process(unsigned char code)
 
 	if (!raw_state.passive_flag && raw_state.graphics_flag) {
 		if (ioctl(raw_state.f, KDSETMODE, KD_TEXT) < 0) {
-			log_std(("keyb:raw: ioctl(KDSETMODE, KD_TEXT) failed\n"));
+			log_std(("ERROR:keyb:raw: ioctl(KDSETMODE, KD_TEXT) failed\n"));
 			return;
 		}
 	}
@@ -515,7 +551,7 @@ static void keyb_raw_process(unsigned char code)
 			while (ioctl(raw_state.f, VT_WAITACTIVE, vts.v_active) < 0) {
 
 				if ((errno != EINTR) && (errno != EAGAIN)) {
-					log_std(("keyb:raw: ioctl(VT_WAITACTIVE) failed, %d\n", errno));
+					log_std(("ERROR:keyb:raw: ioctl(VT_WAITACTIVE) failed, %d\n", errno));
 					/* unknown VT error - cancel this without blocking */
 					break;
 				}
@@ -528,7 +564,7 @@ static void keyb_raw_process(unsigned char code)
 	if (!raw_state.passive_flag && raw_state.graphics_flag) {
 		if (ioctl(raw_state.f, KDSETMODE, KD_GRAPHICS) < 0) {
 			/* ignore error */
-			log_std(("keyb:raw: ioctl(KDSETMODE, KD_GRAPHICS) failed\n"));
+			log_std(("ERROR:keyb:raw: ioctl(KDSETMODE, KD_GRAPHICS) failed\n"));
 		}
 	}
 

@@ -55,6 +55,7 @@ void run(void)
 	int esc_pressed_before;
 	int esc_count;
 	target_clock_t last;
+	unsigned led;
 
 	printf("Press ESC three times or Break to exit\n");
 
@@ -64,6 +65,7 @@ void run(void)
 	esc_pressed_before = 0;
 	esc_count = 0;
 	sncpy(msg, sizeof(msg), "unknown");
+	led = 0;
 
 	while (esc_count < 3 && !done) {
 		int i;
@@ -72,13 +74,14 @@ void run(void)
 		unsigned count = 0;
 		*new_msg = 0;
 
-		for(k=0;k<keyb_count_get();++k)
-		for(i=0;i<KEYB_MAX;++i) {
-			if (keyb_get(k,i)) {
-				if (i==KEYB_ESC)
-					esc_pressed = 1;
-				++count;
-				snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "%s[%d] ", key_name(i), k);
+		for(k=0;k<keyb_count_get();++k) {
+			for(i=0;i<KEYB_MAX;++i) {
+				if (keyb_get(k,i)) {
+					if (i==KEYB_ESC)
+						esc_pressed = 1;
+					++count;
+					snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "%s[%d] ", key_name(i), k);
+				}
 			}
 		}
 
@@ -88,6 +91,11 @@ void run(void)
 			last = current;
 			sncpy(msg, sizeof(msg), new_msg);
 			printf("(%6.1f ms) [%3d] %s\n", period, count, msg);
+
+			for(k=0;k<keyb_count_get();++k) {
+				keyb_led_set(k, led);
+			}
+			++led;
 		}
 
 		if (count == 1 && esc_pressed) {
