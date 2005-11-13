@@ -219,8 +219,8 @@ void emulator::scan_dirlist(const game_set& gar, const string& dirlist, bool qui
 {
 	unsigned i = 0;
 	while (i<dirlist.length()) {
-		unsigned end = dirlist.find(':', i);
-		if (end==string::npos) {
+		int end = dirlist.find(':', i);
+		if (end == string::npos) {
 			scan_dir(gar, string(dirlist, i), quiet);
 			i = dirlist.size();
 		} else {
@@ -270,8 +270,8 @@ void emulator::load_dirlist(game_set& gar, const string& dirlist, const string& 
 {
 	unsigned i = 0;
 	while (i<dirlist.length()) {
-		unsigned end = dirlist.find(':', i);
-		if (end==string::npos) {
+		int end = dirlist.find(':', i);
+		if (end == string::npos) {
 			load_dir(gar, string(dirlist, i), filterlist, quiet);
 			i = dirlist.size();
 		} else {

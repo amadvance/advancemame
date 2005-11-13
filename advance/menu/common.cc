@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ using namespace std;
 string file_basename(const string& s)
 {
 	int i = s.rfind('.');
-	if (i==string::npos)
+	if (i == string::npos)
 		return s;
 	else
 		return string(s, 0, i);
@@ -41,7 +41,7 @@ string file_basename(const string& s)
 string file_ext(const string& s)
 {
 	int i = s.rfind('.');
-	if (i==string::npos)
+	if (i == string::npos)
 		return "";
 	else
 		return string(s, i, s.length()-i);
@@ -50,7 +50,7 @@ string file_ext(const string& s)
 string file_dir(const string& s)
 {
 	int i = s.find_last_of("/");
-	if (i==string::npos)
+	if (i == string::npos)
 		return "";
 	else
 		return string(s, 0, i+1);
@@ -59,7 +59,7 @@ string file_dir(const string& s)
 string file_file(const string& s)
 {
 	int i = s.find_last_of("/");
-	if (i==string::npos)
+	if (i == string::npos)
 		return s;
 	else
 		return string(s, i+1, s.length()-(i+1));
@@ -485,8 +485,8 @@ bool is_globlist(const string& file, const string& globlist)
 	if (globlist.length() == 0)
 		return true;
 	while (i<globlist.length()) {
-		unsigned end = globlist.find(':', i);
-		if (end==string::npos) {
+		int end = globlist.find(':', i);
+		if (end == string::npos) {
 			string filter(globlist, i);
 			i = globlist.size();
 			if (is_glob(file, filter))
