@@ -3,6 +3,12 @@
                             =======================
 
 
+ADVANCEMENU VERSION 2.4.12 2005/11
+==================================
+
+* Fixed some bugs for the 64 bits platforms.
+
+
 ADVANCEMENU VERSION 2.4.11 2005/10
 ==================================
 

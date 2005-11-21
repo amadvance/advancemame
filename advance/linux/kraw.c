@@ -84,9 +84,6 @@ struct keyb_raw_context {
 #endif
 	unsigned char first_code; /**< First key pressed. */
 	adv_bool first_state; /**< State of processing the first key. */
-#ifdef USE_LED
-	int old_led; /**< Startup led state. */
-#endif
 };
 
 static struct keyb_pair {
@@ -323,13 +320,6 @@ adv_error keyb_raw_enable(adv_bool graphics)
 		}
 	}
 
-#ifdef USE_LED
-	if (ioctl(raw_state.f, KDGETLED, &raw_state.old_led) != 0) {
-		log_std(("WARNING:keyb:raw: ioctl(KDGETLED) failed\n"));
-		raw_state.old_led = 0;
-	}
-#endif
-
 	keyb_raw_clear();
 
 	return 0;
@@ -355,8 +345,9 @@ void keyb_raw_disable(void)
 	log_std(("keyb:raw: keyb_raw_disable()\n"));
 
 #ifdef USE_LED
-	if (ioctl(raw_state.f, KDSETLED, raw_state.old_led) != 0) {
-		log_std(("WARNING:keyb:raw: ioctl(KDSETLED, 0x%x) failed\n", raw_state.old_led));
+	/* restore the led behaviour */
+	if (ioctl(raw_state.f, KDSETLED, (char)0xff) != 0) {
+		log_std(("WARNING:keyb:raw: ioctl(KDSETLED, 0xff) failed\n"));
 	}
 #endif
 
