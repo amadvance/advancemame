@@ -73,9 +73,9 @@ void adv_bitmap_free(adv_bitmap* bmp);
  * \param y Y.
  * \return Pointer at the first pixel of the specified line.
  */
-static inline uint8* adv_bitmap_line(adv_bitmap* bmp, unsigned y)
+static inline uint8* adv_bitmap_line(adv_bitmap* bmp, int y)
 {
-	return bmp->ptr + y * bmp->bytes_per_scanline;
+	return bmp->ptr + y * (int)bmp->bytes_per_scanline;
 }
 
 /**
@@ -86,9 +86,9 @@ static inline uint8* adv_bitmap_line(adv_bitmap* bmp, unsigned y)
  * \param y Y.
  * \return Pointer at the first pixel of the specified line.
  */
-static inline uint8* adv_bitmap_pixel(const adv_bitmap* bmp, unsigned x, unsigned y)
+static inline uint8* adv_bitmap_pixel(const adv_bitmap* bmp, int x, int y)
 {
-	return bmp->ptr + x * bmp->bytes_per_pixel + y * bmp->bytes_per_scanline;
+	return bmp->ptr + x * (int)bmp->bytes_per_pixel + y * (int)bmp->bytes_per_scanline;
 }
 
 /**

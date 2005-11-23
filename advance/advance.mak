@@ -29,6 +29,7 @@ INSTALL_MANFILES += $(DOCOBJ)/advdev.1
 ifeq ($(CONF_EMU),mame)
 INSTALL_DATAFILES += $(srcdir)/support/event.dat
 INSTALL_DATAFILES += $(srcdir)/support/history.dat
+INSTALL_DATAFILES += $(srcdir)/support/hiscore.dat
 INSTALL_BINFILES += $(OBJ)/chdman$(EXE)
 endif
 ifeq ($(CONF_EMU),mess)
@@ -290,7 +291,7 @@ CONF_BIN = \
 pkgdir = $(datadir)/advance
 pkgdocdir = $(docdir)/advance
 
-installdirs:
+install-dirs:
 	-$(INSTALL_PROGRAM_DIR) $(bindir)
 	-$(INSTALL_DATA_DIR) $(pkgdir)
 	-$(INSTALL_DATA_DIR) $(pkgdocdir)
@@ -313,7 +314,7 @@ endif
 
 uninstall-data:
 ifdef INSTALL_DATAFILES
-	@for i in $(INSTALL_DATAFILES); do \
+	@for i in $(notdir $(INSTALL_DATAFILES)); do \
 		rm -f $(pkgdir)/$$i; \
 	done
 endif
@@ -325,7 +326,7 @@ install-bin: $(INSTALL_BINFILES)
 	done
 
 uninstall-bin:
-	@for i in $(INSTALL_BINFILES); do \
+	@for i in $(notdir $(INSTALL_BINFILES)); do \
 		rm -f $(bindir)/$$i; \
 	done
 
@@ -339,7 +340,7 @@ endif
 
 uninstall-doc:
 ifdef INSTALL_DOCFILES
-	@for i in $(INSTALL_DOCFILES); do \
+	@for i in $(notdir $(INSTALL_DOCFILES)); do \
 		rm -f $(pkgdocdir)/$$i; \
 	done
 endif
@@ -354,14 +355,25 @@ endif
 
 uninstall-man:
 ifdef INSTALL_MANFILES
-	@for i in $(INSTALL_MANFILES); do \
+	@for i in $(notdir $(INSTALL_MANFILES)); do \
 		rm -f $(mandir)/man1/$$i; \
 	done
 endif
 
-install: installdirs install-bin install-data install-doc install-man
+uninstall-dirs:
+ifneq ($(wildcard $(EMUSRC)),)
+	-rmdir $(pkgdir)/rom
+	-rmdir $(pkgdir)/sample
+	-rmdir $(pkgdir)/artwork
+	-rmdir $(pkgdir)/image
+	-rmdir $(pkgdir)/crc
+	-rmdir $(pkgdir)
+	-rmdir $(pkgdocdir)
+endif
 
-uninstall: uninstall-bin uninstall-data uninstall-doc uninstall-man
+install: install-dirs install-bin install-data install-doc install-man
+
+uninstall: uninstall-bin uninstall-data uninstall-doc uninstall-man uninstall-dirs
 
 ############################################################################
 # Common build

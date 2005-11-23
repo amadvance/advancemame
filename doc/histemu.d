@@ -2,6 +2,7 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME Version 0.101.1 2005/11
+	) Fixed some bugs for the 64 bits platforms. It works now.
 	) Fixed a problem mapping the video memory
 		in the Linux FrambeBuffer driver.
 	) Fixed the conditional compilation of the advv and advcfg
@@ -11,6 +12,7 @@ AdvanceMAME Version 0.101.1 2005/11
 		utilities in Windows.
 	) Added leds support at the `raw' and `event' keyboard
 		linux drivers.
+	) Fixed the `uninstall' make target.
 
 AdvanceMAME Version 0.101.0 2005/10
 	) Fixed the crash problem without the -quiet option.

@@ -2,7 +2,7 @@ Name
 	history - History For AdvanceMENU
 
 AdvanceMENU Version 2.4.12 2005/11
-	) Fixed some bugs for the 64 bits platforms.
+	) Fixed some bugs for the 64 bits platforms. It works now.
 
 AdvanceMENU Version 2.4.11 2005/10
 	) Added a new `mute' event. Default to period key on the keypad.
