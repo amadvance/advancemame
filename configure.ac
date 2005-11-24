@@ -198,6 +198,13 @@ else
 	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_LSB"
 fi
 
+AC_CHECK_SIZEOF(char)
+AC_CHECK_SIZEOF(short)
+AC_CHECK_SIZEOF(int)
+AC_CHECK_SIZEOF(long)
+AC_CHECK_SIZEOF(long long)
+AC_CHECK_SIZEOF(void*)
+
 AC_ARG_ENABLE(
 	[asm],
 	AC_HELP_STRING([--enable-asm],[enable the Pentium assembler optimizations (default auto)]),
@@ -1131,6 +1138,7 @@ if test $ac_is_bigendian = yes; then
 else
 	echo "Endianess : little"
 fi
+echo "Bits :" $((8 * $ac_cv_sizeof_voidp))
 if test $ac_enable_asm = yes; then
 	echo "Assembler for Pentium : yes"
 else

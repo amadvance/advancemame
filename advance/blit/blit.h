@@ -247,7 +247,7 @@ struct video_stage_vert_struct {
 
 	/* source */
 	unsigned sdy; /**< Source vertical size in rows. */
-	unsigned sdw; /**< Source row size in bytes. */
+	int sdw; /**< Source row size (in bytes). It may be negative for flip operations. */
 
 	/**
 	 * Destination vertical size in rows.
@@ -269,7 +269,7 @@ struct video_stage_vert_struct {
 	const struct video_stage_horz_struct* stage_pivot;
 
 	/* information from the stage_pivot (used if the pipeline is empty). */
-	int stage_pivot_sdp; /**< Step in the src for the next pixel (in bytes). */
+	int stage_pivot_sdp; /**< Step in the src for the next pixel (in bytes). It may be negative for flip opreations. */
 	unsigned stage_pivot_sdx; /**< Size of the source (in bytes). */
 	unsigned stage_pivot_sbpp; /**< Bytes per pixel of the source. */
 };

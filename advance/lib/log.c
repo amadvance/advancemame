@@ -106,7 +106,8 @@ void log_va(const char* text, va_list arg)
 	if (LOG.msg) {
 		char buffer[LOG_BUFFER_SIZE];
 
-		vsnprintf(buffer, sizeof(buffer), text, arg);
+		vsnprintf(buffer, sizeof(buffer) - 1, text, arg);
+		buffer[LOG_BUFFER_SIZE - 1] = 0;
 
 		if (strcmp(buffer, LOG.buffer) == 0) {
 			++LOG.buffer_count;
@@ -119,7 +120,8 @@ void log_va(const char* text, va_list arg)
 		}
 
 		if (LOG.buffer_count < 5) {
-			vfprintf(LOG.msg, text, arg);
+			/* note that "arg" cannot be reused after the vsnprintf call */
+			fprintf(LOG.msg, "%s", buffer);
 
 			if (LOG.msg_sync_flag) {
 				fflush(LOG.msg);

@@ -1409,6 +1409,7 @@ int os_main(int argc, char* argv[])
 
 	state = 0;
 	index = 0;
+	type = monitor_pc;
 	opt_rc = 0;
 	opt_log = 0;
 	opt_logsync = 0;

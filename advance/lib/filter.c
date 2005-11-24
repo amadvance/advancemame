@@ -370,6 +370,9 @@ static void filter_expand_poly(struct adv_filter_struct_iir* f, double raw_alpha
 	case adv_filter_bs :
 		gain = adv_csqrt(adv_cmul(dc_gain, hf_gain));
 		break;
+	default:
+		gain = czero;
+		break;
 	}
 
 	f->gain = hypot(gain.re, gain.im);

@@ -404,7 +404,7 @@ adv_error target_apm_shutdown(void)
 {
 	int r;
 
-	r = execl("/sbin/poweroff", "/sbin/poweroff", 0);
+	r = execl("/sbin/poweroff", "/sbin/poweroff", NULL);
 
 	if (!WIFEXITED(r) || WEXITSTATUS(r) != 0)
 		return -1;
@@ -701,7 +701,7 @@ adv_error target_search(char* path, unsigned path_size, const char* file)
 static void target_wrap(FILE* f, unsigned col, char* s)
 {
 	unsigned i;
-	unsigned p;
+	int p;
 	adv_bool has_space;
 
 	p = 0;

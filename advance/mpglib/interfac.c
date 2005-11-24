@@ -173,11 +173,13 @@ static void read_head(struct mp3_mpstr *mp)
 	mp->header = head;
 }
 
-int mp3_decode(struct mp3_mpstr* mp, char* in, int isize, char* out, int osize, int* done)
+int mp3_decode(struct mp3_mpstr* mp, unsigned char* uin, int isize, unsigned char* uout, int osize, int* done)
 {
 	int len;
 	int ret;
 	unsigned estimated_done;
+	char* in = (char*)uin;
+	char* out = (char*)uout;
 
 	if (in) {
 		if (addbuf(mp,in,isize) == NULL) {

@@ -102,7 +102,7 @@ struct mp3_mpstr {
 void mp3_lib_init(void);
 void mp3_lib_done(void);
 void mp3_init(struct mp3_mpstr *mp);
-int mp3_decode(struct mp3_mpstr *mp, char *inmemory, int inmemsize, char *outmemory, int outmemsize, int *done);
+int mp3_decode(struct mp3_mpstr *mp, unsigned char *inmemory, int inmemsize, unsigned char *outmemory, int outmemsize, int *done);
 void mp3_done(struct mp3_mpstr *mp);
 int mp3_is_valid(unsigned char* newhead);
 
