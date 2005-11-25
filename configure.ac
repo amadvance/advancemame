@@ -1176,16 +1176,18 @@ if test $ac_enable_debug = no ; then
 		AC_MSG_WARN([no text video mode library found. The advv/advcfg utilities will not work!])
 	fi
 fi
-echo ""
 
+echo ""
 echo "== Compiler =="
 echo "CC :" $CC
+echo "CXX :" $CXX
 echo "CFLAGS :" $CFLAGS $CFLAGS_OPTOPT
 echo "LDFLAGS :" $LDFLAGS
-echo ""
-echo "== Configuration =="
-echo "Emulator :" $ac_with_emu
+
 if test ! $ac_with_emu = none ; then
+	echo ""
+	echo "== Configuration =="
+	echo "Emulator :" $ac_with_emu
 	echo "Debugger :" $ac_enable_debugger
 fi
 

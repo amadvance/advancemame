@@ -16,6 +16,7 @@ hashfile.h
 image.c
 image.h
 includes
+infomess.c
 inputx.c
 inputx.h
 machine

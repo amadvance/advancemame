@@ -389,7 +389,7 @@ unsigned mame_game_players(const mame_game* game)
 	begin_resource_tracking();
 
 	/* create the input port list */
-	input = input_port_allocate(driver->construct_ipt);
+	input = input_port_allocate(driver->construct_ipt, NULL);
 
 	nplayer = 1;
 	while (input->type != IPT_END) {
@@ -418,7 +418,7 @@ const char* mame_game_control(const mame_game* game)
 	begin_resource_tracking();
 
 	/* create the input port list */
-	input = input_port_allocate(driver->construct_ipt);
+	input = input_port_allocate(driver->construct_ipt, NULL);
 
 	while (input->type != IPT_END) {
 		switch (input->type) {

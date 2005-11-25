@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.101.1 2005/11
+AdvanceMAME Version 0.102.0 2005/11
 	) Fixed some bugs for the 64 bits platforms. It works now.
 	) Fixed a problem mapping the video memory
 		in the Linux FrambeBuffer driver.

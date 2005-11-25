@@ -55,6 +55,7 @@ mame.mak
 mamecore.h
 md5.c
 md5.h
+memconv.h
 memory.c
 memory.h
 osdepend.h
@@ -82,6 +83,7 @@ unzip.c
 unzip.h
 usrintrf.c
 usrintrf.h
+validity.c
 version.c
 x86drc.c
 x86drc.h
