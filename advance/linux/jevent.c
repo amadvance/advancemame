@@ -39,6 +39,10 @@
 
 #include <linux/input.h>
 
+#if HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif
+
 /***************************************************************************/
 /* Acts Labs Lightgun */
 

@@ -38,6 +38,10 @@
 
 #include <linux/joystick.h>
 
+#if HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif
+
 #define RAW_JOYSTICK_MAX 4
 #define RAW_JOYSTICK_DEVICE_MAX 4
 #define RAW_JOYSTICK_BUTTON_MAX 8

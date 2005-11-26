@@ -44,6 +44,10 @@
 
 #include <linux/input.h>
 
+#if HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#endif
+
 #define EVENT_MOUSE_MAX 8
 #define EVENT_MOUSE_DEVICE_MAX 32
 #define EVENT_MOUSE_AXE_MAX 8
