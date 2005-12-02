@@ -168,7 +168,7 @@ void advance_safequit_update(struct advance_safequit_context* context);
 #define INPUT_AXE_MAX 8 /**< Max number of axes for a stick or mouse. */
 #define INPUT_DIR_MAX 2 /**< Max number of direction for an axe (up/down or left/right). */
 #define INPUT_MOUSE_MAX 8 /**< Max number of mouses. */
-#define INPUT_BUTTON_MAX 16 /**< Max number buttons for a joystick or mouses. */
+#define INPUT_BUTTON_MAX 64 /**< Max number buttons for a joystick or mouses. */
 
 #define INPUT_HELP_MAX 512 /**< Max number of help entry. */
 /*@}*/
