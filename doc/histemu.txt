@@ -3,7 +3,7 @@
                           ============================
 
 
-ADVANCEMAME VERSION 0.102.0 2005/11
+ADVANCEMAME VERSION 0.102.0 2005/12
 ===================================
 
 * Fixed some bugs for the 64 bits platforms. It works now.
@@ -17,6 +17,13 @@ ADVANCEMAME VERSION 0.102.0 2005/11
 * Added leds support at the `raw' and `event' keyboard
   linux drivers.
 * Fixed the `uninstall' make target.
+* Increased the max number of joystick buttons to 64.
+
+
+ADVANCEMESS VERSION 0.102.0.0 2005/12
+=====================================
+
+* Based on AdvanceMAME 0.102.0.
 
 
 ADVANCEMAME VERSION 0.101.0 2005/10

@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMENU
 
-AdvanceMENU Version 2.4.12 2005/11
+AdvanceMENU Version 2.4.12 2005/12
 	) Fixed some bugs for the 64 bits platforms. It works now.
 
 AdvanceMENU Version 2.4.11 2005/10

@@ -31,6 +31,18 @@
 #ifndef __INPUT_H
 #define __INPUT_H
 
+/* BitMask Legend */
+/*
+ * T - Type
+ * S - Stick number
+ * A - Axe number
+ * D - Direction
+ * B - Button number
+ * K - Key
+ * X - Board/Device
+ * N - Negate flag
+ */
+
 /**************************************************************************/
 /* Digital */
 
@@ -41,7 +53,7 @@
 #define DIGITAL_TYPE_JOY 1 /* Joy digital move - DAAASSSDDDTTT */
 #define DIGITAL_TYPE_JOY_BUTTON 2 /* Joy button - BBBBBBDDDTTT */
 #define DIGITAL_TYPE_MOUSE_BUTTON 3 /* Mouse button - BBBBBBDDDTTT */
-#define DIGITAL_TYPE_KBD 4 /* Keyboard button - KKKKKKKKKKBBBTTT */
+#define DIGITAL_TYPE_KBD 4 /* Keyboard button - KKKKKKKKKKXXXTTT */
 #define DIGITAL_TYPE_GET(i) ((i) & 0x7)
 
 /**************************************************************************/
@@ -53,15 +65,6 @@
 
 /**************************************************************************/
 /* Joystick/Mouse */
-
-/*
- * T - Type
- * D - Device number
- * S - Stick number
- * A - Axe number
- * D - Direction
- * B - Button number
- */
 
 /* Warning! Check the INPUT_*_MAX, they must match with the following macros. */
 
@@ -84,9 +87,9 @@
 
 /* The ANALOG value can be changed without limitation. */
 #define ANALOG_TYPE_SPECIAL DIGITAL_TYPE_SPECIAL
-#define ANALOG_TYPE_MOUSE 5 /* Mouse - NAAADDDTTT */
-#define ANALOG_TYPE_JOY 6 /* Joy - NAAASSSDDDTTT */
-#define ANALOG_TYPE_BALL 7 /* Ball - NAAADDDTTT */
+#define ANALOG_TYPE_MOUSE 5 /* Mouse - NAAAXXXTTT */
+#define ANALOG_TYPE_JOY 6 /* Joy - NAAASSSXXXTTT */
+#define ANALOG_TYPE_BALL 7 /* Ball - NAAAXXXTTT */
 #define ANALOG_TYPE_GET(i) DIGITAL_TYPE_GET(i)
 
 /* Analog Mouse */

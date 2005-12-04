@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.102.0 2005/11
+AdvanceMAME Version 0.102.0 2005/12
 	) Fixed some bugs for the 64 bits platforms. It works now.
 	) Fixed a problem mapping the video memory
 		in the Linux FrambeBuffer driver.
@@ -13,6 +13,10 @@ AdvanceMAME Version 0.102.0 2005/11
 	) Added leds support at the `raw' and `event' keyboard
 		linux drivers.
 	) Fixed the `uninstall' make target.
+	) Increased the max number of joystick buttons to 64.
+
+AdvanceMESS Version 0.102.0.0 2005/12
+	) Based on AdvanceMAME 0.102.0.
 
 AdvanceMAME Version 0.101.0 2005/10
 	) Fixed the crash problem without the -quiet option.
