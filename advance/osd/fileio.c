@@ -72,7 +72,6 @@ struct fileio_item {
 static struct fileio_item FILEIO_CONFIG[] = {
 	/* FILETYPE_RAW */
 	{ FILETYPE_ROM, "dir_rom", "rom", FILEIO_MODE_MULTI, 0, 0 },
-	/* FILETYPE_ROM_NOCRC */
 	{ FILETYPE_IMAGE, "dir_image", "image", FILEIO_MODE_MULTI, 0, 0 },
 	{ FILETYPE_IMAGE_DIFF, "dir_diff", "diff", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_SAMPLE, "dir_sample", "sample", FILEIO_MODE_MULTI, 0, 0 },
@@ -80,16 +79,18 @@ static struct fileio_item FILEIO_CONFIG[] = {
 	{ FILETYPE_NVRAM, "dir_nvram" , "nvram", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_HIGHSCORE, "dir_hi", "hi", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_HIGHSCORE_DB, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for hiscore.dat */
-	/* { FILETYPE_CONFIG, "dir_cfg", "cfg", FILEIO_MODE_SINGLE, 0, 0 }, */
+	/* FILETYPE_CONFIG */
 	{ FILETYPE_INPUTLOG, "dir_inp", "inp", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_STATE, "dir_sta", "sta", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_MEMCARD, "dir_memcard", "memcard", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_SCREENSHOT, "dir_snap", "snap", FILEIO_MODE_SINGLE, 0, 0 },
+	/* FILETYPE_MOVIE */
 	{ FILETYPE_HISTORY, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for history.dat, mameinfo.dat */
 	{ FILETYPE_CHEAT, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for cheat.dat */
 	{ FILETYPE_LANGUAGE, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for language file */
 	/* FILETYPE_CTRLR */
 	/* FILETYPE_INI */
+	/* FILETYPE_HASH, */
 	{ FILETYPE_end, 0, 0, 0, 0 }
 };
 
