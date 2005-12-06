@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -296,11 +296,14 @@ adv_error conf_float_set_if_different(adv_conf* context, const char* section, co
 adv_error conf_string_set_if_different(adv_conf* context, const char* section, const char* tag, const char* value);
 adv_error conf_set_if_different(adv_conf* context, const char* section, const char* tag, const char* value);
 
-adv_error conf_set_default(adv_conf* context, const char* section, const char* tag);
-void conf_set_default_if_missing(adv_conf* context, const char* section);
+adv_error conf_setdefault(adv_conf* context, const char* section, const char* tag);
 
-void conf_remove_if_default(adv_conf* context, const char* section);
+void conf_setdefault_all_if_missing(adv_conf* context, const char* section);
+void conf_remove_all_if_default(adv_conf* context, const char* section);
+
 adv_error conf_remove(adv_conf* context, const char* section, const char* tag);
+adv_error conf_remove_if_default(adv_conf* context, const char* section, const char* tag);
+adv_error conf_remove_if_notdefault(adv_conf* context, const char* section, const char* tag);
 
 adv_error conf_autoreg_string_set(adv_conf* context, const char* section, const char* tag, const char* value);
 adv_error conf_autoreg_string_get(adv_conf* context, const char* tag, const char** result);

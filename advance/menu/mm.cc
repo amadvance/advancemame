@@ -727,7 +727,7 @@ int os_main(int argc, char* argv[])
 	if (access(cfg_buffer, F_OK)!=0) {
 		target_out("Creating a standard configuration file...\n");
 		config_state::conf_default(config_context);
-		conf_set_default_if_missing(config_context, "");
+		conf_setdefault_all_if_missing(config_context, "");
 		conf_sort(config_context);
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
@@ -738,7 +738,7 @@ int os_main(int argc, char* argv[])
 
 	if (opt_default) {
 		config_state::conf_default(config_context);
-		conf_set_default_if_missing(config_context, "");
+		conf_setdefault_all_if_missing(config_context, "");
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
 		}
@@ -747,7 +747,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (opt_remove) {
-		conf_remove_if_default(config_context, "");
+		conf_remove_all_if_default(config_context, "");
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
 		}

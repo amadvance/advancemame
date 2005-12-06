@@ -2871,7 +2871,6 @@ adv_error mame_init(struct advance_context* context)
 
 	conf_float_register_limit_default(context->cfg, "display_gamma", 0.5, 2.0, 1.0);
 	conf_float_register_limit_default(context->cfg, "display_brightness", 0.1, 10.0, 1.0);
-	conf_int_register_enum_default(context->cfg, "debug_internaldepth", conf_enum(OPTION_DEPTH), 0);
 
 	conf_bool_register_default(context->cfg, "misc_cheat", 0);
 	conf_string_register_default(context->cfg, "misc_languagefile", "english.lng");

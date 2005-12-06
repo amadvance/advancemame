@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2789,7 +2789,7 @@ adv_error conf_string_set_if_different(adv_conf* context, const char* section, c
  * \param section Section of the option.
  * \param tag Tag of the option.
  */
-adv_error conf_set_default(adv_conf* context, const char* section, const char* tag)
+adv_error conf_setdefault(adv_conf* context, const char* section, const char* tag)
 {
 	struct adv_conf_input_struct* input;
 	struct adv_conf_option_struct* option;
@@ -2817,14 +2817,14 @@ adv_error conf_set_default(adv_conf* context, const char* section, const char* t
  * \param context Configuration context to use.
  * \param section Section of the options.
  */
-void conf_set_default_if_missing(adv_conf* context, const char* section)
+void conf_setdefault_all_if_missing(adv_conf* context, const char* section)
 {
 	if (context->option_list) {
 		struct adv_conf_option_struct* option = context->option_list;
 		do {
 			struct adv_conf_value_struct* value = value_searchbest_sectiontag(context, section, option->tag);
 			if (!value)
-				conf_set_default(context, section, option->tag);
+				conf_setdefault(context, section, option->tag);
 			option = option->next;
 		} while (option != context->option_list);
 	}
@@ -2835,7 +2835,7 @@ void conf_set_default_if_missing(adv_conf* context, const char* section)
  * \param context Configuration context to use.
  * \param section Section of the options.
  */
-void conf_remove_if_default(adv_conf* context, const char* section)
+void conf_remove_all_if_default(adv_conf* context, const char* section)
 {
 	if (context->option_list) {
 		struct adv_conf_option_struct* option = context->option_list;
@@ -2854,6 +2854,68 @@ void conf_remove_if_default(adv_conf* context, const char* section)
 			option = option->next;
 		} while (option != context->option_list);
 	}
+}
+
+/**
+ * Remove the specified tag if it has a value different from the default.
+ * \param context Configuration context to use.
+ * \param section Section of the option.
+ * \param tag Tag of the option.
+ */
+adv_error conf_remove_if_notdefault(adv_conf* context, const char* section, const char* tag)
+{
+	struct adv_conf_value_struct* value;
+	struct adv_conf_input_struct* input;
+
+	input = input_searchbest_writable(context);
+	if (!input)
+		return -1;
+
+	value = value_search_inputsectiontag(context, input, section, tag);
+	if (value) {
+		char result_buffer[CONF_NUM_BUFFER_MAX];
+		char default_buffer[CONF_NUM_BUFFER_MAX];
+		const char* result_string = value_get(value, result_buffer, sizeof(result_buffer));
+		const char* default_string = option_default_get(value->option, default_buffer, sizeof(default_buffer));
+		assert(result_string);
+
+		if (default_string && strcmp(result_string, default_string) != 0) {
+			value_remove(context, value);
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Remove the specified tag if it has a value equal at the default.
+ * \param context Configuration context to use.
+ * \param section Section of the option.
+ * \param tag Tag of the option.
+ */
+adv_error conf_remove_if_default(adv_conf* context, const char* section, const char* tag)
+{
+	struct adv_conf_value_struct* value;
+	struct adv_conf_input_struct* input;
+
+	input = input_searchbest_writable(context);
+	if (!input)
+		return -1;
+
+	value = value_search_inputsectiontag(context, input, section, tag);
+	if (value) {
+		char result_buffer[CONF_NUM_BUFFER_MAX];
+		char default_buffer[CONF_NUM_BUFFER_MAX];
+		const char* result_string = value_get(value, result_buffer, sizeof(result_buffer));
+		const char* default_string = option_default_get(value->option, default_buffer, sizeof(default_buffer));
+		assert(result_string);
+
+		if (default_string && strcmp(result_string, default_string) == 0) {
+			value_remove(context, value);
+		}
+	}
+
+	return 0;
 }
 
 /***************************************************************************/

@@ -758,7 +758,7 @@ int os_main(int argc, char* argv[])
 	if (access(file_config_file_home(ADV_NAME ".rc"), F_OK)!=0) {
 		target_out("Creating a standard configuration file...\n");
 		advance_fileio_default_dir();
-		conf_set_default_if_missing(context->cfg, "");
+		conf_setdefault_all_if_missing(context->cfg, "");
 		conf_sort(context->cfg);
 		if (conf_save(context->cfg, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
@@ -778,7 +778,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (opt_default) {
-		conf_set_default_if_missing(context->cfg, "");
+		conf_setdefault_all_if_missing(context->cfg, "");
 		if (conf_save(context->cfg, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
@@ -787,7 +787,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (opt_remove) {
-		conf_remove_if_default(context->cfg, "");
+		conf_remove_all_if_default(context->cfg, "");
 		if (conf_save(context->cfg, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
