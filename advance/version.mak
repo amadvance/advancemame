@@ -2,7 +2,7 @@
 # Version
 
 ifeq ($(CONF_EMU),mess)
-EMUVERSION = 0.102.0.0
+EMUVERSION = 0.102.0.1
 else
 EMUVERSION = 0.102.0
 endif

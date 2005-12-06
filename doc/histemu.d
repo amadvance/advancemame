@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMESS Version 0.102.0.1 2005/12
+	) Fixed the loading of image files.
+
 AdvanceMAME Version 0.102.0 2005/12
 	) Fixed some bugs for the 64 bits platforms. It works now.
 	) Fixed a problem mapping the video memory
