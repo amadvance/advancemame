@@ -2489,7 +2489,7 @@ bool int_clip(const string& file, bool loop)
 {
 	unsigned aspectx = int_dx_get();
 	unsigned aspecty = int_dy_get();
-	resource res = file;
+	resource res = path_import(file);
 
 	bool wait = true;
 

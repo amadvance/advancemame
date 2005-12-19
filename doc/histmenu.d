@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.4.13 2005/12
+	) Fixed the ui_help and ui_exit option in the DOS and
+		Windows platforms.
+
 AdvanceMENU Version 2.4.12 2005/12
 	) Fixed some bugs for the 64 bits platforms. It works now.
 

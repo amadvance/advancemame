@@ -1,6 +1,11 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.102.1 2005/12
+	) Added in the `contrib' directory a test version of cwsdpmi
+	which solves some slowdown problem in DOS with system with
+	more than 512 MB of memory.
+
 AdvanceMESS Version 0.102.0.1 2005/12
 	) Fixed the loading of image files.
 
