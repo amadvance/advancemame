@@ -167,7 +167,7 @@ ADVANCECFLAGS += \
 	-DUSE_SOUND_ALLEGRO -DUSE_SOUND_SEAL -DUSE_SOUND_VSYNC -DUSE_SOUND_NONE \
 	-DUSE_KEYBOARD_ALLEGRO -DUSE_KEYBOARD_NONE \
 	-DUSE_MOUSE_ALLEGRO -DUSE_MOUSE_NONE \
-	-DUSE_JOYSTICK_ALLEGRO -DUSE_JOYSTICK_NONE
+	-DUSE_JOYSTICK_ALLEGRO -DUSE_JOYSTICK_LGALLEGRO -DUSE_JOYSTICK_NONE
 ADVANCELDFLAGS += -Xlinker --wrap -Xlinker _mixer_init
 ADVANCELIBS += -laudio -lalleg
 ADVANCELDFLAGS += \
@@ -198,6 +198,7 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/dos/scrvbe.o \
 	$(OBJ)/advance/dos/scrvga.o \
 	$(OBJ)/advance/dos/jalleg.o \
+	$(OBJ)/advance/dos/jlgalleg.o \
 	$(OBJ)/advance/dos/kalleg.o \
 	$(OBJ)/advance/dos/malleg.o \
 	$(OBJ)/advance/card/card.o \
@@ -402,7 +403,9 @@ endif
 EMUCFLAGS += -I$(srcdir)/advance/osd
 
 EMUOBJS += \
-	$(COREOBJS)
+	$(COREOBJS) \
+	$(sort $(CPUOBJS)) \
+	$(sort $(SOUNDOBJS))
 
 ADVANCEOBJS += \
 	$(OBJ)/advance/osd/emu.o \
@@ -603,12 +606,14 @@ endif
 ifeq ($(CONF_EMU),mess)
 include $(EMUSRC)/core.mak
 include $(srcdir)/mess/$(CONF_EMU).mak
-include $(EMUSRC)/rules.mak
+include $(EMUSRC)/cpu/cpu.mak
+include $(EMUSRC)/sound/sound.mak
 include $(srcdir)/mess/rules_ms.mak
 else
 include $(EMUSRC)/core.mak
 include $(EMUSRC)/$(CONF_EMU).mak
-include $(EMUSRC)/rules.mak
+include $(EMUSRC)/cpu/cpu.mak
+include $(EMUSRC)/sound/sound.mak
 endif
 
 # Special search paths required by the CPU core rules
@@ -675,7 +680,7 @@ $(OBJ)/mess/%.o: $(srcdir)/mess/%.c
 	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
 
 # Generate C source files for the 68000 emulator
-$(M68000_GENERATED_OBJS): $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
+$(subst .c,.o,$(M68000_GENERATED_FILES)): $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $*.c -o $@
 
@@ -908,10 +913,10 @@ EMU_ROOT_BIN += \
 	$(srcdir)/support/sysinfo.dat
 else
 EMU_ROOT_BIN += \
-	$(OBJ)/chdman$(EXE) \
 	$(srcdir)/support/event.dat \
 	$(srcdir)/support/history.dat \
 	$(srcdir)/support/hiscore.dat
+# $(OBJ)/chdman$(EXE) TODO Add chdman utility
 endif
 ifeq ($(CONF_SYSTEM),unix)
 EMU_ROOT_BIN += \

@@ -33,6 +33,7 @@
 
 #include "video.h"
 #include "bitmap.h"
+#include "conf.h"
 
 #include <stdio.h>
 
@@ -361,6 +362,7 @@ typedef unsigned osd_input;
 
 int osd2_video_init(struct osd_video_option* option);
 void osd2_video_done(void);
+void osd2_video_pause(int pause);
 int osd2_thread_init(void);
 void osd2_thread_done(void);
 int osd2_video_menu(int selected, unsigned input);
@@ -375,5 +377,6 @@ void osd2_message(void);
 
 int osd2_sound_init(unsigned* sample_rate, int stereo_flag);
 void osd2_sound_done(void);
+void osd2_sound_pause(int pause);
 
 #endif

@@ -342,9 +342,10 @@ const char* mame_section_name(const mame_game* game, adv_conf* context)
 const mame_game* mame_game_parent(const mame_game* game)
 {
 	const game_driver* driver = (const game_driver*)game;
+	const game_driver* clone_of = driver_get_clone(driver);
 
-	if (driver->clone_of!=0 && driver->clone_of->name!=0 && driver->clone_of->name[0]!=0)
-		return (const mame_game*)driver->clone_of;
+	if (clone_of!=0 && clone_of->name!=0 && clone_of->name[0]!=0)
+		return (const mame_game*)clone_of;
 	else
 		return 0;
 }
@@ -539,7 +540,7 @@ adv_bool mame_is_game_relative(const char* relative, const mame_game* game)
 		unsigned i;
 		if (driver->name[0]!=0 && strcmp(driver->name, relative)==0)
 			return 1;
-		driver = driver->clone_of;
+		driver = driver_get_clone(driver);
 	}
 	return 0;
 }
@@ -551,8 +552,9 @@ const struct mame_game* mame_playback_look(const char* file)
 {
 	inp_header ih;
 	void* playback;
+	osd_file_error error;
 
-	playback = osd_fopen(FILETYPE_INPUTLOG, 0, file, "rb");
+	playback = osd_fopen(FILETYPE_INPUTLOG, 0, file, "rb", &error);
 	if (!playback) {
 		target_err("Error opening the input playback file '%s'.\n", file);
 		return 0;
@@ -604,6 +606,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.record = 0;
 	options.playback = 0;
 	options.language_file = 0;
+	options.logfile = 0; /* use internal logging */
 	options.mame_debug = advance->debug_flag;
 	options.cheat = advance->cheat_flag;
 	options.gui_host = 1; /* this prevents text mode messages that may stop the execution */
@@ -742,16 +745,17 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 #ifdef MESS
 	{
 		const game_driver* driver = (const game_driver*)context->game;
+		const game_driver* clone_of = driver_get_clone(driver);
 
 		snprintf(GLUE.crc_file_buffer, sizeof(GLUE.crc_file_buffer), "%s%c%s.crc", advance->crc_dir_buffer, file_dir_slash(), driver->name);
 		crcfile = GLUE.crc_file_buffer;
 
 		log_std(("glue: file_crc %s\n", crcfile));
 
-		if (driver->clone_of
-			&& driver->clone_of->name
-			&& (driver->clone_of->flags & NOT_A_DRIVER) == 0) {
-			snprintf(GLUE.parent_crc_file_buffer, sizeof(GLUE.parent_crc_file_buffer), "%s%c%s.crc", advance->crc_dir_buffer, file_dir_slash(), driver->clone_of->name);
+		if (clone_of
+			&& clone_of->name
+			&& (clone_of->flags & NOT_A_DRIVER) == 0) {
+			snprintf(GLUE.parent_crc_file_buffer, sizeof(GLUE.parent_crc_file_buffer), "%s%c%s.crc", advance->crc_dir_buffer, file_dir_slash(), clone_of->name);
 		} else {
 			GLUE.parent_crc_file_buffer[0] = 0;
 		}
@@ -2064,6 +2068,7 @@ int mame_ui_port_pressed(unsigned port)
 
 void mame_ui_area_set(unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 {
+/* TODO MAME 0.105 changed this call. Check if the panning is affected. */
 	ui_set_visible_area(x1, y1, x2, y2);
 }
 
@@ -2080,12 +2085,11 @@ void mame_ui_gamma_factor_set(double gamma)
 /***************************************************************************/
 /* OSD */
 
-void logerror(const char* text, ...)
+/**
+ * Deinitialize the system.
+ */
+void osd2_exit(void)
 {
-	va_list arg;
-	va_start(arg, text);
-	log_va(text, arg);
-	va_end(arg);
 }
 
 /**
@@ -2096,28 +2100,11 @@ void logerror(const char* text, ...)
  */
 int osd_init(void)
 {
+	add_pause_callback(osd2_video_pause);
+	add_pause_callback(osd2_sound_pause);
+	add_exit_callback(osd2_exit);
+
 	return 0;
-}
-
-/**
- * Deinitialize the system.
- */
-void osd_exit(void)
-{
-}
-
-/**
- * Terminate the program with an error message.
- * It never return.
- */
-void osd_die(const char* text, ...)
-{
-	va_list arg;
-	va_start(arg, text);
-	log_va(text, arg);
-	va_end(arg);
-
-	abort();
 }
 
 /**
@@ -2629,8 +2616,7 @@ int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active)
 		if (res > 1)
 			return 1;
 		if (res != 0) {
-			osd_sound_enable(0);
-			osd_pause(1);
+			mame_pause(1);
 
 			res = 1;
 			while (res > 0) {
@@ -2638,8 +2624,7 @@ int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active)
 				update_video_and_audio();
 			}
 
-			osd_pause(0);
-			osd_sound_enable(1);
+			mame_pause(0);
 
 			if (res < 0)
 				return 1;
@@ -2706,6 +2691,11 @@ int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active)
 		osd_record_stop();
 
 	return 0;
+}
+
+void osd_log_va(const char* text, va_list arg)
+{
+	log_va(text, arg);
 }
 
 /***************************************************************************/

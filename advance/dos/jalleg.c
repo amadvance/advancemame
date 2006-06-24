@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2006 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,16 +33,24 @@
 #include "jalleg.h"
 #include "log.h"
 #include "device.h"
+#include "target.h"
 
 #include "allegro2.h"
 
 struct joystickb_allegro_context {
-	int id; /**< Allegro joystick identifier. */
+	int id; /**< Joystick identifier. */
+	int allegro_id; /**< Allegro joystick identifier. */
+	target_clock_t last; /**< Time of the last poll. */
 	int calibration_target;
 	int calibration_first;
 };
 
 static struct joystickb_allegro_context allegro_state;
+
+/* extra types */
+#define JOY_TYPE_LIGHTGUN_LPT1 0x80000000
+#define JOY_TYPE_LIGHTGUN_LPT2 0x80000001
+#define JOY_TYPE_LIGHTGUN_LPT3 0x80000002
 
 static adv_device DEVICE[] = {
 	{ "auto", JOY_TYPE_AUTODETECT, "Allegro joystick" },
@@ -167,6 +175,11 @@ static adv_device DEVICE[] = {
 	{ "psxlpt2", JOY_TYPE_PSXPAD_LPT2, "PSXpad LPT2" },
 	{ "psxlpt3", JOY_TYPE_PSXPAD_LPT3, "PSXpad LPT3" },
 
+	{ "lightgunlpt1", JOY_TYPE_LIGHTGUN_LPT1, "Lightgun LPT1" },
+	{ "lightgunlpt2", JOY_TYPE_LIGHTGUN_LPT2, "Lightgun LPT2" },
+	{ "lightgunlpt3", JOY_TYPE_LIGHTGUN_LPT3, "Lightgun LPT3" },
+
+
 /* From Allegro 4.0.1
  *      Joystick driver for N64 controllers.
  *
@@ -275,10 +288,27 @@ adv_error joystickb_allegro_init(int id)
 
 	allegro_state.id = id;
 
+	switch (id) {
+	case JOY_TYPE_LIGHTGUN_LPT1 :
+		allegro_state.allegro_id = JOY_TYPE_PSXPAD_LPT1;
+		break;
+	case JOY_TYPE_LIGHTGUN_LPT2 :
+		allegro_state.allegro_id = JOY_TYPE_PSXPAD_LPT2;
+		break;
+	case JOY_TYPE_LIGHTGUN_LPT3 :
+		allegro_state.allegro_id = JOY_TYPE_PSXPAD_LPT3;
+		break;
+	default:
+		allegro_state.allegro_id = id;
+		break;
+	}
+
+	allegro_state.last = target_clock();
+
 	log_std(("joystickb:allegro: joystick load calibration data\n"));
 	if (load_joystick_data(0) != 0) {
 		log_std(("joystickb:allegro: joystick error loading calibration data, try reinitializing\n"));
-		if (install_joystick(allegro_state.id) != 0) {
+		if (install_joystick(allegro_state.allegro_id) != 0) {
 			log_std(("joystickb:allegro: joystick initialization failed\n"));
 			return -1;
 		}
@@ -360,7 +390,7 @@ void joystickb_allegro_calib_start(void)
 	log_debug(("joystickb:allegro: joystickb_allegro_calib_start()\n"));
 
 	remove_joystick();
-	install_joystick(allegro_state.id);
+	install_joystick(allegro_state.allegro_id);
 
 	allegro_state.calibration_target = 0;
 	allegro_state.calibration_first = 1;
@@ -408,7 +438,21 @@ void joystickb_allegro_poll(void)
 {
 	log_debug(("joystickb:allegro: joystickb_allegro_poll()\n"));
 
-	poll_joystick();
+	if (allegro_state.id == JOY_TYPE_LIGHTGUN_LPT1
+		|| allegro_state.id == JOY_TYPE_LIGHTGUN_LPT2
+		|| allegro_state.id == JOY_TYPE_LIGHTGUN_LPT3) {
+			target_clock_t now = target_clock();
+			/* don't poll too frequently */
+			if (now - allegro_state.last > TARGET_CLOCKS_PER_SEC / 30) {
+				log_debug(("joystickb:allegro: effective poll\n"));
+				allegro_state.last = now;
+				poll_joystick();
+			} else {
+				log_debug(("joystickb:allegro: skipped poll\n"));
+			}
+	} else {
+		poll_joystick();
+	}
 }
 
 unsigned joystickb_allegro_flags(void)

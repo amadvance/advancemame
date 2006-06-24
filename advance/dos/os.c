@@ -429,10 +429,10 @@ void os_default_signal(int signum, void* info, void* context)
 	log_std(("os: signal %d\n", signum));
 
 #if defined(USE_VIDEO)
-	log_std(("os: video_abort\n"));
+	log_std(("os: adv_video_abort\n"));
 	{
-		extern void video_abort(void);
-		video_abort();
+		extern void adv_video_abort(void);
+		adv_video_abort();
 	}
 #endif
 

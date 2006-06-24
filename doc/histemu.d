@@ -1,6 +1,12 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.106.0 2006/06
+	) Based on MAME 0.106
+
+AdvanceMAME Version 0.104.0 2006/02
+	) Based on MAME 0.104
+
 AdvanceMAME Version 0.102.1 2005/12
 	) Added in the `contrib' directory a test version of cwsdpmi
 	which solves some slowdown problem in DOS with system with

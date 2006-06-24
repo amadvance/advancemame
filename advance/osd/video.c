@@ -937,13 +937,13 @@ void osd2_palette(const osd_mask_t* mask, const osd_rgb_t* palette, unsigned siz
 	}
 }
 
-void osd_pause(int paused)
+void osd2_video_pause(int pause)
 {
 	struct advance_video_context* context = &CONTEXT.video;
 
-	log_std(("osd: osd_pause(paused:%d)\n", paused));
+	log_std(("osd: osd2_video_pause(paused:%d)\n", pause));
 
-	context->state.pause_flag = paused != 0;
+	context->state.pause_flag = pause != 0;
 }
 
 void osd_reset(void)
@@ -1560,13 +1560,13 @@ void advance_video_done(struct advance_video_context* context)
 
 adv_error advance_video_inner_init(struct advance_video_context* context, struct mame_option* option)
 {
-	if (video_init() != 0) {
+	if (adv_video_init() != 0) {
 		target_err("%s\n", error_get());
 		return -1;
 	}
 
 	if (video_blit_init() != 0) {
-		video_done();
+		adv_video_done();
 		target_err("%s\n", error_get());
 		return -1;
 	}
@@ -1579,6 +1579,6 @@ adv_error advance_video_inner_init(struct advance_video_context* context, struct
 void advance_video_inner_done(struct advance_video_context* context)
 {
 	video_blit_done();
-	video_done();
+	adv_video_done();
 }
 

@@ -802,14 +802,19 @@ int osd_get_mastervolume(void)
 	return context->config.attenuation;
 }
 
-void osd_sound_enable(int enable_it)
+void osd_sound_enable(int enable)
 {
 	struct advance_sound_context* context = &CONTEXT.sound;
 
 	if (context->state.active_flag) {
-		context->state.disabled_flag = !enable_it;
+		context->state.disabled_flag = !enable;
 		sound_volume_update(context);
 	}
+}
+
+void osd2_sound_pause(int pause)
+{
+	/* osd_sound_enable is already called by MAME */
 }
 
 static void sound_equalizer_update(struct advance_sound_context* context)

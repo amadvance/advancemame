@@ -42,6 +42,7 @@
  *  - USE_JOYSTICK_LGRAWINPUT
  *  - USE_JOYSTICK_SDL
  *  - USE_JOYSTICK_ALLEGRO
+ *  - USE_JOYSTICK_LGALLEGRO
  *  - USE_JOYSTICK_NONE
  */
 void joystickb_reg_driver_all(adv_conf* context)
@@ -64,6 +65,9 @@ void joystickb_reg_driver_all(adv_conf* context)
 #endif
 #ifdef USE_JOYSTICK_ALLEGRO
 	joystickb_reg_driver(context, &joystickb_allegro_driver);
+#endif
+#ifdef USE_JOYSTICK_LGALLEGRO
+	joystickb_reg_driver(context, &joystickb_lgallegro_driver);
 #endif
 #ifdef USE_JOYSTICK_NONE
 	joystickb_reg_driver(context, &joystickb_none_driver);
@@ -97,7 +101,11 @@ void joystickb_report_driver_all(char* s, unsigned size)
 #ifdef USE_JOYSTICK_ALLEGRO
 	sncat(s, size, " allegro");
 #endif
+#ifdef USE_JOYSTICK_LGALLEGRO
+	sncat(s, size, " lgallegro");
+#endif
 #ifdef USE_JOYSTICK_NONE
 	sncat(s, size, " none");
 #endif
 }
+

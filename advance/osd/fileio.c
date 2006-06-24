@@ -174,7 +174,28 @@ static int partialequal(const char* zipfile, const char* file)
 	return !*s1 && !*s2;
 }
 
-osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const char* mode)
+static void osd_errno_to_filerr(osd_file_error *error)
+{
+	switch (errno) {
+	case ENOENT :
+		*error = FILEERR_NOT_FOUND;
+		break;
+	case EACCES :
+		*error = FILEERR_ACCESS_DENIED;
+		break;
+	default:
+		*error = FILEERR_FAILURE;
+		break;
+	}
+/*
+	The following error are too specific, no need to report them:
+	FILEERR_OUT_OF_MEMORY,
+	FILEERR_ALREADY_OPEN,
+	FILEERR_TOO_MANY_FILES
+*/
+}
+
+osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const char* mode, osd_file_error *error)
 {
 	struct fileio_item* i;
 	char path_buffer[FILE_MAXPATH];
@@ -183,6 +204,9 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 	struct advance_fileio_context* context = &CONTEXT.fileio;
 
 	log_std(("osd: osd_fopen(pathtype:%d,pathindex:%d,filename:%s,mode:%s)\n", pathtype, pathindex, filename, mode));
+
+	/* set a default error */
+	*error = FILEERR_FAILURE;
 
 	i = fileio_find(pathtype);
 	if (!i) {
@@ -211,12 +235,14 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 		log_std(("osd: osd_fopen() try %s %s\n", zip_file_buffer, file_buffer));
 
 		if (access(zip_file_buffer, R_OK)!=0) {
+			osd_errno_to_filerr(error);
 			log_std(("osd: osd_fopen() -> failed, zip %s not readable\n", zip_file_buffer));
 			return 0;
 		}
 
 		zip = zip_open(zip_file_buffer);
 		if (!zip) {
+			osd_errno_to_filerr(error);
 			log_std(("osd: osd_fopen() -> failed, zip %s not openable\n", zip_file_buffer));
 			return 0;
 		}
@@ -226,8 +252,12 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 			if (partialequal(ent->name, file_buffer)) {
 				if (ent->compression_method == 0) {
 					h = fzopenzipuncompressed(zip_file_buffer, ent->offset_lcl_hdr_frm_frst_disk, ent->uncompressed_size);
+					if (h == 0)
+						osd_errno_to_filerr(error);
 				} else if (ent->compression_method == 8) {
 					h = fzopenzipcompressed(zip_file_buffer, ent->offset_lcl_hdr_frm_frst_disk, ent->compressed_size, ent->uncompressed_size);
+					if (h == 0)
+						osd_errno_to_filerr(error);
 				}
 				break;
 			}
@@ -246,12 +276,14 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 				/* try a normal open */
 				h = fzopen(path_buffer, mode);
 				if (h == 0) {
+					osd_errno_to_filerr(error);
 					log_std(("osd: fzopen() failed, %s\n", strerror(errno)));
 					if (errno == EACCES || errno == EROFS) {
 						log_std(("osd: retry with readonly\n"));
 						/* reopen in memory */
 						h = fzopennullwrite(path_buffer, mode);
 						if (h == 0) {
+							osd_errno_to_filerr(error);
 							log_std(("osd: fzopenullwrite() failed, %s\n", strerror(errno)));
 						} else {
 							if (context->state.diff_handle == 0) {
@@ -267,12 +299,17 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 			/* open a regular file */
 			h = fzopen(path_buffer, mode);
 			if (h == 0) {
+				osd_errno_to_filerr(error);
 				log_std(("osd: fzopen() failed, %s\n", strerror(errno)));
 			}
 		}
 	}
 
 	log_std(("osd: osd_fopen() -> return %p\n", h));
+
+	/* clear the error if success */
+	if (h != 0)
+		*error = FILEERR_SUCCESS;
 
 	return (osd_file*)h;
 }
@@ -357,24 +394,6 @@ UINT32 osd_fwrite(osd_file* file, const void* buffer, UINT32 length)
 	return r;
 }
 
-#ifdef MESS
-int osd_num_devices(void)
-{
-	log_std(("osd: osd_num_device()\n"));
-	return 0;
-}
-
-void osd_change_device(const char* device)
-{
-	log_std(("osd: osd_change_devicee(device:%s)\n", device));
-}
-
-const char *osd_get_device_name(int i)
-{
-	log_std(("osd: osd_get_device_name(i:%d)\n", i));
-	return "";
-}
-
 int osd_create_directory(int pathtype, int pathindex, const char *dirname)
 {
 	struct fileio_item* i;
@@ -398,6 +417,24 @@ int osd_create_directory(int pathtype, int pathindex, const char *dirname)
 	}
 
 	return 0;
+}
+
+#ifdef MESS
+int osd_num_devices(void)
+{
+	log_std(("osd: osd_num_device()\n"));
+	return 0;
+}
+
+void osd_change_device(const char* device)
+{
+	log_std(("osd: osd_change_devicee(device:%s)\n", device));
+}
+
+const char *osd_get_device_name(int i)
+{
+	log_std(("osd: osd_get_device_name(i:%d)\n", i));
+	return "";
 }
 
 void* osd_dir_open(const char* dir, const char* mask)

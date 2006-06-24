@@ -57,6 +57,7 @@ void log_f_modeline_c(const char* text, unsigned pixel_clock, unsigned hde, unsi
 adv_error log_init(const char* file, adv_bool sync_flag);
 void log_done(void);
 void log_abort(void);
+FILE* log_handle(void);
 
 /**
  * Print something in the standard log file.

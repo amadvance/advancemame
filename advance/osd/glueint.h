@@ -41,6 +41,7 @@
 #include "../../srcmess/info.h"
 #include "../../srcmess/osdepend.h"
 #include "../../srcmess/ui_text.h"
+#include "../../srcmess/profiler.h"
 
 #else
 
@@ -50,6 +51,7 @@
 #include "../../src/info.h"
 #include "../../src/osdepend.h"
 #include "../../src/ui_text.h"
+#include "../../src/profiler.h"
 
 #endif
 

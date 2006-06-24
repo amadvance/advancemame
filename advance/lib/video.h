@@ -347,9 +347,9 @@ adv_error video_display_set(unsigned offset, adv_bool waitvsync);
 unsigned video_bytes_per_scanline(void);
 unsigned video_bytes_per_page(void);
 
-adv_error video_init(void);
-void video_done(void);
-void video_abort(void);
+adv_error adv_video_init(void);
+void adv_video_done(void);
+void adv_video_abort(void);
 
 adv_error video_mode_set(adv_mode* mode);
 void video_mode_done(adv_bool restore);

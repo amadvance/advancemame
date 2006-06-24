@@ -579,13 +579,13 @@ bool int_init(unsigned size)
 	int_mode_size = size;
 	mode_reset(&int_current_mode);
 
-	if (video_init() != 0) {
+	if (adv_video_init() != 0) {
 		target_err("%s\n", error_get());
 		goto out;
 	}
 
 	if (video_blit_init() != 0) {
-		video_done();
+		adv_video_done();
 		target_err("%s\n", error_get());
 		goto int_video;
 	}
@@ -647,7 +647,7 @@ bool int_init(unsigned size)
 int_blit:
 	video_blit_done();
 int_video:
-	video_done();
+	adv_video_done();
 out:
 	return false;
 }
@@ -655,7 +655,7 @@ out:
 void int_done()
 {
 	video_blit_done();
-	video_done();
+	adv_video_done();
 }
 
 bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast, unsigned translucency, bool disable_special)

@@ -153,10 +153,10 @@ static void os_restore(void)
 #endif
 
 #if defined(USE_VIDEO_SVGALIB) || defined(USE_VIDEO_FB) || defined(USE_VIDEO_X) || defined(USE_VIDEO_SDL)
-	log_std(("os: video_abort\n"));
+	log_std(("os: adv_video_abort\n"));
 	{
-		extern void video_abort(void);
-		video_abort();
+		extern void adv_video_abort(void);
+		adv_video_abort();
 	}
 #endif
 

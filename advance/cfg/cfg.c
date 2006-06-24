@@ -1511,7 +1511,7 @@ int os_main(int argc, char* argv[])
 		goto err_os;
 	}
 
-	if (video_init() != 0) {
+	if (adv_video_init() != 0) {
 		target_err("%s\n\r", error_get());
 		troubleshotting();
 		goto err_os_inner;
@@ -1684,7 +1684,7 @@ int os_main(int argc, char* argv[])
 
 	inputb_done();
 
-	video_done();
+	adv_video_done();
 
 	os_inner_done();
 
@@ -1711,7 +1711,7 @@ err_input:
 err_blit:
 	video_blit_done();
 err_video:
-	video_done();
+	adv_video_done();
 err_os_inner:
 	os_inner_done();
 err_os:

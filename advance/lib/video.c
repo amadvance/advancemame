@@ -337,7 +337,7 @@ void video_reg(adv_conf* context, adv_bool auto_detect)
 
 /**
  * Register a video driver.
- * \note Call before video_init().
+ * \note Call before adv_video_init().
  */
 void video_reg_driver(adv_conf* context, adv_video_driver* driver)
 {
@@ -388,7 +388,7 @@ const adv_video_driver* video_driver_vector_pos(unsigned i)
 /**
  * Initialize the video system.
  */
-adv_error video_init(void)
+adv_error adv_video_init(void)
 {
 	unsigned i;
 	adv_bool at_least_one;
@@ -396,7 +396,7 @@ adv_error video_init(void)
 
 	assert(!video_is_active());
 
-	log_std(("video: video_init\n"));
+	log_std(("video: adv_video_init\n"));
 
 	if (!video_option.initialized) {
 		video_default();
@@ -443,7 +443,7 @@ adv_error video_init(void)
 
 	error_cat_set(0, 0);
 
-	log_std(("video: video_init report (multiline):\n%s\n", error_get()));
+	log_std(("video: adv_video_init report (multiline):\n%s\n", error_get()));
 
 	if (!at_least_one) {
 		log_std(("video: no video driver activated\n"));
@@ -466,13 +466,13 @@ adv_error video_init(void)
 /**
  * Deinitialize the video system.
  */
-void video_done(void)
+void adv_video_done(void)
 {
 	unsigned i;
 
 	assert(video_is_active() && !video_mode_is_active());
 
-	log_std(("video: video_done\n"));
+	log_std(("video: adv_video_done\n"));
 
 	/* safer */
 	if (video_mode_is_active())
@@ -498,12 +498,12 @@ void video_done(void)
  * Emergency abort.
  * Callable in any context.
  */
-void video_abort(void)
+void adv_video_abort(void)
 {
 	if (video_is_active()) {
 		if (video_mode_is_active())
 			video_mode_done(1);
-		video_done();
+		adv_video_done();
 	}
 }
 

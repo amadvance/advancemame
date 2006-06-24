@@ -30,7 +30,7 @@ ifeq ($(CONF_EMU),mame)
 INSTALL_DATAFILES += $(srcdir)/support/event.dat
 INSTALL_DATAFILES += $(srcdir)/support/history.dat
 INSTALL_DATAFILES += $(srcdir)/support/hiscore.dat
-INSTALL_BINFILES += $(OBJ)/chdman$(EXE)
+# INSTALL_BINFILES += $(OBJ)/chdman$(EXE) TODO Add chdman utility
 endif
 ifeq ($(CONF_EMU),mess)
 INSTALL_DATAFILES += $(srcdir)/support/sysinfo.dat

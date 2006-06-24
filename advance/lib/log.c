@@ -164,6 +164,15 @@ void log_done(void)
 }
 
 /**
+ * Return the log file handle.
+ * \return 0 if the log file is closed.
+ */
+FILE* log_handle(void)
+{
+	return LOG.msg;
+}
+
+/**
  * Abort the logging.
  * This function ensure that the log file is flushed. 
  * It can be called in a signal handler in any condition.

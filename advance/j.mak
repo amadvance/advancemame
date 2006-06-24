@@ -69,7 +69,7 @@ ifeq ($(CONF_SYSTEM),dos)
 JCFLAGS += \
 	-I$(srcdir)/advance/dos \
 	-DUSE_CONFIG_ALLEGRO_WRAPPER \
-	-DUSE_JOYSTICK_ALLEGRO
+	-DUSE_JOYSTICK_ALLEGRO -DUSE_JOYSTICK_LGALLEGRO
 JLDFLAGS += \
 	-Xlinker --wrap -Xlinker get_config_string \
 	-Xlinker --wrap -Xlinker get_config_int \
@@ -84,7 +84,8 @@ JOBJS += \
 	$(JOBJ)/dos/file.o \
 	$(JOBJ)/dos/target.o \
 	$(JOBJ)/dos/os.o \
-	$(JOBJ)/dos/jalleg.o
+	$(JOBJ)/dos/jalleg.o \
+	$(JOBJ)/dos/jlgalleg.o
 endif
 
 ifeq ($(CONF_SYSTEM),windows)

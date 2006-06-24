@@ -45,6 +45,9 @@ extern "C" {
 #ifdef USE_JOYSTICK_ALLEGRO
 #include "jalleg.h"
 #endif
+#ifdef USE_JOYSTICK_LGALLEGRO
+#include "jlgalleg.h"
+#endif
 #ifdef USE_JOYSTICK_SVGALIB
 #include "jsvgab.h"
 #endif
