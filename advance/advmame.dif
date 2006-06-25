@@ -1,131 +1,12 @@
 diff -U 5 --new-file --recursive src.ori/advance.pat src/advance.pat
 --- src.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ src/advance.pat	2006-02-07 18:27:29.000000000 +0100
++++ src/advance.pat	2006-06-16 18:45:09.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
-diff -U 5 --new-file --recursive src.ori/common.c src/common.c
---- src.ori/common.c	2006-02-05 17:52:04.000000000 +0100
-+++ src/common.c	2006-02-07 18:31:27.000000000 +0100
-@@ -703,10 +703,11 @@
- /*-------------------------------------------------
-     save_frame_with - save a frame with a
-     given handler for screenshots and movies
- -------------------------------------------------*/
- 
-+#if 0 /* AdvanceMAME has its snapshot code */
- static void save_frame_with(mame_file *fp, mame_bitmap *bitmap, int (*write_handler)(mame_file *, mame_bitmap *))
- {
- 	rectangle bounds;
- 	mame_bitmap *osdcopy;
- 	UINT32 saved_rgb_components[3];
-@@ -806,20 +807,23 @@
- 
- 	/* if the OSD system allocated a bitmap; free it */
- 	if (osdcopy)
- 		bitmap_free(osdcopy);
- }
-+#endif
- 
- 
-  /*-------------------------------------------------
-     save_screen_snapshot_as - save a snapshot to
-     the given file handle
- -------------------------------------------------*/
- 
- void save_screen_snapshot_as(mame_file *fp, mame_bitmap *bitmap)
- {
-+#if 0 /* AdvanceMAME has its snapshot code */
- 	save_frame_with(fp, bitmap, png_write_bitmap);
-+#endif
- }
- 
- 
- /*-------------------------------------------------
-     open the next non-existing file of type
-@@ -852,27 +856,32 @@
-     save_screen_snapshot - save a snapshot.
- -------------------------------------------------*/
- 
- void save_screen_snapshot(mame_bitmap *bitmap)
- {
-+#if 1 /* AdvanceMAME has its snapshot code */
-+	osd_save_snapshot();
-+#else
- 	mame_file *fp;
- 
- 	if ((fp = mame_fopen_next(FILETYPE_SCREENSHOT)) != NULL)
- 	{
- 		save_screen_snapshot_as(fp, bitmap);
- 		mame_fclose(fp);
- 	}
-+#endif
- }
- 
- 
- /*-------------------------------------------------
-     record_movie - start, stop and update the
-     recording of a MNG movie
- -------------------------------------------------*/
- 
- void record_movie_toggle(void)
- {
-+#if 0 /* AdvanceMAME has its record code */
- 	if (movie_file == NULL)
- 	{
- 		movie_frame = 0;
- 		movie_file = mame_fopen_next(FILETYPE_MOVIE);
- 		if (movie_file)
-@@ -883,28 +892,33 @@
- 		mng_capture_stop(movie_file);
- 		mame_fclose(movie_file);
- 		movie_file = NULL;
- 		ui_popup("REC STOP (%d frames)", movie_frame);
- 	}
-+#endif
- }
- 
- 
- void record_movie_stop(void)
- {
-+#if 0 /* AdvanceMAME has its record code */
- 	if (movie_file)
- 		record_movie_toggle();
-+#endif
- }
- 
- 
- void record_movie_frame(mame_bitmap *bitmap)
- {
-+#if 0 /* AdvanceMAME has its record code */
- 	if (movie_file != NULL && bitmap != NULL)
- 	{
- 		if (movie_frame++ == 0)
- 			save_frame_with(movie_file, bitmap, mng_capture_start);
- 		save_frame_with(movie_file, bitmap, mng_capture_frame);
- 	}
-+#endif
- }
- 
- 
- 
- /***************************************************************************
-@@ -1259,11 +1273,11 @@
- 		}
- 		else
- 			strcat(romdata->errorbuf, "WARNING: the game might not run correctly.\n");
- 
- 		/* display the result */
--		printf("%s", romdata->errorbuf);
-+		osd_display_loading_rom_message(romdata->errorbuf, 0);
- 	}
- 
- 	/* clean up any regions */
- 	if (romdata->errors)
- 		for (region = 0; region < MAX_MEMORY_REGIONS; region++)
 diff -U 5 --new-file --recursive src.ori/config.c src/config.c
---- src.ori/config.c	2006-02-05 15:16:34.000000000 +0100
-+++ src/config.c	2006-02-07 18:27:29.000000000 +0100
-@@ -115,20 +115,27 @@
+--- src.ori/config.c	2006-04-13 07:48:26.000000000 +0200
++++ src/config.c	2006-06-16 18:45:12.000000000 +0200
+@@ -113,20 +113,27 @@
   *
   *  Settings save/load frontend
   *
@@ -153,7 +34,7 @@ diff -U 5 --new-file --recursive src.ori/config.c src/config.c
  	{
  		/* open the config file */
  		file = mame_fopen(NULL, options.controller, FILETYPE_CTRLR, 0);
-@@ -154,10 +161,11 @@
+@@ -152,10 +159,11 @@
  	if (file)
  	{
  		loaded = config_load_xml(file, CONFIG_TYPE_GAME);
@@ -165,7 +46,7 @@ diff -U 5 --new-file --recursive src.ori/config.c src/config.c
  	for (type = typelist; type; type = type->next)
  		(*type->load)(CONFIG_TYPE_FINAL, NULL);
  
-@@ -174,10 +182,14 @@
+@@ -172,10 +180,14 @@
  
  	/* loop over all registrants and call their init function */
  	for (type = typelist; type; type = type->next)
@@ -180,7 +61,7 @@ diff -U 5 --new-file --recursive src.ori/config.c src/config.c
  	if (file)
  	{
  		config_save_xml(file, CONFIG_TYPE_DEFAULT);
-@@ -189,10 +201,11 @@
+@@ -187,10 +199,11 @@
  	if (file)
  	{
  		config_save_xml(file, CONFIG_TYPE_GAME);
@@ -192,14 +73,58 @@ diff -U 5 --new-file --recursive src.ori/config.c src/config.c
  	for (type = typelist; type; type = type->next)
  		(*type->save)(CONFIG_TYPE_FINAL, NULL);
  }
-diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
---- src.ori/cpuexec.c	2006-02-02 16:49:38.000000000 +0100
-+++ src/cpuexec.c	2006-02-07 18:27:29.000000000 +0100
-@@ -383,10 +383,13 @@
- 	watchdog_setup(TRUE);
+diff -U 5 --new-file --recursive src.ori/cpu/cpu.mak src/cpu/cpu.mak
+--- src.ori/cpu/cpu.mak	2006-04-09 22:49:08.000000000 +0200
++++ src/cpu/cpu.mak	2006-06-16 20:34:03.000000000 +0200
+@@ -648,29 +648,29 @@
+ OBJDIRS += $(OBJ)/cpu/m68000
+ CPUOBJS += $(OBJ)/cpu/m68000/m68kcpu.o $(OBJ)/cpu/m68000/m68kmame.o $(subst .c,.o,$(M68000_GENERATED_FILES))
+ DBGOBJS += $(OBJ)/cpu/m68000/m68kdasm.o
  
- 	/* reset sound chips */
- 	sound_reset();
+ # when we compile source files we need to include generated files from the OBJ directory
+-$(OBJ)/cpu/m68000/%.o: src/cpu/m68000/%.c
+-	@echo Compiling $<...
+-	$(CC) $(CDEFS) $(CFLAGS) -I$(OBJ)/cpu/m68000 -c $< -o $@
++#$(OBJ)/cpu/m68000/%.o: src/cpu/m68000/%.c
++#	@echo Compiling $<...
++#	$(CC) $(CDEFS) $(CFLAGS) -I$(OBJ)/cpu/m68000 -c $< -o $@
+ 
+ # when we compile generated files we need to include stuff from the src directory
+-$(OBJ)/cpu/m68000/%.o: $(OBJ)/cpu/m68000/%.c
+-	@echo Compiling $<...
+-	$(CC) $(CDEFS) $(CFLAGS) -Isrc/cpu/m68000 -c $< -o $@
++#$(OBJ)/cpu/m68000/%.o: $(OBJ)/cpu/m68000/%.c
++#	@echo Compiling $<...
++#	$(CC) $(CDEFS) $(CFLAGS) -Isrc/cpu/m68000 -c $< -o $@
+ 
+ # rule to generate the C files
+-$(M68000_GENERATED_FILES) $(M68000_GENERATED_HEADERS): $(OBJ)/cpu/m68000/m68kmake$(EXE) m68k_in.c
+-	@echo Generating M68K source files...
+-	$(OBJ)/cpu/m68000/m68kmake$(EXE) $(OBJ)/cpu/m68000 src/cpu/m68000/m68k_in.c
++#$(M68000_GENERATED_FILES) $(M68000_GENERATED_HEADERS): $(OBJ)/cpu/m68000/m68kmake$(EXE) m68k_in.c
++#	@echo Generating M68K source files...
++#	$(OBJ)/cpu/m68000/m68kmake$(EXE) $(OBJ)/cpu/m68000 src/cpu/m68000/m68k_in.c
+ 
+ # rule to build the generator
+-$(OBJ)/cpu/m68000/m68kmake$(EXE): $(OBJ)/cpu/m68000/m68kmake.o $(OSDBGOBJS)
++#$(OBJ)/cpu/m68000/m68kmake$(EXE): $(OBJ)/cpu/m68000/m68kmake.o $(OSDBGOBJS)
+ 
+ # rule to ensure we build the header before building the core CPU file
+-$(OBJ)/cpu/m68000/m68kcpu.o: $(M68000_GENERATED_HEADERS)
++#$(OBJ)/cpu/m68000/m68kcpu.o: $(M68000_GENERATED_HEADERS)
+ 
+ endif
+ 
+ 
+ 
+diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
+--- src.ori/cpuexec.c	2006-03-29 08:17:58.000000000 +0200
++++ src/cpuexec.c	2006-06-24 15:59:51.000000000 +0200
+@@ -291,10 +291,13 @@
+ 	/* initialize the various timers (suspends all CPUs at startup) */
+ 	cpu_inittimers();
+ 	watchdog_counter = WATCHDOG_IS_INVALID;
+ 	watchdog_setup(TRUE);
  
 +	/* reset the osd level */
 +	osd_reset();
@@ -210,8 +135,8 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  		/* enable all CPUs (except for disabled CPUs) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_DISABLE))
 diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11.c
---- src.ori/drivers/namcos11.c	2006-01-25 23:08:58.000000000 +0100
-+++ src/drivers/namcos11.c	2006-02-07 18:27:29.000000000 +0100
+--- src.ori/drivers/namcos11.c	2006-04-26 07:32:12.000000000 +0200
++++ src/drivers/namcos11.c	2006-06-16 18:45:12.000000000 +0200
 @@ -834,11 +834,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
@@ -226,9 +151,9 @@ diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11
  	MDRV_VIDEO_START( psx_type1 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/drivers/namcos12.c src/drivers/namcos12.c
---- src.ori/drivers/namcos12.c	2006-01-25 23:08:58.000000000 +0100
-+++ src/drivers/namcos12.c	2006-02-07 18:27:29.000000000 +0100
-@@ -1221,11 +1221,11 @@
+--- src.ori/drivers/namcos12.c	2006-03-09 07:56:16.000000000 +0100
++++ src/drivers/namcos12.c	2006-06-16 18:45:12.000000000 +0200
+@@ -1451,11 +1451,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -242,25 +167,9 @@ diff -U 5 --new-file --recursive src.ori/drivers/namcos12.c src/drivers/namcos12
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/drivers/psikyo4.c src/drivers/psikyo4.c
---- src.ori/drivers/psikyo4.c	2005-12-22 09:48:44.000000000 +0100
-+++ src/drivers/psikyo4.c	2006-02-07 18:27:29.000000000 +0100
-@@ -442,13 +442,13 @@
- 	MDRV_NVRAM_HANDLER(93C56)
- 
- 	/* video hardware */
- 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_DUAL_MONITOR)
- #if DUAL_SCREEN
--	MDRV_ASPECT_RATIO(8,3)
-+	MDRV_ASPECT_RATIO(4,3)
- 	MDRV_SCREEN_SIZE(80*8, 32*8)
--	MDRV_VISIBLE_AREA(0, 80*8-1, 0, 28*8-1)
-+	MDRV_VISIBLE_AREA(0, 320-1, 0, 28*8-1)
- #else
- 	MDRV_ASPECT_RATIO(4,3)
- 	MDRV_SCREEN_SIZE(64*8, 32*8)
- 	MDRV_VISIBLE_AREA(0, 40*8-1, 0, 28*8-1)
- #endif
-@@ -471,11 +471,11 @@
+--- src.ori/drivers/psikyo4.c	2006-04-26 07:32:12.000000000 +0200
++++ src/drivers/psikyo4.c	2006-06-16 18:45:12.000000000 +0200
+@@ -463,11 +463,11 @@
  static MACHINE_DRIVER_START( ps4small )
  	/* basic machine hardware */
  	MDRV_IMPORT_FROM(ps4big)
@@ -273,27 +182,10 @@ diff -U 5 --new-file --recursive src.ori/drivers/psikyo4.c src/drivers/psikyo4.c
  #endif
  MACHINE_DRIVER_END
  
-diff -U 5 --new-file --recursive src.ori/drivers/ssfindo.c src/drivers/ssfindo.c
---- src.ori/drivers/ssfindo.c	2005-11-20 22:50:40.000000000 +0100
-+++ src/drivers/ssfindo.c	2006-02-07 18:27:29.000000000 +0100
-@@ -123,10 +123,13 @@
- #include "driver.h"
- #include "vidhrdw/generic.h"
- #include "cpu/arm7/arm7core.h"
- #include "machine/random.h"
- 
-+/* AdvanceMAME: Conflict with stdlib random_r */
-+#define random_r mame_random_r
-+
- enum
- {
- 	IOCR=0,
- 	KBDDAT,
- 	KBDCR,
 diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
---- src.ori/drivers/stv.c	2005-12-29 19:03:18.000000000 +0100
-+++ src/drivers/stv.c	2006-02-07 18:27:29.000000000 +0100
-@@ -3051,11 +3051,11 @@
+--- src.ori/drivers/stv.c	2006-04-06 22:13:06.000000000 +0200
++++ src/drivers/stv.c	2006-06-16 18:45:12.000000000 +0200
+@@ -3049,11 +3049,11 @@
  	MDRV_NVRAM_HANDLER(stv) /* Actually 93c45 */
  
  	/* video hardware */
@@ -307,9 +199,9 @@ diff -U 5 --new-file --recursive src.ori/drivers/stv.c src/drivers/stv.c
  	MDRV_VIDEO_START(stv_vdp2)
  	MDRV_VIDEO_UPDATE(stv_vdp2)
 diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
---- src.ori/drivers/zn.c	2006-01-25 23:08:58.000000000 +0100
-+++ src/drivers/zn.c	2006-02-07 18:27:29.000000000 +0100
-@@ -658,11 +658,11 @@
+--- src.ori/drivers/zn.c	2006-05-04 22:23:18.000000000 +0200
++++ src/drivers/zn.c	2006-06-16 18:45:12.000000000 +0200
+@@ -661,11 +661,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -322,7 +214,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -700,11 +700,11 @@
+@@ -703,11 +703,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -335,7 +227,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -908,11 +908,11 @@
+@@ -911,11 +911,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -348,7 +240,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1339,11 +1339,11 @@
+@@ -1349,11 +1349,11 @@
  	MDRV_NVRAM_HANDLER( coh1000ta )
  
  	/* video hardware */
@@ -361,7 +253,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1441,11 +1441,11 @@
+@@ -1451,11 +1451,11 @@
  	MDRV_NVRAM_HANDLER( coh1000tb )
  
  	/* video hardware */
@@ -374,7 +266,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1630,11 +1630,11 @@
+@@ -1640,11 +1640,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -387,7 +279,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -1843,11 +1843,11 @@
+@@ -1853,11 +1853,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -400,7 +292,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2088,11 +2088,11 @@
+@@ -2098,11 +2098,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -413,7 +305,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2428,11 +2428,11 @@
+@@ -2438,11 +2438,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -426,7 +318,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2598,11 +2598,11 @@
+@@ -2608,11 +2608,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -439,7 +331,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2682,11 +2682,11 @@
+@@ -2692,11 +2692,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -452,7 +344,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2950,11 +2950,11 @@
+@@ -2960,11 +2960,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -465,7 +357,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -2986,11 +2986,11 @@
+@@ -2996,11 +2996,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -478,7 +370,7 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
-@@ -3025,11 +3025,11 @@
+@@ -3035,11 +3035,11 @@
  	MDRV_NVRAM_HANDLER( at28c16_0 )
  
  	/* video hardware */
@@ -492,9 +384,9 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
---- src.ori/inptport.c	2006-02-05 15:16:34.000000000 +0100
-+++ src/inptport.c	2006-02-07 18:27:29.000000000 +0100
-@@ -864,11 +864,13 @@
+--- src.ori/inptport.c	2006-03-23 07:34:02.000000000 +0100
++++ src/inptport.c	2006-06-16 20:06:19.000000000 +0200
+@@ -882,11 +882,13 @@
  	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_FRAMESKIP_DEC,	"Frameskip Dec",		SEQ_DEF_1(KEYCODE_F8) )
  	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_FRAMESKIP_INC,	"Frameskip Inc",		SEQ_DEF_1(KEYCODE_F9) )
  	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_THROTTLE,		"Throttle",				SEQ_DEF_1(KEYCODE_F10) )
@@ -508,7 +400,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_DOWN,			"UI Down",				SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) )
  	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_LEFT,			"UI Left",				SEQ_DEF_3(KEYCODE_LEFT, CODE_OR, JOYCODE_1_LEFT) )
  	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_RIGHT,			"UI Right",				SEQ_DEF_3(KEYCODE_RIGHT, CODE_OR, JOYCODE_1_RIGHT) )
-@@ -923,10 +925,32 @@
+@@ -941,10 +943,32 @@
  static input_port_default_entry default_ports[ARRAY_LENGTH(default_ports_builtin)];
  static input_port_default_entry default_ports_backup[ARRAY_LENGTH(default_ports_builtin)];
  static const int input_port_count = ARRAY_LENGTH(default_ports_builtin);
@@ -521,7 +413,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
 +	osd_config_load_default(default_ports_backup, default_ports);
 +
 +	/* AdvanceMAME: Load user defined customization */
-+	osd_config_load(Machine->input_ports_default, Machine->input_ports);
++	osd_config_load(input_ports_default, Machine->input_ports);
 +
 +	/* AdvanceMAME: Report no setting loaded, always show the disclaimer */
 +	return 0;
@@ -534,14 +426,14 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
 +	osd_config_save_default(default_ports_backup, default_ports);
 +
 +	/* AdvanceMAME: Save user defined customization */
-+	osd_config_save(Machine->input_ports_default, Machine->input_ports);
++	osd_config_save(input_ports_default, Machine->input_ports);
 +}
  
  
  /*************************************
   *
   *  Function prototypes
-@@ -1883,12 +1907,18 @@
+@@ -1989,12 +2013,18 @@
   *************************************/
  
  int input_port_type_pressed(int type, int player)
@@ -562,7 +454,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  }
  
  
-@@ -1899,10 +1929,13 @@
+@@ -2005,10 +2035,13 @@
  profiler_mark(PROFILER_INPUT);
  
  	/* get the status of this key (assumed to be only in the defaults) */
@@ -576,7 +468,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	{
  		/* if this is the first press, leave pressed = 1 */
  		if (ui_memory[code] == 0)
-@@ -1932,10 +1965,13 @@
+@@ -2038,10 +2071,13 @@
  profiler_mark(PROFILER_INPUT);
  
  	/* get the status of this key (assumed to be only in the defaults) */
@@ -590,7 +482,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	{
  		/* if this is the first press, set a 3x delay and leave pressed = 1 */
  		if (ui_memory[code] == 0)
-@@ -2049,10 +2085,13 @@
+@@ -2155,10 +2191,13 @@
  void input_port_vblank_start(void)
  {
  	int ui_visible = ui_is_setup_active() || ui_is_onscrd_active();
@@ -604,7 +496,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  	/* update the digital joysticks first */
  	update_digital_joysticks();
  
-@@ -2084,11 +2123,16 @@
+@@ -2190,11 +2229,16 @@
  
  				/* handle non-analog types, but only when the UI isn't visible */
  				if (port->type != IPT_VBLANK && !IS_ANALOG(port) && !ui_visible)
@@ -622,7 +514,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  						/* (MESS-specific) check for disabled keyboard */
  						if (port->type == IPT_KEYBOARD && osd_keyboard_disabled())
  							continue;
-@@ -2210,17 +2254,18 @@
+@@ -2333,17 +2377,18 @@
  			{
  				info->previous = info->current;
  				info->current = 0;
@@ -645,7 +537,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  				/* lock out opposing directions (left + right or up + down) */
  				if ((info->current & (JOYDIR_UP_BIT | JOYDIR_DOWN_BIT)) == (JOYDIR_UP_BIT | JOYDIR_DOWN_BIT))
  					info->current &= ~(JOYDIR_UP_BIT | JOYDIR_DOWN_BIT);
-@@ -2331,12 +2376,12 @@
+@@ -2454,12 +2499,12 @@
  		int analog_type, keypressed = 0;
  
  		/* clamp the previous value to the min/max range and remember it */
@@ -660,7 +552,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  		/* also note that the last input was not a digital one */
  		if (analog_type == ANALOG_TYPE_RELATIVE && rawvalue != 0)
  		{
-@@ -2344,18 +2389,20 @@
+@@ -2467,18 +2512,20 @@
  			info->lastdigital = 0;
  		}
  
@@ -683,7 +575,7 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  			keypressed = info->lastdigital = 1;
  		}
  
-@@ -2369,15 +2416,18 @@
+@@ -2492,15 +2539,18 @@
  		info->accum += delta;
  
  		/* if we got an absolute input, it overrides everything else */
@@ -708,14 +600,20 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  		/* type autocenters, and if neither the increment nor the decrement seq */
  		/* was pressed, apply autocentering */
 diff -U 5 --new-file --recursive src.ori/input.c src/input.c
---- src.ori/input.c	2006-02-05 15:16:34.000000000 +0100
-+++ src/input.c	2006-02-07 18:27:29.000000000 +0100
-@@ -608,11 +608,33 @@
- 	code_count = 0;
- 	free(code_map);
- 	code_map = NULL;
- }
+--- src.ori/input.c	2006-03-21 12:02:34.000000000 +0100
++++ src/input.c	2006-06-16 18:47:39.000000000 +0200
+@@ -514,10 +514,40 @@
+ static int record_count;						/* number of key/joy press recorded */
+ static clock_t record_last;						/* time of last key/joy press */
+ static UINT8 record_analog;						/* are we recording an analog sequence? */
  
+ 
++/*************************************
++ *
++ *  OS helper
++ *
++ *************************************/
++
 +os_code code_to_oscode(input_code code)
 +{
 +	if (code_map[code].osinfo != NULL)
@@ -723,7 +621,7 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
 +	else
 +		return 0;
 +}
- 
++
 +input_code oscode_to_code(os_code oscode)
 +{
 +	unsigned i;
@@ -739,15 +637,28 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
 +
 +	return i;
 +}
++
  
  /*************************************
   *
-  *  Return the analog value of a code.
+  *  Code table creation
   *
 diff -U 5 --new-file --recursive src.ori/input.h src/input.h
---- src.ori/input.h	2006-02-05 15:16:34.000000000 +0100
-+++ src/input.h	2006-02-07 18:27:30.000000000 +0100
-@@ -484,10 +484,17 @@
+--- src.ori/input.h	2006-02-26 21:12:26.000000000 +0100
++++ src/input.h	2006-06-16 19:27:04.000000000 +0200
+@@ -13,10 +13,11 @@
+ 
+ #ifndef __INPUT_H__
+ #define __INPUT_H__
+ 
+ #include "mamecore.h"
++#include "osdepend.h"
+ 
+ 
+ /*************************************
+  *
+  *  Constants
+@@ -485,10 +486,17 @@
  	CODE_NOT,					/* operators for sequences */
  	CODE_OR						/* operators for sequences */
  };
@@ -765,91 +676,112 @@ diff -U 5 --new-file --recursive src.ori/input.h src/input.h
   *
   *  Type definitions
   *
-@@ -539,10 +546,13 @@
+@@ -526,10 +534,12 @@
+  *************************************/
  
  /* single code functions */
  int code_init(void);
- void code_exit(void);
  
 +os_code code_to_oscode(input_code code);
 +input_code oscode_to_code(os_code oscode);
-+
  INT32 code_analog_value(input_code code);
  int code_pressed(input_code code);
  int code_pressed_memory(input_code code);
  int code_pressed_memory_repeat(input_code code, int speed);
  input_code code_read_async(void);
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
---- src.ori/mame.c	2006-02-02 15:10:02.000000000 +0100
-+++ src/mame.c	2006-02-07 18:27:30.000000000 +0100
-@@ -282,15 +282,18 @@
- 	Machine->gamedrv = gamedrv = drivers[game];
- 	expand_machine_driver(gamedrv->drv, &internal_drv);
- 	Machine->drv = &internal_drv;
- 	Machine->refresh_rate = Machine->drv->frames_per_second;
+--- src.ori/mame.c	2006-05-03 22:45:00.000000000 +0200
++++ src/mame.c	2006-06-16 20:07:33.000000000 +0200
+@@ -266,13 +266,16 @@
+ 	int error = 0;
+ 
+ 	/* start in the "pre-init phase" */
+ 	current_phase = MAME_PHASE_PREINIT;
  
 +/* AdvanceMAME: Disable validity checks */
 +#if 0
- 	/* validity checks -- the default is to perform these in all builds now
-      * due to the number of incorrect submissions, however for non-debug only
-      * do them for same driver source file */
- 	if (mame_validitychecks())
+ 	/* perform validity checks before anything else */
+ 	if (mame_validitychecks(game) != 0)
  		return 1;
 +#endif
  
- 	/* initialize the CPU interfaces first */
- 	if (cpuintrf_init())
- 		return 1;
+ 	/* loop across multiple hard resets */
+ 	exit_pending = FALSE;
+ 	while (error == 0 && !exit_pending)
+ 	{
+@@ -874,10 +877,23 @@
+ 		for (cb = logerror_callback_list; cb; cb = cb->next)
+ 			cb->func.log(giant_string_buffer);
  
-@@ -547,10 +550,15 @@
- 		if (options.skip_warnings || ui_display_game_warnings(artwork_get_ui_bitmap()) == 0)
- 		{
- 			/* show info about the game */
- 			if (options.skip_gameinfo || ui_display_game_info(artwork_get_ui_bitmap()) == 0)
- 			{
-+				/* AdvanceMAME: HACK force a video update, otherwise with all the skip options the program crash */
-+				fillbitmap(artwork_get_ui_bitmap(), get_black_pen(), NULL);
-+				schedule_full_refresh();
-+				update_video_and_audio();
+ 		profiler_mark(PROFILER_END);
+ 	}
 +
- 				/* enable artwork now */
- 				artwork_enable(1);
++	/* AdvanceMAME: Internal logging */
++	{
++		va_list arg;
++
++		profiler_mark(PROFILER_LOGERROR);
++
++		va_start(arg, text);
++		osd_log_va(text, arg);
++		va_end(arg);
++
++		profiler_mark(PROFILER_END);
++	}
+ }
  
- 				/* disable cheat if no roms */
- 				if (!gamedrv->rom)
+ 
+ /*-------------------------------------------------
+     add_logerror_callback - adds a callback to be
 diff -U 5 --new-file --recursive src.ori/mamecore.h src/mamecore.h
---- src.ori/mamecore.h	2006-02-05 15:16:34.000000000 +0100
-+++ src/mamecore.h	2006-02-07 18:27:30.000000000 +0100
-@@ -85,10 +85,18 @@
+--- src.ori/mamecore.h	2006-04-09 22:49:08.000000000 +0200
++++ src/mamecore.h	2006-06-16 20:11:00.000000000 +0200
+@@ -97,11 +97,18 @@
+ {
+ 	int min_x,max_x;
  	int min_y,max_y;
  };
- typedef struct _rectangle rectangle;
  
- 
+-
++typedef struct _ui_menu_item ui_menu_item;
 +struct _ui_menu_item
 +{
 +   const char *text;
 +   const char *subtext;
 +   UINT32 flags;
++   void *ref;
 +};
-+typedef struct _ui_menu_item ui_menu_item;
-+
  
  /***************************************************************************
   * Union of UINT8, UINT16 and UINT32 in native endianess of the target
   * This is used to access bytes and words in a machine independent manner.
   * The upper bytes h2 and h3 normally contain zero (16 bit CPU cores)
-diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
---- src.ori/osdepend.h	2006-02-05 15:16:34.000000000 +0100
-+++ src/osdepend.h	2006-02-07 18:27:30.000000000 +0100
-@@ -339,6 +339,44 @@
- #include "osd_mess.h"
- #endif
+@@ -366,12 +373,14 @@
  
- void CLIB_DECL logerror(const char *text,...) ATTR_PRINTF(1,2);
+ /* since strdup is not part of the standard, we use this instead */
+ char *mame_strdup(const char *str);
+ 
+ /* this macro prevents people from using strdup directly */
++#if 0 /* AdvanceMAME: Allow the stddup use */
+ #undef strdup
+ #define strdup !MUST_USE_MAME_STRDUP_INSTEAD!
++#endif
+ 
+ 
+ /* compute the intersection of two rectangles */
+ INLINE void sect_rect(rectangle *dst, const rectangle *src)
+ {
+diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
+--- src.ori/osdepend.h	2006-03-28 10:37:32.000000000 +0200
++++ src/osdepend.h	2006-06-16 20:08:32.000000000 +0200
+@@ -334,11 +334,50 @@
+ int osd_display_loading_rom_message(const char *name,rom_load_data *romdata);
+ 
+ /* checks to see if a pointer is bad */
+ int osd_is_bad_read_ptr(const void *ptr, size_t size);
  
 +/* AdvanceMAME: Specific OSD interface */
-+
+ 
 +/* return the analog value of the specified input. */
 +INT32 osd_get_analog_value(unsigned type, unsigned player, int* analog_type);
 +
@@ -886,10 +818,40 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 +/* handle the specific user interface */
 +int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active);
 +
- #endif	/* __OSDEPEND_H__ */
++/* osd logging */
++void osd_log_va(const char* text, va_list arg);
+ 
+ #ifdef MESS
+ /* this is here to follow the current mame file hierarchy style */
+ #include "osd_mess.h"
+ #endif
+diff -U 5 --new-file --recursive src.ori/romload.c src/romload.c
+--- src.ori/romload.c	2006-05-04 09:19:00.000000000 +0200
++++ src/romload.c	2006-06-16 19:07:01.000000000 +0200
+@@ -1,5 +1,6 @@
++
+ /*********************************************************************
+ 
+     romload.c
+ 
+     ROM loading functions.
+@@ -389,11 +390,12 @@
+ 
+ 	/* if we had warnings, output them, but continue */
+ 	if (romdata->warnings)
+ 	{
+ 		strcat(romdata->errorbuf, "WARNING: the game might not run correctly.");
+-		printf("%s\n", romdata->errorbuf);
++		/* AdvanceMAME: Display the message in the ui */
++		osd_display_loading_rom_message(romdata->errorbuf, 0);
+ 	}
+ 
+ 	/* clean up any regions */
+ 	if (romdata->errors)
+ 		for (region = 0; region < MAX_MEMORY_REGIONS; region++)
 diff -U 5 --new-file --recursive src.ori/sound/sound.mak src/sound/sound.mak
---- src.ori/sound/sound.mak	2006-01-29 16:22:02.000000000 +0100
-+++ src/sound/sound.mak	2006-02-07 18:36:54.000000000 +0100
+--- src.ori/sound/sound.mak	2006-04-22 15:57:14.000000000 +0200
++++ src/sound/sound.mak	2006-06-16 18:45:12.000000000 +0200
 @@ -62,13 +62,13 @@
  
  SOUNDDEFS += -DHAS_DISCRETE=$(if $(filter DISCRETE,$(SOUNDS)),1,0)
@@ -908,8 +870,8 @@ diff -U 5 --new-file --recursive src.ori/sound/sound.mak src/sound/sound.mak
  
  #-------------------------------------------------
 diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
---- src.ori/ui_text.c	2006-02-05 15:16:34.000000000 +0100
-+++ src/ui_text.c	2006-02-07 18:28:46.000000000 +0100
+--- src.ori/ui_text.c	2006-04-19 19:54:12.000000000 +0200
++++ src/ui_text.c	2006-06-16 18:45:12.000000000 +0200
 @@ -86,11 +86,11 @@
  	"Dip Switches",
  	"Analog Controls",
@@ -939,8 +901,8 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  
  
 diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
---- src.ori/ui_text.h	2006-02-05 15:16:34.000000000 +0100
-+++ src/ui_text.h	2006-02-07 18:29:07.000000000 +0100
+--- src.ori/ui_text.h	2006-02-26 21:12:26.000000000 +0100
++++ src/ui_text.h	2006-06-16 18:45:12.000000000 +0200
 @@ -193,10 +193,14 @@
  
  	/* refresh rate */
@@ -957,9 +919,9 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  #ifdef MESS
  #include "mui_text.h"
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
---- src.ori/usrintrf.c	2006-02-05 15:16:34.000000000 +0100
-+++ src/usrintrf.c	2006-02-07 18:27:36.000000000 +0100
-@@ -649,13 +649,17 @@
+--- src.ori/usrintrf.c	2006-05-04 09:19:00.000000000 +0200
++++ src/usrintrf.c	2006-06-16 20:09:11.000000000 +0200
+@@ -690,13 +690,17 @@
   *
   *************************************/
  
@@ -977,7 +939,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  /*************************************
-@@ -664,10 +668,13 @@
+@@ -705,10 +709,13 @@
   *
   *************************************/
  
@@ -991,7 +953,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	int maxwidth = 0;
  
  	/* if we don't want wrapping, guarantee a huge wrapwidth */
-@@ -801,10 +808,11 @@
+@@ -842,10 +849,11 @@
  	/* report the width and height of the resulting space */
  	if (totalwidth)
  		*totalwidth = maxwidth;
@@ -1003,7 +965,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  /*************************************
-@@ -813,10 +821,13 @@
+@@ -854,10 +862,13 @@
   *
   *************************************/
  
@@ -1017,7 +979,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	const char *left_arrow = ui_getstring(UI_leftarrow);
  	const char *right_arrow = ui_getstring(UI_rightarrow);
  	const char *left_hilight = ui_getstring(UI_lefthilight);
-@@ -985,10 +996,11 @@
+@@ -1026,10 +1037,11 @@
  						target_x + target_width - 1 + UI_BOX_LR_BORDER,
  						target_y + target_height - 1 + UI_BOX_TB_BORDER);
  		ui_draw_text_full(item->subtext, target_x, target_y, target_width,
@@ -1029,7 +991,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  /*************************************
-@@ -1084,10 +1096,13 @@
+@@ -1125,10 +1137,13 @@
   *
   *************************************/
  
@@ -1043,7 +1005,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	int target_x, target_y;
  
  	/* start with the bounds */
-@@ -1118,16 +1133,21 @@
+@@ -1159,16 +1174,21 @@
  					target_y - UI_BOX_TB_BORDER,
  					target_x + target_width - 1 + UI_BOX_LR_BORDER,
  					target_y + target_height - 1 + UI_BOX_TB_BORDER);
@@ -1065,22 +1027,22 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  
  /*************************************
-@@ -1213,10 +1233,14 @@
+@@ -1254,10 +1274,14 @@
   *
   *************************************/
  
- static int handle_keys(mame_bitmap *bitmap)
+ static void handle_keys(mame_bitmap *bitmap)
  {
 +	/* AdvanceMAME: Intercept user interface handling */
 +	if (osd_handle_user_interface(bitmap, menu_handler != NULL) != 0)
-+		return 1;
++		mame_schedule_exit();
 +
  #ifdef MESS
- 	if (osd_trying_to_quit())
- 		return 1;
  	if (options.disable_normal_ui || ((Machine->gamedrv->flags & GAME_COMPUTER) && !mess_ui_active()))
- 		return 0;
-@@ -1286,21 +1310,25 @@
+ 		return;
+ #endif
+ 
+@@ -1327,21 +1351,25 @@
  		}
  		else
  			mame_pause(!mame_is_paused());
@@ -1105,8 +1067,8 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	/* toggle crosshair display */
  	if (input_ui_pressed(IPT_UI_TOGGLE_CROSSHAIR))
  		drawgfx_toggle_crosshair();
- 
-@@ -1313,10 +1341,27 @@
+ }
+@@ -1352,10 +1380,27 @@
   *
   *  Main menu
   *
@@ -1134,10 +1096,10 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  #define ADD_MENU(name, handler, param) \
  do { \
  	item_list[menu_items].text = ui_getstring(name); \
-@@ -1406,10 +1451,14 @@
+@@ -1445,10 +1490,14 @@
  
  	/* add memory card menu */
- 	if (memcard_intf.create != NULL && memcard_intf.load != NULL && memcard_intf.save != NULL && memcard_intf.eject != NULL)
+ 	if (Machine->drv->memcard_handler != NULL)
  		ADD_MENU(UI_memorycard, menu_memory_card, 0);
  
 +	/* AdvanceMAME: Extra menu UI_OSD */
@@ -1149,7 +1111,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	ADD_MENU(UI_returntogame, NULL, 0);
  
  	/* draw the menu */
-@@ -1567,10 +1616,11 @@
+@@ -1606,10 +1655,11 @@
  			}
  
  			/* if we are analog, add three items */
@@ -1161,7 +1123,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  					selected_seq = &in->defaultseq;
  					selected_defseq = &indef->defaultseq;
  					selected_is_analog = TRUE;
-@@ -1588,10 +1638,11 @@
+@@ -1627,10 +1677,11 @@
  				{
  					selected_seq = &in->defaultincseq;
  					selected_defseq = &indef->defaultincseq;
@@ -1173,7 +1135,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  
  	/* if we're polling, just put an empty entry and arrows for the subitem */
  	if (polling)
-@@ -3180,13 +3231,15 @@
+@@ -3269,13 +3320,15 @@
  		{
  			int ui_width, ui_height;
  
@@ -1189,9 +1151,9 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  			update_video_and_audio();
  			if (input_ui_pressed(IPT_UI_CANCEL))
  				return 1;
-@@ -3214,13 +3267,15 @@
+@@ -3303,13 +3356,15 @@
  
- 	while (code_read_async() == CODE_NONE)
+ 	while (code_read_async() == CODE_NONE && !mame_is_scheduled_event_pending())
  	{
  		char *bufptr = buf;
  
@@ -1205,9 +1167,9 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  		bufptr += sprintf_game_info(bufptr);
  
  		/* append MAME version and ask for any key */
-@@ -3244,13 +3299,15 @@
+@@ -3337,13 +3392,15 @@
  
- 	while (code_read_async() == CODE_NONE)
+ 	while (code_read_async() == CODE_NONE && !mame_is_scheduled_event_pending())
  	{
  		char *bufptr = buf;
  
@@ -1221,7 +1183,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  		bufptr += ui_sprintf_image_info(bufptr);
  
  		/* draw the window */
-@@ -3283,10 +3340,11 @@
+@@ -3380,10 +3437,11 @@
  
  /*-------------------------------------------------
      drawbar - draw a thermometer bar
@@ -1233,7 +1195,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	int current_x, default_x;
  	int bar_top, bar_bottom;
  
-@@ -3305,15 +3363,19 @@
+@@ -3402,15 +3460,19 @@
  	add_line(default_x, bar_bottom, default_x, topy + height - 1, RGB_WHITE);
  
  	/* fill in the percentage */
@@ -1253,7 +1215,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	int ui_width, ui_height;
  	int text_height;
  
-@@ -3339,10 +3401,11 @@
+@@ -3436,10 +3498,11 @@
  			ui_width - 2 * space_width, line_height*3/4, percentage, default_percentage);
  
  	/* draw the actual text */
@@ -1265,7 +1227,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  static void onscrd_adjuster(int increment,int arg)
  {
  	input_port_entry *in = &Machine->input_ports[arg];
-@@ -3372,17 +3435,17 @@
+@@ -3469,17 +3532,17 @@
  	if (increment)
  	{
  		attenuation = osd_get_mastervolume();
@@ -1285,7 +1247,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  static void onscrd_mixervol(int increment,int arg)
  {
  	static void *driver = 0;
-@@ -3787,10 +3850,11 @@
+@@ -3890,10 +3953,11 @@
  }
  
  
@@ -1297,7 +1259,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	/* if we're not currently displaying, skip it */
  	if (!showfps && !showfpstemp)
  		return;
-@@ -3806,30 +3870,36 @@
+@@ -3909,30 +3973,36 @@
  	{
  		showfpstemp--;
  		if (!showfps && showfpstemp == 0)
@@ -1327,7 +1289,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
 +#if 1 /* AdvanceMAME: Use custom ui code */
 +		osd_ui_scroll(popup_text, 0);
 +#else
- 		draw_multiline_text_box(popup_text, JUSTIFY_CENTER, 0.5, 0.9);
+ 		draw_multiline_text_box(popup_text, JUSTIFY_CENTER, 0.5f, 0.9f);
 -
 +#endif
  		if (--popup_text_counter == 0)
@@ -1335,7 +1297,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	}
  }
  
-@@ -3906,10 +3976,11 @@
+@@ -4009,10 +4079,11 @@
  		rect->max_y = temp;
  	}
  }
@@ -1347,7 +1309,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	if (elemindex < ARRAY_LENGTH(elemlist))
  	{
  		elemlist[elemindex].x = (x1 < x2) ? x1 : x2;
-@@ -3949,14 +4020,20 @@
+@@ -4052,14 +4123,20 @@
  	add_line(x1, y1, x2, y1, RGB_WHITE);
  	add_line(x2, y1, x2, y2, RGB_WHITE);
  	add_line(x2, y2, x1, y2, RGB_WHITE);
@@ -1368,7 +1330,7 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  	uirotfont->colortable[0] = get_black_pen();
  	uirotfont->colortable[1] = get_white_pen();
  	uirotfont->colortable[2] = get_white_pen();
-@@ -3992,6 +4069,7 @@
+@@ -4095,6 +4172,7 @@
  				break;
  		}
  	}
@@ -1377,32 +1339,163 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
 +#endif
  }
 diff -U 5 --new-file --recursive src.ori/usrintrf.h src/usrintrf.h
---- src.ori/usrintrf.h	2006-02-05 15:16:34.000000000 +0100
-+++ src/usrintrf.h	2006-02-07 18:27:36.000000000 +0100
-@@ -66,19 +66,10 @@
+--- src.ori/usrintrf.h	2006-03-22 08:42:18.000000000 +0100
++++ src/usrintrf.h	2006-06-16 18:54:19.000000000 +0200
+@@ -68,20 +68,10 @@
   *
   *************************************/
  
  typedef UINT32 (*ui_menu_handler)(UINT32 state);
  
+-typedef struct _ui_menu_item ui_menu_item;
 -struct _ui_menu_item
 -{
 -   const char *text;
 -   const char *subtext;
 -   UINT32 flags;
+-   void *ref;
 -};
--typedef struct _ui_menu_item ui_menu_item;
 -
 -
- struct _memcard_interface
+ 
+ /*************************************
+  *
+  *  Global variables
+  *
+diff -U 5 --new-file --recursive src.ori/video.c src/video.c
+--- src.ori/video.c	2006-05-10 21:35:28.000000000 +0200
++++ src/video.c	2006-06-16 19:04:49.000000000 +0200
+@@ -854,10 +854,11 @@
+ /*-------------------------------------------------
+     save_frame_with - save a frame with a
+     given handler for screenshots and movies
+ -------------------------------------------------*/
+ 
++#if 0 /* AdvanceMAME has its snapshot code */
+ static void save_frame_with(mame_file *fp, mame_bitmap *bitmap, int (*write_handler)(mame_file *, mame_bitmap *))
  {
- 	int (*create)(int);
- 	int (*load)(int);
- 	void (*save)(void);
+ 	rectangle bounds;
+ 	mame_bitmap *osdcopy;
+ 	UINT32 saved_rgb_components[3];
+@@ -957,20 +958,23 @@
+ 
+ 	/* if the OSD system allocated a bitmap; free it */
+ 	if (osdcopy)
+ 		bitmap_free(osdcopy);
+ }
++#endif
+ 
+ 
+  /*-------------------------------------------------
+     save_screen_snapshot_as - save a snapshot to
+     the given file handle
+ -------------------------------------------------*/
+ 
+ void save_screen_snapshot_as(mame_file *fp, mame_bitmap *bitmap)
+ {
++#if 0 /* AdvanceMAME has its snapshot code */
+ 	save_frame_with(fp, bitmap, png_write_bitmap);
++#endif
+ }
+ 
+ 
+ /*-------------------------------------------------
+     open the next non-existing file of type
+@@ -1003,52 +1007,61 @@
+     save_screen_snapshot - save a snapshot.
+ -------------------------------------------------*/
+ 
+ void save_screen_snapshot(mame_bitmap *bitmap)
+ {
++#if 1 /* AdvanceMAME has its snapshot code */
++	osd_save_snapshot();
++#else
+ 	mame_file *fp;
+ 
+ 	if ((fp = mame_fopen_next(FILETYPE_SCREENSHOT)) != NULL)
+ 	{
+ 		save_screen_snapshot_as(fp, bitmap);
+ 		mame_fclose(fp);
+ 	}
++#endif
+ }
+ 
+ 
+ /*-------------------------------------------------
+     record_movie - start, stop and update the
+     recording of a MNG movie
+ -------------------------------------------------*/
+ 
+ void record_movie_start(const char *name)
+ {
++#if 0 /* AdvanceMAME has its record code */
+ 	if (movie_file != NULL)
+ 		mame_fclose(movie_file);
+ 
+ 	if (name)
+ 		movie_file = mame_fopen(Machine->gamedrv->name, name, FILETYPE_MOVIE, 1);
+ 	else
+ 		movie_file = mame_fopen_next(FILETYPE_MOVIE);
+ 
+ 	movie_frame = 0;
++#endif
+ }
+ 
+ 
+ void record_movie_stop(void)
+ {
++#if 0 /* AdvanceMAME has its record code */
+ 	if (movie_file)
+ 	{
+ 		mng_capture_stop(movie_file);
+ 		mame_fclose(movie_file);
+ 		movie_file = NULL;
+ 	}
++#endif
+ }
+ 
+ 
+ void record_movie_toggle(void)
+ {
++#if 0 /* AdvanceMAME has its record code */
+ 	if (movie_file == NULL)
+ 	{
+ 		record_movie_start(NULL);
+ 		if (movie_file)
+ 			ui_popup("REC START");
+@@ -1056,25 +1069,28 @@
+ 	else
+ 	{
+ 		record_movie_stop();
+ 		ui_popup("REC STOP (%d frames)", movie_frame);
+ 	}
++#endif
+ }
+ 
+ 
+ void record_movie_frame(mame_bitmap *bitmap)
+ {
++#if 0 /* AdvanceMAME has its record code */
+ 	if (movie_file != NULL && bitmap != NULL)
+ 	{
+ 		profiler_mark(PROFILER_MOVIE_REC);
+ 
+ 		if (movie_frame++ == 0)
+ 			save_frame_with(movie_file, bitmap, mng_capture_start);
+ 		save_frame_with(movie_file, bitmap, mng_capture_frame);
+ 
+ 		profiler_mark(PROFILER_END);
+ 	}
++#endif
+ }
+ 
+ 
+ 
+ /***************************************************************************
 diff -U 5 --new-file --recursive src.ori/x86drc.c src/x86drc.c
---- src.ori/x86drc.c	2006-02-05 15:16:34.000000000 +0100
-+++ src/x86drc.c	2006-02-07 18:27:36.000000000 +0100
-@@ -679,10 +679,11 @@
+--- src.ori/x86drc.c	2006-05-10 21:35:28.000000000 +0200
++++ src/x86drc.c	2006-06-16 18:45:12.000000000 +0200
+@@ -674,10 +674,11 @@
  
  
  /*------------------------------------------------------------------
@@ -1414,8 +1507,8 @@ diff -U 5 --new-file --recursive src.ori/x86drc.c src/x86drc.c
  	UINT32 features = 0;
  #ifdef _MSC_VER
  	__asm
-@@ -708,10 +709,11 @@
- 	: "%ebx", "%ecx", "%edx"	/* clobbers ebx, ecx and edx */
+@@ -705,10 +706,11 @@
+ 	: "%ecx", "%edx"	/* clobbers ebx, ecx and edx */
  	);
  #endif /* MSC_VER */
  	return features;
