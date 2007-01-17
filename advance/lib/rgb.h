@@ -49,20 +49,20 @@ extern "C" {
  * RGB color.
  */
 typedef struct adv_color_rgb_struct {
-	uint8 blue __attribute__ ((packed)); /**< Blue channel. From 0 to 255. */
-	uint8 green __attribute__ ((packed)); /**< Green channel. From 0 to 255. */
-	uint8 red __attribute__ ((packed)); /**< Red channel. From 0 to 255. */
-	uint8 alpha __attribute__ ((packed)); /**< Alpha channel. From 0 to 255. */
+	uint8 blue; /**< Blue channel. From 0 to 255. */
+	uint8 green; /**< Green channel. From 0 to 255. */
+	uint8 red; /**< Red channel. From 0 to 255. */
+	uint8 alpha; /**< Alpha channel. From 0 to 255. */
 } adv_color_rgb;
 
 /**
  * YUV color.
  */
 typedef struct adv_color_yuv_struct {
-	uint8 y __attribute__ ((packed)); /**< Y channel. From 0 to 255. */
-	uint8 u __attribute__ ((packed)); /**< U channel. From 0 to 255. */
-	uint8 v __attribute__ ((packed)); /**< V channel. From 0 to 255. */
-	uint8 alpha __attribute__ ((packed)); /**< Alpha channel. From 0 to 255. */
+	uint8 y; /**< Y channel. From 0 to 255. */
+	uint8 u; /**< U channel. From 0 to 255. */
+	uint8 v; /**< V channel. From 0 to 255. */
+	uint8 alpha; /**< Alpha channel. From 0 to 255. */
 } adv_color_yuv;
 
 /**

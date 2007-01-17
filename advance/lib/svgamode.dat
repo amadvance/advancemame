@@ -45,6 +45,7 @@ fixed horz clock 31469
 "pc_31.5_768x576 30.2102 768 784 904 960 576 588 590 630 -hsync -vsync", /* H 31469 [Hz], V 49.9508 [Hz] */
 "pc_31.5_800x600 31.469 800 816 936 1000 600 612 615 656 -hsync -vsync", /* H 31469 [Hz], V 47.971 [Hz] */
 "pc_31.5_1024x768 40.2803 1024 1048 1200 1280 768 784 787 840 -hsync -vsync interlace", /* H 31469 [Hz], V 74.9262 [Hz] */
+"pc_31.5_1280x1024 50.3504 1280 1312 1504 1600 1024 1045 1050 1120 -hsync -vsync interlace", /* H 31469 [Hz], V 56.1946 [Hz] */
 "pc_31.5_256x224 10.0701 256 264 304 320 224 229 230 245 -hsync -vsync doublescan", /* H 31469 [Hz], V 64.2224 [Hz] */
 "pc_31.5_512x224 20.1402 512 528 608 640 224 229 230 245 -hsync -vsync doublescan", /* H 31469 [Hz], V 64.2224 [Hz] */
 "pc_31.5_256x240 10.0701 256 264 304 320 240 245 246 262 -hsync -vsync doublescan", /* H 31469 [Hz], V 60.0553 [Hz] */
@@ -181,6 +182,7 @@ fixed horz clock 15720
 "standard_768x576 16.3488 768 848 920 1040 576 584 591 629 -hsync -vsync interlace", /* H 15720 [Hz], V 49.9841 [Hz] */
 "standard_800x600 17.1034 800 888 968 1088 600 608 616 655 -hsync -vsync interlace", /* H 15720 [Hz], V 48 [Hz] */
 "standard_1024x768 21.8822 1024 1128 1232 1392 768 778 788 838 -hsync -vsync interlace", /* H 15720 [Hz], V 37.5179 [Hz] */
+"standard_1280x1024 27.2899 1280 1408 1536 1736 1024 1038 1051 1118 -hsync -vsync interlace", /* H 15720 [Hz], V 28.1216 [Hz] */
 "standard_256x224 5.40768 256 280 304 344 224 226 229 244 -hsync -vsync", /* H 15720 [Hz], V 64.4262 [Hz] */
 "standard_512x224 10.8154 512 560 608 688 224 226 229 244 -hsync -vsync", /* H 15720 [Hz], V 64.4262 [Hz] */
 "standard_256x240 5.40768 256 280 304 344 240 243 246 262 -hsync -vsync", /* H 15720 [Hz], V 60 [Hz] */
@@ -254,6 +256,7 @@ fixed horz clock 16500
 "extended_768x576 15.972 768 776 840 968 576 586 593 626 -hsync -vsync interlace", /* H 16500 [Hz], V 52.7157 [Hz] */
 "extended_800x600 16.632 800 808 872 1008 600 611 618 652 -hsync -vsync interlace", /* H 16500 [Hz], V 50.6135 [Hz] */
 "extended_1024x768 21.384 1024 1040 1128 1296 768 781 790 834 -hsync -vsync interlace", /* H 16500 [Hz], V 39.5683 [Hz] */
+"extended_1280x1024 26.664 1280 1296 1400 1616 1024 1041 1053 1112 -hsync -vsync interlace", /* H 16500 [Hz], V 29.6763 [Hz] */
 "extended_256x224 5.28 256 256 280 320 224 228 230 243 -hsync -vsync", /* H 16500 [Hz], V 67.9012 [Hz] */
 "extended_512x224 10.56 512 512 560 640 224 228 230 243 -hsync -vsync", /* H 16500 [Hz], V 67.9012 [Hz] */
 "extended_256x240 5.28 256 256 280 320 240 244 247 261 -hsync -vsync", /* H 16500 [Hz], V 63.2184 [Hz] */
@@ -320,6 +323,7 @@ fixed horz clock 25000
 "medium_768x576 24 768 784 880 960 576 580 588 625 -hsync -vsync interlace", /* H 25000 [Hz], V 80 [Hz] */
 "medium_800x600 25 800 816 920 1000 600 604 612 651 -hsync -vsync interlace", /* H 25000 [Hz], V 76.8049 [Hz] */
 "medium_1024x768 32 1024 1048 1176 1280 768 773 783 833 -hsync -vsync interlace", /* H 25000 [Hz], V 60.024 [Hz] */
+"medium_1280x1024 40 1280 1312 1472 1600 1024 1030 1044 1110 -hsync -vsync interlace", /* H 25000 [Hz], V 45.045 [Hz] */
 "medium_256x224 8 256 264 296 320 224 226 228 243 -hsync -vsync", /* H 25000 [Hz], V 102.881 [Hz] */
 "medium_512x224 16 512 528 592 640 224 226 228 243 -hsync -vsync", /* H 25000 [Hz], V 102.881 [Hz] */
 "medium_256x240 8 256 264 296 320 240 241 244 260 -hsync -vsync", /* H 25000 [Hz], V 96.1538 [Hz] */
@@ -382,6 +386,7 @@ fixed vert clock 60
 "pc_mult60_768x576 36.288 768 784 904 960 576 588 590 630 -hsync -vsync", /* H 37800 [Hz], V 60 [Hz] */
 "pc_mult60_800x600 39.36 800 816 936 1000 600 612 615 656 -hsync -vsync", /* H 39360 [Hz], V 60 [Hz] */
 "pc_mult60_1024x768 64.512 1024 1048 1200 1280 768 784 787 840 -hsync -vsync", /* H 50400 [Hz], V 60 [Hz] */
+"pc_mult60_1280x1024 107.52 1280 1312 1504 1600 1024 1045 1050 1120 -hsync -vsync", /* H 67200 [Hz], V 60 [Hz] */
 "pc_mult60_256x224 9.408 256 264 304 320 224 229 230 245 -hsync -vsync doublescan", /* H 29400 [Hz], V 60 [Hz] */
 "pc_mult60_256x448 18.816 256 264 304 320 448 458 460 490 -hsync -vsync doublescan", /* H 58800 [Hz], V 60 [Hz] */
 "pc_mult60_256x240 10.0608 256 264 304 320 240 245 246 262 -hsync -vsync doublescan", /* H 31440 [Hz], V 60 [Hz] */
@@ -445,6 +450,7 @@ fixed vert clock 57
 "pc_mult57_768x576 34.4736 768 784 904 960 576 588 590 630 -hsync -vsync", /* H 35910 [Hz], V 57 [Hz] */
 "pc_mult57_800x600 37.392 800 816 936 1000 600 612 615 656 -hsync -vsync", /* H 37392 [Hz], V 57 [Hz] */
 "pc_mult57_1024x768 61.2864 1024 1048 1200 1280 768 784 787 840 -hsync -vsync", /* H 47880 [Hz], V 57 [Hz] */
+"pc_mult57_1280x1024 102.144 1280 1312 1504 1600 1024 1045 1050 1120 -hsync -vsync", /* H 63840 [Hz], V 57 [Hz] */
 "pc_mult57_256x224 8.9376 256 264 304 320 224 229 230 245 -hsync -vsync doublescan", /* H 27930 [Hz], V 57 [Hz] */
 "pc_mult57_256x448 17.8752 256 264 304 320 448 458 460 490 -hsync -vsync doublescan", /* H 55860 [Hz], V 57 [Hz] */
 "pc_mult57_256x240 9.55776 256 264 304 320 240 245 246 262 -hsync -vsync doublescan", /* H 29868 [Hz], V 57 [Hz] */

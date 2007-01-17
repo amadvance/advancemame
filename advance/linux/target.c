@@ -28,7 +28,9 @@
  * do so, delete this exception statement from your version.
  */
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE /* for EIP in ucontext.h */
+#endif
 
 #include "portable.h"
 

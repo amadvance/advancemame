@@ -769,6 +769,7 @@ void compute_svga_graph(output& os, const generator& g, const string& name)
 		{ 768, 576 },
 		{ 800, 600 },
 		{ 1024, 768 },
+		{ 1280, 1024 },
 		{ 0, 0 }
 	};
 
