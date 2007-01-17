@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.4.14 2007/01
+	) Fixed compilation problem with gcc 4.x.x.
+
 AdvanceMENU Version 2.4.13 2005/12
 	) Fixed the ui_help and ui_exit option in the DOS and
 		Windows platforms.
