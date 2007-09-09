@@ -706,7 +706,7 @@ static adv_error mp3_first_read_stream(unsigned channel)
 
 	/* insert the data */
 	if (run)
-		mp3_decode(&mixer_map[channel].mp3, (char*)data + pos, run, 0, 0, 0);
+		mp3_decode(&mixer_map[channel].mp3, data + pos, run, 0, 0, 0);
 
 	return 0;
 }
