@@ -215,12 +215,12 @@ adv_error conf_save(adv_conf* context, adv_bool force, adv_bool quiet, conf_erro
  * This struct can be used to specify a conversion filter reading the options.
  */
 typedef struct adv_conf_conv_struct {
-	char* section_glob; /**< Option to recognize. * any char. */
-	char* tag_glob; /**< Option to recognize. * any char. */
-	char* value_glob; /**< Value to recognize. * any char. */
-	char* section_result; /**< Conversion. %s for the whole original record. */
-	char* tag_result; /**< Conversion. %s for the whole original record. Setting an empty tag automatically ignore the option. */
-	char* value_result; /**< Conversion. %s for the whole original record. */
+	const char* section_glob; /**< Option to recognize. * any char. */
+	const char* tag_glob; /**< Option to recognize. * any char. */
+	const char* value_glob; /**< Value to recognize. * any char. */
+	const char* section_result; /**< Conversion. %s for the whole original record. */
+	const char* tag_result; /**< Conversion. %s for the whole original record. Setting an empty tag automatically ignore the option. */
+	const char* value_result; /**< Conversion. %s for the whole original record. */
 	int autoreg; /**< Auto registration. One of ADV_CONF_CONF_AUTOREG_*. */
 } adv_conf_conv;
 
