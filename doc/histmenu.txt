@@ -3,6 +3,12 @@
                             =======================
 
 
+ADVANCEMENU VERSION 2.4.15 2008/12
+==================================
+
+* Added automatic detection of mamepp.exe.
+
+
 ADVANCEMENU VERSION 2.4.14 2007/01
 ==================================
 

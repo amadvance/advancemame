@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2003, 2005 Andrea Mazzoleni
+ * Copyright (C) 2003, 2005, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
  */
 
 /** \file
- * Internal interface for the "linux" host.
+ * Internal interface for the "windows" host.
  */
 
 #ifndef __OSWIN_H
@@ -67,6 +67,10 @@ void joystickb_lgrawinput_event_msg(unsigned msg, unsigned wparam, unsigned lpar
 #endif
 
 void* os_internal_window_get(void);
+
+/* Disable hot keys */
+void os_internal_ignore_hot_key(void);
+void os_internal_restore_hot_key(void);
 
 /***************************************************************************/
 /* Extension */

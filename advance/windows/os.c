@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2002, 2003, 2005 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003, 2005, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,9 +50,55 @@
 struct os_context {
 	int is_quit; /**< Is termination requested. */
 	char title_buffer[128]; /**< Title of the window. */
+	HHOOK g_hKeyboardHook;
 };
 
 static struct os_context OS;
+
+/***************************************************************************/
+/* hook */
+
+LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	int bEatKeystroke;
+	KBDLLHOOKSTRUCT* p;
+
+	if (nCode < 0 || nCode != HC_ACTION )  // do not process message
+		return CallNextHookEx(OS.g_hKeyboardHook, nCode, wParam, lParam);
+ 
+	bEatKeystroke = 0;
+	p = (KBDLLHOOKSTRUCT*)lParam;
+
+	switch (wParam) {
+	case WM_KEYDOWN:
+	case WM_KEYUP:
+		bEatKeystroke = (p->vkCode == VK_LWIN) || (p->vkCode == VK_RWIN);
+		break;
+	}
+ 
+	if (bEatKeystroke)
+		return 1;
+	else
+		return CallNextHookEx(OS.g_hKeyboardHook, nCode, wParam, lParam);
+}
+
+void os_internal_ignore_hot_key(void)
+{
+	// keyboard hook to disable win keys
+	log_std(("os: SetWindowsHookEx()\n"));
+	if (!OS.g_hKeyboardHook) {
+		OS.g_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL,  LowLevelKeyboardProc, GetModuleHandle(0), 0);
+	}
+}
+
+void os_internal_restore_hot_key(void)
+{
+	log_std(("os: UnhookWindowsHookEx()\n"));
+	if (OS.g_hKeyboardHook) {
+		UnhookWindowsHookEx(OS.g_hKeyboardHook);
+		OS.g_hKeyboardHook = 0;
+	}
+}
 
 /***************************************************************************/
 /* Init */

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,10 @@
 #include "ossdl.h"
 
 #include "SDL.h"
+
+#ifdef __WIN32__
+#include "oswin.h"
+#endif
 
 #define LOW_INVALID ((unsigned)0xFFFFFFFF)
 
@@ -189,12 +193,24 @@ adv_error keyb_sdl_init(int keyb_id, adv_bool disable_special)
 		sdl_state.state[j] = 0;
 	}
 
+#ifdef __WIN32__
+	// disable hot keys
+	if (disable_special) {
+		os_internal_ignore_hot_key();
+	}
+#endif
+
 	return 0;
 }
 
 void keyb_sdl_done(void)
 {
 	log_std(("keyb:sdl: keyb_sdl_done()\n"));
+
+#ifdef __WIN32__
+	// called uncoditionally, the internal logic take care of it
+	os_internal_restore_hot_key();
+#endif
 }
 
 adv_error keyb_sdl_enable(adv_bool graphics)

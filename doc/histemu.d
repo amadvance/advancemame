@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 0.106.1 2008/12
+	) Ignored WINKEYS in Windows if input_hotkey is set.
+
 AdvanceMAME Version 0.106.0 2006/06
 	) Based on MAME 0.106
 

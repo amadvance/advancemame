@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.4.15 2008/12
+	) Added automatic detection of mamepp.exe.
+
 AdvanceMENU Version 2.4.14 2007/01
 	) Fixed compilation problem with gcc 4.x.x.
 
