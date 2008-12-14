@@ -3,7 +3,7 @@ AC_INIT([advance],[source])
 AC_CONFIG_HEADERS([advance/lib/config.h:advance/lib/config.hin])
 AC_CANONICAL_HOST
 AC_PREREQ(2.57)
-AC_COPYRIGHT([Copyright 2005 Andrea Mazzoleni])
+AC_COPYRIGHT([Copyright 2008 Andrea Mazzoleni])
 
 # Checks for system.
 case "$host" in
@@ -148,14 +148,9 @@ if test $ac_auto_cflags = yes; then
 		CFLAGS="-O0 -Wall -Wno-sign-compare -Wno-unused"
 	else
 		CFLAGS=""
-		AC_CHECK_CPU_ARCH
-		AC_CHECK_CC_ARCH
-		if test ! $ac_cc_arch = blend; then
-			CFLAGS="$CFLAGS -march=$ac_cc_arch "
-			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
-		fi
-		# -O3 don't seem to be safe on x86 platforms, also on latest gcc 3.3.x
+		AC_CHECK_CC_OPT([-march=native], [CFLAGS="$CFLAGS -march=native"], [])
 		AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])
+		AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
 		# -fno-merge-constants is required to speedup the link time. ld spends a lot of time trying to merge partial strings.
 		AC_CHECK_CC_OPT([-fno-merge-constants], [CFLAGS="$CFLAGS -fno-merge-constants"], [])
 		AC_CHECK_CC_OPT([-Wall], [CFLAGS="$CFLAGS -Wall"], [])
@@ -204,6 +199,9 @@ AC_CHECK_SIZEOF(int)
 AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(long long)
 AC_CHECK_SIZEOF(void*)
+
+# Large file supports
+AC_SYS_LARGEFILE
 
 AC_ARG_ENABLE(
 	[asm],

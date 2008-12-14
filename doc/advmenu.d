@@ -487,6 +487,22 @@ Configuration
 		tile_icon - Special mode for icon preview.
 		tile_marquee - Special mode for marquee preview.
 
+    mode_skip
+	Disables some menu modes when you press `tab'.
+
+	:mode_skip (full | full_mixed | text | list | list_mixed
+	:	| tile_small | tile_normal | tile_big | tile_enormous
+	:	| tile_giant | tile_icon | tile_marquee)*
+
+	Options:
+		SKIP - Multiple selections of disabled modes. Use
+			an empty list to enable all the modes.
+
+	Examples:
+		:mode_skip tile_giant
+		:mode_skip full full_mixed list tile_small tile_giant
+		:mode_skip
+
     sort
 	Selects the sort order of the games displayed.
 
@@ -527,22 +543,6 @@ Configuration
 	The `icons' and `marquees' images can be selected with the
 	special `mode' options `tile_icon' and `tile_marquee'.
 
-    mode_skip
-	Disables some menu modes when you press `tab'.
-
-	:mode_skip (full | full_mixed | list | list_mixed | tile_small
-	:	| tile_normal | tile_big | tile_enormous | tile_giant
-	:	| tile_icon | tile_marquee)*
-
-	Options:
-		SKIP - Multiple selections of disabled modes. Use
-			an empty list to enable all the modes.
-
-	Examples:
-		:mode_skip tile_giant
-		:mode_skip full full_mixed list tile_small tile_giant
-		:mode_skip
-
     preview_expand
 	Enlarges the screen area used by the vertical games on horizontal
 	tile (and horizontal games in vertical tile).
@@ -580,7 +580,7 @@ Configuration
 	Examples:
 		:preview_default "C:\MAME\DEFAULT.PNG"
 		:preview_default_marquee "C:\MAME\DEFMAR.PNG"
-		:preview_default_icon "C:\MAME\DEFMAR.PNG"
+		:preview_default_icon "C:\MAME\DEFICO.ICO"
 
     icon_space
 	Selects the space size between icons. The `icon' mode is
@@ -675,7 +675,7 @@ Configuration
 		yes - Reset the video mode (default).
 		no - Maintain the current graphics mode.
 
-    display_restoreatext
+    display_restoreatexit
 	Selects whether to reset the video mode before exiting.
 
 	:display_restoreatexit yes | no

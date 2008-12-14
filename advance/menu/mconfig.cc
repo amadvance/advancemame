@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1112,6 +1112,14 @@ void config_state::conf_default(adv_conf* config_context)
 			target_out("Adding emulator `mame'...\n");
 			conf_set(config_context, "", "emulator", "\"mame\" mame \"mame.exe\" \"\"");
 		}
+		if (target_search(path, FILE_MAXPATH, "mamepp.exe") == 0) {
+			target_out("Adding emulator `mamepp'...\n");
+			conf_set(config_context, "", "emulator", "\"mame\" mame \"mamepp.exe\" \"\"");
+		}
+		if (target_search(path, FILE_MAXPATH, "sdlmame.exe") == 0) {
+			target_out("Adding emulator `sdlmam'...\n");
+			conf_set(config_context, "", "emulator", "\"sdlmame\" sdlmame \"sdlmame.exe\" \"\"");
+		}
 		if (target_search(path, FILE_MAXPATH, "raine.exe") == 0) {
 			target_out("Adding emulator `draine'...\n");
 			conf_set(config_context, "", "emulator", "\"draine\" draine \"raine.exe\" \"\"");
@@ -1134,6 +1142,10 @@ void config_state::conf_default(adv_conf* config_context)
 		if (target_search(path, FILE_MAXPATH, "advmess") == 0) {
 			target_out("Adding emulator `advmess'...\n");
 			conf_set(config_context, "", "emulator", "\"advmess\" advmess \"advmess\" \"\"");
+		}
+		if (target_search(path, FILE_MAXPATH, "sdlmame") == 0) {
+			target_out("Adding emulator `sdlmame'...\n");
+			conf_set(config_context, "", "emulator", "\"sdlmame\" sdlmame \"sdlmame\" \"\"");
 		}
 		if (target_search(path, FILE_MAXPATH, "xmame") == 0) {
 			target_out("Adding emulator `xmame'...\n");

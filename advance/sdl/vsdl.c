@@ -283,10 +283,15 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 	}
 
 	if (output == adv_output_auto) {
-		if (has_window_manager)
+		if (has_window_manager) {
+#ifdef USE_VIDEO_RESTORE
 			sdl_state.output = adv_output_window;
-		else
+#else
+			sdl_state.output = adv_output_overlay;
+#endif
+		} else {
 			sdl_state.output = adv_output_fullscreen;
+		}
 	} else {
 		sdl_state.output = output;
 	}

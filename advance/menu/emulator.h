@@ -261,6 +261,14 @@ public:
 	virtual std::string type_get() const;
 };
 
+class sdlmame : public mame_mame {
+public:
+	sdlmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
+
+	virtual bool load_cfg(const game_set& gar, bool quiet);
+	virtual std::string type_get() const;
+};
+
 class xmame : public mame_mame {
 public:
 	xmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);

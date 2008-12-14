@@ -1305,7 +1305,84 @@ bool wmame::load_cfg(const game_set& gar, bool quiet)
 }
 
 //---------------------------------------------------------------------------
-// wmame
+// sdlmame
+
+sdlmame::sdlmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+	: mame_mame(Aname, Aexe_path, Acmd_arg, false, false)
+{
+}
+
+string sdlmame::type_get() const
+{
+	return "sdlmame";
+}
+
+bool sdlmame::load_cfg(const game_set& gar, bool quiet)
+{
+	const char* s;
+	adv_conf* context;
+
+	string ref_dir = exe_dir_get();
+
+	string config_file = slash_add(ref_dir) + "mame.ini";
+
+	if (!validate_config_file(config_file))
+		return false;
+
+	context = conf_init();
+
+	conf_string_register(context, "rompath");
+	conf_string_register(context, "snapshot_directory");
+
+	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
+		target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
+		conf_done(context);
+		return false;
+	}
+
+	if (conf_string_section_get(context, "", "rompath", &s)==0) {
+		emu_rom_path = list_abs(list_import(s), ref_dir);
+	} else {
+		emu_rom_path = list_abs(list_import("roms"), ref_dir);
+	}
+
+	emu_software_path = "";
+
+	if (conf_string_section_get(context, "", "snapshot_directory", &s)==0) {
+		emu_snap_path = list_abs(list_import(s), ref_dir);
+	} else {
+		emu_snap_path = list_abs(list_import("snap"), ref_dir);
+	}
+
+	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path)));
+	log_std(("%s: emu_software_path %s\n", user_name_get().c_str(), cpath_export(emu_software_path)));
+	log_std(("%s: emu_snap_path %s\n", user_name_get().c_str(), cpath_export(emu_snap_path)));
+
+	conf_done(context);
+
+	config_rom_path = dir_cat(emu_rom_path, list_abs(list_import(user_rom_path), ref_dir));
+	config_alts_path = dir_cat(emu_snap_path, list_abs(list_import(user_alts_path), ref_dir));
+	config_icon_path = list_abs(list_import(user_icon_path), ref_dir);
+	config_flyer_path = list_abs(list_import(user_flyer_path), ref_dir);
+	config_cabinet_path = list_abs(list_import(user_cabinet_path), ref_dir);
+	config_marquee_path = list_abs(list_import(user_marquee_path), ref_dir);
+	config_title_path = list_abs(list_import(user_title_path), ref_dir);
+
+	log_std(("%s: rom_path %s\n", user_name_get().c_str(), cpath_export(config_rom_path)));
+	log_std(("%s: alts_path %s\n", user_name_get().c_str(), cpath_export(config_alts_path)));
+	log_std(("%s: icon_path %s\n", user_name_get().c_str(), cpath_export(config_icon_path)));
+	log_std(("%s: flyer_path %s\n", user_name_get().c_str(), cpath_export(config_flyer_path)));
+	log_std(("%s: cabinet_path %s\n", user_name_get().c_str(), cpath_export(config_cabinet_path)));
+	log_std(("%s: marquee_path %s\n", user_name_get().c_str(), cpath_export(config_marquee_path)));
+	log_std(("%s: title_path %s\n", user_name_get().c_str(), cpath_export(config_title_path)));
+
+	scan_dirlist(gar, config_rom_path_get(), quiet);
+
+	return true;
+}
+
+//---------------------------------------------------------------------------
+// xmame
 
 xmame::xmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
 	: mame_mame(Aname, Aexe_path, Acmd_arg, false, false)

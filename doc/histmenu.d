@@ -2,7 +2,9 @@ Name
 	history - History For AdvanceMENU
 
 AdvanceMENU Version 2.4.15 2008/12
-	) Added automatic detection of mamepp.exe.
+	) New icon.
+	) Added automatic detection of mamepp.exe for Windows.
+	) Added automatic detection of sdlmame for Windows and *nix.
 
 AdvanceMENU Version 2.4.14 2007/01
 	) Fixed compilation problem with gcc 4.x.x.

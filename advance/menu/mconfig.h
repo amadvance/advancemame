@@ -30,7 +30,7 @@
 #include <list>
 
 #define ADV_COPY \
-	"AdvanceMENU - Copyright (C) 1999-2004 by Andrea Mazzoleni\n"
+	"AdvanceMENU - Copyright (C) 1999-2008 by Andrea Mazzoleni\n"
 
 enum clip_mode_t {
 	clip_none,

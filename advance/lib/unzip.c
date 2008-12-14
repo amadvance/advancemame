@@ -44,7 +44,7 @@
  *  - ==0 not found
  *  - !=0 found, *offset valid
  */
-static int ecd_find_sig(char *buffer, int buflen, int *offset)
+static int ecd_find_sig(char* buffer, int buflen, int *offset)
 {
 	static char ecdsig[] = { 'P', 'K', 0x05, 0x06 };
 	int i;
@@ -341,7 +341,6 @@ static int zip_seekcompress(adv_zip* zip, adv_zipent* ent)
 		if (fseek(zip->fp, offset, SEEK_SET) != 0) {
 			return -1;
 		}
-
 	}
 
 	return 0;

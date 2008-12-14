@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,6 +111,18 @@ static void process_runnable(struct state_t* state, enum token_t t, const char* 
 			return;
 		}
 		state->g->flag_set(v == "no", emulator::flag_derived_resource);
+	}
+}
+
+static void process_isbios(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
+{
+	if (t == token_data) {
+		string v = string(s, len);
+		if (!state->g) {
+			process_error(state, 0, "invalid state");
+			return;
+		}
+		state->g->flag_set(v == "yes", emulator::flag_derived_resource);
 	}
 }
 
@@ -356,6 +368,7 @@ static struct conversion_t CONV1[] = {
 
 static struct conversion_t CONV2[] = {
 	{ 2, { match_mamemessraine, match_gamemachine, "runnable", 0, 0 }, process_runnable },
+	{ 2, { match_mamemessraine, match_gamemachine, "isbios", 0, 0 }, process_isbios },
 	{ 2, { match_mamemessraine, match_gamemachine, "name", 0, 0 }, process_name },
 	{ 2, { match_mamemessraine, match_gamemachine, "description", 0, 0 }, process_description },
 	{ 2, { match_mamemessraine, match_gamemachine, "manufacturer", 0, 0 }, process_manufacturer },

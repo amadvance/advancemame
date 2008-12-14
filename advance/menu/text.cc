@@ -591,7 +591,7 @@ bool int_init(unsigned size)
 	}
 
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY)!=0) {
-		target_err("Zoom output mode not supported by this program.\n");
+		target_err("'overlay' output mode not supported by this program. Use 'fullscreen' instead.\n");
 		goto int_blit;
 	}
 
