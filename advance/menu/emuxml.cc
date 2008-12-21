@@ -110,7 +110,8 @@ static void process_runnable(struct state_t* state, enum token_t t, const char* 
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		state->g->flag_set(v == "no", emulator::flag_derived_resource);
+		if (!state->g->flag_get(emulator::flag_derived_resource))
+			state->g->flag_set(v == "no", emulator::flag_derived_resource);
 	}
 }
 
