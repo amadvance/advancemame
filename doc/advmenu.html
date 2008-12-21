@@ -123,13 +123,13 @@ Selectable background and help images with translucency.
 <a href="#5.1.4">5.1.4 mode</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.1.5">5.1.5 sort</a><br>
+<a href="#5.1.5">5.1.5 mode_skip</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.1.6">5.1.6 preview</a><br>
+<a href="#5.1.6">5.1.6 sort</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.1.7">5.1.7 mode_skip</a><br>
+<a href="#5.1.7">5.1.7 preview</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#5.1.8">5.1.8 preview_expand</a><br>
@@ -159,7 +159,7 @@ Selectable background and help images with translucency.
 <a href="#5.2.3">5.2.3 display_restoreatgame</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.2.4">5.2.4 display_restoreatext</a><br>
+<a href="#5.2.4">5.2.4 display_restoreatexit</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#5.2.5">5.2.5 display_orientation</a><br>
@@ -1021,6 +1021,35 @@ Special mode for marquee preview.
 </td></tr>
 </table>
 <h4><a name="5.1.5">5.1.5</a> 
+mode_skip
+</h4>
+Disables some menu modes when you press `tab'.
+<p>
+<pre>
+mode_skip (full | full_mixed | text | list | list_mixed
+&nbsp;&nbsp;&nbsp;&nbsp;| tile_small | tile_normal | tile_big | tile_enormous
+&nbsp;&nbsp;&nbsp;&nbsp;| tile_giant | tile_icon | tile_marquee)*
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+SKIP
+</em></td><td width="90%">
+Multiple selections of disabled modes. Use
+an empty list to enable all the modes.
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+mode_skip tile_giant
+mode_skip full full_mixed list tile_small tile_giant
+mode_skip
+</pre>
+</td></tr></table>
+<h4><a name="5.1.6">5.1.6</a> 
 sort
 </h4>
 Selects the sort order of the games displayed.
@@ -1105,7 +1134,7 @@ External information imported with the
 `info_import' option.
 </td></tr>
 </table>
-<h4><a name="5.1.6">5.1.6</a> 
+<h4><a name="5.1.7">5.1.7</a> 
 preview
 </h4>
 Selects the type of the images displayed.
@@ -1146,35 +1175,6 @@ Files in the `titles' dir.
 <p>
 The `icons' and `marquees' images can be selected with the
 special `mode' options `tile_icon' and `tile_marquee'.
-<h4><a name="5.1.7">5.1.7</a> 
-mode_skip
-</h4>
-Disables some menu modes when you press `tab'.
-<p>
-<pre>
-mode_skip (full | full_mixed | list | list_mixed | tile_small
-&nbsp;&nbsp;&nbsp;&nbsp;| tile_normal | tile_big | tile_enormous | tile_giant
-&nbsp;&nbsp;&nbsp;&nbsp;| tile_icon | tile_marquee)*
-</pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-SKIP
-</em></td><td width="90%">
-Multiple selections of disabled modes. Use
-an empty list to enable all the modes.
-</td></tr>
-</table>
-<p>
-Examples:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<pre>
-mode_skip tile_giant
-mode_skip full full_mixed list tile_small tile_giant
-mode_skip
-</pre>
-</td></tr></table>
 <h4><a name="5.1.8">5.1.8</a> 
 preview_expand
 </h4>
@@ -1247,7 +1247,7 @@ Examples:
 <pre>
 preview_default "C:\MAME\DEFAULT.PNG"
 preview_default_marquee "C:\MAME\DEFMAR.PNG"
-preview_default_icon "C:\MAME\DEFMAR.PNG"
+preview_default_icon "C:\MAME\DEFICO.ICO"
 </pre>
 </td></tr></table>
 <h4><a name="5.1.10">5.1.10</a> 
@@ -1443,7 +1443,7 @@ Maintain the current graphics mode.
 </td></tr>
 </table>
 <h4><a name="5.2.4">5.2.4</a> 
-display_restoreatext
+display_restoreatexit
 </h4>
 Selects whether to reset the video mode before exiting.
 <p>

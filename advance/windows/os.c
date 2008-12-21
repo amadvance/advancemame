@@ -51,6 +51,10 @@ struct os_context {
 	int is_quit; /**< Is termination requested. */
 	char title_buffer[128]; /**< Title of the window. */
 	HHOOK g_hKeyboardHook;
+	STICKYKEYS g_StartupStickyKeys;
+	TOGGLEKEYS g_StartupToggleKeys;
+	FILTERKEYS g_StartupFilterKeys;
+
 };
 
 static struct os_context OS;
@@ -67,6 +71,7 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 		return CallNextHookEx(OS.g_hKeyboardHook, nCode, wParam, lParam);
  
 	bEatKeystroke = 0;
+
 	p = (KBDLLHOOKSTRUCT*)lParam;
 
 	switch (wParam) {
@@ -84,10 +89,51 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 void os_internal_ignore_hot_key(void)
 {
+	STICKYKEYS skOff;
+	TOGGLEKEYS tkOff;
+	FILTERKEYS fkOff;
+
 	// keyboard hook to disable win keys
 	log_std(("os: SetWindowsHookEx()\n"));
 	if (!OS.g_hKeyboardHook) {
 		OS.g_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL,  LowLevelKeyboardProc, GetModuleHandle(0), 0);
+	}
+
+	log_std(("os: SystemParametersInfo(GET)\n"));
+	// Save the current sticky/toggle/filter key settings so they can be restored them later
+	SystemParametersInfo(SPI_GETSTICKYKEYS, sizeof(STICKYKEYS), &OS.g_StartupStickyKeys, 0);
+	SystemParametersInfo(SPI_GETTOGGLEKEYS, sizeof(TOGGLEKEYS), &OS.g_StartupToggleKeys, 0);
+	SystemParametersInfo(SPI_GETFILTERKEYS, sizeof(FILTERKEYS), &OS.g_StartupFilterKeys, 0);
+
+	skOff = OS.g_StartupStickyKeys;
+	tkOff = OS.g_StartupToggleKeys;
+	fkOff = OS.g_StartupFilterKeys;
+
+	// Disable StickyKeys/etc shortcuts but if the accessibility feature is on,
+	// then leave the settings alone as its probably being usefully used
+	log_std(("os: SystemParametersInfo(SET)\n"));
+	if ((skOff.dwFlags & SKF_STICKYKEYSON) == 0) {
+		// Disable the hotkey and the confirmation
+		skOff.dwFlags &= ~SKF_HOTKEYACTIVE;
+		skOff.dwFlags &= ~SKF_CONFIRMHOTKEY;
+ 
+		SystemParametersInfo(SPI_SETSTICKYKEYS, sizeof(STICKYKEYS), &skOff, 0);
+	}
+
+	if ((tkOff.dwFlags & TKF_TOGGLEKEYSON) == 0) {
+		// Disable the hotkey and the confirmation
+		tkOff.dwFlags &= ~TKF_HOTKEYACTIVE;
+		tkOff.dwFlags &= ~TKF_CONFIRMHOTKEY;
+ 
+		SystemParametersInfo(SPI_SETTOGGLEKEYS, sizeof(TOGGLEKEYS), &tkOff, 0);
+	}
+ 
+	if ((fkOff.dwFlags & FKF_FILTERKEYSON) == 0) {
+		// Disable the hotkey and the confirmation
+		fkOff.dwFlags &= ~FKF_HOTKEYACTIVE;
+		fkOff.dwFlags &= ~FKF_CONFIRMHOTKEY;
+
+		SystemParametersInfo(SPI_SETFILTERKEYS, sizeof(FILTERKEYS), &fkOff, 0);
 	}
 }
 
@@ -98,6 +144,12 @@ void os_internal_restore_hot_key(void)
 		UnhookWindowsHookEx(OS.g_hKeyboardHook);
 		OS.g_hKeyboardHook = 0;
 	}
+
+	// Restore StickyKeys/etc to original state and enable Windows key
+	log_std(("os: SystemParametersInfo(()\n"));
+	SystemParametersInfo(SPI_SETSTICKYKEYS, sizeof(STICKYKEYS), &OS.g_StartupStickyKeys, 0);
+	SystemParametersInfo(SPI_SETTOGGLEKEYS, sizeof(TOGGLEKEYS), &OS.g_StartupToggleKeys, 0);
+	SystemParametersInfo(SPI_SETFILTERKEYS, sizeof(FILTERKEYS), &OS.g_StartupFilterKeys, 0);
 }
 
 /***************************************************************************/

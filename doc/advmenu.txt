@@ -519,7 +519,23 @@ Options:
     tile_icon - Special mode for icon preview.
     tile_marquee - Special mode for marquee preview.
 
----- 5.1.5 sort ----
+---- 5.1.5 mode_skip ----
+Disables some menu modes when you press `tab'.
+
+mode_skip (full | full_mixed | text | list | list_mixed
+	| tile_small | tile_normal | tile_big | tile_enormous
+	| tile_giant | tile_icon | tile_marquee)*
+
+Options:
+    SKIP - Multiple selections of disabled modes. Use
+        an empty list to enable all the modes.
+
+Examples:
+    mode_skip tile_giant
+    mode_skip full full_mixed list tile_small tile_giant
+    mode_skip
+
+---- 5.1.6 sort ----
 Selects the sort order of the games displayed.
 
 [EMULATOR/]sort parent | name | time | play | year | manufacturer
@@ -543,7 +559,7 @@ Options:
     info - External information imported with the
         `info_import' option.
 
----- 5.1.6 preview ----
+---- 5.1.7 preview ----
 Selects the type of the images displayed.
 
 [EMULATOR/]preview snap | titles | flyers | cabinets
@@ -558,22 +574,6 @@ Options:
 
 The `icons' and `marquees' images can be selected with the
 special `mode' options `tile_icon' and `tile_marquee'.
-
----- 5.1.7 mode_skip ----
-Disables some menu modes when you press `tab'.
-
-mode_skip (full | full_mixed | list | list_mixed | tile_small
-	| tile_normal | tile_big | tile_enormous | tile_giant
-	| tile_icon | tile_marquee)*
-
-Options:
-    SKIP - Multiple selections of disabled modes. Use
-        an empty list to enable all the modes.
-
-Examples:
-    mode_skip tile_giant
-    mode_skip full full_mixed list tile_small tile_giant
-    mode_skip
 
 ---- 5.1.8 preview_expand ----
 Enlarges the screen area used by the vertical games on horizontal
@@ -612,7 +612,7 @@ Options:
 Examples:
     preview_default "C:\MAME\DEFAULT.PNG"
     preview_default_marquee "C:\MAME\DEFMAR.PNG"
-    preview_default_icon "C:\MAME\DEFMAR.PNG"
+    preview_default_icon "C:\MAME\DEFICO.ICO"
 
 ---- 5.1.10 icon_space ----
 Selects the space size between icons. The `icon' mode is
@@ -709,7 +709,7 @@ Options:
     yes - Reset the video mode (default).
     no - Maintain the current graphics mode.
 
----- 5.2.4 display_restoreatext ----
+---- 5.2.4 display_restoreatexit ----
 Selects whether to reset the video mode before exiting.
 
 display_restoreatexit yes | no
