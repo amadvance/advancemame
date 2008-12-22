@@ -527,6 +527,8 @@ static bool config_load_iterator_emu(adv_conf* config_context, const string& tag
 			e = new dmame(a0, a2, a3);
 		} else if (a1 == "xmame") {
 			e = new xmame(a0, a2, a3);
+		} else if (a1 == "sdlmame") {
+			e = new sdlmame(a0, a2, a3);
 		} else if (a1 == "dmess") {
 			e = new dmess(a0, a2, a3);
 		} else if (a1 == "draine") {
@@ -1143,9 +1145,9 @@ void config_state::conf_default(adv_conf* config_context)
 			target_out("Adding emulator `advmess'...\n");
 			conf_set(config_context, "", "emulator", "\"advmess\" advmess \"advmess\" \"\"");
 		}
-		if (target_search(path, FILE_MAXPATH, "sdlmame") == 0) {
+		if (target_search(path, FILE_MAXPATH, "mame") == 0) {
 			target_out("Adding emulator `sdlmame'...\n");
-			conf_set(config_context, "", "emulator", "\"sdlmame\" sdlmame \"sdlmame\" \"\"");
+			conf_set(config_context, "", "emulator", "\"sdlmame\" sdlmame \"mame\" \"\"");
 		}
 		if (target_search(path, FILE_MAXPATH, "xmame") == 0) {
 			target_out("Adding emulator `xmame'...\n");

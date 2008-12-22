@@ -71,7 +71,7 @@ Options
 
 Emulators
 	The program supports many type of emulators. The emulators
-	AdvanceMAME, AdvanceMESS, MAME, xmame, DMAME,
+	AdvanceMAME, AdvanceMESS, MAME, SDLMAME, xmame, DMAME,
 	DMESS and DRAINE are directly supported and the only thing
 	you should do is to run the AdvanceMENU program in the same
 	directory of the emulator.
@@ -188,8 +188,24 @@ Emulators
 	`mame.ini' file are used to detect the list of the available
 	roms.
 
-	The directory specified in `snap_directory' is
+	The directory specified in `snapshot_directory' is
 	used to detect the list of available snapshots.
+
+  sdlmame - SDL MAME
+	For the `sdlmame' emulator the roms informations are gathered
+	from the file `EMUNAME.xml'. If this file doesn't exist, it's
+	created automatically with emulator `-listxml' command.
+
+	The directories specified in the `rompath' option in the
+	`HOME/.mame/mame.ini' file in Linux and Mac OS X and in the 'mame.ini'
+	file in Windows are used to detect the list of the available roms.
+
+	Please note that in Linux and Mac OS X the 'mame.ini' file doesn't
+	support relative paths for roms and other files. Always absolute
+	paths configuring SDL MAME.
+
+	The directory specified in `snapshot_directory' is used to detect the
+	list of available snapshots files.
 
   xmame - xmame
 	For the `xmame' emulator the roms informations are gathered

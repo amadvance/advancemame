@@ -1317,17 +1317,38 @@ string sdlmame::type_get() const
 	return "sdlmame";
 }
 
+string list_import_from_dos_forced(string s)
+{
+	for(int i=0;i<s.length();++i)
+		if (s[i] == ';')
+			s[i] = ':';
+	return s;
+}
+
 bool sdlmame::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
 
+#ifdef __WIN32__
 	string ref_dir = exe_dir_get();
 
 	string config_file = slash_add(ref_dir) + "mame.ini";
-
-	if (!validate_config_file(config_file))
+#else
+	char* home = getenv("HOME");
+	if (!home || !*home) {
+		target_err("Environment variable HOME not set.\n");
 		return false;
+	}
+
+	string ref_dir = slash_add(home) + ".mame";
+
+	string config_file = path_import(slash_add(ref_dir) + "mame.ini");
+#endif
+
+	if (!validate_config_file(config_file)) {
+		return false;
+	}
 
 	context = conf_init();
 
@@ -1340,18 +1361,20 @@ bool sdlmame::load_cfg(const game_set& gar, bool quiet)
 		return false;
 	}
 
+	// Uses list_import_from_dos_forced because also Linux SDL MAME uses ';' as separator dir !
+
 	if (conf_string_section_get(context, "", "rompath", &s)==0) {
-		emu_rom_path = list_abs(list_import(s), ref_dir);
+		emu_rom_path = list_abs(list_import_from_dos_forced(list_import(s)), ref_dir);
 	} else {
-		emu_rom_path = list_abs(list_import("roms"), ref_dir);
+		emu_rom_path = list_abs(list_import_from_dos_forced(list_import("roms")), ref_dir);
 	}
 
 	emu_software_path = "";
 
 	if (conf_string_section_get(context, "", "snapshot_directory", &s)==0) {
-		emu_snap_path = list_abs(list_import(s), ref_dir);
+		emu_snap_path = list_abs(list_import_from_dos_forced(list_import(s)), ref_dir);
 	} else {
-		emu_snap_path = list_abs(list_import("snap"), ref_dir);
+		emu_snap_path = list_abs(list_import_from_dos_forced(list_import("snap")), ref_dir);
 	}
 
 	log_std(("%s: emu_rom_path %s\n", user_name_get().c_str(), cpath_export(emu_rom_path)));
@@ -1406,7 +1429,7 @@ bool xmame::load_cfg(const game_set& gar, bool quiet)
 
 	char* home = getenv("HOME");
 	if (!home || !*home) {
-		target_err("Environemnt variable HOME not set.\n");
+		target_err("Environment variable HOME not set.\n");
 		return false;
 	}
 
