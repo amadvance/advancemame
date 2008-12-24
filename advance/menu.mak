@@ -4,7 +4,7 @@
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(MENUOBJ)/menu/mm.o: $(srcdir)/advance/version.mak Makefile
 
-MENUCFLAGS += -DADV_VERSION=\"$(MENUVERSION)\"
+MENUCFLAGS += -DADV_VERSION=\"$(MENUVERSION)\" -DADV_MENU
 
 MENUCFLAGS += \
 	-I$(srcdir)/advance/lib \
@@ -335,7 +335,7 @@ MENUOBJDIRS += \
 MENUOBJS += \
 	$(MENUOBJ)/dos/file.o \
 	$(MENUOBJ)/windows/target.o \
-	$(MENUOBJ)/lib/icondef.o \
+	$(MENUOBJ)/lib/resource.o \
 	$(MENUOBJ)/windows/os.o
 ifeq ($(CONF_LIB_MCPN),yes)
 MENUCFLAGS += \
@@ -502,7 +502,7 @@ $(MENUOBJ)/%.o: $(srcdir)/advance/%.c
 
 $(MENUOBJ)/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
-	$(RC) $(RCFLAGS) $< -o $@
+	$(RC) $(RCFLAGS) -DADV_MENU $< -o $@
 
 $(MENUOBJ):
 	$(ECHO) $@

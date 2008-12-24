@@ -40,6 +40,7 @@
 #include "ossdl.h"
 #include "snstring.h"
 #include "measure.h"
+#include "resource.h"
 #include "oswin.h"
 
 #include "SDL.h"
@@ -62,12 +63,12 @@ static struct os_context OS;
 /***************************************************************************/
 /* hook */
 
-LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK windows_hook_winproc(int nCode, WPARAM wParam, LPARAM lParam)
 {
 	int bEatKeystroke;
 	KBDLLHOOKSTRUCT* p;
 
-	if (nCode < 0 || nCode != HC_ACTION )  // do not process message
+	if (nCode < 0 || nCode != HC_ACTION) /* do not process message */
 		return CallNextHookEx(OS.g_hKeyboardHook, nCode, wParam, lParam);
  
 	bEatKeystroke = 0;
@@ -93,14 +94,14 @@ void os_internal_ignore_hot_key(void)
 	TOGGLEKEYS tkOff;
 	FILTERKEYS fkOff;
 
-	// keyboard hook to disable win keys
+	/* keyboard hook to disable win keys */
 	log_std(("os: SetWindowsHookEx()\n"));
 	if (!OS.g_hKeyboardHook) {
-		OS.g_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL,  LowLevelKeyboardProc, GetModuleHandle(0), 0);
+		OS.g_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL,  windows_hook_winproc, GetModuleHandle(0), 0);
 	}
 
 	log_std(("os: SystemParametersInfo(GET)\n"));
-	// Save the current sticky/toggle/filter key settings so they can be restored them later
+	/* Save the current sticky/toggle/filter key settings so they can be restored them later */
 	SystemParametersInfo(SPI_GETSTICKYKEYS, sizeof(STICKYKEYS), &OS.g_StartupStickyKeys, 0);
 	SystemParametersInfo(SPI_GETTOGGLEKEYS, sizeof(TOGGLEKEYS), &OS.g_StartupToggleKeys, 0);
 	SystemParametersInfo(SPI_GETFILTERKEYS, sizeof(FILTERKEYS), &OS.g_StartupFilterKeys, 0);
@@ -109,8 +110,8 @@ void os_internal_ignore_hot_key(void)
 	tkOff = OS.g_StartupToggleKeys;
 	fkOff = OS.g_StartupFilterKeys;
 
-	// Disable StickyKeys/etc shortcuts but if the accessibility feature is on,
-	// then leave the settings alone as its probably being usefully used
+	/* disable StickyKeys/etc shortcuts but if the accessibility feature is on, */
+	/* then leave the settings alone as its probably being usefully used */
 	log_std(("os: SystemParametersInfo(SET)\n"));
 	if ((skOff.dwFlags & SKF_STICKYKEYSON) == 0) {
 		// Disable the hotkey and the confirmation
@@ -129,7 +130,7 @@ void os_internal_ignore_hot_key(void)
 	}
  
 	if ((fkOff.dwFlags & FKF_FILTERKEYSON) == 0) {
-		// Disable the hotkey and the confirmation
+		/* disable the hotkey and the confirmation */
 		fkOff.dwFlags &= ~FKF_HOTKEYACTIVE;
 		fkOff.dwFlags &= ~FKF_CONFIRMHOTKEY;
 
@@ -145,12 +146,241 @@ void os_internal_restore_hot_key(void)
 		OS.g_hKeyboardHook = 0;
 	}
 
-	// Restore StickyKeys/etc to original state and enable Windows key
+	/* restore StickyKeys/etc to original state and enable Windows key */
 	log_std(("os: SystemParametersInfo(()\n"));
 	SystemParametersInfo(SPI_SETSTICKYKEYS, sizeof(STICKYKEYS), &OS.g_StartupStickyKeys, 0);
 	SystemParametersInfo(SPI_SETTOGGLEKEYS, sizeof(TOGGLEKEYS), &OS.g_StartupToggleKeys, 0);
 	SystemParametersInfo(SPI_SETFILTERKEYS, sizeof(FILTERKEYS), &OS.g_StartupFilterKeys, 0);
 }
+
+/***************************************************************************/
+/* splash */
+
+#if defined(ADV_EMU) || defined(ADV_MENU)
+struct context_struct {
+	HWND m_hwnd;
+	DWORD m_dwWidth;
+	DWORD m_dwHeight;
+	HBITMAP m_hSplashBitmap;
+	HBITMAP m_hAlphaBitmap;
+	LPCTSTR m_lpszClassName;
+	INT m_X;
+	INT m_Y;
+} SPLASH;
+
+static LRESULT windows_splash_paint(HWND hwnd)
+{
+	int r;
+	unsigned scanline;
+	unsigned char* splash_ptr;
+	unsigned char* alpha_ptr;
+	unsigned char* screen_ptr;
+	unsigned x, y;
+	BITMAPINFOHEADER bi;
+
+	HWND desktop = GetDesktopWindow();
+	HDC desktop_dc = GetWindowDC(desktop);
+
+	/* create the screen buffer */
+	HDC screen_dc = CreateCompatibleDC(desktop_dc); 
+	HBITMAP screen_bitmap = CreateCompatibleBitmap(desktop_dc, SPLASH.m_dwWidth, SPLASH.m_dwHeight); 
+	HBITMAP screen_bitmap_old = (HBITMAP)SelectObject(screen_dc, screen_bitmap);
+
+	/* copy the desktop to the screen buffer */
+	BitBlt(screen_dc, 0, 0, SPLASH.m_dwWidth, SPLASH.m_dwHeight, desktop_dc,  SPLASH.m_X, SPLASH.m_Y, SRCCOPY);
+
+	ZeroMemory(&bi, sizeof(BITMAPINFOHEADER));
+	bi.biSize = sizeof(BITMAPINFOHEADER);
+	bi.biWidth = SPLASH.m_dwWidth;
+	bi.biHeight = SPLASH.m_dwHeight;
+	bi.biPlanes = 1;
+	bi.biBitCount = 24;
+	bi.biCompression = BI_RGB;
+
+	r = GetDIBits (desktop_dc, SPLASH.m_hSplashBitmap, 0, SPLASH.m_dwHeight, NULL, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
+	splash_ptr = (unsigned char*)GlobalAlloc(GMEM_FIXED, bi.biSizeImage);
+	r = GetDIBits(desktop_dc, SPLASH.m_hSplashBitmap, 0, SPLASH.m_dwHeight, splash_ptr, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
+	if (!r)
+		return -1;
+
+	r = GetDIBits(desktop_dc, SPLASH.m_hAlphaBitmap, 0, SPLASH.m_dwHeight, NULL, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
+	alpha_ptr = (unsigned char*)GlobalAlloc(GMEM_FIXED, bi.biSizeImage);
+	r = GetDIBits(desktop_dc, SPLASH.m_hAlphaBitmap, 0, SPLASH.m_dwHeight, alpha_ptr, (BITMAPINFO*)&bi, DIB_RGB_COLORS); 
+	if (!r)
+		return -1;
+
+	r = GetDIBits(desktop_dc, screen_bitmap, 0, SPLASH.m_dwHeight, NULL, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
+	screen_ptr = (unsigned char*)GlobalAlloc(GMEM_FIXED, bi.biSizeImage);
+	r = GetDIBits(desktop_dc, screen_bitmap, 0, SPLASH.m_dwHeight, screen_ptr, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
+	if (!r)
+		return -1;
+
+	/* scanline size */
+	scanline = SPLASH.m_dwWidth * 3;
+
+	/* align */
+	scanline = (scanline + 3) & ~3;
+
+	for(y=0;y<SPLASH.m_dwHeight;++y) {
+		unsigned char* splash_i = splash_ptr + scanline * y;
+		unsigned char* alpha_i = alpha_ptr  + scanline * y;
+		unsigned char* screen_i = screen_ptr + scanline * y;
+		
+		for(x=0;x<SPLASH.m_dwWidth;++x) {
+			unsigned f = alpha_i[0];
+			if (f == 0) {
+				/* Nothing */
+			} else if (f == 255) {
+				/* Copy */
+				screen_i[0] = splash_i[0];
+				screen_i[1] = splash_i[1];
+				screen_i[2] = splash_i[2];
+			} else {
+				/* Alpha */
+				unsigned fb = 255 - f;
+
+				unsigned rb = splash_i[0];
+				unsigned gb = splash_i[1];
+				unsigned bb = splash_i[2];
+
+				unsigned r = screen_i[0];
+				unsigned g = screen_i[1];
+				unsigned b = screen_i[2];
+
+				r = (r*fb + rb*f) / 255;
+				g = (g*fb + gb*f) / 255;
+				b = (b*fb + bb*f) / 255;
+
+				if (r > 255)
+					r = 255;
+				if (g > 255)
+					g = 255;
+				if (b > 255)
+					b = 255;
+
+				screen_i[0] = r;
+				screen_i[1] = g;
+				screen_i[2] = b;
+			}
+
+			alpha_i += 3;
+			splash_i += 3;
+			screen_i += 3;
+		}
+	}
+	
+	/* paint in the bitmap */
+	SetDIBits(desktop_dc, screen_bitmap, 0, SPLASH.m_dwHeight, screen_ptr, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
+
+	/* paint to the windows DC */
+	HDC hDC = GetDC(hwnd);
+	BitBlt(hDC,0,0, SPLASH.m_dwWidth, SPLASH.m_dwHeight, screen_dc, 0 ,0, SRCCOPY);
+	ReleaseDC(hwnd, hDC);
+
+	/* free */
+	SelectObject(screen_dc, screen_bitmap_old);
+	DeleteObject(screen_bitmap);
+	DeleteDC(screen_dc);
+	ReleaseDC(desktop,desktop_dc);
+
+	GlobalFree(splash_ptr);
+	GlobalFree(alpha_ptr);
+	GlobalFree(screen_ptr);
+
+	return 0;
+}
+
+static LRESULT CALLBACK windows_splash_windproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if (uMsg == WM_PAINT)
+		return windows_splash_paint(hwnd);
+	return DefWindowProc(hwnd, uMsg, wParam, lParam) ;
+}
+
+static int windows_splash_start(void)
+{
+	DWORD nScrWidth;
+	DWORD nScrHeight;
+
+	SPLASH.m_hwnd = 0;
+	SPLASH.m_lpszClassName = TEXT("SPLASH");
+
+#if defined(ADV_EMU)
+	SPLASH.m_hSplashBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_SPLASH));
+#else
+	SPLASH.m_hSplashBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_SPLASH_MENU));
+#endif
+	if (!SPLASH.m_hSplashBitmap)
+		return -1;
+
+#if defined(ADV_EMU)
+	SPLASH.m_hAlphaBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_ALPHA));
+#else
+	SPLASH.m_hAlphaBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_ALPHA_MENU));
+#endif
+	if (!SPLASH.m_hAlphaBitmap)
+		return -1;
+
+	int nRetValue;
+	BITMAP csBitmapSize;
+
+	nRetValue = GetObject(SPLASH.m_hSplashBitmap, sizeof(csBitmapSize), &csBitmapSize);
+	if (nRetValue == 0)
+		return -1;
+
+	SPLASH.m_dwWidth = (DWORD)csBitmapSize.bmWidth;
+	SPLASH.m_dwHeight = (DWORD)csBitmapSize.bmHeight;
+
+	WNDCLASSEX wndclass;
+	wndclass.cbSize =         sizeof (wndclass);
+	wndclass.style          = CS_BYTEALIGNCLIENT | CS_BYTEALIGNWINDOW;
+	wndclass.lpfnWndProc    = windows_splash_windproc;
+	wndclass.cbClsExtra =     0;
+	wndclass.cbWndExtra =     DLGWINDOWEXTRA;
+	wndclass.hInstance      = GetModuleHandle(NULL);
+	wndclass.hIcon          = NULL;
+	wndclass.hCursor        = LoadCursor(NULL, IDC_WAIT);
+	wndclass.hbrBackground  = NULL;
+	wndclass.lpszMenuName   = NULL;
+	wndclass.lpszClassName  = SPLASH.m_lpszClassName;
+	wndclass.hIconSm        = NULL;
+	if (!RegisterClassEx(&wndclass))
+		return -1;
+
+	nScrWidth = GetSystemMetrics(SM_CXFULLSCREEN);
+	nScrHeight = GetSystemMetrics(SM_CYFULLSCREEN);
+
+	SPLASH.m_X = (nScrWidth  - SPLASH.m_dwWidth) / 2;
+	SPLASH.m_Y = (nScrHeight - SPLASH.m_dwHeight) / 2;
+	SPLASH.m_hwnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, SPLASH.m_lpszClassName, TEXT("Splash"), WS_POPUP, SPLASH.m_X, SPLASH.m_Y,  SPLASH.m_dwWidth, SPLASH.m_dwHeight, NULL, NULL, NULL, &SPLASH);
+	if (!SPLASH.m_hwnd)
+		return -1;
+
+	ShowWindow(SPLASH.m_hwnd, SW_SHOW) ;
+	UpdateWindow(SPLASH.m_hwnd);
+
+	return 0;
+}
+
+void os_internal_splash_stop(void)
+{
+	if (SPLASH.m_hwnd) {
+		DestroyWindow(SPLASH.m_hwnd);
+		if (SPLASH.m_lpszClassName)
+			UnregisterClass(SPLASH.m_lpszClassName, GetModuleHandle(NULL));
+		SPLASH.m_hwnd = 0;
+	}
+}
+#else
+static int windows_splash_start(void)
+{
+	return 0;
+}
+
+void os_internal_splash_stop(void)
+{
+}
+#endif
 
 /***************************************************************************/
 /* Init */
@@ -177,7 +407,10 @@ int os_inner_init(const char* title)
 	target_clock_t start, stop;
 	double delay_time;
 	unsigned i;
-	
+
+	/* remove the splash screen */
+	os_internal_splash_stop();
+
 	target_yield();
 
 	delay_time = adv_measure_step(os_wait, 0.0001, 0.2, 7);
@@ -448,6 +681,8 @@ err:
 
 int main(int argc, char* argv[])
 {
+	windows_splash_start();
+
 	if (target_init() != 0)
 		return EXIT_FAILURE;
 

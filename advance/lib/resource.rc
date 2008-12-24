@@ -1,0 +1,13 @@
+#include "resource.h"
+
+IDI_ICONDEF ICON DISCARDABLE "icondef.ico"
+#ifdef ADV_EMU
+IDB_ALPHA BITMAP DISCARDABLE "advmame_alpha.bmp"
+IDB_SPLASH BITMAP DISCARDABLE "advmame_splash.bmp"
+#endif
+
+#ifdef ADV_MENU
+IDB_ALPHA_MENU BITMAP DISCARDABLE "advmenu_alpha.bmp"
+IDB_SPLASH_MENU BITMAP DISCARDABLE "advmenu_splash.bmp"
+#endif
+

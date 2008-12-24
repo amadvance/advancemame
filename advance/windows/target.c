@@ -35,6 +35,7 @@
 #include "log.h"
 #include "os.h"
 #include "snstring.h"
+#include "oswin.h"
 
 #include "SDL.h"
 
@@ -550,6 +551,8 @@ void target_nfo(const char *text, ...)
 void target_flush(void)
 {
 	MSG msg;
+
+	os_internal_splash_stop();
 
 	/* flush the message queue, otherwise the MessageBox may be not displayed */
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {

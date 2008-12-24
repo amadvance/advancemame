@@ -93,16 +93,19 @@ Selectable background and help images with translucency.
 <a href="#4.4">4.4 mame - Windows MAME</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.5">4.5 xmame - xmame</a><br>
+<a href="#4.5">4.5 sdlmame - SDL MAME</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.6">4.6 dmame - DOS MAME</a><br>
+<a href="#4.6">4.6 xmame - xmame</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.7">4.7 dmess - DOS MESS</a><br>
+<a href="#4.7">4.7 dmame - DOS MAME</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.8">4.8 draine - DOS Raine</a><br>
+<a href="#4.8">4.8 dmess - DOS MESS</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.9">4.9 draine - DOS Raine</a><br>
 </td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#5">5 Configuration</a><br>
@@ -383,7 +386,7 @@ In DOS and Windows you can also use `/'.
 Emulators
 </h2>
 The program supports many type of emulators. The emulators
-AdvanceMAME, AdvanceMESS, MAME, xmame, DMAME,
+AdvanceMAME, AdvanceMESS, MAME, SDLMAME, xmame, DMAME,
 DMESS and DRAINE are directly supported and the only thing
 you should do is to run the AdvanceMENU program in the same
 directory of the emulator.
@@ -512,9 +515,26 @@ The directories specified in the `rompath' option in the
 `mame.ini' file are used to detect the list of the available
 roms.
 <p>
-The directory specified in `snap_directory' is
+The directory specified in `snapshot_directory' is
 used to detect the list of available snapshots.
 <h3><a name="4.5">4.5</a> 
+sdlmame - SDL MAME
+</h3>
+For the `sdlmame' emulator the roms informations are gathered
+from the file `EMUNAME.xml'. If this file doesn't exist, it's
+created automatically with emulator `-listxml' command.
+<p>
+The directories specified in the `rompath' option in the
+`HOME/.mame/mame.ini' file in Linux and Mac OS X and in the 'mame.ini'
+file in Windows are used to detect the list of the available roms.
+<p>
+Please note that in Linux and Mac OS X the 'mame.ini' file doesn't
+support relative paths for roms and other files. Always absolute
+paths configuring SDL MAME.
+<p>
+The directory specified in `snapshot_directory' is used to detect the
+list of available snapshots files.
+<h3><a name="4.6">4.6</a> 
 xmame - xmame
 </h3>
 For the `xmame' emulator the roms informations are gathered
@@ -527,7 +547,7 @@ available roms.
 <p>
 The directory specified in `screenshotdir' is
 used to detect the list of available snapshots files.
-<h3><a name="4.6">4.6</a> 
+<h3><a name="4.7">4.7</a> 
 dmame - DOS MAME
 </h3>
 For the `dmame' emulator the roms informations are gathered
@@ -540,7 +560,7 @@ roms.
 <p>
 The directory specified in `snap' is used to
 detect the list of available snapshots.
-<h3><a name="4.7">4.7</a> 
+<h3><a name="4.8">4.8</a> 
 dmess - DOS MESS
 </h3>
 For the `dmess' emulator the roms informations are gathered
@@ -596,7 +616,7 @@ software `alpiner'. If you press F12 during the emulation, the
 file `snap\ti99_4a.png' is created. When you return to
 AdvanceMENU the file is moved automatically to
 `snap\ti99_4a\alpiner.png'.
-<h3><a name="4.8">4.8</a> 
+<h3><a name="4.9">4.9</a> 
 draine - DOS Raine
 </h3>
 For the `draine' emulator the roms informations are gathered

@@ -266,7 +266,7 @@ ADVANCECFLAGS += \
 ADVANCEOBJS += \
 	$(OBJ)/advance/dos/file.o \
 	$(OBJ)/advance/windows/target.o \
-	$(OBJ)/advance/lib/icondef.o \
+	$(OBJ)/advance/lib/resource.o \
 	$(OBJ)/advance/windows/os.o
 ifeq ($(CONF_LIB_SDL),yes)
 OBJDIRS += \
@@ -379,7 +379,7 @@ endif
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(OBJ)/advance/osd/emu.o: $(srcdir)/advance/version.mak Makefile
 
-ADVANCECFLAGS += -DADV_VERSION=\"$(EMUVERSION)\"
+ADVANCECFLAGS += -DADV_VERSION=\"$(EMUVERSION)\" -DADV_EMU
 
 ifeq ($(CONF_EMU),mess)
 EMUCFLAGS += -DMESS
@@ -560,7 +560,7 @@ $(OBJ)/advance/%.o: $(srcdir)/advance/%.c
 
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
-	$(RC) $(RCFLAGS) $< -o $@
+	$(RC) $(RCFLAGS) -DADV_EMU $< -o $@
 
 ############################################################################
 # emu compile

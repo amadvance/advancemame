@@ -6,7 +6,9 @@
 ADVANCEMAME VERSION 0.106.1 2008/12
 ===================================
 
+* New Windows icon at high resolution.
 * Ignored WINKEYS in Windows if input_hotkey is set.
+* Added a splash screen in Windows.
 
 
 ADVANCEMAME VERSION 0.106.0 2006/06

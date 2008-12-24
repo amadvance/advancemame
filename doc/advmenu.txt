@@ -82,7 +82,7 @@ In DOS and Windows you can also use `/'.
 ===========
 
 The program supports many type of emulators. The emulators
-AdvanceMAME, AdvanceMESS, MAME, xmame, DMAME,
+AdvanceMAME, AdvanceMESS, MAME, SDLMAME, xmame, DMAME,
 DMESS and DRAINE are directly supported and the only thing
 you should do is to run the AdvanceMENU program in the same
 directory of the emulator.
@@ -207,10 +207,28 @@ The directories specified in the `rompath' option in the
 `mame.ini' file are used to detect the list of the available
 roms.
 
-The directory specified in `snap_directory' is
+The directory specified in `snapshot_directory' is
 used to detect the list of available snapshots.
 
-4.5 xmame - xmame
+4.5 sdlmame - SDL MAME
+----------------------
+
+For the `sdlmame' emulator the roms informations are gathered
+from the file `EMUNAME.xml'. If this file doesn't exist, it's
+created automatically with emulator `-listxml' command.
+
+The directories specified in the `rompath' option in the
+`HOME/.mame/mame.ini' file in Linux and Mac OS X and in the 'mame.ini'
+file in Windows are used to detect the list of the available roms.
+
+Please note that in Linux and Mac OS X the 'mame.ini' file doesn't
+support relative paths for roms and other files. Always absolute
+paths configuring SDL MAME.
+
+The directory specified in `snapshot_directory' is used to detect the
+list of available snapshots files.
+
+4.6 xmame - xmame
 -----------------
 
 For the `xmame' emulator the roms informations are gathered
@@ -224,7 +242,7 @@ available roms.
 The directory specified in `screenshotdir' is
 used to detect the list of available snapshots files.
 
-4.6 dmame - DOS MAME
+4.7 dmame - DOS MAME
 --------------------
 
 For the `dmame' emulator the roms informations are gathered
@@ -238,7 +256,7 @@ roms.
 The directory specified in `snap' is used to
 detect the list of available snapshots.
 
-4.7 dmess - DOS MESS
+4.8 dmess - DOS MESS
 --------------------
 
 For the `dmess' emulator the roms informations are gathered
@@ -287,7 +305,7 @@ file `snap\ti99_4a.png' is created. When you return to
 AdvanceMENU the file is moved automatically to
 `snap\ti99_4a\alpiner.png'.
 
-4.8 draine - DOS Raine
+4.9 draine - DOS Raine
 ----------------------
 
 For the `draine' emulator the roms informations are gathered

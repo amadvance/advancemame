@@ -72,6 +72,9 @@ void* os_internal_window_get(void);
 void os_internal_ignore_hot_key(void);
 void os_internal_restore_hot_key(void);
 
+/* Splash */
+void os_internal_splash_stop(void);
+
 /***************************************************************************/
 /* Extension */
 
