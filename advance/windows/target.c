@@ -356,6 +356,8 @@ adv_error target_script(const char* script)
 	FILE* f;
 	int r;
 
+	os_internal_splash_stop();
+
 	log_std(("windows: script\n%s\n", script));
 
 	tmp = getenv("TMP");
@@ -413,6 +415,8 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 	unsigned i;
 	int r;
 
+	os_internal_splash_stop();
+
 	comspec = getenv("COMSPEC");
 	if (!comspec) {
 		log_std(("ERROR:windows: getenv(COMSPEC) failed\n"));
@@ -449,6 +453,8 @@ adv_error target_spawn(const char* file, const char** argv)
 	char cmdline[EXEC_MAX];
 	unsigned i;
 	int r;
+
+	os_internal_splash_stop();
 
 	log_std(("windows: spawn %s\n", file));
 	for(i=0;argv[i];++i)
