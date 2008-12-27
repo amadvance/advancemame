@@ -634,10 +634,12 @@ It requires some time.
 Select the favorite horizontal size to use with the `overlay'
 output mode. The program selects the nearest available video mode.
 
-device_video_overlaysize SIZE
+device_video_overlaysize auto | SIZE
 
 Options:
-    SIZE - The favorite horizontal size (default 1024).
+    auto - Use the size of the current video mode (default).
+        If not available tries 1280x1024.
+    SIZE - The user favorite horizontal size.
 
 This option has effect only with the `overlay' output mode.
 

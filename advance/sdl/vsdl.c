@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 2002, 2003, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,9 +68,9 @@ typedef struct sdl_internal_struct {
 	SDL_Overlay* overlay; /**< Screen overlay. */
 	adv_output output; /**< Output mode. */
 	adv_cursor cursor; /**< Cursor mode. */
-	unsigned zoom_x;
-	unsigned zoom_y;
-	unsigned zoom_bit;
+	unsigned overlay_size_x;
+	unsigned overlay_size_y;
+	unsigned overlay_bit;
 	unsigned index; /**< Screen index. */
 } sdl_internal;
 
@@ -120,10 +120,10 @@ static unsigned sdl_mode_flags(void)
 		break;
 #else
 	case adv_output_fullscreen :
-		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* use hardware surface */
+		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* use hardware surface if available */
 		break;
 	case adv_output_overlay :
-		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* use hardware surface */
+		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* use hardware surface if available */
 		break;
 #endif
 	}
@@ -168,7 +168,12 @@ static void sdl_icon(void)
 	SDL_FreeSurface(surface);
 }
 
-static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
+static int abssum(int x1, int y1, int x2, int y2)
+{
+	return abs(x1 - x2) + abs(y1 - y2);
+}
+
+static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_size, adv_cursor cursor)
 {
 	char name[64];
 	const adv_device* i;
@@ -180,7 +185,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 
 	assert(!sdl_is_active());
 
-	log_std(("video:sdl: sdl_init(id:%d,output:%d)\n", device_id, (unsigned)output));
+	log_std(("video:sdl: sdl_init(id:%d,output:%d,overlay_size:%d)\n", device_id, (unsigned)output, overlay_size));
 
 	if (sizeof(sdl_video_mode) > MODE_DRIVER_MODE_SIZE_MAX) {
 		error_set("Invalid structure size.\n");
@@ -258,6 +263,8 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 			(unsigned)8 - info->vfmt->Gloss, (unsigned)info->vfmt->Gshift,
 			(unsigned)8 - info->vfmt->Bloss, (unsigned)info->vfmt->Bshift
 	));
+	log_std(("video:sdl: video current_w:%d\n", (unsigned)info->current_w));
+	log_std(("video:sdl: video current_h:%d\n", (unsigned)info->current_h));
 
 	sdl_state.flags = 0;
 
@@ -360,7 +367,8 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 		unsigned mode_x;
 		unsigned mode_y;
 		adv_bool mode_flag;
-		unsigned zoom_area = zoom_size * zoom_size * 3 / 4;
+		unsigned size_x;
+		unsigned size_y;
 
 		log_std(("video:sdl: use overlay output\n"));
 
@@ -373,20 +381,34 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 		}
 
 		if (has_window_manager) {
-			sdl_state.zoom_bit = info->vfmt->BitsPerPixel;
+			sdl_state.overlay_bit = info->vfmt->BitsPerPixel;
 		} else {
-			sdl_state.zoom_bit = 16;
+			sdl_state.overlay_bit = 16;
 		}
 
-		log_std(("video:sdl: overlay bitsperpixel %d\n", sdl_state.zoom_bit));
+		log_std(("video:sdl: overlay bitsperpixel %d\n", sdl_state.overlay_bit));
+
+		if (overlay_size) {
+			size_x = overlay_size;
+			size_y = overlay_size * 3 / 4;
+		} else {
+			/* Sanity check */
+			if (info->current_w > 320 && info->current_h > 200) {
+				size_x = info->current_w;
+				size_y = info->current_h;
+			} else {
+				size_x = 1280; /* Common resolution of LCD screen */
+				size_y = 1024;
+			}
+		}
 
 		/* select the mode */
 		mode_flag = 0;
 		mode_x = 0;
 		mode_y = 0;
 		for(j=0;map[j];++j) {
-			if (SDL_VideoModeOK(map[j]->w, map[j]->h, sdl_state.zoom_bit, sdl_mode_flags()) != 0) {
-				if (!mode_flag || abs(mode_x*mode_y - zoom_area) > abs(map[j]->w*map[j]->h - zoom_area)) {
+			if (SDL_VideoModeOK(map[j]->w, map[j]->h, sdl_state.overlay_bit, sdl_mode_flags()) != 0) {
+				if (!mode_flag || abssum(mode_x, mode_y, size_x, size_y) > abssum(map[j]->w, map[j]->h, size_x, size_y)) {
 					mode_flag = 1;
 					mode_x = map[j]->w;
 					mode_y = map[j]->h;
@@ -399,10 +421,10 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned zoom_size, 
 			goto err_quit;
 		}
 
-		sdl_state.zoom_x = mode_x;
-		sdl_state.zoom_y = mode_y;
+		sdl_state.overlay_size_x = mode_x;
+		sdl_state.overlay_size_y = mode_y;
 
-		log_std(("video:sdl: overlay size %dx%d\n", sdl_state.zoom_x, sdl_state.zoom_y));
+		log_std(("video:sdl: overlay size %dx%d\n", sdl_state.overlay_size_x, sdl_state.overlay_size_y));
 	} else {
 		error_set("Invalid output mode.\n");
 		goto err_quit;
@@ -571,9 +593,9 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 			return -1;
 		}
 
-		sdl_state.surface = SDL_SetVideoMode(sdl_state.zoom_x, sdl_state.zoom_y, sdl_state.zoom_bit, sdl_mode_flags());
+		sdl_state.surface = SDL_SetVideoMode(sdl_state.overlay_size_x, sdl_state.overlay_size_y, sdl_state.overlay_bit, sdl_mode_flags());
 		if (!sdl_state.surface) {
-			log_std(("video:sdl: SDL_SetVideoMode(%d, %d, %d, SDL_FULLSCREEN | SDL_HWSURFACE) failed, %s\n", sdl_state.zoom_x, sdl_state.zoom_y, sdl_state.zoom_bit, SDL_GetError()));
+			log_std(("video:sdl: SDL_SetVideoMode(%d, %d, %d, SDL_FULLSCREEN | SDL_HWSURFACE) failed, %s\n", sdl_state.overlay_size_x, sdl_state.overlay_size_y, sdl_state.overlay_bit, SDL_GetError()));
 			error_set("Unable to set the SDL video mode.");
 			return -1;
 		}
@@ -670,8 +692,7 @@ void sdl_mode_done(adv_bool restore)
 	}
 
 #ifdef USE_VIDEO_RESTORE
-	/* close the screen if we are fullscreen. */
-	/* otherwise we cannot see the started programs by AdvanceMENU. */
+	/* close the screen if we are fullscreen to allow started sub process to have exclusive access at the screen. */
 	if ((sdl_state.surface->flags & SDL_FULLSCREEN) != 0) {
 		if (SDL_WasInit(SDL_INIT_VIDEO)!=0) {
 			log_std(("video:sdl: call SDL_QuitSubSystem(SDL_INIT_VIDEO)\n"));

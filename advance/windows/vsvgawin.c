@@ -359,7 +359,7 @@ static adv_error svgalib_init(int device_id)
 	return 0;
 }
 
-adv_error svgawin_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
+adv_error svgawin_init(int device_id, adv_output output, unsigned overlay_size, adv_cursor cursor)
 {
 	(void)cursor;
 

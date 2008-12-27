@@ -46,7 +46,7 @@ typedef struct svgaline_video_mode_struct {
 	adv_crtc crtc; /**< CRTC values. */
 } svgaline_video_mode;
 
-adv_error svgaline_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor);
+adv_error svgaline_init(int device_id, adv_output output, unsigned overlay_size, adv_cursor cursor);
 void svgaline_done(void);
 
 adv_bool svgaline_is_active(void);

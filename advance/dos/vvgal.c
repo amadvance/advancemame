@@ -357,7 +357,7 @@ static adv_device DEVICE[] = {
 { 0, 0, 0 }
 };
 
-adv_error vgaline_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
+adv_error vgaline_init(int device_id, adv_output output, unsigned overlay_size, adv_cursor cursor)
 {
 	const adv_device* i;
 

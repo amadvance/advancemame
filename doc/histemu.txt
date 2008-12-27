@@ -9,6 +9,9 @@ ADVANCEMAME VERSION 0.106.1 2008/12
 * New Windows icon at high resolution.
 * Ignored WINKEYS in Windows if input_hotkey is set.
 * Added a splash screen in Windows.
+* The 'overlaysize' option now has the default 'auto' which uses the current video mode.
+* The SDL library now force the video driver 'directx' as default.
+* Windows binary is provided with SDL.dll 1.2.13.
 
 
 ADVANCEMAME VERSION 0.106.0 2006/06

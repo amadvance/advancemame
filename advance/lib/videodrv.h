@@ -183,7 +183,7 @@ typedef struct adv_video_driver_struct {
 	 * \param id Choosen device from ::device_map.
 	 * \param output Output mode.
 	 */
-	adv_error (*init)(int id, adv_output output, unsigned zoom_size, adv_cursor cursor);
+	adv_error (*init)(int id, adv_output output, unsigned overlay_size, adv_cursor cursor);
 
 	/**
 	 * Deinitialize the driver.

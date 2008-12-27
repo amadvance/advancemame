@@ -46,7 +46,7 @@ typedef struct vbeline_video_mode_struct {
 	adv_crtc crtc; /**< CRTC values */
 } vbeline_video_mode;
 
-adv_error vbeline_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor);
+adv_error vbeline_init(int device_id, adv_output output, unsigned overlay_size, adv_cursor cursor);
 void vbeline_done(void);
 
 adv_bool vbeline_is_active(void);

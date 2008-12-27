@@ -11,6 +11,8 @@ ADVANCEMENU VERSION 2.5.0 2008/12
 * Added automatic detection of mamepp.exe for Windows.
 * Added automatic detection of sdlmame for Windows and *nix.
 * Added a splash screen in Windows.
+* The 'overlaysize' option now has the default 'auto' which uses the current video mode.
+  Required because from SDL 1.2.10 the default is the slow 'windib'.
 
 
 ADVANCEMENU VERSION 2.4.14 2007/01

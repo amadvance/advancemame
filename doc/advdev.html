@@ -1075,14 +1075,20 @@ device_video_overlaysize
 Select the favorite horizontal size to use with the `overlay'
 output mode. The program selects the nearest available video mode.
 <p>
-device_video_overlaysize SIZE
+device_video_overlaysize auto | SIZE
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+auto
+</em></td><td width="90%">
+Use the size of the current video mode (default).
+If not available tries 1280x1024.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 SIZE
 </em></td><td width="90%">
-The favorite horizontal size (default 1024).
+The user favorite horizontal size.
 </td></tr>
 </table>
 <p>

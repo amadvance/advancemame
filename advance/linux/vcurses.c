@@ -87,7 +87,7 @@ unsigned curses_flags(void)
 	return VIDEO_DRIVER_FLAGS_MODE_TEXT | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 }
 
-adv_error curses_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
+adv_error curses_init(int device_id, adv_output output, unsigned overlay_size, adv_cursor cursor)
 {
 	assert(!curses_is_active());
 	(void)cursor;

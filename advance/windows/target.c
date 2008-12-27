@@ -356,7 +356,7 @@ adv_error target_script(const char* script)
 	FILE* f;
 	int r;
 
-	os_internal_splash_stop();
+	os_fire();
 
 	log_std(("windows: script\n%s\n", script));
 
@@ -415,7 +415,7 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 	unsigned i;
 	int r;
 
-	os_internal_splash_stop();
+	os_fire();
 
 	comspec = getenv("COMSPEC");
 	if (!comspec) {
@@ -454,7 +454,7 @@ adv_error target_spawn(const char* file, const char** argv)
 	unsigned i;
 	int r;
 
-	os_internal_splash_stop();
+	os_fire();
 
 	log_std(("windows: spawn %s\n", file));
 	for(i=0;argv[i];++i)
@@ -558,7 +558,7 @@ void target_flush(void)
 {
 	MSG msg;
 
-	os_internal_splash_stop();
+	os_fire();
 
 	/* flush the message queue, otherwise the MessageBox may be not displayed */
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {

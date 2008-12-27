@@ -65,27 +65,54 @@ static struct os_context OS;
 
 LRESULT CALLBACK windows_hook_winproc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-	int bEatKeystroke;
 	KBDLLHOOKSTRUCT* p;
 
-	if (nCode < 0 || nCode != HC_ACTION) /* do not process message */
+	log_std(("os: windows_hook_winproc(%u, %u, %u)\n", (unsigned)nCode, (unsigned)wParam, (unsigned)lParam));
+
+	if (nCode != HC_ACTION) {
+		log_std(("os: windows_hook_winproc(!=HC_ACTION) -> NextHook\n"));
 		return CallNextHookEx(OS.g_hKeyboardHook, nCode, wParam, lParam);
- 
-	bEatKeystroke = 0;
-
-	p = (KBDLLHOOKSTRUCT*)lParam;
-
-	switch (wParam) {
-	case WM_KEYDOWN:
-	case WM_KEYUP:
-		bEatKeystroke = (p->vkCode == VK_LWIN) || (p->vkCode == VK_RWIN);
-		break;
 	}
  
-	if (bEatKeystroke)
-		return 1;
-	else
-		return CallNextHookEx(OS.g_hKeyboardHook, nCode, wParam, lParam);
+	p = (KBDLLHOOKSTRUCT*)lParam;
+
+	if (wParam == WM_KEYDOWN || wParam == WM_KEYUP || wParam == WM_SYSKEYDOWN || wParam == WM_SYSKEYUP) {
+		log_std(("os: windows_hook_winproc(HC_ACTION, WM_KEY*)\n"));
+
+		/* LWIN */
+		if (p->vkCode == VK_LWIN)
+			return 1;
+		/* RWIN */
+		if (p->vkCode == VK_RWIN)
+			return 1;
+		/* ALT + TAB */
+		if (p->vkCode == VK_TAB && (p->flags & LLKHF_ALTDOWN) != 0)
+			return 1;
+		/* ALT + ESC */
+		if (p->vkCode == VK_ESCAPE && (p->flags & LLKHF_ALTDOWN) != 0)
+			return 1;
+		/* CTRL + ESC */
+		if (p->vkCode == VK_ESCAPE && (GetKeyState( VK_CONTROL ) & 0x8000) != 0)
+			return 1;
+#if 0
+		/* CTRL + ALT + DEL */
+		if (p->vkCode == VK_DELETE) && (GetKeyState(VK_CONTROL) & 0x8000) != 0 && (p->flags & LLKHF_ALTDOWN) != 0)
+			return 1;
+#endif
+	}
+
+	log_std(("os: windows_hook_winproc(HC_ACTION) -> NextHook\n"));
+
+	return CallNextHookEx(OS.g_hKeyboardHook, nCode, wParam, lParam);
+}
+
+static void windows_save_hot_key(void)
+{
+	log_std(("os: SystemParametersInfo(GET)\n"));
+	/* Save the current sticky/toggle/filter key settings so they can be restored them later */
+	SystemParametersInfo(SPI_GETSTICKYKEYS, sizeof(STICKYKEYS), &OS.g_StartupStickyKeys, 0);
+	SystemParametersInfo(SPI_GETTOGGLEKEYS, sizeof(TOGGLEKEYS), &OS.g_StartupToggleKeys, 0);
+	SystemParametersInfo(SPI_GETFILTERKEYS, sizeof(FILTERKEYS), &OS.g_StartupFilterKeys, 0);
 }
 
 void os_internal_ignore_hot_key(void)
@@ -95,16 +122,13 @@ void os_internal_ignore_hot_key(void)
 	FILTERKEYS fkOff;
 
 	/* keyboard hook to disable win keys */
-	log_std(("os: SetWindowsHookEx()\n"));
 	if (!OS.g_hKeyboardHook) {
+		log_std(("os: SetWindowsHookEx()\n"));
 		OS.g_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL,  windows_hook_winproc, GetModuleHandle(0), 0);
+		if (!OS.g_hKeyboardHook) {
+			log_std(("os: SetWindowsHookEx() failed\n"));
+		}
 	}
-
-	log_std(("os: SystemParametersInfo(GET)\n"));
-	/* Save the current sticky/toggle/filter key settings so they can be restored them later */
-	SystemParametersInfo(SPI_GETSTICKYKEYS, sizeof(STICKYKEYS), &OS.g_StartupStickyKeys, 0);
-	SystemParametersInfo(SPI_GETTOGGLEKEYS, sizeof(TOGGLEKEYS), &OS.g_StartupToggleKeys, 0);
-	SystemParametersInfo(SPI_GETFILTERKEYS, sizeof(FILTERKEYS), &OS.g_StartupFilterKeys, 0);
 
 	skOff = OS.g_StartupStickyKeys;
 	tkOff = OS.g_StartupToggleKeys;
@@ -112,12 +136,12 @@ void os_internal_ignore_hot_key(void)
 
 	/* disable StickyKeys/etc shortcuts but if the accessibility feature is on, */
 	/* then leave the settings alone as its probably being usefully used */
-	log_std(("os: SystemParametersInfo(SET)\n"));
 	if ((skOff.dwFlags & SKF_STICKYKEYSON) == 0) {
 		// Disable the hotkey and the confirmation
 		skOff.dwFlags &= ~SKF_HOTKEYACTIVE;
 		skOff.dwFlags &= ~SKF_CONFIRMHOTKEY;
- 
+
+		log_std(("os: SystemParametersInfo(SPI_SETSTICKYKEYS)\n"));
 		SystemParametersInfo(SPI_SETSTICKYKEYS, sizeof(STICKYKEYS), &skOff, 0);
 	}
 
@@ -125,7 +149,8 @@ void os_internal_ignore_hot_key(void)
 		// Disable the hotkey and the confirmation
 		tkOff.dwFlags &= ~TKF_HOTKEYACTIVE;
 		tkOff.dwFlags &= ~TKF_CONFIRMHOTKEY;
- 
+
+		log_std(("os: SystemParametersInfo(SPI_SETTOGGLEKEYS)\n"));
 		SystemParametersInfo(SPI_SETTOGGLEKEYS, sizeof(TOGGLEKEYS), &tkOff, 0);
 	}
  
@@ -134,20 +159,21 @@ void os_internal_ignore_hot_key(void)
 		fkOff.dwFlags &= ~FKF_HOTKEYACTIVE;
 		fkOff.dwFlags &= ~FKF_CONFIRMHOTKEY;
 
+		log_std(("os: SystemParametersInfo(SPI_SETFILTERKEYS)\n"));
 		SystemParametersInfo(SPI_SETFILTERKEYS, sizeof(FILTERKEYS), &fkOff, 0);
 	}
 }
 
 void os_internal_restore_hot_key(void)
 {
-	log_std(("os: UnhookWindowsHookEx()\n"));
 	if (OS.g_hKeyboardHook) {
+		log_std(("os: UnhookWindowsHookEx()\n"));
 		UnhookWindowsHookEx(OS.g_hKeyboardHook);
 		OS.g_hKeyboardHook = 0;
 	}
 
 	/* restore StickyKeys/etc to original state and enable Windows key */
-	log_std(("os: SystemParametersInfo(()\n"));
+	log_std(("os: SystemParametersInfo(RESTORE)\n"));
 	SystemParametersInfo(SPI_SETSTICKYKEYS, sizeof(STICKYKEYS), &OS.g_StartupStickyKeys, 0);
 	SystemParametersInfo(SPI_SETTOGGLEKEYS, sizeof(TOGGLEKEYS), &OS.g_StartupToggleKeys, 0);
 	SystemParametersInfo(SPI_SETFILTERKEYS, sizeof(FILTERKEYS), &OS.g_StartupFilterKeys, 0);
@@ -362,7 +388,7 @@ static int windows_splash_start(void)
 	return 0;
 }
 
-void os_internal_splash_stop(void)
+void windows_splash_stop(void)
 {
 	if (SPLASH.m_hwnd) {
 		DestroyWindow(SPLASH.m_hwnd);
@@ -377,10 +403,15 @@ static int windows_splash_start(void)
 	return 0;
 }
 
-void os_internal_splash_stop(void)
+static void windows_splash_stop(void)
 {
 }
 #endif
+
+void os_fire(void)
+{
+	windows_splash_stop();
+}
 
 /***************************************************************************/
 /* Init */
@@ -407,9 +438,9 @@ int os_inner_init(const char* title)
 	target_clock_t start, stop;
 	double delay_time;
 	unsigned i;
+	const char* video_driver;
 
-	/* remove the splash screen */
-	os_internal_splash_stop();
+	os_fire();
 
 	target_yield();
 
@@ -439,6 +470,21 @@ int os_inner_init(const char* title)
 #else
 	log_std(("os: compiled big endian system\n"));
 #endif
+
+	/* Note that from SDL 1.2.10 the "windib" driver is the default, previouly the default was "directx" */
+	video_driver = getenv("SDL_VIDEODRIVER");
+	if (video_driver) {
+		log_std(("os: SDL_VIDEODRIVER = %s\n", video_driver));
+	} else {
+		log_std(("os: SDL_VIDEODRIVER is unset\n"));
+#if !defined(USE_VIDEO_RESTORE)
+		/* Set directx, but only if the program doesn't start new process */
+		log_std(("os: Set SDL_VIDEODRIVER as directx\n"));
+		putenv("SDL_VIDEODRIVER=directx");
+		video_driver = getenv("SDL_VIDEODRIVER");
+		log_std(("os: SDL_VIDEODRIVER = %s\n", video_driver));
+#endif
+	}
 
 	log_std(("os: SDL_Init(SDL_INIT_NOPARACHUTE)\n"));
 	if (SDL_Init(SDL_INIT_NOPARACHUTE) != 0) {
@@ -643,7 +689,7 @@ int GetRawInputDeviceHIDInfo(const char* name, unsigned* vid, unsigned* pid, uns
 	strcpy(buffer, "\\\\?\\");
 	strcat(buffer, last);
 
-	h = CreateFile(buffer, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);	
+	h = CreateFile(buffer, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
 	if (h == INVALID_HANDLE_VALUE) {
 		log_std(("ERROR:GetRawInputDeviceHIDInfo: error %d in CreateFile(%s)\n", (unsigned)GetLastError(), buffer));
 		goto err_free;
@@ -681,6 +727,7 @@ err:
 
 int main(int argc, char* argv[])
 {
+	windows_save_hot_key();
 	windows_splash_start();
 
 	if (target_init() != 0)

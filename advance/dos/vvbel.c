@@ -265,7 +265,7 @@ static void vbeline_probe(void)
 		vbeline_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
 }
 
-adv_error vbeline_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
+adv_error vbeline_init(int device_id, adv_output output, unsigned overlay_size, adv_cursor cursor)
 {
 	unsigned i;
 	const char* name;

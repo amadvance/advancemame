@@ -73,6 +73,11 @@ void os_inner_done(void);
 void os_poll(void);
 
 /**
+ * Signaling tha the program is starting.
+ */
+void os_fire(void);
+
+/**
  * Main program function.
  * The user must implement this function instead of main().
  */

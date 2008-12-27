@@ -519,14 +519,14 @@ static adv_error fb_detect(void)
 	return 0;
 }
 
-adv_error fb_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
+adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_cursor cursor)
 {
 	const char* fb;
 	char id_buffer[64];
 	char* term;
 
 	(void)cursor;
-	(void)zoom_size;
+	(void)overlay_size;
 
 	assert(!fb_is_active());
 

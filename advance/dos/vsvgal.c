@@ -147,7 +147,7 @@ static adv_device DEVICE[] = {
 /***************************************************************************/
 /* Public */
 
-adv_error svgaline_init(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
+adv_error svgaline_init(int device_id, adv_output output, unsigned overlay_size, adv_cursor cursor)
 {
 	unsigned i;
 	const char* name;

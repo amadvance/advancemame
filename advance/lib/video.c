@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ struct video_option_struct {
 	adv_bool mode_yuy2; /**< Allow yuy2 modes. */
 	adv_output output; /**< Output mode. */
 	adv_cursor cursor; /**< Cursor mode. */
-	unsigned zoom_size; /**< Zoom size. */
+	unsigned overlay_size; /**< Overlay size. 0 for auto selection. */
 	char name[DEVICE_NAME_MAX]; /**< Name of the device. */
 };
 
@@ -296,7 +296,7 @@ void video_default(void)
 	video_option.fast_change = 0;
 	video_option.output = adv_output_auto;
 	video_option.cursor = adv_cursor_auto;
-	video_option.zoom_size = 1024;
+	video_option.overlay_size = 0;
 	sncpy(video_option.name, DEVICE_NAME_MAX, "auto");
 }
 
@@ -332,7 +332,7 @@ void video_reg(adv_conf* context, adv_bool auto_detect)
 	conf_bool_register_default(context, "device_color_yuy2", 1);
 	conf_int_register_enum_default(context, "device_video_output", conf_enum(OPTION_OUTPUT), adv_output_auto);
 	conf_int_register_enum_default(context, "device_video_cursor", conf_enum(OPTION_CURSOR), adv_cursor_auto);
-	conf_int_register_limit_default(context, "device_video_overlaysize", 320, 4096, 1024);
+	conf_string_register_default(context, "device_video_overlaysize", "auto");
 }
 
 /**
@@ -433,7 +433,7 @@ adv_error adv_video_init(void)
 
 		error_cat_set(video_state.driver_map[j]->name, 1);
 
-		if (dev && video_state.driver_map[j]->init(dev->id, video_option.output, video_option.zoom_size, video_option.cursor) == 0) {
+		if (dev && video_state.driver_map[j]->init(dev->id, video_option.output, video_option.overlay_size, video_option.cursor) == 0) {
 			log_std(("video: select driver %s\n", video_state.driver_map[j]->name));
 			at_least_one = 1;
 		} else {
@@ -519,6 +519,7 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 {
 	unsigned i;
 	int at_least_one;
+	const char* s;
 
 	if (video_state.driver_mac == 0) {
 		error_set("No video driver was compiled in.");
@@ -542,7 +543,12 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 	video_option.mode_yuy2 = conf_bool_get_default(context, "device_color_yuy2");
 	video_option.output = conf_int_get_default(context, "device_video_output");
 	video_option.cursor = conf_int_get_default(context, "device_video_cursor");
-	video_option.zoom_size = conf_int_get_default(context, "device_video_overlaysize");
+	s = conf_string_get_default(context, "device_video_overlaysize");
+	if (strcmp(s, "auto") == 0) {
+		video_option.overlay_size = 0;
+	} else {
+		video_option.overlay_size = atoi(s);
+	}
 
 	sncpy(video_option.name, DEVICE_NAME_MAX, conf_string_get_default(context, "device_video"));
 

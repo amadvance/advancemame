@@ -85,7 +85,7 @@ In Linux and Mac OS X you can also use \(oq\(hy\(hy\(cq before options instead o
 In DOS and Windows you can also use \(oq/\(cq.
 .SH EMULATORS 
 The program supports many type of emulators. The emulators
-AdvanceMAME, AdvanceMESS, MAME, xmame, DMAME,
+AdvanceMAME, AdvanceMESS, MAME, SDLMAME, xmame, DMAME,
 DMESS and DRAINE are directly supported and the only thing
 you should do is to run the AdvanceMENU program in the same
 directory of the emulator.
@@ -221,8 +221,23 @@ The directories specified in the \(oqrompath\(cq option in the
 \(oqmame.ini\(cq file are used to detect the list of the available
 roms.
 .PP
-The directory specified in \(oqsnap_directory\(cq is
+The directory specified in \(oqsnapshot_directory\(cq is
 used to detect the list of available snapshots.
+.SS sdlmame \(hy SDL MAME 
+For the \(oqsdlmame\(cq emulator the roms informations are gathered
+from the file \(oqEMUNAME.xml\(cq. If this file doesn\(cqt exist, it\(cqs
+created automatically with emulator \(oq\(hylistxml\(cq command.
+.PP
+The directories specified in the \(oqrompath\(cq option in the
+\(oqHOME/.mame/mame.ini\(cq file in Linux and Mac OS X and in the \(cqmame.ini\(cq
+file in Windows are used to detect the list of the available roms.
+.PP
+Please note that in Linux and Mac OS X the \(cqmame.ini\(cq file doesn\(cqt
+support relative paths for roms and other files. Always absolute
+paths configuring SDL MAME.
+.PP
+The directory specified in \(oqsnapshot_directory\(cq is used to detect the
+list of available snapshots files.
 .SS xmame \(hy xmame 
 For the \(oqxmame\(cq emulator the roms informations are gathered
 from the file \(oqEMUNAME.xml\(cq. If this file doesn\(cqt exist, it\(cqs
@@ -732,6 +747,48 @@ Special mode for icon preview.
 Special mode for marquee preview.
 .PD
 .RE
+.SS mode_skip 
+Disables some menu modes when you press \(oqtab\(cq.
+.PP
+mode_skip (full | full_mixed | text | list | list_mixed
+.PD 0
+.PP
+.PD
+	| tile_small | tile_normal | tile_big | tile_enormous
+.PD 0
+.PP
+.PD
+	| tile_giant | tile_icon | tile_marquee)*
+.PD 0
+.PP
+.PD
+.PP
+Options:
+.RS 4
+.PD 0
+.HP 4
+.I SKIP
+Multiple selections of disabled modes. Use
+an empty list to enable all the modes.
+.PD
+.RE
+.PP
+Examples:
+.PP
+.RS 4
+mode_skip tile_giant
+.PD 0
+.PP
+.PD
+mode_skip full full_mixed list tile_small tile_giant
+.PD 0
+.PP
+.PD
+mode_skip
+.PD 0
+.PP
+.PD
+.RE
 .SS sort 
 Selects the sort order of the games displayed.
 .PP
@@ -825,48 +882,6 @@ Files in the \(oqtitles\(cq dir.
 .PP
 The \(oqicons\(cq and \(oqmarquees\(cq images can be selected with the
 special \(oqmode\(cq options \(oqtile_icon\(cq and \(oqtile_marquee\(cq.
-.SS mode_skip 
-Disables some menu modes when you press \(oqtab\(cq.
-.PP
-mode_skip (full | full_mixed | list | list_mixed | tile_small
-.PD 0
-.PP
-.PD
-	| tile_normal | tile_big | tile_enormous | tile_giant
-.PD 0
-.PP
-.PD
-	| tile_icon | tile_marquee)*
-.PD 0
-.PP
-.PD
-.PP
-Options:
-.RS 4
-.PD 0
-.HP 4
-.I SKIP
-Multiple selections of disabled modes. Use
-an empty list to enable all the modes.
-.PD
-.RE
-.PP
-Examples:
-.PP
-.RS 4
-mode_skip tile_giant
-.PD 0
-.PP
-.PD
-mode_skip full full_mixed list tile_small tile_giant
-.PD 0
-.PP
-.PD
-mode_skip
-.PD 0
-.PP
-.PD
-.RE
 .SS preview_expand 
 Enlarges the screen area used by the vertical games on horizontal
 tile (and horizontal games in vertical tile).
@@ -961,7 +976,7 @@ preview_default_marquee \(a"C:\(rsMAME\(rsDEFMAR.PNG\(a"
 .PD 0
 .PP
 .PD
-preview_default_icon \(a"C:\(rsMAME\(rsDEFMAR.PNG\(a"
+preview_default_icon \(a"C:\(rsMAME\(rsDEFICO.ICO\(a"
 .PD 0
 .PP
 .PD
@@ -1133,7 +1148,7 @@ Reset the video mode (default).
 Maintain the current graphics mode.
 .PD
 .RE
-.SS display_restoreatext 
+.SS display_restoreatexit 
 Selects whether to reset the video mode before exiting.
 .PP
 display_restoreatexit yes | no

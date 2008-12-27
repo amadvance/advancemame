@@ -97,7 +97,7 @@ static void vbe_probe(void)
 		vbe_state2.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR32;
 }
 
-static adv_error vbe_init2(int device_id, adv_output output, unsigned zoom_size, adv_cursor cursor)
+static adv_error vbe_init2(int device_id, adv_output output, unsigned overlay_size, adv_cursor cursor)
 {
 	const adv_device* i;
 
