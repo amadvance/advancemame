@@ -664,7 +664,8 @@ void advance_video_update_ui(struct advance_video_context* context, const adv_cr
 	unsigned aspect_x;
 	unsigned aspect_y;
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
+		/* with window assume square pixel */
 		aspect_x = crtc_hsize_get(crtc);
 		aspect_y = crtc_vsize_get(crtc);
 	} else {
@@ -847,7 +848,7 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 	/* compute the mode visible part assuming a complete fraction stretch */
 	/* some values are overwritten later if the stretch method is different */
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
-		/* only for window */
+		/* with window assume square pixel */
 		context->state.mode_visible_size_x = crtc_hsize_get(crtc);
 		context->state.mode_visible_size_y = crtc_vsize_get(crtc);
 	} else {

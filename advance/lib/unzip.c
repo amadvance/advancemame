@@ -32,6 +32,7 @@
 
 #include "unzip.h"
 #include "endianrw.h"
+#include "log.h"
 
 #include <zlib.h>
 
@@ -73,6 +74,7 @@ static int ecd_read(adv_zip* zip, char** data, unsigned* size)
 	int buf_pos = zip->length - ECD_READ_BUFFER_SIZE;
 	int buf_pos_aligned = buf_pos & ~(ECD_READ_BUFFER_SIZE-1);
 	int buf_length = zip->length - buf_pos_aligned; /* initial buffer length */
+	unsigned increment = ECD_READ_BUFFER_SIZE;
 
 	while (1) {
 		int offset;
@@ -115,9 +117,10 @@ static int ecd_read(adv_zip* zip, char** data, unsigned* size)
 
 		free(buf);
 
-		if (buf_length < zip->length) {
+		if (buf_length+increment < 4*1024*1024) { /* no more than 4M */
 			/* grow buffer */
-			buf_length += ECD_READ_BUFFER_SIZE;
+			buf_length += increment;
+			increment *= 2; /* power increment */
 		} else {
 			return -1;
 		}
@@ -164,6 +167,7 @@ adv_zip* zip_open(const char* zipfile)
 
 	/* read ecd data */
 	if (ecd_read(zip, &ezdata, &ezsize)!=0) {
+		log_std(("zip: ECD not found in file %s\n", zipfile));
 		fclose(zip->fp);
 		free(zip);
 		return 0;

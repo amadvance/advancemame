@@ -1365,8 +1365,10 @@ adv_error advance_ui_config_load(struct advance_ui_context* context, adv_conf* c
 	s = conf_string_get_default(cfg_context, "ui_fontsize");
 
 	context->config.ui_font_sizey = strtol(s, &e, 10);
+	while (*e && isspace(*e))
+		++e;
 	if (*e) {
-		context->config.ui_font_sizex = strtol(s, &e, 10);
+		context->config.ui_font_sizex = strtol(e, &e, 10);
 	} else {
 		context->config.ui_font_sizex = 0;
 	}
@@ -1403,6 +1405,15 @@ void advance_ui_changefont(struct advance_ui_context* context, unsigned screen_w
 	context->state.ui_font = 0;
 	context->state.ui_font_oriented = 0;
 
+	if ((context->config.ui_font_orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
+		unsigned t = screen_width;
+		screen_width = screen_height;
+		screen_height = t;
+		t = aspect_x;
+		aspect_x = aspect_y;
+		aspect_y = t;
+	}
+
 	if (context->config.ui_font_sizey >= 5 && context->config.ui_font_sizey <= 100) {
 		sizey = screen_height / context->config.ui_font_sizey;
 	} else {
@@ -1412,7 +1423,8 @@ void advance_ui_changefont(struct advance_ui_context* context, unsigned screen_w
 	if (context->config.ui_font_sizex >= 5 && context->config.ui_font_sizex <= 200) {
 		sizex = screen_width / context->config.ui_font_sizex;
 	} else {
-		sizex = sizey * (screen_width*aspect_y) / (screen_height*aspect_x);
+		log_std(("emu:ui: font computation: screen %dx%d, aspect %dx%d\n", screen_width, screen_height, aspect_x, aspect_y));
+		sizex = sizey * (screen_width * aspect_y) / (screen_height * aspect_x);
 	}
 
 	log_std(("emu:ui: font pixel size %dx%d\n", sizex, sizey));
