@@ -2,6 +2,7 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME Version 0.106.1 2008/12
+	) Fixed the black screen bug with paletteized games.
 	) New Windows icon at high resolution.
 	) Ignored WINKEYS in Windows if input_hotkey is set.
 	) Added a splash screen in Windows.

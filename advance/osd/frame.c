@@ -512,8 +512,14 @@ static adv_error vidmode_init(struct advance_video_context* context, adv_mode* m
 
 	/* initialize the update system */
 	update_init(context->config.triplebuf_flag != 0 ? 3 : 1);
-
 	log_std(("emu:video: using %d hardware video buffers\n", update_page_max_get()));
+
+	/* set the buffer color mode */
+	if (color_def_type_get(video_color_def()) == adv_color_type_yuy2) {
+		context->state.buffer_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
+	} else {
+		context->state.buffer_def = video_color_def();
+	}
 
 	advance_video_invalidate_screen(context);
 	video_invalidate_color(context);
@@ -1788,11 +1794,6 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 	video_pipeline_init(&context->state.blit_pipeline_video);
 	video_pipeline_init(&context->state.buffer_pipeline_video);
 
-	if (color_def_type_get(video_color_def()) == adv_color_type_yuy2)
-		context->state.buffer_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
-	else
-		context->state.buffer_def = video_color_def();
-
 	context->state.buffer_bytes_per_scanline = context->state.buffer_size_x * color_def_bytes_per_pixel_get(context->state.buffer_def);
 
 	/* align at 32 bytes */
@@ -2139,7 +2140,7 @@ static void video_frame_palette(struct advance_video_context* context)
 							adv_pixel pixel;
 							video_pixel_make(&pixel, c.red, c.green, c.blue);
 
-							/* update only the currently used palette to doesn't overload the memory cache */
+							/* update only the currently used palette to not overload the memory cache */
 							switch (video_bytes_per_pixel()) {
 							case 4 :
 								context->state.palette_index32_map[p] = pixel;

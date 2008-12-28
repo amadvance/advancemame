@@ -705,14 +705,18 @@ It requires some time.
 Select the favorite horizontal size to use with the \(oqoverlay\(cq
 output mode. The program selects the nearest available video mode.
 .PP
-device_video_overlaysize SIZE
+device_video_overlaysize auto | SIZE
 .PP
 Options:
 .RS 4
 .PD 0
 .HP 4
+.I auto
+Use the size of the current video mode (default).
+If not available tries 1280x1024.
+.HP 4
 .I SIZE
-The favorite horizontal size (default 1024).
+The user favorite horizontal size.
 .PD
 .RE
 .PP
