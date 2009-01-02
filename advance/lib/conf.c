@@ -227,12 +227,12 @@ static void input_free(struct adv_conf_input_struct* input)
 	free(input->file_in);
 	free(input->file_out);
 	for(i=0;i<input->conv_mac;++i) {
-		free(input->conv_map[i].section_glob);
-		free(input->conv_map[i].section_result);
-		free(input->conv_map[i].tag_glob);
-		free(input->conv_map[i].tag_result);
-		free(input->conv_map[i].value_glob);
-		free(input->conv_map[i].value_result);
+		free((void*)input->conv_map[i].section_glob);
+		free((void*)input->conv_map[i].section_result);
+		free((void*)input->conv_map[i].tag_glob);
+		free((void*)input->conv_map[i].tag_result);
+		free((void*)input->conv_map[i].value_glob);
+		free((void*)input->conv_map[i].value_result);
 	}
 	free(input->conv_map);
 	free(input);

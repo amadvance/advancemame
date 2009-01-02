@@ -9,7 +9,6 @@ AdvanceMENU Version 2.5.0 2008/12
 	) Added automatic detection of sdlmame for Windows and *nix.
 	) Added a splash screen in Windows.
 	) The 'overlaysize' option now has the default 'auto' which uses the current video mode.
-		Required because from SDL 1.2.10 the default is the slow 'windib'.
 	) Windows binary is provided with SDL.dll 1.2.13.
 
 AdvanceMENU Version 2.4.14 2007/01

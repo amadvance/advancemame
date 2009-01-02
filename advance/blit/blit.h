@@ -249,6 +249,8 @@ struct video_stage_vert_struct {
 	unsigned sdy; /**< Source vertical size in rows. */
 	int sdw; /**< Source row size (in bytes). It may be negative for flip operations. */
 
+	unsigned interp; /**< Interpolation type in the vert stage. */
+
 	/**
 	 * Destination vertical size in rows.
 	 * The destination row size is always the minimun.

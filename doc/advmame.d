@@ -835,8 +835,8 @@ Configuration
 		none - Original size.
 		integer - Integer stretch, i.e. x2, x3, x4,...
 		mixed - Integer horizontal stretch and fractional
-			vertical stretch (default).
-		fractional - Fractional stretch.
+			vertical stretch.
+		fractional - Fractional stretch (default).
 
 	The `fractional' option involves a slowdown, so the `mixed' 
 	option is the default. 

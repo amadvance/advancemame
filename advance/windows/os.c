@@ -182,7 +182,7 @@ void os_internal_restore_hot_key(void)
 /***************************************************************************/
 /* splash */
 
-#if defined(ADV_EMU) || defined(ADV_MENU)
+#if defined(ADV_MENU)
 struct context_struct {
 	HWND m_hwnd;
 	DWORD m_dwWidth;
@@ -323,7 +323,7 @@ static LRESULT CALLBACK windows_splash_windproc(HWND hwnd, UINT uMsg, WPARAM wPa
 	return DefWindowProc(hwnd, uMsg, wParam, lParam) ;
 }
 
-static int windows_splash_start(void)
+static void windows_splash_start(void)
 {
 	DWORD nScrWidth;
 	DWORD nScrHeight;
@@ -337,7 +337,7 @@ static int windows_splash_start(void)
 	SPLASH.m_hSplashBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_SPLASH_MENU));
 #endif
 	if (!SPLASH.m_hSplashBitmap)
-		return -1;
+		return;
 
 #if defined(ADV_EMU)
 	SPLASH.m_hAlphaBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_ALPHA));
@@ -345,14 +345,14 @@ static int windows_splash_start(void)
 	SPLASH.m_hAlphaBitmap = LoadBitmap(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_ALPHA_MENU));
 #endif
 	if (!SPLASH.m_hAlphaBitmap)
-		return -1;
+		return;
 
 	int nRetValue;
 	BITMAP csBitmapSize;
 
 	nRetValue = GetObject(SPLASH.m_hSplashBitmap, sizeof(csBitmapSize), &csBitmapSize);
 	if (nRetValue == 0)
-		return -1;
+		return;
 
 	SPLASH.m_dwWidth = (DWORD)csBitmapSize.bmWidth;
 	SPLASH.m_dwHeight = (DWORD)csBitmapSize.bmHeight;
@@ -371,7 +371,7 @@ static int windows_splash_start(void)
 	wndclass.lpszClassName  = SPLASH.m_lpszClassName;
 	wndclass.hIconSm        = NULL;
 	if (!RegisterClassEx(&wndclass))
-		return -1;
+		return;
 
 	nScrWidth = GetSystemMetrics(SM_CXFULLSCREEN);
 	nScrHeight = GetSystemMetrics(SM_CYFULLSCREEN);
@@ -380,12 +380,10 @@ static int windows_splash_start(void)
 	SPLASH.m_Y = (nScrHeight - SPLASH.m_dwHeight) / 2;
 	SPLASH.m_hwnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, SPLASH.m_lpszClassName, TEXT("Splash"), WS_POPUP, SPLASH.m_X, SPLASH.m_Y,  SPLASH.m_dwWidth, SPLASH.m_dwHeight, NULL, NULL, NULL, &SPLASH);
 	if (!SPLASH.m_hwnd)
-		return -1;
+		return;
 
 	ShowWindow(SPLASH.m_hwnd, SW_SHOW) ;
 	UpdateWindow(SPLASH.m_hwnd);
-
-	return 0;
 }
 
 void windows_splash_stop(void)
@@ -398,9 +396,8 @@ void windows_splash_stop(void)
 	}
 }
 #else
-static int windows_splash_start(void)
+static void windows_splash_start(void)
 {
-	return 0;
 }
 
 static void windows_splash_stop(void)

@@ -91,7 +91,6 @@ void mode_desc_print(struct advance_video_context* context, char* buffer, unsign
 	} else {
 		snprintf(buffer, size, "%4dx%4d%c %4.2fx%4.2f", crtc_hsize_get(crtc), crtc_vsize_get(crtc), c, factor_x, factor_y);
 	}
-
 }
 
 /* Compute the MCD of two number (Euclide) */

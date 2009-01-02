@@ -4,11 +4,14 @@ Name
 AdvanceMAME Version 0.106.1 2008/12
 	) Fixed the black screen bug with paletteized games.
 	) Fixed the computation of the font size of the menu for vertical games.
+	) Added support for 'lq' and 'hq' resize mode using the 'overlay' output mode.
+	) The default output mode in Windows and X is now 'overlay'.
+	) The 'fractional' resize effect is now the default instead of 'mixed'.
 	) New Windows icon at high resolution.
 	) Ignored WINKEYS in Windows if input_hotkey is set.
-	) Added a splash screen in Windows.
 	) The 'overlaysize' option now has the default 'auto' which uses the current video mode.
 	) The SDL library now force the video driver 'directx' as default.
+		Required because from SDL 1.2.10 the default is the slow 'windib'.
 	) Windows binary is provided with SDL.dll 1.2.13.
 
 AdvanceMAME Version 0.106.0 2006/06

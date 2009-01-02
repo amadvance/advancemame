@@ -452,7 +452,7 @@ void svgawin_write_lock(void)
 	svgawin_state.lock_active = 1;
 }
 
-void svgawin_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y)
+void svgawin_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool waitvsync)
 {
 	assert(svgawin_state.lock_active);
 
@@ -704,14 +704,14 @@ adv_error svgawin_mode_set(const svgawin_video_mode* mode)
 	memset(svgawin_write_line(0), 0, adv_svgalib_scanline_get() * mode->crtc.vde);
 
 	log_std(("video:svgawin: unlock the video memory\n"));
-	svgawin_write_unlock(0, 0, 0, 0);
+	svgawin_write_unlock(0, 0, 0, 0, 0);
 
 	svgawin_state.mode_active = 1;
 
 	return 0;
 
 err_svgalib_lock:
-	svgawin_write_unlock(0, 0, 0, 0);
+	svgawin_write_unlock(0, 0, 0, 0, 0);
 err_svgalib:
 	svgalib_mode_done();
 err_sdl:
@@ -854,7 +854,7 @@ adv_error svgawin_mode_import(adv_mode* mode, const svgawin_video_mode* svgawin_
 	*DRIVER(mode) = *svgawin_mode;
 
 	mode->driver = &video_svgawin_driver;
-	mode->flags = MODE_FLAGS_SCROLL_ASYNC
+	mode->flags = MODE_FLAGS_RETRACE_WAIT_SYNC | MODE_FLAGS_RETRACE_SET_ASYNC
 		| (mode->flags & MODE_FLAGS_USER_MASK)
 		| svgawin_mode->index;
 	mode->size_x = DRIVER(mode)->crtc.hde;

@@ -486,8 +486,8 @@ adv_error vgaline_mode_import(adv_mode* mode, const vgaline_video_mode* vgaline_
 	DRIVER(mode)->crtc.pixelclock = vga_pixelclock_nearest_get(DRIVER(mode)->crtc.pixelclock, DRIVER(mode)->is_text);
 
 	mode->driver = &video_vgaline_driver;
-	mode->flags = MODE_FLAGS_SCROLL_ASYNC |
-		(mode->flags & MODE_FLAGS_USER_MASK);
+	mode->flags = MODE_FLAGS_RETRACE_WAIT_SYNC | MODE_FLAGS_RETRACE_SET_ASYNC
+		| (mode->flags & MODE_FLAGS_USER_MASK);
 
 	if (DRIVER(mode)->is_text) {
 		mode->flags |= MODE_FLAGS_INDEX_TEXT;

@@ -51,9 +51,11 @@ extern "C" {
  * Flags describing the sync support of a video mode.
  */
 /*@{*/
-#define MODE_FLAGS_SCROLL_SYNC  0x0020 /**< The syncronous (triple buffer) set display start operation is supported. */
-#define MODE_FLAGS_SCROLL_ASYNC 0x0040 /**< The asyncronous (double buffer) set display start operation is supported. */
-#define MODE_FLAGS_SCROLL_MASK  0x00F0 /**< Mask. */
+#define MODE_FLAGS_RETRACE_WAIT_SYNC  0x0010 /**< The wait syncronous operation is supported. */
+#define MODE_FLAGS_RETRACE_SET_ASYNC  0x0020 /**< The set asyncronous (triple buffer) operation is supported. */
+#define MODE_FLAGS_RETRACE_SET_SYNC   0x0040 /**< The set syncronous (double buffer) operation is supported. */
+#define MODE_FLAGS_RETRACE_WRITE_SYNC 0x0080 /**< The write syncronous operation is supported. */
+#define MODE_FLAGS_RETRACE_MASK       0x00F0 /**< Mask. */
 /*@}*/
 
 /** \name Flags index

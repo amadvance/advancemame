@@ -235,10 +235,10 @@ static inline void video_write_lock(void)
 }
 
 /** Remove the lock for writing. */
-static inline void video_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y)
+static inline void video_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool waitvsync)
 {
 	if (video_current_driver()->write_unlock)
-		video_current_driver()->write_unlock(x, y, size_x, size_y);
+		video_current_driver()->write_unlock(x, y, size_x, size_y, waitvsync);
 }
 
 /** Write column offset of the current video mode. */
@@ -256,7 +256,7 @@ void video_index_rgb_to_packed(void);
 adv_bool video_index_packed_to_rgb_is_available(void);
 
 adv_color_rgb* video_palette_get(void);
-adv_error video_palette_set(adv_color_rgb* palette, unsigned start, unsigned count, int waitvsync);
+adv_error video_palette_set(adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync);
 
 static inline void video_palette_make(adv_color_rgb* vp, unsigned r, unsigned g, unsigned b)
 {
@@ -365,7 +365,6 @@ void video_mode_print(char* buffer, const adv_mode* vm);
 
 double video_measure_step(void (*wait)(void), double low, double high);
 
-adv_error video_display_set(unsigned offset, int waitvsync);
 void video_put_pixel(unsigned x, unsigned y, unsigned color);
 void video_put_pixel_clip(unsigned x, unsigned y, unsigned color);
 void video_put_char(unsigned x, unsigned y, char c, unsigned color);

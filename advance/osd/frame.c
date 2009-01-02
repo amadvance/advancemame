@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,14 +69,26 @@
 		doesn't have the same aspect ratio of the screen.
 */
 
-static unsigned over_step(double double_value, unsigned step)
+static int adjust_step(int multiplier, int divider, int step)
 {
-	unsigned value;
+	int v;
 
-	value = ceil(double_value);
+	v = multiplier / divider;
+	if ((v % step) != 0)
+		v += step - (v % step);
 
-	if (value % step != 0)
-		value = value + step - value % step;
+	while (divider * v < multiplier)
+		v += step;
+
+	return v;
+}
+
+static int adjust_multiplier(int value, int base, int step, int upper)
+{
+	int i;
+	for(i=1;i<8;++i)
+		if (base * i <= upper && abs(value - base * i) <= step * i)
+			return base * i;
 	return value;
 }
 
@@ -145,7 +157,7 @@ static adv_error video_make_crtc_for_game(struct advance_video_context* context,
 			factor_x = context->state.mode_aspect_factor_x;
 			factor_y = context->state.mode_aspect_factor_y;
 
-			size_x = over_step((double)size_y * factor_x / factor_y, CRTC_HSTEP);
+			size_x = adjust_step(size_y * factor_x, factor_y, CRTC_HSTEP);
 		}
 
 		crtc_hsize_set(crtc, size_x);
@@ -425,20 +437,26 @@ void advance_video_invalidate_screen(struct advance_video_context* context)
 {
 	unsigned i;
 	adv_pixel color;
+	unsigned count;
 
 	assert(video_mode_is_active());
 
 	/* on palettized modes it always return 0 */
 	color = video_pixel_get(0, 0, 0);
 
+	/* number of times to clear to use all the buffers */
+	count = update_page_max_get();
+	if (count == 1 && (video_flags() & MODE_FLAGS_RETRACE_WRITE_SYNC) != 0)
+		count = 2;
+
 	/* intentionally doesn't clear the entire video memory, */
 	/* it's more safe to clear only the used part, for example */
 	/* if case the memory size detection is wrong  */
-	for(i=0;i<update_page_max_get();++i) {
+	for(i=0;i<count;++i) {
 		update_start();
 		log_std(("emu:video: clear %dx%d %dx%d\n", update_x_get(), update_y_get(), video_size_x(), video_size_y()));
 		video_clear(update_x_get(), update_y_get(), video_size_x(), video_size_y(), color);
-		update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), color);
+		update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 0);
 	}
 }
 
@@ -755,12 +773,6 @@ void advance_video_update_effect(struct advance_video_context* context)
 		context->state.combine = COMBINE_NONE;
 	}
 
-	if ((context->state.combine == COMBINE_HQ || context->state.combine == COMBINE_LQ)
-		&& (context->state.mode_index != MODE_FLAGS_INDEX_BGR32 && context->state.mode_index != MODE_FLAGS_INDEX_BGR16 && context->state.mode_index != MODE_FLAGS_INDEX_BGR15)) {
-		log_std(("emu:video: resizeeffect=lq|hq disabled because is supported only in 15/16/32 bit modes\n"));
-		context->state.combine = COMBINE_NONE;
-	}
-
 	/* max only in not integer change */
 	if (context->state.combine == COMBINE_MAXMIN
 		&& context->state.mode_visible_size_y % context->state.game_visible_size_y == 0
@@ -916,14 +928,8 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 		context->state.game_visible_size_y = context->state.game_used_size_y;
 
 		/* reject fractional for very small adjustement */
-		if (context->state.game_used_size_x <= crtc_hsize_get(crtc)
-			&& abs(context->state.mode_visible_size_x - context->state.game_used_size_x) <= 8) {
-			context->state.mode_visible_size_x = context->state.game_used_size_x;
-		}
-		if (context->state.game_used_size_y <= crtc_vsize_get(crtc)
-			&& abs(context->state.mode_visible_size_y - context->state.game_used_size_y) <= 8) {
-			context->state.mode_visible_size_y = context->state.game_used_size_y;
-		}
+		context->state.mode_visible_size_x = adjust_multiplier(context->state.mode_visible_size_x, context->state.game_used_size_x, CRTC_HSTEP, crtc_hsize_get(crtc));
+		context->state.mode_visible_size_y = adjust_multiplier(context->state.mode_visible_size_y, context->state.game_used_size_y, CRTC_VSTEP, crtc_vsize_get(crtc));
 	} else if (stretch == STRETCH_INTEGER_X_FRACTIONAL_Y) {
 		unsigned mx;
 		mx = floor(context->state.mode_visible_size_x / (double)context->state.game_used_size_x);
@@ -939,6 +945,9 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 		}
 
 		context->state.game_visible_size_y = context->state.game_used_size_y;
+
+		/* reject fractional for very small adjustement */
+		context->state.mode_visible_size_y = adjust_multiplier(context->state.mode_visible_size_y, context->state.game_used_size_y, CRTC_VSTEP, crtc_vsize_get(crtc));
 	} else if (stretch == STRETCH_INTEGER_XY) {
 		unsigned mx;
 		unsigned my;
@@ -1400,21 +1409,21 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		/* compute the best mode */
 		if (context->state.mode_aspect_vertgameinhorzscreen) {
 			best_size_y = context->state.game_used_size_y;
-			best_size_x = over_step((double)context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
+			best_size_x = adjust_step(context->state.game_used_size_y * factor_x, factor_y, CRTC_HSTEP);
 			best_size_2y = 2*context->state.game_used_size_y;
-			best_size_2x = over_step((double)2*context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
+			best_size_2x = adjust_step(2 * context->state.game_used_size_y * factor_x, factor_y, CRTC_HSTEP);
 			best_size_3y = 3*context->state.game_used_size_y;
-			best_size_3x = over_step((double)3*context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
+			best_size_3x = adjust_step(3 * context->state.game_used_size_y * factor_x, factor_y, CRTC_HSTEP);
 			best_size_4y = 4*context->state.game_used_size_y;
-			best_size_4x = over_step((double)4*context->state.game_used_size_y * factor_x / factor_y, CRTC_HSTEP);
+			best_size_4x = adjust_step(4 * context->state.game_used_size_y * factor_x, factor_y, CRTC_HSTEP);
 		} else {
-			best_size_x = over_step(context->state.game_used_size_x, CRTC_HSTEP);
+			best_size_x = adjust_step(context->state.game_used_size_x, 1, CRTC_HSTEP);
 			best_size_y = context->state.game_used_size_x * factor_y / factor_x;
-			best_size_2x = over_step(2*context->state.game_used_size_x, CRTC_HSTEP);
+			best_size_2x = adjust_step(2 * context->state.game_used_size_x, 1, CRTC_HSTEP);
 			best_size_2y = 2*context->state.game_used_size_x * factor_y / factor_x;
-			best_size_3x = over_step(3*context->state.game_used_size_x, CRTC_HSTEP);
+			best_size_3x = adjust_step(3 * context->state.game_used_size_x, 1, CRTC_HSTEP);
 			best_size_3y = 3*context->state.game_used_size_x * factor_y / factor_x;
-			best_size_4x = over_step(4*context->state.game_used_size_x, CRTC_HSTEP);
+			best_size_4x = adjust_step(4 * context->state.game_used_size_x, 1, CRTC_HSTEP);
 			best_size_4y = 4*context->state.game_used_size_x * factor_y / factor_x;
 		}
 		best_bits = context->state.game_bits_per_pixel;
@@ -2099,7 +2108,7 @@ static void video_frame_screen(struct advance_video_context* context, struct adv
 
 	video_frame_put(context, ui_context, bitmap, update_x_get(), update_y_get());
 
-	update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 0);
+	update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), context->state.vsync_flag);
 }
 
 static void video_frame_palette(struct advance_video_context* context)

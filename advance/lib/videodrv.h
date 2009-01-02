@@ -129,7 +129,7 @@
 /**
  * Dangerous mode change.
  * If this flag is reported the video mode change from a graphics
- * video mode to another graphics mode is done directly only the
+ * video mode to another graphics mode is done directly only if the
  * the device_video_fastchange option is set. Otherwise the video mode is
  * first restored to the initial state before setting the new
  * graphics mode.
@@ -213,7 +213,7 @@ typedef struct adv_video_driver_struct {
 	/**
 	 * Remove the lock for writing.
 	 */
-	void (*write_unlock)(unsigned x, unsigned y, unsigned size_x, unsigned size_y);
+	void (*write_unlock)(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool waitvsync);
 
 	/**
 	 * Access the memory for writing.
@@ -223,9 +223,9 @@ typedef struct adv_video_driver_struct {
 
 	/* Operations on the current video mode */
 	void (*wait_vsync)(void);
-	adv_error (*scroll)(unsigned offset, int waitvsync);
+	adv_error (*scroll)(unsigned offset, adv_bool waitvsync);
 	adv_error (*scanline_set)(unsigned byte_length);
-	adv_error (*palette8_set)(const adv_color_rgb* palette, unsigned start, unsigned count, int waitvsync);
+	adv_error (*palette8_set)(const adv_color_rgb* palette, unsigned start, unsigned count, adv_bool waitvsync);
 
 	/** Return the size of the driver video mode struct */
 	unsigned (*mode_size)(void);

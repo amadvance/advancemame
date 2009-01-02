@@ -236,7 +236,7 @@ void video_fake_text_wait_vsync(void)
 		}
 	}
 
-	video_write_unlock(0, 0, 0, 0);
+	video_write_unlock(0, 0, 0, 0, 0);
 }
 
 static inline unsigned video_fake_text_font_size_x(void)
@@ -686,6 +686,16 @@ static void log_clock(void)
 	log_std(("video: measured/expected vert clock: %.2f/%.2f = %g (err %g%%)\n", video_measured_vclock(), video_vclock(), factor, error * 100.0));
 }
 
+static void video_wait_vsync_for_measure(void)
+{
+	if (video_current_driver()->write_lock && video_current_driver()->write_unlock) {
+		video_current_driver()->write_lock();
+		video_current_driver()->write_unlock(0, 0, 0, 0, 1);
+	}
+	if (video_current_driver()->wait_vsync)
+		video_current_driver()->wait_vsync();
+}
+
 /**
  * Set a video mode.
  */
@@ -741,7 +751,7 @@ adv_error video_mode_set(adv_mode* mode)
 		video_fake_text_adjust();
 	}
 
-	vsync_time = adv_measure_step(video_wait_vsync, 1 / 300.0, 1 / 10.0, 11);
+	vsync_time = adv_measure_step(video_wait_vsync_for_measure, 1 / 300.0, 1 / 10.0, 11);
 
 	if (vsync_time > 0) {
 		video_state.measured_vclock = 1 / vsync_time;

@@ -15,19 +15,26 @@ Fixed the black screen bug with paletteized games.
 Fixed the computation of the font size of the menu for vertical games.
 </li>
 <li>
+Added support for 'lq' and 'hq' resize mode using the 'overlay' output mode.
+</li>
+<li>
+The default output mode in Windows and X is now 'overlay'.
+</li>
+<li>
+The 'fractional' resize effect is now the default instead of 'mixed'.
+</li>
+<li>
 New Windows icon at high resolution.
 </li>
 <li>
 Ignored WINKEYS in Windows if input_hotkey is set.
 </li>
 <li>
-Added a splash screen in Windows.
-</li>
-<li>
 The 'overlaysize' option now has the default 'auto' which uses the current video mode.
 </li>
 <li>
 The SDL library now force the video driver 'directx' as default.
+Required because from SDL 1.2.10 the default is the slow 'windib'.
 </li>
 <li>
 Windows binary is provided with SDL.dll 1.2.13.

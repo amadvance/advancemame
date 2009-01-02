@@ -1065,7 +1065,7 @@ static adv_error cmd_onvideo_test(void)
 		if (dirty) {
 			video_write_lock();
 			test_draw(1, 1, &mode);
-			video_write_unlock(0, 0, 0, 0);
+			video_write_unlock(0, 0, 0, 0, 0);
 			dirty = 0;
 		}
 
@@ -1164,7 +1164,7 @@ static adv_error cmd_onvideo_calib(void)
 	snprintf(buffer, sizeof(buffer), " %.2f MB/s", speed / (double)(1024*1024));
 	draw_string(0, 0, buffer, DRAW_COLOR_WHITE);
 
-	video_write_unlock(0, 0, 0, 0);
+	video_write_unlock(0, 0, 0, 0, 0);
 
 	video_wait_vsync();
 

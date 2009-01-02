@@ -575,6 +575,7 @@ bool int_init(unsigned size)
 {
 	unsigned index;
 	bool mode_found = false;
+	bool crtc_default = false;
 
 	int_mode_size = size;
 	mode_reset(&int_current_mode);
@@ -606,6 +607,7 @@ bool int_init(unsigned size)
 	// add modes if the list is empty and no generation is possibile
 	if (!int_has_generate && crtc_container_is_empty(&int_modelines)) {
 		crtc_container_insert_default_active(&int_modelines);
+		crtc_default = true;
 	}
 
 	// check if the video driver has a default bit depth
@@ -638,7 +640,10 @@ bool int_init(unsigned size)
 	}
 
 	if (!mode_found) {
-		target_err("No video modes available for your current configuration.\n");
+		if (!int_has_generate && !crtc_default)
+			target_err("No video modes available for your configuration.\nTry removing any explicit modeline in the configuration file.\n");
+		else
+			target_err("No video modes available for your configuration.\n");
 		goto int_blit;
 	}
 
@@ -761,7 +766,7 @@ void int_unset(bool reset_video_mode)
 		if ((video_driver_flags() & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)==0) {
 			video_write_lock();
 			video_clear(0, 0, video_size_x(), video_size_y(), 0);
-			video_write_unlock(0, 0, video_size_x(), video_size_y());
+			video_write_unlock(0, 0, video_size_x(), video_size_y(), 0);
 		}
 		video_mode_restore();
 	} else {
@@ -908,7 +913,7 @@ void cell_pos_t::redraw()
 
 	video_stretch_direct(real_x, real_y, real_dx, real_dy, video_foreground_buffer + real_y * video_buffer_line_size + real_x * video_bytes_per_pixel(), real_dx, real_dy, video_buffer_line_size, video_bytes_per_pixel(), video_color_def(), 0);
 
-	video_write_unlock(real_x, real_y, real_dx, real_dy);
+	video_write_unlock(real_x, real_y, real_dx, real_dy, 0);
 }
 
 void cell_pos_t::compute_size(unsigned* rx, unsigned* ry, const adv_bitmap* bitmap, unsigned aspectx, unsigned aspecty, double aspect_expand)
@@ -1920,7 +1925,7 @@ void cell_manager::backdrop_box()
 
 			video_write_lock();
 			box(x, y, dx, dy, backdrop_cursor, backdrop_box_color.foreground);
-			video_write_unlock(x, y, dx, dy);
+			video_write_unlock(x, y, dx, dy, 0);
 
 			adv_color_rgb c = backdrop_box_color.foreground;
 			backdrop_box_color.foreground = backdrop_box_color.background;
@@ -2060,7 +2065,7 @@ bool cell_manager::idle()
 #ifdef USE_MULTICLIP_WHOLE
 		video_write_lock();
 		video_stretch(0, 0, video_size_x(), video_size_y(), video_foreground_buffer, video_size_x(), video_size_y(), video_buffer_line_size, video_bytes_per_pixel(), video_color_def(), 0);
-		video_write_unlock(0, 0, video_size_x(), video_size_y());
+		video_write_unlock(0, 0, video_size_x(), video_size_y(), 0);
 #endif
 
 	} else {
@@ -2640,7 +2645,7 @@ static void int_copy_partial(unsigned y0, unsigned y1)
 		buffer += video_buffer_line_size;
 	}
 
-	video_write_unlock(0, y0, video_size_x(), y1 - y0);
+	video_write_unlock(0, y0, video_size_x(), y1 - y0, 0);
 }
 
 unsigned int_update_pre(bool progressive)

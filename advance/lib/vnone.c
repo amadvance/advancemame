@@ -225,7 +225,7 @@ static adv_error none_mode_import(adv_mode* mode, const none_video_mode* none_mo
 	*DRIVER(mode) = *none_mode;
 
 	mode->driver = &video_none_driver;
-	mode->flags = MODE_FLAGS_SCROLL_ASYNC
+	mode->flags = MODE_FLAGS_RETRACE_WAIT_SYNC | MODE_FLAGS_RETRACE_SET_ASYNC
 		| (mode->flags & MODE_FLAGS_USER_MASK)
 		| none_mode->index;
 	mode->size_x = DRIVER(mode)->crtc.hde;

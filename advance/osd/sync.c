@@ -350,7 +350,10 @@ static void video_frame_sync(struct advance_video_context* context)
 		expected += context->state.sync_pivot;
 
 		/* the vsync is used only if all the frames are displayed */
-		if (context->state.vsync_flag && context->state.skip_level_full == SYNC_MAX) {
+		if ((video_flags() & MODE_FLAGS_RETRACE_WAIT_SYNC) != 0
+			&& context->state.vsync_flag
+			&& context->state.skip_level_full == SYNC_MAX
+		) {
 			/* wait until the retrace is near (3% early), otherwise if the */
 			/* mode has a double freq the retrace may be the wrong one. */
 			double early = 0.03 / video_measured_vclock();
@@ -433,8 +436,6 @@ void advance_video_sync(struct advance_video_context* context, struct advance_so
 {
 	if (!skip_flag) {
 		double delay;
-
-		adv_bool warming_up = context->state.sync_warming_up_flag;
 
 		if (!context->state.fastest_flag
 			&& !context->state.measure_flag

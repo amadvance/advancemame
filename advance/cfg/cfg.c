@@ -491,7 +491,7 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 				
 				video_write_lock();
 				draw_test(2, 2, msg, &current, 1);
-				video_write_unlock(0, 0, 0, 0);
+				video_write_unlock(0, 0, 0, 0, 0);
 			} else {
 				if (first) {
 					text_done();
@@ -620,7 +620,7 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned index, const ad
 		
 		video_write_lock();
 		draw_test(2, 2, msg, &current, 0);
-		video_write_unlock(0, 0, 0, 0);
+		video_write_unlock(0, 0, 0, 0, 0);
 
 		do {
 			target_idle();

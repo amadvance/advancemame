@@ -69,9 +69,9 @@ void update_init(unsigned max_buffer)
 
 	update_page = 0;
 
-	if (pages >= 3 && (video_flags() & MODE_FLAGS_SCROLL_SYNC)) {
+	if (pages >= 3 && (video_flags() & MODE_FLAGS_RETRACE_SET_ASYNC) != 0) {
 		update_page_max = 3;
-	} else if (pages >= 2 && (video_flags() & MODE_FLAGS_SCROLL_ASYNC)) {
+	} else if (pages >= 2 && (video_flags() & MODE_FLAGS_RETRACE_SET_SYNC) != 0) {
 		update_page_max = 2;
 	} else {
 		update_page_max = 1;
@@ -146,7 +146,7 @@ void update_start(void)
 	is_update_draw_allowed = 1;
 
 	/* compute coordinate for drawing */
-	if (update_page_max!=1) {
+	if (update_page_max != 1) {
 		update_offset = update_page * video_bytes_per_page();
 	} else {
 		update_offset = 0;
@@ -157,27 +157,27 @@ void update_start(void)
 
 /**
  * End drawing a page.
- * \param x, y, size_x, size_y Updated range of the screeb. These coordinates are absolute in the screen, not relative at the page.
- * \param wait_retrace If a wait is required.
+ * \param x, y, size_x, size_y Updated range of the screen. These coordinates are absolute in the screen, not relative at the page.
+ * \param waitvsync If a wait is required.
  */
-void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool wait_retrace)
+void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool waitvsync)
 {
 	assert(is_update_draw_allowed != 0);
 
-	video_write_unlock(x, y, size_x, size_y);
+	video_write_unlock(x, y, size_x, size_y, waitvsync);
 
 	if (update_page_max != 1) {
 		unsigned offset;
 		offset = update_page * video_bytes_per_page();
 
-		video_display_set(offset, wait_retrace);
+		video_display_set(offset, waitvsync);
 
 		/* next page to draw */
 		++update_page;
 		if (update_page == update_page_max)
 			update_page = 0;
 	} else {
-		if (wait_retrace)
+		if (waitvsync)
 			video_wait_vsync();
 	}
 

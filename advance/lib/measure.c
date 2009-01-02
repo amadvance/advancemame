@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,8 +88,8 @@ double adv_measure_median(double low, double high, double* map, unsigned count)
 		log_std(("advance: measured time %g (1/%g)\n", map[i] / TARGET_CLOCKS_PER_SEC, TARGET_CLOCKS_PER_SEC / map[i]));
 	}
 
-	if (map[map_start])
-		error = (map[map_end - 1] - map[map_start]) / map[map_start];
+	if (map[median])
+		error = (map[median + 1] - map[median - 1]) / map[median];
 	else
 		error = 0;
 
@@ -98,7 +98,7 @@ double adv_measure_median(double low, double high, double* map, unsigned count)
 	return map[median] / TARGET_CLOCKS_PER_SEC;
 }
 
-#define MEASURE_COUNT 15
+#define MEASURE_COUNT 23
 
 /**
  * Measure the time beetween two events.
@@ -135,3 +135,4 @@ double adv_measure_step(void (*wait)(void), double low, double high, unsigned co
 
 	return adv_measure_median(low, high, map, count);
 }
+

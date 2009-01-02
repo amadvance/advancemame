@@ -54,7 +54,12 @@
 /* If defined it ensures to close any screen reference/handle when calling */
 /* the sdl_done() function. It's required to allow to start subprocess */
 /* which need exclusive access at the screen */
-/* #defined USE_VIDEO_RESTORE */
+/* #define USE_VIDEO_RESTORE */
+
+
+/* If defined tries to vsync */
+/* The main problem of SDL is that you cannot choose to enable or disable it after the mode was setup */
+/* #define USE_DOUBLEBUF */
 
 /***************************************************************************/
 /* Options */
@@ -120,10 +125,14 @@ static unsigned sdl_mode_flags(void)
 		break;
 #else
 	case adv_output_fullscreen :
-		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* use hardware surface if available */
+#ifdef USE_DOUBLEBUF
+		flags = SDL_FULLSCREEN | SDL_HWSURFACE | SDL_DOUBLEBUF;
+#else
+		flags = SDL_FULLSCREEN | SDL_HWSURFACE;
+#endif
 		break;
 	case adv_output_overlay :
-		flags = SDL_FULLSCREEN | SDL_HWSURFACE; /* use hardware surface if available */
+		flags = SDL_FULLSCREEN | SDL_HWSURFACE;
 		break;
 #endif
 	}
@@ -486,7 +495,7 @@ void sdl_write_lock(void)
 	sdl_state.lock_active = 1;
 }
 
-void sdl_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y)
+void sdl_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_bool waitvsync)
 {
 	assert(sdl_state.lock_active);
 
@@ -496,7 +505,10 @@ void sdl_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y)
 	} else if (sdl_state.surface) {
 		if (SDL_MUSTLOCK(sdl_state.surface))
 			SDL_UnlockSurface(sdl_state.surface);
-		SDL_UpdateRect(sdl_state.surface, x, y, size_x, size_y);
+		if ((sdl_state.surface->flags & SDL_DOUBLEBUF) != 0)
+			SDL_Flip(sdl_state.surface);
+		else
+			SDL_UpdateRect(sdl_state.surface, x, y, size_x, size_y);
 	}
 
 	sdl_state.lock_active = 0;
@@ -612,7 +624,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 
 		sdl_state.surface = SDL_SetVideoMode(mode->size_x, mode->size_y, index_bits_per_pixel(mode->index), sdl_mode_flags());
 		if (!sdl_state.surface) {
-			log_std(("video:sdl: SDL_SetVideoMode(%d, %d, %d, SDL_HWSURFACE) failed, %s\n", mode->size_x, mode->size_y, index_bits_per_pixel(mode->index), SDL_GetError()));
+			log_std(("video:sdl: SDL_SetVideoMode(%d, %d, %d, SDL_HWSURFACE | SDL_DOUBLEBUF) failed, %s\n", mode->size_x, mode->size_y, index_bits_per_pixel(mode->index), SDL_GetError()));
 			error_set("Unable to set the SDL video mode.");
 			return -1;
 		}
@@ -839,6 +851,8 @@ adv_error sdl_mode_import(adv_mode* mode, const sdl_video_mode* sdl_mode)
 
 	mode->driver = &video_sdl_driver;
 	mode->flags = (mode->flags & MODE_FLAGS_USER_MASK) | sdl_mode->index;
+	if (sdl_mode_flags() & SDL_DOUBLEBUF)
+		mode->flags |= MODE_FLAGS_RETRACE_WRITE_SYNC;
 	mode->size_x = sdl_mode->size_x;
 	mode->size_y = sdl_mode->size_y;
 	mode->vclock = 0;
