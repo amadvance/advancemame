@@ -268,6 +268,15 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/windows/target.o \
 	$(OBJ)/advance/lib/resource.o \
 	$(OBJ)/advance/windows/os.o
+ifeq ($(CONF_LIB_PTHREAD),yes)
+CFLAGS += -D_REENTRANT
+ADVANCECFLAGS += -DUSE_SMP
+# pthread-win32 library without exceptions management
+ADVANCELIBS += -lpthreadGC2
+ADVANCEOBJS += $(OBJ)/advance/osd/thdouble.o
+else
+ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
+endif
 ifeq ($(CONF_LIB_SDL),yes)
 OBJDIRS += \
 	$(OBJ)/advance/sdl
@@ -364,7 +373,6 @@ ADVANCECFLAGS += \
 ADVANCEOBJS += \
 	$(OBJ)/advance/windows/jlgraw.o
 endif
-ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
 ifeq ($(CONF_LIB_FREETYPE),yes)
 ADVANCECFLAGS += \
 	$(FREETYPECFLAGS) \
@@ -955,7 +963,8 @@ EMU_ROOT_BIN += \
 	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
 	$(srcdir)/support/sdl.dll \
 	$(srcdir)/support/zlib.dll \
-	$(srcdir)/support/libexpat.dll
+	$(srcdir)/support/libexpat.dll \
+	$(srcdir)/support/pthreadGC2.dll
 ifeq ($(CONF_EMU),mess)
 EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif

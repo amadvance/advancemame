@@ -807,12 +807,19 @@ static unsigned char* memory_line(const struct video_pipeline_target_struct* tar
 
 void video_pipeline_init(struct video_pipeline_struct* pipeline)
 {
+	unsigned i;
+
 	pipeline->stage_mac = 0;
 	pipeline->target.line = &video_line;
 	pipeline->target.ptr = 0;
 	pipeline->target.color_def = video_color_def();
 	pipeline->target.bytes_per_pixel = color_def_bytes_per_pixel_get(video_color_def());
 	pipeline->target.bytes_per_scanline = video_bytes_per_scanline();
+
+	for(i=0;i<VIDEO_STAGE_MAX;++i) {
+		log_std(("PIPEO: %d\n", ((unsigned)&pipeline->stage_map[i]) % 32));
+		log_std(("PIPEI: %d\n", ((unsigned)&pipeline->stage_map[i].data[0]) % 32));
+	}
 }
 
 void video_pipeline_target(struct video_pipeline_struct* pipeline, void* ptr, unsigned bytes_per_scanline, adv_color_def def)
@@ -940,7 +947,7 @@ static void* video_pipeline_run_partial(const struct video_stage_horz_struct* st
 	}
 }
 
-/* Run a partial pipeline and store the result in the specified buffer */
+/* Run a partial pipeline (all except the last stage) and store the result in the specified buffer */
 static void* video_pipeline_run_partial_on_buffer(void* dst_buffer, const struct video_stage_horz_struct* stage_begin, const struct video_stage_horz_struct* stage_end, const void* src)
 {
 	if (stage_begin == stage_end) {

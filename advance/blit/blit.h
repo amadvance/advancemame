@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -137,16 +137,16 @@ const char* pipe_name(enum video_stage_enum pipe_type);
 /**
  * Size in 32 bit word of the blit data stage.
  */
-#define PIPE_DATA_MAX 48
+#define VIDEO_DATA_MAX 48
 
 /**
  * Pipeline horizontal trasformation stage.
  */
-struct video_stage_horz_struct {
+struct __attribute__((aligned(8))) video_stage_horz_struct {
 	/**
 	 * Private data of the stage.
 	 */
-	uint32 data[PIPE_DATA_MAX];
+	uint32 data[VIDEO_DATA_MAX];
 
 	/**
 	 * Blit function.
@@ -251,7 +251,7 @@ typedef void video_stage_vert_hook(const struct video_pipeline_target_struct* ta
 /**
  * Pipeline vertical trasformation stage.
  */
-struct video_stage_vert_struct {
+struct __attribute__((aligned(8))) video_stage_vert_struct {
 	video_stage_vert_hook* put; /**< Hook. */
 
 	/* type */
@@ -306,9 +306,9 @@ struct video_stage_vert_struct {
  * The vertical stage cannot be the last stage in the pipeline, the horizontal stage
  * immediatly after the vertical stage is called "pivot" stage.
  */
-struct video_pipeline_struct {
-	struct video_stage_vert_struct stage_vert; /**< Vertical stage. */
+struct __attribute__((aligned(8))) video_pipeline_struct {
 	struct video_stage_horz_struct stage_map[VIDEO_STAGE_MAX]; /**< Horizontal stages. */
+	struct video_stage_vert_struct stage_vert; /**< Vertical stage. */
 	unsigned stage_mac; /**< Number of horizontal stages. */
 	struct video_pipeline_target_struct target; /**< Target of the pipeline. */
 };

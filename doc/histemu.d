@@ -13,6 +13,7 @@ AdvanceMAME Version 0.106.1 2008/12
 	) The 'overlaysize' option now has the default 'auto' which uses the current video mode.
 	) The SDL library now force the video driver 'directx' as default.
 		Required because from SDL 1.2.10 the default is the slow 'windib'.
+	) Added multithread support for Windows using the pthread-win32 library.
 	) Windows binary is provided with SDL.dll 1.2.13.
 
 AdvanceMAME Version 0.106.0 2006/06
