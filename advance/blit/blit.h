@@ -135,9 +135,19 @@ enum video_stage_enum {
 const char* pipe_name(enum video_stage_enum pipe_type);
 
 /**
+ * Size in 32 bit word of the blit data stage.
+ */
+#define PIPE_DATA_MAX 48
+
+/**
  * Pipeline horizontal trasformation stage.
  */
 struct video_stage_horz_struct {
+	/**
+	 * Private data of the stage.
+	 */
+	uint32 data[PIPE_DATA_MAX];
+
 	/**
 	 * Blit function.
 	 * This function does the configured blit operation on the arguments.
@@ -177,8 +187,10 @@ struct video_stage_horz_struct {
 
 	const void* palette; /**< Palette used in conversion. The palette size depends on the conversion. */
 
-	/* state */
-	unsigned state_mutable; /**< State value zeroed at the startup. Used to keep the row state. */
+	/**
+	 * Private and mutable state value zeroed at the startup. Used to keep the row state.
+	 */
+	unsigned state_mutable;
 };
 
 /** \name Effects */

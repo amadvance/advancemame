@@ -534,6 +534,7 @@ static adv_error vidmode_init(struct advance_video_context* context, adv_mode* m
 
 	/* set the buffer color mode */
 	if (color_def_type_get(video_color_def()) == adv_color_type_yuy2) {
+		/* the buffer is always an RGB mode */
 		context->state.buffer_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
 	} else {
 		context->state.buffer_def = video_color_def();
@@ -791,7 +792,13 @@ void advance_video_update_effect(struct advance_video_context* context)
 		context->state.combine = COMBINE_NONE;
 	}
 
-	if (context->state.rgb_effect != EFFECT_NONE) {
+	switch (context->state.rgb_effect) {
+	case EFFECT_RGB_TRIAD3PIX :
+	case EFFECT_RGB_TRIAD6PIX :
+	case EFFECT_RGB_TRIAD16PIX :
+	case EFFECT_RGB_TRIADSTRONG3PIX :
+	case EFFECT_RGB_TRIADSTRONG6PIX :
+	case EFFECT_RGB_TRIADSTRONG16PIX :
 		switch (context->state.mode_index) {
 		case MODE_FLAGS_INDEX_BGR8 :
 		case MODE_FLAGS_INDEX_BGR15 :
@@ -799,7 +806,7 @@ void advance_video_update_effect(struct advance_video_context* context)
 		case MODE_FLAGS_INDEX_BGR32 :
 			break;
 		default:
-			log_std(("emu:video: rgbeffect=* disabled because we aren't in a rgb mode\n"));
+			log_std(("emu:video: rgbeffect=triad* disabled because we aren't in a rgb mode\n"));
 			context->state.rgb_effect = EFFECT_NONE;
 		}
 	}

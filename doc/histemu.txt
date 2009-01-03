@@ -9,6 +9,7 @@ ADVANCEMAME VERSION 0.106.1 2008/12
 * Fixed the black screen bug with paletteized games.
 * Fixed the computation of the font size of the menu for vertical games.
 * Added support for 'lq' and 'hq' resize mode using the 'overlay' output mode.
+* Added support for 'scanline' effects using the 'overlay' output mode.
 * The default output mode in Windows and X is now 'overlay'.
 * The 'fractional' resize effect is now the default instead of 'mixed'.
 * New Windows icon at high resolution.
