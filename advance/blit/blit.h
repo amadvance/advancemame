@@ -40,6 +40,7 @@
 
 #include "video.h"
 #include "slice.h"
+#include "segment.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,10 +56,12 @@ struct video_stage_horz_struct;
  * These functions are called to draw a single image row.
  * \param stage Stage context. This context contains all the necessary and constant
  * information for the drawing process.
+ * \param line Line number.
  * \param dst Destination data.
  * \param src Source data.
+ * \param count Size of the source line (in elementary operations on source, usually slice->count).
  */
-typedef void video_stage_hook(const struct video_stage_horz_struct* stage, void* dst, const void* src);
+typedef void video_stage_hook(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count);
 
 /**
  * Pipeline stage types.
@@ -151,8 +154,6 @@ struct __attribute__((aligned(8))) video_stage_horz_struct {
 	/**
 	 * Blit function.
 	 * This function does the configured blit operation on the arguments.
-	 * The only modifiable item on the self struct is the ::state_mutable item
-	 * which is initialized to 0 before the first call on the first row.
 	 */
 	video_stage_hook* put;
 
@@ -176,21 +177,20 @@ struct __attribute__((aligned(8))) video_stage_horz_struct {
 	/* source */
 	int sdp; /**< Step in the src for the next pixel (in bytes). */
 	unsigned sdx; /**< Size of the source (in pixels). */
+	unsigned ddx; /**< Size of the destination (in pixels). */
 	unsigned sbpp; /**< Size of the source pixel (in bytes). */
+	unsigned dbpp; /**< Size of the destination pixel (in bytes). */
 
 	int red_shift, green_shift, blue_shift; /**< Shifts used for color conversion. */
 	adv_pixel red_mask, green_mask, blue_mask; /**< Masks used for color conversion. */
 	unsigned ssp; /**< Size of the source pixel used for color conversion (in bytes). Equal at ::sbpp. */
-	unsigned dsp; /**< Size of the destintation pixel used for color conversion (in bytes). */
+	unsigned dsp; /**< Size of the destination pixel used for color conversion (in bytes). */
 
 	adv_slice slice; /**< Slice used in streching. */
-
+#ifdef USE_SEGMENT
+	adv_segment segment; /**< Segment used to splitting. */
+#endif
 	const void* palette; /**< Palette used in conversion. The palette size depends on the conversion. */
-
-	/**
-	 * Private and mutable state value zeroed at the startup. Used to keep the row state.
-	 */
-	unsigned state_mutable;
 };
 
 /** \name Effects */
@@ -228,6 +228,10 @@ struct __attribute__((aligned(8))) video_stage_horz_struct {
 #define VIDEO_COMBINE_X_MEAN 0x40000 /**< Horizontal stretch using the mean effect */
 #define VIDEO_COMBINE_INTERLACE_FILTER 0x80000 /**< Vertical filter for interlace. */
 #define VIDEO_COMBINE_BUFFER 0x100000 /**< Output to a memory buffer. */
+
+#define VIDEO_COMBINE_CACHE_NONE 0x0000000 /**< One segment per line. */
+#define VIDEO_COMBINE_CACHE_SPLIT 0x1000000 /**< Line splitting in segments. */
+
 /*@}*/
 
 struct video_stage_vert_struct;
@@ -258,16 +262,16 @@ struct __attribute__((aligned(8))) video_stage_vert_struct {
 	enum video_stage_enum type;
 
 	/* source */
+	unsigned sdx;
 	unsigned sdy; /**< Source vertical size in rows. */
 	int sdw; /**< Source row size (in bytes). It may be negative for flip operations. */
 
 	unsigned interp; /**< Interpolation type in the vert stage. */
 
-	/**
-	 * Destination vertical size in rows.
-	 * The destination row size is always the minimun.
-	 */
-	unsigned ddy;
+	unsigned ddx;
+	unsigned ddy; /**< Destination vertical size in rows. */
+
+	unsigned bpp;
 
 	/* stretch slice */
 	adv_slice slice;
@@ -282,10 +286,9 @@ struct __attribute__((aligned(8))) video_stage_vert_struct {
 	 */
 	const struct video_stage_horz_struct* stage_pivot;
 
-	/* information from the stage_pivot (used if the pipeline is empty). */
-	int stage_pivot_sdp; /**< Step in the src for the next pixel (in bytes). It may be negative for flip opreations. */
-	unsigned stage_pivot_sdx; /**< Size of the source (in bytes). */
-	unsigned stage_pivot_sbpp; /**< Bytes per pixel of the source. */
+#ifdef USE_SEGMENT
+	adv_segment segment; /**< Segment used to split stage. */
+#endif
 };
 
 /**

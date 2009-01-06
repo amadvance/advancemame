@@ -21,10 +21,17 @@ Added support for 'lq' and 'hq' resize mode using the 'overlay' output mode.
 Added support for 'scanline' effects using the 'overlay' output mode.
 </li>
 <li>
+Improved the cache locality of the blitting algorithm. Not it operates on segments of row,
+processing one segment up to the final stage before processing the next one.
+</li>
+<li>
 The default output mode in Windows and X is now 'overlay'.
 </li>
 <li>
-The 'fractional' resize effect is now the default instead of 'mixed'.
+The default resize effect is now 'fractional' instead of 'integer'.
+</li>
+<li>
+The 'overlaysize' option now has the default 'auto' which uses the current video mode.
 </li>
 <li>
 New Windows icon at high resolution.
@@ -33,17 +40,14 @@ New Windows icon at high resolution.
 Ignored WINKEYS in Windows if input_hotkey is set.
 </li>
 <li>
-The 'overlaysize' option now has the default 'auto' which uses the current video mode.
-</li>
-<li>
 The SDL library now force the video driver 'directx' as default.
 Required because from SDL 1.2.10 the default is the slow 'windib'.
 </li>
 <li>
-Added multithread support for Windows using the pthread-win32 library.
+Windows binary is provided with SDL.dll 1.2.13.
 </li>
 <li>
-Windows binary is provided with SDL.dll 1.2.13.
+Added multithread support for Windows using the pthread-win32 library.
 </li>
 </ul>
 <h2> 

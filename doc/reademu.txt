@@ -4,7 +4,7 @@
 
 AdvanceMAME/MESS are unofficial MAME/MESS versions with an
 advanced video support for helping the use with TVs, Arcade
-Monitors, Fixed Frequencies Monitors and also for PC Monitors.
+monitors, PC monitors and LCD screens.
 
 They run in Linux, Mac OS X, DOS, Windows and in all the other
 platforms supported by the SDL library.

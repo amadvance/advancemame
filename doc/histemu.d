@@ -6,15 +6,17 @@ AdvanceMAME Version 0.106.1 2008/12
 	) Fixed the computation of the font size of the menu for vertical games.
 	) Added support for 'lq' and 'hq' resize mode using the 'overlay' output mode.
 	) Added support for 'scanline' effects using the 'overlay' output mode.
+	) Improved the cache locality of the blitting algorithm. Not it operates on segments of row,
+		processing one segment up to the final stage before processing the next one.
 	) The default output mode in Windows and X is now 'overlay'.
-	) The 'fractional' resize effect is now the default instead of 'mixed'.
+	) The default resize effect is now 'fractional' instead of 'integer'.
+	) The 'overlaysize' option now has the default 'auto' which uses the current video mode.
 	) New Windows icon at high resolution.
 	) Ignored WINKEYS in Windows if input_hotkey is set.
-	) The 'overlaysize' option now has the default 'auto' which uses the current video mode.
 	) The SDL library now force the video driver 'directx' as default.
 		Required because from SDL 1.2.10 the default is the slow 'windib'.
-	) Added multithread support for Windows using the pthread-win32 library.
 	) Windows binary is provided with SDL.dll 1.2.13.
+	) Added multithread support for Windows using the pthread-win32 library.
 
 AdvanceMAME Version 0.106.0 2006/06
 	) Based on MAME 0.106

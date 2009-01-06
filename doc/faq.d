@@ -33,7 +33,8 @@ General FAQ
 	emulation, also allowing the use with arcade monitors and TVs.
 
 	It also contains software filters to improve the image when used
-	on monitors with a higher resolution, such as PC monitors.
+	on monitors with a higher resolution, such as PC monitors and
+	LCD screens
 
   I have a question that is not answered in this FAQ. Where can I get help ?
 	If you have looked through the documentation and still haven't 

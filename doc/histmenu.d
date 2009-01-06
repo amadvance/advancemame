@@ -4,6 +4,7 @@ Name
 AdvanceMENU Version 2.5.0 2008/12
 	) Fixed the recognition of the BIOS roms.
 	) Smarter error detection of damaged zips.
+	) Added the option 'exit' and 'shutdown' at the screensaver.
 	) New Windows icon at high resolution.
 	) Added automatic detection of mamepp.exe for Windows.
 	) Added automatic detection of sdlmame for Windows and *nix.

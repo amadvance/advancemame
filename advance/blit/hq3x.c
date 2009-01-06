@@ -41,7 +41,7 @@
  * This effect is a rewritten implementation of the hq3x effect made by Maxim Stepin
  */
 
-void hq3x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, interp_uint16* restrict dst2, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, unsigned count)
+void hq3x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, interp_uint16* restrict dst2, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, unsigned count, unsigned flag)
 {
 	unsigned i;
 
@@ -54,7 +54,7 @@ void hq3x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, int
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i>0 || (flag & SEGMENT_FLAG_FIRST) == 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -64,7 +64,7 @@ void hq3x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, int
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i<count-1 || (flag & SEGMENT_FLAG_LAST) == 0) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -124,7 +124,7 @@ void hq3x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, int
 	}
 }
 
-void hq3x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
+void hq3x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count, unsigned flag)
 {
 	unsigned i;
 
@@ -137,7 +137,7 @@ void hq3x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, int
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i>0 || (flag & SEGMENT_FLAG_FIRST) == 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -147,7 +147,7 @@ void hq3x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, int
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i<count-1 || (flag & SEGMENT_FLAG_LAST) == 0) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -207,7 +207,7 @@ void hq3x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, int
 	}
 }
 
-void hq3x_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
+void hq3x_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count, unsigned flag)
 {
 	unsigned i;
 
@@ -220,7 +220,7 @@ void hq3x_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, i
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i>0 || (flag & SEGMENT_FLAG_FIRST) == 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -230,7 +230,7 @@ void hq3x_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, i
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i<count-1 || (flag & SEGMENT_FLAG_LAST) == 0) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];

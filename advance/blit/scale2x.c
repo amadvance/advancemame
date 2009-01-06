@@ -1,7 +1,7 @@
 /*
  * This file is part of the Scale2x project.
  *
- * Copyright (C) 2001, 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 2001, 2002, 2003, 2004, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,30 +50,35 @@
  */
 /* #define USE_SCALE_RANDOMWRITE */
 
-static inline void scale2x_8_def_whole(scale2x_uint8* restrict dst0, scale2x_uint8* restrict dst1, const scale2x_uint8* restrict src0, const scale2x_uint8* restrict src1, const scale2x_uint8* restrict src2, unsigned count)
+static inline void scale2x_8_def_whole(scale2x_uint8* restrict dst0, scale2x_uint8* restrict dst1, const scale2x_uint8* restrict src0, const scale2x_uint8* restrict src1, const scale2x_uint8* restrict src2, unsigned count, unsigned flag)
 {
 	assert(count >= 2);
 
 	/* first pixel */
-	if (src0[0] != src2[0] && src1[0] != src1[1]) {
-		dst0[0] = src1[0] == src0[0] ? src0[0] : src1[0];
-		dst0[1] = src1[1] == src0[0] ? src0[0] : src1[0];
-		dst1[0] = src1[0] == src2[0] ? src2[0] : src1[0];
-		dst1[1] = src1[1] == src2[0] ? src2[0] : src1[0];
-	} else {
-		dst0[0] = src1[0];
-		dst0[1] = src1[0];
-		dst1[0] = src1[0];
-		dst1[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_FIRST) != 0) {
+		if (src0[0] != src2[0] && src1[0] != src1[1]) {
+			dst0[0] = src1[0] == src0[0] ? src0[0] : src1[0];
+			dst0[1] = src1[1] == src0[0] ? src0[0] : src1[0];
+			dst1[0] = src1[0] == src2[0] ? src2[0] : src1[0];
+			dst1[1] = src1[1] == src2[0] ? src2[0] : src1[0];
+		} else {
+			dst0[0] = src1[0];
+			dst0[1] = src1[0];
+			dst1[0] = src1[0];
+			dst1[1] = src1[0];
+		}
+		++src0;
+		++src1;
+		++src2;
+		dst0 += 2;
+		dst1 += 2;
+		--count;
 	}
-	++src0;
-	++src1;
-	++src2;
-	dst0 += 2;
-	dst1 += 2;
 
 	/* central pixels */
-	count -= 2;
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		--count;
+	}
 	while (count) {
 		if (src0[0] != src2[0] && src1[-1] != src1[1]) {
 			dst0[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
@@ -96,38 +101,45 @@ static inline void scale2x_8_def_whole(scale2x_uint8* restrict dst0, scale2x_uin
 	}
 
 	/* last pixel */
-	if (src0[0] != src2[0] && src1[-1] != src1[0]) {
-		dst0[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
-		dst0[1] = src1[0] == src0[0] ? src0[0] : src1[0];
-		dst1[0] = src1[-1] == src2[0] ? src2[0] : src1[0];
-		dst1[1] = src1[0] == src2[0] ? src2[0] : src1[0];
-	} else {
-		dst0[0] = src1[0];
-		dst0[1] = src1[0];
-		dst1[0] = src1[0];
-		dst1[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		if (src0[0] != src2[0] && src1[-1] != src1[0]) {
+			dst0[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
+			dst0[1] = src1[0] == src0[0] ? src0[0] : src1[0];
+			dst1[0] = src1[-1] == src2[0] ? src2[0] : src1[0];
+			dst1[1] = src1[0] == src2[0] ? src2[0] : src1[0];
+		} else {
+			dst0[0] = src1[0];
+			dst0[1] = src1[0];
+			dst1[0] = src1[0];
+			dst1[1] = src1[0];
+		}
 	}
 }
 
-static inline void scale2x_8_def_border(scale2x_uint8* restrict dst, const scale2x_uint8* restrict src0, const scale2x_uint8* restrict src1, const scale2x_uint8* restrict src2, unsigned count)
+static inline void scale2x_8_def_border(scale2x_uint8* restrict dst, const scale2x_uint8* restrict src0, const scale2x_uint8* restrict src1, const scale2x_uint8* restrict src2, unsigned count, unsigned flag)
 {
 	assert(count >= 2);
 
 	/* first pixel */
-	if (src0[0] != src2[0] && src1[0] != src1[1]) {
-		dst[0] = src1[0] == src0[0] ? src0[0] : src1[0];
-		dst[1] = src1[1] == src0[0] ? src0[0] : src1[0];
-	} else {
-		dst[0] = src1[0];
-		dst[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_FIRST) != 0) {
+		if (src0[0] != src2[0] && src1[0] != src1[1]) {
+			dst[0] = src1[0] == src0[0] ? src0[0] : src1[0];
+			dst[1] = src1[1] == src0[0] ? src0[0] : src1[0];
+		} else {
+			dst[0] = src1[0];
+			dst[1] = src1[0];
+		}
+		++src0;
+		++src1;
+		++src2;
+		dst += 2;
+		--count;
 	}
-	++src0;
-	++src1;
-	++src2;
-	dst += 2;
 
 	/* central pixels */
-	count -= 2;
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		--count;
+	}
 	while (count) {
 		if (src0[0] != src2[0] && src1[-1] != src1[1]) {
 			dst[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
@@ -145,34 +157,41 @@ static inline void scale2x_8_def_border(scale2x_uint8* restrict dst, const scale
 	}
 
 	/* last pixel */
-	if (src0[0] != src2[0] && src1[-1] != src1[0]) {
-		dst[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
-		dst[1] = src1[0] == src0[0] ? src0[0] : src1[0];
-	} else {
-		dst[0] = src1[0];
-		dst[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		if (src0[0] != src2[0] && src1[-1] != src1[0]) {
+			dst[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
+			dst[1] = src1[0] == src0[0] ? src0[0] : src1[0];
+		} else {
+			dst[0] = src1[0];
+			dst[1] = src1[0];
+		}
 	}
 }
 
-static inline void scale2x_8_def_center(scale2x_uint8* restrict dst, const scale2x_uint8* restrict src0, const scale2x_uint8* restrict src1, const scale2x_uint8* restrict src2, unsigned count)
+static inline void scale2x_8_def_center(scale2x_uint8* restrict dst, const scale2x_uint8* restrict src0, const scale2x_uint8* restrict src1, const scale2x_uint8* restrict src2, unsigned count, unsigned flag)
 {
 	assert(count >= 2);
 
 	/* first pixel */
-	if (src0[0] != src2[0] && src1[0] != src1[1]) {
-		dst[0] = src1[0];
-		dst[1] = (src1[1] == src0[0] && src1[0] != src2[1]) || (src1[1] == src2[0] && src1[0] != src0[1]) ? src1[1] : src1[0];
-	} else {
-		dst[0] = src1[0];
-		dst[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_FIRST) != 0) {
+		if (src0[0] != src2[0] && src1[0] != src1[1]) {
+			dst[0] = src1[0];
+			dst[1] = (src1[1] == src0[0] && src1[0] != src2[1]) || (src1[1] == src2[0] && src1[0] != src0[1]) ? src1[1] : src1[0];
+		} else {
+			dst[0] = src1[0];
+			dst[1] = src1[0];
+		}
+		++src0;
+		++src1;
+		++src2;
+		dst += 2;
+		--count;
 	}
-	++src0;
-	++src1;
-	++src2;
-	dst += 2;
 
 	/* central pixels */
-	count -= 2;
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		--count;
+	}
 	while (count) {
 		if (src0[0] != src2[0] && src1[-1] != src1[1]) {
 			dst[0] = (src1[-1] == src0[0] && src1[0] != src2[-1]) || (src1[-1] == src2[0] && src1[0] != src0[-1]) ? src1[-1] : src1[0];
@@ -190,39 +209,46 @@ static inline void scale2x_8_def_center(scale2x_uint8* restrict dst, const scale
 	}
 
 	/* last pixel */
-	if (src0[0] != src2[0] && src1[-1] != src1[0]) {
-		dst[0] = (src1[-1] == src0[0] && src1[0] != src2[-1]) || (src1[-1] == src2[0] && src1[0] != src0[-1]) ? src1[-1] : src1[0];
-		dst[1] = src1[0];
-	} else {
-		dst[0] = src1[0];
-		dst[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		if (src0[0] != src2[0] && src1[-1] != src1[0]) {
+			dst[0] = (src1[-1] == src0[0] && src1[0] != src2[-1]) || (src1[-1] == src2[0] && src1[0] != src0[-1]) ? src1[-1] : src1[0];
+			dst[1] = src1[0];
+		} else {
+			dst[0] = src1[0];
+			dst[1] = src1[0];
+		}
 	}
 }
 
-static inline void scale2x_16_def_whole(scale2x_uint16* restrict dst0, scale2x_uint16* restrict dst1, const scale2x_uint16* restrict src0, const scale2x_uint16* restrict src1, const scale2x_uint16* restrict src2, unsigned count)
+static inline void scale2x_16_def_whole(scale2x_uint16* restrict dst0, scale2x_uint16* restrict dst1, const scale2x_uint16* restrict src0, const scale2x_uint16* restrict src1, const scale2x_uint16* restrict src2, unsigned count, unsigned flag)
 {
 	assert(count >= 2);
 
 	/* first pixel */
-	if (src0[0] != src2[0] && src1[0] != src1[1]) {
-		dst0[0] = src1[0] == src0[0] ? src0[0] : src1[0];
-		dst0[1] = src1[1] == src0[0] ? src0[0] : src1[0];
-		dst1[0] = src1[0] == src2[0] ? src2[0] : src1[0];
-		dst1[1] = src1[1] == src2[0] ? src2[0] : src1[0];
-	} else {
-		dst0[0] = src1[0];
-		dst0[1] = src1[0];
-		dst1[0] = src1[0];
-		dst1[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_FIRST) != 0) {
+		if (src0[0] != src2[0] && src1[0] != src1[1]) {
+			dst0[0] = src1[0] == src0[0] ? src0[0] : src1[0];
+			dst0[1] = src1[1] == src0[0] ? src0[0] : src1[0];
+			dst1[0] = src1[0] == src2[0] ? src2[0] : src1[0];
+			dst1[1] = src1[1] == src2[0] ? src2[0] : src1[0];
+		} else {
+			dst0[0] = src1[0];
+			dst0[1] = src1[0];
+			dst1[0] = src1[0];
+			dst1[1] = src1[0];
+		}
+		++src0;
+		++src1;
+		++src2;
+		dst0 += 2;
+		dst1 += 2;
+		--count;
 	}
-	++src0;
-	++src1;
-	++src2;
-	dst0 += 2;
-	dst1 += 2;
 
 	/* central pixels */
-	count -= 2;
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		--count;
+	}
 	while (count) {
 		if (src0[0] != src2[0] && src1[-1] != src1[1]) {
 			dst0[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
@@ -245,38 +271,45 @@ static inline void scale2x_16_def_whole(scale2x_uint16* restrict dst0, scale2x_u
 	}
 
 	/* last pixel */
-	if (src0[0] != src2[0] && src1[-1] != src1[0]) {
-		dst0[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
-		dst0[1] = src1[0] == src0[0] ? src0[0] : src1[0];
-		dst1[0] = src1[-1] == src2[0] ? src2[0] : src1[0];
-		dst1[1] = src1[0] == src2[0] ? src2[0] : src1[0];
-	} else {
-		dst0[0] = src1[0];
-		dst0[1] = src1[0];
-		dst1[0] = src1[0];
-		dst1[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		if (src0[0] != src2[0] && src1[-1] != src1[0]) {
+			dst0[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
+			dst0[1] = src1[0] == src0[0] ? src0[0] : src1[0];
+			dst1[0] = src1[-1] == src2[0] ? src2[0] : src1[0];
+			dst1[1] = src1[0] == src2[0] ? src2[0] : src1[0];
+		} else {
+			dst0[0] = src1[0];
+			dst0[1] = src1[0];
+			dst1[0] = src1[0];
+			dst1[1] = src1[0];
+		}
 	}
 }
 
-static inline void scale2x_16_def_border(scale2x_uint16* restrict dst, const scale2x_uint16* restrict src0, const scale2x_uint16* restrict src1, const scale2x_uint16* restrict src2, unsigned count)
+static inline void scale2x_16_def_border(scale2x_uint16* restrict dst, const scale2x_uint16* restrict src0, const scale2x_uint16* restrict src1, const scale2x_uint16* restrict src2, unsigned count, unsigned flag)
 {
 	assert(count >= 2);
 
 	/* first pixel */
-	if (src0[0] != src2[0] && src1[0] != src1[1]) {
-		dst[0] = src1[0] == src0[0] ? src0[0] : src1[0];
-		dst[1] = src1[1] == src0[0] ? src0[0] : src1[0];
-	} else {
-		dst[0] = src1[0];
-		dst[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_FIRST) != 0) {
+		if (src0[0] != src2[0] && src1[0] != src1[1]) {
+			dst[0] = src1[0] == src0[0] ? src0[0] : src1[0];
+			dst[1] = src1[1] == src0[0] ? src0[0] : src1[0];
+		} else {
+			dst[0] = src1[0];
+			dst[1] = src1[0];
+		}
+		++src0;
+		++src1;
+		++src2;
+		dst += 2;
+		--count;
 	}
-	++src0;
-	++src1;
-	++src2;
-	dst += 2;
 
 	/* central pixels */
-	count -= 2;
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		--count;
+	}
 	while (count) {
 		if (src0[0] != src2[0] && src1[-1] != src1[1]) {
 			dst[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
@@ -294,34 +327,41 @@ static inline void scale2x_16_def_border(scale2x_uint16* restrict dst, const sca
 	}
 
 	/* last pixel */
-	if (src0[0] != src2[0] && src1[-1] != src1[0]) {
-		dst[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
-		dst[1] = src1[0] == src0[0] ? src0[0] : src1[0];
-	} else {
-		dst[0] = src1[0];
-		dst[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		if (src0[0] != src2[0] && src1[-1] != src1[0]) {
+			dst[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
+			dst[1] = src1[0] == src0[0] ? src0[0] : src1[0];
+		} else {
+			dst[0] = src1[0];
+			dst[1] = src1[0];
+		}
 	}
 }
 
-static inline void scale2x_16_def_center(scale2x_uint16* restrict dst, const scale2x_uint16* restrict src0, const scale2x_uint16* restrict src1, const scale2x_uint16* restrict src2, unsigned count)
+static inline void scale2x_16_def_center(scale2x_uint16* restrict dst, const scale2x_uint16* restrict src0, const scale2x_uint16* restrict src1, const scale2x_uint16* restrict src2, unsigned count, unsigned flag)
 {
 	assert(count >= 2);
 
 	/* first pixel */
-	if (src0[0] != src2[0] && src1[0] != src1[1]) {
-		dst[0] = src1[0];
-		dst[1] = (src1[1] == src0[0] && src1[0] != src2[1]) || (src1[1] == src2[0] && src1[0] != src0[1]) ? src1[1] : src1[0];
-	} else {
-		dst[0] = src1[0];
-		dst[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_FIRST) != 0) {
+		if (src0[0] != src2[0] && src1[0] != src1[1]) {
+			dst[0] = src1[0];
+			dst[1] = (src1[1] == src0[0] && src1[0] != src2[1]) || (src1[1] == src2[0] && src1[0] != src0[1]) ? src1[1] : src1[0];
+		} else {
+			dst[0] = src1[0];
+			dst[1] = src1[0];
+		}
+		++src0;
+		++src1;
+		++src2;
+		dst += 2;
+		--count;
 	}
-	++src0;
-	++src1;
-	++src2;
-	dst += 2;
 
 	/* central pixels */
-	count -= 2;
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		--count;
+	}
 	while (count) {
 		if (src0[0] != src2[0] && src1[-1] != src1[1]) {
 			dst[0] = (src1[-1] == src0[0] && src1[0] != src2[-1]) || (src1[-1] == src2[0] && src1[0] != src0[-1]) ? src1[-1] : src1[0];
@@ -339,39 +379,46 @@ static inline void scale2x_16_def_center(scale2x_uint16* restrict dst, const sca
 	}
 
 	/* last pixel */
-	if (src0[0] != src2[0] && src1[-1] != src1[0]) {
-		dst[0] = (src1[-1] == src0[0] && src1[0] != src2[-1]) || (src1[-1] == src2[0] && src1[0] != src0[-1]) ? src1[-1] : src1[0];
-		dst[1] = src1[0];
-	} else {
-		dst[0] = src1[0];
-		dst[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		if (src0[0] != src2[0] && src1[-1] != src1[0]) {
+			dst[0] = (src1[-1] == src0[0] && src1[0] != src2[-1]) || (src1[-1] == src2[0] && src1[0] != src0[-1]) ? src1[-1] : src1[0];
+			dst[1] = src1[0];
+		} else {
+			dst[0] = src1[0];
+			dst[1] = src1[0];
+		}
 	}
 }
 
-static inline void scale2x_32_def_whole(scale2x_uint32* restrict dst0, scale2x_uint32* restrict dst1, const scale2x_uint32* restrict src0, const scale2x_uint32* restrict src1, const scale2x_uint32* restrict src2, unsigned count)
+static inline void scale2x_32_def_whole(scale2x_uint32* restrict dst0, scale2x_uint32* restrict dst1, const scale2x_uint32* restrict src0, const scale2x_uint32* restrict src1, const scale2x_uint32* restrict src2, unsigned count, unsigned flag)
 {
 	assert(count >= 2);
 
 	/* first pixel */
-	if (src0[0] != src2[0] && src1[0] != src1[1]) {
-		dst0[0] = src1[0] == src0[0] ? src0[0] : src1[0];
-		dst0[1] = src1[1] == src0[0] ? src0[0] : src1[0];
-		dst1[0] = src1[0] == src2[0] ? src2[0] : src1[0];
-		dst1[1] = src1[1] == src2[0] ? src2[0] : src1[0];
-	} else {
-		dst0[0] = src1[0];
-		dst0[1] = src1[0];
-		dst1[0] = src1[0];
-		dst1[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_FIRST) != 0) {
+		if (src0[0] != src2[0] && src1[0] != src1[1]) {
+			dst0[0] = src1[0] == src0[0] ? src0[0] : src1[0];
+			dst0[1] = src1[1] == src0[0] ? src0[0] : src1[0];
+			dst1[0] = src1[0] == src2[0] ? src2[0] : src1[0];
+			dst1[1] = src1[1] == src2[0] ? src2[0] : src1[0];
+		} else {
+			dst0[0] = src1[0];
+			dst0[1] = src1[0];
+			dst1[0] = src1[0];
+			dst1[1] = src1[0];
+		}
+		++src0;
+		++src1;
+		++src2;
+		dst0 += 2;
+		dst1 += 2;
+		--count;
 	}
-	++src0;
-	++src1;
-	++src2;
-	dst0 += 2;
-	dst1 += 2;
 
 	/* central pixels */
-	count -= 2;
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		--count;
+	}
 	while (count) {
 		if (src0[0] != src2[0] && src1[-1] != src1[1]) {
 			dst0[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
@@ -394,38 +441,45 @@ static inline void scale2x_32_def_whole(scale2x_uint32* restrict dst0, scale2x_u
 	}
 
 	/* last pixel */
-	if (src0[0] != src2[0] && src1[-1] != src1[0]) {
-		dst0[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
-		dst0[1] = src1[0] == src0[0] ? src0[0] : src1[0];
-		dst1[0] = src1[-1] == src2[0] ? src2[0] : src1[0];
-		dst1[1] = src1[0] == src2[0] ? src2[0] : src1[0];
-	} else {
-		dst0[0] = src1[0];
-		dst0[1] = src1[0];
-		dst1[0] = src1[0];
-		dst1[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		if (src0[0] != src2[0] && src1[-1] != src1[0]) {
+			dst0[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
+			dst0[1] = src1[0] == src0[0] ? src0[0] : src1[0];
+			dst1[0] = src1[-1] == src2[0] ? src2[0] : src1[0];
+			dst1[1] = src1[0] == src2[0] ? src2[0] : src1[0];
+		} else {
+			dst0[0] = src1[0];
+			dst0[1] = src1[0];
+			dst1[0] = src1[0];
+			dst1[1] = src1[0];
+		}
 	}
 }
 
-static inline void scale2x_32_def_border(scale2x_uint32* restrict dst, const scale2x_uint32* restrict src0, const scale2x_uint32* restrict src1, const scale2x_uint32* restrict src2, unsigned count)
+static inline void scale2x_32_def_border(scale2x_uint32* restrict dst, const scale2x_uint32* restrict src0, const scale2x_uint32* restrict src1, const scale2x_uint32* restrict src2, unsigned count, unsigned flag)
 {
 	assert(count >= 2);
 
 	/* first pixel */
-	if (src0[0] != src2[0] && src1[0] != src1[1]) {
-		dst[0] = src1[0] == src0[0] ? src0[0] : src1[0];
-		dst[1] = src1[1] == src0[0] ? src0[0] : src1[0];
-	} else {
-		dst[0] = src1[0];
-		dst[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_FIRST) != 0) {
+		if (src0[0] != src2[0] && src1[0] != src1[1]) {
+			dst[0] = src1[0] == src0[0] ? src0[0] : src1[0];
+			dst[1] = src1[1] == src0[0] ? src0[0] : src1[0];
+		} else {
+			dst[0] = src1[0];
+			dst[1] = src1[0];
+		}
+		++src0;
+		++src1;
+		++src2;
+		dst += 2;
+		--count;
 	}
-	++src0;
-	++src1;
-	++src2;
-	dst += 2;
 
 	/* central pixels */
-	count -= 2;
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		--count;
+	}
 	while (count) {
 		if (src0[0] != src2[0] && src1[-1] != src1[1]) {
 			dst[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
@@ -443,34 +497,41 @@ static inline void scale2x_32_def_border(scale2x_uint32* restrict dst, const sca
 	}
 
 	/* last pixel */
-	if (src0[0] != src2[0] && src1[-1] != src1[0]) {
-		dst[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
-		dst[1] = src1[0] == src0[0] ? src0[0] : src1[0];
-	} else {
-		dst[0] = src1[0];
-		dst[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		if (src0[0] != src2[0] && src1[-1] != src1[0]) {
+			dst[0] = src1[-1] == src0[0] ? src0[0] : src1[0];
+			dst[1] = src1[0] == src0[0] ? src0[0] : src1[0];
+		} else {
+			dst[0] = src1[0];
+			dst[1] = src1[0];
+		}
 	}
 }
 
-static inline void scale2x_32_def_center(scale2x_uint32* restrict dst, const scale2x_uint32* restrict src0, const scale2x_uint32* restrict src1, const scale2x_uint32* restrict src2, unsigned count)
+static inline void scale2x_32_def_center(scale2x_uint32* restrict dst, const scale2x_uint32* restrict src0, const scale2x_uint32* restrict src1, const scale2x_uint32* restrict src2, unsigned count, unsigned flag)
 {
 	assert(count >= 2);
 
 	/* first pixel */
-	if (src0[0] != src2[0] && src1[0] != src1[1]) {
-		dst[0] = src1[0];
-		dst[1] = (src1[1] == src0[0] && src1[0] != src2[1]) || (src1[1] == src2[0] && src1[0] != src0[1]) ? src1[1] : src1[0];
-	} else {
-		dst[0] = src1[0];
-		dst[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_FIRST) != 0) {
+		if (src0[0] != src2[0] && src1[0] != src1[1]) {
+			dst[0] = src1[0];
+			dst[1] = (src1[1] == src0[0] && src1[0] != src2[1]) || (src1[1] == src2[0] && src1[0] != src0[1]) ? src1[1] : src1[0];
+		} else {
+			dst[0] = src1[0];
+			dst[1] = src1[0];
+		}
+		++src0;
+		++src1;
+		++src2;
+		dst += 2;
+		--count;
 	}
-	++src0;
-	++src1;
-	++src2;
-	dst += 2;
 
 	/* central pixels */
-	count -= 2;
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		--count;
+	}
 	while (count) {
 		if (src0[0] != src2[0] && src1[-1] != src1[1]) {
 			dst[0] = (src1[-1] == src0[0] && src1[0] != src2[-1]) || (src1[-1] == src2[0] && src1[0] != src0[-1]) ? src1[-1] : src1[0];
@@ -488,12 +549,14 @@ static inline void scale2x_32_def_center(scale2x_uint32* restrict dst, const sca
 	}
 
 	/* last pixel */
-	if (src0[0] != src2[0] && src1[-1] != src1[0]) {
-		dst[0] = (src1[-1] == src0[0] && src1[0] != src2[-1]) || (src1[-1] == src2[0] && src1[0] != src0[-1]) ? src1[-1] : src1[0];
-		dst[1] = src1[0];
-	} else {
-		dst[0] = src1[0];
-		dst[1] = src1[0];
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		if (src0[0] != src2[0] && src1[-1] != src1[0]) {
+			dst[0] = (src1[-1] == src0[0] && src1[0] != src2[-1]) || (src1[-1] == src2[0] && src1[0] != src0[-1]) ? src1[-1] : src1[0];
+			dst[1] = src1[0];
+		} else {
+			dst[0] = src1[0];
+			dst[1] = src1[0];
+		}
 	}
 }
 
@@ -512,13 +575,13 @@ static inline void scale2x_32_def_center(scale2x_uint32* restrict dst, const sca
  * \param dst0 First destination row, double length in pixels.
  * \param dst1 Second destination row, double length in pixels.
  */
-void scale2x_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+void scale2x_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count, unsigned flag)
 {
 #ifdef USE_SCALE_RANDOMWRITE
-	scale2x_8_def_whole(dst0, dst1, src0, src1, src2, count);
+	scale2x_8_def_whole(dst0, dst1, src0, src1, src2, count, flag);
 #else
-	scale2x_8_def_border(dst0, src0, src1, src2, count);
-	scale2x_8_def_border(dst1, src2, src1, src0, count);
+	scale2x_8_def_border(dst0, src0, src1, src2, count, flag);
+	scale2x_8_def_border(dst1, src2, src1, src0, count, flag);
 #endif
 }
 
@@ -533,13 +596,13 @@ void scale2x_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8
  * \param dst0 First destination row, double length in pixels.
  * \param dst1 Second destination row, double length in pixels.
  */
-void scale2x_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+void scale2x_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count, unsigned flag)
 {
 #ifdef USE_SCALE_RANDOMWRITE
-	scale2x_16_def_whole(dst0, dst1, src0, src1, src2, count);
+	scale2x_16_def_whole(dst0, dst1, src0, src1, src2, count, flag);
 #else
-	scale2x_16_def_border(dst0, src0, src1, src2, count);
-	scale2x_16_def_border(dst1, src2, src1, src0, count);
+	scale2x_16_def_border(dst0, src0, src1, src2, count, flag);
+	scale2x_16_def_border(dst1, src2, src1, src0, count, flag);
 #endif
 }
 
@@ -554,13 +617,13 @@ void scale2x_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_ui
  * \param dst0 First destination row, double length in pixels.
  * \param dst1 Second destination row, double length in pixels.
  */
-void scale2x_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+void scale2x_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count, unsigned flag)
 {
 #ifdef USE_SCALE_RANDOMWRITE
-	scale2x_32_def_whole(dst0, dst1, src0, src1, src2, count);
+	scale2x_32_def_whole(dst0, dst1, src0, src1, src2, count, flag);
 #else
-	scale2x_32_def_border(dst0, src0, src1, src2, count);
-	scale2x_32_def_border(dst1, src2, src1, src0, count);
+	scale2x_32_def_border(dst0, src0, src1, src2, count, flag);
+	scale2x_32_def_border(dst1, src2, src1, src0, count, flag);
 #endif
 }
 
@@ -568,15 +631,15 @@ void scale2x_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_ui
  * Scale by a factor of 2x3 a row of pixels of 8 bits.
  * \note Like scale2x_8_def();
  */
-void scale2x3_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst2, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+void scale2x3_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst2, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count, unsigned flag)
 {
 #ifdef USE_SCALE_RANDOMWRITE
-	scale2x_8_def_whole(dst0, dst2, src0, src1, src2, count);
-	scale2x_8_def_center(dst1, src0, src1, src2, count);
+	scale2x_8_def_whole(dst0, dst2, src0, src1, src2, count, flag);
+	scale2x_8_def_center(dst1, src0, src1, src2, count, flag);
 #else
-	scale2x_8_def_border(dst0, src0, src1, src2, count);
-	scale2x_8_def_center(dst1, src0, src1, src2, count);
-	scale2x_8_def_border(dst2, src2, src1, src0, count);
+	scale2x_8_def_border(dst0, src0, src1, src2, count, flag);
+	scale2x_8_def_center(dst1, src0, src1, src2, count, flag);
+	scale2x_8_def_border(dst2, src2, src1, src0, count, flag);
 #endif
 }
 
@@ -584,15 +647,15 @@ void scale2x3_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst
  * Scale by a factor of 2x3 a row of pixels of 16 bits.
  * \note Like scale2x_16_def();
  */
-void scale2x3_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16* dst2, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+void scale2x3_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16* dst2, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count, unsigned flag)
 {
 #ifdef USE_SCALE_RANDOMWRITE
-	scale2x_16_def_whole(dst0, dst2, src0, src1, src2, count);
-	scale2x_16_def_center(dst1, src0, src1, src2, count);
+	scale2x_16_def_whole(dst0, dst2, src0, src1, src2, count, flag);
+	scale2x_16_def_center(dst1, src0, src1, src2, count, flag);
 #else
-	scale2x_16_def_border(dst0, src0, src1, src2, count);
-	scale2x_16_def_center(dst1, src0, src1, src2, count);
-	scale2x_16_def_border(dst2, src2, src1, src0, count);
+	scale2x_16_def_border(dst0, src0, src1, src2, count, flag);
+	scale2x_16_def_center(dst1, src0, src1, src2, count, flag);
+	scale2x_16_def_border(dst2, src2, src1, src0, count, flag);
 #endif
 }
 
@@ -600,15 +663,15 @@ void scale2x3_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16*
  * Scale by a factor of 2x3 a row of pixels of 32 bits.
  * \note Like scale2x_32_def();
  */
-void scale2x3_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+void scale2x3_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count, unsigned flag)
 {
 #ifdef USE_SCALE_RANDOMWRITE
-	scale2x_32_def_whole(dst0, dst2, src0, src1, src2, count);
-	scale2x_32_def_center(dst1, src0, src1, src2, count);
+	scale2x_32_def_whole(dst0, dst2, src0, src1, src2, count, flag);
+	scale2x_32_def_center(dst1, src0, src1, src2, count, flag);
 #else
-	scale2x_32_def_border(dst0, src0, src1, src2, count);
-	scale2x_32_def_center(dst1, src0, src1, src2, count);
-	scale2x_32_def_border(dst2, src2, src1, src0, count);
+	scale2x_32_def_border(dst0, src0, src1, src2, count, flag);
+	scale2x_32_def_center(dst1, src0, src1, src2, count, flag);
+	scale2x_32_def_border(dst2, src2, src1, src0, count, flag);
 #endif
 }
 
@@ -616,17 +679,17 @@ void scale2x3_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32*
  * Scale by a factor of 2x4 a row of pixels of 8 bits.
  * \note Like scale2x_8_def();
  */
-void scale2x4_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst2, scale2x_uint8* dst3, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+void scale2x4_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst2, scale2x_uint8* dst3, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count, unsigned flag)
 {
 #ifdef USE_SCALE_RANDOMWRITE
-	scale2x_8_def_whole(dst0, dst3, src0, src1, src2, count);
-	scale2x_8_def_center(dst1, src0, src1, src2, count);
-	scale2x_8_def_center(dst2, src0, src1, src2, count);
+	scale2x_8_def_whole(dst0, dst3, src0, src1, src2, count, flag);
+	scale2x_8_def_center(dst1, src0, src1, src2, count, flag);
+	scale2x_8_def_center(dst2, src0, src1, src2, count, flag);
 #else
-	scale2x_8_def_border(dst0, src0, src1, src2, count);
-	scale2x_8_def_center(dst1, src0, src1, src2, count);
-	scale2x_8_def_center(dst2, src0, src1, src2, count);
-	scale2x_8_def_border(dst3, src2, src1, src0, count);
+	scale2x_8_def_border(dst0, src0, src1, src2, count, flag);
+	scale2x_8_def_center(dst1, src0, src1, src2, count, flag);
+	scale2x_8_def_center(dst2, src0, src1, src2, count, flag);
+	scale2x_8_def_border(dst3, src2, src1, src0, count, flag);
 #endif
 }
 
@@ -634,17 +697,17 @@ void scale2x4_8_def(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst
  * Scale by a factor of 2x4 a row of pixels of 16 bits.
  * \note Like scale2x_16_def();
  */
-void scale2x4_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16* dst2, scale2x_uint16* dst3, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+void scale2x4_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16* dst2, scale2x_uint16* dst3, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count, unsigned flag)
 {
 #ifdef USE_SCALE_RANDOMWRITE
-	scale2x_16_def_whole(dst0, dst3, src0, src1, src2, count);
-	scale2x_16_def_center(dst1, src0, src1, src2, count);
-	scale2x_16_def_center(dst2, src0, src1, src2, count);
+	scale2x_16_def_whole(dst0, dst3, src0, src1, src2, count, flag);
+	scale2x_16_def_center(dst1, src0, src1, src2, count, flag);
+	scale2x_16_def_center(dst2, src0, src1, src2, count, flag);
 #else
-	scale2x_16_def_border(dst0, src0, src1, src2, count);
-	scale2x_16_def_center(dst1, src0, src1, src2, count);
-	scale2x_16_def_center(dst2, src0, src1, src2, count);
-	scale2x_16_def_border(dst3, src2, src1, src0, count);
+	scale2x_16_def_border(dst0, src0, src1, src2, count, flag);
+	scale2x_16_def_center(dst1, src0, src1, src2, count, flag);
+	scale2x_16_def_center(dst2, src0, src1, src2, count, flag);
+	scale2x_16_def_border(dst3, src2, src1, src0, count, flag);
 #endif
 }
 
@@ -652,17 +715,17 @@ void scale2x4_16_def(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16*
  * Scale by a factor of 2x4 a row of pixels of 32 bits.
  * \note Like scale2x_32_def();
  */
-void scale2x4_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, scale2x_uint32* dst3, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+void scale2x4_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, scale2x_uint32* dst3, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count, unsigned flag)
 {
 #ifdef USE_SCALE_RANDOMWRITE
-	scale2x_32_def_whole(dst0, dst3, src0, src1, src2, count);
-	scale2x_32_def_center(dst1, src0, src1, src2, count);
-	scale2x_32_def_center(dst2, src0, src1, src2, count);
+	scale2x_32_def_whole(dst0, dst3, src0, src1, src2, count, flag);
+	scale2x_32_def_center(dst1, src0, src1, src2, count, flag);
+	scale2x_32_def_center(dst2, src0, src1, src2, count, flag);
 #else
-	scale2x_32_def_border(dst0, src0, src1, src2, count);
-	scale2x_32_def_center(dst1, src0, src1, src2, count);
-	scale2x_32_def_center(dst2, src0, src1, src2, count);
-	scale2x_32_def_border(dst3, src2, src1, src0, count);
+	scale2x_32_def_border(dst0, src0, src1, src2, count, flag);
+	scale2x_32_def_center(dst1, src0, src1, src2, count, flag);
+	scale2x_32_def_center(dst2, src0, src1, src2, count, flag);
+	scale2x_32_def_border(dst3, src2, src1, src0, count, flag);
 #endif
 }
 
@@ -709,14 +772,12 @@ void scale2x4_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32*
  *      %mm6 -> *current_upper
  *      %mm7 -> *current
  */
-static inline void scale2x_8_mmx_border(scale2x_uint8* dst, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+static inline void scale2x_8_mmx_border(scale2x_uint8* dst, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count, unsigned flag)
 {
 	assert(count >= 16);
 	assert(count % 8 == 0);
 
-	/* always do the first and last run */
-	count -= 2*8;
-
+	if ((flag & SEGMENT_FLAG_FIRST) != 0) {
 	__asm__ __volatile__(
 /* first run */
 		/* set the current, current_pre, current_next registers */
@@ -776,6 +837,18 @@ static inline void scale2x_8_mmx_border(scale2x_uint8* dst, const scale2x_uint8*
 		"addl $8, %2\n"
 		"addl $16, %3\n"
 
+		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst)
+		:
+		: "cc"
+	);
+		count -= 8;
+	}
+
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		count -= 8;
+	}
+
+	__asm__ __volatile__(
 /* central runs */
 		"shrl $3, %4\n"
 		"jz 1f\n"
@@ -842,6 +915,13 @@ static inline void scale2x_8_mmx_border(scale2x_uint8* dst, const scale2x_uint8*
 		"jnz 0b\n"
 		"1:\n"
 
+		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst), "+r" (count)
+		:
+		: "cc"
+	);
+
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+	__asm__ __volatile__(
 /* final run */
 		/* set the current, current_pre, current_next registers */
 		"movq (%1), %%mm1\n"
@@ -894,20 +974,19 @@ static inline void scale2x_8_mmx_border(scale2x_uint8* dst, const scale2x_uint8*
 		"movq %%mm2, (%3)\n"
 		"movq %%mm3, 8(%3)\n"
 
-		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst), "+r" (count)
+		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst)
 		:
 		: "cc"
 	);
+	}
 }
 
-static inline void scale2x_16_mmx_border(scale2x_uint16* dst, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+static inline void scale2x_16_mmx_border(scale2x_uint16* dst, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count, unsigned flag)
 {
 	assert(count >= 8);
 	assert(count % 4 == 0);
 
-	/* always do the first and last run */
-	count -= 2*4;
-
+	if ((flag & SEGMENT_FLAG_FIRST) != 0) {
 	__asm__ __volatile__(
 /* first run */
 		/* set the current, current_pre, current_next registers */
@@ -966,7 +1045,18 @@ static inline void scale2x_16_mmx_border(scale2x_uint16* dst, const scale2x_uint
 		"addl $8, %1\n"
 		"addl $8, %2\n"
 		"addl $16, %3\n"
+		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst)
+		:
+		: "cc"
+	);
+		count -= 4;
+	}
 
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		count -= 4;
+	}
+
+	__asm__ __volatile__(
 /* central runs */
 		"shrl $2, %4\n"
 		"jz 1f\n"
@@ -1032,7 +1122,13 @@ static inline void scale2x_16_mmx_border(scale2x_uint16* dst, const scale2x_uint
 		"decl %4\n"
 		"jnz 0b\n"
 		"1:\n"
+		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst), "+r" (count)
+		:
+		: "cc"
+	);
 
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+	__asm__ __volatile__(
 /* final run */
 		/* set the current, current_pre, current_next registers */
 		"movq (%1), %%mm1\n"
@@ -1085,20 +1181,19 @@ static inline void scale2x_16_mmx_border(scale2x_uint16* dst, const scale2x_uint
 		"movq %%mm2, (%3)\n"
 		"movq %%mm3, 8(%3)\n"
 
-		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst), "+r" (count)
+		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst)
 		:
 		: "cc"
 	);
+	}
 }
 
-static inline void scale2x_32_mmx_border(scale2x_uint32* dst, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+static inline void scale2x_32_mmx_border(scale2x_uint32* dst, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count, unsigned flag)
 {
 	assert(count >= 4);
 	assert(count % 2 == 0);
 
-	/* always do the first and last run */
-	count -= 2*2;
-
+	if ((flag & SEGMENT_FLAG_FIRST) != 0) {
 	__asm__ __volatile__(
 /* first run */
 		/* set the current, current_pre, current_next registers */
@@ -1158,6 +1253,18 @@ static inline void scale2x_32_mmx_border(scale2x_uint32* dst, const scale2x_uint
 		"addl $8, %2\n"
 		"addl $16, %3\n"
 
+		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst)
+		:
+		: "cc"
+	);
+		count -= 2;
+	}
+
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+		count -= 2;
+	}
+
+	__asm__ __volatile__(
 /* central runs */
 		"shrl $1, %4\n"
 		"jz 1f\n"
@@ -1224,6 +1331,13 @@ static inline void scale2x_32_mmx_border(scale2x_uint32* dst, const scale2x_uint
 		"jnz 0b\n"
 		"1:\n"
 
+		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst), "+r" (count)
+		:
+		: "cc"
+	);
+
+	if ((flag & SEGMENT_FLAG_LAST) != 0) {
+	__asm__ __volatile__(
 /* final run */
 		/* set the current, current_pre, current_next registers */
 		"movq (%1), %%mm1\n"
@@ -1276,10 +1390,11 @@ static inline void scale2x_32_mmx_border(scale2x_uint32* dst, const scale2x_uint
 		"movq %%mm2, (%3)\n"
 		"movq %%mm3, 8(%3)\n"
 
-		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst), "+r" (count)
+		: "+r" (src0), "+r" (src1), "+r" (src2), "+r" (dst)
 		:
 		: "cc"
 	);
+	}
 }
 
 /**
@@ -1305,13 +1420,13 @@ static inline void scale2x_32_mmx_border(scale2x_uint32* dst, const scale2x_uint
  * \param dst0 First destination row, double length in pixels.
  * \param dst1 Second destination row, double length in pixels.
  */
-void scale2x_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+void scale2x_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count, unsigned flag)
 {
 	if (count % 8 != 0 || count < 16) {
-		scale2x_8_def(dst0, dst1, src0, src1, src2, count);
+		scale2x_8_def(dst0, dst1, src0, src1, src2, count, flag);
 	} else {
-		scale2x_8_mmx_border(dst0, src0, src1, src2, count);
-		scale2x_8_mmx_border(dst1, src2, src1, src0, count);
+		scale2x_8_mmx_border(dst0, src0, src1, src2, count, flag);
+		scale2x_8_mmx_border(dst1, src2, src1, src0, count, flag);
 	}
 }
 
@@ -1326,13 +1441,13 @@ void scale2x_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8
  * \param dst0 First destination row, double length in pixels.
  * \param dst1 Second destination row, double length in pixels.
  */
-void scale2x_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+void scale2x_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count, unsigned flag)
 {
 	if (count % 4 != 0 || count < 8) {
-		scale2x_16_def(dst0, dst1, src0, src1, src2, count);
+		scale2x_16_def(dst0, dst1, src0, src1, src2, count, flag);
 	} else {
-		scale2x_16_mmx_border(dst0, src0, src1, src2, count);
-		scale2x_16_mmx_border(dst1, src2, src1, src0, count);
+		scale2x_16_mmx_border(dst0, src0, src1, src2, count, flag);
+		scale2x_16_mmx_border(dst1, src2, src1, src0, count, flag);
 	}
 }
 
@@ -1347,13 +1462,13 @@ void scale2x_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_ui
  * \param dst0 First destination row, double length in pixels.
  * \param dst1 Second destination row, double length in pixels.
  */
-void scale2x_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+void scale2x_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count, unsigned flag)
 {
 	if (count % 2 != 0 || count < 4) {
-		scale2x_32_def(dst0, dst1, src0, src1, src2, count);
+		scale2x_32_def(dst0, dst1, src0, src1, src2, count, flag);
 	} else {
-		scale2x_32_mmx_border(dst0, src0, src1, src2, count);
-		scale2x_32_mmx_border(dst1, src2, src1, src0, count);
+		scale2x_32_mmx_border(dst0, src0, src1, src2, count, flag);
+		scale2x_32_mmx_border(dst1, src2, src1, src0, count, flag);
 	}
 }
 
@@ -1362,14 +1477,14 @@ void scale2x_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_ui
  * This function operates like scale2x_8_mmx() but with an expansion
  * factor of 2x3 instead of 2x2.
  */
-void scale2x3_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst2, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+void scale2x3_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst2, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count, unsigned flag)
 {
 	if (count % 8 != 0 || count < 16) {
-		scale2x3_8_def(dst0, dst1, dst2, src0, src1, src2, count);
+		scale2x3_8_def(dst0, dst1, dst2, src0, src1, src2, count, flag);
 	} else {
-		scale2x_8_mmx_border(dst0, src0, src1, src2, count);
-		scale2x_8_def_center(dst1, src0, src1, src2, count);
-		scale2x_8_mmx_border(dst2, src2, src1, src0, count);
+		scale2x_8_mmx_border(dst0, src0, src1, src2, count, flag);
+		scale2x_8_def_center(dst1, src0, src1, src2, count, flag);
+		scale2x_8_mmx_border(dst2, src2, src1, src0, count, flag);
 	}
 }
 
@@ -1378,14 +1493,14 @@ void scale2x3_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst
  * This function operates like scale2x_16_mmx() but with an expansion
  * factor of 2x3 instead of 2x2.
  */
-void scale2x3_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16* dst2, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+void scale2x3_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16* dst2, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count, unsigned flag)
 {
 	if (count % 4 != 0 || count < 8) {
-		scale2x3_16_def(dst0, dst1, dst2, src0, src1, src2, count);
+		scale2x3_16_def(dst0, dst1, dst2, src0, src1, src2, count, flag);
 	} else {
-		scale2x_16_mmx_border(dst0, src0, src1, src2, count);
-		scale2x_16_def_center(dst1, src0, src1, src2, count);
-		scale2x_16_mmx_border(dst2, src2, src1, src0, count);
+		scale2x_16_mmx_border(dst0, src0, src1, src2, count, flag);
+		scale2x_16_def_center(dst1, src0, src1, src2, count, flag);
+		scale2x_16_mmx_border(dst2, src2, src1, src0, count, flag);
 	}
 }
 
@@ -1394,14 +1509,14 @@ void scale2x3_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16*
  * This function operates like scale2x_32_mmx() but with an expansion
  * factor of 2x3 instead of 2x2.
  */
-void scale2x3_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+void scale2x3_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count, unsigned flag)
 {
 	if (count % 2 != 0 || count < 4) {
-		scale2x3_32_def(dst0, dst1, dst2, src0, src1, src2, count);
+		scale2x3_32_def(dst0, dst1, dst2, src0, src1, src2, count, flag);
 	} else {
-		scale2x_32_mmx_border(dst0, src0, src1, src2, count);
-		scale2x_32_def_center(dst1, src0, src1, src2, count);
-		scale2x_32_mmx_border(dst2, src2, src1, src0, count);
+		scale2x_32_mmx_border(dst0, src0, src1, src2, count, flag);
+		scale2x_32_def_center(dst1, src0, src1, src2, count, flag);
+		scale2x_32_mmx_border(dst2, src2, src1, src0, count, flag);
 	}
 }
 
@@ -1410,15 +1525,15 @@ void scale2x3_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32*
  * This function operates like scale2x_8_mmx() but with an expansion
  * factor of 2x4 instead of 2x2.
  */
-void scale2x4_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst2, scale2x_uint8* dst3, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+void scale2x4_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst2, scale2x_uint8* dst3, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count, unsigned flag)
 {
 	if (count % 8 != 0 || count < 16) {
-		scale2x4_8_def(dst0, dst1, dst2, dst3, src0, src1, src2, count);
+		scale2x4_8_def(dst0, dst1, dst2, dst3, src0, src1, src2, count, flag);
 	} else {
-		scale2x_8_mmx_border(dst0, src0, src1, src2, count);
-		scale2x_8_def_center(dst1, src0, src1, src2, count);
-		scale2x_8_def_center(dst2, src0, src1, src2, count);
-		scale2x_8_mmx_border(dst3, src2, src1, src0, count);
+		scale2x_8_mmx_border(dst0, src0, src1, src2, count, flag);
+		scale2x_8_def_center(dst1, src0, src1, src2, count, flag);
+		scale2x_8_def_center(dst2, src0, src1, src2, count, flag);
+		scale2x_8_mmx_border(dst3, src2, src1, src0, count, flag);
 	}
 }
 
@@ -1427,15 +1542,15 @@ void scale2x4_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst
  * This function operates like scale2x_16_mmx() but with an expansion
  * factor of 2x4 instead of 2x2.
  */
-void scale2x4_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16* dst2, scale2x_uint16* dst3, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+void scale2x4_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16* dst2, scale2x_uint16* dst3, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count, unsigned flag)
 {
 	if (count % 4 != 0 || count < 8) {
-		scale2x4_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, count);
+		scale2x4_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, count, flag);
 	} else {
-		scale2x_16_mmx_border(dst0, src0, src1, src2, count);
-		scale2x_16_def_center(dst1, src0, src1, src2, count);
-		scale2x_16_def_center(dst2, src0, src1, src2, count);
-		scale2x_16_mmx_border(dst3, src2, src1, src0, count);
+		scale2x_16_mmx_border(dst0, src0, src1, src2, count, flag);
+		scale2x_16_def_center(dst1, src0, src1, src2, count, flag);
+		scale2x_16_def_center(dst2, src0, src1, src2, count, flag);
+		scale2x_16_mmx_border(dst3, src2, src1, src0, count, flag);
 	}
 }
 
@@ -1444,15 +1559,15 @@ void scale2x4_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16*
  * This function operates like scale2x_32_mmx() but with an expansion
  * factor of 2x4 instead of 2x2.
  */
-void scale2x4_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, scale2x_uint32* dst3, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+void scale2x4_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, scale2x_uint32* dst3, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count, unsigned flag)
 {
 	if (count % 2 != 0 || count < 4) {
-		scale2x4_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, count);
+		scale2x4_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, count, flag);
 	} else {
-		scale2x_32_mmx_border(dst0, src0, src1, src2, count);
-		scale2x_32_def_center(dst1, src0, src1, src2, count);
-		scale2x_32_def_center(dst2, src0, src1, src2, count);
-		scale2x_32_mmx_border(dst3, src2, src1, src0, count);
+		scale2x_32_mmx_border(dst0, src0, src1, src2, count, flag);
+		scale2x_32_def_center(dst1, src0, src1, src2, count, flag);
+		scale2x_32_def_center(dst2, src0, src1, src2, count, flag);
+		scale2x_32_mmx_border(dst3, src2, src1, src0, count, flag);
 	}
 }
 

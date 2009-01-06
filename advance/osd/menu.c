@@ -125,11 +125,12 @@ static int video_pipeline_menu(struct advance_video_context* context, struct adv
 
 	advance_ui_menu_init(&menu);
 
-	advance_ui_menu_title_insert(&menu, "Video Pipeline");
+	snprintf(buffer, sizeof(buffer), "Video Pipeline (%d)", context->state.blit_pipeline_index);
+	advance_ui_menu_title_insert(&menu, buffer);
 
-	for(i=1,stage=video_pipeline_begin(&context->state.blit_pipeline_video);stage!=video_pipeline_end(&context->state.blit_pipeline_video);++stage,++i) {
-		if (stage == video_pipeline_pivot(&context->state.blit_pipeline_video)) {
-			snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline_video)->type));
+	for(i=1,stage=video_pipeline_begin(&context->state.blit_pipeline[context->state.blit_pipeline_index]);stage!=video_pipeline_end(&context->state.blit_pipeline[context->state.blit_pipeline_index]);++stage,++i) {
+		if (stage == video_pipeline_pivot(&context->state.blit_pipeline[context->state.blit_pipeline_index])) {
+			snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline[context->state.blit_pipeline_index])->type));
 			advance_ui_menu_text_insert(&menu, buffer);
 			++i;
 		}
@@ -139,22 +140,28 @@ static int video_pipeline_menu(struct advance_video_context* context, struct adv
 			snprintf(buffer, sizeof(buffer), "(%d) %s, p %d", i, pipe_name(stage->type), stage->sbpp);
 		advance_ui_menu_text_insert(&menu, buffer);
 	}
-	if (stage == video_pipeline_pivot(&context->state.blit_pipeline_video)) {
-		snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline_video)->type));
+	if (stage == video_pipeline_pivot(&context->state.blit_pipeline[context->state.blit_pipeline_index])) {
+		snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline[context->state.blit_pipeline_index])->type));
 		advance_ui_menu_text_insert(&menu, buffer);
 		++i;
 	}
 
-	advance_ui_menu_title_insert(&menu, "Blit Time");
+	advance_ui_menu_title_insert(&menu, "Pipeline Blit Time");
 
 	if (context->state.pipeline_measure_flag) {
 		advance_ui_menu_text_insert(&menu, "Time measure not completed");
 	} else {
-		snprintf(buffer, sizeof(buffer), "Direct write %.2f (ms)", context->state.pipeline_measure_direct_result * 1000);
-		advance_ui_menu_text_insert(&menu, buffer);
-
-		snprintf(buffer, sizeof(buffer), "Buffer write %.2f (ms)", context->state.pipeline_measure_buffer_result * 1000);
-		advance_ui_menu_text_insert(&menu, buffer);
+		for(i=0;i<PIPELINE_BLIT_MAX;++i) {
+			const char* desc;
+			switch (i) {
+			case 0 : desc = "Buffer"; break;
+			case 1 : desc = "Direct"; break;
+			case 2 : desc = "Splitted"; break;
+			default : desc = "Unknown"; break;
+			}
+			snprintf(buffer, sizeof(buffer), "(%d) %s write %.2f (ms)", i, desc, context->state.pipeline_measure_result[i] * 1000);
+			advance_ui_menu_text_insert(&menu, buffer);
+		}
 	}
 
 	exit_index = advance_ui_menu_text_insert(&menu, "Return to Main Menu");

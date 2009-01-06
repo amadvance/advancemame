@@ -183,8 +183,9 @@ Video Drivers
 	This driver works in Linux, Windows and Mac OS X and is able to
 	use video modes reported by the SDL graphics library.
 
-	It supports all RGB/YUY2 bit depths available.
-	The output in the YUY2 modes is generally accelerated, and can
+	It supports all RGB bit depths available and the YUV mode.
+
+	The output in the YUV mode is generally accelerated, and can
 	be used to scale the video output to an arbitrary size.
 	You can enable this feature with the `-device_video_output overlay'
 	option.
@@ -597,11 +598,6 @@ Video Drivers Configuration
 			This mode is available only in some environments, like
 			xv in X Window and DirectX in Windows. The specific
 			color format used is YUY2.
-
-	Please note that with overlay mode, if the original image is
-	in the RGB format instead of a palette format, the program
-	needs to convert it to the YUY2 format before displaying it.
-	It requires some time.
 
     device_video_overlaysize
 	Select the favorite horizontal size to use with the `overlay'

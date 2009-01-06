@@ -2106,7 +2106,7 @@ Select the type of the current game
 Run a game clone.
 .HP 4
 .I shutdown
-Exit and shutdown.
+Shutdown the machine.
 .HP 4
 .I command
 The file command menu.
@@ -2300,11 +2300,11 @@ idle_screensaver 40 5
 Selects the preview type to use in the screensaver. Like
 the preview option.
 .PP
-idle_screensaver_preview none | play | snap | flyers
+idle_screensaver_preview none | exit | shutdown | play
 .PD 0
 .PP
 .PD
-	| cabinets | titles
+	| snap | flyers | cabinets | titles
 .PD 0
 .PP
 .PD
@@ -2316,6 +2316,12 @@ Options:
 .I none
 Shutdown the monitor using the VESA/PM services
 if available. Otherwise use a black image.
+.HP 4
+.I exit
+Exit from the application.
+.HP 4
+.I shutdown
+Shutdown the machine.
 .HP 4
 .I snap, flyers, cabinets, titles
 Start a mute slide show

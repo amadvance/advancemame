@@ -709,6 +709,7 @@ struct advance_video_config_context {
 #define AUDIOVIDEO_MEASURE_MAX 17
 
 #define PIPELINE_MEASURE_MAX 13
+#define PIPELINE_BLIT_MAX 3
 
 /** State for the video part. */
 struct advance_video_state_context {
@@ -830,7 +831,8 @@ struct advance_video_state_context {
 	int blit_src_dw; /**< Source row step of the game bitmap. */
 	int blit_src_offset; /**< Pointer at the first pixel of the game bitmap. */
 	adv_bool blit_pipeline_flag; /**< !=0 if blit_pipeline is computed. */
-	struct video_pipeline_struct blit_pipeline_video; /**< Put pipeline to video. */
+	struct video_pipeline_struct blit_pipeline[PIPELINE_BLIT_MAX]; /**< Put pipeline to video. */
+	unsigned blit_pipeline_index; /**< Pipeline to use. */
 
 	/* Buffer info */
 	int buffer_src_dp; /**< Source pixel step of the game bitmap. */
@@ -860,13 +862,10 @@ struct advance_video_state_context {
 	unsigned game_visible_pos_x_increment;
 
 	adv_bool pipeline_measure_flag; /**< !=0 if the time measure is active. */
-	double pipeline_measure_direct_map[PIPELINE_MEASURE_MAX];
-	unsigned pipeline_measure_direct_mac;
-	double pipeline_measure_buffer_map[PIPELINE_MEASURE_MAX];
-	unsigned pipeline_measure_buffer_mac;
-	adv_bool pipeline_measure_bestisdirect_flag;
-	double pipeline_measure_direct_result;
-	double pipeline_measure_buffer_result;
+	double pipeline_measure_map[PIPELINE_BLIT_MAX][PIPELINE_MEASURE_MAX]; /**< Single measure. */
+	double pipeline_measure_result[PIPELINE_BLIT_MAX]; /**< Selected measure. */
+	unsigned pipeline_measure_i;
+	unsigned pipeline_measure_j;
 
 	const adv_crtc* crtc_selected; /**< Current crtc, pointer in the crtc_vector. */
 	adv_crtc crtc_effective; /**< Current modified crtc. */

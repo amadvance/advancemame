@@ -35,6 +35,7 @@ CFGOBJS += \
 	$(CFGOBJ)/blit/blit.o \
 	$(CFGOBJ)/blit/clear.o \
 	$(CFGOBJ)/blit/slice.o \
+	$(CFGOBJ)/blit/segment.o \
 	$(CFGOBJ)/cfg/cfg.o \
 	$(CFGOBJ)/cfg/list.o \
 	$(CFGOBJ)/v/draw.o

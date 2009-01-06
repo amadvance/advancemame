@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,114 +37,82 @@
 /* swap */
 
 #if defined(USE_ASM_INLINE)
-static inline unsigned internal_swapeven8_step1_mmx(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+static inline void internal_swapeven8_step1_mmx(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
 {
-	switch (state) {
-	case 0 :
+	if (line == 0) {
 		internal_copy8_mmx(dst, src, count);
 		internal_copy8_mmx(buffer, src, count);
-		state = 1;
-		break;
-	case 1 :
+	} else if (line % 2) {
 		internal_copy8_mmx(dst, src, count);
-		state = 2;
-		break;
-	case 2 :
+	} else {
 		internal_copy8_mmx(dst, buffer, count);
 		internal_copy8_mmx(buffer, src, count);
-		state = 1;
-		break;
 	}
-	return state;
 }
 
-static inline unsigned internal_swapodd8_step1_mmx(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+static inline void internal_swapodd8_step1_mmx(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
 {
-	switch (state) {
-	case 0 :
+	if (line == 0) {
 		internal_copy8_mmx(dst, src, count);
 		internal_copy8_mmx(buffer, src, count);
-		state = 1;
-		break;
-	case 1 :
+	} else if (line % 2) {
 		internal_copy8_mmx(dst, buffer, count);
 		internal_copy8_mmx(buffer, src, count);
-		state = 2;
-		break;
-	case 2 :
+	} else {
 		internal_copy8_mmx(dst, src, count);
-		state = 1;
-		break;
 	}
-	return state;
 }
 #endif
 
-static inline unsigned internal_swapeven8_step1_def(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+static inline void internal_swapeven8_step1_def(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
 {
-	switch (state) {
-	case 0 :
+	if (line == 0) {
 		internal_copy8_def(dst, src, count);
 		internal_copy8_def(buffer, src, count);
-		state = 1;
-		break;
-	case 1 :
+	} else if (line % 2) {
 		internal_copy8_def(dst, src, count);
-		state = 2;
-		break;
-	case 2 :
+	} else {
 		internal_copy8_def(dst, buffer, count);
 		internal_copy8_def(buffer, src, count);
-		state = 1;
-		break;
 	}
-	return state;
 }
 
-static inline unsigned internal_swapodd8_step1_def(unsigned state, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
+static inline void internal_swapodd8_step1_def(unsigned line, uint8* buffer, uint8* dst, const uint8* src, unsigned count)
 {
-	switch (state) {
-	case 0 :
+	if (line == 0) {
 		internal_copy8_def(dst, src, count);
 		internal_copy8_def(buffer, src, count);
-		state = 1;
-		break;
-	case 1 :
+	} else if (line % 2) {
 		internal_copy8_def(dst, buffer, count);
 		internal_copy8_def(buffer, src, count);
-		state = 2;
-		break;
-	case 2 :
+	} else {
 		internal_copy8_def(dst, src, count);
-		state = 1;
-		break;
 	}
-	return state;
 }
 
 /****************************************************************************/
 /* swap8 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_swapeven8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_swapeven8_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count);
+	internal_swapeven8_step1_mmx(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
 }
 
-static void video_line_swapodd8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_swapodd8_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count);
+	internal_swapodd8_step1_mmx(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
 }
 #endif
 
-static void video_line_swapeven8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_swapeven8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count);
+	internal_swapeven8_step1_def(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
 }
 
-static void video_line_swapodd8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_swapodd8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count);
+	internal_swapodd8_step1_def(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count);
 }
 
 static void video_stage_swapeven8_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -165,25 +133,25 @@ static void video_stage_swapodd8_set(struct video_stage_horz_struct* stage, unsi
 /* swap16 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_swapeven16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_swapeven16_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 2);
+	internal_swapeven8_step1_mmx(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
 }
 
-static void video_line_swapodd16_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_swapodd16_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 2);
+	internal_swapodd8_step1_mmx(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
 }
 #endif
 
-static void video_line_swapeven16_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_swapeven16_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 2);
+	internal_swapeven8_step1_def(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
 }
 
-static void video_line_swapodd16_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_swapodd16_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 2);
+	internal_swapodd8_step1_def(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 2);
 }
 
 static void video_stage_swapeven16_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -204,25 +172,25 @@ static void video_stage_swapodd16_set(struct video_stage_horz_struct* stage, uns
 /* swap32 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_swapeven32_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_swapeven32_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 4);
+	internal_swapeven8_step1_mmx(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
 }
 
-static void video_line_swapodd32_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_swapodd32_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_mmx(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 4);
+	internal_swapodd8_step1_mmx(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
 }
 #endif
 
-static void video_line_swapeven32_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_swapeven32_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapeven8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 4);
+	internal_swapeven8_step1_def(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
 }
 
-static void video_line_swapodd32_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_swapodd32_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_swapodd8_step1_def(stage->state_mutable, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, stage->slice.count * 4);
+	internal_swapodd8_step1_def(line, (uint8*)stage->buffer_extra, (uint8*)dst, (const uint8*)src, count * 4);
 }
 
 static void video_stage_swapeven32_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)

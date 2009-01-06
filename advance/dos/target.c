@@ -605,8 +605,6 @@ void target_signal(int signum, void* info, void* context)
 
 void target_crash(void)
 {
-	unsigned* i = (unsigned*)0;
-	*i = *i;
 	abort();
 }
 

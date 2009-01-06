@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,15 +37,15 @@
 /* bgra8888 to bgr332 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_bgra8888tobgr332_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra8888tobgr332_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_convbgra8888tobgr332_mmx(dst, src, stage->slice.count);
+	internal_convbgra8888tobgr332_mmx(dst, src, count);
 }
 #endif
 
-static void video_line_bgra8888tobgr332_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra8888tobgr332_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_convbgra8888tobgr332_def(dst, src, stage->slice.count);
+	internal_convbgra8888tobgr332_def(dst, src, count);
 }
 
 static void video_stage_bgra8888tobgr332_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -58,15 +58,15 @@ static void video_stage_bgra8888tobgr332_set(struct video_stage_horz_struct* sta
 /* bgra8888 to bgr565 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_bgra8888tobgr565_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra8888tobgr565_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_convbgra8888tobgr565_mmx(dst, src, stage->slice.count);
+	internal_convbgra8888tobgr565_mmx(dst, src, count);
 }
 #endif
 
-static void video_line_bgra8888tobgr565_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra8888tobgr565_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_convbgra8888tobgr565_def(dst, src, stage->slice.count);
+	internal_convbgra8888tobgr565_def(dst, src, count);
 }
 
 static void video_stage_bgra8888tobgr565_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -79,15 +79,15 @@ static void video_stage_bgra8888tobgr565_set(struct video_stage_horz_struct* sta
 /* bgra8888 to bgra5551 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_bgra8888tobgra5551_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra8888tobgra5551_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_convbgra8888tobgra5551_mmx(dst, src, stage->slice.count);
+	internal_convbgra8888tobgra5551_mmx(dst, src, count);
 }
 #endif
 
-static void video_line_bgra8888tobgra5551_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra8888tobgra5551_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_convbgra8888tobgra5551_def(dst, src, stage->slice.count);
+	internal_convbgra8888tobgra5551_def(dst, src, count);
 }
 
 static void video_stage_bgra8888tobgra5551_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -100,15 +100,15 @@ static void video_stage_bgra8888tobgra5551_set(struct video_stage_horz_struct* s
 /* bgra5551 to bgr332 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_bgra5551tobgr332_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra5551tobgr332_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_convbgra5551tobgr332_mmx(dst, src, stage->slice.count);
+	internal_convbgra5551tobgr332_mmx(dst, src, count);
 }
 #endif
 
-static void video_line_bgra5551tobgr332_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra5551tobgr332_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_convbgra5551tobgr332_def(dst, src, stage->slice.count);
+	internal_convbgra5551tobgr332_def(dst, src, count);
 }
 
 static void video_stage_bgra5551tobgr332_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -121,15 +121,15 @@ static void video_stage_bgra5551tobgr332_set(struct video_stage_horz_struct* sta
 /* bgra5551 to bgr565 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_bgra5551tobgr565_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra5551tobgr565_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_convbgra5551tobgr565_mmx(dst, src, stage->slice.count);
+	internal_convbgra5551tobgr565_mmx(dst, src, count);
 }
 #endif
 
-static void video_line_bgra5551tobgr565_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra5551tobgr565_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_convbgra5551tobgr565_def(dst, src, stage->slice.count);
+	internal_convbgra5551tobgr565_def(dst, src, count);
 }
 
 static void video_stage_bgra5551tobgr565_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -142,15 +142,15 @@ static void video_stage_bgra5551tobgr565_set(struct video_stage_horz_struct* sta
 /* bgra5551 to bgra8888 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_bgra5551tobgra8888_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra5551tobgra8888_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_convbgra5551tobgra8888_mmx(dst, src, stage->slice.count);
+	internal_convbgra5551tobgra8888_mmx(dst, src, count);
 }
 #endif
 
-static void video_line_bgra5551tobgra8888_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra5551tobgra8888_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_convbgra5551tobgra8888_def(dst, src, stage->slice.count);
+	internal_convbgra5551tobgra8888_def(dst, src, count);
 }
 
 static void video_stage_bgra5551tobgra8888_set(struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -162,9 +162,8 @@ static void video_stage_bgra5551tobgra8888_set(struct video_stage_horz_struct* s
 /****************************************************************************/
 /* rgb888 to bgra8888 */
 
-static void video_line_rgb888tobgra8888_step3(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb888tobgra8888_step3(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 
@@ -208,9 +207,8 @@ static void video_line_rgb888tobgra8888_step3(const struct video_stage_horz_stru
 	}
 }
 
-static void video_line_rgb888tobgra8888_step(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb888tobgra8888_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 	int step1 = stage->sdp;
@@ -240,9 +238,8 @@ static void video_stage_rgb888tobgra8888_set(struct video_stage_horz_struct* sta
 /****************************************************************************/
 /* rgba8888 to bgra8888 */
 
-static void video_line_rgba8888tobgra8888_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgba8888tobgra8888_step4(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 
@@ -286,9 +283,8 @@ static void video_line_rgba8888tobgra8888_step4(const struct video_stage_horz_st
 	}
 }
 
-static void video_line_rgba8888tobgra8888_step(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgba8888tobgra8888_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 	int step1 = stage->sdp;
@@ -325,9 +321,8 @@ static void video_stage_rgba8888tobgra8888_set(struct video_stage_horz_struct* s
 /****************************************************************************/
 /* bgr888 to bgra8888 */
 
-static void video_line_bgr888tobgra8888_step3(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgr888tobgra8888_step3(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 
@@ -371,9 +366,8 @@ static void video_line_bgr888tobgra8888_step3(const struct video_stage_horz_stru
 	}
 }
 
-static void video_line_bgr888tobgra8888_step(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgr888tobgra8888_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 	int step1 = stage->sdp;
@@ -411,12 +405,13 @@ static void video_stage_bgr888tobgra8888_set(struct video_stage_horz_struct* sta
 /* bgra8888 to yuy2 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_bgra8888toyuy2_step_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra8888toyuy2_step_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned count = stage->slice.count / 2;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 	int step1 = stage->sdp;
+
+	count /= 2;
 
 	while (count) {
 		pixel_convbgra8888toyuy2_mmx(dst8, src8, src8 + step1);
@@ -428,9 +423,8 @@ static void video_line_bgra8888toyuy2_step_mmx(const struct video_stage_horz_str
 }
 #endif
 
-static void video_line_bgra8888toyuy2_step_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra8888toyuy2_step_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 	int step1 = stage->sdp;
@@ -454,12 +448,13 @@ static void video_stage_bgra8888toyuy2_set(struct video_stage_horz_struct* stage
 /* bgra5551 to yuy2 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_bgra5551toyuy2_step_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra5551toyuy2_step_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned count = stage->slice.count / 2;
 	uint16* src16 = (uint16*)src;
 	uint8* dst8 = (uint8*)dst;
 	int step1 = stage->sdp;
+
+	count /= 2;
 
 	while (count) {
 		uint32 p0;
@@ -485,9 +480,8 @@ static void video_line_bgra5551toyuy2_step_mmx(const struct video_stage_horz_str
 }
 #endif
 
-static void video_line_bgra5551toyuy2_step_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_bgra5551toyuy2_step_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned count = stage->slice.count;
 	uint16* src16 = (uint16*)src;
 	uint8* dst8 = (uint8*)dst;
 	int step1 = stage->sdp;
@@ -518,9 +512,8 @@ static void video_stage_bgra5551toyuy2_set(struct video_stage_horz_struct* stage
 /****************************************************************************/
 /* rgb to yuy2 */
 
-static void video_line_rgbtoyuy2_step_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgbtoyuy2_step_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 
@@ -553,9 +546,8 @@ static void video_stage_rgbtoyuy2_set(struct video_stage_horz_struct* stage, uns
 /****************************************************************************/
 /* rgb to rgb */
 
-static void video_line_rgbtorgb_step_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgbtorgb_step_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned count = stage->slice.count;
 	uint8* src8 = (uint8*)src;
 	uint8* dst8 = (uint8*)dst;
 

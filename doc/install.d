@@ -59,16 +59,15 @@ System Requirements
 	the exception of a mouse driver if you want to use one.
 
   Windows
+	The Advance programs contain a copy of the SDL library
+	which allow them to work also in the Windows platform.
+
 	To allow the Advance programs to directly control your video
 	board, you must install the included SVGAWIN driver.
 
-	Please note that this driver is EXPERIMENTAL software and it
-	works only for a few sets of video boards. More information is
+	Please note that the SVGAWIN driver is EXPERIMENTAL software and
+	it works only for a few sets of video boards. More information is
 	present in the `svgawin.txt' documentation file.
-
-	Otherwise the Advance programs are able to display in a window
-	or to use the default video modes using the included SDL
-	library.
 
 	The SDL library is also used for sound, and input controllers.
 
@@ -97,7 +96,7 @@ Installation
 	the source.
 
 Configuration
-	All the Advance programs require a configuration step to work
+	All the Advance programs require a configuration process to work
 	correctly.
 
 	To create a default configuration file run the application from 
@@ -138,8 +137,8 @@ Configuration
 
 Video Hardware
 	The Advance programs are able to drive different types
-	of video hardware: Multi Sync Monitors, Fixed Sync Monitors,
-	Arcade Monitors and TVs.
+	of video hardware: LCD, Multi Sync monitors, Fixed
+	Sync monitors, Arcade monitors and TVs.
 
 	With the exception of PC Monitors that always accept the
 	VGA signal, for other monitors you should take in account
@@ -151,11 +150,27 @@ Video Hardware
 
 		+http://advancemame.sourceforge.net/video-link.html
 
-  Multi Sync Monitors
+  LCD screens
+	LCD screens have always a native fixed resolution. To get the
+	best image quality it's always suggested to use this resolution.
+
+	For this reason you usually don't need to enter any specific
+	configuration options, and let the program to use the default
+	video mode.
+
+	This mode of operation is the default when you are in
+	a graphics environment like X, Windows and Mac OS X.
+
+  Multi Sync monitors (or PC monitors)
 	Multi Sync monitors support a wide range of horizontal clocks
 	and requires a standard VGA connector. They are the normal PC
 	monitors.
-  
+
+	With PC monitors you can choose to work without any configuration,
+	using only the default video mode, like a LCD screen, or configure
+	the clocks supported to allow a direct video mode generation
+	by the Advance programs.
+
 	You can generally find the range of clocks supported in the
 	monitor manual, generic values are:
 

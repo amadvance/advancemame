@@ -43,7 +43,8 @@ hardware (graphics adapter) to achieve a more faithful video
 emulation, also allowing the use with arcade monitors and TVs.
 
 It also contains software filters to improve the image when used
-on monitors with a higher resolution, such as PC monitors.
+on monitors with a higher resolution, such as PC monitors and
+LCD screens
 
 1.5 I have a question that is not answered in this FAQ. Where can I get help ?
 ------------------------------------------------------------------------------

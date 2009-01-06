@@ -201,10 +201,10 @@ static inline void internal_rgb_raw64_02_mmx(void* dst, const void* src, const v
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
-	/* *dstq = (*srcq & maskq[0]) + ((*srcq >> 2) & maskq[1])*/
+	/* *dstq = (*srcq & maskq[0]) + ((*srcq >> 2) & maskq[2])*/
 	__asm__ __volatile__(
 		"movq (%3), %%mm2\n"
-		"movq 8(%3), %%mm3\n"
+		"movq 16(%3), %%mm3\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 		"movq (%0), %%mm0\n"
@@ -1003,9 +1003,9 @@ static void internal_rgb_triad16pix_set(const struct video_pipeline_target_struc
 
 #if defined(USE_ASM_INLINE)
 
-static inline unsigned internal_rgb_triad16pix8_mmx(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad16pix8_mmx(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 8) {
 	case 0 :
 	case 4 :
 		internal_rgb_raw128_12carry_mmx(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, data + RGB_TRIAD16PIX_MASK_0_c_0, count / 16);
@@ -1019,12 +1019,11 @@ static inline unsigned internal_rgb_triad16pix8_mmx(unsigned state, uint8* dst, 
 		internal_rgb_raw128_012carry_mmx(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, data + RGB_TRIAD16PIX_MASK_2_c_0, count / 16);
 		break;
 	}
-	return (state+1) & 0x7;
 }
 
-static inline unsigned internal_rgb_triadstrong16pix8_mmx(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong16pix8_mmx(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 8) {
 	case 0 :
 	case 4 :
 		internal_rgb_raw128_1_mmx(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 16);
@@ -1038,12 +1037,11 @@ static inline unsigned internal_rgb_triadstrong16pix8_mmx(unsigned state, uint8*
 		internal_rgb_raw128_01_mmx(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 16);
 		break;
 	}
-	return (state+1) & 0x7;
 }
 
-static inline unsigned internal_rgb_triad16pix16_mmx(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad16pix16_mmx(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 8) {
 	case 0 :
 	case 4 :
 		internal_rgb_raw128_12carry_mmx(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, data + RGB_TRIAD16PIX_MASK_0_c_0, count / 8);
@@ -1057,12 +1055,11 @@ static inline unsigned internal_rgb_triad16pix16_mmx(unsigned state, uint16* dst
 		internal_rgb_raw128_012carry_mmx(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, data + RGB_TRIAD16PIX_MASK_2_c_0, count / 8);
 		break;
 	}
-	return (state+1) & 0x7;
 }
 
-static inline unsigned internal_rgb_triadstrong16pix16_mmx(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong16pix16_mmx(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 8) {
 	case 0 :
 	case 4 :
 		internal_rgb_raw128_1_mmx(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 8);
@@ -1076,12 +1073,11 @@ static inline unsigned internal_rgb_triadstrong16pix16_mmx(unsigned state, uint1
 		internal_rgb_raw128_01_mmx(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 8);
 		break;
 	}
-	return (state+1) & 0x7;
 }
 
-static inline unsigned internal_rgb_triad16pix32_mmx(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad16pix32_mmx(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 8) {
 	case 0 :
 	case 4 :
 		internal_rgb_raw128_12carry_mmx(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, data + RGB_TRIAD16PIX_MASK_0_c_0, count / 4);
@@ -1095,12 +1091,11 @@ static inline unsigned internal_rgb_triad16pix32_mmx(unsigned state, uint32* dst
 		internal_rgb_raw128_012carry_mmx(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, data + RGB_TRIAD16PIX_MASK_2_c_0, count / 4);
 		break;
 	}
-	return (state+1) & 0x7;
 }
 
-static inline unsigned internal_rgb_triadstrong16pix32_mmx(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong16pix32_mmx(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 8) {
 	case 0 :
 	case 4 :
 		internal_rgb_raw128_1_mmx(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 4);
@@ -1114,14 +1109,13 @@ static inline unsigned internal_rgb_triadstrong16pix32_mmx(unsigned state, uint3
 		internal_rgb_raw128_01_mmx(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 4);
 		break;
 	}
-	return (state+1) & 0x7;
 }
 
 #endif
 
-static inline unsigned internal_rgb_triad16pix8_def(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad16pix8_def(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 8) {
 	case 0 :
 	case 4 :
 		internal_rgb_raw32_12carry_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 4);
@@ -1135,12 +1129,11 @@ static inline unsigned internal_rgb_triad16pix8_def(unsigned state, uint8* dst, 
 		internal_rgb_raw32_012carry_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 4);
 		break;
 	}
-	return (state+1) & 0x7;
 }
 
-static inline unsigned internal_rgb_triadstrong16pix8_def(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong16pix8_def(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 8) {
 	case 0 :
 	case 4 :
 		internal_rgb_raw32_1_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 4);
@@ -1154,12 +1147,11 @@ static inline unsigned internal_rgb_triadstrong16pix8_def(unsigned state, uint8*
 		internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 4);
 		break;
 	}
-	return (state+1) & 0x7;
 }
 
-static inline unsigned internal_rgb_triad16pix16_def(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad16pix16_def(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 8) {
 	case 0 :
 	case 4 :
 		internal_rgb_raw32x2_12_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 2);
@@ -1173,12 +1165,11 @@ static inline unsigned internal_rgb_triad16pix16_def(unsigned state, uint16* dst
 		internal_rgb_raw32x2_012_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 2);
 		break;
 	}
-	return (state+1) & 0x7;
 }
 
-static inline unsigned internal_rgb_triadstrong16pix16_def(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong16pix16_def(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 8) {
 	case 0 :
 	case 4 :
 		internal_rgb_raw32x2_1_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 2);
@@ -1192,12 +1183,11 @@ static inline unsigned internal_rgb_triadstrong16pix16_def(unsigned state, uint1
 		internal_rgb_raw32x2_01_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 2);
 		break;
 	}
-	return (state+1) & 0x7;
 }
 
-static inline unsigned internal_rgb_triad16pix32_def(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad16pix32_def(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 8) {
 	case 0 :
 	case 4 :
 		internal_rgb_raw32x2_12_def(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, count);
@@ -1211,12 +1201,11 @@ static inline unsigned internal_rgb_triad16pix32_def(unsigned state, uint32* dst
 		internal_rgb_raw32x2_012_def(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, count);
 		break;
 	}
-	return (state+1) & 0x7;
 }
 
-static inline unsigned internal_rgb_triadstrong16pix32_def(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong16pix32_def(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 8) {
 		case 0 :
 		case 4 :
 			internal_rgb_raw32x2_1_def(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, count);
@@ -1230,7 +1219,6 @@ static inline unsigned internal_rgb_triadstrong16pix32_def(unsigned state, uint3
 			internal_rgb_raw32x2_01_def(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, count);
 			break;
 	}
-	return (state+1) & 0x7;
 }
 
 /***************************************************************************/
@@ -1344,153 +1332,93 @@ static void internal_rgb_triad6pix_set(const struct video_pipeline_target_struct
 
 #if defined(USE_ASM_INLINE)
 
-static inline unsigned internal_rgb_triad6pix8_mmx(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad6pix8_mmx(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * (line % 6);
 	const uint32* carry = mask + (RGB_TRIAD6PIX_MASK_0_c_0 - RGB_TRIAD6PIX_MASK_0_0_0);
 
 	internal_rgb_raw64_012carry_mmx(dst, src, mask, carry, count / 8);
-
-	++state;
-	if (state == 6)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triadstrong6pix8_mmx(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong6pix8_mmx(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * (line % 6);
 
 	internal_rgb_raw64_01_mmx(dst, src, mask, count / 8);
-
-	++state;
-	if (state == 6)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triad6pix16_mmx(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad6pix16_mmx(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * (line % 6);
 	const uint32* carry = mask + (RGB_TRIAD6PIX_MASK_0_c_0 - RGB_TRIAD6PIX_MASK_0_0_0);
 
 	internal_rgb_raw64_012carry_mmx(dst, src, mask, carry, count / 4);
-
-	++state;
-	if (state == 6)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triadstrong6pix16_mmx(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong6pix16_mmx(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * (line % 6);
 
 	internal_rgb_raw64_01_mmx(dst, src, mask, count / 4);
-
-	++state;
-	if (state == 6)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triad6pix32_mmx(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad6pix32_mmx(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * (line % 6);
 	const uint32* carry = mask + (RGB_TRIAD6PIX_MASK_0_c_0 - RGB_TRIAD6PIX_MASK_0_0_0);
 
 	internal_rgb_raw64_012carry_mmx(dst, src, mask, carry, count / 2);
-
-	++state;
-	if (state == 6)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triadstrong6pix32_mmx(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong6pix32_mmx(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * (line % 6);
 
 	internal_rgb_raw64_01_mmx(dst, src, mask, count / 2);
-
-	++state;
-	if (state == 6)
-		state = 0;
-	return state;
 }
 
 #endif
 
-static inline unsigned internal_rgb_triad6pix8_def(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad6pix8_def(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * (line % 6);
 
 	internal_rgb_raw32_012carry_def((uint32*)dst, (uint32*)src, mask, count / 4);
-
-	++state;
-	if (state == 6)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triadstrong6pix8_def(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong6pix8_def(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * (line % 6);
 
 	internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, mask, count / 4);
-
-	++state;
-	if (state == 6)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triad6pix16_def(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad6pix16_def(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * (line % 6);
 
 	internal_rgb_raw32_012carry_def((uint32*)dst, (uint32*)src, mask, count / 2);
-
-	++state;
-	if (state == 6)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triadstrong6pix16_def(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong6pix16_def(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * (line % 6);
 
 	internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, mask, count / 2);
-
-	++state;
-	if (state == 6)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triad6pix32_def(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad6pix32_def(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * (line % 6);
 
 	internal_rgb_raw32_012carry_def(dst, src, mask, count);
-
-	++state;
-	if (state == 6)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triadstrong6pix32_def(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong6pix32_def(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD6PIX_MASK_1_0_0 - RGB_TRIAD6PIX_MASK_0_0_0) * (line % 6);
 
 	internal_rgb_raw32_01_def(dst, src, mask, count);
-
-	++state;
-	if (state == 6)
-		state = 0;
-	return state;
 }
 
 /***************************************************************************/
@@ -1559,153 +1487,93 @@ static void internal_rgb_triad3pix_set(const struct video_pipeline_target_struct
 
 #if defined(USE_ASM_INLINE)
 
-static inline unsigned internal_rgb_triad3pix8_mmx(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad3pix8_mmx(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_0_0 - RGB_TRIAD3PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_0_0 - RGB_TRIAD3PIX_MASK_0_0_0) * (line % 3);
 	const uint32* carry = mask + (RGB_TRIAD3PIX_MASK_0_c_0 - RGB_TRIAD3PIX_MASK_0_0_0);
 
 	internal_rgb_raw64_012carry_mmx(dst, src, mask, carry, count / 8);
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triadstrong3pix8_mmx(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong3pix8_mmx(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_0_0 - RGB_TRIAD3PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_0_0 - RGB_TRIAD3PIX_MASK_0_0_0) * (line % 3);
 
 	internal_rgb_raw64_01_mmx(dst, src, mask, count / 8);
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triad3pix16_mmx(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad3pix16_mmx(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
+	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * (line % 3);
 	const uint32* carry = mask + (RGB_TRIAD3PIX_MASK_0_c_0 - RGB_TRIAD3PIX_MASK_0_0_0);
 
 	internal_rgb_raw64_012carry_mmx(dst, src, mask, carry, count / 4);
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triadstrong3pix16_mmx(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong3pix16_mmx(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
+	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * (line % 3);
 
 	internal_rgb_raw64_01_mmx(dst, src, mask, count / 4);
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triad3pix32_mmx(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad3pix32_mmx(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
+	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * (line % 3);
 	const uint32* carry = mask + (RGB_TRIAD3PIX_MASK_0_c_0 - RGB_TRIAD3PIX_MASK_0_0_0);
 
 	internal_rgb_raw64_012carry_mmx(dst, src, mask, carry, count / 2);
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triadstrong3pix32_mmx(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong3pix32_mmx(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
+	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * (line % 3);
 
 	internal_rgb_raw64_01_mmx(dst, src, mask, count / 2);
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
 #endif
 
-static inline unsigned internal_rgb_triad3pix8_def(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad3pix8_def(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_0_0 - RGB_TRIAD3PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_0_0 - RGB_TRIAD3PIX_MASK_0_0_0) * (line % 3);
 
 	internal_rgb_raw32_012carry_def((uint32*)dst, (uint32*)src, mask, count / 4);
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triadstrong3pix8_def(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong3pix8_def(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_0_0 - RGB_TRIAD3PIX_MASK_0_0_0) * state;
+	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_0_0 - RGB_TRIAD3PIX_MASK_0_0_0) * (line % 3);
 
 	internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, mask, count / 4);
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triad3pix16_def(unsigned state, uint8* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad3pix16_def(unsigned line, uint8* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
+	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * (line % 3);
 
 	internal_rgb_raw32_012carry_def((uint32*)dst, (uint32*)src, mask, count / 2);
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triadstrong3pix16_def(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong3pix16_def(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
+	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * (line % 3);
 
 	internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, mask, count / 2);
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triad3pix32_def(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triad3pix32_def(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
+	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * (line % 3);
 
 	internal_rgb_raw32_012carry_def(dst, src, mask, count);
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_triadstrong3pix32_def(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_triadstrong3pix32_def(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * state;
+	const uint32* mask = data + (RGB_TRIAD3PIX_MASK_1_1_0 - RGB_TRIAD3PIX_MASK_0_1_0) * (line % 3);
 
 	internal_rgb_raw32_01_def(dst, src, mask, count);
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
 /***************************************************************************/
@@ -1746,31 +1614,27 @@ static void internal_rgb_scandouble_set(const struct video_pipeline_target_struc
 
 #if defined(USE_ASM_INLINE)
 
-static inline unsigned internal_rgb_scandouble8_mmx(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_scandouble8_mmx(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	if (state) {
+	if (line % 2) {
 		internal_rgb_raw64_1_mmx(dst, src, data + RGB_SCANDOUBLE_MASK_1_0_0, count / 8);
 	} else {
 		internal_copy8_mmx(dst, src, count);
 	}
-
-	return (state + 1) & 0x1;
 }
 
-static inline unsigned internal_rgb_scandouble16_mmx(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_scandouble16_mmx(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	if (state) {
+	if (line % 2) {
 		internal_rgb_raw64_1_mmx(dst, src, data + RGB_SCANDOUBLE_MASK_1_0_0, count / 4);
 	} else {
 		internal_copy16_mmx(dst, src, count);
 	}
-
-	return (state + 1) & 0x1;
 }
 
-static inline unsigned internal_rgb_scandouble32_mmx(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_scandouble32_mmx(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	if (state) {
+	if (line % 2) {
 		if (data[RGB_SCANDOUBLE_MASK_1_0_0] == 0)
 			internal_rgb_raw64_1_mmx(dst, src, data + RGB_SCANDOUBLE_MASK_1_0_0, count / 2);
 		else
@@ -1778,36 +1642,30 @@ static inline unsigned internal_rgb_scandouble32_mmx(unsigned state, uint32* dst
 	} else {
 		internal_copy32_mmx(dst, src, count);
 	}
-
-	return (state + 1) & 0x1;
 }
 #endif
 
-static inline unsigned internal_rgb_scandouble8_def(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_scandouble8_def(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	if (state) {
+	if (line % 2) {
 		internal_rgb_raw32_1_def((uint32*)dst, (uint32*)src, data + RGB_SCANDOUBLE_MASK_1_0_0, count / 4);
 	} else {
 		internal_copy8_def(dst, src, count);
 	}
-
-	return (state + 1) & 0x1;
 }
 
-static inline unsigned internal_rgb_scandouble16_def(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_scandouble16_def(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	if (state) {
+	if (line % 2) {
 		internal_rgb_raw32_1_def((uint32*)dst, (uint32*)src, data + RGB_SCANDOUBLE_MASK_1_0_0, count / 2);
 	} else {
 		internal_copy16_def(dst, src, count);
 	}
-
-	return (state + 1) & 0x1;
 }
 
-static inline unsigned internal_rgb_scandouble32_def(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_scandouble32_def(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	if (state) {
+	if (line % 2) {
 		if (data[RGB_SCANDOUBLE_MASK_1_0_0] == 0)
 			internal_rgb_raw32_1_def(dst, src, data + RGB_SCANDOUBLE_MASK_1_0_0, count);
 		else
@@ -1815,8 +1673,6 @@ static inline unsigned internal_rgb_scandouble32_def(unsigned state, uint32* dst
 	} else {
 		internal_copy32_def(dst, src, count);
 	}
-
-	return (state + 1) & 0x1;
 }
 
 /***************************************************************************/
@@ -1939,9 +1795,9 @@ static void internal_rgb_scantriple_set(const struct video_pipeline_target_struc
 
 #if defined(USE_ASM_INLINE)
 
-static inline unsigned internal_rgb_scantriple8_mmx(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_scantriple8_mmx(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 3) {
 	case 0 :
 		internal_copy8_mmx(dst, src, count);
 		break;
@@ -1952,16 +1808,11 @@ static inline unsigned internal_rgb_scantriple8_mmx(unsigned state, uint8* dst, 
 		internal_rgb_raw64_2_mmx(dst, src, data + RGB_SCANTRIPLE_MASK_2_0_0, count / 8);
 		break;
 	}
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_scantriple16_mmx(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_scantriple16_mmx(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 3) {
 	case 0 :
 		internal_copy16_mmx(dst, src, count);
 		break;
@@ -1972,16 +1823,11 @@ static inline unsigned internal_rgb_scantriple16_mmx(unsigned state, uint16* dst
 		internal_rgb_raw64_2_mmx(dst, src, data + RGB_SCANTRIPLE_MASK_2_0_0, count / 4);
 		break;
 	}
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_scantriple32_mmx(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_scantriple32_mmx(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 3) {
 	case 0 :
 		internal_copy32_mmx(dst, src, count);
 		break;
@@ -1998,18 +1844,13 @@ static inline unsigned internal_rgb_scantriple32_mmx(unsigned state, uint32* dst
 			internal_rgb_raw64_02_mmx(dst, src, data + RGB_SCANTRIPLE_MASK_2_0_0, count / 2);
 		break;
 	}
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
 #endif
 
-static inline unsigned internal_rgb_scantriple8_def(unsigned state, uint8* dst, const uint8* src, const uint32* data, unsigned count)
+static inline void internal_rgb_scantriple8_def(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 3) {
 	case 0 :
 		internal_copy8_def(dst, src, count);
 		break;
@@ -2020,16 +1861,11 @@ static inline unsigned internal_rgb_scantriple8_def(unsigned state, uint8* dst, 
 		internal_rgb_raw32_2_def((uint32*)dst, (uint32*)src, data + RGB_SCANTRIPLE_MASK_2_0_0, count / 4);
 		break;
 	}
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_scantriple16_def(unsigned state, uint16* dst, const uint16* src, const uint32* data, unsigned count)
+static inline void internal_rgb_scantriple16_def(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 3) {
 	case 0 :
 		internal_copy16_def(dst, src, count);
 		break;
@@ -2040,16 +1876,11 @@ static inline unsigned internal_rgb_scantriple16_def(unsigned state, uint16* dst
 		internal_rgb_raw32_2_def((uint32*)dst, (uint32*)src, data + RGB_SCANTRIPLE_MASK_2_0_0, count / 2);
 		break;
 	}
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
-static inline unsigned internal_rgb_scantriple32_def(unsigned state, uint32* dst, const uint32* src, const uint32* data, unsigned count)
+static inline void internal_rgb_scantriple32_def(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
-	switch (state) {
+	switch (line % 3) {
 	case 0 :
 		internal_copy32_def(dst, src, count);
 		break;
@@ -2066,11 +1897,6 @@ static inline unsigned internal_rgb_scantriple32_def(unsigned state, uint32* dst
 			internal_rgb_raw32_02_def(dst, src, data + RGB_SCANTRIPLE_MASK_2_0_0, count);
 		break;
 	}
-
-	++state;
-	if (state == 3)
-		state = 0;
-	return state;
 }
 
 /***************************************************************************/
@@ -2156,72 +1982,60 @@ static void internal_rgb_skipdouble_set(const struct video_pipeline_target_struc
 
 #if defined(USE_ASM_INLINE)
 
-static inline unsigned internal_rgb_skipdouble8_mmx(unsigned state, uint8* dst, const uint8* src, unsigned count)
+static inline void internal_rgb_skipdouble8_mmx(unsigned line, uint8* dst, const uint8* src, unsigned count)
 {
-	if (state) {
+	if (line % 2) {
 		internal_zero8_mmx(dst, count);
 	} else {
 		internal_copy8_mmx(dst, src, count);
 	}
-
-	return (state + 1) & 0x1;
 }
 
-static inline unsigned internal_rgb_skipdouble16_mmx(unsigned state, uint16* dst, const uint16* src, unsigned count)
+static inline void internal_rgb_skipdouble16_mmx(unsigned line, uint16* dst, const uint16* src, unsigned count)
 {
-	if (state) {
+	if (line % 2) {
 		internal_zero16_mmx(dst, count);
 	} else {
 		internal_copy16_mmx(dst, src, count);
 	}
-
-	return (state + 1) & 0x1;
 }
 
-static inline unsigned internal_rgb_skipdouble32_mmx(unsigned state, uint32* dst, const uint32* src, unsigned count)
+static inline void internal_rgb_skipdouble32_mmx(unsigned line, uint32* dst, const uint32* src, unsigned count)
 {
-	if (state) {
+	if (line % 2) {
 		internal_zero32_mmx(dst, count);
 	} else {
 		internal_copy32_mmx(dst, src, count);
 	}
-
-	return (state + 1) & 0x1;
 }
 
 #endif
 
-static inline unsigned internal_rgb_skipdouble8_def(unsigned state, uint8* dst, const uint8* src, unsigned count)
+static inline void internal_rgb_skipdouble8_def(unsigned line, uint8* dst, const uint8* src, unsigned count)
 {
-	if (state) {
+	if (line % 2) {
 		internal_zero8_def(dst, count);
 	} else {
 		internal_copy8_def(dst, src, count);
 	}
-
-	return (state + 1) & 0x1;
 }
 
-static inline unsigned internal_rgb_skipdouble16_def(unsigned state, uint16* dst, const uint16* src, unsigned count)
+static inline void internal_rgb_skipdouble16_def(unsigned line, uint16* dst, const uint16* src, unsigned count)
 {
-	if (state) {
+	if (line % 2) {
 		internal_zero16_def(dst, count);
 	} else {
 		internal_copy16_def(dst, src, count);
 	}
-
-	return (state + 1) & 0x1;
 }
 
-static inline unsigned internal_rgb_skipdouble32_def(unsigned state, uint32* dst, const uint32* src, unsigned count)
+static inline void internal_rgb_skipdouble32_def(unsigned line, uint32* dst, const uint32* src, unsigned count)
 {
-	if (state) {
+	if (line % 2) {
 		internal_zero32_def(dst, count);
 	} else {
 		internal_copy32_def(dst, src, count);
 	}
-
-	return (state + 1) & 0x1;
 }
 
 #endif

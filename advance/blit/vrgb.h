@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,15 +37,15 @@
 /* rgb_triad16pix8 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triad16pix8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad16pix8_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad16pix8_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad16pix8_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triad16pix8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad16pix8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad16pix8_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad16pix8_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triad16pix8_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -59,15 +59,15 @@ static void video_stage_rgb_triad16pix8_set(const struct video_pipeline_target_s
 /* rgb_triad16pix16 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triad16pix16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad16pix16_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad16pix16_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad16pix16_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triad16pix16_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad16pix16_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad16pix16_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad16pix16_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triad16pix16_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -81,15 +81,15 @@ static void video_stage_rgb_triad16pix16_set(const struct video_pipeline_target_
 /* rgb_triad32pix32 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triad16pix32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad16pix32_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad16pix32_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad16pix32_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triad16pix32_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad16pix32_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad16pix32_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad16pix32_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triad16pix32_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -103,15 +103,15 @@ static void video_stage_rgb_triad16pix32_set(const struct video_pipeline_target_
 /* rgb_triad6pix8 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triad6pix8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad6pix8_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad6pix8_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad6pix8_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triad6pix8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad6pix8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad6pix8_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad6pix8_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triad6pix8_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -125,15 +125,15 @@ static void video_stage_rgb_triad6pix8_set(const struct video_pipeline_target_st
 /* rgb_triad6pix16 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triad6pix16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad6pix16_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad6pix16_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad6pix16_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triad6pix16_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad6pix16_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad6pix16_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad6pix16_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triad6pix16_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -147,15 +147,15 @@ static void video_stage_rgb_triad6pix16_set(const struct video_pipeline_target_s
 /* rgb_triad6pix32 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triad6pix32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad6pix32_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad6pix32_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad6pix32_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triad6pix32_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad6pix32_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad6pix32_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad6pix32_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triad6pix32_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -169,15 +169,15 @@ static void video_stage_rgb_triad6pix32_set(const struct video_pipeline_target_s
 /* rgb_triad3pix8 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triad3pix8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad3pix8_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad3pix8_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad3pix8_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triad3pix8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad3pix8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad3pix8_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad3pix8_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triad3pix8_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -191,15 +191,15 @@ static void video_stage_rgb_triad3pix8_set(const struct video_pipeline_target_st
 /* rgb_triad3pix16 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triad3pix16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad3pix16_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad3pix16_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad3pix16_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triad3pix16_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad3pix16_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad3pix16_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad3pix16_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triad3pix16_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -213,15 +213,15 @@ static void video_stage_rgb_triad3pix16_set(const struct video_pipeline_target_s
 /* rgb_triad3pix32 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triad3pix32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad3pix32_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad3pix32_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad3pix32_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triad3pix32_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triad3pix32_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triad3pix32_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triad3pix32_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triad3pix32_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -235,15 +235,15 @@ static void video_stage_rgb_triad3pix32_set(const struct video_pipeline_target_s
 /* rgb_triadstrong16pix8 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triadstrong16pix8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong16pix8_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong16pix8_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong16pix8_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triadstrong16pix8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong16pix8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong16pix8_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong16pix8_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triadstrong16pix8_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -257,15 +257,15 @@ static void video_stage_rgb_triadstrong16pix8_set(const struct video_pipeline_ta
 /* rgb_triadstrong16pix16 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triadstrong16pix16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong16pix16_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong16pix16_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong16pix16_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triadstrong16pix16_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong16pix16_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong16pix16_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong16pix16_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triadstrong16pix16_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -279,15 +279,15 @@ static void video_stage_rgb_triadstrong16pix16_set(const struct video_pipeline_t
 /* rgb_triadstrong32pix32 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triadstrong16pix32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong16pix32_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong16pix32_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong16pix32_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triadstrong16pix32_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong16pix32_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong16pix32_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong16pix32_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triadstrong16pix32_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -301,15 +301,15 @@ static void video_stage_rgb_triadstrong16pix32_set(const struct video_pipeline_t
 /* rgb_triadstrong6pix8 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triadstrong6pix8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong6pix8_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong6pix8_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong6pix8_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triadstrong6pix8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong6pix8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong6pix8_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong6pix8_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triadstrong6pix8_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -323,15 +323,15 @@ static void video_stage_rgb_triadstrong6pix8_set(const struct video_pipeline_tar
 /* rgb_triadstrong6pix16 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triadstrong6pix16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong6pix16_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong6pix16_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong6pix16_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triadstrong6pix16_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong6pix16_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong6pix16_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong6pix16_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triadstrong6pix16_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -345,15 +345,15 @@ static void video_stage_rgb_triadstrong6pix16_set(const struct video_pipeline_ta
 /* rgb_triadstrong6pix32 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triadstrong6pix32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong6pix32_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong6pix32_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong6pix32_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triadstrong6pix32_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong6pix32_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong6pix32_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong6pix32_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triadstrong6pix32_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -367,15 +367,15 @@ static void video_stage_rgb_triadstrong6pix32_set(const struct video_pipeline_ta
 /* rgb_triadstrong3pix8 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triadstrong3pix8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong3pix8_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong3pix8_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong3pix8_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triadstrong3pix8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong3pix8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong3pix8_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong3pix8_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triadstrong3pix8_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -389,15 +389,15 @@ static void video_stage_rgb_triadstrong3pix8_set(const struct video_pipeline_tar
 /* rgb_triadstrong3pix16 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triadstrong3pix16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong3pix16_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong3pix16_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong3pix16_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triadstrong3pix16_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong3pix16_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong3pix16_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong3pix16_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triadstrong3pix16_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -411,15 +411,15 @@ static void video_stage_rgb_triadstrong3pix16_set(const struct video_pipeline_ta
 /* rgb_triadstrong3pix32 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_triadstrong3pix32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong3pix32_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong3pix32_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong3pix32_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_triadstrong3pix32_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_triadstrong3pix32_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_triadstrong3pix32_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_triadstrong3pix32_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_triadstrong3pix32_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -433,15 +433,15 @@ static void video_stage_rgb_triadstrong3pix32_set(const struct video_pipeline_ta
 /* rgb_scandouble8 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_scandouble8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scandouble8_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_scandouble8_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_scandouble8_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_scandouble8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scandouble8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_scandouble8_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_scandouble8_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_scandouble8_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -455,15 +455,15 @@ static void video_stage_rgb_scandouble8_set(const struct video_pipeline_target_s
 /* rgb_scandouble16 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_scandouble16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scandouble16_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_scandouble16_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_scandouble16_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_scandouble16_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scandouble16_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_scandouble16_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_scandouble16_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_scandouble16_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -477,15 +477,15 @@ static void video_stage_rgb_scandouble16_set(const struct video_pipeline_target_
 /* rgb_scandouble32 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_scandouble32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scandouble32_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_scandouble32_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_scandouble32_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_scandouble32_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scandouble32_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_scandouble32_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_scandouble32_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_scandouble32_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -499,15 +499,15 @@ static void video_stage_rgb_scandouble32_set(const struct video_pipeline_target_
 /* rgb_scandoublevert8 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_scandoublevert8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scandoublevert8_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_rgb_scandoublevert8_mmx(dst, src, stage->data, stage->slice.count);
+	internal_rgb_scandoublevert8_mmx(dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_scandoublevert8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scandoublevert8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_rgb_scandoublevert8_def(dst, src, stage->data, stage->slice.count);
+	internal_rgb_scandoublevert8_def(dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_scandoublevert8_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -521,15 +521,15 @@ static void video_stage_rgb_scandoublevert8_set(const struct video_pipeline_targ
 /* rgb_scandoublevert16 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_scandoublevert16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scandoublevert16_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_rgb_scandoublevert16_mmx(dst, src, stage->data, stage->slice.count);
+	internal_rgb_scandoublevert16_mmx(dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_scandoublevert16_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scandoublevert16_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_rgb_scandoublevert16_def(dst, src, stage->data, stage->slice.count);
+	internal_rgb_scandoublevert16_def(dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_scandoublevert16_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -543,15 +543,15 @@ static void video_stage_rgb_scandoublevert16_set(const struct video_pipeline_tar
 /* rgb_scandoublevert32 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_scandoublevert32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scandoublevert32_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_rgb_scandoublevert32_mmx(dst, src, stage->data, stage->slice.count);
+	internal_rgb_scandoublevert32_mmx(dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_scandoublevert32_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scandoublevert32_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_rgb_scandoublevert32_def(dst, src, stage->data, stage->slice.count);
+	internal_rgb_scandoublevert32_def(dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_scandoublevert32_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -565,15 +565,15 @@ static void video_stage_rgb_scandoublevert32_set(const struct video_pipeline_tar
 /* rgb_scantriple8 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_scantriple8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scantriple8_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_scantriple8_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_scantriple8_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_scantriple8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scantriple8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_scantriple8_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_scantriple8_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_scantriple8_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -587,15 +587,15 @@ static void video_stage_rgb_scantriple8_set(const struct video_pipeline_target_s
 /* rgb_scantriple16 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_scantriple16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scantriple16_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_scantriple16_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_scantriple16_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_scantriple16_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scantriple16_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_scantriple16_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_scantriple16_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_scantriple16_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -609,15 +609,15 @@ static void video_stage_rgb_scantriple16_set(const struct video_pipeline_target_
 /* rgb_scantriple32 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_scantriple32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scantriple32_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_scantriple32_mmx(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_scantriple32_mmx(line, dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_scantriple32_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scantriple32_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	((struct video_stage_horz_struct*)stage)->state_mutable = internal_rgb_scantriple32_def(stage->state_mutable, dst, src, stage->data, stage->slice.count);
+	internal_rgb_scantriple32_def(line, dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_scantriple32_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -631,15 +631,15 @@ static void video_stage_rgb_scantriple32_set(const struct video_pipeline_target_
 /* rgb_scantriplevert8 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_scantriplevert8_step1_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scantriplevert8_step1_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_rgb_scantriplevert8_mmx(dst, src, stage->data, stage->slice.count);
+	internal_rgb_scantriplevert8_mmx(dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_scantriplevert8_step1_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scantriplevert8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_rgb_scantriplevert8_def(dst, src, stage->data, stage->slice.count);
+	internal_rgb_scantriplevert8_def(dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_scantriplevert8_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -653,15 +653,15 @@ static void video_stage_rgb_scantriplevert8_set(const struct video_pipeline_targ
 /* rgb_scantriplevert16 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_scantriplevert16_step2_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scantriplevert16_step2_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_rgb_scantriplevert16_mmx(dst, src, stage->data, stage->slice.count);
+	internal_rgb_scantriplevert16_mmx(dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_scantriplevert16_step2_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scantriplevert16_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_rgb_scantriplevert16_def(dst, src, stage->data, stage->slice.count);
+	internal_rgb_scantriplevert16_def(dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_scantriplevert16_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)
@@ -675,15 +675,15 @@ static void video_stage_rgb_scantriplevert16_set(const struct video_pipeline_tar
 /* rgb_scantriplevert32 */
 
 #if defined(USE_ASM_INLINE)
-static void video_line_rgb_scantriplevert32_step4_mmx(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scantriplevert32_step4_mmx(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_rgb_scantriplevert32_mmx(dst, src, stage->data, stage->slice.count);
+	internal_rgb_scantriplevert32_mmx(dst, src, stage->data, count);
 }
 #endif
 
-static void video_line_rgb_scantriplevert32_step4_def(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_rgb_scantriplevert32_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	internal_rgb_scantriplevert32_def(dst, src, stage->data, stage->slice.count);
+	internal_rgb_scantriplevert32_def(dst, src, stage->data, count);
 }
 
 static void video_stage_rgb_scantriplevert32_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned sdx, int sdp)

@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2003, 2004 Andrea Mazzoleni
+ * Copyright (C) 2003, 2004, 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,13 +36,12 @@
 /****************************************************************************/
 /* maxminx8 */
 
-static inline void video_line_minx8rgb_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_minx8rgb_1x_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, int sdp, unsigned count)
 {
 	int error = stage->slice.error;
 	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	unsigned count = stage->slice.count;
 	uint8* dst8 = (uint8*)dst;
 
 	while (count) {
@@ -81,13 +80,12 @@ static inline void video_line_minx8rgb_1x_step(const struct video_stage_horz_str
 	}
 }
 
-static inline void video_line_minx8pal_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_minx8pal_1x_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, int sdp, unsigned count)
 {
 	int error = stage->slice.error;
 	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	unsigned count = stage->slice.count;
 	uint8* dst8 = (uint8*)dst;
 
 	while (count) {
@@ -124,13 +122,12 @@ static inline void video_line_minx8pal_1x_step(const struct video_stage_horz_str
 	}
 }
 
-static inline void video_line_maxx8rgb_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_maxx8rgb_x1_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, int sdp, unsigned count)
 {
 	int error = stage->slice.error;
 	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	unsigned count = stage->slice.count;
 	uint8* dst8 = (uint8*)dst;
 
 	while (count) {
@@ -161,13 +158,12 @@ static inline void video_line_maxx8rgb_x1_step(const struct video_stage_horz_str
 	}
 }
 
-static inline void video_line_maxx8pal_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_maxx8pal_x1_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, int sdp, unsigned count)
 {
 	int error = stage->slice.error;
 	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	unsigned count = stage->slice.count;
 	uint8* dst8 = (uint8*)dst;
 
 	while (count) {
@@ -195,44 +191,44 @@ static inline void video_line_maxx8pal_x1_step(const struct video_stage_horz_str
 	}
 }
 
-static void video_line_maxx8rgb_x1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_maxx8rgb_x1(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_maxx8rgb_x1_step(stage, dst, src, stage->sdp);
+	video_line_maxx8rgb_x1_step(stage, line, dst, src, stage->sdp, count);
 }
 
-static void video_line_maxx8rgb_x1_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_maxx8rgb_x1_step1(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_maxx8rgb_x1_step(stage, dst, src, 1);
+	video_line_maxx8rgb_x1_step(stage, line, dst, src, 1, count);
 }
 
-static void video_line_maxx8pal_x1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_maxx8pal_x1(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_maxx8pal_x1_step(stage, dst, src, stage->sdp);
+	video_line_maxx8pal_x1_step(stage, line, dst, src, stage->sdp, count);
 }
 
-static void video_line_maxx8pal_x1_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_maxx8pal_x1_step1(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_maxx8pal_x1_step(stage, dst, src, 1);
+	video_line_maxx8pal_x1_step(stage, line, dst, src, 1, count);
 }
 
-static void video_line_minx8rgb_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_minx8rgb_1x(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_minx8rgb_1x_step(stage, dst, src, stage->sdp);
+	video_line_minx8rgb_1x_step(stage, line, dst, src, stage->sdp, count);
 }
 
-static void video_line_minx8rgb_1x_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_minx8rgb_1x_step1(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_minx8rgb_1x_step(stage, dst, src, 1);
+	video_line_minx8rgb_1x_step(stage, line, dst, src, 1, count);
 }
 
-static void video_line_minx8pal_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_minx8pal_1x(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_minx8pal_1x_step(stage, dst, src, stage->sdp);
+	video_line_minx8pal_1x_step(stage, line, dst, src, stage->sdp, count);
 }
 
-static void video_line_minx8pal_1x_step1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_minx8pal_1x_step1(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_minx8pal_1x_step(stage, dst, src, 1);
+	video_line_minx8pal_1x_step(stage, line, dst, src, 1, count);
 }
 
 static void video_stage_maxminx8_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp)
@@ -259,13 +255,12 @@ static void video_stage_maxminx8_set(const struct video_pipeline_target_struct* 
 /****************************************************************************/
 /* maxminx16 */
 
-static inline void video_line_minx16rgb_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_minx16rgb_1x_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, int sdp, unsigned count)
 {
 	int error = stage->slice.error;
 	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	unsigned count = stage->slice.count;
 	uint16* dst16 = (uint16*)dst;
 
 	while (count) {
@@ -304,13 +299,12 @@ static inline void video_line_minx16rgb_1x_step(const struct video_stage_horz_st
 	}
 }
 
-static inline void video_line_minx16pal_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_minx16pal_1x_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, int sdp, unsigned count)
 {
 	int error = stage->slice.error;
 	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	unsigned count = stage->slice.count;
 	uint16* dst16 = (uint16*)dst;
 
 	while (count) {
@@ -347,10 +341,9 @@ static inline void video_line_minx16pal_1x_step(const struct video_stage_horz_st
 	}
 }
 
-static inline void video_line_maxx16rgb_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_maxx16rgb_x1_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, int sdp, unsigned count)
 {
 	int error = stage->slice.error;
-	unsigned count = stage->slice.count;
 	uint16* dst16 = (uint16*)dst;
 
 	while (count) {
@@ -381,10 +374,9 @@ static inline void video_line_maxx16rgb_x1_step(const struct video_stage_horz_st
 	}
 }
 
-static inline void video_line_maxx16pal_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_maxx16pal_x1_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, int sdp, unsigned count)
 {
 	int error = stage->slice.error;
-	unsigned count = stage->slice.count;
 	uint16* dst16 = (uint16*)dst;
 
 	while (count) {
@@ -412,44 +404,44 @@ static inline void video_line_maxx16pal_x1_step(const struct video_stage_horz_st
 	}
 }
 
-static void video_line_maxx16rgb_x1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_maxx16rgb_x1(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_maxx16rgb_x1_step(stage, dst, src, stage->sdp);
+	video_line_maxx16rgb_x1_step(stage, line, dst, src, stage->sdp, count);
 }
 
-static void video_line_maxx16rgb_x1_step2(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_maxx16rgb_x1_step2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_maxx16rgb_x1_step(stage, dst, src, 2);
+	video_line_maxx16rgb_x1_step(stage, line, dst, src, 2, count);
 }
 
-static void video_line_maxx16pal_x1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_maxx16pal_x1(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_maxx16pal_x1_step(stage, dst, src, stage->sdp);
+	video_line_maxx16pal_x1_step(stage, line, dst, src, stage->sdp, count);
 }
 
-static void video_line_maxx16pal_x1_step2(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_maxx16pal_x1_step2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_maxx16pal_x1_step(stage, dst, src, 2);
+	video_line_maxx16pal_x1_step(stage, line, dst, src, 2, count);
 }
 
-static void video_line_minx16rgb_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_minx16rgb_1x(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_minx16rgb_1x_step(stage, dst, src, stage->sdp);
+	video_line_minx16rgb_1x_step(stage, line, dst, src, stage->sdp, count);
 }
 
-static void video_line_minx16rgb_1x_step2(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_minx16rgb_1x_step2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_minx16rgb_1x_step(stage, dst, src, 2);
+	video_line_minx16rgb_1x_step(stage, line, dst, src, 2, count);
 }
 
-static void video_line_minx16pal_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_minx16pal_1x(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_minx16pal_1x_step(stage, dst, src, stage->sdp);
+	video_line_minx16pal_1x_step(stage, line, dst, src, stage->sdp, count);
 }
 
-static void video_line_minx16pal_1x_step2(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_minx16pal_1x_step2(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_minx16pal_1x_step(stage, dst, src, 2);
+	video_line_minx16pal_1x_step(stage, line, dst, src, 2, count);
 }
 
 static void video_stage_maxminx16_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp)
@@ -476,13 +468,12 @@ static void video_stage_maxminx16_set(const struct video_pipeline_target_struct*
 /****************************************************************************/
 /* maxminx32 */
 
-static inline void video_line_minx32rgb_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_minx32rgb_1x_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, int sdp, unsigned count)
 {
 	int error = stage->slice.error;
 	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	unsigned count = stage->slice.count;
 	uint32* dst32 = (uint32*)dst;
 
 	while (count) {
@@ -521,13 +512,12 @@ static inline void video_line_minx32rgb_1x_step(const struct video_stage_horz_st
 	}
 }
 
-static inline void video_line_minx32pal_1x_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_minx32pal_1x_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, int sdp, unsigned count)
 {
 	int error = stage->slice.error;
 	unsigned whole = stage->slice.whole;
 	int up = stage->slice.up;
 	int down = stage->slice.down;
-	unsigned count = stage->slice.count;
 	uint32* dst32 = (uint32*)dst;
 
 	while (count) {
@@ -564,10 +554,9 @@ static inline void video_line_minx32pal_1x_step(const struct video_stage_horz_st
 	}
 }
 
-static inline void video_line_maxx32rgb_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_maxx32rgb_x1_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, int sdp, unsigned count)
 {
 	int error = stage->slice.error;
-	unsigned count = stage->slice.count;
 	uint32* dst32 = (uint32*)dst;
 
 	while (count) {
@@ -598,10 +587,9 @@ static inline void video_line_maxx32rgb_x1_step(const struct video_stage_horz_st
 	}
 }
 
-static inline void video_line_maxx32pal_x1_step(const struct video_stage_horz_struct* stage, void* dst, const void* src, int sdp)
+static inline void video_line_maxx32pal_x1_step(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, int sdp, unsigned count)
 {
 	int error = stage->slice.error;
-	unsigned count = stage->slice.count;
 	uint32* dst32 = (uint32*)dst;
 
 	while (count) {
@@ -629,44 +617,44 @@ static inline void video_line_maxx32pal_x1_step(const struct video_stage_horz_st
 	}
 }
 
-static void video_line_maxx32rgb_x1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_maxx32rgb_x1(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_maxx32rgb_x1_step(stage, dst, src, stage->sdp);
+	video_line_maxx32rgb_x1_step(stage, line, dst, src, stage->sdp, count);
 }
 
-static void video_line_maxx32rgb_x1_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_maxx32rgb_x1_step4(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_maxx32rgb_x1_step(stage, dst, src, 4);
+	video_line_maxx32rgb_x1_step(stage, line, dst, src, 4, count);
 }
 
-static void video_line_maxx32pal_x1(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_maxx32pal_x1(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_maxx32pal_x1_step(stage, dst, src, stage->sdp);
+	video_line_maxx32pal_x1_step(stage, line, dst, src, stage->sdp, count);
 }
 
-static void video_line_maxx32pal_x1_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_maxx32pal_x1_step4(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_maxx32pal_x1_step(stage, dst, src, 4);
+	video_line_maxx32pal_x1_step(stage, line, dst, src, 4, count);
 }
 
-static void video_line_minx32rgb_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_minx32rgb_1x(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_minx32rgb_1x_step(stage, dst, src, stage->sdp);
+	video_line_minx32rgb_1x_step(stage, line, dst, src, stage->sdp, count);
 }
 
-static void video_line_minx32rgb_1x_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_minx32rgb_1x_step4(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_minx32rgb_1x_step(stage, dst, src, 4);
+	video_line_minx32rgb_1x_step(stage, line, dst, src, 4, count);
 }
 
-static void video_line_minx32pal_1x(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_minx32pal_1x(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_minx32pal_1x_step(stage, dst, src, stage->sdp);
+	video_line_minx32pal_1x_step(stage, line, dst, src, stage->sdp, count);
 }
 
-static void video_line_minx32pal_1x_step4(const struct video_stage_horz_struct* stage, void* dst, const void* src)
+static void video_line_minx32pal_1x_step4(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	video_line_minx32pal_1x_step(stage, dst, src, 4);
+	video_line_minx32pal_1x_step(stage, line, dst, src, 4, count);
 }
 
 static void video_stage_maxminx32_set(const struct video_pipeline_target_struct* target, struct video_stage_horz_struct* stage, unsigned ddx, unsigned sdx, int sdp)

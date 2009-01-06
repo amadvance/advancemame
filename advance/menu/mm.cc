@@ -787,7 +787,7 @@ int os_main(int argc, char* argv[])
 	if (!int_init(rs.video_size)) {
 		goto err_inner_init;
 	}
-	
+
 	// print the messages after setting the video
 	target_flush();
 
@@ -805,7 +805,7 @@ int os_main(int argc, char* argv[])
 	target_flush();
 
 	int_done();
-	
+
 	// save all the data
 	rs.save(config_context);
 

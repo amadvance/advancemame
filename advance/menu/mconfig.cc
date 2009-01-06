@@ -89,6 +89,8 @@ static adv_conf_enum_int OPTION_SAVER[] = {
 { "flyers", saver_flyer },
 { "cabinets", saver_cabinet },
 { "titles", saver_title },
+{ "shutdown", saver_shutdown },
+{ "exit", saver_exit },
 { "none", saver_off }
 };
 

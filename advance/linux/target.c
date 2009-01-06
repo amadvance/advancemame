@@ -990,8 +990,6 @@ void target_signal(int signum, void* void_info, void* void_context)
 
 void target_crash(void)
 {
-	unsigned* i = (unsigned*)0xDEADBEAF; /* highest bit set, ensure a crash */
-	*i = *i;
 	abort();
 }
 

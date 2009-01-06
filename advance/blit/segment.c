@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 2004, 2008 Andrea Mazzoleni
+ * Copyright (C) 2008 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,15 +28,47 @@
  * do so, delete this exception statement from your version.
  */
 
-#ifndef __LQ2X3_H
-#define __LQ2X3_H
+#include "portable.h"
 
-#include "interp.h"
 #include "segment.h"
 
-void lq2x3_16_def(interp_uint16* dst0, interp_uint16* dst1, interp_uint16* restrict dst2, const interp_uint16* src0, const interp_uint16* src1, const interp_uint16* src2, unsigned count, unsigned flag);
-void lq2x3_32_def(interp_uint32* dst0, interp_uint32* dst1, interp_uint32* restrict dst2, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count, unsigned flag);
-void lq2x3_yuy2_def(interp_uint32* dst0, interp_uint32* dst1, interp_uint32* restrict dst2, const interp_uint32* src0, const interp_uint32* src1, const interp_uint32* src2, unsigned count, unsigned flag);
+#include "log.h"
 
+#ifdef USE_SEGMENT
+void segment_set(adv_segment* s, unsigned sl, int sdp, unsigned sbpp, unsigned dbpp, unsigned run)
+{
+	unsigned len;
+	unsigned rest;
+
+	len = sl * sbpp;
+
+	s->cps = run / sbpp;
+	s->sdps = sdp * s->cps;
+	s->dbps = s->cps * dbpp;
+
+	assert(run % sbpp == 0);
+
+	s->count = len / run;
+	rest = len % run;
+
+	if (rest) {
+		++s->count;
+		s->cls = rest / sbpp;
+	} else {
+		s->cls = s->cps;
+	}
+
+	log_std(("blit: segment sl:%d,sbpp:%d,dbpp:%d,run:%d -> sdps:%d,cps:%d,dbps:%d,count:%d,cls:%d\n", sl, sbpp, dbpp, run, s->sdps, s->cps, s->dbps, s->count, s->cls));
+}
+
+void segment_one(adv_segment* s, unsigned sl)
+{
+	s->count = 1;
+	s->sdps = 0;
+	s->dbps = 0;
+	s->cps = 0;
+	s->cls = sl;
+
+	log_std(("blit: segment one -> cls:%d\n", sl));
+}
 #endif
-

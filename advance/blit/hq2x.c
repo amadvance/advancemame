@@ -41,7 +41,7 @@
  * This effect is a rewritten implementation of the hq2x effect made by Maxim Stepin
  */
 
-void hq2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict volatile dst1, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, unsigned count)
+void hq2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict volatile dst1, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, unsigned count, unsigned flag)
 {
 	/* The volatile keyword for destination pointer ensures that */
 	/* the destination memory is only written and never read. */
@@ -58,7 +58,7 @@ void hq2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict 
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i>0 || (flag & SEGMENT_FLAG_FIRST) == 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -68,7 +68,7 @@ void hq2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict 
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i<count-1 || (flag & SEGMENT_FLAG_LAST) == 0) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -127,7 +127,7 @@ void hq2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict 
 	}
 }
 
-void hq2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict volatile dst1, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
+void hq2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict volatile dst1, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count, unsigned flag)
 {
 	unsigned i;
 
@@ -140,7 +140,7 @@ void hq2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict 
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i>0 || (flag & SEGMENT_FLAG_FIRST) == 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -150,7 +150,7 @@ void hq2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict 
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i<count-1 || (flag & SEGMENT_FLAG_LAST) == 0) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -209,7 +209,7 @@ void hq2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict 
 	}
 }
 
-void hq2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict volatile dst1, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
+void hq2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict volatile dst1, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count, unsigned flag)
 {
 	unsigned i;
 
@@ -222,7 +222,7 @@ void hq2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restric
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i>0 || (flag & SEGMENT_FLAG_FIRST) == 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -232,7 +232,7 @@ void hq2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restric
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i<count-1 || (flag & SEGMENT_FLAG_LAST) == 0) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];

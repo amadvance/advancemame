@@ -161,6 +161,8 @@ enum saver_t {
 	saver_flyer,
 	saver_cabinet,
 	saver_title,
+	saver_shutdown,
+	saver_exit,
 	saver_off
 };
 

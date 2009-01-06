@@ -1924,6 +1924,14 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 
 	while (!done) {
 		if (idle) {
+			if (rs.idle_saver_type == saver_shutdown) {
+				key = EVENT_OFF;
+				break;
+			}
+			if (rs.idle_saver_type == saver_exit) {
+				key = EVENT_ESC;
+				break;
+			}
 			if (rs.restore == restore_idle)
 				rs.restore_load();
 			if (rs.idle_saver_type == saver_off)

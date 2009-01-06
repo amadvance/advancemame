@@ -479,7 +479,9 @@ static void video_done_pipeline(struct advance_video_context* context)
 {
 	/* destroy the pipeline */
 	if (context->state.blit_pipeline_flag) {
-		video_pipeline_done(&context->state.blit_pipeline_video);
+		unsigned i;
+		for(i=0;i<PIPELINE_BLIT_MAX;++i)
+			video_pipeline_done(&context->state.blit_pipeline[i]);
 		video_pipeline_done(&context->state.buffer_pipeline_video);
 		context->state.blit_pipeline_flag = 0;
 	}
@@ -1632,6 +1634,16 @@ static void video_buffer_clear(struct advance_video_context* context)
 	}
 }
 
+static unsigned pipeline_combine(unsigned p)
+{
+	if (p == 0)
+		return VIDEO_COMBINE_BUFFER | VIDEO_COMBINE_CACHE_NONE;
+	else if (p == 1)
+		return VIDEO_COMBINE_CACHE_NONE;
+	else
+		return VIDEO_COMBINE_CACHE_SPLIT;
+}
+
 static void video_recompute_pipeline(struct advance_video_context* context, const struct osd_bitmap* bitmap)
 {
 	unsigned combine;
@@ -1646,6 +1658,7 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 	int intermediate_game_visible_size_y;
 	int intermediate_mode_visible_size_x;
 	int intermediate_mode_visible_size_y;
+	unsigned p;
 
 	/* check if the pipeline is already updated */
 	if (context->state.blit_pipeline_flag)
@@ -1808,8 +1821,10 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 
 	free(context->state.buffer_ptr_alloc);
 
-	video_pipeline_init(&context->state.blit_pipeline_video);
+	for(p=0;p<PIPELINE_BLIT_MAX;++p)
+		video_pipeline_init(&context->state.blit_pipeline[p]);
 	video_pipeline_init(&context->state.buffer_pipeline_video);
+	context->state.blit_pipeline_flag = 1;
 
 	context->state.buffer_bytes_per_scanline = context->state.buffer_size_x * color_def_bytes_per_pixel_get(context->state.buffer_def);
 
@@ -1828,17 +1843,20 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 	video_pipeline_target(&context->state.buffer_pipeline_video, context->state.buffer_ptr, context->state.buffer_bytes_per_scanline, context->state.buffer_def);
 
 	if (context->state.game_rgb_flag) {
-		video_pipeline_direct(&context->state.blit_pipeline_video, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.game_color_def, combine_video);
+		for(p=0;p<PIPELINE_BLIT_MAX;++p)
+			video_pipeline_direct(&context->state.blit_pipeline[p], context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.game_color_def, combine_video | pipeline_combine(p));
 		video_pipeline_direct(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.game_color_def, combine_buffer);
 	} else {
 		if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
 			assert(context->state.game_bytes_per_pixel == 2);
-			video_pipeline_palette16hw(&context->state.blit_pipeline_video, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, combine_video);
+			for(p=0;p<PIPELINE_BLIT_MAX;++p)
+				video_pipeline_palette16hw(&context->state.blit_pipeline[p], context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, combine_video | pipeline_combine(p));
 			video_pipeline_palette16hw(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, combine_buffer);
 		} else {
 			switch (context->state.game_bytes_per_pixel) {
 				case 1 :
-					video_pipeline_palette8(&context->state.blit_pipeline_video, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_video);
+					for(p=0;p<PIPELINE_BLIT_MAX;++p)
+						video_pipeline_palette8(&context->state.blit_pipeline[p], context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_video | pipeline_combine(p));
 					/* use the alternate palette only if required */
 					if (context->state.buffer_def != video_color_def())
 						video_pipeline_palette8(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.buffer_index8_map, context->state.buffer_index16_map, context->state.buffer_index32_map, combine_buffer);
@@ -1846,7 +1864,8 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 						video_pipeline_palette8(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_buffer);
 					break;
 				case 2 :
-					video_pipeline_palette16(&context->state.blit_pipeline_video, context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_video);
+					for(p=0;p<PIPELINE_BLIT_MAX;++p)
+						video_pipeline_palette16(&context->state.blit_pipeline[p], context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_video | pipeline_combine(p));
 					/* use the alternate palette only if required */
 					if (context->state.buffer_def != video_color_def())
 						video_pipeline_palette16(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.buffer_index8_map, context->state.buffer_index16_map, context->state.buffer_index32_map, combine_buffer);
@@ -1868,23 +1887,25 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 
 		log_std(("emu:video: pipeline scale from %dx%d to %dx%d\n", context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.mode_visible_size_x, context->state.mode_visible_size_y));
 
-		log_std(("emu:video: pipeline_video\n"));
-		for(i=1, stage=video_pipeline_begin(&context->state.blit_pipeline_video);stage!=video_pipeline_end(&context->state.blit_pipeline_video);++stage, ++i) {
-			if (stage == video_pipeline_pivot(&context->state.blit_pipeline_video)) {
-				snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline_video)->type));
+		for(p=0;p<PIPELINE_BLIT_MAX;++p) {
+			log_std(("emu:video: pipeline_video %d\n", p));
+			for(i=1, stage=video_pipeline_begin(&context->state.blit_pipeline[p]);stage!=video_pipeline_end(&context->state.blit_pipeline[p]);++stage, ++i) {
+				if (stage == video_pipeline_pivot(&context->state.blit_pipeline[p])) {
+					snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline[p])->type));
+					++i;
+					log_std(("emu:video: %s\n", buffer));
+				}
+				if (stage->sbpp != stage->sdp)
+					snprintf(buffer, sizeof(buffer), "(%d) %s, p %d, dp %d", i, pipe_name(stage->type), stage->sbpp, stage->sdp);
+				else
+					snprintf(buffer, sizeof(buffer), "(%d) %s, p %d", i, pipe_name(stage->type), stage->sbpp);
+				log_std(("emu:video: %s\n", buffer));
+			}
+			if (stage == video_pipeline_pivot(&context->state.blit_pipeline[p])) {
+				snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline[p])->type));
 				++i;
 				log_std(("emu:video: %s\n", buffer));
 			}
-			if (stage->sbpp != stage->sdp)
-				snprintf(buffer, sizeof(buffer), "(%d) %s, p %d, dp %d", i, pipe_name(stage->type), stage->sbpp, stage->sdp);
-			else
-				snprintf(buffer, sizeof(buffer), "(%d) %s, p %d", i, pipe_name(stage->type), stage->sbpp);
-			log_std(("emu:video: %s\n", buffer));
-		}
-		if (stage == video_pipeline_pivot(&context->state.blit_pipeline_video)) {
-			snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline_video)->type));
-			++i;
-			log_std(("emu:video: %s\n", buffer));
 		}
 
 		log_std(("emu:video: pipeline_buffer\n"));
@@ -1907,12 +1928,11 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 		}
 	}
 
-	context->state.blit_pipeline_flag = 1;
-
 	/* initialize the pipepeline measure */
 	context->state.pipeline_measure_flag = 1;
-	context->state.pipeline_measure_direct_mac = 0;
-	context->state.pipeline_measure_buffer_mac = 0;
+	context->state.pipeline_measure_i = 0;
+	context->state.pipeline_measure_j = 0;
+	context->state.blit_pipeline_index = 0;
 }
 
 static void video_frame_put(struct advance_video_context* context, struct advance_ui_context* ui_context, const struct osd_bitmap* bitmap, unsigned x, unsigned y)
@@ -1967,15 +1987,8 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 	start = 0;
 	stop = 0;
 
-	if (context->state.pipeline_measure_flag) {
+	if (context->state.pipeline_measure_flag && !buffer_flag) {
 		start = target_clock();
-		/* alternate buffer and direct */
-		if (context->state.pipeline_measure_buffer_mac < context->state.pipeline_measure_direct_mac)
-			buffer_flag = 1;
-	} else {
-		/* use the selected best */
-		if (!context->state.pipeline_measure_bestisdirect_flag)
-			buffer_flag = 1;
 	}
 
 	if (buffer_flag) {
@@ -2064,46 +2077,45 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 		src_offset = context->state.blit_src_offset + context->state.game_visible_pos_y * context->state.blit_src_dw + context->state.game_visible_pos_x * context->state.blit_src_dp;
 
 		/* blit directly on the video */
-		video_pipeline_blit(&context->state.blit_pipeline_video, dst_x + x, dst_y + y, (unsigned char*)bitmap->ptr + src_offset);
+		video_pipeline_blit(&context->state.blit_pipeline[context->state.blit_pipeline_index], dst_x + x, dst_y + y, (unsigned char*)bitmap->ptr + src_offset);
 	}
 
 	/* if a valid measure */
-	if (context->state.pipeline_measure_flag && !ui_buffer_active) {
+	if (context->state.pipeline_measure_flag && !buffer_flag) {
 		stop = target_clock();
 
-		if (buffer_flag) {
-			if (context->state.pipeline_measure_buffer_mac < PIPELINE_MEASURE_MAX) {
-				context->state.pipeline_measure_buffer_map[context->state.pipeline_measure_buffer_mac] = stop - start;
-				++context->state.pipeline_measure_buffer_mac;
-			}
-		} else {
-			if (context->state.pipeline_measure_direct_mac < PIPELINE_MEASURE_MAX) {
-				context->state.pipeline_measure_direct_map[context->state.pipeline_measure_direct_mac] = stop - start;
-				++context->state.pipeline_measure_direct_mac;
+		context->state.pipeline_measure_map[context->state.pipeline_measure_i][context->state.pipeline_measure_j] = stop - start;
+		++context->state.pipeline_measure_i;
+
+		if (context->state.pipeline_measure_i == PIPELINE_BLIT_MAX) {
+			context->state.pipeline_measure_i = 0;
+			++context->state.pipeline_measure_j;
+
+			if (context->state.pipeline_measure_j == PIPELINE_MEASURE_MAX) {
+				unsigned i;
+
+				for(i=0;i<PIPELINE_BLIT_MAX;++i) {
+					context->state.pipeline_measure_result[i] = adv_measure_median(0.00001, 0.5, context->state.pipeline_measure_map[i], PIPELINE_MEASURE_MAX);
+					log_std(("emu:video: pipeline %d -> time %g\n", i, context->state.pipeline_measure_result[i]));
+				}
+
+				context->state.pipeline_measure_i = 0;
+
+				/* The first one is selected, then next one is selected only if a 3% gain is measured */
+				for(i=1;i<PIPELINE_BLIT_MAX;++i) {
+					if (context->state.pipeline_measure_result[i] < 0.97 * context->state.pipeline_measure_result[context->state.pipeline_measure_i]) {
+						context->state.pipeline_measure_i = i;
+					}
+				}
+
+				log_std(("emu:video: best is %d\n", context->state.pipeline_measure_i));
+
+				/* end the measure process */
+				context->state.pipeline_measure_flag = 0;
 			}
 		}
 
-		if (context->state.pipeline_measure_direct_mac == PIPELINE_MEASURE_MAX
-			&& context->state.pipeline_measure_buffer_mac == PIPELINE_MEASURE_MAX) {
-
-			context->state.pipeline_measure_buffer_result = adv_measure_median(0.00001, 0.5, context->state.pipeline_measure_buffer_map, PIPELINE_MEASURE_MAX);
-			log_std(("emu:video: measure buffer %g\n", context->state.pipeline_measure_buffer_result));
-
-			context->state.pipeline_measure_direct_result = adv_measure_median(0.00001, 0.5, context->state.pipeline_measure_direct_map, PIPELINE_MEASURE_MAX);
-			log_std(("emu:video: measure direct %g\n", context->state.pipeline_measure_direct_result));
-
-			/* select the best */
-			context->state.pipeline_measure_bestisdirect_flag = context->state.pipeline_measure_direct_result < context->state.pipeline_measure_buffer_result;
-
-			if (context->state.pipeline_measure_bestisdirect_flag) {
-				log_std(("emu:video: best is direct\n"));
-			} else {
-				log_std(("emu:video: best is buffer\n"));
-			}
-
-			/* end the measure process */
-			context->state.pipeline_measure_flag = 0;
-		}
+		context->state.blit_pipeline_index = context->state.pipeline_measure_i;
 	}
 }
 

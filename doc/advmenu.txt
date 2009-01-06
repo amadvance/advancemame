@@ -1224,7 +1224,7 @@ Events:
     setgroup - Select the group of the current game
     settype - Select the type of the current game
     runclone - Run a game clone.
-    shutdown - Exit and shutdown.
+    shutdown - Shutdown the machine.
     command - The file command menu.
     rotate - Rotate the screen of 90°.
     lock - Lock/unlock the user interface.
@@ -1330,12 +1330,14 @@ Examples:
 Selects the preview type to use in the screensaver. Like
 the preview option.
 
-idle_screensaver_preview none | play | snap | flyers
-	| cabinets | titles
+idle_screensaver_preview none | exit | shutdown | play
+	| snap | flyers | cabinets | titles
 
 Options:
     none - Shutdown the monitor using the VESA/PM services
         if available. Otherwise use a black image.
+    exit - Exit from the application.
+    shutdown - Shutdown the machine.
     snap, flyers, cabinets, titles - Start a mute slide show
         of the specified image type (default snap).
     play - Start a snap slide show using the animated
