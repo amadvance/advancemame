@@ -722,10 +722,10 @@ adv_error vbeline_mode_import(adv_mode* mode, const vbeline_video_mode* vbeline_
 	}
 
 	mode->driver = &video_vbeline_driver;
-	mode->flags = MODE_FLAGS_RETRACE_WAIT_SYNC | MODE_FLAGS_RETRACE_SET_ASYNC
+	mode->flags = MODE_FLAGS_RETRACE_WAIT_SYNC | MODE_FLAGS_RETRACE_SET_SYNC
 		| (mode->flags & MODE_FLAGS_USER_MASK);
 	if ((info.ModeAttributes & vbeMdTripleBuffer) != 0)
-		mode->flags |= MODE_FLAGS_SCROLL_SYNC;
+		mode->flags |= MODE_FLAGS_RETRACE_SET_ASYNC;
 	switch (info.MemoryModel) {
 		case vbeMemTXT :
 			mode->flags |= MODE_FLAGS_INDEX_TEXT;
