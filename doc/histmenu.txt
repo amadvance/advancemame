@@ -3,6 +3,12 @@
                             =======================
 
 
+ADVANCEMENU VERSION 2.5.1 2009/01
+=================================
+
+* The new screen saver modes 'shutdown' and 'exit' now work also with lock activated.
+
+
 ADVANCEMENU VERSION 2.5.0 2008/12
 =================================
 
