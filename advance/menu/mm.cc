@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2009 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,86 +69,87 @@ int run_sub(config_state& rs, bool silent)
 			}
 
 			switch (key) {
-				case EVENT_HELP :
-					// replay the sound and clip
-					silent = false;
-					run_help(rs);
-					break;
-				case EVENT_GROUP :
-					// replay the sound and clip
-					silent = false;
-					run_group_next(rs);
-					break;
-				case EVENT_EMU :
-					// replay the sound and clip
-					silent = false;
-					run_emu_next(rs);
-					break;
-				case EVENT_TYPE :
-					// replay the sound and clip
-					silent = false;
-					run_type_next(rs);
-					break;
-				case EVENT_ATTRIB :
-					// replay the sound and clip
-					silent = false;
-					emu = run_emu_select(rs);
-					if (emu)
-						emu->attrib_run(SECOND_CHOICE_X, SECOND_CHOICE_Y);
-					break;
-				case EVENT_COMMAND :
-					run_command(rs);
-					break;
-				case EVENT_SORT :
-					// replay the sound and clip
-					silent = false;
-					run_sort(rs);
-					break;
-				case EVENT_SETGROUP :
-					// replay the sound and clip
-					silent = false;
-					run_group_move(rs);
-					break;
-				case EVENT_SETTYPE :
-					// replay the sound and clip
-					silent = false;
-					run_type_move(rs);
-					break;
-				case EVENT_ROTATE :
-				case EVENT_ESC :
-				case EVENT_OFF :
-					done = true;
-					break;
+			case EVENT_HELP :
+				// replay the sound and clip
+				silent = false;
+				run_help(rs);
+				break;
+			case EVENT_GROUP :
+				// replay the sound and clip
+				silent = false;
+				run_group_next(rs);
+				break;
+			case EVENT_EMU :
+				// replay the sound and clip
+				silent = false;
+				run_emu_next(rs);
+				break;
+			case EVENT_TYPE :
+				// replay the sound and clip
+				silent = false;
+				run_type_next(rs);
+				break;
+			case EVENT_ATTRIB :
+				// replay the sound and clip
+				silent = false;
+				emu = run_emu_select(rs);
+				if (emu)
+					emu->attrib_run(SECOND_CHOICE_X, SECOND_CHOICE_Y);
+				break;
+			case EVENT_COMMAND :
+				run_command(rs);
+				break;
+			case EVENT_SORT :
+				// replay the sound and clip
+				silent = false;
+				run_sort(rs);
+				break;
+			case EVENT_SETGROUP :
+				// replay the sound and clip
+				silent = false;
+				run_group_move(rs);
+				break;
+			case EVENT_SETTYPE :
+				// replay the sound and clip
+				silent = false;
+				run_type_move(rs);
+				break;
+			case EVENT_ROTATE :
+			case EVENT_ESC :
+			case EVENT_OFF :
+				done = true;
+				break;
 			}
 		}
+
 		switch (key) {
-			case EVENT_LOCK :
-				rs.lock_effective = !rs.lock_effective;
-				break;
-			case EVENT_IDLE_0 :
-				if (rs.current_game) {
-					rs.current_clone = &rs.current_game->clone_best_get();
-					done = true;
-					is_run = true;
-				}
-				break;
-			case EVENT_CLONE :
-				// replay the sound and clip
-				silent = false;
-				run_clone(rs);
-				if (rs.current_clone) {
-					done = true;
-					is_run = true;
-				}
-				break;
-			case EVENT_ENTER :
-				// replay the sound and clip
-				silent = false;
-				if (rs.current_game) {
-					done = true;
-					is_run = true;
-				}
-				break;
+		case EVENT_LOCK :
+			rs.lock_effective = !rs.lock_effective;
+			break;
+		case EVENT_IDLE_0 :
+			if (rs.current_game) {
+				rs.current_clone = &rs.current_game->clone_best_get();
+				done = true;
+				is_run = true;
+			}
+			break;
+		case EVENT_CLONE :
+			// replay the sound and clip
+			silent = false;
+			run_clone(rs);
+			if (rs.current_clone) {
+				done = true;
+				is_run = true;
+			}
+			break;
+		case EVENT_ENTER :
+			// replay the sound and clip
+			silent = false;
+			if (rs.current_game) {
+				done = true;
+				is_run = true;
+			}
+			break;
 		}
 	}
 
@@ -253,14 +254,19 @@ int run_main(config_state& rs, bool is_first, bool silent)
 				break;
 		}
 		switch (key) {
-			case EVENT_IDLE_0 :
-			case EVENT_ENTER :
-			case EVENT_CLONE :
-				if (rs.current_game && rs.current_clone) {
-					done = true;
-					is_run = true;
-				}
-				break;
+		case EVENT_ESC_FORCE :
+		case EVENT_OFF_FORCE :
+			done = true;
+			is_terminate = true;
+			break;
+		case EVENT_IDLE_0 :
+		case EVENT_ENTER :
+		case EVENT_CLONE :
+			if (rs.current_game && rs.current_clone) {
+				done = true;
+				is_run = true;
+			}
+			break;
 		}
 	}
 
@@ -332,47 +338,49 @@ int run_all(adv_conf* config_context, config_state& rs)
 		silent = false;
 
 		switch (key) {
-			case EVENT_ESC :
-			case EVENT_OFF :
-				done = true;
-				break;
-			case EVENT_IDLE_0 :
-			case EVENT_ENTER :
-			case EVENT_CLONE :
-				if (key == EVENT_IDLE_0) {
-					// don't replay the sound and clip
-					silent = true;
+		case EVENT_ESC :
+		case EVENT_OFF :
+		case EVENT_ESC_FORCE :
+		case EVENT_OFF_FORCE :
+			done = true;
+			break;
+		case EVENT_IDLE_0 :
+		case EVENT_ENTER :
+		case EVENT_CLONE :
+			if (key == EVENT_IDLE_0) {
+				// don't replay the sound and clip
+				silent = true;
+			}
+
+			if (!rs.current_clone)
+				rs.current_clone = rs.current_game;
+
+			if (rs.current_clone) {
+				// save before
+				rs.save(config_context);
+
+				// run the game
+				if (rs.current_game->software_get()) {
+					const game* bios;
+					if (rs.current_clone->software_get())
+						bios = &rs.current_clone->bios_get();
+					else
+						bios = rs.current_clone;
+					rs.current_game->emulator_get()->run(*rs.current_game, bios, rs.video_orientation_effective, true, rs.difficulty_effective, rs.console_mode, play_attenuation_get(), key == EVENT_IDLE_0);
+				} else {
+					rs.current_clone->emulator_get()->run(*rs.current_clone, 0, rs.video_orientation_effective, true, rs.difficulty_effective, rs.console_mode, play_attenuation_get(), key == EVENT_IDLE_0);
 				}
 
-				if (!rs.current_clone)
-					rs.current_clone = rs.current_game;
+				// update the game info
+				rs.current_clone->emulator_get()->update(*rs.current_clone);
 
-				if (rs.current_clone) {
-					// save before
-					rs.save(config_context);
+				// save after
+				rs.save(config_context);
 
-					// run the game
-					if (rs.current_game->software_get()) {
-						const game* bios;
-						if (rs.current_clone->software_get())
-							bios = &rs.current_clone->bios_get();
-						else
-							bios = rs.current_clone;
-						rs.current_game->emulator_get()->run(*rs.current_game, bios, rs.video_orientation_effective, true, rs.difficulty_effective, rs.console_mode, play_attenuation_get(), key == EVENT_IDLE_0);
-					} else {
-						rs.current_clone->emulator_get()->run(*rs.current_clone, 0, rs.video_orientation_effective, true, rs.difficulty_effective, rs.console_mode, play_attenuation_get(), key == EVENT_IDLE_0);
-					}
-
-					// update the game info
-					rs.current_clone->emulator_get()->update(*rs.current_clone);
-
-					// save after
-					rs.save(config_context);
-					
-					// print the messages
-					target_flush();
-				}
-				break;
+				// print the messages
+				target_flush();
+			}
+			break;
 		}
 	}
 
@@ -819,7 +827,7 @@ done_init:
 	int_unreg();
 	os_done();
 
-	if (key == EVENT_OFF)
+	if (key == EVENT_OFF || key == EVENT_OFF_FORCE)
 		target_apm_shutdown();
 
 	conf_done(config_context);

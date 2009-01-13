@@ -1,7 +1,7 @@
 /*
  * This file is part of the Advance project.
  *
- * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005 Andrea Mazzoleni
+ * Copyright (C) 1999, 2000, 2001, 2002, 2003, 2005, 2009 Andrea Mazzoleni
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1748,7 +1748,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 	case saver_flyer : preview = preview_flyer; break;
 	case saver_cabinet : preview = preview_cabinet; break;
 	case saver_title : preview = preview_title; break;
-	case saver_off :
+	default:
 		assert(0);
 		break;
 	}
@@ -1925,11 +1925,11 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 	while (!done) {
 		if (idle) {
 			if (rs.idle_saver_type == saver_shutdown) {
-				key = EVENT_OFF;
+				key = EVENT_OFF_FORCE;
 				break;
 			}
 			if (rs.idle_saver_type == saver_exit) {
-				key = EVENT_ESC;
+				key = EVENT_ESC_FORCE;
 				break;
 			}
 			if (rs.restore == restore_idle)
@@ -2282,6 +2282,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 			}
 			break;
 		}
+
 		switch (key) {
 		case EVENT_ENTER :
 		case EVENT_CLONE :
@@ -2301,6 +2302,8 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		case EVENT_ROTATE :
 		case EVENT_ESC :
 		case EVENT_OFF :
+		case EVENT_ESC_FORCE :
+		case EVENT_OFF_FORCE :
 			done = true;
 			break;
 		}

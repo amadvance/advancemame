@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.5.1 2009/01
+	) The new screen saver modes 'shutdown' and 'exit' now work also with lock activated.
+
 AdvanceMENU Version 2.5.0 2008/12
 	) Fixed the recognition of the BIOS roms.
 	) Smarter error detection of damaged zips.
