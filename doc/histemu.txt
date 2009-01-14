@@ -3,6 +3,12 @@
                           ============================
 
 
+ADVANCEMAME VERSION 0.106.2 2009/01
+===================================
+
+* Fixed the warning screen about emulation problems.
+
+
 ADVANCEMAME VERSION 0.106.1 2008/12
 ===================================
 
