@@ -1166,6 +1166,10 @@ echo "Misc :" $ac_lib_other
 if test $ac_enable_debug = no ; then
 	if test $ac_lib_video_flag = no; then
 		AC_MSG_ERROR([no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option.])
+	else
+		if test $ac_lib_sdl = no; then
+			AC_MSG_WARN([the SDL library was not found. You will not able to use this program in a window manager environment! If you have the SDL library installed somewhere try using the --with-sdl-prefix option.])
+		fi
 	fi
 	if test $ac_lib_sound_flag = no; then
 		AC_MSG_ERROR([no sound library found])

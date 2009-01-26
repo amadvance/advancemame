@@ -84,8 +84,6 @@
 struct target_context {
 	unsigned usleep_granularity; /**< Minimun sleep time in microseconds. */
 
-	target_clock_t last; /**< Last clock. */
-
 	unsigned col; /**< Number of columns. 0 if not detectable. */
 	unsigned row; /**< Number of rows. 0 if not detectable. */
 
@@ -104,7 +102,6 @@ static struct target_context TARGET;
 
 adv_error target_init(void)
 {
-	TARGET.last = 0;
 	TARGET.usleep_granularity = 0;
 	TARGET.col = 0;
 	TARGET.row = 0;
@@ -200,12 +197,6 @@ target_clock_t target_clock(void)
 	gettimeofday(&tv, NULL);
 
 	r = tv.tv_sec * 1000000LL + tv.tv_usec;
-
-	/* on some laptops strange things may happen when the CPU change its speed */
-	if (r < TARGET.last)
-		r = TARGET.last;
-
-	TARGET.last = r;
 
 	return r;
 }

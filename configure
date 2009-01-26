@@ -15558,6 +15558,11 @@ if test $ac_enable_debug = no ; then
 		{ { $as_echo "$as_me:$LINENO: error: no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option." >&5
 $as_echo "$as_me: error: no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option." >&2;}
    { (exit 1); exit 1; }; }
+	else
+		if test $ac_lib_sdl = no; then
+			{ $as_echo "$as_me:$LINENO: WARNING: the SDL library was not found. You will not able to use this program in a window manager environment! If you have the SDL library installed somewhere try using the --with-sdl-prefix option." >&5
+$as_echo "$as_me: WARNING: the SDL library was not found. You will not able to use this program in a window manager environment! If you have the SDL library installed somewhere try using the --with-sdl-prefix option." >&2;}
+		fi
 	fi
 	if test $ac_lib_sound_flag = no; then
 		{ { $as_echo "$as_me:$LINENO: error: no sound library found" >&5

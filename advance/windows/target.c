@@ -48,8 +48,6 @@ struct target_context {
 	char buffer_out[BUFFER_SIZE];
 	char buffer_err[BUFFER_SIZE];
 
-	target_clock_t last; /**< Last clock. */
-
 	unsigned usleep_granularity; /**< Minimun sleep time in microseconds. */
 };
 
@@ -67,7 +65,6 @@ adv_error target_init(void)
 
 	TARGET.buffer_out[0] = 0;
 	TARGET.buffer_err[0] = 0;
-	TARGET.last = 0;
 	TARGET.usleep_granularity = 0;
 
 	if (!QueryPerformanceFrequency(&f) || !QueryPerformanceCounter(&c)) {
@@ -145,16 +142,11 @@ target_clock_t target_clock(void)
 	target_clock_t r;
     
 	if (!QueryPerformanceCounter(&c)) {
-		return TARGET.last;
+		log_std(("ERROR:windows: QueryPerformanceCounter() failed\n"));
+		return 0;
 	}
 
 	r = c.QuadPart;
-
-	/* on some laptops strange things may happen when the CPU change its speed */
-	if (r < TARGET.last)
-		r = TARGET.last;
-
-	TARGET.last = r;
 
 	return r;
 }

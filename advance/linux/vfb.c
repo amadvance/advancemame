@@ -536,7 +536,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		return -1;
 
 	if (os_internal_wm_active()) {
-		error_set("Unsupported in X.\n");
+		error_set("Unsupported in X. Try with the SDL library.\n");
 		return -1;
 	}
 
