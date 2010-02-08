@@ -1969,8 +1969,8 @@ static void input_setup_init(struct advance_input_context* context)
 	}
 
 	/* initialize the keyboard state */
-	memset(&context->state.key_old, sizeof(context->state.key_old), 0);
-	memset(&context->state.key_current, sizeof(context->state.key_current), 0);
+	memset(&context->state.key_old, 0, sizeof(context->state.key_old));
+	memset(&context->state.key_current, 0, sizeof(context->state.key_current));
 
 	/* initialize the input state */
 	context->state.input_forced_exit_flag = 0;
