@@ -202,14 +202,6 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 		if (var->vmode & FB_VMODE_DOUBLE)
 			log_std((" doublescan"));
 		log_std(("\n"));
-		log_std(("video:fb: reserved %xh:%xh:%xh:%xh:%xh:%xh\n",
-			(unsigned)var->reserved[0],
-			(unsigned)var->reserved[1],
-			(unsigned)var->reserved[2],
-			(unsigned)var->reserved[3],
-			(unsigned)var->reserved[4],
-			(unsigned)var->reserved[5]
-		));
 	}
 }
 

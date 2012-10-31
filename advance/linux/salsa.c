@@ -76,24 +76,15 @@ static void alsa_log(snd_pcm_hw_params_t* hw_params, snd_pcm_sw_params_t* sw_par
 	unsigned period_count;
 	unsigned buffer_time;
 	snd_pcm_uframes_t buffer_size;
-	unsigned tick_time;
-
-	snd_pcm_uframes_t xfer_align;
 
 	snd_pcm_hw_params_get_period_time(hw_params, &period_time, 0);
 	snd_pcm_hw_params_get_period_size(hw_params, &period_size, 0);
 	snd_pcm_hw_params_get_periods(hw_params, &period_count, 0);
 	snd_pcm_hw_params_get_buffer_time(hw_params, &buffer_time, 0);
 	snd_pcm_hw_params_get_buffer_size(hw_params, &buffer_size);
-	snd_pcm_hw_params_get_tick_time(hw_params, &tick_time, 0);
 
-	log_std(("sound:alsa: hw period_time %g [us], period_size %d, periods %d, buffer_time %g [us], buffer_size %d, tick_time %g [us]\n",
-		(double)(period_time / 1000000.0), (unsigned)period_size, (unsigned)period_count, (double)(buffer_time / 1000000.0), (unsigned)buffer_size, (double)(tick_time / 1000000.0)
-	));
-
-	snd_pcm_sw_params_get_xfer_align(sw_params, &xfer_align);
-	log_std(("sound:alsa: sw xfer_align %d\n",
-		(unsigned)xfer_align
+	log_std(("sound:alsa: hw period_time %g [us], period_size %d, periods %d, buffer_time %g [us], buffer_size %d\n",
+		(double)(period_time / 1000000.0), (unsigned)period_size, (unsigned)period_count, (double)(buffer_time / 1000000.0), (unsigned)buffer_size
 	));
 }
 
@@ -194,12 +185,6 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 	r = snd_pcm_sw_params_current(alsa_state.handle, sw_params);
 	if (r < 0) {
 		log_std(("ERROR:sound:alsa: Couldn't get software audio parameters: %s\n", snd_strerror(r)));
-		goto err_close;
-	}
-
-	r = snd_pcm_sw_params_set_xfer_align(alsa_state.handle, sw_params, 1);
-	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't set xfer_align: %s\n", snd_strerror(r)));
 		goto err_close;
 	}
 

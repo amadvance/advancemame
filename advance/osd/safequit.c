@@ -384,7 +384,7 @@ void advance_safequit_update(struct advance_safequit_context* context)
 	}
 
 	if (context->config.debug_flag) {
-		advance_ui_message(&CONTEXT.ui, buffer);
+		advance_ui_message(&CONTEXT.ui, "%s", buffer);
 	}
 }
 

@@ -52,7 +52,7 @@ struct event_location {
 	unsigned id;
 };
 
-unsigned event_locate(struct event_location* event_map, unsigned event_max, adv_bool* eaccess);
+unsigned event_locate(struct event_location* event_map, unsigned event_max, const char* prefix, adv_bool* eaccess);
 
 static inline adv_bool event_test_bit(unsigned bit, unsigned char* evtype_bitmask)
 {

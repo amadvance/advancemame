@@ -211,7 +211,7 @@ adv_error mouseb_event_init(int mouseb_id)
 
 	log_std(("mouseb:event: opening mouse from 0 to %d\n", EVENT_MOUSE_DEVICE_MAX));
 
-	mac = event_locate(map, EVENT_MOUSE_DEVICE_MAX, &eacces);
+	mac = event_locate(map, EVENT_MOUSE_DEVICE_MAX, "event", &eacces);
 
 	event_state.mac = 0;
 	for(i=0;i<mac;++i) {

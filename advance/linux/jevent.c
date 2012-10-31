@@ -507,7 +507,7 @@ adv_error joystickb_event_init(int joystickb_id)
 
 	event_state.counter = 0;
 
-	mac = event_locate(map, EVENT_JOYSTICK_DEVICE_MAX, &eacces);
+	mac = event_locate(map, EVENT_JOYSTICK_DEVICE_MAX, "event", &eacces);
 
 	event_state.mac = 0;
 	for(i=0;i<mac;++i) {

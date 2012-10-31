@@ -313,8 +313,8 @@ struct analog_info {
 };
 
 struct analog_info ANALOG_INFO[] = {
-{ INPUT_ANALOG_PADDLE_X, "paddlex", { { "stick", "x" }, { "relative", "x" } } },
-{ INPUT_ANALOG_PADDLE_Y, "paddley", { { "stick", "y" }, { "relative", "y" } } },
+{ INPUT_ANALOG_PADDLE_X, "paddlex", { { "stick", "x" }, { "relative", "x" }, { "stick", "rx" } } },
+{ INPUT_ANALOG_PADDLE_Y, "paddley", { { "stick", "y" }, { "relative", "y" }, { "stick", "ry" } } },
 { INPUT_ANALOG_STICK_X, "stickx", { { "stick", "x" }, { "wheel", "mono" }, { "relative", "x" }, { "stick", "rx" }, { "rudder", "mono" }, { "throttle", "mono" } } },
 { INPUT_ANALOG_STICK_Y, "sticky", { { "stick", "y" }, { "relative", "y" }, { "stick", "ry" } } },
 { INPUT_ANALOG_STICK_Z, "stickz", { { "stick", "z" } } },
@@ -2023,7 +2023,7 @@ static adv_error input_load_map(struct advance_input_context* context, adv_conf*
 
 		/* get the game option */
 		if (conf_string_get(cfg_context, tag_buffer, &s) == 0) {
-				char* d = strdup(s);
+			char* d = strdup(s);
 			unsigned seq[INPUT_MAP_MAX];
 			if (advance_input_parse_digital(seq, INPUT_MAP_MAX, d) != 0) {
 				free(d);

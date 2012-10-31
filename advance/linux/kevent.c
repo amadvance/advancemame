@@ -747,7 +747,7 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 		event_state.map_up_to_low[j->up_code] = j->low_code;
 	}
 
-	mac = event_locate(map, EVENT_KEYBOARD_DEVICE_MAX, &eacces);
+	mac = event_locate(map, EVENT_KEYBOARD_DEVICE_MAX, "event", &eacces);
 
 	event_state.mac = 0;
 	for(i=0;i<mac;++i) {

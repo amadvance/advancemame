@@ -90,7 +90,7 @@ static int video_mode_menu(struct advance_video_context* context, struct advance
 			advance_video_reconfigure(context, &config);
 
 			/* show at screen the new configuration name */
-			advance_ui_message(ui_context, mode_current_name(context));
+			advance_ui_message(ui_context, "%s", mode_current_name(context));
 		} else {
 			struct advance_video_config_context config = context->config;
 
