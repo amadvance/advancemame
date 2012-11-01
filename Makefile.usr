@@ -68,10 +68,6 @@ prefix=/usr/local
 #CONF_LIB_MCPN=yes
 
 # Select the optimization flags: (optimized build for Pentium by default)
-# Optimized build for Pentium
-#CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=pentium -Wall -Wno-sign-compare -Wno-unused
-# Optimized build for Pentium Pro, Pentium II, Pentium III, Celeron
-#CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=pentium2 -Wall -Wno-sign-compare -Wno-unused
 # Optimized build for Pentium IV
 #CONF_CFLAGS_OPT=-O2 -fomit-frame-pointer -march=pentium4 -Wall -Wno-sign-compare -Wno-unused
 # Optimized build for K6, K6-II, K6-III
@@ -226,7 +222,7 @@ CONF_CFLAGS_ARCH = -DUSE_LSB -DUSE_ASM_INLINE -DUSE_ASM_EMUMIPS3
 endif
 
 ifndef CONF_CFLAGS_OPT
-CONF_CFLAGS_OPT = -O2 -fomit-frame-pointer -march=pentium -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
+CONF_CFLAGS_OPT = -march=i686 -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
 endif
 
 ifndef CONF_LDFLAGS
@@ -323,7 +319,6 @@ ifeq ($(CONF_HOST),dos)
 # Probably you need to changes these to cross compile:
 CROSSTARGET = i586-pc-msdosdjgpp
 CROSSDIR = /usr/local/gcc-3.2.3-i586-pc-msdosdjgpp
-#CROSSDIR = /usr/local/gcc-3.2.3-i586-pc-msdosdjgpp
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
 CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
@@ -334,18 +329,18 @@ FREETYPELIBS = -L$(CROSSDIR)/lib -lfreetype -lz
 endif
 ifeq ($(CONF_HOST),windows)
 # Probably you need to changes these to cross compile:
-CROSSTARGET = i386-mingw32msvc
-CROSSDIR = /usr/local/cross-tools
+CROSSTARGET = i686-pc-mingw32
+CROSSDIR = /usr/local/mingw-cross-env-2.19
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
 CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
 LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
 RC = @$(CROSSDIR)/bin/$(CROSSTARGET)-windres
-SDLCFLAGS = -I$(CROSSDIR)/include/SDL -I$(CROSSDIR)/include
-SDLLIBS = -L$(CROSSDIR)/lib -lmingw32 -lSDL -mwindows
-FREETYPECFLAGS = -I$(CROSSDIR)/include/freetype2 -I$(CROSSDIR)/include
-FREETYPELIBS = -L$(CROSSDIR)/lib -lfreetype -lz
+SDLCFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/SDL -I$(CROSSDIR)/$(CROSSTARGET)/include
+SDLLIBS = -L$(CROSSDIR)/$(CROSSTARGET)/lib -lmingw32 -lSDL -lwinmm -mwindows -liconv -lm -luser32 -lgdi32 -lwinmm -ldxguid
+FREETYPECFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/freetype2 -I$(CROSSDIR)/$(CROSSTARGET)/include
+FREETYPELIBS = -L$(CROSSDIR)/$(CROSSTARGET)/lib -lfreetype -lz
 endif
 endif
 

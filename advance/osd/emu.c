@@ -593,7 +593,7 @@ int os_main(int argc, char* argv[])
 	char* opt_gamename;
 	int opt_version;
 	struct advance_context* context = &CONTEXT;
-	char* section_map[32];
+	const char* section_map[32];
 	unsigned section_mac;
 	const mame_game* parent;
 	char buffer[128];
@@ -868,7 +868,7 @@ int os_main(int argc, char* argv[])
 	conf_section_set(context->cfg, section_map, section_mac);
 	for(i=0;i<section_mac;++i) {
 		log_std(("emu: use configuration section '%s'\n", section_map[i]));
-		free(section_map[i]);
+		free((char*)section_map[i]);
 	}
 
 	/* setup the include configuration file */

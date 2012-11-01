@@ -1,8 +1,8 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 0.106.2 2009/01
-	) Fixed the warning screen about emulation problems.
+AdvanceMAME Version 0.106.2 2012/11
+	) Fixed compilation with modern compilers.
 
 AdvanceMAME Version 0.106.1 2008/12
 	) Fixed the black screen bug with paletteized games.

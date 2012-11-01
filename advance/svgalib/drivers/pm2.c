@@ -491,7 +491,7 @@ static void initializemode(unsigned char *moderegs,
 }
 
 
-static int setmode(int mode, int prv_mode)
+static int local_setmode(int mode, int prv_mode)
 {
     unsigned char *moderegs;
     ModeTiming *modetiming;
@@ -679,7 +679,7 @@ DriverSpecs __svgalib_pm2_driverspecs =
     __svgalib_emul_setpage,
     NULL,
     NULL,
-    setmode,
+    local_setmode,
     modeavailable,
     setdisplaystart,
     setlogicalwidth,

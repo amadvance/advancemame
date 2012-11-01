@@ -271,8 +271,7 @@ CONF_SRC = \
 	$(srcdir)/aclocal.m4 \
 	$(srcdir)/config.guess \
 	$(srcdir)/config.sub \
-	$(srcdir)/install-sh \
-	$(srcdir)/missing
+	$(srcdir)/install-sh
 
 CONF_BIN = \
 	$(srcdir)/support/confbin/INSTALL \
@@ -282,8 +281,7 @@ CONF_BIN = \
 	$(srcdir)/support/confbin/autogen.sh \
 	$(srcdir)/support/confbin/configure \
 	$(srcdir)/support/confbin/aclocal.m4 \
-	$(srcdir)/support/confbin/install-sh \
-	$(srcdir)/support/confbin/missing
+	$(srcdir)/support/confbin/install-sh
 
 ############################################################################
 # Common install
@@ -389,20 +387,17 @@ RCFLAGS += --include-dir advance/lib
 DEFS_LINUX = -DSTDC_HEADERS=1 -DHAVE_SYS_WAIT_H=1 -DHAVE_DIRENT_H=1 -DTIME_WITH_SYS_TIME=1 -DGWINSZ_IN_SYS_IOCTL=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_UNISTD_H=1 -DHAVE_SCHED_H=1 -DHAVE_NETDB_H=1 -DHAVE_TERMIOS_H=1 -DHAVE_EXECINFO_H=1 -DHAVE_SYS_UTSNAME_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_SYS_SOCKET_H=1 -DHAVE_SYS_SELECT_H=1 -DHAVE_SYS_IOCTL_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_SYS_MMAN_H=1 -DHAVE_SYS_IO_H=1 -DHAVE_SYS_KD_H=1 -DHAVE_SYS_VT_H=1 -DHAVE_NETINET_IN_H=1 -DHAVE_UCONTEXT_H=1 -Drestrict=__restrict -DHAVE_ALLOCA_H=1 -DHAVE_ALLOCA=1 -DHAVE_STDLIB_H=1 -DHAVE_UNISTD_H=1 -DHAVE_GETPAGESIZE=1 -DHAVE_MMAP=1 -DHAVE_SYS_SELECT_H=1 -DHAVE_SYS_SOCKET_H=1 -DSELECT_TYPE_ARG1=int -DSELECT_TYPE_ARG234=\(fd_set\ \*\) -DSELECT_TYPE_ARG5=\(struct\ timeval\ \*\) -DHAVE_VPRINTF=1 -DHAVE_STRCASECMP=1 -DHAVE_STRERROR=1 -DHAVE_UNAME=1 -DHAVE_SYSCONF=1 -DHAVE_BACKTRACE=1 -DHAVE_BACKTRACE_SYMBOLS=1 -DHAVE_FLOCKFILE=1 -DHAVE_FUNLOCKFILE=1 -DHAVE_FREAD_UNLOCKED=1 -DHAVE_FWRITE_UNLOCKED=1 -DHAVE_FGETC_UNLOCKED=1 -DHAVE_FEOF_UNLOCKED=1 -DHAVE_IOPL=1 -DHAVE_MPROTECT=1 -DHAVE_INOUT=1 -DHAVE_SLANG_SLANG_H=1
 
 # Optimized
-WHOLE_CFLAGS_OPT = -O2 -fomit-frame-pointer -fno-strength-reduce -Wall -Wno-sign-compare -Wno-unused
+WHOLE_CFLAGS_OPT = -O2 -fomit-frame-pointer -fno-strength-reduce -fno-strict-aliasing -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
 WHOLE_CFLAGS_EMU =
 WHOLE_LDFLAGS = -s
 
-ARCH_I386 = CONF_MAP=yes CONF_ARCH=i386 CONF_CFLAGS_OPT="-march=i386 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
-ARCH_PENTIUM = CONF_MAP=yes CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=pentium $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
-ARCH_PENTIUM_BLEND_GCC3 = CONF_MAP=yes CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=pentium -mtune=pentium2 $(WHOLE_CFLAGS_OPT) -fno-merge-constants" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
-ARCH_PENTIUM_BLEND_GCC2 = CONF_MAP=yes CONF_ARCH=pentium CONF_CFLAGS_OPT="-march=i586 -mcpu=i686 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
+ARCH_X86 = CONF_MAP=yes CONF_ARCH=x86 CONF_CFLAGS_OPT="-march=i686 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
 
 MANUAL=-f Makefile.usr
 
 WHOLECD_FLAGS = \
 	ADV_DATADIR="/root" ADV_SYSCONFDIR="/etc" \
-	CONF_ARCH=cd CONF_CFLAGS_OPT="-march=pentium -mtune=pentium2 $(WHOLE_CFLAGS_OPT) -fno-merge-constants" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
+	CONF_ARCH=cd CONF_CFLAGS_OPT="-march=i686 $(WHOLE_CFLAGS_OPT) -fno-merge-constants" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
 	CONF_DEFS="$(DEFS_LINUX)" \
 	CONF_HOST=linux \
 	CONF_LIB_KEVENT=yes CONF_LIB_JEVENT=yes CONF_LIB_MEVENT=yes \
@@ -414,14 +409,14 @@ WHOLECD_FLAGS = \
 wholemame: mamedif
 	$(MAKE) $(MANUAL) dist
 	$(MAKE) $(MANUAL) CONF_DIFFSRC=yes dist
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=windows distbin
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=dos distbin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distbin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distbin
 
 dosmame:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=dos distbin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distbin
 
 winmame:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=windows distbin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distbin
 
 wholecd:
 	$(MAKE) $(MANUAL) $(WHOLECD_FLAGS) distbin
@@ -431,35 +426,35 @@ wholecd:
 wholemess: messdif
 	$(MAKE) $(MANUAL) CONF_EMU=mess dist
 	$(MAKE) $(MANUAL) CONF_EMU=mess CONF_DIFFSRC=yes dist
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=windows CONF_EMU=mess distbin
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=dos CONF_EMU=mess distbin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows CONF_EMU=mess distbin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos CONF_EMU=mess distbin
 
 dosmess:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=dos CONF_EMU=mess distbin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos CONF_EMU=mess distbin
 
 winmess:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=windows CONF_EMU=mess distbin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows CONF_EMU=mess distbin
 
 wholemenu:
 	$(MAKE) $(MANUAL) distmenu
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=windows distmenubin
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=dos distmenubin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distmenubin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distmenubin
 
 dosmenu:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=dos distmenubin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distmenubin
 
 winmenu:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC2) CONF_HOST=windows distmenubin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distmenubin
 
 wholelinux:
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC3) CONF_HOST=linux CONF_DEFS="$(DEFS_LINUX)" distbin
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC3) CONF_HOST=linux CONF_EMU=mess CONF_DEFS="$(DEFS_LINUX)" distbin
-	$(MAKE) $(MANUAL) $(ARCH_PENTIUM_BLEND_GCC3) CONF_HOST=linux CONF_DEFS="$(DEFS_LINUX)" distmenubin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=linux CONF_DEFS="$(DEFS_LINUX)" distbin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=linux CONF_EMU=mess CONF_DEFS="$(DEFS_LINUX)" distbin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=linux CONF_DEFS="$(DEFS_LINUX)" distmenubin
 
 wholecab:
 	$(MAKE) $(MANUAL) distcab
-	$(MAKE) $(MANUAL) $(ARCH_I386) CONF_HOST=dos distcabbin
-	$(MAKE) $(MANUAL) $(ARCH_I386) CONF_HOST=windows distcabbin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distcabbin
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distcabbin
 
 #############################################################################
 # Development targets

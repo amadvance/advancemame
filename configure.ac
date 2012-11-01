@@ -151,8 +151,10 @@ if test $ac_auto_cflags = yes; then
 		AC_CHECK_CC_OPT([-march=native], [CFLAGS="$CFLAGS -march=native"], [])
 		AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])
 		AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
-		# -fno-merge-constants is required to speedup the link time. ld spends a lot of time trying to merge partial strings.
-		AC_CHECK_CC_OPT([-fno-merge-constants], [CFLAGS="$CFLAGS -fno-merge-constants"], [])
+		# Code is not ready for strict-aliasing. It seems working, but who know...
+		AC_CHECK_CC_OPT([-fno-strict-aliasing], [CFLAGS="$CFLAGS -fno-strict-aliasing"], [])
+		# We are not interested in stack protection
+		AC_CHECK_CC_OPT([-fno-stack-protector], [CFLAGS="$CFLAGS -fno-stack-protector"], [])
 		AC_CHECK_CC_OPT([-Wall], [CFLAGS="$CFLAGS -Wall"], [])
 		AC_CHECK_CC_OPT([-Wno-sign-compare], [CFLAGS="$CFLAGS -Wno-sign-compare"], [])
 		AC_CHECK_CC_OPT([-Wno-unused], [CFLAGS="$CFLAGS -Wno-unused"], [])

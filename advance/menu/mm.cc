@@ -637,7 +637,7 @@ int os_main(int argc, char* argv[])
 	bool opt_help;
 	const char* opt_cfg;
 	int key = 0;
-	char* section_map[1];
+	const char* section_map[1];
 	char cfg_buffer[512];
 
 	srand(time(0));

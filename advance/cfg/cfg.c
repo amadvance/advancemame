@@ -1398,7 +1398,7 @@ int os_main(int argc, char* argv[])
 	const char* opt_rc;
 	adv_bool opt_log;
 	adv_bool opt_logsync;
-	char* section_map[1];
+	const char* section_map[1];
 	unsigned j;
 	adv_conf* config = 0;
 	unsigned bit_flag;

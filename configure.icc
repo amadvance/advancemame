@@ -1,1 +1,0 @@
-./configure CC=icc CFLAGS="-I/usr/local/include -O2 -march=pentium4 -Wall -Wbrief -wd1301 -wd181 -wd279 -wd869 -wd810 -wd981 -wd1418 -wd1419 -wd193 -wd137" LDFLAGS=-lsvml

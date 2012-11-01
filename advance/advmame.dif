@@ -3,6 +3,102 @@ diff -U 5 --new-file --recursive src.ori/advance.pat src/advance.pat
 +++ src/advance.pat	2006-06-16 18:45:09.000000000 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
+diff -U 5 --new-file --recursive src.ori/artwork.h src/artwork.h
+--- src.ori/artwork.h	2006-02-26 21:12:26.000000000 +0100
++++ src/artwork.h	2012-10-31 23:58:37.034919682 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ *********************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __ARTWORK_H__
+ #define __ARTWORK_H__
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/audit.h src/audit.h
+--- src.ori/audit.h	2006-02-26 21:12:26.000000000 +0100
++++ src/audit.h	2012-10-31 23:58:40.891103881 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __AUDIT_H__
+ #define __AUDIT_H__
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/cdrom.h src/cdrom.h
+--- src.ori/cdrom.h	2006-02-26 21:12:26.000000000 +0100
++++ src/cdrom.h	2012-10-31 23:58:47.564422670 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __CDROM_H__
+ #define __CDROM_H__
+ 
+ #include "mamecore.h"
+ #include "chd.h"
+diff -U 5 --new-file --recursive src.ori/chd.h src/chd.h
+--- src.ori/chd.h	2006-02-26 21:12:26.000000000 +0100
++++ src/chd.h	2012-10-31 23:58:49.487514542 +0100
+@@ -5,12 +5,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __CHD_H__
+ #define __CHD_H__
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/chdcd.h src/chdcd.h
+--- src.ori/chdcd.h	2006-02-26 21:12:26.000000000 +0100
++++ src/chdcd.h	2012-10-31 23:58:53.041684346 +0100
+@@ -5,12 +5,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __CHDCD_H__
+ #define __CHDCD_H__
+ 
+ #include "cdrom.h"
+ 
+diff -U 5 --new-file --recursive src.ori/cheat.h src/cheat.h
+--- src.ori/cheat.h	2006-02-21 22:48:44.000000000 +0100
++++ src/cheat.h	2012-10-31 23:58:55.307792615 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ *********************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __CHEAT_H__
+ #define __CHEAT_H__
+ 
+ extern int he_did_cheat;
+ 
 diff -U 5 --new-file --recursive src.ori/config.c src/config.c
 --- src.ori/config.c	2006-04-13 07:48:26.000000000 +0200
 +++ src/config.c	2006-06-16 18:45:12.000000000 +0200
@@ -73,6 +169,22 @@ diff -U 5 --new-file --recursive src.ori/config.c src/config.c
  	for (type = typelist; type; type = type->next)
  		(*type->save)(CONFIG_TYPE_FINAL, NULL);
  }
+diff -U 5 --new-file --recursive src.ori/config.h src/config.h
+--- src.ori/config.h	2006-02-05 16:16:34.000000000 +0100
++++ src/config.h	2012-10-31 23:58:58.768957988 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __CONFIG_H__
+ #define __CONFIG_H__
+ 
+ #include "mame.h"
+ #include "input.h"
 diff -U 5 --new-file --recursive src.ori/cpu/cpu.mak src/cpu/cpu.mak
 --- src.ori/cpu/cpu.mak	2006-04-09 22:49:08.000000000 +0200
 +++ src/cpu/cpu.mak	2006-06-16 20:34:03.000000000 +0200
@@ -134,6 +246,150 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  	{
  		/* enable all CPUs (except for disabled CPUs) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_DISABLE))
+diff -U 5 --new-file --recursive src.ori/cpuexec.h src/cpuexec.h
+--- src.ori/cpuexec.h	2006-03-29 08:17:58.000000000 +0200
++++ src/cpuexec.h	2012-10-31 23:59:00.927061106 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __CPUEXEC_H__
+ #define __CPUEXEC_H__
+ 
+ #include "memory.h"
+ #include "timer.h"
+diff -U 5 --new-file --recursive src.ori/cpuint.h src/cpuint.h
+--- src.ori/cpuint.h	2006-03-21 12:02:34.000000000 +0100
++++ src/cpuint.h	2012-10-31 23:59:02.971158781 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __CPUINT_H__
+ #define __CPUINT_H__
+ 
+ #include "memory.h"
+ 
+diff -U 5 --new-file --recursive src.ori/cpuintrf.h src/cpuintrf.h
+--- src.ori/cpuintrf.h	2006-04-26 21:44:02.000000000 +0200
++++ src/cpuintrf.h	2012-10-31 23:59:05.297269932 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __CPUINTRF_H__
+ #define __CPUINTRF_H__
+ 
+ #include "memory.h"
+ #include "cpuint.h"
+diff -U 5 --new-file --recursive src.ori/debug/debugcmt.h src/debug/debugcmt.h
+--- src.ori/debug/debugcmt.h	2006-02-28 01:13:18.000000000 +0100
++++ src/debug/debugcmt.h	2012-11-01 00:00:32.580443437 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __DEBUGCMT_H__
+ #define __DEBUGCMT_H__
+ 
+ #define DEBUG_COMMENT_MAX_LINE_LENGTH (128)	/* 128 characters per comment - 50 are displayed at once */
+ #define DEBUG_COMMENT_MAX_NUM (0x10000)		/* 64k comments should be good for awhile */
+diff -U 5 --new-file --recursive src.ori/debug/debugcpu.h src/debug/debugcpu.h
+--- src.ori/debug/debugcpu.h	2006-03-09 07:56:16.000000000 +0100
++++ src/debug/debugcpu.h	2012-11-01 00:00:34.504535499 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ *********************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __DEBUGCPU_H__
+ #define __DEBUGCPU_H__
+ 
+ #include "express.h"
+ 
+diff -U 5 --new-file --recursive src.ori/debug/mamedbg.h src/debug/mamedbg.h
+--- src.ori/debug/mamedbg.h	2006-02-26 21:12:26.000000000 +0100
++++ src/debug/mamedbg.h	2012-11-01 00:00:36.376625073 +0100
+@@ -8,12 +8,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ****************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef _MAMEDBG_H
+ #define _MAMEDBG_H
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/debugger.h src/debugger.h
+--- src.ori/debugger.h	2006-03-07 11:01:38.000000000 +0100
++++ src/debugger.h	2012-10-31 23:58:03.579322046 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ****************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __DEBUGGER_H__
+ #define __DEBUGGER_H__
+ 
+ #include "mame.h"
+ 
+diff -U 5 --new-file --recursive src.ori/drawgfx.h src/drawgfx.h
+--- src.ori/drawgfx.h	2006-05-10 21:35:28.000000000 +0200
++++ src/drawgfx.h	2012-10-31 23:59:07.147358341 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ *********************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __DRAWGFX_H__
+ #define __DRAWGFX_H__
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/driver.h src/driver.h
+--- src.ori/driver.h	2006-04-10 09:47:58.000000000 +0200
++++ src/driver.h	2012-10-31 23:59:09.041448855 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __DRIVER_H__
+ #define __DRIVER_H__
+ 
+ 
+ /***************************************************************************
 diff -U 5 --new-file --recursive src.ori/drivers/namcos11.c src/drivers/namcos11.c
 --- src.ori/drivers/namcos11.c	2006-04-26 07:32:12.000000000 +0200
 +++ src/drivers/namcos11.c	2006-06-16 18:45:12.000000000 +0200
@@ -383,6 +639,86 @@ diff -U 5 --new-file --recursive src.ori/drivers/zn.c src/drivers/zn.c
  	MDRV_PALETTE_INIT( psx )
  	MDRV_VIDEO_START( psx_type2 )
  	MDRV_VIDEO_UPDATE( psx )
+diff -U 5 --new-file --recursive src.ori/fileio.h src/fileio.h
+--- src.ori/fileio.h	2006-03-28 10:37:32.000000000 +0200
++++ src/fileio.h	2012-10-31 23:59:10.927538989 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __FILEIO_H__
+ #define __FILEIO_H__
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/harddisk.h src/harddisk.h
+--- src.ori/harddisk.h	2006-02-26 21:12:26.000000000 +0100
++++ src/harddisk.h	2012-10-31 23:59:12.719624633 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __HARDDISK_H__
+ #define __HARDDISK_H__
+ 
+ #include "mamecore.h"
+ #include "chd.h"
+diff -U 5 --new-file --recursive src.ori/hash.h src/hash.h
+--- src.ori/hash.h	2006-02-05 16:16:34.000000000 +0100
++++ src/hash.h	2012-10-31 23:59:14.479708749 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ *********************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __HASH_H__
+ #define __HASH_H__
+ 
+ #define HASH_INFO_NO_DUMP	0
+ #define HASH_INFO_BAD_DUMP	1
+diff -U 5 --new-file --recursive src.ori/hiscore.h src/hiscore.h
+--- src.ori/hiscore.h	2006-02-21 22:48:44.000000000 +0100
++++ src/hiscore.h	2012-10-31 23:59:16.224792151 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __HISCORE_H__
+ #define __HISCORE_H__
+ 
+ void hiscore_init( const char *name );
+ 
+diff -U 5 --new-file --recursive src.ori/info.h src/info.h
+--- src.ori/info.h	2006-04-10 09:47:58.000000000 +0200
++++ src/info.h	2012-10-31 23:59:19.569952031 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __INFO_H__
+ #define __INFO_H__
+ 
+ #include "mamecore.h"
+ 
 diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
 --- src.ori/inptport.c	2006-03-23 07:34:02.000000000 +0100
 +++ src/inptport.c	2006-06-16 20:06:19.000000000 +0200
@@ -599,6 +935,22 @@ diff -U 5 --new-file --recursive src.ori/inptport.c src/inptport.c
  		/* if our last movement was due to a digital input, and if this control */
  		/* type autocenters, and if neither the increment nor the decrement seq */
  		/* was pressed, apply autocentering */
+diff -U 5 --new-file --recursive src.ori/inptport.h src/inptport.h
+--- src.ori/inptport.h	2006-03-22 08:42:18.000000000 +0100
++++ src/inptport.h	2012-10-31 23:59:22.335084193 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __INPTPORT_H__
+ #define __INPTPORT_H__
+ 
+ #include "memory.h"
+ #include "input.h"
 diff -U 5 --new-file --recursive src.ori/input.c src/input.c
 --- src.ori/input.c	2006-03-21 12:02:34.000000000 +0100
 +++ src/input.c	2006-06-16 18:47:39.000000000 +0200
@@ -645,9 +997,15 @@ diff -U 5 --new-file --recursive src.ori/input.c src/input.c
   *
 diff -U 5 --new-file --recursive src.ori/input.h src/input.h
 --- src.ori/input.h	2006-02-26 21:12:26.000000000 +0100
-+++ src/input.h	2006-06-16 19:27:04.000000000 +0200
-@@ -13,10 +13,11 @@
++++ src/input.h	2012-10-31 23:59:24.325179317 +0100
+@@ -7,16 +7,15 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
  
+ ***************************************************************************/
+ 
+-#pragma once
+-
  #ifndef __INPUT_H__
  #define __INPUT_H__
  
@@ -658,7 +1016,7 @@ diff -U 5 --new-file --recursive src.ori/input.h src/input.h
  /*************************************
   *
   *  Constants
-@@ -485,10 +486,17 @@
+@@ -485,10 +484,17 @@
  	CODE_NOT,					/* operators for sequences */
  	CODE_OR						/* operators for sequences */
  };
@@ -676,7 +1034,7 @@ diff -U 5 --new-file --recursive src.ori/input.h src/input.h
   *
   *  Type definitions
   *
-@@ -526,10 +534,12 @@
+@@ -526,10 +532,12 @@
   *************************************/
  
  /* single code functions */
@@ -689,6 +1047,22 @@ diff -U 5 --new-file --recursive src.ori/input.h src/input.h
  int code_pressed_memory(input_code code);
  int code_pressed_memory_repeat(input_code code, int speed);
  input_code code_read_async(void);
+diff -U 5 --new-file --recursive src.ori/machine/generic.h src/machine/generic.h
+--- src.ori/machine/generic.h	2006-03-21 12:02:34.000000000 +0100
++++ src/machine/generic.h	2012-11-01 00:00:30.276333197 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ *********************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __MACHINE_GENERIC_H__
+ #define __MACHINE_GENERIC_H__
+ 
+ #include "mamecore.h"
+ 
 diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
 --- src.ori/mame.c	2006-05-03 22:45:00.000000000 +0200
 +++ src/mame.c	2006-06-16 20:07:33.000000000 +0200
@@ -735,8 +1109,21 @@ diff -U 5 --new-file --recursive src.ori/mame.c src/mame.c
      add_logerror_callback - adds a callback to be
 diff -U 5 --new-file --recursive src.ori/mamecore.h src/mamecore.h
 --- src.ori/mamecore.h	2006-04-09 22:49:08.000000000 +0200
-+++ src/mamecore.h	2006-06-16 20:11:00.000000000 +0200
-@@ -97,11 +97,18 @@
++++ src/mamecore.h	2012-10-31 23:59:25.951257042 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __MAMECORE_H__
+ #define __MAMECORE_H__
+ 
+ #include <stdio.h>
+ #include <string.h>
+@@ -97,11 +95,18 @@
  {
  	int min_x,max_x;
  	int min_y,max_y;
@@ -756,7 +1143,7 @@ diff -U 5 --new-file --recursive src.ori/mamecore.h src/mamecore.h
   * Union of UINT8, UINT16 and UINT32 in native endianess of the target
   * This is used to access bytes and words in a machine independent manner.
   * The upper bytes h2 and h3 normally contain zero (16 bit CPU cores)
-@@ -366,12 +373,14 @@
+@@ -366,12 +371,14 @@
  
  /* since strdup is not part of the standard, we use this instead */
  char *mame_strdup(const char *str);
@@ -771,17 +1158,62 @@ diff -U 5 --new-file --recursive src.ori/mamecore.h src/mamecore.h
  /* compute the intersection of two rectangles */
  INLINE void sect_rect(rectangle *dst, const rectangle *src)
  {
+diff -U 5 --new-file --recursive src.ori/memory.h src/memory.h
+--- src.ori/memory.h	2006-05-01 09:37:28.000000000 +0200
++++ src/memory.h	2012-10-31 23:59:28.302369426 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __MEMORY_H__
+ #define __MEMORY_H__
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/osd_tool.h src/osd_tool.h
+--- src.ori/osd_tool.h	2006-02-26 21:12:26.000000000 +0100
++++ src/osd_tool.h	2012-10-31 23:59:30.317465752 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __OSD_TOOL_H__
+ #define __OSD_TOOL_H__
+ 
+ #include "osd_cpu.h"
+ 
 diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 --- src.ori/osdepend.h	2006-03-28 10:37:32.000000000 +0200
-+++ src/osdepend.h	2006-06-16 20:08:32.000000000 +0200
-@@ -334,11 +334,50 @@
++++ src/osdepend.h	2012-10-31 23:59:32.128552329 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __OSDEPEND_H__
+ #define __OSDEPEND_H__
+ 
+ #include "mamecore.h"
+ #include <stdarg.h>
+@@ -334,11 +332,50 @@
  int osd_display_loading_rom_message(const char *name,rom_load_data *romdata);
  
  /* checks to see if a pointer is bad */
  int osd_is_bad_read_ptr(const void *ptr, size_t size);
  
 +/* AdvanceMAME: Specific OSD interface */
- 
++
 +/* return the analog value of the specified input. */
 +INT32 osd_get_analog_value(unsigned type, unsigned player, int* analog_type);
 +
@@ -817,7 +1249,7 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
 +
 +/* handle the specific user interface */
 +int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active);
-+
+ 
 +/* osd logging */
 +void osd_log_va(const char* text, va_list arg);
  
@@ -825,6 +1257,54 @@ diff -U 5 --new-file --recursive src.ori/osdepend.h src/osdepend.h
  /* this is here to follow the current mame file hierarchy style */
  #include "osd_mess.h"
  #endif
+diff -U 5 --new-file --recursive src.ori/palette.h src/palette.h
+--- src.ori/palette.h	2006-03-21 12:02:34.000000000 +0100
++++ src/palette.h	2012-10-31 23:59:34.259654205 +0100
+@@ -68,12 +68,10 @@
+         cases, e.g. to support alpha blending.
+         MachineDriver->video_attributes must contain VIDEO_RGB_DIRECT.
+ 
+ ******************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __PALETTE_H__
+ #define __PALETTE_H__
+ 
+ #include "memory.h"
+ 
+diff -U 5 --new-file --recursive src.ori/png.h src/png.h
+--- src.ori/png.h	2006-02-26 21:12:26.000000000 +0100
++++ src/png.h	2012-10-31 23:59:36.285751065 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __PNG_H__
+ #define __PNG_H__
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/profiler.h src/profiler.h
+--- src.ori/profiler.h	2006-04-02 10:12:46.000000000 +0200
++++ src/profiler.h	2012-10-31 23:57:47.993578036 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __PROFILER_H__
+ #define __PROFILER_H__
+ 
+ /* profiling */
+ enum
 diff -U 5 --new-file --recursive src.ori/romload.c src/romload.c
 --- src.ori/romload.c	2006-05-04 09:19:00.000000000 +0200
 +++ src/romload.c	2006-06-16 19:07:01.000000000 +0200
@@ -849,6 +1329,54 @@ diff -U 5 --new-file --recursive src.ori/romload.c src/romload.c
  	/* clean up any regions */
  	if (romdata->errors)
  		for (region = 0; region < MAX_MEMORY_REGIONS; region++)
+diff -U 5 --new-file --recursive src.ori/romload.h src/romload.h
+--- src.ori/romload.h	2006-03-09 08:00:04.000000000 +0100
++++ src/romload.h	2012-10-31 23:59:38.116838605 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ *********************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __ROMLOAD_H__
+ #define __ROMLOAD_H__
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/sndhrdw/generic.h src/sndhrdw/generic.h
+--- src.ori/sndhrdw/generic.h	2006-03-23 07:28:36.000000000 +0100
++++ src/sndhrdw/generic.h	2012-11-01 00:00:40.822837824 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __SOUND_GENERIC_H__
+ #define __SOUND_GENERIC_H__
+ 
+ #include "memory.h"
+ 
+diff -U 5 --new-file --recursive src.ori/sndintrf.h src/sndintrf.h
+--- src.ori/sndintrf.h	2006-04-22 15:57:14.000000000 +0200
++++ src/sndintrf.h	2012-10-31 23:59:39.890923423 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __SNDINTRF_H__
+ #define __SNDINTRF_H__
+ 
+ #include "memory.h"
+ #include "mame.h"
 diff -U 5 --new-file --recursive src.ori/sound/sound.mak src/sound/sound.mak
 --- src.ori/sound/sound.mak	2006-04-22 15:57:14.000000000 +0200
 +++ src/sound/sound.mak	2006-06-16 18:45:12.000000000 +0200
@@ -869,6 +1397,70 @@ diff -U 5 --new-file --recursive src.ori/sound/sound.mak src/sound/sound.mak
  
  
  #-------------------------------------------------
+diff -U 5 --new-file --recursive src.ori/sound.h src/sound.h
+--- src.ori/sound.h	2006-03-09 08:00:04.000000000 +0100
++++ src/sound.h	2012-10-31 23:59:41.826015939 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __SOUND_H__
+ #define __SOUND_H__
+ 
+ 
+ /***************************************************************************
+diff -U 5 --new-file --recursive src.ori/state.h src/state.h
+--- src.ori/state.h	2006-04-19 19:54:12.000000000 +0200
++++ src/state.h	2012-10-31 23:59:43.713106165 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __STATE_H__
+ #define __STATE_H__
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/tilemap.h src/tilemap.h
+--- src.ori/tilemap.h	2006-04-26 21:44:02.000000000 +0200
++++ src/tilemap.h	2012-10-31 23:59:45.440188741 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __TILEMAP_H__
+ #define __TILEMAP_H__
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/timer.h src/timer.h
+--- src.ori/timer.h	2006-03-09 08:00:04.000000000 +0100
++++ src/timer.h	2012-10-31 23:59:48.159318754 +0100
+@@ -8,12 +8,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __TIMER_H__
+ #define __TIMER_H__
+ 
+ #include "mamecore.h"
+ 
 diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
 --- src.ori/ui_text.c	2006-04-19 19:54:12.000000000 +0200
 +++ src/ui_text.c	2006-06-16 18:45:12.000000000 +0200
@@ -902,8 +1494,21 @@ diff -U 5 --new-file --recursive src.ori/ui_text.c src/ui_text.c
  
 diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
 --- src.ori/ui_text.h	2006-02-26 21:12:26.000000000 +0100
-+++ src/ui_text.h	2006-06-16 18:45:12.000000000 +0200
-@@ -193,10 +193,14 @@
++++ src/ui_text.h	2012-10-31 23:59:50.018407648 +0100
+@@ -8,12 +8,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __UI_TEXT_H__
+ #define __UI_TEXT_H__
+ 
+ #include "mamecore.h"
+ 
+@@ -193,10 +191,14 @@
  
  	/* refresh rate */
  	UI_refresh_rate,
@@ -918,6 +1523,22 @@ diff -U 5 --new-file --recursive src.ori/ui_text.h src/ui_text.h
  
  #ifdef MESS
  #include "mui_text.h"
+diff -U 5 --new-file --recursive src.ori/unzip.h src/unzip.h
+--- src.ori/unzip.h	2006-02-26 21:12:26.000000000 +0100
++++ src/unzip.h	2012-10-31 23:59:51.936499365 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __UNZIP_H__
+ #define __UNZIP_H__
+ 
+ #include "osdepend.h"
+ 
 diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
 --- src.ori/usrintrf.c	2006-05-04 09:19:00.000000000 +0200
 +++ src/usrintrf.c	2009-01-13 22:57:52.000000000 +0100
@@ -1341,8 +1962,21 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.c src/usrintrf.c
  }
 diff -U 5 --new-file --recursive src.ori/usrintrf.h src/usrintrf.h
 --- src.ori/usrintrf.h	2006-03-22 08:42:18.000000000 +0100
-+++ src/usrintrf.h	2006-06-16 18:54:19.000000000 +0200
-@@ -68,20 +68,10 @@
++++ src/usrintrf.h	2012-10-31 23:59:53.857591229 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __USRINTRF_H__
+ #define __USRINTRF_H__
+ 
+ #include "mamecore.h"
+ 
+@@ -68,20 +66,10 @@
   *
   *************************************/
  
@@ -1365,7 +1999,20 @@ diff -U 5 --new-file --recursive src.ori/usrintrf.h src/usrintrf.h
   *
 diff -U 5 --new-file --recursive src.ori/video.c src/video.c
 --- src.ori/video.c	2006-05-10 21:35:28.000000000 +0200
-+++ src/video.c	2006-06-16 19:04:49.000000000 +0200
++++ src/video.c	2012-10-31 18:19:40.806519835 +0100
+@@ -159,11 +159,11 @@
+ 	if (Machine->drv->video_attributes & VIDEO_TYPE_VECTOR)
+ 		scale_vectorgames(options.vector_width, options.vector_height, &bmwidth, &bmheight);
+ 
+ 	/* now allocate the screen bitmap */
+ 	scrbitmap[0] = auto_bitmap_alloc_depth(bmwidth, bmheight, Machine->color_depth);
+-	if (!scrbitmap)
++	if (!scrbitmap[0])
+ 		return 1;
+ #endif
+ 
+ 	/* set the default refresh rate */
+ 	set_refresh_rate(Machine->drv->frames_per_second);
 @@ -854,10 +854,11 @@
  /*-------------------------------------------------
      save_frame_with - save a frame with a
@@ -1493,6 +2140,38 @@ diff -U 5 --new-file --recursive src.ori/video.c src/video.c
  
  
  /***************************************************************************
+diff -U 5 --new-file --recursive src.ori/video.h src/video.h
+--- src.ori/video.h	2006-02-26 21:12:26.000000000 +0100
++++ src/video.h	2012-10-31 23:59:55.554672383 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __VIDEO_H__
+ #define __VIDEO_H__
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/vidhrdw/generic.h src/vidhrdw/generic.h
+--- src.ori/vidhrdw/generic.h	2006-03-21 12:02:34.000000000 +0100
++++ src/vidhrdw/generic.h	2012-11-01 00:00:38.433723503 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ *********************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __VIDEO_GENERIC_H__
+ #define __VIDEO_GENERIC_H__
+ 
+ #include "mamecore.h"
+ 
 diff -U 5 --new-file --recursive src.ori/x86drc.c src/x86drc.c
 --- src.ori/x86drc.c	2006-05-10 21:35:28.000000000 +0200
 +++ src/x86drc.c	2006-06-16 18:45:12.000000000 +0200
@@ -1520,3 +2199,35 @@ diff -U 5 --new-file --recursive src.ori/x86drc.c src/x86drc.c
  
  /*------------------------------------------------------------------
      log_dispatch
+diff -U 5 --new-file --recursive src.ori/x86drc.h src/x86drc.h
+--- src.ori/x86drc.h	2006-05-10 21:35:28.000000000 +0200
++++ src/x86drc.h	2012-10-31 23:59:58.161797059 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __X86DRC_H__
+ #define __X86DRC_H__
+ 
+ #include "mamecore.h"
+ 
+diff -U 5 --new-file --recursive src.ori/xmlfile.h src/xmlfile.h
+--- src.ori/xmlfile.h	2006-02-22 21:53:42.000000000 +0100
++++ src/xmlfile.h	2012-11-01 00:00:00.129891179 +0100
+@@ -7,12 +7,10 @@
+     Copyright (c) 1996-2006, Nicola Salmoria and the MAME Team.
+     Visit http://mamedev.org for licensing and usage restrictions.
+ 
+ ***************************************************************************/
+ 
+-#pragma once
+-
+ #ifndef __XMLFILE_H__
+ #define __XMLFILE_H__
+ 
+ #include "mamecore.h"
+ #include "fileio.h"

@@ -515,7 +515,7 @@ $(sort $(MENUOBJDIRS)):
 
 $(MENUOBJ)/advmenu$(EXE) : $(sort $(MENUOBJDIRS)) $(MENUOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LDXX) $(MENUOBJS) $(MENULIBS) $(MENULDFLAGS) $(LDFLAGS) -o $@
+	$(LDXX) $(MENUOBJS) $(MENULDFLAGS) $(LDFLAGS) $(MENULIBS) -o $@
 ifeq ($(CONF_DEBUG),yes)
 	$(RM) advmenud$(EXE)
 	$(LN_S) $@ advmenud$(EXE)

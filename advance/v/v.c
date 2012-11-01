@@ -1764,7 +1764,7 @@ int os_main(int argc, char* argv[])
 	adv_bool opt_logsync;
 	int j;
 	adv_error res;
-	char* section_map[1];
+	const char* section_map[1];
 	char buffer[1024];
 
 	opt_rc = 0;

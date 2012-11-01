@@ -272,7 +272,7 @@ ifeq ($(CONF_LIB_PTHREAD),yes)
 CFLAGS += -D_REENTRANT
 ADVANCECFLAGS += -DUSE_SMP
 # pthread-win32 library without exceptions management
-ADVANCELIBS += -lpthreadGC2
+ADVANCELIBS += -lpthread
 ADVANCEOBJS += $(OBJ)/advance/osd/thdouble.o
 else
 ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
@@ -667,7 +667,7 @@ EMUDEFS += $(COREDEFS) $(CPUDEFS) $(SOUNDDEFS) $(ASMDEFS)
 
 $(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(EMUOBJS) $(EMULIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(ADVANCEOBJS) $(EMUOBJS) $(EMULIBS) $(ADVANCELIBS) $(ADVANCELDFLAGS) $(LDFLAGS) -o $@
+	$(LD) $(ADVANCEOBJS) $(EMUOBJS) $(ADVANCELDFLAGS) $(LDFLAGS) $(EMULIBS) $(ADVANCELIBS) -o $@
 ifeq ($(CONF_DEBUG),yes)
 	$(RM) $(EMUNAME)d$(EXE)
 	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)d$(EXE)
@@ -678,7 +678,7 @@ endif
 
 $(OBJ)/chdman$(EXE): $(EMUCHDMANOBJS) $(EMUCHDMANLIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(EMUCHDMANOBJS) $(EMUCHDMANLIBS) $(EMUCHDMANLDFLAGS) $(LDFLAGS) -o $@
+	$(LD) $(EMUCHDMANOBJS) $(EMUCHDMANLDFLAGS) $(LDFLAGS) $(EMUCHDMANLIBS) -o $@
 
 $(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)

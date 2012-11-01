@@ -151,7 +151,7 @@ static int text_default_set(adv_crtc_container* cc, adv_monitor* monitor)
 
 	/* search the best mode in the list */
 	if (cc && monitor && !the_default_mode_flag) {
-		adv_crtc default_crtc;
+		adv_crtc default_crtc = { 0 };
 		for(crtc_container_iterator_begin(&i, cc);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
 			const adv_crtc* crtc = crtc_container_iterator_get(&i);
 			adv_mode mode;
