@@ -1329,9 +1329,12 @@ bool sdlmame::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
+	string home_dir;
 
 #ifdef __WIN32__
 	string ref_dir = exe_dir_get();
+
+	home_dir = ref_dir;
 
 	string config_file = slash_add(ref_dir) + "mame.ini";
 #else
@@ -1340,6 +1343,8 @@ bool sdlmame::load_cfg(const game_set& gar, bool quiet)
 		target_err("Environment variable HOME not set.\n");
 		return false;
 	}
+
+	home_dir = home;
 
 	string ref_dir = slash_add(home) + ".mame";
 
@@ -1364,7 +1369,8 @@ bool sdlmame::load_cfg(const game_set& gar, bool quiet)
 	// Uses list_import_from_dos_forced because also Linux SDL MAME uses ';' as separator dir !
 
 	if (conf_string_section_get(context, "", "rompath", &s)==0) {
-		emu_rom_path = list_abs(list_import_from_dos_forced(list_import(s)), ref_dir);
+		string replace = subs(s, "$HOME", home_dir);
+		emu_rom_path = list_abs(list_import_from_dos_forced(list_import(replace)), ref_dir);
 	} else {
 		emu_rom_path = list_abs(list_import_from_dos_forced(list_import("roms")), ref_dir);
 	}
@@ -1372,7 +1378,8 @@ bool sdlmame::load_cfg(const game_set& gar, bool quiet)
 	emu_software_path = "";
 
 	if (conf_string_section_get(context, "", "snapshot_directory", &s)==0) {
-		emu_snap_path = list_abs(list_import_from_dos_forced(list_import(s)), ref_dir);
+		string replace = subs(s, "$HOME", home_dir);
+		emu_snap_path = list_abs(list_import_from_dos_forced(list_import(replace)), ref_dir);
 	} else {
 		emu_snap_path = list_abs(list_import_from_dos_forced(list_import("snap")), ref_dir);
 	}

@@ -430,7 +430,9 @@ static void sis_300_initializemode(unsigned char *moderegs,
     moderegs[XR(0x20)] |= 0x80; /* Enable linear */
     moderegs[XR(0x20)] |= 0x01; /* Enable MMIO */
 
-    compute_vclk(modetiming->pixelClock, &n, &m, &d, &sb, &sc);
+    if (!compute_vclk(modetiming->pixelClock, &n, &m, &d, &sb, &sc))
+	return;
+
     moderegs[XR(0x2b)] = ((n-1) & 0x7f) | ((d-1)<<7);
     moderegs[XR(0x2c)] = ((m-1) & 0x1f) | (((sc-1)&3)<<5) | (sb ? 0x80:0);
     moderegs[XR(0x2d)] = 0x80;

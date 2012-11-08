@@ -7,7 +7,7 @@ Synopsis
 
 Description
 	AdvanceMENU is a front-end to run the AdvanceMAME, AdvanceMESS,
-	MAME, MESS, xmame, Raine and other emulators.
+	MAME, MESS, Raine and other emulators.
 
 	Simply run it in the same directory of the emulator and press
 	`f1' to get the help screen or `~' for the main menu.
@@ -71,7 +71,7 @@ Options
 
 Emulators
 	The program supports many type of emulators. The emulators
-	AdvanceMAME, AdvanceMESS, MAME, SDLMAME, xmame, DMAME,
+	AdvanceMAME, AdvanceMESS, MAME, SDLMAME, DMAME,
 	DMESS and DRAINE are directly supported and the only thing
 	you should do is to run the AdvanceMENU program in the same
 	directory of the emulator.
@@ -201,23 +201,12 @@ Emulators
 	file in Windows are used to detect the list of the available roms.
 
 	Please note that in Linux and Mac OS X the 'mame.ini' file doesn't
-	support relative paths for roms and other files. Always absolute
-	paths configuring SDL MAME.
+	support relative paths for roms and other files. Always use absolute
+	paths configuring SDL MAME. You can use the "$HOME" variable to
+	refers at the Linux/Mac OS X user home directory.
 
 	The directory specified in `snapshot_directory' is used to detect the
 	list of available snapshots files.
-
-  xmame - xmame
-	For the `xmame' emulator the roms informations are gathered
-	from the file `EMUNAME.xml'. If this file doesn't exist, it's
-	created automatically with emulator `-listxml' command.
-
-	The directories specified in the `rompath' option in the
-	`HOME/.xmame/mamerc' file are used to detect the list of the
-	available roms.
-
-	The directory specified in `screenshotdir' is
-	used to detect the list of available snapshots files.
 
   dmame - DOS MAME
 	For the `dmame' emulator the roms informations are gathered
@@ -1411,5 +1400,5 @@ Signals
 		SIGHUP - Restart the program.
 
 Copyright
-	This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni, Randy Schnedler.
+	This file is Copyright (C) 2003, 2004, 2005, 2012 Andrea Mazzoleni, Randy Schnedler.
 

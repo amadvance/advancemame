@@ -238,7 +238,10 @@ MGACalcClock (long f_out,
 	int feed_div_min, feed_div_max;
 	int in_div_min, in_div_max;
 	int post_div_max;
-	
+
+	*best_m = 0;
+	*best_n = 0;
+
 	switch( id )
 	{
 	case ID_1064:

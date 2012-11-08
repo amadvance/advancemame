@@ -12,7 +12,7 @@ advmenu [\(hydefault] [\(hyremove] [\(hycfg FILE]
 .PD
 .SH DESCRIPTION 
 AdvanceMENU is a front\(hyend to run the AdvanceMAME, AdvanceMESS,
-MAME, MESS, xmame, Raine and other emulators.
+MAME, MESS, Raine and other emulators.
 .PP
 Simply run it in the same directory of the emulator and press
 \(oqf1\(cq to get the help screen or \(oq~\(cq for the main menu.
@@ -85,7 +85,7 @@ In Linux and Mac OS X you can also use \(oq\(hy\(hy\(cq before options instead o
 In DOS and Windows you can also use \(oq/\(cq.
 .SH EMULATORS 
 The program supports many type of emulators. The emulators
-AdvanceMAME, AdvanceMESS, MAME, SDLMAME, xmame, DMAME,
+AdvanceMAME, AdvanceMESS, MAME, SDLMAME, DMAME,
 DMESS and DRAINE are directly supported and the only thing
 you should do is to run the AdvanceMENU program in the same
 directory of the emulator.
@@ -233,22 +233,12 @@ The directories specified in the \(oqrompath\(cq option in the
 file in Windows are used to detect the list of the available roms.
 .PP
 Please note that in Linux and Mac OS X the \(cqmame.ini\(cq file doesn\(cqt
-support relative paths for roms and other files. Always absolute
-paths configuring SDL MAME.
+support relative paths for roms and other files. Always use absolute
+paths configuring SDL MAME. You can use the \(a"$HOME\(a" variable to
+refers at the Linux/Mac OS X user home directory.
 .PP
 The directory specified in \(oqsnapshot_directory\(cq is used to detect the
 list of available snapshots files.
-.SS xmame \(hy xmame 
-For the \(oqxmame\(cq emulator the roms informations are gathered
-from the file \(oqEMUNAME.xml\(cq. If this file doesn\(cqt exist, it\(cqs
-created automatically with emulator \(oq\(hylistxml\(cq command.
-.PP
-The directories specified in the \(oqrompath\(cq option in the
-\(oqHOME/.xmame/mamerc\(cq file are used to detect the list of the
-available roms.
-.PP
-The directory specified in \(oqscreenshotdir\(cq is
-used to detect the list of available snapshots files.
 .SS dmame \(hy DOS MAME 
 For the \(oqdmame\(cq emulator the roms informations are gathered
 from the file \(oqEMUNAME.xml\(cq. If this file doesn\(cqt exist, it\(cqs
@@ -2599,4 +2589,4 @@ Restart the program.
 .PD
 .RE
 .SH COPYRIGHT 
-This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni, Randy Schnedler.
+This file is Copyright (C) 2003, 2004, 2005, 2012 Andrea Mazzoleni, Randy Schnedler.

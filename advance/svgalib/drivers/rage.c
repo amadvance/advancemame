@@ -637,7 +637,7 @@ static int rage_modeavailable(int mode)
 }
 
 
-static unsigned comp_lmn(unsigned clock, int *n, int *mp, int *lp);
+static int comp_lmn(unsigned clock, int *n, int *mp, int *lp);
 static int rage_map_clock(int bpp, int clock);
 static int ClacDSP(int n, int l, int bpp, unsigned int *conf, unsigned int *onoff);
 /* Local, called by rage_setmode(). */
@@ -720,7 +720,8 @@ static void rage_initializemode(unsigned char *moderegs,
 
     ATINewHWPtr->ovr_clr=0;
 
-    comp_lmn(rage_map_clock(modeinfo->bitsPerPixel, modetiming->pixelClock),&n,&m,&l);
+    if (!comp_lmn(rage_map_clock(modeinfo->bitsPerPixel, modetiming->pixelClock),&n,&m,&l))
+       return;
     
     switch(rage_clock) {
        case 5:
@@ -1370,14 +1371,14 @@ static int rage_init(int force, int par1, int par2)
 
 #define WITHIN(v,c1,c2) (((v) >= (c1)) && ((v) <= (c2)))
 
-static unsigned
+static int
 comp_lmn(unsigned clock, int *np, int *mp, int *lp)
 {
   int     n, m, l;
   double  fvco;
   double  fout;
   double  fvco_goal;
-  
+
   for (m = minM; m <= maxM; m++)
   {
     for (l = 0;(l < 8); l++) if(postdiv[l])
@@ -1396,9 +1397,7 @@ comp_lmn(unsigned clock, int *np, int *mp, int *lp)
       }
     }
   }
-fprintf(stderr,"Can't do clock=%i\n",clock);
-fprintf(stderr,"fref=%f, M= in %i - %i, N in %i - %i\n",fref,minM, maxM, minN,maxN);
-{int i; for (i=0;i<8;i++) fprintf(stderr,"%i ",postdiv[i]); fprintf(stderr,"\n");};
+
   return 0;
 }
 
