@@ -582,7 +582,7 @@ bool config_state::load_iterator_import(adv_conf* config_context, const string& 
 		if (!config_split(s, a0, a1, a2, a3))
 			return false;
 
-		if (a0 != "nms" && a0 != "ini" && a0 != "mac") {
+		if (a0 != "nms" && a0 != "ini" && a0 != "mac" && a0 != "catver" && a0 != "catlist") {
 			config_error_oa(tag, a0);
 			return false;
 		}
@@ -1533,7 +1533,7 @@ config_import::config_import(const std::string Atype, const std::string Aemulato
 	: type(Atype), emulator(Aemulator), file(Afile), section(Asection) {
 }
 
-void config_import::import_ini(game_set& gar, config_state& config, void (config_state::*set)(const game&, const std::string&))
+void config_import::import_catver(game_set& gar, config_state& config, void (config_state::*set)(const game&, const std::string&))
 {
 	int j = 0;
 
@@ -1560,6 +1560,37 @@ void config_import::import_ini(game_set& gar, config_state& config, void (config
 				game_set::const_iterator k = gar.find(game(name));
 				if (k!=gar.end()) {
 					(config.*set)(*k, text);
+				}
+			}
+		}
+	}
+}
+
+void config_import::import_catlist(game_set& gar, config_state& config, void (config_state::*set)(const game&, const std::string&))
+{
+	int j = 0;
+
+	string ss = file_read(file);
+	string cat;
+
+	while (j < ss.length()) {
+		string s = token_get(ss, j, "\r\n");
+		token_skip(ss, j, "\r\n");
+
+		int i = 0;
+		token_skip(s, i, " \t");
+
+		if (i<s.length() && s[i]=='[') {
+			token_skip(s, i, "[");
+			cat = token_get(s, i, "]");
+		} else if (cat.length() && i<s.length() && isalnum(s[i])) {
+			string tag = token_get(s, i, " \t");
+			token_skip(s, i, " \t");
+			if (i==s.length() && tag.length() != 0) {
+				string name = emulator + "/" + tag;
+				game_set::const_iterator k = gar.find(game(name));
+				if (k!=gar.end()) {
+					(config.*set)(*k, cat);
 				}
 			}
 		}
@@ -1633,8 +1664,10 @@ void config_import::import_nms(game_set& gar, config_state& config, void (config
 
 void config_import::import(game_set& gar, config_state& config, void (config_state::*set)(const game&, const std::string&))
 {
-	if (type == "ini")
-		import_ini(gar, config, set);
+	if (type == "ini" || type == "catver")
+		import_catver(gar, config, set);
+	else if (type == "catlist")
+		import_catlist(gar, config, set);
 	else if (type == "mac")
 		import_mac(gar, config, set);
 	else if (type == "nms")

@@ -7,6 +7,7 @@ ADVANCEMAME VERSION 0.106.2 2012/11
 ===================================
 
 * Fixed compilation with modern compilers.
+* Changed default doc/man dirs to prefix/doc and prefix/man.
 
 
 ADVANCEMAME VERSION 0.106.1 2008/12

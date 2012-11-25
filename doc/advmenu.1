@@ -2373,26 +2373,26 @@ Selects the automatic import of the groups, types, descriptions
 and extra information from an external file. The extra info are
 additional information displayed for every game.
 .PP
-The file formats supported are CATINI, MacMAME and NMS.
+The file formats supported are CATVER, CATLIST/CAT32, MacMAME and NMS.
 The files are read in the current directory in DOS and Windows
 and in the $home directory in Linux and Mac OS X.
 .PP
 WARNING! These options DON\(cqT OVERRIDE any user explicit
 choices made with the \(oqgame\(cq option.
 .PP
-desc_import (ini | mac | nms) \(a"EMULATOR\(a" \(a"FILE\(a" [\(a"SECTION\(a"]
+desc_import (catver | mac | nms) \(a"EMULATOR\(a" \(a"FILE\(a" [\(a"SECTION\(a"]
 .PD 0
 .PP
 .PD
-info_import (ini | mac | nms) \(a"EMULATOR\(a" \(a"FILE\(a" [\(a"SECTION\(a"]
+info_import (catver | mac | nms) \(a"EMULATOR\(a" \(a"FILE\(a" [\(a"SECTION\(a"]
 .PD 0
 .PP
 .PD
-group_import (ini | mac | nms) \(a"EMULATOR\(a" \(a"FILE\(a" [\(a"SECTION\(a"]
+group_import (catver | mac | nms) \(a"EMULATOR\(a" \(a"FILE\(a" [\(a"SECTION\(a"]
 .PD 0
 .PP
 .PD
-type_import (ini | mac | nms) \(a"EMULATOR\(a" \(a"FILE\(a" [\(a"SECTION\(a"]
+type_import (catver | mac | nms) \(a"EMULATOR\(a" \(a"FILE\(a" [\(a"SECTION\(a"]
 .PD 0
 .PP
 .PD
@@ -2423,8 +2423,12 @@ Options:
 .I none
 Don\(cqt import.
 .HP 4
-.I ini
-Import in CATLIST format.
+.I catver
+Import in the CATVER format. In this format you must
+also specify the section to load.
+.HP 4
+.I catlist
+Import in the CATLIST/CAT32 format.
 .HP 4
 .I mac
 Import in the MacMAME format.
@@ -2447,7 +2451,15 @@ The section name (only for the \(oqini\(cq format).
 Examples:
 .PP
 .RS 4
-group_import ini \(a"advmame\(a" \(a"catver.ini\(a" \(a"Category\(a"
+group_import catver \(a"advmame\(a" \(a"catver.ini\(a" \(a"Category\(a"
+.PD 0
+.PP
+.PD
+info_import catver \(a"advmame\(a" \(a"catver.ini\(a" \(a"VerAdded\(a"
+.PD 0
+.PP
+.PD
+group_import catlist \(a"advmame\(a" \(a"catlist.ini\(a"
 .PD 0
 .PP
 .PD
@@ -2459,16 +2471,12 @@ desc_import nms \(a"raine\(a" \(a"raine.nms\(a"
 .PD 0
 .PP
 .PD
-info_import ini \(a"advmame\(a" \(a"catver.ini\(a" \(a"VerAdded\(a"
-.PD 0
-.PP
-.PD
 .RE
 .PP
-The CATLIST files can be downloaded at:
+The CATVER/CATLIST files can be downloaded at:
 .PP
 .RS 4
-http://www.mameworld.net/catlist/
+http://www.progettoemma.net/?catlist
 .PD 0
 .PP
 .PD

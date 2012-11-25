@@ -3,6 +3,7 @@ Name
 
 AdvanceMAME Version 0.106.2 2012/11
 	) Fixed compilation with modern compilers.
+	) Changed default doc/man dirs to prefix/doc and prefix/man.
 
 AdvanceMAME Version 0.106.1 2008/12
 	) Fixed the black screen bug with paletteized games.

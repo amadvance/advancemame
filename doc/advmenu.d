@@ -1310,17 +1310,17 @@ Configuration
 	and extra information from an external file. The extra info are
 	additional information displayed for every game.
 
-	The file formats supported are CATINI, MacMAME and NMS.
+	The file formats supported are CATVER, CATLIST/CAT32, MacMAME and NMS.
 	The files are read in the current directory in DOS and Windows
 	and in the $home directory in Linux and Mac OS X.
 
 	WARNING! These options DON'T OVERRIDE any user explicit
 	choices made with the `game' option.
 
-	:desc_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-	:info_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-	:group_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-	:type_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+	:desc_import (catver | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+	:info_import (catver | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+	:group_import (catver | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+	:type_import (catver | mac | nms) "EMULATOR" "FILE" ["SECTION"]
 
 	Commands:
 		desc_import - Imports the game names shown in the menu.
@@ -1331,7 +1331,9 @@ Configuration
 
 	Options:
 		none - Don't import.
-		ini - Import in CATLIST format.
+		catver - Import in the CATVER format. In this format you must
+			also specify the section to load.
+		catlist - Import in the CATLIST/CAT32 format.
 		mac - Import in the MacMAME format.
 		nms - Import in the NMS format.
 		EMULATOR - The emulator tag name as specified in
@@ -1340,14 +1342,15 @@ Configuration
 		SECTION - The section name (only for the `ini' format).
 
 	Examples:
-		:group_import ini "advmame" "catver.ini" "Category"
+		:group_import catver "advmame" "catver.ini" "Category"
+		:info_import catver "advmame" "catver.ini" "VerAdded"
+		:group_import catlist "advmame" "catlist.ini"
 		:type_import mac "advmame" "Genre 37b14.txt"
 		:desc_import nms "raine" "raine.nms"
-		:info_import ini "advmame" "catver.ini" "VerAdded"
 
-	The CATLIST files can be downloaded at:
+	The CATVER/CATLIST files can be downloaded at:
 
-		+http://www.mameworld.net/catlist/
+		+http://www.progettoemma.net/?catlist
 
     misc_exit
 	Selects the exit mode.

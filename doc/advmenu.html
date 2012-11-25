@@ -2852,7 +2852,7 @@ Selects the automatic import of the groups, types, descriptions
 and extra information from an external file. The extra info are
 additional information displayed for every game.
 <p>
-The file formats supported are CATINI, MacMAME and NMS.
+The file formats supported are CATVER, CATLIST/CAT32, MacMAME and NMS.
 The files are read in the current directory in DOS and Windows
 and in the $home directory in Linux and Mac OS X.
 <p>
@@ -2860,10 +2860,10 @@ WARNING! These options DON'T OVERRIDE any user explicit
 choices made with the `game' option.
 <p>
 <pre>
-desc_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-info_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-group_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-type_import (ini | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+desc_import (catver | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+info_import (catver | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+group_import (catver | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+type_import (catver | mac | nms) "EMULATOR" "FILE" ["SECTION"]
 </pre>
 <p>
 Commands:
@@ -2899,9 +2899,15 @@ none
 Don't import.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-ini
+catver
 </em></td><td width="90%">
-Import in CATLIST format.
+Import in the CATVER format. In this format you must
+also specify the section to load.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+catlist
+</em></td><td width="90%">
+Import in the CATLIST/CAT32 format.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 mac
@@ -2934,17 +2940,18 @@ The section name (only for the `ini' format).
 Examples:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-group_import ini "advmame" "catver.ini" "Category"
+group_import catver "advmame" "catver.ini" "Category"
+info_import catver "advmame" "catver.ini" "VerAdded"
+group_import catlist "advmame" "catlist.ini"
 type_import mac "advmame" "Genre 37b14.txt"
 desc_import nms "raine" "raine.nms"
-info_import ini "advmame" "catver.ini" "VerAdded"
 </pre>
 </td></tr></table>
 <p>
-The CATLIST files can be downloaded at:
+The CATVER/CATLIST files can be downloaded at:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<a href="http://www.mameworld.net/catlist/">http://www.mameworld.net/catlist/</a>
+<a href="http://www.progettoemma.net/?catlist">http://www.progettoemma.net/?catlist</a>
 <br>
 </td></tr></table>
 <h4><a name="5.7.6">5.7.6</a> 

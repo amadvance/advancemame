@@ -1126,6 +1126,8 @@ AC_SUBST([CONF_LIB_JEVENT],[$ac_lib_jevent])
 
 # Final
 AC_SUBST([CONF_LIB_DIRECT],[$ac_lib_direct_flag])
+AC_SUBST([mandir],['${prefix}/man'])
+AC_SUBST([docdir],['${prefix}/doc'])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 

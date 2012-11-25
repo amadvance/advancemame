@@ -3,7 +3,9 @@ Name
 
 AdvanceMENU Version 2.5.1 2012/11
 	) Support $HOME variable in directories specification for sdlmame.
-	) The new screen saver modes 'shutdown' and 'exit' now work also with lock activated.
+	) The new screen saver modes 'shutdown' and 'exit' works also with lock activated.
+	) Added support for importing CatList files.
+	) Renamed the old "ini" import format to "catver" to avoid confusion with the new "catlist".
 
 AdvanceMENU Version 2.5.0 2008/12
 	) Fixed the recognition of the BIOS roms.
