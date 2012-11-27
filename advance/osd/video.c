@@ -835,6 +835,8 @@ void osd2_video_done(void)
 	mouseb_disable();
 	keyb_disable();
 
+	video_thread_wait(context);
+
 	advance_video_mode_done(context);
 
         /* print the speed measure */

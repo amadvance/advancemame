@@ -8,6 +8,7 @@ AdvanceMAME Version 0.106.2 2012/11
 	) Added a new option display_magnifysize to define the size to target with display_magnify auto.
 	) If display_resizeeffect is auto, the default effect is now 'hq', but it's decreased at runtime
 		to 'lq' or 'scale' if speed is required.
+	) Fixed a crash at exit when SMP is enabled.
 	) Compiled with SDL-1.2.14, zlib-1.2.5, expat-2.0.1, freetype-2.4.4, pthreads-w32-2-8-0.
 
 AdvanceMAME Version 0.106.1 2008/12
