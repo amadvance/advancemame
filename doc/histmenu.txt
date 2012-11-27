@@ -10,6 +10,9 @@ ADVANCEMENU VERSION 2.5.1 2012/11
 * The new screen saver modes 'shutdown' and 'exit' works also with lock activated.
 * Added support for importing CatList files.
 * Renamed the old "ini" import format to "catver" to avoid confusion with the new "catlist".
+* Removed DLL files from the Windows distribution. New new compiler uses static libraries.
+* Removed xmame support.
+* Compiled with SDL-1.2.14, zlib-1.2.5, expat-2.0.1, freetype-2.4.4.
 
 
 ADVANCEMENU VERSION 2.5.0 2008/12

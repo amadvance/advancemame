@@ -712,19 +712,19 @@ void advance_video_update_effect(struct advance_video_context* context)
 	if (context->state.combine == COMBINE_AUTO) {
 		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 2*context->state.game_visible_size_y) {
-			context->state.combine = COMBINE_SCALE;
+			context->state.combine = context->config.combine_max;
 		} else if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 3*context->state.game_visible_size_y) {
-			context->state.combine = COMBINE_SCALE;
+			context->state.combine = context->config.combine_max;
 		} else if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 4*context->state.game_visible_size_y) {
-			context->state.combine = COMBINE_SCALE;
+			context->state.combine = context->config.combine_max;
 		} else if (context->state.mode_visible_size_x == 3*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 3*context->state.game_visible_size_y) {
-			context->state.combine = COMBINE_SCALE;
+			context->state.combine = context->config.combine_max;
 		} else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y == 4*context->state.game_visible_size_y) {
-			context->state.combine = COMBINE_SCALE;
+			context->state.combine = context->config.combine_max;
 		} else if (context->state.mode_visible_size_x >= 3*context->state.game_visible_size_x
 			&& context->state.mode_visible_size_y >= 3*context->state.game_visible_size_y) {
 			context->state.combine = COMBINE_FILTER;

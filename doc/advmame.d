@@ -475,16 +475,6 @@ Other Ports
 	The Arcade/TV support is limited at the mode 640x480 for the
 	ATI boards.
 
-  xmame
-	The xmame port has nearly the same video capabilities of
-	AdvanceMAME. The major drawback is that it requires a manual
-	modeline creation. Instead AdvanceMAME is able to create
-	modelines dynamically.
-
-	AdvanceMAME has also some unique features like `scale',
-	`lq', `hq', `filter' and `rgb' effects, turbo mode,
-	scripts, SMP, 8 bit depth and much more.
-
 Configuration
 	In DOS and Windows the configuration options are read from the
 	files `advmame.rc' and `advmess.rc' in the current
@@ -810,7 +800,7 @@ Configuration
 	:display_color auto | palette8 | bgr8 | bgr15 | bgr16 | bgr32 | yuy2
 
 	Options:
-		auto - Automatically choose the best option.
+		auto - Automatically choose the best option (default).
 		palette8 - Palettized 8 bits mode.
 		bgr8 - RGB 8 bits mode.
 		bgr15 - RGB 15 bits mode.
@@ -838,8 +828,8 @@ Configuration
 			vertical stretch.
 		fractional - Fractional stretch (default).
 
-	The `fractional' option involves a slowdown, so the `mixed' 
-	option is the default. 
+	The `fractional' option involves a slowdown, so use the `mixed'
+	option if you have a really slow machine.
 
 	Examples:
 		:display_resize mixed
@@ -852,12 +842,26 @@ Configuration
 	:display_magnify auto | 1 | 2 | 3 | 4
 
 	Options:
-		auto - Double or triplicate the size if the resulting 
-			video mode width is smaller than 512 pixels.
-		1 - Normal size (default).
+		auto - Double, triplicate or quadruplicate the size until
+			targetting the defined display_magnifysize
+			horizontal size (default).
+		1 - Normal size.
 		2 - Double size.
 		3 - Triple size.
 		4 - Quadruple size.
+
+    display_magnifysize
+	Defines the target area to reach with the auto config of display_magnify.
+	The specified value is the edge of the square area to target.
+	For example, with 512 the game area is expanded up to reach the size
+	of 512*512 pixels.
+
+	:display_magnifysize SIZE
+
+	Options:
+		SIZE - Square root of the area to target. Default 600.
+			The default of 600 typicall uses a magnify
+			factor of 2.
 
     display_scanlines
 	Suggests the use of hardware scanlines when choosing
@@ -2193,7 +2197,7 @@ Configuration
     misc_eventdebug
 	Activates the debug mode for the event/safequit feature. On the top
 	left of the screen the internal state of the event/safequit engine
-	are printed. The first value is the coin state, the second value
+	is printed. The first value is the coin state, the second value
 	is the playing state. If both the values are 1 the exit is permitted
 	without prompting. Other values are the 6 generic events.
 

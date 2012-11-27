@@ -328,6 +328,7 @@ static int score_compare_size(const struct advance_video_context* context, const
 	unsigned av;
 	unsigned bv;
 	adv_bool best_auto;
+	unsigned best_area;
 
 	best_auto = 0;
 
@@ -350,18 +351,19 @@ static int score_compare_size(const struct advance_video_context* context, const
 			best_size_y = context->state.mode_best_size_4y;
 			break;
 		default :
-			if (context->state.mode_best_size_x >= 512 || context->state.mode_best_size_y >= 384) {
-				best_size_x = context->state.mode_best_size_x;
-				best_size_y = context->state.mode_best_size_y;
-			} else if (context->state.mode_best_size_x >= 256 || context->state.mode_best_size_y >= 256) {
-				best_size_x = context->state.mode_best_size_2x;
-				best_size_y = context->state.mode_best_size_2y;
-			} else if (context->state.mode_best_size_x >= 192 || context->state.mode_best_size_y >= 192) {
-				best_size_x = context->state.mode_best_size_3x;
-				best_size_y = context->state.mode_best_size_3y;
-			} else {
+			best_area = context->config.magnify_size * context->config.magnify_size;
+			if (context->state.game_used_size_x * context->state.game_used_size_y * 16 <= best_area) {
 				best_size_x = context->state.mode_best_size_4x;
 				best_size_y = context->state.mode_best_size_4y;
+			} else if (context->state.game_used_size_x * context->state.game_used_size_y * 9 <= best_area) {
+				best_size_x = context->state.mode_best_size_3x;
+				best_size_y = context->state.mode_best_size_3y;
+			} else if (context->state.game_used_size_x * context->state.game_used_size_y * 4 <= best_area) {
+				best_size_x = context->state.mode_best_size_2x;
+				best_size_y = context->state.mode_best_size_2y;
+			} else {
+				best_size_x = context->state.mode_best_size_x;
+				best_size_y = context->state.mode_best_size_y;
 			}
 
 			best_auto = 1;

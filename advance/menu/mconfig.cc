@@ -527,8 +527,6 @@ static bool config_load_iterator_emu(adv_conf* config_context, const string& tag
 			e = new wmame(a0, a2, a3);
 		} else if (a1 == "dmame") {
 			e = new dmame(a0, a2, a3);
-		} else if (a1 == "xmame") {
-			e = new xmame(a0, a2, a3);
 		} else if (a1 == "sdlmame") {
 			e = new sdlmame(a0, a2, a3);
 		} else if (a1 == "dmess") {
@@ -1150,23 +1148,6 @@ void config_state::conf_default(adv_conf* config_context)
 		if (target_search(path, FILE_MAXPATH, "mame") == 0) {
 			target_out("Adding emulator `sdlmame'...\n");
 			conf_set(config_context, "", "emulator", "\"sdlmame\" sdlmame \"mame\" \"\"");
-		}
-		if (target_search(path, FILE_MAXPATH, "xmame") == 0) {
-			target_out("Adding emulator `xmame'...\n");
-			conf_set(config_context, "", "emulator", "\"xmame\" xmame \"xmame\" \"\"");
-		} else {
-			if (target_search(path, FILE_MAXPATH, "xmame.x11") == 0) {
-				target_out("Adding emulator `xmame.x11'...\n");
-				conf_set(config_context, "", "emulator", "\"xmame.x11\" xmame \"xmame.x11\" \"\"");
-			}
-			if (target_search(path, FILE_MAXPATH, "xmame.SDL") == 0) {
-				target_out("Adding emulator `xmame.SDL'...\n");
-				conf_set(config_context, "", "emulator", "\"xmame.SDL\" xmame \"xmame.SDL\" \"\"");
-			}
-			if (target_search(path, FILE_MAXPATH, "xmame.svgalib") == 0) {
-				target_out("Adding emulator `xmame.svgalib'...\n");
-				conf_set(config_context, "", "emulator", "\"xmame.svgalib\" xmame \"xmame.svgalib\" \"\"");
-			}
 		}
 #endif
 	}

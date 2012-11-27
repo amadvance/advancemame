@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-/** Max framskip factor */
+/** Max frameskip factor */
 #define SYNC_MAX 4
 
 /**
@@ -298,6 +298,42 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 		}
 	}
 
+	/* if we are not 100% full speed */
+	if (context->state.skip_level_skip != 0) {
+		/* if we are in normal runtime condition */
+		if (!context->state.fastest_flag
+			&& !context->state.measure_flag
+			&& !context->state.turbo_flag
+			&& !context->state.info_flag
+		) {
+			struct advance_video_config_context config = context->config;
+
+			/* try decreasing the video effects */
+			if (config.combine == COMBINE_AUTO) {
+				switch (config.combine_max) {
+				case COMBINE_SCALE :
+					config.combine_max = COMBINE_NONE;
+					log_std(("advance:skip: decreasing combine to none\n"));
+					break;
+				case COMBINE_LQ :
+					config.combine_max = COMBINE_SCALE;
+					log_std(("advance:skip: decreasing combine to scale\n"));
+					break;
+				case COMBINE_HQ :
+					config.combine_max = COMBINE_LQ;
+					log_std(("advance:skip: decreasing combine to lq\n"));
+					break;
+				}
+			}
+
+			/* if something changed */
+			if (context->config.combine_max != config.combine_max) {
+				/* reconfigure */
+				advance_video_reconfigure(context, &config);
+			}
+		}
+	}
+
 	log_debug(("advance:skip: cycle %d/%d\n", context->state.skip_level_full, context->state.skip_level_skip));
 }
 
@@ -509,7 +545,7 @@ static void video_frame_skip_none(struct advance_video_context* context, struct 
 	context->state.skip_flag = 0;
 	context->state.skip_level_counter = 0;
 
-	/* force a recoputation when needed */
+	/* force a recomputation when needed */
 	context->state.skip_warming_up_flag = 1;
 }
 

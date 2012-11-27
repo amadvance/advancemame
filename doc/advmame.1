@@ -560,15 +560,6 @@ VESA resolutions. Generally they are only 320x200,
 .PP
 The Arcade/TV support is limited at the mode 640x480 for the
 ATI boards.
-.SS xmame 
-The xmame port has nearly the same video capabilities of
-AdvanceMAME. The major drawback is that it requires a manual
-modeline creation. Instead AdvanceMAME is able to create
-modelines dynamically.
-.PP
-AdvanceMAME has also some unique features like \(oqscale\(cq,
-\(oqlq\(cq, \(oqhq\(cq, \(oqfilter\(cq and \(oqrgb\(cq effects, turbo mode,
-scripts, SMP, 8 bit depth and much more.
 .SH CONFIGURATION 
 In DOS and Windows the configuration options are read from the
 files \(oqadvmame.rc\(cq and \(oqadvmess.rc\(cq in the current
@@ -1133,7 +1124,7 @@ Options:
 .PD 0
 .HP 4
 .I auto
-Automatically choose the best option.
+Automatically choose the best option (default).
 .HP 4
 .I palette8
 Palettized 8 bits mode.
@@ -1189,8 +1180,8 @@ Fractional stretch (default).
 .PD
 .RE
 .PP
-The \(oqfractional\(cq option involves a slowdown, so the \(oqmixed\(cq
-option is the default.
+The \(oqfractional\(cq option involves a slowdown, so use the \(oqmixed\(cq
+option if you have a really slow machine.
 .PP
 Examples:
 .PP
@@ -1215,11 +1206,12 @@ Options:
 .PD 0
 .HP 4
 .I auto
-Double or triplicate the size if the resulting
-video mode width is smaller than 512 pixels.
+Double, triplicate or quadruplicate the size until
+targetting the defined display_magnifysize
+horizontal size (default).
 .HP 4
 .I 1
-Normal size (default).
+Normal size.
 .HP 4
 .I 2
 Double size.
@@ -1229,6 +1221,27 @@ Triple size.
 .HP 4
 .I 4
 Quadruple size.
+.PD
+.RE
+.SS display_magnifysize 
+Defines the target area to reach with the auto config of display_magnify.
+The specified value is the edge of the square area to target.
+For example, with 512 the game area is expanded up to reach the size
+of 512*512 pixels.
+.PP
+display_magnifysize SIZE
+.PD 0
+.PP
+.PD
+.PP
+Options:
+.RS 4
+.PD 0
+.HP 4
+.I SIZE
+Square root of the area to target. Default 600.
+The default of 600 typicall uses a magnify
+factor of 2.
 .PD
 .RE
 .SS display_scanlines 
@@ -3688,7 +3701,7 @@ if one or more coins are inserted or if you are playing.
 .SS misc_eventdebug 
 Activates the debug mode for the event/safequit feature. On the top
 left of the screen the internal state of the event/safequit engine
-are printed. The first value is the coin state, the second value
+is printed. The first value is the coin state, the second value
 is the playing state. If both the values are 1 the exit is permitted
 without prompting. Other values are the 6 generic events.
 .PP

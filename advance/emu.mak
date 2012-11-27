@@ -961,11 +961,7 @@ endif
 ifeq ($(CONF_SYSTEM),windows)
 EMU_ROOT_BIN += \
 	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
-	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
-	$(srcdir)/support/sdl.dll \
-	$(srcdir)/support/zlib.dll \
-	$(srcdir)/support/libexpat.dll \
-	$(srcdir)/support/pthreadGC2.dll
+	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe
 ifeq ($(CONF_EMU),mess)
 EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif

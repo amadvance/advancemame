@@ -665,9 +665,6 @@ ifeq ($(CONF_SYSTEM),windows)
 MENU_ROOT_BIN += \
 	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
 	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
-	$(srcdir)/support/sdl.dll \
-	$(srcdir)/support/zlib.dll \
-	$(srcdir)/support/libexpat.dll \
 	$(srcdir)/support/advmenuv.bat \
 	$(srcdir)/support/advmenuc.bat
 endif

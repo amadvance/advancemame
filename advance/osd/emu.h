@@ -668,7 +668,8 @@ struct advance_video_config_context {
 	unsigned blit_orientation; /**< Blit orientation mask. Mask of ORIENTATION_*. */
 	unsigned user_orientation; /**< User orientation mask. Mask of ORIENTATION_*. */
 	unsigned game_orientation; /**< Game orientation mask. Mask of ORIENTATION_*. */
-	int combine; /**< Special combine effect. Mask of COMBINE_*. */
+	int combine; /**< Combine effect. Mask of COMBINE_*. */
+	int combine_max; /**< Maximum combine effect. Always starting with COMBINE_HQ and then decreasing at runtime. */
 	int rgb_effect; /**< Special additional effect. Mask of EFFECT_*. */
 	int interlace_effect; /**< Special additional interlace effect. Mask of EFFECT_*. */
 	double turbo_speed_factor; /**< Speed of the turbo function. Multiplicative factor. */
@@ -677,7 +678,8 @@ struct advance_video_config_context {
 	int fastest_time; /**< Time for turbo at the startup [seconds]. */
 	int measure_time; /**< Time for the speed measure [seconds]. */
 	adv_bool restore_flag; /**< Reset the video mode at the exit [boolean]. */
-	unsigned magnify_factor; /**< Magnify factor requested [1,2,4]. */
+	unsigned magnify_factor; /**< Magnify factor requested [0=auto,1,2,3,4]. */
+	unsigned magnify_size; /**< Magnify target size. */
 	unsigned index; /**< Index mode. */
 	double frameskip_factor; /**< Current frameskip factor. */
 	adv_bool frameskip_auto_flag; /**< boolean. */
