@@ -3,6 +3,13 @@
                          =============================
 
 
+ADVANCEMENU 2.5.1
+=================
+
+This versions is an update for modern OS and compiler,
+but it also fixes some important bugs.
+
+
 ADVANCEMENU 2.4.7
 =================
 

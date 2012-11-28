@@ -2,6 +2,7 @@ Name
 	history - History For AdvanceMENU
 
 AdvanceMENU Version 2.5.1 2012/11
+	) Fixed the "alsa" audio driver in Linux. In modern distributions it was generating no sound.
 	) Support $HOME variable in directories specification for sdlmame.
 	) The new screen saver modes 'shutdown' and 'exit' works also with lock activated.
 	) Added support for importing CatList files.

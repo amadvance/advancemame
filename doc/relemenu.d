@@ -1,6 +1,10 @@
 Name
 	release notes - Release Notes For AdvanceMENU
 
+AdvanceMENU 2.5.1
+	This versions is an update for modern OS and compiler,
+	but it also fixes some important bugs.
+
 AdvanceMENU 2.4.7
 	This version uses for DOS the new SVGALIB 1.9.20 library that
 	adds support for the latest Radeon and nVidia video boards.
