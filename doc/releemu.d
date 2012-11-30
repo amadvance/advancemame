@@ -1,6 +1,12 @@
 Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
+AdvanceMAME 1.2
+	This versions is an update for modern OS and compiler,
+	but it also fixes some important bugs.
+	Note that despite the version number change, it's still
+	based on MAME 0.106.
+
 AdvanceMAME 0.100.0
 	This version has some internal changes to adapt to the
 	recent internal MAME changes. Please report any regression

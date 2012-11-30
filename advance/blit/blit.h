@@ -40,7 +40,6 @@
 
 #include "video.h"
 #include "slice.h"
-#include "segment.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -228,9 +227,6 @@ struct __attribute__((aligned(8))) video_stage_horz_struct {
 #define VIDEO_COMBINE_X_MEAN 0x40000 /**< Horizontal stretch using the mean effect */
 #define VIDEO_COMBINE_INTERLACE_FILTER 0x80000 /**< Vertical filter for interlace. */
 #define VIDEO_COMBINE_BUFFER 0x100000 /**< Output to a memory buffer. */
-
-#define VIDEO_COMBINE_CACHE_NONE 0x0000000 /**< One segment per line. */
-#define VIDEO_COMBINE_CACHE_SPLIT 0x1000000 /**< Line splitting in segments. */
 
 /*@}*/
 

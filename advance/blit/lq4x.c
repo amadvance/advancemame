@@ -41,7 +41,7 @@
  * This effect is derived from the hq4x effect made by Maxim Stepin
  */
 
-void lq4x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, interp_uint16* restrict dst2, interp_uint16* restrict dst3, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, unsigned count, unsigned flag)
+void lq4x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, interp_uint16* restrict dst2, interp_uint16* restrict dst3, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, unsigned count)
 {
 	unsigned i;
 
@@ -54,7 +54,7 @@ void lq4x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, int
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0 || (flag & SEGMENT_FLAG_FIRST) == 0) {
+		if (i>0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -64,7 +64,7 @@ void lq4x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, int
 			c[6] = c[7];
 		}
 
-		if (i<count-1 || (flag & SEGMENT_FLAG_LAST) == 0) {
+		if (i<count-1) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -125,7 +125,7 @@ void lq4x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, int
 	}
 }
 
-void lq4x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, interp_uint32* restrict dst3, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count, unsigned flag)
+void lq4x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, interp_uint32* restrict dst3, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
 {
 	unsigned i;
 
@@ -138,7 +138,7 @@ void lq4x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, int
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0 || (flag & SEGMENT_FLAG_FIRST) == 0) {
+		if (i>0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -148,7 +148,7 @@ void lq4x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, int
 			c[6] = c[7];
 		}
 
-		if (i<count-1 || (flag & SEGMENT_FLAG_LAST) == 0) {
+		if (i<count-1) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -209,7 +209,7 @@ void lq4x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, int
 	}
 }
 
-void lq4x_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, interp_uint32* restrict dst3, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count, unsigned flag)
+void lq4x_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, interp_uint32* restrict dst3, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
 {
 	unsigned i;
 
@@ -222,7 +222,7 @@ void lq4x_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, i
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0 || (flag & SEGMENT_FLAG_FIRST) == 0) {
+		if (i>0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -232,7 +232,7 @@ void lq4x_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, i
 			c[6] = c[7];
 		}
 
-		if (i<count-1 || (flag & SEGMENT_FLAG_LAST) == 0) {
+		if (i<count-1) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];

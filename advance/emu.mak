@@ -452,7 +452,6 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/blit/interp.o \
 	$(OBJ)/advance/blit/clear.o \
 	$(OBJ)/advance/blit/slice.o \
-	$(OBJ)/advance/blit/segment.o \
 	$(OBJ)/advance/lib/portable.o \
 	$(OBJ)/advance/lib/snstring.o \
 	$(OBJ)/advance/lib/log.o \

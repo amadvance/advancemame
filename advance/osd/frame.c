@@ -1637,11 +1637,9 @@ static void video_buffer_clear(struct advance_video_context* context)
 static unsigned pipeline_combine(unsigned p)
 {
 	if (p == 0)
-		return VIDEO_COMBINE_BUFFER | VIDEO_COMBINE_CACHE_NONE;
-	else if (p == 1)
-		return VIDEO_COMBINE_CACHE_NONE;
+		return VIDEO_COMBINE_BUFFER;
 	else
-		return VIDEO_COMBINE_CACHE_SPLIT;
+		return 0;
 }
 
 static void video_recompute_pipeline(struct advance_video_context* context, const struct osd_bitmap* bitmap)

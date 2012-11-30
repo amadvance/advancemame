@@ -711,7 +711,7 @@ struct advance_video_config_context {
 #define AUDIOVIDEO_MEASURE_MAX 17
 
 #define PIPELINE_MEASURE_MAX 13
-#define PIPELINE_BLIT_MAX 3
+#define PIPELINE_BLIT_MAX 2 /**< Number of pipelines to create. 0 for buffered, 1 for direct write. */
 
 /** State for the video part. */
 struct advance_video_state_context {

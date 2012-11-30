@@ -3,6 +3,15 @@
                        ==================================
 
 
+ADVANCEMAME 1.2
+===============
+
+This versions is an update for modern OS and compiler,
+but it also fixes some important bugs.
+Note that despite the version number change, it's still
+based on MAME 0.106.
+
+
 ADVANCEMAME 0.100.0
 ===================
 

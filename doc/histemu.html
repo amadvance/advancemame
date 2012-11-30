@@ -5,27 +5,33 @@
 <body>
 <center><h2>History For AdvanceMAME/MESS</h2></center>
 <h2> 
-AdvanceMAME Version 0.106.2 2012/11
+AdvanceMAME Version 1.2 2012/11
 </h2>
 <ul>
 <li>
 Fixed compilation with modern compilers.
 </li>
 <li>
-Changed default doc/man dirs to prefix/doc and prefix/man.
+Fixed the "alsa" audio driver in Linux. In modern distributions it was generating no sound.
 </li>
 <li>
-Removed DLL files from the Windows distribution. New new compiler uses static libraries.
+Fixed a crash at exit when SMP is enabled.
 </li>
 <li>
-Added a new option display_magnifysize to define the size to target with display_magnify auto.
+Added a new option display_magnifysize to define the area to target with display_magnify auto.
 </li>
 <li>
 If display_resizeeffect is auto, the default effect is now 'hq', but it's decreased at runtime
 to 'lq' or 'scale' if speed is required.
 </li>
 <li>
-Fixed a crash at exit when SMP is enabled.
+Removed blitting cache optimization. With modern caches it's not needed anymore.
+</li>
+<li>
+Changed default doc/man dirs to prefix/doc and prefix/man.
+</li>
+<li>
+Removed DLL files from the Windows distribution. New new compiler uses static libraries.
 </li>
 <li>
 Compiled with SDL-1.2.14, zlib-1.2.5, expat-2.0.1, freetype-2.4.4, pthreads-w32-2-8-0.
