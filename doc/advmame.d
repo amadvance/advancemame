@@ -27,7 +27,7 @@ Description
 	* Software video image stretching by fractional factors, for
 		example to play vertical games like "Pac-Man" with
 		horizontal Arcade Monitors or TVs.
-	* Special `scale', `lq' and `hq' effects to improve the aspect
+	* Special `scale', `lq', `hq', and `xbr' effects to improve the aspect
 		with modern PC Monitors.
 	* Special `blit' effects to improve the image quality in
 		stretching.
@@ -204,7 +204,7 @@ Features
 	the image quality when it's stretched.
 
 	There are a lot of video effects: `none', `max', `mean',
-	`filter', `scale', `lq' and `hq'.
+	`filter', `scale', `lq', `hq' and `xbr'.
 	You can select the favorite effect with the `display_resizeeffect'
 	option.
 
@@ -220,13 +220,13 @@ Features
 	results are when the image is stretched almost by a double
 	factor. When the image is enlarged the filter is applied after
 	stretching; when reduced, it's applied before.
-	The `scale', `lq' and `hq' effects add missing pixels
+	The `scale', `lq', `hq' and `xbr' effects add missing pixels
 	trying to match the image patterns.
 
 	The `mean' and `filter' effects work only in RGB video
 	modes (not palettized).
 
-	The `scale', `lq' and `hq' effects work only if the image is
+	The `scale', `lq', `hq' and `xbr' effects work only if the image is
 	magnified. To enable it you should also use the `magnify' option.
 
   RGB Effects
@@ -836,7 +836,7 @@ Configuration
 
     display_magnify
 	Suggests the use of a double or bigger resolution video mode.
-	It is mainly used to enable the `scale', `lq' and `hq'
+	It is mainly used to enable the `scale', `lq', `hq' and `xbr'
 	effects. This option doesn't have any effect for vector games.
 
 	:display_magnify auto | 1 | 2 | 3 | 4
@@ -999,7 +999,7 @@ Configuration
 	transformation applied.
 
 	:display_resizeeffect auto | none | max | mean | filter
-	:	| scale | lq | hq
+	:	| scale | lq | hq | xbr
 
 	Options:
 		auto - Selects automatically the best effect (default).
@@ -1040,14 +1040,17 @@ Configuration
 			original bitmap pattern. It uses a deeper analysis
 			than `scale'. It interpolates pixels and it
 			compares colors for equality.
-			It works only for expansion factor of 2, 3 and 4,
-			and only in rgb modes at 15, 16 and 32 bits per pixel.
+			It works only for expansion factor of 2, 3 and 4.
 		hq - It adds the missing pixels matching the
 			original bitmap pattern. It uses a deeper analysis
 			than `scale'. It interpolates pixels and it
 			compares colors for distance.
-			It works only for expansion factor of 2, 3 and 4,
-			and only in rgb modes at 15, 16 and 32 bits per pixel.
+			It works only for expansion factor of 2, 3 and 4.
+		xbr - It adds the missing pixels matching the
+			original bitmap pattern. It uses a deeper analysis
+			than `hq'. It interpolates pixels and it
+			compares colors for distance.
+			It works only for expansion factor of 2, 3 and 4.
 
     display_rgbeffect
 	Selects a special effect to simulate the aspect of an Arcade Monitor 
@@ -2106,7 +2109,7 @@ Configuration
 	second thread. This behavior requires a complete bitmap redraw
 	by MAME for the games that don't already do it.
 	Generally you get a big speed improvement only if you are using
-	a heavy video effect like `hq'.
+	a heavy video effect like `hq' and `xbr'.
 
 	:misc_smp yes | no
 

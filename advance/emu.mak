@@ -447,6 +447,9 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/blit/hq2x4.o \
 	$(OBJ)/advance/blit/hq3x.o \
 	$(OBJ)/advance/blit/hq4x.o \
+	$(OBJ)/advance/blit/xbr2x.o \
+	$(OBJ)/advance/blit/xbr3x.o \
+	$(OBJ)/advance/blit/xbr4x.o \
 	$(OBJ)/advance/blit/scale2x.o \
 	$(OBJ)/advance/blit/scale3x.o \
 	$(OBJ)/advance/blit/interp.o \

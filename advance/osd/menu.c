@@ -356,6 +356,7 @@ int osd2_video_menu(int selected, unsigned input)
 	case COMBINE_SCALE : text = "Resize Effect [scale]"; break;
 	case COMBINE_LQ : text = "Resize Effect [lq]"; break;
 	case COMBINE_HQ : text = "Resize Effect [hq]"; break;
+	case COMBINE_XBR : text = "Resize Effect [xbr]"; break;
 	}
 	switch (video_context->config.combine) {
 	case COMBINE_AUTO : option = "auto"; break;
@@ -366,6 +367,7 @@ int osd2_video_menu(int selected, unsigned input)
 	case COMBINE_SCALE : option = "scale"; break;
 	case COMBINE_LQ : option = "lq"; break;
 	case COMBINE_HQ : option = "hq"; break;
+	case COMBINE_XBR : option = "xbr"; break;
 	}
 	combine_index = advance_ui_menu_option_insert(&menu, text, option);
 
@@ -490,7 +492,8 @@ int osd2_video_menu(int selected, unsigned input)
 			case COMBINE_FILTER : config.combine = COMBINE_SCALE; break;
 			case COMBINE_SCALE : config.combine = COMBINE_LQ; break;
 			case COMBINE_LQ : config.combine = COMBINE_HQ; break;
-			case COMBINE_HQ : config.combine = COMBINE_AUTO; break;
+			case COMBINE_HQ : config.combine = COMBINE_XBR; break;
+			case COMBINE_XBR : config.combine = COMBINE_AUTO; break;
 			}
 			advance_video_reconfigure(video_context, &config);
 		} else if (selected == effect_index) {
@@ -558,7 +561,7 @@ int osd2_video_menu(int selected, unsigned input)
 		if (selected == combine_index) {
 			struct advance_video_config_context config = video_context->config;
 			switch (config.combine) {
-			case COMBINE_AUTO : config.combine = COMBINE_HQ; break;
+			case COMBINE_AUTO : config.combine = COMBINE_XBR; break;
 			case COMBINE_NONE : config.combine = COMBINE_AUTO; break;
 			case COMBINE_MAXMIN : config.combine = COMBINE_NONE; break;
 			case COMBINE_MEAN : config.combine = COMBINE_MAXMIN; break;
@@ -566,6 +569,7 @@ int osd2_video_menu(int selected, unsigned input)
 			case COMBINE_SCALE : config.combine = COMBINE_FILTER; break;
 			case COMBINE_LQ : config.combine = COMBINE_SCALE; break;
 			case COMBINE_HQ : config.combine = COMBINE_LQ; break;
+			case COMBINE_XBR : config.combine = COMBINE_HQ; break;
 			}
 			advance_video_reconfigure(video_context, &config);
 		} else if (selected == effect_index) {

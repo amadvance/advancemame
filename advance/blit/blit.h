@@ -127,7 +127,10 @@ enum video_stage_enum {
 	pipe_y_hq2x3, /**< HQ2x3 */
 	pipe_y_hq2x4, /**< HQ2x4 */
 	pipe_y_hq3x, /**< HQ3x */
-	pipe_y_hq4x /**< HQ4x */
+	pipe_y_hq4x, /**< HQ4x */
+	pipe_y_xbr2x, /**< XBR2x */
+	pipe_y_xbr3x, /**< XBR3x */
+	pipe_y_xbr4x /**< XBR4x */
 };
 
 /**
@@ -203,6 +206,7 @@ struct __attribute__((aligned(8))) video_stage_horz_struct {
 #define VIDEO_COMBINE_Y_LQ 0x5 /**< LQ. */
 #ifndef USE_BLIT_SMALL
 #define VIDEO_COMBINE_Y_HQ 0x6 /**< HQ. */
+#define VIDEO_COMBINE_Y_XBR 0x7 /**< XBR. */
 #endif
 #endif
 #define VIDEO_COMBINE_Y_MASK 0xF /**< Mask for the Y effect. */

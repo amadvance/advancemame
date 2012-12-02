@@ -57,17 +57,9 @@ unsigned interp_highnot_mask;
 int interp_16_diff(interp_uint16 p1, interp_uint16 p2)
 {
 	int r, g, b;
-	int y, u, v;
+	int y4, u4, v8;
 	int i1, i2;
 
-#if 0 /* OSDEF Reference code */
-	if ((p1 & interp_near_mask) == (p2 & interp_near_mask))
-		return 0;
-
-	b = rgb_shift_sign((p1 & interp_blue_mask) - (p2 & interp_blue_mask), interp_blue_shift);
-	g = rgb_shift_sign((p1 & interp_green_mask) - (p2 & interp_green_mask), interp_green_shift);
-	r = rgb_shift_sign((p1 & interp_red_mask) - (p2 & interp_red_mask), interp_red_shift);
-#else
 	/* assume standard rgb formats */
 	if (p1 == p2)
 		return 0;
@@ -84,21 +76,19 @@ int interp_16_diff(interp_uint16 p1, interp_uint16 p2)
 		g = ((i1 & 0x3E0) - (i2 & 0x3E0)) >> 2;
 		r = ((i1 & 0x7C00) - (i2 & 0x7C00)) >> 7;
 	}
-#endif
 
-	y = r + g + b;
+	/* not exact, but fast */
+	y4 = r + g + b;
+	u4 = r - b;
+	v8 = -r + 2*g - b;
 
-	if (y < -INTERP_Y_LIMIT_S2 || y > INTERP_Y_LIMIT_S2)
+	if (y4 < -INTERP_Y_LIMIT_S2 || y4 > INTERP_Y_LIMIT_S2)
 		return 1;
 
-	u = r - b;
-
-	if (u < -INTERP_U_LIMIT_S2 || u > INTERP_U_LIMIT_S2)
+	if (u4 < -INTERP_U_LIMIT_S2 || u4 > INTERP_U_LIMIT_S2)
 		return 1;
 
-	v = -r + 2*g - b;
-
-	if (v < -INTERP_V_LIMIT_S3 || v > INTERP_V_LIMIT_S3)
+	if (v8 < -INTERP_V_LIMIT_S3 || v8 > INTERP_V_LIMIT_S3)
 		return 1;
 
 	return 0;
@@ -110,14 +100,6 @@ int interp_32_diff(interp_uint32 p1, interp_uint32 p2)
 	int y, u, v;
 	int i1, i2;
 
-#if 0 /* OSDEF Reference code */
-	if ((p1 & interp_near_mask) == (p2 & interp_near_mask))
-		return 0;
-
-	b = rgb_shift_sign((p1 & interp_blue_mask) - (p2 & interp_blue_mask), interp_blue_shift);
-	g = rgb_shift_sign((p1 & interp_green_mask) - (p2 & interp_green_mask), interp_green_shift);
-	r = rgb_shift_sign((p1 & interp_red_mask) - (p2 & interp_red_mask), interp_red_shift);
-#else
 	/* assume standard rgb formats */
 	if ((p1 & 0xF8F8F8) == (p2 & 0xF8F8F8))
 		return 0;
@@ -128,19 +110,17 @@ int interp_32_diff(interp_uint32 p1, interp_uint32 p2)
 	b = ((i1 & 0xFF) - (i2 & 0xFF));
 	g = ((i1 & 0xFF00) - (i2 & 0xFF00)) >> 8;
 	r = ((i1 & 0xFF0000) - (i2 & 0xFF0000)) >> 16;
-#endif
 
+	/* not exact, but fast */
 	y = r + g + b;
+	u = r - b;
+	v = -r + 2*g - b;
 
 	if (y < -INTERP_Y_LIMIT_S2 || y > INTERP_Y_LIMIT_S2)
 		return 1;
 
-	u = r - b;
-
 	if (u < -INTERP_U_LIMIT_S2 || u > INTERP_U_LIMIT_S2)
 		return 1;
-
-	v = -r + 2*g - b;
 
 	if (v < -INTERP_V_LIMIT_S3 || v > INTERP_V_LIMIT_S3)
 		return 1;
@@ -160,21 +140,91 @@ int interp_yuy2_diff(interp_uint32 p1, interp_uint32 p2)
 	i2 = p2;
 
 	y = (i1 & 0xFF) - (i2 & 0xFF);
+	u = (i1 & 0xFF00) - (i2 & 0xFF00);
+	v = (i1 & 0xFF000000) - (i2 & 0xFF000000);
 
 	if (y < -INTERP_Y_LIMIT || y > INTERP_Y_LIMIT)
 		return 1;
 
-	u = (i1 & 0xFF00) - (i2 & 0xFF00);
-
 	if (u < -INTERP_U_LIMIT_S8 || u > INTERP_U_LIMIT_S8)
 		return 1;
-
-	v = (i1 & 0xFF000000) - (i2 & 0xFF000000);
 
 	if (v < -INTERP_V_LIMIT_S24 || v > INTERP_V_LIMIT_S24)
 		return 1;
 
 	return 0;
+}
+
+int interp_16_dist(interp_uint16 p1, interp_uint16 p2)
+{
+	int r, g, b;
+	int y4, u4, v8;
+	int i1, i2;
+
+	/* assume standard rgb formats */
+	if (p1 == p2)
+		return 0;
+
+	i1 = p1;
+	i2 = p2;
+
+	if (interp_green_mask == 0x7E0) {
+		b = ((i1 & 0x1F) - (i2 & 0x1F)) << 3;
+		g = ((i1 & 0x7E0) - (i2 & 0x7E0)) >> 3;
+		r = ((i1 & 0xF800) - (i2 & 0xF800)) >> 8;
+	} else {
+		b = ((i1 & 0x1F) - (i2 & 0x1F)) << 3;
+		g = ((i1 & 0x3E0) - (i2 & 0x3E0)) >> 2;
+		r = ((i1 & 0x7C00) - (i2 & 0x7C00)) >> 7;
+	}
+
+	if (b<0) b = -b;
+	if (g<0) g = -g;
+	if (r<0) r = -r;
+
+	return 3*r + 4*g + 2*b;
+}
+
+int interp_32_dist(interp_uint32 p1, interp_uint32 p2)
+{
+	int r, g, b;
+	int y, u, v;
+	int i1, i2;
+
+	/* assume standard rgb formats */
+	if ((p1 & 0xF8F8F8) == (p2 & 0xF8F8F8))
+		return 0;
+
+	i1 = p1;
+	i2 = p2;
+
+	b = ((i1 & 0xFF) - (i2 & 0xFF));
+	g = ((i1 & 0xFF00) - (i2 & 0xFF00)) >> 8;
+	r = ((i1 & 0xFF0000) - (i2 & 0xFF0000)) >> 16;
+
+	if (b<0) b = -b;
+	if (g<0) g = -g;
+	if (r<0) r = -r;
+
+	return 3*r + 4*g + 2*b;
+}
+
+int interp_yuy2_dist(interp_uint32 p1, interp_uint32 p2)
+{
+	int y;
+	int i1, i2;
+
+	if (p1 == p2)
+		return 0;
+
+	i1 = p1;
+	i2 = p2;
+
+	y = ((i1 & 0xFF) - (i2 & 0xFF));
+
+	if (y<0) y = -y;
+
+	return y;
 }
 
 void interp_set(unsigned color_def)

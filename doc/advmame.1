@@ -50,7 +50,7 @@ Software video image stretching by fractional factors, for
 example to play vertical games like \(a"Pac\(hyMan\(a" with
 horizontal Arcade Monitors or TVs.
 .IP \(bu
-Special \(oqscale\(cq, \(oqlq\(cq and \(oqhq\(cq effects to improve the aspect
+Special \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq, and \(oqxbr\(cq effects to improve the aspect
 with modern PC Monitors.
 .IP \(bu
 Special \(oqblit\(cq effects to improve the image quality in
@@ -314,7 +314,7 @@ AdvanceMAME supports many special video effects to improve
 the image quality when it\(cqs stretched.
 .PP
 There are a lot of video effects: \(oqnone\(cq, \(oqmax\(cq, \(oqmean\(cq,
-\(oqfilter\(cq, \(oqscale\(cq, \(oqlq\(cq and \(oqhq\(cq.
+\(oqfilter\(cq, \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq.
 You can select the favorite effect with the \(oqdisplay_resizeeffect\(cq
 option.
 .PP
@@ -330,13 +330,13 @@ mean color in the horizontal and vertical directions. The best
 results are when the image is stretched almost by a double
 factor. When the image is enlarged the filter is applied after
 stretching; when reduced, it\(cqs applied before.
-The \(oqscale\(cq, \(oqlq\(cq and \(oqhq\(cq effects add missing pixels
+The \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq effects add missing pixels
 trying to match the image patterns.
 .PP
 The \(oqmean\(cq and \(oqfilter\(cq effects work only in RGB video
 modes (not palettized).
 .PP
-The \(oqscale\(cq, \(oqlq\(cq and \(oqhq\(cq effects work only if the image is
+The \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq effects work only if the image is
 magnified. To enable it you should also use the \(oqmagnify\(cq option.
 .SS RGB Effects 
 AdvanceMAME supports also some special video effects to simulate
@@ -1193,7 +1193,7 @@ display_resize mixed
 .RE
 .SS display_magnify 
 Suggests the use of a double or bigger resolution video mode.
-It is mainly used to enable the \(oqscale\(cq, \(oqlq\(cq and \(oqhq\(cq
+It is mainly used to enable the \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq
 effects. This option doesn\(cqt have any effect for vector games.
 .PP
 display_magnify auto | 1 | 2 | 3 | 4
@@ -1505,7 +1505,7 @@ display_resizeeffect auto | none | max | mean | filter
 .PD 0
 .PP
 .PD
-	| scale | lq | hq
+	| scale | lq | hq | xbr
 .PD 0
 .PP
 .PD
@@ -1565,16 +1565,21 @@ It adds the missing pixels matching the
 original bitmap pattern. It uses a deeper analysis
 than \(oqscale\(cq. It interpolates pixels and it
 compares colors for equality.
-It works only for expansion factor of 2, 3 and 4,
-and only in rgb modes at 15, 16 and 32 bits per pixel.
+It works only for expansion factor of 2, 3 and 4.
 .HP 4
 .I hq
 It adds the missing pixels matching the
 original bitmap pattern. It uses a deeper analysis
 than \(oqscale\(cq. It interpolates pixels and it
 compares colors for distance.
-It works only for expansion factor of 2, 3 and 4,
-and only in rgb modes at 15, 16 and 32 bits per pixel.
+It works only for expansion factor of 2, 3 and 4.
+.HP 4
+.I xbr
+It adds the missing pixels matching the
+original bitmap pattern. It uses a deeper analysis
+than \(oqhq\(cq. It interpolates pixels and it
+compares colors for distance.
+It works only for expansion factor of 2, 3 and 4.
 .PD
 .RE
 .SS display_rgbeffect 
@@ -3537,7 +3542,7 @@ The final blit stage in video memory is completely done by the
 second thread. This behavior requires a complete bitmap redraw
 by MAME for the games that don\(cqt already do it.
 Generally you get a big speed improvement only if you are using
-a heavy video effect like \(oqhq\(cq.
+a heavy video effect like \(oqhq\(cq and \(oqxbr\(cq.
 .PP
 misc_smp yes | no
 .PD 0

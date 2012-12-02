@@ -313,15 +313,19 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 				switch (config.combine_max) {
 				case COMBINE_SCALE :
 					config.combine_max = COMBINE_NONE;
-					log_std(("advance:skip: decreasing combine to none\n"));
+					log_std(("advance:skip: decreasing combine from scale to none\n"));
 					break;
 				case COMBINE_LQ :
 					config.combine_max = COMBINE_SCALE;
-					log_std(("advance:skip: decreasing combine to scale\n"));
+					log_std(("advance:skip: decreasing combine from lq to scale\n"));
 					break;
 				case COMBINE_HQ :
 					config.combine_max = COMBINE_LQ;
-					log_std(("advance:skip: decreasing combine to lq\n"));
+					log_std(("advance:skip: decreasing combine from hq to lq\n"));
+					break;
+				case COMBINE_XBR :
+					config.combine_max = COMBINE_HQ;
+					log_std(("advance:skip: decreasing combine from xbr to hq\n"));
 					break;
 				}
 			}

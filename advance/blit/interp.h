@@ -464,9 +464,23 @@ INTERP_YUY2_GEN3(14, 1, 1)
 INTERP_YUY2_GEN2(15, 1)
 INTERP_YUY2_GEN2(9, 7)
 
+/**
+ * Compares two pixels and return if different.
+ * Used by HQ/LQ algorithm.
+ */
 int interp_16_diff(interp_uint16 p1, interp_uint16 p2);
 int interp_32_diff(interp_uint32 p1, interp_uint32 p2);
 int interp_yuy2_diff(interp_uint32 p1, interp_uint32 p2);
+
+/**
+ * Computes the distance between two pixels.
+ * Used by XBR algorithm.
+ * This is a very rought approximation taking into account only the luminosity.
+ * See: http://www.compuphase.com/cmetric.htm
+ */
+int interp_16_dist(interp_uint16 p1, interp_uint16 p2);
+int interp_32_dist(interp_uint32 p1, interp_uint32 p2);
+int interp_yuy2_dist(interp_uint32 p1, interp_uint32 p2);
 
 void interp_set(unsigned color_def);
 

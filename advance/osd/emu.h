@@ -614,6 +614,7 @@ void advance_sound_config_save(struct advance_sound_context* context, const char
 #define COMBINE_SCALE 6
 #define COMBINE_LQ 7
 #define COMBINE_HQ 8
+#define COMBINE_XBR 9
 /*@}*/
 
 /** Special additional effect (enumeration). */
@@ -669,7 +670,7 @@ struct advance_video_config_context {
 	unsigned user_orientation; /**< User orientation mask. Mask of ORIENTATION_*. */
 	unsigned game_orientation; /**< Game orientation mask. Mask of ORIENTATION_*. */
 	int combine; /**< Combine effect. Mask of COMBINE_*. */
-	int combine_max; /**< Maximum combine effect. Always starting with COMBINE_HQ and then decreasing at runtime. */
+	int combine_max; /**< Maximum combine effect. Always starting with COMBINE_XBR and then decreasing at runtime. */
 	int rgb_effect; /**< Special additional effect. Mask of EFFECT_*. */
 	int interlace_effect; /**< Special additional interlace effect. Mask of EFFECT_*. */
 	double turbo_speed_factor; /**< Speed of the turbo function. Multiplicative factor. */

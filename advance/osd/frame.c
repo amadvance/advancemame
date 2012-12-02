@@ -776,6 +776,15 @@ void advance_video_update_effect(struct advance_video_context* context)
 		context->state.combine = COMBINE_NONE;
 	}
 
+	if ((context->state.combine == COMBINE_XBR)
+		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 2*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
+	) {
+		log_std(("emu:video: resizeeffect=xbr disabled because the wrong mode size\n"));
+		context->state.combine = COMBINE_NONE;
+	}
+
 	/* max only in not integer change */
 	if (context->state.combine == COMBINE_MAXMIN
 		&& context->state.mode_visible_size_y % context->state.game_visible_size_y == 0
@@ -1802,13 +1811,14 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 	case COMBINE_LQ :
 		combine |= VIDEO_COMBINE_Y_LQ;
 		break;
-	case COMBINE_HQ :
 #ifndef USE_BLIT_SMALL
+	case COMBINE_HQ :
 		combine |= VIDEO_COMBINE_Y_HQ;
-#else
-		combine |= VIDEO_COMBINE_Y_NONE;
-#endif
 		break;
+	case COMBINE_XBR :
+		combine |= VIDEO_COMBINE_Y_XBR;
+		break;
+#endif
 	default:
 		combine |= VIDEO_COMBINE_Y_NONE;
 		break;

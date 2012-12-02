@@ -1188,7 +1188,8 @@ static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 { "filter", COMBINE_FILTER },
 { "scale", COMBINE_SCALE },
 { "lq", COMBINE_LQ },
-{ "hq", COMBINE_HQ }
+{ "hq", COMBINE_HQ },
+{ "xbr", COMBINE_XBR }
 };
 
 static adv_conf_enum_int OPTION_ADJUST[] = {
@@ -1424,7 +1425,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	log_std(("emu:video: orientation ui   %04x\n", option->ui_orientation));
 
 	context->config.combine = conf_int_get_default(cfg_context, "display_resizeeffect");
-	context->config.combine_max = COMBINE_HQ;
+	context->config.combine_max = COMBINE_XBR;
 	context->config.rgb_effect = conf_int_get_default(cfg_context, "display_rgbeffect");
 	context->config.interlace_effect = conf_int_get_default(cfg_context, "display_interlaceeffect");
 	context->config.turbo_speed_factor = conf_float_get_default(cfg_context, "sync_turbospeed");
