@@ -227,6 +227,26 @@ int interp_yuy2_dist(interp_uint32 p1, interp_uint32 p2)
 	return y;
 }
 
+int interp_yuy2_dist3(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
+{
+	int i1, i2, i3;
+
+	if (p1 == p2 && p2 == p3)
+		return 0;
+
+	i1 = p1 & 0xFF;
+	i2 = p2 & 0xFF;
+	i3 = p3 & 0xFF;
+
+	i1 -= i2;
+	i2 -= i3;
+
+	if (i1 < 0) i1 = -i1;
+	if (i2 < 0) i2 = -i2;
+
+	return i1 + i2;
+}
+
 void interp_set(unsigned color_def)
 {
 	if (color_def_type_get(color_def) == adv_color_type_rgb) {

@@ -83,7 +83,6 @@ MENUOBJS += \
 	$(MENUOBJ)/blit/clear.o \
 	$(MENUOBJ)/blit/blit.o \
 	$(MENUOBJ)/blit/slice.o \
-	$(MENUOBJ)/blit/segment.o \
 	$(MENUOBJ)/mpglib/interfac.o \
 	$(MENUOBJ)/mpglib/internal.o \
 	$(MENUOBJ)/mpglib/decode.o \

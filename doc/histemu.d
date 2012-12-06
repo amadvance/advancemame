@@ -7,8 +7,8 @@ AdvanceMAME Version 1.2 2012/11
 	) Fixed a crash at exit when SMP is enabled.
 	) Added a new option display_magnifysize to define the area to target with display_magnify auto.
 	) Added the new XBR scaling effect. Better than HQ.
-	) If display_resizeeffect is auto, the default effect is now 'hq', but it's decreased at runtime
-		to 'lq' or 'scale' if speed is required.
+	) If display_resizeeffect is auto, the default effect is now 'xbr', but it's decreased at runtime
+		to 'hq', or 'lq' or 'scale' if speed is required.
 	) Removed blitting cache optimization. With modern caches it's not needed anymore.
 	) Changed default doc/man dirs to prefix/doc and prefix/man.
 	) Removed DLL files from the Windows distribution. New new compiler uses static libraries.

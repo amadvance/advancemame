@@ -38,26 +38,26 @@
 /* xbr2x C implementation */
 
 /*
- * This effect is a rewritten implementation of the xbr2x effect made by Hyllian
+ * This effect is a derivation of the XBR effect made by Hillian for the Kagi Fusion plugin.
+ * We use a partially semplified algorithm to gain speed, but without loosing too much quality.
+ * We also use a color distance based exclusively on the pixel luminance, mostly ignoring any chroma information.
  */
-
+ 
 /*
-     0  1  2  3  4
+	   A1 B1 C1
+	A0 PA PB PC C4
+	D0 PD PE PF F4
+	G0 PG PH PI I4
+	   G5 H5 I5
 
-0       A1 B1 C1
-1    A0 PA PB PC C4
-2    D0 PD PE PF F4
-3    G0 PG PH PI I4
-4       G5 H5 I5
+	N0 N1
+	N2 N3
 */
 
-/**
- * Simplified implementation based on the KAGI Fusion XBR plugin.
- */
 #define XBR(type, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, N0, N1, N2, N3) \
 	if (PE!=PH && PE!=PF) {\
-		unsigned e = df(PE,PC) + df(PE,PG) + df(PI,H5) + df(PI,F4) + 4*df(PH,PF); \
-		unsigned i = df(PH,PD) + df(PH,I5) + df(PF,I4) + df(PF,PB) + 4*df(PE,PI); \
+		unsigned e = df3(PC,PE,PG) + df3(H5,PI,F4) + 4*df(PH,PF); \
+		unsigned i = df3(PD,PH,I5) + df3(I4,PF,PB) + 4*df(PE,PI); \
 		if (e<i) { \
 			int ex2 = PE!=PC && PB!=PC; \
 			int ex3 = PE!=PG && PD!=PG; \
@@ -92,6 +92,7 @@
 	E[N3] = interp_16_11(E[N3], PIXEL);
 
 #define df(A, B) interp_16_dist(A, B)
+#define df3(A, B, C) interp_16_dist3(A, B, C)
 
 void xbr2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict volatile dst1, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, const interp_uint16* restrict src3, const interp_uint16* restrict src4, unsigned count)
 {
@@ -207,6 +208,7 @@ void xbr2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict
 #undef UP_2_2X
 #undef DIA_2X
 #undef df
+#undef df3
 
 #define LEFT_UP_2_2X(N3, N2, N1, PIXEL) \
 	E[N3] = interp_32_71(PIXEL, E[N3]); \
@@ -224,6 +226,7 @@ void xbr2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict
 	E[N3] = interp_32_11(E[N3], PIXEL);
 
 #define df(A, B) interp_32_dist(A, B)
+#define df3(A, B, C) interp_32_dist3(A, B, C)
 
 void xbr2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict volatile dst1, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, const interp_uint32* restrict src3, const interp_uint32* restrict src4, unsigned count)
 {
@@ -339,6 +342,7 @@ void xbr2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict
 #undef UP_2_2X
 #undef DIA_2X
 #undef df
+#undef df3
 
 #define LEFT_UP_2_2X(N3, N2, N1, PIXEL) \
 	E[N3] = interp_yuy2_71(PIXEL, E[N3]); \
@@ -356,6 +360,7 @@ void xbr2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict
 	E[N3] = interp_yuy2_11(E[N3], PIXEL);
 
 #define df(A, B) interp_yuy2_dist(A, B)
+#define df3(A, B, C) interp_yuy2_dist3(A, B, C)
 
 void xbr2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict volatile dst1, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, const interp_uint32* restrict src3, const interp_uint32* restrict src4, unsigned count)
 {

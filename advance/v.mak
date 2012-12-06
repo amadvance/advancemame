@@ -29,7 +29,6 @@ VOBJS += \
 	$(VOBJ)/blit/blit.o \
 	$(VOBJ)/blit/clear.o \
 	$(VOBJ)/blit/slice.o \
-	$(VOBJ)/blit/segment.o \
 	$(VOBJ)/v/v.o \
 	$(VOBJ)/v/draw.o
 VOBJDIRS += \

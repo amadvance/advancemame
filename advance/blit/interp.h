@@ -482,6 +482,24 @@ int interp_16_dist(interp_uint16 p1, interp_uint16 p2);
 int interp_32_dist(interp_uint32 p1, interp_uint32 p2);
 int interp_yuy2_dist(interp_uint32 p1, interp_uint32 p2);
 
+/**
+ * Computes the distance between two three.
+ * Equivalent at "dist(A,B) + dist(B,C)".
+ * Used by XBR algorithm.
+ * This is a very rought approximation taking into account only the luminosity.
+ * See: http://www.compuphase.com/cmetric.htm
+ */
+static int interp_16_dist3(interp_uint16 p1, interp_uint16 p2, interp_uint16 p3)
+{
+	return interp_16_dist(p1, p2) + interp_16_dist(p2, p3);
+}
+
+static inline int interp_32_dist3(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3)
+{
+	return interp_32_dist(p1, p2) + interp_32_dist(p2, p3);
+}
+int interp_yuy2_dist3(interp_uint32 p1, interp_uint32 p2, interp_uint32 p3);
+
 void interp_set(unsigned color_def);
 
 #endif
