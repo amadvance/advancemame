@@ -316,7 +316,7 @@ the image quality when it\(cqs stretched.
 There are a lot of video effects: \(oqnone\(cq, \(oqmax\(cq, \(oqmean\(cq,
 \(oqfilter\(cq, \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq.
 You can select the favorite effect with the \(oqdisplay_resizeeffect\(cq
-option.
+option, or from the runtime menu.
 .PP
 The \(oqnone\(cq effect simply duplicates and removes rows and lines
 when the image is stretched.
@@ -332,9 +332,6 @@ factor. When the image is enlarged the filter is applied after
 stretching; when reduced, it\(cqs applied before.
 The \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq effects add missing pixels
 trying to match the image patterns.
-.PP
-The \(oqmean\(cq and \(oqfilter\(cq effects work only in RGB video
-modes (not palettized).
 .PP
 The \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq effects work only if the image is
 magnified. To enable it you should also use the \(oqmagnify\(cq option.
@@ -405,9 +402,7 @@ at full speed, it automatically disables any frame skipping.
 .PP
 If the underline Operand System allows that, AdvanceMAME release
 the CPU when it isn\(cqt used after computing each frame reducing the
-CPU occupation. For example this happen on Linux 2.6 which has a
-3ms delay granularity, but not in Linux 2.4 which has a 20ms
-granularity.
+CPU occupation.
 .SS Audio Control 
 The audio volume is automatically adjusted to ensure
 that all the emulated games have the same volume power.
@@ -488,25 +483,34 @@ common ambiguities and errors in the game dipswitches definitions.
 .PP
 More details are in the description of the \(oqmisc_diffucilty\(cq and
 \(oqmisc_freeplay\(cq options.
-.SS LCD 
+.SS LCD Panel 
 AdvanceMAME is able to talk to an \(oqlcdproc\(cq server located anywhere
 in internet to display arbitrary information on a real or simulated
-LCD display.
+LCD panel.
 .SH USE CASES 
 This section describes some useful cases for AdvanceMAME
 on different video hardware.
-.SS With a PC Multi\(hySync Monitor 
+.SS With a LCD Monitor 
+On a LCD Monitor, AdvanceMAME is able to use the hardware
+acceleration of your video board to stretch the game image
+to fit the exact resolution of your LCD monitor.
+With an HighDefinition monitor (1920x1080/1200), this stretching
+is not noticeable and you get an image with quality comparable
+with a CRT Multi\(hySync monitor.
+You can also use a bunch of video effects to remove the
+annoying pixelation or to emulate old stylish CRT aspect.
+.SS With a CRT Multi\(hySync Monitor 
 On a PC Multi\(hySync monitor you can get any resolution at any
 Vertical Frequency. In this case AdvanceMAME always generates
 a \(oqperfect\(cq video mode with the correct size and clock. It
 doesn\(cqt require any type of stretching.
 For example for the game \(a"Bomb Jack\(a" a video mode of 400x256
 at 60 Hz (perfect size and perfect frequency) is used.
-.SS With a PC VGA Monitor/Fixed Frequency Monitor/Arcade Monitor 
+.SS With a CRT VGA Monitor/Fixed Frequency Monitor/Arcade Monitor 
 On Fixed Frequency monitors you are physically limited on
 the choice of Horizontal Frequency in the video mode. In this
 case AdvanceMAME takes care of your monitor\(cqs limitations
-and in the most cases is able to use a video mode with the
+and in the most cases it\(cqs able to use a video mode with the
 correct size but not with the correct frequency due to the
 monitor\(cqs limitations.
 For example for the game \(a"Pac\(hyMan\(a" and a VGA monitor (31.5 kHz)
@@ -553,6 +557,17 @@ Arcade monitors are used as NTSC TVs.
 .PP
 Generally this port is limited by Windows to get the best from
 your monitor.
+.SS SDL MAME 
+The official SDL MAME, is similar at AdvanceMAME when using the
+sdl video driver, which is the default when run in a modern
+Desktop environment.
+.PP
+AdvanceMAME has the benefit to allow to use more video effects,
+able to improve the image quality.
+.PP
+This also helps when using Arcade Monitors with specific modelines,
+because AdvanceMAME is able to streatch the image using special effects
+like \(cqmax\(cq that avoids to lose pixels.
 .SS DOS MAME 
 The official DOS MAME is limited to use only the standard
 VESA resolutions. Generally they are only 320x200,

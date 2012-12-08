@@ -3,7 +3,7 @@
                             =======================
 
 
-ADVANCEMENU VERSION 2.6 2012/11
+ADVANCEMENU VERSION 2.6 2012/12
 ===============================
 
 * Fixed the "alsa" audio driver in Linux. In modern distributions it was generating no sound.

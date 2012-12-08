@@ -161,22 +161,25 @@ Help screen describing the user input keys.
 <a href="#5.19">5.19 Dipswitches Control</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#5.20">5.20 LCD</a><br>
+<a href="#5.20">5.20 LCD Panel</a><br>
 </td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#6">6 Use Cases</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#6.1">6.1 With a PC Multi-Sync Monitor</a><br>
+<a href="#6.1">6.1 With a LCD Monitor</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#6.2">6.2 With a PC VGA Monitor/Fixed Frequency Monitor/Arcade Monitor</a><br>
+<a href="#6.2">6.2 With a CRT Multi-Sync Monitor</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#6.3">6.3 With a NTSC or PAL TV</a><br>
+<a href="#6.3">6.3 With a CRT VGA Monitor/Fixed Frequency Monitor/Arcade Monitor</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#6.4">6.4 With a Multi-format NTSC and PAL TV</a><br>
+<a href="#6.4">6.4 With a NTSC or PAL TV</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#6.5">6.5 With a Multi-format NTSC and PAL TV</a><br>
 </td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#7">7 Other Ports</a><br>
@@ -185,7 +188,10 @@ Help screen describing the user input keys.
 <a href="#7.1">7.1 Windows MAME</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#7.2">7.2 DOS MAME</a><br>
+<a href="#7.2">7.2 SDL MAME</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#7.3">7.3 DOS MAME</a><br>
 </td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#8">8 Configuration</a><br>
@@ -858,7 +864,7 @@ the image quality when it's stretched.
 There are a lot of video effects: `none', `max', `mean',
 `filter', `scale', `lq', `hq' and `xbr'.
 You can select the favorite effect with the `display_resizeeffect'
-option.
+option, or from the runtime menu.
 <p>
 The `none' effect simply duplicates and removes rows and lines
 when the image is stretched.
@@ -874,9 +880,6 @@ factor. When the image is enlarged the filter is applied after
 stretching; when reduced, it's applied before.
 The `scale', `lq', `hq' and `xbr' effects add missing pixels
 trying to match the image patterns.
-<p>
-The `mean' and `filter' effects work only in RGB video
-modes (not palettized).
 <p>
 The `scale', `lq', `hq' and `xbr' effects work only if the image is
 magnified. To enable it you should also use the `magnify' option.
@@ -959,9 +962,7 @@ at full speed, it automatically disables any frame skipping.
 <p>
 If the underline Operand System allows that, AdvanceMAME release
 the CPU when it isn't used after computing each frame reducing the
-CPU occupation. For example this happen on Linux 2.6 which has a
-3ms delay granularity, but not in Linux 2.4 which has a 20ms
-granularity.
+CPU occupation.
 <h3><a name="5.11">5.11</a> 
 Audio Control
 </h3>
@@ -1061,18 +1062,29 @@ common ambiguities and errors in the game dipswitches definitions.
 More details are in the description of the `misc_diffucilty' and
 `misc_freeplay' options.
 <h3><a name="5.20">5.20</a> 
-LCD
+LCD Panel
 </h3>
 AdvanceMAME is able to talk to an `lcdproc' server located anywhere
 in internet to display arbitrary information on a real or simulated
-LCD display.
+LCD panel.
 <h2><a name="6">6</a> 
 Use Cases
 </h2>
 This section describes some useful cases for AdvanceMAME
 on different video hardware.
 <h3><a name="6.1">6.1</a> 
-With a PC Multi-Sync Monitor
+With a LCD Monitor
+</h3>
+On a LCD Monitor, AdvanceMAME is able to use the hardware
+acceleration of your video board to stretch the game image
+to fit the exact resolution of your LCD monitor.
+With an HighDefinition monitor (1920x1080/1200), this stretching
+is not noticeable and you get an image with quality comparable
+with a CRT Multi-Sync monitor.
+You can also use a bunch of video effects to remove the
+annoying pixelation or to emulate old stylish CRT aspect.
+<h3><a name="6.2">6.2</a> 
+With a CRT Multi-Sync Monitor
 </h3>
 On a PC Multi-Sync monitor you can get any resolution at any
 Vertical Frequency. In this case AdvanceMAME always generates
@@ -1080,18 +1092,18 @@ a `perfect' video mode with the correct size and clock. It
 doesn't require any type of stretching.
 For example for the game "Bomb Jack" a video mode of 400x256
 at 60 Hz (perfect size and perfect frequency) is used.
-<h3><a name="6.2">6.2</a> 
-With a PC VGA Monitor/Fixed Frequency Monitor/Arcade Monitor
+<h3><a name="6.3">6.3</a> 
+With a CRT VGA Monitor/Fixed Frequency Monitor/Arcade Monitor
 </h3>
 On Fixed Frequency monitors you are physically limited on
 the choice of Horizontal Frequency in the video mode. In this
 case AdvanceMAME takes care of your monitor's limitations
-and in the most cases is able to use a video mode with the
+and in the most cases it's able to use a video mode with the
 correct size but not with the correct frequency due to the
 monitor's limitations.
 For example for the game "Pac-Man" and a VGA monitor (31.5 kHz)
 a video mode of 400x288 at 100 Hz (perfect size) is used.
-<h3><a name="6.3">6.3</a> 
+<h3><a name="6.4">6.4</a> 
 With a NTSC or PAL TV
 </h3>
 On a TV you are physically limited to use both fixed Horizontal
@@ -1106,7 +1118,7 @@ For example for the game "Pac-Man" on a NTSC TV a video mode
 of 400x240 (perfect horizontal size) is used.
 For stretching some special algorithms are used to minimize
 the lose of details.
-<h3><a name="6.4">6.4</a> 
+<h3><a name="6.5">6.5</a> 
 With a Multi-format NTSC and PAL TV
 </h3>
 If your TV supports both formats, AdvanceMAME automatically
@@ -1142,6 +1154,19 @@ Arcade monitors are used as NTSC TVs.
 Generally this port is limited by Windows to get the best from
 your monitor.
 <h3><a name="7.2">7.2</a> 
+SDL MAME
+</h3>
+The official SDL MAME, is similar at AdvanceMAME when using the
+sdl video driver, which is the default when run in a modern
+Desktop environment.
+<p>
+AdvanceMAME has the benefit to allow to use more video effects,
+able to improve the image quality.
+<p>
+This also helps when using Arcade Monitors with specific modelines,
+because AdvanceMAME is able to streatch the image using special effects
+like 'max' that avoids to lose pixels.
+<h3><a name="7.3">7.3</a> 
 DOS MAME
 </h3>
 The official DOS MAME is limited to use only the standard

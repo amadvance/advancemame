@@ -2,10 +2,20 @@ Name
 	release notes - Release Notes For AdvanceMAME/MESS
 
 AdvanceMAME 1.2
-	This versions is an update for modern OS and compiler,
-	but it also fixes some important bugs.
+	This version is an update for modern OS and compiler,
+	it fixes some important bugs, and adds some new
+	features like the new "xbr" video effect.
+
 	Note that despite the version number change, it's still
 	based on MAME 0.106.
+
+	Note that the full DOS port and the video drivers 'svgalib'
+	for Linux and 'svgawin' for Windows are now obsolete.
+	They are still present, but likely not working with modern
+	video boards and removed in future releases.
+
+	You can instead still use the 'fb' video driver using the Linux
+	Frame Buffer support, and the generic 'sdl' using the SDL library.
 
 AdvanceMAME 0.100.0
 	This version has some internal changes to adapt to the

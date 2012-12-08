@@ -51,34 +51,7 @@ because they cannot control how the video modes are generated.
 
 The following is the list of all the video drivers supported.
 
----- 1.2.1 svgalib - Generate SVGA video (Linux) ----
-This driver works in Linux and is able to use video modes obtained
-tweaking the hardware registers of the recognized SVGA boards using
-the SVGALIB library.
-
-All clocks, all RGB bit depths are available.
-This driver is generally able to synchronize with the vertical sync
-of the video mode.
-
-To use these modes your video board must be supported
-by a `svgalib' driver listed in the `cardlinx.txt' file.
-To use this driver you need to install the SVGALIB library
-version 1.9.x.
-
-To use this driver you need to correctly configure the
-SVGALIB HorizSync and VertRefresh options in the
-file /etc/vga/libvga.config file.
-You must use a range equal or a bit larger than the range
-specified with the AdvanceMAME `device_video_clock' option.
-
-This driver is not available in X (when the environment DISPLAY
-variable is defined).
-
-In the `contrib/svgalib' directory there are various
-SVGALIB patches to fix some problems with recent video
-boards, and to work with systems with kernel 2.6 and udev.
-
----- 1.2.2 fb - Generate Frame Buffer video (Linux) ----
+---- 1.2.1 fb - Generate Frame Buffer video (Linux) ----
 This driver works in Linux and is able to create video modes
 using the Linux Kernel Frame Buffer interface.
 
@@ -111,7 +84,34 @@ The generic Frame Buffer `vesafb' driver cannot be used because
 it doesn't allow the creation of new video modes. If it's your
 only option you can use it through the SDL library.
 
----- 1.2.3 svgaline - Generate SVGA video (DOS) ----
+---- 1.2.2 svgalib - Generate SVGA video (Linux) [OBSOLETE] ----
+This driver works in Linux and is able to use video modes obtained
+tweaking the hardware registers of the recognized SVGA boards using
+the SVGALIB library.
+
+All clocks, all RGB bit depths are available.
+This driver is generally able to synchronize with the vertical sync
+of the video mode.
+
+To use these modes your video board must be supported
+by a `svgalib' driver listed in the `cardlinx.txt' file.
+To use this driver you need to install the SVGALIB library
+version 1.9.x.
+
+To use this driver you need to correctly configure the
+SVGALIB HorizSync and VertRefresh options in the
+file /etc/vga/libvga.config file.
+You must use a range equal or a bit larger than the range
+specified with the AdvanceMAME `device_video_clock' option.
+
+This driver is not available in X (when the environment DISPLAY
+variable is defined).
+
+In the `contrib/svgalib' directory there are various
+SVGALIB patches to fix some problems with recent video
+boards, and to work with systems with kernel 2.6 and udev.
+
+---- 1.2.3 svgaline - Generate SVGA video (DOS) [OBSOLETE] ----
 This driver works in DOS and is able to use video modes obtained
 tweaking the hardware registers of the recognized SVGA boards.
 
@@ -123,7 +123,7 @@ by a `svgaline' driver listed in the `carddos.txt' file.
 This driver is completely independent of the VGA/VBE BIOS
 of your board.
 
----- 1.2.4 vbeline - Generate VBE video (DOS) ----
+---- 1.2.4 vbeline - Generate VBE video (DOS) [OBSOLETE] ----
 This driver works in DOS and is able to use video modes obtained
 tweaking the standard VBE (VESA) BIOS mode changing the hardware
 registers of the SVGA.
@@ -151,7 +151,7 @@ If your video board isn't supported by any drivers and
 you don't have a VBE3 BIOS you can try installing a
 software VESA BIOS like the SciTech Display Doctor.
 
----- 1.2.5 vgaline - Generate VGA video (DOS) ----
+---- 1.2.5 vgaline - Generate VGA video (DOS) [OBSOLETE] ----
 This driver works in DOS and is able to use video modes obtained
 tweaking the hardware registers of the standard VGA.
 
@@ -165,7 +165,7 @@ This driver supports also text modes with pixel clocks
 This driver is completely independent of the VGA BIOS
 of your board.
 
----- 1.2.6 svgawin - Generate SVGA video (Windows) ----
+---- 1.2.6 svgawin - Generate SVGA video (Windows) [OBSOLETE] ----
 This driver works in Windows NT/2000/XP and is able to use video
 modes obtained tweaking the hardware registers of the recognized
 SVGA boards.
@@ -209,7 +209,7 @@ mode from the Linux sLang library.
 This driver works in Linux and is able to use current terminal text
 mode from the Linux ncurses library.
 
----- 1.3.4 vbe - System VBE video (DOS) ----
+---- 1.3.4 vbe - System VBE video (DOS) [OBSOLETE] ----
 This driver works in DOS and is able to use video modes reported
 by the VBE BIOS.
 
@@ -241,7 +241,7 @@ This means that it may add a small latency on the sound output.
 You can change some options of this driver using the SDL specific
 environment variables described in the contrib/sdl/env.txt file.
 
----- 2.1.4 seal - SEAL sound (DOS) ----
+---- 2.1.4 seal - SEAL sound (DOS) [OBSOLETE] ----
 This driver works in DOS and it uses the SEAL sound library with
 some specific changes for MAME.
 
@@ -250,10 +250,10 @@ the MAME site:
 
     http://www.mame.net/
 
----- 2.1.5 allegro - Allegro sound (DOS) ----
+---- 2.1.5 allegro - Allegro sound (DOS) [OBSOLETE] ----
 This driver works in DOS and it uses the Allegro library.
 
----- 2.1.6 vsync - VSYNC sound (DOS) ----
+---- 2.1.6 vsync - VSYNC sound (DOS) [OBSOLETE] ----
 This driver works in DOS and it uses the VSync sound drivers
 from the VSyncMAME emulator.
 
@@ -303,7 +303,21 @@ Linux SysRq key. Check:
 
 Leds control is supported.
 
----- 3.1.3 svgalib - SVGALIB keyboard (Linux) ----
+---- 3.1.3 sdl - SDL keyboard (Linux, Windows and Mac OS X) ----
+This driver works in Linux, Windows and Mac OS X and it uses
+the SDL library.
+
+It supports only one keyboard.
+
+You can change some options of this driver using the SDL specific
+environment variables described in the contrib/sdl/env.txt file.
+
+In a Window Manager environment you can switch to fullscreen
+pressing ALT+ENTER.
+
+Leds control is not supported.
+
+---- 3.1.4 svgalib - SVGALIB keyboard (Linux) [OBSOLETE] ----
 This driver works in Linux and it uses the SVGALIB library.
 
 It supports only one keyboard.
@@ -320,21 +334,7 @@ Linux SysRq key. Check:
 
 Leds control is not supported.
 
----- 3.1.4 sdl - SDL keyboard (Linux, Windows and Mac OS X) ----
-This driver works in Linux, Windows and Mac OS X and it uses
-the SDL library.
-
-It supports only one keyboard.
-
-You can change some options of this driver using the SDL specific
-environment variables described in the contrib/sdl/env.txt file.
-
-In a Window Manager environment you can switch to fullscreen
-pressing ALT+ENTER.
-
-Leds control is not supported.
-
----- 3.1.5 allegro - Allegro keyboard (DOS) ----
+---- 3.1.5 allegro - Allegro keyboard (DOS) [OBSOLETE] ----
 This driver works in DOS and it uses the Allegro library.
 
 It supports only one keyboard.
@@ -387,7 +387,16 @@ If you have a gameport joystick, the Linux Kernel Joystick driver
 may prevent a correct video vsync if the joystick polling is too slow.
 Generally it results in a missing frame every 5-10 seconds.
 
----- 3.2.3 svgalib - SVGALIB joystick (Linux) ----
+---- 3.2.3 sdl - SDL joystick (Linux, Windows and Mac OS X) ----
+This driver works in Linux, Windows and Mac OS X and it uses
+the SDL joystick interface.
+
+It supports more than one joystick at the same time.
+
+You can change some options of this driver using the SDL specific
+environment variables described in the contrib/sdl/env.txt file.
+
+---- 3.2.4 svgalib - SVGALIB joystick (Linux) [OBSOLETE] ----
 This driver works in Linux and it uses the SVGALIB library.
 
 It supports up to 4 joysticks at the same time.
@@ -398,16 +407,7 @@ If you have a gameport joystick, the Linux Kernel Joystick driver
 may prevent a correct video vsync if the joystick polling is too slow.
 Generally it results in a missing frame every 5-10 seconds.
 
----- 3.2.4 sdl - SDL joystick (Linux, Windows and Mac OS X) ----
-This driver works in Linux, Windows and Mac OS X and it uses
-the SDL joystick interface.
-
-It supports more than one joystick at the same time.
-
-You can change some options of this driver using the SDL specific
-environment variables described in the contrib/sdl/env.txt file.
-
----- 3.2.5 allegro - Allegro joystick (DOS) ----
+---- 3.2.5 allegro - Allegro joystick (DOS) [OBSOLETE] ----
 This driver works in DOS and it uses the Allegro library.
 
 It supports only one joystick.
@@ -464,15 +464,7 @@ To use this driver you need to configure correctly the
 device_raw_* options to specify the mouse types and the mouse
 devices.
 
----- 3.3.3 svgalib - SVGALIB mouse (Linux) ----
-This driver works in Linux and it uses the SVGALIB library.
-
-It supports only one mouse.
-
-To use this driver you need to configure correctly the
-SVGALIB mouse support in the file /etc/vga/libvga.config file.
-
----- 3.3.4 sdl - SDL mouse (Linux, Windows and Mac OS X) ----
+---- 3.3.3 sdl - SDL mouse (Linux, Windows and Mac OS X) ----
 This driver works in Linux, Windows and Mac OS X and it uses
 the SDL mouse interface.
 
@@ -481,7 +473,15 @@ It supports only one mouse and only two axes.
 You can change some options of this driver using the SDL specific
 environment variables described in the contrib/sdl/env.txt file.
 
----- 3.3.5 allegro - Allegro mouse (DOS) ----
+---- 3.3.4 svgalib - SVGALIB mouse (Linux) [OBSOLETE] ----
+This driver works in Linux and it uses the SVGALIB library.
+
+It supports only one mouse.
+
+To use this driver you need to configure correctly the
+SVGALIB mouse support in the file /etc/vga/libvga.config file.
+
+---- 3.3.5 allegro - Allegro mouse (DOS) [OBSOLETE] ----
 This driver works in DOS and it uses the Allegro library.
 
 It supports up to 2 mice at the same time using the

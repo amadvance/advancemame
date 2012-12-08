@@ -206,7 +206,7 @@ Features
 	There are a lot of video effects: `none', `max', `mean',
 	`filter', `scale', `lq', `hq' and `xbr'.
 	You can select the favorite effect with the `display_resizeeffect'
-	option.
+	option, or from the runtime menu.
 
 	The `none' effect simply duplicates and removes rows and lines
 	when the image is stretched.
@@ -222,9 +222,6 @@ Features
 	stretching; when reduced, it's applied before.
 	The `scale', `lq', `hq' and `xbr' effects add missing pixels
 	trying to match the image patterns.
-
-	The `mean' and `filter' effects work only in RGB video
-	modes (not palettized).
 
 	The `scale', `lq', `hq' and `xbr' effects work only if the image is
 	magnified. To enable it you should also use the `magnify' option.
@@ -301,9 +298,7 @@ Features
 
 	If the underline Operand System allows that, AdvanceMAME release
 	the CPU when it isn't used after computing each frame reducing the
-	CPU occupation. For example this happen on Linux 2.6 which has a
-	3ms delay granularity, but not in Linux 2.4 which has a 20ms
-	granularity.
+	CPU occupation.
 
   Audio Control
 	The audio volume is automatically adjusted to ensure
@@ -394,16 +389,26 @@ Features
 	More details are in the description of the `misc_diffucilty' and
 	`misc_freeplay' options.
 
-  LCD
+  LCD Panel
 	AdvanceMAME is able to talk to an `lcdproc' server located anywhere
 	in internet to display arbitrary information on a real or simulated
-	LCD display.
+	LCD panel.
 
 Use Cases
 	This section describes some useful cases for AdvanceMAME
 	on different video hardware.
 
-  With a PC Multi-Sync Monitor
+  With a LCD Monitor
+	On a LCD Monitor, AdvanceMAME is able to use the hardware
+	acceleration of your video board to stretch the game image
+	to fit the exact resolution of your LCD monitor.
+	With an HighDefinition monitor (1920x1080/1200), this stretching
+	is not noticeable and you get an image with quality comparable
+	with a CRT Multi-Sync monitor.
+	You can also use a bunch of video effects to remove the
+	annoying pixelation or to emulate old stylish CRT aspect.
+
+  With a CRT Multi-Sync Monitor
 	On a PC Multi-Sync monitor you can get any resolution at any
 	Vertical Frequency. In this case AdvanceMAME always generates
 	a `perfect' video mode with the correct size and clock. It
@@ -411,11 +416,11 @@ Use Cases
 	For example for the game "Bomb Jack" a video mode of 400x256
 	at 60 Hz (perfect size and perfect frequency) is used.
 
-  With a PC VGA Monitor/Fixed Frequency Monitor/Arcade Monitor
+  With a CRT VGA Monitor/Fixed Frequency Monitor/Arcade Monitor
 	On Fixed Frequency monitors you are physically limited on
 	the choice of Horizontal Frequency in the video mode. In this
 	case AdvanceMAME takes care of your monitor's limitations
-	and in the most cases is able to use a video mode with the
+	and in the most cases it's able to use a video mode with the
 	correct size but not with the correct frequency due to the
 	monitor's limitations.
 	For example for the game "Pac-Man" and a VGA monitor (31.5 kHz)
@@ -466,6 +471,18 @@ Other Ports
 
 	Generally this port is limited by Windows to get the best from
 	your monitor.
+
+  SDL MAME
+	The official SDL MAME, is similar at AdvanceMAME when using the
+	sdl video driver, which is the default when run in a modern
+	Desktop environment.
+
+	AdvanceMAME has the benefit to allow to use more video effects,
+	able to improve the image quality.
+
+	This also helps when using Arcade Monitors with specific modelines,
+	because AdvanceMAME is able to streatch the image using special effects
+	like 'max' that avoids to lose pixels.
 
   DOS MAME
 	The official DOS MAME is limited to use only the standard
