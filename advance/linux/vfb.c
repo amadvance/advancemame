@@ -583,7 +583,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
 
 	if (strcmp(id_buffer, "VESA VGA")==0) {
-		error_set("The 'vesafb' FrameBuffer driver doesn't allow the creation of new video modes.");
+		error_set("The 'vesafb' FrameBuffer driver doesn't allow the creation of new video modes.\n");
 		goto err_close;
 	}
 
@@ -596,7 +596,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 	}
 
 	if ((fb_state.flags & (VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32)) == 0) {
-		error_set("This '%s' FrameBuffer driver doesn't seem to allow the creation of new video modes.", id_buffer);
+		error_set("This '%s' FrameBuffer driver doesn't seem to allow the creation of new video modes.\n", id_buffer);
 		goto err_close;
 	}
 
