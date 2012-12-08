@@ -452,6 +452,9 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/blit/xbr4x.o \
 	$(OBJ)/advance/blit/scale2x.o \
 	$(OBJ)/advance/blit/scale3x.o \
+	$(OBJ)/advance/blit/scale2k.o \
+	$(OBJ)/advance/blit/scale3k.o \
+	$(OBJ)/advance/blit/scale4k.o \
 	$(OBJ)/advance/blit/interp.o \
 	$(OBJ)/advance/blit/clear.o \
 	$(OBJ)/advance/blit/slice.o \

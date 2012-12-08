@@ -118,6 +118,9 @@ enum video_stage_enum {
 	pipe_y_scale2x4, /**< Scale2x4. */
 	pipe_y_scale3x, /**< Scale3x. */
 	pipe_y_scale4x, /**< Scale4x. */
+	pipe_y_scale2k, /**< Scale2k. */
+	pipe_y_scale3k, /**< Scale3k. */
+	pipe_y_scale4k, /**< Scale4k. */
 	pipe_y_lq2x, /**< LQ2x */
 	pipe_y_lq2x3, /**< LQ2x3 */
 	pipe_y_lq2x4, /**< LQ2x4 */
@@ -202,11 +205,12 @@ struct __attribute__((aligned(8))) video_stage_horz_struct {
 #define VIDEO_COMBINE_Y_MEAN 0x2 /**< Use the mean value in y transformations for added or removed lines. */
 #define VIDEO_COMBINE_Y_FILTER 0x3 /**< Apply a FIR lowpass filter with 2 point and fc 0.5 in the y direction. */
 #ifndef USE_BLIT_TINY
-#define VIDEO_COMBINE_Y_SCALE 0x4 /**< Scale. */
-#define VIDEO_COMBINE_Y_LQ 0x5 /**< LQ. */
+#define VIDEO_COMBINE_Y_SCALEX 0x4 /**< ScaleX. */
+#define VIDEO_COMBINE_Y_SCALEK 0x5 /**< ScaleK. */
+#define VIDEO_COMBINE_Y_LQ 0x6 /**< LQ. */
 #ifndef USE_BLIT_SMALL
-#define VIDEO_COMBINE_Y_HQ 0x6 /**< HQ. */
-#define VIDEO_COMBINE_Y_XBR 0x7 /**< XBR. */
+#define VIDEO_COMBINE_Y_HQ 0x7 /**< HQ. */
+#define VIDEO_COMBINE_Y_XBR 0x8 /**< XBR. */
 #endif
 #endif
 #define VIDEO_COMBINE_Y_MASK 0xF /**< Mask for the Y effect. */

@@ -223,21 +223,17 @@ static void video_command_combine(struct advance_video_context* context, struct 
 			/* try decreasing the video effects */
 			if (config.combine == COMBINE_AUTO) {
 				switch (config.combine_max) {
-				case COMBINE_SCALE :
+				case COMBINE_SCALEX :
 					config.combine_max = COMBINE_NONE;
-					log_std(("advance:skip: decreasing combine from scale to none\n"));
+					log_std(("advance:skip: decreasing combine from scalex to none\n"));
 					break;
-				case COMBINE_LQ :
-					config.combine_max = COMBINE_SCALE;
-					log_std(("advance:skip: decreasing combine from lq to scale\n"));
-					break;
-				case COMBINE_HQ :
-					config.combine_max = COMBINE_LQ;
-					log_std(("advance:skip: decreasing combine from hq to lq\n"));
+				case COMBINE_SCALEK :
+					config.combine_max = COMBINE_SCALEX;
+					log_std(("advance:skip: decreasing combine from scalek to scalex\n"));
 					break;
 				case COMBINE_XBR :
 					config.combine_max = COMBINE_HQ;
-					log_std(("advance:skip: decreasing combine from xbr to hq\n"));
+					log_std(("advance:skip: decreasing combine from xbr to scalek\n"));
 					break;
 				}
 			}
@@ -1243,7 +1239,8 @@ static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 { "max", COMBINE_MAXMIN },
 { "mean", COMBINE_MEAN },
 { "filter", COMBINE_FILTER },
-{ "scale", COMBINE_SCALE },
+{ "scalex", COMBINE_SCALEX },
+{ "scalek", COMBINE_SCALEK },
 { "lq", COMBINE_LQ },
 { "hq", COMBINE_HQ },
 { "xbr", COMBINE_XBR }

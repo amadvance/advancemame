@@ -153,6 +153,9 @@ static inline void internal_end(void)
 #ifndef USE_BLIT_TINY
 #include "scale2x.h"
 #include "scale3x.h"
+#include "scale2k.h"
+#include "scale3k.h"
+#include "scale4k.h"
 #include "lq2x.h"
 #include "lq2x3.h"
 #include "lq2x4.h"
@@ -475,6 +478,15 @@ static inline void scale2x4(void* dst0, void* dst1, void* dst2, void* dst3, void
 	}
 }
 
+static inline void scale2k(void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
+{
+	switch (interp) {
+	case INTERP_16 : scale2k_16_def(dst0, dst1, src0, src1, src2, count); break;
+	case INTERP_32 : scale2k_32_def(dst0, dst1, src0, src1, src2, count); break;
+	case INTERP_YUY2 : scale2k_yuy2_def(dst0, dst1, src0, src1, src2, count); break;
+	}
+}
+
 static inline void lq2x(void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
 {
 	switch (interp) {
@@ -549,6 +561,15 @@ static inline void scale3x(void* dst0, void* dst1, void* dst2, void* src0, void*
 	}
 }
 
+static inline void scale3k(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
+{
+	switch (interp) {
+	case INTERP_16 : scale3k_16_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case INTERP_32 : scale3k_32_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	case INTERP_YUY2 : scale3k_yuy2_def(dst0, dst1, dst2, src0, src1, src2, count); break;
+	}
+}
+
 static inline void lq3x(void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
 {
 	switch (interp) {
@@ -577,6 +598,15 @@ static inline void xbr3x(void* dst0, void* dst1, void* dst2, void* src0, void* s
 	}
 }
 #endif
+
+static inline void scale4k(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
+{
+	switch (interp) {
+	case INTERP_16 : scale4k_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case INTERP_32 : scale4k_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	case INTERP_YUY2 : scale4k_yuy2_def(dst0, dst1, dst2, dst3, src0, src1, src2, count); break;
+	}
+}
 
 static inline void lq4x(void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned interp, unsigned count)
 {
@@ -622,6 +652,11 @@ static inline void stage_scale2x4(const struct video_stage_vert_struct* stage, v
 	scale2x4(dst0, dst1, dst2, dst3, src0, src1, src2, stage->bpp, stage->sdx);
 }
 
+static inline void stage_scale2k(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned pos)
+{
+	scale2k(dst0, dst1, src0, src1, src2, stage->interp, stage->sdx);
+}
+
 static inline void stage_lq2x(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned pos)
 {
 	lq2x(dst0, dst1, src0, src1, src2, stage->interp, stage->sdx);
@@ -664,6 +699,11 @@ static inline void stage_scale3x(const struct video_stage_vert_struct* stage, vo
 	scale3x(dst0, dst1, dst2, src0, src1, src2, stage->bpp, stage->sdx);
 }
 
+static inline void stage_scale3k(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned pos)
+{
+	scale3k(dst0, dst1, dst2, src0, src1, src2, stage->interp, stage->sdx);
+}
+
 static inline void stage_lq3x(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned pos)
 {
 	lq3x(dst0, dst1, dst2, src0, src1, src2, stage->interp, stage->sdx);
@@ -690,6 +730,11 @@ static inline void stage_scale4x(const struct video_stage_vert_struct* stage, vo
 {
 	scale2x(dst0, dst1, src0, src1, src2, stage->bpp, 2 * stage->sdx);
 	scale2x(dst2, dst3, src1, src2, src3, stage->bpp, 2 * stage->sdx);
+}
+
+static inline void stage_scale4k(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned pos)
+{
+	scale4k(dst0, dst1, dst2, dst3, src0, src1, src2, stage->interp, stage->sdx);
 }
 
 static inline void stage_lq4x(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned pos)
@@ -969,6 +1014,9 @@ const char* pipe_name(enum video_stage_enum pipe)
 		case pipe_y_scale2x4 : return "scale2x4";
 		case pipe_y_scale3x : return "scale3x";
 		case pipe_y_scale4x : return "scale4x";
+		case pipe_y_scale2k : return "scale2k";
+		case pipe_y_scale3k : return "scale3k";
+		case pipe_y_scale4k : return "scale4k";
 		case pipe_y_lq2x : return "lq2x";
 		case pipe_y_lq2x3 : return "lq2x3";
 		case pipe_y_lq2x4 : return "lq2x4";
@@ -1044,13 +1092,14 @@ static adv_bool pipe_is_decoration(enum video_stage_enum pipe)
 	}
 }
 
-/* Check if the write operation is done converting the RGB values */
+/* Check if the write operation is done converting the RGB/YUV values and cannot work with a palette mode */
 static adv_bool combine_is_rgb(unsigned combine)
 {
 	switch (combine & VIDEO_COMBINE_Y_MASK) {
 	case VIDEO_COMBINE_Y_MEAN :
 	case VIDEO_COMBINE_Y_FILTER :
 #ifndef USE_BLIT_TINY
+	case VIDEO_COMBINE_Y_SCALEK :
 	case VIDEO_COMBINE_Y_LQ :
 #ifndef USE_BLIT_SMALL
 	case VIDEO_COMBINE_Y_HQ :
@@ -1071,7 +1120,8 @@ static adv_bool combine_is_direct(unsigned combine)
 
 	switch (combine & VIDEO_COMBINE_Y_MASK) {
 #ifndef USE_BLIT_TINY
-	case VIDEO_COMBINE_Y_SCALE :
+	case VIDEO_COMBINE_Y_SCALEX :
+	case VIDEO_COMBINE_Y_SCALEK :
 	case VIDEO_COMBINE_Y_LQ :
 #ifndef USE_BLIT_SMALL
 	case VIDEO_COMBINE_Y_HQ :
@@ -2006,6 +2056,161 @@ static void video_stage_stretchy_scale2x4(const struct video_pipeline_target_str
 	if (stage_pivot != stage_end) {
 		for(i=0;i<4;++i) {
 			video_buffer_free(final[3 - i]);
+		}
+	}
+}
+#endif
+
+/***************************************************************************/
+/* stretch scale2k */
+
+#ifndef USE_BLIT_TINY
+static void video_stage_stretchy_scale2k(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
+{
+	unsigned x_off = x * target->bytes_per_pixel;
+	unsigned count = stage_vert->sdy;
+	unsigned line = 0;
+	unsigned pos = -1;
+
+	const struct video_stage_horz_struct* stage_begin = stage_vert->stage_begin;
+	const struct video_stage_horz_struct* stage_end = stage_vert->stage_end;
+	const struct video_stage_horz_struct* stage_pivot = stage_vert->stage_pivot;
+
+	void* final[2];
+	const void* input[3];
+	void* partial[3];
+	void* partial_copy[3];
+	void* tmp;
+	unsigned i;
+
+	if (stage_pivot != stage_end) {
+		for(i=0;i<2;++i) {
+			final[i] = video_buffer_alloc(2 * stage_pivot->sdx * stage_pivot->sbpp);
+		}
+	} else {
+		for(i=0;i<2;++i) {
+			final[i] = 0;
+		}
+	}
+
+	input[0] = src;
+	input[1] = src;
+	input[2] = src;
+	PADD(input[1], stage_vert->sdw);
+	PADD(input[2], stage_vert->sdw * 2);
+
+	for(i=0;i<3;++i) {
+		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+	}
+
+	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
+	partial[1] = video_pipeline_run_partial(partial[1], stage_begin, stage_pivot, 0, input[1], -1);
+
+	if (stage_pivot == stage_end) {
+		void* dst[2];
+
+		/* first row */
+		for(i=0;i<2;++i) {
+			dst[i] = target->line(target, y) + x_off;
+			++y;
+		}
+
+		stage_scale2k(stage_vert, dst[0], dst[1], partial[0], partial[0], partial[1], -1);
+
+		/* central rows */
+		count -= 2;
+		while (count) {
+			for(i=0;i<2;++i) {
+				dst[i] = target->line(target, y) + x_off;
+				++y;
+			}
+
+			partial[2] = video_pipeline_run_partial(partial[2], stage_begin, stage_pivot, 0, input[2], pos);
+
+			stage_scale2k(stage_vert, dst[0], dst[1], partial[0], partial[1], partial[2], pos);
+
+			tmp = partial[0];
+			partial[0] = partial[1];
+			partial[1] = partial[2];
+			partial[2] = tmp;
+
+			PADD(input[2], stage_vert->sdw);
+			--count;
+		}
+
+		/* last row */
+		for(i=0;i<2;++i) {
+			dst[i] = target->line(target, y) + x_off;
+			++y;
+		}
+
+		stage_scale2k(stage_vert, dst[0], dst[1], partial[1-1], partial[2-1], partial[2-1], -1);
+	} else {
+		void* dst[2];
+
+		/* first row */
+		for(i=0;i<2;++i) {
+			dst[i] = target->line(target, y) + x_off;
+			++y;
+		}
+
+		stage_scale2k(stage_vert, final[0], final[1], partial[0], partial[0], partial[1], pos);
+
+		for(i=0;i<2;++i) {
+			video_pipeline_run_plain(stage_pivot, stage_end, line + i, dst[i], final[i], pos);
+		}
+
+		line += 2;
+
+		/* central rows */
+		count -= 2;
+		while (count) {
+			for(i=0;i<2;++i) {
+				dst[i] = target->line(target, y) + x_off;
+				++y;
+			}
+
+			partial[2] = video_pipeline_run_partial(partial[2], stage_begin, stage_pivot, 0, input[2], pos);
+
+			stage_scale2k(stage_vert, final[0], final[1], partial[0], partial[1], partial[2], pos);
+
+			for(i=0;i<2;++i) {
+				video_pipeline_run_plain(stage_pivot, stage_end, line + i, dst[i], final[i], pos);
+			}
+
+			line += 2;
+
+			tmp = partial[0];
+			partial[0] = partial[1];
+			partial[1] = partial[2];
+			partial[2] = tmp;
+
+			PADD(input[2], stage_vert->sdw);
+			--count;
+		}
+
+		/* last row */
+		for(i=0;i<2;++i) {
+			dst[i] = target->line(target, y) + x_off;
+			++y;
+		}
+
+		stage_scale2k(stage_vert, final[0], final[1], partial[1-1], partial[2-1], partial[2-1], pos);
+
+		for(i=0;i<2;++i) {
+			video_pipeline_run_plain(stage_pivot, stage_end, line + i, dst[i], final[i], pos);
+		}
+
+		line += 2;
+	}
+
+	for(i=0;i<3;++i) {
+		video_buffer_free(partial_copy[2 - i]);
+	}
+
+	if (stage_pivot != stage_end) {
+		for(i=0;i<2;++i) {
+			video_buffer_free(final[1 - i]);
 		}
 	}
 }
@@ -3291,6 +3496,162 @@ static void video_stage_stretchy_scale3x(const struct video_pipeline_target_stru
 #endif
 
 /***************************************************************************/
+/* stretch scale3k */
+
+#ifndef USE_BLIT_TINY
+static void video_stage_stretchy_scale3k(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
+{
+	unsigned x_off = x * target->bytes_per_pixel;
+	unsigned count = stage_vert->sdy;
+	unsigned line = 0;
+	unsigned pos = -1;
+
+	const struct video_stage_horz_struct* stage_begin = stage_vert->stage_begin;
+	const struct video_stage_horz_struct* stage_end = stage_vert->stage_end;
+	const struct video_stage_horz_struct* stage_pivot = stage_vert->stage_pivot;
+
+	void* final[3];
+	const void* input[3];
+	void* partial[3];
+	void* partial_copy[3];
+	void* tmp;
+	unsigned i;
+
+	if (stage_pivot != stage_end) {
+		for(i=0;i<3;++i) {
+			final[i] = video_buffer_alloc(3 * stage_pivot->sdx * stage_pivot->sbpp);
+		}
+	} else {
+		for(i=0;i<3;++i) {
+			final[i] = 0;
+		}
+	}
+
+	input[0] = src;
+	input[1] = src;
+	input[2] = src;
+	PADD(input[1], stage_vert->sdw);
+	PADD(input[2], stage_vert->sdw * 2);
+
+	for(i=0;i<3;++i) {
+		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+	}
+
+	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
+	partial[1] = video_pipeline_run_partial(partial[1], stage_begin, stage_pivot, 0, input[1], -1);
+
+	if (stage_pivot == stage_end) {
+		void* dst[3];
+
+		/* first row */
+		for(i=0;i<3;++i) {
+			dst[i] = target->line(target, y) + x_off;
+			++y;
+		}
+
+		stage_scale3k(stage_vert, dst[0], dst[1], dst[2], partial[0], partial[0], partial[1], -1);
+
+		/* central rows */
+		count -= 2;
+		while (count) {
+			for(i=0;i<3;++i) {
+				dst[i] = target->line(target, y) + x_off;
+				++y;
+			}
+
+			partial[2] = video_pipeline_run_partial(partial[2], stage_begin, stage_pivot, 0, input[2], pos);
+
+			stage_scale3k(stage_vert, dst[0], dst[1], dst[2], partial[0], partial[1], partial[2], pos);
+
+			tmp = partial[0];
+			partial[0] = partial[1];
+			partial[1] = partial[2];
+			partial[2] = tmp;
+
+			PADD(input[2], stage_vert->sdw);
+			--count;
+		}
+
+		/* last row */
+		for(i=0;i<3;++i) {
+			dst[i] = target->line(target, y) + x_off;
+			++y;
+		}
+
+		stage_scale3k(stage_vert, dst[0], dst[1], dst[2], partial[1-1], partial[2-1], partial[2-1], -1);
+	} else {
+		void* dst[3];
+
+		/* first row */
+		for(i=0;i<3;++i) {
+			dst[i] = target->line(target, y) + x_off;
+			++y;
+		}
+
+		stage_scale3k(stage_vert, final[0], final[1], final[2], partial[0], partial[0], partial[1], pos);
+
+		for(i=0;i<3;++i) {
+			video_pipeline_run_plain(stage_pivot, stage_end, line + i, dst[i], final[i], pos);
+		}
+
+		line += 3;
+
+		/* central rows */
+		count -= 2;
+		while (count) {
+			for(i=0;i<3;++i) {
+				dst[i] = target->line(target, y) + x_off;
+				++y;
+			}
+
+			partial[2] = video_pipeline_run_partial(partial[2], stage_begin, stage_pivot, 0, input[2], pos);
+
+			stage_scale3k(stage_vert, final[0], final[1], final[2], partial[0], partial[1], partial[2], pos);
+
+			for(i=0;i<3;++i) {
+				video_pipeline_run_plain(stage_pivot, stage_end, line + i, dst[i], final[i], pos);
+			}
+
+			line += 3;
+
+			tmp = partial[0];
+			partial[0] = partial[1];
+			partial[1] = partial[2];
+			partial[2] = tmp;
+
+			PADD(input[2], stage_vert->sdw);
+			--count;
+		}
+
+		/* last row */
+		for(i=0;i<3;++i) {
+			dst[i] = target->line(target, y) + x_off;
+			++y;
+		}
+
+		stage_scale3k(stage_vert, final[0], final[1], final[2], partial[1-1], partial[2-1], partial[2-1], pos);
+
+		for(i=0;i<3;++i) {
+			video_pipeline_run_plain(stage_pivot, stage_end, line + i, dst[i], final[i], pos);
+		}
+
+		line += 3;
+	}
+
+	for(i=0;i<3;++i) {
+		video_buffer_free(partial_copy[2 - i]);
+	}
+
+	if (stage_pivot != stage_end) {
+		for(i=0;i<3;++i) {
+			video_buffer_free(final[2 - i]);
+		}
+	}
+}
+#endif
+
+
+/***************************************************************************/
 /* stretch lq3x */
 
 #ifndef USE_BLIT_TINY
@@ -4054,6 +4415,162 @@ static void video_stage_stretchy_scale4x(const struct video_pipeline_target_stru
 #endif
 
 /***************************************************************************/
+/* stretch scale4k */
+
+#ifndef USE_BLIT_TINY
+static void video_stage_stretchy_scale4k(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
+{
+	unsigned x_off = x * target->bytes_per_pixel;
+	unsigned count = stage_vert->sdy;
+	unsigned line = 0;
+	unsigned pos = -1;
+
+	const struct video_stage_horz_struct* stage_begin = stage_vert->stage_begin;
+	const struct video_stage_horz_struct* stage_end = stage_vert->stage_end;
+	const struct video_stage_horz_struct* stage_pivot = stage_vert->stage_pivot;
+
+	void* final[4];
+	const void* input[3];
+	void* partial[3];
+	void* partial_copy[3];
+	void* tmp;
+	unsigned i;
+
+	if (stage_pivot != stage_end) {
+		for(i=0;i<4;++i) {
+			final[i] = video_buffer_alloc(4 * stage_pivot->sdx * stage_pivot->sbpp);
+		}
+	} else {
+		for(i=0;i<4;++i) {
+			final[i] = 0;
+		}
+	}
+
+	input[0] = src;
+	input[1] = src;
+	input[2] = src;
+	PADD(input[1], stage_vert->sdw);
+	PADD(input[2], stage_vert->sdw * 2);
+
+	for(i=0;i<3;++i) {
+		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+	}
+
+	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
+	partial[1] = video_pipeline_run_partial(partial[1], stage_begin, stage_pivot, 0, input[1], -1);
+
+	if (stage_pivot == stage_end) {
+		void* dst[4];
+
+		/* first row */
+		for(i=0;i<4;++i) {
+			dst[i] = target->line(target, y) + x_off;
+			++y;
+		}
+
+		stage_scale4k(stage_vert, dst[0], dst[1], dst[2], dst[3], partial[0], partial[0], partial[1], -1);
+
+		/* central rows */
+		count -= 2;
+		while (count) {
+			for(i=0;i<4;++i) {
+				dst[i] = target->line(target, y) + x_off;
+				++y;
+			}
+
+			partial[2] = video_pipeline_run_partial(partial[2], stage_begin, stage_pivot, 0, input[2], pos);
+
+			stage_scale4k(stage_vert, dst[0], dst[1], dst[2], dst[3], partial[0], partial[1], partial[2], pos);
+
+			tmp = partial[0];
+			partial[0] = partial[1];
+			partial[1] = partial[2];
+			partial[2] = tmp;
+
+			PADD(input[2], stage_vert->sdw);
+			--count;
+		}
+
+		/* last row */
+		for(i=0;i<4;++i) {
+			dst[i] = target->line(target, y) + x_off;
+			++y;
+		}
+
+		stage_scale4k(stage_vert, dst[0], dst[1], dst[2], dst[3], partial[1-1], partial[2-1], partial[2-1], -1);
+	} else {
+		void* dst[4];
+
+		/* first row */
+		for(i=0;i<4;++i) {
+			dst[i] = target->line(target, y) + x_off;
+			++y;
+		}
+
+		stage_scale4k(stage_vert, final[0], final[1], final[2], final[3], partial[0], partial[0], partial[1], pos);
+
+		for(i=0;i<4;++i) {
+			video_pipeline_run_plain(stage_pivot, stage_end, line + i, dst[i], final[i], pos);
+		}
+
+		line += 4;
+
+		/* central rows */
+		count -= 2;
+		while (count) {
+			for(i=0;i<4;++i) {
+				dst[i] = target->line(target, y) + x_off;
+				++y;
+			}
+
+			partial[2] = video_pipeline_run_partial(partial[2], stage_begin, stage_pivot, 0, input[2], pos);
+
+			stage_scale4k(stage_vert, final[0], final[1], final[2], final[3], partial[0], partial[1], partial[2], pos);
+
+			for(i=0;i<4;++i) {
+				video_pipeline_run_plain(stage_pivot, stage_end, line + i, dst[i], final[i], pos);
+			}
+
+			line += 4;
+
+			tmp = partial[0];
+			partial[0] = partial[1];
+			partial[1] = partial[2];
+			partial[2] = tmp;
+
+			PADD(input[2], stage_vert->sdw);
+			--count;
+		}
+
+		/* last row */
+		for(i=0;i<4;++i) {
+			dst[i] = target->line(target, y) + x_off;
+			++y;
+		}
+
+		stage_scale4k(stage_vert, final[0], final[1], final[2], final[3], partial[1-1], partial[2-1], partial[2-1], pos);
+
+		for(i=0;i<4;++i) {
+			video_pipeline_run_plain(stage_pivot, stage_end, line + i, dst[i], final[i], pos);
+		}
+
+		line += 4;
+	}
+
+	for(i=0;i<3;++i) {
+		video_buffer_free(partial_copy[2 - i]);
+	}
+
+	if (stage_pivot != stage_end) {
+		for(i=0;i<4;++i) {
+			video_buffer_free(final[3 - i]);
+		}
+	}
+}
+#endif
+
+
+/***************************************************************************/
 /* stretch lq4x */
 
 #ifndef USE_BLIT_TINY
@@ -4656,27 +5173,34 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 	stage_vert->stage_end = video_pipeline_end(pipeline);
 
 #ifndef USE_BLIT_TINY
-	if (ddx == 2*sdx && ddy == 2*sdy && combine_y == VIDEO_COMBINE_Y_SCALE) {
+	if (ddx == 2*sdx && ddy == 2*sdy && combine_y == VIDEO_COMBINE_Y_SCALEX) {
 		/* scale2x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_scale2x;
 		stage_vert->type = pipe_y_scale2x;
-	} else if (ddx == 2*sdx && ddy == 3*sdy && combine_y == VIDEO_COMBINE_Y_SCALE) {
+	} else if (ddx == 2*sdx && ddy == 3*sdy && combine_y == VIDEO_COMBINE_Y_SCALEX) {
 		/* scale2x3 */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_scale2x3;
 		stage_vert->type = pipe_y_scale2x3;
-	} else if (ddx == 2*sdx && ddy == 4*sdy && combine_y == VIDEO_COMBINE_Y_SCALE) {
+	} else if (ddx == 2*sdx && ddy == 4*sdy && combine_y == VIDEO_COMBINE_Y_SCALEX) {
 		/* scale2x4 */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_scale2x4;
 		stage_vert->type = pipe_y_scale2x4;
+	} else if (ddx == 2*sdx && ddy == 2*sdy && combine_y == VIDEO_COMBINE_Y_SCALEK) {
+		/* scale2k */
+		slice_set(&stage_vert->slice, sdy, ddy);
+
+		video_stage_pivot_late_set(stage_vert, combine);
+		stage_vert->put = video_stage_stretchy_scale2k;
+		stage_vert->type = pipe_y_scale2k;
 	} else if (ddx == 2*sdx && ddy == 2*sdy && combine_y == VIDEO_COMBINE_Y_LQ) {
 		/* lq2x */
 		slice_set(&stage_vert->slice, sdy, ddy);
@@ -4728,13 +5252,20 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		stage_vert->put = video_stage_stretchy_xbr2x;
 		stage_vert->type = pipe_y_xbr2x;
 #endif
-	} else if (ddx == 3*sdx && ddy == 3*sdy && combine_y == VIDEO_COMBINE_Y_SCALE) {
+	} else if (ddx == 3*sdx && ddy == 3*sdy && combine_y == VIDEO_COMBINE_Y_SCALEX) {
 		/* scale3x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_scale3x;
 		stage_vert->type = pipe_y_scale3x;
+	} else if (ddx == 3*sdx && ddy == 3*sdy && combine_y == VIDEO_COMBINE_Y_SCALEK) {
+		/* scale3k */
+		slice_set(&stage_vert->slice, sdy, ddy);
+
+		video_stage_pivot_late_set(stage_vert, combine);
+		stage_vert->put = video_stage_stretchy_scale3k;
+		stage_vert->type = pipe_y_scale3k;
 	} else if (ddx == 3*sdx && ddy == 3*sdy && combine_y == VIDEO_COMBINE_Y_LQ) {
 		/* lq3x */
 		slice_set(&stage_vert->slice, sdy, ddy);
@@ -4758,13 +5289,20 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		stage_vert->put = video_stage_stretchy_xbr3x;
 		stage_vert->type = pipe_y_xbr3x;
 #endif
-	} else if (ddx == 4*sdx && ddy == 4*sdy && combine_y == VIDEO_COMBINE_Y_SCALE) {
+	} else if (ddx == 4*sdx && ddy == 4*sdy && combine_y == VIDEO_COMBINE_Y_SCALEX) {
 		/* scale4x */
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		video_stage_pivot_late_set(stage_vert, combine);
 		stage_vert->put = video_stage_stretchy_scale4x;
 		stage_vert->type = pipe_y_scale4x;
+	} else if (ddx == 4*sdx && ddy == 4*sdy && combine_y == VIDEO_COMBINE_Y_SCALEK) {
+		/* scale4k */
+		slice_set(&stage_vert->slice, sdy, ddy);
+
+		video_stage_pivot_late_set(stage_vert, combine);
+		stage_vert->put = video_stage_stretchy_scale4k;
+		stage_vert->type = pipe_y_scale4k;
 	} else if (ddx == 4*sdx && ddy == 4*sdy && combine_y == VIDEO_COMBINE_Y_LQ) {
 		/* lq4x */
 		slice_set(&stage_vert->slice, sdy, ddy);
@@ -4927,11 +5465,13 @@ static void video_pipeline_make(const struct video_pipeline_target_struct* targe
 	/* do the x stretch */
 #ifndef USE_BLIT_TINY
 	/* cases for that the horizontal stretch is done by the y stage */
-	if (dst_dx == 2*src_dx && dst_dy == 2*src_dy && combine_y == VIDEO_COMBINE_Y_SCALE) {
+	if (dst_dx == 2*src_dx && dst_dy == 2*src_dy && combine_y == VIDEO_COMBINE_Y_SCALEX) {
 		src_dp = bytes_per_pixel;
-	} else if (dst_dx == 2*src_dx && dst_dy == 3*src_dy && combine_y == VIDEO_COMBINE_Y_SCALE) {
+	} else if (dst_dx == 2*src_dx && dst_dy == 3*src_dy && combine_y == VIDEO_COMBINE_Y_SCALEX) {
 		src_dp = bytes_per_pixel;
-	} else if (dst_dx == 2*src_dx && dst_dy == 4*src_dy && combine_y == VIDEO_COMBINE_Y_SCALE) {
+	} else if (dst_dx == 2*src_dx && dst_dy == 4*src_dy && combine_y == VIDEO_COMBINE_Y_SCALEX) {
+		src_dp = bytes_per_pixel;
+	} else if (dst_dx == 2*src_dx && dst_dy == 2*src_dy && combine_y == VIDEO_COMBINE_Y_SCALEK) {
 		src_dp = bytes_per_pixel;
 	} else if (dst_dx == 2*src_dx && dst_dy == 2*src_dy && combine_y == VIDEO_COMBINE_Y_LQ) {
 		src_dp = bytes_per_pixel;
@@ -4949,7 +5489,9 @@ static void video_pipeline_make(const struct video_pipeline_target_struct* targe
 	} else if (dst_dx == 2*src_dx && dst_dy == 2*src_dy && combine_y == VIDEO_COMBINE_Y_XBR) {
 		src_dp = bytes_per_pixel;
 #endif
-	} else if (dst_dx == 3*src_dx && dst_dy == 3*src_dy && combine_y == VIDEO_COMBINE_Y_SCALE) {
+	} else if (dst_dx == 3*src_dx && dst_dy == 3*src_dy && combine_y == VIDEO_COMBINE_Y_SCALEX) {
+		src_dp = bytes_per_pixel;
+	} else if (dst_dx == 3*src_dx && dst_dy == 3*src_dy && combine_y == VIDEO_COMBINE_Y_SCALEK) {
 		src_dp = bytes_per_pixel;
 	} else if (dst_dx == 3*src_dx && dst_dy == 3*src_dy && combine_y == VIDEO_COMBINE_Y_LQ) {
 		src_dp = bytes_per_pixel;
@@ -4959,7 +5501,9 @@ static void video_pipeline_make(const struct video_pipeline_target_struct* targe
 	} else if (dst_dx == 3*src_dx && dst_dy == 3*src_dy && combine_y == VIDEO_COMBINE_Y_XBR) {
 		src_dp = bytes_per_pixel;
 #endif
-	} else if (dst_dx == 4*src_dx && dst_dy == 4*src_dy && combine_y == VIDEO_COMBINE_Y_SCALE) {
+	} else if (dst_dx == 4*src_dx && dst_dy == 4*src_dy && combine_y == VIDEO_COMBINE_Y_SCALEX) {
+		src_dp = bytes_per_pixel;
+	} else if (dst_dx == 4*src_dx && dst_dy == 4*src_dy && combine_y == VIDEO_COMBINE_Y_SCALEK) {
 		src_dp = bytes_per_pixel;
 	} else if (dst_dx == 4*src_dx && dst_dy == 4*src_dy && combine_y == VIDEO_COMBINE_Y_LQ) {
 		src_dp = bytes_per_pixel;
@@ -4975,7 +5519,8 @@ static void video_pipeline_make(const struct video_pipeline_target_struct* targe
 #ifndef USE_BLIT_TINY
 		/* disable the y effect if size doesn't match */
 		switch (combine_y) {
-		case VIDEO_COMBINE_Y_SCALE :
+		case VIDEO_COMBINE_Y_SCALEX :
+		case VIDEO_COMBINE_Y_SCALEK :
 		case VIDEO_COMBINE_Y_LQ :
 #ifndef USE_BLIT_SMALL
 		case VIDEO_COMBINE_Y_HQ :

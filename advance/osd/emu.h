@@ -611,10 +611,11 @@ void advance_sound_config_save(struct advance_sound_context* context, const char
 #define COMBINE_MAXMIN 1
 #define COMBINE_MEAN 2
 #define COMBINE_FILTER 3
-#define COMBINE_SCALE 6
-#define COMBINE_LQ 7
-#define COMBINE_HQ 8
-#define COMBINE_XBR 9
+#define COMBINE_SCALEX 6
+#define COMBINE_SCALEK 7
+#define COMBINE_LQ 8
+#define COMBINE_HQ 9
+#define COMBINE_XBR 10
 /*@}*/
 
 /** Special additional effect (enumeration). */

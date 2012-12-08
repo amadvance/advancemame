@@ -361,7 +361,8 @@ int osd2_video_menu(int selected, unsigned input)
 	case COMBINE_MAXMIN : text = "Resize Effect [max]"; break;
 	case COMBINE_MEAN : text = "Resize Effect [mean]"; break;
 	case COMBINE_FILTER : text = "Resize Effect [filter]"; break;
-	case COMBINE_SCALE : text = "Resize Effect [scale]"; break;
+	case COMBINE_SCALEX : text = "Resize Effect [scalex]"; break;
+	case COMBINE_SCALEK : text = "Resize Effect [scalek]"; break;
 	case COMBINE_LQ : text = "Resize Effect [lq]"; break;
 	case COMBINE_HQ : text = "Resize Effect [hq]"; break;
 	case COMBINE_XBR : text = "Resize Effect [xbr]"; break;
@@ -372,7 +373,8 @@ int osd2_video_menu(int selected, unsigned input)
 	case COMBINE_MAXMIN : option = "max"; break;
 	case COMBINE_MEAN : option = "mean"; break;
 	case COMBINE_FILTER : option = "filter"; break;
-	case COMBINE_SCALE : option = "scale"; break;
+	case COMBINE_SCALEX : option = "scalex"; break;
+	case COMBINE_SCALEK : option = "scalek"; break;
 	case COMBINE_LQ : option = "lq"; break;
 	case COMBINE_HQ : option = "hq"; break;
 	case COMBINE_XBR : option = "xbr"; break;
@@ -497,8 +499,9 @@ int osd2_video_menu(int selected, unsigned input)
 			case COMBINE_NONE : config.combine = COMBINE_MAXMIN; break;
 			case COMBINE_MAXMIN : config.combine = COMBINE_MEAN; break;
 			case COMBINE_MEAN : config.combine = COMBINE_FILTER; break;
-			case COMBINE_FILTER : config.combine = COMBINE_SCALE; break;
-			case COMBINE_SCALE : config.combine = COMBINE_LQ; break;
+			case COMBINE_FILTER : config.combine = COMBINE_SCALEX; break;
+			case COMBINE_SCALEX : config.combine = COMBINE_SCALEK; break;
+			case COMBINE_SCALEK : config.combine = COMBINE_LQ; break;
 			case COMBINE_LQ : config.combine = COMBINE_HQ; break;
 			case COMBINE_HQ : config.combine = COMBINE_XBR; break;
 			case COMBINE_XBR : config.combine = COMBINE_AUTO; break;
@@ -574,8 +577,9 @@ int osd2_video_menu(int selected, unsigned input)
 			case COMBINE_MAXMIN : config.combine = COMBINE_NONE; break;
 			case COMBINE_MEAN : config.combine = COMBINE_MAXMIN; break;
 			case COMBINE_FILTER : config.combine = COMBINE_MEAN; break;
-			case COMBINE_SCALE : config.combine = COMBINE_FILTER; break;
-			case COMBINE_LQ : config.combine = COMBINE_SCALE; break;
+			case COMBINE_SCALEX : config.combine = COMBINE_FILTER; break;
+			case COMBINE_SCALEK : config.combine = COMBINE_SCALEX; break;
+			case COMBINE_LQ : config.combine = COMBINE_SCALEK; break;
 			case COMBINE_HQ : config.combine = COMBINE_LQ; break;
 			case COMBINE_XBR : config.combine = COMBINE_HQ; break;
 			}

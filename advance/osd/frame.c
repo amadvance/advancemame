@@ -754,14 +754,23 @@ void advance_video_update_effect(struct advance_video_context* context)
 		}
 	}
 
-	if ((context->state.combine == COMBINE_SCALE)
+	if ((context->state.combine == COMBINE_SCALEX)
 		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 2*context->state.game_visible_size_y)
 		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
 		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
 		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
 		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
 	) {
-		log_std(("emu:video: resizeeffect=scale disabled because the wrong mode size\n"));
+		log_std(("emu:video: resizeeffect=scalex disabled because the wrong mode size\n"));
+		context->state.combine = COMBINE_NONE;
+	}
+
+	if ((context->state.combine == COMBINE_SCALEK)
+		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 2*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
+	) {
+		log_std(("emu:video: resizeeffect=scalek disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
@@ -1808,8 +1817,11 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 	case COMBINE_FILTER :
 		combine |= VIDEO_COMBINE_Y_FILTER | VIDEO_COMBINE_X_FILTER;
 		break;
-	case COMBINE_SCALE :
-		combine |= VIDEO_COMBINE_Y_SCALE;
+	case COMBINE_SCALEX :
+		combine |= VIDEO_COMBINE_Y_SCALEX;
+		break;
+	case COMBINE_SCALEK :
+		combine |= VIDEO_COMBINE_Y_SCALEK;
 		break;
 	case COMBINE_LQ :
 		combine |= VIDEO_COMBINE_Y_LQ;
