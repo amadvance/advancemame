@@ -1179,6 +1179,8 @@ static struct mame_port GLUE_PORT_STD[] = {
 	S("ui_show_fps", "Show FPS", UI_SHOW_FPS)
 	S("ui_snapshot", "Snapshot", UI_SNAPSHOT)
 	S("ui_toggle_cheat", "Cheat", UI_TOGGLE_CHEAT)
+	S("ui_home", "UI Home", UI_HOME)
+	S("ui_end", "UI End", UI_END)
 	S("ui_up", "UI Up", UI_UP)
 	S("ui_down", "UI Down", UI_DOWN)
 	S("ui_left", "UI Left", UI_LEFT)
@@ -1744,6 +1746,8 @@ static unsigned PORT_TYPE_REPORT_DEFAULT[] = {
 	IPT_UI_SHOW_FPS,
 	IPT_UI_SNAPSHOT,
 	IPT_UI_TOGGLE_CHEAT,
+	IPT_UI_HOME,
+	IPT_UI_END,
 	IPT_UI_UP,
 	IPT_UI_DOWN,
 	IPT_UI_LEFT,

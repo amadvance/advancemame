@@ -99,7 +99,7 @@ void xbr2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict
 	unsigned i;
 
 	for(i=0;i<count;++i) {
-		interp_uint16 PA, PB, PC, PD, PE, PF, PG, PH, PI;
+		interp_uint16 PA, PB, PC, PD, PE, PF, PG, PH, xPI;
 		interp_uint16 A0, D0, G0, A1, B1, C1, C4, F4, I4, G5, H5, I5;
 		interp_uint16 E[4];
 
@@ -148,7 +148,7 @@ void xbr2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict
 			C1 = src0[1];
 			PC = src1[1];
 			PF = src2[1];
-			PI = src3[1];
+			xPI = src3[1];
 			I5 = src4[1];
 
 			C4 = src1[2];
@@ -158,7 +158,7 @@ void xbr2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict
 			C1 = src0[1];
 			PC = src1[1];
 			PF = src2[1];
-			PI = src3[1];
+			xPI = src3[1];
 			I5 = src4[1];
 
 			C4 = src1[1];
@@ -168,7 +168,7 @@ void xbr2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict
 			C1 = src0[0];
 			PC = src1[0];
 			PF = src2[0];
-			PI = src3[0];
+			xPI = src3[0];
 			I5 = src4[0];
 
 			C4 = src1[0];
@@ -182,10 +182,10 @@ void xbr2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict
 		E[2] = PE;
 		E[3] = PE;
 
-		XBR(interp_uint16, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, 3);
-		XBR(interp_uint16, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, 2, 0, 3, 1);
-		XBR(interp_uint16, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, 3, 2, 1, 0);
-		XBR(interp_uint16, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 1, 3, 0, 2);
+		XBR(interp_uint16, PE, xPI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, 3);
+		XBR(interp_uint16, PE, PC, PF, PB, xPI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, 2, 0, 3, 1);
+		XBR(interp_uint16, PE, PA, PB, PD, PC, PG, PF, PH, xPI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, 3, 2, 1, 0);
+		XBR(interp_uint16, PE, PG, PD, PH, PA, xPI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 1, 3, 0, 2);
 
 		/* copy resulting pixel into dst */
 		dst0[0] = E[0];
@@ -233,7 +233,7 @@ void xbr2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict
 	unsigned i;
 
 	for(i=0;i<count;++i) {
-		interp_uint32 PA, PB, PC, PD, PE, PF, PG, PH, PI;
+		interp_uint32 PA, PB, PC, PD, PE, PF, PG, PH, xPI;
 		interp_uint32 A0, D0, G0, A1, B1, C1, C4, F4, I4, G5, H5, I5;
 		interp_uint32 E[4];
 
@@ -282,7 +282,7 @@ void xbr2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict
 			C1 = src0[1];
 			PC = src1[1];
 			PF = src2[1];
-			PI = src3[1];
+			xPI = src3[1];
 			I5 = src4[1];
 
 			C4 = src1[2];
@@ -292,7 +292,7 @@ void xbr2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict
 			C1 = src0[1];
 			PC = src1[1];
 			PF = src2[1];
-			PI = src3[1];
+			xPI = src3[1];
 			I5 = src4[1];
 
 			C4 = src1[1];
@@ -302,7 +302,7 @@ void xbr2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict
 			C1 = src0[0];
 			PC = src1[0];
 			PF = src2[0];
-			PI = src3[0];
+			xPI = src3[0];
 			I5 = src4[0];
 
 			C4 = src1[0];
@@ -316,10 +316,10 @@ void xbr2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict
 		E[2] = PE;
 		E[3] = PE;
 
-		XBR(interp_uint32, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, 3);
-		XBR(interp_uint32, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, 2, 0, 3, 1);
-		XBR(interp_uint32, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, 3, 2, 1, 0);
-		XBR(interp_uint32, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 1, 3, 0, 2);
+		XBR(interp_uint32, PE, xPI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, 3);
+		XBR(interp_uint32, PE, PC, PF, PB, xPI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, 2, 0, 3, 1);
+		XBR(interp_uint32, PE, PA, PB, PD, PC, PG, PF, PH, xPI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, 3, 2, 1, 0);
+		XBR(interp_uint32, PE, PG, PD, PH, PA, xPI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 1, 3, 0, 2);
 
 		/* copy resulting pixel into dst */
 		dst0[0] = E[0];
@@ -367,7 +367,7 @@ void xbr2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restri
 	unsigned i;
 
 	for(i=0;i<count;++i) {
-		interp_uint32 PA, PB, PC, PD, PE, PF, PG, PH, PI;
+		interp_uint32 PA, PB, PC, PD, PE, PF, PG, PH, xPI;
 		interp_uint32 A0, D0, G0, A1, B1, C1, C4, F4, I4, G5, H5, I5;
 		interp_uint32 E[4];
 
@@ -416,7 +416,7 @@ void xbr2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restri
 			C1 = src0[1];
 			PC = src1[1];
 			PF = src2[1];
-			PI = src3[1];
+			xPI = src3[1];
 			I5 = src4[1];
 
 			C4 = src1[2];
@@ -426,7 +426,7 @@ void xbr2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restri
 			C1 = src0[1];
 			PC = src1[1];
 			PF = src2[1];
-			PI = src3[1];
+			xPI = src3[1];
 			I5 = src4[1];
 
 			C4 = src1[1];
@@ -436,7 +436,7 @@ void xbr2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restri
 			C1 = src0[0];
 			PC = src1[0];
 			PF = src2[0];
-			PI = src3[0];
+			xPI = src3[0];
 			I5 = src4[0];
 
 			C4 = src1[0];
@@ -450,10 +450,10 @@ void xbr2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restri
 		E[2] = PE;
 		E[3] = PE;
 
-		XBR(interp_uint32, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, 3);
-		XBR(interp_uint32, PE, PC, PF, PB, PI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, 2, 0, 3, 1);
-		XBR(interp_uint32, PE, PA, PB, PD, PC, PG, PF, PH, PI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, 3, 2, 1, 0);
-		XBR(interp_uint32, PE, PG, PD, PH, PA, PI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 1, 3, 0, 2);
+		XBR(interp_uint32, PE, xPI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, 3);
+		XBR(interp_uint32, PE, PC, PF, PB, xPI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, 2, 0, 3, 1);
+		XBR(interp_uint32, PE, PA, PB, PD, PC, PG, PF, PH, xPI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, 3, 2, 1, 0);
+		XBR(interp_uint32, PE, PG, PD, PH, PA, xPI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 1, 3, 0, 2);
 
 		/* copy resulting pixel into dst */
 		dst0[0] = E[0];
