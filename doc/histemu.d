@@ -11,6 +11,7 @@ AdvanceMAME Version 1.2 2012/12
 		to 'hq', or 'lq' or 'scale' if speed is required.
 	) Removed blitting cache optimization. With modern caches it's not needed anymore.
 	) Changed default doc/man dirs to prefix/doc and prefix/man.
+	) Now in git repository.
 	) Removed DLL files from the Windows distribution. New new compiler uses static libraries.
 	) Compiled with SDL-1.2.14, zlib-1.2.5, expat-2.0.1, freetype-2.4.4, pthreads-w32-2-8-0.
 
