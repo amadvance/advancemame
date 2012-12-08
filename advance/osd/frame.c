@@ -1292,6 +1292,9 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	context->state.measure_start = 0;
 	context->state.measure_stop = 0;
 
+	memset(context->state.pipeline_timing_map, 0, sizeof(context->state.pipeline_timing_map));
+	context->state.pipeline_timing_i = 0;
+
 	context->state.debugger_flag = 0;
 	context->state.sync_throttle_flag = 1;
 
@@ -1995,7 +1998,9 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 	start = 0;
 	stop = 0;
 
-	if (context->state.pipeline_measure_flag && !buffer_flag) {
+	/* no buffering is used */
+	if (!buffer_flag) {
+		/* start measure */
 		start = target_clock();
 	}
 
@@ -2088,42 +2093,56 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 		video_pipeline_blit(&context->state.blit_pipeline[context->state.blit_pipeline_index], dst_x + x, dst_y + y, (unsigned char*)bitmap->ptr + src_offset);
 	}
 
-	/* if a valid measure */
-	if (context->state.pipeline_measure_flag && !buffer_flag) {
+	/* no buffering is used */
+	if (!buffer_flag) {
+		/* end measure */
 		stop = target_clock();
 
-		context->state.pipeline_measure_map[context->state.pipeline_measure_i][context->state.pipeline_measure_j] = stop - start;
-		++context->state.pipeline_measure_i;
+		stop -= start;
 
-		if (context->state.pipeline_measure_i == PIPELINE_BLIT_MAX) {
-			context->state.pipeline_measure_i = 0;
-			++context->state.pipeline_measure_j;
+		/* if we are in estimation phase */
+		if (context->state.pipeline_measure_flag) {
 
-			if (context->state.pipeline_measure_j == PIPELINE_MEASURE_MAX) {
-				unsigned i;
+			context->state.pipeline_measure_map[context->state.pipeline_measure_i][context->state.pipeline_measure_j] = stop;
+			++context->state.pipeline_measure_i;
 
-				for(i=0;i<PIPELINE_BLIT_MAX;++i) {
-					context->state.pipeline_measure_result[i] = adv_measure_median(0.00001, 0.5, context->state.pipeline_measure_map[i], PIPELINE_MEASURE_MAX);
-					log_std(("emu:video: pipeline %d -> time %g\n", i, context->state.pipeline_measure_result[i]));
-				}
-
+			if (context->state.pipeline_measure_i == PIPELINE_BLIT_MAX) {
 				context->state.pipeline_measure_i = 0;
+				++context->state.pipeline_measure_j;
 
-				/* The first one is selected, then next one is selected only if a 3% gain is measured */
-				for(i=1;i<PIPELINE_BLIT_MAX;++i) {
-					if (context->state.pipeline_measure_result[i] < 0.97 * context->state.pipeline_measure_result[context->state.pipeline_measure_i]) {
-						context->state.pipeline_measure_i = i;
+				if (context->state.pipeline_measure_j == PIPELINE_MEASURE_MAX) {
+					unsigned i;
+
+					for(i=0;i<PIPELINE_BLIT_MAX;++i) {
+						context->state.pipeline_measure_result[i] = adv_measure_median(0.00001, 0.5, context->state.pipeline_measure_map[i], PIPELINE_MEASURE_MAX);
+						log_std(("emu:video: pipeline %d -> time %g\n", i, context->state.pipeline_measure_result[i]));
 					}
+
+					context->state.pipeline_measure_i = 0;
+
+					/* The first one is selected, then next one is selected only if a 3% gain is measured */
+					for(i=1;i<PIPELINE_BLIT_MAX;++i) {
+						if (context->state.pipeline_measure_result[i] < 0.97 * context->state.pipeline_measure_result[context->state.pipeline_measure_i]) {
+							context->state.pipeline_measure_i = i;
+						}
+					}
+
+					log_std(("emu:video: best is %d\n", context->state.pipeline_measure_i));
+
+					/* end the measure process */
+					context->state.pipeline_measure_flag = 0;
 				}
-
-				log_std(("emu:video: best is %d\n", context->state.pipeline_measure_i));
-
-				/* end the measure process */
-				context->state.pipeline_measure_flag = 0;
 			}
+
+			context->state.blit_pipeline_index = context->state.pipeline_measure_i;
 		}
 
-		context->state.blit_pipeline_index = context->state.pipeline_measure_i;
+		context->state.pipeline_timing_map[context->state.pipeline_timing_i] = stop;
+
+		++context->state.pipeline_timing_i;
+		if (context->state.pipeline_timing_i == PIPELINE_MEASURE_MAX) {
+			context->state.pipeline_timing_i = 0;
+		}
 	}
 }
 

@@ -151,15 +151,23 @@ static int video_pipeline_menu(struct advance_video_context* context, struct adv
 	if (context->state.pipeline_measure_flag) {
 		advance_ui_menu_text_insert(&menu, "Time measure not completed");
 	} else {
+		double timing = adv_measure_median(0.00001, 0.5, context->state.pipeline_timing_map, PIPELINE_MEASURE_MAX);
+		snprintf(buffer, sizeof(buffer), "Last write %.2f (ms)", timing * 1000);
+		advance_ui_menu_text_insert(&menu, buffer);
+
 		for(i=0;i<PIPELINE_BLIT_MAX;++i) {
 			const char* desc;
+			const char* select;
+			if (context->state.blit_pipeline_index == i)
+				select = "-> ";
+			else
+				select = "";
 			switch (i) {
 			case 0 : desc = "Buffer"; break;
 			case 1 : desc = "Direct"; break;
-			case 2 : desc = "Splitted"; break;
 			default : desc = "Unknown"; break;
 			}
-			snprintf(buffer, sizeof(buffer), "(%d) %s write %.2f (ms)", i, desc, context->state.pipeline_measure_result[i] * 1000);
+			snprintf(buffer, sizeof(buffer), "%s%s write %.2f (ms)", select, desc, context->state.pipeline_measure_result[i] * 1000);
 			advance_ui_menu_text_insert(&menu, buffer);
 		}
 	}

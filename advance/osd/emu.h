@@ -787,6 +787,7 @@ struct advance_video_state_context {
 	unsigned skip_level_skip; /**< Number of frames to skip in the cycle. */
 	unsigned skip_level_sum; /**< Total number of frame in the cycle. */
 	adv_bool skip_level_disable_flag; /**< If skipping was disabled for some reasons. */
+	unsigned skip_level_combine_counter; /**< Counter of slow frame before decreasing the combine effect. */
 
 	int latency_diff; /**< Current sound latency error in samples. */
 
@@ -869,6 +870,9 @@ struct advance_video_state_context {
 	double pipeline_measure_result[PIPELINE_BLIT_MAX]; /**< Selected measure. */
 	unsigned pipeline_measure_i;
 	unsigned pipeline_measure_j;
+
+	double pipeline_timing_map[PIPELINE_MEASURE_MAX]; /**< Continuous measure. */
+	unsigned pipeline_timing_i; /**< Index of the measure. */
 
 	const adv_crtc* crtc_selected; /**< Current crtc, pointer in the crtc_vector. */
 	adv_crtc crtc_effective; /**< Current modified crtc. */

@@ -226,7 +226,7 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 
 	assert(skip <= full);
 
-	if (full <= step) {
+	if (full < step) {
 		/* full frame rate */
 		context->state.skip_level_full = SYNC_MAX;
 		context->state.skip_level_skip = 0;
@@ -234,7 +234,7 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 		|| skip * SYNC_MAX + full >= step * (SYNC_MAX+1)
 	) {
 		/* if the maximum skip plus one isn't enought use a special management */
-		/* (the plus one is to remove jumping on the compare border) */
+		/* (the plus one is to avoid to continously activate and deactivate skipping) */
 		if (context->state.turbo_flag || context->state.fastest_flag) {
 			/* null frame rate */
 			context->state.skip_level_full = 1;
@@ -295,46 +295,6 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 			/* max skip limit */
 			if (context->state.skip_level_skip >= SYNC_MAX)
 				context->state.skip_level_skip = SYNC_MAX - 1;
-		}
-	}
-
-	/* if we are not 100% full speed */
-	if (context->state.skip_level_skip != 0) {
-		/* if we are in normal runtime condition */
-		if (!context->state.fastest_flag
-			&& !context->state.measure_flag
-			&& !context->state.turbo_flag
-			&& !context->state.info_flag
-		) {
-			struct advance_video_config_context config = context->config;
-
-			/* try decreasing the video effects */
-			if (config.combine == COMBINE_AUTO) {
-				switch (config.combine_max) {
-				case COMBINE_SCALE :
-					config.combine_max = COMBINE_NONE;
-					log_std(("advance:skip: decreasing combine from scale to none\n"));
-					break;
-				case COMBINE_LQ :
-					config.combine_max = COMBINE_SCALE;
-					log_std(("advance:skip: decreasing combine from lq to scale\n"));
-					break;
-				case COMBINE_HQ :
-					config.combine_max = COMBINE_LQ;
-					log_std(("advance:skip: decreasing combine from hq to lq\n"));
-					break;
-				case COMBINE_XBR :
-					config.combine_max = COMBINE_HQ;
-					log_std(("advance:skip: decreasing combine from xbr to hq\n"));
-					break;
-				}
-			}
-
-			/* if something changed */
-			if (context->config.combine_max != config.combine_max) {
-				/* reconfigure */
-				advance_video_reconfigure(context, &config);
-			}
 		}
 	}
 

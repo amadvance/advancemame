@@ -47,6 +47,18 @@
 /***************************************************************************/
 /* Commands */
 
+static adv_bool video_is_normal_speed(struct advance_video_context* context)
+{
+	adv_bool normal_speed;
+
+	normal_speed = !context->state.turbo_flag
+		&& !context->state.fastest_flag
+		&& !context->state.measure_flag
+		&& context->state.sync_throttle_flag;
+
+	return normal_speed;
+}
+
 static void event_check(unsigned ordinal, adv_bool condition, int id, unsigned previous, unsigned* current)
 {
 	unsigned mask = 1 << ordinal;
@@ -187,6 +199,61 @@ static void video_command_pan(struct advance_video_context* context, unsigned in
 		advance_video_update_pan(context);
 	}
 }
+
+static void video_command_combine(struct advance_video_context* context, struct advance_ui_context* ui_context, adv_bool skip_flag)
+{
+	if (advance_ui_buffer_active(ui_context) /* if no ui with buffer is active */
+		|| !video_is_normal_speed(context) /* if we are in normal runtime condition */
+	) {
+		/* reset the counter */
+		context->state.skip_level_combine_counter = 0;
+
+		/* don't adjust */
+		return;
+	}
+
+	if (context->state.skip_level_skip != 0) { /* if we are not 100% full speed */
+		/* one more frame too slow */
+		++context->state.skip_level_combine_counter;
+
+		/* if we reached some kind of limit */
+		if (context->state.skip_level_combine_counter > 60) {
+			struct advance_video_config_context config = context->config;
+
+			/* try decreasing the video effects */
+			if (config.combine == COMBINE_AUTO) {
+				switch (config.combine_max) {
+				case COMBINE_SCALE :
+					config.combine_max = COMBINE_NONE;
+					log_std(("advance:skip: decreasing combine from scale to none\n"));
+					break;
+				case COMBINE_LQ :
+					config.combine_max = COMBINE_SCALE;
+					log_std(("advance:skip: decreasing combine from lq to scale\n"));
+					break;
+				case COMBINE_HQ :
+					config.combine_max = COMBINE_LQ;
+					log_std(("advance:skip: decreasing combine from hq to lq\n"));
+					break;
+				case COMBINE_XBR :
+					config.combine_max = COMBINE_HQ;
+					log_std(("advance:skip: decreasing combine from xbr to hq\n"));
+					break;
+				}
+			}
+
+			/* if something changed */
+			if (context->config.combine_max != config.combine_max) {
+				/* reconfigure */
+				advance_video_reconfigure(context, &config);
+
+				/* restart counting */
+				context->state.skip_level_combine_counter = 0;
+			}
+		}
+	}
+}
+
 
 static void video_command(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_safequit_context* safequit_context, struct advance_ui_context* ui_context, adv_conf* cfg_context, int leds_status, unsigned input, adv_bool skip_flag)
 {
@@ -387,22 +454,12 @@ static void video_command(struct advance_video_context* context, struct advance_
 	video_command_resolution(context, input);
 
 	video_command_pan(context, input);
+
+	video_command_combine(context, ui_context, skip_flag);
 }
 
 /***************************************************************************/
 /* Frame */
-
-static adv_bool video_is_normal_speed(struct advance_video_context* context)
-{
-	adv_bool normal_speed;
-
-	normal_speed = !context->state.turbo_flag
-		&& !context->state.fastest_flag
-		&& !context->state.measure_flag
-		&& context->state.sync_throttle_flag;
-
-	return normal_speed;
-}
 
 static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, struct advance_safequit_context* safequit_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
