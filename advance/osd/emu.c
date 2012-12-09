@@ -515,7 +515,9 @@ static adv_conf_conv STANDARD[] = {
 /* 0.100.0 */
 { "*", "misc_historyfile", "*", "", "", "", 0 }, /* ignore */
 { "*", "misc_infofile", "*", "", "", "", 0 }, /* ignore */
-{ "*", "sound_resamplefilter", "*", "", "", "", 0 } /* ignore */
+{ "*", "sound_resamplefilter", "*", "", "", "", 0 }, /* ignore */
+/* 1.2 */
+{ "*", "display_resizeeffect", "scale", "%s", "%s", "scalex", 0 } /* rename */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

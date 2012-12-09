@@ -27,7 +27,7 @@ Description
 	* Software video image stretching by fractional factors, for
 		example to play vertical games like "Pac-Man" with
 		horizontal Arcade Monitors or TVs.
-	* Special `scale', `lq', `hq', and `xbr' effects to improve the aspect
+	* Special `scalex', `scalek', `lq', `hq', and `xbr' effects to improve the aspect
 		with modern PC Monitors.
 	* Special `blit' effects to improve the image quality in
 		stretching.
@@ -204,7 +204,7 @@ Features
 	the image quality when it's stretched.
 
 	There are a lot of video effects: `none', `max', `mean',
-	`filter', `scale', `lq', `hq' and `xbr'.
+	`filter', `scalex', `scalek', `lq', `hq' and `xbr'.
 	You can select the favorite effect with the `display_resizeeffect'
 	option, or from the runtime menu.
 
@@ -220,10 +220,10 @@ Features
 	results are when the image is stretched almost by a double
 	factor. When the image is enlarged the filter is applied after
 	stretching; when reduced, it's applied before.
-	The `scale', `lq', `hq' and `xbr' effects add missing pixels
+	The `scalex', `scalek', `lq', `hq' and `xbr' effects add missing pixels
 	trying to match the image patterns.
 
-	The `scale', `lq', `hq' and `xbr' effects work only if the image is
+	The `scalex', `scalek', `lq', `hq' and `xbr' effects work only if the image is
 	magnified. To enable it you should also use the `magnify' option.
 
   RGB Effects
@@ -853,7 +853,7 @@ Configuration
 
     display_magnify
 	Suggests the use of a double or bigger resolution video mode.
-	It is mainly used to enable the `scale', `lq', `hq' and `xbr'
+	It is mainly used to enable the `scalex', `scalek', `lq', `hq' and `xbr'
 	effects. This option doesn't have any effect for vector games.
 
 	:display_magnify auto | 1 | 2 | 3 | 4
@@ -1016,14 +1016,15 @@ Configuration
 	transformation applied.
 
 	:display_resizeeffect auto | none | max | mean | filter
-	:	| scale | lq | hq | xbr
+	:	| scalex | scalek | lq | hq | xbr
 
 	Options:
 		auto - Selects automatically the best effect (default).
 			This selection is list based, and may be
 			incomplete.
-			If the scale factor is 2, 3 o 4 the `scale' effect
-			is selected.
+			If the scale factor is 2, 3 o 4 the `xbr' effect
+			is selected. The effect is automatically downgraded
+			to `scalek' or `scalex' if the emulation is too slow.
 			On the other cases the `mean' or `max' effect
 			is selected.
 		none - Simply removes or duplicates lines as required.
@@ -1048,25 +1049,34 @@ Configuration
 			It's a simple FIR filter with two points of 
 			equal value.
 			Supported only in rgb video modes.
-		scale - It adds the missing pixels matching the
+		scalex - It adds the missing pixels matching the
 			original bitmap pattern.
+			It uses a 3x3 mapping analysis with 4 comparisons.
 			It doesn't interpolate pixels and it compares colors
 			for equality.
 			If works only for expansion factor of 2, 3 and 4.
+		scalek - It adds the missing pixels matching the
+			original bitmap pattern.
+			It uses a 3x3 mapping analysis with 4 comparisons.
+			It interpolates pixels and it compares colors
+			for equality.
+			If works only for expansion factor of 2, 3 and 4.
 		lq - It adds the missing pixels matching the
-			original bitmap pattern. It uses a deeper analysis
-			than `scale'. It interpolates pixels and it
-			compares colors for equality.
+			original bitmap pattern.
+			It uses a 3x3 mapping analysis with 8 comparisons.
+			It interpolates pixels and it compares colors for equality.
 			It works only for expansion factor of 2, 3 and 4.
 		hq - It adds the missing pixels matching the
-			original bitmap pattern. It uses a deeper analysis
-			than `scale'. It interpolates pixels and it
-			compares colors for distance.
+			original bitmap pattern.
+			It uses a 3x3 mapping analysis with 8 comparisons.
+			It interpolates pixels and it compares colors
+			for distance.
 			It works only for expansion factor of 2, 3 and 4.
 		xbr - It adds the missing pixels matching the
-			original bitmap pattern. It uses a deeper analysis
-			than `hq'. It interpolates pixels and it
-			compares colors for distance.
+			original bitmap pattern.
+			It uses a 5x5 mapping analysis with a gradient estimation.
+			It interpolates pixels and it compares colors
+			for distance.
 			It works only for expansion factor of 2, 3 and 4.
 
     display_rgbeffect

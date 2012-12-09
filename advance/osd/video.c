@@ -232,7 +232,7 @@ static void video_command_combine(struct advance_video_context* context, struct 
 					log_std(("advance:skip: decreasing combine from scalek to scalex\n"));
 					break;
 				case COMBINE_XBR :
-					config.combine_max = COMBINE_HQ;
+					config.combine_max = COMBINE_SCALEK;
 					log_std(("advance:skip: decreasing combine from xbr to scalek\n"));
 					break;
 				}

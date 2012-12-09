@@ -50,7 +50,7 @@ Software video image stretching by fractional factors, for
 example to play vertical games like \(a"Pac\(hyMan\(a" with
 horizontal Arcade Monitors or TVs.
 .IP \(bu
-Special \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq, and \(oqxbr\(cq effects to improve the aspect
+Special \(oqscalex\(cq, \(oqscalek\(cq, \(oqlq\(cq, \(oqhq\(cq, and \(oqxbr\(cq effects to improve the aspect
 with modern PC Monitors.
 .IP \(bu
 Special \(oqblit\(cq effects to improve the image quality in
@@ -314,7 +314,7 @@ AdvanceMAME supports many special video effects to improve
 the image quality when it\(cqs stretched.
 .PP
 There are a lot of video effects: \(oqnone\(cq, \(oqmax\(cq, \(oqmean\(cq,
-\(oqfilter\(cq, \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq.
+\(oqfilter\(cq, \(oqscalex\(cq, \(oqscalek\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq.
 You can select the favorite effect with the \(oqdisplay_resizeeffect\(cq
 option, or from the runtime menu.
 .PP
@@ -330,10 +330,10 @@ mean color in the horizontal and vertical directions. The best
 results are when the image is stretched almost by a double
 factor. When the image is enlarged the filter is applied after
 stretching; when reduced, it\(cqs applied before.
-The \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq effects add missing pixels
+The \(oqscalex\(cq, \(oqscalek\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq effects add missing pixels
 trying to match the image patterns.
 .PP
-The \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq effects work only if the image is
+The \(oqscalex\(cq, \(oqscalek\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq effects work only if the image is
 magnified. To enable it you should also use the \(oqmagnify\(cq option.
 .SS RGB Effects 
 AdvanceMAME supports also some special video effects to simulate
@@ -1208,7 +1208,7 @@ display_resize mixed
 .RE
 .SS display_magnify 
 Suggests the use of a double or bigger resolution video mode.
-It is mainly used to enable the \(oqscale\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq
+It is mainly used to enable the \(oqscalex\(cq, \(oqscalek\(cq, \(oqlq\(cq, \(oqhq\(cq and \(oqxbr\(cq
 effects. This option doesn\(cqt have any effect for vector games.
 .PP
 display_magnify auto | 1 | 2 | 3 | 4
@@ -1520,7 +1520,7 @@ display_resizeeffect auto | none | max | mean | filter
 .PD 0
 .PP
 .PD
-	| scale | lq | hq | xbr
+	| scalex | scalek | lq | hq | xbr
 .PD 0
 .PP
 .PD
@@ -1533,8 +1533,9 @@ Options:
 Selects automatically the best effect (default).
 This selection is list based, and may be
 incomplete.
-If the scale factor is 2, 3 o 4 the \(oqscale\(cq effect
-is selected.
+If the scale factor is 2, 3 o 4 the \(oqxbr\(cq effect
+is selected. The effect is automatically downgraded
+to \(oqscalek\(cq or \(oqscalex\(cq if the emulation is too slow.
 On the other cases the \(oqmean\(cq or \(oqmax\(cq effect
 is selected.
 .HP 4
@@ -1568,32 +1569,43 @@ It\(cqs a simple FIR filter with two points of
 equal value.
 Supported only in rgb video modes.
 .HP 4
-.I scale
+.I scalex
 It adds the missing pixels matching the
 original bitmap pattern.
+It uses a 3x3 mapping analysis with 4 comparisons.
 It doesn\(cqt interpolate pixels and it compares colors
+for equality.
+If works only for expansion factor of 2, 3 and 4.
+.HP 4
+.I scalek
+It adds the missing pixels matching the
+original bitmap pattern.
+It uses a 3x3 mapping analysis with 4 comparisons.
+It interpolates pixels and it compares colors
 for equality.
 If works only for expansion factor of 2, 3 and 4.
 .HP 4
 .I lq
 It adds the missing pixels matching the
-original bitmap pattern. It uses a deeper analysis
-than \(oqscale\(cq. It interpolates pixels and it
-compares colors for equality.
+original bitmap pattern.
+It uses a 3x3 mapping analysis with 8 comparisons.
+It interpolates pixels and it compares colors for equality.
 It works only for expansion factor of 2, 3 and 4.
 .HP 4
 .I hq
 It adds the missing pixels matching the
-original bitmap pattern. It uses a deeper analysis
-than \(oqscale\(cq. It interpolates pixels and it
-compares colors for distance.
+original bitmap pattern.
+It uses a 3x3 mapping analysis with 8 comparisons.
+It interpolates pixels and it compares colors
+for distance.
 It works only for expansion factor of 2, 3 and 4.
 .HP 4
 .I xbr
 It adds the missing pixels matching the
-original bitmap pattern. It uses a deeper analysis
-than \(oqhq\(cq. It interpolates pixels and it
-compares colors for distance.
+original bitmap pattern.
+It uses a 5x5 mapping analysis with a gradient estimation.
+It interpolates pixels and it compares colors
+for distance.
 It works only for expansion factor of 2, 3 and 4.
 .PD
 .RE

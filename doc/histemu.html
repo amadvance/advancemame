@@ -21,17 +21,26 @@ Fixed a crash at exit when SMP is enabled.
 Added a new option display_magnifysize to define the area to target with display_magnify auto.
 </li>
 <li>
-Added the new XBR scaling effect. Better than HQ.
+Renamed the 'scale' video effect to 'scalex'.
+</li>
+<li>
+Added the new 'xbr' video scaling effect. Better than 'hq'.
+</li>
+<li>
+Added the new 'scalek' video effect. Better than 'scalex' and faster than 'xbr'.
 </li>
 <li>
 If display_resizeeffect is auto, the default effect is now 'xbr', but it's decreased at runtime
-to 'hq', or 'lq' or 'scale' if speed is required.
+to 'scalek', or 'scalex' if speed is required.
 </li>
 <li>
 Removed blitting cache optimization. With modern caches it's not needed anymore.
 </li>
 <li>
 Changed default doc/man dirs to prefix/doc and prefix/man.
+</li>
+<li>
+Now in git repository.
 </li>
 <li>
 Removed DLL files from the Windows distribution. New new compiler uses static libraries.
