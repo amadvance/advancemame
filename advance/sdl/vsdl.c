@@ -693,8 +693,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 
 void sdl_mode_done(adv_bool restore)
 {
-	assert(sdl_is_active());
-	assert(sdl_mode_is_active());
+	assert(sdl_is_active() && sdl_mode_is_active());
 
 	log_std(("video:sdl: sdl_mode_done()\n"));
 
@@ -720,8 +719,7 @@ void sdl_mode_done(adv_bool restore)
 
 adv_error sdl_mode_change(const sdl_video_mode* mode)
 {
-	assert(sdl_is_active());
-	assert(sdl_mode_is_active());
+	assert(sdl_is_active() && sdl_mode_is_active());
 
 	log_std(("video:sdl: sdlb_mode_change()\n"));
 
@@ -746,6 +744,8 @@ adv_error sdl_mode_change(const sdl_video_mode* mode)
 
 unsigned sdl_virtual_x(void)
 {
+	assert(sdl_is_active() && sdl_mode_is_active());
+
 	if (sdl_state.overlay)
 		return sdl_state.overlay->w / 2;
 	else
@@ -754,6 +754,8 @@ unsigned sdl_virtual_x(void)
 
 unsigned sdl_virtual_y(void)
 {
+	assert(sdl_is_active() && sdl_mode_is_active());
+
 	if (sdl_state.overlay)
 		return sdl_state.overlay->h;
 	else
@@ -768,6 +770,8 @@ unsigned sdl_adjust_bytes_per_page(unsigned bytes_per_page)
 
 unsigned sdl_bytes_per_scanline(void)
 {
+	assert(sdl_is_active() && sdl_mode_is_active());
+
 	if (sdl_state.overlay)
 		return sdl_state.overlay->pitches[0];
 	else
@@ -776,6 +780,8 @@ unsigned sdl_bytes_per_scanline(void)
 
 adv_color_def sdl_color_def(void)
 {
+	assert(sdl_is_active() && sdl_mode_is_active());
+
 	switch (sdl_state.index) {
 	case MODE_FLAGS_INDEX_BGR15 :
 	case MODE_FLAGS_INDEX_BGR16 :
@@ -794,6 +800,7 @@ adv_color_def sdl_color_def(void)
 
 void sdl_wait_vsync(void)
 {
+	assert(sdl_is_active() && sdl_mode_is_active());
 }
 
 adv_error sdl_scroll(unsigned offset, adv_bool waitvsync)
