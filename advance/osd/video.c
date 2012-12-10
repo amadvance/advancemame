@@ -250,7 +250,6 @@ static void video_command_combine(struct advance_video_context* context, struct 
 	}
 }
 
-
 static void video_command(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_safequit_context* safequit_context, struct advance_ui_context* ui_context, adv_conf* cfg_context, int leds_status, unsigned input, adv_bool skip_flag)
 {
 	/* increment the number of frames */
@@ -484,7 +483,7 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 /**
  * Wait the completion of the video thread.
  */
-static void video_thread_wait(struct advance_video_context* context)
+void advance_video_thread_wait(struct advance_video_context* context)
 {
 #ifdef USE_SMP
 	/* wait until the thread is ready */
@@ -646,23 +645,26 @@ static void* video_thread(void* void_context)
 	pthread_mutex_lock(&context->state.thread_video_mutex);
 
 	while (1) {
+		adv_bool exit;
+		
 		log_debug(("advance:thread: wait\n"));
 
-		/* wait for the start notification  */
+		/* wait for the start notification */
 		while (!context->state.thread_state_ready_flag && !context->state.thread_exit_flag) {
 			pthread_cond_wait(&context->state.thread_video_cond, &context->state.thread_video_mutex);
 		}
 
 		log_debug(("advance:thread: wakeup\n"));
 
+		exit = context->state.thread_exit_flag;
+
+		/* now we can start to draw outside the lock */
+		pthread_mutex_unlock(&context->state.thread_video_mutex);
+
 		/* check for exit */
-		if (context->state.thread_exit_flag) {
-			log_std(("advance:thread: stop\n"));
-			pthread_mutex_unlock(&context->state.thread_video_mutex);
+		if (exit) {
 			break;
 		}
-
-		pthread_mutex_unlock(&context->state.thread_video_mutex);
 
 		log_debug(("advance:thread: draw start\n"));
 
@@ -690,10 +692,10 @@ static void* video_thread(void* void_context)
 
 		pthread_mutex_lock(&context->state.thread_video_mutex);
 
-		/* notify that the data was used */
+		/* notify that the data was used, and a new one can be setup */
 		context->state.thread_state_ready_flag = 0;
 
-		/* signal the completion of the operation */
+		/* wakeup the main thread, signalign that the draw finished */
 		pthread_cond_signal(&context->state.thread_video_cond);
 	}
 
@@ -730,7 +732,8 @@ void advance_video_reconfigure(struct advance_video_context* context, struct adv
 	/* set the new config */
 	context->config = *config;
 
-	video_thread_wait(context);
+	/* we cannot change the video mode when the thread is running */
+	advance_video_thread_wait(context);
 
 	log_std(("emu:video: select mode %s\n", context->config.resolution_buffer));
 
@@ -805,7 +808,7 @@ void osd2_thread_done(void)
 	struct advance_video_context* context = &CONTEXT.video;
 
 	log_std(("osd: osd2_thread_done\n"));
-	video_thread_wait(context);
+	advance_video_thread_wait(context);
 
 	log_std(("advance:thread: exit signal\n"));
 	pthread_mutex_lock(&context->state.thread_video_mutex);
@@ -888,7 +891,8 @@ void osd2_video_done(void)
 	mouseb_disable();
 	keyb_disable();
 
-	video_thread_wait(context);
+	/* wait for thread end, before resetting the video mode */
+	advance_video_thread_wait(context);
 
 	advance_video_mode_done(context);
 

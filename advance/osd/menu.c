@@ -225,6 +225,9 @@ int osd2_video_menu(int selected, unsigned input)
 	const char* text = 0;
 	const char* option = 0;
 
+	/* the menu data is not duplicated for the thread, so we have to wait for its completion */
+	advance_video_thread_wait(video_context);
+
 	if (selected >= 1)
 		selected = selected - 1;
 	else
@@ -781,6 +784,9 @@ int osd2_audio_menu(int selected, unsigned input)
 	char buffer[128];
 	const char* text = 0;
 	const char* option = 0;
+
+	/* the menu data is not duplicated for the thread, so we have to wait for its completion */
+	advance_video_thread_wait(video_context);
 
 	if (selected >= 1)
 		selected = selected - 1;

@@ -931,6 +931,7 @@ adv_error advance_video_mode_init(struct advance_video_context* context, struct 
 void advance_video_mode_done(struct advance_video_context* context);
 adv_error advance_video_mode_update(struct advance_video_context* context);
 
+void advance_video_thread_wait(struct advance_video_context* context);
 void advance_video_reconfigure(struct advance_video_context* context, struct advance_video_config_context* config);
 
 void advance_video_skip(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context);
