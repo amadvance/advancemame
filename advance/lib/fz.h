@@ -65,7 +65,7 @@ typedef struct adv_fz_struct {
 	unsigned virtual_pos; /**< Current position on the virtual file. */
 	unsigned virtual_size; /**< Size of the virtual file. */
 
-	unsigned real_offset; /**< Starting position on file part used. */
+	off_t real_offset; /**< Starting position on file part used. */
 	unsigned real_size; /**< Size of the file part used. */
 
 	const unsigned char* data_read; /**< Memory used by the file. */
@@ -83,8 +83,8 @@ typedef struct adv_fz_struct {
 
 adv_fz* fzopen(const char* file, const char* mode);
 adv_fz* fzopennullwrite(const char* file, const char* mode);
-adv_fz* fzopenzipuncompressed(const char* file, unsigned offset, unsigned size);
-adv_fz* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_compressed, unsigned size_uncompressed);
+adv_fz* fzopenzipuncompressed(const char* file, off_t offset, unsigned size);
+adv_fz* fzopenzipcompressed(const char* file, off_t offset, unsigned size_compressed, unsigned size_uncompressed);
 adv_fz* fzopenmemory(const unsigned char* data, unsigned size);
 
 unsigned fzread(void *buffer, unsigned size, unsigned number, adv_fz* f);

@@ -312,7 +312,7 @@ err:
  * \param offset Offset in the archive.
  * \param size Size of the data.
  */
-adv_fz* fzopenzipuncompressed(const char* file, unsigned offset, unsigned size)
+adv_fz* fzopenzipuncompressed(const char* file, off_t offset, unsigned size)
 {
 	unsigned char buf[ZIP_LO_FIXED];
 	unsigned filename_length;
@@ -331,7 +331,7 @@ adv_fz* fzopenzipuncompressed(const char* file, unsigned offset, unsigned size)
 		return 0;
 	}
 
-	if (fseek(f->f, offset, SEEK_SET) != 0) {
+	if (fseeko(f->f, offset, SEEK_SET) != 0) {
 		fclose_lock(f->f);
 		free(f);
 		return 0;
@@ -350,7 +350,7 @@ adv_fz* fzopenzipuncompressed(const char* file, unsigned offset, unsigned size)
 	f->real_offset = offset;
 	f->real_size = size;
 
-	if (fseek(f->f, f->real_offset, SEEK_SET) != 0) {
+	if (fseeko(f->f, f->real_offset, SEEK_SET) != 0) {
 		fclose_lock(f->f);
 		free(f);
 		return 0;
@@ -399,7 +399,7 @@ static void compressed_done(adv_fz* f)
  * \param size_compressed Size of the compressed data.
  * \param size_uncompressed Size of the uncompressed data.
  */
-adv_fz* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_compressed, unsigned size_uncompressed)
+adv_fz* fzopenzipcompressed(const char* file, off_t offset, unsigned size_compressed, unsigned size_uncompressed)
 {
 	unsigned char buf[ZIP_LO_FIXED];
 	unsigned filename_length;
@@ -418,7 +418,7 @@ adv_fz* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_com
 		return 0;
 	}
 
-	if (fseek(f->f, offset, SEEK_SET) != 0) {
+	if (fseeko(f->f, offset, SEEK_SET) != 0) {
 		fclose_lock(f->f);
 		free(f);
 		return 0;
@@ -437,7 +437,7 @@ adv_fz* fzopenzipcompressed(const char* file, unsigned offset, unsigned size_com
 	f->real_offset = offset;
 	f->real_size = size_compressed;
 
-	if (fseek(f->f, f->real_offset, SEEK_SET) != 0) {
+	if (fseeko(f->f, f->real_offset, SEEK_SET) != 0) {
 		fclose_lock(f->f);
 		free(f);
 		return 0;
@@ -614,14 +614,14 @@ adv_error fzseek(adv_fz* f, long offset, int mode)
 	if (f->type == fz_file) {
 		switch (mode) {
 			case SEEK_SET :
-				return fseek(f->f, f->real_offset + offset, SEEK_SET);
+				return fseeko(f->f, f->real_offset + offset, SEEK_SET);
 			case SEEK_CUR :
-				return fseek(f->f, offset, SEEK_CUR);
+				return fseeko(f->f, offset, SEEK_CUR);
 			case SEEK_END :
 				if (f->real_size)
-					return fseek(f->f, f->real_size - offset, SEEK_SET);
+					return fseeko(f->f, f->real_size - offset, SEEK_SET);
 				else
-					return fseek(f->f, offset, SEEK_END);
+					return fseeko(f->f, offset, SEEK_END);
 			default:
 				return -1;
 		}
@@ -652,7 +652,7 @@ adv_error fzseek(adv_fz* f, long offset, int mode)
 			f->virtual_pos = pos;
 			return 0;
 		} else if (f->type == fz_file_part) {
-			if (fseek(f->f, f->real_offset + f->virtual_pos, SEEK_SET) != 0)
+			if (fseeko(f->f, f->real_offset + f->virtual_pos, SEEK_SET) != 0)
 				return -1;
 			f->virtual_pos = pos;
 			return 0;
@@ -663,7 +663,7 @@ adv_error fzseek(adv_fz* f, long offset, int mode)
 				/* if backward reopen the file */
 				int err;
 				compressed_done(f);
-				err = fseek(f->f, f->real_offset, SEEK_SET);
+				err = fseeko(f->f, f->real_offset, SEEK_SET);
 				f->virtual_pos = 0;
 				compressed_init(f);
 				if (err != 0)

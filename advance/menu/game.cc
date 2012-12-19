@@ -264,7 +264,7 @@ bool game::preview_zip_set(const string& zip, void (game::*preview_set)(const re
 		string name = file_basename(file);
 		if (name == game_name && ext.length() && (ext == ext0 || ext == ext1)) {
 			string zipfile = slash_add(zip) + file;
-			unsigned offset = dd->offset_lcl_hdr_frm_frst_disk;
+			off_t offset = dd->offset_lcl_hdr_frm_frst_disk;
 			if (dd->compression_method == 0x0) {
 				((*this).*preview_set)(resource(zipfile, offset, dd->uncompressed_size, true));
 				zip_close(d);
@@ -580,7 +580,7 @@ bool game_set::preview_zip_set(const string& zip, const string& emulator_name, v
 			const_iterator j = find(name);
 			if (j!=end()) {
 				string zipfile = slash_add(zip) + file;
-				unsigned offset = dd->offset_lcl_hdr_frm_frst_disk;
+				off_t offset = dd->offset_lcl_hdr_frm_frst_disk;
 				if (dd->compression_method == 0x0) {
 					((*j).*preview_set)(resource(zipfile, offset, dd->uncompressed_size, true));
 					almost_one = true;

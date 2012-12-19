@@ -40,21 +40,66 @@
  * Locate end-of-central-dir sig in buffer and return offset.
  * \param buffer Buffer in which search.
  * \param buflen Buffer length.
+ * \param bufoff Buffer offset.
  * \param offset Where to set the found offset.
  * \return
  *  - ==0 not found
  *  - !=0 found, *offset valid
  */
-static int ecd_find_sig(char* buffer, int buflen, int *offset)
+static int ecd_find_sig(char* buffer, int buflen, off_t bufoff, int* ecd_offset, int* ecd64_offset)
 {
-	static char ecdsig[] = { 'P', 'K', 0x05, 0x06 };
 	int i;
 	for (i=buflen-22; i>=0; i--) {
-		if (memcmp(buffer+i, ecdsig, 4) == 0) {
-			*offset = i;
+		if (buffer[i] == 'P' && buffer[i+1] == 'K' && buffer[i+2] == 0x5 && buffer[i+3] == 6) {
+			uint32 offset_to_start_of_cent_dir;
+			uint64 offset_to_64_end_of_cent_dir;
+			char* p = buffer + i;
+
+			/* get the offset of central directory */
+			offset_to_start_of_cent_dir = le_uint32_read(p + ZIP_EO_offset_to_start_of_cent_dir);
+
+			/* check if it's a 32 bit zip file */
+			if (offset_to_start_of_cent_dir != 0xFFFFFFFF) {
+				*ecd_offset = i;
+				*ecd64_offset = i;
+				return 1;
+			}
+
+			/* check if there is enough space for the zip64 central directory locator */
+			if (i < 20) {
+				/* we need more bytes */
+				return 0;
+			}
+
+			p -= 20;
+			
+			/* check for the zip64 end central directory locator marker */
+			if (p[0] != 'P' || p[1] != 'K' || p[2] != 0x6 || p[3] != 0x7) {
+				log_std(("zip: Invalid ZIP64 format, missing end central directory locator marker\n"));
+				return -1;
+			}
+
+			/* get the offset of the zip64 end of central directory */
+			offset_to_64_end_of_cent_dir = le_uint64_read(p + 8);
+
+			/* check if the zip64 end of central directory in fully in buffer */
+			if (offset_to_64_end_of_cent_dir < bufoff)
+				return 0;
+
+			p = buffer + (offset_to_64_end_of_cent_dir - bufoff);
+
+			/* check for zip64 end of central directory marker */
+			if (p[0] != 'P' || p[1] != 'K' || p[2] != 0x6 || p[3] != 0x6) {
+				log_std(("zip: Invalid ZIP64 format, missing end central directory marker\n"));
+				return -1;
+			}
+
+			*ecd_offset = i;
+			*ecd64_offset = offset_to_64_end_of_cent_dir - bufoff;
 			return 1;
 		}
 	}
+
 	return 0;
 }
 
@@ -68,7 +113,7 @@ static int ecd_find_sig(char* buffer, int buflen, int *offset)
 */
 #define ECD_READ_BUFFER_SIZE 1024
 
-static int ecd_read(adv_zip* zip, char** data, unsigned* size)
+static int ecd_read(adv_zip* zip)
 {
 	char* buf;
 	int buf_pos = zip->length - ECD_READ_BUFFER_SIZE;
@@ -77,12 +122,14 @@ static int ecd_read(adv_zip* zip, char** data, unsigned* size)
 	unsigned increment = ECD_READ_BUFFER_SIZE;
 
 	while (1) {
-		int offset;
+		int offset32;
+		int offset64;
+		int r;
 
 		if (buf_length > zip->length)
 			buf_length = zip->length;
 
-		if (fseek(zip->fp, zip->length - buf_length, SEEK_SET) != 0) {
+		if (fseeko(zip->fp, zip->length - buf_length, SEEK_SET) != 0) {
 			return -1;
 		}
 
@@ -97,21 +144,37 @@ static int ecd_read(adv_zip* zip, char** data, unsigned* size)
 			return -1;
 		}
 
-		if (ecd_find_sig(buf, buf_length, &offset)) {
-			zip->ecd_length = buf_length - offset;
+		r = ecd_find_sig(buf, buf_length, zip->length - buf_length, &offset32, &offset64);
+		if (r < 0)
+			return -1;
+		if (r) {
+			zip->ecd_length = buf_length - offset32;
 
-			zip->ecd = (char*)malloc(zip->ecd_length);
+			zip->ecd = malloc(zip->ecd_length);
 			if (!zip->ecd) {
 				free(buf);
 				return -1;
 			}
 
-			memcpy(zip->ecd, buf + offset, zip->ecd_length);
+			memcpy(zip->ecd, buf + offset32, zip->ecd_length);
 
-			/* save buffer */
-			*data = buf;
-			*size = buf_length;
+			if (offset64 < offset32) {
+				zip->ecd64_length = offset32 - offset64;
 
+				zip->ecd64 = malloc(zip->ecd64_length);
+				if (!zip->ecd64) {
+					free(buf);
+					return -1;
+				}
+
+				memcpy(zip->ecd64, buf + offset64, zip->ecd64_length);
+			} else {
+				zip->ecd64_length = 0;
+				zip->ecd64 = 0;
+			}
+			
+
+			free(buf);
 			return 0;
 		}
 
@@ -129,9 +192,6 @@ static int ecd_read(adv_zip* zip, char** data, unsigned* size)
 
 adv_zip* zip_open(const char* zipfile)
 {
-	char* ezdata = 0;
-	unsigned ezsize = 0;
-
 	/* allocate */
 	adv_zip* zip = (adv_zip*)malloc(sizeof(adv_zip));
 	if (!zip) {
@@ -146,14 +206,14 @@ adv_zip* zip_open(const char* zipfile)
 	}
 
 	/* go to end */
-	if (fseek(zip->fp, 0L, SEEK_END) != 0) {
+	if (fseeko(zip->fp, 0L, SEEK_END) != 0) {
 		fclose(zip->fp);
 		free(zip);
 		return 0;
 	}
 
 	/* get length */
-	zip->length = ftell(zip->fp);
+	zip->length = ftello(zip->fp);
 	if (zip->length < 0) {
 		fclose(zip->fp);
 		free(zip);
@@ -166,71 +226,60 @@ adv_zip* zip_open(const char* zipfile)
 	}
 
 	/* read ecd data */
-	if (ecd_read(zip, &ezdata, &ezsize)!=0) {
-		log_std(("zip: ECD not found in file %s\n", zipfile));
+	if (ecd_read(zip) != 0) {
+		log_std(("zip: Invalid ZIP format, missing end central directory in file %s\n", zipfile));
 		fclose(zip->fp);
 		free(zip);
 		return 0;
 	}
 
 	/* compile ecd info */
-	zip->end_of_cent_dir_sig = le_uint32_read(zip->ecd+ZIP_EO_end_of_central_dir_signature);
 	zip->number_of_this_disk = le_uint16_read(zip->ecd+ZIP_EO_number_of_this_disk);
+	if (zip->number_of_this_disk == 0xFFFF) {
+		zip->number_of_this_disk = le_uint32_read(zip->ecd64 + 16);
+	}
 	zip->number_of_disk_start_cent_dir = le_uint16_read(zip->ecd+ZIP_EO_number_of_disk_start_cent_dir);
+	if (zip->number_of_disk_start_cent_dir == 0xFFFF) {
+		zip->number_of_disk_start_cent_dir = le_uint32_read(zip->ecd64 + 20);
+	}
 	zip->total_entries_cent_dir_this_disk = le_uint16_read(zip->ecd+ZIP_EO_total_entries_cent_dir_this_disk);
 	zip->total_entries_cent_dir = le_uint16_read(zip->ecd+ZIP_EO_total_entries_cent_dir);
 	zip->size_of_cent_dir = le_uint32_read(zip->ecd+ZIP_EO_size_of_cent_dir);
 	zip->offset_to_start_of_cent_dir = le_uint32_read(zip->ecd+ZIP_EO_offset_to_start_of_cent_dir);
+	if (zip->offset_to_start_of_cent_dir == 0xFFFFFFFF) {
+		if (!zip->ecd64) {
+			log_std(("zip: Invalid ZIP64 format, missing end of central directory in file %s\n", zipfile));
+			goto bail;
+		}
+		zip->offset_to_start_of_cent_dir = le_uint64_read(zip->ecd64 + 48);
+	}
 	zip->zipfile_comment_length = le_uint16_read(zip->ecd+ZIP_EO_zipfile_comment_length);
 	zip->zipfile_comment = zip->ecd+ZIP_EO_zipfile_comment;
 
-	/* verify that we can work with this zipfile (no disk spanning allowed) */
-	if ((zip->number_of_this_disk != zip->number_of_disk_start_cent_dir) ||
-		(zip->total_entries_cent_dir_this_disk != zip->total_entries_cent_dir) ||
-		(zip->total_entries_cent_dir < 1)) {
-		free(zip->ecd);
-		fclose(zip->fp);
-		free(zip);
-		free(ezdata);
-		return 0;
+	/* verify that we can work with this zipfile */
+	if (zip->number_of_this_disk != zip->number_of_disk_start_cent_dir /* no spanning allowed */
+		|| zip->total_entries_cent_dir_this_disk != zip->total_entries_cent_dir
+		|| zip->total_entries_cent_dir < 1
+		|| zip->size_of_cent_dir == 0xFFFFFFFF /* 64 bit not supported in cent dir size */
+	) {
+		log_std(("zip: Unsupported ZIP format in file %s\n", zipfile));
+		goto bail;
 	}
 
 	/* allocate space for cent_dir */
 	zip->cd = (char*)malloc(zip->size_of_cent_dir);
 	if (!zip->cd) {
-		free(zip->ecd);
-		fclose(zip->fp);
-		free(zip);
-		free(ezdata);
-		return 0;
+		goto bail;
 	}
 
-	/* if buffer read is enougth for cent_dir */
-	if (zip->offset_to_start_of_cent_dir >= zip->length - ezsize) {
-		/* copy cent_dir from buffer */
-		memcpy(zip->cd, ezdata + zip->offset_to_start_of_cent_dir + ezsize - zip->length, zip->size_of_cent_dir);
+	/* seek to start of cent_dir */
+	if (fseeko(zip->fp, zip->offset_to_start_of_cent_dir, SEEK_SET)!=0) {
+		goto bail;
+	}
 
-		free(ezdata);
-	} else {
-		/* buffer not used */
-		free(ezdata);
-
-		/* seek to start of cent_dir */
-		if (fseek(zip->fp, zip->offset_to_start_of_cent_dir, SEEK_SET)!=0) {
-			free(zip->ecd);
-			fclose(zip->fp);
-			free(zip);
-			return 0;
-		}
-
-		/* read from start of central directory */
-		if (fread(zip->cd, zip->size_of_cent_dir, 1, zip->fp)!=1) {
-			free(zip->cd);
-			free(zip->ecd);
-			fclose(zip->fp);
-			free(zip);
-			return 0;
-		}
+	/* read from start of central directory */
+	if (fread(zip->cd, zip->size_of_cent_dir, 1, zip->fp)!=1) {
+		goto bail;
 	}
 
 	/* reset ent */
@@ -242,58 +291,125 @@ adv_zip* zip_open(const char* zipfile)
 	/* file name */
 	zip->zip = strdup(zipfile);
 	if (!zip->zip) {
-		free(zip->cd);
-		free(zip->ecd);
-		fclose(zip->fp);
-		free(zip);
-		return 0;
+		goto bail;
 	}
 
 	return zip;
+bail:
+	free(zip->ecd);
+	free(zip->ecd64);
+	fclose(zip->fp);
+	free(zip);
+	return 0;
 }
 
 adv_zipent* zip_read(adv_zip* zip)
 {
 	unsigned i;
+	char* cd = zip->cd + zip->cd_pos;
 
 	/* end of directory */
 	if (zip->cd_pos >= zip->size_of_cent_dir)
 		return 0;
 
+	/* check for marker */
+	if (cd[0] != 'P' || cd[1] != 'K' || cd[2] != 0x1 || cd[3] != 0x2) {
+		log_std(("zip: Invalid ZIP format, missing file header marker\n"));
+		return 0;
+	}
+
 	/* compile zipent info */
-	zip->ent.cent_file_header_sig = le_uint32_read(zip->cd+zip->cd_pos+ZIP_CO_central_file_header_signature);
-	zip->ent.version_made_by = *(zip->cd+zip->cd_pos+ZIP_CO_version_made_by);
-	zip->ent.host_os = *(zip->cd+zip->cd_pos+ZIP_CO_host_os);
-	zip->ent.version_needed_to_extract = *(zip->cd+zip->cd_pos+ZIP_CO_version_needed_to_extract);
-	zip->ent.os_needed_to_extract = *(zip->cd+zip->cd_pos+ZIP_CO_os_needed_to_extract);
-	zip->ent.general_purpose_bit_flag = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_general_purpose_bit_flag);
-	zip->ent.compression_method = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_compression_method);
-	zip->ent.last_mod_file_time = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_last_mod_file_time);
-	zip->ent.last_mod_file_date = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_last_mod_file_date);
-	zip->ent.crc32 = le_uint32_read(zip->cd+zip->cd_pos+ZIP_CO_crc32);
-	zip->ent.compressed_size = le_uint32_read(zip->cd+zip->cd_pos+ZIP_CO_compressed_size);
-	zip->ent.uncompressed_size = le_uint32_read(zip->cd+zip->cd_pos+ZIP_CO_uncompressed_size);
-	zip->ent.filename_length = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_filename_length);
-	zip->ent.extra_field_length = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_extra_field_length);
-	zip->ent.file_comment_length = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_file_comment_length);
-	zip->ent.disk_number_start = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_disk_number_start);
-	zip->ent.internal_file_attrib = le_uint16_read(zip->cd+zip->cd_pos+ZIP_CO_internal_file_attributes);
-	zip->ent.external_file_attrib = le_uint32_read(zip->cd+zip->cd_pos+ZIP_CO_external_file_attributes);
-	zip->ent.offset_lcl_hdr_frm_frst_disk = le_uint32_read(zip->cd+zip->cd_pos+ZIP_CO_relative_offset_of_local_header);
+	zip->ent.version_made_by = *(cd+ZIP_CO_version_made_by);
+	zip->ent.host_os = *(cd+ZIP_CO_host_os);
+	zip->ent.version_needed_to_extract = *(cd+ZIP_CO_version_needed_to_extract);
+	zip->ent.os_needed_to_extract = *(cd+ZIP_CO_os_needed_to_extract);
+	zip->ent.general_purpose_bit_flag = le_uint16_read(cd+ZIP_CO_general_purpose_bit_flag);
+	zip->ent.compression_method = le_uint16_read(cd+ZIP_CO_compression_method);
+	zip->ent.last_mod_file_time = le_uint16_read(cd+ZIP_CO_last_mod_file_time);
+	zip->ent.last_mod_file_date = le_uint16_read(cd+ZIP_CO_last_mod_file_date);
+	zip->ent.crc32 = le_uint32_read(cd+ZIP_CO_crc32);
+	zip->ent.compressed_size = le_uint32_read(cd+ZIP_CO_compressed_size);
+	zip->ent.uncompressed_size = le_uint32_read(cd+ZIP_CO_uncompressed_size);
+	zip->ent.filename_length = le_uint16_read(cd+ZIP_CO_filename_length);
+	zip->ent.extra_field_length = le_uint16_read(cd+ZIP_CO_extra_field_length);
+	zip->ent.file_comment_length = le_uint16_read(cd+ZIP_CO_file_comment_length);
+	zip->ent.disk_number_start = le_uint16_read(cd+ZIP_CO_disk_number_start);
+	zip->ent.internal_file_attrib = le_uint16_read(cd+ZIP_CO_internal_file_attributes);
+	zip->ent.external_file_attrib = le_uint32_read(cd+ZIP_CO_external_file_attributes);
+	zip->ent.offset_lcl_hdr_frm_frst_disk = le_uint32_read(cd+ZIP_CO_relative_offset_of_local_header);
 
 	/* check to see if filename length is illegally long (past the size of this directory entry) */
-	if (zip->cd_pos + ZIP_LO_FIXED + zip->ent.filename_length > zip->size_of_cent_dir)
+	if (zip->cd_pos + ZIP_LO_FIXED + zip->ent.filename_length + zip->ent.extra_field_length + zip->ent.file_comment_length > zip->size_of_cent_dir) {
+		log_std(("zip: Invalid ZIP format, central directory overflow\n"));
 		return 0;
+	}
 
-	/* copy filename */
+	cd += ZIP_CO_FIXED;
+
+	/* filename */
 	free(zip->ent.name);
 	zip->ent.name = (char*)malloc(zip->ent.filename_length + 1);
-	memcpy(zip->ent.name, zip->cd+zip->cd_pos+ZIP_CO_filename, zip->ent.filename_length);
+	memcpy(zip->ent.name, cd, zip->ent.filename_length);
 	zip->ent.name[zip->ent.filename_length] = 0;
 
 	/* convert to lower case, the DOS adv_zip are case insensitive */
 	for(i=0;zip->ent.name[i];++i)
 		zip->ent.name[i] = tolower(zip->ent.name[i]);
+
+	cd += zip->ent.filename_length;
+
+	/* extra fields */
+	i = 0;
+	while (i < zip->ent.extra_field_length) {
+		unsigned id = le_uint16_read(cd);
+		unsigned size = le_uint16_read(cd + 2);
+
+		cd += 4;
+		i += 4;
+
+		if (id == 0x0001) {
+			if (zip->ent.compressed_size == 0xFFFFFFFF) {
+				zip->ent.compressed_size = le_uint64_read(cd);
+				cd += 8;
+				i += 8;
+				size -= 8;
+			}
+			if (zip->ent.uncompressed_size == 0xFFFFFFFF) {
+				zip->ent.uncompressed_size = le_uint64_read(cd);
+				cd += 8;
+				i += 8;
+				size -= 8;
+			}
+			if (zip->ent.offset_lcl_hdr_frm_frst_disk == 0xFFFFFFFF) {
+				zip->ent.offset_lcl_hdr_frm_frst_disk = le_uint64_read(cd);
+				cd += 8;
+				i += 8;
+				size -= 8;
+			}
+			if (zip->ent.disk_number_start == 0xFFFF) {
+				zip->ent.disk_number_start = le_uint32_read(cd);
+				cd += 4;
+				i += 4;
+				size -= 4;
+			}
+			if (size != 0) {
+				log_std(("zip: Invalid ZIP64 format, malformed extra field\n"));
+				return 0;
+			}
+		} else {
+			cd += size;
+			i += size;
+		}
+	}
+
+	if (zip->ent.compressed_size == 0xFFFFFFFF
+		|| zip->ent.uncompressed_size == 0xFFFFFFFF
+		|| zip->ent.offset_lcl_hdr_frm_frst_disk == 0xFFFFFFFF
+		|| zip->ent.disk_number_start == 0xFFFF
+	) {
+		log_std(("zip: Invalid ZIP64 format, missing extra field\n"));
+		return 0;
+	}
 
 	/* skip to next entry in central dir */
 	zip->cd_pos += ZIP_CO_FIXED + zip->ent.filename_length + zip->ent.extra_field_length + zip->ent.file_comment_length;
@@ -307,6 +423,7 @@ void zip_close(adv_zip* zip)
 	free(zip->ent.name);
 	free(zip->cd);
 	free(zip->ecd);
+	free(zip->ecd64);
 	fclose(zip->fp);
 	free(zip->zip);
 	free(zip);
@@ -325,9 +442,9 @@ void zip_rewind(adv_zip* zip)
 static int zip_seekcompress(adv_zip* zip, adv_zipent* ent)
 {
 	char buf[ZIP_LO_FIXED];
-	long offset;
+	off_t offset;
 
-	if (fseek(zip->fp, ent->offset_lcl_hdr_frm_frst_disk, SEEK_SET)!=0) {
+	if (fseeko(zip->fp, ent->offset_lcl_hdr_frm_frst_disk, SEEK_SET)!=0) {
 		return -1;
 	}
 
@@ -336,13 +453,13 @@ static int zip_seekcompress(adv_zip* zip, adv_zipent* ent)
 	}
 
 	{
-		uint16 filename_length = le_uint16_read(buf+ZIP_LO_filename_length);
-		uint16 extra_field_length = le_uint16_read(buf+ZIP_LO_extra_field_length);
+		unsigned filename_length = le_uint16_read(buf+ZIP_LO_filename_length);
+		unsigned extra_field_length = le_uint16_read(buf+ZIP_LO_extra_field_length);
 
 		/* calculate offset to data and seek there */
 		offset = ent->offset_lcl_hdr_frm_frst_disk + ZIP_LO_FIXED + filename_length + extra_field_length;
 
-		if (fseek(zip->fp, offset, SEEK_SET) != 0) {
+		if (fseeko(zip->fp, offset, SEEK_SET) != 0) {
 			return -1;
 		}
 	}

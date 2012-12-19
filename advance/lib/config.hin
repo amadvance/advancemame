@@ -49,6 +49,12 @@
 /* Define to 1 if you have the `fread_unlocked' function. */
 #undef HAVE_FREAD_UNLOCKED
 
+/* Define to 1 if you have the `fseeko' function. */
+#undef HAVE_FSEEKO
+
+/* Define to 1 if you have the `ftello' function. */
+#undef HAVE_FTELLO
+
 /* Define to 1 if you have the `funlockfile' function. */
 #undef HAVE_FUNLOCKFILE
 

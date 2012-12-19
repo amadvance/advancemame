@@ -30,7 +30,7 @@
 
 class resource {
 	std::string path;
-	unsigned offset;
+	off_t offset;
 	unsigned size_compressed;
 	unsigned size_uncompressed;
 	bool compressed;
@@ -40,8 +40,8 @@ public:
 
 	resource();
 	resource(const std::string& Apath);
-	resource(const std::string& Apath, unsigned Aoffset, unsigned Asize, bool is_collection);
-	resource(const std::string& Apath, unsigned Aoffset, unsigned Asize_compressed, unsigned Asize_uncompressed, bool is_collection);
+	resource(const std::string& Apath, off_t Aoffset, unsigned Asize, bool is_collection);
+	resource(const std::string& Apath, off_t Aoffset, unsigned Asize_compressed, unsigned Asize_uncompressed, bool is_collection);
 
 	resource& operator=(const resource& A);
 

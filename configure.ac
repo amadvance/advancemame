@@ -330,7 +330,7 @@ if test $ac_system = unix ; then
 	AC_FUNC_VPRINTF
 	AC_CHECK_FUNCS([strcasecmp strerror])
 	AC_CHECK_FUNCS([uname sysconf backtrace backtrace_symbols])
-	AC_CHECK_FUNCS([flockfile funlockfile fread_unlocked fwrite_unlocked fgetc_unlocked feof_unlocked])
+	AC_CHECK_FUNCS([flockfile funlockfile fread_unlocked fwrite_unlocked fgetc_unlocked feof_unlocked fseeko ftello])
 	AC_CHECK_FUNCS([iopl mprotect])
 	AC_MSG_CHECKING([for port in/out])
 	AC_TRY_LINK([

@@ -173,6 +173,22 @@ static inline unsigned le_uint32_read(const void* ptr)
 #endif
 }
 
+static inline uint64 cpu_uint64_read(const void* ptr)
+{
+	return *(const uint64*)ptr;
+}
+
+static inline uint64 le_uint64_read(const void* ptr)
+{
+#ifdef USE_LSB
+	return cpu_uint64_read(ptr);
+#else
+	const unsigned char* ptr8 = (const unsigned char*)ptr;
+	return (uint64)ptr8[0] | (uint64)ptr8[1] << 8 | (uint64)ptr8[2] << 16 | (uint64)ptr8[3] << 24
+		| (uint64)ptr8[4] << 32 | (uint64)ptr8[5] << 40 | (uint64)ptr8[6] << 48 | (uint64)ptr8[7] << 56;
+#endif
+}
+
 static inline unsigned be_uint32_read(const void* ptr)
 {
 #ifdef USE_MSB

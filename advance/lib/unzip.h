@@ -72,13 +72,6 @@ immediately following the compressed data and in the central directory. */
 /* The mapping of the external attributes is host-system dependent */
 
 /**************************************************************************/
-/* Signature */
-
-#define ZIP_L_signature 0x04034b50
-#define ZIP_C_signature 0x02014b50
-#define ZIP_E_signature 0x06054b50
-
-/**************************************************************************/
 /* Offsets in end of central directory structure */
 
 #define ZIP_EO_end_of_central_dir_signature	0x00
@@ -115,7 +108,6 @@ immediately following the compressed data and in the central directory. */
 #define ZIP_CO_external_file_attributes		0x26
 #define ZIP_CO_relative_offset_of_local_header	0x2A
 #define ZIP_CO_FIXED				0x2E /* size of fixed data structure */
-#define ZIP_CO_filename				0x2E
 
 /**************************************************************************/
 /* Offsets in data descriptor structure */
@@ -138,31 +130,29 @@ immediately following the compressed data and in the central directory. */
 #define ZIP_LO_filename_length			0x1A
 #define ZIP_LO_extra_field_length		0x1C
 #define ZIP_LO_FIXED				0x1E /* size of fixed data structure */
-#define ZIP_LO_filename				0x1E
 
 /**
  * ZIP entry context.
  */
 typedef struct adv_zipent_struct {
-	uint32 cent_file_header_sig;
-	uint8 version_made_by;
-	uint8 host_os;
-	uint8 version_needed_to_extract;
-	uint8 os_needed_to_extract;
-	uint16 general_purpose_bit_flag;
-	uint16 compression_method;
-	uint16 last_mod_file_time;
-	uint16 last_mod_file_date;
-	uint32 crc32;
-	uint32 compressed_size;
-	uint32 uncompressed_size;
-	uint16 filename_length;
-	uint16 extra_field_length;
-	uint16 file_comment_length;
-	uint16 disk_number_start;
-	uint16 internal_file_attrib;
-	uint32 external_file_attrib;
-	uint32 offset_lcl_hdr_frm_frst_disk;
+	unsigned version_made_by;
+	unsigned host_os;
+	unsigned version_needed_to_extract;
+	unsigned os_needed_to_extract;
+	unsigned general_purpose_bit_flag;
+	unsigned compression_method;
+	unsigned last_mod_file_time;
+	unsigned last_mod_file_date;
+	unsigned crc32;
+	unsigned compressed_size;
+	unsigned uncompressed_size;
+	unsigned filename_length;
+	unsigned extra_field_length;
+	unsigned file_comment_length;
+	unsigned disk_number_start;
+	unsigned internal_file_attrib;
+	unsigned external_file_attrib;
+	off_t offset_lcl_hdr_frm_frst_disk;
 	char* name; /**< Name of the entry. 0 terminated. */
 } adv_zipent;
 
@@ -172,26 +162,27 @@ typedef struct adv_zipent_struct {
 typedef struct adv_zip_struct {
 	char* zip; /**< Zip name. */
 	FILE* fp; /**< Zip handler. */
-	long length; /**< Length of zip file. */
+	off_t length; /**< Length of zip file. */
 
 	char* ecd; /**< end_of_cent_dir data. */
 	unsigned ecd_length; /**< end_of_cent_dir length. */
 
-	char* cd; /**< cent_dir data. */
+	char* ecd64; /**< zip64_end_of_cent_dir data. */
+	unsigned ecd64_length; /**< zip64_end_of_cent_dir length. */
 
+	char* cd; /**< cent_dir data. */
 	unsigned cd_pos; /** Current position in cent_dir. */
 
 	adv_zipent ent; /**< Buffer for readzip. */
 
 	/* end_of_cent_dir */
-	uint32 end_of_cent_dir_sig;
-	uint16 number_of_this_disk;
-	uint16 number_of_disk_start_cent_dir;
-	uint16 total_entries_cent_dir_this_disk;
-	uint16 total_entries_cent_dir;
-	uint32 size_of_cent_dir;
-	uint32 offset_to_start_of_cent_dir;
-	uint16 zipfile_comment_length;
+	unsigned number_of_this_disk;
+	unsigned number_of_disk_start_cent_dir;
+	unsigned total_entries_cent_dir_this_disk;
+	unsigned total_entries_cent_dir;
+	unsigned size_of_cent_dir;
+	off_t offset_to_start_of_cent_dir;
+	unsigned zipfile_comment_length;
 
 	char* zipfile_comment; /**< Comment as pointer in the ecd. */
 } adv_zip;

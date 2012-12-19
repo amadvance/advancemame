@@ -3,6 +3,7 @@ Name
 
 AdvanceMENU Version 2.6 2012/12
 	) Fixed the "alsa" audio driver in Linux. In modern distributions it was generating no sound.
+	) Support ZIP 64bit archives.
 	) Support $HOME variable in directories specification for sdlmame.
 	) For MAME bioses, devices and other not runnable roms are not listed anymore.
 	) The new screen saver modes 'shutdown' and 'exit' works also with lock activated.

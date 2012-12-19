@@ -51,7 +51,7 @@ resource::resource(const string& Apath)
 	collection = false;
 }
 
-resource::resource(const string& Apath, unsigned Aoffset, unsigned Asize, bool Acollection)
+resource::resource(const string& Apath, off_t Aoffset, unsigned Asize, bool Acollection)
 {
 	path = Apath;
 	offset = Aoffset;
@@ -61,7 +61,7 @@ resource::resource(const string& Apath, unsigned Aoffset, unsigned Asize, bool A
 	collection = Acollection;
 }
 
-resource::resource(const string& Apath, unsigned Aoffset, unsigned Asize_compressed, unsigned Asize_uncompressed, bool Acollection)
+resource::resource(const string& Apath, off_t Aoffset, unsigned Asize_compressed, unsigned Asize_uncompressed, bool Acollection)
 {
 	path = Apath;
 	offset = Aoffset;
