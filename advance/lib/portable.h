@@ -52,6 +52,10 @@
 #define HAVE_DIRENT_H 1
 #define HAVE_SYS_WAIT_H 1
 #define restrict __restrict
+
+/* No support for 64 bit fseek/ftell in MSDOS */
+#define fseeko fseek
+#define ftello ftell
 #endif
 
 /* Customize for Windows Mingw/Cygwin */
@@ -63,6 +67,23 @@
 #define HAVE_UNISTD_H 1
 #define HAVE_DIRENT_H 1
 #define restrict __restrict
+
+/* Enable _fseeki64 and _ftelli64 */
+/* note that you must link with libmsvcrt80.a */
+#ifdef USE_IO64
+#ifndef __MSVCRT_VERSION__
+#define __MSVCRT_VERSION__ 0x800
+#endif
+/* include to have off_t */
+#include <stdio.h>
+/* and then redefine it */
+#define off_t off64_t
+#define fseeko _fseeki64
+#define ftello _ftelli64
+#else
+#define fseeko fseek
+#define ftello ftell
+#endif
 #endif
 
 /* Include some standard headers */

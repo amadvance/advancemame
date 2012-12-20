@@ -439,6 +439,9 @@ MENUCFLAGS += \
 	-DUSE_FREETYPE
 MENULIBS += $(FREETYPELIBS)
 endif
+# Required for _fseeki64, and ftelli64
+MENULIBS += -lmsvcr80
+MENUCFLAGS += -DUSE_IO64
 endif
 
 ############################################################################
