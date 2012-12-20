@@ -1322,7 +1322,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_bool_register_default(cfg_context, "display_buffer", 0);
 	conf_int_register_enum_default(cfg_context, "display_resize", conf_enum(OPTION_RESIZE), STRETCH_FRACTIONAL_XY);
 	conf_int_register_enum_default(cfg_context, "display_magnify", conf_enum(OPTION_MAGNIFY), 1);
-	conf_int_register_default(cfg_context, "display_magnifysize", 600);
+	conf_int_register_default(cfg_context, "display_magnifysize", 640);
 	conf_int_register_enum_default(cfg_context, "display_adjust", conf_enum(OPTION_ADJUST), ADJUST_NONE);
 	conf_string_register_default(cfg_context, "display_skiplines", "auto");
 	conf_string_register_default(cfg_context, "display_skipcolumns", "auto");
@@ -1390,7 +1390,6 @@ void advance_video_config_save(struct advance_video_context* context, const char
 		conf_int_set_if_different(cfg_context, section, "display_rgbeffect", context->config.rgb_effect);
 		conf_int_set_if_different(cfg_context, section, "display_resize", context->config.stretch);
 		conf_int_set_if_different(cfg_context, section, "display_magnify", context->config.magnify_factor);
-		conf_int_set_if_different(cfg_context, section, "display_magnifysize", context->config.magnify_size);
 		conf_int_set_if_different(cfg_context, section, "display_color", context->config.index);
 		if (context->state.game_visible_size_x < context->state.game_used_size_x
 			|| context->state.game_visible_size_y < context->state.game_used_size_y)
