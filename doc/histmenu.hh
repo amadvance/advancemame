@@ -1,18 +1,10 @@
-<html>
-<head>
-<title>History For AdvanceMENU</title>
-</head>
-<body>
 <center><h2>History For AdvanceMENU</h2></center>
 <h2> 
-AdvanceMENU Version 2.6 2012/12
+AdvanceMENU Version 2.6 2012/11
 </h2>
 <ul>
 <li>
 Fixed the "alsa" audio driver in Linux. In modern distributions it was generating no sound.
-</li>
-<li>
-Support 64 bits .ZIP archives.
 </li>
 <li>
 Support $HOME variable in directories specification for sdlmame.
@@ -25,9 +17,6 @@ The new screen saver modes 'shutdown' and 'exit' works also with lock activated.
 </li>
 <li>
 Added support for importing CatList files.
-</li>
-<li>
-Snapshot images in .ZIP archives are now read also ig they are in sub directories.
 </li>
 <li>
 Renamed the old "ini" import format to "catver" to avoid confusion with the new "catlist".
@@ -1959,5 +1948,3 @@ Now the utility `mm' is available also as a standalone project
 named AdvanceMENU
 </li>
 </ul>
-</body>
-</html>

@@ -3,11 +3,12 @@ Name
 
 AdvanceMENU Version 2.6 2012/12
 	) Fixed the "alsa" audio driver in Linux. In modern distributions it was generating no sound.
-	) Support ZIP 64bit archives.
+	) Support 64 bits .ZIP archives.
 	) Support $HOME variable in directories specification for sdlmame.
 	) For MAME bioses, devices and other not runnable roms are not listed anymore.
 	) The new screen saver modes 'shutdown' and 'exit' works also with lock activated.
 	) Added support for importing CatList files.
+	) Snapshot images in .ZIP archives are now read also ig they are in sub directories.
 	) Renamed the old "ini" import format to "catver" to avoid confusion with the new "catlist".
 	) Removed xmame support.
 	) Removed DLL files from the Windows distribution. New new compiler uses static libraries.

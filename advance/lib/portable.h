@@ -52,13 +52,9 @@
 #define HAVE_DIRENT_H 1
 #define HAVE_SYS_WAIT_H 1
 #define restrict __restrict
-
-/* No support for 64 bit fseek/ftell in MSDOS */
-#define fseeko fseek
-#define ftello ftell
 #endif
 
-/* Customize for Windows Mingw/Cygwin */
+/* Customize for Windows MINGW */
 #ifdef __WIN32__
 #define TIME_WITH_SYS_TIME 1
 #define HAVE_SYS_TIME_H 1
@@ -67,23 +63,6 @@
 #define HAVE_UNISTD_H 1
 #define HAVE_DIRENT_H 1
 #define restrict __restrict
-
-/* Enable _fseeki64 and _ftelli64 */
-/* note that you must link with libmsvcrt80.a */
-#ifdef USE_IO64
-#ifndef __MSVCRT_VERSION__
-#define __MSVCRT_VERSION__ 0x800
-#endif
-/* include to have off_t */
-#include <stdio.h>
-/* and then redefine it */
-#define off_t off64_t
-#define fseeko _fseeki64
-#define ftello _ftelli64
-#else
-#define fseeko fseek
-#define ftello ftell
-#endif
 #endif
 
 /* Include some standard headers */
@@ -232,6 +211,21 @@ static inline int rpl_lrint(double x)
 }
 #endif
 #define lrint rpl_lrint
+
+/* 64 bit IO */
+#ifdef __WIN32__
+#define off_t off64_t /* This must be after including stdio.h */
+off64_t rpl_ftello(FILE* f);
+int rpl_fseeko(FILE* f, off64_t offset, int origin);
+#define fseeko rpl_fseeko
+#define ftello rpl_ftello
+#endif
+
+#ifdef __MSDOS__
+/* No support for 64 bit fseek/ftell in MSDOS */
+#define fseeko fseek
+#define ftello ftell
+#endif
 
 #ifdef __cplusplus
 }

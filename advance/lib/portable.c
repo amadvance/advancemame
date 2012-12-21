@@ -77,5 +77,32 @@ int rpl_isunordered(double x, double y)
 {
 	return rpl_isnan(x) || rpl_isnan(y);
 }
+
+off64_t rpl_ftello(FILE* f)
+{
+	fpos_t fpos;
+
+	if (fgetpos(f, &fpos) != 0)
+		return -1;
+
+	return fpos;
+}
+
+int rpl_fseeko(FILE* f, off64_t offset, int origin)
+{
+	f->_flag &= ~_IOEOF;
+
+	if (origin == SEEK_CUR) {
+		offset += ftello(f);
+		origin = SEEK_SET;
+	}
+
+	fflush(f);
+	if (_lseeki64(fileno(f), offset, origin) == -1)
+		return -1;
+
+	return 0;
+}
+
 #endif
 
