@@ -259,7 +259,7 @@ bool game::preview_zip_set(const string& zip, void (game::*preview_set)(const re
 
 	adv_zipent* dd;
 	while ((dd = zip_read(d))!=0) {
-		string file = dd->name;
+		string file = file_file(dd->name);
 		string ext = file_ext(file);
 		string name = file_basename(file);
 		if (name == game_name && ext.length() && (ext == ext0 || ext == ext1)) {
@@ -573,7 +573,7 @@ bool game_set::preview_zip_set(const string& zip, const string& emulator_name, v
 
 	adv_zipent* dd;
 	while ((dd = zip_read(d))!=0) {
-		string file = dd->name;
+		string file = file_file(dd->name);
 		string ext = file_ext(file);
 		if (ext.length() && (ext == ext0 || ext == ext1)) {
 			string name = emulator_name + "/" + file_basename(file);
