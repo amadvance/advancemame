@@ -773,8 +773,12 @@ void joystickb_event_poll(void)
 		struct joystick_item_context* item = event_state.map + i;
 
 		while (event_read(item->f, &type, &code, &value) == 0) {
+
 			if (type == EV_KEY) {
 				unsigned j;
+
+				log_debug(("joystickb:event: read type %d (key), code %d, value %d\n", type, code, value));
+				
 				for(j=0;j<item->button_mac;++j) {
 					if (code == item->button_map[j].code) {
 						item->button_map[j].state = value != 0;
@@ -796,6 +800,9 @@ void joystickb_event_poll(void)
 #endif
 			} else if (type == EV_REL) {
 				unsigned j;
+
+				log_debug(("joystickb:event: read type %d (rel), code %d, value %d\n", type, code, value));
+
 				for(j=0;j<item->rel_mac;++j) {
 					if (code == item->rel_map[j].code) {
 						item->rel_map[j].value += value;
@@ -803,6 +810,9 @@ void joystickb_event_poll(void)
 					}
 				}
 			} else if (type == EV_ABS) {
+
+				log_debug(("joystickb:event: read type %d (abs), code %d, value %d\n", type, code, value));
+
 				unsigned j;
 				for(j=0;j<item->stick_mac;++j) {
 					unsigned k;
@@ -813,6 +823,8 @@ void joystickb_event_poll(void)
 							joystickb_event_axe_set(axe, value);
 					}
 				}
+			} else {
+				log_debug(("joystickb:event: read type %d (unknown), code %d, value %d\n", type, code, value));
 			}
 		}
 	}

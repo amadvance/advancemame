@@ -313,7 +313,7 @@ static adv_error joystickb_read(int f, int* type, int* code, int* value)
 		return -1;
 	}
 
-	log_debug(("joystickb:raw: read %d, type %d, code %d, value %d\n", e.time, e.type, e.number, e.value));
+	log_debug(("joystickb:raw: read time %d, type %d, code %d, value %d\n", e.time, e.type, e.number, e.value));
 
 	*type = e.type;
 	*code = e.number;

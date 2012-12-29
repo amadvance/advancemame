@@ -1591,7 +1591,7 @@ adv_error event_read(int f, int* type, int* code, int* value)
 		return -1;
 	}
 
-	log_debug(("event: read %ld.%06ld, type %d, code %d, value %d\n", e.time.tv_sec, e.time.tv_usec, e.type, e.code, e.value));
+	log_debug(("event: read time %ld.%06ld, type %d, code %d, value %d\n", e.time.tv_sec, e.time.tv_usec, e.type, e.code, e.value));
 
 	*type = e.type;
 	*code = e.code;
