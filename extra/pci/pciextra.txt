@@ -1,5 +1,0 @@
-V	1002	ATI Technologies
-D	5159	Radeon 7000 Series (RV100)
-O	0F01	ArcadeVGA
-S	1871	ArcadeVGA
-V	0F01	Ultimarc
