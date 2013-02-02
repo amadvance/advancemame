@@ -3,6 +3,12 @@
                           ============================
 
 
+ADVANCEMAME VERSION 1.3 2013/02
+===============================
+
+* Trick to reduce the input lag by one frame [Manlio De Pasquale].
+
+
 ADVANCEMAME VERSION 1.2 2012/12
 ===============================
 

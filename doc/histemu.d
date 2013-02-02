@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME Version 1.3 2013/02
+	) Trick to reduce the input lag by one frame [Manlio De Pasquale].
+
 AdvanceMAME Version 1.2 2012/12
 	) Fixed compilation with modern compilers.
 	) Fixed the "alsa" audio driver in Linux. In modern distributions it was generating no sound.

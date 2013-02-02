@@ -231,7 +231,7 @@ diff -U 5 --new-file --recursive src.ori/cpu/cpu.mak src/cpu/cpu.mak
  
 diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
 --- src.ori/cpuexec.c	2006-03-29 08:17:58.000000000 +0200
-+++ src/cpuexec.c	2006-06-24 15:59:51.000000000 +0200
++++ src/cpuexec.c	2013-02-02 12:14:14.911894968 +0100
 @@ -291,10 +291,13 @@
  	/* initialize the various timers (suspends all CPUs at startup) */
  	cpu_inittimers();
@@ -246,6 +246,21 @@ diff -U 5 --new-file --recursive src.ori/cpuexec.c src/cpuexec.c
  	{
  		/* enable all CPUs (except for disabled CPUs) */
  		if (!(Machine->drv->cpu[cpunum].cpu_flags & CPU_DISABLE))
+@@ -1387,10 +1390,14 @@
+ 
+ static void cpu_vblankcallback(int param)
+ {
+ 	int cpunum;
+ 
++	/* AdvanceMAME: Trick to removes 1 frame of input lag for MAME from 0.100 to 0.124 */
++	/* by Manlio De Pasquale */
++	input_port_vblank_start();
++
+ 	if (vblank_countdown == 1)
+ 		vblank = 1;
+ 
+ 	/* loop over CPUs */
+ 	for (cpunum = 0; cpunum < cpu_gettotalcpu(); cpunum++)
 diff -U 5 --new-file --recursive src.ori/cpuexec.h src/cpuexec.h
 --- src.ori/cpuexec.h	2006-03-29 08:17:58.000000000 +0200
 +++ src/cpuexec.h	2012-10-31 23:59:00.927061106 +0100
