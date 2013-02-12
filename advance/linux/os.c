@@ -413,12 +413,14 @@ int os_inner_init(const char* title)
 	/* probe the delay system */
 	os_delay();
 
-	/* save term if possible */
-	if (tcgetattr(fileno(stdin), &OS.term) != 0) {
-		log_std(("ERROR:os: error getting the tty state.\n"));
-		OS.term_active = 0;
-	} else {
-		OS.term_active = 1;
+	if (!os_internal_wm_active()) {
+		log_std(("os: save term\n"));
+		if (tcgetattr(fileno(stdin), &OS.term) != 0) {
+			log_std(("ERROR:os: error getting the tty state.\n"));
+			OS.term_active = 0;
+		} else {
+			OS.term_active = 1;
+		}
 	}
 
 #if defined(USE_X)
@@ -647,46 +649,49 @@ void os_inner_done(void)
 #ifdef USE_X
 	if (OS.x_display) {
 		log_std(("os: XCloseDisplay()\n"));
+		OS.curses_active = 0;
 		XCloseDisplay(OS.x_display);
-		OS.x_active = 0;
 	}
 #endif
 #ifdef USE_CURSES
 	if (OS.curses_active) {
 		log_std(("os: endwin()\n"));
-		endwin();
 		OS.curses_active = 0;
+		endwin();
 	}
 #endif
 #ifdef USE_SLANG
 	if (OS.slang_active) {
 		log_std(("os: SLsmg_reset_smg()\n"));
-		SLsmg_reset_smg();
 		OS.slang_active = 0;
+		SLsmg_reset_smg();
 	}
 #endif
 #ifdef USE_SDL
 	if (OS.sdl_active) {
 		log_std(("os: SDL_Quit()\n"));
-		SDL_Quit();
 		OS.sdl_active = 0;
+		SDL_Quit();
 	}
 #endif
 #ifdef USE_SVGALIB
 	if (OS.svgalib_active) {
-		mouse_close(); /* always called */
 		OS.svgalib_active = 0;
+		mouse_close(); /* always called */
 	}
 #endif
 
 	/* restore term */
 	if (OS.term_active) {
 		log_std(("os: tcsetattr(%sICANON %sECHO)\n", (OS.term.c_lflag & ICANON) ? "" : "~", (OS.term.c_lflag & ECHO) ? "" : "~"));
+		OS.term_active = 0;
 		if (tcsetattr(fileno(stdin), TCSAFLUSH, &OS.term) != 0) {
 			/* ignore error */
 			log_std(("os: tcsetattr(TCSAFLUSH) failed\n"));
 		}
 	}
+
+	log_std(("os: os_inner_done completed\n"));
 }
 
 void os_poll(void)
