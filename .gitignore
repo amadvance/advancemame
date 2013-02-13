@@ -1,0 +1,81 @@
+# autotools
+Makefile
+autom4te.cache/
+config.log
+config.status
+advance/lib/config.h
+
+# projects
+advance.dst
+advance.epr
+
+# archive
+*.zip
+*.tar.gz
+
+# objects
+advcfg
+advj
+advk
+advm
+advmame
+advmamed
+advmenu
+advmenud
+advs
+advv
+*.exe
+*.o
+
+# generated doc
+doc/*.1
+doc/*.hh
+doc/*.html
+doc/*.txt
+
+# extra dirs
+mess.complete/
+mess.ori.complete/
+mess.ori/
+mess/
+obj/
+src.complete/
+src.ori.complete/
+src.ori/
+src/
+srcmess.complete/
+srcmess.ori.complete/
+srcmess.ori/
+srcmess/
+
+
+# On branch master
+# Your branch is ahead of 'origin/master' by 1 commit.
+#
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#	.gitignore
+#	GIT
+#	advance/expat-1.95.7.ori/
+#	advance/expat-1.95.7/
+#	advance/expat-1.95.8-ori/
+#	advance/svgalib-1.9.17.ori/
+#	advance/svgalib-1.9.17/
+#	advance/svgalib-1.9.18.ori/
+#	advance/svgalib-1.9.18/
+#	advance/svgalib-1.9.19/
+#	advance/svgalib-1.9.20.ori.complete/
+#	advance/svgalib.1.9.19-ori.complete/
+#	advance/svgalib.1.9.19.ori/
+#	advance/svgalib.ori/
+#	advance/svgalib/svganix/
+#	advance/svgalib/svgavdd/vdd/svgavdd.dll
+#	advance/svgalib/svgawin/driver/svgawin.sys
+#	advance/zlib-1.2.2.ori/
+#	advance/zlib-1.2.2/
+#	advance/zlib-1.2.3.ori/
+#	val.sh
+#	val2.sh
+#	val3.sh
+nothing added to commit but untracked files present (use "git add" to track)
