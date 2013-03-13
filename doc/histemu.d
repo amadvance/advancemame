@@ -1,8 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME Version 1.3 2013/02
+AdvanceMAME Version 1.3 2013/03
 	) Trick to reduce the input lag by one frame [Manlio De Pasquale].
+	) Better effect selection if display_resizeeffect is 'auto'.
 
 AdvanceMAME Version 1.2 2012/12
 	) Fixed compilation with modern compilers.

@@ -207,44 +207,66 @@ static void video_command_combine(struct advance_video_context* context, struct 
 	) {
 		/* reset the counter */
 		context->state.skip_level_combine_counter = 0;
+		context->state.skip_level_combine_total = 0;
 
 		/* don't adjust */
 		return;
+	}
+
+	/* increment the total counter */
+	++context->state.skip_level_combine_total;
+
+	/* periodically restart measuring */
+	if (context->state.skip_level_combine_total > 10000) {
+		/* restart counting */
+		context->state.skip_level_combine_counter = 0;
+		context->state.skip_level_combine_total = 0;
 	}
 
 	if (context->state.skip_level_skip != 0) { /* if we are not 100% full speed */
 		/* one more frame too slow */
 		++context->state.skip_level_combine_counter;
 
-		/* if we reached some kind of limit */
-		if (context->state.skip_level_combine_counter > 60) {
-			struct advance_video_config_context config = context->config;
+		/* if we reached 0.5% of slow frames in 1000 frames */
+		if (
+			(context->state.skip_level_combine_total > 1000
+				&& context->state.skip_level_combine_counter > context->state.skip_level_combine_total / 200)
+			|| (context->state.skip_level_combine_total <= 1000
+				&& context->state.skip_level_combine_counter >= 5)
+		) {
+			unsigned combine_max = context->config.combine_max;
+
+			log_std(("advance:skip: combine_skip_level %u %u\n", context->state.skip_level_combine_counter, context->state.skip_level_combine_total));
 
 			/* try decreasing the video effects */
-			if (config.combine == COMBINE_AUTO) {
-				switch (config.combine_max) {
-				case COMBINE_SCALEX :
-					config.combine_max = COMBINE_NONE;
-					log_std(("advance:skip: decreasing combine from scalex to none\n"));
-					break;
-				case COMBINE_SCALEK :
-					config.combine_max = COMBINE_SCALEX;
-					log_std(("advance:skip: decreasing combine from scalek to scalex\n"));
-					break;
-				case COMBINE_XBR :
-					config.combine_max = COMBINE_SCALEK;
-					log_std(("advance:skip: decreasing combine from xbr to scalek\n"));
-					break;
-				}
+			if (context->config.combine == COMBINE_AUTO)
+			switch (combine_max) {
+			case COMBINE_SCALEX :
+				combine_max = COMBINE_NONE;
+				log_std(("advance:skip: decreasing combine from scalex to none\n"));
+				break;
+			case COMBINE_SCALEK :
+				combine_max = COMBINE_SCALEX;
+				log_std(("advance:skip: decreasing combine from scalek to scalex\n"));
+				break;
+			case COMBINE_XBR :
+				combine_max = COMBINE_SCALEK;
+				log_std(("advance:skip: decreasing combine from xbr to scalek\n"));
+				break;
 			}
 
 			/* if something changed */
-			if (context->config.combine_max != config.combine_max) {
+			if (context->config.combine_max != combine_max) {
+				struct advance_video_config_context config = context->config;
+
+				config.combine_max = combine_max;
+
 				/* reconfigure */
 				advance_video_reconfigure(context, &config);
 
 				/* restart counting */
 				context->state.skip_level_combine_counter = 0;
+				context->state.skip_level_combine_total = 0;
 			}
 		}
 	}

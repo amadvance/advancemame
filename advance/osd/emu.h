@@ -789,6 +789,7 @@ struct advance_video_state_context {
 	unsigned skip_level_sum; /**< Total number of frame in the cycle. */
 	adv_bool skip_level_disable_flag; /**< If skipping was disabled for some reasons. */
 	unsigned skip_level_combine_counter; /**< Counter of slow frame before decreasing the combine effect. */
+	unsigned skip_level_combine_total; /**< Total counter of slow frame before decreasing the combine effect. */
 
 	int latency_diff; /**< Current sound latency error in samples. */
 
