@@ -227,12 +227,12 @@ static void video_command_combine(struct advance_video_context* context, struct 
 		/* one more frame too slow */
 		++context->state.skip_level_combine_counter;
 
-		/* if we reached 0.5% of slow frames in 1000 frames */
+		/* if we reached 3% of slow frames in 1000 frames */
 		if (
 			(context->state.skip_level_combine_total > 1000
-				&& context->state.skip_level_combine_counter > context->state.skip_level_combine_total / 200)
+				&& context->state.skip_level_combine_counter > context->state.skip_level_combine_total / 33)
 			|| (context->state.skip_level_combine_total <= 1000
-				&& context->state.skip_level_combine_counter >= 5)
+				&& context->state.skip_level_combine_counter >= 30)
 		) {
 			unsigned combine_max = context->config.combine_max;
 
