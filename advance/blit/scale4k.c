@@ -48,76 +48,43 @@
 	ECEDEEEF
 */
 
-#define SCALE4K_R0(A,B,C,D,E,F,G,H,I,E0,E1,E2,E3,E4,E5,E6,E7,E8,E9,EA,EB,EC,ED,EE,EF) \
-	if (B != E && D != E) { \
-		if (D == B) { \
-			/* diagonal */ \
-			if (B == C && D == G) { \
-				/* square block */ \
-			} else if (B == C) { \
-				/* horizontal slope */ \
-				E0 = D; \
-				E1 = D; \
-				E2 = interp_31(D, E2); \
-				E3 = interp_13(D, E3); \
-				E4 = interp_31(D, E4); \
-				E5 = interp_13(D, E5); \
-			} else if (D == G) { \
-				/* vertical slope */ \
-				E0 = D; \
-				E4 = D; \
-				E8 = interp_31(D, E8); \
-				EC = interp_13(D, EC); \
-				E1 = interp_31(D, E1); \
-				E5 = interp_13(D, E5); \
-			} else { \
-				/* pure diagonal */ \
-				E0 = D; \
-				E1 = interp_11(D, E1); \
-				E4 = interp_11(D, E4); \
-			} \
-		} \
-	}
-
 #define SCALE4K(A,B,C,D,E,F,G,H,I,E0,E1,E2,E3,E4,E5,E6,E7,E8,E9,EA,EB,EC,ED,EE,EF) \
-	if (B != E && D != E) { \
-		if (D == B) { \
-			/* diagonal */ \
-			if (B == C && D == G) { \
-				/* square block */ \
-				if (A != E) { \
-					/* no star */ \
-					E0 = D; \
-					E1 = D; \
-					E2 = interp_31(D, E2); \
-					E3 = interp_13(D, E3); \
-					E4 = D; \
-					E8 = interp_31(D, E8); \
-					EC = interp_13(D, EC); \
-					E5 = interp_11(D, E5); \
-				} \
-			} else if (B == C && C != F) { \
-				/* horizontal slope */ \
+	if (D == B && B != E) { \
+		/* diagonal */ \
+		if (B == C && D == G) { \
+			/* square block */ \
+			if (A != E) { \
+				/* no star */ \
 				E0 = D; \
 				E1 = D; \
 				E2 = interp_31(D, E2); \
 				E3 = interp_13(D, E3); \
-				E4 = interp_31(D, E4); \
-				E5 = interp_13(D, E5); \
-			} else if (D == G && G != H) { \
-				/* vertical slope */ \
-				E0 = D; \
 				E4 = D; \
 				E8 = interp_31(D, E8); \
 				EC = interp_13(D, EC); \
-				E1 = interp_31(D, E1); \
-				E5 = interp_13(D, E5); \
-			} else { \
-				/* pure diagonal */ \
-				E0 = D; \
-				E1 = interp_11(D, E1); \
-				E4 = interp_11(D, E4); \
+				E5 = interp_11(D, E5); \
 			} \
+		} else if (B == C && C != F) { \
+			/* horizontal slope */ \
+			E0 = D; \
+			E1 = D; \
+			E2 = interp_31(D, E2); \
+			E3 = interp_13(D, E3); \
+			E4 = interp_31(D, E4); \
+			E5 = interp_13(D, E5); \
+		} else if (D == G && G != H) { \
+			/* vertical slope */ \
+			E0 = D; \
+			E4 = D; \
+			E8 = interp_31(D, E8); \
+			EC = interp_13(D, EC); \
+			E1 = interp_31(D, E1); \
+			E5 = interp_13(D, E5); \
+		} else { \
+			/* pure diagonal */ \
+			E0 = D; \
+			E1 = interp_11(D, E1); \
+			E4 = interp_11(D, E4); \
 		} \
 	}
 

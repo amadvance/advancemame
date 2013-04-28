@@ -47,65 +47,36 @@
 				E6E7E8
 			*/
 
-#define SCALE3K_R0(A,B,C,D,E,F,G,H,I,E0,E1,E2,E3,E4,E5,E6,E7,E8) \
-	if (B != E && D != E) { \
-		if (D == B) { \
-			/* diagonal */ \
-			if (B == C && D == G) { \
-				/* square block */ \
-			} else if (B == C) { \
-				/* horizontal slope */ \
-				E0 = D; \
-				E1 = interp_31(D, E1); \
-				E2 = interp_13(D, E2); \
-				E3 = interp_13(D, E3); \
-			} else if (D == G) { \
-				/* vertical slope */ \
-				E0 = D; \
-				E3 = interp_31(D, E3); \
-				E6 = interp_13(D, E6); \
-				E1 = interp_13(D, E1); \
-			} else { \
-				/* pure diagonal */ \
-				E0 = interp_71(D, E0); \
-				E1 = interp_17(D, E1); \
-				E3 = interp_17(D, E3); \
-			} \
-		} \
-	}
-
 #define SCALE3K(A,B,C,D,E,F,G,H,I,E0,E1,E2,E3,E4,E5,E6,E7,E8) \
-	if (B != E && D != E) { \
-		if (D == B) { \
-			/* diagonal */ \
-			if (B == C && D == G) { \
-				/* square block */ \
-				if (A != E) { \
-					/* no star */ \
-					E0 = interp_31(D, E0); \
-					E1 = interp_31(D, E1); \
-					E2 = interp_13(D, E2); \
-					E3 = interp_31(D, E3); \
-					E6 = interp_13(D, E6); \
-				} \
-			} else if (B == C && C != F) { \
-				/* horizontal slope */ \
-				E0 = D; \
+	if (D == B && B != E) { \
+		/* diagonal */ \
+		if (B == C && D == G) { \
+			/* square block */ \
+			if (A != E) { \
+				/* no star */ \
+				E0 = interp_31(D, E0); \
 				E1 = interp_31(D, E1); \
 				E2 = interp_13(D, E2); \
-				E3 = interp_13(D, E3); \
-			} else if (D == G && G != H) { \
-				/* vertical slope */ \
-				E0 = D; \
 				E3 = interp_31(D, E3); \
 				E6 = interp_13(D, E6); \
-				E1 = interp_13(D, E1); \
-			} else { \
-				/* pure diagonal */ \
-				E0 = interp_71(D, E0); \
-				E1 = interp_17(D, E1); \
-				E3 = interp_17(D, E3); \
 			} \
+		} else if (B == C && C != F) { \
+			/* horizontal slope */ \
+			E0 = D; \
+			E1 = interp_31(D, E1); \
+			E2 = interp_13(D, E2); \
+			E3 = interp_13(D, E3); \
+		} else if (D == G && G != H) { \
+			/* vertical slope */ \
+			E0 = D; \
+			E3 = interp_31(D, E3); \
+			E6 = interp_13(D, E6); \
+			E1 = interp_13(D, E1); \
+		} else { \
+			/* pure diagonal */ \
+			E0 = interp_71(D, E0); \
+			E1 = interp_17(D, E1); \
+			E3 = interp_17(D, E3); \
 		} \
 	}
 

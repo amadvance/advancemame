@@ -46,51 +46,28 @@
 	E2E3
 */
 
-#define SCALE2K_R0(A,B,C,D,E,F,G,H,I,E0,E1,E2,E3) \
-	if (B != E && D != E) { \
-		if (D == B) { \
-			/* diagonal */ \
-			if (B == C && D == G) { \
-				/* square block */ \
-			} else if (B == C) { \
-				/* horizontal slope */ \
-				E0 = interp_31(D, E0); \
-				E1 = interp_13(D, E1); \
-			} else if (D == G) { \
-				/* vertical slope */ \
-				E0 = interp_31(D, E0); \
-				E2 = interp_13(D, E2); \
-			} else { \
-				/* pure diagonal */ \
-				E0 = interp_11(E0,D); \
-			} \
-		} \
-	}
-
 #define SCALE2K(A,B,C,D,E,F,G,H,I,E0,E1,E2,E3) \
-	if (B != E && D != E) { \
-		if (D == B) { \
-			/* diagonal */ \
-			if (B == C && D == G) { \
-				/* square block */ \
-				if (A != E) { \
-					/* no star */ \
-					E0 = interp_31(D, E0); \
-					E1 = interp_13(D, E1); \
-					E2 = interp_13(D, E2); \
-				} \
-			} else if (B == C && C != F) { \
-				/* horizontal slope */ \
+	if (D == B && B != E) { \
+		/* diagonal */ \
+		if (B == C && D == G) { \
+			/* square block */ \
+			if (A != E) { \
+				/* no star */ \
 				E0 = interp_31(D, E0); \
 				E1 = interp_13(D, E1); \
-			} else if (D == G && G != H) { \
-				/* vertical slope */ \
-				E0 = interp_31(D, E0); \
 				E2 = interp_13(D, E2); \
-			} else { \
-				/* pure diagonal */ \
-				E0 = interp_11(E0,D); \
 			} \
+		} else if (B == C && C != F) { \
+			/* horizontal slope */ \
+			E0 = interp_31(D, E0); \
+			E1 = interp_13(D, E1); \
+		} else if (D == G && G != H) { \
+			/* vertical slope */ \
+			E0 = interp_31(D, E0); \
+			E2 = interp_13(D, E2); \
+		} else { \
+			/* pure diagonal */ \
+			E0 = interp_11(E0,D); \
 		} \
 	}
 
