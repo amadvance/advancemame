@@ -1,8 +1,9 @@
 Name
 	history - History For AdvanceMENU
 
-AdvanceMENU Version 2.7 2013/02
+AdvanceMENU Version 2.7 2014/03
 	) Fixed a hang condition at termination when started directly from xinit.
+	) Fixed manpages format.
 
 AdvanceMENU Version 2.6 2012/12
 	) Fixed the "alsa" audio driver in Linux. In modern distributions it was generating no sound.

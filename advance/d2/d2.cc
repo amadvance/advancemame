@@ -627,19 +627,19 @@ string convert_man::mask(string s)
 	for(unsigned i=0;i<s.length();++i) {
 		switch (s[i]) {
 		case '"' :
-			r += "\\(a\"";
+			r += "\\[dq]";
 			break;
 		case '\'' :
-			r += "\\(cq";
+			r += "\\'";
 			break;
 		case '`' :
-			r += "\\(oq";
+			r += "\\`";
 			break;
 		case '\\' :
-			r += "\\(rs";
+			r += "\\\\";
 			break;
 		case '-' :
-			r += "\\(hy";
+			r += "\\-";
 			break;
 		default:
 			r += s[i];
