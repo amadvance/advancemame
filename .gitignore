@@ -1,8 +1,16 @@
 # autotools
 Makefile
 autom4te.cache/
+config.guess
+config.h
+config.h.in
 config.log
 config.status
+config.sub
+configure
+install-sh
+missing
+stamp-h1
 advance/lib/config.h
 
 # projects
@@ -26,6 +34,9 @@ advs
 advv
 *.exe
 *.o
+
+# generated
+*.dif
 
 # generated doc
 doc/*.1
