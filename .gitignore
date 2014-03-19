@@ -18,6 +18,7 @@ advance/lib/config.h
 *.epr
 
 # archive
+archive/
 *.zip
 *.tar.gz
 
@@ -44,7 +45,13 @@ doc/*.hh
 doc/*.html
 doc/*.txt
 
+# support
+*.dat
+
 # extra dirs
+reference/
+resource/
+contrib/
 mess.complete/
 mess.ori.complete/
 mess.ori/
