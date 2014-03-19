@@ -651,8 +651,7 @@ MENU_ROOT_BIN += \
 	$(DOCOBJ)/advmenu.1 \
 	$(DOCOBJ)/advdev.1 \
 	$(DOCOBJ)/advv.1 \
-	$(DOCOBJ)/advcfg.1 \
-	$(CONF_BIN)
+	$(DOCOBJ)/advcfg.1
 endif
 ifeq ($(CONF_SYSTEM),dos)
 MENU_ROOT_BIN += \

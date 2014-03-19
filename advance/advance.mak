@@ -273,16 +273,6 @@ CONF_SRC = \
 	$(srcdir)/config.sub \
 	$(srcdir)/install-sh
 
-CONF_BIN = \
-	$(srcdir)/support/confbin/INSTALL \
-	$(srcdir)/support/confbin/Makefile.am \
-	$(srcdir)/support/confbin/Makefile.in \
-	$(srcdir)/support/confbin/configure.ac \
-	$(srcdir)/support/confbin/autogen.sh \
-	$(srcdir)/support/confbin/configure \
-	$(srcdir)/support/confbin/aclocal.m4 \
-	$(srcdir)/support/confbin/install-sh
-
 ############################################################################
 # Common install
 

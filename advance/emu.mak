@@ -945,8 +945,7 @@ EMU_ROOT_BIN += \
 	$(DOCOBJ)/advk.1 \
 	$(DOCOBJ)/advs.1 \
 	$(DOCOBJ)/advj.1 \
-	$(DOCOBJ)/advm.1 \
-	$(CONF_BIN)
+	$(DOCOBJ)/advm.1
 ifeq ($(CONF_EMU),mess)
 EMU_ROOT_BIN += \
 	$(srcdir)/support/advmess.1
