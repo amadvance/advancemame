@@ -125,6 +125,7 @@ protected:
 	unsigned level1;
 	unsigned level2;
 	bool numbered;
+	bool active;
 public:
 	convert(istream& Ais, ostream& Aos);
 	virtual ~convert();
@@ -144,6 +145,7 @@ public:
 	virtual void section_begin(unsigned level) = 0;
 	virtual void section_end() = 0;
 	virtual void section_text(const string& s) = 0;
+	virtual bool section_is_active(const string& s);
 
 	virtual void para_begin(unsigned level) = 0;
 	virtual void para_end() = 0;
@@ -175,10 +177,16 @@ public:
 convert::convert(istream& Ais, ostream& Aos) : is(Ais), os(Aos)
 {
 	numbered = true;
+	active = true;
 };
 
 convert::~convert()
 {
+}
+
+bool convert::section_is_active(const string& s)
+{
+	return true;
 }
 
 bool convert::is_pre(const string& s, string& a)
@@ -318,7 +326,10 @@ void convert::step(const string& r)
 			return;
 		}
 
-		if ((ns == 0 && state == state_section0) || (ns == 2 && state == state_section1) || (ns == 4 && state == state_section2)) {
+		if ((ns == 0 && state == state_section0)
+			|| (ns == 2 && state == state_section1)
+			|| (ns == 4 && state == state_section2)
+		) {
 			section_text(s);
 			return;
 		}
@@ -326,10 +337,12 @@ void convert::step(const string& r)
 		if ((ns == 8 && state == state_para0) || (ns == 16 && state == state_para1)) {
 			string a;
 			if (is_line(s, a)) {
-				para_text(a);
+				if (active)
+					para_text(a);
 				line();
 			} else {
-				para_text(s);
+				if (active)
+					para_text(s);
 			}
 			return;
 		}
@@ -337,10 +350,12 @@ void convert::step(const string& r)
 
 	// end
 	if (state == state_section0 || state == state_section1 || state == state_section2) {
-		section_end();
+		if (active)
+			section_end();
 	}
 	if (state == state_para0 || state == state_para1) {
-		para_end();
+		if (active)
+			para_end();
 	}
 
 	// start
@@ -423,26 +438,32 @@ void convert::step(const string& r)
 
 	if (s.length()>0 && (ns == 0 || ns == 2 || ns == 4)) {
 		state_t state_new = ns == 0 ? state_section0 : (ns == 2 ? state_section1 : state_section2);
+		active = state_new != state_section0 || section_is_active(s);
 		if (state != state_new) {
 			next(ns / 2, level0, level1, level2);
-			section_begin(ns / 2);
+			if (active)
+				section_begin(ns / 2);
 		}
 		state = state_new;
-		section_text(s);
+		if (active)
+			section_text(s);
 		return;
 	}
 
 	if (s.length()>0 && (ns == 8 || ns == 16)) {
 		state_t state_new = ns == 8 ? state_para0 : state_para1;
 		if (state != state_new)
-			para_begin(ns == 16);
+			if (active)
+				para_begin(ns == 16);
 		state = state_new;
 		string a;
 		if (is_line(s, a)) {
-			para_text(a);
+			if (active)
+				para_text(a);
 			line();
 		} else {
-			para_text(s);
+			if (active)
+				para_text(s);
 		}
 		return;
 	}
@@ -554,7 +575,8 @@ void convert::run()
 		section_end();
 	}
 	if (state == state_para0 || state == state_para1) {
-		para_end();
+		if (active)
+			para_end();
 	}
 	if (state == state_tag0 || state == state_tag1) {
 		tag_stop();
@@ -1228,17 +1250,25 @@ public:
 
 	virtual void header(const string& a, const string& b);
 	virtual void footer();
+
+	virtual bool section_is_active(const string& s);
 };
 
 void convert_frame::header(const string& a, const string& b)
 {
-	if (b.length()) {
-		os << "<center><" HTML_H1 ">" << mask(b) << "</" HTML_H1 "></center>" << endl;
-	}
 }
 
 void convert_frame::footer()
 {
+}
+
+bool convert_frame::section_is_active(const string& s)
+{
+	if (s == "Copyright")
+		return false;
+	if (s == "See Also")
+		return false;
+	return true;
 }
 
 //---------------------------------------------------------------------------
