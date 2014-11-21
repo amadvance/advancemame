@@ -124,7 +124,8 @@ LIB_SRC = \
 	$(wildcard $(srcdir)/advance/lib/*.rc) \
 	$(wildcard $(srcdir)/advance/lib/*.dat) \
 	$(wildcard $(srcdir)/advance/lib/*.cfg) \
-	$(wildcard $(srcdir)/advance/lib/*.html)
+	$(wildcard $(srcdir)/advance/lib/*.html) \
+	$(wildcard $(srcdir)/advance/lib/*.bmp)
 
 BLIT_SRC = \
 	$(wildcard $(srcdir)/advance/blit/*.c) \
