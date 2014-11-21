@@ -18,7 +18,7 @@ Preparing The Sources
   AdvanceMAME
 	To compile AdvanceMAME you need the MAME source of the same
 	version of AdvanceMAME. Please note that you must use the original emulator
-	source, you cannot use the source of another MAME clone like xmame.
+	source, you cannot use the source of another MAME clone like sdlmame.
 
 	The original MAME sources can be downloaded from:
 
@@ -63,7 +63,7 @@ Preparing The Sources
 	To compile AdvanceMESS you need the MAME and MESS source of
 	the same version of AdvanceMESS. Please note that you must use the
 	original emulator source, you cannot use the source of another MAME
-	clone like xmame.
+	clone like sdlmess.
 
 	The original MAME sources can be downloaded from:
 

@@ -2,7 +2,7 @@ Name
 	advmenu - AdvanceMENU Frontend
 
 	AdvanceMENU is a frontend for the AdvanceMAME, AdvanceMESS, MAME,
-	MESS, xmame, Raine and any other emulator.
+	MESS, Raine and any other emulator.
 
 	It runs in Linux, Mac OS X, DOS, Windows and in all the other
 	platforms supported by the SDL library.

@@ -2,7 +2,7 @@ Name
 	release notes - Release Notes For AdvanceMENU
 
 AdvanceMENU 2.6
-	This version is an update for modern OS and compiler,
+	This version is an update for modern OSs and compilers,
 	and it fixes some important bugs.
 
 AdvanceMENU 2.4.7

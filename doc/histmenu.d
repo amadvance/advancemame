@@ -15,7 +15,7 @@ AdvanceMENU Version 2.6 2012/12
 	) Snapshot images in .ZIP archives are now read also ig they are in sub directories.
 	) Renamed the old "ini" import format to "catver" to avoid confusion with the new "catlist".
 	) Removed xmame support.
-	) Removed DLL files from the Windows distribution. New new compiler uses static libraries.
+	) Removed DLL files from the Windows distribution. The new compiler uses static libraries.
 	) Compiled with SDL-1.2.14, zlib-1.2.5, expat-2.0.1, freetype-2.4.4.
 
 AdvanceMENU Version 2.5.0 2008/12
