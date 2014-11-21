@@ -330,7 +330,7 @@ endif
 ifeq ($(CONF_HOST),windows)
 # Probably you need to changes these to cross compile:
 CROSSTARGET = i686-pc-mingw32
-CROSSDIR = /usr/local/mingw-cross-env-2.19
+CROSSDIR = /usr/local/mxe/usr
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
 CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
@@ -340,7 +340,7 @@ RC = @$(CROSSDIR)/bin/$(CROSSTARGET)-windres
 SDLCFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/SDL -I$(CROSSDIR)/$(CROSSTARGET)/include
 SDLLIBS = -L$(CROSSDIR)/$(CROSSTARGET)/lib -lmingw32 -lSDL -lwinmm -mwindows -liconv -lm -luser32 -lgdi32 -lwinmm -ldxguid
 FREETYPECFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/freetype2 -I$(CROSSDIR)/$(CROSSTARGET)/include
-FREETYPELIBS = -L$(CROSSDIR)/$(CROSSTARGET)/lib -lfreetype -lz
+FREETYPELIBS = -L$(CROSSDIR)/$(CROSSTARGET)/lib -lfreetype -lpng -lbz2 -lz
 endif
 endif
 
