@@ -55,7 +55,7 @@ static inline void internal_copy8_mmx(uint8* dst, const uint8* src, unsigned cou
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
+		: "+S" (src), "+D" (dst), "+g" (count)
 		:
 		: "cc"
 	);
@@ -99,7 +99,7 @@ static inline void internal_copy8_step2_mmx(uint8* dst, const uint8* src, unsign
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
+		: "+S" (src), "+D" (dst), "+g" (count)
 		: "r" (copy8_mask)
 		: "cc"
 	);
@@ -132,7 +132,7 @@ static inline void internal_copy8_def(uint8* dst, const uint8* src, unsigned cou
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
+		: "+S" (src), "+D" (dst), "+g" (count)
 		:
 		: "cc", "%eax"
 	);
@@ -238,9 +238,9 @@ static inline void internal_copy8_step_mmx(uint8* dst, const uint8* src, unsigne
 		"jnz 0b\n"
 		"1:\n"
 
-		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (step)
-		: "cc"
+		: "+S" (src), "+D" (dst), "+g" (count)
+		: "r" (step)
+		: "cc", "%eax", "%edx"
 	);
 
 	while (rest) {
@@ -294,8 +294,8 @@ static inline void internal_copy16_step_mmx(uint16* dst, const uint16* src, unsi
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (step)
+		: "+S" (src), "+D" (dst), "+g" (count)
+		: "r" (step)
 		: "cc", "%eax", "%edx"
 	);
 
@@ -340,8 +340,8 @@ static inline void internal_copy32_step_mmx(uint32* dst, const uint32* src, unsi
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (step)
+		: "+S" (src), "+D" (dst), "+g" (count)
+		: "r" (step)
 		: "cc"
 	);
 
@@ -418,7 +418,7 @@ static inline void internal_zero8_mmx(uint8* dst, unsigned count)
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		: "+D" (dst), "+c" (count)
+		: "+D" (dst), "+g" (count)
 		:
 		: "cc"
 	);

@@ -107,8 +107,8 @@ static void video_line_palette8to16_step1_mmx(const struct video_stage_horz_stru
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (palette)
+		: "+S" (src), "+D" (dst), "+g" (count)
+		: "r" (palette)
 		: "cc", "%eax", "%edx"
 	);
 
@@ -253,8 +253,8 @@ static void video_line_palette16to8_step2_mmx(const struct video_stage_horz_stru
 		"jnz 0b\n"
 		"1:\n"
 
-		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (palette)
+		: "+S" (src), "+D" (dst), "+g" (count)
+		: "r" (palette)
 		: "cc", "%eax", "%edx"
 	);
 
@@ -342,8 +342,8 @@ static void video_line_palette16to8_mmx(const struct video_stage_horz_struct* st
 		"jnz 0b\n"
 		"1:\n"
 
-		: "+S" (src), "+D" (dst), "+m" (count)
-		: "b" (palette), "c" (stage->sdp)
+		: "+S" (src), "+D" (dst), "+g" (count)
+		: "r" (palette), "r" (stage->sdp)
 		: "cc", "%eax", "%edx"
 	);
 
@@ -418,8 +418,8 @@ static void video_line_palette16to16_step2_mmx(const struct video_stage_horz_str
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (palette)
+		: "+S" (src), "+D" (dst), "+g" (count)
+		: "r" (palette)
 		: "cc", "%eax", "%edx"
 	);
 
@@ -484,8 +484,8 @@ static void video_line_palette16to16_mmx(const struct video_stage_horz_struct* s
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		: "+S" (src), "+D" (dst), "+m" (count)
-		: "b" (palette), "c" (stage->sdp)
+		: "+S" (src), "+D" (dst), "+g" (count)
+		: "r" (palette), "r" (stage->sdp)
 		: "cc", "%eax", "%edx"
 	);
 
@@ -548,8 +548,8 @@ static void video_line_palette16to32_step2_mmx(const struct video_stage_horz_str
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
-		: "b" (palette)
+		: "+S" (src), "+D" (dst), "+g" (count)
+		: "r" (palette)
 		: "cc", "%eax", "%edx"
 	);
 
@@ -600,8 +600,8 @@ static void video_line_palette16to32_mmx(const struct video_stage_horz_struct* s
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
-		: "+S" (src), "+D" (dst), "+m" (count)
-		: "b" (palette), "c" (stage->sdp)
+		: "+S" (src), "+D" (dst), "+g" (count)
+		: "r" (palette), "r" (stage->sdp)
 		: "cc", "%eax", "%edx"
 	);
 
