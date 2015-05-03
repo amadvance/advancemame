@@ -8,7 +8,6 @@ touch configure.ac
 
 # Regenerate configuration files
 aclocal
-automake --add-missing --force-missing
 autoconf
 autoheader && touch advance/lib/config.hin
 

@@ -369,6 +369,9 @@ if test $ac_system = windows; then
 	ac_lib_text_flag=yes
 fi
 
+# Checks for math. In some platforms it's not needed to use -lm, like Haiku.
+AC_CHECK_LIB([m],[cos])
+
 # Checks for zlib
 AC_ARG_ENABLE(
 	[zlib],
@@ -425,8 +428,7 @@ if test $ac_lib_svgalib = auto; then
 		[vga],
 		[vga_init],
 		[ac_lib_svgalib=yes],
-		[ac_lib_svgalib=no],
-		[-lm]
+		[ac_lib_svgalib=no]
 	)
 	if test $ac_lib_svgalib = yes; then
 		AC_MSG_CHECKING([for svgalib version])
@@ -444,8 +446,7 @@ elif test $ac_lib_svgalib = yes; then
 		[vga],
 		[vga_init],
 		[],
-		[AC_MSG_ERROR([the SVGALIB library is missing])],
-		[-lm]
+		[AC_MSG_ERROR([the SVGALIB library is missing])]
 	)
 	AC_MSG_CHECKING([for svgalib version])
 	AC_TRY_COMPILE([
@@ -511,8 +512,7 @@ if test $ac_lib_alsa = auto; then
 		[asound],
 		[snd_pcm_open],
 		[ac_lib_alsa=yes],
-		[ac_lib_alsa=no],
-		[-lm]
+		[ac_lib_alsa=no]
 	)
 	if test $ac_lib_alsa = yes; then
 		AC_MSG_CHECKING([for ALSA])
@@ -530,8 +530,7 @@ elif test $ac_lib_alsa = yes; then
 		[asound],
 		[snd_pcm_open],
 		[],
-		[AC_MSG_ERROR([the ALSA library is missing])],
-		[-lm]
+		[AC_MSG_ERROR([the ALSA library is missing])]
 	)
 	AC_MSG_CHECKING([for ALSA version])
 	AC_TRY_COMPILE([
