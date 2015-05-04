@@ -129,6 +129,10 @@ CONF_LIB_ZLIB=yes
 endif
 endif
 
+ifndef CONF_LIB_M
+CONF_LIB_M=yes
+endif
+
 ifndef CONF_LIB_EXPAT
 ifeq ($(CONF_HOST),dos)
 CONF_LIB_EXPAT=no

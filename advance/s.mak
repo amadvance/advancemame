@@ -36,7 +36,6 @@ SCFLAGS += \
 	-DADV_DATADIR=\"$(datadir)\" \
 	-DADV_SYSCONFDIR=\"$(sysconfdir)\" \
 	-I$(srcdir)/advance/linux
-SLIBS += -lm
 SOBJDIRS += \
 	$(SOBJ)/linux
 SOBJS += \
@@ -66,6 +65,9 @@ SOBJDIRS += \
 	$(SOBJ)/sdl
 SOBJS += \
 	$(SOBJ)/sdl/ssdl.o
+endif
+ifeq ($(CONF_LIB_M),yes)
+SLIBS += -lm
 endif
 endif
 

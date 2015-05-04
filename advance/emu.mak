@@ -86,8 +86,8 @@ ADVANCECFLAGS += \
 	-DUSE_VIDEO_SVGALIB \
 	-DUSE_KEYBOARD_SVGALIB \
 	-DUSE_MOUSE_SVGALIB \
-	-DUSE_JOYSTICK_SVGALIB 
-ADVANCELIBS += -lvga -lm
+	-DUSE_JOYSTICK_SVGALIB
+ADVANCELIBS += -lvga
 ADVANCEOBJS += \
 	$(OBJ)/advance/linux/vsvgab.o \
 	$(OBJ)/advance/linux/jsvgab.o \
@@ -99,7 +99,10 @@ ADVANCECFLAGS += \
 	-DUSE_SOUND_ALSA
 ADVANCEOBJS += \
 	$(OBJ)/advance/linux/salsa.o
-ADVANCELIBS += -lasound -lm
+ADVANCELIBS += -lasound
+endif
+ifeq ($(CONF_LIB_M),yes)
+ADVANCELIBS += -lm
 endif
 ifeq ($(CONF_LIB_OSS),yes)
 ADVANCECFLAGS += \

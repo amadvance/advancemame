@@ -370,7 +370,13 @@ if test $ac_system = windows; then
 fi
 
 # Checks for math. In some platforms it's not needed to use -lm, like Haiku.
-AC_CHECK_LIB([m],[cos])
+AC_CHECK_LIB(
+	[m],
+	[cos],
+	[ac_lib_m=yes],
+	[ac_lib_m=no]
+)
+AC_SUBST([CONF_LIB_M],[$ac_lib_m])
 
 # Checks for zlib
 AC_ARG_ENABLE(

@@ -35,7 +35,10 @@ VOBJDIRS += \
 	$(VOBJ)/v \
 	$(VOBJ)/lib \
 	$(VOBJ)/blit
+
+ifeq ($(CONF_LIB_M),yes)
 VLIBS += -lm
+endif
 
 ifeq ($(CONF_SYSTEM),unix)
 VCFLAGS += \

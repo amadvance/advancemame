@@ -50,7 +50,6 @@ CFGOBJS += \
 	$(CFGOBJ)/linux/file.o \
 	$(CFGOBJ)/linux/target.o \
 	$(CFGOBJ)/linux/os.o
-CFGLIBS += -lm
 ifeq ($(CONF_LIB_SLANG),yes)
 CFGCFLAGS += \
 	-DUSE_VIDEO_SLANG
@@ -81,6 +80,9 @@ CFGCFLAGS += \
 	-DUSE_VIDEO_FB
 CFGOBJS += \
 	$(CFGOBJ)/linux/vfb.o
+endif
+ifeq ($(CONF_LIB_M),yes)
+CFGLIBS += -lm
 endif
 endif
 
