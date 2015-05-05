@@ -18,6 +18,8 @@ $(sort $(D2OBJDIRS)):
 	$(ECHO) $@
 	$(MD) $@
 
+D2 = $(D2OBJ)/advd2$(EXE_FOR_BUILD)
+
 $(D2OBJ)/advd2$(EXE_FOR_BUILD) : $(sort $(D2OBJDIRS)) $(D2OBJS)
 	$(ECHO) $@ $(MSG)
 	$(LDXX_FOR_BUILD) $(LDFLAGS_FOR_BUILD) $(D2LDFLAGS) $(D2OBJS) $(D2LIBS) -o $@
@@ -25,16 +27,19 @@ $(D2OBJ)/advd2$(EXE_FOR_BUILD) : $(sort $(D2OBJDIRS)) $(D2OBJS)
 ############################################################################
 # Doc rules
 
-$(DOCOBJ)/%.txt : $(srcdir)/doc/%.d
+# We use "| $(D2)" as Makefile order-only-prerequisite
+# to avoid to regenerate all the doc when D2 is rebuilt
+
+$(DOCOBJ)/%.txt : $(srcdir)/doc/%.d | $(D2)
 	$(D2OBJ)/advd2 txt < $< > $@
 
-$(DOCOBJ)/%.html : $(srcdir)/doc/%.d
+$(DOCOBJ)/%.html : $(srcdir)/doc/%.d | $(D2)
 	$(D2OBJ)/advd2 html < $< > $@
 
-$(DOCOBJ)/%.hh : $(srcdir)/doc/%.d
+$(DOCOBJ)/%.hh : $(srcdir)/doc/%.d | $(D2)
 	$(D2OBJ)/advd2 frame < $< > $@
 
-$(DOCOBJ)/%.1 : $(srcdir)/doc/%.d
+$(DOCOBJ)/%.1 : $(srcdir)/doc/%.d | $(D2)
 	$(D2OBJ)/advd2 man < $< > $@
 
 $(DOCOBJ)/%.ps : $(D2OBJ)/%.1
