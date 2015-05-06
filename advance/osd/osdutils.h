@@ -80,25 +80,21 @@ static inline int strncmpi(const char* a, const char* b, size_t count) /* LEGACY
 }
 #endif
 
-#if !defined(__MSDOS__) && !defined(__WIN32__)
-static inline void strlwr(char* s)
+static inline void osd_strlwr(char* s)
 {
 	while (*s) {
 		*s = tolower(*s);
 		++s;
 	}
 }
-#endif
 
-#if !defined(__MSDOS__) && !defined(__WIN32__)
-static inline void strupr(char* s)
+static inline void osd_strupr(char* s)
 {
 	while (*s) {
 		*s = toupper(*s);
 		++s;
 	}
 }
-#endif
 
 static inline void osd_mkdir(const char* dir)
 {

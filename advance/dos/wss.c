@@ -3731,7 +3731,7 @@ static int get_ini_config_entry(char *entry, char *dest, FILE *fp)
 
 	/* make a local copy of the entry, upper-case it */
 	strcpy(tokstr, entry);
-	strupr(tokstr);
+	osd_strupr(tokstr);
 
 	/* rewind the file and try to find it... */
 	rewind(fp);
@@ -3760,7 +3760,7 @@ static int get_ini_config_entry(char *entry, char *dest, FILE *fp)
 		*p = 0;
 
 		/* upper-case the current string and test it */
-		strupr(str);
+		osd_strupr(str);
 
 		if (strcmp(str, tokstr))
 			continue;
@@ -3803,7 +3803,7 @@ static int soundscape_get_init_config()
    }
 #if 0
    /* if an old product name is read, set the IRQs accordingly */
-   strupr(str);
+   osd_strupr(str);
    if (strstr(str, "SOUNDFX") || strstr(str, "MEDIA_FX"))
 	  soundscape_irqset = rs_irqs;
    else

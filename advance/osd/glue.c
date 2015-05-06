@@ -1439,7 +1439,7 @@ static unsigned glue_keyboard_find(const char* const_name)
 	name = name_buffer;
 
 	/* comparison is in lower case */
-	strlwr(name);
+	osd_strlwr(name);
 
 	/* HACK for MESS c128 driver */
 	if (strncmp(name, "(64)", 4) == 0)
