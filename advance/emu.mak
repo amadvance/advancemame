@@ -101,9 +101,6 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/linux/salsa.o
 ADVANCELIBS += -lasound
 endif
-ifeq ($(CONF_LIB_M),yes)
-ADVANCELIBS += -lm
-endif
 ifeq ($(CONF_LIB_OSS),yes)
 ADVANCECFLAGS += \
 	-DUSE_SOUND_OSS
@@ -562,7 +559,9 @@ endif
 ############################################################################
 # m
 
+ifeq ($(CONF_LIB_M),yes)
 ADVANCELIBS += -lm
+endif
 
 ############################################################################
 # advance compile
