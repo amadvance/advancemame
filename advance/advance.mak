@@ -30,7 +30,13 @@ ifeq ($(CONF_EMU),mame)
 INSTALL_DATAFILES += $(srcdir)/support/event.dat
 INSTALL_DATAFILES += $(srcdir)/support/history.dat
 INSTALL_DATAFILES += $(srcdir)/support/hiscore.dat
-# INSTALL_BINFILES += $(OBJ)/chdman$(EXE) TODO Add chdman utility
+INSTALL_ROMFILES += $(srcdir)/contrib/mame/free/rom/gridlee.zip
+INSTALL_ROMFILES += $(srcdir)/contrib/mame/free/rom/polyplay.zip
+INSTALL_ROMFILES += $(srcdir)/contrib/mame/free/rom/robby.zip
+INSTALL_SAMPLEFILES += $(srcdir)/contrib/mame/free/rom/gridlee.zip
+INSTALL_SNAPFILES += $(srcdir)/contrib/mame/free/snap/gridlee.zip
+INSTALL_SNAPFILES += $(srcdir)/contrib/mame/free/snap/polyplay.zip
+INSTALL_SNAPFILES += $(srcdir)/contrib/mame/free/snap/robby.zip
 endif
 ifeq ($(CONF_EMU),mess)
 INSTALL_DATAFILES += $(srcdir)/support/sysinfo.dat
@@ -81,7 +87,7 @@ INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.txt,$(wildcard
 INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.html,$(wildcard $(srcdir)/doc/*.d)))
 WEB_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.hh,$(wildcard $(srcdir)/doc/*.d)))
 
-all: $(INSTALL_DIRS) $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES) $(INSTALL_DATAFILES)
+all: $(INSTALL_DIRS) $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES) $(INSTALL_DATAFILES) $(INSTALL_ROMFILES) $(INSTALL_SAMPLEFILES) $(INSTALL_SNAPFILES)
 emu: $(OBJ) $(OBJ)/$(EMUNAME)$(EXE)
 menu: $(MENUOBJ) $(MENUOBJ)/advmenu$(EXE)
 cfg: $(CFGOBJ) $(CFGOBJ)/advcfg$(EXE)
@@ -291,13 +297,32 @@ ifneq ($(wildcard $(EMUSRC)),)
 	-$(INSTALL_DATA_DIR) $(pkgdir)/artwork
 	-$(INSTALL_DATA_DIR) $(pkgdir)/image
 	-$(INSTALL_DATA_DIR) $(pkgdir)/crc
+	-$(INSTALL_DATA_DIR) $(pkgdir)/snap
 endif
 
-install-data: $(INSTALL_DATAFILES)
+install-data: $(INSTALL_DATAFILES) $(INSTALL_ROMFILES) $(INSTALL_SAMPLEFILES) $(INSTALL_SNAPFILES)
 ifdef INSTALL_DATAFILES
 	@for i in $(INSTALL_DATAFILES); do \
 		echo "$(INSTALL_DATA) $$i $(pkgdir)"; \
 		$(INSTALL_DATA) $$i $(pkgdir); \
+	done
+endif
+ifdef INSTALL_ROMFILES
+	@for i in $(INSTALL_ROMFILES); do \
+		echo "$(INSTALL_DATA) $$i $(pkgdir)/rom"; \
+		$(INSTALL_DATA) $$i $(pkgdir)/rom; \
+	done
+endif
+ifdef INSTALL_SAMPLEFILES
+	@for i in $(INSTALL_SAMPLEFILES); do \
+		echo "$(INSTALL_DATA) $$i $(pkgdir)/sample"; \
+		$(INSTALL_DATA) $$i $(pkgdir)/sample; \
+	done
+endif
+ifdef INSTALL_SNAPFILES
+	@for i in $(INSTALL_SNAPFILES); do \
+		echo "$(INSTALL_DATA) $$i $(pkgdir)/snap"; \
+		$(INSTALL_DATA) $$i $(pkgdir)/snap; \
 	done
 endif
 
@@ -305,6 +330,21 @@ uninstall-data:
 ifdef INSTALL_DATAFILES
 	@for i in $(notdir $(INSTALL_DATAFILES)); do \
 		rm -f $(pkgdir)/$$i; \
+	done
+endif
+ifdef INSTALL_ROMFILES
+	@for i in $(notdir $(INSTALL_ROMFILES)); do \
+		rm -f $(pkgdir)/rom/$$i; \
+	done
+endif
+ifdef INSTALL_SAMPLEFILES
+	@for i in $(notdir $(INSTALL_SAMPLEFILES)); do \
+		rm -f $(pkgdir)/sample/$$i; \
+	done
+endif
+ifdef INSTALL_SNAPFILES
+	@for i in $(notdir $(INSTALL_SNAPFILES)); do \
+		rm -f $(pkgdir)/snap/$$i; \
 	done
 endif
 
@@ -356,6 +396,7 @@ ifneq ($(wildcard $(EMUSRC)),)
 	-rmdir $(pkgdir)/artwork
 	-rmdir $(pkgdir)/image
 	-rmdir $(pkgdir)/crc
+	-rmdir $(pkgdir)/snap
 	-rmdir $(pkgdir)
 	-rmdir $(pkgdocdir)
 endif
