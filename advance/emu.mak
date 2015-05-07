@@ -557,10 +557,14 @@ EMUCHDMANLIBS += \
 endif
 
 ############################################################################
-# m
+# others
 
 ifeq ($(CONF_LIB_M),yes)
 ADVANCELIBS += -lm
+endif
+
+ifeq ($(CONF_LIB_NETWORK),yes)
+ADVANCELIBS += -lnetwork
 endif
 
 ############################################################################
