@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.8 2015/05
+	) Added support fo Haiku OS.
+
 AdvanceMENU Version 2.7 2014/03
 	) Fixed a hang condition at termination when started directly from xinit.
 	) Fixed manpages format.
