@@ -299,7 +299,9 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 			/* open a regular file */
 			h = fzopen(path_buffer, mode);
 			if (h == 0) {
-				osd_errno_to_filerr(error);
+				/* MAME expect this error in generic_fopen() otherwise it doesn't */
+				/* retry with .zips */
+				*error = FILEERR_NOT_FOUND;
 				log_std(("osd: fzopen() failed, %s\n", strerror(errno)));
 			}
 		}

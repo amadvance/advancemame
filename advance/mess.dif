@@ -1,11 +1,11 @@
 diff -U 5 --new-file --recursive mess.ori/advance.pat mess/advance.pat
 --- mess.ori/advance.pat	1970-01-01 01:00:00.000000000 +0100
-+++ mess/advance.pat	2005-11-25 09:38:46.000000000 +0100
++++ mess/advance.pat	2015-05-09 07:10:07.942942810 +0200
 @@ -0,0 +1 @@
 +These files are patched for the use with the Advance emulator.
 diff -U 5 --new-file --recursive mess.ori/hashfile.c mess/hashfile.c
---- mess.ori/hashfile.c	2004-09-08 03:56:48.000000000 +0200
-+++ mess/hashfile.c	2005-11-25 09:38:46.000000000 +0100
+--- mess.ori/hashfile.c	2015-05-09 07:10:16.600082957 +0200
++++ mess/hashfile.c	2015-05-09 07:10:07.963943150 +0200
 @@ -6,11 +6,11 @@
  
  *********************************************************************/
@@ -20,9 +20,12 @@ diff -U 5 --new-file --recursive mess.ori/hashfile.c mess/hashfile.c
  
  	Type definitions
 diff -U 5 --new-file --recursive mess.ori/inputx.c mess/inputx.c
---- mess.ori/inputx.c	2005-11-16 01:13:48.000000000 +0100
-+++ mess/inputx.c	2005-11-25 09:38:46.000000000 +0100
-@@ -1,8 +1,7 @@
+--- mess.ori/inputx.c	2015-05-09 07:10:16.602083009 +0200
++++ mess/inputx.c	2015-05-09 07:10:07.965943181 +0200
+@@ -6,11 +6,10 @@
+ 
+ *********************************************************************/
+ 
  #include <ctype.h>
  #include <assert.h>
 -#include <wctype.h>
@@ -30,21 +33,4 @@ diff -U 5 --new-file --recursive mess.ori/inputx.c mess/inputx.c
  #include "inptport.h"
  #include "mame.h"
  
- #define NUM_CODES		128
-diff -U 5 --new-file --recursive mess.ori/mess.c mess/mess.c
---- mess.ori/mess.c	2005-11-16 01:13:48.000000000 +0100
-+++ mess/mess.c	2005-12-05 18:41:53.000000000 +0100
-@@ -597,11 +597,12 @@
- 	if (inputx_validitycheck(NULL, &inputports))
- 		error = 1;
- 	if (device_valididtychecks())
- 		error = 1;
- 
--#ifdef WIN32
-+/* AdvanceMAME: Disable validity checks */
-+#if 0
- 	/* MESS on windows has its own validity checks */
- 	{
- 		extern int win_mess_validitychecks(void);
- 		if (win_mess_validitychecks())
- 			error = 1;
+ #if defined(MAME_DEBUG) && defined(NEW_DEBUGGER)

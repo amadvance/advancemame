@@ -624,11 +624,12 @@ ADVANCELDFLAGS += -Xlinker -Map -Xlinker $(OBJ)/$(EMUNAME).map
 endif
 
 ifeq ($(CONF_EMU),mess)
-include $(EMUSRC)/core.mak
+include $(srcdir)/srcmess/core.mak
 include $(srcdir)/mess/$(CONF_EMU).mak
-include $(EMUSRC)/cpu/cpu.mak
-include $(EMUSRC)/sound/sound.mak
-include $(srcdir)/mess/rules_ms.mak
+include $(srcdir)/srcmess/cpu/cpu.mak
+include $(srcdir)/mess/cpu/cpu.mak
+include $(srcdir)/srcmess/sound/sound.mak
+include $(srcdir)/mess/sound/sound.mak
 else
 include $(EMUSRC)/core.mak
 include $(EMUSRC)/$(CONF_EMU).mak

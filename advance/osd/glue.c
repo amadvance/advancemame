@@ -2714,7 +2714,6 @@ static adv_conf_enum_int OPTION_DEPTH[] = {
 };
 
 #ifdef MESS
-
 static void mess_init(adv_conf* context)
 {
 	const char** i;
@@ -2764,11 +2763,12 @@ static int mess_config_load(adv_conf* context, struct mame_option* option)
 				return -1;
 			}
 
-			/* register the devices with its arg */
-			if (register_device(id, arg) != 0) {
-				log_std(("ERROR:glue: calling register_device(type:%d, arg:%s)\n", id, arg));
-				return -1;
-			}
+			/* add the user specified a device type */
+			options.image_files[options.image_count].name = strdup(arg);
+			options.image_files[options.image_count].device_tag = 0;
+			options.image_files[options.image_count].device_type = id;
+			options.image_files[options.image_count].device_index = -1;
+			options.image_count++;
 
 			conf_iterator_next(&j);
 		}
@@ -2806,7 +2806,6 @@ static int mess_config_load(adv_conf* context, struct mame_option* option)
 static void mess_done(void)
 {
 }
-
 #endif
 
 adv_error mame_init(struct advance_context* context)
