@@ -400,6 +400,7 @@ static struct conversion_t CONV3[] = {
 	{ 3, { match_mamemessraine, match_gamemachine, "rom", "merge", 0 }, process_rommerge },
 	{ 3, { match_mamemessraine, match_gamemachine, "rom", "size", 0 }, process_romsize },
 	{ 3, { match_mamemessraine, match_gamemachine, "device", "name", 0 }, process_devicename },
+	{ 3, { match_mamemessraine, match_gamemachine, "device", "type", 0 }, process_devicename }, /* from MESS 0.106, instead of "name" */
 	{ 3, { match_mamemessraine, match_gamemachine, "driver", "status", 0 }, process_driverstatus },
 	{ 3, { match_mamemessraine, match_gamemachine, "video", "screen", 0 }, process_videoscreen },
 	{ 3, { match_mamemessraine, match_gamemachine, "video", "orientation", 0 }, process_videoorientation },
