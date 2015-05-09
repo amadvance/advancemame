@@ -978,17 +978,10 @@ EMU_ROOT_BIN += $(srcdir)/support/advmessv.bat $(srcdir)/support/advmessc.bat
 endif
 endif
 
-ifeq ($(CONF_DIFFSRC),yes)
-EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)-diff
-else
 EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)
-endif
 EMU_DIST_FILE_BIN = advance$(CONF_EMU)-$(EMUVERSION)-$(BINARYTAG)
 EMU_DIST_DIR_SRC = $(EMU_DIST_FILE_SRC)
 EMU_DIST_DIR_BIN = $(EMU_DIST_FILE_BIN)
-
-distdiff:
-	$(MAKE) dist CONF_DIFFSRC=yes
 
 dist: $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ)/build.txt $(DOCOBJ)/license.txt
 	mkdir $(EMU_DIST_DIR_SRC)
@@ -1065,13 +1058,11 @@ dist: $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ
 	mkdir $(EMU_DIST_DIR_SRC)/contrib
 	mkdir $(EMU_DIST_DIR_SRC)/contrib/mame
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib/mame
-ifneq ($(CONF_DIFFSRC),yes)
 ifeq ($(CONF_EMU),mess)
 	cp -R $(srcdir)/srcmess $(EMU_DIST_DIR_SRC)
 	cp -R $(srcdir)/mess $(EMU_DIST_DIR_SRC)
 else
 	cp -R $(srcdir)/src $(EMU_DIST_DIR_SRC)
-endif
 endif
 	find $(EMU_DIST_DIR_SRC) \( -name "*.dat" \) -type f -exec dtou {} \;
 	rm -f $(EMU_DIST_FILE_SRC).tar.gz

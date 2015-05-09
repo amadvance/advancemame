@@ -440,7 +440,6 @@ WHOLECD_FLAGS = \
 
 wholemame: mamedif
 	$(MAKE) $(MANUAL) dist
-	$(MAKE) $(MANUAL) CONF_DIFFSRC=yes dist
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distbin
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distbin
 
@@ -457,7 +456,6 @@ wholecd:
 
 wholemess: messdif
 	$(MAKE) $(MANUAL) CONF_EMU=mess dist
-	$(MAKE) $(MANUAL) CONF_EMU=mess CONF_DIFFSRC=yes dist
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows CONF_EMU=mess distbin
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos CONF_EMU=mess distbin
 
