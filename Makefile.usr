@@ -129,9 +129,6 @@ CONF_LIB_ZLIB=yes
 endif
 endif
 
-ifndef CONF_LIB_M
-CONF_LIB_M=yes
-endif
 
 ifndef CONF_LIB_EXPAT
 ifeq ($(CONF_HOST),dos)
@@ -231,6 +228,10 @@ endif
 
 ifndef CONF_LDFLAGS
 CONF_LDFLAGS=-s
+endif
+
+ifndef CONF_LIBS
+CONF_LIBS=-lm
 endif
 
 ifndef CONF_DEBUGGER

@@ -373,19 +373,25 @@ fi
 AC_CHECK_LIB(
 	[m],
 	[cos],
-	[ac_lib_m=yes],
-	[ac_lib_m=no]
+	[ac_lib_system="$ac_lib_system -lm"],
+	[]
 )
-AC_SUBST([CONF_LIB_M],[$ac_lib_m])
 
 # Checks for network lib. In some platforms it's needed to use -lnetwork, like Haiku.
 AC_CHECK_LIB(
+	[socket],
+	[socket],
+	[ac_lib_system="$ac_lib_system -lsocket"],
+	[]
+)
+AC_CHECK_LIB(
 	[network],
 	[socket],
-	[ac_lib_network=yes],
-	[ac_lib_network=no]
+	[ac_lib_system="$ac_lib_system -lnetwork"],
+	[]
 )
-AC_SUBST([CONF_LIB_NETWORK],[$ac_lib_network])
+
+AC_SUBST([CONF_LIBS],[$ac_lib_system])
 
 # Checks for zlib
 AC_ARG_ENABLE(

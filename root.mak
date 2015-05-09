@@ -31,6 +31,7 @@ BINARYBUILDDIR = $(CONF_BUILD)
 # - CONF_CFLAGS_OPT are the optimization flags
 CFLAGS = $(CONF_DEFS) $(CONF_CFLAGS_ARCH) $(CONF_CFLAGS_OPT)
 LDFLAGS = $(CONF_LDFLAGS)
+LIBS = $(CONF_LIBS)
 
 # Compiling message
 ifeq ($(CONF_DEBUG),yes)

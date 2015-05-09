@@ -34,3 +34,23 @@ diff -U 5 --new-file --recursive mess.ori/inputx.c mess/inputx.c
  #include "mame.h"
  
  #if defined(MAME_DEBUG) && defined(NEW_DEBUGGER)
+diff -U 5 --new-file --recursive mess.ori/mess.c mess/mess.c
+--- mess.ori/mess.c	2015-05-09 07:10:16.603083032 +0200
++++ mess/mess.c	2015-05-09 07:31:42.573904714 +0200
+@@ -318,14 +318,16 @@
+ 
+ 
+ 
+ void mess_config_init(void)
+ {
++#if 0 /* AdvanceMAME does't need this */
+ #ifdef WIN32
+ 	extern void win_mess_config_init(void);
+ 	win_mess_config_init();
+ #endif
++#endif
+ }
+ 
+ 
+ 
+ const game_driver *mess_next_compatible_driver(const game_driver *drv)

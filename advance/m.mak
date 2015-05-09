@@ -90,6 +90,6 @@ $(sort $(MOBJDIRS)):
 
 $(MOBJ)/advm$(EXE) : $(sort $(MOBJDIRS)) $(MOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(MOBJS) $(MLIBS) $(MLDFLAGS) $(LDFLAGS) -o $@
+	$(LD) $(MOBJS) $(MLIBS) $(MLDFLAGS) $(LDFLAGS) $(LIBS) -o $@
 	$(RM) advm$(EXE)
 	$(LN_S) $@ advm$(EXE)

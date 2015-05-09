@@ -83,7 +83,7 @@ $(sort $(KOBJDIRS)):
 
 $(KOBJ)/advk$(EXE) : $(sort $(KOBJDIRS)) $(KOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(KOBJS) $(KLIBS) $(KLDFLAGS) $(LDFLAGS) -o $@
+	$(LD) $(KOBJS) $(KLIBS) $(KLDFLAGS) $(LDFLAGS) $(LIBS) -o $@
 	$(RM) advk$(EXE)
 	$(LN_S) $@ advk$(EXE)
 

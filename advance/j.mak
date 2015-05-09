@@ -125,6 +125,6 @@ $(sort $(JOBJDIRS)):
 
 $(JOBJ)/advj$(EXE) : $(sort $(JOBJDIRS)) $(JOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(JOBJS) $(JLIBS) $(JLDFLAGS) $(LDFLAGS) -o $@
+	$(LD) $(JOBJS) $(JLIBS) $(JLDFLAGS) $(LDFLAGS) $(LIBS) -o $@
 	$(RM) advj$(EXE)
 	$(LN_S) $@ advj$(EXE)

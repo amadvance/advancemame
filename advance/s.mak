@@ -66,9 +66,6 @@ SOBJDIRS += \
 SOBJS += \
 	$(SOBJ)/sdl/ssdl.o
 endif
-ifeq ($(CONF_LIB_M),yes)
-SLIBS += -lm
-endif
 endif
 
 ifeq ($(CONF_SYSTEM),dos)
@@ -150,7 +147,7 @@ $(sort $(SOBJDIRS)):
 
 $(SOBJ)/advs$(EXE) : $(sort $(SOBJDIRS)) $(SOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(SOBJS) $(SLIBS) $(SLDFLAGS) $(LDFLAGS) -o $@
+	$(LD) $(SOBJS) $(SLIBS) $(SLDFLAGS) $(LDFLAGS) $(LIBS) -o $@
 	$(RM) advs$(EXE)
 	$(LN_S) $@ advs$(EXE)
 

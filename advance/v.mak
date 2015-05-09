@@ -36,10 +36,6 @@ VOBJDIRS += \
 	$(VOBJ)/lib \
 	$(VOBJ)/blit
 
-ifeq ($(CONF_LIB_M),yes)
-VLIBS += -lm
-endif
-
 ifeq ($(CONF_SYSTEM),unix)
 VCFLAGS += \
 	-DADV_DATADIR=\"$(datadir)\" \
@@ -257,6 +253,6 @@ $(sort $(VOBJDIRS)):
 
 $(VOBJ)/advv$(EXE) : $(sort $(VOBJDIRS)) $(VOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(VOBJS) $(VLIBS) $(VLDFLAGS) $(LDFLAGS) -o $@
+	$(LD) $(VOBJS) $(VLIBS) $(VLDFLAGS) $(LDFLAGS) $(LIBS) -o $@
 	$(RM) advv$(EXE)
 	$(LN_S) $@ advv$(EXE)

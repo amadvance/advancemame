@@ -3,6 +3,7 @@ Name
 
 AdvanceMENU Version 2.8 2015/05
 	) Added support fo Haiku OS.
+	) Compatible with AdvanceMESS 1.3.
 
 AdvanceMENU Version 2.7 2014/03
 	) Fixed a hang condition at termination when started directly from xinit.

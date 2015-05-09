@@ -5,9 +5,6 @@ LINEOBJDIRS = \
 	$(LINEOBJ)/line
 LINEOBJS = \
 	$(LINEOBJ)/line/line.o
-ifeq ($(CONF_LIB_M),yes)
-LINELIBS = -lm
-endif
 
 $(LINEOBJ)/%.o: $(srcdir)/advance/%.cc
 	$(ECHO) $@ $(MSG)

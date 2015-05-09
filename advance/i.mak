@@ -67,7 +67,7 @@ $(sort $(IOBJDIRS)):
 
 $(IOBJ)/advi$(EXE) : $(sort $(IOBJDIRS)) $(IOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(IOBJS) $(ILIBS) $(ILDFLAGS) $(LDFLAGS) -o $@
+	$(LD) $(IOBJS) $(ILIBS) $(ILDFLAGS) $(LDFLAGS) $(LIBS) -o $@
 	$(RM) advi$(EXE)
 	$(LN_S) $@ advi$(EXE)
 

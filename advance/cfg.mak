@@ -81,9 +81,6 @@ CFGCFLAGS += \
 CFGOBJS += \
 	$(CFGOBJ)/linux/vfb.o
 endif
-ifeq ($(CONF_LIB_M),yes)
-CFGLIBS += -lm
-endif
 endif
 
 ifeq ($(CONF_SYSTEM),dos)
@@ -258,6 +255,6 @@ $(sort $(CFGOBJDIRS)):
 
 $(CFGOBJ)/advcfg$(EXE) : $(sort $(CFGOBJDIRS)) $(CFGOBJS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(CFGOBJS) $(CFGLIBS) $(CFGLDFLAGS) $(LDFLAGS) -o $@
+	$(LD) $(CFGOBJS) $(CFGLIBS) $(CFGLDFLAGS) $(LDFLAGS) $(LIBS) -o $@
 	$(RM) advcfg$(EXE)
 	$(LN_S) $@ advcfg$(EXE)

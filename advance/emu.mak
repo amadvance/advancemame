@@ -556,16 +556,6 @@ EMUCHDMANLIBS += \
 	$(OBJ)/advance/libz.a
 endif
 
-############################################################################
-# others
-
-ifeq ($(CONF_LIB_M),yes)
-ADVANCELIBS += -lm
-endif
-
-ifeq ($(CONF_LIB_NETWORK),yes)
-ADVANCELIBS += -lnetwork
-endif
 
 ############################################################################
 # advance compile
@@ -679,7 +669,7 @@ EMUDEFS += $(COREDEFS) $(CPUDEFS) $(SOUNDDEFS) $(ASMDEFS)
 
 $(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(EMUOBJS) $(EMULIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(ADVANCEOBJS) $(EMUOBJS) $(ADVANCELDFLAGS) $(LDFLAGS) $(EMULIBS) $(ADVANCELIBS) -o $@
+	$(LD) $(ADVANCEOBJS) $(EMUOBJS) $(ADVANCELDFLAGS) $(LDFLAGS) $(EMULIBS) $(ADVANCELIBS) $(LIBS) -o $@
 ifeq ($(CONF_DEBUG),yes)
 	$(RM) $(EMUNAME)d$(EXE)
 	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)d$(EXE)
@@ -690,7 +680,7 @@ endif
 
 $(OBJ)/chdman$(EXE): $(EMUCHDMANOBJS) $(EMUCHDMANLIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(EMUCHDMANOBJS) $(EMUCHDMANLDFLAGS) $(LDFLAGS) $(EMUCHDMANLIBS) -o $@
+	$(LD) $(EMUCHDMANOBJS) $(EMUCHDMANLDFLAGS) $(LDFLAGS) $(EMUCHDMANLIBS) $(LIBS) -o $@
 
 $(OBJ)/%.o: $(EMUSRC)/%.c
 	$(ECHO) $@ $(MSG)
@@ -937,7 +927,6 @@ EMU_ROOT_BIN += \
 	$(srcdir)/support/event.dat \
 	$(srcdir)/support/history.dat \
 	$(srcdir)/support/hiscore.dat
-# $(OBJ)/chdman$(EXE) TODO Add chdman utility
 endif
 ifeq ($(CONF_SYSTEM),unix)
 EMU_ROOT_BIN += \
