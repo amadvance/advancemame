@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMENU
 
-AdvanceMENU Version 2.8 2015/05
+AdvanceMENU Version 2.8 2015/06
 	) Added support fo Haiku OS.
 	) Compatible with AdvanceMESS 1.3.
 

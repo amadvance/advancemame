@@ -1,11 +1,12 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 1.3 2015/05
+AdvanceMAME/MESS Version 1.3 2015/06
 	) Added support fo Haiku OS.
 	) Included free ROMs gridlee, polyplay and robby.
 	) Trick to reduce the input lag by one frame [Manlio De Pasquale].
 	) Better effect selection if display_resizeeffect is 'auto'.
+	) Changed the default of "magnify" to auto.
 	) Fixed manpages format.
 
 AdvanceMAME Version 1.2 2012/12
