@@ -487,27 +487,27 @@ struct script_cmd* script_cmd_make_op3sec(const char* arg0, struct script_exp* a
 /***************************************************************************/
 /* Stack */
 
-inline int script_run_cursor_empty(const struct script_state* state)
+static inline int script_run_cursor_empty(const struct script_state* state)
 {
 	return state->cursor_mac == 0;
 }
 
-inline struct script_cmd* script_run_cursor_get(struct script_state* state)
+static inline struct script_cmd* script_run_cursor_get(struct script_state* state)
 {
 	return state->cursor_map[state->cursor_mac-1];
 }
 
-inline void script_run_cursor_pop(struct script_state* state)
+static inline void script_run_cursor_pop(struct script_state* state)
 {
 	--state->cursor_mac;
 }
 
-inline void script_run_cursor_set(struct script_state* state, struct script_cmd* cmd)
+static inline void script_run_cursor_set(struct script_state* state, struct script_cmd* cmd)
 {
 	state->cursor_map[state->cursor_mac-1] = cmd;
 }
 
-inline void script_run_cursor_push(struct script_state* state, struct script_cmd* cmd)
+static inline void script_run_cursor_push(struct script_state* state, struct script_cmd* cmd)
 {
 	++state->cursor_mac;
 	state->cursor_map[state->cursor_mac-1] = cmd;
