@@ -148,7 +148,7 @@ Video Hardware
 	A lot of useful links are available on the AdvanceMAME video
 	link page:
 
-		+http://advancemame.sourceforge.net/video-link.html
+		+http://www.advancemame.it/video-link.html
 
   LCD screens
 	LCD screens have always a native fixed resolution. To get the

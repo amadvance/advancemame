@@ -10,7 +10,7 @@ Name
 
 	The official site of AdvanceMAME/MESS is :
 
-		+http://advancemame.sourceforge.net/
+		+http://www.advancemame.it/
 
 	The main difference compared with the official emulators is that
 	the Advance versions are able to program directly the video board

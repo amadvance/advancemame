@@ -15,10 +15,10 @@ General FAQ
   Where can I get the latest version of this FAQ ?
 	The latest version of the FAQ is included with the latest version
 	of AdvanceMAME, available for download from the project homepage
-	http://advancemame.sourceforge.net/.
+	http://www.advancemame.it/.
 
 	The latest version of the FAQ is also available online at
-	http://advancemame.sourceforge.net/doc-faq.html.
+	http://www.advancemame.it/doc-faq.html.
 
   What is MAME ?
 	MAME means Multiple Arcade Machine Emulator and is a huge effort
