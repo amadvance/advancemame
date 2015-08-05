@@ -1,11 +1,10 @@
-# Process this file with autoconf to produce a configure script.
-AC_INIT([advance],[source])
+dnl Process this file with autoconf to produce a configure script.
+AC_PREREQ([2.65])
+AC_INIT([AdvanceMAKE], [current], [], [], [http://www.advancemame.it])
 AC_CONFIG_HEADERS([advance/lib/config.h:advance/lib/config.hin])
 AC_CANONICAL_HOST
-AC_PREREQ(2.57)
-AC_COPYRIGHT([Copyright 2008 Andrea Mazzoleni])
 
-# Checks for system.
+dnl Checks for system.
 case "$host" in
 	*-*-linux*)
 		ac_system=unix
@@ -91,7 +90,7 @@ else
 	ac_auto_ldflags=no
 fi
 
-# Checks for programs.
+dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
@@ -107,7 +106,7 @@ AC_CHECK_PROGS(GZIP, gzip)
 AC_CHECK_PROGS(ZIP, zip)
 
 if test "x$cross_compiling" = "xyes"; then
-	# if cross compiling autodetect the system compilers
+	dnl if cross compiling autodetect the system compilers
 	AC_CHECK_PROGS(CC_FOR_BUILD, gcc cc)
 	AC_CHECK_PROGS(CXX_FOR_BUILD, g++ gxx c++ gpp aCC CC cxx cc++ cl FCC KCC RCC xlC_r xlC)
 else
@@ -118,7 +117,7 @@ else
 	AC_SUBST(CXX_FOR_BUILD)
 fi
 
-# Checks for optimizations
+dnl Checks for optimizations
 AC_ARG_ENABLE(
 	[debug],
 	AC_HELP_STRING([--enable-debug],[enable the test compilation without optimization and with debug info. Only for developers. (default no)]),
@@ -151,9 +150,9 @@ if test $ac_auto_cflags = yes; then
 		AC_CHECK_CC_OPT([-march=native], [CFLAGS="$CFLAGS -march=native"], [])
 		AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])
 		AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
-		# Code is not ready for strict-aliasing. It seems working, but who know...
+		dnl Code is not ready for strict-aliasing. It seems working, but who know...
 		AC_CHECK_CC_OPT([-fno-strict-aliasing], [CFLAGS="$CFLAGS -fno-strict-aliasing"], [])
-		# We are not interested in stack protection
+		dnl We are not interested in stack protection
 		AC_CHECK_CC_OPT([-fno-stack-protector], [CFLAGS="$CFLAGS -fno-stack-protector"], [])
 		AC_CHECK_CC_OPT([-Wall], [CFLAGS="$CFLAGS -Wall"], [])
 		AC_CHECK_CC_OPT([-Wno-sign-compare], [CFLAGS="$CFLAGS -Wno-sign-compare"], [])
@@ -184,7 +183,7 @@ fi
 AC_SUBST([CONF_CFLAGS_OPT],[$CFLAGS])
 AC_SUBST([CONF_LDFLAGS],[$LDFLAGS])
 
-# Checks for architecture
+dnl Checks for architecture
 AC_C_BIGENDIAN(
 	[ac_is_bigendian=yes],
 	[ac_is_bigendian=no]
@@ -202,7 +201,7 @@ AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(long long)
 AC_CHECK_SIZEOF(void*)
 
-# Large file supports
+dnl Large file supports
 AC_SYS_LARGEFILE
 
 AC_ARG_ENABLE(
@@ -259,7 +258,7 @@ fi
 
 AC_SUBST([CONF_CFLAGS_ARCH],[$CFLAGS_ARCH])
 
-# Checks for configuration options.
+dnl Checks for configuration options.
 AC_ARG_WITH(
 	[emu],
 	AC_HELP_STRING([--with-emu],[select the emulator to use: mame, mess, none (default auto)]),
@@ -308,9 +307,9 @@ AC_ARG_ENABLE(
 )
 AC_SUBST([CONF_DEBUGGER],[$ac_enable_debugger])
 
-# Checks for header files.
-# Checks for typedefs, structures, and compiler characteristics.
-# Checks for library functions.
+dnl Checks for header files.
+dnl Checks for typedefs, structures, and compiler characteristics.
+dnl Checks for library functions.
 
 if test $ac_system = unix ; then
 	AC_HEADER_STDC
@@ -344,7 +343,7 @@ if test $ac_system = unix ; then
 	fi
 fi
 
-# Checks for libraries.
+dnl Checks for libraries.
 
 ac_lib_direct_flag=no
 ac_lib_video_flag=no
@@ -369,7 +368,7 @@ if test $ac_system = windows; then
 	ac_lib_text_flag=yes
 fi
 
-# Checks for math. In some platforms it's not needed to use -lm, like Haiku.
+dnl Checks for math. In some platforms it's not needed to use -lm, like Haiku.
 AC_CHECK_LIB(
 	[m],
 	[cos],
@@ -377,7 +376,7 @@ AC_CHECK_LIB(
 	[]
 )
 
-# Checks for network lib. In some platforms it's needed to use -lnetwork, like Haiku.
+dnl Checks for network lib. In some platforms it's needed to use -lnetwork, like Haiku.
 AC_CHECK_LIB(
 	[socket],
 	[socket],
@@ -393,7 +392,7 @@ AC_CHECK_LIB(
 
 AC_SUBST([CONF_LIBS],[$ac_lib_system])
 
-# Checks for zlib
+dnl Checks for zlib
 AC_ARG_ENABLE(
 	[zlib],
 	AC_HELP_STRING([--enable-zlib],[enable the use of the zlib library. (default auto)]),
@@ -415,7 +414,7 @@ else
 fi
 AC_SUBST([CONF_LIB_ZLIB],[$ac_lib_zlib])
 
-# Checks for expat
+dnl Checks for expat
 AC_ARG_ENABLE(
 	[expat],
 	AC_HELP_STRING([--enable-expat],[enable the use of the expat library. (default auto)]),
@@ -437,7 +436,7 @@ else
 fi
 AC_SUBST([CONF_LIB_EXPAT],[$ac_lib_expat])
 
-# Checks for svgalib
+dnl Checks for svgalib
 AC_ARG_ENABLE(
 	[svgalib],
 	AC_HELP_STRING([--enable-svgalib],[enable the use of the SVGALIB library. (default auto)]),
@@ -490,7 +489,7 @@ if test $ac_lib_svgalib = yes; then
 fi
 AC_SUBST([CONF_LIB_SVGALIB],[$ac_lib_svgalib])
 
-# Checks for fb
+dnl Checks for fb
 AC_ARG_ENABLE(
 	[fb],
 	AC_HELP_STRING([--enable-fb],[enable the use of the Frame Buffer library. (default auto)]),
@@ -521,7 +520,7 @@ if test $ac_lib_fb = yes; then
 fi
 AC_SUBST([CONF_LIB_FB],[$ac_lib_fb])
 
-# Checks for alsa
+dnl Checks for alsa
 AC_ARG_ENABLE(
 	[alsa],
 	AC_HELP_STRING([--enable-alsa],[enable the use of the ALSA library. (default auto)]),
@@ -569,7 +568,7 @@ if test $ac_lib_alsa = yes; then
 fi
 AC_SUBST([CONF_LIB_ALSA],[$ac_lib_alsa])
 
-# Checks for oss
+dnl Checks for oss
 AC_ARG_ENABLE(
 	[oss],
 	AC_HELP_STRING([--enable-oss],[enable the use of the OSS library. (default auto)]),
@@ -599,7 +598,7 @@ if test $ac_lib_oss = yes; then
 fi
 AC_SUBST([CONF_LIB_OSS],[$ac_lib_oss])
 
-# Checks for pthread
+dnl Checks for pthread
 AC_ARG_ENABLE(
 	[pthread],
 	AC_HELP_STRING([--enable-pthread],[enable the use of the pthread library (default auto)]),
@@ -628,7 +627,7 @@ if test $ac_lib_pthread = yes; then
 fi
 AC_SUBST([CONF_LIB_PTHREAD],[$ac_lib_pthread])
 
-# Checks for slang
+dnl Checks for slang
 AC_ARG_ENABLE(
 	[slang],
 	AC_HELP_STRING([--enable-slang],[enable the use of the sLang library (default auto)]),
@@ -659,7 +658,7 @@ if test $ac_lib_slang = yes; then
 fi
 AC_SUBST([CONF_LIB_SLANG],[$ac_lib_slang])
 
-# Checks for ncurses
+dnl Checks for ncurses
 AC_ARG_ENABLE(
 	[ncurses],
 	AC_HELP_STRING([--enable-ncurses],[enable the use of the ncurses library (default auto)]),
@@ -689,7 +688,7 @@ if test $ac_lib_ncurses = yes; then
 fi
 AC_SUBST([CONF_LIB_NCURSES],[$ac_lib_ncurses])
 
-# Checks for freetype
+dnl Checks for freetype
 ac_lib_freetype_args=
 ac_lib_freetype_path="$PATH"
 AC_ARG_WITH(
@@ -777,7 +776,7 @@ AC_SUBST([FREETYPECFLAGS])
 AC_SUBST([FREETYPELIBS])
 AC_SUBST([CONF_LIB_FREETYPE],[$ac_lib_freetype])
 
-# Checks for sdl
+dnl Checks for sdl
 ac_lib_sdl_args=
 ac_lib_sdl_path="$PATH"
 AC_ARG_WITH(
@@ -873,7 +872,7 @@ AC_SUBST([SDLCFLAGS])
 AC_SUBST([SDLLIBS])
 AC_SUBST([CONF_LIB_SDL],[$ac_lib_sdl])
 
-# Checks for svgawin
+dnl Checks for svgawin
 AC_ARG_ENABLE(
 	[svgawin],
 	AC_HELP_STRING([--enable-svgawin],[enable the use of the SVGAWIN library. (default auto)]),
@@ -906,7 +905,7 @@ if test $ac_lib_svgawin = yes; then
 fi
 AC_SUBST([CONF_LIB_SVGAWIN],[$ac_lib_svgawin])
 
-# Checks for mrawinput
+dnl Checks for mrawinput
 AC_ARG_ENABLE(
 	[mrawinput],
 	AC_HELP_STRING([--enable-mrawinput],[enable the use of the Windows Raw input mouse interface. (default auto)]),
@@ -930,7 +929,7 @@ if test $ac_lib_mrawinput = yes; then
 fi
 AC_SUBST([CONF_LIB_MRAWINPUT],[$ac_lib_mrawinput])
 
-# Checks for mcpn
+dnl Checks for mcpn
 AC_ARG_ENABLE(
 	[mcpn],
 	AC_HELP_STRING([--enable-mcpn],[enable the use of the Windows CPN mouse interface. (default auto)]),
@@ -954,7 +953,7 @@ if test $ac_lib_mcpn = yes; then
 fi
 AC_SUBST([CONF_LIB_MCPN],[$ac_lib_mcpn])
 
-# Checks for kraw
+dnl Checks for kraw
 AC_ARG_ENABLE(
 	[kraw],
 	AC_HELP_STRING([--enable-kraw],[enable the use of the raw keyboard interface. (default auto)]),
@@ -994,7 +993,7 @@ if test $ac_lib_kraw = yes; then
 fi
 AC_SUBST([CONF_LIB_KRAW],[$ac_lib_kraw])
 
-# Checks for jraw
+dnl Checks for jraw
 AC_ARG_ENABLE(
 	[jraw],
 	AC_HELP_STRING([--enable-jraw],[enable the use of the raw joystick interface. (default auto)]),
@@ -1027,7 +1026,7 @@ if test $ac_lib_jraw = yes; then
 fi
 AC_SUBST([CONF_LIB_JRAW],[$ac_lib_jraw])
 
-# Checks for mraw
+dnl Checks for mraw
 AC_ARG_ENABLE(
 	[mraw],
 	AC_HELP_STRING([--enable-mraw],[enable the use of the raw mouse interface. (default auto)]),
@@ -1056,7 +1055,7 @@ if test $ac_lib_mraw = yes; then
 fi
 AC_SUBST([CONF_LIB_MRAW],[$ac_lib_mraw])
 
-# Checks for mevent
+dnl Checks for mevent
 AC_ARG_ENABLE(
 	[mevent],
 	AC_HELP_STRING([--enable-mevent],[enable the use of the event mouse interface. (default auto)]),
@@ -1085,7 +1084,7 @@ if test $ac_lib_mevent = yes; then
 fi
 AC_SUBST([CONF_LIB_MEVENT],[$ac_lib_mevent])
 
-# Checks for kevent
+dnl Checks for kevent
 AC_ARG_ENABLE(
 	[kevent],
 	AC_HELP_STRING([--enable-kevent],[enable the use of the event keyboard interface. (default auto)]),
@@ -1115,7 +1114,7 @@ if test $ac_lib_kevent = yes; then
 fi
 AC_SUBST([CONF_LIB_KEVENT],[$ac_lib_kevent])
 
-# Checks for jevent
+dnl Checks for jevent
 AC_ARG_ENABLE(
 	[jevent],
 	AC_HELP_STRING([--enable-jevent],[enable the use of the event joystick interface. (default auto)]),
@@ -1144,14 +1143,14 @@ if test $ac_lib_jevent = yes; then
 fi
 AC_SUBST([CONF_LIB_JEVENT],[$ac_lib_jevent])
 
-# Final
+dnl Final
 AC_SUBST([CONF_LIB_DIRECT],[$ac_lib_direct_flag])
 AC_SUBST([mandir],['${prefix}/man'])
 AC_SUBST([docdir],['${prefix}/doc'])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 
-# Print user information
+dnl Print user information
 echo ""
 echo "== Host =="
 echo "Environment :" $host
