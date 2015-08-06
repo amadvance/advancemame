@@ -3051,7 +3051,7 @@ static MACHINE_DRIVER_START( stv )
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_AFTER_VBLANK | VIDEO_RGB_DIRECT )
 	MDRV_SCREEN_SIZE(1024, 1024)
-	MDRV_VISIBLE_AREA(0*8, 703, 0*8, 512) // we need to use a resolution as high as the max size it can change to
+	MDRV_VISIBLE_AREA(0*8, 320-1, 0*8, 224-1)
 	MDRV_PALETTE_LENGTH(2048+(2048*2))//standard palette + extra memory for rgb brightness.
 	MDRV_GFXDECODE(gfxdecodeinfo)
 
