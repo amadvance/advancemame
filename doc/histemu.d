@@ -2,7 +2,8 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 1.4 2015/08
-	) Restored the missing keypress on some games, like pengo.
+	) Restored the missing keypress of coin1 on some games.
+	) Imported the Cave PGM driver from ShmupMAME v3.0b.
 
 AdvanceMAME/MESS Version 1.3 2015/06
 	) Added support fo Haiku OS.
