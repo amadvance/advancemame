@@ -9,8 +9,6 @@
 
 *********************************************************************/
 
-#pragma once
-
 #ifndef __VIDEO_GENERIC_H__
 #define __VIDEO_GENERIC_H__
 
