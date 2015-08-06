@@ -9,8 +9,6 @@
 
 *********************************************************************/
 
-#pragma once
-
 #ifndef __MACHINE_GENERIC_H__
 #define __MACHINE_GENERIC_H__
 
