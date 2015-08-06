@@ -692,9 +692,13 @@ void CLIB_DECL ui_popup_time(int seconds, const char *text,...)
 
 void ui_draw_text(const char *buf, int x, int y)
 {
+#if 1 /* AdvanceMAME: Use custom ui code */
+	logerror("ERROR:mame:invalid UI call ui_draw_text(%s,%d,%d)\n", buf, x, y);
+#else
 	int ui_width, ui_height;
 	ui_get_bounds(&ui_width, &ui_height);
 	ui_draw_text_full(buf, x, y, ui_width - x, JUSTIFY_LEFT, WRAP_WORD, DRAW_OPAQUE, RGB_WHITE, RGB_BLACK, NULL, NULL);
+#endif
 }
 
 
@@ -707,6 +711,9 @@ void ui_draw_text(const char *buf, int x, int y)
 
 void ui_draw_text_full(const char *s, int x, int y, int wrapwidth, int justify, int wrap, int draw, rgb_t fgcolor, rgb_t bgcolor, int *totalwidth, int *totalheight)
 {
+#if 1 /* AdvanceMAME: Use custom ui code */
+	logerror("ERROR:mame:invalid UI call ui_draw_text_full(%s,%d,%d)\n", s, x, y);
+#else
 	const char *linestart;
 	int cury = y;
 	int maxwidth = 0;
@@ -844,6 +851,7 @@ void ui_draw_text_full(const char *s, int x, int y, int wrapwidth, int justify, 
 		*totalwidth = maxwidth;
 	if (totalheight)
 		*totalheight = cury - y;
+#endif
 }
 
 
@@ -856,6 +864,9 @@ void ui_draw_text_full(const char *s, int x, int y, int wrapwidth, int justify, 
 
 void ui_draw_menu(const ui_menu_item *items, int numitems, int selected)
 {
+#if 1 /* AdvanceMAME: Use custom ui code */
+	osd_ui_menu(items, numitems, selected);
+#else
 	const char *up_arrow = ui_getstring(UI_uparrow);
 	const char *down_arrow = ui_getstring(UI_downarrow);
 	const char *left_arrow = ui_getstring(UI_leftarrow);
@@ -1028,6 +1039,7 @@ void ui_draw_menu(const ui_menu_item *items, int numitems, int selected)
 		ui_draw_text_full(item->subtext, target_x, target_y, target_width,
 					JUSTIFY_RIGHT, WRAP_WORD, DRAW_NORMAL, RGB_WHITE, RGB_BLACK, NULL, NULL);
 	}
+#endif
 }
 
 
@@ -1127,6 +1139,9 @@ int ui_menu_generic_keys(int *selected, int num_items)
 
 static void draw_multiline_text_box(const char *text, int justify, float xpos, float ypos)
 {
+#if 1 /* AdvanceMAME: Use custom ui code */
+	logerror("ERROR:mame:invalid UI call ui_draw_multiline_text_box(%s)\n", text);
+#else
 	int target_width, target_height;
 	int ui_width, ui_height;
 	int target_x, target_y;
@@ -1161,12 +1176,17 @@ static void draw_multiline_text_box(const char *text, int justify, float xpos, f
 					target_y + target_height - 1 + UI_BOX_TB_BORDER);
 	ui_draw_text_full(text, target_x, target_y, target_width,
 				justify, WRAP_WORD, DRAW_NORMAL, RGB_WHITE, RGB_BLACK, NULL, NULL);
+#endif
 }
 
 
 void ui_draw_message_window(const char *text)
 {
+#if 1 /* AdvanceMAME: Use custom ui code */
+	osd_ui_scroll(text, 0);
+#else
 	draw_multiline_text_box(text, JUSTIFY_LEFT, 0.5, 0.5);
+#endif
 }
 
 
@@ -1256,6 +1276,10 @@ static void create_font(void)
 
 static void handle_keys(mame_bitmap *bitmap)
 {
+	/* AdvanceMAME: Intercept user interface handling */
+	if (osd_handle_user_interface(bitmap, menu_handler != NULL) != 0)
+		mame_schedule_exit();
+
 #ifdef MESS
 	if (options.disable_normal_ui || ((Machine->gamedrv->flags & GAME_COMPUTER) && !mess_ui_active()))
 		return;
@@ -1329,17 +1353,21 @@ static void handle_keys(mame_bitmap *bitmap)
 			mame_pause(!mame_is_paused());
 	}
 
+#if 0 /* AdvanceMAME has its record code */
 	/* toggle movie recording */
 	if (input_ui_pressed(IPT_UI_RECORD_MOVIE))
 		record_movie_toggle();
+#endif
 
 	/* toggle profiler display */
 	if (input_ui_pressed(IPT_UI_SHOW_PROFILER))
 		ui_set_show_profiler(!ui_get_show_profiler());
 
+#if 0 /* AdvanceMAME: The show_fps action is managed by the osd code */
 	/* toggle FPS display */
 	if (input_ui_pressed(IPT_UI_SHOW_FPS))
 		ui_set_show_fps(!ui_get_show_fps());
+#endif
 
 	/* toggle crosshair display */
 	if (input_ui_pressed(IPT_UI_TOGGLE_CROSSHAIR))
@@ -1353,6 +1381,23 @@ static void handle_keys(mame_bitmap *bitmap)
  *  Main menu
  *
  *************************************/
+
+static UINT32 menu_osd_1(UINT32 state)
+{
+	int result = osd_menu(0, state);
+	if (result == 0)
+		return ui_menu_stack_pop();
+	return result;
+
+}
+
+static UINT32 menu_osd_2(UINT32 state)
+{
+	int result = osd_menu(1, state);
+	if (result == 0)
+		return ui_menu_stack_pop();
+	return result;
+}
 
 static UINT32 menu_main(UINT32 state)
 {
@@ -1446,6 +1491,10 @@ do { \
 	/* add memory card menu */
 	if (Machine->drv->memcard_handler != NULL)
 		ADD_MENU(UI_memorycard, menu_memory_card, 0);
+
+	/* AdvanceMAME: Extra menu UI_OSD */
+	ADD_MENU(UI_osd_1, menu_osd_1, 0);
+	ADD_MENU(UI_osd_2, menu_osd_2, 0);
 
 	/* add reset and exit menus */
 	ADD_MENU(UI_resetgame, menu_reset_game, 0);
@@ -1608,6 +1657,7 @@ static UINT32 menu_default_input(UINT32 state)
 			/* if we are analog, add three items */
 			else
 			{
+#if 0 /* AdvanceMAME: The analog configuration is done at OSD level */
 				if (menu_items == selected)
 				{
 					selected_seq = &in->defaultseq;
@@ -1629,6 +1679,7 @@ static UINT32 menu_default_input(UINT32 state)
 					selected_defseq = &indef->defaultincseq;
 				}
 				default_input_menu_add_item(&item_list[menu_items++], "%s Inc", in->name, &in->defaultincseq, &indef->defaultincseq);
+#endif
 			}
 		}
 
@@ -3271,9 +3322,12 @@ int ui_display_game_warnings(mame_bitmap *bitmap)
 
 			erase_screen(bitmap);
 
+#if 0 /* AdvanceMAME: Use custom ui code */
 			ui_get_bounds(&ui_width, &ui_height);
 			add_filled_box(0, 0, ui_width - 1, ui_height - 1);
+#endif
 			ui_draw_message_window(buf);
+
 			render_ui(bitmap);
 
 			update_video_and_audio();
@@ -3305,9 +3359,11 @@ int ui_display_game_info(mame_bitmap *bitmap)
 	{
 		char *bufptr = buf;
 
+#if 0 /* AdvanceMAME: Use custom ui code */
 		/* first draw a box around the whole screen */
 		ui_get_bounds(&ui_width, &ui_height);
 		add_filled_box(0, 0, ui_width - 1, ui_height - 1);
+#endif
 
 		/* add the game info */
 		bufptr += sprintf_game_info(bufptr);
@@ -3339,9 +3395,11 @@ int ui_display_game_info(mame_bitmap *bitmap)
 	{
 		char *bufptr = buf;
 
+#if 0 /* AdvanceMAME: Use custom ui code */
 		/* first draw a box around the whole screen */
 		ui_get_bounds(&ui_width, &ui_height);
 		add_filled_box(0, 0, ui_width - 1, ui_height - 1);
+#endif
 
 		/* add the game info */
 		bufptr += ui_sprintf_image_info(bufptr);
@@ -3382,6 +3440,7 @@ int ui_display_game_info(mame_bitmap *bitmap)
     drawbar - draw a thermometer bar
 -------------------------------------------------*/
 
+#if 0 /* AdvanceMAME: Use custom ui code */
 static void drawbar(int leftx, int topy, int width, int height, int percentage, int default_percentage)
 {
 	int current_x, default_x;
@@ -3404,11 +3463,15 @@ static void drawbar(int leftx, int topy, int width, int height, int percentage, 
 	/* fill in the percentage */
 	add_fill(leftx, bar_top + 1, current_x, bar_bottom - 1, RGB_WHITE);
 }
+#endif
 
 
 
 static void displayosd(const char *text,int percentage,int default_percentage)
 {
+#if 1 /* AdvanceMAME: Use custom ui code */
+	osd_ui_osd(text, percentage, default_percentage);
+#else
 	int space_width = ui_get_char_width(' ');
 	int line_height = ui_get_line_height();
 	int ui_width, ui_height;
@@ -3438,6 +3501,7 @@ static void displayosd(const char *text,int percentage,int default_percentage)
 	/* draw the actual text */
 	ui_draw_text_full(text, space_width + UI_BOX_LR_BORDER, line_height + ui_height - UI_BOX_TB_BORDER - text_height, ui_width - 2 * UI_BOX_LR_BORDER,
 				JUSTIFY_CENTER, WRAP_WORD, DRAW_NORMAL, RGB_WHITE, RGB_BLACK, NULL, &text_height);
+#endif
 }
 
 static void onscrd_adjuster(int increment,int arg)
@@ -3471,13 +3535,13 @@ static void onscrd_volume(int increment,int arg)
 		attenuation = osd_get_mastervolume();
 		attenuation += increment;
 		if (attenuation > 0) attenuation = 0;
-		if (attenuation < -32) attenuation = -32;
+		if (attenuation < -40) attenuation = -40;
 		osd_set_mastervolume(attenuation);
 	}
 	attenuation = osd_get_mastervolume();
 
 	sprintf(buf,"%s %3ddB", ui_getstring (UI_volume), attenuation);
-	displayosd(buf,100 * (attenuation + 32) / 32,100);
+	displayosd(buf,100 * (attenuation + 40) / 40,100);
 }
 
 static void onscrd_mixervol(int increment,int arg)
@@ -3892,6 +3956,7 @@ static int update_load_save(void)
 
 void ui_display_fps(void)
 {
+#if 0 /* AdvanceMAME: Use custom ui code */
 	int ui_width, ui_height;
 
 	/* if we're not currently displaying, skip it */
@@ -3911,10 +3976,12 @@ void ui_display_fps(void)
 		if (!showfps && showfpstemp == 0)
 			schedule_full_refresh();
 	}
+#endif
 }
 
 static void ui_display_profiler(void)
 {
+#if 0 /* AdvanceMAME: Use custom ui code */
 	int ui_width, ui_height;
 
 	if (show_profiler)
@@ -3922,6 +3989,7 @@ static void ui_display_profiler(void)
 		ui_get_bounds(&ui_width, &ui_height);
 		ui_draw_text_full(profiler_get_text(), 0, 0, ui_width, JUSTIFY_LEFT, WRAP_WORD, DRAW_OPAQUE, RGB_WHITE, RGB_BLACK, NULL, NULL);
 	}
+#endif
 }
 
 static void ui_display_popup(void)
@@ -3929,8 +3997,11 @@ static void ui_display_popup(void)
 	/* show popup message if any */
 	if (popup_text_counter > 0)
 	{
+#if 1 /* AdvanceMAME: Use custom ui code */
+		osd_ui_scroll(popup_text, 0);
+#else
 		draw_multiline_text_box(popup_text, JUSTIFY_CENTER, 0.5f, 0.9f);
-
+#endif
 		if (--popup_text_counter == 0)
 			schedule_full_refresh();
 	}
@@ -4011,6 +4082,7 @@ static void ui_rot2raw_rect(rectangle *rect)
 }
 
 
+#if 0 /* AdvanceMAME: Use custom ui code */
 static void add_line(int x1, int y1, int x2, int y2, rgb_t color)
 {
 	if (elemindex < ARRAY_LENGTH(elemlist))
@@ -4054,10 +4126,16 @@ static void add_filled_box(int x1, int y1, int x2, int y2)
 	add_line(x2, y2, x1, y2, RGB_WHITE);
 	add_line(x1, y2, x1, y1, RGB_WHITE);
 }
+#endif
 
 
 static void render_ui(mame_bitmap *dest)
 {
+/* AdvanceMAME: Custom ui */
+	if (elemindex != 0) {
+		logerror("Invalid UI access, %d", elemindex);
+	}
+#if 0
 	int i;
 
 	uirotfont->colortable[0] = get_black_pen();
@@ -4097,4 +4175,5 @@ static void render_ui(mame_bitmap *dest)
 	}
 
 	elemindex = 0;
+#endif
 }

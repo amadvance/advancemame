@@ -115,6 +115,9 @@ void config_register(const char *nodename, config_callback load, config_callback
  *
  *************************************/
 
+int input_config_load_settings();
+void input_config_save_settings(void);
+
 int config_load_settings(void)
 {
 	config_type *type;
@@ -125,6 +128,10 @@ int config_load_settings(void)
 	for (type = typelist; type; type = type->next)
 		(*type->load)(CONFIG_TYPE_INIT, NULL);
 
+/* AdvanceMAME: Specific configuration for port */
+#if 1
+	loaded = input_config_load_settings();
+#else
 	/* now load the controller file */
 	if (options.controller != NULL)
 	{
@@ -154,6 +161,7 @@ int config_load_settings(void)
 		loaded = config_load_xml(file, CONFIG_TYPE_GAME);
 		mame_fclose(file);
 	}
+#endif
 
 	/* loop over all registrants and call their final function */
 	for (type = typelist; type; type = type->next)
@@ -174,6 +182,10 @@ void config_save_settings(void)
 	for (type = typelist; type; type = type->next)
 		(*type->save)(CONFIG_TYPE_INIT, NULL);
 
+/* AdvanceMAME: Specific configuration for port */
+#if 1
+	input_config_save_settings();
+#else
 	/* save the defaults file */
 	file = mame_fopen("default", 0, FILETYPE_CONFIG, 1);
 	if (file)
@@ -189,6 +201,7 @@ void config_save_settings(void)
 		config_save_xml(file, CONFIG_TYPE_GAME);
 		mame_fclose(file);
 	}
+#endif
 
 	/* loop over all registrants and call their final function */
 	for (type = typelist; type; type = type->next)

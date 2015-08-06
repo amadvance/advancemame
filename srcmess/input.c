@@ -516,6 +516,36 @@ static clock_t record_last;						/* time of last key/joy press */
 static UINT8 record_analog;						/* are we recording an analog sequence? */
 
 
+/*************************************
+ *
+ *  OS helper
+ *
+ *************************************/
+
+os_code code_to_oscode(input_code code)
+{
+	if (code_map[code].osinfo != NULL)
+		return code_map[code].osinfo->oscode;
+	else
+		return 0;
+}
+
+input_code oscode_to_code(os_code oscode)
+{
+	unsigned i;
+
+	for(i=0;i<code_count;++i) {
+		if (code_map[i].osinfo != NULL && code_map[i].osinfo->oscode == oscode) {
+			break;
+		}
+	}
+
+	if (i == code_count)
+		return CODE_NONE;
+
+	return i;
+}
+
 
 /*************************************
  *

@@ -268,9 +268,12 @@ int run_game(int game)
 	/* start in the "pre-init phase" */
 	current_phase = MAME_PHASE_PREINIT;
 
+/* AdvanceMAME: Disable validity checks */
+#if 0
 	/* perform validity checks before anything else */
 	if (mame_validitychecks(game) != 0)
 		return 1;
+#endif
 
 	/* loop across multiple hard resets */
 	exit_pending = FALSE;
@@ -873,6 +876,19 @@ void CLIB_DECL logerror(const char *text, ...)
 		/* log to all callbacks */
 		for (cb = logerror_callback_list; cb; cb = cb->next)
 			cb->func.log(giant_string_buffer);
+
+		profiler_mark(PROFILER_END);
+	}
+
+	/* AdvanceMAME: Internal logging */
+	{
+		va_list arg;
+
+		profiler_mark(PROFILER_LOGERROR);
+
+		va_start(arg, text);
+		osd_log_va(text, arg);
+		va_end(arg);
 
 		profiler_mark(PROFILER_END);
 	}

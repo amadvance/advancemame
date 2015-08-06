@@ -195,6 +195,10 @@ enum
 	UI_refresh_rate,
 	UI_decoding_gfx,
 
+	/* AdvanceMAME: Extra user interface commands */
+	UI_osd_1,
+	UI_osd_2,
+
 	UI_last_mame_entry
 };
 

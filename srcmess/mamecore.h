@@ -99,7 +99,14 @@ struct _rectangle
 	int min_y,max_y;
 };
 
-
+typedef struct _ui_menu_item ui_menu_item;
+struct _ui_menu_item
+{
+   const char *text;
+   const char *subtext;
+   UINT32 flags;
+   void *ref;
+};
 
 /***************************************************************************
  * Union of UINT8, UINT16 and UINT32 in native endianess of the target
@@ -368,8 +375,10 @@ int mame_strnicmp(const char *s1, const char *s2, size_t n);
 char *mame_strdup(const char *str);
 
 /* this macro prevents people from using strdup directly */
+#if 0 /* AdvanceMAME: Allow the stddup use */
 #undef strdup
 #define strdup !MUST_USE_MAME_STRDUP_INSTEAD!
+#endif
 
 
 /* compute the intersection of two rectangles */

@@ -8,7 +8,7 @@
 
 #include "hashfile.h"
 #include "pool.h"
-#include "expat/expat.h"
+#include "expat.h"
 
 
 /***************************************************************************

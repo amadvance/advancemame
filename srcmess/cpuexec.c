@@ -293,6 +293,9 @@ static void cpuexec_reset(void)
 	watchdog_counter = WATCHDOG_IS_INVALID;
 	watchdog_setup(TRUE);
 
+	/* reset the osd level */
+	osd_reset();
+
 	/* first pass over CPUs */
 	for (cpunum = 0; cpunum < cpu_gettotalcpu(); cpunum++)
 	{

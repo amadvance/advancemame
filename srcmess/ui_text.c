@@ -88,7 +88,7 @@ static const char *mame_default_text[] =
 	"Calibrate Joysticks",
 	"Bookkeeping Info",
 
-	"Input (this " CAPSTARTGAMENOUN")",
+	"Input (this " GAMENOUN")",
 	CAPSTARTGAMENOUN " Information",
 	CAPSTARTGAMENOUN " History",
 	"Reset " CAPSTARTGAMENOUN,
@@ -198,6 +198,10 @@ static const char *mame_default_text[] =
 	/* refresh rate */
 	"Refresh rate",
 	"Decoding Graphics",
+
+	/* AdvanceMAME: Extra user interface commands */
+	"Video",
+	"Audio",
 
 	NULL
 };

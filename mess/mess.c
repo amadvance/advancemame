@@ -320,9 +320,11 @@ void ram_dump(const char *filename)
 
 void mess_config_init(void)
 {
+#if 0 /* AdvanceMAME does't need this */
 #ifdef WIN32
 	extern void win_mess_config_init(void);
 	win_mess_config_init();
+#endif
 #endif
 }
 

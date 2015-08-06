@@ -918,6 +918,7 @@ const performance_info *mame_get_performance_info(void)
     given handler for screenshots and movies
 -------------------------------------------------*/
 
+#if 0 /* AdvanceMAME has its snapshot code */
 static void save_frame_with(mame_file *fp, mame_bitmap *bitmap, int (*write_handler)(mame_file *, mame_bitmap *))
 {
 	rectangle bounds;
@@ -1021,7 +1022,7 @@ static void save_frame_with(mame_file *fp, mame_bitmap *bitmap, int (*write_hand
 	if (osdcopy)
 		bitmap_free(osdcopy);
 }
-
+#endif
 
  /*-------------------------------------------------
     save_screen_snapshot_as - save a snapshot to
@@ -1030,7 +1031,9 @@ static void save_frame_with(mame_file *fp, mame_bitmap *bitmap, int (*write_hand
 
 void save_screen_snapshot_as(mame_file *fp, mame_bitmap *bitmap)
 {
+#if 0 /* AdvanceMAME has its snapshot code */
 	save_frame_with(fp, bitmap, png_write_bitmap);
+#endif
 }
 
 
@@ -1067,6 +1070,9 @@ static mame_file *mame_fopen_next(int filetype)
 
 void save_screen_snapshot(mame_bitmap *bitmap)
 {
+#if 1 /* AdvanceMAME has its snapshot code */
+	osd_save_snapshot();
+#else
 	mame_file *fp;
 
 	if ((fp = mame_fopen_next(FILETYPE_SCREENSHOT)) != NULL)
@@ -1074,6 +1080,7 @@ void save_screen_snapshot(mame_bitmap *bitmap)
 		save_screen_snapshot_as(fp, bitmap);
 		mame_fclose(fp);
 	}
+#endif
 }
 
 
@@ -1084,6 +1091,7 @@ void save_screen_snapshot(mame_bitmap *bitmap)
 
 void record_movie_start(const char *name)
 {
+#if 0 /* AdvanceMAME has its record code */
 	if (movie_file != NULL)
 		mame_fclose(movie_file);
 
@@ -1093,22 +1101,26 @@ void record_movie_start(const char *name)
 		movie_file = mame_fopen_next(FILETYPE_MOVIE);
 
 	movie_frame = 0;
+#endif
 }
 
 
 void record_movie_stop(void)
 {
+#if 0 /* AdvanceMAME has its record code */
 	if (movie_file)
 	{
 		mng_capture_stop(movie_file);
 		mame_fclose(movie_file);
 		movie_file = NULL;
 	}
+#endif
 }
 
 
 void record_movie_toggle(void)
 {
+#if 0 /* AdvanceMAME has its record code */
 	if (movie_file == NULL)
 	{
 		record_movie_start(NULL);
@@ -1120,11 +1132,13 @@ void record_movie_toggle(void)
 		record_movie_stop();
 		ui_popup("REC STOP (%d frames)", movie_frame);
 	}
+#endif
 }
 
 
 void record_movie_frame(mame_bitmap *bitmap)
 {
+#if 0 /* AdvanceMAME has its record code */
 	if (movie_file != NULL && bitmap != NULL)
 	{
 		profiler_mark(PROFILER_MOVIE_REC);
@@ -1135,6 +1149,7 @@ void record_movie_frame(mame_bitmap *bitmap)
 
 		profiler_mark(PROFILER_END);
 	}
+#endif
 }
 
 

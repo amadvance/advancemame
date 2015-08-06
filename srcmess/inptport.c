@@ -884,7 +884,9 @@ static const input_port_default_entry default_ports_builtin[] =
 	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_THROTTLE,		"Throttle",				SEQ_DEF_1(KEYCODE_F10) )
 	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_SHOW_FPS,		"Show FPS",				SEQ_DEF_5(KEYCODE_F11, CODE_NOT, KEYCODE_LCONTROL, CODE_NOT, KEYCODE_LSHIFT) )
 	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_SNAPSHOT,		"Save Snapshot",		SEQ_DEF_3(KEYCODE_F12, CODE_NOT, KEYCODE_LSHIFT) )
+#if 0 /* AdvanceMAME has its record code */
 	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_RECORD_MOVIE,	"Record Movie",			SEQ_DEF_2(KEYCODE_F12, KEYCODE_LSHIFT) )
+#endif
 	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_TOGGLE_CHEAT,	"Toggle Cheat",			SEQ_DEF_1(KEYCODE_F6) )
 	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_UP,				"UI Up",				SEQ_DEF_3(KEYCODE_UP, CODE_OR, JOYCODE_1_UP) )
 	INPUT_PORT_DIGITAL_DEF( 0, IPG_UI,      UI_DOWN,			"UI Down",				SEQ_DEF_3(KEYCODE_DOWN, CODE_OR, JOYCODE_1_DOWN) )
@@ -943,6 +945,28 @@ static input_port_default_entry default_ports_backup[ARRAY_LENGTH(default_ports_
 static const int input_port_count = ARRAY_LENGTH(default_ports_builtin);
 static int default_ports_lookup[__ipt_max][MAX_PLAYERS];
 
+/* AdvanceMAME: Custom settings load */
+int input_config_load_settings()
+{
+	/* AdvanceMAME: Load user defined customization */
+	osd_config_load_default(default_ports_backup, default_ports);
+
+	/* AdvanceMAME: Load user defined customization */
+	osd_config_load(input_ports_default, Machine->input_ports);
+
+	/* AdvanceMAME: Report no setting loaded, always show the disclaimer */
+	return 0;
+}
+
+/* AdvanceMAME: Custom settings save */
+void input_config_save_settings(void)
+{
+	/* AdvanceMAME: Save user defined customization */
+	osd_config_save_default(default_ports_backup, default_ports);
+
+	/* AdvanceMAME: Save user defined customization */
+	osd_config_save(input_ports_default, Machine->input_ports);
+}
 
 
 /*************************************
@@ -1991,8 +2015,14 @@ int input_port_condition(const input_port_entry *in)
 int input_port_type_pressed(int type, int player)
 {
 	int defindex = default_ports_lookup[type][player];
-	if (defindex != -1)
-		return seq_pressed(&default_ports[defindex].defaultseq);
+	if (defindex != -1) {
+		int pressed = seq_pressed(&default_ports[defindex].defaultseq);
+
+		/* AdvanceMAME: Filter all the input ports */
+		pressed = osd_input_port_filter(pressed, type, player, SEQ_TYPE_STANDARD);
+
+		return pressed;
+	}
 
 	return 0;
 }
@@ -2006,6 +2036,9 @@ profiler_mark(PROFILER_INPUT);
 
 	/* get the status of this key (assumed to be only in the defaults) */
 	pressed = seq_pressed(input_port_default_seq(code, 0, SEQ_TYPE_STANDARD));
+
+	/* AdvanceMAME: Filter all the input ports */
+	pressed = osd_input_port_filter(pressed, code, 0, SEQ_TYPE_STANDARD);
 
 	/* if pressed, handle it specially */
 	if (pressed)
@@ -2039,6 +2072,9 @@ profiler_mark(PROFILER_INPUT);
 
 	/* get the status of this key (assumed to be only in the defaults) */
 	pressed = seq_pressed(input_port_default_seq(code, 0, SEQ_TYPE_STANDARD));
+
+	/* AdvanceMAME: Filter all the input ports */
+	pressed = osd_input_port_filter(pressed, code, 0, SEQ_TYPE_STANDARD);
 
 	/* if so, handle it specially */
 	if (pressed)
@@ -2157,6 +2193,9 @@ void input_port_vblank_start(void)
 	int ui_visible = ui_is_setup_active() || ui_is_onscrd_active();
 	int portnum, bitnum;
 
+	/* AdvanceMAME: Never disable the input port. */
+	ui_visible = 0;
+
 profiler_mark(PROFILER_INPUT);
 
 	/* update the digital joysticks first */
@@ -2192,7 +2231,12 @@ profiler_mark(PROFILER_INPUT);
 				if (port->type != IPT_VBLANK && !IS_ANALOG(port) && !ui_visible)
 				{
 					/* if the sequence for this port is currently pressed.... */
-					if (seq_pressed(input_port_seq(port, SEQ_TYPE_STANDARD)))
+					int pressed = seq_pressed(input_port_seq(port, SEQ_TYPE_STANDARD));
+
+					/* AdvanceMAME: Filter all the input ports */
+					pressed = osd_input_port_filter(pressed, port->type, port->player, SEQ_TYPE_STANDARD);
+
+					if (pressed)
 					{
 #ifdef MESS
 						/* (MESS-specific) check for disabled keyboard */
@@ -2335,13 +2379,14 @@ static void update_digital_joysticks(void)
 				info->current = 0;
 
 				/* read all the associated ports */
-				if (info->port[JOYDIR_UP] != NULL && seq_pressed(input_port_seq(info->port[JOYDIR_UP], SEQ_TYPE_STANDARD)))
+				/* AdvanceMAME: Filter all the input ports */
+				if (info->port[JOYDIR_UP] != NULL && osd_input_port_filter(seq_pressed(input_port_seq(info->port[JOYDIR_UP], SEQ_TYPE_STANDARD)), info->port[JOYDIR_UP]->type, info->port[JOYDIR_UP]->player, SEQ_TYPE_STANDARD))
 					info->current |= JOYDIR_UP_BIT;
-				if (info->port[JOYDIR_DOWN] != NULL && seq_pressed(input_port_seq(info->port[JOYDIR_DOWN], SEQ_TYPE_STANDARD)))
+				if (info->port[JOYDIR_DOWN] != NULL && osd_input_port_filter(seq_pressed(input_port_seq(info->port[JOYDIR_DOWN], SEQ_TYPE_STANDARD)), info->port[JOYDIR_DOWN]->type, info->port[JOYDIR_DOWN]->player, SEQ_TYPE_STANDARD))
 					info->current |= JOYDIR_DOWN_BIT;
-				if (info->port[JOYDIR_LEFT] != NULL && seq_pressed(input_port_seq(info->port[JOYDIR_LEFT], SEQ_TYPE_STANDARD)))
+				if (info->port[JOYDIR_LEFT] != NULL && osd_input_port_filter(seq_pressed(input_port_seq(info->port[JOYDIR_LEFT], SEQ_TYPE_STANDARD)), info->port[JOYDIR_LEFT]->type, info->port[JOYDIR_LEFT]->player, SEQ_TYPE_STANDARD))
 					info->current |= JOYDIR_LEFT_BIT;
-				if (info->port[JOYDIR_RIGHT] != NULL && seq_pressed(input_port_seq(info->port[JOYDIR_RIGHT], SEQ_TYPE_STANDARD)))
+				if (info->port[JOYDIR_RIGHT] != NULL && osd_input_port_filter(seq_pressed(input_port_seq(info->port[JOYDIR_RIGHT], SEQ_TYPE_STANDARD)), info->port[JOYDIR_RIGHT]->type, info->port[JOYDIR_RIGHT]->player, SEQ_TYPE_STANDARD))
 					info->current |= JOYDIR_RIGHT_BIT;
 
 				/* lock out opposing directions (left + right or up + down) */
@@ -2456,8 +2501,8 @@ static void update_analog_port(int portnum)
 		/* clamp the previous value to the min/max range and remember it */
 		info->previous = info->accum = apply_analog_min_max(info, info->accum);
 
-		/* get the new raw analog value and its type */
-		rawvalue = seq_analog_value(input_port_seq(port, SEQ_TYPE_STANDARD), &analog_type);
+		/* AdvanceMAME: Get the analog input for different players from the osd core. */
+		rawvalue = osd_get_analog_value(port->type, port->player, &analog_type);
 
 		/* if we got it from a relative device, use that as the starting delta */
 		/* also note that the last input was not a digital one */
@@ -2469,14 +2514,16 @@ static void update_analog_port(int portnum)
 
 		/* if the decrement code sequence is pressed, add the key delta to */
 		/* the accumulated delta; also note that the last input was a digital one */
-		if (seq_pressed(input_port_seq(info->port, SEQ_TYPE_DECREMENT)))
+		/* AdvanceMAME: Filter all the input ports */
+		if (osd_input_port_filter(seq_pressed(input_port_seq(info->port, SEQ_TYPE_DECREMENT)), info->port->type, info->port->player, SEQ_TYPE_DECREMENT))
 		{
 			delta -= (INT32)(port->analog.delta * info->keyscale);
 			keypressed = info->lastdigital = 1;
 		}
 
 		/* same for the increment code sequence */
-		if (seq_pressed(input_port_seq(info->port, SEQ_TYPE_INCREMENT)))
+		/* AdvanceMAME: Filter all the input ports */
+		if (osd_input_port_filter(seq_pressed(input_port_seq(info->port, SEQ_TYPE_INCREMENT)), info->port->type, info->port->player, SEQ_TYPE_INCREMENT))
 		{
 			delta += (INT32)(port->analog.delta * info->keyscale);
 			keypressed = info->lastdigital = 1;
@@ -2494,11 +2541,14 @@ static void update_analog_port(int portnum)
 		/* if we got an absolute input, it overrides everything else */
 		if (analog_type == ANALOG_TYPE_ABSOLUTE)
 		{
-			/* apply the inverse of the sensitivity to the raw value so that */
-			/* it will still cover the full min->max range requested after */
-			/* we apply the sensitivity adjustment */
-			info->accum = APPLY_INVERSE_SENSITIVITY(rawvalue, port->analog.sensitivity);
-			info->lastdigital = 0;
+			/* allow both the analog joystick and the keyboard to control the input port */
+			if (rawvalue != 0 || !info->lastdigital) {
+				/* apply the inverse of the sensitivity to the raw value so that */
+				/* it will still cover the full min->max range requested after */
+				/* we apply the sensitivity adjustment */
+				info->accum = APPLY_INVERSE_SENSITIVITY(rawvalue, port->analog.sensitivity);
+				info->lastdigital = 0;
+			}
 		}
 
 		/* if our last movement was due to a digital input, and if this control */

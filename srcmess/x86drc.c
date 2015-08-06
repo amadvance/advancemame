@@ -676,6 +676,7 @@ static void append_out_of_cycles(drc_core *drc)
 /*------------------------------------------------------------------
     drc_x86_get_features()
 ------------------------------------------------------------------*/
+#if 0 /* AdvanceMAME avoids specific x86 asm code for portability */
 UINT32 drc_x86_get_features(void)
 {
 	UINT32 features = 0;
@@ -707,6 +708,7 @@ UINT32 drc_x86_get_features(void)
 #endif /* MSC_VER */
 	return features;
 }
+#endif
 
 
 
