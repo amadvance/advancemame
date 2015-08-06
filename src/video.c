@@ -161,7 +161,7 @@ int video_init(void)
 
 	/* now allocate the screen bitmap */
 	scrbitmap[0] = auto_bitmap_alloc_depth(bmwidth, bmheight, Machine->color_depth);
-	if (!scrbitmap)
+	if (!scrbitmap[0])
 		return 1;
 #endif
 
