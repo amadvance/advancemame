@@ -1392,10 +1392,6 @@ static void cpu_vblankcallback(int param)
 {
 	int cpunum;
 
-	/* AdvanceMAME: Trick to removes 1 frame of input lag for MAME from 0.100 to 0.124 */
-	/* by Manlio De Pasquale */
-	input_port_vblank_start();
-
 	if (vblank_countdown == 1)
 		vblank = 1;
 
