@@ -1,7 +1,7 @@
 ############################################################################
 # Version
 
-EMUVERSION = 1.3
+EMUVERSION = 1.4
 MENUVERSION = 2.8
 CABVERSION = 1.1.4
 
