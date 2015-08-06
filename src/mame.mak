@@ -1423,6 +1423,7 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/beaminv.o $(OBJ)/vidhrdw/beaminv.o \
 	$(OBJ)/drivers/bmcbowl.o \
 	$(OBJ)/drivers/cave.o $(OBJ)/vidhrdw/cave.o \
+	$(OBJ)/drivers/cavepgm.o \
 	$(OBJ)/drivers/cherrym.o \
 	$(OBJ)/drivers/coinmstr.o \
 	$(OBJ)/drivers/coolpool.o \

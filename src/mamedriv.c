@@ -6587,6 +6587,17 @@ Other Sun games
 	DRIVER( dmnfrnt )	/* (c) 2002 */
 	DRIVER( dmnfrnta )	/* (c) 2002 */
 
+	/* AdvanceMAME new games from ShmupMAME v3.0b */
+	/* Cave PGM System Games */
+	DRIVER( ket )
+	DRIVER( keta )
+	DRIVER( ketb )
+	DRIVER( ddp3 )
+	DRIVER( ddp3a )
+	DRIVER( ddp3b )
+	DRIVER( ddp3blk )
+	DRIVER( espgal )
+
 	/* RamTek games */
 	DRIVER( hitme )		/* (c) 1976 Ramtek */
 	DRIVER( mblkjack )	/* (c) 197? Mirco */
