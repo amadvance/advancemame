@@ -54,8 +54,6 @@ doc/*.txt
 reference/
 resource/
 contrib/
-mess/
 obj/
-srcmess/
 *.ori/
 *.complete/
