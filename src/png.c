@@ -346,7 +346,7 @@ int png_read_file(mame_file *fp, png_info *p)
 	return 1;
 }
 
-int png_read_info(mame_file *fp, png_info *p)
+int mame_png_read_info(mame_file *fp, png_info *p)
 {
 	UINT32 chunk_length, chunk_type=0, chunk_crc, crc;
 	UINT8 *chunk_data;
@@ -612,7 +612,7 @@ static int write_chunk(mame_file *fp, UINT32 chunk_type, UINT8 *chunk_data, UINT
 	return 1;
 }
 
-int png_write_sig(mame_file *fp)
+int mame_png_write_sig(mame_file *fp)
 {
 	/* PNG Signature */
 	if (mame_fwrite(fp, PNG_Signature, 8) != 8)
@@ -882,7 +882,7 @@ int png_write_bitmap(mame_file *fp, mame_bitmap *bitmap)
 	sprintf (text, "%s %s", Machine->gamedrv->manufacturer, Machine->gamedrv->description);
 	png_add_text("System", text);
 
-	if(png_write_sig(fp) == 0)
+	if(mame_png_write_sig(fp) == 0)
 		return 0;
 
 	if(png_create_datastream(fp, bitmap) == 0)

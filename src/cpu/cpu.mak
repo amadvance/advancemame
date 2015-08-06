@@ -649,26 +649,28 @@ OBJDIRS += $(OBJ)/cpu/m68000
 CPUOBJS += $(OBJ)/cpu/m68000/m68kcpu.o $(OBJ)/cpu/m68000/m68kmame.o $(subst .c,.o,$(M68000_GENERATED_FILES))
 DBGOBJS += $(OBJ)/cpu/m68000/m68kdasm.o
 
+# AdvanceMAME has its own rules for m68k, and then we comment the following ones
+#
 # when we compile source files we need to include generated files from the OBJ directory
-$(OBJ)/cpu/m68000/%.o: src/cpu/m68000/%.c
-	@echo Compiling $<...
-	$(CC) $(CDEFS) $(CFLAGS) -I$(OBJ)/cpu/m68000 -c $< -o $@
-
+#$(OBJ)/cpu/m68000/%.o: src/cpu/m68000/%.c
+#	@echo Compiling $<...
+#	$(CC) $(CDEFS) $(CFLAGS) -I$(OBJ)/cpu/m68000 -c $< -o $@
+#
 # when we compile generated files we need to include stuff from the src directory
-$(OBJ)/cpu/m68000/%.o: $(OBJ)/cpu/m68000/%.c
-	@echo Compiling $<...
-	$(CC) $(CDEFS) $(CFLAGS) -Isrc/cpu/m68000 -c $< -o $@
-
+#$(OBJ)/cpu/m68000/%.o: $(OBJ)/cpu/m68000/%.c
+#	@echo Compiling $<...
+#	$(CC) $(CDEFS) $(CFLAGS) -Isrc/cpu/m68000 -c $< -o $@
+#
 # rule to generate the C files
-$(M68000_GENERATED_FILES) $(M68000_GENERATED_HEADERS): $(OBJ)/cpu/m68000/m68kmake$(EXE) m68k_in.c
-	@echo Generating M68K source files...
-	$(OBJ)/cpu/m68000/m68kmake$(EXE) $(OBJ)/cpu/m68000 src/cpu/m68000/m68k_in.c
-
+#$(M68000_GENERATED_FILES) $(M68000_GENERATED_HEADERS): $(OBJ)/cpu/m68000/m68kmake$(EXE) m68k_in.c
+#	@echo Generating M68K source files...
+#	$(OBJ)/cpu/m68000/m68kmake$(EXE) $(OBJ)/cpu/m68000 src/cpu/m68000/m68k_in.c
+#
 # rule to build the generator
-$(OBJ)/cpu/m68000/m68kmake$(EXE): $(OBJ)/cpu/m68000/m68kmake.o $(OSDBGOBJS)
-
+#$(OBJ)/cpu/m68000/m68kmake$(EXE): $(OBJ)/cpu/m68000/m68kmake.o $(OSDBGOBJS)
+#
 # rule to ensure we build the header before building the core CPU file
-$(OBJ)/cpu/m68000/m68kcpu.o: $(M68000_GENERATED_HEADERS)
+#$(OBJ)/cpu/m68000/m68kcpu.o: $(M68000_GENERATED_HEADERS)
 
 endif
 

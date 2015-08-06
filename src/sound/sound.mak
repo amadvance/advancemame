@@ -64,9 +64,9 @@ SOUNDDEFS += -DHAS_DISCRETE=$(if $(filter DISCRETE,$(SOUNDS)),1,0)
 
 ifneq ($(filter DISCRETE,$(SOUNDS)),)
 SOUNDOBJS += $(OBJ)/sound/discrete.o
-$(OBJ)/sound/discrete.o: src/sound/discrete.c src/sound/discrete.h \
-		src/sound/disc_dev.c src/sound/disc_flt.c src/sound/disc_inp.c \
-		src/sound/disc_mth.c src/sound/disc_wav.c
+$(OBJ)/sound/discrete.o: discrete.c discrete.h \
+		disc_dev.c disc_flt.c disc_inp.c \
+		disc_mth.c disc_wav.c
 endif
 
 

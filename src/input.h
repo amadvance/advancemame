@@ -15,6 +15,7 @@
 #define __INPUT_H__
 
 #include "mamecore.h"
+#include "osdepend.h"
 
 
 /*************************************
@@ -487,6 +488,13 @@ enum
 };
 
 
+/* AdvanceMAME: Remap the F1 key used by some debug code to an unused key. */
+#ifdef MESS
+#define KEYCODE_F1_REAL KEYCODE_F1
+#else
+#define KEYCODE_F1_REAL (KEYCODE_F2-1)
+#define KEYCODE_F1 KEYCODE_NUMLOCK
+#endif
 
 /*************************************
  *
@@ -528,6 +536,8 @@ typedef struct _input_seq input_seq;
 /* single code functions */
 int code_init(void);
 
+os_code code_to_oscode(input_code code);
+input_code oscode_to_code(os_code oscode);
 INT32 code_analog_value(input_code code);
 int code_pressed(input_code code);
 int code_pressed_memory(input_code code);

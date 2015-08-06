@@ -336,7 +336,46 @@ int osd_display_loading_rom_message(const char *name,rom_load_data *romdata);
 /* checks to see if a pointer is bad */
 int osd_is_bad_read_ptr(const void *ptr, size_t size);
 
+/* AdvanceMAME: Specific OSD interface */
 
+/* return the analog value of the specified input. */
+INT32 osd_get_analog_value(unsigned type, unsigned player, int* analog_type);
+
+/* called then the game is reset */
+void osd_reset(void);
+
+/* execute the specified menu (0,1,...) */
+int osd_menu(unsigned menu, int sel);
+
+/* filter the main exit request */
+int osd_input_exit_filter(int result);
+
+/* filter the input port state */
+int osd_input_port_filter(int result, unsigned type, unsigned player, int seqtype);
+
+/* snapshot saving */
+void osd_save_snapshot(void);
+
+/* start and stop the video/sound recording. */
+void osd_record_start(void);
+void osd_record_stop(void);
+
+void osd_ui_menu(const ui_menu_item *items, int numitems, int selected);
+void osd_ui_message(const char* text, int second);
+void osd_ui_osd(const char *text, int percentage, int default_percentage);
+void osd_ui_scroll(const char* text, int* pos);
+
+/* customize the inputport */
+void osd_config_load_default(input_port_default_entry* backup, input_port_default_entry* list);
+void osd_config_load(input_port_entry* backup, input_port_entry* list);
+void osd_config_save_default(input_port_default_entry* backup, input_port_default_entry* list);
+void osd_config_save(input_port_entry* backup, input_port_entry* list);
+
+/* handle the specific user interface */
+int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active);
+
+/* osd logging */
+void osd_log_va(const char* text, va_list arg);
 
 #ifdef MESS
 /* this is here to follow the current mame file hierarchy style */

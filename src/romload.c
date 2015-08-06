@@ -1,3 +1,4 @@
+
 /*********************************************************************
 
     romload.c
@@ -391,7 +392,8 @@ static int display_rom_load_results(rom_load_data *romdata)
 	if (romdata->warnings)
 	{
 		strcat(romdata->errorbuf, "WARNING: the game might not run correctly.");
-		printf("%s\n", romdata->errorbuf);
+		/* AdvanceMAME: Display the message in the ui */
+		osd_display_loading_rom_message(romdata->errorbuf, 0);
 	}
 
 	/* clean up any regions */
