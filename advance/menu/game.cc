@@ -252,8 +252,10 @@ const game& game::root_get() const
 bool game::preview_zip_set(const string& zip, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) const
 {
 	adv_zip* d = zip_open(cpath_export(slash_remove(zip)));
-	if (!d)
+	if (!d) {
+		log_std(("menu:game: failed opening %s\n", cpath_export(zip)));
 		return false;
+	}
 
 	string game_name = name_without_emulator_get();
 
@@ -284,8 +286,10 @@ bool game::preview_zip_set(const string& zip, void (game::*preview_set)(const re
 bool game::preview_dir_set(const string& dir, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) const
 {
 	DIR* d = opendir(cpath_export(slash_remove(dir)));
-	if (!d)
+	if (!d) {
+		log_std(("menu:game: failed opening %s\n", cpath_export(dir)));
 		return false;
+	}
 
 	string game_name = name_without_emulator_get();
 
@@ -568,8 +572,10 @@ bool game_set::preview_zip_set(const string& zip, const string& emulator_name, v
 {
 	bool almost_one = false;
 	adv_zip* d = zip_open(cpath_export(slash_remove(zip)));
-	if (!d)
+	if (!d) {
+		log_std(("menu:game: failed opening %s\n", cpath_export(zip)));
 		return almost_one;
+	}
 
 	adv_zipent* dd;
 	while ((dd = zip_read(d))!=0) {
@@ -600,8 +606,10 @@ bool game_set::preview_dir_set(const string& dir, const string& emulator_name, v
 {
 	bool almost_one = false;
 	DIR* d = opendir(cpath_export(slash_remove(dir)));
-	if (!d)
+	if (!d) {
+		log_std(("menu:game: failed opening %s\n", cpath_export(dir)));
 		return almost_one;
+	}
 
 	struct dirent* dd;
 	while ((dd = readdir(d))!=0) {
@@ -643,8 +651,10 @@ bool game_set::preview_software_dir_set(const string& dir, const string& emulato
 {
 	bool almost_one = false;
 	DIR* d = opendir(cpath_export(slash_remove(dir)));
-	if (!d)
+	if (!d) {
+		log_std(("menu:game: failed opening %s\n", cpath_export(dir)));
 		return almost_one;
+	}
 
 	struct dirent* dd;
 	while ((dd = readdir(d))!=0) {
