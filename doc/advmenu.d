@@ -1317,10 +1317,10 @@ Configuration
 	WARNING! These options DON'T OVERRIDE any user explicit
 	choices made with the `game' option.
 
-	:desc_import (catver | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-	:info_import (catver | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-	:group_import (catver | mac | nms) "EMULATOR" "FILE" ["SECTION"]
-	:type_import (catver | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+	:desc_import (catver | catlist | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+	:info_import (catver | catlist | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+	:group_import (catver | catlist | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+	:type_import (catver | catlist | mac | nms) "EMULATOR" "FILE" ["SECTION"]
 
 	Commands:
 		desc_import - Imports the game names shown in the menu.
@@ -1332,7 +1332,7 @@ Configuration
 	Options:
 		none - Don't import.
 		catver - Import in the CATVER format. In this format you must
-			also specify the section to load.
+			also specify the section to load, usually it's "Category".
 		catlist - Import in the CATLIST/CAT32 format.
 		mac - Import in the MacMAME format.
 		nms - Import in the NMS format.
@@ -1348,9 +1348,13 @@ Configuration
 		:type_import mac "advmame" "Genre 37b14.txt"
 		:desc_import nms "raine" "raine.nms"
 
-	The CATVER/CATLIST files can be downloaded at:
+	The CATVER/CATLIST files can be downloaded from:
 
 		+http://www.progettoemma.net/?catlist
+
+	or:
+
+		+http://www.progettosnaps.net/renameset/
 
     misc_exit
 	Selects the exit mode.
