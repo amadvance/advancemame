@@ -6,8 +6,8 @@ Synopsis
 	:	[-log] [-version] [-help]
 
 Description
-	AdvanceMENU is a front-end to run the AdvanceMAME, AdvanceMESS,
-	MAME, MESS, Raine and other emulators.
+	AdvanceMENU is a front-end to for AdvanceMAME, AdvanceMESS,
+	and any other emulator.
 
 	Simply run it in the same directory of the emulator and press
 	`f1' to get the help screen or `~' for the main menu.
