@@ -1,4 +1,4 @@
-<!doctype html public "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!doctype html public "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <link rel="stylesheet" type="text/css" href="style.css" />
@@ -26,110 +26,47 @@
 </head>
 <body>
 <div id="title">
+<img src="index.png"/>
 </div>
-<div id="topbar">
+<div id="bar">
 <a href="index.html">About</a>
-<a href="support.html">Support</a>
+<a href="download.html">Download</a>
 <a href="doc.html">Documentation</a>
+<a href="support.html">Support</a>
 <a href="forum.html">Forum</a>
 <a href="history.html">History</a>
 <a href="cost.html">Cost</a>
 <a href="video-link.html">Video</a>
 <a href="authors.html">Authors</a>
 </div>
-
-<div id="bar">
-<!--
-<form method=GET action="http://www.google.com/search">
-<input type=text name=q size=12 maxlength=255 value="">
-<font face=arial size=2>
-<input type=submit name=button value="Search">
-<input type=hidden name=sitesearch value="www.advancemame.it">
-</font>
-</form>
-<br/>
--->
-<span class="section"><a href="readme.html">AdvanceMAME</a></span><br/>
-<a href="download.html"><span class="field">Download</span></a><br/>
-<a href="snapshot.html"><span class="field">Snapshots</span></a><br/>
-<a href="blit.html"><span class="field">Blit Effects</span></a><br/>
-<a href="rgb.html"><span class="field">RGB Effects</span></a><br/>
-<a href="http://www.scale2x.it"><span class="field">Scale2x Effects</span></a><br/>
-<br/>
-
-<span class="section"><a href="menu-readme.html">AdvanceMENU</a></span><br/>
-<a href="menu-download.html"><span class="field">Download</span></a><br/>
-<a href="menu-snapshot.html"><span class="field">Snapshots</span></a><br/>
-<br/>
-
-<!--
-<span class="section"><a href="cd-readme.html">AdvanceCD</a></span><br/>
-<a href="cd-download.html"><span class="field">Download</span></a><br/>
-<a href="cd-snapshot.html"><span class="field">Snapshots</span></a><br/>
-<br/>
--->
-
-<span class="section"><a href="scan-readme.html">AdvanceSCAN</a></span><br/>
-<a href="scan-download.html"><span class="field">Download</span></a><br/>
-<br/>
-
-<span class="section"><a href="comp-readme.html">AdvanceCOMP</a></span><br/>
-<a href="comp-download.html"><span class="field">Download</span></a><br/>
-
-<!--
-<span class="section"><a href="cab-readme.html">AdvanceCAB</a></span><br/>
-<a href="cab-download.html"><span class="field">Download</span></a><br/>
-<br/>
--->
-
-<br/>
-<span class="bold">Donation</span><br/>
-<p/>
-<span class="field">
-<a href="http://sourceforge.net/donate/index.php?group_id=33717"><img src="paypal.png" width="125" height="48" border="0" alt="Donate with Paypal" /></a>
-</span>
-
-<span class="section">Resources</span><br/>
-<a href="https://github.com/amadvance/advancemame/"><span class="field"><img src="github.png"/></span></a><br/>
-<a href="http://sourceforge.net/projects/advancemame/"><span class="field"><img src="sourceforge.png"/></span></a><br/>
-
-<br/>
-<span class="section">Friends</span><br/>
-<a href="http://www.snapraid.it/"><span class="field">SnapRAID</span></a><br/>
-<a href="http://www.scale2x.it/"><span class="field">Scale2x</span></a><br/>
-<a href="http://www.tommyds.it/"><span class="field">TommyDS</span></a><br/>
-<br/>
-
-<!--
-<span class="section">Emulation</span><br/>
-<a href="http://www.mamedev.com/"><span class="field">MAME</span></a><br/>
-<a href="http://www.mess.org/"><span class="field">MESS</span></a><br/>
-<a href="http://linuxemu.retrofaction.com/"><span class="field">Linux Emu</span></a><br/>
-<a href="http://www.mameworld.info"><span class="field">MAMEWorld</span></a><br/>
-<a href="http://www.retrogames.com"><span class="field">Retrogames</span></a><br/>
--->
-</div>
-
 <div id="main">
 
 
 
+<p>
 These are some examples of the revised user interface of AdvanceMAME.
+</p>
 
 <h1>Menu</h1>
+<p>
 This is the main menu of AdvanceMAME. The menu uses TrueType font
 with alpha blending and a complete color customization.
 To show the menu press the TAB key.
-<p>
+</p>
+
 <center><img src="snap/mame-snap-menu.png" width="608" height="448" lt="Main menu snapshot"></center>
 
 <h1>Video</h1>
+<p>
 This is the video menu where it's possibile to select the various video
 parameters.
+</p>
+
 <p>
 The options on the right are the user requests. The options on [ ] are the
 current settings.
-<p>
+</p>
+
 <ul>
 <li>
 The firstline display the size in pixels, the color depth, 
@@ -149,23 +86,31 @@ One of : <em>no</em>, <em>triad3dot</em>, <em>triad6dot</em>, <em>triad16dot</em
 <li>The <span class="bold">Vsync</span> option selects the wait mode to use.
 <li>The <span class="bold">SMP</span> option enables the use of a Multiprocessor CPU for the final video blit.
 </ul>
+
 <p>
 When the best setting are found they can be saved for 
 the current game or for all the games that have the same resolution.
-<p>
+</p>
+
 <center><img src="snap/mame-snap-video.png" width="608" height="448" alt="Video menu snapshot"></center>
+
 <p>
 The <em>Details</em> menu show the blit pipeline and the blit time.
-<p>
+</p>
+
 <center><img src="snap/mame-snap-videod.png" width="608" height="448" alt="Video menu details snapshot"></center>
 
 <h1>Audio</h1>
+<p>
 This is the audio menu where it's possibile to select the various audio
 parameters.
+</p>
+
 <p>
 The options on the right are the user requests. The options on [ ] are the
 current settings.
-<p>
+</p>
+
 <ul>
 <li>The <span class="bold">Mode</span> option selects the current audio mode. You can use <em>mono</em>, <em>stereo</em> and <em>surround</em>.
 <li>The <span class="bold">Attenuation</span> option control the output volume.
@@ -174,31 +119,37 @@ the Fletcher-Munson "Equal Loudness Courve" to estimate the correct loudness.
 <li>The <span class="bold">Amplifier</span> option selects the current audio amplification.
 <li>The <span class="bold">Equalizer</span> options allow to equalize the audio output.
 </ul>
+
+<p>
 When the best setting are found they can be saved for 
 the current game.
-<p>
+</p>
+
 <center><img src="snap/mame-snap-audio.png" width="608" height="448" alt="Audio menu snapshot"></center>
-<p>
+
 <p>
 The <em>Details</em> menu show the audio pipeline, the audio processing time,
 the incremental number of clipped audio samples and a spectral analysis
 of the current audio output.
-<p>
+</p>
+
 <center><img src="snap/mame-snap-audiod.png" width="608" height="448" alt="Audio menu details snapshot"></center>
 
 <h1>Help</h1>
+<p>
 This is the help screen where you can see the available buttons for each player.
 You can also customize the control image to match your control panel.
 To show the Help screem press the F1 key.
-<p>
+</p>
+
 <center><img src="snap/mame-snap-help.png" width="608" height="448" alt="Help panel snapshot"></center>
-<p>
 
 <h1>Exit</h1>
+<p>
 This is the menu shown when the SafeExit option is activated and you press the <em>ESC</em> button.
 This option prevents any casual exit from the emulator.
+</p>
 
-<p>
 <center><img src="snap/mame-snap-exit.png" width="608" height="448" alt="Exit menu snapshot"></center>
 
 </div>
