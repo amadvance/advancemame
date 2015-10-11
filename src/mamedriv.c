@@ -1941,10 +1941,24 @@ const game_driver * const drivers[] =
 	DRIVER( truxton )	/* TP-013B (c) 1988 Taito */
 	DRIVER( hellfire )	/* TP-??? (c) 1989 Toaplan + Taito license */
 	DRIVER( hellfir1 )	/* TP-??? (c) 1989 Toaplan + Taito license */
+
+	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
+	DRIVER( hellfir2 )	/* TP-??? (c) 1989 Toaplan + Taito license */
+	DRIVER( hellfir3 )	/* TP-??? (c) 1989 Toaplan + Taito license */
+
 	DRIVER( zerowing )	/* TP-015 (c) 1989 Toaplan */
+
+	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
+	DRIVER( zerowng2 )	/* TP-015 (c) 1989 Toaplan */
+
 	DRIVER( demonwld )	/* TP-016 (c) 1990 Toaplan (+ Taito license when set to Japan) */
 	DRIVER( demonwl1 )	/* TP-016 (c) 1989 Toaplan + Taito license */
 	DRIVER( demonwl2 )	/* TP-016 (c) 1989 Toaplan */
+
+	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
+	DRIVER( demonwl3 )	/* TP-016 (c) 1989 Toaplan */
+	DRIVER( demonwl4 )	/* TP-016 (c) 1989 Toaplan */
+
 	DRIVER( fireshrk )	/* TP-017 (c) 1990 Toaplan */
 	DRIVER( samesame )	/* TP-017 (c) 1989 Toaplan */
 	DRIVER( samesam2 )	/* TP-017 (c) 1989 Toaplan */
@@ -1952,6 +1966,10 @@ const game_driver * const drivers[] =
 	DRIVER( outzonea )	/* TP-018 (c) 1990 Toaplan */
 	DRIVER( outzoneb )	/* TP-018 (c) 1990 Toaplan */
 	DRIVER( outzonec )	/* TP-018 (c) 1990 Toaplan */
+
+	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
+	DRIVER( outzoned )	/* TP-018 (c) 1990 Toaplan */
+
 	DRIVER( vimana )	/* TP-019 (c) 1991 Toaplan (+ Tecmo license when set to Japan) */
 	DRIVER( vimana1 )	/* TP-019 (c) 1991 Toaplan (+ Tecmo license when set to Japan)  */
 	DRIVER( vimanan )	/* TP-019 (c) 1991 Toaplan (+ Nova Apparate GMBH & Co license) */
@@ -2001,15 +2019,24 @@ const game_driver * const drivers[] =
 	DRIVER( mahoudai )	/* (c) 1993 Raizing + Able license */
 	DRIVER( shippumd )	/* (c) 1994 Raizing/8ing */
 	DRIVER( kingdmgp )	/* (c) 1994 Raizing/8ing (hack?) */
-	DRIVER( battleg )	/* (c) 1996 Raizing/8ing */
-	DRIVER( battlega )	/* (c) 1996 Raizing/8ing */
-	DRIVER( battlegb )	/* (c) 1996 Raizing/8ing */
-	DRIVER( battlegc )	/* (c) 1996 Raizing/8ing */
-	DRIVER( batrider )	/* (c) 1998 Raizing/8ing */
-	DRIVER( batridra )	/* (c) 1998 Raizing/8ing */
-	DRIVER( batridrk )	/* (c) 1998 Raizing/8ing */
-	DRIVER( bbakraid )	/* (c) 1999 8ing */
-	DRIVER( bbakradu )	/* (c) 1999 8ing */
+
+	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
+	DRIVER( bgaregga )  /* (c) 1996 Raizing/8ing */
+	DRIVER( bgareghk )  /* (c) 1996 Raizing/8ing */
+	DRIVER( bgaregnv )  /* (c) 1996 Raizing/8ing */
+	DRIVER( bgaregt2 )  /* (c) 1996 Raizing/8ing */
+	DRIVER( bgaregcn )  /* (c) 1996 Raizing/8ing */
+	DRIVER( bgaregtw )  /* (c) 1996 Raizing/8ing */
+	DRIVER( batrid )    /* (c) 1998 Raizing/8ing */
+	DRIVER( batridu )   /* (c) 1998 Raizing/8ing */
+	DRIVER( batridc )   /* (c) 1998 Raizing/8ing */
+	DRIVER( batridj )   /* (c) 1998 Raizing/8ing */
+	DRIVER( batridk )   /* (c) 1998 Raizing/8ing */
+	DRIVER( batridja )  /* (c) 1998 Raizing/8ing */
+	DRIVER( batridta )  /* (c) 1998 Raizing/8ing */
+	DRIVER( bkraidu )   /* (c) 1999 8ing */
+	DRIVER( bkraiduj )  /* (c) 1999 8ing */
+	DRIVER( bkraidj )   /* (c) 1999 8ing */
 
 /*
 Toa Plan's board list

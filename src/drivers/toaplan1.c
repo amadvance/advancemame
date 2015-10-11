@@ -15,8 +15,9 @@ Supported games:
     --------------------------------------------------
     rallybik    TP-012      Rally Bike/Dash Yarou
     truxton     TP-013B     Truxton/Tatsujin
-    hellfire    TP-???      HellFire (2 Player version)
-    hellfir1    TP-???      HellFire (1 Player version)
+    hellfire    B90         HellFire (2 Player version)
+    hellfir1    B90         HellFire (1 Player version)
+    hellfir2    B90         HellFire (2 Player, ealier version)
     zerowing    TP-015      Zero Wing
     demonwld    TP-016      Demon's World/Horror Story [1990]
     demonwl1    TP-016      Demon's World/Horror Story [1989] (Taito license)
@@ -61,10 +62,170 @@ To Do:
 #include "cpu/tms32010/tms32010.h"
 #include "toaplan1.h"
 #include "sound/3812intf.h"
+#include "sound/samples.h"
 
+int start,start2;
 
-
+int vfadeout_ready = 0;
+int vfadeout_stop = 0;
+int vplaying1 = 0xff;
+int vplaying2 = 0xff;
 /***************************** 68000 Memory Map *****************************/
+
+static WRITE16_HANDLER(samesame_snd_cmd)
+{
+
+	if (data == 0x00 || data == 0xdf)
+	{
+		sample_stop (0);sample_stop (1);sample_stop (2);
+		sample_stop (3);sample_stop (4);sample_stop (5);
+		sample_stop (6);sample_stop (7);sample_stop (8);
+	}
+
+	if (data >= 0x01 && data <= 0x05)
+	{
+		sample_set_volume (0,1.00);
+		vfadeout_stop = 1;
+		start2=0;
+		sample_start (0, data , 1);
+	}
+
+	if (data == 0x06) {
+		sample_start (0, data , 0);
+		start2=72;
+		}
+
+	if (data == 0x07) {
+		vfadeout_ready = 1;
+		start=1;
+	}
+
+	if (data == 0x08 || data == 0x09)
+		sample_start (1, data , 0);
+
+	if (data >= 0x0a && data <= 0x0f)
+		sample_start (2, data , 0);
+
+	if (data == 0x10 || data == 0x11)
+		sample_start (3, data , 0);
+
+	if (data >= 0x12 && data <= 0x16)
+		sample_start (4, data , 0);
+
+	if (data >= 0x17 && data <= 0x1b)
+		sample_start (5, data , 0);
+
+	if (data >= 0x1c && data <= 0x1f)
+		sample_start (0, data , 0);
+
+	if (data == 0x20 || data == 0x21)
+		sample_start (6, data , 0);
+
+	if (data == 0x22)
+		sample_start (0, data , 0);
+
+	if (data == 0x23 || data == 0x24)
+		sample_start (7, data , 0);
+
+	if (data == 0x24)
+	{
+		sample_start (7, data , 0);
+		vfadeout_ready = 1;
+	}
+
+	if (data == 0x25)
+	{
+		sample_set_volume (0, 1.00);
+		sample_start (0, data , 0);
+		vfadeout_stop = 1;
+	}
+
+	if (data == 0x26)
+		sample_start (2, data , 0);
+
+	if (data == 0x27)
+	{
+		sample_set_volume (0, 1.00);
+		sample_start (0, data , 0);
+		vfadeout_stop = 1;
+	}
+
+	if (data == 0x28)
+		sample_start (8, data , 0);
+}
+
+static const char *samesame_sample_names[] =
+{
+	"*samesame",
+	"dm.wav","01.wav","02.wav","03.wav","04.wav","05.wav","06.wav","07.wav",
+	"08.wav","09.wav","0a.wav","0b.wav","0c.wav","0d.wav","0e.wav","0f.wav",
+	"10.wav","11.wav","12.wav","13.wav","14.wav","15.wav","16.wav","17.wav",
+	"18.wav","19.wav","1a.wav","1b.wav","1c.wav","1d.wav","1e.wav","1f.wav",
+	"20.wav","21.wav","22.wav","23.wav","24.wav","25.wav","26.wav","27.wav",
+	"28.wav",0
+};
+
+static struct Samplesinterface samesame_samples_interface =
+{
+	9,samesame_sample_names
+};
+
+static const char *vimana_sample_names[] =
+{
+	"*vimana",
+	"00.wav","01.wav","02.wav","03.wav","04.wav","05.wav","06.wav","07.wav",
+	"08.wav","09.wav","0a.wav","0b.wav","0c.wav","0d.wav","0e.wav","0f.wav",
+	"10.wav","11.wav","12.wav","13.wav","14.wav","15.wav","16.wav","17.wav",
+	"18.wav","19.wav","dm.wav","dm.wav","1c.wav","1d.wav","1e.wav","dm.wav",
+	"20.wav","dm.wav","22.wav",0
+};
+
+static struct Samplesinterface vimana_samples_interface =
+{
+	16,vimana_sample_names
+};
+
+
+READ8_HANDLER ( hellfire_port1_r )
+{
+	UINT8 data = input_port_1_r(0);
+	UINT8 b1 = data&0x20;
+
+		if(toaplan1_hellfire_b1_pre == 0){
+			if(b1==0x20)  toaplan1_hellfire_b1_buff = 0x08;
+		} else {
+			if(b1==0){
+				toaplan1_hellfire_b1_buff = 0;
+				toaplan1_hellfire_b1_pre = 0;
+			}
+			b1 = 0;
+		}
+		if(b1==0) data &= 0xdf;
+		else data &= 0xef;
+
+	return data;
+};
+
+READ8_HANDLER ( hellfire_port2_r )
+{
+	UINT8 data = input_port_2_r(0);
+	UINT8 b2 = data&0x20;
+
+		if(toaplan1_hellfire_b2_pre == 0){
+			if(b2==0x20)  toaplan1_hellfire_b2_buff = 0x08;
+		} else {
+			if(b2==0){
+				toaplan1_hellfire_b2_buff = 0;
+				toaplan1_hellfire_b2_pre = 0;
+
+			}
+			b2 = 0;
+		}
+		if(b2==0) data &= 0xdf;
+		else data &= 0xef;
+
+	return data;
+};
 
 static ADDRESS_MAP_START( rallybik_main_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x00ffff) AM_ROM
@@ -198,7 +359,7 @@ static ADDRESS_MAP_START( samesame_main_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x140008, 0x140009) AM_READ(input_port_5_word_r)
 	AM_RANGE(0x14000a, 0x14000b) AM_READ(samesame_port_6_word_r)	/* Territory, and MCU ready */
 	AM_RANGE(0x14000c, 0x14000d) AM_WRITE(samesame_coin_w)	/* Coin counter/lockout */
-//  AM_RANGE(0x14000e, 0x14000f) AM_WRITE(samesame_mcu_w)   /* Commands sent to HD647180 */
+	AM_RANGE(0x14000e, 0x14000f) AM_WRITE(samesame_snd_cmd)   /* Commands sent to HD647180 */
 	AM_RANGE(0x180000, 0x180001) AM_WRITE(toaplan1_bcu_flipscreen_w)
 	AM_RANGE(0x180002, 0x180003) AM_READWRITE(toaplan1_tileram_offs_r, toaplan1_tileram_offs_w)
 	AM_RANGE(0x180004, 0x180007) AM_READWRITE(toaplan1_tileram16_r, toaplan1_tileram16_w)
@@ -300,8 +461,8 @@ static ADDRESS_MAP_START( hellfire_sound_io_map, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x10, 0x10) AM_READ(input_port_4_r)	/* DSW2 */
 	AM_RANGE(0x20, 0x20) AM_READ(input_port_6_r)	/* Territory Jumper Block */
 	AM_RANGE(0x30, 0x30) AM_WRITE(toaplan1_coin_w)	/* Coin counter/lockout */
-	AM_RANGE(0x40, 0x40) AM_READ(input_port_1_r)	/* Player 1 */
-	AM_RANGE(0x50, 0x50) AM_READ(input_port_2_r)	/* Player 2 */
+	AM_RANGE(0x40, 0x40) AM_READ(hellfire_port1_r)	/* Player 1 */
+	AM_RANGE(0x50, 0x50) AM_READ(hellfire_port2_r)	/* Player 2 */
 	AM_RANGE(0x60, 0x60) AM_READ(input_port_5_r)	/* Coin/Start inputs */
 	AM_RANGE(0x70, 0x70) AM_READWRITE(YM3812_status_port_0_r, YM3812_control_port_0_w)
 	AM_RANGE(0x71, 0x71) AM_WRITE(YM3812_write_port_0_w)
@@ -367,6 +528,13 @@ ADDRESS_MAP_END
 /*****************************************************************************
     Input Port definitions
 *****************************************************************************/
+
+INPUT_PORTS_START( toaplan1_extr )
+	PORT_START_TAG("EXTR")
+	PORT_DIPNAME( 0x0001,	0x0001, "Buffer Delay" )
+	PORT_DIPSETTING(		0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(		0x0001, DEF_STR( On ) )
+INPUT_PORTS_END
 
 #define  TOAPLAN1_PLAYER_INPUT( player, button3, options )										\
 	PORT_START																	\
@@ -437,7 +605,7 @@ INPUT_PORTS_START( rallybik )
 	PORT_DIPNAME( 0x08, 0x00, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
-	PORT_DIPNAME( 0x30, 0x20, "Territory/Copyright" )
+	PORT_DIPNAME( 0x30, 0x00, "Territory/Copyright" )
 	PORT_DIPSETTING(    0x20, "World/Taito Corp Japan" )
 	PORT_DIPSETTING(    0x10, "USA/Taito America" )
 	PORT_DIPSETTING(    0x00, "Japan/Taito Corp" )
@@ -521,7 +689,7 @@ INPUT_PORTS_START( truxton )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x07, 0x02, "Territory/Copyright" )
+	PORT_DIPNAME( 0x07, 0x00, "Territory/Copyright" )
 	PORT_DIPSETTING(    0x02, "World/Taito Corp" )
 	PORT_DIPSETTING(    0x06, "World/Taito America" )
 	PORT_DIPSETTING(    0x04, "US/Taito America" )
@@ -534,6 +702,8 @@ INPUT_PORTS_START( truxton )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( hellfire )
@@ -591,7 +761,7 @@ INPUT_PORTS_START( hellfire )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper block */
-	PORT_DIPNAME( 0x03, 0x02, "Territory" )
+	PORT_DIPNAME( 0x03, 0x00, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 //  PORT_DIPSETTING(    0x03, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
@@ -603,6 +773,8 @@ INPUT_PORTS_START( hellfire )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( hellfir1 )
@@ -660,7 +832,7 @@ INPUT_PORTS_START( hellfir1 )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper block */
-	PORT_DIPNAME( 0x03, 0x02, "Territory" )
+	PORT_DIPNAME( 0x03, 0x00, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 //  PORT_DIPSETTING(    0x03, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
@@ -672,6 +844,8 @@ INPUT_PORTS_START( hellfir1 )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( zerowing )
@@ -729,7 +903,7 @@ INPUT_PORTS_START( zerowing )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper block */
-	PORT_DIPNAME( 0x03, 0x02, "Territory" )
+	PORT_DIPNAME( 0x03, 0x00, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 //  PORT_DIPSETTING(    0x03, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
@@ -741,6 +915,8 @@ INPUT_PORTS_START( zerowing )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( demonwld )
@@ -811,6 +987,8 @@ INPUT_PORTS_START( demonwld )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( demonwl1 )
@@ -868,7 +1046,7 @@ INPUT_PORTS_START( demonwl1 )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x03, 0x02, "Territory/Copyright" )
+	PORT_DIPNAME( 0x03, 0x03, "Territory/Copyright" )
 	PORT_DIPSETTING(    0x02, "World/Taito Japan" )
 	PORT_DIPSETTING(    0x03, "US/Toaplan" )
 	PORT_DIPSETTING(    0x01, "US/Taito America" )
@@ -880,6 +1058,8 @@ INPUT_PORTS_START( demonwl1 )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( samesame )
@@ -964,6 +1144,8 @@ INPUT_PORTS_START( samesame )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( samesam2 )
@@ -1055,6 +1237,8 @@ INPUT_PORTS_START( samesam2 )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf2, IP_ACTIVE_HIGH, IPT_UNKNOWN )	/* Mask bit 2 aswell */
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( fireshrk )
@@ -1123,6 +1307,8 @@ INPUT_PORTS_START( fireshrk )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( outzone )
@@ -1180,7 +1366,7 @@ INPUT_PORTS_START( outzone )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x0f, 0x02, "Territory" )
+	PORT_DIPNAME( 0x0f, 0x00, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
 	PORT_DIPSETTING(    0x00, DEF_STR( Japan ) )
@@ -1198,6 +1384,8 @@ INPUT_PORTS_START( outzone )
 //  PORT_DIPSETTING(    0x0e, DEF_STR( Japan ) )
 //  PORT_DIPSETTING(    0x0f, DEF_STR( Japan ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( outzoneb )
@@ -1255,7 +1443,7 @@ INPUT_PORTS_START( outzoneb )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x07, 0x02, "Territory" )
+	PORT_DIPNAME( 0x07, 0x00, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
 	PORT_DIPSETTING(    0x00, DEF_STR( Japan ) )
@@ -1268,6 +1456,8 @@ INPUT_PORTS_START( outzoneb )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x80, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( outzonec )
@@ -1325,7 +1515,7 @@ INPUT_PORTS_START( outzonec )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x0f, 0x02, "Territory" )
+	PORT_DIPNAME( 0x0f, 0x00, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
 	PORT_DIPSETTING(    0x00, DEF_STR( Japan ) )
@@ -1343,6 +1533,8 @@ INPUT_PORTS_START( outzonec )
 //  PORT_DIPSETTING(    0x0e, DEF_STR( Japan ) )
 //  PORT_DIPSETTING(    0x0f, DEF_STR( Japan ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( vimana )
@@ -1400,7 +1592,7 @@ INPUT_PORTS_START( vimana )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x0f, 0x02, "Territory" )
+	PORT_DIPNAME( 0x0f, 0x00, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
 	PORT_DIPSETTING(    0x00, DEF_STR( Japan ) )
@@ -1418,6 +1610,8 @@ INPUT_PORTS_START( vimana )
 //  PORT_DIPSETTING(    0x0e, DEF_STR( Unused ) )
 //  PORT_DIPSETTING(    0x0f, DEF_STR( Japan ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( vimanan )
@@ -1489,7 +1683,7 @@ INPUT_PORTS_START( vimanan )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x0f, 0x02, "Territory" )
+	PORT_DIPNAME( 0x0f, 0x00, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
 	PORT_DIPSETTING(    0x00, DEF_STR( Japan ) )
@@ -1507,6 +1701,8 @@ INPUT_PORTS_START( vimanan )
 //  PORT_DIPSETTING(    0x0e, DEF_STR( Unused ) )
 //  PORT_DIPSETTING(    0x0f, DEF_STR( Japan ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 
@@ -1663,11 +1859,11 @@ MACHINE_DRIVER_END
 static MACHINE_DRIVER_START( hellfire )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(M68000, 10000000)
+	MDRV_CPU_ADD(M68000, 11000000)
 	MDRV_CPU_PROGRAM_MAP(hellfire_main_map, 0)
 	MDRV_CPU_VBLANK_INT(toaplan1_interrupt,1)
 
-	MDRV_CPU_ADD(Z80,28000000/8)		/* 3.5MHz (28MHz Oscillator) */
+	MDRV_CPU_ADD(Z80,28000000/8*1.01)		/* 3.5MHz (28MHz Oscillator) */
 	MDRV_CPU_PROGRAM_MAP(toaplan1_sound_map, 0)
 	MDRV_CPU_IO_MAP(hellfire_sound_io_map, 0)
 
@@ -1686,7 +1882,7 @@ static MACHINE_DRIVER_START( hellfire )
 
 	MDRV_VIDEO_START(toaplan1)
 	MDRV_VIDEO_EOF(toaplan1)
-	MDRV_VIDEO_UPDATE(toaplan1)
+	MDRV_VIDEO_UPDATE(hellfire)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
@@ -1708,7 +1904,7 @@ static MACHINE_DRIVER_START( zerowing )
 	MDRV_CPU_PROGRAM_MAP(toaplan1_sound_map, 0)
 	MDRV_CPU_IO_MAP(zerowing_sound_io_map, 0)
 
-	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_FRAMES_PER_SECOND( (28000000.0 / 4) / (450 * 282) )	/* fixed by SUZ */
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 	MDRV_INTERLEAVE(10)
 
@@ -1723,7 +1919,7 @@ static MACHINE_DRIVER_START( zerowing )
 
 	MDRV_VIDEO_START(toaplan1)
 	MDRV_VIDEO_EOF(toaplan1)
-	MDRV_VIDEO_UPDATE(toaplan1)
+	MDRV_VIDEO_UPDATE(zerowing)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
@@ -1796,14 +1992,18 @@ static MACHINE_DRIVER_START( samesame )
 
 	MDRV_VIDEO_START(toaplan1)
 	MDRV_VIDEO_EOF(samesame)
-	MDRV_VIDEO_UPDATE(toaplan1)
+	MDRV_VIDEO_UPDATE(samesame)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
-
+	/*
 	MDRV_SOUND_ADD(YM3812, 28000000/8)
 	MDRV_SOUND_CONFIG(ym3812_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+	*/
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(samesame_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)	
 MACHINE_DRIVER_END
 
 
@@ -1865,13 +2065,17 @@ static MACHINE_DRIVER_START( vimana )
 
 	MDRV_VIDEO_START(toaplan1)
 	MDRV_VIDEO_EOF(toaplan1)
-	MDRV_VIDEO_UPDATE(toaplan1)
+	MDRV_VIDEO_UPDATE(vimana)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
-
+	/*
 	MDRV_SOUND_ADD(YM3812, 28000000/8)
 	MDRV_SOUND_CONFIG(ym3812_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+	*/
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(vimana_samples_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
@@ -2015,10 +2219,37 @@ ROM_START( zerowing )
 	ROM_LOAD( "tp015_15.bpr",  0x20, 0x20, CRC(a1e17492) SHA1(9ddec4c97f2d541f69f3c32c47aaa21fd9699ae2) )	/* ??? */
 ROM_END
 
+ROM_START( zerowng2 ) /* 2 player simultaneous version */
+	ROM_REGION( 0x080000, REGION_CPU1, 0 )	/* Main 68K code */
+	ROM_LOAD16_BYTE( "o15-11iiw.bin",  0x000000, 0x08000, CRC(38b0bb5b) SHA1(e5a4c0b6c279a55701c82bf9e285a806054f8d23) )
+	ROM_LOAD16_BYTE( "o15-12iiw.bin",  0x000001, 0x08000, CRC(74c91e6f) SHA1(8cf5d10a5f4efda0903a4c5d56599861ccc8f1c1) )
+	ROM_LOAD16_BYTE( "o15-09.rom",     0x040000, 0x20000, CRC(13764e95) SHA1(61da49b73ba81edd951e96e9ce6673c1c3bd65f2) )
+	ROM_LOAD16_BYTE( "o15-10.rom",     0x040001, 0x20000, CRC(351ba71a) SHA1(937331549140506711b08252497cc0f2efa58268) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound Z80 code */
+	ROM_LOAD( "o15-13.rom",  0x0000, 0x8000, CRC(e7b72383) SHA1(ea1f6f33a86d14d58bd396fd46081462f00177d5) )
+
+	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "o15-05.rom",  0x00000, 0x20000, CRC(4e5dd246) SHA1(5366b4a6f3c900a4f57a6583b7399163a06f42d7) )
+	ROM_LOAD( "o15-06.rom",  0x20000, 0x20000, CRC(c8c6d428) SHA1(76ee5bcb8f10fe201fc5c32697beee3de9d8b751) )
+	ROM_LOAD( "o15-07.rom",  0x40000, 0x20000, CRC(efc40e99) SHA1(a04fad4197a7fb4787cd9bebf43e1d9b02b2f61b) )
+	ROM_LOAD( "o15-08.rom",  0x60000, 0x20000, CRC(1b019eab) SHA1(c9569ca85696825142acc5cde9ac829e82b1ca1b) )
+
+	ROM_REGION( 0x80000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "o15-03.rom",  0x00000, 0x20000, CRC(7f245fd3) SHA1(efbcb3663d4accc4f8128a8fee5475bc109bc17a) )
+	ROM_LOAD( "o15-04.rom",  0x20000, 0x20000, CRC(0b1a1289) SHA1(ce6c06342392d11952873e3b1d6aea8dc02a551c) )
+	ROM_LOAD( "o15-01.rom",  0x40000, 0x20000, CRC(70570e43) SHA1(acc9baec71b0930cb2f193677e0663efa5d5551d) )
+	ROM_LOAD( "o15-02.rom",  0x60000, 0x20000, CRC(724b487f) SHA1(06af31520866eea69aebbd5d428f80e882289a15) )
+
+	ROM_REGION( 0x40, REGION_PROMS, 0 )		/* nibble bproms, lo/hi order to be determined */
+	ROM_LOAD( "tp015_14.bpr",  0x00, 0x20, CRC(bc88cced) SHA1(5055362710c0f58823c05fb4c0e0eec638b91e3d) )	/* sprite attribute (flip/position) ?? */
+	ROM_LOAD( "tp015_15.bpr",  0x20, 0x20, CRC(a1e17492) SHA1(9ddec4c97f2d541f69f3c32c47aaa21fd9699ae2) )	/* ??? */
+ROM_END
+
 ROM_START( demonwld )
 	ROM_REGION( 0x040000, REGION_CPU1, 0 )	/* Main 68K code */
-	ROM_LOAD16_BYTE( "rom10.v2",  0x000000, 0x20000, CRC(ca8194f3) SHA1(176da6739b35ba38b40150fc62380108bcae5a24) )
-	ROM_LOAD16_BYTE( "rom09.v2",  0x000001, 0x20000, CRC(7baea7ba) SHA1(ae2b40f9efb4440ff7edbcc4f80641655f7c4671) )
+	ROM_LOAD16_BYTE( "o16-10.v2",  0x000000, 0x20000, CRC(ca8194f3) SHA1(176da6739b35ba38b40150fc62380108bcae5a24) )
+	ROM_LOAD16_BYTE( "o16-09.v2",  0x000001, 0x20000, CRC(7baea7ba) SHA1(ae2b40f9efb4440ff7edbcc4f80641655f7c4671) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound Z80 code */
 	ROM_LOAD( "rom11.v2",  0x0000, 0x8000, CRC(dbe08c85) SHA1(536a242bfe916d15744b079261507af6f12b5b50) )
@@ -2046,8 +2277,8 @@ ROM_END
 
 ROM_START( demonwl1 )
 	ROM_REGION( 0x040000, REGION_CPU1, 0 )	/* Main 68K code */
-	ROM_LOAD16_BYTE( "rom10",  0x000000, 0x20000, CRC(036ee46c) SHA1(60868e5e08e0c9a538ae786de0de6b2531b30b11) )
-	ROM_LOAD16_BYTE( "rom09",  0x000001, 0x20000, CRC(bed746e3) SHA1(056668edb7df99bbd240e387af17cf252d1448f3) )
+	ROM_LOAD16_BYTE( "o16-10.rom",  0x000000, 0x20000, CRC(036ee46c) SHA1(60868e5e08e0c9a538ae786de0de6b2531b30b11) )
+	ROM_LOAD16_BYTE( "o16-09.rom",  0x000001, 0x20000, CRC(bed746e3) SHA1(056668edb7df99bbd240e387af17cf252d1448f3) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound Z80 code */
 	ROM_LOAD( "rom11",  0x0000, 0x8000, CRC(397eca1b) SHA1(84073ff6d1bc46ec6162d66ec5de305700938380) )
@@ -2074,9 +2305,67 @@ ROM_START( demonwl1 )
 ROM_END
 
 ROM_START( demonwl2 )
+ 	ROM_REGION( 0x040000, REGION_CPU1, 0 )	/* Main 68K code */
+	ROM_LOAD16_BYTE( "o16-10-2.bin", 0x000000, 0x20000, CRC(84ee5218) SHA1(dc2b017ee630330163be320008d8a0d761cb0cfb) )
+	ROM_LOAD16_BYTE( "o16-09-2.bin", 0x000001, 0x20000, CRC(cf474cb2) SHA1(5c049082b8d7118e0d2e50c6ae07f9d3d0110498) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound Z80 code */
+	ROM_LOAD( "rom11",  0x0000, 0x8000, CRC(397eca1b) SHA1(84073ff6d1bc46ec6162d66ec5de305700938380) )
+
+	ROM_REGION( 0x2000, REGION_CPU3, 0 )	/* Co-Processor TMS320C10 MCU code */
+	ROM_LOAD16_BYTE( "dsp_21.bin",  0x0000, 0x0800, CRC(2d135376) SHA1(67a2cc774d272ee1cd6e6bc1c5fc33fc6968837e) )
+	ROM_LOAD16_BYTE( "dsp_22.bin",  0x0001, 0x0800, CRC(79389a71) SHA1(14ec4c1c9b06702319e89a7a250d0038393437f4) )
+
+	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "rom05",  0x00000, 0x20000, CRC(6506c982) SHA1(6d4c1ef91e5617724789ff196abb7abf23e4a7fb) )
+	ROM_LOAD( "rom07",  0x20000, 0x20000, CRC(a3a0d993) SHA1(50311b9447eb04271b17b212ca31d083ab5b2414) )
+	ROM_LOAD( "rom06",  0x40000, 0x20000, CRC(4fc5e5f3) SHA1(725d4b009d575ff8ffbe1c00df352ccf235465d7) )
+	ROM_LOAD( "rom08",  0x60000, 0x20000, CRC(eb53ab09) SHA1(d98195cc1b65b76335b5b24adb31deae1b313f3a) )
+
+	ROM_REGION( 0x80000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "rom01",  0x00000, 0x20000, CRC(1b3724e9) SHA1(3dbb0450ab1e40e6df2b7c7356352419cd3f113d) )
+	ROM_LOAD( "rom02",  0x20000, 0x20000, CRC(7b20a44d) SHA1(4dc1a2fa2058077b112c73492808ee9381060ec7) )
+	ROM_LOAD( "rom03",  0x40000, 0x20000, CRC(2cacdcd0) SHA1(92216d1c6859e05d39363c30e0beb45bc0ae4e1c) )
+	ROM_LOAD( "rom04",  0x60000, 0x20000, CRC(76fd3201) SHA1(7a12737bf90bd9760074132edeb22f3fd3e16b4f) )
+
+	ROM_REGION( 0x40, REGION_PROMS, 0 )		/* nibble bproms, lo/hi order to be determined */
+	ROM_LOAD( "prom12.bpr",  0x00, 0x20, CRC(bc88cced) SHA1(5055362710c0f58823c05fb4c0e0eec638b91e3d) )	/* sprite attribute (flip/position) ?? */
+	ROM_LOAD( "prom13.bpr",  0x20, 0x20, CRC(a1e17492) SHA1(9ddec4c97f2d541f69f3c32c47aaa21fd9699ae2) )	/* ??? */
+ROM_END
+
+ROM_START( demonwl3 )
 	ROM_REGION( 0x040000, REGION_CPU1, 0 )	/* Main 68K code */
-	ROM_LOAD16_BYTE( "10.bin",  0x000000, 0x20000, CRC(6f7468e0) SHA1(87ef7733fd0d00d0d375dbf30332cf0614480dc2) )
-	ROM_LOAD16_BYTE( "9.bin",  0x000001, 0x20000, CRC(a572f5f7) SHA1(3d6a443cecd46734c7e1b761130909482c7a9914) )
+	ROM_LOAD16_BYTE( "o16-10.bin",  0x000000, 0x20000, CRC(6f7468e0) SHA1(87ef7733fd0d00d0d375dbf30332cf0614480dc2) )
+	ROM_LOAD16_BYTE( "o16-09.bin",  0x000001, 0x20000, CRC(a572f5f7) SHA1(3d6a443cecd46734c7e1b761130909482c7a9914) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound Z80 code */
+	ROM_LOAD( "rom11",  0x0000, 0x8000, CRC(397eca1b) SHA1(84073ff6d1bc46ec6162d66ec5de305700938380) )
+
+	ROM_REGION( 0x2000, REGION_CPU3, 0 )	/* Co-Processor TMS320C10 MCU code */
+	ROM_LOAD16_BYTE( "dsp_21.bin",  0x0000, 0x0800, CRC(2d135376) SHA1(67a2cc774d272ee1cd6e6bc1c5fc33fc6968837e) )
+	ROM_LOAD16_BYTE( "dsp_22.bin",  0x0001, 0x0800, CRC(79389a71) SHA1(14ec4c1c9b06702319e89a7a250d0038393437f4) )
+
+	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "rom05",  0x00000, 0x20000, CRC(6506c982) SHA1(6d4c1ef91e5617724789ff196abb7abf23e4a7fb) )
+	ROM_LOAD( "rom07",  0x20000, 0x20000, CRC(a3a0d993) SHA1(50311b9447eb04271b17b212ca31d083ab5b2414) )
+	ROM_LOAD( "rom06",  0x40000, 0x20000, CRC(4fc5e5f3) SHA1(725d4b009d575ff8ffbe1c00df352ccf235465d7) )
+	ROM_LOAD( "rom08",  0x60000, 0x20000, CRC(eb53ab09) SHA1(d98195cc1b65b76335b5b24adb31deae1b313f3a) )
+
+	ROM_REGION( 0x80000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "rom01",  0x00000, 0x20000, CRC(1b3724e9) SHA1(3dbb0450ab1e40e6df2b7c7356352419cd3f113d) )
+	ROM_LOAD( "rom02",  0x20000, 0x20000, CRC(7b20a44d) SHA1(4dc1a2fa2058077b112c73492808ee9381060ec7) )
+	ROM_LOAD( "rom03",  0x40000, 0x20000, CRC(2cacdcd0) SHA1(92216d1c6859e05d39363c30e0beb45bc0ae4e1c) )
+	ROM_LOAD( "rom04",  0x60000, 0x20000, CRC(76fd3201) SHA1(7a12737bf90bd9760074132edeb22f3fd3e16b4f) )
+
+	ROM_REGION( 0x40, REGION_PROMS, 0 )		/* nibble bproms, lo/hi order to be determined */
+	ROM_LOAD( "prom12.bpr",  0x00, 0x20, CRC(bc88cced) SHA1(5055362710c0f58823c05fb4c0e0eec638b91e3d) )	/* sprite attribute (flip/position) ?? */
+	ROM_LOAD( "prom13.bpr",  0x20, 0x20, CRC(a1e17492) SHA1(9ddec4c97f2d541f69f3c32c47aaa21fd9699ae2) )	/* ??? */
+ROM_END
+
+ROM_START( demonwl4 )
+	ROM_REGION( 0x040000, REGION_CPU1, 0 )	/* Main 68K code */
+	ROM_LOAD16_BYTE( "o16_10ii", 0x000000, 0x20000, CRC(84EE5218) SHA1(DC2B017EE630330163BE320008D8A0D761CB0CFB) )
+	ROM_LOAD16_BYTE( "o16_09ii", 0x000001, 0x20000, CRC(CF474CB2) SHA1(5C049082B8D7118E0D2E50C6AE07F9D3D0110498) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound Z80 code */
 	ROM_LOAD( "rom11",  0x0000, 0x8000, CRC(397eca1b) SHA1(84073ff6d1bc46ec6162d66ec5de305700938380) )
@@ -2307,6 +2596,28 @@ ROM_START( outzonec )
 	ROM_LOAD( "tp018_11.bpr",  0x20, 0x20, CRC(a1e17492) SHA1(9ddec4c97f2d541f69f3c32c47aaa21fd9699ae2) )	/* ??? */
 ROM_END
 
+ROM_START( outzoned )
+	ROM_REGION( 0x040000, REGION_CPU1, 0 )	/* Main 68K code */
+	ROM_LOAD16_BYTE( "tp07.bin",  0x000000, 0x20000, CRC(a85a1d48) SHA1(74f16ef5126f0ce3d94a66849ccd7c28338e3974) )
+	ROM_LOAD16_BYTE( "tp08.bin",  0x000001, 0x20000, CRC(d8cc44af) SHA1(da9c07e3670e5c7a2c1f9bc433e604a2a13b8a54) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound Z80 code */
+	ROM_LOAD( "tp09.bin",  0x0000, 0x8000, CRC(dd56041f) SHA1(a481b8959b349761624166906175f8efcbebb7e7) )
+
+	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "rom5.bin",  0x00000, 0x80000, CRC(c64ec7b6) SHA1(e73b51c3713c2ea7a572a02531c15d1261ddeaa0) )
+	ROM_LOAD( "rom6.bin",  0x80000, 0x80000, CRC(64b6c5ac) SHA1(07fa20115f603445c0d51af3465c0471c09d76b1) )
+
+	ROM_REGION( 0x80000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "rom2.bin",  0x00000, 0x20000, CRC(6bb72d16) SHA1(a127b10d9c255542bd09fcb5df057c12fd28c0d1) )
+	ROM_LOAD( "rom1.bin",  0x20000, 0x20000, CRC(0934782d) SHA1(e4a775ead23227d7d6e76aea23aa3103b511d031) )
+	ROM_LOAD( "rom3.bin",  0x40000, 0x20000, CRC(ec903c07) SHA1(75906f31200877fc8f6e78c2606ad5be49778165) )
+	ROM_LOAD( "rom4.bin",  0x60000, 0x20000, CRC(50cbf1a8) SHA1(cfab1504746654b4a61912155e9aeca746c65321) )
+
+	ROM_REGION( 0x40, REGION_PROMS, 0 )		/* nibble bproms, lo/hi order to be determined */
+	ROM_LOAD( "tp018_10.bpr",  0x00, 0x20, CRC(bc88cced) SHA1(5055362710c0f58823c05fb4c0e0eec638b91e3d) )	/* sprite attribute (flip/position) ?? */
+	ROM_LOAD( "tp018_11.bpr",  0x20, 0x20, CRC(a1e17492) SHA1(9ddec4c97f2d541f69f3c32c47aaa21fd9699ae2) )	/* ??? */
+ROM_END
 
 ROM_START( vimana )			/* From board serial number 1547.04 (July '94) */
 	ROM_REGION( 0x040000, REGION_CPU1, 0 )	/* Main 68K code */
@@ -2380,6 +2691,55 @@ ROM_START( vimanan )
 	ROM_LOAD( "tp019-10.bpr",  0x20, 0x20, CRC(a1e17492) SHA1(9ddec4c97f2d541f69f3c32c47aaa21fd9699ae2) )	/* ??? */
 ROM_END
 
+ROM_START( hellfir2 )/* Original version, by rom numbers (IE: 01 & 02) */
+	ROM_REGION( 0x040000, REGION_CPU1, 0 )	/* Main 68K code */
+	ROM_LOAD16_BYTE( "b90_01.0",   0x000000, 0x20000, CRC(c94acf53) SHA1(5710861dbe976fe53b93d3428147d1ce7aaae18a) ) /* Territory block seems to have no effect and it's licensed */
+	ROM_LOAD16_BYTE( "b90_02.1",   0x000001, 0x20000, CRC(d17f03c3) SHA1(ac41e6c29aa507872caeeaec6a3bc24c705a3702) ) /* to "Taito Corp." the later set shows "Taito Corporation" */
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound Z80 code */
+	ROM_LOAD( "b90_03x.2",  0x0000, 0x8000, CRC(f58c368f) SHA1(2ee5396a4b70a3374f3a3bbd791b1d962f6a8a52) )
+
+	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "b90_04.3",   0x00000, 0x20000, CRC(ea6150fc) SHA1(1116947d10ce14fbc6a3b86368fc2024c6f51803) )
+	ROM_LOAD( "b90_05.4",   0x20000, 0x20000, CRC(bb52c507) SHA1(b0b1821476647f10c7023f92a66a7f54b92f50c3) )
+	ROM_LOAD( "b90_06.5",   0x40000, 0x20000, CRC(cf5b0252) SHA1(e2102967af61afb11d2290a40d13d2faf9ef1e12) )
+	ROM_LOAD( "b90_07.6",   0x60000, 0x20000, CRC(b98af263) SHA1(54d636a50a41dbb58b54c22dfab3eabfdb452575) )
+
+	ROM_REGION( 0x80000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "b90_11.10",  0x00000, 0x20000, CRC(c33e543c) SHA1(b85cba30cc651f820aeedd41e04584df92078ed9) )
+	ROM_LOAD( "b90_10.9",   0x20000, 0x20000, CRC(35fd1092) SHA1(5e136a35eea45034ccd4aea52cc0ffeec944e27e) )
+	ROM_LOAD( "b90_09.8",   0x40000, 0x20000, CRC(cf01009e) SHA1(e260c479fa97f23a65c220e5071aaf2dc2baf46d) )
+	ROM_LOAD( "b90_08.7",   0x60000, 0x20000, CRC(3404a5e3) SHA1(f717b9e31c2a093dbb060b8ea54a8c3f52688d7a) )
+
+	ROM_REGION( 0x40, REGION_PROMS, 0 )		/* nibble bproms, lo/hi order to be determined */
+	ROM_LOAD( "3w.bpr",     0x00, 0x20, CRC(bc88cced) SHA1(5055362710c0f58823c05fb4c0e0eec638b91e3d) )	/* sprite attribute (flip/position) ?? */
+	ROM_LOAD( "6b.bpr",     0x20, 0x20, CRC(a1e17492) SHA1(9ddec4c97f2d541f69f3c32c47aaa21fd9699ae2) )	/* ??? */
+ROM_END
+
+ROM_START( hellfir3 )
+	ROM_REGION( 0x040000, REGION_CPU1, 0 )	/* Main 68K code */
+	ROM_LOAD16_BYTE( "b90_01.10m",  0x000000, 0x20000, CRC(034966d3) SHA1(f987d8e7ebe6a546be621fe4d5a59de1284c4ebb) ) /* Same labels as hellfire2 but different data */
+	ROM_LOAD16_BYTE( "b90_02.9m",   0x000001, 0x20000, CRC(06dd24c7) SHA1(a990de7ffac6bd0dd219c7bf9f773ccb41395be6) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound Z80 code */
+	ROM_LOAD( "b90_03.2",   0x0000, 0x8000, CRC(4058fa67) SHA1(155c364273c270cd74955f447efc804bb4c9b560) )
+
+	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "b90_04.3",   0x00000, 0x20000, CRC(ea6150fc) SHA1(1116947d10ce14fbc6a3b86368fc2024c6f51803) )
+	ROM_LOAD( "b90_05.4",   0x20000, 0x20000, CRC(bb52c507) SHA1(b0b1821476647f10c7023f92a66a7f54b92f50c3) )
+	ROM_LOAD( "b90_06.5",   0x40000, 0x20000, CRC(cf5b0252) SHA1(e2102967af61afb11d2290a40d13d2faf9ef1e12) )
+	ROM_LOAD( "b90_07.6",   0x60000, 0x20000, CRC(b98af263) SHA1(54d636a50a41dbb58b54c22dfab3eabfdb452575) )
+
+	ROM_REGION( 0x80000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "b90_11.10",  0x00000, 0x20000, CRC(c33e543c) SHA1(b85cba30cc651f820aeedd41e04584df92078ed9) )
+	ROM_LOAD( "b90_10.9",   0x20000, 0x20000, CRC(35fd1092) SHA1(5e136a35eea45034ccd4aea52cc0ffeec944e27e) )
+	ROM_LOAD( "b90_09.8",   0x40000, 0x20000, CRC(cf01009e) SHA1(e260c479fa97f23a65c220e5071aaf2dc2baf46d) )
+	ROM_LOAD( "b90_08.7",   0x60000, 0x20000, CRC(3404a5e3) SHA1(f717b9e31c2a093dbb060b8ea54a8c3f52688d7a) )
+
+	ROM_REGION( 0x40, REGION_PROMS, 0 )		/* nibble bproms, lo/hi order to be determined */
+	ROM_LOAD( "13.3w",     0x00, 0x20, CRC(bc88cced) SHA1(5055362710c0f58823c05fb4c0e0eec638b91e3d) )	/* N82S123AN bprom - sprite attribute (flip/position) ?? */
+	ROM_LOAD( "12.6b",     0x20, 0x20, CRC(a1e17492) SHA1(9ddec4c97f2d541f69f3c32c47aaa21fd9699ae2) )	/* N82S123AN bprom -  ??? */
+ROM_END
 
 DRIVER_INIT( toaplan1 )
 {
@@ -2402,19 +2762,25 @@ DRIVER_INIT( vimana )
 
 GAME( 1988, rallybik, 0,        rallybik, rallybik, toaplan1, ROT270, "[Toaplan] Taito Corporation", "Rally Bike / Dash Yarou", 0 )
 GAME( 1988, truxton,  0,        truxton,  truxton,  toaplan1, ROT270, "[Toaplan] Taito Corporation", "Truxton / Tatsujin", 0 )
-GAME( 1989, hellfire, 0,        hellfire, hellfire, toaplan1, ROT0,   "Toaplan (Taito license)", "Hellfire", 0 )
+GAME( 1989, hellfire, 0,        hellfire, hellfire, toaplan1, ROT0,   "Toaplan (Taito license)", "Hellfire (2P Ver.)", 0 )
 GAME( 1989, hellfir1, hellfire, hellfire, hellfir1, toaplan1, ROT0,   "Toaplan (Taito license)", "Hellfire (1P Ver.)", 0 )
+GAME( 1989, hellfir2, hellfire, hellfire, hellfire, toaplan1, ROT0,   "Toaplan (Taito license)", "Hellfire (2P Ver., first edition)", 0 )
+GAME( 1989, hellfir3, hellfire, hellfire, hellfire, toaplan1, ROT0,   "Toaplan (Taito license)", "Hellfire (1P Ver., alt)", 0 )
 GAME( 1989, zerowing, 0,        zerowing, zerowing, toaplan1, ROT0,   "Toaplan", "Zero Wing", 0 )
-GAME( 1990, demonwld, 0,        demonwld, demonwld, demonwld, ROT0,   "Toaplan", "Demon's World / Horror Story", 0 )
-GAME( 1989, demonwl1, demonwld, demonwld, demonwl1, demonwld, ROT0,   "Toaplan (Taito license)", "Demon's World / Horror Story (Taito license)", 0 )
-GAME( 1989, demonwl2, demonwld, demonwld, demonwl1, demonwld, ROT0,   "Toaplan", "Demon's World / Horror Story (first edition)", 0 )
-GAME( 1990, fireshrk, 0,        samesame, fireshrk, toaplan1, ROT270, "Toaplan", "Fire Shark", GAME_NO_SOUND )
-GAME( 1989, samesame, fireshrk, samesame, samesame, toaplan1, ROT270, "Toaplan", "Same! Same! Same!", GAME_NO_SOUND )
-GAME( 1989, samesam2, fireshrk, samesame, samesam2, toaplan1, ROT270, "Toaplan", "Same! Same! Same! (2P Ver.)", GAME_NO_SOUND )
+GAME( 1989, zerowng2, zerowing, zerowing, zerowing, toaplan1, ROT0,   "[Toaplan] Williams Electronics Games, Inc", "Zero Wing (2 player simultaneous ver.)", 0 )
+GAME( 1990, demonwld, 0,        demonwld, demonwld, demonwld, ROT0,   "Toaplan", "Demon's World / Horror Story (set 1)", 0 )
+GAME( 1989, demonwl1, demonwld, demonwld, demonwl1, demonwld, ROT0,   "Toaplan (Taito license)", "Demon's World / Horror Story (Taito license. set 2)", 0 )
+GAME( 1989, demonwl2, demonwld, demonwld, demonwl1, demonwld, ROT0,   "Toaplan", "Demon's World / Horror Story (set 3)", 0 )
+GAME( 1989, demonwl3, demonwld, demonwld, demonwl1, demonwld, ROT0,   "Toaplan", "Demon's World / Horror Story (set 4)", 0 )
+GAME( 1989, demonwl4, demonwld, demonwld, demonwl1, demonwld, ROT0,   "Toaplan", "Demon's World / Horror Story (set 5)", 0 )
+GAME( 1990, fireshrk, 0,        samesame, fireshrk, toaplan1, ROT270, "Toaplan", "Fire Shark", 0 )
+GAME( 1989, samesame, fireshrk, samesame, samesame, toaplan1, ROT270, "Toaplan", "Same! Same! Same!", 0 )
+GAME( 1989, samesam2, fireshrk, samesame, samesam2, toaplan1, ROT270, "Toaplan", "Same! Same! Same! (2P Ver.)", 0 )
 GAME( 1990, outzone,  0,        outzone,  outzone,  toaplan1, ROT270, "Toaplan", "Out Zone (set 1)", 0 ) // later fixed version
 GAME( 1990, outzonea, outzone,  outzone,  outzone,  toaplan1, ROT270, "Toaplan", "Out Zone (set 2)", 0 )
 GAME( 1990, outzoneb, outzone,  outzone,  outzoneb, toaplan1, ROT270, "Toaplan", "Out Zone (set 3, prototype?)", 0 ) // early revision at least
 GAME( 1990, outzonec, outzone,  outzone,  outzonec, toaplan1, ROT270, "Toaplan", "Out Zone (set 4)", 0 )
-GAME( 1991, vimana,   0,        vimana,   vimana,   vimana,   ROT270, "Toaplan", "Vimana", GAME_NO_SOUND )
-GAME( 1991, vimana1,  vimana,   vimana,   vimana,   vimana,   ROT270, "Toaplan", "Vimana (old set)", GAME_NO_SOUND )
-GAME( 1991, vimanan,  vimana,   vimana,   vimanan,  vimana,   ROT270, "Toaplan (Nova Apparate GMBH & Co license)", "Vimana (Nova Apparate GMBH & Co)", GAME_NO_SOUND )
+GAME( 1990, outzoned, outzone,  outzone,  outzonec, toaplan1, ROT270, "Toaplan", "Out Zone (set 5)", 0 )
+GAME( 1991, vimana,   0,        vimana,   vimana,   vimana,   ROT270, "Toaplan", "Vimana", 0 )
+GAME( 1991, vimana1,  vimana,   vimana,   vimana,   vimana,   ROT270, "Toaplan", "Vimana (old set)", 0 )
+GAME( 1991, vimanan,  vimana,   vimana,   vimanan,  vimana,   ROT270, "Toaplan (Nova Apparate GMBH & Co license)", "Vimana (Nova Apparate GMBH & Co)", 0 )

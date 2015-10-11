@@ -84,36 +84,9 @@ sprite.
 
 
 Abnormalities:
- The equations for flipscreen, don't suite the horizontal games. So a minor
- hack is implemented for them, though it still isn't 100% right - see below.
-
  How/when do priority 0 Tile layers really get displayed ?
 
  What are the video PROMs for ? Priority maybe ?
-
-
- ***** Notes on the horizontal game scroll Y probs (Eg, Zero Wing) *****
-
- Scrolls    PF1-X  PF1-Y    PF2-X  PF2-Y    PF3-X  PF3-Y    PF4-X  PF4-Y
- ------>    #4180  #f880    #1240  #f880    #4380  #f880    #e380  #f880
- -flip->    #1500  #7f00    #e8c0  #7f00    #1300  #7f00    #bb00  #7f00
-
- ------>    #4100  #f880    #1200  #7880    #4300  #f880    #e380  #f880
- -flip->    #1500  #7f00    #e8c0  #8580??  #1300  #7f00    #bb00  #7f00
-                                      |
-                                      |
-                                    f880 = 1111 1000 1000 = 1f1 scroll
-                                    7f00 - 0111 1111 0000 = 0fe scroll
-                                    7880 = 0111 1000 1000 = 0f1 scroll
-                                    8580 = 1000 0101 1000 = 10b scroll
-
- So a snapshot of the scroll equations become (from the functions below):
-    1f1 - (102 - 10f) == 1fe   star background
-    0Fe - (00d - 10f) == 200   star background (flipscreen)
-    0f1 - (102 - 10f) == 0fe   red  background
-    10B - (00d - 10f) == 20d   red  background (flipscreen) wrong!
-    10B - (00d - 002) == 100   red  background (flipscreen) should equate to this (100)
-
 
 ***************************************************************************/
 
@@ -121,17 +94,16 @@ Abnormalities:
 #include "driver.h"
 #include "toaplan1.h"
 #include "cpu/m68000/m68000.h"
+#include "sound/samples.h"
 
+#define TOAPLAN1_TILEVRAM_SIZE       0x4000	/* each tile layer ram (word size) */
+#define TOAPLAN1_SPRITERAM_SIZE      0x800	/* sprite ram (word size) */
+#define TOAPLAN1_SPRITESIZERAM_SIZE  0x80	/* sprite size ram (word size) */
 
-#define TOAPLAN1_TILEVRAM_SIZE       0x4000	/* 4 tile layers each this RAM size */
-#define TOAPLAN1_SPRITERAM_SIZE      0x800	/* sprite ram */
-#define TOAPLAN1_SPRITESIZERAM_SIZE  0x80	/* sprite size ram */
+#define TOAPLAN1_RENDER_TYPE_ZEROWING	0
+#define TOAPLAN1_RENDER_TYPE_DEMONWLD	1
 
-static UINT16 *pf4_tilevram16;	/*  ||  Drawn in this order */
-static UINT16 *pf3_tilevram16;	/*  ||  */
-static UINT16 *pf2_tilevram16;	/* \||/ */
-static UINT16 *pf1_tilevram16;	/*  \/  */
-
+static UINT16 *toaplan1_tileram16;
 static UINT16 *toaplan1_spritesizeram16;
 static UINT16 *toaplan1_buffered_spritesizeram16;
 
@@ -140,163 +112,132 @@ size_t toaplan1_colorram2_size;
 UINT16 *toaplan1_colorram1;
 UINT16 *toaplan1_colorram2;
 
-static INT32 bcu_flipscreen;		/* Tile   controller flip flag */
-static INT32 fcu_flipscreen;		/* Sprite controller flip flag */
+static int bcu_flipscreen;		/* Tile   controller flip flag */
+static int fcu_flipscreen;		/* Sprite controller flip flag */
 
-static INT32 pf_voffs;
-static INT32 spriteram_offs;
+static unsigned int tileram_offs;
+static unsigned int spriteram_offs;
 
-static INT32 pf1_scrollx;
-static INT32 pf1_scrolly;
-static INT32 pf2_scrollx;
-static INT32 pf2_scrolly;
-static INT32 pf3_scrollx;
-static INT32 pf3_scrolly;
-static INT32 pf4_scrollx;
-static INT32 pf4_scrolly;
-static INT32 scrollx_offs1;
-static INT32 scrollx_offs2;
-static INT32 scrollx_offs3;
-static INT32 scrollx_offs4;
-static INT32 scrolly_offs;
+static unsigned int scrollregs[8];
+static unsigned int num_tiles;
 
+static int layer_scrollx[4];
+static int layer_scrolly[4];
+static int layer_offsetx[4];
+static int layer_offsety[4];
 
-#ifdef MAME_DEBUG
-static int display_pf1 = 1;
-static int display_pf2 = 1;
-static int display_pf3 = 1;
-static int display_pf4 = 1;
-static int displog = 0;
-#endif
+static int scrollx_offs1;
+static int scrollx_offs2;
+static int scrollx_offs3;
+static int scrollx_offs4;
+static int scrolly_offs;
 
-static INT32 tiles_offsetx;
-static INT32 tiles_offsety;
+static int flip_y_offs;
+
+static int tiles_offsetx;
+static int tiles_offsety;
 
 static int toaplan1_reset;		/* Hack! See toaplan1_bcu_control below */
 
-static tilemap *pf1_tilemap, *pf2_tilemap, *pf3_tilemap, *pf4_tilemap;
+int wait;
 
-
-/***************************************************************************
-
-  Callbacks for the TileMap code
-
-***************************************************************************/
-
-static void get_pf1_tile_info(int tile_index)
+typedef struct
 {
-	int color, tile_number, attrib;
+	UINT16 tile_num;
+	UINT16 color;
+	char priority;
+	int xpos;
+	int ypos;
+} tile_struct;
 
-	tile_number = pf1_tilevram16[2*tile_index+1] & 0x7fff;
-	attrib = pf1_tilevram16[2*tile_index];
-	color = attrib & 0x3f;
-	SET_TILE_INFO(
-			0,
-			tile_number,
-			color,
-			0)
-	if (pf1_tilevram16[2*tile_index+1] & 0x8000) tile_info.priority = 0;
-	else tile_info.priority = (attrib & 0xf000) >> 12;
-}
+tile_struct *bg_list[4];
 
-static void get_pf2_tile_info(int tile_index)
+tile_struct *tile_list[32];
+tile_struct *temp_list;
+static int max_list_size[32];
+static int tile_count[32];
+
+	mame_bitmap *tmpbitmap1;
+static	mame_bitmap *tmpbitmap2;
+static	mame_bitmap *tmpbitmap3;
+
+
+#undef BGDBG
+
+#ifdef BGDBG
+int	toaplan_dbg_sprite_only = 0;
+int	toaplan_dbg_priority = 0;
+int	toaplan_dbg_layer[4] = {1,1,1,1};
+#endif
+
+UINT8 toaplan1_hellfire_b1_pre;
+UINT8 toaplan1_hellfire_b1_buff;
+UINT8 toaplan1_hellfire_b2_pre;
+UINT8 toaplan1_hellfire_b2_buff;
+
+static int toaplan1_tile_buffers_alloc(void)
 {
-	int color, tile_number, attrib;
+	int i;
 
-	tile_number = pf2_tilevram16[2*tile_index+1] & 0x7fff;
-	attrib = pf2_tilevram16[2*tile_index];
-	color = attrib & 0x3f;
-	SET_TILE_INFO(
-			0,
-			tile_number,
-			color,
-			0)
-	if (pf2_tilevram16[2*tile_index+1] & 0x8000) tile_info.priority = 0;
-	else tile_info.priority = (attrib & 0xf000) >> 12;
-}
+	toaplan1_tileram16 = auto_malloc(TOAPLAN1_TILEVRAM_SIZE * 4);
+	memset(toaplan1_tileram16,0,TOAPLAN1_TILEVRAM_SIZE * 4);
 
-static void get_pf3_tile_info(int tile_index)
-{
-	int color, tile_number, attrib;
-
-	tile_number = pf3_tilevram16[2*tile_index+1] & 0x7fff;
-	attrib = pf3_tilevram16[2*tile_index];
-	color = attrib & 0x3f;
-	SET_TILE_INFO(
-			0,
-			tile_number,
-			color,
-			0)
-	if (pf3_tilevram16[2*tile_index+1] & 0x8000) tile_info.priority = 0;
-	else tile_info.priority = (attrib & 0xf000) >> 12;
-}
-
-static void get_pf4_tile_info(int tile_index)
-{
-	int color, tile_number, attrib;
-
-	tile_number = pf4_tilevram16[2*tile_index+1] & 0x7fff;
-	attrib = pf4_tilevram16[2*tile_index];
-	color = attrib & 0x3f;
-	SET_TILE_INFO(
-			0,
-			tile_number,
-			color,
-			0)
-	if (pf4_tilevram16[2*tile_index+1] & 0x8000) tile_info.priority = 0;
-	else tile_info.priority = (attrib & 0xf000) >> 12;
-}
-
-/***************************************************************************
-
-  Start the video hardware emulation.
-
-***************************************************************************/
-
-static int toaplan1_create_tilemaps(void)
-{
-	pf1_tilemap = tilemap_create(get_pf1_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,64,64);
-	pf2_tilemap = tilemap_create(get_pf2_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,64,64);
-	pf3_tilemap = tilemap_create(get_pf3_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,64,64);
-	pf4_tilemap = tilemap_create(get_pf4_tile_info,tilemap_scan_rows,TILEMAP_TRANSPARENT,8,8,64,64);
-
-	if (!pf1_tilemap || !pf2_tilemap || !pf3_tilemap || !pf4_tilemap)
-		return 1;
-
-	tilemap_set_transparent_pen(pf1_tilemap,0);
-	tilemap_set_transparent_pen(pf2_tilemap,0);
-	tilemap_set_transparent_pen(pf3_tilemap,0);
-	tilemap_set_transparent_pen(pf4_tilemap,0);
-
-	return 0;
-}
-
-
-static int toaplan1_paletteram_alloc(void)
-{
+	logerror("colorram_size: %08x\n", toaplan1_colorram1_size + toaplan1_colorram2_size);
 	paletteram16 = auto_malloc(toaplan1_colorram1_size + toaplan1_colorram2_size);
+	memset(paletteram16,0,toaplan1_colorram1_size + toaplan1_colorram2_size);
+
+	for (i=0; i<4; i++)
+	{
+		bg_list[i]=(tile_struct *)auto_malloc( 33 * 44 * sizeof(tile_struct));
+		memset(bg_list[i], 0, 33 * 44 * sizeof(tile_struct));
+	}
+
+	for (i=0; i<16; i++)
+	{
+		max_list_size[i] = 8192;
+		tile_list[i]=(tile_struct *)auto_malloc(max_list_size[i]*sizeof(tile_struct));
+		memset(tile_list[i],0,max_list_size[i]*sizeof(tile_struct));
+	}
+
+	max_list_size[16] = 65536;
+	tile_list[16]=(tile_struct *)auto_malloc(max_list_size[16]*sizeof(tile_struct));
+	memset(tile_list[16],0,max_list_size[16]*sizeof(tile_struct));
+
 	return 0;
 }
 
-static int toaplan1_vram_alloc(void)
+
+
+VIDEO_START( rallybik )
 {
-	pf1_tilevram16 = auto_malloc(TOAPLAN1_TILEVRAM_SIZE);
-	memset(pf1_tilevram16,0,TOAPLAN1_TILEVRAM_SIZE);
 
-	pf2_tilevram16 = auto_malloc(TOAPLAN1_TILEVRAM_SIZE);
-	memset(pf2_tilevram16,0,TOAPLAN1_TILEVRAM_SIZE);
+	if( toaplan1_tile_buffers_alloc() ){
+		return 1;
+	}
 
-	pf3_tilevram16 = auto_malloc(TOAPLAN1_TILEVRAM_SIZE);
-	memset(pf3_tilevram16,0,TOAPLAN1_TILEVRAM_SIZE);
+	num_tiles = (Machine->drv->screen_width/8+1)*(Machine->drv->screen_height/8);
 
-	pf4_tilevram16 = auto_malloc(TOAPLAN1_TILEVRAM_SIZE);
-	memset(pf4_tilevram16,0,TOAPLAN1_TILEVRAM_SIZE);
+	spriteram_offs = tileram_offs = 0;
+
+	scrollx_offs1 = 0x0d + 6;
+	scrollx_offs2 = 0x0d + 4;
+	scrollx_offs3 = 0x0d + 2;
+	scrollx_offs4 = 0x0d + 0;
+	scrolly_offs  = 0x111;
+
+	bcu_flipscreen = 0;
+	toaplan1_reset = 0;
 
 	return 0;
+
 }
 
-static int toaplan1_spritevram_alloc(void)
+VIDEO_START( toaplan1 )
 {
+	tmpbitmap1 = auto_bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height);
+	tmpbitmap2 = auto_bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height);
+	tmpbitmap3 = auto_bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height);
+
 	spriteram16 = auto_malloc(TOAPLAN1_SPRITERAM_SIZE);
 	memset(spriteram16,0,TOAPLAN1_SPRITERAM_SIZE);
 
@@ -309,84 +250,13 @@ static int toaplan1_spritevram_alloc(void)
 	toaplan1_buffered_spritesizeram16 = auto_malloc(TOAPLAN1_SPRITESIZERAM_SIZE);
 	memset(toaplan1_buffered_spritesizeram16,0,TOAPLAN1_SPRITESIZERAM_SIZE);
 
-	spriteram_size = TOAPLAN1_SPRITERAM_SIZE;
-	return 0;
-}
+	if( toaplan1_tile_buffers_alloc() ){
+		return 1;
+	}
 
-void toaplan1_set_scrolls(void)
-{
-	tilemap_set_scrollx(pf1_tilemap,0,(pf1_scrollx >> 7) - (tiles_offsetx - scrollx_offs1));
-	tilemap_set_scrollx(pf2_tilemap,0,(pf2_scrollx >> 7) - (tiles_offsetx - scrollx_offs2));
-	tilemap_set_scrollx(pf3_tilemap,0,(pf3_scrollx >> 7) - (tiles_offsetx - scrollx_offs3));
-	tilemap_set_scrollx(pf4_tilemap,0,(pf4_scrollx >> 7) - (tiles_offsetx - scrollx_offs4));
-	tilemap_set_scrolly(pf1_tilemap,0,(pf1_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-	tilemap_set_scrolly(pf2_tilemap,0,(pf2_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-	tilemap_set_scrolly(pf3_tilemap,0,(pf3_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-	tilemap_set_scrolly(pf4_tilemap,0,(pf4_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-}
+	num_tiles = (Machine->drv->screen_width/8+1)*(Machine->drv->screen_height/8);
 
-void rallybik_flipscreen(void)
-{
-	rallybik_bcu_flipscreen_w(0, bcu_flipscreen, 0);
-}
-
-void toaplan1_flipscreen(void)
-{
-	toaplan1_bcu_flipscreen_w(0, bcu_flipscreen, 0);
-}
-
-
-VIDEO_START( rallybik )
-{
-	if (toaplan1_create_tilemaps())  return 1;
-	if (toaplan1_paletteram_alloc()) return 1;
-	if (toaplan1_vram_alloc())       return 1;
-
-	scrollx_offs1 = 0x0d + 6;
-	scrollx_offs2 = 0x0d + 4;
-	scrollx_offs3 = 0x0d + 2;
-	scrollx_offs4 = 0x0d + 0;
-	scrolly_offs  = 0x111;
-
-	bcu_flipscreen = -1;
-	toaplan1_reset = 0;
-
-	state_save_register_global_pointer(paletteram16, (toaplan1_colorram1_size + toaplan1_colorram2_size)/2);
-	state_save_register_global_pointer(pf1_tilevram16, TOAPLAN1_TILEVRAM_SIZE/2);
-	state_save_register_global_pointer(pf2_tilevram16, TOAPLAN1_TILEVRAM_SIZE/2);
-	state_save_register_global_pointer(pf3_tilevram16, TOAPLAN1_TILEVRAM_SIZE/2);
-	state_save_register_global_pointer(pf4_tilevram16, TOAPLAN1_TILEVRAM_SIZE/2);
-
-	state_save_register_global(scrollx_offs1);
-	state_save_register_global(scrollx_offs2);
-	state_save_register_global(scrollx_offs3);
-	state_save_register_global(scrollx_offs4);
-	state_save_register_global(scrolly_offs);
-	state_save_register_global(bcu_flipscreen);
-	state_save_register_global(pf1_scrollx);
-	state_save_register_global(pf1_scrolly);
-	state_save_register_global(pf2_scrollx);
-	state_save_register_global(pf2_scrolly);
-	state_save_register_global(pf3_scrollx);
-	state_save_register_global(pf3_scrolly);
-	state_save_register_global(pf4_scrollx);
-	state_save_register_global(pf4_scrolly);
-	state_save_register_global(tiles_offsetx);
-	state_save_register_global(tiles_offsety);
-	state_save_register_global(pf_voffs);
-	state_save_register_global(spriteram_offs);
-
-	state_save_register_func_postload(rallybik_flipscreen);
-
-	return 0;
-}
-
-VIDEO_START( toaplan1 )
-{
-	if (toaplan1_create_tilemaps())  return 1;
-	if (toaplan1_paletteram_alloc()) return 1;
-	if (toaplan1_vram_alloc())       return 1;
-	if (toaplan1_spritevram_alloc()) return 1;
+	spriteram_offs = tileram_offs = 0;
 
 	scrollx_offs1 = 0x1ef + 6;
 	scrollx_offs2 = 0x1ef + 4;
@@ -394,45 +264,29 @@ VIDEO_START( toaplan1 )
 	scrollx_offs4 = 0x1ef + 0;
 	scrolly_offs  = 0x101;
 
-	bcu_flipscreen = -1;
+	bcu_flipscreen = 0;
 	fcu_flipscreen = 0;
 	toaplan1_reset = 1;
-
-	state_save_register_global_pointer(paletteram16, (toaplan1_colorram1_size + toaplan1_colorram2_size)/2);
-	state_save_register_global_pointer(pf1_tilevram16, TOAPLAN1_TILEVRAM_SIZE/2);
-	state_save_register_global_pointer(pf2_tilevram16, TOAPLAN1_TILEVRAM_SIZE/2);
-	state_save_register_global_pointer(pf3_tilevram16, TOAPLAN1_TILEVRAM_SIZE/2);
-	state_save_register_global_pointer(pf4_tilevram16, TOAPLAN1_TILEVRAM_SIZE/2);
-	state_save_register_global_pointer(spriteram16, TOAPLAN1_SPRITERAM_SIZE/2);
-	state_save_register_global_pointer(buffered_spriteram16, TOAPLAN1_SPRITERAM_SIZE/2);
-	state_save_register_global_pointer(toaplan1_spritesizeram16, TOAPLAN1_SPRITESIZERAM_SIZE/2);
-	state_save_register_global_pointer(toaplan1_buffered_spritesizeram16, TOAPLAN1_SPRITESIZERAM_SIZE/2);
-
-	state_save_register_global(scrollx_offs1);
-	state_save_register_global(scrollx_offs2);
-	state_save_register_global(scrollx_offs3);
-	state_save_register_global(scrollx_offs4);
-	state_save_register_global(scrolly_offs);
-	state_save_register_global(bcu_flipscreen);
-	state_save_register_global(fcu_flipscreen);
-	state_save_register_global(pf1_scrollx);
-	state_save_register_global(pf1_scrolly);
-	state_save_register_global(pf2_scrolly);
-	state_save_register_global(pf2_scrollx);
-	state_save_register_global(pf3_scrollx);
-	state_save_register_global(pf3_scrolly);
-	state_save_register_global(pf4_scrollx);
-	state_save_register_global(pf4_scrolly);
-	state_save_register_global(tiles_offsetx);
-	state_save_register_global(tiles_offsety);
-	state_save_register_global(pf_voffs);
-	state_save_register_global(spriteram_offs);
-
-	state_save_register_func_postload(toaplan1_flipscreen);
 
 	return 0;
 }
 
+
+
+void toaplan1_set_scrolls(void)
+{
+
+	layer_scrollx[0] = (((scrollregs[0]) >> 7) + (scrollx_offs1 - tiles_offsetx)) & 0x1ff;
+	layer_scrollx[1] = (((scrollregs[2]) >> 7) + (scrollx_offs2 - tiles_offsetx)) & 0x1ff;
+	layer_scrollx[2] = (((scrollregs[4]) >> 7) + (scrollx_offs3 - tiles_offsetx)) & 0x1ff;
+	layer_scrollx[3] = (((scrollregs[6]) >> 7) + (scrollx_offs4 - tiles_offsetx)) & 0x1ff;
+
+	layer_scrolly[0] = (((scrollregs[1]) >> 7) + scrolly_offs - tiles_offsety) & 0x1ff;
+	layer_scrolly[1] = (((scrollregs[3]) >> 7) + scrolly_offs - tiles_offsety) & 0x1ff;
+	layer_scrolly[2] = (((scrollregs[5]) >> 7) + scrolly_offs - tiles_offsety) & 0x1ff;
+	layer_scrolly[3] = (((scrollregs[7]) >> 7) + scrolly_offs - tiles_offsety) & 0x1ff;
+
+}
 
 /***************************************************************************
 
@@ -461,13 +315,13 @@ WRITE16_HANDLER( toaplan1_tile_offsets_w )
 	toaplan1_set_scrolls();
 }
 
+
 WRITE16_HANDLER( rallybik_bcu_flipscreen_w )
 {
-	if (ACCESSING_LSB && (data != bcu_flipscreen))
+	if (ACCESSING_LSB)
 	{
 		logerror("Setting BCU controller flipscreen port to %04x\n",data);
 		bcu_flipscreen = data & 0x01;		/* 0x0001 = flip, 0x0000 = no flip */
-		tilemap_set_flip(ALL_TILEMAPS, (data ? (TILEMAP_FLIPY | TILEMAP_FLIPX) : 0));
 		if (bcu_flipscreen)
 		{
 			scrollx_offs1 = 0x080 - 6;
@@ -490,18 +344,23 @@ WRITE16_HANDLER( rallybik_bcu_flipscreen_w )
 
 WRITE16_HANDLER( toaplan1_bcu_flipscreen_w )
 {
-	if (ACCESSING_LSB && (data != bcu_flipscreen))
+//	if (ACCESSING_LSB && (data != bcu_flipscreen))
+	if (ACCESSING_LSB)
 	{
 		logerror("Setting BCU controller flipscreen port to %04x\n",data);
 		bcu_flipscreen = data & 0x01;		/* 0x0001 = flip, 0x0000 = no flip */
-		tilemap_set_flip(ALL_TILEMAPS, (data ? (TILEMAP_FLIPY | TILEMAP_FLIPX) : 0));
 		if (bcu_flipscreen)
 		{
 			scrollx_offs1 = 0x011 - 6;
 			scrollx_offs2 = 0x011 - 4;
 			scrollx_offs3 = 0x011 - 2;
 			scrollx_offs4 = 0x011 - 0;
-			scrolly_offs = 0x10f;
+			scrolly_offs  = 0xff;
+			if (1) //if ((Machine->orientation & ORIENTATION_MASK) == ROT0)
+			{
+				scrolly_offs  += 16;
+				flip_y_offs = -16;
+			}
 		}
 		else
 		{
@@ -510,6 +369,7 @@ WRITE16_HANDLER( toaplan1_bcu_flipscreen_w )
 			scrollx_offs3 = 0x1ef + 2;
 			scrollx_offs4 = 0x1ef + 0;
 			scrolly_offs  = 0x101;
+			flip_y_offs = 0;
 		}
 		toaplan1_set_scrolls();
 	}
@@ -524,7 +384,25 @@ WRITE16_HANDLER( toaplan1_fcu_flipscreen_w )
 	}
 }
 
-READ16_HANDLER( toaplan1_spriteram_offs_r ) /// this aint really needed ?
+WRITE16_HANDLER( toaplan1_bcu_control_w )
+{
+	logerror("BCU tile controller register:%02x now = %04x\n",offset,data);
+
+	/*** Hack for Zero Wing and OutZone, to reset the sound system on */
+	/*** soft resets. These two games don't have a sound reset port,  */
+	/*** unlike the other games */
+
+	if (toaplan1_unk_reset_port && toaplan1_reset)
+	{
+		toaplan1_reset = 0;
+		toaplan1_reset_sound(0,0,0);
+	}
+
+}
+
+
+
+READ16_HANDLER( toaplan1_spriteram_offs_r )
 {
 	return spriteram_offs;
 }
@@ -544,7 +422,7 @@ READ16_HANDLER( toaplan1_colorram1_r )
 WRITE16_HANDLER( toaplan1_colorram1_w )
 {
 	COMBINE_DATA(&toaplan1_colorram1[offset]);
-	paletteram16_xBBBBBGGGGGRRRRR_word_w(offset, data, mem_mask);
+	paletteram16_xBBBBBGGGGGRRRRR_word_w(offset, data, 0);
 }
 
 /* sprite palette */
@@ -556,7 +434,7 @@ READ16_HANDLER( toaplan1_colorram2_r )
 WRITE16_HANDLER( toaplan1_colorram2_w )
 {
 	COMBINE_DATA(&toaplan1_colorram2[offset]);
-	paletteram16_xBBBBBGGGGGRRRRR_word_w(offset+(toaplan1_colorram1_size/2), data, mem_mask);
+	paletteram16_xBBBBBGGGGGRRRRR_word_w(offset+(toaplan1_colorram1_size/2), data, 0);
 }
 
 READ16_HANDLER( toaplan1_spriteram16_r )
@@ -599,70 +477,20 @@ WRITE16_HANDLER( toaplan1_spritesizeram16_w )
 	spriteram_offs++;	/// really ? shouldn't happen on the sizeram
 }
 
-
-
-WRITE16_HANDLER( toaplan1_bcu_control_w )
-{
-	logerror("BCU tile controller register:%02x now = %04x\n",offset,data);
-
-	/*** Hack for Zero Wing and OutZone, to reset the sound system on */
-	/*** soft resets. These two games don't have a sound reset port,  */
-	/*** unlike the other games */
-
-	if (toaplan1_unk_reset_port && toaplan1_reset)
-	{
-		toaplan1_reset = 0;
-		toaplan1_reset_sound(0,0,0);
-	}
-}
-
 READ16_HANDLER( toaplan1_tileram_offs_r )
 {
-	return pf_voffs;
+	return tileram_offs;
 }
 
 WRITE16_HANDLER( toaplan1_tileram_offs_w )
 {
-	if (data >= 0x4000)
-		logerror("Hmmm, unknown video layer being selected (%08x)\n",data);
-	COMBINE_DATA(&pf_voffs);
-}
-
-
-READ16_HANDLER( toaplan1_tileram16_r )
-{
-	offs_t vram_offset;
-	UINT16 video_data = 0;
-
-	switch (pf_voffs & 0xf000)	/* Locate Layer (PlayField) */
-	{
-		case 0x0000:
-				vram_offset = ((pf_voffs * 2) + offset) & ((TOAPLAN1_TILEVRAM_SIZE/2)-1);
-				video_data = pf1_tilevram16[vram_offset];
-				break;
-		case 0x1000:
-				vram_offset = ((pf_voffs * 2) + offset) & ((TOAPLAN1_TILEVRAM_SIZE/2)-1);
-				video_data = pf2_tilevram16[vram_offset];
-				break;
-		case 0x2000:
-				vram_offset = ((pf_voffs * 2) + offset) & ((TOAPLAN1_TILEVRAM_SIZE/2)-1);
-				video_data = pf3_tilevram16[vram_offset];
-				break;
-		case 0x3000:
-				vram_offset = ((pf_voffs * 2) + offset) & ((TOAPLAN1_TILEVRAM_SIZE/2)-1);
-				video_data = pf4_tilevram16[vram_offset];
-				break;
-		default:
-				logerror("Hmmm, reading %04x from unknown playfield layer address %06x  Offset:%01x !!!\n",video_data,pf_voffs,offset);
-				break;
-	}
-
-	return video_data;
+	COMBINE_DATA(&tileram_offs);
+	toaplan1_reset = 1;
 }
 
 READ16_HANDLER( rallybik_tileram16_r )
 {
-	UINT16 data = toaplan1_tileram16_r(offset, mem_mask);
+	UINT16 data = toaplan1_tileram16[((tileram_offs * 2) + offset) & (((TOAPLAN1_TILEVRAM_SIZE*4)/2)-1)];
 
 	if (offset == 0)	/* some bit lines may be stuck to others */
 	{
@@ -672,372 +500,316 @@ READ16_HANDLER( rallybik_tileram16_r )
 	return data;
 }
 
-WRITE16_HANDLER( toaplan1_tileram16_w )
+READ16_HANDLER( toaplan1_tileram16_r )
 {
-	UINT16 oldword = 0;
-	offs_t vram_offset;
+	UINT16 data = toaplan1_tileram16[((tileram_offs * 2) + offset) & (((TOAPLAN1_TILEVRAM_SIZE*4)/2)-1)];
 
-	switch (pf_voffs & 0xf000)	/* Locate Layer (PlayField) */
-	{
-		case 0x0000:
-				vram_offset = ((pf_voffs * 2) + offset) & ((TOAPLAN1_TILEVRAM_SIZE/2)-1);
-				oldword = pf1_tilevram16[vram_offset];
-				if (data != oldword)
-				{
-					COMBINE_DATA(&pf1_tilevram16[vram_offset]);
-					tilemap_mark_tile_dirty(pf1_tilemap,vram_offset/2);
-				}
-				break;
-		case 0x1000:
-				vram_offset = ((pf_voffs * 2) + offset) & ((TOAPLAN1_TILEVRAM_SIZE/2)-1);
-				oldword = pf2_tilevram16[vram_offset];
-				if (data != oldword)
-				{
-					COMBINE_DATA(&pf2_tilevram16[vram_offset]);
-					tilemap_mark_tile_dirty(pf2_tilemap,vram_offset/2);
-				}
-				break;
-		case 0x2000:
-				vram_offset = ((pf_voffs * 2) + offset) & ((TOAPLAN1_TILEVRAM_SIZE/2)-1);
-				oldword = pf3_tilevram16[vram_offset];
-				if (data != oldword)
-				{
-					COMBINE_DATA(&pf3_tilevram16[vram_offset]);
-					tilemap_mark_tile_dirty(pf3_tilemap,vram_offset/2);
-				}
-				break;
-		case 0x3000:
-				vram_offset = ((pf_voffs * 2) + offset) & ((TOAPLAN1_TILEVRAM_SIZE/2)-1);
-				oldword = pf4_tilevram16[vram_offset];
-				if (data != oldword)
-				{
-					COMBINE_DATA(&pf4_tilevram16[vram_offset]);
-					tilemap_mark_tile_dirty(pf4_tilemap,vram_offset/2);
-				}
-				break;
-		default:
-				logerror("Hmmm, writing %04x to unknown playfield layer address %06x  Offset:%01x\n",data,pf_voffs,offset);
-				break;
-	}
+	return data;
 }
 
+WRITE16_HANDLER( toaplan1_tileram16_w )
+{
+	COMBINE_DATA(&toaplan1_tileram16[((tileram_offs * 2) + offset) & (((TOAPLAN1_TILEVRAM_SIZE*4)/2)-1)]);
 
+#ifdef MAME_DEBUG
+	if ( ((tileram_offs * 2) + offset) >= ((TOAPLAN1_TILEVRAM_SIZE*4)/2) )
+	{
+		logerror("Tile_RAM_w, %08x out of range !\n", tileram_offs);
+		return;
+	}
+#endif
+
+	if ( offset == 1 ) tileram_offs++;
+}
 
 READ16_HANDLER( toaplan1_scroll_regs_r )
 {
-	UINT16 scroll = 0;
-
-	switch(offset)
-	{
-		case 00: scroll = pf1_scrollx; break;
-		case 01: scroll = pf1_scrolly; break;
-		case 02: scroll = pf2_scrollx; break;
-		case 03: scroll = pf2_scrolly; break;
-		case 04: scroll = pf3_scrollx; break;
-		case 05: scroll = pf3_scrolly; break;
-		case 06: scroll = pf4_scrollx; break;
-		case 07: scroll = pf4_scrolly; break;
-		default: logerror("Hmmm, reading unknown video scroll register (%08x) !!!\n",offset);
-				 break;
-	}
-	return scroll;
+	offset = offset & 7;
+	return scrollregs[offset];
 }
-
 
 WRITE16_HANDLER( toaplan1_scroll_regs_w )
 {
-	switch(offset)
-	{
-		case 00: COMBINE_DATA(&pf1_scrollx);		/* 1D3h */
-				 tilemap_set_scrollx(pf1_tilemap,0,(pf1_scrollx >> 7) - (tiles_offsetx - scrollx_offs1));
-				 break;
-		case 01: COMBINE_DATA(&pf1_scrolly);		/* 1EBh */
-				 tilemap_set_scrolly(pf1_tilemap,0,(pf1_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-				 break;
-		case 02: COMBINE_DATA(&pf2_scrollx);		/* 1D5h */
-				 tilemap_set_scrollx(pf2_tilemap,0,(pf2_scrollx >> 7) - (tiles_offsetx - scrollx_offs2));
-				 break;
-		case 03: COMBINE_DATA(&pf2_scrolly);		/* 1EBh */
-				 tilemap_set_scrolly(pf2_tilemap,0,(pf2_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-				 break;
-		case 04: COMBINE_DATA(&pf3_scrollx);		/* 1D7h */
-				 tilemap_set_scrollx(pf3_tilemap,0,(pf3_scrollx >> 7) - (tiles_offsetx - scrollx_offs3));
-				 break;
-		case 05: COMBINE_DATA(&pf3_scrolly);		/* 1EBh */
-				 tilemap_set_scrolly(pf3_tilemap,0,(pf3_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-				 break;
-		case 06: COMBINE_DATA(&pf4_scrollx);		/* 1D9h */
-				 tilemap_set_scrollx(pf4_tilemap,0,(pf4_scrollx >> 7) - (tiles_offsetx - scrollx_offs4));
-				 break;
-		case 07: COMBINE_DATA(&pf4_scrolly);		/* 1EBh */
-				 tilemap_set_scrolly(pf4_tilemap,0,(pf4_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-				 break;
-		default: logerror("Hmmm, writing %08x to unknown video scroll register (%08x) !!!\n",data ,offset);
-				 break;
-	}
+	offset = offset & 7;
+	COMBINE_DATA(&scrollregs[offset]);
+	toaplan1_set_scrolls();
 }
-
-
-
-
-#ifdef MAME_DEBUG
-void toaplan1_log_vram(void)
-{
-	if ( code_pressed(KEYCODE_M) )
-	{
-		offs_t sprite_voffs;
-		while (code_pressed(KEYCODE_M)) ;
-		if (toaplan1_spritesizeram16)			/* FCU controller */
-		{
-			int schar,sattr,sxpos,sypos,bschar,bsattr,bsxpos,bsypos;
-			UINT16 *size  = (UINT16 *)(toaplan1_spritesizeram16);
-			UINT16 *bsize = (UINT16 *)(toaplan1_buffered_spritesizeram16);
-			logerror("Scrolls    PF1-X  PF1-Y     PF2-X  PF2-Y     PF3-X  PF3-Y     PF4-X  PF4-Y\n");
-			logerror("------>    #%04x  #%04x     #%04x  #%04x     #%04x  #%04x     #%04x  #%04x\n",pf1_scrollx,pf1_scrolly,pf2_scrollx,pf2_scrolly,pf3_scrollx,pf3_scrolly,pf4_scrollx,pf4_scrolly);
-			for ( sprite_voffs = 0; sprite_voffs < (spriteram_size/2); sprite_voffs += 4 )
-			{
-				bschar = buffered_spriteram16[sprite_voffs];
-				bsattr = buffered_spriteram16[sprite_voffs + 1];
-				bsxpos = buffered_spriteram16[sprite_voffs + 2];
-				bsypos = buffered_spriteram16[sprite_voffs + 3];
-				schar = spriteram16[sprite_voffs];
-				sattr = spriteram16[sprite_voffs + 1];
-				sxpos = spriteram16[sprite_voffs + 2];
-				sypos = spriteram16[sprite_voffs + 3];
-				logerror("$(%04x)  Tile-Attr-Xpos-Ypos Now:%04x %04x %04x.%01x %04x.%01x  nxt:%04x %04x %04x.%01x %04x.%01x\n", sprite_voffs,
-											 schar, sattr, sxpos, size[( sattr>>6)&0x3f]&0xf, sypos,( size[( sattr>>6)&0x3f]>>4)&0xf,
-											bschar,bsattr,bsxpos,bsize[(bsattr>>6)&0x3f]&0xf,bsypos,(bsize[(bsattr>>6)&0x3f]>>4)&0xf);
-			}
-		}
-		else									/* SCU controller */
-		{
-			int schar,sattr,sxpos,sypos,bschar,bsattr,bsxpos,bsypos;
-			logerror("Scrolls    PF1-X  PF1-Y     PF2-X  PF2-Y     PF3-X  PF3-Y     PF4-X  PF4-Y\n");
-			logerror("------>    #%04x  #%04x     #%04x  #%04x     #%04x  #%04x     #%04x  #%04x\n",pf1_scrollx,pf1_scrolly,pf2_scrollx,pf2_scrolly,pf3_scrollx,pf3_scrolly,pf4_scrollx,pf4_scrolly);
-			for ( sprite_voffs = 0; sprite_voffs < (spriteram_size/2); sprite_voffs += 4 )
-			{
-				bschar = buffered_spriteram16[sprite_voffs];
-				bsattr = buffered_spriteram16[sprite_voffs + 1];
-				bsypos = buffered_spriteram16[sprite_voffs + 2];
-				bsxpos = buffered_spriteram16[sprite_voffs + 3];
-				schar = spriteram16[sprite_voffs];
-				sattr = spriteram16[sprite_voffs + 1];
-				sypos = spriteram16[sprite_voffs + 2];
-				sxpos = spriteram16[sprite_voffs + 3];
-				logerror("$(%04x)  Tile-Attr-Xpos-Ypos Now:%04x %04x %04x %04x  nxt:%04x %04x %04x %04x\n", sprite_voffs,
-											 schar, sattr, sxpos, sypos,
-											bschar,bsattr,bsxpos, bsypos);
-			}
-		}
-	}
-
-	if ( code_pressed(KEYCODE_SLASH) )
-	{
-		UINT16 *size  = (UINT16 *)(toaplan1_spritesizeram16);
-		UINT16 *bsize = (UINT16 *)(toaplan1_buffered_spritesizeram16);
-		offs_t offs;
-		while (code_pressed(KEYCODE_SLASH)) ;
-		if (toaplan1_spritesizeram16)			/* FCU controller */
-		{
-			logerror("Scrolls    PF1-X  PF1-Y     PF2-X  PF2-Y     PF3-X  PF3-Y     PF4-X  PF4-Y\n");
-			logerror("------>    #%04x  #%04x     #%04x  #%04x     #%04x  #%04x     #%04x  #%04x\n",pf1_scrollx,pf1_scrolly,pf2_scrollx,pf2_scrolly,pf3_scrollx,pf3_scrolly,pf4_scrollx,pf4_scrolly);
-			for ( offs = 0; offs < (TOAPLAN1_SPRITESIZERAM_SIZE/2); offs +=4 )
-			{
-				logerror("SizeOffs:%04x   now:%04x %04x %04x %04x    next: %04x %04x %04x %04x\n", offs,
-												bsize[offs+0], bsize[offs+1],
-												bsize[offs+2], bsize[offs+3],
-												size[offs+0], size[offs+1],
-												size[offs+2], size[offs+3]);
-			}
-		}
-	}
-
-	if ( code_pressed(KEYCODE_N) )
-	{
-		offs_t tile_voffs;
-		int tchar[5], tattr[5];
-		while (code_pressed(KEYCODE_N)) ;	/* BCU controller */
-		logerror("Scrolls    PF1-X  PF1-Y     PF2-X  PF2-Y     PF3-X  PF3-Y     PF4-X  PF4-Y\n");
-		logerror("------>    #%04x  #%04x     #%04x  #%04x     #%04x  #%04x     #%04x  #%04x\n",pf1_scrollx,pf1_scrolly,pf2_scrollx,pf2_scrolly,pf3_scrollx,pf3_scrolly,pf4_scrollx,pf4_scrolly);
-		for ( tile_voffs = 0; tile_voffs < (TOAPLAN1_TILEVRAM_SIZE/2); tile_voffs += 2 )
-		{
-			tchar[1] = pf1_tilevram16[tile_voffs + 1];
-			tattr[1] = pf1_tilevram16[tile_voffs];
-			tchar[2] = pf2_tilevram16[tile_voffs + 1];
-			tattr[2] = pf2_tilevram16[tile_voffs];
-			tchar[3] = pf3_tilevram16[tile_voffs + 1];
-			tattr[3] = pf3_tilevram16[tile_voffs];
-			tchar[4] = pf4_tilevram16[tile_voffs + 1];
-			tattr[4] = pf4_tilevram16[tile_voffs];
-//          logerror("PF3 offs:%04x   Tile:%04x  Attr:%04x\n", tile_voffs, tchar, tattr);
-			logerror("$(%04x)  Attr-Tile PF1:%04x-%04x  PF2:%04x-%04x  PF3:%04x-%04x  PF4:%04x-%04x\n", tile_voffs,
-									tattr[1], tchar[1],  tattr[2], tchar[2],
-									tattr[3], tchar[3],  tattr[4], tchar[4]);
-		}
-	}
-
-	if ( code_pressed(KEYCODE_W) )
-	{
-		while (code_pressed(KEYCODE_W)) ;
-		logerror("Mark here\n");
-	}
-	if ( code_pressed(KEYCODE_E) )
-	{
-		while (code_pressed(KEYCODE_E)) ;
-		displog += 1;
-		displog &= 1;
-	}
-	if (displog)
-	{
-		logerror("Scrolls    PF1-X  PF1-Y     PF2-X  PF2-Y     PF3-X  PF3-Y     PF4-X  PF4-Y\n");
-		logerror("------>    #%04x  #%04x     #%04x  #%04x     #%04x  #%04x     #%04x  #%04x\n",pf1_scrollx,pf1_scrolly,pf2_scrollx,pf2_scrolly,pf3_scrollx,pf3_scrolly,pf4_scrollx,pf4_scrolly);
-	}
-	if ( code_pressed(KEYCODE_B) )
-	{
-//      while (code_pressed(KEYCODE_B)) ;
-		scrollx_offs1 += 0x1; scrollx_offs2 += 0x1; scrollx_offs3 += 0x1; scrollx_offs4 += 0x1;
-		logerror("Scrollx_offs now = %08x\n",scrollx_offs4);
-		tilemap_set_scrollx(pf1_tilemap,0,(pf1_scrollx >> 7) - (tiles_offsetx - scrollx_offs1));
-		tilemap_set_scrollx(pf2_tilemap,0,(pf2_scrollx >> 7) - (tiles_offsetx - scrollx_offs2));
-		tilemap_set_scrollx(pf3_tilemap,0,(pf3_scrollx >> 7) - (tiles_offsetx - scrollx_offs3));
-		tilemap_set_scrollx(pf4_tilemap,0,(pf4_scrollx >> 7) - (tiles_offsetx - scrollx_offs4));
-	}
-	if ( code_pressed(KEYCODE_V) )
-	{
-//      while (code_pressed(KEYCODE_V)) ;
-		scrollx_offs1 -= 0x1; scrollx_offs2 -= 0x1; scrollx_offs3 -= 0x1; scrollx_offs4 -= 0x1;
-		logerror("Scrollx_offs now = %08x\n",scrollx_offs4);
-		tilemap_set_scrollx(pf1_tilemap,0,(pf1_scrollx >> 7) - (tiles_offsetx - scrollx_offs1));
-		tilemap_set_scrollx(pf2_tilemap,0,(pf2_scrollx >> 7) - (tiles_offsetx - scrollx_offs2));
-		tilemap_set_scrollx(pf3_tilemap,0,(pf3_scrollx >> 7) - (tiles_offsetx - scrollx_offs3));
-		tilemap_set_scrollx(pf4_tilemap,0,(pf4_scrollx >> 7) - (tiles_offsetx - scrollx_offs4));
-	}
-	if ( code_pressed(KEYCODE_C) )
-	{
-//      while (code_pressed(KEYCODE_C)) ;
-		scrolly_offs += 0x1;
-		logerror("Scrolly_offs now = %08x\n",scrolly_offs);
-		tilemap_set_scrolly(pf1_tilemap,0,(pf1_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-		tilemap_set_scrolly(pf2_tilemap,0,(pf2_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-		tilemap_set_scrolly(pf3_tilemap,0,(pf3_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-		tilemap_set_scrolly(pf4_tilemap,0,(pf4_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-	}
-	if ( code_pressed(KEYCODE_X) )
-	{
-//      while (code_pressed(KEYCODE_X)) ;
-		scrolly_offs -= 0x1;
-		logerror("Scrolly_offs now = %08x\n",scrolly_offs);
-		tilemap_set_scrolly(pf1_tilemap,0,(pf1_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-		tilemap_set_scrolly(pf2_tilemap,0,(pf2_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-		tilemap_set_scrolly(pf3_tilemap,0,(pf3_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-		tilemap_set_scrolly(pf4_tilemap,0,(pf4_scrolly >> 7) - (tiles_offsety - scrolly_offs));
-	}
-
-	if ( code_pressed(KEYCODE_L) )		/* Turn Playfield 4 on/off */
-	{
-		while (code_pressed(KEYCODE_L)) ;
-		display_pf4 += 1;
-		display_pf4 &= 1;
-		tilemap_set_enable(pf4_tilemap, display_pf4);
-	}
-	if ( code_pressed(KEYCODE_K) )		/* Turn Playfield 3 on/off */
-	{
-		while (code_pressed(KEYCODE_K)) ;
-		display_pf3 += 1;
-		display_pf3 &= 1;
-		tilemap_set_enable(pf3_tilemap, display_pf3);
-	}
-	if ( code_pressed(KEYCODE_J) )		/* Turn Playfield 2 on/off */
-	{
-		while (code_pressed(KEYCODE_J)) ;
-		display_pf2 += 1;
-		display_pf2 &= 1;
-		tilemap_set_enable(pf2_tilemap, display_pf2);
-	}
-	if ( code_pressed(KEYCODE_H) )		/* Turn Playfield 1 on/off */
-	{
-		while (code_pressed(KEYCODE_H)) ;
-		display_pf1 += 1;
-		display_pf1 &= 1;
-		tilemap_set_enable(pf1_tilemap, display_pf1);
-	}
-}
-#endif
-
-
 
 /***************************************************************************
-    Sprite Handlers
+
+  Draw the game screen in the given mame_bitmap.
+
 ***************************************************************************/
 
-// custom function to draw a single sprite. needed to keep correct sprites - sprites and sprites - tilemaps priorities
-static void toaplan1_draw_sprite_custom(mame_bitmap *dest_bmp,const gfx_element *gfx,
-		unsigned int code,unsigned int color,int flipx,int flipy,int sx,int sy,
-		const rectangle *clip,int priority)
+
+static void toaplan1_find_tiles( void )
 {
-	const pen_t *pal = &gfx->colortable[gfx->color_granularity * (color % gfx->total_colors)]; /* ASG 980209 */
-	UINT8 *source_base = gfx->gfxdata + (code % gfx->total_elements) * gfx->char_modulo;
+	int priority;
+	int layer;
+	tile_struct *tinfo;
+	UINT16 *t_info;
 
-	int sprite_screen_height = ((1<<16)*gfx->height+0x8000)>>16;
-	int sprite_screen_width = ((1<<16)*gfx->width+0x8000)>>16;
-
-	if (sprite_screen_width && sprite_screen_height)
+	for ( priority = 0; priority < 16; priority++ )
 	{
-		/* compute sprite increment per screen pixel */
-		int dx = (gfx->width<<16)/sprite_screen_width;
-		int dy = (gfx->height<<16)/sprite_screen_height;
+		tile_count[priority] = 0;
+	}
 
-		int ex = sx+sprite_screen_width;
-		int ey = sy+sprite_screen_height;
+	for ( layer = 3; layer >= 0; layer-- )
+	{
+		int scrolly,scrollx,offsetx,offsety;
+		int sx,sy,tattr;
+		int i;
 
-		int x_index_base;
-		int y_index;
+#ifdef BGDBG
+		if( toaplan_dbg_layer[layer] == 1 ){
+#endif
 
-		if( flipx )
-		{
-			x_index_base = (sprite_screen_width-1)*dx;
-			dx = -dx;
-		}
-		else
-		{
-			x_index_base = 0;
-		}
+		t_info = toaplan1_tileram16 + (layer * (TOAPLAN1_TILEVRAM_SIZE/2));
+		scrollx = layer_scrollx[layer];
+		offsetx = scrollx / 8;
+		scrolly = layer_scrolly[layer];
+		offsety = scrolly / 8;
+		layer_offsetx[layer] = scrollx & 0x7;
+		layer_offsety[layer] = scrolly & 0x7;
 
-		if( flipy )
-		{
-			y_index = (sprite_screen_height-1)*dy;
-			dy = -dy;
-		}
-		else
-		{
-			y_index = 0;
-		}
+		for ( sy = 0; sy < 33; sy++ )
+	{
+			for ( sx = 0; sx <= 40; sx++ )
+			{
+				i = ((sy+offsety)&0x3f)*128 + ((sx+offsetx)&0x3f)*2;
+				tattr = t_info[i];
+				priority = (tattr >> 12);
 
-		if( clip )
-		{
-			if( sx < clip->min_x)
-			{ /* clip left */
-				int pixels = clip->min_x-sx;
-				sx += pixels;
-				x_index_base += pixels*dx;
+				tinfo = (tile_struct *)&(bg_list[layer][sy*41+sx]);
+				tinfo->tile_num = t_info[i+1];
+				tinfo->priority = priority;
+				tinfo->color = tattr & 0x3f;
+				tinfo->color |= layer<<8;
+				tinfo->xpos = (sx*8)-(scrollx&0x7);
+				tinfo->ypos = (sy*8)-(scrolly&0x7);
+
+				if ( (priority) || (layer == 0) )	/* if priority 0 draw layer 0 only */
+				{
+					tinfo = (tile_struct *)&(tile_list[priority][tile_count[priority]]);
+					tinfo->tile_num = t_info[i+1];
+					if ( !((priority) && (tinfo->tile_num & 0x8000)) )
+//					if ( (tinfo->tile_num & 0x8000) == 0 )
+					{
+						tinfo->priority = priority;
+						tinfo->color = tattr & 0x3f;
+						tinfo->color |= layer<<8;
+						tinfo->xpos = (sx*8)-(scrollx&0x7);
+						tinfo->ypos = (sy*8)-(scrolly&0x7);
+						tile_count[priority]++;
+						if(tile_count[priority]==max_list_size[priority]){
+							logerror(" Tile buffer over flow !! %08x\n",priority);
+						}
+					}
+				}
 			}
-			if( sy < clip->min_y )
-			{ /* clip top */
-				int pixels = clip->min_y-sy;
-				sy += pixels;
-				y_index += pixels*dy;
+		}
+#ifdef BGDBG
+		}
+#endif
+	}
+}
+
+static UINT16 tag_to_word_r(const char *tag)
+{
+	if(port_tag_to_index(tag) != -1)
+	{
+		return port_tag_to_handler16(tag)(0,0);
+	}else{
+		return 0;	
+	}
+}
+
+static void toaplan1_find_sprites (void)
+{
+	int priority;
+	int sprite;
+	UINT16 *s_info;
+	UINT16 *s_size;
+
+	tile_count[16] = 0;
+
+	if(tag_to_word_r("EXTR") & 0x1){
+		s_size = toaplan1_buffered_spritesizeram16;	/* sprite block size */
+		s_info = buffered_spriteram16;				/* start of sprite ram */
+	}else{
+		s_size = toaplan1_spritesizeram16;
+		s_info = spriteram16;			
+	}
+
+	for ( sprite = 0; sprite < 256; sprite++ )
+	{
+		int tattr,tchar;
+
+		tchar = s_info[0];
+		tattr = s_info[1];
+
+		if ( (tchar & 0x8000) == 0 )
+		{
+			int sx,sy,dx,dy,s_sizex,s_sizey;
+			int sprite_size_ptr;
+
+			sx=s_info[2];
+			sx >>= 7;
+			if ( sx > 416 ) sx -= 512;
+
+			sy=s_info[3];
+			sy >>= 7;
+			if ( sy > 416 ) sy -= 512;
+
+			priority = (tattr >> 12);
+
+			sprite_size_ptr = (tattr>>6)&0x3f;
+			s_sizey = (s_size[sprite_size_ptr]>>4)&0xf;
+			s_sizex =  s_size[sprite_size_ptr]    &0xf;
+
+			for ( dy = s_sizey; dy > 0; dy-- )
+			{
+				for ( dx = s_sizex; dx > 0; dx-- )
+	{
+					tile_struct *tinfo;
+
+					tinfo = (tile_struct *)&(tile_list[16][tile_count[16]]);
+					tinfo->priority = priority;
+					tinfo->tile_num = tchar;
+					tinfo->color = 0x80 | (tattr & 0x3f);
+					tinfo->xpos = sx-dx*8+s_sizex*8;
+					tinfo->ypos = sy-dy*8+s_sizey*8 + flip_y_offs;
+					tile_count[16]++;
+					if(tile_count[16]==max_list_size[16]){
+						logerror(" Tile buffer over flow !! %08x\n",priority);
+					}
+					tchar++;
+				}
 			}
-			/* NS 980211 - fixed incorrect clipping */
-			if( ex > clip->max_x+1 )
-			{ /* clip right */
-				int pixels = ex-clip->max_x-1;
-				ex -= pixels;
+		}
+		s_info += 4;
+	}
+}
+
+static void rallybik_find_sprites (void)
+{
+	int offs;
+	int tattr;
+	int sx,sy,tchar;
+	int priority;
+	tile_struct *tinfo;
+
+	for (offs = 0;offs < (spriteram_size/2);offs += 4)
+	{
+		tattr = buffered_spriteram16[offs+1];
+		if ( tattr )	/* no need to render hidden sprites */
+		{
+			sx=buffered_spriteram16[offs+2];
+			sx >>= 7;
+			sx &= 0x1ff;
+			if ( sx > 416 ) sx -= 512;
+
+			sy=buffered_spriteram16[offs+3];
+			sy >>= 7;
+			sy &= 0x1ff;
+			if ( sy > 416 ) sy -= 512;
+
+			priority = (tattr>>8) & 0xc;
+			tchar = buffered_spriteram16[offs];
+			tinfo = (tile_struct *)&(tile_list[priority][tile_count[priority]]);
+			tinfo->tile_num = tchar & 0x7ff;
+			tinfo->color = 0x80 | (tattr&0x3f);
+			tinfo->color |= (tattr & 0x0100);
+			tinfo->color |= (tattr & 0x0200);
+			if (tinfo->color & 0x0100) sx -= 15;
+
+			tinfo->xpos = sx-31;
+			tinfo->ypos = sy-16;
+			tile_count[priority]++;
+			if(tile_count[priority]==max_list_size[priority]){
+				logerror(" Tile buffer over flow !! %08x\n",priority);
+	}
+		}  // if tattr
+	}  // for sprite
+}
+
+
+
+void toaplan1_sprite_mask
+	(
+	mame_bitmap *dest_bmp,
+	mame_bitmap *src_bmp,
+	const rectangle *clip
+	)
+{
+	rectangle myclip;
+	int sx=0;
+	int sy=0;
+	int transparent_color;
+
+	transparent_color = Machine->pens[0];
+
+	if (0) //if (Machine->orientation & ORIENTATION_SWAP_XY)
+	{
+		int temp;
+
+		/* clip and myclip might be the same, so we need a temporary storage */
+		temp = clip->min_x;
+		myclip.min_x = clip->min_y;
+		myclip.min_y = temp;
+		temp = clip->max_x;
+		myclip.max_x = clip->max_y;
+		myclip.max_y = temp;
+		clip = &myclip;
+	}
+	if (0) //if (Machine->orientation & ORIENTATION_FLIP_X)
+		{
+		int temp;
+
+		sx = -sx;
+
+		/* clip and myclip might be the same, so we need a temporary storage */
+		temp = clip->min_x;
+		myclip.min_x = dest_bmp->width-1 - clip->max_x;
+		myclip.max_x = dest_bmp->width-1 - temp;
+		myclip.min_y = clip->min_y;
+		myclip.max_y = clip->max_y;
+		clip = &myclip;
+	}
+	if (0) //if (Machine->orientation & ORIENTATION_FLIP_Y)
+			{
+		int temp;
+
+		sy = -sy;
+
+		myclip.min_x = clip->min_x;
+		myclip.max_x = clip->max_x;
+		/* clip and myclip might be the same, so we need a temporary storage */
+		temp = clip->min_y;
+		myclip.min_y = dest_bmp->height-1 - clip->max_y;
+		myclip.max_y = dest_bmp->height-1 - temp;
+		clip = &myclip;
 			}
-			if( ey > clip->max_y+1 )
-			{ /* clip bottom */
-				int pixels = ey-clip->max_y-1;
-				ey -= pixels;
-			}
+
+	{
+		int ex = sx+src_bmp->width;
+		int ey = sy+src_bmp->height;
+
+		if( sx < clip->min_x)
+		{ /* clip left */
+			sx = clip->min_x;
+		}
+		if( sy < clip->min_y )
+		{ /* clip top */
+			sy = clip->min_y;
+		}
+		if( ex > clip->max_x+1 )
+		{ /* clip right */
+			ex = clip->max_x + 1;
+		}
+		if( ey > clip->max_y+1 )
+		{ /* clip bottom */
+			ey = clip->max_y + 1;
 		}
 
 		if( ex>sx )
@@ -1045,90 +817,16 @@ static void toaplan1_draw_sprite_custom(mame_bitmap *dest_bmp,const gfx_element 
 			int y;
 
 			for( y=sy; y<ey; y++ )
-			{
-				UINT8 *source = source_base + (y_index>>16) * gfx->line_modulo;
-				UINT16 *dest = (UINT16 *)dest_bmp->line[y];
-				UINT8 *pri = priority_bitmap->line[y];
+		{
+				unsigned short *dest = (unsigned short *)dest_bmp->line[y];
+				unsigned short *source = (unsigned short *)src_bmp->line[y];
+				int x;
 
-				int x, x_index = x_index_base;
 				for( x=sx; x<ex; x++ )
-				{
-					int c = source[x_index>>16];
-					if( c != 0 )
-					{
-						if (pri[x] < priority)
-							dest[x] = pal[c];
-						pri[x] = 0xff; // mark it "already drawn"
-					}
-					x_index += dx;
-				}
-
-				y_index += dy;
-			}
-		}
-	}
-}
-
-
-static void draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect )
-{
-	UINT16 *source = (UINT16 *)(buffered_spriteram16);
-	UINT16 *size   = (UINT16 *)(toaplan1_buffered_spritesizeram16);
-
-	int offs;
-
-	for (offs = spriteram_size/2 - 4; offs >= 0; offs -= 4)
-	{
-		if (!(source[offs] & 0x8000))
-		{
-			int attrib, sprite, color, priority, sx, sy;
-			int sprite_sizex, sprite_sizey, dim_x, dim_y, sx_base, sy_base;
-			int sizeram_ptr;
-
-			attrib = source[offs+1];
-			priority = (attrib & 0xf000) >> 12;
-
-			sprite = source[offs] & 0x7fff;
-			color = attrib & 0x3f;
-
-			/****** find sprite dimension ******/
-			sizeram_ptr = (attrib >> 6) & 0x3f;
-			sprite_sizex = ( size[sizeram_ptr]       & 0x0f) * 8;
-			sprite_sizey = ((size[sizeram_ptr] >> 4) & 0x0f) * 8;
-
-			/****** find position to display sprite ******/
-			sx_base = (source[offs + 2] >> 7) & 0x1ff;
-			sy_base = (source[offs + 3] >> 7) & 0x1ff;
-
-			if (sx_base >= 0x180) sx_base -= 0x200;
-			if (sy_base >= 0x180) sy_base -= 0x200;
-
-			/****** flip the sprite layer ******/
-			if (fcu_flipscreen)
 			{
-				sx_base += 8;
-				sy_base -= 24;
-				sx_base = 320 - sx_base;
-				sy_base = 240 - sy_base;
-			}
-
-			for (dim_y = 0; dim_y < sprite_sizey; dim_y += 8)
-			{
-				if (fcu_flipscreen) sy = sy_base - dim_y;
-				else                sy = sy_base + dim_y;
-
-				for (dim_x = 0; dim_x < sprite_sizex; dim_x += 8)
-				{
-					if (fcu_flipscreen) sx = sx_base - dim_x;
-					else                sx = sx_base + dim_x;
-
-					toaplan1_draw_sprite_custom(bitmap,Machine->gfx[1],
-							                   sprite,color,
-							                   fcu_flipscreen,fcu_flipscreen,
-							                   sx,sy,
-							                   cliprect,priority);
-
-					sprite++ ;
+					int c = source[x];
+					if( c != transparent_color )
+						dest[x] = transparent_color;
 				}
 			}
 		}
@@ -1136,117 +834,870 @@ static void draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect )
 }
 
 
-static void draw_rallybik_sprites( mame_bitmap *bitmap, const rectangle *cliprect, int priority )
+
+void toaplan1_sprite_copy
+	(
+	mame_bitmap *dest_bmp,
+	mame_bitmap *src_bmp,
+	mame_bitmap *look_bmp,
+	const rectangle *clip
+	)
 {
-	int offs;
+	rectangle myclip;
+	int sx=0;
+	int sy=0;
+	int transparent_color;
 
-	for (offs = 0; offs < (spriteram_size/2); offs += 4)
+	transparent_color = Machine->pens[0];
+
+	if (0) //if (Machine->orientation & ORIENTATION_SWAP_XY)
 	{
-		int attrib, sx, sy, flipx, flipy;
-		int sprite, color;
+		int temp;
 
-		attrib = buffered_spriteram16[offs + 1];
-		if ((attrib & 0x0c00) == priority)
+		/* clip and myclip might be the same, so we need a temporary storage */
+		temp = clip->min_x;
+		myclip.min_x = clip->min_y;
+		myclip.min_y = temp;
+		temp = clip->max_x;
+		myclip.max_x = clip->max_y;
+		myclip.max_y = temp;
+		clip = &myclip;
+	}
+	if (0) //if (Machine->orientation & ORIENTATION_FLIP_X)
+	{
+		int temp;
+
+		sx = -sx;
+
+		/* clip and myclip might be the same, so we need a temporary storage */
+		temp = clip->min_x;
+		myclip.min_x = dest_bmp->width-1 - clip->max_x;
+		myclip.max_x = dest_bmp->width-1 - temp;
+		myclip.min_y = clip->min_y;
+		myclip.max_y = clip->max_y;
+		clip = &myclip;
+	}
+	if (0) //if (Machine->orientation & ORIENTATION_FLIP_Y)
 		{
-			sy = (buffered_spriteram16[offs + 3] >> 7) & 0x1ff;
-			if (sy != 0x0100)		/* sx = 0x01a0 or 0x0040*/
+		int temp;
+
+		sy = -sy;
+
+		myclip.min_x = clip->min_x;
+		myclip.max_x = clip->max_x;
+		/* clip and myclip might be the same, so we need a temporary storage */
+		temp = clip->min_y;
+		myclip.min_y = dest_bmp->height-1 - clip->max_y;
+		myclip.max_y = dest_bmp->height-1 - temp;
+		clip = &myclip;
+	}
+
 			{
-				sprite = buffered_spriteram16[offs] & 0x7ff;
-				color  = attrib & 0x3f;
-				sx = (buffered_spriteram16[offs + 2] >> 7) & 0x1ff;
-				flipx = attrib & 0x100;
-				if (flipx) sx -= 15;
-				flipy = attrib & 0x200;
-				drawgfx(bitmap,Machine->gfx[1],
-					sprite,
-					color,
-					flipx,flipy,
-					sx-31,sy-16,
-					cliprect,TRANSPARENCY_PEN,0);
+		int ex = sx+src_bmp->width;
+		int ey = sy+src_bmp->height;
+
+		if( sx < clip->min_x)
+		{ /* clip left */
+			sx = clip->min_x;
+		}
+		if( sy < clip->min_y )
+		{ /* clip top */
+			sy = clip->min_y;
 			}
+		if( ex > clip->max_x+1 )
+		{ /* clip right */
+			ex = clip->max_x + 1;
+		}
+		if( ey > clip->max_y+1 )
+		{ /* clip bottom */
+			ey = clip->max_y + 1;
+	}
+
+		if( ex>sx )
+		{ /* skip if inner loop doesn't draw anything */
+			int y;
+
+			for( y=sy; y<ey; y++ )
+	{
+				unsigned short *dest = (unsigned short *)dest_bmp->line[y];
+				unsigned short *source = (unsigned short *)src_bmp->line[y];
+				unsigned short *look = (unsigned short *)look_bmp->line[y];
+				int x;
+
+				for( x=sx; x<ex; x++ )
+		{
+					if( look[x] != transparent_color )
+						dest[x] = source[x];
+		}
+	}
 		}
 	}
 }
 
 
-/***************************************************************************
-    Draw the game screen in the given mame_bitmap.
-***************************************************************************/
 
-VIDEO_UPDATE( rallybik )
+void toaplan1_sprite_0_copy
+	(
+	mame_bitmap *dest_bmp,
+	mame_bitmap *look_bmp,
+	const rectangle *clip
+	)
 {
-	int priority;
+	rectangle myclip;
+	int sx=0;
+	int sy=0;
+	int transparent_color;
 
-#ifdef MAME_DEBUG
-	toaplan1_log_vram();
+	transparent_color = Machine->pens[0];
+
+	if (0) //if (Machine->orientation & ORIENTATION_SWAP_XY)
+	{
+		int temp;
+
+		/* clip and myclip might be the same, so we need a temporary storage */
+		temp = clip->min_x;
+		myclip.min_x = clip->min_y;
+		myclip.min_y = temp;
+		temp = clip->max_x;
+		myclip.max_x = clip->max_y;
+		myclip.max_y = temp;
+		clip = &myclip;
+	}
+	if (0) //if (Machine->orientation & ORIENTATION_FLIP_X)
+	{
+		int temp;
+
+		sx = -sx;
+
+		/* clip and myclip might be the same, so we need a temporary storage */
+		temp = clip->min_x;
+		myclip.min_x = dest_bmp->width-1 - clip->max_x;
+		myclip.max_x = dest_bmp->width-1 - temp;
+		myclip.min_y = clip->min_y;
+		myclip.max_y = clip->max_y;
+		clip = &myclip;
+	}
+	if (0) //if (Machine->orientation & ORIENTATION_FLIP_Y)
+	{
+		int temp;
+
+		sy = -sy;
+
+		myclip.min_x = clip->min_x;
+		myclip.max_x = clip->max_x;
+		/* clip and myclip might be the same, so we need a temporary storage */
+		temp = clip->min_y;
+		myclip.min_y = dest_bmp->height-1 - clip->max_y;
+		myclip.max_y = dest_bmp->height-1 - temp;
+		clip = &myclip;
+	}
+
+	{
+		int ex = sx+look_bmp->width;
+		int ey = sy+look_bmp->height;
+
+		if( sx < clip->min_x)
+		{ /* clip left */
+			sx = clip->min_x;
+	}
+		if( sy < clip->min_y )
+		{ /* clip top */
+			sy = clip->min_y;
+	}
+		if( ex > clip->max_x+1 )
+		{ /* clip right */
+			ex = clip->max_x + 1;
+	}
+		if( ey > clip->max_y+1 )
+		{ /* clip bottom */
+			ey = clip->max_y + 1;
+	}
+
+		if( ex>sx )
+		{ /* skip if inner loop doesn't draw anything */
+			int y;
+
+			for( y=sy; y<ey; y++ )
+	{
+				unsigned short *dest = (unsigned short *)dest_bmp->line[y];
+				unsigned short *look = (unsigned short *)look_bmp->line[y];
+				int x;
+
+				for( x=sx; x<ex; x++ )
+	{
+					if( look[x] != transparent_color )
+						dest[x] = transparent_color;
+	}
+	}
+	}
+	}
+}
+
+
+
+static void toaplan1_render (mame_bitmap *bitmap)
+{
+	int i;
+	int priority,pen;
+	int flip;
+	tile_struct *tinfo;
+
+	fillbitmap (bitmap, Machine->pens[0x120], &Machine->visible_area);
+
+#ifdef BGDBG
+
+if (code_pressed(KEYCODE_Q)) { toaplan_dbg_priority = 0; }
+if (code_pressed(KEYCODE_W)) { toaplan_dbg_priority = 1; }
+if (code_pressed_memory(KEYCODE_E)) { toaplan_dbg_priority = 2; }
+if (code_pressed_memory(KEYCODE_R)) { toaplan_dbg_priority = 3; }
+if (code_pressed_memory(KEYCODE_T)) { toaplan_dbg_priority = 4; }
+if (code_pressed_memory(KEYCODE_Y)) { toaplan_dbg_priority = 5; }
+if (code_pressed_memory(KEYCODE_U)) { toaplan_dbg_priority = 6; }
+if (code_pressed_memory(KEYCODE_I)) { toaplan_dbg_priority = 7; }
+if (code_pressed_memory(KEYCODE_A)) { toaplan_dbg_priority = 8; }
+if (code_pressed_memory(KEYCODE_S)) { toaplan_dbg_priority = 9; }
+if (code_pressed_memory(KEYCODE_D)) { toaplan_dbg_priority = 10; }
+if (code_pressed_memory(KEYCODE_F)) { toaplan_dbg_priority = 11; }
+if (code_pressed_memory(KEYCODE_G)) { toaplan_dbg_priority = 12; }
+if (code_pressed_memory(KEYCODE_H)) { toaplan_dbg_priority = 13; }
+if (code_pressed_memory(KEYCODE_J)) { toaplan_dbg_priority = 14; }
+if (code_pressed_memory(KEYCODE_K)) { toaplan_dbg_priority = 15; }
+
+if (code_pressed_memory(KEYCODE_Z)) { toaplan_dbg_sprite_only ^= 1; }
+if (code_pressed_memory(KEYCODE_X)) { toaplan_dbg_layer[0] ^= 1; }
+if (code_pressed_memory(KEYCODE_C)) { toaplan_dbg_layer[1] ^= 1; }
+if (code_pressed_memory(KEYCODE_V)) { toaplan_dbg_layer[2] ^= 1; }
+if (code_pressed_memory(KEYCODE_B)) { toaplan_dbg_layer[3] ^= 1; }
+
+if( toaplan_dbg_priority != 0 ){
+
+	priority = toaplan_dbg_priority;
+	{
+		tinfo = (tile_struct *)&(tile_list[priority][0]);
+		pen = TRANSPARENCY_NONE;
+		for ( i = 0; i < tile_count[priority]; i++ ) /* draw only tiles in list */
+		{
+			drawgfx(bitmap,Machine->gfx[0],
+				tinfo->tile_num,
+				(tinfo->color&0x3f),
+				0,0,						/* flipx,flipy */
+				tinfo->xpos,tinfo->ypos,
+				&Machine->visible_area,pen,0);
+			tinfo++;
+		}
+	}
+
+}else{
+
 #endif
 
-	fillbitmap(bitmap,Machine->pens[0],cliprect);
+	if (bcu_flipscreen)
+		flip = 1;
+	else
+		flip = 0;
 
-	tilemap_draw(bitmap,cliprect,pf1_tilemap,TILEMAP_IGNORE_TRANSPARENCY | 0,0);
-	tilemap_draw(bitmap,cliprect,pf1_tilemap,TILEMAP_IGNORE_TRANSPARENCY | 1,0);
 
-	for (priority = 1; priority < 16; priority++)
+#ifdef BGDBG
+if ( toaplan_dbg_sprite_only == 0 ){
+#endif
+
+	priority = 0;
+	while ( priority < 16 )			/* draw priority layers in order */
 	{
-		tilemap_draw(bitmap,cliprect,pf4_tilemap,priority,0);
-		tilemap_draw(bitmap,cliprect,pf3_tilemap,priority,0);
-		tilemap_draw(bitmap,cliprect,pf2_tilemap,priority,0);
-		tilemap_draw(bitmap,cliprect,pf1_tilemap,priority,0);
-		draw_rallybik_sprites(bitmap,cliprect,priority << 8);
+		int layer;
+
+		tinfo = (tile_struct *)&(tile_list[priority][0]);
+		layer = (tinfo->color >> 8);
+
+		if ( (layer == 0) && (priority >= 8 ) )
+	{
+			pen = TRANSPARENCY_NONE;
+		}
+		else{
+			pen = TRANSPARENCY_PEN;
+		}
+
+		for ( i = 0; i < tile_count[priority]; i++ )	/* draw only tiles in list */
+		{
+			int xpos,ypos;
+
+			if ( flip ){
+				xpos = (512 - tinfo->xpos) - 8 - (512 - Machine->drv->screen_width);
+				ypos = (512 - tinfo->ypos) - 8 - (512 - Machine->drv->screen_height);
+		}
+			else{
+				xpos = tinfo->xpos;
+				ypos = tinfo->ypos;
+	}
+
+			drawgfx(bitmap,Machine->gfx[0],
+				tinfo->tile_num,
+				(tinfo->color&0x3f),
+				flip,flip,							/* flipx,flipy */
+				xpos,ypos,
+				&Machine->visible_area,pen,0);
+			tinfo++;
+		}
+		priority++;
+	}
+#ifdef BGDBG
+}
+#endif
+
+#ifdef BGDBG
+}
+#endif
+
+}
+
+
+
+static void zerowing_render (mame_bitmap *bitmap)
+{
+	int i;
+	int priority,pen;
+	int flip;
+	tile_struct *tinfo;
+
+	fillbitmap (bitmap, Machine->pens[0x120], &Machine->visible_area);
+
+	if (bcu_flipscreen)
+		flip = 1;
+	else
+		flip = 0;
+
+	priority = 0;
+	while ( priority < 16 )			/* draw priority layers in order */
+	{
+		int layer;
+
+		tinfo = (tile_struct *)&(tile_list[priority][0]);
+		layer = (tinfo->color >> 8);
+		pen = TRANSPARENCY_PEN;
+
+		for ( i = 0; i < tile_count[priority]; i++ ) /* draw only tiles in list */
+		{
+			int xpos,ypos;
+
+			if ( flip ){
+				xpos = (512 - tinfo->xpos) - 8 - (512 - Machine->drv->screen_width);
+				ypos = (512 - tinfo->ypos) - 8 - (512 - Machine->drv->screen_height);
+			}
+			else{
+				xpos = tinfo->xpos;
+				ypos = tinfo->ypos;
+			}
+
+			drawgfx(bitmap,Machine->gfx[0],
+				tinfo->tile_num,
+				(tinfo->color&0x3f),
+				flip,flip,							/* flipx,flipy */
+				xpos,ypos,
+				&Machine->visible_area,pen,0);
+			tinfo++;
+		}
+		priority++;
 	}
 }
+
+
+static void demonwld_render (mame_bitmap *bitmap)
+{
+	int i;
+	int priority,pen;
+	int flip;
+	tile_struct *tinfo;
+
+	fillbitmap (bitmap, Machine->pens[0], &Machine->visible_area);
+
+#ifdef BGDBG
+
+if (code_pressed_memory(KEYCODE_Q)) { toaplan_dbg_priority = 0; }
+if (code_pressed_memory(KEYCODE_W)) { toaplan_dbg_priority = 1; }
+if (code_pressed_memory(KEYCODE_E)) { toaplan_dbg_priority = 2; }
+if (code_pressed_memory(KEYCODE_R)) { toaplan_dbg_priority = 3; }
+if (code_pressed_memory(KEYCODE_T)) { toaplan_dbg_priority = 4; }
+if (code_pressed_memory(KEYCODE_Y)) { toaplan_dbg_priority = 5; }
+if (code_pressed_memory(KEYCODE_U)) { toaplan_dbg_priority = 6; }
+if (code_pressed_memory(KEYCODE_I)) { toaplan_dbg_priority = 7; }
+if (code_pressed_memory(KEYCODE_O)) { toaplan_dbg_priority = 8; }
+if (code_pressed_memory(KEYCODE_A)) { toaplan_dbg_priority = 9; }
+if (code_pressed_memory(KEYCODE_S)) { toaplan_dbg_priority = 10; }
+if (code_pressed_memory(KEYCODE_D)) { toaplan_dbg_priority = 11; }
+if (code_pressed_memory(KEYCODE_F)) { toaplan_dbg_priority = 12; }
+if (code_pressed_memory(KEYCODE_G)) { toaplan_dbg_priority = 13; }
+if (code_pressed_memory(KEYCODE_H)) { toaplan_dbg_priority = 14; }
+if (code_pressed_memory(KEYCODE_J)) { toaplan_dbg_priority = 15; }
+
+if (code_pressed_memory(KEYCODE_Z)) { toaplan_dbg_sprite_only ^= 1; }
+if (code_pressed_memory(KEYCODE_X)) { toaplan_dbg_layer[0] ^= 1; }
+if (code_pressed_memory(KEYCODE_C)) { toaplan_dbg_layer[1] ^= 1; }
+if (code_pressed_memory(KEYCODE_V)) { toaplan_dbg_layer[2] ^= 1; }
+if (code_pressed_memory(KEYCODE_B)) { toaplan_dbg_layer[3] ^= 1; }
+
+if( toaplan_dbg_priority != 0 ){
+
+	palette_set_color(0x120,0xf,0xf,0xf);
+	fillbitmap (bitmap, Machine->pens[0x120], &Machine->visible_area);
+	priority = toaplan_dbg_priority - 1;
+				{
+		tinfo = (tile_struct *)&(tile_list[priority][0]);
+		/* hack to fix black blobs in Demon's World sky */
+		pen = TRANSPARENCY_NONE;
+		for ( i = 0; i < tile_count[priority]; i++ ) /* draw only tiles in list */
+				{
+			drawgfx(bitmap,Machine->gfx[0],
+				tinfo->tile_num,
+				(tinfo->color&0x3f),
+				0,0,						/* flipx,flipy */
+				tinfo->xpos,tinfo->ypos,
+				&Machine->visible_area,pen,0);
+			tinfo++;
+				}
+			}
+
+}else{
+
+	if ( toaplan_dbg_sprite_only == 0 ){
+
+#endif
+
+	if (bcu_flipscreen)
+		flip = 1;
+	else
+		flip = 0;
+
+	priority = 0;
+	while ( priority < 16 )			/* draw priority layers in order */
+				{
+		int layer;
+
+		tinfo = (tile_struct *)&(tile_list[priority][0]);
+		layer = (tinfo->color >> 8);
+
+		if ( priority == 1 )
+			pen = TRANSPARENCY_NONE;
+		else
+			pen = TRANSPARENCY_PEN;
+
+		for ( i = 0; i < tile_count[priority]; i++ ) /* draw only tiles in list */
+		{
+			int xpos,ypos;
+
+			if ( flip ){
+				xpos = (512 - tinfo->xpos) - 8 - (512 - Machine->drv->screen_width);
+				ypos = (512 - tinfo->ypos) - 8 - (512 - Machine->drv->screen_height);
+			}
+			else{
+				xpos = tinfo->xpos;
+				ypos = tinfo->ypos;
+				}
+
+			drawgfx(bitmap,Machine->gfx[0],
+				tinfo->tile_num,
+				(tinfo->color&0x3f),
+				flip,flip,							/* flipx,flipy */
+				xpos,ypos,
+				&Machine->visible_area,pen,0);
+			tinfo++;
+			}
+		priority++;
+		}
+
+#ifdef BGDBG
+	}
+}
+#endif
+
+}
+
+
+static void rallybik_render (mame_bitmap *bitmap)
+{
+	int i;
+	int priority,pen;
+	int flip;
+	tile_struct *tinfo;
+
+	fillbitmap (bitmap, Machine->pens[0], &Machine->visible_area);
+
+	if (bcu_flipscreen)
+		flip = 1;
+	else
+		flip = 0;
+
+	priority = 0;
+	while ( priority < 16 )			/* draw priority layers in order */
+	{
+		tinfo = (tile_struct *)&(tile_list[priority][0]);
+
+		if ( priority <= 1 )
+			pen = TRANSPARENCY_NONE;
+		else
+			pen = TRANSPARENCY_PEN;
+
+		for ( i = 0; i < tile_count[priority]; i++ )	/* draw only tiles in list */
+		{
+			int xpos,ypos;
+
+			if( tinfo->color & 0x80 ){
+				/* sprite */
+				drawgfx(bitmap,Machine->gfx[1],
+					tinfo->tile_num,
+					(tinfo->color&0x3f), 				/* bit 7 not for colour */
+					(tinfo->color & 0x0100),(tinfo->color & 0x0200),	/* flipx,flipy */
+					tinfo->xpos,tinfo->ypos,
+					&Machine->visible_area,pen,0);
+			}else{
+				/* BG */
+				if ( flip ){
+					xpos = (512 - tinfo->xpos) - 8 - (512 - Machine->drv->screen_width);
+					ypos = (512 - tinfo->ypos) - 8 - (512 - Machine->drv->screen_height);
+				}
+				else{
+					xpos = tinfo->xpos;
+					ypos = tinfo->ypos;
+				}
+				drawgfx(bitmap,Machine->gfx[0],
+					tinfo->tile_num,
+					(tinfo->color&0x3f),
+					flip,flip,							/* flipx,flipy */
+					xpos,ypos,
+					&Machine->visible_area,pen,0);
+			}
+			tinfo++;
+		}
+		priority++;
+	}
+}
+
+
+
+static void toaplan1_sprite_render (mame_bitmap *bitmap)
+{
+	int i;
+	int j;
+	int priority;
+	int flip;
+	tile_struct *tinfo;
+	tile_struct *tinfo_sp;
+	rectangle sp_rect;
+
+	fillbitmap (tmpbitmap1, Machine->pens[0],&Machine->visible_area);
+
+	flip = 0;
+
+	tinfo_sp = (tile_struct *)&(tile_list[16][0]);
+	for ( i = 0; i < tile_count[16]; i++ )	/* draw sprite No. in order */
+	{
+		int	flipx,flipy;
+
+		sp_rect.min_x = tinfo_sp->xpos;
+		sp_rect.min_y = tinfo_sp->ypos;
+		sp_rect.max_x = tinfo_sp->xpos + 7;
+		sp_rect.max_y = tinfo_sp->ypos + 7;
+
+
+		flipx = (tinfo_sp->color & 0x0100);
+		flipy = (tinfo_sp->color & 0x0200);
+
+		fillbitmap (tmpbitmap2, Machine->pens[0], &sp_rect);
+
+		drawgfx(tmpbitmap2,Machine->gfx[1],
+			tinfo_sp->tile_num,
+			(tinfo_sp->color&0x3f),			/* bit 7 not for colour */
+			flipx,flipy,					/* flipx,flipy */
+			tinfo_sp->xpos,tinfo_sp->ypos,
+			&Machine->visible_area,TRANSPARENCY_PEN,0
+		);
+
+		fillbitmap (tmpbitmap3, Machine->pens[0], &sp_rect);
+
+		priority = tinfo_sp->priority;
+		{
+		int ix0,ix1,ix2,ix3;
+		int dirty;
+
+		dirty = 0;
+		for ( j = 0; j < 4; j++ )
+		{
+			int x,y;
+
+			y = tinfo_sp->ypos+layer_offsety[j];
+			x = tinfo_sp->xpos+layer_offsetx[j];
+			ix0 = ( y   /8) * 41 +  x   /8;
+			ix1 = ( y   /8) * 41 + (x+7)/8;
+			ix2 = ((y+7)/8) * 41 +  x   /8;
+			ix3 = ((y+7)/8) * 41 + (x+7)/8;
+
+			if(	(ix0 >= 0) && (ix0 < 32*41) ){
+				tinfo = (tile_struct *)&(bg_list[j][ix0]);
+				if( tinfo->priority >= priority ){
+					drawgfx(tmpbitmap3,Machine->gfx[0],
+						tinfo->tile_num,
+						(tinfo->color&0x3f),
+						flip,flip,
+						tinfo->xpos,tinfo->ypos,
+						&Machine->visible_area,TRANSPARENCY_PEN,0
+					);
+					dirty=1;
+				}
+			}
+			if(	(ix0 != ix1) && (ix1 >= 0) && (ix1 < 32*41) ){
+				tinfo = (tile_struct *)&(bg_list[j][ix1]);
+				if( tinfo->priority >= priority ){
+					drawgfx(tmpbitmap3,Machine->gfx[0],
+						tinfo->tile_num,
+						(tinfo->color&0x3f),
+						flip,flip,
+						tinfo->xpos,tinfo->ypos,
+						&Machine->visible_area,TRANSPARENCY_PEN,0
+					);
+					dirty=1;
+				}
+			}
+			if(	(ix1 != ix2) && (ix2 >= 0) && (ix2 < 32*41) ){
+				tinfo = (tile_struct *)&(bg_list[j][ix2]);
+				if( tinfo->priority >= priority ){
+					drawgfx(tmpbitmap3,Machine->gfx[0],
+						tinfo->tile_num,
+						(tinfo->color&0x3f),
+						flip,flip,
+						tinfo->xpos,tinfo->ypos,
+						&Machine->visible_area,TRANSPARENCY_PEN,0
+					);
+					dirty=1;
+				}
+			}
+			if( (ix2 != ix3) && (ix3 >= 0) && (ix3 < 32*41) ){
+				tinfo = (tile_struct *)&(bg_list[j][ix3]);
+				if( tinfo->priority >= priority ){
+					drawgfx(tmpbitmap3,Machine->gfx[0],
+						tinfo->tile_num,
+						(tinfo->color&0x3f),
+						flip,flip,
+						tinfo->xpos,tinfo->ypos,
+						&Machine->visible_area,TRANSPARENCY_PEN,0
+					);
+					dirty=1;
+				}
+			}
+		}
+		if( dirty != 0 )
+		{
+			toaplan1_sprite_mask(
+				tmpbitmap2,
+				tmpbitmap3,
+				&sp_rect
+			);
+			fillbitmap (tmpbitmap3, Machine->pens[0], &sp_rect);
+			drawgfx(tmpbitmap3,Machine->gfx[1],
+				tinfo_sp->tile_num,
+				(tinfo_sp->color&0x3f),
+				flipx,flipy,
+				tinfo_sp->xpos,tinfo_sp->ypos,
+				&Machine->visible_area,TRANSPARENCY_PEN,0
+			);
+			if ( priority == 0 ){			/* demonwld : sprite mask effect in BOSS dying */
+				toaplan1_sprite_0_copy(
+					tmpbitmap1,
+					tmpbitmap3,
+					&sp_rect
+				);
+			}else{
+				toaplan1_sprite_copy(
+					tmpbitmap1,
+					tmpbitmap2,
+					tmpbitmap3,
+					&sp_rect
+				);
+			}
+
+		}else{
+			drawgfx(tmpbitmap1,Machine->gfx[1],
+				tinfo_sp->tile_num,
+				(tinfo_sp->color&0x3f),
+				flipx,flipy,
+				tinfo_sp->xpos,tinfo_sp->ypos,
+				&Machine->visible_area,TRANSPARENCY_PEN,0
+			);
+		}
+		}
+		tinfo_sp++;
+	}
+
+	copybitmap(bitmap, tmpbitmap1, 
+		fcu_flipscreen, fcu_flipscreen,
+		0, 0,
+		&Machine->visible_area, TRANSPARENCY_PEN, 0
+	);
+
+}
+
+static int vcounter1 = 0;
+static float vsample_vol1 = 0;
+
+static void ese_fadeout(void)
+{
+	if (vfadeout_stop == 1)
+	{
+		vplaying2 = 0xff;
+		vfadeout_ready = 0;
+		vfadeout_stop = 0;
+		vsample_vol1 = 1.00;
+		sample_set_volume (0, 1.00);
+	}
+	
+	if (vcounter1 >= 17)
+	{
+		vcounter1 = 0;
+		if (vfadeout_ready == 1)
+		{
+			vsample_vol1 = vsample_vol1 - 0.10;
+			if (vsample_vol1 <= 0)
+			{
+				vsample_vol1 = 0;
+			}
+			sample_set_volume (0, vsample_vol1);
+		}
+		if (vsample_vol1 == 0)
+		{
+			sample_stop (0);
+			vfadeout_ready = 0;
+			vfadeout_stop = 0;
+			vsample_vol1 = 1.00;
+			sample_set_volume (0, 1.00);
+			if (vplaying2 != 0xff)
+			{
+			sample_start (0, vplaying2 , 1);
+			vplaying1 = 0xff;
+			vplaying2 = 0xff;
+			}
+		}
+	}
+	vcounter1++;	
+}
+
+static void ese_fadeout2(void)
+{
+	if (vfadeout_stop == 1)
+	{
+		vplaying2 = 0xff;
+		vfadeout_ready = 0;
+		vfadeout_stop = 0;
+		vsample_vol1 = 1.00;
+		sample_set_volume (0, 1.00);
+	}
+	
+	if (vcounter1 >= 10)
+	{
+		vcounter1 = 0;
+		if (vfadeout_ready == 1)
+		{
+			vsample_vol1 = vsample_vol1 - 0.10;
+			if (vsample_vol1 <= 0)
+			{
+				vsample_vol1 = 0;
+			}
+			sample_set_volume (0, vsample_vol1);
+		}
+		if (vsample_vol1 == 0)
+		{
+			sample_stop (0);
+			vfadeout_ready = 0;
+			vfadeout_stop = 0;
+			vsample_vol1 = 1.00;
+			sample_set_volume (0, 1.00);
+		}
+	}
+	vcounter1++;	
+}
+
 
 VIDEO_UPDATE( toaplan1 )
 {
-	int priority;
+	/* discover what data will be drawn */
+	toaplan1_find_sprites();
+	toaplan1_find_tiles();
 
-#ifdef MAME_DEBUG
-	toaplan1_log_vram();
-#endif
+	toaplan1_render(bitmap);
+	toaplan1_sprite_render(bitmap);
+}
 
-	fillbitmap(priority_bitmap,0,cliprect);
-	fillbitmap(bitmap,Machine->pens[0x120],cliprect);
+VIDEO_UPDATE( samesame )
+{
+	/* discover what data will be drawn */
+	toaplan1_find_sprites();
+	toaplan1_find_tiles();
 
-	tilemap_draw(bitmap,cliprect,pf4_tilemap,TILEMAP_IGNORE_TRANSPARENCY,0);
-	for (priority = 8; priority < 16; priority++)
-		tilemap_draw(bitmap,cliprect,pf1_tilemap,TILEMAP_IGNORE_TRANSPARENCY | priority,0);
-
-	for (priority = 1; priority < 16; priority++)
+	toaplan1_render(bitmap);
+	toaplan1_sprite_render(bitmap);
+	if (start>0) wait++;
+	if (wait>=(116+start2))
 	{
-		tilemap_draw_primask(bitmap,cliprect,pf4_tilemap,priority,priority,0);
-		tilemap_draw_primask(bitmap,cliprect,pf3_tilemap,priority,priority,0);
-		tilemap_draw_primask(bitmap,cliprect,pf2_tilemap,priority,priority,0);
-		tilemap_draw_primask(bitmap,cliprect,pf1_tilemap,priority,priority,0);
+		sample_stop (0);
+		sample_set_volume (0, 1.00);
+		sample_start (0, 0x7, 0);
+		start=0;
+		start2=1;
+		wait=0;
 	}
+	if (start2 == 0) ese_fadeout2();
+}
 
-	draw_sprites(bitmap,cliprect);
+VIDEO_UPDATE( vimana )
+{
+	/* discover what data will be drawn */
+	toaplan1_find_sprites();
+	toaplan1_find_tiles();
+
+	toaplan1_render(bitmap);
+	toaplan1_sprite_render(bitmap);
+
+	ese_fadeout();
+}
+
+VIDEO_UPDATE( zerowing )
+{
+	/* discover what data will be drawn */
+	toaplan1_find_sprites();
+	toaplan1_find_tiles();
+
+	zerowing_render(bitmap);
+	toaplan1_sprite_render(bitmap);
 }
 
 VIDEO_UPDATE( demonwld )
 {
-	int priority;
+	/* discover what data will be drawn */
+	toaplan1_find_sprites();
+	toaplan1_find_tiles();
 
-#ifdef MAME_DEBUG
-	toaplan1_log_vram();
-#endif
-
-	fillbitmap(priority_bitmap,0,cliprect);
-	fillbitmap(bitmap,Machine->pens[0x120],cliprect);
-
-	tilemap_draw(bitmap,cliprect,pf1_tilemap,TILEMAP_IGNORE_TRANSPARENCY | 0,0);
-	tilemap_draw(bitmap,cliprect,pf1_tilemap,TILEMAP_IGNORE_TRANSPARENCY | 1,0);
-
-	for (priority = 1; priority < 16; priority++)
-	{
-		tilemap_draw_primask(bitmap,cliprect,pf4_tilemap,priority,priority,0);
-		tilemap_draw_primask(bitmap,cliprect,pf3_tilemap,priority,priority,0);
-		tilemap_draw_primask(bitmap,cliprect,pf2_tilemap,priority,priority,0);
-		tilemap_draw_primask(bitmap,cliprect,pf1_tilemap,priority,priority,0);
-	}
-
-	draw_sprites(bitmap,cliprect);
+	demonwld_render(bitmap);
+	toaplan1_sprite_render(bitmap);
 }
 
+VIDEO_UPDATE( rallybik )
+{
+	/* discover what data will be drawn */
+	toaplan1_find_tiles();
+	rallybik_find_sprites();
+
+	rallybik_render(bitmap);
+}
+
+VIDEO_UPDATE( hellfire )
+{
+	/* discover what data will be drawn */
+	toaplan1_find_sprites();
+	toaplan1_find_tiles();
+
+	toaplan1_render(bitmap);
+	toaplan1_sprite_render(bitmap);
+
+	toaplan1_hellfire_b1_pre = toaplan1_hellfire_b1_buff;
+	toaplan1_hellfire_b2_pre = toaplan1_hellfire_b2_buff;
+}
 
 /****************************************************************************
     Spriteram is always 1 frame ahead, suggesting spriteram buffering.
@@ -1254,20 +1705,20 @@ VIDEO_UPDATE( demonwld )
     assume it happens automatically every frame, at the end of vblank
 ****************************************************************************/
 
+VIDEO_EOF( toaplan1 )
+{
+	memcpy(buffered_spriteram16, spriteram16, TOAPLAN1_SPRITERAM_SIZE);
+	memcpy(toaplan1_buffered_spritesizeram16, toaplan1_spritesizeram16, TOAPLAN1_SPRITESIZERAM_SIZE);
+}
+
 VIDEO_EOF( rallybik )
 {
 	buffer_spriteram16_w(0, 0, 0);
 }
 
-VIDEO_EOF( toaplan1 )
-{
-	buffer_spriteram16_w(0, 0, 0);
-	memcpy(toaplan1_buffered_spritesizeram16, toaplan1_spritesizeram16, TOAPLAN1_SPRITESIZERAM_SIZE);
-}
-
 VIDEO_EOF( samesame )
 {
-	buffer_spriteram16_w(0, 0, 0);
+	memcpy(buffered_spriteram16, spriteram16, TOAPLAN1_SPRITERAM_SIZE);
 	memcpy(toaplan1_buffered_spritesizeram16, toaplan1_spritesizeram16, TOAPLAN1_SPRITESIZERAM_SIZE);
 	cpunum_set_input_line(0, MC68000_IRQ_2, HOLD_LINE);	/* Frame done */
 }

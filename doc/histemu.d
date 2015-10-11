@@ -1,6 +1,12 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS Version 1.5 2015/10
+	) Imported the Toaplan driver from ThunderMAME32Plus-v0.106X.
+		This adds sound support with samples at the games:
+		'batsugun', 'dogyuun', 'ghox', 'samesame', 'tekipaki',
+		'vfive' and 'vimana'.
+
 AdvanceMAME/MESS Version 1.4 2015/08
 	) Restored the missing keypress of coin1 broken on v1.3.
 	) Imported the Cave PGM driver from ShmupMAME v3.0b

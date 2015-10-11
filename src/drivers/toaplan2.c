@@ -274,6 +274,8 @@ To Do / Unknowns:
 #include "sound/3812intf.h"
 #include "sound/okim6295.h"
 #include "sound/ymz280b.h"
+#include "sound/samples.h"
+#include "toaplan2.h"
 
 
 /**************** Machine stuff ******************/
@@ -355,6 +357,7 @@ VIDEO_START( truxton2_0 );
 VIDEO_START( battleg_0 );
 VIDEO_START( batrider_0 );
 VIDEO_UPDATE( toaplan2_0 );
+VIDEO_UPDATE( toaplan2_1 );
 VIDEO_UPDATE( truxton2_0 );
 VIDEO_UPDATE( dogyuun_1 );
 VIDEO_UPDATE( batsugun_1 );
@@ -376,6 +379,24 @@ void kbash_okisnd_w(int data);
 void fixeight_okisnd_w(int data);
 void batsugun_okisnd_w(int data);
 
+int fadeout_ready = 0;
+int fadeout_stop = 0;
+int counter1 = 0;
+float sample_vol1 = 0;
+
+int playing1 = 0xff;
+int playing2 = 0xff;
+int playing3 = 0x00;
+int playing4 = 0x00;
+int playing5 = 0x00;
+int play_bat1 = 0x00;
+
+int thunder1 = 0;
+int thunder2 = 0;
+int thunder3 = 0;
+int thunder4 = 0;
+int thunder5 = 0;
+int thunder6 = 0;
 
 /***************************************************************************
   Initialisation handlers
@@ -403,6 +424,29 @@ static MACHINE_RESET( dogyuun )
 static MACHINE_RESET( vfive )
 {
 	mcu_data = 0xffaa;
+	
+	sample_stop(0);sample_stop(1);sample_stop(2);sample_stop(3);
+	sample_stop(4);sample_stop(5);sample_stop(6);sample_stop(7);
+	
+	sample_set_volume (0, 1.00);
+	
+	sample_set_volume (1, 0.80);
+	sample_set_volume (2, 0.80);
+	sample_set_volume (3, 0.50);
+	sample_set_volume (4, 0.70);
+	sample_set_volume (5, 0.70);
+	sample_set_volume (6, 0.70);
+	
+	sample_set_volume (7, 1.00);
+	
+	fadeout_stop  = 0;
+	fadeout_ready = 0;
+	counter1      = 0;
+	sample_vol1   = 1.00;
+	playing1 = 0xff;
+	playing2 = 0xff;
+	playing3 = 0x00;
+	playing4 = 0x00;
 }
 
 static MACHINE_RESET( batrider )
@@ -723,6 +767,61 @@ static WRITE16_HANDLER( toaplan2_hd647180_cpu_w )
 	}
 }
 
+static WRITE16_HANDLER( tekipaki_hd647180_w )
+{
+	if (data == 0xfe)
+	{
+		sample_stop(0);sample_stop(1);sample_stop(2);sample_stop(3);
+		sample_stop(4);sample_stop(5);sample_stop(6);sample_stop(7);
+	}
+	
+	if (data >= 0x01 && data <= 0x03)
+		sample_start (0, data, 1);
+	
+	if (data >= 0x04 && data <= 0x05)
+		sample_start (0, data, 0);
+	
+	if (data == 0x06)
+		sample_start (1, data ,0);
+	
+	if (data == 0x07)
+		sample_start (1, data ,0);
+	
+	if (data >= 0x08 && data <= 0x09)
+		sample_start (2, data, 0);
+	
+	if (data >= 0x0a && data <= 0x0d)
+		sample_start (3, data, 0);
+	
+	if (data >= 0x0e && data <= 0x12)
+		sample_start (4, data, 0);
+	
+	if (data >= 0x13 && data <= 0x14)
+		sample_start (5, data, 0);
+	
+	if (data == 0x15)
+		sample_start (6, data, 0);
+	
+	if (ACCESSING_LSB)
+	{
+		mcu_data = data & 0xff;
+		/* logerror("PC:%08x Writing command (%04x) to secondary CPU shared port\n",activecpu_get_previouspc(),mcu_data); */
+	}
+}
+
+static const char *tekipaki_sample_names[] =
+{
+	"*tekipaki",
+	"dm.wav","01.wav","02.wav","03.wav","04.wav","05.wav","06.wav","07.wav",
+	"08.wav","09.wav","0a.wav","0b.wav","0c.wav","0d.wav","0e.wav","0f.wav",
+	"10.wav","11.wav","12.wav","13.wav","14.wav","15.wav",0
+};
+
+struct Samplesinterface tekipaki_samples_interface =
+{
+	8,tekipaki_sample_names
+};
+
 static READ16_HANDLER( c2map_port_6_r )
 {
 	/* For Teki Paki hardware */
@@ -781,6 +880,51 @@ static READ16_HANDLER( ghox_mcu_r )
 
 static WRITE16_HANDLER( ghox_mcu_w )
 {
+//	ui_popup("%x",data);
+//	fprintf(stderr, "cmd %x ",data);
+
+	if (data == 0xfe)
+		sample_stop (0);
+
+	if (data == 0x42 || data == 0x44 || data == 0x45 || data == 0x47 || data == 0x48 || data == 0x4c || data == 0x4d || data == 0x4e)
+		sample_start (0, data , 1);
+
+	if (data == 0xd0)
+		sample_start (0, 0, 1);
+
+	if (data == 0x49)
+		sample_start (0, data , 0);
+
+	if (data >= 0x02 && data <= 0x0f)
+		sample_start (1, data , 0);
+
+	if (data >= 0x10 && data <= 0x17)
+		sample_start (2, data , 0);
+
+	if (data >= 0x18 && data <= 0x1f)
+		sample_start (3, data , 0);
+
+	if (data >= 0x20 && data <= 0x27)
+		sample_start (4, data , 0);
+
+	if (data >= 0x28 && data <= 0x2f)
+		sample_start (5, data , 0);
+
+	if (data >= 0x30 && data <= 0x38)
+		sample_start (6, data , 0);
+
+	if (data == 0x39)
+		sample_start (8, data , 0);
+
+	if (data >= 0x3a && data <= 0x3f)
+		sample_start (7, data , 0);
+
+	if (data == 0x01)
+		sample_start (8, data , 0);
+
+	if (data == 0x4b)
+		sample_start (0, 0x4f , 0);
+
 	if (ACCESSING_LSB)
 	{
 		mcu_data = data;
@@ -818,6 +962,27 @@ static WRITE16_HANDLER( ghox_mcu_w )
 		}
 	}
 }
+
+
+static const char *ghox_sample_names[] =
+{
+	"*ghox",
+	"d0.wav","01.wav","02.wav","dm.wav","04.wav","05.wav","06.wav","dm.wav",
+	"08.wav","09.wav","dm.wav","0b.wav","0c.wav","dm.wav","dm.wav","0f.wav",
+	"dm.wav","11.wav","12.wav","12.wav","14.wav","15.wav","16.wav","17.wav",
+	"18.wav","19.wav","1a.wav","1b.wav","1c.wav","1c.wav","1c.wav","1f.wav",
+	"20.wav","21.wav","22.wav","23.wav","24.wav","dm.wav","dm.wav","27.wav",
+	"dm.wav","dm.wav","2a.wav","2b.wav","dm.wav","2d.wav","2e.wav","2f.wav",
+	"dm.wav","dm.wav","dm.wav","33.wav","34.wav","35.wav","36.wav","37.wav",
+	"38.wav","39.wav","dm.wav","dm.wav","3c.wav","dm.wav","3e.wav","dm.wav",
+	"dm.wav","dm.wav","42.wav","43.wav","44.wav","45.wav","43.wav","47.wav",
+	"48.wav","49.wav","43.wav","dm.wav","4c.wav","4d.wav","4e.wav","d1.wav",0
+};
+
+struct Samplesinterface ghox_samples_interface =
+{
+	9,ghox_sample_names
+};
 
 static READ16_HANDLER( ghox_shared_ram_r )
 {
@@ -895,14 +1060,146 @@ static READ16_HANDLER( toaplan2_snd_cpu_r )
 	return response;
 }
 
-static WRITE16_HANDLER( dogyuun_snd_cpu_w )
-{
+WRITE16_HANDLER( dogyuun_snd_cpu_w )
+{	
+	if (data == 0x00)
+	{
+		sample_stop (0x02);sample_stop (0x03);sample_stop (0x04);sample_stop (0x05);sample_stop (0x06);
+		sample_stop (0x07);sample_stop (0x08);sample_stop (0x09);sample_stop (0x0a);sample_stop (0x0b);
+		sample_stop (0x0c);sample_stop (0x0d);
+	}
+
+	if (data == 0x07)
+		playing4++;
+	
+	if (data >= 0x01 && data <= 0x06 && playing4 == 0)
+		sample_start (0x00, data , 1);
+	
+	if (data >= 0x01 && data <= 0x06 && playing4 != 0)
+		playing4 = 0;
+
+	if (data >= 0x08 && data <= 0x0c)
+		sample_start (0x01, data , 0);
+	
+	if (data >= 0x0d && data <= 0x10)
+		sample_start (0x02, data , 0);
+
+	if (data >= 0x11 && data <= 0x16)
+		sample_start (0x03, data , 0);
+
+	if (data >= 0x17 && data <= 0x1a)
+		sample_start (0x04, data , 0);
+
+	if (data == 0x1b || data == 0x1d || data == 0x1f)
+	{
+		sample_start (0x05, data , 0);
+		thunder1 = 0;
+	}
+
+	if (data == 0x1c || data == 0x1e || data == 0x20)
+	{
+		sample_start (0x06, data , 0);
+		thunder4 = 0;
+	}
+
+	if (data == 0x21)
+	{
+		sample_start (0x05, data , 1);
+		thunder1 = 1;
+	}
+
+	if (data == 0x22)
+	{
+		sample_start (0x06, data , 1);
+		thunder4 = 1;
+	}
+
+	if (data == 0x23)
+		sample_start (0x07, data , 0);
+
+	if (data >= 0x24 && data <= 0x27)
+		sample_start (0x08, data , 0);
+
+	if (data >= 0x28 && data <= 0x32)
+		sample_start (0x09, data , 0);
+
+	if (data >= 0x33 && data <= 0x35)
+		sample_start (0x0a, data , 0);
+
+	if (data == 0x36)
+	{
+		sample_stop (0); sample_stop (1); sample_stop (2); sample_stop (3); sample_stop (4);
+		sample_start (0x0b, data , 0);
+		playing4 = 0;
+		playing5 = 0;
+	}
+	if (data == 0x37)
+		sample_start (0x0c, data , 0);
+
+	if (data == 0x38)
+	{
+		sample_stop (0); sample_stop (1); sample_stop (2); sample_stop (3); sample_stop (4);
+		sample_start (0x0d, data , 0);
+		playing4 = 0;
+		playing5 = 0;
+	}
+
+	if (data == 0x39)
+		sample_start (0x01, data , 0);
+
+	if (data == 0x3a)
+		sample_start (0x02, data , 0);
+
+	if (data == 0x3b)
+		sample_start (0x02, data , 0);
+
+	if (data == 0x3c)
+		sample_start (0x03, data , 0);
+
+	if (data == 0x3d)
+		sample_start (0x02, data , 0);
+
+	if (data == 0x3e)
+		sample_start (0x04, data , 0);
+
+	if (data == 0x3f)
+	{
+		sample_stop (0); sample_stop (1); sample_stop (2); sample_stop (3); sample_stop (4);
+		sample_start (0x00, data , 0);
+		playing4 = 0;
+	}
+
+	if (data >= 0x41 && data <= 0x43)
+	{
+		sample_stop (0x00);sample_stop (0x01);sample_stop (0x02);sample_stop (0x03);sample_stop (0x04);
+		sample_stop (0x05);sample_stop (0x06);sample_stop (0x07);sample_stop (0x08);sample_stop (0x09);
+		sample_stop (0x0a);sample_stop (0x0b);sample_stop (0x0c);sample_stop (0x0d);
+		sample_start (0x00, data , 0);
+		playing4 = 0;
+	}
+	
+	if (data == 0x44 && playing5 != 1)
+	{
+		sample_start (0x00, data , 0);
+		playing5++;
+	}
+
+	if (data == 0x45)
+	{
+		sample_start (0x00, data , 0);
+		playing4 = 0;
+	}
+
+	if (data == 0x46)
+		sample_start (0x0f, data , 0);
+
 	if (ACCESSING_LSB)
 	{
 		mcu_data = data;
-		dogyuun_okisnd_w(data);
+		/* dogyuun_okisnd_w(data); */
 	}
-	logerror("PC:%06x Writing command (%04x) to the NEC V25+ secondary CPU port\n",activecpu_get_previouspc(),mcu_data);
+	
+	/* logerror("PC:%06x Writing command (%04x) to the NEC V25+ secondary CPU port\n",activecpu_get_previouspc(),mcu_data); */
 }
 
 static READ16_HANDLER( kbash_snd_cpu_r )
@@ -989,23 +1286,229 @@ static WRITE16_HANDLER( fixeight_sec_cpu_w )
 	logerror("PC:%06x Writing command (%04x) to the NEC V25+ secondary CPU port\n",activecpu_get_previouspc(),mcu_data);
 }
 
-static WRITE16_HANDLER( vfive_snd_cpu_w )
+WRITE16_HANDLER( vfive_snd_cpu_w )
 {
+	if (data == 0x00)
+	{
+		sample_stop (0);
+		fadeout_stop = 1;
+		playing1 = 0xff;
+		playing2 = 0xff;
+		playing3 = 0x00;
+		playing4 = 0x00;
+	}
+
+	if (data == 0x07)
+	{
+		fadeout_ready = 1;
+	}
+
+	if (data == 0x43 || data == 0x44 || data == 0x41)
+	{
+		if (playing4 == 1)
+		{
+		fadeout_ready = 1;
+		playing2 = 0xff;
+		playing4 = 0;
+		}
+	}
+
+	if (data >= 0x01 && data <= 0x06 && fadeout_ready == 0 && playing1 == 0xff)
+	{
+		sample_start (0, data, 1);
+		playing1 = data;
+		playing3 = 0x00;
+	}
+
+	if (data >= 0x01 && data <= 0x06 && fadeout_ready == 1)
+	{
+		playing2 = 0x00;
+	}
+
+	if (data == 0x09)
+		sample_start (7, data, 0);
+	
+	if (data >= 0x0a && data <= 0x12)
+		sample_start (1, data, 0);
+	
+	if (data >= 0x13 && data <= 0x17)
+		sample_start (2, data, 0);
+
+	if (data >= 0x18 && data <= 0x1e)
+		sample_start (3, data, 0);
+
+	if (data >= 0x1f && data <= 0x29)
+		sample_start (4, data, 0);
+
+	if (data >= 0x2a && data <= 0x34)
+		sample_start (5, data, 0);
+
+	if (data >= 0x35 && data <= 0x3c)
+		sample_start (6, data, 0);
+
+	if (data == 0x3d)
+	{
+		sample_start (0, data, 0);
+		playing1 = 0xff;
+	}
+	
+	if (data == 0x3e)
+	{
+		sample_start (0, data, 0);
+		playing1 = 0xff;
+	}
+
+	if (data == 0x3f)
+		sample_start (1, data, 0);
+	if (data == 0x40)
+		sample_start (1, data, 0);
+	if (data == 0x41 && playing3 == 0x00)
+	{
+		sample_start (0, data, 0);
+		playing1 = 0xff;
+		playing3++;
+		playing4 = 1;
+	}
+	if (data == 0x42)
+		sample_start (1, data, 0);
+	
+	if (data == 0x43 && playing3 == 0x00)
+	{
+		sample_start (0, data, 0);
+		playing1 = 0xff;
+		playing3++;
+		playing4 = 1;
+	}
+	if (data == 0x44 && playing3 == 0x00)
+	{
+		sample_start (0, data, 0);
+		playing1 = 0xff;
+		playing3++;
+		playing4 = 1;
+	}
+
+	if (data == 0x45)
+		sample_start (7, data, 0);
+
 	if (ACCESSING_LSB)
 	{
 		mcu_data = data;
 	}
-	logerror("PC:%06x Writing command (%04x) to the NEC V25+ secondary CPU port\n",activecpu_get_previouspc(),mcu_data);
+	/* logerror("PC:%06x Writing command (%04x) to the NEC V25+ secondary CPU port\n",activecpu_get_previouspc(),mcu_data); */
 }
 
-static WRITE16_HANDLER( batsugun_snd_cpu_w )
-{
+WRITE16_HANDLER( batsugun_snd_cpu_w )
+{	
+	if (data == 0x00)
+	{
+		play_bat1 = 0;
+	}
+
+	if (data >= 0x01 && data <= 0x0a)
+	{
+		sample_start (0, data , 1);
+		play_bat1 = 0;
+	}
+
+	if (data == 0x0b && play_bat1 == 0)
+	{
+		sample_start (0, data , 1);
+		play_bat1++;
+	}
+
+	if (data >= 0x0c && data <= 0x10)
+		sample_start (0, data , 0);
+
+	if (data >= 0x11 && data <= 0x12)
+		sample_start (1, data , 0);
+
+	if (data == 0x13)
+		sample_start (2, data , 0);
+
+	if (data == 0x14)
+		sample_start (3, data , 0);
+
+	if (data == 0x15)
+		sample_start (4, data , 0);
+
+	if (data == 0x16)
+		sample_start (5, data , 0);
+
+	if (data == 0x17)
+		sample_start (6, data , 0);
+
+	if (data == 0x18)
+		sample_start (7, data , 0);
+
+	if (data == 0x19)
+		sample_start (8, data , 0);
+
+	if (data == 0x1a)
+		sample_start (9, data , 0);
+
+	if (data == 0x1b)
+		sample_start (10, data , 0);
+
+	if (data == 0x1d)
+		sample_start (11, data , 0);
+
+	if (data == 0x1e)
+		sample_start (12, data , 0);
+
+	if (data == 0x1f)
+		sample_start (13, data , 0);
+
+	if (data == 0x20)
+		sample_start (14, data , 0);
+
+	if (data == 0x22)
+		sample_start (15, data , 0);
+
+	if (data >= 0x23 && data <= 0x28)
+		sample_start (16, data , 0);
+
+	if (data == 0x29)
+		sample_start (17, data , 0);
+
+	if (data == 0x2a)
+		sample_start (18, data , 0);
+
+	if (data == 0x2d)
+		sample_start (19, data , 0);
+
+	if (data == 0x2e)
+		sample_start (20, data , 0);
+
+	if (data == 0x2f)
+		sample_start (21, data , 0);
+
+	if (data == 0x30)
+		sample_start (22, data , 0);
+
+	if (data == 0x32)
+		sample_start (23, data , 0);
+
+	if (data == 0x33)
+		sample_start (24, data , 0);
+
+	if (data == 0x34)
+		sample_start (25, data , 0);
+
+	if (data == 0x36)
+		sample_start (26, data , 0);
+
+	if (data == 0x37)
+		sample_start (27, data , 0);
+
+	if (data == 0x3a)
+		sample_start (28, data , 0);
+
 	if (ACCESSING_LSB)
 	{
 		mcu_data = data;
-		batsugun_okisnd_w(data);
+		/* batsugun_okisnd_w(data); */
 	}
-	logerror("PC:%06x Writing command (%04x) to the NEC V25+ secondary CPU port %02x\n",activecpu_get_previouspc(),mcu_data,(offset*2));
+	/* logerror("PC:%06x Writing command (%04x) to the NEC V25+ secondary CPU port %02x\n",activecpu_get_previouspc(),mcu_data,(offset*2)); */
 }
 
 static READ16_HANDLER( V25_sharedram_r )
@@ -1365,6 +1868,61 @@ static INTERRUPT_GEN( bbakraid_snd_interrupt )
 	cpunum_set_input_line(1, 0, HOLD_LINE);
 }
 
+static const char *dogyuun_sample_names[] =
+{
+	"*dogyuun",
+	"dm.wav","01.wav","02.wav","03.wav","04.wav","05.wav","06.wav","dm.wav",
+	"08.wav","09.wav","0a.wav","0b.wav","0c.wav","0d.wav","dm.wav","0f.wav",
+	"10.wav","dm.wav","12.wav","13.wav","14.wav","15.wav","16.wav","17.wav",
+	"18.wav","19.wav","1a.wav","1b.wav","1c.wav","1d.wav","1e.wav","1f.wav",
+	"20.wav","21.wav","22.wav","23.wav","dm.wav","25.wav","26.wav","27.wav",
+	"dm.wav","dm.wav","2a.wav","2b.wav","2c.wav","2d.wav","2e.wav","2f.wav",
+	"30.wav","31.wav","32.wav","33.wav","34.wav","35.wav","36.wav","37.wav",
+	"38.wav","39.wav","3a.wav","3b.wav","3c.wav","3d.wav","3e.wav","3f.wav",
+	"dm.wav","41.wav","42.wav","43.wav","44.wav","45.wav","46.wav",0
+};
+
+struct Samplesinterface dogyuun_samples_interface =
+{
+	17,dogyuun_sample_names
+};
+
+static const char *vfive_sample_names[] =
+{
+	"*vfive",
+	"00.wav","01.wav","02.wav","03.wav","04.wav","05.wav","06.wav","99.wav",
+	"99.wav","09.wav","0a.wav","0b.wav","0c.wav","0d.wav","0e.wav","0f.wav",
+	"10.wav","11.wav","12.wav","13.wav","14.wav","15.wav","16.wav","17.wav",
+	"18.wav","19.wav","1a.wav","1b.wav","1c.wav","1d.wav","1e.wav","99.wav",
+	"20.wav","21.wav","22.wav","23.wav","24.wav","99.wav","99.wav","27.wav",
+	"99.wav","29.wav","2a.wav","2b.wav","2c.wav","2d.wav","99.wav","2f.wav",
+	"30.wav","31.wav","32.wav","33.wav","99.wav","99.wav","36.wav","37.wav",
+	"38.wav","39.wav","99.wav","3b.wav","3c.wav","3d.wav","3e.wav","3f.wav",
+	"40.wav","41.wav","42.wav","43.wav","44.wav","45.wav",0
+};
+
+struct Samplesinterface vfive_samples_interface =
+{
+	8,vfive_sample_names
+};
+
+static const char *batsugun_sample_names[] =
+{
+	"*batsugun",
+	"dm.wav","01.wav","02.wav","03.wav","04.wav","05.wav","06.wav","07.wav",
+	"08.wav","09.wav","0a.wav","0b.wav","0c.wav","0d.wav","0e.wav","0f.wav",
+	"10.wav","11.wav","12.wav","13.wav","14.wav","15.wav","16.wav","17.wav",
+	"18.wav","19.wav","1a.wav","1b.wav","dm.wav","1d.wav","1e.wav","1f.wav",
+	"20.wav","dm.wav","22.wav","23.wav","24.wav","25.wav","26.wav","27.wav",
+	"28.wav","29.wav","2a.wav","dm.wav","dm.wav","2d.wav","2e.wav","2f.wav",
+	"30.wav","dm.wav","32.wav","33.wav","34.wav","dm.wav","36.wav","37.wav",
+	"dm.wav","dm.wav","3a.wav",0
+};
+
+struct Samplesinterface batsugun_samples_interface =
+{
+	30,batsugun_sample_names
+};
 
 static ADDRESS_MAP_START( tekipaki_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x01ffff) AM_ROM
@@ -1382,7 +1940,7 @@ static ADDRESS_MAP_START( tekipaki_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x180040, 0x180041) AM_WRITE(toaplan2_coin_word_w)	/* Coin count/lock */
 	AM_RANGE(0x180050, 0x180051) AM_READ(port_tag_to_handler16("IN1"))
 	AM_RANGE(0x180060, 0x180061) AM_READ(port_tag_to_handler16("IN2"))
-	AM_RANGE(0x180070, 0x180071) AM_WRITE(toaplan2_hd647180_cpu_w)
+	AM_RANGE(0x180070, 0x180071) AM_WRITE(tekipaki_hd647180_w)
 ADDRESS_MAP_END
 
 
@@ -1978,8 +2536,12 @@ ADDRESS_MAP_END
 	PORT_DIPSETTING(		0x0080, DEF_STR( 1C_4C ) )		PORT_CONDITION("JMPR",mask,PORTCOND_EQUALS,value)		\
 	PORT_DIPSETTING(		0x00c0, DEF_STR( 1C_6C ) )		PORT_CONDITION("JMPR",mask,PORTCOND_EQUALS,value)
 
-
-
+INPUT_PORTS_START( toaplan2_extr )
+	PORT_START_TAG("EXTR")
+	PORT_DIPNAME( 0x0001,	0x0001, "Buffer Delay" )
+	PORT_DIPSETTING(		0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(		0x0001, DEF_STR( On ) )
+INPUT_PORTS_END
 
 INPUT_PORTS_START( toaplan2 )
 	PORT_START_TAG("VBL")
@@ -2051,7 +2613,6 @@ INPUT_PORTS_START( toaplan2 )
 INPUT_PORTS_END
 
 
-
 INPUT_PORTS_START( tekipaki )
 	PORT_INCLUDE(toaplan2)
 
@@ -2082,7 +2643,7 @@ INPUT_PORTS_START( tekipaki )
 	PORT_DIPSETTING(		0x0080, DEF_STR( On ) )
 
 	PORT_MODIFY("JMPR")
-	PORT_DIPNAME( 0x000f,	0x0002, "Territory" )
+	PORT_DIPNAME( 0x000f,	0x0000, "Territory" )
 	PORT_DIPSETTING(		0x0002, DEF_STR( Europe ) )
 	PORT_DIPSETTING(		0x0001, DEF_STR( USA ) )
 	PORT_DIPSETTING(		0x0007, "USA (Romstar)" )
@@ -2093,6 +2654,8 @@ INPUT_PORTS_START( tekipaki )
 	PORT_DIPSETTING(		0x0008, "Hong Kong (Honest Trading Co.)" )
 	PORT_DIPSETTING(		0x0005, "Taiwan" )
 	PORT_DIPSETTING(		0x0006, "Taiwan (Spacy Co. Ltd)" )
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2125,7 +2688,7 @@ INPUT_PORTS_START( ghox )
 
 	PORT_MODIFY("JMPR")
 	/* Bit Mask 0x80000 is used here to signify European Coinage for MAME purposes - not read on the real board! */
-	PORT_DIPNAME( 0x8000f,	0x80002, "Territory" )
+	PORT_DIPNAME( 0x8000f,	0x00000, "Territory" )
 	PORT_DIPSETTING(		0x80002, DEF_STR( Europe ) )
 	PORT_DIPSETTING(		0x8000a, "Europe (Nova Apparate GMBH & Co)" )
 	PORT_DIPSETTING(		0x8000d, "Europe (Taito Corporation Japan)" )
@@ -2149,6 +2712,8 @@ INPUT_PORTS_START( ghox )
 	PORT_START_TAG("PAD2")		/* Paddle 2 (left-right)  read at $040000 */
 	PORT_BIT( 0xff, 0x00, IPT_DIAL ) PORT_MINMAX(0,0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(15) PORT_PLAYER(2)
 	PORT_BIT( 0xff00, IP_ACTIVE_HIGH, IPT_UNKNOWN )	/* Unknown/Unused */
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2189,7 +2754,7 @@ INPUT_PORTS_START( dogyuun )
 	PORT_DIPSETTING(		0x0000, DEF_STR( Yes ) )
 
 	PORT_MODIFY("JMPR")
-	PORT_DIPNAME( 0x000f,	0x0003, "Territory" )
+	PORT_DIPNAME( 0x000f,	0x0000, "Territory" )
 	PORT_DIPSETTING(		0x0003, DEF_STR( Europe ) )
 	PORT_DIPSETTING(		0x0001, DEF_STR( USA ) )
 //  PORT_DIPSETTING(        0x0007, DEF_STR( USA ) )
@@ -2206,6 +2771,8 @@ INPUT_PORTS_START( dogyuun )
 	PORT_DIPSETTING(		0x0006, "Taiwan" )
 //  PORT_DIPSETTING(        0x000b, "Taiwan" )
 	PORT_BIT( 0x0010, IP_ACTIVE_HIGH, IPT_UNKNOWN )	/* Sound ready */
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2246,7 +2813,7 @@ INPUT_PORTS_START( kbash )
 	PORT_DIPSETTING(		0x0000, DEF_STR( Yes ) )
 
 	PORT_MODIFY("JMPR")
-	PORT_DIPNAME( 0x000f,	0x0002, "Territory" )
+	PORT_DIPNAME( 0x000f,	0x0000, "Territory" )
 	PORT_DIPSETTING(		0x000a, DEF_STR( Europe ) )
 	PORT_DIPSETTING(		0x0002, "Europe, USA (Atari license)" )
 	PORT_DIPSETTING(		0x0009, DEF_STR( USA ) )
@@ -2255,6 +2822,8 @@ INPUT_PORTS_START( kbash )
 	PORT_DIPSETTING(		0x0006, "South East Asia" )	/*Service Mode lists European Coinage */
 	PORT_DIPSETTING(		0x0003, "Korea" )
 	PORT_DIPSETTING(		0x0004, "Hong Kong" )
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2262,7 +2831,7 @@ INPUT_PORTS_START( kbash2 )
 	PORT_INCLUDE(kbash)
 
 	PORT_MODIFY("JMPR")
-	PORT_DIPNAME( 0x000f,	0x0006, "Territory" )
+	PORT_DIPNAME( 0x000f,	0x0000, "Territory" )
 	PORT_DIPSETTING(		0x0000, "Japan (Taito Corp license)" )
 	PORT_DIPSETTING(		0x000e, "South East Asia" )	/*Service Mode lists European Coinage */
 	PORT_DIPSETTING(		0x0006, "South East Asia (Charterfield license)" )	/*Service Mode lists European Coinage */
@@ -2310,7 +2879,7 @@ INPUT_PORTS_START( truxton2 )
 	PORT_DIPSETTING(		0x0000, DEF_STR( Yes ) )
 
 	PORT_MODIFY("JMPR")
-	PORT_DIPNAME( 0x0007,	0x0002, "Territory" )
+	PORT_DIPNAME( 0x0007,	0x0000, "Territory" )
 	PORT_DIPSETTING(		0x0002, DEF_STR( Europe ) )
 	PORT_DIPSETTING(		0x0001, DEF_STR( USA ) )
 	PORT_DIPSETTING(		0x0000, DEF_STR( Japan ) )
@@ -2318,6 +2887,8 @@ INPUT_PORTS_START( truxton2 )
 	PORT_DIPSETTING(		0x0004, "Korea" )
 	PORT_DIPSETTING(		0x0003, "Hong Kong" )
 	PORT_DIPSETTING(		0x0005, "Taiwan" )
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2352,7 +2923,7 @@ INPUT_PORTS_START( pipibibs )
 	PORT_DIPNAME( 0x0008,	0x0000, "Nudity" )
 	PORT_DIPSETTING(		0x0008, DEF_STR( Low ) )
 	PORT_DIPSETTING(		0x0000, "High, but censored" )
-	PORT_DIPNAME( 0x0007,	0x0006, "Territory" )
+	PORT_DIPNAME( 0x0007,	0x0000, "Territory" )
 	PORT_DIPSETTING(		0x0006, DEF_STR( Europe ) )
 	PORT_DIPSETTING(		0x0007, "Europe (Nova Apparate GMBH & Co)" )
 	PORT_DIPSETTING(		0x0004, DEF_STR( USA ) )
@@ -2361,6 +2932,8 @@ INPUT_PORTS_START( pipibibs )
 	PORT_DIPSETTING(		0x0001, DEF_STR( Asia ) )
 	PORT_DIPSETTING(		0x0002, "Hong Kong (Honest Trading Co.)" )
 	PORT_DIPSETTING(		0x0003, "Taiwan" )
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2386,7 +2959,7 @@ INPUT_PORTS_START( pipibibi )
 
 	PORT_MODIFY("JMPR")
 	/* Bit Mask 0x80000 is used here to signify European Coinage for MAME purposes - not read on the real board! */
-	PORT_DIPNAME( 0x80007,	0x00007, "Territory" )
+	PORT_DIPNAME( 0x80007,	0x00000, "Territory" )
 	PORT_DIPSETTING(		0x00002, DEF_STR( World ) )
 //  PORT_DIPSETTING(        0x00003, DEF_STR( World ) )
 	PORT_DIPSETTING(		0x00007, "World (Ryouta Kikaku)" )
@@ -2448,7 +3021,7 @@ INPUT_PORTS_START( fixeight )
 	PORT_DIPSETTING(		0x0000, DEF_STR( Yes ) )
 
 	PORT_MODIFY("JMPR")
-	PORT_DIPNAME( 0x000f,	0x0009, "Territory" )
+	PORT_DIPNAME( 0x000f,	0x000e, "Territory" )
 	PORT_DIPSETTING(		0x0009, DEF_STR( Europe ) )
 	PORT_DIPSETTING(		0x0008, "Europe (Taito Corp)" )
 	PORT_DIPSETTING(		0x000b, DEF_STR( USA ) )
@@ -2463,6 +3036,8 @@ INPUT_PORTS_START( fixeight )
 	PORT_DIPSETTING(		0x0002, "Hong Kong (Taito Corp)" )
 	PORT_DIPSETTING(		0x0005, "Taiwan" )
 	PORT_DIPSETTING(		0x0004, "Taiwan (Taito corp)" )
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2526,6 +3101,8 @@ INPUT_PORTS_START( grindstm )
 	PORT_DIPSETTING(		0x0005, "Taiwan" )
 	PORT_DIPSETTING(		0x0004, "Taiwan (Anomoto International Inc license)" )
 	PORT_BIT( 0x0010, IP_ACTIVE_HIGH, IPT_UNKNOWN )	/* bit 0x10 sound ready */
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2570,7 +3147,7 @@ INPUT_PORTS_START( batsugun )
 	PORT_DIPSETTING(		0x0000, DEF_STR( Yes ) )
 
 	PORT_MODIFY("JMPR")
-	PORT_DIPNAME( 0x000f,	0x0009, "Territory" )
+	PORT_DIPNAME( 0x000f,	0x000f, "Territory" )
 	PORT_DIPSETTING(		0x0009, DEF_STR( Europe ) )
 	PORT_DIPSETTING(		0x0008, "Europe (Taito Corp license)" )
 	PORT_DIPSETTING(		0x000b, DEF_STR( USA ) )
@@ -2588,6 +3165,8 @@ INPUT_PORTS_START( batsugun )
 	PORT_DIPSETTING(		0x0005, "Taiwan" )
 	PORT_DIPSETTING(		0x0004, "Taiwan (Taito Corp license)" )
 	PORT_BIT( 0x0010, IP_ACTIVE_HIGH, IPT_UNKNOWN )	/* bit 0x10 sound ready */
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2647,7 +3226,7 @@ INPUT_PORTS_START( snowbro2 )
 	PORT_DIPNAME( 0x2000,	0x0000, "Show All Rights Reserved" )
 	PORT_DIPSETTING(		0x0000, DEF_STR( No ) )
 	PORT_DIPSETTING(		0x2000, DEF_STR( Yes ) )
-	PORT_DIPNAME( 0x1c00,	0x0800, "Territory" )
+	PORT_DIPNAME( 0x1c00,	0x0000, "Territory" )
 	PORT_DIPSETTING(		0x0800, DEF_STR( Europe ) )
 	PORT_DIPSETTING(		0x0400, DEF_STR( USA ) )
 	PORT_DIPSETTING(		0x0000, DEF_STR( Japan ) )
@@ -2656,6 +3235,8 @@ INPUT_PORTS_START( snowbro2 )
 	PORT_DIPSETTING(		0x1000, "Hong Kong" )
 	PORT_DIPSETTING(		0x1400, "Taiwan" )
 	PORT_BIT( 0xc3ff, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2700,6 +3281,8 @@ INPUT_PORTS_START( sstriker )
 	PORT_DIPSETTING(		0x000c, "Hong Kong" )
 	PORT_DIPSETTING(		0x000e, "Taiwan" )
 	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2753,6 +3336,8 @@ INPUT_PORTS_START( kingdmgp )
 	PORT_DIPSETTING(		0x000c, "Hong Kong" )
 	PORT_DIPSETTING(		0x000e, "Taiwan" )
 	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2877,6 +3462,8 @@ INPUT_PORTS_START( battleg )
 //  PORT_DIPSETTING(        0x0002, "USA (Fabtek license)" )
 //  PORT_DIPSETTING(        0x0000, DEF_STR( Japan ) )
 	PORT_DIPSETTING(		0x0003, "China" )
+
+	PORT_INCLUDE(toaplan2_extr)
 INPUT_PORTS_END
 
 
@@ -2884,7 +3471,7 @@ INPUT_PORTS_START( battlega )
 	PORT_INCLUDE(battleg)
 
 	PORT_MODIFY("JMPR")
-	PORT_DIPNAME( 0x0003,	0x0001, "Territory" )
+	PORT_DIPNAME( 0x0003,	0x0000, "Territory" )
 	PORT_DIPSETTING(		0x0001, "Europe (German Tuning license)" )
 	PORT_DIPSETTING(		0x0002, "USA (Fabtek license)" )
 	PORT_DIPSETTING(		0x0000, DEF_STR( Japan ) )
@@ -2906,6 +3493,121 @@ INPUT_PORTS_END
 
 
 INPUT_PORTS_START( batrider )
+	PORT_START_TAG("VBL")		/* VBlank */
+	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_VBLANK )
+	PORT_BIT( 0xfffe, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_START_TAG("IN")		/* Player Inputs */
+	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0002, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0004, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0008, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0010, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0020, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0040, IP_ACTIVE_HIGH, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0100, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0200, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0400, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0800, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x1000, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x2000, IP_ACTIVE_HIGH, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x4000, IP_ACTIVE_HIGH, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT( 0x8080, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_START_TAG("DSW")		/* DSWA and DSWB */
+	PORT_SERVICE( 0x0001,	IP_ACTIVE_HIGH )			/// PORT_DIPLOCATION("SW1:1")
+	PORT_DIPNAME( 0x0002,	0x0000, "Credits to Start" )	PORT_CONDITION("DSW",0x001c,PORTCOND_NOTEQUALS,0x001c)	PORT_DIPLOCATION("SW1:2")
+	PORT_DIPSETTING(		0x0000, "1" )					PORT_CONDITION("DSW",0x001c,PORTCOND_NOTEQUALS,0x001c)
+	PORT_DIPSETTING(		0x0002, "2" )					PORT_CONDITION("DSW",0x001c,PORTCOND_NOTEQUALS,0x001c)
+	PORT_DIPNAME( 0x0002,	0x0000, "Joystick Mode" )		PORT_CONDITION("DSW",0x001c,PORTCOND_EQUALS,0x001c)		PORT_DIPLOCATION("SW1:2")
+	PORT_DIPSETTING(		0x0000, DEF_STR( Normal ) )		PORT_CONDITION("DSW",0x001c,PORTCOND_EQUALS,0x001c)
+	PORT_DIPSETTING(		0x0002, "90 degrees ACW" )		PORT_CONDITION("DSW",0x001c,PORTCOND_EQUALS,0x001c)
+	PORT_DIPNAME( 0x001c,	0x0000, DEF_STR( Coin_A ) )		PORT_DIPLOCATION("SW1:5,4,3")
+	PORT_DIPSETTING(		0x0018, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(		0x0014, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(		0x0010, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(		0x0000, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(		0x0004, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(		0x0008, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(		0x000c, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(		0x001c, DEF_STR( Free_Play ) )
+	PORT_DIPNAME( 0x00e0,	0x0000, DEF_STR( Coin_B ) )		PORT_CONDITION("DSW",0x001c,PORTCOND_NOTEQUALS,0x001c)	PORT_DIPLOCATION("SW1:8,7,6")
+	PORT_DIPSETTING(		0x00c0, DEF_STR( 4C_1C ) )		PORT_CONDITION("DSW",0x001c,PORTCOND_NOTEQUALS,0x001c)
+	PORT_DIPSETTING(		0x00a0, DEF_STR( 3C_1C ) )		PORT_CONDITION("DSW",0x001c,PORTCOND_NOTEQUALS,0x001c)
+	PORT_DIPSETTING(		0x0080, DEF_STR( 2C_1C ) )		PORT_CONDITION("DSW",0x001c,PORTCOND_NOTEQUALS,0x001c)
+	PORT_DIPSETTING(		0x0000, DEF_STR( 1C_1C ) )		PORT_CONDITION("DSW",0x001c,PORTCOND_NOTEQUALS,0x001c)
+//  PORT_DIPSETTING(        0x00e0, DEF_STR( 1C_1C ) )      PORT_CONDITION("DSW",0x001c,PORTCOND_NOTEQUALS,0x001c)
+	PORT_DIPSETTING(		0x0020, DEF_STR( 1C_2C ) )		PORT_CONDITION("DSW",0x001c,PORTCOND_NOTEQUALS,0x001c)
+	PORT_DIPSETTING(		0x0040, DEF_STR( 1C_3C ) )		PORT_CONDITION("DSW",0x001c,PORTCOND_NOTEQUALS,0x001c)
+	PORT_DIPSETTING(		0x0060, DEF_STR( 1C_4C ) )		PORT_CONDITION("DSW",0x001c,PORTCOND_NOTEQUALS,0x001c)
+	/* When Coin_A is set to Free_Play, Coin_A becomes Coin_A and Coin_B, and the following dips occur */
+	PORT_DIPNAME( 0x0020,	0x0000, "Hit Score" )			PORT_CONDITION("DSW",0x001c,PORTCOND_EQUALS,0x001c)		PORT_DIPLOCATION("SW1:6")
+	PORT_DIPSETTING(		0x0020, DEF_STR( Off ) )		PORT_CONDITION("DSW",0x001c,PORTCOND_EQUALS,0x001c)
+	PORT_DIPSETTING(		0x0000, DEF_STR( On ) )			PORT_CONDITION("DSW",0x001c,PORTCOND_EQUALS,0x001c)
+	PORT_DIPNAME( 0x0040,	0x0000, "Sound Effect" )		PORT_CONDITION("DSW",0x001c,PORTCOND_EQUALS,0x001c)		PORT_DIPLOCATION("SW1:7")
+	PORT_DIPSETTING(		0x0040, DEF_STR( Off ) )		PORT_CONDITION("DSW",0x001c,PORTCOND_EQUALS,0x001c)
+	PORT_DIPSETTING(		0x0000, DEF_STR( On ) )			PORT_CONDITION("DSW",0x001c,PORTCOND_EQUALS,0x001c)
+	PORT_DIPNAME( 0x0080,	0x0000, "Music" )				PORT_CONDITION("DSW",0x001c,PORTCOND_EQUALS,0x001c)		PORT_DIPLOCATION("SW1:8")
+	PORT_DIPSETTING(		0x0080, DEF_STR( Off ) )		PORT_CONDITION("DSW",0x001c,PORTCOND_EQUALS,0x001c)
+	PORT_DIPSETTING(		0x0000, DEF_STR( On ) )			PORT_CONDITION("DSW",0x001c,PORTCOND_EQUALS,0x001c)
+	PORT_DIPNAME( 0x0300,	0x0000, DEF_STR( Difficulty ) )	PORT_DIPLOCATION("SW2:2,1")
+	PORT_DIPSETTING(		0x0300, DEF_STR( Hardest ) )
+	PORT_DIPSETTING(		0x0200, DEF_STR( Hard ) )
+	PORT_DIPSETTING(		0x0000, DEF_STR( Medium ) )
+	PORT_DIPSETTING(		0x0100, DEF_STR( Easy ) )
+	PORT_DIPNAME( 0x0c00,	0x0000, "Timer" )				PORT_DIPLOCATION("SW2:4,3")
+	PORT_DIPSETTING(		0x0c00, DEF_STR( Highest ) )
+	PORT_DIPSETTING(		0x0800, DEF_STR( High ) )
+	PORT_DIPSETTING(		0x0000, DEF_STR( Medium ) )
+	PORT_DIPSETTING(		0x0400, DEF_STR( Low ) )
+	PORT_DIPNAME( 0x3000,	0x0000, DEF_STR( Lives ) )		PORT_DIPLOCATION("SW2:6,5")
+	PORT_DIPSETTING(		0x3000, "1" )
+	PORT_DIPSETTING(		0x2000, "2" )
+	PORT_DIPSETTING(		0x0000, "3" )
+	PORT_DIPSETTING(		0x1000, "4" )
+	PORT_DIPNAME( 0xc000,	0x0000, DEF_STR( Bonus_Life ) )	PORT_DIPLOCATION("SW2:8,7")
+	PORT_DIPSETTING(		0xc000, DEF_STR( None ) )
+	PORT_DIPSETTING(		0x8000, "Every 2000k" )
+	PORT_DIPSETTING(		0x0000, "Every 1500k" )
+	PORT_DIPSETTING(		0x4000, "Every 1000k" )
+
+	PORT_START_TAG("SYS-DSW")	/* Coin/System and DSWC */
+	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_SERVICE1 )	/* Service */
+	PORT_BIT( 0x0002, IP_ACTIVE_HIGH, IPT_UNKNOWN)
+	PORT_BIT( 0x0004, IP_ACTIVE_HIGH, IPT_SERVICE2 )	/* Test */
+	PORT_BIT( 0x0008, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT( 0x0010, IP_ACTIVE_HIGH, IPT_COIN2 )
+	PORT_BIT( 0x0020, IP_ACTIVE_HIGH, IPT_START1 )
+	PORT_BIT( 0x0040, IP_ACTIVE_HIGH, IPT_START2 )
+	PORT_BIT( 0x0080, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+	PORT_DIPNAME( 0x0100,	0x0000, DEF_STR( Flip_Screen ) )	PORT_DIPLOCATION("SW3:1")
+	PORT_DIPSETTING(		0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(		0x0100, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0200,	0x0000, DEF_STR( Demo_Sounds ) )	PORT_DIPLOCATION("SW3:2")
+	PORT_DIPSETTING(		0x0200, DEF_STR( Off ) )
+	PORT_DIPSETTING(		0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0400,	0x0000, "Stage Edit" )				PORT_DIPLOCATION("SW3:3")
+	PORT_DIPSETTING(		0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(		0x0400, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0800,	0x0000, DEF_STR( Allow_Continue ) )	PORT_DIPLOCATION("SW3:4")
+	PORT_DIPSETTING(		0x0800, DEF_STR( No ) )
+	PORT_DIPSETTING(		0x0000, DEF_STR( Yes ) )
+	PORT_DIPNAME( 0x1000,	0x0000, "Invulnerability" )			PORT_DIPLOCATION("SW3:5")
+	PORT_DIPSETTING(		0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(		0x1000, DEF_STR( On ) )
+	/* These Dips are showed only when Coin_A is set to Free_Play, but they work in normal play mode too. */
+	PORT_DIPNAME( 0x2000,	0x0000, "Guest Player" )			PORT_DIPLOCATION("SW3:6")
+	PORT_DIPSETTING(		0x2000, DEF_STR( Off ) )
+	PORT_DIPSETTING(		0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x4000,	0x0000, "Player Select" )			PORT_DIPLOCATION("SW3:7")
+	PORT_DIPSETTING(		0x4000, DEF_STR( Off ) )
+	PORT_DIPSETTING(		0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x8000,	0x0000, "Special Course" )			PORT_DIPLOCATION("SW3:8")
+	PORT_DIPSETTING(		0x8000, DEF_STR( Off ) )
+	PORT_DIPSETTING(		0x0000, DEF_STR( On ) )
+INPUT_PORTS_END
+
+INPUT_PORTS_START( batridrj )
 	PORT_START_TAG("VBL")		/* VBlank */
 	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_VBLANK )
 	PORT_BIT( 0xfffe, IP_ACTIVE_HIGH, IPT_UNKNOWN )
@@ -3300,8 +4002,6 @@ static struct YMZ280Binterface ymz280b_interface =
 };
 
 
-
-
 static MACHINE_DRIVER_START( tekipaki )
 
 	/* basic machine hardware */
@@ -3332,9 +4032,13 @@ static MACHINE_DRIVER_START( tekipaki )
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
-
+/*
 	MDRV_SOUND_ADD(YM3812, 27000000/8)
 	MDRV_SOUND_CONFIG(ym3812_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+*/
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(tekipaki_samples_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
@@ -3368,11 +4072,18 @@ static MACHINE_DRIVER_START( ghox )
 	MDRV_VIDEO_UPDATE(toaplan2_0)
 
 	/* sound hardware */
+/*
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
 	MDRV_SOUND_ADD(YM2151, 27000000/8)
-	MDRV_SOUND_ROUTE(0, "left", 0.5)
-	MDRV_SOUND_ROUTE(1, "right", 0.5)
+	MDRV_SOUND_ROUTE(0, "left", 0.25)
+	MDRV_SOUND_ROUTE(1, "right", 0.25)
+*/
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(ghox_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
 
@@ -3405,17 +4116,24 @@ static MACHINE_DRIVER_START( dogyuun )
 	MDRV_VIDEO_EOF(toaplan2_1)
 	MDRV_VIDEO_UPDATE(dogyuun_1)
 
-	/* sound hardware */
+	/* sound hardware */	
+	/*
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
 	MDRV_SOUND_ADD(YM2151, 27000000/8)
-	MDRV_SOUND_ROUTE(0, "left", 0.45)
-	MDRV_SOUND_ROUTE(1, "right", 0.45)
+	MDRV_SOUND_ROUTE(0, "left", 0.25)
+	MDRV_SOUND_ROUTE(1, "right", 0.25)
 
 	MDRV_SOUND_ADD(OKIM6295, 27000000/10/132)
 	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.45)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.45)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.25)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.25)
+	*/
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(dogyuun_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
 
@@ -3748,14 +4466,20 @@ static MACHINE_DRIVER_START( vfive )
 
 	MDRV_VIDEO_START(toaplan2_0)
 	MDRV_VIDEO_EOF(toaplan2_0)
-	MDRV_VIDEO_UPDATE(toaplan2_0)
+	MDRV_VIDEO_UPDATE(toaplan2_1)
 
 	/* sound hardware */
-	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+	MDRV_SPEAKER_STANDARD_MONO("mono")
 
+	/*
 	MDRV_SOUND_ADD(YM2151, 27000000/8)
-	MDRV_SOUND_ROUTE(0, "left", 0.5)
-	MDRV_SOUND_ROUTE(1, "right", 0.5)
+	MDRV_SOUND_ROUTE(0, "left", 0.25)
+	MDRV_SOUND_ROUTE(1, "right", 0.25)
+	*/
+
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(vfive_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
 
@@ -3789,6 +4513,8 @@ static MACHINE_DRIVER_START( batsugun )
 	MDRV_VIDEO_UPDATE(batsugun_1)
 
 	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	/*
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
 	MDRV_SOUND_ADD(YM2151, 27000000/8)
@@ -3799,6 +4525,10 @@ static MACHINE_DRIVER_START( batsugun )
 	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.25)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.25)
+	*/
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(batsugun_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)	
 MACHINE_DRIVER_END
 
 
@@ -4088,6 +4818,23 @@ ROM_START( ghox )
 ROM_END
 
 
+ROM_START( ghoxj )
+	ROM_REGION( 0x040000, REGION_CPU1, 0 )			/* Main 68K code */
+	ROM_LOAD16_BYTE( "tp021-01a.u10", 0x000000, 0x020000, CRC(c11b13c8) SHA1(da7defc1d3b6ddded910ba56c31fbbdb5ed57b09) )
+	ROM_LOAD16_BYTE( "tp021-02a.u11", 0x000001, 0x020000, CRC(8d426767) SHA1(1ed4a8bcbf4352257e7d58cb5c2c91eb48c2f047) )
+
+#if HD64x180
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )			/* Sound HD647180 code */
+	/* sound CPU is a HD647180 (Z180) with internal ROM - not yet supported */
+	ROM_LOAD( "hd647180.021", 0x00000, 0x08000, NO_DUMP )
+#endif
+
+	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "tp021-03.u36", 0x000000, 0x080000, CRC(a15d8e9d) SHA1(640a33997bdce8e84bea6a944139716379839037) )
+	ROM_LOAD( "tp021-04.u37", 0x080000, 0x080000, CRC(26ed1c9a) SHA1(37da8af86ea24327444c2d4ad3dfbd936208d43d) )
+ROM_END
+
+
 ROM_START( dogyuun )
 	ROM_REGION( 0x080000, REGION_CPU1, 0 )			/* Main 68K code */
 	ROM_LOAD16_WORD_SWAP( "tp022_01.r16", 0x000000, 0x080000, CRC(79eb2429) SHA1(088c5ed0ed77557ab71f52cafe35028e3648ae1e) )
@@ -4159,7 +4906,7 @@ ROM_END
 
 ROM_START( truxton2 )
 	ROM_REGION( 0x080000, REGION_CPU1, 0 )			/* Main 68K code */
-	ROM_LOAD16_WORD( "tp024_1.bin", 0x000000, 0x080000, CRC(f5cfe6ee) SHA1(30979888a4cd6500244117748f28386a7e20a169) )
+	ROM_LOAD16_WORD_SWAP( "tp024_1.bin", 0x000000, 0x080000, CRC(eb26f0e5) SHA1(4fb1e8f6d7d62138b408db932c15dd7dc8d4c367) )
 
 	ROM_REGION( 0x200000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "tp024_4.bin", 0x000000, 0x100000, CRC(805c449e) SHA1(fdf985344145bd320b88b9b0c25e73066c9b2ada) )
@@ -4508,7 +5255,7 @@ ROM_START( shippumd )
 ROM_END
 
 
-ROM_START( battleg )
+ROM_START( bgaregcn )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )			/* Main 68K code */
 	ROM_LOAD16_BYTE( "u123", 0x000000, 0x080000, CRC(88a4e66a) SHA1(ca97e564eed0c5e028b937312e55da56400d5c8c) )
 	ROM_LOAD16_BYTE( "u65",  0x000001, 0x080000, CRC(5dea32a3) SHA1(59df6689e3eb5ea9e49a758604d21a64c65ca14d) )
@@ -4531,7 +5278,30 @@ ROM_START( battleg )
 ROM_END
 
 
-ROM_START( battlega )
+ROM_START( bgaregt2 )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )			/* Main 68K code */
+	ROM_LOAD16_BYTE( "prg0", 0x000000, 0x080000, CRC(84094099) SHA1(49fc68a8bcdae4477e20eade9dd569de88b0b798) )
+	ROM_LOAD16_BYTE( "prg1", 0x000001, 0x080000, CRC(46f92fe4) SHA1(62a02cc1dbdc3ac362339aebb62368eb89b06bad) )
+
+	ROM_REGION( 0x28000, REGION_CPU2, 0 )			/* Sound Z80 code + bank */
+	ROM_LOAD( "snd.bin", 0x00000, 0x08000, CRC(68632952) SHA1(fb834db83157948e2b420b6051102a9c6ac3969b) )
+	ROM_CONTINUE(        0x10000, 0x18000 )
+
+	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "rom4.bin",  0x000000, 0x200000, CRC(b333d81f) SHA1(5481465f1304334fd55798be2f44324c57c2dbcb) )
+	ROM_LOAD( "rom3.bin",  0x200000, 0x200000, CRC(51b9ebfb) SHA1(30e0c326f5175aa436df8dba08f6f4e08130b92f) )
+	ROM_LOAD( "rom2.bin",  0x400000, 0x200000, CRC(b330e5e2) SHA1(5d48e9d56f99d093b6390e0af1609fd796df2d35) )
+	ROM_LOAD( "rom1.bin",  0x600000, 0x200000, CRC(7eafdd70) SHA1(7c8da8e86c3f9491719b1d7d5d285568d7614f38) )
+
+	ROM_REGION( 0x010000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "text.u81", 0x00000, 0x08000, CRC(e67fd534) SHA1(987d0edffc2c243a13d4567319ea3d185eaadbf8) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )		/* ADPCM Samples */
+	ROM_LOAD( "rom5.bin", 0x040000, 0x100000, CRC(f6d49863) SHA1(3a3c354852adad06e8a051511abfab7606bce382) )
+ROM_END
+
+
+ROM_START( bgaregga )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )			/* Main 68K code */
 	ROM_LOAD16_BYTE( "prg0.bin", 0x000000, 0x080000, CRC(f80c2fc2) SHA1(a9aac5c7f5439b6fe8d1b3db1fb02a27cc28fdf6) )
 	ROM_LOAD16_BYTE( "prg1.bin", 0x000001, 0x080000, CRC(2ccfdd1e) SHA1(7a9f11f851854f3f8389b9c3c0906ebb8dc28712) )
@@ -4554,7 +5324,7 @@ ROM_START( battlega )
 ROM_END
 
 
-ROM_START( battlegb )
+ROM_START( bgaregnv )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )			/* Main 68K code */
 	ROM_LOAD16_BYTE( "prg_0.bin", 0x000000, 0x080000, CRC(951ecc07) SHA1(a82e4b59e4a974566e59f3ab2fbae1aec7d88a2b) )
 	ROM_LOAD16_BYTE( "prg_1.bin", 0x000001, 0x080000, CRC(729a60c6) SHA1(cb6f5d138bb82c32910f42d8ee16fa573a23cef3) )
@@ -4577,7 +5347,7 @@ ROM_START( battlegb )
 ROM_END
 
 
-ROM_START( battlegc )
+ROM_START( bgareghk )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )			/* Main 68K code */
 	ROM_LOAD16_BYTE( "prg_0.rom", 0x000000, 0x080000, CRC(26e0019e) SHA1(5197001f5d59246b137e19ed1952a8207b25d4c0) )
 	ROM_LOAD16_BYTE( "prg_1.rom", 0x000001, 0x080000, CRC(2ccfdd1e) SHA1(7a9f11f851854f3f8389b9c3c0906ebb8dc28712) )
@@ -4599,8 +5369,101 @@ ROM_START( battlegc )
 	ROM_LOAD( "rom5.bin", 0x040000, 0x100000, CRC(f6d49863) SHA1(3a3c354852adad06e8a051511abfab7606bce382) )
 ROM_END
 
+ROM_START( bgaregtw )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )			/* Main 68K code */
+	ROM_LOAD16_BYTE( "garegga_prg0.u123", 0x000000, 0x080000, CRC(235b7405) SHA1(a2434801df4231a6b48f6c63f47c202d25a89e79) )
+	ROM_LOAD16_BYTE( "garegga_prg1.u65",  0x000001, 0x080000, CRC(c29ccf6a) SHA1(38806e0b4ff852f4bfefd80c56ca23f71623e275) )
 
-ROM_START( batrider )
+	ROM_REGION( 0x28000, REGION_CPU2, 0 )			/* Sound Z80 code + bank */
+	ROM_LOAD( "snd.bin", 0x00000, 0x08000, CRC(68632952) SHA1(fb834db83157948e2b420b6051102a9c6ac3969b) )
+	ROM_CONTINUE(        0x10000, 0x18000 )
+
+	ROM_REGION( 0x800000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "rom4.bin",  0x000000, 0x200000, CRC(b333d81f) SHA1(5481465f1304334fd55798be2f44324c57c2dbcb) )
+	ROM_LOAD( "rom3.bin",  0x200000, 0x200000, CRC(51b9ebfb) SHA1(30e0c326f5175aa436df8dba08f6f4e08130b92f) )
+	ROM_LOAD( "rom2.bin",  0x400000, 0x200000, CRC(b330e5e2) SHA1(5d48e9d56f99d093b6390e0af1609fd796df2d35) )
+	ROM_LOAD( "rom1.bin",  0x600000, 0x200000, CRC(7eafdd70) SHA1(7c8da8e86c3f9491719b1d7d5d285568d7614f38) )
+
+	ROM_REGION( 0x010000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "text.u81", 0x00000, 0x08000, CRC(e67fd534) SHA1(987d0edffc2c243a13d4567319ea3d185eaadbf8) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )		/* ADPCM Samples */
+	ROM_LOAD( "rom5.bin", 0x040000, 0x100000, CRC(f6d49863) SHA1(3a3c354852adad06e8a051511abfab7606bce382) )
+ROM_END
+
+ROM_START( batrid )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )			/* Main 68k code */
+	ROM_LOAD16_BYTE( "prg0_europe.u22", 0x000000, 0x080000, CRC(91d3e975) SHA1(682885fc17f2424d475c282f239f42faf1aae076) )
+	ROM_LOAD16_BYTE( "prg1b.u23", 0x000001, 0x080000, CRC(8e70b492) SHA1(f84f2039826ae815afb058d71c1dbd190f9d524d) )
+	ROM_LOAD16_BYTE( "prg2.u21" , 0x100000, 0x080000, CRC(bdaa5fbf) SHA1(abd72ac633c0c8e7b4b1d7902c0d6e014ba995fe) )
+	ROM_LOAD16_BYTE( "prg3.u24" , 0x100001, 0x080000, CRC(7aa9f941) SHA1(99bdbad7a96d461073b06a53c50fc57c2fd6fc6d) )
+
+	ROM_REGION( 0x48000, REGION_CPU2, 0 )			/* Sound Z80 code + bank */
+	ROM_LOAD( "snd.u77", 0x00000, 0x08000, CRC(56682696) SHA1(a372450d9a6d535123dfc31d8116074b168ab646) )
+	ROM_CONTINUE(        0x10000, 0x38000 )
+
+	ROM_REGION( 0x1000000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "rom-1.bin", 0x000000, 0x400000, CRC(0df69ca2) SHA1(49670347ebd7e1067ff988cf842b275b7ee7b5f7) )
+	ROM_LOAD( "rom-3.bin", 0x400000, 0x400000, CRC(60167d38) SHA1(fd2429808c59ef51fd5f5db84ea89a8dc504186e) )
+	ROM_LOAD( "rom-2.bin", 0x800000, 0x400000, CRC(1bfea593) SHA1(ce06dc3097ae56b0df56d104bbf7efc9b5d968d4) )
+	ROM_LOAD( "rom-4.bin", 0xc00000, 0x400000, CRC(bee03c94) SHA1(5bc1e6769c42857c03456426b502fcb86a114f19) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )		/* ADPCM Samples 1 */
+	ROM_LOAD( "rom-5.bin", 0x040000, 0x100000, CRC(4274daf6) SHA1(85557b4707d529e5914f03c7a856864f5c24950e) )
+
+	ROM_REGION( 0x140000, REGION_SOUND2, 0 )		/* ADPCM Samples 2 */
+	ROM_LOAD( "rom-6.bin", 0x040000, 0x100000, CRC(2a1c2426) SHA1(8abc3688ffc5ebb94b8d5118d4fa0908f07fe791) )
+ROM_END
+
+ROM_START( batridu )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )			/* Main 68k code */
+	ROM_LOAD16_BYTE( "prg0_usa.u22", 0x000000, 0x080000, CRC(2049d007) SHA1(f2a43547a6fc5083b03c1d59a85abbf6e1ce4cd9) )
+	ROM_LOAD16_BYTE( "prg1b.u23", 0x000001, 0x080000, CRC(8e70b492) SHA1(f84f2039826ae815afb058d71c1dbd190f9d524d) )
+	ROM_LOAD16_BYTE( "prg2.u21" , 0x100000, 0x080000, CRC(bdaa5fbf) SHA1(abd72ac633c0c8e7b4b1d7902c0d6e014ba995fe) )
+	ROM_LOAD16_BYTE( "prg3.u24" , 0x100001, 0x080000, CRC(7aa9f941) SHA1(99bdbad7a96d461073b06a53c50fc57c2fd6fc6d) )
+
+	ROM_REGION( 0x48000, REGION_CPU2, 0 )			/* Sound Z80 code + bank */
+	ROM_LOAD( "snd.u77", 0x00000, 0x08000, CRC(56682696) SHA1(a372450d9a6d535123dfc31d8116074b168ab646) )
+	ROM_CONTINUE(        0x10000, 0x38000 )
+
+	ROM_REGION( 0x1000000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "rom-1.bin", 0x000000, 0x400000, CRC(0df69ca2) SHA1(49670347ebd7e1067ff988cf842b275b7ee7b5f7) )
+	ROM_LOAD( "rom-3.bin", 0x400000, 0x400000, CRC(60167d38) SHA1(fd2429808c59ef51fd5f5db84ea89a8dc504186e) )
+	ROM_LOAD( "rom-2.bin", 0x800000, 0x400000, CRC(1bfea593) SHA1(ce06dc3097ae56b0df56d104bbf7efc9b5d968d4) )
+	ROM_LOAD( "rom-4.bin", 0xc00000, 0x400000, CRC(bee03c94) SHA1(5bc1e6769c42857c03456426b502fcb86a114f19) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )		/* ADPCM Samples 1 */
+	ROM_LOAD( "rom-5.bin", 0x040000, 0x100000, CRC(4274daf6) SHA1(85557b4707d529e5914f03c7a856864f5c24950e) )
+
+	ROM_REGION( 0x140000, REGION_SOUND2, 0 )		/* ADPCM Samples 2 */
+	ROM_LOAD( "rom-6.bin", 0x040000, 0x100000, CRC(2a1c2426) SHA1(8abc3688ffc5ebb94b8d5118d4fa0908f07fe791) )
+ROM_END
+
+ROM_START( batridc )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )			/* Main 68k code */
+	ROM_LOAD16_BYTE( "prg0_china.u22", 0x000000, 0x080000, CRC(c3b91f7e) SHA1(6b2376c37808dccda296d90ccd7f577ccff4e4dc) )
+	ROM_LOAD16_BYTE( "prg1b.u23", 0x000001, 0x080000, CRC(8e70b492) SHA1(f84f2039826ae815afb058d71c1dbd190f9d524d) )
+	ROM_LOAD16_BYTE( "prg2.u21" , 0x100000, 0x080000, CRC(bdaa5fbf) SHA1(abd72ac633c0c8e7b4b1d7902c0d6e014ba995fe) )
+	ROM_LOAD16_BYTE( "prg3.u24" , 0x100001, 0x080000, CRC(7aa9f941) SHA1(99bdbad7a96d461073b06a53c50fc57c2fd6fc6d) )
+
+	ROM_REGION( 0x48000, REGION_CPU2, 0 )			/* Sound Z80 code + bank */
+	ROM_LOAD( "snd.u77", 0x00000, 0x08000, CRC(56682696) SHA1(a372450d9a6d535123dfc31d8116074b168ab646) )
+	ROM_CONTINUE(        0x10000, 0x38000 )
+
+	ROM_REGION( 0x1000000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "rom-1.bin", 0x000000, 0x400000, CRC(0df69ca2) SHA1(49670347ebd7e1067ff988cf842b275b7ee7b5f7) )
+	ROM_LOAD( "rom-3.bin", 0x400000, 0x400000, CRC(60167d38) SHA1(fd2429808c59ef51fd5f5db84ea89a8dc504186e) )
+	ROM_LOAD( "rom-2.bin", 0x800000, 0x400000, CRC(1bfea593) SHA1(ce06dc3097ae56b0df56d104bbf7efc9b5d968d4) )
+	ROM_LOAD( "rom-4.bin", 0xc00000, 0x400000, CRC(bee03c94) SHA1(5bc1e6769c42857c03456426b502fcb86a114f19) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )		/* ADPCM Samples 1 */
+	ROM_LOAD( "rom-5.bin", 0x040000, 0x100000, CRC(4274daf6) SHA1(85557b4707d529e5914f03c7a856864f5c24950e) )
+
+	ROM_REGION( 0x140000, REGION_SOUND2, 0 )		/* ADPCM Samples 2 */
+	ROM_LOAD( "rom-6.bin", 0x040000, 0x100000, CRC(2a1c2426) SHA1(8abc3688ffc5ebb94b8d5118d4fa0908f07fe791) )
+ROM_END
+
+ROM_START( batridj )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )			/* Main 68k code */
 	ROM_LOAD16_BYTE( "prg0b.u22", 0x000000, 0x080000, CRC(4f3fc729) SHA1(b32d51c254741b82171a86c271679522a7aefd34) )
 	ROM_LOAD16_BYTE( "prg1b.u23", 0x000001, 0x080000, CRC(8e70b492) SHA1(f84f2039826ae815afb058d71c1dbd190f9d524d) )
@@ -4624,8 +5487,32 @@ ROM_START( batrider )
 	ROM_LOAD( "rom-6.bin", 0x040000, 0x100000, CRC(2a1c2426) SHA1(8abc3688ffc5ebb94b8d5118d4fa0908f07fe791) )
 ROM_END
 
+ROM_START( batridk )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )			/* Main 68k code */
+	ROM_LOAD16_BYTE( "prg0_korea.u22", 0x000000, 0x080000, CRC(d9d8c907) SHA1(69c197f2a41f288913f042de9eb8274c0df3ac27) )
+	ROM_LOAD16_BYTE( "prg1.u23", 0x000001, 0x080000, CRC(8e70b492) SHA1(f84f2039826ae815afb058d71c1dbd190f9d524d) )
+	ROM_LOAD16_BYTE( "prg2.u21", 0x100000, 0x080000, CRC(bdaa5fbf) SHA1(abd72ac633c0c8e7b4b1d7902c0d6e014ba995fe) )
+	ROM_LOAD16_BYTE( "prg3.u24", 0x100001, 0x080000, CRC(7aa9f941) SHA1(99bdbad7a96d461073b06a53c50fc57c2fd6fc6d) )
 
-ROM_START( batridra )
+	ROM_REGION( 0x48000, REGION_CPU2, 0 )			/* Sound Z80 code + bank */
+	ROM_LOAD( "snd.u77", 0x00000, 0x08000, CRC(56682696) SHA1(a372450d9a6d535123dfc31d8116074b168ab646) )
+	ROM_CONTINUE(        0x10000, 0x38000 )
+
+	ROM_REGION( 0x1000000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "rom-1.bin", 0x000000, 0x400000, CRC(0df69ca2) SHA1(49670347ebd7e1067ff988cf842b275b7ee7b5f7) )
+	ROM_LOAD( "rom-3.bin", 0x400000, 0x400000, CRC(60167d38) SHA1(fd2429808c59ef51fd5f5db84ea89a8dc504186e) )
+	ROM_LOAD( "rom-2.bin", 0x800000, 0x400000, CRC(1bfea593) SHA1(ce06dc3097ae56b0df56d104bbf7efc9b5d968d4) )
+	ROM_LOAD( "rom-4.bin", 0xc00000, 0x400000, CRC(bee03c94) SHA1(5bc1e6769c42857c03456426b502fcb86a114f19) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )		/* ADPCM Samples 1 */
+	ROM_LOAD( "rom-5.bin", 0x040000, 0x100000, CRC(4274daf6) SHA1(85557b4707d529e5914f03c7a856864f5c24950e) )
+
+	ROM_REGION( 0x140000, REGION_SOUND2, 0 )		/* ADPCM Samples 2 */
+	ROM_LOAD( "rom-6.bin", 0x040000, 0x100000, CRC(2a1c2426) SHA1(8abc3688ffc5ebb94b8d5118d4fa0908f07fe791) )
+ROM_END
+
+/* Version A is older, might have been only released in Japan and Taiwan? */
+ROM_START( batridja )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )			/* Main 68k code */
 	ROM_LOAD16_BYTE( "prg0.bin", 0x000000, 0x080000, CRC(f93ea27c) SHA1(41023c2ee1efd70b5aa9c70e1ddd9e5c3d51d68a) )
 	ROM_LOAD16_BYTE( "prg1.bin", 0x000001, 0x080000, CRC(8ae7f592) SHA1(8a20ebf85eca621f578d2302c3a3988647b077a7) )
@@ -4649,11 +5536,10 @@ ROM_START( batridra )
 	ROM_LOAD( "rom-6.bin", 0x040000, 0x100000, CRC(2a1c2426) SHA1(8abc3688ffc5ebb94b8d5118d4fa0908f07fe791) )
 ROM_END
 
-
-ROM_START( batridrk )
+ROM_START( batridta )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )			/* Main 68k code */
-	ROM_LOAD16_BYTE( "prg0.u22", 0x000000, 0x080000, CRC(d9d8c907) SHA1(69c197f2a41f288913f042de9eb8274c0df3ac27) )
-	ROM_LOAD16_BYTE( "prg1.u23", 0x000001, 0x080000, CRC(8e70b492) SHA1(f84f2039826ae815afb058d71c1dbd190f9d524d) )
+	ROM_LOAD16_BYTE( "u22.bin",  0x000000, 0x080000, CRC(b135820e) SHA1(c222887d18a0a3ea0fcc973b95b29d69c86f7ec3) )
+	ROM_LOAD16_BYTE( "u23.bin",  0x000001, 0x080000, CRC(8ae7f592) SHA1(8a20ebf85eca621f578d2302c3a3988647b077a7) )
 	ROM_LOAD16_BYTE( "prg2.u21", 0x100000, 0x080000, CRC(bdaa5fbf) SHA1(abd72ac633c0c8e7b4b1d7902c0d6e014ba995fe) )
 	ROM_LOAD16_BYTE( "prg3.u24", 0x100001, 0x080000, CRC(7aa9f941) SHA1(99bdbad7a96d461073b06a53c50fc57c2fd6fc6d) )
 
@@ -4674,8 +5560,30 @@ ROM_START( batridrk )
 	ROM_LOAD( "rom-6.bin", 0x040000, 0x100000, CRC(2a1c2426) SHA1(8abc3688ffc5ebb94b8d5118d4fa0908f07fe791) )
 ROM_END
 
+ROM_START( bkraidu )
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )			/* Main 68k code */
+	ROM_LOAD16_BYTE( "prg0u022_usa.bin", 0x000000, 0x080000, CRC(95fb2ffd) SHA1(c7f502f3945249573b66226e8bacc6a9bc230693) )
+	ROM_LOAD16_BYTE( "prg1u023.new", 0x000001, 0x080000, CRC(4ae9aa64) SHA1(45fdf72141c4c9f24a38d4218c65874799b9c868) )
+	ROM_LOAD16_BYTE( "prg2u021.bin", 0x100000, 0x080000, CRC(ffba8656) SHA1(6526bb65fad3384de3f301a7d1095cbf03757433) )
+	ROM_LOAD16_BYTE( "prg3u024.bin", 0x100001, 0x080000, CRC(834b8ad6) SHA1(0dd6223bb0749819ad29811eeb04fd08d937abb0) )
 
-ROM_START( bbakraid )
+	ROM_REGION( 0x28000, REGION_CPU2, 0 )			/* Sound Z80 code */
+	ROM_LOAD( "sndu0720.bin", 0x00000, 0x08000, CRC(e62ab246) SHA1(00d23689dd423ecd4024c58b5903d16e890f1dff) )
+	ROM_CONTINUE(             0x10000, 0x18000 )
+
+	ROM_REGION( 0x1000000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "gfxu0510.bin", 0x000000, 0x400000, CRC(9cca3446) SHA1(1123f8b8bfbe59a2c572cdf61f1ad27ff37f0f0d) )
+	ROM_LOAD( "gfxu0512.bin", 0x400000, 0x400000, CRC(a2a281d5) SHA1(d9a6623f9433ad682223f9780c26cd1523ebc5c5) )
+	ROM_LOAD( "gfxu0511.bin", 0x800000, 0x400000, CRC(e16472c0) SHA1(6068d679a8b3b65e05acd58a7ce9ead90177049f) )
+	ROM_LOAD( "gfxu0513.bin", 0xc00000, 0x400000, CRC(8bb635a0) SHA1(9064f1a2d8bb88ddbca702fb8556d0dfe6a5cadc) )
+
+	ROM_REGION( 0x0c00000, REGION_SOUND1, 0 )		/* YMZ280B Samples */
+	ROM_LOAD( "rom6.829", 0x000000, 0x400000, CRC(8848b4a0) SHA1(e0dce136c5d5a4c1a92b863e57848cd5927d06f1) )
+	ROM_LOAD( "rom7.830", 0x400000, 0x400000, CRC(d6224267) SHA1(5c9b7b13effbef9f707811f84bfe50ca85e605e3) )
+	ROM_LOAD( "rom8.831", 0x800000, 0x400000, CRC(a101dfb0) SHA1(4b729b0d562e09df35438e9e6b457b8de2690a6e) )
+ROM_END
+
+ROM_START( bkraidj )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )			/* Main 68k code */
 	ROM_LOAD16_BYTE( "prg0u022.bin", 0x000000, 0x080000, CRC(0dd59512) SHA1(c6a4e6aa49c6ac3b04ae62a0a4cc8084ae048381) )
 	ROM_LOAD16_BYTE( "prg1u023.bin", 0x000001, 0x080000, CRC(fecde223) SHA1(eb5ac0eda49b4b0f3d25d8a8bb356e77a453d3a7) )
@@ -4698,8 +5606,7 @@ ROM_START( bbakraid )
 	ROM_LOAD( "rom8.831", 0x800000, 0x400000, CRC(a101dfb0) SHA1(4b729b0d562e09df35438e9e6b457b8de2690a6e) )
 ROM_END
 
-
-ROM_START( bbakradu )
+ROM_START( bkraiduj )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )			/* Main 68k code */
 	ROM_LOAD16_BYTE( "prg0u022.new", 0x000000, 0x080000, CRC(fa8d38d3) SHA1(aba91d87a8a62d3fe1139b4437b16e2f844264ad) )
 	ROM_LOAD16_BYTE( "prg1u023.new", 0x000001, 0x080000, CRC(4ae9aa64) SHA1(45fdf72141c4c9f24a38d4218c65874799b9c868) )
@@ -4730,9 +5637,10 @@ ROM_END
 /* Whoopee  init   to be changed to T2_Z180   when (if) HD647180 is dumped */
 
 /*  ( YEAR  NAME      PARENT    MACHINE   INPUT     INIT      MONITOR COMPANY    FULLNAME     FLAGS ) */
-GAME( 1991, tekipaki, 0,        tekipaki, tekipaki, T2_Z180,  ROT0,   "Toaplan", "Teki Paki", GAME_NO_SOUND )
-GAME( 1991, ghox,     0,        ghox,     ghox,     T2_Z180,  ROT270, "Toaplan", "Ghox", GAME_NO_SOUND )
-GAME( 1992, dogyuun,  0,        dogyuun,  dogyuun,  T2_V25,   ROT270, "Toaplan", "Dogyuun", GAME_NO_SOUND )
+GAME( 1991, tekipaki, 0,        tekipaki, tekipaki, T2_Z180,  ROT0,   "Toaplan", "Teki Paki", 0 )
+GAME( 1991, ghox,     0,        ghox,     ghox,     T2_Z180,  ROT270, "Toaplan", "Ghox", 0 )
+GAME( 1991, ghoxj,    ghox,     ghox,     ghox,     T2_Z180,  ROT270, "Toaplan", "Ghox (Joystick version)", 0 )
+GAME( 1992, dogyuun,  0,        dogyuun,  dogyuun,  T2_V25,   ROT270, "Toaplan", "Dogyuun", 0 )
 GAME( 1993, kbash,    0,        kbash,    kbash,    T2_V25,   ROT0,   "Toaplan", "Knuckle Bash", GAME_IMPERFECT_SOUND )
 GAME( 1999, kbash2,   0,        kbash2,   kbash2,   T2_noZ80, ROT0,   "bootleg", "Knuckle Bash 2 (bootleg)", 0 )
 GAME( 1992, truxton2, 0,        truxton2, truxton2, T2_noZ80, ROT270, "Toaplan", "Truxton II / Tatsujin II / Tatsujin Oh (Japan)", 0 )
@@ -4741,24 +5649,31 @@ GAME( 1991, whoopee,  pipibibs, whoopee,  whoopee,  T2_Z80,   ROT0,   "Toaplan",
 GAME( 1991, pipibibi, pipibibs, pipibibi, pipibibi, pipibibi, ROT0,   "[Toaplan] Ryouta Kikaku", "Pipi & Bibis / Whoopee!! (bootleg ?)", 0 )
 GAME( 1992, fixeight, 0,        fixeight, fixeight, fixeight, ROT270, "Toaplan", "FixEight", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING )
 GAME( 1992, fixeighb, fixeight, fixeighb, fixeighb, fixeighb, ROT270, "bootleg", "FixEight (bootleg)", 0 )
-GAME( 1992, grindstm, vfive,    vfive,    grindstm, T2_V25,   ROT270, "Toaplan", "Grind Stormer", GAME_NO_SOUND )
-GAME( 1992, grindsta, vfive,    vfive,    grindstm, T2_V25,   ROT270, "Toaplan", "Grind Stormer (older set)", GAME_NO_SOUND )
-GAME( 1993, vfive,    0,        vfive,    vfive,    T2_V25,   ROT270, "Toaplan", "V-Five (Japan)", GAME_NO_SOUND )
-GAME( 1993, batsugun, 0,        batsugun, batsugun, T2_V25,   ROT270, "Toaplan", "Batsugun (set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, batsugna, batsugun, batsugun, batsugun, T2_V25,   ROT270, "Toaplan", "Batsugun (set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, batugnsp, batsugun, batsugun, batsugun, T2_V25,   ROT270, "Toaplan", "Batsugun (Special Ver.)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1992, grindstm, vfive,    vfive,    grindstm, T2_V25,   ROT270, "Toaplan", "Grind Stormer", 0 )
+GAME( 1992, grindsta, vfive,    vfive,    grindstm, T2_V25,   ROT270, "Toaplan", "Grind Stormer (older set)", 0 )
+GAME( 1993, vfive,    0,        vfive,    vfive,    T2_V25,   ROT270, "Toaplan", "V-Five (Japan)", 0 )
+GAME( 1993, batsugun, 0,        batsugun, batsugun, T2_V25,   ROT270, "Toaplan", "Batsugun (set 1)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, batsugna, batsugun, batsugun, batsugun, T2_V25,   ROT270, "Toaplan", "Batsugun (set 2)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, batugnsp, batsugun, batsugun, batsugun, T2_V25,   ROT270, "Toaplan", "Batsugun (Special Ver.)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1994, snowbro2, 0,        snowbro2, snowbro2, T2_noZ80, ROT0,   "[Toaplan] Hanafram", "Snow Bros. 2 - With New Elves / Otenki Paradise", 0 )
 GAME( 1993, mahoudai, 0,        mahoudai, mahoudai, T2_Z80,   ROT270, "Raizing (Able license)", "Mahou Daisakusen (Japan)", 0 )
 GAME( 1993, sstriker, mahoudai, mahoudai, sstriker, T2_Z80,   ROT270, "Raizing", "Sorcer Striker (World)" , 0) // from korean board
 GAME( 1993, sstrikra, mahoudai, mahoudai, sstriker, T2_Z80,   ROT270, "Raizing", "Sorcer Striker (World, alt)" , 0) // from korean board
 GAME( 1994, shippumd, 0,        shippumd, shippumd, T2_Z80,   ROT270, "Raizing / Eighting", "Shippu Mahou Daisakusen (Japan)", 0 )
 GAME( 1994, kingdmgp, shippumd, shippumd, kingdmgp, T2_Z80,   ROT270, "Raizing / Eighting", "Kingdom Grandprix (World)" , 0) // from korean board, missing letters on credits screen but this is correct
-GAME( 1996, battleg,  0,        battleg,  battleg,  battleg,  ROT270, "Raizing / Eighting", "Battle Garegga - Type 2 (Denmark / China) (Tue Apr 2 1996)", 0 )
-GAME( 1996, battlega, battleg,  battleg,  battlega, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga (Europe / USA / Japan / Asia) (Sat Feb 3 1996)", 0 )
-GAME( 1996, battlegb, battleg,  battleg,  battlegb, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga (Austria / Hong Kong) (Sat Mar 2 1996)" , 0) // displays New Version when set to HK
-GAME( 1996, battlegc, battleg,  battleg,  battlegb, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga (Austria / Hong Kong) (Sat Feb 3 1996)", 0 )
-GAME( 1998, batrider, 0,        batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (Japan, version B)", 0 )
-GAME( 1998, batridra, batrider, batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (Japan, version A)", 0 )
-GAME( 1998, batridrk, batrider, batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (Korea, version B)", 0 )
-GAME( 1999, bbakraid, 0,        bbakraid, bbakraid, bbakraid, ROT270, "Eighting", "Battle Bakraid (Japan) (Wed Apr 7 1999)", 0)
-GAME( 1999, bbakradu, bbakraid, bbakraid, bbakraid, bbakradu, ROT270, "Eighting", "Battle Bakraid - Unlimited version (Japan) (Tue Jun 8 1999)", 0)
+GAME( 1996, bgaregga, 0,        battleg,  battlega, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga (Europe / USA / Japan / Asia) (Sat Feb 3 1996)", 0 )
+GAME( 1996, bgareghk, bgaregga, battleg,  battlegb, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga (Austria / Hong Kong) (Sat Feb 3 1996)", 0 )
+GAME( 1996, bgaregtw, bgaregga, battleg,  battlegb, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga (Taiwan / Germany) (Thu Feb 1 1996)", 0 )
+GAME( 1996, bgaregnv, bgaregga, battleg,  battlegb, battleg,  ROT270, "Raizing / Eighting", "Battle Garegga - New Version (Austria / Hong Kong) (Sat Mar 2 1996)" , 0) // displays New Version when set to HK
+GAME( 1996, bgaregt2, bgaregga, battleg,  battleg,  battleg,  ROT270, "Raizing / Eighting", "Battle Garegga - Type 2 (Europe / USA / Japan / Asia) (Sat Mar 2 1996)", 0 )
+GAME( 1996, bgaregcn, bgaregga, battleg,  battleg,  battleg,  ROT270, "Raizing / Eighting", "Battle Garegga - Type 2 (Denmark / China) (Tue Apr 2 1996)", 0 )
+GAME( 1998, batrid,   0,        batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (Europe) (Fri Feb 13 1998)", 0 )
+GAME( 1998, batridu,  batrid,   batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (U.S.A.) (Fri Feb 13 1998)", 0 )
+GAME( 1998, batridc,  batrid,   batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (China) (Fri Feb 13 1998)", 0 )
+GAME( 1998, batridj,  batrid,   batrider, batridrj, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider - B Version (Japan) (Fri Feb 13 1998)", 0 )
+GAME( 1998, batridk,  batrid,   batrider, batrider, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider (Korea) (Fri Feb 13 1998)", 0 )
+GAME( 1998, batridja, batrid,   batrider, batridrj, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider - A Version (Japan) (Mon Dec 22 1997)", 0 )
+GAME( 1998, batridta, batrid,   batrider, batridrj, battleg,  ROT270, "Raizing / Eighting", "Armed Police Batrider - A Version (Taiwan) (Mon Dec 22 1997)", 0 )
+GAME( 1999, bkraidu,  0,        bbakraid, bbakraid, bbakradu, ROT270, "Eighting", "Battle Bakraid - Unlimited Version (U.S.A.) (Tue Jun 8 1999)", 0 )
+GAME( 1999, bkraiduj, bkraidu,  bbakraid, bbakraid, bbakradu, ROT270, "Eighting", "Battle Bakraid - Unlimited Version (Japan) (Tue Jun 8 1999)", 0 )
+GAME( 1999, bkraidj,  bkraidu,  bbakraid, bbakraid, bbakraid, ROT270, "Eighting", "Battle Bakraid (Japan) (Wed Apr 7 1999)", 0 )

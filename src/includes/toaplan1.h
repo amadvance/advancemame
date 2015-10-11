@@ -77,10 +77,25 @@ VIDEO_START( rallybik );
 VIDEO_START( toaplan1 );
 VIDEO_UPDATE( rallybik );
 VIDEO_UPDATE( toaplan1 );
+VIDEO_UPDATE( zerowing );
 VIDEO_UPDATE( demonwld );
+VIDEO_UPDATE( samesame );
+VIDEO_UPDATE( vimana );
+VIDEO_UPDATE( hellfire );
 
 
 extern UINT16 *toaplan1_colorram1;
 extern UINT16 *toaplan1_colorram2;
 extern size_t toaplan1_colorram1_size;
 extern size_t toaplan1_colorram2_size;
+extern int start,start2;
+
+extern int vfadeout_ready;
+extern int vfadeout_stop;
+extern int vplaying1;
+extern int vplaying2;
+
+extern UINT8 toaplan1_hellfire_b1_pre;
+extern UINT8 toaplan1_hellfire_b1_buff;
+extern UINT8 toaplan1_hellfire_b2_pre;
+extern UINT8 toaplan1_hellfire_b2_buff;
