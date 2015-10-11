@@ -3,7 +3,8 @@ Name
 
 AdvanceMAME/MESS Version 1.4 2015/08
 	) Restored the missing keypress of coin1 broken on v1.3.
-	) Imported the Cave PGM driver from ShmupMAME v3.0b.
+	) Imported the Cave PGM driver from ShmupMAME v3.0b
+		with the new games 'ket', 'ddp3' and 'espgal'.
 	) Fixed build issue on AdvanceMESS about discrete.c file.
 
 AdvanceMAME/MESS Version 1.3 2015/06
