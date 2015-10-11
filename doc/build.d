@@ -6,117 +6,6 @@ Name{number}
 
 SubIndex
 
-Preparing The Sources
-	If you are using the standard source packages you don't need
-	to prepare the sources, and you can go directly to
-	the `Configuring' chapter.
-
-	Instead, if you are using one of the `diff' source package
-	you need to complete the sources with the original emulator
-	source.
-
-  AdvanceMAME
-	To compile AdvanceMAME you need the MAME source of the same
-	version of AdvanceMAME. Please note that you must use the original emulator
-	source, you cannot use the source of another MAME clone like sdlmame.
-
-	The original MAME sources can be downloaded from:
-
-		+http://www.mame.net/
-
-	To complete the source you need to unzip the original MAME archive
-	in a different directory and copy some files in the AdvanceMAME
-	tree at the same level of the `advance/' directory.
-
-	In Linux and Mac OS X remember to unzip the original .zip archives
-	with the `unzip -aa' command to convert the files from the
-	DOS/Windows CR/LF format to the Unix CR format.
-
-	After unzipping you must:
-
-	* Copy the `src/' directory from the MAME archive in the AdvanceMAME tree.
-
-	Please note that only the `src/' directory from the
-	MAME source is required, all the other files must be deleted.
-
-	The final directory tree for AdvanceMAME must be :
-
-		:advance/advance.mak
-		:src/mame.mak
-
-	After unpacked, you need to patch the original MAME source in
-	the `src/' directory with the patch `advance/advmame.dif'.
-	If the patch isn't applied correctly, probably you are using the wrong
-	version of the emulator source.
-
-	The commands for patching the source for AdvanceMAME in DOS and Windows are :
-
-		:cd src
-		:patch -p1 < ..\advance\advmame.dif
-
-	and in Linux and Mac OS X are :
-
-		:cd src
-		:patch -p1 < ../advance/advmame.dif
-
-  AdvanceMESS
-	To compile AdvanceMESS you need the MAME and MESS source of
-	the same version of AdvanceMESS. Please note that you must use the
-	original emulator source, you cannot use the source of another MAME
-	clone like sdlmess.
-
-	The original MAME sources can be downloaded from:
-
-		+http://www.mame.net/
-
-	The original MESS sources can be downloaded from:
-
-		+http://www.mess.org/
-
-	To complete the source you need to unzip the original MAME and MESS
-	archives in different directories and copy some files
-	in the AdvanceMAME tree at the same level of the `advance/' directory.
-
-	In Linux and Mac OS X remember to unzip the original .zip archives
-	with the `unzip -aa' command to convert the files from the
-	DOS/Windows CR/LF format to the Unix CR format.
-
-	After unzipping you must:
-
-	* Copy the `src/' directory from the MAME archive renaming it `srcmess/'.
-	* Copy the `src/' directory from the MESS archive renaming it `srcmess/'
-		overwriting any file already present in the MAME archive.
-	* Copy the `mess/' directory from the MESS archive.
-
-	Please note that only the specified directories from the
-	MAME and MESS source are required, all the other files must be deleted.
-
-	The final directory tree for AdvanceMESS must be :
-
-		:advance/advance.mak
-		:srcmess/mame.mak
-		:mess/mess.mak
-
-	After unpacked, you need to patch the original MESS source in
-	in the `srcmess/' directory with the patch `advance/advmess.dif' and
-	the source in the `mess/' directory with the patch `advance/mess.dif'.
-	If the patches aren't applied correctly, probably you are using the wrong
-	version of the emulator source.
-
-	The commands for patching the source for AdvanceMESS in DOS and Windows are :
-
-		:cd srcmess
-		:patch -p1 < ..\advance\advmess.dif
-		:cd ..\mess
-		:patch -p1 < ..\advance\mess.dif
-
-	and in Linux and Mac OS X are :
-
-		:cd srcmess
-		:patch -p1 < ../advance/advmess.dif
-		:cd ../mess
-		:patch -p1 < ../advance/mess.dif
-
 Configuring
   Linux/Mac OS X/Generic Unix
 	Run the `./configure' script.
@@ -201,9 +90,6 @@ Requirements
 		:zlib 1.1.4 (or newer)
 		:expat 1.95.6 (or newer)
 
-	The suggested gcc compiler versions are 3.2.3 and 3.3.4.
-	The versions 2.96.x, 3.0.x don't work. Other versions should work.
-
 	The SVGALIB 1.4.x versions are NOT supported. Download the latest
 	ALPHA 1.9.x or 2.0.x version from http://www.svgalib.org/.
 	In the contrib/svgalib directory there are some source patches to
@@ -252,7 +138,7 @@ Requirements
 		:SEAL 1.0.7 + MAME patch
 		:FreeType 2.1.7 (or newer)
 
-	The suggested gcc compiler versions are 3.2.3 and 3.3.4.
+	The recommended gcc compiler versions are 3.2.3 and 3.3.4.
 	The versions 3.0.x don't work. The version 3.4.x may have some
 	problems related to the new "unit-at-a-time" compilation,
 	don't use it, or disable this feature with the option
