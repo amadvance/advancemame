@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -32,7 +32,8 @@ using namespace std;
 string fill(unsigned l, char c)
 {
 	string r;
-	for(unsigned i=0;i<l;++i)
+
+	for (unsigned i = 0; i < l; ++i)
 		r += c;
 	return r;
 }
@@ -58,6 +59,7 @@ string token(int& p, const string& s)
 string trim_left(const string& s)
 {
 	string r = s;
+
 	while (r.length() > 0 && isspace(r[0]))
 		r.erase(0, 1);
 	return r;
@@ -66,8 +68,9 @@ string trim_left(const string& s)
 string trim_right(const string& s)
 {
 	string r = s;
-	while (r.length() > 0 && isspace(r[r.length()-1]))
-		r.erase(r.length()-1, 1);
+
+	while (r.length() > 0 && isspace(r[r.length() - 1]))
+		r.erase(r.length() - 1, 1);
 	return r;
 }
 
@@ -79,7 +82,8 @@ string trim(const string& s)
 string up(const string& s)
 {
 	string r;
-	for(unsigned i=0;i<s.length();++i)
+
+	for (unsigned i = 0; i < s.length(); ++i)
 		r += toupper(s[i]);
 	return r;
 }
@@ -209,7 +213,7 @@ bool convert::is_line(const string& s, string& a)
 
 bool convert::is_dot(const string& s, string& a)
 {
-	if (s.length() > 0 && (s[0] == '*' || s[0]==')') && s[1] == ' ') {
+	if (s.length() > 0 && (s[0] == '*' || s[0] == ')') && s[1] == ' ') {
 		a = s.substr(2);
 		return true;
 	}
@@ -220,12 +224,12 @@ bool convert::is_option(const string& s, string& a)
 {
 	string r = trim(s);
 
-	if (r.length() > 0 && (r[0] == '-' || r[0] =='/')) {
+	if (r.length() > 0 && (r[0] == '-' || r[0] == '/')) {
 		a = s;
 		return true;
 	}
 
-	if (r.length() > 0 && (r[0]=='=')) {
+	if (r.length() > 0 && (r[0] == '=')) {
 		a = s.substr(1);
 		return true;
 	}
@@ -241,7 +245,7 @@ bool convert::is_tag(const string& s, string& a, string& b, bool root_tag)
 	if (d == string::npos)
 		return false;
 	a = trim(s.substr(0, d));
-	b = trim(s.substr(d+3));
+	b = trim(s.substr(d + 3));
 	if (root_tag && a.find(' ') != string::npos)
 		return false;
 	return true;
@@ -279,6 +283,7 @@ void convert::step(const string& r)
 
 	// count left space
 	unsigned nt = 0;
+
 	while (nt < s.length() && s[nt] == '\t')
 		++nt;
 	s.erase(0, nt);
@@ -286,7 +291,7 @@ void convert::step(const string& r)
 	while (ns < s.length() && s[ns] == ' ')
 		++ns;
 	s.erase(0, ns);
-	ns += nt*8;
+	ns += nt * 8;
 
 	// continue with separator support
 	if (s.length() == 0 && (state == state_tag0 || state == state_tag1)) {
@@ -436,7 +441,7 @@ void convert::step(const string& r)
 		pre_end();
 	}
 
-	if (s.length()>0 && (ns == 0 || ns == 2 || ns == 4)) {
+	if (s.length() > 0 && (ns == 0 || ns == 2 || ns == 4)) {
 		state_t state_new = ns == 0 ? state_section0 : (ns == 2 ? state_section1 : state_section2);
 		active = state_new != state_section0 || section_is_active(s);
 		if (state != state_new) {
@@ -450,7 +455,7 @@ void convert::step(const string& r)
 		return;
 	}
 
-	if (s.length()>0 && (ns == 8 || ns == 16)) {
+	if (s.length() > 0 && (ns == 8 || ns == 16)) {
 		state_t state_new = ns == 8 ? state_para0 : state_para1;
 		if (state != state_new)
 			if (active)
@@ -500,6 +505,7 @@ void convert::index_all(const string& file, unsigned depth)
 	unsigned index2 = 0;
 
 	int j = 0;
+
 	index_begin();
 	while (j < file.length()) {
 		string u;
@@ -545,7 +551,7 @@ void convert::run()
 		numbered = up(s) == "NAME{NUMBER}";
 		s = token(i, file);
 		unsigned d = s.find(" - ");
-		header(trim(s.substr(0, d)), trim(s.substr(d+3)));
+		header(trim(s.substr(0, d)), trim(s.substr(d + 3)));
 	} else {
 		header("", "");
 		i = 0;
@@ -646,7 +652,8 @@ public:
 string convert_man::mask(string s)
 {
 	string r;
-	for(unsigned i=0;i<s.length();++i) {
+
+	for (unsigned i = 0; i < s.length(); ++i) {
 		switch (s[i]) {
 		case '"' :
 			r += "\\[dq]";
@@ -663,7 +670,7 @@ string convert_man::mask(string s)
 		case '-' :
 			r += "\\-";
 			break;
-		default:
+		default :
 			r += s[i];
 			break;
 		}
@@ -922,7 +929,8 @@ public:
 string convert_html::mask(string s)
 {
 	string r;
-	for(unsigned i=0;i<s.length();++i) {
+
+	for (unsigned i = 0; i < s.length(); ++i) {
 		switch (s[i]) {
 		case '<' :
 			r += "&lt;";
@@ -936,7 +944,7 @@ string convert_html::mask(string s)
 		case '&' :
 			r += "&amp;";
 			break;
-		default:
+		default :
 			r += s[i];
 			break;
 		}
@@ -962,10 +970,10 @@ string convert_html::link(string s)
 
 	int begin = i;
 	int end = i;
-	while (end<s.length() && !isspace(s[end]))
+	while (end < s.length() && !isspace(s[end]))
 		++end;
 
-	if (end>0 && (s[end-1] == '.' || s[end-1] == ',' || s[end-1] == ':' || s[end-1] == ';' || s[end-1] == '>' || s[end-1] == ')'))
+	if (end > 0 && (s[end - 1] == '.' || s[end - 1] == ',' || s[end - 1] == ':' || s[end - 1] == ';' || s[end - 1] == '>' || s[end - 1] == ')'))
 		--end;
 
 	string address = s.substr(begin, end - begin);
@@ -1118,20 +1126,12 @@ void convert_html::pre_begin(unsigned level)
 		os << "<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr>";
 		os << "<td width=\"5%\"></td><td width=\"95%\">" << endl;
 	}
-#if 0
-	os << "<font face=\"Courier\">" << endl;
-#else
 	os << "<pre>" << endl;
-#endif
 }
 
 void convert_html::pre_end()
 {
-#if 0
-	os << "</font>" << endl;
-#else
 	os << "</pre>" << endl;
-#endif
 	if (state == state_pre1) {
 		os << "</td></tr></table>" << endl;
 	}
@@ -1141,9 +1141,6 @@ void convert_html::pre_end()
 void convert_html::pre_text(const string& s)
 {
 	os << link(mask(s));
-#if 0
-	os  << "<br>";
-#endif
 	os << "\n";
 }
 
@@ -1366,6 +1363,7 @@ void convert_txt::section_end()
 void convert_txt::section_text(const string& s)
 {
 	ostringstream ss;
+
 	if (first_line) {
 		if (state == state_section0) {
 			if (numbered)
@@ -1459,7 +1457,7 @@ void convert_txt::dot_start(const string& s)
 {
 	os << MI;
 	if (state == state_dot1)
-		os << I ;
+		os << I;
 	os << "* " << mask(s) << endl;
 }
 
@@ -1529,7 +1527,7 @@ void convert_txt::tag_text(const string& s)
 {
 	os << MI;
 	if (state == state_tag1)
-		os << I ;
+		os << I;
 	os << I << mask(s) << endl;
 }
 
@@ -1539,7 +1537,7 @@ void convert_txt::tag_text(const string& s)
 int main(int argc, char* argv[])
 {
 	if (argc != 2) {
-		cerr << "Syntax: txt2 man | html | frame | txt" << endl;
+		cerr << "Syntax: d2 man | html | frame | txt" << endl;
 		exit(EXIT_FAILURE);
 	}
 
