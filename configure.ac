@@ -266,9 +266,9 @@ AC_ARG_WITH(
 	[ac_with_emu=auto]
 )
 if test $ac_with_emu = auto; then
-	if test -f $srcdir/advance/advmame.dif ; then
+	if test -f $srcdir/src/advance.pat ; then
 		ac_with_emu=mame
-	elif test -f $srcdir/advance/advmess.dif ; then
+	elif test -f $srcdir/srcmess/advance.pat ; then
 		ac_with_emu=mess
 	else
 		ac_with_emu=none

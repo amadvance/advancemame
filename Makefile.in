@@ -67,11 +67,6 @@ CONF_ARCH=blend
 endif
 endif
 
-# Pack also the emulator source in the dist package
-ifndef CONF_DIFFSRC
-CONF_DIFFSRC=no
-endif
-
 ############################################################################
 # Tools configuration for ./configure
 
