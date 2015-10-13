@@ -1,0 +1,11 @@
+# Travis CI configuration file
+
+sudo: false
+
+language: c
+
+script: sh autogen.sh && ./configure && make
+
+compiler:
+  - gcc
+
