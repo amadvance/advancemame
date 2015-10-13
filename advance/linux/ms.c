@@ -267,7 +267,7 @@ static void raw_mouse_setspeed(struct raw_mouse_context* context, const int old,
 	break;
     }
 
-    write(context->m_fd, c, 2);
+    (void)write(context->m_fd, c, 2);
     usleep(10000);
     tcsetattr(context->m_fd, TCSAFLUSH, &tty);
 }
@@ -335,27 +335,27 @@ static int raw_mouse_init(struct raw_mouse_context* context)
 	raw_mouse_setspeed(context, 4800, 1200, cflag[context->type]);
 	raw_mouse_setspeed(context, 2400, 1200, cflag[context->type]);
 	raw_mouse_setspeed(context, 1200, 1200, cflag[context->type]);
-	write(context->m_fd, "*X", 2);
+	(void)write(context->m_fd, "*X", 2);
 	raw_mouse_setspeed(context, 1200, context->m_baud, cflag[context->type]);
     } else if (context->type == MOUSE_WACOM_GRAPHIRE) {
     	context->m_baud = 9600;
     	raw_mouse_setspeed(context, 1200, context->m_baud, cflag[context->type]);
     	/* Reset baud rate */
-    	write(context->m_fd, "\r$", 2);
+    	(void)write(context->m_fd, "\r$", 2);
     	usleep(250000);
     	/* Reset tablet */
-    	write(context->m_fd, "\r#", 2);
+    	(void)write(context->m_fd, "\r#", 2);
     	usleep(75000);
     	/* Set hardware filtering */
-    	write(context->m_fd, "\rSU3", 4);
+    	(void)write(context->m_fd, "\rSU3", 4);
     	usleep(75000);
     	/* Start sending coordinates */
-    	write(context->m_fd, "\rST\r", 4);
+    	(void)write(context->m_fd, "\rST\r", 4);
     } else if (context->type == MOUSE_IMPS2 || context->type == MOUSE_DRMOUSE4DS) {
 	/* Initialize the mouse into wheel mode */
-	write(context->m_fd, "\363\310\363\144\363\120", 6);
+	(void)write(context->m_fd, "\363\310\363\144\363\120", 6);
     } else if (context->type == MOUSE_EXPPS2) {
-	write(context->m_fd, "\363\310\363\310\363\120", 6);
+	(void)write(context->m_fd, "\363\310\363\310\363\120", 6);
     } else if (context->type == MOUSE_PNP) {
     	/* Need to do this termios stuff here, by hand, raw_mouse_setspeed won't 
 	   work with pnp */
@@ -379,25 +379,25 @@ static int raw_mouse_init(struct raw_mouse_context* context)
 	raw_mouse_setspeed(context, 1200, context->m_baud, cflag[context->type]);
 
 	if (context->type == MOUSE_LOGITECH) {
-	    write(context->m_fd, "S", 1);
+	    (void)write(context->m_fd, "S", 1);
 	    raw_mouse_setspeed(context, context->m_baud, context->m_baud, cflag[MOUSE_MMSERIES]);
 	}
 	if (context->m_sample <= 0)
-	    write(context->m_fd, "O", 1);
+	    (void)write(context->m_fd, "O", 1);
 	else if (context->m_sample <= 15)
-	    write(context->m_fd, "J", 1);
+	    (void)write(context->m_fd, "J", 1);
 	else if (context->m_sample <= 27)
-	    write(context->m_fd, "K", 1);
+	    (void)write(context->m_fd, "K", 1);
 	else if (context->m_sample <= 42)
-	    write(context->m_fd, "L", 1);
+	    (void)write(context->m_fd, "L", 1);
 	else if (context->m_sample <= 60)
-	    write(context->m_fd, "R", 1);
+	    (void)write(context->m_fd, "R", 1);
 	else if (context->m_sample <= 85)
-	    write(context->m_fd, "M", 1);
+	    (void)write(context->m_fd, "M", 1);
 	else if (context->m_sample <= 125)
-	    write(context->m_fd, "Q", 1);
+	    (void)write(context->m_fd, "Q", 1);
 	else
-	    write(context->m_fd, "N", 1);
+	    (void)write(context->m_fd, "N", 1);
     }
 
     context->info_button = 0;
@@ -471,7 +471,7 @@ static void raw_mouse_close(struct raw_mouse_context* context)
     if (context->m_fd == -1)
 	return;
     if (context->type == MOUSE_LOGITECH) {
-	write(context->m_fd, "U", 1);
+	(void)write(context->m_fd, "U", 1);
 	raw_mouse_setspeed(context, context->m_baud, 1200, cflag[MOUSE_LOGITECH]);
     }
 
@@ -570,7 +570,7 @@ static int raw_mouse_poll(struct raw_mouse_context* context, int wait) {
 	    /* Wait mode, we'll sleep on reads. */
 	    fcntl(context->m_fd, F_SETFL, O_RDONLY);
 	    context->m_fdmode = 1;
-	    read(context->m_fd, &context->e_buf[context->e_nu_bytes], 1);
+	    (void)read(context->m_fd, &context->e_buf[context->e_nu_bytes], 1);
             if ((context->type == MOUSE_SPACEBALL)) {
               nu_packets=(context->e_buf[context->e_nu_bytes]==13);
             } else {
