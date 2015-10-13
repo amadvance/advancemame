@@ -87,7 +87,7 @@ INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.txt,$(wildcard
 INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.html,$(wildcard $(srcdir)/doc/*.d)))
 WEB_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.hh,$(wildcard $(srcdir)/doc/*.d)))
 
-all: $(INSTALL_DIRS) $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES) $(INSTALL_DATAFILES) $(INSTALL_ROMFILES) $(INSTALL_SAMPLEFILES) $(INSTALL_SNAPFILES)
+all: $(INSTALL_DIRS) $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES)
 emu: $(OBJ) $(OBJ)/$(EMUNAME)$(EXE)
 menu: $(MENUOBJ) $(MENUOBJ)/advmenu$(EXE)
 cfg: $(CFGOBJ) $(CFGOBJ)/advcfg$(EXE)
