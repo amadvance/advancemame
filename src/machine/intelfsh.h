@@ -17,5 +17,6 @@ extern void intelflash_init( int chip, int type, void *data );
 extern UINT32 intelflash_read( int chip, UINT32 address );
 extern void intelflash_write( int chip, UINT32 address, UINT32 value );
 extern void nvram_handler_intelflash( int chip, mame_file *file, int read_or_write );
+extern void* intelflash_getmemptr(int chip);
 
 #endif

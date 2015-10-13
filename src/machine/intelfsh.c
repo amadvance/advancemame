@@ -45,6 +45,19 @@ struct flash_chip
 
 static struct flash_chip chips[FLASH_CHIPS_MAX];
 
+void* intelflash_getmemptr(int chip)
+{
+	struct flash_chip *c;
+	if( chip >= FLASH_CHIPS_MAX )
+	{
+		logerror( "intelflash_init: invalid chip %d\n", chip );
+		return 0;
+	}
+	c = &chips[ chip ];
+
+	return c->flash_memory;
+}
+
 void intelflash_init(int chip, int type, void *data)
 {
 	struct flash_chip *c;

@@ -2583,10 +2583,17 @@ V-V                           TP-027
 	DRIVER( warzard )	/* 10/1996 Warzard */
 	DRIVER( sfiii )		/* 02/1997 Street Fighter III - New Generation */
 	DRIVER( jojo )		/* ??/???? Jojo's Venture */
+
+	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
+	DRIVER( jojoalt )		/* ??/???? Jojo's Venture */
+
 	DRIVER( jojoba )	/* ??/???? Jojo's Bizarre Adventure */
 	DRIVER( jojobaa )	/* ??/???? Jojo's Bizarre Adventure */
 	DRIVER( sfiii2 )	/* ??/???? Street Fighter 3: Second Impact ~giant attack~ */
 	DRIVER( sfiii3 )	/* ??/???? Street Fighter 3: Third Strike ~fight to the finish~ */
+
+	/* AdvanceMAME new games from ThunderMAME32Plus-v0.106X/ThunderMAME32Plus-2015-09-02-src.7z */
+	DRIVER( sfiii3a )	/* ??/???? Street Fighter 3: Third Strike ~fight to the finish~ */
 
 	/* Capcom ZN1 */
 	DRIVER( cpzn1 )

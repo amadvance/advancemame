@@ -6,6 +6,8 @@ AdvanceMAME/MESS Version 1.5 2015/10
 		This adds sound support with samples at the games:
 		'batsugun', 'dogyuun', 'ghox', 'samesame', 'tekipaki',
 		'vfive' and 'vimana'.
+	) Imported the CPS3 driver from ThunderMAME32Plus-v0.106X.
+		This adds the games: 'sfiii', 'jojo' and 'warzard'.
 
 AdvanceMAME/MESS Version 1.4 2015/08
 	) Restored the missing keypress of coin1 broken on v1.3.
