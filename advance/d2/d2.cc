@@ -38,10 +38,10 @@ string fill(unsigned l, char c)
 	return r;
 }
 
-string token(int& p, const string& s)
+string token(size_t& p, const string& s)
 {
-	int begin;
-	int end;
+	size_t begin;
+	size_t end;
 
 	begin = p;
 
@@ -504,7 +504,7 @@ void convert::index_all(const string& file, unsigned depth)
 	unsigned index1 = 0;
 	unsigned index2 = 0;
 
-	int j = 0;
+	size_t j = 0;
 
 	index_begin();
 	while (j < file.length()) {
@@ -517,7 +517,7 @@ void convert::index_all(const string& file, unsigned depth)
 				next(level, index0, index1, index2);
 				string t = trim(s);
 				while (j < file.length()) {
-					int jj = j;
+					size_t jj = j;
 					s = token(j, file);
 					if (index_level(s) != level) {
 						j = jj;
@@ -535,7 +535,7 @@ void convert::index_all(const string& file, unsigned depth)
 
 void convert::run()
 {
-	int i;
+	size_t i;
 	string file;
 	string s;
 
@@ -954,7 +954,7 @@ string convert_html::mask(string s)
 
 string convert_html::link(string s)
 {
-	int i = s.find("http://");
+	size_t i = s.find("http://");
 
 	if (i == string::npos) {
 		i = s.find("ftp://");
@@ -968,8 +968,8 @@ string convert_html::link(string s)
 		return s;
 	}
 
-	int begin = i;
-	int end = i;
+	size_t begin = i;
+	size_t end = i;
 	while (end < s.length() && !isspace(s[end]))
 		++end;
 
@@ -1393,7 +1393,6 @@ void convert_txt::section_text(const string& s)
 		max_length = ss.str().length();
 	os << ss.str() << endl;
 }
-
 
 void convert_txt::para_begin(unsigned level)
 {
