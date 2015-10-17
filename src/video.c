@@ -1266,5 +1266,20 @@ void bitmap_free(mame_bitmap *bitmap)
 	free(bitmap);
 }
 
+/***************************************************************************
 
+    LED code
 
+***************************************************************************/
+
+/*-------------------------------------------------
+    set_led_status - set the state of a given LED
+-------------------------------------------------*/
+
+void set_led_status(int num, int on)
+{
+	if (on)
+		leds_status |=	(1 << num);
+	else
+		leds_status &= ~(1 << num);
+}

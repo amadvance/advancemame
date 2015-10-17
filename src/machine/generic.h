@@ -105,13 +105,6 @@ int memcard_present(void);
 
 
 
-/* ----- miscellaneous bits & pieces ----- */
-
-/* set the status of an LED */
-void set_led_status(int num, int value);
-
-
-
 /* ----- interrupt enable and vector helpers ----- */
 
 void cpu_interrupt_enable(int cpu, int enabled);

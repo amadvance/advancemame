@@ -147,5 +147,9 @@ mame_bitmap *bitmap_alloc_depth(int width, int height, int depth);
 mame_bitmap *auto_bitmap_alloc_depth(int width, int height, int depth);
 void bitmap_free(mame_bitmap *bitmap);
 
+/* ----- miscellaneous bits & pieces ----- */
+
+/* set the status of an LED */
+void set_led_status(int num, int value);
 
 #endif	/* __VIDEO_H__ */
