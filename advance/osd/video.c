@@ -75,7 +75,7 @@ static void event_check(unsigned ordinal, adv_bool condition, int id, unsigned p
 	}
 }
 
-static void video_command_event(struct advance_video_context* context, struct advance_safequit_context* safequit_context, int leds_status, adv_bool turbo_status, unsigned input)
+static void video_command_event(struct advance_video_context* context, struct advance_safequit_context* safequit_context, int leds_status, adv_bool turbo_status, unsigned input, int knocker_status)
 {
 	unsigned event_mask = 0;
 
@@ -106,6 +106,7 @@ static void video_command_event(struct advance_video_context* context, struct ad
 	event_check(24, advance_safequit_event_mask(safequit_context) & 0x2000, HARDWARE_SCRIPT_EVENT12, context->state.event_mask_old, &event_mask);
 	event_check(25, advance_safequit_event_mask(safequit_context) & 0x4000, HARDWARE_SCRIPT_EVENT13, context->state.event_mask_old, &event_mask);
 	event_check(26, advance_safequit_event_mask(safequit_context) & 0x8000, HARDWARE_SCRIPT_EVENT14, context->state.event_mask_old, &event_mask);
+	event_check(27, knocker_status != 0, HARDWARE_SCRIPT_KNOCKER, context->state.event_mask_old, &event_mask);
 
 	/* save the new status */
 	context->state.event_mask_old = event_mask;
@@ -272,13 +273,13 @@ static void video_command_combine(struct advance_video_context* context, struct 
 	}
 }
 
-static void video_command(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_safequit_context* safequit_context, struct advance_ui_context* ui_context, adv_conf* cfg_context, int leds_status, unsigned input, adv_bool skip_flag)
+static void video_command(struct advance_video_context* context, struct advance_estimate_context* estimate_context, struct advance_safequit_context* safequit_context, struct advance_ui_context* ui_context, adv_conf* cfg_context, int leds_status, unsigned input, adv_bool skip_flag, int knocker_status)
 {
 	/* increment the number of frames */
 	++context->state.frame_counter;
 
 	/* events */
-	video_command_event(context, safequit_context, leds_status, context->state.turbo_flag, input);
+	video_command_event(context, safequit_context, leds_status, context->state.turbo_flag, input, knocker_status);
 
 	/* scripts */
 	hardware_script_idle(SCRIPT_TIME_UNIT / context->state.game_fps);
@@ -1094,7 +1095,7 @@ static int int_compare(const void* void_a, const void* void_b)
 /** Number of frames on which distribute the latency error. */
 #define AUDIOVIDEO_DISTRIBUTE_COUNT 4
 
-int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count)
+int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned knocker)
 {
 	struct advance_video_context* context = &CONTEXT.video;
 
@@ -1198,7 +1199,7 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	}
 
 	/* update the global info */
-	video_command(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.safequit, &CONTEXT.ui, CONTEXT.cfg, led, input, skip_flag);
+	video_command(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.safequit, &CONTEXT.ui, CONTEXT.cfg, led, input, skip_flag, knocker);
 	advance_video_skip(&CONTEXT.video, &CONTEXT.estimate, &CONTEXT.record);
 	advance_input_update(&CONTEXT.input, &CONTEXT.safequit, CONTEXT.video.state.pause_flag);
 

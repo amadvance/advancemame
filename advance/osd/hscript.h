@@ -64,9 +64,10 @@
 #define HARDWARE_SCRIPT_EVENT12 27
 #define HARDWARE_SCRIPT_EVENT13 28
 #define HARDWARE_SCRIPT_EVENT14 29
+#define HARDWARE_SCRIPT_KNOCKER 30
 
 /* Max number of scripts */
-#define HARDWARE_SCRIPT_MAX 30
+#define HARDWARE_SCRIPT_MAX 31
 
 void hardware_script_set(int id, const char* script);
 

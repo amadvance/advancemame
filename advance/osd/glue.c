@@ -2392,7 +2392,8 @@ void osd_update_video_and_audio(mame_display *display)
 		display->led_state,
 		input,
 		sample_buffer,
-		sample_count
+		sample_count,
+		display->knocker_state
 	);
 
 	profiler_mark(PROFILER_END);

@@ -26,6 +26,8 @@ Scripts
 		script_safequit - The game enter in the safequit status.
 		script_event1-14 - The events controlled by the
 			event system.
+		script_knocker - The knocker output is triggered.
+			Like in the Q*bert game.
 
 	You can assign a script at every event. The script is started
 	when the event is triggered.

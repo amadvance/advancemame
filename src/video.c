@@ -67,6 +67,7 @@ static int movie_frame = 0;
 
 /* misc other statics */
 static UINT32 leds_status;
+static UINT32 knocker_status;
 
 /* artwork callbacks */
 #ifndef MESS
@@ -228,6 +229,7 @@ int video_init(void)
 	/* reset video statics and get out of here */
 	pdrawgfx_shadow_lowpri = 0;
 	leds_status = 0;
+	knocker_status = 0;
 
 	/* initialize tilemaps */
 	if (tilemap_init() != 0)
@@ -722,6 +724,13 @@ void update_video_and_audio(void)
 	{
 		current_display.led_state = leds_status;
 		current_display.changed_flags |= LED_STATE_CHANGED;
+	}
+
+	/* set the knocker status */
+	if (knocker_status != current_display.knocker_state)
+	{
+		current_display.knocker_state = knocker_status;
+		current_display.changed_flags |= KNOCKER_STATE_CHANGED;
 	}
 
 	/* update with data from other parts of the system */
@@ -1283,3 +1292,16 @@ void set_led_status(int num, int on)
 	else
 		leds_status &= ~(1 << num);
 }
+
+/*-------------------------------------------------
+    set_knocker_status - set the state of the knocker
+-------------------------------------------------*/
+
+void set_knocker_status(int on)
+{
+	if (on)
+		knocker_status = 1;
+	else
+		knocker_status = 0;
+}
+

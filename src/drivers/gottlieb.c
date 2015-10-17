@@ -249,6 +249,11 @@ WRITE8_HANDLER( stooges_output_w )
 	gottlieb_video_outputs_w(offset,data);
 }
 
+WRITE8_HANDLER( qbert_output_w )
+{
+	set_knocker_status(data & 0x20);
+	gottlieb_video_outputs_w(offset,data);
+}
 
 static int current_frame = 1;
 static int laserdisc_playing;
@@ -2275,9 +2280,13 @@ static DRIVER_INIT( laserdsc )
 	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x05806, 0x05806, 0, 0, gottlieb_laserdisc_mpx_w);
 }
 
+static DRIVER_INIT( qbert )
+{
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x05803, 0x05803, 0, 0, qbert_output_w);
+}
 
 GAME( 1982, reactor,  0,        reactor,  reactor,  0,        ROT0,   "Gottlieb", "Reactor", 0 )
-GAME( 1982, qbert,    0,        qbert,    qbert,    0,        ROT270, "Gottlieb", "Q*bert (US set 1)", 0 )
+GAME( 1982, qbert,    0,        qbert,    qbert,    qbert,    ROT270, "Gottlieb", "Q*bert (US set 1)", 0 )
 GAME( 1982, qberta,   qbert,    qbert,    qbert,    0,        ROT270, "Gottlieb", "Q*bert (US set 2)", 0 )
 GAME( 1982, qbertjp,  qbert,    qbert,    qbert,    0,        ROT270, "Gottlieb (Konami license)", "Q*bert (Japan)", 0 )
 GAME( 1982, myqbert,  qbert,    qbert,    qbert,    0,        ROT270, "Gottlieb", "Mello Yello Q*bert", 0 )

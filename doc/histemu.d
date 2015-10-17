@@ -8,6 +8,8 @@ AdvanceMAME/MESS Version 1.5 2015/10
 		'vfive' and 'vimana'.
 	) Imported the CPS3 driver from ThunderMAME32Plus-v0.106X.
 		This adds the games: 'sfiii', 'jojo' and 'warzard'.
+	) Added knocker support to Q*bert. You should see a keyboard
+		led on when the knocker is active [hainet].
 
 AdvanceMAME/MESS Version 1.4 2015/08
 	) Restored the missing keypress of coin1 broken on v1.3.

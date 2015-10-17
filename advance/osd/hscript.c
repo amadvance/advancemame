@@ -476,6 +476,7 @@ int hardware_script_init(adv_conf* context)
 	conf_string_register_default(context, "script_event12", "");
 	conf_string_register_default(context, "script_event13", "");
 	conf_string_register_default(context, "script_event14", "");
+	conf_string_register_default(context, "script_knocker", "on(kdb, 0b100); wait(!event()); off(kdb, 0b100);");
 
 	STATE.active_flag  = 0;
 
@@ -682,6 +683,9 @@ int hardware_script_config_load(adv_conf* context)
 
 	s = conf_string_get_default(context, "script_event14");
 	hardware_script_set(HARDWARE_SCRIPT_EVENT14, s);
+
+	s = conf_string_get_default(context, "script_knocker");
+	hardware_script_set(HARDWARE_SCRIPT_KNOCKER, s);
 
 	return 0;
 }

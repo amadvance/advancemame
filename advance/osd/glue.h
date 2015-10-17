@@ -367,7 +367,7 @@ int osd2_thread_init(void);
 void osd2_thread_done(void);
 int osd2_video_menu(int selected, unsigned input);
 int osd2_audio_menu(int selected, unsigned input);
-int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count);
+int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned knocker);
 void osd2_palette(const osd_mask_t* mask, const osd_rgb_t* palette, unsigned size);
 void osd2_area(unsigned x1, unsigned y1, unsigned x2, unsigned y2);
 void osd2_save_snapshot(unsigned x1, unsigned y1, unsigned x2, unsigned y2);

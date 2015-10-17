@@ -33,6 +33,7 @@
 #define DEBUG_FOCUS_CHANGED			0x00000040
 #define LED_STATE_CHANGED			0x00000080
 #define GAME_REFRESH_RATE_CHANGED	0x00000100
+#define KNOCKER_STATE_CHANGED   	0x00000200
 
 
 /* the main mame_display structure, containing the current state of the */
@@ -60,6 +61,7 @@ struct _mame_display
 
 	/* other misc information */
 	UINT8			led_state;					/* bitfield of current LED states */
+	UINT8			knocker_state;					/* bitfield of current knocker states */
 };
 /* in mamecore.h: typedef struct _mame_display mame_display; */
 
@@ -81,6 +83,10 @@ struct _performance_info
 /* In mamecore.h: typedef struct _performance_info performance_info; */
 
 
+/* ----- miscellaneous bits & pieces ----- */
+
+/* set the knocker status */
+void set_knocker_status(int value);
 
 /***************************************************************************
 
