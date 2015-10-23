@@ -318,13 +318,13 @@ endif
 ifeq ($(CONF_HOST),dos)
 # Probably you need to changes these to cross compile:
 CROSSTARGET = i586-pc-msdosdjgpp
-CROSSDIR = /usr/local/gcc-3.2.3-i586-pc-msdosdjgpp
+CROSSDIR = /usr/local/djgpp
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
 CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 CXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
 LD = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
 LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
-FREETYPECFLAGS = -I$(CROSSDIR)/include/freetype2 -I$(CROSSDIR)/include
+FREETYPECFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/freetype2 -I$(CROSSDIR)/include
 FREETYPELIBS = -L$(CROSSDIR)/lib -lfreetype -lz
 endif
 ifeq ($(CONF_HOST),windows)

@@ -10,6 +10,8 @@ AdvanceMAME/MESS Version 1.5 2015/10
 		This adds the games: 'sfiii', 'jojo' and 'warzard'.
 	) Added knocker support to Q*bert. You should see a keyboard
 		led on when the knocker is active [hainet].
+	) Build DOS AdvanceMAME with DJGPP 4.8.5 from
+		https://github.com/andrewwutw/build-djgpp
 
 AdvanceMAME/MESS Version 1.4 2015/08
 	) Restored the missing keypress of coin1 broken on v1.3.
@@ -38,7 +40,7 @@ AdvanceMAME Version 1.2 2012/12
 	) Removed blitting cache optimization. With modern caches it's not needed anymore.
 	) Changed default doc/man dirs to prefix/doc and prefix/man.
 	) Now in git repository.
-	) Removed DLL files from the Windows distribution. New new compiler uses static libraries.
+	) Removed DLL files from the Windows distribution. The new compiler uses static libraries.
 	) Compiled with SDL-1.2.14, zlib-1.2.5, expat-2.0.1, freetype-2.4.4, pthreads-w32-2-8-0.
 
 AdvanceMAME Version 0.106.1 2008/12
