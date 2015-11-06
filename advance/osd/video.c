@@ -1155,7 +1155,7 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 
 		if (latency_diff <= -AUDIOVIDEO_NEAR_STEP_COUNT || latency_diff >= AUDIOVIDEO_NEAR_STEP_COUNT) {
 			/* report the big error */
-			log_std(("WARNING:emu:video: audio/video syncronization correction of %d samples\n", latency_diff));
+			log_std(("WARNING:emu:video: audio/video syncronization correction of %d samples. Try increasing the 'sound_latency' option.\n", latency_diff));
 		} else if (latency_diff <= -3 || latency_diff >= 3) {
 			/* report the error, an error of 1,2 samples is the normal condition */
 			log_std(("emu:video: audio/video syncronization correction of %d samples\n", latency_diff));
@@ -1177,7 +1177,7 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 		/* generally happen that the DMA buffer underflow, */
 		/* reporting a fill state instead of an empty one. */
 		if (sample_recount < sample_limit) {
-			log_std(("WARNING:emu:video: too small sound samples %d adjusted to %d\n", sample_recount, sample_limit));
+			log_std(("WARNING:emu:video: too few sound samples %d adjusted to %d\n", sample_recount, sample_limit));
 			sample_recount = sample_limit;
 		}
 
