@@ -746,7 +746,10 @@ Configuration
 		:sound_volume -5
 
     sound_latency
-	Sets the audio latency.
+	Sets the audio latency. The latency is the delay between a
+	sound is generated and before you hear it.
+	You generally want a small latency, but a bigger latency
+	avoids sound clicks in case the audio reproduction is too slow.
 
 	:sound_latency TIME
 

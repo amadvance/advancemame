@@ -1343,12 +1343,15 @@ Configuration
 			The gain is a integer value from -20 to 20.
 
     sound_latency
-	Sets the minimum audio latency.
+	Sets the audio latency. The latency is the delay between a
+	sound is generated and before you hear it.
+	You generally want a small latency, but a bigger latency
+	avoids sound clicks in case the audio reproduction is too slow.
 
 	:sound_latency TIME
 
 	Options:
-		TIME - Latency in seconds from 0 to 2.0
+		TIME - Latency in seconds from 0.01 to 2.0
 			(default 0.05).
 
 	If in the game play you hear some sound ticks you can try to
