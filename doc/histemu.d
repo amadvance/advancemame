@@ -10,6 +10,11 @@ AdvanceMAME/MESS Version 1.5 2015/10
 		This adds the games: 'sfiii', 'jojo' and 'warzard'.
 	) Added knocker support to Q*bert. You should see a keyboard
 		led on when the knocker is active [hainet].
+	) Set the SCHED_FIFO scheduling policy with sched_setscheduler().
+		This is reported to improve performance on Raspberry
+		Pi 2 boards.
+		Note that this ha effect only with root permission.
+		You can see in the log for "os: scheduling".
 	) Build DOS AdvanceMAME with DJGPP 4.8.5 from
 		https://github.com/andrewwutw/build-djgpp
 
