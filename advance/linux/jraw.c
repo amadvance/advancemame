@@ -334,9 +334,14 @@ void joystickb_raw_poll(void)
 
 		while (joystickb_read(item->f, &type, &code, &value) == 0) {
 
-			type &= ~JS_EVENT_INIT; /* doesn't differentiate the INIT events */
+			//type &= ~JS_EVENT_INIT; /* doesn't differentiate the INIT events */
 
-			if (type == JS_EVENT_BUTTON) {
+			// greg-kennedy 2016-01-04: on my system JS_EVENT_INIT events for JS_EVENT_AXIS
+			//  for gamepads default to -32768 not 0, so cannot be trusted. Instead of masking
+			//  JS_EVENT_INIT from all, just do it for buttons... in other words,
+			//  skip processing of (JS_EVENT_AXIS | JS_EVENT_INIT).
+
+			if ((type & ~JS_EVENT_INIT) == JS_EVENT_BUTTON) {
 				unsigned j;
 				for(j=0;j<item->button_mac;++j) {
 					if (code == item->button_map[j].code) {
