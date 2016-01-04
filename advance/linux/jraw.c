@@ -334,7 +334,10 @@ void joystickb_raw_poll(void)
 
 		while (joystickb_read(item->f, &type, &code, &value) == 0) {
 
-			type &= ~JS_EVENT_INIT; /* doesn't differentiate the INIT events */
+			/* ignore INIT events */
+			/* some drivers reports bogus values and we don't really need them */
+			if ((type & JS_EVENT_INIT) != 0)
+				continue;
 
 			if (type == JS_EVENT_BUTTON) {
 				unsigned j;
