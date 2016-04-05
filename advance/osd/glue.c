@@ -1172,6 +1172,7 @@ static struct mame_port GLUE_PORT_STD[] = {
 	S("ui_on_screen_display", "On Screen Display", UI_ON_SCREEN_DISPLAY)
 	S("ui_pause", "Pause", UI_PAUSE)
 	S("ui_reset_machine", "Reset", UI_RESET_MACHINE)
+	S("ui_soft_reset", "Soft Reset", UI_SOFT_RESET)
 	S("ui_show_gfx", "Graphics", UI_SHOW_GFX)
 	S("ui_frameskip_dec", "Frameskip Dev", UI_FRAMESKIP_DEC)
 	S("ui_frameskip_inc", "Frameskip Inc", UI_FRAMESKIP_INC)
