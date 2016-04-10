@@ -1166,8 +1166,8 @@ void config_state::conf_default(adv_conf* config_context)
 		conf_set(config_context, "", "type", "\"Console\"");
 		conf_set(config_context, "", "type", "\"Application\"");
 		conf_set(config_context, "", "type", "\"Arcade\"");
-		conf_set(config_context, "", "type", "\"Shot 'em Up\"");
-		conf_set(config_context, "", "type", "\"Bet 'em Up\"");
+		conf_set(config_context, "", "type", "\"Shoot 'em Up\"");
+		conf_set(config_context, "", "type", "\"Beat 'em Up\"");
 		conf_set(config_context, "", "type", "\"Fight\"");
 		conf_set(config_context, "", "type", "\"Gun\"");
 		conf_set(config_context, "", "type", "\"Puzzle\"");
