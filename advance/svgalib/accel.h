@@ -162,6 +162,10 @@ typedef struct {
 #define BLTPIXADDRESS(x, y) \
 	(y * __svgalib_accel_screenpitch + x)
 
+#ifdef _WIN32
+#define SIGNALBLOCK { }
+#define SIGNALUNBLOCK { }
+#else
 #define SIGNALBLOCK \
     {								\
          sigset_t sig2block;					\
@@ -177,6 +181,7 @@ typedef struct {
 	 sigaddset(&sig2block,SIGINT); 				\
 	 sigprocmask(SIG_UNBLOCK, &sig2block, (sigset_t *)NULL);\
      }
+#endif
 
 /* Variables defined in accel.c */
 

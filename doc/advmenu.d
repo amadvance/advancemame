@@ -660,13 +660,16 @@ Configuration
 	standard Multisync SVGA monitor are used.
 
     display_size
-	Selects the desired width of the video mode.
+	Selects the desired size of the video mode.
 
-	:display_size WIDTH
+	:display_size WIDTHxHEIGHT
 
 	Options:
-		WIDTH - Width in pixels of the video mode. The nearest
-			available video mode is chosen (default 1024).
+		WIDTHxHEIGHT - Size in pixels of the video mode. The nearest
+			available video mode is chosen (default 1280x1024).
+
+	Examples:
+		:display_size 1600x1200
 
     display_restoreatgame
 	Selects whether to reset the video mode before running the

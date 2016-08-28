@@ -792,7 +792,7 @@ int os_main(int argc, char* argv[])
 
 	event_setup(rs.sound_foreground_key, rs.repeat, rs.repeat_rep, rs.alpha_mode);
 
-	if (!int_init(rs.video_size)) {
+	if (!int_init(rs.video_sizex, rs.video_sizey)) {
 		goto err_inner_init;
 	}
 

@@ -322,7 +322,8 @@ public:
 	bool lock_effective; ///< Interface locked.
 
 	// video
-	unsigned video_size; ///< Preferred video x size.
+	unsigned video_sizex; ///< Preferred video x size.
+	unsigned video_sizey;
 	std::string video_font_path; ///< Font path, "auto"== default.
 	int video_fontx; ///< Font size, "-1"==auto.
 	int video_fonty; ///< Font size, "-1"==auto.

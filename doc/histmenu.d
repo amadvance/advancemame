@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.9 2016/08
+	) Extended display_size option to allow to select the mode height.
+
 AdvanceMENU Version 2.8 2015/06
 	) Added support fo Haiku OS.
 	) Compatible with AdvanceMESS 1.3.

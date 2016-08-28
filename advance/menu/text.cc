@@ -361,7 +361,8 @@ static void int_mouse_move_raw_poll()
 
 #define DEFAULT_GRAPH_MODE "default_graph" // default video mode
 
-static unsigned int_mode_size; // requested mode size
+static unsigned int_mode_sizex; // requested mode size
+static unsigned int_mode_sizey; // requested mode size
 static adv_mode int_current_mode; // selected video mode
 static adv_monitor int_monitor; // monitor info
 static adv_generate_interpolate_set int_interpolate;
@@ -375,8 +376,8 @@ bool int_mode_graphics_less(const adv_mode* A, const adv_mode* B)
 	int areaA = A->size_x * A->size_y;
 	int areaB = B->size_x * B->size_y;
 
-	int difA = abs(areaA - static_cast<int>(int_mode_size*int_mode_size*3/4));
-	int difB = abs(areaB - static_cast<int>(int_mode_size*int_mode_size*3/4));
+	int difA = abs(areaA - static_cast<int>(int_mode_sizex*int_mode_sizey));
+	int difB = abs(areaB - static_cast<int>(int_mode_sizex*int_mode_sizey));
 
 	return difA < difB;
 }
@@ -385,6 +386,8 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 {
 	adv_crtc_container_iterator i;
 	adv_error err;
+
+	log_std(("text: searching for mode %dx%d.\n", int_mode_sizex, int_mode_sizey));
 
 	// search the default name
 	for(crtc_container_iterator_begin(&i, &modelines);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
@@ -412,7 +415,7 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 	// generate an exact mode with clock
 	if (int_has_generate) {
 		adv_crtc crtc;
-		err = generate_find_interpolate(&crtc, int_mode_size, int_mode_size*3/4, 70, &int_monitor, &int_interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK);
+		err = generate_find_interpolate(&crtc, int_mode_sizex, int_mode_sizey, 70, &int_monitor, &int_interpolate, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK);
 		if (err == 0) {
 			if (crtc_clock_check(&int_monitor, &crtc)) {
 				adv_mode mode;
@@ -430,7 +433,7 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 	// generate any resolution for a window manager
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW))!=0) {
 		adv_crtc crtc;
-		crtc_fake_set(&crtc, int_mode_size, int_mode_size*3/4);
+		crtc_fake_set(&crtc, int_mode_sizex, int_mode_sizey);
 
 		adv_mode mode;
 		mode_reset(&mode);
@@ -571,13 +574,14 @@ void int_unreg(void)
 	int_key_unreg();
 }
 
-bool int_init(unsigned size)
+bool int_init(unsigned sizex, unsigned sizey)
 {
 	unsigned index;
 	bool mode_found = false;
 	bool crtc_default = false;
 
-	int_mode_size = size;
+	int_mode_sizex = sizex;
+	int_mode_sizey = sizey;
 	mode_reset(&int_current_mode);
 
 	if (adv_video_init() != 0) {

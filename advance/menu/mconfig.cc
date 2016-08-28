@@ -297,7 +297,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_string_register_default(config_context, "sound_background_start", "none");
 	conf_string_register_default(config_context, "sound_background_stop", "none");
 	conf_string_register_default(config_context, "sound_background_loop_dir", "\"mp3\"");
-	conf_int_register_limit_default(config_context, "display_size", 160, 2048, 1024);
+	conf_string_register_default(config_context, "display_size", "1280x1024");
 	conf_string_register_default(config_context, "ui_font", "auto");
 	conf_string_register_default(config_context, "ui_fontsize", "auto");
 	conf_string_register_default(config_context, "display_orientation", "");
@@ -750,6 +750,7 @@ static bool config_load_orientation(adv_conf* config_context, unsigned& mask)
 bool config_state::load(adv_conf* config_context, bool opt_verbose)
 {
 	string a0, a1;
+	string::size_type p;
 
 	preview_mask = 0;
 	current_game = 0;
@@ -811,7 +812,17 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	repeat = atoi(a0.c_str());
 	repeat_rep = atoi(a1.c_str());
 	disable_special = !conf_bool_get_default(config_context, "input_hotkey");
-	video_size = conf_int_get_default(config_context, "display_size");
+	a0 = conf_string_get_default(config_context, "display_size");
+	p = a0.find('x');
+	if (p == string::npos) {
+		video_sizex = atoi(a0.c_str());
+		video_sizey = video_sizex * 3 / 4;
+	} else {
+		a1 = a0.substr(p+1);
+		a0 = a0.substr(0, p);
+		video_sizex = atoi(a0.c_str());
+		video_sizey = atoi(a1.c_str());
+	}
 	if (!config_path(conf_string_get_default(config_context, "ui_font"), video_font_path))
 		return false;
 	if (!config_split(conf_string_get_default(config_context, "ui_fontsize"), a0, a1))
