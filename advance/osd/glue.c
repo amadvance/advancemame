@@ -2394,7 +2394,11 @@ void osd_update_video_and_audio(mame_display *display)
 		input,
 		sample_buffer,
 		sample_count,
+#ifdef MESS
+		0
+#else
 		display->knocker_state
+#endif
 	);
 
 	profiler_mark(PROFILER_END);
