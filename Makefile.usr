@@ -329,7 +329,7 @@ FREETYPELIBS = -L$(CROSSDIR)/lib -lfreetype -lz
 endif
 ifeq ($(CONF_HOST),windows)
 # Probably you need to changes these to cross compile:
-CROSSTARGET = i686-pc-mingw32
+CROSSTARGET = i686-w64-mingw32.static
 CROSSDIR = /usr/local/mxe/usr
 AR = @$(CROSSDIR)/bin/$(CROSSTARGET)-ar
 CC = @$(CROSSDIR)/bin/$(CROSSTARGET)-gcc
@@ -339,8 +339,8 @@ LDXX = @$(CROSSDIR)/bin/$(CROSSTARGET)-g++
 RC = @$(CROSSDIR)/bin/$(CROSSTARGET)-windres
 SDLCFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/SDL -I$(CROSSDIR)/$(CROSSTARGET)/include
 SDLLIBS = -L$(CROSSDIR)/$(CROSSTARGET)/lib -lmingw32 -lSDL -lwinmm -mwindows -liconv -lm -luser32 -lgdi32 -lwinmm -ldxguid
-FREETYPECFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/freetype2 -I$(CROSSDIR)/$(CROSSTARGET)/include
-FREETYPELIBS = -L$(CROSSDIR)/$(CROSSTARGET)/lib -lfreetype -lpng -lbz2 -lz
+FREETYPECFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/freetype2
+FREETYPELIBS = -L$(CROSSDIR)/$(CROSSTARGET)/lib -lfreetype -lz -lbz2 -lpng16 -lz -lharfbuzz -lcairo -lgobject-2.0 -lfontconfig -lglib-2.0 -lusp10 -lmsimg32 -lgdi32 -lpixman-1 -L/mnt/bag/local/mxe/usr/i686-w64-mingw32.static/lib/../lib -lffi -lexpat -lfreetype -lbz2 -lpng16 -lz -lws2_32 -lole32 -lwinmm -lshlwapi -L/mnt/bag/local/mxe/usr/i686-w64-mingw32.static/lib -lpcre -lintl -liconv -lharfbuzz_too -lglib-2.0 -lws2_32 -lole32 -lwinmm -lshlwapi -lpcre -lintl -liconv
 endif
 endif
 

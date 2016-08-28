@@ -24,7 +24,7 @@ case "$host" in
 		AC_SUBST([CFLAGS_FOR_BUILD],["-O0"])
 		AC_SUBST([EXE],[])
 	;;
-	*-*-cygwin* | *-*-mingw32*)
+	*-*-mingw32*)
 		ac_system=windows
 		ac_host=windows
 		ac_host_cflags=
@@ -720,7 +720,11 @@ if test $ac_lib_freetype = auto; then
 		ac_save_CFLAGS="$CFLAGS"
 		ac_save_LIBS="$LIBS"
 		FREETYPECFLAGS=`$ac_lib_freetype_config $ac_lib_freetype_args --cflags`
-		FREETYPELIBS=`$ac_lib_freetype_config $ac_lib_freetype_args --libs`
+		if test $ac_enable_static = yes ; then
+			FREETYPELIBS=`$ac_lib_freetype_config $ac_lib_freetype_args --libs --static`
+		else
+			FREETYPELIBS=`$ac_lib_freetype_config $ac_lib_freetype_args --libs`
+		fi
 		CFLAGS="$FREETYPECFLAGS $CFLAGS"
 		LIBS="$FREETYPELIBS $LIBS"
 		AC_MSG_CHECKING([for FreeType2])
