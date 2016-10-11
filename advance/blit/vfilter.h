@@ -43,6 +43,7 @@ static void video_line_filter8_step1_mmx(const struct video_stage_horz_struct* s
 }
 #endif
 
+__attribute__((optimize("no-tree-vectorize")))
 static void video_line_filter8_step1_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
 	internal_mean8_horz_next_step1_def(dst, src, count);
@@ -69,6 +70,7 @@ static void video_line_filter16_step2_mmx(const struct video_stage_horz_struct* 
 }
 #endif
 
+__attribute__((optimize("no-tree-vectorize")))
 static void video_line_filter16_step2_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
 	internal_mean16_horz_next_step2_def(dst, src, count);
@@ -95,6 +97,7 @@ static void video_line_filter32_step4_mmx(const struct video_stage_horz_struct* 
 }
 #endif
 
+__attribute__((optimize("no-tree-vectorize")))
 static void video_line_filter32_step4_def(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
 	internal_mean32_horz_next_step4_def(dst, src, count);
