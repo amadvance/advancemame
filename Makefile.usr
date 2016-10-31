@@ -223,7 +223,7 @@ CONF_CFLAGS_ARCH = -DUSE_LSB -DUSE_ASM_INLINE -DUSE_ASM_EMUMIPS3
 endif
 
 ifndef CONF_CFLAGS_OPT
-CONF_CFLAGS_OPT = -march=i686 -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
+CONF_CFLAGS_OPT = -march=i686 -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-strict-overflow -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
 endif
 
 ifndef CONF_LDFLAGS

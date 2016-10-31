@@ -152,6 +152,8 @@ if test $ac_auto_cflags = yes; then
 		AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
 		dnl Code is not ready for strict-aliasing. It seems working, but who know...
 		AC_CHECK_CC_OPT([-fno-strict-aliasing], [CFLAGS="$CFLAGS -fno-strict-aliasing"], [])
+		dnl Code is not ready for strict-overflow. It seems working, but who know...
+		AC_CHECK_CC_OPT([-fno-strict-overflow], [CFLAGS="$CFLAGS -fno-strict-overflow"], [])
 		dnl We are not interested in stack protection
 		AC_CHECK_CC_OPT([-fno-stack-protector], [CFLAGS="$CFLAGS -fno-stack-protector"], [])
 		AC_CHECK_CC_OPT([-Wall], [CFLAGS="$CFLAGS -Wall"], [])
