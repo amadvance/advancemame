@@ -1,11 +1,11 @@
 Name
 	history - History For AdvanceMENU
 
-AdvanceMENU Version 2.9 2016/08
+AdvanceMENU Version 2.9 2016/11
 	) Extended display_size option to allow to select the mode height.
-	) Windows binaries built with gcc 4.9.3 using the MXE cross compiler at
-	commit 62bcdbee56e87c81f1faa105b8777a5879d4e2e with targets
-	i686-w64-mingw32 and x86_64-w64-mingw32 and optimization -O2.
+	) Windows binaries built with MingW 4.9.3 using the MXE cross compiler at
+		commit 62bcdbee56e87c81f1faa105b8777a5879d4e2e with targets
+		i686-w64-mingw32 and x86_64-w64-mingw32 and optimization -O2.
 
 AdvanceMENU Version 2.8 2015/06
 	) Added support fo Haiku OS.

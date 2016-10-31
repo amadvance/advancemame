@@ -16,7 +16,10 @@ AdvanceMAME/MESS Version 1.5 2016/11
 		Pi 2 boards.
 		Note that this ha effect only with root permission.
 		You can see in the log for "os: scheduling".
-	) Build DOS AdvanceMAME with DJGPP 4.8.5 from
+	) Windows binaries built with MingW 4.9.3 using the MXE cross compiler at
+		commit 62bcdbee56e87c81f1faa105b8777a5879d4e2e with targets
+		i686-w64-mingw32 and x86_64-w64-mingw32 and optimization -O2.
+	) DOS binaries built with DJGPP 4.8.5 from
 		https://github.com/andrewwutw/build-djgpp
 
 AdvanceMAME/MESS Version 1.4 2015/08
