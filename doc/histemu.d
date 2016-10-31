@@ -1,13 +1,14 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 1.5 2015/10
+AdvanceMAME/MESS Version 1.5 2016/11
 	) Imported the Toaplan driver from ThunderMAME32Plus-v0.106X.
 		This adds sound support with samples at the games:
 		'batsugun', 'dogyuun', 'ghox', 'samesame', 'tekipaki',
 		'vfive' and 'vimana'.
 	) Imported the CPS3 driver from ThunderMAME32Plus-v0.106X.
 		This adds the games: 'sfiii', 'jojo' and 'warzard'.
+	) Fixed a crashing issue in 68000 games, like Altered Beast.
 	) Added knocker support to Q*bert. You should see a keyboard
 		led on when the knocker is active [hainet].
 	) Set the SCHED_FIFO scheduling policy with sched_setscheduler().
