@@ -1443,21 +1443,28 @@ standard Multisync SVGA monitor are used.
 <h4><a name="5.2.2">5.2.2</a> 
 display_size
 </h4>
-Selects the desired width of the video mode.
+Selects the desired size of the video mode.
 <p>
 <pre>
-display_size WIDTH
+display_size WIDTHxHEIGHT
 </pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-WIDTH
+WIDTHxHEIGHT
 </em></td><td width="90%">
-Width in pixels of the video mode. The nearest
-available video mode is chosen (default 1024).
+Size in pixels of the video mode. The nearest
+available video mode is chosen (default 1280x1024).
 </td></tr>
 </table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+display_size 1600x1200
+</pre>
+</td></tr></table>
 <h4><a name="5.2.3">5.2.3</a> 
 display_restoreatgame
 </h4>
@@ -1630,7 +1637,10 @@ sound_volume -5
 <h4><a name="5.3.3">5.3.3</a> 
 sound_latency
 </h4>
-Sets the audio latency.
+Sets the audio latency. The latency is the delay between a
+sound is generated and before you hear it.
+You generally want a small latency, but a bigger latency
+avoids sound clicks in case the audio reproduction is too slow.
 <p>
 <pre>
 sound_latency TIME

@@ -49,6 +49,44 @@ The WIP version is available in <a href="https://github.com/amadvance/advancemam
 </p>
 
 <h2> 
+AdvanceMAME/MESS Version 1.5 2016/11
+</h2>
+<ul>
+<li>
+Imported the Toaplan driver from ThunderMAME32Plus-v0.106X.
+This adds sound support with samples at the games:
+'batsugun', 'dogyuun', 'ghox', 'samesame', 'tekipaki',
+'vfive' and 'vimana'.
+</li>
+<li>
+Imported the CPS3 driver from ThunderMAME32Plus-v0.106X.
+This adds the games: 'sfiii', 'jojo' and 'warzard'.
+</li>
+<li>
+Fixed a crashing issue in 68000 games, like Altered Beast.
+</li>
+<li>
+Added knocker support to Q*bert. You should see a keyboard
+led on when the knocker is active [hainet].
+</li>
+<li>
+Set the SCHED_FIFO scheduling policy with sched_setscheduler().
+This is reported to improve performance on Raspberry
+Pi 2 boards.
+Note that this ha effect only with root permission.
+You can see in the log for "os: scheduling".
+</li>
+<li>
+Windows binaries built with MingW 4.9.3 using the MXE cross compiler at
+commit 62bcdbee56e87c81f1faa105b8777a5879d4e2e with targets
+i686-w64-mingw32 and x86_64-w64-mingw32 and optimization -O2.
+</li>
+<li>
+DOS binaries built with DJGPP 4.8.5 from
+https://github.com/andrewwutw/build-djgpp
+</li>
+</ul>
+<h2> 
 AdvanceMAME/MESS Version 1.4 2015/08
 </h2>
 <ul>
@@ -56,7 +94,8 @@ AdvanceMAME/MESS Version 1.4 2015/08
 Restored the missing keypress of coin1 broken on v1.3.
 </li>
 <li>
-Imported the Cave PGM driver from ShmupMAME v3.0b.
+Imported the Cave PGM driver from ShmupMAME v3.0b
+with the new games 'ket', 'ddp3' and 'espgal'.
 </li>
 <li>
 Fixed build issue on AdvanceMESS about discrete.c file.
@@ -124,7 +163,7 @@ Changed default doc/man dirs to prefix/doc and prefix/man.
 Now in git repository.
 </li>
 <li>
-Removed DLL files from the Windows distribution. New new compiler uses static libraries.
+Removed DLL files from the Windows distribution. The new compiler uses static libraries.
 </li>
 <li>
 Compiled with SDL-1.2.14, zlib-1.2.5, expat-2.0.1, freetype-2.4.4, pthreads-w32-2-8-0.

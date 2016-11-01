@@ -2923,7 +2923,10 @@ The gain is a integer value from -20 to 20.
 <h4><a name="8.8.8">8.8.8</a> 
 sound_latency
 </h4>
-Sets the minimum audio latency.
+Sets the audio latency. The latency is the delay between a
+sound is generated and before you hear it.
+You generally want a small latency, but a bigger latency
+avoids sound clicks in case the audio reproduction is too slow.
 <p>
 <pre>
 sound_latency TIME
@@ -2934,7 +2937,7 @@ Options:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 TIME
 </em></td><td width="90%">
-Latency in seconds from 0 to 2.0
+Latency in seconds from 0.01 to 2.0
 (default 0.05).
 </td></tr>
 </table>
