@@ -140,6 +140,13 @@ AC_ARG_ENABLE(
 	[ac_enable_static=no]
 )
 
+AC_ARG_ENABLE(
+	[bare],
+	AC_HELP_STRING([--enable-bare],[enable compilation without drivers. (default no)]),
+	[ac_enable_bare=$enableval],
+	[ac_enable_bare=no]
+)
+
 if test $ac_auto_cflags = yes; then
 	if test $ac_enable_debug = yes ; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
@@ -1192,6 +1199,7 @@ echo "Joystick :" $ac_lib_joystick
 echo "Mouse :" $ac_lib_mouse
 echo "Misc :" $ac_lib_other
 
+if test $ac_enable_bare = no ; then
 if test $ac_enable_debug = no ; then
 	if test $ac_lib_video_flag = no; then
 		AC_MSG_ERROR([no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option.])
@@ -1206,6 +1214,7 @@ if test $ac_enable_debug = no ; then
 	if test $ac_lib_text_flag = no; then
 		AC_MSG_WARN([no text video mode library found. The advv/advcfg utilities will not work!])
 	fi
+fi
 fi
 
 echo ""

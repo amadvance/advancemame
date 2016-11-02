@@ -4,7 +4,7 @@ sudo: false
 
 language: c
 
-script: sh autogen.sh && ./configure && make
+script: sh autogen.sh && ./configure --enable-bare && make
 
 compiler:
   - gcc
