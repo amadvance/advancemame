@@ -139,7 +139,7 @@ static int tiles_offsety;
 
 static int toaplan1_reset;		/* Hack! See toaplan1_bcu_control below */
 
-int wait;
+static int toaplan_wait;
 
 typedef struct
 {
@@ -1632,15 +1632,15 @@ VIDEO_UPDATE( samesame )
 
 	toaplan1_render(bitmap);
 	toaplan1_sprite_render(bitmap);
-	if (start>0) wait++;
-	if (wait>=(116+start2))
+	if (start>0) toaplan_wait++;
+	if (toaplan_wait>=(116+start2))
 	{
 		sample_stop (0);
 		sample_set_volume (0, 1.00);
 		sample_start (0, 0x7, 0);
 		start=0;
 		start2=1;
-		wait=0;
+		toaplan_wait=0;
 	}
 	if (start2 == 0) ese_fadeout2();
 }
