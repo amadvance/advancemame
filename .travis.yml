@@ -9,3 +9,7 @@ script: sh autogen.sh && ./configure && make
 compiler:
   - gcc
 
+os:
+  - linux
+  - osx
+
