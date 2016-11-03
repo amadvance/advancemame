@@ -135,7 +135,7 @@ void target_done(void)
 
 void target_yield(void)
 {
-#ifdef _POSIX_PRIORITY_SCHEDULING /* OSDEF Check for POSIX scheduling */
+#if HAVE_SCHED_YIELD && defined(_POSIX_PRIORITY_SCHEDULING) /* OSDEF Check for POSIX scheduling */
 	sched_yield();
 #endif
 }

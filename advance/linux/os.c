@@ -346,7 +346,7 @@ int os_inner_init(const char* title)
 #endif
 #endif
 
-#ifdef _POSIX_PRIORITY_SCHEDULING /* OSDEF Check for POSIX scheduling */
+#if HAVE_SCHED_GETSCHEDULER && HAVE_SCHED_SETSCHEDULER && HAVE_SCHED_GET_PRIORITY_MAX && defined(_POSIX_PRIORITY_SCHEDULING) /* OSDEF Check for POSIX scheduling */
 	log_std(("os: scheduling available\n"));
 #ifdef SCHED_FIFO
 	/* set the SCHED_FIFO scheduling policy with maximum priority */

@@ -106,8 +106,20 @@
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
 
+/* Define to 1 if you have the `sched_getscheduler' function. */
+#undef HAVE_SCHED_GETSCHEDULER
+
+/* Define to 1 if you have the `sched_get_priority_max' function. */
+#undef HAVE_SCHED_GET_PRIORITY_MAX
+
 /* Define to 1 if you have the <sched.h> header file. */
 #undef HAVE_SCHED_H
+
+/* Define to 1 if you have the `sched_setscheduler' function. */
+#undef HAVE_SCHED_SETSCHEDULER
+
+/* Define to 1 if you have the `sched_yield' function. */
+#undef HAVE_SCHED_YIELD
 
 /* Define to 1 if you have the <slang.h> header file. */
 #undef HAVE_SLANG_H
