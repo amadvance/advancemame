@@ -37,7 +37,7 @@
 /* internal double */
 
 #if defined(USE_ASM_INLINE)
-static inline void internal_double8_mmx(uint8* dst, const uint8* src, unsigned count)
+static inline void internal_double8_asm(uint8* dst, const uint8* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -65,7 +65,7 @@ static inline void internal_double8_mmx(uint8* dst, const uint8* src, unsigned c
 #endif
 
 #if defined(USE_ASM_INLINE)
-static inline void internal_double16_mmx(uint16* dst, const uint16* src, unsigned count)
+static inline void internal_double16_asm(uint16* dst, const uint16* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -93,7 +93,7 @@ static inline void internal_double16_mmx(uint16* dst, const uint16* src, unsigne
 #endif
 
 #if defined(USE_ASM_INLINE)
-static inline void internal_double32_mmx(uint32* dst, const uint32* src, unsigned count)
+static inline void internal_double32_asm(uint32* dst, const uint32* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 

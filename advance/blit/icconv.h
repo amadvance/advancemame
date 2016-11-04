@@ -43,7 +43,7 @@ static uint32 bgra8888tobgr332_mask[] = {
 	0x00000003, 0x00000003  /* b */
 };
 
-static inline void internal_convbgra8888tobgr332_mmx(void* dst, const void* src, unsigned count)
+static inline void internal_convbgra8888tobgr332_asm(void* dst, const void* src, unsigned count)
 {
 	unsigned rest = count % 8;
 
@@ -182,7 +182,7 @@ static uint32 bgra8888tobgr565_mask[] = {
 	0x0000001F, 0x0000001F  /* b */
 };
 
-static inline void internal_convbgra8888tobgr565_mmx(void* dst, const void* src, unsigned count)
+static inline void internal_convbgra8888tobgr565_asm(void* dst, const void* src, unsigned count)
 {
 	unsigned rest = count % 4;
 
@@ -279,7 +279,7 @@ static uint32 bgra8888tobgra5551_mask[] = {
 	0x0000001F, 0x0000001F  /* b */
 };
 
-static inline void internal_convbgra8888tobgra5551_mmx(void* dst, const void* src, unsigned count)
+static inline void internal_convbgra8888tobgra5551_asm(void* dst, const void* src, unsigned count)
 {
 	unsigned rest = count % 4;
 
@@ -379,7 +379,7 @@ static uint32 bgra5551tobgr332_mask[] = {
 	0x00030003, 0x00030003  /* b */
 };
 
-static inline void internal_convbgra5551tobgr332_mmx(void* dst, const void* src, unsigned count)
+static inline void internal_convbgra5551tobgr332_asm(void* dst, const void* src, unsigned count)
 {
 	unsigned rest = count % 8;
 
@@ -490,7 +490,7 @@ static uint32 bgra5551tobgr565_mask[] = {
 	0x001F001F, 0x001F001F /* b */
 };
 
-static inline void internal_convbgra5551tobgr565_mmx(void* dst, const void* src, unsigned count)
+static inline void internal_convbgra5551tobgr565_asm(void* dst, const void* src, unsigned count)
 {
 	unsigned rest = count % 4;
 
@@ -553,7 +553,7 @@ static uint32 bgra5551tobgra8888_mask[] = {
 	0x00F80000, 0x00F80000 /* b */
 };
 
-static inline void internal_convbgra5551tobgra8888_mmx(void* dst, const void* src, unsigned count)
+static inline void internal_convbgra5551tobgra8888_asm(void* dst, const void* src, unsigned count)
 {
 	unsigned rest = count % 2;
 
@@ -636,7 +636,7 @@ static uint32 bgra8888toyuy2_coeff[] = {
 	0x80000000, 0x80000000  /* add */
 };
 
-static inline void pixel_convbgra8888toyuy2_mmx(void* dst, const void* src0, const void* src1)
+static inline void pixel_convbgra8888toyuy2_asm(void* dst, const void* src0, const void* src1)
 {
 	__asm__ __volatile__ (
 
@@ -790,7 +790,7 @@ static uint32 alphabgra8888_coeff[] = {
 	0x00FF00FF, 0x00FF00FF
 };
 
-static inline void pixel_alphabgra8888_mmx(void* dst, const void* src)
+static inline void pixel_alphabgra8888_asm(void* dst, const void* src)
 {
 	uint8* src8 = (uint8*)src;
 

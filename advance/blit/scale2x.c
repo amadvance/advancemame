@@ -718,7 +718,7 @@ void scale2x4_32_def(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32*
  *      %mm6 -> *current_upper
  *      %mm7 -> *current
  */
-static inline void scale2x_8_mmx_border(scale2x_uint8* dst, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+static inline void scale2x_8_asm_border(scale2x_uint8* dst, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
 {
 	assert(count >= 16);
 	assert(count % 8 == 0);
@@ -920,7 +920,7 @@ static inline void scale2x_8_mmx_border(scale2x_uint8* dst, const scale2x_uint8*
 	);
 }
 
-static inline void scale2x_16_mmx_border(scale2x_uint16* dst, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+static inline void scale2x_16_asm_border(scale2x_uint16* dst, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
 {
 	assert(count >= 8);
 	assert(count % 4 == 0);
@@ -1120,7 +1120,7 @@ static inline void scale2x_16_mmx_border(scale2x_uint16* dst, const scale2x_uint
 	);
 }
 
-static inline void scale2x_32_mmx_border(scale2x_uint32* dst, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+static inline void scale2x_32_asm_border(scale2x_uint32* dst, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
 {
 	assert(count >= 4);
 	assert(count % 2 == 0);
@@ -1345,19 +1345,19 @@ static inline void scale2x_32_mmx_border(scale2x_uint32* dst, const scale2x_uint
  * \param dst0 First destination row, double length in pixels.
  * \param dst1 Second destination row, double length in pixels.
  */
-void scale2x_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+void scale2x_8_asm(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
 {
 	if (count % 8 != 0 || count < 16) {
 		scale2x_8_def(dst0, dst1, src0, src1, src2, count);
 	} else {
-		scale2x_8_mmx_border(dst0, src0, src1, src2, count);
-		scale2x_8_mmx_border(dst1, src2, src1, src0, count);
+		scale2x_8_asm_border(dst0, src0, src1, src2, count);
+		scale2x_8_asm_border(dst1, src2, src1, src0, count);
 	}
 }
 
 /**
  * Scale by a factor of 2 a row of pixels of 16 bits.
- * This function operates like scale2x_8_mmx() but for 16 bits pixels.
+ * This function operates like scale2x_8_asm() but for 16 bits pixels.
  * \param src0 Pointer at the first pixel of the previous row.
  * \param src1 Pointer at the first pixel of the current row.
  * \param src2 Pointer at the first pixel of the next row.
@@ -1366,19 +1366,19 @@ void scale2x_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, const scale2x_uint8
  * \param dst0 First destination row, double length in pixels.
  * \param dst1 Second destination row, double length in pixels.
  */
-void scale2x_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+void scale2x_16_asm(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
 {
 	if (count % 4 != 0 || count < 8) {
 		scale2x_16_def(dst0, dst1, src0, src1, src2, count);
 	} else {
-		scale2x_16_mmx_border(dst0, src0, src1, src2, count);
-		scale2x_16_mmx_border(dst1, src2, src1, src0, count);
+		scale2x_16_asm_border(dst0, src0, src1, src2, count);
+		scale2x_16_asm_border(dst1, src2, src1, src0, count);
 	}
 }
 
 /**
  * Scale by a factor of 2 a row of pixels of 32 bits.
- * This function operates like scale2x_8_mmx() but for 32 bits pixels.
+ * This function operates like scale2x_8_asm() but for 32 bits pixels.
  * \param src0 Pointer at the first pixel of the previous row.
  * \param src1 Pointer at the first pixel of the current row.
  * \param src2 Pointer at the first pixel of the next row.
@@ -1387,112 +1387,112 @@ void scale2x_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, const scale2x_ui
  * \param dst0 First destination row, double length in pixels.
  * \param dst1 Second destination row, double length in pixels.
  */
-void scale2x_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+void scale2x_32_asm(scale2x_uint32* dst0, scale2x_uint32* dst1, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
 {
 	if (count % 2 != 0 || count < 4) {
 		scale2x_32_def(dst0, dst1, src0, src1, src2, count);
 	} else {
-		scale2x_32_mmx_border(dst0, src0, src1, src2, count);
-		scale2x_32_mmx_border(dst1, src2, src1, src0, count);
+		scale2x_32_asm_border(dst0, src0, src1, src2, count);
+		scale2x_32_asm_border(dst1, src2, src1, src0, count);
 	}
 }
 
 /**
  * Scale by a factor of 2x3 a row of pixels of 8 bits.
- * This function operates like scale2x_8_mmx() but with an expansion
+ * This function operates like scale2x_8_asm() but with an expansion
  * factor of 2x3 instead of 2x2.
  */
-void scale2x3_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst2, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+void scale2x3_8_asm(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst2, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
 {
 	if (count % 8 != 0 || count < 16) {
 		scale2x3_8_def(dst0, dst1, dst2, src0, src1, src2, count);
 	} else {
-		scale2x_8_mmx_border(dst0, src0, src1, src2, count);
+		scale2x_8_asm_border(dst0, src0, src1, src2, count);
 		scale2x_8_def_center(dst1, src0, src1, src2, count);
-		scale2x_8_mmx_border(dst2, src2, src1, src0, count);
+		scale2x_8_asm_border(dst2, src2, src1, src0, count);
 	}
 }
 
 /**
  * Scale by a factor of 2x3 a row of pixels of 16 bits.
- * This function operates like scale2x_16_mmx() but with an expansion
+ * This function operates like scale2x_16_asm() but with an expansion
  * factor of 2x3 instead of 2x2.
  */
-void scale2x3_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16* dst2, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+void scale2x3_16_asm(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16* dst2, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
 {
 	if (count % 4 != 0 || count < 8) {
 		scale2x3_16_def(dst0, dst1, dst2, src0, src1, src2, count);
 	} else {
-		scale2x_16_mmx_border(dst0, src0, src1, src2, count);
+		scale2x_16_asm_border(dst0, src0, src1, src2, count);
 		scale2x_16_def_center(dst1, src0, src1, src2, count);
-		scale2x_16_mmx_border(dst2, src2, src1, src0, count);
+		scale2x_16_asm_border(dst2, src2, src1, src0, count);
 	}
 }
 
 /**
  * Scale by a factor of 2x3 a row of pixels of 32 bits.
- * This function operates like scale2x_32_mmx() but with an expansion
+ * This function operates like scale2x_32_asm() but with an expansion
  * factor of 2x3 instead of 2x2.
  */
-void scale2x3_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+void scale2x3_32_asm(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
 {
 	if (count % 2 != 0 || count < 4) {
 		scale2x3_32_def(dst0, dst1, dst2, src0, src1, src2, count);
 	} else {
-		scale2x_32_mmx_border(dst0, src0, src1, src2, count);
+		scale2x_32_asm_border(dst0, src0, src1, src2, count);
 		scale2x_32_def_center(dst1, src0, src1, src2, count);
-		scale2x_32_mmx_border(dst2, src2, src1, src0, count);
+		scale2x_32_asm_border(dst2, src2, src1, src0, count);
 	}
 }
 
 /**
  * Scale by a factor of 2x4 a row of pixels of 8 bits.
- * This function operates like scale2x_8_mmx() but with an expansion
+ * This function operates like scale2x_8_asm() but with an expansion
  * factor of 2x4 instead of 2x2.
  */
-void scale2x4_8_mmx(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst2, scale2x_uint8* dst3, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
+void scale2x4_8_asm(scale2x_uint8* dst0, scale2x_uint8* dst1, scale2x_uint8* dst2, scale2x_uint8* dst3, const scale2x_uint8* src0, const scale2x_uint8* src1, const scale2x_uint8* src2, unsigned count)
 {
 	if (count % 8 != 0 || count < 16) {
 		scale2x4_8_def(dst0, dst1, dst2, dst3, src0, src1, src2, count);
 	} else {
-		scale2x_8_mmx_border(dst0, src0, src1, src2, count);
+		scale2x_8_asm_border(dst0, src0, src1, src2, count);
 		scale2x_8_def_center(dst1, src0, src1, src2, count);
 		scale2x_8_def_center(dst2, src0, src1, src2, count);
-		scale2x_8_mmx_border(dst3, src2, src1, src0, count);
+		scale2x_8_asm_border(dst3, src2, src1, src0, count);
 	}
 }
 
 /**
  * Scale by a factor of 2x4 a row of pixels of 16 bits.
- * This function operates like scale2x_16_mmx() but with an expansion
+ * This function operates like scale2x_16_asm() but with an expansion
  * factor of 2x4 instead of 2x2.
  */
-void scale2x4_16_mmx(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16* dst2, scale2x_uint16* dst3, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
+void scale2x4_16_asm(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16* dst2, scale2x_uint16* dst3, const scale2x_uint16* src0, const scale2x_uint16* src1, const scale2x_uint16* src2, unsigned count)
 {
 	if (count % 4 != 0 || count < 8) {
 		scale2x4_16_def(dst0, dst1, dst2, dst3, src0, src1, src2, count);
 	} else {
-		scale2x_16_mmx_border(dst0, src0, src1, src2, count);
+		scale2x_16_asm_border(dst0, src0, src1, src2, count);
 		scale2x_16_def_center(dst1, src0, src1, src2, count);
 		scale2x_16_def_center(dst2, src0, src1, src2, count);
-		scale2x_16_mmx_border(dst3, src2, src1, src0, count);
+		scale2x_16_asm_border(dst3, src2, src1, src0, count);
 	}
 }
 
 /**
  * Scale by a factor of 2x4 a row of pixels of 32 bits.
- * This function operates like scale2x_32_mmx() but with an expansion
+ * This function operates like scale2x_32_asm() but with an expansion
  * factor of 2x4 instead of 2x2.
  */
-void scale2x4_32_mmx(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, scale2x_uint32* dst3, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
+void scale2x4_32_asm(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, scale2x_uint32* dst3, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count)
 {
 	if (count % 2 != 0 || count < 4) {
 		scale2x4_32_def(dst0, dst1, dst2, dst3, src0, src1, src2, count);
 	} else {
-		scale2x_32_mmx_border(dst0, src0, src1, src2, count);
+		scale2x_32_asm_border(dst0, src0, src1, src2, count);
 		scale2x_32_def_center(dst1, src0, src1, src2, count);
 		scale2x_32_def_center(dst2, src0, src1, src2, count);
-		scale2x_32_mmx_border(dst3, src2, src1, src0, count);
+		scale2x_32_asm_border(dst3, src2, src1, src0, count);
 	}
 }
 

@@ -102,7 +102,7 @@ adv_bool the_blit_mmx = 0;
 adv_bool the_blit_sse = 0;
 adv_bool the_blit_direct = 0;
 
-#define BLITTER(name) (the_blit_mmx ? name##_mmx : name##_def)
+#define BLITTER(name) (the_blit_mmx ? name##_asm : name##_def)
 
 static adv_error blit_cpu(void)
 {

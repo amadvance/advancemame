@@ -86,7 +86,7 @@ static inline uint32 internal_mean_value(uint32 v0, uint32 v1)
 /* Compute the mean of dst and src and store the result in dst */
 
 #if defined(USE_ASM_INLINE)
-static inline void internal_mean64_vert_self_mmx(void* dst, const void* src, unsigned count)
+static inline void internal_mean64_vert_self_asm(void* dst, const void* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -115,19 +115,19 @@ static inline void internal_mean64_vert_self_mmx(void* dst, const void* src, uns
 	);
 }
 
-static inline void internal_mean8_vert_self_mmx(uint8* dst, const uint8* src, unsigned count)
+static inline void internal_mean8_vert_self_asm(uint8* dst, const uint8* src, unsigned count)
 {
-	internal_mean64_vert_self_mmx(dst, src, count / 8);
+	internal_mean64_vert_self_asm(dst, src, count / 8);
 }
 
-static inline void internal_mean16_vert_self_mmx(uint16* dst, const uint16* src, unsigned count)
+static inline void internal_mean16_vert_self_asm(uint16* dst, const uint16* src, unsigned count)
 {
-	internal_mean64_vert_self_mmx(dst, src, count / 4);
+	internal_mean64_vert_self_asm(dst, src, count / 4);
 }
 
-static inline void internal_mean32_vert_self_mmx(uint32* dst, const uint32* src, unsigned count)
+static inline void internal_mean32_vert_self_asm(uint32* dst, const uint32* src, unsigned count)
 {
-	internal_mean64_vert_self_mmx(dst, src, count / 2);
+	internal_mean64_vert_self_asm(dst, src, count / 2);
 }
 #endif
 
@@ -187,7 +187,7 @@ static inline void internal_mean32_vert_self_step(uint32* dst32, const uint32* s
 #if defined(USE_ASM_INLINE)
 static uint32 mean8_horz_step1_mask[2] = { 0x00000000, 0xFF000000 };
 
-static inline void internal_mean8_horz_next_step1_mmx(uint8* dst, const uint8* src, unsigned count)
+static inline void internal_mean8_horz_next_step1_asm(uint8* dst, const uint8* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -250,7 +250,7 @@ static inline void internal_mean8_horz_next_step1_mmx(uint8* dst, const uint8* s
 
 static uint32 mean16_horz_step2_mask[2] = { 0x00000000, 0xFFFF0000 };
 
-static inline void internal_mean16_horz_next_step2_mmx(uint16* dst, const uint16* src, unsigned count)
+static inline void internal_mean16_horz_next_step2_asm(uint16* dst, const uint16* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
@@ -312,7 +312,7 @@ static inline void internal_mean16_horz_next_step2_mmx(uint16* dst, const uint16
 
 static uint32 mean32_horz_step4_mask[2] = { 0x00000000, 0xFFFFFFFF };
 
-static inline void internal_mean32_horz_next_step4_mmx(uint32* dst, const uint32* src, unsigned count)
+static inline void internal_mean32_horz_next_step4_asm(uint32* dst, const uint32* src, unsigned count)
 {
 	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
 
