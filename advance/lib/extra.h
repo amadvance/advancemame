@@ -76,7 +76,7 @@ typedef uintptr_t uintptr; /**< Unsigned integer with pointer size. */
  * Alignment.
  */
 /*@{*/
-#define ALIGN_BIT 3 /**< Number of bit of alignment required. */
+#define ALIGN_BIT 4 /**< Number of bit of alignment required for SSE2. */
 #define ALIGN (1U << ALIGN_BIT) /**< Alignment multiplicator. */
 #define ALIGN_MASK (ALIGN - 1U) /**< Alignment mask. */
 

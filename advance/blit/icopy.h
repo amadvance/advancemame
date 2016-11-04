@@ -39,19 +39,20 @@
 #if defined(USE_ASM_INLINE)
 static inline void internal_copy8_asm(uint8* dst, const uint8* src, unsigned count)
 {
-	unsigned rest = count % 8;
+	unsigned rest = count % 16;
 
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0xF)==0);
 
 	__asm__ __volatile__(
-		"shrl $3, %2\n"
+		"shrl $4, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movq (%0), %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $8, %0\n"
-		"addl $8, %1\n"
+		"movdqa (%0), %%xmm0\n"
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $16, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -74,28 +75,30 @@ static inline void internal_copy8_asm(uint8* dst, const uint8* src, unsigned cou
 #endif
 
 #if defined(USE_ASM_INLINE)
-static uint8 copy8_mask[8] = { 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00 };
+static uint8 copy8_mask[16] = { 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00 };
 
 static inline void internal_copy8_step2_asm(uint8* dst, const uint8* src, unsigned count)
 {
-	unsigned rest = count % 8;
+	unsigned rest = count % 16;
 
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0xF)==0);
 
 	__asm__ __volatile__(
-		"shrl $3, %2\n"
+		"shrl $4, %2\n"
 		"jz 1f\n"
-		"movq (%3), %%mm2\n"
+		"movdqu (%3), %%xmm2\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movq (%0), %%mm0\n"
-		"movq 8(%0), %%mm1\n"
-		"pand %%mm2, %%mm0\n"
-		"pand %%mm2, %%mm1\n"
-		"packuswb %%mm1, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $16, %0\n"
-		"addl $8, %1\n"
+		"movdqa (%0), %%xmm0\n"
+		"movdqa 16(%0), %%xmm1\n"
+		"pand %%xmm2, %%xmm0\n"
+		"pand %%xmm2, %%xmm1\n"
+		"packuswb %%xmm1, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $32, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -111,45 +114,13 @@ static inline void internal_copy8_step2_asm(uint8* dst, const uint8* src, unsign
 		--rest;
 	}
 }
+
 #endif
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_copy8_def(uint8* dst, const uint8* src, unsigned count)
-{
-	unsigned rest = count % 4;
-
-	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
-
-	__asm__ __volatile__ (
-		"shrl $2, %2\n"
-		"jz 1f\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		"movl (%0), %%eax\n"
-		"movl %%eax, (%1)\n"
-		"addl $4, %0\n"
-		"addl $4, %1\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-		: "+S" (src), "+D" (dst), "+g" (count)
-		:
-		: "cc", "%eax"
-	);
-
-	while (rest) {
-		dst[0] = src[0];
-		dst += 1;
-		src += 1;
-		--rest;
-	}
-}
-#else
 static inline void internal_copy8_def(uint8* dst, const uint8* src, unsigned count)
 {
 	memcpy(dst, src, count);
 }
-#endif
 
 static inline void internal_copy8_step2_def(uint8* dst, const uint8* src, unsigned count)
 {
@@ -188,52 +159,87 @@ static inline void internal_copy32_def(uint32* dst, const uint32* src, unsigned 
 #if defined(USE_ASM_INLINE)
 static inline void internal_copy8_step_asm(uint8* dst, const uint8* src, unsigned count, int step)
 {
-	unsigned rest = count % 8;
-
-	assert_align(((unsigned)dst & 0x7)==0);
+	unsigned rest = count % 16;
 
 	__asm__ __volatile__(
-		"shrl $3, %2\n"
+		"shrl $4, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 		"movzbl (%0), %%eax\n"
 		"movzbl (%0, %3), %%edx\n"
-		"movd %%eax, %%mm0\n"
-		"movd %%edx, %%mm1\n"
+		"movd %%eax, %%xmm0\n"
+		"movd %%edx, %%xmm1\n"
 		"addl %3, %0\n"
 		"addl %3, %0\n"
-		"punpcklbw %%mm1, %%mm0\n"
+		"punpcklbw %%xmm1, %%xmm0\n"
 
 		"movzbl (%0), %%eax\n"
 		"movzbl (%0, %3), %%edx\n"
-		"movd %%eax, %%mm2\n"
-		"movd %%edx, %%mm3\n"
+		"movd %%eax, %%xmm1\n"
+		"movd %%edx, %%xmm2\n"
 		"addl %3, %0\n"
 		"addl %3, %0\n"
-		"punpcklbw %%mm3, %%mm2\n"
-		"punpcklwd %%mm2, %%mm0\n"
+		"punpcklbw %%xmm2, %%xmm1\n"
+		"punpcklwd %%xmm1, %%xmm0\n"
 
 		"movzbl (%0), %%eax\n"
 		"movzbl (%0, %3), %%edx\n"
-		"movd %%eax, %%mm4\n"
-		"movd %%edx, %%mm5\n"
+		"movd %%eax, %%xmm1\n"
+		"movd %%edx, %%xmm2\n"
 		"addl %3, %0\n"
 		"addl %3, %0\n"
-		"punpcklbw %%mm5, %%mm4\n"
+		"punpcklbw %%xmm2, %%xmm1\n"
 
 		"movzbl (%0), %%eax\n"
 		"movzbl (%0, %3), %%edx\n"
-		"movd %%eax, %%mm6\n"
-		"movd %%edx, %%mm7\n"
+		"movd %%eax, %%xmm2\n"
+		"movd %%edx, %%xmm3\n"
 		"addl %3, %0\n"
 		"addl %3, %0\n"
-		"punpcklbw %%mm7, %%mm6\n"
-		"punpcklwd %%mm6, %%mm4\n"
+		"punpcklbw %%xmm3, %%xmm2\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+		"punpckldq %%xmm1, %%xmm0\n"
 
-		"punpckldq %%mm4, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $8, %1\n"
+		"movzbl (%0), %%eax\n"
+		"movzbl (%0, %3), %%edx\n"
+		"movd %%eax, %%xmm1\n"
+		"movd %%edx, %%xmm2\n"
+		"addl %3, %0\n"
+		"addl %3, %0\n"
+		"punpcklbw %%xmm2, %%xmm1\n"
+
+		"movzbl (%0), %%eax\n"
+		"movzbl (%0, %3), %%edx\n"
+		"movd %%eax, %%xmm2\n"
+		"movd %%edx, %%xmm3\n"
+		"addl %3, %0\n"
+		"addl %3, %0\n"
+		"punpcklbw %%xmm3, %%xmm2\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+
+		"movzbl (%0), %%eax\n"
+		"movzbl (%0, %3), %%edx\n"
+		"movd %%eax, %%xmm2\n"
+		"movd %%edx, %%xmm3\n"
+		"addl %3, %0\n"
+		"addl %3, %0\n"
+		"punpcklbw %%xmm3, %%xmm2\n"
+
+		"movzbl (%0), %%eax\n"
+		"movzbl (%0, %3), %%edx\n"
+		"movd %%eax, %%xmm3\n"
+		"movd %%edx, %%xmm4\n"
+		"addl %3, %0\n"
+		"addl %3, %0\n"
+		"punpcklbw %%xmm4, %%xmm3\n"
+		"punpcklwd %%xmm3, %%xmm2\n"
+		"punpckldq %%xmm2, %%xmm1\n"
+		"punpcklqdq %%xmm1, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -265,32 +271,53 @@ static inline void internal_copy8_step_def(uint8* dst, const uint8* src, unsigne
 #if defined(USE_ASM_INLINE)
 static inline void internal_copy16_step_asm(uint16* dst, const uint16* src, unsigned count, int step)
 {
-	unsigned rest = count % 4;
+	unsigned rest = count % 8;
 
-	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x1)==0);
 
 	__asm__ __volatile__(
-		"shrl $2, %2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 		"movzwl (%0), %%eax\n"
 		"movzwl (%0, %3), %%edx\n"
-		"movd %%eax, %%mm0\n"
+		"movd %%eax, %%xmm0\n"
+		"movd %%edx, %%xmm1\n"
 		"addl %3, %0\n"
-		"movd %%edx, %%mm1\n"
 		"addl %3, %0\n"
-		"punpcklwd %%mm1, %%mm0\n"
+		"punpcklwd %%xmm1, %%xmm0\n"
+
 		"movzwl (%0), %%eax\n"
 		"movzwl (%0, %3), %%edx\n"
-		"movd %%eax, %%mm2\n"
+		"movd %%eax, %%xmm1\n"
+		"movd %%edx, %%xmm2\n"
 		"addl %3, %0\n"
-		"movd %%edx, %%mm3\n"
 		"addl %3, %0\n"
-		"punpcklwd %%mm3, %%mm2\n"
-		"punpckldq %%mm2, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $8, %1\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+		"punpckldq %%xmm1, %%xmm0\n"
+
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %3), %%edx\n"
+		"movd %%eax, %%xmm1\n"
+		"movd %%edx, %%xmm2\n"
+		"addl %3, %0\n"
+		"addl %3, %0\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %3), %%edx\n"
+		"movd %%eax, %%xmm2\n"
+		"movd %%edx, %%xmm3\n"
+		"addl %3, %0\n"
+		"addl %3, %0\n"
+		"punpcklwd %%xmm3, %%xmm2\n"
+		"punpckldq %%xmm2, %%xmm1\n"
+		"punpcklqdq %%xmm1, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -321,22 +348,31 @@ static inline void internal_copy16_step_def(uint16* dst, const uint16* src, unsi
 #if defined(USE_ASM_INLINE)
 static inline void internal_copy32_step_asm(uint32* dst, const uint32* src, unsigned count, int step)
 {
-	unsigned rest = count % 2;
+	unsigned rest = count % 4;
 
-	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x3)==0);
 
 	__asm__ __volatile__(
-		"shrl $1, %2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movd (%0), %%mm0\n"
-		"movd (%0, %3), %%mm1\n"
+		"movd (%0), %%xmm0\n"
+		"movd (%0, %3), %%xmm1\n"
 		"addl %3, %0\n"
 		"addl %3, %0\n"
-		"punpckldq %%mm1, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $8, %1\n"
+		"punpckldq %%xmm1, %%xmm0\n"
+
+		"movd (%0), %%xmm1\n"
+		"movd (%0, %3), %%xmm2\n"
+		"addl %3, %0\n"
+		"addl %3, %0\n"
+		"punpckldq %%xmm2, %%xmm1\n"
+		"punpcklqdq %%xmm1, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -345,8 +381,11 @@ static inline void internal_copy32_step_asm(uint32* dst, const uint32* src, unsi
 		: "cc"
 	);
 
-	if (rest) {
+	while (rest) {
 		dst[0] = src[0];
+		dst += 1;
+		PADD(src, step);
+		--rest;
 	}
 }
 #endif
@@ -403,18 +442,17 @@ static inline void internal_fill32(uint32* dst, unsigned src, unsigned count)
 #if defined(USE_ASM_INLINE)
 static inline void internal_zero8_asm(uint8* dst, unsigned count)
 {
-	unsigned rest = count % 8;
-
-	assert_align(((unsigned)dst & 0x7)==0);
+	unsigned rest = count % 16;
 
 	__asm__ __volatile__(
 		"shrl $3, %2\n"
-		"xorq %%mm0, %%mm0\n"
+		"xorq %%xmm0, %%xmm0\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movq %%mm0, (%0)\n"
-		"addl $8, %0\n"
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%0)\n"
+		"addl $16, %0\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"

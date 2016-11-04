@@ -52,10 +52,10 @@ void scale2x4_16_asm(scale2x_uint16* dst0, scale2x_uint16* dst1, scale2x_uint16*
 void scale2x4_32_asm(scale2x_uint32* dst0, scale2x_uint32* dst1, scale2x_uint32* dst2, scale2x_uint32* dst3, const scale2x_uint32* src0, const scale2x_uint32* src1, const scale2x_uint32* src2, unsigned count);
 
 /**
- * End the use of the MMX instructions.
+ * End the use of the SSE2 instructions.
  * This function must be called before using any floating-point operations.
  */
-static inline void scale2x_mmx_emms(void)
+static inline void scale2x_asm_emms(void)
 {
 	__asm__ __volatile__ (
 		"emms"

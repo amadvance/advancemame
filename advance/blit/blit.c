@@ -56,64 +56,38 @@ static void blit_cpuid(unsigned level, unsigned* regs)
 	);
 }
 
-static void blit_has_capability(adv_bool* mmx, adv_bool* sse)
+static void blit_has_capability(adv_bool* has_asm)
 {
 	unsigned regs[4];
 	unsigned a, b;
 
-	*mmx = 0;
-	*sse = 0;
-
-	__asm__ __volatile__(
-		"pushfl\n"
-		"pushfl\n"
-		"popl %0\n"
-		"movl %0, %1\n"
-		"xorl $0x200000, %0\n"
-		"pushl %0\n"
-		"popfl\n"
-		"pushfl\n"
-		"popl %0\n"
-		"popfl"
-		: "=r" (a), "=r" (b)
-		:
-		: "cc"
-	);
-
-	if (a == b) {
-		log_std(("blit: no cpuid\n"));
-		return; /* no cpuid */
-	}
+	*has_asm = 0;
 
 	blit_cpuid(0, regs);
 	if (regs[0] > 0) {
 		blit_cpuid(1, regs);
 		if ((regs[3] & 0x800000) != 0) {
-			*mmx = 1;
-			if ((regs[3] & 0x2000000) != 0) {
-				*sse = 1;
+			if ((regs[3] & 0x4000000) != 0) {
+				*has_asm = 1; /* MMX/SSE2 */
 			}
 		}
 	}
 }
 
-/* Support both the conditions: MMX present or not */
-adv_bool the_blit_mmx = 0;
-adv_bool the_blit_sse = 0;
-adv_bool the_blit_direct = 0;
+adv_bool the_blit_asm = 0;
 
-#define BLITTER(name) (the_blit_mmx ? name##_asm : name##_def)
+#define BLITTER(name) (the_blit_asm ? name##_asm : name##_def)
 
 static adv_error blit_cpu(void)
 {
-	blit_has_capability(&the_blit_mmx, &the_blit_sse);
+	blit_has_capability(&the_blit_asm);
 
 	return 0;
 }
 
 static inline void internal_end(void)
 {
-	if (the_blit_mmx) {
+	if (the_blit_asm) {
 		__asm__ __volatile__ (
 			"emms"
 		);
@@ -122,10 +96,9 @@ static inline void internal_end(void)
 
 #else
 
-/* Assume that MMX is NOT present. */
+/* Assume that MMX/SSE2 is NOT present. */
 
-#define the_blit_mmx 0
-#define the_blit_sse 0
+#define the_blit_asm 0
 
 #define BLITTER(name) (name##_def)
 
@@ -255,7 +228,7 @@ static inline void internal_end(void)
 #define FAST_BUFFER_SIZE (256*1024)
 
 /* Align */
-#define FAST_BUFFER_ALIGN 8
+#define FAST_BUFFER_ALIGN 16 /* SSE2 requirement */
 
 void* fast_buffer; /* raw pointer */
 void* fast_buffer_aligned; /* aligned pointer */
@@ -335,7 +308,7 @@ static void video_buffer_done(void)
 adv_error video_blit_init(void)
 {
 	if (blit_cpu() != 0) {
-		error_set("This executable requires an MMX processor.\n");
+		error_set("This executable requires an SSE2 processor.\n");
 		return -1;
 	}
 
@@ -955,7 +928,7 @@ static inline void video_pipeline_vert_run(const struct video_pipeline_struct* p
 	/* draw */
 	video_pipeline_vert(pipeline)->put(&pipeline->target, video_pipeline_vert(pipeline), x, y, src);
 
-	/* restore the MMX micro state */
+	/* restore the SSE2 micro state */
 	internal_end();
 }
 

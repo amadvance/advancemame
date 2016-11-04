@@ -76,13 +76,11 @@ static void video_stage_palette8to8_set(struct video_stage_horz_struct* stage, u
 #if defined(USE_ASM_INLINE)
 static void video_line_palette8to16_step1_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 4;
+	unsigned rest = count % 8;
 	const uint16* palette = stage->palette;
 
-	assert_align(((unsigned)dst & 0x7)==0);
-
 	__asm__ __volatile__(
-		"shrl $2, %2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
@@ -90,20 +88,41 @@ static void video_line_palette8to16_step1_asm(const struct video_stage_horz_stru
 		"movzbl 1(%0), %%edx\n"
 		"movzwl (%3, %%eax, 2), %%eax\n"
 		"movzwl (%3, %%edx, 2), %%edx\n"
-		"movd %%eax, %%mm0\n"
-		"movd %%edx, %%mm1\n"
-		"punpcklwd %%mm1, %%mm0\n"
+		"movd %%eax, %%xmm0\n"
+		"movd %%edx, %%xmm1\n"
+		"punpcklwd %%xmm1, %%xmm0\n"
+
 		"movzbl 2(%0), %%eax\n"
 		"movzbl 3(%0), %%edx\n"
 		"movzwl (%3, %%eax, 2), %%eax\n"
 		"movzwl (%3, %%edx, 2), %%edx\n"
-		"movd %%eax, %%mm2\n"
-		"movd %%edx, %%mm3\n"
-		"punpcklwd %%mm3, %%mm2\n"
-		"punpckldq %%mm2, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $4, %0\n"
-		"addl $8, %1\n"
+		"movd %%eax, %%xmm1\n"
+		"movd %%edx, %%xmm2\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+		"punpckldq %%xmm1, %%xmm0\n"
+
+		"movzbl 4(%0), %%eax\n"
+		"movzbl 5(%0), %%edx\n"
+		"movzwl (%3, %%eax, 2), %%eax\n"
+		"movzwl (%3, %%edx, 2), %%edx\n"
+		"movd %%eax, %%xmm1\n"
+		"movd %%edx, %%xmm2\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+
+		"movzbl 6(%0), %%eax\n"
+		"movzbl 7(%0), %%edx\n"
+		"movzwl (%3, %%eax, 2), %%eax\n"
+		"movzwl (%3, %%edx, 2), %%edx\n"
+		"movd %%eax, %%xmm2\n"
+		"movd %%edx, %%xmm3\n"
+		"punpcklwd %%xmm3, %%xmm2\n"
+		"punpckldq %%xmm2, %%xmm1\n"
+		"punpcklqdq %%xmm1, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $8, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -203,13 +222,11 @@ static void video_stage_palette8to32_set(struct video_stage_horz_struct* stage, 
 #if defined(USE_ASM_INLINE)
 static void video_line_palette16to8_step2_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 8;
+	unsigned rest = count % 16;
 	const uint8* palette = stage->palette;
 
-	assert_align(((unsigned)dst & 0x7)==0);
-
 	__asm__ __volatile__(
-		"shrl $3, %2\n"
+		"shrl $4, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
@@ -217,38 +234,77 @@ static void video_line_palette16to8_step2_asm(const struct video_stage_horz_stru
 		"movzwl 2(%0), %%edx\n"
 		"movzbl (%3, %%eax, 1), %%eax\n"
 		"movzbl (%3, %%edx, 1), %%edx\n"
-		"movd %%eax, %%mm0\n"
-		"movd %%edx, %%mm1\n"
-		"punpcklbw %%mm1, %%mm0\n"
+		"movd %%eax, %%xmm0\n"
+		"movd %%edx, %%xmm1\n"
+		"punpcklbw %%xmm1, %%xmm0\n"
+
 		"movzwl 4(%0), %%eax\n"
 		"movzwl 6(%0), %%edx\n"
 		"movzbl (%3, %%eax, 1), %%eax\n"
 		"movzbl (%3, %%edx, 1), %%edx\n"
-		"movd %%eax, %%mm2\n"
-		"movd %%edx, %%mm3\n"
-		"punpcklbw %%mm3, %%mm2\n"
-		"punpcklwd %%mm2, %%mm0\n"
+		"movd %%eax, %%xmm1\n"
+		"movd %%edx, %%xmm2\n"
+		"punpcklbw %%xmm2, %%xmm1\n"
+		"punpcklwd %%xmm1, %%xmm0\n"
 
 		"movzwl 8(%0), %%eax\n"
 		"movzwl 10(%0), %%edx\n"
 		"movzbl (%3, %%eax, 1), %%eax\n"
 		"movzbl (%3, %%edx, 1), %%edx\n"
-		"movd %%eax, %%mm4\n"
-		"movd %%edx, %%mm5\n"
-		"punpcklbw %%mm5, %%mm4\n"
+		"movd %%eax, %%xmm1\n"
+		"movd %%edx, %%xmm2\n"
+		"punpcklbw %%xmm2, %%xmm1\n"
+
 		"movzwl 12(%0), %%eax\n"
 		"movzwl 14(%0), %%edx\n"
 		"movzbl (%3, %%eax, 1), %%eax\n"
 		"movzbl (%3, %%edx, 1), %%edx\n"
-		"movd %%eax, %%mm6\n"
-		"movd %%edx, %%mm7\n"
-		"punpcklbw %%mm7, %%mm6\n"
-		"punpcklwd %%mm6, %%mm4\n"
+		"movd %%eax, %%xmm2\n"
+		"movd %%edx, %%xmm3\n"
+		"punpcklbw %%xmm3, %%xmm2\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+		"punpckldq %%xmm1, %%xmm0\n"
 
-		"punpckldq %%mm4, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $16, %0\n"
-		"addl $8, %1\n"
+		"movzwl 16(%0), %%eax\n"
+		"movzwl 18(%0), %%edx\n"
+		"movzbl (%3, %%eax, 1), %%eax\n"
+		"movzbl (%3, %%edx, 1), %%edx\n"
+		"movd %%eax, %%xmm1\n"
+		"movd %%edx, %%xmm2\n"
+		"punpcklbw %%xmm2, %%xmm1\n"
+
+		"movzwl 20(%0), %%eax\n"
+		"movzwl 22(%0), %%edx\n"
+		"movzbl (%3, %%eax, 1), %%eax\n"
+		"movzbl (%3, %%edx, 1), %%edx\n"
+		"movd %%eax, %%xmm2\n"
+		"movd %%edx, %%xmm3\n"
+		"punpcklbw %%xmm3, %%xmm2\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+
+		"movzwl 24(%0), %%eax\n"
+		"movzwl 26(%0), %%edx\n"
+		"movzbl (%3, %%eax, 1), %%eax\n"
+		"movzbl (%3, %%edx, 1), %%edx\n"
+		"movd %%eax, %%xmm2\n"
+		"movd %%edx, %%xmm3\n"
+		"punpcklbw %%xmm3, %%xmm2\n"
+
+		"movzwl 28(%0), %%eax\n"
+		"movzwl 30(%0), %%edx\n"
+		"movzbl (%3, %%eax, 1), %%eax\n"
+		"movzbl (%3, %%edx, 1), %%edx\n"
+		"movd %%eax, %%xmm3\n"
+		"movd %%edx, %%xmm4\n"
+		"punpcklbw %%xmm4, %%xmm3\n"
+		"punpcklwd %%xmm3, %%xmm2\n"
+		"punpckldq %%xmm2, %%xmm1\n"
+		"punpcklqdq %%xmm1, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $32, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -285,13 +341,11 @@ static void video_line_palette16to8_step2_def(const struct video_stage_horz_stru
 #if defined(USE_ASM_INLINE)
 static void video_line_palette16to8_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 8;
+	unsigned rest = count % 16;
 	const uint8* palette = stage->palette;
 
-	assert_align(((unsigned)dst & 0x7)==0);
-
 	__asm__ __volatile__(
-		"shrl $3, %2\n"
+		"shrl $4, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
@@ -299,45 +353,92 @@ static void video_line_palette16to8_asm(const struct video_stage_horz_struct* st
 		"movzwl (%0, %4), %%edx\n"
 		"movzbl (%3, %%eax, 1), %%eax\n"
 		"movzbl (%3, %%edx, 1), %%edx\n"
-		"movd %%eax, %%mm0\n"
-		"movd %%edx, %%mm1\n"
+		"movd %%eax, %%xmm0\n"
 		"addl %4, %0\n"
+		"movd %%edx, %%xmm1\n"
 		"addl %4, %0\n"
-		"punpcklbw %%mm1, %%mm0\n"
-		"movzwl (%0), %%eax\n"
-		"movzwl (%0, %4), %%edx\n"
-		"movzbl (%3, %%eax, 1), %%eax\n"
-		"movzbl (%3, %%edx, 1), %%edx\n"
-		"movd %%eax, %%mm2\n"
-		"movd %%edx, %%mm3\n"
-		"addl %4, %0\n"
-		"addl %4, %0\n"
-		"punpcklbw %%mm3, %%mm2\n"
-		"punpcklwd %%mm2, %%mm0\n"
+		"punpcklbw %%xmm1, %%xmm0\n"
 
 		"movzwl (%0), %%eax\n"
 		"movzwl (%0, %4), %%edx\n"
 		"movzbl (%3, %%eax, 1), %%eax\n"
 		"movzbl (%3, %%edx, 1), %%edx\n"
-		"movd %%eax, %%mm4\n"
-		"movd %%edx, %%mm5\n"
+		"movd %%eax, %%xmm1\n"
 		"addl %4, %0\n"
+		"movd %%edx, %%xmm2\n"
 		"addl %4, %0\n"
-		"punpcklbw %%mm5, %%mm4\n"
+		"punpcklbw %%xmm2, %%xmm1\n"
+		"punpcklwd %%xmm1, %%xmm0\n"
+
 		"movzwl (%0), %%eax\n"
 		"movzwl (%0, %4), %%edx\n"
 		"movzbl (%3, %%eax, 1), %%eax\n"
 		"movzbl (%3, %%edx, 1), %%edx\n"
-		"movd %%eax, %%mm6\n"
-		"movd %%edx, %%mm7\n"
+		"movd %%eax, %%xmm1\n"
 		"addl %4, %0\n"
+		"movd %%edx, %%xmm2\n"
 		"addl %4, %0\n"
-		"punpcklbw %%mm7, %%mm6\n"
-		"punpcklwd %%mm6, %%mm4\n"
+		"punpcklbw %%xmm2, %%xmm1\n"
 
-		"punpckldq %%mm4, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $8, %1\n"
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movzbl (%3, %%eax, 1), %%eax\n"
+		"movzbl (%3, %%edx, 1), %%edx\n"
+		"movd %%eax, %%xmm2\n"
+		"addl %4, %0\n"
+		"movd %%edx, %%xmm3\n"
+		"addl %4, %0\n"
+		"punpcklbw %%xmm3, %%xmm2\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+		"punpckldq %%xmm1, %%xmm0\n"
+
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movzbl (%3, %%eax, 1), %%eax\n"
+		"movzbl (%3, %%edx, 1), %%edx\n"
+		"movd %%eax, %%xmm1\n"
+		"addl %4, %0\n"
+		"movd %%edx, %%xmm2\n"
+		"addl %4, %0\n"
+		"punpcklbw %%xmm2, %%xmm1\n"
+
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movzbl (%3, %%eax, 1), %%eax\n"
+		"movzbl (%3, %%edx, 1), %%edx\n"
+		"movd %%eax, %%xmm2\n"
+		"addl %4, %0\n"
+		"movd %%edx, %%xmm3\n"
+		"addl %4, %0\n"
+		"punpcklbw %%xmm3, %%xmm2\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movzbl (%3, %%eax, 1), %%eax\n"
+		"movzbl (%3, %%edx, 1), %%edx\n"
+		"movd %%eax, %%xmm2\n"
+		"addl %4, %0\n"
+		"movd %%edx, %%xmm3\n"
+		"addl %4, %0\n"
+		"punpcklbw %%xmm3, %%xmm2\n"
+
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movzbl (%3, %%eax, 1), %%eax\n"
+		"movzbl (%3, %%edx, 1), %%edx\n"
+		"movd %%eax, %%xmm3\n"
+		"addl %4, %0\n"
+		"movd %%edx, %%xmm4\n"
+		"addl %4, %0\n"
+		"punpcklbw %%xmm4, %%xmm3\n"
+		"punpcklwd %%xmm3, %%xmm2\n"
+		"punpckldq %%xmm2, %%xmm1\n"
+		"punpcklqdq %%xmm1, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -387,13 +488,13 @@ static void video_stage_palette16to8_set(struct video_stage_horz_struct* stage, 
 #if defined(USE_ASM_INLINE)
 static void video_line_palette16to16_step2_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 4;
+	unsigned rest = count % 8;
 	const uint16* palette = stage->palette;
 
-	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x1)==0);
 
 	__asm__ __volatile__(
-		"shrl $2, %2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
@@ -401,20 +502,41 @@ static void video_line_palette16to16_step2_asm(const struct video_stage_horz_str
 		"movzwl 2(%0), %%edx\n"
 		"movzwl (%3, %%eax, 2), %%eax\n"
 		"movzwl (%3, %%edx, 2), %%edx\n"
-		"movd %%eax, %%mm0\n"
-		"movd %%edx, %%mm1\n"
-		"punpcklwd %%mm1, %%mm0\n"
+		"movd %%eax, %%xmm0\n"
+		"movd %%edx, %%xmm1\n"
+		"punpcklwd %%xmm1, %%xmm0\n"
+
 		"movzwl 4(%0), %%eax\n"
 		"movzwl 6(%0), %%edx\n"
 		"movzwl (%3, %%eax, 2), %%eax\n"
 		"movzwl (%3, %%edx, 2), %%edx\n"
-		"movd %%eax, %%mm2\n"
-		"movd %%edx, %%mm3\n"
-		"punpcklwd %%mm3, %%mm2\n"
-		"punpckldq %%mm2, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $8, %0\n"
-		"addl $8, %1\n"
+		"movd %%eax, %%xmm1\n"
+		"movd %%edx, %%xmm2\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+		"punpckldq %%xmm1, %%xmm0\n"
+
+		"movzwl 8(%0), %%eax\n"
+		"movzwl 10(%0), %%edx\n"
+		"movzwl (%3, %%eax, 2), %%eax\n"
+		"movzwl (%3, %%edx, 2), %%edx\n"
+		"movd %%eax, %%xmm1\n"
+		"movd %%edx, %%xmm2\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+
+		"movzwl 12(%0), %%eax\n"
+		"movzwl 14(%0), %%edx\n"
+		"movzwl (%3, %%eax, 2), %%eax\n"
+		"movzwl (%3, %%edx, 2), %%edx\n"
+		"movd %%eax, %%xmm2\n"
+		"movd %%edx, %%xmm3\n"
+		"punpcklwd %%xmm3, %%xmm2\n"
+		"punpckldq %%xmm2, %%xmm1\n"
+		"punpcklqdq %%xmm1, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $16, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -450,13 +572,13 @@ static void video_line_palette16to16_step2_def(const struct video_stage_horz_str
 #if defined(USE_ASM_INLINE)
 static void video_line_palette16to16_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 4;
+	unsigned rest = count % 8;
 	const uint16* palette = stage->palette;
 
-	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x1)==0);
 
 	__asm__ __volatile__(
-		"shrl $2, %2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
@@ -464,23 +586,48 @@ static void video_line_palette16to16_asm(const struct video_stage_horz_struct* s
 		"movzwl (%0, %4), %%edx\n"
 		"movzwl (%3, %%eax, 2), %%eax\n"
 		"movzwl (%3, %%edx, 2), %%edx\n"
-		"movd %%eax, %%mm0\n"
-		"movd %%edx, %%mm1\n"
+		"movd %%eax, %%xmm0\n"
 		"addl %4, %0\n"
+		"movd %%edx, %%xmm1\n"
 		"addl %4, %0\n"
-		"punpcklwd %%mm1, %%mm0\n"
+		"punpcklwd %%xmm1, %%xmm0\n"
+
 		"movzwl (%0), %%eax\n"
 		"movzwl (%0, %4), %%edx\n"
 		"movzwl (%3, %%eax, 2), %%eax\n"
 		"movzwl (%3, %%edx, 2), %%edx\n"
-		"movd %%eax, %%mm2\n"
-		"movd %%edx, %%mm3\n"
+		"movd %%eax, %%xmm1\n"
 		"addl %4, %0\n"
+		"movd %%edx, %%xmm2\n"
 		"addl %4, %0\n"
-		"punpcklwd %%mm3, %%mm2\n"
-		"punpckldq %%mm2, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $8, %1\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+		"punpckldq %%xmm1, %%xmm0\n"
+
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movzwl (%3, %%eax, 2), %%eax\n"
+		"movzwl (%3, %%edx, 2), %%edx\n"
+		"movd %%eax, %%xmm1\n"
+		"addl %4, %0\n"
+		"movd %%edx, %%xmm2\n"
+		"addl %4, %0\n"
+		"punpcklwd %%xmm2, %%xmm1\n"
+
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movzwl (%3, %%eax, 2), %%eax\n"
+		"movzwl (%3, %%edx, 2), %%edx\n"
+		"movd %%eax, %%xmm2\n"
+		"addl %4, %0\n"
+		"movd %%edx, %%xmm3\n"
+		"addl %4, %0\n"
+		"punpcklwd %%xmm3, %%xmm2\n"
+		"punpckldq %%xmm2, %%xmm1\n"
+		"punpcklqdq %%xmm1, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -527,24 +674,33 @@ static void video_stage_palette16to16_set(struct video_stage_horz_struct* stage,
 #if defined(USE_ASM_INLINE)
 static void video_line_palette16to32_step2_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 2;
+	unsigned rest = count % 4;
 	const uint32* palette = stage->palette;
 
-	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x1)==0);
 
 	__asm__ __volatile__(
-		"shrl $1, %2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 		"movzwl (%0), %%eax\n"
 		"movzwl 2(%0), %%edx\n"
-		"movd (%3, %%eax, 4), %%mm0\n"
-		"movd (%3, %%edx, 4), %%mm1\n"
-		"punpckldq %%mm1, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $4, %0\n"
-		"addl $8, %1\n"
+		"movd (%3, %%eax, 4), %%xmm0\n"
+		"movd (%3, %%edx, 4), %%xmm1\n"
+		"punpckldq %%xmm1, %%xmm0\n"
+
+		"movzwl 4(%0), %%eax\n"
+		"movzwl 6(%0), %%edx\n"
+		"movd (%3, %%eax, 4), %%xmm1\n"
+		"movd (%3, %%edx, 4), %%xmm2\n"
+		"punpckldq %%xmm2, %%xmm1\n"
+		"punpcklqdq %%xmm1, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $8, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -578,25 +734,36 @@ static void video_line_palette16to32_step2_def(const struct video_stage_horz_str
 #if defined(USE_ASM_INLINE)
 static void video_line_palette16to32_asm(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 2;
+	unsigned rest = count % 4;
 	const uint32* palette = stage->palette;
 
-	assert_align(((unsigned)src & 0x1)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x1)==0);
 
 	__asm__ __volatile__(
-		"shrl $1, %2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 		"movzwl (%0), %%eax\n"
 		"movzwl (%0, %4), %%edx\n"
-		"movd (%3, %%eax, 4), %%mm0\n"
+		"movd (%3, %%eax, 4), %%xmm0\n"
 		"addl %4, %0\n"
-		"movd (%3, %%edx, 4), %%mm1\n"
+		"movd (%3, %%edx, 4), %%xmm1\n"
 		"addl %4, %0\n"
-		"punpckldq %%mm1, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $8, %1\n"
+		"punpckldq %%xmm1, %%xmm0\n"
+
+		"movzwl (%0), %%eax\n"
+		"movzwl (%0, %4), %%edx\n"
+		"movd (%3, %%eax, 4), %%xmm1\n"
+		"addl %4, %0\n"
+		"movd (%3, %%edx, 4), %%xmm2\n"
+		"addl %4, %0\n"
+		"punpckldq %%xmm2, %%xmm1\n"
+		"punpcklqdq %%xmm1, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"

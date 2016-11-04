@@ -38,81 +38,82 @@
 
 #if defined(USE_ASM_INLINE)
 static uint32 bgra8888tobgr332_mask[] = {
-	0x000000E0, 0x000000E0, /* r */
-	0x0000001C, 0x0000001C, /* g */
-	0x00000003, 0x00000003  /* b */
+	0x000000E0, 0x000000E0, 0x000000E0, 0x000000E0, /* r */
+	0x0000001C, 0x0000001C, 0x0000001C, 0x0000001C, /* g */
+	0x00000003, 0x00000003, 0x00000003, 0x00000003 /* b */
 };
 
 static inline void internal_convbgra8888tobgr332_asm(void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 8;
+	unsigned rest = count % 16;
 
 	__asm__ __volatile__(
-		"shrl $3, %2\n"
+		"shrl $4, %2\n"
 		"jz 1f\n"
-		"movq (%3), %%mm5\n"
-		"movq 8(%3), %%mm6\n"
-		"movq 16(%3), %%mm7\n"
+		"movdqu (%3), %%xmm5\n"
+		"movdqu 16(%3), %%xmm6\n"
+		"movdqu 32(%3), %%xmm7\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 
-		"movq (%0), %%mm0\n"
-		"movq %%mm0, %%mm1\n"
-		"movq %%mm0, %%mm2\n"
-		"psrlq $16, %%mm0\n"
-		"psrlq $11, %%mm1\n"
-		"psrlq $6, %%mm2\n"
-		"pand %%mm5, %%mm0\n"
-		"pand %%mm6, %%mm1\n"
-		"pand %%mm7, %%mm2\n"
-		"por %%mm2, %%mm1\n"
-		"por %%mm1, %%mm0\n"
+		"movdqa (%0), %%xmm0\n"
+		"movdqa %%xmm0, %%xmm1\n"
+		"movdqa %%xmm0, %%xmm2\n"
+		"psrlq $16, %%xmm0\n"
+		"psrlq $11, %%xmm1\n"
+		"psrlq $6, %%xmm2\n"
+		"pand %%xmm5, %%xmm0\n"
+		"pand %%xmm6, %%xmm1\n"
+		"pand %%xmm7, %%xmm2\n"
+		"por %%xmm2, %%xmm1\n"
+		"por %%xmm1, %%xmm0\n"
 
-		"movq 8(%0), %%mm3\n"
-		"movq %%mm3, %%mm1\n"
-		"movq %%mm3, %%mm2\n"
-		"psrlq $16, %%mm3\n"
-		"psrlq $11, %%mm1\n"
-		"psrlq $6, %%mm2\n"
-		"pand %%mm5, %%mm3\n"
-		"pand %%mm6, %%mm1\n"
-		"pand %%mm7, %%mm2\n"
-		"por %%mm2, %%mm1\n"
-		"por %%mm1, %%mm3\n"
+		"movdqa 16(%0), %%xmm3\n"
+		"movdqa %%xmm3, %%xmm1\n"
+		"movdqa %%xmm3, %%xmm2\n"
+		"psrlq $16, %%xmm3\n"
+		"psrlq $11, %%xmm1\n"
+		"psrlq $6, %%xmm2\n"
+		"pand %%xmm5, %%xmm3\n"
+		"pand %%xmm6, %%xmm1\n"
+		"pand %%xmm7, %%xmm2\n"
+		"por %%xmm2, %%xmm1\n"
+		"por %%xmm1, %%xmm3\n"
 
-		"packuswb %%mm3, %%mm0\n"
+		"packuswb %%xmm3, %%xmm0\n"
 
-		"movq 16(%0), %%mm4\n"
-		"movq %%mm4, %%mm1\n"
-		"movq %%mm4, %%mm2\n"
-		"psrlq $16, %%mm4\n"
-		"psrlq $11, %%mm1\n"
-		"psrlq $6, %%mm2\n"
-		"pand %%mm5, %%mm4\n"
-		"pand %%mm6, %%mm1\n"
-		"pand %%mm7, %%mm2\n"
-		"por %%mm2, %%mm1\n"
-		"por %%mm1, %%mm4\n"
+		"movdqa 32(%0), %%xmm4\n"
+		"movdqa %%xmm4, %%xmm1\n"
+		"movdqa %%xmm4, %%xmm2\n"
+		"psrlq $16, %%xmm4\n"
+		"psrlq $11, %%xmm1\n"
+		"psrlq $6, %%xmm2\n"
+		"pand %%xmm5, %%xmm4\n"
+		"pand %%xmm6, %%xmm1\n"
+		"pand %%xmm7, %%xmm2\n"
+		"por %%xmm2, %%xmm1\n"
+		"por %%xmm1, %%xmm4\n"
 
-		"movq 24(%0), %%mm3\n"
-		"movq %%mm3, %%mm1\n"
-		"movq %%mm3, %%mm2\n"
-		"psrlq $16, %%mm3\n"
-		"psrlq $11, %%mm1\n"
-		"psrlq $6, %%mm2\n"
-		"pand %%mm5, %%mm3\n"
-		"pand %%mm6, %%mm1\n"
-		"pand %%mm7, %%mm2\n"
-		"por %%mm2, %%mm1\n"
-		"por %%mm1, %%mm3\n"
+		"movdqa 48(%0), %%xmm3\n"
+		"movdqa %%xmm3, %%xmm1\n"
+		"movdqa %%xmm3, %%xmm2\n"
+		"psrlq $16, %%xmm3\n"
+		"psrlq $11, %%xmm1\n"
+		"psrlq $6, %%xmm2\n"
+		"pand %%xmm5, %%xmm3\n"
+		"pand %%xmm6, %%xmm1\n"
+		"pand %%xmm7, %%xmm2\n"
+		"por %%xmm2, %%xmm1\n"
+		"por %%xmm1, %%xmm3\n"
 
-		"packuswb %%mm3, %%mm4\n"
+		"packuswb %%xmm3, %%xmm4\n"
 
-		"packuswb %%mm4, %%mm0\n"
+		"packuswb %%xmm4, %%xmm0\n"
 
-		"movq %%mm0, (%1)\n"
-		"addl $32, %0\n"
-		"addl $8, %1\n"
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $64, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -177,51 +178,51 @@ static inline void internal_convbgra8888tobgr332_def(void* dst, const void* src,
 
 #if defined(USE_ASM_INLINE)
 static uint32 bgra8888tobgr565_mask[] = {
-	0x00F80000, 0x00F80000, /* r << 8 */
-	0x000007E0, 0x000007E0, /* g */
-	0x0000001F, 0x0000001F  /* b */
+	0x00F80000, 0x00F80000, 0x00F80000, 0x00F80000, /* r << 8 */
+	0x000007E0, 0x000007E0, 0x000007E0, 0x000007E0, /* g */
+	0x0000001F, 0x0000001F, 0x0000001F, 0x0000001F /* b */
 };
 
 static inline void internal_convbgra8888tobgr565_asm(void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 4;
+	unsigned rest = count % 8;
 
 	__asm__ __volatile__(
-		"shrl $2, %2\n"
+		"shrl $32, %2\n"
 		"jz 1f\n"
-		"movq (%3), %%mm5\n"
-		"movq 8(%3), %%mm6\n"
-		"movq 16(%3), %%mm7\n"
+		"movdqu (%3), %%xmm5\n"
+		"movdqu 16(%3), %%xmm6\n"
+		"movdqu 32(%3), %%xmm7\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 
-		"movq (%0), %%mm0\n"
-		"movq %%mm0, %%mm1\n"
-		"movq %%mm0, %%mm2\n"
-		"psrld $5, %%mm1\n"
-		"psrld $3, %%mm2\n"
-		"pand %%mm5, %%mm0\n"
-		"pand %%mm6, %%mm1\n"
-		"pand %%mm7, %%mm2\n"
-		"por %%mm2, %%mm1\n"
+		"movdqa (%0), %%xmm0\n"
+		"movdqa %%xmm0, %%xmm1\n"
+		"movdqa %%xmm0, %%xmm2\n"
+		"psrld $5, %%xmm1\n"
+		"psrld $3, %%xmm2\n"
+		"pand %%xmm5, %%xmm0\n"
+		"pand %%xmm6, %%xmm1\n"
+		"pand %%xmm7, %%xmm2\n"
+		"por %%xmm2, %%xmm1\n"
 
-		"movq 8(%0), %%mm3\n"
-		"movq %%mm3, %%mm4\n"
-		"movq %%mm3, %%mm2\n"
-		"psrld $5, %%mm4\n"
-		"psrld $3, %%mm2\n"
-		"pand %%mm5, %%mm3\n"
-		"pand %%mm6, %%mm4\n"
-		"pand %%mm7, %%mm2\n"
-		"por %%mm2, %%mm4\n"
+		"movdqa 16(%0), %%xmm3\n"
+		"movdqa %%xmm3, %%xmm4\n"
+		"movdqa %%xmm3, %%xmm2\n"
+		"psrld $5, %%xmm4\n"
+		"psrld $3, %%xmm2\n"
+		"pand %%xmm5, %%xmm3\n"
+		"pand %%xmm6, %%xmm4\n"
+		"pand %%xmm7, %%xmm2\n"
+		"por %%xmm2, %%xmm4\n"
 
-		"packuswb %%mm3, %%mm0\n"
-		"packssdw %%mm4, %%mm1\n"
-		"por %%mm1, %%mm0\n"
+		"packuswb %%xmm3, %%xmm0\n"
+		"packssdw %%xmm4, %%xmm1\n"
+		"por %%xmm1, %%xmm0\n"
 
-		"movq %%mm0, (%1)\n"
-		"addl $16, %0\n"
-		"addl $8, %1\n"
+		"movdqa %%xmm0, (%1)\n"
+		"addl $32, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -274,53 +275,54 @@ static inline void internal_convbgra8888tobgr565_def(void* dst, const void* src,
 
 #if defined(USE_ASM_INLINE)
 static uint32 bgra8888tobgra5551_mask[] = {
-	0x00007C00, 0x00007C00, /* r */
-	0x000003E0, 0x000003E0, /* g */
-	0x0000001F, 0x0000001F  /* b */
+	0x00007C00, 0x00007C00, 0x00007C00, 0x00007C00, /* r */
+	0x000003E0, 0x000003E0, 0x000003E0, 0x000003E0, /* g */
+	0x0000001F, 0x0000001F, 0x0000001F, 0x0000001F /* b */
 };
 
 static inline void internal_convbgra8888tobgra5551_asm(void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 4;
+	unsigned rest = count % 8;
 
 	__asm__ __volatile__(
-		"shrl $2, %2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
-		"movq (%3), %%mm5\n"
-		"movq 8(%3), %%mm6\n"
-		"movq 16(%3), %%mm7\n"
+		"movdqu (%3), %%xmm5\n"
+		"movdqu 16(%3), %%xmm6\n"
+		"movdqu 32(%3), %%xmm7\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 
-		"movq (%0), %%mm0\n"
-		"movq %%mm0, %%mm1\n"
-		"movq %%mm0, %%mm2\n"
-		"psrld $9, %%mm0\n"
-		"psrld $6, %%mm1\n"
-		"psrld $3, %%mm2\n"
-		"pand %%mm5, %%mm0\n"
-		"pand %%mm6, %%mm1\n"
-		"pand %%mm7, %%mm2\n"
-		"por %%mm2, %%mm1\n"
-		"por %%mm1, %%mm0\n"
+		"movdqa (%0), %%xmm0\n"
+		"movdqa %%xmm0, %%xmm1\n"
+		"movdqa %%xmm0, %%xmm2\n"
+		"psrld $9, %%xmm0\n"
+		"psrld $6, %%xmm1\n"
+		"psrld $3, %%xmm2\n"
+		"pand %%xmm5, %%xmm0\n"
+		"pand %%xmm6, %%xmm1\n"
+		"pand %%xmm7, %%xmm2\n"
+		"por %%xmm2, %%xmm1\n"
+		"por %%xmm1, %%xmm0\n"
 
-		"movq 8(%0), %%mm3\n"
-		"movq %%mm3, %%mm1\n"
-		"movq %%mm3, %%mm2\n"
-		"psrld $9, %%mm3\n"
-		"psrld $6, %%mm1\n"
-		"psrld $3, %%mm2\n"
-		"pand %%mm5, %%mm3\n"
-		"pand %%mm6, %%mm1\n"
-		"pand %%mm7, %%mm2\n"
-		"por %%mm2, %%mm1\n"
-		"por %%mm1, %%mm3\n"
+		"movdqa 16(%0), %%xmm3\n"
+		"movdqa %%xmm3, %%xmm1\n"
+		"movdqa %%xmm3, %%xmm2\n"
+		"psrld $9, %%xmm3\n"
+		"psrld $6, %%xmm1\n"
+		"psrld $3, %%xmm2\n"
+		"pand %%xmm5, %%xmm3\n"
+		"pand %%xmm6, %%xmm1\n"
+		"pand %%xmm7, %%xmm2\n"
+		"por %%xmm2, %%xmm1\n"
+		"por %%xmm1, %%xmm3\n"
 
-		"packssdw %%mm3, %%mm0\n"
+		"packssdw %%xmm3, %%xmm0\n"
 
-		"movq %%mm0, (%1)\n"
-		"addl $16, %0\n"
-		"addl $8, %1\n"
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $32, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -374,53 +376,54 @@ static inline void internal_convbgra8888tobgra5551_def(void* dst, const void* sr
 
 #if defined(USE_ASM_INLINE)
 static uint32 bgra5551tobgr332_mask[] = {
-	0x00E000E0, 0x00E000E0, /* r */
-	0x001C001C, 0x001C001C, /* g */
-	0x00030003, 0x00030003  /* b */
+	0x00E000E0, 0x00E000E0, 0x00E000E0, 0x00E000E0, /* r */
+	0x001C001C, 0x001C001C, 0x001C001C, 0x001C001C, /* g */
+	0x00030003, 0x00030003, 0x00030003, 0x00030003 /* b */
 };
 
 static inline void internal_convbgra5551tobgr332_asm(void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 8;
+	unsigned rest = count % 16;
 
 	__asm__ __volatile__(
-		"shrl $3, %2\n"
+		"shrl $4, %2\n"
 		"jz 1f\n"
-		"movq (%3), %%mm5\n"
-		"movq 8(%3), %%mm6\n"
-		"movq 16(%3), %%mm7\n"
+		"movdqu (%3), %%xmm5\n"
+		"movdqu 16(%3), %%xmm6\n"
+		"movdqu 32(%3), %%xmm7\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
 
-		"movq (%0), %%mm0\n"
-		"movq %%mm0, %%mm1\n"
-		"movq %%mm0, %%mm2\n"
-		"psrld $7, %%mm0\n"
-		"psrld $5, %%mm1\n"
-		"psrld $3, %%mm2\n"
-		"pand %%mm5, %%mm0\n"
-		"pand %%mm6, %%mm1\n"
-		"pand %%mm7, %%mm2\n"
-		"por %%mm2, %%mm1\n"
-		"por %%mm1, %%mm0\n"
+		"movdqa (%0), %%xmm0\n"
+		"movdqa %%xmm0, %%xmm1\n"
+		"movdqa %%xmm0, %%xmm2\n"
+		"psrld $7, %%xmm0\n"
+		"psrld $5, %%xmm1\n"
+		"psrld $3, %%xmm2\n"
+		"pand %%xmm5, %%xmm0\n"
+		"pand %%xmm6, %%xmm1\n"
+		"pand %%xmm7, %%xmm2\n"
+		"por %%xmm2, %%xmm1\n"
+		"por %%xmm1, %%xmm0\n"
 
-		"movq 8(%0), %%mm3\n"
-		"movq %%mm3, %%mm1\n"
-		"movq %%mm3, %%mm2\n"
-		"psrld $7, %%mm3\n"
-		"psrld $5, %%mm1\n"
-		"psrld $3, %%mm2\n"
-		"pand %%mm5, %%mm3\n"
-		"pand %%mm6, %%mm1\n"
-		"pand %%mm7, %%mm2\n"
-		"por %%mm2, %%mm1\n"
-		"por %%mm1, %%mm3\n"
+		"movdqa 16(%0), %%xmm3\n"
+		"movdqa %%xmm3, %%xmm1\n"
+		"movdqa %%xmm3, %%xmm2\n"
+		"psrld $7, %%xmm3\n"
+		"psrld $5, %%xmm1\n"
+		"psrld $3, %%xmm2\n"
+		"pand %%xmm5, %%xmm3\n"
+		"pand %%xmm6, %%xmm1\n"
+		"pand %%xmm7, %%xmm2\n"
+		"por %%xmm2, %%xmm1\n"
+		"por %%xmm1, %%xmm3\n"
 
-		"packuswb %%mm3, %%mm0\n"
+		"packuswb %%xmm3, %%xmm0\n"
 
-		"movq %%mm0, (%1)\n"
-		"addl $16, %0\n"
-		"addl $8, %1\n"
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $32, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -486,30 +489,32 @@ static inline void internal_convbgra5551tobgr332_def(void* dst, const void* src,
 
 #if defined(USE_ASM_INLINE)
 static uint32 bgra5551tobgr565_mask[] = {
-	0xFFC0FFC0, 0xFFC0FFC0, /* rg */
-	0x001F001F, 0x001F001F /* b */
+	0xFFC0FFC0, 0xFFC0FFC0, 0xFFC0FFC0, 0xFFC0FFC0, /* rg */
+	0x001F001F, 0x001F001F, 0x001F001F, 0x001F001F /* b */
 };
 
 static inline void internal_convbgra5551tobgr565_asm(void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 4;
+	unsigned rest = count % 8;
 
 	__asm__ __volatile__(
-		"shrl $2, %2\n"
+		"shrl $3, %2\n"
 		"jz 1f\n"
-		"movq (%3), %%mm2\n"
-		"movq 8(%3), %%mm3\n"
+		"movdqu (%3), %%xmm2\n"
+		"movdqu 16(%3), %%xmm3\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movq (%0), %%mm0\n"
-		"movq %%mm0, %%mm1\n"
-		"pslld $1, %%mm0\n"
-		"pand %%mm2, %%mm0\n"
-		"pand %%mm3, %%mm1\n"
-		"por %%mm1, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $8, %0\n"
-		"addl $8, %1\n"
+		"movdqa (%0), %%xmm0\n"
+		"movdqa %%xmm0, %%xmm1\n"
+		"pslld $1, %%xmm0\n"
+		"pand %%xmm2, %%xmm0\n"
+		"pand %%xmm3, %%xmm1\n"
+		"por %%xmm1, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $16, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
@@ -548,38 +553,40 @@ static inline void internal_convbgra5551tobgr565_def(void* dst, const void* src,
 
 #if defined(USE_ASM_INLINE)
 static uint32 bgra5551tobgra8888_mask[] = {
-	0x000000F8, 0x000000F8, /* r */
-	0x0000F800, 0x0000F800, /* g */
-	0x00F80000, 0x00F80000 /* b */
+	0x000000F8, 0x000000F8, 0x000000F8, 0x000000F8, /* r */
+	0x0000F800, 0x0000F800, 0x0000F800, 0x0000F800, /* g */
+	0x00F80000, 0x00F80000, 0x00F80000, 0x00F80000 /* b */
 };
 
 static inline void internal_convbgra5551tobgra8888_asm(void* dst, const void* src, unsigned count)
 {
-	unsigned rest = count % 2;
+	unsigned rest = count % 4;
 
 	__asm__ __volatile__(
-		"shrl $1, %2\n"
+		"shrl $2, %2\n"
 		"jz 1f\n"
-		"movq (%3), %%mm3\n"
-		"movq 8(%3), %%mm4\n"
-		"movq 16(%3), %%mm5\n"
+		"movdqu (%3), %%xmm3\n"
+		"movdqu 16(%3), %%xmm4\n"
+		"movdqu 32(%3), %%xmm5\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movd (%0), %%mm0\n"
-		"punpcklwd %%mm0, %%mm0\n"
-		"movq %%mm0, %%mm1\n"
-		"movq %%mm0, %%mm2\n"
-		"pslld $3, %%mm0\n"
-		"pslld $6, %%mm1\n"
-		"pslld $9, %%mm2\n"
-		"pand %%mm3, %%mm0\n"
-		"pand %%mm4, %%mm1\n"
-		"pand %%mm5, %%mm2\n"
-		"por %%mm1, %%mm0\n"
-		"por %%mm2, %%mm0\n"
-		"movq %%mm0, (%1)\n"
-		"addl $4, %0\n"
-		"addl $8, %1\n"
+		"movq (%0), %%xmm0\n"
+		"punpcklwd %%xmm0, %%xmm0\n"
+		"movdqa %%xmm0, %%xmm1\n"
+		"movdqa %%xmm0, %%xmm2\n"
+		"pslld $3, %%xmm0\n"
+		"pslld $6, %%xmm1\n"
+		"pslld $9, %%xmm2\n"
+		"pand %%xmm3, %%xmm0\n"
+		"pand %%xmm4, %%xmm1\n"
+		"pand %%xmm5, %%xmm2\n"
+		"por %%xmm1, %%xmm0\n"
+		"por %%xmm2, %%xmm0\n"
+
+		/* unaligned move as the scanline may not be 16 bytes aligned */
+		"movdqu %%xmm0, (%1)\n"
+		"addl $8, %0\n"
+		"addl $16, %1\n"
 		"decl %2\n"
 		"jnz 0b\n"
 		"1:\n"
