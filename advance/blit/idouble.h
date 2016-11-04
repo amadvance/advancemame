@@ -120,35 +120,6 @@ static inline void internal_double32_asm(uint32* dst, const uint32* src, unsigne
 }
 #endif
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_double8_def(uint8* dst, const uint8* src, unsigned count)
-{
-	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
-
-	__asm__ __volatile__ (
-		"shrl $2, %2\n"
-		"jz 1f\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		"movl (%0), %%eax\n"
-		"movl %%eax, %%edx\n"
-		"bswap %%eax\n"
-		"xchgw %%ax, %%dx\n"
-		"roll $8, %%eax\n"
-		"movl %%eax, (%1)\n"
-		"rorl $8, %%edx\n"
-		"movl %%edx, 4(%1)\n"
-		"addl $4, %0\n"
-		"addl $8, %1\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
-		:
-		: "cc", "%eax", "%edx"
-	);
-}
-#else
 static inline void internal_double8_def(uint8* restrict dst, const uint8* restrict src, unsigned count)
 {
 	while (count) {
@@ -159,7 +130,6 @@ static inline void internal_double8_def(uint8* restrict dst, const uint8* restri
 		--count;
 	}
 }
-#endif
 
 static inline void internal_double8_step_def(uint8* restrict dst, const uint8* restrict src, unsigned count, int step)
 {
@@ -222,33 +192,6 @@ static inline void internal_quadruple8_step_def(uint8* restrict dst, const uint8
 	}
 }
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_double16_def(uint16* dst, const uint16* src, unsigned count)
-{
-	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
-
-	__asm__ __volatile__ (
-		"shrl $1, %2\n"
-		"jz 1f\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		"movl (%0), %%eax\n"
-		"movl %%eax, %%edx\n"
-		"roll $16, %%eax\n"
-		"xchgw %%ax, %%dx\n"
-		"movl %%eax, (%1)\n"
-		"movl %%edx, 4(%1)\n"
-		"addl $4, %0\n"
-		"addl $8, %1\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
-		:
-		: "cc", "%eax", "%edx"
-	);
-}
-#else
 static inline void internal_double16_def(uint16* restrict dst, const uint16* restrict src, unsigned count)
 {
 	while (count) {
@@ -259,7 +202,6 @@ static inline void internal_double16_def(uint16* restrict dst, const uint16* res
 		--count;
 	}
 }
-#endif
 
 static inline void internal_double16_step_def(uint16* restrict dst, const uint16* restrict src, unsigned count, int step)
 {
@@ -322,29 +264,6 @@ static inline void internal_quadruple16_step_def(uint16* restrict dst, const uin
 	}
 }
 
-#if defined(USE_ASM_INLINE)
-static inline void internal_double32_def(uint32* dst, const uint32* src, unsigned count)
-{
-	assert_align(((unsigned)src & 0x3)==0 && ((unsigned)dst & 0x3)==0);
-
-	__asm__ __volatile__ (
-		"jz 1f\n"
-		ASM_JUMP_ALIGN
-		"0:\n"
-		"movl (%0), %%eax\n"
-		"movl %%eax, (%1)\n"
-		"movl %%eax, 4(%1)\n"
-		"addl $4, %0\n"
-		"addl $8, %1\n"
-		"decl %2\n"
-		"jnz 0b\n"
-		"1:\n"
-		: "+S" (src), "+D" (dst), "+c" (count)
-		:
-		: "cc", "%eax", "%edx"
-	);
-}
-#else
 static inline void internal_double32_def(uint32* restrict dst, const uint32* restrict src, unsigned count)
 {
 	while (count) {
@@ -355,7 +274,6 @@ static inline void internal_double32_def(uint32* restrict dst, const uint32* res
 		--count;
 	}
 }
-#endif
 
 static inline void internal_double32_step_def(uint32* restrict dst, const uint32* restrict src, unsigned count, int step)
 {
