@@ -1,5 +1,6 @@
 # upload
 makepush.sh
+makeftp.sh
 
 # autotools
 Makefile
@@ -60,3 +61,5 @@ contrib/
 obj/
 *.ori/
 *.complete/
+www/
+
