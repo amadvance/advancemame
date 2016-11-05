@@ -127,13 +127,6 @@ AC_ARG_ENABLE(
 AC_SUBST([CONF_DEBUG],[$ac_enable_debug])
 
 AC_ARG_ENABLE(
-	[test],
-	AC_HELP_STRING([--enable-test],[enable the test compilation without optimization. Only for developers. (default no)]),
-	[ac_enable_test=$enableval],
-	[ac_enable_test=no]
-)
-
-AC_ARG_ENABLE(
 	[static],
 	AC_HELP_STRING([--enable-static],[enable static compilation. (default no)]),
 	[ac_enable_static=$enableval],
@@ -150,8 +143,6 @@ AC_ARG_ENABLE(
 if test $ac_auto_cflags = yes; then
 	if test $ac_enable_debug = yes ; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
-	elif test $ac_enable_test = yes ; then
-		CFLAGS="-O0 -Wall -Wno-sign-compare -Wno-unused"
 	else
 		CFLAGS=""
 		AC_CHECK_CC_OPT([-march=native], [CFLAGS="$CFLAGS -march=native"], [])
