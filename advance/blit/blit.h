@@ -192,9 +192,6 @@ struct __attribute__((aligned(8))) video_stage_horz_struct {
 	unsigned dsp; /**< Size of the destination pixel used for color conversion (in bytes). */
 
 	adv_slice slice; /**< Slice used in streching. */
-#ifdef USE_SEGMENT
-	adv_segment segment; /**< Segment used to splitting. */
-#endif
 	const void* palette; /**< Palette used in conversion. The palette size depends on the conversion. */
 };
 
@@ -289,10 +286,6 @@ struct __attribute__((aligned(8))) video_stage_vert_struct {
 	 * On the split is applied the vertical stage.
 	 */
 	const struct video_stage_horz_struct* stage_pivot;
-
-#ifdef USE_SEGMENT
-	adv_segment segment; /**< Segment used to split stage. */
-#endif
 };
 
 /**
