@@ -1,6 +1,8 @@
 Name
 	history - History For AdvanceMENU
 
+AdvanceMENU Version 2.10 2016/11
+
 AdvanceMENU Version 2.9 2016/11
 	) Extended display_size option to allow to select the mode height.
 	) Windows binaries built with MingW 4.9.3 using the MXE cross compiler at

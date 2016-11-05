@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS Version 1.6 2016/11
+	) Added new SSE2 blitters that replace the older MMX ones
+
 AdvanceMAME/MESS Version 1.5 2016/11
 	) Imported the Toaplan driver from ThunderMAME32Plus-v0.106X.
 		This adds sound support with samples at the games:
