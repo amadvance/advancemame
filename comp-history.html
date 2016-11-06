@@ -49,6 +49,31 @@ The WIP version is available in <a href="http://advancemame.git.sourceforge.net/
 </p>
 
 <h2> 
+AdvanceCOMP Version 1.21 2016/11
+</h2>
+<ul>
+<li>
+Added libdeflate support. It's the new default because it provides
+better performance and compression than 7z.
+From https://github.com/ebiggers/libdeflate
+at commit 28cc14994b8b57f590d31a7340c8fffc5cc37d88
+</li>
+<li>
+Update to te latest zopfli library.
+From https://github.com/google/zopfli
+at commit 6818a0859063b946094fb6f94732836404a0d89a.
+</li>
+<li>
+Windows binaries built with MingW 4.9.3 using the MXE cross compiler at
+commit 62bcdbee56e87c81f1faa105b8777a5879d4e2e with targets
+i686-w64-mingw32 and x86_64-w64-mingw32.
+</li>
+<li>
+DOS binaries built with DJGPP 4.8.5 from
+https://github.com/andrewwutw/build-djgpp
+</li>
+</ul>
+<h2> 
 AdvanceCOMP Version 1.20 2015/08
 </h2>
 <ul>
