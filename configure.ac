@@ -95,6 +95,7 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_LN_S
+AC_PROG_GREP
 AC_CHECK_TOOLS(AR, ar)
 AC_CHECK_TOOLS(RC, windres)
 AC_CHECK_PROGS(RM, rm)
@@ -145,7 +146,12 @@ if test $ac_auto_cflags = yes; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
 	else
 		CFLAGS=""
-		AC_CHECK_CC_OPT([-march=native], [CFLAGS="$CFLAGS -march=native"], [])
+		dnl GCC has problems with -march=native with Raspberry,
+		dnl resulting in a "double free or corruption" error
+		dnl See: https://www.raspberrypi.org/forums/viewtopic.php?f=28&t=139091
+		if ! $GREP ARM /proc/cpuinfo >/dev/null 2>&1; then
+			AC_CHECK_CC_OPT([-march=native], [CFLAGS="$CFLAGS -march=native"], [])
+		fi
 		AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])
 		AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
 		dnl Code is not ready for strict-aliasing. It seems working, but who know...
