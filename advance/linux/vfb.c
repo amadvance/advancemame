@@ -1025,9 +1025,12 @@ void fb_wait_vsync(void)
 		} else if (fb_wait_vsync_api() == 0) {
 			fb_state.wait = fb_wait_api;
 			fb_state.wait_error = 0;
+/* the direct access works only on VGA boards and then only on Intel */
+#ifdef __i386__
 		} else if (fb_wait_vsync_vga() == 0) {
 			fb_state.wait = fb_wait_vga;
 			fb_state.wait_error = 0;
+#endif
 		} else {
 			++fb_state.wait_error;
 			if (fb_state.wait_error > WAIT_ERROR_MAX)
