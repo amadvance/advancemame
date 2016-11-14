@@ -2877,15 +2877,15 @@ DRIVER_INIT( jojo )
 	precopy_to_flash();
 }
 
-GAME( 1997, sfiii,   0,        cps3, cps3, sfiii,    ROT0,   "Capcom", "Street Fighter III: New Generation (Japan, 970204)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1997, sfiii2,  0,        cps3, cps3, sfiii2,   ROT0,   "Capcom", "Street Fighter III 2nd Impact: Giant Attack (Japan, 970930)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1999, sfiii3,  0,        cps3, cps3, sfiii3,   ROT0,   "Capcom", "Street Fighter III 3rd Strike: Fight for the Future (USA, 990512)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1999, sfiii3a, sfiii3,   cps3, cps3, sfiii3,   ROT0,   "Capcom", "Street Fighter III 3rd Strike: Fight for the Future (USA, 990608)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1997, sfiii,   0,        cps3, cps3, sfiii,    ROT0,   "Capcom", "Street Fighter III: New Generation (Japan, 970204)", 0 )
+GAME( 1997, sfiii2,  0,        cps3, cps3, sfiii2,   ROT0,   "Capcom", "Street Fighter III 2nd Impact: Giant Attack (Japan, 970930)", 0 )
+GAME( 1999, sfiii3,  0,        cps3, cps3, sfiii3,   ROT0,   "Capcom", "Street Fighter III 3rd Strike: Fight for the Future (USA, 990512)", 0 )
+GAME( 1999, sfiii3a, sfiii3,   cps3, cps3, sfiii3,   ROT0,   "Capcom", "Street Fighter III 3rd Strike: Fight for the Future (USA, 990608)", 0 )
 
-GAME( 1998, jojo,    0,        cps3, cps3, jojo,     ROT0,   "Capcom", "JoJo's Venture / JoJo no Kimyouna Bouken (Japan, 981202)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1998, jojoalt, jojo,     cps3, cps3, jojo,     ROT0,   "Capcom", "JoJo's Venture / JoJo no Kimyouna Bouken (Japan, 990108)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1998, jojo,    0,        cps3, cps3, jojo,     ROT0,   "Capcom", "JoJo's Venture / JoJo no Kimyouna Bouken (Japan, 981202)", 0 )
+GAME( 1998, jojoalt, jojo,     cps3, cps3, jojo,     ROT0,   "Capcom", "JoJo's Venture / JoJo no Kimyouna Bouken (Japan, 990108)", 0 )
 
-GAME( 1999, jojoba,  0,        cps3, cps3, jojoba,   ROT0,   "Capcom", "JoJo's Bizarre Adventure: Heritage for the Future / JoJo no Kimyouna Bouken: Miraie no Isan (Japan, 990913, NCD)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1999, jojobaa, jojoba,   cps3, cps3, jojoba,   ROT0,   "Capcom", "JoJo's Bizarre Adventure: Heritage for the Future / JoJo no Kimyouna Bouken: Miraie no Isan (Japan, 990913)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1999, jojoba,  0,        cps3, cps3, jojoba,   ROT0,   "Capcom", "JoJo's Bizarre Adventure: Heritage for the Future / JoJo no Kimyouna Bouken: Miraie no Isan (Japan, 990913, NCD)", 0 )
+GAME( 1999, jojobaa, jojoba,   cps3, cps3, jojoba,   ROT0,   "Capcom", "JoJo's Bizarre Adventure: Heritage for the Future / JoJo no Kimyouna Bouken: Miraie no Isan (Japan, 990913)", 0 )
 
-GAME( 1996, warzard, 0,        cps3, cps3, warzard,  ROT0,   "Capcom", "Warzard / Red Earth (Japan, 96/11/21)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, warzard, 0,        cps3, cps3, warzard,  ROT0,   "Capcom", "Warzard / Red Earth (Japan, 96/11/21)", 0 )
