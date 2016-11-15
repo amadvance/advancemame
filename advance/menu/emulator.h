@@ -178,15 +178,10 @@ protected:
 	tristate_t exclude_vertical_effective;
 	tristate_t exclude_vertical_orig;
 
-	bool load_info(game_set& gar);
 	bool load_xml(std::istream& is, game_set& gar);
-	bool load_game_info(game_set& gar);
 	bool load_game_xml(game_set& gar);
-	bool update_info();
-	bool is_update_info();
 	bool update_xml();
 	bool is_update_xml();
-	bool is_present_info();
 	bool is_present_xml();
 public:
 	mame_info(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);

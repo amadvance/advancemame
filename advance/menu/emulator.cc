@@ -597,138 +597,6 @@ bool mame_info::tree_get() const
 	return exclude_clone_effective == exclude;
 }
 
-bool mame_info::load_info(game_set& gar)
-{
-	info_t token = info_token_get();
-	while (token!=info_eof) {
-		if (token != info_symbol) return false;
-		bool isresource = strcmp(info_text_get(), "resource")==0;
-		bool isgame = strcmp(info_text_get(), "game")==0 || strcmp(info_text_get(), "machine")==0;
-		if (isgame || isresource) {
-			if (info_token_get() != info_open) return false;
-			game g;
-			g.emulator_set(this);
-			g.flag_set(isresource, flag_derived_resource);
-			token = info_token_get();
-			while (token != info_close) {
-				if (token != info_symbol)
-					return false;
-				if (strcmp(info_text_get(), "name")==0) {
-					if (info_token_get() != info_symbol) return false;
-					g.name_set(user_name_get() + "/" + info_text_get());
-				} else if (strcmp(info_text_get(), "description")==0) {
-					if (info_token_get() != info_string) return false;
-					g.auto_description_set(info_text_get());
-				} else if (strcmp(info_text_get(), "manufacturer")==0) {
-					if (info_token_get() != info_string) return false;
-					g.manufacturer_set(info_text_get());
-				} else if (strcmp(info_text_get(), "year")==0) {
-					if (info_token_get() != info_symbol) return false;
-					g.year_set(info_text_get());
-				} else if (strcmp(info_text_get(), "cloneof")==0) {
-					if (info_token_get() != info_symbol) return false;
-					g.cloneof_set(user_name_get() + "/" + info_text_get());
-				} else if (strcmp(info_text_get(), "romof")==0) {
-					if (info_token_get() != info_symbol) return false;
-					g.romof_set(user_name_get() + "/" + info_text_get());
-				} else if (strcmp(info_text_get(), "driver")==0) {
-					if (info_token_get() != info_open)  return false;
-					token = info_token_get();
-					while (token != info_close) {
-						if (token != info_symbol) return false;
-						if (strcmp(info_text_get(), "status")==0) {
-							if (info_token_get() != info_symbol) return false;
-							if (strcmp(info_text_get(), "preliminary")==0)
-								g.play_set(play_preliminary);
-							if (strcmp(info_text_get(), "imperfect")==0 && g.play_get() < play_imperfect)
-								g.play_set(play_imperfect);
-						} else {
-							if (info_skip_value() == info_error) return false;
-						}
-						token = info_token_get();
-					}
-				} else if (strcmp(info_text_get(), "video")==0)  {
-					if (info_token_get() != info_open)  return false;
-					token = info_token_get();
-					while (token != info_close) {
-						if (token != info_symbol) return false;
-						if (strcmp(info_text_get(), "screen")==0) {
-							if (info_token_get() != info_symbol) return false;
-							g.flag_set(strcmp(info_text_get(), "vector") == 0, flag_derived_vector);
-						} else if (strcmp(info_text_get(), "orientation")==0) {
-							if (info_token_get() != info_symbol) return false;
-							g.flag_set(strcmp(info_text_get(), "vertical") == 0, flag_derived_vertical);
-						} else if (strcmp(info_text_get(), "x")==0) {
-							if (info_token_get() != info_symbol) return false;
-							g.sizex_set(atoi(info_text_get()));
-						} else if (strcmp(info_text_get(), "y")==0) {
-							if (info_token_get() != info_symbol) return false;
-							g.sizey_set(atoi(info_text_get()));
-						} else if (strcmp(info_text_get(), "aspectx")==0) {
-							if (info_token_get() != info_symbol) return false;
-							g.aspectx_set(atoi(info_text_get()));
-						} else if (strcmp(info_text_get(), "aspecty")==0) {
-							if (info_token_get() != info_symbol) return false;
-							g.aspecty_set(atoi(info_text_get()));
-						} else {
-							if (info_skip_value() == info_error) return false;
-						}
-						token = info_token_get();
-					}
-				} else if (strcmp(info_text_get(), "rom")==0) {
-					unsigned size = 0;
-					bool merge = false;
-					if (info_token_get() != info_open) return false;
-					token = info_token_get();
-					while (token != info_close) {
-						if (token != info_symbol) return false;
-						if (strcmp(info_text_get(), "size")==0) {
-							if (info_token_get() != info_symbol) return false;
-							size = atoi(info_text_get());
-						} else if (strcmp(info_text_get(), "merge")==0) {
-							if (info_token_get() != info_symbol) return false;
-							merge = true;
-						} else {
-							if (info_skip_value() == info_error) return false;
-						}
-						token = info_token_get();
-					}
-					if (!merge)
-						g.size_set(g.size_get() + size);
-				} else if (strcmp(info_text_get(), "device")==0) {
-					machinedevice dev;
-					if (info_token_get() != info_open) return false;
-					token = info_token_get();
-					while (token != info_close) {
-						if (token != info_symbol) return false;
-						if (strcmp(info_text_get(), "ext")==0) {
-							if (info_token_get() != info_string) return false;
-							dev.ext_bag.insert(dev.ext_bag.end(), string(info_text_get()));
-						} else if (strcmp(info_text_get(), "name")==0) {
-							if (info_token_get() != info_string) return false;
-							dev.name = string(info_text_get());
-						} else {
-							if (info_skip_value() == info_error) return false;
-						}
-						token = info_token_get();
-					}
-					g.machinedevice_bag_get().insert(g.machinedevice_bag_get().end(), dev);
-				} else {
-					if (info_skip_value() == info_error) return false;
-				}
-				token = info_token_get();
-			}
-			gar.insert(g);
-		} else {
-			if (info_skip_value() == info_error)
-				return false;
-		}
-		token = info_token_get();
-	}
-
-	return true;
-}
-
 extern "C" int info_ext_get(void* _arg)
 {
 	istream* arg = static_cast<istream*>(_arg);
@@ -809,89 +677,11 @@ bool mame_info::load_game_xml(game_set& gar)
 	return true;
 }
 
-bool mame_info::is_present_info()
-{
-	string info_file = path_abs(path_import(file_config_file_home((user_name_get() + ".lst").c_str())), dir_cwd());
-
-	return access(cpath_export(info_file), R_OK) == 0;
-}
-
 bool mame_info::is_present_xml()
 {
 	string xml_file = path_abs(path_import(file_config_file_home((user_name_get() + ".xml").c_str())), dir_cwd());
 
 	return access(cpath_export(xml_file), R_OK) == 0;
-}
-
-bool mame_info::is_update_info()
-{
-	struct stat st_info;
-	struct stat st_mame;
-	int err_info;
-	int err_exe;
-
-	string info_file = path_abs(path_import(file_config_file_home((user_name_get() + ".lst").c_str())), dir_cwd());
-
-	err_info = stat(cpath_export(info_file), &st_info);
-	err_exe = stat(cpath_export(config_exe_path_get()), &st_mame);
-
-	if (err_exe==0
-		&& (err_info!=0 || st_info.st_mtime < st_mame.st_mtime || st_info.st_size == 0)
-		&& (err_info!=0 || access(cpath_export(info_file), W_OK)==0)
-	) {
-		return false;
-	} else {
-		return true;
-	}
-}
-
-bool mame_info::update_info()
-{
-	string info_file = path_abs(path_import(file_config_file_home((user_name_get() + ".lst").c_str())), dir_cwd());
-
-	target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
-
-	const char* argv[TARGET_MAXARG];
-	unsigned argc = 0;
-
-	argv[argc++] = strdup(cpath_export(config_exe_path_get()));
-	argv[argc++] = strdup("-listinfo");
-	argv[argc] = 0;
-
-	int r = target_spawn_redirect(argv[0], argv, cpath_export(info_file));
-
-	for(int i=0;i<argc;++i)
-		free(const_cast<char*>(argv[i]));
-
-	if (!spawn_check(r, false)) {
-		remove(cpath_export(info_file));
-		return false;
-	}
-
-	return true;
-}
-
-bool mame_info::load_game_info(game_set& gar)
-{
-	string info_file = path_abs(path_import(file_config_file_home((user_name_get() + ".lst").c_str())), dir_cwd());
-
-	ifstream f(cpath_export(info_file), ios::in | ios::binary);
-	if (!f) {
-		target_err("Error opening the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(info_file));
-		target_err("Try running manually the command: '%s -listinfo > %s'.\n", user_exe_path.c_str(), cpath_export(info_file));
-		return false;
-	}
-	info_init(info_ext_get, info_ext_unget, &f);
-	if (!load_info(gar)) {
-		info_done();
-		f.close();
-		target_err("Error reading the '%s' information from file '%s' at row %d column %d.\n", user_name_get().c_str(), cpath_export(info_file), info_row_get()+1, info_col_get()+1);
-		return false;
-	}
-	info_done();
-	f.close();
-
-	return true;
 }
 
 bool mame_info::load_game(game_set& gar, bool quiet)
@@ -901,26 +691,14 @@ bool mame_info::load_game(game_set& gar, bool quiet)
 			return load_game_xml(gar);
 		}
 
-		if (is_present_info()) {
-			return load_game_info(gar);
-		}
-
 		target_err("Impossible to generate the '%s' information file with a BAT file.\n", user_name_get().c_str());
 	} else {
 		if (is_update_xml()) {
 			return load_game_xml(gar);
 		}
 
-		if (is_update_info()) {
-			return load_game_info(gar);
-		}
-
 		if (update_xml()) {
 			return load_game_xml(gar);
-		}
-
-		if (update_info()) {
-			return load_game_info(gar);
 		}
 
 		target_err("Error generating the '%s' information file with -listxml and -listinfo.\n", user_name_get().c_str());
