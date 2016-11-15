@@ -609,31 +609,28 @@ extern "C" void info_ext_unget(void* _arg, char c)
 	arg->putback(c);
 }
 
-bool mame_info::is_update_xml()
+bool mame_info::update_xml()
 {
 	struct stat st_xml;
 	struct stat st_mame;
 	int err_xml;
 	int err_exe;
 
+	err_exe = stat(cpath_export(config_exe_path_get()), &st_mame);
+	if (err_exe != 0)
+		return false;
+
 	string xml_file = path_abs(path_import(file_config_file_home((user_name_get() + ".xml").c_str())), dir_cwd());
 
 	err_xml = stat(cpath_export(xml_file), &st_xml);
-	err_exe = stat(cpath_export(config_exe_path_get()), &st_mame);
 
-	if (err_exe==0
-		&& (err_xml!=0 || st_xml.st_mtime < st_mame.st_mtime || st_xml.st_size == 0)
-		&& (err_xml!=0 || access(cpath_export(xml_file), W_OK)==0)
-	) {
-		return false;
-	} else {
+	// if it's updated and not empty
+	if (err_xml == 0 && st_xml.st_size != 0 && st_xml.st_mtime >= st_mame.st_mtime)
 		return true;
-	}
-}
 
-bool mame_info::update_xml()
-{
-	string xml_file = path_abs(path_import(file_config_file_home((user_name_get() + ".xml").c_str())), dir_cwd());
+	// if it's readonly and not empty
+	if (err_xml == 0 && st_xml.st_size != 0 && access(cpath_export(xml_file), W_OK) != 0)
+		return true;
 
 	target_out("Updating the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(xml_file));
 
@@ -652,6 +649,27 @@ bool mame_info::update_xml()
 	if (!spawn_check(r, false)) {
 		remove(cpath_export(xml_file));
 		return false;
+	}
+
+	// check again the time
+	err_xml = stat(cpath_export(xml_file), &st_xml);
+	if (err_xml != 0)
+		return false;
+
+	if (st_xml.st_mtime < st_mame.st_mtime) {
+#if HAVE_UTIMES
+		struct timeval utimes_xml[2];
+		utimes_xml[0].tv_sec = st_mame.st_mtime + 1;
+		utimes_xml[0].tv_usec = 0;
+		utimes_xml[1].tv_sec = st_mame.st_mtime + 1;
+		utimes_xml[1].tv_usec = 0;
+		target_out("System time is wrong, forcing the time of file '%s'.\n", cpath_export(xml_file));
+		err_xml = utimes(cpath_export(xml_file), utimes_xml);
+		if (err_xml != 0)
+			target_out("Error setting the file of file '%s'.\n", cpath_export(xml_file));
+#else
+		target_out("System time is wrong, the file '%s' will be generated again until you fix it.\n", cpath_export(xml_file));
+#endif
 	}
 
 	return true;
@@ -693,15 +711,11 @@ bool mame_info::load_game(game_set& gar, bool quiet)
 
 		target_err("Impossible to generate the '%s' information file with a BAT file.\n", user_name_get().c_str());
 	} else {
-		if (is_update_xml()) {
-			return load_game_xml(gar);
-		}
-
 		if (update_xml()) {
 			return load_game_xml(gar);
 		}
 
-		target_err("Error generating the '%s' information file with -listxml and -listinfo.\n", user_name_get().c_str());
+		target_err("Error generating the '%s' information file with -listxml.\n", user_name_get().c_str());
 	}
 
 	return false;

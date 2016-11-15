@@ -207,6 +207,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define to 1 if you have the `utimes' function. */
+#undef HAVE_UTIMES
+
 /* Define to 1 if you have the `vprintf' function. */
 #undef HAVE_VPRINTF
 

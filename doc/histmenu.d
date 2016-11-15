@@ -2,6 +2,9 @@ Name
 	history - History For AdvanceMENU
 
 AdvanceMENU Version 2.10 2016/11
+	) In Linux if the system time is wrong ensure that the generated list
+		files are not updated every time.
+	) Added new SSE2 blitters that replace the older MMX ones
 
 AdvanceMENU Version 2.9 2016/11
 	) Extended display_size option to allow to select the mode height.

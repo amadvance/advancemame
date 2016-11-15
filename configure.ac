@@ -333,7 +333,7 @@ if test $ac_system = unix ; then
 	AC_FUNC_MMAP
 	AC_FUNC_SELECT_ARGTYPES
 	AC_FUNC_VPRINTF
-	AC_CHECK_FUNCS([strcasecmp strerror])
+	AC_CHECK_FUNCS([strcasecmp strerror utimes])
 	AC_CHECK_FUNCS([uname sysconf backtrace backtrace_symbols])
 	AC_CHECK_FUNCS([flockfile funlockfile fread_unlocked fwrite_unlocked fgetc_unlocked feof_unlocked fseeko ftello])
 	AC_CHECK_FUNCS([iopl mprotect sched_getscheduler sched_setscheduler sched_get_priority_max sched_yield])
