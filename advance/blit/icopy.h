@@ -41,15 +41,15 @@ static inline void internal_copy8_asm(uint8* dst, const uint8* src, unsigned cou
 {
 	unsigned rest = count % 16;
 
-	assert_align(((unsigned)src & 0xF)==0);
-
 	__asm__ __volatile__(
 		"shrl $4, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
-		"movdqa (%0), %%xmm0\n"
-		/* unaligned move as the scanline may not be 16 bytes aligned */
+		/* unaligned move as the source may not be 16 bytes aligned */
+		/* like when dealing with bitmap copied to the screen */
+		"movdqu (%0), %%xmm0\n"
+		/* unaligned move as the screen scanline may not be 16 bytes aligned */
 		"movdqu %%xmm0, (%1)\n"
 		"addl $16, %0\n"
 		"addl $16, %1\n"

@@ -491,6 +491,8 @@ static bool int_wait_for_backdrop; ///< Wait for the backdrop draw completion be
 static unsigned video_buffer_size; ///< Video buffer size in bytes.
 static unsigned video_buffer_line_size; ///< Bideo buffer scanline size in bytes.
 static unsigned video_buffer_pixel_size; ///< Video buffer pixel size in bytes.
+static void* video_foreground_alloc; ///< Video foreground_buffer in memory.
+static void* video_background_alloc; ///< Video background buffer in memory.
 static unsigned char* video_foreground_buffer; ///< Video foreground_buffer in memory.
 static unsigned char* video_background_buffer; ///< Video background buffer in memory.
 static adv_bitmap* video_foreground_bitmap; ///< Video buffer bitmap in memory.
@@ -817,10 +819,12 @@ bool int_enable(int fontx, int fonty, const string& font, unsigned orientation)
 	int_font_dy = adv_font_sizey(int_font);
 
 	video_buffer_pixel_size = video_bytes_per_pixel();
-	video_buffer_line_size = video_size_x() * video_bytes_per_pixel();
+	video_buffer_line_size = ALIGN_UNSIGNED(video_size_x() * video_bytes_per_pixel(), ALIGN);
 	video_buffer_size = video_size_y() * video_buffer_line_size;
-	video_foreground_buffer = (unsigned char*)operator new(video_buffer_size);
-	video_background_buffer = (unsigned char*)operator new(video_buffer_size);
+	video_foreground_alloc = operator new(video_buffer_size + ALIGN);
+	video_background_alloc = operator new(video_buffer_size + ALIGN);
+	video_foreground_buffer = (unsigned char*)ALIGN_PTR(video_foreground_alloc, ALIGN);
+	video_background_buffer = (unsigned char*)ALIGN_PTR(video_background_alloc, ALIGN);
 	video_foreground_bitmap = adv_bitmap_import_rgb(video_size_x(), video_size_y(), video_buffer_pixel_size, 0, 0, video_foreground_buffer, video_buffer_line_size);
 	video_background_bitmap = adv_bitmap_import_rgb(video_size_x(), video_size_y(), video_buffer_pixel_size, 0, 0, video_background_buffer, video_buffer_line_size);
 
@@ -835,9 +839,9 @@ bool int_enable(int fontx, int fonty, const string& font, unsigned orientation)
 void int_disable()
 {
 	adv_font_free(int_font);
-	operator delete(video_foreground_buffer);
+	operator delete(video_foreground_alloc);
 	adv_bitmap_free(video_foreground_bitmap);
-	operator delete(video_background_buffer);
+	operator delete(video_background_alloc);
 	adv_bitmap_free(video_background_bitmap);
 }
 
