@@ -60,7 +60,8 @@ struct soundb_alsa_context {
 	unsigned sample_length; /**< Sample (for all channels) length in bytes. */
 	snd_pcm_t* handle; /**< Alsa handle. */
 	int volume; /**< Volume adjustement. ALSA_VOLUME_BASE == full volume. */
-	snd_pcm_uframes_t buffer_size; /**< ALSA buffe size. */
+	snd_pcm_uframes_t buffer_size; /**< ALSA buffer size in frames. */
+	snd_pcm_uframes_t period_size; /**< ALSA period size in frames. */
 };
 
 static struct soundb_alsa_context alsa_state;
@@ -77,16 +78,38 @@ static void alsa_log(snd_pcm_hw_params_t* hw_params, snd_pcm_sw_params_t* sw_par
 	unsigned period_count;
 	unsigned buffer_time;
 	snd_pcm_uframes_t buffer_size;
+	int dir;
+	int r;
 
-	snd_pcm_hw_params_get_period_time(hw_params, &period_time, 0);
-	snd_pcm_hw_params_get_period_size(hw_params, &period_size, 0);
-	snd_pcm_hw_params_get_periods(hw_params, &period_count, 0);
-	snd_pcm_hw_params_get_buffer_time(hw_params, &buffer_time, 0);
-	snd_pcm_hw_params_get_buffer_size(hw_params, &buffer_size);
+	r = snd_pcm_hw_params_get_period_time(hw_params, &period_time, &dir);
+	if (r < 0)
+		log_std(("ERROR:sound:alsa: snd_pcm_hw_params_get_period_time: %s\n", snd_strerror(r)));
+	else
+		log_std(("sound:alsa: hw period_time %u [us], dir %d\n", period_time, dir));
 
-	log_std(("sound:alsa: hw period_time %g [us], period_size %d, periods %d, buffer_time %g [us], buffer_size %d\n",
-		(double)(period_time / 1000000.0), (unsigned)period_size, (unsigned)period_count, (double)(buffer_time / 1000000.0), (unsigned)buffer_size
-	));
+	r = snd_pcm_hw_params_get_period_size(hw_params, &period_size, &dir);
+	if (r < 0)
+		log_std(("ERROR:sound:alsa: snd_pcm_hw_params_get_period_size: %s\n", snd_strerror(r)));
+	else
+		log_std(("sound:alsa: hw period_size %u, dir %d\n", (unsigned)period_size, dir));
+
+	r = snd_pcm_hw_params_get_periods(hw_params, &period_count, &dir);
+	if (r < 0)
+		log_std(("ERROR:sound:alsa: snd_pcm_hw_params_get_periods: %s\n", snd_strerror(r)));
+	else
+		log_std(("sound:alsa: hw periods %u, dir %d\n", (unsigned)period_count, dir));
+
+	r = snd_pcm_hw_params_get_buffer_time(hw_params, &buffer_time, &dir);
+	if (r < 0)
+		log_std(("ERROR:sound:alsa: snd_pcm_hw_params_get_bu: %s\n", snd_strerror(r)));
+	else
+		log_std(("sound:alsa: hw buffer_time %u [us], dir %d\n", buffer_time, dir));
+
+	r = snd_pcm_hw_params_get_buffer_size(hw_params, &buffer_size);
+	if (r < 0)
+		log_std(("ERROR:sound:alsa: snd_pcm_hw_params_get_buffer_size: %s\n", snd_strerror(r)));
+	else
+		log_std(("sound:alsa: hw buffer_size %d\n", (unsigned)buffer_size));
 }
 
 adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
@@ -95,6 +118,8 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 	snd_pcm_hw_params_t* hw_params;
 	snd_pcm_sw_params_t* sw_params;
 	snd_pcm_uframes_t buffer_size;
+	snd_pcm_uframes_t min_buffer_size;
+	snd_pcm_uframes_t period_size;
 
 	log_std(("sound:alsa: soundb_alsa_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", sound_id, *rate, stereo_flag, buffer_time));
 
@@ -155,30 +180,57 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 	}
 	log_std(("sound:alsa: selected rate %d\n", alsa_state.rate));
 
+	/* compute the buffer and period size */
+	/* we arbirarly request 4 periods */
 	buffer_size = alsa_state.rate * buffer_time;
+	period_size = buffer_size / 4;
 
+	log_std(("sound:alsa: request period_size of %d samples\n", (unsigned)period_size));
+
+	r = snd_pcm_hw_params_set_period_size_near(alsa_state.handle, hw_params, &period_size, 0);
+	if (r < 0) {
+		log_std(("ERROR:sound:alsa: Couldn't set period size near %d: %s\n", (unsigned)period_size, snd_strerror(r)));
+		goto err_close;
+	} else {
+		log_std(("sound:alsa: set_period_size_near() -> %d\n", (unsigned)period_size));
+	}
+
+	/* set a minimum buffer size */
+	/* this ensures that the next call to "near" won't get a smaller value */
+	min_buffer_size = buffer_size;
+
+	/* if the period is bigger than requested, increase also the buffer */
+	if (min_buffer_size < period_size * 4)
+		min_buffer_size = period_size * 4;
+
+	log_std(("sound:alsa: request min_buffer_size of %d samples\n", (unsigned)min_buffer_size));
+
+	r = snd_pcm_hw_params_set_buffer_size_min(alsa_state.handle, hw_params, &min_buffer_size);
+	if (r < 0) {
+		log_std(("ERROR:sound:alsa: Couldn't set buffer size min %d: %s\n", (unsigned)min_buffer_size, snd_strerror(r)));
+		goto err_close;
+	} else {
+		log_std(("sound:alsa: set_buffer_size_min() -> %d\n", (unsigned)min_buffer_size));
+	}
+
+	/* now request the real buffer size */
 	log_std(("sound:alsa: request buffer_size of %d samples\n", (unsigned)buffer_size));
 
-	r = snd_pcm_hw_params_set_buffer_size_min(alsa_state.handle, hw_params, &buffer_size);
+	r = snd_pcm_hw_params_set_buffer_size_near(alsa_state.handle, hw_params, &buffer_size);
 	if (r < 0) {
-		log_std(("ERROR:sound:alsa: Couldn't set buffer size min %d: %s\n", (unsigned)buffer_size, snd_strerror(r)));
-		r = snd_pcm_hw_params_set_buffer_size_near(alsa_state.handle, hw_params, &buffer_size);
-		if (r < 0) {
-			log_std(("ERROR:sound:alsa: Couldn't set buffer size near %d: %s\n", (unsigned)buffer_size, snd_strerror(r)));
-			goto err_close;
-		} else {
-			log_std(("sound:alsa: set_buffer_size_near() -> %d\n", (unsigned)buffer_size));
-		}
+		log_std(("ERROR:sound:alsa: Couldn't set buffer size near %d: %s\n", (unsigned)buffer_size, snd_strerror(r)));
+		goto err_close;
 	} else {
-		log_std(("sound:alsa: set_buffer_size_min() -> %d\n", (unsigned)buffer_size));
+		log_std(("sound:alsa: set_buffer_size_near() -> %d\n", (unsigned)buffer_size));
 	}
 
 	if (buffer_size < alsa_state.rate * buffer_time) {
 		log_std(("ERROR:sound:alsa: audio buffer TOO SMALL\n"));
 	}
 
-	/* store the buffer size for later use */
+	/* store the size for later use */
 	alsa_state.buffer_size = buffer_size;
+	alsa_state.period_size = period_size;
 
 	r = snd_pcm_hw_params(alsa_state.handle, hw_params);
 	if (r < 0) {
@@ -247,7 +299,7 @@ unsigned soundb_alsa_buffered(void)
 
 	avail = r;
 
-	log_debug(("sound:alsa: buffer_size = %d, snd_pcm_avail() = %d\n", (unsigned)alsa_state.buffer_size, (unsigned)avail));
+	log_debug(("sound:alsa: buffer_size = %d, snd_pcm_avail() = %d, buffered = %d\n", (int)alsa_state.buffer_size, (int)avail, (int)(alsa_state.buffer_size - avail)));
 
 	if (avail > alsa_state.buffer_size)
 		return 0;

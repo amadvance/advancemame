@@ -194,6 +194,8 @@ static void mixer_pump(unsigned buffered)
 	int count;
 	unsigned i;
 
+	log_debug(("mixer:alsa: latency_size = %d, buffered = %d, count = %d\n", (int)mixer_latency_size, (int)buffered, (int)(mixer_latency_size - buffered)));
+
 	count = mixer_latency_size - buffered;
 	if (count < 0)
 		count = 0;
