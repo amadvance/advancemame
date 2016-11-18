@@ -295,12 +295,12 @@ static void mixer_channel_need(unsigned channel, unsigned* min, unsigned* max)
 
 static inline int s16le2int(const unsigned char* data)
 {
-	return ((int)(char)data[1] << 8) | (unsigned char)data[0];
+	return ((int)(signed char)data[1] << 8) | (unsigned char)data[0];
 }
 
 static inline int u8le2int(const unsigned char* data)
 {
-	return ((int)(char)(data[0] - 128)) << 8;
+	return ((int)(signed char)(data[0] - 128)) << 8;
 }
 
 static void mixer_channel_mix_stereo16(unsigned channel, const unsigned char* data, unsigned count)
