@@ -50,9 +50,6 @@ doc/*.hh
 doc/*.html
 doc/*.txt
 
-# support
-*.dat
-
 # extra dirs
 reference/
 resource/

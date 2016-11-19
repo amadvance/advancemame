@@ -986,6 +986,9 @@ dist: $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ
 	cp $(EMU_ADVANCE_SRC) $(EMU_DIST_DIR_SRC)/advance
 	mkdir $(EMU_DIST_DIR_SRC)/support
 	cp $(EMU_SUPPORT_SRC) $(EMU_DIST_DIR_SRC)/support
+ifneq ($(CONF_EMU),mess)
+	cp -R $(srcdir)/support/free $(EMU_DIST_DIR_SRC)/support
+endif
 	mkdir $(EMU_DIST_DIR_SRC)/advance/linux
 	cp $(LINUX_SRC) $(EMU_DIST_DIR_SRC)/advance/linux
 	mkdir $(EMU_DIST_DIR_SRC)/advance/dos

@@ -30,13 +30,13 @@ ifeq ($(CONF_EMU),mame)
 INSTALL_DATAFILES += $(srcdir)/support/event.dat
 INSTALL_DATAFILES += $(srcdir)/support/history.dat
 INSTALL_DATAFILES += $(srcdir)/support/hiscore.dat
-INSTALL_ROMFILES += $(srcdir)/contrib/mame/free/rom/gridlee.zip
-INSTALL_ROMFILES += $(srcdir)/contrib/mame/free/rom/polyplay.zip
-INSTALL_ROMFILES += $(srcdir)/contrib/mame/free/rom/robby.zip
-INSTALL_SAMPLEFILES += $(srcdir)/contrib/mame/free/rom/gridlee.zip
-INSTALL_SNAPFILES += $(srcdir)/contrib/mame/free/snap/gridlee.zip
-INSTALL_SNAPFILES += $(srcdir)/contrib/mame/free/snap/polyplay.zip
-INSTALL_SNAPFILES += $(srcdir)/contrib/mame/free/snap/robby.zip
+INSTALL_ROMFILES += $(srcdir)/support/free/rom/gridlee.zip
+INSTALL_ROMFILES += $(srcdir)/support/free/rom/polyplay.zip
+INSTALL_ROMFILES += $(srcdir)/support/free/rom/robby.zip
+INSTALL_SAMPLEFILES += $(srcdir)/support/free/rom/gridlee.zip
+INSTALL_SNAPFILES += $(srcdir)/support/free/snap/gridlee.zip
+INSTALL_SNAPFILES += $(srcdir)/support/free/snap/polyplay.zip
+INSTALL_SNAPFILES += $(srcdir)/support/free/snap/robby.zip
 endif
 ifeq ($(CONF_EMU),mess)
 INSTALL_DATAFILES += $(srcdir)/support/sysinfo.dat
