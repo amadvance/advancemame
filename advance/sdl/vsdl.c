@@ -275,9 +275,6 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 	log_std(("video:sdl: video current_w:%d\n", (unsigned)info->current_w));
 	log_std(("video:sdl: video current_h:%d\n", (unsigned)info->current_h));
 
-	target_video_set(info->current_w, info->current_h);
-	log_std(("video:sdl: current %ux%u\n", target_video_width(), target_video_height()));
-
 	sdl_state.flags = 0;
 
 	sdl_state.cursor = cursor;
@@ -314,6 +311,15 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 	} else {
 		sdl_state.output = output;
 	}
+
+	if (sdl_state.output == adv_output_window) {
+		/* reduce a little to allow space for decorations */
+		target_video_set(info->current_w - info->current_w / 8, info->current_h - info->current_h / 8);
+	} else {
+		target_video_set(info->current_w, info->current_h);
+	}
+
+	log_std(("video:sdl: current %ux%u\n", target_video_width(), target_video_height()));
 
 	if (sdl_state.output == adv_output_window && !has_window_manager) {
 		error_set("Window output not available.\n");
