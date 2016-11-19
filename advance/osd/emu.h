@@ -61,7 +61,7 @@
 #if defined(MESS)
 
 #define ADV_COPY \
-	"AdvanceMESS - Copyright (C) 2001-2003 by Andrea Mazzoleni\n" \
+	"AdvanceMESS - Copyright (C) 2001-2016 by Andrea Mazzoleni\n" \
 	"MESS - Copyright (C) 1998-2003 by the MESS Team\n" \
 	"MAME - Copyright (C) 1997-2003 by Nicola Salmoria and the MAME Team\n"
 
@@ -72,7 +72,7 @@
 #else
 
 #define ADV_COPY \
-	"AdvanceMAME - Copyright (C) 1999-2003 by Andrea Mazzoleni\n" \
+	"AdvanceMAME - Copyright (C) 1999-2016 by Andrea Mazzoleni\n" \
 	"MAME - Copyright (C) 1997-2003 by Nicola Salmoria and the MAME Team\n"
 
 #define ADV_TITLE "AdvanceMAME"
