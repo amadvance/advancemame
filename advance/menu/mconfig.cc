@@ -1155,7 +1155,7 @@ void config_state::conf_default(adv_conf* config_context)
 #else
 		if (target_search(path, FILE_MAXPATH, "advmame") == 0) {
 			target_out("Adding emulator `advmame'...\n");
-			conf_set(config_context, "", "emulator", "\"advmame\" advmame \"advmame\" \"\"");
+			conf_set(config_context, "", "emulator", "\"advmame\" advmame \"advmame\" \"-quiet\"");
 #ifdef ADV_DATADIR
 			string s = "\"advmame\" \"" + string(ADV_DATADIR) + "/snap\"";
 			conf_set(config_context, "", "emulator_altss", s.c_str());
@@ -1163,7 +1163,7 @@ void config_state::conf_default(adv_conf* config_context)
 		}
 		if (target_search(path, FILE_MAXPATH, "advmess") == 0) {
 			target_out("Adding emulator `advmess'...\n");
-			conf_set(config_context, "", "emulator", "\"advmess\" advmess \"advmess\" \"\"");
+			conf_set(config_context, "", "emulator", "\"advmess\" advmess \"advmess\" \"-quiet\"");
 #ifdef ADV_DATADIR
 			string s = "\"advmess\" \"" + string(ADV_DATADIR) + "/snap\"";
 			conf_set(config_context, "", "emulator_altss", s.c_str());
