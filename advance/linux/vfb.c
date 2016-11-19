@@ -1011,6 +1011,11 @@ static adv_error fb_wait_vsync_vga(void)
 
 void fb_wait_vsync(void)
 {
+	/* in overlay mode we cannot choose the right vsync */
+	/* and don't make sense to wait for it */
+	if (fb_state.output == adv_output_overlay)
+		return;
+
 	switch (fb_state.wait) {
 	case fb_wait_ext :
 		if (fb_wait_vsync_ext() != 0) {
