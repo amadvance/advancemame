@@ -1505,7 +1505,12 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	log_std(("emu:video: orientation ui   %04x\n", option->ui_orientation));
 
 	context->config.combine = conf_int_get_default(cfg_context, "display_resizeeffect");
+	/* on Intel assume a fast machine */
+#if defined(__i386__) || defined(__x86_64__)
 	context->config.combine_max = COMBINE_XBR;
+#else
+	context->config.combine_max = COMBINE_SCALEX;
+#endif
 	context->config.rgb_effect = conf_int_get_default(cfg_context, "display_rgbeffect");
 	context->config.interlace_effect = conf_int_get_default(cfg_context, "display_interlaceeffect");
 	context->config.turbo_speed_factor = conf_float_get_default(cfg_context, "sync_turbospeed");
