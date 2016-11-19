@@ -430,8 +430,10 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 		}
 	}
 
-	// generate any resolution for a window manager
-	if (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
+	// generate any resolution for a window manager or with an overlay
+	if (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0
+		|| video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY)!=0
+	) {
 		adv_crtc crtc;
 		crtc_fake_set(&crtc, int_mode_sizex, int_mode_sizey);
 
@@ -581,6 +583,7 @@ bool int_init(unsigned sizex, unsigned sizey)
 	unsigned index;
 	bool mode_found = false;
 	bool crtc_default = false;
+	unsigned driver_flags;
 
 	int_mode_sizex = sizex;
 	int_mode_sizey = sizey;
@@ -599,8 +602,12 @@ bool int_init(unsigned sizex, unsigned sizey)
 		goto int_video;
 	}
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY)!=0) {
-		target_err("'overlay' output mode not supported by this program. Use 'fullscreen' instead.\n");
+	/* The SDL overlay doesn't allow the video mode restore when starting the emulators */
+	driver_flags = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0);
+	if ((driver_flags & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY)!=0
+		&& (driver_flags & VIDEO_DRIVER_FLAGS_INTERNAL_STATIC)!=0
+	) {
+		target_err("'overlay' output mode not supported in this configuration. Use 'fullscreen' instead.\n");
 		goto int_blit;
 	}
 

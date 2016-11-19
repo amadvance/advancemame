@@ -543,11 +543,6 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		return -1;
 	}
 
-	if (output != adv_output_auto && output != adv_output_fullscreen) {
-		error_set("Only fullscreen output is supported.\n");
-		return -1;
-	}
-
 	fb = getenv("FRAMEBUFFER");
 	if (fb && fb[0]) {
 		fb_state.fd = open(fb, O_RDWR);
@@ -598,6 +593,11 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 	if (strstr(id_buffer, "BCM2708")!=0) {
 		log_std(("video:fb: detected Raspberry/BCM2708 hardware\n"));
 
+		if (output != adv_output_auto && output != adv_output_overlay) {
+			error_set("Only overlay output is supported.\n");
+			return -1;
+		}
+
 		/* exclude BGR15 not supported by the hardare */
 		/* and enable OVERLAY because the framebuffer is just rescaling to the original resolution */
 		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
@@ -605,6 +605,11 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 
 		fb_state.output = adv_output_overlay;
 	} else {
+		if (output != adv_output_auto && output != adv_output_fullscreen) {
+			error_set("Only fullscreen output is supported.\n");
+			return -1;
+		}
+
 		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
 			| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
 			| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;

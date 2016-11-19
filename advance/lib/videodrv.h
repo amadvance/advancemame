@@ -135,7 +135,15 @@
  * graphics mode.
  */
 #define VIDEO_DRIVER_FLAGS_INTERNAL_DANGEROUSCHANGE 0x10000000
-#define VIDEO_DRIVER_FLAGS_INTERNAL_BIT0 0x20000000 /**< First internal flag for the user. */
+
+/**
+ * If the mode is unrestorable.
+ * Meaning that you cannot start other programs using it.
+ * These modes are not usable by AdvanceMENU
+ */
+#define VIDEO_DRIVER_FLAGS_INTERNAL_STATIC 0x20000000
+
+#define VIDEO_DRIVER_FLAGS_INTERNAL_BIT0 0x40000000 /**< First internal flag for the user. */
 #define VIDEO_DRIVER_FLAGS_INTERNAL_MASK 0xF0000000 /**< Available internal flags. */
 /*@}*/
 

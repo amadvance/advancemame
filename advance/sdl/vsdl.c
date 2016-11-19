@@ -391,6 +391,9 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		log_std(("video:sdl: use overlay output\n"));
 
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
+#ifndef USE_VIDEO_RESTORE
+		sdl_state.flags |= VIDEO_DRIVER_FLAGS_INTERNAL_STATIC;
+#endif
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;
 
 		if (map == 0 || map == (SDL_Rect **)-1) {
