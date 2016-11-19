@@ -80,6 +80,8 @@ typedef struct fb_internal_struct {
 
 	unsigned flags;
 
+	adv_output output; /**< Output mode. */
+
 	double freq; /**< Expected vertical frequency. */
 
 	enum fb_wait_enum wait; /**< Wait mode. */
@@ -268,7 +270,10 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 	var->height = 0;
 	var->width = 0;
 	var->accel_flags = FB_ACCEL_NONE;
-	var->pixclock = (unsigned)(1000000000000LL / pixelclock);
+	if (pixelclock)
+		var->pixclock = (unsigned)(1000000000000LL / pixelclock);
+	else
+		var->pixclock = 0;
 	var->left_margin = ht - hre;
 	var->right_margin = hrs - hde;
 	var->upper_margin = vt - vre;
@@ -590,17 +595,30 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		goto err_close;
 	}
 
-	fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
-		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+	if (strstr(id_buffer, "BCM2708")!=0) {
+		log_std(("video:fb: detected Raspberry/BCM2708 hardware\n"));
 
-	if (fb_detect() != 0) {
-		goto err_close;
-	}
+		/* exclude BGR15 not supported by the hardare */
+		/* and enable OVERLAY because the framebuffer is just rescaling to the original resolution */
+		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
+			| VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
 
-	if ((fb_state.flags & (VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32)) == 0) {
-		error_set("This '%s' FrameBuffer driver doesn't seem to allow the creation of new video modes.\n", id_buffer);
-		goto err_close;
+		fb_state.output = adv_output_overlay;
+	} else {
+		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
+			| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
+			| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+
+		if (fb_detect() != 0) {
+			goto err_close;
+		}
+
+		if ((fb_state.flags & (VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32)) == 0) {
+			error_set("This '%s' FrameBuffer driver doesn't seem to allow the creation of new video modes.\n", id_buffer);
+			goto err_close;
+		}
+
+		fb_state.output = adv_output_fullscreen;
 	}
 
 	fb_state.active = 1;
@@ -1126,13 +1144,57 @@ adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned f
 {
 	assert(fb_is_active());
 
-	if (crtc_is_fake(crtc)) {
-		error_nolog_set("Not programmable modes are not supported.\n");
-		return -1;
-	}
+	if (fb_state.output == adv_output_overlay) {
+		if (!crtc_is_fake(crtc)) {
+			error_nolog_set("Programmable modes not supported.\n");
+			return -1;
+		}
 
-	if (video_mode_generate_check("fb", fb_flags(), 8, 2048, crtc, flags)!=0)
-		return -1;
+		switch (flags & MODE_FLAGS_INDEX_MASK) {
+		case MODE_FLAGS_INDEX_PALETTE8 :
+		case MODE_FLAGS_INDEX_BGR8 :
+			if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) == 0) {
+				error_nolog_set("Index mode not supported.\n");
+				return -1;
+			}
+			break;
+		case MODE_FLAGS_INDEX_BGR15 :
+			if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR15) == 0) {
+				error_nolog_set("Index mode not supported.\n");
+				return -1;
+			}
+			break;
+		case MODE_FLAGS_INDEX_BGR16 :
+			if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) == 0) {
+				error_nolog_set("Index mode not supported.\n");
+				return -1;
+			}
+			break;
+		case MODE_FLAGS_INDEX_BGR24 :
+			if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR24) == 0) {
+				error_nolog_set("Index mode not supported.\n");
+				return -1;
+			}
+			break;
+		case MODE_FLAGS_INDEX_BGR32 :
+			if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR32) == 0) {
+				error_nolog_set("Index mode not supported.\n");
+				return -1;
+			}
+			break;
+		default:
+			error_nolog_set("Index mode not supported.\n");
+			return -1;
+		}
+	} else {
+		if (crtc_is_fake(crtc)) {
+			error_nolog_set("Not programmable modes are not supported.\n");
+			return -1;
+		}
+
+		if (video_mode_generate_check("fb", fb_flags(), 8, 2048, crtc, flags)!=0)
+			return -1;
+	}
 
 	mode->crtc = *crtc;
 	mode->index = flags & MODE_FLAGS_INDEX_MASK;
