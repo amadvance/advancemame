@@ -1372,7 +1372,13 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_int_register_limit_default(cfg_context, "display_aspecty", 1, 10000, 3);
 
 #ifdef USE_SMP
+	/* on Intel assume a fast machine */
+#if defined(__i386__) || defined(__x86_64__)
 	conf_bool_register_default(cfg_context, "misc_smp", 0);
+#else
+	/* otherwise enable SMP by default */
+	conf_bool_register_default(cfg_context, "misc_smp", 1);
+#endif
 #endif
 
 	conf_int_register_enum_default(cfg_context, "sync_resample", conf_enum(OPTION_RESAMPLE), -1);
