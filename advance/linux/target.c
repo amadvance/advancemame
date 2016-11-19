@@ -87,6 +87,9 @@ struct target_context {
 	unsigned col; /**< Number of columns. 0 if not detectable. */
 	unsigned row; /**< Number of rows. 0 if not detectable. */
 
+	unsigned width; /**< Screen width. 0 if not detectable. */
+	unsigned height; /**< Screen height. 0 if not detectable. */
+
 #ifdef USE_DIRECT_PORT
 	adv_bool io_perm_flag; /**< IO Permission granted. */
 	adv_bool io_perm_iopl_flag; /**< IO iopl called. */
@@ -370,6 +373,25 @@ unsigned char target_readb(unsigned addr)
 void target_mode_reset(void)
 {
 	/* nothing */
+}
+
+/***************************************************************************/
+/* Video */
+
+unsigned target_video_width(void)
+{
+	return TARGET.width;
+}
+
+unsigned target_video_height(void)
+{
+	return TARGET.height;
+}
+
+void target_video_set(unsigned width, unsigned height)
+{
+	TARGET.width = width;
+	TARGET.height = height;
 }
 
 /***************************************************************************/

@@ -391,7 +391,8 @@ const adv_video_driver* video_driver_vector_pos(unsigned i)
 adv_error adv_video_init(void)
 {
 	unsigned i;
-	adv_bool at_least_one;
+	adv_bool at_least_one_success;
+	adv_bool at_least_one_failed;
 	adv_bool forward;
 
 	assert(!video_is_active());
@@ -417,7 +418,8 @@ adv_error adv_video_init(void)
 	forward = 1;
 #endif
 
-	at_least_one = 0;
+	at_least_one_failed = 0;
+	at_least_one_success = 0;
 	for(i=0;i<video_state.driver_mac;++i) {
 		unsigned j;
 		const adv_device* dev;
@@ -433,19 +435,24 @@ adv_error adv_video_init(void)
 
 		error_cat_set(video_state.driver_map[j]->name, 1);
 
-		if (dev && video_state.driver_map[j]->init(dev->id, video_option.output, video_option.overlay_size, video_option.cursor) == 0) {
-			log_std(("video: select driver %s\n", video_state.driver_map[j]->name));
-			at_least_one = 1;
+		if (dev) {
+			if (video_state.driver_map[j]->init(dev->id, video_option.output, video_option.overlay_size, video_option.cursor) == 0) {
+				log_std(("video: select driver %s\n", video_state.driver_map[j]->name));
+				at_least_one_success = 1;
+			} else {
+				video_state.driver_map[j] = 0; /* deactivate the driver */
+				at_least_one_failed = 1;
+			}
 		} else {
 			video_state.driver_map[j] = 0; /* deactivate the driver */
 		}
 	}
 
 	error_cat_set(0, 0);
+	if (at_least_one_failed)
+		log_std(("video: adv_video_init report (multiline):\n%s\n", error_get()));
 
-	log_std(("video: adv_video_init report (multiline):\n%s\n", error_get()));
-
-	if (!at_least_one) {
+	if (!at_least_one_success) {
 		log_std(("video: no video driver activated\n"));
 		return -1;
 	}

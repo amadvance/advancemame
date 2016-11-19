@@ -165,6 +165,17 @@ void target_sound_warn(void);
 void target_sound_signal(void);
 
 /***************************************************************************/
+/* video */
+
+/**
+ * Current resolution if any.
+ * If missing/unknown return 0
+ */
+unsigned target_video_width(void);
+unsigned target_video_height(void);
+void target_video_set(unsigned width, unsigned height);
+
+/***************************************************************************/
 /* APM */
 
 /**

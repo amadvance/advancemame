@@ -580,6 +580,9 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 
 	log_std(("video:fb: id %s\n", id_buffer));
 
+	target_video_set(fb_state.varinfo.xres, fb_state.varinfo.yres);
+	log_std(("video:fb: current %ux%u\n", target_video_width(), target_video_height()));
+
 	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
 
 	if (strcmp(id_buffer, "VESA VGA")==0) {

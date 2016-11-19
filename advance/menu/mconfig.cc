@@ -297,7 +297,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_string_register_default(config_context, "sound_background_start", "none");
 	conf_string_register_default(config_context, "sound_background_stop", "none");
 	conf_string_register_default(config_context, "sound_background_loop_dir", "\"mp3\"");
-	conf_string_register_default(config_context, "display_size", "1280x1024");
+	conf_string_register_default(config_context, "display_size", "auto");
 	conf_string_register_default(config_context, "ui_font", "auto");
 	conf_string_register_default(config_context, "ui_fontsize", "auto");
 	conf_string_register_default(config_context, "display_orientation", "");
@@ -813,15 +813,20 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	repeat_rep = atoi(a1.c_str());
 	disable_special = !conf_bool_get_default(config_context, "input_hotkey");
 	a0 = conf_string_get_default(config_context, "display_size");
-	p = a0.find('x');
-	if (p == string::npos) {
-		video_sizex = atoi(a0.c_str());
-		video_sizey = video_sizex * 3 / 4;
+	if (a0 == "auto") {
+		video_sizex = 0;
+		video_sizey = 0;
 	} else {
-		a1 = a0.substr(p+1);
-		a0 = a0.substr(0, p);
-		video_sizex = atoi(a0.c_str());
-		video_sizey = atoi(a1.c_str());
+		p = a0.find('x');
+		if (p == string::npos) {
+			video_sizex = atoi(a0.c_str());
+			video_sizey = video_sizex * 3 / 4;
+		} else {
+			a1 = a0.substr(p+1);
+			a0 = a0.substr(0, p);
+			video_sizex = atoi(a0.c_str());
+			video_sizey = atoi(a1.c_str());
+		}
 	}
 	if (!config_path(conf_string_get_default(config_context, "ui_font"), video_font_path))
 		return false;

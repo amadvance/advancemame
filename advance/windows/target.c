@@ -49,6 +49,9 @@ struct target_context {
 	char buffer_err[BUFFER_SIZE];
 
 	unsigned usleep_granularity; /**< Minimun sleep time in microseconds. */
+
+	unsigned width; /**< Screen width. 0 if not detectable. */
+	unsigned height; /**< Screen height. 0 if not detectable. */
 };
 
 static struct target_context TARGET;
@@ -62,6 +65,8 @@ adv_error target_init(void)
 {
 	LARGE_INTEGER f;
 	LARGE_INTEGER c;
+	RECT rdesktop;
+	HWND hdesktop;
 
 	TARGET.buffer_out[0] = 0;
 	TARGET.buffer_err[0] = 0;
@@ -73,6 +78,11 @@ adv_error target_init(void)
 	}
 
 	TARGET_CLOCKS_PER_SEC = f.QuadPart;
+
+	hdesktop = GetDesktopWindow();
+	GetWindowRect(hdesktop, &rdesktop);
+	TARGET.width = rdesktop.right;
+	TARGET.height = rdesktop.bottom;
 
 	return 0;
 }
@@ -182,6 +192,25 @@ unsigned char target_readb(unsigned addr)
 void target_mode_reset(void)
 {
 	/* nothing */
+}
+
+/***************************************************************************/
+/* Video */
+
+unsigned target_video_width(void)
+{
+	return TARGET.width;
+}
+
+unsigned target_video_height(void)
+{
+	return TARGET.height;
+}
+
+void target_video_set(unsigned width, unsigned height)
+{
+	TARGET.width = width;
+	TARGET.height = height;
 }
 
 /***************************************************************************/

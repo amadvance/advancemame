@@ -51,6 +51,8 @@
 #include <conio.h>
 
 struct target_context {
+	unsigned width; /**< Screen width. 0 if not detectable. */
+	unsigned height; /**< Screen height. 0 if not detectable. */
 #ifdef USE_VIDEO
 	struct vga_regs vga_original;
 #endif
@@ -180,6 +182,25 @@ void target_mode_reset(void)
 		vga_palette_raw_set(vga_palette_bios_graph, 0, 256);
 	}
 #endif
+}
+
+/***************************************************************************/
+/* Video */
+
+unsigned target_video_width(void)
+{
+	return TARGET.width;
+}
+
+unsigned target_video_height(void)
+{
+	return TARGET.height;
+}
+
+void target_video_set(unsigned width, unsigned height)
+{
+	TARGET.width = width;
+	TARGET.height = height;
 }
 
 /***************************************************************************/

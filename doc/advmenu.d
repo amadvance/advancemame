@@ -662,9 +662,11 @@ Configuration
     display_size
 	Selects the desired size of the video mode.
 
-	:display_size WIDTHxHEIGHT
+	:display_size auto | WIDTHxHEIGHT
 
 	Options:
+		auto - Try to autodetect the best size. Usually the current
+			one (default).
 		WIDTHxHEIGHT - Size in pixels of the video mode. The nearest
 			available video mode is chosen (default 1280x1024).
 

@@ -387,7 +387,7 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 	adv_crtc_container_iterator i;
 	adv_error err;
 
-	log_std(("text: searching for mode %dx%d.\n", int_mode_sizex, int_mode_sizey));
+	log_std(("text: searching for mode %dx%d, index %u.\n", int_mode_sizex, int_mode_sizey, index));
 
 	// search the default name
 	for(crtc_container_iterator_begin(&i, &modelines);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
@@ -431,7 +431,7 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 	}
 
 	// generate any resolution for a window manager
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW))!=0) {
+	if (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
 		adv_crtc crtc;
 		crtc_fake_set(&crtc, int_mode_sizex, int_mode_sizey);
 
@@ -586,6 +586,8 @@ bool int_init(unsigned sizex, unsigned sizey)
 	int_mode_sizey = sizey;
 	mode_reset(&int_current_mode);
 
+	log_std(("text: init request size %ux%u\n", sizex, sizey));
+
 	if (adv_video_init() != 0) {
 		target_err("%s\n", error_get());
 		goto out;
@@ -614,6 +616,22 @@ bool int_init(unsigned sizex, unsigned sizey)
 	if (!int_has_generate && crtc_container_is_empty(&int_modelines)) {
 		crtc_container_insert_default_active(&int_modelines);
 		crtc_default = true;
+	}
+
+	// set auto resolution
+	if (int_mode_sizex == 0 || int_mode_sizey == 0) {
+		int_mode_sizex = target_video_width();
+		int_mode_sizey = target_video_height();
+	}
+	// otherwise ask fo a generic big one to select the biggest available mode
+	if (int_mode_sizex == 0 || int_mode_sizey == 0) {
+#ifdef __MSDOS__
+		int_mode_sizex = 640;
+		int_mode_sizey = 480;
+#else
+		int_mode_sizex = 1920;
+		int_mode_sizey = 1080;
+#endif
 	}
 
 	// check if the video driver has a default bit depth
@@ -649,7 +667,7 @@ bool int_init(unsigned sizex, unsigned sizey)
 		if (!int_has_generate && !crtc_default)
 			target_err("No video modes available for your configuration.\nTry removing any explicit modeline in the configuration file.\n");
 		else
-			target_err("No video modes available for your configuration.\n");
+			target_err("No video modes available for your configuration.\nTry selecting a specific resolution like with -display_size 1280x1024\n");
 		goto int_blit;
 	}
 
