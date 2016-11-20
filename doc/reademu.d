@@ -5,24 +5,16 @@ Name
 	advanced video support for helping the use with TVs, Arcade
 	monitors, PC monitors and LCD screens.
 
-	They run in Linux, Mac OS X, DOS, Windows and in all the other
-	platforms supported by the SDL library.
+	They run in Linux, Raspbian, Mac OS X, DOS, Windows and in all the
+	other platforms supported by the SDL library.
+
+	With the Linux FrameBuffer, the Advance emulators are can use
+	custom video hardware like Arcade monitors or TVs, programming the
+	video board with the right resolution and frequency.
 
 	The official site of AdvanceMAME/MESS is :
 
 		+http://www.advancemame.it/
-
-	The main difference compared with the official emulators is that
-	the Advance versions are able to program directly the video board
-	to always get a video mode with the correct size and frequency.
-
-	Generally the Advance emulators are able to use a video mode which
-	doesn't require any stretching or other unneeded effects to match the
-	original arcade display.
-
-	The direct video board programming is fully supported in Linux
-	and DOS. It's partially supported in Windows. It isn't supported in
-	Mac OS X and other platforms.
 
 	This package contains :
 		advmame - The AdvanceMAME emulator (only in the advancemame-* package).

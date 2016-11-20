@@ -1,10 +1,8 @@
 Name{number}
 	install - AdvanceMAME Installation
 
-	This document describes the installation process of
-	the Advance programs.
-
-SubSubIndex
+	This document describes the installation and configuration
+	process of the Advance programs.
 
 System Requirements
 	To run the Advance programs you may need to install and
@@ -16,69 +14,43 @@ System Requirements
 	`advdev.txt' documentation file.
 
   Linux
-	To allow the Advance programs to display in X you must
-	install the SDL library. Generally it's already present in
-	all the recent distributions.
-  
-	To allow the Advance programs to directly control your
-	video board in console mode, you must install and configure
-	the Linux Frame Buffer driver or a recent SVGALIB library.
+	In Linux the Advance programs can run either in the
+	X Window graphical environment or from the Linux Console.
 
-	The Linux Frame Buffer drivers are always included in the
-	Linux kernel source, but generally they must be explicitly
-	compiled or loaded. Please note that you cannot use the VESA
-	Linux Frame Buffer driver, you must use a driver specific for
-	your video board.
+	In X Window the SDL library is used for everything: video,
+	audio and input controllers.
 
-	The SVGALIB library must be installed manually. Generally the
-	Linux distributions contain an old 1.4 version of the library,
-	but the Advance programs you need at least the version 1.9.14
-	available at:
+	In the Linux Console, the Linux Frambeuffer is used for the
+	video, the ALSA or OSS library for audio, and the Linux Event
+	interface for intput controllers.
 
-		+http://www.svgalib.org/
+	The video board programming functionality for Arcade Monitors
+	and CRT TVs, is available only from the Linux console, using
+	the Linux Framebuffer.
 
-	For both the Frame Buffer driver and the SVGALIB library some
-	additional patches are available in the `contrib/' directory.
+  Raspbian/Raspberry Pi
+	In Raspbian you have the same support you have in Linux.
 
-	To allow the Advance programs to play sounds, you must have
-	installed the OSS or the ALSA audio system. Generally at least
-	one is always available in all the Linux distributions.
-	If you have the SDL library, it can also be used for the
-	sound output.
+	It's recommended to give preference at the Linux Console because
+	using the Linux Framebuffer you get also hardware acceleration
+	that is missing from the SDL library, resulting in better performance.
 
-	The Advance programs are able to use the Linux support for
-	input controllers like keyboards, joysticks and mice.
-	If you have the SDL library, it can also be used for the input
-	controllers.
+	Note that in Raspberry Pi the Linux Framebuffer is not able to
+	change the resolution and frequency of the video mode, but it uses
+	the hardware acceleration to strech the image to the screen size.
 
-  DOS
-	The Advance programs already contain all the required drivers
-	for video, sound, and input controllers.
-
-	Generally you don't need to install additional software with
-	the exception of a mouse driver if you want to use one.
-
-  Windows
+  Windows/Mac OS X
 	The Advance programs contain a copy of the SDL library
 	which allow them to work also in the Windows platform.
 
-	To allow the Advance programs to directly control your video
-	board, you must install the included SVGAWIN driver.
+	The SDL library is also used for audio, and input controllers.
 
-	Please note that the SVGAWIN driver is EXPERIMENTAL software and
-	it works only for a few sets of video boards. More information is
-	present in the `svgawin.txt' documentation file.
+  DOS
+	The Advance programs already contain all the required drivers
+	for video, audio, and input controllers.
 
-	The SDL library is also used for sound, and input controllers.
-
-  Mac OS X/Generic Unix
-	To allow the Advance programs to work you must install the SDL
-	library. This library is used for video, sound and input
-	controllers.
-
-	The SDL library is available at:
-
-		+http://www.libsdl.org/
+	Generally you don't need to install additional software with
+	the exception of a mouse driver if you want to use one.
 
 Installation
 	The suggested way to installing the Advance programs is to start 
@@ -89,7 +61,7 @@ Installation
 
 		:./configure
 		:make
-		:make install
+		:sudo make install
 
 	The exception is the DOS and Windows target. In this case it's 
 	better to start from the binary distribution and don't compile 
@@ -99,11 +71,10 @@ Configuration
 	All the Advance programs require a configuration process to work
 	correctly.
 
-	To create a default configuration file run the application from 
-	a command shell and a standard configuration .rc file will be 
-	created.
+	A default configuration file is created by the programs when they
+	are started for the first time.
 
-	In Linux, Mac OS X and other Unix, the configuration file is 
+	In Linux, Raspbian, Mac OS X and other Unix, the configuration file is
 	created in the user home directory in the subdirectory .advance/. 
 	In DOS and Windows the configuration file is created in the 
 	current directory.
@@ -138,7 +109,7 @@ Configuration
 Video Hardware
 	The Advance programs are able to drive different types
 	of video hardware: LCD, Multi Sync monitors, Fixed
-	Sync monitors, Arcade monitors and TVs.
+	Sync monitors, Arcade monitors and CRT TVs.
 
 	With the exception of PC Monitors that always accept the
 	VGA signal, for other monitors you should take in account
@@ -150,9 +121,9 @@ Video Hardware
 
 		+http://www.advancemame.it/video-link.html
 
-  LCD screens
+  LCD monitors or LCD TVs
 	LCD screens have always a native fixed resolution. To get the
-	best image quality it's always suggested to use this resolution.
+	best image quality it's always recomended to use this resolution.
 
 	For this reason you usually don't need to enter any specific
 	configuration options, and let the program to use the default
@@ -161,7 +132,7 @@ Video Hardware
 	This mode of operation is the default when you are in
 	a graphics environment like X, Windows and Mac OS X.
 
-  Multi Sync monitors (or PC monitors)
+  Multi Sync monitors (or CRT PC monitors)
 	Multi Sync monitors support a wide range of horizontal clocks
 	and requires a standard VGA connector. They are the normal PC
 	monitors.
@@ -198,8 +169,8 @@ Video Hardware
  
   Arcade Monitors
 	Arcade monitors support only a few fixed horizontal and
-	vertical clocks, generally the horizontal 15.75 and 25 kHz,
-	and only the vertical 60 Hz.
+	vertical clocks, generally the horizontal are 15.75 and 25 kHz,
+	and the vertical 60 Hz.
 
 	You must find the exact clocks supported in the monitor
 	manual.
@@ -252,8 +223,8 @@ Video Hardware
 	no contrast. You will need to buy/make an amplifier for each
 	line in order for it to work.
 
-  TVs
-	TVs generally supports only two fixed combination of
+  CRT TVs
+	CRT TVs generally supports only two fixed combination of
 	horizontal and vertical clocks, corresponding at the TV PAL
 	and NTSC standards.
 
@@ -308,12 +279,9 @@ Video Setup
 	board to get the best possible fullscreen video modes with always the
 	correct size and aspect ratio.
 
-	This feature is available in Linux with the SVGALIB and Frame
-	Buffer libraries, in DOS with the SVGALIB and VBELINE libraries
-	and in Windows with the SVGAWIN library.
-
-	It isn't available in Mac OS X and other Unix, or generally if
-	your only detected video driver is the SDL library.
+	This feature is available in Linux with the Frame Buffer drivers.
+	The legacy SVGALIB support for Linux/Windows/DOS is still present,
+	but likely too old to support your video board.
 
 	To make it possible, the programs need some information on your
 	monitor capability in the form of the supported pixel, horizontal
@@ -334,17 +302,6 @@ Video Setup
 	to match the game clock or size requirements.
 	This mode of operation should be used only if the `automatic'
 	mode doesn't work.
-
-	Please note that if you are using the SDL or VBE video
-	drivers, the programs aren't able to create or adjust video
-	modes. In this case you don't need to configure anything because
-	the programs can use only the video modes that your system
-	reports as available.
-
-	The SDL and VBE video drivers are only indicated to use
-	AdvanceMAME in a Window Manager system. Instead they can
-	be used with AdvanceMENU for the use with a normal PC monitor,
-	because AdvanceMENU only use standard video modes.
 
     Automatic Operation Mode
 	In the automatic operation mode the programs automatically
@@ -423,70 +380,6 @@ Video Setup
 	some example modelines. The same modelines are contained in
 	the `advv' program.
 
-  Troubleshooting
-	) Delete any old configuration files and restart from scratch.
-
-	) If you are using a PC Multisync monitor and the image is
-		instable or the monitor automatically switches off, you
-		have probably entered wrong clock values.
-		Check the horizontal and vertical clock ranges
-		supported by your monitor in the monitor manual.
-		Eventually try with shorter ranges. Try for example
-		with:
-
-		:device_video_clock 10 - 150 / 55 - 90 / 31 - 50
-
-	) If you are using an Arcade Monitor/TV and the image is
-		instable or completely black try increasing the lower
-		pixel clock limit. Some video boards aren't able to
-		output too low clocks. Instead of 5 try 8, 9, 10,
-		11, 12, ...
-		
-	) If interlaced video modes have swapped rows, try using 
-		the `display_interlaceeffect' option to adjust the 
-		image.
-
-    Linux
-	) If you are using the `svgalib' driver ensure that you have
-		installed the most recent SVGALIB library. The old
-		1.4.x versions are not supported.
-
-	) If you are using the `fb' driver, ensure to don't use the VESA
-		Frame Buffer. It doesn't work for the Advance programs.
-
-	) If you are using the `fb' driver check the kernel patches
-		in the `contrib/fb' directory.
-
-	) If you are using the `svgalib' driver check the svgalib patches
-		in the `contrib/svgalib' directory.
-
-	) If you have both the `svgalib' and `fb' drivers, try forcing the 
-		use of the `fb' driver instead of the `svgalib' driver 
-		with the option:
-
-		:device_video fb slang
-
-    DOS
-	) Try forcing the use of the `vbeline' driver instead of the
-		`svgaline' driver with the option:
-
-		:device_video vbeline vgaline
-
-	) If your board has a VESA VBE 3.0 BIOS, try forcing the
-		`vbeline/vbe3' driver with the options:
-
-		:device_video vbeline/vbe3 vgaline
-
-	) If you are using the `vbeline' driver try changing the
-		`vbeline_mode' option:
-
-		:device_video vbeline vgaline
-		:device_vbeline_mode smaller
-
-    Windows
-	) Try reducing the video hardware acceleration from the
-		Control Panel.
-
 Copyright
-	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
+	This file is Copyright (C) 2003 - 2016 Andrea Mazzoleni.
 
