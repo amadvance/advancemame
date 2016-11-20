@@ -591,6 +591,8 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 	}
 
 	if (strstr(id_buffer, "BCM2708")!=0) {
+		char* opt;
+
 		log_std(("video:fb: detected Raspberry/BCM2708 hardware\n"));
 
 		if (output != adv_output_auto && output != adv_output_overlay) {
@@ -602,6 +604,22 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		/* and enable OVERLAY because the framebuffer is just rescaling to the original resolution */
 		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
 			| VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
+
+		/*
+		 * Force the FrameBuffer to fill-out all the screen.
+		 * Otherwise if the resolution chosen doesn't have square pixels
+		 * the FrameBuffer add black bands to adjust the aspect ratio.
+		 *
+		 * See:
+		 * "Could the framebuffer driver be updated to provide the ability to"
+		 * "create custom screen modes whose pixels have an arbitrary aspect ratio?"
+		 * https://github.com/raspberrypi/firmware/issues/638
+		 */
+		opt = target_system("vcgencmd get_config sdtv_aspect set 1");
+		if (opt) {
+			log_std(("video:fb: set option \"%s\"\n", opt));
+			free(opt);
+		}
 
 		fb_state.output = adv_output_overlay;
 	} else {

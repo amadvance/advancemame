@@ -44,6 +44,12 @@ extern "C" {
 
 void target_usleep_granularity(unsigned us);
 
+/**
+ * Run a system command, and return the output.
+ * \return 0 on error.
+ */
+char* target_system(const char* cmd);
+
 /* Check if svgalib is used in some way */
 #if defined(USE_VIDEO_SVGALIB) || defined(USE_KEYBOARD_SVGALIB) || defined(USE_MOUSE_SVGALIB) || defined(USE_JOYSTICK_SVGALIB)
 #define USE_SVGALIB
