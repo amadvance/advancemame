@@ -146,7 +146,7 @@ if test $ac_auto_cflags = yes; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
 	else
 		CFLAGS=""
-		dnl GCC has problems with -march=native with Raspberry,
+		dnl GCC 4 has problems with -march=native in Raspbian,
 		dnl resulting in a "double free or corruption" error
 		dnl See: https://www.raspberrypi.org/forums/viewtopic.php?f=28&t=139091
 		if ! $GREP ARM /proc/cpuinfo >/dev/null 2>&1; then
@@ -154,10 +154,12 @@ if test $ac_auto_cflags = yes; then
 		fi
 		AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])
 		AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
-		dnl Code is not ready for strict-aliasing. It seems working, but who know...
+		dnl Code was written when compilers where not aggressively optimizing undefined behaviour about aliasing
 		AC_CHECK_CC_OPT([-fno-strict-aliasing], [CFLAGS="$CFLAGS -fno-strict-aliasing"], [])
-		dnl Code is not ready for strict-overflow. It seems working, but who know...
+		dnl Code was written when compilers where not aggressively optimizing undefined behaviour about overflow in signed integers
 		AC_CHECK_CC_OPT([-fno-strict-overflow], [CFLAGS="$CFLAGS -fno-strict-overflow"], [])
+		dnl Code was written on Intel where char is signed
+		AC_CHECK_CC_OPT([-fsigned-char], [CFLAGS="$CFLAGS -fsigned-char"], [])
 		dnl We are not interested in stack protection
 		AC_CHECK_CC_OPT([-fno-stack-protector], [CFLAGS="$CFLAGS -fno-stack-protector"], [])
 		AC_CHECK_CC_OPT([-Wall], [CFLAGS="$CFLAGS -Wall"], [])
