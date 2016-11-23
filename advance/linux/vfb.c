@@ -994,6 +994,7 @@ static adv_error fb_wait_vsync_api(void)
 	return 0;
 }
 
+#ifdef __i386__ /* the direct access works only on VGA boards and then only on Intel */
 /**
  * Upper loop limit for the vsync wait.
  * Any port read take approximatively 0.5 - 1.5us.
@@ -1031,14 +1032,10 @@ static adv_error fb_wait_vsync_vga(void)
 
 	return 0;
 }
+#endif
 
 void fb_wait_vsync(void)
 {
-	/* in overlay mode we cannot choose the right vsync */
-	/* and don't make sense to wait for it */
-	if (fb_state.output == adv_output_overlay)
-		return;
-
 	switch (fb_state.wait) {
 	case fb_wait_ext :
 		if (fb_wait_vsync_ext() != 0) {
@@ -1058,6 +1055,7 @@ void fb_wait_vsync(void)
 			fb_state.wait_error = 0;
 		}
 		break;
+#ifdef __i386__
 	case fb_wait_vga :
 		if (fb_wait_vsync_vga() != 0) {
 			++fb_state.wait_error;
@@ -1067,6 +1065,7 @@ void fb_wait_vsync(void)
 			fb_state.wait_error = 0;
 		}
 		break;
+#endif
 	case fb_wait_detect:
 		if (fb_wait_vsync_ext() == 0) {
 			fb_state.wait = fb_wait_ext;
@@ -1074,7 +1073,6 @@ void fb_wait_vsync(void)
 		} else if (fb_wait_vsync_api() == 0) {
 			fb_state.wait = fb_wait_api;
 			fb_state.wait_error = 0;
-/* the direct access works only on VGA boards and then only on Intel */
 #ifdef __i386__
 		} else if (fb_wait_vsync_vga() == 0) {
 			fb_state.wait = fb_wait_vga;
@@ -1086,7 +1084,7 @@ void fb_wait_vsync(void)
 				fb_state.wait = fb_wait_none;
 		}
 		break;
-	case fb_wait_none:
+	default:
 		break;
 	}
 }
