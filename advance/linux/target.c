@@ -192,6 +192,8 @@ char* target_system(const char* cmd)
 	FILE* f;
 	char buffer[512];
 	int read;
+	char* s;
+	size_t len;
 
 	f = popen(cmd, "r");
 	if (!f) {
@@ -206,14 +208,26 @@ char* target_system(const char* cmd)
 		return 0;
 	}
 
-	buffer[read] = 0;
-
 	if (pclose(f) != 0) {
 		log_std(("linux: ERROR running system(%s) -> FAILED on pclose()\n", cmd));
 		return 0;
 	}
 
-	return strdup(buffer);
+	s = buffer;
+	len = read;
+
+	/* trim */
+	while (len != 0 && isspace(s[0])) {
+		++s;
+		--len;
+	}
+	while (len != 0 && isspace(s[len - 1]))
+		--len;
+
+	/* terminate */
+	s[len] = 0;
+
+	return strdup(s);
 }
 
 /***************************************************************************/
