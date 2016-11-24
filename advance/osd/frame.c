@@ -97,7 +97,15 @@ static int adjust_multiplier(int value, int base, int step, int upper)
  */
 static adv_bool video_is_programmable(struct advance_video_context* context)
 {
-	return (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0;
+	/* driver must be programmable */
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0)
+		return 0;
+
+	/* we have a device_video_clock specification */
+	if (monitor_is_empty(&context->config.monitor))
+		return 0;
+
+	return 1;
 }
 
 /**
