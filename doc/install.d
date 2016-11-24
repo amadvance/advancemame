@@ -28,12 +28,13 @@ System Requirements
 	and CRT TVs, is available only from the Linux console, using
 	the Linux Framebuffer.
 
-  Raspbian/Raspberry Pi
-	In Raspbian you have the same support you have in Linux.
+  Raspberry Pi
+	With a Raspberry Pi you have the same support you have in Linux.
 
 	It's recommended to give preference at the Linux Console because
 	using the Linux Framebuffer you get also hardware acceleration
-	that is missing from the SDL library, resulting in better performance.
+	that is missing from the SDL library, resulting in a lot better
+	performance.
 
 	Note that in Raspberry Pi the Linux Framebuffer is not able to
 	change the resolution and frequency of the video mode, but it uses
