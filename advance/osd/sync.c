@@ -317,9 +317,9 @@ static double video_frame_wait(double current, double expected)
 static void video_frame_sync(struct advance_video_context* context)
 {
 	double current;
-	double expected;
+	double begin;
 
-	current = advance_timer();
+	begin = current = advance_timer();
 
 	if (context->state.sync_warming_up_flag) {
 		/* syncronize the first time */
@@ -336,68 +336,58 @@ static void video_frame_sync(struct advance_video_context* context)
 
 		log_debug(("advance:sync: throttle warming up\n"));
 	} else {
-		double time_before_sync, time_after_delay, time_after_sync;
-
-		time_before_sync = current;
-
-		expected = context->state.sync_last + context->state.skip_step * (1 + context->state.sync_skip_counter);
-		context->state.sync_skip_counter = 0;
-
-		/* take only a part of the error, this increase the stability */
-		context->state.sync_pivot *= 0.99;
-
-		/* adjust with the previous error */
-		expected += context->state.sync_pivot;
-
 		/* the vsync is used only if all the frames are displayed */
 		if ((video_flags() & MODE_FLAGS_RETRACE_WAIT_SYNC) != 0
 			&& context->state.vsync_flag
 			&& context->state.skip_level_full == SYNC_MAX
 		) {
-			/* wait until the retrace is near (3% early), otherwise if the */
-			/* mode has a double freq the retrace may be the wrong one. */
-			double early = 0.03 / video_measured_vclock();
+			double early;
+			double error;
+			double expected;
+			double intermediate;
 
-			if (current < expected - early) {
-				current = video_frame_wait(current, expected - early);
-				time_after_delay = current;
+			expected = context->state.sync_last + 1.0 / context->state.mode_vclock;
+			context->state.sync_skip_counter = 0;
 
-				if (current < expected) {
-					double after;
-					video_wait_vsync();
-					after = advance_timer();
-					
-					if (after - current > 1.05 / (double)video_measured_vclock()) {
-						log_std(("ERROR:emu:video: sync wait too long. %g instead of %g (max %g)\n", after - current, early, 1.0 / (double)video_measured_vclock()));
-					} else if (after - current > 1.05 * early) {
-						log_std(("WARNING:emu:video: sync wait too long. %g instead of %g (max %g)\n", after - current, early, 1.0 / (double)video_measured_vclock()));
-					}
-					
-					/* if a sync complete correctly reset the error to 0 */
-					/* in this case the vsync is used for the correct clocking */
-					expected = after;
-					
-					current = after;
-				} else {
-					log_std(("ERROR:emu:video: sync delay too big\n"));
-				}
-			} else {
-				log_std(("ERROR:emu:video: too late for a video sync\n"));
-				current = video_frame_wait(current, expected);
-				time_after_delay = current;
+			/*
+			 * Wait until we are near at the vsync to not have false positive.
+			 * This is possible when the video mode has a higher frequency than the game.
+			 * Like if game is at 30 Hz, but video mode is at 60 Hz.
+			 *
+			 * We wait until the 90% of the vsync.
+			 */
+			early = 0.1 / context->state.mode_vclock;
+
+			current = video_frame_wait(current, expected - early);
+			intermediate = current;
+
+			video_wait_vsync();
+			current = advance_timer();
+
+			error = expected - current;
+
+			if (error < -early) {
+				log_std(("ERROR:advance:sync: wait %g too long. frame %g, timer %g, vsync %g, reference %g (error %g)\n", current - begin, current - context->state.sync_last, intermediate - begin, current - intermediate, 1.0 / context->state.mode_vclock, -error));
+			} else if (error > early) {
+				log_std(("WARNING:advance:sync: wait %g too short. frame %g, timer %g, vsync %g, reference %g (error %g)\n", current - begin, current - context->state.sync_last, intermediate - begin, current - intermediate, 1.0 / context->state.mode_vclock, error));
 			}
+
+			/* after a sync always reset the error to 0 */
+			context->state.sync_pivot = 0;
 		} else {
+			double expected;
+		
+			expected = context->state.sync_last + context->state.skip_step * (1 + context->state.sync_skip_counter);
+			context->state.sync_skip_counter = 0;
+
+			/* adjust with the previous error to try to recover it */
+			expected += context->state.sync_pivot;
+
 			current = video_frame_wait(current, expected);
-			time_after_delay = current;
+
+			/* update the error state */
+			context->state.sync_pivot = expected - current;
 		}
-
-		time_after_sync = current;
-
-		/* update the error state */
-		context->state.sync_pivot = expected - current;
-
-		if (fabs(context->state.sync_pivot) > context->state.skip_step / 50)
-			log_std(("advance:sync: %.5f (err %6.1f%%) = %.5f + %.5f + %.5f < %.5f (compute + sleep + sync < max)\n", current - context->state.sync_last, context->state.sync_pivot * 100 / context->state.skip_step, time_before_sync - context->state.sync_last, time_after_delay - time_before_sync, time_after_sync - time_after_delay, context->state.skip_step));
 
 		if (context->state.sync_pivot < - context->state.skip_step * 16) {
 			/* if the error is too big (negative) the delay is unrecoverable */

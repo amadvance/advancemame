@@ -2160,13 +2160,19 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 
 static void video_frame_screen(struct advance_video_context* context, struct advance_ui_context* ui_context, const struct osd_bitmap *bitmap)
 {
+	adv_bool vsync = context->state.vsync_flag;
+
+	/* if we already have synced on the wait */
+	if (vsync && (video_flags() & MODE_FLAGS_RETRACE_WAIT_SYNC) != 0)
+		vsync = 0;
+	
 	update_start();
 
 	video_recompute_pipeline(context, bitmap);
 
 	video_frame_put(context, ui_context, bitmap, update_x_get(), update_y_get());
 
-	update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), context->state.vsync_flag);
+	update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), vsync);
 }
 
 static void video_frame_palette(struct advance_video_context* context)
