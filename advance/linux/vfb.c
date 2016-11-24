@@ -80,7 +80,7 @@ typedef struct fb_internal_struct {
 
 	unsigned flags;
 
-	adv_output output; /**< Output mode. */
+	adv_bool is_raspberry; /**< If it's a Raspberry Pi. */
 
 	double freq; /**< Expected vertical frequency. */
 
@@ -590,19 +590,24 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		goto err_close;
 	}
 
-	if (strstr(id_buffer, "BCM2708")!=0) {
+	/* check if it's a Raspberry Pi */
+	fb_state.is_raspberry = strstr(id_buffer, "BCM2708") != 0;
+
+	if (fb_state.is_raspberry) {
 		char* opt;
 
-		log_std(("video:fb: detected Raspberry/BCM2708 hardware\n"));
+		log_std(("video:fb: detected Raspberry Pi/BCM2708 hardware\n"));
 
-		if (output != adv_output_auto && output != adv_output_overlay) {
-			error_set("Only overlay output is supported.\n");
+		if (output != adv_output_auto && output != adv_output_overlay && output != adv_output_fullscreen) {
+			error_set("Only fullscreen and overlay output are supported.\n");
 			return -1;
 		}
 
 		/* exclude BGR15 not supported by the hardare */
-		/* and enable OVERLAY because the framebuffer is just rescaling to the original resolution */
+		/* and add OVERLAY because the framebuffer is able to rescale to the original resolution */
 		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
+			| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
+			| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN
 			| VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
 
 		/*
@@ -620,8 +625,6 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 			log_std(("video:fb: set option \"%s\"\n", opt));
 			free(opt);
 		}
-
-		fb_state.output = adv_output_overlay;
 	} else {
 		if (output != adv_output_auto && output != adv_output_fullscreen) {
 			error_set("Only fullscreen output is supported.\n");
@@ -640,8 +643,6 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 			error_set("This '%s' FrameBuffer driver doesn't seem to allow the creation of new video modes.\n", id_buffer);
 			goto err_close;
 		}
-
-		fb_state.output = adv_output_fullscreen;
 	}
 
 	fb_state.active = 1;
@@ -765,6 +766,52 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	log_std(("video:fb: set new\n"));
 
 	fb_log(0, &fb_state.varinfo);
+
+	/* if it's a programmable mode on Raspberry */
+	if (fb_state.is_raspberry && !crtc_is_fake(&mode->crtc)) {
+		char* opt;
+		char modeline[256];
+
+		/*
+		 * Configure the Raspberry HDMI timing.
+		 *
+		 * See:
+		 * "Please can the ability to modify HDMI timings on the fly"
+		 " (i.e. without having to carry out a reboot) be added to the firmware drivers"
+		 * https://github.com/raspberrypi/firmware/issues/637
+		 *
+		 * Format for hdmi_timings:
+		 * # <h_active_pixels> <h_sync_polarity> <h_front_porch> <h_sync_pulse> <h_back_porch>
+		 * # <v_active_lines> <v_sync_polarity> <v_front_porch> <v_sync_pulse> <v_back_porch>
+		 * # <v_sync_offset_a> <v_sync_offset_b> <pixel_rep> <framerate> <interlaced> <pixel_freq> <aspect>
+		 * # aspect ratio: 1=4:3, 2=14:9, 3=16:9, 4=5:4, 5=16:10, 6=15:9, 7=21:9, 8=64:27
+		 *
+		 * Example: vcgencmd hdmi_timings 640 0 16 64 120 480 0 1 3 16 0 0 0 75 0 31500000 1
+		 *
+		 */
+		snprintf(modeline, sizeof(modeline),
+			"vcgencmd hdmi_timings "
+			"%u %u %u %u %u "
+			"%u %u %u %u %u "
+			"%u %u %u %u %u %u %u",
+			mode->crtc.hde, (int)!crtc_is_nhsync(&mode->crtc), mode->crtc.hrs - mode->crtc.hde, mode->crtc.hre - mode->crtc.hrs,  mode->crtc.ht - mode->crtc.hre,
+			mode->crtc.vde, (int)!crtc_is_nvsync(&mode->crtc), mode->crtc.vrs - mode->crtc.vde, mode->crtc.vre - mode->crtc.vrs,  mode->crtc.vt - mode->crtc.vre,
+			0, 0, 0, (unsigned)crtc_vclock_get(&mode->crtc), (int)crtc_is_interlace(&mode->crtc), (unsigned)mode->crtc.pixelclock, 1
+		);
+
+		opt = target_system(modeline);
+		if (!opt)
+			goto err_restore;
+		log_std(("video:fb: set option \"%s\"\n", opt));
+		free(opt);
+
+		/* enable the new video mode */
+		opt = target_system("tvservice -e \"DMT 87\"");
+		if (!opt)
+			goto err_restore;
+		log_std(("video:fb: set option \"%s\"\n", opt));
+		free(opt);
+	}
 
 	/* save the minimun required data */
 	req_xres = fb_state.varinfo.xres;
@@ -1170,56 +1217,55 @@ adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned f
 {
 	assert(fb_is_active());
 
-	if (fb_state.output == adv_output_overlay) {
-		if (!crtc_is_fake(crtc)) {
-			error_nolog_set("Programmable modes not supported.\n");
-			return -1;
-		}
-
-		switch (flags & MODE_FLAGS_INDEX_MASK) {
-		case MODE_FLAGS_INDEX_PALETTE8 :
-		case MODE_FLAGS_INDEX_BGR8 :
-			if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) == 0) {
-				error_nolog_set("Index mode not supported.\n");
-				return -1;
-			}
-			break;
-		case MODE_FLAGS_INDEX_BGR15 :
-			if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR15) == 0) {
-				error_nolog_set("Index mode not supported.\n");
-				return -1;
-			}
-			break;
-		case MODE_FLAGS_INDEX_BGR16 :
-			if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) == 0) {
-				error_nolog_set("Index mode not supported.\n");
-				return -1;
-			}
-			break;
-		case MODE_FLAGS_INDEX_BGR24 :
-			if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR24) == 0) {
-				error_nolog_set("Index mode not supported.\n");
-				return -1;
-			}
-			break;
-		case MODE_FLAGS_INDEX_BGR32 :
-			if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR32) == 0) {
-				error_nolog_set("Index mode not supported.\n");
-				return -1;
-			}
-			break;
-		default:
+	switch (flags & MODE_FLAGS_INDEX_MASK) {
+	case MODE_FLAGS_INDEX_PALETTE8 :
+	case MODE_FLAGS_INDEX_BGR8 :
+		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) == 0) {
 			error_nolog_set("Index mode not supported.\n");
 			return -1;
 		}
-	} else {
-		if (crtc_is_fake(crtc)) {
+		break;
+	case MODE_FLAGS_INDEX_BGR15 :
+		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR15) == 0) {
+			error_nolog_set("Index mode not supported.\n");
+			return -1;
+		}
+		break;
+	case MODE_FLAGS_INDEX_BGR16 :
+		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) == 0) {
+			error_nolog_set("Index mode not supported.\n");
+			return -1;
+		}
+		break;
+	case MODE_FLAGS_INDEX_BGR24 :
+		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR24) == 0) {
+			error_nolog_set("Index mode not supported.\n");
+			return -1;
+		}
+		break;
+	case MODE_FLAGS_INDEX_BGR32 :
+		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR32) == 0) {
+			error_nolog_set("Index mode not supported.\n");
+			return -1;
+		}
+		break;
+	default:
+		error_nolog_set("Index mode not supported.\n");
+		return -1;
+	}
+
+	if (crtc_is_fake(crtc)) {
+		/* rescale */
+		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY) == 0) {
 			error_nolog_set("Not programmable modes are not supported.\n");
 			return -1;
 		}
-
-		if (video_mode_generate_check("fb", fb_flags(), 8, 2048, crtc, flags)!=0)
+	} else {
+		/* programmable */
+		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN) == 0) {
+			error_nolog_set("Programmable modes not supported.\n");
 			return -1;
+		}
 	}
 
 	mode->crtc = *crtc;
