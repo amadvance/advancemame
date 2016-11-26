@@ -823,6 +823,12 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		char* opt;
 		char cmd[256];
 
+		/* ensure that the mode is valid */
+		if (!crtc_is_valid(&mode->crtc)) {
+			error_set("Invalid mode.\n");
+			goto err;
+		}
+
 		/* we are going to change the timings */
 		fb_state.old_need_restore = 1;
 
@@ -1347,6 +1353,10 @@ adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned f
 		/* programmable */
 		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN) == 0) {
 			error_nolog_set("Programmable modes not supported.\n");
+			return -1;
+		}
+		if (!crtc_is_valid(crtc)) {
+			error_nolog_set("Invalid programmable mode.\n");
 			return -1;
 		}
 	}
