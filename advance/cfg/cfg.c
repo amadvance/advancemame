@@ -471,6 +471,7 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 	double hclock = crtc->pixelclock / crtc->ht;
 
 	adv_mode mode;
+	mode_reset(&mode);
 
 	while (!done) {
 		if (modify) {
@@ -604,8 +605,8 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned index, const ad
 	adv_crtc current = *crtc;
 
 	adv_mode mode;
-
 	mode_reset(&mode);
+
 	if (crtc_adjust_clock(&current, monitor)==0
 		&& crtc_is_valid(&current)
 		&& crtc_clock_check(monitor, &current)
@@ -640,6 +641,7 @@ static adv_error cmd_adjust(const char* msg, adv_generate_interpolate* entry, co
 	x = x_from_y(y);
 
 	crtc_reset(&crtc);
+	sncpy(crtc.name, CRTC_NAME_MAX, "adjust");
 
 	generate_crtc_hsize(&crtc, x, generate);
 	generate_crtc_vsize(&crtc, y, generate);
@@ -952,8 +954,8 @@ static adv_error interpolate_test(const char* msg, adv_crtc* crtc, const adv_mon
 	adv_error res;
 
 	adv_mode mode;
-
 	mode_reset(&mode);
+
 	if (video_mode_generate(&mode, crtc, index)!=0) {
 		return -1;
 	}
@@ -1115,12 +1117,12 @@ adv_error cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_mon
 	adv_crtc crtc;
 
 	adv_mode mode;
+	mode_reset(&mode);
 
 	if (generate_find_interpolate_multi(&crtc, x, y, x*2, y*2, x*3, y*3, x*4, y*4, vclock, monitor, interpolate, cap, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL)!=0) {
 		return -1;
 	}
 
-	mode_reset(&mode);
 	if (video_mode_generate(&mode, &crtc, index)!=0) {
 		return -1;
 	}
