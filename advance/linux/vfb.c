@@ -72,6 +72,8 @@ typedef struct fb_internal_struct {
 	struct fb_var_screeninfo oldinfo; /**< Old variable info. */
 	struct fb_fix_screeninfo fixinfo; /**< Fixed info. */
 	struct fb_var_screeninfo varinfo; /**< Variable info. */
+	char oldtimings[128]; /**< Raspberry hdmi_timings. */
+	char olddrive[16]; /**< Raspberry hdmi_drive: HDMI or DVI. */
 
 	unsigned index;
 	unsigned bytes_per_scanline;
@@ -595,6 +597,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 
 	if (fb_state.is_raspberry) {
 		char* opt;
+		char cmd[256];
 
 		log_std(("video:fb: detected Raspberry Pi/BCM2708 hardware\n"));
 
@@ -603,9 +606,9 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 			return -1;
 		}
 
-		/* exclude BGR15 not supported by the hardare */
+		/* exclude PALETTE8 and BGR15 not supported by the hardare */
 		/* and add OVERLAY because the framebuffer is able to rescale to the original resolution */
-		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
+		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
 			| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
 			| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN
 			| VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
@@ -620,11 +623,55 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		 * "create custom screen modes whose pixels have an arbitrary aspect ratio?"
 		 * https://github.com/raspberrypi/firmware/issues/638
 		 */
-		opt = target_system("vcgencmd get_config sdtv_aspect set 1");
+		snprintf(cmd, sizeof(cmd), "vcgencmd get_config sdtv_aspect set 1");
+		log_std(("video:fb: run \"%s\"\n", cmd));
+		opt = target_system(cmd);
 		if (opt) {
-			log_std(("video:fb: set option \"%s\"\n", opt));
+			log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
 			free(opt);
 		}
+
+		/* get current timings */
+		fb_state.oldtimings[0] = 0;
+		snprintf(cmd, sizeof(cmd), "vcgencmd hdmi_timings");
+		log_std(("video:fb: run \"%s\"\n", cmd));
+		opt = target_system(cmd);
+		if (opt) {
+			char* split;
+			log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+
+			split = strchr(opt, '=');
+			if (split) {
+				++split;
+				snprintf(fb_state.oldtimings, sizeof(fb_state.oldtimings), "%s", split);
+				log_std(("video:fb: hdmi_timings %s\n", fb_state.oldtimings));
+			}
+
+			free(opt);
+		}
+
+		/* get current driver */
+		fb_state.olddrive[0] = 0;
+		snprintf(cmd, sizeof(cmd), "tvservice -s");
+		log_std(("video:fb: run \"%s\"\n", cmd));
+		opt = target_system(cmd);
+		if (opt) {
+			log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+
+			if (strstr(opt, "HDMI") != 0) {
+				strcpy(fb_state.olddrive, "HDMI");
+				log_std(("video:fb: hdmi_drive %s\n", fb_state.olddrive));
+			} else if (strstr(opt, "DVI") != 0) {
+				strcpy(fb_state.olddrive, "DVI");
+				log_std(("video:fb: hdmi_drive %s\n", fb_state.olddrive));
+			}
+
+			free(opt);
+		}
+
+		/* on error disable programmable modes */
+		if (fb_state.oldtimings[0] == 0 || fb_state.olddrive[0] == 0)
+			fb_state.flags &= ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN);
 	} else {
 		if (output != adv_output_auto && output != adv_output_fullscreen) {
 			error_set("Only fullscreen output is supported.\n");
@@ -743,7 +790,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	assert(fb_is_active() && !fb_mode_is_active());
 
-	log_std(("video:fb: fb_mode_set()\n"));
+	log_std(("video:fb: fb_mode_set(%ux%u %s, %s)\n", mode->crtc.hde, mode->crtc.vde, index_name(mode->index), crtc_is_fake(&mode->crtc) ? "fake" : "programmable"));
 
 	log_std(("video:fb: get old\n"));
 
@@ -770,7 +817,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	/* if it's a programmable mode on Raspberry */
 	if (fb_state.is_raspberry && !crtc_is_fake(&mode->crtc)) {
 		char* opt;
-		char modeline[256];
+		char cmd[256];
 
 		/*
 		 * Configure the Raspberry HDMI timing.
@@ -789,7 +836,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		 * Example: vcgencmd hdmi_timings 640 0 16 64 120 480 0 1 3 16 0 0 0 75 0 31500000 1
 		 *
 		 */
-		snprintf(modeline, sizeof(modeline),
+		snprintf(cmd, sizeof(cmd),
 			"vcgencmd hdmi_timings "
 			"%u %u %u %u %u "
 			"%u %u %u %u %u "
@@ -799,17 +846,20 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 			0, 0, 0, (unsigned)crtc_vclock_get(&mode->crtc), (int)crtc_is_interlace(&mode->crtc), (unsigned)mode->crtc.pixelclock, 1
 		);
 
-		opt = target_system(modeline);
+		log_std(("video:fb: run \"%s\"\n", cmd));
+		opt = target_system(cmd);
 		if (!opt)
 			goto err_restore;
-		log_std(("video:fb: set option \"%s\"\n", opt));
+		log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
 		free(opt);
 
 		/* enable the new video mode */
-		opt = target_system("tvservice -e \"DMT 87\"");
+		snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87 %s\"", fb_state.olddrive);
+		log_std(("video:fb: run \"%s\"\n", cmd));
+		opt = target_system(cmd);
 		if (!opt)
 			goto err_restore;
-		log_std(("video:fb: set option \"%s\"\n", opt));
+		log_std(("video:fb: tvservice result \"%s\"\n", opt));
 		free(opt);
 	}
 
@@ -918,6 +968,29 @@ void fb_mode_done(adv_bool restore)
 		log_std(("video:fb: restore old\n"));
 
 		fb_log(0, &fb_state.oldinfo);
+
+		if (fb_state.is_raspberry && fb_state.oldtimings[0] != 0 && fb_state.olddrive[0] != 0) {
+			char* opt;
+			char cmd[256];
+
+			snprintf(cmd, sizeof(cmd), "vcgencmd hdmi_timings %s", fb_state.oldtimings);
+			log_std(("video:fb: run \"%s\"\n", cmd));
+			opt = target_system(cmd);
+			if (opt) {
+				log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+				free(opt);
+			}
+			/* ignore error */
+
+			snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87 %s\"", fb_state.olddrive);
+			log_std(("video:fb: run \"%s\"\n", cmd));
+			opt = target_system(cmd);
+			if (opt) {
+				log_std(("video:fb: tvservice result \"%s\"\n", opt));
+				free(opt);
+			}
+			/* ignore error */
+		}
 
 		fb_setvar(&fb_state.oldinfo);
 		/* ignore error */
