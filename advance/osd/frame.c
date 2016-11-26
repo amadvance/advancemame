@@ -1487,8 +1487,7 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 					video_init_crtc_make_raster(context, "generate-double-interlace", best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, 0, 0, best_vclock, 0, 1, 1);
 				video_init_crtc_make_raster(context, "generate-triple", best_size_3x, best_size_3y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0, 1);
 				video_init_crtc_make_raster(context, "generate-quad", best_size_4x, best_size_4y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0, 1);
-			}
-			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY) != 0) {
+			} else if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY) != 0) {
 				/* generate modes for the overlay driver */
 				video_init_crtc_make_fake(context, "generate", best_size_x, best_size_y);
 				video_init_crtc_make_fake(context, "generate-double", best_size_2x, best_size_2y);
