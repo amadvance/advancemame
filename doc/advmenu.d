@@ -1292,10 +1292,9 @@ Configuration
 		exit - Exit from the application.
 		shutdown - Shutdown the machine.
 		snap, flyers, cabinets, titles - Start a mute slide show
-			of the specified image type (default snap).
+			of the specified image type.
 		play - Start a snap slide show using the animated
-			snapshots and the game sounds. The static
-			snapshots are ignored.
+			snapshots and the game sounds (default).
 
     group/type
 	Selects the available `group' and `type' category names and

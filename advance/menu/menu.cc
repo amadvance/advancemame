@@ -1778,6 +1778,18 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 		}
 	}
 
+	// if no play found, retry with snap
+	if (avail.size() == 0 && rs.idle_saver_type == saver_play) {
+		for(unsigned i=0;i<gc.size();++i) {
+			resource backdrop;
+			if (gc[i]->has_game()) {
+				if (backdrop_find_preview_strict(backdrop, preview, &gc[i]->game_get(), false)) {
+					avail.insert(avail.end(), i);
+				}
+			}
+		}
+	}
+
 	// randomize the set
 	for(unsigned i=0;i<avail.size();++i) {
 		unsigned j = rand() % avail.size();
