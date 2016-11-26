@@ -74,6 +74,7 @@ typedef struct fb_internal_struct {
 	struct fb_var_screeninfo varinfo; /**< Variable info. */
 	char oldtimings[128]; /**< Raspberry hdmi_timings. */
 	char olddrive[16]; /**< Raspberry hdmi_drive: HDMI or DVI. */
+	adv_bool old_need_restore; /**< Raspberry needs to restore the old timings. */
 
 	unsigned index;
 	unsigned bytes_per_scanline;
@@ -613,6 +614,9 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 			| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN
 			| VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
 
+		/* keep track if we change timings */
+		fb_state.old_need_restore = 0;
+
 		/*
 		 * Force the FrameBuffer to fill-out all the screen.
 		 * Otherwise if the resolution chosen doesn't have square pixels
@@ -819,6 +823,9 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		char* opt;
 		char cmd[256];
 
+		/* we are going to change the timings */
+		fb_state.old_need_restore = 1;
+
 		/*
 		 * Configure the Raspberry HDMI timing.
 		 *
@@ -969,7 +976,10 @@ void fb_mode_done(adv_bool restore)
 
 		fb_log(0, &fb_state.oldinfo);
 
-		if (fb_state.is_raspberry && fb_state.oldtimings[0] != 0 && fb_state.olddrive[0] != 0) {
+		if (fb_state.is_raspberry
+			&& fb_state.old_need_restore
+			&& fb_state.oldtimings[0] != 0 && fb_state.olddrive[0] != 0
+		) {
 			char* opt;
 			char cmd[256];
 
