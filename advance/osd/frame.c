@@ -130,6 +130,10 @@ static adv_error video_make_crtc_for_game(struct advance_video_context* context,
 		return 0; /* always ok if the driver is not programmable */
 	}
 
+	if (crtc_is_fake(crtc)) {
+		return 0; /* always ok if the crtc is fake */
+	}
+
 	if ((context->config.adjust & ADJUST_ADJUST_X) != 0) {
 		unsigned size_x;
 		unsigned size_y;
@@ -286,7 +290,7 @@ static adv_bool is_crtc_acceptable_preventive(struct advance_video_context* cont
 
 	mode_reset(&mode);
 
-	if (video_is_programmable(context)) {
+	if (video_is_programmable(context) && !crtc_is_fake(crtc)) {
 
 		/* adjust the clock if possible */
 		if ((context->config.adjust & ADJUST_ADJUST_CLOCK) != 0) {
