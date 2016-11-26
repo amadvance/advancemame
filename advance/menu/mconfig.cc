@@ -51,6 +51,7 @@ static adv_conf_enum_int OPTION_SORT[] = {
 static adv_conf_enum_int OPTION_MODE[] = {
 { "list", mode_list },
 { "list_mixed", mode_list_mixed },
+{ "tile_tiny", mode_tile_tiny },
 { "tile_small", mode_tile_small },
 { "tile_normal", mode_tile_normal },
 { "tile_big", mode_tile_big },

@@ -12,6 +12,7 @@ AdvanceMENU Version 2.10 2016/12
 		X-Window graphics environment to be able to use the
 		Raspberry hardware acceleration.
 	) Change the default to animate all the clips.
+	) Add a new 3x2 tile mode called "tile_tiny".
 	) In Linux if the system time is wrong ensure that the generated list
 		files are not updated every time.
 	) Added new SSE2 blitters that replace the older MMX ones

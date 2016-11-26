@@ -472,8 +472,9 @@ Configuration
     mode
 	Selects the menu listing mode.
 
-	:[EMULATOR/]mode full | full_mixed | text | list | list_mixed | tile_small
-	:	| tile_normal | tile_big | tile_enormous | tile_giant
+	:[EMULATOR/]mode full | full_mixed | text | list | list_mixed
+	:	| tile_tiny | tile_small | tile_normal
+	:	| tile_big | tile_enormous | tile_giant
 	:	| tile_icon | tile_marquee
 
 	Options:
@@ -484,6 +485,7 @@ Configuration
 		text - Game list.
 		list - Game list and preview of the selected game (default).
 		list_mixed - Game list and 4 preview of the selected game.
+		tile_tiny - Show the preview of 3x2 games.
 		tile_small - Show the preview of 4x3 games.
 		tile_normal - Show the preview of 5x6 games.
 		tile_big - Show the preview of 8x6 games.

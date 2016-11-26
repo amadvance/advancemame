@@ -131,17 +131,18 @@ typedef std::set<const game*, pgame_sort_func> pgame_sort_set;
 /// Type of mode.
 enum listmode_t {
 	mode_list = 1,
-	mode_tile_small = 2,
-	mode_tile_normal = 4,
-	mode_tile_big = 8,
-	mode_tile_enormous = 16,
-	mode_tile_giant = 32,
-	mode_full = 64,
-	mode_full_mixed = 128,
-	mode_tile_icon = 256,
-	mode_tile_marquee = 512,
-	mode_list_mixed = 1024,
-	mode_text = 2048
+	mode_tile_tiny = 2,
+	mode_tile_small = 4,
+	mode_tile_normal = 8,
+	mode_tile_big = 16,
+	mode_tile_enormous = 32,
+	mode_tile_giant = 64,
+	mode_full = 128,
+	mode_full_mixed = 256,
+	mode_tile_icon = 512,
+	mode_tile_marquee = 1024,
+	mode_list_mixed = 2048,
+	mode_text = 4096
 };
 
 /// Type of image to display.
