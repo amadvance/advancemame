@@ -29,16 +29,23 @@ System Requirements
 	the Linux Framebuffer.
 
   Raspberry Pi
-	With a Raspberry Pi you have the same support you have in Linux.
+	With a Raspberry Pi you have the same support you have in Linux,
+	plus some specific Raspberry functionalities, like the accelerated
+	Frame Buffer.
 
-	It's recommended to give preference at the Linux Console because
-	using the Linux Framebuffer you get also hardware acceleration
-	that is missing from the SDL library, resulting in a lot better
-	performance.
+	With a Raspberry, it's recommended run the Advance program directly
+	from Linux Console because using the Linux Framebuffer you get also
+	hardware acceleration that is missing from the SDL library, resulting
+	in a lot better performance.
 
-	Note that in Raspberry Pi the Linux Framebuffer is not able to
-	change the resolution and frequency of the video mode, but it uses
-	the hardware acceleration to strech the image to the screen size.
+	In the default configuration the Advance programs use this hardware
+	acceleration to scale the image to the screen side. This is the best
+	operating mode when using a modern monitor or TV.
+
+	If instead you want to use an old CRT Arcade screen or TV, you can
+	configure the Advance programs to generate video modes on the fly
+	customized for your specific video hardware.
+	In this case see the following "Video Setup" chapter.
 
   Windows/Mac OS X
 	The Advance programs contain a copy of the SDL library

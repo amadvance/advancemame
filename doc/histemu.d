@@ -2,14 +2,15 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 1.6 2016/12
-	) Customized for Raspberry Pi 3 fixing various issues
+	) Customized for Raspberry Pi fixing various issues
 		and improving performance, functionality and
 		documentation
-		Check the build.txt and install.txt file for some
-		more information about Raspbian and Raspberry Pi 3.
+		Check the install.txt file for some more information
+		about the use with a Raspberry Pi.
 		The most important note is to run the Advance programs
-		outsidethe X Window graphics environment to be able to
-		use the Linux Framebuffer and its hardware acceleration.
+		directly from the Linux Console and outside the
+		X-Window graphics environment to be able to use the
+		Raspberry hardware acceleration.
 	) Improved syncronization to remove tearing with the Linux
 		FrameBuffer.
 	) Added new SSE2 blitters that replace the older MMX ones
