@@ -620,7 +620,7 @@ bool int_init(unsigned sizex, unsigned sizey)
 		int_has_generate = false;
 
 	// add modes if the list is empty and no generation is possibile
-	if (!int_has_generate && crtc_container_is_empty(&int_modelines)) {
+	if (!int_has_generate && crtc_container_is_empty(&int_modelines) && int_has_clock) {
 		crtc_container_insert_default_active(&int_modelines);
 		crtc_default = true;
 	}

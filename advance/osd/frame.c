@@ -2404,7 +2404,7 @@ void advance_video_mode_preinit(struct advance_video_context* context, struct ma
 	}
 
 	/* insert some default modeline if no generate option is present */
-	if (!video_is_generable(context)) {
+	if (!video_is_generable(context) && video_is_programmable(context)) {
 		adv_bool has_something = 0;
 
 		/* check if the list of video mode contains something useable */
