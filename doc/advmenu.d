@@ -1027,14 +1027,14 @@ Configuration
 
 	Options:
 		none - No clip.
-		single - Play only one clip and only one time (default).
+		single - Play only one clip and only one time.
 		singleloop - Play only one clip continuously. The sound is
 			not looped.
 		multi - Play all the clips.
 		multiloop - Play all the clips, and loop the clip on the
 			cursor. The sound is not looped.
 		multiloopall - Play all the clips, and loop all the clips.
-			The sound is not looped.
+			The sound is not looped (default).
 
     ui_translucency
 	Selects the translucency of the user interface.

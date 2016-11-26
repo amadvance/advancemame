@@ -283,7 +283,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_string_register_default(config_context, "preview_default_title", "none");
 	conf_int_register_enum_default(config_context, "event_mode", conf_enum(OPTION_EVENTMODE), 1);
 	conf_bool_register_default(config_context, "event_alpha", 1);
-	conf_int_register_enum_default(config_context, "ui_clip", conf_enum(OPTION_CLIPMODE), clip_single);
+	conf_int_register_enum_default(config_context, "ui_clip", conf_enum(OPTION_CLIPMODE), clip_multiloopall);
 	conf_int_register_enum_default(config_context, "merge", conf_enum(OPTION_MERGE), merge_differential);
 	conf_int_register_limit_default(config_context, "icon_space", 10, 500, 43);
 	conf_string_register_default(config_context, "sound_foreground_begin", "default");
