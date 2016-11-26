@@ -49,8 +49,8 @@
 
 struct inputb_tty_context {
 	unsigned last;
-	struct termios oldkbdtermios;
-	struct termios newkbdtermios;
+	struct termios oldkdbtermios;
+	struct termios kdbtermios;
 	adv_bool passive_flag;
 };
 
@@ -109,16 +109,17 @@ adv_error inputb_tty_enable(adv_bool graphics)
 		setvbuf(stdin, 0, _IONBF, 0);
 
 		/* not canonical input */
-		if (tcgetattr(fileno(stdin), &tty_state.oldkbdtermios) != 0) {
+		if (tcgetattr(fileno(stdin), &tty_state.oldkdbtermios) != 0) {
 			error_set("Error initializing the tty driver. Function tcgetattr() failed.\n");
 			return -1;
 		}
 
-		tty_state.newkbdtermios = tty_state.oldkbdtermios;
+		tty_state.kdbtermios = tty_state.oldkdbtermios;
 
-		tty_state.newkbdtermios.c_lflag &= ~(ICANON | ECHO);
+		tty_state.kdbtermios.c_lflag &= ~(ICANON | ECHO);
 
-		if (tcsetattr(fileno(stdin), TCSAFLUSH, &tty_state.newkbdtermios) != 0) {
+		log_std(("inputb:tty: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (tty_state.kdbtermios.c_lflag & ICANON) ? "" : "~", (tty_state.kdbtermios.c_lflag & ECHO) ? "" : "~"));
+		if (tcsetattr(fileno(stdin), TCSAFLUSH, &tty_state.kdbtermios) != 0) {
 			error_set("Error initializing the tty driver. Function tcsetattr(TCSAFLUSH) failed.\n");
 			return -1;
 		}
@@ -134,9 +135,8 @@ void inputb_tty_disable(void)
 	log_std(("inputb:tty: inputb_tty_disable()\n"));
 
 	if (!tty_state.passive_flag) {
-		log_std(("inputb:tty: tcsetattr(%sICANON %sECHO)\n", (tty_state.oldkbdtermios.c_lflag & ICANON) ? "" : "~", (tty_state.oldkbdtermios.c_lflag & ECHO) ? "" : "~"));
-
-		if (tcsetattr(fileno(stdin), TCSAFLUSH, &tty_state.oldkbdtermios) != 0) {
+		log_std(("inputb:tty: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (tty_state.oldkdbtermios.c_lflag & ICANON) ? "" : "~", (tty_state.oldkdbtermios.c_lflag & ECHO) ? "" : "~"));
+		if (tcsetattr(fileno(stdin), TCSAFLUSH, &tty_state.oldkdbtermios) != 0) {
 			/* ignore error */
 			log_std(("inputb:tty: tcsetattr(TCSAFLUSH) failed\n"));
 		}

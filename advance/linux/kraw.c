@@ -291,11 +291,13 @@ adv_error keyb_raw_enable(adv_bool graphics)
 	raw_state.kdbtermios.c_cc[VMIN] = 0;
 	raw_state.kdbtermios.c_cc[VTIME] = 0;
 
+	log_std(("keyb:event: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (raw_state.kdbtermios.c_lflag & ICANON) ? "" : "~", (raw_state.kdbtermios.c_lflag & ECHO) ? "" : "~"));
 	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.kdbtermios) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function tcsetattr(TCSAFLUSH) failed.\n");
 		goto err_close;
 	}
 
+	log_std(("keyb:raw: ioctl(KDSKBMODE, K_MEDIUMRAW)\n"));
 	if (ioctl(raw_state.f, KDSKBMODE, K_MEDIUMRAW) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function ioctl(KDSKBMODE) failed.\n");
 		goto err_term;
@@ -325,11 +327,20 @@ adv_error keyb_raw_enable(adv_bool graphics)
 	return 0;
 
 err_mode:
+	log_std(("keyb:raw: ioctl(KDSKBMODE, %s)\n",
+		raw_state.old_kdbmode == K_RAW ? "K_RAW" :
+		raw_state.old_kdbmode == K_XLATE ? "K_XLATE" :
+		raw_state.old_kdbmode == K_MEDIUMRAW ? "K_MEDIUMRAW" :
+		raw_state.old_kdbmode == K_UNICODE ? "K_UNICODE" :
+		raw_state.old_kdbmode == K_OFF ? "K_OFF" :
+		"other"
+	));
 	if (ioctl(raw_state.f, KDSKBMODE, raw_state.old_kdbmode) < 0) {
 		/* ignore error */
 		log_std(("keyb:raw: ioctl(KDSKBMODE,old) failed\n"));
 	}
 err_term:
+	log_std(("keyb:raw: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (raw_state.old_kdbtermios.c_lflag & ICANON) ? "" : "~", (raw_state.old_kdbtermios.c_lflag & ECHO) ? "" : "~"));
 	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.old_kdbtermios) != 0) {
 		/* ignore error */
 		log_std(("keyb:raw: tcsetattr(TCSAFLUSH) failed\n"));
@@ -352,17 +363,31 @@ void keyb_raw_disable(void)
 #endif
 
 	if (raw_state.graphics_flag) {
+		log_std(("keyb:raw: ioctl(KDSETMODE, %s)\n",
+			raw_state.old_terminalmode == KD_GRAPHICS ? "KD_GRAPHICS" :
+			raw_state.old_terminalmode == KD_TEXT ? "KD_TEXT" :
+			"other"
+		));
 		if (ioctl(raw_state.f, KDSETMODE, raw_state.old_terminalmode) < 0) {
 			/* ignore error */
-			log_std(("ERROR:keyb:raw: ioctl(KDSETMODE, KD_TEXT) failed\n"));
+			log_std(("ERROR:keyb:raw: ioctl(KDSETMODE) failed\n"));
 		}
 	}
 
+	log_std(("keyb:raw: ioctl(KDSKBMODE, %s)\n",
+		raw_state.old_kdbmode == K_RAW ? "K_RAW" :
+		raw_state.old_kdbmode == K_XLATE ? "K_XLATE" :
+		raw_state.old_kdbmode == K_MEDIUMRAW ? "K_MEDIUMRAW" :
+		raw_state.old_kdbmode == K_UNICODE ? "K_UNICODE" :
+		raw_state.old_kdbmode == K_OFF ? "K_OFF" :
+		"other"
+	));
 	if (ioctl(raw_state.f, KDSKBMODE, raw_state.old_kdbmode) < 0) {
 		/* ignore error */
-		log_std(("ERROR:keyb:raw: ioctl(KDSKBMODE,old) failed\n"));
+		log_std(("ERROR:keyb:raw: ioctl(KDSKBMODE) failed\n"));
 	}
 
+	log_std(("keyb:raw: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (raw_state.old_kdbtermios.c_lflag & ICANON) ? "" : "~", (raw_state.old_kdbtermios.c_lflag & ECHO) ? "" : "~"));
 	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.old_kdbtermios) != 0) {
 		/* ignore error */
 		log_std(("ERROR:keyb:raw: tcsetattr(TCSAFLUSH) failed\n"));

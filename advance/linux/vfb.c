@@ -791,6 +791,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	unsigned req_xres;
 	unsigned req_yres;
 	unsigned req_bits_per_pixel;
+	adv_bool is_raspberry_active;
 
 	assert(fb_is_active() && !fb_mode_is_active());
 
@@ -818,8 +819,11 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	fb_log(0, &fb_state.varinfo);
 
+	/* if raspberry needs special processing */
+	is_raspberry_active = fb_state.is_raspberry && !crtc_is_fake(&mode->crtc);
+
 	/* if it's a programmable mode on Raspberry */
-	if (fb_state.is_raspberry && !crtc_is_fake(&mode->crtc)) {
+	if (is_raspberry_active) {
 		char* opt;
 		char cmd[256];
 
@@ -978,14 +982,18 @@ void fb_mode_done(adv_bool restore)
 	}
 
 	if (restore) {
+		adv_bool is_raspberry_active;
+
 		log_std(("video:fb: restore old\n"));
 
 		fb_log(0, &fb_state.oldinfo);
 
-		if (fb_state.is_raspberry
+		/* if raspberry needs special processing */
+		is_raspberry_active = fb_state.is_raspberry
 			&& fb_state.old_need_restore
-			&& fb_state.oldtimings[0] != 0 && fb_state.olddrive[0] != 0
-		) {
+			&& fb_state.oldtimings[0] != 0 && fb_state.olddrive[0] != 0;
+
+		if (is_raspberry_active) {
 			char* opt;
 			char cmd[256];
 
@@ -1006,6 +1014,26 @@ void fb_mode_done(adv_bool restore)
 				free(opt);
 			}
 			/* ignore error */
+
+			/*
+			 * Wait some time after the tvservice command to allow
+			 * the console driver to react.
+			 *
+			 * Without this wait, the next video mode change has effect,
+			 * but the the screen remain black, even if the right video mode
+			 * is set.
+			 *
+			 * Note that this delay is also required when using the
+			 * workaround of changing VT with "chvt 2; chvt 1", or resetting
+			 * the video mode with "fbset -depth 8; fbset -depth 16".
+			 *
+			 * A 100ms deley is enough, but we wait more for safety.
+			 *
+			 * See:
+			 * "Programmatically turn screen off"
+			 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
+			 */
+			target_usleep(500 * 1000);
 		}
 
 		fb_setvar(&fb_state.oldinfo);

@@ -110,7 +110,7 @@ struct os_context {
 	char title_buffer[128]; /**< Title of the window. */
 
 	struct termios term; /**< Term state. */
-	adv_bool term_active;
+	adv_bool term_active; /**< The terminal has to be restored. */
 };
 
 static struct os_context OS;
@@ -171,6 +171,7 @@ static void os_restore(void)
 	target_mode_reset();
 
 	if (OS.term_active) {
+		log_std(("os: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (OS.term.c_lflag & ICANON) ? "" : "~", (OS.term.c_lflag & ECHO) ? "" : "~"));
 		if (tcsetattr(fileno(stdin), TCSAFLUSH, &OS.term) != 0) {
 			/* ignore error */
 			log_std(("os: tcsetattr(TCSAFLUSH) failed\n"));
@@ -452,7 +453,7 @@ int os_inner_init(const char* title)
 	os_delay();
 
 	if (!os_internal_wm_active()) {
-		log_std(("os: save term\n"));
+		log_std(("os: tcgetattr()\n"));
 		if (tcgetattr(fileno(stdin), &OS.term) != 0) {
 			log_std(("ERROR:os: error getting the tty state.\n"));
 			OS.term_active = 0;
@@ -721,8 +722,8 @@ void os_inner_done(void)
 
 	/* restore term */
 	if (OS.term_active) {
-		log_std(("os: tcsetattr(%sICANON %sECHO)\n", (OS.term.c_lflag & ICANON) ? "" : "~", (OS.term.c_lflag & ECHO) ? "" : "~"));
 		OS.term_active = 0;
+		log_std(("os: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (OS.term.c_lflag & ICANON) ? "" : "~", (OS.term.c_lflag & ECHO) ? "" : "~"));
 		if (tcsetattr(fileno(stdin), TCSAFLUSH, &OS.term) != 0) {
 			/* ignore error */
 			log_std(("os: tcsetattr(TCSAFLUSH) failed\n"));
