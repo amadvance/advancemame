@@ -881,6 +881,26 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 			goto err_restore;
 		log_std(("video:fb: tvservice result \"%s\"\n", opt));
 		free(opt);
+
+		/*
+		 * Wait some time after the tvservice command to allow
+		 * the console driver to react.
+		 *
+		 * Without this wait, the next video mode change has effect,
+		 * but the the screen remain black, even if the right video mode
+		 * is set.
+		 *
+		 * Note that this delay is also required when using the
+		 * workaround of changing VT with "chvt 2; chvt 1", or resetting
+		 * the video mode with "fbset -depth 8; fbset -depth 16".
+		 *
+		 * A 100ms deley is enough, but we wait more for safety.
+		 *
+		 * See:
+		 * "Programmatically turn screen off"
+		 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
+		 */
+		target_usleep(500 * 1000);
 	}
 
 	/* save the minimun required data */
