@@ -215,9 +215,13 @@ static const char* MODELINE_SVGA[] = {
 /* From https://www.mythtv.org/wiki/Modeline_Database */
 "ATSC-480a-60p 23.94 640 664 736 760 480 484 492 525 +hsync +vsync",
 "ATSC-720-60p 74.25 1280 1320 1376 1650 720 722 728 750 +hsync +vsync",
+"ATSC-1080-59.94p 148.352 1920 1960 2016 2200 1080 1082 1088 1125 +hsync +vsync",
 "ATSC-1080-60p 148.5 1920 1960 2016 2200 1080 1082 1088 1125 +hsync +vsync",
 
+/* Makibes screens */
+"Makibes_800x480 29.5 800 824 896 992 480 483 490 500 -hsync -vsync",
 "Makibes_1024x600 49.0 1024 1064 1168 1312 600 603 610 624 -hsync -vsync",
+"Makibes_1280x800 83.5 1280 1352 1480 1680 800 803 810 831 -hsync -vsync",
 
 #include "svgamode.dat"
 
