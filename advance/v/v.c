@@ -1962,8 +1962,9 @@ int os_main(int argc, char* argv[])
 	/* all mode */
 	crtc_container_init(&selected);
 
-	/* insert modes */
+	/* insert default modes */
 	crtc_container_insert_default_all(&selected);
+	crtc_container_insert_default_modeline_svga(&selected);
 
 	/* sort */
 	crtc_container_init(&the_modes);

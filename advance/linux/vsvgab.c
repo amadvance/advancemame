@@ -602,8 +602,6 @@ adv_error svgalib_load(adv_conf* context)
 void svgalib_crtc_container_insert_default(adv_crtc_container* cc)
 {
 	log_std(("video:svgalib: svgalib_crtc_container_insert_default()\n"));
-
-	crtc_container_insert_default_modeline_svga(cc);
 }
 
 /***************************************************************************/

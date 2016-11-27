@@ -1045,8 +1045,6 @@ adv_error vbeline_load(adv_conf* context)
 void vbeline_crtc_container_insert_default(adv_crtc_container* cc)
 {
 	log_std(("video:vbeline: vbeline_crtc_container_insert_default()\n"));
-
-	crtc_container_insert_default_modeline_svga(cc);
 }
 
 /***************************************************************************/
