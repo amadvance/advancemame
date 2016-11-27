@@ -31,20 +31,23 @@ System Requirements
   Raspberry Pi
 	With a Raspberry Pi you have the same support you have in Linux,
 	plus some specific Raspberry functionalities, like the accelerated
-	Frame Buffer.
+	Framebuffer.
 
 	With a Raspberry, it's recommended run the Advance program directly
 	from Linux Console because using the Linux Framebuffer you get also
-	hardware acceleration that is missing from the SDL library, resulting
-	in a lot better performance.
+	hardware acceleration that is missing when run from the X Window system
+	using the SDL library.
 
-	In the default configuration the Advance programs use this hardware
-	acceleration to scale the image to the screen side. This is the best
-	operating mode when using a modern monitor or TV.
+	In the default configuration the Advance programs automatically use
+	this hardware acceleration to scale the image to the screen size.
+	This is the best operating mode when using a modern monitor or flat TV,
+	and with a Raspberry Pi 3 you can expect to run most of the games at
+	full speed, even when using the Scale2x effect.
 
 	If instead you want to use an old CRT Arcade screen or TV, you can
-	configure the Advance programs to generate video modes on the fly
-	customized for your specific video hardware.
+	configure the Advance programs to generate video modes customized
+	for your video hardware.
+
 	In this case see the following "Video Setup" chapter.
 
   Windows/Mac OS X
