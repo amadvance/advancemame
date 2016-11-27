@@ -608,11 +608,14 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		}
 
 		/* exclude PALETTE8 and BGR15 not supported by the hardare */
-		/* and add OVERLAY because the framebuffer is able to rescale to the original resolution */
-		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32
-			| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL
-			| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN
-			| VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
+		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32;
+
+		if (output == adv_output_auto || output == adv_output_overlay) {
+			fb_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
+		}
+		if (output == adv_output_auto || output == adv_output_fullscreen) {
+			fb_state.flags |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+		}
 
 		/* keep track if we change timings */
 		fb_state.old_need_restore = 0;
@@ -1422,7 +1425,7 @@ void fb_crtc_container_insert_default(adv_crtc_container* cc)
 {
 	log_std(("video:fb: fb_crtc_container_insert_default()\n"));
 
-	crtc_container_insert_default_modeline_svga(cc);
+	/* no default mode because or we are fullscreen programmable, or overlay with generated */
 }
 
 /***************************************************************************/

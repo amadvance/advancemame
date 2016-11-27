@@ -1376,14 +1376,6 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		unsigned long long factor_x;
 		unsigned long long factor_y;
 
-		/* if the clock is programmable the monitor specification must be present */
-		if (video_is_programmable(context)) {
-			if (monitor_is_empty(&context->config.monitor)) {
-				error_set("No monitor clocks specification `device_video_p/h/vclock'.\n");
-				return -1;
-			}
-		}
-
 		/* expand the arcade aspect ratio */
 		if (arcade_aspect_y * context->config.monitor_aspect_x < context->config.monitor_aspect_y * arcade_aspect_x) {
 			arcade_aspect_x *= 100;
@@ -1471,7 +1463,15 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		best_bits = context->state.game_bits_per_pixel;
 		best_vclock = context->state.game_fps;
 
-		if (!context->state.game_vector_flag) { /* nonsense for vector games */
+		/*
+		 * The preferred order is:
+		 *
+		 * 1 - Generated video mode
+		 * 2 - User modeline
+		 * 3 - Fake mode
+		 * 4 - Current mode
+		 */
+		if (!context->state.game_vector_flag) {
 			if (video_is_generable(context)) {
 				/* generate modes for a programmable driver */
 				const adv_crtc* crtc;
@@ -1491,17 +1491,29 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 					video_init_crtc_make_raster(context, "generate-double-interlace", best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, 0, 0, best_vclock, 0, 1, 1);
 				video_init_crtc_make_raster(context, "generate-triple", best_size_3x, best_size_3y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0, 1);
 				video_init_crtc_make_raster(context, "generate-quad", best_size_4x, best_size_4y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0, 1);
+			} else if (video_is_programmable(context) && !crtc_container_is_empty(&context->config.crtc_bag)) {
+				/* user modeline and a programmable driver */
 			} else if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY) != 0) {
-				/* generate modes for the overlay driver */
+				/* fake modes for the overlay driver */
 				video_init_crtc_make_fake(context, "generate", best_size_x, best_size_y);
 				video_init_crtc_make_fake(context, "generate-double", best_size_2x, best_size_2y);
 				video_init_crtc_make_fake(context, "generate-triple", best_size_3x, best_size_3y);
 				video_init_crtc_make_fake(context, "generate-quad", best_size_4x, best_size_4y);
+			} else {
+				/* current mode */
+				crtc_container_insert_default_active(&context->config.crtc_bag);
 			}
 		} else {
-			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY) != 0) {
-				/* generate modes for the overlay driver */
+			if (video_is_generable(context)) {
+				video_init_crtc_make_vector(context, "generate", best_size_x, best_size_y, best_size_2x, best_size_2y, 0, 0, 0, 0, best_vclock);
+			} else if (video_is_programmable(context) && !crtc_container_is_empty(&context->config.crtc_bag)) {
+				/* user modeline and a programmable driver */
+			} else if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY) != 0) {
+				/* fake modes for the overlay driver */
 				video_init_crtc_make_fake(context, "generate", best_size_x, best_size_y);
+			} else {
+				/* current mode */
+				crtc_container_insert_default_active(&context->config.crtc_bag);
 			}
 		}
 	}
@@ -2403,31 +2415,6 @@ void advance_video_mode_preinit(struct advance_video_context* context, struct ma
 		log_std(("emu:video: display_adjust=* disabled because the graphics driver is not programmable\n"));
 	}
 
-	/* insert some default modeline if no generate option is present */
-	if (!video_is_generable(context) && video_is_programmable(context)) {
-		adv_bool has_something = 0;
-
-		/* check if the list of video mode contains something useable */
-		for(crtc_container_iterator_begin(&i, &context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
-			adv_crtc* crtc = crtc_container_iterator_get(&i);
-			if (is_crtc_acceptable_preventive(context, crtc)) {
-				has_something = 1;
-			}
-		}
-
-		if (has_something) {
-			log_std(("emu:video: the user video mode list contains some useable mode\n"));
-		} else {
-			log_std(("emu:video: the user video mode list doesn't contain any useable mode\n"));
-		}
-
-		if (!has_something) {
-			log_std(("emu:video: insert default video modes\n"));
-
-			crtc_container_insert_default_active(&context->config.crtc_bag);
-		}
-	}
-
 	/* set the debugger size */
 	option->debug_width = 640;
 	option->debug_height = 480;
@@ -2451,37 +2438,38 @@ void advance_video_mode_preinit(struct advance_video_context* context, struct ma
 
 		mode_size_x = 640;
 		mode_size_y = 480;
+		if (target_video_width() && target_video_height()) {
+			mode_size_x = target_video_width();
+			mode_size_y = target_video_height();
+		}
 
 		log_std(("emu:video: insert vector video modes\n"));
 
-		if (video_is_generable(context)) {
-			/* insert the default mode for vector games */
-			video_init_crtc_make_vector(context, "generate", mode_size_x, mode_size_y, mode_size_x*2, mode_size_y*2, 0, 0, 0, 0, mame_game_fps(option->game));
-		}
-
-		/* select the size of the mode near at the 640x480 size */
-		best_crtc = 0;
-		best_size = 0;
-		for(crtc_container_iterator_begin(&i, &context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
-			adv_crtc* crtc = crtc_container_iterator_get(&i);
-			if (is_crtc_acceptable_preventive(context, crtc)
-				&& (strcmp(context->config.resolution_buffer, "auto")==0
-					|| video_resolution_cmp(context->config.resolution_buffer, crtc_name_get(crtc)) == 0
-					)
-				) {
-				int size = crtc_hsize_get(crtc) * crtc_vsize_get(crtc);
-				if (!best_crtc || abs(mode_size_x * mode_size_y - size) < abs(mode_size_x*mode_size_y - best_size)) {
-					best_crtc = crtc;
-					best_size = size;
+		if (!video_is_generable(context)) {
+			/* select the similar mode if the user has some predefined modeline */
+			best_crtc = 0;
+			best_size = 0;
+			for(crtc_container_iterator_begin(&i, &context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+				adv_crtc* crtc = crtc_container_iterator_get(&i);
+				if (is_crtc_acceptable_preventive(context, crtc)
+					&& (strcmp(context->config.resolution_buffer, "auto")==0
+						|| video_resolution_cmp(context->config.resolution_buffer, crtc_name_get(crtc)) == 0
+						)
+					) {
+					int size = crtc_hsize_get(crtc) * crtc_vsize_get(crtc);
+					if (!best_crtc || abs(mode_size_x * mode_size_y - size) < abs(mode_size_x*mode_size_y - best_size)) {
+						best_crtc = crtc;
+						best_size = size;
+					}
 				}
 			}
-		}
 
-		if (best_crtc) {
-			mode_size_x = crtc_hsize_get(best_crtc);
-			mode_size_y = crtc_vsize_get(best_crtc);
-		} else {
-			log_std(("emu:video: no specific mode for vector games\n"));
+			if (best_crtc) {
+				mode_size_x = crtc_hsize_get(best_crtc);
+				mode_size_y = crtc_vsize_get(best_crtc);
+			} else {
+				log_std(("emu:video: no specific modeline for vector games\n"));
+			}
 		}
 
 		/* assume a game aspect of 4/3 */
