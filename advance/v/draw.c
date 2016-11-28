@@ -752,7 +752,7 @@ unsigned draw_graphics_speed(int s_x, int s_y, int s_dx, int s_dy)
 		struct video_pipeline_struct pipeline;
 		uint8* data;
 
-		size = s_dx * s_dy * video_bytes_per_pixel();
+		size = s_dy * video_bytes_per_scanline();
 
 		data = malloc(size);
 		for(i=0;i<size;++i)
@@ -760,7 +760,7 @@ unsigned draw_graphics_speed(int s_x, int s_y, int s_dx, int s_dy)
 
 		video_pipeline_init(&pipeline);
 
-		video_pipeline_direct(&pipeline, s_dx, s_dy, s_dx, s_dy, s_dx*video_bytes_per_pixel(), video_bytes_per_pixel(), video_color_def(), 0);
+		video_pipeline_direct(&pipeline, s_dx, s_dy, s_dx, s_dy, video_bytes_per_scanline(), video_bytes_per_pixel(), video_color_def(), 0);
 
 		/* fill the cache */
 		video_pipeline_blit(&pipeline, s_x, s_y, data);
