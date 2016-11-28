@@ -607,15 +607,13 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 			return -1;
 		}
 
-		/* exclude PALETTE8 and BGR15 not supported by the hardare */
-		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32;
+		/* exclude BGR15 not supported by the Raspberry hardware */
+		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32;
 
-		if (output == adv_output_auto || output == adv_output_overlay) {
+		if (output == adv_output_auto || output == adv_output_overlay)
 			fb_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
-		}
-		if (output == adv_output_auto || output == adv_output_fullscreen) {
+		if (output == adv_output_auto || output == adv_output_fullscreen)
 			fb_state.flags |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
-		}
 
 		/* keep track if we change timings */
 		fb_state.old_need_restore = 0;
@@ -1359,7 +1357,6 @@ adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned f
 
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
 	case MODE_FLAGS_INDEX_PALETTE8 :
-	case MODE_FLAGS_INDEX_BGR8 :
 		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) == 0) {
 			error_nolog_set("Index mode not supported.\n");
 			return -1;
