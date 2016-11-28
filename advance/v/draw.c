@@ -758,29 +758,48 @@ unsigned draw_graphics_speed(int s_x, int s_y, int s_dx, int s_dy)
 		for(i=0;i<size;++i)
 			data[i] = i;
 
-		video_pipeline_init(&pipeline);
+		if (video_bytes_per_pixel() == 3) {
+			/* 24 bits modes are not supported by the blit module */
 
-		video_pipeline_direct(&pipeline, s_dx, s_dy, s_dx, s_dy, video_bytes_per_scanline(), video_bytes_per_pixel(), video_color_def(), 0);
+			/* fill cache */
+			memcpy(video_write_line(0), data, size);
 
-		/* fill the cache */
-		video_pipeline_blit(&pipeline, s_x, s_y, data);
+			count = 0;
+			start = target_clock();
+			end = start + TARGET_CLOCKS_PER_SEC * 2;
+			stop = start;
+			while (stop < end) {
+				memcpy(video_write_line(0), data, size);
+				++count;
+				stop = target_clock();
+			}
+		} else {
+			video_pipeline_init(&pipeline);
 
-		count = 0;
-		start = target_clock();
-		end = start + TARGET_CLOCKS_PER_SEC * 2;
-		stop = start;
-		while (stop < end) {
+			video_pipeline_direct(&pipeline, s_dx, s_dy, s_dx, s_dy, video_bytes_per_scanline(), video_bytes_per_pixel(), video_color_def(), 0);
+
+			/* fill cache */
 			video_pipeline_blit(&pipeline, s_x, s_y, data);
-			++count;
-			stop = target_clock();
+
+			count = 0;
+			start = target_clock();
+			end = start + TARGET_CLOCKS_PER_SEC * 2;
+			stop = start;
+			while (stop < end) {
+				video_pipeline_blit(&pipeline, s_x, s_y, data);
+				++count;
+				stop = target_clock();
+			}
+
+			video_pipeline_done(&pipeline);
 		}
 
-		video_pipeline_done(&pipeline);
 		free(data);
 
-		size = size * count * (double)TARGET_CLOCKS_PER_SEC / (stop-start);
+		if (stop == start)
+			return 0;
 
-		return size;
+		return size * count * (double)TARGET_CLOCKS_PER_SEC / (stop - start);
 	}
 
 	return 0;
