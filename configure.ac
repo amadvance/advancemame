@@ -146,14 +146,24 @@ if test $ac_auto_cflags = yes; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
 	else
 		CFLAGS=""
+		dnl Optimization level O2 generally gives better performance than O3,
+		dnl expecially in biggest and slowest games
+		AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [])
 		dnl GCC 4 has problems with -march=native in Raspbian,
 		dnl resulting in a "double free or corruption" error
 		dnl See: https://www.raspberrypi.org/forums/viewtopic.php?f=28&t=139091
 		if ! $GREP ARM /proc/cpuinfo >/dev/null 2>&1; then
 			AC_CHECK_CC_OPT([-march=native], [CFLAGS="$CFLAGS -march=native"], [])
+			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
+		dnl Raspberry Pi 3
+		elif $GREP a02082\\\|a22082 /proc/cpuinfo >/dev/null 2>&1; then
+			AC_CHECK_CC_OPT([-march=armv8-a+crc], [CFLAGS="$CFLAGS -march=armv8-a+crc"], [])
+			AC_CHECK_CC_OPT([-mfpu=neon-fp-armv8], [CFLAGS="$CFLAGS -mfpu=neon-fp-armv8"], [])
+		dnl Raspberry Pi 2
+		elif $GREP a01040\\\|a01041\\\|a21041\\\|a22042 /proc/cpuinfo >/dev/null 2>&1; then
+			AC_CHECK_CC_OPT([-march=armv7-a], [CFLAGS="$CFLAGS -march=armv7-a"], [])
+			AC_CHECK_CC_OPT([-mfpu=neon-vfpv4], [CFLAGS="$CFLAGS -mfpu=neon-vfpv4"], [])
 		fi
-		AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [CFLAGS="$CFLAGS -O"])
-		AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
 		dnl Code was written when compilers where not aggressively optimizing undefined behaviour about aliasing
 		AC_CHECK_CC_OPT([-fno-strict-aliasing], [CFLAGS="$CFLAGS -fno-strict-aliasing"], [])
 		dnl Code was written when compilers where not aggressively optimizing undefined behaviour about overflow in signed integers
