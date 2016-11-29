@@ -2278,7 +2278,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 					case mode_text : rs.mode_set(mode_list); break;
 					case mode_list : rs.mode_set(mode_list_mixed); break;
 					case mode_list_mixed : rs.mode_set(mode_tile_tiny); break;
-					case mode_tile_tiny : rs.mode_set(mode_tile_normal); break;
+					case mode_tile_tiny : rs.mode_set(mode_tile_small); break;
 					case mode_tile_small : rs.mode_set(mode_tile_normal); break;
 					case mode_tile_normal : rs.mode_set(mode_tile_big); break;
 					case mode_tile_big : rs.mode_set(mode_tile_enormous); break;
