@@ -770,7 +770,8 @@ else
 EMU_SUPPORT_SRC += \
 	$(srcdir)/support/event.dat \
 	$(srcdir)/support/history.dat \
-	$(srcdir)/support/hiscore.dat
+	$(srcdir)/support/hiscore.dat \
+	$(srcdir)/support/category.ini
 endif
 
 EMU_DOC_SRC = \
@@ -926,7 +927,8 @@ else
 EMU_ROOT_BIN += \
 	$(srcdir)/support/event.dat \
 	$(srcdir)/support/history.dat \
-	$(srcdir)/support/hiscore.dat
+	$(srcdir)/support/hiscore.dat \
+	$(srcdir)/support/category.ini
 endif
 ifeq ($(CONF_SYSTEM),unix)
 EMU_ROOT_BIN += \
