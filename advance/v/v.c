@@ -1126,7 +1126,7 @@ static adv_error cmd_onvideo_calib(void)
 {
 	adv_mode mode;
 	adv_crtc* crtc;
-	unsigned speed;
+	unsigned speed_memcpy, speed_blit;
 	char buffer[128];
 
 	mode_reset(&mode);
@@ -1158,10 +1158,10 @@ static adv_error cmd_onvideo_calib(void)
 	/* draw_graphics_out_of_screen(0); */
 	draw_graphics_clear();
 
-	speed = draw_graphics_speed(0, 0, video_size_x(), video_size_y());
+	draw_graphics_speed(0, 0, video_size_x(), video_size_y(), &speed_memcpy, &speed_blit);
 	draw_graphics_calib(0, 0, video_size_x(), video_size_y());
 
-	snprintf(buffer, sizeof(buffer), " %.2f MB/s", speed / (double)(1024*1024));
+	snprintf(buffer, sizeof(buffer), "memcpy %.2f MB/s, blit %.2f MB/s", speed_memcpy / (double)(1024*1024), speed_blit / (double)(1024*1024));
 	draw_string(0, 0, buffer, DRAW_COLOR_WHITE);
 
 	video_write_unlock(0, 0, 0, 0, 0);

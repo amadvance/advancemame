@@ -99,7 +99,7 @@ void draw_graphics_palette(void);
 void draw_graphics_animate(int s_x, int s_y, int s_dx, int s_dy, unsigned counter, int do_clear);
 void draw_graphics_out_of_screen(int do_clear);
 void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy);
-unsigned draw_graphics_speed(int s_x, int s_y, int s_dx, int s_dy);
+void draw_graphics_speed(int s_x, int s_y, int s_dx, int s_dy, unsigned* speed_memcpy, unsigned* speed_blit);
 void draw_test_default(void);
 void draw_graphics_clear(void);
 
