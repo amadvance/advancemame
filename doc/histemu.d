@@ -13,6 +13,8 @@ AdvanceMAME/MESS Version 1.6 2016/12
 		Raspberry hardware acceleration.
 	) Improved syncronization to remove tearing with the Linux
 		FrameBuffer.
+	) Added a new category.ini installed automatically, that
+		is used automaticaly by AdvanceMENU.
 	) Added new SSE2 blitters that replace the older MMX ones
 
 AdvanceMAME/MESS Version 1.5 2016/11

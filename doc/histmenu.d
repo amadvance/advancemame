@@ -11,8 +11,9 @@ AdvanceMENU Version 2.10 2016/12
 		directly from the Linux Console and outside the
 		X-Window graphics environment to be able to use the
 		Raspberry hardware acceleration.
-	) Change the default menu and screen saver mode to animate all the clips.
 	) Add a new 3x2 tile mode called "tile_tiny".
+	) Better autoconfiguration and detection of AdvanceMAME.
+	) Change the default menu and screen saver mode to animate all the clips.
 	) In Linux if the system time is wrong ensure that the generated list
 		files are not updated every time.
 	) Added new SSE2 blitters that replace the older MMX ones
