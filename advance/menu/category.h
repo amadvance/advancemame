@@ -89,7 +89,6 @@ public:
 	}
 
 	const category* insert(const std::string& name);
-	const category* insert_double(const std::string& name, category_container& cat_include);
 };
 
 #endif

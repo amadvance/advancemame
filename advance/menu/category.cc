@@ -82,25 +82,4 @@ const category* pcategory_container::insert(const std::string& name)
 	return *i.first;
 }
 
-const category* pcategory_container::insert_double(const string& name, category_container& cat_include)
-{
-	if (name.length() == 0 || name == CATEGORY_UNDEFINED)
-		return undefined;
-
-	category* c = new category(name);
-
-	pair<pcategory_container_base::iterator, bool> i = pcategory_container_base::insert(c);
-
-	if (i.second) {
-		// inserted
-		cat_include.insert(name);
-	} else {
-		// not inserted
-		delete c;
-	}
-
-	// return the category in the container
-	return *i.first;
-}
-
 

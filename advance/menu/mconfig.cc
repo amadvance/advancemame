@@ -1026,15 +1026,6 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	if (!config_load_iterator_category(config_context, "type_include", default_include_type_orig))
 		return false;
 
-	if (default_include_group_orig.size() == 0) {
-		for(pcategory_container::iterator i=group.begin();i!=group.end();++i)
-			default_include_group_orig.insert((*i)->name_get());
-	}
-	if (default_include_type_orig.size() == 0) {
-		for(pcategory_container::iterator i=type.begin();i!=type.end();++i)
-			default_include_type_orig.insert((*i)->name_get());
-	}
-
 	if (opt_verbose)
 		target_nfo("log: load games info\n");
 
@@ -1076,6 +1067,18 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	if (!load_iterator_import(config_context, "group_import", &config_state::import_group, opt_verbose))
 		return false;
 
+	/* if the default inclusion are empty add everything */
+	/* note that <undefined> is always present */
+	if (default_include_group_orig.size() == 0 && group.size() > 1) {
+		for(pcategory_container::iterator i=group.begin();i!=group.end();++i)
+			default_include_group_orig.insert((*i)->name_get());
+	}
+	if (default_include_type_orig.size() == 0 && type.size() > 1) {
+		for(pcategory_container::iterator i=type.begin();i!=type.end();++i)
+			default_include_type_orig.insert((*i)->name_get());
+	}
+
+
 	if (opt_verbose)
 		target_nfo("log: load background music list\n");
 
@@ -1110,7 +1113,6 @@ void config_state::import_group(const game& g, const string& text)
 void config_state::conf_default(adv_conf* config_context)
 {
 	adv_conf_iterator i;
-	adv_bool has_types = 0;
 
 	conf_iterator_begin(&i, config_context, "emulator");
 	if (conf_iterator_is_end(&i)) {
@@ -1163,7 +1165,6 @@ void config_state::conf_default(adv_conf* config_context)
 			conf_set(config_context, "", "emulator_altss", opt.c_str());
 			string catver = string(ADV_DATADIR) + "/category.ini";
 			if (access(cpath_export(catver), F_OK) == 0) {
-				has_types = 1;
 				opt = "catver \"advmame\" \"" + path_export(catver) + "\" \"Category\"";
 				conf_set(config_context, "", "type_import", opt.c_str());
 			}
@@ -1182,37 +1183,6 @@ void config_state::conf_default(adv_conf* config_context)
 			conf_set(config_context, "", "emulator", "\"sdlmame\" sdlmame \"mame\" \"\"");
 		}
 #endif
-	}
-
-	conf_iterator_begin(&i, config_context, "group");
-	if (conf_iterator_is_end(&i)) {
-		conf_set(config_context, "", "group", "\"Very Good\"");
-		conf_set(config_context, "", "group", "\"Good\"");
-		conf_set(config_context, "", "group", "\"Bad\"");
-		conf_set(config_context, "", "group", "\"<undefined>\"");
-	}
-
-	if (!has_types) {
-		conf_iterator_begin(&i, config_context, "type");
-		if (conf_iterator_is_end(&i)) {
-			conf_set(config_context, "", "type", "\"Computer\"");
-			conf_set(config_context, "", "type", "\"Console\"");
-			conf_set(config_context, "", "type", "\"Application\"");
-			conf_set(config_context, "", "type", "\"Arcade\"");
-			conf_set(config_context, "", "type", "\"Shoot 'em Up\"");
-			conf_set(config_context, "", "type", "\"Beat 'em Up\"");
-			conf_set(config_context, "", "type", "\"Fight\"");
-			conf_set(config_context, "", "type", "\"Mature\"");
-			conf_set(config_context, "", "type", "\"Gun\"");
-			conf_set(config_context, "", "type", "\"Puzzle\"");
-			conf_set(config_context, "", "type", "\"RPG\"");
-			conf_set(config_context, "", "type", "\"Sport\"");
-			conf_set(config_context, "", "type", "\"Breakout\"");
-			conf_set(config_context, "", "type", "\"Filler\"");
-			conf_set(config_context, "", "type", "\"Racing\"");
-			conf_set(config_context, "", "type", "\"Flipper\"");
-			conf_set(config_context, "", "type", "\"<undefined>\"");
-		}
 	}
 
 	conf_iterator_begin(&i, config_context, "ui_color");
