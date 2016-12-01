@@ -1,0 +1,11 @@
+Package: advancemame
+Version: VERSION-REVISION
+Section: games
+Priority: optional
+Architecture: MACHINE
+Depends: libsdl1.2debian
+Maintainer: Andrea Mazzoleni <amadvance@gmail.com>
+Homepage: http://www.advancemame.it
+Description: Arcade games emulator
+ Play Arcade games with video hardware like TVs, Arcade monitors, PC monitors and LCD screens.
+

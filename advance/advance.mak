@@ -477,6 +477,41 @@ wholecab:
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distcabbin
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distcabbin
 
+DEB_MACHINE = $(subst armv7l,armhf,$(subst i686,i386,$(subst x86_64,amd64,$(shell uname -m))))
+DEB_DIST_FILE_BIN = advance$(CONF_EMU)_$(EMUVERSION)-$(REVISION)_$(DEB_MACHINE)
+DEB_DIST_DIR_BIN = $(DEB_DIST_FILE_BIN)
+
+deb:
+	$(MAKE)
+	$(MAKE) CONF_EMU=mess
+	rm -rf $(DEB_DIST_DIR_BIN)
+	mkdir $(DEB_DIST_DIR_BIN)
+	mkdir $(DEB_DIST_DIR_BIN)/DEBIAN
+	sed -e s/VERSION/$(EMUVERSION)/ -e s/MACHINE/$(DEB_MACHINE)/ -e s/REVISION/$(REVISION)/ $(srcdir)/support/debian > $(DEB_DIST_DIR_BIN)/DEBIAN/control
+	mkdir $(DEB_DIST_DIR_BIN)/usr
+	mkdir $(DEB_DIST_DIR_BIN)/usr/local
+	mkdir $(DEB_DIST_DIR_BIN)/usr/local/bin
+	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share
+	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/doc
+	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/doc/advance
+	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/advance
+	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/advance/rom
+	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/advance/sample
+	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/advance/snap
+	mkdir $(DEB_DIST_DIR_BIN)/usr/local/man
+	mkdir $(DEB_DIST_DIR_BIN)/usr/local/man/man1
+	cp $(INSTALL_BINFILES) $(DEB_DIST_DIR_BIN)/usr/local/bin
+	cp $(subst mame,mess,$(INSTALL_BINFILES)) $(DEB_DIST_DIR_BIN)/usr/local/bin
+	cp $(INSTALL_DOCFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/doc/advance
+	cp $(INSTALL_DATAFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/advance
+	cp $(INSTALL_ROMFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/advance/rom
+	cp $(INSTALL_SAMPLEFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/advance/sample
+	cp $(INSTALL_SNAPFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/advance/snap
+	cp $(INSTALL_MANFILES) $(DEB_DIST_DIR_BIN)/usr/local/man/man1
+	find $(DEB_DIST_DIR_BIN)
+	dpkg-deb --build $(DEB_DIST_DIR_BIN)
+	rm -rf $(DEB_DIST_DIR_BIN)
+
 #############################################################################
 # Development targets
 

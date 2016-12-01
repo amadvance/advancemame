@@ -759,6 +759,7 @@ EMU_CONTRIB_SRC = \
 	$(wildcard $(srcdir)/contrib/*)
 
 EMU_SUPPORT_SRC += \
+	$(srcdir)/support/debian \
 	$(srcdir)/support/event.dat \
 	$(srcdir)/support/history.dat \
 	$(srcdir)/support/hiscore.dat \
