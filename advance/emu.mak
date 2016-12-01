@@ -756,9 +756,7 @@ EMU_ADVANCE_SRC += \
 	$(srcdir)/advance/mess.dif
 
 EMU_CONTRIB_SRC = \
-	$(wildcard $(srcdir)/contrib/mame/*)
-MENU_CONTRIB_SRC = \
-	$(wildcard $(srcdir)/contrib/menu/*)
+	$(wildcard $(srcdir)/contrib/*)
 
 EMU_SUPPORT_SRC += \
 	$(srcdir)/support/event.dat \
@@ -1064,10 +1062,7 @@ dist: $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ
 	mkdir $(EMU_DIST_DIR_SRC)/advance/expat
 	cp $(EXPAT_SRC) $(EMU_DIST_DIR_SRC)/advance/expat
 	mkdir $(EMU_DIST_DIR_SRC)/contrib
-	mkdir $(EMU_DIST_DIR_SRC)/contrib/mame
-	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib/mame
-	mkdir $(EMU_DIST_DIR_SRC)/contrib/menu
-	cp -R $(MENU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib/menu
+	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib
 	cp -R $(srcdir)/src $(EMU_DIST_DIR_SRC)
 	cp -R $(srcdir)/srcmess $(EMU_DIST_DIR_SRC)
 	cp -R $(srcdir)/mess $(EMU_DIST_DIR_SRC)
