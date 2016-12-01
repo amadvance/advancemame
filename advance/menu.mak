@@ -525,12 +525,6 @@ MENU_ROOT_SRC = \
 	$(srcdir)/COPYING \
 	$(CONF_SRC)
 
-MENU_SRC = \
-	$(wildcard $(srcdir)/advance/menu/*.c) \
-	$(wildcard $(srcdir)/advance/menu/*.cc) \
-	$(wildcard $(srcdir)/advance/menu/*.h) \
-	$(wildcard $(srcdir)/advance/menu/*.dat)
-
 MENU_ADVANCE_SRC = \
 	$(srcdir)/advance/advance.mak \
 	$(srcdir)/advance/version.mak \

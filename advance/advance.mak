@@ -225,6 +225,12 @@ M_SRC = \
 CFG_SRC = \
 	$(wildcard $(srcdir)/advance/cfg/*.c)
 
+MENU_SRC = \
+	$(wildcard $(srcdir)/advance/menu/*.c) \
+	$(wildcard $(srcdir)/advance/menu/*.cc) \
+	$(wildcard $(srcdir)/advance/menu/*.h) \
+	$(wildcard $(srcdir)/advance/menu/*.dat)
+
 LINE_SRC = \
 	$(wildcard $(srcdir)/advance/line/*.cc)
 
@@ -439,32 +445,16 @@ WHOLECD_FLAGS = \
 	CONF_LIB_SLANG=yes CONF_LIB_NCURSES=no \
 	CONF_LIB_OSS=no CONF_LIB_PTHREAD=no CONF_LIB_SDL=no
 
-wholemame: mamedif
+whole:
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows CONF_EMU=mess
+	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos CONF_EMU=mess
+
+wholedist: mamedif messdif
 	$(MAKE) $(MANUAL) dist
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distbin
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distbin
-
-dosmame:
-	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distbin
-
-winmame:
-	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distbin
-
-wholecd:
-	$(MAKE) $(MANUAL) $(WHOLECD_FLAGS) distbin
-	$(MAKE) $(MANUAL) $(WHOLECD_FLAGS) distmenubin
-	$(MAKE) $(MANUAL) $(WHOLECD_FLAGS) CONF_EMU=mess distbin
-
-wholemess: messdif
-	$(MAKE) $(MANUAL) CONF_EMU=mess dist
-	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows CONF_EMU=mess distbin
-	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos CONF_EMU=mess distbin
-
-dosmess:
-	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos CONF_EMU=mess distbin
-
-winmess:
-	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows CONF_EMU=mess distbin
 
 wholemenu:
 	$(MAKE) $(MANUAL) distmenu
