@@ -733,15 +733,15 @@ int os_main(int argc, char* argv[])
 		goto err_init;
 
 	if (access(cfg_buffer, F_OK)!=0) {
-		target_out("Creating a standard configuration file...\n");
+		target_err("Creating AdvanceMENU standard configuration file...\n");
 		config_state::conf_default(config_context);
 		conf_setdefault_all_if_missing(config_context, "");
 		conf_sort(config_context);
 		if (conf_save(config_context, 1, 0, error_callback, 0) != 0) {
 			goto err_init;
 		}
-		target_out("Configuration file `%s' created with all the default options.\n", cfg_buffer);
-		target_out("\n");
+		target_err("Configuration file `%s' created with all the default options.\n", cfg_buffer);
+		target_err("\n");
 		/* continue execution */
 	}
 

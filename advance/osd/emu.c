@@ -713,11 +713,6 @@ int os_main(int argc, char* argv[])
 		sncpy(cfg_buffer, sizeof(cfg_buffer), file_config_file_home(ADV_NAME ".rc"));
 	}
 
-	if (opt_xml) {
-		mame_print_xml(stdout);
-		goto done_os;
-	}
-
 	if (opt_version) {
 		version();
 		goto done_os;
@@ -758,30 +753,35 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (access(file_config_file_home(ADV_NAME ".rc"), F_OK)!=0) {
-		target_out("Creating a standard configuration file...\n");
+		target_err("Creating " ADV_TITLE " standard configuration file...\n");
 		advance_fileio_default_dir();
 		conf_setdefault_all_if_missing(context->cfg, "");
 		conf_sort(context->cfg);
 		if (conf_save(context->cfg, 1, 0, error_callback, 0) != 0) {
 			goto err_os;
 		}
-		target_out("Configuration file `%s' created with all the default options.\n", file_config_file_home(ADV_NAME ".rc"));
+		target_err("Configuration file `%s' created with all the default options.\n", file_config_file_home(ADV_NAME ".rc"));
 
 		/* set the empty section for reading the default options to print */
 		section_map[0] = "";
 		conf_section_set(context->cfg, section_map, 1);
-		target_out("\n");
+		target_err("\n");
 #ifdef MESS
-		target_out("The default bios search path is `%s', the default software search path is `%s'.\n"
+		target_err("The default bios search path is `%s', the default software search path is `%s'.\n"
 			"You can change them using the `dir_rom' and `dir_image' options in the configuration file.\n",
 			conf_string_get_default(context->cfg, "dir_rom"), conf_string_get_default(context->cfg, "dir_image"));
 #else
-		target_out("The default rom search path is `%s'.\n"
+		target_err("The default rom search path is `%s'.\n"
 			"You can change it using the `dir_rom' option in the configuration file.\n",
 			conf_string_get_default(context->cfg, "dir_rom"));
 #endif
-		target_out("\n");
+		target_err("\n");
 		/* continue execution */
+	}
+
+	if (opt_xml) {
+		mame_print_xml(stdout);
+		goto done_os;
 	}
 
 	if (opt_default) {
