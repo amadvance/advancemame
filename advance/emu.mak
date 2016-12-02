@@ -750,11 +750,6 @@ EMU_ADVANCE_SRC = \
 	$(srcdir)/advance/line.mak \
 	$(srcdir)/advance/d2.mak
 
-EMU_ADVANCE_SRC += \
-	$(srcdir)/advance/advmame.dif \
-	$(srcdir)/advance/advmess.dif \
-	$(srcdir)/advance/mess.dif
-
 EMU_CONTRIB_SRC = \
 	$(wildcard $(srcdir)/contrib/*)
 

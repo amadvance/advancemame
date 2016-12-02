@@ -467,24 +467,13 @@ ARCH_X86 = CONF_MAP=yes CONF_ARCH=x86 CONF_CFLAGS_OPT="-march=i686 $(WHOLE_CFLAG
 
 MANUAL=-f Makefile.usr
 
-WHOLECD_FLAGS = \
-	ADV_DATADIR="/root" ADV_SYSCONFDIR="/etc" \
-	CONF_ARCH=cd CONF_CFLAGS_OPT="-march=i686 $(WHOLE_CFLAGS_OPT) -fno-merge-constants" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)" \
-	CONF_DEFS="$(DEFS_LINUX)" \
-	CONF_HOST=linux \
-	CONF_LIB_KEVENT=yes CONF_LIB_JEVENT=yes CONF_LIB_MEVENT=yes \
-	CONF_LIB_KRAW=yes CONF_LIB_JRAW=yes CONF_LIB_MRAW=yes \
-	CONF_LIB_SVGALIB=no CONF_LIB_ALSA=yes CONF_LIB_FB=yes \
-	CONF_LIB_SLANG=yes CONF_LIB_NCURSES=no \
-	CONF_LIB_OSS=no CONF_LIB_PTHREAD=no CONF_LIB_SDL=no
-
 whole:
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows CONF_EMU=mess
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos CONF_EMU=mess
 
-wholedist: mamedif messdif
+wholedist:
 	$(MAKE) $(MANUAL) dist
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distbin
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distbin
@@ -493,12 +482,6 @@ wholemenu:
 	$(MAKE) $(MANUAL) distmenu
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distmenubin
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distmenubin
-
-dosmenu:
-	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distmenubin
-
-winmenu:
-	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distmenubin
 
 wholelinux:
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=linux CONF_DEFS="$(DEFS_LINUX)" distbin
