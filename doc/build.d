@@ -12,11 +12,11 @@ Build
 
 	For Ubuntu:
 		:$ sudo apt-get update
-		:$ sudo apt-get install git build-essential autoconf automake libsdl1.2-dev
+		:$ sudo apt-get install build-essential git autoconf automake libsdl1.2-dev libasound2-dev libfreetype6-dev zlib1g-dev libexpat1-dev libslang2-dev libncurses5-dev
 
 	For Raspbian:
 		:$ sudo apt-get update
-		:$ sudo apt-get autoconf automake libsdl1.2-dev
+		:$ sudo apt-get install git autoconf automake libsdl1.2-dev libasound2-dev libfreetype6-dev zlib1g-dev libexpat1-dev libslang2-dev libncurses5-dev
 
 	At this point you can get the source code from the http://www.advancemame.it site,
 	and untar it with:

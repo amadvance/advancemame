@@ -3,7 +3,8 @@ Version: VERSION-REVISION
 Section: games
 Priority: optional
 Architecture: MACHINE
-Depends: libsdl1.2debian
+Installed-Size: 60000
+Depends: libsdl1.2debian, libasound2, libfreetype6, zlib1g, libexpat1, libslang2, libncurses5
 Maintainer: Andrea Mazzoleni <amadvance@gmail.com>
 Homepage: http://www.advancemame.it
 Description: Arcade games emulator
