@@ -2,6 +2,8 @@
 # Common dir
 
 OBJ = obj/$(CONF_EMU)/$(BINARYDIR)
+MAMEOBJ = obj/mame/$(BINARYDIR)
+MESSOBJ = obj/mess/$(BINARYDIR)
 MENUOBJ = obj/menu/$(BINARYDIR)
 MOBJ = obj/m/$(BINARYDIR)
 JOBJ = obj/j/$(BINARYDIR)
@@ -15,72 +17,96 @@ D2OBJ = obj/d2/$(BINARYBUILDDIR)
 DOCOBJ = $(srcdir)/doc
 
 ############################################################################
-# Common targets
+# Binaries
 
-ifdef ADV_ALL
-all_override: $(ADV_ALL)
-endif
+MAME_INSTALL_BINFILES = $(MAMEOBJ)/advmame$(EXE)
+MAME_INSTALL_MANFILES = $(DOCOBJ)/advmame.1 $(DOCOBJ)/advdev.1
+MAME_INSTALL_DATAFILES = $(srcdir)/support/event.dat \
+	$(srcdir)/support/history.dat \
+	$(srcdir)/support/hiscore.dat \
+	$(srcdir)/support/category.ini
+MAME_INSTALL_ROMFILES = $(srcdir)/support/free/rom/gridlee.zip \
+	$(srcdir)/support/free/rom/polyplay.zip \
+	$(srcdir)/support/free/rom/robby.zip
+MAME_INSTALL_SAMPLEFILES = $(srcdir)/support/free/rom/gridlee.zip
+MAME_INSTALL_SNAPFILES = $(srcdir)/support/free/snap/gridlee.zip \
+	$(srcdir)/support/free/snap/polyplay.zip \
+	$(srcdir)/support/free/snap/robby.zip
+MESS_INSTALL_BINFILES = $(MESSOBJ)/advmess$(EXE)
+MESS_INSTALL_MANFILES = $(DOCOBJ)/advmame.1 $(DOCOBJ)/advdev.1 $(srcdir)/support/advmess.1
+MESS_INSTALL_DATAFILES = $(srcdir)/support/sysinfo.dat
+MENU_INSTALL_BINFILES = $(MENUOBJ)/advmenu$(EXE)
+MENU_INSTALL_MANFILES = $(DOCOBJ)/advmenu.1
+CFG_INSTALL_BINFILES = $(CFGOBJ)/advcfg$(EXE)
+CFG_INSTALL_MANFILES = $(DOCOBJ)/advcfg.1
+V_INSTALL_BINFILES = $(VOBJ)/advv$(EXE)
+V_INSTALL_MANFILES = $(DOCOBJ)/advv.1
+S_INSTALL_BINFILES = $(SOBJ)/advs$(EXE)
+S_INSTALL_MANFILES = $(DOCOBJ)/advs.1
+K_INSTALL_BINFILES = $(KOBJ)/advk$(EXE)
+K_INSTALL_MANFILES = $(DOCOBJ)/advk.1
+J_INSTALL_BINFILES = $(JOBJ)/advj$(EXE)
+J_INSTALL_MANFILES = $(DOCOBJ)/advj.1
+M_INSTALL_BINFILES = $(MOBJ)/advm$(EXE)
+M_INSTALL_MANFILES = $(DOCOBJ)/advm.1
+
+############################################################################
+# Install
 
 ifneq ($(wildcard $(EMUSRC)),)
-INSTALL_DIRS += $(OBJ)
-INSTALL_BINFILES += $(OBJ)/$(EMUNAME)$(EXE)
-INSTALL_MANFILES += $(DOCOBJ)/advmame.1
-INSTALL_MANFILES += $(DOCOBJ)/advdev.1
 ifeq ($(CONF_EMU),mame)
-INSTALL_DATAFILES += $(srcdir)/support/event.dat
-INSTALL_DATAFILES += $(srcdir)/support/history.dat
-INSTALL_DATAFILES += $(srcdir)/support/hiscore.dat
-INSTALL_DATAFILES += $(srcdir)/support/category.ini
-INSTALL_ROMFILES += $(srcdir)/support/free/rom/gridlee.zip
-INSTALL_ROMFILES += $(srcdir)/support/free/rom/polyplay.zip
-INSTALL_ROMFILES += $(srcdir)/support/free/rom/robby.zip
-INSTALL_SAMPLEFILES += $(srcdir)/support/free/rom/gridlee.zip
-INSTALL_SNAPFILES += $(srcdir)/support/free/snap/gridlee.zip
-INSTALL_SNAPFILES += $(srcdir)/support/free/snap/polyplay.zip
-INSTALL_SNAPFILES += $(srcdir)/support/free/snap/robby.zip
+OBJ_DIRS += $(MAMEOBJ)
+INSTALL_BINFILES += $(MAME_INSTALL_BINFILES)
+INSTALL_DATAFILES += $(MAME_INSTALL_DATAFILES)
+INSTALL_MANFILES += $(MAME_INSTALL_MANFILES)
+INSTALL_ROMFILES += $(MAME_INSTALL_ROMFILES)
+INSTALL_SAMPLEFILES += $(MAME_INSTALL_SAMPLEFILES)
+INSTALL_SNAPFILES += $(MAME_INSTALL_SNAPFILES)
 endif
 ifeq ($(CONF_EMU),mess)
-INSTALL_DATAFILES += $(srcdir)/support/sysinfo.dat
-INSTALL_MANFILES += $(srcdir)/support/advmess.1
+OBJ_DIRS += $(MESSOBJ)
+INSTALL_BINFILES += $(MESS_INSTALL_BINFILES)
+INSTALL_DATAFILES += $(MESS_INSTALL_DATAFILES)
+INSTALL_MANFILES += $(MESS_INSTALL_MANFILES)
 endif
 endif
 ifneq ($(wildcard $(srcdir)/advance/menu.mak),)
-INSTALL_DIRS += $(MENUOBJ)
-INSTALL_BINFILES += $(MENUOBJ)/advmenu$(EXE)
-INSTALL_MANFILES += $(DOCOBJ)/advmenu.1
+OBJ_DIRS += $(MENUOBJ)
+INSTALL_BINFILES += $(MENU_INSTALL_BINFILES)
+INSTALL_MANFILES += $(MENU_INSTALL_MANFILES)
 endif
 ifeq ($(CONF_LIB_DIRECT),yes)
 ifneq ($(wildcard $(srcdir)/advance/cfg.mak),)
-INSTALL_DIRS += $(CFGOBJ)
-INSTALL_BINFILES += $(CFGOBJ)/advcfg$(EXE)
-INSTALL_MANFILES += $(DOCOBJ)/advcfg.1
+OBJ_DIRS += $(CFGOBJ)
+INSTALL_BINFILES += $(CFG_INSTALL_BINFILES)
+INSTALL_MANFILES += $(CFG_INSTALL_MANFILES)
 endif
 ifneq ($(wildcard $(srcdir)/advance/v.mak),)
-INSTALL_DIRS += $(VOBJ)
-INSTALL_BINFILES += $(VOBJ)/advv$(EXE)
-INSTALL_MANFILES += $(DOCOBJ)/advv.1
+OBJ_DIRS += $(VOBJ)
+INSTALL_BINFILES += $(V_INSTALL_BINFILES)
+INSTALL_MANFILES += $(V_INSTALL_MANFILES)
 endif
 endif
 ifneq ($(CONF_SYSTEM),windows)
 ifneq ($(wildcard $(srcdir)/advance/s.mak),)
-INSTALL_DIRS += $(SOBJ)
-INSTALL_BINFILES += $(SOBJ)/advs$(EXE)
-INSTALL_MANFILES += $(DOCOBJ)/advs.1
+OBJ_DIRS += $(SOBJ)
+INSTALL_BINFILES += $(S_INSTALL_BINFILES)
+INSTALL_MANFILES += $(S_INSTALL_MANFILES)
 endif
 ifneq ($(wildcard $(srcdir)/advance/k.mak),)
-INSTALL_DIRS += $(KOBJ)
-INSTALL_BINFILES += $(KOBJ)/advk$(EXE)
-INSTALL_MANFILES += $(DOCOBJ)/advk.1
+OBJ_DIRS += $(KOBJ)
+INSTALL_BINFILES += $(K_INSTALL_BINFILES)
+INSTALL_MANFILES += $(K_INSTALL_MANFILES)
 endif
 ifneq ($(wildcard $(srcdir)/advance/j.mak),)
-INSTALL_DIRS += $(JOBJ)
-INSTALL_BINFILES += $(JOBJ)/advj$(EXE)
-INSTALL_MANFILES += $(DOCOBJ)/advj.1
+OBJ_DIRS += $(JOBJ)
+INSTALL_BINFILES += $(J_INSTALL_BINFILES)
+INSTALL_MANFILES += $(J_INSTALL_MANFILES)
 endif
 ifneq ($(wildcard $(srcdir)/advance/m.mak),)
-INSTALL_DIRS += $(MOBJ)
-INSTALL_BINFILES += $(MOBJ)/advm$(EXE)
-INSTALL_MANFILES += $(DOCOBJ)/advm.1
+OBJ_DIRS += $(MOBJ)
+INSTALL_BINFILES += $(M_INSTALL_BINFILES)
+INSTALL_MANFILES += $(M_INSTALL_MANFILES)
 endif
 endif
 
@@ -88,7 +114,14 @@ INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.txt,$(wildcard
 INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.html,$(wildcard $(srcdir)/doc/*.d)))
 WEB_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.hh,$(wildcard $(srcdir)/doc/*.d)))
 
-all: $(INSTALL_DIRS) $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES)
+############################################################################
+# Build
+
+ifdef ADV_ALL
+all_override: $(ADV_ALL)
+endif
+
+all: $(OBJ_DIRS) $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES)
 emu: $(OBJ) $(OBJ)/$(EMUNAME)$(EXE)
 menu: $(MENUOBJ) $(MENUOBJ)/advmenu$(EXE)
 cfg: $(CFGOBJ) $(CFGOBJ)/advcfg$(EXE)
@@ -108,7 +141,7 @@ web: $(WEB_DOCFILES)
 doc: $(INSTALL_DOCFILES)
 
 ############################################################################
-# Common SRC
+# Source
 
 RCSRC = $(srcdir)/support/pcvga.rc \
 	$(srcdir)/support/pcsvga60.rc \
@@ -288,7 +321,7 @@ CONF_SRC = \
 	$(srcdir)/install-sh
 
 ############################################################################
-# Common install
+# Install
 
 pkgdir = $(datadir)/advance
 pkgdocdir = $(docdir)/advance
@@ -477,6 +510,36 @@ wholecab:
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos distcabbin
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows distcabbin
 
+############################################################################
+# deb
+
+DEB_BINFILES = \
+	$(MAME_INSTALL_BINFILES) \
+	$(MESS_INSTALL_BINFILES) \
+	$(MENU_INSTALL_BINFILES) \
+	$(CFG_INSTALL_BINFILES) \
+	$(V_INSTALL_BINFILES) \
+	$(S_INSTALL_BINFILES) \
+	$(K_INSTALL_BINFILES) \
+	$(J_INSTALL_BINFILES) \
+	$(M_INSTALL_BINFILES)
+DEB_MANFILES = \
+	$(MAME_INSTALL_MANFILES) \
+	$(MESS_INSTALL_MANFILES) \
+	$(MENU_INSTALL_MANFILES) \
+	$(CFG_INSTALL_MANFILES) \
+	$(V_INSTALL_MANFILES) \
+	$(S_INSTALL_MANFILES) \
+	$(K_INSTALL_MANFILES) \
+	$(J_INSTALL_MANFILES) \
+	$(M_INSTALL_MANFILES)
+DEB_DATAFILES = \
+	$(MAME_INSTALL_DATAFILES) \
+	$(MESS_INSTALL_DATAFILES)
+DEB_ROMFILES = $(MAME_INSTALL_ROMFILES)
+DEB_SAMPLEFILES = $(MAME_INSTALL_SAMPLEFILES)
+DEB_SNAPFILES = $(MAME_INSTALL_SNAPFILES)
+DEB_DOCFILES = $(INSTALL_DOCFILES)
 DEB_MACHINE = $(subst armv7l,armhf,$(subst i686,i386,$(subst x86_64,amd64,$(shell uname -m))))
 DEB_DIST_FILE_BIN = advance$(CONF_EMU)_$(EMUVERSION)-$(REVISION)_$(DEB_MACHINE)
 DEB_DIST_DIR_BIN = $(DEB_DIST_FILE_BIN)
@@ -495,19 +558,19 @@ deb:
 	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/doc
 	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/doc/advance
 	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/advance
+	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/advance/image
 	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/advance/rom
 	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/advance/sample
 	mkdir $(DEB_DIST_DIR_BIN)/usr/local/share/advance/snap
 	mkdir $(DEB_DIST_DIR_BIN)/usr/local/man
 	mkdir $(DEB_DIST_DIR_BIN)/usr/local/man/man1
-	cp $(INSTALL_BINFILES) $(DEB_DIST_DIR_BIN)/usr/local/bin
-	cp $(subst mame,mess,$(INSTALL_BINFILES)) $(DEB_DIST_DIR_BIN)/usr/local/bin
-	cp $(INSTALL_DOCFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/doc/advance
-	cp $(INSTALL_DATAFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/advance
-	cp $(INSTALL_ROMFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/advance/rom
-	cp $(INSTALL_SAMPLEFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/advance/sample
-	cp $(INSTALL_SNAPFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/advance/snap
-	cp $(INSTALL_MANFILES) $(DEB_DIST_DIR_BIN)/usr/local/man/man1
+	cp $(DEB_BINFILES) $(DEB_DIST_DIR_BIN)/usr/local/bin
+	cp $(DEB_DOCFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/doc/advance
+	cp $(DEB_DATAFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/advance
+	cp $(DEB_ROMFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/advance/rom
+	cp $(DEB_SAMPLEFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/advance/sample
+	cp $(DEB_SNAPFILES) $(DEB_DIST_DIR_BIN)/usr/local/share/advance/snap
+	cp $(DEB_MANFILES) $(DEB_DIST_DIR_BIN)/usr/local/man/man1
 	find $(DEB_DIST_DIR_BIN)
 	dpkg-deb --build $(DEB_DIST_DIR_BIN)
 	rm -rf $(DEB_DIST_DIR_BIN)
