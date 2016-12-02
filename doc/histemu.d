@@ -15,6 +15,11 @@ AdvanceMAME/MESS Version 1.6 2016/12
 		FrameBuffer.
 	) Added a new category.ini installed automatically, that
 		is used automaticaly by AdvanceMENU.
+	) Added a new 'display_aspect' option that replaces
+		the old 'display_aspectx' and 'display_aspecty'.
+		This one allows aspect autodetection with 'auto'.
+		You have to manually adjust the advmame.rc file if you
+		are using the old ones.
 	) Added new SSE2 blitters that replace the older MMX ones
 
 AdvanceMAME/MESS Version 1.5 2016/11

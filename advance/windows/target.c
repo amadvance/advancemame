@@ -50,8 +50,10 @@ struct target_context {
 
 	unsigned usleep_granularity; /**< Minimun sleep time in microseconds. */
 
-	unsigned width; /**< Screen width. 0 if not detectable. */
-	unsigned height; /**< Screen height. 0 if not detectable. */
+	unsigned size_x; /**< Screen size. 0 if not detectable. */
+	unsigned size_y; /**< Screen size. 0 if not detectable. */
+	unsigned aspect_x; /**< Screen aspect. 0 if not detectable. */
+	unsigned aspect_y; /**< Screen aspect. 0 if not detectable. */
 };
 
 static struct target_context TARGET;
@@ -67,6 +69,7 @@ adv_error target_init(void)
 	LARGE_INTEGER c;
 	RECT rdesktop;
 	HWND hdesktop;
+	HDC hdc;
 
 	TARGET.buffer_out[0] = 0;
 	TARGET.buffer_err[0] = 0;
@@ -81,8 +84,14 @@ adv_error target_init(void)
 
 	hdesktop = GetDesktopWindow();
 	GetWindowRect(hdesktop, &rdesktop);
-	TARGET.width = rdesktop.right;
-	TARGET.height = rdesktop.bottom;
+	TARGET.size_x = rdesktop.right;
+	TARGET.size_y = rdesktop.bottom;
+	log_std(("windows: size %ux%u\n", target_size_x(), target_size_y()));
+
+	hdc = GetDC(NULL);
+	TARGET.aspect_x = GetDeviceCaps(hdc, HORZSIZE);
+	TARGET.aspect_y = GetDeviceCaps(hdc, VERTSIZE);
+	log_std(("windows: aspect %ux%u\n", target_aspect_x(), target_aspect_y()));
 
 	return 0;
 }
@@ -197,20 +206,36 @@ void target_mode_reset(void)
 /***************************************************************************/
 /* Video */
 
-unsigned target_video_width(void)
+unsigned target_size_x(void)
 {
-	return TARGET.width;
+	return TARGET.size_x;
 }
 
-unsigned target_video_height(void)
+unsigned target_size_y(void)
 {
-	return TARGET.height;
+	return TARGET.size_y;
 }
 
-void target_video_set(unsigned width, unsigned height)
+void target_size_set(unsigned x, unsigned y)
 {
-	TARGET.width = width;
-	TARGET.height = height;
+	TARGET.size_x = x;
+	TARGET.size_y = y;
+}
+
+unsigned target_aspect_x(void)
+{
+	return TARGET.aspect_x;
+}
+
+unsigned target_aspect_y(void)
+{
+	return TARGET.aspect_y;
+}
+
+void target_aspect_set(unsigned x, unsigned y)
+{
+	TARGET.aspect_x = x;
+	TARGET.aspect_y = y;
 }
 
 /***************************************************************************/

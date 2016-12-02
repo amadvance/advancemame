@@ -314,12 +314,12 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 
 	if (sdl_state.output == adv_output_window) {
 		/* reduce a little to allow space for decorations */
-		target_video_set(info->current_w - info->current_w / 8, info->current_h - info->current_h / 8);
+		target_size_set(info->current_w - info->current_w / 8, info->current_h - info->current_h / 8);
 	} else {
-		target_video_set(info->current_w, info->current_h);
+		target_size_set(info->current_w, info->current_h);
 	}
 
-	log_std(("video:sdl: current %ux%u\n", target_video_width(), target_video_height()));
+	log_std(("video:sdl: current %ux%u\n", target_size_x(), target_size_y()));
 
 	if (sdl_state.output == adv_output_window && !has_window_manager) {
 		error_set("Window output not available.\n");

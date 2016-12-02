@@ -583,8 +583,8 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 
 	log_std(("video:fb: id %s\n", id_buffer));
 
-	target_video_set(fb_state.varinfo.xres, fb_state.varinfo.yres);
-	log_std(("video:fb: current %ux%u\n", target_video_width(), target_video_height()));
+	target_size_set(fb_state.varinfo.xres, fb_state.varinfo.yres);
+	log_std(("video:fb: size %ux%u\n", target_size_x(), target_size_y()));
 
 	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
 
@@ -647,9 +647,25 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 
 			split = strchr(opt, '=');
 			if (split) {
+				unsigned aspect;
 				++split;
 				snprintf(fb_state.oldtimings, sizeof(fb_state.oldtimings), "%s", split);
 				log_std(("video:fb: hdmi_timings %s\n", fb_state.oldtimings));
+
+				/* detect aspect ratio */
+				aspect = 0;
+				if (sscanf(split, "%*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %u", &aspect) == 1) {
+					switch (aspect) {
+					case 1 : target_aspect_set(4, 3); break;
+					case 2 : target_aspect_set(14, 9); break;
+					case 3 : target_aspect_set(16, 9); break;
+					case 4 : target_aspect_set(5, 4); break;
+					case 5 : target_aspect_set(16, 10); break;
+					case 6 : target_aspect_set(15, 9); break;
+					case 7 : target_aspect_set(21, 9); break;
+					case 8 : target_aspect_set(64, 27); break;
+					}
+				}
 			}
 
 			free(opt);
@@ -696,6 +712,8 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 			goto err_close;
 		}
 	}
+
+	log_std(("video:fb: aspect %ux%u\n", target_aspect_x(), target_aspect_y()));
 
 	fb_state.active = 1;
 

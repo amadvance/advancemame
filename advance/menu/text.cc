@@ -627,8 +627,8 @@ bool int_init(unsigned sizex, unsigned sizey)
 
 	// set auto resolution
 	if (int_mode_sizex == 0 || int_mode_sizey == 0) {
-		int_mode_sizex = target_video_width();
-		int_mode_sizey = target_video_height();
+		int_mode_sizex = target_size_x();
+		int_mode_sizey = target_size_y();
 	}
 	// otherwise ask fo a generic big one to select the biggest available mode
 	if (int_mode_sizex == 0 || int_mode_sizey == 0) {

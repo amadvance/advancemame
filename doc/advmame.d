@@ -965,22 +965,21 @@ Configuration
 	Examples:
 		:display_expand 1.15
 
-    display_aspectx/aspecty
+    display_aspect
 	Selects the aspect of the monitor used.
 
-	:display_aspectx INT
-	:display_aspecty INT
+	:display_aspect auto | X/Y
 
 	Options:
-		INT - Integer number starting from 1 (default 4 and 3).
+		auto - Auto detection (default).
+		X/Y - Integer number starting from 1.
 
 	For 16/9 TV you can use the 16 and 9 values. For truly vertical
 	monitors (not horizontal monitors rotated) you can simply swap the
 	values, for example 3 and 4 instead of 4 and 3.
 
 	Examples:
-		:display_aspectx 16
-		:display_aspecty 9
+		:display_aspect 16/9
 
     display_ror/rol/flipx/flipy
 	Flips and rotates the game image.

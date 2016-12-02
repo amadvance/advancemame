@@ -87,8 +87,10 @@ struct target_context {
 	unsigned col; /**< Number of columns. 0 if not detectable. */
 	unsigned row; /**< Number of rows. 0 if not detectable. */
 
-	unsigned width; /**< Screen width. 0 if not detectable. */
-	unsigned height; /**< Screen height. 0 if not detectable. */
+	unsigned size_x; /**< Screen size. 0 if not detectable. */
+	unsigned size_y; /**< Screen size. 0 if not detectable. */
+	unsigned aspect_x; /**< Screen aspect. 0 if not detectable. */
+	unsigned aspect_y; /**< Screen aspect. 0 if not detectable. */
 
 #ifdef USE_DIRECT_PORT
 	adv_bool io_perm_flag; /**< IO Permission granted. */
@@ -421,20 +423,36 @@ void target_mode_reset(void)
 /***************************************************************************/
 /* Video */
 
-unsigned target_video_width(void)
+unsigned target_size_x(void)
 {
-	return TARGET.width;
+	return TARGET.size_x;
 }
 
-unsigned target_video_height(void)
+unsigned target_size_y(void)
 {
-	return TARGET.height;
+	return TARGET.size_y;
 }
 
-void target_video_set(unsigned width, unsigned height)
+void target_size_set(unsigned x, unsigned y)
 {
-	TARGET.width = width;
-	TARGET.height = height;
+	TARGET.size_x = x;
+	TARGET.size_y = y;
+}
+
+unsigned target_aspect_x(void)
+{
+	return TARGET.aspect_x;
+}
+
+unsigned target_aspect_y(void)
+{
+	return TARGET.aspect_y;
+}
+
+void target_aspect_set(unsigned x, unsigned y)
+{
+	TARGET.aspect_x = x;
+	TARGET.aspect_y = y;
 }
 
 /***************************************************************************/

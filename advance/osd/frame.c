@@ -2415,6 +2415,22 @@ void advance_video_mode_preinit(struct advance_video_context* context, struct ma
 		log_std(("emu:video: display_adjust=* disabled because the graphics driver is not programmable\n"));
 	}
 
+	if (!context->config.monitor_aspect_x || !context->config.monitor_aspect_y) {
+		/* detect aspect */
+		context->config.monitor_aspect_x = target_aspect_x();
+		context->config.monitor_aspect_y = target_aspect_y();
+	}
+	if (!context->config.monitor_aspect_x || !context->config.monitor_aspect_y) {
+		/* assume square pixels */
+		context->config.monitor_aspect_x = target_size_x();
+		context->config.monitor_aspect_y = target_size_y();
+	}
+	if (!context->config.monitor_aspect_x || !context->config.monitor_aspect_y) {
+		/* assume 16/9 */
+		context->config.monitor_aspect_x = 16;
+		context->config.monitor_aspect_y = 9;
+	}
+
 	/* set the debugger size */
 	option->debug_width = 640;
 	option->debug_height = 480;
@@ -2438,9 +2454,9 @@ void advance_video_mode_preinit(struct advance_video_context* context, struct ma
 
 		mode_size_x = 640;
 		mode_size_y = 480;
-		if (target_video_width() && target_video_height()) {
-			mode_size_x = target_video_width();
-			mode_size_y = target_video_height();
+		if (target_size_x() && target_size_y()) {
+			mode_size_x = target_size_x();
+			mode_size_y = target_size_y();
 		}
 
 		log_std(("emu:video: insert vector video modes\n"));

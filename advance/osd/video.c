@@ -1368,8 +1368,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_int_register_enum_default(cfg_context, "display_color", conf_enum(OPTION_INDEX), 0);
 	conf_bool_register_default(cfg_context, "display_restore", 1);
 	conf_float_register_limit_default(cfg_context, "display_expand", 1.0, 10.0, 1.0);
-	conf_int_register_limit_default(cfg_context, "display_aspectx", 1, 10000, 4);
-	conf_int_register_limit_default(cfg_context, "display_aspecty", 1, 10000, 3);
+	conf_string_register_default(cfg_context, "display_aspect", "auto");
 
 #ifdef USE_SMP
 	/* on Intel assume a fast machine */
@@ -1477,8 +1476,34 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.magnify_size = conf_int_get_default(cfg_context, "display_magnifysize");
 	context->config.adjust = conf_int_get_default(cfg_context, "display_adjust");
 
-	context->config.monitor_aspect_x = conf_int_get_default(cfg_context, "display_aspectx");
-	context->config.monitor_aspect_y = conf_int_get_default(cfg_context, "display_aspecty");
+	context->config.monitor_aspect_x = 0;
+	context->config.monitor_aspect_y = 0;
+	s = conf_string_get_default(cfg_context, "display_aspect");
+	if (strcmp(s, "auto")!=0) {
+		char* e;
+		long x;
+		long y;
+
+		x = strtol(s, &e, 10);
+		while (e && isspace(*e))
+			++e;
+		if (*e == '/') {
+			++e;
+			y = strtol(e, &e, 10);
+			while (e && isspace(*e))
+				++e;
+			if (x > 0 && y > 0 && *e == 0) {
+				context->config.monitor_aspect_x = x;
+				context->config.monitor_aspect_y = y;
+			} else {
+				target_err("Invalid argument '%s' for option 'display_aspect'.\n", s);
+				return -1;
+			}
+		} else {
+			target_err("Invalid argument '%s' for option 'display_aspect'.\n", s);
+			return -1;
+		}
+	}
 
 	s = conf_string_get_default(cfg_context, "display_skiplines");
 	if (strcmp(s, "auto")==0) {

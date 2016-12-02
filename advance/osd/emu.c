@@ -517,7 +517,10 @@ static adv_conf_conv STANDARD[] = {
 { "*", "misc_infofile", "*", "", "", "", 0 }, /* ignore */
 { "*", "sound_resamplefilter", "*", "", "", "", 0 }, /* ignore */
 /* 1.2 */
-{ "*", "display_resizeeffect", "scale", "%s", "%s", "scalex", 0 } /* rename */
+{ "*", "display_resizeeffect", "scale", "%s", "%s", "scalex", 0 }, /* rename */
+/* 1.6 */
+{ "*", "display_aspectx", "*", "", "", "", 0 }, /* ignore */
+{ "*", "display_aspecty", "*", "", "", "", 0 } /* ignore */
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

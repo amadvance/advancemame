@@ -171,9 +171,17 @@ void target_sound_signal(void);
  * Current resolution if any.
  * If missing/unknown return 0
  */
-unsigned target_video_width(void);
-unsigned target_video_height(void);
-void target_video_set(unsigned width, unsigned height);
+unsigned target_size_y(void);
+unsigned target_size_x(void);
+void target_size_set(unsigned x, unsigned y);
+
+/**
+ * Current aspect if any.
+ * If missing/unknown return 0
+ */
+unsigned target_aspect_x(void);
+unsigned target_aspect_y(void);
+void target_aspect_set(unsigned x, unsigned y);
 
 /***************************************************************************/
 /* APM */
