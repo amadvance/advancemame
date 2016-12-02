@@ -1058,7 +1058,9 @@ dist: $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ
 	mkdir $(EMU_DIST_DIR_SRC)/advance/expat
 	cp $(EXPAT_SRC) $(EMU_DIST_DIR_SRC)/advance/expat
 	mkdir $(EMU_DIST_DIR_SRC)/contrib
+ifneq ($(EMU_CONTRIB_SRC),)
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_SRC)/contrib
+endif
 	cp -R $(srcdir)/src $(EMU_DIST_DIR_SRC)
 	cp -R $(srcdir)/srcmess $(EMU_DIST_DIR_SRC)
 	cp -R $(srcdir)/mess $(EMU_DIST_DIR_SRC)
