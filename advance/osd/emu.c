@@ -772,11 +772,16 @@ int os_main(int argc, char* argv[])
 		conf_section_set(context->cfg, section_map, 1);
 		target_out("\n");
 #ifdef MESS
-		target_out("The default bios search path is `%s', the default software search path is `%s'. You can change them using the `dir_rom' and `dir_image' options in the configuration file.\n", conf_string_get_default(context->cfg, "dir_rom"), conf_string_get_default(context->cfg, "dir_image"));
+		target_out("The default bios search path is `%s', the default software search path is `%s'.\n"
+			"You can change them using the `dir_rom' and `dir_image' options in the configuration file.\n",
+			conf_string_get_default(context->cfg, "dir_rom"), conf_string_get_default(context->cfg, "dir_image"));
 #else
-		target_out("The default rom search path is `%s'. You can change it using the `dir_rom' option in the configuration file.\n", conf_string_get_default(context->cfg, "dir_rom"));
+		target_out("The default rom search path is `%s'.\n"
+			"You can change it using the `dir_rom' option in the configuration file.\n",
+			conf_string_get_default(context->cfg, "dir_rom"));
 #endif
-		goto done_os;
+		target_out("\n");
+		/* continue execution */
 	}
 
 	if (opt_default) {

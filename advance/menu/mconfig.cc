@@ -958,10 +958,8 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 			target_nfo("log: load cfg for %s\n", (*i)->user_name_get().c_str());
 		if (!(*i)->load_cfg(gar, quiet)) {
 			if (!quiet)
-				target_err("Emulator '%s' without configuration, ignoring it.\n", (*i)->user_exe_path_get().c_str());
-			pemulator_container::iterator j = i;
+				target_err("Emulator '%s' without configuration, assuming default one.\n", (*i)->user_exe_path_get().c_str());
 			++i;
-			emu_active.erase(j);
 		} else {
 			++i;
 		}
@@ -1161,11 +1159,20 @@ void config_state::conf_default(adv_conf* config_context)
 			target_out("Adding emulator `advmame'...\n");
 			conf_set(config_context, "", "emulator", "\"advmame\" advmame \"advmame\" \"-quiet\"");
 #ifdef ADV_DATADIR
-			string opt = "\"advmame\" \"" + string(ADV_DATADIR) + "/snap\"";
-			conf_set(config_context, "", "emulator_altss", opt.c_str());
-			string catver = string(ADV_DATADIR) + "/category.ini";
-			if (access(cpath_export(catver), F_OK) == 0) {
-				opt = "catver \"advmame\" \"" + path_export(catver) + "\" \"Category\"";
+			string path;
+			path = string(ADV_DATADIR) + "/snap";
+			if (access(cpath_export(path), F_OK) == 0) {
+				string opt = "\"advmame\" \"" + path_export(path) + "\"";
+				conf_set(config_context, "", "emulator_altss", opt.c_str());
+			}
+			path = string(ADV_DATADIR) + "/rom";
+			if (access(cpath_export(path), F_OK) == 0) {
+				string opt = "\"advmame\" \"" + path_export(path) + "\"";
+				conf_set(config_context, "", "emulator_roms", opt.c_str());
+			}
+			path = string(ADV_DATADIR) + "/category.ini";
+			if (access(cpath_export(path), F_OK) == 0) {
+				string opt = "catver \"advmame\" \"" + path_export(path) + "\" \"Category\"";
 				conf_set(config_context, "", "type_import", opt.c_str());
 			}
 #endif
@@ -1174,8 +1181,22 @@ void config_state::conf_default(adv_conf* config_context)
 			target_out("Adding emulator `advmess'...\n");
 			conf_set(config_context, "", "emulator", "\"advmess\" advmess \"advmess\" \"-quiet\"");
 #ifdef ADV_DATADIR
-			string s = "\"advmess\" \"" + string(ADV_DATADIR) + "/snap\"";
-			conf_set(config_context, "", "emulator_altss", s.c_str());
+			string path;
+			path = string(ADV_DATADIR) + "/snap";
+			if (access(cpath_export(path), F_OK) == 0) {
+				string opt = "\"advmess\" \"" + path_export(path) + "\"";
+				conf_set(config_context, "", "emulator_altss", opt.c_str());
+			}
+			path = string(ADV_DATADIR) + "/rom";
+			if (access(cpath_export(path), F_OK) == 0) {
+				string opt = "\"advmess\" \"" + path_export(path) + "\"";
+				conf_set(config_context, "", "emulator_roms", opt.c_str());
+			}
+			path = string(ADV_DATADIR) + "/image";
+			if (access(cpath_export(path), F_OK) == 0) {
+				string opt = "\"advmess\" \"" + path_export(path) + "\"";
+				conf_set(config_context, "", "emulator_images", opt.c_str());
+			}
 #endif
 		}
 		if (target_search(path, FILE_MAXPATH, "mame") == 0) {

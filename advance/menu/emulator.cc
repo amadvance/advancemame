@@ -1235,18 +1235,18 @@ bool advmame::load_cfg(const game_set& gar, bool quiet)
 
 	string config_file = path_abs(path_import(file_config_file_home("advmame.rc")), exe_dir_get());
 
-	if (!validate_config_file(config_file))
-		return false;
-
 	context = conf_init();
 
 	conf_string_register(context, "dir_rom");
 	conf_string_register(context, "dir_snap");
 
-	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
-		target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
-		conf_done(context);
-		return false;
+	// if configuration is missing, we use default rom path
+	if (validate_config_file(config_file)) {
+		if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
+			target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
+			conf_done(context);
+			return false;
+		}
 	}
 
 	if (conf_string_section_get(context, "", "dir_rom", &s)==0) {
@@ -1798,19 +1798,19 @@ bool advmess::load_cfg(const game_set& gar, bool quiet)
 
 	string config_file = path_abs(path_import(file_config_file_home("advmess.rc")), exe_dir_get());
 
-	if (!validate_config_file(config_file))
-		return false;
-
 	context = conf_init();
 
 	conf_string_register(context, "dir_rom");
 	conf_string_register(context, "dir_image");
 	conf_string_register(context, "dir_snap");
 
-	if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
-		target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
-		conf_done(context);
-		return false;
+	// if configuration is missing, we use default rom path
+	if (validate_config_file(config_file)) {
+		if (conf_input_file_load_adv(context, 0, cpath_export(config_file), 0, 1, 1, 0, 0, 0, 0) != 0) {
+			target_err("Error loading the configuration file %s.\n", cpath_export(config_file));
+			conf_done(context);
+			return false;
+		}
 	}
 
 	if (conf_string_section_get(context, "", "dir_rom", &s)==0) {

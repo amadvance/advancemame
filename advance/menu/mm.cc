@@ -741,7 +741,8 @@ int os_main(int argc, char* argv[])
 			goto err_init;
 		}
 		target_out("Configuration file `%s' created with all the default options.\n", cfg_buffer);
-		goto done_init;
+		target_out("\n");
+		/* continue execution */
 	}
 
 	if (opt_default) {
