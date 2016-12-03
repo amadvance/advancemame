@@ -74,6 +74,8 @@ typedef struct fb_internal_struct {
 	struct fb_var_screeninfo varinfo; /**< Variable info. */
 	char oldtimings[128]; /**< Raspberry hdmi_timings. */
 	char olddrive[16]; /**< Raspberry hdmi_drive: HDMI or DVI. */
+	char oldgroup[16]; /**< Raspberry hdmi_group: CEA or DMT. */
+	unsigned oldmode; /**< Raspberry hdmi_mode. */
 	adv_bool old_need_restore; /**< Raspberry needs to restore the old timings. */
 
 	unsigned index;
@@ -583,8 +585,8 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 
 	log_std(("video:fb: id %s\n", id_buffer));
 
+	/* set the size like the original video mode */
 	target_size_set(fb_state.varinfo.xres, fb_state.varinfo.yres);
-	log_std(("video:fb: size %ux%u\n", target_size_x(), target_size_y()));
 
 	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
 
@@ -647,57 +649,39 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 
 			split = strchr(opt, '=');
 			if (split) {
-				unsigned aspect;
-				unsigned size_x;
-				unsigned size_y;
-				unsigned sync_x;
-				unsigned sync_y;
 				++split;
-
-				aspect = 0;
-				size_x = 0;
-				size_y = 0;
-				sync_x = 0;
-				sync_y = 0;
-				if (sscanf(split, "%u %*u %*u %u %*u %u %*u %*u %u %*u %*u %*u %*u %*u %*u %*u %u", &size_x, &sync_x, &size_y, &sync_y, &aspect) == 5) {
-					switch (aspect) {
-					case 1 : target_aspect_set(4, 3); break;
-					case 2 : target_aspect_set(14, 9); break;
-					case 3 : target_aspect_set(16, 9); break;
-					case 4 : target_aspect_set(5, 4); break;
-					case 5 : target_aspect_set(16, 10); break;
-					case 6 : target_aspect_set(15, 9); break;
-					case 7 : target_aspect_set(21, 9); break;
-					case 8 : target_aspect_set(64, 27); break;
-					}
-
-					/* if the original mode is not DMT 87, the sizes and sync are all 0 */
-					if (size_x != 0 && size_y != 0
-						&& sync_x != 0 && sync_y != 0
-					) {
-						snprintf(fb_state.oldtimings, sizeof(fb_state.oldtimings), "%s", split);
-						log_std(("video:fb: hdmi_timings %s\n", fb_state.oldtimings));
-					}
-				}
+				snprintf(fb_state.oldtimings, sizeof(fb_state.oldtimings), "%s", split);
+				log_std(("video:fb: hdmi_timings %s\n", fb_state.oldtimings));
 			}
 
 			free(opt);
 		}
 
-		/* get current driver */
+		/* get current info */
 		fb_state.olddrive[0] = 0;
+		fb_state.oldgroup[0] = 0;
+		fb_state.oldmode = 0;
 		snprintf(cmd, sizeof(cmd), "tvservice -s");
 		log_std(("video:fb: run \"%s\"\n", cmd));
 		opt = target_system(cmd);
 		if (opt) {
-			log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+			unsigned aspect_x;
+			unsigned aspect_y;
+			int state;
 
-			if (strstr(opt, "HDMI") != 0) {
-				strcpy(fb_state.olddrive, "HDMI");
+			log_std(("video:fb: tvservice result \"%s\"\n", opt));
+
+			if (sscanf(opt, "state %i [%15s %15s (%u) %*s %*s %u:%u]",
+				&state, fb_state.olddrive, fb_state.oldgroup, &fb_state.oldmode,
+				&aspect_x, &aspect_y) == 6
+			) {
+				log_std(("video:fb: tvservice state 0x%x\n", state));
 				log_std(("video:fb: hdmi_drive %s\n", fb_state.olddrive));
-			} else if (strstr(opt, "DVI") != 0) {
-				strcpy(fb_state.olddrive, "DVI");
-				log_std(("video:fb: hdmi_drive %s\n", fb_state.olddrive));
+				log_std(("video:fb: hdmi_group %s\n", fb_state.oldgroup));
+				log_std(("video:fb: hdmi_mode %u\n", fb_state.oldmode));
+
+				if (aspect_x != 0 && aspect_y != 0)
+					target_aspect_set(aspect_x, aspect_y);
 			}
 
 			free(opt);
@@ -722,6 +706,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		}
 	}
 
+	log_std(("video:fb: size %ux%u\n", target_size_x(), target_size_y()));
 	log_std(("video:fb: aspect %ux%u\n", target_aspect_x(), target_aspect_y()));
 
 	fb_state.active = 1;
@@ -1043,8 +1028,8 @@ void fb_mode_done(adv_bool restore)
 			char* opt;
 			char cmd[256];
 
-			if (fb_state.oldtimings[0] && fb_state.olddrive[0]) {
-				/* if we have original timings, restore them */
+			/* if we have original timings, restore them */
+			if (fb_state.oldtimings[0]) {
 				snprintf(cmd, sizeof(cmd), "vcgencmd hdmi_timings %s", fb_state.oldtimings);
 				log_std(("video:fb: run \"%s\"\n", cmd));
 				opt = target_system(cmd);
@@ -1053,8 +1038,11 @@ void fb_mode_done(adv_bool restore)
 					free(opt);
 				}
 				/* ignore error */
+			}
 
-				snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87 %s\"", fb_state.olddrive);
+			/* if we have the mode, restore it */
+			if (fb_state.olddrive[0] && fb_state.oldgroup[0] && fb_state.oldmode) {
+				snprintf(cmd, sizeof(cmd), "tvservice -e \"%s %u %s\"", fb_state.oldgroup, fb_state.oldmode, fb_state.olddrive);
 				log_std(("video:fb: run \"%s\"\n", cmd));
 				opt = target_system(cmd);
 				if (opt) {
@@ -1093,7 +1081,7 @@ void fb_mode_done(adv_bool restore)
 			 * "Programmatically turn screen off"
 			 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
 			 */
-			target_usleep(1000 * 1000); /* 1 sec */
+			target_usleep(500 * 1000); /* 0.5 sec */
 		}
 
 		fb_setvar(&fb_state.oldinfo);
