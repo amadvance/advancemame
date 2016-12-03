@@ -648,13 +648,18 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 			split = strchr(opt, '=');
 			if (split) {
 				unsigned aspect;
+				unsigned size_x;
+				unsigned size_y;
+				unsigned sync_x;
+				unsigned sync_y;
 				++split;
-				snprintf(fb_state.oldtimings, sizeof(fb_state.oldtimings), "%s", split);
-				log_std(("video:fb: hdmi_timings %s\n", fb_state.oldtimings));
 
-				/* detect aspect ratio */
 				aspect = 0;
-				if (sscanf(split, "%*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %*u %u", &aspect) == 1) {
+				size_x = 0;
+				size_y = 0;
+				sync_x = 0;
+				sync_y = 0;
+				if (sscanf(split, "%u %*u %*u %u %*u %u %*u %*u %u %*u %*u %*u %*u %*u %*u %*u %u", &size_x, &sync_x, &size_y, &sync_y, &aspect) == 5) {
 					switch (aspect) {
 					case 1 : target_aspect_set(4, 3); break;
 					case 2 : target_aspect_set(14, 9); break;
@@ -664,6 +669,14 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 					case 6 : target_aspect_set(15, 9); break;
 					case 7 : target_aspect_set(21, 9); break;
 					case 8 : target_aspect_set(64, 27); break;
+					}
+
+					/* if the original mode is not DMT 87, the sizes and sync are all 0 */
+					if (size_x != 0 && size_y != 0
+						&& sync_x != 0 && sync_y != 0
+					) {
+						snprintf(fb_state.oldtimings, sizeof(fb_state.oldtimings), "%s", split);
+						log_std(("video:fb: hdmi_timings %s\n", fb_state.oldtimings));
 					}
 				}
 			}
@@ -689,10 +702,6 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 
 			free(opt);
 		}
-
-		/* on error disable programmable modes */
-		if (fb_state.oldtimings[0] == 0 || fb_state.olddrive[0] == 0)
-			fb_state.flags &= ~(VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN);
 	} else {
 		if (output != adv_output_auto && output != adv_output_fullscreen) {
 			error_set("Only fullscreen output is supported.\n");
@@ -1028,31 +1037,42 @@ void fb_mode_done(adv_bool restore)
 		fb_log(0, &fb_state.oldinfo);
 
 		/* if raspberry needs special processing */
-		is_raspberry_active = fb_state.is_raspberry
-			&& fb_state.old_need_restore
-			&& fb_state.oldtimings[0] != 0 && fb_state.olddrive[0] != 0;
+		is_raspberry_active = fb_state.is_raspberry && fb_state.old_need_restore;
 
 		if (is_raspberry_active) {
 			char* opt;
 			char cmd[256];
 
-			snprintf(cmd, sizeof(cmd), "vcgencmd hdmi_timings %s", fb_state.oldtimings);
-			log_std(("video:fb: run \"%s\"\n", cmd));
-			opt = target_system(cmd);
-			if (opt) {
-				log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
-				free(opt);
-			}
-			/* ignore error */
+			if (fb_state.oldtimings[0] && fb_state.olddrive[0]) {
+				/* if we have original timings, restore them */
+				snprintf(cmd, sizeof(cmd), "vcgencmd hdmi_timings %s", fb_state.oldtimings);
+				log_std(("video:fb: run \"%s\"\n", cmd));
+				opt = target_system(cmd);
+				if (opt) {
+					log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+					free(opt);
+				}
+				/* ignore error */
 
-			snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87 %s\"", fb_state.olddrive);
-			log_std(("video:fb: run \"%s\"\n", cmd));
-			opt = target_system(cmd);
-			if (opt) {
-				log_std(("video:fb: tvservice result \"%s\"\n", opt));
-				free(opt);
+				snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87 %s\"", fb_state.olddrive);
+				log_std(("video:fb: run \"%s\"\n", cmd));
+				opt = target_system(cmd);
+				if (opt) {
+					log_std(("video:fb: tvservice result \"%s\"\n", opt));
+					free(opt);
+				}
+				/* ignore error */
+			} else {
+				/* otherwise, use the preferred mode */
+				snprintf(cmd, sizeof(cmd), "tvservice -p");
+				log_std(("video:fb: run \"%s\"\n", cmd));
+				opt = target_system(cmd);
+				if (opt) {
+					log_std(("video:fb: tvservice result \"%s\"\n", opt));
+					free(opt);
+				}
+				/* ignore error */
 			}
-			/* ignore error */
 
 			/*
 			 * Wait some time after the tvservice command to allow
@@ -1066,13 +1086,14 @@ void fb_mode_done(adv_bool restore)
 			 * workaround of changing VT with "chvt 2; chvt 1", or resetting
 			 * the video mode with "fbset -depth 8; fbset -depth 16".
 			 *
-			 * A 100ms deley is enough, but we wait more for safety.
+			 * A 100ms delay may be enough on some screens, on others more may be
+			 * required.
 			 *
 			 * See:
 			 * "Programmatically turn screen off"
 			 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
 			 */
-			target_usleep(500 * 1000);
+			target_usleep(1000 * 1000); /* 1 sec */
 		}
 
 		fb_setvar(&fb_state.oldinfo);
