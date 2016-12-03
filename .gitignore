@@ -1,5 +1,6 @@
 # upload
-makepush*.sh
+makepush.sh
+makeftp.sh
 
 # autotools
 Makefile
