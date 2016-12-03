@@ -904,13 +904,13 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		 * workaround of changing VT with "chvt 2; chvt 1", or resetting
 		 * the video mode with "fbset -depth 8; fbset -depth 16".
 		 *
-		 * A 100ms deley is enough, but we wait more for safety.
+		 * A 100ms delay is enough, but we wait more for safety.
 		 *
 		 * See:
 		 * "Programmatically turn screen off"
 		 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
 		 */
-		target_usleep(500 * 1000);
+		target_usleep(250 * 1000);
 	}
 
 	/* save the minimun required data */
@@ -1074,14 +1074,13 @@ void fb_mode_done(adv_bool restore)
 			 * workaround of changing VT with "chvt 2; chvt 1", or resetting
 			 * the video mode with "fbset -depth 8; fbset -depth 16".
 			 *
-			 * A 100ms delay may be enough on some screens, on others more may be
-			 * required.
+			 * A 100ms delay is enough, but we wait more for safety.
 			 *
 			 * See:
 			 * "Programmatically turn screen off"
 			 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
 			 */
-			target_usleep(500 * 1000); /* 0.5 sec */
+			target_usleep(250 * 1000);
 		}
 
 		fb_setvar(&fb_state.oldinfo);
