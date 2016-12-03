@@ -960,10 +960,10 @@ Configuration
 
 	Options:
 		FACTOR - Expansion float factor from 1.0 to 2.0
-			(default 1.0).
+			(default 1.25).
 
 	Examples:
-		:display_expand 1.15
+		:display_expand 1.1
 
     display_aspect
 	Selects the aspect of the monitor used.

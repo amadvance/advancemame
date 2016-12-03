@@ -1367,7 +1367,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 	conf_string_register_default(cfg_context, "display_mode", "auto");
 	conf_int_register_enum_default(cfg_context, "display_color", conf_enum(OPTION_INDEX), 0);
 	conf_bool_register_default(cfg_context, "display_restore", 1);
-	conf_float_register_limit_default(cfg_context, "display_expand", 1.0, 10.0, 1.0);
+	conf_float_register_limit_default(cfg_context, "display_expand", 1.0, 10.0, 1.25);
 	conf_string_register_default(cfg_context, "display_aspect", "auto");
 
 #ifdef USE_SMP

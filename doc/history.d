@@ -22,6 +22,9 @@ AdvanceMAME/MESS/MENU Version 3.0 2016/12
 		This one allows aspect autodetection with 'auto'.
 		You have to manually adjust the advmame.rc file if you
 		are using the old ones.
+	) Changed the default of 'display_expand' to 1.25.
+		This value allow to fill better a wide screen with
+		old games. If you like more correct aspect, select 1.0.
 	) Add a new AdvanceMENU 3x2 tile mode called "tile_tiny".
 	) Better autoconfiguration for AdvanceMENU to be able to detect
 		and configure AdvanceMAME and AdvanceMESS at the first run.
