@@ -5389,6 +5389,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 
 #ifndef USE_BLIT_TINY
 	if (combine_y == VIDEO_COMBINE_Y_LQ
+		|| combine_y == VIDEO_COMBINE_Y_SCALEK
 #ifndef USE_BLIT_SMALL
 		|| combine_y == VIDEO_COMBINE_Y_HQ
 		|| combine_y == VIDEO_COMBINE_Y_XBR
