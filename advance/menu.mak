@@ -543,9 +543,6 @@ MENU_DOC_SRC = \
 	$(srcdir)/doc/cost.d \
 	$(srcdir)/doc/authors.d \
 	$(srcdir)/doc/faq.d \
-	$(srcdir)/doc/histmenu.d \
-	$(srcdir)/doc/readmenu.d \
-	$(srcdir)/doc/relemenu.d \
 	$(srcdir)/doc/advv.d \
 	$(srcdir)/doc/advcfg.d \
 	$(srcdir)/doc/install.d \
@@ -557,9 +554,6 @@ MENU_DOC_SRC = \
 	$(srcdir)/doc/cost.txt \
 	$(srcdir)/doc/authors.txt \
 	$(srcdir)/doc/faq.txt \
-	$(srcdir)/doc/histmenu.txt \
-	$(srcdir)/doc/readmenu.txt \
-	$(srcdir)/doc/relemenu.txt \
 	$(srcdir)/doc/advv.txt \
 	$(srcdir)/doc/advcfg.txt \
 	$(srcdir)/doc/install.txt \
@@ -571,9 +565,6 @@ MENU_DOC_SRC = \
 	$(srcdir)/doc/cost.html \
 	$(srcdir)/doc/authors.html \
 	$(srcdir)/doc/faq.html \
-	$(srcdir)/doc/histmenu.html \
-	$(srcdir)/doc/readmenu.html \
-	$(srcdir)/doc/relemenu.html \
 	$(srcdir)/doc/advv.html \
 	$(srcdir)/doc/advcfg.html \
 	$(srcdir)/doc/install.html \
@@ -595,9 +586,6 @@ MENU_DOC_BIN = \
 	$(DOCOBJ)/cost.txt \
 	$(DOCOBJ)/authors.txt \
 	$(DOCOBJ)/faq.txt \
-	$(DOCOBJ)/readmenu.txt \
-	$(DOCOBJ)/relemenu.txt \
-	$(DOCOBJ)/histmenu.txt \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
 	$(DOCOBJ)/install.txt \
@@ -607,9 +595,6 @@ MENU_DOC_BIN = \
 	$(DOCOBJ)/cost.html \
 	$(DOCOBJ)/authors.html \
 	$(DOCOBJ)/faq.html \
-	$(DOCOBJ)/readmenu.html \
-	$(DOCOBJ)/relemenu.html \
-	$(DOCOBJ)/histmenu.html \
 	$(DOCOBJ)/advv.html \
 	$(DOCOBJ)/advcfg.html \
 	$(DOCOBJ)/install.html
@@ -661,12 +646,8 @@ MENU_DIST_FILE_BIN = advancemenu-$(MENUVERSION)-$(BINARYTAG)
 MENU_DIST_DIR_SRC = $(MENU_DIST_FILE_SRC)
 MENU_DIST_DIR_BIN = $(MENU_DIST_FILE_BIN)
 
-distmenu: $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histmenu.txt $(DOCOBJ)/build.txt
+distmenu:
 	mkdir $(MENU_DIST_DIR_SRC)
-	cp $(DOCOBJ)/readmenu.txt $(MENU_DIST_DIR_SRC)/README
-	cp $(DOCOBJ)/relemenu.txt $(MENU_DIST_DIR_SRC)/RELEASE
-	cp $(DOCOBJ)/histmenu.txt $(MENU_DIST_DIR_SRC)/HISTORY
-	cp $(DOCOBJ)/build.txt $(MENU_DIST_DIR_SRC)/BUILD
 	cp $(MENU_ROOT_SRC) $(MENU_DIST_DIR_SRC)
 	mkdir $(MENU_DIST_DIR_SRC)/doc
 	cp $(MENU_DOC_SRC) $(MENU_DIST_DIR_SRC)/doc
@@ -729,14 +710,8 @@ distmenu: $(DOCOBJ)/readmenu.txt $(DOCOBJ)/relemenu.txt $(DOCOBJ)/histmenu.txt $
 distmenubin: $(MENU_ROOT_BIN) $(MENU_DOC_BIN)
 	mkdir $(MENU_DIST_DIR_BIN)
 ifeq ($(CONF_SYSTEM),unix)
-	cp $(DOCOBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/README
-	cp $(DOCOBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/RELEASE
-	cp $(DOCOBJ)/histmenu.txt $(MENU_DIST_DIR_BIN)/HISTORY
 	cp $(srcdir)/COPYING $(MENU_DIST_DIR_BIN)/COPYING
 else
-	cp $(DOCOBJ)/readmenu.txt $(MENU_DIST_DIR_BIN)/readme.txt
-	cp $(DOCOBJ)/relemenu.txt $(MENU_DIST_DIR_BIN)/release.txt
-	cp $(DOCOBJ)/histmenu.txt $(MENU_DIST_DIR_BIN)/history.txt
 	cp $(srcdir)/COPYING $(MENU_DIST_DIR_BIN)/copying.txt
 endif
 	cp $(MENU_ROOT_BIN) $(MENU_DIST_DIR_BIN)

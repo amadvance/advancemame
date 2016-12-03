@@ -815,9 +815,6 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/install.txt \
 	$(srcdir)/doc/svgawin.txt \
 	$(srcdir)/doc/advmenu.d \
-	$(srcdir)/doc/histmenu.d \
-	$(srcdir)/doc/readmenu.d \
-	$(srcdir)/doc/relemenu.d \
 	$(srcdir)/doc/advdev.html \
 	$(srcdir)/doc/license.html \
 	$(srcdir)/doc/advmame.html \
@@ -842,9 +839,6 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/install.html \
 	$(srcdir)/doc/svgawin.html \
 	$(srcdir)/doc/advmenu.html \
-	$(srcdir)/doc/histmenu.html \
-	$(srcdir)/doc/readmenu.html \
-	$(srcdir)/doc/relemenu.html \
 	$(srcdir)/doc/advdev.1 \
 	$(srcdir)/doc/advmame.1 \
 	$(srcdir)/doc/advv.1 \
@@ -871,9 +865,6 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/advv.txt \
 	$(DOCOBJ)/advcfg.txt \
 	$(DOCOBJ)/advmenu.txt \
-	$(DOCOBJ)/readmenu.txt \
-	$(DOCOBJ)/relemenu.txt \
-	$(DOCOBJ)/histmenu.txt \
 	$(DOCOBJ)/advdev.html \
 	$(DOCOBJ)/license.html \
 	$(DOCOBJ)/advmame.html \
@@ -888,10 +879,7 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/install.html \
 	$(DOCOBJ)/advv.html \
 	$(DOCOBJ)/advcfg.html \
-	$(DOCOBJ)/advmenu.html \
-	$(DOCOBJ)/readmenu.html \
-	$(DOCOBJ)/relemenu.html \
-	$(DOCOBJ)/histmenu.html
+	$(DOCOBJ)/advmenu.html
 ifeq ($(CONF_SYSTEM),unix)
 EMU_DOC_BIN += \
 	$(DOCOBJ)/cardlinx.txt \

@@ -1,5 +1,20 @@
 Name
-	release notes - Release Notes For AdvanceMAME/MESS
+	release notes - Release Notes For AdvanceMAME
+
+AdvanceMAME 1.6
+	This version is a major update for Raspberry Pi.
+
+	Check the install.txt file for some more information
+	about the use with a Raspberry Pi.
+
+	The most important note is to run the Advance programs
+	directly from the Linux Console and outside the
+	X-Window graphics environment to be able to use the
+	Raspberry hardware acceleration.
+
+	From this version now AdvanceMESS and AvanceMENU are
+	included in both the source and binary packages of
+	AdvanceMAME.
 
 AdvanceMAME 1.2
 	This version is an update for modern OS and compiler,
@@ -16,6 +31,10 @@ AdvanceMAME 1.2
 
 	You can instead still use the 'fb' video driver using the Linux
 	Frame Buffer support, and the generic 'sdl' using the SDL library.
+
+AdvanceMENU 2.6
+	This version is an update for modern OSs and compilers,
+	and it fixes some important bugs.
 
 AdvanceMAME 0.100.0
 	This version has some internal changes to adapt to the
@@ -52,6 +71,10 @@ AdvanceMAME 0.94.0
 	This version uses for DOS the new SVGALIB 1.9.20 library that
 	adds support for the latest Radeon and nVidia video boards.
 
+AdvanceMENU 2.4.7
+	This version uses for DOS the new SVGALIB 1.9.20 library that
+	adds support for the latest Radeon and nVidia video boards.
+
 AdvanceMAME 0.92.1
 	This version is based on the MAME update 0.92u2000. This
 	is a very stable version of the MAME core. A good candidate
@@ -69,6 +92,15 @@ AdvanceMAME 0.85.0
 	zlib and expat libraries. If you want to use the copy included
 	in the source of these libraries you must run the ./configure
 	script with the arguments --disable-zlib and --disable-expat.
+
+AdvanceMENU 2.3.8
+	This release adds support for specific emulator configuration
+	options. Please note that these specific emulator
+	configurations are not activated if you select to show
+	more than one emulator at time.
+	In this case only the default configuration is used.
+	Specifically these special options are `mode', `sort',
+	`preview', `group_include' and `type_include'.
 
 AdvanceMAME 0.84.0
 	This version of AdvanceMAME is based on the MAME update
@@ -109,6 +141,11 @@ AdvanceMAME 0.79.0
 	and Windows. You must now use the Makefile.usr file instead of
 	the old Makefile.in file. Check the build.txt file for more details.
 
+AdvanceMENU 2.3.0
+	This release changes the manual compilation process in DOS
+	and Windows. You must now use the Makefile.usr file instead of
+	the old Makefile.in file. Check the build.txt file for more details.
+
 AdvanceMAME 0.78.0
 	This release completely removes the .cfg file support. All the
 	customization information are now saved in the main .rc file.
@@ -124,6 +161,11 @@ AdvanceMAME 0.78.0
 	on video clips.
 
 AdvanceMAME 0.77.0
+	This release removes the legacy support for the DOS
+	unchained VGA modes and for the banked VBE modes. It means
+	that you now need a supported SVGA or VBE2 video card.
+
+AdvanceMENU 2.2.14
 	This release removes the legacy support for the DOS
 	unchained VGA modes and for the banked VBE modes. It means
 	that you now need a supported SVGA or VBE2 video card.
@@ -160,6 +202,31 @@ AdvanceMAME 0.72.0
 	of the user specified options. They can be used
 	to set default options.
 
+AdvanceMENU 2.2.10
+	This release contains a new set of `event' Linux
+	drivers for keyboards, mice and joysticks based on the Linux
+	input-event interfaces.
+	These drivers remove any limitations on the number of
+	keyboards, mice and joysticks, and they give the best
+	support for the new USB HID devices.
+
+	The `raw' set of Linux drivers has now the same functionality
+	of the `svgalib' set. If you don't need the SVGALIB video you can
+	now completely remove this library.
+
+	In Linux the host configuration files are now read in /etc,
+	the files in */share/advance have now less priority
+	of the user specified options. They can be used
+	to set default options.
+
+AdvanceMENU 2.2.7
+	This release adds support for the new MAME -listxml option. It's now
+	used as default. The old -listinfo is still supported and it's used
+	if -listxml fails.
+
+	The xml file is saved with the .xml extension. You probably want to
+	remove the old .lst file.
+
 AdvanceMAME 0.68.0
 	This release supports the new `scale3x' and `scale4x' effects.
 	To use them you must ensure to use an high pclock upper limit.
@@ -171,14 +238,36 @@ AdvanceMAME 0.68.0
 	it isn't able to directly program your video board, so you cannot use
 	it with an Arcade Monitor.
 
+AdvanceMENU 2.2.6
+	This release supports Mac OS X with the SDL library. Please note that
+	it isn't able to directly program your video board, so you cannot use
+	it with an Arcade Monitor.
+
 AdvanceMAME 0.67.0 / AdvanceMESS 0.66.0
 	The precompiled DOS binaries of these releases are compiled with
 	the old gcc 2.95.3. Please report if this fixes any know specific
 	game problem.
 
+AdvanceMENU 2.2.5
+	The precompiled DOS binary of this release is compiled with
+	the old gcc 2.95.3. Please report if this fixes any know
+	problem.
+
 AdvanceMAME 0.63.0
 	The .chd files must now be placed in a subdirectory of the same name.
 	For example C:\CHD\AREA51\AREA51.CHD.
+
+AdvanceMENU 2.2.2
+	The option `video_depth' is now removed. The video bit depth is
+	chosen automatically. If you need to exclude some depth you can
+	use the new `device_color_*' options.
+
+AdvanceMENU 2.2.1
+	The `group' and `type' menus are now accessible only from the
+	main menu. The `group' and `type' events now automatically switch
+	to the next item without displaying a menu.
+	The selection logic is: first item, second item, ..., last item,
+	all items, and repeat.
 
 AdvanceMAME 0.62.2 / AdvanceMESS 0.62.0.0
 	The display_rgb and display_depth options are gone. They are now
@@ -212,20 +301,58 @@ AdvanceMAME 0.61.4 / AdvanceMESS 0.61.1
 	If you don't install the SVGAWIN.sys driver AdvanceMAME works like the previous
 	version using only the SDL library.
 
+AdvanceMENU 2.2.0
+	This is the first Windows NT/2000/XP version able to directly 
+	program your video board. This puts the Windows version at the same level 
+	of the other Linux and DOS versions. It's very experimental, and tested only 
+	with a GeForce 2. Anyway, it should work with all the video boards that
+	work in DOS and Linux because the SVGA drivers are the same.
+
+	To use these video drivers you need to install the SVGAWIN.sys driver with the
+	SVGAWIN.exe utility. If installed, AdvanceMENU automatically tries to use it
+	unless you set a specific driver with the `device_video' option.
+	If you don't install the SVGAWIN.sys driver AdvanceMENU works like the previous
+	version using only the SDL library.
+
+AdvanceMENU 2.0.0
+	The emulator type `mame' is now used for the Windows MAME.
+	The DOS MAME now requires the `dmame' emulator type.
+	The DOS MESS now requires the `dmess' emulator type.
+	The DOS Raine now requires the `draine' emulator type.
+
 AdvanceMAME 0.61.0
 	The `input_analog' and `input_track' options are now substituted
 	by the new `input_map' option.
+
+AdvanceMENU 1.17.4
+	The option `preview_aspect' is removed. It's automatically
+	converted to the new option `preview_expand'.
 
 AdvanceMAME 0.59.1
 	The option `input_analog[] joy[]' is now changed in
 	`input_analog[] joystick[]', where the joystick stick index is
 	decremented by 1. The conversion is done automatically.
 
+AdvanceMENU 1.16.1
+	You must rename manually the Linux config directories to `$home/.advance' and
+	`$prefix/share/advance'. (Previously they were `*/advmame').
+
 AdvanceMAME 0.57.1
 	You must remove the option `dir_sound' from the configuration file. The
 	sound file are now saved in the `dir_snap' directory.
 	You must rename manually the Linux config directories to `$home/.advance' and
 	`$prefix/share/advance'. (Previously they were `*/advmame').
+
+AdvanceMENU 1.16.0
+	The format of the configuration file is changed.
+	These are the instruction to convert your "mm.cfg" to the new format :
+
+	* Copy the file "mm.cfg" in the same directory of advmenu.exe.
+	* Ensure that a file named "advmenu.rc" doesn't exist.
+	* Run "advmenu.exe".
+	* A file named "advmenu.rc" should be now present in your current directory.
+
+	This conversion works only for the DOS version of AdvanceMENU.
 
 AdvanceMAME 0.56.2
 	This is a big update for AdvanceMAME with a lot of changes.
