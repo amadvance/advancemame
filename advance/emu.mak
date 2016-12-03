@@ -385,7 +385,7 @@ endif
 # emu
 
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
-$(OBJ)/advance/osd/emu.o: $(srcdir)/advance/version.mak Makefile
+$(OBJ)/advance/osd/emu.o: Makefile
 
 ADVANCECFLAGS += -DADV_VERSION=\"$(VERSION)\" -DADV_EMU
 
@@ -737,7 +737,6 @@ EMU_ROOT_SRC = \
 
 EMU_ADVANCE_SRC = \
 	$(srcdir)/advance/advance.mak \
-	$(srcdir)/advance/version.mak \
 	$(srcdir)/advance/emu.mak \
 	$(srcdir)/advance/menu.mak \
 	$(srcdir)/advance/v.mak \
@@ -967,6 +966,7 @@ EMU_DIST_DIR_BIN = $(EMU_DIST_FILE_BIN)
 
 dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)/build.txt
 	mkdir $(EMU_DIST_DIR_SRC)
+	$(srcdir)/autover.sh > $(EMU_DIST_DIR_SRC)/.version
 	cp $(DOCOBJ)/readme.txt $(EMU_DIST_DIR_SRC)/README
 	cp $(DOCOBJ)/release.txt $(EMU_DIST_DIR_SRC)/RELEASE
 	cp $(DOCOBJ)/history.txt $(EMU_DIST_DIR_SRC)/HISTORY

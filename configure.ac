@@ -1,6 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.65])
-AC_INIT([AdvanceMAKE], [current], [], [], [http://www.advancemame.it])
+dnl Get version number from git
+m4_define([git_revision], m4_esyscmd_s([./autover.sh]))
+AC_INIT([advancemame], [git_revision], [], [], [http://www.advancemame.it])
+AC_CONFIG_SRCDIR([advance/advance.mak])
 AC_CONFIG_HEADERS([advance/lib/config.h:advance/lib/config.hin])
 AC_CANONICAL_HOST
 

@@ -61,7 +61,10 @@ endif
 #############################################################################
 # Advance
 
-include $(srcdir)/advance/version.mak
+# Get the version if not using ./configure
+ifeq ($(VERSION),)
+VERSION=$(shell sh autover.sh)
+endif
 
 include $(srcdir)/advance/advance.mak
 

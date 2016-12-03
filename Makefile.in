@@ -5,6 +5,7 @@
 # configuration edit the Makefile.usr file and NOT this file.
 #
 
+VERSION=@PACKAGE_VERSION@
 prefix=@prefix@
 datadir=@datadir@
 sysconfdir=@sysconfdir@

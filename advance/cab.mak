@@ -1,6 +1,8 @@
 ############################################################################
 # CAB dist
 
+CABVERSION = 1.1.4
+
 TSR_SRC = \
 	$(wildcard $(srcdir)/advance/tsr/*.asm) \
 	$(wildcard $(srcdir)/advance/tsr/*.c) \
@@ -59,7 +61,6 @@ CAB_ROOT_SRC = \
 
 CAB_ADVANCE_SRC = \
 	$(srcdir)/advance/advance.mak \
-	$(srcdir)/advance/version.mak \
 	$(srcdir)/advance/cab.mak \
 	$(srcdir)/advance/d2.mak
 
