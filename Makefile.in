@@ -8,6 +8,7 @@
 VERSION=@PACKAGE_VERSION@
 prefix=@prefix@
 datadir=@datadir@
+datarootdir=@datarootdir@
 sysconfdir=@sysconfdir@
 exec_prefix=@exec_prefix@
 bindir=@bindir@
