@@ -179,6 +179,40 @@ void generate_default_ntsc(adv_generate* generate)
 }
 
 /**
+ * Set default generation values for a PC monmitor.
+ */
+void generate_default_pc(adv_generate* generate)
+{
+	/* https://www.mythtv.org/wiki/Modeline_Database */
+	/* ModeLine "1280x1024" 108.00 1280 1328 1440 1688 1024 1025 1028 1066 +HSync +VSync */
+	generate->hactive = 1280;
+	generate->hfront = 48;
+	generate->hsync = 112;
+	generate->hback = 228;
+	generate->vactive = 1024;
+	generate->vfront = 1;
+	generate->vsync = 3;
+	generate->vback = 38;
+}
+
+/**
+ * Set default generation values for a HDTV.
+ */
+void generate_default_hdtv(adv_generate* generate)
+{
+	/* https://www.mythtv.org/wiki/Modeline_Database */
+	/* "ATSC-720-60p 74.25 1280 1320 1376 1650 720 722 728 750 +hsync +vsync", */
+	generate->hactive = 1280;
+	generate->hfront = 40;
+	generate->hsync = 56;
+	generate->hback = 274;
+	generate->vactive = 720;
+	generate->vfront = 12;
+	generate->vsync = 6;
+	generate->vback = 22;
+}
+
+/**
  * Set default generation values for a LCD.
  */
 void generate_default_lcd(adv_generate* generate)

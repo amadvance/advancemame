@@ -20,6 +20,7 @@
 
 const char* MONITOR[] = {
 "# TVs",
+"Generic:HDTV 1980x1080:10-180/30-80/50-70",
 "Generic:PAL TV (European):5-100/15.62/50",
 "Generic:PAL/NTSC TV (European):5-100/15.62/50;5-100/15.73/60",
 "Generic:NTSC TV (USA):5-100/15.73/60",
@@ -41,8 +42,9 @@ const char* MONITOR[] = {
 "Wells Gardner:U3100 VGA Monitor:5-100/31.5/56-87;5-100/35.5/56-87",
 "Wells Gardner:D9200 Digital CGA to VGA:5-100/15.75/60;5-100/25/60;5-100/31.5/60-90",
 "# PC Monitors",
-"Generic:PC VGA (UNSUGGESTED - USE THE CUSTOM):5-150/31.5/55-130",
-"Generic:PC SVGA Low Res 800x600 (UNSUGGESTED - USE THE CUSTOM):5-150/30.5-50/55-90",
-"Generic:PC SVGA High Res 1024x768 (UNSUGGESTED - USE THE CUSTOM):5-150/30.5-60/55-130",
+"Generic:PC VGA:5-150/31.5/55-130",
+"Generic:PC SVGA 800x600:5-150/30.5-50/55-90",
+"Generic:PC SVGA 1024x768:5-150/30.5-70/55-130",
+"Generic:PC SVGA 1280x1024:5-180/30.5-120/55-130",
 0
 };

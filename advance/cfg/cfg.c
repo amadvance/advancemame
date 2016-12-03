@@ -129,6 +129,7 @@ static void draw_text_bar(void)
 
 enum monitor_enum {
 	monitor_pc,
+	monitor_hdtv,
 	monitor_arcade_standard,
 	monitor_arcade_extended,
 	monitor_arcade_medium,
@@ -191,8 +192,13 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 	++mac;
 
 	data[mac].type = monitor_pc;
-	data[mac].name = "PC Monitor (> 30 kHz)";
-	generate_default_vga(&data[mac].generate);
+	data[mac].name = "PC Monitor";
+	generate_default_pc(&data[mac].generate);
+	++mac;
+
+	data[mac].type = monitor_hdtv;
+	data[mac].name = "HDTV";
+	generate_default_hdtv(&data[mac].generate);
 	++mac;
 
 	data[mac].type = monitor_arcade_standard;
