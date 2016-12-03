@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 1.6 2016/12
+AdvanceMAME/MESS/MENU Version 3.0 2016/12
 	) Now the AdvanceMAME package contains AdvanceMAME,
 		AdvanceMESS and AdvanceMENU.
 	) Customized for Raspberry Pi fixing various issues
@@ -22,23 +22,13 @@ AdvanceMAME/MESS Version 1.6 2016/12
 		This one allows aspect autodetection with 'auto'.
 		You have to manually adjust the advmame.rc file if you
 		are using the old ones.
-	) Added new SSE2 blitters that replace the older MMX ones
-
-AdvanceMENU Version 2.10 2016/12
-	) Customized for Raspberry Pi fixing various issues
-		and improving performance, functionality and
-		documentation
-		Check the install.txt file for some more information
-		about the use with a Raspberry Pi.
-		The most important note is to run the Advance programs
-		directly from the Linux Console and outside the
-		X-Window graphics environment to be able to use the
-		Raspberry hardware acceleration.
-	) Add a new 3x2 tile mode called "tile_tiny".
-	) Better autoconfiguration and detection of AdvanceMAME.
-	) Change the default menu and screen saver mode to animate all the clips.
-	) In Linux if the system time is wrong ensure that the generated list
-		files are not updated every time.
+	) Add a new AdvanceMENU 3x2 tile mode called "tile_tiny".
+	) Better autoconfiguration for AdvanceMENU to be able to detect
+		and configure AdvanceMAME and AdvanceMESS at the first run.
+	) Change the default AdvanceMENU main and screen saver mode to animate
+		all the clips.
+	) In Linux if the system time is wrong ensure that the generated XML
+		list files are not updated every time.
 	) Added new SSE2 blitters that replace the older MMX ones
 
 AdvanceMAME/MESS Version 1.5 2016/11

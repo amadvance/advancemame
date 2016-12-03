@@ -387,7 +387,7 @@ endif
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(OBJ)/advance/osd/emu.o: $(srcdir)/advance/version.mak Makefile
 
-ADVANCECFLAGS += -DADV_VERSION=\"$(EMUVERSION)\" -DADV_EMU
+ADVANCECFLAGS += -DADV_VERSION=\"$(VERSION)\" -DADV_EMU
 
 ifeq ($(CONF_EMU),mess)
 EMUCFLAGS += -DMESS
@@ -768,7 +768,6 @@ EMU_SUPPORT_SRC += \
 
 EMU_DOC_SRC = \
 	$(srcdir)/doc/advdev.d \
-	$(srcdir)/doc/license.d \
 	$(srcdir)/doc/advmame.d \
 	$(srcdir)/doc/authors.d \
 	$(srcdir)/doc/script.d \
@@ -791,7 +790,6 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/install.d \
 	$(srcdir)/doc/svgawin.d \
 	$(srcdir)/doc/advdev.txt \
-	$(srcdir)/doc/license.txt \
 	$(srcdir)/doc/advmame.txt \
 	$(srcdir)/doc/authors.txt \
 	$(srcdir)/doc/script.txt \
@@ -816,7 +814,6 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/svgawin.txt \
 	$(srcdir)/doc/advmenu.d \
 	$(srcdir)/doc/advdev.html \
-	$(srcdir)/doc/license.html \
 	$(srcdir)/doc/advmame.html \
 	$(srcdir)/doc/authors.html \
 	$(srcdir)/doc/script.html \
@@ -851,7 +848,6 @@ EMU_DOC_SRC = \
 
 EMU_DOC_BIN = \
 	$(DOCOBJ)/advdev.txt \
-	$(DOCOBJ)/license.txt \
 	$(DOCOBJ)/advmame.txt \
 	$(DOCOBJ)/build.txt \
 	$(DOCOBJ)/cost.txt \
@@ -866,7 +862,6 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/advcfg.txt \
 	$(DOCOBJ)/advmenu.txt \
 	$(DOCOBJ)/advdev.html \
-	$(DOCOBJ)/license.html \
 	$(DOCOBJ)/advmame.html \
 	$(DOCOBJ)/build.html \
 	$(DOCOBJ)/cost.html \
@@ -965,18 +960,18 @@ EMU_ROOT_BIN += \
 	$(srcdir)/support/advmenuc.bat
 endif
 
-EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(EMUVERSION)
-EMU_DIST_FILE_BIN = advance$(CONF_EMU)-$(EMUVERSION)-$(BINARYTAG)
+EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(VERSION)
+EMU_DIST_FILE_BIN = advance$(CONF_EMU)-$(VERSION)-$(BINARYTAG)
 EMU_DIST_DIR_SRC = $(EMU_DIST_FILE_SRC)
 EMU_DIST_DIR_BIN = $(EMU_DIST_FILE_BIN)
 
-dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)/build.txt $(DOCOBJ)/license.txt
+dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)/build.txt
 	mkdir $(EMU_DIST_DIR_SRC)
 	cp $(DOCOBJ)/readme.txt $(EMU_DIST_DIR_SRC)/README
 	cp $(DOCOBJ)/release.txt $(EMU_DIST_DIR_SRC)/RELEASE
 	cp $(DOCOBJ)/history.txt $(EMU_DIST_DIR_SRC)/HISTORY
 	cp $(DOCOBJ)/build.txt $(EMU_DIST_DIR_SRC)/BUILD
-	cp $(DOCOBJ)/license.txt $(EMU_DIST_DIR_SRC)/COPYING
+	cp $(srcdir)/COPYING $(EMU_DIST_DIR_SRC)/COPYING
 	cp $(EMU_ROOT_SRC) $(EMU_DIST_DIR_SRC)
 	mkdir $(EMU_DIST_DIR_SRC)/doc
 	cp $(EMU_DOC_SRC) $(EMU_DIST_DIR_SRC)/doc
@@ -1063,12 +1058,12 @@ ifeq ($(CONF_SYSTEM),unix)
 	cp $(DOCOBJ)/readme.txt $(EMU_DIST_DIR_BIN)/README
 	cp $(DOCOBJ)/release.txt $(EMU_DIST_DIR_BIN)/RELEASE
 	cp $(DOCOBJ)/history.txt $(EMU_DIST_DIR_BIN)/HISTORY
-	cp $(DOCOBJ)/license.txt $(EMU_DIST_DIR_BIN)/COPYING
+	cp $(srcdir)/COPYING $(EMU_DIST_DIR_BIN)/COPYING
 else
 	cp $(DOCOBJ)/readme.txt $(EMU_DIST_DIR_BIN)/readme.txt
 	cp $(DOCOBJ)/release.txt $(EMU_DIST_DIR_BIN)/release.txt
 	cp $(DOCOBJ)/history.txt $(EMU_DIST_DIR_BIN)/history.txt
-	cp $(DOCOBJ)/license.txt $(EMU_DIST_DIR_BIN)/copying.txt
+	cp $(srcdir)/COPYING $(EMU_DIST_DIR_BIN)/copying.txt
 endif
 	cp $(EMU_ROOT_BIN) $(EMU_DIST_DIR_BIN)
 	cp $(subst mame,mess,$(EMU_ROOT_BIN)) $(EMU_DIST_DIR_BIN)

@@ -4,7 +4,7 @@
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(MENUOBJ)/menu/mm.o: $(srcdir)/advance/version.mak Makefile
 
-MENUCFLAGS += -DADV_VERSION=\"$(MENUVERSION)\" -DADV_MENU
+MENUCFLAGS += -DADV_VERSION=\"$(VERSION)\" -DADV_MENU
 
 MENUCFLAGS += \
 	-I$(srcdir)/advance/lib \
@@ -641,8 +641,8 @@ MENU_ROOT_BIN += \
 	$(srcdir)/support/advmenuc.bat
 endif
 
-MENU_DIST_FILE_SRC = advancemenu-$(MENUVERSION)
-MENU_DIST_FILE_BIN = advancemenu-$(MENUVERSION)-$(BINARYTAG)
+MENU_DIST_FILE_SRC = advancemenu-$(VERSION)
+MENU_DIST_FILE_BIN = advancemenu-$(VERSION)-$(BINARYTAG)
 MENU_DIST_DIR_SRC = $(MENU_DIST_FILE_SRC)
 MENU_DIST_DIR_BIN = $(MENU_DIST_FILE_BIN)
 

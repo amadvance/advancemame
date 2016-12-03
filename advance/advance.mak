@@ -524,7 +524,7 @@ DEB_SAMPLEFILES = $(MAME_INSTALL_SAMPLEFILES)
 DEB_SNAPFILES = $(MAME_INSTALL_SNAPFILES)
 DEB_DOCFILES = $(INSTALL_DOCFILES)
 DEB_MACHINE = $(subst armv7l,armhf,$(subst i686,i386,$(subst x86_64,amd64,$(shell uname -m))))
-DEB_DIST_FILE_BIN = advance$(CONF_EMU)_$(EMUVERSION)-$(REVISION)_$(DEB_MACHINE)
+DEB_DIST_FILE_BIN = advance$(CONF_EMU)_$(VERSION)-$(REVISION)_$(DEB_MACHINE)
 DEB_DIST_DIR_BIN = $(DEB_DIST_FILE_BIN)
 
 deb:
@@ -533,7 +533,7 @@ deb:
 	rm -rf $(DEB_DIST_DIR_BIN)
 	mkdir $(DEB_DIST_DIR_BIN)
 	mkdir $(DEB_DIST_DIR_BIN)/DEBIAN
-	sed -e s/VERSION/$(EMUVERSION)/ -e s/MACHINE/$(DEB_MACHINE)/ -e s/REVISION/$(REVISION)/ $(srcdir)/support/debian > $(DEB_DIST_DIR_BIN)/DEBIAN/control
+	sed -e s/VERSION/$(VERSION)/ -e s/MACHINE/$(DEB_MACHINE)/ -e s/REVISION/$(REVISION)/ $(srcdir)/support/debian > $(DEB_DIST_DIR_BIN)/DEBIAN/control
 	mkdir $(DEB_DIST_DIR_BIN)/usr
 	mkdir $(DEB_DIST_DIR_BIN)/usr/local
 	mkdir $(DEB_DIST_DIR_BIN)/usr/local/bin

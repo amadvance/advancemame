@@ -1,7 +1,7 @@
 Name
 	release notes - Release Notes For AdvanceMAME
 
-AdvanceMAME 1.6
+AdvanceMAME 3.0
 	This version is a major update for Raspberry Pi.
 
 	Check the install.txt file for some more information
