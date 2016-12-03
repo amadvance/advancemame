@@ -772,9 +772,9 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/advmame.d \
 	$(srcdir)/doc/authors.d \
 	$(srcdir)/doc/script.d \
-	$(srcdir)/doc/reademu.d \
-	$(srcdir)/doc/releemu.d \
-	$(srcdir)/doc/histemu.d \
+	$(srcdir)/doc/readme.d \
+	$(srcdir)/doc/release.d \
+	$(srcdir)/doc/history.d \
 	$(srcdir)/doc/faq.d \
 	$(srcdir)/doc/build.d \
 	$(srcdir)/doc/cost.d \
@@ -796,9 +796,9 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/authors.txt \
 	$(srcdir)/doc/script.txt \
 	$(srcdir)/doc/advmenu.txt \
-	$(srcdir)/doc/reademu.txt \
-	$(srcdir)/doc/releemu.txt \
-	$(srcdir)/doc/histemu.txt \
+	$(srcdir)/doc/readme.txt \
+	$(srcdir)/doc/release.txt \
+	$(srcdir)/doc/history.txt \
 	$(srcdir)/doc/faq.txt \
 	$(srcdir)/doc/build.txt \
 	$(srcdir)/doc/cost.txt \
@@ -820,9 +820,9 @@ EMU_DOC_SRC = \
 	$(srcdir)/doc/advmame.html \
 	$(srcdir)/doc/authors.html \
 	$(srcdir)/doc/script.html \
-	$(srcdir)/doc/reademu.html \
-	$(srcdir)/doc/releemu.html \
-	$(srcdir)/doc/histemu.html \
+	$(srcdir)/doc/readme.html \
+	$(srcdir)/doc/release.html \
+	$(srcdir)/doc/history.html \
 	$(srcdir)/doc/faq.html \
 	$(srcdir)/doc/build.html \
 	$(srcdir)/doc/cost.html \
@@ -857,9 +857,9 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/cost.txt \
 	$(DOCOBJ)/authors.txt \
 	$(DOCOBJ)/script.txt \
-	$(DOCOBJ)/reademu.txt \
-	$(DOCOBJ)/releemu.txt \
-	$(DOCOBJ)/histemu.txt \
+	$(DOCOBJ)/readme.txt \
+	$(DOCOBJ)/release.txt \
+	$(DOCOBJ)/history.txt \
 	$(DOCOBJ)/faq.txt \
 	$(DOCOBJ)/install.txt \
 	$(DOCOBJ)/advv.txt \
@@ -872,9 +872,9 @@ EMU_DOC_BIN = \
 	$(DOCOBJ)/cost.html \
 	$(DOCOBJ)/authors.html \
 	$(DOCOBJ)/script.html \
-	$(DOCOBJ)/reademu.html \
-	$(DOCOBJ)/releemu.html \
-	$(DOCOBJ)/histemu.html \
+	$(DOCOBJ)/readme.html \
+	$(DOCOBJ)/release.html \
+	$(DOCOBJ)/history.html \
 	$(DOCOBJ)/faq.html \
 	$(DOCOBJ)/install.html \
 	$(DOCOBJ)/advv.html \
@@ -970,11 +970,11 @@ EMU_DIST_FILE_BIN = advance$(CONF_EMU)-$(EMUVERSION)-$(BINARYTAG)
 EMU_DIST_DIR_SRC = $(EMU_DIST_FILE_SRC)
 EMU_DIST_DIR_BIN = $(EMU_DIST_FILE_BIN)
 
-dist: $(DOCOBJ)/reademu.txt $(DOCOBJ)/releemu.txt $(DOCOBJ)/histemu.txt $(DOCOBJ)/build.txt $(DOCOBJ)/license.txt
+dist: $(DOCOBJ)/readme.txt $(DOCOBJ)/release.txt $(DOCOBJ)/history.txt $(DOCOBJ)/build.txt $(DOCOBJ)/license.txt
 	mkdir $(EMU_DIST_DIR_SRC)
-	cp $(DOCOBJ)/reademu.txt $(EMU_DIST_DIR_SRC)/README
-	cp $(DOCOBJ)/releemu.txt $(EMU_DIST_DIR_SRC)/RELEASE
-	cp $(DOCOBJ)/histemu.txt $(EMU_DIST_DIR_SRC)/HISTORY
+	cp $(DOCOBJ)/readme.txt $(EMU_DIST_DIR_SRC)/README
+	cp $(DOCOBJ)/release.txt $(EMU_DIST_DIR_SRC)/RELEASE
+	cp $(DOCOBJ)/history.txt $(EMU_DIST_DIR_SRC)/HISTORY
 	cp $(DOCOBJ)/build.txt $(EMU_DIST_DIR_SRC)/BUILD
 	cp $(DOCOBJ)/license.txt $(EMU_DIST_DIR_SRC)/COPYING
 	cp $(EMU_ROOT_SRC) $(EMU_DIST_DIR_SRC)
@@ -1060,14 +1060,14 @@ endif
 distbin: $(EMU_ROOT_BIN) $(EMU_DOC_BIN)
 	mkdir $(EMU_DIST_DIR_BIN)
 ifeq ($(CONF_SYSTEM),unix)
-	cp $(DOCOBJ)/reademu.txt $(EMU_DIST_DIR_BIN)/README
-	cp $(DOCOBJ)/releemu.txt $(EMU_DIST_DIR_BIN)/RELEASE
-	cp $(DOCOBJ)/histemu.txt $(EMU_DIST_DIR_BIN)/HISTORY
+	cp $(DOCOBJ)/readme.txt $(EMU_DIST_DIR_BIN)/README
+	cp $(DOCOBJ)/release.txt $(EMU_DIST_DIR_BIN)/RELEASE
+	cp $(DOCOBJ)/history.txt $(EMU_DIST_DIR_BIN)/HISTORY
 	cp $(DOCOBJ)/license.txt $(EMU_DIST_DIR_BIN)/COPYING
 else
-	cp $(DOCOBJ)/reademu.txt $(EMU_DIST_DIR_BIN)/readme.txt
-	cp $(DOCOBJ)/releemu.txt $(EMU_DIST_DIR_BIN)/release.txt
-	cp $(DOCOBJ)/histemu.txt $(EMU_DIST_DIR_BIN)/history.txt
+	cp $(DOCOBJ)/readme.txt $(EMU_DIST_DIR_BIN)/readme.txt
+	cp $(DOCOBJ)/release.txt $(EMU_DIST_DIR_BIN)/release.txt
+	cp $(DOCOBJ)/history.txt $(EMU_DIST_DIR_BIN)/history.txt
 	cp $(DOCOBJ)/license.txt $(EMU_DIST_DIR_BIN)/copying.txt
 endif
 	cp $(EMU_ROOT_BIN) $(EMU_DIST_DIR_BIN)
