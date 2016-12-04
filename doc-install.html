@@ -45,174 +45,73 @@ Documentation for the installation of AdvanceMAME.
 </p>
 
 <p>
-This document describes the installation process of
-the Advance programs.
-<p>The sections of this document are:<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr><td width="5%"></td><td colspan=3>
-<a href="#1">1 System Requirements</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#1.1">1.1 Linux</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#1.2">1.2 DOS</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#1.3">1.3 Windows</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#1.4">1.4 Mac OS X/Generic Unix</a><br>
-</td></tr>
-<tr><td width="5%"></td><td colspan=3>
-<a href="#2">2 Installation</a><br>
-</td></tr>
-<tr><td width="5%"></td><td colspan=3>
-<a href="#3">3 Configuration</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#3.1">3.1 AdvanceMAME</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#3.2">3.2 AdvanceMENU</a><br>
-</td></tr>
-<tr><td width="5%"></td><td colspan=3>
-<a href="#4">4 Video Hardware</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.1">4.1 LCD screens</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.2">4.2 Multi Sync monitors (or PC monitors)</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.3">4.3 Fixed Sync Monitors</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.4">4.4 Arcade Monitors</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.5">4.5 TVs</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#4.5.1">4.5.1 TVs with SCART</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#4.5.2">4.5.2 TVs with S-Video</a><br>
-</td></tr>
-<tr><td width="5%"></td><td colspan=3>
-<a href="#5">5 Video Setup</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#5.1">5.1 Operation Modes</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.1.1">5.1.1 Automatic Operation Mode</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.1.2">5.1.2 Manual Operation Mode</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#5.2">5.2 Troubleshooting</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.2.1">5.2.1 Linux</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.2.2">5.2.2 DOS</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.2.3">5.2.3 Windows</a><br>
-</td></tr>
-<tr><td width="5%"></td><td colspan=3>
-<a href="#6">6 Copyright</a><br>
-</td></tr>
-</table>
+This document describes the installation and configuration
+process of AdvanceMAME, AdvanceMESS and AdvanceMENU.
 <h2><a name="1">1</a> 
 System Requirements
 </h2>
 To run the Advance programs you may need to install and
 configure some drivers and libraries on your system.
 <p>
-The following is a list of all that you need.
+The following is a list of all that you need to do.
 <p>
 More details on the single drivers are present in the
 `advdev.txt' documentation file.
 <h3><a name="1.1">1.1</a> 
 Linux
 </h3>
-To allow the Advance programs to display in X you must
-install the SDL library. Generally it's already present in
-all the recent distributions.
+In Linux the Advance programs can run either in the
+X Window graphical environment or from the Linux Console.
 <p>
-To allow the Advance programs to directly control your
-video board in console mode, you must install and configure
-the Linux Frame Buffer driver or a recent SVGALIB library.
+In X Window the SDL library is used for everything: video,
+audio and input controllers.
 <p>
-The Linux Frame Buffer drivers are always included in the
-Linux kernel source, but generally they must be explicitly
-compiled or loaded. Please note that you cannot use the VESA
-Linux Frame Buffer driver, you must use a driver specific for
-your video board.
+In the Linux Console, the Linux Framebuffer is used for the
+video, the ALSA or OSS library for audio, and the Linux Event
+interface for intput controllers.
 <p>
-The SVGALIB library must be installed manually. Generally the
-Linux distributions contain an old 1.4 version of the library,
-but the Advance programs you need at least the version 1.9.14
-available at:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<a href="http://www.svgalib.org/">http://www.svgalib.org/</a>
-<br>
-</td></tr></table>
-<p>
-For both the Frame Buffer driver and the SVGALIB library some
-additional patches are available in the `contrib/' directory.
-<p>
-To allow the Advance programs to play sounds, you must have
-installed the OSS or the ALSA audio system. Generally at least
-one is always available in all the Linux distributions.
-If you have the SDL library, it can also be used for the
-sound output.
-<p>
-The Advance programs are able to use the Linux support for
-input controllers like keyboards, joysticks and mice.
-If you have the SDL library, it can also be used for the input
-controllers.
+The video board programming functionality for Arcade Monitors
+and CRT TVs, is available only from the Linux console, using
+the Linux Framebuffer.
 <h3><a name="1.2">1.2</a> 
+Raspberry Pi
+</h3>
+With a Raspberry Pi you have the same support you have in Linux,
+plus some specific Raspberry functionalities, like the accelerated
+Framebuffer.
+<p>
+With a Raspberry, it's recommended run the Advance program directly
+from Linux Console because using the Linux Framebuffer you also get
+hardware acceleration that is missing when run from the X Window system
+using the SDL library.
+<p>
+This is the best operating mode when using a modern monitor or flat TV,
+and it doesn't need any configuration step. It just works.
+<p>
+With a Raspberry Pi 3 you can expect to run most of the games at
+full speed, with vsync enabled, even when using the Scale2x effect.
+<p>
+If instead you want to use an old CRT Arcade screen or TV, you can
+configure the Advance programs to generate video modes customized
+for your video hardware.
+<p>
+In this case see the following "Video Setup" chapter.
+<h3><a name="1.3">1.3</a> 
+Windows/Mac OS X
+</h3>
+In Windows and Mac OS X, the Advance programs use the SDL library
+for video, audio, and input controllers.
+<p>
+In the binary distribution for Windows the SDL library is already
+included.
+<h3><a name="1.4">1.4</a> 
 DOS
 </h3>
-The Advance programs already contain all the required drivers
-for video, sound, and input controllers.
+In DOS, the Advance programs already contain all the required drivers
+for video, audio, and input controllers.
 <p>
 Generally you don't need to install additional software with
 the exception of a mouse driver if you want to use one.
-<h3><a name="1.3">1.3</a> 
-Windows
-</h3>
-The Advance programs contain a copy of the SDL library
-which allow them to work also in the Windows platform.
-<p>
-To allow the Advance programs to directly control your video
-board, you must install the included SVGAWIN driver.
-<p>
-Please note that the SVGAWIN driver is EXPERIMENTAL software and
-it works only for a few sets of video boards. More information is
-present in the `svgawin.txt' documentation file.
-<p>
-The SDL library is also used for sound, and input controllers.
-<h3><a name="1.4">1.4</a> 
-Mac OS X/Generic Unix
-</h3>
-To allow the Advance programs to work you must install the SDL
-library. This library is used for video, sound and input
-controllers.
-<p>
-The SDL library is available at:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<a href="http://www.libsdl.org/">http://www.libsdl.org/</a>
-<br>
-</td></tr></table>
 <h2><a name="2">2</a> 
 Installation
 </h2>
@@ -226,7 +125,7 @@ you need only the usual commands:
 <pre>
 ./configure
 make
-make install
+sudo make install
 </pre>
 </td></tr></table>
 <p>
@@ -239,11 +138,10 @@ Configuration
 All the Advance programs require a configuration process to work
 correctly.
 <p>
-To create a default configuration file run the application from
-a command shell and a standard configuration .rc file will be
-created.
+A default configuration file is created by the programs when they
+are started for the first time.
 <p>
-In Linux, Mac OS X and other Unix, the configuration file is
+In Linux, Raspbian, Mac OS X and other Unix, the configuration file is
 created in the user home directory in the subdirectory .advance/.
 In DOS and Windows the configuration file is created in the
 current directory.
@@ -281,7 +179,7 @@ Video Hardware
 </h2>
 The Advance programs are able to drive different types
 of video hardware: LCD, Multi Sync monitors, Fixed
-Sync monitors, Arcade monitors and TVs.
+Sync monitors, Arcade monitors and CRT TVs.
 <p>
 With the exception of PC Monitors that always accept the
 VGA signal, for other monitors you should take in account
@@ -292,14 +190,14 @@ A lot of useful links are available on the AdvanceMAME video
 link page:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<a href="http://www.advancemame.it/video-link">http://www.advancemame.it/video-link</a>
+<a href="http://www.advancemame.it/video-link.html">http://www.advancemame.it/video-link.html</a>
 <br>
 </td></tr></table>
 <h3><a name="4.1">4.1</a> 
-LCD screens
+LCD monitors or LCD TVs
 </h3>
 LCD screens have always a native fixed resolution. To get the
-best image quality it's always suggested to use this resolution.
+best image quality it's always recomended to use this resolution.
 <p>
 For this reason you usually don't need to enter any specific
 configuration options, and let the program to use the default
@@ -308,7 +206,7 @@ video mode.
 This mode of operation is the default when you are in
 a graphics environment like X, Windows and Mac OS X.
 <h3><a name="4.2">4.2</a> 
-Multi Sync monitors (or PC monitors)
+Multi Sync monitors (or CRT PC monitors)
 </h3>
 Multi Sync monitors support a wide range of horizontal clocks
 and requires a standard VGA connector. They are the normal PC
@@ -356,8 +254,8 @@ signal level of 0.7 V p-p.
 Arcade Monitors
 </h3>
 Arcade monitors support only a few fixed horizontal and
-vertical clocks, generally the horizontal 15.75 and 25 kHz,
-and only the vertical 60 Hz.
+vertical clocks, generally the horizontal are 15.75 and 25 kHz,
+and the vertical 60 Hz.
 <p>
 You must find the exact clocks supported in the monitor
 manual.
@@ -426,9 +324,9 @@ VGA video signal you will at most, have a very dark picture with
 no contrast. You will need to buy/make an amplifier for each
 line in order for it to work.
 <h3><a name="4.5">4.5</a> 
-TVs
+CRT TVs
 </h3>
-TVs generally supports only two fixed combination of
+CRT TVs generally supports only two fixed combination of
 horizontal and vertical clocks, corresponding at the TV PAL
 and NTSC standards.
 <p>
@@ -498,12 +396,9 @@ The Advance programs have the ability to directly control your video
 board to get the best possible fullscreen video modes with always the
 correct size and aspect ratio.
 <p>
-This feature is available in Linux with the SVGALIB and Frame
-Buffer libraries, in DOS with the SVGALIB and VBELINE libraries
-and in Windows with the SVGAWIN library.
-<p>
-It isn't available in Mac OS X and other Unix, or generally if
-your only detected video driver is the SDL library.
+This feature is available in Linux with the Frame Buffer drivers.
+The legacy SVGALIB support for Linux/Windows/DOS is still present,
+but likely too old to support your video board.
 <p>
 To make it possible, the programs need some information on your
 monitor capability in the form of the supported pixel, horizontal
@@ -525,17 +420,6 @@ manually defined list of modelines, eventually adjusting them
 to match the game clock or size requirements.
 This mode of operation should be used only if the `automatic'
 mode doesn't work.
-<p>
-Please note that if you are using the SDL or VBE video
-drivers, the programs aren't able to create or adjust video
-modes. In this case you don't need to configure anything because
-the programs can use only the video modes that your system
-reports as available.
-<p>
-The SDL and VBE video drivers are only indicated to use
-AdvanceMAME in a Window Manager system. Instead they can
-be used with AdvanceMENU for the use with a normal PC monitor,
-because AdvanceMENU only use standard video modes.
 <h4><a name="5.1.1">5.1.1</a> 
 Automatic Operation Mode
 </h4>
@@ -641,137 +525,6 @@ Press ESC to exit from `advv'
 In the `contrib/modeline' dir are present some .rc file with
 some example modelines. The same modelines are contained in
 the `advv' program.
-<h3><a name="5.2">5.2</a> 
-Troubleshooting
-</h3>
-<ul>
-<li>
-Delete any old configuration files and restart from scratch.
-</li>
-</ul>
-<ul>
-<li>
-If you are using a PC Multisync monitor and the image is
-instable or the monitor automatically switches off, you
-have probably entered wrong clock values.
-Check the horizontal and vertical clock ranges
-supported by your monitor in the monitor manual.
-Eventually try with shorter ranges. Try for example
-with:
-</li>
-</ul>
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<pre>
-device_video_clock 10 - 150 / 55 - 90 / 31 - 50
-</pre>
-</td></tr></table>
-<ul>
-<li>
-If you are using an Arcade Monitor/TV and the image is
-instable or completely black try increasing the lower
-pixel clock limit. Some video boards aren't able to
-output too low clocks. Instead of 5 try 8, 9, 10,
-11, 12, ...
-</li>
-</ul>
-<ul>
-<li>
-If interlaced video modes have swapped rows, try using
-the `display_interlaceeffect' option to adjust the
-image.
-</li>
-</ul>
-<h4><a name="5.2.1">5.2.1</a> 
-Linux
-</h4>
-<ul>
-<li>
-If you are using the `svgalib' driver ensure that you have
-installed the most recent SVGALIB library. The old
-1.4.x versions are not supported.
-</li>
-</ul>
-<ul>
-<li>
-If you are using the `fb' driver, ensure to don't use the VESA
-Frame Buffer. It doesn't work for the Advance programs.
-</li>
-</ul>
-<ul>
-<li>
-If you are using the `fb' driver check the kernel patches
-in the `contrib/fb' directory.
-</li>
-</ul>
-<ul>
-<li>
-If you are using the `svgalib' driver check the svgalib patches
-in the `contrib/svgalib' directory.
-</li>
-</ul>
-<ul>
-<li>
-If you have both the `svgalib' and `fb' drivers, try forcing the
-use of the `fb' driver instead of the `svgalib' driver
-with the option:
-</li>
-</ul>
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<pre>
-device_video fb slang
-</pre>
-</td></tr></table>
-<h4><a name="5.2.2">5.2.2</a> 
-DOS
-</h4>
-<ul>
-<li>
-Try forcing the use of the `vbeline' driver instead of the
-`svgaline' driver with the option:
-</li>
-</ul>
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<pre>
-device_video vbeline vgaline
-</pre>
-</td></tr></table>
-<ul>
-<li>
-If your board has a VESA VBE 3.0 BIOS, try forcing the
-`vbeline/vbe3' driver with the options:
-</li>
-</ul>
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<pre>
-device_video vbeline/vbe3 vgaline
-</pre>
-</td></tr></table>
-<ul>
-<li>
-If you are using the `vbeline' driver try changing the
-`vbeline_mode' option:
-</li>
-</ul>
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<pre>
-device_video vbeline vgaline
-device_vbeline_mode smaller
-</pre>
-</td></tr></table>
-<h4><a name="5.2.3">5.2.3</a> 
-Windows
-</h4>
-<ul>
-<li>
-Try reducing the video hardware acceleration from the
-Control Panel.
-</li>
-</ul>
 
 
 </div>

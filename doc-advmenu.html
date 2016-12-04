@@ -991,8 +991,9 @@ mode
 Selects the menu listing mode.
 <p>
 <pre>
-[EMULATOR/]mode full | full_mixed | text | list | list_mixed | tile_small
-&nbsp;&nbsp;&nbsp;&nbsp;| tile_normal | tile_big | tile_enormous | tile_giant
+[EMULATOR/]mode full | full_mixed | text | list | list_mixed
+&nbsp;&nbsp;&nbsp;&nbsp;| tile_tiny | tile_small | tile_normal
+&nbsp;&nbsp;&nbsp;&nbsp;| tile_big | tile_enormous | tile_giant
 &nbsp;&nbsp;&nbsp;&nbsp;| tile_icon | tile_marquee
 </pre>
 <p>
@@ -1028,6 +1029,11 @@ Game list and preview of the selected game (default).
 list_mixed
 </em></td><td width="90%">
 Game list and 4 preview of the selected game.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+tile_tiny
+</em></td><td width="90%">
+Show the preview of 3x2 games.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 tile_small
@@ -1446,11 +1452,17 @@ display_size
 Selects the desired size of the video mode.
 <p>
 <pre>
-display_size WIDTHxHEIGHT
+display_size auto | WIDTHxHEIGHT
 </pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+auto
+</em></td><td width="90%">
+Try to autodetect the best size. Usually the current
+one (default).
+</td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 WIDTHxHEIGHT
 </em></td><td width="90%">
@@ -2251,7 +2263,7 @@ No clip.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 single
 </em></td><td width="90%">
-Play only one clip and only one time (default).
+Play only one clip and only one time.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 singleloop
@@ -2274,7 +2286,7 @@ cursor. The sound is not looped.
 multiloopall
 </em></td><td width="90%">
 Play all the clips, and loop all the clips.
-The sound is not looped.
+The sound is not looped (default).
 </td></tr>
 </table>
 <h4><a name="5.5.13">5.5.13</a> 
@@ -2844,14 +2856,13 @@ Shutdown the machine.
 snap, flyers, cabinets, titles
 </em></td><td width="90%">
 Start a mute slide show
-of the specified image type (default snap).
+of the specified image type.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 play
 </em></td><td width="90%">
 Start a snap slide show using the animated
-snapshots and the game sounds. The static
-snapshots are ignored.
+snapshots and the game sounds (default).
 </td></tr>
 </table>
 <h4><a name="5.7.4">5.7.4</a> 

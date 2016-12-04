@@ -294,7 +294,7 @@ Help screen describing the user input keys.
 <a href="#8.4.1">8.4.1 display_expand</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.4.2">8.4.2 display_aspectx/aspecty</a><br>
+<a href="#8.4.2">8.4.2 display_aspect</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#8.4.3">8.4.3 display_ror/rol/flipx/flipy</a><br>
@@ -2186,32 +2186,36 @@ Options:
 FACTOR
 </em></td><td width="90%">
 Expansion float factor from 1.0 to 2.0
-(default 1.0).
+(default 1.25).
 </td></tr>
 </table>
 <p>
 Examples:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-display_expand 1.15
+display_expand 1.1
 </pre>
 </td></tr></table>
 <h4><a name="8.4.2">8.4.2</a> 
-display_aspectx/aspecty
+display_aspect
 </h4>
 Selects the aspect of the monitor used.
 <p>
 <pre>
-display_aspectx INT
-display_aspecty INT
+display_aspect auto | X/Y
 </pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-INT
+auto
 </em></td><td width="90%">
-Integer number starting from 1 (default 4 and 3).
+Auto detection (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+X/Y
+</em></td><td width="90%">
+Integer number starting from 1.
 </td></tr>
 </table>
 <p>
@@ -2222,8 +2226,7 @@ values, for example 3 and 4 instead of 4 and 3.
 Examples:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-display_aspectx 16
-display_aspecty 9
+display_aspect 16/9
 </pre>
 </td></tr></table>
 <h4><a name="8.4.3">8.4.3</a> 
