@@ -2,13 +2,13 @@ Name{number}
 	install - AdvanceMAME Installation
 
 	This document describes the installation and configuration
-	process of the Advance programs.
+	process of AdvanceMAME, AdvanceMESS and AdvanceMENU.
 
 System Requirements
 	To run the Advance programs you may need to install and
 	configure some drivers and libraries on your system.
 
-	The following is a list of all that you need.
+	The following is a list of all that you need to do.
 
 	More details on the single drivers are present in the
 	`advdev.txt' documentation file.
@@ -20,7 +20,7 @@ System Requirements
 	In X Window the SDL library is used for everything: video,
 	audio and input controllers.
 
-	In the Linux Console, the Linux Frambeuffer is used for the
+	In the Linux Console, the Linux Framebuffer is used for the
 	video, the ALSA or OSS library for audio, and the Linux Event
 	interface for intput controllers.
 
@@ -34,15 +34,15 @@ System Requirements
 	Framebuffer.
 
 	With a Raspberry, it's recommended run the Advance program directly
-	from Linux Console because using the Linux Framebuffer you get also
+	from Linux Console because using the Linux Framebuffer you also get
 	hardware acceleration that is missing when run from the X Window system
 	using the SDL library.
 
-	In the default configuration the Advance programs automatically use
-	this hardware acceleration to scale the image to the screen size.
 	This is the best operating mode when using a modern monitor or flat TV,
-	and with a Raspberry Pi 3 you can expect to run most of the games at
-	full speed, even when using the Scale2x effect.
+	and it doesn't need any configuration step. It just works.
+
+	With a Raspberry Pi 3 you can expect to run most of the games at
+	full speed, with vsync enabled, even when using the Scale2x effect.
 
 	If instead you want to use an old CRT Arcade screen or TV, you can
 	configure the Advance programs to generate video modes customized
@@ -51,13 +51,14 @@ System Requirements
 	In this case see the following "Video Setup" chapter.
 
   Windows/Mac OS X
-	The Advance programs contain a copy of the SDL library
-	which allow them to work also in the Windows platform.
+	In Windows and Mac OS X, the Advance programs use the SDL library
+	for video, audio, and input controllers.
 
-	The SDL library is also used for audio, and input controllers.
+	In the binary distribution for Windows the SDL library is already
+	included.
 
   DOS
-	The Advance programs already contain all the required drivers
+	In DOS, the Advance programs already contain all the required drivers
 	for video, audio, and input controllers.
 
 	Generally you don't need to install additional software with
