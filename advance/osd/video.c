@@ -224,7 +224,9 @@ static void video_command_combine(struct advance_video_context* context, struct 
 		context->state.skip_level_combine_total = 0;
 	}
 
-	if (context->state.skip_level_skip != 0) { /* if we are not 100% full speed */
+	if (context->state.skip_level_skip != 0 /* if we are not 100% full speed */
+		&& !context->config.smp_flag /* and we have to share CPU with the game */
+	) {
 		/* one more frame too slow */
 		++context->state.skip_level_combine_counter;
 

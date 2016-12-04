@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS/MENU Version 3.1 2016/12
+	) If SMP is active, don't automatically disable the resize
+		effect if the game is too slow.
+
 AdvanceMAME/MESS/MENU Version 3.0 2016/12
 	) Now the AdvanceMAME package contains AdvanceMAME,
 		AdvanceMESS and AdvanceMENU.
