@@ -131,7 +131,7 @@ int int_font_dy_get()
 
 static void int_joystick_reg(adv_conf* config_context)
 {
-	joystickb_reg(config_context, 0);
+	joystickb_reg(config_context, 1);
 	joystickb_reg_driver_all(config_context);
 }
 
@@ -174,10 +174,19 @@ static void int_joystick_button_raw_poll()
 					event_push(EVENT_MENU);
 					break;
 				case 3 :
-					event_push(EVENT_PREVIEW);
+					event_push(EVENT_SPACE);
 					break;
 				case 4 :
 					event_push(EVENT_MODE);
+					break;
+				case 5 :
+					event_push(EVENT_PREVIEW);
+					break;
+				case 6 :
+					event_push(EVENT_PGUP);
+					break;
+				case 7 :
+					event_push(EVENT_PGDN);
 					break;
 				}
 			}
@@ -243,24 +252,26 @@ static bool int_key_enable()
 {
 	if (keyb_enable(1) != 0) {
 		return false;
-    }		
+	}
+
 	if (mouseb_enable() != 0) {
-	    keyb_disable();
+		keyb_disable();
 		return false;
-    }		
+	}
+
 	if (joystickb_enable() != 0) {
-	    mouseb_disable();
-	    keyb_disable();
-		return false;		
-    }		
+		mouseb_disable();
+		keyb_disable();
+		return false;
+	}
 
 	return true;
 }
 
 static void int_key_disable()
 {
-    joystickb_disable();
-    mouseb_disable();
+	joystickb_disable();
+	mouseb_disable();
 	keyb_disable();
 }
 
