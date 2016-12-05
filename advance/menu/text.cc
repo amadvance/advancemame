@@ -630,10 +630,19 @@ bool int_init(unsigned sizex, unsigned sizey)
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0)
 		int_has_generate = false;
 
-	// add modes if the list is empty and no generation is possibile
-	if (!int_has_generate && crtc_container_is_empty(&int_modelines) && int_has_clock) {
-		crtc_container_insert_default_active(&int_modelines);
-		crtc_default = true;
+	// add modes if the list is empty
+	if (crtc_container_is_empty(&int_modelines)) {
+		int is_prog = (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) !=0;
+		if (!is_prog) {
+			/* if it is NOT programmable */
+			crtc_container_insert_default_active(&int_modelines);
+			crtc_default = true;
+		}
+		if (is_prog && int_has_clock && !int_has_generate) {
+			/* if it's programmable, with VCLOCK to check modeline, but no generation */
+			crtc_container_insert_default_active(&int_modelines);
+			crtc_default = true;
+		}
 	}
 
 	// set auto resolution
