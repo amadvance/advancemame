@@ -4,6 +4,8 @@ Name
 AdvanceMAME/MESS/MENU Version 3.1 2016/12
 	) If SMP is active, don't automatically disable the resize
 		effect if the game is too slow.
+	) Restored the functionality of "-output fullscreen" option.
+		It wasn't able anymore to find video modes.
 
 AdvanceMAME/MESS/MENU Version 3.0 2016/12
 	) Now the AdvanceMAME package contains AdvanceMAME,
