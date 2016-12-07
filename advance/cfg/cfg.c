@@ -196,10 +196,12 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 	generate_default_pc(&data[mac].generate);
 	++mac;
 
+#ifdef DEBUG /* disabled on release as it's not the recommended mode for HDTV */
 	data[mac].type = monitor_hdtv;
 	data[mac].name = "HDTV";
 	generate_default_hdtv(&data[mac].generate);
 	++mac;
+#endif
 
 	data[mac].type = monitor_arcade_standard;
 	data[mac].name = "Arcade Standard CGA Resolution (15 kHz)";

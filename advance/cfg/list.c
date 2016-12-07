@@ -20,7 +20,9 @@
 
 const char* MONITOR[] = {
 "# TVs",
+#ifdef DEBUG /* disabled on release as it's not the recommended mode for HDTV */
 "Generic:HDTV 1980x1080:10-180/30-80/50-70",
+#endif
 "Generic:PAL TV (European):5-100/15.62/50",
 "Generic:PAL/NTSC TV (European):5-100/15.62/50;5-100/15.73/60",
 "Generic:NTSC TV (USA):5-100/15.73/60",
@@ -42,9 +44,13 @@ const char* MONITOR[] = {
 "Wells Gardner:U3100 VGA Monitor:5-100/31.5/56-87;5-100/35.5/56-87",
 "Wells Gardner:D9200 Digital CGA to VGA:5-100/15.75/60;5-100/25/60;5-100/31.5/60-90",
 "# PC Monitors",
-"Generic:PC VGA:5-150/31.5/55-130",
-"Generic:PC SVGA 800x600:5-150/30.5-50/55-90",
-"Generic:PC SVGA 1024x768:5-150/30.5-70/55-130",
-"Generic:PC SVGA 1280x1024:5-180/30.5-120/55-130",
+"Generic:PC VGA 640x480:5-150/31.5/55-130",
+"Generic:PC SVGA 800x600 (Super):5-150/30.5-50/55-90",
+"Generic:PC XVGA 1024x768 (Extended):5-150/30.5-70/55-130",
+"Generic:PC SXVGA 1280x1024 (Super Extended):5-180/30.5-120/55-130",
+"Generic:PC WSXVGA 1600x1024 (Wide Super Extended):5-180/30.5-120/55-130",
+"Generic:PC HDTV 1980x1080 (Full HD):10-180/30-80/50-70",
+"Generic:PC UXVGA 1600x1200 (Utra Extended):5-250/30.5-120/55-130",
+"Generic:PC WUXVGA 1920x1200 (Wide Utra Extended):5-250/30.5-120/55-130",
 0
 };
