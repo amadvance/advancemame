@@ -33,17 +33,23 @@ Build
 	Using git you get the source code of AdvanceMAME, AdvanceMESS and AdvanceMENU
 	in a single operation.
 
-	Now you can build and install using the typical sequence of commands:
+	Now you can build and install AdvanceMAME and AdvanceMENU, using the typical
+	sequence of commands:
 
 		$ ./configure
 		$ make -j4
 		$ sudo make install
 
 	The -j4 option tells make to use four different parallel proceses to build.
-	Beside that, the build proces may be long, up to 30 minutes in a Raspberry Pi 3.
+	Beside that, the build proces may be long, up to 30 minutes on a Raspberry Pi 3.
 
-	No option is generally required. You can get the complete
-	configure option list with the `./configure --help' command.
+	To build and install AdvanceMESS, you need to additionally run:
+
+		$ make CONF_EMU=mess -j4
+		$ sudo make CONF_EMU=mess install
+
+	No option is generally required. You can get the complete configure option list with
+	the `./configure --help' command.
 
 	The default installation prefix is /usr/local. You can change it
 	with the `--prefix=' option.

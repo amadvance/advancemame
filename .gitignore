@@ -25,6 +25,7 @@ advance/lib/config.h
 archive/
 *.zip
 *.tar.gz
+*.deb
 
 # objects
 advcfg
