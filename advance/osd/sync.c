@@ -342,6 +342,7 @@ static void video_frame_sync(struct advance_video_context* context)
 			&& context->state.skip_level_full == SYNC_MAX
 		) {
 			double early;
+			double limit;
 			double error;
 			double expected;
 			double intermediate;
@@ -354,15 +355,27 @@ static void video_frame_sync(struct advance_video_context* context)
 			 * This is possible when the video mode has a higher frequency than the game.
 			 * Like if game is at 30 Hz, but video mode is at 60 Hz.
 			 *
-			 * We wait until the 90% of the vsync.
+			 * We wait until the 85% of the frame.
 			 */
-			early = 0.1 / context->state.mode_vclock;
+			early = 0.15 / context->state.mode_vclock;
 
 			current = video_frame_wait(current, expected - early);
 			intermediate = current;
 
-			video_wait_vsync();
-			current = advance_timer();
+			/*
+			 * Do not wait if we are too near at the vsync to not have false negative,
+			 * and to risk to wait for two of them.
+			 *
+			 * We don't wait the vsync if over the 94% of the frame.
+			 */
+			limit = 0.06 / context->state.mode_vclock;
+
+			if (current < expected - limit) {
+				video_wait_vsync();
+				current = advance_timer();
+			} else {
+				current = video_frame_wait(current, expected);
+			}
 
 			error = expected - current;
 
