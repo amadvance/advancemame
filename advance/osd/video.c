@@ -632,7 +632,10 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, struct advance_safequit_context* safequit_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
 #ifdef USE_SMP
-	if (context->config.smp_flag && !context->state.debugger_flag) {
+	if (context->config.smp_flag && !context->state.debugger_flag
+		/* we don't duplicate the UI data, and then we cannot access it directly from the thread */
+		&& !advance_ui_buffer_active(ui_context)
+	) {
 		pthread_mutex_lock(&context->state.thread_video_mutex);
 
 		log_debug(("advance:thread: signal\n"));

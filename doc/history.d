@@ -2,6 +2,7 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS/MENU Version 3.1 2016/12
+	) Fix UI flickering and a potential crash when SMP is active.
 	) If SMP is active, don't automatically disable the resize
 		effect if the game is too slow.
 	) Restored the functionality of "-output fullscreen" option.
