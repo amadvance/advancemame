@@ -1985,7 +1985,7 @@ Configuration
 
 	Options:
 		auto - Select automatically, at present it's always
-			the `internal' mode (default).
+			the `emulation' mode (default).
 		emulation - Change the emulation to produce the requested
 			number of samples instead of resampling.
 		internal - Internally resample the sound to match the

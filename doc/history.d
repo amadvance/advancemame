@@ -5,7 +5,11 @@ AdvanceMAME/MESS/MENU Version 3.1 2016/12
 	) Fix UI flickering and a potential crash when SMP is active.
 	) Allow to run from a SSH shell.
 	) If SMP is active, don't automatically disable the resize
-		effect if the game is too slow.
+		effect if the game is too slow. This gives a more
+		stable 'auto' effect.
+	) Changed the 'sync_resample auto' to be 'emulation' instead
+		of 'internal'. This give more stable sound when
+		the game emulation is too slow.
 	) Restored the functionality of "-output fullscreen" option.
 		It wasn't able anymore to find video modes.
 
