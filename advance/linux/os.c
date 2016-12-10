@@ -347,6 +347,11 @@ int os_inner_init(const char* title)
 #endif
 #endif
 
+	/* sync to avoid that the cache flush interfers with timings */
+	if (system("sync") != 0) {
+		log_std(("os: sync failed with error: %s\n", strerror(errno)));
+	}
+
 #if HAVE_SCHED_GETSCHEDULER && HAVE_SCHED_SETSCHEDULER && HAVE_SCHED_GET_PRIORITY_MAX && defined(_POSIX_PRIORITY_SCHEDULING) /* OSDEF Check for POSIX scheduling */
 	log_std(("os: scheduling available\n"));
 #ifdef SCHED_FIFO
