@@ -352,50 +352,6 @@ int os_inner_init(const char* title)
 		log_std(("os: sync failed with error: %s\n", strerror(errno)));
 	}
 
-#if HAVE_SCHED_GETSCHEDULER && HAVE_SCHED_SETSCHEDULER && HAVE_SCHED_GET_PRIORITY_MAX && defined(_POSIX_PRIORITY_SCHEDULING) /* OSDEF Check for POSIX scheduling */
-	log_std(("os: scheduling available\n"));
-#ifdef SCHED_FIFO
-	/* set the SCHED_FIFO scheduling policy with maximum priority */
-	{
-		struct sched_param sparam = { 0 };
-		int ret;
-
-		sparam.sched_priority = sched_get_priority_max(SCHED_FIFO);
-		ret = sched_setscheduler(0, SCHED_FIFO, &sparam);
-		if (ret != 0) {
-			log_std(("os: scheduling set failed with error: %s\n", strerror(errno)));
-		}
-
-		ret = sched_getscheduler(0);
-		if (ret >= 0) {
-			const char* desc = 0;
-			switch (ret) {
-#ifdef SCHED_OTHER
-			case SCHED_OTHER : desc = "SCHED_OTHER"; break;
-#endif
-#ifdef SCHED_BATCH
-			case SCHED_BATCH : desc = "SCHED_BATCH"; break;
-#endif
-#ifdef SCHED_FIFO
-			case SCHED_FIFO : desc = "SCHED_FIFO"; break;
-#endif
-#ifdef SCHED_RR
-			case SCHED_RR : desc = "SCHED_RR"; break;
-#endif
-			}
-			if (desc)
-				log_std(("os: scheduling with policy %s\n", desc));
-			else
-				log_std(("os: scheduling with policy %d\n", ret));
-		} else {
-			log_std(("os: scheduling get failed with error: %s\n", strerror(errno)));
-		}
-	}
-#endif
-#else
-	log_std(("os: scheduling NOT available\n"));
-#endif
-
 	/* print the compiler version */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__) /* OSDEF Detect compiler version */
 #define COMPILER_RESOLVE(a) #a
