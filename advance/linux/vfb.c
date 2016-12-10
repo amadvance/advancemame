@@ -542,12 +542,6 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		return -1;
 	}
 
-	term = getenv("TERM");
-	if (!term || strcmp(term, "linux")!=0) {
-		error_set("Works only with TERM=linux terminals.\n");
-		return -1;
-	}
-
 	fb = getenv("FRAMEBUFFER");
 	if (fb && fb[0]) {
 		fb_state.fd = open(fb, O_RDWR);
@@ -561,9 +555,9 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 	}
 	if (fb_state.fd < 0) {
 		if (errno == ENODEV) {
-			error_set("Video board not supported. Error %d (%s).\n", errno, strerror(errno));
+			error_set("Video board not supported.\n");
 		} else {
-			error_set("Error opening the frame buffer %s. Error %d (%s).\n", fb, errno, strerror(errno));
+			error_set("Error opening the frame buffer %s. %s.\n", fb, strerror(errno));
 		}
 		return -1;
 	}
