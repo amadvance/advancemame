@@ -1120,7 +1120,7 @@ static void init_machine(void)
 
 	/* start the video hardware */
 	if (video_init() != 0)
-		fatalerror("video_init failed");
+		fatalerror("Failed to initialize the video");
 
 	/* start the cheat engine */
 	if (options.cheat)
