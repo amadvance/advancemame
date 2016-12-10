@@ -129,7 +129,7 @@ static void draw_text_bar(void)
 
 enum monitor_enum {
 	monitor_pc,
-	monitor_hdtv,
+	monitor_lcd,
 	monitor_arcade_standard,
 	monitor_arcade_extended,
 	monitor_arcade_medium,
@@ -157,6 +157,8 @@ static void entry_monitor(int x, int y, int dx, void* data, int n, int selected)
 	if (selected) {
 		if (p->type == monitor_custom) {
 			draw_text_left(0, monitor_y, text_size_x(), "format = ? ? ? ? ? ? ? ?", COLOR_NORMAL);
+		} else if (p->type == monitor_lcd) {
+			draw_text_left(0, monitor_y, text_size_x(), "hardware scaling", COLOR_NORMAL);
 		} else {
 			char buffer[256];
 			adv_generate generate;
@@ -176,8 +178,13 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 	unsigned i;
 	adv_error res;
 	int y;
+	adv_bool is_overlay;
+	adv_bool is_programmable;
 
 	struct monitor_data_struct data[16];
+
+	is_programmable = (VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0)) != 0;
+	is_overlay = (VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_OUTPUT_MASK, 0)) != 0;
 
 	if (generate_interpolate_load(config, interpolate)==0) {
 		data[mac].type = monitor_previous;
@@ -186,52 +193,56 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 		++mac;
 	}
 
-	data[mac].type = monitor_custom;
-	data[mac].name = "Custom";
-	generate_default_vga(&data[mac].generate);
-	++mac;
+	if (is_programmable) {
+		data[mac].type = monitor_custom;
+		data[mac].name = "Custom";
+		generate_default_vga(&data[mac].generate);
+		++mac;
+	}
 
-	data[mac].type = monitor_pc;
-	data[mac].name = "PC Monitor";
-	generate_default_pc(&data[mac].generate);
-	++mac;
+	if (is_overlay) {
+		data[mac].type = monitor_lcd;
+		data[mac].name = "LCD Monitor or HDTV";
+		memset(&data[mac].generate, 0, sizeof(data[mac].generate));
+		++mac;
+	}
 
-#ifdef DEBUG /* disabled on release as it's not the recommended mode for HDTV */
-	data[mac].type = monitor_hdtv;
-	data[mac].name = "HDTV";
-	generate_default_hdtv(&data[mac].generate);
-	++mac;
-#endif
+	if (is_programmable) {
+		data[mac].type = monitor_pc;
+		data[mac].name = "CRT Monitor (multisync)";
+		generate_default_pc(&data[mac].generate);
+		++mac;
 
-	data[mac].type = monitor_arcade_standard;
-	data[mac].name = "Arcade Standard CGA Resolution (15 kHz)";
-	generate_default_atari_standard(&data[mac].generate);
-	++mac;
+		data[mac].type = monitor_arcade_standard;
+		data[mac].name = "Arcade Standard CGA Resolution (15 kHz)";
+		generate_default_atari_standard(&data[mac].generate);
+		++mac;
 
-	data[mac].type = monitor_arcade_extended;
-	data[mac].name = "Arcade Extended Resolution (16.5 kHz)";
-	generate_default_atari_extended(&data[mac].generate);
-	++mac;
+		data[mac].type = monitor_arcade_extended;
+		data[mac].name = "Arcade Extended Resolution (16.5 kHz)";
+		generate_default_atari_extended(&data[mac].generate);
+		++mac;
 
-	data[mac].type = monitor_arcade_medium;
-	data[mac].name = "Arcade Medium EGA Resolution (25 kHz)";
-	generate_default_atari_medium(&data[mac].generate);
-	++mac;
+		data[mac].type = monitor_arcade_medium;
+		data[mac].name = "Arcade Medium EGA Resolution (25 kHz)";
+		generate_default_atari_medium(&data[mac].generate);
+		++mac;
 
-	data[mac].type = monitor_arcade_vga;
-	data[mac].name = "Arcade VGA Resolution (31.5 kHz)";
-	generate_default_atari_vga(&data[mac].generate);
-	++mac;
+		data[mac].type = monitor_arcade_vga;
+		data[mac].name = "Arcade VGA Resolution (31.5 kHz)";
+		generate_default_atari_vga(&data[mac].generate);
+		++mac;
 
-	data[mac].type = monitor_pal;
-	data[mac].name = "TV PAL (50 Hz)";
-	generate_default_pal(&data[mac].generate);
-	++mac;
+		data[mac].type = monitor_pal;
+		data[mac].name = "CRT TV PAL (50 Hz)";
+		generate_default_pal(&data[mac].generate);
+		++mac;
 
-	data[mac].type = monitor_ntsc;
-	data[mac].name = "TV NTSC (60 Hz)";
-	generate_default_ntsc(&data[mac].generate);
-	++mac;
+		data[mac].type = monitor_ntsc;
+		data[mac].name = "CRT TV NTSC (60 Hz)";
+		generate_default_ntsc(&data[mac].generate);
+		++mac;
+	}
 
 	for(i=0;i<mac;++i)
 		generate_normalize(&data[i].generate);
@@ -1120,15 +1131,19 @@ static void entry_test(int x, int y, int dx, void* data, int n, adv_bool selecte
 	draw_text_left(x, y, dx, buffer, selected ? COLOR_REVERSE : COLOR_NORMAL);
 }
 
-adv_error cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_monitor* monitor, int x, int y, double vclock, unsigned index, unsigned cap, adv_bool calib)
+adv_error cmd_test_mode(int type, adv_generate_interpolate_set* interpolate, const adv_monitor* monitor, int x, int y, double vclock, unsigned index, unsigned cap, adv_bool calib)
 {
 	adv_crtc crtc;
 
 	adv_mode mode;
 	mode_reset(&mode);
 
-	if (generate_find_interpolate_multi(&crtc, x, y, x*2, y*2, x*3, y*3, x*4, y*4, vclock, monitor, interpolate, cap, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL)!=0) {
-		return -1;
+	if (type == monitor_lcd) {
+		crtc_fake_set(&crtc, x, y);
+	} else {
+		if (generate_find_interpolate_multi(&crtc, x, y, x*2, y*2, x*3, y*3, x*4, y*4, vclock, monitor, interpolate, cap, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL)!=0) {
+			return -1;
+		}
 	}
 
 	if (video_mode_generate(&mode, &crtc, index)!=0) {
@@ -1142,7 +1157,7 @@ adv_error cmd_test_mode(adv_generate_interpolate_set* interpolate, const adv_mon
 
 	if (calib) {
 		draw_graphics_calib(0, 0, video_size_x(), video_size_y());
-		
+
 		do {
 			target_idle();
 			os_poll();
@@ -1218,7 +1233,7 @@ static adv_error cmd_test_custom(int* x, int* y, double* vclock)
 		return 0;
 }
 
-static adv_error cmd_test(adv_generate_interpolate_set* interpolate, const adv_monitor* monitor, unsigned index)
+static adv_error cmd_test(int type, adv_generate_interpolate_set* interpolate, const adv_monitor* monitor, unsigned index)
 {
 	unsigned mac = 0;
 	adv_error res;
@@ -1240,23 +1255,25 @@ static adv_error cmd_test(adv_generate_interpolate_set* interpolate, const adv_m
 	data[mac].type = test_exit;
 	++mac;
 
-	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0)) != 0) {
-		data[mac].type = test_custom_single;
+	if (type != monitor_lcd) {
+		if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0)) != 0) {
+			data[mac].type = test_custom_single;
+			++mac;
+		}
+
+		if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0)) != 0) {
+			data[mac].type = test_custom_double;
+			++mac;
+		}
+
+		if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0)) != 0) {
+			data[mac].type = test_custom_interlace;
+			++mac;
+		}
+
+		data[mac].type = test_custom;
 		++mac;
 	}
-
-	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0)) != 0) {
-		data[mac].type = test_custom_double;
-		++mac;
-	}
-
-	if ((VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0)) != 0) {
-		data[mac].type = test_custom_interlace;
-		++mac;
-	}
-
-	data[mac].type = test_custom;
-	++mac;
 
 	while (ymin <= ymax) {
 		data[mac].type = test_mode;
@@ -1287,31 +1304,31 @@ static adv_error cmd_test(adv_generate_interpolate_set* interpolate, const adv_m
 
 		res = draw_text_menu(2, y, text_size_x() - 4, text_size_y() - 2 - y, &data, mac, entry_test, 0, &base, &pos, 0);
 		if (res >= 0 && data[res].type == test_mode) {
-			cmd_test_mode(interpolate, monitor, data[res].x, data[res].y, 60, index, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN, 1);
+			cmd_test_mode(type, interpolate, monitor, data[res].x, data[res].y, 60, index, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN, 1);
 		}
 		if (res >= 0 && data[res].type == test_custom_single) {
 			int x, y;
 			double vclock;
 			if (cmd_test_custom(&x, &y, &vclock) == 0)
-				cmd_test_mode(interpolate, monitor, x, y, vclock, index, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN, 0);
+				cmd_test_mode(type, interpolate, monitor, x, y, vclock, index, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN, 0);
 		}
 		if (res >= 0 && data[res].type == test_custom_double) {
 			int x, y;
 			double vclock;
 			if (cmd_test_custom(&x, &y, &vclock) == 0)
-				cmd_test_mode(interpolate, monitor, x, y, vclock, index, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN, 0);
+				cmd_test_mode(type, interpolate, monitor, x, y, vclock, index, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN, 0);
 		}
 		if (res >= 0 && data[res].type == test_custom_interlace) {
 			int x, y;
 			double vclock;
 			if (cmd_test_custom(&x, &y, &vclock) == 0)
-				cmd_test_mode(interpolate, monitor, x, y, vclock, index, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE, 0);
+				cmd_test_mode(type, interpolate, monitor, x, y, vclock, index, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE, 0);
 		}
 		if (res >= 0 && data[res].type == test_custom) {
 			int x, y;
 			double vclock;
 			if (cmd_test_custom(&x, &y, &vclock) == 0)
-				cmd_test_mode(interpolate, monitor, x, y, vclock, index, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), 0);
+				cmd_test_mode(type, interpolate, monitor, x, y, vclock, index, video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0), 0);
 		}
 	} while (res >= 0 && (data[res].type == test_mode || data[res].type == test_custom_single || data[res].type == test_custom_double || data[res].type == test_custom_interlace || data[res].type == test_custom));
 
@@ -1323,21 +1340,37 @@ static adv_error cmd_test(adv_generate_interpolate_set* interpolate, const adv_m
 /***************************************************************************/
 /* Save */
 
-void cmd_save(adv_conf* config, const adv_generate_interpolate_set* interpolate, const adv_monitor* monitor, int type)
+void cmd_save(adv_conf* config, int type, const adv_generate_interpolate_set* interpolate, const adv_monitor* monitor)
 {
-	switch (the_advance) {
-	case advance_mame :
-	case advance_mess :
-	case advance_pac :
-		/* set the specific AdvanceMAME options to enable the generate mode. */
-		conf_string_set(config, "", "display_mode", "auto");
-		conf_string_set(config, "", "display_adjust", "generate_yclock");
-		break;
-	case advance_menu:
-		break;
+	if (type == monitor_lcd) {
+		switch (the_advance) {
+		case advance_mame :
+		case advance_mess :
+		case advance_pac :
+			/* set the specific AdvanceMAME options to enable the generate mode. */
+			conf_string_set(config, "", "display_mode", "auto");
+			conf_string_set(config, "", "display_adjust", "none");
+			break;
+		case advance_menu:
+			break;
+		}
+		conf_remove(config, "", "device_video_format");
+		conf_remove(config, "", "device_video_clock");
+	} else {
+		switch (the_advance) {
+		case advance_mame :
+		case advance_mess :
+		case advance_pac :
+			/* set the specific AdvanceMAME options to enable the generate mode. */
+			conf_string_set(config, "", "display_mode", "auto");
+			conf_string_set(config, "", "display_adjust", "generate_yclock");
+			break;
+		case advance_menu:
+			break;
+		}
+		generate_interpolate_save(config, interpolate);
+		monitor_save(config, monitor);
 	}
-	generate_interpolate_save(config, interpolate);
-	monitor_save(config, monitor);
 }
 
 /***************************************************************************/
@@ -1532,8 +1565,9 @@ int os_main(int argc, char* argv[])
 		goto err_video;
 	}
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC) == 0) {
 		target_err("No video driver is able to program your video board.\n\r");
+		target_err("You don't need any configuration process.\n\r");
 		troubleshotting();
 		goto err_blit;
 	}
@@ -1624,6 +1658,8 @@ int os_main(int argc, char* argv[])
 				state = -1;
 			else if (type == monitor_custom)
 				state = 1;
+			else if (type == monitor_lcd)
+				state = 5;
 			else
 				state = 2;
 			break;
@@ -1671,14 +1707,17 @@ int os_main(int argc, char* argv[])
 			}
 			break;
 		case 5 :
-			res = cmd_test(&interpolate, &monitor, index);
-			if (res == -1)
-				state = 4;
-			else
+			res = cmd_test(type, &interpolate, &monitor, index);
+			if (res == -1) {
+				if (type == monitor_lcd)
+					state = 0;
+				else
+					state = 4;
+			} else
 				state = 6;
 			break;
 		case 6 :
-			cmd_save(config, &interpolate, &monitor, type);
+			cmd_save(config, type, &interpolate, &monitor);
 			state = 8;
 			break;
 		}
