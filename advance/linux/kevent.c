@@ -818,14 +818,31 @@ adv_error keyb_event_enable(adv_bool graphics)
 
 	event_state.graphics_flag = graphics;
 
-	event_state.f = open("/dev/tty", O_RDONLY | O_NONBLOCK);
+	/*
+	 * Try opening the local active console /dev/tty0.
+	 * This one is always local, but when connected remotely you can open it only as root.
+	 */
+	event_state.f = open("/dev/tty0", O_RDONLY | O_NONBLOCK);
 	if (event_state.f == -1) {
-		error_set("Error enabling the event keyboard driver. Function open(/dev/tty) failed.\n");
+		log_std(("keyb:event: Failed to open local console /dev/tty0, retry with /dev/tty. %s\n", strerror(errno)));
+
+		/*
+		 * Now retry with /dev/tty.
+		 * This one could be either local or remote.
+		 */
+		event_state.f = open("/dev/tty", O_RDONLY | O_NONBLOCK);
+	}
+	if (event_state.f == -1) {
+		error_set("Error enabling the event keyboard driver. Function open(/dev/tty0) and open(/dev/tty) failed.\n");
 		goto err;
 	}
 
 	if (ioctl(event_state.f, KDGKBMODE, &event_state.old_kdbmode) != 0) {
-		error_set("Error enabling the event keyboard driver. Function ioctl(KDGKBMODE) failed.\n");
+		if (errno == ENOTTY) {
+			error_set("Not able to query the local console.\nIf you are connected remotely you have to run with root permission.\n");
+		} else {
+			error_set("Error enabling the even keyboard driver. Function ioctl(KDGKBMODE) failed. %s\n", strerror(errno));
+		}
 		goto err_close;
 	}
 

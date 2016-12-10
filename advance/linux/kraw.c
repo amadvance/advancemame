@@ -267,14 +267,31 @@ adv_error keyb_raw_enable(adv_bool graphics)
 	raw_state.graphics_flag = graphics;
 	raw_state.first_state = 0;
 
-	raw_state.f = open("/dev/tty", O_RDONLY | O_NONBLOCK);
+	/*
+	 * Try opening the local active console /dev/tty0.
+	 * This one is always local, but when connected remotely you can open it only as root.
+	 */
+	raw_state.f = open("/dev/tty0", O_RDONLY | O_NONBLOCK);
 	if (raw_state.f == -1) {
-		error_set("Error enabling the raw keyboard driver. Function open(/dev/tty) failed.\n");
+		log_std(("keyb:event: Failed to open local console /dev/tty0, retry with /dev/tty. %s\n", strerror(errno)));
+
+		/*
+		 * Now retry with /dev/tty.
+		 * This one could be either local or remote.
+		 */
+		raw_state.f = open("/dev/tty", O_RDONLY | O_NONBLOCK);
+	}
+	if (raw_state.f == -1) {
+		error_set("Error enabling the raw keyboard driver. Function open(/dev/tty0) and open(/dev/tty) failed.\n");
 		goto err;
 	}
 
 	if (ioctl(raw_state.f, KDGKBMODE, &raw_state.old_kdbmode) != 0) {
-		error_set("Error enabling the raw keyboard driver. Function ioctl(KDGKBMODE) failed.\n");
+		if (errno == ENOTTY) {
+			error_set("Not able to query the local console.\nIf you are connected remotely you have to run with root permission.\n");
+		} else {
+			error_set("Error enabling the raw keyboard driver. Function ioctl(KDGKBMODE) failed. %s\n", strerror(errno));
+		}
 		goto err_close;
 	}
 
@@ -291,7 +308,7 @@ adv_error keyb_raw_enable(adv_bool graphics)
 	raw_state.kdbtermios.c_cc[VMIN] = 0;
 	raw_state.kdbtermios.c_cc[VTIME] = 0;
 
-	log_std(("keyb:event: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (raw_state.kdbtermios.c_lflag & ICANON) ? "" : "~", (raw_state.kdbtermios.c_lflag & ECHO) ? "" : "~"));
+	log_std(("keyb:raw: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (raw_state.kdbtermios.c_lflag & ICANON) ? "" : "~", (raw_state.kdbtermios.c_lflag & ECHO) ? "" : "~"));
 	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.kdbtermios) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function tcsetattr(TCSAFLUSH) failed.\n");
 		goto err_close;
@@ -305,7 +322,7 @@ adv_error keyb_raw_enable(adv_bool graphics)
 
 	if (raw_state.graphics_flag) {
 		if (ioctl(raw_state.f, KDGETMODE, &raw_state.old_terminalmode) != 0) {
-			error_set("Error enabling the event keyboard driver. Function ioctl(KDGETMODE) failed.\n");
+			error_set("Error enabling the raw keyboard driver. Function ioctl(KDGETMODE) failed.\n");
 			goto err_mode;
 		}
 
