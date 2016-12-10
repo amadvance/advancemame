@@ -8,7 +8,7 @@ if ! ./configure; then
 	exit 1
 fi
 
-if ! make wholedist -j2 ; then
+if ! make whole wholedist -j2 ; then
 	exit 1
 fi
 
