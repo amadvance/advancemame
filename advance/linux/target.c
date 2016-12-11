@@ -455,6 +455,64 @@ void target_aspect_set(unsigned x, unsigned y)
 	TARGET.aspect_y = y;
 }
 
+static unsigned char* target_load(const char* file, unsigned* size)
+{
+	FILE* f;
+	struct stat st;
+	unsigned char* data;
+
+	f = fopen(file, "r");
+	if (!f)
+		return 0;
+
+	if (fstat(fileno(f), &st) != 0) {
+		fclose(f);
+		return 0;
+	}
+
+	*size = st.st_size;
+
+	data = malloc(st.st_size);
+	if (!data) {
+		fclose(f);
+		return 0;
+	}
+
+	if (fread(data, st.st_size, 1, f) != 1) {
+		fclose(f);
+		return 0;
+	}
+
+	fclose(f);
+
+	return data;
+}
+
+unsigned char* target_edid(unsigned* size)
+{
+	const char* file = "/boot/edid.dat";
+	unsigned char* data;
+
+	/* check if it already exist in the /boot dir */
+	if (access(file, R_OK) != 0) {
+		/* dump it */
+		file = "/tmp/edid.dat";
+		if (system("tvservice -d /tmp/edid.dat") != 0)
+			return 0;
+	}
+
+	data = target_load(file, size);
+
+	if (!data) {
+		log_std(("ERROR:linux: failed to load edid %s\n", file));
+		return 0;
+	}
+
+	log_std(("linux: using edid %s, %u\n", file, *size));
+
+	return data;
+}
+
 /***************************************************************************/
 /* Sound */
 

@@ -33,6 +33,23 @@
 #include "generate.h"
 #include "log.h"
 
+void generate_reset(adv_generate* generate)
+{
+	generate->hactive = 0;
+	generate->hfront = 0;
+	generate->hsync = 0;
+	generate->hback = 0;
+	generate->vactive = 0;
+	generate->vfront = 0;
+	generate->vsync = 0;
+	generate->vback = 0;
+}
+
+adv_bool generate_is_empty(const adv_generate* generate)
+{
+	return generate->hactive == 0 || generate->vactive == 0;
+}
+
 /**
  * Normalize the generation values.
  */

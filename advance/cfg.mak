@@ -37,6 +37,7 @@ CFGOBJS += \
 	$(CFGOBJ)/blit/slice.o \
 	$(CFGOBJ)/cfg/cfg.o \
 	$(CFGOBJ)/cfg/list.o \
+	$(CFGOBJ)/cfg/edid.o \
 	$(CFGOBJ)/v/draw.o
 
 ifeq ($(CONF_SYSTEM),unix)

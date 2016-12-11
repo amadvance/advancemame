@@ -95,6 +95,8 @@ void generate_default_vesa(adv_generate* generate);
 void generate_default_atsc(adv_generate* generate);
 void generate_default_lcd(adv_generate* generate);
 
+void generate_reset(adv_generate* generate);
+adv_bool generate_is_empty(const adv_generate* generate);
 void generate_normalize(adv_generate* generate);
 void generate_normalize_copy(adv_generate* norm, const adv_generate* generate);
 void generate_interpolate_h(adv_generate* monitor, unsigned hclock, const adv_generate_interpolate_set* interpolate);

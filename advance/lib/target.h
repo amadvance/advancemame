@@ -183,6 +183,12 @@ unsigned target_aspect_x(void);
 unsigned target_aspect_y(void);
 void target_aspect_set(unsigned x, unsigned y);
 
+/**
+ * Get the monitor EDID.
+ * It must be freed with free().
+ */
+unsigned char* target_edid(unsigned* size);
+
 /***************************************************************************/
 /* APM */
 

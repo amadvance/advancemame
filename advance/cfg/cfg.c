@@ -26,6 +26,8 @@
 
 #include <math.h>
 
+int parse_edid(unsigned char* edid, unsigned size, adv_monitor* monitor, adv_generate* generate);
+
 /***************************************************************************/
 /* Common variable */
 
@@ -138,6 +140,7 @@ enum monitor_enum {
 	monitor_pal,
 	monitor_ntsc,
 	monitor_custom,
+	monitor_edid,
 	monitor_previous
 };
 
@@ -173,7 +176,7 @@ static void entry_monitor(int x, int y, int dx, void* data, int n, int selected)
 	}
 }
 
-static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum monitor_enum* type, adv_generate_interpolate_set* interpolate)
+static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum monitor_enum* type, adv_generate_interpolate_set* interpolate, adv_generate* edid)
 {
 	unsigned mac = 0;
 	unsigned i;
@@ -199,6 +202,13 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 		data[mac].name = "Custom";
 		generate_default_vga(&data[mac].generate);
 		++mac;
+
+		if (edid && !generate_is_empty(edid)) {
+			data[mac].type = monitor_edid;
+			data[mac].name = "Read from EDID - RECOMMENDED";
+			data[mac].generate = *edid;
+			++mac;
+		}
 	}
 
 	if (is_overlay) {
@@ -347,7 +357,7 @@ static int entry_model_separator(void* data, int n)
 
 extern const char* MONITOR[];
 
-static adv_error cmd_model(adv_conf* config, adv_monitor* monitor)
+static adv_error cmd_model(adv_conf* config, adv_monitor* monitor, adv_monitor* edid)
 {
 	unsigned max = 100;
 	struct model_data_struct* data = malloc(max*sizeof(struct model_data_struct));
@@ -359,15 +369,22 @@ static adv_error cmd_model(adv_conf* config, adv_monitor* monitor)
 
 	if (monitor_load(config, &previous_monitor)==0) {
 		data[mac].model = strdup("Previous");
-		data[mac].manufacturer = strdup("Previous saved values - Read the values from your .cfg file");
+		data[mac].manufacturer = strdup("Previous saved values");
 		data[mac].monitor = previous_monitor;
 		++mac;
 	}
 
 	data[mac].model = strdup("Custom");
-	data[mac].manufacturer = strdup("Custom - SUGGESTED - Read the values in your monitor manual");
+	data[mac].manufacturer = strdup("Custom - RECOMMENDED - Read the values in your monitor manual");
 	memset(&data[mac].monitor, 0, sizeof(data[mac].monitor));
 	++mac;
+
+	if (edid && !monitor_is_empty(edid)) {
+		data[mac].model = strdup("EDID");
+		data[mac].manufacturer = strdup("EDID - RECOMMENDED - Read the value from the monitor EDID");
+		data[mac].monitor = *edid;
+		++mac;
+	}
 
 	i = (const char**)&MONITOR;
 	while (*i) {
@@ -1021,7 +1038,7 @@ static void entry_adjust(int x, int y, int dx, void* data, int n, adv_bool selec
 		snprintf(buffer, sizeof(buffer), "Previous centering settings");
 		break;
 	case adjust_low:
-		snprintf(buffer, sizeof(buffer), "Manual Low centering - SUGGESTED - (low frequency settings)");
+		snprintf(buffer, sizeof(buffer), "Manual Low centering - RECOMMENDED - (low frequency settings)");
 		break;
 	case adjust_lowhigh:
 		snprintf(buffer, sizeof(buffer), "Manual Low/High centering (low/high frequency settings)");
@@ -1442,6 +1459,8 @@ int os_main(int argc, char* argv[])
 	enum adjust_enum adjust_type;
 	adv_monitor monitor;
 	adv_monitor* monitor_loaded;
+	adv_generate edid_generate;
+	adv_monitor edid_monitor;
 	int state;
 	unsigned index;
 	const char* opt_rc;
@@ -1455,6 +1474,8 @@ int os_main(int argc, char* argv[])
 	adv_crtc_container mode_unsorted;
 	adv_crtc_container_iterator i;
 	adv_error res;
+	unsigned char* edid;
+	unsigned edid_size;
 
 	state = 0;
 	index = 0;
@@ -1560,6 +1581,14 @@ int os_main(int argc, char* argv[])
 		goto err_os;
 	}
 
+	generate_reset(&edid_generate);
+	monitor_reset(&edid_monitor);
+	edid = target_edid(&edid_size);
+	if (edid) {
+		if (parse_edid(edid, edid_size, &edid_monitor, &edid_generate) != 0)
+			log_std(("ERROR: invalid EDID, ignoring it\n"));
+	}
+
 	if (adv_video_init() != 0) {
 		target_err("%s\n\r", error_get());
 		troubleshotting();
@@ -1659,7 +1688,7 @@ int os_main(int argc, char* argv[])
 	while (state >= 0 && state != 8) {
 		switch (state) {
 		case 0 :
-			res = cmd_monitor(config, &generate, &type, &interpolate);
+			res = cmd_monitor(config, &generate, &type, &interpolate, &edid_generate);
 			if (res == -1)
 				state = -1;
 			else if (type == monitor_custom)
@@ -1679,7 +1708,7 @@ int os_main(int argc, char* argv[])
 				state = 2;
 			break;
 		case 2 :
-			res = cmd_model(config, &monitor);
+			res = cmd_model(config, &monitor, &edid_monitor);
 			if (res == -1)
 				state = 0;
 			else if (monitor_is_empty(&monitor))
