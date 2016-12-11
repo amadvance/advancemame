@@ -197,20 +197,6 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 		++mac;
 	}
 
-	if (is_programmable) {
-		data[mac].type = monitor_custom;
-		data[mac].name = "Custom";
-		generate_default_vga(&data[mac].generate);
-		++mac;
-
-		if (edid && !generate_is_empty(edid)) {
-			data[mac].type = monitor_edid;
-			data[mac].name = "Read from EDID - RECOMMENDED";
-			data[mac].generate = *edid;
-			++mac;
-		}
-	}
-
 	if (is_overlay) {
 		data[mac].type = monitor_lcd;
 		data[mac].name = "LCD Monitor or HDTV";
@@ -219,6 +205,23 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 	}
 
 	if (is_programmable) {
+		if (edid && !generate_is_empty(edid)) {
+			data[mac].type = monitor_edid;
+			data[mac].name = "Preferred mode from EDID";
+			data[mac].generate = *edid;
+			++mac;
+		}
+
+		data[mac].type = monitor_pal;
+		data[mac].name = "CRT TV PAL (50 Hz)";
+		generate_default_pal(&data[mac].generate);
+		++mac;
+
+		data[mac].type = monitor_ntsc;
+		data[mac].name = "CRT TV NTSC (60 Hz)";
+		generate_default_ntsc(&data[mac].generate);
+		++mac;
+
 		data[mac].type = monitor_vesa;
 		data[mac].name = "CRT VESA Monitor (multisync)";
 		generate_default_vesa(&data[mac].generate);
@@ -249,14 +252,9 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 		generate_default_atari_vga(&data[mac].generate);
 		++mac;
 
-		data[mac].type = monitor_pal;
-		data[mac].name = "CRT TV PAL (50 Hz)";
-		generate_default_pal(&data[mac].generate);
-		++mac;
-
-		data[mac].type = monitor_ntsc;
-		data[mac].name = "CRT TV NTSC (60 Hz)";
-		generate_default_ntsc(&data[mac].generate);
+		data[mac].type = monitor_custom;
+		data[mac].name = "Custom - EXPERT ONLY";
+		generate_default_vga(&data[mac].generate);
 		++mac;
 	}
 
