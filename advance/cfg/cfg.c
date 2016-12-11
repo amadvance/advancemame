@@ -128,8 +128,9 @@ static void draw_text_bar(void)
 /* Command */
 
 enum monitor_enum {
-	monitor_pc,
 	monitor_lcd,
+	monitor_vesa,
+	monitor_atsc,
 	monitor_arcade_standard,
 	monitor_arcade_extended,
 	monitor_arcade_medium,
@@ -208,9 +209,14 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 	}
 
 	if (is_programmable) {
-		data[mac].type = monitor_pc;
-		data[mac].name = "CRT Monitor (multisync)";
-		generate_default_pc(&data[mac].generate);
+		data[mac].type = monitor_vesa;
+		data[mac].name = "CRT VESA Monitor (multisync)";
+		generate_default_vesa(&data[mac].generate);
+		++mac;
+
+		data[mac].type = monitor_vesa;
+		data[mac].name = "CRT ATSC Monitor (multisync)";
+		generate_default_atsc(&data[mac].generate);
 		++mac;
 
 		data[mac].type = monitor_arcade_standard;
@@ -1452,7 +1458,7 @@ int os_main(int argc, char* argv[])
 
 	state = 0;
 	index = 0;
-	type = monitor_pc;
+	type = monitor_vesa;
 	opt_rc = 0;
 	opt_log = 0;
 	opt_logsync = 0;

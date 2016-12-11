@@ -179,28 +179,30 @@ void generate_default_ntsc(adv_generate* generate)
 }
 
 /**
- * Set default generation values for a PC monmitor.
+ * Set default generation values for a VESA monmitor.
  */
-void generate_default_pc(adv_generate* generate)
+void generate_default_vesa(adv_generate* generate)
 {
 	/* https://www.mythtv.org/wiki/Modeline_Database */
-	/* ModeLine "1280x1024" 108.00 1280 1328 1440 1688 1024 1025 1028 1066 +HSync +VSync */
-	generate->hactive = 1280;
-	generate->hfront = 48;
-	generate->hsync = 112;
-	generate->hback = 228;
-	generate->vactive = 1024;
-	generate->vfront = 1;
-	generate->vsync = 3;
-	generate->vback = 38;
+	/* VESA */
+	/* ModeLine "1024x768" 65.00 1024 1048 1184 1344 768 771 777 806 -HSync -VSync */
+	generate->hactive = 1024;
+	generate->hfront = 24;
+	generate->hsync = 136;
+	generate->hback = 160;
+	generate->vactive = 768;
+	generate->vfront = 3;
+	generate->vsync = 6;
+	generate->vback = 29;
 }
 
 /**
- * Set default generation values for a HDTV.
+ * Set default generation values for a ATSC monitor (HDTV).
  */
-void generate_default_hdtv(adv_generate* generate)
+void generate_default_atsc(adv_generate* generate)
 {
 	/* https://www.mythtv.org/wiki/Modeline_Database */
+	/* ATSC */
 	/* "ATSC-720-60p 74.25 1280 1320 1376 1650 720 722 728 750 +hsync +vsync", */
 	generate->hactive = 1280;
 	generate->hfront = 40;

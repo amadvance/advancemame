@@ -91,8 +91,8 @@ void generate_default_atari_medium(adv_generate* generate);
 void generate_default_atari_vga(adv_generate* generate);
 void generate_default_pal(adv_generate* generate);
 void generate_default_ntsc(adv_generate* generate);
-void generate_default_pc(adv_generate* generate);
-void generate_default_hdtv(adv_generate* generate);
+void generate_default_vesa(adv_generate* generate);
+void generate_default_atsc(adv_generate* generate);
 void generate_default_lcd(adv_generate* generate);
 
 void generate_normalize(adv_generate* generate);
