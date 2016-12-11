@@ -389,7 +389,7 @@ adv_error svgaline_mode_import(adv_mode* mode, const svgaline_video_mode* svgali
 	*DRIVER(mode) = *svgaline_mode;
 
 	mode->driver = &video_svgaline_driver;
-	mode->flags = MODE_FLAGS_RETRACE_WAIT_SYNC | MODE_FLAGS_RETRACE_SET_ASYNC
+	mode->flags = MODE_FLAGS_RETRACE_WAIT_SYNC
 		| (mode->flags & MODE_FLAGS_USER_MASK)
 		| svgaline_mode->index;
 	mode->size_x = DRIVER(mode)->crtc.hde;

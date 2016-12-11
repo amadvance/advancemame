@@ -1359,7 +1359,7 @@ adv_error fb_mode_import(adv_mode* mode, const fb_video_mode* fb_mode)
 	*DRIVER(mode) = *fb_mode;
 
 	mode->driver = &video_fb_driver;
-	mode->flags = MODE_FLAGS_RETRACE_WAIT_SYNC | MODE_FLAGS_RETRACE_SET_ASYNC
+	mode->flags = MODE_FLAGS_RETRACE_WAIT_SYNC
 		| (mode->flags & MODE_FLAGS_USER_MASK)
 		| fb_mode->index;
 	mode->size_x = DRIVER(mode)->crtc.hde;

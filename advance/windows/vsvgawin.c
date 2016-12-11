@@ -854,7 +854,7 @@ adv_error svgawin_mode_import(adv_mode* mode, const svgawin_video_mode* svgawin_
 	*DRIVER(mode) = *svgawin_mode;
 
 	mode->driver = &video_svgawin_driver;
-	mode->flags = MODE_FLAGS_RETRACE_WAIT_SYNC | MODE_FLAGS_RETRACE_SET_ASYNC
+	mode->flags = MODE_FLAGS_RETRACE_WAIT_SYNC
 		| (mode->flags & MODE_FLAGS_USER_MASK)
 		| svgawin_mode->index;
 	mode->size_x = DRIVER(mode)->crtc.hde;
