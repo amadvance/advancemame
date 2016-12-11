@@ -219,7 +219,7 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 	var->xres = hde;
 	var->yres = vde;
 	var->xres_virtual = hde;
-	var->yres_virtual = 2 * vde;
+	var->yres_virtual = vde;
 	var->xoffset = 0;
 	var->yoffset = 0;
 	var->grayscale = 0;
