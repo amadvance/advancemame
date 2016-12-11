@@ -669,6 +669,12 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 				&state, fb_state.olddrive, fb_state.oldgroup, &fb_state.oldmode,
 				&aspect_x, &aspect_y) == 6
 			) {
+				/* state 0x120006 [DVI DMT (87) RGB full 15:9], 1024x600 @ 60.00Hz, progressive */
+				/* state 0x12001a [HDMI CEA (16) RGB lim 16:9], 1920x1080 @ 60.00Hz, progressive */
+				/* state 0x120016 [DVI DMT (4) RGB full 4:3], 640x480 @60.00hz, progressive */
+				/* state 0x12001a [HDMI CEA (4) RGB lim 16:9], 1280x720 @ 60Hz, progressive */
+				/* state 0x12000a [HDMI DMT (82) RGB full 16:9], 1920x1080 @ 60.00Hz, progressive */
+
 				log_std(("video:fb: tvservice state 0x%x\n", state));
 				log_std(("video:fb: hdmi_drive %s\n", fb_state.olddrive));
 				log_std(("video:fb: hdmi_group %s\n", fb_state.oldgroup));
@@ -676,6 +682,33 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 
 				if (aspect_x != 0 && aspect_y != 0)
 					target_aspect_set(aspect_x, aspect_y);
+			} else if (sscanf(opt, "state %i [%15s %u:%u]",
+				&state, fb_state.olddrive, &aspect_x, &aspect_y) == 4
+			) {
+				/* state 0x40001 [NTSC 4:3], 720x480 @ 60.00Hz, interlaced */
+				log_std(("video:fb: tvservice state 0x%x\n", state));
+				log_std(("video:fb: hdmi_drive %s\n", fb_state.olddrive));
+				fb_state.olddrive[0] = 0; /* clear it as NTSC/PAL is not a real drive */
+				fb_state.oldgroup[0] = 0;
+				fb_state.oldmode = 0;
+
+				if (aspect_x != 0 && aspect_y != 0)
+					target_aspect_set(aspect_x, aspect_y);
+			} else if (sscanf(opt, "state %i [%15s]",
+				&state, fb_state.olddrive) == 2
+			) {
+				/* state 0x400000 [LCD], 320x241 @ 0.00Hz, progressive" */
+				/* state 0x400000 [LCD], 800x480 @ 60.00Hz, progressive */
+				log_std(("video:fb: tvservice state 0x%x\n", state));
+				log_std(("video:fb: hdmi_drive %s\n", fb_state.olddrive));
+				fb_state.olddrive[0] = 0; /* clear it as LCD is not a real drive */
+				fb_state.oldgroup[0] = 0;
+				fb_state.oldmode = 0;
+			} else {
+				log_std(("video:fb: tvservice unknown state\n"));
+				fb_state.olddrive[0] = 0;
+				fb_state.oldgroup[0] = 0;
+				fb_state.oldmode = 0;
 			}
 
 			free(opt);
@@ -878,7 +911,10 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		free(opt);
 
 		/* enable the new video mode */
-		snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87 %s\"", fb_state.olddrive);
+		if (fb_state.olddrive[0])
+			snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87 %s\"", fb_state.olddrive);
+		else
+			snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87\"");
 		log_std(("video:fb: run \"%s\"\n", cmd));
 		opt = target_system(cmd);
 		if (!opt)
@@ -1035,8 +1071,11 @@ void fb_mode_done(adv_bool restore)
 			}
 
 			/* if we have the mode, restore it */
-			if (fb_state.olddrive[0] && fb_state.oldgroup[0] && fb_state.oldmode) {
-				snprintf(cmd, sizeof(cmd), "tvservice -e \"%s %u %s\"", fb_state.oldgroup, fb_state.oldmode, fb_state.olddrive);
+			if (fb_state.oldgroup[0] && fb_state.oldmode) {
+				if (fb_state.olddrive[0])
+					snprintf(cmd, sizeof(cmd), "tvservice -e \"%s %u %s\"", fb_state.oldgroup, fb_state.oldmode, fb_state.olddrive);
+				else
+					snprintf(cmd, sizeof(cmd), "tvservice -e \"%s %u\"", fb_state.oldgroup, fb_state.oldmode);
 				log_std(("video:fb: run \"%s\"\n", cmd));
 				opt = target_system(cmd);
 				if (opt) {
