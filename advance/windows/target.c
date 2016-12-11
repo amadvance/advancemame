@@ -196,15 +196,12 @@ unsigned char target_readb(unsigned addr)
 }
 
 /***************************************************************************/
-/* Mode */
+/* Video */
 
 void target_mode_reset(void)
 {
 	/* nothing */
 }
-
-/***************************************************************************/
-/* Video */
 
 unsigned target_size_x(void)
 {
@@ -236,6 +233,12 @@ void target_aspect_set(unsigned x, unsigned y)
 {
 	TARGET.aspect_x = x;
 	TARGET.aspect_y = y;
+}
+
+unsigned char* target_edid(unsigned* size)
+{
+	(void)size;
+	return 0;
 }
 
 /***************************************************************************/
@@ -327,6 +330,12 @@ adv_error target_apm_wakeup(void)
 
 /***************************************************************************/
 /* System */
+
+char* target_system(const char* cmd)
+{
+	(void)cmd;
+	return 0;
+}
 
 #define EXEC_MAX 2048
 

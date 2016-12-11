@@ -214,6 +214,12 @@ adv_error target_apm_wakeup(void);
 /* System */
 
 /**
+ * Execute a system command, and return the trimmed output.
+ * \return 0 on error.
+ */
+char* target_system(const char* cmd);
+
+/**
  * Execute a script.
  * \param script Text of the script to run.
  * \return Like running a script containing the specified text.

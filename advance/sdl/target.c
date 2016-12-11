@@ -39,6 +39,15 @@
 
 #include "SDL.h"
 
+struct target_context {
+	unsigned size_x; /**< Screen size. 0 if not detectable. */
+	unsigned size_y; /**< Screen size. 0 if not detectable. */
+	unsigned aspect_x; /**< Screen aspect. 0 if not detectable. */
+	unsigned aspect_y; /**< Screen aspect. 0 if not detectable. */
+};
+
+static struct target_context TARGET;
+
 /***************************************************************************/
 /* Init */
 
@@ -100,11 +109,49 @@ unsigned char target_readb(unsigned addr)
 }
 
 /***************************************************************************/
-/* Mode */
+/* Video */
 
 void target_mode_reset(void)
 {
 	/* nothing */
+}
+
+unsigned target_size_x(void)
+{
+	return TARGET.size_x;
+}
+
+unsigned target_size_y(void)
+{
+	return TARGET.size_y;
+}
+
+void target_size_set(unsigned x, unsigned y)
+{
+	TARGET.size_x = x;
+	TARGET.size_y = y;
+}
+
+unsigned target_aspect_x(void)
+{
+	return TARGET.aspect_x;
+}
+
+unsigned target_aspect_y(void)
+{
+	return TARGET.aspect_y;
+}
+
+void target_aspect_set(unsigned x, unsigned y)
+{
+	TARGET.aspect_x = x;
+	TARGET.aspect_y = y;
+}
+
+unsigned char* target_edid(unsigned* size)
+{
+	(void)size;
+	return 0;
 }
 
 /***************************************************************************/
@@ -149,11 +196,9 @@ int target_apm_wakeup(void)
 /***************************************************************************/
 /* System */
 
-int target_system(const char* cmd)
+char* target_system(const char* cmd)
 {
-	if (system(cmd) != 0)
-		return -1;
-		
+	(void)cmd;
 	return 0;
 }
 

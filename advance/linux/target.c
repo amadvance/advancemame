@@ -189,49 +189,6 @@ void target_usleep(unsigned us)
 	}
 }
 
-char* target_system(const char* cmd)
-{
-	FILE* f;
-	char buffer[512];
-	int read;
-	char* s;
-	size_t len;
-
-	f = popen(cmd, "r");
-	if (!f) {
-		log_std(("linux: ERROR running system(%s) -> FAILED on popen()\n", cmd));
-		return 0;
-	}
-
-	read = fread(buffer, 1, sizeof(buffer) - 1, f);
-	if (read < 0) {
-		log_std(("linux: ERROR running system(%s) -> FAILED on fread()\n", cmd));
-		pclose(f);
-		return 0;
-	}
-
-	if (pclose(f) != 0) {
-		log_std(("linux: ERROR running system(%s) -> FAILED on pclose()\n", cmd));
-		return 0;
-	}
-
-	s = buffer;
-	len = read;
-
-	/* trim */
-	while (len != 0 && isspace(s[0])) {
-		++s;
-		--len;
-	}
-	while (len != 0 && isspace(s[len - 1]))
-		--len;
-
-	/* terminate */
-	s[len] = 0;
-
-	return strdup(s);
-}
-
 /***************************************************************************/
 /* Clock */
 
@@ -560,6 +517,49 @@ adv_error target_apm_wakeup(void)
 
 /***************************************************************************/
 /* System */
+
+char* target_system(const char* cmd)
+{
+	FILE* f;
+	char buffer[512];
+	int read;
+	char* s;
+	size_t len;
+
+	f = popen(cmd, "r");
+	if (!f) {
+		log_std(("linux: ERROR running system(%s) -> FAILED on popen()\n", cmd));
+		return 0;
+	}
+
+	read = fread(buffer, 1, sizeof(buffer) - 1, f);
+	if (read < 0) {
+		log_std(("linux: ERROR running system(%s) -> FAILED on fread()\n", cmd));
+		pclose(f);
+		return 0;
+	}
+
+	if (pclose(f) != 0) {
+		log_std(("linux: ERROR running system(%s) -> FAILED on pclose()\n", cmd));
+		return 0;
+	}
+
+	s = buffer;
+	len = read;
+
+	/* trim */
+	while (len != 0 && isspace(s[0])) {
+		++s;
+		--len;
+	}
+	while (len != 0 && isspace(s[len - 1]))
+		--len;
+
+	/* terminate */
+	s[len] = 0;
+
+	return strdup(s);
+}
 
 adv_error target_script(const char* script)
 {
