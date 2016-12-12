@@ -429,8 +429,10 @@ static adv_error cmd_model(adv_conf* config, adv_monitor* monitor, adv_monitor* 
 "Now you must select the clock range supported by your monitor and video card. "
 "The strongly suggested choice is to check your monitor manual for the "
 "supported vertical and horizontal clock range.\n\n"
-"Some video boards are unable to use a low pclock like 5 MHz. "
-"Try eventually to use an higher value like 10 or 12."
+"Some video boards are unable to use a pclock low as 5 MHz. "
+"Try eventually to use a higher minumum value like 10 MHz.\n"
+"Raspberry Pi has a minimum pclock of 31.25 MHz on the DPI/GPIO interface, "
+"and a minimum pclock of 25 MHz on the HDMI interface."
 	, COLOR_LOW);
 
 	model_y = ++y;

@@ -45,10 +45,14 @@ System Requirements
 	full speed, with vsync enabled, even when using the Scale2x effect.
 
 	If instead you want to use an old CRT Arcade screen or TV, you can
-	configure the Advance programs to generate video modes customized
+	configure the Advance programs to generate modelines customized
 	for your video hardware.
 
 	In this case see the following "Video Setup" chapter.
+
+	Take care that the Raspberry Pi has a minimum pixel clock limit of 31.25
+	MHz on the DPI/GPIO interface, and a minimum pixel clock limit of 25 MHz
+	on the HDMI interface.
 
   Windows/Mac OS X
 	In Windows and Mac OS X, the Advance programs use the SDL library

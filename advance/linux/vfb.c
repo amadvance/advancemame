@@ -979,6 +979,30 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
 
+	if (is_raspberry_active) {
+		/* log the effective pixel clock */
+		char* opt;
+		char cmd[256];
+
+		/* pixel clock for HDMI (known limit of 25.00 MHz) */
+		snprintf(cmd, sizeof(cmd), "vcgencmd measure_clock pixel");
+		log_std(("video:fb: run \"%s\"\n", cmd));
+		opt = target_system(cmd);
+		if (opt) {
+			log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+			free(opt);
+		}
+
+		/* pixel clock for DPI (known limit of 31.25 MHz) */
+		snprintf(cmd, sizeof(cmd), "vcgencmd measure_clock dpi");
+		log_std(("video:fb: run \"%s\"\n", cmd));
+		opt = target_system(cmd);
+		if (opt) {
+			log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+			free(opt);
+		}
+	}
+
 	/* check the validity of the resulting video mode */
 	if (req_xres > fb_state.varinfo.xres
 		|| req_yres > fb_state.varinfo.yres
