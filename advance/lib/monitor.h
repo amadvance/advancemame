@@ -83,6 +83,8 @@ adv_bool monitor_mode_clock_check(const adv_monitor_mode* mode, double pclock, d
 adv_bool monitor_hvclock_check(const adv_monitor* monitor, double hclock, double vclock);
 adv_bool monitor_clock_check(const adv_monitor* monitor, double pclock, double hclock, double vclock);
 
+unsigned monitor_vt_max(const adv_monitor* monitor);
+
 void monitor_reset(adv_monitor* monitor);
 adv_bool monitor_is_empty(const adv_monitor* monitor);
 adv_error monitor_parse(adv_monitor* monitor, const char* phv);

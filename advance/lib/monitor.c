@@ -150,3 +150,20 @@ adv_bool monitor_hvclock_check(const adv_monitor* monitor, double hclock, double
 	return 0;
 }
 
+/**
+ * Return the maximum vertical total resolution.
+ */
+unsigned monitor_vt_max(const adv_monitor* monitor)
+{
+	unsigned i;
+	unsigned vt_max = 0;
+
+	for(i=0;i<monitor->mode_mac;++i) {
+		unsigned vt = monitor->mode_map[i].hclock.high / monitor->mode_map[i].vclock.low;
+		if (vt_max < vt)
+			vt_max = vt;
+	}
+
+	return vt_max;
+}
+

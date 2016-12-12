@@ -10,6 +10,8 @@ AdvanceMAME/MESS/MENU Version 3.1 2016/12
 	) Changed the 'sync_resample auto' to be 'emulation' instead
 		of 'internal'. This give more stable sound when
 		the game emulation is too slow.
+	) The 'display_magnify auto' option now takes into account
+		the monitor limits to avoid over scaling.
 	) Restored the functionality of "-output fullscreen" option.
 		It wasn't able anymore to find video modes.
 

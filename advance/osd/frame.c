@@ -95,7 +95,7 @@ static int adjust_multiplier(int value, int base, int step, int upper)
 /**
  * Check if the video output is programmable.
  */
-static adv_bool video_is_programmable(struct advance_video_context* context)
+static adv_bool video_is_programmable(const struct advance_video_context* context)
 {
 	/* driver must be programmable */
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0)
@@ -111,7 +111,7 @@ static adv_bool video_is_programmable(struct advance_video_context* context)
 /**
  * Check if the video generation is active.
  */
-static adv_bool video_is_generable(struct advance_video_context* context)
+static adv_bool video_is_generable(const struct advance_video_context* context)
 {
 	return (context->config.adjust & ADJUST_GENERATE) != 0
 		&& video_is_programmable(context)
