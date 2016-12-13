@@ -900,7 +900,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 			"%u %u %u %u %u %u %u",
 			mode->crtc.hde, (int)!crtc_is_nhsync(&mode->crtc), mode->crtc.hrs - mode->crtc.hde, mode->crtc.hre - mode->crtc.hrs,  mode->crtc.ht - mode->crtc.hre,
 			mode->crtc.vde, (int)!crtc_is_nvsync(&mode->crtc), mode->crtc.vrs - mode->crtc.vde, mode->crtc.vre - mode->crtc.vrs,  mode->crtc.vt - mode->crtc.vre,
-			0, 0, 0, (unsigned)crtc_vclock_get(&mode->crtc), (int)crtc_is_interlace(&mode->crtc), (unsigned)mode->crtc.pixelclock, 1
+			0, 0, 0, (unsigned)floor(crtc_vclock_get(&mode->crtc) + 0.5), (int)crtc_is_interlace(&mode->crtc), (unsigned)mode->crtc.pixelclock, 1
 		);
 
 		log_std(("video:fb: run \"%s\"\n", cmd));
