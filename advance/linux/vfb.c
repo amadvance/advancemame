@@ -826,6 +826,150 @@ static adv_error fb_setup_color(void)
 	return 0;
 }
 
+static int fb_raspberry_set(const adv_crtc* crtc)
+{
+	char* opt;
+	char cmd[256];
+
+	/* we are going to change the timings */
+	fb_state.old_need_restore = 1;
+
+	/*
+	 * Configure the Raspberry HDMI timing.
+	 *
+	 * See:
+	 * "Please can the ability to modify HDMI timings on the fly"
+	 " (i.e. without having to carry out a reboot) be added to the firmware drivers"
+	 * https://github.com/raspberrypi/firmware/issues/637
+	 *
+	 * Format for hdmi_timings:
+	 * # <h_active_pixels> <h_sync_polarity> <h_front_porch> <h_sync_pulse> <h_back_porch>
+	 * # <v_active_lines> <v_sync_polarity> <v_front_porch> <v_sync_pulse> <v_back_porch>
+	 * # <v_sync_offset_a> <v_sync_offset_b> <pixel_rep> <framerate> <interlaced> <pixel_freq> <aspect>
+	 * # aspect ratio: 1=4:3, 2=14:9, 3=16:9, 4=5:4, 5=16:10, 6=15:9, 7=21:9, 8=64:27
+	 *
+	 * Example: vcgencmd hdmi_timings 640 0 16 64 120 480 0 1 3 16 0 0 0 75 0 31500000 1
+	 *
+	 */
+	snprintf(cmd, sizeof(cmd),
+		"vcgencmd hdmi_timings "
+		"%u %u %u %u %u "
+		"%u %u %u %u %u "
+		"%u %u %u %u %u %u %u",
+		crtc->hde, (int)!crtc_is_nhsync(crtc), crtc->hrs - crtc->hde, crtc->hre - crtc->hrs,  crtc->ht - crtc->hre,
+		crtc->vde, (int)!crtc_is_nvsync(crtc), crtc->vrs - crtc->vde, crtc->vre - crtc->vrs,  crtc->vt - crtc->vre,
+		0, 0, 0, (unsigned)floor(crtc_vclock_get(crtc) + 0.5), (int)crtc_is_interlace(crtc), (unsigned)crtc->pixelclock, 1
+	);
+
+	log_std(("video:fb: run \"%s\"\n", cmd));
+	opt = target_system(cmd);
+	if (!opt)
+		return -1;
+	log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+	free(opt);
+
+	/* enable the new video mode */
+	if (fb_state.olddrive[0])
+		snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87 %s\"", fb_state.olddrive);
+	else
+		snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87\"");
+	log_std(("video:fb: run \"%s\"\n", cmd));
+	opt = target_system(cmd);
+	if (!opt)
+		return -1;
+	log_std(("video:fb: tvservice result \"%s\"\n", opt));
+	free(opt);
+
+	/*
+	 * Wait some time after the tvservice command to allow
+	 * the console driver to react.
+	 *
+	 * Without this wait, the next video mode change has effect,
+	 * but the the screen remain black, even if the right video mode
+	 * is set.
+	 *
+	 * Note that this delay is also required when using the
+	 * workaround of changing VT with "chvt 2; chvt 1", or resetting
+	 * the video mode with "fbset -depth 8; fbset -depth 16".
+	 *
+	 * A 100ms delay is enough, but we wait more for safety.
+	 *
+	 * See:
+	 * "Programmatically turn screen off"
+	 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
+	 */
+	target_usleep(250 * 1000);
+
+	return 0;
+}
+
+static void fb_raspberry_restore(void)
+{
+	char* opt;
+	char cmd[256];
+
+	/* nothing to do if nothing was set */
+	if (!fb_state.old_need_restore)
+		return;
+
+	/* if we have original timings, restore them */
+	if (fb_state.oldtimings[0]) {
+		snprintf(cmd, sizeof(cmd), "vcgencmd hdmi_timings %s", fb_state.oldtimings);
+		log_std(("video:fb: run \"%s\"\n", cmd));
+		opt = target_system(cmd);
+		if (opt) {
+			log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+			free(opt);
+		}
+		/* ignore error */
+	}
+
+	/* if we have the mode, restore it */
+	if (fb_state.oldgroup[0] && fb_state.oldmode) {
+		if (fb_state.olddrive[0])
+			snprintf(cmd, sizeof(cmd), "tvservice -e \"%s %u %s\"", fb_state.oldgroup, fb_state.oldmode, fb_state.olddrive);
+		else
+			snprintf(cmd, sizeof(cmd), "tvservice -e \"%s %u\"", fb_state.oldgroup, fb_state.oldmode);
+		log_std(("video:fb: run \"%s\"\n", cmd));
+		opt = target_system(cmd);
+		if (opt) {
+			log_std(("video:fb: tvservice result \"%s\"\n", opt));
+			free(opt);
+		}
+		/* ignore error */
+	} else {
+		/* otherwise, use the preferred mode */
+		snprintf(cmd, sizeof(cmd), "tvservice -p");
+		log_std(("video:fb: run \"%s\"\n", cmd));
+		opt = target_system(cmd);
+		if (opt) {
+			log_std(("video:fb: tvservice result \"%s\"\n", opt));
+			free(opt);
+		}
+		/* ignore error */
+	}
+
+	/*
+	 * Wait some time after the tvservice command to allow
+	 * the console driver to react.
+	 *
+	 * Without this wait, the next video mode change has effect,
+	 * but the the screen remain black, even if the right video mode
+	 * is set.
+	 *
+	 * Note that this delay is also required when using the
+	 * workaround of changing VT with "chvt 2; chvt 1", or resetting
+	 * the video mode with "fbset -depth 8; fbset -depth 16".
+	 *
+	 * A 100ms delay is enough, but we wait more for safety.
+	 *
+	 * See:
+	 * "Programmatically turn screen off"
+	 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
+	 */
+	target_usleep(250 * 1000);
+}
+
 adv_error fb_mode_set(const fb_video_mode* mode)
 {
 	unsigned req_xres;
@@ -864,83 +1008,8 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	/* if it's a programmable mode on Raspberry */
 	if (is_raspberry_active) {
-		char* opt;
-		char cmd[256];
-
-		/* ensure that the mode is valid */
-		if (!crtc_is_valid(&mode->crtc)) {
-			error_set("Invalid mode.\n");
-			goto err;
-		}
-
-		/* we are going to change the timings */
-		fb_state.old_need_restore = 1;
-
-		/*
-		 * Configure the Raspberry HDMI timing.
-		 *
-		 * See:
-		 * "Please can the ability to modify HDMI timings on the fly"
-		 " (i.e. without having to carry out a reboot) be added to the firmware drivers"
-		 * https://github.com/raspberrypi/firmware/issues/637
-		 *
-		 * Format for hdmi_timings:
-		 * # <h_active_pixels> <h_sync_polarity> <h_front_porch> <h_sync_pulse> <h_back_porch>
-		 * # <v_active_lines> <v_sync_polarity> <v_front_porch> <v_sync_pulse> <v_back_porch>
-		 * # <v_sync_offset_a> <v_sync_offset_b> <pixel_rep> <framerate> <interlaced> <pixel_freq> <aspect>
-		 * # aspect ratio: 1=4:3, 2=14:9, 3=16:9, 4=5:4, 5=16:10, 6=15:9, 7=21:9, 8=64:27
-		 *
-		 * Example: vcgencmd hdmi_timings 640 0 16 64 120 480 0 1 3 16 0 0 0 75 0 31500000 1
-		 *
-		 */
-		snprintf(cmd, sizeof(cmd),
-			"vcgencmd hdmi_timings "
-			"%u %u %u %u %u "
-			"%u %u %u %u %u "
-			"%u %u %u %u %u %u %u",
-			mode->crtc.hde, (int)!crtc_is_nhsync(&mode->crtc), mode->crtc.hrs - mode->crtc.hde, mode->crtc.hre - mode->crtc.hrs,  mode->crtc.ht - mode->crtc.hre,
-			mode->crtc.vde, (int)!crtc_is_nvsync(&mode->crtc), mode->crtc.vrs - mode->crtc.vde, mode->crtc.vre - mode->crtc.vrs,  mode->crtc.vt - mode->crtc.vre,
-			0, 0, 0, (unsigned)floor(crtc_vclock_get(&mode->crtc) + 0.5), (int)crtc_is_interlace(&mode->crtc), (unsigned)mode->crtc.pixelclock, 1
-		);
-
-		log_std(("video:fb: run \"%s\"\n", cmd));
-		opt = target_system(cmd);
-		if (!opt)
+		if (fb_raspberry_set(&mode->crtc) != 0)
 			goto err_restore;
-		log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
-		free(opt);
-
-		/* enable the new video mode */
-		if (fb_state.olddrive[0])
-			snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87 %s\"", fb_state.olddrive);
-		else
-			snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87\"");
-		log_std(("video:fb: run \"%s\"\n", cmd));
-		opt = target_system(cmd);
-		if (!opt)
-			goto err_restore;
-		log_std(("video:fb: tvservice result \"%s\"\n", opt));
-		free(opt);
-
-		/*
-		 * Wait some time after the tvservice command to allow
-		 * the console driver to react.
-		 *
-		 * Without this wait, the next video mode change has effect,
-		 * but the the screen remain black, even if the right video mode
-		 * is set.
-		 *
-		 * Note that this delay is also required when using the
-		 * workaround of changing VT with "chvt 2; chvt 1", or resetting
-		 * the video mode with "fbset -depth 8; fbset -depth 16".
-		 *
-		 * A 100ms delay is enough, but we wait more for safety.
-		 *
-		 * See:
-		 * "Programmatically turn screen off"
-		 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
-		 */
-		target_usleep(250 * 1000);
 	}
 
 	/* save the minimun required data */
@@ -951,7 +1020,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	/* set the mode */
 	if (fb_setvar(&fb_state.varinfo) != 0) {
 		error_set("Error setting the variable video mode information.\n");
-		goto err;
+		goto err_restore;
 	}
 
 	log_std(("video:fb: get new\n"));
@@ -983,6 +1052,9 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		/* log the effective pixel clock */
 		char* opt;
 		char cmd[256];
+		unsigned pclock = 0;
+		unsigned dpiclock = 0;
+		unsigned index;
 
 		/* pixel clock for HDMI (known limit of 25.00 MHz) */
 		snprintf(cmd, sizeof(cmd), "vcgencmd measure_clock pixel");
@@ -990,6 +1062,9 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		opt = target_system(cmd);
 		if (opt) {
 			log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+			if (sscanf(opt, "frequency(%u)=%u", &index, &pclock) == 2) {
+				log_std(("video:fb: p_clock %u\n", pclock));
+			}
 			free(opt);
 		}
 
@@ -999,7 +1074,16 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		opt = target_system(cmd);
 		if (opt) {
 			log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+			if (sscanf(opt, "frequency(%u)=%u", &index, &dpiclock) == 2) {
+				log_std(("video:fb: dpi_clock %u\n", dpiclock));
+			}
 			free(opt);
+		}
+
+		/* if both are 0, something is wrong */
+		if (pclock == 0 && dpiclock == 0) {
+			error_set("Invalid Raspberry Pi measured clock.\n");
+			goto err_restore;
 		}
 	}
 
@@ -1052,6 +1136,9 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	return 0;
 
 err_restore:
+	log_std(("video:fb: restore after error\n"));
+	if (is_raspberry_active)
+		fb_raspberry_restore();
 	fb_setvar(&fb_state.oldinfo); /* ignore error */
 err:
 	return -1;
@@ -1076,72 +1163,11 @@ void fb_mode_done(adv_bool restore)
 		fb_log(0, &fb_state.oldinfo);
 
 		/* if raspberry needs special processing */
-		is_raspberry_active = fb_state.is_raspberry && fb_state.old_need_restore;
+		is_raspberry_active = fb_state.is_raspberry;
 
-		if (is_raspberry_active) {
-			char* opt;
-			char cmd[256];
-
-			/* if we have original timings, restore them */
-			if (fb_state.oldtimings[0]) {
-				snprintf(cmd, sizeof(cmd), "vcgencmd hdmi_timings %s", fb_state.oldtimings);
-				log_std(("video:fb: run \"%s\"\n", cmd));
-				opt = target_system(cmd);
-				if (opt) {
-					log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
-					free(opt);
-				}
-				/* ignore error */
-			}
-
-			/* if we have the mode, restore it */
-			if (fb_state.oldgroup[0] && fb_state.oldmode) {
-				if (fb_state.olddrive[0])
-					snprintf(cmd, sizeof(cmd), "tvservice -e \"%s %u %s\"", fb_state.oldgroup, fb_state.oldmode, fb_state.olddrive);
-				else
-					snprintf(cmd, sizeof(cmd), "tvservice -e \"%s %u\"", fb_state.oldgroup, fb_state.oldmode);
-				log_std(("video:fb: run \"%s\"\n", cmd));
-				opt = target_system(cmd);
-				if (opt) {
-					log_std(("video:fb: tvservice result \"%s\"\n", opt));
-					free(opt);
-				}
-				/* ignore error */
-			} else {
-				/* otherwise, use the preferred mode */
-				snprintf(cmd, sizeof(cmd), "tvservice -p");
-				log_std(("video:fb: run \"%s\"\n", cmd));
-				opt = target_system(cmd);
-				if (opt) {
-					log_std(("video:fb: tvservice result \"%s\"\n", opt));
-					free(opt);
-				}
-				/* ignore error */
-			}
-
-			/*
-			 * Wait some time after the tvservice command to allow
-			 * the console driver to react.
-			 *
-			 * Without this wait, the next video mode change has effect,
-			 * but the the screen remain black, even if the right video mode
-			 * is set.
-			 *
-			 * Note that this delay is also required when using the
-			 * workaround of changing VT with "chvt 2; chvt 1", or resetting
-			 * the video mode with "fbset -depth 8; fbset -depth 16".
-			 *
-			 * A 100ms delay is enough, but we wait more for safety.
-			 *
-			 * See:
-			 * "Programmatically turn screen off"
-			 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
-			 */
-			target_usleep(250 * 1000);
-		}
-
-		fb_setvar(&fb_state.oldinfo);
-		/* ignore error */
+		if (is_raspberry_active)
+			fb_raspberry_restore();
+		fb_setvar(&fb_state.oldinfo); /* ignore error */
 	} else {
 		/* ensure to have the correct color, the keyboard driver */
 		/* when resetting the console changes some colors */
