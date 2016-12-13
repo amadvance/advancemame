@@ -53,26 +53,26 @@ adv_bool monitor_is_empty(const adv_monitor* monitor)
 
 adv_bool monitor_mode_hclock_check(const adv_monitor_mode* mode, double hclock)
 {
-	const double monitor_hfix_error = 0.02; /* allowed error for fixed value. */
-	const double monitor_hrange_error = 0.01; /* allowed error for range value. */
+	/*
+	 * Allowed error in the clock value.
+	 *
+	 * Due approximation it's possible that the modeline is a little
+	 * over the clock specification.
+	 *
+	 * In a typical low resolution modeline you have a horizontal total of 300
+	 * with a step of 8, * and a vertical size of 200 and step 1.
+	 * This results in a possible error of 8 / 300 + 1 / 200 = 3.1%.
+	 */
+	const double monitor_error = 0.03;
 
-	if (mode->hclock.low == mode->hclock.high) {
-		return mode->hclock.low * (1-monitor_hfix_error) <= hclock && hclock <= mode->hclock.high * (1+monitor_hfix_error);
-	} else {
-		return mode->hclock.low * (1-monitor_hrange_error) <= hclock && hclock <= mode->hclock.high * (1+monitor_hrange_error);
-	}
+	return mode->hclock.low * (1-monitor_error) <= hclock && hclock <= mode->hclock.high * (1+monitor_error);
 }
 
 adv_bool monitor_mode_vclock_check(const adv_monitor_mode* mode, double vclock)
 {
-	const double monitor_vfix_error = 0.02; /* allowed error for fixed value. */
-	const double monitor_vrange_error = 0.01; /* allowed error for range value. */
+	const double monitor_error = 0.03;
 
-	if (mode->vclock.low == mode->vclock.high) {
-		return mode->vclock.low * (1-monitor_vfix_error) <= vclock && vclock <= mode->vclock.high * (1+monitor_vfix_error);
-	} else {
-		return mode->vclock.low * (1-monitor_vrange_error)<= vclock && vclock <= mode->vclock.high * (1+monitor_vrange_error);
-	}
+	return mode->vclock.low * (1-monitor_error) <= vclock && vclock <= mode->vclock.high * (1+monitor_error);
 }
 
 /**
@@ -82,10 +82,9 @@ adv_bool monitor_mode_vclock_check(const adv_monitor_mode* mode, double vclock)
  */
 adv_bool monitor_mode_pclock_check(const adv_monitor_mode* mode, double pclock)
 {
-	if (mode->pclock.low <= pclock && pclock <= mode->pclock.high)
-		return 1;
+	const double monitor_error = 0.03;
 
-	return 0;
+	return mode->pclock.low * (1-monitor_error) <= pclock && pclock <= mode->pclock.high * (1+monitor_error);
 }
 
 /**
