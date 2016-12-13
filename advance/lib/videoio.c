@@ -143,6 +143,13 @@ static adv_error parse_crtc(adv_crtc* crtc, const char* begin, const char* end)
 		return -1;
 	crtc->ht = v;
 
+	/* convert to incremental modeline */
+	if (crtc->hde > crtc->hrs) {
+		crtc->hrs += crtc->hde;
+		crtc->hre += crtc->hrs;
+		crtc->ht += crtc->hre;
+	}
+
 	parse_separator(" \t", &begin, end);
 	if (parse_int(&v, &begin, end))
 		return -1;
@@ -162,6 +169,13 @@ static adv_error parse_crtc(adv_crtc* crtc, const char* begin, const char* end)
 	if (parse_int(&v, &begin, end))
 		return -1;
 	crtc->vt = v;
+
+	/* convert to incremental modeline */
+	if (crtc->vde > crtc->vrs) {
+		crtc->vrs += crtc->vde;
+		crtc->vre += crtc->vrs;
+		crtc->vt += crtc->vre;
+	}
 
 	parse_separator(" \t", &begin, end);
 	while (begin != end) {
