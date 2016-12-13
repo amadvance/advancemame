@@ -293,6 +293,9 @@ public:
 	void vert_clock_min_set(double A) { vert_clock_min = A; }
 	void vert_clock_max_set(double A) { vert_clock_max = A; }
 	void sync_vga_set(bool A) { sync_vga = A; }
+	void sync_pp_set(bool A) { sync_pp = A; }
+	void no_interlace_set(bool A) { no_interlace = A; }
+	void no_doublescan_set(bool A) { no_doublescan = A; }
 	void c_format_set(bool A) { c_format = A; }
 
 	double pixel_clock_min_get() const { return pixel_clock_min; }
@@ -300,6 +303,9 @@ public:
 	double vert_clock_min_get() const { return vert_clock_min; }
 	double vert_clock_max_get() const { return vert_clock_max; }
 	bool sync_vga_get() const { return sync_vga; }
+	bool sync_pp_get() const { return sync_pp; }
+	bool no_interlace_get() const { return no_interlace; }
+	bool no_doublescan_get() const { return no_doublescan; }
 	bool c_format_get() const   { return c_format; }
 
 	void sync_out(unsigned vde);
@@ -325,6 +331,9 @@ private:
 	double vert_clock_max;
 	double vert_clock_min;
 	bool sync_vga;
+	bool sync_pp;
+	bool no_interlace;
+	bool no_doublescan;
 	bool c_format;
 };
 
@@ -335,6 +344,9 @@ output::output(ostream& Aos) : os(Aos), counter(0), type(output_none)
 	vert_clock_max = 112;
 	vert_clock_min = 43;
 	sync_vga = false;
+	sync_pp = false;
+	no_interlace = false;
+	no_doublescan = false;
 	c_format = false;
 }
 
@@ -408,6 +420,8 @@ Vert. Sync Polarity    NEG     POS     NEG
 			os << " -hsync +vsync";
 		else
 			os << " +hsync -vsync";
+	} else if (sync_pp) {
+		os << " +hsync +vsync";
 	} else {
 		os << " -hsync -vsync";
 	}
@@ -415,6 +429,12 @@ Vert. Sync Polarity    NEG     POS     NEG
 
 void output::svga_graph_out_internal(const string& name, double f, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, bool interlace, bool doublescan)
 {
+	double hf = f / ht;
+	double vf = f / (ht * vt) * (interlace + 1) / (doublescan + 1);
+
+	if (vf < 30 || vf > 120)
+		return;
+
 	ostringstream n;
 	n << name << "_" << hde << "x" << vde;
 	string ns = n.str();
@@ -433,7 +453,7 @@ void output::svga_graph_out_internal(const string& name, double f, unsigned hde,
 		os << " interlace";
 	if (doublescan)
 		os << " doublescan";
-	post(f / ht, f / (ht * vt) * (interlace + 1) / (doublescan + 1));
+	post(hf, vf);
 }
 
 void output::svga_graph_out(const string& name, double f, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, unsigned contrains, bool interlace)
@@ -441,7 +461,7 @@ void output::svga_graph_out(const string& name, double f, unsigned hde, unsigned
 	bool doublescan = false;
 
 	// Set the interlace mode if the frame rate is too low
-	if (!interlace
+	if (!interlace && !no_interlace
 		&& (f / (ht * vt)) < vert_clock_min
 		&& !(contrains & clock_vert)) {
 		interlace = true;
@@ -449,7 +469,7 @@ void output::svga_graph_out(const string& name, double f, unsigned hde, unsigned
 
 	// Double the vertical size with doublescan
 	// if the vertical clock is too high
-	if (!interlace && !doublescan
+	if (!interlace && !doublescan && !no_doublescan
 		&& (f / (ht * vt)) > vert_clock_max
 		&& !(contrains & clock_vert)) {
 		doublescan = true;
@@ -458,7 +478,7 @@ void output::svga_graph_out(const string& name, double f, unsigned hde, unsigned
 	// Double the vertical size with doublescan
 	// if the pixel clock is too low
 	// or if the horizontal clock is too low
-	if (!interlace && !doublescan
+	if (!interlace && !doublescan && !no_doublescan
 		&& (f < pixel_clock_min || (f / ht) < horz_clock_min)
 		&& !(contrains & (clock_horz | clock_pixel))) {
 		f *= 2;
@@ -890,6 +910,7 @@ void help()
 	cout << "\t/fh A,F,S,B   Select the horizontal format" << endl;
 	cout << "\t/fv A,F,S,B   Select the vertical format" << endl;
 	cout << "\t/sync_vga     Generate the sync polarization for a VGA monitor" << endl;
+	cout << "\t/sync_pp      Generate the positive sync polarization" << endl;
 	cout << "Clock contrains:" << endl;
 	cout << "\t/p CLOCK      Select the pixel clock [Hz]" << endl;
 	cout << "\t/h CLOCK      Select the horizontal clock [Hz]" << endl;
@@ -1058,6 +1079,12 @@ int main(int argc, char* argv[])
 			used_arg = true;
 		} else if (optionmatch(opt, "sync_vga")) {
 			out.sync_vga_set(true);
+		} else if (optionmatch(opt, "sync_pp")) {
+			out.sync_pp_set(true);
+		} else if (optionmatch(opt, "no_i")) {
+			out.no_interlace_set(true);
+		} else if (optionmatch(opt, "no_d")) {
+			out.no_doublescan_set(true);
 		} else if (optionmatch(opt, "show_comment")) {
 			show_comment = true;
 		} else if (optionmatch(opt, "show_header")) {

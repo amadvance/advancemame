@@ -231,9 +231,9 @@ static const char* MODELINE_SVGA[] = {
 static const char* MODELINE_RASPBERRY[] = {
 
 /* From https://www.raspberrypi.org/forums/viewtopic.php?f=29&t=24679&start=100 */
-"raspberry_DPI_custom_50_512x288 9.6 512 16 48 64 288 3 5 6 -hsync -vsync",
-"raspberry_DPI_custom_60_512x244 9.6 512 22 32 54 244 3 5 6 -hsync -vsync",
-"raspberry_DPI_custom_60_320x244 6.4 320 17 33 34 224 14 8 18 -hsync -vsync",
+"raspberry_DPI_custom_50_512x288 9.6 512 16 48 64 288 3 5 6 +hsync +vsync",
+"raspberry_DPI_custom_60_512x244 9.6 512 22 32 54 244 3 5 6 +hsync +vsync",
+"raspberry_DPI_custom_60_320x244 6.4 320 17 33 34 224 14 8 18 +hsync +vsync",
 
 #include "raspberry.dat"
 

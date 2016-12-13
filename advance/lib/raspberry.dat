@@ -1,21 +1,19 @@
 /* Video modes computed with the advline utility */
-"raspberry_DPI_pal_240x288 4.8 240 256 280 304 288 291 294 312 -hsync -vsync", /* H 15789.5 [Hz], V 50.6073 [Hz] */
-"raspberry_DPI_pal_336x288 6.4 336 344 368 408 288 291 294 312 -hsync -vsync", /* H 15686.3 [Hz], V 50.2765 [Hz] */
-"raspberry_DPI_pal_496x288 9.6 496 520 560 616 288 291 294 312 -hsync -vsync", /* H 15584.4 [Hz], V 49.95 [Hz] */
-"raspberry_DPI_pal_1008x288 19.2 1008 1032 1120 1232 288 291 294 312 -hsync -vsync", /* H 15584.4 [Hz], V 49.95 [Hz] */
-"raspberry_DPI_ntsc_256x240 4.8 256 256 280 304 240 245 248 262 -hsync -vsync", /* H 15789.5 [Hz], V 60.2652 [Hz] */
-"raspberry_DPI_ntsc_336x240 6.4 336 344 376 408 240 245 248 262 -hsync -vsync", /* H 15686.3 [Hz], V 59.8713 [Hz] */
-"raspberry_DPI_ntsc_496x240 9.6 496 520 560 608 240 245 248 262 -hsync -vsync", /* H 15789.5 [Hz], V 60.2652 [Hz] */
-"raspberry_DPI_ntsc_1008x240 19.2 1008 1040 1136 1224 240 245 248 262 -hsync -vsync", /* H 15686.3 [Hz], V 59.8713 [Hz] */
-"raspberry_DPI_standard_224x168 4.8 224 248 272 304 168 170 172 183 -hsync -vsync", /* H 15789.5 [Hz], V 86.2813 [Hz] */
-"raspberry_DPI_standard_304x224 6.4 304 328 360 408 224 226 229 244 -hsync -vsync", /* H 15686.3 [Hz], V 64.288 [Hz] */
-"raspberry_DPI_standard_448x336 9.6 448 496 536 608 336 341 345 367 -hsync -vsync", /* H 15789.5 [Hz], V 43.0231 [Hz] */
-"raspberry_DPI_standard_896x672 19.2 896 992 1088 1224 672 680 689 733 -hsync -vsync interlace", /* H 15686.3 [Hz], V 42.8002 [Hz] */
-"raspberry_DPI_extended_224x168 4.8 224 232 248 288 168 170 172 182 -hsync -vsync", /* H 16666.7 [Hz], V 91.5751 [Hz] */
-"raspberry_DPI_extended_304x224 6.4 304 312 336 384 224 228 230 243 -hsync -vsync", /* H 16666.7 [Hz], V 68.5871 [Hz] */
-"raspberry_DPI_extended_464x344 9.6 464 472 504 584 344 350 354 374 -hsync -vsync", /* H 16438.4 [Hz], V 43.9528 [Hz] */
-"raspberry_DPI_extended_912x680 19.2 912 936 1008 1160 680 692 700 739 -hsync -vsync interlace", /* H 16551.7 [Hz], V 44.7949 [Hz] */
-"raspberry_DPI_medium_160x120 4.8 160 160 176 192 120 121 122 130 -hsync -vsync doublescan", /* H 25000 [Hz], V 96.1538 [Hz] */
-"raspberry_DPI_medium_208x152 6.4 208 208 232 256 152 153 155 165 -hsync -vsync doublescan", /* H 25000 [Hz], V 75.7576 [Hz] */
-"raspberry_DPI_medium_304x224 9.6 304 312 352 384 224 226 228 243 -hsync -vsync", /* H 25000 [Hz], V 102.881 [Hz] */
-"raspberry_DPI_medium_608x456 19.2 608 632 704 768 456 459 464 494 -hsync -vsync", /* H 25000 [Hz], V 50.6073 [Hz] */
+"raspberry_DPI_pal_240x288 4.8 240 256 280 304 288 291 294 312 +hsync +vsync", /* H 15789.5 [Hz], V 50.6073 [Hz] */
+"raspberry_DPI_pal_336x288 6.4 336 344 368 408 288 291 294 312 +hsync +vsync", /* H 15686.3 [Hz], V 50.2765 [Hz] */
+"raspberry_DPI_pal_496x288 9.6 496 520 560 616 288 291 294 312 +hsync +vsync", /* H 15584.4 [Hz], V 49.95 [Hz] */
+"raspberry_DPI_pal_1008x288 19.2 1008 1032 1120 1232 288 291 294 312 +hsync +vsync", /* H 15584.4 [Hz], V 49.95 [Hz] */
+"raspberry_DPI_ntsc_256x240 4.8 256 256 280 304 240 245 248 262 +hsync +vsync", /* H 15789.5 [Hz], V 60.2652 [Hz] */
+"raspberry_DPI_ntsc_336x240 6.4 336 344 376 408 240 245 248 262 +hsync +vsync", /* H 15686.3 [Hz], V 59.8713 [Hz] */
+"raspberry_DPI_ntsc_496x240 9.6 496 520 560 608 240 245 248 262 +hsync +vsync", /* H 15789.5 [Hz], V 60.2652 [Hz] */
+"raspberry_DPI_ntsc_1008x240 19.2 1008 1040 1136 1224 240 245 248 262 +hsync +vsync", /* H 15686.3 [Hz], V 59.8713 [Hz] */
+"raspberry_DPI_standard_224x168 4.8 224 248 272 304 168 170 172 183 +hsync +vsync", /* H 15789.5 [Hz], V 86.2813 [Hz] */
+"raspberry_DPI_standard_304x224 6.4 304 328 360 408 224 226 229 244 +hsync +vsync", /* H 15686.3 [Hz], V 64.288 [Hz] */
+"raspberry_DPI_standard_448x336 9.6 448 496 536 608 336 341 345 367 +hsync +vsync", /* H 15789.5 [Hz], V 43.0231 [Hz] */
+"raspberry_DPI_standard_896x672 19.2 896 992 1088 1224 672 680 689 733 +hsync +vsync interlace", /* H 15686.3 [Hz], V 42.8002 [Hz] */
+"raspberry_DPI_extended_224x168 4.8 224 232 248 288 168 170 172 182 +hsync +vsync", /* H 16666.7 [Hz], V 91.5751 [Hz] */
+"raspberry_DPI_extended_304x224 6.4 304 312 336 384 224 228 230 243 +hsync +vsync", /* H 16666.7 [Hz], V 68.5871 [Hz] */
+"raspberry_DPI_extended_464x344 9.6 464 472 504 584 344 350 354 374 +hsync +vsync", /* H 16438.4 [Hz], V 43.9528 [Hz] */
+"raspberry_DPI_extended_912x680 19.2 912 936 1008 1160 680 692 700 739 +hsync +vsync interlace", /* H 16551.7 [Hz], V 44.7949 [Hz] */
+"raspberry_DPI_medium_304x224 9.6 304 312 352 384 224 226 228 243 +hsync +vsync", /* H 25000 [Hz], V 102.881 [Hz] */
+"raspberry_DPI_medium_608x456 19.2 608 632 704 768 456 459 464 494 +hsync +vsync", /* H 25000 [Hz], V 50.6073 [Hz] */
