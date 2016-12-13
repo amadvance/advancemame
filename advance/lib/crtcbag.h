@@ -82,6 +82,7 @@ adv_crtc* crtc_container_iterator_get(adv_crtc_container_iterator* cci);
 
 adv_error crtc_container_insert_default_modeline_vga(adv_crtc_container* cc);
 adv_error crtc_container_insert_default_modeline_svga(adv_crtc_container* cc);
+adv_error crtc_container_insert_default_modeline_raspberry(adv_crtc_container* cc);
 adv_error crtc_container_insert_default_bios_vga(adv_crtc_container* cc);
 adv_error crtc_container_insert_default_bios_vbe(adv_crtc_container* cc);
 void crtc_container_insert_default_active(adv_crtc_container* cc);

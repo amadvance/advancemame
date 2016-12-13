@@ -2,7 +2,7 @@ ECHO=echo
 LINE=./advline
 
 TARGET = advline pcvga.rc pcsvga60.rc standard.rc medium.rc extended.rc pal.rc ntsc.rc \
-	vgamode.dat svgamode.dat
+	vgamode.dat svgamode.dat raspberry.rc raspberry.dat
 
 all: $(TARGET)
 
@@ -28,6 +28,29 @@ svgamode.dat: $(LINE)
 	$(LINE) /c_format /show_svga /show_comment /show_header /atari_medium >> $@
 	$(LINE) /c_format /show_svga /show_comment /show_header /svga60 >> $@
 	$(LINE) /c_format /show_svga /show_comment /show_header /svga57 >> $@
+
+raspberry.dat: $(LINE)
+	echo "/* Video modes computed with the advline utility */" > $@
+	$(LINE) /c_format /pal -n raspberry_DPI_pal /show_fit /p 4.8 >> $@
+	$(LINE) /c_format /pal -n raspberry_DPI_pal /show_fit /p 6.4 >> $@
+	$(LINE) /c_format /pal -n raspberry_DPI_pal /show_fit /p 9.6 >> $@
+	$(LINE) /c_format /pal -n raspberry_DPI_pal /show_fit /p 19.2 >> $@
+	$(LINE) /c_format /ntsc -n raspberry_DPI_ntsc /show_fit /p 4.8 >> $@
+	$(LINE) /c_format /ntsc -n raspberry_DPI_ntsc /show_fit /p 6.4 >> $@
+	$(LINE) /c_format /ntsc -n raspberry_DPI_ntsc /show_fit /p 9.6 >> $@
+	$(LINE) /c_format /ntsc -n raspberry_DPI_ntsc /show_fit /p 19.2 >> $@
+	$(LINE) /c_format /atari_standard -n raspberry_DPI_standard /show_fit /p 4.8 >> $@
+	$(LINE) /c_format /atari_standard -n raspberry_DPI_standard /show_fit /p 6.4 >> $@
+	$(LINE) /c_format /atari_standard -n raspberry_DPI_standard /show_fit /p 9.6 >> $@
+	$(LINE) /c_format /atari_standard -n raspberry_DPI_standard /show_fit /p 19.2 >> $@
+	$(LINE) /c_format /atari_extended -n raspberry_DPI_extended /show_fit /p 4.8 >> $@
+	$(LINE) /c_format /atari_extended -n raspberry_DPI_extended /show_fit /p 6.4 >> $@
+	$(LINE) /c_format /atari_extended -n raspberry_DPI_extended /show_fit /p 9.6 >> $@
+	$(LINE) /c_format /atari_extended -n raspberry_DPI_extended /show_fit /p 19.2 >> $@
+	$(LINE) /c_format /atari_medium -n raspberry_DPI_medium /show_fit /p 4.8 >> $@
+	$(LINE) /c_format /atari_medium -n raspberry_DPI_medium /show_fit /p 6.4 >> $@
+	$(LINE) /c_format /atari_medium -n raspberry_DPI_medium /show_fit /p 9.6 >> $@
+	$(LINE) /c_format /atari_medium -n raspberry_DPI_medium /show_fit /p 19.2 >> $@
 
 pcvga.rc: $(LINE)
 	$(ECHO) $@
@@ -104,6 +127,38 @@ ntsc.rc: $(LINE)
 	$(ECHO) "device_video_vclock 60" >> $@
 	$(ECHO) >> $@
 	$(LINE) /show_comment /show_header /show_vga /show_svga /ntsc >> $@
+
+raspberry.rc: $(LINE)
+	$(ECHO) $@
+	$(ECHO) "# PAL TVs (15.625 kHz)" >> $@
+	$(LINE) /pal -n raspberry_DPI_pal /show_fit /p 4.8 >> $@
+	$(LINE) /pal -n raspberry_DPI_pal /show_fit /p 6.4 >> $@
+	$(LINE) /pal -n raspberry_DPI_pal /show_fit /p 9.6 >> $@
+	$(LINE) /pal -n raspberry_DPI_pal /show_fit /p 19.2 >> $@
+	$(ECHO) >> $@
+	$(ECHO) "# NTSC TVs (15.734 kHz)" >> $@
+	$(LINE) /ntsc -n raspberry_DPI_ntsc /show_fit /p 4.8 >> $@
+	$(LINE) /ntsc -n raspberry_DPI_ntsc /show_fit /p 6.4 >> $@
+	$(LINE) /ntsc -n raspberry_DPI_ntsc /show_fit /p 9.6 >> $@
+	$(LINE) /ntsc -n raspberry_DPI_ntsc /show_fit /p 19.2 >> $@
+	$(ECHO) >> $@
+	$(ECHO) "# Arcade Standard Resolution (15.72 kHz) Monitors (CGA)" >> $@
+	$(LINE) /atari_standard -n raspberry_DPI_standard /show_fit /p 4.8 >> $@
+	$(LINE) /atari_standard -n raspberry_DPI_standard /show_fit /p 6.4 >> $@
+	$(LINE) /atari_standard -n raspberry_DPI_standard /show_fit /p 9.6 >> $@
+	$(LINE) /atari_standard -n raspberry_DPI_standard /show_fit /p 19.2 >> $@
+	$(ECHO) >> $@
+	$(ECHO) "# Arcade Extended Resolution (16.5 kHz) Monitors" >> $@
+	$(LINE) /atari_extended -n raspberry_DPI_extended /show_fit /p 4.8 >> $@
+	$(LINE) /atari_extended -n raspberry_DPI_extended /show_fit /p 6.4 >> $@
+	$(LINE) /atari_extended -n raspberry_DPI_extended /show_fit /p 9.6 >> $@
+	$(LINE) /atari_extended -n raspberry_DPI_extended /show_fit /p 19.2 >> $@
+	$(ECHO) >> $@
+	$(ECHO) "# Arcade Medium Resolution (25 kHz) Monitors" >> $@
+	$(LINE) /atari_medium -n raspberry_DPI_medium /show_fit /p 4.8 >> $@
+	$(LINE) /atari_medium -n raspberry_DPI_medium /show_fit /p 6.4 >> $@
+	$(LINE) /atari_medium -n raspberry_DPI_medium /show_fit /p 9.6 >> $@
+	$(LINE) /atari_medium -n raspberry_DPI_medium /show_fit /p 19.2 >> $@
 
 clean:
 	rm -f $(TARGET)

@@ -1965,6 +1965,7 @@ int os_main(int argc, char* argv[])
 	/* insert default modes */
 	crtc_container_insert_default_all(&selected);
 	crtc_container_insert_default_modeline_svga(&selected);
+	crtc_container_insert_default_modeline_raspberry(&selected);
 
 	/* sort */
 	crtc_container_init(&the_modes);

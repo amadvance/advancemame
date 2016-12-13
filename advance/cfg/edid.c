@@ -295,9 +295,12 @@ int parse_edid(unsigned char* edid, unsigned size, adv_monitor* monitor, adv_gen
 
 				if (monitor && !has_clock) {
 					monitor->mode_mac = 1;
-					/* Raspberry Pi as a lower limit of 31.25 MHz for the DPI interface */
-					/* at now we read EDID only on Raspberry and we can set it here */
-					monitor->mode_map[0].pclock.low = 31.25 * 1E6;
+					/*
+					 * Raspberry Pi when using the DPI interface support only
+					 * some lower clocks as 19.2 MHz, 9.6 MHz, 6.4 MHz, and 4.8 MHz.
+					 * To allow the 4.8 MHz value we must use a lower 4 MHz limit.
+					 */
+					monitor->mode_map[0].pclock.low = 4 * 1E6;
 					monitor->mode_map[0].pclock.high = p_max * 1E6;
 					monitor->mode_map[0].hclock.low = h_min * 1E3;
 					monitor->mode_map[0].hclock.high = h_max * 1E3;

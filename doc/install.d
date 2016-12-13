@@ -50,9 +50,14 @@ System Requirements
 
 	In this case see the following "Video Setup" chapter.
 
-	Take care that the Raspberry Pi has a minimum pixel clock limit of 31.25
-	MHz on the DPI/GPIO interface, and a minimum pixel clock limit of 25 MHz
-	on the HDMI interface.
+	Take care that the Raspberry Pi has strong limitations on low pixel clocks.
+	When using the DPI/GPIO interface, the only allowed values are 4.8 MHz, 6.4 MHz,
+	9.6MHz, 19.2 MHz.
+	When using the HDMI/DVI interface the minimum pixel clock is 25 MHz.
+
+	This means tha when driving a 15 kHz CRT Arcade or TV monitor it's better to
+	use prefixed modelines, and avoid the automatic generation setting the option
+	"display_adjust none".
 
   Windows/Mac OS X
 	In Windows and Mac OS X, the Advance programs use the SDL library
@@ -199,22 +204,22 @@ Video Hardware
   
 	The standard clocks for a Standard Resolution 15 kHz (CGA) are:
 
-		:device_video_clock 5 - 50 / 15.75 / 60
+		:device_video_clock 4 - 50 / 15.75 / 60
 
 	for a Extended Resolution 16 kHz are:
 
-		:device_video_clock 5 - 50 / 16.5 / 53
+		:device_video_clock 4 - 50 / 16.5 / 53
 
 	for a Medium Resolution 25 kHz (EGA) are:
 
-		:device_video_clock 5 - 50 / 25 / 60
+		:device_video_clock 4 - 50 / 25 / 60
 
 	If your monitor is multistandard, you can use more
 	clock specification separating them with the `;' char.
 
 	For example:
 
-		:device_video_clock 5 - 50 / 15.75 / 60 ; 5 - 50 / 25 / 60
+		:device_video_clock 4 - 50 / 15.75 / 60 ; 4 - 50 / 25 / 60
 
 	If the monitor accepts separate H/V sync signals at
 	levels 0 - 5 V you can directly use the VGA sync signal of
@@ -246,16 +251,16 @@ Video Hardware
 
 	Clocks values for PAL TV (European) are:
 
-		:device_video_clock 5 - 50 / 15.62 / 50
+		:device_video_clock 4 - 50 / 15.62 / 50
 
 	for NTSC TV (USA) are:
 
-		:device_video_clock 5 - 50 / 15.73 / 60
+		:device_video_clock 4 - 50 / 15.73 / 60
 
 	for PAL TV (European) which supports also NTSC TV (USA) modes
 	(common if you use the SCART input):
 
-		:device_video_clock 5 - 50 / 15.62 / 50 ; 5 - 50 / 15.73 / 60
+		:device_video_clock 4 - 50 / 15.62 / 50 ; 4 - 50 / 15.73 / 60
 
     TVs with SCART
 	If your TV has a SCART input, you can use directly the VGA 

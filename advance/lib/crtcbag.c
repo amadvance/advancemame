@@ -228,6 +228,13 @@ static const char* MODELINE_SVGA[] = {
 0
 };
 
+static const char* MODELINE_RASPBERRY[] = {
+
+#include "raspberry.dat"
+
+0
+};
+
 static adv_error crtc_container_insert_default(adv_crtc_container* cc, const char** modes)
 {
 	while (*modes) {
@@ -266,6 +273,14 @@ adv_error crtc_container_insert_default_modeline_vga(adv_crtc_container* cc)
 adv_error crtc_container_insert_default_modeline_svga(adv_crtc_container* cc)
 {
 	return crtc_container_insert_default(cc, MODELINE_SVGA);
+}
+
+/**
+ * Insert some standard video modes for Raspberry Pi.
+ */
+adv_error crtc_container_insert_default_modeline_raspberry(adv_crtc_container* cc)
+{
+	return crtc_container_insert_default(cc, MODELINE_RASPBERRY);
 }
 
 /**

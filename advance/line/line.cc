@@ -21,6 +21,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -503,13 +504,10 @@ void output::vga_text_out(const string& name, double f, unsigned hde, unsigned h
 	}
 
 	unsigned cols;
-	const char* mode;
 	if (hde < 640) {
 		cols = 40;
-		mode = "1";
 	} else {
 		cols = 80;
-		mode = "3";
 	}
 
 	ostringstream n;
@@ -578,7 +576,7 @@ void compute_default(output& os, const generator& g, const string& name)
 			g.line_horz_get().compute_total(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, htotal);
 			unsigned vactive = hde * 3 / 4;
 			g.line_vert_get().compute_active(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive);
-			c = g.horz_clock_get() * ht;
+			c = g.pixel_clock_get();
 			os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
 		}
 		break;
@@ -603,7 +601,7 @@ void compute_default(output& os, const generator& g, const string& name)
 			g.line_horz_get().compute_total(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, htotal);
 			unsigned vtotal = g.v_step_get()( g.horz_clock_get() / g.vert_clock_get() );
 			g.line_vert_get().compute_total(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vtotal);
-			c = g.horz_clock_get() * ht;
+			c = g.pixel_clock_get();
 			os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
 		}
 		break;
@@ -691,7 +689,7 @@ bool compute_active(output& os, const generator& g, const string& name, unsigned
 			unsigned htotal = g.h_step_get()( g.pixel_clock_get() / g.horz_clock_get() );
 			if (g.line_horz_get().compute_active_total(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive, htotal)) {
 				g.line_vert_get().compute_active(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive);
-				c = g.horz_clock_get() * ht;
+				c = g.pixel_clock_get();
 				os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
 				return true;
 			}
@@ -723,7 +721,7 @@ bool compute_active(output& os, const generator& g, const string& name, unsigned
 			if (g.line_horz_get().compute_active_total(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive, htotal)) {
 				unsigned vtotal = g.v_step_get()( g.horz_clock_get() / g.vert_clock_get() );
 				if (g.line_vert_get().compute_active_total(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive, vtotal)) {
-					c = g.horz_clock_get() * ht;
+					c = g.pixel_clock_get();
 					os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
 					return true;
 				}
@@ -928,6 +926,7 @@ int main(int argc, char* argv[])
 	bool show_header = false;
 	bool show_svga = false;
 	bool show_vga = false;
+	bool show_fit = false;
 
 	if (argc <= 1) {
 		help();
@@ -1031,6 +1030,9 @@ int main(int argc, char* argv[])
 			}
 			g.line_vert_set( line( A, F, S, B ) );
 			used_arg = true;
+		} else if (optionmatch(opt, "n") && has_arg) {
+			name = arg;
+			used_arg = true;
 		} else if (optionmatch(opt, "c")) {
 			g.clock_contrains_set(0);
 		} else if (optionmatch(opt, "p") && has_arg) {
@@ -1064,6 +1066,8 @@ int main(int argc, char* argv[])
 			show_vga = true;
 		} else if (optionmatch(opt, "show_svga")) {
 			show_svga = true;
+		} else if (optionmatch(opt, "show_fit")) {
+			show_fit = true;
 		} else if (optionmatch(opt, "c_format")) {
 			out.c_format_set(true);
 		} else if (isdigit(opt[0])) {
@@ -1077,7 +1081,7 @@ int main(int argc, char* argv[])
 			++optarg;
 	}
 
-	if (!show_comment && !show_vga && !show_svga && !show_header) {
+	if (!show_comment && !show_vga && !show_svga && !show_header && !show_fit) {
 		show_comment = true;
 		show_header = true;
 		show_vga = true;
@@ -1187,6 +1191,24 @@ int main(int argc, char* argv[])
 			compute_svga_graph(out, g, name);
 			if (show_comment)
 				cout << endl;
+		}
+
+		if (show_fit) {
+			switch (g.clock_contrains_get()) {
+			case clock_pixel | clock_horz :
+			case clock_horz | clock_vert :
+			case clock_pixel | clock_horz | clock_vert :
+				if (show_comment) {
+					if (out.c_format_get())
+						cout << "/* Best fit modes */" << endl;
+					else
+						cout << "# Best fit modes" << endl;
+				}
+				compute_default_svga_graph(out, g, name);
+				if (show_comment)
+					cout << endl;
+				break;
+			}
 		}
 	}
 
