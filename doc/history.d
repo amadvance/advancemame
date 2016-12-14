@@ -2,8 +2,10 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS/MENU Version 3.1 2016/12
+	) More reliable Raspberry video mode setting when using programmable
+		modes.
 	) Fix UI flickering and a potential crash when SMP is active.
-	) Allow to run from a SSH shell.
+	) Support running from a SSH shell.
 	) If SMP is active, don't automatically disable the resize
 		effect if the game is too slow. This gives a more
 		stable 'auto' effect.
