@@ -50,16 +50,16 @@ System Requirements
 
 	In this case see the following "Video Setup" chapter.
 
-	Take care that the Raspberry Pi has strong limitations on the lower range of
+	Note that the Raspberry Pi has strong limitations on the lower range of
 	pixel clocks when using the DPI/GPIO interface.
 	The only allowed values suitable for low resolutions are 4.8 MHz, 6.4 MHz,
 	9.6MHz and 19.2 MHz.
 
-	This means tha when driving a 15 kHz CRT Arcade or CRT TV monitor connected to
-	the DPI/GPIO interface, like when using the Gert's VGA 666, it's better to use
-	prefixed modelines, and avoid the automatic generation setting in advmame.rc
-	the option "display_adjust none" and selecting with "advv" a prefixed set
-	of working modelines.
+	When using a 15 kHz CRT Arcade or CRT TV monitor connected to the DPI/GPIO
+	interface, like when using the Gert's VGA 666, it's better to use a set of
+	prefixed modelines, and avoid the automatic generation.
+	Set in advmame.rc the option "display_adjust none" and select with "advv"
+	a set of working modelines.
 
   Windows/Mac OS X
 	In Windows and Mac OS X, the Advance programs use the SDL library
