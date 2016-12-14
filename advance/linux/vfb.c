@@ -898,12 +898,13 @@ static int fb_raspberry_set(const adv_crtc* crtc)
 	 * "Programmatically turn screen off"
 	 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
 	 */
-	target_usleep(250 * 1000);
+	log_std(("video:fb: 500ms delay\n"));
+	target_usleep(500 * 1000);
 
 	return 0;
 }
 
-static void fb_raspberry_restore(void)
+static void fb_raspberry_restore(adv_bool on_error)
 {
 	char* opt;
 	char cmd[256];
@@ -911,6 +912,14 @@ static void fb_raspberry_restore(void)
 	/* nothing to do if nothing was set */
 	if (!fb_state.old_need_restore)
 		return;
+
+	/*
+	 * Wait some time to allow the system to react.
+	 */
+	if (on_error) {
+		log_std(("video:fb: 1s delay\n"));
+		target_usleep(1000 * 1000);
+	}
 
 	/* if we have original timings, restore them */
 	if (fb_state.oldtimings[0]) {
@@ -967,7 +976,8 @@ static void fb_raspberry_restore(void)
 	 * "Programmatically turn screen off"
 	 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
 	 */
-	target_usleep(250 * 1000);
+	target_usleep(500 * 1000);
+	log_std(("video:fb: 500ms delay\n"));
 }
 
 adv_error fb_mode_set(const fb_video_mode* mode)
@@ -1138,7 +1148,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 err_restore:
 	log_std(("video:fb: restore after error\n"));
 	if (is_raspberry_active)
-		fb_raspberry_restore();
+		fb_raspberry_restore(1);
 	fb_setvar(&fb_state.oldinfo); /* ignore error */
 err:
 	return -1;
@@ -1166,7 +1176,7 @@ void fb_mode_done(adv_bool restore)
 		is_raspberry_active = fb_state.is_raspberry;
 
 		if (is_raspberry_active)
-			fb_raspberry_restore();
+			fb_raspberry_restore(0);
 		fb_setvar(&fb_state.oldinfo); /* ignore error */
 	} else {
 		/* ensure to have the correct color, the keyboard driver */
