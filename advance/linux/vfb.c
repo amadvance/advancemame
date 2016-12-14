@@ -332,7 +332,7 @@ static adv_error fb_setpan(struct fb_var_screeninfo* var)
 
 static adv_error fb_setvar(struct fb_var_screeninfo* var)
 {
-	log_std(("video:fb: ioctl(FBIOPUT_VSCREENINFO)\n"));
+	log_std(("video:fb: ioctl(FBIOPUT_VSCREENINFO) %ux%u %u bits\n", var->xres, var->yres, var->bits_per_pixel));
 
 	/* set the variable info */
 	if (ioctl(fb_state.fd, FBIOPUT_VSCREENINFO, var) != 0) {
@@ -826,7 +826,10 @@ static adv_error fb_setup_color(void)
 	return 0;
 }
 
-static int fb_raspberry_set(const adv_crtc* crtc)
+/**
+ * Set the requested timings and call tvservice to load them.
+ */
+static int fb_raspberry_settiming(const adv_crtc* crtc)
 {
 	char* opt;
 	char cmd[256];
@@ -880,31 +883,13 @@ static int fb_raspberry_set(const adv_crtc* crtc)
 	log_std(("video:fb: tvservice result \"%s\"\n", opt));
 	free(opt);
 
-	/*
-	 * Wait some time after the tvservice command to allow
-	 * the console driver to react.
-	 *
-	 * Without this wait, the next video mode change has effect,
-	 * but the the screen remain black, even if the right video mode
-	 * is set.
-	 *
-	 * Note that this delay is also required when using the
-	 * workaround of changing VT with "chvt 2; chvt 1", or resetting
-	 * the video mode with "fbset -depth 8; fbset -depth 16".
-	 *
-	 * A 100ms delay is enough, but we wait more for safety.
-	 *
-	 * See:
-	 * "Programmatically turn screen off"
-	 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
-	 */
-	log_std(("video:fb: 500ms delay\n"));
-	target_usleep(500 * 1000);
-
 	return 0;
 }
 
-static void fb_raspberry_restore(adv_bool on_error)
+/**
+ * Restore the original timing and call tvservice to load them.
+ */
+static void fb_raspberry_restoretiming(void)
 {
 	char* opt;
 	char cmd[256];
@@ -912,14 +897,6 @@ static void fb_raspberry_restore(adv_bool on_error)
 	/* nothing to do if nothing was set */
 	if (!fb_state.old_need_restore)
 		return;
-
-	/*
-	 * Wait some time to allow the system to react.
-	 */
-	if (on_error) {
-		log_std(("video:fb: 1s delay\n"));
-		target_usleep(1000 * 1000);
-	}
 
 	/* if we have original timings, restore them */
 	if (fb_state.oldtimings[0]) {
@@ -957,6 +934,67 @@ static void fb_raspberry_restore(adv_bool on_error)
 		}
 		/* ignore error */
 	}
+}
+
+/**
+ * Set the timings and video mode.
+ *
+ * If crtc==0 and var==0 restore the original ones, otherwise the requested ones.
+ *
+ * This function verifies that dispmanx acknowledges the change checking the "dst:" information.
+ * If this doesn't happen the mode set is retried again and again.
+ *
+ * This multi retry process is required to be able to restore the video mode
+ * after a failed attempt to set the clock (when measure_clock pixel/dpi are both 0).
+ */
+static int fb_raspberry_setvar_and_wait(const adv_crtc* crtc, struct fb_var_screeninfo* var)
+{
+	char* opt;
+	char cmd[256];
+	unsigned pre_x0;
+	unsigned pre_y0;
+	unsigned pre_x1;
+	unsigned pre_y1;
+	unsigned x0;
+	unsigned y0;
+	unsigned x1;
+	unsigned y1;
+	int count;
+	int ret;
+	struct fb_var_screeninfo alt;
+
+	pre_x0 = 0;
+	pre_y0 = 0;
+	pre_x1 = 0;
+	pre_y1 = 0;
+
+	/* get current dispmanx dst info */
+	snprintf(cmd, sizeof(cmd), "vcgencmd dispmanx_list");
+	log_std(("video:fb: run \"%s\"\n", cmd));
+	opt = target_system(cmd);
+	if (opt) {
+		const char* dst;
+		log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+		dst = strstr(opt, "dst:");
+		/* display:2 format:8BPP transform:0 layer:-127 src:0,0,1024,600 dst:0,0,320,224 cost:3305 lbm:6144 */
+		if (dst != 0 && sscanf(dst, "dst:%u,%u,%u,%u", &pre_x0, &pre_y0, &pre_x1, &pre_y1) == 4) {
+			log_std(("video:fb: dispmanx dst:%u,%u,%u,%u\n", pre_x0, pre_y0, pre_x1, pre_y1));
+		}
+		free(opt);
+	}
+
+	/* set or restore the timings */
+	if (crtc != 0 && var != 0) {
+		if (fb_raspberry_settiming(crtc) != 0)
+			return -1;
+	} else {
+		var = &fb_state.oldinfo;
+		fb_raspberry_restoretiming();
+	}
+
+	count = 1;
+loop:
+	log_std(("video:fb: set retry %u\n", count));
 
 	/*
 	 * Wait some time after the tvservice command to allow
@@ -973,11 +1011,71 @@ static void fb_raspberry_restore(adv_bool on_error)
 	 * A 100ms delay is enough, but we wait more for safety.
 	 *
 	 * See:
-	 * "Programmatically turn screen off"
-	 * https://www.raspberrypi.org/forums/viewtopic.php?f=41&t=7570
+	 * "Please can the ability to modify HDMI timings on the fly"
+	 * https://github.com/raspberrypi/firmware/issues/637
 	 */
-	target_usleep(500 * 1000);
-	log_std(("video:fb: 500ms delay\n"));
+	log_std(("video:fb: 250ms delay\n"));
+	target_usleep(250 * 1000);
+
+	/* set an alternate mode with a different bits per pixel */
+	/* there are cases where this is really required */
+	alt = *var;
+	if (alt.bits_per_pixel == 16) {
+		alt.bits_per_pixel = 8;
+	} else {
+		alt.bits_per_pixel = 16;
+	}
+	fb_setvar(&alt); /* ignore error */
+
+	/* set the effective mode */
+	ret = fb_setvar(var);
+
+	/* get tvservice status, only for logging purpose */
+	snprintf(cmd, sizeof(cmd), "tvservice -s");
+	log_std(("video:fb: run \"%s\"\n", cmd));
+	opt = target_system(cmd);
+	if (opt) {
+		log_std(("video:fb: tvservice result \"%s\"\n", opt));
+		free(opt);
+	}
+
+	x0 = 0;
+	y0 = 0;
+	x1 = 0;
+	y1 = 0;
+
+	/* check new dispmanx dst info */
+	snprintf(cmd, sizeof(cmd), "vcgencmd dispmanx_list");
+	log_std(("video:fb: run \"%s\"\n", cmd));
+	opt = target_system(cmd);
+	if (opt) {
+		const char* dst;
+		log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+		dst = strstr(opt, "dst:");
+		/* display:2 format:8BPP transform:0 layer:-127 src:0,0,1024,600 dst:0,0,320,224 cost:3305 lbm:6144 */
+		if (dst != 0 && sscanf(dst, "dst:%u,%u,%u,%u", &x0, &y0, &x1, &y1) == 4) {
+			log_std(("video:fb: %u,%u,%u,%u\n", x0, y0, x1, y1));
+		}
+		free(opt);
+	}
+
+	if (ret != 0 /* mode set failed */
+		/* data is missing */
+		|| x1 == 0 || y1 == 0
+		/* equal as before and different than expected */
+		|| (x1 == pre_x1 && y1 == pre_y1 && (x1 != var->xres || y1 != var->yres))
+	) {
+		/* we have to retry to set the mode */
+		if (count < 50) {
+			++count;
+			goto loop;
+		}
+
+		log_std(("ERROR:video:fb: set FAILED after %u retries\n", count));
+		return -1;
+	}
+
+	return 0;
 }
 
 adv_error fb_mode_set(const fb_video_mode* mode)
@@ -1013,24 +1111,25 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 	fb_log(0, &fb_state.varinfo);
 
-	/* if raspberry needs special processing */
-	is_raspberry_active = fb_state.is_raspberry && !crtc_is_fake(&mode->crtc);
-
-	/* if it's a programmable mode on Raspberry */
-	if (is_raspberry_active) {
-		if (fb_raspberry_set(&mode->crtc) != 0)
-			goto err_restore;
-	}
-
 	/* save the minimun required data */
 	req_xres = fb_state.varinfo.xres;
 	req_yres = fb_state.varinfo.yres;
 	req_bits_per_pixel = fb_state.varinfo.bits_per_pixel;
 
-	/* set the mode */
-	if (fb_setvar(&fb_state.varinfo) != 0) {
-		error_set("Error setting the variable video mode information.\n");
-		goto err_restore;
+	/* if raspberry needs special processing */
+	is_raspberry_active = fb_state.is_raspberry && !crtc_is_fake(&mode->crtc);
+
+	/* if it's a programmable mode on Raspberry */
+	if (is_raspberry_active) {
+		if (fb_raspberry_setvar_and_wait(&mode->crtc, &fb_state.varinfo) != 0) {
+			error_set("Error setting the variable video mode information.\n");
+			goto err_restore;
+		}
+	} else {
+		if (fb_setvar(&fb_state.varinfo) != 0) {
+			error_set("Error setting the variable video mode information.\n");
+			goto err_restore;
+		}
 	}
 
 	log_std(("video:fb: get new\n"));
@@ -1092,7 +1191,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 		/* if both are 0, something is wrong */
 		if (pclock == 0 && dpiclock == 0) {
-			error_set("Invalid Raspberry Pi measured clock.\n");
+			error_set("Failed to set the requested pixel/dpi clock.\n");
 			goto err_restore;
 		}
 	}
@@ -1147,9 +1246,11 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 
 err_restore:
 	log_std(("video:fb: restore after error\n"));
-	if (is_raspberry_active)
-		fb_raspberry_restore(1);
-	fb_setvar(&fb_state.oldinfo); /* ignore error */
+	if (is_raspberry_active) {
+		fb_raspberry_setvar_and_wait(0, 0); /* ignore error */
+	} else {
+		fb_setvar(&fb_state.oldinfo); /* ignore error */
+	}
 err:
 	return -1;
 }
@@ -1175,9 +1276,11 @@ void fb_mode_done(adv_bool restore)
 		/* if raspberry needs special processing */
 		is_raspberry_active = fb_state.is_raspberry;
 
-		if (is_raspberry_active)
-			fb_raspberry_restore(0);
-		fb_setvar(&fb_state.oldinfo); /* ignore error */
+		if (is_raspberry_active) {
+			fb_raspberry_setvar_and_wait(0, 0); /* ignore error */
+		} else {
+			fb_setvar(&fb_state.oldinfo); /* ignore error */
+		}
 	} else {
 		/* ensure to have the correct color, the keyboard driver */
 		/* when resetting the console changes some colors */
