@@ -623,12 +623,14 @@ void run_clone(config_state& rs)
 			s << (*j)->description_get() << ", " << (*j)->manufacturer_get() << ", " << (*j)->year_get();
 
 			switch ((*j)->play_get()) {
-			case play_imperfect : s << " [imperfect]"; break;
-			case play_preliminary : s << " [preliminary]"; break;
+			case play_imperfect : s << " [IMPERFECT]"; break;
+			case play_preliminary : s << " [PRELIMINARY]"; break;
 			default: break;
 			}
 
-			ch.insert(ch.end(), choice(s.str(), (void*)&**j));
+			emulator* emu = base->emulator_get();
+			if (!emu || emu->filter_working(**j))
+				ch.insert(ch.end(), choice(s.str(), (void*)&**j));
 		}
 	}
 

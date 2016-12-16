@@ -16,6 +16,8 @@ AdvanceMAME/MESS/MENU Version 3.1 2016/12
 		the monitor limits to avoid over scaling.
 	) Restored the functionality of "-output fullscreen" option.
 		It wasn't able anymore to find video modes.
+	) The RunClone menu now excludes preliminary clones if they
+		are already filtered out in the main list.
 
 AdvanceMAME/MESS/MENU Version 3.0 2016/12
 	) Now the AdvanceMAME package contains AdvanceMAME,

@@ -139,6 +139,11 @@ void emulator::attrib_get(adv_conf* config_context, const char* section, const c
 	conf_string_set(config_context, section, tag, attrib_compile("missing", tristate(exclude_missing_orig)).c_str());
 }
 
+bool emulator::filter_working(const game& g) const
+{
+	return true;
+}
+
 bool emulator::filter(const game& g) const
 {
 	if (exclude_missing_effective == exclude && !g.present_tree_get())
@@ -542,6 +547,20 @@ void mame_info::attrib_get(adv_conf* config_context, const char* section, const 
 	conf_string_set(config_context, section, tag, attrib_compile("bad", tristate(exclude_bad_orig)).c_str());
 	conf_string_set(config_context, section, tag, attrib_compile("vector", tristate(exclude_vector_orig)).c_str());
 	conf_string_set(config_context, section, tag, attrib_compile("vertical", tristate(exclude_vertical_orig)).c_str());
+}
+
+bool mame_info::filter_working(const game& g) const
+{
+	bool good;
+
+	good = g.play_get() != play_preliminary;
+
+	if (exclude_bad_effective == exclude && !good)
+		return false;
+	if (exclude_bad_effective == exclude_not && good)
+		return false;
+
+	return true;
 }
 
 bool mame_info::filter(const game& g) const
