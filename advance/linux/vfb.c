@@ -107,6 +107,202 @@ static adv_device DEVICE[] = {
 };
 
 /***************************************************************************/
+
+/**
+ * Run a pipe
+ */
+static pid_t target_popen2(char** command, int* in_f, int* out_f, int* err_f)
+{
+	int in[2], out[2], err[2];
+	pid_t pid;
+
+	if (pipe(in) != 0)
+		return -1;
+
+	if (pipe(out) != 0)
+		return -1;
+		
+	if (pipe(err) != 0)
+		return -1;
+
+	pid = fork();
+	if (pid < 0)
+		return -1;
+
+	if (pid == 0) {
+		close(in[1]);
+		close(out[0]);
+		close(err[0]);
+		if (dup2(in[0], 0) == -1)
+			log_std(("DUP2 IN FAILED\n"));
+		if (dup2(out[1], 1) == -1)
+			log_std(("DUP2 OUT FAILED\n"));
+		if (dup2(err[1], 2) == -1)
+			log_std(("DUP2 ERR FAILED\n"));
+		execvp(*command, command);
+		log_std(("FAILED EXEC\n"));
+		_exit(1);
+	}
+
+	close(in[0]);
+	close(out[1]);
+	close(err[1]);
+
+	if (!in_f)
+		close(in[1]);
+	else
+		*in_f = in[1];
+
+	if (!out_f)
+		close(out[0]);
+	else
+		*out_f = out[0];
+
+	if (!err_f)
+		close(err[0]);
+	else
+		*err_f = err[0];
+
+	return pid;
+}
+
+/**
+ * Run a tvservice command waiting for an event
+ */
+static char* target_tvservice_wait(char** cmd)
+{
+	int out_f;
+	char out_buf[512];
+	ssize_t out_len;
+	int err_f;
+	char err_buf[512];
+	ssize_t err_len;
+	char* s;
+	ssize_t len;
+	pid_t pid;
+	struct timeval tv;
+	int mode_set;
+	int done;
+
+	/* create the process */
+	out_f = -1;
+	err_f = -1;
+	pid = target_popen2(cmd, 0, &out_f, &err_f);
+	if (pid == -1) {
+		log_std(("linux: ERROR running popen2(%s) -> FAILED on popen2()\n", *cmd));
+		return 0;
+	}
+
+	/* initial timeout */
+	tv.tv_sec = 4;
+	tv.tv_usec = 0;
+
+	mode_set = 0;
+
+	done = 0;
+	out_len = 0;
+	err_len = 0;
+	while (!done) {
+		fd_set fr;
+		ssize_t r;
+		int max_f = out_f > err_f ? out_f : err_f;
+
+		FD_ZERO(&fr);
+		FD_SET(out_f, &fr);
+		FD_SET(err_f, &fr);
+
+		r = select(max_f + 1, &fr, 0, 0, &tv);
+		if (r < 0) {
+			/* error */
+			log_std(("linux: ERROR running popen2(%s) -> FAILED on select()\n", *cmd));
+			break;
+		}
+		if (r == 0) {
+			/* timeout */
+			log_std(("linux: ERROR running popen2(%s) -> TIMEOUT on select()\n", *cmd));
+			break;
+		}
+
+		log_std(("SELECT '%d'\n", r));
+
+		if (FD_ISSET(out_f, &fr)) {
+			log_std(("SELECT OUT\n"));
+			r = read(out_f, out_buf + out_len, sizeof(out_buf) - out_len);
+			if (r < 0) {
+				/* error */
+				log_std(("linux: ERROR running popen2(%s) -> FAILED on read()\n", *cmd));
+				done = 1;
+			} else if (r == 0) {
+				/* eof */
+				done = 1;
+			} else {
+				out_len += r;
+				out_buf[out_len] = 0;
+
+				if (!mode_set) {
+					if (strstr(out_buf, "Powering") != 0) {
+						mode_set = 1;
+
+						/* shorter timeout to wait for acknowledge */
+						tv.tv_sec = 1;
+						tv.tv_usec = 0;
+					}
+				}
+			}
+		}
+
+		if (FD_ISSET(err_f, &fr)) {
+			log_std(("SELECT ERR\n"));
+			r = read(err_f, err_buf + err_len, sizeof(err_buf) - err_len);
+			if (r < 0) {
+				/* error */
+				log_std(("linux: ERROR running popen2(%s) -> FAILED on read()\n", *cmd));
+				done = 1;
+			} else if (r == 0) {
+				/* eof */
+				done = 1;
+			} else {
+				err_len += r;
+				err_buf[err_len] = 0;
+
+				/* check if there is the "[I]" tag, meaning an info */
+				if (strstr(err_buf, "[I]") != 0)
+					done = 1;
+			}
+		}
+	}
+
+	out_buf[out_len] = 0;
+	err_buf[err_len] = 0;
+	log_std(("OUT '%s'\n", out_buf));
+	log_std(("ERR '%s'\n", err_buf));
+
+	/* kill the subprocess */
+	kill(pid, SIGINT);
+
+	/* close the pipes */
+	close(out_f);
+	close(err_f);
+
+	len = out_len + err_len;
+	s = malloc(len + 1);
+	if (!s)
+		return 0;
+
+	memcpy(s, out_buf, out_len);
+	memcpy(s + out_len, err_buf, err_len);
+
+	/* trim at end */
+	while (len != 0 && isspace(s[len - 1]))
+		--len;
+
+	/* terminate */
+	s[len] = 0;
+
+	return strdup(s);
+}
+
+/***************************************************************************/
 /* Functions */
 
 static adv_bool fb_is_active(void)
@@ -833,6 +1029,8 @@ static int fb_raspberry_settiming(const adv_crtc* crtc)
 {
 	char* opt;
 	char cmd[256];
+	char* argv[8];
+	int argc;
 
 	/* we are going to change the timings */
 	fb_state.old_need_restore = 1;
@@ -872,15 +1070,21 @@ static int fb_raspberry_settiming(const adv_crtc* crtc)
 	free(opt);
 
 	/* enable the new video mode */
+	argc = 0;
+	argv[argc++] = "/usr/bin/tvservice";
+	argv[argc++] = "-M";
+	argv[argc++] = "-e";
 	if (fb_state.olddrive[0])
-		snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87 %s\"", fb_state.olddrive);
+		snprintf(cmd, sizeof(cmd), "DMT 87 %s", fb_state.olddrive);
 	else
-		snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87\"");
-	log_std(("video:fb: run \"%s\"\n", cmd));
-	opt = target_system(cmd);
+		snprintf(cmd, sizeof(cmd), "DMT 87");
+	argv[argc++] = cmd;
+	argv[argc] = 0;
+	log_std(("video:fb: run 'tvservice -M -e \"%s\"'\n", cmd));
+	opt = target_tvservice_wait(argv);
 	if (!opt)
 		return -1;
-	log_std(("video:fb: tvservice result \"%s\"\n", opt));
+	log_std(("video:fb: tvservice result '%s'\n", opt));
 	free(opt);
 
 	return 0;
@@ -893,6 +1097,8 @@ static void fb_raspberry_restoretiming(void)
 {
 	char* opt;
 	char cmd[256];
+	char* argv[8];
+	int argc;
 
 	/* nothing to do if nothing was set */
 	if (!fb_state.old_need_restore)
@@ -911,25 +1117,32 @@ static void fb_raspberry_restoretiming(void)
 	}
 
 	/* if we have the mode, restore it */
+	argc = 0;
+	argv[argc++] = "/usr/bin/tvservice";
+	argv[argc++] = "-M";
 	if (fb_state.oldgroup[0] && fb_state.oldmode) {
+		argv[argc++] = "-e";
 		if (fb_state.olddrive[0])
-			snprintf(cmd, sizeof(cmd), "tvservice -e \"%s %u %s\"", fb_state.oldgroup, fb_state.oldmode, fb_state.olddrive);
+			snprintf(cmd, sizeof(cmd), "%s %u %s", fb_state.oldgroup, fb_state.oldmode, fb_state.olddrive);
 		else
-			snprintf(cmd, sizeof(cmd), "tvservice -e \"%s %u\"", fb_state.oldgroup, fb_state.oldmode);
-		log_std(("video:fb: run \"%s\"\n", cmd));
-		opt = target_system(cmd);
+			snprintf(cmd, sizeof(cmd), "%s %u", fb_state.oldgroup, fb_state.oldmode);
+		argv[argc++] = cmd;
+		argv[argc] = 0;
+		log_std(("video:fb: run 'tvservice -M -e \"%s\"'\n", cmd));
+		opt = target_tvservice_wait(argv);
 		if (opt) {
-			log_std(("video:fb: tvservice result \"%s\"\n", opt));
+			log_std(("video:fb: tvservice result \'%s\'\n", opt));
 			free(opt);
 		}
 		/* ignore error */
 	} else {
 		/* otherwise, use the preferred mode */
-		snprintf(cmd, sizeof(cmd), "tvservice -p");
-		log_std(("video:fb: run \"%s\"\n", cmd));
-		opt = target_system(cmd);
+		argv[argc++] = "-p";
+		argv[argc] = 0;
+		log_std(("video:fb: run 'tvservice -M -p'\n"));
+		opt = target_tvservice_wait(argv);
 		if (opt) {
-			log_std(("video:fb: tvservice result \"%s\"\n", opt));
+			log_std(("video:fb: tvservice result \'%s\'\n", opt));
 			free(opt);
 		}
 		/* ignore error */
@@ -996,27 +1209,6 @@ static int fb_raspberry_setvar_and_wait(const adv_crtc* crtc, struct fb_var_scre
 loop:
 	log_std(("video:fb: set retry %u\n", count));
 
-	/*
-	 * Wait some time after the tvservice command to allow
-	 * the console driver to react.
-	 *
-	 * Without this wait, the next video mode change has effect,
-	 * but the the screen remain black, even if the right video mode
-	 * is set.
-	 *
-	 * Note that this delay is also required when using the
-	 * workaround of changing VT with "chvt 2; chvt 1", or resetting
-	 * the video mode with "fbset -depth 8; fbset -depth 16".
-	 *
-	 * A 100ms delay is enough, but we wait more for safety.
-	 *
-	 * See:
-	 * "Please can the ability to modify HDMI timings on the fly"
-	 * https://github.com/raspberrypi/firmware/issues/637
-	 */
-	log_std(("video:fb: 250ms delay\n"));
-	target_usleep(250 * 1000);
-
 	/* set an alternate mode with a different bits per pixel */
 	/* there are cases where this is really required */
 	alt = *var;
@@ -1065,6 +1257,9 @@ loop:
 		/* equal as before and different than expected */
 		|| (x1 == pre_x1 && y1 == pre_y1 && (x1 != var->xres || y1 != var->yres))
 	) {
+		/* wait some time to allow the system to react */
+		target_usleep(250 * 1000);
+	
 		/* we have to retry to set the mode */
 		if (count < 50) {
 			++count;
