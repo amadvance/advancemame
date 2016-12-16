@@ -524,6 +524,6 @@ ROM_END
 
 
 
-GAME( 1985, retofinv, 0,        retofinv, retofinv, 0, ROT90, "Taito Corporation", "Return of the Invaders", 0 )
+GAME( 1985, retofinv, 0,        retofinv, retofinv, 0, ROT90, "Taito Corporation", "Return of the Invaders", GAME_NOT_WORKING )
 GAME( 1985, retofin1, retofinv, retofinb, retofinv, 0, ROT90, "bootleg", "Return of the Invaders (bootleg set 1)", 0 )
 GAME( 1985, retofin2, retofinv, retofinb, retofin2, 0, ROT90, "bootleg", "Return of the Invaders (bootleg set 2)", 0 )
