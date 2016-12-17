@@ -8057,7 +8057,7 @@ GAME ( 2003, ms5pcb,   0,                neogeo, neogeo,  ms5pcb,   ROT0, "SNK P
 GAMEB( 2003, ms5plus,  mslug5,   neogeo, neogeo, neogeo,  ms5plus,  ROT0, "bootleg", "Metal Slug 5 Plus (bootleg)",0 )
 GAME ( 2003, svcpcb,   0,                neogeo, svcpcb,  svcpcb,   ROT0, "Playmore", "SvC Chaos - SNK vs Capcom (JAMMA PCB)", 0 ) // not a clone of neogeo because it's NOT a neogeo cart.
 GAME ( 2003, svcpcba,  svcpcb,           neogeo, svcpcb,  svcpcb,   ROT0, "Playmore", "SVC Chaos - SNK vs CAPCOM (JAMMA PCB, set 2)" , 0 ) /* Encrypted Code */
-GAMEB( 2003, svc,      neogeo,   neogeo, neogeo, neogeo,  svchaosa, ROT0, "Playmore", "SvC Chaos - SNK vs Capcom (MVS)", 0 )
+GAMEB( 2003, svc,      neogeo,   neogeo, neogeo, neogeo,  svchaosa, ROT0, "Playmore", "SvC Chaos - SNK vs Capcom (MVS)", GAME_NOT_WORKING )
 GAMEB( 2003, svcboot,  svc,      neogeo, neogeo, neogeo,  svcboot,  ROT0, "bootleg", "SvC Chaos - SNK vs Capcom (MVS) (bootleg)",0 )
 GAMEB( 2003, svcplus,  svc,      neogeo, neogeo, neogeo,  svcplus,  ROT0, "bootleg", "SvC Chaos - SNK vs Capcom Plus (set 1, bootleg)",0 )
 GAMEB( 2003, svcplusa, svc,      neogeo, neogeo, neogeo,  svcplusa, ROT0, "bootleg", "SvC Chaos - SNK vs Capcom Plus (set 2, bootleg)",0 )

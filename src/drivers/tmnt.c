@@ -4196,6 +4196,6 @@ GAME( 1991, sunsetbl, ssriders, ssridersbl, ssridbl, gfx,     ROT0,  "Konami", "
 GAME( 1991, thndrx2,  0,        thndrx2,  thndrx2,  gfx,      ROT0,  "Konami", "Thunder Cross II (Japan)", 0 )
 GAME( 1991, thndrx2a, thndrx2,  thndrx2,  thndrx2,  gfx,      ROT0,  "Konami", "Thunder Cross II (Asia)", 0 )
 
-GAME( 1993, prmrsocr, 0,        prmrsocr, prmrsocr, glfgreat, ROT0,  "Konami", "Premier Soccer (ver EAB)", 0 )
+GAME( 1993, prmrsocr, 0,        prmrsocr, prmrsocr, glfgreat, ROT0,  "Konami", "Premier Soccer (ver EAB)", GAME_NOT_WORKING )
 GAME( 1993, prmrsocj, prmrsocr, prmrsocr, prmrsocr, glfgreat, ROT0,  "Konami", "Premier Soccer (ver JAB)", 0 )
 
