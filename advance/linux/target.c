@@ -81,6 +81,10 @@
 #endif
 #endif
 
+#ifdef USE_VC
+#include "interface/vmcs_host/vc_tvservice.h"
+#endif
+
 struct target_context {
 	unsigned usleep_granularity; /**< Minimun sleep time in microseconds. */
 
@@ -98,6 +102,11 @@ struct target_context {
 #endif
 
 	adv_bool io_dev_port_flag; /**< /dev/port granted. */
+
+#ifdef USE_VC
+	VCHI_INSTANCE_T vchi_instance; /**< VideoCore instance. */
+	VCHI_CONNECTION_T* vchi_connection; /**< VideoCore connection. */
+#endif
 };
 
 static struct target_context TARGET;
@@ -105,8 +114,46 @@ static struct target_context TARGET;
 /***************************************************************************/
 /* Init */
 
+#ifdef USE_VC
+pthread_mutex_t vc_callback_mutex = PTHREAD_MUTEX_INITIALIZER;
+unsigned vc_callback_counter = 0;
+unsigned vc_callback_reason = 0;
+
+static void vc_callback(void* arg, uint32_t reason, uint32_t param1, uint32_t param2)
+{
+	unsigned counter;
+	const char* desc;
+
+	(void)arg;
+
+	pthread_mutex_lock(&vc_callback_mutex);
+	counter = ++vc_callback_counter;
+	vc_callback_reason = reason;
+	pthread_mutex_unlock(&vc_callback_mutex);
+
+	switch (reason) {
+	case VC_HDMI_UNPLUGGED : desc = "HDMI cable is unplugged"; break;
+	case VC_HDMI_ATTACHED : desc = "HDMI is attached"; break;
+	case VC_HDMI_DVI : desc = "HDMI in DVI mode"; break;
+	case VC_HDMI_HDMI : desc = "HDMI in HDMI mode"; break;
+	case VC_HDMI_HDCP_UNAUTH : desc = "HDCP authentication is broken"; break;
+	case VC_HDMI_HDCP_AUTH : desc = "HDCP is active"; break;
+	case VC_HDMI_HDCP_KEY_DOWNLOAD : desc = "HDCP key download"; break;
+	case VC_HDMI_HDCP_SRM_DOWNLOAD : desc = "HDCP revocation list download"; break;
+	default: desc = "Unknown"; break;
+	}
+
+	log_std(("linux: VideoCore event %u: %u,%u,%u '%s'\n",
+		counter, (unsigned)reason, (unsigned)param1, (unsigned)param2, desc));
+}
+#endif
+
 adv_error target_init(void)
 {
+#ifdef USE_VC
+	int ret;
+#endif
+
 	TARGET.usleep_granularity = 0;
 	TARGET.col = 0;
 	TARGET.row = 0;
@@ -128,11 +175,40 @@ adv_error target_init(void)
 
 	TARGET.io_dev_port_flag = 1;
 
+#ifdef USE_VC
+	vcos_init();
+
+	ret = vchi_initialise(&TARGET.vchi_instance);
+	if (ret != 0) {
+		target_err("Failed to call VideoCore vchi_initialise()\n");
+		return -1;
+	}
+
+	ret = vchi_connect(0, 0, TARGET.vchi_instance);
+	if (ret != 0) {
+		target_err("Failed to call VideoCore vchi_connect()\n");
+		return -1;
+	}
+
+	ret = vc_vchi_tv_init(TARGET.vchi_instance, &TARGET.vchi_connection, 1);
+	if (ret != 0) {
+		target_err("Failed to call VideoCore vc_vchi_tv_init()\n");
+		return -1;
+	}
+
+	vc_tv_register_callback(&vc_callback, 0);
+#endif
+
 	return 0;
 }
 
 void target_done(void)
 {
+#ifdef USE_VC
+	vc_vchi_tv_stop();
+
+	vchi_disconnect(TARGET.vchi_instance);
+#endif
 }
 
 /***************************************************************************/

@@ -82,6 +82,12 @@ CFGCFLAGS += \
 CFGOBJS += \
 	$(CFGOBJ)/linux/vfb.o
 endif
+ifeq ($(CONF_LIB_VC),yes)
+CFGCFLAGS += \
+	$(VCCFLAGS) \
+	-DUSE_VC
+CFGLIBS += $(VCLIBS)
+endif
 endif
 
 ifeq ($(CONF_SYSTEM),dos)

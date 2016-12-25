@@ -78,6 +78,12 @@ VCFLAGS += \
 VOBJS += \
 	$(VOBJ)/linux/vfb.o
 endif
+ifeq ($(CONF_LIB_VC),yes)
+VCFLAGS += \
+	$(VCCFLAGS) \
+	-DUSE_VC
+VLIBS += $(VCLIBS)
+endif
 endif
 
 ifeq ($(CONF_SYSTEM),dos)

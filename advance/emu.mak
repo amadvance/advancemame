@@ -81,6 +81,12 @@ ADVANCECFLAGS += \
 ADVANCEOBJS += \
 	$(OBJ)/advance/linux/vfb.o
 endif
+ifeq ($(CONF_LIB_VC),yes)
+ADVANCECFLAGS += \
+	$(VCCFLAGS) \
+	-DUSE_VC
+ADVANCELIBS += $(VCLIBS)
+endif
 ifeq ($(CONF_LIB_SVGALIB),yes)
 ADVANCECFLAGS += \
 	-DUSE_VIDEO_SVGALIB \

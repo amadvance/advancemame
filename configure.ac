@@ -541,6 +541,67 @@ if test $ac_lib_fb = yes; then
 fi
 AC_SUBST([CONF_LIB_FB],[$ac_lib_fb])
 
+dnl Checks for Raspberry Pi VideoCore
+AC_ARG_WITH(
+	[vc-prefix],
+	AC_HELP_STRING([--with-vc-prefix=DIR],[Prefix where the Raspberry Pi VideoCore is installed (optional)]),
+	[ac_lib_vc_prefix="$withval"],
+	[ac_lib_vc_prefix="/opt/vc"]
+)
+AC_ARG_ENABLE(
+	[vc],
+	AC_HELP_STRING([--enable-vc],[enable the use of the Raspberry Pi VideoCore library. (default auto)]),
+	[ac_lib_vc=$enableval],
+	[ac_lib_vc=auto]
+)
+if test $ac_lib_vc = auto; then
+	if test ! -d $ac_lib_vc_prefix; then
+		ac_lib_vc=no
+	else
+		ac_save_CFLAGS="$CFLAGS"
+		ac_save_LIBS="$LIBS"
+		VCCFLAGS="-I$ac_lib_vc_prefix/include"
+		VCLIBS="-L$ac_lib_vc_prefix/lib -lbcm_host -lvcos -lvchiq_arm"
+		CFLAGS="$VCCFLAGS $CFLAGS"
+		LIBS="$VCLIBS $LIBS"
+		AC_MSG_CHECKING([for VideoCore])
+		AC_TRY_LINK([
+				#include "interface/vcos/vcos.h"
+			], [
+				vcos_init();
+			],[ac_lib_vc=yes],[ac_lib_vc=no])
+		AC_MSG_RESULT([$ac_lib_vc])
+		CFLAGS="$ac_save_CFLAGS"
+		LIBS="$ac_save_LIBS"
+	fi
+elif test $ac_lib_vc = yes; then
+	if test ! -d $ac_lib_vc_prefix; then
+		AC_MSG_ERROR([the ${$ac_lib_vc_prefix} dir is missing])
+	else
+		ac_save_CFLAGS="$CFLAGS"
+		ac_save_LIBS="$LIBS"
+		VCCFLAGS="-I$ac_lib_vc_prefix/include"
+		VCLIBS="-L$ac_lib_vc_prefix/lib -lbcm_host -lvcos -lvchiq_arm"
+		CFLAGS="$VCCFLAGS $CFLAGS"
+		LIBS="$VCLIBS $LIBS"
+		AC_MSG_CHECKING([for VideoCore])
+		AC_TRY_LINK([
+				#include "interface/vcos/vcos.h"
+			], [
+				vcos_init();
+			],[],[AC_MSG_ERROR([the Raspberry Pi VideoCore library is missing])])
+		AC_MSG_RESULT([yes])
+		CFLAGS="$ac_save_CFLAGS"
+		LIBS="$ac_save_LIBS"
+	fi
+fi
+AC_SUBST([VCCFLAGS])
+AC_SUBST([VCLIBS])
+AC_SUBST([CONF_LIB_VC],[$ac_lib_vc])
+if test $ac_lib_vc = yes; then
+	ac_lib_other="$ac_lib_other VideoCore"
+fi
+
 dnl Checks for alsa
 AC_ARG_ENABLE(
 	[alsa],
