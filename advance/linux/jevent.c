@@ -190,8 +190,61 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		#ifdef BTN_BASE6
 		{ BTN_BASE6, "base6" }, /* joystick */
 		#endif
+		{ 0x12c, "extra1" }, /* extra button used incorrectly by some joysticks */
+		{ 0x12d, "extra2" }, /* extra button used incorrectly by some joysticks */
+		{ 0x12e, "extra3" }, /* extra button used incorrectly by some joysticks */
 		#ifdef BTN_DEAD
-		{ BTN_DEAD, "dead" }, /* joystick */
+		{ BTN_DEAD, "dead" }, /* not really clear what is it */
+		#endif
+		/* note that the happy name has no meaning */
+		/* if not to make "happy" joysticks with many buttons */
+		#ifdef BTN_TRIGGER_HAPPY1
+		{ BTN_TRIGGER_HAPPY1, "happy1" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY2
+		{ BTN_TRIGGER_HAPPY2, "happy2" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY3
+		{ BTN_TRIGGER_HAPPY3, "happy3" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY4
+		{ BTN_TRIGGER_HAPPY4, "happy4" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY5
+		{ BTN_TRIGGER_HAPPY5, "happy5" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY6
+		{ BTN_TRIGGER_HAPPY6, "happy6" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY7
+		{ BTN_TRIGGER_HAPPY7, "happy7" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY8
+		{ BTN_TRIGGER_HAPPY8, "happy8" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY9
+		{ BTN_TRIGGER_HAPPY9, "happy9" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY10
+		{ BTN_TRIGGER_HAPPY10, "happy10" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY11
+		{ BTN_TRIGGER_HAPPY11, "happy11" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY12
+		{ BTN_TRIGGER_HAPPY12, "happy12" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY13
+		{ BTN_TRIGGER_HAPPY13, "happy13" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY14
+		{ BTN_TRIGGER_HAPPY14, "happy14" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY15
+		{ BTN_TRIGGER_HAPPY15, "happy15" }, /* joystick */
+		#endif
+		#ifdef BTN_TRIGGER_HAPPY16
+		{ BTN_TRIGGER_HAPPY16, "happy16" }, /* joystick */
 		#endif
 		#ifdef BTN_A
 		{ BTN_A, "a" }, /* gamepad */
