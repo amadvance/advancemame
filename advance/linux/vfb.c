@@ -620,7 +620,7 @@ void vc_log(TV_DISPLAY_STATE_T* state)
 		case SDTV_ASPECT_16_9 : log_std(("video:vc: aspect_ratio 16:9\n")); break;
 		default : log_std(("video:vc: aspect_ratio UNKNOWN %u\n", state->display.sdtv.display_options.aspect)); break;
 		}
-		log_std(("video:vc: mode %08x\n", state->display.sdtv.colour));
+		log_std(("video:vc: colour %08x\n", state->display.sdtv.colour));
 		switch (state->display.sdtv.colour) {
 		case SDTV_COLOUR_RGB : log_std(("video:vc: colour RGB\n")); break;
 		case SDTV_COLOUR_YPRPB : log_std(("video:vc: colour YPRPB\n")); break;
@@ -941,7 +941,7 @@ static adv_error fb_setup_color(void)
  * Set the requested timings and call tvservice to load them.
  */
 #ifdef USE_VC
-static int fb_raspberry_settiming(const adv_crtc* crtc)
+static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsigned* size_y)
 {
 	char* opt;
 	char cmd[256];
@@ -950,6 +950,9 @@ static int fb_raspberry_settiming(const adv_crtc* crtc)
 
 	/* we are going to change the timings */
 	fb_state.old_need_restore = 1;
+
+	*size_x = crtc->hde;
+	*size_y = crtc->vde;
 
 	/*
 	 * Configure the Raspberry HDMI timing.
@@ -1005,7 +1008,7 @@ static int fb_raspberry_settiming(const adv_crtc* crtc)
  * Restore the original timing and call tvservice to load them.
  */
 #ifdef USE_VC
-static void fb_raspberry_restoretiming(void)
+static void fb_raspberry_restoretiming(unsigned* size_x, unsigned* size_y)
 {
 	char* opt;
 	char cmd[256];
@@ -1029,6 +1032,9 @@ static void fb_raspberry_restoretiming(void)
 	}
 
 	if (fb_state.oldstate.state & (VC_HDMI_HDMI | VC_HDMI_DVI)) {
+		*size_x = fb_state.oldstate.display.hdmi.width;
+		*size_y = fb_state.oldstate.display.hdmi.height;
+
 		if (fb_state.oldstate.state & VC_HDMI_HDMI)
 			drive = HDMI_MODE_HDMI;
 		else
@@ -1041,6 +1047,20 @@ static void fb_raspberry_restoretiming(void)
 		ret = vc_tv_hdmi_power_on_explicit(drive, fb_state.oldstate.display.hdmi.group, fb_state.oldstate.display.hdmi.mode);
 		if (ret != 0) {
 			log_std(("ERROR:video:vc: vc_tv_hdmi_power_on_explicit() failed\n"));
+			/* ignore error */
+		}
+	} else if (fb_state.oldstate.state & (VC_SDTV_NTSC | VC_SDTV_PAL)) {
+		*size_x = fb_state.oldstate.display.sdtv.width;
+		*size_y = fb_state.oldstate.display.sdtv.height;
+
+		log_std(("video:vc: vc_tv_sdtv_power_on(%u, %u)\n",
+			fb_state.oldstate.display.sdtv.mode,
+			fb_state.oldstate.display.sdtv.display_options.aspect
+		));
+		ret = vc_tv_sdtv_power_on(fb_state.oldstate.display.sdtv.mode, &fb_state.oldstate.display.sdtv.display_options);
+		if (ret != 0) {
+			log_std(("ERROR:video:vc: vc_tv_sdtv_power_on() failed\n"));
+			/* ignore error */
 		}
 	} else {
 		/* otherwise, use the preferred mode */
@@ -1070,46 +1090,31 @@ static int fb_raspberry_setvar_and_wait(const adv_crtc* crtc, struct fb_var_scre
 #ifdef USE_VC
 	char* opt;
 	char cmd[256];
-	unsigned pre_x0;
-	unsigned pre_y0;
-	unsigned pre_x1;
-	unsigned pre_y1;
 	unsigned x0;
 	unsigned y0;
 	unsigned x1;
 	unsigned y1;
+	unsigned size_x;
+	unsigned size_y;
 	int count;
 	int ret;
 	struct fb_var_screeninfo alt;
 	TV_DISPLAY_STATE_T state;
+	unsigned event_counter;
 
-	pre_x0 = 0;
-	pre_y0 = 0;
-	pre_x1 = 0;
-	pre_y1 = 0;
+	size_x = 0;
+	size_y = 0;
 
-	/* get current dispmanx dst info */
-	snprintf(cmd, sizeof(cmd), "vcgencmd dispmanx_list");
-	log_std(("video:fb: run \"%s\"\n", cmd));
-	opt = target_system(cmd);
-	if (opt) {
-		const char* dst;
-		log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
-		dst = strstr(opt, "dst:");
-		/* display:2 format:8BPP transform:0 layer:-127 src:0,0,1024,600 dst:0,0,320,224 cost:3305 lbm:6144 */
-		if (dst != 0 && sscanf(dst, "dst:%u,%u,%u,%u", &pre_x0, &pre_y0, &pre_x1, &pre_y1) == 4) {
-			log_std(("video:fb: dispmanx dst:%u,%u,%u,%u\n", pre_x0, pre_y0, pre_x1, pre_y1));
-		}
-		free(opt);
-	}
+	/* get the reference event coutner */
+	event_counter = target_vc_get_event();
 
 	/* set or restore the timings */
 	if (crtc != 0 && var != 0) {
-		if (fb_raspberry_settiming(crtc) != 0)
+		if (fb_raspberry_settiming(crtc, &size_x, &size_y) != 0)
 			return -1;
 	} else {
 		var = &fb_state.oldinfo;
-		fb_raspberry_restoretiming();
+		fb_raspberry_restoretiming(&size_x, &size_y);
 	}
 
 	count = 1;
@@ -1134,8 +1139,8 @@ loop:
 	 * "Please can the ability to modify HDMI timings on the fly"
 	 * https://github.com/raspberrypi/firmware/issues/637
 	 */
-	log_std(("video:fb: 250ms delay\n"));
-	target_usleep(250 * 1000);
+	log_std(("video:fb: wait for vc event\n"));
+	target_vc_wait_event(event_counter + 1, 500);
 
 	/* set an alternate mode with a different bits per pixel */
 	/* there are cases where this is really required */
@@ -1181,8 +1186,8 @@ loop:
 	if (ret != 0 /* mode set failed */
 		/* data is missing */
 		|| x1 == 0 || y1 == 0
-		/* equal as before and different than expected */
-		|| (x1 == pre_x1 && y1 == pre_y1 && (x1 != var->xres || y1 != var->yres))
+		/* different than expected */
+		|| ((size_x |= 0 && size_y != 0) && (x1 != size_x || y1 != size_y))
 	) {
 		/* we have to retry to set the mode */
 		if (count < 50) {

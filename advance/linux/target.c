@@ -106,6 +106,8 @@ struct target_context {
 #ifdef USE_VC
 	VCHI_INSTANCE_T vchi_instance; /**< VideoCore instance. */
 	VCHI_CONNECTION_T* vchi_connection; /**< VideoCore connection. */
+	unsigned vc_callback_counter;
+	unsigned vc_callback_reason;
 #endif
 };
 
@@ -116,35 +118,39 @@ static struct target_context TARGET;
 
 #ifdef USE_VC
 pthread_mutex_t vc_callback_mutex = PTHREAD_MUTEX_INITIALIZER;
-unsigned vc_callback_counter = 0;
-unsigned vc_callback_reason = 0;
+pthread_cond_t vc_callback_cond = PTHREAD_COND_INITIALIZER;
 
 static void vc_callback(void* arg, uint32_t reason, uint32_t param1, uint32_t param2)
 {
 	unsigned counter;
-	const char* desc;
 
 	(void)arg;
 
 	pthread_mutex_lock(&vc_callback_mutex);
-	counter = ++vc_callback_counter;
-	vc_callback_reason = reason;
+
+	counter = ++TARGET.vc_callback_counter;
+	TARGET.vc_callback_reason = reason;
+
+	pthread_cond_signal(&vc_callback_cond);
 	pthread_mutex_unlock(&vc_callback_mutex);
 
 	switch (reason) {
-	case VC_HDMI_UNPLUGGED : desc = "HDMI cable is unplugged"; break;
-	case VC_HDMI_ATTACHED : desc = "HDMI is attached"; break;
-	case VC_HDMI_DVI : desc = "HDMI in DVI mode"; break;
-	case VC_HDMI_HDMI : desc = "HDMI in HDMI mode"; break;
-	case VC_HDMI_HDCP_UNAUTH : desc = "HDCP authentication is broken"; break;
-	case VC_HDMI_HDCP_AUTH : desc = "HDCP is active"; break;
-	case VC_HDMI_HDCP_KEY_DOWNLOAD : desc = "HDCP key download"; break;
-	case VC_HDMI_HDCP_SRM_DOWNLOAD : desc = "HDCP revocation list download"; break;
-	default: desc = "Unknown"; break;
+	case VC_HDMI_UNPLUGGED : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_UNPLUGGED", param1, param2)); break;
+	case VC_HDMI_ATTACHED : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_ATTACHED", param1, param2)); break;
+	case VC_HDMI_DVI : log_std(("linux:vc: event %u: %s,group:%u,mode:%u\n", counter, "HDMI_DVI", param1, param2)); break;
+	case VC_HDMI_HDMI : log_std(("linux:vc: event %u: %s,group:%u,mode:%u\n", counter, "HDMI_HDMI", param1, param2)); break;
+	case VC_HDMI_HDCP_UNAUTH : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_HDCP_UNAUTH", param1, param2)); break;
+	case VC_HDMI_HDCP_AUTH : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_HDCP_AUTH", param1, param2)); break;
+	case VC_HDMI_HDCP_KEY_DOWNLOAD : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_HDCP_KEY_DOWNLOAD", param1, param2)); break;
+	case VC_HDMI_HDCP_SRM_DOWNLOAD : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_HDCP_SRM_DOWNLOAD", param1, param2)); break;
+	case VC_SDTV_UNPLUGGED : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "SDTV_UNPLUGGED", param1, param2)); break;
+	case VC_SDTV_ATTACHED : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "SDTV_ATTACHED", param1, param2)); break;
+	case VC_SDTV_NTSC : log_std(("linux:vc: event %u: %s,mode:%u,aspect:%u\n", counter, "SDTV_NTSC", param1, param2)); break;
+	case VC_SDTV_PAL : log_std(("linux:vc: event %u: %s,mode:%u,aspect:%u\n", counter, "SDTV_PAL", param1, param2)); break;
+	case VC_SDTV_CP_INACTIVE : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "SDTV_CP_INACTIVE", param1, param2)); break;
+	case VC_SDTV_CP_ACTIVE : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "SDTV_CP_ACTIVE", param1, param2)); break;
+	default : log_std(("linux:vc: event %u: %u,%u,%u\n", counter, reason, param1, param2)); break;
 	}
-
-	log_std(("linux: VideoCore event %u: %u,%u,%u '%s'\n",
-		counter, (unsigned)reason, (unsigned)param1, (unsigned)param2, desc));
 }
 #endif
 
@@ -210,6 +216,62 @@ void target_done(void)
 	vchi_disconnect(TARGET.vchi_instance);
 #endif
 }
+
+#ifdef USE_VC
+unsigned target_vc_get_event(void)
+{
+	unsigned counter;
+
+	pthread_mutex_lock(&vc_callback_mutex);
+
+	counter = TARGET.vc_callback_counter;
+
+	pthread_mutex_unlock(&vc_callback_mutex);
+
+	return counter;
+}
+
+int target_vc_wait_event(unsigned counter, unsigned timeout_ms)
+{
+	struct timespec ts;
+	int ret;
+	target_clock_t start, stop;
+
+	start = target_clock();
+
+	pthread_mutex_lock(&vc_callback_mutex);
+
+	/* get present time */
+	clock_gettime(CLOCK_REALTIME, &ts);
+
+	/* set the absolute timeout */
+	ts.tv_sec += timeout_ms / 1000;
+	ts.tv_nsec += (timeout_ms % 1000) * 1000000;
+	while (ts.tv_nsec >= 1000000000) {
+		++ts.tv_sec;
+		ts.tv_nsec -= 1000000000;
+	}
+
+	ret = 0;
+	while (TARGET.vc_callback_counter < counter && ret == 0) {
+		ret = pthread_cond_timedwait(&vc_callback_cond, &vc_callback_mutex, &ts);
+	}
+
+	pthread_mutex_unlock(&vc_callback_mutex);
+
+	stop = target_clock();
+
+	if (ret == 0) {
+		log_std(("linux: vc event recevied after %llu [us]\n", stop - start));
+	} else if (ret == ETIMEDOUT) {
+		log_std(("WARNING:linux: vc event NOT recevied for TIMEOUT after %llu [us]\n", stop - start));
+	} else {
+		log_std(("WARNING:linux: vc event wait failed with error %d, %s\n", errno, strerror(errno)));
+	}
+
+	return ret;
+}
+#endif
 
 /***************************************************************************/
 /* Scheduling */

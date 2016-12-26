@@ -44,6 +44,16 @@ extern "C" {
 
 void target_usleep_granularity(unsigned us);
 
+/**
+ * Get the VideoCore event counter.
+ */
+unsigned target_vc_get_event(void);
+
+/**
+ * Wait until we get the expected VideoCore event counter, or the timeout is reached.
+ */
+int target_vc_wait_event(unsigned counter, unsigned timeout_ms);
+
 /* Check if svgalib is used in some way */
 #if defined(USE_VIDEO_SVGALIB) || defined(USE_KEYBOARD_SVGALIB) || defined(USE_MOUSE_SVGALIB) || defined(USE_JOYSTICK_SVGALIB)
 #define USE_SVGALIB
