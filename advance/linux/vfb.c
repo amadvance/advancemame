@@ -53,6 +53,10 @@
 #include <sys/mman.h>
 #endif
 
+#ifdef USE_VC
+#include "interface/vmcs_host/vc_tvservice.h"
+#endif
+
 /***************************************************************************/
 /* State */
 
@@ -72,11 +76,13 @@ typedef struct fb_internal_struct {
 	struct fb_var_screeninfo oldinfo; /**< Old variable info. */
 	struct fb_fix_screeninfo fixinfo; /**< Fixed info. */
 	struct fb_var_screeninfo varinfo; /**< Variable info. */
+
+	adv_bool is_raspberry; /**< If it's a Raspberry Pi. */
+#ifdef USE_VC
+	TV_DISPLAY_STATE_T oldstate; /**< Raspberry VideoCore state. */
 	char oldtimings[128]; /**< Raspberry hdmi_timings. */
-	char olddrive[16]; /**< Raspberry hdmi_drive: HDMI or DVI. */
-	char oldgroup[16]; /**< Raspberry hdmi_group: CEA or DMT. */
-	unsigned oldmode; /**< Raspberry hdmi_mode. */
 	adv_bool old_need_restore; /**< Raspberry needs to restore the old timings. */
+#endif
 
 	unsigned index;
 	unsigned bytes_per_scanline;
@@ -84,8 +90,6 @@ typedef struct fb_internal_struct {
 	unsigned char* ptr;
 
 	unsigned flags;
-
-	adv_bool is_raspberry; /**< If it's a Raspberry Pi. */
 
 	double freq; /**< Expected vertical frequency. */
 
@@ -521,6 +525,136 @@ static adv_error fb_detect(void)
 	return 0;
 }
 
+#ifdef USE_VC
+void vc_log(TV_DISPLAY_STATE_T* state)
+{
+	log_std(("video:vc: tv info\n"));
+
+	log_std(("video:vc: state %08x:%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
+		state->state,
+		state->state & VC_HDMI_UNPLUGGED ? " HDMI_UNPLUGGED" : "",
+		state->state & VC_HDMI_ATTACHED ? " HDMI_ATTACHED" : "",
+		state->state & VC_HDMI_DVI ? " HDMI_DVI" : "",
+		state->state & VC_HDMI_HDMI ? " HDMI_HDMI" : "",
+		state->state & VC_HDMI_HDCP_UNAUTH ? " HDMI_HDCP_UNAUTH" : "",
+		state->state & VC_HDMI_HDCP_AUTH ? " HDMI_HDCP_AUTH" : "",
+		state->state & VC_HDMI_HDCP_KEY_DOWNLOAD ? " HDMI_HDCP_KEY_DOWNLOAD" : "",
+		state->state & VC_HDMI_HDCP_SRM_DOWNLOAD ? " HDMI_HDCP_SRM_DOWNLOAD" : "",
+		state->state & VC_HDMI_CHANGING_MODE ? " HDMI_CHANGING_MODE" : "",
+		state->state & VC_SDTV_UNPLUGGED ? " SDTV_UNPLUGGED" : "",
+		state->state & VC_SDTV_ATTACHED ? " SDTV_ATTACHED" : "",
+		state->state & VC_SDTV_NTSC ? " SDTV_NTSC" : "",
+		state->state & VC_SDTV_PAL ? " SDTV_PAL" : "",
+		state->state & VC_SDTV_CP_INACTIVE ? " SDTV_CP_INACTIVE" : "",
+		state->state & VC_SDTV_CP_ACTIVE ? " SDTV_CP_ACTIVE" : "",
+		state->state & VC_LCD_ATTACHED_DEFAULT ? " LCD_ATTACHED_DEFAULT" : ""
+	));
+
+	if (state->state & (VC_HDMI_HDMI | VC_HDMI_DVI)) {
+		log_std(("video:vc: HDMI state %08x\n", state->display.hdmi.state));
+		log_std(("video:vc: %ux%u\n", state->display.hdmi.width, state->display.hdmi.height));
+		log_std(("video:vc: framerate %u\n", state->display.hdmi.frame_rate));
+		log_std(("video:vc: scanmode %s\n", state->display.hdmi.scan_mode ? "interlaced" : "progressive"));
+		switch (state->display.hdmi.group) {
+		case HDMI_RES_GROUP_INVALID : log_std(("video:vc: group INVALID\n")); break;
+		case HDMI_RES_GROUP_CEA : log_std(("video:vc: group CEA\n")); break;
+		case HDMI_RES_GROUP_DMT : log_std(("video:vc: group DMT\n")); break;
+		case HDMI_RES_GROUP_CEA_3D : log_std(("video:vc: group CEA_3D\n")); break;
+		default : log_std(("video:vc: group UNKNOWN %u\n", state->display.hdmi.group)); break;
+		}
+		log_std(("video:vc: mode %u\n", state->display.hdmi.mode));
+		log_std(("video:vc: pixel_rep %u\n", state->display.hdmi.pixel_rep));
+		switch (state->display.hdmi.aspect_ratio) {
+		case HDMI_ASPECT_4_3 : log_std(("video:vc: aspect_ratio 4:3\n")); break;
+		case HDMI_ASPECT_14_9 : log_std(("video:vc: aspect_ratio 14:9\n")); break;
+		case HDMI_ASPECT_16_9 : log_std(("video:vc: aspect_ratio 16:9\n")); break;
+		case HDMI_ASPECT_5_4 : log_std(("video:vc: aspect_ratio 5:4\n")); break;
+		case HDMI_ASPECT_16_10 : log_std(("video:vc: aspect_ratio 16:10\n")); break;
+		case HDMI_ASPECT_15_9 : log_std(("video:vc: aspect_ratio 15:9\n")); break;
+		case HDMI_ASPECT_64_27 : log_std(("video:vc: aspect_ratio 64:27\n")); break;
+		default : log_std(("video:vc: aspect_ratio UNKNOWN %u\n", state->display.hdmi.aspect_ratio)); break;
+		}
+		log_std(("video:vc: display_option.aspect %u\n", state->display.hdmi.display_options.aspect));
+		log_std(("video:vc: display_option.vertical_bar_present %u\n", state->display.hdmi.display_options.vertical_bar_present));
+		log_std(("video:vc: display_option.left_bar_width %u\n", state->display.hdmi.display_options.left_bar_width));
+		log_std(("video:vc: display_option.right_bar_width %u\n", state->display.hdmi.display_options.right_bar_width));
+		log_std(("video:vc: display_option.horizontal_bar_present %u\n", state->display.hdmi.display_options.horizontal_bar_present));
+		log_std(("video:vc: display_option.top_bar_height %u\n", state->display.hdmi.display_options.top_bar_height));
+		log_std(("video:vc: display_option.bottom_bar_height %u\n", state->display.hdmi.display_options.bottom_bar_height));
+		switch (state->display.hdmi.pixel_encoding) {
+		case HDMI_PIXEL_ENCODING_RGB_LIMITED : log_std(("video:vc: pixel_encoding RGB lim\n")); break;
+		case HDMI_PIXEL_ENCODING_RGB_FULL : log_std(("video:vc: pixel_encoding RGB full\n")); break;
+		case HDMI_PIXEL_ENCODING_YCbCr444_LIMITED : log_std(("video:vc: pixel_encoding YCbCr444 lim\n")); break;
+		case HDMI_PIXEL_ENCODING_YCbCr444_FULL : log_std(("video:vc: pixel_encoding YCbCr444 full\n")); break;
+		case HDMI_PIXEL_ENCODING_YCbCr422_LIMITED : log_std(("video:vc: pixel_encoding YCbCr422 lim\n")); break;
+		case HDMI_PIXEL_ENCODING_YCbCr422_FULL : log_std(("video:vc: pixel_encoding YCbCr422 full\n")); break;
+		default : log_std(("video:vc: pixel_encoding UNKNOWN %u\n", state->display.hdmi.pixel_encoding)); break;
+		}
+		switch (state->display.hdmi.format_3d) {
+		case 0 : log_std(("video:vc: format_3d none\n")); break;
+		case HDMI_3D_FORMAT_SBS_HALF : log_std(("video:vc: format_3d SbS\n")); break;
+		case HDMI_3D_FORMAT_TB_HALF : log_std(("video:vc: format_3d T&B\n")); break;
+		case HDMI_3D_FORMAT_FRAME_PACKING : log_std(("video:vc: format_3d FP\n")); break;
+		case HDMI_3D_FORMAT_FRAME_SEQUENTIAL : log_std(("video:vc: format_3d FS\n")); break;
+		default : log_std(("video:vc: format_3d UNKNOWN %u\n", state->display.hdmi.format_3d)); break;
+		}
+	} else if (state->state & (VC_SDTV_NTSC | VC_SDTV_PAL)) {
+		log_std(("video:vc: SDTV state %08x\n", state->display.sdtv.state));
+		log_std(("video:vc: %ux%u\n", state->display.sdtv.width, state->display.sdtv.height));
+		log_std(("video:vc: framerate %u\n", state->display.sdtv.frame_rate));
+		log_std(("video:vc: scanmode %s\n", state->display.sdtv.scan_mode ? "interlaced" : "progressive"));
+		log_std(("video:vc: mode %08x\n", state->display.sdtv.mode));
+		switch (state->display.sdtv.mode & SDTV_MODE_FORMAT_MASK) {
+		case SDTV_MODE_NTSC : log_std(("video:vc: mode format NTSC\n")); break;
+		case SDTV_MODE_NTSC_J : log_std(("video:vc: mode format NTSC_J\n")); break;
+		case SDTV_MODE_PAL : log_std(("video:vc: mode format PAL\n")); break;
+		case SDTV_MODE_PAL_M : log_std(("video:vc: mode format PAL_M\n")); break;
+		}
+		switch (state->display.sdtv.mode & SDTV_MODE_OUTPUT_MASK) {
+		case SDTV_COLOUR_RGB : log_std(("video:vc: mode output RGB\n")); break;
+		case SDTV_COLOUR_YPRPB : log_std(("video:vc: mode output YPRPB\n")); break;
+		}
+		switch (state->display.sdtv.display_options.aspect) {
+		case SDTV_ASPECT_4_3 : log_std(("video:vc: aspect_ratio 4:3\n")); break;
+		case SDTV_ASPECT_14_9 : log_std(("video:vc: aspect_ratio 14:9\n")); break;
+		case SDTV_ASPECT_16_9 : log_std(("video:vc: aspect_ratio 16:9\n")); break;
+		default : log_std(("video:vc: aspect_ratio UNKNOWN %u\n", state->display.sdtv.display_options.aspect)); break;
+		}
+		log_std(("video:vc: mode %08x\n", state->display.sdtv.colour));
+		switch (state->display.sdtv.colour) {
+		case SDTV_COLOUR_RGB : log_std(("video:vc: colour RGB\n")); break;
+		case SDTV_COLOUR_YPRPB : log_std(("video:vc: colour YPRPB\n")); break;
+		default: log_std(("video:vc: colour UNKNOWN %u\n", state->display.sdtv.colour)); break;
+		}
+		switch (state->display.sdtv.cp_mode) {
+		case SDTV_CP_MACROVISION_TYPE1 : log_std(("video:vc: cp_mode Macrovision type 1\n")); break;
+		case SDTV_CP_MACROVISION_TYPE2 : log_std(("video:vc: cp_mode Macrovision type 2\n")); break;
+		case SDTV_CP_MACROVISION_TYPE3 : log_std(("video:vc: cp_mode Macrovision type 3\n")); break;
+		case SDTV_CP_MACROVISION_TEST1 : log_std(("video:vc: cp_mode Macrovision test 1\n")); break;
+		case SDTV_CP_MACROVISION_TEST2 : log_std(("video:vc: cp_mode Macrovision test 2\n")); break;
+		case SDTV_CP_CGMS_COPYFREE : log_std(("video:vc: cp_mode CGMS copy free\n")); break;
+		case SDTV_CP_CGMS_COPYNOMORE : log_std(("video:vc: cp_mode CGMS copy no more\n")); break;
+		case SDTV_CP_CGMS_COPYONCE : log_std(("video:vc: cp_mode CGMS copy once\n")); break;
+		case SDTV_CP_CGMS_COPYNEVER : log_std(("video:vc: cp_mode CGMS copy never\n")); break;
+		case SDTV_CP_WSS_COPYFREE : log_std(("video:vc: cp_mode WSS copy free\n")); break;
+		case SDTV_CP_WSS_COPYRIGHT_COPYFREE : log_std(("video:vc: cp_mode WSS (c) copy free\n")); break;
+		case SDTV_CP_WSS_NOCOPY : log_std(("video:vc: cp_mode WSS no copy\n")); break;
+		case SDTV_CP_WSS_COPYRIGHT_NOCOPY : log_std(("video:vc: cp_mode WSS (c) no copy\n")); break;
+		default : log_std(("video:vc: cp_mode UNKNOWN %u\n", state->display.sdtv.cp_mode)); break;
+		}
+	} else if (state->state & VC_LCD_ATTACHED_DEFAULT) {
+		/* print from the HDMI struct like tvservice */
+		log_std(("video:vc: LCD state %08x\n", state->display.hdmi.state));
+		log_std(("video:vc: %ux%u\n", state->display.hdmi.width, state->display.hdmi.height));
+		log_std(("video:vc: framerate %u\n", state->display.hdmi.frame_rate));
+		log_std(("video:vc: scanmode %s\n", state->display.hdmi.scan_mode ? "interlaced" : "progressive"));
+	} else {
+		/* print from the HDMI struct like tvservice */
+		log_std(("video:vc: TV OFF state %08x\n", state->display.hdmi.state));
+	}
+}
+#endif
+
 adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_cursor cursor)
 {
 	const char* fb;
@@ -598,21 +732,27 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 
 		log_std(("video:fb: detected Raspberry Pi/BCM2708 hardware\n"));
 
+#ifdef USE_VC
 		if (output != adv_output_auto && output != adv_output_overlay && output != adv_output_fullscreen) {
 			error_set("Only fullscreen and overlay output are supported.\n");
 			return -1;
 		}
+#else
+		if (output != adv_output_auto && output != adv_output_overlay) {
+			error_set("Only overlay output is supported.\n");
+			return -1;
+		}
+#endif
 
 		/* exclude BGR15 not supported by the Raspberry hardware */
 		fb_state.flags = VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32;
 
 		if (output == adv_output_auto || output == adv_output_overlay)
 			fb_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
+#ifdef USE_VC /* programmable modes are available only with VideoCore */
 		if (output == adv_output_auto || output == adv_output_fullscreen)
 			fb_state.flags |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
-
-		/* keep track if we change timings */
-		fb_state.old_need_restore = 0;
+#endif
 
 		/*
 		 * Force the FrameBuffer to fill-out all the screen.
@@ -631,6 +771,10 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 			log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
 			free(opt);
 		}
+
+#ifdef USE_VC
+		/* keep track if we change timings */
+		fb_state.old_need_restore = 0;
 
 		/* get current timings */
 		fb_state.oldtimings[0] = 0;
@@ -652,67 +796,34 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		}
 
 		/* get current info */
-		fb_state.olddrive[0] = 0;
-		fb_state.oldgroup[0] = 0;
-		fb_state.oldmode = 0;
-		snprintf(cmd, sizeof(cmd), "tvservice -s");
-		log_std(("video:fb: run \"%s\"\n", cmd));
-		opt = target_system(cmd);
-		if (opt) {
-			unsigned aspect_x;
-			unsigned aspect_y;
-			int state;
-
-			log_std(("video:fb: tvservice result \"%s\"\n", opt));
-
-			if (sscanf(opt, "state %i [%15s %15s (%u) %*s %*s %u:%u]",
-				&state, fb_state.olddrive, fb_state.oldgroup, &fb_state.oldmode,
-				&aspect_x, &aspect_y) == 6
-			) {
-				/* state 0x120006 [DVI DMT (87) RGB full 15:9], 1024x600 @ 60.00Hz, progressive */
-				/* state 0x12001a [HDMI CEA (16) RGB lim 16:9], 1920x1080 @ 60.00Hz, progressive */
-				/* state 0x120016 [DVI DMT (4) RGB full 4:3], 640x480 @60.00hz, progressive */
-				/* state 0x12001a [HDMI CEA (4) RGB lim 16:9], 1280x720 @ 60Hz, progressive */
-				/* state 0x12000a [HDMI DMT (82) RGB full 16:9], 1920x1080 @ 60.00Hz, progressive */
-
-				log_std(("video:fb: tvservice state 0x%x\n", state));
-				log_std(("video:fb: hdmi_drive %s\n", fb_state.olddrive));
-				log_std(("video:fb: hdmi_group %s\n", fb_state.oldgroup));
-				log_std(("video:fb: hdmi_mode %u\n", fb_state.oldmode));
-
-				if (aspect_x != 0 && aspect_y != 0)
-					target_aspect_set(aspect_x, aspect_y);
-			} else if (sscanf(opt, "state %i [%15s %u:%u]",
-				&state, fb_state.olddrive, &aspect_x, &aspect_y) == 4
-			) {
-				/* state 0x40001 [NTSC 4:3], 720x480 @ 60.00Hz, interlaced */
-				log_std(("video:fb: tvservice state 0x%x\n", state));
-				log_std(("video:fb: hdmi_drive %s\n", fb_state.olddrive));
-				fb_state.olddrive[0] = 0; /* clear it as NTSC/PAL is not a real drive */
-				fb_state.oldgroup[0] = 0;
-				fb_state.oldmode = 0;
-
-				if (aspect_x != 0 && aspect_y != 0)
-					target_aspect_set(aspect_x, aspect_y);
-			} else if (sscanf(opt, "state %i [%15s]",
-				&state, fb_state.olddrive) == 2
-			) {
-				/* state 0x400000 [LCD], 320x241 @ 0.00Hz, progressive" */
-				/* state 0x400000 [LCD], 800x480 @ 60.00Hz, progressive */
-				log_std(("video:fb: tvservice state 0x%x\n", state));
-				log_std(("video:fb: hdmi_drive %s\n", fb_state.olddrive));
-				fb_state.olddrive[0] = 0; /* clear it as LCD is not a real drive */
-				fb_state.oldgroup[0] = 0;
-				fb_state.oldmode = 0;
-			} else {
-				log_std(("video:fb: tvservice unknown state\n"));
-				fb_state.olddrive[0] = 0;
-				fb_state.oldgroup[0] = 0;
-				fb_state.oldmode = 0;
-			}
-
-			free(opt);
+		if (vc_tv_get_display_state(&fb_state.oldstate) != 0) {
+			error_set("Failed to call VideoCore vc_tv_get_display_state().\n");
+			goto err_close;
 		}
+
+		vc_log(&fb_state.oldstate);
+
+		/* set aspect */
+		if (fb_state.oldstate.state & (VC_HDMI_HDMI | VC_HDMI_DVI)) {
+			switch (fb_state.oldstate.display.hdmi.aspect_ratio) {
+			case HDMI_ASPECT_4_3 : target_aspect_set(4, 3); break;
+			case HDMI_ASPECT_14_9 : target_aspect_set(14, 9); break;
+			case HDMI_ASPECT_16_9 : target_aspect_set(16, 9); break;
+			case HDMI_ASPECT_5_4 : target_aspect_set(5, 4); break;
+			case HDMI_ASPECT_16_10 : target_aspect_set(16, 10); break;
+			case HDMI_ASPECT_15_9 : target_aspect_set(15, 9); break;
+			case HDMI_ASPECT_64_27 : target_aspect_set(64, 27); break;
+			default: break;
+			}
+		} else if (fb_state.oldstate.state & (VC_SDTV_NTSC | VC_SDTV_PAL)) {
+			switch (fb_state.oldstate.display.sdtv.display_options.aspect) {
+			case SDTV_ASPECT_4_3 : target_aspect_set(4, 3); break;
+			case SDTV_ASPECT_14_9 : target_aspect_set(14, 9); break;
+			case SDTV_ASPECT_16_9 : target_aspect_set(16, 9); break;
+			default: break;
+			}
+		}
+#endif
 	} else {
 		if (output != adv_output_auto && output != adv_output_fullscreen) {
 			error_set("Only fullscreen output is supported.\n");
@@ -829,10 +940,13 @@ static adv_error fb_setup_color(void)
 /**
  * Set the requested timings and call tvservice to load them.
  */
+#ifdef USE_VC
 static int fb_raspberry_settiming(const adv_crtc* crtc)
 {
 	char* opt;
 	char cmd[256];
+	int ret;
+	unsigned drive;
 
 	/* we are going to change the timings */
 	fb_state.old_need_restore = 1;
@@ -871,28 +985,32 @@ static int fb_raspberry_settiming(const adv_crtc* crtc)
 	log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
 	free(opt);
 
-	/* enable the new video mode */
-	if (fb_state.olddrive[0])
-		snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87 %s\"", fb_state.olddrive);
+	/* set the video mode */
+	if (fb_state.oldstate.state & VC_HDMI_HDMI)
+		drive = HDMI_MODE_HDMI;
 	else
-		snprintf(cmd, sizeof(cmd), "tvservice -e \"DMT 87\"");
-	log_std(("video:fb: run \"%s\"\n", cmd));
-	opt = target_system(cmd);
-	if (!opt)
+		drive = HDMI_MODE_DVI;
+	log_std(("video:vc: vc_tv_hdmi_power_on_explicit(%s, DMT, 87)\n", drive == HDMI_MODE_HDMI ? "HDMI" : "DVI"));
+	ret = vc_tv_hdmi_power_on_explicit(drive, HDMI_RES_GROUP_DMT, 87);
+	if (ret != 0) {
+		log_std(("ERROR:video:vc: vc_tv_hdmi_power_on_explicit() failed\n"));
 		return -1;
-	log_std(("video:fb: tvservice result \"%s\"\n", opt));
-	free(opt);
+	}
 
 	return 0;
 }
+#endif
 
 /**
  * Restore the original timing and call tvservice to load them.
  */
+#ifdef USE_VC
 static void fb_raspberry_restoretiming(void)
 {
 	char* opt;
 	char cmd[256];
+	int ret;
+	unsigned drive;
 
 	/* nothing to do if nothing was set */
 	if (!fb_state.old_need_restore)
@@ -910,31 +1028,31 @@ static void fb_raspberry_restoretiming(void)
 		/* ignore error */
 	}
 
-	/* if we have the mode, restore it */
-	if (fb_state.oldgroup[0] && fb_state.oldmode) {
-		if (fb_state.olddrive[0])
-			snprintf(cmd, sizeof(cmd), "tvservice -e \"%s %u %s\"", fb_state.oldgroup, fb_state.oldmode, fb_state.olddrive);
+	if (fb_state.oldstate.state & (VC_HDMI_HDMI | VC_HDMI_DVI)) {
+		if (fb_state.oldstate.state & VC_HDMI_HDMI)
+			drive = HDMI_MODE_HDMI;
 		else
-			snprintf(cmd, sizeof(cmd), "tvservice -e \"%s %u\"", fb_state.oldgroup, fb_state.oldmode);
-		log_std(("video:fb: run \"%s\"\n", cmd));
-		opt = target_system(cmd);
-		if (opt) {
-			log_std(("video:fb: tvservice result \"%s\"\n", opt));
-			free(opt);
+			drive = HDMI_MODE_DVI;
+		log_std(("video:vc: vc_tv_hdmi_power_on_explicit(%s, %s, %u)\n",
+			drive == HDMI_MODE_HDMI ? "HDMI" : "DVI",
+			fb_state.oldstate.display.hdmi.group == HDMI_RES_GROUP_CEA ? "CEA" : "DMT",
+			fb_state.oldstate.display.hdmi.mode
+		));
+		ret = vc_tv_hdmi_power_on_explicit(drive, fb_state.oldstate.display.hdmi.group, fb_state.oldstate.display.hdmi.mode);
+		if (ret != 0) {
+			log_std(("ERROR:video:vc: vc_tv_hdmi_power_on_explicit() failed\n"));
 		}
-		/* ignore error */
 	} else {
 		/* otherwise, use the preferred mode */
-		snprintf(cmd, sizeof(cmd), "tvservice -p");
-		log_std(("video:fb: run \"%s\"\n", cmd));
-		opt = target_system(cmd);
-		if (opt) {
-			log_std(("video:fb: tvservice result \"%s\"\n", opt));
-			free(opt);
+		log_std(("video:vc: vc_tv_hdmi_power_on_preferred()\n"));
+		ret = vc_tv_hdmi_power_on_preferred();
+		if (ret != 0) {
+			log_std(("ERROR:video:vc: vc_tv_hdmi_power_on_explicit() failed\n"));
+			/* ignore error */
 		}
-		/* ignore error */
 	}
 }
+#endif
 
 /**
  * Set the timings and video mode.
@@ -949,6 +1067,7 @@ static void fb_raspberry_restoretiming(void)
  */
 static int fb_raspberry_setvar_and_wait(const adv_crtc* crtc, struct fb_var_screeninfo* var)
 {
+#ifdef USE_VC
 	char* opt;
 	char cmd[256];
 	unsigned pre_x0;
@@ -962,6 +1081,7 @@ static int fb_raspberry_setvar_and_wait(const adv_crtc* crtc, struct fb_var_scre
 	int count;
 	int ret;
 	struct fb_var_screeninfo alt;
+	TV_DISPLAY_STATE_T state;
 
 	pre_x0 = 0;
 	pre_y0 = 0;
@@ -1031,12 +1151,11 @@ loop:
 	ret = fb_setvar(var);
 
 	/* get tvservice status, only for logging purpose */
-	snprintf(cmd, sizeof(cmd), "tvservice -s");
-	log_std(("video:fb: run \"%s\"\n", cmd));
-	opt = target_system(cmd);
-	if (opt) {
-		log_std(("video:fb: tvservice result \"%s\"\n", opt));
-		free(opt);
+	log_std(("video:vc: vc_tv_get_display_state()\n"));
+	if (vc_tv_get_display_state(&state) == 0) {
+		vc_log(&state);
+	} else {
+		log_std(("video:vc: vc_tv_get_display_state() failed\n"));
 	}
 
 	x0 = 0;
@@ -1076,6 +1195,10 @@ loop:
 	}
 
 	return 0;
+#else
+	(void)crtc;
+	return fb_setvar(var);
+#endif
 }
 
 adv_error fb_mode_set(const fb_video_mode* mode)
