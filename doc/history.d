@@ -2,6 +2,7 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS/MENU Version 3.1 2016/12
+	) Added support for SDL2, preferred by default over SDL1.
 	) More reliable Raspberry video mode setting when using programmable
 		modes.
 	) Fix UI flickering and a potential crash when SMP is active.

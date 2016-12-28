@@ -818,6 +818,7 @@ void int_unset(bool reset_video_mode)
 			video_write_lock();
 			video_clear(0, 0, video_size_x(), video_size_y(), 0);
 			video_write_unlock(0, 0, video_size_x(), video_size_y(), 0);
+			video_display_set(0, 0);
 		}
 		video_mode_restore();
 	} else {
@@ -2026,9 +2027,6 @@ void cell_manager::reduce()
 		int_clip_cache->reduce();
 }
 
-// Define to update the video in one whole time for multiclip
-// #define USE_MULTICLIP_WHOLE
-
 bool cell_manager::idle_update(int index)
 {
 	adv_color_rgb rgb_map[256];
@@ -2050,20 +2048,14 @@ bool cell_manager::idle_update(int index)
 
 		backdrop_update(index);
 
-#ifdef USE_MULTICLIP_WHOLE
-		if (!multiclip)
-#endif
-			cell->pos.redraw();
+		cell->pos.redraw();
 
 		return false;
 	}
 
 	cell->pos.draw_clip(bitmap, rgb_map, rgb_max, cell->caspectx, cell->caspecty, backdrop_expand_factor, backdrop_missing_color.background, clip->is_first());
 
-#ifdef USE_MULTICLIP_WHOLE
-	if (!multiclip)
-#endif
-		cell->pos.redraw();
+	cell->pos.redraw();
 
 	adv_bitmap_free(bitmap);
 
@@ -2114,13 +2106,6 @@ bool cell_manager::idle()
 					break;
 			}
 		}
-
-#ifdef USE_MULTICLIP_WHOLE
-		video_write_lock();
-		video_stretch(0, 0, video_size_x(), video_size_y(), video_foreground_buffer, video_size_x(), video_size_y(), video_buffer_line_size, video_bytes_per_pixel(), video_color_def(), 0);
-		video_write_unlock(0, 0, video_size_x(), video_size_y(), 0);
-#endif
-
 	} else {
 		for(unsigned i=0;i<backdrop_mac;++i) {
 			idle_update(i);
@@ -2132,6 +2117,9 @@ bool cell_manager::idle()
 			backdrop_box();
 		}
 	}
+
+	// update the screen
+	video_display_set(0, 0);
 
 	// recheck if some clip is already old
 	for(unsigned i=0;i<backdrop_mac;++i) {

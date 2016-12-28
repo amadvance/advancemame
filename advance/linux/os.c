@@ -486,10 +486,19 @@ int os_inner_init(const char* title)
 		return -1;
 	} 
 	OS.sdl_active = 1;
-	SDL_VERSION(&compiled);
 
+	SDL_VERSION(&compiled);
 	log_std(("os: compiled with sdl %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch));
+#if SDL_MAJOR_VERSION == 1
 	log_std(("os: linked with sdl %d.%d.%d\n", SDL_Linked_Version()->major, SDL_Linked_Version()->minor, SDL_Linked_Version()->patch));
+#else
+	SDL_GetVersion(&compiled);
+	log_std(("os: linked with sdl %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch));
+	log_std(("os: sdl platform %s\n", SDL_GetPlatform()));
+	log_std(("os: sdl cpi cache line size %d\n", SDL_GetCPUCacheLineSize()));
+	log_std(("os: sdl cpu count %d\n", SDL_GetCPUCount()));
+	log_std(("os: sdl ram %d\n", SDL_GetSystemRAM()));
+#endif
 #ifdef USE_MSB
 	if (SDL_BYTEORDER != SDL_BIG_ENDIAN) {
 		target_err("Invalid SDL endianess.\n");
@@ -709,12 +718,17 @@ void os_poll(void)
 		switch (event.type) {
 			case SDL_KEYDOWN :
 #ifdef USE_KEYBOARD_SDL
+#if SDL_MAJOR_VERSION == 1
 				keyb_sdl_event_press(event.key.keysym.sym);
+#else
+				keyb_sdl_event_press(event.key.keysym.scancode);
+#endif
 #endif
 #ifdef USE_INPUT_SDL
 				inputb_sdl_event_press(event.key.keysym.sym);
 #endif
 
+#if SDL_MAJOR_VERSION == 1
 				/* toggle fullscreen check */
 				if (event.key.keysym.sym == SDLK_RETURN
 					&& (event.key.keysym.mod & KMOD_ALT) != 0) {
@@ -728,10 +742,15 @@ void os_poll(void)
 						}
 					}
 				}
+#endif
 			break;
 			case SDL_KEYUP :
 #ifdef USE_KEYBOARD_SDL
+#if SDL_MAJOR_VERSION == 1
 				keyb_sdl_event_release(event.key.keysym.sym);
+#else
+				keyb_sdl_event_release(event.key.keysym.scancode);
+#endif
 #endif
 #ifdef USE_INPUT_SDL
 				inputb_sdl_event_release(event.key.keysym.sym);

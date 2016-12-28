@@ -862,7 +862,88 @@ AC_SUBST([FREETYPECFLAGS])
 AC_SUBST([FREETYPELIBS])
 AC_SUBST([CONF_LIB_FREETYPE],[$ac_lib_freetype])
 
-dnl Checks for sdl
+dnl Checks for SDL v1 and v2
+ac_lib_sdl2_args=
+ac_lib_sdl2_path="$PATH"
+AC_ARG_WITH(
+	[sdl2-prefix],
+	AC_HELP_STRING([--with-sdl2-prefix=DIR],[Prefix where SDL2 is installed (optional)]),
+	[ac_lib_sdl2_prefix="$withval"],
+	[ac_lib_sdl2_prefix=""]
+)
+if test ! -z $ac_lib_sdl2_prefix; then
+	ac_lib_sdl2_args="--prefix=${ac_lib_sdl2_prefix}"
+	ac_lib_sdl2_path="${ac_lib_sdl2_prefix}/bin"
+fi
+AC_ARG_ENABLE(
+	[sdl2],
+	AC_HELP_STRING([--enable-sdl2],[enable the use of the SDL2 library. (default auto)]),
+	[ac_lib_sdl2=$enableval],
+	[ac_lib_sdl2=auto]
+)
+if test $ac_lib_sdl2 = auto; then
+	AC_PATH_PROGS(
+		[ac_lib_sdl2_config],
+		[${ac_tool_prefix}sdl2-config],
+		[],
+		[${ac_lib_sdl2_path}]
+	)
+	if test -z $ac_lib_sdl2_config; then
+		ac_lib_sdl2=no
+	else
+		ac_save_CFLAGS="$CFLAGS"
+		ac_save_LIBS="$LIBS"
+		SDLCFLAGS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --cflags`
+		if test $ac_enable_static = yes ; then
+			SDLLIBS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --static-libs`
+		else
+			SDLLIBS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --libs`
+		fi
+		CFLAGS="$SDLCFLAGS $CFLAGS"
+		LIBS="$SDLLIBS $LIBS"
+		AC_MSG_CHECKING([for SDL2])
+		AC_TRY_LINK([
+				#include "SDL.h"
+				#undef main
+			], [
+				SDL_Init(SDL_INIT_EVERYTHING);
+			],[ac_lib_sdl2=yes],[ac_lib_sdl2=no])
+		AC_MSG_RESULT([$ac_lib_sdl2])
+		CFLAGS="$ac_save_CFLAGS"
+		LIBS="$ac_save_LIBS"
+	fi
+elif test $ac_lib_sdl2 = yes; then
+	AC_PATH_PROGS(
+		[ac_lib_sdl2_config],
+		[${ac_tool_prefix}sdl2-config],
+		[],
+		[${ac_lib_sdl2_path}]
+	)
+	if test -z $ac_lib_sdl2_config ; then
+		AC_MSG_ERROR([the ${ac_tool_prefix}sdl2-config tool is missing])
+	else
+		ac_save_CFLAGS="$CFLAGS"
+		ac_save_LIBS="$LIBS"
+		SDLCFLAGS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --cflags`
+		if test $ac_enable_static = yes ; then
+			SDLLIBS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --static-libs`
+		else
+			SDLLIBS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --libs`
+		fi
+		CFLAGS="$SDLCFLAGS $CFLAGS"
+		LIBS="$SDLLIBS $LIBS"
+		AC_MSG_CHECKING([for SDL2])
+		AC_TRY_LINK([
+				#include "SDL.h"
+				#undef main
+			], [
+				SDL_Init(SDL_INIT_EVERYTHING);
+			],[],[AC_MSG_ERROR([the SDL2 library is missing])])
+		AC_MSG_RESULT([yes])
+		CFLAGS="$ac_save_CFLAGS"
+		LIBS="$ac_save_LIBS"
+	fi
+fi
 ac_lib_sdl_args=
 ac_lib_sdl_path="$PATH"
 AC_ARG_WITH(
@@ -882,37 +963,44 @@ AC_ARG_ENABLE(
 	[ac_lib_sdl=auto]
 )
 if test $ac_lib_sdl = auto; then
-	AC_PATH_PROGS(
-		[ac_lib_sdl_config],
-		[${ac_tool_prefix}sdl-config],
-		[],
-		[${ac_lib_sdl_path}]
-	)
-	if test -z $ac_lib_sdl_config; then
+	if test $ac_lib_sdl2 = yes; then
 		ac_lib_sdl=no
 	else
-		ac_save_CFLAGS="$CFLAGS"
-		ac_save_LIBS="$LIBS"
-		SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
-		if test $ac_enable_static = yes ; then
-			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
+		AC_PATH_PROGS(
+			[ac_lib_sdl_config],
+			[${ac_tool_prefix}sdl-config],
+			[],
+			[${ac_lib_sdl_path}]
+		)
+		if test -z $ac_lib_sdl_config; then
+			ac_lib_sdl=no
 		else
-			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
+			ac_save_CFLAGS="$CFLAGS"
+			ac_save_LIBS="$LIBS"
+			SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
+			if test $ac_enable_static = yes ; then
+				SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
+			else
+				SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
+			fi
+			CFLAGS="$SDLCFLAGS $CFLAGS"
+			LIBS="$SDLLIBS $LIBS"
+			AC_MSG_CHECKING([for SDL])
+			AC_TRY_LINK([
+					#include "SDL.h"
+					#undef main
+				], [
+					SDL_Init(SDL_INIT_EVERYTHING);
+				],[ac_lib_sdl=yes],[ac_lib_sdl=no])
+			AC_MSG_RESULT([$ac_lib_sdl])
+			CFLAGS="$ac_save_CFLAGS"
+			LIBS="$ac_save_LIBS"
 		fi
-		CFLAGS="$SDLCFLAGS $CFLAGS"
-		LIBS="$SDLLIBS $LIBS"
-		AC_MSG_CHECKING([for SDL])
-		AC_TRY_LINK([
-				#include "SDL.h"
-				#undef main
-			], [
-				SDL_Init(SDL_INIT_EVERYTHING);
-			],[ac_lib_sdl=yes],[ac_lib_sdl=no])
-		AC_MSG_RESULT([$ac_lib_sdl])
-		CFLAGS="$ac_save_CFLAGS"
-		LIBS="$ac_save_LIBS"
 	fi
 elif test $ac_lib_sdl = yes; then
+	if test $ac_lib_sdl2 = yes; then
+		AC_MSG_ERROR([You cannot enable both SDL and SDL2])
+	fi
 	AC_PATH_PROGS(
 		[ac_lib_sdl_config],
 		[${ac_tool_prefix}sdl-config],
@@ -944,19 +1032,21 @@ elif test $ac_lib_sdl = yes; then
 		LIBS="$ac_save_LIBS"
 	fi
 fi
-if test $ac_lib_sdl = yes; then
+ac_lib_sdl_flag=no
+if test $ac_lib_sdl = yes -o $ac_lib_sdl2 = yes; then
 	ac_lib_video="$ac_lib_video sdl"
 	ac_lib_sound="$ac_lib_sound sdl"
 	ac_lib_keyboard="$ac_lib_keyboard sdl"
 	ac_lib_joystick="$ac_lib_joystick sdl"
 	ac_lib_mouse="$ac_lib_mouse sdl"
+	ac_lib_sdl_flag=yes
 	ac_lib_video_flag=yes
 	ac_lib_sound_flag=yes
 	ac_lib_keyboard_flag=yes
 fi
+AC_SUBST([CONF_LIB_SDL],[$ac_lib_sdl_flag])
 AC_SUBST([SDLCFLAGS])
 AC_SUBST([SDLLIBS])
-AC_SUBST([CONF_LIB_SDL],[$ac_lib_sdl])
 
 dnl Checks for svgawin
 AC_ARG_ENABLE(
@@ -1275,10 +1365,10 @@ echo "Misc :" $ac_lib_other
 if test $ac_enable_bare = no ; then
 if test $ac_enable_debug = no ; then
 	if test $ac_lib_video_flag = no; then
-		AC_MSG_ERROR([no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix option.])
+		AC_MSG_ERROR([no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix or --with-sdl2-prefix options.])
 	else
-		if test $ac_lib_sdl = no; then
-			AC_MSG_WARN([the SDL library was not found. You will not able to use this program in a window manager environment! If you have the SDL library installed somewhere try using the --with-sdl-prefix option.])
+		if test $ac_lib_sdl_flag = no; then
+			AC_MSG_WARN([the SDL library was not found. You will not able to use this program in a window manager environment! If you have the SDL library installed somewhere try using the --with-sdl-prefix or --with-sdl2-prefix options.])
 		fi
 	fi
 	if test $ac_lib_sound_flag = no; then

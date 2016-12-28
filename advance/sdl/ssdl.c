@@ -129,9 +129,11 @@ adv_error soundb_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 		goto err;
 	}
 
+#if SDL_MAJOR_VERSION == 1
 	if (SDL_AudioDriverName(name, sizeof(name))) {
 		log_std(("sound:sdl: driver %s\n", name));
 	}
+#endif
 
 	sdl_state.info.freq = *rate;
 	sdl_state.info.format = AUDIO_S16LSB;

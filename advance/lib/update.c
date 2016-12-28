@@ -177,8 +177,7 @@ void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_b
 		if (update_page == update_page_max)
 			update_page = 0;
 	} else {
-		if (waitvsync)
-			video_wait_vsync();
+		video_display_set(0, waitvsync);
 	}
 
 	is_update_draw_allowed = 0;
