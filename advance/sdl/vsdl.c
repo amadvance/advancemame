@@ -514,6 +514,8 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		log_std(("video:sdl: Driver name: %s\n", SDL_GetVideoDriver(driver)));
 	}
 
+	log_std(("video:sdl: You can select the video driver with SDL_VIDEODRIVER=\n"));
+
 	display_mac = SDL_GetNumVideoDisplays();
 	log_std(("video:sdl: SDL_GetNumVideoDisplays() -> %d\n", display_mac));
 	for(display=0;display<display_mac;++display) {
@@ -557,7 +559,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 			continue;
 		}
 
-		log_std(("video:sdl: Renderer name: %s\n", ri.name));
+		log_std(("video:sdl: Render name: %s\n", ri.name));
 		log_std(("video:sdl: flags:%s%s%s%s\n",
 			ri.flags & SDL_RENDERER_SOFTWARE ? " SDL_RENDERER_SOFTWARE" : "",
 			ri.flags & SDL_RENDERER_ACCELERATED ? " SDL_RENDERER_ACCELERATED" : "",
@@ -569,6 +571,8 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		for(texture=0;texture<ri.num_texture_formats;++texture)
 			log_std(("video:sdl: pixel format: %s\n", SDL_GetPixelFormatName(ri.texture_formats[texture])));
 	}
+
+	log_std(("video:sdl: You can select the render with SDL_RENDERDRIVER=\n"));
 
 	if (SDL_GetDesktopDisplayMode(0, &info_dm) != 0) {
 		log_std(("ERROR: video:sdl: Failed SDL_GetDesktopDisplayMode(0, ...)\n"));
@@ -692,6 +696,8 @@ static adv_error sdl_overlay_set(void)
 {
 	SDL_RendererInfo ri;
 	unsigned texture;
+	const char* renderer;
+	int renderer_index;
 
 	if (sdl_state.texture) {
 		SDL_DestroyTexture(sdl_state.texture);
@@ -702,7 +708,35 @@ static adv_error sdl_overlay_set(void)
 		sdl_state.renderer = 0;
 	}
 
-	sdl_state.renderer = SDL_CreateRenderer(sdl_state.window, -1, SDL_RENDERER_ACCELERATED);
+	renderer_index = -1;
+	renderer = getenv("SDL_RENDERDRIVER");
+	if (renderer) {
+		unsigned driver, driver_mac;
+
+		driver_mac = SDL_GetNumRenderDrivers();
+		for(driver=0;driver<driver_mac;++driver) {
+			SDL_RendererInfo ri;
+			unsigned texture;
+
+			if (SDL_GetRenderDriverInfo(driver, &ri) != 0) {
+				log_std(("video:sdl: Failed SDL_GetRenderDriverInfo(%d, ...)\n", driver));
+				continue;
+			}
+
+			if (strcasecmp(renderer, ri.name) == 0) {
+				renderer_index = driver;
+				log_std(("video:sdl: Force use of render: %s\n", ri.name));
+				break;
+			}
+		}
+
+		if (renderer_index < 0) {
+			log_std(("ERROR:video:sdl: Failed to find the requested render: %s\n", ri.name));
+			return -1;
+		}
+	}
+
+	sdl_state.renderer = SDL_CreateRenderer(sdl_state.window, renderer_index, SDL_RENDERER_ACCELERATED);
 	if (sdl_state.renderer == 0) {
 		log_std(("ERROR:video:sdl: Failed SDL_CreateRenderer(), %s\n", SDL_GetError()));
 		return -1;
