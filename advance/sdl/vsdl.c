@@ -569,7 +569,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		log_std(("video:sdl: max texture size: %ux%u\n", ri.max_texture_width, ri.max_texture_height));
 		log_std(("video:sdl: num formats: %u\n", ri.num_texture_formats));
 		for(texture=0;texture<ri.num_texture_formats;++texture)
-			log_std(("video:sdl: pixel format: %s\n", SDL_GetPixelFormatName(ri.texture_formats[texture])));
+			log_std(("video:sdl: pixel format: %s, %u\n", SDL_GetPixelFormatName(ri.texture_formats[texture]), SDL_BYTESPERPIXEL(ri.texture_formats[texture])));
 	}
 
 	log_std(("video:sdl: You can select the render with SDL_RENDERDRIVER=\n"));
@@ -601,12 +601,14 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		log_std(("video:sdl: use window output\n"));
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW;
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_BGR32 | VIDEO_DRIVER_FLAGS_DEFAULT_BGR32;
+		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;
 	} else if (sdl_state.output == adv_output_overlay) {
 		log_std(("video:sdl: use overlay output\n"));
 
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_INTERNAL_STATIC;
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_BGR32 | VIDEO_DRIVER_FLAGS_DEFAULT_BGR32;
+		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;
 	} else {
 		error_set("Invalid output mode.\n");
 		goto err_quit;
@@ -698,6 +700,11 @@ static adv_error sdl_overlay_set(void)
 	unsigned texture;
 	const char* renderer;
 	int renderer_index;
+	unsigned format;
+	unsigned width;
+	Uint32 query_format;
+	int query_width;
+	int query_height;
 
 	if (sdl_state.texture) {
 		SDL_DestroyTexture(sdl_state.texture);
@@ -757,17 +764,42 @@ static adv_error sdl_overlay_set(void)
 	log_std(("video:sdl: max texture size: %ux%u\n", ri.max_texture_width, ri.max_texture_height));
 	log_std(("video:sdl: num formats: %u\n", ri.num_texture_formats));
 	for(texture=0;texture<ri.num_texture_formats;++texture)
-		log_std(("video:sdl: pixel format: %s\n", SDL_GetPixelFormatName(ri.texture_formats[texture])));
+		log_std(("video:sdl: pixel format: %s, %u\n", SDL_GetPixelFormatName(ri.texture_formats[texture]), SDL_BYTESPERPIXEL(ri.texture_formats[texture])));
+
+	switch (sdl_state.index) {
+	case MODE_FLAGS_INDEX_BGR32 :
+		format = SDL_PIXELFORMAT_ARGB8888;
+		width = sdl_state.overlay_size_x;
+		break;
+	case MODE_FLAGS_INDEX_YUY2 :
+		format = SDL_PIXELFORMAT_YUY2;
+		/*
+		 * The SDL YUY2 format uses 16 bits pixel with alternate U and V,
+		 * To represent a full color we need two of them.
+		 */
+		width = sdl_state.overlay_size_x * 2;
+		break;
+	default:
+		log_std(("ERROR:video:sdl: Invalid index\n"));
+		return -1;
+	}
 
 	sdl_state.texture = SDL_CreateTexture(sdl_state.renderer,
-		SDL_PIXELFORMAT_ARGB8888,
+		format,
 		SDL_TEXTUREACCESS_STREAMING,
-		sdl_state.overlay_size_x, sdl_state.overlay_size_y
+		width, sdl_state.overlay_size_y
 	);
 	if (sdl_state.texture == 0) {
 		log_std(("ERROR:video:sdl: Failed SDL_CreateTexture(), %s\n", SDL_GetError()));
 		return -1;
 	}
+
+	if (SDL_QueryTexture(sdl_state.texture, &query_format, 0, &query_width, &query_height) != 0) {
+		log_std(("ERROR:video:sdl: Failed SDL_QueryTexture, %s\n", SDL_GetError()));
+		return -1;
+	}
+
+	log_std(("video:sdl: using texture %dx%d %s %u\n", query_width, query_height, SDL_GetPixelFormatName(query_format), SDL_BYTESPERPIXEL(query_format)));
 
 #ifdef USE_SMP
 	/*
@@ -837,7 +869,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 	if (SDL_WasInit(SDL_INIT_VIDEO)==0) {
 		log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
-			log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n",  SDL_GetError()));
+			log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n", SDL_GetError()));
 			error_set("Unable to initialize the SDL video, %s", SDL_GetError());
 			return -1;
 		}
@@ -945,6 +977,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 
 	switch (mode->index) {
 	case MODE_FLAGS_INDEX_BGR32 :
+	case MODE_FLAGS_INDEX_YUY2 :
 		sdl_state.index = mode->index;
 		break;
 	default:
@@ -1318,6 +1351,7 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 #else
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
 	case MODE_FLAGS_INDEX_BGR32 :
+	case MODE_FLAGS_INDEX_YUY2 :
 		break;
 	default:
 		error_nolog_set("Index mode not supported.\n");
