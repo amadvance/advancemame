@@ -879,7 +879,14 @@ AC_ARG_ENABLE(
 	[sdl2],
 	AC_HELP_STRING([--enable-sdl2],[enable the use of the SDL2 library. (default auto)]),
 	[ac_lib_sdl2=$enableval],
-	[ac_lib_sdl2=auto]
+	[
+		# In Raspbian SDL1 is faster than SDL2 on X
+		if $GREP ID=raspbian /etc/os-release >/dev/null 2>&1; then
+			ac_lib_sdl2=no
+		else
+			ac_lib_sdl2=auto
+		fi
+	]
 )
 if test $ac_lib_sdl2 = auto; then
 	AC_PATH_PROGS(
