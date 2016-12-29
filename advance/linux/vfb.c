@@ -1090,17 +1090,17 @@ static int fb_raspberry_setvar_and_wait(const adv_crtc* crtc, struct fb_var_scre
 #ifdef USE_VC
 	char* opt;
 	char cmd[256];
-	unsigned x0;
-	unsigned y0;
-	unsigned x1;
-	unsigned y1;
 	unsigned size_x;
 	unsigned size_y;
 	int count;
 	int ret;
 	struct fb_var_screeninfo alt;
+	adv_bool fail;
 	TV_DISPLAY_STATE_T state;
 	unsigned event_counter;
+	target_clock_t start;
+	unsigned wait_ms;
+	adv_bool wait_for_event;
 
 	size_x = 0;
 	size_y = 0;
@@ -1112,13 +1112,17 @@ static int fb_raspberry_setvar_and_wait(const adv_crtc* crtc, struct fb_var_scre
 	if (crtc != 0 && var != 0) {
 		if (fb_raspberry_settiming(crtc, &size_x, &size_y) != 0)
 			return -1;
+		wait_for_event = 1;
 	} else {
 		var = &fb_state.oldinfo;
 		fb_raspberry_restoretiming(&size_x, &size_y);
+		wait_for_event = 0;
 	}
 
 	count = 1;
+	start = target_clock();
 loop:
+	fail = 0;
 	log_std(("video:fb: set retry %u\n", count));
 
 	/*
@@ -1139,8 +1143,20 @@ loop:
 	 * "Please can the ability to modify HDMI timings on the fly"
 	 * https://github.com/raspberrypi/firmware/issues/637
 	 */
-	log_std(("video:fb: wait for vc event\n"));
-	target_vc_wait_event(event_counter + 1, 500);
+	if (wait_for_event) {
+		log_std(("video:fb: wait for vc event\n"));
+		target_vc_wait_event(event_counter + 1, 500);
+	} else {
+		/*
+		 * When restoring the video mode we don't care about the event
+		 * but we want a shorter wait to trigger faster the mode change.
+		 *
+		 * Note that just waiting doesn't work. You relly have to retry
+		 * to set the video mode over and over.
+		 */
+		log_std(("video:fb: wait 100 ms\n"));
+		target_usleep(100 * 1000);
+	}
 
 	/* set an alternate mode with a different bits per pixel */
 	/* there are cases where this is really required */
@@ -1150,52 +1166,59 @@ loop:
 	} else {
 		alt.bits_per_pixel = 16;
 	}
-	fb_setvar(&alt); /* ignore error */
+	ret = fb_setvar(&alt);
+	if (ret != 0) {
+		fail = 1;
+		log_std(("ERROR:video:vc: alterante mode set FAILED, we are going to retry\n"));
+	}
 
 	/* set the effective mode */
 	ret = fb_setvar(var);
+	if (ret != 0) {
+		fail = 1;
+		log_std(("ERROR:video:vc: mode set FAILED, we are going to retry\n"));
+	}
 
-	/* get tvservice status, only for logging purpose */
+	/* get tvservice status */
 	log_std(("video:vc: vc_tv_get_display_state()\n"));
 	if (vc_tv_get_display_state(&state) == 0) {
 		vc_log(&state);
+
+		if (state.state & (VC_HDMI_HDMI | VC_HDMI_DVI)) {
+			if (state.display.hdmi.pixel_encoding == 0) {
+				log_std(("ERROR:video:vc: pixel_encoding is INVALID, we are going to retry\n"));
+				fail = 1;
+			}
+		}
 	} else {
-		log_std(("video:vc: vc_tv_get_display_state() failed\n"));
+		log_std(("ERROR:video:vc: vc_tv_get_display_state() FAILED, we are going to retry\n"));
+		fail = 1;
 	}
 
-	x0 = 0;
-	y0 = 0;
-	x1 = 0;
-	y1 = 0;
-
-	/* check new dispmanx dst info */
+	/* log dispmanx */
 	snprintf(cmd, sizeof(cmd), "vcgencmd dispmanx_list");
 	log_std(("video:fb: run \"%s\"\n", cmd));
 	opt = target_system(cmd);
 	if (opt) {
-		const char* dst;
 		log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
-		dst = strstr(opt, "dst:");
-		/* display:2 format:8BPP transform:0 layer:-127 src:0,0,1024,600 dst:0,0,320,224 cost:3305 lbm:6144 */
-		if (dst != 0 && sscanf(dst, "dst:%u,%u,%u,%u", &x0, &y0, &x1, &y1) == 4) {
-			log_std(("video:fb: %u,%u,%u,%u\n", x0, y0, x1, y1));
-		}
 		free(opt);
 	}
 
-	if (ret != 0 /* mode set failed */
-		/* data is missing */
-		|| x1 == 0 || y1 == 0
-		/* different than expected */
-		|| ((size_x |= 0 && size_y != 0) && (x1 != size_x || y1 != size_y))
-	) {
-		/* we have to retry to set the mode */
-		if (count < 50) {
+	if (fail) {
+		target_clock_t now = target_clock();
+
+		/*
+		 * Retry for 15 seconds.
+		 *
+		 * When try to restore the original video mode after a refused one
+		 * it could take up to 8/9 seconds.
+		 */
+		if (now < start + 15 * TARGET_CLOCKS_PER_SEC) {
 			++count;
 			goto loop;
 		}
 
-		log_std(("ERROR:video:fb: set FAILED after %u retries\n", count));
+		log_std(("ERROR:video:fb: set TIMEOUT after %u retries\n", count));
 		return -1;
 	}
 
