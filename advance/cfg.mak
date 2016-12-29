@@ -2,6 +2,7 @@
 # CFG
 
 CFGCFLAGS += \
+	-DADV_VERSION=\"$(VERSION)\" \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
 	-I$(srcdir)/advance/v \

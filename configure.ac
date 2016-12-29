@@ -888,6 +888,7 @@ AC_ARG_ENABLE(
 		fi
 	]
 )
+
 if test $ac_lib_sdl2 = auto; then
 	AC_PATH_PROGS(
 		[ac_lib_sdl2_config],

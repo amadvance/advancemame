@@ -733,6 +733,8 @@ int os_main(int argc, char* argv[])
 		}
 	}
 
+	log_std(("emu: %s %s %s %s\n", ADV_TITLE, ADV_VERSION, __DATE__, __TIME__));
+
 	if (file_config_file_host(ADV_NAME ".rc")!=0) {
 		if (conf_input_file_load_adv(context->cfg, 4, file_config_file_host(ADV_NAME ".rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
 			goto err_os;

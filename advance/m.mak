@@ -2,6 +2,7 @@
 # M
 
 MCFLAGS += \
+	-DADV_VERSION=\"$(VERSION)\" \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit
 MOBJDIRS += \

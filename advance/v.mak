@@ -2,6 +2,7 @@
 # V
 
 VCFLAGS += \
+	-DADV_VERSION=\"$(VERSION)\" \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
 	-DUSE_BLIT_TINY

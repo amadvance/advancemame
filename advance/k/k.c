@@ -168,7 +168,9 @@ int os_main(int argc, char* argv[])
 		const char* log = "advk.log";
 		remove(log);
 		log_init(log, opt_logsync);
-        }
+	}
+
+	log_std(("k: %s %s %s %s\n", "AdvanceKEY", ADV_VERSION, __DATE__, __TIME__));
 
 	section_map[0] = "";
 	conf_section_set(context, section_map, 1);

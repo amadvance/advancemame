@@ -2,6 +2,7 @@
 # J
 
 JCFLAGS += \
+	-DADV_VERSION=\"$(VERSION)\" \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit
 JOBJDIRS += \

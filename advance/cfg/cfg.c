@@ -1558,7 +1558,7 @@ int os_main(int argc, char* argv[])
 		log_init(log, opt_logsync);
         }
 
-	log_std(("cfg: %s %s\n", __DATE__, __TIME__));
+	log_std(("cfg: %s %s %s %s\n", "AdvanceCFG", ADV_VERSION, __DATE__, __TIME__));
 
 	section_map[0] = "";
 	conf_section_set(config, section_map, 1);

@@ -715,7 +715,7 @@ int os_main(int argc, char* argv[])
 		}
 	}
 
-	log_std(("menu: %s %s\n", __DATE__, __TIME__));
+	log_std(("menu: %s %s %s %s\n", "AdvanceMENU", ADV_VERSION, __DATE__, __TIME__));
 
 	if (file_config_file_host("advmenu.rc") != 0) {
 		if (conf_input_file_load_adv(config_context, 4, file_config_file_host("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
