@@ -49,6 +49,7 @@ const char* os_internal_sdl_title_get(void);
 #if defined(USE_VIDEO_SDL)
 int os_internal_sdl_is_video_active(void);
 int os_internal_sdl_is_video_mode_active(void);
+void* os_internal_sdl_window_get(void);
 #endif
 
 #ifdef __cplusplus

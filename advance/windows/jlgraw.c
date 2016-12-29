@@ -42,6 +42,10 @@
 #include "error.h"
 #include "snstring.h"
 
+#ifdef USE_SDL
+#include "SDL.h"
+#endif
+
 #define CALIBRATION_NONE 0
 #define CALIBRATION_AUTO 1
 
@@ -179,6 +183,10 @@ static int joystickb_compare(const void* void_a, const void* void_b)
 
 adv_error joystickb_lgrawinput_init(int joystickb_id)
 {
+#if defined(USE_SDL) && SDL_MAJOR_VERSION != 1
+	error_set("Incompatible with SDL2.\n");
+	return -1;
+#else
 	unsigned i;
 	HMODULE h;
 	UINT n;
@@ -290,6 +298,7 @@ adv_error joystickb_lgrawinput_init(int joystickb_id)
 	qsort(raw_state.map, raw_state.mac, sizeof(raw_state.map[0]), joystickb_compare);
 
 	return 0;
+#endif
 }
 
 void joystickb_lgrawinput_done(void)

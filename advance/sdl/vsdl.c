@@ -1425,3 +1425,12 @@ int os_internal_sdl_is_video_mode_active(void)
 	return sdl_is_active() && sdl_mode_is_active();
 }
 
+void* os_internal_sdl_window_get(void)
+{
+#if SDL_MAJOR_VERSION == 1
+	return 0;
+#else
+	return sdl_state.window;
+#endif
+}
+

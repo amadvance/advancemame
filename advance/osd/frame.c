@@ -1316,6 +1316,9 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 	memset(context->state.pipeline_timing_map, 0, sizeof(context->state.pipeline_timing_map));
 	context->state.pipeline_timing_i = 0;
 
+	memset(context->state.update_timing_map, 0, sizeof(context->state.update_timing_map));
+	context->state.update_timing_i = 0;
+
 	context->state.debugger_flag = 0;
 	context->state.sync_throttle_flag = 1;
 
@@ -2030,14 +2033,7 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 		buffer_flag = 1;
 	}
 
-	start = 0;
-	stop = 0;
-
-	/* no buffering is used */
-	if (!buffer_flag) {
-		/* start measure */
-		start = target_clock();
-	}
+	start = target_clock();
 
 	if (buffer_flag) {
 		/* buffered write on screen */
@@ -2131,9 +2127,7 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 	/* no buffering is used */
 	if (!buffer_flag) {
 		/* end measure */
-		stop = target_clock();
-
-		stop -= start;
+		stop = target_clock() - start;
 
 		/* if we are in estimation phase */
 		if (context->state.pipeline_measure_flag) {
@@ -2184,6 +2178,8 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 static void video_frame_screen(struct advance_video_context* context, struct advance_ui_context* ui_context, const struct osd_bitmap *bitmap)
 {
 	adv_bool vsync = context->state.vsync_flag;
+	target_clock_t start;
+	target_clock_t stop;
 
 	/* if we already have synced on the wait */
 	if (vsync && (video_flags() & MODE_FLAGS_RETRACE_WAIT_SYNC) != 0)
@@ -2195,7 +2191,17 @@ static void video_frame_screen(struct advance_video_context* context, struct adv
 
 	video_frame_put(context, ui_context, bitmap, update_x_get(), update_y_get());
 
+	start = target_clock();
+
 	update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), vsync);
+
+	stop = target_clock() - start;
+
+	context->state.update_timing_map[context->state.update_timing_i] = stop;
+
+	++context->state.update_timing_i;
+	if (context->state.update_timing_i == PIPELINE_MEASURE_MAX)
+		context->state.update_timing_i = 0;
 }
 
 static void video_frame_palette(struct advance_video_context* context)

@@ -42,6 +42,10 @@
 #include "error.h"
 #include "snstring.h"
 
+#ifdef USE_SDL
+#include "SDL.h"
+#endif
+
 #define RAW_MOUSE_MAX 8
 #define RAW_MOUSE_NAME_MAX 128
 #define RAW_MOUSE_BUTTON_MAX 8
@@ -170,6 +174,10 @@ static int mouseb_compare(const void* void_a, const void* void_b)
 
 adv_error mouseb_rawinput_init(int mouseb_id)
 {
+#if defined(USE_SDL) && SDL_MAJOR_VERSION != 1
+	error_set("Incompatible with SDL2.\n");
+	return -1;
+#else
 	unsigned i;
 	HMODULE h;
 	UINT n;
@@ -284,6 +292,7 @@ adv_error mouseb_rawinput_init(int mouseb_id)
 	qsort(raw_state.map, raw_state.mac, sizeof(raw_state.map[0]), mouseb_compare);
 
 	return 0;
+#endif
 }
 
 void mouseb_rawinput_done(void)

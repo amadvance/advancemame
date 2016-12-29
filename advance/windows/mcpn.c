@@ -41,6 +41,10 @@
 #include "error.h"
 #include "snstring.h"
 
+#ifdef USE_SDL
+#include "SDL.h"
+#endif
+
 /* include the CPN support */
 #include "lapi.c"
 
@@ -346,6 +350,10 @@ static void mouseb_thread_end(void)
  
 adv_error mouseb_cpn_init(int mouseb_id)
 {
+#if defined(USE_SDL) && SDL_MAJOR_VERSION != 1
+	error_set("Incompatible with SDL2.\n");
+	return -1;
+#else
 	log_std(("mouseb:cpn: mouseb_cpn_init(id:%d)\n", mouseb_id));
 
 	raw_state.mac = 0;
@@ -365,6 +373,7 @@ adv_error mouseb_cpn_init(int mouseb_id)
 	}
 
 	return 0;
+#endif
 }
 
 void mouseb_cpn_done(void)

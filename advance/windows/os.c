@@ -468,6 +468,7 @@ int os_inner_init(const char* title)
 	log_std(("os: compiled big endian system\n"));
 #endif
 
+#if SDL_MAJOR_VERSION == 1
 	/* Note that from SDL 1.2.10 the "windib" driver is the default, previouly the default was "directx" */
 	video_driver = getenv("SDL_VIDEODRIVER");
 	if (video_driver) {
@@ -482,6 +483,7 @@ int os_inner_init(const char* title)
 		log_std(("os: SDL_VIDEODRIVER = %s\n", video_driver));
 #endif
 	}
+#endif
 
 	log_std(("os: SDL_Init(SDL_INIT_NOPARACHUTE)\n"));
 	if (SDL_Init(SDL_INIT_NOPARACHUTE) != 0) {
@@ -621,6 +623,7 @@ const char* os_internal_sdl_title_get(void)
 
 void* os_internal_window_get(void)
 {
+#if SDL_MAJOR_VERSION == 1
 	SDL_SysWMinfo info;
 
 	SDL_VERSION(&info.version);
@@ -629,6 +632,20 @@ void* os_internal_window_get(void)
 		return 0;
 
 	return info.window;
+#else
+	SDL_SysWMinfo info;
+
+	SDL_VERSION(&info.version);
+
+	if (!SDL_GetWindowWMInfo(os_internal_sdl_window_get(), &info)) {
+		log_std(("ERROR:os: Failed SDL_GetWindowWMInfo(%p), %s\n", os_internal_sdl_window_get(), SDL_GetError()));
+		return 0;
+	}
+
+	log_std(("os: SDL_GetWindowWMInfo() -> %p\n", info.info.win.window));
+
+	return info.info.win.window;
+#endif
 }
 
 /***************************************************************************/

@@ -21,6 +21,8 @@
 #endif
 #endif
 
+#if SDL_MAJOR_VERSION == 1
+
 /* Do we really not want stdio redirection with Windows CE? */
 #ifdef _WIN32_WCE
 #define NO_STDIO_REDIRECT
@@ -317,4 +319,4 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 	/* Run the main program (after a little SDL initialization) */
 	return(console_main(argc, argv));
 }
-
+#endif

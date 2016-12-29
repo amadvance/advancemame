@@ -151,7 +151,11 @@ static int video_pipeline_menu(struct advance_video_context* context, struct adv
 	if (context->state.pipeline_measure_flag) {
 		advance_ui_menu_text_insert(&menu, "Time measure not completed");
 	} else {
-		double timing = adv_measure_median(0.00001, 0.5, context->state.pipeline_timing_map, PIPELINE_MEASURE_MAX);
+		double timing = adv_measure_median(0.00001, 0.5, context->state.update_timing_map, PIPELINE_MEASURE_MAX);
+		snprintf(buffer, sizeof(buffer), "Last render %.2f (ms)", timing * 1000);
+		advance_ui_menu_text_insert(&menu, buffer);
+
+		timing = adv_measure_median(0.00001, 0.5, context->state.pipeline_timing_map, PIPELINE_MEASURE_MAX);
 		snprintf(buffer, sizeof(buffer), "Last write %.2f (ms)", timing * 1000);
 		advance_ui_menu_text_insert(&menu, buffer);
 
