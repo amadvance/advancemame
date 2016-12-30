@@ -151,15 +151,15 @@ unsigned inputb_sdl_get(void)
 	switch (r) {
 	case SDLK_LAST : return INPUTB_NONE;
 
-	case SDLK_PERCENT : return '%';	
+	case SDLK_PERCENT : return '%';
 	case SDLK_LEFTBRACE : return '{';
-	case SDLK_VERTICALBAR : return '|';	
+	case SDLK_VERTICALBAR : return '|';
 	case SDLK_RIGHTBRACE : return '}';
 	case SDLK_TILDE : return '~';
 
 	case SDLK_BACKSPACE : return INPUTB_BACKSPACE;
 	case SDLK_TAB : return INPUTB_TAB;
-	case SDLK_RETURN : return INPUTB_ENTER;	
+	case SDLK_RETURN : return INPUTB_ENTER;
 	case SDLK_ESCAPE : return INPUTB_ESC;
 	case SDLK_SPACE : return INPUTB_SPACE;
 	case SDLK_EXCLAIM : return '!';
@@ -224,7 +224,7 @@ unsigned inputb_sdl_get(void)
 	case SDLK_w : return SHIFT('w', 'W');
 	case SDLK_x : return SHIFT('x', 'X');
 	case SDLK_y : return SHIFT('y', 'Y');
-	case SDLK_z : return SHIFT('z', 'Z');	
+	case SDLK_z : return SHIFT('z', 'Z');
 	case SDLK_DELETE : return INPUTB_DEL;
 	case SDLK_KP0 : return '0';
 	case SDLK_KP1 : return '1';
@@ -236,7 +236,7 @@ unsigned inputb_sdl_get(void)
 	case SDLK_KP7 : return '7';
 	case SDLK_KP8 : return '8';
 	case SDLK_KP9 : return '9';
-	case SDLK_KP_PERIOD : return '.';	
+	case SDLK_KP_PERIOD : return '.';
 	case SDLK_KP_DIVIDE : return '/';
 	case SDLK_KP_MULTIPLY : return '*';
 	case SDLK_KP_MINUS : return '-';
@@ -261,7 +261,7 @@ unsigned inputb_sdl_get(void)
 	case SDLK_F7 : return INPUTB_F7;
 	case SDLK_F8 : return INPUTB_F8;
 	case SDLK_F9 : return INPUTB_F9;
-	case SDLK_F10 : return INPUTB_F10;	
+	case SDLK_F10 : return INPUTB_F10;
 	}
 
 	return INPUTB_NONE;
