@@ -916,8 +916,6 @@ endif
 
 EMU_ROOT_BIN = \
 	$(OBJ)/$(EMUNAME)$(EXE) \
-	$(VOBJ)/advv$(EXE) \
-	$(CFGOBJ)/advcfg$(EXE) \
 	$(MENUOBJ)/advmenu$(EXE)
 EMU_ROOT_BIN += \
 	$(srcdir)/support/event.dat \
@@ -927,6 +925,8 @@ EMU_ROOT_BIN += \
 	$(srcdir)/support/category.ini
 ifeq ($(CONF_SYSTEM),unix)
 EMU_ROOT_BIN += \
+	$(VOBJ)/advv$(EXE) \
+	$(CFGOBJ)/advcfg$(EXE) \
 	$(KOBJ)/advk$(EXE) \
 	$(SOBJ)/advs$(EXE) \
 	$(JOBJ)/advj$(EXE) \
@@ -946,6 +946,8 @@ endif
 ifeq ($(CONF_SYSTEM),dos)
 EMU_ROOT_BIN += \
 	$(srcdir)/support/cwsdpmi.exe \
+	$(VOBJ)/advv$(EXE) \
+	$(CFGOBJ)/advcfg$(EXE) \
 	$(KOBJ)/advk$(EXE) \
 	$(SOBJ)/advs$(EXE) \
 	$(JOBJ)/advj$(EXE) \
@@ -956,13 +958,17 @@ EMU_ROOT_BIN += \
 	$(srcdir)/support/advmenuc.bat
 endif
 ifeq ($(CONF_SYSTEM),windows)
+ifeq ($(CONF_LIB_DIRECT),yes)
 EMU_ROOT_BIN += \
+	$(VOBJ)/advv$(EXE) \
+	$(CFGOBJ)/advcfg$(EXE) \
 	$(srcdir)/advance/svgalib/svgawin/driver/svgawin.sys \
 	$(srcdir)/advance/svgalib/svgawin/install/svgawin.exe \
 	$(srcdir)/support/advmessv.bat \
 	$(srcdir)/support/advmessc.bat \
 	$(srcdir)/support/advmenuv.bat \
 	$(srcdir)/support/advmenuc.bat
+endif
 endif
 
 EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(VERSION)
@@ -1073,6 +1079,12 @@ else
 endif
 	cp $(EMU_ROOT_BIN) $(EMU_DIST_DIR_BIN)
 	cp $(subst mame,mess,$(EMU_ROOT_BIN)) $(EMU_DIST_DIR_BIN)
+	mkdir $(EMU_DIST_DIR_BIN)/snap
+	cp $(MAME_INSTALL_SNAPFILES) $(EMU_DIST_DIR_BIN)/snap
+	mkdir $(EMU_DIST_DIR_BIN)/rom
+	cp $(MAME_INSTALL_ROMFILES) $(EMU_DIST_DIR_BIN)/rom
+	mkdir $(EMU_DIST_DIR_BIN)/sample
+	cp $(MAME_INSTALL_SAMPLEFILES) $(EMU_DIST_DIR_BIN)/sample
 	mkdir $(EMU_DIST_DIR_BIN)/doc
 	cp $(EMU_DOC_BIN) $(EMU_DIST_DIR_BIN)/doc
 	mkdir $(EMU_DIST_DIR_BIN)/contrib
