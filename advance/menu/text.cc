@@ -2118,7 +2118,7 @@ bool cell_manager::idle()
 		}
 	}
 
-	// update the screen
+	// render the screen
 	video_display_set(0, 0);
 
 	// recheck if some clip is already old
@@ -2729,6 +2729,9 @@ void int_update_post(unsigned y)
 	if (int_cell) {
 		int_cell->backdrop_box();
 	}
+
+	// render the screen
+	video_display_set(0, 0);
 
 	play_poll();
 
