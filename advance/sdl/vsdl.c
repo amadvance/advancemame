@@ -572,7 +572,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 			log_std(("video:sdl: pixel format: %s, %u\n", SDL_GetPixelFormatName(ri.texture_formats[texture]), SDL_BYTESPERPIXEL(ri.texture_formats[texture])));
 	}
 
-	log_std(("video:sdl: You can select the render with SDL_RENDERDRIVER=\n"));
+	log_std(("video:sdl: You can select the render with SDL_RENDER_DRIVER=\n"));
 
 	if (SDL_GetDesktopDisplayMode(0, &info_dm) != 0) {
 		log_std(("ERROR: video:sdl: Failed SDL_GetDesktopDisplayMode(0, ...)\n"));
@@ -703,7 +703,6 @@ static adv_error sdl_overlay_set(void)
 	SDL_RendererInfo ri;
 	unsigned texture;
 	const char* renderer;
-	int renderer_index;
 	unsigned format;
 	unsigned width;
 	Uint32 query_format;
@@ -719,35 +718,7 @@ static adv_error sdl_overlay_set(void)
 		sdl_state.renderer = 0;
 	}
 
-	renderer_index = -1;
-	renderer = getenv("SDL_RENDERDRIVER");
-	if (renderer) {
-		unsigned driver, driver_mac;
-
-		driver_mac = SDL_GetNumRenderDrivers();
-		for(driver=0;driver<driver_mac;++driver) {
-			SDL_RendererInfo ri;
-			unsigned texture;
-
-			if (SDL_GetRenderDriverInfo(driver, &ri) != 0) {
-				log_std(("video:sdl: Failed SDL_GetRenderDriverInfo(%d, ...)\n", driver));
-				continue;
-			}
-
-			if (strcasecmp(renderer, ri.name) == 0) {
-				renderer_index = driver;
-				log_std(("video:sdl: Force use of render: %s\n", ri.name));
-				break;
-			}
-		}
-
-		if (renderer_index < 0) {
-			log_std(("ERROR:video:sdl: Failed to find the requested render: %s\n", ri.name));
-			return -1;
-		}
-	}
-
-	sdl_state.renderer = SDL_CreateRenderer(sdl_state.window, renderer_index, SDL_RENDERER_ACCELERATED);
+	sdl_state.renderer = SDL_CreateRenderer(sdl_state.window, -1, SDL_RENDERER_ACCELERATED);
 	if (sdl_state.renderer == 0) {
 		log_std(("ERROR:video:sdl: Failed SDL_CreateRenderer(), %s\n", SDL_GetError()));
 		return -1;
