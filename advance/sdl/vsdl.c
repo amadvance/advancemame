@@ -606,13 +606,17 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		log_std(("video:sdl: use overlay output\n"));
 
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
-		sdl_state.flags |= VIDEO_DRIVER_FLAGS_INTERNAL_STATIC;
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_BGR32 | VIDEO_DRIVER_FLAGS_DEFAULT_BGR32;
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;
 	} else {
 		error_set("Invalid output mode.\n");
 		goto err_quit;
 	}
+
+#ifdef USE_VIDEO_RESTORE /* only for AdvanceMENU */
+	/* avoid minimization of the menu when it starts a game */
+	SDL_SetHintWithPriority(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0", SDL_HINT_DEFAULT);
+#endif
 #endif
 
 	log_std(("video:sdl: current %ux%u\n", target_size_x(), target_size_y()));
@@ -1000,12 +1004,15 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 
 	sdl_state.overlay_ptr = ALIGN_PTR(sdl_state.overlay_alloc, 32);
 
-	sdl_state.window = SDL_CreateWindow(
-		os_internal_sdl_title_get(),
-		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-		sdl_state.overlay_size_x, sdl_state.overlay_size_y,
-		sdl_state.output == adv_output_overlay ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0
-	);
+	/* on fast video mode change, we don't destroy the window */
+	if (sdl_state.window == 0) {
+		sdl_state.window = SDL_CreateWindow(
+			os_internal_sdl_title_get(),
+			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+			sdl_state.overlay_size_x, sdl_state.overlay_size_y,
+			sdl_state.output == adv_output_overlay ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0
+		);
+	}
 	if (sdl_state.window == 0) {
 		log_std(("ERROR:video:sdl: Failed SDL_CreateWindow(), %s\n", SDL_GetError()));
 		error_set("Unable to set the SDL video mode.");
@@ -1082,9 +1089,13 @@ void sdl_mode_done(adv_bool restore)
 		SDL_DestroyRenderer(sdl_state.renderer);
 		sdl_state.renderer = 0;
 	}
-	if (sdl_state.window) {
-		SDL_DestroyWindow(sdl_state.window);
-		sdl_state.window = 0;
+
+	/* destroy the window only if "restore" is selected */
+	if (restore) {
+		if (sdl_state.window) {
+			SDL_DestroyWindow(sdl_state.window);
+			sdl_state.window = 0;
+		}
 	}
 #endif
 
