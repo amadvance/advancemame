@@ -1138,12 +1138,14 @@ loop:
 	 * the video mode with "fbset -depth 8; fbset -depth 16".
 	 *
 	 * A 100ms delay is enough, but we wait more for safety.
+	 * As soon the notification event is received, the wait
+	 * can be interrupted.
 	 *
 	 * See:
 	 * "Please can the ability to modify HDMI timings on the fly"
 	 * https://github.com/raspberrypi/firmware/issues/637
 	 */
-	if (wait_for_event) {
+	if (count == 1 || wait_for_event) {
 		log_std(("video:fb: wait for vc event\n"));
 		target_vc_wait_event(event_counter + 1, 500);
 	} else {
