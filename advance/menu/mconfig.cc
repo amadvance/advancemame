@@ -1118,11 +1118,17 @@ void config_state::conf_default(adv_conf* config_context)
 #if defined(__MSDOS__) || defined(__WIN32__)
 		if (target_search(path, FILE_MAXPATH, "advmame.exe") == 0) {
 			target_out("Adding emulator `advmame'...\n");
-			conf_set(config_context, "", "emulator", "\"advmame\" advmame \"advmame.exe\" \"\"");
+			conf_set(config_context, "", "emulator", "\"advmame\" advmame \"advmame.exe\" \"-quiet\"");
+			string path;
+			path = "category.ini";
+			if (access(cpath_export(path), F_OK) == 0) {
+				string opt = "catver \"advmame\" \"" + path_export(path) + "\" \"Category\"";
+				conf_set(config_context, "", "type_import", opt.c_str());
+			}
 		}
 		if (target_search(path, FILE_MAXPATH, "advmess.exe") == 0) {
 			target_out("Adding emulator `advmess'...\n");
-			conf_set(config_context, "", "emulator", "\"advmess\" advmess \"advmess.exe\" \"\"");
+			conf_set(config_context, "", "emulator", "\"advmess\" advmess \"advmess.exe\" \"-quiet\"");
 		}
 		if (target_search(path, FILE_MAXPATH, "dmame.exe") == 0) {
 			target_out("Adding emulator `dmame'...\n");
