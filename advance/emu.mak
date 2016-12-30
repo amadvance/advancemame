@@ -1079,12 +1079,10 @@ else
 endif
 	cp $(EMU_ROOT_BIN) $(EMU_DIST_DIR_BIN)
 	cp $(subst mame,mess,$(EMU_ROOT_BIN)) $(EMU_DIST_DIR_BIN)
-	mkdir $(EMU_DIST_DIR_BIN)/snap
-	cp $(MAME_INSTALL_SNAPFILES) $(EMU_DIST_DIR_BIN)/snap
-	mkdir $(EMU_DIST_DIR_BIN)/rom
-	cp $(MAME_INSTALL_ROMFILES) $(EMU_DIST_DIR_BIN)/rom
-	mkdir $(EMU_DIST_DIR_BIN)/sample
-	cp $(MAME_INSTALL_SAMPLEFILES) $(EMU_DIST_DIR_BIN)/sample
+	cp -R $(srcdir)/support/free/rom $(EMU_DIST_DIR_BIN)
+	cp -R $(srcdir)/support/free/image $(EMU_DIST_DIR_BIN)
+	cp -R $(srcdir)/support/free/sample $(EMU_DIST_DIR_BIN)
+	cp -R $(srcdir)/support/free/snap $(EMU_DIST_DIR_BIN)
 	mkdir $(EMU_DIST_DIR_BIN)/doc
 	cp $(EMU_DOC_BIN) $(EMU_DIST_DIR_BIN)/doc
 	mkdir $(EMU_DIST_DIR_BIN)/contrib
