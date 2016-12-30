@@ -106,7 +106,7 @@ static MACHINE_RESET( mk2 )
 	rriot_reset(0);
 }
 
-static MACHINE_DRIVER_START( mk2 )
+static MACHINE_DRIVER_START( ccmk2 )
 	/* basic machine hardware */
 	MDRV_CPU_ADD(M6502, 1000000)        /* 6504 */
 	MDRV_CPU_PROGRAM_MAP(mk2_mem, 0)
@@ -135,7 +135,7 @@ static MACHINE_DRIVER_START( mk2 )
 MACHINE_DRIVER_END
 
 
-ROM_START(mk2)
+ROM_START(ccmk2)
 	ROM_REGION(0x10000,REGION_CPU1,0)
 #ifdef M6504_MEMORY_LAYOUT
 	ROM_LOAD("024_1879", 0x0c00, 0x0400, CRC(4f28c443) SHA1(e33f8b7f38e54d7a6e0f0763f2328cc12cb0eade))
@@ -241,5 +241,5 @@ static void init_mk2(void)
 }
 
 /*    YEAR  NAME    PARENT	COMPAT	MACHINE INPUT   INIT    CONFIG    COMPANY   FULLNAME */
-CONS( 1979,	mk2,	0,		0,		mk2,	mk2,	mk2,	NULL,	  "Quelle International",  "Chess Champion MK II", 0)
+CONS( 1979,	ccmk2,	0,		0,		ccmk2,	mk2,	mk2,	NULL,	  "Quelle International",  "Chess Champion MK II", 0)
 // second design sold (same computer/program?)

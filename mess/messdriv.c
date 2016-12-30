@@ -821,7 +821,7 @@ TESTDRIVER( svi328c ) 	/* SVI-328 + 80 column card (Swedish)						*/
 	/* Computer Electronic */
 TESTDRIVER( mk1 )		/* Chess Champion MK I								*/
 	/* Quelle International */
-	DRIVER( mk2 )		/* Chess Champion MK II								*/
+	DRIVER( ccmk2 )		/* Chess Champion MK II								*/
 	/* NOVAG Industries Ltd. */
 TESTDRIVER( ssystem3 )	/* Chess Champion Super System III / MK III			*/
 
