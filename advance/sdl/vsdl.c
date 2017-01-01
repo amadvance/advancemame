@@ -391,7 +391,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 	}
 
 	if (sdl_state.output == adv_output_window && !has_window_manager) {
-		error_set("Window output not available.\n");
+		error_set("The 'window' output mode is not available without a Window Manager.\n");
 		goto err_quit;
 	}
 
@@ -453,7 +453,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;
 
 		if (map == 0 || map == (SDL_Rect **)-1) {
-			error_set("No fullscreen mode available.\n");
+			error_set("No fullscreen video mode available.\n");
 			goto err_quit;
 		}
 
@@ -494,7 +494,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		}
 
 		if (!mode_flag) {
-			error_set("No fullscreen mode available.\n");
+			error_set("No fullscreen video mode available.\n");
 			goto err_quit;
 		}
 
@@ -608,6 +608,8 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_BGR32 | VIDEO_DRIVER_FLAGS_DEFAULT_BGR32;
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;
+	} else if (sdl_state.output == adv_output_fullscreen) {
+		error_set("The 'fullscreen' output mode is not available with SDL2. Use the better 'overlay' mode.\n");
 	} else {
 		error_set("Invalid output mode.\n");
 		goto err_quit;
