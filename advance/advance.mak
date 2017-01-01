@@ -33,7 +33,7 @@ MAME_INSTALL_SNAPFILES = $(srcdir)/support/free/snap/gridlee.zip \
 	$(srcdir)/support/free/snap/polyplay.zip \
 	$(srcdir)/support/free/snap/robby.zip
 MESS_INSTALL_BINFILES = $(MESSOBJ)/advmess$(EXE)
-MESS_INSTALL_MANFILES = $(DOCOBJ)/advmame.1 $(DOCOBJ)/advdev.1 $(srcdir)/support/advmess.1
+MESS_INSTALL_MANFILES = $(srcdir)/support/advmess.1
 MESS_INSTALL_DATAFILES = $(srcdir)/support/sysinfo.dat
 # Freely Avaiable Systems: http://www.mess.org/freely_available_systems#texas_instruments_ti-994a_and_ti-998
 MESS_INSTALL_ROMFILES = $(srcdir)/support/free/rom/ti99_4a.zip
@@ -568,7 +568,7 @@ deb:
 	rm -rf $(DEB_DIST_DIR_BIN)
 	mkdir $(DEB_DIST_DIR_BIN)
 	mkdir $(DEB_DIST_DIR_BIN)/DEBIAN
-	sed -e s/VERSION/$(VERSION)/ -e s/MACHINE/$(DEB_MACHINE)/ -e s/REVISION/$(DEB_REVISION)/ $(srcdir)/support/debian > $(DEB_DIST_DIR_BIN)/DEBIAN/control
+	sed -e s/VERSION/$(VERSION)/ -e s/MACHINE/$(DEB_MACHINE)/ -e s/REVISION/$(DEB_REVISION)/ $(srcdir)/support/debian.$(DEB_MACHINE) > $(DEB_DIST_DIR_BIN)/DEBIAN/control
 	mkdir $(DEB_DIST_DIR_BIN)/usr
 	mkdir $(DEB_DIST_DIR_BIN)/usr/local
 	mkdir $(DEB_DIST_DIR_BIN)/usr/local/bin
