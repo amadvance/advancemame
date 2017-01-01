@@ -1,8 +1,8 @@
 Name{number}
 	build - AdvanceMAME Build Notes
 
-	This file contains the instructions to build AdvanceMAME,
-	AdvanceMESS and AdvanceMENU from the source archives.
+	This file contains the instructions to build the Advance
+	programs from the source archives.
 
 Build
 	To build the Advance programs you need to have installed the development tools.
@@ -30,11 +30,7 @@ Build
 		:$ cd advancemame
 		:$ sh autogen.sh
 
-	Using git you get the source code of AdvanceMAME, AdvanceMESS and AdvanceMENU
-	in a single operation.
-
-	Now you can build and install AdvanceMAME and AdvanceMENU, using the typical
-	sequence of commands:
+	Now you can build and install them using the typical sequence of commands:
 
 		$ ./configure
 		$ make -j4
@@ -42,11 +38,6 @@ Build
 
 	The -j4 option tells make to use four different parallel processes to build.
 	Beside that, the build process may be long, up to 30 minutes on a Raspberry Pi 3.
-
-	To build and install AdvanceMESS, you need to additionally run:
-
-		$ make CONF_EMU=mess -j4
-		$ sudo make CONF_EMU=mess install
 
 	No option is generally required. You can get the complete configure option list with
 	the `./configure --help' command.
@@ -74,7 +65,7 @@ Build
 
 	After the installation, you can check if AdvanceMAME starts with:
 
-		:$ advmame polyplay
+		:$ advmame robby
 
 	and AdvanceMESS with:
 
