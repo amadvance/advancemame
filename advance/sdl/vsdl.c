@@ -826,10 +826,7 @@ void sdl_write_unlock(unsigned x, unsigned y, unsigned size_x, unsigned size_y, 
 	} else if (sdl_state.surface) {
 		if (SDL_MUSTLOCK(sdl_state.surface))
 			SDL_UnlockSurface(sdl_state.surface);
-		if ((sdl_state.surface->flags & SDL_DOUBLEBUF) != 0)
-			SDL_Flip(sdl_state.surface);
-		else
-			SDL_UpdateRect(sdl_state.surface, x, y, size_x, size_y);
+		SDL_UpdateRect(sdl_state.surface, x, y, size_x, size_y);
 	}
 #endif
 
@@ -916,7 +913,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 
 		sdl_state.surface = SDL_SetVideoMode(mode->size_x, mode->size_y, index_bits_per_pixel(mode->index), sdl_mode_flags());
 		if (!sdl_state.surface) {
-			log_std(("video:sdl: SDL_SetVideoMode(%d, %d, %d, SDL_HWSURFACE | SDL_DOUBLEBUF) failed, %s\n", mode->size_x, mode->size_y, index_bits_per_pixel(mode->index), SDL_GetError()));
+			log_std(("video:sdl: SDL_SetVideoMode(%d, %d, %d, SDL_FULLSCREEN | SDL_HWSURFACE) failed, %s\n", mode->size_x, mode->size_y, index_bits_per_pixel(mode->index), SDL_GetError()));
 			error_set("Unable to set the SDL video mode.");
 			return -1;
 		}
@@ -1277,10 +1274,11 @@ adv_error sdl_mode_import(adv_mode* mode, const sdl_video_mode* sdl_mode)
 
 	mode->driver = &video_sdl_driver;
 	mode->flags = (mode->flags & MODE_FLAGS_USER_MASK) | sdl_mode->index;
-#if SDL_MAJOR_VERSION == 1
-	if (sdl_mode_flags() & SDL_DOUBLEBUF)
-		mode->flags |= MODE_FLAGS_RETRACE_WRITE_SYNC;
-#else
+#if SDL_MAJOR_VERSION != 1
+	/*
+	 * Always assume that vsync is supported.
+	 * If it's not the measure will be wrong and the vsync rejected at higher level.
+	 */
 	mode->flags |= MODE_FLAGS_RETRACE_SCROLL_SYNC;
 #endif
 	mode->size_x = sdl_mode->size_x;
