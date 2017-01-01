@@ -16,62 +16,62 @@
 # files)
 #-------------------------------------------------
 
-COREOBJS = \
-	$(OBJ)/artwork.o \
-	$(OBJ)/audit.o \
-	$(OBJ)/cdrom.o \
-	$(OBJ)/chd.o \
-	$(OBJ)/cheat.o \
-	$(OBJ)/config.o \
-	$(OBJ)/cpuexec.o \
-	$(OBJ)/cpuint.o \
-	$(OBJ)/cpuintrf.o \
-	$(OBJ)/drawgfx.o \
-	$(OBJ)/driver.o \
-	$(OBJ)/fileio.o \
-	$(OBJ)/harddisk.o \
-	$(OBJ)/hash.o \
-	$(OBJ)/hiscore.o \
-	$(OBJ)/info.o \
-	$(OBJ)/input.o \
-	$(OBJ)/inptport.o \
-	$(OBJ)/jedparse.o \
-	$(OBJ)/mame.o \
-	$(OBJ)/mamecore.o \
-	$(OBJ)/md5.o \
-	$(OBJ)/memory.o \
-	$(OBJ)/palette.o \
-	$(OBJ)/png.o \
-	$(OBJ)/romload.o \
-	$(OBJ)/sha1.o \
-	$(OBJ)/sound.o \
-	$(OBJ)/sndintrf.o \
-	$(OBJ)/state.o \
-	$(OBJ)/streams.o \
-	$(OBJ)/tilemap.o \
-	$(OBJ)/timer.o \
-	$(OBJ)/ui_text.o \
-	$(OBJ)/unzip.o \
-	$(OBJ)/usrintrf.o \
-	$(OBJ)/validity.o \
-	$(OBJ)/version.o \
-	$(OBJ)/video.o \
-	$(OBJ)/xmlfile.o \
-	$(OBJ)/sound/filter.o \
-	$(OBJ)/sound/flt_vol.o \
-	$(OBJ)/sound/flt_rc.o \
-	$(OBJ)/sound/wavwrite.o \
-	$(OBJ)/machine/eeprom.o \
-	$(OBJ)/machine/generic.o \
-	$(OBJ)/sndhrdw/generic.o \
-	$(OBJ)/vidhrdw/generic.o \
-	$(OBJ)/vidhrdw/vector.o \
+MESSCOREOBJS = \
+	$(MESSOBJ)/artwork.o \
+	$(MESSOBJ)/audit.o \
+	$(MESSOBJ)/cdrom.o \
+	$(MESSOBJ)/chd.o \
+	$(MESSOBJ)/cheat.o \
+	$(MESSOBJ)/config.o \
+	$(MESSOBJ)/cpuexec.o \
+	$(MESSOBJ)/cpuint.o \
+	$(MESSOBJ)/cpuintrf.o \
+	$(MESSOBJ)/drawgfx.o \
+	$(MESSOBJ)/driver.o \
+	$(MESSOBJ)/fileio.o \
+	$(MESSOBJ)/harddisk.o \
+	$(MESSOBJ)/hash.o \
+	$(MESSOBJ)/hiscore.o \
+	$(MESSOBJ)/info.o \
+	$(MESSOBJ)/input.o \
+	$(MESSOBJ)/inptport.o \
+	$(MESSOBJ)/jedparse.o \
+	$(MESSOBJ)/mame.o \
+	$(MESSOBJ)/mamecore.o \
+	$(MESSOBJ)/md5.o \
+	$(MESSOBJ)/memory.o \
+	$(MESSOBJ)/palette.o \
+	$(MESSOBJ)/png.o \
+	$(MESSOBJ)/romload.o \
+	$(MESSOBJ)/sha1.o \
+	$(MESSOBJ)/sound.o \
+	$(MESSOBJ)/sndintrf.o \
+	$(MESSOBJ)/state.o \
+	$(MESSOBJ)/streams.o \
+	$(MESSOBJ)/tilemap.o \
+	$(MESSOBJ)/timer.o \
+	$(MESSOBJ)/ui_text.o \
+	$(MESSOBJ)/unzip.o \
+	$(MESSOBJ)/usrintrf.o \
+	$(MESSOBJ)/validity.o \
+	$(MESSOBJ)/version.o \
+	$(MESSOBJ)/video.o \
+	$(MESSOBJ)/xmlfile.o \
+	$(MESSOBJ)/sound/filter.o \
+	$(MESSOBJ)/sound/flt_vol.o \
+	$(MESSOBJ)/sound/flt_rc.o \
+	$(MESSOBJ)/sound/wavwrite.o \
+	$(MESSOBJ)/machine/eeprom.o \
+	$(MESSOBJ)/machine/generic.o \
+	$(MESSOBJ)/sndhrdw/generic.o \
+	$(MESSOBJ)/vidhrdw/generic.o \
+	$(MESSOBJ)/vidhrdw/vector.o \
 
 ifdef X86_MIPS3_DRC
-COREOBJS += $(OBJ)/x86drc.o
+MESSCOREOBJS += $(MESSOBJ)/x86drc.o
 else
 ifdef X86_PPC_DRC
-COREOBJS += $(OBJ)/x86drc.o
+MESSCOREOBJS += $(MESSOBJ)/x86drc.o
 endif
 endif
 
@@ -81,23 +81,23 @@ endif
 #-------------------------------------------------
 
 ifdef DEBUG
-COREOBJS += \
-	$(OBJ)/profiler.o
+MESSCOREOBJS += \
+	$(MESSOBJ)/profiler.o
 
 ifdef NEW_DEBUGGER
-COREOBJS += \
-	$(OBJ)/debug/debugcmd.o \
-	$(OBJ)/debug/debugcmt.o \
-	$(OBJ)/debug/debugcon.o \
-	$(OBJ)/debug/debugcpu.o \
-	$(OBJ)/debug/debughlp.o \
-	$(OBJ)/debug/debugvw.o \
-	$(OBJ)/debug/express.o \
-	$(OBJ)/debug/textbuf.o
+MESSCOREOBJS += \
+	$(MESSOBJ)/debug/debugcmd.o \
+	$(MESSOBJ)/debug/debugcmt.o \
+	$(MESSOBJ)/debug/debugcon.o \
+	$(MESSOBJ)/debug/debugcpu.o \
+	$(MESSOBJ)/debug/debughlp.o \
+	$(MESSOBJ)/debug/debugvw.o \
+	$(MESSOBJ)/debug/express.o \
+	$(MESSOBJ)/debug/textbuf.o
 else
-COREOBJS += \
-	$(OBJ)/debug/mamedbg.o \
-	$(OBJ)/debug/window.o
+MESSCOREOBJS += \
+	$(MESSOBJ)/debug/mamedbg.o \
+	$(MESSOBJ)/debug/window.o
 endif
 endif
 
