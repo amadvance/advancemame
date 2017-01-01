@@ -33,11 +33,11 @@ Build
 	Now you can build and install them using the typical sequence of commands:
 
 		$ ./configure
-		$ make -j4
+		$ make -j3
 		$ sudo make install
 
-	The -j4 option tells make to use four different parallel processes to build.
-	Beside that, the build process may be long, up to 30 minutes on a Raspberry Pi 3.
+	The -j3 option tells make to use four different parallel processes to build.
+	Beside that, the build process may be long, up to 45 minutes on a Raspberry Pi 3.
 
 	No option is generally required. You can get the complete configure option list with
 	the `./configure --help' command.
