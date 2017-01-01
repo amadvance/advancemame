@@ -22,7 +22,7 @@ System Requirements
 
 	In the Linux Console, the Linux Framebuffer is used for the
 	video, the ALSA or OSS library for audio, and the Linux Event
-	interface for intput controllers.
+	or Raw interface for intput controllers.
 
 	The video board programming functionality for Arcade Monitors
 	and CRT TVs, is available only from the Linux console, using
@@ -30,7 +30,7 @@ System Requirements
 
   Raspberry Pi
 	With a Raspberry Pi you have the same support you have in Linux,
-	plus some specific Raspberry functionalities, like the accelerated
+	plus some specific Raspberry functionality, like the accelerated
 	Framebuffer.
 
 	With a Raspberry, it's recommended run the Advance program directly
@@ -47,7 +47,6 @@ System Requirements
 	If instead you want to use an old CRT Arcade screen or TV, you can
 	configure the Advance programs to generate modelines customized
 	for your video hardware.
-
 	In this case see the following "Video Setup" chapter.
 
 	Note that the Raspberry Pi has strong limitations on the lower range of
@@ -76,58 +75,68 @@ System Requirements
 	the exception of a mouse driver if you want to use one.
 
 Installation
-	The suggested way to installing the Advance programs is to start 
-	from the sources.
-	
-	The build process is detailed in `build.txt' file, but generally 
+	In Linux and other unix, the recommended way to install the Advance
+	programs is to start from the sources.
+
+	The build process is detailed in `build.txt' file, but usually
 	you need only the usual commands:
 
 		:./configure
 		:make
 		:sudo make install
 
-	The exception is the DOS and Windows target. In this case it's 
-	better to start from the binary distribution and don't compile 
+	The exceptions are the DOS, Windows and Raspberry targets. In such cases
+	it's better to start from the binary distribution and don't compile
 	the source.
 
 Configuration
-	All the Advance programs require a configuration process to work
-	correctly.
+	All the Advance programs require a configuration file to work.
+	They are text files with the same program name, with the ".rc"
+	extension, like "advmame.rc".
 
-	A default configuration file is created by the programs when they
+	Default configuration files are created by the programs when they
 	are started for the first time.
 
-	In Linux, Raspbian, Mac OS X and other Unix, the configuration file is
-	created in the user home directory in the subdirectory .advance/. 
-	In DOS and Windows the configuration file is created in the 
+	In Linux, Mac OS X and other Unix, the configuration files are
+	created in the user home directory in the subdirectory .advance/.
+	In Windows and DOS the configuration files are created in the
 	current directory.
 
-	When you have finished to modify the configuration file,
-	it's suggested to run the program with the `-remove' option
-	to remove all the default configuration options from the
-	configuration file.
+	When you have finished to modify the configuration files,
+	it's recommended to run the programs with the `-remove' option
+	to remove all the default options from the configuration files.
 
   AdvanceMAME
-	To run AdvanceMAME you need at least to set the `dir_rom' option 
-	to the path there the roms resides.
+	To run AdvanceMAME you need at least to configure the `dir_rom'
+	option to point where your roms reside.
 
-	If you want to run it as standard applications in a Window 
-	Manager environment like X Window, Windows or Mac OS X Acqua, 
-	you don't need to configure any video options. Instead, if you 
-	want to enable the direct programming of the video board
-	you need to carefully follow the "Video Setup" chapter
+	In Linux, Mac OS X and other Unix the default rom dirs are
+	/usr/local/share/advance/rom and $HOME/.advance/rom.
+	In Windows and DOS is the rom/ subdirectory in the current directory.
+
+	If you want to run it with a with the standard video support, like any
+	other application, you don't need to configure any video options.
+
+	Instead, if you want to enable the direct programming of the
+	video board you need to carefully follow the "Video Setup" chapter
 	in this file.
 
   AdvanceMENU
 	To run AdvanceMENU you need to configure which emulator is
-	present in your system. If a known emulator is found, it's 
-	configured automatically. In Linux and Mac OS X the 
-	emulators are searched in the current PATH list, in DOS and 
-	Windows only in the current directory.
+	present in your system.
 
-	Generally you need also to adjust the path where the
-	game's .png, .mp3 and .mng files reside with the
-	emulator_* options.
+	At the first run AdvanceMENU searches for all the known emulators
+	and configure itself automatically. In Linux, and Mac OS X the
+	emulators are searched in the current PATH list, in Windows and DOS
+	only in the current directory.
+
+	Likely you need also to adjust the path where the
+	game's .png, .mp3 and .mng snapshot files reside with the
+	'emulator_altss' option.
+
+	In Linux, Mac OS X and other Unix the default snapshot dirs are
+	/usr/local/share/advance/snap and $HOME/.advance/snap.
+	In Windows and DOS is the snap/ subdirectory in the current directory.
 
 Video Hardware
 	The Advance programs are able to drive different types
@@ -146,7 +155,7 @@ Video Hardware
 
   LCD monitors or LCD TVs
 	LCD screens have always a native fixed resolution. To get the
-	best image quality it's always recomended to use this resolution.
+	best image quality it's always recommended to use this resolution.
 
 	For this reason you usually don't need to enter any specific
 	configuration options, and let the program to use the default
@@ -186,10 +195,10 @@ Video Hardware
 	directly use the VGA sync signals of your PC. If the monitor
 	uses composite sync, or sync-on-green you must use a sync
 	converter circuit.
-  
+
 	These monitors are generally compatible with the VGA video
 	signal level of 0.7 V p-p.
- 
+
   Arcade Monitors
 	Arcade monitors support only a few fixed horizontal and
 	vertical clocks, generally the horizontal are 15.75 and 25 kHz,
@@ -203,7 +212,7 @@ Video Hardware
 	like 15 - 31 kHz. Generally these monitors support only
 	the three fixed clocks of 15.75, 25, 31.1 kHz. An example
 	is the Wells-Gardner D9200.
-  
+
 	The standard clocks for a Standard Resolution 15 kHz (CGA) are:
 
 		:device_video_clock 4 - 50 / 15.75 / 60
@@ -237,7 +246,7 @@ Video Hardware
 	signal lines together. They are not usually designed for
 	this, so this can damage your video card. If you try, use
 	with caution.
-  
+
 	You must also ensure that the monitor accepts the VGA video
 	signal level of 0.7 V p-p. Generally arcade monitors require a
 	video signal between 1 V and 5 V for each line.
@@ -265,7 +274,7 @@ Video Hardware
 		:device_video_clock 4 - 50 / 15.62 / 50 ; 4 - 50 / 15.73 / 60
 
     TVs with SCART
-	If your TV has a SCART input, you can use directly the VGA 
+	If your TV has a SCART input, you can use directly the VGA
 	analog signal as RGB input.
 
 	A composite sync signal is required. It means that you must
@@ -358,8 +367,8 @@ Video Setup
 	You must in advance create this list of video modelines with the
 	`advv' utility.
 
-	This is the description of the few basic steps required to run 
-	the programs in the manual operation mode. All the options used 
+	This is the description of the few basic steps required to run
+	the programs in the manual operation mode. All the options used
 	are documented in the `advdev.txt' file.
 
 	) For AdvanceMAME add in the in the file `advmame.rc' these
@@ -404,5 +413,5 @@ Video Setup
 	the `advv' program.
 
 Copyright
-	This file is Copyright (C) 2003 - 2016 Andrea Mazzoleni.
+	This file is Copyright (C) 2003 - 2017 Andrea Mazzoleni.
 

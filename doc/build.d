@@ -24,7 +24,7 @@ Build
 		:$ tar xf advancemame-*.tar.gz
 		:$ cd advancemame-*
 
-	or alternatively you can get it directly wit git:
+	or alternatively you can get it directly with git:
 
 		:$ git clone https://github.com/amadvance/advancemame.git
 		:$ cd advancemame
@@ -40,8 +40,8 @@ Build
 		$ make -j4
 		$ sudo make install
 
-	The -j4 option tells make to use four different parallel proceses to build.
-	Beside that, the build proces may be long, up to 30 minutes on a Raspberry Pi 3.
+	The -j4 option tells make to use four different parallel processes to build.
+	Beside that, the build process may be long, up to 30 minutes on a Raspberry Pi 3.
 
 	To build and install AdvanceMESS, you need to additionally run:
 
@@ -63,7 +63,7 @@ Build
 	--with-sdl-prefix option to search for the SDL library in a
 	specific location.
 
-	The `make install' comman installs the binaries and the documentation.
+	The `make install' command installs the binaries and the documentation.
 
 	The binaries are installed in $prefix/bin, the program data
 	files in $prefix/share/advance, the documentation in
@@ -72,13 +72,14 @@ Build
 	In Mac OS X ensure that the directory $prefix/bin is in the
 	search PATH. Generally /usr/local/bin isn't.
 
-	After the installation, you can start AdvanceMAME with:
+	After the installation, you can check if AdvanceMAME starts with:
 
 		:$ advmame polyplay
 
-	The first run will create the configuration file, and tell you where.
-	At the second run the game will effectively start.
+	and AdvanceMESS with:
+
+		:$ advmess ti99_4a
 
 Copyright
-	This file is Copyright (C) 2003 - 2016 Andrea Mazzoleni.
+	This file is Copyright (C) 2003 - 2017 Andrea Mazzoleni.
 

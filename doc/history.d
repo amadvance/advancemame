@@ -2,11 +2,13 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS/MENU Version 3.1 2016/12
-	) Added support for SDL2, preferred by default over SDL1.
+	) Added support for SDL2. It's the new default in Linux and Windows,
+		with the exception of Raspberry where SDL1 still provides
+		better performance in the X Window environment.
 	) More reliable Raspberry video mode setting when using programmable
 		modes.
-	) Fix UI flickering and a potential crash when SMP is active.
-	) Support running from a SSH shell.
+	) Fixed the UI flickering and a potential crash when SMP is active.
+	) Added support running from a SSH shell.
 	) If SMP is active, don't automatically disable the resize
 		effect if the game is too slow. This gives a more
 		stable 'auto' effect.
