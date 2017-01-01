@@ -7,10 +7,6 @@
 # Installation prefix (only for Unix):
 prefix=/usr/local
 
-# Select the emu executable (mame by default)
-# The available choices are: mame, mess
-#CONF_EMU=mame
-
 # Uncomment the host operating system.
 # The available choices are linux, dos, windows.
 #
@@ -88,18 +84,6 @@ prefix=/usr/local
 #############################################################################
 # Completing manual configuration with defaults
 #
-
-# Automatic EMU detection by source
-ifeq ($(CONF_EMU),)
-ifneq ($(wildcard src),)
-CONF_EMU = mame
-endif
-endif
-ifeq ($(CONF_EMU),)
-ifneq ($(wildcard srcmess),)
-CONF_EMU = mess
-endif
-endif
 
 # Automatic BUILD environment detection
 ifndef CONF_BUILD

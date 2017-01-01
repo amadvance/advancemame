@@ -1,8 +1,7 @@
 ############################################################################
 # Common dir
 
-OBJ = obj/$(CONF_EMU)/$(BINARYDIR)
-MAMEOBJ = obj/mame/$(BINARYDIR)
+OBJ = obj/mame/$(BINARYDIR)
 MESSOBJ = obj/mess/$(BINARYDIR)
 MENUOBJ = obj/menu/$(BINARYDIR)
 MOBJ = obj/m/$(BINARYDIR)
@@ -19,7 +18,7 @@ DOCOBJ = $(srcdir)/doc
 ############################################################################
 # Binaries
 
-MAME_INSTALL_BINFILES = $(MAMEOBJ)/advmame$(EXE)
+MAME_INSTALL_BINFILES = $(OBJ)/advmame$(EXE)
 MAME_INSTALL_MANFILES = $(DOCOBJ)/advmame.1 $(DOCOBJ)/advdev.1
 MAME_INSTALL_DATAFILES = $(srcdir)/support/event.dat \
 	$(srcdir)/support/history.dat \
@@ -75,17 +74,14 @@ M_INSTALL_MANFILES = $(DOCOBJ)/advm.1
 ############################################################################
 # Install
 
-ifneq ($(wildcard $(EMUSRC)),)
-ifeq ($(CONF_EMU),mame)
-OBJ_DIRS += $(MAMEOBJ)
+ifneq ($(wildcard $(srcdir)/advance/emu.mak),)
+OBJ_DIRS += $(OBJ)
 INSTALL_BINFILES += $(MAME_INSTALL_BINFILES)
 INSTALL_DATAFILES += $(MAME_INSTALL_DATAFILES)
 INSTALL_MANFILES += $(MAME_INSTALL_MANFILES)
 INSTALL_ROMFILES += $(MAME_INSTALL_ROMFILES)
 INSTALL_SAMPLEFILES += $(MAME_INSTALL_SAMPLEFILES)
 INSTALL_SNAPFILES += $(MAME_INSTALL_SNAPFILES)
-endif
-ifeq ($(CONF_EMU),mess)
 OBJ_DIRS += $(MESSOBJ)
 INSTALL_BINFILES += $(MESS_INSTALL_BINFILES)
 INSTALL_DATAFILES += $(MESS_INSTALL_DATAFILES)
@@ -94,7 +90,6 @@ INSTALL_ROMFILES += $(MESS_INSTALL_ROMFILES)
 INSTALL_IMAGEFILES_TI99_4A += $(MESS_INSTALL_IMAGEFILES_TI99_4A)
 INSTALL_SNAPFILES += $(MESS_INSTALL_SNAPFILES)
 INSTALL_SNAPFILES_TI99_4A += $(MESS_INSTALL_SNAPFILES_TI99_4A)
-endif
 endif
 ifneq ($(wildcard $(srcdir)/advance/menu.mak),)
 OBJ_DIRS += $(MENUOBJ)
@@ -148,7 +143,9 @@ all_override: $(ADV_ALL)
 endif
 
 all: $(OBJ_DIRS) $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES)
-emu: $(OBJ) $(OBJ)/$(EMUNAME)$(EXE)
+mame: $(OBJ) $(OBJ)/advmame$(EXE)
+mess: $(MESSOBJ) $(MESSOBJ)/advmess$(EXE)
+emu: mame mess
 menu: $(MENUOBJ) $(MENUOBJ)/advmenu$(EXE)
 cfg: $(CFGOBJ) $(CFGOBJ)/advcfg$(EXE)
 v: $(VOBJ) $(VOBJ)/advv$(EXE)
@@ -357,7 +354,6 @@ install-dirs:
 	-$(INSTALL_DATA_DIR) $(pkgdir)
 	-$(INSTALL_DATA_DIR) $(pkgdocdir)
 	-$(INSTALL_MAN_DIR) $(mandir)/man1
-ifneq ($(wildcard $(EMUSRC)),)
 	-$(INSTALL_DATA_DIR) $(pkgdir)/rom
 	-$(INSTALL_DATA_DIR) $(pkgdir)/sample
 	-$(INSTALL_DATA_DIR) $(pkgdir)/artwork
@@ -366,7 +362,6 @@ ifneq ($(wildcard $(EMUSRC)),)
 	-$(INSTALL_DATA_DIR) $(pkgdir)/crc
 	-$(INSTALL_DATA_DIR) $(pkgdir)/snap
 	-$(INSTALL_DATA_DIR) $(pkgdir)/snap/ti99_4a
-endif
 
 install-data: $(INSTALL_DATAFILES) $(INSTALL_ROMFILES) $(INSTALL_IMAGEFILES_TI99_4A) $(INSTALL_SAMPLEFILES) $(INSTALL_SNAPFILES) $(INSTALL_SNAPFILES_TI99_4A)
 ifdef INSTALL_DATAFILES
@@ -470,16 +465,16 @@ ifdef INSTALL_MANFILES
 endif
 
 uninstall-dirs:
-ifneq ($(wildcard $(EMUSRC)),)
 	-rmdir $(pkgdir)/rom
 	-rmdir $(pkgdir)/sample
 	-rmdir $(pkgdir)/artwork
+	-rmdir $(pkgdir)/image/ti99_4a
 	-rmdir $(pkgdir)/image
 	-rmdir $(pkgdir)/crc
+	-rmdir $(pkgdir)/snap/ti99_4a
 	-rmdir $(pkgdir)/snap
 	-rmdir $(pkgdir)
 	-rmdir $(pkgdocdir)
-endif
 
 install: install-dirs install-bin install-data install-doc install-man
 
@@ -510,8 +505,6 @@ MANUAL=-f Makefile.usr
 whole:
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos
-	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=windows CONF_EMU=mess
-	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=dos CONF_EMU=mess
 
 wholedist:
 	$(MAKE) $(MANUAL) dist
@@ -525,7 +518,6 @@ wholemenu:
 
 wholelinux:
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=linux CONF_DEFS="$(DEFS_LINUX)" distbin
-	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=linux CONF_EMU=mess CONF_DEFS="$(DEFS_LINUX)" distbin
 	$(MAKE) $(MANUAL) $(ARCH_X86) CONF_HOST=linux CONF_DEFS="$(DEFS_LINUX)" distmenubin
 
 wholecab:
@@ -568,12 +560,11 @@ DEB_SNAPFILES = $(MAME_INSTALL_SNAPFILES) $(MESS_INSTALL_SNAPFILES)
 DEB_SNAPFILES_TI99_4A = $(MESS_INSTALL_SNAPFILES_TI99_4A)
 DEB_DOCFILES = $(INSTALL_DOCFILES)
 DEB_MACHINE = $(subst armv7l,armhf,$(subst i686,i386,$(subst x86_64,amd64,$(shell uname -m))))
-DEB_DIST_FILE_BIN = advance$(CONF_EMU)_$(VERSION)-$(DEB_REVISION)_$(DEB_MACHINE)
+DEB_DIST_FILE_BIN = advancemame_$(VERSION)-$(DEB_REVISION)_$(DEB_MACHINE)
 DEB_DIST_DIR_BIN = $(DEB_DIST_FILE_BIN)
 
 deb:
 	$(MAKE)
-	$(MAKE) CONF_EMU=mess
 	rm -rf $(DEB_DIST_DIR_BIN)
 	mkdir $(DEB_DIST_DIR_BIN)
 	mkdir $(DEB_DIST_DIR_BIN)/DEBIAN

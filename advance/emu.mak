@@ -6,7 +6,7 @@ ADVANCECFLAGS += \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit
 
-OBJDIRS += \
+ADVANCEOBJDIRS += \
 	$(OBJ)/advance \
 	$(OBJ)/advance/lib \
 	$(OBJ)/advance/osd \
@@ -16,6 +16,7 @@ ifeq ($(CONF_SYSTEM),unix)
 
 # Dependencies on DATADIR/SYSCONFDIR
 $(OBJ)/advance/linux/file.o: Makefile
+$(MESSOBJ)/advance/linux/file.o: Makefile
 
 # Allow external customization for special targets
 ifndef DATADIR
@@ -25,7 +26,7 @@ ifndef SYSCONFDIR
 SYSCONFDIR=$(sysconfdir)
 endif
 
-OBJDIRS += \
+ADVANCEOBJDIRS += \
 	$(OBJ)/advance/linux
 ADVANCECFLAGS += \
 	-I$(srcdir)/advance/linux \
@@ -51,7 +52,7 @@ else
 ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
 endif
 ifeq ($(CONF_LIB_SDL),yes)
-OBJDIRS += \
+ADVANCEOBJDIRS += \
 	$(OBJ)/advance/sdl
 ADVANCECFLAGS += \
 	$(SDLCFLAGS) \
@@ -156,7 +157,7 @@ endif
 endif
 
 ifeq ($(CONF_SYSTEM),dos)
-OBJDIRS += \
+ADVANCEOBJDIRS += \
 	$(OBJ)/advance/dos
 ADVANCECFLAGS += \
 	-DUSE_CONFIG_ALLEGRO_WRAPPER \
@@ -183,7 +184,7 @@ ADVANCELDFLAGS += \
 	-Xlinker --wrap -Xlinker set_config_int \
 	-Xlinker --wrap -Xlinker get_config_id \
 	-Xlinker --wrap -Xlinker set_config_id
-OBJDIRS += \
+ADVANCEOBJDIRS += \
 	$(OBJ)/advance/card \
 	$(OBJ)/advance/svgalib \
 	$(OBJ)/advance/svgalib/ramdac \
@@ -259,7 +260,7 @@ endif
 endif
 
 ifeq ($(CONF_SYSTEM),windows)
-OBJDIRS += \
+ADVANCEOBJDIRS += \
 	$(OBJ)/advance/windows \
 	$(OBJ)/advance/dos
 ADVANCECFLAGS += \
@@ -284,7 +285,7 @@ else
 ADVANCEOBJS += $(OBJ)/advance/osd/thmono.o
 endif
 ifeq ($(CONF_LIB_SDL),yes)
-OBJDIRS += \
+ADVANCEOBJDIRS += \
 	$(OBJ)/advance/sdl
 ADVANCECFLAGS += \
 	$(SDLCFLAGS) \
@@ -306,7 +307,7 @@ ADVANCECFLAGS += -DNO_STDIO_REDIRECT
 ADVANCEOBJS += $(OBJ)/advance/windows/sdlmain.o
 endif
 ifeq ($(CONF_LIB_SVGAWIN),yes)
-OBJDIRS += \
+ADVANCEOBJDIRS += \
 	$(OBJ)/advance/svgalib \
 	$(OBJ)/advance/svgalib/ramdac \
 	$(OBJ)/advance/svgalib/clockchi \
@@ -392,14 +393,11 @@ endif
 
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(OBJ)/advance/osd/emu.o: Makefile
+$(MESSOBJ)/advance/osd/emu.o: Makefile
 
 ADVANCECFLAGS += -DADV_VERSION=\"$(VERSION)\" -DADV_EMU
-
-ifeq ($(CONF_EMU),mess)
-EMUCFLAGS += -DMESS
-else
-EMUCFLAGS += -DMAME
-endif
+MAMECFLAGS += -DMAME
+MESSCFLAGS += -DMESS
 
 ifeq ($(CONF_SYSTEM),unix)
 EMUCFLAGS += \
@@ -416,10 +414,15 @@ endif
 
 EMUCFLAGS += -I$(srcdir)/advance/osd
 
-EMUOBJS += \
+MAMEOBJS += \
 	$(COREOBJS) \
 	$(sort $(CPUOBJS)) \
 	$(sort $(SOUNDOBJS))
+
+MESSOBJS += \
+	$(MESSCOREOBJS) \
+	$(sort $(MESSCPUOBJS)) \
+	$(sort $(MESSSOUNDOBJS))
 
 ADVANCEOBJS += \
 	$(OBJ)/advance/osd/emu.o \
@@ -508,9 +511,6 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/lib/error.o \
 	$(OBJ)/advance/lib/wave.o
 
-EMULIBS += \
-	$(DRVLIBS)
-
 EMUCHDMANOBJS += \
 	$(OBJ)/chdman.o \
 	$(OBJ)/chd.o \
@@ -532,9 +532,9 @@ ADVANCELIBS += -lexpat
 else
 CFLAGS += \
 	-I$(srcdir)/advance/expat
-OBJDIRS += \
+ADVANCEOBJDIRS += \
 	$(OBJ)/advance/expat
-EMULIBS += \
+ADVANCEBUILDLIBS += \
 	$(OBJ)/advance/libexpat.a
 endif
 
@@ -554,27 +554,36 @@ EMUCHDMANLDFLAGS += -lz
 else
 CFLAGS += \
 	-I$(srcdir)/advance/zlib
-OBJDIRS += \
+ADVANCEOBJDIRS += \
 	$(OBJ)/advance/zlib
-EMULIBS += \
-	$(OBJ)/advance/libz.a
-EMUCHDMANLIBS += \
+ADVANCEBUILDLIBS += \
 	$(OBJ)/advance/libz.a
 endif
-
 
 ############################################################################
 # advance compile
 
 $(OBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(EMUCFLAGS) $(ADVANCECFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(EMUCFLAGS) $(MAMECFLAGS) $(ADVANCECFLAGS) -c $< -o $@
 
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.c
 	$(ECHO) $@ $(MSG)
 	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
 
 $(OBJ)/advance/%.o: $(srcdir)/advance/%.rc
+	$(ECHO) $@ $(MSG)
+	$(RC) $(RCFLAGS) -DADV_EMU $< -o $@
+
+$(MESSOBJ)/advance/osd/%.o: $(srcdir)/advance/osd/%.c $(srcdir)/advance/osd/emu.h
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(EMUCFLAGS) $(MESSCFLAGS) $(ADVANCECFLAGS) -c $< -o $@
+
+$(MESSOBJ)/advance/%.o: $(srcdir)/advance/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(ADVANCECFLAGS) -c $< -o $@
+
+$(MESSOBJ)/advance/%.o: $(srcdir)/advance/%.rc
 	$(ECHO) $@ $(MSG)
 	$(RC) $(RCFLAGS) -DADV_EMU $< -o $@
 
@@ -598,113 +607,133 @@ ifneq (,$(findstring USE_MSB,$(CFLAGS)))
 EMUCFLAGS += -DMSB_FIRST
 endif
 
-ifeq ($(CONF_EMU),mess)
-EMUCFLAGS += \
+MESSCFLAGS += \
 	-I$(srcdir)/mess \
 	-Dvga_init=mess_vga_init
 # -Dvga_init=mess_vga_init prevent a name clash with the vga_init SVGALIB function
-endif
 
 EMUCFLAGS += \
-	-I$(EMUSRC) \
-	-I$(EMUSRC)/includes \
-	-I$(EMUSRC)/debug \
-	-I$(OBJ)/cpu/m68000 \
-	-I$(EMUSRC)/cpu/m68000 \
 	-DINLINE="static __inline__" \
 	-Dasm=__asm__
 
 # Map
 ifeq ($(CONF_MAP),yes)
-ADVANCELDFLAGS += -Xlinker -Map -Xlinker $(OBJ)/$(EMUNAME).map
+ADVANCELDFLAGS += -Xlinker -Map -Xlinker $(OBJ)/advmame.map
 endif
 
-ifeq ($(CONF_EMU),mess)
+# MAME
+include $(srcdir)/src/core.mak
+include $(srcdir)/src/mame.mak
+include $(srcdir)/src/cpu/cpu.mak
+include $(srcdir)/src/sound/sound.mak
+
+# MESS
 include $(srcdir)/srcmess/core.mak
-include $(srcdir)/mess/$(CONF_EMU).mak
+include $(srcdir)/mess/mess.mak
 include $(srcdir)/srcmess/cpu/cpu.mak
 include $(srcdir)/mess/cpu/cpu.mak
 include $(srcdir)/srcmess/sound/sound.mak
 include $(srcdir)/mess/sound/sound.mak
-else
-include $(EMUSRC)/core.mak
-include $(EMUSRC)/$(CONF_EMU).mak
-include $(EMUSRC)/cpu/cpu.mak
-include $(EMUSRC)/sound/sound.mak
-endif
 
 # Special search paths required by the CPU core rules
-VPATH=$(wildcard $(EMUSRC)/cpu/* $(EMUSRC)/sound)
+VPATH=$(wildcard $(srcdir)/src/cpu/* $(srcdir)/src/sound)
 
 OBJDIRS += \
+	$(ADVANCEOBJDIRS) \
 	$(OBJ)/cpu \
 	$(OBJ)/sound \
 	$(OBJ)/drivers \
 	$(OBJ)/machine \
 	$(OBJ)/vidhrdw \
 	$(OBJ)/sndhrdw \
-	$(OBJ)/debug \
-	$(OBJ)/mess \
-	$(OBJ)/mess/systems \
-	$(OBJ)/mess/devices \
-	$(OBJ)/mess/expat \
-	$(OBJ)/mess/machine \
-	$(OBJ)/mess/vidhrdw \
-	$(OBJ)/mess/sndhrdw \
-	$(OBJ)/mess/formats \
-	$(OBJ)/mess/tools \
-	$(OBJ)/mess/tools/dat2html \
-	$(OBJ)/mess/tools/mkhdimg \
-	$(OBJ)/mess/tools/messroms \
-	$(OBJ)/mess/tools/imgtool \
-	$(OBJ)/mess/tools/mkimage \
-	$(OBJ)/mess/sound \
-	$(OBJ)/mess/cpu
+	$(OBJ)/debug
+MESSOBJDIRS += \
+	$(subst $(OBJ),$(MESSOBJ),$(ADVANCEOBJDIRS)) \
+	$(MESSOBJ)/cpu \
+	$(MESSOBJ)/sound \
+	$(MESSOBJ)/drivers \
+	$(MESSOBJ)/machine \
+	$(MESSOBJ)/vidhrdw \
+	$(MESSOBJ)/sndhrdw \
+	$(MESSOBJ)/debug \
+	$(MESSOBJ)/mess \
+	$(MESSOBJ)/mess/systems \
+	$(MESSOBJ)/mess/devices \
+	$(MESSOBJ)/mess/expat \
+	$(MESSOBJ)/mess/machine \
+	$(MESSOBJ)/mess/vidhrdw \
+	$(MESSOBJ)/mess/sndhrdw \
+	$(MESSOBJ)/mess/formats \
+	$(MESSOBJ)/mess/tools \
+	$(MESSOBJ)/mess/tools/dat2html \
+	$(MESSOBJ)/mess/tools/mkhdimg \
+	$(MESSOBJ)/mess/tools/messroms \
+	$(MESSOBJ)/mess/tools/imgtool \
+	$(MESSOBJ)/mess/tools/mkimage \
+	$(MESSOBJ)/mess/sound \
+	$(MESSOBJ)/mess/cpu
 
 ifeq ($(CONF_DEBUGGER),yes)
 EMUDEFS += -DMAME_DEBUG
 else
 # don't include the debug only modules
 DBGOBJS =
+MESSDBGOBJS =
 endif
 
-EMUDEFS += $(COREDEFS) $(CPUDEFS) $(SOUNDDEFS) $(ASMDEFS)
+MAMECFLAGS += \
+	$(EMUCFLAGS) \
+	-I$(srcdir)/src \
+	-I$(srcdir)/src/includes \
+	-I$(srcdir)/src/debug \
+	-I$(OBJ)/cpu/m68000 \
+	-I$(srcdir)/src/cpu/m68000
 
-$(OBJ)/$(EMUNAME)$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(EMUOBJS) $(EMULIBS)
+MESSCFLAGS += \
+	$(EMUCFLAGS) \
+	-I$(srcdir)/srcmess \
+	-I$(srcdir)/srcmess/includes \
+	-I$(srcdir)/srcmess/debug \
+	-I$(MESSOBJ)/cpu/m68000 \
+	-I$(srcdir)/srcmess/cpu/m68000
+
+MAMEDEFS += $(EMUDEFS) $(COREDEFS) $(CPUDEFS) $(SOUNDDEFS) $(ASMDEFS)
+MESSDEFS += $(EMUDEFS) $(MESSCOREDEFS) $(MESSCPUDEFS) $(MESSSOUNDDEFS) $(MESSASMDEFS)
+
+MAMELIBS += $(EMULIBS) $(DRVLIBS)
+MESSLIBS += $(EMULIBS) $(MESSDRVLIBS)
+
+$(OBJ)/advmame$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(MAMEOBJS) $(MAMELIBS) $(ADVANCEBUILDLIBS)
 	$(ECHO) $@ $(MSG)
-	$(LD) $(ADVANCEOBJS) $(EMUOBJS) $(ADVANCELDFLAGS) $(LDFLAGS) $(EMULIBS) $(ADVANCELIBS) $(LIBS) -o $@
+	$(LD) $(ADVANCEOBJS) $(MAMEOBJS) $(ADVANCELDFLAGS) $(LDFLAGS) $(MAMELIBS) $(ADVANCEBUILDLIBS) $(ADVANCELIBS) $(LIBS) -o $@
 ifeq ($(CONF_DEBUG),yes)
-	$(RM) $(EMUNAME)d$(EXE)
-	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)d$(EXE)
+	$(RM) advmamed$(EXE)
+	$(LN_S) $(OBJ)/advmame$(EXE) advmamed$(EXE)
 else
-	$(RM) $(EMUNAME)$(EXE)
-	$(LN_S) $(OBJ)/$(EMUNAME)$(EXE) $(EMUNAME)$(EXE)
+	$(RM) advmame$(EXE)
+	$(LN_S) $(OBJ)/advmame$(EXE) advmame$(EXE)
 endif
 
 $(OBJ)/chdman$(EXE): $(EMUCHDMANOBJS) $(EMUCHDMANLIBS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(EMUCHDMANOBJS) $(EMUCHDMANLDFLAGS) $(LDFLAGS) $(EMUCHDMANLIBS) $(LIBS) -o $@
 
-$(OBJ)/%.o: $(EMUSRC)/%.c
+$(OBJ)/%.o: $(srcdir)/src/%.c
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
-
-$(OBJ)/mess/%.o: $(srcdir)/mess/%.c
-	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $< -o $@
+	$(CC) $(CFLAGS) $(MAMECFLAGS) $(MAMEDEFS) -c $< -o $@
 
 # Generate C source files for the 68000 emulator
 $(subst .c,.o,$(M68000_GENERATED_FILES)): $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
 	$(ECHO) $@ $(MSG)
-	$(CC) $(CFLAGS) $(EMUCFLAGS) $(EMUDEFS) -c $*.c -o $@
+	$(CC) $(CFLAGS) $(MAMECFLAGS) $(MAMEDEFS) -c $*.c -o $@
 
 # Additional rule, because m68kcpu.c includes the generated m68kops.h
 $(OBJ)/cpu/m68000/m68kcpu.o: $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
 
-$(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD): $(EMUSRC)/cpu/m68000/m68kmake.c
+$(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD): $(srcdir)/src/cpu/m68000/m68kmake.c
 	$(ECHO) $@
 	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o $(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $<
-	@$(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $(OBJ)/cpu/m68000 $(EMUSRC)/cpu/m68000/m68k_in.c > /dev/null
+	@$(OBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $(OBJ)/cpu/m68000 $(srcdir)/src/cpu/m68000/m68k_in.c
 
 $(OBJ)/%.a:
 	$(ECHO) $@
@@ -716,6 +745,53 @@ $(OBJ):
 	$(MD) $@
 
 $(sort $(OBJDIRS)):
+	$(ECHO) $@
+	$(MD) $@
+
+MESSADVANCEOBJS = $(subst $(OBJ),$(MESSOBJ),$(ADVANCEOBJS))
+
+$(MESSOBJ)/advmess$(EXE): $(sort $(MESSOBJDIRS)) $(MESSADVANCEOBJS) $(MESSOBJS) $(MESSLIBS) $(ADVANCEBUILDLIBS) 
+	$(ECHO) $@ $(MSG)
+	$(LD) $(MESSADVANCEOBJS) $(MESSOBJS) $(ADVANCELDFLAGS) $(LDFLAGS) $(MESSLIBS) $(ADVANCEBUILDLIBS) $(ADVANCELIBS) $(LIBS) -o $@
+ifeq ($(CONF_DEBUG),yes)
+	$(RM) advmessd$(EXE)
+	$(LN_S) $(MESSOBJ)/advmess$(EXE) advmessd$(EXE)
+else
+	$(RM) advmess$(EXE)
+	$(LN_S) $(MESSOBJ)/advmess$(EXE) advmess$(EXE)
+endif
+
+$(MESSOBJ)/%.o: $(srcdir)/srcmess/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(MESSCFLAGS) $(MESSDEFS) -c $< -o $@
+
+$(MESSOBJ)/mess/%.o: $(srcdir)/mess/%.c
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(MESSCFLAGS) $(MESSDEFS) -c $< -o $@
+
+# Generate C source files for the 68000 emulator
+$(subst .c,.o,$(MESSM68000_GENERATED_FILES)): $(MESSOBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
+	$(ECHO) $@ $(MSG)
+	$(CC) $(CFLAGS) $(MESSCFLAGS) $(MESSDEFS) -c $*.c -o $@
+
+# Additional rule, because m68kcpu.c includes the generated m68kops.h
+$(MESSOBJ)/cpu/m68000/m68kcpu.o: $(MESSOBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD)
+
+$(MESSOBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD): $(srcdir)/srcmess/cpu/m68000/m68kmake.c
+	$(ECHO) $@
+	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o $(MESSOBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $<
+	@$(MESSOBJ)/cpu/m68000/m68kmake$(EXE_FOR_BUILD) $(MESSOBJ)/cpu/m68000 $(srcdir)/src/cpu/m68000/m68k_in.c
+
+$(MESSOBJ)/%.a:
+	$(ECHO) $@
+	$(RM) $@
+	$(AR) crs $@ $^
+
+$(MESSOBJ):
+	$(ECHO) $@
+	$(MD) $@
+
+$(sort $(MESSOBJDIRS)):
 	$(ECHO) $@
 	$(MD) $@
 
@@ -915,7 +991,8 @@ EMU_DOC_BIN += \
 endif
 
 EMU_ROOT_BIN = \
-	$(OBJ)/$(EMUNAME)$(EXE) \
+	$(OBJ)/advmame$(EXE) \
+	$(MESSOBJ)/advmess$(EXE) \
 	$(MENUOBJ)/advmenu$(EXE)
 EMU_ROOT_BIN += \
 	$(srcdir)/support/event.dat \
@@ -971,8 +1048,8 @@ EMU_ROOT_BIN += \
 endif
 endif
 
-EMU_DIST_FILE_SRC = advance$(CONF_EMU)-$(VERSION)
-EMU_DIST_FILE_BIN = advance$(CONF_EMU)-$(VERSION)-$(BINARYTAG)
+EMU_DIST_FILE_SRC = advancemame-$(VERSION)
+EMU_DIST_FILE_BIN = advancemame-$(VERSION)-$(BINARYTAG)
 EMU_DIST_DIR_SRC = $(EMU_DIST_FILE_SRC)
 EMU_DIST_DIR_BIN = $(EMU_DIST_FILE_BIN)
 
@@ -1078,7 +1155,6 @@ else
 	cp $(srcdir)/COPYING $(EMU_DIST_DIR_BIN)/copying.txt
 endif
 	cp $(EMU_ROOT_BIN) $(EMU_DIST_DIR_BIN)
-	cp $(subst mame,mess,$(EMU_ROOT_BIN)) $(EMU_DIST_DIR_BIN)
 	cp -R $(srcdir)/support/free/rom $(EMU_DIST_DIR_BIN)
 	cp -R $(srcdir)/support/free/image $(EMU_DIST_DIR_BIN)
 	cp -R $(srcdir)/support/free/sample $(EMU_DIST_DIR_BIN)

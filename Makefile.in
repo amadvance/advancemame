@@ -14,7 +14,6 @@ exec_prefix=@exec_prefix@
 bindir=@bindir@
 mandir=@mandir@
 docdir=@docdir@
-CONF_EMU=@CONF_EMU@
 CONF_SYSTEM=@CONF_SYSTEM@
 CONF_HOST=@CONF_HOST@
 CONF_BUILD=@CONF_BUILD@
@@ -47,11 +46,6 @@ CONF_LIBS=@CONF_LIBS@
 CONF_DEBUGGER=@CONF_DEBUGGER@
 CONF_DEBUG=@CONF_DEBUG@
 CONF_DEFS=@DEFS@
-
-# Checks
-ifeq (CONF_EMU,$(findstring CONF_EMU,$(CONF_EMU)))
-$(error For manual configuration you must use Makefile.usr)
-endif
 
 #############################################################################
 # Extra configuration common for ./configure and manual

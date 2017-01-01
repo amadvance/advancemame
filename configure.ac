@@ -279,47 +279,6 @@ fi
 
 AC_SUBST([CONF_CFLAGS_ARCH],[$CFLAGS_ARCH])
 
-dnl Checks for configuration options.
-AC_ARG_WITH(
-	[emu],
-	AC_HELP_STRING([--with-emu],[select the emulator to use: mame, mess, none (default auto)]),
-	[ac_with_emu=$withval],
-	[ac_with_emu=auto]
-)
-if test $ac_with_emu = auto; then
-	if test -f $srcdir/src/advance.pat ; then
-		ac_with_emu=mame
-	elif test -f $srcdir/srcmess/advance.pat ; then
-		ac_with_emu=mess
-	else
-		ac_with_emu=none
-	fi
-fi
-if test $ac_with_emu = mame; then
-	if test ! -f $srcdir/src/mame.mak ; then
-		AC_MSG_ERROR([you need the MAME source in the $srcdir/src/ directory. Check the BUILD file for instructions.])
-	fi
-	if test ! -f $srcdir/src/advance.pat ; then
-		AC_MSG_ERROR([you must patch the MAME source in $srcdir/src/ with the $srcdir/advance/advmame.dif patch. Check the BUILD file for instructions.])
-	fi
-elif test $ac_with_emu = mess; then
-	if test ! -f $srcdir/srcmess/core.mak ; then
-		AC_MSG_ERROR([you need the MESS source in the $srcdir/srcmess/ directory. Check the BUILD file for instructions.])
-	fi
-	if test ! -f $srcdir/mess/mess.mak ; then
-		AC_MSG_ERROR([you need the MESS source in the $srcdir/mess/ directory. Check the BUILD file for instructions.])
-	fi
-	if test ! -f $srcdir/srcmess/advance.pat ; then
-		AC_MSG_ERROR([you must patch the MESS source in $srcdir/srcmess/ with the advance/advmess.dif patch. Check the BUILD file for instructions.])
-	fi
-	if test ! -f $srcdir/mess/advance.pat ; then
-		AC_MSG_ERROR([you must patch the MESS source in $srcdir/mess/ with the advance/mess.dif patch. Check the BUILD file for instructions.])
-	fi
-elif test ! $ac_with_emu = none; then
-	AC_MSG_ERROR([unknown emulator $ac_with_emu])
-fi
-AC_SUBST(CONF_EMU,$ac_with_emu)
-
 AC_ARG_ENABLE(
 	[debugger],
 	AC_HELP_STRING([--enable-debugger],[enable the emulator debugger (default no)]),

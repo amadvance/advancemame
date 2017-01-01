@@ -42,23 +42,6 @@ CFLAGS += -DNDEBUG
 endif
 
 #############################################################################
-# EMU
-
-# Emulator file name
-EMUNAME = adv$(CONF_EMU)
-
-# Emulator source directory. If it doesn't exist the emulator isn't compiled
-ifeq ($(CONF_EMU),none)
-EMUSRC=$(srcdir)/srcnone
-endif
-ifeq ($(CONF_EMU),mess)
-EMUSRC=$(srcdir)/srcmess
-endif
-ifeq ($(EMUSRC),)
-EMUSRC=$(srcdir)/src
-endif
-
-#############################################################################
 # Advance
 
 # Get the version if not using ./configure
@@ -68,7 +51,7 @@ endif
 
 include $(srcdir)/advance/advance.mak
 
-ifneq ($(wildcard $(EMUSRC)),)
+ifneq ($(wildcard $(srcdir)/advance/emu.mak),)
 include $(srcdir)/advance/emu.mak
 endif
 ifneq ($(wildcard $(srcdir)/advance/lib.mak),)
