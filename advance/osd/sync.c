@@ -132,7 +132,7 @@ void advance_video_update_sync(struct advance_video_context* context)
 	context->state.sync_warming_up_flag = 1;
 
 	if (rate > 10 && rate < 300) {
-		context->state.mode_vclock = video_rate_scale_down(rate, reference);
+		context->state.mode_vclock = rate;
 		context->state.vsync_flag = context->config.vsync_flag;
 	} else {
 		/* out of range, surely NOT supported */

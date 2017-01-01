@@ -440,8 +440,8 @@ static int score_compare_frequency(const struct advance_video_context* context, 
 	if ((context->config.adjust & ADJUST_ADJUST_CLOCK) != 0)
 		return 0;
 
-	freq_a = video_rate_scale_down(crtc_vclock_get(a), context->state.mode_best_vclock);
-	freq_b = video_rate_scale_down(crtc_vclock_get(b), context->state.mode_best_vclock);
+	freq_a = crtc_vclock_get(a);
+	freq_b = crtc_vclock_get(b);
 
 	err_a = fabs(freq_a - context->state.mode_best_vclock);
 	err_b = fabs(freq_b - context->state.mode_best_vclock);
