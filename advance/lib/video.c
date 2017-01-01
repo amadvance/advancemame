@@ -695,12 +695,14 @@ static void log_clock(void)
 
 static void video_wait_vsync_for_measure(void)
 {
-	if (video_current_driver()->write_lock && video_current_driver()->write_unlock) {
+	if ((video_flags() & MODE_FLAGS_RETRACE_WRITE_SYNC) != 0) {
 		video_current_driver()->write_lock();
 		video_current_driver()->write_unlock(0, 0, 0, 0, 1);
-	}
-	if (video_current_driver()->wait_vsync)
+	} else if ((video_flags() & MODE_FLAGS_RETRACE_WAIT_SYNC) != 0) {
 		video_current_driver()->wait_vsync();
+	} else if ((video_flags() & MODE_FLAGS_RETRACE_SCROLL_SYNC) != 0) {
+		video_current_driver()->scroll(0, 1);
+	}
 }
 
 /**

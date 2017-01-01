@@ -52,8 +52,8 @@ extern "C" {
  */
 /*@{*/
 #define MODE_FLAGS_RETRACE_WAIT_SYNC  0x0010 /**< The wait syncronous operation is supported. */
-#define MODE_FLAGS_RETRACE_SET_ASYNC  0x0020 /**< The set asyncronous (triple buffer irq driven) operation is supported. */
-#define MODE_FLAGS_RETRACE_SET_SYNC   0x0040 /**< The set syncronous (double buffer) operation is supported. */
+#define MODE_FLAGS_RETRACE_SCROLL_ASYNC  0x0020 /**< The scroll asyncronous (triple buffer irq driven) operation is supported. */
+#define MODE_FLAGS_RETRACE_SCROLL_SYNC   0x0040 /**< The scroll syncronous (double buffer) operation is supported. */
 #define MODE_FLAGS_RETRACE_WRITE_SYNC 0x0080 /**< The write syncronous operation is supported. */
 #define MODE_FLAGS_RETRACE_MASK       0x00F0 /**< Mask. */
 /*@}*/

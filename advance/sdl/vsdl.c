@@ -83,6 +83,7 @@ typedef struct sdl_internal_struct {
 	void* overlay_ptr; /**< Overlay data pointer. */
 	void* overlay_alloc; /**< Overlay allocated data. */
 	unsigned overlay_pitch; /**< Pitch of the overlay. */
+	adv_bool overlay_vsync; /**< Update happens in the vsync. */
 #endif
 	adv_output output; /**< Output mode. */
 	adv_cursor cursor; /**< Cursor mode. */
@@ -710,6 +711,7 @@ static adv_error sdl_overlay_set(void)
 	Uint32 query_format;
 	int query_width;
 	int query_height;
+	Uint32 flags;
 
 	if (sdl_state.texture) {
 		SDL_DestroyTexture(sdl_state.texture);
@@ -720,7 +722,10 @@ static adv_error sdl_overlay_set(void)
 		sdl_state.renderer = 0;
 	}
 
-	sdl_state.renderer = SDL_CreateRenderer(sdl_state.window, -1, SDL_RENDERER_ACCELERATED);
+	flags = SDL_RENDERER_ACCELERATED;
+	if (sdl_state.overlay_vsync)
+		flags |= SDL_RENDERER_PRESENTVSYNC;
+	sdl_state.renderer = SDL_CreateRenderer(sdl_state.window, -1, flags);
 	if (sdl_state.renderer == 0) {
 		log_std(("ERROR:video:sdl: Failed SDL_CreateRenderer(), %s\n", SDL_GetError()));
 		return -1;
@@ -977,6 +982,9 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 
 	sdl_state.overlay_ptr = ALIGN_PTR(sdl_state.overlay_alloc, 32);
 
+	/* always initialize with vsync to allow to measure it */
+	sdl_state.overlay_vsync = 1;
+
 	/* on fast video mode change, we don't destroy the window */
 	if (sdl_state.window == 0) {
 		sdl_state.window = SDL_CreateWindow(
@@ -1189,14 +1197,21 @@ adv_error sdl_scroll(unsigned offset, adv_bool waitvsync)
 	if (offset != 0)
 		return -1;
 
+	/* normalize to 0 1 */
+	waitvsync = waitvsync != 0;
+
 #if SDL_MAJOR_VERSION != 1
+	/* reset the renderer if the thread or the vsync request change */
+	if (
 #ifdef USE_SMP
-	/* reset the renderer if the thread changed */
-	if (sdl_state.thread != pthread_self()) {
-		log_std(("video:sdl: recompute renderer for thread change\n"));
+		sdl_state.thread != pthread_self() ||
+#endif
+		waitvsync != sdl_state.overlay_vsync
+	) {
+		log_std(("video:sdl: recompute renderer for thread/vsync change. New vsync=%d\n", waitvsync));
+		sdl_state.overlay_vsync = waitvsync;
 		sdl_overlay_set();
 	}
-#endif
 
 	if (SDL_UpdateTexture(sdl_state.texture, 0, sdl_state.overlay_ptr, sdl_state.overlay_pitch) != 0) {
 		log_std(("ERROR:video:sdl: Failed SDL_UpdateTexture(), %s\n", SDL_GetError()));
@@ -1205,6 +1220,7 @@ adv_error sdl_scroll(unsigned offset, adv_bool waitvsync)
 	if (SDL_RenderCopy(sdl_state.renderer, sdl_state.texture, 0, 0) != 0) {
 		log_std(("ERROR:video:sdl: Failed SDL_RenderCopy(), %s\n", SDL_GetError()));
 	}
+
 	SDL_RenderPresent(sdl_state.renderer);
 #endif
 
@@ -1264,6 +1280,8 @@ adv_error sdl_mode_import(adv_mode* mode, const sdl_video_mode* sdl_mode)
 #if SDL_MAJOR_VERSION == 1
 	if (sdl_mode_flags() & SDL_DOUBLEBUF)
 		mode->flags |= MODE_FLAGS_RETRACE_WRITE_SYNC;
+#else
+	mode->flags |= MODE_FLAGS_RETRACE_SCROLL_SYNC;
 #endif
 	mode->size_x = sdl_mode->size_x;
 	mode->size_y = sdl_mode->size_y;

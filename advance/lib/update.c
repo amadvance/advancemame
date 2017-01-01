@@ -69,9 +69,9 @@ void update_init(unsigned max_buffer)
 
 	update_page = 0;
 
-	if (pages >= 3 && (video_flags() & MODE_FLAGS_RETRACE_SET_ASYNC) != 0) {
+	if (pages >= 3 && (video_flags() & MODE_FLAGS_RETRACE_SCROLL_ASYNC) != 0) {
 		update_page_max = 3;
-	} else if (pages >= 2 && (video_flags() & MODE_FLAGS_RETRACE_SET_SYNC) != 0) {
+	} else if (pages >= 2 && (video_flags() & MODE_FLAGS_RETRACE_SCROLL_SYNC) != 0) {
 		update_page_max = 2;
 	} else {
 		update_page_max = 1;

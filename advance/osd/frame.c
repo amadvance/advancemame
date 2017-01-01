@@ -458,7 +458,9 @@ void advance_video_invalidate_screen(struct advance_video_context* context)
 
 	/* number of times to clear to use all the buffers */
 	count = update_page_max_get();
-	if (count == 1 && (video_flags() & MODE_FLAGS_RETRACE_WRITE_SYNC) != 0)
+
+	/* at least two cycles to workaround some SDL1 issues */
+	if (count < 2)
 		count = 2;
 
 	/* intentionally doesn't clear the entire video memory, */
