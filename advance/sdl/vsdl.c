@@ -953,7 +953,6 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 	if ((sdl_state.surface->flags & SDL_PREALLOC) != 0)
 		log_std(("video:sdl: surface flag SDL_PREALLOC\n"));
 #else
-
 	switch (mode->index) {
 	case MODE_FLAGS_INDEX_BGR32 :
 	case MODE_FLAGS_INDEX_YUY2 :
@@ -968,16 +967,15 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 	sdl_state.overlay_size_y = mode->size_y;
 	sdl_state.overlay_bit = 32;
 
-	/* align at 32 bytes */
-	sdl_state.overlay_pitch = ALIGN_UNSIGNED(sdl_state.overlay_size_x * 4, 32);
+	sdl_state.overlay_pitch = ALIGN_UNSIGNED(sdl_state.overlay_size_x * 4, ALIGN);
 
-	sdl_state.overlay_alloc = malloc(sdl_state.overlay_size_y * sdl_state.overlay_pitch + 32);
+	sdl_state.overlay_alloc = malloc(sdl_state.overlay_size_y * sdl_state.overlay_pitch + ALIGN);
 	if (!sdl_state.overlay_alloc) {
 		error_set("Low memory.");
 		return -1;
 	}
 
-	sdl_state.overlay_ptr = ALIGN_PTR(sdl_state.overlay_alloc, 32);
+	sdl_state.overlay_ptr = ALIGN_PTR(sdl_state.overlay_alloc, ALIGN);
 
 	/* always initialize with vsync to allow to measure it */
 	sdl_state.overlay_vsync = 1;

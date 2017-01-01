@@ -1876,14 +1876,12 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 
 	context->state.buffer_bytes_per_scanline = context->state.buffer_size_x * color_def_bytes_per_pixel_get(context->state.buffer_def);
 
-	/* align at 32 bytes */
-	context->state.buffer_bytes_per_scanline = ALIGN_UNSIGNED(context->state.buffer_bytes_per_scanline, 32);
+	context->state.buffer_bytes_per_scanline = ALIGN_UNSIGNED(context->state.buffer_bytes_per_scanline, ALIGN);
 
-	size = 32 + context->state.buffer_size_y * context->state.buffer_bytes_per_scanline;
+	size = context->state.buffer_size_y * context->state.buffer_bytes_per_scanline + ALIGN;
 	context->state.buffer_ptr_alloc = malloc(size);
 
-	/* align at 32 bytes */
-	context->state.buffer_ptr = ALIGN_PTR(context->state.buffer_ptr_alloc, 32);
+	context->state.buffer_ptr = ALIGN_PTR(context->state.buffer_ptr_alloc, ALIGN);
 
 	/* clear */
 	video_buffer_clear(context);
