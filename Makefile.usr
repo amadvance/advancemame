@@ -43,8 +43,8 @@ prefix=/usr/local
 
 # Uncomment and set to "no" to disable some libraries:
 #CONF_LIB_DIRECT=yes
-#CONF_LIB_SVGALIB=yes
-#CONF_LIB_SVGAWIN=yes
+#CONF_LIB_SVGALIB=no
+#CONF_LIB_SVGAWIN=no
 #CONF_LIB_SDL=yes
 #CONF_LIB_FREETYPE=yes
 #CONF_LIB_FB=yes
@@ -155,7 +155,7 @@ CONF_LIB_FREETYPE=yes
 endif
 
 ifndef CONF_LIB_SVGAWIN
-CONF_LIB_SVGAWIN=$(CONF_LIB_DIRECT)
+CONF_LIB_SVGAWIN=no
 endif
 
 ifndef CONF_LIB_PTHREAD

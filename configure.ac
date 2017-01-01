@@ -419,9 +419,9 @@ AC_SUBST([CONF_LIB_EXPAT],[$ac_lib_expat])
 dnl Checks for svgalib
 AC_ARG_ENABLE(
 	[svgalib],
-	AC_HELP_STRING([--enable-svgalib],[enable the use of the SVGALIB library. (default auto)]),
+	AC_HELP_STRING([--enable-svgalib],[enable the use of the SVGALIB library. (default no)]),
 	[ac_lib_svgalib=$enableval],
-	[ac_lib_svgalib=auto]
+	[ac_lib_svgalib=no]
 )
 if test $ac_lib_svgalib = auto; then
 	AC_CHECK_LIB(
@@ -1018,9 +1018,9 @@ AC_SUBST([SDLLIBS])
 dnl Checks for svgawin
 AC_ARG_ENABLE(
 	[svgawin],
-	AC_HELP_STRING([--enable-svgawin],[enable the use of the SVGAWIN library. (default auto)]),
+	AC_HELP_STRING([--enable-svgawin],[enable the use of the SVGAWIN library. (default no)]),
 	[ac_lib_svgawin=$enableval],
-	[ac_lib_svgawin=auto]
+	[ac_lib_svgawin=no]
 )
 if test $ac_lib_svgawin = auto; then
 	if test $ac_system = windows; then
@@ -1318,8 +1318,8 @@ echo ""
 echo "== Drivers/Libraries =="
 if test $ac_lib_direct_flag = no ; then
 	echo "Video :" $ac_lib_video
-	echo "(No video driver is capable to program directly your video board."
-	echo "You will not be able to use not standard video modes.)"
+	echo "No video driver is able to program your video board."
+	echo "You will be able to use only standard video modes."
 else
 	echo "Video :" $ac_lib_video
 fi
