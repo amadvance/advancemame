@@ -481,6 +481,34 @@ static void video_command(struct advance_video_context* context, struct advance_
 /***************************************************************************/
 /* Frame */
 
+static void video_frame_start(struct advance_video_context* context)
+{
+	update_start();
+}
+
+static void video_frame_stop(struct advance_video_context* context)
+{
+	adv_bool vsync = context->state.vsync_flag;
+	target_clock_t start;
+	target_clock_t stop;
+
+	start = target_clock();
+
+	/* if we already have synced on the wait */
+	if (vsync && (video_flags() & MODE_FLAGS_RETRACE_WAIT_SYNC) != 0)
+		vsync = 0;
+
+	update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), vsync);
+
+	stop = target_clock() - start;
+
+	context->state.update_timing_map[context->state.update_timing_i] = stop;
+
+	++context->state.update_timing_i;
+	if (context->state.update_timing_i == PIPELINE_MEASURE_MAX)
+		context->state.update_timing_i = 0;
+}
+
 static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, struct advance_safequit_context* safequit_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
 	/* Do a yield immediatly before the time syncronization. */
@@ -491,6 +519,9 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 
 	/* the frame syncronization is out of the time estimation */
 	advance_video_sync(context, sound_context, estimate_context, skip_flag);
+
+	/* start updating */
+	video_frame_start(context);
 
 	/* estimate the time */
 	advance_estimate_osd_begin(estimate_context);
@@ -503,6 +534,9 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 
 	/* estimate the time */
 	advance_estimate_osd_end(estimate_context, skip_flag);
+
+	/* stop updating, this may include a vsync and it's out of the time estimation */
+	video_frame_stop(context);
 }
 
 /**

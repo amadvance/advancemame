@@ -74,7 +74,7 @@ void advance_video_update_skip(struct advance_video_context* context)
 }
 
 /**
- * Decremnt by one the frame skip state.
+ * Decrement by one the frame skip state.
  */
 adv_bool advance_video_skip_dec(struct advance_video_context* context)
 {
@@ -341,26 +341,12 @@ static void video_frame_sync(struct advance_video_context* context)
 			&& context->state.vsync_flag
 			&& context->state.skip_level_full == SYNC_MAX
 		) {
-			double early;
 			double limit;
 			double error;
 			double expected;
-			double intermediate;
 
 			expected = context->state.sync_last + 1.0 / context->state.mode_vclock;
 			context->state.sync_skip_counter = 0;
-
-			/*
-			 * Wait until we are near at the vsync to not have false positive.
-			 * This is possible when the video mode has a higher frequency than the game.
-			 * Like if game is at 30 Hz, but video mode is at 60 Hz.
-			 *
-			 * We wait until the 85% of the frame.
-			 */
-			early = 0.15 / context->state.mode_vclock;
-
-			current = video_frame_wait(current, expected - early);
-			intermediate = current;
 
 			/*
 			 * Do not wait if we are too near at the vsync to not have false negative,
@@ -379,11 +365,28 @@ static void video_frame_sync(struct advance_video_context* context)
 
 			error = expected - current;
 
-			if (error < -early) {
-				log_std(("ERROR:advance:sync: wait %g too long. frame %g, timer %g, vsync %g, reference %g (error %g)\n", current - begin, current - context->state.sync_last, intermediate - begin, current - intermediate, 1.0 / context->state.mode_vclock, -error));
-			} else if (error > early) {
-				log_std(("WARNING:advance:sync: wait %g too short. frame %g, timer %g, vsync %g, reference %g (error %g)\n", current - begin, current - context->state.sync_last, intermediate - begin, current - intermediate, 1.0 / context->state.mode_vclock, error));
+			if (error < -limit) {
+				log_std(("ERROR:advance:sync: wait %g too long. frame %g, reference %g (error %g)\n", current - begin, current - context->state.sync_last, 1.0 / context->state.mode_vclock, -error));
+			} else if (error > limit) {
+				log_std(("WARNING:advance:sync: wait %g too short. frame %g, reference %g (error %g)\n", current - begin, current - context->state.sync_last, 1.0 / context->state.mode_vclock, error));
 			}
+
+			/* save the time of the latest sync */
+			context->state.sync_last = current;
+
+			/* after a sync always reset the error to 0 */
+			context->state.sync_pivot = 0;
+		} else if ((video_flags() & (MODE_FLAGS_RETRACE_SCROLL_SYNC | MODE_FLAGS_RETRACE_WRITE_SYNC)) != 0
+			&& context->state.vsync_flag
+			&& context->state.skip_level_full == SYNC_MAX
+		) {
+			/*
+			 * We do nothing here, as we are going to vsync later when updating.
+			 */
+			context->state.sync_skip_counter = 0;
+
+			/* save the time of the latest sync */
+			context->state.sync_last = current;
 
 			/* after a sync always reset the error to 0 */
 			context->state.sync_pivot = 0;
@@ -398,19 +401,20 @@ static void video_frame_sync(struct advance_video_context* context)
 
 			current = video_frame_wait(current, expected);
 
+			/* save the time of the latest sync */
+			context->state.sync_last = current;
+
 			/* update the error state */
 			context->state.sync_pivot = expected - current;
-		}
 
-		if (context->state.sync_pivot < - context->state.skip_step * 16) {
-			/* if the error is too big (negative) the delay is unrecoverable */
-			/* generally it happen with a virtual terminal switch */
-			/* the best solution is to restart the sync computation */
-			advance_video_update_skip(context);
-			advance_video_update_sync(context);
+			if (context->state.sync_pivot < - context->state.skip_step * 16) {
+				/* if the error is too big (negative) the delay is unrecoverable */
+				/* generally it happen with a virtual terminal switch */
+				/* the best solution is to restart the sync computation */
+				advance_video_update_skip(context);
+				advance_video_update_sync(context);
+			}
 		}
-
-		context->state.sync_last = current;
 	}
 }
 
