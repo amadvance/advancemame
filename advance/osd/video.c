@@ -1273,7 +1273,6 @@ static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
 { "filter", COMBINE_FILTER },
 { "scalex", COMBINE_SCALEX },
 { "scalek", COMBINE_SCALEK },
-{ "lq", COMBINE_LQ },
 { "hq", COMBINE_HQ },
 { "xbr", COMBINE_XBR }
 };

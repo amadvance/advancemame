@@ -786,7 +786,7 @@ void advance_video_update_effect(struct advance_video_context* context)
 		context->state.combine = COMBINE_NONE;
 	}
 
-	if ((context->state.combine == COMBINE_LQ || context->state.combine == COMBINE_HQ)
+	if ((context->state.combine == COMBINE_HQ)
 		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 2*context->state.game_visible_size_y)
 		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
 		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
@@ -1848,9 +1848,6 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 		break;
 	case COMBINE_SCALEK :
 		combine |= VIDEO_COMBINE_Y_SCALEK;
-		break;
-	case COMBINE_LQ :
-		combine |= VIDEO_COMBINE_Y_LQ;
 		break;
 #ifndef USE_BLIT_SMALL
 	case COMBINE_HQ :

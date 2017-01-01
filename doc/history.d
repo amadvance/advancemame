@@ -19,6 +19,8 @@ AdvanceMAME/MESS/MENU Version 3.1 2016/12
 		the monitor limits to avoid over scaling.
 	) Restored the functionality of "-output fullscreen" option.
 		It wasn't able anymore to find video modes.
+	) Removed the 'lq' effect. It was not really used.
+		The 'scale2x' and 'scale2k' are faster and better.
 	) The RunClone menu now excludes preliminary clones if they
 		are already filtered out in the main list.
 
