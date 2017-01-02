@@ -10,7 +10,7 @@ const char *mess_default_text[] =
 	"Mode: FULL Emulation",
 	"UI:   Enabled",
 	"UI:   Disabled",
-	"**Use ScrLock to toggle**",
+	"**Use Scr/NumLock to toggle**",
 
 	"Image Information",
 	"File Manager",
