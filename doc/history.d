@@ -1,14 +1,24 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS/MENU Version 3.1 2016/12
-	) Added support for SDL2. It's the new default in Linux and Windows,
-		with the exception of Raspberry where SDL1 still provides
-		better performance in the X Window environment.
+AdvanceMAME/MESS/MENU Version 3.1 2017/01
+	) Added support for SDL2. It's the new default in Linux and Windows.
+		This results in better performance and better VSync support
+		when running in a window manager environment like X Window
+		or Windows. It also enables again the RGB effects.
+		The exception is Raspberry where SDL1 still provides better
+		performance in the X Window environment, and it's still the
+		default option.
 	) More reliable Raspberry video mode setting when using programmable
-		modes.
+		modes. It now uses the Raspberry VideoCore libraries to
+		control better the system.
+	) More precise VSync syncronization, avoiding any missing frame.
+	) In MESS fixed the loading of disk image for the TI99-4A system.
+	) In MAME marked 'retofinv', 'svc', 'prmrsocr' as not working to
+		trigger the use of the working clones.
 	) Fixed the UI flickering and a potential crash when SMP is active.
-	) Added support running from a SSH shell.
+	) The Linux joystick event and raw interface now support up to 32
+		button. Before it was only 12.
 	) If SMP is active, don't automatically disable the resize
 		effect if the game is too slow. This gives a more
 		stable 'auto' effect.
@@ -19,6 +29,7 @@ AdvanceMAME/MESS/MENU Version 3.1 2016/12
 		the monitor limits to avoid over scaling.
 	) Restored the functionality of "-output fullscreen" option.
 		It wasn't able anymore to find video modes.
+	) Added support running from a SSH shell.
 	) Removed the 'lq' effect. It was not really used.
 		The 'scale2x' and 'scale2k' are faster and better.
 	) The RunClone menu now excludes preliminary clones if they
