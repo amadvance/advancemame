@@ -379,6 +379,28 @@ INPUT_PORTS_START ( mp_soni2 )
 
 INPUT_PORTS_END
 
+static INPUT_PORTS_START ( mp_shnb3 )
+	GENESIS_PORTS
+	MEGAPLAY_TEST
+	MEGAPLAY_COIN
+	MEGAPLAY_DSWA
+	MEGAPLAY_DSWB
+
+	PORT_START
+	// DSW C  (per game settings)
+	PORT_DIPNAME( 0x03, 0x01, DEF_STR( Lives ) )
+    PORT_DIPSETTING( 0x00, "4" )
+    PORT_DIPSETTING( 0x01, "3" )
+    PORT_DIPSETTING( 0x02, "2" )
+    PORT_DIPSETTING( 0x03, "1" )
+
+	PORT_DIPNAME( 0xc, 0x0c, DEF_STR ( Difficulty ) )
+    PORT_DIPSETTING( 0x00, DEF_STR ( Hardest ) )
+    PORT_DIPSETTING( 0x04, DEF_STR ( Hard ) )
+    PORT_DIPSETTING( 0x08, DEF_STR ( Easy ) )
+    PORT_DIPSETTING( 0x0c, DEF_STR ( Normal ) )
+INPUT_PORTS_END
+
 /*MEGAPLAY specific*/
 
 static READ8_HANDLER( megaplay_bios_banksel_r )
@@ -810,7 +832,17 @@ ROM_START( mp_mazin ) /* Mazin Wars */
 	MEGAPLAY_BIOS
 ROM_END
 
+ROM_START( mp_shnb3 ) /* Shinobi 3 */
+	ROM_REGION( 0x400000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "mpr-16197.ic1", 0x000000, 0x100000, CRC(48162361) SHA1(77d544509339b5ddf6d19941377e81d29e9e21dc) )
+	/* Game Instruction rom copied to 0x300000 - 0x310000 (odd / even bytes equal) */
 
+	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
+	ROM_LOAD( "epr-15175-09.ic2", 0x000000, 0x08000, CRC(6254e45a) SHA1(8667922a6eade03c964ce224f7fa39ba871c60a4) )
+
+	ROM_REGION( 0x28000, REGION_CPU3, 0 ) /* Bios */
+	MEGAPLAY_BIOS
+ROM_END
 
 
 static DRIVER_INIT (megaplay)
@@ -873,7 +905,7 @@ didn't have original Sega part numbers it's probably a converted TWC cart
 /* 06 */ GAMEB( 1993, mp_bio,   megaplay, megaplay, megaplay, mp_bio,	megaplay, ROT0, "Sega",                  "Bio-hazard Battle (Mega Play)" , 0 )
 /* 07 */ GAMEB( 1993, mp_soni2, megaplay, megaplay, megaplay, mp_soni2, megaplay, ROT0, "Sega",                  "Sonic The Hedgehog 2 (Mega Play)" , 0 )
 /* 08 */
-/* 09 */
+/* 09 */ GAMEB( 1993, mp_shnb3, megaplay, megaplay, megaplay, mp_shnb3, megaplay, ROT0, "Sega",                  "Shinobi III (Mega Play)" , 0 )
 /* 10 */
 /* 11 */ GAMEB( 1993, mp_mazin,   megaplay, megaplay, megaplay, mp_mazin,	megaplay, ROT0, "Sega",                  "Mazin Wars (Mega Play)",GAME_NOT_WORKING  )
 
