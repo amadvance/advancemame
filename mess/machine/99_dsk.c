@@ -266,6 +266,14 @@ static FLOPPY_CONSTRUCT(ti99_floppy_construct)
 	int success;
 	floperr_t err;
 
+	/* Prevents internal_floppy_device_load (mflopimg) to set the drive
+	   geometry to the medium geometry. TI disk controllers determine the
+	   number of tracks from a field in sector 0, and if the medium has
+	   40 tracks but the drive has 80, the DSR ROM automatically
+	   double-steps the tracks.
+	*/
+	floppy_keep_drive_geometry();
+
 	geometry1 = floppy_create_tag(floppy, TI99DSK_TAG, sizeof(*geometry1));
 
 	ti99_guess_geometry(floppy, geometry1, NULL, &success);

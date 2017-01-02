@@ -39,6 +39,8 @@ static const struct floppy_error_map errmap[] =
 };
 
 
+static int flopimg_keep_geometry;	/* hack for TI-99 - please fix when possible */
+
 static struct mess_flopimg *get_flopimg(mess_image *image)
 {
 	return (struct mess_flopimg *) image_lookuptag(image, FLOPPY_TAG);
@@ -234,6 +236,7 @@ struct io_procs mess_ioprocs =
 
 static int device_init_floppy(mess_image *image)
 {
+	flopimg_keep_geometry = FALSE;
 	if (!image_alloctag(image, FLOPPY_TAG, sizeof(struct mess_flopimg)))
 		return INIT_FAIL;
 	return floppy_drive_init(image, &mess_floppy_interface);
@@ -276,7 +279,8 @@ static int internal_floppy_device_load(mess_image *image, mame_file *file, int c
 	}
 
 	/* if we can get head and track counts, then set the geometry accordingly */
-	if (floppy_callbacks(flopimg->floppy)->get_heads_per_disk
+	if (!flopimg_keep_geometry
+		&& floppy_callbacks(flopimg->floppy)->get_heads_per_disk
 		&& floppy_callbacks(flopimg->floppy)->get_tracks_per_disk)
 	{
 		floppy_drive_set_geometry_absolute(image,
@@ -383,7 +387,20 @@ void floppy_install_tracktranslate_proc(mess_image *image, int (*proc)(mess_imag
 	flopimg->tracktranslate_proc = proc;
 }
 
-
+/************
+ *  Another hack for ti99: Drive track count may differ from medium track count.
+ *  It is possible to insert a 40 track medium in an 80 track drive; the TI
+ *  controllers read the track count from sector 0 and automatically
+ *  apply double steps. Setting the track count of the drive to the medium
+ *  track count will lead to unreachable tracks.
+ *  This function is called from 99_dsk.c to switch off the lines in
+ *  internal_floppy_device_load which set the drive geometry to the medium
+ *  geometry.
+ *************/
+void floppy_keep_drive_geometry(void)
+{
+	flopimg_keep_geometry = TRUE;
+}
 
 /*************************************
  *
