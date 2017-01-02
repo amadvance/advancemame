@@ -1,0 +1,12 @@
+Package: advancemame
+Version: VERSION-REVISION
+Section: games
+Priority: optional
+Architecture: MACHINE
+Installed-Size: 60000
+Depends: libsdl2-2.0-0, libasound2, libfreetype6, zlib1g, libexpat1, libslang2, libncurses5
+Maintainer: Andrea Mazzoleni <amadvance@gmail.com>
+Homepage: http://www.advancemame.it
+Description: Arcade games emulator
+ Play Arcade games with video hardware like TVs, Arcade monitors, PC monitors and LCD screens.
+
