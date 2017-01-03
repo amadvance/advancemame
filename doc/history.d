@@ -16,6 +16,7 @@ AdvanceMAME/MESS/MENU Version 3.1 2017/01
 	) In MESS fixed the loading of disk image for the TI99-4A system.
 	) In MAME marked 'retofinv', 'svc', 'prmrsocr' as not working to
 		trigger the use of the working clones.
+		Also added the game 'mp_shnb3'.
 	) Fixed the UI flickering and a potential crash when SMP is active.
 	) The Linux joystick event and raw interface now support up to 32
 		button. Before it was only 12.
