@@ -1325,7 +1325,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 		unsigned dpiclock = 0;
 		unsigned index;
 
-		/* pixel clock for HDMI (known limit of 25.00 MHz) */
+		/* pixel clock for HDMI (known lower limit of 25.00 MHz) */
 		snprintf(cmd, sizeof(cmd), "vcgencmd measure_clock pixel");
 		log_std(("video:fb: run \"%s\"\n", cmd));
 		opt = target_system(cmd);
@@ -1337,7 +1337,7 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 			free(opt);
 		}
 
-		/* pixel clock for DPI (known limit of 31.25 MHz) */
+		/* pixel clock for DPI (known lower limit of 31.25 MHz) */
 		snprintf(cmd, sizeof(cmd), "vcgencmd measure_clock dpi");
 		log_std(("video:fb: run \"%s\"\n", cmd));
 		opt = target_system(cmd);
@@ -1349,10 +1349,17 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 			free(opt);
 		}
 
-		/* if both are 0, something is wrong */
-		if (pclock == 0 && dpiclock == 0) {
-			error_set("Failed to set the requested pixel/dpi clock.\n");
-			goto err_restore;
+		/* check if the clock is set */
+		if (fb_state.oldstate.state & (VC_HDMI_HDMI | VC_HDMI_DVI | VC_SDTV_NTSC | VC_SDTV_PAL)) {
+			if (pclock == 0) {
+				error_set("Failed to set the requested pixel clock.\n");
+				goto err_restore;
+			}
+		} else if (fb_state.oldstate.state & VC_LCD_ATTACHED_DEFAULT) {
+			if (dpiclock == 0) {
+				error_set("Failed to set the requested dpi clock.\n");
+				goto err_restore;
+			}
 		}
 	}
 
