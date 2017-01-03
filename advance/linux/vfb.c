@@ -989,15 +989,21 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 	free(opt);
 
 	/* set the video mode */
-	if (fb_state.oldstate.state & VC_HDMI_HDMI)
-		drive = HDMI_MODE_HDMI;
-	else
-		drive = HDMI_MODE_DVI;
-	log_std(("video:vc: vc_tv_hdmi_power_on_explicit(%s, DMT, 87)\n", drive == HDMI_MODE_HDMI ? "HDMI" : "DVI"));
-	ret = vc_tv_hdmi_power_on_explicit(drive, HDMI_RES_GROUP_DMT, 87);
-	if (ret != 0) {
-		log_std(("ERROR:video:vc: vc_tv_hdmi_power_on_explicit() failed\n"));
-		return -1;
+	if (fb_state.oldstate.state & (VC_HDMI_HDMI | VC_HDMI_DVI | VC_SDTV_NTSC | VC_SDTV_PAL)) {
+		if (fb_state.oldstate.state & VC_HDMI_HDMI)
+			drive = HDMI_MODE_HDMI;
+		else
+			drive = HDMI_MODE_DVI;
+		log_std(("video:vc: vc_tv_hdmi_power_on_explicit(%s, DMT, 87)\n", drive == HDMI_MODE_HDMI ? "HDMI" : "DVI"));
+		ret = vc_tv_hdmi_power_on_explicit(drive, HDMI_RES_GROUP_DMT, 87);
+		if (ret != 0) {
+			log_std(("ERROR:video:vc: vc_tv_hdmi_power_on_explicit() failed\n"));
+			return -1;
+		}
+	} else if (fb_state.oldstate.state & VC_LCD_ATTACHED_DEFAULT) {
+		/* in LCD mode the timings are enabled directly by the vcgencmd call */
+	} else {
+		log_std(("ERROR:video:vc: unsupported state %x, don't know how to enable timings\n", fb_state.oldstate.state));
 	}
 
 	return 0;
@@ -1062,14 +1068,12 @@ static void fb_raspberry_restoretiming(unsigned* size_x, unsigned* size_y)
 			log_std(("ERROR:video:vc: vc_tv_sdtv_power_on() failed\n"));
 			/* ignore error */
 		}
+	} else if (fb_state.oldstate.state & VC_LCD_ATTACHED_DEFAULT) {
+		/* in LCD mode the timings are enabled directly by the vcgencmd call */
+		*size_x = fb_state.oldstate.display.hdmi.width;
+		*size_y = fb_state.oldstate.display.hdmi.height;
 	} else {
-		/* otherwise, use the preferred mode */
-		log_std(("video:vc: vc_tv_hdmi_power_on_preferred()\n"));
-		ret = vc_tv_hdmi_power_on_preferred();
-		if (ret != 0) {
-			log_std(("ERROR:video:vc: vc_tv_hdmi_power_on_explicit() failed\n"));
-			/* ignore error */
-		}
+		log_std(("ERROR:video:vc: unsupported state %x, don't know how to restore timings\n", fb_state.oldstate.state));
 	}
 }
 #endif
