@@ -750,8 +750,11 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		if (output == adv_output_auto || output == adv_output_overlay)
 			fb_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
 #ifdef USE_VC /* programmable modes are available only with VideoCore */
-		if (output == adv_output_auto || output == adv_output_fullscreen)
+		if (output == adv_output_auto || output == adv_output_fullscreen) {
 			fb_state.flags |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+			/* exclude DOUBLESCAN modes not supported by the Raspberry hardware */
+			fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
+		}
 #endif
 
 		/*
@@ -1785,6 +1788,18 @@ adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned f
 		if (!crtc_is_valid(crtc)) {
 			error_nolog_set("Invalid programmable mode.\n");
 			return -1;
+		}
+		if (crtc_is_doublescan(crtc)) {
+			if ((fb_state.flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) == 0) {
+				error_nolog_set("Doublescan mode not supported.\n");
+				return -1;
+			}
+		}
+		if (crtc_is_interlace(crtc)) {
+			if ((fb_state.flags & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) == 0) {
+				error_nolog_set("Interlace mode not supported.\n");
+				return -1;
+			}
 		}
 	}
 
