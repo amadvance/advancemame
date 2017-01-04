@@ -952,12 +952,45 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 	char cmd[256];
 	int ret;
 	unsigned drive;
+	adv_crtc copy;
 
 	/* we are going to change the timings */
 	fb_state.old_need_restore = 1;
 
 	*size_x = crtc->hde;
 	*size_y = crtc->vde;
+
+	/*
+	 * In DPI mode there are strong limitation on low pixel clocks,
+	 * allowing only the values: 4.8 MHz, 6.4 MHz, 9.6MHz and 19.2 MHz.
+	 *
+	 * Avoid them duplicating the x size.
+	 */
+	copy = *crtc;
+	if (fb_state.oldstate.state & VC_LCD_ATTACHED_DEFAULT) {
+		if (copy.pixelclock == 4800000
+			|| copy.pixelclock == 6400000
+			|| copy.pixelclock == 9600000
+			|| copy.pixelclock == 19200000
+		) {
+			/* these exact values are OK */
+		} else {
+			/*
+			 * Increse the x size until we reach a pixelclock of 31250000
+			 * plus some safety margin for error precision.
+			 *
+			 * Note that the Horizontal and Vertical clocks remain the same.
+			 */
+			while (copy.pixelclock <= 31300000) {
+				log_std(("video:fb: adjust modeline to increase pixelclock by %u\n", crtc->pixelclock));
+				copy.hde += crtc->hde;
+				copy.hrs += crtc->hrs;
+				copy.hre += crtc->hre;
+				copy.ht += crtc->ht;
+				copy.pixelclock += crtc->pixelclock;
+			}
+		}
+	}
 
 	/*
 	 * Configure the Raspberry HDMI timing.
@@ -981,9 +1014,9 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 		"%u %u %u %u %u "
 		"%u %u %u %u %u "
 		"%u %u %u %u %u %u %u",
-		crtc->hde, (int)!crtc_is_nhsync(crtc), crtc->hrs - crtc->hde, crtc->hre - crtc->hrs,  crtc->ht - crtc->hre,
-		crtc->vde, (int)!crtc_is_nvsync(crtc), crtc->vrs - crtc->vde, crtc->vre - crtc->vrs,  crtc->vt - crtc->vre,
-		0, 0, 0, (unsigned)floor(crtc_vclock_get(crtc) + 0.5), (int)crtc_is_interlace(crtc), (unsigned)crtc->pixelclock, 1
+		copy.hde, (int)!crtc_is_nhsync(&copy), copy.hrs - copy.hde, copy.hre - copy.hrs,  copy.ht - copy.hre,
+		copy.vde, (int)!crtc_is_nvsync(&copy), copy.vrs - copy.vde, copy.vre - copy.vrs,  copy.vt - copy.vre,
+		0, 0, 0, (unsigned)floor(crtc_vclock_get(&copy) + 0.5), (int)crtc_is_interlace(&copy), (unsigned)copy.pixelclock, 1
 	);
 
 	log_std(("video:fb: run \"%s\"\n", cmd));
