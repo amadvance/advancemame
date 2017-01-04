@@ -50,6 +50,7 @@ void log_va(const char* text, va_list arg);
 void log_f(const char* text, ...) __attribute__((format(printf, 1, 2)));
 void log_f_modeline_cb(const char* text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace);
 void log_f_modeline_c(const char* text, unsigned pixel_clock, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace);
+void log_f_dump(const char* text, void* data, unsigned size);
 
 /** \addtogroup Log */
 /*@{*/
@@ -82,6 +83,14 @@ FILE* log_handle(void);
  * compile time the log command. 
  */
 #define log_std_modeline_c(a) log_f_modeline_c a
+
+/**
+ * Print a memory dump in the standard log file.
+ * This function must be called using the double (( )) convention.
+ * This convention allows the use of the printf format and to disable selectively at
+ * compile time the log command. 
+ */
+#define log_std_dump(a) log_f_dump a
 
 /**
  * Print a log entry in the debug output file.

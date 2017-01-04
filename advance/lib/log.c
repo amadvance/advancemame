@@ -86,6 +86,27 @@ void log_f_modeline_c(const char* text, unsigned pixel_clock, unsigned hde, unsi
 }
 
 /**
+ * Dump memory in the log file.
+ * This function must not be called directly. One of the log_* macro must be used.
+ */
+void log_f_dump(const char* text, void* data, unsigned size)
+{
+	unsigned i;
+	for(i=0;i<size;i+=16) {
+		unsigned j;
+		char buf[LOG_BUFFER_SIZE];
+		sprintf(buf, "%s %08x: ", text, i);
+		for(j=0;i+j<size && j<16;++j) {
+			char nibble[16];
+			sprintf(nibble, "%02x", ((unsigned char*)data)[i+j]);
+			strcat(buf, nibble);
+		}
+		strcat(buf, "\n");
+		log_f(buf);
+	}
+}
+
+/**
  * Print something with the printf format in the log file.
  * This function must not be called directly. One of the log_* macro must be used.
  */
