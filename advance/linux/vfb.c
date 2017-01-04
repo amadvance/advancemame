@@ -652,6 +652,8 @@ void vc_log(TV_DISPLAY_STATE_T* state)
 		/* print from the HDMI struct like tvservice */
 		log_std(("video:vc: TV OFF state %08x\n", state->display.hdmi.state));
 	}
+
+	log_std_dump(("video:vc: dump", state, sizeof(*state)));
 }
 #endif
 
