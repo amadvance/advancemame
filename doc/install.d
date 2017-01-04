@@ -53,8 +53,6 @@ System Requirements
 	need a kind of HDMI->VGA or HDMI->SCART converter to connect it to a
 	CRT monitor.
 
-	Then just follow the next "Video Setup" chapter.
-
     DPI Port
 	To use the programmable modelines with the Raspberry DPI port you
 	need a GPIO add-on board like the Gert's VGA 666.
@@ -64,18 +62,17 @@ System Requirements
 	affect your ability to control low frequency monitors, like Arcade
 	screens.
 
-	The only allowed pixel clock values suitable for low resolutions
+	The only allowed pixel clocks suitable for low resolutions
 	are 4.8 MHz, 6.4 MHz, 9.6MHz and 19.2 MHz.
-	You can instead choose any pixel clock greater than 31.3 MHz.
+	You can instead choose any pixel clock greater than 31.25 MHz.
 
-	It's then then better to use a set of prefixed modelines, and avoid
-	the automatic generation.
-	Set in advmame.rc the option "display_adjust none" and select with
-	"advv" a set of working modelines. You can start trying the modelines
-	named "raspberry_DPI" that use these specific pixel clocks.
+	To overcome this problematic, AdvanceMAME transparently duplicates
+	the horizontal size, until it reaches the 31.25 MHz pixel clock.
+	Don't be surprised if a modeline that works in AdvanceMAME, doesn't
+	work when setting manually the timings in other ways.
 
-	Note that to have the programmable modes working, you have to start the
-	Raspberry with the custom mode 87 group 2 in config.txt.
+	To have the programmable modes working, you have to start the
+	Raspberry with the custom mode 87 group 2 in '/boot/config.txt'.
 
 	For example, with an Arcade Monitor, you can use:
 
@@ -87,7 +84,7 @@ System Requirements
 
 		:dpi_group=2
 		:dpi_mode=87
-		:hdmi_cvt=1280 1024 60
+		:hdmi_cvt=1024 768 60
 
 	Usually you have to also add other options, for example with a Raspberry
 	Pi 3 and a Gert's VGA 666, you need also:
@@ -105,8 +102,6 @@ System Requirements
 		:dtparam=audio=on
 		:gpu_mem=128
 
-	Then follow the next "Video Setup" chapter.
-
   Windows/Mac OS X
 	In Windows and Mac OS X, the Advance programs use the SDL library
 	for video, audio, and input controllers.
@@ -115,7 +110,7 @@ System Requirements
 	included.
 
   DOS
-	In DOS, the Advance programs already contain all the required drivers
+	In DOS, the Advance programs already contains all the required drivers
 	for video, audio, and input controllers.
 
 	Generally you don't need to install additional software with
@@ -129,12 +124,12 @@ Installation
 	you need only the usual commands:
 
 		:./configure
-		:make
+		:make -j3
 		:sudo make install
 
-	The exceptions are the DOS, Windows and Raspberry targets. In such cases
-	it's better to start from the binary distribution and don't compile
-	the source.
+	The exceptions are the DOS, Windows and Raspberry targets.
+	In such cases it's better to start from the binary distribution
+	and don't compile the source.
 
 Configuration
 	All the Advance programs require a configuration file to work.
