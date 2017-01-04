@@ -992,7 +992,7 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 	free(opt);
 
 	/* set the video mode */
-	if (fb_state.oldstate.state & (VC_HDMI_HDMI | VC_HDMI_DVI | VC_SDTV_NTSC | VC_SDTV_PAL)) {
+	if (fb_state.oldstate.state & (VC_HDMI_HDMI | VC_HDMI_DVI)) {
 		if (fb_state.oldstate.state & VC_HDMI_HDMI)
 			drive = HDMI_MODE_HDMI;
 		else
@@ -1006,6 +1006,7 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 	} else if (fb_state.oldstate.state & VC_LCD_ATTACHED_DEFAULT) {
 		/* in LCD mode the timings are enabled directly by the vcgencmd call */
 	} else {
+		/* in TV mode (VC_SDTV_NTSC | VC_SDTV_PAL) the timings are never enabled! This is just a fake support! */
 		log_std(("ERROR:video:vc: unsupported state %x, don't know how to enable timings\n", fb_state.oldstate.state));
 	}
 
@@ -1349,8 +1350,9 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 			free(opt);
 		}
 
+#ifdef USE_VC
 		/* check if the clock is set */
-		if (fb_state.oldstate.state & (VC_HDMI_HDMI | VC_HDMI_DVI | VC_SDTV_NTSC | VC_SDTV_PAL)) {
+		if (fb_state.oldstate.state & (VC_HDMI_HDMI | VC_HDMI_DVI)) {
 			if (pclock == 0) {
 				error_set("Failed to set the requested pixel clock.\n");
 				goto err_restore;
@@ -1360,7 +1362,11 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 				error_set("Failed to set the requested dpi clock.\n");
 				goto err_restore;
 			}
+		} else {
+			/* in TV mode (VC_SDTV_NTSC | VC_SDTV_PAL) the timings are never enabled! This is just a fake support! */
+			log_std(("ERROR:video:vc: unsupported state %x, don't know how to check timings\n", fb_state.oldstate.state));
 		}
+#endif
 	}
 
 	/* check the validity of the resulting video mode */
