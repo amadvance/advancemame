@@ -752,11 +752,8 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		if (output == adv_output_auto || output == adv_output_overlay)
 			fb_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
 #ifdef USE_VC /* programmable modes are available only with VideoCore */
-		if (output == adv_output_auto || output == adv_output_fullscreen) {
+		if (output == adv_output_auto || output == adv_output_fullscreen)
 			fb_state.flags |= VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
-			/* exclude DOUBLESCAN modes not supported by the Raspberry hardware */
-			fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
-		}
 #endif
 
 		/*
@@ -960,13 +957,29 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 	*size_x = crtc->hde;
 	*size_y = crtc->vde;
 
+	copy = *crtc;
+
+	/*
+	 * Simulate Doublescan modes really duplicating the vertical size.
+	 *
+	 * The dispmanx layer will take care of the scaling.
+	 */
+	if (crtc_is_doublescan(&copy)) {
+		crtc_singlescan_set(&copy);
+		copy.vde *= 2;
+		copy.vrs *= 2;
+		copy.vre *= 2;
+		copy.vt *= 2;
+	}
+
 	/*
 	 * In DPI mode there are strong limitation on low pixel clocks,
 	 * allowing only the values: 4.8 MHz, 6.4 MHz, 9.6MHz and 19.2 MHz.
 	 *
 	 * Avoid them duplicating the x size.
+	 *
+	 * The dispmanx layer will take care of the scaling.
 	 */
-	copy = *crtc;
 	if (fb_state.oldstate.state & VC_LCD_ATTACHED_DEFAULT) {
 		if (copy.pixelclock == 4800000
 			|| copy.pixelclock == 6400000

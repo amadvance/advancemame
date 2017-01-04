@@ -44,21 +44,68 @@ System Requirements
 	With a Raspberry Pi 3 you can expect to run most of the games at
 	full speed, with vsync enabled, even when using the Scale2x effect.
 
-	If instead you want to use an old CRT Arcade screen or TV, you can
+	If instead you want to use an old CRT Arcade or TV screen, you can
 	configure the Advance programs to generate modelines customized
 	for your video hardware.
-	In this case see the following "Video Setup" chapter.
 
-	Note that the Raspberry Pi has strong limitations on the lower range of
-	pixel clocks when using the DPI/GPIO interface.
-	The only allowed values suitable for low resolutions are 4.8 MHz, 6.4 MHz,
-	9.6MHz and 19.2 MHz.
+    HDMI Port
+	To use the programmable modelines with the Raspberry HDMI port, you
+	need a kind of HDMI->VGA or HDMI->SCART converter to connect it to a
+	CRT monitor.
 
-	When using a 15 kHz CRT Arcade or CRT TV monitor connected to the DPI/GPIO
-	interface, like when using the Gert's VGA 666, it's better to use a set of
-	prefixed modelines, and avoid the automatic generation.
-	Set in advmame.rc the option "display_adjust none" and select with "advv"
-	a set of working modelines.
+	Then just follow the next "Video Setup" chapter.
+
+    DPI Port
+	To use the programmable modelines with the Raspberry DPI port you
+	need a GPIO add-on board like the Gert's VGA 666.
+
+	Unfortunately the Raspberry Pi has strong limitations on the lower
+	range of pixel clocks when using the DPI/GPIO interface, that will
+	affect your ability to control low frequency monitors, like Arcade
+	screens.
+
+	The only allowed pixel clock values suitable for low resolutions
+	are 4.8 MHz, 6.4 MHz, 9.6MHz and 19.2 MHz.
+	You can instead choose any pixel clock greater than 31.3 MHz.
+
+	It's then then better to use a set of prefixed modelines, and avoid
+	the automatic generation.
+	Set in advmame.rc the option "display_adjust none" and select with
+	"advv" a set of working modelines. You can start trying the modelines
+	named "raspberry_DPI" that use these specific pixel clocks.
+
+	Note that to have the programmable modes working, you have to start the
+	Raspberry with the custom mode 87 group 2 in config.txt.
+
+	For example, with an Arcade Monitor, you can use:
+
+		:dpi_group=2
+		:dpi_mode=87
+		:hdmi_timings=320 1 20 29 35 224 1 10 14 16 0 0 0 60 0 6400000 1
+
+	With a standard SVGA Monitor, you can use:
+
+		:dpi_group=2
+		:dpi_mode=87
+		:hdmi_cvt=1280 1024 60
+
+	Usually you have to also add other options, for example with a Raspberry
+	Pi 3 and a Gert's VGA 666, you need also:
+
+		:device_tree=bcm2710-rpi-3-b.dtb
+		:dtparam=i2c_arm=off
+		:dtparam=spi=off
+		:dtparam=uart0=off
+		:dtparam=uart1=off
+		:dtoverlay=pi3-disable-bt-overlay
+		:dtoverlay=vga666
+		:enable_dpi_lcd=1
+		:display_default_lcd=1
+		:force_pwm_open=0
+		:dtparam=audio=on
+		:gpu_mem=128
+
+	Then follow the next "Video Setup" chapter.
 
   Windows/Mac OS X
 	In Windows and Mac OS X, the Advance programs use the SDL library
