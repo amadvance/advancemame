@@ -731,8 +731,6 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 	if (fb_state.is_raspberry) {
 		char* opt;
 		char cmd[256];
-		int ret;
-		struct fb_var_screeninfo alt;
 
 		log_std(("video:fb: detected Raspberry Pi/BCM2708 hardware\n"));
 
@@ -779,47 +777,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 #ifdef USE_VC
 		/* keep track if we change timings */
 		fb_state.old_need_restore = 0;
-
-		/* get current timings */
 		fb_state.oldtimings[0] = 0;
-		snprintf(cmd, sizeof(cmd), "vcgencmd hdmi_timings");
-		log_std(("video:fb: run \"%s\"\n", cmd));
-		opt = target_system(cmd);
-		if (opt) {
-			char* split;
-			log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
-
-			split = strchr(opt, '=');
-			if (split) {
-				++split;
-				snprintf(fb_state.oldtimings, sizeof(fb_state.oldtimings), "%s", split);
-				log_std(("video:fb: hdmi_timings %s\n", fb_state.oldtimings));
-			}
-
-			free(opt);
-		}
-
-		/* set an alternate mode with a different bits per pixel */
-		/* this is required because "vcgencmd hdmi_timings" make the screen black */
-		/* when using the LCD interface */
-		alt = fb_state.varinfo;
-		if (alt.bits_per_pixel == 16) {
-			alt.bits_per_pixel = 8;
-		} else {
-			alt.bits_per_pixel = 16;
-		}
-		ret = fb_setvar(&alt);
-		if (ret != 0) {
-			log_std(("ERROR:video:vc: alterante mode set FAILED\n"));
-			goto err_close;
-		}
-
-		/* set the present mode */
-		ret = fb_setvar(&fb_state.varinfo);
-		if (ret != 0) {
-			log_std(("ERROR:video:vc: mode set FAILED\n"));
-			goto err_close;
-		}
 
 		/* get current info */
 		if (vc_tv_get_display_state(&fb_state.oldstate) != 0) {
@@ -975,8 +933,38 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 	unsigned drive;
 	adv_crtc copy;
 
-	/* we are going to change the timings */
-	fb_state.old_need_restore = 1;
+	/*
+	 * If we have not yet saved the timinigs, do it now.
+	 *
+	 * We delay this operation because in VC_LCD_ATTACHED_DEFAULT
+	 * mode it makes the screen black, and you need the
+	 * "fbset -depth 8 && fbset -depth 16" sequence to restore it.
+	 *
+	 * At this point we are going anyway to change video mode,
+	 * and then we can safely go black.
+	 */
+	if (!fb_state.old_need_restore) {
+		/* get current timings */
+		snprintf(cmd, sizeof(cmd), "vcgencmd hdmi_timings");
+		log_std(("video:fb: run \"%s\"\n", cmd));
+		opt = target_system(cmd);
+		if (opt) {
+			char* split;
+			log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
+
+			split = strchr(opt, '=');
+			if (split) {
+				++split;
+				snprintf(fb_state.oldtimings, sizeof(fb_state.oldtimings), "%s", split);
+				log_std(("video:fb: hdmi_timings %s\n", fb_state.oldtimings));
+			}
+
+			free(opt);
+		}
+
+		/* we are going to change the timings */
+		fb_state.old_need_restore = 1;
+	}
 
 	*size_x = crtc->hde;
 	*size_y = crtc->vde;
