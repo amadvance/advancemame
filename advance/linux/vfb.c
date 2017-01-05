@@ -994,13 +994,15 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 			 *
 			 * Note that the Horizontal and Vertical clocks remain the same.
 			 */
+			unsigned factor = 0;
 			while (copy.pixelclock <= 31300000) {
-				log_std(("video:fb: adjust modeline to increase pixelclock by %u\n", crtc->pixelclock));
-				copy.hde += crtc->hde;
-				copy.hrs += crtc->hrs;
-				copy.hre += crtc->hre;
-				copy.ht += crtc->ht;
-				copy.pixelclock += crtc->pixelclock;
+				++factor;
+				log_std(("video:fb: adjust modeline to increase by factor %u / 4\n", factor));
+				copy.hde += crtc->hde / 4;
+				copy.hrs += crtc->hrs / 4;
+				copy.hre += crtc->hre / 4;
+				copy.ht += crtc->ht / 4;
+				copy.pixelclock = crtc->pixelclock + crtc->pixelclock * factor / 4;
 			}
 		}
 	}
