@@ -731,6 +731,8 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 	if (fb_state.is_raspberry) {
 		char* opt;
 		char cmd[256];
+		int ret;
+		struct fb_var_screeninfo alt;
 
 		log_std(("video:fb: detected Raspberry Pi/BCM2708 hardware\n"));
 
@@ -795,6 +797,28 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 			}
 
 			free(opt);
+		}
+
+		/* set an alternate mode with a different bits per pixel */
+		/* this is required because "vcgencmd hdmi_timings" make the screen black */
+		/* when using the LCD interface */
+		alt = fb_state.varinfo;
+		if (alt.bits_per_pixel == 16) {
+			alt.bits_per_pixel = 8;
+		} else {
+			alt.bits_per_pixel = 16;
+		}
+		ret = fb_setvar(&alt);
+		if (ret != 0) {
+			log_std(("ERROR:video:vc: alterante mode set FAILED\n"));
+			goto err_close;
+		}
+
+		/* set the present mode */
+		ret = fb_setvar(&fb_state.varinfo);
+		if (ret != 0) {
+			log_std(("ERROR:video:vc: mode set FAILED\n"));
+			goto err_close;
 		}
 
 		/* get current info */
