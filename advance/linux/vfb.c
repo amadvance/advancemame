@@ -972,7 +972,7 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 	copy = *crtc;
 
 	/*
-	 * Simulate Doublescan modes really duplicating the vertical size.
+	 * Simulate Doublescan modes duplicating the vertical size.
 	 *
 	 * The dispmanx layer will take care of the scaling.
 	 */
@@ -988,7 +988,8 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 	 * In DPI mode there are strong limitation on low pixel clocks,
 	 * allowing only the values: 4.8 MHz, 6.4 MHz, 9.6MHz and 19.2 MHz.
 	 *
-	 * Avoid them duplicating the x size.
+	 * Avoid this limitation changing the mode width,
+	 * until we reach a valid pixel clock.
 	 *
 	 * The dispmanx layer will take care of the scaling.
 	 */
@@ -1016,6 +1017,26 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 				copy.ht += crtc->ht / 4;
 				copy.pixelclock = crtc->pixelclock + crtc->pixelclock * factor / 4;
 			}
+		}
+	}
+
+	/*
+	 * In HDMI/DVI mode we cannot used the DPI clocks.
+	 *
+	 * If they are used, the next pixel clock measure with:
+	 *
+	 *   "vcgencmd measure_clock pixel"
+	 *
+	 * always reports 0.
+	 */
+	if (fb_state.oldstate.state & (VC_HDMI_HDMI | VC_HDMI_DVI)) {
+		if (copy.pixelclock == 4800000
+			|| copy.pixelclock == 6400000
+			|| copy.pixelclock == 9600000
+			|| copy.pixelclock == 19200000
+		) {
+			/* this small change is enough */
+			copy.pixelclock += 1000;
 		}
 	}
 
