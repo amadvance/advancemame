@@ -75,9 +75,11 @@ int mode_current_stretch(const struct advance_video_context* context)
 /* Return the description of a video configuration */
 void mode_desc_print(struct advance_video_context* context, char* buffer, unsigned size, const adv_crtc* crtc)
 {
+	char freq[16];
 	double factor_x = (double)crtc_hsize_get(crtc) / context->state.mode_best_size_x;
 	double factor_y = (double)crtc_vsize_get(crtc) / context->state.mode_best_size_y;
 	char c;
+
 	if (crtc_is_doublescan(crtc))
 		c = 'd';
 	else if (crtc_is_interlace(crtc))
@@ -85,11 +87,17 @@ void mode_desc_print(struct advance_video_context* context, char* buffer, unsign
 	else
 		c = 's';
 
+	if (crtc_is_fake(crtc)) {
+		freq[0] = 0;
+	} else {
+		snprintf(freq, sizeof(freq), " %.1f Hz", crtc_vclock_get(crtc));
+	}
+
 	if ((context->config.adjust & ADJUST_ADJUST_X) != 0) {
 		/* no real x size, it may be adjusted */
-		snprintf(buffer, size, "%4d%c %4.2f", crtc_vsize_get(crtc), c, factor_y);
+		snprintf(buffer, size, "%4d%c %4.1f%s", crtc_vsize_get(crtc), c, factor_y, freq);
 	} else {
-		snprintf(buffer, size, "%4dx%4d%c %4.2fx%4.2f", crtc_hsize_get(crtc), crtc_vsize_get(crtc), c, factor_x, factor_y);
+		snprintf(buffer, size, "%4dx%4d%c %4.1fx%4.1f%s", crtc_hsize_get(crtc), crtc_vsize_get(crtc), c, factor_x, factor_y, freq);
 	}
 }
 

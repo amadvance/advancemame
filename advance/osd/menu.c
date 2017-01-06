@@ -226,6 +226,7 @@ int osd2_video_menu(int selected, unsigned input)
 	int crash_index;
 	int exit_index;
 	char buffer[128];
+	char freq[32];
 	const char* text = 0;
 	const char* option = 0;
 
@@ -416,7 +417,10 @@ int osd2_video_menu(int selected, unsigned input)
 
 	switch (video_context->state.vsync_flag) {
 	case 0 : text = "Vsync [no]"; break;
-	case 1 : text = "Vsync [yes]"; break;
+	case 1 :
+		snprintf(freq, sizeof(freq), "Vsync [%.1f]", video_measured_vclock());
+		text = freq;
+		break;
 	}
 	switch (video_context->config.vsync_flag) {
 	case 0 : option = "no"; break;
