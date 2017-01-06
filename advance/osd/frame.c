@@ -197,18 +197,6 @@ static adv_error video_make_crtc_for_game(struct advance_video_context* context,
 		crtc_vclock_set(crtc, context->state.game_fps);
 
 		if (!crtc_clock_check(&context->config.monitor, crtc)) {
-			crtc_vclock_set(crtc, 2 * context->state.game_fps);
-		}
-
-		if (!crtc_clock_check(&context->config.monitor, crtc)) {
-			crtc_vclock_set(crtc, 3 * context->state.game_fps);
-		}
-
-		if (!crtc_clock_check(&context->config.monitor, crtc)) {
-			crtc_vclock_set(crtc, 4 * context->state.game_fps);
-		}
-
-		if (!crtc_clock_check(&context->config.monitor, crtc)) {
 			if (crtc_adjust_clock(crtc, &context->config.monitor) != 0) {
 				/* restore the original crtc */
 				*crtc = *original_crtc;
