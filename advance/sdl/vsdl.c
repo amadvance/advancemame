@@ -622,6 +622,20 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		goto err_quit;
 	}
 
+#ifdef USE_VC /* only for Raspberry */
+	if (has_window_manager) {
+		/*
+		 * In X the opengl/opengles/opengles2 renderers are very very slow.
+		 *
+		 * To write a texture of 640x480 (ARGB8888 format) takes more than 100 ms,
+		 * when isntead the software renderer takes 3 ms.
+		 *
+		 * Tested with SDL2 2.0.5 and Raspbian updated 6/1/2017.
+		 */
+		SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "software", SDL_HINT_DEFAULT);
+	}
+#endif
+
 #ifdef USE_VIDEO_RESTORE /* only for AdvanceMENU */
 	/* avoid minimization of the menu when it starts a game */
 	SDL_SetHintWithPriority(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0", SDL_HINT_DEFAULT);
