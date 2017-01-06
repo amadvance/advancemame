@@ -34,6 +34,7 @@
 #include "log.h"
 #include "error.h"
 #include "snstring.h"
+#include "target.h"
 
 #include "oslinux.h"
 
@@ -94,7 +95,7 @@ adv_error curses_init(int device_id, adv_output output, unsigned overlay_size, a
 
 	log_std(("video:curses: curses_init()\n"));
 
-	if (os_internal_wm_active()) {
+	if (target_wm()) {
 		error_set("Unsupported in X.\n");
 		return -1;
 	}

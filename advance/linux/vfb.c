@@ -673,7 +673,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 	if (sizeof(fb_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
 
-	if (os_internal_wm_active()) {
+	if (target_wm()) {
 		error_set("Unsupported in X. Try with the SDL library.\n");
 		return -1;
 	}

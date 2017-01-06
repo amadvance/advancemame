@@ -242,10 +242,10 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 	char name[64];
 	const adv_device* i;
 	unsigned j;
+	adv_bool has_window_manager;
 #if SDL_MAJOR_VERSION == 1
 	SDL_Rect** map; /* it must not be released */
 	const SDL_VideoInfo* info;
-	adv_bool has_window_manager;
 #else
 	int display, display_mac;
 	int driver, driver_mac;
@@ -508,6 +508,8 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		goto err_quit;
 	}
 #else
+	has_window_manager = target_wm();
+
 	/* print info */
 	driver_mac = SDL_GetNumVideoDrivers();
 	log_std(("video:sdl: SDL_GetNumVideoDrivers() -> %d\n", driver_mac));
@@ -582,11 +584,15 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 	}
 
 	if (output == adv_output_auto) {
+		if (has_window_manager) {
 #ifdef USE_VIDEO_RESTORE
-		sdl_state.output = adv_output_window;
+			sdl_state.output = adv_output_window;
 #else
-		sdl_state.output = adv_output_overlay;
+			sdl_state.output = adv_output_overlay;
 #endif
+		} else {
+			sdl_state.output = adv_output_overlay;
+		}
 	} else {
 		sdl_state.output = output;
 	}

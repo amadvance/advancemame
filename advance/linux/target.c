@@ -510,6 +510,11 @@ unsigned char target_readb(unsigned addr)
 /***************************************************************************/
 /* Mode */
 
+adv_bool target_wm(void)
+{
+	return getenv("DISPLAY") != 0;
+}
+
 void target_mode_reset(void)
 {
 	/* nothing */

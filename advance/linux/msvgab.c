@@ -71,7 +71,7 @@ adv_error mouseb_svgalib_init(int mouseb_id)
 
 	log_std(("mouseb:svgalib: mouseb_svgalib_init(id:%d)\n", mouseb_id));
 
-	if (os_internal_wm_active()) {
+	if (target_wm()) {
 		error_set("Unsupported in X.\n");
 		return -1;
 	}

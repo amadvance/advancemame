@@ -141,6 +141,12 @@ unsigned char target_readb(unsigned addr);
 /* Mode */
 
 /**
+ * If there is a window manager is active.
+ * If not we are in a console system.
+ */
+adv_bool target_wm(void);
+
+/**
  * Reset the current video mode.
  * Generally called on emergency.
  */

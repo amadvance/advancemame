@@ -413,7 +413,7 @@ int os_inner_init(const char* title)
 	/* probe the delay system */
 	os_delay();
 
-	if (!os_internal_wm_active()) {
+	if (!target_wm()) {
 		log_std(("os: tcgetattr()\n"));
 		if (tcgetattr(fileno(stdin), &OS.term) != 0) {
 			log_std(("ERROR:os: error getting the tty state.\n"));
@@ -440,7 +440,7 @@ int os_inner_init(const char* title)
 #endif
 #if defined(USE_SVGALIB)
 	OS.svgalib_active = 0;
-	if (!os_internal_wm_active()) {
+	if (!target_wm()) {
 		int h;
 		log_std(("os: open /dev/svga\n"));
 
@@ -514,7 +514,7 @@ int os_inner_init(const char* title)
 #endif
 #if defined(USE_SLANG)
 	OS.slang_active = 0;
-	if (!os_internal_wm_active()) {
+	if (!target_wm()) {
 		log_std(("os: SLtt_get_terminfo()\n"));
 		SLtt_get_terminfo();
 		log_std(("os: SLsmg_init_smg()\n"));
@@ -526,7 +526,7 @@ int os_inner_init(const char* title)
 #endif
 #if defined(USE_CURSES)
 	OS.curses_active = 0;
-	if (!os_internal_wm_active()) {
+	if (!target_wm()) {
 		log_std(("os: initscr()\n"));
 		initscr();
 		start_color();
@@ -636,20 +636,6 @@ void* os_internal_sdl_get(void)
 	return 0;
 }
 #endif
-
-adv_bool os_internal_wm_active(void)
-{
-#ifdef USE_X
-	if (OS.x_active) {
-		return 1;
-	}
-#else
-	if (getenv("DISPLAY") != 0) {
-		return 1;
-	}
-#endif
-	return 0;
-}
 
 void os_inner_done(void)
 {

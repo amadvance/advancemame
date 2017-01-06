@@ -98,11 +98,6 @@ void* os_internal_x_get(void);
 #define USE_EVENT
 #endif
 
-/**
- * Check if a window manager is active. Otherwise we are in a console system.
- */
-adv_bool os_internal_wm_active(void);
-
 #ifdef __cplusplus
 }
 #endif

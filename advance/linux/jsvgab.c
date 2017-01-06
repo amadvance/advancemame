@@ -56,7 +56,7 @@ adv_error joystickb_svgalib_init(int joystickb_id)
 
 	log_std(("josytickb:svgalib: joystickb_svgalib_init(id:%d)\n", joystickb_id));
 
-	if (os_internal_wm_active()) {
+	if (target_wm()) {
 		error_set("Unsupported in X.\n");
 		return -1;
 	}

@@ -140,6 +140,11 @@ unsigned char target_readb(unsigned addr)
 /***************************************************************************/
 /* Video */
 
+adv_bool target_wm(void)
+{
+	return 0;
+}
+
 void target_mode_reset(void)
 {
 #ifdef USE_VIDEO

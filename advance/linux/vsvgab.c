@@ -110,7 +110,7 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned overlay_size, 
 	if (sizeof(svgalib_video_mode) > MODE_DRIVER_MODE_SIZE_MAX)
 		return -1;
 
-	if (os_internal_wm_active()) {
+	if (target_wm()) {
 		error_set("Unsupported in X.\n");
 		return -1;
 	}

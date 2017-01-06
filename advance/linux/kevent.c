@@ -33,6 +33,7 @@
 #include "kevent.h"
 #include "log.h"
 #include "oslinux.h"
+#include "target.h"
 #include "error.h"
 #include "event.h"
 
@@ -735,7 +736,7 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 
 	log_std(("keyb:event: keyb_event_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
-	if (os_internal_wm_active()) {
+	if (target_wm()) {
 		error_set("Unsupported in X.\n");
 		return -1;
 	}

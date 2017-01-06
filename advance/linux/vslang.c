@@ -34,6 +34,8 @@
 #include "log.h"
 #include "error.h"
 #include "snstring.h"
+#include "target.h"
+#include "target.h"
 
 #include "oslinux.h"
 
@@ -102,7 +104,7 @@ adv_error slang_init(int device_id, adv_output output, unsigned overlay_size, ad
 
 	log_std(("video:slang: slang_init()\n"));
 
-	if (os_internal_wm_active()) {
+	if (target_wm()) {
 		error_set("Unsupported in X.\n");
 		return -1;
 	}

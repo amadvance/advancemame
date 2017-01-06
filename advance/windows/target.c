@@ -198,6 +198,11 @@ unsigned char target_readb(unsigned addr)
 /***************************************************************************/
 /* Video */
 
+adv_bool target_wm(void)
+{
+	return 1;
+}
+
 void target_mode_reset(void)
 {
 	/* nothing */
