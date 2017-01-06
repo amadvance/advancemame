@@ -87,14 +87,15 @@ void mode_desc_print(struct advance_video_context* context, char* buffer, unsign
 	else
 		c = 's';
 
-	if (crtc_is_fake(crtc)) {
+	if (crtc_is_fake(crtc) || (context->config.adjust & ADJUST_ADJUST_CLOCK) != 0) {
+		/* clock is going to be adjusted */
 		freq[0] = 0;
 	} else {
 		snprintf(freq, sizeof(freq), " %.1f Hz", crtc_vclock_get(crtc));
 	}
 
 	if ((context->config.adjust & ADJUST_ADJUST_X) != 0) {
-		/* no real x size, it may be adjusted */
+		/* x size is going to be adjusted */
 		snprintf(buffer, size, "%4d%c %4.1f%s", crtc_vsize_get(crtc), c, factor_y, freq);
 	} else {
 		snprintf(buffer, size, "%4dx%4d%c %4.1fx%4.1f%s", crtc_hsize_get(crtc), crtc_vsize_get(crtc), c, factor_x, factor_y, freq);
