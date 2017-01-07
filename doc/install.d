@@ -22,7 +22,7 @@ System Requirements
 
 	In the Linux Console, the Linux Framebuffer is used for the
 	video, the ALSA or OSS library for audio, and the Linux Event
-	or Raw interface for intput controllers.
+	or Raw interface for input controllers.
 
 	The video board programming functionality for Arcade Monitors
 	and CRT TVs, is available only from the Linux console, using
@@ -46,28 +46,34 @@ System Requirements
 
 	If instead you want to use an old CRT Arcade or TV screen, you can
 	configure the Advance programs to generate modelines customized
-	for your video hardware.
+	for your video hardware, following the 'Video Setup' chapter.
 
     HDMI Port
 	To use the programmable modelines with the Raspberry HDMI port, you
 	need a kind of HDMI->VGA or HDMI->SCART converter to connect it to a
 	CRT monitor.
 
+	You don't need any special option in your '/boot/config.txt', just the
+	options needed to start the Raspberry with your video hardware,
+	and be able to enter commands.
+
+	Whatever hdmi_mode you select, the Advance programs will use mode 87
+	group 2, restoring your selected original mode when finished.
+
     DPI Port
 	To use the programmable modelines with the Raspberry DPI port you
 	need a GPIO add-on board like the Gert's VGA 666.
 
-	Unfortunately the Raspberry Pi has strong limitations on the lower
-	range of pixel clocks when using the DPI/GPIO interface, that will
-	affect your ability to control low frequency monitors, like Arcade
-	screens.
+	The Raspberry Pi has strong limitations on the lower range of pixel
+	clocks when using the DPI/GPIO interface, that will affect your
+	ability to control low frequency monitors, like Arcade screens.
 
 	The only allowed pixel clocks suitable for low resolutions
 	are 4.8 MHz, 6.4 MHz, 9.6MHz and 19.2 MHz.
 	You can instead choose any pixel clock greater than 31.25 MHz.
 
-	To overcome this problematic, AdvanceMAME transparently duplicates
-	the horizontal size, until it reaches the 31.25 MHz pixel clock.
+	To overcome this problematic, AdvanceMAME transparently increase
+	the modeline horizontal size, until it reaches the 31.25 MHz pixel clock.
 	Don't be surprised if a modeline that works in AdvanceMAME, doesn't
 	work when setting manually the timings in other ways.
 

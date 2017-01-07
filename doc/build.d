@@ -12,7 +12,7 @@ Build
 
 	For Ubuntu:
 		:$ sudo apt-get update
-		:$ sudo apt-get install build-essential git autoconf automake libsdl1.2-dev libasound2-dev libfreetype6-dev zlib1g-dev libexpat1-dev libslang2-dev libncurses5-dev
+		:$ sudo apt-get install build-essential git autoconf automake libsdl2-dev libasound2-dev libfreetype6-dev zlib1g-dev libexpat1-dev libslang2-dev libncurses5-dev
 
 	For Raspbian:
 		:$ sudo apt-get update
@@ -30,14 +30,15 @@ Build
 		:$ cd advancemame
 		:$ sh autogen.sh
 
-	Now you can build and install them using the typical sequence of commands:
+	Now you can build and install using the typical sequence of commands:
 
 		$ ./configure
 		$ make -j3
 		$ sudo make install
 
-	The -j3 option tells make to use four different parallel processes to build.
-	Beside that, the build process may be long, up to 45 minutes on a Raspberry Pi 3.
+	The -j3 option uses three parallel processes, speeding up the build.
+
+	The build process may be long, up to 45 minutes on a Raspberry Pi 3.
 
 	No option is generally required. You can get the complete configure option list with
 	the `./configure --help' command.
@@ -51,8 +52,8 @@ Build
 
 	The configure script automatically detects all the available
 	libraries and the optimization flags. You can use the
-	--with-sdl-prefix option to search for the SDL library in a
-	specific location.
+	--with-sdl-prefix and --with-sdl2-prefix  option to search for the
+	SDL and SDL2 libraries in a specific location.
 
 	The `make install' command installs the binaries and the documentation.
 
