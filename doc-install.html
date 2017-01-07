@@ -68,7 +68,7 @@ audio and input controllers.
 <p>
 In the Linux Console, the Linux Framebuffer is used for the
 video, the ALSA or OSS library for audio, and the Linux Event
-interface for intput controllers.
+or Raw interface for input controllers.
 <p>
 The video board programming functionality for Arcade Monitors
 and CRT TVs, is available only from the Linux console, using
@@ -77,7 +77,7 @@ the Linux Framebuffer.
 Raspberry Pi
 </h3>
 With a Raspberry Pi you have the same support you have in Linux,
-plus some specific Raspberry functionalities, like the accelerated
+plus some specific Raspberry functionality, like the accelerated
 Framebuffer.
 <p>
 With a Raspberry, it's recommended run the Advance program directly
@@ -91,11 +91,83 @@ and it doesn't need any configuration step. It just works.
 With a Raspberry Pi 3 you can expect to run most of the games at
 full speed, with vsync enabled, even when using the Scale2x effect.
 <p>
-If instead you want to use an old CRT Arcade screen or TV, you can
-configure the Advance programs to generate video modes customized
-for your video hardware.
+If instead you want to use an old CRT Arcade or TV screen, you can
+configure the Advance programs to generate modelines customized
+for your video hardware, following the 'Video Setup' chapter.
+<h4><a name="1.2.1">1.2.1</a> 
+HDMI Port
+</h4>
+To use the programmable modelines with the Raspberry HDMI port, you
+need a kind of HDMI-&gt;VGA or HDMI-&gt;SCART converter to connect it to a
+CRT monitor.
 <p>
-In this case see the following "Video Setup" chapter.
+You don't need any special option in your '/boot/config.txt', just the
+options needed to start the Raspberry with your video hardware,
+and be able to enter commands.
+<p>
+Whatever hdmi_mode you select, the Advance programs will use mode 87
+group 2, restoring your selected original mode when finished.
+<h4><a name="1.2.2">1.2.2</a> 
+DPI Port
+</h4>
+To use the programmable modelines with the Raspberry DPI port you
+need a GPIO add-on board like the Gert's VGA 666.
+<p>
+The Raspberry Pi has strong limitations on the lower range of pixel
+clocks when using the DPI/GPIO interface, that will affect your
+ability to control low frequency monitors, like Arcade screens.
+<p>
+The only allowed pixel clocks suitable for low resolutions
+are 4.8 MHz, 6.4 MHz, 9.6MHz and 19.2 MHz.
+You can instead choose any pixel clock greater than 31.25 MHz.
+<p>
+To overcome this problematic, AdvanceMAME transparently increase
+the modeline horizontal size, until it reaches the 31.25 MHz pixel clock.
+Don't be surprised if a modeline that works in AdvanceMAME, doesn't
+work when setting manually the timings in other ways.
+<p>
+To have the programmable modes working, you have to start the
+Raspberry with the custom mode 87 group 2 in '/boot/config.txt'.
+<p>
+For example, with an Arcade Monitor, you can use:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+dpi_group=2
+dpi_mode=87
+hdmi_timings=320 1 20 29 35 224 1 10 14 16 0 0 0 60 0 6400000 1
+</pre>
+</td></tr></table>
+<p>
+With a standard SVGA Monitor, you can use:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+dpi_group=2
+dpi_mode=87
+hdmi_cvt=1024 768 60
+</pre>
+</td></tr></table>
+<p>
+Usually you have to also add other options, for example with a Raspberry
+Pi 3 and a Gert's VGA 666, you need also:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+device_tree=bcm2710-rpi-3-b.dtb
+dtparam=i2c_arm=off
+dtparam=spi=off
+dtparam=uart0=off
+dtparam=uart1=off
+dtoverlay=pi3-disable-bt-overlay
+dtoverlay=vga666
+enable_dpi_lcd=1
+display_default_lcd=1
+force_pwm_open=0
+dtparam=audio=on
+gpu_mem=128
+</pre>
+</td></tr></table>
 <h3><a name="1.3">1.3</a> 
 Windows/Mac OS X
 </h3>
@@ -107,7 +179,7 @@ included.
 <h3><a name="1.4">1.4</a> 
 DOS
 </h3>
-In DOS, the Advance programs already contain all the required drivers
+In DOS, the Advance programs already contains all the required drivers
 for video, audio, and input controllers.
 <p>
 Generally you don't need to install additional software with
@@ -115,65 +187,75 @@ the exception of a mouse driver if you want to use one.
 <h2><a name="2">2</a> 
 Installation
 </h2>
-The suggested way to installing the Advance programs is to start
-from the sources.
+In Linux and other unix, the recommended way to install the Advance
+programs is to start from the sources.
 <p>
-The build process is detailed in `build.txt' file, but generally
+The build process is detailed in `build.txt' file, but usually
 you need only the usual commands:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 ./configure
-make
+make -j3
 sudo make install
 </pre>
 </td></tr></table>
 <p>
-The exception is the DOS and Windows target. In this case it's
-better to start from the binary distribution and don't compile
-the source.
+The exceptions are the DOS, Windows and Raspberry targets.
+In such cases it's better to start from the binary distribution
+and don't compile the source.
 <h2><a name="3">3</a> 
 Configuration
 </h2>
-All the Advance programs require a configuration process to work
-correctly.
+All the Advance programs require a configuration file to work.
+They are text files with the same program name, with the ".rc"
+extension, like "advmame.rc".
 <p>
-A default configuration file is created by the programs when they
+Default configuration files are created by the programs when they
 are started for the first time.
 <p>
-In Linux, Raspbian, Mac OS X and other Unix, the configuration file is
+In Linux, Mac OS X and other Unix, the configuration files are
 created in the user home directory in the subdirectory .advance/.
-In DOS and Windows the configuration file is created in the
+In Windows and DOS the configuration files are created in the
 current directory.
 <p>
-When you have finished to modify the configuration file,
-it's suggested to run the program with the `-remove' option
-to remove all the default configuration options from the
-configuration file.
+When you have finished to modify the configuration files,
+it's recommended to run the programs with the `-remove' option
+to remove all the default options from the configuration files.
 <h3><a name="3.1">3.1</a> 
 AdvanceMAME
 </h3>
-To run AdvanceMAME you need at least to set the `dir_rom' option
-to the path there the roms resides.
+To run AdvanceMAME you need at least to configure the `dir_rom'
+option to point where your roms reside.
 <p>
-If you want to run it as standard applications in a Window
-Manager environment like X Window, Windows or Mac OS X Acqua,
-you don't need to configure any video options. Instead, if you
-want to enable the direct programming of the video board
-you need to carefully follow the "Video Setup" chapter
+In Linux, Mac OS X and other Unix the default rom dirs are
+/usr/local/share/advance/rom and $HOME/.advance/rom.
+In Windows and DOS is the rom/ subdirectory in the current directory.
+<p>
+If you want to run it with a with the standard video support, like any
+other application, you don't need to configure any video options.
+<p>
+Instead, if you want to enable the direct programming of the
+video board you need to carefully follow the "Video Setup" chapter
 in this file.
 <h3><a name="3.2">3.2</a> 
 AdvanceMENU
 </h3>
 To run AdvanceMENU you need to configure which emulator is
-present in your system. If a known emulator is found, it's
-configured automatically. In Linux and Mac OS X the
-emulators are searched in the current PATH list, in DOS and
-Windows only in the current directory.
+present in your system.
 <p>
-Generally you need also to adjust the path where the
-game's .png, .mp3 and .mng files reside with the
-emulator_* options.
+At the first run AdvanceMENU searches for all the known emulators
+and configure itself automatically. In Linux, and Mac OS X the
+emulators are searched in the current PATH list, in Windows and DOS
+only in the current directory.
+<p>
+Likely you need also to adjust the path where the
+game's .png, .mp3 and .mng snapshot files reside with the
+'emulator_altss' option.
+<p>
+In Linux, Mac OS X and other Unix the default snapshot dirs are
+/usr/local/share/advance/snap and $HOME/.advance/snap.
+In Windows and DOS is the snap/ subdirectory in the current directory.
 <h2><a name="4">4</a> 
 Video Hardware
 </h2>
@@ -197,7 +279,7 @@ link page:
 LCD monitors or LCD TVs
 </h3>
 LCD screens have always a native fixed resolution. To get the
-best image quality it's always recomended to use this resolution.
+best image quality it's always recommended to use this resolution.
 <p>
 For this reason you usually don't need to enter any specific
 configuration options, and let the program to use the default
@@ -270,7 +352,7 @@ The standard clocks for a Standard Resolution 15 kHz (CGA) are:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-device_video_clock 5 - 50 / 15.75 / 60
+device_video_clock 4 - 50 / 15.75 / 60
 </pre>
 </td></tr></table>
 <p>
@@ -278,7 +360,7 @@ for a Extended Resolution 16 kHz are:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-device_video_clock 5 - 50 / 16.5 / 53
+device_video_clock 4 - 50 / 16.5 / 53
 </pre>
 </td></tr></table>
 <p>
@@ -286,7 +368,7 @@ for a Medium Resolution 25 kHz (EGA) are:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-device_video_clock 5 - 50 / 25 / 60
+device_video_clock 4 - 50 / 25 / 60
 </pre>
 </td></tr></table>
 <p>
@@ -297,7 +379,7 @@ For example:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-device_video_clock 5 - 50 / 15.75 / 60 ; 5 - 50 / 25 / 60
+device_video_clock 4 - 50 / 15.75 / 60 ; 4 - 50 / 25 / 60
 </pre>
 </td></tr></table>
 <p>
@@ -334,7 +416,7 @@ Clocks values for PAL TV (European) are:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-device_video_clock 5 - 50 / 15.62 / 50
+device_video_clock 4 - 50 / 15.62 / 50
 </pre>
 </td></tr></table>
 <p>
@@ -342,7 +424,7 @@ for NTSC TV (USA) are:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-device_video_clock 5 - 50 / 15.73 / 60
+device_video_clock 4 - 50 / 15.73 / 60
 </pre>
 </td></tr></table>
 <p>
@@ -351,7 +433,7 @@ for PAL TV (European) which supports also NTSC TV (USA) modes
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-device_video_clock 5 - 50 / 15.62 / 50 ; 5 - 50 / 15.73 / 60
+device_video_clock 4 - 50 / 15.62 / 50 ; 4 - 50 / 15.73 / 60
 </pre>
 </td></tr></table>
 <h4><a name="4.5.1">4.5.1</a> 

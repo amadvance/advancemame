@@ -45,8 +45,8 @@ Documentation to build AdvanceMAME.
 </p>
 
 <p>
-This file contains the instructions to build AdvanceMAME,
-AdvanceMESS and AdvanceMENU from the source archives.
+This file contains the instructions to build the Advance
+programs from the source archives.
 <h2><a name="1">1</a> 
 Build
 </h2>
@@ -59,7 +59,7 @@ For Ubuntu:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 $ sudo apt-get update
-$ sudo apt-get install build-essential git autoconf automake libsdl1.2-dev libasound2-dev libfreetype6-dev zlib1g-dev libexpat1-dev libslang2-dev libncurses5-dev
+$ sudo apt-get install build-essential git autoconf automake libsdl2-dev libasound2-dev libfreetype6-dev zlib1g-dev libexpat1-dev libslang2-dev libncurses5-dev
 </pre>
 </td></tr></table>
 <p>
@@ -81,7 +81,7 @@ $ cd advancemame-*
 </pre>
 </td></tr></table>
 <p>
-or alternatively you can get it directly wit git:
+or alternatively you can get it directly with git:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -91,22 +91,20 @@ $ sh autogen.sh
 </pre>
 </td></tr></table>
 <p>
-Using git you get the source code of AdvanceMAME, AdvanceMESS and AdvanceMENU
-in a single operation.
-<p>
 Now you can build and install using the typical sequence of commands:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 $ ./configure
-$ make -j4
+$ make -j3
 $ sudo make install
 </td></tr></table>
 <p>
-The -j4 option tells make to use four different parallel proceses to build.
-Beside that, the build proces may be long, up to 30 minutes in a Raspberry Pi 3.
+The -j3 option uses three parallel processes, speeding up the build.
 <p>
-No option is generally required. You can get the complete
-configure option list with the `./configure --help' command.
+The build process may be long, up to 45 minutes on a Raspberry Pi 3.
+<p>
+No option is generally required. You can get the complete configure option list with
+the `./configure --help' command.
 <p>
 The default installation prefix is /usr/local. You can change it
 with the `--prefix=' option.
@@ -117,10 +115,10 @@ of /usr/etc is always used /etc.
 <p>
 The configure script automatically detects all the available
 libraries and the optimization flags. You can use the
---with-sdl-prefix option to search for the SDL library in a
-specific location.
+--with-sdl-prefix and --with-sdl2-prefix  option to search for the
+SDL and SDL2 libraries in a specific location.
 <p>
-The `make install' comman installs the binaries and the documentation.
+The `make install' command installs the binaries and the documentation.
 <p>
 The binaries are installed in $prefix/bin, the program data
 files in $prefix/share/advance, the documentation in
@@ -129,16 +127,21 @@ $prefix/share/doc/advance, and the man pages in $prefix/man/man1.
 In Mac OS X ensure that the directory $prefix/bin is in the
 search PATH. Generally /usr/local/bin isn't.
 <p>
-After the installation, you can start AdvanceMAME with:
+After the installation, you can check if AdvanceMAME starts with:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-$ advmame polyplay
+$ advmame robby
 </pre>
 </td></tr></table>
 <p>
-The first run will create the configuration file, and tell you where.
-At the second run the game will effectively start.
+and AdvanceMESS with:
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+$ advmess ti99_4a
+</pre>
+</td></tr></table>
 
 
 </div>

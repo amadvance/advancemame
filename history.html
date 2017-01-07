@@ -49,6 +49,72 @@ The WIP version is available in <a href="https://github.com/amadvance/advancemam
 </p>
 
 <h2> 
+AdvanceMAME/MESS/MENU Version 3.1 2017/01
+</h2>
+<ul>
+<li>
+Added support for SDL2. It's the new default in Linux and Windows.
+This results in better performance and better VSync support
+when running in a window manager environment like X Window
+or Windows. It also enables again the RGB effects.
+The exception is Raspberry where SDL1 still provides better
+performance in the X Window environment, and it's still the
+default option.
+</li>
+<li>
+More reliable Raspberry video mode setting when using programmable
+modes. It now uses the Raspberry VideoCore libraries to
+control better the system.
+</li>
+<li>
+More precise VSync syncronization, avoiding any missing frame.
+</li>
+<li>
+In MESS fixed the loading of disk image for the TI99-4A system.
+</li>
+<li>
+In MAME marked 'retofinv', 'svc', 'prmrsocr' and 'viostorm' as not
+working to trigger the use of the working clones.
+Also added the game 'mp_shnb3'.
+</li>
+<li>
+Fixed the UI flickering and a potential crash when SMP is active.
+</li>
+<li>
+The Linux joystick event and raw interface now support up to 32
+button. Before it was only 12.
+</li>
+<li>
+If SMP is active, don't automatically disable the resize
+effect if the game is too slow. This gives a more
+stable 'auto' effect.
+</li>
+<li>
+Changed the 'sync_resample auto' to be 'emulation' instead
+of 'internal'. This give more stable sound when
+the game emulation is too slow.
+</li>
+<li>
+The 'display_magnify auto' option now takes into account
+the monitor limits to avoid over scaling.
+</li>
+<li>
+Restored the functionality of "-output fullscreen" option.
+It wasn't able anymore to find video modes.
+</li>
+<li>
+Added support running from a SSH shell.
+</li>
+<li>
+Removed the 'lq' effect. It was not really used.
+The 'scale2x' and 'scale2k' are faster and better.
+</li>
+<li>
+The RunClone menu now excludes preliminary clones if they
+are already filtered out in the main list.
+</li>
+</ul>
+<h2> 
 AdvanceMAME/MESS/MENU Version 3.0 2016/12
 </h2>
 <ul>
