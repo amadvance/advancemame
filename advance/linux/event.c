@@ -1462,7 +1462,7 @@ static adv_bool event_test_bit_feature(int f, unsigned bit, unsigned char* evtyp
 	}
 
 	for(i=0;feature[i] >= 0;++i)
-		if (event_test_bit(feature[i], bitmask)) {
+		if (feature[i] < bitmax && event_test_bit(feature[i], bitmask)) {
 			return 1;
 	}
 
@@ -1546,16 +1546,6 @@ int REL_FEATURE[] = {
 	-1
 };
 
-int KEY_FEATURE[] = {
-#ifdef KEY_1
-	KEY_1,
-#endif
-#ifdef KEY_A
-	KEY_A,
-#endif
-	-1
-};
-
 adv_bool event_is_joystick(int f, unsigned char* evtype_bitmask)
 {
 	return event_test_bit_feature(f, EV_ABS, evtype_bitmask, ABS_FEATURE);
@@ -1569,9 +1559,9 @@ adv_bool event_is_mouse(int f, unsigned char* evtype_bitmask)
 
 adv_bool event_is_keyboard(int f, unsigned char* evtype_bitmask)
 {
+	/* consider keyboard eveything that is not joystick or mouse */
 	return !event_test_bit_feature(f, EV_ABS, evtype_bitmask, ABS_FEATURE)
-		&& !event_test_bit_feature(f, EV_REL, evtype_bitmask, REL_FEATURE)
-		&& event_test_bit_feature(f, EV_KEY, evtype_bitmask, KEY_FEATURE);
+		&& !event_test_bit_feature(f, EV_REL, evtype_bitmask, REL_FEATURE);
 }
 
 adv_error event_read(int f, int* type, int* code, int* value)
