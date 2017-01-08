@@ -1547,42 +1547,612 @@ int REL_FEATURE[] = {
 };
 
 int KEY_FEATURE[] = {
-	KEY_ESC,
-	KEY_1,
-	KEY_2,
-	KEY_3,
-	KEY_4,
-	KEY_5,
-	KEY_6,
-	KEY_7,
-	KEY_8,
-	KEY_9,
+#ifdef KEY_A
 	KEY_A,
+#endif
+#ifdef KEY_B
 	KEY_B,
+#endif
+#ifdef KEY_C
 	KEY_C,
+#endif
+#ifdef KEY_D
 	KEY_D,
+#endif
+#ifdef KEY_E
 	KEY_E,
+#endif
+#ifdef KEY_F
 	KEY_F,
+#endif
+#ifdef KEY_G
 	KEY_G,
+#endif
+#ifdef KEY_H
 	KEY_H,
+#endif
+#ifdef KEY_I
 	KEY_I,
+#endif
+#ifdef KEY_J
 	KEY_J,
+#endif
+#ifdef KEY_K
 	KEY_K,
+#endif
+#ifdef KEY_L
 	KEY_L,
+#endif
+#ifdef KEY_M
 	KEY_M,
+#endif
+#ifdef KEY_N
 	KEY_N,
+#endif
+#ifdef KEY_O
 	KEY_O,
+#endif
+#ifdef KEY_P
 	KEY_P,
+#endif
+#ifdef KEY_Q
 	KEY_Q,
+#endif
+#ifdef KEY_R
 	KEY_R,
+#endif
+#ifdef KEY_S
 	KEY_S,
+#endif
+#ifdef KEY_T
 	KEY_T,
+#endif
+#ifdef KEY_U
 	KEY_U,
+#endif
+#ifdef KEY_V
 	KEY_V,
+#endif
+#ifdef KEY_W
 	KEY_W,
+#endif
+#ifdef KEY_X
 	KEY_X,
+#endif
+#ifdef KEY_Y
 	KEY_Y,
+#endif
+#ifdef KEY_Z
 	KEY_Z,
+#endif
+#ifdef KEY_0
+	KEY_0,
+#endif
+#ifdef KEY_1
+	KEY_1,
+#endif
+#ifdef KEY_2
+	KEY_2,
+#endif
+#ifdef KEY_3
+	KEY_3,
+#endif
+#ifdef KEY_4
+	KEY_4,
+#endif
+#ifdef KEY_5
+	KEY_5,
+#endif
+#ifdef KEY_6
+	KEY_6,
+#endif
+#ifdef KEY_7
+	KEY_7,
+#endif
+#ifdef KEY_8
+	KEY_8,
+#endif
+#ifdef KEY_9
+	KEY_9,
+#endif
+#ifdef KEY_KP0
+	KEY_KP0,
+#endif
+#ifdef KEY_KP1
+	KEY_KP1,
+#endif
+#ifdef KEY_KP2
+	KEY_KP2,
+#endif
+#ifdef KEY_KP3
+	KEY_KP3,
+#endif
+#ifdef KEY_KP4
+	KEY_KP4,
+#endif
+#ifdef KEY_KP5
+	KEY_KP5,
+#endif
+#ifdef KEY_KP6
+	KEY_KP6,
+#endif
+#ifdef KEY_KP7
+	KEY_KP7,
+#endif
+#ifdef KEY_KP8
+	KEY_KP8,
+#endif
+#ifdef KEY_KP9
+	KEY_KP9,
+#endif
+#ifdef KEY_F1
+	KEY_F1,
+#endif
+#ifdef KEY_F2
+	KEY_F2,
+#endif
+#ifdef KEY_F3
+	KEY_F3,
+#endif
+#ifdef KEY_F4
+	KEY_F4,
+#endif
+#ifdef KEY_F5
+	KEY_F5,
+#endif
+#ifdef KEY_F6
+	KEY_F6,
+#endif
+#ifdef KEY_F7
+	KEY_F7,
+#endif
+#ifdef KEY_F8
+	KEY_F8,
+#endif
+#ifdef KEY_F9
+	KEY_F9,
+#endif
+#ifdef KEY_F10
+	KEY_F10,
+#endif
+#ifdef KEY_F11
+	KEY_F11,
+#endif
+#ifdef KEY_F12
+	KEY_F12,
+#endif
+#ifdef KEY_ESC
+	KEY_ESC,
+#endif
+#ifdef KEY_GRAVE
+	KEY_GRAVE,
+#endif
+#ifdef KEY_MINUS
+	KEY_MINUS,
+#endif
+#ifdef KEY_EQUAL
+	KEY_EQUAL,
+#endif
+#ifdef KEY_BACKSPACE
+	KEY_BACKSPACE,
+#endif
+#ifdef KEY_TAB
+	KEY_TAB,
+#endif
+#ifdef KEY_LEFTBRACE
+	KEY_LEFTBRACE,
+#endif
+#ifdef KEY_RIGHTBRACE
+	KEY_RIGHTBRACE,
+#endif
+#ifdef KEY_ENTER
+	KEY_ENTER,
+#endif
+#ifdef KEY_SEMICOLON
+	KEY_SEMICOLON,
+#endif
+#ifdef KEY_APOSTROPHE
+	KEY_APOSTROPHE,
+#endif
+#ifdef KEY_103RD
+	KEY_103RD, /* KEY_BACKSLASH */
+#endif
+#ifdef KEY_102ND
+	KEY_102ND,
+#endif
+#ifdef KEY_COMMA
+	KEY_COMMA,
+#endif
+#ifdef KEY_DOT
+	KEY_DOT,
+#endif
+#ifdef KEY_SLASH
+	KEY_SLASH,
+#endif
+#ifdef KEY_SPACE
+	KEY_SPACE,
+#endif
+#ifdef KEY_INSERT
+	KEY_INSERT,
+#endif
+#ifdef KEY_DELETE
+	KEY_DELETE,
+#endif
+#ifdef KEY_HOME
+	KEY_HOME,
+#endif
+#ifdef KEY_END
+	KEY_END,
+#endif
+#ifdef KEY_PAGEUP
+	KEY_PAGEUP,
+#endif
+#ifdef KEY_PAGEDOWN
+	KEY_PAGEDOWN,
+#endif
+#ifdef KEY_LEFT
+	KEY_LEFT,
+#endif
+#ifdef KEY_RIGHT
+	KEY_RIGHT,
+#endif
+#ifdef KEY_UP
+	KEY_UP,
+#endif
+#ifdef KEY_DOWN
+	KEY_DOWN,
+#endif
+#ifdef KEY_KPSLASH
+	KEY_KPSLASH,
+#endif
+#ifdef KEY_KPASTERISK
+	KEY_KPASTERISK,
+#endif
+#ifdef KEY_KPMINUS
+	KEY_KPMINUS,
+#endif
+#ifdef KEY_KPPLUS
+	KEY_KPPLUS,
+#endif
+#ifdef KEY_KPDOT
+	KEY_KPDOT,
+#endif
+#ifdef KEY_KPENTER
+	KEY_KPENTER,
+#endif
+#ifdef KEY_SYSRQ
+	KEY_SYSRQ,
+#endif
+#ifdef KEY_PAUSE
+	KEY_PAUSE,
+#endif
+#ifdef KEY_LEFTSHIFT
+	KEY_LEFTSHIFT,
+#endif
+#ifdef KEY_RIGHTSHIFT
+	KEY_RIGHTSHIFT,
+#endif
+#ifdef KEY_LEFTCTRL
+	KEY_LEFTCTRL,
+#endif
+#ifdef KEY_RIGHTCTRL
+	KEY_RIGHTCTRL,
+#endif
+#ifdef KEY_LEFTALT
+	KEY_LEFTALT,
+#endif
+#ifdef KEY_RIGHTALT
+	KEY_RIGHTALT,
+#endif
+#ifdef KEY_LEFTMETA
+	KEY_LEFTMETA,
+#endif
+#ifdef KEY_RIGHTMETA
+	KEY_RIGHTMETA,
+#endif
+#ifdef KEY_MENU
+	KEY_MENU,
+#endif
+#ifdef KEY_SCROLLLOCK
+	KEY_SCROLLLOCK,
+#endif
+#ifdef KEY_NUMLOCK
+	KEY_NUMLOCK,
+#endif
+#ifdef KEY_CAPSLOCK
+	KEY_CAPSLOCK,
+#endif
+#ifdef KEY_STOP
+	KEY_STOP,
+#endif
+#ifdef KEY_AGAIN
+	KEY_AGAIN,
+#endif
+#ifdef KEY_PROPS
+	KEY_PROPS,
+#endif
+#ifdef KEY_UNDO
+	KEY_UNDO,
+#endif
+#ifdef KEY_FRONT
+	KEY_FRONT,
+#endif
+#ifdef KEY_COPY
+	KEY_COPY,
+#endif
+#ifdef KEY_OPEN
+	KEY_OPEN,
+#endif
+#ifdef KEY_PASTE
+	KEY_PASTE,
+#endif
+#ifdef KEY_FIND
+	KEY_FIND,
+#endif
+#ifdef KEY_CUT
+	KEY_CUT,
+#endif
+#ifdef KEY_HELP
+	KEY_HELP,
+#endif
+#ifdef KEY_MENU
+	KEY_MENU,
+#endif
+#ifdef KEY_CALC
+	KEY_CALC,
+#endif
+#ifdef KEY_SETUP
+	KEY_SETUP,
+#endif
+#ifdef KEY_SLEEP
+	KEY_SLEEP,
+#endif
+#ifdef KEY_WAKEUP
+	KEY_WAKEUP,
+#endif
+#ifdef KEY_FILE
+	KEY_FILE,
+#endif
+#ifdef KEY_SENDFILE
+	KEY_SENDFILE,
+#endif
+#ifdef KEY_DELETEFILE
+	KEY_DELETEFILE,
+#endif
+#ifdef KEY_XFER
+	KEY_XFER,
+#endif
+#ifdef KEY_PROG1
+	KEY_PROG1,
+#endif
+#ifdef KEY_PROG2
+	KEY_PROG2,
+#endif
+#ifdef KEY_WWW
+	KEY_WWW,
+#endif
+#ifdef KEY_MSDOS
+	KEY_MSDOS,
+#endif
+#ifdef KEY_COFFEE
+	KEY_COFFEE,
+#endif
+#ifdef KEY_DIRECTION
+	KEY_DIRECTION,
+#endif
+#ifdef KEY_CYCLEWINDOWS
+	KEY_CYCLEWINDOWS,
+#endif
+#ifdef KEY_MAIL
+	KEY_MAIL,
+#endif
+#ifdef KEY_BOOKMARKS
+	KEY_BOOKMARKS,
+#endif
+#ifdef KEY_COMPUTER
+	KEY_COMPUTER,
+#endif
+#ifdef KEY_BACK
+	KEY_BACK,
+#endif
+#ifdef KEY_FORWARD
+	KEY_FORWARD,
+#endif
+#ifdef KEY_CLOSECD
+	KEY_CLOSECD,
+#endif
+#ifdef KEY_EJECTCD
+	KEY_EJECTCD,
+#endif
+#ifdef KEY_EJECTCLOSECD
+	KEY_EJECTCLOSECD,
+#endif
+#ifdef KEY_NEXTSONG
+	KEY_NEXTSONG,
+#endif
+#ifdef KEY_PLAYPAUSE
+	KEY_PLAYPAUSE,
+#endif
+#ifdef KEY_PREVIOUSSONG
+	KEY_PREVIOUSSONG,
+#endif
+#ifdef KEY_STOPCD
+	KEY_STOPCD,
+#endif
+#ifdef KEY_RECORD
+	KEY_RECORD,
+#endif
+#ifdef KEY_REWIND
+	KEY_REWIND,
+#endif
+#ifdef KEY_PHONE
+	KEY_PHONE,
+#endif
+#ifdef KEY_ISO
+	KEY_ISO,
+#endif
+#ifdef KEY_CONFIG
+	KEY_CONFIG,
+#endif
+#ifdef KEY_HOMEPAGE
+	KEY_HOMEPAGE,
+#endif
+#ifdef KEY_REFRESH
+	KEY_REFRESH,
+#endif
+#ifdef KEY_EXIT
+	KEY_EXIT,
+#endif
+#ifdef KEY_MOVE
+	KEY_MOVE,
+#endif
+#ifdef KEY_EDIT
+	KEY_EDIT,
+#endif
+#ifdef KEY_SCROLLUP
+	KEY_SCROLLUP,
+#endif
+#ifdef KEY_SCROLLDOWN
+	KEY_SCROLLDOWN,
+#endif
+#ifdef KEY_KPLEFTPAREN
+	KEY_KPLEFTPAREN,
+#endif
+#ifdef KEY_KPRIGHTPAREN
+	KEY_KPRIGHTPAREN,
+#endif
+#ifdef KEY_INTL1
+	KEY_INTL1,
+#endif
+#ifdef KEY_INTL2
+	KEY_INTL2,
+#endif
+#ifdef KEY_INTL3
+	KEY_INTL3,
+#endif
+#ifdef KEY_INTL4
+	KEY_INTL4,
+#endif
+#ifdef KEY_INTL5
+	KEY_INTL5,
+#endif
+#ifdef KEY_INTL6
+	KEY_INTL6,
+#endif
+#ifdef KEY_INTL7
+	KEY_INTL7,
+#endif
+#ifdef KEY_INTL8
+	KEY_INTL8,
+#endif
+#ifdef KEY_INTL9
+	KEY_INTL9,
+#endif
+#ifdef KEY_LANG1
+	KEY_LANG1,
+#endif
+#ifdef KEY_LANG2
+	KEY_LANG2,
+#endif
+#ifdef KEY_LANG3
+	KEY_LANG3,
+#endif
+#ifdef KEY_LANG4
+	KEY_LANG4,
+#endif
+#ifdef KEY_LANG5
+	KEY_LANG5,
+#endif
+#ifdef KEY_LANG6
+	KEY_LANG6,
+#endif
+#ifdef KEY_LANG7
+	KEY_LANG7,
+#endif
+#ifdef KEY_LANG8
+	KEY_LANG8,
+#endif
+#ifdef KEY_LANG9
+	KEY_LANG9,
+#endif
+#ifdef KEY_PLAYCD
+	KEY_PLAYCD,
+#endif
+#ifdef KEY_PAUSECD
+	KEY_PAUSECD,
+#endif
+#ifdef KEY_PROG3
+	KEY_PROG3,
+#endif
+#ifdef KEY_PROG4
+	KEY_PROG4,
+#endif
+#ifdef KEY_SUSPEND
+	KEY_SUSPEND,
+#endif
+#ifdef KEY_CLOSE
+	KEY_CLOSE,
+#endif
+#ifdef KEY_BRIGHTNESSDOWN
+	KEY_BRIGHTNESSDOWN,
+#endif
+#ifdef KEY_BRIGHTNESSUP
+	KEY_BRIGHTNESSUP,
+#endif
+#ifdef KEY_MACRO
+	KEY_MACRO,
+#endif
+#ifdef KEY_MUTE
+	KEY_MUTE,
+#endif
+#ifdef KEY_VOLUMEDOWN
+	KEY_VOLUMEDOWN,
+#endif
+#ifdef KEY_VOLUMEUP
+	KEY_VOLUMEUP,
+#endif
+#ifdef KEY_POWER
+	KEY_POWER,
+#endif
+#ifdef KEY_COMPOSE
+	KEY_COMPOSE,
+#endif
+#ifdef KEY_F13
+	KEY_F13,
+#endif
+#ifdef KEY_F14
+	KEY_F14,
+#endif
+#ifdef KEY_F15
+	KEY_F15,
+#endif
+#ifdef KEY_F16
+	KEY_F16,
+#endif
+#ifdef KEY_F17
+	KEY_F17,
+#endif
+#ifdef KEY_F18
+	KEY_F18,
+#endif
+#ifdef KEY_F19
+	KEY_F19,
+#endif
+#ifdef KEY_F20
+	KEY_F20,
+#endif
+#ifdef KEY_F21
+	KEY_F21,
+#endif
+#ifdef KEY_F22
+	KEY_F22,
+#endif
+#ifdef KEY_F23
+	KEY_F23,
+#endif
+#ifdef KEY_F24
+	KEY_F24,
+#endif
 	-1
 };
 
