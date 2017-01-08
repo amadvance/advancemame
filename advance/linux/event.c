@@ -1547,12 +1547,42 @@ int REL_FEATURE[] = {
 };
 
 int KEY_FEATURE[] = {
-#ifdef KEY_1
+	KEY_ESC,
 	KEY_1,
-#endif
-#ifdef KEY_A
+	KEY_2,
+	KEY_3,
+	KEY_4,
+	KEY_5,
+	KEY_6,
+	KEY_7,
+	KEY_8,
+	KEY_9,
 	KEY_A,
-#endif
+	KEY_B,
+	KEY_C,
+	KEY_D,
+	KEY_E,
+	KEY_F,
+	KEY_G,
+	KEY_H,
+	KEY_I,
+	KEY_J,
+	KEY_K,
+	KEY_L,
+	KEY_M,
+	KEY_N,
+	KEY_O,
+	KEY_P,
+	KEY_Q,
+	KEY_R,
+	KEY_S,
+	KEY_T,
+	KEY_U,
+	KEY_V,
+	KEY_W,
+	KEY_X,
+	KEY_Y,
+	KEY_Z,
 	-1
 };
 
@@ -1569,9 +1599,7 @@ adv_bool event_is_mouse(int f, unsigned char* evtype_bitmask)
 
 adv_bool event_is_keyboard(int f, unsigned char* evtype_bitmask)
 {
-	return !event_test_bit_feature(f, EV_ABS, evtype_bitmask, ABS_FEATURE)
-		&& !event_test_bit_feature(f, EV_REL, evtype_bitmask, REL_FEATURE)
-		&& event_test_bit_feature(f, EV_KEY, evtype_bitmask, KEY_FEATURE);
+	return event_test_bit_feature(f, EV_KEY, evtype_bitmask, KEY_FEATURE);
 }
 
 adv_error event_read(int f, int* type, int* code, int* value)

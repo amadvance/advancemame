@@ -733,6 +733,7 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 	adv_bool eacces = 0;
 	struct event_location map[EVENT_KEYBOARD_DEVICE_MAX];
 	unsigned mac;
+	unsigned mac_real;
 
 	log_std(("keyb:event: keyb_event_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
@@ -751,28 +752,44 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 	mac = event_locate(map, EVENT_KEYBOARD_DEVICE_MAX, "event", &eacces);
 
 	event_state.mac = 0;
+	mac_real = 0;
 	for(i=0;i<mac;++i) {
 		int f;
+		struct keyboard_item_context context;
+
+		memset(&context, 0, sizeof(context));
 
 		if (event_state.mac >= EVENT_KEYBOARD_MAX)
 			continue;
 
-		f = event_open(map[i].file, event_state.map[event_state.mac].evtype_bitmask, sizeof(event_state.map[event_state.mac].evtype_bitmask));
+		f = event_open(map[i].file, context.evtype_bitmask, sizeof(context.evtype_bitmask));
 		if (f == -1)
 			continue;
 
-		if (!event_is_keyboard(f, event_state.map[event_state.mac].evtype_bitmask)) {
+		if (!event_is_keyboard(f, context.evtype_bitmask)) {
 			log_std(("keyb:event: not a keyboard on device %s\n", map[i].file));
 			event_close(f);
 			continue;
 		}
 
-		if (keyb_event_setup(&event_state.map[event_state.mac], f) != 0) {
+		if (!keyb_event_setup(&context, f) != 0) {
 			event_close(f);
 			continue;
 		}
 
-		++event_state.mac;
+		/* check if it's a pure keyboard */
+		if (!event_is_joystick(f, context.evtype_bitmask) && !event_is_mouse(f, context.evtype_bitmask)) {
+			/* put it at the end of "pure" keyboards but before any other "impure" one */
+			if (event_state.mac > mac_real)
+				memmove(&event_state.map[mac_real + 1], &event_state.map[mac_real], (event_state.mac - mac_real) * sizeof(event_state.map[0]));
+			event_state.map[mac_real] = context;
+			++mac_real;
+			++event_state.mac;
+		} else {
+			/* put it at the end */
+			event_state.map[event_state.mac] = context;
+			++event_state.mac;
+		}
 	}
 
 	if (!event_state.mac) {
