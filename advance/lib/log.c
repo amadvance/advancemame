@@ -101,8 +101,7 @@ void log_f_dump(const char* text, void* data, unsigned size)
 			sprintf(nibble, "%02x", ((unsigned char*)data)[i+j]);
 			strcat(buf, nibble);
 		}
-		strcat(buf, "\n");
-		log_f(buf);
+		log_f("%s\n", buf);
 	}
 }
 
