@@ -46,6 +46,7 @@ CONF_LIBS=@CONF_LIBS@
 CONF_DEBUGGER=@CONF_DEBUGGER@
 CONF_DEBUG=@CONF_DEBUG@
 CONF_DEFS=@DEFS@
+CONF_TINY=@CONF_TINY@
 
 #############################################################################
 # Extra configuration common for ./configure and manual

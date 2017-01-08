@@ -620,13 +620,21 @@ endif
 
 # MAME
 include $(srcdir)/src/core.mak
+ifeq ($(CONF_TINY),yes)
+include $(srcdir)/src/tiny.mak
+else
 include $(srcdir)/src/mame.mak
+endif
 include $(srcdir)/src/cpu/cpu.mak
 include $(srcdir)/src/sound/sound.mak
 
 # MESS
 include $(srcdir)/srcmess/core.mak
+ifeq ($(CONF_TINY),yes)
+include $(srcdir)/mess/tinyms.mak
+else
 include $(srcdir)/mess/mess.mak
+endif
 include $(srcdir)/srcmess/cpu/cpu.mak
 include $(srcdir)/mess/cpu/cpu.mak
 include $(srcdir)/srcmess/sound/sound.mak

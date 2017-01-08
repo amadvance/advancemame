@@ -144,6 +144,14 @@ AC_ARG_ENABLE(
 	[ac_enable_bare=no]
 )
 
+AC_ARG_ENABLE(
+	[tiny],
+	AC_HELP_STRING([--enable-tiny],[enable compilation with MAME/MESS tiny configuration. (default no)]),
+	[ac_enable_tiny=$enableval],
+	[ac_enable_tiny=no]
+)
+AC_SUBST([CONF_TINY],[$ac_enable_tiny])
+
 if test $ac_auto_cflags = yes; then
 	if test $ac_enable_debug = yes ; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
