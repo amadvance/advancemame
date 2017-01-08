@@ -1,6 +1,9 @@
 ############################################################################
 # M
 
+# Dependencies on VERSION
+$(MOBJ)/m/m.o: Makefile
+
 MCFLAGS += \
 	-DADV_VERSION=\"$(VERSION)\" \
 	-I$(srcdir)/advance/lib \

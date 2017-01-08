@@ -1,6 +1,9 @@
 ############################################################################
 # V
 
+# Dependencies on VERSION
+$(VOBJ)/v/v.o: Makefile
+
 VCFLAGS += \
 	-DADV_VERSION=\"$(VERSION)\" \
 	-I$(srcdir)/advance/lib \

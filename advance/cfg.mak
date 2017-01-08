@@ -1,6 +1,9 @@
 ############################################################################
 # CFG
 
+# Dependencies on VERSION
+$(CFGOBJ)/cfg/cfg.o: Makefile
+
 CFGCFLAGS += \
 	-DADV_VERSION=\"$(VERSION)\" \
 	-I$(srcdir)/advance/lib \

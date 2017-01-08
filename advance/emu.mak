@@ -393,7 +393,9 @@ endif
 
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(OBJ)/advance/osd/emu.o: Makefile
+$(OBJ)/advance/osd/ui.o: Makefile
 $(MESSOBJ)/advance/osd/emu.o: Makefile
+$(MESSOBJ)/advance/osd/ui.o: Makefile
 
 ADVANCECFLAGS += -DADV_VERSION=\"$(VERSION)\" -DADV_EMU
 MAMECFLAGS += -DMAME

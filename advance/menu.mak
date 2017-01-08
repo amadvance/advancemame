@@ -1,7 +1,7 @@
 ############################################################################
 # system
 
-# Dependencies on VERSION/DATADIR/SYSCONFDIR
+# Dependencies on VERSION
 $(MENUOBJ)/menu/mm.o: Makefile
 
 MENUCFLAGS += -DADV_VERSION=\"$(VERSION)\" -DADV_MENU

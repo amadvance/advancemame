@@ -1,6 +1,9 @@
 ############################################################################
 # J
 
+# Dependencies on VERSION
+$(JOBJ)/j/j.o: Makefile
+
 JCFLAGS += \
 	-DADV_VERSION=\"$(VERSION)\" \
 	-I$(srcdir)/advance/lib \

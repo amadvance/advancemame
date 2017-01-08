@@ -1,6 +1,9 @@
 ############################################################################
 # K
 
+# Dependencies on VERSION
+$(KOBJ)/k/k.o: Makefile
+
 KCFLAGS += \
 	-DADV_VERSION=\"$(VERSION)\" \
 	-I$(srcdir)/advance/lib \
