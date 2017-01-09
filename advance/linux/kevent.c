@@ -772,7 +772,7 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 			continue;
 		}
 
-		if (!keyb_event_setup(&context, f) != 0) {
+		if (keyb_event_setup(&context, f) != 0) {
 			event_close(f);
 			continue;
 		}
