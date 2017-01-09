@@ -66,11 +66,12 @@ struct keyboard_item_context {
 #define LOW_INVALID ((unsigned)0xFFFFFFFF)
 
 struct keyb_event_context {
-	struct termios old_kdbtermios;
-	struct termios kdbtermios;
-	int old_kdbmode;
-	int old_terminalmode;
-	int f; /**< Handle of the console interface. */
+	struct termios old0_kdbtermios;
+	struct termios old1_kdbtermios;
+	int old0_kdbmode;
+	int old0_terminalmode;
+	int f0; /**< Handle of the local TTY interface. */
+	int f1; /**< Handle of the process TTY interface. It may be the same or different than ::f0. */
 	adv_bool disable_special_flag; /**< Disable special hotkeys. */
 	unsigned map_up_to_low[KEYB_MAX];
 	unsigned mac;
@@ -816,6 +817,8 @@ void keyb_event_done(void)
 
 adv_error keyb_event_enable(adv_bool graphics)
 {
+	struct termios kdbtermios;
+
 	log_std(("keyb:event: keyb_event_enable(graphics:%d)\n", (int)graphics));
 
 #if defined(USE_VIDEO_SDL)
@@ -837,76 +840,108 @@ adv_error keyb_event_enable(adv_bool graphics)
 	event_state.graphics_flag = graphics;
 
 	/*
-	 * Try opening the local active console /dev/tty0.
+	 * Open the local active console with /dev/tty0.
 	 * This one is always local, but when connected remotely you can open it only as root.
 	 */
-	event_state.f = open("/dev/tty0", O_RDONLY | O_NONBLOCK);
-	if (event_state.f == -1) {
-		log_std(("keyb:event: Failed to open local console /dev/tty0, retry with /dev/tty. %s\n", strerror(errno)));
+	event_state.f0 = open("/dev/tty0", O_RDONLY | O_NONBLOCK);
+	if (event_state.f0 == -1)
+		log_std(("keyb:event: Failed to open /dev/tty0. %s\n", strerror(errno)));
 
-		/*
-		 * Now retry with /dev/tty.
-		 * This one could be either local or remote.
-		 */
-		event_state.f = open("/dev/tty", O_RDONLY | O_NONBLOCK);
-	}
-	if (event_state.f == -1) {
-		error_set("Error enabling the event keyboard driver. Function open(/dev/tty0) and open(/dev/tty) failed.\n");
-		goto err;
+	/*
+	 * Open the process console with /dev/tty.
+	 * This one could be either local or remote.
+	 */
+	event_state.f1 = open("/dev/tty", O_RDONLY | O_NONBLOCK);
+	if (event_state.f1 == -1)
+		log_std(("keyb:event: Failed to open /dev/tty. %s\n", strerror(errno)));
+
+	/* if only tty, assign it back to tty0, assuming it's the local console */
+	if (event_state.f0 == -1) {
+		event_state.f0 = event_state.f1;
+		event_state.f1 = -1;
 	}
 
-	if (ioctl(event_state.f, KDGKBMODE, &event_state.old_kdbmode) != 0) {
+	/* at least one is needed */
+	if (event_state.f0 == -1) {
+		error_set("Not able to open the local console. Try running as root.\n");
+		goto err_close;
+	}
+
+	if (ioctl(event_state.f0, KDGKBMODE, &event_state.old0_kdbmode) != 0) {
 		if (errno == ENOTTY) {
-			error_set("Not able to query the local console.\nIf you are connected remotely you have to run with root permission.\n");
+			error_set("Not able to query the local console. Try running as root.\n");
 		} else {
-			error_set("Error enabling the even keyboard driver. Function ioctl(KDGKBMODE) failed. %s\n", strerror(errno));
+			error_set("Error enabling the even keyboard driver. Function ioctl(/dev/tty0, KDGKBMODE) failed. %s\n", strerror(errno));
 		}
 		goto err_close;
 	}
 
-	if (tcgetattr(event_state.f, &event_state.old_kdbtermios) != 0) {
-		error_set("Error enabling the event keyboard driver. Function tcgetattr() failed.\n");
+	if (tcgetattr(event_state.f0, &event_state.old0_kdbtermios) != 0) {
+		error_set("Error enabling the event keyboard driver. Function tcgetattr(/dev/tty0) failed.\n");
+		goto err_close;
+	}
+	if (event_state.f1 != -1 && tcgetattr(event_state.f1, &event_state.old1_kdbtermios) != 0) {
+		error_set("Error enabling the event keyboard driver. Function tcgetattr(/dev/tty) failed.\n");
 		goto err_close;
 	}
 
-	event_state.kdbtermios = event_state.old_kdbtermios;
+	if (event_state.f1 != -1) {
+		/*
+		 * Disable ECHO on /dev/tty.
+		 * We want do avoid keypresses to show in the remote consoles,
+		 * but still having control of it, like when pressing Ctrl+C
+		 */
+		kdbtermios = event_state.old1_kdbtermios;
+		kdbtermios.c_lflag &= ~ECHO;
 
-	/* setting taken from SVGALIB */
-	event_state.kdbtermios.c_lflag &= ~(ICANON | ECHO | ISIG);
-	event_state.kdbtermios.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | IXOFF | IXON);
-	event_state.kdbtermios.c_cc[VMIN] = 0;
-	event_state.kdbtermios.c_cc[VTIME] = 0;
+		log_std(("keyb:event: tcsetattr(/dev/tty, TCSAFLUSH, %sICANON %sECHO %sISIG)\n", (kdbtermios.c_lflag & ICANON) ? "" : "~", (kdbtermios.c_lflag & ECHO) ? "" : "~", (kdbtermios.c_lflag & ISIG) ? "" : "~"));
+		if (tcsetattr(event_state.f1, TCSAFLUSH, &kdbtermios) != 0) {
+			error_set("Error enabling the event keyboard driver. Function tcsetattr(/dev/tty, TCSAFLUSH) failed.\n");
+			goto err_close;
+		}
+	}
 
-	log_std(("keyb:event: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (event_state.kdbtermios.c_lflag & ICANON) ? "" : "~", (event_state.kdbtermios.c_lflag & ECHO) ? "" : "~"));
-	if (tcsetattr(event_state.f, TCSAFLUSH, &event_state.kdbtermios) != 0) {
-		error_set("Error enabling the event keyboard driver. Function tcsetattr(TCSAFLUSH) failed.\n");
-		goto err_close;
+	/*
+	 * Set for graphics mode /dev/tty0.
+	 * We disable any interaction as the keyboard is going to be used directly.
+	 * Settings taken from SVGALIB.
+	 */
+	kdbtermios = event_state.old0_kdbtermios;
+	kdbtermios.c_lflag &= ~(ICANON | ECHO | ISIG);
+	kdbtermios.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | IXOFF | IXON);
+	kdbtermios.c_cc[VMIN] = 0;
+	kdbtermios.c_cc[VTIME] = 0;
+
+	log_std(("keyb:event: tcsetattr(/dev/tty0, TCSAFLUSH, %sICANON %sECHO %sISIG)\n", (kdbtermios.c_lflag & ICANON) ? "" : "~", (kdbtermios.c_lflag & ECHO) ? "" : "~", (kdbtermios.c_lflag & ISIG) ? "" : "~"));
+	if (tcsetattr(event_state.f0, TCSAFLUSH, &kdbtermios) != 0) {
+		error_set("Error enabling the event keyboard driver. Function tcsetattr(/dev/tty0, TCSAFLUSH) failed.\n");
+		goto err_term1;
 	}
 
 	if (event_state.disable_special_flag) {
 		/* enter in raw mode only to disable the ALT+Fx sequences */
-		log_std(("keyb:event: ioctl(KDSKBMODE, K_MEDIUMRAW)\n"));
-		if (ioctl(event_state.f, KDSKBMODE, K_MEDIUMRAW) != 0) {
-			error_set("Error enabling the event keyboard driver. Function ioctl(KDSKBMODE) failed.\n");
-			goto err_term;
+		log_std(("keyb:event: ioctl(/dev/tty0, KDSKBMODE, K_MEDIUMRAW)\n"));
+		if (ioctl(event_state.f0, KDSKBMODE, K_MEDIUMRAW) != 0) {
+			error_set("Error enabling the event keyboard driver. Function ioctl(/dev/tty0, KDSKBMODE) failed.\n");
+			goto err_term0;
 		}
 	}
 
 	if (event_state.graphics_flag) {
-		if (ioctl(event_state.f, KDGETMODE, &event_state.old_terminalmode) != 0) {
-			error_set("Error enabling the event keyboard driver. Function ioctl(KDGETMODE) failed.\n");
+		if (ioctl(event_state.f0, KDGETMODE, &event_state.old0_terminalmode) != 0) {
+			error_set("Error enabling the event keyboard driver. Function ioctl(/dev/tty0, KDGETMODE) failed. %s\n", strerror(errno));
 			goto err_mode;
 		}
 
-		if (event_state.old_terminalmode == KD_GRAPHICS) {
+		if (event_state.old0_terminalmode == KD_GRAPHICS) {
 			log_std(("WARNING:keyb:event: terminal already in KD_GRAPHICS mode\n"));
 		}
 
-		/* set the console in graphics mode, it only disable the cursor and the echo */
-		log_std(("keyb:event: ioctl(KDSETMODE, KD_GRAPHICS)\n"));
-		if (ioctl(event_state.f, KDSETMODE, KD_GRAPHICS) < 0) {
-			log_std(("keyb:event: ioctl(KDSETMODE, KD_GRAPHICS) failed\n"));
-			error_set("Error setting the tty in graphics mode.\n");
+		/* set the console in graphics mode (disable cursor) */
+		log_std(("keyb:event: ioctl(/dev/tty0, KDSETMODE, KD_GRAPHICS)\n"));
+		if (ioctl(event_state.f0, KDSETMODE, KD_GRAPHICS) < 0) {
+			log_std(("keyb:event: ioctl(/dev/tty0, KDSETMODE, KD_GRAPHICS) failed\n"));
+			error_set("Error setting /dev/tty0 in graphics mode.\n");
 			goto err_mode;
 		}
 	}
@@ -916,26 +951,36 @@ adv_error keyb_event_enable(adv_bool graphics)
 	return 0;
 
 err_mode:
-	log_std(("keyb:event: ioctl(KDSKBMODE, %s)\n",
-		event_state.old_kdbmode == K_RAW ? "K_RAW" :
-		event_state.old_kdbmode == K_XLATE ? "K_XLATE" :
-		event_state.old_kdbmode == K_MEDIUMRAW ? "K_MEDIUMRAW" :
-		event_state.old_kdbmode == K_UNICODE ? "K_UNICODE" :
-		event_state.old_kdbmode == K_OFF ? "K_OFF" :
+	log_std(("keyb:event: ioctl(/dev/tty0, KDSKBMODE, %s)\n",
+		event_state.old0_kdbmode == K_RAW ? "K_RAW" :
+		event_state.old0_kdbmode == K_XLATE ? "K_XLATE" :
+		event_state.old0_kdbmode == K_MEDIUMRAW ? "K_MEDIUMRAW" :
+		event_state.old0_kdbmode == K_UNICODE ? "K_UNICODE" :
+		event_state.old0_kdbmode == K_OFF ? "K_OFF" :
 		"other"
 	));
-	if (ioctl(event_state.f, KDSKBMODE, event_state.old_kdbmode) < 0) {
+	if (ioctl(event_state.f0, KDSKBMODE, event_state.old0_kdbmode) < 0) {
 		/* ignore error */
-		log_std(("keyb:event: ioctl(KDSKBMODE,old) failed\n"));
+		log_std(("keyb:event: ioctl(/dev/tty0, KDSKBMODE, old) failed\n"));
 	}
-err_term:
-	log_std(("keyb:event: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (event_state.old_kdbtermios.c_lflag & ICANON) ? "" : "~", (event_state.old_kdbtermios.c_lflag & ECHO) ? "" : "~"));
-	if (tcsetattr(event_state.f, TCSAFLUSH, &event_state.old_kdbtermios) != 0) {
+err_term0:
+	log_std(("keyb:event: tcsetattr(/dev/tty0, TCSAFLUSH, %sICANON %sECHO %sISIG)\n", (event_state.old0_kdbtermios.c_lflag & ICANON) ? "" : "~", (event_state.old0_kdbtermios.c_lflag & ECHO) ? "" : "~", (event_state.old0_kdbtermios.c_lflag & ISIG) ? "" : "~"));
+	if (tcsetattr(event_state.f0, TCSAFLUSH, &event_state.old0_kdbtermios) != 0) {
 		/* ignore error */
-		log_std(("keyb:event: tcsetattr(TCSAFLUSH) failed\n"));
+		log_std(("keyb:event: tcsetattr(/dev/tty0, TCSAFLUSH) failed\n"));
+	}
+err_term1:
+	if (event_state.f1 != -1) {
+		log_std(("keyb:event: tcsetattr(/dev/tty, TCSAFLUSH, %sICANON %sECHO %sISIG)\n", (event_state.old1_kdbtermios.c_lflag & ICANON) ? "" : "~", (event_state.old0_kdbtermios.c_lflag & ECHO) ? "" : "~", (event_state.old0_kdbtermios.c_lflag & ISIG) ? "" : "~"));
+		if (tcsetattr(event_state.f1, TCSAFLUSH, &event_state.old1_kdbtermios) != 0) {
+			/* ignore error */
+			log_std(("keyb:event: tcsetattr(/dev/tty, TCSAFLUSH) failed\n"));
+		}
 	}
 err_close:
-	close(event_state.f);
+	close(event_state.f0);
+	if (event_state.f1 != -1)
+		close(event_state.f1);
 err:
 	return -1;
 }
@@ -945,37 +990,48 @@ void keyb_event_disable(void)
 	log_std(("keyb:event: keyb_event_disable()\n"));
 
 	if (event_state.graphics_flag) {
-		log_std(("keyb:event: ioctl(KDSETMODE, %s)\n",
-			event_state.old_terminalmode == KD_GRAPHICS ? "KD_GRAPHICS" :
-			event_state.old_terminalmode == KD_TEXT ? "KD_TEXT" :
+		log_std(("keyb:event: ioctl(/dev/tty0, KDSETMODE, %s)\n",
+			event_state.old0_terminalmode == KD_GRAPHICS ? "KD_GRAPHICS" :
+			event_state.old0_terminalmode == KD_TEXT ? "KD_TEXT" :
 			"other"
 		));
-		if (ioctl(event_state.f, KDSETMODE, event_state.old_terminalmode) < 0) {
+
+		if (ioctl(event_state.f0, KDSETMODE, event_state.old0_terminalmode) < 0) {
 			/* ignore error */
-			log_std(("ERROR:keyb:event: ioctl(KDSETMODE) failed\n"));
+			log_std(("ERROR:keyb:event: ioctl(/dev/tty0, KDSETMODE, old) failed\n"));
 		}
 	}
 
-	log_std(("keyb:event: ioctl(KDSKBMODE, %s)\n",
-		event_state.old_kdbmode == K_RAW ? "K_RAW" :
-		event_state.old_kdbmode == K_XLATE ? "K_XLATE" :
-		event_state.old_kdbmode == K_MEDIUMRAW ? "K_MEDIUMRAW" :
-		event_state.old_kdbmode == K_UNICODE ? "K_UNICODE" :
-		event_state.old_kdbmode == K_OFF ? "K_OFF" :
+	log_std(("keyb:event: ioctl(/dev/tty0, KDSKBMODE, %s)\n",
+		event_state.old0_kdbmode == K_RAW ? "K_RAW" :
+		event_state.old0_kdbmode == K_XLATE ? "K_XLATE" :
+		event_state.old0_kdbmode == K_MEDIUMRAW ? "K_MEDIUMRAW" :
+		event_state.old0_kdbmode == K_UNICODE ? "K_UNICODE" :
+		event_state.old0_kdbmode == K_OFF ? "K_OFF" :
 		"other"
 	));
-	if (ioctl(event_state.f, KDSKBMODE, event_state.old_kdbmode) < 0) {
+	if (ioctl(event_state.f0, KDSKBMODE, event_state.old0_kdbmode) < 0) {
 		/* ignore error */
-		log_std(("ERROR:keyb:event: ioctl(KDSKBMODE) failed\n"));
+		log_std(("ERROR:keyb:event: ioctl(/dev/tty0, KDSKBMODE, old) failed\n"));
 	}
 
-	log_std(("keyb:event: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (event_state.old_kdbtermios.c_lflag & ICANON) ? "" : "~", (event_state.old_kdbtermios.c_lflag & ECHO) ? "" : "~"));
-	if (tcsetattr(event_state.f, TCSAFLUSH, &event_state.old_kdbtermios) != 0) {
-		/* ignore error */
-		log_std(("ERROR:keyb:event: tcsetattr(TCSAFLUSH) failed\n"));
+	if (event_state.f1 != -1) {
+		log_std(("keyb:event: tcsetattr(/dev/tty, TCSAFLUSH, %sICANON %sECHO %sISIG)\n", (event_state.old1_kdbtermios.c_lflag & ICANON) ? "" : "~", (event_state.old1_kdbtermios.c_lflag & ECHO) ? "" : "~", (event_state.old1_kdbtermios.c_lflag & ISIG) ? "" : "~"));
+		if (tcsetattr(event_state.f1, TCSAFLUSH, &event_state.old1_kdbtermios) != 0) {
+			/* ignore error */
+			log_std(("ERROR:keyb:event: tcsetattr(/dev/tty, TCSAFLUSH, old) failed\n"));
+		}
 	}
 
-	close(event_state.f);
+	log_std(("keyb:event: tcsetattr(/dev/tty0, TCSAFLUSH, %sICANON %sECHO %sISIG)\n", (event_state.old0_kdbtermios.c_lflag & ICANON) ? "" : "~", (event_state.old0_kdbtermios.c_lflag & ECHO) ? "" : "~", (event_state.old0_kdbtermios.c_lflag & ISIG) ? "" : "~"));
+	if (tcsetattr(event_state.f0, TCSAFLUSH, &event_state.old0_kdbtermios) != 0) {
+		/* ignore error */
+		log_std(("ERROR:keyb:event: tcsetattr(/dev/tty0, TCSAFLUSH, old) failed\n"));
+	}
+
+	close(event_state.f0);
+	if (event_state.f1 != -1)
+		close(event_state.f1);
 }
 
 unsigned keyb_event_count_get(void)
