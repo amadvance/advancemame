@@ -35,6 +35,7 @@
 #include "log.h"
 #include "error.h"
 #include "oslinux.h"
+#include "target.h"
 
 #if HAVE_TERMIOS_H
 #include <termios.h>
@@ -70,7 +71,6 @@
 
 struct keyb_raw_context {
 	struct termios old_kdbtermios;
-	struct termios kdbtermios;
 	int old_kdbmode;
 	int old_terminalmode;
 	int f; /**< Handle. */
@@ -222,7 +222,7 @@ adv_error keyb_raw_init(int keyb_id, adv_bool disable_special)
 
 	log_std(("keyb:raw: keyb_raw_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
-	if (getenv("DISPLAY")) {
+	if (target_wm()) {
 		error_set("Unsupported in X.\n");
 		return -1;
 	}
@@ -246,6 +246,8 @@ void keyb_raw_done(void)
 
 adv_error keyb_raw_enable(adv_bool graphics)
 {
+	struct termios kdbtermios;
+
 	log_std(("keyb:raw: keyb_raw_enable()\n"));
 
 #ifdef USE_VIDEO_SDL
@@ -268,27 +270,19 @@ adv_error keyb_raw_enable(adv_bool graphics)
 	raw_state.first_state = 0;
 
 	/*
-	 * Try opening the local active console /dev/tty0.
-	 * This one is always local, but when connected remotely you can open it only as root.
+	 * Open the process console with /dev/tty.
+	 * This one could be either local or remote.
 	 */
-	raw_state.f = open("/dev/tty0", O_RDONLY | O_NONBLOCK);
+	raw_state.f = open("/dev/tty", O_RDONLY | O_NONBLOCK);
 	if (raw_state.f == -1) {
-		log_std(("keyb:event: Failed to open local console /dev/tty0, retry with /dev/tty. %s\n", strerror(errno)));
-
-		/*
-		 * Now retry with /dev/tty.
-		 * This one could be either local or remote.
-		 */
-		raw_state.f = open("/dev/tty", O_RDONLY | O_NONBLOCK);
-	}
-	if (raw_state.f == -1) {
-		error_set("Error enabling the raw keyboard driver. Function open(/dev/tty0) and open(/dev/tty) failed.\n");
+		log_std(("keyb:event: Failed to open /dev/tty. %s\n", strerror(errno)));
+		error_set("Error enabling the raw keyboard driver. Failed to open /dev/tty. %s\n", strerror(errno));
 		goto err;
 	}
 
 	if (ioctl(raw_state.f, KDGKBMODE, &raw_state.old_kdbmode) != 0) {
 		if (errno == ENOTTY) {
-			error_set("Not able to query the local console.\nIf you are connected remotely you have to run with root permission.\n");
+			error_set("Not able to query the local console.\n");
 		} else {
 			error_set("Error enabling the raw keyboard driver. Function ioctl(KDGKBMODE) failed. %s\n", strerror(errno));
 		}
@@ -300,16 +294,19 @@ adv_error keyb_raw_enable(adv_bool graphics)
 		goto err_close;
 	}
 
-	raw_state.kdbtermios = raw_state.old_kdbtermios;
+	/*
+	 * Set for graphics mode /dev/tty0.
+	 * We disable any interaction as the keyboard is going to be used directly.
+	 * Settings taken from SVGALIB.
+	 */
+	kdbtermios = raw_state.old_kdbtermios;
+	kdbtermios.c_lflag &= ~(ICANON | ECHO | ISIG);
+	kdbtermios.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | IXOFF | IXON);
+	kdbtermios.c_cc[VMIN] = 0;
+	kdbtermios.c_cc[VTIME] = 0;
 
-	/* setting taken from SVGALIB */
-	raw_state.kdbtermios.c_lflag &= ~(ICANON | ECHO | ISIG);
-	raw_state.kdbtermios.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | IXOFF | IXON);
-	raw_state.kdbtermios.c_cc[VMIN] = 0;
-	raw_state.kdbtermios.c_cc[VTIME] = 0;
-
-	log_std(("keyb:raw: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (raw_state.kdbtermios.c_lflag & ICANON) ? "" : "~", (raw_state.kdbtermios.c_lflag & ECHO) ? "" : "~"));
-	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.kdbtermios) != 0) {
+	log_std(("keyb:raw: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (kdbtermios.c_lflag & ICANON) ? "" : "~", (kdbtermios.c_lflag & ECHO) ? "" : "~"));
+	if (tcsetattr(raw_state.f, TCSAFLUSH, &kdbtermios) != 0) {
 		error_set("Error enabling the raw keyboard driver. Function tcsetattr(TCSAFLUSH) failed.\n");
 		goto err_close;
 	}
@@ -354,13 +351,13 @@ err_mode:
 	));
 	if (ioctl(raw_state.f, KDSKBMODE, raw_state.old_kdbmode) < 0) {
 		/* ignore error */
-		log_std(("keyb:raw: ioctl(KDSKBMODE,old) failed\n"));
+		log_std(("keyb:raw: ioctl(KDSKBMODE, old) failed\n"));
 	}
 err_term:
 	log_std(("keyb:raw: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (raw_state.old_kdbtermios.c_lflag & ICANON) ? "" : "~", (raw_state.old_kdbtermios.c_lflag & ECHO) ? "" : "~"));
 	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.old_kdbtermios) != 0) {
 		/* ignore error */
-		log_std(("keyb:raw: tcsetattr(TCSAFLUSH) failed\n"));
+		log_std(("keyb:raw: tcsetattr(TCSAFLUSH, old) failed\n"));
 	}
 err_close:
 	close(raw_state.f);
@@ -387,7 +384,7 @@ void keyb_raw_disable(void)
 		));
 		if (ioctl(raw_state.f, KDSETMODE, raw_state.old_terminalmode) < 0) {
 			/* ignore error */
-			log_std(("ERROR:keyb:raw: ioctl(KDSETMODE) failed\n"));
+			log_std(("ERROR:keyb:raw: ioctl(KDSETMODE, old) failed\n"));
 		}
 	}
 
@@ -401,13 +398,13 @@ void keyb_raw_disable(void)
 	));
 	if (ioctl(raw_state.f, KDSKBMODE, raw_state.old_kdbmode) < 0) {
 		/* ignore error */
-		log_std(("ERROR:keyb:raw: ioctl(KDSKBMODE) failed\n"));
+		log_std(("ERROR:keyb:raw: ioctl(KDSKBMODE, old) failed\n"));
 	}
 
 	log_std(("keyb:raw: tcsetattr(TCSAFLUSH, %sICANON %sECHO)\n", (raw_state.old_kdbtermios.c_lflag & ICANON) ? "" : "~", (raw_state.old_kdbtermios.c_lflag & ECHO) ? "" : "~"));
 	if (tcsetattr(raw_state.f, TCSAFLUSH, &raw_state.old_kdbtermios) != 0) {
 		/* ignore error */
-		log_std(("ERROR:keyb:raw: tcsetattr(TCSAFLUSH) failed\n"));
+		log_std(("ERROR:keyb:raw: tcsetattr(TCSAFLUSH, old) failed\n"));
 	}
 
 	close(raw_state.f);
