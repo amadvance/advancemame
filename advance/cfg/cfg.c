@@ -38,7 +38,7 @@ enum advance_t {
 unsigned x_from_y(unsigned y)
 {
 	unsigned x;
-	x = y * 2 / 3;
+	x = y * 4 / 3;
 	x = (x + 0xF) & ~0xF;
 	if (x < 256)
 		x = 256;
