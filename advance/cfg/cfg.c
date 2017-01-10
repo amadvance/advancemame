@@ -734,7 +734,7 @@ struct monitor_corner {
 	int level;
 };
 
-unsigned monitor_corner_create(const adv_monitor* monitor, double vclock, struct monitor_corner* map, unsigned max, unsigned count)
+unsigned monitor_corner_create(const adv_monitor* monitor, double vclock, struct monitor_corner* map, unsigned max, unsigned count, int hint)
 {
 	unsigned i;
 	unsigned mac;
@@ -752,7 +752,7 @@ unsigned monitor_corner_create(const adv_monitor* monitor, double vclock, struct
 		else
 			try_vclock = vclock;
 
-		if (count > 0) { /* low */
+		if (hint < 0 || count > 1) { /* low */
 			double try_hclock = mode->hclock.low;
 			int y = ceil(try_hclock / try_vclock);
 			if (monitor_mode_hvclock_check(mode, try_hclock, try_hclock / y)
@@ -760,6 +760,30 @@ unsigned monitor_corner_create(const adv_monitor* monitor, double vclock, struct
 				map[mac].hclock = try_hclock;
 				map[mac].y = y;
 				map[mac].level = -1;
+				++mac;
+			}
+		}
+
+		if (hint > 0 && count == 1) { /* high */
+			double try_hclock = mode->hclock.high;
+			int y = floor(try_hclock / try_vclock);
+			if (monitor_mode_hvclock_check(mode, try_hclock, try_hclock / y)
+				&& mac < max) {
+				map[mac].hclock = try_hclock;
+				map[mac].y = y;
+				map[mac].level = 1;
+				++mac;
+			}
+		}
+
+		if (hint == 0 && count == 1) { /* mid */
+			double try_hclock = (mode->hclock.low + mode->hclock.high) / 2;
+			int y = floor(try_hclock / try_vclock + 0.5);
+			if (monitor_mode_hvclock_check(mode, try_hclock, try_hclock / y)
+				&& mac < max) {
+				map[mac].hclock = try_hclock;
+				map[mac].y = y;
+				map[mac].level = 1;
 				++mac;
 			}
 		}
@@ -840,12 +864,39 @@ static adv_error cmd_interpolate_set(adv_generate_interpolate_set* interpolate, 
 	return 0;
 }
 
+static void cmd_interpolate_default(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor)
+{
+	interpolate->map[0].gen = *generate;
+	interpolate->map[0].hclock = monitor->mode_map[0].hclock.low;
+	interpolate->mac = 1;
+}
+
+static adv_error cmd_interpolate_mid(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index)
+{
+	struct monitor_corner corner_map[MONITOR_MODE_MAX * 1];
+	unsigned corner_mac;
+
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 1, 0);
+
+	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
+}
+
 static adv_error cmd_interpolate_low(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index)
 {
 	struct monitor_corner corner_map[MONITOR_MODE_MAX * 1];
 	unsigned corner_mac;
 
-	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 1);
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 1, -1);
+
+	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
+}
+
+static adv_error cmd_interpolate_high(adv_generate_interpolate_set* interpolate, const adv_generate* generate, const adv_monitor* monitor, unsigned index)
+{
+	struct monitor_corner corner_map[MONITOR_MODE_MAX * 1];
+	unsigned corner_mac;
+
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 1, 1);
 
 	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
 }
@@ -855,7 +906,7 @@ static adv_error cmd_interpolate_lowhigh(adv_generate_interpolate_set* interpola
 	struct monitor_corner corner_map[MONITOR_MODE_MAX * 2];
 	unsigned corner_mac;
 
-	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 2);
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 2, -1);
 
 	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
 }
@@ -865,7 +916,7 @@ static adv_error cmd_interpolate_lowmidhigh(adv_generate_interpolate_set* interp
 	struct monitor_corner corner_map[MONITOR_MODE_MAX * 3];
 	unsigned corner_mac;
 
-	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 3);
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 3, -1);
 
 	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
 }
@@ -1019,7 +1070,10 @@ static adv_error interpolate_test(const char* msg, adv_crtc* crtc, const adv_mon
 
 enum adjust_enum {
 	adjust_previous,
+	adjust_default,
+	adjust_mid,
 	adjust_low,
+	adjust_high,
 	adjust_lowhigh,
 	adjust_lowmidhigh
 };
@@ -1037,14 +1091,23 @@ static void entry_adjust(int x, int y, int dx, void* data, int n, adv_bool selec
 	case adjust_previous:
 		snprintf(buffer, sizeof(buffer), "Previous centering settings");
 		break;
+	case adjust_default:
+		snprintf(buffer, sizeof(buffer), "Default centering - Assume standard monitor centering");
+		break;
+	case adjust_mid:
+		snprintf(buffer, sizeof(buffer), "Manual Middle centering - Test with a middle frequency setting");
+		break;
 	case adjust_low:
-		snprintf(buffer, sizeof(buffer), "Manual Low centering - RECOMMENDED - (low frequency settings)");
+		snprintf(buffer, sizeof(buffer), "Manual Low centering - Test with a low frequency setting");
+		break;
+	case adjust_high:
+		snprintf(buffer, sizeof(buffer), "Manual High centering - Test with a high frequency setting");
 		break;
 	case adjust_lowhigh:
-		snprintf(buffer, sizeof(buffer), "Manual Low/High centering (low/high frequency settings)");
+		snprintf(buffer, sizeof(buffer), "Manual Low/High centering - Test with a low and high frequency setting");
 		break;
 	case adjust_lowmidhigh:
-		snprintf(buffer, sizeof(buffer), "Manual Low/Mid/High centering (low/mid/high frequency settings)");
+		snprintf(buffer, sizeof(buffer), "Manual Low/Mid/High centering - Test with a low, middle and high frequency setting");
 		break;
 	}
 
@@ -1081,7 +1144,16 @@ adv_error cmd_adjust_msg(int type, enum adjust_enum* adjust_type)
 		++mac;
 	}
 
+	data[mac].type = adjust_default;
+	++mac;
+
+	data[mac].type = adjust_mid;
+	++mac;
+
 	data[mac].type = adjust_low;
+	++mac;
+
+	data[mac].type = adjust_high;
 	++mac;
 
 	data[mac].type = adjust_lowhigh;
@@ -1730,8 +1802,15 @@ int os_main(int argc, char* argv[])
 			else {
 				if (adjust_type == adjust_previous) {
 					state = 5;
+				} else if (adjust_type == adjust_default) {
+					cmd_interpolate_default(&interpolate, &generate, &monitor);
+					res = 0;
+				} else if (adjust_type == adjust_mid) {
+					res = cmd_interpolate_mid(&interpolate, &generate, &monitor, index);
 				} else if (adjust_type == adjust_low) {
 					res = cmd_interpolate_low(&interpolate, &generate, &monitor, index);
+				} else if (adjust_type == adjust_high) {
+					res = cmd_interpolate_high(&interpolate, &generate, &monitor, index);
 				} else if (adjust_type == adjust_lowhigh) {
 					res = cmd_interpolate_lowhigh(&interpolate, &generate, &monitor, index);
 				} else if (adjust_type == adjust_lowmidhigh) {
