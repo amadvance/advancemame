@@ -490,16 +490,24 @@ adv_error generate_find_interpolate_multi(adv_crtc* crtc, unsigned hsize0, unsig
 
 	err = generate_find_interpolate(crtc, hsize0, vsize0, vclock, monitor, interpolate, capability, adjust);
 
+	/* 2x,2y */
+	if (err != 0 && hsize1 != 0 && vsize1 != 0)
+		err = generate_find_interpolate(crtc, hsize1, vsize1, vclock, monitor, interpolate, capability, adjust);
+
+	/* 3x,3y */
+	if (err != 0 && hsize2 != 0 && vsize2 != 0)
+		err = generate_find_interpolate(crtc, hsize2, vsize2, vclock, monitor, interpolate, capability, adjust);
+
+	/* 4x,4y */
+	if (err != 0 && hsize3 != 0 && vsize3 != 0)
+		err = generate_find_interpolate(crtc, hsize3, vsize3, vclock, monitor, interpolate, capability, adjust);
+
 	/* 2x */
 	if (err != 0 && hsize1 != 0)
 		err = generate_find_interpolate(crtc, hsize1, vsize0, vclock, monitor, interpolate, capability, adjust);
 	/* 2y */
 	if (err != 0 && vsize1 != 0)
 		err = generate_find_interpolate(crtc, hsize0, vsize1, vclock, monitor, interpolate, capability, adjust);
-
-	/* 2x,2y */
-	if (err != 0 && hsize1 != 0 && vsize1 != 0)
-		err = generate_find_interpolate(crtc, hsize1, vsize1, vclock, monitor, interpolate, capability, adjust);
 
 	/* 3x */
 	if (err != 0 && hsize2 != 0)
@@ -508,20 +516,12 @@ adv_error generate_find_interpolate_multi(adv_crtc* crtc, unsigned hsize0, unsig
 	if (err != 0 && vsize2 != 0)
 		err = generate_find_interpolate(crtc, hsize0, vsize2, vclock, monitor, interpolate, capability, adjust);
 
-	/* 3x,3y */
-	if (err != 0 && hsize2 != 0 && vsize2 != 0)
-		err = generate_find_interpolate(crtc, hsize2, vsize2, vclock, monitor, interpolate, capability, adjust);
-
 	/* 4x */
 	if (err != 0 && hsize3 != 0)
 		err = generate_find_interpolate(crtc, hsize3, vsize0, vclock, monitor, interpolate, capability, adjust);
 	/* 4y */
 	if (err != 0 && vsize3 != 0)
 		err = generate_find_interpolate(crtc, hsize0, vsize3, vclock, monitor, interpolate, capability, adjust);
-
-	/* 4x,4y */
-	if (err != 0 && hsize3 != 0 && vsize3 != 0)
-		err = generate_find_interpolate(crtc, hsize3, vsize3, vclock, monitor, interpolate, capability, adjust);
 
 	return err;
 }
