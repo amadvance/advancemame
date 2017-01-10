@@ -480,8 +480,7 @@ adv_error generate_find_interpolate(adv_crtc* crtc, unsigned hsize, unsigned vsi
  * Generate a multi size crtc mode compatible with the monitor
  * using interpolation.
  * If the first specified size is not allowed the other size are tried.
- * Any combination of horizontal and vertical size and multiple clock
- * are tried.
+ * Various combinations of horizontal and vertical sizes are tried.
  */
 adv_error generate_find_interpolate_multi(adv_crtc* crtc, unsigned hsize0, unsigned vsize0, unsigned hsize1, unsigned vsize1, unsigned hsize2, unsigned vsize2, unsigned hsize3, unsigned vsize3, double vclock, const adv_monitor* monitor, const adv_generate_interpolate_set* interpolate, unsigned capability, unsigned adjust)
 {
@@ -491,68 +490,38 @@ adv_error generate_find_interpolate_multi(adv_crtc* crtc, unsigned hsize0, unsig
 
 	err = generate_find_interpolate(crtc, hsize0, vsize0, vclock, monitor, interpolate, capability, adjust);
 
-	/* only if the vclock isn't already changed */
-	if ((adjust & GENERATE_ADJUST_VCLOCK) == 0) {
-		/* try with the double or more vclock */
-		if (err != 0)
-			err = generate_find_interpolate(crtc, hsize0, vsize0, vclock*2, monitor, interpolate, capability, adjust);
-		if (err != 0)
-			err = generate_find_interpolate(crtc, hsize0, vsize0, vclock*3, monitor, interpolate, capability, adjust);
-		if (err != 0)
-			err = generate_find_interpolate(crtc, hsize0, vsize0, vclock*4, monitor, interpolate, capability, adjust);
-	}
+	/* 2x */
+	if (err != 0 && hsize1 != 0)
+		err = generate_find_interpolate(crtc, hsize1, vsize0, vclock, monitor, interpolate, capability, adjust);
+	/* 2y */
+	if (err != 0 && vsize1 != 0)
+		err = generate_find_interpolate(crtc, hsize0, vsize1, vclock, monitor, interpolate, capability, adjust);
 
-	/* try with *2 */
-	if (hsize1 != 0) {
-		if (err != 0)
-			err = generate_find_interpolate(crtc, hsize1, vsize0, vclock, monitor, interpolate, capability, adjust);
-		if ((adjust & GENERATE_ADJUST_VCLOCK) == 0) {
-			if (err != 0)
-				err = generate_find_interpolate(crtc, hsize1, vsize0, 2*vclock, monitor, interpolate, capability, adjust);
-		}
-	}
-	if (vsize1 != 0) {
-		if (err != 0)
-			err = generate_find_interpolate(crtc, hsize0, vsize1, vclock, monitor, interpolate, capability, adjust);
-		if ((adjust & GENERATE_ADJUST_VCLOCK) == 0) {
-			if (err != 0)
-				err = generate_find_interpolate(crtc, hsize0, vsize1, 2*vclock, monitor, interpolate, capability, adjust);
-		}
-	}
+	/* 2x,2y */
+	if (err != 0 && hsize1 != 0 && vsize1 != 0)
+		err = generate_find_interpolate(crtc, hsize1, vsize1, vclock, monitor, interpolate, capability, adjust);
 
-	/* try with a *2*2 */
-	if (hsize1 != 0 && vsize1 != 0) {
-		if (err != 0)
-			err = generate_find_interpolate(crtc, hsize1, vsize1, vclock, monitor, interpolate, capability, adjust);
-	}
+	/* 3x */
+	if (err != 0 && hsize2 != 0)
+		err = generate_find_interpolate(crtc, hsize2, vsize0, vclock, monitor, interpolate, capability, adjust);
+	/* 3y */
+	if (err != 0 && vsize2 != 0)
+		err = generate_find_interpolate(crtc, hsize0, vsize2, vclock, monitor, interpolate, capability, adjust);
 
-	/* try with *3 */
-	if (hsize2 != 0) {
-		if (err != 0)
-			err = generate_find_interpolate(crtc, hsize2, vsize0, vclock, monitor, interpolate, capability, adjust);
-		if ((adjust & GENERATE_ADJUST_VCLOCK) == 0) {
-			if (err != 0)
-				err = generate_find_interpolate(crtc, hsize2, vsize0, 2*vclock, monitor, interpolate, capability, adjust);
-		}
-	}
-	if (vsize2 != 0) {
-		if (err != 0)
-			err = generate_find_interpolate(crtc, hsize0, vsize2, vclock, monitor, interpolate, capability, adjust);
-		if ((adjust & GENERATE_ADJUST_VCLOCK) == 0) {
-			if (err != 0)
-				err = generate_find_interpolate(crtc, hsize0, vsize2, 2*vclock, monitor, interpolate, capability, adjust);
-		}
-	}
+	/* 3x,3y */
+	if (err != 0 && hsize2 != 0 && vsize2 != 0)
+		err = generate_find_interpolate(crtc, hsize2, vsize2, vclock, monitor, interpolate, capability, adjust);
 
-	/* try with *4 */
-	if (hsize3 != 0) {
-		if (err != 0)
+	/* 4x */
+	if (err != 0 && hsize3 != 0)
 		err = generate_find_interpolate(crtc, hsize3, vsize0, vclock, monitor, interpolate, capability, adjust);
-	}
-	if (vsize3 != 0) {
-		if (err != 0)
-			err = generate_find_interpolate(crtc, hsize0, vsize3, vclock, monitor, interpolate, capability, adjust);
-	}
+	/* 4y */
+	if (err != 0 && vsize3 != 0)
+		err = generate_find_interpolate(crtc, hsize0, vsize3, vclock, monitor, interpolate, capability, adjust);
+
+	/* 4x,4y */
+	if (err != 0 && hsize3 != 0 && vsize3 != 0)
+		err = generate_find_interpolate(crtc, hsize3, vsize3, vclock, monitor, interpolate, capability, adjust);
 
 	return err;
 }
