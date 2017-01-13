@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS/MENU Version 3.2 2017/01
+	) Inverted the polarity of hsync/vsync in Raspberry when using
+		hdmi_timings. 1 means inverted polarity, and then negative.
+
 AdvanceMAME/MESS/MENU Version 3.1 2017/01
 	) Added support for SDL2. It's the new default in Linux and Windows.
 		This results in better performance and better VSync support

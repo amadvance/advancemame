@@ -1062,8 +1062,8 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 		"%u %u %u %u %u "
 		"%u %u %u %u %u "
 		"%u %u %u %u %u %u %u",
-		copy.hde, (int)!crtc_is_nhsync(&copy), copy.hrs - copy.hde, copy.hre - copy.hrs,  copy.ht - copy.hre,
-		copy.vde, (int)!crtc_is_nvsync(&copy), copy.vrs - copy.vde, copy.vre - copy.vrs,  copy.vt - copy.vre,
+		copy.hde, (int)crtc_is_nhsync(&copy), copy.hrs - copy.hde, copy.hre - copy.hrs,  copy.ht - copy.hre,
+		copy.vde, (int)crtc_is_nvsync(&copy), copy.vrs - copy.vde, copy.vre - copy.vrs,  copy.vt - copy.vre,
 		0, 0, 0, (unsigned)floor(crtc_vclock_get(&copy) + 0.5), (int)crtc_is_interlace(&copy), (unsigned)copy.pixelclock, 1
 	);
 
