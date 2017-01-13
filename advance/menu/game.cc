@@ -391,6 +391,8 @@ bool game::preview_find(resource& path, const resource& (game::*preview_get)() c
 
 void game_set::cache(merge_t merge)
 {
+	dupe_set dar;
+
 	for(iterator i=begin();i!=end();++i) {
 		// erase the clone list
 		i->clone_bag_erase();
@@ -458,9 +460,27 @@ void game_set::cache(merge_t merge)
 		i->flag_set(present, game::flag_tree_present);
 	}
 
-	// specific emulator cache
+	// specific emulator cache and fill up dup cache
 	for(iterator i=begin();i!=end();++i) {
 		i->emulator_get()->cache(*this, *i);
+
+		// skip prelimiary
+		if (i->play_best_get() == play_preliminary)
+			continue;
+
+		std::string stripped_name = file_file(i->name_get());
+
+		pair<dupe_set::const_iterator,bool> j = dar.insert(dupe(stripped_name, 0));
+		j.first->count_set(j.first->count_get() + 1);
+	}
+
+	// set dupe info
+	for(iterator i=begin();i!=end();++i) {
+		std::string stripped_name = file_file(i->name_get());
+
+		dupe_set::const_iterator j = dar.find(dupe(stripped_name, 0));
+
+		i->flag_set(j != dar.end() && (i->play_best_get() == play_preliminary || j->count_get() > 1), game::flag_duplicate);
 	}
 }
 

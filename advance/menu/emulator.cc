@@ -100,6 +100,7 @@ emulator::emulator(const string& Aname, const string& Aexe_path, const string& A
 	}
 
 	exclude_missing_orig = exclude;
+	exclude_duplicate_orig = include;
 }
 
 emulator::~emulator()
@@ -116,17 +117,22 @@ string emulator::attrib_compile(const string& value0, const string& value1)
 void emulator::attrib_load()
 {
 	exclude_missing_effective = exclude_missing_orig;
+	exclude_duplicate_effective = exclude_duplicate_orig;
 }
 
 void emulator::attrib_save()
 {
 	exclude_missing_orig = exclude_missing_effective;
+	exclude_duplicate_orig = exclude_duplicate_effective;
 }
 
 bool emulator::attrib_set(const string& value0, const string& value1)
 {
 	if (value0 == "missing") {
 		if (!tristate(exclude_missing_orig, value1))
+			return false;
+	} else if (value0 == "duplicate") {
+		if (!tristate(exclude_duplicate_orig, value1))
 			return false;
 	} else {
 		return false;
@@ -137,6 +143,7 @@ bool emulator::attrib_set(const string& value0, const string& value1)
 void emulator::attrib_get(adv_conf* config_context, const char* section, const char* tag)
 {
 	conf_string_set(config_context, section, tag, attrib_compile("missing", tristate(exclude_missing_orig)).c_str());
+	conf_string_set(config_context, section, tag, attrib_compile("duplicate", tristate(exclude_duplicate_orig)).c_str());
 }
 
 bool emulator::filter_working(const game& g) const
@@ -149,6 +156,10 @@ bool emulator::filter(const game& g) const
 	if (exclude_missing_effective == exclude && !g.present_tree_get())
 		return false;
 	if (exclude_missing_effective == exclude_not && g.present_tree_get())
+		return false;
+	if (exclude_duplicate_effective == exclude && g.duplicate_get())
+		return false;
+	if (exclude_duplicate_effective == exclude_not && !g.duplicate_get())
 		return false;
 	return true;
 }
@@ -792,6 +803,7 @@ int mame_mame::attrib_run(int x, int y)
 	choice_bag ch;
 
 	ch.insert(ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0));
+	ch.insert(ch.end(), choice("Unique or Duplicate", " Only\tUnique", " Only\tDuplicate", exclude_duplicate_effective, 0));
 	ch.insert(ch.end(), choice("Working or Preliminary", " Only\tWorking", " Only\tPreliminary", exclude_bad_effective, 0));
 	ch.insert(ch.end(), choice("Parent or Clone", " Only\tParent", " Only\tClone", exclude_clone_effective, 0));
 	ch.insert(ch.end(), choice("Any Screen Type", " Only\tScreen Raster", " Only\tScreen Vector", exclude_vector_effective, 0));
@@ -806,13 +818,14 @@ int mame_mame::attrib_run(int x, int y)
 
 	if (key == EVENT_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
-		exclude_bad_effective = ch[1].tristate_get();
-		exclude_clone_effective = ch[2].tristate_get();
-		exclude_vector_effective = ch[3].tristate_get();
-		exclude_vertical_effective = ch[4].tristate_get();
-		exclude_neogeo_effective = ch[5].tristate_get();
-		exclude_deco_effective = ch[6].tristate_get();
-		exclude_playchoice_effective = ch[7].tristate_get();
+		exclude_duplicate_effective = ch[1].tristate_get();
+		exclude_bad_effective = ch[2].tristate_get();
+		exclude_clone_effective = ch[3].tristate_get();
+		exclude_vector_effective = ch[4].tristate_get();
+		exclude_vertical_effective = ch[5].tristate_get();
+		exclude_neogeo_effective = ch[6].tristate_get();
+		exclude_deco_effective = ch[7].tristate_get();
+		exclude_playchoice_effective = ch[8].tristate_get();
 	}
 
 	return key;
@@ -1455,6 +1468,7 @@ int mame_mess::attrib_run(int x, int y)
 	choice_bag ch;
 
 	ch.insert(ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0));
+	ch.insert(ch.end(), choice("Unique or Duplicate", " Only\tUnique", " Only\tDuplicate", exclude_duplicate_effective, 0));
 	ch.insert(ch.end(), choice("Working or Preliminary", " Only\tWorking", " Only\tPreliminary", exclude_bad_effective, 0));
 	ch.insert(ch.end(), choice("Parent or Clone", " Only\tParent", " Only\tClone", exclude_clone_effective, 0));
 	ch.insert(ch.end(), choice("Any Screen Type", " Only\tScreen Raster", " Only\tScreen Vector", exclude_vector_effective, 0));
@@ -1467,11 +1481,12 @@ int mame_mess::attrib_run(int x, int y)
 
 	if (key == EVENT_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
-		exclude_bad_effective = ch[1].tristate_get();
-		exclude_clone_effective = ch[2].tristate_get();
-		exclude_vector_effective = ch[3].tristate_get();
-		exclude_vertical_effective = ch[4].tristate_get();
-		exclude_empty_effective = ch[5].tristate_get();
+		exclude_duplicate_effective = ch[1].tristate_get();
+		exclude_bad_effective = ch[2].tristate_get();
+		exclude_clone_effective = ch[3].tristate_get();
+		exclude_vector_effective = ch[4].tristate_get();
+		exclude_vertical_effective = ch[5].tristate_get();
+		exclude_empty_effective = ch[6].tristate_get();
 	}
 
 	return key;
@@ -2240,6 +2255,7 @@ int raine_info::attrib_run(int x, int y)
 	choice_bag ch;
 
 	ch.insert(ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0));
+	ch.insert(ch.end(), choice("Unique or Duplicate", " Only\tUnique", " Only\tDuplicate", exclude_duplicate_effective, 0));
 	ch.insert(ch.end(), choice("Working or Preliminary", " Only\tWorking", " Only\tPreliminary", exclude_bad_effective, 0));
 	ch.insert(ch.end(), choice("Parent or Clone", " Only\tParent", " Only\tClone", exclude_clone_effective, 0));
 	ch.insert(ch.end(), choice("Any Orientation", " Only\tHorizontal", " Only\tVertical", exclude_vertical_effective, 0));
@@ -2250,9 +2266,10 @@ int raine_info::attrib_run(int x, int y)
 
 	if (key == EVENT_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
-		exclude_bad_effective = ch[1].tristate_get();
-		exclude_clone_effective = ch[2].tristate_get();
-		exclude_vertical_effective = ch[3].tristate_get();
+		exclude_duplicate_effective = ch[1].tristate_get();
+		exclude_bad_effective = ch[2].tristate_get();
+		exclude_clone_effective = ch[3].tristate_get();
+		exclude_vertical_effective = ch[4].tristate_get();
 	}
 
 	return key;
@@ -2648,6 +2665,7 @@ int generic::attrib_run(int x, int y)
 	choice_bag ch;
 
 	ch.insert(ch.end(), choice("Present or Missing", " Only\tPresent", " Only\tMissing", exclude_missing_effective, 0));
+	ch.insert(ch.end(), choice("Unique or Duplicate", " Only\tUnique", " Only\tDuplicate", exclude_duplicate_effective, 0));
 
 	choice_bag::iterator i = ch.begin();
 
@@ -2655,6 +2673,7 @@ int generic::attrib_run(int x, int y)
 
 	if (key == EVENT_ENTER) {
 		exclude_missing_effective = ch[0].tristate_get();
+		exclude_duplicate_effective = ch[1].tristate_get();
 	}
 
 	return key;

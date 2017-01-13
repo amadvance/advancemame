@@ -41,6 +41,9 @@ protected:
 	tristate_t exclude_missing_effective;
 	tristate_t exclude_missing_orig;
 
+	tristate_t exclude_duplicate_effective;
+	tristate_t exclude_duplicate_orig;
+
 	std::string attrib_compile(const std::string& value0, const std::string& value1);
 
 	std::string name;
@@ -75,6 +78,8 @@ protected:
 	std::string config_title_path;
 
 	bool has_atleastarom; // at least a rom was found
+
+	mutable int order; // order of the emulator for duplicate setting
 
 	void scan_game(const game_set& gar, const std::string& path, const std::string& name);
 	void scan_dir(const game_set& gar, const std::string& dir, bool quiet);

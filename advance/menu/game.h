@@ -86,6 +86,7 @@ class game {
 	static const unsigned flag_user_group_set = 0x10;
 	static const unsigned flag_software = 0x20;
 	static const unsigned flag_tree_present = 0x40;
+	static const unsigned flag_duplicate = 0x80;
 
 	friend class game_set;
 
@@ -275,6 +276,9 @@ public:
 	bool present_tree_get() const {
 		return flag_get(flag_tree_present);
 	}
+	bool duplicate_get() const {
+		return flag_get(flag_duplicate);
+	}
 };
 
 typedef std::list<game> game_container;
@@ -421,6 +425,26 @@ inline bool pgame_by_name_less(const game* A, const game* B)
 {
 	return A->name_get() < B->name_get();
 }
+
+// -------------------------------------------------------------------------
+// dup
+
+class dupe {
+	std::string name;
+	mutable int count;
+public:
+	dupe(const std::string& Aname, int Acount) : name(Aname), count(Acount) { }
+
+	const std::string& name_get() const { return name; }
+	int count_get() const { return count; }
+	void count_set(int Acount) const { count = Acount; }
+
+	bool operator<(const dupe& A) const {
+		return name_get() < A.name_get();
+	}
+};
+
+typedef std::set<dupe> dupe_set;
 
 // -------------------------------------------------------------------------
 // Sort category
