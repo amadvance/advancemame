@@ -199,7 +199,8 @@ void game::auto_group_set(const category* A) const
 void game::user_group_set(const category* A) const
 {
 	if (!A->undefined_get())
-		flag |= flag_user_group_set; group = A;
+		flag |= flag_user_group_set;
+	group = A;
 }
 
 void game::auto_type_set(const category* A) const
