@@ -3,7 +3,11 @@ Name
 
 AdvanceMAME/MESS/MENU Version 3.2 2017/01
 	) Inverted the polarity of hsync/vsync in Raspberry when using
-		hdmi_timings. 1 means inverted polarity, and then negative.
+		hdmi_timings. In hdmi_timings 1 means "inverted polarity",
+		and then "-hsync/-vsync".
+	) In AdvanceMENU added a filter for duplicated games. For example,
+		you can use it to show only the MAME games not present in
+		AdvanceMAME.
 
 AdvanceMAME/MESS/MENU Version 3.1 2017/01
 	) Added support for SDL2. It's the new default in Linux and Windows.
@@ -17,9 +21,10 @@ AdvanceMAME/MESS/MENU Version 3.1 2017/01
 		modes. It now uses the Raspberry VideoCore libraries to
 		control better the system.
 	) More precise VSync syncronization, avoiding any missing frame.
-	) In MESS fixed the loading of disk image for the TI99-4A system.
-	) In MAME marked 'retofinv', 'svc', 'prmrsocr' and 'viostorm' as not
-		working to trigger the use of the working clones.
+	) In AdvanceMESS fixed the loading of disk image for the TI99-4A
+		system.
+	) In AdvanceMAME marked 'retofinv', 'svc', 'prmrsocr' and 'viostorm'
+		as not working to trigger the use of the working clones.
 		Also added the game 'mp_shnb3'.
 	) Fixed the UI flickering and a potential crash when SMP is active.
 	) The Linux joystick event and raw interface now support up to 32
