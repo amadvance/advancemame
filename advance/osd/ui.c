@@ -1606,14 +1606,8 @@ void osd_ui_menu(const ui_menu_item *items, int numitems, int selected)
 	/* HACK: Recognize main menu */
 	if (items && strstr(items[0].text, "Input") != 0) {
 		char buf[128];
-		char* beta;
 
 		snprintf(buf, sizeof(buf), "%s %s", ADV_TITLE, ADV_VERSION);
-
-		/* recognize beta versions */
-		beta = strchr(buf, '-');
-		if (beta)
-			strcpy(beta, " BETA");
 
 		advance_ui_menu_title_insert(&menu, buf);
 	}
