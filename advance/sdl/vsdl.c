@@ -617,6 +617,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;
 	} else if (sdl_state.output == adv_output_fullscreen) {
 		error_set("The 'fullscreen' output mode is not available with SDL2. Use the better 'overlay' mode.\n");
+		goto err_quit;
 	} else {
 		error_set("Invalid output mode.\n");
 		goto err_quit;
