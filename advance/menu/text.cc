@@ -692,9 +692,9 @@ bool int_init(unsigned sizex, unsigned sizey)
 
 	if (!mode_found) {
 		if (!int_has_generate && !crtc_default)
-			target_err("No video modes available for your configuration.\nTry removing any explicit modeline in the configuration file.\n");
+			target_err("No video mode available for your configuration.\nTry removing any explicit modeline in the configuration file.\n");
 		else
-			target_err("No video modes available for your configuration.\nTry selecting a specific resolution like with -display_size 1280x1024\n");
+			target_err("No video mode available for your configuration.\nTry selecting a specific resolution like with -display_size 1280x1024\n");
 		goto int_blit;
 	}
 
