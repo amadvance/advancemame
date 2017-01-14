@@ -75,6 +75,8 @@ typedef struct sdl_internal_struct {
 #else
 	/* With SDL2 we use always an overlay */
 	SDL_Window* window; /**< Window. */
+	unsigned window_size_x; /**< Window size. */
+	unsigned window_size_y;
 	SDL_Renderer* renderer; /**< Render. */
 	SDL_Texture* texture; /**< Texture */
 #ifdef USE_SMP
@@ -1002,7 +1004,17 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 	sdl_state.overlay_vsync = 1;
 
 	/* on fast video mode change, we don't destroy the window */
+	if (sdl_state.window != 0
+		&& sdl_state.output == adv_output_window
+		&& (sdl_state.window_size_x != sdl_state.overlay_size_x || sdl_state.window_size_y != sdl_state.overlay_size_y)
+	) {
+		/* destroy the window if the size change */
+		SDL_DestroyWindow(sdl_state.window);
+		sdl_state.window = 0;
+	}
 	if (sdl_state.window == 0) {
+		sdl_state.window_size_x = sdl_state.overlay_size_x;
+		sdl_state.window_size_y = sdl_state.overlay_size_y;
 		sdl_state.window = SDL_CreateWindow(
 			os_internal_sdl_title_get(),
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
