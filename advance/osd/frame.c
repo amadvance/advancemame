@@ -126,8 +126,9 @@ static adv_error video_make_crtc_for_game(struct advance_video_context* context,
 {
 	*crtc = *original_crtc;
 
-	if (!video_is_programmable(context)) {
-		return 0; /* always ok if the driver is not programmable */
+	if (!video_is_programmable(context) && !crtc_is_fake(crtc)) {
+		log_std(("emu:video: reject for driver not programmable\n"));
+		return -1;
 	}
 
 	if (crtc_is_fake(crtc)) {
@@ -205,7 +206,7 @@ static adv_error video_make_crtc_for_game(struct advance_video_context* context,
 	}
 
 	if (!crtc_clock_check(&context->config.monitor, crtc)) {
-		log_std(("emu:video: failed check on the final clock %g/%g/%g\n", (double)crtc->pixelclock / 1E6, crtc_hclock_get(crtc) / 1E3, crtc_vclock_get(crtc)));
+		log_std(("emu:video: reject for clock outside range %g/%g/%g\n", (double)crtc->pixelclock / 1E6, crtc_hclock_get(crtc) / 1E3, crtc_vclock_get(crtc)));
 		return -1;
 	}
 
