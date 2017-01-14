@@ -95,7 +95,7 @@ static int adjust_multiplier(int value, int base, int step, int upper)
 /**
  * Check if the video output is programmable.
  */
-static adv_bool video_is_programmable(const struct advance_video_context* context)
+adv_bool advance_video_is_programmable(const struct advance_video_context* context)
 {
 	/* driver must be programmable */
 	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0)
@@ -114,7 +114,7 @@ static adv_bool video_is_programmable(const struct advance_video_context* contex
 static adv_bool video_is_generable(const struct advance_video_context* context)
 {
 	return (context->config.adjust & ADJUST_GENERATE) != 0
-		&& video_is_programmable(context)
+		&& advance_video_is_programmable(context)
 		&& context->config.interpolate.mac > 0;
 }
 
@@ -126,7 +126,7 @@ static adv_error video_make_crtc_for_game(struct advance_video_context* context,
 {
 	*crtc = *original_crtc;
 
-	if (!video_is_programmable(context) && !crtc_is_fake(crtc)) {
+	if (!advance_video_is_programmable(context) && !crtc_is_fake(crtc)) {
 		log_std(("emu:video: reject for driver not programmable\n"));
 		return -1;
 	}
@@ -279,7 +279,7 @@ static adv_bool is_crtc_acceptable_preventive(struct advance_video_context* cont
 
 	mode_reset(&mode);
 
-	if (video_is_programmable(context) && !crtc_is_fake(crtc)) {
+	if (advance_video_is_programmable(context) && !crtc_is_fake(crtc)) {
 
 		/* adjust the clock if possible */
 		if ((context->config.adjust & ADJUST_ADJUST_CLOCK) != 0) {
@@ -878,7 +878,7 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 	stretch = context->config.stretch;
 
 	if ((context->config.adjust & (ADJUST_ADJUST_X | ADJUST_GENERATE)) != 0
-		&& video_is_programmable(context)
+		&& advance_video_is_programmable(context)
 	) {
 		if (stretch == STRETCH_FRACTIONAL_XY
 			&& strcmp(context->config.resolution_buffer, "auto")==0) {
@@ -1485,7 +1485,7 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 					video_init_crtc_make_raster(context, "generate-double-interlace", best_size_2x, best_size_2y, best_size_3x, best_size_3y, best_size_4x, best_size_4y, 0, 0, best_vclock, 0, 1, 1);
 				video_init_crtc_make_raster(context, "generate-triple", best_size_3x, best_size_3y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0, 1);
 				video_init_crtc_make_raster(context, "generate-quad", best_size_4x, best_size_4y, 0, 0, 0, 0, 0, 0, best_vclock, 0, 0, 1);
-			} else if (video_is_programmable(context) && !crtc_container_is_empty(&context->config.crtc_bag)) {
+			} else if (advance_video_is_programmable(context) && !crtc_container_is_empty(&context->config.crtc_bag)) {
 				/* user modeline and a programmable driver */
 			} else if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY) != 0) {
 				/* fake modes for the overlay driver */
@@ -1500,7 +1500,7 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		} else {
 			if (video_is_generable(context)) {
 				video_init_crtc_make_vector(context, "generate", best_size_x, best_size_y, best_size_2x, best_size_2y, 0, 0, 0, 0, best_vclock);
-			} else if (video_is_programmable(context) && !crtc_container_is_empty(&context->config.crtc_bag)) {
+			} else if (advance_video_is_programmable(context) && !crtc_container_is_empty(&context->config.crtc_bag)) {
 				/* user modeline and a programmable driver */
 			} else if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY) != 0) {
 				/* fake modes for the overlay driver */
@@ -2378,7 +2378,7 @@ void advance_video_mode_preinit(struct advance_video_context* context, struct ma
 	int best_size;
 
 	if (context->config.adjust != ADJUST_NONE
-		&& !video_is_programmable(context)
+		&& !advance_video_is_programmable(context)
 	) {
 		/* disable the adjust mode if i isn't supported by the video driver */
 		context->config.adjust = ADJUST_NONE;

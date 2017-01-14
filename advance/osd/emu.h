@@ -942,6 +942,8 @@ void advance_video_sync(struct advance_video_context* context, struct advance_so
 void advance_video_frame(struct advance_video_context* context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, adv_bool skip_flag);
 void advance_sound_frame(struct advance_sound_context* context, struct advance_record_context* record_context, struct advance_video_context* video_context, struct advance_safequit_context* safequit_context, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool normal_speed);
 
+adv_bool advance_video_is_programmable(const struct advance_video_context* context);
+
 /***************************************************************************/
 /* Global */
 

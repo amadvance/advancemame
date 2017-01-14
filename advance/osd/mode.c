@@ -338,6 +338,7 @@ static int score_compare_size(const struct advance_video_context* context, const
 	unsigned bv;
 	adv_bool best_auto;
 	unsigned best_area;
+	unsigned x_max;
 
 	best_auto = 0;
 
@@ -360,7 +361,24 @@ static int score_compare_size(const struct advance_video_context* context, const
 			best_size_y = context->state.mode_best_size_4y;
 			break;
 		default :
-			best_area = context->config.magnify_size * context->config.magnify_size;
+			if (advance_video_is_programmable(context)) {
+				/* limit the magnify_size to the maximum vertical resolution */
+				/* approximate maximum horizontal resolution */
+				/* 0.77 is a typical conversion from ht to vde */
+				/* 4/3 is to use the corresponding horizontal size */
+				x_max = monitor_vt_max(&context->config.monitor) * 0.77 * 4 / 3;
+			} else {
+				/* limit the magnify_size to the current horizontal resolution */
+				x_max = target_size_x();
+			}
+
+			if (x_max != 0 && context->config.magnify_size > x_max) {
+				log_std(("emu:video: reduce magnify_size from %u to %u\n", context->config.magnify_size, x_max));
+			} else {
+				x_max = context->config.magnify_size;
+			}
+
+			best_area = x_max * x_max * 4 / 3;
 			if (context->state.game_used_size_x * context->state.game_used_size_y * 16 <= best_area) {
 				best_size_x = context->state.mode_best_size_4x;
 				best_size_y = context->state.mode_best_size_4y;

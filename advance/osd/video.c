@@ -1663,21 +1663,8 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	}
 	if (err==0) {
 		char buffer[1024];
-		unsigned x_max;
-
 		monitor_print(buffer, sizeof(buffer), &context->config.monitor);
 		log_std(("emu:video: clock %s\n", buffer));
-
-		/* limit the magnify_size to the maximum vertical resolution */
-		/* approximate maximum horizontal resolution */
-		/* 0.77 is a typical conversion from ht to vde */
-		/* 4/3 is to use the corresponding horizontal size */
-		x_max = monitor_vt_max(&context->config.monitor) * 0.77 * 4 / 3;
-
-		if (context->config.magnify_size > x_max) {
-			log_std(("emu:video: reduce magnify_size from %u to %u\n", context->config.magnify_size, x_max));
-			context->config.magnify_size = x_max;
-		}
 	}
 	if (err>0) {
 		monitor_reset(&context->config.monitor);
