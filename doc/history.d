@@ -1,11 +1,17 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS/MENU Version 3.2 2017/01
+AdvanceMAME/MESS Version 3.2 2017/01
 	) Inverted the polarity of hsync/vsync in Raspberry when using
 		hdmi_timings. In hdmi_timings 1 means "inverted polarity",
 		and then "-hsync/-vsync".
-	) In AdvanceMENU added a filter for duplicated games. For example,
+	) Improved the support for Sega Megadrive and
+		Sega Master System recognizing more software formats.
+
+AdvanceMENU Version 3.2 2017/01
+	) Always prints the system name if it has dependent
+		software.
+	) Added a filter for duplicated games. For example,
 		you can use it to show only the MAME games not present in
 		AdvanceMAME.
 
