@@ -260,9 +260,9 @@ adv_error video_palette_set(adv_color_rgb* palette, unsigned start, unsigned cou
 
 static inline void video_palette_make(adv_color_rgb* vp, unsigned r, unsigned g, unsigned b)
 {
-	vp->red = r;
-	vp->green = g;
-	vp->blue = b;
+	vp->red = (unsigned char)r;
+	vp->green = (unsigned char)g;
+	vp->blue = (unsigned char)b;
 }
 
 static inline adv_pixel video_pixel_get(unsigned r, unsigned g, unsigned b)

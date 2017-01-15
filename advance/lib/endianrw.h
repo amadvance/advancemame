@@ -207,25 +207,25 @@ static inline unsigned be_uint32_read(const void* ptr)
 static inline void cpu_uint8_write(void* ptr, unsigned v)
 {
 	unsigned char* ptr8 = (unsigned char*)ptr;
-	ptr8[0] = v;
+	ptr8[0] = (unsigned char)v;
 }
 
 static inline void le_uint8_write(void* ptr, unsigned v)
 {
 	unsigned char* ptr8 = (unsigned char*)ptr;
-	ptr8[0] = v;
+	ptr8[0] = (unsigned char)v;
 }
 
 static inline void be_uint8_write(void* ptr, unsigned v)
 {
 	unsigned char* ptr8 = (unsigned char*)ptr;
-	ptr8[0] = v;
+	ptr8[0] = (unsigned char)v;
 }
 
 static inline void cpu_uint16_write(void* ptr, unsigned v)
 {
 	uint16* ptr16 = (uint16*)ptr;
-	ptr16[0] = v;
+	ptr16[0] = (uint16)v;
 }
 
 static inline void le_uint16_write(void* ptr, unsigned v)
@@ -300,10 +300,10 @@ static inline void be_uint32_write(void* ptr, unsigned v)
 	cpu_uint32_write(ptr, v);
 #else
 	unsigned char* ptr8 = (unsigned char*)ptr;
-	ptr8[3] = v & 0xFF;
-	ptr8[2] = (v >> 8) & 0xFF;
-	ptr8[1] = (v >> 16) & 0xFF;
-	ptr8[0] = (v >> 24) & 0xFF;
+	ptr8[3] = (unsigned char)(v & 0xFF);
+	ptr8[2] = (unsigned char)((v >> 8) & 0xFF);
+	ptr8[1] = (unsigned char)((v >> 16) & 0xFF);
+	ptr8[0] = (unsigned char)((v >> 24) & 0xFF);
 #endif
 }
 

@@ -46,7 +46,7 @@
  *  - ==0 not found
  *  - !=0 found, *offset valid
  */
-static int ecd_find_sig(char* buffer, int buflen, off_t bufoff, int* ecd_offset, int* ecd64_offset)
+static int ecd_find_sig(char* buffer, int buflen, off_t bufoff, off_t* ecd_offset, off_t* ecd64_offset)
 {
 	int i;
 	for (i=buflen-22; i>=0; i--) {
@@ -116,14 +116,14 @@ static int ecd_find_sig(char* buffer, int buflen, off_t bufoff, int* ecd_offset,
 static int ecd_read(adv_zip* zip)
 {
 	char* buf;
-	int buf_pos = zip->length - ECD_READ_BUFFER_SIZE;
-	int buf_pos_aligned = buf_pos & ~(ECD_READ_BUFFER_SIZE-1);
-	int buf_length = zip->length - buf_pos_aligned; /* initial buffer length */
+	off_t buf_pos = zip->length - ECD_READ_BUFFER_SIZE;
+	off_t buf_pos_aligned = buf_pos & ~(ECD_READ_BUFFER_SIZE-1);
+	off_t buf_length = zip->length - buf_pos_aligned; /* initial buffer length */
 	unsigned increment = ECD_READ_BUFFER_SIZE;
 
 	while (1) {
-		int offset32;
-		int offset64;
+		off_t offset32;
+		off_t offset64;
 		int r;
 
 		if (buf_length > zip->length)

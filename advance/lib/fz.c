@@ -105,7 +105,7 @@ static int fgetc_lock(FILE* f)
 
 #define INFLATE_INPUT_BUFFER_MAX 4096
 
-adv_error fzgrow(adv_fz* f, unsigned size)
+adv_error fzgrow(adv_fz* f, size_t size)
 {
 	if (f->type == fz_memory_write) {
 		if (f->virtual_size < size) {
@@ -125,12 +125,12 @@ adv_error fzgrow(adv_fz* f, unsigned size)
  * Read from a file.
  * The semantic is like the C fread() function.
  */
-unsigned fzread(void *buffer, unsigned size, unsigned number, adv_fz* f)
+size_t fzread(void *buffer, size_t size, size_t number, adv_fz* f)
 {
 	if (f->type == fz_file) {
 		return fread_lock(buffer, size, number, f->f);
 	} else {
-		unsigned total_size;
+		size_t total_size;
 
 		/* adjust the number of record to read */
 		total_size = size * number;
@@ -156,7 +156,7 @@ unsigned fzread(void *buffer, unsigned size, unsigned number, adv_fz* f)
 
 			while (f->z.avail_out) {
 				if (!f->z.avail_in) {
-					unsigned run = INFLATE_INPUT_BUFFER_MAX;
+					size_t run = INFLATE_INPUT_BUFFER_MAX;
 					if (run > f->remaining)
 						run = f->remaining;
 					f->z.next_in = f->zbuffer;
@@ -189,12 +189,12 @@ unsigned fzread(void *buffer, unsigned size, unsigned number, adv_fz* f)
  * This function works only for files opened with fzopen().
  * The semantic is like the C fwrite() function.
  */
-unsigned fzwrite(const void *buffer, unsigned size, unsigned number, adv_fz* f)
+size_t fzwrite(const void *buffer, size_t size, size_t number, adv_fz* f)
 {
 	if (f->type == fz_file) {
 		return fwrite_lock(buffer, size, number, f->f);
 	} else if (f->type == fz_memory_write) {
-		unsigned total_size;
+		size_t total_size;
 
 		/* adjust the number of record to write */
 		total_size = size * number;
@@ -545,7 +545,7 @@ char* fzgets(char *s, int n, adv_fz* f)
 		} else {
 			r = s;
 			while (n > 1) {
-				*s++ = c;
+				*s++ = (char)c;
 				--n;
 				if (c == '\n')
 					break;
@@ -580,7 +580,7 @@ adv_error fzeof(adv_fz* f)
  * Get the current position in the file.
  * The semantic is like the C ftell() function.
  */
-long fztell(adv_fz* f)
+off_t fztell(adv_fz* f)
 {
 	if (f->type == fz_file) {
 		return ftell(f->f);
@@ -592,7 +592,7 @@ long fztell(adv_fz* f)
 /**
  * Get the size of the file.
  */
-long fzsize(adv_fz* f)
+off_t fzsize(adv_fz* f)
 {
 	if (f->type == fz_file) {
 		struct stat st;
@@ -609,7 +609,7 @@ long fzsize(adv_fz* f)
  * Seek to an arbitrary position.
  * The semantic is like the C fseek() function.
  */
-adv_error fzseek(adv_fz* f, long offset, int mode)
+adv_error fzseek(adv_fz* f, off_t offset, int mode)
 {
 	if (f->type == fz_file) {
 		switch (mode) {
@@ -626,7 +626,7 @@ adv_error fzseek(adv_fz* f, long offset, int mode)
 				return -1;
 		}
 	} else {
-		int pos;
+		off_t pos;
 		switch (mode) {
 			case SEEK_SET :
 				pos = offset;
@@ -657,7 +657,7 @@ adv_error fzseek(adv_fz* f, long offset, int mode)
 			f->virtual_pos = pos;
 			return 0;
 		} else if (f->type == fz_file_compressed) {
-			unsigned offset;
+			off_t offset;
 
 			if (pos < f->virtual_pos) {
 				/* if backward reopen the file */
@@ -676,7 +676,7 @@ adv_error fzseek(adv_fz* f, long offset, int mode)
 			/* read all the data */
 			while (offset > 0) {
 				unsigned char buffer[256];
-				unsigned run = offset;
+				off_t run = offset;
 				if (run > 256)
 					run = 256;
 				if (fzread(buffer, run, 1, f) != 1)

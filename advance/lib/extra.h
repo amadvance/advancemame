@@ -83,7 +83,7 @@ typedef uintptr_t uintptr; /**< Unsigned integer with pointer size. */
 /**
  * Align a unsigned integer at the specified byte size.
  */
-static inline uintptr ALIGN_UNSIGNED(uintptr v, unsigned a) 
+static inline uintptr ALIGN_UNSIGNED(uintptr v, unsigned a)
 {
 	uintptr mask = a - 1;
 
@@ -93,7 +93,7 @@ static inline uintptr ALIGN_UNSIGNED(uintptr v, unsigned a)
 /**
  * Align a void pointer at the specified byte size.
  */
-static inline void* ALIGN_PTR(void* v, unsigned a) 
+static inline void* ALIGN_PTR(void* v, unsigned a)
 {
 	return (void*)ALIGN_UNSIGNED((uintptr)v, a);
 }

@@ -63,9 +63,9 @@ struct mixer_channel_struct {
 	adv_fz* file; /**< File buffer. */
 	const unsigned char* data; /**< Memory buffer. */
 
-	unsigned start; /**< Start position in the file buffer. */
-	unsigned end; /**< End position in the file buffer. */
-	unsigned pos; /**< Current position in the file buffer. */
+	off_t start; /**< Start position in the file buffer. */
+	off_t end; /**< End position in the file buffer. */
+	off_t pos; /**< Current position in the file buffer. */
 
 	/**
 	 * Set when the input stream is empty.
@@ -496,7 +496,7 @@ static adv_error mixer_raw_pump(unsigned channel)
 {
 	unsigned nmin;
 	unsigned nmax;
-	unsigned run;
+	off_t run;
 	unsigned sample_size;
 	unsigned char data[MIXER_PAGE_SIZE];
 
@@ -561,7 +561,7 @@ static adv_error mixer_raw_pump(unsigned channel)
 /* Read some data from the mp3 file stream */
 static unsigned mp3_read_data(unsigned channel, unsigned char* data, unsigned max)
 {
-	unsigned run;
+	off_t run;
 
 	if (mixer_map[channel].pos == mixer_map[channel].end)
 		return 0;
