@@ -315,7 +315,7 @@ static void sms_cartslot_getinfo(const device_class *devclass, UINT32 state, uni
 		case DEVINFO_PTR_LOAD:				info->load = device_load_sms_cart; break;
 
 		/* --- the following bits of info are returned as NULL-terminated strings --- */
-		case DEVINFO_STR_FILE_EXTENSIONS:		strcpy(info->s = device_temp_str(), "sms"); break;
+		case DEVINFO_STR_FILE_EXTENSIONS:		strcpy(info->s = device_temp_str(), "sms,bin,ic1"); break;
 
 		default:					cartslot_device_getinfo(devclass, state, info); break;
 	}
