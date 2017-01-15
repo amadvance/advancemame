@@ -475,7 +475,7 @@ static void genesis_cartslot_getinfo(const device_class *devclass, UINT32 state,
 		case DEVINFO_PTR_PARTIAL_HASH:					info->partialhash = NULL;	/*genesis_partialhash*/ break;
 
 		/* --- the following bits of info are returned as NULL-terminated strings --- */
-		case DEVINFO_STR_FILE_EXTENSIONS:				strcpy(info->s = device_temp_str(), "smd,bin,md"); break;
+		case DEVINFO_STR_FILE_EXTENSIONS:				strcpy(info->s = device_temp_str(), "smd,bin,md,ic1"); break;
 
 		default:										cartslot_device_getinfo(devclass, state, info); break;
 	}
