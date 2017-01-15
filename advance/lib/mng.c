@@ -690,7 +690,6 @@ adv_mng* adv_mng_init(adv_fz* f)
 	unsigned type;
 	unsigned char* data;
 	unsigned size;
-	unsigned simplicity;
 
 	mng = malloc(sizeof(adv_mng));
 	if (!mng)
@@ -732,7 +731,6 @@ adv_mng* adv_mng_init(adv_fz* f)
 	if (mng->frame_frequency < 1)
 		mng->frame_frequency = 1;
 	mng->frame_tick = 1;
-	simplicity = be_uint32_read(data + 24);
 
 	free(data);
 
