@@ -87,6 +87,7 @@ class game {
 	static const unsigned flag_software = 0x20;
 	static const unsigned flag_tree_present = 0x40;
 	static const unsigned flag_duplicate = 0x80;
+	static const unsigned flag_filled = 0x100;
 
 	friend class game_set;
 
@@ -146,7 +147,7 @@ public:
 	game(const game&);
 	~game();
 
-	static const unsigned flag_user = 0x100;
+	static const unsigned flag_first = 0x10000;
 
 	void flag_set(bool value, unsigned mask) const {
 		if (value)
@@ -197,6 +198,8 @@ public:
 	const std::string& software_path_get() const { return software_path; }
 	void software_set(bool A) { flag_set(A, flag_software); }
 	bool software_get() const { return flag_get(flag_software); }
+	void filled_set(bool A) const { flag_set(A, flag_filled); }
+	bool filled_get() const { return flag_get(flag_filled); }
 	void time_set(unsigned A) const { flag |= flag_time_set; time = A; }
 	bool is_time_set() const { return flag_get(flag_time_set); }
 

@@ -102,13 +102,13 @@ public:
 	void state_set(bool Astate) { state = Astate; }
 	bool state_get() const { return state; }
 
-	static const unsigned flag_derived_vector = game::flag_user;
-	static const unsigned flag_derived_vertical = game::flag_user << 1;
-	static const unsigned flag_derived_resource = game::flag_user << 2;
-	static const unsigned flag_derived_alias = game::flag_user << 3;
-	static const unsigned flag_derived_neogeo = game::flag_user << 4;
-	static const unsigned flag_derived_deco = game::flag_user << 5;
-	static const unsigned flag_derived_playchoice = game::flag_user << 6;
+	static const unsigned flag_derived_vector = game::flag_first;
+	static const unsigned flag_derived_vertical = game::flag_first << 1;
+	static const unsigned flag_derived_resource = game::flag_first << 2;
+	static const unsigned flag_derived_alias = game::flag_first << 3;
+	static const unsigned flag_derived_neogeo = game::flag_first << 4;
+	static const unsigned flag_derived_deco = game::flag_first << 5;
+	static const unsigned flag_derived_playchoice = game::flag_first << 6;
 
 	virtual int attrib_run(int x, int y) = 0;
 	virtual void attrib_load();
@@ -297,7 +297,7 @@ class advmess : public mame_mess {
 	bool compile_single(const game& g, unsigned& argc, const char* argv[], const std::string& file) const;
 	bool compile_file(const game& g, unsigned& argc, const char* argv[], const std::string& file) const;
 
-	void scan_software_by_sys(game_container& gac, const std::string& software, const game& bios);
+	bool scan_software_by_sys(game_container& gac, const std::string& software, const game& bios);
 	void scan_software(game_container& gac, const game_set& gar);
 public:
 	advmess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
@@ -313,7 +313,7 @@ public:
 class dmess : public mame_mess {
 	static std::string image_name_get(const std::string& snap_create, const std::string& name);
 
-	void scan_software_by_sys(game_container& gac, const std::string& software, const std::string& parent);
+	bool scan_software_by_sys(game_container& gac, const std::string& software, const std::string& parent);
 	void scan_software(game_container& gac, const game_set& gar);
 	void scan_alias(game_set& gar, game_container& gac, const std::string& cfg);
 public:

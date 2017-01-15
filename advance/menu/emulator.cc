@@ -1452,8 +1452,8 @@ bool mame_mess::filter(const game& g) const
 
 	const game& bios = g.bios_get();
 
-	// include always the software
-	if (!g.software_get()) {
+	// include always software and the bios that has software
+	if (!g.software_get() && !g.filled_get()) {
 		if (exclude_empty_effective == exclude && bios.size_get() == 0)
 			return false;
 		if (exclude_empty_effective == exclude_not && bios.size_get() != 0)
@@ -1589,12 +1589,13 @@ bool dmess::load_cfg(const game_set& gar, bool quiet)
 	return true;
 }
 
-void dmess::scan_software_by_sys(game_container& gac, const string& software, const string& parent)
+bool dmess::scan_software_by_sys(game_container& gac, const string& software, const string& parent)
 {
+	bool atleastone = false;
 	string software_dir = software + parent;
 	DIR* dir = opendir(cpath_export(software_dir));
 	if (!dir)
-		return;
+		return false;
 
 	struct dirent* ddir;
 	while ((ddir = readdir(dir))!=0) {
@@ -1614,10 +1615,13 @@ void dmess::scan_software_by_sys(game_container& gac, const string& software, co
 			g.auto_description_set(case_auto(file_basename(ddir->d_name)));
 
 			gac.insert(gac.end(), g);
+			atleastone = true;
 		}
 	}
 
 	closedir(dir);
+
+	return atleastone;
 }
 
 void dmess::scan_software(game_container& gac, const game_set& gar)
@@ -1630,7 +1634,8 @@ void dmess::scan_software(game_container& gac, const game_set& gar)
 
 				token_skip(i->software_path_get(), ptr, file_dir_separator());
 
-				scan_software_by_sys(gac, path, i->name_without_emulator_get());
+				if (scan_software_by_sys(gac, path, i->name_without_emulator_get()))
+					i->filled_set(true);
 			}
 		}
 	}
@@ -1904,14 +1909,15 @@ bool advmess::load_cfg(const game_set& gar, bool quiet)
 	return true;
 }
 
-void advmess::scan_software_by_sys(game_container& gac, const string& software, const game& bios)
+bool advmess::scan_software_by_sys(game_container& gac, const string& software, const game& bios)
 {
+	bool atleastone = false;
 	string parent = bios.name_without_emulator_get();
 	string software_dir = software + parent;
 
 	DIR* dir = opendir(cpath_export(software_dir));
 	if (!dir)
-		return;
+		return false;
 
 	struct dirent* ddir;
 	while ((ddir = readdir(dir))!=0) {
@@ -1949,11 +1955,14 @@ void advmess::scan_software_by_sys(game_container& gac, const string& software, 
 				g.auto_description_set(case_auto(file_basename(ddir->d_name)));
 
 				gac.insert(gac.end(), g);
+				atleastone = true;
 			}
 		}
 	}
 
 	closedir(dir);
+
+	return atleastone;
 }
 
 void advmess::scan_software(game_container& gac, const game_set& gar)
@@ -1966,7 +1975,8 @@ void advmess::scan_software(game_container& gac, const game_set& gar)
 
 				token_skip(i->software_path_get(), ptr, file_dir_separator());
 
-				scan_software_by_sys(gac, path, *i);
+				if (scan_software_by_sys(gac, path, *i))
+					i->filled_set(true);
 			}
 		}
 	}
