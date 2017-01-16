@@ -16,13 +16,14 @@ AdvanceMAME 3.0
 	included in both the source and binary packages of
 	AdvanceMAME.
 
+	Note that despite the version number change, it's
+	still based on MAME 0.106, and it needs a romset
+	aligned to that MAME version.
+
 AdvanceMAME 1.2
 	This version is an update for modern OS and compiler,
 	it fixes some important bugs, and adds some new
 	features like the new "xbr" video effect.
-
-	Note that despite the version number change, it's still
-	based on MAME 0.106.
 
 	Note that the full DOS port and the video drivers 'svgalib'
 	for Linux and 'svgawin' for Windows are now obsolete.
