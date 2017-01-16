@@ -590,6 +590,8 @@ void osd_save_snapshot(void)
 	const mame_game* game = CONTEXT.game;
 	char path_png_buffer[FILE_MAXPATH];
 
+	advance_global_message(&CONTEXT.global, "Saved snapshot");
+
 #ifdef USE_SMP
 	pthread_mutex_lock(&context->state.access_mutex);
 #endif
