@@ -2171,10 +2171,6 @@ bool advmess::run(const game& g, const game* bios, unsigned orientation, bool se
 		argv[argc++] = strdup(cpath_export(config_exe_path));
 		argv[argc++] = strdup(bios->name_without_emulator_get().c_str());
 
-		// default rom (without extension)
-		string rom = stripped_name;
-
-		// search the first file in the zip with the same filename of the zip
 		for(path_container::const_iterator i=g.rom_zip_set_get().begin();i!=g.rom_zip_set_get().end();++i) {
 			if (compile_file(g.bios_get(), argc, argv, *i)) {
 				found = true;
@@ -2183,6 +2179,19 @@ bool advmess::run(const game& g, const game* bios, unsigned orientation, bool se
 
 		if (!found) {
 			log_std(("menu:advmess: compile abort\n"));
+
+			if (!ignore_error) {
+				string error = "Format not supported. ";
+
+				error += "Supported extensions for system '" + file_file(g.bios_get().name_get()) + "' are:";
+				for(machinedevice_container::const_iterator i=g.bios_get().machinedevice_bag_get().begin();i!=g.bios_get().machinedevice_bag_get().end();++i) {
+					for(machinedevice_ext_container::const_iterator j=i->ext_bag.begin();j!=i->ext_bag.end();++j) {
+						error += " ." + *j;
+					}
+				}
+				error += "\n";
+				target_err(error.c_str());
+			}
 
 			for(int i=0;i<argc;++i)
 				free(const_cast<char*>(argv[i]));
