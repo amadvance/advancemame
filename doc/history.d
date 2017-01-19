@@ -7,6 +7,7 @@ AdvanceMAME/MESS Version 3.2 2017/01
 		and then "-hsync/-vsync".
 	) Improved the support for Sega Megadrive and
 		Sega Master System recognizing more software formats.
+	) Fixed in MESS the loading of images from the UI.
 
 AdvanceMENU Version 3.2 2017/01
 	) Always prints the system name if it has dependent
