@@ -47,7 +47,9 @@ MESS_INSTALL_IMAGEFILES_TI99_4A = \
 	$(srcdir)/support/free/image/ti99_4a/attack.zip \
 	$(srcdir)/support/free/image/ti99_4a/carwars.zip \
 	$(srcdir)/support/free/image/ti99_4a/munchmn.zip \
+	$(srcdir)/support/free/image/ti99_4a/parsec.zip \
 	$(srcdir)/support/free/image/ti99_4a/ti-inva.zip \
+	$(srcdir)/support/free/image/ti99_4a/tombcit.zip \
 	$(srcdir)/support/free/image/ti99_4a/v-chess.zip \
 	$(srcdir)/support/free/image/ti99_4a/vidgam1.zip \
 	$(srcdir)/support/free/image/ti99_4a/vidgam2.zip
@@ -57,7 +59,9 @@ MESS_INSTALL_SNAPFILES_TI99_4A = \
 	$(srcdir)/support/free/snap/ti99_4a/attack.zip \
 	$(srcdir)/support/free/snap/ti99_4a/carwars.zip \
 	$(srcdir)/support/free/snap/ti99_4a/munchmn.zip \
+	$(srcdir)/support/free/snap/ti99_4a/parsec.zip \
 	$(srcdir)/support/free/snap/ti99_4a/ti-inva.zip \
+	$(srcdir)/support/free/snap/ti99_4a/tombcit.zip \
 	$(srcdir)/support/free/snap/ti99_4a/v-chess.zip \
 	$(srcdir)/support/free/snap/ti99_4a/vidgam1.zip \
 	$(srcdir)/support/free/snap/ti99_4a/vidgam2.zip
