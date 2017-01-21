@@ -639,6 +639,9 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 	}
 #endif
 
+	/* avoid hot keys */
+	SDL_SetHintWithPriority(SDL_HINT_GRAB_KEYBOARD, "1", SDL_HINT_DEFAULT);
+
 #ifdef USE_VIDEO_RESTORE /* only for AdvanceMENU */
 	/* avoid minimization of the menu when it starts a game */
 	SDL_SetHintWithPriority(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0", SDL_HINT_DEFAULT);
@@ -1029,6 +1032,14 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 	}
 
 	sdl_icon(sdl_state.window);
+
+	/* grab mouse and keyboard, but not in window mode */
+	if (sdl_state.output != adv_output_window) {
+		SDL_SetWindowGrab(sdl_state.window, SDL_TRUE);
+
+		/* set the mouse movements as relative */
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+	}
 
 	if (sdl_overlay_set() != 0) {
 		error_set("Unable to set the SDL video mode.");
