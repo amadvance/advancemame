@@ -16,6 +16,7 @@ install-sh
 missing
 stamp-h1
 advance/lib/config.h
+advance/lib/config.hin~
 
 # projects
 *.dst
