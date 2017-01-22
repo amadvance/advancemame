@@ -98,6 +98,41 @@ double adv_measure_median(double low, double high, double* map, unsigned count)
 	return map[median] / TARGET_CLOCKS_PER_SEC;
 }
 
+/**
+ * Computet the mean time of series of time measures.
+ * \param low Low limit time in seconds.
+ * \param high High limit time in seconds.
+ * \param map Vector of the measure values. They are value got with the target_clock() functions.
+ * \param count Number of measures.
+ * \return
+ *   - ==0 Error in the measure.
+ *   - !=0 Median time in seconds.
+ */
+double adv_measure_mean(double low, double high, double* map, unsigned count)
+{
+	unsigned i;
+	double total;
+	unsigned total_count;
+
+	low *= TARGET_CLOCKS_PER_SEC;
+	high *= TARGET_CLOCKS_PER_SEC;
+
+	total = 0;
+	total_count = 0;
+	for(i=0;i<count;++i) {
+		if (map[i] >= low && map[i] <= high) {
+			total += map[i];
+			++total_count;
+		}
+	}
+
+	if (!total_count)
+		return 0;
+
+	return total / total_count / TARGET_CLOCKS_PER_SEC;
+}
+
+
 #define MEASURE_COUNT 23
 
 /**

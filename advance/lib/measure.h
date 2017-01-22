@@ -40,6 +40,7 @@ extern "C" {
 #endif
 
 double adv_measure_median(double low, double high, double* map, unsigned count);
+double adv_measure_mean(double low, double high, double* map, unsigned count);
 double adv_measure_step(void (*wait)(void), double low, double high, unsigned count);
 
 #ifdef __cplusplus

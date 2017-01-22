@@ -874,9 +874,11 @@ struct advance_video_state_context {
 
 	double pipeline_timing_map[PIPELINE_MEASURE_MAX]; /**< Continuous measure of pipeline timing. */
 	unsigned pipeline_timing_i; /**< Index of the measure. */
+	double pipeline_timing_max; /**< Maximum time used to pipeline. */
 
 	double update_timing_map[PIPELINE_MEASURE_MAX]; /**< Continuous measure of update timing. */
 	unsigned update_timing_i; /**< Index of the measure. */
+	double update_timing_min; /**< Minimum time used to update. */
 
 	const adv_crtc* crtc_selected; /**< Current crtc, pointer in the crtc_vector. */
 	adv_crtc crtc_effective; /**< Current modified crtc. */

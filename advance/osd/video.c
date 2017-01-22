@@ -203,6 +203,8 @@ static void video_command_pan(struct advance_video_context* context, unsigned in
 
 static void video_command_combine(struct advance_video_context* context, struct advance_ui_context* ui_context, adv_bool skip_flag)
 {
+	adv_bool decrease = 0;
+
 	if (advance_ui_buffer_active(ui_context) /* if no ui with buffer is active */
 		|| !video_is_normal_speed(context) /* if we are in normal runtime condition */
 	) {
@@ -224,8 +226,30 @@ static void video_command_combine(struct advance_video_context* context, struct 
 		context->state.skip_level_combine_total = 0;
 	}
 
-	if (context->state.skip_level_skip != 0 /* if we are not 100% full speed */
-		&& !context->config.smp_flag /* and we have to share CPU with the game */
+	if (context->config.smp_flag /* we have a dedicated CPU for rendering */
+		&& context->state.skip_level_combine_total > 100 /* some frames have been rendered */
+	) {
+		double frame;
+		double update;
+		double pipeline;
+
+		if (context->state.vsync_flag) {
+			frame = 1.0 / context->state.mode_vclock;
+		} else {
+			frame = 1.0 / context->state.game_fps;
+		}
+
+		pipeline = adv_measure_mean(0.00001, 0.5, context->state.pipeline_timing_map, PIPELINE_MEASURE_MAX);
+		update = context->state.update_timing_min / TARGET_CLOCKS_PER_SEC;
+
+		if (pipeline + update > frame) {
+			log_std(("advance:skip: combine_time pipeline:%g + update:%g > %g\n", pipeline, update, frame));
+			decrease = 1;
+		}
+	}
+
+	if (!context->config.smp_flag /* we share the CPU with the game */
+		&& context->state.skip_level_skip != 0 /* if we are not 100% full speed */
 	) {
 		/* one more frame too slow */
 		++context->state.skip_level_combine_counter;
@@ -237,40 +261,44 @@ static void video_command_combine(struct advance_video_context* context, struct 
 			|| (context->state.skip_level_combine_total <= 1000
 				&& context->state.skip_level_combine_counter >= 30)
 		) {
-			unsigned combine_max = context->config.combine_max;
-
 			log_std(("advance:skip: combine_skip_level %u %u\n", context->state.skip_level_combine_counter, context->state.skip_level_combine_total));
+			decrease = 1;
+		}
+	}
 
-			/* try decreasing the video effects */
-			if (context->config.combine == COMBINE_AUTO)
+	if (decrease) {
+		unsigned combine_max = context->config.combine_max;
+
+		/* use a simpler video video effect */
+		if (context->config.combine == COMBINE_AUTO) {
 			switch (combine_max) {
 			case COMBINE_SCALEX :
 				combine_max = COMBINE_NONE;
-				log_std(("advance:skip: decreasing combine from scalex to none\n"));
+				log_std(("advance:skip: decrease combine from scalex to none\n"));
 				break;
 			case COMBINE_SCALEK :
 				combine_max = COMBINE_SCALEX;
-				log_std(("advance:skip: decreasing combine from scalek to scalex\n"));
+				log_std(("advance:skip: decrease combine from scalek to scalex\n"));
 				break;
 			case COMBINE_XBR :
 				combine_max = COMBINE_SCALEK;
-				log_std(("advance:skip: decreasing combine from xbr to scalek\n"));
+				log_std(("advance:skip: decrease combine from xbr to scalek\n"));
 				break;
 			}
+		}
 
-			/* if something changed */
-			if (context->config.combine_max != combine_max) {
-				struct advance_video_config_context config = context->config;
+		/* if something changed */
+		if (context->config.combine_max != combine_max) {
+			struct advance_video_config_context config = context->config;
 
-				config.combine_max = combine_max;
+			config.combine_max = combine_max;
 
-				/* reconfigure */
-				advance_video_reconfigure(context, &config);
+			/* reconfigure */
+			advance_video_reconfigure(context, &config);
 
-				/* restart counting */
-				context->state.skip_level_combine_counter = 0;
-				context->state.skip_level_combine_total = 0;
-			}
+			/* restart counting */
+			context->state.skip_level_combine_counter = 0;
+			context->state.skip_level_combine_total = 0;
 		}
 	}
 }
@@ -503,10 +531,13 @@ static void video_frame_stop(struct advance_video_context* context)
 	stop = target_clock() - start;
 
 	context->state.update_timing_map[context->state.update_timing_i] = stop;
-
 	++context->state.update_timing_i;
 	if (context->state.update_timing_i == PIPELINE_MEASURE_MAX)
 		context->state.update_timing_i = 0;
+
+	/* keep track of the min time */
+	if (context->state.update_timing_min > stop)
+		context->state.update_timing_min = stop;
 }
 
 static void video_frame_update_now(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, struct advance_safequit_context* safequit_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)

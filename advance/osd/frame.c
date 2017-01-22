@@ -1306,9 +1306,11 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 
 	memset(context->state.pipeline_timing_map, 0, sizeof(context->state.pipeline_timing_map));
 	context->state.pipeline_timing_i = 0;
+	context->state.pipeline_timing_max = 0;
 
 	memset(context->state.update_timing_map, 0, sizeof(context->state.update_timing_map));
 	context->state.update_timing_i = 0;
+	context->state.update_timing_min = TARGET_CLOCKS_PER_SEC;
 
 	context->state.debugger_flag = 0;
 	context->state.sync_throttle_flag = 1;
@@ -2158,6 +2160,10 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 		if (context->state.pipeline_timing_i == PIPELINE_MEASURE_MAX) {
 			context->state.pipeline_timing_i = 0;
 		}
+
+		/* keep track of the max time */
+		if (context->state.pipeline_timing_max < stop)
+			context->state.pipeline_timing_max = stop;
 	}
 }
 
