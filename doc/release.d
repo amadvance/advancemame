@@ -1,6 +1,20 @@
 Name
 	release notes - Release Notes For AdvanceMAME
 
+	Note that despite the version number, AdvanceMAME
+	is still based on MAME 0.106, and it needs a romset
+	aligned to that MAME version.
+
+AdvanceMAME 3.2
+	This version completes the Raspberry Pi support,
+	fixing various remainig bugs.
+
+	A possible incompatible change is the reversed polarity
+	of the video modelines in Raspberry Pi. If you have
+	some modelines saved if your .rc files, you'll have
+	to manually change the +hsync to -hsync, and +vsync
+	to -vsync and viceversa.
+
 AdvanceMAME 3.0
 	This version is a major update for Raspberry Pi.
 
@@ -15,10 +29,6 @@ AdvanceMAME 3.0
 	From this version now AdvanceMESS and AvanceMENU are
 	included in both the source and binary packages of
 	AdvanceMAME.
-
-	Note that despite the version number change, it's
-	still based on MAME 0.106, and it needs a romset
-	aligned to that MAME version.
 
 AdvanceMAME 1.2
 	This version is an update for modern OS and compiler,

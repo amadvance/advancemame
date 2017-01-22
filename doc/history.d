@@ -7,11 +7,12 @@ AdvanceMAME/MESS Version 3.2 2017/01
 		and then "-hsync/-vsync".
 	) Improved the support for Sega Megadrive and
 		Sega Master System recognizing more software formats.
-	) Fixed in MESS the loading of images from the UI.
+	) Disabled the SDL2 system keyboard hotkeys to avoid to lose focus.
+	) Fixed the loading of software images from the UI file browser.
 
 AdvanceMENU Version 3.2 2017/01
-	) Always prints the system name if it has dependent
-		software.
+	) Always prints the system name, even if it's not runnable, if it
+		has dependent software.
 	) Added a filter for duplicated games. For example,
 		you can use it to show only the MAME games not present in
 		AdvanceMAME.
