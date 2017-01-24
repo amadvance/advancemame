@@ -349,6 +349,75 @@ static adv_error parse_int(int* v, const char* s)
 	return 0;
 }
 
+static adv_error parse_joystick_device(int* v, const char* s)
+{
+	unsigned i;
+
+	for(i=0;i<joystickb_count_get();++i) {
+		char name[DEVICE_NAME_MAX];
+		if (joystickb_device_name_get(i, name, sizeof(name)) == 0) {
+			if (strcmp(s, name) == 0) {
+				*v = i;
+				return 0;
+			}
+		}
+	}
+
+	if (strspn(s, "0123456789") == strlen(s) && strlen(s) <= 3) {
+		return parse_int(v, s);
+	}
+
+	*v = joystickb_count_get(); /* fake value, doesn't fail if you remove a device */
+
+	return 0;
+}
+
+static adv_error parse_mouse_device(int* v, const char* s)
+{
+	unsigned i;
+
+	for(i=0;i<mouseb_count_get();++i) {
+		char name[DEVICE_NAME_MAX];
+		if (mouseb_device_name_get(i, name, sizeof(name)) == 0) {
+			if (strcmp(s, name) == 0) {
+				*v = i;
+				return 0;
+			}
+		}
+	}
+
+	if (strspn(s, "0123456789") == strlen(s) && strlen(s) <= 3) {
+		return parse_int(v, s);
+	}
+
+	*v = mouseb_count_get(); /* fake value, doesn't fail if you remove a device */
+
+	return 0;
+}
+
+static adv_error parse_keyboard_device(int* v, const char* s)
+{
+	unsigned i;
+
+	for(i=0;i<keyb_count_get();++i) {
+		char name[DEVICE_NAME_MAX];
+		if (keyb_device_name_get(i, name, sizeof(name)) == 0) {
+			if (strcmp(s, name) == 0) {
+				*v = i;
+				return 0;
+			}
+		}
+	}
+
+	if (strspn(s, "0123456789") == strlen(s) && strlen(s) <= 3) {
+		return parse_int(v, s);
+	}
+
+	*v = keyb_count_get(); /* fake value, doesn't fail if you remove a device */
+
+	return 0;
+}
+
 static adv_error parse_joystick_stick(int* v, const char* s, int joystick)
 {
 	unsigned i;
@@ -648,7 +717,7 @@ static adv_error parse_analog(unsigned* map, char* s)
 				return -1;
 			}
 
-			if (parse_int(&joystick, v0) != 0
+			if (parse_joystick_device(&joystick, v0) != 0
 				|| parse_joystick_stick(&stick, v1, joystick) != 0
 				|| parse_joystick_stick_axe(&axe, v2, joystick, stick) != 0) {
 				return -1;
@@ -697,7 +766,7 @@ static adv_error parse_analog(unsigned* map, char* s)
 				return -1;
 			}
 
-			if (parse_int(&mouse, v0) != 0
+			if (parse_mouse_device(&mouse, v0) != 0
 				|| parse_mouse_axe(&axe, v1, mouse) != 0) {
 				return -1;
 			}
@@ -741,7 +810,7 @@ static adv_error parse_analog(unsigned* map, char* s)
 				return -1;
 			}
 
-			if (parse_int(&joystick, v0) != 0
+			if (parse_joystick_device(&joystick, v0) != 0
 				|| parse_joystick_rel(&axe, v1, joystick) != 0) {
 				return -1;
 			}
@@ -875,7 +944,7 @@ adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char*
 				return -1;
 			}
 
-			if (parse_int(&board, v0) != 0
+			if (parse_keyboard_device(&board, v0) != 0
 				|| parse_key(&key, v1, board) != 0) {
 				return -1;
 			}
@@ -931,7 +1000,7 @@ adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char*
 				return -1;
 			}
 
-			if (parse_int(&joystick, v0) != 0
+			if (parse_joystick_device(&joystick, v0) != 0
 				|| parse_joystick_stick(&stick, v1, joystick) != 0
 				|| parse_joystick_stick_axe(&axe, v2, joystick, stick) != 0
 				|| parse_direction(&dir, v3) != 0) {
@@ -979,7 +1048,7 @@ adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char*
 				return -1;
 			}
 
-			if (parse_int(&joystick, v0) != 0
+			if (parse_joystick_device(&joystick, v0) != 0
 				|| parse_joystick_button(&button, v1, joystick) != 0) {
 				return -1;
 			}
@@ -1021,7 +1090,7 @@ adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char*
 				return -1;
 			}
 
-			if (parse_int(&mouse, v0) != 0
+			if (parse_mouse_device(&mouse, v0) != 0
 				|| parse_mouse_button(&button, v1, mouse) != 0) {
 				return -1;
 			}
@@ -1199,7 +1268,7 @@ static adv_error parse_inputname(char* s)
 			return -1;
 		}
 
-		if (parse_int(&board, argv[0]) != 0
+		if (parse_keyboard_device(&board, argv[0]) != 0
 			|| parse_key(&key, argv[1], board) != 0)
 			return -1;
 
@@ -1221,7 +1290,7 @@ static adv_error parse_inputname(char* s)
 			return -1;
 		}
 
-		if (parse_int(&joystick, argv[0]) != 0
+		if (parse_joystick_device(&joystick, argv[0]) != 0
 			|| parse_joystick_stick(&stick, argv[1], joystick) != 0
 			|| parse_joystick_stick_axe(&axe, argv[2], joystick, stick) != 0
 			|| parse_direction(&dir, argv[3]) != 0)
@@ -1249,7 +1318,7 @@ static adv_error parse_inputname(char* s)
 			return -1;
 		}
 
-		if (parse_int(&joystick, argv[0]) != 0
+		if (parse_joystick_device(&joystick, argv[0]) != 0
 			|| parse_joystick_button(&button, argv[1], joystick) != 0)
 			return -1;
 
@@ -1271,7 +1340,7 @@ static adv_error parse_inputname(char* s)
 			return -1;
 		}
 
-		if (parse_int(&mouse, argv[0]) != 0
+		if (parse_mouse_device(&mouse, argv[0]) != 0
 			|| parse_mouse_button(&button, argv[1], mouse) != 0)
 			return -1;
 
@@ -1498,7 +1567,7 @@ adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s)
 			return -1;
 		}
 
-		if (parse_int(&board, argv[0]) != 0
+		if (parse_keyboard_device(&board, argv[0]) != 0
 			|| parse_key(&key, argv[1], board) != 0)
 			return -1;
 
@@ -1520,7 +1589,7 @@ adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s)
 			return -1;
 		}
 
-		if (parse_int(&joystick, argv[0]) != 0
+		if (parse_joystick_device(&joystick, argv[0]) != 0
 			|| parse_joystick_stick(&stick, argv[1], joystick) != 0
 			|| parse_joystick_stick_axe(&axe, argv[2], joystick, stick) != 0
 			|| parse_direction(&dir, argv[3]) != 0)
@@ -1548,7 +1617,7 @@ adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s)
 			return -1;
 		}
 
-		if (parse_int(&joystick, argv[0]) != 0
+		if (parse_joystick_device(&joystick, argv[0]) != 0
 			|| parse_joystick_button(&button, argv[1], joystick) != 0)
 			return -1;
 
@@ -1570,7 +1639,7 @@ adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s)
 			return -1;
 		}
 
-		if (parse_int(&mouse, argv[0]) != 0
+		if (parse_mouse_device(&mouse, argv[0]) != 0
 			|| parse_mouse_button(&button, argv[1], mouse) != 0)
 			return -1;
 

@@ -7,6 +7,12 @@ AdvanceMAME/MESS Version 3.2 2017/01
 		and then "-hsync/-vsync".
 	) Improved the support for Sega Megadrive and
 		Sega Master System recognizing more software formats.
+	) In the input definitions support the use of the device name
+		to avoid issue when devices are reordered.
+		You can use the advk, advj and advm tools to get the
+		identifier name to use, and replace the index with the
+		identifier in the 'keryboard[]', 'mouse[]' and 'joustick[]'
+		definitions.
 	) Disabled the SDL2 system keyboard hotkeys to avoid to lose focus.
 	) Fixed the loading of software images from the UI file browser.
 
