@@ -28,7 +28,10 @@ void probe(void)
 
 	printf("Driver %s, keyboards %d\n", keyb_name(), keyb_count_get());
 	for(i=0;i<keyb_count_get();++i) {
-		printf("keyboard %d\n", i);
+		char name[DEVICE_NAME_MAX];
+		if (keyb_device_name_get(i, name, sizeof(name)) != 0)
+			strcpy(name, DEVICE_NONAME);
+		printf("keyboard %d '%s'\n", i, name);
 		printf("\tkeys");
 		for(j=0;j<KEYB_MAX;++j) {
 			if (keyb_has(i, j)) {

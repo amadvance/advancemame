@@ -66,6 +66,7 @@ struct joystick_stick_context {
 
 struct joystick_item_context {
 	int f;
+	char name[DEVICE_NAME_MAX];
 	unsigned stick_mac;
 	struct joystick_stick_context stick_map[RAW_JOYSTICK_STICK_MAX];
 	unsigned button_mac;
@@ -90,7 +91,7 @@ static void joystickb_log(int f)
 {
 	char c;
 	int version;
-	char name_buffer[64];
+	char name_buffer[DEVICE_NAME_MAX];
 
 	if (ioctl(f, JSIOCGVERSION, &version) >= 0) {
 		log_std(("joystickb:raw: version %08x\n", version));
@@ -115,6 +116,12 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	unsigned i;
 
 	item->f = f;
+
+	item->name[0] = 0;
+	if (ioctl(f, JSIOCGNAME(sizeof(item->name)), item->name) < 0) {
+		log_std(("ERROR:joystickb:raw: ioctl(JSIOCGNAME) failed\n"));
+		return -1;
+	}
 
 	if (ioctl(f, JSIOCGBUTTONS, &c) < 0) {
 		log_std(("ERROR:joystickb:raw: ioctl(JSIOCGBUTTONS) failed\n"));
@@ -236,6 +243,44 @@ unsigned joystickb_raw_count_get(void)
 	log_debug(("joystickb:raw: joystickb_raw_count_get()\n"));
 
 	return raw_state.mac;
+}
+
+int joystickb_raw_device_name_get(unsigned joystick, char* name, unsigned name_size)
+{
+	unsigned i;
+	const char* in;
+	char* out;
+
+	log_debug(("joystickb:raw: joystickb_device_event_name_get(%u)\n", joystick));
+
+	in = raw_state.map[joystick].name;
+	out = name;
+
+	/* trim initial spaces */
+	while (*in != 0 && isspace(*in))
+		++in;
+
+	/* copy chars to lower case */
+	while (*in != 0) {
+		if (isspace(*in))
+			*out++ = '_';
+		else if (isalpha(*in) || isdigit(*in))
+			*out++ = tolower(*in);
+		++in;
+	}
+
+	/* trim final spaces */
+	while (out > name && out[-1] == '_')
+		--out;
+
+	/* terminator */
+	*out = 0;
+
+	/* if empty fail */
+	if (*name == 0)
+		return -1;
+
+	return 0;
 }
 
 unsigned joystickb_raw_stick_count_get(unsigned joystick)
@@ -405,6 +450,7 @@ joystickb_driver joystickb_raw_driver = {
 	0,
 	0,
 	0,
-	joystickb_raw_poll
+	joystickb_raw_poll,
+	joystickb_raw_device_name_get
 };
 

@@ -108,10 +108,10 @@ struct joystick_rel_context {
 
 struct joystick_item_context {
 	int f;
-	unsigned vendor_id;
-	unsigned device_id;
-	unsigned version_id;
-	unsigned bus_id;
+	unsigned vendor;
+	unsigned product;
+	unsigned version;
+	unsigned bus;
 #ifdef USE_ACTLABS_HACK
 	adv_bool actlabs_hack_enable; /**< If the ACT Labs hack is enabled. */
 	unsigned actlabs_hack_counter; /**< Poll counter at the hack start. */
@@ -428,19 +428,6 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	item->actlabs_hack_enable = 0;
 #endif
 
-	if (ioctl(f, EVIOCGID, &device_info)) {
-		log_std(("event: error in ioctl(EVIOCGID)\n"));
-		item->vendor_id = 0;
-		item->device_id = 0;
-		item->version_id = 0;
-		item->bus_id = 0;
-	} else {
-		item->vendor_id = device_info[ID_VENDOR];
-		item->device_id = device_info[ID_PRODUCT];
-		item->version_id = device_info[ID_VERSION];
-		item->bus_id = device_info[ID_BUS];
-	}
-
 	memset(key_bitmask, 0, sizeof(key_bitmask));
 	if (event_test_bit(EV_KEY, item->evtype_bitmask)) {
 		if (ioctl(f, EVIOCGBIT(EV_KEY, sizeof(key_bitmask)), key_bitmask) < 0) {
@@ -565,11 +552,12 @@ adv_error joystickb_event_init(int joystickb_id)
 	event_state.mac = 0;
 	for(i=0;i<mac;++i) {
 		int f;
+		struct joystick_item_context* item = &event_state.map[event_state.mac];
 
 		if (event_state.mac >= EVENT_JOYSTICK_MAX)
 			continue;
 
-		f = event_open(map[i].file, event_state.map[event_state.mac].evtype_bitmask, sizeof(event_state.map[event_state.mac].evtype_bitmask));
+		f = event_open(map[i].file, item->evtype_bitmask, sizeof(item->evtype_bitmask));
 		if (f == -1) {
 			if (errno == EACCES) {
 				eacces = 1;
@@ -577,16 +565,21 @@ adv_error joystickb_event_init(int joystickb_id)
 			continue;
 		}
 
-		if (!event_is_joystick(f, event_state.map[event_state.mac].evtype_bitmask)) {
+		if (!event_is_joystick(f, item->evtype_bitmask)) {
 			log_std(("joystickb:event: not a joystick on device %s\n", map[i].file));
 			event_close(f);
 			continue;
 		}
 
-		if (joystickb_setup(&event_state.map[event_state.mac], f) != 0) {
+		if (joystickb_setup(item, f) != 0) {
 			event_close(f);
 			continue;
 		}
+
+		item->vendor = map[i].vendor;
+		item->product = map[i].product;
+		item->version = map[i].version;
+		item->bus = map[i].bus;
 
 		++event_state.mac;
 	}
@@ -618,6 +611,18 @@ unsigned joystickb_event_count_get(void)
 	log_debug(("joystickb:event: joystickb_event_count_get()\n"));
 
 	return event_state.mac;
+}
+
+int joystickb_event_device_name_get(unsigned joystick, char* name, unsigned name_size)
+{
+	log_debug(("joystickb:event: joystickb_device_event_name_get(%u)\n", joystick));
+
+	if (event_state.map[joystick].vendor == 0)
+		return -1;
+
+	snprintf(name, name_size, "%04x_%04x", event_state.map[joystick].vendor, event_state.map[joystick].product);
+
+	return 0;
 }
 
 unsigned joystickb_event_stick_count_get(unsigned joystick)
@@ -840,8 +845,8 @@ void joystickb_event_poll(void)
 				}
 #ifdef USE_ACTLABS_HACK
 				/* recogize the special button and enable the hack */
-				if (item->vendor_id == ACTLABS_VENDOR
-					&& (item->device_id == ACTLABS_DEVICE_1 || item->device_id == ACTLABS_DEVICE_2)
+				if (item->vendor == ACTLABS_VENDOR
+					&& (item->product == ACTLABS_DEVICE_1 || item->product == ACTLABS_DEVICE_2)
 					&& code == ACTLABS_BUTTON) {
 					if (value) {
 						item->actlabs_hack_enable = 1;
@@ -925,6 +930,7 @@ joystickb_driver joystickb_event_driver = {
 	joystickb_event_rel_get,
 	0,
 	0,
-	joystickb_event_poll
+	joystickb_event_poll,
+	joystickb_event_device_name_get
 };
 

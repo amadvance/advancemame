@@ -67,6 +67,7 @@ typedef struct keyb_driver_struct {
 	void (*all_get)(unsigned keyboard, unsigned char* code_map);
 	void (*led_set)(unsigned keyboard, unsigned mask);
 	void (*poll)(void);
+	int (*device_name_get)(unsigned keyboard, char* name, unsigned name_size);
 } keyb_driver;
 
 /**
@@ -163,14 +164,22 @@ void keyb_disable(void);
 void keyb_abort(void);
 
 /**
+ * Return the capabilities flag of the keyboard driver.
+ */
+unsigned keyb_flags(void);
+
+/**
  * Get the number of keyboards.
  */
 unsigned keyb_count_get(void);
 
 /**
- * Return the capabilities flag of the keyboard driver.
+ * Get the name of keyboard.
+ * \return
+ * - == 0 name available
+ * - != 0 name not available
  */
-unsigned keyb_flags(void);
+int keyb_device_name_get(unsigned keyboard, char* name, unsigned name_size);
 
 /**
  * Check if a keyboard has the specified key.

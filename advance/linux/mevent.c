@@ -68,6 +68,10 @@ struct mouse_button_context {
 
 struct mouse_item_context {
 	int f;
+	unsigned vendor;
+	unsigned product;
+	unsigned version;
+	unsigned bus;
 	unsigned char evtype_bitmask[EV_MAX/8 + 1];
 	unsigned axe_mac;
 	struct mouse_axe_context axe_map[EVENT_MOUSE_AXE_MAX];
@@ -216,11 +220,12 @@ adv_error mouseb_event_init(int mouseb_id)
 	event_state.mac = 0;
 	for(i=0;i<mac;++i) {
 		int f;
+		struct mouse_item_context* item = &event_state.map[event_state.mac];
 
 		if (event_state.mac >= EVENT_MOUSE_MAX)
 			continue;
 
-		f = event_open(map[i].file, event_state.map[event_state.mac].evtype_bitmask, sizeof(event_state.map[event_state.mac].evtype_bitmask));
+		f = event_open(map[i].file, item->evtype_bitmask, sizeof(item->evtype_bitmask));
 		if (f == -1) {
 			if (errno == EACCES) {
 				eacces = 1;
@@ -228,16 +233,21 @@ adv_error mouseb_event_init(int mouseb_id)
 			continue;
 		}
 
-		if (!event_is_mouse(f, event_state.map[event_state.mac].evtype_bitmask)) {
+		if (!event_is_mouse(f, item->evtype_bitmask)) {
 			log_std(("mouseb:event: not a mouse on device %s\n", map[i].file));
 			event_close(f);
 			continue;
 		}
 
-		if (mouseb_setup(&event_state.map[event_state.mac], f) != 0) {
+		if (mouseb_setup(item, f) != 0) {
 			event_close(f);
 			continue;
 		}
+
+		item->vendor = map[i].vendor;
+		item->product = map[i].product;
+		item->version = map[i].version;
+		item->bus = map[i].bus;
 
 		++event_state.mac;
 	}
@@ -269,6 +279,18 @@ unsigned mouseb_event_count_get(void)
 	log_debug(("mouseb:event: mouseb_event_count_get()\n"));
 
 	return event_state.mac;
+}
+
+int mouseb_event_device_name_get(unsigned mouse, char* name, unsigned name_size)
+{
+	log_debug(("mouseb:event: mouseb_event_device_name_get(%u)\n", mouse));
+
+	if (event_state.map[mouse].vendor == 0)
+		return -1;
+
+	snprintf(name, name_size, "%04x_%04x", event_state.map[mouse].vendor, event_state.map[mouse].product);
+
+	return 0;
 }
 
 unsigned mouseb_event_axe_count_get(unsigned mouse)
@@ -384,6 +406,7 @@ mouseb_driver mouseb_event_driver = {
 	mouseb_event_button_name_get,
 	mouseb_event_axe_get,
 	mouseb_event_button_get,
-	mouseb_event_poll
+	mouseb_event_poll,
+	mouseb_event_device_name_get
 };
 

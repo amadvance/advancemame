@@ -118,6 +118,30 @@ unsigned joystickb_sdl_count_get(void)
 	return sdl_state.counter;
 }
 
+int joystickb_sdl_device_name_get(unsigned joystick, char* name, unsigned name_size)
+{
+	SDL_JoystickGUID zero;
+	SDL_JoystickGUID guid;
+
+	log_debug(("joystickb:sdl: joystickb_device_event_name_get(%u)\n", joystick));
+
+	memset(&zero, 0, sizeof(zero));
+	guid = SDL_JoystickGetGUID(sdl_state.map[joystick]);
+	if (memcmp(&guid, &zero, sizeof(zero)) == 0) {
+		log_std(("joystickb:sdl: SDL_JoystickGetGUID() failed, %s\n", SDL_GetError()));
+		return -1;
+	}
+
+	*name = 0;
+	SDL_JoystickGetGUIDString(guid, name, name_size);
+	if (*name == 0) {
+		log_std(("joystickb:sdl: SDL_JoystickGetGUIDString failed, %s\n", SDL_GetError()));
+		return -1;
+	}
+
+	return 0;
+}
+
 unsigned joystickb_sdl_stick_count_get(unsigned joystick)
 {
 	log_debug(("joystickb:sdl: joystickb_sdl_stick_count_get()\n"));
@@ -220,6 +244,7 @@ joystickb_driver joystickb_sdl_driver = {
 	0,
 	0,
 	0,
-	joystickb_sdl_poll
+	joystickb_sdl_poll,
+	joystickb_sdl_device_name_get
 };
 

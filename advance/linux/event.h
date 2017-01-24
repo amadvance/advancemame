@@ -49,7 +49,7 @@ struct event_location {
 	unsigned product;
 	unsigned version;
 	unsigned bus;
-	unsigned id;
+	unsigned index;
 };
 
 unsigned event_locate(struct event_location* event_map, unsigned event_max, const char* prefix, adv_bool* eaccess);

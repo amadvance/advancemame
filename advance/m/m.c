@@ -28,7 +28,10 @@ void probe(void)
 
 	printf("Driver %s, mouses %d\n", mouseb_name(), mouseb_count_get());
 	for(i=0;i<mouseb_count_get();++i) {
-		printf("mouse %d, axes %d, buttons %d\n", i, mouseb_axe_count_get(i), mouseb_button_count_get(i));
+		char name[DEVICE_NAME_MAX];
+		if (mouseb_device_name_get(i, name, sizeof(name)) != 0)
+			strcpy(name, DEVICE_NONAME);
+		printf("mouse %d '%s', axes %d, buttons %d\n", i, name, mouseb_axe_count_get(i), mouseb_button_count_get(i));
 		for(j=0;j<mouseb_axe_count_get(i);++j) {
 			printf("\taxe %d [%s]\n", j, mouseb_axe_name_get(i, j));
 		}

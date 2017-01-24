@@ -135,6 +135,13 @@ adv_error mouseb_init(void)
 	mouseb_state.is_active_flag = 1;
 	mouseb_state.is_enabled_flag = 0;
 
+	for(i=0;i<mouseb_count_get();++i) {
+		char name[DEVICE_NAME_MAX];
+		if (mouseb_device_name_get(i, name, sizeof(name)) != 0)
+			strcpy(name, DEVICE_NONAME);
+		log_std(("mouseb: identifier %u '%s'\n", i, name));
+	}
+
 	return 0;
 }
 
@@ -200,6 +207,16 @@ unsigned mouseb_count_get(void)
 	assert(mouseb_state.is_active_flag);
 
 	return mouseb_state.driver_current->count_get();
+}
+
+int mouseb_device_name_get(unsigned mouse, char* name, unsigned name_size)
+{
+	assert(mouseb_state.is_active_flag);
+
+	if (!mouseb_state.driver_current->device_name_get)
+		return -1;
+
+	return mouseb_state.driver_current->device_name_get(mouse, name, name_size);
 }
 
 unsigned mouseb_axe_count_get(unsigned mouse)

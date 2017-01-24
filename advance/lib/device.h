@@ -49,6 +49,9 @@
 /** Max length of a device name or a list of names */
 #define DEVICE_NAME_MAX 256
 
+/** Unknown name of a device */
+#define DEVICE_NONAME "<id_not_available>"
+
 /**
  * Device minimal information.
  * This structure define the common entries for all the devices.

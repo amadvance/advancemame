@@ -57,6 +57,10 @@
 
 struct keyboard_item_context {
 	int fe; /**< Handle of the event interface. */
+	unsigned vendor;
+	unsigned product;
+	unsigned version;
+	unsigned bus;
 	unsigned char evtype_bitmask[EV_MAX/8 + 1];
 	unsigned char key_bitmask[KEY_MAX/8 + 1];
 	adv_bool state[KEY_MAX];
@@ -756,39 +760,43 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 	mac_real = 0;
 	for(i=0;i<mac;++i) {
 		int f;
-		struct keyboard_item_context context;
-
-		memset(&context, 0, sizeof(context));
+		struct keyboard_item_context buffer;
+		struct keyboard_item_context* item = &buffer;
 
 		if (event_state.mac >= EVENT_KEYBOARD_MAX)
 			continue;
 
-		f = event_open(map[i].file, context.evtype_bitmask, sizeof(context.evtype_bitmask));
+		f = event_open(map[i].file, item->evtype_bitmask, sizeof(item->evtype_bitmask));
 		if (f == -1)
 			continue;
 
-		if (!event_is_keyboard(f, context.evtype_bitmask)) {
+		if (!event_is_keyboard(f, item->evtype_bitmask)) {
 			log_std(("keyb:event: not a keyboard on device %s\n", map[i].file));
 			event_close(f);
 			continue;
 		}
 
-		if (keyb_event_setup(&context, f) != 0) {
+		if (keyb_event_setup(item, f) != 0) {
 			event_close(f);
 			continue;
 		}
 
+		item->vendor = map[i].vendor;
+		item->product = map[i].product;
+		item->version = map[i].version;
+		item->bus = map[i].bus;
+
 		/* check if it's a pure keyboard */
-		if (!event_is_joystick(f, context.evtype_bitmask) && !event_is_mouse(f, context.evtype_bitmask)) {
+		if (!event_is_joystick(f, item->evtype_bitmask) && !event_is_mouse(f, item->evtype_bitmask)) {
 			/* put it at the end of "pure" keyboards but before any other "impure" one */
 			if (event_state.mac > mac_real)
 				memmove(&event_state.map[mac_real + 1], &event_state.map[mac_real], (event_state.mac - mac_real) * sizeof(event_state.map[0]));
-			event_state.map[mac_real] = context;
+			event_state.map[mac_real] = *item;
 			++mac_real;
 			++event_state.mac;
 		} else {
 			/* put it at the end */
-			event_state.map[event_state.mac] = context;
+			event_state.map[event_state.mac] = *item;
 			++event_state.mac;
 		}
 	}
@@ -1041,6 +1049,18 @@ unsigned keyb_event_count_get(void)
 	return event_state.mac;
 }
 
+int keyb_event_device_name_get(unsigned keyboard, char* name, unsigned name_size)
+{
+	log_debug(("keyb:event: keyb_event_device_name_get(%u)\n", keyboard));
+
+	if (event_state.map[keyboard].vendor == 0)
+		return -1;
+
+	snprintf(name, name_size, "%04x_%04x", event_state.map[keyboard].vendor, event_state.map[keyboard].product);
+
+	return 0;
+}
+
 adv_bool keyb_event_has(unsigned keyboard, unsigned code)
 {
 	log_debug(("keyb:event: keyb_event_has()\n"));
@@ -1204,6 +1224,7 @@ keyb_driver keyb_event_driver = {
 	keyb_event_get,
 	keyb_event_all_get,
 	keyb_event_led_set,
-	keyb_event_poll
+	keyb_event_poll,
+	keyb_event_device_name_get
 };
 
