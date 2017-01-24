@@ -247,40 +247,9 @@ unsigned joystickb_raw_count_get(void)
 
 int joystickb_raw_device_name_get(unsigned joystick, char* name, unsigned name_size)
 {
-	unsigned i;
-	const char* in;
-	char* out;
-
 	log_debug(("joystickb:raw: joystickb_device_event_name_get(%u)\n", joystick));
 
-	in = raw_state.map[joystick].name;
-	out = name;
-
-	/* trim initial spaces */
-	while (*in != 0 && isspace(*in))
-		++in;
-
-	/* copy chars to lower case */
-	while (*in != 0) {
-		if (isspace(*in))
-			*out++ = '_';
-		else if (isalpha(*in) || isdigit(*in))
-			*out++ = tolower(*in);
-		++in;
-	}
-
-	/* trim final spaces */
-	while (out > name && out[-1] == '_')
-		--out;
-
-	/* terminator */
-	*out = 0;
-
-	/* if empty fail */
-	if (*name == 0)
-		return -1;
-
-	return 0;
+	return device_trim_name(raw_state.map[joystick].name, name, name_size);
 }
 
 unsigned joystickb_raw_stick_count_get(unsigned joystick)

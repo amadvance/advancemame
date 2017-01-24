@@ -157,3 +157,37 @@ adv_error device_check(const char* option, const char* arg, const adv_driver** d
 	return 0;
 }
 
+int device_trim_name(const char* in, char* name, unsigned name_size)
+{
+	unsigned i;
+	char* out;
+
+	out = name;
+
+	/* trim initial spaces */
+	while (*in != 0 && isspace(*in))
+		++in;
+
+	/* copy chars to lower case */
+	while (*in != 0) {
+		if (isspace(*in))
+			*out++ = '_';
+		else if (isalpha(*in) || isdigit(*in))
+			*out++ = tolower(*in);
+		++in;
+	}
+
+	/* trim final spaces */
+	while (out > name && out[-1] == '_')
+		--out;
+
+	/* terminator */
+	*out = 0;
+
+	/* if empty fail */
+	if (*name == 0)
+		return -1;
+
+	return 0;
+}
+

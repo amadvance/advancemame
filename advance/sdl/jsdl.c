@@ -120,26 +120,21 @@ unsigned joystickb_sdl_count_get(void)
 
 int joystickb_sdl_device_name_get(unsigned joystick, char* name, unsigned name_size)
 {
-	SDL_JoystickGUID zero;
-	SDL_JoystickGUID guid;
+#if SDL_MAJOR_VERSION == 1
+	const char* joy_name = SDL_JoystickName(joystick);
 
-	log_debug(("joystickb:sdl: joystickb_device_event_name_get(%u)\n", joystick));
-
-	memset(&zero, 0, sizeof(zero));
-	guid = SDL_JoystickGetGUID(sdl_state.map[joystick]);
-	if (memcmp(&guid, &zero, sizeof(zero)) == 0) {
-		log_std(("joystickb:sdl: SDL_JoystickGetGUID() failed, %s\n", SDL_GetError()));
+	if (!joy_name)
 		return -1;
-	}
 
-	*name = 0;
-	SDL_JoystickGetGUIDString(guid, name, name_size);
-	if (*name == 0) {
-		log_std(("joystickb:sdl: SDL_JoystickGetGUIDString failed, %s\n", SDL_GetError()));
+	return device_trim_name(joy_name, name, name_size);
+#else
+	const char* joy_name = SDL_JoystickName(sdl_state.map[joystick]);
+
+	if (!joy_name)
 		return -1;
-	}
 
-	return 0;
+	return device_trim_name(joy_name, name, name_size);
+#endif
 }
 
 unsigned joystickb_sdl_stick_count_get(unsigned joystick)
