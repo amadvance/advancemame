@@ -355,7 +355,7 @@ static adv_error parse_joystick_device(int* v, const char* s)
 
 	for(i=0;i<joystickb_count_get();++i) {
 		char name[DEVICE_NAME_MAX];
-		if (joystickb_device_name_get(i, name, sizeof(name)) == 0) {
+		if (joystickb_device_name_get(i, name) == 0) {
 			if (strcmp(s, name) == 0) {
 				*v = i;
 				return 0;
@@ -378,7 +378,7 @@ static adv_error parse_mouse_device(int* v, const char* s)
 
 	for(i=0;i<mouseb_count_get();++i) {
 		char name[DEVICE_NAME_MAX];
-		if (mouseb_device_name_get(i, name, sizeof(name)) == 0) {
+		if (mouseb_device_name_get(i, name) == 0) {
 			if (strcmp(s, name) == 0) {
 				*v = i;
 				return 0;
@@ -401,7 +401,7 @@ static adv_error parse_keyboard_device(int* v, const char* s)
 
 	for(i=0;i<keyb_count_get();++i) {
 		char name[DEVICE_NAME_MAX];
-		if (keyb_device_name_get(i, name, sizeof(name)) == 0) {
+		if (keyb_device_name_get(i, name) == 0) {
 			if (strcmp(s, name) == 0) {
 				*v = i;
 				return 0;

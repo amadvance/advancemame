@@ -29,7 +29,7 @@ void probe(void)
 	printf("Driver %s, joysticks %d\n", joystickb_name(), joystickb_count_get());
 	for(i=0;i<joystickb_count_get();++i) {
 		char name[DEVICE_NAME_MAX];
-		if (joystickb_device_name_get(i, name, sizeof(name)) != 0)
+		if (joystickb_device_name_get(i, name) != 0)
 			strcpy(name, DEVICE_NONAME);
 		printf("joy %d '%s', controls %d, buttons %d, ball axes %d\n", i, name, joystickb_stick_count_get(i), joystickb_button_count_get(i), joystickb_rel_count_get(i));
 		for(j=0;j<joystickb_stick_count_get(i);++j) {

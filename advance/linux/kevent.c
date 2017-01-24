@@ -1049,14 +1049,14 @@ unsigned keyb_event_count_get(void)
 	return event_state.mac;
 }
 
-int keyb_event_device_name_get(unsigned keyboard, char* name, unsigned name_size)
+int keyb_event_device_name_get(unsigned keyboard, char* name)
 {
 	log_debug(("keyb:event: keyb_event_device_name_get(%u)\n", keyboard));
 
 	if (event_state.map[keyboard].vendor == 0)
 		return -1;
 
-	snprintf(name, name_size, "%04x_%04x", event_state.map[keyboard].vendor, event_state.map[keyboard].product);
+	snprintf(name, DEVICE_NAME_MAX, "%04x_%04x", event_state.map[keyboard].vendor, event_state.map[keyboard].product);
 
 	return 0;
 }

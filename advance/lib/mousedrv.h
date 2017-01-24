@@ -74,7 +74,7 @@ typedef struct mouseb_driver_struct {
 	int (*axe_get)(unsigned mouse, unsigned axe);
 	unsigned (*button_get)(unsigned mouse, unsigned button);
 	void (*poll)(void);
-	int (*device_name_get)(unsigned mouse, char* name, unsigned name_size);
+	int (*device_name_get)(unsigned mouse, char* name);
 } mouseb_driver;
 
 /**
@@ -118,7 +118,7 @@ adv_error mouseb_enable(void);
 void mouseb_disable(void);
 void mouseb_abort(void);
 unsigned mouseb_count_get(void);
-int mouseb_device_name_get(unsigned mouse, char* name, unsigned name_size);
+int mouseb_device_name_get(unsigned mouse, char* name);
 unsigned mouseb_axe_count_get(unsigned mouse);
 unsigned mouseb_button_count_get(unsigned mouse);
 int mouseb_axe_get(unsigned mouse, unsigned axe);

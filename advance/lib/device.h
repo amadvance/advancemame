@@ -76,7 +76,7 @@ typedef struct adv_driver_struct {
 const adv_device* device_match(const char* tag, const adv_driver* drv, adv_bool allow_none);
 adv_error device_check(const char* option, const char* arg, const adv_driver** driver_map, unsigned driver_mac, const char* driver_ignore);
 void device_error(const char* option, const char* arg, const adv_driver** driver_map, unsigned driver_mac);
-int device_trim_name(const char* in, char* name, unsigned name_size);
+int device_trim_name(const char* in, char* name);
 
 #endif
 

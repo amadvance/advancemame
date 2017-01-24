@@ -137,7 +137,7 @@ adv_error joystickb_init(void)
 
 	for(i=0;i<joystickb_count_get();++i) {
 		char name[DEVICE_NAME_MAX];
-		if (joystickb_device_name_get(i, name, sizeof(name)) != 0)
+		if (joystickb_device_name_get(i, name) != 0)
 			strcpy(name, DEVICE_NONAME);
 		log_std(("joystickb: identifier %u '%s'\n", i, name));
 	}
@@ -209,14 +209,14 @@ unsigned joystickb_count_get(void)
 	return joystickb_state.driver_current->count_get();
 }
 
-int joystickb_device_name_get(unsigned joystick, char* name, unsigned name_size)
+int joystickb_device_name_get(unsigned joystick, char* name)
 {
 	assert(joystickb_state.is_active_flag);
 
 	if (!joystickb_state.driver_current->device_name_get)
 		return -1;
 
-	return joystickb_state.driver_current->device_name_get(joystick, name, name_size);
+	return joystickb_state.driver_current->device_name_get(joystick, name);
 }
 
 unsigned joystickb_stick_count_get(unsigned joystick)

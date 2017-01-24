@@ -245,11 +245,11 @@ unsigned joystickb_raw_count_get(void)
 	return raw_state.mac;
 }
 
-int joystickb_raw_device_name_get(unsigned joystick, char* name, unsigned name_size)
+int joystickb_raw_device_name_get(unsigned joystick, char* name)
 {
 	log_debug(("joystickb:raw: joystickb_device_event_name_get(%u)\n", joystick));
 
-	return device_trim_name(raw_state.map[joystick].name, name, name_size);
+	return device_trim_name(raw_state.map[joystick].name, name);
 }
 
 unsigned joystickb_raw_stick_count_get(unsigned joystick)

@@ -118,7 +118,7 @@ unsigned joystickb_sdl_count_get(void)
 	return sdl_state.counter;
 }
 
-int joystickb_sdl_device_name_get(unsigned joystick, char* name, unsigned name_size)
+int joystickb_sdl_device_name_get(unsigned joystick, char* name)
 {
 #if SDL_MAJOR_VERSION == 1
 	const char* joy_name = SDL_JoystickName(joystick);
@@ -126,14 +126,14 @@ int joystickb_sdl_device_name_get(unsigned joystick, char* name, unsigned name_s
 	if (!joy_name)
 		return -1;
 
-	return device_trim_name(joy_name, name, name_size);
+	return device_trim_name(joy_name, name);
 #else
 	const char* joy_name = SDL_JoystickName(sdl_state.map[joystick]);
 
 	if (!joy_name)
 		return -1;
 
-	return device_trim_name(joy_name, name, name_size);
+	return device_trim_name(joy_name, name);
 #endif
 }
 

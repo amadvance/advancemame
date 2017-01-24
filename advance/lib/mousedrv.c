@@ -137,7 +137,7 @@ adv_error mouseb_init(void)
 
 	for(i=0;i<mouseb_count_get();++i) {
 		char name[DEVICE_NAME_MAX];
-		if (mouseb_device_name_get(i, name, sizeof(name)) != 0)
+		if (mouseb_device_name_get(i, name) != 0)
 			strcpy(name, DEVICE_NONAME);
 		log_std(("mouseb: identifier %u '%s'\n", i, name));
 	}
@@ -209,14 +209,14 @@ unsigned mouseb_count_get(void)
 	return mouseb_state.driver_current->count_get();
 }
 
-int mouseb_device_name_get(unsigned mouse, char* name, unsigned name_size)
+int mouseb_device_name_get(unsigned mouse, char* name)
 {
 	assert(mouseb_state.is_active_flag);
 
 	if (!mouseb_state.driver_current->device_name_get)
 		return -1;
 
-	return mouseb_state.driver_current->device_name_get(mouse, name, name_size);
+	return mouseb_state.driver_current->device_name_get(mouse, name);
 }
 
 unsigned mouseb_axe_count_get(unsigned mouse)

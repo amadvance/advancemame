@@ -93,7 +93,7 @@ typedef struct joystickb_driver_struct {
 	void (*calib_start)(void);
 	const char* (*calib_next)(void);
 	void (*poll)(void);
-	int (*device_name_get)(unsigned joystick, char* name, unsigned name_size);
+	int (*device_name_get)(unsigned joystick, char* name);
 } joystickb_driver;
 
 #define JOYSTICK_DRIVER_MAX 8
@@ -133,7 +133,7 @@ adv_error joystickb_enable(void);
 void joystickb_disable(void);
 void joystickb_abort(void);
 unsigned joystickb_count_get(void);
-int joystickb_device_name_get(unsigned joystick, char* name, unsigned name_size);
+int joystickb_device_name_get(unsigned joystick, char* name);
 unsigned joystickb_stick_count_get(unsigned joystick);
 unsigned joystickb_stick_axe_count_get(unsigned joystick, unsigned stick);
 unsigned joystickb_button_count_get(unsigned joystick);

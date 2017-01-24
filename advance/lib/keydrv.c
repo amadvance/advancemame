@@ -137,7 +137,7 @@ adv_error keyb_init(adv_bool disable_special)
 
 	for(i=0;i<keyb_count_get();++i) {
 		char name[DEVICE_NAME_MAX];
-		if (keyb_device_name_get(i, name, sizeof(name)) != 0)
+		if (keyb_device_name_get(i, name) != 0)
 			strcpy(name, DEVICE_NONAME);
 		log_std(("keyb: identifier %u '%s'\n", i, name));
 	}
@@ -220,14 +220,14 @@ unsigned keyb_count_get(void)
 	return keyb_state.driver_current->count_get();
 }
 
-int keyb_device_name_get(unsigned keyboard, char* name, unsigned name_size)
+int keyb_device_name_get(unsigned keyboard, char* name)
 {
 	assert(keyb_state.is_active_flag);
 
 	if (!keyb_state.driver_current->device_name_get)
 		return -1;
 
-	return keyb_state.driver_current->device_name_get(keyboard, name, name_size);
+	return keyb_state.driver_current->device_name_get(keyboard, name);
 }
 
 adv_bool keyb_has(unsigned keyboard, unsigned code)

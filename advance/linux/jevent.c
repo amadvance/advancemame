@@ -613,14 +613,14 @@ unsigned joystickb_event_count_get(void)
 	return event_state.mac;
 }
 
-int joystickb_event_device_name_get(unsigned joystick, char* name, unsigned name_size)
+int joystickb_event_device_name_get(unsigned joystick, char* name)
 {
 	log_debug(("joystickb:event: joystickb_device_event_name_get(%u)\n", joystick));
 
 	if (event_state.map[joystick].vendor == 0)
 		return -1;
 
-	snprintf(name, name_size, "%04x_%04x", event_state.map[joystick].vendor, event_state.map[joystick].product);
+	snprintf(name, DEVICE_NAME_MAX, "%04x_%04x", event_state.map[joystick].vendor, event_state.map[joystick].product);
 
 	return 0;
 }

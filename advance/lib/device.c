@@ -157,7 +157,7 @@ adv_error device_check(const char* option, const char* arg, const adv_driver** d
 	return 0;
 }
 
-int device_trim_name(const char* in, char* name, unsigned name_size)
+int device_trim_name(const char* in, char* name)
 {
 	unsigned i;
 	char* out;

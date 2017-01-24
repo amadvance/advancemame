@@ -281,14 +281,14 @@ unsigned mouseb_event_count_get(void)
 	return event_state.mac;
 }
 
-int mouseb_event_device_name_get(unsigned mouse, char* name, unsigned name_size)
+int mouseb_event_device_name_get(unsigned mouse, char* name)
 {
 	log_debug(("mouseb:event: mouseb_event_device_name_get(%u)\n", mouse));
 
 	if (event_state.map[mouse].vendor == 0)
 		return -1;
 
-	snprintf(name, name_size, "%04x_%04x", event_state.map[mouse].vendor, event_state.map[mouse].product);
+	snprintf(name, DEVICE_NAME_MAX, "%04x_%04x", event_state.map[mouse].vendor, event_state.map[mouse].product);
 
 	return 0;
 }
