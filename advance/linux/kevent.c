@@ -61,6 +61,8 @@ struct keyboard_item_context {
 	unsigned product;
 	unsigned version;
 	unsigned bus;
+	unsigned keys;
+	unsigned order;
 	unsigned char evtype_bitmask[EV_MAX/8 + 1];
 	unsigned char key_bitmask[KEY_MAX/8 + 1];
 	adv_bool state[KEY_MAX];
@@ -731,6 +733,24 @@ static adv_error keyb_event_setup(struct keyboard_item_context* item, int f)
 	return 0;
 }
 
+static int event_state_compare(const void* void_a, const void* void_b)
+{
+	const struct keyboard_item_context* a = void_a;
+	const struct keyboard_item_context* b = void_b;
+
+	if (a->order < b->order)
+		return -1;
+	if (a->order > b->order)
+		return 1;
+
+	if (a->keys > b->keys)
+		return -1;
+	if (a->keys < b->keys)
+		return 1;
+
+	return 0;
+}
+
 adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 {
 	struct keyb_pair* j;
@@ -738,7 +758,6 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 	adv_bool eacces = 0;
 	struct event_location map[EVENT_KEYBOARD_DEVICE_MAX];
 	unsigned mac;
-	unsigned mac_real;
 
 	log_std(("keyb:event: keyb_event_init(id:%d, disable_special:%d)\n", keyb_id, (int)disable_special));
 
@@ -757,11 +776,10 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 	mac = event_locate(map, EVENT_KEYBOARD_DEVICE_MAX, "event", &eacces);
 
 	event_state.mac = 0;
-	mac_real = 0;
 	for(i=0;i<mac;++i) {
 		int f;
-		struct keyboard_item_context buffer;
-		struct keyboard_item_context* item = &buffer;
+		unsigned j;
+		struct keyboard_item_context* item = &event_state.map[event_state.mac];
 
 		if (event_state.mac >= EVENT_KEYBOARD_MAX)
 			continue;
@@ -781,30 +799,36 @@ adv_error keyb_event_init(int keyb_id, adv_bool disable_special)
 			continue;
 		}
 
+		/* put before real keyboard */
+		if (event_is_joystick(f, item->evtype_bitmask))
+			item->order = 2;
+		else if (event_is_mouse(f, item->evtype_bitmask))
+			item->order = 1;
+		else
+			item->order = 0;
+
+		/* count number of keys */
+		item->keys = 0;
+		for(j=0;j<KEY_MAX;++j) {
+			if (event_test_bit(j, item->key_bitmask))
+				++item->keys;
+		}
+
 		item->vendor = map[i].vendor;
 		item->product = map[i].product;
 		item->version = map[i].version;
 		item->bus = map[i].bus;
 
-		/* check if it's a pure keyboard */
-		if (!event_is_joystick(f, item->evtype_bitmask) && !event_is_mouse(f, item->evtype_bitmask)) {
-			/* put it at the end of "pure" keyboards but before any other "impure" one */
-			if (event_state.mac > mac_real)
-				memmove(&event_state.map[mac_real + 1], &event_state.map[mac_real], (event_state.mac - mac_real) * sizeof(event_state.map[0]));
-			event_state.map[mac_real] = *item;
-			++mac_real;
-			++event_state.mac;
-		} else {
-			/* put it at the end */
-			event_state.map[event_state.mac] = *item;
-			++event_state.mac;
-		}
+		++event_state.mac;
 	}
 
 	if (!event_state.mac) {
 		error_set("No keyboard found.\n");
 		return -1;
 	}
+
+	/* sort the device by importance */
+	qsort(event_state.map, event_state.mac, sizeof(event_state.map[0]), event_state_compare);
 
 	event_state.disable_special_flag = disable_special;
 
