@@ -1175,16 +1175,21 @@ void advance_input_print_digital(char* buffer, unsigned buffer_size, unsigned* s
 				sncat(buffer, buffer_size, " ");
 			sncat(buffer, buffer_size, "not");
 		} else {
+			char name[DEVICE_NAME_MAX];
 			switch (DIGITAL_TYPE_GET(v)) {
 			case DIGITAL_TYPE_KBD :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				sncatf(buffer, buffer_size, "keyboard[%d,%s]", DIGITAL_KBD_BOARD_GET(v), key_name(DIGITAL_KBD_KEY_GET(v)));
+				if (keyb_device_name_get(i, name) != 0)
+					snprintf(name, sizeof(name), "%d", DIGITAL_KBD_BOARD_GET(v));
+				sncatf(buffer, buffer_size, "keyboard[%s,%s]", name, key_name(DIGITAL_KBD_KEY_GET(v)));
 				break;
 			case DIGITAL_TYPE_JOY :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				sncatf(buffer, buffer_size, "joystick_digital[%d,%d,%d,%d]", DIGITAL_JOY_DEV_GET(v), DIGITAL_JOY_STICK_GET(v), DIGITAL_JOY_AXE_GET(v), DIGITAL_JOY_DIR_GET(v));
+				if (joystickb_device_name_get(i, name) != 0)
+					snprintf(name, sizeof(name), "%d", DIGITAL_JOY_DEV_GET(v));
+				sncatf(buffer, buffer_size, "joystick_digital[%s,%d,%d,%d]", name, DIGITAL_JOY_STICK_GET(v), DIGITAL_JOY_AXE_GET(v), DIGITAL_JOY_DIR_GET(v));
 				break;
 			case DIGITAL_TYPE_JOY_BUTTON :
 				if (buffer[0] != 0)
@@ -1194,7 +1199,9 @@ void advance_input_print_digital(char* buffer, unsigned buffer_size, unsigned* s
 			case DIGITAL_TYPE_MOUSE_BUTTON :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				sncatf(buffer, buffer_size, "mouse_button[%d,%d]", DIGITAL_MOUSE_BUTTON_DEV_GET(v), DIGITAL_MOUSE_BUTTON_BUTTON_GET(v));
+				if (mouseb_device_name_get(i, name) != 0)
+					snprintf(name, sizeof(name), "%d", DIGITAL_MOUSE_BUTTON_DEV_GET(v));
+				sncatf(buffer, buffer_size, "mouse_button[%s,%d]", name, DIGITAL_MOUSE_BUTTON_BUTTON_GET(v));
 				break;
 			default:
 				log_std(("ERROR:input: unknown input type %d (type:%d) in digital\n", v, DIGITAL_TYPE_GET(v)));
@@ -1788,7 +1795,10 @@ static void input_setup_log(struct advance_input_context* context)
 
 	log_std(("Driver %s, keyboards %d\n", keyb_name(), keyb_count_get()));
 	for(i=0;i<keyb_count_get();++i) {
-		log_std(("keyboard %d\n", i));
+		char name[DEVICE_NAME_MAX];
+		if (keyb_device_name_get(i, name) != 0)
+			strcpy(name, DEVICE_NONAME);
+		log_std(("keyboard %d '%s'\n", i, name));
 		log_std(("\tkeys"));
 		for(j=0;j<KEYB_MAX;++j) {
 			if (keyb_has(i, j)) {
@@ -1800,7 +1810,10 @@ static void input_setup_log(struct advance_input_context* context)
 
 	log_std(("Driver %s, mouses %d\n", mouseb_name(), mouseb_count_get()));
 	for(i=0;i<mouseb_count_get();++i) {
-		log_std(("mouse %d, axes %d, buttons %d\n", i, mouseb_axe_count_get(i), mouseb_button_count_get(i)));
+		char name[DEVICE_NAME_MAX];
+		if (mouseb_device_name_get(i, name) != 0)
+			strcpy(name, DEVICE_NONAME);
+		log_std(("mouse %d '%s', axes %d, buttons %d\n", i, name, mouseb_axe_count_get(i), mouseb_button_count_get(i)));
 		for(j=0;j<mouseb_axe_count_get(i);++j) {
 			log_std(("\taxe %d [%s]\n", j, mouseb_axe_name_get(i, j)));
 		}
@@ -1811,7 +1824,10 @@ static void input_setup_log(struct advance_input_context* context)
 
 	log_std(("Driver %s, joysticks %d\n", joystickb_name(), joystickb_count_get()));
 	for(i=0;i<joystickb_count_get();++i) {
-		log_std(("joy %d, controls %d, buttons %d, ball axes %d\n", i, joystickb_stick_count_get(i), joystickb_button_count_get(i), joystickb_rel_count_get(i)));
+		char name[DEVICE_NAME_MAX];
+		if (joystickb_device_name_get(i, name) != 0)
+			strcpy(name, DEVICE_NONAME);
+		log_std(("joy %d '%s', controls %d, buttons %d, ball axes %d\n", i, name, joystickb_stick_count_get(i), joystickb_button_count_get(i), joystickb_rel_count_get(i)));
 		for(j=0;j<joystickb_stick_count_get(i);++j) {
 			log_std(("\tcontrol %d [%s], axes %d\n", j, joystickb_stick_name_get(i, j), joystickb_stick_axe_count_get(i, j)));
 			for(k=0;k<joystickb_stick_axe_count_get(i, j);++k) {

@@ -10,9 +10,8 @@ AdvanceMAME/MESS Version 3.2 2017/01
 	) In the input definitions support the use of the device name
 		to avoid issue when devices are reordered.
 		You can use the advk, advj and advm tools to get the
-		identifier name to use, and replace the index with the
-		identifier in the 'keryboard[]', 'mouse[]' and 'joustick[]'
-		definitions.
+		identifier names to in the 'keryboard[]', 'mouse[]' and
+		'joystick[]' input definitions.
 	) Disabled the SDL2 system keyboard hotkeys to avoid to lose focus.
 	) Fixed the loading of software images from the UI file browser.
 
