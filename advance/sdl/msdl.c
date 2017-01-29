@@ -66,6 +66,7 @@ adv_error mouseb_sdl_init(int mouseb_id)
 		return -1;
 	}
 
+	/* SDL requires a video mode set with a window to have mouse working */
 	if (!os_internal_sdl_is_video_active()) {
 		error_set("The SDL mouse driver requires the SDL video driver.\n");
 		return -1; 

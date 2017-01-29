@@ -297,6 +297,12 @@ adv_error keyb_sdl_init(int keyb_id, adv_bool disable_special)
 		return -1;
 	}
 
+	/* SDL requires a video mode set with a window to have keyboard working */
+	if (!os_internal_sdl_is_video_active()) {
+		error_set("The SDL keyboard driver requires the SDL video driver.\n");
+		return -1;
+	}
+
 	for(j=0;j<KEYB_MAX;++j) {
 		sdl_state.map_up_to_low[j] = LOW_INVALID;
 	}
@@ -330,12 +336,6 @@ void keyb_sdl_done(void)
 adv_error keyb_sdl_enable(adv_bool graphics)
 {
 	log_std(("keyb:sdl: keyb_sdl_enable(graphics:%d)\n", (int)graphics));
-
-	/* check that the video mode is a SDL video mode */
-	if (!os_internal_sdl_is_video_active()) {
-		error_set("The SDL keyboard driver requires the SDL video driver.\n");
-		return -1;
-	}
 
 	return 0;
 }
