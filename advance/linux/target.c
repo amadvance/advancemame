@@ -211,9 +211,21 @@ adv_error target_init(void)
 void target_done(void)
 {
 #ifdef USE_VC
+	/*
+	 * These calls seems to hang in some firmware versions
+	 * Anyway they are not required as th system is able to deinitialize itself
+	 *
+	 * See: https://github.com/raspberrypi/userland/issues/197
+	 */
+#if 0
 	vc_vchi_tv_stop();
 
 	vchi_disconnect(TARGET.vchi_instance);
+
+	vcos_deinit();
+#endif
+
+	TARGET.vchi_instance = 0;
 #endif
 }
 
