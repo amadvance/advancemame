@@ -2,6 +2,9 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 3.2 2017/01
+	) Fixed some hanging conditions when dealing with the Raspberry
+		VideoCore. There are some hidden timing dependencies
+		that could cause VideoCore to misbehave.
 	) Inverted the polarity of hsync/vsync in Raspberry when using
 		hdmi_timings. In hdmi_timings 1 means "inverted polarity",
 		and then "-hsync/-vsync".

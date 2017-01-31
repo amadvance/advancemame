@@ -1288,6 +1288,26 @@ loop:
 		fail = 1;
 	}
 
+	/*
+	 * Disabled as in some cases the command hangs with the message:
+	 *
+	 * $ vcgencmd dispmanx_list
+	 * vchi_msg_dequeue -> -1(90)
+	 *
+	 * And then it requires a manual Ctrl+C to continue
+	 *
+	 * See: https://sourceforge.net/p/advancemame/discussion/313511/thread/b8bfe1b8/?limit=25#7438
+	 *
+	 * This was reproduced with: "advmame puckman -display_resize none" with an empty advmame.rc
+	 * or with other vertical games like "gunsmoke". But strangely not with "pengo" or "1942" that
+	 * have the exact same size.
+	 *
+	 * The problem disappeared afer removing the panning support in fb_scroll().
+	 * Likely the additional fb_setvar() calls were happening at an unfortunate time.
+	 *
+	 * Still keep disabled the logging to avoid further potential issues.
+	 */
+#if 0
 	/* log dispmanx */
 	snprintf(cmd, sizeof(cmd), "vcgencmd dispmanx_list");
 	log_std(("video:fb: run \"%s\"\n", cmd));
@@ -1296,6 +1316,7 @@ loop:
 		log_std(("video:fb: vcgencmd result \"%s\"\n", opt));
 		free(opt);
 	}
+#endif
 
 	if (fail) {
 		target_clock_t now = target_clock();
