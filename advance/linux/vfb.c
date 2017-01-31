@@ -1756,16 +1756,13 @@ adv_error fb_scroll(unsigned offset, adv_bool waitvsync)
 {
 	assert(fb_is_active() && fb_mode_is_active());
 
-	if (waitvsync)
-		fb_wait_vsync();
-
-	fb_state.varinfo.yoffset = offset / fb_state.bytes_per_scanline;
-	fb_state.varinfo.xoffset = (offset % fb_state.bytes_per_scanline) / fb_state.bytes_per_pixel;
-
-        if (fb_setpan(&fb_state.varinfo) != 0) {
-		error_set("Error panning the video.\n");
+	if (offset != 0) {
+		error_set("Multiple buffer not supported.\n");
 		return -1;
 	}
+
+	if (waitvsync)
+		fb_wait_vsync();
 
 	return 0;
 }
