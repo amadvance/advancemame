@@ -8,6 +8,7 @@ AdvanceMAME/MESS Version 3.2 2017/01
 	) Inverted the polarity of hsync/vsync in Raspberry when using
 		hdmi_timings. In hdmi_timings 1 means "inverted polarity",
 		and then "-hsync/-vsync".
+	) Fixes aspect ratio of Sega System 32 games.
 	) Improved the support for Sega Megadrive and
 		Sega Master System recognizing more software formats.
 	) In the input definitions support the use of the device name
