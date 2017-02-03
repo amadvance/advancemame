@@ -29,7 +29,7 @@ MAME_INSTALL_DATAFILES = $(srcdir)/support/event.dat \
 	$(srcdir)/support/history.dat \
 	$(srcdir)/support/hiscore.dat \
 	$(srcdir)/support/category.ini
-# Freely Avaiable Roms: http://www.mame.net/roms/
+# Freely available roms: http://www.mame.net/roms/
 MAME_INSTALL_ROMFILES = $(srcdir)/support/free/rom/gridlee.zip \
 	$(srcdir)/support/free/rom/polyplay.zip \
 	$(srcdir)/support/free/rom/robby.zip
@@ -40,7 +40,7 @@ MAME_INSTALL_SNAPFILES = $(srcdir)/support/free/snap/gridlee.zip \
 MESS_INSTALL_BINFILES = $(MESSOBJ)/advmess$(EXE)
 MESS_INSTALL_MANFILES = $(srcdir)/support/advmess.1
 MESS_INSTALL_DATAFILES = $(srcdir)/support/sysinfo.dat
-# Freely Avaiable Systems: http://www.mess.org/freely_available_systems#texas_instruments_ti-994a_and_ti-998
+# Freely available systems: http://www.mess.org/freely_available_systems#texas_instruments_ti-994a_and_ti-998
 MESS_INSTALL_ROMFILES = $(srcdir)/support/free/rom/ti99_4a.zip
 MESS_INSTALL_IMAGEFILES_TI99_4A = \
 	$(srcdir)/support/free/image/ti99_4a/alpiner.zip \
