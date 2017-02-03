@@ -7,7 +7,7 @@ Name
 
 AdvanceMAME 3.2
 	This version completes the Raspberry Pi support,
-	fixing various remainig bugs.
+	fixing various bugs.
 
 	A possible incompatible change is the reversed polarity
 	of the video modelines in Raspberry Pi. If you have

@@ -2,9 +2,9 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 3.2 2017/01
-	) Fixed some hanging conditions when dealing with the Raspberry
-		VideoCore. There are some hidden timing dependencies
-		that could cause VideoCore to misbehave.
+	) Fixed a terminating hanging condition when dealing with the
+		Raspberry VideoCore. There are some hidden timing
+		dependencies that could cause VideoCore to misbehave.
 	) Inverted the polarity of hsync/vsync in Raspberry when using
 		hdmi_timings. In hdmi_timings 1 means "inverted polarity",
 		and then "-hsync/-vsync".
@@ -38,7 +38,7 @@ AdvanceMAME/MESS/MENU Version 3.1 2017/01
 	) More reliable Raspberry video mode setting when using programmable
 		modes. It now uses the Raspberry VideoCore libraries to
 		control better the system.
-	) More precise VSync syncronization, avoiding any missing frame.
+	) More precise VSync synchronization, avoiding any missing frame.
 	) In AdvanceMESS fixed the loading of disk image for the TI99-4A
 		system.
 	) In AdvanceMAME marked 'retofinv', 'svc', 'prmrsocr' and 'viostorm'
@@ -75,13 +75,13 @@ AdvanceMAME/MESS/MENU Version 3.0 2016/12
 		directly from the Linux Console and outside the
 		X-Window graphics environment to be able to use the
 		Raspberry hardware acceleration.
-	) Improved syncronization to remove tearing with the Linux
+	) Improved synchronization to remove tearing with the Linux
 		FrameBuffer.
 	) Added a new category.ini installed automatically, that
-		is used automaticaly by AdvanceMENU.
+		is used automatically by AdvanceMENU.
 	) Added a new 'display_aspect' option that replaces
 		the old 'display_aspectx' and 'display_aspecty'.
-		This one allows aspect autodetection with 'auto'.
+		This one allows aspect auto-detection with 'auto'.
 		You have to manually adjust the advmame.rc file if you
 		are using the old ones.
 	) Changed the default of 'display_expand' to 1.25.
@@ -1286,7 +1286,7 @@ AdvanceMAME Version 0.61.4 2002/11
 	) Merged the sdl and native system of the Linux target.
 		You can now mix the SDL input/output drivers with the
 		native drivers.
-	) Better ./configure script. It detects and automatically 
+	) Better ./configure script. It detects and automatically
 		enables all the available libraries.
 	) The configuration file now recognizes the SIZEXxSIZEYxFREQ section.
 	) Fixed a precision error checking the clock in the DOS vgaline
@@ -1306,7 +1306,7 @@ AdvanceMENU Version 2.2.0 2002/11
 	) Merged the sdl and native system of the Linux target.
 		You can now mix the SDL input/output drivers with the
 		native drivers.
-	) Better ./configure script. It detects and automatically 
+	) Better ./configure script. It detects and automatically
 		enables all the available libraries.
 	) Fixed a precision error checking the clock in the DOS vgaline
 		driver.
@@ -1329,7 +1329,7 @@ AdvanceMENU Version 2.1.2 2002/09
 	) Removed the compression of all the executables, and added
 		a little debug info on the precompiled binaries.
 		This should help the problem reporting.
-	) Fixed a bug when setting emulator attributes without games 
+	) Fixed a bug when setting emulator attributes without games
 		listed.
 
 AdvanceMAME Version 0.61.3 2002/09
@@ -1911,13 +1911,13 @@ AdvanceMAME Version 0.53.1
 
 AdvanceMAME Version 0.53.0 2001/08
 	) Major release with BIG changes. This should be considered
-		an alpha version. 
-	) Kept the support for 8 bit modes. You can still use 8 bit 
+		an alpha version.
+	) Kept the support for 8 bit modes. You can still use 8 bit
 		modes for games with less than 256 colors without
-		problems. You can also use 8 bit modes for all the other 
+		problems. You can also use 8 bit modes for all the other
 		games but you lose in color precision.
-	) The modeline format is changed. The new format is independent 
-		of the video driver and of video board. The modelines 
+	) The modeline format is changed. The new format is independent
+		of the video driver and of video board. The modelines
 		can now be exchanged between users.
 	) Added a new set of video drivers called `svgaline' from
 		the Linux SVGALIB library. These drivers overperform
@@ -1932,8 +1932,8 @@ AdvanceMAME Version 0.53.0 2001/08
 	) The configuration file is now named like the executable.
 		For example "mamepp.exe" checks for "mamepp.cfg".
 	) Added the `videodepth' option to control the bit depth of the
-		video mode used. The old `depth' option is still present 
-		but control only the internal size of the working MAME 
+		video mode used. The old `depth' option is still present
+		but control only the internal size of the working MAME
 		bitmap.
 	) Added the command line option `-default' to create a default
 		`mame.cfg' file.
@@ -1944,7 +1944,7 @@ AdvanceMAME Version 0.53.0 2001/08
 	) Updated the `mv' and `cfg' utility at the new features.
 	) Updated the `card.txt' file with a complete list of the video
 		board supported.
-	) The safeexit option now uses the safequit.dat file to check if 
+	) The safeexit option now uses the safequit.dat file to check if
 		the exit is safe or not. If the game is in demo mode and no
 		coin is inserted the "Continue/Exit" menu is not shown.
 		[Filipe de V. Estima (Bugfinder), Ian Patterson]
@@ -1977,7 +1977,7 @@ AdvanceMENU Version 1.15.0
 
 AdvanceMENU Version 1.14.2
 	) Removed the `cfg_scan' option. Now it's always active and
-		really fast! The coins number is cached in the 
+		really fast! The coins number is cached in the
 		mm.cfg file and the .cfg files are read only the
 		first time.
 	) Solved the `default_mode' selection bug.
@@ -2035,9 +2035,9 @@ AdvanceMAME Version 0.37b14.3
 	) Changed the source distribution. Now you must apply two
 		patch. Check the build.txt file.
 	) Some fix and improvement at the `cfg' utility.
-	) Added support for saving the volume attenuation in 
+	) Added support for saving the volume attenuation in
 		the directory "att". [Rafael Prado Rocchi]
-		You have to create the directory to enable this 
+		You have to create the directory to enable this
 		function.
 
 AdvanceMAME Version 0.37b14.2
@@ -2325,7 +2325,7 @@ AdvanceMAME Version 0.37b9.0 2000/11
 		The file is saved in the `snap' directory in the `wav'
 		format. The frequency rate is the value specified
 		with the mame.cfg `samplerate' option.
-		Use the mame.cfg `recordtime' option to limit the maximum 
+		Use the mame.cfg `recordtime' option to limit the maximum
 		record length in seconds.
 	) Corrected some color palette issues in the `vbe/vbeline' modes.
 	) Rewritten the choice of the best video mode. Now you can control
@@ -2353,7 +2353,7 @@ AdvanceMENU Version 1.4.0
 		These images are only used in the bigger tile modes if
 		available.
 		The `ico' files are read using the new mame.cfg `icons'
-		option. 
+		option.
 
 AdvanceMAME Version 0.37b8.0 2000/10
 	) Recovered from an harddisk crash!
@@ -2484,8 +2484,8 @@ AdvanceMAME Version 0.37b4.0 2000/06
 
 	I am interested in functionality reports with these information:
 	1) Model of your video board
-	2) The runtime log file "mv.log" generated with the command 
-	"mv -log"  when you test (pressing ENTER) all the `vbeline' 
+	2) The runtime log file "mv.log" generated with the command
+	"mv -log"  when you test (pressing ENTER) all the `vbeline'
 	video modes available.
 	3) The list of `vbeline' video modes that display incorrectly
 
@@ -2536,7 +2536,7 @@ AdvanceMAME Version 0.37b2.1 2000/05
 		position of the cursor between runs
 	) Added to the `mm' utility the options `merge' to select
 		the format of your roms.
-	) Corrected the bug that prevented the correct loading and saving 
+	) Corrected the bug that prevented the correct loading and saving
 		of the nvram files
 	) Added a new configuration method based on the resolution of
 		the games. All the `[config]' options in the `mame.cfg'
