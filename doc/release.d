@@ -6,7 +6,7 @@ Name
 	aligned to that MAME version.
 
 AdvanceMAME 3.2
-	This version completes the Raspberry Pi support,
+	This release completes the Raspberry Pi support,
 	fixing various bugs.
 
 	A possible incompatible change is the reversed polarity
@@ -14,6 +14,10 @@ AdvanceMAME 3.2
 	some modelines saved if your .rc files, you'll have
 	to manually change the +hsync to -hsync, and +vsync
 	to -vsync and viceversa.
+
+	From this release the Raspberry Pi .deb binary is not
+	linked anymore with SDL. It works only outside the X
+	Window graphics enviroment.
 
 AdvanceMAME 3.0
 	This version is a major update for Raspberry Pi.
