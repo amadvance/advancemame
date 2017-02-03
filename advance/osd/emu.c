@@ -522,7 +522,25 @@ static adv_conf_conv STANDARD[] = {
 { "*", "display_aspectx", "*", "", "", "", 0 }, /* ignore */
 { "*", "display_aspecty", "*", "", "", "", 0 }, /* ignore */
 /* 3.1 */
-{ "*", "display_resizeeffect", "lq", "%s", "display_resizeeffect", "hq", 0 } /* rename */
+{ "*", "display_resizeeffect", "lq", "%s", "display_resizeeffect", "hq", 0 }, /* rename */
+/* 3,2 */
+/* avoid errors when buildind without SDL */
+#ifndef USE_VIDEO_SDL
+{ "*", "device_video", "sdl", "", "", "", 0 }, /* ignore */
+#endif
+#ifndef USE_SOUND_SDL
+{ "*", "device_sdl_samples", "*", "", "", "", 0 }, /* ignore */
+{ "*", "device_sound", "sdl", "", "", "", 0 }, /* ignore */
+#endif
+#ifndef USE_JOYSTICK_SDL
+{ "*", "device_joystick", "sdl", "", "", "", 0 }, /* ignore */
+#endif
+#ifndef USE_MOUSE_SDL
+{ "*", "device_mouse", "sdl", "", "", "", 0 }, /* ignore */
+#endif
+#ifndef USE_KEYBOARD_SDL
+{ "*", "device_keyboard", "sdl", "", "", "", 0 }, /* ignore */
+#endif
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

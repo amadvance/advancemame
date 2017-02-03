@@ -556,7 +556,25 @@ static adv_conf_conv STANDARD[] = {
 { "*", "run_msg", "*", "%s", "ui_gamemsg", "%s", 0 }, /* rename */
 { "*", "run_preview", "*", "%s", "ui_game", "%s", 0 }, /* rename */
 /* 2.4.0 */
-{ "*", "ui_game", "play", "%s", "%s", "snap", 0 } /* rename */
+{ "*", "ui_game", "play", "%s", "%s", "snap", 0 }, /* rename */
+/* 3,2 */
+/* avoid errors when buildind without SDL */
+#ifndef USE_VIDEO_SDL
+{ "*", "device_video", "sdl", "", "", "", 0 }, /* ignore */
+#endif
+#ifndef USE_SOUND_SDL
+{ "*", "device_sdl_samples", "*", "", "", "", 0 }, /* ignore */
+{ "*", "device_sound", "sdl", "", "", "", 0 }, /* ignore */
+#endif
+#ifndef USE_JOYSTICK_SDL
+{ "*", "device_joystick", "sdl", "", "", "", 0 }, /* ignore */
+#endif
+#ifndef USE_MOUSE_SDL
+{ "*", "device_mouse", "sdl", "", "", "", 0 }, /* ignore */
+#endif
+#ifndef USE_KEYBOARD_SDL
+{ "*", "device_keyboard", "sdl", "", "", "", 0 }, /* ignore */
+#endif
 };
 
 adv_error include_load(adv_conf* context, int priority, const char* include_spec, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context)
