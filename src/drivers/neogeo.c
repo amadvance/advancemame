@@ -1317,6 +1317,48 @@ struct YM2610interface neogeo_ym2610_interface =
 */
 
 
+static MACHINE_DRIVER_START( neogeo_full )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD_TAG("main", M68000, 12000000) /* verified */
+	MDRV_CPU_PROGRAM_MAP(neogeo_readmem,neogeo_writemem)
+	MDRV_CPU_VBLANK_INT(neogeo_raster_interrupt,RASTER_LINES)
+
+	MDRV_CPU_ADD(Z80, 4000000) /* verified */
+	/* audio CPU */
+	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
+	MDRV_CPU_IO_MAP(neo_readio,neo_writeio)
+
+	MDRV_FRAMES_PER_SECOND(15625.0 / 264) /* verified with real PCB */
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_WATCHDOG_TIME_INIT(TIME_IN_SEC(0.128762))
+
+	MDRV_MACHINE_START(neogeo)
+	MDRV_MACHINE_RESET(neogeo)
+	MDRV_NVRAM_HANDLER(neogeo)
+	MDRV_MEMCARD_HANDLER(neogeo)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_RGB_DIRECT)
+	MDRV_SCREEN_SIZE(40*8, 32*8)
+    MDRV_VISIBLE_AREA(0*8, 40*8-1, 2*8, 30*8-1) /* 320 width */
+	MDRV_GFXDECODE(neogeo_mvs_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(4096)
+
+	MDRV_VIDEO_START(neogeo_mvs)
+	MDRV_VIDEO_UPDATE(neogeo)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+
+	MDRV_SOUND_ADD(YM2610, 8000000)
+	MDRV_SOUND_CONFIG(neogeo_ym2610_interface)
+	MDRV_SOUND_ROUTE(0, "left",  0.60)
+	MDRV_SOUND_ROUTE(0, "right", 0.60)
+	MDRV_SOUND_ROUTE(1, "left",  1.0)
+	MDRV_SOUND_ROUTE(2, "right", 1.0)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( neogeo )
 
 	/* basic machine hardware */
@@ -1341,7 +1383,7 @@ static MACHINE_DRIVER_START( neogeo )
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_RGB_DIRECT)
 	MDRV_SCREEN_SIZE(40*8, 32*8)
-    MDRV_VISIBLE_AREA(0*8, 40*8-1, 2*8, 30*8-1)
+    MDRV_VISIBLE_AREA(0*8+8, 40*8-1-8, 2*8, 30*8-1) /* 304 width */
 	MDRV_GFXDECODE(neogeo_mvs_gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(4096)
 
@@ -8078,30 +8120,30 @@ GAMEB( 2003, samsh5sn, samsh5sp, neogeo, neogeo, neogeo,  samsh5sp, ROT0, "Yuki 
 /* there are other bootlegs kof2002b etc. kof96ep, matrimbl?, kf2k1pls -- work out which should be supported */
 
 /* Alpha Denshi Co. / ADK (changed name in 1993) */
-GAMEB( 1990, maglord,  neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "Magician Lord (set 1)", 0 )
-GAMEB( 1990, maglordh, maglord,  neogeo, neogeo, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "Magician Lord (set 2)", 0 )
+GAMEB( 1990, maglord,  neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "Magician Lord (set 1)", 0 )
+GAMEB( 1990, maglordh, maglord,  neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "Magician Lord (set 2)", 0 )
 GAMEB( 1990, ncombat,  neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "Ninja Combat (set 1)", 0 )
 GAMEB( 1990, ncombata, ncombat,  neogeo, neogeo, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "Ninja Combat (set 2)", 0 )
-GAMEB( 1990, bjourney, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "Blue's Journey / Raguy", 0 )
+GAMEB( 1990, bjourney, neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "Blue's Journey / Raguy", 0 )
 GAMEB( 1991, crsword,  neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "Crossed Swords", 0 )
-GAMEB( 1991, trally,   neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "Thrash Rally", 0 )
+GAMEB( 1991, trally,   neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "Thrash Rally", 0 )
 GAMEB( 1992, ncommand, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "Ninja Commando", 0 )
-GAMEB( 1992, wh1,      neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "World Heroes (set 1)", 0 )
-GAMEB( 1992, wh1h,     wh1,      neogeo, neogeo, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "World Heroes (set 2)", 0 )
+GAMEB( 1992, wh1,      neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "World Heroes (set 1)", 0 )
+GAMEB( 1992, wh1h,     wh1,      neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Alpha Denshi Co.", "World Heroes (set 2)", 0 )
 GAMEB( 1993, wh2,      neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "ADK",              "World Heroes 2", 0 )
 GAMEB( 1994, wh2j,     neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "ADK / SNK",        "World Heroes 2 Jet", 0 )
 GAMEB( 1994, aodk,     neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "ADK / SNK",        "Aggressors of Dark Kombat / Tsuukai GANGAN Koushinkyoku", 0 )
-GAMEB( 1995, whp,      neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "ADK / SNK",        "World Heroes Perfect", 0 )
+GAMEB( 1995, whp,      neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "ADK / SNK",        "World Heroes Perfect", 0 )
 GAMEB( 1995, mosyougi, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "ADK / SNK",        "Syougi No Tatsujin - Master of Syougi", 0 )
 GAMEB( 1996, overtop,  neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "ADK",              "Over Top", 0 )
-GAMEB( 1996, ninjamas, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "ADK / SNK",        "Ninja Master's - haoh-ninpo-cho", 0 )
+GAMEB( 1996, ninjamas, neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "ADK / SNK",        "Ninja Master's - haoh-ninpo-cho", 0 )
 GAMEB( 1996, twinspri, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "ADK",              "Twinkle Star Sprites", 0 )
 GAMEB( 1996, zintrckb, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "hack / bootleg",   "Zintrick / Oshidashi Zentrix (hack / bootleg)", 0 )
 
 
 /* Aicom */
-GAMEB( 1994, janshin,  neogeo,   neogeo, neogeo, mjneogeo,mjneogeo, ROT0, "Aicom", "Jyanshin Densetsu - Quest of Jongmaster", 0 )
-GAMEB( 1995, pulstar,  neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Aicom", "Pulstar", 0 )
+GAMEB( 1994, janshin,  neogeo,   neogeo, neogeo_full, mjneogeo,mjneogeo, ROT0, "Aicom", "Jyanshin Densetsu - Quest of Jongmaster", 0 )
+GAMEB( 1995, pulstar,  neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Aicom", "Pulstar", 0 )
 
 /* Data East Corporation */
 GAMEB( 1993, spinmast, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Data East Corporation", "Spin Master / Miracle Adventure", 0 )
@@ -8113,7 +8155,7 @@ GAMEB( 1996, magdrop2, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Data 
 GAMEB( 1997, magdrop3, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Data East Corporation", "Magical Drop III", 0 )
 
 /* Eleven */
-GAMEB( 2000, nitd,     neogeo,   neogeo, neogeo, neogeo,  nitd,     ROT0, "Eleven / Gavaking", "Nightmare in the Dark" , 0) /* Encrypted GFX */
+GAMEB( 2000, nitd,     neogeo,   neogeo, neogeo_full, neogeo,  nitd,     ROT0, "Eleven / Gavaking", "Nightmare in the Dark" , 0) /* Encrypted GFX */
 
 /* Face */
 GAMEB( 1994, gururin,  neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Face", "Gururin", 0 )
@@ -8136,7 +8178,7 @@ GAMEB( 1996, mslug,    neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Nazca
 GAMEB( 1994, zedblade, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "NMK", "Zed Blade / Operation Ragnarok", 0 )
 
 /* Psikyo */
-GAMEB( 1999, s1945p,   neogeo,   neogeo, neogeo, neogeo,  s1945p,   ROT0, "Psikyo", "Strikers 1945 Plus" , 0)	/* Encrypted GFX */
+GAMEB( 1999, s1945p,   neogeo,   neogeo, neogeo_full, neogeo,  s1945p,   ROT0, "Psikyo", "Strikers 1945 Plus" , 0)	/* Encrypted GFX */
 
 /* Sammy */
 GAMEB( 1992, viewpoin, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Sammy", "Viewpoint", 0 )
@@ -8157,8 +8199,8 @@ GAMEB( 1995, galaxyfg, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Sunso
 GAMEB( 1996, wakuwak7, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Sunsoft", "Waku Waku 7", 0 )
 
 /* Taito */
-GAMEB( 1994, pbobblen, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Taito", "Puzzle Bobble / Bust-A-Move (Neo-Geo) (set 1)", 0 )
-GAMEB( 1994, pbobblna, pbobblen, neogeo, neogeo, neogeo,  neogeo,   ROT0, "Taito", "Puzzle Bobble / Bust-A-Move (Neo-Geo) (set 2)", 0 )
+GAMEB( 1994, pbobblen, neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Taito", "Puzzle Bobble / Bust-A-Move (Neo-Geo) (set 1)", 0 )
+GAMEB( 1994, pbobblna, pbobblen, neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Taito", "Puzzle Bobble / Bust-A-Move (Neo-Geo) (set 2)", 0 )
 GAMEB( 1999, pbobbl2n, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Taito (SNK license)", "Puzzle Bobble 2 / Bust-A-Move Again (Neo-Geo)", 0 )
 GAMEB( 2003, pnyaa,    neogeo,   neogeo, neogeo, neogeo,  pnyaa,    ROT0, "Aiky / Taito", "Pochi and Nyaa", 0 )
 
@@ -8166,7 +8208,7 @@ GAMEB( 2003, pnyaa,    neogeo,   neogeo, neogeo, neogeo,  pnyaa,    ROT0, "Aiky 
 GAMEB( 1995, marukodq, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Takara", "Chibi Marukochan Deluxe Quiz", 0 )
 
 /* Technos */
-GAMEB( 1995, doubledr, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Technos", "Double Dragon (Neo-Geo)", 0 )
+GAMEB( 1995, doubledr, neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Technos", "Double Dragon (Neo-Geo)", 0 )
 GAMEB( 1995, gowcaizr, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Technos", "Voltage Fighter - Gowcaizer / Choujin Gakuen Gowcaizer", 0)
 GAMEB( 1996, sdodgeb,  neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Technos", "Super Dodge Ball / Kunio no Nekketsu Toukyuu Densetsu", 0 )
 
@@ -8174,7 +8216,7 @@ GAMEB( 1996, sdodgeb,  neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Techn
 GAMEB( 1996, tws96,    neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Tecmo", "Tecmo World Soccer '96", 0 )
 
 /* Yumekobo */
-GAMEB( 1998, blazstar, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Yumekobo", "Blazing Star", 0 )
+GAMEB( 1998, blazstar, neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Yumekobo", "Blazing Star", 0 )
 GAMEB( 1999, preisle2, neogeo,   neogeo, neogeo, neogeo,  preisle2, ROT0, "Yumekobo", "Prehistoric Isle 2" , 0) /* Encrypted GFX */
 
 /* Viccom */
@@ -8182,10 +8224,10 @@ GAMEB( 1994, fightfev, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Vicco
 GAMEB( 1994, fightfva, fightfev, neogeo, neogeo, neogeo,  neogeo,   ROT0, "Viccom", "Fight Fever (set 2)", 0 )
 
 /* Video System Co. */
-GAMEB( 1994, pspikes2, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Video System Co.", "Power Spikes II", 0 )
-GAMEB( 1994, sonicwi2, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Video System Co.", "Aero Fighters 2 / Sonic Wings 2", 0 )
-GAMEB( 1995, sonicwi3, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Video System Co.", "Aero Fighters 3 / Sonic Wings 3", 0 )
-GAMEB( 1997, popbounc, neogeo,   neogeo, neogeo, popbounc,popbounc, ROT0, "Video System Co.", "Pop 'n Bounce / Gapporin", 0 )
+GAMEB( 1994, pspikes2, neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Video System Co.", "Power Spikes II", 0 )
+GAMEB( 1994, sonicwi2, neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Video System Co.", "Aero Fighters 2 / Sonic Wings 2", 0 )
+GAMEB( 1995, sonicwi3, neogeo,   neogeo, neogeo_full, neogeo,  neogeo,   ROT0, "Video System Co.", "Aero Fighters 3 / Sonic Wings 3", 0 )
+GAMEB( 1997, popbounc, neogeo,   neogeo, neogeo_full, popbounc,popbounc, ROT0, "Video System Co.", "Pop 'n Bounce / Gapporin", 0 )
 
 /* Visco */
 GAMEB( 1992, androdun, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Visco", "Andro Dunos", 0 )
@@ -8207,10 +8249,10 @@ GAMEB( 2002, mslug4,   neogeo,   neogeo, neogeo, neogeo,  mslug4,   ROT0, "Mega"
 GAMEB( 2002, ms4plus,  mslug4,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "bootleg", "Metal Slug 4 Plus (bootleg)", 0 )
 
 /* Evoga */
-GAMEB( 2002, rotd,     neogeo,	 neogeo, neogeo, neogeo,  rotd,	    ROT0, "Evoga / Playmore", "Rage of the Dragons", 0 )
+GAMEB( 2002, rotd,     neogeo,	 neogeo, neogeo_full, neogeo,  rotd,	    ROT0, "Evoga / Playmore", "Rage of the Dragons", 0 )
 
 /* Atlus */
-GAMEB( 2002, matrim,   neogeo,   neogeo, neogeo, neogeo,  matrim,   ROT0, "Noise Factory / Atlus", "Matrimelee / Shin Gouketsuji Ichizoku Toukon", 0 )
+GAMEB( 2002, matrim,   neogeo,   neogeo, neogeo_full, neogeo,  matrim,   ROT0, "Noise Factory / Atlus", "Matrimelee / Shin Gouketsuji Ichizoku Toukon", 0 )
 
 /* Breezasoft */
 GAMEB( 2001, jockeygp, neogeo,   neogeo, neogeo, jockeygp,jockeygp, ROT0, "Sun Amusement / BrezzaSoft", "Jockey Grand Prix", 0 )
