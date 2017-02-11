@@ -1194,7 +1194,9 @@ void advance_input_print_digital(char* buffer, unsigned buffer_size, unsigned* s
 			case DIGITAL_TYPE_JOY_BUTTON :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				sncatf(buffer, buffer_size, "joystick_button[%d,%d]", DIGITAL_JOY_BUTTON_DEV_GET(v), DIGITAL_JOY_BUTTON_BUTTON_GET(v));
+				if (joystickb_device_name_get(i, name) != 0)
+					snprintf(name, sizeof(name), "%d", DIGITAL_JOY_BUTTON_DEV_GET(v));
+				sncatf(buffer, buffer_size, "joystick_button[%s,%d]", name, DIGITAL_JOY_BUTTON_BUTTON_GET(v));
 				break;
 			case DIGITAL_TYPE_MOUSE_BUTTON :
 				if (buffer[0] != 0)
