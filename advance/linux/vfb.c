@@ -68,6 +68,12 @@ enum fb_wait_enum {
 	fb_wait_vga
 };
 
+struct fb_option_struct {
+	unsigned hdmi_pclock_low;
+};
+
+static struct fb_option_struct fb_option;
+
 typedef struct fb_internal_struct {
 	adv_bool active;
 	adv_bool mode_active;
@@ -1002,15 +1008,15 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 			/* these exact values are OK */
 		} else {
 			/*
-			 * Increse the x size until we reach a pixelclock of 31250000
+			 * Increse the x size until we reach a pixelclock of 31.25 MHz
 			 * plus some safety margin for error precision.
 			 *
 			 * Note that the Horizontal and Vertical clocks remain the same.
 			 */
 			unsigned factor = 0;
-			while (copy.pixelclock <= 31300000) {
+			while (copy.pixelclock <= 31250000 + 50000) {
 				++factor;
-				log_std(("video:fb: adjust modeline to increase by factor %u / 4\n", factor));
+				log_std(("video:fb: adjust DPI modeline to increase by factor %u / 4\n", factor));
 				copy.hde += crtc->hde / 4;
 				copy.hrs += crtc->hrs / 4;
 				copy.hre += crtc->hre / 4;
@@ -1021,15 +1027,42 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 	}
 
 	/*
-	 * In HDMI/DVI mode we cannot used the DPI clocks.
+	 * In HDMI/DVI mode there is a "supposed" low limit of 25 MHz for DPI clock.
 	 *
-	 * If they are used, the next pixel clock measure with:
+	 * See: Please can the ability to modify HDMI timings on the fly
+	 * https://github.com/raspberrypi/firmware/issues/637
+	 *
+	 * "HDMI pixel clock should be between 25Mhz and 162MHz."
+	 * "For lower resolutions/framerates pixel doubling and a higher clock should be used."
+	 * "For DPI the minimum pixel clock is 31.25MHz."
+	 *
+	 * For sure the values 4.8 MHz, 6.4 MHz, 9.6MHz and 19.2 MHz
+	 * don't work. If they are used, the next pixel clock measure
+	 * with:
 	 *
 	 *   "vcgencmd measure_clock pixel"
 	 *
 	 * always reports 0.
 	 */
 	if (fb_state.oldstate.state & (VC_HDMI_HDMI | VC_HDMI_DVI)) {
+		/*
+		 * Increase the x size until we reach the configured pixelclock
+		 * plus some safety margin for error precision.
+		 *
+		 * Note that the Horizontal and Vertical clocks remain the same.
+		 */
+		unsigned factor = 0;
+		while (copy.pixelclock <= fb_option.hdmi_pclock_low + 50000) {
+			++factor;
+			log_std(("video:fb: adjust HDMI/DVI modeline to increase by factor %u / 4\n", factor));
+			copy.hde += crtc->hde / 4;
+			copy.hrs += crtc->hrs / 4;
+			copy.hre += crtc->hre / 4;
+			copy.ht += crtc->ht / 4;
+			copy.pixelclock = crtc->pixelclock + crtc->pixelclock * factor / 4;
+		}
+
+		/* avoid the values we know to not work */
 		if (copy.pixelclock == 4800000
 			|| copy.pixelclock == 6400000
 			|| copy.pixelclock == 9600000
@@ -1938,11 +1971,16 @@ int fb_mode_compare(const fb_video_mode* a, const fb_video_mode* b)
 void fb_reg(adv_conf* context)
 {
 	assert(!fb_is_active());
+
+	conf_int_register_default(context, "device_hdmi_pclock_low", 0);
 }
 
 adv_error fb_load(adv_conf* context)
 {
 	assert(!fb_is_active());
+
+	fb_option.hdmi_pclock_low = conf_int_get_default(context, "device_hdmi_pclock_low");
+
 	return 0;
 }
 
