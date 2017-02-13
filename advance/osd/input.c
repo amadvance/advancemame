@@ -1180,28 +1180,28 @@ void advance_input_print_digital(char* buffer, unsigned buffer_size, unsigned* s
 			case DIGITAL_TYPE_KBD :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				if (keyb_device_name_get(i, name) != 0)
+				if (keyb_device_name_get(DIGITAL_KBD_BOARD_GET(v), name) != 0)
 					snprintf(name, sizeof(name), "%d", DIGITAL_KBD_BOARD_GET(v));
 				sncatf(buffer, buffer_size, "keyboard[%s,%s]", name, key_name(DIGITAL_KBD_KEY_GET(v)));
 				break;
 			case DIGITAL_TYPE_JOY :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				if (joystickb_device_name_get(i, name) != 0)
+				if (joystickb_device_name_get(DIGITAL_JOY_DEV_GET(v), name) != 0)
 					snprintf(name, sizeof(name), "%d", DIGITAL_JOY_DEV_GET(v));
 				sncatf(buffer, buffer_size, "joystick_digital[%s,%d,%d,%d]", name, DIGITAL_JOY_STICK_GET(v), DIGITAL_JOY_AXE_GET(v), DIGITAL_JOY_DIR_GET(v));
 				break;
 			case DIGITAL_TYPE_JOY_BUTTON :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				if (joystickb_device_name_get(i, name) != 0)
+				if (joystickb_device_name_get(DIGITAL_JOY_BUTTON_DEV_GET(v), name) != 0)
 					snprintf(name, sizeof(name), "%d", DIGITAL_JOY_BUTTON_DEV_GET(v));
 				sncatf(buffer, buffer_size, "joystick_button[%s,%d]", name, DIGITAL_JOY_BUTTON_BUTTON_GET(v));
 				break;
 			case DIGITAL_TYPE_MOUSE_BUTTON :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				if (mouseb_device_name_get(i, name) != 0)
+				if (mouseb_device_name_get(DIGITAL_MOUSE_BUTTON_DEV_GET(v), name) != 0)
 					snprintf(name, sizeof(name), "%d", DIGITAL_MOUSE_BUTTON_DEV_GET(v));
 				sncatf(buffer, buffer_size, "mouse_button[%s,%d]", name, DIGITAL_MOUSE_BUTTON_BUTTON_GET(v));
 				break;

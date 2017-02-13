@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS Version 3.3 2017/02
+	) Fixed handling of input_map[] definitions [Vincent Hamon].
+
 AdvanceMAME/MESS Version 3.2 2017/01
 	) Fixed a terminating hanging condition when dealing with the
 		Raspberry VideoCore. There are some hidden timing
