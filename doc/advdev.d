@@ -765,20 +765,22 @@ Video Drivers Configuration
 		no - Disable the fast video mode change (default).
 
   fb Configuration Options
-    device_hdmi_pclock_low
+    device_hdmi/dpi_pclock_low
 	Set the minimum pclock frequency used to drive the display. If a lower
 	value is selected, transparently increases the video mode horizontal size
 	until it reaches the allowed pixel clock.
 
 	This option works only with Raspberry Pi, when using the FrameBuffer and
-	the HDMI video interface (and not the DPI interface).
+	the HDMI/DPI video interface.
 
 	The use of this option is discouraged, it's present only for testing.
 
-	device_hdmi_pclock_low PCLOCK
+	:device_hdmi_pclock_low PCLOCK
+	:device_dpi_pclock_low PCLOCK
 
 	Options:
-		PCLOCK - Pixel clock in Hz (default 0).
+		PCLOCK - Pixel clock in Hz (default 0 for HDMI,
+			and 31.25 MHz for DPI).
 
   vbeline Configuration Options
 	The following are the common video configuration options
