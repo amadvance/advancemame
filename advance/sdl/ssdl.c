@@ -115,9 +115,10 @@ adv_error soundb_sdl_init(int sound_id, unsigned* rate, adv_bool stereo_flag, do
 		return -1;
 	}
 
-	if (!sdl_option.initialized) {
+	if (!sdl_option.initialized)
 		soundb_sdl_default();
-	}
+
+	log_std(("sound:sdl deviceo_sdl_samples %u\n", sdl_option.samples));
 
 	sdl_state.underflow_flag = 0;
 	sdl_state.fifo_pos = 0;
@@ -318,6 +319,7 @@ void soundb_sdl_default(void)
 #else
 	sdl_option.samples = 512;
 #endif
+
 	sdl_option.initialized = 1;
 }
 

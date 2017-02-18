@@ -123,9 +123,11 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 
 	log_std(("sound:alsa: soundb_alsa_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", sound_id, *rate, stereo_flag, buffer_time));
 
-	if (!alsa_option.initialized) {
+	if (!alsa_option.initialized)
 		soundb_alsa_default();
-	}
+
+	log_std(("sound:alsa: device_alsa_device %s\n", alsa_option.device_buffer));
+	log_std(("sound:alsa: device_alsa_mixed %s\n", alsa_option.mixer_buffer));
 
 	alsa_state.volume = ALSA_VOLUME_BASE;
 

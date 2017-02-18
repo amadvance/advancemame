@@ -69,6 +69,7 @@ enum fb_wait_enum {
 };
 
 struct fb_option_struct {
+	adv_bool initialized;
 	unsigned hdmi_pclock_low;
 	unsigned dpi_pclock_low;
 };
@@ -684,6 +685,12 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		error_set("Unsupported in X. Try with the SDL library.\n");
 		return -1;
 	}
+
+	if (!fb_option.initialized)
+		fb_default();
+
+	log_std(("video:fb: device_hdmi_pclock_low %u\n", fb_option.hdmi_pclock_low));
+	log_std(("video:fb: devide_dpi_pclock_low %u\n", fb_option.dpi_pclock_low));
 
 	fb = getenv("FRAMEBUFFER");
 	if (fb && fb[0]) {
@@ -1969,6 +1976,14 @@ int fb_mode_compare(const fb_video_mode* a, const fb_video_mode* b)
 	return crtc_compare(&a->crtc, &b->crtc);
 }
 
+void fb_default(void)
+{
+	fb_option.hdmi_pclock_low = 0;
+	fb_option.dpi_pclock_low = 31250000;
+
+	fb_option.initialized = 1;
+}
+
 void fb_reg(adv_conf* context)
 {
 	assert(!fb_is_active());
@@ -1983,6 +1998,8 @@ adv_error fb_load(adv_conf* context)
 
 	fb_option.hdmi_pclock_low = conf_int_get_default(context, "device_hdmi_pclock_low");
 	fb_option.dpi_pclock_low = conf_int_get_default(context, "device_dpi_pclock_low");
+
+	fb_option.initialized = 1;
 
 	return 0;
 }

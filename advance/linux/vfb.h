@@ -52,6 +52,8 @@ typedef struct fb_video_mode_struct {
  */
 extern adv_video_driver video_fb_driver;
 
+void fb_default(void);
+
 #ifdef __cplusplus
 }
 #endif
