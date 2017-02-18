@@ -3,6 +3,7 @@ Name
 
 AdvanceMAME/MESS Version 3.3 2017/02
 	) Fixed handling of input_map[] definitions [Vincent Hamon].
+	) Fixed crashes in games xmen6p and xmen6pu.
 
 AdvanceMAME/MESS Version 3.2 2017/01
 	) Fixed a terminating hanging condition when dealing with the
