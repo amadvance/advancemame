@@ -823,7 +823,11 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	{ "p1_" name, "Player 1 " desc, MAME_PORT_PLAYER(IPT_##NAME, 1) }, \
 	{ "p2_" name, "Player 2 " desc, MAME_PORT_PLAYER(IPT_##NAME, 2) }, \
 	{ "p3_" name, "Player 3 " desc, MAME_PORT_PLAYER(IPT_##NAME, 3) }, \
-	{ "p4_" name, "Player 4 " desc, MAME_PORT_PLAYER(IPT_##NAME, 4) },
+	{ "p4_" name, "Player 4 " desc, MAME_PORT_PLAYER(IPT_##NAME, 4) }, \
+	{ "p5_" name, "Player 5 " desc, MAME_PORT_PLAYER(IPT_##NAME, 5) }, \
+	{ "p6_" name, "Player 6 " desc, MAME_PORT_PLAYER(IPT_##NAME, 6) }, \
+	{ "p7_" name, "Player 7 " desc, MAME_PORT_PLAYER(IPT_##NAME, 7) }, \
+	{ "p8_" name, "Player 8 " desc, MAME_PORT_PLAYER(IPT_##NAME, 8) },
 
 /**
  * Player port with double keyboard sequence.
@@ -836,7 +840,15 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	{ "p3_" name1, "Player 3 " desc1, MAME_PORT_INDEX(IPT_##NAME, 3, 0) }, \
 	{ "p3_" name2, "Player 3 " desc2, MAME_PORT_INDEX(IPT_##NAME, 3, 1) }, \
 	{ "p4_" name1, "Player 4 " desc1, MAME_PORT_INDEX(IPT_##NAME, 4, 0) }, \
-	{ "p4_" name2, "Player 4 " desc2, MAME_PORT_INDEX(IPT_##NAME, 4, 1) },
+	{ "p4_" name2, "Player 4 " desc2, MAME_PORT_INDEX(IPT_##NAME, 4, 1) }, \
+	{ "p5_" name1, "Player 5 " desc1, MAME_PORT_INDEX(IPT_##NAME, 5, 0) }, \
+	{ "p5_" name2, "Player 5 " desc2, MAME_PORT_INDEX(IPT_##NAME, 5, 1) }, \
+	{ "p6_" name1, "Player 6 " desc1, MAME_PORT_INDEX(IPT_##NAME, 6, 0) }, \
+	{ "p6_" name2, "Player 6 " desc2, MAME_PORT_INDEX(IPT_##NAME, 6, 1) }, \
+	{ "p7_" name1, "Player 7 " desc1, MAME_PORT_INDEX(IPT_##NAME, 7, 0) }, \
+	{ "p7_" name2, "Player 7 " desc2, MAME_PORT_INDEX(IPT_##NAME, 7, 1) }, \
+	{ "p8_" name1, "Player 8 " desc1, MAME_PORT_INDEX(IPT_##NAME, 8, 0) }, \
+	{ "p8_" name2, "Player 8 " desc2, MAME_PORT_INDEX(IPT_##NAME, 8, 1) },
 
 #define K(name) \
 	{ "key_" name, "Key " name, { name } },
@@ -1105,10 +1117,10 @@ static struct mame_port GLUE_PORT_STD[] = {
 	S("coin2", "Player 2 Coin", COIN2)
 	S("coin3", "Player 3 Coin", COIN3)
 	S("coin4", "Player 4 Coin", COIN4)
-	S("coin5", "Player 5 Coin", COIN1)
-	S("coin6", "Player 6 Coin", COIN2)
-	S("coin7", "Player 7 Coin", COIN3)
-	S("coin8", "Player 8 Coin", COIN4)
+	S("coin5", "Player 5 Coin", COIN5)
+	S("coin6", "Player 6 Coin", COIN6)
+	S("coin7", "Player 7 Coin", COIN7)
+	S("coin8", "Player 8 Coin", COIN8)
 	S("bill1", "Player 1 Bill", BILL1)
 
 	S("service_coin1", "Service 1 Coin", SERVICE1)
@@ -2850,6 +2862,12 @@ adv_error mame_init(struct advance_context* context)
 		}
 	}
 #endif
+
+	if (j+1>=GLUE_PORT_MAX) {
+		printf("Internal error, increase GLUE_PORT_MAX!\n");
+		abort();
+	}
+
 
 	/* mark the end */
 	GLUE_PORT[j].name = 0;

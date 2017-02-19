@@ -2,6 +2,8 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 3.4 2017/03
+	) Add supports for up to 8 players. Before it was fully
+		supporting only 4 players.
 
 AdvanceMAME/MESS Version 3.3 2017/02
 	) Fixed handling of input_map[] definitions [Vincent Hamon].

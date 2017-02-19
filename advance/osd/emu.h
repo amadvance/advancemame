@@ -155,7 +155,7 @@ void advance_safequit_update(struct advance_safequit_context* context);
 
 /** Max supported input devices. */
 /*@{*/
-#define INPUT_PLAYER_MAX 4 /**< Max numer of player. */
+#define INPUT_PLAYER_MAX 8 /**< Max numer of player. */
 
 #define INPUT_ANALOG_MAX 16 /**< Max number of analog controls for player. */
 #define INPUT_DIGITAL_MAX 4096 /**< Max number of digital ports definition. */
