@@ -1,6 +1,8 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS Version 3.4 2017/03
+
 AdvanceMAME/MESS Version 3.3 2017/02
 	) Fixed handling of input_map[] definitions [Vincent Hamon].
 	) Fixed crashes in games xmen6p and xmen6pu.
