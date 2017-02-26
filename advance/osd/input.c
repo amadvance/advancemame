@@ -453,6 +453,21 @@ static adv_error parse_int(int* v, const char* s)
 	return 0;
 }
 
+char* JOY_MISSING[INPUT_JOY_MAX];
+
+void output_joystick_name(unsigned i, char* name)
+{
+	if (joystickb_device_name_get(i, name) == 0)
+		return;
+
+	if (JOY_MISSING[i]) {
+		snprintf(name, DEVICE_NAME_MAX, "%s", JOY_MISSING[i]);
+		return;
+	}
+
+	snprintf(name, DEVICE_NAME_MAX, "%u", i);
+}
+
 static adv_error parse_joystick_device(int* v, const char* s)
 {
 	unsigned i;
@@ -471,9 +486,32 @@ static adv_error parse_joystick_device(int* v, const char* s)
 		return parse_int(v, s);
 	}
 
-	*v = joystickb_count_get(); /* fake value, doesn't fail if you remove a device */
+	for(i=joystickb_count_get();i<INPUT_JOY_MAX;++i) {
+		if (JOY_MISSING[i] == 0)
+			JOY_MISSING[i] = strdup(s);
+		if (strcmp(JOY_MISSING[i], s) == 0) {
+			*v = i;
+			return 0;
+		}
+	}
 
+	*v = INPUT_JOY_MAX - 1; /* force remap to latest device */
 	return 0;
+}
+
+char* MOUSE_MISSING[INPUT_MOUSE_MAX];
+
+void output_mouse_name(unsigned i, char* name)
+{
+	if (mouseb_device_name_get(i, name) == 0)
+		return;
+
+	if (MOUSE_MISSING[i]) {
+		snprintf(name, DEVICE_NAME_MAX, "%s", MOUSE_MISSING[i]);
+		return;
+	}
+
+	snprintf(name, DEVICE_NAME_MAX, "%u", i);
 }
 
 static adv_error parse_mouse_device(int* v, const char* s)
@@ -494,9 +532,32 @@ static adv_error parse_mouse_device(int* v, const char* s)
 		return parse_int(v, s);
 	}
 
-	*v = mouseb_count_get(); /* fake value, doesn't fail if you remove a device */
+	for(i=mouseb_count_get();i<INPUT_MOUSE_MAX;++i) {
+		if (MOUSE_MISSING[i] == 0)
+			MOUSE_MISSING[i] = strdup(s);
+		if (strcmp(MOUSE_MISSING[i], s) == 0) {
+			*v = i;
+			return 0;
+		}
+	}
 
+	*v = INPUT_MOUSE_MAX - 1; /* force remap to latest device */
 	return 0;
+}
+
+char* KEYBOARD_MISSING[INPUT_KEYBOARD_MAX];
+
+void output_keyboard_name(unsigned i, char* name)
+{
+	if (keyb_device_name_get(i, name) == 0)
+		return;
+
+	if (KEYBOARD_MISSING[i]) {
+		snprintf(name, DEVICE_NAME_MAX, "%s", KEYBOARD_MISSING[i]);
+		return;
+	}
+
+	snprintf(name, DEVICE_NAME_MAX, "%u", i);
 }
 
 static adv_error parse_keyboard_device(int* v, const char* s)
@@ -517,8 +578,16 @@ static adv_error parse_keyboard_device(int* v, const char* s)
 		return parse_int(v, s);
 	}
 
-	*v = keyb_count_get(); /* fake value, doesn't fail if you remove a device */
+	for(i=keyb_count_get();i<INPUT_KEYBOARD_MAX;++i) {
+		if (KEYBOARD_MISSING[i] == 0)
+			KEYBOARD_MISSING[i] = strdup(s);
+		if (strcmp(KEYBOARD_MISSING[i], s) == 0) {
+			*v = i;
+			return 0;
+		}
+	}
 
+	*v = INPUT_KEYBOARD_MAX - 1; /* force remap to latest device */
 	return 0;
 }
 
@@ -1284,29 +1353,25 @@ void advance_input_print_digital(char* buffer, unsigned buffer_size, unsigned* s
 			case DIGITAL_TYPE_KBD :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				if (keyb_device_name_get(DIGITAL_KBD_BOARD_GET(v), name) != 0)
-					snprintf(name, sizeof(name), "%d", DIGITAL_KBD_BOARD_GET(v));
+				output_keyboard_name(DIGITAL_KBD_BOARD_GET(v), name);
 				sncatf(buffer, buffer_size, "keyboard[%s,%s]", name, key_name(DIGITAL_KBD_KEY_GET(v)));
 				break;
 			case DIGITAL_TYPE_JOY :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				if (joystickb_device_name_get(DIGITAL_JOY_DEV_GET(v), name) != 0)
-					snprintf(name, sizeof(name), "%d", DIGITAL_JOY_DEV_GET(v));
+				output_joystick_name(DIGITAL_JOY_DEV_GET(v), name);
 				sncatf(buffer, buffer_size, "joystick_digital[%s,%d,%d,%d]", name, DIGITAL_JOY_STICK_GET(v), DIGITAL_JOY_AXE_GET(v), DIGITAL_JOY_DIR_GET(v));
 				break;
 			case DIGITAL_TYPE_JOY_BUTTON :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				if (joystickb_device_name_get(DIGITAL_JOY_BUTTON_DEV_GET(v), name) != 0)
-					snprintf(name, sizeof(name), "%d", DIGITAL_JOY_BUTTON_DEV_GET(v));
+				output_joystick_name(DIGITAL_JOY_BUTTON_DEV_GET(v), name);
 				sncatf(buffer, buffer_size, "joystick_button[%s,%d]", name, DIGITAL_JOY_BUTTON_BUTTON_GET(v));
 				break;
 			case DIGITAL_TYPE_MOUSE_BUTTON :
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
-				if (mouseb_device_name_get(DIGITAL_MOUSE_BUTTON_DEV_GET(v), name) != 0)
-					snprintf(name, sizeof(name), "%d", DIGITAL_MOUSE_BUTTON_DEV_GET(v));
+				output_mouse_name(DIGITAL_MOUSE_BUTTON_DEV_GET(v), name);
 				sncatf(buffer, buffer_size, "mouse_button[%s,%d]", name, DIGITAL_MOUSE_BUTTON_BUTTON_GET(v));
 				break;
 			default:
