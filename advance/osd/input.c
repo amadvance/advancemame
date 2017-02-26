@@ -460,7 +460,7 @@ void output_joystick_name(unsigned i, char* name)
 	if (joystickb_device_name_get(i, name) == 0)
 		return;
 
-	if (JOY_MISSING[i]) {
+	if (i < INPUT_JOY_MAX && JOY_MISSING[i]) {
 		snprintf(name, DEVICE_NAME_MAX, "%s", JOY_MISSING[i]);
 		return;
 	}
@@ -506,7 +506,7 @@ void output_mouse_name(unsigned i, char* name)
 	if (mouseb_device_name_get(i, name) == 0)
 		return;
 
-	if (MOUSE_MISSING[i]) {
+	if (i < INPUT_MOUSE_MAX && MOUSE_MISSING[i]) {
 		snprintf(name, DEVICE_NAME_MAX, "%s", MOUSE_MISSING[i]);
 		return;
 	}
@@ -552,7 +552,7 @@ void output_keyboard_name(unsigned i, char* name)
 	if (keyb_device_name_get(i, name) == 0)
 		return;
 
-	if (KEYBOARD_MISSING[i]) {
+	if (i < INPUT_KEYBOARD_MAX && KEYBOARD_MISSING[i]) {
 		snprintf(name, DEVICE_NAME_MAX, "%s", KEYBOARD_MISSING[i]);
 		return;
 	}

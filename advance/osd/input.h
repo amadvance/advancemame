@@ -50,9 +50,9 @@
 /* the cfg become invalid. */
 
 #define DIGITAL_TYPE_SPECIAL 0 /* Special codes */
-#define DIGITAL_TYPE_JOY 1 /* Joy digital move - DAAASSSDDDTTT */
-#define DIGITAL_TYPE_JOY_BUTTON 2 /* Joy button - BBBBBBDDDTTT */
-#define DIGITAL_TYPE_MOUSE_BUTTON 3 /* Mouse button - BBBBBBDDDTTT */
+#define DIGITAL_TYPE_JOY 1 /* Joy digital move - DAAASSSXXXTTT */
+#define DIGITAL_TYPE_JOY_BUTTON 2 /* Joy button - BBBBBBXXXTTT */
+#define DIGITAL_TYPE_MOUSE_BUTTON 3 /* Mouse button - BBBBBBXXXTTT */
 #define DIGITAL_TYPE_KBD 4 /* Keyboard button - KKKKKKKKKKXXXTTT */
 #define DIGITAL_TYPE_GET(i) ((i) & 0x7)
 
