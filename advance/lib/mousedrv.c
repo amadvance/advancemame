@@ -211,12 +211,35 @@ unsigned mouseb_count_get(void)
 
 int mouseb_device_name_get(unsigned mouse, char* name)
 {
+	char prev[DEVICE_NAME_MAX];
+	unsigned i;
+	unsigned index;
+
 	assert(mouseb_state.is_active_flag);
 
 	if (!mouseb_state.driver_current->device_name_get)
 		return -1;
 
-	return mouseb_state.driver_current->device_name_get(mouse, name);
+	if (mouseb_state.driver_current->device_name_get(mouse, name) != 0)
+		return -1;
+
+	/* check previous names */
+	index = 0;
+	for(i=0;i<mouse;++i) {
+		if (mouseb_state.driver_current->device_name_get(i, prev) != 0)
+			continue;
+
+		/* count all the matching ones */
+		if (strcmp(name, prev) == 0)
+			++index;
+	}
+
+	if (index != 0) {
+		/* add the index in the name */
+		snprintf(name, DEVICE_NAME_MAX, "%s_%u", prev, index + 1);
+	}
+
+	return 0;
 }
 
 unsigned mouseb_axe_count_get(unsigned mouse)
