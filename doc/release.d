@@ -5,6 +5,11 @@ Name
 	is still based on MAME 0.106, and it needs a romset
 	aligned to that MAME version.
 
+AdvanceMAME 3.4
+	Another bugfix release that adds support for up of 8
+	players in games like xmen6p. It also fixes the input_map[]
+	support when dealing with multiple controls.
+
 AdvanceMAME 3.2
 	This release completes the Raspberry Pi support,
 	fixing various bugs.
@@ -25,10 +30,10 @@ AdvanceMAME 3.0
 	Check the install.txt file for some more information
 	about the use with a Raspberry Pi.
 
-	The most important note is to run the Advance programs
-	directly from the Linux Console and outside the
-	X-Window graphics environment to be able to use the
-	Raspberry hardware acceleration.
+	The most important note for Raspberry, is to run the
+	Advance programs directly from the Linux Console and
+	outside the X-Window graphics environment to be able to
+	use the Raspberry hardware acceleration.
 
 	From this version now AdvanceMESS and AvanceMENU are
 	included in both the source and binary packages of
