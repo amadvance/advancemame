@@ -10,13 +10,18 @@ Build
 	What to install depends on your system, but in general you need the GCC compiler,
 	and the SDL library.
 
-	For Ubuntu:
+	For Ubuntu run:
 		:$ sudo apt-get update
 		:$ sudo apt-get install build-essential git autoconf automake libsdl2-dev libasound2-dev libfreetype6-dev zlib1g-dev libexpat1-dev libslang2-dev libncurses5-dev
 
-	For Raspbian (SDL library not needed):
+	For Raspbian run:
 		:$ sudo apt-get update
-		:$ sudo apt-get install git autoconf automake libasound2-dev libfreetype6-dev zlib1g-dev libexpat1-dev libslang2-dev libncurses5-dev
+		:$ sudo apt-get install git autoconf automake libsdl2-dev libasound2-dev libfreetype6-dev zlib1g-dev libexpat1-dev libslang2-dev libncurses5-dev
+
+	Note that in Raspbian it's highly recommended to run the Advance programs outside
+	the X/Pixel graphics environment to get the best performance.
+	For this reason the SDL library "libsdl2-dev" is not required, and you can omit
+	it if you like.
 
 	At this point you can get the source code from the http://www.advancemame.it site,
 	and untar it with:

@@ -13,6 +13,7 @@ AdvanceMAME/MESS Version 3.3 2017/02
 	) Fixed crashes in games xmen6p and xmen6pu.
 
 AdvanceMAME/MESS Version 3.2 2017/01
+	) The prebuilt binary for Raspberry is not linked anymore with SDL.
 	) Fixed a terminating hanging condition when dealing with the
 		Raspberry VideoCore. There are some hidden timing
 		dependencies that could cause VideoCore to misbehave.

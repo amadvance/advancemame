@@ -682,7 +682,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		return -1;
 
 	if (target_wm()) {
-		error_set("Unsupported in X. Try with the SDL library.\n");
+		error_set("Unsupported in X. You need to exit the X graphics enviroment, or rebuild with the SDL library.\n");
 		return -1;
 	}
 
