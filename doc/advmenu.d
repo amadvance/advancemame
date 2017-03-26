@@ -990,6 +990,11 @@ Configuration
 	ui_bottombar yes | no
 	ui_scrollbar yes | no
 
+    ui_name
+	Enables or disables the display of the game name in the screensaver.
+
+	ui_name yes | no
+
     ui_color
 	Selects the user interface colors.
 

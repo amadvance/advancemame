@@ -1835,7 +1835,8 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 
 			int_update_pre();
 
-			draw_menu_desc(gc[pos]->game_get().description_get(), counter);
+			if (rs.ui_gamename)
+				draw_menu_desc(gc[pos]->game_get().description_get(), counter);
 
 			int_update_post();
 		} else {

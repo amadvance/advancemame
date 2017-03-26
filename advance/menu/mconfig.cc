@@ -319,6 +319,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_bool_register_default(config_context, "ui_topbar", 1);
 	conf_bool_register_default(config_context, "ui_bottombar", 1);
 	conf_bool_register_default(config_context, "ui_scrollbar", 1);
+	conf_bool_register_default(config_context, "ui_name", 1);
 	conf_string_register_default(config_context, "ui_command_menu", "Command...");
 	conf_string_register_default(config_context, "ui_command_error", "Error running the command");
 	conf_string_register_multi(config_context, "ui_command");
@@ -784,6 +785,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	ui_top_bar = conf_bool_get_default(config_context, "ui_topbar");
 	ui_bottom_bar = conf_bool_get_default(config_context, "ui_bottombar");
 	ui_scroll_bar = conf_bool_get_default(config_context, "ui_scrollbar");
+	ui_gamename = conf_bool_get_default(config_context, "ui_name");
 	script_menu = conf_string_get_default(config_context, "ui_command_menu");
 	script_error = conf_string_get_default(config_context, "ui_command_error");
 	if (!load_iterator_script(config_context, "ui_command"))

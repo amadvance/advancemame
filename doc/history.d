@@ -4,6 +4,8 @@ Name
 AdvanceMENU Version 3.5 2017/04
 	) Added a new option 'ui_scrollbar' to disable the lateral scroll
 		bars.
+	) Added a new option 'ui_name' to disable the display of the game
+		name in the screensaver.
 
 AdvanceMAME/MESS Version 3.4 2017/03
 	) Add supports for up to 8 players. Before it was fully
