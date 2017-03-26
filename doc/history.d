@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMENU Version 3.5 2017/04
+	) Added a new option 'ui_scrollbar' to disable the lateral scroll
+		bars.
+
 AdvanceMAME/MESS Version 3.4 2017/03
 	) Add supports for up to 8 players. Before it was fully
 		supporting only 4 players.

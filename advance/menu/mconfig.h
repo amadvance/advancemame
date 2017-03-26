@@ -413,6 +413,7 @@ public:
 	unsigned ui_bottom; ///< User interface bottom border
 	bool ui_top_bar; ///< User interface need top bar
 	bool ui_bottom_bar; ///< User interface need bottom bar
+	bool ui_scroll_bar; ///< User interface need scroll bar
 	std::string ui_gamemsg; ///< Message to display before a game run.
 	saver_t ui_gamesaver; ///< Preview to display before a game run.
 	std::string ui_game; ///< User interface game image

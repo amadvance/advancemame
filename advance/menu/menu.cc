@@ -856,9 +856,15 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		bar_bottom_dy = 0;
 	bar_left_x = scr_x;
 	bar_left_y = scr_y + bar_top_dy;
-	bar_left_dx = int_font_dx_get()/2;
 	bar_right_y = scr_y + bar_top_dy;
-	bar_right_dx = int_font_dx_get()/2;
+
+	if (rs.ui_scroll_bar) {
+		bar_left_dx = int_font_dx_get()/2;
+		bar_right_dx = int_font_dx_get()/2;
+	} else {
+		bar_left_dx = 0;
+		bar_right_dx = 0;
+	}
 
 	// effective preview type
 	listpreview_t effective_preview;
@@ -1517,8 +1523,12 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			draw_menu_bar(rs.current_game, game_count, bar_top_x, bar_top_y, bar_top_dx);
 		if (bar_bottom_dy)
 			draw_menu_info(rs.gar, rs.current_game, bar_bottom_x, bar_bottom_y, bar_bottom_dx, rs.merge, effective_preview, rs.sort_get(), rs.difficulty_effective, rs.lock_effective);
-		if (bar_right_dx)
-			draw_menu_scroll(bar_right_x, bar_right_y, bar_right_dx, bar_right_dy, pos_base, pos_rel_max, pos_base_upper + pos_rel_max);
+		if (bar_right_dx) {
+			if (rs.ui_scroll_bar)
+				draw_menu_scroll(bar_right_x, bar_right_y, bar_right_dx, bar_right_dy, pos_base, pos_rel_max, pos_base_upper + pos_rel_max);
+			else
+				int_clear_alpha(bar_right_x, bar_right_y, bar_right_dx, bar_right_dy, COLOR_MENU_BAR.background);
+		}
 		if (bar_left_dx)
 			int_clear_alpha(bar_left_x, bar_left_y, bar_left_dx, bar_left_dy, COLOR_MENU_BAR.background);
 

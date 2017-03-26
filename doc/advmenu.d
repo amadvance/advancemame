@@ -983,11 +983,12 @@ Configuration
 	Options:
 		N - Number of pixel to skip (default 0).
 
-    ui_topbar/bottombar
-	Enables or disables the top and bottom information bars.
+    ui_topbar/bottombar/scrollbar
+	Enables or disables the top, bottom and scroll information bars.
 
 	ui_topbar yes | no
 	ui_bottombar yes | no
+	ui_scrollbar yes | no
 
     ui_color
 	Selects the user interface colors.
