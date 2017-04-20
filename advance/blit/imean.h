@@ -131,6 +131,7 @@ static inline void internal_mean32_vert_self_asm(uint32* dst, const uint32* src,
 }
 #endif
 
+__attribute__((optimize("no-tree-vectorize")))
 static inline void internal_mean32_vert_self_def(uint32* dst32, const uint32* src32, unsigned count)
 {
 	while (count) {
