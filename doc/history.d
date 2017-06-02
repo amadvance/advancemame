@@ -1,7 +1,10 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMENU Version 3.5 2017/04
+AdvanceMAME/MESS Version 3.5 2017/06
+	) Fixed led control for the Linux event keyboard interface.
+
+AdvanceMENU Version 3.5 2017/06
 	) Added a new option 'ui_scrollbar' to disable the lateral scroll
 		bars.
 	) Added a new option 'ui_name' to disable the display of the game

@@ -1137,12 +1137,15 @@ void keyb_event_all_get(unsigned keyboard, unsigned char* code_map)
 
 void keyb_event_led_set(unsigned keyboard, unsigned led_mask)
 {
+	unsigned led_state = event_state.map[keyboard].led_state;
+	int f = event_state.map[keyboard].fe;
+
 	log_debug(("keyb:event: keyb_event_led_set(keyboard:%d,mask:%d)\n", keyboard, led_mask));
 
 #define led_update(i, k) \
 	do { \
-		if (((led_mask ^ event_state.map[keyboard].led_state) & k) != 0) \
-			event_write(event_state.map[keyboard].fe, EV_LED, i, (led_mask & k) != 0); \
+		if (((led_mask ^ led_state) & k) != 0) \
+			event_write(f, EV_LED, i, (led_mask & k) != 0); \
 	} while (0)
 
 #ifdef LED_NUML
