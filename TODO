@@ -41,3 +41,6 @@ scaling_kernel=0 0 0 0 0 0 0 0 1 1 1 1 255 255 255 255 255 255 255 255 1 1 1 1 0
 But it doesn't look very good... Likely it's better the default.
 scaling_kernel=0 -2 -6 -8 -10 -8 -3 2 18 50 82 119 155 187 213 227 227 213 187 155 119 82 50 18 2 -3 -8 -10 -8 -6 -2 0   0
 
+- How to handle controllers that go to sleep ?
+
+
