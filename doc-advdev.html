@@ -227,31 +227,37 @@ and keyboard drivers used by the Advance programs.
 <a href="#4.2.6">4.2.6 device_video_fastchange</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.3">4.3 vbeline Configuration Options</a><br>
+<a href="#4.3">4.3 fb Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#4.3.1">4.3.1 device_vbeline_mode</a><br>
+<a href="#4.3.1">4.3.1 device_hdmi/dpi_pclock_low</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.4">4.4 svgaline Configuration Options</a><br>
+<a href="#4.4">4.4 vbeline Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#4.4.1">4.4.1 device_svgaline_skipboard</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#4.4.2">4.4.2 device_svgaline_divideclock</a><br>
+<a href="#4.4.1">4.4.1 device_vbeline_mode</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.5">4.5 svgawin Configuration Options</a><br>
+<a href="#4.5">4.5 svgaline Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#4.5.1">4.5.1 device_svgawin_skipboard</a><br>
+<a href="#4.5.1">4.5.1 device_svgaline_skipboard</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#4.5.2">4.5.2 device_svgawin_stub</a><br>
+<a href="#4.5.2">4.5.2 device_svgaline_divideclock</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#4.6">4.6 svgawin Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#4.5.3">4.5.3 device_svgawin_divideclock</a><br>
+<a href="#4.6.1">4.6.1 device_svgawin_skipboard</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#4.6.2">4.6.2 device_svgawin_stub</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#4.6.3">4.6.3 device_svgawin_divideclock</a><br>
 </td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#5">5 Sound Drivers Configuration</a><br>
@@ -1451,11 +1457,40 @@ Disable the fast video mode change (default).
 </td></tr>
 </table>
 <h3><a name="4.3">4.3</a> 
+fb Configuration Options
+</h3>
+<h4><a name="4.3.1">4.3.1</a> 
+device_hdmi/dpi_pclock_low
+</h4>
+Set the minimum pclock frequency used to drive the display. If a lower
+value is selected, transparently increases the video mode horizontal size
+until it reaches the allowed pixel clock.
+<p>
+This option works only with Raspberry Pi, when using the FrameBuffer and
+the HDMI/DPI video interface.
+<p>
+The use of this option is discouraged, it's present only for testing.
+<p>
+<pre>
+device_hdmi_pclock_low PCLOCK
+device_dpi_pclock_low PCLOCK
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+PCLOCK
+</em></td><td width="90%">
+Pixel clock in Hz (default 0 for HDMI,
+and 31.25 MHz for DPI).
+</td></tr>
+</table>
+<h3><a name="4.4">4.4</a> 
 vbeline Configuration Options
 </h3>
 The following are the common video configuration options
 available only for the `vbeline' DOS video driver.
-<h4><a name="4.3.1">4.3.1</a> 
+<h4><a name="4.4.1">4.4.1</a> 
 device_vbeline_mode
 </h4>
 Select which `vbe' mode to use when generating `vbeline' modes.
@@ -1518,12 +1553,12 @@ Use always the 640x480 mode.
 Use always the 800x600 mode.
 </td></tr>
 </table>
-<h3><a name="4.4">4.4</a> 
+<h3><a name="4.5">4.5</a> 
 svgaline Configuration Options
 </h3>
 The following are the common video configuration options
 available only for the `svgaline' DOS video driver.
-<h4><a name="4.4.1">4.4.1</a> 
+<h4><a name="4.5.1">4.5.1</a> 
 device_svgaline_skipboard
 </h4>
 Selects how many board skip in the video card detection. If you have
@@ -1564,7 +1599,7 @@ Examples:
 device_svgaline_skipboard 1
 </pre>
 </td></tr></table>
-<h4><a name="4.4.2">4.4.2</a> 
+<h4><a name="4.5.2">4.5.2</a> 
 device_svgaline_divideclock
 </h4>
 Divide the pixelclock using the VGA sequencer. It should help to support
@@ -1589,12 +1624,12 @@ no
 Don't divide the clock (default).
 </td></tr>
 </table>
-<h3><a name="4.5">4.5</a> 
+<h3><a name="4.6">4.6</a> 
 svgawin Configuration Options
 </h3>
 The following are the common video configuration options
 available only for the `svgawin' Windows video driver.
-<h4><a name="4.5.1">4.5.1</a> 
+<h4><a name="4.6.1">4.6.1</a> 
 device_svgawin_skipboard
 </h4>
 Selects how many board skip in the video card detection. If you have
@@ -1635,7 +1670,7 @@ Examples:
 device_svgawin_skipboard 1
 </pre>
 </td></tr></table>
-<h4><a name="4.5.2">4.5.2</a> 
+<h4><a name="4.6.2">4.6.2</a> 
 device_svgawin_stub
 </h4>
 Selects how the driver uses the Windows graphics.
@@ -1661,7 +1696,7 @@ Create a stub fullscreen window before setting
 the video mode (default).
 </td></tr>
 </table>
-<h4><a name="4.5.3">4.5.3</a> 
+<h4><a name="4.6.3">4.6.3</a> 
 device_svgawin_divideclock
 </h4>
 Divides the pixelclock using the VGA sequencer. It should help to support
