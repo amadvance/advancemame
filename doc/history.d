@@ -1,6 +1,12 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS Version 3.6 2017/08
+	) Disabled by default in the source distribution the MIPS DRC emulator
+		because it makes various games to crash. Like biofreak, blitz,
+		calspeed, carnevil, kinst and others...
+		It was already disabled in the binary releases from version 3.0.
+
 AdvanceMAME/MESS Version 3.5 2017/06
 	) Fixed led control for the Linux event keyboard interface.
 

@@ -267,9 +267,9 @@ fi
 
 AC_ARG_ENABLE(
 	[asm-mips3],
-	AC_HELP_STRING([--enable-asm-mips3],[enable the Pentium assembler MIPS3 emulator (default auto)]),
+	AC_HELP_STRING([--enable-asm-mips3],[enable the Pentium assembler MIPS3 emulator (default no)]),
 	[ac_enable_asm_mips3=$enableval],
-	[ac_enable_asm_mips3=auto]
+	[ac_enable_asm_mips3=no]
 )
 if test $ac_enable_asm_mips3 = auto; then
 	if test $ac_enable_asm = yes; then
