@@ -2057,7 +2057,11 @@ Configuration
 
 	Options:
 		default - Use the default BIOS.
-		NAME - Select specific BIOS.
+		NAME - Select specific BIOS. For neogeo games, you can
+			use: 'euro', 'us', 'asia' or 'japan'.
+
+	Examples:
+		:sonicwi2/misc_bios japan
 
     misc_ramsize
 	Controls the ram size of the emulated machine in AdvanceMESS.
