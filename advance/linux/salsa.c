@@ -120,6 +120,7 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 	snd_pcm_uframes_t buffer_size;
 	snd_pcm_uframes_t min_buffer_size;
 	snd_pcm_uframes_t period_size;
+	unsigned period_count;
 
 	log_std(("sound:alsa: soundb_alsa_init(id:%d, rate:%d, stereo:%d, buffer_time:%g)\n", sound_id, *rate, stereo_flag, buffer_time));
 
@@ -183,9 +184,11 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 	log_std(("sound:alsa: selected rate %d\n", alsa_state.rate));
 
 	/* compute the buffer and period size */
-	/* we arbirarly request 4 periods */
+	/* we arbirarly request 32 periods to give enough granularity */
+	/* with less than 16, some jitter may be present */
+	period_count = 32;
 	buffer_size = alsa_state.rate * buffer_time;
-	period_size = buffer_size / 4;
+	period_size = buffer_size / period_count;
 
 	log_std(("sound:alsa: request period_size of %d samples\n", (unsigned)period_size));
 
@@ -202,8 +205,8 @@ adv_error soundb_alsa_init(int sound_id, unsigned* rate, adv_bool stereo_flag, d
 	min_buffer_size = buffer_size;
 
 	/* if the period is bigger than requested, increase also the buffer */
-	if (min_buffer_size < period_size * 4)
-		min_buffer_size = period_size * 4;
+	if (min_buffer_size < period_size * period_count)
+		min_buffer_size = period_size * period_count;
 
 	log_std(("sound:alsa: request min_buffer_size of %d samples\n", (unsigned)min_buffer_size));
 
