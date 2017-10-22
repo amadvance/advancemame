@@ -69,7 +69,7 @@
 		doesn't have the same aspect ratio of the screen.
 */
 
-static int adjust_step(int multiplier, int divider, int step)
+static int adjust_step(long long multiplier, long long divider, int step)
 {
 	int v;
 
