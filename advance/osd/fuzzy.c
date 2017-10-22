@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -50,16 +50,16 @@ static int fuzzy_internal(const char* a, const char* b, int* bs, int upper_limit
 	} else if (!*b) {
 		return strlen(a) * FUZZY_UNIT_A;
 	} else if (*a == *b) {
-		int missing = fuzzy_internal(a+1, b+1, bs+1, upper_limit, 1, *bs != 0);
+		int missing = fuzzy_internal(a + 1, b + 1, bs + 1, upper_limit, 1, *bs != 0);
 		if (almostone && penality)
 			missing += FUZZY_UNIT_B;
 		return missing;
 	} else {
 		int missing_skip;
-		int missing_next = fuzzy_internal(a, b+1, bs+1, upper_limit, almostone, 1);
+		int missing_next = fuzzy_internal(a, b + 1, bs + 1, upper_limit, almostone, 1);
 		if (missing_next < upper_limit)
 			upper_limit = missing_next;
-		missing_skip = FUZZY_UNIT_A + fuzzy_internal(a+1, b, bs, upper_limit - FUZZY_UNIT_A, almostone, penality);
+		missing_skip = FUZZY_UNIT_A + fuzzy_internal(a + 1, b, bs, upper_limit - FUZZY_UNIT_A, almostone, penality);
 		if (missing_skip < missing_next)
 			return missing_skip;
 		else
@@ -87,7 +87,7 @@ int fuzzy(const char* a, const char* b, int upper_limit)
 	char A[256];
 	char AA[256];
 	char BB[256];
-	int BBS[256+1]; /* counter of the skipped B char */
+	int BBS[256 + 1]; /* counter of the skipped B char */
 	int skip;
 	char* aa;
 	char* bb;
@@ -96,11 +96,11 @@ int fuzzy(const char* a, const char* b, int upper_limit)
 
 	/* convert in upper case */
 	aa = A;
-	for(i=0;i<sizeof(A)-1;++i)
+	for (i = 0; i < sizeof(A) - 1; ++i)
 		*aa++ = toupper(a[i]);
 	*aa = 0;
 	bb = B;
-	for(i=0;i<sizeof(B)-1 && b[i]!='(' && b[i]!='[';++i) /* remove some string part */
+	for (i = 0; i < sizeof(B) - 1 && b[i] != '(' && b[i] != '['; ++i) /* remove some string part */
 		*bb++ = toupper(b[i]);
 	*bb = 0;
 
@@ -132,5 +132,6 @@ int fuzzy(const char* a, const char* b, int upper_limit)
 	}
 	*bb = 0;
 
-	return skip + fuzzy_internal(AA, BB, BBS+1, upper_limit - skip, 0, 0);
+	return skip + fuzzy_internal(AA, BB, BBS + 1, upper_limit - skip, 0, 0);
 }
+

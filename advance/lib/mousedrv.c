@@ -76,7 +76,7 @@ adv_error mouseb_load(adv_conf* context)
 
 	/* load specific driver options */
 	at_least_one = 0;
-	for(i=0;i<mouseb_state.driver_mac;++i) {
+	for (i = 0; i < mouseb_state.driver_mac; ++i) {
 		const adv_device* dev;
 
 		dev = device_match(mouseb_state.name, (adv_driver*)mouseb_state.driver_map[i], 0);
@@ -110,7 +110,7 @@ adv_error mouseb_init(void)
 	/* store the error prefix */
 	error_nolog_set("Unable to initialize the mouse driver. The errors are:\n");
 
-	for(i=0;i<mouseb_state.driver_mac;++i) {
+	for (i = 0; i < mouseb_state.driver_mac; ++i) {
 		const adv_device* dev;
 
 		dev = device_match(mouseb_state.name, (const adv_driver*)mouseb_state.driver_map[i], 1);
@@ -135,7 +135,7 @@ adv_error mouseb_init(void)
 	mouseb_state.is_active_flag = 1;
 	mouseb_state.is_enabled_flag = 0;
 
-	for(i=0;i<mouseb_count_get();++i) {
+	for (i = 0; i < mouseb_count_get(); ++i) {
 		char name[DEVICE_NAME_MAX];
 		if (mouseb_device_name_get(i, name) != 0)
 			strcpy(name, DEVICE_NONAME);
@@ -156,11 +156,11 @@ void mouseb_done(void)
 	mouseb_state.is_active_flag = 0;
 }
 
-adv_error mouseb_enable(void) 
+adv_error mouseb_enable(void)
 {
 	assert(mouseb_state.is_active_flag && !mouseb_state.is_enabled_flag);
 
-	if (mouseb_state.driver_current->enable 
+	if (mouseb_state.driver_current->enable
 		&& mouseb_state.driver_current->enable() != 0)
 		return -1;
 
@@ -225,7 +225,7 @@ int mouseb_device_name_get(unsigned mouse, char* name)
 
 	/* check previous names */
 	index = 0;
-	for(i=0;i<mouse;++i) {
+	for (i = 0; i < mouse; ++i) {
 		if (mouseb_state.driver_current->device_name_get(i, prev) != 0)
 			continue;
 
@@ -286,10 +286,10 @@ const char* mouseb_button_name_get(unsigned mouse, unsigned button)
 		return mouseb_state.driver_current->button_name_get(mouse, button);
 
 	switch (button) {
-	case 0 : snprintf(mouseb_state.button_name_buffer, sizeof(mouseb_state.button_name_buffer), "left"); break;
-	case 1 : snprintf(mouseb_state.button_name_buffer, sizeof(mouseb_state.button_name_buffer), "right"); break;
-	case 2 : snprintf(mouseb_state.button_name_buffer, sizeof(mouseb_state.button_name_buffer), "middle"); break;
-	default: snprintf(mouseb_state.button_name_buffer, sizeof(mouseb_state.button_name_buffer), "button%d", button+1);
+	case 0: snprintf(mouseb_state.button_name_buffer, sizeof(mouseb_state.button_name_buffer), "left"); break;
+	case 1: snprintf(mouseb_state.button_name_buffer, sizeof(mouseb_state.button_name_buffer), "right"); break;
+	case 2: snprintf(mouseb_state.button_name_buffer, sizeof(mouseb_state.button_name_buffer), "middle"); break;
+	default: snprintf(mouseb_state.button_name_buffer, sizeof(mouseb_state.button_name_buffer), "button%d", button + 1);
 	}
 
 	return mouseb_state.button_name_buffer;
@@ -305,10 +305,10 @@ const char* mouseb_axe_name_get(unsigned mouse, unsigned axe)
 		return mouseb_state.driver_current->axe_name_get(mouse, axe);
 
 	switch (axe) {
-	case 0 : snprintf(mouseb_state.axe_name_buffer, sizeof(mouseb_state.axe_name_buffer), "x"); break;
-	case 1 : snprintf(mouseb_state.axe_name_buffer, sizeof(mouseb_state.axe_name_buffer), "y"); break;
-	case 2 : snprintf(mouseb_state.axe_name_buffer, sizeof(mouseb_state.axe_name_buffer), "z"); break;
-	default: snprintf(mouseb_state.axe_name_buffer, sizeof(mouseb_state.axe_name_buffer), "axe%d", axe+1);
+	case 0: snprintf(mouseb_state.axe_name_buffer, sizeof(mouseb_state.axe_name_buffer), "x"); break;
+	case 1: snprintf(mouseb_state.axe_name_buffer, sizeof(mouseb_state.axe_name_buffer), "y"); break;
+	case 2: snprintf(mouseb_state.axe_name_buffer, sizeof(mouseb_state.axe_name_buffer), "z"); break;
+	default: snprintf(mouseb_state.axe_name_buffer, sizeof(mouseb_state.axe_name_buffer), "axe%d", axe + 1);
 	}
 
 	return mouseb_state.axe_name_buffer;

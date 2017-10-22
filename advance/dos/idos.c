@@ -38,40 +38,40 @@
 #include <keys.h>
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "DOS input" },
-{ 0, 0, 0 }
+	{ "auto", -1, "DOS input" },
+	{ 0, 0, 0 }
 };
 
 static struct keyb_pair {
 	int os;
 	int code;
 } KEYS[] = {
-{ INPUTB_TAB, K_Tab },
-{ INPUTB_ENTER, K_Return },
-{ INPUTB_ESC, K_Escape },
-{ INPUTB_SPACE, K_Space },
-{ INPUTB_UP, K_Up },
-{ INPUTB_DOWN, K_Down },
-{ INPUTB_LEFT, K_Left },
-{ INPUTB_RIGHT, K_Right },
-{ INPUTB_HOME, K_Home },
-{ INPUTB_END, K_End },
-{ INPUTB_PGUP, K_PageUp },
-{ INPUTB_PGDN, K_PageDown },
-{ INPUTB_F1, K_F1 },
-{ INPUTB_F2, K_F2 },
-{ INPUTB_F3, K_F3 },
-{ INPUTB_F4, K_F4 },
-{ INPUTB_F5, K_F5 },
-{ INPUTB_F6, K_F6 },
-{ INPUTB_F7, K_F7 },
-{ INPUTB_F8, K_F8 },
-{ INPUTB_F9, K_F9 },
-{ INPUTB_F10, K_F10 },
-{ INPUTB_BACKSPACE, K_BackSpace },
-{ INPUTB_DEL, K_Delete },
-{ INPUTB_INS, K_Insert },
-{ INPUTB_MAX, 0 }
+	{ INPUTB_TAB, K_Tab },
+	{ INPUTB_ENTER, K_Return },
+	{ INPUTB_ESC, K_Escape },
+	{ INPUTB_SPACE, K_Space },
+	{ INPUTB_UP, K_Up },
+	{ INPUTB_DOWN, K_Down },
+	{ INPUTB_LEFT, K_Left },
+	{ INPUTB_RIGHT, K_Right },
+	{ INPUTB_HOME, K_Home },
+	{ INPUTB_END, K_End },
+	{ INPUTB_PGUP, K_PageUp },
+	{ INPUTB_PGDN, K_PageDown },
+	{ INPUTB_F1, K_F1 },
+	{ INPUTB_F2, K_F2 },
+	{ INPUTB_F3, K_F3 },
+	{ INPUTB_F4, K_F4 },
+	{ INPUTB_F5, K_F5 },
+	{ INPUTB_F6, K_F6 },
+	{ INPUTB_F7, K_F7 },
+	{ INPUTB_F8, K_F8 },
+	{ INPUTB_F9, K_F9 },
+	{ INPUTB_F10, K_F10 },
+	{ INPUTB_BACKSPACE, K_BackSpace },
+	{ INPUTB_DEL, K_Delete },
+	{ INPUTB_INS, K_Insert },
+	{ INPUTB_MAX, 0 }
 };
 
 adv_error inputb_dos_init(int inputb_id)
@@ -110,7 +110,7 @@ unsigned inputb_dos_get(void)
 	int code = getkey();
 	struct keyb_pair* i;
 
-	for(i=KEYS;i->os!=INPUTB_MAX;++i)
+	for (i = KEYS; i->os != INPUTB_MAX; ++i)
 		if (i->code == code)
 			return i->os;
 

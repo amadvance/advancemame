@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -123,7 +123,7 @@ bool play_load(adv_conf* context)
 {
 	int attenuation;
 
-	if (mixer_load(context)!=0) {
+	if (mixer_load(context) != 0) {
 		return false;
 	}
 
@@ -140,7 +140,7 @@ bool play_init()
 {
 	unsigned i;
 
-	for(i=0;i<CHANNEL_MAX;++i)
+	for (i = 0; i < CHANNEL_MAX; ++i)
 		play_priority[i] = PLAY_PRIORITY_NONE;
 
 	if (mixer_init(play_rate, CHANNEL_MAX, 1, play_buffer_time + play_latency_time, play_latency_time) != 0)
@@ -213,45 +213,45 @@ void play_fill()
 
 void play_foreground_effect_begin(const resource& s)
 {
-	if (s.path_get()=="default") {
-		play_memory(CHANNEL_FOREGROUND, LETSROCK_DATA, LETSROCK_DATA+LETSROCK_DATA_SIZE, false);
-	} else if (s.path_get()!="none") {
+	if (s.path_get() == "default") {
+		play_memory(CHANNEL_FOREGROUND, LETSROCK_DATA, LETSROCK_DATA + LETSROCK_DATA_SIZE, false);
+	} else if (s.path_get() != "none") {
 		play_file(CHANNEL_FOREGROUND, s, false);
 	}
 }
 
 void play_foreground_effect_stop(const resource& s)
 {
-	if (s.path_get()=="default") {
-		play_memory(CHANNEL_FOREGROUND, COMEON_DATA, COMEON_DATA+COMEON_DATA_SIZE, false);
-	} else if (s.path_get()!="none") {
+	if (s.path_get() == "default") {
+		play_memory(CHANNEL_FOREGROUND, COMEON_DATA, COMEON_DATA + COMEON_DATA_SIZE, false);
+	} else if (s.path_get() != "none") {
 		play_file(CHANNEL_FOREGROUND, s, false);
 	}
 }
 
 void play_foreground_effect_end(const resource& s)
 {
-	if (s.path_get()=="default") {
-		play_memory(CHANNEL_FOREGROUND, GAMEOVER_DATA, GAMEOVER_DATA+GAMEOVER_DATA_SIZE, false);
-	} else if (s.path_get()!="none") {
+	if (s.path_get() == "default") {
+		play_memory(CHANNEL_FOREGROUND, GAMEOVER_DATA, GAMEOVER_DATA + GAMEOVER_DATA_SIZE, false);
+	} else if (s.path_get() != "none") {
 		play_file(CHANNEL_FOREGROUND, s, false);
 	}
 }
 
 void play_foreground_effect_key(const resource& s)
 {
-	if (s.path_get()=="default") {
-		play_memory(CHANNEL_FOREGROUND, B0_DATA, B0_DATA+B0_DATA_SIZE, false);
-	} else if (s.path_get()!="none") {
+	if (s.path_get() == "default") {
+		play_memory(CHANNEL_FOREGROUND, B0_DATA, B0_DATA + B0_DATA_SIZE, false);
+	} else if (s.path_get() != "none") {
 		play_file(CHANNEL_FOREGROUND, s, false);
 	}
 }
 
 void play_foreground_effect_start(const resource& s)
 {
-	if (s.path_get()=="default") {
-		play_memory(CHANNEL_FOREGROUND, COOL_DATA, COOL_DATA+COOL_DATA_SIZE, false);
-	} else if (s.path_get()!="none") {
+	if (s.path_get() == "default") {
+		play_memory(CHANNEL_FOREGROUND, COOL_DATA, COOL_DATA + COOL_DATA_SIZE, false);
+	} else if (s.path_get() != "none") {
 		play_file(CHANNEL_FOREGROUND, s, false);
 	}
 }
@@ -282,13 +282,13 @@ void play_background_effect(const resource& s, unsigned priority, bool loop)
 
 	play_priority[CHANNEL_BACKGROUND] = priority;
 
-	if (s.path_get()=="default") {
-		if (!play_memory(CHANNEL_BACKGROUND, FIRE_DATA, FIRE_DATA+FIRE_DATA_SIZE, loop)) {
+	if (s.path_get() == "default") {
+		if (!play_memory(CHANNEL_BACKGROUND, FIRE_DATA, FIRE_DATA + FIRE_DATA_SIZE, loop)) {
 			mixer_stop(CHANNEL_BACKGROUND);
 			play_priority[CHANNEL_BACKGROUND] = PLAY_PRIORITY_NONE;
 			return;
 		}
-	} else if (s.path_get()!="none") {
+	} else if (s.path_get() != "none") {
 		if (!play_file(CHANNEL_BACKGROUND, s, loop)) {
 			mixer_stop(CHANNEL_BACKGROUND);
 			play_priority[CHANNEL_BACKGROUND] = PLAY_PRIORITY_NONE;
@@ -322,3 +322,4 @@ bool play_background_is_active()
 {
 	return mixer_is_playing(CHANNEL_BACKGROUND);
 }
+

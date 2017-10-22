@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -284,7 +284,7 @@ const char* mame_software_name(const mame_game* game, adv_conf* context)
 			sncpy(software_buffer, sizeof(software_buffer), arg);
 
 			/* convert user input to lower case */
-			for(p=0;software_buffer[p];++p)
+			for (p = 0; software_buffer[p]; ++p)
 				software_buffer[p] = tolower(software_buffer[p]);
 
 			p = 0;
@@ -324,10 +324,10 @@ const char* mame_section_name(const mame_game* game, adv_conf* context)
 	const char* s;
 
 	s = mame_software_name(game, context);
-	if (s==0 || s[0]==0)
+	if (s == 0 || s[0] == 0)
 		s = mame_game_name(game);
 
-	if (s==0 || s[0]==0)
+	if (s == 0 || s[0] == 0)
 		s = "";
 
 	return s;
@@ -344,7 +344,7 @@ const mame_game* mame_game_parent(const mame_game* game)
 	const game_driver* driver = (const game_driver*)game;
 	const game_driver* clone_of = driver_get_clone(driver);
 
-	if (clone_of!=0 && clone_of->name!=0 && clone_of->name[0]!=0)
+	if (clone_of != 0 && clone_of->name != 0 && clone_of->name[0] != 0)
 		return (const mame_game*)clone_of;
 	else
 		return 0;
@@ -425,10 +425,10 @@ const char* mame_game_control(const mame_game* game)
 
 	while (input->type != IPT_END) {
 		switch (input->type) {
-		case IPT_JOYSTICK_UP :
-		case IPT_JOYSTICK_DOWN :
-		case IPT_JOYSTICK_LEFT :
-		case IPT_JOYSTICK_RIGHT :
+		case IPT_JOYSTICK_UP:
+		case IPT_JOYSTICK_DOWN:
+		case IPT_JOYSTICK_LEFT:
+		case IPT_JOYSTICK_RIGHT:
 			if (!control) {
 				if (input->four_way)
 					control = "joy4way";
@@ -436,14 +436,14 @@ const char* mame_game_control(const mame_game* game)
 					control = "joy8way";
 			}
 			break;
-		case IPT_JOYSTICKRIGHT_UP :
-		case IPT_JOYSTICKRIGHT_DOWN :
-		case IPT_JOYSTICKRIGHT_LEFT :
-		case IPT_JOYSTICKRIGHT_RIGHT :
-		case IPT_JOYSTICKLEFT_UP :
-		case IPT_JOYSTICKLEFT_DOWN :
-		case IPT_JOYSTICKLEFT_LEFT :
-		case IPT_JOYSTICKLEFT_RIGHT :
+		case IPT_JOYSTICKRIGHT_UP:
+		case IPT_JOYSTICKRIGHT_DOWN:
+		case IPT_JOYSTICKRIGHT_LEFT:
+		case IPT_JOYSTICKRIGHT_RIGHT:
+		case IPT_JOYSTICKLEFT_UP:
+		case IPT_JOYSTICKLEFT_DOWN:
+		case IPT_JOYSTICKLEFT_LEFT:
+		case IPT_JOYSTICKLEFT_RIGHT:
 			if (!control) {
 				if (input->four_way)
 					control = "doublejoy4way";
@@ -451,39 +451,39 @@ const char* mame_game_control(const mame_game* game)
 					control = "doublejoy8way";
 			}
 			break;
-		case IPT_PADDLE  :
-		case IPT_PADDLE_V  :
+		case IPT_PADDLE:
+		case IPT_PADDLE_V:
 			if (!control) {
 				control = "paddle";
 			}
 			break;
-		case IPT_DIAL :
-		case IPT_DIAL_V :
+		case IPT_DIAL:
+		case IPT_DIAL_V:
 			if (!control) {
 				control = "dial";
 			}
 			break;
-		case IPT_TRACKBALL_X :
-		case IPT_TRACKBALL_Y :
+		case IPT_TRACKBALL_X:
+		case IPT_TRACKBALL_Y:
 			if (!control) {
 				control = "trackball";
 			}
 			break;
-		case IPT_AD_STICK_X :
-		case IPT_AD_STICK_Y :
-		case IPT_AD_STICK_Z :
+		case IPT_AD_STICK_X:
+		case IPT_AD_STICK_Y:
+		case IPT_AD_STICK_Z:
 			if (!control) {
 				control = "stick";
 			}
 			break;
-		case IPT_LIGHTGUN_X :
-		case IPT_LIGHTGUN_Y :
+		case IPT_LIGHTGUN_X:
+		case IPT_LIGHTGUN_Y:
 			if (!control) {
 				control = "lightgun";
 			}
 			break;
-		case IPT_MOUSE_X :
-		case IPT_MOUSE_Y :
+		case IPT_MOUSE_X:
+		case IPT_MOUSE_Y:
 			if (!control) {
 				control = "mouse";
 			}
@@ -538,7 +538,7 @@ adv_bool mame_is_game_relative(const char* relative, const mame_game* game)
 	const game_driver* driver = (const game_driver*)game;
 	while (driver && driver->name) {
 		unsigned i;
-		if (driver->name[0]!=0 && strcmp(driver->name, relative)==0)
+		if (driver->name[0] != 0 && strcmp(driver->name, relative) == 0)
 			return 1;
 		driver = driver_get_clone(driver);
 	}
@@ -576,11 +576,11 @@ const struct mame_game* mame_playback_look(const char* file)
 		unsigned i;
 		const struct mame_game* game = mame_game_at(0);
 
-		for(i=0;game!=0;++i) {
+		for (i = 0; game != 0; ++i) {
 			if (strcmp(mame_game_name(game), ih.name) == 0) {
 				break;
 			}
-			game = mame_game_at(i+1);
+			game = mame_game_at(i + 1);
 		}
 
 		if (!game) {
@@ -651,7 +651,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	options.debug_depth = 8;
 	options.controller = 0; /* no controller file to load */
 
-	if (advance->bios_buffer[0] == 0 || strcmp(advance->bios_buffer, "default")==0)
+	if (advance->bios_buffer[0] == 0 || strcmp(advance->bios_buffer, "default") == 0)
 		options.bios = 0;
 	else
 		options.bios = strdup(advance->bios_buffer);
@@ -710,11 +710,11 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 			unsigned i;
 			const struct mame_game* game = mame_game_at(0);
 
-			for(i=0;game!=0;++i) {
+			for (i = 0; game != 0; ++i) {
 				if (strcmp(mame_game_name(game), ih.name) == 0) {
 					break;
 				}
-				game = mame_game_at(i+1);
+				game = mame_game_at(i + 1);
 			}
 
 			if (!game) {
@@ -765,7 +765,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	}
 #endif
 
-	for(game_index=0;drivers[game_index];++game_index)
+	for (game_index = 0; drivers[game_index]; ++game_index)
 		if ((const game_driver*)context->game == drivers[game_index])
 			break;
 	assert(drivers[game_index] != 0);
@@ -808,47 +808,47 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
  * Single port.
  */
 #define S(name, desc, NAME) \
-	{ name, desc, MAME_PORT_UI(IPT_##NAME) },
+	{ name, desc, MAME_PORT_UI(IPT_ ## NAME) },
 
 /**
  * Unamed single port.
  */
 #define SU(name, NAME) \
-	{ name, name, MAME_PORT_UI(IPT_##NAME) },
+	{ name, name, MAME_PORT_UI(IPT_ ## NAME) },
 
 /**
  * Player port.
  */
 #define P(name, desc, NAME) \
-	{ "p1_" name, "Player 1 " desc, MAME_PORT_PLAYER(IPT_##NAME, 1) }, \
-	{ "p2_" name, "Player 2 " desc, MAME_PORT_PLAYER(IPT_##NAME, 2) }, \
-	{ "p3_" name, "Player 3 " desc, MAME_PORT_PLAYER(IPT_##NAME, 3) }, \
-	{ "p4_" name, "Player 4 " desc, MAME_PORT_PLAYER(IPT_##NAME, 4) }, \
-	{ "p5_" name, "Player 5 " desc, MAME_PORT_PLAYER(IPT_##NAME, 5) }, \
-	{ "p6_" name, "Player 6 " desc, MAME_PORT_PLAYER(IPT_##NAME, 6) }, \
-	{ "p7_" name, "Player 7 " desc, MAME_PORT_PLAYER(IPT_##NAME, 7) }, \
-	{ "p8_" name, "Player 8 " desc, MAME_PORT_PLAYER(IPT_##NAME, 8) },
+	{ "p1_" name, "Player 1 " desc, MAME_PORT_PLAYER(IPT_ ## NAME, 1) }, \
+	{ "p2_" name, "Player 2 " desc, MAME_PORT_PLAYER(IPT_ ## NAME, 2) }, \
+	{ "p3_" name, "Player 3 " desc, MAME_PORT_PLAYER(IPT_ ## NAME, 3) }, \
+	{ "p4_" name, "Player 4 " desc, MAME_PORT_PLAYER(IPT_ ## NAME, 4) }, \
+	{ "p5_" name, "Player 5 " desc, MAME_PORT_PLAYER(IPT_ ## NAME, 5) }, \
+	{ "p6_" name, "Player 6 " desc, MAME_PORT_PLAYER(IPT_ ## NAME, 6) }, \
+	{ "p7_" name, "Player 7 " desc, MAME_PORT_PLAYER(IPT_ ## NAME, 7) }, \
+	{ "p8_" name, "Player 8 " desc, MAME_PORT_PLAYER(IPT_ ## NAME, 8) },
 
 /**
  * Player port with double keyboard sequence.
  */
 #define PE(name1, name2, desc1, desc2, NAME) \
-	{ "p1_" name1, "Player 1 " desc1, MAME_PORT_INDEX(IPT_##NAME, 1, 0) }, \
-	{ "p1_" name2, "Player 1 " desc2, MAME_PORT_INDEX(IPT_##NAME, 1, 1) }, \
-	{ "p2_" name1, "Player 2 " desc1, MAME_PORT_INDEX(IPT_##NAME, 2, 0) }, \
-	{ "p2_" name2, "Player 2 " desc2, MAME_PORT_INDEX(IPT_##NAME, 2, 1) }, \
-	{ "p3_" name1, "Player 3 " desc1, MAME_PORT_INDEX(IPT_##NAME, 3, 0) }, \
-	{ "p3_" name2, "Player 3 " desc2, MAME_PORT_INDEX(IPT_##NAME, 3, 1) }, \
-	{ "p4_" name1, "Player 4 " desc1, MAME_PORT_INDEX(IPT_##NAME, 4, 0) }, \
-	{ "p4_" name2, "Player 4 " desc2, MAME_PORT_INDEX(IPT_##NAME, 4, 1) }, \
-	{ "p5_" name1, "Player 5 " desc1, MAME_PORT_INDEX(IPT_##NAME, 5, 0) }, \
-	{ "p5_" name2, "Player 5 " desc2, MAME_PORT_INDEX(IPT_##NAME, 5, 1) }, \
-	{ "p6_" name1, "Player 6 " desc1, MAME_PORT_INDEX(IPT_##NAME, 6, 0) }, \
-	{ "p6_" name2, "Player 6 " desc2, MAME_PORT_INDEX(IPT_##NAME, 6, 1) }, \
-	{ "p7_" name1, "Player 7 " desc1, MAME_PORT_INDEX(IPT_##NAME, 7, 0) }, \
-	{ "p7_" name2, "Player 7 " desc2, MAME_PORT_INDEX(IPT_##NAME, 7, 1) }, \
-	{ "p8_" name1, "Player 8 " desc1, MAME_PORT_INDEX(IPT_##NAME, 8, 0) }, \
-	{ "p8_" name2, "Player 8 " desc2, MAME_PORT_INDEX(IPT_##NAME, 8, 1) },
+	{ "p1_" name1, "Player 1 " desc1, MAME_PORT_INDEX(IPT_ ## NAME, 1, 0) }, \
+	{ "p1_" name2, "Player 1 " desc2, MAME_PORT_INDEX(IPT_ ## NAME, 1, 1) }, \
+	{ "p2_" name1, "Player 2 " desc1, MAME_PORT_INDEX(IPT_ ## NAME, 2, 0) }, \
+	{ "p2_" name2, "Player 2 " desc2, MAME_PORT_INDEX(IPT_ ## NAME, 2, 1) }, \
+	{ "p3_" name1, "Player 3 " desc1, MAME_PORT_INDEX(IPT_ ## NAME, 3, 0) }, \
+	{ "p3_" name2, "Player 3 " desc2, MAME_PORT_INDEX(IPT_ ## NAME, 3, 1) }, \
+	{ "p4_" name1, "Player 4 " desc1, MAME_PORT_INDEX(IPT_ ## NAME, 4, 0) }, \
+	{ "p4_" name2, "Player 4 " desc2, MAME_PORT_INDEX(IPT_ ## NAME, 4, 1) }, \
+	{ "p5_" name1, "Player 5 " desc1, MAME_PORT_INDEX(IPT_ ## NAME, 5, 0) }, \
+	{ "p5_" name2, "Player 5 " desc2, MAME_PORT_INDEX(IPT_ ## NAME, 5, 1) }, \
+	{ "p6_" name1, "Player 6 " desc1, MAME_PORT_INDEX(IPT_ ## NAME, 6, 0) }, \
+	{ "p6_" name2, "Player 6 " desc2, MAME_PORT_INDEX(IPT_ ## NAME, 6, 1) }, \
+	{ "p7_" name1, "Player 7 " desc1, MAME_PORT_INDEX(IPT_ ## NAME, 7, 0) }, \
+	{ "p7_" name2, "Player 7 " desc2, MAME_PORT_INDEX(IPT_ ## NAME, 7, 1) }, \
+	{ "p8_" name1, "Player 8 " desc1, MAME_PORT_INDEX(IPT_ ## NAME, 8, 0) }, \
+	{ "p8_" name2, "Player 8 " desc2, MAME_PORT_INDEX(IPT_ ## NAME, 8, 1) },
 
 #define K(name) \
 	{ "key_" name, "Key " name, { name } },
@@ -1039,8 +1039,9 @@ static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
 	K("f21")
 	K("f22")
 	K("f23")
-	K("f24")
-	{ 0 }
+	K("f24"){
+		0
+	}
 };
 #endif
 
@@ -1075,7 +1076,7 @@ static struct mame_port GLUE_PORT_STD[] = {
 
 	PE("stick_left", "stick_right", "Stick Left", "Stick Right", AD_STICK_X)
 	PE("stick_up", "stick_down", "Stick Up", "Stick Down", AD_STICK_Y)
-	PE("stick_forward", "stick_backward",  "Stick Forward", "Stick Backward", AD_STICK_Z)
+	PE("stick_forward", "stick_backward", "Stick Forward", "Stick Backward", AD_STICK_Z)
 
 	PE("lightgun_left", "lightgun_right", "Lightgun Left", "Lightgun Right", LIGHTGUN_X)
 	PE("lightgun_up", "lightgun_down", "Lightgun Up", "Lightgun Down", LIGHTGUN_Y)
@@ -1232,9 +1233,9 @@ static struct mame_port GLUE_PORT_STD[] = {
 	SU("event11", MAME_PORT_EVENT11)
 	SU("event12", MAME_PORT_EVENT12)
 	SU("event13", MAME_PORT_EVENT13)
-	SU("event14", MAME_PORT_EVENT14)
-
-	{ 0, 0, 0 }
+	SU("event14", MAME_PORT_EVENT14){
+		0, 0, 0
+	}
 };
 
 /**
@@ -1249,7 +1250,7 @@ struct mame_port* mame_port_list(void)
 struct mame_port* mame_port_find(unsigned port)
 {
 	struct mame_port* i;
-	for(i=mame_port_list();i->name;++i)
+	for (i = mame_port_list(); i->name; ++i)
 		if (i->port == port)
 			return i;
 	return 0;
@@ -1266,23 +1267,23 @@ int mame_port_player(unsigned port)
 	unsigned player = MAME_PORT_PLAYER_GET(port);
 
 	switch (type) {
-	case IPT_START1 : return 1;
-	case IPT_START2 : return 2;
-	case IPT_START3 : return 3;
-	case IPT_START4 : return 4;
-	case IPT_START5 : return 5;
-	case IPT_START6 : return 6;
-	case IPT_START7 : return 7;
-	case IPT_START8 : return 8;
-	case IPT_COIN1 : return 1;
-	case IPT_COIN2 : return 2;
-	case IPT_COIN3 : return 3;
-	case IPT_COIN4 : return 4;
-	case IPT_COIN5 : return 5;
-	case IPT_COIN6 : return 6;
-	case IPT_COIN7 : return 7;
-	case IPT_COIN8 : return 8;
-	case IPT_BILL1 : return 1;
+	case IPT_START1: return 1;
+	case IPT_START2: return 2;
+	case IPT_START3: return 3;
+	case IPT_START4: return 4;
+	case IPT_START5: return 5;
+	case IPT_START6: return 6;
+	case IPT_START7: return 7;
+	case IPT_START8: return 8;
+	case IPT_COIN1: return 1;
+	case IPT_COIN2: return 2;
+	case IPT_COIN3: return 3;
+	case IPT_COIN4: return 4;
+	case IPT_COIN5: return 5;
+	case IPT_COIN6: return 6;
+	case IPT_COIN7: return 7;
+	case IPT_COIN8: return 8;
+	case IPT_BILL1: return 1;
 	}
 
 	return player;
@@ -1302,20 +1303,20 @@ void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsi
 	prev_or = 0;
 	prev_not = 0;
 
-	while (j<mame_max && mame_seq[j] != CODE_NONE) {
+	while (j < mame_max && mame_seq[j] != CODE_NONE) {
 		unsigned c = DIGITAL_SPECIAL_NONE;
 		adv_bool c_set;
 
 		switch (mame_seq[j]) {
-		case CODE_OR :
+		case CODE_OR:
 			prev_or = 1; /* implicitely remove consecutive or */
 			c_set = 0;
 			break;
-		case CODE_NOT :
+		case CODE_NOT:
 			prev_not = 1;
 			c_set = 0;
 			break;
-		case CODE_DEFAULT :
+		case CODE_DEFAULT:
 			c = DIGITAL_SPECIAL_AUTO;
 			c_set = 1;
 			break;
@@ -1332,20 +1333,20 @@ void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsi
 		}
 		if (c_set) {
 			if (prev_or) {
-				if (i<max) {
+				if (i < max) {
 					seq[i] = DIGITAL_SPECIAL_OR;
 					++i;
 				}
 				prev_or = 0;
 			}
 			if (prev_not) {
-				if (i<max) {
+				if (i < max) {
 					seq[i] = DIGITAL_SPECIAL_NOT;
 					++i;
 				}
 				prev_not = 0;
 			}
-			if (i<max) {
+			if (i < max) {
 				seq[i] = c;
 				++i;
 			}
@@ -1353,7 +1354,7 @@ void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsi
 		++j;
 	}
 
-	while (i<max) {
+	while (i < max) {
 		seq[i] = DIGITAL_SPECIAL_NONE;
 		++i;
 	}
@@ -1373,20 +1374,20 @@ void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsig
 	prev_or = 0;
 	prev_not = 0;
 
-	while (j<max && seq[j] != DIGITAL_SPECIAL_NONE) {
+	while (j < max && seq[j] != DIGITAL_SPECIAL_NONE) {
 		unsigned c = CODE_NONE;
 		adv_bool c_set;
 
 		switch (seq[j]) {
-		case DIGITAL_SPECIAL_OR :
+		case DIGITAL_SPECIAL_OR:
 			prev_or = 1; /* implicitely remove consecutive or */
 			c_set = 0;
 			break;
-		case DIGITAL_SPECIAL_NOT :
+		case DIGITAL_SPECIAL_NOT:
 			prev_not = 1;
 			c_set = 0;
 			break;
-		case DIGITAL_SPECIAL_AUTO :
+		case DIGITAL_SPECIAL_AUTO:
 			c = CODE_DEFAULT;
 			c_set = 1;
 			break;
@@ -1405,20 +1406,20 @@ void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsig
 		}
 		if (c_set) {
 			if (prev_or) {
-				if (i<mame_max) {
+				if (i < mame_max) {
 					mame_seq[i] = CODE_OR;
 					++i;
 				}
 				prev_or = 0;
 			}
 			if (prev_not) {
-				if (i<mame_max) {
+				if (i < mame_max) {
 					mame_seq[i] = CODE_NOT;
 					++i;
 				}
 				prev_not = 0;
 			}
-			if (i<mame_max) {
+			if (i < mame_max) {
 				mame_seq[i] = c;
 				++i;
 			}
@@ -1426,7 +1427,7 @@ void glue_seq_convertback(unsigned* seq, unsigned max, unsigned* mame_seq, unsig
 		++j;
 	}
 
-	while (i<mame_max) {
+	while (i < mame_max) {
 		mame_seq[i] = CODE_NONE;
 		++i;
 	}
@@ -1467,8 +1468,8 @@ static unsigned glue_keyboard_find(const char* const_name)
 		strcpy(s, " keypad");
 
 	/* search for exact match */
-	for(j=0;GLUE_KEYBOARD_STD[j].name;++j) {
-		for(k=0;GLUE_KEYBOARD_STD[j].glob[k];++k) {
+	for (j = 0; GLUE_KEYBOARD_STD[j].name; ++j) {
+		for (k = 0; GLUE_KEYBOARD_STD[j].glob[k]; ++k) {
 			if (sglob(name_buffer, GLUE_KEYBOARD_STD[j].glob[k])) {
 				log_std(("glue: map key '%s' to control '%s' (exact)\n", name, GLUE_KEYBOARD_STD[j].name));
 				return MAME_PORT_KEYBOARD(j);
@@ -1484,10 +1485,10 @@ static unsigned glue_keyboard_find(const char* const_name)
 		const char* t;
 
 		sskip(&i, name_buffer, " ");
-		t = stoken(&c, &i, name_buffer, " ",  "");
+		t = stoken(&c, &i, name_buffer, " ", "");
 
-		for(j=0;GLUE_KEYBOARD_STD[j].name;++j) {
-			for(k=0;GLUE_KEYBOARD_STD[j].glob[k];++k) {
+		for (j = 0; GLUE_KEYBOARD_STD[j].name; ++j) {
+			for (k = 0; GLUE_KEYBOARD_STD[j].glob[k]; ++k) {
 				if (sglob(t, GLUE_KEYBOARD_STD[j].glob[k])) {
 					log_std(("glue: map key '%s' to control '%s' (partial)\n", name, GLUE_KEYBOARD_STD[j].name));
 					return MAME_PORT_KEYBOARD(j);
@@ -1530,8 +1531,8 @@ int glue_port_seqtype(unsigned type, unsigned index)
 {
 	if (port_type_is_analog(type)) {
 		switch (index) {
-		case 0 : return SEQ_TYPE_INCREMENT;
-		case 1 : return SEQ_TYPE_DECREMENT;
+		case 0: return SEQ_TYPE_INCREMENT;
+		case 1: return SEQ_TYPE_DECREMENT;
 		}
 	} else {
 		return SEQ_TYPE_STANDARD;
@@ -1549,13 +1550,13 @@ int glue_port_seqtype(unsigned type, unsigned index)
 input_seq* glue_portdef_seq_get(input_port_default_entry* port, int seqtype)
 {
 	switch (seqtype) {
-	case SEQ_TYPE_STANDARD :
+	case SEQ_TYPE_STANDARD:
 		return &port->defaultseq;
-	case SEQ_TYPE_INCREMENT :
+	case SEQ_TYPE_INCREMENT:
 		if (port_type_is_analog(port->type))
 			return &port->defaultincseq;
 		break;
-	case SEQ_TYPE_DECREMENT :
+	case SEQ_TYPE_DECREMENT:
 		if (port_type_is_analog(port->type))
 			return &port->defaultdecseq;
 		break;
@@ -1651,11 +1652,11 @@ unsigned glue_port_convert(unsigned type, unsigned player, unsigned seqtype, con
 
 	if (port_type_is_analog(type)) {
 		switch (seqtype) {
-		case SEQ_TYPE_STANDARD : /* used for the mame_analog port */
-		case SEQ_TYPE_INCREMENT :
+		case SEQ_TYPE_STANDARD:  /* used for the mame_analog port */
+		case SEQ_TYPE_INCREMENT:
 			index = 0;
 			break;
-		case SEQ_TYPE_DECREMENT :
+		case SEQ_TYPE_DECREMENT:
 			index = 1;
 			break;
 		default:
@@ -1664,7 +1665,7 @@ unsigned glue_port_convert(unsigned type, unsigned player, unsigned seqtype, con
 		}
 	} else {
 		switch (seqtype) {
-		case SEQ_TYPE_STANDARD :
+		case SEQ_TYPE_STANDARD:
 			index = 0;
 			break;
 		default:
@@ -1895,12 +1896,12 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 	while (j->type != IPT_END) {
 		if (digital_mac < digital_max) {
 			unsigned n;
-			for(n=glue_port_seq_begin(j->type);n<glue_port_seq_end(j->type);++n) {
+			for (n = glue_port_seq_begin(j->type); n < glue_port_seq_end(j->type); ++n) {
 				unsigned port = glue_port_convert(j->type, j->player, glue_port_seqtype(j->type, n), j->name);
 				unsigned k;
 
 				/* only a subset */
-				for(k=0;PORT_TYPE_REPORT_DEFAULT[k] != 0;++k)
+				for (k = 0; PORT_TYPE_REPORT_DEFAULT[k] != 0; ++k)
 					if (PORT_TYPE_REPORT_DEFAULT[k] == MAME_PORT_TYPE_GET(port))
 						break;
 
@@ -1927,12 +1928,12 @@ void mame_ui_input_map(unsigned* pdigital_mac, struct mame_digital_map_entry* di
 	while (i->type != IPT_END) {
 		if (digital_mac < digital_max) {
 			unsigned n;
-			for(n=glue_port_seq_begin(i->type);n<glue_port_seq_end(i->type);++n) {
+			for (n = glue_port_seq_begin(i->type); n < glue_port_seq_end(i->type); ++n) {
 				unsigned port = glue_port_convert(i->type, i->player, glue_port_seqtype(i->type, n), i->name);
 				unsigned k;
 
 				/* only a subset */
-				for(k=0;PORT_TYPE_REPORT_GAME[k] != 0;++k)
+				for (k = 0; PORT_TYPE_REPORT_GAME[k] != 0; ++k)
 					if (PORT_TYPE_REPORT_GAME[k] == MAME_PORT_TYPE_GET(port))
 						break;
 
@@ -1961,7 +1962,7 @@ void mame_name_adjust(char* dst, unsigned size, const char* s)
 
 	dst[0] = 0;
 
-	for(i=0;i<s[i];++i) {
+	for (i = 0; i < s[i]; ++i) {
 		if (isalnum(s[i])) {
 			if (require_space)
 				sncatc(dst, size, '_');
@@ -1975,10 +1976,10 @@ void mame_name_adjust(char* dst, unsigned size, const char* s)
 }
 
 #define A(name, NAME) \
-	{ "p1_" name, MAME_PORT_PLAYER(IPT_##NAME, 1) }, \
-	{ "p2_" name, MAME_PORT_PLAYER(IPT_##NAME, 2) }, \
-	{ "p3_" name, MAME_PORT_PLAYER(IPT_##NAME, 3) }, \
-	{ "p4_" name, MAME_PORT_PLAYER(IPT_##NAME, 4) },
+	{ "p1_" name, MAME_PORT_PLAYER(IPT_ ## NAME, 1) }, \
+	{ "p2_" name, MAME_PORT_PLAYER(IPT_ ## NAME, 2) }, \
+	{ "p3_" name, MAME_PORT_PLAYER(IPT_ ## NAME, 3) }, \
+	{ "p4_" name, MAME_PORT_PLAYER(IPT_ ## NAME, 4) },
 
 static struct mame_analog ANALOG[] = {
 	A("paddlex", PADDLE)
@@ -1996,8 +1997,9 @@ static struct mame_analog ANALOG[] = {
 	A("trackballx", TRACKBALL_X)
 	A("trackbally", TRACKBALL_Y)
 	A("mousex", MOUSE_X)
-	A("mousey", MOUSE_Y)
-	{ 0, 0 }
+	A("mousey", MOUSE_Y){
+		0, 0
+	}
 };
 
 struct mame_analog* mame_analog_list(void)
@@ -2008,7 +2010,7 @@ struct mame_analog* mame_analog_list(void)
 struct mame_analog* mame_analog_find(unsigned port)
 {
 	struct mame_analog* i;
-	for(i=ANALOG;i->name;++i)
+	for (i = ANALOG; i->name; ++i)
 		if (i->port == port)
 			return i;
 	return 0;
@@ -2043,35 +2045,35 @@ int mame_ui_port_pressed(unsigned port)
 	type = MAME_PORT_TYPE_GET(port);
 
 	switch (type) {
-	case IPT_MAME_PORT_SAFEQUIT :
+	case IPT_MAME_PORT_SAFEQUIT:
 		return advance_safequit_can_exit(safequit_context);
-	case IPT_MAME_PORT_EVENT1 :
+	case IPT_MAME_PORT_EVENT1:
 		return (advance_safequit_event_mask(safequit_context) & 0x4) != 0;
-	case IPT_MAME_PORT_EVENT2 :
+	case IPT_MAME_PORT_EVENT2:
 		return (advance_safequit_event_mask(safequit_context) & 0x8) != 0;
-	case IPT_MAME_PORT_EVENT3 :
+	case IPT_MAME_PORT_EVENT3:
 		return (advance_safequit_event_mask(safequit_context) & 0x10) != 0;
-	case IPT_MAME_PORT_EVENT4 :
+	case IPT_MAME_PORT_EVENT4:
 		return (advance_safequit_event_mask(safequit_context) & 0x20) != 0;
-	case IPT_MAME_PORT_EVENT5 :
+	case IPT_MAME_PORT_EVENT5:
 		return (advance_safequit_event_mask(safequit_context) & 0x40) != 0;
-	case IPT_MAME_PORT_EVENT6 :
+	case IPT_MAME_PORT_EVENT6:
 		return (advance_safequit_event_mask(safequit_context) & 0x80) != 0;
-	case IPT_MAME_PORT_EVENT7 :
+	case IPT_MAME_PORT_EVENT7:
 		return (advance_safequit_event_mask(safequit_context) & 0x100) != 0;
-	case IPT_MAME_PORT_EVENT8 :
+	case IPT_MAME_PORT_EVENT8:
 		return (advance_safequit_event_mask(safequit_context) & 0x200) != 0;
-	case IPT_MAME_PORT_EVENT9 :
+	case IPT_MAME_PORT_EVENT9:
 		return (advance_safequit_event_mask(safequit_context) & 0x400) != 0;
-	case IPT_MAME_PORT_EVENT10 :
+	case IPT_MAME_PORT_EVENT10:
 		return (advance_safequit_event_mask(safequit_context) & 0x800) != 0;
-	case IPT_MAME_PORT_EVENT11 :
+	case IPT_MAME_PORT_EVENT11:
 		return (advance_safequit_event_mask(safequit_context) & 0x1000) != 0;
-	case IPT_MAME_PORT_EVENT12 :
+	case IPT_MAME_PORT_EVENT12:
 		return (advance_safequit_event_mask(safequit_context) & 0x2000) != 0;
-	case IPT_MAME_PORT_EVENT13 :
+	case IPT_MAME_PORT_EVENT13:
 		return (advance_safequit_event_mask(safequit_context) & 0x4000) != 0;
-	case IPT_MAME_PORT_EVENT14 :
+	case IPT_MAME_PORT_EVENT14:
 		return (advance_safequit_event_mask(safequit_context) & 0x8000) != 0;
 	}
 
@@ -2269,10 +2271,10 @@ int osd_menu(unsigned menu, int selected)
 		input |= OSD_INPUT_RIGHT;
 
 	switch (menu) {
-	case 0 :
+	case 0:
 		r = osd2_video_menu(selected, input);
 		break;
-	case 1 :
+	case 1:
 		r = osd2_audio_menu(selected, input);
 		break;
 	default:
@@ -2411,7 +2413,7 @@ void osd_update_video_and_audio(mame_display *display)
 #else
 		display->knocker_state
 #endif
-	);
+		);
 
 	profiler_mark(PROFILER_END);
 }
@@ -2611,8 +2613,7 @@ static int on_exit_menu(int selected)
 		sel = -1;
 	}
 
-	if (sel == -1 || sel == -2)
-	{
+	if (sel == -1 || sel == -2) {
 		/* tell updatescreen() to clean after us */
 		schedule_full_refresh();
 	}
@@ -2724,11 +2725,11 @@ void osd_log_va(const char* text, va_list arg)
 /* Initialization */
 
 static adv_conf_enum_int OPTION_DEPTH[] = {
-{ "auto", 0 },
-{ "8", 8 },
-{ "15", 15 },
-{ "16", 16 },
-{ "32", 32 }
+	{ "auto", 0 },
+	{ "8", 8 },
+	{ "15", 15 },
+	{ "16", 16 },
+	{ "32", 32 }
 };
 
 #ifdef MESS
@@ -2805,10 +2806,10 @@ static int mess_config_load(adv_conf* context, struct mame_option* option)
 			option->ram *= 1024;
 			++e;
 		} else if (*e == 'M') {
-			option->ram *= 1024*1024;
+			option->ram *= 1024 * 1024;
 			++e;
 		} else if (*e == 'G') {
-			option->ram *= 1024*1024*1024;
+			option->ram *= 1024 * 1024 * 1024;
 			++e;
 		}
 
@@ -2844,8 +2845,8 @@ adv_error mame_init(struct advance_context* context)
 	assert((MAME_PORT_PLAYER_MASK ^ MAME_PORT_TYPE_MASK ^ MAME_PORT_INDEX_MASK) == (MAME_PORT_PLAYER_MASK | MAME_PORT_TYPE_MASK | MAME_PORT_INDEX_MASK));
 
 	/* add the constant ports */
-	for(i=0;GLUE_PORT_STD[i].name;++i) {
-		if (j+1<GLUE_PORT_MAX) {
+	for (i = 0; GLUE_PORT_STD[i].name; ++i) {
+		if (j + 1 < GLUE_PORT_MAX) {
 			GLUE_PORT[j] = GLUE_PORT_STD[i];
 			++j;
 		}
@@ -2853,8 +2854,8 @@ adv_error mame_init(struct advance_context* context)
 
 #ifdef MESS
 	/* add the keyboard names */
-	for(i=0;GLUE_KEYBOARD_STD[i].name;++i) {
-		if (j+1<GLUE_PORT_MAX) {
+	for (i = 0; GLUE_KEYBOARD_STD[i].name; ++i) {
+		if (j + 1 < GLUE_PORT_MAX) {
 			GLUE_PORT[j].name = GLUE_KEYBOARD_STD[i].name;
 			GLUE_PORT[j].desc = GLUE_KEYBOARD_STD[i].desc;
 			GLUE_PORT[j].port = MAME_PORT_KEYBOARD(i);
@@ -2863,7 +2864,7 @@ adv_error mame_init(struct advance_context* context)
 	}
 #endif
 
-	if (j+1>=GLUE_PORT_MAX) {
+	if (j + 1 >= GLUE_PORT_MAX) {
 		printf("Internal error, increase GLUE_PORT_MAX!\n");
 		abort();
 	}
@@ -2951,7 +2952,7 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 
 	/* convert the dir separator char to ';'. */
 	/* the cheat system use always this char in all the operating system */
-	for(s=option->cheat_file_buffer;*s;++s)
+	for (s = option->cheat_file_buffer; *s; ++s)
 		if (*s == file_dir_separator())
 			*s = ';';
 
@@ -2967,20 +2968,20 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 	log_std(("glue: MAME/MESS digital port list\n"));
 	j = 0;
 	log_std(("\t\t"));
-	for(i=0;GLUE_PORT_STD[i].name;++i) {
+	for (i = 0; GLUE_PORT_STD[i].name; ++i) {
 		j += strlen(GLUE_PORT_STD[i].name) + 2;
 		log_std(("%s,", GLUE_PORT_STD[i].name));
-		if (j>54) {
+		if (j > 54) {
 			j = 0;
 			log_std(("\n\t\t"));
 		} else {
 			log_std((" "));
 		}
 	}
-	for(i=0;GLUE_KEYBOARD_STD[i].name;++i) {
+	for (i = 0; GLUE_KEYBOARD_STD[i].name; ++i) {
 		j += strlen(GLUE_KEYBOARD_STD[i].name) + 2;
 		log_std(("%s,", GLUE_KEYBOARD_STD[i].name));
-		if (j>54) {
+		if (j > 54) {
 			j = 0;
 			log_std(("\n\t\t"));
 		} else {

@@ -3,7 +3,7 @@
  * Copyright (c) 2002 CPN Group, University of Aarhus
  */
 
-/* 
+/*
  * From the http://sourceforge.net/projects/cpnmouse/ project.
  * Released with LGPL license according with the SourceForge catalog.
  */
@@ -17,10 +17,10 @@
  * called at any time!
  */
 typedef void (__cdecl *callback)(int number,
-		signed int dx,
-		signed int dy,
-		unsigned int buttons,
-		int suspended);
+	signed int dx,
+	signed int dy,
+	unsigned int buttons,
+	int suspended);
 
 /// None of the operations are thread-safe!
 
@@ -85,3 +85,4 @@ void __cdecl lUnSuspendMouse(int number);
 const char *__cdecl lGetDevicePath(int number);
 
 #endif // ifndef _lapi_h
+

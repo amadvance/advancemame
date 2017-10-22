@@ -87,7 +87,7 @@ adv_complex adv_cpolyeval(adv_complex c[], int n, adv_complex z)
 {
 	int i;
 	adv_complex sum = { 0.0, 0.0 };
-	for(i=n;i>=0;--i)
+	for (i = n; i >= 0; --i)
 		sum = adv_cadd(adv_cmul(sum, z), c[i]);
 	return sum;
 }

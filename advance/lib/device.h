@@ -81,3 +81,4 @@ int device_trim_name(const char* in, char* name);
 #endif
 
 /*@}*/
+

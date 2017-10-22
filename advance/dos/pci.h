@@ -54,3 +54,4 @@ void pci_MMIO_address_unmap(void);
 unsigned pci_MMIO_selector_get(void);
 
 #endif
+

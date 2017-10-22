@@ -47,11 +47,11 @@ static uint32 mean_mask[MEAN_MASK_MAX];
 static uint32 expand_nibble(unsigned bytes_per_pixel, unsigned v)
 {
 	switch (bytes_per_pixel) {
-	case 1 :
+	case 1:
 		return v | v << 8 | v << 16 | v << 24;
-	case 2 :
+	case 2:
 		return v | v << 16;
-	case 4 :
+	case 4:
 		return v;
 	default:
 		return 0;
@@ -88,9 +88,9 @@ static inline uint32 internal_mean_value(uint32 v0, uint32 v1)
 #if defined(USE_ASM_INLINE)
 static inline void internal_mean64_vert_self_asm(void* dst, const void* src, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"movq (%3), %%mm4\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
@@ -189,13 +189,13 @@ static uint32 mean8_horz_step1_mask[2] = { 0x00000000, 0xFF000000 };
 
 static inline void internal_mean8_horz_next_step1_asm(uint8* dst, const uint8* src, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
 	count /= 8;
 	if (!count)
 		return;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"decl %2\n"
 		"jz 1f\n"
 		"movq (%3), %%mm4\n"
@@ -252,13 +252,13 @@ static uint32 mean16_horz_step2_mask[2] = { 0x00000000, 0xFFFF0000 };
 
 static inline void internal_mean16_horz_next_step2_asm(uint16* dst, const uint16* src, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
 	count /= 4;
 	if (!count)
 		return;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"decl %2\n"
 		"jz 1f\n"
 		"movq (%3), %%mm4\n"
@@ -314,13 +314,13 @@ static uint32 mean32_horz_step4_mask[2] = { 0x00000000, 0xFFFFFFFF };
 
 static inline void internal_mean32_horz_next_step4_asm(uint32* dst, const uint32* src, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
 	count /= 2;
 	if (!count)
 		return;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"decl %2\n"
 		"jz 1f\n"
 		"movq (%3), %%mm4\n"

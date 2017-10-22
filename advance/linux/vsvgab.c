@@ -65,8 +65,8 @@ static svgalib_internal svgalib_state;
 unsigned char* (*svgalib_write_line)(unsigned y);
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "SVGALIB video" },
-{ 0, 0, 0 }
+	{ "auto", -1, "SVGALIB video" },
+	{ 0, 0, 0 }
 };
 
 /***************************************************************************/
@@ -121,7 +121,7 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned overlay_size, 
 	}
 
 	term = getenv("TERM");
-	if (!term || strcmp(term, "linux")!=0) {
+	if (!term || strcmp(term, "linux") != 0) {
 		error_set("Works only with TERM=linux terminals.\n");
 		return -1;
 	}
@@ -143,24 +143,24 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned overlay_size, 
 
 	/* allow only a subset of drivers */
 	switch (chipset) {
-	case NV3 :
-	case TRIDENT :
-	case RENDITION :
-	case G400 :
-	case SAVAGE :
-	case MILLENNIUM :
-	case R128 :
-	case BANSHEE :
-	case SIS :
-	case I740 :
+	case NV3:
+	case TRIDENT:
+	case RENDITION:
+	case G400:
+	case SAVAGE:
+	case MILLENNIUM:
+	case R128:
+	case BANSHEE:
+	case SIS:
+	case I740:
 /*	case I810 : */ /* Version 1.9.17 doesn't work with most recent Intel boards */
-	case LAGUNA :
-	case RAGE :
-	case MX :
-	case ET6000 :
-	case S3 :
-	case ARK :
-	case APM :
+	case LAGUNA:
+	case RAGE:
+	case MX:
+	case ET6000:
+	case S3:
+	case ARK:
+	case APM:
 		break;
 	default:
 		error_set("Video board unsupported.\n");
@@ -173,7 +173,7 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned overlay_size, 
 		| VIDEO_DRIVER_FLAGS_INTERNAL_DANGEROUSCHANGE;
 
 	switch (chipset) {
-	case BANSHEE :
+	case BANSHEE:
 		/* the banshee driver doesn't work in 16 bit mode, only with the 15 bit (at version 1.9.17) */
 		log_std(("video:svgalib: disable 16 bit modes not supported by this driver\n"));
 		svgalib_state.flags &= ~VIDEO_DRIVER_FLAGS_MODE_BGR16;
@@ -181,16 +181,17 @@ adv_error svgalib_init(int device_id, adv_output output, unsigned overlay_size, 
 	}
 
 	switch (chipset) {
-	case NV3 : /* TNT support interlace, but GeForce not */
-	case RENDITION :
-	case PM2 :
-	case I740 :
-	case I810 :
-	case APM :
+	case NV3:  /* TNT support interlace, but GeForce not */
+	case RENDITION:
+	case PM2:
+	case I740:
+	case I810:
+	case APM:
 		log_std(("video:svgalib: disable interlace modes not supported by this driver\n"));
 		svgalib_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
 		break;
-	};
+	}
+	;
 
 	svgalib_state.active = 1;
 	return 0;
@@ -217,7 +218,7 @@ void svgalib_done(void)
 #define SVGALIB_TVNTSC 0x800 /* Use the NTSC format. */
 #define SVGALIB_FORCE 0x1000 /* Force the use of this modeline. */
 
-adv_error svgalib_mode_set(const svgalib_video_mode* mode) 
+adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 {
 	int res;
 	int flags;
@@ -252,38 +253,38 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 
 	log_std(("video:svgalib: vga_addtiming(%d, %d, %d, %d, %d, %d, %d, %d, %d, %d)\n",
 		mode->crtc.pixelclock / 1000, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, flags
-	));
+		));
 
 	svgalib_state.index = mode->index;
 	switch (mode->index) {
-		case MODE_FLAGS_INDEX_PALETTE8 :
-			bytes_per_pixel = 1;
-			colors = 1 << 8;
+	case MODE_FLAGS_INDEX_PALETTE8:
+		bytes_per_pixel = 1;
+		colors = 1 << 8;
 		break;
-		case MODE_FLAGS_INDEX_BGR15 :
-			bytes_per_pixel = 2;
-			colors = 1 << 15;
+	case MODE_FLAGS_INDEX_BGR15:
+		bytes_per_pixel = 2;
+		colors = 1 << 15;
 		break;
-		case MODE_FLAGS_INDEX_BGR16 :
-			bytes_per_pixel = 2;
-			colors = 1 << 16;
+	case MODE_FLAGS_INDEX_BGR16:
+		bytes_per_pixel = 2;
+		colors = 1 << 16;
 		break;
-		case MODE_FLAGS_INDEX_BGR24 :
-			bytes_per_pixel = 3;
-			colors = 1 << 24;
+	case MODE_FLAGS_INDEX_BGR24:
+		bytes_per_pixel = 3;
+		colors = 1 << 24;
 		break;
-		case MODE_FLAGS_INDEX_BGR32 :
-			bytes_per_pixel = 4;
-			colors = 1 << 24;
+	case MODE_FLAGS_INDEX_BGR32:
+		bytes_per_pixel = 4;
+		colors = 1 << 24;
 		break;
-		default:
-			error_set("Invalid index mode.\n");
-			return -1;
+	default:
+		error_set("Invalid index mode.\n");
+		return -1;
 	}
 	bytes_per_scanline = bytes_per_pixel * mode->crtc.hde;
 
 	res = vga_addmode(mode->crtc.hde, mode->crtc.vde, colors, bytes_per_scanline, bytes_per_pixel);
-	if (res<0) {
+	if (res < 0) {
 		error_set("Function vga_addmode() failed.\n");
 		return -1;
 	}
@@ -345,46 +346,46 @@ adv_error svgalib_mode_set(const svgalib_video_mode* mode)
 	svgalib_state.bytes_per_pixel = modeinfo->bytesperpixel;
 	svgalib_state.bytes_per_scanline = modeinfo->linewidth;
 	switch (modeinfo->colors) {
-		case 1 << 8 :
+	case 1 << 8:
 			svgalib_state.red_len = 0;
-			svgalib_state.red_pos = 0;
-			svgalib_state.green_len = 0;
-			svgalib_state.green_pos = 0;
-			svgalib_state.blue_len = 0;
-			svgalib_state.blue_pos = 0;
+		svgalib_state.red_pos = 0;
+		svgalib_state.green_len = 0;
+		svgalib_state.green_pos = 0;
+		svgalib_state.blue_len = 0;
+		svgalib_state.blue_pos = 0;
 		break;
-		case 1 << 15 :
+	case 1 << 15:
 			if ((modeinfo->flags & RGB_MISORDERED) == 0) {
-				svgalib_state.red_len = 5;
-				svgalib_state.red_pos = 10;
-				svgalib_state.green_len = 5;
-				svgalib_state.green_pos = 5;
-				svgalib_state.blue_len = 5;
-				svgalib_state.blue_pos = 0;
-			} else {
-				svgalib_state.red_len = 5;
-				svgalib_state.red_pos = 0;
-				svgalib_state.green_len = 5;
-				svgalib_state.green_pos = 5;
-				svgalib_state.blue_len = 5;
-				svgalib_state.blue_pos = 10;
-			}
-		break;
-		case 1 << 16 :
 			svgalib_state.red_len = 5;
-			svgalib_state.red_pos = 11;
-			svgalib_state.green_len = 6;
+			svgalib_state.red_pos = 10;
+			svgalib_state.green_len = 5;
 			svgalib_state.green_pos = 5;
 			svgalib_state.blue_len = 5;
 			svgalib_state.blue_pos = 0;
+			} else {
+			svgalib_state.red_len = 5;
+			svgalib_state.red_pos = 0;
+			svgalib_state.green_len = 5;
+			svgalib_state.green_pos = 5;
+			svgalib_state.blue_len = 5;
+			svgalib_state.blue_pos = 10;
+			}
+			break;
+	case 1 << 16:
+			svgalib_state.red_len = 5;
+		svgalib_state.red_pos = 11;
+		svgalib_state.green_len = 6;
+		svgalib_state.green_pos = 5;
+		svgalib_state.blue_len = 5;
+		svgalib_state.blue_pos = 0;
 		break;
-		case 1 << 24 :
+	case 1 << 24:
 			svgalib_state.red_len = 8;
-			svgalib_state.red_pos = 16;
-			svgalib_state.green_len = 8;
-			svgalib_state.green_pos = 8;
-			svgalib_state.blue_len = 8;
-			svgalib_state.blue_pos = 0;
+		svgalib_state.red_pos = 16;
+		svgalib_state.green_len = 8;
+		svgalib_state.green_pos = 8;
+		svgalib_state.blue_len = 8;
+		svgalib_state.blue_pos = 0;
 		break;
 	}
 
@@ -422,7 +423,7 @@ void svgalib_mode_done(adv_bool restore)
 
 		/* refresh the screen, SVGALIB doesn't save and restore the video memory */
 		term = getenv("TERM");
-		if (term && strcmp(term, "linux")==0) {
+		if (term && strcmp(term, "linux") == 0) {
 			/* refresh the screen, partial output of "tput flash" */
 			fputs("\033[?5h\033[?5l", stdout);
 			fflush(stdout);
@@ -567,7 +568,7 @@ adv_error svgalib_mode_generate(svgalib_video_mode* mode, const adv_crtc* crtc, 
 		return -1;
 	}
 
-	if (video_mode_generate_check("svgalib", svgalib_flags(), 8, 2048, crtc, flags)!=0)
+	if (video_mode_generate_check("svgalib", svgalib_flags(), 8, 2048, crtc, flags) != 0)
 		return -1;
 
 	mode->crtc = *crtc;

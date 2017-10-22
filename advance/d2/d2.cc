@@ -655,22 +655,22 @@ string convert_man::mask(string s)
 
 	for (unsigned i = 0; i < s.length(); ++i) {
 		switch (s[i]) {
-		case '"' :
+		case '"':
 			r += "\\[dq]";
 			break;
-		case '\'' :
+		case '\'':
 			r += "\\'";
 			break;
-		case '`' :
+		case '`':
 			r += "\\`";
 			break;
-		case '\\' :
+		case '\\':
 			r += "\\\\";
 			break;
-		case '-' :
+		case '-':
 			r += "\\-";
 			break;
-		default :
+		default:
 			r += s[i];
 			break;
 		}
@@ -932,19 +932,19 @@ string convert_html::mask(string s)
 
 	for (unsigned i = 0; i < s.length(); ++i) {
 		switch (s[i]) {
-		case '<' :
+		case '<':
 			r += "&lt;";
 			break;
-		case '>' :
+		case '>':
 			r += "&gt;";
 			break;
-		case '\t' :
+		case '\t':
 			r += "&nbsp;&nbsp;&nbsp;&nbsp;";
 			break;
-		case '&' :
+		case '&':
 			r += "&amp;";
 			break;
-		default :
+		default:
 			r += s[i];
 			break;
 		}

@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -122,30 +122,30 @@ static void video_command_resolution(struct advance_video_context* context, unsi
 
 	if ((input & OSD_INPUT_MODE_NEXT) != 0) {
 		show = 1;
-		if (strcmp(new_resolution, "auto")==0) {
+		if (strcmp(new_resolution, "auto") == 0) {
 			if (context->state.crtc_mac > 1) {
 				sncpy(new_resolution, MODE_NAME_MAX, crtc_name_get(context->state.crtc_map[1]));
 				modify = 1;
 			}
 		} else {
 			unsigned i;
-			for(i=0;i<context->state.crtc_mac;++i)
+			for (i = 0; i < context->state.crtc_mac; ++i)
 				if (context->state.crtc_map[i] == context->state.crtc_selected)
 					break;
-			if (i<context->state.crtc_mac && i+1<context->state.crtc_mac) {
-				sncpy(new_resolution, MODE_NAME_MAX, crtc_name_get(context->state.crtc_map[i+1]));
+			if (i < context->state.crtc_mac && i + 1 < context->state.crtc_mac) {
+				sncpy(new_resolution, MODE_NAME_MAX, crtc_name_get(context->state.crtc_map[i + 1]));
 				modify = 1;
 			}
 		}
 	} else if ((input & OSD_INPUT_MODE_PRED) != 0) {
 		show = 1;
-		if (strcmp(new_resolution, "auto")!=0) {
+		if (strcmp(new_resolution, "auto") != 0) {
 			unsigned i;
-			for(i=0;i<context->state.crtc_mac;++i)
+			for (i = 0; i < context->state.crtc_mac; ++i)
 				if (context->state.crtc_map[i] == context->state.crtc_selected)
 					break;
-			if (i<context->state.crtc_mac && i>0) {
-				sncpy(new_resolution, MODE_NAME_MAX, crtc_name_get(context->state.crtc_map[i-1]));
+			if (i < context->state.crtc_mac && i > 0) {
+				sncpy(new_resolution, MODE_NAME_MAX, crtc_name_get(context->state.crtc_map[i - 1]));
 				modify = 1;
 			}
 		}
@@ -257,9 +257,9 @@ static void video_command_combine(struct advance_video_context* context, struct 
 		/* if we reached 3% of slow frames in 1000 frames */
 		if (
 			(context->state.skip_level_combine_total > 1000
-				&& context->state.skip_level_combine_counter > context->state.skip_level_combine_total / 33)
+			&& context->state.skip_level_combine_counter > context->state.skip_level_combine_total / 33)
 			|| (context->state.skip_level_combine_total <= 1000
-				&& context->state.skip_level_combine_counter >= 30)
+			&& context->state.skip_level_combine_counter >= 30)
 		) {
 			log_std(("advance:skip: combine_skip_level %u %u\n", context->state.skip_level_combine_counter, context->state.skip_level_combine_total));
 			decrease = 1;
@@ -272,15 +272,15 @@ static void video_command_combine(struct advance_video_context* context, struct 
 		/* use a simpler video video effect */
 		if (context->config.combine == COMBINE_AUTO) {
 			switch (combine_max) {
-			case COMBINE_SCALEX :
+			case COMBINE_SCALEX:
 				combine_max = COMBINE_NONE;
 				log_std(("advance:skip: decrease combine from scalex to none\n"));
 				break;
-			case COMBINE_SCALEK :
+			case COMBINE_SCALEK:
 				combine_max = COMBINE_SCALEX;
 				log_std(("advance:skip: decrease combine from scalek to scalex\n"));
 				break;
-			case COMBINE_XBR :
+			case COMBINE_XBR:
 				combine_max = COMBINE_SCALEK;
 				log_std(("advance:skip: decrease combine from xbr to scalek\n"));
 				break;
@@ -405,7 +405,7 @@ static void video_command(struct advance_video_context* context, struct advance_
 			hardware_script_start(HARDWARE_SCRIPT_PLAY);
 		}
 	}
-	
+
 	if ((input & OSD_INPUT_TOGGLE_DEBUG) != 0) {
 		context->state.debugger_flag = !context->state.debugger_flag;
 		advance_video_invalidate_screen(context);
@@ -480,10 +480,10 @@ static void video_command(struct advance_video_context* context, struct advance_
 		/* 100% - 100% */
 		/* 10987654321 */
 		l = strlen(buffer);
-		if (l>=4 && isspace(buffer[l-4]))
-			buffer[l-4] = ADV_FONT_FIXSPACE;
-		if (l>=11 && isspace(buffer[l-11]))
-			buffer[l-11] = ADV_FONT_FIXSPACE;
+		if (l >= 4 && isspace(buffer[l - 4]))
+			buffer[l - 4] = ADV_FONT_FIXSPACE;
+		if (l >= 11 && isspace(buffer[l - 11]))
+			buffer[l - 11] = ADV_FONT_FIXSPACE;
 
 		advance_ui_direct_text(ui_context, buffer);
 
@@ -671,7 +671,7 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 		context->state.thread_state_skip_flag = skip_flag;
 
 		if (sample_count > context->state.thread_state_sample_max) {
-			log_std(("advance:thread: realloc sample buffer %d samples -> %d samples, %d bytes\n", context->state.thread_state_sample_max, 2*sample_count, sound_context->state.input_bytes_per_sample * 2 * sample_count));
+			log_std(("advance:thread: realloc sample buffer %d samples -> %d samples, %d bytes\n", context->state.thread_state_sample_max, 2 * sample_count, sound_context->state.input_bytes_per_sample * 2 * sample_count));
 			context->state.thread_state_sample_max = 2 * sample_count;
 			context->state.thread_state_sample_buffer = realloc(context->state.thread_state_sample_buffer, sound_context->state.input_bytes_per_sample * context->state.thread_state_sample_max);
 			assert(context->state.thread_state_sample_buffer);
@@ -698,7 +698,7 @@ static void video_frame_update(struct advance_video_context* context, struct adv
 {
 #ifdef USE_SMP
 	if (context->config.smp_flag && !context->state.debugger_flag
-		/* we don't duplicate the UI data, and then we cannot access it directly from the thread */
+	        /* we don't duplicate the UI data, and then we cannot access it directly from the thread */
 		&& !advance_ui_buffer_active(ui_context)
 	) {
 		pthread_mutex_lock(&context->state.thread_video_mutex);
@@ -739,7 +739,7 @@ static void* video_thread(void* void_context)
 
 	while (1) {
 		adv_bool exit;
-		
+
 		log_debug(("advance:thread: wait\n"));
 
 		/* wait for the start notification */
@@ -989,7 +989,7 @@ void osd2_video_done(void)
 
 	advance_video_mode_done(context);
 
-        /* print the speed measure */
+	/* print the speed measure */
 	if (context->state.measure_flag
 		&& context->state.measure_stop > context->state.measure_start) {
 		target_out("%g\n", (double)(context->state.measure_stop - context->state.measure_start) / TARGET_CLOCKS_PER_SEC);
@@ -1070,7 +1070,7 @@ void osd2_palette(const osd_mask_t* mask, const osd_rgb_t* palette, unsigned siz
 	}
 
 	context->state.palette_dirty_flag = 1;
-	for(i=0;i<size;++i) {
+	for (i = 0; i < size; ++i) {
 		context->state.palette_map[i].red = osd_rgb_red(palette[i]);
 		context->state.palette_map[i].green = osd_rgb_green(palette[i]);
 		context->state.palette_map[i].blue = osd_rgb_blue(palette[i]);
@@ -1078,12 +1078,12 @@ void osd2_palette(const osd_mask_t* mask, const osd_rgb_t* palette, unsigned siz
 
 	if (dirty_size > 0 && dirty_size == context->state.palette_dirty_total) {
 		/* the last element must be masked */
-		for(i=0;i<dirty_size - 1;++i) {
+		for (i = 0; i < dirty_size - 1; ++i) {
 			context->state.palette_dirty_map[i] |= mask[i];
 		}
 		context->state.palette_dirty_map[i] |= mask[i] & context->state.palette_dirty_mask;
 	} else {
-		for(i=0;i<dirty_size;++i) {
+		for (i = 0; i < dirty_size; ++i) {
 			context->state.palette_dirty_map[i] |= mask[i];
 		}
 	}
@@ -1204,13 +1204,13 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 		int median_map[AUDIOVIDEO_MEASURE_MAX];
 
 		/* sort the last errors values */
-		for(i=0;i<AUDIOVIDEO_MEASURE_MAX;++i) {
+		for (i = 0; i < AUDIOVIDEO_MEASURE_MAX; ++i) {
 			median_map[i] = context->state.av_sync_map[i];
 		}
 		qsort(median_map, AUDIOVIDEO_MEASURE_MAX, sizeof(median_map[0]), int_compare);
 
 		/* get the median value from the most recent errors */
-		latency_median = median_map[AUDIOVIDEO_MEASURE_MAX/2];
+		latency_median = median_map[AUDIOVIDEO_MEASURE_MAX / 2];
 
 		/* if playing at normal speed */
 		if (latency_median >= -latency_limit && latency_median <= latency_limit) {
@@ -1324,79 +1324,79 @@ static unsigned video_orientation_compute(unsigned orientation, adv_bool rol, ad
 /* Config */
 
 static adv_conf_enum_int OPTION_RESIZE[] = {
-{ "none", STRETCH_NONE },
-{ "integer", STRETCH_INTEGER_XY },
-{ "fractional", STRETCH_FRACTIONAL_XY },
-{ "mixed", STRETCH_INTEGER_X_FRACTIONAL_Y }
+	{ "none", STRETCH_NONE },
+	{ "integer", STRETCH_INTEGER_XY },
+	{ "fractional", STRETCH_FRACTIONAL_XY },
+	{ "mixed", STRETCH_INTEGER_X_FRACTIONAL_Y }
 };
 
 static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
-{ "auto", COMBINE_AUTO },
-{ "none", COMBINE_NONE },
-{ "max", COMBINE_MAXMIN },
-{ "mean", COMBINE_MEAN },
-{ "filter", COMBINE_FILTER },
-{ "scalex", COMBINE_SCALEX },
-{ "scalek", COMBINE_SCALEK },
-{ "hq", COMBINE_HQ },
-{ "xbr", COMBINE_XBR }
+	{ "auto", COMBINE_AUTO },
+	{ "none", COMBINE_NONE },
+	{ "max", COMBINE_MAXMIN },
+	{ "mean", COMBINE_MEAN },
+	{ "filter", COMBINE_FILTER },
+	{ "scalex", COMBINE_SCALEX },
+	{ "scalek", COMBINE_SCALEK },
+	{ "hq", COMBINE_HQ },
+	{ "xbr", COMBINE_XBR }
 };
 
 static adv_conf_enum_int OPTION_ADJUST[] = {
-{ "none", ADJUST_NONE },
-{ "x", ADJUST_ADJUST_X },
-{ "clock", ADJUST_ADJUST_CLOCK },
-{ "xclock", ADJUST_ADJUST_X | ADJUST_ADJUST_CLOCK },
-{ "generate_exact", ADJUST_GENERATE | ADJUST_ADJUST_X },
-{ "generate_y", ADJUST_GENERATE | ADJUST_ADJUST_X | ADJUST_ADJUST_Y },
-{ "generate_clock", ADJUST_GENERATE | ADJUST_ADJUST_X | ADJUST_ADJUST_CLOCK },
-{ "generate_yclock", ADJUST_GENERATE | ADJUST_ADJUST_X | ADJUST_ADJUST_Y | ADJUST_ADJUST_CLOCK | ADJUST_FAVORITE_SIZE_OVER_CLOCK },
-{ "generate_clocky", ADJUST_GENERATE | ADJUST_ADJUST_X | ADJUST_ADJUST_Y | ADJUST_ADJUST_CLOCK }
+	{ "none", ADJUST_NONE },
+	{ "x", ADJUST_ADJUST_X },
+	{ "clock", ADJUST_ADJUST_CLOCK },
+	{ "xclock", ADJUST_ADJUST_X | ADJUST_ADJUST_CLOCK },
+	{ "generate_exact", ADJUST_GENERATE | ADJUST_ADJUST_X },
+	{ "generate_y", ADJUST_GENERATE | ADJUST_ADJUST_X | ADJUST_ADJUST_Y },
+	{ "generate_clock", ADJUST_GENERATE | ADJUST_ADJUST_X | ADJUST_ADJUST_CLOCK },
+	{ "generate_yclock", ADJUST_GENERATE | ADJUST_ADJUST_X | ADJUST_ADJUST_Y | ADJUST_ADJUST_CLOCK | ADJUST_FAVORITE_SIZE_OVER_CLOCK },
+	{ "generate_clocky", ADJUST_GENERATE | ADJUST_ADJUST_X | ADJUST_ADJUST_Y | ADJUST_ADJUST_CLOCK }
 };
 
 static adv_conf_enum_int OPTION_MAGNIFY[] = {
-{ "auto", 0 },
-{ "1", 1 },
-{ "2", 2 },
-{ "3", 3 },
-{ "4", 4 }
+	{ "auto", 0 },
+	{ "1", 1 },
+	{ "2", 2 },
+	{ "3", 3 },
+	{ "4", 4 }
 };
 
 static adv_conf_enum_int OPTION_RESAMPLE[] = {
-{ "auto", -1 },
-{ "emulation", 0 },
-{ "internal", 1 }
+	{ "auto", -1 },
+	{ "emulation", 0 },
+	{ "internal", 1 }
 };
 
 static adv_conf_enum_int OPTION_RGBEFFECT[] = {
-{ "none", EFFECT_NONE },
-{ "triad3dot", EFFECT_RGB_TRIAD3PIX },
-{ "triad6dot", EFFECT_RGB_TRIAD6PIX },
-{ "triad16dot", EFFECT_RGB_TRIAD16PIX },
-{ "triadstrong3dot", EFFECT_RGB_TRIADSTRONG3PIX },
-{ "triadstrong6dot", EFFECT_RGB_TRIADSTRONG6PIX },
-{ "triadstrong16dot", EFFECT_RGB_TRIADSTRONG16PIX },
-{ "scan2horz", EFFECT_RGB_SCANDOUBLEHORZ },
-{ "scan2vert", EFFECT_RGB_SCANDOUBLEVERT },
-{ "scan3horz", EFFECT_RGB_SCANTRIPLEHORZ },
-{ "scan3vert", EFFECT_RGB_SCANTRIPLEVERT }
+	{ "none", EFFECT_NONE },
+	{ "triad3dot", EFFECT_RGB_TRIAD3PIX },
+	{ "triad6dot", EFFECT_RGB_TRIAD6PIX },
+	{ "triad16dot", EFFECT_RGB_TRIAD16PIX },
+	{ "triadstrong3dot", EFFECT_RGB_TRIADSTRONG3PIX },
+	{ "triadstrong6dot", EFFECT_RGB_TRIADSTRONG6PIX },
+	{ "triadstrong16dot", EFFECT_RGB_TRIADSTRONG16PIX },
+	{ "scan2horz", EFFECT_RGB_SCANDOUBLEHORZ },
+	{ "scan2vert", EFFECT_RGB_SCANDOUBLEVERT },
+	{ "scan3horz", EFFECT_RGB_SCANTRIPLEHORZ },
+	{ "scan3vert", EFFECT_RGB_SCANTRIPLEVERT }
 };
 
 static adv_conf_enum_int OPTION_INTERLACEEFFECT[] = {
-{ "none", EFFECT_NONE },
-{ "odd", EFFECT_INTERLACE_ODD },
-{ "even", EFFECT_INTERLACE_EVEN },
-{ "filter", EFFECT_INTERLACE_FILTER }
+	{ "none", EFFECT_NONE },
+	{ "odd", EFFECT_INTERLACE_ODD },
+	{ "even", EFFECT_INTERLACE_EVEN },
+	{ "filter", EFFECT_INTERLACE_FILTER }
 };
 
 static adv_conf_enum_int OPTION_INDEX[] = {
-{ "auto", MODE_FLAGS_INDEX_NONE },
-{ "palette8", MODE_FLAGS_INDEX_PALETTE8 },
-{ "bgr8", MODE_FLAGS_INDEX_BGR8 },
-{ "bgr15", MODE_FLAGS_INDEX_BGR15 },
-{ "bgr16", MODE_FLAGS_INDEX_BGR16 },
-{ "bgr32", MODE_FLAGS_INDEX_BGR32 },
-{ "yuy2", MODE_FLAGS_INDEX_YUY2 }
+	{ "auto", MODE_FLAGS_INDEX_NONE },
+	{ "palette8", MODE_FLAGS_INDEX_PALETTE8 },
+	{ "bgr8", MODE_FLAGS_INDEX_BGR8 },
+	{ "bgr15", MODE_FLAGS_INDEX_BGR15 },
+	{ "bgr16", MODE_FLAGS_INDEX_BGR16 },
+	{ "bgr32", MODE_FLAGS_INDEX_BGR32 },
+	{ "yuy2", MODE_FLAGS_INDEX_YUY2 }
 };
 
 adv_error advance_video_init(struct advance_video_context* context, adv_conf* cfg_context)
@@ -1405,7 +1405,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 
 	/* other initialization */
 	context->state.av_sync_mac = 0;
-	for(i=0;i<AUDIOVIDEO_MEASURE_MAX;++i)
+	for (i = 0; i < AUDIOVIDEO_MEASURE_MAX; ++i)
 		context->state.av_sync_map[i] = 0;
 	context->state.latency_diff = 0;
 
@@ -1461,7 +1461,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 
 static const char* GAME_BLIT_COMBINE_MAX[] = {
 #include "blitmax.h"
-0
+	0
 };
 
 static struct game_startup_struct {
@@ -1469,7 +1469,7 @@ static struct game_startup_struct {
 	int time;
 } GAME_STARTUP[] = {
 #include "startup.h"
-{ 0 }
+	{ 0 }
 };
 
 void advance_video_config_save(struct advance_video_context* context, const char* section)
@@ -1484,15 +1484,14 @@ void advance_video_config_save(struct advance_video_context* context, const char
 		conf_int_set_if_different(cfg_context, section, "display_magnify", context->config.magnify_factor);
 		conf_int_set_if_different(cfg_context, section, "display_color", context->config.index);
 		if (context->state.game_visible_size_x < context->state.game_used_size_x
-			|| context->state.game_visible_size_y < context->state.game_used_size_y)
-		{
-			if (context->config.skipcolumns>=0) {
+			|| context->state.game_visible_size_y < context->state.game_used_size_y) {
+			if (context->config.skipcolumns >= 0) {
 				char buffer[32];
 				snprintf(buffer, sizeof(buffer), "%d", context->config.skipcolumns);
 				conf_string_set_if_different(cfg_context, section, "display_skipcolumns", buffer);
 			} else
 				conf_string_set_if_different(cfg_context, section, "display_skipcolumns", "auto");
-			if (context->config.skiplines>=0) {
+			if (context->config.skiplines >= 0) {
 				char buffer[32];
 				snprintf(buffer, sizeof(buffer), "%d", context->config.skiplines);
 				conf_string_set_if_different(cfg_context, section, "display_skiplines", buffer);
@@ -1520,7 +1519,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 
 	context->config.game_orientation = mame_game_orientation(option->game);
 
-	for(i=0;GAME_BLIT_COMBINE_MAX[i] != 0;++i)
+	for (i = 0; GAME_BLIT_COMBINE_MAX[i] != 0; ++i)
 		if (mame_is_game_relative(GAME_BLIT_COMBINE_MAX[i], option->game))
 			break;
 	context->config.inlist_combinemax_flag = GAME_BLIT_COMBINE_MAX[i] != 0;
@@ -1543,7 +1542,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.monitor_aspect_x = 0;
 	context->config.monitor_aspect_y = 0;
 	s = conf_string_get_default(cfg_context, "display_aspect");
-	if (strcmp(s, "auto")!=0) {
+	if (strcmp(s, "auto") != 0) {
 		char* e;
 		long x;
 		long y;
@@ -1570,14 +1569,14 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	}
 
 	s = conf_string_get_default(cfg_context, "display_skiplines");
-	if (strcmp(s, "auto")==0) {
+	if (strcmp(s, "auto") == 0) {
 		context->config.skiplines = -1;
 	} else {
 		context->config.skiplines = atoi(s);
 	}
 
 	s = conf_string_get_default(cfg_context, "display_skipcolumns");
-	if (strcmp(s, "auto")==0) {
+	if (strcmp(s, "auto") == 0) {
 		context->config.skipcolumns = -1;
 	} else {
 		context->config.skipcolumns = atoi(s);
@@ -1610,7 +1609,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.interlace_effect = conf_int_get_default(cfg_context, "display_interlaceeffect");
 	context->config.turbo_speed_factor = conf_float_get_default(cfg_context, "sync_turbospeed");
 	s = conf_string_get_default(cfg_context, "sync_fps");
-	if (strcmp(s, "auto")==0) {
+	if (strcmp(s, "auto") == 0) {
 		context->config.fps_fixed = 0;
 	} else {
 		char* e;
@@ -1626,7 +1625,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	if (strcmp(s, "none") == 0) {
 		d = 0;
 	} else if (strcmp(s, "auto") == 0) {
-		for(i=0;GAME_STARTUP[i].name != 0;++i)
+		for (i = 0; GAME_STARTUP[i].name != 0; ++i)
 			if (mame_is_game_relative(GAME_STARTUP[i].name, option->game))
 				break;
 		if (GAME_STARTUP[i].name != 0)
@@ -1655,7 +1654,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.aspect_expansion_factor = conf_float_get_default(cfg_context, "display_expand");
 
 	s = conf_string_get_default(cfg_context, "display_frameskip");
-	if (strcmp(s, "auto")==0) {
+	if (strcmp(s, "auto") == 0) {
 		context->config.frameskip_auto_flag = 1;
 		context->config.frameskip_factor = 1.0;
 	} else {
@@ -1675,34 +1674,34 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 #endif
 
 	i = conf_int_get_default(cfg_context, "sync_resample");
-	if (i==1)
+	if (i == 1)
 		context->config.internalresample_flag = 1; /* internal resampling */
 	else
 		context->config.internalresample_flag = 0; /* emulation resampling */
 
 	/* load context->config.monitor config */
 	err = monitor_load(cfg_context, &context->config.monitor);
-	if (err<0) {
+	if (err < 0) {
 		target_err("%s\n", error_get());
 		target_err("Please read the file `install.txt' and `device.txt'.\n");
 		return -1;
 	}
-	if (err==0) {
+	if (err == 0) {
 		char buffer[1024];
 		monitor_print(buffer, sizeof(buffer), &context->config.monitor);
 		log_std(("emu:video: clock %s\n", buffer));
 	}
-	if (err>0) {
+	if (err > 0) {
 		monitor_reset(&context->config.monitor);
 	}
 
 	/* load generate_linear config */
 	err = generate_interpolate_load(cfg_context, &context->config.interpolate);
-	if (err<0) {
+	if (err < 0) {
 		target_err("%s\n", error_get());
 		target_err("Please read the file `install.txt' and `device.txt'.\n");
 		return -1;
-	} else if (err>0) {
+	} else if (err > 0) {
 		if (monitor_clock_check(&context->config.monitor, 7.16E6, 15720, 60)) {
 			/* Arcade Standard Resolution */
 			log_std(("emu:video: default format standard resolution\n"));
@@ -1731,7 +1730,7 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 		return -1;
 	}
 
-	if (crtc_container_load(cfg_context, &context->config.crtc_bag)!=0) {
+	if (crtc_container_load(cfg_context, &context->config.crtc_bag) != 0) {
 		target_err("%s\n", error_get());
 		target_err("Invalid modeline.\n");
 		return -1;

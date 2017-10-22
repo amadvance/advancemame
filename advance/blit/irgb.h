@@ -40,10 +40,10 @@
 
 static inline void internal_rgb_raw128_012carry_asm(void* dst, const void* src, const void* mask, const void* carry, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
 	/* *dstqq = (*srcqq & maskqq[0]) + ((*srcqq >> 1) & maskqq[1]) + ((*srcqq >> 2) & maskqq[2]) + (*srcqq & (*srcqq >> 1) & carry) */
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		ASM_JUMP_ALIGN
 		"0:\n"
 		"movq (%0), %%mm0\n" /* shift 0 */
@@ -91,10 +91,10 @@ static inline void internal_rgb_raw128_012carry_asm(void* dst, const void* src, 
 
 static inline void internal_rgb_raw128_01_asm(void* dst, const void* src, const void* mask, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
 	/* *dstqq = (*srcqq & maskqq[0]) + ((*srcq >> 1) & maskqq[1])*/
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"movq (%3), %%mm2\n"
 		"movq 8(%3), %%mm6\n"
 		"movq 16(%3), %%mm3\n"
@@ -133,10 +133,10 @@ static inline void internal_rgb_raw128_01_asm(void* dst, const void* src, const 
 
 static inline void internal_rgb_raw64_012carry_asm(void* dst, const void* src, const void* mask, const void* carry, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
 	/* *dstq = (*srcq & maskq[0]) + ((*srcq >> 1) & maskq[1]) + ((*srcq >> 2) & maskq[2]) + (*srcq & (*srcq >> 1) & carry) */
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"movq (%4), %%mm4\n" /* carry mask */
 		"movq (%3), %%mm5\n"
 		"movq 8(%3), %%mm6\n"
@@ -171,10 +171,10 @@ static inline void internal_rgb_raw64_012carry_asm(void* dst, const void* src, c
 
 static inline void internal_rgb_raw64_01_asm(void* dst, const void* src, const void* mask, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
 	/* *dstq = (*srcq & maskq[0]) + ((*srcq >> 1) & maskq[1])*/
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"movq (%3), %%mm2\n"
 		"movq 8(%3), %%mm3\n"
 		ASM_JUMP_ALIGN
@@ -199,10 +199,10 @@ static inline void internal_rgb_raw64_01_asm(void* dst, const void* src, const v
 
 static inline void internal_rgb_raw64_02_asm(void* dst, const void* src, const void* mask, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
 	/* *dstq = (*srcq & maskq[0]) + ((*srcq >> 2) & maskq[2])*/
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"movq (%3), %%mm2\n"
 		"movq 16(%3), %%mm3\n"
 		ASM_JUMP_ALIGN
@@ -227,10 +227,10 @@ static inline void internal_rgb_raw64_02_asm(void* dst, const void* src, const v
 
 static inline void internal_rgb_raw64_12carry_asm(void* dst, const void* src, const void* mask, void* carry, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
 	/* *dstq = ((*srcq >> 1) & maskq[1]) + ((*srcq >> 2) & maskq[2]) + (*srcq & (*srcq >> 1) & carry) */
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"movq (%4), %%mm3\n" /* carry mask */
 		"movq 8(%3), %%mm4\n"
 		"movq 16(%3), %%mm5\n"
@@ -261,10 +261,10 @@ static inline void internal_rgb_raw64_12carry_asm(void* dst, const void* src, co
 
 static inline void internal_rgb_raw64_1_asm(void* dst, const void* src, const void* mask, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
 	/* *dstq = ((*srcq >> 1) & maskq[1]) */
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"movq 8(%3), %%mm2\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
@@ -285,10 +285,10 @@ static inline void internal_rgb_raw64_1_asm(void* dst, const void* src, const vo
 
 static inline void internal_rgb_raw64_2_asm(void* dst, const void* src, const void* mask, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
 	/* *dstq = ((*srcq >> 2) & maskq[2]) */
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"movq 16(%3), %%mm2\n"
 		ASM_JUMP_ALIGN
 		"0:\n"
@@ -309,12 +309,12 @@ static inline void internal_rgb_raw64_2_asm(void* dst, const void* src, const vo
 
 static inline void internal_rgb_raw64x3_012_asm(void* dst, const void* src, const void* mask, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
 	/* dstq[0] = (srcq[0] & maskq[0]) + ((srcq[0] >> 1) & maskq[3]) + ((srcq[0] >> 2) & maskq[6]) */
 	/* dstq[1] = (srcq[1] & maskq[1]) + ((srcq[1] >> 1) & maskq[4]) + ((srcq[1] >> 2) & maskq[7]) */
 	/* dstq[2] = (srcq[2] & maskq[2]) + ((srcq[2] >> 1) & maskq[5]) + ((srcq[2] >> 2) & maskq[8]) */
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		ASM_JUMP_ALIGN
 		"0:\n"
 		"movq (%0), %%mm0\n"
@@ -575,7 +575,7 @@ static inline void internal_rgb_raw32x3_012_def(uint32* dst32, const uint32* src
 {
 	assert_align(((unsigned)src32 & 0x3) == 0 && ((unsigned)dst32 & 0x3) == 0);
 
-	while (count>=3) {
+	while (count >= 3) {
 		unsigned v0, v1, v2;
 		v0 = src32[0];
 		v1 = src32[1];
@@ -594,7 +594,7 @@ static inline void internal_rgb_raw32x3_012_def(uint32* dst32, const uint32* src
 		count -= 3;
 	}
 
-	if (count==1) {
+	if (count == 1) {
 		unsigned v0;
 		v0 = src32[0];
 		v0 = (v0 & mask[0]) + ((v0 >> 1) & mask[6]) + ((v0 >> 2) & mask[12]);
@@ -718,19 +718,19 @@ static void rgb_raw_mask4_compute(const struct video_pipeline_target_struct* tar
 	unsigned pixel3 = rgb_raw_pixel_mask_compute(target, shift, mask);
 
 	switch (target->bytes_per_pixel) {
-	case 1 :
+	case 1:
 		dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel2, pixel3);
 		dst[1] = dst[0];
 		dst[2] = dst[0];
 		dst[3] = dst[0];
 		break;
-	case 2 :
+	case 2:
 		dst[0] = cpu_uint32_make_uint16(pixel0, pixel1);
 		dst[1] = cpu_uint32_make_uint16(pixel2, pixel3);
 		dst[2] = dst[0];
 		dst[3] = dst[1];
 		break;
-	case 4 :
+	case 4:
 		dst[0] = pixel0;
 		dst[1] = pixel1;
 		dst[2] = pixel2;
@@ -749,19 +749,19 @@ static void rgb_raw_carry4_compute(const struct video_pipeline_target_struct* ta
 	unsigned pixel3 = rgb_raw_carry_mask_compute(target, mask);
 
 	switch (target->bytes_per_pixel) {
-	case 1 :
+	case 1:
 		dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel2, pixel3);
 		dst[1] = dst[0];
 		dst[2] = dst[0];
 		dst[3] = dst[0];
 		break;
-	case 2 :
+	case 2:
 		dst[0] = cpu_uint32_make_uint16(pixel0, pixel1);
 		dst[1] = cpu_uint32_make_uint16(pixel2, pixel3);
 		dst[2] = dst[0];
 		dst[3] = dst[1];
 		break;
-	case 4 :
+	case 4:
 		dst[0] = pixel0;
 		dst[1] = pixel1;
 		dst[2] = pixel2;
@@ -779,7 +779,7 @@ static void rgb_raw_mask3_compute(const struct video_pipeline_target_struct* tar
 	unsigned pixel2 = rgb_raw_pixel_mask_compute(target, shift, mask);
 
 	switch (target->bytes_per_pixel) {
-	case 1 :
+	case 1:
 		dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel2, pixel0);
 		dst[1] = cpu_uint32_make_uint8(pixel1, pixel2, pixel0, pixel1);
 		dst[2] = cpu_uint32_make_uint8(pixel2, pixel0, pixel1, pixel2);
@@ -787,7 +787,7 @@ static void rgb_raw_mask3_compute(const struct video_pipeline_target_struct* tar
 		dst[4] = dst[1];
 		dst[5] = dst[2];
 		break;
-	case 2 :
+	case 2:
 		dst[0] = cpu_uint32_make_uint16(pixel0, pixel1);
 		dst[1] = cpu_uint32_make_uint16(pixel2, pixel0);
 		dst[2] = cpu_uint32_make_uint16(pixel1, pixel2);
@@ -795,7 +795,7 @@ static void rgb_raw_mask3_compute(const struct video_pipeline_target_struct* tar
 		dst[4] = dst[1];
 		dst[5] = dst[2];
 		break;
-	case 4 :
+	case 4:
 		dst[0] = pixel0;
 		dst[1] = pixel1;
 		dst[2] = pixel2;
@@ -828,15 +828,15 @@ static void rgb_raw_mask2_compute(const struct video_pipeline_target_struct* tar
 	unsigned pixel1 = rgb_raw_pixel_mask_compute(target, shift, mask);
 
 	switch (target->bytes_per_pixel) {
-	case 1 :
+	case 1:
 		dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel0, pixel1);
 		dst[1] = dst[0];
 		break;
-	case 2 :
+	case 2:
 		dst[0] = cpu_uint32_make_uint16(pixel0, pixel1);
 		dst[1] = dst[0];
 		break;
-	case 4 :
+	case 4:
 		dst[0] = pixel0;
 		dst[1] = pixel1;
 		break;
@@ -860,15 +860,15 @@ static void rgb_raw_carry2_compute(const struct video_pipeline_target_struct* ta
 	unsigned pixel1 = rgb_raw_carry_mask_compute(target, mask);
 
 	switch (target->bytes_per_pixel) {
-	case 1 :
+	case 1:
 		dst[0] = cpu_uint32_make_uint8(pixel0, pixel1, pixel0, pixel1);
 		dst[1] = dst[0];
 		break;
-	case 2 :
+	case 2:
 		dst[0] = cpu_uint32_make_uint16(pixel0, pixel1);
 		dst[1] = dst[0];
 		break;
-	case 4 :
+	case 4:
 		dst[0] = pixel0;
 		dst[1] = pixel1;
 		break;
@@ -882,15 +882,15 @@ static void rgb_raw_mask1_compute(const struct video_pipeline_target_struct* tar
 	unsigned pixel0 = rgb_raw_pixel_mask_compute(target, shift, mask);
 
 	switch (target->bytes_per_pixel) {
-	case 1 :
+	case 1:
 		dst[0] = cpu_uint32_make_uint8(pixel0, pixel0, pixel0, pixel0);
 		dst[1] = dst[0];
 		break;
-	case 2 :
+	case 2:
 		dst[0] = cpu_uint32_make_uint16(pixel0, pixel0);
 		dst[1] = dst[0];
 		break;
-	case 4 :
+	case 4:
 		dst[0] = pixel0;
 		dst[1] = dst[0];
 		break;
@@ -911,22 +911,22 @@ static void byte_raw_mask1_compute(const struct video_pipeline_target_struct* ta
 /* internal_rgb_triad16pix */
 
 /*
-This mask is applyed at the image:
+   This mask is applyed at the image:
 
-  .... (type 0)
-  GBR. (type 1)
-  GBR.
-  GBR.
-  .... (type 0)
-  .GBR (type 2)
-  .GBR
-  .GBR
+   .... (type 0)
+   GBR. (type 1)
+   GBR.
+   GBR.
+   .... (type 0)
+   .GBR (type 2)
+   .GBR
+   .GBR
 
-. = red:75%, green:75%, blue:75%
-G = red:75%, green:100%, blue:75%
-B = red:75%, green:75%, blue:100%
-R = red:100%, green:75%, blue:75%
-*/
+   . = red:75%, green:75%, blue:75%
+   G = red:75%, green:100%, blue:75%
+   B = red:75%, green:75%, blue:100%
+   R = red:100%, green:75%, blue:75%
+ */
 
 enum RGB_TRIAD16PIX_MASK {
 	RGB_TRIAD16PIX_MASK_0_0_0, /* type 0 shift 0 addr 0 */
@@ -1006,16 +1006,16 @@ static void internal_rgb_triad16pix_set(const struct video_pipeline_target_struc
 static inline void internal_rgb_triad16pix8_asm(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
 	switch (line % 8) {
-	case 0 :
-	case 4 :
+	case 0:
+	case 4:
 		internal_rgb_raw128_12carry_asm(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, data + RGB_TRIAD16PIX_MASK_0_c_0, count / 16);
 		break;
-	case 1 :
-	case 2 :
-	case 3 :
+	case 1:
+	case 2:
+	case 3:
 		internal_rgb_raw128_012carry_asm(dst, src, data + RGB_TRIAD16PIX_MASK_1_0_0, data + RGB_TRIAD16PIX_MASK_1_c_0, count / 16);
 		break;
-	default :
+	default:
 		internal_rgb_raw128_012carry_asm(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, data + RGB_TRIAD16PIX_MASK_2_c_0, count / 16);
 		break;
 	}
@@ -1024,16 +1024,16 @@ static inline void internal_rgb_triad16pix8_asm(unsigned line, uint8* dst, const
 static inline void internal_rgb_triadstrong16pix8_asm(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
 	switch (line % 8) {
-	case 0 :
-	case 4 :
+	case 0:
+	case 4:
 		internal_rgb_raw128_1_asm(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 16);
 		break;
-	case 1 :
-	case 2 :
-	case 3 :
+	case 1:
+	case 2:
+	case 3:
 		internal_rgb_raw128_01_asm(dst, src, data + RGB_TRIAD16PIX_MASK_1_0_0, count / 16);
 		break;
-	default :
+	default:
 		internal_rgb_raw128_01_asm(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 16);
 		break;
 	}
@@ -1042,16 +1042,16 @@ static inline void internal_rgb_triadstrong16pix8_asm(unsigned line, uint8* dst,
 static inline void internal_rgb_triad16pix16_asm(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
 	switch (line % 8) {
-	case 0 :
-	case 4 :
+	case 0:
+	case 4:
 		internal_rgb_raw128_12carry_asm(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, data + RGB_TRIAD16PIX_MASK_0_c_0, count / 8);
 		break;
-	case 1 :
-	case 2 :
-	case 3 :
+	case 1:
+	case 2:
+	case 3:
 		internal_rgb_raw128_012carry_asm(dst, src, data + RGB_TRIAD16PIX_MASK_1_0_0, data + RGB_TRIAD16PIX_MASK_1_c_0, count / 8);
 		break;
-	default :
+	default:
 		internal_rgb_raw128_012carry_asm(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, data + RGB_TRIAD16PIX_MASK_2_c_0, count / 8);
 		break;
 	}
@@ -1060,16 +1060,16 @@ static inline void internal_rgb_triad16pix16_asm(unsigned line, uint16* dst, con
 static inline void internal_rgb_triadstrong16pix16_asm(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
 	switch (line % 8) {
-	case 0 :
-	case 4 :
+	case 0:
+	case 4:
 		internal_rgb_raw128_1_asm(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 8);
 		break;
-	case 1 :
-	case 2 :
-	case 3 :
+	case 1:
+	case 2:
+	case 3:
 		internal_rgb_raw128_01_asm(dst, src, data + RGB_TRIAD16PIX_MASK_1_0_0, count / 8);
 		break;
-	default :
+	default:
 		internal_rgb_raw128_01_asm(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 8);
 		break;
 	}
@@ -1078,16 +1078,16 @@ static inline void internal_rgb_triadstrong16pix16_asm(unsigned line, uint16* ds
 static inline void internal_rgb_triad16pix32_asm(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
 	switch (line % 8) {
-	case 0 :
-	case 4 :
+	case 0:
+	case 4:
 		internal_rgb_raw128_12carry_asm(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, data + RGB_TRIAD16PIX_MASK_0_c_0, count / 4);
 		break;
-	case 1 :
-	case 2 :
-	case 3 :
+	case 1:
+	case 2:
+	case 3:
 		internal_rgb_raw128_012carry_asm(dst, src, data + RGB_TRIAD16PIX_MASK_1_0_0, data + RGB_TRIAD16PIX_MASK_1_c_0, count / 4);
 		break;
-	default :
+	default:
 		internal_rgb_raw128_012carry_asm(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, data + RGB_TRIAD16PIX_MASK_2_c_0, count / 4);
 		break;
 	}
@@ -1096,16 +1096,16 @@ static inline void internal_rgb_triad16pix32_asm(unsigned line, uint32* dst, con
 static inline void internal_rgb_triadstrong16pix32_asm(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
 	switch (line % 8) {
-	case 0 :
-	case 4 :
+	case 0:
+	case 4:
 		internal_rgb_raw128_1_asm(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 4);
 		break;
-	case 1 :
-	case 2 :
-	case 3 :
+	case 1:
+	case 2:
+	case 3:
 		internal_rgb_raw128_01_asm(dst, src, data + RGB_TRIAD16PIX_MASK_1_0_0, count / 4);
 		break;
-	default :
+	default:
 		internal_rgb_raw128_01_asm(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 4);
 		break;
 	}
@@ -1116,16 +1116,16 @@ static inline void internal_rgb_triadstrong16pix32_asm(unsigned line, uint32* ds
 static inline void internal_rgb_triad16pix8_def(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
 	switch (line % 8) {
-	case 0 :
-	case 4 :
+	case 0:
+	case 4:
 		internal_rgb_raw32_12carry_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 4);
 		break;
-	case 1 :
-	case 2 :
-	case 3 :
+	case 1:
+	case 2:
+	case 3:
 		internal_rgb_raw32_012carry_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_1_0_0, count / 4);
 		break;
-	default :
+	default:
 		internal_rgb_raw32_012carry_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 4);
 		break;
 	}
@@ -1134,16 +1134,16 @@ static inline void internal_rgb_triad16pix8_def(unsigned line, uint8* dst, const
 static inline void internal_rgb_triadstrong16pix8_def(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
 	switch (line % 8) {
-	case 0 :
-	case 4 :
+	case 0:
+	case 4:
 		internal_rgb_raw32_1_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 4);
 		break;
-	case 1 :
-	case 2 :
-	case 3 :
+	case 1:
+	case 2:
+	case 3:
 		internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_1_0_0, count / 4);
 		break;
-	default :
+	default:
 		internal_rgb_raw32_01_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 4);
 		break;
 	}
@@ -1152,16 +1152,16 @@ static inline void internal_rgb_triadstrong16pix8_def(unsigned line, uint8* dst,
 static inline void internal_rgb_triad16pix16_def(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
 	switch (line % 8) {
-	case 0 :
-	case 4 :
+	case 0:
+	case 4:
 		internal_rgb_raw32x2_12_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 2);
 		break;
-	case 1 :
-	case 2 :
-	case 3 :
+	case 1:
+	case 2:
+	case 3:
 		internal_rgb_raw32x2_012_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_1_0_0, count / 2);
 		break;
-	default :
+	default:
 		internal_rgb_raw32x2_012_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 2);
 		break;
 	}
@@ -1170,16 +1170,16 @@ static inline void internal_rgb_triad16pix16_def(unsigned line, uint16* dst, con
 static inline void internal_rgb_triadstrong16pix16_def(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
 	switch (line % 8) {
-	case 0 :
-	case 4 :
+	case 0:
+	case 4:
 		internal_rgb_raw32x2_1_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_0_0_0, count / 2);
 		break;
-	case 1 :
-	case 2 :
-	case 3 :
+	case 1:
+	case 2:
+	case 3:
 		internal_rgb_raw32x2_01_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_1_0_0, count / 2);
 		break;
-	default :
+	default:
 		internal_rgb_raw32x2_01_def((uint32*)dst, (uint32*)src, data + RGB_TRIAD16PIX_MASK_2_0_0, count / 2);
 		break;
 	}
@@ -1188,16 +1188,16 @@ static inline void internal_rgb_triadstrong16pix16_def(unsigned line, uint16* ds
 static inline void internal_rgb_triad16pix32_def(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
 	switch (line % 8) {
-	case 0 :
-	case 4 :
+	case 0:
+	case 4:
 		internal_rgb_raw32x2_12_def(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, count);
 		break;
-	case 1 :
-	case 2 :
-	case 3 :
+	case 1:
+	case 2:
+	case 3:
 		internal_rgb_raw32x2_012_def(dst, src, data + RGB_TRIAD16PIX_MASK_1_0_0, count);
 		break;
-	default :
+	default:
 		internal_rgb_raw32x2_012_def(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, count);
 		break;
 	}
@@ -1206,18 +1206,18 @@ static inline void internal_rgb_triad16pix32_def(unsigned line, uint32* dst, con
 static inline void internal_rgb_triadstrong16pix32_def(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
 	switch (line % 8) {
-		case 0 :
-		case 4 :
-			internal_rgb_raw32x2_1_def(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, count);
-			break;
-		case 1 :
-		case 2 :
-		case 3 :
-			internal_rgb_raw32x2_01_def(dst, src, data + RGB_TRIAD16PIX_MASK_1_0_0, count);
-			break;
-		default :
-			internal_rgb_raw32x2_01_def(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, count);
-			break;
+	case 0:
+	case 4:
+		internal_rgb_raw32x2_1_def(dst, src, data + RGB_TRIAD16PIX_MASK_0_0_0, count);
+		break;
+	case 1:
+	case 2:
+	case 3:
+		internal_rgb_raw32x2_01_def(dst, src, data + RGB_TRIAD16PIX_MASK_1_0_0, count);
+		break;
+	default:
+		internal_rgb_raw32x2_01_def(dst, src, data + RGB_TRIAD16PIX_MASK_2_0_0, count);
+		break;
 	}
 }
 
@@ -1225,19 +1225,19 @@ static inline void internal_rgb_triadstrong16pix32_def(unsigned line, uint32* ds
 /* internal_rgb_triad6pix */
 
 /*
-This mask is applyed at the image:
+   This mask is applyed at the image:
 
-  BR (type 0)
-  BG (type 1)
-  RG (type 2)
-  RB (type 3)
-  GB (type 4)
-  GR (type 5)
+   BR (type 0)
+   BG (type 1)
+   RG (type 2)
+   RB (type 3)
+   GB (type 4)
+   GR (type 5)
 
-G = red:75%, green:100%, blue:75%
-B = red:75%, green:75%, blue:100%
-R = red:100%, green:75%, blue:75%
-*/
+   G = red:75%, green:100%, blue:75%
+   B = red:75%, green:75%, blue:100%
+   R = red:100%, green:75%, blue:75%
+ */
 
 enum RGB_TRIAD6PIX_MASK {
 	RGB_TRIAD6PIX_MASK_0_0_0, /* type 0 shift 0 addr 0 */
@@ -1425,16 +1425,16 @@ static inline void internal_rgb_triadstrong6pix32_def(unsigned line, uint32* dst
 /* internal_rgb_triad3pix */
 
 /*
-This mask is applyed at the image:
+   This mask is applyed at the image:
 
-  RB (type 0)
-  GR (type 1)
-  BG (type 2)
+   RB (type 0)
+   GR (type 1)
+   BG (type 2)
 
-R = red:100%, green:75%, blue:75%
-G = red:75%, green:100%, blue:75%
-B = red:75%, green:75%, blue:100%
-*/
+   R = red:100%, green:75%, blue:75%
+   G = red:75%, green:100%, blue:75%
+   B = red:75%, green:75%, blue:100%
+ */
 
 enum RGB_TRIAD3PIX_MASK {
 	RGB_TRIAD3PIX_MASK_0_0_0, /* type 0 shift 0 addr 0 */
@@ -1601,7 +1601,7 @@ static void internal_rgb_scandouble_set(const struct video_pipeline_target_struc
 		/* type 1 */
 		rgb_raw_mask1_compute(target, data + RGB_SCANDOUBLE_MASK_1_0_0, 0, 0x0); /* factor 2^0 = 100% */
 		rgb_raw_mask1_compute(target, data + RGB_SCANDOUBLE_MASK_1_1_0, 1, 0x7); /* factor 2^-1 = 50% */
-	}  else if (color_def_type_get(target->color_def) == adv_color_type_yuy2) {
+	} else if (color_def_type_get(target->color_def) == adv_color_type_yuy2) {
 		/* type 0 */
 		byte_raw_mask1_compute(target, data + RGB_SCANDOUBLE_MASK_0_0_0, 0, 0xF); /* factor 2^0 = 100% */
 		byte_raw_mask1_compute(target, data + RGB_SCANDOUBLE_MASK_0_1_0, 1, 0x0); /* factor 2^-1 = 50% */
@@ -1798,13 +1798,13 @@ static void internal_rgb_scantriple_set(const struct video_pipeline_target_struc
 static inline void internal_rgb_scantriple8_asm(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
 	switch (line % 3) {
-	case 0 :
+	case 0:
 		internal_copy8_asm(dst, src, count);
 		break;
-	case 1 :
+	case 1:
 		internal_rgb_raw64_1_asm(dst, src, data + RGB_SCANTRIPLE_MASK_1_0_0, count / 8);
 		break;
-	case 2 :
+	case 2:
 		internal_rgb_raw64_2_asm(dst, src, data + RGB_SCANTRIPLE_MASK_2_0_0, count / 8);
 		break;
 	}
@@ -1813,13 +1813,13 @@ static inline void internal_rgb_scantriple8_asm(unsigned line, uint8* dst, const
 static inline void internal_rgb_scantriple16_asm(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
 	switch (line % 3) {
-	case 0 :
+	case 0:
 		internal_copy16_asm(dst, src, count);
 		break;
-	case 1 :
+	case 1:
 		internal_rgb_raw64_1_asm(dst, src, data + RGB_SCANTRIPLE_MASK_1_0_0, count / 4);
 		break;
-	case 2 :
+	case 2:
 		internal_rgb_raw64_2_asm(dst, src, data + RGB_SCANTRIPLE_MASK_2_0_0, count / 4);
 		break;
 	}
@@ -1828,16 +1828,16 @@ static inline void internal_rgb_scantriple16_asm(unsigned line, uint16* dst, con
 static inline void internal_rgb_scantriple32_asm(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
 	switch (line % 3) {
-	case 0 :
+	case 0:
 		internal_copy32_asm(dst, src, count);
 		break;
-	case 1 :
+	case 1:
 		if (data[RGB_SCANTRIPLE_MASK_1_0_0] == 0)
 			internal_rgb_raw64_1_asm(dst, src, data + RGB_SCANTRIPLE_MASK_1_0_0, count / 2);
 		else
 			internal_rgb_raw64_01_asm(dst, src, data + RGB_SCANTRIPLE_MASK_1_0_0, count / 2);
 		break;
-	case 2 :
+	case 2:
 		if (data[RGB_SCANTRIPLE_MASK_2_0_0] == 0)
 			internal_rgb_raw64_2_asm(dst, src, data + RGB_SCANTRIPLE_MASK_2_0_0, count / 2);
 		else
@@ -1851,13 +1851,13 @@ static inline void internal_rgb_scantriple32_asm(unsigned line, uint32* dst, con
 static inline void internal_rgb_scantriple8_def(unsigned line, uint8* dst, const uint8* src, const uint32* data, unsigned count)
 {
 	switch (line % 3) {
-	case 0 :
+	case 0:
 		internal_copy8_def(dst, src, count);
 		break;
-	case 1 :
+	case 1:
 		internal_rgb_raw32_1_def((uint32*)dst, (uint32*)src, data + RGB_SCANTRIPLE_MASK_1_0_0, count / 4);
 		break;
-	case 2 :
+	case 2:
 		internal_rgb_raw32_2_def((uint32*)dst, (uint32*)src, data + RGB_SCANTRIPLE_MASK_2_0_0, count / 4);
 		break;
 	}
@@ -1866,13 +1866,13 @@ static inline void internal_rgb_scantriple8_def(unsigned line, uint8* dst, const
 static inline void internal_rgb_scantriple16_def(unsigned line, uint16* dst, const uint16* src, const uint32* data, unsigned count)
 {
 	switch (line % 3) {
-	case 0 :
+	case 0:
 		internal_copy16_def(dst, src, count);
 		break;
-	case 1 :
+	case 1:
 		internal_rgb_raw32_1_def((uint32*)dst, (uint32*)src, data + RGB_SCANTRIPLE_MASK_1_0_0, count / 2);
 		break;
-	case 2 :
+	case 2:
 		internal_rgb_raw32_2_def((uint32*)dst, (uint32*)src, data + RGB_SCANTRIPLE_MASK_2_0_0, count / 2);
 		break;
 	}
@@ -1881,16 +1881,16 @@ static inline void internal_rgb_scantriple16_def(unsigned line, uint16* dst, con
 static inline void internal_rgb_scantriple32_def(unsigned line, uint32* dst, const uint32* src, const uint32* data, unsigned count)
 {
 	switch (line % 3) {
-	case 0 :
+	case 0:
 		internal_copy32_def(dst, src, count);
 		break;
-	case 1 :
+	case 1:
 		if (data[RGB_SCANTRIPLE_MASK_1_0_0] == 0)
 			internal_rgb_raw32_1_def(dst, src, data + RGB_SCANTRIPLE_MASK_1_0_0, count);
 		else
 			internal_rgb_raw32_01_def(dst, src, data + RGB_SCANTRIPLE_MASK_1_0_0, count);
 		break;
-	case 2 :
+	case 2:
 		if (data[RGB_SCANTRIPLE_MASK_2_0_0] == 0)
 			internal_rgb_raw32_2_def(dst, src, data + RGB_SCANTRIPLE_MASK_2_0_0, count);
 		else

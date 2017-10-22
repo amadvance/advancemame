@@ -48,7 +48,7 @@ static adv_error parse_int(int* r, const char** begin, const char* end)
 {
 	char* e;
 	*r = strtol(*begin, &e, 10);
-	if (e==*begin || e > end) {
+	if (e == *begin || e > end) {
 		snprintf(video_mode_parse_error_buffer, sizeof(video_mode_parse_error_buffer), "Error in value");
 		return -1;
 	}
@@ -89,7 +89,7 @@ static adv_error parse_quote(char* token, unsigned size, const char** begin, con
 		return -1;
 	++*begin;
 
-	if (parse_token(token, size, "\"", begin, end)!=0)
+	if (parse_token(token, size, "\"", begin, end) != 0)
 		return -1;
 
 	if (*begin == end || **begin != '"')
@@ -103,7 +103,7 @@ static adv_error parse_double(double* r, const char** begin, const char* end)
 {
 	char* e;
 	*r = strtod(*begin, &e);
-	if (e==*begin || e > end) {
+	if (e == *begin || e > end) {
 		snprintf(video_mode_parse_error_buffer, sizeof(video_mode_parse_error_buffer), "Error in value");
 		return -1;
 	}
@@ -182,26 +182,26 @@ static adv_error parse_crtc(adv_crtc* crtc, const char* begin, const char* end)
 		char token[32];
 		if (parse_token(token, sizeof(token), " \t", &begin, end))
 			return -1;
-		if (strcasecmp(token, "doublescan")==0) {
+		if (strcasecmp(token, "doublescan") == 0) {
 			crtc_doublescan_set(crtc);
-		} else if (strcasecmp(token, "+hsync")==0) {
+		} else if (strcasecmp(token, "+hsync") == 0) {
 			crtc_phsync_set(crtc);
-		} else if (strcasecmp(token, "-hsync")==0) {
+		} else if (strcasecmp(token, "-hsync") == 0) {
 			crtc_nhsync_set(crtc);
-		} else if (strcasecmp(token, "+vsync")==0) {
+		} else if (strcasecmp(token, "+vsync") == 0) {
 			crtc_pvsync_set(crtc);
-		} else if (strcasecmp(token, "-vsync")==0) {
+		} else if (strcasecmp(token, "-vsync") == 0) {
 			crtc_nvsync_set(crtc);
-		} else if (strcasecmp(token, "interlaced")==0) { /* LEGACY for the old modelines */
+		} else if (strcasecmp(token, "interlaced") == 0) { /* LEGACY for the old modelines */
 			crtc_interlace_set(crtc);
-		} else if (strcasecmp(token, "interlace")==0) {
+		} else if (strcasecmp(token, "interlace") == 0) {
 			crtc_interlace_set(crtc);
-		} else if (strcasecmp(token, "tvpal")==0) {
+		} else if (strcasecmp(token, "tvpal") == 0) {
 			/* ignore */
-		} else if (strcasecmp(token, "tvntsc")==0) {
+		} else if (strcasecmp(token, "tvntsc") == 0) {
 			/* ignore */
 		} else {
-			if (token[0]=='#')
+			if (token[0] == '#')
 				return 0; /* comment */
 			snprintf(video_mode_parse_error_buffer, sizeof(video_mode_parse_error_buffer), "Unknown token '%s'", token);
 			return -1;
@@ -256,7 +256,7 @@ void crtc_print(char* buffer, unsigned size, const adv_crtc* crtc)
 
 	*buffer = 0;
 
-	if (strchr(crtc->name, ' ')!=0)
+	if (strchr(crtc->name, ' ') != 0)
 		sncatf(buffer, size, "\"%s\"", crtc->name);
 	else
 		sncatf(buffer, size, "%s", crtc->name);
@@ -441,7 +441,7 @@ adv_error monitor_parse(adv_monitor* monitor, const char* clock)
 {
 	monitor_reset(monitor);
 
-	if (monitor_phv_parse(monitor->mode_map, &monitor->mode_mac, clock, clock+strlen(clock)) != 0) {
+	if (monitor_phv_parse(monitor->mode_map, &monitor->mode_mac, clock, clock + strlen(clock)) != 0) {
 		error_set("Invalid monitor 'clock' specification");
 		return -1;
 	}
@@ -469,7 +469,7 @@ adv_error monitor_conversion_legacy(adv_conf* context)
 	char* hs;
 	char* vs;
 	char c;
-	int pi,hi,vi;
+	int pi, hi, vi;
 
 	/* LEGACY support of old device_video_p/h/vclock format */
 	p_error = conf_string_section_get(context, "", "device_video_pclock", &p);
@@ -567,7 +567,7 @@ adv_error monitor_load(adv_conf* context, adv_monitor* monitor)
 		return 1;
 	}
 
-	if (monitor_phv_parse(monitor->mode_map, &monitor->mode_mac, clock, clock+strlen(clock)) != 0) {
+	if (monitor_phv_parse(monitor->mode_map, &monitor->mode_mac, clock, clock + strlen(clock)) != 0) {
 		error_set("Invalid argument '%s' for option 'device_video_clock'", clock);
 		return -1;
 	}
@@ -596,7 +596,7 @@ void monitor_print(char* buffer, unsigned size, const adv_monitor* monitor)
 	unsigned i;
 
 	buffer[0] = 0;
-	for(i=0;i<monitor->mode_mac;++i) {
+	for (i = 0; i < monitor->mode_mac; ++i) {
 		char mode_buffer[1024];
 
 		if (i != 0)
@@ -760,7 +760,7 @@ static void out_generate_interpolate(char* buffer, unsigned size, const adv_gene
 
 adv_error generate_parse(adv_generate* generate, const char* g)
 {
-	if (parse_generate(g, g+strlen(g), generate)!=0) {
+	if (parse_generate(g, g + strlen(g), generate) != 0) {
 		error_set("Invalid specification");
 		return -1;
 	}
@@ -788,7 +788,7 @@ adv_error generate_interpolate_load(adv_conf* context, adv_generate_interpolate_
 	while (!conf_iterator_is_end(&i)) {
 		const char* s = conf_iterator_string_get(&i);
 
-		if (parse_generate_interpolate(s, s+strlen(s), &interpolate->map[mac])!=0) {
+		if (parse_generate_interpolate(s, s + strlen(s), &interpolate->map[mac]) != 0) {
 			error_set("Invalid argument '%s' in option 'device_video_format'", s);
 			return -1;
 		}
@@ -816,7 +816,7 @@ void generate_interpolate_save(adv_conf* context, const adv_generate_interpolate
 {
 	unsigned i;
 	conf_remove(context, "", "device_video_format");
-	for(i=0;i<interpolate->mac;++i) {
+	for (i = 0; i < interpolate->mac; ++i) {
 		char buffer[1024];
 		out_generate_interpolate(buffer, sizeof(buffer), &interpolate->map[i]);
 		conf_string_set(context, "", "device_video_format", buffer);
@@ -896,7 +896,7 @@ static adv_error parse_gtf(const char* begin, const char* end, adv_gtf* data)
 
 adv_error gtf_parse(adv_gtf* gtf, const char* g)
 {
-	if (parse_gtf(g, g+strlen(g), gtf)!=0) {
+	if (parse_gtf(g, g + strlen(g), gtf) != 0) {
 		error_set("Invalid 'gtf' specification");
 		return -1;
 	}
@@ -913,7 +913,7 @@ adv_error gtf_load(adv_conf* context, adv_gtf* gtf)
 		return 1;
 	}
 
-	if (parse_gtf(s, s+strlen(s), gtf)!=0) {
+	if (parse_gtf(s, s + strlen(s), gtf) != 0) {
 		error_set("Invalid argument '%s' for option 'device_video_gtf'", s);
 		return -1;
 	}

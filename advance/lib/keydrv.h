@@ -53,7 +53,7 @@ extern "C" {
 typedef struct keyb_driver_struct {
 	const char* name; /**< Name of the driver. */
 	const adv_device* device_map; /**< Vector of supported devices. 0 terminated. */
-	
+
 	adv_error (*load)(adv_conf* context);
 	void (*reg)(adv_conf* context);
 	adv_error (*init)(int device_id, adv_bool disable_special);
@@ -243,5 +243,4 @@ const char* keyb_name(void);
 #endif
 
 #endif
-
 

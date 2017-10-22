@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -107,29 +107,29 @@ static struct language LANG_ASIA =
 { 0, 0, { "Asia", "Japan", "Japanese" } };
 
 static struct language LANG[] = {
-{ &LANG_USA, "usa", { "USA", "US", "America", "American" } },
-{ &LANG_USA, "canada", { "Canada" } },
-{ &LANG_EUROPE, "england", { "England", "British" } },
-{ &LANG_EUROPE, "italy", { "Italy", "Italian" } },
-{ &LANG_EUROPE, "germany", { "Germany", "German" } },
-{ &LANG_EUROPE, "spain", { "Spain", "Hispanic", "Spanish" } },
-{ &LANG_EUROPE, "austria", { "Austria" } },
-{ &LANG_EUROPE, "norway", { "Norway", "Norwegian" } },
-{ &LANG_EUROPE, "france", { "France", "French" } },
-{ &LANG_EUROPE, "denmark", { "Denmark" } },
-{ &LANG_ASIA, "japan", { "Japan", "Japanese" } },
-{ &LANG_ASIA, "korea", { "Korea" } },
-{ &LANG_ASIA, "china", { "China" } },
-{ &LANG_ASIA, "hongkong", { "Hong Kong", "Hong-Kong" } },
-{ &LANG_ASIA, "taiwan", { "Taiwan" } },
-{ 0, 0 }
+	{ &LANG_USA, "usa", { "USA", "US", "America", "American" } },
+	{ &LANG_USA, "canada", { "Canada" } },
+	{ &LANG_EUROPE, "england", { "England", "British" } },
+	{ &LANG_EUROPE, "italy", { "Italy", "Italian" } },
+	{ &LANG_EUROPE, "germany", { "Germany", "German" } },
+	{ &LANG_EUROPE, "spain", { "Spain", "Hispanic", "Spanish" } },
+	{ &LANG_EUROPE, "austria", { "Austria" } },
+	{ &LANG_EUROPE, "norway", { "Norway", "Norwegian" } },
+	{ &LANG_EUROPE, "france", { "France", "French" } },
+	{ &LANG_EUROPE, "denmark", { "Denmark" } },
+	{ &LANG_ASIA, "japan", { "Japan", "Japanese" } },
+	{ &LANG_ASIA, "korea", { "Korea" } },
+	{ &LANG_ASIA, "china", { "China" } },
+	{ &LANG_ASIA, "hongkong", { "Hong Kong", "Hong-Kong" } },
+	{ &LANG_ASIA, "taiwan", { "Taiwan" } },
+	{ 0, 0 }
 };
 
 static adv_bool lang_match(const struct language* id, const char* text)
 {
 	unsigned i;
 
-	for(i=0;id->tag[i];++i) {
+	for (i = 0; id->tag[i]; ++i) {
 		const char* j = strstr(text, id->tag[i]);
 		if (j != 0) {
 			if (j == text || !isalpha(j[-1])) {
@@ -188,7 +188,7 @@ int osd_display_loading_rom_message(const char* name, rom_load_data* romdata)
 
 	if (!romdata && name) {
 		/* it's a message */
-		if (!context->config.quiet_flag || strstr(name, "ERROR")!=0) {
+		if (!context->config.quiet_flag || strstr(name, "ERROR") != 0) {
 			target_err("%s", name);
 		}
 	}
@@ -226,7 +226,7 @@ static void config_customize_language(struct advance_global_context* context, in
 	i = current;
 	while (i->type != IPT_END) {
 		if (i->type == IPT_DIPSWITCH_NAME
-			&& (strstr(i->name, "Language")!=0 || strstr(i->name, "Territory")!=0 || strstr(i->name, "Country")!=0)) {
+			&& (strstr(i->name, "Language") != 0 || strstr(i->name, "Territory") != 0 || strstr(i->name, "Country") != 0)) {
 			input_port_entry* j;
 			input_port_entry* best;
 			unsigned best_value;
@@ -251,7 +251,7 @@ static void config_customize_language(struct advance_global_context* context, in
 			/* search the best */
 			best = begin;
 			best_value = lang_identify_text(context->config.lang, best->name);
-			for(j=begin;j!=end;++j) {
+			for (j = begin; j != end; ++j) {
 				unsigned value = lang_identify_text(context->config.lang, j->name);
 				if (value > best_value) {
 					best_value = value;
@@ -311,7 +311,7 @@ static void config_customize_difficulty(struct advance_global_context* context, 
 	i = current;
 	while (i->type != IPT_END) {
 		if (i->type == IPT_DIPSWITCH_NAME
-			&& strcmp(i->name, "Difficulty")==0) {
+			&& strcmp(i->name, "Difficulty") == 0) {
 
 			/* the value is stored in the NAME item */
 			value = i;
@@ -347,26 +347,26 @@ static void config_customize_difficulty(struct advance_global_context* context, 
 
 	/* get the list of names */
 	switch (context->config.difficulty) {
-	case DIFFICULTY_NONE :
+	case DIFFICULTY_NONE:
 		/* nothing to do */
 		return;
-	case DIFFICULTY_EASIEST :
+	case DIFFICULTY_EASIEST:
 		names = NAME_EASIEST;
 		names_secondary = NAME_EASY;
 		break;
-	case DIFFICULTY_EASY :
+	case DIFFICULTY_EASY:
 		names = NAME_EASY;
 		names_secondary = 0;
 		break;
-	case DIFFICULTY_MEDIUM :
+	case DIFFICULTY_MEDIUM:
 		names = NAME_MEDIUM;
 		names_secondary = NAME_EASY;
 		break;
-	case DIFFICULTY_HARD :
+	case DIFFICULTY_HARD:
 		names = NAME_HARD;
 		names_secondary = 0;
 		break;
-	case DIFFICULTY_HARDEST :
+	case DIFFICULTY_HARDEST:
 		names = NAME_HARDEST;
 		names_secondary = NAME_HARD;
 		break;
@@ -375,9 +375,9 @@ static void config_customize_difficulty(struct advance_global_context* context, 
 	/* search an exact match */
 	if (!level) {
 		unsigned j;
-		for(j=0;names[j] && !level;++j) {
-			for(i=begin;i!=end && !level;++i) {
-				if (strcmp(names[j], i->name)==0) {
+		for (j = 0; names[j] && !level; ++j) {
+			for (i = begin; i != end && !level; ++i) {
+				if (strcmp(names[j], i->name) == 0) {
 					level = i;
 					break;
 				}
@@ -388,9 +388,9 @@ static void config_customize_difficulty(struct advance_global_context* context, 
 	/* search a secondary match */
 	if (!level && names_secondary) {
 		unsigned j;
-		for(j=0;names[j] && !level;++j) {
-			for(i=begin;i!=end && !level;++i) {
-				if (strcmp(names_secondary[j], i->name)==0) {
+		for (j = 0; names[j] && !level; ++j) {
+			for (i = begin; i != end && !level; ++i) {
+				if (strcmp(names_secondary[j], i->name) == 0) {
 					level = i;
 					break;
 				}
@@ -402,19 +402,19 @@ static void config_customize_difficulty(struct advance_global_context* context, 
 	if (!level) {
 		unsigned n = end - begin;
 		switch (context->config.difficulty) {
-		case DIFFICULTY_EASIEST :
+		case DIFFICULTY_EASIEST:
 			level = begin;
 			break;
-		case DIFFICULTY_EASY :
+		case DIFFICULTY_EASY:
 			level = begin + n / 4;
-				break;
-		case DIFFICULTY_MEDIUM :
+			break;
+		case DIFFICULTY_MEDIUM:
 			level = begin + n * 2 / 4;
 			break;
-		case DIFFICULTY_HARD :
+		case DIFFICULTY_HARD:
 			level = begin + n * 3 / 4;
 			break;
-		case DIFFICULTY_HARDEST :
+		case DIFFICULTY_HARDEST:
 			level = end - 1;
 			break;
 		}
@@ -520,11 +520,11 @@ static void config_customize_mutedemo(struct advance_global_context* context, in
 			/* read the value */
 			while (i->type == IPT_DIPSWITCH_SETTING) {
 				if (match_name) {
-					if (!exact && strcmp(i->name, "Off")==0) {
+					if (!exact && strcmp(i->name, "Off") == 0) {
 						exact = i;
 					}
 				} else {
-					if (!exact && strcmp(i->name, "Demo Sounds Off")==0) {
+					if (!exact && strcmp(i->name, "Demo Sounds Off") == 0) {
 						exact = i;
 					}
 				}
@@ -641,7 +641,7 @@ static void config_customize_input(struct advance_global_context* context, adv_c
 	i = current;
 	while (i->type != IPT_END) {
 		unsigned n;
-		for(n=glue_port_seq_begin(i->type);n<glue_port_seq_end(i->type);++n) {
+		for (n = glue_port_seq_begin(i->type); n < glue_port_seq_end(i->type); ++n) {
 			struct mame_port* p;
 			p = mame_port_find(glue_port_convert(i->type, i->player, glue_port_seqtype(i->type, n), i->name));
 			if (p != 0) {
@@ -745,7 +745,7 @@ void osd_config_load_default(input_port_default_entry* backup, input_port_defaul
 	i = list;
 	while (i->type != IPT_END) {
 		unsigned n;
-		for(n=glue_port_seq_begin(i->type);n<glue_port_seq_end(i->type);++n) {
+		for (n = glue_port_seq_begin(i->type); n < glue_port_seq_end(i->type); ++n) {
 			struct mame_port* p;
 			p = mame_port_find(glue_port_convert(i->type, i->player, glue_port_seqtype(i->type, n), i->name));
 			if (p != 0) {
@@ -975,12 +975,12 @@ static void config_save_switchport(input_port_entry* def, input_port_entry* curr
 	log_debug(("global: config_save_switchport()\n"));
 
 	switch (current->type) {
-	case IPT_DIPSWITCH_NAME :
+	case IPT_DIPSWITCH_NAME:
 		tag = "input_dipswitch";
 		type = IPT_DIPSWITCH_SETTING;
 		break;
 #ifdef MESS
-	case IPT_CONFIG_NAME :
+	case IPT_CONFIG_NAME:
 		tag = "input_configswitch";
 		type = IPT_CONFIG_SETTING;
 		break;
@@ -990,7 +990,7 @@ static void config_save_switchport(input_port_entry* def, input_port_entry* curr
 		return;
 	}
 
-	if (strcmp(current->name, DEF_STR(Unused))==0 || strcmp(current->name, DEF_STR(Unknown))==0) {
+	if (strcmp(current->name, DEF_STR(Unused)) == 0 || strcmp(current->name, DEF_STR(Unknown)) == 0) {
 		log_std(("WARNING:global: ignoring named Unknown/Unused switchport %d\n", current->type));
 		return;
 	}
@@ -1069,7 +1069,7 @@ void osd_config_save_default(input_port_default_entry* backup, input_port_defaul
 		if (i->name != 0) {
 			switch (type) {
 			default:
-				for(k=glue_port_seq_begin(type);k!=glue_port_seq_end(type);++k) {
+				for (k = glue_port_seq_begin(type); k != glue_port_seq_end(type); ++k) {
 					config_save_seqport_default(j, i, glue_port_seqtype(type, k));
 				}
 				break;
@@ -1095,15 +1095,15 @@ void osd_config_save(input_port_entry* backup, input_port_entry* list)
 
 		if (input_port_active(i)) {
 			switch (type) {
-			case IPT_DIPSWITCH_NAME :
-			case IPT_CONFIG_NAME :
+			case IPT_DIPSWITCH_NAME:
+			case IPT_CONFIG_NAME:
 				config_save_switchport(j, i);
 				break;
 			default:
 				if (analog) {
 					config_save_analogport(j, i);
 				}
-				for(k=glue_port_seq_begin(type);k!=glue_port_seq_end(type);++k) {
+				for (k = glue_port_seq_begin(type); k != glue_port_seq_end(type); ++k) {
 					config_save_seqport(j, i, glue_port_seqtype(type, k));
 				}
 				break;
@@ -1119,12 +1119,12 @@ void osd_config_save(input_port_entry* backup, input_port_entry* list)
 /* Initialization */
 
 static adv_conf_enum_int OPTION_DIFFICULTY[] = {
-{ "none", DIFFICULTY_NONE },
-{ "easiest", DIFFICULTY_EASIEST },
-{ "easy", DIFFICULTY_EASY },
-{ "normal", DIFFICULTY_MEDIUM },
-{ "hard", DIFFICULTY_HARD },
-{ "hardest", DIFFICULTY_HARDEST }
+	{ "none", DIFFICULTY_NONE },
+	{ "easiest", DIFFICULTY_EASIEST },
+	{ "easy", DIFFICULTY_EASY },
+	{ "normal", DIFFICULTY_MEDIUM },
+	{ "hard", DIFFICULTY_HARD },
+	{ "hardest", DIFFICULTY_HARDEST }
 };
 
 #define OPTION_LANG_MAX 64
@@ -1139,12 +1139,12 @@ adv_error advance_global_init(struct advance_global_context* context, adv_conf* 
 
 	OPTION_LANG[0].value = "none";
 	OPTION_LANG[0].map = -1;
-	for(i=0;LANG[i].name && i+1<OPTION_LANG_MAX;++i) {
-		OPTION_LANG[i+1].value = LANG[i].name;
-		OPTION_LANG[i+1].map = i;
+	for (i = 0; LANG[i].name && i + 1 < OPTION_LANG_MAX; ++i) {
+		OPTION_LANG[i + 1].value = LANG[i].name;
+		OPTION_LANG[i + 1].map = i;
 	}
 
-	conf_int_register_enum_default(cfg_context, "misc_lang", OPTION_LANG, i+1, -1);
+	conf_int_register_enum_default(cfg_context, "misc_lang", OPTION_LANG, i + 1, -1);
 	conf_bool_register_default(cfg_context, "misc_freeplay", 0);
 	conf_bool_register_default(cfg_context, "misc_mutedemo", 0);
 	conf_float_register_limit_default(cfg_context, "display_pausebrightness", 0.0, 1.0, 1.0);

@@ -38,17 +38,17 @@
 /* Scale4k C implementation */
 
 /*
-	ABC
-	DEF
-	GHI
+        ABC
+        DEF
+        GHI
 
-	E0E1E2E3
-	E4E5E6E7
-	E8E9EAEB
-	ECEDEEEF
-*/
+        E0E1E2E3
+        E4E5E6E7
+        E8E9EAEB
+        ECEDEEEF
+ */
 
-#define SCALE4K(A,B,C,D,E,F,G,H,I,E0,E1,E2,E3,E4,E5,E6,E7,E8,E9,EA,EB,EC,ED,EE,EF) \
+#define SCALE4K(A, B, C, D, E, F, G, H, I, E0, E1, E2, E3, E4, E5, E6, E7, E8, E9, EA, EB, EC, ED, EE, EF) \
 	if (D == B && B != E) { \
 		/* diagonal */ \
 		if (B == C && D == G) { \
@@ -88,15 +88,15 @@
 		} \
 	}
 
-#define interp_31(A,B) interp_16_31(A, B)
-#define interp_13(A,B) interp_16_31(B, A)
-#define interp_11(A,B) interp_16_11(A, B)
+#define interp_31(A, B) interp_16_31(A, B)
+#define interp_13(A, B) interp_16_31(B, A)
+#define interp_11(A, B) interp_16_11(A, B)
 
 void scale4k_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, interp_uint16* restrict dst2, interp_uint16* restrict dst3, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, unsigned count)
 {
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		interp_uint16 c[9];
 		interp_uint16 e[16];
 
@@ -104,7 +104,7 @@ void scale4k_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, 
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i > 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -114,7 +114,7 @@ void scale4k_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, 
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i < count - 1) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -141,10 +141,10 @@ void scale4k_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, 
 		e[14] = c[4];
 		e[15] = c[4];
 
-		SCALE4K(c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],e[0],e[1],e[2],e[3],e[4],e[5],e[6],e[7],e[8],e[9],e[10],e[11],e[12],e[13],e[14],e[15]);
-		SCALE4K(c[6],c[3],c[0],c[7],c[4],c[1],c[8],c[5],c[2],e[12],e[8],e[4],e[0],e[13],e[9],e[5],e[1],e[14],e[10],e[6],e[2],e[15],e[11],e[7],e[3]);
-		SCALE4K(c[8],c[7],c[6],c[5],c[4],c[3],c[2],c[1],c[0],e[15],e[14],e[13],e[12],e[11],e[10],e[9],e[8],e[7],e[6],e[5],e[4],e[3],e[2],e[1],e[0]);
-		SCALE4K(c[2],c[5],c[8],c[1],c[4],c[7],c[0],c[3],c[6],e[3],e[7],e[11],e[15],e[2],e[6],e[10],e[14],e[1],e[5],e[9],e[13],e[0],e[4],e[8],e[12]);
+		SCALE4K(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11], e[12], e[13], e[14], e[15]);
+		SCALE4K(c[6], c[3], c[0], c[7], c[4], c[1], c[8], c[5], c[2], e[12], e[8], e[4], e[0], e[13], e[9], e[5], e[1], e[14], e[10], e[6], e[2], e[15], e[11], e[7], e[3]);
+		SCALE4K(c[8], c[7], c[6], c[5], c[4], c[3], c[2], c[1], c[0], e[15], e[14], e[13], e[12], e[11], e[10], e[9], e[8], e[7], e[6], e[5], e[4], e[3], e[2], e[1], e[0]);
+		SCALE4K(c[2], c[5], c[8], c[1], c[4], c[7], c[0], c[3], c[6], e[3], e[7], e[11], e[15], e[2], e[6], e[10], e[14], e[1], e[5], e[9], e[13], e[0], e[4], e[8], e[12]);
 
 		dst0[0] = e[0];
 		dst0[1] = e[1];
@@ -177,15 +177,15 @@ void scale4k_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, 
 #undef interp_13
 #undef interp_11
 
-#define interp_31(A,B) interp_32_31(A, B)
-#define interp_13(A,B) interp_32_31(B, A)
-#define interp_11(A,B) interp_32_11(A, B)
+#define interp_31(A, B) interp_32_31(A, B)
+#define interp_13(A, B) interp_32_31(B, A)
+#define interp_11(A, B) interp_32_11(A, B)
 
 void scale4k_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, interp_uint32* restrict dst3, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
 {
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		interp_uint32 c[9];
 		interp_uint32 e[16];
 
@@ -193,7 +193,7 @@ void scale4k_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i > 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -203,7 +203,7 @@ void scale4k_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i < count - 1) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -230,10 +230,10 @@ void scale4k_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 		e[14] = c[4];
 		e[15] = c[4];
 
-		SCALE4K(c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],e[0],e[1],e[2],e[3],e[4],e[5],e[6],e[7],e[8],e[9],e[10],e[11],e[12],e[13],e[14],e[15]);
-		SCALE4K(c[6],c[3],c[0],c[7],c[4],c[1],c[8],c[5],c[2],e[12],e[8],e[4],e[0],e[13],e[9],e[5],e[1],e[14],e[10],e[6],e[2],e[15],e[11],e[7],e[3]);
-		SCALE4K(c[8],c[7],c[6],c[5],c[4],c[3],c[2],c[1],c[0],e[15],e[14],e[13],e[12],e[11],e[10],e[9],e[8],e[7],e[6],e[5],e[4],e[3],e[2],e[1],e[0]);
-		SCALE4K(c[2],c[5],c[8],c[1],c[4],c[7],c[0],c[3],c[6],e[3],e[7],e[11],e[15],e[2],e[6],e[10],e[14],e[1],e[5],e[9],e[13],e[0],e[4],e[8],e[12]);
+		SCALE4K(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11], e[12], e[13], e[14], e[15]);
+		SCALE4K(c[6], c[3], c[0], c[7], c[4], c[1], c[8], c[5], c[2], e[12], e[8], e[4], e[0], e[13], e[9], e[5], e[1], e[14], e[10], e[6], e[2], e[15], e[11], e[7], e[3]);
+		SCALE4K(c[8], c[7], c[6], c[5], c[4], c[3], c[2], c[1], c[0], e[15], e[14], e[13], e[12], e[11], e[10], e[9], e[8], e[7], e[6], e[5], e[4], e[3], e[2], e[1], e[0]);
+		SCALE4K(c[2], c[5], c[8], c[1], c[4], c[7], c[0], c[3], c[6], e[3], e[7], e[11], e[15], e[2], e[6], e[10], e[14], e[1], e[5], e[9], e[13], e[0], e[4], e[8], e[12]);
 
 		dst0[0] = e[0];
 		dst0[1] = e[1];
@@ -266,15 +266,15 @@ void scale4k_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 #undef interp_13
 #undef interp_11
 
-#define interp_31(A,B) interp_yuy2_31(A, B)
-#define interp_13(A,B) interp_yuy2_31(B, A)
-#define interp_11(A,B) interp_yuy2_11(A, B)
+#define interp_31(A, B) interp_yuy2_31(A, B)
+#define interp_13(A, B) interp_yuy2_31(B, A)
+#define interp_11(A, B) interp_yuy2_11(A, B)
 
 void scale4k_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, interp_uint32* restrict dst3, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
 {
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		interp_uint32 c[9];
 		interp_uint32 e[16];
 
@@ -282,7 +282,7 @@ void scale4k_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i > 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -292,7 +292,7 @@ void scale4k_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i < count - 1) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -319,10 +319,10 @@ void scale4k_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1
 		e[14] = c[4];
 		e[15] = c[4];
 
-		SCALE4K(c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],e[0],e[1],e[2],e[3],e[4],e[5],e[6],e[7],e[8],e[9],e[10],e[11],e[12],e[13],e[14],e[15]);
-		SCALE4K(c[6],c[3],c[0],c[7],c[4],c[1],c[8],c[5],c[2],e[12],e[8],e[4],e[0],e[13],e[9],e[5],e[1],e[14],e[10],e[6],e[2],e[15],e[11],e[7],e[3]);
-		SCALE4K(c[8],c[7],c[6],c[5],c[4],c[3],c[2],c[1],c[0],e[15],e[14],e[13],e[12],e[11],e[10],e[9],e[8],e[7],e[6],e[5],e[4],e[3],e[2],e[1],e[0]);
-		SCALE4K(c[2],c[5],c[8],c[1],c[4],c[7],c[0],c[3],c[6],e[3],e[7],e[11],e[15],e[2],e[6],e[10],e[14],e[1],e[5],e[9],e[13],e[0],e[4],e[8],e[12]);
+		SCALE4K(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11], e[12], e[13], e[14], e[15]);
+		SCALE4K(c[6], c[3], c[0], c[7], c[4], c[1], c[8], c[5], c[2], e[12], e[8], e[4], e[0], e[13], e[9], e[5], e[1], e[14], e[10], e[6], e[2], e[15], e[11], e[7], e[3]);
+		SCALE4K(c[8], c[7], c[6], c[5], c[4], c[3], c[2], c[1], c[0], e[15], e[14], e[13], e[12], e[11], e[10], e[9], e[8], e[7], e[6], e[5], e[4], e[3], e[2], e[1], e[0]);
+		SCALE4K(c[2], c[5], c[8], c[1], c[4], c[7], c[0], c[3], c[6], e[3], e[7], e[11], e[15], e[2], e[6], e[10], e[14], e[1], e[5], e[9], e[13], e[0], e[4], e[8], e[12]);
 
 		dst0[0] = e[0];
 		dst0[1] = e[1];

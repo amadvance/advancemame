@@ -46,7 +46,7 @@ extern "C" {
 #define FILTER_ORDER_FIR_MAX 32
 
 /** Max number of poles. */
-#define FILTER_POLE_MAX (FILTER_ORDER_IIR_MAX*2+1)
+#define FILTER_POLE_MAX (FILTER_ORDER_IIR_MAX * 2 + 1)
 
 /**
  * Sample type.
@@ -101,7 +101,7 @@ struct adv_filter_struct_iir {
  * FIR filter definition.
  */
 struct adv_filter_struct_fir {
-	adv_filter_real xcoeffs[FILTER_ORDER_FIR_MAX+1]; /**< Filter X coefficients. From x[-M] to x[0]. */
+	adv_filter_real xcoeffs[FILTER_ORDER_FIR_MAX + 1]; /**< Filter X coefficients. From x[-M] to x[0]. */
 	unsigned M;
 };
 
@@ -124,7 +124,7 @@ typedef struct adv_filter_struct {
 	unsigned delay; /**< Delay of the filter. */
 } adv_filter;
 
-#define FILTER_STATE_MAX (FILTER_ORDER_FIR_MAX+1)
+#define FILTER_STATE_MAX (FILTER_ORDER_FIR_MAX + 1)
 
 /**
  * Filter state.

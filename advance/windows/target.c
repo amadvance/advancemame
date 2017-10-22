@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -159,7 +159,7 @@ target_clock_t target_clock(void)
 {
 	LARGE_INTEGER c;
 	target_clock_t r;
-    
+
 	if (!QueryPerformanceCounter(&c)) {
 		log_std(("ERROR:windows: QueryPerformanceCounter() failed\n"));
 		return 0;
@@ -297,14 +297,14 @@ adv_error target_apm_shutdown(void)
 
 	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
 		return -1;
- 
+
 	LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
 
 	tkp.PrivilegeCount = 1;
 	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
- 
+
 	AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
- 
+
 	if (GetLastError() != ERROR_SUCCESS)
 		return -1;
 
@@ -429,7 +429,7 @@ adv_error target_script(const char* script)
 	}
 
 	sncpy(file, FILE_MAXPATH, tmp);
-	if (file[0] && file[strlen(file)-1] != '\\')
+	if (file[0] && file[strlen(file) - 1] != '\\')
 		sncat(file, FILE_MAXPATH, "\\");
 	sncat(file, FILE_MAXPATH, "advs0000.bat");
 
@@ -491,7 +491,7 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 	sncatarg(cmdline, EXEC_MAX, comspec);
 	sncat(cmdline, EXEC_MAX, " /S /C \"");
 
-	for(i=0;argv[i];++i) {
+	for (i = 0; argv[i]; ++i) {
 		if (i)
 			sncat(cmdline, EXEC_MAX, " ");
 		sncatarg(cmdline, EXEC_MAX, argv[i]);
@@ -517,12 +517,12 @@ adv_error target_spawn(const char* file, const char** argv)
 	os_fire();
 
 	log_std(("windows: spawn %s\n", file));
-	for(i=0;argv[i];++i)
+	for (i = 0; argv[i]; ++i)
 		log_std(("windows: spawn arg%d %s\n", i, argv[i]));
 
 	*cmdline = 0;
 
-	for(i=0;argv[i];++i) {
+	for (i = 0; argv[i]; ++i) {
 		if (i)
 			sncat(cmdline, EXEC_MAX, " ");
 		sncatarg(cmdline, EXEC_MAX, argv[i]);
@@ -622,7 +622,7 @@ void target_flush(void)
 
 	/* flush the message queue, otherwise the MessageBox may be not displayed */
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-		if (msg.message == WM_QUIT) 
+		if (msg.message == WM_QUIT)
 			break;
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -632,7 +632,7 @@ void target_flush(void)
 		MessageBox(NULL, TARGET.buffer_err, "Advance Error", MB_ICONERROR);
 		*TARGET.buffer_err = 0;
 	}
-	
+
 	if (*TARGET.buffer_out) {
 		MessageBox(NULL, TARGET.buffer_out, "Advance Message", MB_ICONINFORMATION);
 		*TARGET.buffer_out = 0;
@@ -667,6 +667,6 @@ const char* target_option_extract(const char* arg)
 adv_bool target_option_compare(const char* arg, const char* opt)
 {
 	const char* name = target_option_extract(arg);
-	return name!=0 && strcasecmp(name, opt) == 0;
+	return name != 0 && strcasecmp(name, opt) == 0;
 }
 

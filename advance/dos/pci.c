@@ -210,22 +210,22 @@ int pci_scan_device(int (*callback)(unsigned bus_device_func, unsigned vendor, u
 
 	bus = r.h.cl + 1;
 
-	for(i=0;i<bus;++i) {
-		for(j=0;j<32;++j) {
+	for (i = 0; i < bus; ++i) {
+		for (j = 0; j < 32; ++j) {
 			int r;
 			DWORD dw;
 			unsigned bus_device_func = (i << 8) | (j << 3);
 			unsigned device;
 			unsigned vendor;
 
-			if (pci_read_dword(bus_device_func, 0, &dw)!=0)
+			if (pci_read_dword(bus_device_func, 0, &dw) != 0)
 				continue;
 
 			vendor = dw & 0xFFFF;
 			device = (dw >> 16) & 0xFFFF;
 
 			r = callback(bus_device_func, vendor, device, arg);
-			if (r!=0)
+			if (r != 0)
 				return r;
 		}
 	}

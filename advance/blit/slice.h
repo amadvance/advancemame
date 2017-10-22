@@ -46,7 +46,7 @@ extern "C" {
  * Run-length slice context.
  * This context must be initialized with the video_slice_init() function.
  */
-typedef struct adv_slice_struct  {
+typedef struct adv_slice_struct {
 	unsigned whole; /**< Segment length. */
 	int up; /**< Up step. */
 	int down; /**< Down step. */
@@ -62,20 +62,20 @@ typedef struct adv_slice_struct  {
  * by Michael Abrash.
  *
  * The basic use is:
-\code
-	while (count) {
-		unsigned run = whole;
-		if ((error += up) > 0) {
-			++run;
-			error -= down;
-		}
+   \code
+        while (count) {
+                unsigned run = whole;
+                if ((error += up) > 0) {
+ ++run;
+                        error -= down;
+                }
 
-		... draw a segment of "run" pixels in expansion, or use a delta
-		... of "run" pixels in reduction
+                ... draw a segment of "run" pixels in expansion, or use a delta
+                ... of "run" pixels in reduction
 
-		--count;
-	}
-\endcode
+                --count;
+        }
+   \endcode
  * \param slice Slice context to initialize.
  * \param sd Source length.
  * \param dd Destination length.

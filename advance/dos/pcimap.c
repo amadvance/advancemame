@@ -75,14 +75,14 @@ static int pci_BIOS_address_map_check(unsigned long phys_address)
 	tmp[0] = 0;
 	tmp[1] = 0;
 
-	if (pci_BIOS_address_map_plain(phys_address)!=0) {
+	if (pci_BIOS_address_map_plain(phys_address) != 0) {
 		log_std(("pci: error mapping bios\n"));
 		return -1;
 	}
 
 	pci_BIOS_read(tmp, 0, 2);
 
-	if (tmp[0]!=0x55 || tmp[1]!=0xAA) {
+	if (tmp[0] != 0x55 || tmp[1] != 0xAA) {
 		pci_BIOS_address_unmap();
 		log_std(("pci: invalid bios signature\n"));
 		return -1;
@@ -103,9 +103,9 @@ int pci_BIOS_address_map(unsigned bus_device_func)
 	log_std(("pci: bios reported addr %08lx\n", (unsigned long)orig));
 	addr = orig & 0xfffe0000;
 
-	if (pci_BIOS_address_map_check(addr)!=0) {
+	if (pci_BIOS_address_map_check(addr) != 0) {
 		addr = 0x000c0000;
-		if (pci_BIOS_address_map_check(addr)!=0) {
+		if (pci_BIOS_address_map_check(addr) != 0) {
 			log_std(("pci: bios not found\n"));
 			return -1;
 		}
@@ -185,5 +185,4 @@ unsigned pci_MMIO_selector_get(void)
 		log_std(("pci: BUG! MMIO selector out of order\n"));
 	return pci_MMIO_selector;
 }
-
 

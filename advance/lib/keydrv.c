@@ -76,7 +76,7 @@ adv_error keyb_load(adv_conf* context)
 
 	/* load specific driver options */
 	at_least_one = 0;
-	for(i=0;i<keyb_state.driver_mac;++i) {
+	for (i = 0; i < keyb_state.driver_mac; ++i) {
 		const adv_device* dev;
 
 		dev = device_match(keyb_state.name, (adv_driver*)keyb_state.driver_map[i], 0);
@@ -110,7 +110,7 @@ adv_error keyb_init(adv_bool disable_special)
 	/* store the error prefix */
 	error_nolog_set("Unable to initialize the keyboard driver. The errors are:\n");
 
-	for(i=0;i<keyb_state.driver_mac;++i) {
+	for (i = 0; i < keyb_state.driver_mac; ++i) {
 		const adv_device* dev;
 
 		dev = device_match(keyb_state.name, (const adv_driver*)keyb_state.driver_map[i], 0);
@@ -135,7 +135,7 @@ adv_error keyb_init(adv_bool disable_special)
 	keyb_state.is_active_flag = 1;
 	keyb_state.is_enabled_flag = 0;
 
-	for(i=0;i<keyb_count_get();++i) {
+	for (i = 0; i < keyb_count_get(); ++i) {
 		char name[DEVICE_NAME_MAX];
 		if (keyb_device_name_get(i, name) != 0)
 			strcpy(name, DEVICE_NONAME);
@@ -236,7 +236,7 @@ int keyb_device_name_get(unsigned keyboard, char* name)
 
 	/* check previous names */
 	index = 0;
-	for(i=0;i<keyboard;++i) {
+	for (i = 0; i < keyboard; ++i) {
 		if (keyb_state.driver_current->device_name_get(i, prev) != 0)
 			continue;
 

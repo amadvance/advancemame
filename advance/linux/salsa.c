@@ -67,8 +67,8 @@ struct soundb_alsa_context {
 static struct soundb_alsa_context alsa_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "ALSA automatic detection" },
-{ 0, 0, 0 }
+	{ "auto", -1, "ALSA automatic detection" },
+	{ 0, 0, 0 }
 };
 
 static void alsa_log(snd_pcm_hw_params_t* hw_params, snd_pcm_sw_params_t* sw_params)
@@ -368,7 +368,7 @@ static void alsa_volume_mixer(double volume)
 	if (volume > 0) {
 		if (snd_mixer_selem_has_playback_switch(elem)) {
 			log_std(("sound:alsa: enable playback\n"));
-			for(c=0;c<=SND_MIXER_SCHN_LAST;++c) {
+			for (c = 0; c <= SND_MIXER_SCHN_LAST; ++c) {
 				snd_mixer_selem_set_playback_switch(elem, c, 1);
 			}
 		} else {
@@ -388,7 +388,7 @@ static void alsa_volume_mixer(double volume)
 
 			log_std(("sound:alsa: min:%d, max:%d, set:%d\n", (int)pmin, (int)pmax, (int)v));
 
-			for(c=0;c<=SND_MIXER_SCHN_LAST;++c) {
+			for (c = 0; c <= SND_MIXER_SCHN_LAST; ++c) {
 				snd_mixer_selem_set_playback_volume(elem, c, v);
 			}
 		} else {
@@ -397,7 +397,7 @@ static void alsa_volume_mixer(double volume)
 	} else {
 		if (snd_mixer_selem_has_playback_switch(elem)) {
 			log_std(("sound:alsa: disable playback\n"));
-			for(c=0;c<=SND_MIXER_SCHN_LAST;++c) {
+			for (c = 0; c <= SND_MIXER_SCHN_LAST; ++c) {
 				snd_mixer_selem_set_playback_switch(elem, c, 0);
 			}
 		} else {
@@ -445,7 +445,7 @@ void soundb_alsa_play(const adv_sample* sample_map, unsigned sample_count)
 			if (run > buf_size)
 				run = buf_size;
 
-			for(i=0;i<run;++i)
+			for (i = 0; i < run; ++i)
 				buf_map[i] = (int)sample_map[i] * alsa_state.volume / ALSA_VOLUME_BASE;
 
 			r = snd_pcm_writei(alsa_state.handle, buf_map, run / alsa_state.channel);
@@ -490,7 +490,7 @@ adv_error soundb_alsa_start(double silence_time)
 
 	log_std(("sound:alsa: soundb_alsa_start(silence_time:%g)\n", silence_time));
 
-	for(i=0;i<256;++i)
+	for (i = 0; i < 256; ++i)
 		buf[i] = 0x0;
 
 	sample = silence_time * alsa_state.rate * alsa_state.channel;

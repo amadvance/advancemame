@@ -60,35 +60,35 @@
 #define ASM_JUMP_ALIGN ".p2align 4\n"
 
 /* Notes
-1) The count argument is the number of source elements (pixels) to process
-2) The count divisor at early stage of every functions is the number of
-	source elements processed in one subsequent loop iteration
-3) The step argument always referes to bytes
-4) All the internal_* functions use the fs register for the destination when
-	is expressed as an unsigned, before the call the fs register
-	must be set at the correct value
-5) After any internal_* functions the internal_end() function must be called
-	before any use of the FPU (float or double operations)
-*/
+   1) The count argument is the number of source elements (pixels) to process
+   2) The count divisor at early stage of every functions is the number of
+        source elements processed in one subsequent loop iteration
+   3) The step argument always referes to bytes
+   4) All the internal_* functions use the fs register for the destination when
+        is expressed as an unsigned, before the call the fs register
+        must be set at the correct value
+   5) After any internal_* functions the internal_end() function must be called
+        before any use of the FPU (float or double operations)
+ */
 
 /*
-Assembler notes:
-) The register allocation is almost fixed. The speed is greather if these
-register are used:
+   Assembler notes:
+   ) The register allocation is almost fixed. The speed is greather if these
+   register are used:
 
-S (esi) Source addr
-D (edi) Dest addr
-a (eax) Data
-c (ecx) Counter
-b (ebx) Table address
-d (edx) Additional data
+   S (esi) Source addr
+   D (edi) Dest addr
+   a (eax) Data
+   c (ecx) Counter
+   b (ebx) Table address
+   d (edx) Additional data
 
-Specifically this prevent the use of other special register like ebp, which
-causes a sensible slowdown in tigh loop. (Tested on a Pentium II)
+   Specifically this prevent the use of other special register like ebp, which
+   causes a sensible slowdown in tigh loop. (Tested on a Pentium II)
 
-Registers used out of the main loop are not assigned specifically but
-with "r".
-*/
+   Registers used out of the main loop are not assigned specifically but
+   with "r".
+ */
 
 #define assert_align(x) \
 	do { } while (0)

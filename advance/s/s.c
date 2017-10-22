@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -48,9 +48,9 @@ void run(unsigned channel, const char* file)
 		return;
 	}
 
-	if (strcmp(ext, ".wav")==0) {
+	if (strcmp(ext, ".wav") == 0) {
 		mixer_play_file_wav(channel, f, 0);
-	} else if (strcmp(ext, ".mp3")==0) {
+	} else if (strcmp(ext, ".mp3") == 0) {
 		mixer_play_file_mp3(channel, f, 0);
 	} else {
 		target_err("Unknown file extension %s\n", ext);
@@ -115,7 +115,7 @@ int os_main(int argc, char* argv[])
 
 	file_map = malloc(argc * sizeof(const char*));
 
-	for(i=1;i<argc;++i) {
+	for (i = 1; i < argc; ++i) {
 		if (target_option_compare(argv[i], "log")) {
 			opt_log = 1;
 		} else if (target_option_compare(argv[i], "logsync")) {
@@ -137,7 +137,7 @@ int os_main(int argc, char* argv[])
 		const char* log = "advs.log";
 		remove(log);
 		log_init(log, opt_logsync);
-        }
+	}
 
 	log_std(("s: %s %s %s %s\n", "AdvanceSOUND", ADV_VERSION, __DATE__, __TIME__));
 
@@ -171,7 +171,7 @@ int os_main(int argc, char* argv[])
 
 	mixer_volume(volume);
 
-	for(i=0;i<file_mac;++i)
+	for (i = 0; i < file_mac; ++i)
 		run(i, file_map[i]);
 
 	free(file_map);
@@ -179,10 +179,10 @@ int os_main(int argc, char* argv[])
 	signal(SIGINT, sigint);
 
 	while (!done) {
-		for(i=0;i<file_mac;++i)
+		for (i = 0; i < file_mac; ++i)
 			if (mixer_is_playing(i))
 				break;
-		if (i==file_mac)
+		if (i == file_mac)
 			break;
 
 		mixer_poll();

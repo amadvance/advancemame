@@ -3,7 +3,7 @@
  * Copyright (c) 2002 CPN Group, University of Aarhus
  */
 
-/* 
+/*
  * From the http://sourceforge.net/projects/cpnmouse/ project.
  * Released with LGPL license according with the SourceForge catalog.
  */
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 // {DB4BBC1E-CAC8-47e9-8414-7365167FECA3}
-DEFINE_GUID( GUID_CLASS_MOUSE_CPNTOOLS, 0xdb4bbc1e, 0xcac8, 0x47e9, 0x84, 0x14, 0x73, 0x65, 0x16, 0x7f, 0xec, 0xa3);
+DEFINE_GUID(GUID_CLASS_MOUSE_CPNTOOLS, 0xdb4bbc1e, 0xcac8, 0x47e9, 0x84, 0x14, 0x73, 0x65, 0x16, 0x7f, 0xec, 0xa3);
 
 #define MAXLENGTH 1000
 
@@ -48,14 +48,15 @@ void __cdecl lUnRegisterCallback(void) {
 	CloseHandle(hMutex); hMutex = NULL;
 }
 
-void ApcCallback(PVOID NormalContext, PVOID SystemArgument1, PVOID SystemArgument2) {
+void ApcCallback(PVOID NormalContext, PVOID SystemArgument1, PVOID SystemArgument2)
+{
 	if (theCallback) {
 		while (WaitForSingleObject(hMutex, INFINITE) != WAIT_OBJECT_0) ;
-		theCallback((int) NormalContext,
-				(signed int) (signed short int) ((((unsigned int) SystemArgument1) & 0xffff0000) >> 16),
-				(signed int) (signed short int) (((unsigned int ) SystemArgument1) & 0xffff),
-				(unsigned int) ((((unsigned int) SystemArgument2) & 0xffff0000) >> 16),
-				(int) (((unsigned int) SystemArgument2) & 0xffff));
+		theCallback((int)NormalContext,
+			(signed int)(signed short int)((((unsigned int)SystemArgument1) & 0xffff0000) >> 16),
+			(signed int)(signed short int)(((unsigned int )SystemArgument1) & 0xffff),
+			(unsigned int)((((unsigned int)SystemArgument2) & 0xffff0000) >> 16),
+			(int)(((unsigned int)SystemArgument2) & 0xffff));
 		ReleaseMutex(hMutex);
 	}
 }
@@ -73,54 +74,54 @@ int __cdecl lGetMice(int count) {
 	ULONG requiredLength = 0;
 
 	hardwareDeviceInfo = SetupDiGetClassDevs(
-			(LPGUID) &GUID_CLASS_MOUSE_CPNTOOLS,
-			NULL, // Define no enumerator (global)
-			NULL, // Define no
-			(DIGCF_PRESENT | // Only Devices present
-			 DIGCF_DEVICEINTERFACE)); // Function class devices
+		(LPGUID)&GUID_CLASS_MOUSE_CPNTOOLS,
+		NULL,         // Define no enumerator (global)
+		NULL,         // Define no
+		(DIGCF_PRESENT |         // Only Devices present
+		DIGCF_DEVICEINTERFACE));          // Function class devices
 
 	deviceInfoData.cbSize = sizeof(SP_INTERFACE_DEVICE_DATA);
 
 	while ((number < count) || (count == 0)) {
 		if (SetupDiEnumDeviceInterfaces(
-					hardwareDeviceInfo,
-					0, // Don't care about specific PDOs
-					(LPGUID) &GUID_CLASS_MOUSE_CPNTOOLS,
-					i,
-					&deviceInfoData)) {
+				hardwareDeviceInfo,
+				0,         // Don't care about specific PDOs
+				(LPGUID)&GUID_CLASS_MOUSE_CPNTOOLS,
+				i,
+				&deviceInfoData)) {
 			SetupDiGetInterfaceDeviceDetail(
-					hardwareDeviceInfo,
-					&deviceInfoData,
-					NULL, // probe, no output buffer,
-					0, // probe, output buffer of length 0
-					&requiredLength,
-					NULL); // not interested in specific dev-node
+				hardwareDeviceInfo,
+				&deviceInfoData,
+				NULL,         // probe, no output buffer,
+				0,         // probe, output buffer of length 0
+				&requiredLength,
+				NULL);         // not interested in specific dev-node
 
-			functionClassDeviceData = (PSP_INTERFACE_DEVICE_DETAIL_DATA) malloc(requiredLength);
+			functionClassDeviceData = (PSP_INTERFACE_DEVICE_DETAIL_DATA)malloc(requiredLength);
 			functionClassDeviceData->cbSize = sizeof(SP_INTERFACE_DEVICE_DETAIL_DATA);
 			predictedLength = requiredLength;
 
 			if (SetupDiGetInterfaceDeviceDetail(
-						hardwareDeviceInfo,
-						&deviceInfoData,
-						functionClassDeviceData,
-						predictedLength,
-						&requiredLength,
-						NULL)) {
+					hardwareDeviceInfo,
+					&deviceInfoData,
+					functionClassDeviceData,
+					predictedLength,
+					&requiredLength,
+					NULL)) {
 				char c[MAXLENGTH];
-				sprintf(c, "%s\\execute\\get\\%u\\%u", 
-						functionClassDeviceData->DevicePath,
-						maxused + 1,
-						(unsigned)&ApcCallback);
+				sprintf(c, "%s\\execute\\get\\%u\\%u",
+					functionClassDeviceData->DevicePath,
+					maxused + 1,
+					(unsigned)&ApcCallback);
 
 				new = CreateFile(
-						c,
-						0,
-						FILE_SHARE_READ | FILE_SHARE_WRITE, // Don't want to share access
-						NULL, // no SECURITY_ATTRIBUTES structure
-						OPEN_EXISTING, // No special create flags
-						0, // No special attributes
-						NULL); // No template file
+					c,
+					0,
+					FILE_SHARE_READ | FILE_SHARE_WRITE,         // Don't want to share access
+					NULL,         // no SECURITY_ATTRIBUTES structure
+					OPEN_EXISTING,         // No special create flags
+					0,         // No special attributes
+					NULL);         // No template file
 
 				sprintf(c, "%s", functionClassDeviceData->DevicePath);
 
@@ -129,11 +130,11 @@ int __cdecl lGetMice(int count) {
 					number++;
 					if (maxused >= maxmouse) {
 						maxmouse *= 2;
-						mice = (MouseData *) realloc(mice, maxmouse * sizeof(MouseData));
+						mice = (MouseData*)realloc(mice, maxmouse * sizeof(MouseData));
 					}
 					mice[maxused].handle = new;
 					mice[maxused].suspend = NULL;
-					mice[maxused].devicename = (char *) malloc((strlen(functionClassDeviceData->DevicePath) + 1) * sizeof(char));
+					mice[maxused].devicename = (char*)malloc((strlen(functionClassDeviceData->DevicePath) + 1) * sizeof(char));
 					strcpy(mice[maxused].devicename, functionClassDeviceData->DevicePath);
 				}
 			}
@@ -169,8 +170,8 @@ void __cdecl lUnGetMouse(int number) {
 void __cdecl lUnGetAllMice() {
 	int i;
 	for (i = 1; i <= maxused; ++i) {
-	    lUnGetMouse(i);
-    }
+		lUnGetMouse(i);
+	}
 }
 
 void __cdecl lSuspendMouse(number) {
@@ -179,13 +180,13 @@ void __cdecl lSuspendMouse(number) {
 			char c[MAXLENGTH];
 			sprintf(c, "%s\\execute\\suspend", mice[number].devicename);
 			mice[number].suspend = CreateFile(
-					c, // Filename
-					0, // Access
-					FILE_SHARE_READ | FILE_SHARE_WRITE, // Share
-					NULL, // No SECURITY_ATTRIBUTES
-					OPEN_EXISTING,
-					0, // No special attributes
-					NULL); // No template file
+				c,         // Filename
+				0,         // Access
+				FILE_SHARE_READ | FILE_SHARE_WRITE,         // Share
+				NULL,         // No SECURITY_ATTRIBUTES
+				OPEN_EXISTING,
+				0,         // No special attributes
+				NULL);         // No template file
 		}
 	}
 }
@@ -204,3 +205,4 @@ const char *__cdecl lGetDevicePath(int number) {
 		return mice[number].devicename;
 	return 0;
 }
+

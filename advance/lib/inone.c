@@ -34,8 +34,8 @@
 #include "log.h"
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "No input" },
-{ 0, 0, 0 }
+	{ "auto", -1, "No input" },
+	{ 0, 0, 0 }
 };
 
 adv_error inputb_none_init(int inputb_id)

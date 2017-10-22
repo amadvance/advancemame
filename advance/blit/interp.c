@@ -80,7 +80,7 @@ int interp_16_diff(interp_uint16 p1, interp_uint16 p2)
 	/* not exact, but fast */
 	y4 = r + g + b;
 	u4 = r - b;
-	v8 = -r + 2*g - b;
+	v8 = -r + 2 * g - b;
 
 	if (y4 < -INTERP_Y_LIMIT_S2 || y4 > INTERP_Y_LIMIT_S2)
 		return 1;
@@ -114,7 +114,7 @@ int interp_32_diff(interp_uint32 p1, interp_uint32 p2)
 	/* not exact, but fast */
 	y = r + g + b;
 	u = r - b;
-	v = -r + 2*g - b;
+	v = -r + 2 * g - b;
 
 	if (y < -INTERP_Y_LIMIT_S2 || y > INTERP_Y_LIMIT_S2)
 		return 1;
@@ -178,11 +178,11 @@ int interp_16_dist(interp_uint16 p1, interp_uint16 p2)
 		r = ((i1 & 0x7C00) - (i2 & 0x7C00)) >> 7;
 	}
 
-	if (b<0) b = -b;
-	if (g<0) g = -g;
-	if (r<0) r = -r;
+	if (b < 0) b = -b;
+	if (g < 0) g = -g;
+	if (r < 0) r = -r;
 
-	return 3*r + 4*g + 2*b;
+	return 3 * r + 4 * g + 2 * b;
 }
 
 int interp_32_dist(interp_uint32 p1, interp_uint32 p2)
@@ -202,11 +202,11 @@ int interp_32_dist(interp_uint32 p1, interp_uint32 p2)
 	g = ((i1 & 0xFF00) - (i2 & 0xFF00)) >> 8;
 	r = ((i1 & 0xFF0000) - (i2 & 0xFF0000)) >> 16;
 
-	if (b<0) b = -b;
-	if (g<0) g = -g;
-	if (r<0) r = -r;
+	if (b < 0) b = -b;
+	if (g < 0) g = -g;
+	if (r < 0) r = -r;
 
-	return 3*r + 4*g + 2*b;
+	return 3 * r + 4 * g + 2 * b;
 }
 
 int interp_yuy2_dist(interp_uint32 p1, interp_uint32 p2)
@@ -222,7 +222,7 @@ int interp_yuy2_dist(interp_uint32 p1, interp_uint32 p2)
 
 	y = ((i1 & 0xFF) - (i2 & 0xFF));
 
-	if (y<0) y = -y;
+	if (y < 0) y = -y;
 
 	return y;
 }
@@ -264,9 +264,9 @@ void interp_set(unsigned color_def)
 		interp_highnot_mask = (~rgb_highmask_make_from_def(color_def)) & rgb_wholemask_make_from_def(color_def);
 
 		interp_near_mask = ~(
-				((interp_red_mask >> 5) & interp_red_mask)
-				| ((interp_green_mask >> 5) & interp_green_mask)
-				| ((interp_blue_mask >> 5) & interp_blue_mask)
+			((interp_red_mask >> 5) & interp_red_mask)
+			| ((interp_green_mask >> 5) & interp_green_mask)
+			| ((interp_blue_mask >> 5) & interp_blue_mask)
 			) & (interp_red_mask | interp_green_mask | interp_blue_mask);
 	} else {
 		interp_mask[0] = 0;

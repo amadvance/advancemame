@@ -56,8 +56,8 @@ struct soundb_oss_context {
 static struct soundb_oss_context oss_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "OSS automatic detection" },
-{ 0, 0, 0 }
+	{ "auto", -1, "OSS automatic detection" },
+	{ 0, 0, 0 }
 };
 
 adv_error soundb_oss_init(int sound_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
@@ -199,7 +199,7 @@ void soundb_oss_play(const adv_sample* sample_map, unsigned sample_count)
 			if (run > buf_size)
 				run = buf_size;
 
-			for(i=0;i<run;++i)
+			for (i = 0; i < run; ++i)
 				buf_map[i] = (int)sample_map[i] * oss_state.volume / OSS_VOLUME_BASE;
 
 			r = write(oss_state.handle, buf_map, run * channel_length);
@@ -229,7 +229,7 @@ adv_error soundb_oss_start(double silence_time)
 
 	log_std(("sound:oss: soundb_oss_start(silence_time:%g)\n", silence_time));
 
-	for(i=0;i<256;++i)
+	for (i = 0; i < 256; ++i)
 		buf[i] = 0x0;
 
 	sample = silence_time * oss_state.rate * oss_state.channel;
@@ -278,5 +278,4 @@ soundb_driver soundb_oss_driver = {
 	soundb_oss_stop,
 	soundb_oss_volume
 };
-
 

@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -29,7 +29,8 @@ using namespace std;
 // resource
 
 resource::resource(const resource& A) :
-	path(A.path), offset(A.offset), size_compressed(A.size_compressed), size_uncompressed(A.size_uncompressed), compressed(A.compressed), collection(A.collection) {
+	path(A.path), offset(A.offset), size_compressed(A.size_compressed), size_uncompressed(A.size_uncompressed), compressed(A.compressed), collection(A.collection)
+{
 }
 
 resource::resource()
@@ -107,7 +108,7 @@ bool resource::is_present() const
 {
 	if (!is_valid())
 		return false;
-	if (access(cpath_export(archive_get()), F_OK | R_OK)!=0)
+	if (access(cpath_export(archive_get()), F_OK | R_OK) != 0)
 		return false;
 	return true;
 }
@@ -143,3 +144,4 @@ bool resource::operator==(const resource& A) const
 	}
 	return true;
 }
+

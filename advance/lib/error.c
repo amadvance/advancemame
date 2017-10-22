@@ -86,8 +86,8 @@ void error_cat_set(const char* prefix, adv_bool mode)
 const char* error_get(void)
 {
 	/* remove the trailing \n */
-	while (error_desc_buffer[0] && isspace(error_desc_buffer[strlen(error_desc_buffer)-1]))
-		error_desc_buffer[strlen(error_desc_buffer)-1] = 0;
+	while (error_desc_buffer[0] && isspace(error_desc_buffer[strlen(error_desc_buffer) - 1]))
+		error_desc_buffer[strlen(error_desc_buffer) - 1] = 0;
 	return error_desc_buffer;
 }
 
@@ -135,7 +135,7 @@ void error_set(const char* text, ...)
 	}
 	log_std((" "));
 	log_va(text, arg);
-	if (!text[0] || text[strlen(text)-1] != '\n')
+	if (!text[0] || text[strlen(text) - 1] != '\n')
 		log_std(("\n"));
 #endif
 

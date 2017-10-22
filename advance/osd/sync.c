@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -50,14 +50,14 @@ void advance_video_update_skip(struct advance_video_context* context)
 	if (context->config.frameskip_factor >= 1.0) {
 		context->state.skip_level_full = SYNC_MAX;
 		context->state.skip_level_skip = 0;
-	} else if (context->config.frameskip_factor >= 1.0-1.0/SYNC_MAX) {
-		context->state.skip_level_full = SYNC_MAX -1;
+	} else if (context->config.frameskip_factor >= 1.0 - 1.0 / SYNC_MAX) {
+		context->state.skip_level_full = SYNC_MAX - 1;
 		context->state.skip_level_skip = 1;
-	} else if (context->config.frameskip_factor <= 1.0/SYNC_MAX) {
+	} else if (context->config.frameskip_factor <= 1.0 / SYNC_MAX) {
 		context->state.skip_level_full = 1;
-		context->state.skip_level_skip = SYNC_MAX -1;
+		context->state.skip_level_skip = SYNC_MAX - 1;
 	} else if (context->config.frameskip_factor >= 0.5) {
-		context->state.skip_level_full = context->config.frameskip_factor / (1-context->config.frameskip_factor);
+		context->state.skip_level_full = context->config.frameskip_factor / (1 - context->config.frameskip_factor);
 		if (context->state.skip_level_full < 1)
 			context->state.skip_level_full = 1;
 		if (context->state.skip_level_full >= SYNC_MAX)
@@ -65,7 +65,7 @@ void advance_video_update_skip(struct advance_video_context* context)
 		context->state.skip_level_skip = 1;
 	} else {
 		context->state.skip_level_full = 1;
-		context->state.skip_level_skip = (1-context->config.frameskip_factor) / context->config.frameskip_factor;
+		context->state.skip_level_skip = (1 - context->config.frameskip_factor) / context->config.frameskip_factor;
 		if (context->state.skip_level_skip < 1)
 			context->state.skip_level_skip = 1;
 		if (context->state.skip_level_skip >= SYNC_MAX)
@@ -231,7 +231,7 @@ static void video_skip_recompute(struct advance_video_context* context, struct a
 		context->state.skip_level_full = SYNC_MAX;
 		context->state.skip_level_skip = 0;
 	} else if (skip >= step /* (this check is implicit on the next one) */
-		|| skip * SYNC_MAX + full >= step * (SYNC_MAX+1)
+		|| skip * SYNC_MAX + full >= step * (SYNC_MAX + 1)
 	) {
 		/* if the maximum skip plus one isn't enought use a special management */
 		/* (the plus one is to avoid to continously activate and deactivate skipping) */
@@ -392,7 +392,7 @@ static void video_frame_sync(struct advance_video_context* context)
 			context->state.sync_pivot = 0;
 		} else {
 			double expected;
-		
+
 			expected = context->state.sync_last + context->state.skip_step * (1 + context->state.sync_skip_counter);
 			context->state.sync_skip_counter = 0;
 
@@ -407,7 +407,7 @@ static void video_frame_sync(struct advance_video_context* context)
 			/* update the error state */
 			context->state.sync_pivot = expected - current;
 
-			if (context->state.sync_pivot < - context->state.skip_step * 16) {
+			if (context->state.sync_pivot < -context->state.skip_step * 16) {
 				/* if the error is too big (negative) the delay is unrecoverable */
 				/* generally it happen with a virtual terminal switch */
 				/* the best solution is to restart the sync computation */

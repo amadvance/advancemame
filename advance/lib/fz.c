@@ -117,7 +117,7 @@ adv_error fzgrow(adv_fz* f, size_t size)
 		}
 		return 0;
 	} else {
-			return -1;
+		return -1;
 	}
 }
 
@@ -284,7 +284,7 @@ adv_fz* fzopennullwrite(const char* file, const char* mode)
 		fclose_lock(f->f);
 		f->f = 0;
 	} else {
-		if (strchr(mode, 'w')!=0 || strchr(mode, 'a')!=0) {
+		if (strchr(mode, 'w') != 0 || strchr(mode, 'a') != 0) {
 			/* creation allowed */
 			f->data_write = 0;
 			f->virtual_size = 0;
@@ -336,13 +336,13 @@ adv_fz* fzopenzipuncompressed(const char* file, off_t offset, unsigned size)
 		free(f);
 		return 0;
 	}
-	if (fread_lock(buf, ZIP_LO_FIXED, 1, f->f)!=1) {
+	if (fread_lock(buf, ZIP_LO_FIXED, 1, f->f) != 1) {
 		fclose_lock(f->f);
 		free(f);
 		return 0;
 	}
-	filename_length = le_uint16_read(buf+ZIP_LO_filename_length);
-	extra_field_length = le_uint16_read(buf+ZIP_LO_extra_field_length);
+	filename_length = le_uint16_read(buf + ZIP_LO_filename_length);
+	extra_field_length = le_uint16_read(buf + ZIP_LO_extra_field_length);
 
 	/* calculate offset to data and seek there */
 	offset += ZIP_LO_FIXED + filename_length + extra_field_length;
@@ -367,12 +367,12 @@ static void compressed_init(adv_fz* f)
 	f->z.zalloc = 0;
 	f->z.zfree = 0;
 	f->z.opaque = 0;
-	f->z.next_in  = 0;
+	f->z.next_in = 0;
 	f->z.avail_in = 0;
 	f->z.next_out = 0;
 	f->z.avail_out = 0;
 
-	f->zbuffer = (unsigned char*)malloc(INFLATE_INPUT_BUFFER_MAX+1); /* +1 for the extra byte at the end */
+	f->zbuffer = (unsigned char*)malloc(INFLATE_INPUT_BUFFER_MAX + 1); /* +1 for the extra byte at the end */
 	f->remaining = f->real_size;
 
 	/*
@@ -423,13 +423,13 @@ adv_fz* fzopenzipcompressed(const char* file, off_t offset, unsigned size_compre
 		free(f);
 		return 0;
 	}
-	if (fread_lock(buf, ZIP_LO_FIXED, 1, f->f)!=1) {
+	if (fread_lock(buf, ZIP_LO_FIXED, 1, f->f) != 1) {
 		fclose_lock(f->f);
 		free(f);
 		return 0;
 	}
-	filename_length = le_uint16_read(buf+ZIP_LO_filename_length);
-	extra_field_length = le_uint16_read(buf+ZIP_LO_extra_field_length);
+	filename_length = le_uint16_read(buf + ZIP_LO_filename_length);
+	extra_field_length = le_uint16_read(buf + ZIP_LO_extra_field_length);
 
 	/* calculate offset to data and seek there */
 	offset += ZIP_LO_FIXED + filename_length + extra_field_length;
@@ -506,7 +506,7 @@ int fzgetc(adv_fz* f)
 		return fgetc_lock(f->f);
 	} else {
 		unsigned char r;
-		if (fzread(&r, 1, 1, f)==1)
+		if (fzread(&r, 1, 1, f) == 1)
 			return r;
 		else
 			return EOF;
@@ -516,7 +516,7 @@ int fzgetc(adv_fz* f)
 
 /**
  * Unread a char from the file.
- * This function works only for files opened with fzopen(). 
+ * This function works only for files opened with fzopen().
  * The semantic is like the C fungetc() function.
  */
 adv_error fzungetc(int c, adv_fz* f)
@@ -613,32 +613,32 @@ adv_error fzseek(adv_fz* f, off_t offset, int mode)
 {
 	if (f->type == fz_file) {
 		switch (mode) {
-			case SEEK_SET :
-				return fseeko(f->f, f->real_offset + offset, SEEK_SET);
-			case SEEK_CUR :
-				return fseeko(f->f, offset, SEEK_CUR);
-			case SEEK_END :
-				if (f->real_size)
-					return fseeko(f->f, f->real_size - offset, SEEK_SET);
-				else
-					return fseeko(f->f, offset, SEEK_END);
-			default:
-				return -1;
+		case SEEK_SET:
+			return fseeko(f->f, f->real_offset + offset, SEEK_SET);
+		case SEEK_CUR:
+			return fseeko(f->f, offset, SEEK_CUR);
+		case SEEK_END:
+			if (f->real_size)
+				return fseeko(f->f, f->real_size - offset, SEEK_SET);
+			else
+				return fseeko(f->f, offset, SEEK_END);
+		default:
+			return -1;
 		}
 	} else {
 		off_t pos;
 		switch (mode) {
-			case SEEK_SET :
-				pos = offset;
-				break;
-			case SEEK_CUR :
-				pos = f->virtual_pos + offset;
-				break;
-			case SEEK_END :
-				pos = f->virtual_size - offset;
-				break;
-			default:
-				return -1;
+		case SEEK_SET:
+			pos = offset;
+			break;
+		case SEEK_CUR:
+			pos = f->virtual_pos + offset;
+			break;
+		case SEEK_END:
+			pos = f->virtual_size - offset;
+			break;
+		default:
+			return -1;
 		}
 		if (pos < 0 || pos > f->virtual_size)
 			return -1;

@@ -56,3 +56,4 @@ void inputb_sdl_event_release(unsigned code);
 #endif
 
 #endif
+

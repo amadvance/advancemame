@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -42,29 +42,29 @@ struct script_exp* script_exp_alloc(void)
 void script_exp_free(struct script_exp* exp)
 {
 	switch (script_exp_type_get(exp->type)) {
-		case SCRIPT_EXP_TYPE_2EE :
-			script_exp_free(exp->data.op2ee.arg0);
-			script_exp_free(exp->data.op2ee.arg1);
-			break;
-		case SCRIPT_EXP_TYPE_1E :
-			script_exp_free(exp->data.op1e.arg0);
-			break;
-		case SCRIPT_EXP_TYPE_1V :
-			break;
-		case SCRIPT_EXP_TYPE_1S :
-			break;
-		case SCRIPT_EXP_TYPE_1T :
-			free(exp->data.op1t.arg0);
-			break;
-		case SCRIPT_EXP_TYPE_1F :
-			break;
-		case SCRIPT_EXP_TYPE_2FE :
-			script_exp_free(exp->data.op2fe.arg1);
-			break;
-		case SCRIPT_EXP_TYPE_3FEE :
-			script_exp_free(exp->data.op3fee.arg1);
-			script_exp_free(exp->data.op3fee.arg2);
-			break;
+	case SCRIPT_EXP_TYPE_2EE:
+		script_exp_free(exp->data.op2ee.arg0);
+		script_exp_free(exp->data.op2ee.arg1);
+		break;
+	case SCRIPT_EXP_TYPE_1E:
+		script_exp_free(exp->data.op1e.arg0);
+		break;
+	case SCRIPT_EXP_TYPE_1V:
+		break;
+	case SCRIPT_EXP_TYPE_1S:
+		break;
+	case SCRIPT_EXP_TYPE_1T:
+		free(exp->data.op1t.arg0);
+		break;
+	case SCRIPT_EXP_TYPE_1F:
+		break;
+	case SCRIPT_EXP_TYPE_2FE:
+		script_exp_free(exp->data.op2fe.arg1);
+		break;
+	case SCRIPT_EXP_TYPE_3FEE:
+		script_exp_free(exp->data.op3fee.arg1);
+		script_exp_free(exp->data.op3fee.arg2);
+		break;
 	}
 	free(exp);
 }
@@ -104,7 +104,7 @@ struct script_exp* script_exp_make_op1t(int type, const char* arg0)
 	exp->data.op1t.arg0 = malloc(strlen(arg0) + 1);
 
 	/* the argument always starts and ends with " */
-	assert(strlen(arg0) >= 2 && arg0[0] == '"' && arg0[strlen(arg0)-1] == '"');
+	assert(strlen(arg0) >= 2 && arg0[0] == '"' && arg0[strlen(arg0) - 1] == '"');
 
 	begin = arg0 + 1;
 	end = begin + strlen(begin) - 1;
@@ -113,34 +113,34 @@ struct script_exp* script_exp_make_op1t(int type, const char* arg0)
 	i = begin;
 	while (i != end) {
 		switch (i[0]) {
-		case '\\' :
-			if (i+1<end) {
+		case '\\':
+			if (i + 1 < end) {
 				switch (i[1]) {
-				case 'a' :
+				case 'a':
 					*d++ = '\a';
 					i += 2;
 					break;
-				case 'b' :
+				case 'b':
 					*d++ = '\b';
 					i += 2;
 					break;
-				case 'f' :
+				case 'f':
 					*d++ = '\f';
 					i += 2;
 					break;
-				case 'n' :
+				case 'n':
 					*d++ = '\n';
 					i += 2;
 					break;
-				case 'r' :
+				case 'r':
 					*d++ = '\r';
 					i += 2;
 					break;
-				case 't' :
+				case 't':
 					*d++ = '\t';
 					i += 2;
 					break;
-				case 'v' :
+				case 'v':
 					*d++ = '\v';
 					i += 2;
 					break;
@@ -242,9 +242,9 @@ struct script_value* script_value_alloc(int type)
 void script_value_free(struct script_value* p)
 {
 	switch (p->type) {
-	case SCRIPT_VALUE_NUM :
+	case SCRIPT_VALUE_NUM:
 		break;
-	case SCRIPT_VALUE_TEXT :
+	case SCRIPT_VALUE_TEXT:
 		free(p->value.text);
 		break;
 	}
@@ -300,54 +300,54 @@ static struct script_value* script_value_add(struct script_value* a, struct scri
 struct script_value* script_evaluate(const struct script_exp* exp)
 {
 	switch (exp->type) {
-		case SCRIPT_EXP_VALUE :
-			return script_value_alloc_num(exp->data.op1v.arg0);
-		case SCRIPT_EXP_VARIABLE :
-			return exp->data.op1s.eval(exp->data.op1s.argextra);
-		case SCRIPT_EXP_TEXT :
-			return script_value_alloc_text(exp->data.op1t.arg0);
-		case SCRIPT_EXP_F0 :
-			return exp->data.op1f.eval(exp->data.op1f.argextra);
-		case SCRIPT_EXP_F1 :
-			return exp->data.op2fe.eval(script_evaluate(exp->data.op2fe.arg1), exp->data.op2fe.argextra);
-		case SCRIPT_EXP_F2 :
-			return exp->data.op3fee.eval(script_evaluate(exp->data.op3fee.arg1), script_evaluate(exp->data.op3fee.arg2), exp->data.op3fee.argextra);
-		case SCRIPT_EXP_EXPRESSION :
-			return script_evaluate(exp->data.op1e.arg0);
-		case SCRIPT_EXP_NOT :
-			return script_value_alloc_num(~script_value_free_num(script_evaluate(exp->data.op1e.arg0)));
-		case SCRIPT_EXP_LNOT :
-			return script_value_alloc_num(!script_value_free_num(script_evaluate(exp->data.op1e.arg0)));
-		case SCRIPT_EXP_ADD :
-			return script_value_add(script_evaluate(exp->data.op2ee.arg0), script_evaluate(exp->data.op2ee.arg1));
-		case SCRIPT_EXP_SUB :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) - script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		case SCRIPT_EXP_AND :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) & script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		case SCRIPT_EXP_OR :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) | script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		case SCRIPT_EXP_XOR :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) ^ script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		case SCRIPT_EXP_L :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) < script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		case SCRIPT_EXP_G :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) > script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		case SCRIPT_EXP_E :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) == script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		case SCRIPT_EXP_LE :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) <= script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		case SCRIPT_EXP_GE :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) >= script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		case SCRIPT_EXP_SL :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) << script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		case SCRIPT_EXP_SR :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) >> script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		case SCRIPT_EXP_LOR :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) || script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		case SCRIPT_EXP_LAND :
-			return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) && script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
-		default:
-			assert(0);
+	case SCRIPT_EXP_VALUE:
+		return script_value_alloc_num(exp->data.op1v.arg0);
+	case SCRIPT_EXP_VARIABLE:
+		return exp->data.op1s.eval(exp->data.op1s.argextra);
+	case SCRIPT_EXP_TEXT:
+		return script_value_alloc_text(exp->data.op1t.arg0);
+	case SCRIPT_EXP_F0:
+		return exp->data.op1f.eval(exp->data.op1f.argextra);
+	case SCRIPT_EXP_F1:
+		return exp->data.op2fe.eval(script_evaluate(exp->data.op2fe.arg1), exp->data.op2fe.argextra);
+	case SCRIPT_EXP_F2:
+		return exp->data.op3fee.eval(script_evaluate(exp->data.op3fee.arg1), script_evaluate(exp->data.op3fee.arg2), exp->data.op3fee.argextra);
+	case SCRIPT_EXP_EXPRESSION:
+		return script_evaluate(exp->data.op1e.arg0);
+	case SCRIPT_EXP_NOT:
+		return script_value_alloc_num(~script_value_free_num(script_evaluate(exp->data.op1e.arg0)));
+	case SCRIPT_EXP_LNOT:
+		return script_value_alloc_num(!script_value_free_num(script_evaluate(exp->data.op1e.arg0)));
+	case SCRIPT_EXP_ADD:
+		return script_value_add(script_evaluate(exp->data.op2ee.arg0), script_evaluate(exp->data.op2ee.arg1));
+	case SCRIPT_EXP_SUB:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) - script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	case SCRIPT_EXP_AND:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) & script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	case SCRIPT_EXP_OR:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) | script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	case SCRIPT_EXP_XOR:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) ^ script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	case SCRIPT_EXP_L:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) < script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	case SCRIPT_EXP_G:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) > script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	case SCRIPT_EXP_E:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) == script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	case SCRIPT_EXP_LE:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) <= script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	case SCRIPT_EXP_GE:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) >= script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	case SCRIPT_EXP_SL:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) << script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	case SCRIPT_EXP_SR:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) >> script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	case SCRIPT_EXP_LOR:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) || script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	case SCRIPT_EXP_LAND:
+		return script_value_alloc_num(script_value_free_num(script_evaluate(exp->data.op2ee.arg0)) && script_value_free_num(script_evaluate(exp->data.op2ee.arg1)));
+	default:
+		assert(0);
 	}
 
 	return script_value_alloc_num(0);
@@ -366,23 +366,23 @@ void script_free(struct script_cmd* script)
 	while (script) {
 		struct script_cmd* next;
 		switch (script_cmd_type_get(script->type)) {
-			case SCRIPT_CMD_TYPE_1C :
-				script_free(script->data.op1c.arg0);
-				break;
-			case SCRIPT_CMD_TYPE_1E :
-				script_exp_free(script->data.op1e.arg0);
-				break;
-			case SCRIPT_CMD_TYPE_1ED :
-				script_exp_free(script->data.op1ed.arg0);
-				break;
-			case SCRIPT_CMD_TYPE_2EC :
-				script_exp_free(script->data.op2ec.arg0);
-				script_free(script->data.op2ec.arg1);
-				break;
-			case SCRIPT_CMD_TYPE_2ECD :
-				script_exp_free(script->data.op2ecd.arg0);
-				script_free(script->data.op2ecd.arg1);
-				break;
+		case SCRIPT_CMD_TYPE_1C:
+			script_free(script->data.op1c.arg0);
+			break;
+		case SCRIPT_CMD_TYPE_1E:
+			script_exp_free(script->data.op1e.arg0);
+			break;
+		case SCRIPT_CMD_TYPE_1ED:
+			script_exp_free(script->data.op1ed.arg0);
+			break;
+		case SCRIPT_CMD_TYPE_2EC:
+			script_exp_free(script->data.op2ec.arg0);
+			script_free(script->data.op2ec.arg1);
+			break;
+		case SCRIPT_CMD_TYPE_2ECD:
+			script_exp_free(script->data.op2ecd.arg0);
+			script_free(script->data.op2ecd.arg1);
+			break;
 		}
 		next = script->next;
 		free(script);
@@ -395,12 +395,12 @@ void script_free(struct script_cmd* script)
 
 struct script_cmd* script_cmd_make_op2sc(const char* tag, struct script_cmd* arg0)
 {
-	if (strcmp(tag, "loop")==0) {
+	if (strcmp(tag, "loop") == 0) {
 		struct script_cmd* cmd = script_cmd_alloc();
 		cmd->type = SCRIPT_CMD_LOOP;
 		cmd->data.op1c.arg0 = arg0;
 		return cmd;
-	} else if (strcmp(tag, "inner")==0) {
+	} else if (strcmp(tag, "inner") == 0) {
 		struct script_cmd* cmd = script_cmd_alloc();
 		cmd->type = SCRIPT_CMD_INNER;
 		cmd->data.op1c.arg0 = arg0;
@@ -424,19 +424,19 @@ struct script_cmd* script_cmd_make_op2cc(struct script_cmd* arg0, struct script_
 
 struct script_cmd* script_cmd_make_op2se(const char* arg0, struct script_exp* arg1)
 {
-	if (strcmp(arg0, "wait")==0) {
+	if (strcmp(arg0, "wait") == 0) {
 		struct script_cmd* cmd = script_cmd_alloc();
 		cmd->type = SCRIPT_CMD_WAIT;
 		cmd->data.op1e.arg0 = arg1;
 		return cmd;
-	} else if (strcmp(arg0, "delay")==0) {
+	} else if (strcmp(arg0, "delay") == 0) {
 		struct script_cmd* cmd = script_cmd_alloc();
 		cmd->type = SCRIPT_CMD_DELAY;
 		cmd->data.op1ed.arg0 = arg1;
 		cmd->data.op1ed.value_set = 0;
 		cmd->data.op1ed.value = 0;
 		return cmd;
-	} else if (strcmp(arg0, "evaluate")==0) {
+	} else if (strcmp(arg0, "evaluate") == 0) {
 		struct script_cmd* cmd = script_cmd_alloc();
 		cmd->type = SCRIPT_CMD_EVALUATE;
 		cmd->data.op1e.arg0 = arg1;
@@ -456,13 +456,13 @@ struct script_cmd* script_cmd_make_op1c(struct script_cmd* arg0)
 
 struct script_cmd* script_cmd_make_op3sec(const char* arg0, struct script_exp* arg1, struct script_cmd* arg2)
 {
-	if (strcmp(arg0, "while")==0) {
+	if (strcmp(arg0, "while") == 0) {
 		struct script_cmd* cmd = script_cmd_alloc();
 		cmd->type = SCRIPT_CMD_WHILE;
 		cmd->data.op2ec.arg0 = arg1;
 		cmd->data.op2ec.arg1 = arg2;
 		return cmd;
-	} else if (strcmp(arg0, "repeat")==0) {
+	} else if (strcmp(arg0, "repeat") == 0) {
 		struct script_cmd* cmd = script_cmd_alloc();
 		cmd->type = SCRIPT_CMD_REPEAT;
 		cmd->data.op2ecd.arg0 = arg1;
@@ -470,7 +470,7 @@ struct script_cmd* script_cmd_make_op3sec(const char* arg0, struct script_exp* a
 		cmd->data.op2ecd.value_set = 0;
 		cmd->data.op2ecd.value = 0;
 		return cmd;
-	} else if (strcmp(arg0, "if")==0) {
+	} else if (strcmp(arg0, "if") == 0) {
 		struct script_cmd* cmd = script_cmd_alloc();
 		cmd->type = SCRIPT_CMD_IF;
 		cmd->data.op2ec.arg0 = arg1;
@@ -494,7 +494,7 @@ static inline int script_run_cursor_empty(const struct script_state* state)
 
 static inline struct script_cmd* script_run_cursor_get(struct script_state* state)
 {
-	return state->cursor_map[state->cursor_mac-1];
+	return state->cursor_map[state->cursor_mac - 1];
 }
 
 static inline void script_run_cursor_pop(struct script_state* state)
@@ -504,13 +504,13 @@ static inline void script_run_cursor_pop(struct script_state* state)
 
 static inline void script_run_cursor_set(struct script_state* state, struct script_cmd* cmd)
 {
-	state->cursor_map[state->cursor_mac-1] = cmd;
+	state->cursor_map[state->cursor_mac - 1] = cmd;
 }
 
 static inline void script_run_cursor_push(struct script_state* state, struct script_cmd* cmd)
 {
 	++state->cursor_mac;
-	state->cursor_map[state->cursor_mac-1] = cmd;
+	state->cursor_map[state->cursor_mac - 1] = cmd;
 }
 
 /***************************************************************************/
@@ -649,32 +649,32 @@ static void script_run_step(struct script_state* state)
 {
 	struct script_cmd* cursor = script_run_cursor_get(state);
 	switch (cursor->type) {
-		case SCRIPT_CMD_EVALUATE :
-			script_run_exp(state);
+	case SCRIPT_CMD_EVALUATE:
+		script_run_exp(state);
 		break;
-		case SCRIPT_CMD_WAIT :
-			script_run_wait(state);
+	case SCRIPT_CMD_WAIT:
+		script_run_wait(state);
 		break;
-		case SCRIPT_CMD_DELAY :
-			script_run_delay(state);
+	case SCRIPT_CMD_DELAY:
+		script_run_delay(state);
 		break;
-		case SCRIPT_CMD_LOOP :
-			script_run_loop(state);
+	case SCRIPT_CMD_LOOP:
+		script_run_loop(state);
 		break;
-		case SCRIPT_CMD_INNER :
-			script_run_inner(state);
+	case SCRIPT_CMD_INNER:
+		script_run_inner(state);
 		break;
-		case SCRIPT_CMD_WHILE :
-			script_run_while(state);
+	case SCRIPT_CMD_WHILE:
+		script_run_while(state);
 		break;
-		case SCRIPT_CMD_IF :
-			script_run_if(state);
+	case SCRIPT_CMD_IF:
+		script_run_if(state);
 		break;
-		case SCRIPT_CMD_REPEAT :
-			script_run_repeat(state);
+	case SCRIPT_CMD_REPEAT:
+		script_run_repeat(state);
 		break;
-		default:
-			assert(0);
+	default:
+		assert(0);
 	}
 }
 

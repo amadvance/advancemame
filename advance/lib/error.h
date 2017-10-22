@@ -62,3 +62,4 @@ void error_nolog_set(const char* error, ...) __attribute__((format(printf, 1, 2)
 #endif
 
 #endif
+

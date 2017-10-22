@@ -60,7 +60,7 @@ struct video_stage_horz_struct;
  * \param src Source data.
  * \param count Size of the source line (in elementary operations on source, usually slice->count).
  */
-typedef void video_stage_hook(const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count);
+typedef void video_stage_hook (const struct video_stage_horz_struct* stage, unsigned line, void* dst, const void* src, unsigned count);
 
 /**
  * Pipeline stage types.
@@ -245,7 +245,7 @@ struct video_pipeline_target_struct {
 /**
  * Template for a vertical pipeline stage.
  */
-typedef void video_stage_vert_hook(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src);
+typedef void video_stage_vert_hook (const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src);
 
 /**
  * Pipeline vertical trasformation stage.

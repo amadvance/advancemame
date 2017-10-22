@@ -55,7 +55,7 @@ static struct joystickb_allegro_context allegro_state;
 static adv_device DEVICE[] = {
 	{ "auto", JOY_TYPE_AUTODETECT, "Allegro joystick" },
 	{ "standard", JOY_TYPE_STANDARD, "Standard joystick" },
-	{ "dual", JOY_TYPE_2PADS , "Dual joysticks" },
+	{ "dual", JOY_TYPE_2PADS, "Dual joysticks" },
 	{ "4button", JOY_TYPE_4BUTTON, "4-button joystick" },
 	{ "6button", JOY_TYPE_6BUTTON, "6-button joystick" },
 	{ "8button", JOY_TYPE_8BUTTON, "8-button joystick" },
@@ -289,13 +289,13 @@ adv_error joystickb_allegro_init(int id)
 	allegro_state.id = id;
 
 	switch (id) {
-	case JOY_TYPE_LIGHTGUN_LPT1 :
+	case JOY_TYPE_LIGHTGUN_LPT1:
 		allegro_state.allegro_id = JOY_TYPE_PSXPAD_LPT1;
 		break;
-	case JOY_TYPE_LIGHTGUN_LPT2 :
+	case JOY_TYPE_LIGHTGUN_LPT2:
 		allegro_state.allegro_id = JOY_TYPE_PSXPAD_LPT2;
 		break;
-	case JOY_TYPE_LIGHTGUN_LPT3 :
+	case JOY_TYPE_LIGHTGUN_LPT3:
 		allegro_state.allegro_id = JOY_TYPE_PSXPAD_LPT3;
 		break;
 	default:
@@ -441,15 +441,15 @@ void joystickb_allegro_poll(void)
 	if (allegro_state.id == JOY_TYPE_LIGHTGUN_LPT1
 		|| allegro_state.id == JOY_TYPE_LIGHTGUN_LPT2
 		|| allegro_state.id == JOY_TYPE_LIGHTGUN_LPT3) {
-			target_clock_t now = target_clock();
-			/* don't poll too frequently */
-			if (now - allegro_state.last > TARGET_CLOCKS_PER_SEC / 30) {
-				log_debug(("joystickb:allegro: effective poll\n"));
-				allegro_state.last = now;
-				poll_joystick();
-			} else {
-				log_debug(("joystickb:allegro: skipped poll\n"));
-			}
+		target_clock_t now = target_clock();
+		/* don't poll too frequently */
+		if (now - allegro_state.last > TARGET_CLOCKS_PER_SEC / 30) {
+			log_debug(("joystickb:allegro: effective poll\n"));
+			allegro_state.last = now;
+			poll_joystick();
+		} else {
+			log_debug(("joystickb:allegro: skipped poll\n"));
+		}
 	} else {
 		poll_joystick();
 	}

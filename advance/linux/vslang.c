@@ -69,8 +69,8 @@ static slang_internal slang_state;
 unsigned char* (*slang_write_line)(unsigned y);
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "sLang video" },
-{ 0, 0, 0 }
+	{ "auto", -1, "sLang video" },
+	{ 0, 0, 0 }
 };
 
 /***************************************************************************/
@@ -150,9 +150,9 @@ adv_error slang_mode_set(const slang_video_mode* mode)
 	slang_state.font_size_y = mode->font_size_y;
 	size = slang_state.size_x * slang_state.size_y;
 	slang_state.ptr = malloc(size * 2);
-	for(i=0;i<size;++i) {
-		slang_state.ptr[i*2] = ' ';
-		slang_state.ptr[i*2+1] = 0;
+	for (i = 0; i < size; ++i) {
+		slang_state.ptr[i * 2] = ' ';
+		slang_state.ptr[i * 2 + 1] = 0;
 	}
 	slang_write_line = slang_linear_write_line;
 
@@ -183,7 +183,7 @@ unsigned slang_virtual_x(void)
 
 unsigned slang_virtual_y(void)
 {
-	return slang_state.size_y  * slang_state.font_size_y;
+	return slang_state.size_y * slang_state.font_size_y;
 }
 
 unsigned slang_bytes_per_scanline(void)
@@ -218,7 +218,7 @@ static unsigned color_mac = 1; /* the first color is reserved */
 static unsigned getattr(unsigned dos_attr)
 {
 	unsigned i;
-	for(i=1;i<color_mac && i<COLOR_MAX;++i)
+	for (i = 1; i < color_mac && i < COLOR_MAX; ++i)
 		if (color_map[i] == dos_attr)
 			return i;
 	if (color_mac < COLOR_MAX) {
@@ -240,13 +240,13 @@ void slang_wait_vsync(void)
 
 	old_a = 0x100;
 
-	for(y=0;y<slang_state.size_y;++y) {
+	for (y = 0; y < slang_state.size_y; ++y) {
 		unsigned char* line;
 		SLsmg_gotorc(y, 0);
 		line = slang_write_line(y);
-		for(x=0;x<slang_state.size_x;++x) {
-			unsigned a = line[2*x + 1];
-			unsigned char c = line[2*x];
+		for (x = 0; x < slang_state.size_x; ++x) {
+			unsigned a = line[2 * x + 1];
+			unsigned char c = line[2 * x];
 			if (a != old_a) {
 				SLsmg_set_color(getattr(a));
 				old_a = a;

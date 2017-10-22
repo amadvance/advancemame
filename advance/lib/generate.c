@@ -55,8 +55,8 @@ adv_bool generate_is_empty(const adv_generate* generate)
  */
 void generate_normalize(adv_generate* generate)
 {
-	double ht = generate->hactive + generate->hfront +  generate->hsync + generate->hback;
-	double vt = generate->vactive + generate->vfront +  generate->vsync + generate->vback;
+	double ht = generate->hactive + generate->hfront + generate->hsync + generate->hback;
+	double vt = generate->vactive + generate->vfront + generate->vsync + generate->vback;
 
 	if (ht) {
 		generate->hactive /= ht;
@@ -74,8 +74,8 @@ void generate_normalize(adv_generate* generate)
 
 void generate_normalize_copy(adv_generate* norm, const adv_generate* generate)
 {
-	double ht = generate->hactive + generate->hfront +  generate->hsync + generate->hback;
-	double vt = generate->vactive + generate->vfront +  generate->vsync + generate->vback;
+	double ht = generate->hactive + generate->hfront + generate->hsync + generate->hback;
+	double vt = generate->vactive + generate->vfront + generate->vsync + generate->vback;
 
 	if (ht) {
 		norm->hactive = generate->hactive / ht;
@@ -120,14 +120,14 @@ void generate_default_vga(adv_generate* generate)
 #define hmodeline(dst, a, b, c, d) \
 	dst->hactive = a; \
 	dst->hsync = b; \
-	dst->hback = c-b; \
-	dst->hfront = d-c-a
+	dst->hback = c - b; \
+	dst->hfront = d - c - a
 
 #define vmodeline(dst, a, b, c, d) \
 	dst->vactive = a; \
 	dst->vsync = b; \
-	dst->vback = c-b; \
-	dst->vfront = d-c-a
+	dst->vback = c - b; \
+	dst->vfront = d - c - a
 
 /**
  * Set default generation values for an Arcade Standard (CGA) monitor.
@@ -266,7 +266,7 @@ adv_error generate_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double v
 	vtotal = crtc_step(vsize / norm.vactive, CRTC_VSTEP);
 	factor = 0;
 
-	if (crtc_find(&vtotal, &vclock, &factor, monitor, capability, adjust)!=0)
+	if (crtc_find(&vtotal, &vclock, &factor, monitor, capability, adjust) != 0)
 		return -1;
 
 	/* doublescan/interlace */
@@ -303,7 +303,7 @@ adv_error generate_find(adv_crtc* crtc, unsigned hsize, unsigned vsize, double v
 
 static double pos(double v)
 {
-	if (v<0)
+	if (v < 0)
 		return 0;
 	else
 		return v;
@@ -350,8 +350,8 @@ static void generate_interpolate_from2(adv_generate* generate, unsigned hclock, 
 		double d1 = (t1 - e1->gen.hactive) / t1;
 
 		/* compute c and m */
-		c = (d0*h0 - d1*h1) / (h0 - h1);
-		m = h1*c - d1*h1;
+		c = (d0 * h0 - d1 * h1) / (h0 - h1);
+		m = h1 * c - d1 * h1;
 
 		/* compute duty cycle */
 		duty_cycle = c - m / hclock;
@@ -359,7 +359,7 @@ static void generate_interpolate_from2(adv_generate* generate, unsigned hclock, 
 		active = 1 - duty_cycle;
 		blank = duty_cycle;
 		sync = e0->gen.hsync / t0;
-		front = blank/2 - sync;
+		front = blank / 2 - sync;
 		back = 1 - active - sync - front;
 
 		generate->hactive = pos(active);
@@ -400,7 +400,7 @@ void generate_interpolate_h(adv_generate* generate, unsigned hclock, const adv_g
 
 	assert(interpolate->mac);
 
-	for(i=0;i<interpolate->mac;++i) {
+	for (i = 0; i < interpolate->mac; ++i) {
 		const adv_generate_interpolate* e = interpolate->map + i;
 		if (e->hclock <= hclock && (!e0 || e0->hclock < e->hclock))
 			e0 = e;
@@ -438,7 +438,7 @@ adv_error generate_find_interpolate(adv_crtc* crtc, unsigned hsize, unsigned vsi
 	vtotal = crtc_step(vsize / norm.vactive, CRTC_VSTEP);
 	factor = 0;
 
-	if (crtc_find(&vtotal, &vclock, &factor, monitor, capability, adjust)!=0)
+	if (crtc_find(&vtotal, &vclock, &factor, monitor, capability, adjust) != 0)
 		return -1;
 
 	/* now the h/v clock are know and the format can be computed exactly */

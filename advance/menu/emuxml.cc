@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -299,7 +299,7 @@ static void process_videoscreen(struct state_t* state, enum token_t t, const cha
 			return;
 		}
 		string v = string(s, len);
-		state->g->flag_set(v ==  "vector", emulator::flag_derived_vector);
+		state->g->flag_set(v == "vector", emulator::flag_derived_vector);
 	}
 }
 
@@ -424,19 +424,19 @@ static struct conversion_t* identify(unsigned depth, const struct level_t* level
 	struct conversion_t* conv;
 
 	switch (depth) {
-	case 1 : conv = CONV1; break;
-	case 2 : conv = CONV2; break;
-	case 3 : conv = CONV3; break;
-	case 4 : conv = CONV4; break;
+	case 1: conv = CONV1; break;
+	case 2: conv = CONV2; break;
+	case 3: conv = CONV3; break;
+	case 4: conv = CONV4; break;
 	default:
 		return 0;
 	}
 
-	for(unsigned i=0;conv[i].name[0];++i) {
+	for (unsigned i = 0; conv[i].name[0]; ++i) {
 		bool equal = true;
 
 		// check all the item, backward
-		for(int j=depth;equal && j>=0;--j) {
+		for (int j = depth; equal && j >= 0; --j) {
 			if (conv[i].name[j] == match_mamemessraine) {
 				if (strcmp(level[j].tag, "mame") != 0 && strcmp(level[j].tag, "mess") != 0 && strcmp(level[j].tag, "raine") != 0)
 					equal = false;
@@ -528,10 +528,10 @@ static void start_handler(void* data, const XML_Char* name, const XML_Char** att
 				state->level[state->depth].process = 0;
 			}
 
-			for(i=0;attributes[i];i+=2) {
+			for (i = 0; attributes[i]; i += 2) {
 				const char* null_atts[1] = { 0 };
 				start_handler(data, attributes[i], null_atts);
-				data_handler(data, attributes[i+1], strlen(attributes[i+1]));
+				data_handler(data, attributes[i + 1], strlen(attributes[i + 1]));
 				end_handler(data, attributes[i]);
 			}
 		} else {

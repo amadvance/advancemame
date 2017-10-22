@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -45,7 +45,7 @@
 struct file_context {
 	char file_abs_buffer[FILE_MAXPATH]; /**< Absolute path returned by file_abs_buffer. */
 	char file_home_buffer[FILE_MAXPATH];
-	char list_buffer[FILE_MAXPATH*4];
+	char list_buffer[FILE_MAXPATH * 4];
 	char universal_map[UNIVERSAL_MAX][UNIVERSAL_SIZE];
 	unsigned universal_mac;
 };
@@ -92,7 +92,7 @@ adv_error file_dir_make(const char* dir)
 
 adv_bool file_path_is_abs(const char* path)
 {
-	return path[0] == '\\' || (path[0] != 0 && path[1]==':');
+	return path[0] == '\\' || (path[0] != 0 && path[1] == ':');
 }
 
 const char* file_abs(const char* dir, const char* file)
@@ -103,7 +103,7 @@ const char* file_abs(const char* dir, const char* file)
 		while (file[0] == '.' && file[1] == '\\')
 			file += 2;
 
-		if (!dir[0] || dir[strlen(dir)-1] != '\\')
+		if (!dir[0] || dir[strlen(dir) - 1] != '\\')
 			snprintf(FL.file_abs_buffer, sizeof(FL.file_abs_buffer), "%s\\%s", dir, file);
 		else
 			snprintf(FL.file_abs_buffer, sizeof(FL.file_abs_buffer), "%s%s", dir, file);
@@ -116,28 +116,28 @@ static char* import_conv(char* dst_begin, char* dst_end, const char* begin, cons
 {
 	adv_bool need_slash;
 
-	if (end - begin == 2 && begin[1]==':') {
+	if (end - begin == 2 && begin[1] == ':') {
 		/* only drive spec */
 		memcpy(dst_begin, "/dos/", 5);
 		dst_begin += 5;
 		*dst_begin++ = tolower(begin[0]);
 		begin += 2;
 		need_slash = 1;
-	} else if (end - begin >= 3 && begin[1]==':' && (begin[2]=='\\' || begin[2]=='/')) {
+	} else if (end - begin >= 3 && begin[1] == ':' && (begin[2] == '\\' || begin[2] == '/')) {
 		/* absolute path */
 		memcpy(dst_begin, "/dos/", 5);
 		dst_begin += 5;
 		*dst_begin++ = tolower(begin[0]);
 		begin += 3;
 		need_slash = 1;
-	} else if (end - begin >= 3 && begin[1]==':') {
+	} else if (end - begin >= 3 && begin[1] == ':') {
 		/* drive + relative path, assume it's an absolute path */
 		memcpy(dst_begin, "/dos/", 5);
 		dst_begin += 5;
 		*dst_begin++ = tolower(begin[0]);
 		begin += 2;
 		need_slash = 1;
-	} else if (end - begin >= 1 && (begin[0]=='\\' || begin[0]=='/')) {
+	} else if (end - begin >= 1 && (begin[0] == '\\' || begin[0] == '/')) {
 		/* absolute path on the current drive */
 		memcpy(dst_begin, "/dos/", 5);
 		dst_begin += 5;
@@ -160,7 +160,7 @@ static char* import_conv(char* dst_begin, char* dst_end, const char* begin, cons
 
 	/* copy the remaining path */
 	while (begin != end) {
-		if (*begin=='\\')
+		if (*begin == '\\')
 			*dst_begin++ = '/';
 		else
 			*dst_begin++ = tolower(*begin);
@@ -173,13 +173,13 @@ static char* import_conv(char* dst_begin, char* dst_end, const char* begin, cons
 static char* export_conv(char* dst_begin, char* dst_end, const char* begin, const char* end)
 {
 
-	if (end - begin == 6 && memcmp(begin, "/dos/", 5)==0) {
+	if (end - begin == 6 && memcmp(begin, "/dos/", 5) == 0) {
 		/* root dir */
 		*dst_begin++ = begin[5];
 		*dst_begin++ = ':';
 		*dst_begin++ = '\\';
 		begin += 6;
-	} else if (end - begin >= 7 && memcmp(begin, "/dos/", 5)==0) {
+	} else if (end - begin >= 7 && memcmp(begin, "/dos/", 5) == 0) {
 		/* absolute path */
 		*dst_begin++ = begin[5];
 		*dst_begin++ = ':';
@@ -191,7 +191,7 @@ static char* export_conv(char* dst_begin, char* dst_end, const char* begin, cons
 
 	/* copy the remaining path */
 	while (begin != end) {
-		if (*begin=='/')
+		if (*begin == '/')
 			*dst_begin++ = '\\';
 		else
 			*dst_begin++ = *begin;
@@ -314,5 +314,4 @@ const char* file_config_list(const char* const_list, const char* (*expand_dir)(c
 
 	return FL.list_buffer;
 }
-
 

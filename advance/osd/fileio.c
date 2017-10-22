@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -76,7 +76,7 @@ static struct fileio_item FILEIO_CONFIG[] = {
 	{ FILETYPE_IMAGE_DIFF, "dir_diff", "diff", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_SAMPLE, "dir_sample", "sample", FILEIO_MODE_MULTI, 0, 0 },
 	{ FILETYPE_ARTWORK, "dir_artwork", "artwork", FILEIO_MODE_MULTI, 0, 0 },
-	{ FILETYPE_NVRAM, "dir_nvram" , "nvram", FILEIO_MODE_SINGLE, 0, 0 },
+	{ FILETYPE_NVRAM, "dir_nvram", "nvram", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_HIGHSCORE, "dir_hi", "hi", FILEIO_MODE_SINGLE, 0, 0 },
 	{ FILETYPE_HIGHSCORE_DB, 0, 0, FILEIO_MODE_FILE, 0, 0 }, /* used for hiscore.dat */
 	/* FILETYPE_CONFIG */
@@ -94,7 +94,8 @@ static struct fileio_item FILEIO_CONFIG[] = {
 	{ FILETYPE_end, 0, 0, 0, 0 }
 };
 
-struct fileio_item* fileio_find(int type) {
+struct fileio_item* fileio_find(int type)
+{
 	struct fileio_item* i = FILEIO_CONFIG;
 	while (i->type != type) {
 		if (i->type == FILETYPE_end) {
@@ -167,7 +168,7 @@ static int partialequal(const char* zipfile, const char* file)
 		++s2;
 	else
 		s2 = zipfile;
-	while (*s1 && toupper(*s1)==toupper(*s2)) {
+	while (*s1 && toupper(*s1) == toupper(*s2)) {
 		++s1;
 		++s2;
 	}
@@ -177,10 +178,10 @@ static int partialequal(const char* zipfile, const char* file)
 static void osd_errno_to_filerr(osd_file_error *error)
 {
 	switch (errno) {
-	case ENOENT :
+	case ENOENT:
 		*error = FILEERR_NOT_FOUND;
 		break;
-	case EACCES :
+	case EACCES:
 		*error = FILEERR_ACCESS_DENIED;
 		break;
 	default:
@@ -188,11 +189,11 @@ static void osd_errno_to_filerr(osd_file_error *error)
 		break;
 	}
 /*
-	The following error are too specific, no need to report them:
-	FILEERR_OUT_OF_MEMORY,
-	FILEERR_ALREADY_OPEN,
-	FILEERR_TOO_MANY_FILES
-*/
+        The following error are too specific, no need to report them:
+        FILEERR_OUT_OF_MEMORY,
+        FILEERR_ALREADY_OPEN,
+        FILEERR_TOO_MANY_FILES
+ */
 }
 
 osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const char* mode, osd_file_error *error)
@@ -238,7 +239,7 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 
 		log_std(("osd: osd_fopen() try %s %s\n", zip_file_buffer, file_buffer));
 
-		if (access(zip_file_buffer, R_OK)!=0) {
+		if (access(zip_file_buffer, R_OK) != 0) {
 			osd_errno_to_filerr(error);
 			log_std(("osd: osd_fopen() -> failed, zip %s not readable\n", zip_file_buffer));
 			return 0;
@@ -252,7 +253,7 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 		}
 
 		h = 0;
-		while ((ent = zip_read(zip))!=0) {
+		while ((ent = zip_read(zip)) != 0) {
 			if (partialequal(ent->name, file_buffer)) {
 				if (ent->compression_method == 0) {
 					h = fzopenzipuncompressed(zip_file_buffer, ent->offset_lcl_hdr_frm_frst_disk, ent->uncompressed_size);
@@ -274,7 +275,7 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 		/* for the diff file support the write in memory mode */
 		if (i->type == FILETYPE_IMAGE_DIFF) {
 			/* if the file is already open reuse it */
-			if (context->state.diff_handle && strcmp(path_buffer, context->state.diff_file_buffer)==0) {
+			if (context->state.diff_handle && strcmp(path_buffer, context->state.diff_file_buffer) == 0) {
 				h = context->state.diff_handle;
 			} else {
 				/* try a normal open */
@@ -464,7 +465,7 @@ void* osd_dir_open(const char* dir, const char* mask)
 
 	return h;
 }
-  
+
 void osd_dir_close(void* void_h)
 {
 	struct dirio_handle* h = (struct dirio_handle*)void_h;
@@ -472,7 +473,7 @@ void osd_dir_close(void* void_h)
 	log_std(("osd: osd_dir_close(void_h)\n"));
 
 	assert(h && h->h);
-  
+
 	if (h->h)
 		closedir(h->h);
 
@@ -485,7 +486,7 @@ static int match(const char* str, const char* pattern)
 {
 	while (*str && *pattern) {
 		if (*pattern == '*') {
-			if (match(str+1, pattern))
+			if (match(str + 1, pattern))
 				return 1;
 			++pattern;
 		} else if (*pattern == '?') {
@@ -560,7 +561,7 @@ const char* osd_get_cwd(void)
 
 	getcwd(cwd_buffer, sizeof(cwd_buffer));
 
-	if (!cwd_buffer[0] || cwd_buffer[strlen(cwd_buffer)-1] != file_dir_slash())
+	if (!cwd_buffer[0] || cwd_buffer[strlen(cwd_buffer) - 1] != file_dir_slash())
 		snprintf(FILEIO_CWD_BUFFER, sizeof(FILEIO_CWD_BUFFER), "%s%c", cwd_buffer, file_dir_slash());
 	else
 		snprintf(FILEIO_CWD_BUFFER, sizeof(FILEIO_CWD_BUFFER), "%s", cwd_buffer);
@@ -691,7 +692,7 @@ static adv_error path_allocate(char*** dir_map, unsigned* dir_mac, const char* p
 
 	token = strtok(temp_path, separator);
 	while (token) {
-		*dir_map = realloc(*dir_map, ((*dir_mac)+1) * sizeof(char *));
+		*dir_map = realloc(*dir_map, ((*dir_mac) + 1) * sizeof(char *));
 		if (!*dir_map)
 			return -1;
 		(*dir_map)[*dir_mac] = strdup(token);
@@ -707,7 +708,7 @@ static adv_error path_allocate(char*** dir_map, unsigned* dir_mac, const char* p
 static void path_free(char** dir_map, unsigned dir_mac)
 {
 	int i;
-	for(i=0;i<dir_mac;++i)
+	for (i = 0; i < dir_mac; ++i)
 		free(dir_map[i]);
 	free(dir_map);
 }
@@ -715,18 +716,18 @@ static void path_free(char** dir_map, unsigned dir_mac)
 adv_error advance_fileio_init(struct advance_fileio_context* context, adv_conf* cfg_context)
 {
 	struct fileio_item* i;
-	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
+	for (i = FILEIO_CONFIG; i->type != FILETYPE_end; ++i) {
 		i->dir_map = 0;
 		i->dir_mac = 0;
 	}
 
-	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
+	for (i = FILEIO_CONFIG; i->type != FILETYPE_end; ++i) {
 		if (i->config) {
 			const char* def = 0;
 			switch (i->mode) {
-				case FILEIO_MODE_MULTI : def = file_config_dir_multidir(i->def); break;
-				case FILEIO_MODE_SINGLE : def = file_config_dir_singledir(i->def); break;
-				case FILEIO_MODE_FILE : def = file_config_dir_singlefile(); break;
+			case FILEIO_MODE_MULTI: def = file_config_dir_multidir(i->def); break;
+			case FILEIO_MODE_SINGLE: def = file_config_dir_singledir(i->def); break;
+			case FILEIO_MODE_FILE: def = file_config_dir_singlefile(); break;
 			}
 			if (def)
 				conf_string_register_default(cfg_context, i->config, def);
@@ -745,7 +746,7 @@ adv_error advance_fileio_init(struct advance_fileio_context* context, adv_conf* 
 void advance_fileio_done(struct advance_fileio_context* context)
 {
 	struct fileio_item* i;
-	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
+	for (i = FILEIO_CONFIG; i->type != FILETYPE_end; ++i) {
 		path_free(i->dir_map, i->dir_mac);
 	}
 	if (context->state.diff_handle) {
@@ -770,13 +771,13 @@ static void dir_create(const char* dir)
 void advance_fileio_default_dir(void)
 {
 	struct fileio_item* i;
-	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
+	for (i = FILEIO_CONFIG; i->type != FILETYPE_end; ++i) {
 		if (i->config && i->def) {
 			const char* def = 0;
 			switch (i->mode) {
-				case FILEIO_MODE_MULTI : def = file_config_dir_multidir(i->def); break;
-				case FILEIO_MODE_SINGLE : def = file_config_dir_singledir(i->def); break;
-				case FILEIO_MODE_FILE : def = file_config_dir_singlefile(); break;
+			case FILEIO_MODE_MULTI: def = file_config_dir_multidir(i->def); break;
+			case FILEIO_MODE_SINGLE: def = file_config_dir_singledir(i->def); break;
+			case FILEIO_MODE_FILE: def = file_config_dir_singlefile(); break;
 			}
 			if (def) {
 				char** dir_map;
@@ -784,7 +785,7 @@ void advance_fileio_default_dir(void)
 				unsigned j;
 
 				path_allocate(&dir_map, &dir_mac, def);
-				for(j=0;j<dir_mac;++j)
+				for (j = 0; j < dir_mac; ++j)
 					dir_create(dir_map[j]);
 				path_free(dir_map, dir_mac);
 			}
@@ -795,7 +796,7 @@ void advance_fileio_default_dir(void)
 adv_error advance_fileio_config_load(struct advance_fileio_context* context, adv_conf* cfg_context, struct mame_option* option)
 {
 	struct fileio_item* i;
-	for(i=FILEIO_CONFIG;i->type != FILETYPE_end;++i) {
+	for (i = FILEIO_CONFIG; i->type != FILETYPE_end; ++i) {
 		/* free a previously loaded value */
 		path_free(i->dir_map, i->dir_mac);
 		i->dir_map = 0;
@@ -807,14 +808,14 @@ adv_error advance_fileio_config_load(struct advance_fileio_context* context, adv
 			const char* a;
 
 			switch (i->mode) {
-			case FILEIO_MODE_MULTI : a = file_config_list(s, file_config_dir_multidir, 0); break;
-			case FILEIO_MODE_SINGLE : a = file_config_list(s, file_config_dir_singledir, 0); break;
+			case FILEIO_MODE_MULTI: a = file_config_list(s, file_config_dir_multidir, 0); break;
+			case FILEIO_MODE_SINGLE: a = file_config_list(s, file_config_dir_singledir, 0); break;
 			default: a = s; break;
 			}
 
 			log_std(("advance:fileio: %s %s\n", i->config, a));
 			path_allocate(&i->dir_map, &i->dir_mac, a);
-			for(j=0;j<i->dir_mac;++j)
+			for (j = 0; j < i->dir_mac; ++j)
 				dir_create(i->dir_map[j]);
 		} else {
 			/* add the standard directories search as default */

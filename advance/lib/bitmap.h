@@ -176,4 +176,3 @@ adv_bitmap* adv_bitmap_load_png_palette(adv_color_rgb* rgb_map, unsigned* rgb_ma
 
 #endif
 
-

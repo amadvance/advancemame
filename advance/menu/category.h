@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -71,7 +71,8 @@ inline bool pgame_by_type_less(const game* A, const game* B)
 typedef std::set<std::string> category_container;
 
 struct pcategory_less : std::binary_function<const category*, const category*, bool> {
-	bool operator()(const category* A, const category* B) const {
+	bool operator()(const category* A, const category* B) const
+	{
 		return *A < *B;
 	}
 };
@@ -84,7 +85,8 @@ public:
 	pcategory_container();
 	~pcategory_container();
 
-	const category* undefined_get() const {
+	const category* undefined_get() const
+	{
 		return undefined;
 	}
 

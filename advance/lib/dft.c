@@ -44,12 +44,12 @@ static adv_error dft_init(struct adv_dft_stage_struct* context, unsigned n)
 	int log2n;
 
 	/* check for legal size */
-	if (n == 0 || (n & (n-1))) {
+	if (n == 0 || (n & (n - 1))) {
 		return -1;
 	}
 
 	/* compute log size */
-	for (i = 1, log2n = 0; i < n; i <<= 1, log2n++);
+	for (i = 1, log2n = 0; i < n; i <<= 1, log2n++) ;
 
 	context->n = n;
 	context->log2n = log2n;
@@ -70,7 +70,7 @@ static adv_error dft_init(struct adv_dft_stage_struct* context, unsigned n)
 	p = context->ss;
 	*p++ = late = 0.;
 	*p++ = early = sin(delta);
-	for(i=2;i<n;++i) {
+	for (i = 2; i < n; ++i) {
 		*p++ = thi = konst * early - late;
 		late = early, early = thi;
 	}
@@ -80,13 +80,13 @@ static adv_error dft_init(struct adv_dft_stage_struct* context, unsigned n)
 
 	/* compute bit-reversing table */
 	context->brev[0] = 0;
-	for(k=2;k<=n;k<<=1) {
+	for (k = 2; k <= n; k <<= 1) {
 		halfk = k >> 1, kmin1 = k - 1;
 		fbp = context->brev;
-		for(j=0;j<halfk;++j)
+		for (j = 0; j < halfk; ++j)
 			*fbp++ <<= 1;
 		bbp = fbp - 1;
-		for(;j<k;++j)
+		for (; j < k; ++j)
 			*fbp++ = kmin1 - *bbp--;
 	}
 
@@ -123,28 +123,28 @@ static void dft(const struct adv_dft_stage_struct* context, double* restrict yr,
 	n2 = n + n;
 	log2n2 = log2n + 1;
 
-	for(k=1;k<log2n;++k) {
+	for (k = 1; k < log2n; ++k) {
 		n2 >>= 1, log2n2--;
 		n4 = n2 >> 2;
 		ue = n >> log2n2; /* e = TWOPI / n2; */
 		ua = ue;
-		is = 0,  id = n2 << 1;
+		is = 0, id = n2 << 1;
 		do {
 			for (i0 = is; i0 < n; i0 += id) {
-				i1 = i0 + n4,  i2 = i1 + n4,  i3 = i2 + n4;
+				i1 = i0 + n4, i2 = i1 + n4, i3 = i2 + n4;
 
-				r1 = yr[i0] - yr[i2],   yr[i0] += yr[i2];
-				r2 = yr[i1] - yr[i3],   yr[i1] += yr[i3];
-				s1 = yi[i0] - yi[i2],   yi[i0] += yi[i2];
-				s2 = yi[i1] - yi[i3],   yi[i1] += yi[i3];
+				r1 = yr[i0] - yr[i2], yr[i0] += yr[i2];
+				r2 = yr[i1] - yr[i3], yr[i1] += yr[i3];
+				s1 = yi[i0] - yi[i2], yi[i0] += yi[i2];
+				s2 = yi[i1] - yi[i3], yi[i1] += yi[i3];
 
-				yr[i3] = r1 - s2,   yr[i2] = r1 + s2;
-				yi[i2] = s1 - r2,   yi[i3] = r2 + s1;
+				yr[i3] = r1 - s2, yr[i2] = r1 + s2;
+				yi[i2] = s1 - r2, yi[i3] = r2 + s1;
 			}
-			is = (id << 1) - n2,  id <<= 2;
+			is = (id << 1) - n2, id <<= 2;
 		} while (is < n);
 
-		for(j=1;j<n4;++j) {
+		for (j = 1; j < n4; ++j) {
 			ua3 = ua + ua + ua;
 			/* cc1 = cos(a), ss1 = sin(a), cc3 = cos(a3), ss3 = sin(a3); */
 			cc1 = cc[ua << ratio], ss1 = ss[ua << ratio], cc3 = cc[ua3 << ratio], ss3 = ss[ua3 << ratio];
@@ -152,20 +152,20 @@ static void dft(const struct adv_dft_stage_struct* context, double* restrict yr,
 			is = j, id = n2 << 1;
 			do {
 				for (i0 = is; i0 < n; i0 += id) {
-					i1 = i0 + n4,   i2 = i1 + n4,   i3 = i2 + n4;
+					i1 = i0 + n4, i2 = i1 + n4, i3 = i2 + n4;
 
-					r1 = yr[i0] - yr[i2],   yr[i0] += yr[i2];
-					r2 = yr[i1] - yr[i3],   yr[i1] += yr[i3];
-					s1 = yi[i0] - yi[i2],   yi[i0] += yi[i2];
-					s2 = yi[i1] - yi[i3],   yi[i1] += yi[i3];
+					r1 = yr[i0] - yr[i2], yr[i0] += yr[i2];
+					r2 = yr[i1] - yr[i3], yr[i1] += yr[i3];
+					s1 = yi[i0] - yi[i2], yi[i0] += yi[i2];
+					s2 = yi[i1] - yi[i3], yi[i1] += yi[i3];
 
-					s3 = r1 - s2,   r1 += s2;
-					s2 = r2 - s1,   r2 += s1;
+					s3 = r1 - s2, r1 += s2;
+					s2 = r2 - s1, r2 += s1;
 
-					yr[i2] =   r1 * cc1 - s2 * ss1;
-					yi[i2] = - s2 * cc1 - r1 * ss1;
-					yr[i3] =   s3 * cc3 + r2 * ss3;
-					yi[i3] =   r2 * cc3 - s3 * ss3;
+					yr[i2] = r1 * cc1 - s2 * ss1;
+					yi[i2] = -s2 * cc1 - r1 * ss1;
+					yr[i3] = s3 * cc3 + r2 * ss3;
+					yi[i3] = r2 * cc3 - s3 * ss3;
 				}
 
 				is = (id << 1) - n2 + j;
@@ -182,11 +182,11 @@ static void dft(const struct adv_dft_stage_struct* context, double* restrict yr,
 			r1 = yr[i0], yr[i0] = r1 + yr[i1], yr[i1] = r1 - yr[i1];
 			r1 = yi[i0], yi[i0] = r1 + yi[i1], yi[i1] = r1 - yi[i1];
 		}
-		is = id + id - 2,  id <<= 2;
+		is = id + id - 2, id <<= 2;
 	} while (is < n);
 
 	/* shuffle output vector */
-	for(i=0;i<n;++i) {
+	for (i = 0; i < n; ++i) {
 		j = brev[i << ratio];
 		if (j > i) {
 			double xt, yt;
@@ -233,7 +233,7 @@ static void idft_execute(adv_dft* context)
 
 	dft(&context->stage, xi, xr, 0);
 
-	for(i=0;i<n;++i) {
+	for (i = 0; i < n; ++i) {
 		xr[i] /= dn;
 		xi[i] /= dn;
 	}
@@ -272,9 +272,9 @@ static void dftr_execute(adv_dft* context)
 	const double* restrict ss = context->stage.ss;
 	const double* restrict cc = context->stage.cc;
 
-	for(i=0;i<n2;++i) {
-		Yr[i] = xr[i*2];
-		Yi[i] = xr[i*2+1];
+	for (i = 0; i < n2; ++i) {
+		Yr[i] = xr[i * 2];
+		Yi[i] = xr[i * 2 + 1];
 	}
 
 	dft(&context->stage, Yr, Yi, 1);
@@ -285,16 +285,16 @@ static void dftr_execute(adv_dft* context)
 	Xi[n2] = 0;
 
 	i = 1;
-	j = n-1;
-	for(i=1;i<n4;++i,--j) {
+	j = n - 1;
+	for (i = 1; i < n4; ++i, --j) {
 		double c, s;
 		double Ar2, Ai2, Br2, Bi2;
 		double Br2c, Bi2c, Br2s, Bi2s;
 
-		Ar2 = 0.5*(Yr[n2-i]+Yr[i]);
-		Ai2 = 0.5*(-Yi[n2-i]+Yi[i]);
-		Br2 = 0.5*(Yi[n2-i]+Yi[i]);
-		Bi2 = 0.5*(Yr[n2-i]-Yr[i]);
+		Ar2 = 0.5 * (Yr[n2 - i] + Yr[i]);
+		Ai2 = 0.5 * (-Yi[n2 - i] + Yi[i]);
+		Br2 = 0.5 * (Yi[n2 - i] + Yi[i]);
+		Bi2 = 0.5 * (Yr[n2 - i] - Yr[i]);
 
 		c = cc[i];
 		s = -ss[i];
@@ -304,10 +304,10 @@ static void dftr_execute(adv_dft* context)
 		Br2s = Br2 * s;
 		Bi2s = Bi2 * s;
 
-		Xr[j] = Xr[i] = Ar2+Br2c-Bi2s;
-		Xi[j] = -(Xi[i] = Ai2+Br2s+Bi2c);
-		Xr[j-n2] = Xr[n2+i] = Ar2-Br2c+Bi2s;
-		Xi[j-n2] = -(Xi[n2+i] = Ai2-Br2s-Bi2c);
+		Xr[j] = Xr[i] = Ar2 + Br2c - Bi2s;
+		Xi[j] = -(Xi[i] = Ai2 + Br2s + Bi2c);
+		Xr[j - n2] = Xr[n2 + i] = Ar2 - Br2c + Bi2s;
+		Xi[j - n2] = -(Xi[n2 + i] = Ai2 - Br2s - Bi2c);
 	}
 
 	Xr[j] = Xr[i] = Yr[i];

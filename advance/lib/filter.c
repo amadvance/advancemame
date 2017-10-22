@@ -38,12 +38,12 @@
 /* IIR */
 
 /*
-  IIR Filter generation from:
+   IIR Filter generation from:
     mkfilter -- given n, compute recurrence relation
     to implement Butterworth, Bessel or Chebyshev filter of order n
     A.J. Fisher, University of York   <fisher@minster.york.ac.uk>
     September 1992
-*/
+ */
 
 static void filter_iir_reset(adv_filter* f, adv_filter_state* s)
 {
@@ -53,11 +53,11 @@ static void filter_iir_reset(adv_filter* f, adv_filter_state* s)
 	unsigned y_max = iir->N + 1;
 
 	s->x_mac = 0;
-	for(i=0;i<x_max;++i) {
+	for (i = 0; i < x_max; ++i) {
 		s->x_map[i] = 0;
 	}
 	s->y_mac = 0;
-	for(i=0;i<y_max;++i) {
+	for (i = 0; i < y_max; ++i) {
 		s->y_map[i] = 0;
 	}
 }
@@ -89,7 +89,7 @@ static void filter_iir_insert(adv_filter* f, adv_filter_state* s, adv_filter_rea
 	y = 0;
 
 	/* x, sum from x[-M] to x[0] */
-	for(k=0;k<x_max;++k) {
+	for (k = 0; k < x_max; ++k) {
 		y += iir->xcoeffs[k] * s->x_map[j];
 		++j;
 		if (j == x_max)
@@ -104,7 +104,7 @@ static void filter_iir_insert(adv_filter* f, adv_filter_state* s, adv_filter_rea
 		j = 0;
 
 	/* y, sum from y[-N] to y[-1] */
-	for(k=0;k<y_max-1;++k) {
+	for (k = 0; k < y_max - 1; ++k) {
 		y += iir->ycoeffs[k] * s->y_map[j];
 		++j;
 		if (j == y_max)
@@ -159,36 +159,36 @@ static void filter_choosepole(struct adv_filter_struct_iir* f, adv_complex z)
 }
 
 static adv_complex bessel_poles[] = {
-{ -1.00000000000e+00, 0.00000000000e+00 },
-{ -1.10160133059e+00, 6.36009824757e-01 },
-{ -1.32267579991e+00, 0.00000000000e+00 },
-{ -1.04740916101e+00, 9.99264436281e-01 },
-{ -1.37006783055e+00, 4.10249717494e-01 },
-{ -9.95208764350e-01, 1.25710573945e+00 },
-{ -1.50231627145e+00, 0.00000000000e+00 },
-{ -1.38087732586e+00, 7.17909587627e-01 },
-{ -9.57676548563e-01, 1.47112432073e+00 },
-{ -1.57149040362e+00, 3.20896374221e-01 },
-{ -1.38185809760e+00, 9.71471890712e-01 },
-{ -9.30656522947e-01, 1.66186326894e+00 },
-{ -1.68436817927e+00, 0.00000000000e+00 },
-{ -1.61203876622e+00, 5.89244506931e-01 },
-{ -1.37890321680e+00, 1.19156677780e+00 },
-{ -9.09867780623e-01, 1.83645135304e+00 },
-{ -1.75740840040e+00, 2.72867575103e-01 },
-{ -1.63693941813e+00, 8.22795625139e-01 },
-{ -1.37384121764e+00, 1.38835657588e+00 },
-{ -8.92869718847e-01, 1.99832584364e+00 },
-{ -1.85660050123e+00, 0.00000000000e+00 },
-{ -1.80717053496e+00, 5.12383730575e-01 },
-{ -1.65239648458e+00, 1.03138956698e+00 },
-{ -1.36758830979e+00, 1.56773371224e+00 },
-{ -8.78399276161e-01, 2.14980052431e+00 },
-{ -1.92761969145e+00, 2.41623471082e-01 },
-{ -1.84219624443e+00, 7.27257597722e-01 },
-{ -1.66181024140e+00, 1.22110021857e+00 },
-{ -1.36069227838e+00, 1.73350574267e+00 },
-{ -8.65756901707e-01, 2.29260483098e+00 },
+	{ -1.00000000000e+00, 0.00000000000e+00 },
+	{ -1.10160133059e+00, 6.36009824757e-01 },
+	{ -1.32267579991e+00, 0.00000000000e+00 },
+	{ -1.04740916101e+00, 9.99264436281e-01 },
+	{ -1.37006783055e+00, 4.10249717494e-01 },
+	{ -9.95208764350e-01, 1.25710573945e+00 },
+	{ -1.50231627145e+00, 0.00000000000e+00 },
+	{ -1.38087732586e+00, 7.17909587627e-01 },
+	{ -9.57676548563e-01, 1.47112432073e+00 },
+	{ -1.57149040362e+00, 3.20896374221e-01 },
+	{ -1.38185809760e+00, 9.71471890712e-01 },
+	{ -9.30656522947e-01, 1.66186326894e+00 },
+	{ -1.68436817927e+00, 0.00000000000e+00 },
+	{ -1.61203876622e+00, 5.89244506931e-01 },
+	{ -1.37890321680e+00, 1.19156677780e+00 },
+	{ -9.09867780623e-01, 1.83645135304e+00 },
+	{ -1.75740840040e+00, 2.72867575103e-01 },
+	{ -1.63693941813e+00, 8.22795625139e-01 },
+	{ -1.37384121764e+00, 1.38835657588e+00 },
+	{ -8.92869718847e-01, 1.99832584364e+00 },
+	{ -1.85660050123e+00, 0.00000000000e+00 },
+	{ -1.80717053496e+00, 5.12383730575e-01 },
+	{ -1.65239648458e+00, 1.03138956698e+00 },
+	{ -1.36758830979e+00, 1.56773371224e+00 },
+	{ -8.78399276161e-01, 2.14980052431e+00 },
+	{ -1.92761969145e+00, 2.41623471082e-01 },
+	{ -1.84219624443e+00, 7.27257597722e-01 },
+	{ -1.66181024140e+00, 1.22110021857e+00 },
+	{ -1.36069227838e+00, 1.73350574267e+00 },
+	{ -8.65756901707e-01, 2.29260483098e+00 },
 };
 
 static adv_complex cmone = { -1.0, 0.0 };
@@ -209,7 +209,7 @@ static void filter_normalize(struct adv_filter_struct_iir* f, double raw_alpha1,
 	adv_complex w0, bw;
 	double warped_alpha1, warped_alpha2;
 	int i;
-	
+
 	/* for bilinear transform, perform pre-warp on alpha values */
 	warped_alpha1 = tan(M_PI * raw_alpha1) / M_PI;
 	warped_alpha2 = tan(M_PI * raw_alpha2) / M_PI;
@@ -218,22 +218,22 @@ static void filter_normalize(struct adv_filter_struct_iir* f, double raw_alpha1,
 	w2 = adv_creal(2.0 * M_PI * warped_alpha2);
 
 	switch (type) {
-	case adv_filter_lp :
-		for(i=0;i<f->spoles_mac;++i)
+	case adv_filter_lp:
+		for (i = 0; i < f->spoles_mac; ++i)
 			f->spoles_map[i] = adv_cmul(f->spoles_map[i], w1);
 		f->szeros_mac = 0;
 		break;
-	case adv_filter_hp :
-		for(i=0;i<f->spoles_mac;++i)
+	case adv_filter_hp:
+		for (i = 0; i < f->spoles_mac; ++i)
 			f->spoles_map[i] = adv_cdiv(w1, f->spoles_map[i]);
 		f->szeros_mac = f->spoles_mac;
-		for(i=0;i<f->spoles_mac;++i)
+		for (i = 0; i < f->spoles_mac; ++i)
 			f->szeros_map[i] = czero;
 		break;
-	case adv_filter_bp :
+	case adv_filter_bp:
 		w0 = adv_csqrt(adv_cmul(w1, w2));
 		bw = adv_csub(w2, w1);
-		for(i=0;i<f->spoles_mac;++i) {
+		for (i = 0; i < f->spoles_mac; ++i) {
 			adv_complex hba, temp;
 			hba = adv_cmul(chalf, adv_cmul(f->spoles_map[i], bw));
 			temp = adv_csqrt(adv_csub(cone, adv_csqr(adv_cdiv(w0, hba))));
@@ -241,21 +241,21 @@ static void filter_normalize(struct adv_filter_struct_iir* f, double raw_alpha1,
 			f->spoles_map[f->spoles_mac + i] = adv_cmul(hba, adv_csub(cone, temp));
 		}
 		f->szeros_mac = f->spoles_mac;
-		for (i=0;i<f->spoles_mac;++i)
+		for (i = 0; i < f->spoles_mac; ++i)
 			f->szeros_map[i] = czero;
 		f->spoles_mac *= 2;
 		break;
-	case adv_filter_bs :
+	case adv_filter_bs:
 		w0 = adv_csqrt(adv_cmul(w1, w2));
 		bw = adv_csub(w2, w1);
-		for(i=0;i<f->spoles_mac;++i) {
+		for (i = 0; i < f->spoles_mac; ++i) {
 			adv_complex hba, temp;
 			hba = adv_cmul(chalf, adv_cdiv(bw, f->spoles_map[i]));
 			temp = adv_csqrt(adv_csub(cone, adv_csqr(adv_cdiv(w0, hba))));
 			f->spoles_map[i] = adv_cmul(hba, adv_cadd(cone, temp));
 			f->spoles_map[f->spoles_mac + i] = adv_cmul(hba, adv_csub(cone, temp));
 		}
-		for (i=0;i<f->spoles_mac;++i) {
+		for (i = 0; i < f->spoles_mac; ++i) {
 			f->szeros_map[i] = adv_cimag(w0.re);
 			f->szeros_map[f->spoles_mac + i] = adv_cimag(-w0.re);
 		}
@@ -288,10 +288,10 @@ static void filter_compute_z(struct adv_filter_struct_iir* f, adv_filter_type ty
 	f->zpoles_mac = f->spoles_mac;
 	f->zzeros_mac = f->szeros_mac;
 
-	for(i=0;i<f->spoles_mac;++i)
+	for (i = 0; i < f->spoles_mac; ++i)
 		f->zpoles_map[i] = cblt(f->spoles_map[i]);
 
-	for(i=0;i<f->szeros_mac;++i)
+	for (i = 0; i < f->szeros_mac; ++i)
 		f->zzeros_map[i] = cblt(f->szeros_map[i]);
 
 	while (f->zzeros_mac < f->zpoles_mac)
@@ -307,7 +307,7 @@ static void filter_multin(adv_complex w, int npz, adv_complex coeffs[])
 	int i;
 
 	nw = adv_cneg(w);
-	for(i=npz;i>=1;--i)
+	for (i = npz; i >= 1; --i)
 		coeffs[i] = adv_cadd(adv_cmul(nw, coeffs[i]), coeffs[i - 1]);
 	coeffs[0] = adv_cmul(nw, coeffs[0]);
 }
@@ -321,10 +321,10 @@ static void filter_expand(adv_complex pz[], int npz, adv_complex coeffs[])
 
 	coeffs[0] = cone;
 
-	for(i=0;i<npz;++i)
+	for (i = 0; i < npz; ++i)
 		coeffs[i + 1] = czero;
 
-	for(i=0;i<npz;++i)
+	for (i = 0; i < npz; ++i)
 		filter_multin(pz[i], npz, coeffs);
 }
 
@@ -352,22 +352,22 @@ static void filter_expand_poly(struct adv_filter_struct_iir* f, double raw_alpha
 	fc_gain = adv_cevaluate(topcoeffs, f->zzeros_mac, botcoeffs, f->zpoles_mac, zfc);
 	hf_gain = adv_cevaluate(topcoeffs, f->zzeros_mac, botcoeffs, f->zpoles_mac, cmone);
 
-	for(i=0;i<=f->zzeros_mac;++i)
+	for (i = 0; i <= f->zzeros_mac; ++i)
 		f->xcoeffs[i] = topcoeffs[i].re / botcoeffs[f->zpoles_mac].re;
-	for(i=0;i<=f->zpoles_mac;++i)
+	for (i = 0; i <= f->zpoles_mac; ++i)
 		f->ycoeffs[i] = -(botcoeffs[i].re / botcoeffs[f->zpoles_mac].re);
 
 	switch (type) {
-	case adv_filter_lp :
+	case adv_filter_lp:
 		gain = dc_gain;
 		break;
-	case adv_filter_hp :
+	case adv_filter_hp:
 		gain = hf_gain;
 		break;
-	case adv_filter_bp :
+	case adv_filter_bp:
 		gain = fc_gain;
 		break;
-	case adv_filter_bs :
+	case adv_filter_bs:
 		gain = adv_csqrt(adv_cmul(dc_gain, hf_gain));
 		break;
 	default:
@@ -388,13 +388,13 @@ static void filter_chebyshev_compute_s(struct adv_filter_struct_iir* f, unsigned
 	int i;
 	double rip, eps, y;
 
-	for(i=0;i<2*order;++i) {
+	for (i = 0; i < 2 * order; ++i) {
 		adv_complex s;
 		s.re = 0.0;
 		s.im = (order & 1) ? (i * M_PI) / order : ((i + 0.5) * M_PI) / order;
 		filter_choosepole(f, adv_cexp(s));
 	}
-	
+
 	assert(ripple < 0);
 
 	rip = pow(10.0, -ripple / 10.0);
@@ -403,7 +403,7 @@ static void filter_chebyshev_compute_s(struct adv_filter_struct_iir* f, unsigned
 
 	assert(y > 0);
 
-	for(i=0;i<f->spoles_mac;++i) {
+	for (i = 0; i < f->spoles_mac; ++i) {
 		f->spoles_map[i].re *= sinh(y);
 		f->spoles_map[i].im *= cosh(y);
 	}
@@ -417,12 +417,12 @@ static void filter_bessel_compute_s(struct adv_filter_struct_iir* f, unsigned or
 	int i;
 	int p = (order * order) / 4; /* ptr into table */
 	if (order & 1) {
-		assert(p < sizeof(bessel_poles)/sizeof(bessel_poles[0]));
+		assert(p < sizeof(bessel_poles) / sizeof(bessel_poles[0]));
 		filter_choosepole(f, bessel_poles[p]);
 		++p;
 	}
-	for(i=0;i<order/2;++i) {
-		assert(p < sizeof(bessel_poles)/sizeof(bessel_poles[0]));
+	for (i = 0; i < order / 2; ++i) {
+		assert(p < sizeof(bessel_poles) / sizeof(bessel_poles[0]));
 		filter_choosepole(f, bessel_poles[p]);
 		filter_choosepole(f, adv_cconj(bessel_poles[p]));
 		p++;
@@ -435,7 +435,7 @@ static void filter_bessel_compute_s(struct adv_filter_struct_iir* f, unsigned or
 static void filter_butterworth_compute_s(struct adv_filter_struct_iir* f, unsigned order)
 {
 	int i;
-	for(i=0;i<2*order;++i) {
+	for (i = 0; i < 2 * order; ++i) {
 		adv_complex s;
 		s.re = 0.0;
 		s.im = (order & 1) ? (i * M_PI) / order : ((i + 0.5) * M_PI) / order;
@@ -615,7 +615,7 @@ static void filter_fir_reset(adv_filter* f, adv_filter_state* s)
 	unsigned i;
 
 	s->x_mac = 0;
-	for(i=0;i<x_max;++i) {
+	for (i = 0; i < x_max; ++i) {
 		s->x_map[i] = 0;
 	}
 }
@@ -638,7 +638,7 @@ static adv_filter_real filter_fir_extract(adv_filter* f, adv_filter_state* s)
 	y = 0;
 
 	/* symmetric coefficients */
-	for(k=0;k<x_center;++k) {
+	for (k = 0; k < x_center; ++k) {
 		y += fir->xcoeffs[k] * (s->x_map[i] + s->x_map[j]);
 
 		/* next j */
@@ -680,7 +680,7 @@ static double csinc(double n, double f)
 	if (n == 0)
 		return f;
 	else
-		return sin(M_PI*n*f) / (M_PI*n);
+		return sin(M_PI * n * f) / (M_PI * n);
 }
 
 void adv_filter_lp_windowedsinc_set(adv_filter* f, double freq, unsigned order)
@@ -703,16 +703,16 @@ void adv_filter_lp_windowedsinc_set(adv_filter* f, double freq, unsigned order)
 	f->reset = filter_fir_reset;
 
 	/* compute the antitrasform of the perfect low pass filter */
-	for(i=0;i<=order;++i) {
+	for (i = 0; i <= order; ++i) {
 		double n, c, w;
 
 		n = i - 0.5 * order;
 
 		/* sample value */
-		c = csinc(n, 2*freq);
+		c = csinc(n, 2 * freq);
 
 		/* w = 0.54 - 0.46 * cos(2*M_PI*i/order); */ /* Hamming */
-		w = 0.42 - 0.5 * cos(2*M_PI*i/order) + 0.08 * cos(4*M_PI*i/order); /* Blackman */
+		w = 0.42 - 0.5 * cos(2 * M_PI * i / order) + 0.08 * cos(4 * M_PI * i / order); /* Blackman */
 
 		/* apply the window */
 		c *= w;
@@ -723,9 +723,9 @@ void adv_filter_lp_windowedsinc_set(adv_filter* f, double freq, unsigned order)
 
 	/* adjust the gain to be exact 1.0 */
 	gain = 0;
-	for(i=0;i<=order;++i)
+	for (i = 0; i <= order; ++i)
 		gain += fir->xcoeffs[i];
-	for(i=0;i<=order;++i)
+	for (i = 0; i <= order; ++i)
 		fir->xcoeffs[i] /= gain;
 
 	fir->M = order;

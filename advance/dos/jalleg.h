@@ -52,3 +52,4 @@ extern joystickb_driver joystickb_allegro_driver;
 #endif
 
 #endif
+

@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -72,7 +72,7 @@ FILE* log_handle(void);
  * Print a modeline with blanking information in the standard log file.
  * This function must be called using the double (( )) convention.
  * This convention allows the use of the printf format and to disable selectively at
- * compile time the log command. 
+ * compile time the log command.
  */
 #define log_std_modeline_cb(a) log_f_modeline_cb a
 
@@ -80,7 +80,7 @@ FILE* log_handle(void);
  * Print a modeline in the standard log file.
  * This function must be called using the double (( )) convention.
  * This convention allows the use of the printf format and to disable selectively at
- * compile time the log command. 
+ * compile time the log command.
  */
 #define log_std_modeline_c(a) log_f_modeline_c a
 
@@ -88,7 +88,7 @@ FILE* log_handle(void);
  * Print a memory dump in the standard log file.
  * This function must be called using the double (( )) convention.
  * This convention allows the use of the printf format and to disable selectively at
- * compile time the log command. 
+ * compile time the log command.
  */
 #define log_std_dump(a) log_f_dump a
 
@@ -96,7 +96,7 @@ FILE* log_handle(void);
  * Print a log entry in the debug output file.
  * This function must be called using the double (( )) convention.
  * This convention allows the use of the printf format and to disable selectively at
- * compile time the log command.  
+ * compile time the log command.
  */
 #ifndef NDEBUG
 #define log_debug(a) log_f a
@@ -108,7 +108,7 @@ FILE* log_handle(void);
  * Print something in the pedantic log file.
  * This function must be called using the double (( )) convention.
  * This convention allows the use of the printf format and to disable selectively at
- * compile time the log command.  
+ * compile time the log command.
  */
 #define log_pedantic(a) do { } while (0)
 
@@ -119,3 +119,4 @@ FILE* log_handle(void);
 #endif
 
 #endif
+

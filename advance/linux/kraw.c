@@ -90,118 +90,118 @@ static struct keyb_pair {
 	unsigned up_code;
 	unsigned low_code;
 } KEYS[] = {
-{ KEYB_ESC, 1 },
-{ KEYB_1, 2 },
-{ KEYB_2, 3 },
-{ KEYB_3, 4 },
-{ KEYB_4, 5 },
-{ KEYB_5, 6 },
-{ KEYB_6, 7 },
-{ KEYB_7, 8 },
-{ KEYB_8, 9 },
-{ KEYB_9, 10 },
-{ KEYB_0, 11 },
-{ KEYB_MINUS, 12 },
-{ KEYB_EQUALS, 13 },
-{ KEYB_BACKSPACE, 14 },
-{ KEYB_TAB, 15 },
-{ KEYB_Q, 16 },
-{ KEYB_W, 17 },
-{ KEYB_E, 18 },
-{ KEYB_R, 19 },
-{ KEYB_T, 20 },
-{ KEYB_Y, 21 },
-{ KEYB_U, 22 },
-{ KEYB_I, 23 },
-{ KEYB_O, 24 },
-{ KEYB_P, 25 },
-{ KEYB_OPENBRACE, 26 },
-{ KEYB_CLOSEBRACE, 27 },
-{ KEYB_ENTER, 28 },
-{ KEYB_LCONTROL, 29 },
-{ KEYB_A, 30 },
-{ KEYB_S, 31 },
-{ KEYB_D, 32 },
-{ KEYB_F, 33 },
-{ KEYB_G, 34 },
-{ KEYB_H, 35 },
-{ KEYB_J, 36 },
-{ KEYB_K, 37 },
-{ KEYB_L, 38 },
-{ KEYB_SEMICOLON, 39 },
-{ KEYB_QUOTE, 40 },
-{ KEYB_BACKQUOTE, 41 },
-{ KEYB_LSHIFT, 42 },
-{ KEYB_BACKSLASH, 43 },
-{ KEYB_Z, 44 },
-{ KEYB_X, 45 },
-{ KEYB_C, 46 },
-{ KEYB_V, 47 },
-{ KEYB_B, 48 },
-{ KEYB_N, 49 },
-{ KEYB_M, 50 },
-{ KEYB_COMMA, 51 },
-{ KEYB_PERIOD, 52 },
-{ KEYB_SLASH, 53 },
-{ KEYB_RSHIFT, 54 },
-{ KEYB_ASTERISK, 55 },
-{ KEYB_ALT, 56 },
-{ KEYB_SPACE, 57 },
-{ KEYB_CAPSLOCK, 58 },
-{ KEYB_F1, 59 },
-{ KEYB_F2, 60 },
-{ KEYB_F3, 61 },
-{ KEYB_F4, 62 },
-{ KEYB_F5, 63 },
-{ KEYB_F6, 64 },
-{ KEYB_F7, 65 },
-{ KEYB_F8, 66 },
-{ KEYB_F9, 67 },
-{ KEYB_F10, 68 },
-{ KEYB_NUMLOCK, 69 },
-{ KEYB_SCRLOCK, 70 },
-{ KEYB_7_PAD, 71 },
-{ KEYB_8_PAD, 72 },
-{ KEYB_9_PAD, 73 },
-{ KEYB_MINUS_PAD, 74 },
-{ KEYB_4_PAD, 75 },
-{ KEYB_5_PAD, 76 },
-{ KEYB_6_PAD, 77 },
-{ KEYB_PLUS_PAD, 78 },
-{ KEYB_1_PAD, 79 },
-{ KEYB_2_PAD, 80 },
-{ KEYB_3_PAD, 81 },
-{ KEYB_0_PAD, 82 },
-{ KEYB_PERIOD_PAD, 83 },
-{ KEYB_LESS, 86 },
-{ KEYB_F11, 87 },
-{ KEYB_F12, 88 },
-{ KEYB_ENTER_PAD, 96 },
-{ KEYB_RCONTROL, 97 },
-{ KEYB_SLASH_PAD, 98 },
-{ KEYB_PRTSCR, 99 },
-{ KEYB_ALTGR, 100 },
-{ KEYB_PAUSE, 101 },
-{ KEYB_HOME, 102 },
-{ KEYB_UP, 103 },
-{ KEYB_PGUP, 104 },
-{ KEYB_LEFT, 105 },
-{ KEYB_RIGHT, 106 },
-{ KEYB_END, 107 },
-{ KEYB_DOWN, 108 },
-{ KEYB_PGDN, 109 },
-{ KEYB_INSERT, 110 },
-{ KEYB_DEL, 111 },
-{ KEYB_PAUSE, 119 },
-{ KEYB_LWIN, 125 },
-{ KEYB_RWIN, 126 },
-{ KEYB_MENU, 127 },
-{ KEYB_MAX, 0 }
+	{ KEYB_ESC, 1 },
+	{ KEYB_1, 2 },
+	{ KEYB_2, 3 },
+	{ KEYB_3, 4 },
+	{ KEYB_4, 5 },
+	{ KEYB_5, 6 },
+	{ KEYB_6, 7 },
+	{ KEYB_7, 8 },
+	{ KEYB_8, 9 },
+	{ KEYB_9, 10 },
+	{ KEYB_0, 11 },
+	{ KEYB_MINUS, 12 },
+	{ KEYB_EQUALS, 13 },
+	{ KEYB_BACKSPACE, 14 },
+	{ KEYB_TAB, 15 },
+	{ KEYB_Q, 16 },
+	{ KEYB_W, 17 },
+	{ KEYB_E, 18 },
+	{ KEYB_R, 19 },
+	{ KEYB_T, 20 },
+	{ KEYB_Y, 21 },
+	{ KEYB_U, 22 },
+	{ KEYB_I, 23 },
+	{ KEYB_O, 24 },
+	{ KEYB_P, 25 },
+	{ KEYB_OPENBRACE, 26 },
+	{ KEYB_CLOSEBRACE, 27 },
+	{ KEYB_ENTER, 28 },
+	{ KEYB_LCONTROL, 29 },
+	{ KEYB_A, 30 },
+	{ KEYB_S, 31 },
+	{ KEYB_D, 32 },
+	{ KEYB_F, 33 },
+	{ KEYB_G, 34 },
+	{ KEYB_H, 35 },
+	{ KEYB_J, 36 },
+	{ KEYB_K, 37 },
+	{ KEYB_L, 38 },
+	{ KEYB_SEMICOLON, 39 },
+	{ KEYB_QUOTE, 40 },
+	{ KEYB_BACKQUOTE, 41 },
+	{ KEYB_LSHIFT, 42 },
+	{ KEYB_BACKSLASH, 43 },
+	{ KEYB_Z, 44 },
+	{ KEYB_X, 45 },
+	{ KEYB_C, 46 },
+	{ KEYB_V, 47 },
+	{ KEYB_B, 48 },
+	{ KEYB_N, 49 },
+	{ KEYB_M, 50 },
+	{ KEYB_COMMA, 51 },
+	{ KEYB_PERIOD, 52 },
+	{ KEYB_SLASH, 53 },
+	{ KEYB_RSHIFT, 54 },
+	{ KEYB_ASTERISK, 55 },
+	{ KEYB_ALT, 56 },
+	{ KEYB_SPACE, 57 },
+	{ KEYB_CAPSLOCK, 58 },
+	{ KEYB_F1, 59 },
+	{ KEYB_F2, 60 },
+	{ KEYB_F3, 61 },
+	{ KEYB_F4, 62 },
+	{ KEYB_F5, 63 },
+	{ KEYB_F6, 64 },
+	{ KEYB_F7, 65 },
+	{ KEYB_F8, 66 },
+	{ KEYB_F9, 67 },
+	{ KEYB_F10, 68 },
+	{ KEYB_NUMLOCK, 69 },
+	{ KEYB_SCRLOCK, 70 },
+	{ KEYB_7_PAD, 71 },
+	{ KEYB_8_PAD, 72 },
+	{ KEYB_9_PAD, 73 },
+	{ KEYB_MINUS_PAD, 74 },
+	{ KEYB_4_PAD, 75 },
+	{ KEYB_5_PAD, 76 },
+	{ KEYB_6_PAD, 77 },
+	{ KEYB_PLUS_PAD, 78 },
+	{ KEYB_1_PAD, 79 },
+	{ KEYB_2_PAD, 80 },
+	{ KEYB_3_PAD, 81 },
+	{ KEYB_0_PAD, 82 },
+	{ KEYB_PERIOD_PAD, 83 },
+	{ KEYB_LESS, 86 },
+	{ KEYB_F11, 87 },
+	{ KEYB_F12, 88 },
+	{ KEYB_ENTER_PAD, 96 },
+	{ KEYB_RCONTROL, 97 },
+	{ KEYB_SLASH_PAD, 98 },
+	{ KEYB_PRTSCR, 99 },
+	{ KEYB_ALTGR, 100 },
+	{ KEYB_PAUSE, 101 },
+	{ KEYB_HOME, 102 },
+	{ KEYB_UP, 103 },
+	{ KEYB_PGUP, 104 },
+	{ KEYB_LEFT, 105 },
+	{ KEYB_RIGHT, 106 },
+	{ KEYB_END, 107 },
+	{ KEYB_DOWN, 108 },
+	{ KEYB_PGDN, 109 },
+	{ KEYB_INSERT, 110 },
+	{ KEYB_DEL, 111 },
+	{ KEYB_PAUSE, 119 },
+	{ KEYB_LWIN, 125 },
+	{ KEYB_RWIN, 126 },
+	{ KEYB_MENU, 127 },
+	{ KEYB_MAX, 0 }
 };
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "RAW keyboard" },
-{ 0, 0, 0 }
+	{ "auto", -1, "RAW keyboard" },
+	{ 0, 0, 0 }
 };
 
 static struct keyb_raw_context raw_state;
@@ -210,7 +210,7 @@ static void keyb_raw_clear(void)
 {
 	unsigned i;
 
-	for(i=0;i<RAW_MAX;++i) {
+	for (i = 0; i < RAW_MAX; ++i) {
 		raw_state.state[i] = 0;
 	}
 }
@@ -227,10 +227,10 @@ adv_error keyb_raw_init(int keyb_id, adv_bool disable_special)
 		return -1;
 	}
 
-	for(j=0;j<KEYB_MAX;++j) {
+	for (j = 0; j < KEYB_MAX; ++j) {
 		raw_state.map_up_to_low[j] = LOW_INVALID;
 	}
-	for(i=KEYS;i->up_code != KEYB_MAX;++i) {
+	for (i = KEYS; i->up_code != KEYB_MAX; ++i) {
 		raw_state.map_up_to_low[i->up_code] = i->low_code;
 	}
 
@@ -348,7 +348,7 @@ err_mode:
 		raw_state.old_kdbmode == K_UNICODE ? "K_UNICODE" :
 		raw_state.old_kdbmode == K_OFF ? "K_OFF" :
 		"other"
-	));
+		));
 	if (ioctl(raw_state.f, KDSKBMODE, raw_state.old_kdbmode) < 0) {
 		/* ignore error */
 		log_std(("keyb:raw: ioctl(KDSKBMODE, old) failed\n"));
@@ -381,7 +381,7 @@ void keyb_raw_disable(void)
 			raw_state.old_terminalmode == KD_GRAPHICS ? "KD_GRAPHICS" :
 			raw_state.old_terminalmode == KD_TEXT ? "KD_TEXT" :
 			"other"
-		));
+			));
 		if (ioctl(raw_state.f, KDSETMODE, raw_state.old_terminalmode) < 0) {
 			/* ignore error */
 			log_std(("ERROR:keyb:raw: ioctl(KDSETMODE, old) failed\n"));
@@ -395,7 +395,7 @@ void keyb_raw_disable(void)
 		raw_state.old_kdbmode == K_UNICODE ? "K_UNICODE" :
 		raw_state.old_kdbmode == K_OFF ? "K_OFF" :
 		"other"
-	));
+		));
 	if (ioctl(raw_state.f, KDSKBMODE, raw_state.old_kdbmode) < 0) {
 		/* ignore error */
 		log_std(("ERROR:keyb:raw: ioctl(KDSKBMODE, old) failed\n"));
@@ -447,7 +447,7 @@ void keyb_raw_all_get(unsigned keyboard, unsigned char* code_map)
 
 	log_debug(("keyb:raw: keyb_raw_all_get(keyboard:%d)\n", keyboard));
 
-	for(i=0;i<KEYB_MAX;++i) {
+	for (i = 0; i < KEYB_MAX; ++i) {
 		unsigned low_code = raw_state.map_up_to_low[i];
 		if (low_code == LOW_INVALID)
 			code_map[i] = 0;
@@ -509,21 +509,21 @@ static void keyb_raw_process(unsigned char code)
 
 	/* check only if a switch key is pressed/released */
 	switch (code) {
-	case SCANCODE_LCTRL :
-	case SCANCODE_RCTRL :
-	case SCANCODE_C :
-	case SCANCODE_ALT :
-	case SCANCODE_ALTGR :
-	case SCANCODE_F1 :
-	case SCANCODE_F2 :
-	case SCANCODE_F3 :
-	case SCANCODE_F4 :
-	case SCANCODE_F5 :
-	case SCANCODE_F6 :
-	case SCANCODE_F7 :
-	case SCANCODE_F8 :
-	case SCANCODE_F9 :
-	case SCANCODE_F10 :
+	case SCANCODE_LCTRL:
+	case SCANCODE_RCTRL:
+	case SCANCODE_C:
+	case SCANCODE_ALT:
+	case SCANCODE_ALTGR:
+	case SCANCODE_F1:
+	case SCANCODE_F2:
+	case SCANCODE_F3:
+	case SCANCODE_F4:
+	case SCANCODE_F5:
+	case SCANCODE_F6:
+	case SCANCODE_F7:
+	case SCANCODE_F8:
+	case SCANCODE_F9:
+	case SCANCODE_F10:
 		break;
 	default:
 		return;
@@ -541,7 +541,7 @@ static void keyb_raw_process(unsigned char code)
 		return;
 	}
 	vt = 0;
-	for(i=SCANCODE_F1;i<=SCANCODE_F10;++i) {
+	for (i = SCANCODE_F1; i <= SCANCODE_F10; ++i) {
 		if (raw_state.state[i]) {
 			vt = i + 1 - SCANCODE_F1;
 			break;
@@ -635,20 +635,20 @@ void keyb_raw_poll(void)
 #ifdef USE_FIRST_HACK
 		if (raw_state.first_hack_active) {
 			switch (raw_state.first_state) {
-			case 0 :
+			case 0:
 				if (pressed) {
 					raw_state.first_code = code;
 					raw_state.first_state = 1;
 				}
 				break;
-			case 1 :
+			case 1:
 				if (code == raw_state.first_code && pressed) {
 					log_std(("keyb:raw: HACK for first key code %d\n", (unsigned)code));
 					pressed = 0;
 					raw_state.first_state = 2;
 				}
 				break;
-			case 2 :
+			case 2:
 				break;
 			}
 		}

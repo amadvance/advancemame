@@ -289,9 +289,9 @@ void joystickb_lgallegro_poll(void)
 		poll_joystick();
 	}
 
-	for(j=0;j<joystickb_lgallegro_count_get();++j) {
-		for(s=0;s<joystickb_lgallegro_stick_count_get(j);++s) {
-			for(a=0;a<joystickb_lgallegro_stick_axe_count_get(j,s);++a) {
+	for (j = 0; j < joystickb_lgallegro_count_get(); ++j) {
+		for (s = 0; s < joystickb_lgallegro_stick_count_get(j); ++s) {
+			for (a = 0; a < joystickb_lgallegro_stick_axe_count_get(j, s); ++a) {
 				struct joystick_axe_context* c = &lgallegro_state.map[j].axe_map[s][a];
 
 				int r = joy[j].stick[s].axis[a].pos;
@@ -348,15 +348,15 @@ adv_error joystickb_lgallegro_load(adv_conf* context)
 }
 
 static adv_conf_enum_int OPTION_CALIB[] = {
-{ "none", CALIBRATION_NONE },
-{ "auto", CALIBRATION_AUTO }
+	{ "none", CALIBRATION_NONE },
+	{ "auto", CALIBRATION_AUTO }
 };
 
 static adv_conf_enum_int OPTION_FILTER[] = {
-{ "none", FILTER_NONE },
-{ "auto", FILTER_AUTO },
-{ "time", FILTER_TIME },
-{ "value", FILTER_VALUE }
+	{ "none", FILTER_NONE },
+	{ "auto", FILTER_AUTO },
+	{ "time", FILTER_TIME },
+	{ "value", FILTER_VALUE }
 };
 
 void joystickb_lgallegro_reg(adv_conf* context)

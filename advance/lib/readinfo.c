@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -105,7 +105,7 @@ static void info_buf_reset()
 const char* info_text_get(void)
 {
 	/* ensure the buffer end with zero */
-	if (info_buf_mac==0 || info_buf_map[info_buf_mac-1]!=0)
+	if (info_buf_mac == 0 || info_buf_map[info_buf_mac - 1] != 0)
 		info_buf_add(0);
 	return info_buf_map;
 }
@@ -115,17 +115,17 @@ static int info_getc(void)
 {
 	int c = info_ptr_get(info_ptr_arg);
 	switch (c) {
-		case EOF:
-			break;
-		case '\n':
-			info_col = 0;
-			++info_row;
-			++info_pos;
-			break;
-		default:
-			++info_col;
-			++info_pos;
-			break;
+	case EOF:
+		break;
+	case '\n':
+		info_col = 0;
+		++info_row;
+		++info_pos;
+		break;
+	default:
+		++info_col;
+		++info_pos;
+		break;
 	}
 	return c;
 }
@@ -140,12 +140,12 @@ static void info_ungetc(int c)
 
 static enum info_t get_symbol(int c)
 {
-	while (c!=EOF && !isspace(c) && c!='(' && c!=')' && c!='\"') {
+	while (c != EOF && !isspace(c) && c != '(' && c != ')' && c != '\"') {
 		info_buf_add(c);
 		c = info_getc();
 	}
 	/* no reason to unget space or EOF */
-	if (c!=EOF && !isspace(c))
+	if (c != EOF && !isspace(c))
 		info_ungetc(c);
 	return info_symbol;
 }
@@ -160,43 +160,43 @@ static unsigned hexdigit(char c)
 static enum info_t get_string(void)
 {
 	int c = info_getc();
-	while (c!=EOF && c!='\"') {
-		if (c=='\\') {
+	while (c != EOF && c != '\"') {
+		if (c == '\\') {
 			c = info_getc();
 			switch (c) {
-				case 'a' : info_buf_add('\a'); break;
-				case 'b' : info_buf_add('\b'); break;
-				case 'f' : info_buf_add('\f'); break;
-				case 'n' : info_buf_add('\n'); break;
-				case 'r' : info_buf_add('\r'); break;
-				case 't' : info_buf_add('\t'); break;
-				case 'v' : info_buf_add('\v'); break;
-				case '\\' : info_buf_add('\\'); break;
-				case '?' : info_buf_add('\?'); break;
-				case '\'' : info_buf_add('\''); break;
-				case '\"' : info_buf_add('\"'); break;
-				case 'x' : {
-					int d0, d1;
-					unsigned char cc;
-					d0 = info_getc();
-					if (!isxdigit(d0))
-						return info_error;
-					d1 = info_getc();
-					if (!isxdigit(d1))
-						return info_error;
-					cc = hexdigit(d0) * 16 + hexdigit(d1);
-					info_buf_add(cc);
-				}
-				break;
-				default:
+			case 'a': info_buf_add('\a'); break;
+			case 'b': info_buf_add('\b'); break;
+			case 'f': info_buf_add('\f'); break;
+			case 'n': info_buf_add('\n'); break;
+			case 'r': info_buf_add('\r'); break;
+			case 't': info_buf_add('\t'); break;
+			case 'v': info_buf_add('\v'); break;
+			case '\\': info_buf_add('\\'); break;
+			case '?': info_buf_add('\?'); break;
+			case '\'': info_buf_add('\''); break;
+			case '\"': info_buf_add('\"'); break;
+			case 'x': {
+				int d0, d1;
+				unsigned char cc;
+				d0 = info_getc();
+				if (!isxdigit(d0))
 					return info_error;
+				d1 = info_getc();
+				if (!isxdigit(d1))
+					return info_error;
+				cc = hexdigit(d0) * 16 + hexdigit(d1);
+				info_buf_add(cc);
+			}
+			break;
+			default:
+				return info_error;
 			}
 		} else {
 			info_buf_add(c);
 		}
 		c = info_getc();
 	}
-	if (c!='\"')
+	if (c != '\"')
 		return info_error;
 	return info_string;
 }
@@ -208,21 +208,21 @@ enum info_t info_token_get(void)
 	/* reset the buffer */
 	info_buf_reset();
 	/* skip space */
-	while (c!=EOF && isspace(c)) {
+	while (c != EOF && isspace(c)) {
 		c = info_getc();
 	}
 	/* get token */
 	switch (c) {
-		case EOF:
-			return info_eof;
-		case '(':
-			return info_open;
-		case ')':
-			return info_close;
-		case '\"':
-			return get_string();
-		default:
-			return get_symbol(c);
+	case EOF:
+		return info_eof;
+	case '(':
+		return info_open;
+	case ')':
+		return info_close;
+	case '\"':
+		return get_string();
+	default:
+		return get_symbol(c);
 	}
 }
 
@@ -238,30 +238,30 @@ enum info_t info_skip_value(void)
 	/* read value token */
 	enum info_t t = info_token_get();
 	switch (t) {
-		case info_open:
-			t = info_token_get();
-			if (t==info_error)
-				return info_error;
-			while (t!=info_close) {
-				/* first read type as a symbol */
-				if (t!=info_symbol)
-					return info_error;
-				/* second skip the value */
-				t = info_skip_value();
-				/* two value required */
-				if (t==info_error)
-					return info_error;
-				/* read next token, a type or a info_close */
-				t = info_token_get();
-				if (t==info_error)
-					return info_error;
-			}
-		break;
-		case info_symbol:
-		case info_string:
-		break;
-		default:
+	case info_open:
+		t = info_token_get();
+		if (t == info_error)
 			return info_error;
+		while (t != info_close) {
+			/* first read type as a symbol */
+			if (t != info_symbol)
+				return info_error;
+			/* second skip the value */
+			t = info_skip_value();
+			/* two value required */
+			if (t == info_error)
+				return info_error;
+			/* read next token, a type or a info_close */
+			t = info_token_get();
+			if (t == info_error)
+				return info_error;
+		}
+		break;
+	case info_symbol:
+	case info_string:
+		break;
+	default:
+		return info_error;
 	}
 	return t;
 }

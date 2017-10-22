@@ -94,3 +94,4 @@ void keyb_report_driver_all(char* s, unsigned size)
 	sncat(s, size, " none");
 #endif
 }
+

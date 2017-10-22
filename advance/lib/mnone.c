@@ -34,8 +34,8 @@
 #include "log.h"
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "No mouse" },
-{ 0, 0, 0 }
+	{ "auto", -1, "No mouse" },
+	{ 0, 0, 0 }
 };
 
 adv_error mouseb_none_init(int mouseb_id)

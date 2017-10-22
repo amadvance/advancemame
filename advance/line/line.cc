@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -35,10 +35,10 @@ using namespace std;
 #define VGA_DOTCLOCK_HIGH 28322000
 #define VGA_DOTCLOCK_LOW 25175000
 
-#define VGA_CLOCK_0 (VGA_DOTCLOCK_LOW/4)
-#define VGA_CLOCK_1 (VGA_DOTCLOCK_HIGH/4)
-#define VGA_CLOCK_2 (VGA_DOTCLOCK_LOW/2)
-#define VGA_CLOCK_3 (VGA_DOTCLOCK_HIGH/2)
+#define VGA_CLOCK_0 (VGA_DOTCLOCK_LOW / 4)
+#define VGA_CLOCK_1 (VGA_DOTCLOCK_HIGH / 4)
+#define VGA_CLOCK_2 (VGA_DOTCLOCK_LOW / 2)
+#define VGA_CLOCK_3 (VGA_DOTCLOCK_HIGH / 2)
 #define VGA_CLOCK_4 (VGA_DOTCLOCK_LOW)
 #define VGA_CLOCK_5 (VGA_DOTCLOCK_HIGH)
 
@@ -83,12 +83,13 @@ step::step(unsigned Ast) : st(Ast)
 {
 }
 
-unsigned step::operator()(double v) const {
+unsigned step::operator()(double v) const
+{
 	unsigned il, ih;
 	il = (unsigned)floor(v);
 	il -= il % st;
 	ih = il + st;
-	if (fabs(v - il) / fabs(v - ih) < (1.0 + 1e-6) ) // + favorite the lower value
+	if (fabs(v - il) / fabs(v - ih) < (1.0 + 1e-6))  // + favorite the lower value
 		return il;
 	else
 		return ih;
@@ -128,7 +129,8 @@ line::line()
 }
 
 line::line(double v0, double v1, double v2, double v3) :
-	oactive(v0), ofront(v1), osync(v2), oback(v3) {
+	oactive(v0), ofront(v1), osync(v2), oback(v3)
+{
 	normalize();
 }
 
@@ -146,24 +148,28 @@ struct line_diff : public line {
 };
 
 line_diff::line_diff(double v0, double v1, double v2, double v3) :
-	line(v0, v3-v2-v0, v1, v2-v1) {
+	line(v0, v3 - v2 - v0, v1, v2 - v1)
+{
 }
 
-void line::compute_total(const step& sde, const step& sother, unsigned& de, unsigned& rs, unsigned& re, unsigned& tt, unsigned total) const {
+void line::compute_total(const step& sde, const step& sother, unsigned& de, unsigned& rs, unsigned& re, unsigned& tt, unsigned total) const
+{
 	de = sde(total * active_get());
 	rs = sother(total * (active_get() + front_get()));
 	re = sother(total * (active_get() + front_get() + sync_get()));
 	tt = sother(total);
 }
 
-void line::compute_active(const step& sde, const step& sother, unsigned& de, unsigned& rs, unsigned& re, unsigned& tt, unsigned active) const {
+void line::compute_active(const step& sde, const step& sother, unsigned& de, unsigned& rs, unsigned& re, unsigned& tt, unsigned active) const
+{
 	de = sde(active);
 	tt = sother(de / active_get());
 	rs = sother(tt * (active_get() + front_get()));
 	re = sother(tt * (active_get() + front_get() + sync_get()));
 }
 
-bool line::compute_active_total(const step& sde, const step& sother, unsigned& de, unsigned& rs, unsigned& re, unsigned& tt, unsigned active, unsigned total) const {
+bool line::compute_active_total(const step& sde, const step& sother, unsigned& de, unsigned& rs, unsigned& re, unsigned& tt, unsigned active, unsigned total) const
+{
 	de = sde(active);
 	tt = sother(total);
 	double rde = tt * active_get();
@@ -257,7 +263,8 @@ void generator::clock_vert_set(double clock)
 	clock_vert_value = clock;
 }
 
-unsigned generator::clock_contrains_count() const {
+unsigned generator::clock_contrains_count() const
+{
 	unsigned count = 0;
 
 	if (clock_contrains_get() & clock_horz)
@@ -306,7 +313,7 @@ public:
 	bool sync_pp_get() const { return sync_pp; }
 	bool no_interlace_get() const { return no_interlace; }
 	bool no_doublescan_get() const { return no_doublescan; }
-	bool c_format_get() const   { return c_format; }
+	bool c_format_get() const { return c_format; }
 
 	void sync_out(unsigned vde);
 
@@ -359,21 +366,21 @@ void output::operator()(const string& name, double f, unsigned hde, unsigned hrs
 void output::operator()(const string& name, double f, unsigned hde, unsigned hrs, unsigned hre, unsigned ht, unsigned vde, unsigned vrs, unsigned vre, unsigned vt, unsigned contrains, bool interlaced)
 {
 	switch (type) {
-		case output_vga_text:
-			if (interlaced)
-				return;
-			vga_text_out(name, f, hde, hrs, hre, ht, vde, vrs, vre, vt, contrains);
-			break;
-		case output_vga_graph:
-			if (interlaced)
-				return;
-			vga_graph_out(name, f, hde, hrs, hre, ht, vde, vrs, vre, vt, contrains);
-			break;
-		case output_svga_graph:
-			svga_graph_out(name, f, hde, hrs, hre, ht, vde, vrs, vre, vt, contrains, interlaced);
-			break;
-		case output_none:
-			break;
+	case output_vga_text:
+		if (interlaced)
+			return;
+		vga_text_out(name, f, hde, hrs, hre, ht, vde, vrs, vre, vt, contrains);
+		break;
+	case output_vga_graph:
+		if (interlaced)
+			return;
+		vga_graph_out(name, f, hde, hrs, hre, ht, vde, vrs, vre, vt, contrains);
+		break;
+	case output_svga_graph:
+		svga_graph_out(name, f, hde, hrs, hre, ht, vde, vrs, vre, vt, contrains, interlaced);
+		break;
+	case output_none:
+		break;
 	}
 }
 
@@ -408,11 +415,11 @@ void output::post(double horz_clock, double vert_clock)
 void output::sync_out(unsigned vde)
 {
 /*
-Horizonal Dots         640     640     640
-Vertical Scan Lines    350     400     480
-Horiz. Sync Polarity   POS     NEG     NEG
-Vert. Sync Polarity    NEG     POS     NEG
-*/
+   Horizonal Dots         640     640     640
+   Vertical Scan Lines    350     400     480
+   Horiz. Sync Polarity   POS     NEG     NEG
+   Vert. Sync Polarity    NEG     POS     NEG
+ */
 	if (sync_vga) {
 		if (vde > 440)
 			os << " -hsync -vsync";
@@ -448,7 +455,7 @@ void output::svga_graph_out_internal(const string& name, double f, unsigned hde,
 	os << " " << f / 1E6;
 	os << " " << hde << " " << hrs << " " << hre << " " << ht;
 	os << " " << vde << " " << vrs << " " << vre << " " << vt;
-	sync_out(vde * (doublescan + 1 ));
+	sync_out(vde * (doublescan + 1));
 	if (interlace)
 		os << " interlace";
 	if (doublescan)
@@ -531,7 +538,7 @@ void output::vga_text_out(const string& name, double f, unsigned hde, unsigned h
 	}
 
 	ostringstream n;
-	n << name << "_vga_text" << cols << "_" << hde/cols << "x" << vde/25;
+	n << name << "_vga_text" << cols << "_" << hde / cols << "x" << vde / 25;
 	string ns = n.str();
 
 	if (!insert(ns))
@@ -543,7 +550,7 @@ void output::vga_text_out(const string& name, double f, unsigned hde, unsigned h
 	os << " " << f / 1E6;
 	os << " " << hde << " " << hrs << " " << hre << " " << ht;
 	os << " " << vde << " " << vrs << " " << vre << " " << vt;
-	sync_out(vde * (doublescan + 1 ));
+	sync_out(vde * (doublescan + 1));
 	if (doublescan)
 		os << " doublescan";
 
@@ -574,7 +581,7 @@ void output::vga_graph_out(const string& name, double f, unsigned hde, unsigned 
 	os << " " << f / 1E6;
 	os << " " << hde << " " << hrs << " " << hre << " " << ht;
 	os << " " << vde << " " << vrs << " " << vre << " " << vt;
-	sync_out(vde * (doublescan + 1 ));
+	sync_out(vde * (doublescan + 1));
 	if (doublescan)
 		os << " doublescan";
 
@@ -591,40 +598,40 @@ void compute_default(output& os, const generator& g, const string& name)
 	double c;
 
 	switch (g.clock_contrains_get()) {
-		case clock_pixel | clock_horz : {
-			unsigned htotal = g.h_step_get()(g.pixel_clock_get() / g.horz_clock_get() );
-			g.line_horz_get().compute_total(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, htotal);
-			unsigned vactive = hde * 3 / 4;
-			g.line_vert_get().compute_active(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive);
-			c = g.pixel_clock_get();
-			os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
-		}
-		break;
-		case clock_pixel | clock_vert : {
-		}
-		break;
-		case clock_horz | clock_vert : {
-			unsigned vtotal = g.v_step_get()( g.horz_clock_get() / g.vert_clock_get() );
-			g.line_vert_get().compute_total(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vtotal);
-			unsigned hactive = vde * 4 / 3;
-			g.line_horz_get().compute_active(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive);
-			c = g.horz_clock_get() * ht;
-			os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
-			// try a double horz and clock
-			os(name, 2*c, 2*hde, 2*hrs, 2*hre, 2*ht, vde, vrs, vre, vt, g.clock_contrains_get());
-			// try an interlaced version with double pixel clock and double size
-			os(name, 2*c, 2*hde, 2*hrs, 2*hre, 2*ht, 2*vde, 2*vrs, 2*vre, 2*vt+1, g.clock_contrains_get(), true);
-		}
-		break;
-		case clock_pixel | clock_horz | clock_vert : {
-			unsigned htotal = g.h_step_get()( g.pixel_clock_get() / g.horz_clock_get() );
-			g.line_horz_get().compute_total(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, htotal);
-			unsigned vtotal = g.v_step_get()( g.horz_clock_get() / g.vert_clock_get() );
-			g.line_vert_get().compute_total(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vtotal);
-			c = g.pixel_clock_get();
-			os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
-		}
-		break;
+	case clock_pixel | clock_horz: {
+		unsigned htotal = g.h_step_get()(g.pixel_clock_get() / g.horz_clock_get());
+		g.line_horz_get().compute_total(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, htotal);
+		unsigned vactive = hde * 3 / 4;
+		g.line_vert_get().compute_active(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive);
+		c = g.pixel_clock_get();
+		os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
+	}
+	break;
+	case clock_pixel | clock_vert: {
+	}
+	break;
+	case clock_horz | clock_vert: {
+		unsigned vtotal = g.v_step_get()(g.horz_clock_get() / g.vert_clock_get());
+		g.line_vert_get().compute_total(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vtotal);
+		unsigned hactive = vde * 4 / 3;
+		g.line_horz_get().compute_active(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive);
+		c = g.horz_clock_get() * ht;
+		os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
+		// try a double horz and clock
+		os(name, 2 * c, 2 * hde, 2 * hrs, 2 * hre, 2 * ht, vde, vrs, vre, vt, g.clock_contrains_get());
+		// try an interlaced version with double pixel clock and double size
+		os(name, 2 * c, 2 * hde, 2 * hrs, 2 * hre, 2 * ht, 2 * vde, 2 * vrs, 2 * vre, 2 * vt + 1, g.clock_contrains_get(), true);
+	}
+	break;
+	case clock_pixel | clock_horz | clock_vert: {
+		unsigned htotal = g.h_step_get()(g.pixel_clock_get() / g.horz_clock_get());
+		g.line_horz_get().compute_total(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, htotal);
+		unsigned vtotal = g.v_step_get()(g.horz_clock_get() / g.vert_clock_get());
+		g.line_vert_get().compute_total(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vtotal);
+		c = g.pixel_clock_get();
+		os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
+	}
+	break;
 	}
 }
 
@@ -633,19 +640,19 @@ void compute_default_vga_graph(output& os, const generator& g, const string& nam
 	if ((g.clock_contrains_get() & clock_pixel) == 0) {
 		generator g2 = g;
 #ifdef USE_FINE_MODE
-		g2.h_active_step_set( step( 8 ) );
+		g2.h_active_step_set(step(8));
 #else
-		g2.h_active_step_set( step( 16 ) );
+		g2.h_active_step_set(step(16));
 #endif
-		g2.h_step_set( step( 2 ) );
+		g2.h_step_set(step(2));
 #ifdef USE_FINE_MODE
-		g2.v_active_step_set( step( 2 ) );
+		g2.v_active_step_set(step(2));
 #else
-		g2.v_active_step_set( step( 8 ) );
+		g2.v_active_step_set(step(8));
 #endif
-		g2.v_step_set( step( 1 ) );
+		g2.v_step_set(step(1));
 
-		for(int i=0;VGA_GRAPH_CLOCK[i];++i) {
+		for (int i = 0; VGA_GRAPH_CLOCK[i]; ++i) {
 			g2.clock_pixel_set(VGA_GRAPH_CLOCK[i]);
 			compute_default(os.as(output::output_vga_graph), g2, name);
 		}
@@ -656,17 +663,17 @@ void compute_default_svga_graph(output& os, const generator& g, const string& na
 {
 	generator g2 = g;
 #ifdef USE_FINE_MODE
-	g2.h_active_step_set( step( 8 ) );
+	g2.h_active_step_set(step(8));
 #else
-	g2.h_active_step_set( step( 16 ) );
+	g2.h_active_step_set(step(16));
 #endif
-	g2.h_step_set( step( 8 ) );
+	g2.h_step_set(step(8));
 #ifdef USE_FINE_MODE
-	g2.v_active_step_set( step( 2 ) );
+	g2.v_active_step_set(step(2));
 #else
-	g2.v_active_step_set( step( 8 ) );
+	g2.v_active_step_set(step(8));
 #endif
-	g2.v_step_set( step( 1 ) );
+	g2.v_step_set(step(1));
 
 	compute_default(os.as(output::output_svga_graph), g2, name);
 }
@@ -681,72 +688,72 @@ bool compute_active(output& os, const generator& g, const string& name, unsigned
 	double c;
 
 	switch (g.clock_contrains_get()) {
-		case clock_pixel : {
-			g.line_horz_get().compute_active(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive);
+	case clock_pixel: {
+		g.line_horz_get().compute_active(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive);
+		g.line_vert_get().compute_active(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive);
+		c = g.pixel_clock_get();
+		os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
+		return true;
+	}
+	break;
+	case clock_horz: {
+		g.line_horz_get().compute_active(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive);
+		g.line_vert_get().compute_active(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive);
+		c = g.horz_clock_get() * ht;
+		os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
+		return true;
+	}
+	break;
+	case clock_vert: {
+		g.line_horz_get().compute_active(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive);
+		g.line_vert_get().compute_active(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive);
+		c = g.vert_clock_get() * ht * vt;
+		os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
+		return true;
+	}
+	break;
+	case clock_pixel | clock_horz: {
+		unsigned htotal = g.h_step_get()(g.pixel_clock_get() / g.horz_clock_get());
+		if (g.line_horz_get().compute_active_total(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive, htotal)) {
 			g.line_vert_get().compute_active(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive);
 			c = g.pixel_clock_get();
 			os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
 			return true;
 		}
-		break;
-		case clock_horz : {
+	}
+	case clock_pixel | clock_vert: {
+	}
+	break;
+	case clock_horz | clock_vert: {
+		unsigned vtotal = g.v_step_get()(g.horz_clock_get() / g.vert_clock_get());
+		if (g.line_vert_get().compute_active_total(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive, vtotal)) {
 			g.line_horz_get().compute_active(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive);
-			g.line_vert_get().compute_active(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive);
 			c = g.horz_clock_get() * ht;
 			os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
 			return true;
+		} else {
+			// try with an interlaced version
+			vtotal = vtotal * 2 + 1;
+			if (g.line_vert_get().compute_active_total(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive, vtotal)) {
+				g.line_horz_get().compute_active(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive);
+				c = g.horz_clock_get() * ht;
+				os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get(), true);
+				return true;
+			}
 		}
-		break;
-		case clock_vert : {
-			g.line_horz_get().compute_active(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive);
-			g.line_vert_get().compute_active(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive);
-			c = g.vert_clock_get() * ht * vt;
-			os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
-			return true;
-		}
-		break;
-		case clock_pixel | clock_horz : {
-			unsigned htotal = g.h_step_get()( g.pixel_clock_get() / g.horz_clock_get() );
-			if (g.line_horz_get().compute_active_total(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive, htotal)) {
-				g.line_vert_get().compute_active(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive);
+	}
+	break;
+	case clock_pixel | clock_horz | clock_vert: {
+		unsigned htotal = g.h_step_get()(g.pixel_clock_get() / g.horz_clock_get());
+		if (g.line_horz_get().compute_active_total(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive, htotal)) {
+			unsigned vtotal = g.v_step_get()(g.horz_clock_get() / g.vert_clock_get());
+			if (g.line_vert_get().compute_active_total(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive, vtotal)) {
 				c = g.pixel_clock_get();
 				os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
 				return true;
 			}
 		}
-		case clock_pixel | clock_vert : {
-		}
-		break;
-		case clock_horz | clock_vert : {
-			unsigned vtotal = g.v_step_get()( g.horz_clock_get() / g.vert_clock_get() );
-			if (g.line_vert_get().compute_active_total(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive, vtotal)) {
-				g.line_horz_get().compute_active(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive);
-				c = g.horz_clock_get() * ht;
-				os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
-				return true;
-			} else {
-				// try with an interlaced version
-				vtotal = vtotal * 2 + 1;
-				if (g.line_vert_get().compute_active_total(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive, vtotal)) {
-					g.line_horz_get().compute_active(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive);
-					c = g.horz_clock_get() * ht;
-					os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get(), true);
-					return true;
-				}
-			}
-		}
-		break;
-		case clock_pixel | clock_horz | clock_vert : {
-			unsigned htotal = g.h_step_get()( g.pixel_clock_get() / g.horz_clock_get() );
-			if (g.line_horz_get().compute_active_total(g.h_active_step_get(), g.h_step_get(), hde, hrs, hre, ht, hactive, htotal)) {
-				unsigned vtotal = g.v_step_get()( g.horz_clock_get() / g.vert_clock_get() );
-				if (g.line_vert_get().compute_active_total(g.v_active_step_get(), g.v_step_get(), vde, vrs, vre, vt, vactive, vtotal)) {
-					c = g.pixel_clock_get();
-					os(name, c, hde, hrs, hre, ht, vde, vrs, vre, vt, g.clock_contrains_get());
-					return true;
-				}
-			}
-		}
+	}
 	}
 	return false;
 }
@@ -792,16 +799,16 @@ void compute_svga_graph(output& os, const generator& g, const string& name)
 	};
 
 	generator g2 = g;
-	g2.h_active_step_set( step( 8 ) );
-	g2.h_step_set( step( 8 ) );
-	g2.v_active_step_set( step( 2 ) );
-	g2.v_step_set( step( 1 ) );
+	g2.h_active_step_set(step(8));
+	g2.h_step_set(step(8));
+	g2.v_active_step_set(step(2));
+	g2.v_step_set(step(1));
 
 	// only if a single contrain
 	if (g.clock_contrains_get() == clock_horz
 		|| g.clock_contrains_get() == clock_vert
 		|| g.clock_contrains_get() == clock_pixel) {
-		for(unsigned i=0;res[i].x;++i) {
+		for (unsigned i = 0; res[i].x; ++i) {
 			compute_active(os.as(output::output_svga_graph), g2, name, res[i].x, res[i].y);
 		}
 	} else {
@@ -830,10 +837,10 @@ void compute_svga_graph(output& os, const generator& g, const string& name)
 void compute_svga_graph_fix(output& os, const generator& g, const string& name, int x, int y)
 {
 	generator g2 = g;
-	g2.h_active_step_set( step( 8 ) );
-	g2.h_step_set( step( 8 ) );
-	g2.v_active_step_set( step( 2 ) );
-	g2.v_step_set( step( 1 ) );
+	g2.h_active_step_set(step(8));
+	g2.h_step_set(step(8));
+	g2.v_active_step_set(step(2));
+	g2.v_step_set(step(1));
 
 	// only if a single contrain
 	if (g.clock_contrains_get() == clock_horz
@@ -846,12 +853,12 @@ void compute_svga_graph_fix(output& os, const generator& g, const string& name, 
 void compute_active_vga_graph(output& os, const generator& g, const string& name, unsigned hactive, unsigned vactive)
 {
 	generator g2 = g;
-	g2.h_active_step_set( step( 8 ) );
-	g2.h_step_set( step( 2 ) );
-	g2.v_active_step_set( step( 2 ) );
-	g2.v_step_set( step( 1 ) );
+	g2.h_active_step_set(step(8));
+	g2.h_step_set(step(2));
+	g2.v_active_step_set(step(2));
+	g2.v_step_set(step(1));
 
-	for(int i=0;VGA_GRAPH_CLOCK[i];++i) {
+	for (int i = 0; VGA_GRAPH_CLOCK[i]; ++i) {
 		g2.clock_pixel_set(VGA_GRAPH_CLOCK[i]);
 		if (compute_active(os.as(output::output_vga_graph), g2, name, hactive, vactive))
 			break;
@@ -862,12 +869,12 @@ void compute_active_vga_text(output& os, const generator& g, const string& name,
 {
 	generator g2 = g;
 
-	g2.h_active_step_set( step( 8 ) );
-	g2.h_step_set( step( 2 ) );
-	g2.v_active_step_set( step( 2 ) );
-	g2.v_step_set( step( 1 ) );
+	g2.h_active_step_set(step(8));
+	g2.h_step_set(step(2));
+	g2.v_active_step_set(step(2));
+	g2.v_step_set(step(1));
 
-	for(int i=0;VGA_TEXT_CLOCK[i];++i) {
+	for (int i = 0; VGA_TEXT_CLOCK[i]; ++i) {
 		g2.clock_pixel_set(VGA_TEXT_CLOCK[i]);
 		if (compute_active(os.as(output::output_vga_text), g2, name, hactive, vactive))
 			break;
@@ -934,7 +941,7 @@ void help()
 
 int optionmatch(const char* arg, const char* opt)
 {
-	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg+1, opt) == 0;
+	return (arg[0] == '-' || arg[0] == '/') && strcasecmp(arg + 1, opt) == 0;
 }
 
 int main(int argc, char* argv[])
@@ -955,101 +962,101 @@ int main(int argc, char* argv[])
 	}
 
 	int optarg;
-	for(optarg=1;optarg<argc;++optarg) {
-		bool has_arg = optarg+1<argc;
+	for (optarg = 1; optarg < argc; ++optarg) {
+		bool has_arg = optarg + 1 < argc;
 		bool used_arg = false;
 		const char* opt = argv[optarg];
 		string arg;
 		if (has_arg)
-			arg = argv[optarg+1];
+			arg = argv[optarg + 1];
 		if (optionmatch(opt, "atari_standard")) {
 			/* Randy fromm */
-			g.line_horz_set( line_diff( 46.9, 4.7, 11.9, 63.6 ) );
-			g.line_vert_set( line_diff( 15.3, 0.2, 1.2, 16.7 ) );
-			g.clock_horz_set( 15720 );
+			g.line_horz_set(line_diff(46.9, 4.7, 11.9, 63.6));
+			g.line_vert_set(line_diff(15.3, 0.2, 1.2, 16.7));
+			g.clock_horz_set(15720);
 			name = "standard";
 		} else if (optionmatch(opt, "atari_extended")) {
 			/* Randy fromm */
-			g.line_horz_set( line_diff( 48, 3.9, 11.9, 60.6 ) );
-			g.line_vert_set( line_diff( 17.4, 0.2, 1.2, 18.9 ) );
-			g.clock_horz_set( 16500 );
+			g.line_horz_set(line_diff(48, 3.9, 11.9, 60.6));
+			g.line_vert_set(line_diff(17.4, 0.2, 1.2, 18.9));
+			g.clock_horz_set(16500);
 			name = "extended";
 		} else if (optionmatch(opt, "atari_medium")) {
 			/* Randy fromm */
-			g.line_horz_set( line_diff( 32, 4, 7.2, 40 ) );
-			g.line_vert_set( line_diff( 15.4, 0.2, 1.2, 16.7 ) );
-			g.clock_horz_set( 25000 );
+			g.line_horz_set(line_diff(32, 4, 7.2, 40));
+			g.line_vert_set(line_diff(15.4, 0.2, 1.2, 16.7));
+			g.clock_horz_set(25000);
 			name = "medium";
 		} else if (optionmatch(opt, "vga")) {
 			/* Industry standard VGA */
-			g.line_horz_set( line( 640, 16, 96, 48 ) );
-			g.line_vert_set( line( 480, 10, 2, 33 ) );
-			g.clock_horz_set( 31469 );
+			g.line_horz_set(line(640, 16, 96, 48));
+			g.line_vert_set(line(480, 10, 2, 33));
+			g.clock_horz_set(31469);
 			name = "pc_31.5";
 			out.sync_vga_set(true);
 		} else if (optionmatch(opt, "atari_vga")) {
 			/* Atari VGA */
-			g.line_horz_set( line_diff( 25.6, 4, 5.7, 31.7 ) );
-			g.line_vert_set( line_diff( 12.2, 0.2, 1.1, 14.3 ) );
-			g.clock_horz_set( 31550 );
+			g.line_horz_set(line_diff(25.6, 4, 5.7, 31.7));
+			g.line_vert_set(line_diff(12.2, 0.2, 1.1, 14.3));
+			g.clock_horz_set(31550);
 			name = "atari_vga";
 			out.sync_vga_set(true);
 		} else if (optionmatch(opt, "hp_vga")) {
 			/* HP VGA */
-			g.line_horz_set( line( 25.17, 0.94, 3.77, 1.89 ) );
-			g.line_vert_set( line( 15.25, 0.35, 0.06, 1.02 ) );
-			g.clock_horz_set( 31476 );
+			g.line_horz_set(line(25.17, 0.94, 3.77, 1.89));
+			g.line_vert_set(line(15.25, 0.35, 0.06, 1.02));
+			g.clock_horz_set(31476);
 			name = "hp_vga";
 			out.sync_vga_set(true);
 		} else if (optionmatch(opt, "pal")) {
 			/* Various INET source */
-			g.line_horz_set( line( 52.00, 1.65, 4.70, 5.65 ) );
-			g.line_vert_set( line( 288.5, 3, 3, 18 ) );
-			g.clock_horz_set( 15625 );
-			g.clock_vert_set( 50 );
+			g.line_horz_set(line(52.00, 1.65, 4.70, 5.65));
+			g.line_vert_set(line(288.5, 3, 3, 18));
+			g.clock_horz_set(15625);
+			g.clock_vert_set(50);
 			name = "pal";
 		} else if (optionmatch(opt, "ntsc")) {
 			/* Various INET source */
-			g.line_horz_set( line( 52.60, 1.50, 4.70, 4.70 ) );
-			g.line_vert_set( line( 242.5, 3, 3, 14 ) );
-			g.clock_horz_set( 15734 );
-			g.clock_vert_set( 59.94 );
+			g.line_horz_set(line(52.60, 1.50, 4.70, 4.70));
+			g.line_vert_set(line(242.5, 3, 3, 14));
+			g.clock_horz_set(15734);
+			g.clock_vert_set(59.94);
 			name = "ntsc";
 		} else if (optionmatch(opt, "svga60")) {
 			/* Like vga */
-			g.line_horz_set( line( 640, 16, 96, 48 ) );
-			g.line_vert_set( line( 480, 10, 2, 33 ) );
-			g.clock_vert_set( 60 );
+			g.line_horz_set(line(640, 16, 96, 48));
+			g.line_vert_set(line(480, 10, 2, 33));
+			g.clock_vert_set(60);
 			name = "pc_mult60";
-			out.horz_clock_min_set( 30E3 );
+			out.horz_clock_min_set(30E3);
 		} else if (optionmatch(opt, "svga57")) {
 			/* Like vga */
-			g.line_horz_set( line( 640, 16, 96, 48 ) );
-			g.line_vert_set( line( 480, 10, 2, 33 ) );
-			g.clock_vert_set( 57 );
+			g.line_horz_set(line(640, 16, 96, 48));
+			g.line_vert_set(line(480, 10, 2, 33));
+			g.clock_vert_set(57);
 			name = "pc_mult57";
-			out.horz_clock_min_set( 30E3 );
+			out.horz_clock_min_set(30E3);
 		} else if (optionmatch(opt, "fh") && has_arg) {
 			istringstream is(arg);
 			double A, F, S, B;
 			char s1, s2, s3;
 			is >> A >> s1 >> F >> s2 >> S >> s3 >> B;
-			if (s1!=',' || s2!=',' || s3!=',') {
+			if (s1 != ',' || s2 != ',' || s3 != ',') {
 				cerr << "Invalid separator " << endl;
 				exit(EXIT_FAILURE);
 			}
-			g.line_horz_set( line( A, F, S, B ) );
+			g.line_horz_set(line(A, F, S, B));
 			used_arg = true;
 		} else if (optionmatch(opt, "fv") && has_arg) {
 			istringstream is(arg);
 			double A, F, S, B;
 			char s1, s2, s3;
 			is >> A >> s1 >> F >> s2 >> S >> s3 >> B;
-			if (s1!=',' || s2!=',' || s3!=',') {
+			if (s1 != ',' || s2 != ',' || s3 != ',') {
 				cerr << "Invalid separator " << endl;
 				exit(EXIT_FAILURE);
 			}
-			g.line_vert_set( line( A, F, S, B ) );
+			g.line_vert_set(line(A, F, S, B));
 			used_arg = true;
 		} else if (optionmatch(opt, "n") && has_arg) {
 			name = arg;
@@ -1057,25 +1064,25 @@ int main(int argc, char* argv[])
 		} else if (optionmatch(opt, "c")) {
 			g.clock_contrains_set(0);
 		} else if (optionmatch(opt, "p") && has_arg) {
-			g.clock_pixel_set( atof(arg.c_str()) * 1E6 );
+			g.clock_pixel_set(atof(arg.c_str()) * 1E6);
 			used_arg = true;
 		} else if (optionmatch(opt, "h") && has_arg) {
-			g.clock_horz_set( atof(arg.c_str()) * 1E3 );
+			g.clock_horz_set(atof(arg.c_str()) * 1E3);
 			used_arg = true;
 		} else if (optionmatch(opt, "v") && has_arg) {
-			g.clock_vert_set( atof(arg.c_str()) );
+			g.clock_vert_set(atof(arg.c_str()));
 			used_arg = true;
 		} else if (optionmatch(opt, "pmin") && has_arg) {
-			out.pixel_clock_min_set( atof(arg.c_str()) * 1E6 );
+			out.pixel_clock_min_set(atof(arg.c_str()) * 1E6);
 			used_arg = true;
 		} else if (optionmatch(opt, "hmin") && has_arg) {
-			out.horz_clock_min_set( atof(arg.c_str()) * 1E3 );
+			out.horz_clock_min_set(atof(arg.c_str()) * 1E3);
 			used_arg = true;
 		} else if (optionmatch(opt, "vmin") && has_arg) {
-			out.vert_clock_min_set( atof(arg.c_str()) );
+			out.vert_clock_min_set(atof(arg.c_str()));
 			used_arg = true;
 		} else if (optionmatch(opt, "vmax") && has_arg) {
-			out.vert_clock_max_set( atof(arg.c_str()) );
+			out.vert_clock_max_set(atof(arg.c_str()));
 			used_arg = true;
 		} else if (optionmatch(opt, "sync_vga")) {
 			out.sync_vga_set(true);
@@ -1121,13 +1128,13 @@ int main(int argc, char* argv[])
 	}
 
 	if (fixed_size) {
-		for(;optarg<argc;++optarg) {
+		for (; optarg < argc; ++optarg) {
 			int fix_x;
 			int fix_y;
 			char s;
 			istringstream is(argv[optarg]);
 			is >> fix_x >> s >> fix_y;
-			if (s!='x') {
+			if (s != 'x') {
 				cerr << "Invalid separator " << s << endl;
 				exit(EXIT_FAILURE);
 			}
@@ -1149,7 +1156,7 @@ int main(int argc, char* argv[])
 			cout << pre << "format V " << g.line_vert_get().active_get() << " " << g.line_vert_get().front_get() << " " << g.line_vert_get().sync_get() << " " << g.line_vert_get().back_get() << endl;
 			if ((g.clock_contrains_get() & clock_pixel) != 0)
 				cout << pre << "fixed pixel clock " << g.pixel_clock_get() << endl;
-                        if ((g.clock_contrains_get() & clock_horz) != 0)
+			if ((g.clock_contrains_get() & clock_horz) != 0)
 				cout << pre << "fixed horz clock " << g.horz_clock_get() << endl;
 			if ((g.clock_contrains_get() & clock_vert) != 0)
 				cout << pre << "fixed vert clock " << g.vert_clock_get() << endl;
@@ -1194,9 +1201,9 @@ int main(int argc, char* argv[])
 
 		if (show_svga) {
 			switch (g.clock_contrains_get()) {
-			case clock_pixel | clock_horz :
-			case clock_horz | clock_vert :
-			case clock_pixel | clock_horz | clock_vert :
+			case clock_pixel | clock_horz:
+			case clock_horz | clock_vert:
+			case clock_pixel | clock_horz | clock_vert:
 				if (show_comment) {
 					if (out.c_format_get())
 						cout << "/* SVGA best fit modes */" << endl;
@@ -1222,9 +1229,9 @@ int main(int argc, char* argv[])
 
 		if (show_fit) {
 			switch (g.clock_contrains_get()) {
-			case clock_pixel | clock_horz :
-			case clock_horz | clock_vert :
-			case clock_pixel | clock_horz | clock_vert :
+			case clock_pixel | clock_horz:
+			case clock_horz | clock_vert:
+			case clock_pixel | clock_horz | clock_vert:
 				if (show_comment) {
 					if (out.c_format_get())
 						cout << "/* Best fit modes */" << endl;

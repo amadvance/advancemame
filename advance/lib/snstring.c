@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -114,7 +114,7 @@ void sncatf(char* str, size_t count, const char* fmt, ...)
 	va_start(arg, fmt);
 
 	l = 0;
-	while (l<count && str[l])
+	while (l < count && str[l])
 		++l;
 
 	if (count > l)
@@ -131,7 +131,7 @@ void sncatf(char* str, size_t count, const char* fmt, ...)
  */
 void sskip(int* p, const char* s, const char* sep)
 {
-	while (s[*p] && strchr(sep, s[*p])!=0)
+	while (s[*p] && strchr(sep, s[*p]) != 0)
 		++*p;
 }
 
@@ -151,7 +151,7 @@ const char* stoken(char* c, int* p, char* s, const char* sep, const char* ignore
 
 	begin = *p;
 
-	while (s[*p] && strchr(sep, s[*p])==0)
+	while (s[*p] && strchr(sep, s[*p]) == 0)
 		++*p;
 
 	end = *p;
@@ -162,11 +162,11 @@ const char* stoken(char* c, int* p, char* s, const char* sep, const char* ignore
 		++*p;
 	}
 
-	while (begin < end && strchr(ignore, s[begin])!=0) {
+	while (begin < end && strchr(ignore, s[begin]) != 0) {
 		++begin;
 	}
 
-	while (begin < end && strchr(ignore, s[end-1])!=0) {
+	while (begin < end && strchr(ignore, s[end - 1]) != 0) {
 		--end;
 		s[end] = 0;
 	}
@@ -185,7 +185,7 @@ adv_bool sglob(const char* s, const char* glob)
 {
 	while (*s && *glob) {
 		if (*glob == '*') {
-			if (sglob(s, glob+1))
+			if (sglob(s, glob + 1))
 				return 1;
 			++s;
 			continue;

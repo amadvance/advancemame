@@ -89,9 +89,9 @@ static void video_crtc_realize_h(const adv_crtc* crtc, unsigned *de, unsigned* b
 		*bs = *rs;
 	*be = *re + 1;
 /* Not aggressive version
-	*bs = *rs;
-	*be = *re + 1;
-*/
+ * bs = *rs;
+ * be = *re + 1;
+ */
 }
 
 static void video_crtc_realize_v(const adv_crtc* crtc, unsigned *de, unsigned* bs, unsigned* rs, unsigned* re, unsigned* be, unsigned* tt, unsigned y_mul)
@@ -105,9 +105,9 @@ static void video_crtc_realize_v(const adv_crtc* crtc, unsigned *de, unsigned* b
 		*bs = *rs;
 	*be = *re + 1;
 /* Not aggressive version
-	*bs = *rs;
-	*be = *re + 1;
-*/
+ * bs = *rs;
+ * be = *re + 1;
+ */
 }
 
 /**
@@ -227,24 +227,24 @@ static int vgaline_mode_graph_realize(struct vga_regs* regs, const adv_crtc* crt
 
 	/* set dot clock */
 	switch (dotclock) {
-		case VGA_DOTCLOCK_HIGH:
-			vga_regs_dotclock_middle_set(regs, 0);
-			vga_regs_masterclock_input_set(regs, 1);
+	case VGA_DOTCLOCK_HIGH:
+		vga_regs_dotclock_middle_set(regs, 0);
+		vga_regs_masterclock_input_set(regs, 1);
 		break;
-		case VGA_DOTCLOCK_HIGH/2 :
-			vga_regs_dotclock_middle_set(regs, 1);
-			vga_regs_masterclock_input_set(regs, 1);
+	case VGA_DOTCLOCK_HIGH / 2:
+		vga_regs_dotclock_middle_set(regs, 1);
+		vga_regs_masterclock_input_set(regs, 1);
 		break;
-		case VGA_DOTCLOCK_LOW :
-			vga_regs_dotclock_middle_set(regs, 0);
-			vga_regs_masterclock_input_set(regs, 0);
+	case VGA_DOTCLOCK_LOW:
+		vga_regs_dotclock_middle_set(regs, 0);
+		vga_regs_masterclock_input_set(regs, 0);
 		break;
-		case VGA_DOTCLOCK_LOW/2 :
-			vga_regs_dotclock_middle_set(regs, 1);
-			vga_regs_masterclock_input_set(regs, 0);
+	case VGA_DOTCLOCK_LOW / 2:
+		vga_regs_dotclock_middle_set(regs, 1);
+		vga_regs_masterclock_input_set(regs, 0);
 		break;
-		default:
-			return -1;
+	default:
+		return -1;
 	}
 
 	/* set polarity */
@@ -303,24 +303,24 @@ static int vgaline_mode_text_realize(struct vga_regs* regs, const adv_crtc* crtc
 
 	/* set dot clock */
 	switch (dotclock) {
-		case VGA_DOTCLOCK_HIGH :
-			vga_regs_dotclock_middle_set(regs, 0);
-			vga_regs_masterclock_input_set(regs, 1);
+	case VGA_DOTCLOCK_HIGH:
+		vga_regs_dotclock_middle_set(regs, 0);
+		vga_regs_masterclock_input_set(regs, 1);
 		break;
-		case VGA_DOTCLOCK_HIGH/2 :
-			vga_regs_dotclock_middle_set(regs, 1);
-			vga_regs_masterclock_input_set(regs, 1);
+	case VGA_DOTCLOCK_HIGH / 2:
+		vga_regs_dotclock_middle_set(regs, 1);
+		vga_regs_masterclock_input_set(regs, 1);
 		break;
-		case VGA_DOTCLOCK_LOW :
-			vga_regs_dotclock_middle_set(regs, 0);
-			vga_regs_masterclock_input_set(regs, 0);
+	case VGA_DOTCLOCK_LOW:
+		vga_regs_dotclock_middle_set(regs, 0);
+		vga_regs_masterclock_input_set(regs, 0);
 		break;
-		case VGA_DOTCLOCK_LOW/2 :
-			vga_regs_dotclock_middle_set(regs, 1);
-			vga_regs_masterclock_input_set(regs, 0);
+	case VGA_DOTCLOCK_LOW / 2:
+		vga_regs_dotclock_middle_set(regs, 1);
+		vga_regs_masterclock_input_set(regs, 0);
 		break;
-		default:
-			return -1;
+	default:
+		return -1;
 	}
 
 	/* set polarity */
@@ -336,12 +336,12 @@ static int vgaline_mode_text_realize(struct vga_regs* regs, const adv_crtc* crtc
 static int vgaline_mode_realize(struct vga_regs* regs, const vgaline_video_mode* mode)
 {
 	if (mode->is_text) {
-		if (vgaline_mode_text_realize(regs, &mode->crtc, mode->font_x, mode->font_y)!=0) {
+		if (vgaline_mode_text_realize(regs, &mode->crtc, mode->font_x, mode->font_y) != 0) {
 			error_set("Error in vgaline mode realize text");
 			return -1;
 		}
 	} else {
-		if (vgaline_mode_graph_realize(regs, &mode->crtc)!=0) {
+		if (vgaline_mode_graph_realize(regs, &mode->crtc) != 0) {
 			error_set("Error in vgaline mode realize graphics");
 			return -1;
 		}
@@ -353,8 +353,8 @@ static int vgaline_mode_realize(struct vga_regs* regs, const vgaline_video_mode*
 /* Public */
 
 static adv_device DEVICE[] = {
-{ "auto", 1, "VGA video" },
-{ 0, 0, 0 }
+	{ "auto", 1, "VGA video" },
+	{ 0, 0, 0 }
 };
 
 adv_error vgaline_init(int device_id, adv_output output, unsigned overlay_size, adv_cursor cursor)
@@ -403,8 +403,8 @@ adv_bool vgaline_mode_is_active(void)
 unsigned vgaline_flags(void)
 {
 	return VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_TEXT
-		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC
-		| VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
+	       | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC
+	       | VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 }
 
 adv_error vgaline_mode_set(const vgaline_video_mode* mode)
@@ -413,7 +413,7 @@ adv_error vgaline_mode_set(const vgaline_video_mode* mode)
 
 	log_std_modeline_c(("vgaline: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc)));
 
-	if (vgaline_mode_realize(&regs, mode)!=0) {
+	if (vgaline_mode_realize(&regs, mode) != 0) {
 		return -1;
 	}
 
@@ -422,15 +422,15 @@ adv_error vgaline_mode_set(const vgaline_video_mode* mode)
 	if (mode->is_text) {
 		vgaline_write_line = vgaline_write_line_text;
 		switch (mode->font_y) {
-			case 8 :
-				vga_font_copy(vga_font_bios_8, 8, 0, 1);
-				break;
-			case 14 :
-				vga_font_copy(vga_font_bios_14, 14, 0, 1);
-				break;
-			case 16 :
-				vga_font_copy(vga_font_bios_16, 16, 0, 1);
-				break;
+		case 8:
+			vga_font_copy(vga_font_bios_8, 8, 0, 1);
+			break;
+		case 14:
+			vga_font_copy(vga_font_bios_14, 14, 0, 1);
+			break;
+		case 16:
+			vga_font_copy(vga_font_bios_16, 16, 0, 1);
+			break;
 		}
 		vga_palette_raw_set(vga_palette_bios_text, 0, 256);
 	} else {
@@ -464,7 +464,7 @@ adv_error vgaline_mode_grab(vgaline_video_mode* mode)
 	vga_regs_info_get(&regs, &info);
 
 	/* generate crtc values */
-	if (crtc_import(&mode->crtc, &info, info.size_x, info.size_y, info.vert_clock)!=0)
+	if (crtc_import(&mode->crtc, &info, info.size_x, info.size_y, info.vert_clock) != 0)
 		return -1;
 
 	mode->font_x = info.char_size_x;
@@ -510,7 +510,7 @@ static int vgaline_acceptable_pixelclock(unsigned requested, unsigned effective)
 {
 	int err = (int)requested - (int)effective;
 	if (err < 0)
-		err = - err;
+		err = -err;
 
 	/* 1% error acceptable */
 	if (err > (int)requested / 100) {
@@ -535,7 +535,7 @@ static adv_error vgaline_mode_generate_text(vgaline_video_mode* mode, const adv_
 		return -1;
 	}
 
-	if (video_mode_generate_check("vgaline", vgaline_flags(), 1, 1024, crtc, flags)!=0)
+	if (video_mode_generate_check("vgaline", vgaline_flags(), 1, 1024, crtc, flags) != 0)
 		return -1;
 
 	mode->font_y = crtc->vde / 25;
@@ -551,7 +551,7 @@ static adv_error vgaline_mode_generate_text(vgaline_video_mode* mode, const adv_
 
 static adv_error vgaline_mode_generate_graphics(vgaline_video_mode* mode, const adv_crtc* crtc, unsigned flags)
 {
-	if (video_mode_generate_check("vgaline", vgaline_flags(), 2, 1024, crtc, flags)!=0)
+	if (video_mode_generate_check("vgaline", vgaline_flags(), 2, 1024, crtc, flags) != 0)
 		return -1;
 
 	if (crtc->hde * crtc->vde > 64 * 1024) {
@@ -579,15 +579,15 @@ adv_error vgaline_mode_generate(vgaline_video_mode* mode, const adv_crtc* crtc, 
 	}
 
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
-	case MODE_FLAGS_INDEX_PALETTE8 :
+	case MODE_FLAGS_INDEX_PALETTE8:
 		if (vgaline_mode_generate_graphics(mode, crtc, flags) != 0)
 			return -1;
 		break;
-	case MODE_FLAGS_INDEX_TEXT :
+	case MODE_FLAGS_INDEX_TEXT:
 		if (vgaline_mode_generate_text(mode, crtc, flags) != 0)
 			return -1;
 		break;
-	default :
+	default:
 		return -1;
 	}
 
@@ -596,7 +596,7 @@ adv_error vgaline_mode_generate(vgaline_video_mode* mode, const adv_crtc* crtc, 
 	/* get the real pixelclock */
 	pixelclock = vga_pixelclock_nearest_get(pixelclock, mode->is_text);
 
-	if (vgaline_acceptable_pixelclock(crtc->pixelclock, pixelclock)!=0) {
+	if (vgaline_acceptable_pixelclock(crtc->pixelclock, pixelclock) != 0) {
 		error_nolog_set("Pixel clock not supported. Nearest supported value is %d Hz.\n", pixelclock);
 		return -1;
 	}

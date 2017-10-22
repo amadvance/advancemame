@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -271,7 +271,7 @@ static int os_thread(void)
 #ifdef NDEBUG /* disable on debugging */
 	pthread_t pid;
 	pid_t process_id;
- 
+
 	if (pthread_create(&pid, 0, os_thread_function, 0)) {
 		log_std(("ERROR:os: error calling pthread_create()\n"));
 		return -1;
@@ -484,7 +484,7 @@ int os_inner_init(const char* title)
 		log_std(("os: SDL_Init() failed, %s\n", SDL_GetError()));
 		target_err("Error initializing the SDL video support.\n");
 		return -1;
-	} 
+	}
 	OS.sdl_active = 1;
 
 	SDL_VERSION(&compiled);
@@ -702,66 +702,66 @@ void os_poll(void)
 	while (SDL_PollEvent(&event)) {
 		log_debug(("os: SDL_PollEvent() -> event.type:%d\n", (int)event.type));
 		switch (event.type) {
-			case SDL_KEYDOWN :
+		case SDL_KEYDOWN:
 #ifdef USE_KEYBOARD_SDL
 #if SDL_MAJOR_VERSION == 1
-				keyb_sdl_event_press(event.key.keysym.sym);
+			keyb_sdl_event_press(event.key.keysym.sym);
 #else
-				keyb_sdl_event_press(event.key.keysym.scancode);
+			keyb_sdl_event_press(event.key.keysym.scancode);
 #endif
 #endif
 #ifdef USE_INPUT_SDL
-				inputb_sdl_event_press(event.key.keysym.sym);
+			inputb_sdl_event_press(event.key.keysym.sym);
 #endif
 
 #if SDL_MAJOR_VERSION == 1
-				/* toggle fullscreen check */
-				if (event.key.keysym.sym == SDLK_RETURN
-					&& (event.key.keysym.mod & KMOD_ALT) != 0) {
-					if (SDL_WasInit(SDL_INIT_VIDEO) && SDL_GetVideoSurface()) {
-						SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
+			/* toggle fullscreen check */
+			if (event.key.keysym.sym == SDLK_RETURN
+				&& (event.key.keysym.mod & KMOD_ALT) != 0) {
+				if (SDL_WasInit(SDL_INIT_VIDEO) && SDL_GetVideoSurface()) {
+					SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
 
-						if ((SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0) {
-							SDL_ShowCursor(SDL_DISABLE);
-						} else {
-							SDL_ShowCursor(SDL_ENABLE);
-						}
+					if ((SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0) {
+						SDL_ShowCursor(SDL_DISABLE);
+					} else {
+						SDL_ShowCursor(SDL_ENABLE);
 					}
 				}
+			}
 #endif
 			break;
-			case SDL_KEYUP :
+		case SDL_KEYUP:
 #ifdef USE_KEYBOARD_SDL
 #if SDL_MAJOR_VERSION == 1
-				keyb_sdl_event_release(event.key.keysym.sym);
+			keyb_sdl_event_release(event.key.keysym.sym);
 #else
-				keyb_sdl_event_release(event.key.keysym.scancode);
+			keyb_sdl_event_release(event.key.keysym.scancode);
 #endif
 #endif
 #ifdef USE_INPUT_SDL
-				inputb_sdl_event_release(event.key.keysym.sym);
+			inputb_sdl_event_release(event.key.keysym.sym);
 #endif
 			break;
-			case SDL_MOUSEMOTION :
+		case SDL_MOUSEMOTION:
 #ifdef USE_MOUSE_SDL
-				mouseb_sdl_event_move(event.motion.xrel, event.motion.yrel);
+			mouseb_sdl_event_move(event.motion.xrel, event.motion.yrel);
 #endif
 			break;
-			case SDL_MOUSEBUTTONDOWN :
+		case SDL_MOUSEBUTTONDOWN:
 #ifdef USE_MOUSE_SDL
-				if (event.button.button > 0)
-					mouseb_sdl_event_press(event.button.button-1);
+			if (event.button.button > 0)
+				mouseb_sdl_event_press(event.button.button - 1);
 #endif
 			break;
-			case SDL_MOUSEBUTTONUP :
+		case SDL_MOUSEBUTTONUP:
 #ifdef USE_MOUSE_SDL
-				if (event.button.button > 0)
-					mouseb_sdl_event_release(event.button.button-1);
+			if (event.button.button > 0)
+				mouseb_sdl_event_release(event.button.button - 1);
 #endif
 			break;
-			case SDL_QUIT :
-				OS.is_quit = 1;
-				break;
+		case SDL_QUIT:
+			OS.is_quit = 1;
+			break;
 		}
 	}
 #endif
@@ -780,8 +780,8 @@ int main(int argc, char* argv[])
 	int i;
 
 	/* duplicate the arguments */
-	copyv = alloca((argc+1) * sizeof(char*));
-	for(i=0;i<argc;++i) {
+	copyv = alloca((argc + 1) * sizeof(char*));
+	for (i = 0; i < argc; ++i) {
 		copyv[i] = alloca(strlen(argv[i]) + 1);
 		strcpy(copyv[i], argv[i]);
 	}

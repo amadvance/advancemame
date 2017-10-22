@@ -37,7 +37,7 @@
 /* stretchx8 */
 
 #define VIDEO8_LINE_INIT \
-	uint8* dst8 = (uint8*)dst;
+	uint8 * dst8 = (uint8*)dst;
 
 #define VIDEO8_LINE_WRITE1 \
 	dst8[0] = color; \
@@ -287,7 +287,7 @@ static void video_stage_stretchx8_set(struct video_stage_horz_struct* stage, uns
 /* stretchx16 */
 
 #define VIDEO16_LINE_INIT \
-	uint16* dst16 = (uint16*)dst;
+	uint16 * dst16 = (uint16*)dst;
 
 #define VIDEO16_LINE_WRITE1 \
 	dst16[0] = color; \
@@ -323,7 +323,7 @@ static inline void video_line_stretchx16_1x_step(const struct video_stage_horz_s
 		internal_fill16(dst, P16DER0(src), run);
 		t += run;
 		s += 1;
-		PADD(dst, run*2);
+		PADD(dst, run * 2);
 		PADD(src, sdp);
 		--count;
 	}
@@ -527,7 +527,7 @@ static void video_stage_stretchx16_set(struct video_stage_horz_struct* stage, un
 /* stretchx32 */
 
 #define VIDEO32_LINE_INIT \
-	uint32* dst32 = (uint32*)dst;
+	uint32 * dst32 = (uint32*)dst;
 
 #define VIDEO32_LINE_WRITE1 \
 	dst32[0] = color; \
@@ -558,7 +558,7 @@ static inline void video_line_stretchx32_1x_step(const struct video_stage_horz_s
 			error -= down;
 		}
 		internal_fill32(dst, P32DER0(src), run);
-		PADD(dst, run*4);
+		PADD(dst, run * 4);
 		PADD(src, sdp);
 		--count;
 	}

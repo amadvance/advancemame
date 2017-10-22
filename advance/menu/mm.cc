@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -69,71 +69,71 @@ int run_sub(config_state& rs, bool silent)
 			}
 
 			switch (key) {
-			case EVENT_HELP :
+			case EVENT_HELP:
 				// replay the sound and clip
 				silent = false;
 				run_help(rs);
 				break;
-			case EVENT_GROUP :
+			case EVENT_GROUP:
 				// replay the sound and clip
 				silent = false;
 				run_group_next(rs);
 				break;
-			case EVENT_EMU :
+			case EVENT_EMU:
 				// replay the sound and clip
 				silent = false;
 				run_emu_next(rs);
 				break;
-			case EVENT_TYPE :
+			case EVENT_TYPE:
 				// replay the sound and clip
 				silent = false;
 				run_type_next(rs);
 				break;
-			case EVENT_ATTRIB :
+			case EVENT_ATTRIB:
 				// replay the sound and clip
 				silent = false;
 				emu = run_emu_select(rs);
 				if (emu)
 					emu->attrib_run(SECOND_CHOICE_X, SECOND_CHOICE_Y);
 				break;
-			case EVENT_COMMAND :
+			case EVENT_COMMAND:
 				run_command(rs);
 				break;
-			case EVENT_SORT :
+			case EVENT_SORT:
 				// replay the sound and clip
 				silent = false;
 				run_sort(rs);
 				break;
-			case EVENT_SETGROUP :
+			case EVENT_SETGROUP:
 				// replay the sound and clip
 				silent = false;
 				run_group_move(rs);
 				break;
-			case EVENT_SETTYPE :
+			case EVENT_SETTYPE:
 				// replay the sound and clip
 				silent = false;
 				run_type_move(rs);
 				break;
-			case EVENT_ROTATE :
-			case EVENT_ESC :
-			case EVENT_OFF :
+			case EVENT_ROTATE:
+			case EVENT_ESC:
+			case EVENT_OFF:
 				done = true;
 				break;
 			}
 		}
 
 		switch (key) {
-		case EVENT_LOCK :
+		case EVENT_LOCK:
 			rs.lock_effective = !rs.lock_effective;
 			break;
-		case EVENT_IDLE_0 :
+		case EVENT_IDLE_0:
 			if (rs.current_game) {
 				rs.current_clone = &rs.current_game->clone_best_get();
 				done = true;
 				is_run = true;
 			}
 			break;
-		case EVENT_CLONE :
+		case EVENT_CLONE:
 			// replay the sound and clip
 			silent = false;
 			run_clone(rs);
@@ -142,7 +142,7 @@ int run_sub(config_state& rs, bool silent)
 				is_run = true;
 			}
 			break;
-		case EVENT_ENTER :
+		case EVENT_ENTER:
 			// replay the sound and clip
 			silent = false;
 			if (rs.current_game) {
@@ -230,38 +230,38 @@ int run_main(config_state& rs, bool is_first, bool silent)
 		silent = true;
 
 		if (!rs.lock_effective)
-		switch (key) {
-			case EVENT_ROTATE : {
-					unsigned mirror = rs.video_orientation_effective & (ADV_ORIENTATION_FLIP_X | ADV_ORIENTATION_FLIP_Y);
-					unsigned flip = rs.video_orientation_effective & ADV_ORIENTATION_FLIP_XY;
-					if (mirror == 0) {
-						mirror = ADV_ORIENTATION_FLIP_Y;
-					} else if (mirror == ADV_ORIENTATION_FLIP_Y) {
-						mirror = ADV_ORIENTATION_FLIP_X | ADV_ORIENTATION_FLIP_Y;
-					} else if (mirror == (ADV_ORIENTATION_FLIP_X | ADV_ORIENTATION_FLIP_Y)) {
-						mirror = ADV_ORIENTATION_FLIP_X;
-					} else {
-						mirror = 0;
-					}
-					flip ^= ADV_ORIENTATION_FLIP_XY;
-					rs.video_orientation_effective = flip | mirror;
+			switch (key) {
+			case EVENT_ROTATE: {
+				unsigned mirror = rs.video_orientation_effective & (ADV_ORIENTATION_FLIP_X | ADV_ORIENTATION_FLIP_Y);
+				unsigned flip = rs.video_orientation_effective & ADV_ORIENTATION_FLIP_XY;
+				if (mirror == 0) {
+					mirror = ADV_ORIENTATION_FLIP_Y;
+				} else if (mirror == ADV_ORIENTATION_FLIP_Y) {
+					mirror = ADV_ORIENTATION_FLIP_X | ADV_ORIENTATION_FLIP_Y;
+				} else if (mirror == (ADV_ORIENTATION_FLIP_X | ADV_ORIENTATION_FLIP_Y)) {
+					mirror = ADV_ORIENTATION_FLIP_X;
+				} else {
+					mirror = 0;
 				}
-				break;
-			case EVENT_ESC :
-			case EVENT_OFF :
+				flip ^= ADV_ORIENTATION_FLIP_XY;
+				rs.video_orientation_effective = flip | mirror;
+			}
+			break;
+			case EVENT_ESC:
+			case EVENT_OFF:
 				done = true;
 				is_terminate = true;
 				break;
-		}
+			}
 		switch (key) {
-		case EVENT_ESC_FORCE :
-		case EVENT_OFF_FORCE :
+		case EVENT_ESC_FORCE:
+		case EVENT_OFF_FORCE:
 			done = true;
 			is_terminate = true;
 			break;
-		case EVENT_IDLE_0 :
-		case EVENT_ENTER :
-		case EVENT_CLONE :
+		case EVENT_IDLE_0:
+		case EVENT_ENTER:
+		case EVENT_CLONE:
 			if (rs.current_game && rs.current_clone) {
 				done = true;
 				is_run = true;
@@ -338,15 +338,15 @@ int run_all(adv_conf* config_context, config_state& rs)
 		silent = false;
 
 		switch (key) {
-		case EVENT_ESC :
-		case EVENT_OFF :
-		case EVENT_ESC_FORCE :
-		case EVENT_OFF_FORCE :
+		case EVENT_ESC:
+		case EVENT_OFF:
+		case EVENT_ESC_FORCE:
+		case EVENT_OFF_FORCE:
 			done = true;
 			break;
-		case EVENT_IDLE_0 :
-		case EVENT_ENTER :
-		case EVENT_CLONE :
+		case EVENT_IDLE_0:
+		case EVENT_ENTER:
+		case EVENT_CLONE:
 			if (key == EVENT_IDLE_0) {
 				// don't replay the sound and clip
 				silent = true;
@@ -469,111 +469,111 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 
 static adv_conf_conv STANDARD[] = {
 #ifdef __MSDOS__
-{ "", "allegro_*", "*", "%s", "%s", "%s", ADV_CONF_CONV_AUTOREG_MULTI }, /* auto registration of the Allegro options */
+	{ "", "allegro_*", "*", "%s", "%s", "%s", ADV_CONF_CONV_AUTOREG_MULTI }, /* auto registration of the Allegro options */
 #endif
-{ "*", "group_inport", "*", "%s", "group_import", "%s", 0 }, /* 1.16.0 */
-{ "*", "type_inport", "*", "%s", "type_import", "%s", 0 }, /* 1.16.0 */
-{ "*", "preview_aspect", "fit", "%s", "preview_expand", "3.0", 0 }, /* 1.17.4 */
-{ "*", "preview_aspect", "correct", "%s", "preview_expand", "1.15", 0 }, /* 1.17.4 */
+	{ "*", "group_inport", "*", "%s", "group_import", "%s", 0 }, /* 1.16.0 */
+	{ "*", "type_inport", "*", "%s", "type_import", "%s", 0 }, /* 1.16.0 */
+	{ "*", "preview_aspect", "fit", "%s", "preview_expand", "3.0", 0 }, /* 1.17.4 */
+	{ "*", "preview_aspect", "correct", "%s", "preview_expand", "1.15", 0 }, /* 1.17.4 */
 /* 2.1.0 */
-{ "*", "msg_run", "*", "%s", "run_msg", "%s", 0 }, /* rename */
-{ "*", "select_neogeo", "*", "", "", "", 0 }, /* remove */
-{ "*", "select_neogeo", "*", "", "", "", 0 }, /* remove */
-{ "*", "select_deco", "*", "", "", "", 0 }, /* remove */
-{ "*", "select_playchoice", "*", "", "", "", 0 }, /* remove */
-{ "*", "select_clone", "*", "", "", "", 0 }, /* remove */
-{ "*", "select_bad", "*", "", "", "", 0 }, /* remove */
-{ "*", "select_missing", "*", "", "", "", 0 }, /* remove */
-{ "*", "select_vector", "*", "", "", "", 0 }, /* remove */
-{ "*", "select_vertical", "*", "", "", "", 0 }, /* remove */
-{ "*", "type_import", "none", "", "", "", 0 }, /* remove */
-{ "*", "group_import", "none", "", "", "", 0 }, /* remove */
-{ "*", "desc_import", "none", "", "", "", 0 }, /* remove */
-{ "*", "device_joystick", "standard", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "dual", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "4button", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "6button", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "8button", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "fspro", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "wingex", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "sidewinder", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "sidewinderag", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "gamepadpro", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "grip", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "grip4", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "sneslpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "sneslpt2", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "sneslpt3", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "psxlpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "psxlpt2", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "psxlpt3", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "n64lpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "n64lpt2", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "n64lpt3", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "db9lpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "db9lp2", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "db9lp3", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "tgxlpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "tgxlpt2", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "tgxlpt3", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "segaisa", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "segapci", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "segapcifast", "%s", "%s", "allegro/%s", 0 }, /* rename */
-{ "*", "device_joystick", "wingwarrior", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "msg_run", "*", "%s", "run_msg", "%s", 0 }, /* rename */
+	{ "*", "select_neogeo", "*", "", "", "", 0 }, /* remove */
+	{ "*", "select_neogeo", "*", "", "", "", 0 }, /* remove */
+	{ "*", "select_deco", "*", "", "", "", 0 }, /* remove */
+	{ "*", "select_playchoice", "*", "", "", "", 0 }, /* remove */
+	{ "*", "select_clone", "*", "", "", "", 0 }, /* remove */
+	{ "*", "select_bad", "*", "", "", "", 0 }, /* remove */
+	{ "*", "select_missing", "*", "", "", "", 0 }, /* remove */
+	{ "*", "select_vector", "*", "", "", "", 0 }, /* remove */
+	{ "*", "select_vertical", "*", "", "", "", 0 }, /* remove */
+	{ "*", "type_import", "none", "", "", "", 0 }, /* remove */
+	{ "*", "group_import", "none", "", "", "", 0 }, /* remove */
+	{ "*", "desc_import", "none", "", "", "", 0 }, /* remove */
+	{ "*", "device_joystick", "standard", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "dual", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "4button", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "6button", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "8button", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "fspro", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "wingex", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "sidewinder", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "sidewinderag", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "gamepadpro", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "grip", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "grip4", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "sneslpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "sneslpt2", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "sneslpt3", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "psxlpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "psxlpt2", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "psxlpt3", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "n64lpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "n64lpt2", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "n64lpt3", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "db9lpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "db9lp2", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "db9lp3", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "tgxlpt1", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "tgxlpt2", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "tgxlpt3", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "segaisa", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "segapci", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "segapcifast", "%s", "%s", "allegro/%s", 0 }, /* rename */
+	{ "*", "device_joystick", "wingwarrior", "%s", "%s", "allegro/%s", 0 }, /* rename */
 /* 2.2.0 */
-{ "*", "device_svgaline_divide_clock", "*", "%s", "device_svgaline_divideclock", "%s", 0 }, /* rename */
+	{ "*", "device_svgaline_divide_clock", "*", "%s", "device_svgaline_divideclock", "%s", 0 }, /* rename */
 /* 2.2.2 */
-{ "*", "video_depth", "*", "", "", "", 0 }, /* remove */
-{ "*", "device_sdl_fullscreen", "yes", "%s", "device_video_output", "fullscreen", 0 }, /* rename */
-{ "*", "device_sdl_fullscreen", "no", "%s", "device_video_output", "window", 0 }, /* rename */
-{ "*", "device_video_8bit", "*", "%s", "device_color_palette8", "%s", 0 }, /* rename */
-{ "*", "device_video_15bit", "*", "%s", "device_color_bgr15", "%s", 0 }, /* rename */
-{ "*", "device_video_16bit", "*", "%s", "device_color_bgr16", "%s", 0 }, /* rename */
-{ "*", "device_video_24bit", "*", "%s", "device_color_bgr24", "%s", 0 }, /* rename */
-{ "*", "device_video_32bit", "*", "%s", "device_color_bgr32", "%s", 0 }, /* rename */
+	{ "*", "video_depth", "*", "", "", "", 0 }, /* remove */
+	{ "*", "device_sdl_fullscreen", "yes", "%s", "device_video_output", "fullscreen", 0 }, /* rename */
+	{ "*", "device_sdl_fullscreen", "no", "%s", "device_video_output", "window", 0 }, /* rename */
+	{ "*", "device_video_8bit", "*", "%s", "device_color_palette8", "%s", 0 }, /* rename */
+	{ "*", "device_video_15bit", "*", "%s", "device_color_bgr15", "%s", 0 }, /* rename */
+	{ "*", "device_video_16bit", "*", "%s", "device_color_bgr16", "%s", 0 }, /* rename */
+	{ "*", "device_video_24bit", "*", "%s", "device_color_bgr24", "%s", 0 }, /* rename */
+	{ "*", "device_video_32bit", "*", "%s", "device_color_bgr32", "%s", 0 }, /* rename */
 /* 2.2.12 */
-{ "*", "event_exit_press", "*", "", "", "", 0 }, /* remove */
-{ "*", "color", "*", "%s", "ui_color", "%s", 0 }, /* rename */
+	{ "*", "event_exit_press", "*", "", "", "", 0 }, /* remove */
+	{ "*", "color", "*", "%s", "ui_color", "%s", 0 }, /* rename */
 /* 2.2.13 */
-{ "*", "misc_console", "*", "%s", "ui_console", "%s", 0 }, /* rename */
+	{ "*", "misc_console", "*", "%s", "ui_console", "%s", 0 }, /* rename */
 /* 2.2.14 */
-{ "*", "loop", "yes", "%s", "ui_clip", "singleloop", 0 }, /* rename */
-{ "*", "loop", "no", "%s", "ui_clip", "single", 0 }, /* rename */
+	{ "*", "loop", "yes", "%s", "ui_clip", "singleloop", 0 }, /* rename */
+	{ "*", "loop", "no", "%s", "ui_clip", "single", 0 }, /* rename */
 /* 2.2.15 */
-{ "*", "device_video_output", "zoom", "%s", "%s", "overlay", 0 }, /* rename */
-{ "*", "device_video_zoom", "*", "%s", "device_video_overlay", "%s", 0 }, /* rename */
+	{ "*", "device_video_output", "zoom", "%s", "%s", "overlay", 0 }, /* rename */
+	{ "*", "device_video_zoom", "*", "%s", "device_video_overlay", "%s", 0 }, /* rename */
 /* 2.2.17 */
-{ "*", "device_video_overlay", "*", "%s", "device_video_overlaysize", "%s", 0 }, /* rename */
-{ "*", "sort", "coin", "%s", "%s", "play", 0 }, /* rename */
-{ "*", "sort", "timepercoin", "%s", "%s", "timeperplay", 0 }, /* rename */
+	{ "*", "device_video_overlay", "*", "%s", "device_video_overlaysize", "%s", 0 }, /* rename */
+	{ "*", "sort", "coin", "%s", "%s", "play", 0 }, /* rename */
+	{ "*", "sort", "timepercoin", "%s", "%s", "timeperplay", 0 }, /* rename */
 /* 2.3.2 */
-{ "*", "video_size", "*", "%s", "display_size", "%s", 0 }, /* rename */
-{ "*", "video_font", "*", "%s", "ui_font", "%s", 0 }, /* rename */
-{ "*", "video_orientation", "*", "%s", "display_orientation", "%s", 0 }, /* rename */
-{ "*", "video_gamma", "*", "%s", "display_gamma", "%s", 0 }, /* rename */
-{ "*", "video_brightness", "*", "%s", "display_brightness", "%s", 0 }, /* rename */
-{ "*", "video_restore", "*", "%s", "display_restoreatgame", "%s", 0 }, /* rename */
-{ "*", "run_msg", "*", "%s", "ui_gamemsg", "%s", 0 }, /* rename */
-{ "*", "run_preview", "*", "%s", "ui_game", "%s", 0 }, /* rename */
+	{ "*", "video_size", "*", "%s", "display_size", "%s", 0 }, /* rename */
+	{ "*", "video_font", "*", "%s", "ui_font", "%s", 0 }, /* rename */
+	{ "*", "video_orientation", "*", "%s", "display_orientation", "%s", 0 }, /* rename */
+	{ "*", "video_gamma", "*", "%s", "display_gamma", "%s", 0 }, /* rename */
+	{ "*", "video_brightness", "*", "%s", "display_brightness", "%s", 0 }, /* rename */
+	{ "*", "video_restore", "*", "%s", "display_restoreatgame", "%s", 0 }, /* rename */
+	{ "*", "run_msg", "*", "%s", "ui_gamemsg", "%s", 0 }, /* rename */
+	{ "*", "run_preview", "*", "%s", "ui_game", "%s", 0 }, /* rename */
 /* 2.4.0 */
-{ "*", "ui_game", "play", "%s", "%s", "snap", 0 }, /* rename */
+	{ "*", "ui_game", "play", "%s", "%s", "snap", 0 }, /* rename */
 /* 3,2 */
 /* avoid errors when buildind without SDL */
 #ifndef USE_VIDEO_SDL
-{ "*", "device_video", "sdl", "", "", "", 0 }, /* ignore */
+	{ "*", "device_video", "sdl", "", "", "", 0 }, /* ignore */
 #endif
 #ifndef USE_SOUND_SDL
-{ "*", "device_sdl_samples", "*", "", "", "", 0 }, /* ignore */
-{ "*", "device_sound", "sdl", "", "", "", 0 }, /* ignore */
+	{ "*", "device_sdl_samples", "*", "", "", "", 0 }, /* ignore */
+	{ "*", "device_sound", "sdl", "", "", "", 0 }, /* ignore */
 #endif
 #ifndef USE_JOYSTICK_SDL
-{ "*", "device_joystick", "sdl", "", "", "", 0 }, /* ignore */
+	{ "*", "device_joystick", "sdl", "", "", "", 0 }, /* ignore */
 #endif
 #ifndef USE_MOUSE_SDL
-{ "*", "device_mouse", "sdl", "", "", "", 0 }, /* ignore */
+	{ "*", "device_mouse", "sdl", "", "", "", 0 }, /* ignore */
 #endif
 #ifndef USE_KEYBOARD_SDL
-{ "*", "device_keyboard", "sdl", "", "", "", 0 }, /* ignore */
+	{ "*", "device_keyboard", "sdl", "", "", "", 0 }, /* ignore */
 #endif
 };
 
@@ -606,7 +606,7 @@ adv_error include_load(adv_conf* context, int priority, const char* include_spec
 
 		include_file = file_config_file_home(file);
 
-		if (access(include_file, R_OK)!=0) {
+		if (access(include_file, R_OK) != 0) {
 			error_callback(error_context, conf_error_failure, include_file, 0, 0, "Missing configuration include file '%s'.", include_file);
 			free(s);
 			return -1;
@@ -662,7 +662,7 @@ int os_main(int argc, char* argv[])
 
 	config_context = conf_init();
 
-	if (os_init(config_context)!=0) {
+	if (os_init(config_context) != 0) {
 		target_err("Error initializing the OS support.\n");
 		goto err_conf;
 	}
@@ -685,9 +685,9 @@ int os_main(int argc, char* argv[])
 	opt_version = false;
 	opt_help = false;
 	opt_cfg = 0;
-	for(int i=1;i<argc;++i) {
+	for (int i = 1; i < argc; ++i) {
 		if (target_option_compare(argv[i], "cfg")) {
-			opt_cfg = argv[i+1];
+			opt_cfg = argv[i + 1];
 			++i;
 		} else if (target_option_compare(argv[i], "verbose")) {
 			opt_verbose = true;
@@ -736,21 +736,21 @@ int os_main(int argc, char* argv[])
 	log_std(("menu: %s %s %s %s\n", "AdvanceMENU", ADV_VERSION, __DATE__, __TIME__));
 
 	if (file_config_file_host("advmenu.rc") != 0) {
-		if (conf_input_file_load_adv(config_context, 4, file_config_file_host("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+		if (conf_input_file_load_adv(config_context, 4, file_config_file_host("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD) / sizeof(STANDARD[0]), error_callback, 0) != 0) {
 			goto err_init;
 		}
 	}
 
 	if (file_config_file_data("advmenu.rc") != 0) {
-		if (conf_input_file_load_adv(config_context, 0, file_config_file_data("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+		if (conf_input_file_load_adv(config_context, 0, file_config_file_data("advmenu.rc"), 0, 0, 1, STANDARD, sizeof(STANDARD) / sizeof(STANDARD[0]), error_callback, 0) != 0) {
 			goto err_init;
 		}
 	}
 
-	if (conf_input_file_load_adv(config_context, 1, cfg_buffer, cfg_buffer, 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+	if (conf_input_file_load_adv(config_context, 1, cfg_buffer, cfg_buffer, 0, 1, STANDARD, sizeof(STANDARD) / sizeof(STANDARD[0]), error_callback, 0) != 0)
 		goto err_init;
 
-	if (access(cfg_buffer, F_OK)!=0) {
+	if (access(cfg_buffer, F_OK) != 0) {
 		target_err("Creating AdvanceMENU standard configuration file...\n");
 		config_state::conf_default(config_context);
 		conf_setdefault_all_if_missing(config_context, "");
@@ -788,7 +788,7 @@ int os_main(int argc, char* argv[])
 
 	/* setup the include configuration file */
 	/* it must be after the final conf_section_set() call */
-	if (include_load(config_context, 2, conf_string_get_default(config_context, "include"), 0, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0) {
+	if (include_load(config_context, 2, conf_string_get_default(config_context, "include"), 0, 1, STANDARD, sizeof(STANDARD) / sizeof(STANDARD[0]), error_callback, 0) != 0) {
 		goto err_init;
 	}
 
@@ -841,7 +841,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	os_inner_done();
-	
+
 done_init:
 	int_unreg();
 	os_done();
@@ -864,3 +864,4 @@ err_conf:
 	conf_done(config_context);
 	return EXIT_FAILURE;
 }
+

@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -84,7 +84,7 @@ const char* __wrap_get_config_string(const char *section, const char *name, cons
 	log_std(("allegro: get_config_string(%s, %s, %s)\n", section, name, def));
 
 	/* disable the emulation of the third mouse button */
-	if (strcmp(name, "emulate_three")==0)
+	if (strcmp(name, "emulate_three") == 0)
 		return "no";
 
 	if (!OS.allegro_conf)
@@ -127,8 +127,7 @@ int __wrap_get_config_id(const char *section, const char *name, int def)
 
 	snprintf(allegro_name_buffer, sizeof(allegro_name_buffer), "allegro_%s", name);
 	if (conf_is_registered(OS.allegro_conf, allegro_name_buffer)
-		&& conf_string_section_get(OS.allegro_conf, "", allegro_name_buffer, &result) == 0)
-	{
+		&& conf_string_section_get(OS.allegro_conf, "", allegro_name_buffer, &result) == 0) {
 		unsigned v;
 		v = ((unsigned)(unsigned char)result[3]);
 		v |= ((unsigned)(unsigned char)result[2]) << 8;
@@ -251,7 +250,7 @@ static void ticker_setup(void)
 
 	qsort(v, 7, sizeof(target_clock_t), ticker_cmp);
 
-	for(i=0;i<7;++i)
+	for (i = 0; i < 7; ++i)
 		log_std(("os: clock estimate %g\n", (double)v[i]));
 
 	TARGET_CLOCKS_PER_SEC = v[3]; /* median value */
@@ -291,13 +290,13 @@ static void os_align(void)
 	unsigned i;
 
 	/* align test */
-	for(i=0;i<32;++i) {
+	for (i = 0; i < 32; ++i) {
 		m[i] = (char*)malloc(i);
 		if (((unsigned)m[i]) & 0x7)
 			log_std(("ERROR:os: unaligned malloc ptr:%p, size:%d\n", (void*)m[i], i));
 	}
 
-	for(i=0;i<32;++i) {
+	for (i = 0; i < 32; ++i) {
 		free(m[i]);
 	}
 }
@@ -312,14 +311,14 @@ static int pci_scan_device_callback(unsigned bus_device_func, unsigned vendor, u
 
 	(void)arg;
 
-	if (pci_read_dword(bus_device_func, 0x8, &dw)!=0)
+	if (pci_read_dword(bus_device_func, 0x8, &dw) != 0)
 		return 0;
 
 	base_class = (dw >> 24) & 0xFF;
 	if (base_class != 0x3 /* PCI_CLASS_DISPLAY */)
 		return 0;
 
-	if (pci_read_dword(bus_device_func, 0x2c, &dw)!=0)
+	if (pci_read_dword(bus_device_func, 0x2c, &dw) != 0)
 		return 0;
 
 	subsys_vendor = dw & 0xFFFF;
@@ -344,14 +343,14 @@ adv_bool os_internal_brokenint10_active(void)
 	unsigned dh = (OS.pci_vga_device >> 8) & 0xFF;
 
 	return OS.pci_vga_vendor == 0x1002 /* ATI */
-		&& (dh != 0x43 && dh != 0x45 && dh != 0x46 && dh != 0x47 && dh != 0x56);
+	       && (dh != 0x43 && dh != 0x45 && dh != 0x46 && dh != 0x47 && dh != 0x56);
 /*
-	0x43 Mach64
-	0x45 Mach64
-	0x46 Mach64
-	0x47 Mach64 / Rage (not 128)
-	0x56 Mach64
-*/
+        0x43 Mach64
+        0x45 Mach64
+        0x46 Mach64
+        0x47 Mach64 / Rage (not 128)
+        0x56 Mach64
+ */
 #else
 	return 0;
 #endif
@@ -373,7 +372,7 @@ int os_inner_init(const char* title)
 #ifdef USE_LSB
 	log_std(("os: compiled little endian system\n"));
 #else
-	#error DOS version cannot be big endian
+#error DOS version cannot be big endian
 #endif
 
 	ticker_setup();
@@ -390,7 +389,7 @@ int os_inner_init(const char* title)
 #ifdef USE_VIDEO
 	OS.pci_vga_vendor = 0;
 	OS.pci_vga_device = 0;
-	if (pci_scan_device(pci_scan_device_callback, 0)!=0) {
+	if (pci_scan_device(pci_scan_device_callback, 0) != 0) {
 		log_std(("ERROR:os: error scanning pci display device, resume and continue\n"));
 	}
 #endif

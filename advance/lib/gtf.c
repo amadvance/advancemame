@@ -45,7 +45,7 @@ static adv_error gtf_find_nomargin(adv_crtc* crtc, unsigned hsize, unsigned vsiz
 	vtotal = ceil((gtf->v_min_frontporch_lines + vsize) / (1 - gtf->v_min_sync_backporch_time * vclock));
 	factor = 0;
 
-	if (crtc_find(&vtotal, &vclock, &factor, monitor, capability, adjust)!=0)
+	if (crtc_find(&vtotal, &vclock, &factor, monitor, capability, adjust) != 0)
 		return -1;
 
 	/* doublescan/interlace */
@@ -64,9 +64,9 @@ static adv_error gtf_find_nomargin(adv_crtc* crtc, unsigned hsize, unsigned vsiz
 		/* total = blank / duty = active / (1-duty) */
 		double duty_cycle = gtf->c - (gtf->m / hclock);
 		double active = hsize;
-		double blank = active * duty_cycle / (1-duty_cycle);
+		double blank = active * duty_cycle / (1 - duty_cycle);
 		double sync = (active + blank) * gtf->h_sync_frac;
-		double front = blank/2 - sync;
+		double front = blank / 2 - sync;
 
 		crtc->hde = crtc_step(active, CRTC_HSTEP);
 		crtc->hrs = crtc_step(active + front, CRTC_HSTEP);

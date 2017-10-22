@@ -113,7 +113,7 @@ static void draw_text_bar(void)
 	draw_text_left(0, 0, text_size_x(), buffer, COLOR_BAR);
 
 	sncpy(buffer, sizeof(buffer), "");
-	for(i=0;i<video_driver_vector_max();++i) {
+	for (i = 0; i < video_driver_vector_max(); ++i) {
 		if (video_driver_vector_pos(i) != 0) {
 			if (*buffer)
 				sncat(buffer, sizeof(buffer), "/");
@@ -190,7 +190,7 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 	is_programmable = (VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0)) != 0;
 	is_overlay = (VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY & video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_OUTPUT_MASK, 0)) != 0;
 
-	if (generate_interpolate_load(config, interpolate)==0) {
+	if (generate_interpolate_load(config, interpolate) == 0) {
 		data[mac].type = monitor_previous;
 		data[mac].name = "Previous saved values";
 		data[mac].generate = interpolate->map[0].gen;
@@ -258,7 +258,7 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 		++mac;
 	}
 
-	for(i=0;i<mac;++i)
+	for (i = 0; i < mac; ++i)
 		generate_normalize(&data[i].generate);
 
 	text_clear();
@@ -266,14 +266,14 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 
 	y = 2;
 
-	y = draw_text_para(0, y, text_size_x(), text_size_y()-6,
-"Now you must select the format of video modes supported by your monitor. "
-"A predefined set based on the most common monitors is available. "
-"\n\n"
-"If you know the Active, FrontPorch, Sync and BackPorch values "
-"required by your monitor you can enter them directly with the Custom selection "
-"(only for expert users)."
-	, COLOR_LOW);
+	y = draw_text_para(0, y, text_size_x(), text_size_y() - 6,
+			"Now you must select the format of video modes supported by your monitor. "
+			"A predefined set based on the most common monitors is available. "
+			"\n\n"
+			"If you know the Active, FrontPorch, Sync and BackPorch values "
+			"required by your monitor you can enter them directly with the Custom selection "
+			"(only for expert users)."
+			, COLOR_LOW);
 
 	monitor_y = ++y;
 	++y;
@@ -282,7 +282,7 @@ static adv_error cmd_monitor(adv_conf* config, adv_generate* generate, enum moni
 	++y;
 	res = draw_text_menu(2, y, text_size_x() - 4, text_size_y() - 2 - y, &data, mac, entry_monitor, 0, 0, 0, 0);
 
-	if (res<0)
+	if (res < 0)
 		return -1;
 
 	*type = data[res].type;
@@ -298,18 +298,18 @@ static adv_error cmd_monitor_custom(adv_generate* generate)
 	text_clear();
 	draw_text_bar();
 	draw_text_left(0, 2, text_size_x(), "format = ", COLOR_NORMAL);
-	draw_text_para(0, 4, text_size_x(), text_size_y()-6,
-"Enter the 8 format values for your monitor. "
-"In order the Horz Active, Horz Front Porch, Horz Sync, Horz Back Porch, Vert Active, Vert Front Porch, Vert Sync, Vert Back Porch.\n"
-"The values are normalized to sum 1.\n\n"
-"For example:\n\n"
-"640 16 96 48 480 10 2 33"
-	, COLOR_LOW);
+	draw_text_para(0, 4, text_size_x(), text_size_y() - 6,
+		"Enter the 8 format values for your monitor. "
+		"In order the Horz Active, Horz Front Porch, Horz Sync, Horz Back Porch, Vert Active, Vert Front Porch, Vert Sync, Vert Back Porch.\n"
+		"The values are normalized to sum 1.\n\n"
+		"For example:\n\n"
+		"640 16 96 48 480 10 2 33"
+		, COLOR_LOW);
 
 	*buffer = 0;
 	done = 0;
 	while (!done) {
-		if (draw_text_read(9, 2, buffer, 64, COLOR_REVERSE)!=INPUTB_ENTER)
+		if (draw_text_read(9, 2, buffer, 64, COLOR_REVERSE) != INPUTB_ENTER)
 			return -1;
 		done = generate_parse(generate, buffer) == 0;
 		if (!done)
@@ -358,14 +358,14 @@ extern const char* MONITOR[];
 static adv_error cmd_model(adv_conf* config, adv_monitor* monitor, adv_monitor* edid)
 {
 	unsigned max = 100;
-	struct model_data_struct* data = malloc(max*sizeof(struct model_data_struct));
+	struct model_data_struct* data = malloc(max * sizeof(struct model_data_struct));
 	unsigned mac = 0;
 	adv_error res;
 	int y;
 	const char** i;
 	adv_monitor previous_monitor;
 
-	if (monitor_load(config, &previous_monitor)==0) {
+	if (monitor_load(config, &previous_monitor) == 0) {
 		data[mac].model = strdup("Previous");
 		data[mac].manufacturer = strdup("Previous saved values");
 		data[mac].monitor = previous_monitor;
@@ -392,8 +392,8 @@ static adv_error cmd_model(adv_conf* config, adv_monitor* monitor, adv_monitor* 
 		char* clock;
 
 		sncpy(buffer, sizeof(buffer), *i);
-		while (*buffer && isspace(buffer[strlen(buffer)-1]))
-			buffer[strlen(buffer)-1] = 0;
+		while (*buffer && isspace(buffer[strlen(buffer) - 1]))
+			buffer[strlen(buffer) - 1] = 0;
 
 		if (*buffer == '#') {
 			if (mac < max) {
@@ -408,7 +408,7 @@ static adv_error cmd_model(adv_conf* config, adv_monitor* monitor, adv_monitor* 
 			if (manufacturer && model && clock && mac < max) {
 				data[mac].manufacturer = strdup(manufacturer);
 				data[mac].model = strdup(model);
-				if (monitor_parse(&data[mac].monitor, clock)!=0) {
+				if (monitor_parse(&data[mac].monitor, clock) != 0) {
 					video_mode_restore();
 					target_err("Invalid monitor specification %s:%s:%s.", manufacturer, model, clock);
 					target_flush();
@@ -425,15 +425,15 @@ static adv_error cmd_model(adv_conf* config, adv_monitor* monitor, adv_monitor* 
 	draw_text_bar();
 
 	y = 2;
-	y = draw_text_para(0, y, text_size_x(), text_size_y()-6,
-"Now you must select the clock range supported by your monitor and video card. "
-"The strongly suggested choice is to check your monitor manual for the "
-"supported vertical and horizontal clock range.\n\n"
-"Some video boards are unable to use a pclock low as 5 MHz. "
-"Try eventually to use a higher minumum value like 10 MHz.\n"
-"Raspberry Pi has a minimum pclock of 31.25 MHz on the DPI/GPIO interface, "
-"and a minimum pclock of 25 MHz on the HDMI interface."
-	, COLOR_LOW);
+	y = draw_text_para(0, y, text_size_x(), text_size_y() - 6,
+			"Now you must select the clock range supported by your monitor and video card. "
+			"The strongly suggested choice is to check your monitor manual for the "
+			"supported vertical and horizontal clock range.\n\n"
+			"Some video boards are unable to use a pclock low as 5 MHz. "
+			"Try eventually to use a higher minumum value like 10 MHz.\n"
+			"Raspberry Pi has a minimum pclock of 31.25 MHz on the DPI/GPIO interface, "
+			"and a minimum pclock of 25 MHz on the HDMI interface."
+			, COLOR_LOW);
 
 	model_y = ++y;
 	++y;
@@ -445,7 +445,7 @@ static adv_error cmd_model(adv_conf* config, adv_monitor* monitor, adv_monitor* 
 	++y;
 	res = draw_text_menu(2, y, text_size_x() - 4, text_size_y() - 2 - y, data, mac, entry_model, entry_model_separator, 0, 0, 0);
 
-	if (res<0)
+	if (res < 0)
 		return -1;
 
 	*monitor = data[res].monitor;
@@ -461,32 +461,32 @@ static adv_error cmd_model_custom(adv_monitor* monitor)
 	text_clear();
 	draw_text_bar();
 	draw_text_left(0, 2, text_size_x(), "clock = ", COLOR_NORMAL);
-	draw_text_para(0, 4, text_size_x(), text_size_y()-6,
-"Enter the clock specification of your monitor using the format: 'PIXEL_CLOCK / HORZ_CLOCK / VERT_CLOCK'\n\n"
-"The pixel_clock specification is in MHz, the horz_clock is in kHz, the vert_clock is in Hz.\n\n"
-"Usually you can find these value in the last page of your monitor manual. "
-"You can specify a clock range using '-'.\n"
-"If your monitor is multistandard you can put multiple definitions separated with ';'.\n\n"
-"If you don't know the pixel_clock, try using the range 5 - 150. "
-"If your video board is unable to use a low pixel_clock of 5 MHz, try using an higher value like 10 or 12.\n"
-"For example:\n\n"
-"clock = 5-150 / 30.5-60 / 55-130 (Standard SVGA)\n"
-"\nor\n\n"
-"clock = 5-100 / 15.63 / 50 ; 5-100 / 15.75 / 60 (Multistandard PAL/NTSC)\n"
-	, COLOR_LOW);
+	draw_text_para(0, 4, text_size_x(), text_size_y() - 6,
+		"Enter the clock specification of your monitor using the format: 'PIXEL_CLOCK / HORZ_CLOCK / VERT_CLOCK'\n\n"
+		"The pixel_clock specification is in MHz, the horz_clock is in kHz, the vert_clock is in Hz.\n\n"
+		"Usually you can find these value in the last page of your monitor manual. "
+		"You can specify a clock range using '-'.\n"
+		"If your monitor is multistandard you can put multiple definitions separated with ';'.\n\n"
+		"If you don't know the pixel_clock, try using the range 5 - 150. "
+		"If your video board is unable to use a low pixel_clock of 5 MHz, try using an higher value like 10 or 12.\n"
+		"For example:\n\n"
+		"clock = 5-150 / 30.5-60 / 55-130 (Standard SVGA)\n"
+		"\nor\n\n"
+		"clock = 5-100 / 15.63 / 50 ; 5-100 / 15.75 / 60 (Multistandard PAL/NTSC)\n"
+		, COLOR_LOW);
 
 	*buffer = 0;
 	state = 0;
 	while (state >= 0 && state != 4) {
 		draw_text_left(9, 2, 64, buffer, COLOR_NORMAL);
 		switch (state) {
-		case 0 :
-			if (draw_text_read(9, 2, buffer, 64, COLOR_REVERSE)!=INPUTB_ENTER)
+		case 0:
+			if (draw_text_read(9, 2, buffer, 64, COLOR_REVERSE) != INPUTB_ENTER)
 				state = -1;
 			else
 				state = 3;
 			break;
-		case 3 :
+		case 3:
 			if (monitor_parse(monitor, buffer) == 0) {
 				state = 4;
 			} else {
@@ -518,10 +518,10 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 	while (!done) {
 		if (modify) {
 			mode_reset(&mode);
-			if (crtc_adjust_clock(&current, monitor)==0
+			if (crtc_adjust_clock(&current, monitor) == 0
 				&& crtc_is_valid(&current)
 				&& crtc_clock_check(monitor, &current)
-				&& video_mode_generate(&mode, &current, index)==0) {
+				&& video_mode_generate(&mode, &current, index) == 0) {
 				if (text_mode_set(&mode) != 0) {
 					text_done();
 					target_err("Error setting the calibration mode.\n");
@@ -531,7 +531,7 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 				}
 				*crtc = current;
 				modify = 0;
-				
+
 				video_write_lock();
 				draw_test(2, 2, msg, &current, 1);
 				video_write_unlock(0, 0, 0, 0, 0);
@@ -558,13 +558,13 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 
 		if (only_center) {
 			switch (userkey) {
-			case INPUTB_LEFT :
-			case INPUTB_RIGHT :
-			case 'i' :
-			case 'I' :
+			case INPUTB_LEFT:
+			case INPUTB_RIGHT:
+			case 'i':
+			case 'I':
 			case INPUTB_ENTER:
 			case INPUTB_ESC:
-			break;
+				break;
 			default:
 				sound_warn();
 				userkey = 0;
@@ -576,62 +576,62 @@ static adv_error adjust(const char* msg, adv_crtc* crtc, unsigned index, const a
 		case INPUTB_ESC:
 			done = 1;
 			break;
-		case 'i' :
+		case 'i':
 			current.ht -= current.ht % CRTC_HSTEP;
 			current.ht -= CRTC_HSTEP;
 			current.pixelclock = hclock * current.ht;
 			modify = 1;
 			break;
-		case 'I' :
+		case 'I':
 			current.ht -= current.ht % CRTC_HSTEP;
 			current.ht += CRTC_HSTEP;
 			current.pixelclock = hclock * current.ht;
 			modify = 1;
 			break;
-		case 'K' :
+		case 'K':
 			current.vde -= 1;
 			modify = 1;
 			break;
-		case 'k' :
+		case 'k':
 			current.vde += 1;
 			modify = 1;
 			break;
-		case INPUTB_HOME :
+		case INPUTB_HOME:
 			current.hre -= CRTC_HSTEP;
 			modify = 1;
 			break;
-		case INPUTB_END :
+		case INPUTB_END:
 			current.hre += CRTC_HSTEP;
 			modify = 1;
 			break;
-		case INPUTB_PGUP :
+		case INPUTB_PGUP:
 			current.vre -= 1;
 			modify = 1;
 			break;
-		case INPUTB_PGDN :
+		case INPUTB_PGDN:
 			current.vre += 1;
 			modify = 1;
 			break;
-		case INPUTB_LEFT :
+		case INPUTB_LEFT:
 			current.hrs -= current.hrs % CRTC_HSTEP;
 			current.hrs += CRTC_HSTEP;
 			current.hre -= current.hre % CRTC_HSTEP;
 			current.hre += CRTC_HSTEP;
 			modify = 1;
 			break;
-		case INPUTB_RIGHT :
+		case INPUTB_RIGHT:
 			current.hrs -= current.hrs % CRTC_HSTEP;
 			current.hrs -= CRTC_HSTEP;
 			current.hre -= current.hre % CRTC_HSTEP;
 			current.hre -= CRTC_HSTEP;
 			modify = 1;
 			break;
-		case INPUTB_DOWN :
+		case INPUTB_DOWN:
 			current.vrs -= 1;
 			current.vre -= 1;
 			modify = 1;
 			break;
-		case INPUTB_UP :
+		case INPUTB_UP:
 			current.vrs += 1;
 			current.vre += 1;
 			modify = 1;
@@ -649,10 +649,10 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned index, const ad
 	adv_mode mode;
 	mode_reset(&mode);
 
-	if (crtc_adjust_clock(&current, monitor)==0
+	if (crtc_adjust_clock(&current, monitor) == 0
 		&& crtc_is_valid(&current)
 		&& crtc_clock_check(monitor, &current)
-		&& video_mode_generate(&mode, &current, index)==0) {
+		&& video_mode_generate(&mode, &current, index) == 0) {
 		if (text_mode_set(&mode) != 0) {
 			text_done();
 			target_err("Error setting the calibration mode.\n");
@@ -660,7 +660,7 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned index, const ad
 			target_flush();
 			exit(EXIT_FAILURE);
 		}
-		
+
 		video_write_lock();
 		draw_test(2, 2, msg, &current, 0);
 		video_write_unlock(0, 0, 0, 0, 0);
@@ -668,7 +668,7 @@ static void adjust_fix(const char* msg, adv_crtc* crtc, unsigned index, const ad
 		do {
 			target_idle();
 			os_poll();
-		} while (inputb_get()==INPUTB_NONE);
+		} while (inputb_get() == INPUTB_NONE);
 	}
 }
 
@@ -689,8 +689,8 @@ static adv_error cmd_adjust(const char* msg, adv_generate_interpolate* entry, co
 	generate_crtc_vsize(&crtc, y, generate);
 	crtc_hclock_set(&crtc, horz_clock);
 
-	if (crtc_adjust_clock(&crtc, monitor)!=0
-		|| crtc_adjust_size(&crtc, monitor)!=0) {
+	if (crtc_adjust_clock(&crtc, monitor) != 0
+		|| crtc_adjust_size(&crtc, monitor) != 0) {
 		text_done();
 		target_err("Calibration mode unsupported.\n");
 		target_err("%s\n", error_get());
@@ -709,7 +709,7 @@ static adv_error cmd_adjust(const char* msg, adv_generate_interpolate* entry, co
 		exit(EXIT_FAILURE);
 	}
 
-	if (adjust(msg, &crtc, index, monitor, only_center)!=0)
+	if (adjust(msg, &crtc, index, monitor, only_center) != 0)
 		return -1;
 
 	entry->hclock = crtc.pixelclock / crtc.ht;
@@ -740,7 +740,7 @@ unsigned monitor_corner_create(const adv_monitor* monitor, double vclock, struct
 	unsigned mac;
 
 	mac = 0;
-	for(i=0;i<monitor->mode_mac;++i) {
+	for (i = 0; i < monitor->mode_mac; ++i) {
 		const adv_monitor_mode* mode = &monitor->mode_map[i];
 		double try_vclock;
 		double try_y;
@@ -830,7 +830,7 @@ static adv_error cmd_interpolate_set(adv_generate_interpolate_set* interpolate, 
 
 	interpolate->mac = 0;
 
-	for(i=0;i<corner_mac;++i) {
+	for (i = 0; i < corner_mac; ++i) {
 		char buffer[256];
 		int y;
 		double hclock;
@@ -841,12 +841,12 @@ static adv_error cmd_interpolate_set(adv_generate_interpolate_set* interpolate, 
 		only_center = corner_map[i].level >= 0;
 
 		if (only_center) {
-			snprintf(buffer, sizeof(buffer), "Center the screen [%d/%d]", i+1, corner_mac);
+			snprintf(buffer, sizeof(buffer), "Center the screen [%d/%d]", i + 1, corner_mac);
 		} else {
-			snprintf(buffer, sizeof(buffer), "Center and resize the screen [%d/%d]", i+1, corner_mac);
+			snprintf(buffer, sizeof(buffer), "Center and resize the screen [%d/%d]", i + 1, corner_mac);
 		}
 
-		if (cmd_adjust(buffer, interpolate->map + interpolate->mac, &current_gen, monitor, y, index, hclock, only_center)!=0) {
+		if (cmd_adjust(buffer, interpolate->map + interpolate->mac, &current_gen, monitor, y, index, hclock, only_center) != 0) {
 			text_reset();
 			return -1;
 		}
@@ -876,7 +876,7 @@ static adv_error cmd_interpolate_mid(adv_generate_interpolate_set* interpolate, 
 	struct monitor_corner corner_map[MONITOR_MODE_MAX * 1];
 	unsigned corner_mac;
 
-	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 1, 0);
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map) / sizeof(corner_map[0]), 1, 0);
 
 	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
 }
@@ -886,7 +886,7 @@ static adv_error cmd_interpolate_low(adv_generate_interpolate_set* interpolate, 
 	struct monitor_corner corner_map[MONITOR_MODE_MAX * 1];
 	unsigned corner_mac;
 
-	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 1, -1);
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map) / sizeof(corner_map[0]), 1, -1);
 
 	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
 }
@@ -896,7 +896,7 @@ static adv_error cmd_interpolate_high(adv_generate_interpolate_set* interpolate,
 	struct monitor_corner corner_map[MONITOR_MODE_MAX * 1];
 	unsigned corner_mac;
 
-	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 1, 1);
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map) / sizeof(corner_map[0]), 1, 1);
 
 	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
 }
@@ -906,7 +906,7 @@ static adv_error cmd_interpolate_lowhigh(adv_generate_interpolate_set* interpola
 	struct monitor_corner corner_map[MONITOR_MODE_MAX * 2];
 	unsigned corner_mac;
 
-	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 2, -1);
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map) / sizeof(corner_map[0]), 2, -1);
 
 	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
 }
@@ -916,7 +916,7 @@ static adv_error cmd_interpolate_lowmidhigh(adv_generate_interpolate_set* interp
 	struct monitor_corner corner_map[MONITOR_MODE_MAX * 3];
 	unsigned corner_mac;
 
-	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map)/sizeof(corner_map[0]), 3, -1);
+	corner_mac = monitor_corner_create(monitor, 60, corner_map, sizeof(corner_map) / sizeof(corner_map[0]), 3, -1);
 
 	return cmd_interpolate_set(interpolate, generate, monitor, index, corner_map, corner_mac);
 }
@@ -948,7 +948,7 @@ static void entry_interpolate(int x, int y, int dx, void* data, int n, adv_bool 
 	const char* range;
 
 	switch (p->type) {
-	case interpolate_mode :
+	case interpolate_mode:
 		hclock = p->crtc.pixelclock / p->crtc.ht;
 		vclock = hclock / p->crtc.vt;
 		if (p->selected && p->valid)
@@ -961,7 +961,7 @@ static void entry_interpolate(int x, int y, int dx, void* data, int n, adv_bool 
 			range = "";
 		snprintf(buffer, sizeof(buffer), "Mode %4dx%4d %.1f/%.1f %s%s", p->x, p->y, hclock / 1E3, vclock, pivot, range);
 		break;
-	case interpolate_done :
+	case interpolate_done:
 		sncpy(buffer, sizeof(buffer), "Done");
 		break;
 	}
@@ -973,7 +973,7 @@ static void interpolate_create(struct interpolate_data_struct* data, unsigned ma
 {
 	unsigned i;
 
-	for(i=0;i<mac;++i) {
+	for (i = 0; i < mac; ++i) {
 		if (data[i].type == interpolate_mode) {
 			adv_crtc* crtc = &data[i].crtc;
 			unsigned x;
@@ -988,8 +988,8 @@ static void interpolate_create(struct interpolate_data_struct* data, unsigned ma
 			generate_crtc_vsize(crtc, y, generate);
 			crtc_vclock_set(crtc, vclock);
 
-			if (crtc_adjust_clock(crtc, monitor)!=0
-				|| crtc_adjust_size(crtc, monitor)!=0) {
+			if (crtc_adjust_clock(crtc, monitor) != 0
+				|| crtc_adjust_size(crtc, monitor) != 0) {
 				data[i].valid = 0;
 			} else {
 				generate_crtc_htotal(crtc, crtc->ht, generate);
@@ -1004,7 +1004,7 @@ static void interpolate_update(adv_generate_interpolate_set* interpolate, struct
 	unsigned i;
 	interpolate->mac = 0;
 
-	for(i=0;i<mac;++i) {
+	for (i = 0; i < mac; ++i) {
 		if (data[i].type == interpolate_mode && data[i].selected && data[i].valid) {
 			if (interpolate->mac < GENERATE_INTERPOLATE_MAX) {
 				adv_generate_interpolate* entry = &interpolate->map[interpolate->mac];
@@ -1032,9 +1032,9 @@ static void interpolate_update(adv_generate_interpolate_set* interpolate, struct
 
 	/* update the list of crtc */
 	if (interpolate->mac) {
-		for(i=0;i<mac;++i) {
+		for (i = 0; i < mac; ++i) {
 			if (data[i].type == interpolate_mode && !data[i].selected) {
-				data[i].valid = generate_find_interpolate_multi(&data[i].crtc, data[i].x, data[i].y, data[i].x*2, data[i].y*2, data[i].x*3, data[i].y*3, data[i].x*4, data[i].y*4, vclock, monitor, interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL)==0;
+				data[i].valid = generate_find_interpolate_multi(&data[i].crtc, data[i].x, data[i].y, data[i].x * 2, data[i].y * 2, data[i].x * 3, data[i].y * 3, data[i].x * 4, data[i].y * 4, vclock, monitor, interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL) == 0;
 			}
 		}
 	} else {
@@ -1049,7 +1049,7 @@ static adv_error interpolate_test(const char* msg, adv_crtc* crtc, const adv_mon
 	adv_mode mode;
 	mode_reset(&mode);
 
-	if (video_mode_generate(&mode, crtc, index)!=0) {
+	if (video_mode_generate(&mode, crtc, index) != 0) {
 		return -1;
 	}
 
@@ -1124,18 +1124,18 @@ adv_error cmd_adjust_msg(int type, enum adjust_enum* adjust_type)
 	text_clear();
 	draw_text_bar();
 
-	y = draw_text_para(0, 2, text_size_x(), text_size_y()-7,
-"The next step requires to center and to resize some test video modes.\n\n"
-"You MUST use only the software control to change the size and the position "
-"of the video mode. (You can eventually adjust only the FIRST video mode "
-"with the monitor controls if these setting will be shared on all video modes. "
-"Generally this doesn't happen with modern PC MultiSync monitors)"
-"\n\n"
-"If you can't correctly adjust the video modes you can't use the automatic "
-"configuration of the Advance programs and you should follow the manual configuration."
-"\n\n"
-"When the image is centered and fit the whole screen press ENTER to go forward."
-	, COLOR_LOW);
+	y = draw_text_para(0, 2, text_size_x(), text_size_y() - 7,
+			"The next step requires to center and to resize some test video modes.\n\n"
+			"You MUST use only the software control to change the size and the position "
+			"of the video mode. (You can eventually adjust only the FIRST video mode "
+			"with the monitor controls if these setting will be shared on all video modes. "
+			"Generally this doesn't happen with modern PC MultiSync monitors)"
+			"\n\n"
+			"If you can't correctly adjust the video modes you can't use the automatic "
+			"configuration of the Advance programs and you should follow the manual configuration."
+			"\n\n"
+			"When the image is centered and fit the whole screen press ENTER to go forward."
+			, COLOR_LOW);
 
 	mac = 0;
 
@@ -1200,13 +1200,13 @@ static void entry_test(int x, int y, int dx, void* data, int n, adv_bool selecte
 	struct test_data_struct* p = ((struct test_data_struct*)data) + n;
 
 	switch (p->type) {
-	case test_mode :
+	case test_mode:
 		snprintf(buffer, sizeof(buffer), "Test mode %4dx%4d (singlescan)", p->x, p->y);
 		break;
-	case test_save :
+	case test_save:
 		snprintf(buffer, sizeof(buffer), "Save & Exit");
 		break;
-	case test_exit :
+	case test_exit:
 		snprintf(buffer, sizeof(buffer), "Exit without saving");
 		break;
 	case test_custom_single:
@@ -1236,12 +1236,12 @@ adv_error cmd_test_mode(int type, adv_generate_interpolate_set* interpolate, con
 	if (type == monitor_lcd) {
 		crtc_fake_set(&crtc, x, y);
 	} else {
-		if (generate_find_interpolate_multi(&crtc, x, y, x*2, y*2, x*3, y*3, x*4, y*4, vclock, monitor, interpolate, cap, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL)!=0) {
+		if (generate_find_interpolate_multi(&crtc, x, y, x * 2, y * 2, x * 3, y * 3, x * 4, y * 4, vclock, monitor, interpolate, cap, GENERATE_ADJUST_EXACT | GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL) != 0) {
 			return -1;
 		}
 	}
 
-	if (video_mode_generate(&mode, &crtc, index)!=0) {
+	if (video_mode_generate(&mode, &crtc, index) != 0) {
 		return -1;
 	}
 
@@ -1256,7 +1256,7 @@ adv_error cmd_test_mode(int type, adv_generate_interpolate_set* interpolate, con
 		do {
 			target_idle();
 			os_poll();
-		} while (inputb_get()==INPUTB_NONE);
+		} while (inputb_get() == INPUTB_NONE);
 	} else {
 		adjust_fix("Verify the mode", &crtc, index, monitor);
 	}
@@ -1278,9 +1278,9 @@ static adv_error cmd_test_custom(int* x, int* y, double* vclock)
 	draw_text_left(0, 2, text_size_x(), "Xsize [pixel] = ", COLOR_NORMAL);
 	draw_text_left(0, 3, text_size_x(), "Ysize [pixel] = ", COLOR_NORMAL);
 	draw_text_left(0, 4, text_size_x(), "Vclock [Hz]   = ", COLOR_NORMAL);
-	draw_text_para(0, 6, text_size_x(), text_size_y()-7,
-"Enter the resolution and the Vclock desiderated.\n\n"
-	, COLOR_LOW);
+	draw_text_para(0, 6, text_size_x(), text_size_y() - 7,
+		"Enter the resolution and the Vclock desiderated.\n\n"
+		, COLOR_LOW);
 
 	*xbuffer = 0;
 	*ybuffer = 0;
@@ -1291,25 +1291,25 @@ static adv_error cmd_test_custom(int* x, int* y, double* vclock)
 		draw_text_left(16, 3, 64, ybuffer, COLOR_NORMAL);
 		draw_text_left(16, 4, 64, vbuffer, COLOR_NORMAL);
 		switch (state) {
-		case 0 :
-			if (draw_text_read(16, 2, xbuffer, 64, COLOR_REVERSE)!=INPUTB_ENTER)
+		case 0:
+			if (draw_text_read(16, 2, xbuffer, 64, COLOR_REVERSE) != INPUTB_ENTER)
 				state = -1;
 			else
 				state = 1;
 			break;
-		case 1 :
-			if (draw_text_read(16, 3, ybuffer, 64, COLOR_REVERSE)!=INPUTB_ENTER)
+		case 1:
+			if (draw_text_read(16, 3, ybuffer, 64, COLOR_REVERSE) != INPUTB_ENTER)
 				state = 0;
 			else
 				state = 2;
 			break;
-		case 2 :
-			if (draw_text_read(16, 4, vbuffer, 64, COLOR_REVERSE)!=INPUTB_ENTER)
+		case 2:
+			if (draw_text_read(16, 4, vbuffer, 64, COLOR_REVERSE) != INPUTB_ENTER)
 				state = 1;
 			else
 				state = 3;
 			break;
-		case 3 :
+		case 3:
 			*x = atoi(xbuffer);
 			*y = atoi(ybuffer);
 			*vclock = atof(vbuffer);
@@ -1387,12 +1387,12 @@ static adv_error cmd_test(int type, adv_generate_interpolate_set* interpolate, c
 
 		y = 2;
 
-		y = draw_text_para(0, y, text_size_x(), text_size_y()-6,
-"Now you can test various video modes. If they are correctly centered "
-"and sized save the configuration and exit.\n"
-"Otherwise you can go back pressing ESC or exit without saving and try "
-"the manual configuration."
-		, COLOR_LOW);
+		y = draw_text_para(0, y, text_size_x(), text_size_y() - 6,
+				"Now you can test various video modes. If they are correctly centered "
+				"and sized save the configuration and exit.\n"
+				"Otherwise you can go back pressing ESC or exit without saving and try "
+				"the manual configuration."
+				, COLOR_LOW);
 
 		draw_text_string(0, ++y, "Select the video mode to test:", COLOR_BOLD);
 		++y;
@@ -1427,7 +1427,7 @@ static adv_error cmd_test(int type, adv_generate_interpolate_set* interpolate, c
 		}
 	} while (res >= 0 && (data[res].type == test_mode || data[res].type == test_custom_single || data[res].type == test_custom_double || data[res].type == test_custom_interlace || data[res].type == test_custom));
 
-	if (res<0)
+	if (res < 0)
 		return -1;
 	return 0;
 }
@@ -1439,9 +1439,9 @@ void cmd_save(adv_conf* config, int type, const adv_generate_interpolate_set* in
 {
 	if (type == monitor_lcd) {
 		switch (the_advance) {
-		case advance_mame :
-		case advance_mess :
-		case advance_pac :
+		case advance_mame:
+		case advance_mess:
+		case advance_pac:
 			/* set the specific AdvanceMAME options to enable the generate mode. */
 			conf_string_set(config, "", "display_mode", "auto");
 			conf_string_set(config, "", "display_adjust", "none");
@@ -1453,9 +1453,9 @@ void cmd_save(adv_conf* config, int type, const adv_generate_interpolate_set* in
 		conf_remove(config, "", "device_video_clock");
 	} else {
 		switch (the_advance) {
-		case advance_mame :
-		case advance_mess :
-		case advance_pac :
+		case advance_mame:
+		case advance_mess:
+		case advance_pac:
 			/* set the specific AdvanceMAME options to enable the generate mode. */
 			conf_string_set(config, "", "display_mode", "auto");
 			conf_string_set(config, "", "display_adjust", "generate_yclock");
@@ -1488,7 +1488,7 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 }
 
 static adv_conf_conv STANDARD[] = {
-{ "*", "*", "*", "%s", "%s", "%s", 1 }
+	{ "*", "*", "*", "%s", "%s", "%s", 1 }
 };
 
 void os_signal(int signum, void* info, void* context)
@@ -1517,7 +1517,7 @@ void troubleshotting(void)
 #endif
 		}
 		term = getenv("TERM");
-		if (!term || strcmp(term, "linux")!=0)
+		if (!term || strcmp(term, "linux") != 0)
 			target_err("Try to run this program in a TERM=linux terminal.\n\r");
 	}
 #endif
@@ -1559,7 +1559,7 @@ int os_main(int argc, char* argv[])
 
 	config = conf_init();
 
-	if (os_init(config)!=0) {
+	if (os_init(config) != 0) {
 		target_err("Error initializing the OS support.\n");
 		goto err;
 	}
@@ -1579,8 +1579,8 @@ int os_main(int argc, char* argv[])
 	if (conf_input_args_load(config, 1, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
-	for(j=1;j<argc;++j) {
-		if (target_option_compare(argv[j], "rc") && j+1<argc) {
+	for (j = 1; j < argc; ++j) {
+		if (target_option_compare(argv[j], "rc") && j + 1 < argc) {
 			opt_rc = argv[++j];
 		} else if (target_option_compare(argv[j], "log")) {
 			opt_log = 1;
@@ -1594,14 +1594,14 @@ int os_main(int argc, char* argv[])
 			the_advance = advance_pac;
 		} else if (target_option_compare(argv[j], "advmenuc")) {
 			the_advance = advance_menu;
-		} else if (target_option_compare(argv[j], "bit") && j+1<argc) {
+		} else if (target_option_compare(argv[j], "bit") && j + 1 < argc) {
 			unsigned bits = atoi(argv[++j]);
 			switch (bits) {
-			case 8 : index = MODE_FLAGS_INDEX_BGR8; break;
-			case 15 : index = MODE_FLAGS_INDEX_BGR15; break;
-			case 16 : index = MODE_FLAGS_INDEX_BGR16; break;
-			case 24 : index = MODE_FLAGS_INDEX_BGR24; break;
-			case 32 : index = MODE_FLAGS_INDEX_BGR32; break;
+			case 8: index = MODE_FLAGS_INDEX_BGR8; break;
+			case 15: index = MODE_FLAGS_INDEX_BGR15; break;
+			case 16: index = MODE_FLAGS_INDEX_BGR16; break;
+			case 24: index = MODE_FLAGS_INDEX_BGR24; break;
+			case 32: index = MODE_FLAGS_INDEX_BGR32; break;
 			default:
 				target_err("Invalid bit depth %d.\n", bits);
 				goto err_os;
@@ -1614,21 +1614,21 @@ int os_main(int argc, char* argv[])
 
 	if (!opt_rc) {
 		switch (the_advance) {
-		case advance_menu : opt_rc = file_config_file_home("advmenu.rc"); break;
-		case advance_mame : opt_rc = file_config_file_home("advmame.rc"); break;
-		case advance_mess : opt_rc = file_config_file_home("advmess.rc"); break;
-		case advance_pac : opt_rc = file_config_file_home("advpac.rc"); break;
+		case advance_menu: opt_rc = file_config_file_home("advmenu.rc"); break;
+		case advance_mame: opt_rc = file_config_file_home("advmame.rc"); break;
+		case advance_mess: opt_rc = file_config_file_home("advmess.rc"); break;
+		case advance_pac: opt_rc = file_config_file_home("advpac.rc"); break;
 		}
 	}
 
-	if (conf_input_file_load_adv(config, 0, opt_rc, opt_rc, 1, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+	if (conf_input_file_load_adv(config, 0, opt_rc, opt_rc, 1, 1, STANDARD, sizeof(STANDARD) / sizeof(STANDARD[0]), error_callback, 0) != 0)
 		goto err_os;
 
 	if (opt_log || opt_logsync) {
 		const char* log = "advcfg.log";
 		remove(log);
 		log_init(log, opt_logsync);
-        }
+	}
 
 	log_std(("cfg: %s %s %s %s\n", "AdvanceCFG", ADV_VERSION, __DATE__, __TIME__));
 
@@ -1698,11 +1698,11 @@ int os_main(int argc, char* argv[])
 	}
 
 	switch (index) {
-	case MODE_FLAGS_INDEX_BGR8 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR8; break;
-	case MODE_FLAGS_INDEX_BGR15 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR15; break;
-	case MODE_FLAGS_INDEX_BGR16 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR16; break;
-	case MODE_FLAGS_INDEX_BGR24 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR24; break;
-	case MODE_FLAGS_INDEX_BGR32 : bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR32; break;
+	case MODE_FLAGS_INDEX_BGR8: bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR8; break;
+	case MODE_FLAGS_INDEX_BGR15: bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR15; break;
+	case MODE_FLAGS_INDEX_BGR16: bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR16; break;
+	case MODE_FLAGS_INDEX_BGR24: bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR24; break;
+	case MODE_FLAGS_INDEX_BGR32: bit_flag = VIDEO_DRIVER_FLAGS_MODE_BGR32; break;
 	default:
 		target_err("Invalid bit depth specification.\n\r");
 		goto err_blit;
@@ -1743,7 +1743,7 @@ int os_main(int argc, char* argv[])
 	crtc_container_insert_default_all(&mode_unsorted);
 
 	crtc_container_init(&mode);
-	for(crtc_container_iterator_begin(&i, &mode_unsorted);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for (crtc_container_iterator_begin(&i, &mode_unsorted); !crtc_container_iterator_is_end(&i); crtc_container_iterator_next(&i)) {
 		adv_crtc* crtc = crtc_container_iterator_get(&i);
 		crtc_container_insert_sort(&mode, crtc, crtc_compare);
 	}
@@ -1759,7 +1759,7 @@ int os_main(int argc, char* argv[])
 
 	while (state >= 0 && state != 8) {
 		switch (state) {
-		case 0 :
+		case 0:
 			res = cmd_monitor(config, &generate, &type, &interpolate, &edid_generate);
 			if (res == -1)
 				state = -1;
@@ -1770,7 +1770,7 @@ int os_main(int argc, char* argv[])
 			else
 				state = 2;
 			break;
-		case 1 :
+		case 1:
 			res = cmd_monitor_custom(&generate);
 			if (res == -1)
 				state = 0;
@@ -1779,7 +1779,7 @@ int os_main(int argc, char* argv[])
 			else
 				state = 2;
 			break;
-		case 2 :
+		case 2:
 			res = cmd_model(config, &monitor, &edid_monitor);
 			if (res == -1)
 				state = 0;
@@ -1788,14 +1788,14 @@ int os_main(int argc, char* argv[])
 			else
 				state = 4;
 			break;
-		case 3 :
+		case 3:
 			res = cmd_model_custom(&monitor);
 			if (res == -1)
 				state = 2;
 			else
 				state = 4;
 			break;
-		case 4 :
+		case 4:
 			res = cmd_adjust_msg(type, &adjust_type);
 			if (res < 0)
 				state = 2;
@@ -1820,7 +1820,7 @@ int os_main(int argc, char* argv[])
 					state = 5;
 			}
 			break;
-		case 5 :
+		case 5:
 			res = cmd_test(type, &interpolate, &monitor, index);
 			if (res == -1) {
 				if (type == monitor_lcd)
@@ -1830,7 +1830,7 @@ int os_main(int argc, char* argv[])
 			} else
 				state = 6;
 			break;
-		case 6 :
+		case 6:
 			cmd_save(config, type, &interpolate, &monitor);
 			state = 8;
 			break;
@@ -1886,5 +1886,4 @@ err_os:
 err:
 	return EXIT_FAILURE;
 }
-
 

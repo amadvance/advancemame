@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -160,32 +160,32 @@ static void int_joystick_done()
 
 static void int_joystick_button_raw_poll()
 {
-	for(int i=0;i<joystickb_count_get();++i) {
-		for(int j=0;j<joystickb_button_count_get(i);++j) {
+	for (int i = 0; i < joystickb_count_get(); ++i) {
+		for (int j = 0; j < joystickb_button_count_get(i); ++j) {
 			if (joystickb_button_get(i, j)) {
 				switch (j) {
-				case 0 :
+				case 0:
 					event_push(EVENT_ENTER);
 					break;
-				case 1 :
+				case 1:
 					event_push(EVENT_ESC);
 					break;
-				case 2 :
+				case 2:
 					event_push(EVENT_MENU);
 					break;
-				case 3 :
+				case 3:
 					event_push(EVENT_SPACE);
 					break;
-				case 4 :
+				case 4:
 					event_push(EVENT_MODE);
 					break;
-				case 5 :
+				case 5:
 					event_push(EVENT_PREVIEW);
 					break;
-				case 6 :
+				case 6:
 					event_push(EVENT_PGUP);
 					break;
-				case 7 :
+				case 7:
 					event_push(EVENT_PGDN);
 					break;
 				}
@@ -196,8 +196,8 @@ static void int_joystick_button_raw_poll()
 
 static void int_joystick_move_raw_poll()
 {
-	for(int i=0;i<joystickb_count_get();++i) {
-		for(int j=0;j<joystickb_stick_count_get(i);++j) {
+	for (int i = 0; i < joystickb_count_get(); ++i) {
+		for (int j = 0; j < joystickb_stick_count_get(i); ++j) {
 			if (joystickb_stick_axe_count_get(i, j) > 0) {
 				if (joystickb_stick_axe_digital_get(i, j, 0, 0))
 					event_push(EVENT_RIGHT);
@@ -320,7 +320,7 @@ static void int_mouse_done()
 
 static void int_mouse_button_raw_poll()
 {
-	for(int i=0;i<mouseb_count_get();++i) {
+	for (int i = 0; i < mouseb_count_get(); ++i) {
 		if (mouseb_button_count_get(i) > 0 && mouseb_button_get(i, 0))
 			event_push(EVENT_ENTER);
 
@@ -334,7 +334,7 @@ static void int_mouse_button_raw_poll()
 
 static void int_mouse_move_raw_poll()
 {
-	for(int i=0;i<mouseb_count_get();++i) {
+	for (int i = 0; i < mouseb_count_get(); ++i) {
 		int x, y;
 
 		x = 0;
@@ -387,8 +387,8 @@ bool int_mode_graphics_less(const adv_mode* A, const adv_mode* B)
 	int areaA = A->size_x * A->size_y;
 	int areaB = B->size_x * B->size_y;
 
-	int difA = abs(areaA - static_cast<int>(int_mode_sizex*int_mode_sizey));
-	int difB = abs(areaB - static_cast<int>(int_mode_sizex*int_mode_sizey));
+	int difA = abs(areaA - static_cast<int>(int_mode_sizex * int_mode_sizey));
+	int difB = abs(areaB - static_cast<int>(int_mode_sizex * int_mode_sizey));
 
 	return difA < difB;
 }
@@ -401,19 +401,19 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 	log_std(("text: searching for mode %dx%d, index %u.\n", int_mode_sizex, int_mode_sizey, index));
 
 	// search the default name
-	for(crtc_container_iterator_begin(&i, &modelines);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for (crtc_container_iterator_begin(&i, &modelines); !crtc_container_iterator_is_end(&i); crtc_container_iterator_next(&i)) {
 		const adv_crtc* crtc = crtc_container_iterator_get(&i);
-		if (strcmp(crtc->name, DEFAULT_GRAPH_MODE)==0) {
+		if (strcmp(crtc->name, DEFAULT_GRAPH_MODE) == 0) {
 
 			// check the clocks only if the driver is programmable
-			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+			if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
 				if (!crtc_clock_check(&int_monitor, crtc)) {
 					target_err("The selected mode '%s' is out of your monitor capabilities.\n", DEFAULT_GRAPH_MODE);
 					return false;
 				}
 			}
 
-			if (video_mode_generate(&int_current_mode, crtc, index)!=0) {
+			if (video_mode_generate(&int_current_mode, crtc, index) != 0) {
 				target_err("The selected mode '%s' is out of your video board capabilities.\n", DEFAULT_GRAPH_MODE);
 				return false;
 			}
@@ -431,7 +431,7 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 			if (crtc_clock_check(&int_monitor, &crtc)) {
 				adv_mode mode;
 				mode_reset(&mode);
-				if (video_mode_generate(&mode, &crtc, index)==0) {
+				if (video_mode_generate(&mode, &crtc, index) == 0) {
 					int_current_mode = mode;
 					mode_found = true;
 					log_std(("text: generating a perfect mode from the format option.\n"));
@@ -442,15 +442,15 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 	}
 
 	// generate any resolution for a window manager or with an overlay
-	if (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0
-		|| video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY)!=0
+	if (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0
+		|| video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY) != 0
 	) {
 		adv_crtc crtc;
 		crtc_fake_set(&crtc, int_mode_sizex, int_mode_sizey);
 
 		adv_mode mode;
 		mode_reset(&mode);
-		if (video_mode_generate(&mode, &crtc, index)==0) {
+		if (video_mode_generate(&mode, &crtc, index) == 0) {
 			int_current_mode = mode;
 			mode_found = true;
 			log_std(("text: generating a perfect mode for the window manager.\n"));
@@ -459,11 +459,11 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 	}
 
 	// search the best on the list
-	for(crtc_container_iterator_begin(&i, &modelines);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for (crtc_container_iterator_begin(&i, &modelines); !crtc_container_iterator_is_end(&i); crtc_container_iterator_next(&i)) {
 		const adv_crtc* crtc = crtc_container_iterator_get(&i);
 
 		// check the clocks only if the driver is programmable
-		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
 			if (!crtc_clock_check(&int_monitor, crtc)) {
 				continue;
 			}
@@ -471,7 +471,7 @@ static bool int_mode_find(bool& mode_found, unsigned index, adv_crtc_container& 
 
 		adv_mode mode;
 		mode_reset(&mode);
-		if (video_mode_generate(&mode, crtc, index)==0) {
+		if (video_mode_generate(&mode, crtc, index) == 0) {
 			if (!mode_found || int_mode_graphics_less(&mode, &int_current_mode)) {
 				int_current_mode = mode;
 				mode_found = true;
@@ -542,11 +542,11 @@ bool int_load(adv_conf* config_context)
 		return false;
 
 	err = generate_interpolate_load(config_context, &int_interpolate);
-	if (err<0) {
+	if (err < 0) {
 		target_err("%s\n", error_get());
 		return false;
 	}
-	if (err==0) {
+	if (err == 0) {
 		int_has_generate = true;
 	} else {
 		int_has_generate = false;
@@ -554,11 +554,11 @@ bool int_load(adv_conf* config_context)
 	}
 
 	err = monitor_load(config_context, &int_monitor);
-	if (err<0) {
+	if (err < 0) {
 		target_err("%s\n", error_get());
 		return false;
 	}
-	if (err==0) {
+	if (err == 0) {
 		int_has_clock = true;
 	} else {
 		int_has_clock = false;
@@ -573,7 +573,7 @@ bool int_load(adv_conf* config_context)
 	}
 
 	err = crtc_container_load(config_context, &int_modelines);
-	if (err!=0) {
+	if (err != 0) {
 		target_err("%s\n", error_get());
 		return false;
 	}
@@ -615,8 +615,8 @@ bool int_init(unsigned sizex, unsigned sizey)
 
 	/* The SDL overlay doesn't allow the video mode restore when starting the emulators */
 	driver_flags = video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0);
-	if ((driver_flags & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY)!=0
-		&& (driver_flags & VIDEO_DRIVER_FLAGS_INTERNAL_STATIC)!=0
+	if ((driver_flags & VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY) != 0
+		&& (driver_flags & VIDEO_DRIVER_FLAGS_INTERNAL_STATIC) != 0
 	) {
 		target_err("'overlay' output mode not supported in this configuration. Use 'fullscreen' instead.\n");
 		goto int_blit;
@@ -627,12 +627,12 @@ bool int_init(unsigned sizex, unsigned sizey)
 		int_has_generate = false;
 
 	// disable generate if the driver is not programmable
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)==0)
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) == 0)
 		int_has_generate = false;
 
 	// add modes if the list is empty
 	if (crtc_container_is_empty(&int_modelines)) {
-		int is_prog = (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) !=0;
+		int is_prog = (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0;
 		if (!is_prog) {
 			/* if it is NOT programmable */
 			crtc_container_insert_default_active(&int_modelines);
@@ -663,10 +663,10 @@ bool int_init(unsigned sizex, unsigned sizey)
 
 	// check if the video driver has a default bit depth
 	switch (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_DEFAULT_MASK) {
-	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR8 : index = MODE_FLAGS_INDEX_BGR8; break;
-	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR15 : index = MODE_FLAGS_INDEX_BGR15; break;
-	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR16 : index = MODE_FLAGS_INDEX_BGR16; break;
-	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR32 : index = MODE_FLAGS_INDEX_BGR32; break;
+	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR8: index = MODE_FLAGS_INDEX_BGR8; break;
+	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR15: index = MODE_FLAGS_INDEX_BGR15; break;
+	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR16: index = MODE_FLAGS_INDEX_BGR16; break;
+	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR32: index = MODE_FLAGS_INDEX_BGR32; break;
 	default:
 		index = 0;
 		break;
@@ -775,8 +775,8 @@ err:
 
 void int_unplug()
 {
-    joystickb_disable();
-    mouseb_disable();
+	joystickb_disable();
+	mouseb_disable();
 	keyb_disable();
 	mouseb_done();
 	joystickb_done();
@@ -814,7 +814,7 @@ void int_unset(bool reset_video_mode)
 	int_key_disable();
 
 	if (reset_video_mode) {
-		if ((video_driver_flags() & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)==0) {
+		if ((video_driver_flags() & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) == 0) {
 			video_write_lock();
 			video_clear(0, 0, video_size_x(), video_size_y(), 0);
 			video_write_unlock(0, 0, video_size_x(), video_size_y(), 0);
@@ -924,16 +924,16 @@ static int fast_exit_handler(void)
 	int key = event_peek();
 
 	return key == EVENT_PGUP
-		|| key == EVENT_PGDN
-		|| key == EVENT_INS
-		|| key == EVENT_DEL
-		|| key == EVENT_HOME
-		|| key == EVENT_END
-		|| key == EVENT_UP
-		|| key == EVENT_DOWN
-		|| key == EVENT_LEFT
-		|| key == EVENT_RIGHT
-		|| key == EVENT_MODE;
+	       || key == EVENT_PGDN
+	       || key == EVENT_INS
+	       || key == EVENT_DEL
+	       || key == EVENT_HOME
+	       || key == EVENT_END
+	       || key == EVENT_UP
+	       || key == EVENT_DOWN
+	       || key == EVENT_LEFT
+	       || key == EVENT_RIGHT
+	       || key == EVENT_MODE;
 }
 
 // -------------------------------------------------------------------------
@@ -1022,9 +1022,9 @@ static void gen_clear_alpha(int x, int y, int dx, int dy, const adv_color_rgb& c
 void cell_pos_t::draw_backdrop(const adv_bitmap* map, const adv_color_rgb& background)
 {
 	unsigned x0 = (real_dx - map->size_x) / 2;
-	unsigned x1 = real_dx -  map->size_x - x0;
+	unsigned x1 = real_dx - map->size_x - x0;
 	unsigned y0 = (real_dy - map->size_y) / 2;
-	unsigned y1 = real_dy -  map->size_y - y0;
+	unsigned y1 = real_dy - map->size_y - y0;
 	if (x0)
 		gen_clear_alpha(real_x, real_y, x0, real_dy, background);
 	if (x1)
@@ -1064,12 +1064,12 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 		dy = t;
 	}
 	if (int_orientation & ADV_ORIENTATION_FLIP_X) {
-		ptr = ptr + (dx-1) * dp;
-		dp = - dp;
+		ptr = ptr + (dx - 1) * dp;
+		dp = -dp;
 	}
 	if (int_orientation & ADV_ORIENTATION_FLIP_Y) {
-		ptr = ptr + (dy-1) * dw;
-		dw = - dw;
+		ptr = ptr + (dy - 1) * dw;
+		dw = -dw;
 	}
 
 	// destination range
@@ -1129,7 +1129,7 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 	uint16 palette16[256];
 	uint8 palette8[256];
 	if (bitmap->bytes_per_pixel == 1) {
-		for(unsigned i=0;i<rgb_max;++i) {
+		for (unsigned i = 0; i < rgb_max; ++i) {
 			adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
 			palette32[i] = p;
 			palette16[i] = p;
@@ -1154,9 +1154,9 @@ void cell_pos_t::border(int width, const adv_color_rgb& color)
 	int dy = real_dy + width * 2;
 
 	gen_clear_raw(x, y, dx, width, color);
-	gen_clear_raw(x, y+dy-width, dx, width, color);
-	gen_clear_raw(x, y+width, width, dy-2*width, color);
-	gen_clear_raw(x+dx-width, y+width, width, dy-2*width, color);
+	gen_clear_raw(x, y + dy - width, dx, width, color);
+	gen_clear_raw(x, y + width, width, dy - 2 * width, color);
+	gen_clear_raw(x + dx - width, y + width, width, dy - 2 * width, color);
 }
 
 // -------------------------------------------------------------------------
@@ -1192,7 +1192,8 @@ public:
 };
 
 backdrop_data::backdrop_data(const resource& Ares, unsigned Atarget_dx, unsigned Atarget_dy, unsigned Aaspectx, unsigned Aaspecty)
-	: res(Ares), target_dx(Atarget_dx), target_dy(Atarget_dy), aspectx(Aaspectx), aspecty(Aaspecty) {
+	: res(Ares), target_dx(Atarget_dx), target_dy(Atarget_dy), aspectx(Aaspectx), aspecty(Aaspecty)
+{
 	map = 0;
 }
 
@@ -1207,25 +1208,25 @@ void backdrop_data::icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_
 	unsigned index;
 	if (*rgb_max == 256) {
 		unsigned count[256];
-		for(unsigned i=0;i<256;++i)
+		for (unsigned i = 0; i < 256; ++i)
 			count[i] = 0;
 
-		for(unsigned y=0;y<bitmap->size_y;++y) {
+		for (unsigned y = 0; y < bitmap->size_y; ++y) {
 			uint8* line = adv_bitmap_line(bitmap, y);
-			for(unsigned x=0;x<bitmap->size_x;++x)
+			for (unsigned x = 0; x < bitmap->size_x; ++x)
 				++count[line[x]];
 		}
 
 		index = 0;
-		for(unsigned i=0;i<256;++i)
+		for (unsigned i = 0; i < 256; ++i)
 			if (count[i] < count[index])
 				index = i;
 
 		if (count[index] != 0) {
 			unsigned substitute = 0;
-			for(unsigned y=0;y<bitmap->size_y;++y) {
+			for (unsigned y = 0; y < bitmap->size_y; ++y) {
 				uint8* line = adv_bitmap_line(bitmap, y);
-				for(unsigned x=0;x<bitmap->size_x;++x)
+				for (unsigned x = 0; x < bitmap->size_x; ++x)
 					if (line[x] == index)
 						line[x] = substitute;
 			}
@@ -1240,10 +1241,10 @@ void backdrop_data::icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_
 	rgb[index].blue = background.blue;
 	rgb[index].alpha = 0;
 
-	for(unsigned y=0;y<bitmap->size_y;++y) {
+	for (unsigned y = 0; y < bitmap->size_y; ++y) {
 		uint8* line = adv_bitmap_line(bitmap, y);
 		uint8* line_mask = adv_bitmap_line(bitmap_mask, y);
-		for(unsigned x=0;x<bitmap->size_x;++x) {
+		for (unsigned x = 0; x < bitmap->size_x; ++x) {
 			if (!line_mask[x])
 				line[x] = index;
 		}
@@ -1366,12 +1367,12 @@ adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigne
 		dy = t;
 	}
 	if (int_orientation & ADV_ORIENTATION_FLIP_X) {
-		ptr = ptr + (dx-1) * dp;
-		dp = - dp;
+		ptr = ptr + (dx - 1) * dp;
+		dp = -dp;
 	}
 	if (int_orientation & ADV_ORIENTATION_FLIP_Y) {
-		ptr = ptr + (dy-1) * dw;
-		dw = - dw;
+		ptr = ptr + (dy - 1) * dw;
+		dw = -dw;
 	}
 
 	unsigned combine = VIDEO_COMBINE_Y_NONE;
@@ -1392,7 +1393,7 @@ adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigne
 	uint16 palette16[256];
 	uint8 palette8[256];
 	if (bitmap->bytes_per_pixel == 1) {
-		for(unsigned i=0;i<*rgb_max;++i) {
+		for (unsigned i = 0; i < *rgb_max; ++i) {
 			adv_pixel p = video_pixel_get(rgb[i].red, rgb[i].green, rgb[i].blue);
 			palette32[i] = p;
 			palette16[i] = p;
@@ -1461,7 +1462,7 @@ backdrop_cache::backdrop_cache(unsigned Amax)
 
 backdrop_cache::~backdrop_cache()
 {
-	for(list<backdrop_data*>::iterator i=bag.begin();i!=bag.end();++i)
+	for (list<backdrop_data*>::iterator i = bag.begin(); i != bag.end(); ++i)
 		delete *i;
 }
 
@@ -1494,7 +1495,7 @@ void backdrop_cache::free(backdrop_data* data)
 backdrop_data* backdrop_cache::alloc(const resource& res, unsigned dx, unsigned dy, unsigned aspectx, unsigned aspecty)
 {
 	// search in the cache
-	for(list<backdrop_data*>::iterator i=bag.begin();i!=bag.end();++i) {
+	for (list<backdrop_data*>::iterator i = bag.begin(); i != bag.end(); ++i) {
 		if ((*i)->res_get() == res
 			&& dx == (*i)->target_dx_get()
 			&& dy == (*i)->target_dy_get()) {
@@ -1706,7 +1707,7 @@ clip_cache::clip_cache(unsigned Amax)
 
 clip_cache::~clip_cache()
 {
-	for(list<clip_data*>::iterator i=bag.begin();i!=bag.end();++i) {
+	for (list<clip_data*>::iterator i = bag.begin(); i != bag.end(); ++i) {
 		clip_data* data = *i;
 		delete data;
 	}
@@ -1739,7 +1740,7 @@ void clip_cache::free(clip_data* data)
 clip_data* clip_cache::alloc(const resource& res)
 {
 	// search in the cache
-	for(list<clip_data*>::iterator i=bag.begin();i!=bag.end();++i) {
+	for (list<clip_data*>::iterator i = bag.begin(); i != bag.end(); ++i) {
 		if ((*i)->res_get() == res) {
 
 			// extract from the cache
@@ -1837,7 +1838,7 @@ cell_manager::cell_manager(const int_color& Abackdrop_missing_color, const int_c
 	backdrop_expand_factor = expand_factor;
 	backdrop_mac = Amac;
 
-	int_backdrop_cache = new backdrop_cache(backdrop_mac*2 + Ainc + 1);
+	int_backdrop_cache = new backdrop_cache(backdrop_mac * 2 + Ainc + 1);
 
 	multiclip = Amulticlip;
 	if (multiclip)
@@ -1845,7 +1846,7 @@ cell_manager::cell_manager(const int_color& Abackdrop_missing_color, const int_c
 	else
 		int_clip_cache = new clip_cache(0);
 
-	for(int i=0;i<backdrop_mac;++i) {
+	for (int i = 0; i < backdrop_mac; ++i) {
 		backdrop_map[i].data = 0;
 		backdrop_map[i].cdata = 0;
 		backdrop_map[i].last = resource();
@@ -1858,7 +1859,7 @@ cell_manager::cell_manager(const int_color& Abackdrop_missing_color, const int_c
 
 cell_manager::~cell_manager()
 {
-	for(int i=0;i<backdrop_mac;++i) {
+	for (int i = 0; i < backdrop_mac; ++i) {
 		if (backdrop_map[i].data)
 			delete backdrop_map[i].data;
 		backdrop_map[i].data = 0;
@@ -1876,7 +1877,7 @@ cell_manager::~cell_manager()
 
 void cell_manager::backdrop_redraw_all()
 {
-	for(int i=0;i<backdrop_mac;++i) {
+	for (int i = 0; i < backdrop_mac; ++i) {
 		backdrop_map[i].redraw = true;
 	}
 }
@@ -1898,8 +1899,8 @@ void cell_manager::pos_set(int index, int x, int y, int dx, int dy)
 
 	backdrop_map[index].pos.x = backdrop_map[index].pos.real_x = x + backdrop_outline;
 	backdrop_map[index].pos.y = backdrop_map[index].pos.real_y = y + backdrop_outline;
-	backdrop_map[index].pos.dx = backdrop_map[index].pos.real_dx = dx - 2*backdrop_outline;
-	backdrop_map[index].pos.dy = backdrop_map[index].pos.real_dy = dy - 2*backdrop_outline;
+	backdrop_map[index].pos.dx = backdrop_map[index].pos.real_dx = dx - 2 * backdrop_outline;
+	backdrop_map[index].pos.dy = backdrop_map[index].pos.real_dy = dy - 2 * backdrop_outline;
 
 	if (int_orientation & ADV_ORIENTATION_FLIP_XY) {
 		swap(backdrop_map[index].pos.real_x, backdrop_map[index].pos.real_y);
@@ -1959,9 +1960,9 @@ static void box(int x, int y, int dx, int dy, int width, const adv_color_rgb& co
 {
 	adv_pixel pixel = video_pixel_get(color.red, color.green, color.blue);
 	video_clear(x, y, dx, width, pixel);
-	video_clear(x, y+dy-width, dx, width, pixel);
-	video_clear(x, y+width, width, dy-2*width, pixel);
-	video_clear(x+dx-width, y+width, width, dy-2*width, pixel);
+	video_clear(x, y + dy - width, dx, width, pixel);
+	video_clear(x, y + width, width, dy - 2 * width, pixel);
+	video_clear(x + dx - width, y + width, width, dy - 2 * width, pixel);
 }
 
 void cell_manager::backdrop_box()
@@ -1969,13 +1970,13 @@ void cell_manager::backdrop_box()
 	if (!backdrop_cursor)
 		return;
 
-	for(int i=0;i<backdrop_mac;++i) {
+	for (int i = 0; i < backdrop_mac; ++i) {
 		struct cell_t* back = backdrop_map + i;
 		if (back->highlight) {
 			unsigned x = back->pos.real_x - backdrop_outline;
 			unsigned y = back->pos.real_y - backdrop_outline;
-			unsigned dx = back->pos.real_dx + 2*backdrop_outline;
-			unsigned dy = back->pos.real_dy + 2*backdrop_outline;
+			unsigned dx = back->pos.real_dx + 2 * backdrop_outline;
+			unsigned dy = back->pos.real_dy + 2 * backdrop_outline;
 
 			video_write_lock();
 			box(x, y, dx, dy, backdrop_cursor, backdrop_box_color.foreground);
@@ -2074,7 +2075,7 @@ bool cell_manager::idle()
 		target_clock_t stop = start + TARGET_CLOCKS_PER_SEC / 100; // limit update for 10 ms
 
 		// search the highlight clip
-		for(unsigned i=0;i<backdrop_mac;++i) {
+		for (unsigned i = 0; i < backdrop_mac; ++i) {
 			if (backdrop_map[i].highlight) {
 				highlight_index = i;
 			}
@@ -2086,9 +2087,9 @@ bool cell_manager::idle()
 		}
 
 		// update all the clip
-		for(unsigned i=0;i<backdrop_mac;++i) {
+		for (unsigned i = 0; i < backdrop_mac; ++i) {
 			target_clock_t backdrop_box_new = target_clock();
-			if (backdrop_box_new >= backdrop_box_last + TARGET_CLOCKS_PER_SEC/20) {
+			if (backdrop_box_new >= backdrop_box_last + TARGET_CLOCKS_PER_SEC / 20) {
 				backdrop_box_last = backdrop_box_new;
 				backdrop_box();
 			}
@@ -2107,12 +2108,12 @@ bool cell_manager::idle()
 			}
 		}
 	} else {
-		for(unsigned i=0;i<backdrop_mac;++i) {
+		for (unsigned i = 0; i < backdrop_mac; ++i) {
 			idle_update(i);
 		}
 
 		target_clock_t backdrop_box_new = target_clock();
-		if (backdrop_box_new >= backdrop_box_last + TARGET_CLOCKS_PER_SEC/20) {
+		if (backdrop_box_new >= backdrop_box_last + TARGET_CLOCKS_PER_SEC / 20) {
 			backdrop_box_last = backdrop_box_new;
 			backdrop_box();
 		}
@@ -2122,7 +2123,7 @@ bool cell_manager::idle()
 	video_display_set(0, 0);
 
 	// recheck if some clip is already old
-	for(unsigned i=0;i<backdrop_mac;++i) {
+	for (unsigned i = 0; i < backdrop_mac; ++i) {
 		cell_t* cell = backdrop_map + i;
 		clip_data* clip = cell->cdata;
 		if (clip && clip->is_old())
@@ -2161,7 +2162,7 @@ void cell_manager::clip_start(int index)
 {
 	assert(index >= 0);
 
-	for(unsigned i=0;i<backdrop_mac;++i) {
+	for (unsigned i = 0; i < backdrop_mac; ++i) {
 		if (backdrop_map[i].cdata
 			&& (i == index || backdrop_map[i].cdata->is_waiting())) {
 			backdrop_map[i].cdata->start();
@@ -2260,14 +2261,14 @@ unsigned int_put_width(char c)
 unsigned int_put_width(const string& s)
 {
 	unsigned size = 0;
-	for(unsigned i=0;i<s.length();++i)
+	for (unsigned i = 0; i < s.length(); ++i)
 		size += int_put_width(s[i]);
 	return size;
 }
 
 void int_put(int x, int y, char c, const int_color& color)
 {
-	if (x>=0 && y>=0 && x+int_put_width(c)<=int_dx_get() && y+int_font_dy_get()<=int_dy_get()) {
+	if (x >= 0 && y >= 0 && x + int_put_width(c) <= int_dx_get() && y + int_font_dy_get() <= int_dy_get()) {
 		adv_bitmap* src = int_font->data[(unsigned char)c];
 
 		if (int_orientation & ADV_ORIENTATION_FLIP_XY)
@@ -2277,7 +2278,7 @@ void int_put(int x, int y, char c, const int_color& color)
 		if (int_orientation & ADV_ORIENTATION_FLIP_Y)
 			y = video_size_y() - src->size_y - y;
 
-		assert(x>=0 && y>=0 && x+src->size_x<=video_size_x() && y+src->size_y<=video_size_y());
+		assert(x >= 0 && y >= 0 && x + src->size_x <= video_size_x() && y + src->size_y <= video_size_y());
 
 		adv_font_put_char_map(int_font, video_foreground_bitmap, x, y, c, color.opaque);
 	}
@@ -2285,7 +2286,7 @@ void int_put(int x, int y, char c, const int_color& color)
 
 void int_put_alpha(int x, int y, char c, const int_color& color)
 {
-	if (x>=0 && y>=0 && x+int_put_width(c)<=int_dx_get() && y+int_font_dy_get()<=int_dy_get()) {
+	if (x >= 0 && y >= 0 && x + int_put_width(c) <= int_dx_get() && y + int_font_dy_get() <= int_dy_get()) {
 		adv_bitmap* src = int_font->data[(unsigned char)c];
 
 		if (int_orientation & ADV_ORIENTATION_FLIP_XY)
@@ -2295,7 +2296,7 @@ void int_put_alpha(int x, int y, char c, const int_color& color)
 		if (int_orientation & ADV_ORIENTATION_FLIP_Y)
 			y = video_size_y() - src->size_y - y;
 
-		assert(x>=0 && y>=0 && x+src->size_x<=video_size_x() && y+src->size_y<=video_size_y());
+		assert(x >= 0 && y >= 0 && x + src->size_x <= video_size_x() && y + src->size_y <= video_size_y());
 
 		if (video_alpha_flag) {
 			adv_bitmap* flat = adv_bitmap_alloc(src->size_x, src->size_y, video_alpha_bytes_per_pixel);
@@ -2313,7 +2314,7 @@ void int_put_alpha(int x, int y, char c, const int_color& color)
 
 void int_put_filled(int x, int y, int dx, const string& s, const int_color& color)
 {
-	for(unsigned i=0;i<s.length();++i) {
+	for (unsigned i = 0; i < s.length(); ++i) {
 		if (int_put_width(s[i]) <= dx) {
 			int_put(x, y, s[i], color);
 			x += int_put_width(s[i]);
@@ -2327,7 +2328,7 @@ void int_put_filled(int x, int y, int dx, const string& s, const int_color& colo
 
 void int_put_filled_alpha(int x, int y, int dx, const string& s, const int_color& color)
 {
-	for(unsigned i=0;i<s.length();++i) {
+	for (unsigned i = 0; i < s.length(); ++i) {
 		if (int_put_width(s[i]) <= dx) {
 			int_put_alpha(x, y, s[i], color);
 			x += int_put_width(s[i]);
@@ -2341,9 +2342,9 @@ void int_put_filled_alpha(int x, int y, int dx, const string& s, const int_color
 
 void int_put_special(bool& in, int x, int y, int dx, const string& s, const int_color& c0, const int_color& c1, const int_color& c2)
 {
-	for(unsigned i=0;i<s.length();++i) {
+	for (unsigned i = 0; i < s.length(); ++i) {
 		if (int_put_width(s[i]) <= dx) {
-			if (s[i]=='(' || s[i]=='[')
+			if (s[i] == '(' || s[i] == '[')
 				in = true;
 			if (!in && isupper(s[i])) {
 				int_put(x, y, s[i], c0);
@@ -2352,7 +2353,7 @@ void int_put_special(bool& in, int x, int y, int dx, const string& s, const int_
 			}
 			x += int_put_width(s[i]);
 			dx -= int_put_width(s[i]);
-			if (s[i]==')' || s[i]==']')
+			if (s[i] == ')' || s[i] == ']')
 				in = false;
 		} else
 			break;
@@ -2363,9 +2364,9 @@ void int_put_special(bool& in, int x, int y, int dx, const string& s, const int_
 
 void int_put_special_alpha(bool& in, int x, int y, int dx, const string& s, const int_color& c0, const int_color& c1, const int_color& c2)
 {
-	for(unsigned i=0;i<s.length();++i) {
+	for (unsigned i = 0; i < s.length(); ++i) {
 		if (int_put_width(s[i]) <= dx) {
-			if (s[i]=='(' || s[i]=='[')
+			if (s[i] == '(' || s[i] == '[')
 				in = true;
 			if (!in && isupper(s[i])) {
 				int_put_alpha(x, y, s[i], c0);
@@ -2374,7 +2375,7 @@ void int_put_special_alpha(bool& in, int x, int y, int dx, const string& s, cons
 			}
 			x += int_put_width(s[i]);
 			dx -= int_put_width(s[i]);
-			if (s[i]==')' || s[i]==']')
+			if (s[i] == ')' || s[i] == ']')
 				in = false;
 		} else
 			break;
@@ -2386,7 +2387,7 @@ void int_put_special_alpha(bool& in, int x, int y, int dx, const string& s, cons
 
 void int_put(int x, int y, const string& s, const int_color& color)
 {
-	for(unsigned i=0;i<s.length();++i) {
+	for (unsigned i = 0; i < s.length(); ++i) {
 		int_put(x, y, s[i], color);
 		x += int_put_width(s[i]);
 	}
@@ -2394,7 +2395,7 @@ void int_put(int x, int y, const string& s, const int_color& color)
 
 void int_put_alpha(int x, int y, const string& s, const int_color& color)
 {
-	for(unsigned i=0;i<s.length();++i) {
+	for (unsigned i = 0; i < s.length(); ++i) {
 		int_put_alpha(x, y, s[i], color);
 		x += int_put_width(s[i]);
 	}
@@ -2402,7 +2403,7 @@ void int_put_alpha(int x, int y, const string& s, const int_color& color)
 
 unsigned int_put(int x, int y, int dx, const string& s, const int_color& color)
 {
-	for(unsigned i=0;i<s.length();++i) {
+	for (unsigned i = 0; i < s.length(); ++i) {
 		int width = int_put_width(s[i]);
 		if (width > dx)
 			return i;
@@ -2415,7 +2416,7 @@ unsigned int_put(int x, int y, int dx, const string& s, const int_color& color)
 
 unsigned int_put_alpha(int x, int y, int dx, const string& s, const int_color& color)
 {
-	for(unsigned i=0;i<s.length();++i) {
+	for (unsigned i = 0; i < s.length(); ++i) {
 		int width = int_put_width(s[i]);
 		if (width > dx)
 			return i;
@@ -2438,13 +2439,13 @@ unsigned int_put_right_alpha(int x, int y, int dx, const string& s, const int_co
 	return int_put_alpha(x + dx - size, y, dx, s, color);
 }
 
-void int_clear(const adv_color_rgb& color) 
+void int_clear(const adv_color_rgb& color)
 {
 	adv_pixel background = video_pixel_get(color.red, color.green, color.blue);
 	adv_pixel overscan;
 
 	// clear the whole bitmap using the overscan color
-	if ((video_driver_flags() & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0
+	if ((video_driver_flags() & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0
 		&& video_buffer_pixel_size > 1) {
 		// fill with white in a window manager environment
 		overscan = video_pixel_get(0xff, 0xff, 0xff);
@@ -2460,9 +2461,9 @@ void int_clear(const adv_color_rgb& color)
 void int_box(int x, int y, int dx, int dy, int width, const adv_color_rgb& color)
 {
 	int_clear(x, y, dx, width, color);
-	int_clear(x, y+dy-width, dx, width, color);
-	int_clear(x, y+width, width, dy-2*width, color);
-	int_clear(x+dx-width, y+width, width, dy-2*width, color);
+	int_clear(x, y + dy - width, dx, width, color);
+	int_clear(x, y + width, width, dy - 2 * width, color);
+	int_clear(x + dx - width, y + width, width, dy - 2 * width, color);
 }
 
 void int_clear(int x, int y, int dx, int dy, const adv_color_rgb& color)
@@ -2646,7 +2647,7 @@ bool int_image(const string& file, unsigned& scale_x, unsigned& scale_y)
 	uint16 palette16[256];
 	uint8 palette8[256];
 	if (bitmap->bytes_per_pixel == 1) {
-		for(unsigned i=0;i<rgb_max;++i) {
+		for (unsigned i = 0; i < rgb_max; ++i) {
 			adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
 			palette32[i] = p;
 			palette16[i] = p;
@@ -2681,7 +2682,7 @@ static void int_copy_partial(unsigned y0, unsigned y1)
 	video_write_lock();
 
 	unsigned char* buffer = video_foreground_buffer + y0 * video_buffer_line_size;
-	for(unsigned y=y0;y<y1;++y) {
+	for (unsigned y = y0; y < y1; ++y) {
 		memcpy(video_write_line(y), buffer, video_buffer_line_size);
 		buffer += video_buffer_line_size;
 	}
@@ -2698,7 +2699,7 @@ unsigned int_update_pre(bool progressive)
 	int y = 0;
 
 	if (int_cell) {
-		for(int i=0;i<int_cell->size();++i) {
+		for (int i = 0; i < int_cell->size(); ++i) {
 			play_poll();
 
 			// this trick works only if the backdrops positioned are from top to down
@@ -2894,5 +2895,4 @@ unsigned int_event_get(bool update_background)
 
 	return int_last = event_pop();
 }
-
 

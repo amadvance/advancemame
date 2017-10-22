@@ -46,8 +46,8 @@ struct joystickb_svgalib_context {
 static struct joystickb_svgalib_context svgalib_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "SVGALIB joystick" },
-{ 0, 0, 0 }
+	{ "auto", -1, "SVGALIB joystick" },
+	{ 0, 0, 0 }
 };
 
 adv_error joystickb_svgalib_init(int joystickb_id)
@@ -66,13 +66,13 @@ adv_error joystickb_svgalib_init(int joystickb_id)
 		return -1;
 	}
 
-	for(i=0;i<4;++i) {
-		if (joystick_init(i, 0)<=0) {
+	for (i = 0; i < 4; ++i) {
+		if (joystick_init(i, 0) <= 0) {
 			break;
 		}
 	}
 
-	if (i==0) {
+	if (i == 0) {
 		error_set("No joystick found.\n");
 		return -1;
 	}
@@ -88,7 +88,7 @@ void joystickb_svgalib_done(void)
 
 	log_std(("josytickb:svgalib: joystickb_svgalib_done()\n"));
 
-	for(i=0;i<svgalib_state.counter;++i)
+	for (i = 0; i < svgalib_state.counter; ++i)
 		joystick_close(i);
 }
 
@@ -137,9 +137,9 @@ unsigned joystickb_svgalib_stick_axe_digital_get(unsigned joystick, unsigned sti
 	r = joystickb_adjust_analog(r, -128, 127);
 
 	if (d)
-		return r < -JOYSTICK_DRIVER_BASE/8; /* -1/8 of the partial range */
+		return r < -JOYSTICK_DRIVER_BASE / 8; /* -1/8 of the partial range */
 	else
-		return r > JOYSTICK_DRIVER_BASE/8; /* +1/8 of the partial range */
+		return r > JOYSTICK_DRIVER_BASE / 8; /* +1/8 of the partial range */
 }
 
 int joystickb_svgalib_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned axe)

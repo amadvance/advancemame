@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -201,7 +201,7 @@ enum conf_callback_error {
  * \param valid Description of the valid arguments. To print at the user. It's null if the error type isn't conf_error_invalid.
  * \param desc Description of the error. To print at the user. It's always present.
  */
-typedef void conf_error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...);
+typedef void conf_error_callback (void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...);
 
 adv_error conf_save(adv_conf* context, adv_bool force, adv_bool quiet, conf_error_callback* error, void* error_context);
 
@@ -228,8 +228,8 @@ adv_error conf_input_file_load(adv_conf* context, int priority, const char* file
 adv_error conf_input_file_load_adv(adv_conf* context, int priority, const char* file_in, const char* file_out, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context);
 adv_error conf_input_args_load(adv_conf* context, int priority, const char* section, int* argc, char* argv[], conf_error_callback* error, void* error_context);
 
-#define conf_size(v) sizeof(v)/sizeof(v[0])
-#define conf_enum(v) v, sizeof(v)/sizeof(v[0])
+#define conf_size(v) sizeof(v) / sizeof(v[0])
+#define conf_enum(v) v, sizeof(v) / sizeof(v[0])
 
 adv_bool conf_is_registered(adv_conf* context, const char* tag);
 void conf_bool_register(adv_conf* context, const char* tag);
@@ -316,5 +316,4 @@ adv_error conf_autoreg_remove(adv_conf* context, const char* section, const char
 #endif
 
 #endif
-
 

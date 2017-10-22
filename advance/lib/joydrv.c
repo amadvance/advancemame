@@ -76,7 +76,7 @@ adv_error joystickb_load(adv_conf* context)
 
 	/* load specific driver options */
 	at_least_one = 0;
-	for(i=0;i<joystickb_state.driver_mac;++i) {
+	for (i = 0; i < joystickb_state.driver_mac; ++i) {
 		const adv_device* dev;
 
 		dev = device_match(joystickb_state.name, (adv_driver*)joystickb_state.driver_map[i], 0);
@@ -110,7 +110,7 @@ adv_error joystickb_init(void)
 	/* store the error prefix */
 	error_nolog_set("Unable to initialize the joystick driver. The errors are:\n");
 
-	for(i=0;i<joystickb_state.driver_mac;++i) {
+	for (i = 0; i < joystickb_state.driver_mac; ++i) {
 		const adv_device* dev;
 
 		dev = device_match(joystickb_state.name, (const adv_driver*)joystickb_state.driver_map[i], 1);
@@ -135,7 +135,7 @@ adv_error joystickb_init(void)
 	joystickb_state.is_active_flag = 1;
 	joystickb_state.is_enabled_flag = 0;
 
-	for(i=0;i<joystickb_count_get();++i) {
+	for (i = 0; i < joystickb_count_get(); ++i) {
 		char name[DEVICE_NAME_MAX];
 		if (joystickb_device_name_get(i, name) != 0)
 			strcpy(name, DEVICE_NONAME);
@@ -156,7 +156,7 @@ void joystickb_done(void)
 	joystickb_state.is_active_flag = 0;
 }
 
-adv_error joystickb_enable(void) 
+adv_error joystickb_enable(void)
 {
 	assert(joystickb_state.is_active_flag && !joystickb_state.is_enabled_flag);
 
@@ -225,7 +225,7 @@ int joystickb_device_name_get(unsigned joystick, char* name)
 
 	/* check previous names */
 	index = 0;
-	for(i=0;i<joystick;++i) {
+	for (i = 0; i < joystick; ++i) {
 		if (joystickb_state.driver_current->device_name_get(i, prev) != 0)
 			continue;
 
@@ -290,7 +290,7 @@ const char* joystickb_stick_name_get(unsigned joystick, unsigned stick)
 	if (stick == 0)
 		snprintf(joystickb_state.stick_name_buffer, sizeof(joystickb_state.stick_name_buffer), "stick");
 	else
-		snprintf(joystickb_state.stick_name_buffer, sizeof(joystickb_state.stick_name_buffer), "stick%d", stick+1);
+		snprintf(joystickb_state.stick_name_buffer, sizeof(joystickb_state.stick_name_buffer), "stick%d", stick + 1);
 
 	return joystickb_state.stick_name_buffer;
 }
@@ -306,10 +306,10 @@ const char* joystickb_stick_axe_name_get(unsigned joystick, unsigned stick, unsi
 		return joystickb_state.driver_current->stick_axe_name_get(joystick, stick, axe);
 
 	switch (axe) {
-	case 0 : snprintf(joystickb_state.axe_name_buffer, sizeof(joystickb_state.axe_name_buffer), "x"); break;
-	case 1 : snprintf(joystickb_state.axe_name_buffer, sizeof(joystickb_state.axe_name_buffer), "y"); break;
-	case 2 : snprintf(joystickb_state.axe_name_buffer, sizeof(joystickb_state.axe_name_buffer), "z"); break;
-	default: snprintf(joystickb_state.axe_name_buffer, sizeof(joystickb_state.axe_name_buffer), "axe%d", axe+1);
+	case 0: snprintf(joystickb_state.axe_name_buffer, sizeof(joystickb_state.axe_name_buffer), "x"); break;
+	case 1: snprintf(joystickb_state.axe_name_buffer, sizeof(joystickb_state.axe_name_buffer), "y"); break;
+	case 2: snprintf(joystickb_state.axe_name_buffer, sizeof(joystickb_state.axe_name_buffer), "z"); break;
+	default: snprintf(joystickb_state.axe_name_buffer, sizeof(joystickb_state.axe_name_buffer), "axe%d", axe + 1);
 	}
 
 	return joystickb_state.axe_name_buffer;
@@ -324,7 +324,7 @@ const char* joystickb_button_name_get(unsigned joystick, unsigned button)
 	if (joystickb_state.driver_current->button_name_get)
 		return joystickb_state.driver_current->button_name_get(joystick, button);
 
-	snprintf(joystickb_state.button_name_buffer, sizeof(joystickb_state.button_name_buffer), "button%d", button+1);
+	snprintf(joystickb_state.button_name_buffer, sizeof(joystickb_state.button_name_buffer), "button%d", button + 1);
 
 	return joystickb_state.button_name_buffer;
 }
@@ -339,10 +339,10 @@ const char* joystickb_rel_name_get(unsigned joystick, unsigned rel)
 		return joystickb_state.driver_current->rel_name_get(joystick, rel);
 
 	switch (rel) {
-	case 0 : snprintf(joystickb_state.rel_name_buffer, sizeof(joystickb_state.rel_name_buffer), "x"); break;
-	case 1 : snprintf(joystickb_state.rel_name_buffer, sizeof(joystickb_state.rel_name_buffer), "y"); break;
-	case 2 : snprintf(joystickb_state.rel_name_buffer, sizeof(joystickb_state.rel_name_buffer), "z"); break;
-	default: snprintf(joystickb_state.rel_name_buffer, sizeof(joystickb_state.rel_name_buffer), "rel%d", rel+1);
+	case 0: snprintf(joystickb_state.rel_name_buffer, sizeof(joystickb_state.rel_name_buffer), "x"); break;
+	case 1: snprintf(joystickb_state.rel_name_buffer, sizeof(joystickb_state.rel_name_buffer), "y"); break;
+	case 2: snprintf(joystickb_state.rel_name_buffer, sizeof(joystickb_state.rel_name_buffer), "z"); break;
+	default: snprintf(joystickb_state.rel_name_buffer, sizeof(joystickb_state.rel_name_buffer), "rel%d", rel + 1);
 	}
 
 	return joystickb_state.rel_name_buffer;
@@ -435,7 +435,7 @@ int joystickb_adjust_analog(int value, int low_limit, int high_limit)
 	/* special case for -128, 127 */
 	if (-low_limit == high_limit + 1) {
 		++high_limit;
-		if (value > high_limit/2)
+		if (value > high_limit / 2)
 			++value;
 	}
 
@@ -455,3 +455,4 @@ int joystickb_adjust_analog(int value, int low_limit, int high_limit)
 
 	return r;
 }
+

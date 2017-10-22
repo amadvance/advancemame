@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -149,14 +149,16 @@ public:
 
 	static const unsigned flag_first = 0x10000;
 
-	void flag_set(bool value, unsigned mask) const {
+	void flag_set(bool value, unsigned mask) const
+	{
 		if (value)
 			flag |= mask;
 		else
-			flag &=~mask;
+			flag &= ~mask;
 	}
 
-	bool flag_get(unsigned mask) const {
+	bool flag_get(unsigned mask) const
+	{
 		return (flag & mask) != 0;
 	}
 
@@ -247,10 +249,10 @@ public:
 	void preview_title_set_ifmissing(const resource& A) const { if (!title_path.is_valid()) title_path = A; }
 	const resource& preview_title_get() const { return title_path; }
 
-	bool preview_zip_set(const std::string& zip, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1) const;
-        bool preview_dir_set(const std::string& dir, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1) const;
-	bool preview_list_set(const std::string& list, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1) const;
-	bool preview_software_list_set(const std::string& list, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1) const;
+	bool preview_zip_set(const std::string & zip, void (game::*preview_set)(const resource& s) const, const std::string & ext0, const std::string & ext1) const;
+	bool preview_dir_set(const std::string & dir, void (game::*preview_set)(const resource& s) const, const std::string & ext0, const std::string & ext1) const;
+	bool preview_list_set(const std::string & list, void (game::*preview_set)(const resource& s) const, const std::string & ext0, const std::string & ext1) const;
+	bool preview_software_list_set(const std::string & list, void (game::*preview_set)(const resource& s) const, const std::string & ext0, const std::string & ext1) const;
 
 	bool preview_find(resource& path, const resource& (game::*preview_get)() const) const;
 
@@ -273,13 +275,16 @@ public:
 
 	machinedevice_container& machinedevice_bag_get() const { return machinedevice_bag; }
 
-	bool present_get() const {
+	bool present_get() const
+	{
 		return size_get() == 0 || rom_zip_set_get().size() > 0;
 	}
-	bool present_tree_get() const {
+	bool present_tree_get() const
+	{
 		return flag_get(flag_tree_present);
 	}
-	bool duplicate_get() const {
+	bool duplicate_get() const
+	{
 		return flag_get(flag_duplicate);
 	}
 };
@@ -287,13 +292,15 @@ public:
 typedef std::list<game> game_container;
 
 struct game_by_name_less : std::binary_function<game, game, bool> {
-	bool operator()(const game& A, const game& B) const {
+	bool operator()(const game& A, const game& B) const
+	{
 		return A.name_get().compare(B.name_get()) < 0;
 	}
 };
 
 struct game_by_play_less : std::binary_function<game, game, bool> {
-	bool operator()(const game& A, const game& B) const {
+	bool operator()(const game& A, const game& B) const
+	{
 		return A.play_get() > B.play_get();
 	}
 };
@@ -314,12 +321,12 @@ public:
 	bool is_game_rom_of(const std::string& name_son, const std::string& name_parent) const;
 	bool is_game_clone_of(const std::string& name_son, const std::string& name_parent) const;
 
-        bool preview_zip_set(const std::string& zip, const std::string& emulator_name, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1);
-	bool preview_dir_set(const std::string& dir, const std::string& emulator_name, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1);
-	bool preview_list_set(const std::string& list, const std::string& emulator_name, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1);
+	bool preview_zip_set(const std::string & zip, const std::string & emulator_name, void (game::*preview_set)(const resource& s) const, const std::string & ext0, const std::string & ext1);
+	bool preview_dir_set(const std::string & dir, const std::string & emulator_name, void (game::*preview_set)(const resource& s) const, const std::string & ext0, const std::string & ext1);
+	bool preview_list_set(const std::string & list, const std::string & emulator_name, void (game::*preview_set)(const resource& s) const, const std::string & ext0, const std::string & ext1);
 
-	bool preview_software_dir_set(const std::string& dir, const std::string& emulator_name, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1);
-	bool preview_software_list_set(const std::string& list, const std::string& emulator_name, void (game::*preview_set)(const resource& s) const, const std::string& ext0, const std::string& ext1);
+	bool preview_software_dir_set(const std::string & dir, const std::string & emulator_name, void (game::*preview_set)(const resource& s) const, const std::string & ext0, const std::string & ext1);
+	bool preview_software_list_set(const std::string & list, const std::string & emulator_name, void (game::*preview_set)(const resource& s) const, const std::string & ext0, const std::string & ext1);
 };
 
 inline bool pgame_combine_less(const game* A, const game* B, bool (*FA)(const game*, const game*), bool (*FB)(const game*, const game*))
@@ -421,7 +428,7 @@ inline bool pgame_by_info_less(const game* A, const game* B)
 
 inline bool pgame_by_clone_less(const game* A, const game* B)
 {
-	return (A->parent_get()!=0) < (B->parent_get()!=0);
+	return (A->parent_get() != 0) < (B->parent_get() != 0);
 }
 
 inline bool pgame_by_name_less(const game* A, const game* B)
@@ -442,7 +449,8 @@ public:
 	int count_get() const { return count; }
 	void count_set(int Acount) const { count = Acount; }
 
-	bool operator<(const dupe& A) const {
+	bool operator<(const dupe& A) const
+	{
 		return name_get() < A.name_get();
 	}
 };
@@ -453,7 +461,7 @@ typedef std::set<dupe> dupe_set;
 // Sort category
 
 // Return the element sorted for fast moving
-typedef std::string sort_item_func(const game& g);
+typedef std::string sort_item_func (const game& g);
 
 std::string sort_item_root_name(const game& g);
 std::string sort_item_name(const game& g);
@@ -470,3 +478,4 @@ std::string sort_item_timepersession(const game& g);
 std::string sort_item_emulator(const game& g);
 
 #endif
+

@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -67,7 +67,7 @@ public:
 	bool bistate_get() const { return bistate; }
 	tristate_t tristate_get() const { return tristate; }
 	void bistate_set(bool A) { bistate = A; }
-	void tristate_set(tristate_t  A) { tristate = A; }
+	void tristate_set(tristate_t A) { tristate = A; }
 
 	const std::string& desc_get() const;
 	const std::string& print_get() const;
@@ -92,3 +92,4 @@ int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base
 
 
 #endif
+

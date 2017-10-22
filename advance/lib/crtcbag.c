@@ -70,7 +70,7 @@ const adv_crtc* crtc_container_has(adv_crtc_container* cc, const adv_crtc* vm, i
 {
 	adv_crtc* p = cc->base;
 	while (p) {
-		if (compare(p, vm)==0)
+		if (compare(p, vm) == 0)
 			return p;
 		p = p->container_next;
 	}
@@ -119,12 +119,12 @@ const adv_crtc* crtc_container_insert(adv_crtc_container* cc, const adv_crtc* vm
 /**
  * Insert a crtc in a sorted container.
  */
-const adv_crtc* crtc_container_insert_sort(adv_crtc_container* cc,  const adv_crtc* vm, int (*compare)(const adv_crtc* a, const adv_crtc* b))
+const adv_crtc* crtc_container_insert_sort(adv_crtc_container* cc, const adv_crtc* vm, int (*compare)(const adv_crtc* a, const adv_crtc* b))
 {
-	if (cc->base && compare(cc->base, vm)<=0) {
+	if (cc->base && compare(cc->base, vm) <= 0) {
 		adv_crtc* p = cc->base;
 		adv_crtc* c;
-		while (p->container_next && compare(p->container_next, vm)<=0) {
+		while (p->container_next && compare(p->container_next, vm) <= 0) {
 			p = p->container_next;
 		}
 		c = malloc(sizeof(adv_crtc));
@@ -163,27 +163,27 @@ adv_crtc* crtc_container_iterator_get(adv_crtc_container_iterator* cci)
 
 /** Modes for the VGA BIOS */
 static const char* BIOS_VGA[] = {
-"pc_bios_vga_text40_8x8 12.5876 320 328 376 400 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
-"pc_bios_vga_text40_9x8 14.161 360 368 422 450 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
-"pc_bios_vga_text80_8x8 25.1752 640 656 752 800 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
-"pc_bios_vga_text80_9x8 28.3221 720 738 846 900 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
-"pc_bios_vga_text40_8x16 12.5876 320 328 376 400 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
-"pc_bios_vga_text40_9x16 14.161 360 368 422 450 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
-"pc_bios_vga_text80_8x16 25.1752 640 656 752 800 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
-"pc_bios_vga_text80_9x16 28.3221 720 738 846 900 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
-"pc_bios_vga_320x200 12.5876 320 328 376 400 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
-0
+	"pc_bios_vga_text40_8x8 12.5876 320 328 376 400 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
+	"pc_bios_vga_text40_9x8 14.161 360 368 422 450 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
+	"pc_bios_vga_text80_8x8 25.1752 640 656 752 800 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
+	"pc_bios_vga_text80_9x8 28.3221 720 738 846 900 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
+	"pc_bios_vga_text40_8x16 12.5876 320 328 376 400 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
+	"pc_bios_vga_text40_9x16 14.161 360 368 422 450 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
+	"pc_bios_vga_text80_8x16 25.1752 640 656 752 800 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
+	"pc_bios_vga_text80_9x16 28.3221 720 738 846 900 400 408 410 437 -hsync +vsync", /* H 31469 [Hz], V 72.0114 [Hz] */
+	"pc_bios_vga_320x200 12.5876 320 328 376 400 200 204 205 219 -hsync +vsync doublescan", /* H 31469 [Hz], V 71.847 [Hz] */
+	0
 };
 
 /** Modes for the VBE BIOS */
 static const char* BIOS_VBE[] = {
-"pc_bios_vbe_320x240 12.576 320 328 376 400 240 245 246 262 -hsync -vsync doublescan", /* H 31440 [Hz], V 60 [Hz] */
-"pc_bios_vbe_400x300 19.5226 400 408 464 496 300 306 307 328 -hsync -vsync doublescan", /* H 39360 [Hz], V 60 [Hz] */
-"pc_bios_vbe_512x384 32.256 512 528 600 640 384 392 394 420 -hsync -vsync doublescan", /* H 50400 [Hz], V 60 [Hz] */
-"pc_bios_vbe_640x480 25.2 640 656 752 800 480 490 492 525 -hsync -vsync", /* H 31500 [Hz], V 60 [Hz] */
-"pc_bios_vbe_800x600 39.36 800 816 936 1000 600 612 615 656 -hsync -vsync", /* H 39360 [Hz], V 60 [Hz] */
-"pc_bios_vbe_1024x768 64.512 1024 1048 1200 1280 768 784 787 840 -hsync -vsync", /* H 50400 [Hz], V 60 [Hz] */
-0
+	"pc_bios_vbe_320x240 12.576 320 328 376 400 240 245 246 262 -hsync -vsync doublescan", /* H 31440 [Hz], V 60 [Hz] */
+	"pc_bios_vbe_400x300 19.5226 400 408 464 496 300 306 307 328 -hsync -vsync doublescan", /* H 39360 [Hz], V 60 [Hz] */
+	"pc_bios_vbe_512x384 32.256 512 528 600 640 384 392 394 420 -hsync -vsync doublescan", /* H 50400 [Hz], V 60 [Hz] */
+	"pc_bios_vbe_640x480 25.2 640 656 752 800 480 490 492 525 -hsync -vsync", /* H 31500 [Hz], V 60 [Hz] */
+	"pc_bios_vbe_800x600 39.36 800 816 936 1000 600 612 615 656 -hsync -vsync", /* H 39360 [Hz], V 60 [Hz] */
+	"pc_bios_vbe_1024x768 64.512 1024 1048 1200 1280 768 784 787 840 -hsync -vsync", /* H 50400 [Hz], V 60 [Hz] */
+	0
 };
 
 static const char* MODELINE_VGA[] = {
@@ -199,52 +199,52 @@ static const char* MODELINE_VGA[] = {
 
 #include "vgamode.dat"
 
-0
+	0
 };
 
 /* the mode number is set later */
 static const char* MODELINE_SVGA[] = {
 
 /* PC MONITOR AT 37.0 kHz */
-"pc_37.0_1024x768 47.39 1024 1040 1128 1280 768 770 780 800 -hsync -vsync interlace",
+	"pc_37.0_1024x768 47.39 1024 1040 1128 1280 768 770 780 800 -hsync -vsync interlace",
 
 /* PC MONITOR AT 48.0 kHz */
-"pc_48.0_512x384 31.10 512 520 552 648 384 385 390 400 doublescan -hsync -vsync",
-"pc_48.0_1024x768 61.44 1024 1040 1128 1280 768 770 780 800 -hsync -vsync",
+	"pc_48.0_512x384 31.10 512 520 552 648 384 385 390 400 doublescan -hsync -vsync",
+	"pc_48.0_1024x768 61.44 1024 1040 1128 1280 768 770 780 800 -hsync -vsync",
 
 /* From https://www.mythtv.org/wiki/Modeline_Database */
-"ATSC-480a-60p 23.94 640 664 736 760 480 484 492 525 +hsync +vsync",
-"ATSC-720-60p 74.25 1280 1320 1376 1650 720 722 728 750 +hsync +vsync",
-"ATSC-1080-59.94p 148.352 1920 1960 2016 2200 1080 1082 1088 1125 +hsync +vsync",
-"ATSC-1080-60p 148.5 1920 1960 2016 2200 1080 1082 1088 1125 +hsync +vsync",
+	"ATSC-480a-60p 23.94 640 664 736 760 480 484 492 525 +hsync +vsync",
+	"ATSC-720-60p 74.25 1280 1320 1376 1650 720 722 728 750 +hsync +vsync",
+	"ATSC-1080-59.94p 148.352 1920 1960 2016 2200 1080 1082 1088 1125 +hsync +vsync",
+	"ATSC-1080-60p 148.5 1920 1960 2016 2200 1080 1082 1088 1125 +hsync +vsync",
 
 /* Makibes screens */
-"Makibes_800x480 29.5 800 824 896 992 480 483 490 500 -hsync -vsync",
-"Makibes_1024x600 49.0 1024 1064 1168 1312 600 603 610 624 -hsync -vsync",
-"Makibes_1280x800 83.5 1280 1352 1480 1680 800 803 810 831 -hsync -vsync",
+	"Makibes_800x480 29.5 800 824 896 992 480 483 490 500 -hsync -vsync",
+	"Makibes_1024x600 49.0 1024 1064 1168 1312 600 603 610 624 -hsync -vsync",
+	"Makibes_1280x800 83.5 1280 1352 1480 1680 800 803 810 831 -hsync -vsync",
 
 #include "svgamode.dat"
 
-0
+	0
 };
 
 static const char* MODELINE_RASPBERRY[] = {
 
 /* From https://www.raspberrypi.org/forums/viewtopic.php?f=29&t=24679&start=100 */
-"raspberry_DPI_custom_50_512x288 9.6 512 16 48 64 288 3 5 6 -hsync -vsync",
-"raspberry_DPI_custom_60_512x244 9.6 512 22 32 54 244 3 5 6 -hsync -vsync",
-"raspberry_DPI_custom_60_320x244 6.4 320 17 33 34 224 14 8 18 -hsync -vsync",
+	"raspberry_DPI_custom_50_512x288 9.6 512 16 48 64 288 3 5 6 -hsync -vsync",
+	"raspberry_DPI_custom_60_512x244 9.6 512 22 32 54 244 3 5 6 -hsync -vsync",
+	"raspberry_DPI_custom_60_320x244 6.4 320 17 33 34 224 14 8 18 -hsync -vsync",
 
 #include "raspberry.dat"
 
-0
+	0
 };
 
 static adv_error crtc_container_insert_default(adv_crtc_container* cc, const char** modes)
 {
 	while (*modes) {
 		adv_crtc crtc;
-		if (crtc_parse(&crtc, *modes, *modes + strlen(*modes))!=0)
+		if (crtc_parse(&crtc, *modes, *modes + strlen(*modes)) != 0)
 			return -1;
 		/* insert only if unique */
 		if (!crtc_container_has(cc, &crtc, &crtc_compare))
@@ -307,7 +307,7 @@ void crtc_container_insert_default_active(adv_crtc_container* cc)
 void crtc_container_insert_default_all(adv_crtc_container* cc)
 {
 	unsigned i;
-	for(i=0;i<video_driver_vector_max();++i) {
+	for (i = 0; i < video_driver_vector_max(); ++i) {
 		const adv_video_driver* driver = video_driver_vector_pos(i);
 		if (driver->crtc_container_insert_default) {
 			driver->crtc_container_insert_default(cc);

@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -57,37 +57,37 @@ struct event_item {
 #define OP_NOT (KEYB_MAX + 2)
 
 static struct event_item EVENT_TAB[] = {
-{"up", EVENT_UP, { KEYB_UP, OP_OR, KEYB_8_PAD, KEYB_MAX } },
-{"down", EVENT_DOWN, { KEYB_DOWN, OP_OR, KEYB_2_PAD, KEYB_MAX } },
-{"left", EVENT_LEFT, { KEYB_LEFT, OP_OR, KEYB_4_PAD, KEYB_MAX } },
-{"right", EVENT_RIGHT, { KEYB_RIGHT, OP_OR, KEYB_6_PAD, KEYB_MAX } },
-{"enter", EVENT_ENTER, { KEYB_ENTER, OP_OR, KEYB_ENTER_PAD, KEYB_MAX } },
-{"esc", EVENT_ESC, { KEYB_ESC, KEYB_MAX } },
-{"space", EVENT_SPACE, { KEYB_SPACE, KEYB_MAX } },
-{"home", EVENT_HOME, { KEYB_HOME, KEYB_MAX } },
-{"end", EVENT_END, { KEYB_END, KEYB_MAX } },
-{"pgup", EVENT_PGUP, { KEYB_PGUP, KEYB_MAX } },
-{"pgdn", EVENT_PGDN, { KEYB_PGDN, KEYB_MAX } },
-{"del", EVENT_DEL, { KEYB_DEL, KEYB_MAX } },
-{"ins", EVENT_INS, { KEYB_INSERT, KEYB_MAX } },
-{"shutdown", EVENT_OFF, { KEYB_LCONTROL, KEYB_ESC, KEYB_MAX } },
-{"mode", EVENT_MODE, { KEYB_TAB, KEYB_MAX } },
-{"help", EVENT_HELP, { KEYB_F1, KEYB_MAX } },
-{"group", EVENT_GROUP, { KEYB_F2, KEYB_MAX } },
-{"type", EVENT_TYPE, { KEYB_F3, KEYB_MAX } },
-{"exclude", EVENT_ATTRIB, { KEYB_F4, KEYB_MAX } },
-{"sort", EVENT_SORT, { KEYB_F5, KEYB_MAX } },
-{"setgroup", EVENT_SETGROUP, { KEYB_F9, KEYB_MAX } },
-{"settype", EVENT_SETTYPE, { KEYB_F10, KEYB_MAX } },
-{"runclone", EVENT_CLONE, { KEYB_F12, KEYB_MAX } },
-{"command", EVENT_COMMAND, { KEYB_F8, KEYB_MAX } },
-{"menu", EVENT_MENU, { KEYB_BACKQUOTE, OP_OR, KEYB_BACKSLASH, KEYB_MAX } },
-{"emulator", EVENT_EMU, { KEYB_F6, KEYB_MAX } },
-{"rotate", EVENT_ROTATE, { KEYB_0_PAD, KEYB_MAX } },
-{"lock", EVENT_LOCK, { KEYB_SCRLOCK, KEYB_MAX } },
-{"preview", EVENT_PREVIEW, { KEYB_SPACE, KEYB_MAX } },
-{"mute", EVENT_MUTE, { KEYB_PERIOD_PAD, KEYB_MAX } },
-{ 0, 0, { 0 } }
+	{ "up", EVENT_UP, { KEYB_UP, OP_OR, KEYB_8_PAD, KEYB_MAX } },
+	{ "down", EVENT_DOWN, { KEYB_DOWN, OP_OR, KEYB_2_PAD, KEYB_MAX } },
+	{ "left", EVENT_LEFT, { KEYB_LEFT, OP_OR, KEYB_4_PAD, KEYB_MAX } },
+	{ "right", EVENT_RIGHT, { KEYB_RIGHT, OP_OR, KEYB_6_PAD, KEYB_MAX } },
+	{ "enter", EVENT_ENTER, { KEYB_ENTER, OP_OR, KEYB_ENTER_PAD, KEYB_MAX } },
+	{ "esc", EVENT_ESC, { KEYB_ESC, KEYB_MAX } },
+	{ "space", EVENT_SPACE, { KEYB_SPACE, KEYB_MAX } },
+	{ "home", EVENT_HOME, { KEYB_HOME, KEYB_MAX } },
+	{ "end", EVENT_END, { KEYB_END, KEYB_MAX } },
+	{ "pgup", EVENT_PGUP, { KEYB_PGUP, KEYB_MAX } },
+	{ "pgdn", EVENT_PGDN, { KEYB_PGDN, KEYB_MAX } },
+	{ "del", EVENT_DEL, { KEYB_DEL, KEYB_MAX } },
+	{ "ins", EVENT_INS, { KEYB_INSERT, KEYB_MAX } },
+	{ "shutdown", EVENT_OFF, { KEYB_LCONTROL, KEYB_ESC, KEYB_MAX } },
+	{ "mode", EVENT_MODE, { KEYB_TAB, KEYB_MAX } },
+	{ "help", EVENT_HELP, { KEYB_F1, KEYB_MAX } },
+	{ "group", EVENT_GROUP, { KEYB_F2, KEYB_MAX } },
+	{ "type", EVENT_TYPE, { KEYB_F3, KEYB_MAX } },
+	{ "exclude", EVENT_ATTRIB, { KEYB_F4, KEYB_MAX } },
+	{ "sort", EVENT_SORT, { KEYB_F5, KEYB_MAX } },
+	{ "setgroup", EVENT_SETGROUP, { KEYB_F9, KEYB_MAX } },
+	{ "settype", EVENT_SETTYPE, { KEYB_F10, KEYB_MAX } },
+	{ "runclone", EVENT_CLONE, { KEYB_F12, KEYB_MAX } },
+	{ "command", EVENT_COMMAND, { KEYB_F8, KEYB_MAX } },
+	{ "menu", EVENT_MENU, { KEYB_BACKQUOTE, OP_OR, KEYB_BACKSLASH, KEYB_MAX } },
+	{ "emulator", EVENT_EMU, { KEYB_F6, KEYB_MAX } },
+	{ "rotate", EVENT_ROTATE, { KEYB_0_PAD, KEYB_MAX } },
+	{ "lock", EVENT_LOCK, { KEYB_SCRLOCK, KEYB_MAX } },
+	{ "preview", EVENT_PREVIEW, { KEYB_SPACE, KEYB_MAX } },
+	{ "mute", EVENT_MUTE, { KEYB_PERIOD_PAD, KEYB_MAX } },
+	{ 0, 0, { 0 } }
 };
 
 static int seq_pressed(const unsigned* code)
@@ -97,29 +97,29 @@ static int seq_pressed(const unsigned* code)
 	int invert = 0;
 	int count = 0;
 
-	for(j=0;j<SEQ_MAX;++j) {
+	for (j = 0; j < SEQ_MAX; ++j) {
 		switch (code[j]) {
-			case OP_NONE :
-				return res && count;
-			case OP_OR :
-				if (res && count)
-					return 1;
-				res = 1;
-				count = 0;
-				break;
-			case OP_NOT :
-				invert = !invert;
-				break;
-			default:
-				if (res) {
-					adv_bool pressed = 0;
-					for(unsigned k=0;k<keyb_count_get();++k)
-						pressed = pressed || (keyb_get(k, code[j]) != 0);
-					if ((pressed != 0) == invert)
-						res = 0;
-				}
-				invert = 0;
-				++count;
+		case OP_NONE:
+			return res && count;
+		case OP_OR:
+			if (res && count)
+				return 1;
+			res = 1;
+			count = 0;
+			break;
+		case OP_NOT:
+			invert = !invert;
+			break;
+		default:
+			if (res) {
+				adv_bool pressed = 0;
+				for (unsigned k = 0; k < keyb_count_get(); ++k)
+					pressed = pressed || (keyb_get(k, code[j]) != 0);
+				if ((pressed != 0) == invert)
+					res = 0;
+			}
+			invert = 0;
+			++count;
 		}
 	}
 	return res && count;
@@ -131,31 +131,29 @@ static int seq_valid(const unsigned* seq)
 	int positive = 0; // if isn't a completly negative sequence
 	int pred_not = 0;
 	int operand = 0;
-	for(j=0;j<SEQ_MAX;++j)
-	{
-		switch (seq[j])
-		{
-			case OP_NONE :
-				return positive && operand;
-			case OP_OR :
-				if (!operand || !positive)
-					return 0;
-				pred_not = 0;
-				positive = 0;
-				operand = 0;
-				break;
-			case OP_NOT :
-				if (pred_not)
-					return 0;
-				pred_not = !pred_not;
-				operand = 0;
-				break;
-			default:
-				if (!pred_not)
-					positive = 1;
-				pred_not = 0;
-				operand = 1;
-				break;
+	for (j = 0; j < SEQ_MAX; ++j) {
+		switch (seq[j]) {
+		case OP_NONE:
+			return positive && operand;
+		case OP_OR:
+			if (!operand || !positive)
+				return 0;
+			pred_not = 0;
+			positive = 0;
+			operand = 0;
+			break;
+		case OP_NOT:
+			if (pred_not)
+				return 0;
+			pred_not = !pred_not;
+			operand = 0;
+			break;
+		default:
+			if (!pred_not)
+				positive = 1;
+			pred_not = 0;
+			operand = 1;
+			break;
 		}
 	}
 
@@ -166,54 +164,54 @@ static struct event_conv {
 	int code;
 	char c;
 } EVENT_CONV[] = {
-{ KEYB_A, 'a' },
-{ KEYB_B, 'b' },
-{ KEYB_C, 'c' },
-{ KEYB_D, 'd' },
-{ KEYB_E, 'e' },
-{ KEYB_F, 'f' },
-{ KEYB_G, 'g' },
-{ KEYB_H, 'h' },
-{ KEYB_I, 'i' },
-{ KEYB_J, 'j' },
-{ KEYB_K, 'k' },
-{ KEYB_L, 'l' },
-{ KEYB_M, 'm' },
-{ KEYB_N, 'n' },
-{ KEYB_O, 'o' },
-{ KEYB_P, 'p' },
-{ KEYB_Q, 'q' },
-{ KEYB_R, 'r' },
-{ KEYB_S, 's' },
-{ KEYB_T, 't' },
-{ KEYB_U, 'u' },
-{ KEYB_V, 'v' },
-{ KEYB_W, 'w' },
-{ KEYB_X, 'x' },
-{ KEYB_Y, 'y' },
-{ KEYB_Z, 'z' },
-{ KEYB_0, '0' },
-{ KEYB_1, '1' },
-{ KEYB_2, '2' },
-{ KEYB_3, '3' },
-{ KEYB_4, '4' },
-{ KEYB_5, '5' },
-{ KEYB_6, '6' },
-{ KEYB_7, '7' },
-{ KEYB_8, '8' },
-{ KEYB_9, '9' },
-{ KEYB_MAX, ' ' },
+	{ KEYB_A, 'a' },
+	{ KEYB_B, 'b' },
+	{ KEYB_C, 'c' },
+	{ KEYB_D, 'd' },
+	{ KEYB_E, 'e' },
+	{ KEYB_F, 'f' },
+	{ KEYB_G, 'g' },
+	{ KEYB_H, 'h' },
+	{ KEYB_I, 'i' },
+	{ KEYB_J, 'j' },
+	{ KEYB_K, 'k' },
+	{ KEYB_L, 'l' },
+	{ KEYB_M, 'm' },
+	{ KEYB_N, 'n' },
+	{ KEYB_O, 'o' },
+	{ KEYB_P, 'p' },
+	{ KEYB_Q, 'q' },
+	{ KEYB_R, 'r' },
+	{ KEYB_S, 's' },
+	{ KEYB_T, 't' },
+	{ KEYB_U, 'u' },
+	{ KEYB_V, 'v' },
+	{ KEYB_W, 'w' },
+	{ KEYB_X, 'x' },
+	{ KEYB_Y, 'y' },
+	{ KEYB_Z, 'z' },
+	{ KEYB_0, '0' },
+	{ KEYB_1, '1' },
+	{ KEYB_2, '2' },
+	{ KEYB_3, '3' },
+	{ KEYB_4, '4' },
+	{ KEYB_5, '5' },
+	{ KEYB_6, '6' },
+	{ KEYB_7, '7' },
+	{ KEYB_8, '8' },
+	{ KEYB_9, '9' },
+	{ KEYB_MAX, ' ' },
 };
 
 static void event_insert(unsigned event, unsigned* seq)
 {
 	unsigned i;
 
-	for(i=0;EVENT_TAB[i].name && EVENT_TAB[i].event != event;++i);
+	for (i = 0; EVENT_TAB[i].name && EVENT_TAB[i].event != event; ++i) ;
 
 	if (EVENT_TAB[i].name) {
 		unsigned j;
-		for(j=0;seq[j]!=OP_NONE;++j)
+		for (j = 0; seq[j] != OP_NONE; ++j)
 			EVENT_TAB[i].seq[j] = seq[j];
 		EVENT_TAB[i].seq[j] = OP_NONE;
 	}
@@ -223,7 +221,7 @@ static unsigned string2event(const string& s)
 {
 	unsigned i;
 
-	for(i=0;EVENT_TAB[i].name && EVENT_TAB[i].name != s;++i);
+	for (i = 0; EVENT_TAB[i].name && EVENT_TAB[i].name != s; ++i) ;
 
 	if (EVENT_TAB[i].name)
 		return EVENT_TAB[i].event;
@@ -249,7 +247,7 @@ bool event_in(const string& s)
 
 	seq_count = 0;
 	while (pos < s.length()) {
-		if (seq_count+1 >= SEQ_MAX)
+		if (seq_count + 1 >= SEQ_MAX)
 			return false;
 
 		string skey = arg_get(s, pos);
@@ -286,11 +284,11 @@ bool event_in(const string& s)
 
 void event_out(adv_conf* config_context, const char* tag)
 {
-	for(unsigned i=0;EVENT_TAB[i].name;++i) {
+	for (unsigned i = 0; EVENT_TAB[i].name; ++i) {
 		string s;
 		s += EVENT_TAB[i].name;
 		s += " ";
-		for(unsigned j=0;EVENT_TAB[i].seq[j] != KEYB_MAX && j<SEQ_MAX;++j) {
+		for (unsigned j = 0; EVENT_TAB[i].seq[j] != KEYB_MAX && j < SEQ_MAX; ++j) {
 			unsigned k = EVENT_TAB[i].seq[j];
 			if (j != 0)
 				s += " ";
@@ -312,7 +310,7 @@ std::string event_name(unsigned event)
 	string s;
 
 	unsigned i;
-	for(i=0;EVENT_TAB[i].name;++i) {
+	for (i = 0; EVENT_TAB[i].name; ++i) {
 		if (EVENT_TAB[i].event == event)
 			break;
 	}
@@ -320,10 +318,10 @@ std::string event_name(unsigned event)
 	if (!EVENT_TAB[i].name)
 		return s;
 
-	for(unsigned j=0;j<SEQ_MAX && EVENT_TAB[i].seq[j] != KEYB_MAX;++j) {
+	for (unsigned j = 0; j < SEQ_MAX && EVENT_TAB[i].seq[j] != KEYB_MAX; ++j) {
 		if (EVENT_TAB[i].seq[j] < KEYB_MAX) {
 			string n = key_name(EVENT_TAB[i].seq[j]);
-			for(unsigned k=0;k<n.length();++k)
+			for (unsigned k = 0; k < n.length(); ++k)
 				n[k] = toupper(n[k]);
 			if (s.length()) {
 				s += "+";
@@ -359,14 +357,14 @@ static void event_push_norepeat(int event, target_clock_t& time, unsigned& count
 	bool is_repeat;
 
 	switch (event) {
-	case EVENT_UP :
-	case EVENT_DOWN :
-	case EVENT_LEFT :
-	case EVENT_RIGHT :
-	case EVENT_PGUP :
-	case EVENT_PGDN :
-	case EVENT_IDLE_0 :
-	case EVENT_IDLE_1 :
+	case EVENT_UP:
+	case EVENT_DOWN:
+	case EVENT_LEFT:
+	case EVENT_RIGHT:
+	case EVENT_PGUP:
+	case EVENT_PGDN:
+	case EVENT_IDLE_0:
+	case EVENT_IDLE_1:
 		is_repeat = true;
 		break;
 	default:
@@ -400,7 +398,7 @@ static void event_push_filter(int event)
 	event_last_push = event;
 
 	struct event_item* i;
-	for(i=EVENT_TAB;i->name;++i) {
+	for (i = EVENT_TAB; i->name; ++i) {
 		if (i->event == event)
 			break;
 	}
@@ -419,7 +417,7 @@ static void event_push_filter(int event)
 
 void event_poll()
 {
-	for(struct event_item* i=EVENT_TAB;i->name;++i) {
+	for (struct event_item* i = EVENT_TAB; i->name; ++i) {
 		if (seq_pressed(i->seq) || i->simulate) {
 			event_push_filter(i->event);
 			i->simulate = false;
@@ -430,8 +428,8 @@ void event_poll()
 	}
 
 	if (event_alpha_mode) {
-		for(unsigned i=0;EVENT_CONV[i].code != KEYB_MAX;++i) {
-			for(unsigned k=0;k<keyb_count_get();++k) {
+		for (unsigned i = 0; EVENT_CONV[i].code != KEYB_MAX; ++i) {
+			for (unsigned k = 0; k < keyb_count_get(); ++k) {
 				if (keyb_get(k, EVENT_CONV[i].code)) {
 					event_push_filter(EVENT_CONV[i].c);
 				}
@@ -443,7 +441,7 @@ void event_poll()
 void event_push(int event)
 {
 	struct event_item* i;
-	for(i=EVENT_TAB;i->name;++i) {
+	for (i = EVENT_TAB; i->name; ++i) {
 		if (i->event == event) {
 			i->simulate = true;
 			break;
@@ -479,5 +477,4 @@ void event_setup(const string& press_sound, double delay_repeat_ms, double delay
 	event_delay_repeat_ms = delay_repeat_ms;
 	event_delay_repeat_next_ms = delay_repeat_next_ms;
 }
-
 

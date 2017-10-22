@@ -78,8 +78,8 @@ struct mouseb_raw_context {
 static struct mouseb_raw_context raw_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "RAW mouse" },
-{ 0, 0, 0 }
+	{ "auto", -1, "RAW mouse" },
+	{ 0, 0, 0 }
 };
 
 static void mouseb_setup(struct mouse_item_context* item)
@@ -110,7 +110,7 @@ static void mouseb_setup(struct mouse_item_context* item)
 	};
 
 	item->button_mac = 0;
-	for(i=0;i<sizeof(button_map)/sizeof(button_map[0]);++i) {
+	for (i = 0; i < sizeof(button_map) / sizeof(button_map[0]); ++i) {
 		if ((item->context.info_button & button_map[i].code) != 0) {
 			if (item->button_mac < RAW_MOUSE_BUTTON_MAX) {
 				item->button_map[item->button_mac].code = button_map[i].code;
@@ -122,17 +122,17 @@ static void mouseb_setup(struct mouse_item_context* item)
 	}
 
 	item->axe_mac = 0;
-	for(i=0;i<sizeof(axe_map)/sizeof(axe_map[0]);++i) {
+	for (i = 0; i < sizeof(axe_map) / sizeof(axe_map[0]); ++i) {
 		if ((item->context.info_button & axe_map[i].code) != 0) {
 			if (item->axe_mac < RAW_MOUSE_AXE_MAX) {
 				item->axe_map[item->axe_mac].code = axe_map[i].code;
 				switch (axe_map[i].code) {
-				case MOUSE_XDIM : item->axe_map[item->axe_mac].pvalue = &item->context.x; break;
-				case MOUSE_YDIM : item->axe_map[item->axe_mac].pvalue = &item->context.y; break;
-				case MOUSE_ZDIM : item->axe_map[item->axe_mac].pvalue = &item->context.z; break;
-				case MOUSE_RXDIM : item->axe_map[item->axe_mac].pvalue = &item->context.rx; break;
-				case MOUSE_RYDIM : item->axe_map[item->axe_mac].pvalue = &item->context.ry; break;
-				case MOUSE_RZDIM : item->axe_map[item->axe_mac].pvalue = &item->context.rz; break;
+				case MOUSE_XDIM: item->axe_map[item->axe_mac].pvalue = &item->context.x; break;
+				case MOUSE_YDIM: item->axe_map[item->axe_mac].pvalue = &item->context.y; break;
+				case MOUSE_ZDIM: item->axe_map[item->axe_mac].pvalue = &item->context.z; break;
+				case MOUSE_RXDIM: item->axe_map[item->axe_mac].pvalue = &item->context.rx; break;
+				case MOUSE_RYDIM: item->axe_map[item->axe_mac].pvalue = &item->context.ry; break;
+				case MOUSE_RZDIM: item->axe_map[item->axe_mac].pvalue = &item->context.rz; break;
 				}
 				sncpy(item->axe_map[item->axe_mac].name, sizeof(item->axe_map[item->axe_mac].name), axe_map[i].name);
 				++item->axe_mac;
@@ -157,7 +157,7 @@ adv_error mouseb_raw_init(int mouseb_id)
 #endif
 
 	raw_state.mac = 0;
-	for(i=0;i<RAW_MOUSE_MAX;++i) {
+	for (i = 0; i < RAW_MOUSE_MAX; ++i) {
 		if (raw_mouse_init(&raw_state.map[i].context) == 0) {
 			log_std(("mouseb:raw: open device %s\n", raw_state.map[i].context.dev));
 
@@ -193,7 +193,7 @@ void mouseb_raw_done(void)
 
 	log_std(("mouseb:raw: mouseb_raw_done()\n"));
 
-	for(i=0;i<raw_state.mac;++i) {
+	for (i = 0; i < raw_state.mac; ++i) {
 		if (raw_state.map[i].active_flag) {
 			raw_mouse_close(&raw_state.map[i].context);
 		}
@@ -262,7 +262,7 @@ void mouseb_raw_poll(void)
 
 	log_debug(("mouseb:raw: mouseb_raw_poll()\n"));
 
-	for(i=0;i<RAW_MOUSE_MAX;++i) {
+	for (i = 0; i < RAW_MOUSE_MAX; ++i) {
 		if (raw_state.map[i].active_flag) {
 			raw_mouse_poll(&raw_state.map[i].context, 0);
 		}
@@ -277,7 +277,7 @@ unsigned mouseb_raw_flags(void)
 adv_error mouseb_raw_load(adv_conf* context)
 {
 	unsigned i;
-	for(i=0;i<RAW_MOUSE_MAX;++i) {
+	for (i = 0; i < RAW_MOUSE_MAX; ++i) {
 		char buf[64];
 		const char* s;
 
@@ -294,9 +294,9 @@ adv_error mouseb_raw_load(adv_conf* context)
 			} else {
 				snprintf(raw_state.map[i].context.dev, sizeof(raw_state.map[i].context.dev), "/dev/input/mouse%d", i);
 				switch (raw_state.map[i].context.type) {
-				case MOUSE_PS2 :
-				case MOUSE_IMPS2 :
-				case MOUSE_EXPPS2 :
+				case MOUSE_PS2:
+				case MOUSE_IMPS2:
+				case MOUSE_EXPPS2:
 					/* the /dev/input/mouse interfaces is compatible only with these three protocols */
 					break;
 				default:
@@ -315,28 +315,28 @@ adv_error mouseb_raw_load(adv_conf* context)
 }
 
 static adv_conf_enum_int MOUSE_TYPE[] = {
-{ "auto", -1 },
-{ "pnp", MOUSE_PNP },
-{ "ms", MOUSE_MICROSOFT },
-{ "ms3", MOUSE_INTELLIMOUSE },
-{ "ps2", MOUSE_PS2 },
-{ "imps2", MOUSE_IMPS2 },
-{ "exps2", MOUSE_EXPPS2 },
-{ "msc", MOUSE_MOUSESYSTEMS },
-{ "mscgpm", MOUSE_GPM },
-{ "mman", MOUSE_LOGIMAN },
-{ "mm", MOUSE_MMSERIES },
-{ "logi", MOUSE_LOGITECH },
-{ "bm", MOUSE_BUSMOUSE },
-{ "spaceball", MOUSE_SPACEBALL },
-{ "wacomgraphire", MOUSE_WACOM_GRAPHIRE },
-{ "drmousee4ds", MOUSE_DRMOUSE4DS },
+	{ "auto", -1 },
+	{ "pnp", MOUSE_PNP },
+	{ "ms", MOUSE_MICROSOFT },
+	{ "ms3", MOUSE_INTELLIMOUSE },
+	{ "ps2", MOUSE_PS2 },
+	{ "imps2", MOUSE_IMPS2 },
+	{ "exps2", MOUSE_EXPPS2 },
+	{ "msc", MOUSE_MOUSESYSTEMS },
+	{ "mscgpm", MOUSE_GPM },
+	{ "mman", MOUSE_LOGIMAN },
+	{ "mm", MOUSE_MMSERIES },
+	{ "logi", MOUSE_LOGITECH },
+	{ "bm", MOUSE_BUSMOUSE },
+	{ "spaceball", MOUSE_SPACEBALL },
+	{ "wacomgraphire", MOUSE_WACOM_GRAPHIRE },
+	{ "drmousee4ds", MOUSE_DRMOUSE4DS },
 };
 
 void mouseb_raw_reg(adv_conf* context)
 {
 	unsigned i;
-	for(i=0;i<RAW_MOUSE_MAX;++i) {
+	for (i = 0; i < RAW_MOUSE_MAX; ++i) {
 		char buf[64];
 
 		snprintf(buf, sizeof(buf), "device_raw_mousetype[%d]", i);

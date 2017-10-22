@@ -65,7 +65,7 @@ int parse_edid(unsigned char* edid, unsigned size, adv_monitor* monitor, adv_gen
 
 	/* verify schecksum */
 	checksum = 0;
-	for (i = 0; i < 128; ++ i)
+	for (i = 0; i < 128; ++i)
 		checksum += edid[i];
 
 	if (checksum != 0)
@@ -75,15 +75,15 @@ int parse_edid(unsigned char* edid, unsigned size, adv_monitor* monitor, adv_gen
 
 	for (i = 0; i + 8 <= size; i += 8) {
 		log_std(("edid: %04x: %02x%02x%02x%02x%02x%02x%02x%02x\n", i,
-			edid[i], edid[i+1], edid[i+2], edid[i+3],
-			edid[i+4], edid[i+5], edid[i+6], edid[i+7]));
+			edid[i], edid[i + 1], edid[i + 2], edid[i + 3],
+			edid[i + 4], edid[i + 5], edid[i + 6], edid[i + 7]));
 	}
 
 	log_std(("edid: vendor '%c%c%c'\n", (edid[8] >> 2 & 0x1f) + 'A' - 1, (((edid[8] & 0x3) << 3) | ((edid[9] & 0xe0) >> 5)) + 'A' - 1, (edid[9] & 0x1f) + 'A' - 1));
 
 	i = edid[0xA] | (edid[0xB] << 8);
 	log_std(("edid: ID product code %u, 0x%04x\n", i, i));
-	i = edid[0xC] | (edid[0xD] << 8) |  (edid[0xE] << 16) | (edid[0xF] << 24);
+	i = edid[0xC] | (edid[0xD] << 8) | (edid[0xE] << 16) | (edid[0xF] << 24);
 	log_std(("edid: ID serial %u, 0x%08x\n", i, i));
 
 	if (edid[0x10] == 0)
@@ -100,21 +100,21 @@ int parse_edid(unsigned char* edid, unsigned size, adv_monitor* monitor, adv_gen
 	if (edid[0x14] & 0x80) {
 		log_std(("edid: digital signal\n"));
 		switch (edid[0x14] & 0xf) {
-		case 0 : log_std(("edid: digital interface not defined\n")); break;
-		case 1 : log_std(("edid: DVI\n")); break;
-		case 2 : log_std(("edid: HDMI-a\n")); break;
-		case 3 : log_std(("edid: HDMI-b\n")); break;
-		case 4 : log_std(("edid: MDDI\n")); break;
-		case 5 : log_std(("edid: DisplayPort\n")); break;
+		case 0: log_std(("edid: digital interface not defined\n")); break;
+		case 1: log_std(("edid: DVI\n")); break;
+		case 2: log_std(("edid: HDMI-a\n")); break;
+		case 3: log_std(("edid: HDMI-b\n")); break;
+		case 4: log_std(("edid: MDDI\n")); break;
+		case 5: log_std(("edid: DisplayPort\n")); break;
 		}
 		switch ((edid[0x14] >> 4) % 0x7) {
-		case 0 : log_std(("edid: color bit depth not defined\n")); break;
-		case 1 : log_std(("edid: 6 bits per color\n")); break;
-		case 2 : log_std(("edid: 8 bits per color\n")); break;
-		case 3 : log_std(("edid: 10 bits per color\n")); break;
-		case 4 : log_std(("edid: 12 bits per color\n")); break;
-		case 5 : log_std(("edid: 14 bits per color\n")); break;
-		case 6 : log_std(("edid: 16 bits per color\n")); break;
+		case 0: log_std(("edid: color bit depth not defined\n")); break;
+		case 1: log_std(("edid: 6 bits per color\n")); break;
+		case 2: log_std(("edid: 8 bits per color\n")); break;
+		case 3: log_std(("edid: 10 bits per color\n")); break;
+		case 4: log_std(("edid: 12 bits per color\n")); break;
+		case 5: log_std(("edid: 14 bits per color\n")); break;
+		case 6: log_std(("edid: 16 bits per color\n")); break;
 		}
 	} else {
 		log_std(("edid: analog signal\n"));
@@ -144,17 +144,17 @@ int parse_edid(unsigned char* edid, unsigned size, adv_monitor* monitor, adv_gen
 	log_std(("edid: active off (very low power) is%ssupported\n", edid[0x18] & 0x40 ? " " : " NOT "));
 	if (edid[0x14] & 0x80) {
 		switch ((edid[0x18] >> 2) & 0x3) {
-		case 0 : log_std(("edid: color encoding RGB 4:4:4\n")); break;
-		case 1 : log_std(("edid: color encoding RGB 4:4:4 & YCrCb 4:4:4\n")); break;
-		case 2 : log_std(("edid: color encoding RGB 4:4:4 & YCrCb 4:2:2\n")); break;
-		case 3 : log_std(("edid: color encoding RGB 4:4:4 & YCrCb 4:4:4 & YCrCb 4:2:2\n")); break;
+		case 0: log_std(("edid: color encoding RGB 4:4:4\n")); break;
+		case 1: log_std(("edid: color encoding RGB 4:4:4 & YCrCb 4:4:4\n")); break;
+		case 2: log_std(("edid: color encoding RGB 4:4:4 & YCrCb 4:2:2\n")); break;
+		case 3: log_std(("edid: color encoding RGB 4:4:4 & YCrCb 4:4:4 & YCrCb 4:2:2\n")); break;
 		}
 	} else {
 		switch ((edid[0x18] >> 2) & 0x3) {
-		case 0 : log_std(("edid: monocrome or grayscale display\n")); break;
-		case 1 : log_std(("edid: RGB color display\n")); break;
-		case 2 : log_std(("edid: Non RGB color display\n")); break;
-		case 3 : log_std(("edid: display color type undefined\n")); break;
+		case 0: log_std(("edid: monocrome or grayscale display\n")); break;
+		case 1: log_std(("edid: RGB color display\n")); break;
+		case 2: log_std(("edid: Non RGB color display\n")); break;
+		case 3: log_std(("edid: display color type undefined\n")); break;
 		}
 	}
 	log_std(("edid: sRGB is%sthe default color space\n", edid[0x18] & 0x4 ? " " : " NOT "));
@@ -213,10 +213,10 @@ int parse_edid(unsigned char* edid, unsigned size, adv_monitor* monitor, adv_gen
 			if (flags & 0x10) {
 				if (flags & 0x8) {
 					switch ((flags >> 1) & 0x3) {
-					case 0 : f_sync = " -hsync -vsync"; break;
-					case 1 : f_sync = " +hsync -vsync"; break;
-					case 2 : f_sync = " -hsync +vsync"; break;
-					case 3 : f_sync = " +hsync +vsync"; break;
+					case 0: f_sync = " -hsync -vsync"; break;
+					case 1: f_sync = " +hsync -vsync"; break;
+					case 2: f_sync = " -hsync +vsync"; break;
+					case 3: f_sync = " +hsync +vsync"; break;
 					default: f_sync = "";
 					}
 				} else {
@@ -231,15 +231,15 @@ int parse_edid(unsigned char* edid, unsigned size, adv_monitor* monitor, adv_gen
 			}
 
 			switch (((flags >> 4) & 0x6) | (flags & 0x1)) {
-			default : f_3d = ""; break;
-			case 2 : f_3d = " 3d-seq-right-sync"; break;
-			case 3 : f_3d = " 3d-seq-left-sync"; break;
-			case 4 : f_3d = " 3d-2way-right-even"; break;
-			case 5 : f_3d = " 3d-2way-left-even"; break;
-			case 6 : f_3d = " 3d-4way"; break;
-			case 7 : f_3d = " 3d-side"; break;
+			default: f_3d = ""; break;
+			case 2: f_3d = " 3d-seq-right-sync"; break;
+			case 3: f_3d = " 3d-seq-left-sync"; break;
+			case 4: f_3d = " 3d-2way-right-even"; break;
+			case 5: f_3d = " 3d-2way-left-even"; break;
+			case 6: f_3d = " 3d-4way"; break;
+			case 7: f_3d = " 3d-side"; break;
 			}
-			
+
 			log_std(("edid: modeline %g %u %u %u %u %u %u %u %u%s%s%s\n",
 				(double)p_clock / 1E6,
 				h_active, h_active + h_frontporch, h_active + h_frontporch + h_sync, h_active + h_blank,
@@ -247,14 +247,14 @@ int parse_edid(unsigned char* edid, unsigned size, adv_monitor* monitor, adv_gen
 				f_interlace,
 				f_sync,
 				f_3d
-			));
+				));
 		} else {
 			unsigned j;
 			unsigned v;
 			unsigned h;
 
 			switch (edid[i + 3]) {
-			case 0xff :
+			case 0xff:
 				for (j = 0; j < 13; ++j) {
 					char c = edid[i + 5 + j];
 					if (c == 0x0a)
@@ -264,7 +264,7 @@ int parse_edid(unsigned char* edid, unsigned size, adv_monitor* monitor, adv_gen
 				serial[j] = 0;
 				log_std(("edid: serial '%s'\n", serial));
 				break;
-			case 0xfe :
+			case 0xfe:
 				for (j = 0; j < 13; ++j) {
 					char c = edid[i + 5 + j];
 					if (c == 0x0a)
@@ -274,7 +274,7 @@ int parse_edid(unsigned char* edid, unsigned size, adv_monitor* monitor, adv_gen
 				descriptor[j] = 0;
 				log_std(("edid: descriptor '%s'\n", descriptor));
 				break;
-			case 0xfd :
+			case 0xfd:
 				v_min = edid[i + 5];
 				v_max = edid[i + 6];
 				h_min = edid[i + 7];
@@ -311,7 +311,7 @@ int parse_edid(unsigned char* edid, unsigned size, adv_monitor* monitor, adv_gen
 
 				log_std(("edid: clock range %u / %u - %u / %u - %u\n", p_max, h_min, h_max, v_min, v_max));
 				break;
-			case 0xfc :
+			case 0xfc:
 				for (j = 0; j < 13; ++j) {
 					char c = edid[i + 5 + j];
 					if (c == 0x0a)

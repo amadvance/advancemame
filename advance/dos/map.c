@@ -97,7 +97,7 @@ int map_create_selector(unsigned *segment, unsigned long linear, unsigned long s
 	if (__dpmi_set_segment_base_address(*segment, linear) != 0)
 		return -1;
 
-	if (__dpmi_get_segment_base_address(*segment, &ul)!=0)
+	if (__dpmi_get_segment_base_address(*segment, &ul) != 0)
 		return -1;
 
 	if (ul != linear)
@@ -125,5 +125,4 @@ void map_remove_selector(unsigned *segment)
 		*segment = 0;
 	}
 }
-
 

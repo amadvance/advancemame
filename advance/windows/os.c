@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -73,7 +73,7 @@ LRESULT CALLBACK windows_hook_winproc(int nCode, WPARAM wParam, LPARAM lParam)
 		log_std(("os: windows_hook_winproc(!=HC_ACTION) -> NextHook\n"));
 		return CallNextHookEx(OS.g_hKeyboardHook, nCode, wParam, lParam);
 	}
- 
+
 	p = (KBDLLHOOKSTRUCT*)lParam;
 
 	if (wParam == WM_KEYDOWN || wParam == WM_KEYUP || wParam == WM_SYSKEYDOWN || wParam == WM_SYSKEYUP) {
@@ -92,11 +92,11 @@ LRESULT CALLBACK windows_hook_winproc(int nCode, WPARAM wParam, LPARAM lParam)
 		if (p->vkCode == VK_ESCAPE && (p->flags & LLKHF_ALTDOWN) != 0)
 			return 1;
 		/* CTRL + ESC */
-		if (p->vkCode == VK_ESCAPE && (GetKeyState( VK_CONTROL ) & 0x8000) != 0)
+		if (p->vkCode == VK_ESCAPE && (GetKeyState(VK_CONTROL) & 0x8000) != 0)
 			return 1;
 #if 0
 		/* CTRL + ALT + DEL */
-		if (p->vkCode == VK_DELETE) && (GetKeyState(VK_CONTROL) & 0x8000) != 0 && (p->flags & LLKHF_ALTDOWN) != 0)
+		if ((p->vkCode == VK_DELETE) && (GetKeyState(VK_CONTROL) & 0x8000) != 0 && (p->flags & LLKHF_ALTDOWN) != 0)
 			return 1;
 #endif
 	}
@@ -124,7 +124,7 @@ void os_internal_ignore_hot_key(void)
 	/* keyboard hook to disable win keys */
 	if (!OS.g_hKeyboardHook) {
 		log_std(("os: SetWindowsHookEx()\n"));
-		OS.g_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL,  windows_hook_winproc, GetModuleHandle(0), 0);
+		OS.g_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, windows_hook_winproc, GetModuleHandle(0), 0);
 		if (!OS.g_hKeyboardHook) {
 			log_std(("os: SetWindowsHookEx() failed\n"));
 		}
@@ -153,7 +153,7 @@ void os_internal_ignore_hot_key(void)
 		log_std(("os: SystemParametersInfo(SPI_SETTOGGLEKEYS)\n"));
 		SystemParametersInfo(SPI_SETTOGGLEKEYS, sizeof(TOGGLEKEYS), &tkOff, 0);
 	}
- 
+
 	if ((fkOff.dwFlags & FKF_FILTERKEYSON) == 0) {
 		/* disable the hotkey and the confirmation */
 		fkOff.dwFlags &= ~FKF_HOTKEYACTIVE;
@@ -208,12 +208,12 @@ static LRESULT windows_splash_paint(HWND hwnd)
 	HDC desktop_dc = GetWindowDC(desktop);
 
 	/* create the screen buffer */
-	HDC screen_dc = CreateCompatibleDC(desktop_dc); 
-	HBITMAP screen_bitmap = CreateCompatibleBitmap(desktop_dc, SPLASH.m_dwWidth, SPLASH.m_dwHeight); 
+	HDC screen_dc = CreateCompatibleDC(desktop_dc);
+	HBITMAP screen_bitmap = CreateCompatibleBitmap(desktop_dc, SPLASH.m_dwWidth, SPLASH.m_dwHeight);
 	HBITMAP screen_bitmap_old = (HBITMAP)SelectObject(screen_dc, screen_bitmap);
 
 	/* copy the desktop to the screen buffer */
-	BitBlt(screen_dc, 0, 0, SPLASH.m_dwWidth, SPLASH.m_dwHeight, desktop_dc,  SPLASH.m_X, SPLASH.m_Y, SRCCOPY);
+	BitBlt(screen_dc, 0, 0, SPLASH.m_dwWidth, SPLASH.m_dwHeight, desktop_dc, SPLASH.m_X, SPLASH.m_Y, SRCCOPY);
 
 	ZeroMemory(&bi, sizeof(BITMAPINFOHEADER));
 	bi.biSize = sizeof(BITMAPINFOHEADER);
@@ -223,7 +223,7 @@ static LRESULT windows_splash_paint(HWND hwnd)
 	bi.biBitCount = 24;
 	bi.biCompression = BI_RGB;
 
-	r = GetDIBits (desktop_dc, SPLASH.m_hSplashBitmap, 0, SPLASH.m_dwHeight, NULL, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
+	r = GetDIBits(desktop_dc, SPLASH.m_hSplashBitmap, 0, SPLASH.m_dwHeight, NULL, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
 	splash_ptr = (unsigned char*)GlobalAlloc(GMEM_FIXED, bi.biSizeImage);
 	r = GetDIBits(desktop_dc, SPLASH.m_hSplashBitmap, 0, SPLASH.m_dwHeight, splash_ptr, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
 	if (!r)
@@ -231,7 +231,7 @@ static LRESULT windows_splash_paint(HWND hwnd)
 
 	r = GetDIBits(desktop_dc, SPLASH.m_hAlphaBitmap, 0, SPLASH.m_dwHeight, NULL, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
 	alpha_ptr = (unsigned char*)GlobalAlloc(GMEM_FIXED, bi.biSizeImage);
-	r = GetDIBits(desktop_dc, SPLASH.m_hAlphaBitmap, 0, SPLASH.m_dwHeight, alpha_ptr, (BITMAPINFO*)&bi, DIB_RGB_COLORS); 
+	r = GetDIBits(desktop_dc, SPLASH.m_hAlphaBitmap, 0, SPLASH.m_dwHeight, alpha_ptr, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
 	if (!r)
 		return -1;
 
@@ -247,12 +247,12 @@ static LRESULT windows_splash_paint(HWND hwnd)
 	/* align */
 	scanline = (scanline + 3) & ~3;
 
-	for(y=0;y<SPLASH.m_dwHeight;++y) {
+	for (y = 0; y < SPLASH.m_dwHeight; ++y) {
 		unsigned char* splash_i = splash_ptr + scanline * y;
-		unsigned char* alpha_i = alpha_ptr  + scanline * y;
+		unsigned char* alpha_i = alpha_ptr + scanline * y;
 		unsigned char* screen_i = screen_ptr + scanline * y;
-		
-		for(x=0;x<SPLASH.m_dwWidth;++x) {
+
+		for (x = 0; x < SPLASH.m_dwWidth; ++x) {
 			unsigned f = alpha_i[0];
 			if (f == 0) {
 				/* Nothing */
@@ -273,9 +273,9 @@ static LRESULT windows_splash_paint(HWND hwnd)
 				unsigned g = screen_i[1];
 				unsigned b = screen_i[2];
 
-				r = (r*fb + rb*f) / 255;
-				g = (g*fb + gb*f) / 255;
-				b = (b*fb + bb*f) / 255;
+				r = (r * fb + rb * f) / 255;
+				g = (g * fb + gb * f) / 255;
+				b = (b * fb + bb * f) / 255;
 
 				if (r > 255)
 					r = 255;
@@ -294,20 +294,20 @@ static LRESULT windows_splash_paint(HWND hwnd)
 			screen_i += 3;
 		}
 	}
-	
+
 	/* paint in the bitmap */
 	SetDIBits(desktop_dc, screen_bitmap, 0, SPLASH.m_dwHeight, screen_ptr, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
 
 	/* paint to the windows DC */
 	HDC hDC = GetDC(hwnd);
-	BitBlt(hDC,0,0, SPLASH.m_dwWidth, SPLASH.m_dwHeight, screen_dc, 0 ,0, SRCCOPY);
+	BitBlt(hDC, 0, 0, SPLASH.m_dwWidth, SPLASH.m_dwHeight, screen_dc, 0, 0, SRCCOPY);
 	ReleaseDC(hwnd, hDC);
 
 	/* free */
 	SelectObject(screen_dc, screen_bitmap_old);
 	DeleteObject(screen_bitmap);
 	DeleteDC(screen_dc);
-	ReleaseDC(desktop,desktop_dc);
+	ReleaseDC(desktop, desktop_dc);
 
 	GlobalFree(splash_ptr);
 	GlobalFree(alpha_ptr);
@@ -320,7 +320,7 @@ static LRESULT CALLBACK windows_splash_windproc(HWND hwnd, UINT uMsg, WPARAM wPa
 {
 	if (uMsg == WM_PAINT)
 		return windows_splash_paint(hwnd);
-	return DefWindowProc(hwnd, uMsg, wParam, lParam) ;
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 static void windows_splash_start(void)
@@ -358,31 +358,31 @@ static void windows_splash_start(void)
 	SPLASH.m_dwHeight = (DWORD)csBitmapSize.bmHeight;
 
 	WNDCLASSEX wndclass;
-	wndclass.cbSize =         sizeof (wndclass);
-	wndclass.style          = CS_BYTEALIGNCLIENT | CS_BYTEALIGNWINDOW;
-	wndclass.lpfnWndProc    = windows_splash_windproc;
-	wndclass.cbClsExtra =     0;
-	wndclass.cbWndExtra =     DLGWINDOWEXTRA;
-	wndclass.hInstance      = GetModuleHandle(NULL);
-	wndclass.hIcon          = NULL;
-	wndclass.hCursor        = LoadCursor(NULL, IDC_WAIT);
-	wndclass.hbrBackground  = NULL;
-	wndclass.lpszMenuName   = NULL;
-	wndclass.lpszClassName  = SPLASH.m_lpszClassName;
-	wndclass.hIconSm        = NULL;
+	wndclass.cbSize = sizeof(wndclass);
+	wndclass.style = CS_BYTEALIGNCLIENT | CS_BYTEALIGNWINDOW;
+	wndclass.lpfnWndProc = windows_splash_windproc;
+	wndclass.cbClsExtra = 0;
+	wndclass.cbWndExtra = DLGWINDOWEXTRA;
+	wndclass.hInstance = GetModuleHandle(NULL);
+	wndclass.hIcon = NULL;
+	wndclass.hCursor = LoadCursor(NULL, IDC_WAIT);
+	wndclass.hbrBackground = NULL;
+	wndclass.lpszMenuName = NULL;
+	wndclass.lpszClassName = SPLASH.m_lpszClassName;
+	wndclass.hIconSm = NULL;
 	if (!RegisterClassEx(&wndclass))
 		return;
 
 	nScrWidth = GetSystemMetrics(SM_CXFULLSCREEN);
 	nScrHeight = GetSystemMetrics(SM_CYFULLSCREEN);
 
-	SPLASH.m_X = (nScrWidth  - SPLASH.m_dwWidth) / 2;
+	SPLASH.m_X = (nScrWidth - SPLASH.m_dwWidth) / 2;
 	SPLASH.m_Y = (nScrHeight - SPLASH.m_dwHeight) / 2;
-	SPLASH.m_hwnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, SPLASH.m_lpszClassName, TEXT("Splash"), WS_POPUP, SPLASH.m_X, SPLASH.m_Y,  SPLASH.m_dwWidth, SPLASH.m_dwHeight, NULL, NULL, NULL, &SPLASH);
+	SPLASH.m_hwnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW, SPLASH.m_lpszClassName, TEXT("Splash"), WS_POPUP, SPLASH.m_X, SPLASH.m_Y, SPLASH.m_dwWidth, SPLASH.m_dwHeight, NULL, NULL, NULL, &SPLASH);
 	if (!SPLASH.m_hwnd)
 		return;
 
-	ShowWindow(SPLASH.m_hwnd, SW_SHOW) ;
+	ShowWindow(SPLASH.m_hwnd, SW_SHOW);
 	UpdateWindow(SPLASH.m_hwnd);
 }
 
@@ -545,68 +545,68 @@ void os_poll(void)
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
-			case SDL_KEYDOWN :
+		case SDL_KEYDOWN:
 #ifdef USE_KEYBOARD_SDL
 #if SDL_MAJOR_VERSION == 1
-				keyb_sdl_event_press(event.key.keysym.sym);
+			keyb_sdl_event_press(event.key.keysym.sym);
 #else
-				keyb_sdl_event_press(event.key.keysym.scancode);
+			keyb_sdl_event_press(event.key.keysym.scancode);
 #endif
 #endif
 #ifdef USE_INPUT_SDL
-				inputb_sdl_event_press(event.key.keysym.sym);
+			inputb_sdl_event_press(event.key.keysym.sym);
 #endif
 
 #if SDL_MAJOR_VERSION == 1
-				/* toggle fullscreen check */
-				if (event.key.keysym.sym == SDLK_RETURN
-					&& (event.key.keysym.mod & KMOD_ALT) != 0) {
-					if (SDL_WasInit(SDL_INIT_VIDEO) && SDL_GetVideoSurface()) {
-						SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
+			/* toggle fullscreen check */
+			if (event.key.keysym.sym == SDLK_RETURN
+				&& (event.key.keysym.mod & KMOD_ALT) != 0) {
+				if (SDL_WasInit(SDL_INIT_VIDEO) && SDL_GetVideoSurface()) {
+					SDL_WM_ToggleFullScreen(SDL_GetVideoSurface());
 
-						if ((SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0) {
-							SDL_ShowCursor(SDL_DISABLE);
-						} else {
-							SDL_ShowCursor(SDL_ENABLE);
-						}
+					if ((SDL_GetVideoSurface()->flags & SDL_FULLSCREEN) != 0) {
+						SDL_ShowCursor(SDL_DISABLE);
+					} else {
+						SDL_ShowCursor(SDL_ENABLE);
 					}
 				}
+			}
 #endif
 			break;
-			case SDL_SYSWMEVENT :
+		case SDL_SYSWMEVENT:
 			break;
-			case SDL_KEYUP :
+		case SDL_KEYUP:
 #ifdef USE_KEYBOARD_SDL
 #if SDL_MAJOR_VERSION == 1
-				keyb_sdl_event_release(event.key.keysym.sym);
+			keyb_sdl_event_release(event.key.keysym.sym);
 #else
-				keyb_sdl_event_release(event.key.keysym.scancode);
+			keyb_sdl_event_release(event.key.keysym.scancode);
 #endif
 #endif
 #ifdef USE_INPUT_SDL
-				inputb_sdl_event_release(event.key.keysym.sym);
+			inputb_sdl_event_release(event.key.keysym.sym);
 #endif
 			break;
-			case SDL_MOUSEMOTION :
+		case SDL_MOUSEMOTION:
 #ifdef USE_MOUSE_SDL
-				mouseb_sdl_event_move(event.motion.xrel, event.motion.yrel);
+			mouseb_sdl_event_move(event.motion.xrel, event.motion.yrel);
 #endif
 			break;
-			case SDL_MOUSEBUTTONDOWN :
+		case SDL_MOUSEBUTTONDOWN:
 #ifdef USE_MOUSE_SDL
-				if (event.button.button > 0)
-					mouseb_sdl_event_press(event.button.button-1);
+			if (event.button.button > 0)
+				mouseb_sdl_event_press(event.button.button - 1);
 #endif
 			break;
-			case SDL_MOUSEBUTTONUP :
+		case SDL_MOUSEBUTTONUP:
 #ifdef USE_MOUSE_SDL
-				if (event.button.button > 0)
-					mouseb_sdl_event_release(event.button.button-1);
+			if (event.button.button > 0)
+				mouseb_sdl_event_release(event.button.button - 1);
 #endif
 			break;
-			case SDL_QUIT :
-				OS.is_quit = 1;
-				break;
+		case SDL_QUIT:
+			OS.is_quit = 1;
+			break;
 		}
 	}
 }
@@ -689,7 +689,7 @@ void os_default_signal(int signum, void* info, void* context)
 /***************************************************************************/
 /* Extension */
 
-typedef BOOLEAN (WINAPI* HidD_GetAttributes_type)(HANDLE HidDeviceObject, PHIDD_ATTRIBUTES Attributes);
+typedef BOOLEAN (WINAPI * HidD_GetAttributes_type)(HANDLE HidDeviceObject, PHIDD_ATTRIBUTES Attributes);
 
 int GetRawInputDeviceHIDInfo(const char* name, unsigned* vid, unsigned* pid, unsigned* rev)
 {
@@ -698,7 +698,7 @@ int GetRawInputDeviceHIDInfo(const char* name, unsigned* vid, unsigned* pid, uns
 	HANDLE h, l;
 	HIDD_ATTRIBUTES attr;
 	HidD_GetAttributes_type HidD_GetAttributes_ptr;
-	
+
 	last = strrchr(name, '\\');
 	if (!last)
 		last = name;

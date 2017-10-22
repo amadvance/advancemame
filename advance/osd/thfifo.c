@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -248,7 +248,7 @@ int thread_init(void)
 	if (pthread_cond_init(&work_notempty, NULL) != 0)
 		return -1;
 
-	for(i=0;i<work_max;++i) {
+	for (i = 0; i < work_max; ++i) {
 		if (pthread_create(&work_map[i], NULL, group_func, 0) != 0)
 			return -1;
 	}
@@ -266,7 +266,7 @@ void thread_done(void)
 	pthread_cond_broadcast(&work_notempty);
 	pthread_mutex_unlock(&work_mutex);
 
-	for(i=0;i<work_max;++i)
+	for (i = 0; i < work_max; ++i)
 		pthread_join(work_map[i], NULL);
 
 	pthread_mutex_destroy(&work_mutex);
@@ -306,7 +306,7 @@ void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int m
 
 	group_init(&group);
 
-	for(i=1;i<max;++i) {
+	for (i = 1; i < max; ++i) {
 		work[i].func = func;
 		work[i].arg = arg;
 		work[i].num = i;

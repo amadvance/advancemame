@@ -34,8 +34,8 @@
 #include "log.h"
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "No joystick" },
-{ 0, 0, 0 }
+	{ "auto", -1, "No joystick" },
+	{ 0, 0, 0 }
 };
 
 adv_error joystickb_none_init(int joystickb_id)

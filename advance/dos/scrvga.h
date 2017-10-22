@@ -249,3 +249,4 @@ void vga_writeb(unsigned addr, unsigned char c);
 unsigned char vga_readb(unsigned addr);
 
 #endif
+

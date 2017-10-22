@@ -39,9 +39,9 @@
 #if defined(USE_ASM_INLINE)
 static inline void internal_double8_asm(uint8* dst, const uint8* src, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
@@ -67,9 +67,9 @@ static inline void internal_double8_asm(uint8* dst, const uint8* src, unsigned c
 #if defined(USE_ASM_INLINE)
 static inline void internal_double16_asm(uint16* dst, const uint16* src, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
@@ -95,9 +95,9 @@ static inline void internal_double16_asm(uint16* dst, const uint16* src, unsigne
 #if defined(USE_ASM_INLINE)
 static inline void internal_double32_asm(uint32* dst, const uint32* src, unsigned count)
 {
-	assert_align(((unsigned)src & 0x7)==0 && ((unsigned)dst & 0x7)==0);
+	assert_align(((unsigned)src & 0x7) == 0 && ((unsigned)dst & 0x7) == 0);
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $1, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN

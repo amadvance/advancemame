@@ -33,43 +33,43 @@
 /* -- INCOMPLETE -- */
 
 /*
-Two problems:
-1) The XFree86 4.2.0 is buggy. Anyway, the following patch fix the AddModeline and ValidateModeline
-functions. You need only to compile /usr/X11/lib/modules/extensions/libextmod.a.
-2) The DGA scan the list of available modes only at the startup. In the DGAInit
-function called by the video drivers. Any added modeline is not seen by DGAQueryModes.
+   Two problems:
+   1) The XFree86 4.2.0 is buggy. Anyway, the following patch fix the AddModeline and ValidateModeline
+   functions. You need only to compile /usr/X11/lib/modules/extensions/libextmod.a.
+   2) The DGA scan the list of available modes only at the startup. In the DGAInit
+   function called by the video drivers. Any added modeline is not seen by DGAQueryModes.
 
-The only solution is to don't use DGA at all. Simply use the normal
-Xlib functions. The problem is that you lose the Vsync capability.
-*/
+   The only solution is to don't use DGA at all. Simply use the normal
+   Xlib functions. The problem is that you lose the Vsync capability.
+ */
 
 /* Link flags: -L/usr/X11/lib -lX11 -lXext -lXxf86dga -lXxf86vm */
 
 /* Patch for programs/Xserver/Xext/xf86vmode.c */
 /*
---- xf86vmode.c.ori	2001-08-06 22:51:03.000000000 +0200
-+++ xf86vmode.c	2002-08-18 16:07:53.000000000 +0200
-@@ -752, 6 +751, 10 @@
+   --- xf86vmode.c.ori	2001-08-06 22:51:03.000000000 +0200
+ +++ xf86vmode.c	2002-08-18 16:07:53.000000000 +0200
+   @@ -752, 6 +751, 10 @@
      VidModeSetModeValue(mode, VIDMODE_V_SYNCEND, stuff->vsyncend);
      VidModeSetModeValue(mode, VIDMODE_V_TOTAL, stuff->vtotal);
      VidModeSetModeValue(mode, VIDMODE_FLAGS, stuff->flags);
-+    VidModeSetModeValue(mode, VIDMODE_CLOCK, stuff->dotclock);
-+    ((DisplayModePtr)mode)->VScan = 1;
-+    ((DisplayModePtr)mode)->status = MODE_OK;
-+    ((DisplayModePtr)mode)->type = M_T_CLOCK_CRTC_C;
- 
+ +    VidModeSetModeValue(mode, VIDMODE_CLOCK, stuff->dotclock);
+ +    ((DisplayModePtr)mode)->VScan = 1;
+ +    ((DisplayModePtr)mode)->status = MODE_OK;
+ +    ((DisplayModePtr)mode)->type = M_T_CLOCK_CRTC_C;
+
      if (stuff->privsize)
- 	ErrorF("AddModeLine - Privates in request have been ignored\n");
-@@ -1108, 6 +1112, 8 @@
+        ErrorF("AddModeLine - Privates in request have been ignored\n");
+   @@ -1108, 6 +1112, 8 @@
      VidModeSetModeValue(modetmp, VIDMODE_V_SYNCEND, stuff->vsyncend);
      VidModeSetModeValue(modetmp, VIDMODE_V_TOTAL, stuff->vtotal);
      VidModeSetModeValue(modetmp, VIDMODE_FLAGS, stuff->flags);
-+    VidModeSetModeValue(modetmp, VIDMODE_CLOCK, stuff->dotclock);
-+    ((DisplayModePtr)modetmp)->VScan = 1;
+ +    VidModeSetModeValue(modetmp, VIDMODE_CLOCK, stuff->dotclock);
+ +    ((DisplayModePtr)modetmp)->VScan = 1;
      if (stuff->privsize)
- 	ErrorF("ValidateModeLine - Privates in request have been ignored\n");
- 
-*/
+        ErrorF("ValidateModeLine - Privates in request have been ignored\n");
+
+ */
 
 #include "vdga.h"
 #include "video.h"
@@ -116,18 +116,18 @@ unsigned char* (*dga_write_line)(unsigned y);
 /* Internal */
 
 /* TODO
-static unsigned char* dga_linear_write_line(unsigned y)
-{
-	return dga_state.ptr + dga_state.bytes_per_scanline * y;
-}
-*/
+   static unsigned char* dga_linear_write_line(unsigned y)
+   {
+        return dga_state.ptr + dga_state.bytes_per_scanline * y;
+   }
+ */
 
 /***************************************************************************/
 /* Public */
 
 static device DEVICE[] = {
-{ "auto", -1, "DGA video" },
-{ 0, 0, 0 }
+	{ "auto", -1, "DGA video" },
+	{ 0, 0, 0 }
 };
 
 adv_error dga_init(int device_id)
@@ -215,7 +215,7 @@ static void dga_print(void)
 		return;
 	}
 
-	for(i=0;i<num_modelines;++i) {
+	for (i = 0; i < num_modelines; ++i) {
 		video_log_modeline_c("video:dga: modeline ", modelines[i]->dotclock * 1000, modelines[i]->hdisplay, modelines[i]->hsyncstart, modelines[i]->hsyncend, modelines[i]->htotal, modelines[i]->vdisplay, modelines[i]->vsyncstart, modelines[i]->vsyncend, modelines[i]->vtotal, (modelines[i]->flags & V_NHSYNC) != 0, (modelines[i]->flags & V_NVSYNC) != 0, (modelines[i]->flags & V_DBLSCAN) != 0, (modelines[i]->flags & V_INTERLACE) != 0);
 		log_std(("video:dga: hskew: %d, flags:0x%x\n", modelines[i]->hskew, modelines[i]->flags));
 	}
@@ -230,7 +230,7 @@ static void dga_print(void)
 		return;
 	}
 
-	for(i=0;i<num_modes;++i) {
+	for (i = 0; i < num_modes; ++i) {
 		log_std(("video:dga: mode num:%d, name:%s viewport:%dx%d, bits:%d, vclock:%g\n", (int)modes[i].num, (const char*)modes[i].name, (int)modes[i].viewportWidth, (int)modes[i].viewportHeight, (int)modes[i].bitsPerPixel, (double)modes[i].verticalRefresh));
 	}
 
@@ -303,14 +303,14 @@ adv_error dga_mode_set(const dga_video_mode* mode)
 		return -1;
 	}
 
-	for(i=0;i<num_modes;++i) {
+	for (i = 0; i < num_modes; ++i) {
 		if (modes[i].viewportWidth == mode->crtc.hde && modes[i].viewportHeight == mode->crtc.vde && mode->bits_per_pixel == modes[i].bitsPerPixel) {
 			num = i;
 			log_std(("video:dga: match mode num:%d, name:%s viewport:%dx%d, bits:%d, vclock:%g\n", (int)modes[i].num, (const char*)modes[i].name, (int)modes[i].viewportWidth, (int)modes[i].viewportHeight, (int)modes[i].bitsPerPixel, (double)modes[i].verticalRefresh));
 			break;
 		}
 	}
-	if (i==num_modes) {
+	if (i == num_modes) {
 		log_std(("video:dga: no mode match\n"));
 		video_error_description_set("Unable to create the correct video mode");
 	}
@@ -379,19 +379,19 @@ void dga_wait_vsync(void)
 {
 	assert(dga_is_active() && dga_mode_is_active());
 /* TODO
-	vga_waitretrace();
-*/
+        vga_waitretrace();
+ */
 }
 
 adv_error dga_scroll(unsigned offset, adv_bool waitvsync)
 {
 	assert(dga_is_active() && dga_mode_is_active());
 /* TODO
-	if (waitvsync)
-		vga_waitretrace();
+        if (waitvsync)
+                vga_waitretrace();
 
-	vga_setdisplaystart(offset);
-*/
+        vga_setdisplaystart(offset);
+ */
 	return 0;
 }
 
@@ -399,16 +399,16 @@ adv_error dga_scanline_set(unsigned byte_length)
 {
 	assert(dga_is_active() && dga_mode_is_active());
 /* TODO
-	vga_setlogicalwidth(byte_length);
+        vga_setlogicalwidth(byte_length);
 
-	modeinfo = vga_getmodeinfo(dga_state.mode_number);
-	if (!modeinfo) {
-		video_error_description_set("Error in vga_getmodeinfo()");
-		return -1;
-	}
-	dga_state.bytes_per_pixel = modeinfo->bytesperpixel;
-	dga_state.bytes_per_scanline = modeinfo->linewidth;
-*/
+        modeinfo = vga_getmodeinfo(dga_state.mode_number);
+        if (!modeinfo) {
+                video_error_description_set("Error in vga_getmodeinfo()");
+                return -1;
+        }
+        dga_state.bytes_per_pixel = modeinfo->bytesperpixel;
+        dga_state.bytes_per_scanline = modeinfo->linewidth;
+ */
 
 	return 0;
 }
@@ -416,16 +416,16 @@ adv_error dga_scanline_set(unsigned byte_length)
 adv_error dga_palette8_set(const video_color* palette, unsigned start, unsigned count, adv_bool waitvsync)
 {
 /* TODO
-	if (waitvsync)
-		vga_waitretrace();
+        if (waitvsync)
+                vga_waitretrace();
 
-	while (count) {
-		vga_setpalette(start, palette->red >> 2, palette->green >> 2, palette->blue >> 2);
-		++palette;
-		++start;
-		--count;
-	}
-*/
+        while (count) {
+                vga_setpalette(start, palette->red >> 2, palette->green >> 2, palette->blue >> 2);
+ ++palette;
+ ++start;
+                --count;
+        }
+ */
 
 	return 0;
 }
@@ -444,8 +444,8 @@ adv_error dga_mode_import(adv_mode* mode, const dga_video_mode* dga_mode)
 		| VIDEO_FLAGS_MEMORY_LINEAR
 		| (mode->flags & VIDEO_FLAGS_USER_MASK);
 	switch (dga_mode->bits_per_pixel) {
-		case 8 : mode->flags |= VIDEO_FLAGS_INDEX_PACKED | VIDEO_FLAGS_TYPE_GRAPHICS; break;
-		default: mode->flags |= VIDEO_FLAGS_INDEX_RGB | VIDEO_FLAGS_TYPE_GRAPHICS; break;
+	case 8: mode->flags |= VIDEO_FLAGS_INDEX_PACKED | VIDEO_FLAGS_TYPE_GRAPHICS; break;
+	default: mode->flags |= VIDEO_FLAGS_INDEX_RGB | VIDEO_FLAGS_TYPE_GRAPHICS; break;
 	}
 
 	mode->size_x = DRIVER(mode)->crtc.hde;
@@ -462,7 +462,7 @@ adv_error dga_mode_generate(dga_video_mode* mode, const adv_crtc* crtc, unsigned
 {
 	assert(dga_is_active());
 
-	if (video_mode_generate_check("dga", dga_flags(), 8, 2048, crtc, bits, flags)!=0)
+	if (video_mode_generate_check("dga", dga_flags(), 8, 2048, crtc, bits, flags) != 0)
 		return -1;
 
 	mode->crtc = *crtc;

@@ -52,3 +52,4 @@ extern joystickb_driver joystickb_sdl_driver;
 #endif
 
 #endif
+

@@ -52,8 +52,8 @@ struct joystickb_sdl_context {
 static struct joystickb_sdl_context sdl_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "SDL joystick" },
-{ 0, 0, 0 }
+	{ "auto", -1, "SDL joystick" },
+	{ 0, 0, 0 }
 };
 
 adv_error joystickb_sdl_init(int joystickb_id)
@@ -83,7 +83,7 @@ adv_error joystickb_sdl_init(int joystickb_id)
 		goto err_quit;
 	}
 
-	for(i=0;i<sdl_state.counter;++i) {
+	for (i = 0; i < sdl_state.counter; ++i) {
 		sdl_state.map[i] = SDL_JoystickOpen(i);
 		if (!sdl_state.map[i]) {
 			error_set("Function SDL_JoystickOpen(%d) failed, %s.\n", i, SDL_GetError());
@@ -105,7 +105,7 @@ void joystickb_sdl_done(void)
 
 	log_std(("josytickb:sdl: joystickb_sdl_done()\n"));
 
-	for(i=0;i<sdl_state.counter;++i)
+	for (i = 0; i < sdl_state.counter; ++i)
 		SDL_JoystickClose(sdl_state.map[i]);
 
 	SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
@@ -185,9 +185,9 @@ unsigned joystickb_sdl_stick_axe_digital_get(unsigned joystick, unsigned stick, 
 	r = joystickb_sdl_stick_axe_analog_get(joystick, stick, axe);
 
 	if (d)
-		return r < -JOYSTICK_DRIVER_BASE/8; /* -1/8 of the partial range */
+		return r < -JOYSTICK_DRIVER_BASE / 8; /* -1/8 of the partial range */
 	else
-		return r > JOYSTICK_DRIVER_BASE/8; /* +1/8 of the partial range */
+		return r > JOYSTICK_DRIVER_BASE / 8; /* +1/8 of the partial range */
 }
 
 void joystickb_sdl_poll(void)

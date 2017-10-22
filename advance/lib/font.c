@@ -149,7 +149,7 @@ void adv_font_set_char(adv_font* font, char c, adv_bitmap* bitmap)
 {
 	unsigned i = (unsigned char)c;
 
-	if (i>=ADV_FONT_MAX)
+	if (i >= ADV_FONT_MAX)
 		return;
 
 	if (font->data[i] != 0 && font->data[i] != &null_char) {
@@ -171,7 +171,7 @@ static adv_font* adv_font_alloc(void)
 	if (!font)
 		return 0;
 
-	for(i=0;i<ADV_FONT_MAX;++i)
+	for (i = 0; i < ADV_FONT_MAX; ++i)
 		font->data[i] = &null_char;
 
 	return font;
@@ -184,7 +184,7 @@ void adv_font_free(adv_font* font)
 {
 	if (font) {
 		int i;
-		for(i=0;i<ADV_FONT_MAX;++i) {
+		for (i = 0; i < ADV_FONT_MAX; ++i) {
 			if (font->data[i] != 0 && font->data[i] != &null_char) {
 				adv_bitmap_free(font->data[i]);
 			}
@@ -197,7 +197,7 @@ static int adv_font_load_data_fixed(adv_font* font, unsigned char* begin, unsign
 {
 	unsigned i;
 
-	for(i=start;i<start+count;++i) {
+	for (i = start; i < start + count; ++i) {
 		unsigned x, y;
 		adv_bitmap* bitmap;
 
@@ -205,12 +205,12 @@ static int adv_font_load_data_fixed(adv_font* font, unsigned char* begin, unsign
 		if (!bitmap)
 			return -1;
 
-		for(y=0;y<height;++y) {
-			for(x=0;x<width;++x) {
-				int set = begin[x/8] & (1 << (7-(x % 8)));
+		for (y = 0; y < height; ++y) {
+			for (x = 0; x < width; ++x) {
+				int set = begin[x / 8] & (1 << (7 - (x % 8)));
 				adv_bitmap_pixel_put(bitmap, x, y, set ? 0xFF : 0);
 			}
-			begin += (width+7)/8;
+			begin += (width + 7) / 8;
 		}
 
 		adv_font_set_char(font, i, bitmap);
@@ -224,8 +224,8 @@ static int adv_font_load_data_size(unsigned count, unsigned* width, unsigned hei
 	unsigned size = 0;
 	unsigned i;
 
-	for(i=0;i<count;++i)
-		size += ((width[i]+7)/8)*height;
+	for (i = 0; i < count; ++i)
+		size += ((width[i] + 7) / 8) * height;
 
 	return size;
 }
@@ -234,22 +234,22 @@ static int adv_font_load_data(adv_font* font, unsigned char* begin, unsigned sta
 {
 	unsigned i;
 
-	for(i=start;i<start+count;++i) {
+	for (i = start; i < start + count; ++i) {
 		unsigned x, y;
 		adv_bitmap* bitmap;
-		unsigned width = wtable[i-start];
+		unsigned width = wtable[i - start];
 
 		bitmap = adv_bitmap_alloc(width, height, 1);
 		if (!bitmap) {
 			return -1;
 		}
 
-		for(y=0;y<height;++y) {
-			for(x=0;x<width;++x) {
-				int set = begin[x/8] & (1 << (7-(x % 8)));
+		for (y = 0; y < height; ++y) {
+			for (x = 0; x < width; ++x) {
+				int set = begin[x / 8] & (1 << (7 - (x % 8)));
 				adv_bitmap_pixel_put(bitmap, x, y, set ? 0xFF : 0);
 			}
-			begin += (width+7)/8;
+			begin += (width + 7) / 8;
 		}
 
 		adv_font_set_char(font, i, bitmap);
@@ -262,94 +262,94 @@ static int adv_font_load_data(adv_font* font, unsigned char* begin, unsigned sta
 /* PSF */
 
 /*
-			The PSF file-format
+                        The PSF file-format
 
-		(C) 1997 Yann Dirson <dirson@univ-mlv.fr>
-
-
- This file documents the PSF font-file-format, as understood by version 0.94
-and above of the Linux console utilities ('bkd'). This file makes obsolete
-the old `psffile.doc'.
-
- This file has revision number 1.0, and is dated 1997/09/02.
- Any useful additionnal information on PSF files would be great.
+                (C) 1997 Yann Dirson <dirson@univ-mlv.fr>
 
 
-1. Summary
+   This file documents the PSF font-file-format, as understood by version 0.94
+   and above of the Linux console utilities ('bkd'). This file makes obsolete
+   the old `psffile.doc'.
 
- A PSF file basically contains one character-font, whose width is 8 pixels,
-ie. each scanline in a character occupies 1 byte.
-
- It may contain characters of any height between 0 and 255, though character
-heights lower than 8 or greater than 32 are not attested to exist or even be
-useful [more info needed on this].
-
- Fonts can contain either 256 or 512 characters.
- 
- The file can optionnally contain a unicode mapping-table, telling, for each
-character in the font, which UCS2 characters it can be used to display.
-
- The "file mode" byte controls font size (256/512) and whether file contains
-a unicode mapping table.
+   This file has revision number 1.0, and is dated 1997/09/02.
+   Any useful additionnal information on PSF files would be great.
 
 
-2. History
+   1. Summary
 
- Unknown.
+   A PSF file basically contains one character-font, whose width is 8 pixels,
+   ie. each scanline in a character occupies 1 byte.
 
+   It may contain characters of any height between 0 and 255, though character
+   heights lower than 8 or greater than 32 are not attested to exist or even be
+   useful [more info needed on this].
 
-3. Known programs understanding this file-format.
+   Fonts can contain either 256 or 512 characters.
 
- The following program in the Linux console utilities can read and/or write
-PSF files:
+   The file can optionnally contain a unicode mapping-table, telling, for each
+   character in the font, which UCS2 characters it can be used to display.
 
-	setfont (R/W)
-	psfaddtable (R/W)
-	psfstriptable (R/W)
-	psfgettable (R)
-
-
-4. Technical data
-
- The file format is described here in sort-of EBNF notation. Upper-case
-WORDS represent terminal symbols, ie. C types; lower-case words represent
-non-terminal symbols, ie. symbols defined in terms of other symbols.
- [sym] is an optional symbol
- {sym} is a symbol that can be repeated 0 or more times
- {sym}*N is a symbol that must be repeated N times
- Comments are introduced with a # sign.
+   The "file mode" byte controls font size (256/512) and whether file contains
+   a unicode mapping table.
 
 
-# The data (U_SHORT's) are stored in LITTLE_ENDIAN byte order.
+   2. History
 
-psf_file =      psf_header
-		raw_fontdata
-		[unicode_data]
-		
+   Unknown.
 
-psf_header =    CHAR = 0x36  CHAR = 0x04        # magic number
-		filemode
-		fontheight
-		
-fontheight =    CHAR            # measured in scan lines
-filemode =      CHAR            # IF ([mode] AND 0x01) THEN <fontsize>:=512 ELSE <fontsize>:=256
 
-#
+   3. Known programs understanding this file-format.
 
-raw_fontdata =  {char_data}*<fontsize>
+   The following program in the Linux console utilities can read and/or write
+   PSF files:
 
-char_data =     {BYTE}*<fontheight>
+        setfont (R/W)
+        psfaddtable (R/W)
+        psfstriptable (R/W)
+        psfgettable (R)
 
-#
 
-unicode_data =  { unicode_array psf_separator }*<fontsize>
+   4. Technical data
 
-unicode_array = { unicode }                             # any necessary number of times
+   The file format is described here in sort-of EBNF notation. Upper-case
+   WORDS represent terminal symbols, ie. C types; lower-case words represent
+   non-terminal symbols, ie. symbols defined in terms of other symbols.
+   [sym] is an optional symbol
+   {sym} is a symbol that can be repeated 0 or more times
+   {sym}*N is a symbol that must be repeated N times
+   Comments are introduced with a # sign.
 
-unicode =       U_SHORT                                 # UCS2 code
-psf_separator = unicode = 0xFFFF
 
-*/
+ # The data (U_SHORT's) are stored in LITTLE_ENDIAN byte order.
+
+   psf_file =      psf_header
+                raw_fontdata
+                [unicode_data]
+
+
+   psf_header =    CHAR = 0x36  CHAR = 0x04        # magic number
+                filemode
+                fontheight
+
+   fontheight =    CHAR            # measured in scan lines
+   filemode =      CHAR            # IF ([mode] AND 0x01) THEN <fontsize>:=512 ELSE <fontsize>:=256
+
+ #
+
+   raw_fontdata =  {char_data}*<fontsize>
+
+   char_data =     {BYTE}*<fontheight>
+
+ #
+
+   unicode_data =  { unicode_array psf_separator }*<fontsize>
+
+   unicode_array = { unicode }                             # any necessary number of times
+
+   unicode =       U_SHORT                                 # UCS2 code
+   psf_separator = unicode = 0xFFFF
+
+ */
 
 static adv_font* adv_font_load_psf(adv_fz* f)
 {
@@ -369,7 +369,7 @@ static adv_font* adv_font_load_psf(adv_fz* f)
 		goto out;
 	}
 
-	if (fzread(header, 2, 1, f)!=1) {
+	if (fzread(header, 2, 1, f) != 1) {
 		goto out_font;
 	}
 
@@ -377,13 +377,13 @@ static adv_font* adv_font_load_psf(adv_fz* f)
 		goto out_font;
 	}
 
-	if (fzread(&c, 1, 1, f)!=1) {
+	if (fzread(&c, 1, 1, f) != 1) {
 		goto out_font;
 	}
 
 	size = c & 0x1 ? 512 : 256;
 
-	if (fzread(&c, 1, 1, f)!=1) {
+	if (fzread(&c, 1, 1, f) != 1) {
 		goto out_font;
 	}
 
@@ -397,10 +397,10 @@ static adv_font* adv_font_load_psf(adv_fz* f)
 	if (!data)
 		goto out_font;
 
-	if (fzread(data, data_size, 1, f)!=1)
+	if (fzread(data, data_size, 1, f) != 1)
 		goto out_data;
 
-	if (adv_font_load_data_fixed(font, data, 0, size, width, height)!=0) {
+	if (adv_font_load_data_fixed(font, data, 0, size, width, height) != 0) {
 		goto out_data;
 	}
 
@@ -420,72 +420,72 @@ out:
 /* RAW */
 
 /*
-			The RAW file-format
+                        The RAW file-format
 
-		(C) 1997 Yann Dirson <dirson@univ-mlv.fr>
-
-
- This file documents the RAW font-file-format, as understood by the Linux
-console utilities ('bkd').
-
- This file has revision number 1.0, and is dated 1997/09/02.
+                (C) 1997 Yann Dirson <dirson@univ-mlv.fr>
 
 
-1. Summary
+   This file documents the RAW font-file-format, as understood by the Linux
+   console utilities ('bkd').
 
- A RAW file only contains one 8-pixels-wide 256-characters font, ie. each
-scanline in a character occupies 1 byte.
-
- It may contain characters of any height between 0 and 255, though character
-heights lower than 8 or greater than 32 are not attested to exist or even be
-useful [more info needed on this]; the file's size is used to determine the
-font's height when reading it.
-
- WARNING: no program can reliably ensure a file it reads is in this format;
-it can only recognize when the file's size makes it obvious it is not. Thus
-some files can be wrongly assumed to be raw font-files. For this reason, you
-are strongly encouraged to use other formats, like PSF, which can be
-identified by magic-number.
+   This file has revision number 1.0, and is dated 1997/09/02.
 
 
-2. History
+   1. Summary
 
- Unknown. This file-format probably cannot evolve.
+   A RAW file only contains one 8-pixels-wide 256-characters font, ie. each
+   scanline in a character occupies 1 byte.
 
+   It may contain characters of any height between 0 and 255, though character
+   heights lower than 8 or greater than 32 are not attested to exist or even be
+   useful [more info needed on this]; the file's size is used to determine the
+   font's height when reading it.
 
-3. Known programs understanding this file-format.
-
- The following program in the Linux console utilities can read and/or write
-RAW files:
-
-	setfont (R/W)
-
-
-4. Technical data
-
- The file format is described here in sort-of EBNF notation. Upper-case
-WORDS represent terminal symbols, ie. C types; lower-case words represent
-non-terminal symbols, ie. symbols defined in terms of other symbols.
- [sym] is an optional symbol
- {sym} is a symbol that can be repeated 0 or more times
- {sym}*N is a symbol that must be repeated N times
- Comments are introduced with a # sign.
+   WARNING: no program can reliably ensure a file it reads is in this format;
+   it can only recognize when the file's size makes it obvious it is not. Thus
+   some files can be wrongly assumed to be raw font-files. For this reason, you
+   are strongly encouraged to use other formats, like PSF, which can be
+   identified by magic-number.
 
 
-# The data (U_SHORT's) are stored in LITTLE_ENDIAN byte order.
+   2. History
 
-raw_file =      raw_fontdata
+   Unknown. This file-format probably cannot evolve.
 
-raw_fontdata =  {char_data}*256
 
-char_data =     {BYTE}*<fontheight>
+   3. Known programs understanding this file-format.
 
-# This makes the file have a size of 256*<fontheight> bytes; thus only files
-# whose size has 0 as less significant byte can be interpreted as a raw font.
-# One might even want to extend these lower 8 bits to 10 (resp. 11) to ensure
-# that no file is wrongly assumed to be a (quite rare!) less-than-4 (resp. 8)
-# scanlines font.
-*/
+   The following program in the Linux console utilities can read and/or write
+   RAW files:
+
+        setfont (R/W)
+
+
+   4. Technical data
+
+   The file format is described here in sort-of EBNF notation. Upper-case
+   WORDS represent terminal symbols, ie. C types; lower-case words represent
+   non-terminal symbols, ie. symbols defined in terms of other symbols.
+   [sym] is an optional symbol
+   {sym} is a symbol that can be repeated 0 or more times
+   {sym}*N is a symbol that must be repeated N times
+   Comments are introduced with a # sign.
+
+
+ # The data (U_SHORT's) are stored in LITTLE_ENDIAN byte order.
+
+   raw_file =      raw_fontdata
+
+   raw_fontdata =  {char_data}*256
+
+   char_data =     {BYTE}*<fontheight>
+
+ # This makes the file have a size of 256*<fontheight> bytes; thus only files
+ # whose size has 0 as less significant byte can be interpreted as a raw font.
+ # One might even want to extend these lower 8 bits to 10 (resp. 11) to ensure
+ # that no file is wrongly assumed to be a (quite rare!) less-than-4 (resp. 8)
+ # scanlines font.
+ */
 
 static adv_font* adv_font_load_raw(adv_fz* f)
 {
@@ -521,11 +521,11 @@ static adv_font* adv_font_load_raw(adv_fz* f)
 		goto out_font;
 	}
 
-	if (fzread(data, data_size, 1, f)!=1) {
+	if (fzread(data, data_size, 1, f) != 1) {
 		goto out_data;
 	}
 
-	if (adv_font_load_data_fixed(font, data, 0, size, width, height)!=0) {
+	if (adv_font_load_data_fixed(font, data, 0, size, width, height) != 0) {
 		goto out_data;
 	}
 
@@ -560,17 +560,17 @@ static adv_font* adv_font_load_grx(adv_fz* f)
 	if (!font)
 		goto out;
 
-	if (fzread(header, 56, 1, f)!=1)
+	if (fzread(header, 56, 1, f) != 1)
 		goto out_font;
 
 	if (le_uint32_read(header) != GRX_FONT_MAGIC)
 		goto out_font;
 
-	width = le_uint16_read(header+8);
-	height = le_uint16_read(header+10);
-	start = le_uint16_read(header+12);
-	stop = le_uint16_read(header+14);
-	isfixed = le_uint16_read(header+16);
+	width = le_uint16_read(header + 8);
+	height = le_uint16_read(header + 10);
+	start = le_uint16_read(header + 12);
+	stop = le_uint16_read(header + 14);
+	isfixed = le_uint16_read(header + 16);
 
 	size = stop - start + 1;
 
@@ -579,31 +579,31 @@ static adv_font* adv_font_load_grx(adv_fz* f)
 		wtable = malloc(sizeof(unsigned) * size);
 		if (!wtable)
 			goto out_font;
-		for(i=0;i<size;++i) {
+		for (i = 0; i < size; ++i) {
 			unsigned char wsize[2];
-			if (fzread(wsize, 2, 1, f)!=1)
+			if (fzread(wsize, 2, 1, f) != 1)
 				goto out_font;
 			wtable[i] = le_uint16_read(wsize);
 		}
 		data_size = adv_font_load_data_size(size, wtable, height);
 	} else {
 		wtable = 0;
-		data_size = ((width+7)/8)*height*size;
+		data_size = ((width + 7) / 8) * height * size;
 	}
 
 	data = malloc(data_size);
 	if (!data)
 		goto out_table;
 
-	if (fzread(data, data_size, 1, f)!=1)
+	if (fzread(data, data_size, 1, f) != 1)
 		goto out_data;
 
 	if (!isfixed) {
-		if (adv_font_load_data(font, data, start, size, wtable, height)!=0) {
+		if (adv_font_load_data(font, data, start, size, wtable, height) != 0) {
 			goto out_data;
 		}
 	} else {
-		if (adv_font_load_data_fixed(font, data, start, size, width, height)!=0) {
+		if (adv_font_load_data_fixed(font, data, start, size, width, height) != 0) {
 			goto out_data;
 		}
 	}
@@ -675,7 +675,7 @@ static adv_font* adv_font_load_freetype2(adv_fz* f, unsigned sizex, unsigned siz
 	sy = (face->size->metrics.height + 63) / 64;
 	sb = (face->size->metrics.ascender + 63) / 64;
 
-	for(i=0;i<ADV_FONT_MAX;++i) {
+	for (i = 0; i < ADV_FONT_MAX; ++i) {
 		e = FT_Load_Char(face, i, FT_LOAD_DEFAULT);
 		if (e == 0) {
 			unsigned x, y;
@@ -700,19 +700,19 @@ static adv_font* adv_font_load_freetype2(adv_fz* f, unsigned sizex, unsigned siz
 					if (!bitmap)
 						goto err_face;
 
-					for(y=0;y<cy;++y) {
+					for (y = 0; y < cy; ++y) {
 						int by = y - (sb - glyph_bitmap->top);
-						if (by>=0 && by<glyph_bitmap->bitmap.rows) {
+						if (by >= 0 && by < glyph_bitmap->bitmap.rows) {
 							unsigned char* p = ((unsigned char*)glyph_bitmap->bitmap.buffer) + by * glyph_bitmap->bitmap.pitch;
-							for(x=0;x<cx;++x) {
+							for (x = 0; x < cx; ++x) {
 								int bx = x - glyph_bitmap->left;
-								if (bx>=0 && bx<glyph_bitmap->bitmap.width)
+								if (bx >= 0 && bx < glyph_bitmap->bitmap.width)
 									adv_bitmap_pixel_put(bitmap, x, y, p[bx]);
 								else
 									adv_bitmap_pixel_put(bitmap, x, y, 0);
 							}
 						} else {
-							for(x=0;x<cx;++x) {
+							for (x = 0; x < cx; ++x) {
 								adv_bitmap_pixel_put(bitmap, x, y, 0);
 							}
 						}
@@ -764,13 +764,13 @@ static adv_font* adv_font_adjust(adv_font* font)
 	adv_font_set_char(font, ADV_FONT_FIXSPACE, bitmap);
 
 	/* ensure that every number is wide at least like '0' */
-	for(c='1';c<='9';++c) {
+	for (c = '1'; c <= '9'; ++c) {
 		if (adv_font_sizex_char(font, c) < adv_font_sizex_char(font, '0')) {
 			unsigned x, y;
 			adv_bitmap* src = font->data[(unsigned char)c];
 			bitmap = adv_bitmap_alloc(adv_font_sizex_char(font, '0'), adv_font_sizey_char(font, '0'), 1);
-			for(y=0;y<bitmap->size_y;++y)
-				for(x=0;x<bitmap->size_x;++x)
+			for (y = 0; y < bitmap->size_y; ++y)
+				for (x = 0; x < bitmap->size_x; ++x)
 					adv_bitmap_pixel_put(bitmap, x, y, adv_bitmap_pixel_get(src, x, y));
 			adv_font_set_char(font, c, bitmap);
 		}
@@ -854,7 +854,7 @@ adv_font* adv_font_load(adv_fz* f, unsigned sizex, unsigned sizey)
 	if (fy == 0)
 		fy = 1;
 
-	if (fx!=1 || fy!=1)
+	if (fx != 1 || fy != 1)
 		adv_font_scale(font, fx, fy);
 
 	return font;
@@ -876,28 +876,28 @@ int adv_font_set(adv_font* font)
 	adv_font_dx = adv_font_size_x(font);
 	adv_font_dy = adv_font_size_y(font);
 
-	if (adv_font_dx!=8 || adv_font_dy>32)
+	if (adv_font_dx != 8 || adv_font_dy > 32)
 		return -1;
 
 	adv_font_data = (uint8*)malloc(ADV_FONT_MAX * adv_font_dy);
-	for(i=0;i<ADV_FONT_MAX;++i) {
+	for (i = 0; i < ADV_FONT_MAX; ++i) {
 		if (font->data[i] != 0) {
 			unsigned y;
-			for(y=0;y<adv_font_dy;++y) {
+			for (y = 0; y < adv_font_dy; ++y) {
 				unsigned x;
 				uint8 mask = 0;
 				uint8* row = adv_bitmap_line(font->data[i], y);
-				for(x=0;x<adv_font_dx;++x) {
+				for (x = 0; x < adv_font_dx; ++x) {
 					mask <<= 1;
 					if (row[x])
 						mask |= 1;
 				}
-				adv_font_data[i*adv_font_dy+y] = mask;
+				adv_font_data[i * adv_font_dy + y] = mask;
 			}
 		} else {
 			unsigned y;
-			for(y=0;y<adv_font_dy;++y) {
-				adv_font_data[i*adv_font_dy+y] = 0;
+			for (y = 0; y < adv_font_dy; ++y) {
+				adv_font_data[i * adv_font_dy + y] = 0;
 			}
 		}
 	}
@@ -918,7 +918,7 @@ void adv_font_orientation(adv_font* font, unsigned orientation_mask)
 {
 	if (orientation_mask) {
 		unsigned i;
-		for(i=0;i<ADV_FONT_MAX;++i) {
+		for (i = 0; i < ADV_FONT_MAX; ++i) {
 			if (font->data[i] != 0 && font->data[i] != &null_char)
 				adv_bitmap_orientation(font->data[i], orientation_mask);
 		}
@@ -944,12 +944,12 @@ void adv_font_put_char(adv_font* font, adv_bitmap* dst, int x, int y, char c, un
 		return;
 	}
 
-	for(cy=0;cy<src->size_y;++cy) {
+	for (cy = 0; cy < src->size_y; ++cy) {
 		unsigned char* src_ptr = adv_bitmap_line(src, cy);
 		unsigned char* dst_ptr = adv_bitmap_pixel(dst, x, y);
 		unsigned dp = dst->bytes_per_pixel;
 		unsigned cx;
-		for(cx=0;cx<src->size_x;++cx) {
+		for (cx = 0; cx < src->size_x; ++cx) {
 			unsigned v;
 			if (*src_ptr >= 64) {
 				v = color_front;
@@ -1040,11 +1040,11 @@ void adv_font_put_char_map(adv_font* font, adv_bitmap* dst, int x, int y, char c
 
 	dp = dst->bytes_per_pixel;
 
-	for(cy=0;cy<src->size_y;++cy) {
+	for (cy = 0; cy < src->size_y; ++cy) {
 		unsigned char* src_ptr = adv_bitmap_line(src, cy);
 		unsigned char* dst_ptr = adv_bitmap_pixel(dst, x, y);
 		unsigned cx;
-		for(cx=0;cx<src->size_x;++cx) {
+		for (cx = 0; cx < src->size_x; ++cx) {
 			cpu_uint_write(dst_ptr, dp, map[*src_ptr]);
 			dst_ptr += dp;
 			src_ptr += 1;
@@ -1090,11 +1090,11 @@ void adv_font_put_char_trasp(adv_font* font, adv_bitmap* dst, int x, int y, char
 
 	dp = dst->bytes_per_pixel;
 
-	for(cy=0;cy<src->size_y;++cy) {
+	for (cy = 0; cy < src->size_y; ++cy) {
 		unsigned char* src_ptr = adv_bitmap_line(src, cy);
 		unsigned char* dst_ptr = adv_bitmap_pixel(dst, x, y);
 		unsigned cx;
-		for(cx=0;cx<src->size_x;++cx) {
+		for (cx = 0; cx < src->size_x; ++cx) {
 			if (*src_ptr >= 64) {
 				cpu_uint_write(dst_ptr, dp, color_front);
 			}
@@ -1129,11 +1129,11 @@ void adv_font_scale(adv_font* font, unsigned fx, unsigned fy)
 {
 	unsigned i;
 
-	for(i=0;i<ADV_FONT_MAX;++i) {
+	for (i = 0; i < ADV_FONT_MAX; ++i) {
 		if (font->data[i] != 0 && font->data[i] != &null_char) {
 			adv_bitmap* bitmap;
 
-			bitmap = adv_bitmap_resize(font->data[i], 0, 0, font->data[i]->size_x, font->data[i]->size_y, font->data[i]->size_x*fx, font->data[i]->size_y*fy, 0);
+			bitmap = adv_bitmap_resize(font->data[i], 0, 0, font->data[i]->size_x, font->data[i]->size_y, font->data[i]->size_x * fx, font->data[i]->size_y * fy, 0);
 
 			adv_font_set_char(font, i, bitmap);
 		}

@@ -38,8 +38,8 @@
 #include "osdos.h"
 
 static adv_device DEVICE[] = {
-{ "auto", 1, "VBE video" },
-{ 0, 0, 0 }
+	{ "auto", 1, "VBE video" },
+	{ 0, 0, 0 }
 };
 
 typedef struct vbe_internal_struct2 {
@@ -73,11 +73,11 @@ static void vbe_probe(void)
 			&& (info.MemoryModel == vbeMemRGB || info.MemoryModel == vbeMemPK)) {
 
 			switch (info.BitsPerPixel) {
-				case 8 : has8bit = 1; break;
-				case 15 : has15bit = 1; break;
-				case 16 : has16bit = 1; break;
-				case 24 : has24bit = 1; break;
-				case 32 : has32bit = 1; break;
+			case 8: has8bit = 1; break;
+			case 15: has15bit = 1; break;
+			case 16: has16bit = 1; break;
+			case 24: has24bit = 1; break;
+			case 32: has32bit = 1; break;
 			}
 		}
 
@@ -147,7 +147,7 @@ adv_error vbe_mode_grab(vbe_video_mode* mode)
 	if (!vbe_is_active())
 		return -1;
 
-	if (vbe_mode_get(&mode->mode)!=0)
+	if (vbe_mode_get(&mode->mode) != 0)
 		return -1;
 
 	if (mode->mode < 0x100)
@@ -171,7 +171,7 @@ adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode)
 	snprintf(mode->name, MODE_NAME_MAX, "vbe_bios_%x", vbe_mode->mode);
 	*DRIVER(mode) = *vbe_mode;
 
-	if (vbe_mode_info_get(&info, DRIVER(mode)->mode)!=0) {
+	if (vbe_mode_info_get(&info, DRIVER(mode)->mode) != 0) {
 		error_set("VBE report that mode %d is unsupported", DRIVER(mode)->mode);
 		return -1;
 	}
@@ -203,12 +203,12 @@ adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode)
 			}
 		}
 		/* Packed or RGB memory model */
-		if (info.MemoryModel!=vbeMemPK && info.MemoryModel!=vbeMemRGB) {
+		if (info.MemoryModel != vbeMemPK && info.MemoryModel != vbeMemRGB) {
 			error_nolog_set("Unsupported memory model");
 			return -1;
 		}
 		/* Non planar mode */
-		if (info.NumberOfPlanes!=1) {
+		if (info.NumberOfPlanes != 1) {
 			error_nolog_set("Unsupported number of planes");
 			return -1;
 		}
@@ -220,29 +220,29 @@ adv_error vbe_mode_import(adv_mode* mode, const vbe_video_mode* vbe_mode)
 	if ((info.ModeAttributes & vbeMdTripleBuffer) != 0)
 		mode->flags |= MODE_FLAGS_RETRACE_SCROLL_ASYNC;
 	switch (info.MemoryModel) {
-		case vbeMemTXT :
-			mode->flags |= MODE_FLAGS_INDEX_TEXT;
-			break;
-		case vbeMemPK :
-			mode->flags |= MODE_FLAGS_INDEX_PALETTE8;
-			break;
-		case vbeMemRGB :
-			switch (info.BitsPerPixel) {
-			case 15 : mode->flags |= MODE_FLAGS_INDEX_BGR15; break;
-			case 16 : mode->flags |= MODE_FLAGS_INDEX_BGR16; break;
-			case 24 : mode->flags |= MODE_FLAGS_INDEX_BGR24; break;
-			case 32 : mode->flags |= MODE_FLAGS_INDEX_BGR32; break;
-			default:
-				return -1;
-			}
-			break;
-		default :
+	case vbeMemTXT:
+		mode->flags |= MODE_FLAGS_INDEX_TEXT;
+		break;
+	case vbeMemPK:
+		mode->flags |= MODE_FLAGS_INDEX_PALETTE8;
+		break;
+	case vbeMemRGB:
+		switch (info.BitsPerPixel) {
+		case 15: mode->flags |= MODE_FLAGS_INDEX_BGR15; break;
+		case 16: mode->flags |= MODE_FLAGS_INDEX_BGR16; break;
+		case 24: mode->flags |= MODE_FLAGS_INDEX_BGR24; break;
+		case 32: mode->flags |= MODE_FLAGS_INDEX_BGR32; break;
+		default:
 			return -1;
+		}
+		break;
+	default:
+		return -1;
 	}
 
 	mode->size_x = info.XResolution;
 	mode->size_y = info.YResolution;
-	if (info.MemoryModel==vbeMemTXT) {
+	if (info.MemoryModel == vbeMemTXT) {
 		mode->size_x *= info.XCharSize;
 		mode->size_y *= info.YCharSize;
 	}
@@ -263,7 +263,7 @@ adv_error vbe_palette8_set(const adv_color_rgb* palette, unsigned start, unsigne
 
 	if (shift) {
 		unsigned i;
-		for(i=0;i<count;++i) {
+		for (i = 0; i < count; ++i) {
 			vbe_pal[i].red = palette[i].red >> shift;
 			vbe_pal[i].green = palette[i].green >> shift;
 			vbe_pal[i].blue = palette[i].blue >> shift;
@@ -271,7 +271,7 @@ adv_error vbe_palette8_set(const adv_color_rgb* palette, unsigned start, unsigne
 		}
 	} else {
 		unsigned i;
-		for(i=0;i<count;++i) {
+		for (i = 0; i < count; ++i) {
 			vbe_pal[i].red = palette[i].red;
 			vbe_pal[i].green = palette[i].green;
 			vbe_pal[i].blue = palette[i].blue;
@@ -324,29 +324,29 @@ adv_error vbe_mode_generate(vbe_video_mode* mode, const adv_crtc* crtc, unsigned
 	}
 
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
-		case MODE_FLAGS_INDEX_PALETTE8 :
-			bits = 8;
-			model = vbeMemPK;
-			break;
-		case MODE_FLAGS_INDEX_BGR15 :
-			bits = 15;
-			model = vbeMemRGB;
-			break;
-		case MODE_FLAGS_INDEX_BGR16 :
-			bits = 16;
-			model = vbeMemRGB;
-			break;
-		case MODE_FLAGS_INDEX_BGR24 :
-			bits = 24;
-			model = vbeMemRGB;
-			break;
-		case MODE_FLAGS_INDEX_BGR32 :
-			bits = 32;
-			model = vbeMemRGB;
-			break;
-		default:
-			assert(0);
-			return -1;
+	case MODE_FLAGS_INDEX_PALETTE8:
+		bits = 8;
+		model = vbeMemPK;
+		break;
+	case MODE_FLAGS_INDEX_BGR15:
+		bits = 15;
+		model = vbeMemRGB;
+		break;
+	case MODE_FLAGS_INDEX_BGR16:
+		bits = 16;
+		model = vbeMemRGB;
+		break;
+	case MODE_FLAGS_INDEX_BGR24:
+		bits = 24;
+		model = vbeMemRGB;
+		break;
+	case MODE_FLAGS_INDEX_BGR32:
+		bits = 32;
+		model = vbeMemRGB;
+		break;
+	default:
+		assert(0);
+		return -1;
 	}
 
 	number = vbe_search_target_mode(crtc->hde, crtc->vde, bits, model, vbeflags);

@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -45,7 +45,7 @@ void inc_str_init(adv_string* str)
 void inc_str_done(adv_string* str)
 {
 	unsigned i;
-	for(i=1;i<=str->buffer_mac;++i)
+	for (i = 1; i <= str->buffer_mac; ++i)
 		free(str->buffer_map[i]);
 }
 
@@ -121,7 +121,7 @@ char* inc_str_alloc(adv_string* str)
 
 	/* copy on the buffer */
 	size = 0;
-	for(i=0;i<str->buffer_mac;++i) {
+	for (i = 0; i < str->buffer_mac; ++i) {
 		unsigned len = 1 << (i + 8);
 		memcpy(result + size, str->buffer_map[i], len);
 		size += len;
@@ -135,3 +135,4 @@ char* inc_str_alloc(adv_string* str)
 
 	return result;
 }
+

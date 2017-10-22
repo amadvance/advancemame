@@ -58,18 +58,18 @@ static void video_8_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uint
 	inner_count = (dx - pre_count) / 4;
 	post_count = dx - pre_count - inner_count * 4;
 
-	for(j=0;j<dy;++j) {
+	for (j = 0; j < dy; ++j) {
 		void* dst = video_write_line(y) + x;
 		unsigned i;
-		for(i=pre_count;i;--i) {
+		for (i = pre_count; i; --i) {
 			P8DER0(dst) = mask;
 			PADD(dst, 1);
 		}
-		for(i=inner_count;i;--i) {
+		for (i = inner_count; i; --i) {
 			P32DER0(dst) = mask;
 			PADD(dst, 4);
 		}
-		for(i=post_count;i;--i) {
+		for (i = post_count; i; --i) {
 			P8DER0(dst) = mask;
 			PADD(dst, 1);
 		}
@@ -93,15 +93,15 @@ static void video_16_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uns
 	inner_count = (dx - pre_count) / 2;
 	post_count = dx - pre_count - inner_count * 2;
 
-	for(j=0;j<dy;++j) {
-		void* dst = video_write_line(y) + 2*x;
+	for (j = 0; j < dy; ++j) {
+		void* dst = video_write_line(y) + 2 * x;
 		unsigned i;
 		if (pre_count) {
 			P8DER0(dst) = mask;
 			P8DER(dst, 1) = mask >> 8;
 			PADD(dst, 2);
 		}
-		for(i=inner_count;i;--i) {
+		for (i = inner_count; i; --i) {
 			P32DER0(dst) = mask;
 			PADD(dst, 4);
 		}
@@ -127,10 +127,10 @@ static void video_24_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uns
 	mask2 = (src >> 16) & 0xFF;
 	inner_count = dx;
 
-	for(j=0;j<dy;++j) {
-		void* dst = video_write_line(y) + 4*x;
+	for (j = 0; j < dy; ++j) {
+		void* dst = video_write_line(y) + 4 * x;
 		unsigned i;
-		for(i=inner_count;i;--i) {
+		for (i = inner_count; i; --i) {
 			P8DER0(dst) = mask0;
 			P8DER(dst, 1) = mask1;
 			P8DER(dst, 2) = mask2;
@@ -149,10 +149,10 @@ static void video_32_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uns
 	mask = src;
 	inner_count = dx;
 
-	for(j=0;j<dy;++j) {
-		void* dst = video_write_line(y) + 4*x;
+	for (j = 0; j < dy; ++j) {
+		void* dst = video_write_line(y) + 4 * x;
 		unsigned i;
-		for(i=inner_count;i;--i) {
+		for (i = inner_count; i; --i) {
 			P32DER0(dst) = mask;
 			PADD(dst, 4);
 		}
@@ -164,16 +164,16 @@ static void video_32_clear(unsigned x, unsigned y, unsigned dx, unsigned dy, uns
 void video_clear(unsigned dst_x, unsigned dst_y, unsigned dst_dx, unsigned dst_dy, unsigned src)
 {
 	switch (video_bytes_per_pixel()) {
-	case 1 :
+	case 1:
 		video_8_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 		break;
-	case 2 :
+	case 2:
 		video_16_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 		break;
-	case 3 :
+	case 3:
 		video_24_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 		break;
-	case 4 :
+	case 4:
 		video_32_clear(dst_x, dst_y, dst_dx, dst_dy, src);
 		break;
 	}

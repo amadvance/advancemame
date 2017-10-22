@@ -34,8 +34,8 @@
 #include "log.h"
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "No keyboard" },
-{ 0, 0, 0 }
+	{ "auto", -1, "No keyboard" },
+	{ 0, 0, 0 }
 };
 
 adv_error keyb_none_init(int keyb_id, adv_bool disable_special)
@@ -77,7 +77,7 @@ void keyb_none_all_get(unsigned keyboard, unsigned char* code_map)
 
 	log_debug(("keyb:none: keyb_none_all_get()\n"));
 
-	for(i=0;i<KEYB_MAX;++i) {
+	for (i = 0; i < KEYB_MAX; ++i) {
 		code_map[i] = 0;
 	}
 }
@@ -121,5 +121,4 @@ keyb_driver keyb_none_driver = {
 	0,
 	keyb_none_poll
 };
-
 

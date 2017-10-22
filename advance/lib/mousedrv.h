@@ -88,7 +88,7 @@ typedef struct mouseb_driver_struct {
 struct mouseb_state_struct {
 	adv_bool is_initialized_flag; /**< If the mouseb_load() or mouseb_default() function was called. */
 	adv_bool is_active_flag; /**< If the mouseb_init() function was called. */
-	adv_bool is_enabled_flag; /**< If the mouseb_enable() function was called. */	
+	adv_bool is_enabled_flag; /**< If the mouseb_enable() function was called. */
 	unsigned driver_mac; /**< Number of registered drivers. */
 	mouseb_driver* driver_map[MOUSE_DRIVER_MAX]; /**< Registered drivers. */
 	mouseb_driver* driver_current; /**< Current driver active. 0 if none. */
@@ -140,5 +140,4 @@ const char* mouseb_name(void);
 #endif
 
 #endif
-
 

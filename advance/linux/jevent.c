@@ -116,7 +116,7 @@ struct joystick_item_context {
 	adv_bool actlabs_hack_enable; /**< If the ACT Labs hack is enabled. */
 	unsigned actlabs_hack_counter; /**< Poll counter at the hack start. */
 #endif
-	unsigned char evtype_bitmask[EV_MAX/8 + 1];
+	unsigned char evtype_bitmask[EV_MAX / 8 + 1];
 	unsigned stick_mac;
 	struct joystick_stick_context stick_map[EVENT_JOYSTICK_STICK_MAX];
 	unsigned button_mac;
@@ -136,17 +136,17 @@ static struct joystickb_event_context event_state;
 /***************************************************************************/
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "Linux input-event joystick" },
-{ 0, 0, 0 }
+	{ "auto", -1, "Linux input-event joystick" },
+	{ 0, 0, 0 }
 };
 
 #define ABS_UNASSIGNED -1
 
 static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 {
-	unsigned char key_bitmask[KEY_MAX/8 + 1];
-	unsigned char abs_bitmask[ABS_MAX/8 + 1];
-	unsigned char rel_bitmask[REL_MAX/8 + 1];
+	unsigned char key_bitmask[KEY_MAX / 8 + 1];
+	unsigned char abs_bitmask[ABS_MAX / 8 + 1];
+	unsigned char rel_bitmask[REL_MAX / 8 + 1];
 	unsigned i;
 	unsigned short device_info[4];
 
@@ -154,200 +154,200 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		int code;
 		const char* name;
 	} button_map[] = {
-		#ifdef BTN_TRIGGER
+#ifdef BTN_TRIGGER
 		{ BTN_TRIGGER, "trigger" }, /* joystick */
-		#endif
-		#ifdef BTN_THUMB
+#endif
+#ifdef BTN_THUMB
 		{ BTN_THUMB, "thumb" }, /* joystick */
-		#endif
-		#ifdef BTN_THUMB2
+#endif
+#ifdef BTN_THUMB2
 		{ BTN_THUMB2, "thumb2" }, /* joystick */
-		#endif
-		#ifdef BTN_TOP
+#endif
+#ifdef BTN_TOP
 		{ BTN_TOP, "top" }, /* joystick */
-		#endif
-		#ifdef BTN_TOP2
+#endif
+#ifdef BTN_TOP2
 		{ BTN_TOP2, "top2" }, /* joystick */
-		#endif
-		#ifdef BTN_PINKIE
+#endif
+#ifdef BTN_PINKIE
 		{ BTN_PINKIE, "pinkie" }, /* joystick */
-		#endif
-		#ifdef BTN_BASE
+#endif
+#ifdef BTN_BASE
 		{ BTN_BASE, "base" }, /* joystick */
-		#endif
-		#ifdef BTN_BASE2
+#endif
+#ifdef BTN_BASE2
 		{ BTN_BASE2, "base2" }, /* joystick */
-		#endif
-		#ifdef BTN_BASE3
+#endif
+#ifdef BTN_BASE3
 		{ BTN_BASE3, "base3" }, /* joystick */
-		#endif
-		#ifdef BTN_BASE4
+#endif
+#ifdef BTN_BASE4
 		{ BTN_BASE4, "base4" }, /* joystick */
-		#endif
-		#ifdef BTN_BASE5
+#endif
+#ifdef BTN_BASE5
 		{ BTN_BASE5, "base5" }, /* joystick */
-		#endif
-		#ifdef BTN_BASE6
+#endif
+#ifdef BTN_BASE6
 		{ BTN_BASE6, "base6" }, /* joystick */
-		#endif
+#endif
 		{ 0x12c, "extra1" }, /* extra button used incorrectly by some joysticks */
 		{ 0x12d, "extra2" }, /* extra button used incorrectly by some joysticks */
 		{ 0x12e, "extra3" }, /* extra button used incorrectly by some joysticks */
-		#ifdef BTN_DEAD
+#ifdef BTN_DEAD
 		{ BTN_DEAD, "dead" }, /* not really clear what is it */
-		#endif
+#endif
 		/* note that the happy name has no meaning */
 		/* if not to make "happy" joysticks with many buttons */
-		#ifdef BTN_TRIGGER_HAPPY1
+#ifdef BTN_TRIGGER_HAPPY1
 		{ BTN_TRIGGER_HAPPY1, "happy1" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY2
+#endif
+#ifdef BTN_TRIGGER_HAPPY2
 		{ BTN_TRIGGER_HAPPY2, "happy2" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY3
+#endif
+#ifdef BTN_TRIGGER_HAPPY3
 		{ BTN_TRIGGER_HAPPY3, "happy3" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY4
+#endif
+#ifdef BTN_TRIGGER_HAPPY4
 		{ BTN_TRIGGER_HAPPY4, "happy4" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY5
+#endif
+#ifdef BTN_TRIGGER_HAPPY5
 		{ BTN_TRIGGER_HAPPY5, "happy5" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY6
+#endif
+#ifdef BTN_TRIGGER_HAPPY6
 		{ BTN_TRIGGER_HAPPY6, "happy6" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY7
+#endif
+#ifdef BTN_TRIGGER_HAPPY7
 		{ BTN_TRIGGER_HAPPY7, "happy7" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY8
+#endif
+#ifdef BTN_TRIGGER_HAPPY8
 		{ BTN_TRIGGER_HAPPY8, "happy8" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY9
+#endif
+#ifdef BTN_TRIGGER_HAPPY9
 		{ BTN_TRIGGER_HAPPY9, "happy9" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY10
+#endif
+#ifdef BTN_TRIGGER_HAPPY10
 		{ BTN_TRIGGER_HAPPY10, "happy10" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY11
+#endif
+#ifdef BTN_TRIGGER_HAPPY11
 		{ BTN_TRIGGER_HAPPY11, "happy11" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY12
+#endif
+#ifdef BTN_TRIGGER_HAPPY12
 		{ BTN_TRIGGER_HAPPY12, "happy12" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY13
+#endif
+#ifdef BTN_TRIGGER_HAPPY13
 		{ BTN_TRIGGER_HAPPY13, "happy13" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY14
+#endif
+#ifdef BTN_TRIGGER_HAPPY14
 		{ BTN_TRIGGER_HAPPY14, "happy14" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY15
+#endif
+#ifdef BTN_TRIGGER_HAPPY15
 		{ BTN_TRIGGER_HAPPY15, "happy15" }, /* joystick */
-		#endif
-		#ifdef BTN_TRIGGER_HAPPY16
+#endif
+#ifdef BTN_TRIGGER_HAPPY16
 		{ BTN_TRIGGER_HAPPY16, "happy16" }, /* joystick */
-		#endif
-		#ifdef BTN_A
+#endif
+#ifdef BTN_A
 		{ BTN_A, "a" }, /* gamepad */
-		#endif
-		#ifdef BTN_B
+#endif
+#ifdef BTN_B
 		{ BTN_B, "b" }, /* gamepad */
-		#endif
-		#ifdef BTN_C
+#endif
+#ifdef BTN_C
 		{ BTN_C, "c" }, /* gamepad */
-		#endif
-		#ifdef BTN_X
+#endif
+#ifdef BTN_X
 		{ BTN_X, "x" }, /* gamepad */
-		#endif
-		#ifdef BTN_Y
+#endif
+#ifdef BTN_Y
 		{ BTN_Y, "y" }, /* gamepad */
-		#endif
-		#ifdef BTN_Z
+#endif
+#ifdef BTN_Z
 		{ BTN_Z, "z" }, /* gamepad */
-		#endif
-		#ifdef BTN_TL
+#endif
+#ifdef BTN_TL
 		{ BTN_TL, "tl" }, /* gamepad (top left) */
-		#endif
-		#ifdef BTN_TR
+#endif
+#ifdef BTN_TR
 		{ BTN_TR, "tr" }, /* gamepad (top right) */
-		#endif
-		#ifdef BTN_TL2
+#endif
+#ifdef BTN_TL2
 		{ BTN_TL2, "tl2" }, /* gamepad (top left 2) */
-		#endif
-		#ifdef BTN_TR2
+#endif
+#ifdef BTN_TR2
 		{ BTN_TR2, "tr2" }, /* gamepad (top right 2) */
-		#endif
-		#ifdef BTN_SELECT
+#endif
+#ifdef BTN_SELECT
 		{ BTN_SELECT, "select" }, /* gamepad */
-		#endif
-		#ifdef BTN_START
+#endif
+#ifdef BTN_START
 		{ BTN_START, "start" }, /* gamepad */
-		#endif
-		#ifdef BTN_MODE
+#endif
+#ifdef BTN_MODE
 		{ BTN_MODE, "mode" }, /* gamepad */
-		#endif
-		#ifdef BTN_THUMBL
+#endif
+#ifdef BTN_THUMBL
 		{ BTN_THUMBL, "thumbl" }, /* gamepad (thumb left) */
-		#endif
-		#ifdef BTN_THUMBR
+#endif
+#ifdef BTN_THUMBR
 		{ BTN_THUMBR, "thumbr" }, /* gamepad (thumb right) */
-		#endif
-		#ifdef BTN_GEAR_DOWN
+#endif
+#ifdef BTN_GEAR_DOWN
 		{ BTN_GEAR_DOWN, "gear_down" }, /* wheel */
-		#endif
-		#ifdef BTN_GEAR_UP
+#endif
+#ifdef BTN_GEAR_UP
 		{ BTN_GEAR_UP, "gear_up" }, /* wheel */
-		#endif
-		#ifdef BTN_0
+#endif
+#ifdef BTN_0
 		{ BTN_0, "0" }, /* misc */
-		#endif
-		#ifdef BTN_1
+#endif
+#ifdef BTN_1
 		{ BTN_1, "1" }, /* misc */
-		#endif
-		#ifdef BTN_2
+#endif
+#ifdef BTN_2
 		{ BTN_2, "2" }, /* misc */
-		#endif
-		#ifdef BTN_3
+#endif
+#ifdef BTN_3
 		{ BTN_3, "3" }, /* misc */
-		#endif
-		#ifdef BTN_4
+#endif
+#ifdef BTN_4
 		{ BTN_4, "4" }, /* misc */
-		#endif
-		#ifdef BTN_5
+#endif
+#ifdef BTN_5
 		{ BTN_5, "5" }, /* misc */
-		#endif
-		#ifdef BTN_6
+#endif
+#ifdef BTN_6
 		{ BTN_6, "6" }, /* misc */
-		#endif
-		#ifdef BTN_7
+#endif
+#ifdef BTN_7
 		{ BTN_7, "7" }, /* misc */
-		#endif
-		#ifdef BTN_8
+#endif
+#ifdef BTN_8
 		{ BTN_8, "8" }, /* misc */
-		#endif
-		#ifdef BTN_9
+#endif
+#ifdef BTN_9
 		{ BTN_9, "9" }, /* misc */
-		#endif
-		#ifdef BTN_LEFT
+#endif
+#ifdef BTN_LEFT
 		{ BTN_LEFT, "left" }, /* ball */
-		#endif
-		#ifdef BTN_RIGHT
+#endif
+#ifdef BTN_RIGHT
 		{ BTN_RIGHT, "right" }, /* ball */
-		#endif
-		#ifdef BTN_MIDDLE
+#endif
+#ifdef BTN_MIDDLE
 		{ BTN_MIDDLE, "middle" }, /* ball/lightgun first button */
-		#endif
-		#ifdef BTN_SIDE
+#endif
+#ifdef BTN_SIDE
 		{ BTN_SIDE, "side" }, /* ball/lightgun second button */
-		#endif
-		#ifdef BTN_EXTRA
+#endif
+#ifdef BTN_EXTRA
 		{ BTN_EXTRA, "extra" }, /* ball */
-		#endif
-		#ifdef BTN_FORWARD
+#endif
+#ifdef BTN_FORWARD
 		{ BTN_FORWARD, "forward" }, /* ball */
-		#endif
-		#ifdef BTN_BACK
+#endif
+#ifdef BTN_BACK
 		{ BTN_BACK, "back" } /* ball */
-		#endif
+#endif
 	};
 
 	/* WARNING: It must be syncronized with the list in event.c */
@@ -359,67 +359,67 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		const char* name;
 	} stick_map[] = {
 		{ { { ABS_X, "x" }, { ABS_Y, "y" }, { ABS_Z, "z" }, { ABS_RX, "rx" }, { ABS_RY, "ry" }, { ABS_RZ, "rz" }, { ABS_UNASSIGNED, 0 } }, "stick" },
-		#ifdef ABS_GAS
+#ifdef ABS_GAS
 		{ { { ABS_GAS, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "gas" }, /* IT:acceleratore */
-		#endif
-		#ifdef ABS_BRAKE
+#endif
+#ifdef ABS_BRAKE
 		{ { { ABS_BRAKE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "brake" }, /* IT:freno */
-		#endif
-		#ifdef ABS_WHEEL
+#endif
+#ifdef ABS_WHEEL
 		{ { { ABS_WHEEL, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "wheel" }, /* IT:volante */
-		#endif
-		#ifdef ABS_HAT0X
+#endif
+#ifdef ABS_HAT0X
 		{ { { ABS_HAT0X, "x" }, { ABS_HAT0Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat" }, /* IT:mini joystick digitale */
-		#endif
-		#ifdef ABS_HAT1X
+#endif
+#ifdef ABS_HAT1X
 		{ { { ABS_HAT1X, "x" }, { ABS_HAT1Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat2" },
-		#endif
-		#ifdef ABS_HAT2X
+#endif
+#ifdef ABS_HAT2X
 		{ { { ABS_HAT2X, "x" }, { ABS_HAT2Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat3" },
-		#endif
-		#ifdef ABS_HAT3X
+#endif
+#ifdef ABS_HAT3X
 		{ { { ABS_HAT3X, "x" }, { ABS_HAT3Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "hat4" },
-		#endif
-		#ifdef ABS_THROTTLE
+#endif
+#ifdef ABS_THROTTLE
 		{ { { ABS_THROTTLE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "throttle" },
-		#endif
-		#ifdef ABS_RUDDER
+#endif
+#ifdef ABS_RUDDER
 		{ { { ABS_RUDDER, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "rudder" }, /* IT:timone */
-		#endif
+#endif
 		/* { { { ABS_PRESSURE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "pressure" }, */ /* tablet */
 		/* { { { ABS_DISTANCE, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "distance" }, */ /* tablet */
 		/* { { { ABS_TILT_X, "x" }, { ABS_TILT_Y, "y" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "tilt" }, */ /* tablet */
 		/* { { { ABS_VOLUME, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "volume" }, */ /* not an action control */
-		#ifdef ABS_MISC
+#ifdef ABS_MISC
 		{ { { ABS_MISC, "mono" }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 }, { ABS_UNASSIGNED, 0 } }, "misc" }
-		#endif
+#endif
 	};
 
 	struct rel_entry {
 		int code;
 		const char* name;
 	} rel_map[] = {
-		#ifdef REL_X
+#ifdef REL_X
 		{ REL_X, "x" },
-		#endif
-		#ifdef REL_Y
+#endif
+#ifdef REL_Y
 		{ REL_Y, "y" },
-		#endif
-		#ifdef REL_Z
+#endif
+#ifdef REL_Z
 		{ REL_Z, "z" },
-		#endif
-		#ifdef REL_WHEEL
+#endif
+#ifdef REL_WHEEL
 		{ REL_WHEEL, "wheel" }, /* (IT: rotella del mouse verticale) */
-		#endif
-		#ifdef REL_HWHEEL
+#endif
+#ifdef REL_HWHEEL
 		{ REL_HWHEEL, "hwheel" }, /* (IT: rotella del mouse orizzontale) */
-		#endif
-		#ifdef REL_DIAL
+#endif
+#ifdef REL_DIAL
 		{ REL_DIAL, "dial" }, /* (IT: manopola che gira) */
-		#endif
-		#ifdef REL_MISC
+#endif
+#ifdef REL_MISC
 		{ REL_MISC, "misc" }
-		#endif
+#endif
 	};
 
 	item->f = f;
@@ -437,7 +437,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	}
 
 	item->button_mac = 0;
-	for(i=0;i<sizeof(button_map)/sizeof(button_map[0]);++i) {
+	for (i = 0; i < sizeof(button_map) / sizeof(button_map[0]); ++i) {
 		if (event_test_bit(button_map[i].code, key_bitmask)) {
 			if (item->button_mac < EVENT_JOYSTICK_BUTTON_MAX) {
 				item->button_map[item->button_mac].code = button_map[i].code;
@@ -457,7 +457,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	}
 
 	item->stick_mac = 0;
-	for(i=0;i<sizeof(stick_map)/sizeof(stick_map[0]);++i) {
+	for (i = 0; i < sizeof(stick_map) / sizeof(stick_map[0]); ++i) {
 		if (item->stick_mac < EVENT_JOYSTICK_STICK_MAX) {
 			unsigned j;
 			struct joystick_stick_context* stick = item->stick_map + item->stick_mac;
@@ -465,7 +465,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 			stick->axe_mac = 0;
 			sncpy(stick->name, sizeof(stick->name), stick_map[i].name);
 
-			for(j=0;stick_map[i].axe_map[j].code != ABS_UNASSIGNED;++j) {
+			for (j = 0; stick_map[i].axe_map[j].code != ABS_UNASSIGNED; ++j) {
 				int code = stick_map[i].axe_map[j].code;
 				if (event_test_bit(code, abs_bitmask)) {
 					if (stick->axe_mac < EVENT_JOYSTICK_AXE_MAX) {
@@ -520,7 +520,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	}
 
 	item->rel_mac = 0;
-	for(i=0;i<sizeof(rel_map)/sizeof(rel_map[0]);++i) {
+	for (i = 0; i < sizeof(rel_map) / sizeof(rel_map[0]); ++i) {
 		if (event_test_bit(rel_map[i].code, rel_bitmask)) {
 			if (item->rel_mac < EVENT_JOYSTICK_REL_MAX) {
 				item->rel_map[item->rel_mac].code = rel_map[i].code;
@@ -550,7 +550,7 @@ adv_error joystickb_event_init(int joystickb_id)
 	mac = event_locate(map, EVENT_JOYSTICK_DEVICE_MAX, "event", &eacces);
 
 	event_state.mac = 0;
-	for(i=0;i<mac;++i) {
+	for (i = 0; i < mac; ++i) {
 		int f;
 		struct joystick_item_context* item = &event_state.map[event_state.mac];
 
@@ -601,7 +601,7 @@ void joystickb_event_done(void)
 
 	log_std(("josytickb:event: joystickb_event_done()\n"));
 
-	for(i=0;i<event_state.mac;++i)
+	for (i = 0; i < event_state.mac; ++i)
 		event_close(event_state.map[i].f);
 	event_state.mac = 0;
 }
@@ -755,7 +755,7 @@ static void joystickb_event_axe_set(struct joystick_axe_context* axe, int value)
    range of values about the mid-point in the axes that are indicate a zero
    response (typically, this is the "dead zone" around the null position of a
    joystick).
-*/
+ */
 	int min = axe->min;
 	int max = axe->max;
 	int fuzz = axe->fuzz;
@@ -827,7 +827,7 @@ void joystickb_event_poll(void)
 
 	++event_state.counter;
 
-	for(i=0;i<event_state.mac;++i) {
+	for (i = 0; i < event_state.mac; ++i) {
 		struct joystick_item_context* item = event_state.map + i;
 
 		while (event_read(item->f, &type, &code, &value) == 0) {
@@ -836,8 +836,8 @@ void joystickb_event_poll(void)
 				unsigned j;
 
 				log_debug(("joystickb:event: read type %d (key), code %d, value %d\n", type, code, value));
-				
-				for(j=0;j<item->button_mac;++j) {
+
+				for (j = 0; j < item->button_mac; ++j) {
 					if (code == item->button_map[j].code) {
 						item->button_map[j].state = value != 0;
 						break;
@@ -861,7 +861,7 @@ void joystickb_event_poll(void)
 
 				log_debug(("joystickb:event: read type %d (rel), code %d, value %d\n", type, code, value));
 
-				for(j=0;j<item->rel_mac;++j) {
+				for (j = 0; j < item->rel_mac; ++j) {
 					if (code == item->rel_map[j].code) {
 						item->rel_map[j].value += value;
 						break;
@@ -872,10 +872,10 @@ void joystickb_event_poll(void)
 				log_debug(("joystickb:event: read type %d (abs), code %d, value %d\n", type, code, value));
 
 				unsigned j;
-				for(j=0;j<item->stick_mac;++j) {
+				for (j = 0; j < item->stick_mac; ++j) {
 					unsigned k;
 					struct joystick_stick_context* stick = item->stick_map + j;
-					for(k=0;k<stick->axe_mac;++k) {
+					for (k = 0; k < stick->axe_mac; ++k) {
 						struct joystick_axe_context* axe = stick->axe_map + k;
 						if (code == axe->code)
 							joystickb_event_axe_set(axe, value);

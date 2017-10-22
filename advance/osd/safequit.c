@@ -12,7 +12,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -191,13 +191,13 @@ static adv_error advance_safequit_load_database(struct advance_safequit_context*
 		unsigned len = strlen(buffer);
 
 		/* remove spaces at the end */
-		while (len>0 && isspace(buffer[len-1]))
+		while (len > 0 && isspace(buffer[len - 1]))
 			buffer[--len] = 0;
 
-		if (len>0 && (buffer[0]==';' || buffer[0] == '#')) {
+		if (len > 0 && (buffer[0] == ';' || buffer[0] == '#')) {
 			/* ignore comment line */
-		} else if (len>0 && strchr(buffer, ':') == &buffer[len-1]) {
-			buffer[len-1] = 0; /* remove the : */
+		} else if (len > 0 && strchr(buffer, ':') == &buffer[len - 1]) {
+			buffer[len - 1] = 0; /* remove the : */
 			sncpy(game_name_buffer, sizeof(game_name_buffer), buffer);
 			if (!def)
 				match = 0;
@@ -217,7 +217,7 @@ static adv_error advance_safequit_load_database(struct advance_safequit_context*
 		buffer[0] = 0;
 	}
 
-	for(i=0;i<context->state.entry_mac;++i) {
+	for (i = 0; i < context->state.entry_mac; ++i) {
 		struct safequit_entry* entry = &context->state.entry_map[i];
 		log_std(("advance:safequit: entry %d:%d:%x:%d:%x:%x\n", (unsigned)entry->event, (unsigned)entry->cpu, (unsigned)entry->address, (unsigned)entry->action, (unsigned)entry->mask, (unsigned)entry->result));
 	}
@@ -234,19 +234,19 @@ err:
 static adv_bool advance_safequit_is_entry_set(struct safequit_entry* entry, unsigned char result)
 {
 	switch (entry->action) {
-	case safequit_action_match :
+	case safequit_action_match:
 		if ((result & entry->mask) == entry->result) {
 			return 1;
 		}
 		break;
-	case safequit_action_nomatch :
+	case safequit_action_nomatch:
 		if ((result & entry->mask) != entry->result) {
 			return 1;
 		}
 		break;
-	case safequit_action_on :
+	case safequit_action_on:
 		return 1;
-	case safequit_action_off :
+	case safequit_action_off:
 		return 0;
 	}
 
@@ -343,7 +343,7 @@ void advance_safequit_update(struct advance_safequit_context* context)
 	if (context->state.entry_mac) {
 
 		context->state.status = 0xffffffff;
-		for(i=0;i<context->state.entry_mac;++i) {
+		for (i = 0; i < context->state.entry_mac; ++i) {
 			struct safequit_entry* entry = &context->state.entry_map[i];
 			unsigned char result = mame_ui_cpu_read(entry->cpu, entry->address);
 

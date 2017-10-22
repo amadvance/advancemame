@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -136,7 +136,7 @@ typedef struct tagRAWINPUTHEADER {
 	DWORD dwSize;
 	HANDLE hDevice;
 	WPARAM wParam;
-} RAWINPUTHEADER,*PRAWINPUTHEADER;
+} RAWINPUTHEADER, *PRAWINPUTHEADER;
 typedef struct tagRAWMOUSE {
 	USHORT usFlags;
 	_ANONYMOUS_UNION union {
@@ -150,7 +150,7 @@ typedef struct tagRAWMOUSE {
 	LONG lLastX;
 	LONG lLastY;
 	ULONG ulExtraInformation;
-} RAWMOUSE,*PRAWMOUSE,*LPRAWMOUSE;
+} RAWMOUSE, *PRAWMOUSE, *LPRAWMOUSE;
 typedef struct tagRAWKEYBOARD {
 	USHORT MakeCode;
 	USHORT Flags;
@@ -158,12 +158,12 @@ typedef struct tagRAWKEYBOARD {
 	USHORT VKey;
 	UINT Message;
 	ULONG ExtraInformation;
-} RAWKEYBOARD,*PRAWKEYBOARD,*LPRAWKEYBOARD;
+} RAWKEYBOARD, *PRAWKEYBOARD, *LPRAWKEYBOARD;
 typedef struct tagRAWHID {
 	DWORD dwSizeHid;
 	DWORD dwCount;
 	BYTE bRawData;
-} RAWHID,*PRAWHID,*LPRAWHID;
+} RAWHID, *PRAWHID, *LPRAWHID;
 typedef struct tagRAWINPUT {
 	RAWINPUTHEADER header;
 	union {
@@ -171,18 +171,18 @@ typedef struct tagRAWINPUT {
 		RAWKEYBOARD keyboard;
 		RAWHID hid;
 	} data;
-} RAWINPUT,*PRAWINPUT,*LPRAWINPUT;
+} RAWINPUT, *PRAWINPUT, *LPRAWINPUT;
 typedef struct tagRAWINPUTDEVICE {
 	USHORT usUsagePage;
 	USHORT usUsage;
 	DWORD dwFlags;
 	HWND hwndTarget;
-} RAWINPUTDEVICE,*PRAWINPUTDEVICE,*LPRAWINPUTDEVICE;
+} RAWINPUTDEVICE, *PRAWINPUTDEVICE, *LPRAWINPUTDEVICE;
 typedef const RAWINPUTDEVICE *PCRAWINPUTDEVICE;
 typedef struct tagRAWINPUTDEVICELIST {
 	HANDLE hDevice;
 	DWORD dwType;
-} RAWINPUTDEVICELIST,*PRAWINPUTDEVICELIST;
+} RAWINPUTDEVICELIST, *PRAWINPUTDEVICELIST;
 
 typedef struct tagRID_DEVICE_INFO_MOUSE {
 	DWORD dwId;

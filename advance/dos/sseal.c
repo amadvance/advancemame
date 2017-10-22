@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -47,7 +47,7 @@ AL_FUNC(void, _dos_irq_exit, (void));
 AL_FUNC(int, _install_irq, (int num, AL_METHOD(int, handler, (void))));
 AL_FUNC(void, _remove_irq, (int num));
 
-#define _eoi(irq) do { outportb(0x20, 0x20); if ((irq)>7) outportb(0xA0, 0x20); } while (0)
+#define _eoi(irq) do { outportb(0x20, 0x20); if ((irq) > 7) outportb(0xA0, 0x20); } while (0)
 
 #define SOUND_TIMERS_PER_SECOND 1193181
 #define SOUND_SECS_TO_TIMER(x) ((x) * SOUND_TIMERS_PER_SECOND)
@@ -81,14 +81,14 @@ struct soundb_seal_context {
 static struct soundb_seal_context seal_state;
 
 static adv_device DEVICE[] = {
-{ "auto", AUDIO_DEVICE_MAPPER, "SEAL sound" },
-{ "sb", 1, "Sound Blaster" },
-{ "pas", 3, "Pro Audio Spectrum" },
-{ "gusmax", 4, "Gravis Ultrasound Max" },
-{ "gus", 5, "Gravis Ultrasound" },
-{ "wss", 6, "Windows Sound System" },
-{ "ess", 7, "Ensoniq Soundscape" },
-{ 0, 0, 0 }
+	{ "auto", AUDIO_DEVICE_MAPPER, "SEAL sound" },
+	{ "sb", 1, "Sound Blaster" },
+	{ "pas", 3, "Pro Audio Spectrum" },
+	{ "gusmax", 4, "Gravis Ultrasound Max" },
+	{ "gus", 5, "Gravis Ultrasound" },
+	{ "wss", 6, "Windows Sound System" },
+	{ "ess", 7, "Ensoniq Soundscape" },
+	{ 0, 0, 0 }
 };
 
 adv_error soundb_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, double buffer_time)
@@ -160,7 +160,7 @@ adv_error soundb_seal_init(int device_id, unsigned* rate, adv_bool stereo_flag, 
 		return -1;
 	}
 
-	for (i=0;i<seal_state.channel;++i) {
+	for (i = 0; i < seal_state.channel; ++i) {
 		seal_state.wave[i] = 0;
 	}
 
@@ -197,7 +197,7 @@ void soundb_seal_stop(void)
 
 	log_std(("sound:seal: soundb_seal_stop()\n"));
 
-	for (i=0;i<seal_state.channel;++i) {
+	for (i = 0; i < seal_state.channel; ++i) {
 		assert(seal_state.wave[i]);
 
 		AStopVoice(seal_state.voice[i]);
@@ -274,8 +274,7 @@ adv_error soundb_seal_start(double silence_time)
 
 	log_std(("sound:seal: soundb_seal_start(silecen_time:%g)\n", silence_time));
 
-	for(i=0;i<seal_state.channel;++i)
-	{
+	for (i = 0; i < seal_state.channel; ++i) {
 		if (ACreateAudioVoice(&seal_state.voice[i]) != AUDIO_ERROR_NONE)
 			return -1;
 
@@ -286,7 +285,7 @@ adv_error soundb_seal_start(double silence_time)
 
 		seal_state.wave[i]->wFormat = AUDIO_FORMAT_16BITS | AUDIO_FORMAT_MONO | AUDIO_FORMAT_LOOP;
 		seal_state.wave[i]->nSampleRate = seal_state.rate;
-		seal_state.wave[i]->dwLength = 2*seal_state.length; /* 2* for 16 bit */
+		seal_state.wave[i]->dwLength = 2 * seal_state.length; /* 2* for 16 bit */
 		seal_state.wave[i]->dwLoopStart = 0;
 		seal_state.wave[i]->dwLoopEnd = seal_state.wave[i]->dwLength;
 
@@ -383,8 +382,8 @@ void soundb_seal_play(const adv_sample* sample_map, unsigned sample_count)
 				*buf1++ = *sample_map++;
 				--i;
 			}
-			AWriteAudioData(seal_state.wave[0], 2*seal_state.pos, 2*run);
-			AWriteAudioData(seal_state.wave[1], 2*seal_state.pos, 2*run);
+			AWriteAudioData(seal_state.wave[0], 2 * seal_state.pos, 2 * run);
+			AWriteAudioData(seal_state.wave[1], 2 * seal_state.pos, 2 * run);
 			seal_state.pos += run;
 			if (seal_state.pos == seal_state.length)
 				seal_state.pos = 0;
@@ -403,7 +402,7 @@ void soundb_seal_play(const adv_sample* sample_map, unsigned sample_count)
 				*buf0++ = *sample_map++;
 				--i;
 			}
-			AWriteAudioData(seal_state.wave[0], 2*seal_state.pos, 2*run);
+			AWriteAudioData(seal_state.wave[0], 2 * seal_state.pos, 2 * run);
 			seal_state.pos += run;
 			if (seal_state.pos == seal_state.length)
 				seal_state.pos = 0;
@@ -445,5 +444,4 @@ soundb_driver soundb_seal_driver = {
 	soundb_seal_stop,
 	soundb_seal_volume
 };
-
 

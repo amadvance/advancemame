@@ -253,3 +253,4 @@ typedef struct adv_video_driver_struct {
 #endif
 
 /*@}*/
+

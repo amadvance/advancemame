@@ -25,23 +25,23 @@
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-   /* Put the tokens into the symbol table, so that GDB and other debuggers
-      know about them.  */
-   enum yytokentype {
-     OP_LOR = 258,
-     OP_LAND = 259,
-     OP_GE = 260,
-     OP_LE = 261,
-     OP_E = 262,
-     OP_SR = 263,
-     OP_SL = 264,
-     WAIT = 265,
-     DELAY = 266,
-     VAL = 267,
-     STRING = 268,
-     TEXT = 269
-   };
+#define YYTOKENTYPE
+/* Put the tokens into the symbol table, so that GDB and other debuggers
+   know about them.  */
+enum yytokentype {
+	OP_LOR = 258,
+	OP_LAND = 259,
+	OP_GE = 260,
+	OP_LE = 261,
+	OP_E = 262,
+	OP_SR = 263,
+	OP_SL = 264,
+	WAIT = 265,
+	DELAY = 266,
+	VAL = 267,
+	STRING = 268,
+	TEXT = 269
+};
 #endif
 #define OP_LOR 258
 #define OP_LAND 259
@@ -59,7 +59,7 @@
 
 
 
-#if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
+#if !defined (YYSTYPE) && !defined (YYSTYPE_IS_DECLARED)
 
 typedef union YYSTYPE {
 	int val;
@@ -70,12 +70,10 @@ typedef union YYSTYPE {
 } YYSTYPE;
 /* Line 1248 of yacc.c.  */
 
-# define yystype YYSTYPE /* obsolescent; will be withdrawn */
-# define YYSTYPE_IS_DECLARED 1
-# define YYSTYPE_IS_TRIVIAL 1
+#define yystype YYSTYPE  /* obsolescent; will be withdrawn */
+#define YYSTYPE_IS_DECLARED 1
+#define YYSTYPE_IS_TRIVIAL 1
 #endif
 
 extern YYSTYPE yylval;
-
-
 

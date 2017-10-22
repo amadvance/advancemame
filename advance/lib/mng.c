@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -43,7 +43,7 @@ static unsigned char MNG_Signature[] = "\x8A\x4D\x4E\x47\x0D\x0A\x1A\x0A";
 
 /**
  * Read the MNG file signature.
- * \param f File to read. 
+ * \param f File to read.
  */
 adv_error adv_mng_read_signature(adv_fz* f)
 {
@@ -54,7 +54,7 @@ adv_error adv_mng_read_signature(adv_fz* f)
 		return -1;
 	}
 
-	if (memcmp(signature, MNG_Signature, 8)!=0) {
+	if (memcmp(signature, MNG_Signature, 8) != 0) {
 		error_set("Invalid MNG signature");
 		return -1;
 	}
@@ -113,7 +113,7 @@ static adv_error mng_read_ihdr(adv_mng* mng, adv_fz* f, const unsigned char* ihd
 	} else if (ihdr[8] == 8 && ihdr[9] == 2) {
 		mng->pixel = 3;
 		bit_per_pixel = 8;
-	}else if (ihdr[8] == 8 && ihdr[9] == 6) {
+	} else if (ihdr[8] == 8 && ihdr[9] == 6) {
 		mng->pixel = 4;
 		bit_per_pixel = 8;
 	} else {
@@ -211,7 +211,7 @@ static adv_error mng_read_ihdr(adv_mng* mng, adv_fz* f, const unsigned char* ihd
 		/* expand */
 		out_ptr = mng->dat_ptr;
 		in_ptr = buf_ptr;
-		for(y=0;y<mng->dat_height;++y) {
+		for (y = 0; y < mng->dat_height; ++y) {
 			/* copy filter byte */
 			*out_ptr++ = *in_ptr++;
 
@@ -333,8 +333,8 @@ static adv_error mng_read_defi(adv_mng* mng, unsigned char* defi, unsigned defi_
 	}
 
 	if (defi_size >= 12) {
-		mng->dat_x = - (int)be_uint32_read(defi + 4);
-		mng->dat_y = - (int)be_uint32_read(defi + 8);
+		mng->dat_x = -(int)be_uint32_read(defi + 4);
+		mng->dat_y = -(int)be_uint32_read(defi + 8);
 	} else {
 		mng->dat_x = 0;
 		mng->dat_y = 0;
@@ -365,11 +365,11 @@ static adv_error mng_read_move(adv_mng* mng, adv_fz* f, unsigned char* move, uns
 	}
 
 	if (move[4] == 0) { /* replace */
-		mng->dat_x = - (int)be_uint32_read(move + 5);
-		mng->dat_y = - (int)be_uint32_read(move + 9);
+		mng->dat_x = -(int)be_uint32_read(move + 5);
+		mng->dat_y = -(int)be_uint32_read(move + 9);
 	} else if (move[4] == 1) { /* adding */
-		mng->dat_x += - (int)be_uint32_read(move + 5);
-		mng->dat_y += - (int)be_uint32_read(move + 9);
+		mng->dat_x += -(int)be_uint32_read(move + 5);
+		mng->dat_y += -(int)be_uint32_read(move + 9);
 	} else {
 		error_unsupported_set("Unsupported move type in MOVE chunk");
 		return -1;
@@ -386,7 +386,7 @@ static void mng_delta_replacement(adv_mng* mng, unsigned pos_x, unsigned pos_y, 
 	unsigned char* p0 = mng->dat_ptr + pos_y * mng->dat_line + pos_x * mng->pixel + 1;
 	unsigned char* p1 = mng->dlt_ptr + 1;
 
-	for(i=0;i<height;++i) {
+	for (i = 0; i < height; ++i) {
 		memcpy(p0, p1, bytes_per_run);
 		p0 += mng->dat_line;
 		p1 += delta_bytes_per_scanline;
@@ -401,8 +401,8 @@ static void mng_delta_addition(adv_mng* mng, unsigned pos_x, unsigned pos_y, uns
 	unsigned char* p0 = mng->dat_ptr + pos_y * mng->dat_line + pos_x * mng->pixel + 1;
 	unsigned char* p1 = mng->dlt_ptr + 1;
 
-	for(i=0;i<height;++i) {
-		for(j=0;j<bytes_per_run;++j) {
+	for (i = 0; i < height; ++i) {
+		for (j = 0; j < bytes_per_run; ++j) {
 			*p0++ += *p1++;
 		}
 		p0 += mng->dat_line - bytes_per_run;
@@ -428,12 +428,12 @@ static adv_error mng_read_delta(adv_mng* mng, adv_fz* f, unsigned char* dhdr, un
 	}
 
 	id = be_uint16_read(dhdr + 0);
-	if (id != 1) /* object id 1 */ {
+	if (id != 1) { /* object id 1 */
 		error_unsupported_set("Unsupported id number in DHDR chunk");
 		goto err;
 	}
 
-	if (dhdr[2] != 1) /* PNG stream without IHDR header */ {
+	if (dhdr[2] != 1) { /* PNG stream without IHDR header */
 		error_unsupported_set("Unsupported delta type in DHDR chunk");
 		goto err;
 	}
@@ -636,72 +636,72 @@ static adv_error mng_read(
 			goto err;
 
 		switch (type) {
-			case ADV_MNG_CN_DEFI :
-				if (mng_read_defi(mng, data, size) != 0)
-					goto err_data;
-				free(data);
-				break;
-			case ADV_MNG_CN_MOVE :
-				if (mng_read_move(mng, f, data, size) != 0)
-					goto err_data;
-				free(data);
-				break;
-			case ADV_PNG_CN_IHDR :
-				if (mng_read_ihdr(mng, f, data, size) != 0)
-					goto err_data;
-				free(data);
-				mng_import(mng, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size, own);
-				return 0;
-			case ADV_MNG_CN_DHDR :
-				if (mng_read_delta(mng, f, data, size) != 0)
-					goto err_data;
-				free(data);
-				mng_import(mng, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size, own);
-				return 0;
-			case ADV_MNG_CN_MEND :
-				mng->end_flag = 1;
-				free(data);
-				return 1;
-			case ADV_MNG_CN_FRAM :
-				if (size > 1) {
-					unsigned i = 1;
-					while (i < size && data[i])
-						++i;
-					if (size >= i+9) {
-						unsigned v = be_uint32_read(data + i+5);
-						if (v < 1)
-							v = 1;
-						if (data[i+1] == 1 || data[i+1] == 2)
-							*tick = v;
-						if (data[i+1] == 2)
-							mng->frame_tick = v;
-					}
+		case ADV_MNG_CN_DEFI:
+			if (mng_read_defi(mng, data, size) != 0)
+				goto err_data;
+			free(data);
+			break;
+		case ADV_MNG_CN_MOVE:
+			if (mng_read_move(mng, f, data, size) != 0)
+				goto err_data;
+			free(data);
+			break;
+		case ADV_PNG_CN_IHDR:
+			if (mng_read_ihdr(mng, f, data, size) != 0)
+				goto err_data;
+			free(data);
+			mng_import(mng, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size, own);
+			return 0;
+		case ADV_MNG_CN_DHDR:
+			if (mng_read_delta(mng, f, data, size) != 0)
+				goto err_data;
+			free(data);
+			mng_import(mng, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size, own);
+			return 0;
+		case ADV_MNG_CN_MEND:
+			mng->end_flag = 1;
+			free(data);
+			return 1;
+		case ADV_MNG_CN_FRAM:
+			if (size > 1) {
+				unsigned i = 1;
+				while (i < size && data[i])
+					++i;
+				if (size >= i + 9) {
+					unsigned v = be_uint32_read(data + i + 5);
+					if (v < 1)
+						v = 1;
+					if (data[i + 1] == 1 || data[i + 1] == 2)
+						*tick = v;
+					if (data[i + 1] == 2)
+						mng->frame_tick = v;
 				}
-				free(data);
-				break;
-			case ADV_MNG_CN_BACK :
-				/* ignored OUTOFSPEC */
-				free(data);
-				break;
-			case ADV_MNG_CN_LOOP :
-			case ADV_MNG_CN_ENDL :
-			case ADV_MNG_CN_SAVE :
-			case ADV_MNG_CN_SEEK :
-			case ADV_MNG_CN_TERM :
-				/* ignored */
-				free(data);
-				break;
-			default :
-				/* ancillary bit. bit 5 of first byte. 0 (uppercase) = critical, 1 (lowercase) = ancillary. */
-				if ((type & 0x20000000) == 0) {
-					char buf[4];
-					be_uint32_write(buf, type);
-					error_unsupported_set("Unsupported critical chunk '%c%c%c%c'", buf[0], buf[1], buf[2], buf[3]);
-					goto err_data;
-				}
-				/* ignored */
-				free(data);
-				break;
+			}
+			free(data);
+			break;
+		case ADV_MNG_CN_BACK:
+			/* ignored OUTOFSPEC */
+			free(data);
+			break;
+		case ADV_MNG_CN_LOOP:
+		case ADV_MNG_CN_ENDL:
+		case ADV_MNG_CN_SAVE:
+		case ADV_MNG_CN_SEEK:
+		case ADV_MNG_CN_TERM:
+			/* ignored */
+			free(data);
+			break;
+		default:
+			/* ancillary bit. bit 5 of first byte. 0 (uppercase) = critical, 1 (lowercase) = ancillary. */
+			if ((type & 0x20000000) == 0) {
+				char buf[4];
+				be_uint32_write(buf, type);
+				error_unsupported_set("Unsupported critical chunk '%c%c%c%c'", buf[0], buf[1], buf[2], buf[3]);
+				goto err_data;
+			}
+			/* ignored */
+			free(data);
+			break;
 		}
 	}
 
@@ -730,7 +730,7 @@ err:
  * \param pal_ptr Where to put the allocated palette data pointer. Set to 0 if the image is RGB.
  * \param pal_size Where to put the palette size in number of colors. Set to 0 if the image is RGB.
  * \param tick Where to put the number of tick of the frame. The effective time can be computed dividing by mng_frequency_get().
- * \param f File to read. 
+ * \param f File to read.
  * \return
  *   - == 0 ok
  *   - == 1 end of the mng stream
@@ -746,8 +746,8 @@ adv_error adv_mng_read(
 	adv_fz* f)
 {
 	return mng_read(mng, pix_width, pix_height, pix_pixel,
-		dat_ptr, dat_size, pix_ptr, pix_scanline,
-		pal_ptr, pal_size, tick, f, 0);
+		       dat_ptr, dat_size, pix_ptr, pix_scanline,
+		       pal_ptr, pal_size, tick, f, 0);
 }
 
 /**
@@ -768,8 +768,8 @@ adv_error adv_mng_read_done(
 	adv_error r;
 
 	r = mng_read(mng, pix_width, pix_height, pix_pixel,
-		dat_ptr, dat_size, pix_ptr, pix_scanline,
-		pal_ptr, pal_size, tick, f, 1);
+			dat_ptr, dat_size, pix_ptr, pix_scanline,
+			pal_ptr, pal_size, tick, f, 1);
 
 	if (r != 0)
 		free(mng->dat_ptr);
@@ -906,7 +906,7 @@ adv_error adv_mng_write_mhdr(
 	be_uint32_write(mhdr + 8, frequency);
 	be_uint32_write(mhdr + 24, simplicity);
 
-	if (adv_png_write_chunk(f, ADV_MNG_CN_MHDR, mhdr, 28, count)!=0)
+	if (adv_png_write_chunk(f, ADV_MNG_CN_MHDR, mhdr, 28, count) != 0)
 		return -1;
 
 	return 0;
@@ -914,7 +914,7 @@ adv_error adv_mng_write_mhdr(
 
 adv_error adv_mng_write_mend(adv_fz* f, unsigned* count)
 {
-	if (adv_png_write_chunk(f, ADV_MNG_CN_MEND, 0, 0, count)!=0)
+	if (adv_png_write_chunk(f, ADV_MNG_CN_MEND, 0, 0, count) != 0)
 		return -1;
 
 	return 0;
@@ -935,9 +935,9 @@ adv_error adv_mng_write_fram(unsigned tick, adv_fz* f, unsigned* count)
 	fram[3] = 0; /* No timeout change */
 	fram[4] = 0; /* No clip change */
 	fram[5] = 0; /* No sync id change */
-	be_uint32_write(fram+6, fi); /* Delay in tick */
+	be_uint32_write(fram + 6, fi); /* Delay in tick */
 
-	if (adv_png_write_chunk(f, ADV_MNG_CN_FRAM, fram, 10, count)!=0)
+	if (adv_png_write_chunk(f, ADV_MNG_CN_FRAM, fram, 10, count) != 0)
 		return -1;
 
 	return 0;

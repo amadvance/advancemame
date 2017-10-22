@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -51,7 +51,7 @@ static struct log_context LOG;
 
 /**
  * Print a modeline with blanking information in the log file.
- * This function must not be called directly. One of the log_* macro must be used. 
+ * This function must not be called directly. One of the log_* macro must be used.
  */
 void log_f_modeline_cb(const char* text, unsigned pixel_clock, unsigned hde, unsigned hbs, unsigned hrs, unsigned hre, unsigned hbe, unsigned ht, unsigned vde, unsigned vbs, unsigned vrs, unsigned vre, unsigned vbe, unsigned vt, adv_bool hsync_pol, adv_bool vsync_pol, adv_bool doublescan, adv_bool interlace)
 {
@@ -92,13 +92,13 @@ void log_f_modeline_c(const char* text, unsigned pixel_clock, unsigned hde, unsi
 void log_f_dump(const char* text, void* data, unsigned size)
 {
 	unsigned i;
-	for(i=0;i<size;i+=16) {
+	for (i = 0; i < size; i += 16) {
 		unsigned j;
 		char buf[LOG_BUFFER_SIZE];
 		sprintf(buf, "%s %08x: ", text, i);
-		for(j=0;i+j<size && j<16;++j) {
+		for (j = 0; i + j < size && j < 16; ++j) {
 			char nibble[16];
-			sprintf(nibble, "%02x", ((unsigned char*)data)[i+j]);
+			sprintf(nibble, "%02x", ((unsigned char*)data)[i + j]);
 			strcat(buf, nibble);
 		}
 		log_f("%s\n", buf);
@@ -151,7 +151,7 @@ void log_va(const char* text, va_list arg)
 	}
 }
 
-/** 
+/**
  * Initialize the log system.
  * \param file Log file. The file is overwritten.
  * \param sync_flag If set the file and the filesystem is flushed at every write. The function target_sync() is called.
@@ -172,7 +172,7 @@ adv_error log_init(const char* file, adv_bool sync_flag)
 	return 0;
 }
 
-/** 
+/**
  * Deinitialize the log system.
  */
 void log_done(void)
@@ -194,7 +194,7 @@ FILE* log_handle(void)
 
 /**
  * Abort the logging.
- * This function ensure that the log file is flushed. 
+ * This function ensure that the log file is flushed.
  * It can be called in a signal handler in any condition.
  */
 void log_abort(void)

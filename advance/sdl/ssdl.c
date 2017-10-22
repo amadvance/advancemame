@@ -74,8 +74,8 @@ struct soundb_sdl_context {
 static struct soundb_sdl_context sdl_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "SDL sound" },
-{ 0, 0, 0 }
+	{ "auto", -1, "SDL sound" },
+	{ 0, 0, 0 }
 };
 
 static void soundb_sdl_callback(void *userdata, Uint8 *stream, int len)
@@ -224,14 +224,14 @@ void soundb_sdl_play(const adv_sample* sample_map, unsigned sample_count)
 	if (sdl_state.volume == SDL_VOLUME_BASE) {
 		while (count) {
 			sdl_state.fifo_map[i] = *sample_map;
-			i = (i+1) % FIFO_MAX;
+			i = (i + 1) % FIFO_MAX;
 			--count;
 			++sample_map;
 		}
 	} else {
 		while (count) {
 			sdl_state.fifo_map[i] = (int)*sample_map * sdl_state.volume / SDL_VOLUME_BASE;
-			i = (i+1) % FIFO_MAX;
+			i = (i + 1) % FIFO_MAX;
 			--count;
 			++sample_map;
 		}
@@ -250,7 +250,7 @@ adv_error soundb_sdl_start(double silence_time)
 
 	log_std(("sound:sdl: soundb_sdl_start(silence_time:%g)\n", (double)silence_time));
 
-	for(i=0;i<256;++i)
+	for (i = 0; i < 256; ++i)
 		buf[i] = sdl_state.info.silence;
 
 	sample = silence_time * sdl_state.info.freq * sdl_state.info.channels;
@@ -276,18 +276,18 @@ unsigned soundb_sdl_flags(void)
 }
 
 static adv_conf_enum_int OPTION[] = {
-{ "512", 512 },
-{ "1024", 1024 },
-{ "1536", 1536 },
-{ "2048", 2048 },
-{ "2560", 2560 },
-{ "3072", 3072 },
-{ "3584", 3584 },
-{ "4096", 4096 },
-{ "6144", 6144 },
-{ "8192", 8192 },
-{ "12288", 12288 },
-{ "16384", 16384 }
+	{ "512", 512 },
+	{ "1024", 1024 },
+	{ "1536", 1536 },
+	{ "2048", 2048 },
+	{ "2560", 2560 },
+	{ "3072", 3072 },
+	{ "3584", 3584 },
+	{ "4096", 4096 },
+	{ "6144", 6144 },
+	{ "8192", 8192 },
+	{ "12288", 12288 },
+	{ "16384", 16384 }
 };
 
 adv_error soundb_sdl_load(adv_conf* context)
@@ -340,5 +340,4 @@ soundb_driver soundb_sdl_driver = {
 	soundb_sdl_stop,
 	soundb_sdl_volume
 };
-
 

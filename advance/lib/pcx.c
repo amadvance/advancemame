@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -165,7 +165,7 @@ adv_bitmap* adv_bitmap_load_pcx(adv_color_rgb* rgb, unsigned* rgb_max, adv_fz* f
 	adv_bitmap* bitmap;
 	unsigned width, height, depth;
 
-	if (pcx_header_read(f, &h)!=0) {
+	if (pcx_header_read(f, &h) != 0) {
 		goto out;
 	}
 
@@ -191,20 +191,20 @@ adv_bitmap* adv_bitmap_load_pcx(adv_color_rgb* rgb, unsigned* rgb_max, adv_fz* f
 		unsigned i;
 		unsigned y;
 
-		for(y=0;y<height;++y) {
+		for (y = 0; y < height; ++y) {
 			struct pcx_decode_state state;
 			uint8* dst_off = adv_bitmap_line(bitmap, y);
 			state.count = 0;
 			pcx_decode(dst_off, width, f, &state, 1);
 			pcx_ignore(h.bytes_per_line - width, f, &state);
-			if (state.count!=0)
+			if (state.count != 0)
 				goto out_bitmap;
 		}
 
-		if (fzgetc(f)!=12)
+		if (fzgetc(f) != 12)
 			goto out_bitmap;
 
-		for (i=0;i<256;++i) {
+		for (i = 0; i < 256; ++i) {
 			rgb[i].red = fzgetc(f);
 			rgb[i].green = fzgetc(f);
 			rgb[i].blue = fzgetc(f);
@@ -212,7 +212,7 @@ adv_bitmap* adv_bitmap_load_pcx(adv_color_rgb* rgb, unsigned* rgb_max, adv_fz* f
 		*rgb_max = 256;
 	} else {
 		unsigned y;
-		for(y=0;y<height;++y) {
+		for (y = 0; y < height; ++y) {
 			struct pcx_decode_state state;
 			uint8* dst_off = adv_bitmap_line(bitmap, y);
 			state.count = 0;
@@ -222,7 +222,7 @@ adv_bitmap* adv_bitmap_load_pcx(adv_color_rgb* rgb, unsigned* rgb_max, adv_fz* f
 			pcx_ignore(h.bytes_per_line - width, f, &state);
 			pcx_decode(dst_off + 2, width, f, &state, 3);
 			pcx_ignore(h.bytes_per_line - width, f, &state);
-			if (state.count!=0)
+			if (state.count != 0)
 				goto out_bitmap;
 		}
 	}
@@ -234,3 +234,4 @@ out_bitmap:
 out:
 	return 0;
 }
+

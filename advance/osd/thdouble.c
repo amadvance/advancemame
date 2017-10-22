@@ -12,7 +12,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -40,10 +40,10 @@
  * It doesn't support reentrant calls.
  *
  * A companion thread is created at the startup. This thread is used
- * to run an additional function when requested. 
- * This approach is faster than creating a new thread every time. 
- * For example on my system (Dual Pentium II 350 - Linux 2.4.19) calling 
- * 100000 osd_parallelize with pthread_create takes 20 sec, with this approach 
+ * to run an additional function when requested.
+ * This approach is faster than creating a new thread every time.
+ * For example on my system (Dual Pentium II 350 - Linux 2.4.19) calling
+ * 100000 osd_parallelize with pthread_create takes 20 sec, with this approach
  * only 4.5 sec.
  */
 
@@ -57,7 +57,7 @@ static pthread_mutex_t thread_mutex; /**< Access mutex. */
 static void (*thread_func)(void*, int, int); /**< Function to call. */
 static void* thread_arg; /**< Argument of the function to call. */
 
-static void* thread_proc(void* arg) 
+static void* thread_proc(void* arg)
 {
 	pthread_mutex_lock(&thread_mutex);
 
@@ -120,7 +120,7 @@ void thread_done(void)
 	pthread_cond_destroy(&thread_cond);
 }
 
-void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int max) 
+void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int max)
 {
 	if (!thread_is_active()) {
 		func(arg, 0, 1);
@@ -144,7 +144,7 @@ void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int m
 	thread_arg = arg;
 	pthread_cond_signal(&thread_cond);
 	pthread_mutex_unlock(&thread_mutex);
-  
+
 	/* call the primary function */
 	func(arg, 0, 2);
 
@@ -155,5 +155,4 @@ void osd_parallelize(void (*func)(void* arg, int num, int max), void* arg, int m
 
 	thread_inuse = 0;
 }
-
 

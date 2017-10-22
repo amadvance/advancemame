@@ -182,7 +182,7 @@ static inline adv_bool video_is_graphics(void)
 }
 
 /** Name of the current video mode */
-static inline  const char* video_name(void)
+static inline const char* video_name(void)
 {
 	return mode_name(video_current_mode());
 }
@@ -379,3 +379,4 @@ const adv_video_driver* video_driver_vector_pos(unsigned i);
 #endif
 
 /*@}*/
+

@@ -106,40 +106,40 @@ static struct vbeline_option_struct vbeline_option;
 	VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16
 
 static adv_device DEVICE[] = {
-{ "auto", 1, "VBELINE video" },
-{ "laguna", 2, "Cirrus Laguna" },
-{ "3dfx", 3, "3dfx" },
-{ "savage", 4, "S3 Savage" },
-{ "sis", 5, "SiS" },
-{ "matrox", 6, "Matrox" },
-{ "r128", 7, "ATI Rage 128" },
-{ "neomagic", 8, "NeoMagic" },
-{ "s3", 9, "S3" },
-{ "trident", 10, "Trident" },
-{ "ati", 11, "ATI" },
-{ "cirrus", 12, "Cirrus Logic" },
-{ "vbe3", 13, "VESA VBE3" },
-{ 0, 0, 0 }
+	{ "auto", 1, "VBELINE video" },
+	{ "laguna", 2, "Cirrus Laguna" },
+	{ "3dfx", 3, "3dfx" },
+	{ "savage", 4, "S3 Savage" },
+	{ "sis", 5, "SiS" },
+	{ "matrox", 6, "Matrox" },
+	{ "r128", 7, "ATI Rage 128" },
+	{ "neomagic", 8, "NeoMagic" },
+	{ "s3", 9, "S3" },
+	{ "trident", 10, "Trident" },
+	{ "ati", 11, "ATI" },
+	{ "cirrus", 12, "Cirrus Logic" },
+	{ "vbe3", 13, "VESA VBE3" },
+	{ 0, 0, 0 }
 };
 
 vbeline_chipset cards[] =
 {
 	{ "laguna", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, laguna_detect, laguna_set, laguna_reset }, /* Laguna driver */
 	{ "3dfx", (VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL & ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) | VIDEO_DRIVER_FLAGS_MODE_12BYTES, tdfx_detect, tdfx_set, tdfx_reset }, /* 3dfx driver */
-	{ "savage", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, savage_detect, savage_set, savage_reset}, /* Savage driver */
+	{ "savage", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, savage_detect, savage_set, savage_reset }, /* Savage driver */
 	{ "sis", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, sis_detect, sis_set, sis_reset }, /* Sis driver */
 	{ "matrox", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, matrox_detect, matrox_set, matrox_reset }, /* Matrox driver */
 	{ "r128", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES | VBELINE_FLAGS_REQUIRES_VBE_SAVE, r128_detect, r128_set, r128_reset }, /* R128 driver */
 	{ "neomagic", (VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL & ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) | VIDEO_DRIVER_FLAGS_MODE_12BYTES, neomagic_detect, neomagic_set, neomagic_reset }, /* NeoMagic driver */
 	{ "s3", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, s3_detect, s3_set, s3_reset }, /* S3 driver */
 	{ "trident", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, trident_detect, trident_set, trident_reset }, /* Trident driver */
-	{ "ati", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, ati_detect, ati_set, ati_reset } , /* ATI driver */
+	{ "ati", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, ati_detect, ati_set, ati_reset },  /* ATI driver */
 	{ "cirrus", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES, cirrus_detect, cirrus_set, cirrus_reset }, /* Cirrus driver */
 	{ "vbe3", VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL | VIDEO_DRIVER_FLAGS_MODE_12BYTES | VBELINE_FLAGS_REQUIRES_VBE3_SET, vbe3_detect, vbe3_set, vbe3_reset }, /* VBE3 driver */
 	{ 0, 0, 0, 0, 0 }
 };
 
-#define CARD_MAX (sizeof(cards)/sizeof(cards[0]) - 1)
+#define CARD_MAX (sizeof(cards) / sizeof(cards[0]) - 1)
 
 static void vbeline_card_old_setup(card_mode* co, const vbe_ModeInfoBlock* info)
 {
@@ -241,11 +241,11 @@ static void vbeline_probe(void)
 			&& (info.MemoryModel == vbeMemRGB || info.MemoryModel == vbeMemPK)) {
 
 			switch (info.BitsPerPixel) {
-				case 8 : has8bit = 1; break;
-				case 15 : has15bit = 1; break;
-				case 16 : has16bit = 1; break;
-				case 24 : has24bit = 1; break;
-				case 32 : has32bit = 1; break;
+			case 8: has8bit = 1; break;
+			case 15: has15bit = 1; break;
+			case 16: has16bit = 1; break;
+			case 24: has24bit = 1; break;
+			case 32: has32bit = 1; break;
 			}
 		}
 
@@ -310,9 +310,9 @@ adv_error vbeline_init(int device_id, adv_output output, unsigned overlay_size, 
 	}
 
 	vbeline_state.driver = 0;
-	for(i=0;cards[i].name;++i) {
-		if (strcmp(name, "auto")==0 || strcmp(name, cards[i].name)==0) {
-			if ((cards[i].flags & VBELINE_FLAGS_REQUIRES_VBE3_SET)==0 || vbe_state.info.VESAVersion >= 0x300) {
+	for (i = 0; cards[i].name; ++i) {
+		if (strcmp(name, "auto") == 0 || strcmp(name, cards[i].name) == 0) {
+			if ((cards[i].flags & VBELINE_FLAGS_REQUIRES_VBE3_SET) == 0 || vbe_state.info.VESAVersion >= 0x300) {
 				if (cards[i].detect && cards[i].detect() > 0) {
 					log_std(("vbeline: found driver %s\n", cards[i].name));
 					vbeline_state.driver = cards + i;
@@ -393,12 +393,12 @@ static int vbe3_mode_preset(const card_crtc* ccp, vbe_ModeInfoBlock* info, vbe_C
 		return -1;
 	}
 
-	if (ccp->interlace && (info->ModeAttributes & vbeMdInterlace)==0) {
+	if (ccp->interlace && (info->ModeAttributes & vbeMdInterlace) == 0) {
 		error_set("VBE report that the selected mode doesn't support interlace");
 		return -1;
 	}
 
-	if (ccp->doublescan && (info->ModeAttributes & vbeMdDoubleScan)==0) {
+	if (ccp->doublescan && (info->ModeAttributes & vbeMdDoubleScan) == 0) {
 		error_set("VBE report that the selected mode doesn't support doublescan");
 		return -1;
 	}
@@ -464,7 +464,7 @@ static int vbe3_mode_preset(const card_crtc* ccp, vbe_ModeInfoBlock* info, vbe_C
 	crtc->PixelClock = ccp->dotclockHz;
 	crtc->RefreshRate = (long)crtc->PixelClock * 100 / ((long)crtc->HorizontalTotal * crtc->VerticalTotal);
 
-	log_std(("vbeline: mode_preset %dx%d (%.2f %d %d %d %d %d %d)\n", (unsigned)info->XResolution, (unsigned)info->YResolution, (double)crtc->PixelClock/1E6, (unsigned)crtc->HorizontalSyncStart, (unsigned)crtc->HorizontalSyncEnd, (unsigned)crtc->HorizontalTotal, (unsigned)crtc->VerticalSyncStart, (unsigned)crtc->VerticalSyncEnd, (unsigned)crtc->VerticalTotal));
+	log_std(("vbeline: mode_preset %dx%d (%.2f %d %d %d %d %d %d)\n", (unsigned)info->XResolution, (unsigned)info->YResolution, (double)crtc->PixelClock / 1E6, (unsigned)crtc->HorizontalSyncStart, (unsigned)crtc->HorizontalSyncEnd, (unsigned)crtc->HorizontalTotal, (unsigned)crtc->VerticalSyncStart, (unsigned)crtc->VerticalSyncEnd, (unsigned)crtc->VerticalTotal));
 
 	return 0;
 }
@@ -487,27 +487,27 @@ adv_error vbeline_mode_set(const vbeline_video_mode* mode)
 	log_std_modeline_c(("vbeline: mode_set modeline", mode->crtc.pixelclock, mode->crtc.hde, mode->crtc.hrs, mode->crtc.hre, mode->crtc.ht, mode->crtc.vde, mode->crtc.vrs, mode->crtc.vre, mode->crtc.vt, crtc_is_nhsync(&mode->crtc), crtc_is_nvsync(&mode->crtc), crtc_is_doublescan(&mode->crtc), crtc_is_interlace(&mode->crtc)));
 	log_std(("vbeline: expected vert clock: %.2f Hz\n", crtc_vclock_get(&mode->crtc)));
 
-	if ((vbeline_flags() & VBELINE_FLAGS_REQUIRES_VBE_SAVE)!=0) {
+	if ((vbeline_flags() & VBELINE_FLAGS_REQUIRES_VBE_SAVE) != 0) {
 		log_std(("vbeline: save video board state\n"));
 		if (vbe_save_state(&vbeline_state.state_size, &vbeline_state.state_ptr) != 0) {
 			return -1;
 		}
 	}
 
-	if (vbe_mode_info_get(&vbe_info_request, mode_request)!=0)
+	if (vbe_mode_info_get(&vbe_info_request, mode_request) != 0)
 		return -1;
 
-	if (vbeline_option.clock_multiplier!=1.0) {
+	if (vbeline_option.clock_multiplier != 1.0) {
 		log_std(("vbeline: clock multiplier: %.2f\n", vbeline_option.clock_multiplier));
 		crtc_request.pixelclock *= vbeline_option.clock_multiplier;
 	}
 
-	if (vbe_info_request.BitsPerPixel==8 && vbeline_option.clock_8bit_multiplier!=1.0) {
+	if (vbe_info_request.BitsPerPixel == 8 && vbeline_option.clock_8bit_multiplier != 1.0) {
 		log_std(("vbeline: 8bit_clock multiplier: %.2f\n", vbeline_option.clock_8bit_multiplier));
 		crtc_request.pixelclock *= vbeline_option.clock_8bit_multiplier;
 	}
 
-	if ((vbe_info_request.BitsPerPixel==15 || vbe_info_request.BitsPerPixel==16) && vbeline_option.clock_16bit_multiplier!=1.0) {
+	if ((vbe_info_request.BitsPerPixel == 15 || vbe_info_request.BitsPerPixel == 16) && vbeline_option.clock_16bit_multiplier != 1.0) {
 		log_std(("vbeline: 16bit_clock multiplier: %.2f\n", vbeline_option.clock_16bit_multiplier));
 		crtc_request.pixelclock *= vbeline_option.clock_16bit_multiplier;
 	}
@@ -516,18 +516,18 @@ adv_error vbeline_mode_set(const vbeline_video_mode* mode)
 	vbeline_card_old_setup(&co, &vbe_info_request);
 	vbeline_card_setup(&cp, &cm, &vbe_info_request, &crtc_request, mode_request);
 
-	if ((vbeline_flags() & VBELINE_FLAGS_REQUIRES_VBE3_SET)!=0) {
-		if (vbe_pixelclock_get(&crtc_request.pixelclock, mode_request)!=0) {
+	if ((vbeline_flags() & VBELINE_FLAGS_REQUIRES_VBE3_SET) != 0) {
+		if (vbe_pixelclock_get(&crtc_request.pixelclock, mode_request) != 0) {
 			return -1;
 		}
-		if (vbe3_mode_preset(&cp, &vbe_info_request, &vbe3_crtc_request)!=0) {
+		if (vbe3_mode_preset(&cp, &vbe_info_request, &vbe3_crtc_request) != 0) {
 			return -1;
 		}
-		if (vbe_mode_set(mode_request, &vbe3_crtc_request)!=0) {
+		if (vbe_mode_set(mode_request, &vbe3_crtc_request) != 0) {
 			return -1;
 		}
 	} else {
-		if (vbe_mode_set(mode_request, 0)!=0) {
+		if (vbe_mode_set(mode_request, 0) != 0) {
 			return -1;
 		}
 	}
@@ -563,7 +563,7 @@ void vbeline_mode_done(adv_bool restore)
 	assert(vbeline_is_active());
 	assert(vbeline_mode_is_active());
 
-	if ((vbeline_flags() & VBELINE_FLAGS_REQUIRES_VBE_SAVE)!=0) {
+	if ((vbeline_flags() & VBELINE_FLAGS_REQUIRES_VBE_SAVE) != 0) {
 		log_std(("vbeline: restore video board state\n"));
 		vbe_restore_state(vbeline_state.state_size, vbeline_state.state_ptr);
 	}
@@ -602,7 +602,7 @@ adv_error vbeline_palette8_set(const adv_color_rgb* palette, unsigned start, uns
 
 	if (shift) {
 		unsigned i;
-		for(i=0;i<count;++i) {
+		for (i = 0; i < count; ++i) {
 			vbe_pal[i].red = palette[i].red >> shift;
 			vbe_pal[i].green = palette[i].green >> shift;
 			vbe_pal[i].blue = palette[i].blue >> shift;
@@ -610,7 +610,7 @@ adv_error vbeline_palette8_set(const adv_color_rgb* palette, unsigned start, uns
 		}
 	} else {
 		unsigned i;
-		for(i=0;i<count;++i) {
+		for (i = 0; i < count; ++i) {
 			vbe_pal[i].red = palette[i].red;
 			vbe_pal[i].green = palette[i].green;
 			vbe_pal[i].blue = palette[i].blue;
@@ -620,14 +620,14 @@ adv_error vbeline_palette8_set(const adv_color_rgb* palette, unsigned start, uns
 	return vbe_palette_set(vbe_pal, start, count, waitvsync);
 }
 
-#define CARD_PIXELCLOCK_DELTA (10*1000)
-#define CARD_PIXELCLOCK_MAX (250*1000*1000)
-#define CARD_PIXELCLOCK_MIN (1*1000*1000)
+#define CARD_PIXELCLOCK_DELTA (10 * 1000)
+#define CARD_PIXELCLOCK_MAX (250 * 1000 * 1000)
+#define CARD_PIXELCLOCK_MIN (1 * 1000 * 1000)
 
 int vbeline_pixelclock_getnext(unsigned* pixelclock, unsigned mode)
 {
 	assert(vbeline_is_active());
-	if ((vbeline_state.flags & VBELINE_FLAGS_REQUIRES_VBE3_SET)!=0) {
+	if ((vbeline_state.flags & VBELINE_FLAGS_REQUIRES_VBE3_SET) != 0) {
 		return vbe_pixelclock_getnext(pixelclock, mode);
 	} else {
 		/* assume all clocks avaliable */
@@ -640,7 +640,7 @@ int vbeline_pixelclock_getnext(unsigned* pixelclock, unsigned mode)
 int vbeline_pixelclock_getpred(unsigned* pixelclock, unsigned mode)
 {
 	assert(vbeline_is_active());
-	if ((vbeline_state.flags & VBELINE_FLAGS_REQUIRES_VBE3_SET)!=0) {
+	if ((vbeline_state.flags & VBELINE_FLAGS_REQUIRES_VBE3_SET) != 0) {
 		return vbe_pixelclock_getpred(pixelclock, mode);
 	} else {
 		/* assume all clocks avaliable */
@@ -669,7 +669,7 @@ adv_error vbeline_mode_import(adv_mode* mode, const vbeline_video_mode* vbeline_
 		return -1;
 	}
 
-	if (vbe_mode_info_get(&info, DRIVER(mode)->mode)!=0) {
+	if (vbe_mode_info_get(&info, DRIVER(mode)->mode) != 0) {
 		return -1;
 	}
 
@@ -701,20 +701,20 @@ adv_error vbeline_mode_import(adv_mode* mode, const vbeline_video_mode* vbeline_
 		}
 
 		/* Packed or RGB memory model */
-		if (info.MemoryModel!=vbeMemPK && info.MemoryModel!=vbeMemRGB) {
+		if (info.MemoryModel != vbeMemPK && info.MemoryModel != vbeMemRGB) {
 			error_nolog_set("Unsupported memory model");
 			return -1;
 		}
 
 		/* Non planar mode */
-		if (info.NumberOfPlanes!=1) {
+		if (info.NumberOfPlanes != 1) {
 			error_nolog_set("Unsupported number of planes");
 			return -1;
 		}
 	}
 
-	if ((vbeline_state.flags & VBELINE_FLAGS_REQUIRES_VBE3_SET)!=0) {
-		if (vbe_pixelclock_get(&DRIVER(mode)->crtc.pixelclock, DRIVER(mode)->mode)!=0) {
+	if ((vbeline_state.flags & VBELINE_FLAGS_REQUIRES_VBE3_SET) != 0) {
+		if (vbe_pixelclock_get(&DRIVER(mode)->crtc.pixelclock, DRIVER(mode)->mode) != 0) {
 			return -1;
 		}
 	} else {
@@ -727,24 +727,24 @@ adv_error vbeline_mode_import(adv_mode* mode, const vbeline_video_mode* vbeline_
 	if ((info.ModeAttributes & vbeMdTripleBuffer) != 0)
 		mode->flags |= MODE_FLAGS_RETRACE_SCROLL_ASYNC;
 	switch (info.MemoryModel) {
-		case vbeMemTXT :
-			mode->flags |= MODE_FLAGS_INDEX_TEXT;
-			break;
-		case vbeMemPK :
-			mode->flags |= MODE_FLAGS_INDEX_PALETTE8;
-			break;
-		case vbeMemRGB :
-			switch (info.BitsPerPixel) {
-			case 15 : mode->flags |= MODE_FLAGS_INDEX_BGR15; break;
-			case 16 : mode->flags |= MODE_FLAGS_INDEX_BGR16; break;
-			case 24 : mode->flags |= MODE_FLAGS_INDEX_BGR24; break;
-			case 32 : mode->flags |= MODE_FLAGS_INDEX_BGR32; break;
-			default:
-				return -1;
-			}
-			break;
-		default :
+	case vbeMemTXT:
+		mode->flags |= MODE_FLAGS_INDEX_TEXT;
+		break;
+	case vbeMemPK:
+		mode->flags |= MODE_FLAGS_INDEX_PALETTE8;
+		break;
+	case vbeMemRGB:
+		switch (info.BitsPerPixel) {
+		case 15: mode->flags |= MODE_FLAGS_INDEX_BGR15; break;
+		case 16: mode->flags |= MODE_FLAGS_INDEX_BGR16; break;
+		case 24: mode->flags |= MODE_FLAGS_INDEX_BGR24; break;
+		case 32: mode->flags |= MODE_FLAGS_INDEX_BGR32; break;
+		default:
 			return -1;
+		}
+		break;
+	default:
+		return -1;
 	}
 
 	mode->size_x = DRIVER(mode)->crtc.hde;
@@ -856,54 +856,54 @@ static adv_error vbeline_search_target_mode(unsigned req_x, unsigned req_y, unsi
 	}
 
 	switch (vbeline_option.choice) {
-		case VBELINE_OPTION_CHOICE_SMALLER :
-			if (smaller_best_set)
-				return smaller_best_mode;
-			if (bigger_best_set)
-				return bigger_best_mode;
-			return -1;
-		case VBELINE_OPTION_CHOICE_SMALLER_UPTO640 :
-			if (smaller_best_set && smaller_best_size_x <= 640)
-				return smaller_best_mode;
-			if (bigger_best_set && bigger_best_size_x <= 640)
-				return bigger_best_mode;
-			if (size640_best_set)
-				return size640_best_mode;
-			return -1;
-		case VBELINE_OPTION_CHOICE_BIGGER :
-			if (bigger_best_set)
-				return bigger_best_mode;
-			if (smaller_best_set)
-				return smaller_best_mode;
-			return -1;
-		case VBELINE_OPTION_CHOICE_BIGGER_UPTO640 :
-			if (bigger_best_set && bigger_best_size_x <= 640)
-				return bigger_best_mode;
-			if (smaller_best_set && smaller_best_size_x <= 640)
-				return smaller_best_mode;
-			if (size640_best_set)
-				return size640_best_mode;
-			return -1;
-		case VBELINE_OPTION_CHOICE_800 :
-			if (size800_best_set)
-				return size800_best_mode;
-			return -1;
-		case VBELINE_OPTION_CHOICE_640 :
-			if (size640_best_set)
-				return size640_best_mode;
-			return -1;
-		case VBELINE_OPTION_CHOICE_512 :
-			if (size512_best_set)
-				return size512_best_mode;
-			return -1;
-		case VBELINE_OPTION_CHOICE_400 :
-			if (size400_best_set)
-				return size400_best_mode;
-			return -1;
-		case VBELINE_OPTION_CHOICE_320 :
-			if (size320_best_set)
-				return size320_best_mode;
-			return -1;
+	case VBELINE_OPTION_CHOICE_SMALLER:
+		if (smaller_best_set)
+			return smaller_best_mode;
+		if (bigger_best_set)
+			return bigger_best_mode;
+		return -1;
+	case VBELINE_OPTION_CHOICE_SMALLER_UPTO640:
+		if (smaller_best_set && smaller_best_size_x <= 640)
+			return smaller_best_mode;
+		if (bigger_best_set && bigger_best_size_x <= 640)
+			return bigger_best_mode;
+		if (size640_best_set)
+			return size640_best_mode;
+		return -1;
+	case VBELINE_OPTION_CHOICE_BIGGER:
+		if (bigger_best_set)
+			return bigger_best_mode;
+		if (smaller_best_set)
+			return smaller_best_mode;
+		return -1;
+	case VBELINE_OPTION_CHOICE_BIGGER_UPTO640:
+		if (bigger_best_set && bigger_best_size_x <= 640)
+			return bigger_best_mode;
+		if (smaller_best_set && smaller_best_size_x <= 640)
+			return smaller_best_mode;
+		if (size640_best_set)
+			return size640_best_mode;
+		return -1;
+	case VBELINE_OPTION_CHOICE_800:
+		if (size800_best_set)
+			return size800_best_mode;
+		return -1;
+	case VBELINE_OPTION_CHOICE_640:
+		if (size640_best_set)
+			return size640_best_mode;
+		return -1;
+	case VBELINE_OPTION_CHOICE_512:
+		if (size512_best_set)
+			return size512_best_mode;
+		return -1;
+	case VBELINE_OPTION_CHOICE_400:
+		if (size400_best_set)
+			return size400_best_mode;
+		return -1;
+	case VBELINE_OPTION_CHOICE_320:
+		if (size320_best_set)
+			return size320_best_mode;
+		return -1;
 	}
 
 	return -1;
@@ -922,34 +922,34 @@ adv_error vbeline_mode_generate(vbeline_video_mode* mode, const adv_crtc* crtc, 
 		return -1;
 	}
 
-	if (video_mode_generate_check("vbeline", vbeline_flags(), 8, 2048, crtc, flags)!=0)
+	if (video_mode_generate_check("vbeline", vbeline_flags(), 8, 2048, crtc, flags) != 0)
 		return -1;
 
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
-		case MODE_FLAGS_INDEX_PALETTE8 :
-			bits = 8;
-			model = vbeMemPK;
-			break;
-		case MODE_FLAGS_INDEX_BGR15 :
-			bits = 15;
-			model = vbeMemRGB;
-			break;
-		case MODE_FLAGS_INDEX_BGR16 :
-			bits = 16;
-			model = vbeMemRGB;
-			break;
-		case MODE_FLAGS_INDEX_BGR24 :
-			bits = 24;
-			model = vbeMemRGB;
-			break;
-		case MODE_FLAGS_INDEX_BGR32 :
-			bits = 32;
-			model = vbeMemRGB;
-			break;
-		default:
-			error_nolog_set("Invalid index mode.\n");
-			assert(0);
-			return -1;
+	case MODE_FLAGS_INDEX_PALETTE8:
+		bits = 8;
+		model = vbeMemPK;
+		break;
+	case MODE_FLAGS_INDEX_BGR15:
+		bits = 15;
+		model = vbeMemRGB;
+		break;
+	case MODE_FLAGS_INDEX_BGR16:
+		bits = 16;
+		model = vbeMemRGB;
+		break;
+	case MODE_FLAGS_INDEX_BGR24:
+		bits = 24;
+		model = vbeMemRGB;
+		break;
+	case MODE_FLAGS_INDEX_BGR32:
+		bits = 32;
+		model = vbeMemRGB;
+		break;
+	default:
+		error_nolog_set("Invalid index mode.\n");
+		assert(0);
+		return -1;
 	}
 
 	mode->crtc = *crtc;
@@ -991,15 +991,15 @@ void vbeline_default(void)
 }
 
 static adv_conf_enum_int OPTION_CHOICE[] = {
-{ "bigger", VBELINE_OPTION_CHOICE_BIGGER },
-{ "smaller", VBELINE_OPTION_CHOICE_SMALLER },
-{ "smaller_upto640", VBELINE_OPTION_CHOICE_SMALLER_UPTO640 },
-{ "bigger_upto640", VBELINE_OPTION_CHOICE_BIGGER_UPTO640 },
-{ "800", VBELINE_OPTION_CHOICE_800 },
-{ "640", VBELINE_OPTION_CHOICE_640 },
-{ "512", VBELINE_OPTION_CHOICE_512 },
-{ "400", VBELINE_OPTION_CHOICE_400 },
-{ "320", VBELINE_OPTION_CHOICE_320 }
+	{ "bigger", VBELINE_OPTION_CHOICE_BIGGER },
+	{ "smaller", VBELINE_OPTION_CHOICE_SMALLER },
+	{ "smaller_upto640", VBELINE_OPTION_CHOICE_SMALLER_UPTO640 },
+	{ "bigger_upto640", VBELINE_OPTION_CHOICE_BIGGER_UPTO640 },
+	{ "800", VBELINE_OPTION_CHOICE_800 },
+	{ "640", VBELINE_OPTION_CHOICE_640 },
+	{ "512", VBELINE_OPTION_CHOICE_512 },
+	{ "400", VBELINE_OPTION_CHOICE_400 },
+	{ "320", VBELINE_OPTION_CHOICE_320 }
 };
 
 static adv_conf_enum_string OPTION_DRIVER[CARD_MAX + 2];
@@ -1012,8 +1012,8 @@ void vbeline_reg(adv_conf* context)
 
 	OPTION_DRIVER[0].value = "auto";
 	OPTION_DRIVER[1].value = "none";
-	for(i=0;cards[i].name;++i)
-		OPTION_DRIVER[i+2].value = cards[i].name;
+	for (i = 0; cards[i].name; ++i)
+		OPTION_DRIVER[i + 2].value = cards[i].name;
 
 	conf_int_register_enum_default(context, "device_vbeline_mode", conf_enum(OPTION_CHOICE), VBELINE_OPTION_CHOICE_BIGGER);
 	conf_float_register_limit_default(context, "device_vbeline_clock_multiplier", 0.25, 4.0, 1.0);

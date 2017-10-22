@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -32,7 +32,8 @@ struct crc_info {
 	mutable std::string year;
 	mutable std::string manufacturer;
 
-	bool operator<(const crc_info& A) const {
+	bool operator<(const crc_info& A) const
+	{
 		return crc < A.crc;
 	}
 };
@@ -43,7 +44,8 @@ struct crc_list {
 	std::string name;
 	mutable crc_info_set bag;
 
-	bool operator<(const crc_list& A) const {
+	bool operator<(const crc_list& A) const
+	{
 		return name < A.name;
 	}
 };
@@ -55,3 +57,4 @@ void crc_scan(crc_list_set& cls, const game_set& gs, const std::string& crc_dir)
 unsigned crc_compute(unsigned crc, const unsigned char* buf, unsigned len);
 
 #endif
+

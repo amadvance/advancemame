@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -73,7 +73,7 @@ void draw_menu_game_center(const game_set& gar, const game& g, int x, int y, int
 	else
 		s = g.description_get();
 
-	unsigned ident = int_font_dx_get()/2;
+	unsigned ident = int_font_dx_get() / 2;
 
 	int_color color;
 	int_color color_first;
@@ -108,10 +108,10 @@ void draw_menu_game_center(const game_set& gar, const game& g, int x, int y, int
 			--str_len;
 		}
 		unsigned pixel_len = int_put_width(s.substr(str_pos, str_len));
-		while (pixel_len > dx - 2*ident) {
-			while (str_len > 0 && !issep(s[str_pos+str_len-1]))
+		while (pixel_len > dx - 2 * ident) {
+			while (str_len > 0 && !issep(s[str_pos + str_len - 1]))
 				--str_len;
-			while (str_len > 0 && issep(s[str_pos+str_len-1]))
+			while (str_len > 0 && issep(s[str_pos + str_len - 1]))
 				--str_len;
 			pixel_len = int_put_width(s.substr(str_pos, str_len));
 		}
@@ -121,7 +121,7 @@ void draw_menu_game_center(const game_set& gar, const game& g, int x, int y, int
 			str_len = s.length() - str_pos;
 			if (str_len) {
 				pixel_len = int_put_width(s.substr(str_pos, str_len));
-				while (pixel_len > dx - 2*ident) {
+				while (pixel_len > dx - 2 * ident) {
 					--str_len;
 					pixel_len = int_put_width(s.substr(str_pos, str_len));
 				}
@@ -129,7 +129,7 @@ void draw_menu_game_center(const game_set& gar, const game& g, int x, int y, int
 		}
 
 		if (!str_len) {
-			int_clear_alpha(x, y+py, dx, int_font_dy_get(), color_back.background);
+			int_clear_alpha(x, y + py, dx, int_font_dy_get(), color_back.background);
 		} else {
 			int space_left = (dx - pixel_len) / 2;
 			int ident_left = ident;
@@ -140,11 +140,11 @@ void draw_menu_game_center(const game_set& gar, const game& g, int x, int y, int
 			if (ident_right > space_right)
 				ident_right = space_right;
 
-			int_clear_alpha(x, y+py, space_left-ident_left, int_font_dy_get(), color_back.background);
-			int_clear_alpha(x+space_left-ident_left, y+py, ident_left, int_font_dy_get(), color.background);
-			int_put_special_alpha(in, x+space_left, y+py, pixel_len, s.substr(str_pos, str_len), color_first, color_in, color);
-			int_clear_alpha(x+space_left+pixel_len, y+py, ident_right, int_font_dy_get(), color.background);
-			int_clear_alpha(x+space_left+pixel_len+ident_right, y+py, space_right-ident_right, int_font_dy_get(), color_back.background);
+			int_clear_alpha(x, y + py, space_left - ident_left, int_font_dy_get(), color_back.background);
+			int_clear_alpha(x + space_left - ident_left, y + py, ident_left, int_font_dy_get(), color.background);
+			int_put_special_alpha(in, x + space_left, y + py, pixel_len, s.substr(str_pos, str_len), color_first, color_in, color);
+			int_clear_alpha(x + space_left + pixel_len, y + py, ident_right, int_font_dy_get(), color.background);
+			int_clear_alpha(x + space_left + pixel_len + ident_right, y + py, space_right - ident_right, int_font_dy_get(), color_back.background);
 		}
 
 		color_first = color;
@@ -161,7 +161,7 @@ void draw_menu_game_left(const game_set& gar, const game& g, int x, int y, int d
 	else
 		s = g.description_get();
 
-	ident += int_font_dx_get()/2;
+	ident += int_font_dx_get() / 2;
 
 	int_color color;
 	int_color color_first;
@@ -253,8 +253,8 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 {
 	int_clear_alpha(x, y, dx, int_font_dy_get(), COLOR_MENU_BAR.background);
 
-	int separator = dx > 40*int_font_dx_get() ? 1*int_font_dx_get() : 0*int_font_dx_get();
-	int in_separator =  dx > 40*int_font_dx_get() ? 2*int_font_dx_get() : 1*int_font_dx_get();
+	int separator = dx > 40 * int_font_dx_get() ? 1 * int_font_dx_get() : 0 * int_font_dx_get();
+	int in_separator = dx > 40 * int_font_dx_get() ? 2 * int_font_dx_get() : 1 * int_font_dx_get();
 	int xr = dx - separator + x;
 	int xl = separator + x;
 
@@ -271,7 +271,7 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 			time = g->time_tree_get();
 		else
 			time = g->time_get();
-		os << setw(3) << setfill('0') << (time/3600) << ":" << setw(2) << setfill('0') << ((time/60)%60);
+		os << setw(3) << setfill('0') << (time / 3600) << ":" << setw(2) << setfill('0') << ((time / 60) % 60);
 		draw_tag_right(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
@@ -309,10 +309,10 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 
 	if (g) {
 		ostringstream os;
-		if (g->size_get() >= 10*1000*1000)
-			os << setw(4) << g->size_get()/1000/1000 << "M";
+		if (g->size_get() >= 10 * 1000 * 1000)
+			os << setw(4) << g->size_get() / 1000 / 1000 << "M";
 		else
-			os << setw(4) << g->size_get()/1000 << "k";
+			os << setw(4) << g->size_get() / 1000 << "k";
 		draw_tag_right_whole(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
@@ -338,8 +338,8 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 {
 	int_clear_alpha(x, y, dx, int_font_dy_get(), COLOR_MENU_BAR.background);
 
-	int separator = dx > 40*int_font_dx_get() ? 1*int_font_dx_get() : 0*int_font_dx_get();
-	int in_separator = dx > 40*int_font_dx_get() ? 2*int_font_dx_get() : 1*int_font_dx_get();
+	int separator = dx > 40 * int_font_dx_get() ? 1 * int_font_dx_get() : 0 * int_font_dx_get();
+	int in_separator = dx > 40 * int_font_dx_get() ? 2 * int_font_dx_get() : 1 * int_font_dx_get();
 	int xr = dx - separator + x;
 	int xl = separator + x;
 
@@ -371,28 +371,28 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 	}
 
 	switch (sort_mode) {
-	case sort_by_group : draw_tag_right("group", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_name : draw_tag_right("name", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_root_name : draw_tag_right("parent", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_time : draw_tag_right("time", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_session : draw_tag_right("play", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_year : draw_tag_right("year", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_manufacturer : draw_tag_right("manuf", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_type : draw_tag_right("type", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_size : draw_tag_right("size", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_res : draw_tag_right("res", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_info : draw_tag_right("info", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_timepersession : draw_tag_right("timeperplay", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_emulator : draw_tag_right("emulator", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_group: draw_tag_right("group", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_name: draw_tag_right("name", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_root_name: draw_tag_right("parent", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_time: draw_tag_right("time", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_session: draw_tag_right("play", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_year: draw_tag_right("year", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_manufacturer: draw_tag_right("manuf", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_type: draw_tag_right("type", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_size: draw_tag_right("size", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_res: draw_tag_right("res", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_info: draw_tag_right("info", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_timepersession: draw_tag_right("timeperplay", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_emulator: draw_tag_right("emulator", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
 	switch (difficulty) {
-	case difficulty_none : draw_tag_right("none", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_easiest : draw_tag_right("easiest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_easy : draw_tag_right("easy", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_medium : draw_tag_right("normal", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_hard : draw_tag_right("hard", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_hardest : draw_tag_right("hardest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_none: draw_tag_right("none", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_easiest: draw_tag_right("easiest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_easy: draw_tag_right("easy", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_medium: draw_tag_right("normal", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_hard: draw_tag_right("hard", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_hardest: draw_tag_right("hardest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
 	if (g) {
@@ -433,8 +433,8 @@ struct cell_t {
 
 void draw_menu_window(const game_set& gar, const menu_array& gc, struct cell_t* cell, int coln, int rown, int start, int pos, bool use_ident, merge_t merge, bool center)
 {
-	for(int r=0;r<rown;++r) {
-		for(int c=0;c<coln;++c) {
+	for (int r = 0; r < rown; ++r) {
+		for (int c = 0; c < coln; ++c) {
 			if (start < gc.size()) {
 				if (gc[start]->has_game()) {
 					const game& g = gc[start]->game_get();
@@ -464,16 +464,16 @@ void draw_menu_scroll(int x, int y, int dx, int dy, int pos, int delta, int max)
 	if (pos + delta > max)
 		delta = max - pos;
 
-	int y0 = pos * (dy-dx-1) / (max-1);
-	int y1 = dx + (pos+delta-1) * (dy-dx-1) / (max-1);
+	int y0 = pos * (dy - dx - 1) / (max - 1);
+	int y1 = dx + (pos + delta - 1) * (dy - dx - 1) / (max - 1);
 
 	int_clear_alpha(x, y, dx, dy, COLOR_MENU_GRID.background);
-	int_clear_alpha(x, y+y0, dx, y1-y0+1, COLOR_MENU_GRID.foreground);
+	int_clear_alpha(x, y + y0, dx, y1 - y0 + 1, COLOR_MENU_GRID.foreground);
 }
 
 void draw_menu_desc(const string& desc, unsigned counter)
 {
-	int border = int_font_dx_get()/2;
+	int border = int_font_dx_get() / 2;
 
 	int dx = int_put_width(desc);
 	int x = (int_dx_get() - dx) / 2;
@@ -486,8 +486,8 @@ void draw_menu_desc(const string& desc, unsigned counter)
 	else
 		y = 2 * int_font_dy_get();
 
-	int_box(x-border, y-border, dx+2*border, dy+border*2, 1, COLOR_CHOICE_NORMAL.foreground);
-	int_clear(x-border+1, y-border+1, dx+2*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL.background);
+	int_box(x - border, y - border, dx + 2 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
+	int_clear(x - border + 1, y - border + 1, dx + 2 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
 
 	int_put(x, y, dx, desc, COLOR_CHOICE_TITLE);
 }
@@ -501,7 +501,7 @@ bool menu_fast_compare(const string& game, const string& fast)
 	unsigned ifast = 0;
 	while (igame < game.length() && ifast < fast.length()) {
 		while (igame < game.length() && !isalnum(game[igame]))
-		++igame;
+			++igame;
 		if (igame < game.length()) {
 			if (toupper(game[igame]) != toupper(fast[ifast]))
 				return false;
@@ -527,19 +527,19 @@ bool backdrop_find_preview_strict(resource& path, listpreview_t preview, const g
 {
 	if (pgame) {
 		switch (preview) {
-		case preview_icon :
+		case preview_icon:
 			if (pgame->preview_find(path, &game::preview_icon_get))
 				return true;
 			break;
-		case preview_marquee :
+		case preview_marquee:
 			if (pgame->preview_find(path, &game::preview_marquee_get))
 				return true;
 			break;
-		case preview_title :
+		case preview_title:
 			if (pgame->preview_find(path, &game::preview_title_get))
 				return true;
 			break;
-		case preview_snap :
+		case preview_snap:
 			if (pgame->preview_find(path, &game::preview_clip_get))
 				return true;
 			if (!only_clip) {
@@ -547,11 +547,11 @@ bool backdrop_find_preview_strict(resource& path, listpreview_t preview, const g
 					return true;
 			}
 			break;
-		case preview_flyer :
+		case preview_flyer:
 			if (pgame->preview_find(path, &game::preview_flyer_get))
 				return true;
 			break;
-		case preview_cabinet :
+		case preview_cabinet:
 			if (pgame->preview_find(path, &game::preview_cabinet_get))
 				return true;
 			break;
@@ -573,27 +573,27 @@ bool backdrop_find_preview_default(resource& path, unsigned& aspectx, unsigned& 
 	aspecty = 0;
 
 	switch (preview) {
-	case preview_icon :
+	case preview_icon:
 		if (rs.preview_default_icon != "none")
 			path = rs.preview_default_icon;
 		break;
-	case preview_marquee :
+	case preview_marquee:
 		if (rs.preview_default_marquee != "none")
 			path = rs.preview_default_marquee;
 		break;
-	case preview_title :
+	case preview_title:
 		if (rs.preview_default_title != "none")
 			path = rs.preview_default_title;
 		break;
-	case preview_snap :
+	case preview_snap:
 		if (rs.preview_default_snap != "none")
 			path = rs.preview_default_snap;
 		break;
-	case preview_flyer :
+	case preview_flyer:
 		if (rs.preview_default_flyer != "none")
 			path = rs.preview_default_flyer;
 		break;
-	case preview_cabinet :
+	case preview_cabinet:
 		if (rs.preview_default_cabinet != "none")
 			path = rs.preview_default_cabinet;
 		break;
@@ -728,7 +728,7 @@ static void run_background_wait(config_state& rs, const resource& sound, bool si
 				clip_done = true; // disable the control, the clip never finish
 			} else if (rs.clip_mode == clip_multiloopall) {
 				unsigned i;
-				for(i=0;i<pos_max;++i) {
+				for (i = 0; i < pos_max; ++i) {
 					if (!int_clip_is_active(i)) {
 						int_clip_start(i);
 					}
@@ -859,8 +859,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	bar_right_y = scr_y + bar_top_dy;
 
 	if (rs.ui_scroll_bar) {
-		bar_left_dx = int_font_dx_get()/2;
-		bar_right_dx = int_font_dx_get()/2;
+		bar_left_dx = int_font_dx_get() / 2;
+		bar_right_dx = int_font_dx_get() / 2;
 	} else {
 		bar_left_dx = 0;
 		bar_right_dx = 0;
@@ -869,8 +869,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	// effective preview type
 	listpreview_t effective_preview;
 	switch (rs.mode_get()) {
-	case mode_tile_icon : effective_preview = preview_icon; break;
-	case mode_tile_marquee : effective_preview = preview_marquee; break;
+	case mode_tile_icon: effective_preview = preview_icon; break;
+	case mode_tile_marquee: effective_preview = preview_marquee; break;
 	default:
 		effective_preview = rs.preview_get();
 		if (effective_preview == preview_icon || effective_preview == preview_marquee)
@@ -904,27 +904,27 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		unsigned icon_space = rs.icon_space;
 		if (icon_space > 64)
 			icon_space = 64;
-		if (icon_space < 2*cursor_size + int_font_dy_get())
-			icon_space = 2*cursor_size + int_font_dy_get();
+		if (icon_space < 2 * cursor_size + int_font_dy_get())
+			icon_space = 2 * cursor_size + int_font_dy_get();
 
 		space_x = 0;
 		space_y = 0;
 		name_dy = int_font_dy_get();
 		if (!flipxy) {
-			coln = (int_dx_get() - bar_left_dx - bar_right_dx) / (32+icon_space);
-			rown = (scr_dy - bar_top_dy - bar_bottom_dy) / (32+icon_space);
+			coln = (int_dx_get() - bar_left_dx - bar_right_dx) / (32 + icon_space);
+			rown = (scr_dy - bar_top_dy - bar_bottom_dy) / (32 + icon_space);
 		} else {
-			coln = (int_dx_get() - bar_left_dx - bar_right_dx) / (32+icon_space);
-			rown = (scr_dy - bar_top_dy - bar_bottom_dy) / (32+icon_space);
+			coln = (int_dx_get() - bar_left_dx - bar_right_dx) / (32 + icon_space);
+			rown = (scr_dy - bar_top_dy - bar_bottom_dy) / (32 + icon_space);
 		}
 
-		backdrop_mac = coln*rown;
+		backdrop_mac = coln * rown;
 
 		win_x = scr_x + bar_left_dx;
 		win_y = scr_y + bar_top_dy;
 
-		win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
-		win_dy = (scr_dy - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
+		win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln - 1) * space_x) / coln * coln + (coln - 1) * space_x;
+		win_dy = (scr_dy - bar_top_dy - bar_bottom_dy - (rown - 1) * space_y) / rown * rown + (rown - 1) * space_y;
 
 		backdrop_x = 0;
 		backdrop_y = 0;
@@ -938,25 +938,25 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		bar_left_dy = bar_right_dy = win_dy;
 	} else if (rs.mode_get() == mode_tile_marquee) {
 		// marquee mode
-		space_x = int_font_dx_get()/2;
-		space_y = int_font_dx_get()/2;
+		space_x = int_font_dx_get() / 2;
+		space_y = int_font_dx_get() / 2;
 		name_dy = 0;
 
 		if (!flipxy) {
 			coln = 3;
-			rown = 3*4* 3/4;
+			rown = 3 * 4 * 3 / 4;
 		} else {
 			coln = 2;
-			rown = 2*4* 4/3;
+			rown = 2 * 4 * 4 / 3;
 		}
 
-		backdrop_mac = coln*rown;
+		backdrop_mac = coln * rown;
 
 		win_x = scr_x + bar_left_dx;
 		win_y = scr_y + bar_top_dy;
 
-		win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
-		win_dy = (scr_dy - bar_top_dy - bar_bottom_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
+		win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln - 1) * space_x) / coln * coln + (coln - 1) * space_x;
+		win_dy = (scr_dy - bar_top_dy - bar_bottom_dy - (rown - 1) * space_y) / rown * rown + (rown - 1) * space_y;
 
 		backdrop_x = 0;
 		backdrop_y = 0;
@@ -1006,14 +1006,14 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		space_x = int_font_dx_get() / 2;
 		space_y = 0;
 
-		coln = scr_dx / (25*int_font_dx_get());
+		coln = scr_dx / (25 * int_font_dx_get());
 		if (coln < 2)
 			coln = 2;
 		rown = (scr_dy - bar_top_dy - bar_bottom_dy) / int_font_dy_get();
 
 		win_x = scr_x + bar_left_dx;
 		win_y = scr_y + bar_top_dy;
-		win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
+		win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln - 1) * space_x) / coln * coln + (coln - 1) * space_x;
 		win_dy = rown * int_font_dy_get();
 
 		backdrop_x = 0;
@@ -1075,10 +1075,10 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			// vertical
 			space_x = int_font_dx_get() / 2;
 			space_y = 0;
-			coln = scr_dx/(20*int_font_dx_get());
+			coln = scr_dx / (20 * int_font_dx_get());
 			if (coln < 2)
 				coln = 2;
-			win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
+			win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln - 1) * space_x) / coln * coln + (coln - 1) * space_x;
 
 			rown = (scr_dy - bar_top_dy - bar_bottom_dy) * multiplier / (divisor * int_font_dy_get());
 			win_dy = rown * int_font_dy_get();
@@ -1096,13 +1096,13 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		}
 	} else {
 		// tile modes
-		space_x = int_font_dx_get()/2;
-		space_y = int_font_dx_get()/2;
+		space_x = int_font_dx_get() / 2;
+		space_y = int_font_dx_get() / 2;
 
 		if (!flipxy) {
 			switch (rs.mode_get()) {
 			default: /* for warnings */
-			case mode_tile_giant :
+			case mode_tile_giant:
 				coln = 16;
 				rown = 12;
 				name_dy = 0;
@@ -1113,7 +1113,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				bar_top_dy = 0;
 				bar_bottom_dy = 0;
 				break;
-			case mode_tile_enormous :
+			case mode_tile_enormous:
 				coln = 12;
 				rown = 9;
 				name_dy = 0;
@@ -1124,24 +1124,24 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				bar_top_dy = 0;
 				bar_bottom_dy = 0;
 				break;
-			case mode_tile_big :
+			case mode_tile_big:
 				coln = 8;
 				rown = 6;
 				name_dy = 0;
 				space_x = 0;
 				space_y = 0;
 				break;
-			case mode_tile_normal :
+			case mode_tile_normal:
 				coln = 5;
 				rown = 4;
 				name_dy = int_font_dy_get();
 				break;
-			case mode_tile_small :
+			case mode_tile_small:
 				coln = 4;
 				rown = 3;
 				name_dy = int_font_dy_get();
 				break;
-			case mode_tile_tiny :
+			case mode_tile_tiny:
 				coln = 3;
 				rown = 2;
 				name_dy = int_font_dy_get();
@@ -1150,7 +1150,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		} else {
 			switch (rs.mode_get()) {
 			default: /* for warnings */
-			case mode_tile_giant :
+			case mode_tile_giant:
 				coln = 12;
 				rown = 16;
 				name_dy = 0;
@@ -1161,7 +1161,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				bar_top_dy = 0;
 				bar_bottom_dy = 0;
 				break;
-			case mode_tile_enormous :
+			case mode_tile_enormous:
 				coln = 9;
 				rown = 12;
 				name_dy = 0;
@@ -1172,24 +1172,24 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				bar_top_dy = 0;
 				bar_bottom_dy = 0;
 				break;
-			case mode_tile_big :
+			case mode_tile_big:
 				coln = 6;
 				rown = 8;
 				name_dy = 0;
 				space_x = 0;
 				space_y = 0;
 				break;
-			case mode_tile_normal :
+			case mode_tile_normal:
 				coln = 4;
 				rown = 5;
 				name_dy = int_font_dy_get();
 				break;
-			case mode_tile_small :
+			case mode_tile_small:
 				coln = 3;
 				rown = 4;
 				name_dy = int_font_dy_get();
 				break;
-			case mode_tile_tiny :
+			case mode_tile_tiny:
 				coln = 2;
 				rown = 3;
 				name_dy = int_font_dy_get();
@@ -1197,7 +1197,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			}
 		}
 
-		backdrop_mac = coln*rown;
+		backdrop_mac = coln * rown;
 
 		box = name_dy == 0;
 		if (box) {
@@ -1214,8 +1214,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		win_x = scr_x + bar_left_dx + box_x;
 		win_y = scr_y + bar_top_dy + box_y;
-		win_dx = (scr_dx - bar_left_dx - bar_right_dx - box_dx - (coln-1) * space_x) / coln * coln + (coln-1) * space_x;
-		win_dy = (scr_dy - bar_top_dy - bar_bottom_dy - box_dy - (rown-1) * space_y) / rown * rown + (rown-1) * space_y;
+		win_dx = (scr_dx - bar_left_dx - bar_right_dx - box_dx - (coln - 1) * space_x) / coln * coln + (coln - 1) * space_x;
+		win_dy = (scr_dy - bar_top_dy - bar_bottom_dy - box_dy - (rown - 1) * space_y) / rown * rown + (rown - 1) * space_y;
 
 		backdrop_x = 0;
 		backdrop_y = 0;
@@ -1239,11 +1239,11 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	backdrop_map_bis = new cell_t[backdrop_mac];
 
 	// text position
-	struct cell_t* int_map = new cell_t[coln*rown];
+	struct cell_t* int_map = new cell_t[coln * rown];
 
 	// size of the text cell
-	int cell_dx = (win_dx - space_x * (coln-1)) / coln;
-	int cell_dy = (win_dy - space_y * (rown-1)) / rown;
+	int cell_dx = (win_dx - space_x * (coln - 1)) / coln;
+	int cell_dy = (win_dy - space_y * (rown - 1)) / rown;
 
 	if (rs.mode_get() == mode_full_mixed || rs.mode_get() == mode_list_mixed) {
 		int bar_dx; // size of the additional small images
@@ -1281,20 +1281,20 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		bar_dy = backdrop_dy / 3;
 		backdrop_map[0].x = backdrop_x;
 		backdrop_map[0].y = backdrop_y;
-		backdrop_map[0].dx = backdrop_dx-bar_dx;
+		backdrop_map[0].dx = backdrop_dx - bar_dx;
 		backdrop_map[0].dy = backdrop_dy;
-		backdrop_map[1].x = backdrop_x+backdrop_dx-bar_dx;
+		backdrop_map[1].x = backdrop_x + backdrop_dx - bar_dx;
 		backdrop_map[1].y = backdrop_y;
 		backdrop_map[1].dx = bar_dx;
 		backdrop_map[1].dy = bar_dy;
-		backdrop_map[2].x = backdrop_x+backdrop_dx-bar_dx;
-		backdrop_map[2].y = backdrop_y+bar_dy;
+		backdrop_map[2].x = backdrop_x + backdrop_dx - bar_dx;
+		backdrop_map[2].y = backdrop_y + bar_dy;
 		backdrop_map[2].dx = bar_dx;
 		backdrop_map[2].dy = bar_dy;
-		backdrop_map[3].x = backdrop_x+backdrop_dx-bar_dx;
-		backdrop_map[3].y = backdrop_y+2*bar_dy;
+		backdrop_map[3].x = backdrop_x + backdrop_dx - bar_dx;
+		backdrop_map[3].y = backdrop_y + 2 * bar_dy;
 		backdrop_map[3].dx = bar_dx;
-		backdrop_map[3].dy = backdrop_dy-2*bar_dy;
+		backdrop_map[3].dy = backdrop_dy - 2 * bar_dy;
 
 		// game horizontal
 		bar_dx = backdrop_dx / 3;
@@ -1302,20 +1302,20 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		if (bar_dy < backdrop_dy / 5)
 			bar_dy = backdrop_dy / 5;
 		backdrop_map_bis[0].x = backdrop_x;
-		backdrop_map_bis[0].y = backdrop_y+bar_dy;
+		backdrop_map_bis[0].y = backdrop_y + bar_dy;
 		backdrop_map_bis[0].dx = backdrop_dx;
-		backdrop_map_bis[0].dy = backdrop_dy-bar_dy;
+		backdrop_map_bis[0].dy = backdrop_dy - bar_dy;
 		backdrop_map_bis[1].x = backdrop_x;
 		backdrop_map_bis[1].y = backdrop_y;
 		backdrop_map_bis[1].dx = bar_dx;
 		backdrop_map_bis[1].dy = bar_dy;
-		backdrop_map_bis[2].x = backdrop_x+bar_dx;
+		backdrop_map_bis[2].x = backdrop_x + bar_dx;
 		backdrop_map_bis[2].y = backdrop_y;
 		backdrop_map_bis[2].dx = bar_dx;
 		backdrop_map_bis[2].dy = bar_dy;
-		backdrop_map_bis[3].x = backdrop_x+2*bar_dx;
+		backdrop_map_bis[3].x = backdrop_x + 2 * bar_dx;
 		backdrop_map_bis[3].y = backdrop_y;
-		backdrop_map_bis[3].dx = backdrop_dx-2*bar_dx;
+		backdrop_map_bis[3].dx = backdrop_dx - 2 * bar_dx;
 		backdrop_map_bis[3].dy = bar_dy;
 	}
 
@@ -1325,9 +1325,9 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		int_map[0].dx = 0;
 		int_map[0].dy = 0;
 	} else if (rs.mode_get() == mode_list || rs.mode_get() == mode_list_mixed || rs.mode_get() == mode_text) {
-		for(int r=0;r<rown;++r) {
-			for(int c=0;c<coln;++c) {
-				unsigned i = r*coln+c;
+		for (int r = 0; r < rown; ++r) {
+			for (int c = 0; c < coln; ++c) {
+				unsigned i = r * coln + c;
 				int x = win_x + (cell_dx + space_x) * c;
 				int y = win_y + (cell_dy + space_y) * r;
 				int_map[i].x = x;
@@ -1337,26 +1337,26 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			}
 		}
 	} else {
-		for(int r=0;r<rown;++r) {
-			for(int c=0;c<coln;++c) {
-				unsigned i = r*coln+c;
+		for (int r = 0; r < rown; ++r) {
+			for (int c = 0; c < coln; ++c) {
+				unsigned i = r * coln + c;
 				int x = win_x + (cell_dx + space_x) * c;
 				int y = win_y + (cell_dy + space_y) * r;
 				if (rs.mode_get() == mode_tile_icon) {
-					backdrop_map[i].dx = 32+2*cursor_size;
-					backdrop_map[i].dy = 32+2*cursor_size;
+					backdrop_map[i].dx = 32 + 2 * cursor_size;
+					backdrop_map[i].dy = 32 + 2 * cursor_size;
 					int name_row = 3;
 					int space_up;
 					do {
 						--name_row;
-						space_up = (cell_dy - backdrop_map[i].dy - name_dy*name_row) / 3;
+						space_up = (cell_dy - backdrop_map[i].dy - name_dy * name_row) / 3;
 					} while (space_up < 0);
-					backdrop_map[i].x = x + (cell_dx - 32 - 2*cursor_size) / 2;
+					backdrop_map[i].x = x + (cell_dx - 32 - 2 * cursor_size) / 2;
 					backdrop_map[i].y = y + space_up;
 					int_map[i].x = x;
-					int_map[i].y = y + backdrop_map[i].dy + 2*space_up;
+					int_map[i].y = y + backdrop_map[i].dy + 2 * space_up;
 					int_map[i].dx = cell_dx;
-					int_map[i].dy = name_row*name_dy;
+					int_map[i].dy = name_row * name_dy;
 				} else {
 					backdrop_map[i].x = x;
 					backdrop_map[i].y = y;
@@ -1385,14 +1385,14 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			else
 				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, coln, 1, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop || rs.clip_mode == clip_multiloopall);
 		}
-		for(int i=0;i<backdrop_mac;++i)
+		for (int i = 0; i < backdrop_mac; ++i)
 			int_backdrop_pos(i, backdrop_map[i].x, backdrop_map[i].y, backdrop_map[i].dx, backdrop_map[i].dy);
 	}
 
 	// reset the sound
 	rs.current_sound = resource();
 
-	int pos_rel_max = coln*rown;
+	int pos_rel_max = coln * rown;
 	int pos_base_upper = gc.size();
 	if (pos_base_upper % coln)
 		pos_base_upper = pos_base_upper + coln - pos_base_upper % coln;
@@ -1460,8 +1460,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			pos_base = pos_base_upper;
 	}
 
-	if (pos_base + pos_rel < gc.size() && gc[pos_base+pos_rel]->has_game()) {
-		rs.current_game = &gc[pos_base+pos_rel]->game_get();
+	if (pos_base + pos_rel < gc.size() && gc[pos_base + pos_rel]->has_game()) {
+		rs.current_game = &gc[pos_base + pos_rel]->game_get();
 		rs.current_clone = 0;
 	} else {
 		rs.current_game = 0;
@@ -1472,7 +1472,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	{
 		int i;
 		game_count = 0;
-		for(i=0;i<gc.size();++i)
+		for (i = 0; i < gc.size(); ++i)
 			if (gc[i]->has_game())
 				++game_count;
 	}
@@ -1500,10 +1500,10 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			unsigned aspectx, aspecty;
 
 			switch (effective_preview) {
-			case preview_cabinet :
-			case preview_snap :
-			case preview_title :
-			case preview_flyer :
+			case preview_cabinet:
+			case preview_snap:
+			case preview_title:
+			case preview_flyer:
 				int_clear(COLOR_MENU_GRID.background);
 				if (backdrop_find_preview_default(snap, aspectx, aspecty, effective_preview, effective_game, rs)) {
 					unsigned scale_x, scale_y;
@@ -1518,7 +1518,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 #endif
 
 		if (name_dy)
-			draw_menu_window(rs.gar, gc, int_map, coln, rown, pos_base, pos_base+pos_rel, use_ident, rs.merge, rs.mode_get() == mode_tile_icon);
+			draw_menu_window(rs.gar, gc, int_map, coln, rown, pos_base, pos_base + pos_rel, use_ident, rs.merge, rs.mode_get() == mode_tile_icon);
 		if (bar_top_dy)
 			draw_menu_bar(rs.current_game, game_count, bar_top_x, bar_top_y, bar_top_dx);
 		if (bar_bottom_dy)
@@ -1550,10 +1550,10 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			}
 
 			if (!game_horz) {
-				for(int i=0;i<backdrop_mac;++i)
+				for (int i = 0; i < backdrop_mac; ++i)
 					int_backdrop_pos(i, backdrop_map[i].x, backdrop_map[i].y, backdrop_map[i].dx, backdrop_map[i].dy);
 			} else {
-				for(int i=0;i<backdrop_mac;++i)
+				for (int i = 0; i < backdrop_mac; ++i)
 					int_backdrop_pos(i, backdrop_map_bis[i].x, backdrop_map_bis[i].y, backdrop_map_bis[i].dx, backdrop_map_bis[i].dy);
 			}
 
@@ -1584,16 +1584,16 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			} else if (backdrop_mac > 1) {
 				if (rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop || rs.clip_mode == clip_multiloopall) {
 					// put all the clip in the internal cache
-					for(int i=0;i<coln*rown;++i) {
+					for (int i = 0; i < coln * rown; ++i) {
 						int_clip_clear(i);
 					}
 				}
-				for(int i=0;i<coln*rown;++i) {
+				for (int i = 0; i < coln * rown; ++i) {
 					bool current = i == pos_rel;
 					if (rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop || rs.clip_mode == clip_multiloopall)
-						backdrop_index_set(pos_base+i, gc, i, effective_preview, current, current, true, rs);
+						backdrop_index_set(pos_base + i, gc, i, effective_preview, current, current, true, rs);
 					else
-						backdrop_index_set(pos_base+i, gc, i, effective_preview, current, current, current, rs);
+						backdrop_index_set(pos_base + i, gc, i, effective_preview, current, current, current, rs);
 				}
 			}
 		}
@@ -1604,7 +1604,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			unsigned dx, dy;
 			int x = int_dx_get() / 2;
 			int y = int_dy_get() / 2;
-			int border = int_font_dx_get()/2;
+			int border = int_font_dx_get() / 2;
 
 			// force an update to draw the first time the backdrop images
 			int_update(false);
@@ -1612,9 +1612,9 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			dx = int_font_dx_get(over_msg);
 			dy = int_font_dy_get();
 
-			int_box(x-2*border-dx/2, y-border, dx+4*border, dy+border*2, 1, COLOR_CHOICE_NORMAL.foreground);
-			int_clear(x-2*border-dx/2+1, y-border+1, dx+4*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL.background);
-			int_put(x-dx/2, y, dx, over_msg, COLOR_CHOICE_TITLE);
+			int_box(x - 2 * border - dx / 2, y - border, dx + 4 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
+			int_clear(x - 2 * border - dx / 2 + 1, y - border + 1, dx + 4 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
+			int_put(x - dx / 2, y, dx, over_msg, COLOR_CHOICE_TITLE);
 		}
 
 		int_update(rs.mode_get() != mode_full_mixed && rs.mode_get() != mode_list_mixed);
@@ -1641,35 +1641,35 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		key = menu_key(key, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
 
 		switch (key) {
-		case EVENT_INS :
+		case EVENT_INS:
 			if (pos_base + pos_rel < gc.size() && pos_base + pos_rel > 0) {
 				unsigned new_pos = pos_base + pos_rel - 1;
 				string i = gc[new_pos]->category(category_extract);
-				while (new_pos>0 && gc[new_pos-1]->category(category_extract)== i)
+				while (new_pos > 0 && gc[new_pos - 1]->category(category_extract) == i)
 					--new_pos;
 				menu_pos(new_pos, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
 			}
 			break;
-		case EVENT_DEL :
+		case EVENT_DEL:
 			if (pos_base + pos_rel < gc.size()) {
 				unsigned new_pos = pos_base + pos_rel;
 				string i = gc[new_pos]->category(category_extract);
-				while (new_pos<gc.size()-1 && gc[new_pos]->category(category_extract)== i)
+				while (new_pos < gc.size() - 1 && gc[new_pos]->category(category_extract) == i)
 					++new_pos;
 				menu_pos(new_pos, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
 			}
 			break;
 		default:
-			if (key>32 && key<128 && isalnum(key)) {
+			if (key > 32 && key < 128 && isalnum(key)) {
 				oldfast.insert(oldfast.length(), 1, (char)key);
 				menu_array::const_iterator i;
-				for(i=gc.begin();i!=gc.end();++i) {
+				for (i = gc.begin(); i != gc.end(); ++i) {
 					if (menu_fast_compare((*i)->desc_get(), oldfast)) {
 						break;
 					}
 				}
-				if (i==gc.end()) {
-					for(i=gc.begin();i!=gc.end();++i) {
+				if (i == gc.end()) {
+					for (i = gc.begin(); i != gc.end(); ++i) {
 						if ((*i)->has_game()) {
 							const game& g = (*i)->game_get().clone_best_get();
 							if (menu_fast_compare(g.name_without_emulator_get(), oldfast)) {
@@ -1678,52 +1678,52 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 						}
 					}
 				}
-				if (i!=gc.end()) {
+				if (i != gc.end()) {
 					int pos = i - gc.begin();
 					menu_pos(pos, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, gc.size());
 					rs.fast = oldfast;
 				}
 			}
 			break;
-		case EVENT_ENTER :
-		case EVENT_CLONE :
-		case EVENT_LOCK :
+		case EVENT_ENTER:
+		case EVENT_CLONE:
+		case EVENT_LOCK:
 			done = true;
 			break;
-		case EVENT_IDLE_0 :
-		case EVENT_IDLE_1 :
+		case EVENT_IDLE_0:
+		case EVENT_IDLE_1:
 			done = true;
 			break;
 		}
 		if (!rs.lock_effective)
-		switch (key) {
-		case EVENT_MODE :
-		case EVENT_HELP :
-		case EVENT_GROUP :
-		case EVENT_TYPE :
-		case EVENT_ATTRIB :
-		case EVENT_SORT :
-		case EVENT_SETGROUP :
-		case EVENT_SETTYPE :
-		case EVENT_COMMAND :
-		case EVENT_MENU :
-		case EVENT_EMU :
-		case EVENT_ROTATE :
-		case EVENT_PREVIEW :
-			done = true;
-			break;
-		case EVENT_ESC :
-			if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all || rs.console_mode)
+			switch (key) {
+			case EVENT_MODE:
+			case EVENT_HELP:
+			case EVENT_GROUP:
+			case EVENT_TYPE:
+			case EVENT_ATTRIB:
+			case EVENT_SORT:
+			case EVENT_SETGROUP:
+			case EVENT_SETTYPE:
+			case EVENT_COMMAND:
+			case EVENT_MENU:
+			case EVENT_EMU:
+			case EVENT_ROTATE:
+			case EVENT_PREVIEW:
 				done = true;
-			break;
-		case EVENT_OFF :
-			if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all)
-				done = true;
-			break;
-		}
+				break;
+			case EVENT_ESC:
+				if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all || rs.console_mode)
+					done = true;
+				break;
+			case EVENT_OFF:
+				if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all)
+					done = true;
+				break;
+			}
 
 		if (pos_rel + pos_base < gc.size() && gc[pos_rel + pos_base]->has_game()) {
-			rs.current_game = &gc[pos_rel+pos_base]->game_get();
+			rs.current_game = &gc[pos_rel + pos_base]->game_get();
 			rs.current_clone = 0;
 		} else {
 			rs.current_game = 0;
@@ -1763,11 +1763,11 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 	listpreview_t preview = preview_snap;
 
 	switch (rs.idle_saver_type) {
-	case saver_snap : preview = preview_snap; break;
-	case saver_play : preview = preview_snap; break;
-	case saver_flyer : preview = preview_flyer; break;
-	case saver_cabinet : preview = preview_cabinet; break;
-	case saver_title : preview = preview_title; break;
+	case saver_snap: preview = preview_snap; break;
+	case saver_play: preview = preview_snap; break;
+	case saver_flyer: preview = preview_flyer; break;
+	case saver_cabinet: preview = preview_cabinet; break;
+	case saver_title: preview = preview_title; break;
 	default:
 		assert(0);
 		break;
@@ -1779,7 +1779,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 
 	// make the set of available snapshot
 	vector<unsigned> avail;
-	for(unsigned i=0;i<gc.size();++i) {
+	for (unsigned i = 0; i < gc.size(); ++i) {
 		resource backdrop;
 		if (gc[i]->has_game()) {
 			if (backdrop_find_preview_strict(backdrop, preview, &gc[i]->game_get(), rs.idle_saver_type == saver_play)) {
@@ -1790,7 +1790,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 
 	// if no play found, retry with snap
 	if (avail.size() == 0 && rs.idle_saver_type == saver_play) {
-		for(unsigned i=0;i<gc.size();++i) {
+		for (unsigned i = 0; i < gc.size(); ++i) {
 			resource backdrop;
 			if (gc[i]->has_game()) {
 				if (backdrop_find_preview_strict(backdrop, preview, &gc[i]->game_get(), false)) {
@@ -1801,7 +1801,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 	}
 
 	// randomize the set
-	for(unsigned i=0;i<avail.size();++i) {
+	for (unsigned i = 0; i < avail.size(); ++i) {
 		unsigned j = rand() % avail.size();
 		unsigned t = avail[i];
 		avail[i] = avail[j];
@@ -1899,13 +1899,13 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 	bool list_mode = rs.mode_get() == mode_list || rs.mode_get() == mode_list_mixed;
 	if (!list_mode || rs.sort_get() == sort_by_name || rs.sort_get() == sort_by_time || rs.sort_get() == sort_by_size || rs.sort_get() == sort_by_session || rs.sort_get() == sort_by_timepersession) {
 		gc.reserve(gss.size());
-		for(pgame_sort_set::const_iterator i = gss.begin();i!=gss.end();++i) {
+		for (pgame_sort_set::const_iterator i = gss.begin(); i != gss.end(); ++i) {
 			gc.insert(gc.end(), new menu_entry(*i, 0));
 		}
 	} else if (rs.sort_get() == sort_by_emulator) {
 		string category = "dummy";
 		gc.reserve(gss.size() + 16);
-		for(pgame_sort_set::const_iterator i = gss.begin();i!=gss.end();++i) {
+		for (pgame_sort_set::const_iterator i = gss.begin(); i != gss.end(); ++i) {
 			string new_category = category_func(**i);
 			if (new_category != category) {
 				category = new_category;
@@ -1922,7 +1922,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 		}
 	} else if (rs.sort_get() == sort_by_root_name) {
 		gc.reserve(gss.size());
-		for(pgame_sort_set::const_iterator i = gss.begin();i!=gss.end();++i) {
+		for (pgame_sort_set::const_iterator i = gss.begin(); i != gss.end(); ++i) {
 			unsigned ident = 0;
 			if ((*i)->parent_get()) {
 				if ((*i)->software_get())
@@ -1935,7 +1935,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 	} else {
 		string category = "dummy";
 		gc.reserve(gss.size() + 256);
-		for(pgame_sort_set::const_iterator i = gss.begin();i!=gss.end();++i) {
+		for (pgame_sort_set::const_iterator i = gss.begin(); i != gss.end(); ++i) {
 			string new_category = category_func(**i);
 			if (new_category != category) {
 				category = new_category;
@@ -1984,7 +1984,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 			silent = false;
 
 			switch (key) {
-			case EVENT_IDLE_1 :
+			case EVENT_IDLE_1:
 				idle = true;
 				break;
 			default:
@@ -1993,7 +1993,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 		}
 	}
 
-	for(menu_array::iterator i=gc.begin();i!=gc.end();++i)
+	for (menu_array::iterator i = gc.begin(); i != gc.end(); ++i)
 		delete *i;
 
 	return key;
@@ -2002,15 +2002,15 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 // ------------------------------------------------------------------------
 // Run Info
 
-#define RUNINFO_CHOICE_Y int_dy_get()/10
-#define RUNINFO_CHOICE_DY 2*int_font_dy_get()
+#define RUNINFO_CHOICE_Y int_dy_get() / 10
+#define RUNINFO_CHOICE_DY 2 * int_font_dy_get()
 
 void run_runinfo(config_state& rs)
 {
 	int x = int_dx_get() / 2;
 	int y = RUNINFO_CHOICE_Y;
 	int dy = RUNINFO_CHOICE_DY;
-	int border = int_font_dx_get()/2;
+	int border = int_font_dx_get() / 2;
 
 	const game* g = rs.current_clone ? rs.current_clone : rs.current_game;
 	if (!g)
@@ -2019,9 +2019,9 @@ void run_runinfo(config_state& rs)
 	if (rs.ui_gamesaver != saver_off) {
 		listpreview_t preview = preview_snap;
 		switch (rs.ui_gamesaver) {
-		case saver_flyer : preview = preview_flyer; break;
-		case saver_cabinet : preview = preview_cabinet; break;
-		case saver_title : preview = preview_title; break;
+		case saver_flyer: preview = preview_flyer; break;
+		case saver_cabinet: preview = preview_cabinet; break;
+		case saver_title: preview = preview_title; break;
 		default: preview = preview_snap; break;
 		}
 
@@ -2048,13 +2048,13 @@ void run_runinfo(config_state& rs)
 		else
 			dx = w0;
 
-		int_box(x-2*border-dx/2, y-border, dx+4*border, dy+border*2, 1, COLOR_CHOICE_NORMAL.foreground);
-		int_clear(x-2*border-dx/2+1, y-border+1, dx+4*border-2, dy+border*2-2, COLOR_CHOICE_NORMAL.background);
+		int_box(x - 2 * border - dx / 2, y - border, dx + 4 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
+		int_clear(x - 2 * border - dx / 2 + 1, y - border + 1, dx + 4 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
 
-		int_put(x-w0/2, y, w0, rs.ui_gamemsg, COLOR_CHOICE_TITLE);
+		int_put(x - w0 / 2, y, w0, rs.ui_gamemsg, COLOR_CHOICE_TITLE);
 		y += int_font_dy_get();
 
-		int_put(x-w1/2, y, w1, desc, COLOR_CHOICE_NORMAL);
+		int_put(x - w1 / 2, y, w1, desc, COLOR_CHOICE_NORMAL);
 		y += int_font_dy_get();
 
 		int_update();
@@ -2070,55 +2070,55 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 
 	// setup the sorted container
 	switch (rs.sort_get()) {
-	case sort_by_root_name :
+	case sort_by_root_name:
 		psc = new pgame_sort_set(sort_by_root_name_func);
 		category_func = sort_item_root_name;
 		break;
-	case sort_by_name :
+	case sort_by_name:
 		psc = new pgame_sort_set(sort_by_name_func);
 		category_func = sort_item_name;
 		break;
-	case sort_by_manufacturer :
+	case sort_by_manufacturer:
 		psc = new pgame_sort_set(sort_by_manufacturer_func);
 		category_func = sort_item_manufacturer;
 		break;
-	case sort_by_year :
+	case sort_by_year:
 		psc = new pgame_sort_set(sort_by_year_func);
 		category_func = sort_item_year;
 		break;
-	case sort_by_time :
+	case sort_by_time:
 		psc = new pgame_sort_set(sort_by_time_func);
 		category_func = sort_item_time;
 		break;
-	case sort_by_session :
+	case sort_by_session:
 		psc = new pgame_sort_set(sort_by_session_func);
 		category_func = sort_item_session;
 		break;
-	case sort_by_group :
+	case sort_by_group:
 		psc = new pgame_sort_set(sort_by_group_func);
 		category_func = sort_item_group;
 		break;
-	case sort_by_type :
+	case sort_by_type:
 		psc = new pgame_sort_set(sort_by_type_func);
 		category_func = sort_item_type;
 		break;
-	case sort_by_size :
+	case sort_by_size:
 		psc = new pgame_sort_set(sort_by_size_func);
 		category_func = sort_item_size;
 		break;
-	case sort_by_res :
+	case sort_by_res:
 		psc = new pgame_sort_set(sort_by_res_func);
 		category_func = sort_item_res;
 		break;
-	case sort_by_info :
+	case sort_by_info:
 		psc = new pgame_sort_set(sort_by_info_func);
 		category_func = sort_item_info;
 		break;
-	case sort_by_timepersession :
+	case sort_by_timepersession:
 		psc = new pgame_sort_set(sort_by_timepersession_func);
 		category_func = sort_item_timepersession;
 		break;
-	case sort_by_emulator :
+	case sort_by_emulator:
 		psc = new pgame_sort_set(sort_by_emulator_func);
 		category_func = sort_item_emulator;
 		break;
@@ -2129,12 +2129,12 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 	string emu_msg;
 
 	// setup the emulator state
-	for(pemulator_container::iterator i=rs.emu.begin();i!=rs.emu.end();++i) {
+	for (pemulator_container::iterator i = rs.emu.begin(); i != rs.emu.end(); ++i) {
 		bool state = false;
 		if (rs.include_emu_get().size() == 0) {
 			state = true;
 		} else {
-			for(emulator_container::const_iterator j=rs.include_emu_get().begin();j!=rs.include_emu_get().end();++j) {
+			for (emulator_container::const_iterator j = rs.include_emu_get().begin(); j != rs.include_emu_get().end(); ++j) {
 				if ((*i)->user_name_get() == *j) {
 					state = true;
 					break;
@@ -2150,12 +2150,12 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 	}
 
 	// setup the group state
-	for(pcategory_container::iterator i=rs.group.begin();i!=rs.group.end();++i) {
+	for (pcategory_container::iterator i = rs.group.begin(); i != rs.group.end(); ++i) {
 		bool state = false;
 		if (rs.include_group_get().size() == 0) {
 			state = true;
 		} else {
-			for(category_container::iterator j=rs.include_group_get().begin();j!=rs.include_group_get().end();++j) {
+			for (category_container::iterator j = rs.include_group_get().begin(); j != rs.include_group_get().end(); ++j) {
 				if ((*i)->name_get() == *j) {
 					state = true;
 					break;
@@ -2166,12 +2166,12 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 	}
 
 	// setup the type state
-	for(pcategory_container::iterator i=rs.type.begin();i!=rs.type.end();++i) {
+	for (pcategory_container::iterator i = rs.type.begin(); i != rs.type.end(); ++i) {
 		bool state = false;
 		if (rs.include_type_get().size() == 0) {
 			state = true;
 		} else {
-			for(category_container::iterator j=rs.include_type_get().begin();j!=rs.include_type_get().end();++j) {
+			for (category_container::iterator j = rs.include_type_get().begin(); j != rs.include_type_get().end(); ++j) {
 				if ((*i)->name_get() == *j) {
 					state = true;
 					break;
@@ -2190,7 +2190,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 	rs.preview_mask = 0;
 
 	// select and sort
-	for(game_set::const_iterator i=rs.gar.begin();i!=rs.gar.end();++i) {
+	for (game_set::const_iterator i = rs.gar.begin(); i != rs.gar.end(); ++i) {
 		// emulator
 		if (!i->emulator_get()->state_get())
 			continue;
@@ -2279,65 +2279,65 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		silent = true;
 
 		if (!rs.lock_effective)
-		switch (key) {
-		case EVENT_MODE :
-			if (rs.mode_mask) {
-				do {
-					switch (rs.mode_get()) {
-					case mode_full : rs.mode_set(mode_full_mixed); break;
-					case mode_full_mixed : rs.mode_set(mode_text); break;
-					case mode_text : rs.mode_set(mode_list); break;
-					case mode_list : rs.mode_set(mode_list_mixed); break;
-					case mode_list_mixed : rs.mode_set(mode_tile_tiny); break;
-					case mode_tile_tiny : rs.mode_set(mode_tile_small); break;
-					case mode_tile_small : rs.mode_set(mode_tile_normal); break;
-					case mode_tile_normal : rs.mode_set(mode_tile_big); break;
-					case mode_tile_big : rs.mode_set(mode_tile_enormous); break;
-					case mode_tile_enormous : rs.mode_set(mode_tile_giant); break;
-					case mode_tile_giant : rs.mode_set(mode_tile_icon); break;
-					case mode_tile_icon : rs.mode_set(mode_tile_marquee); break;
-					case mode_tile_marquee : rs.mode_set(mode_full); break;
-					}
-				} while ((rs.mode_get() & rs.mode_mask) == 0);
+			switch (key) {
+			case EVENT_MODE:
+				if (rs.mode_mask) {
+					do {
+						switch (rs.mode_get()) {
+						case mode_full: rs.mode_set(mode_full_mixed); break;
+						case mode_full_mixed: rs.mode_set(mode_text); break;
+						case mode_text: rs.mode_set(mode_list); break;
+						case mode_list: rs.mode_set(mode_list_mixed); break;
+						case mode_list_mixed: rs.mode_set(mode_tile_tiny); break;
+						case mode_tile_tiny: rs.mode_set(mode_tile_small); break;
+						case mode_tile_small: rs.mode_set(mode_tile_normal); break;
+						case mode_tile_normal: rs.mode_set(mode_tile_big); break;
+						case mode_tile_big: rs.mode_set(mode_tile_enormous); break;
+						case mode_tile_enormous: rs.mode_set(mode_tile_giant); break;
+						case mode_tile_giant: rs.mode_set(mode_tile_icon); break;
+						case mode_tile_icon: rs.mode_set(mode_tile_marquee); break;
+						case mode_tile_marquee: rs.mode_set(mode_full); break;
+						}
+					} while ((rs.mode_get() & rs.mode_mask) == 0);
+				}
+				break;
+			case EVENT_PREVIEW:
+				if (rs.preview_mask) {
+					do {
+						switch (rs.preview_get()) {
+						case preview_icon:
+						case preview_marquee:
+						case preview_snap: rs.preview_set(preview_title); break;
+						case preview_title: rs.preview_set(preview_flyer); break;
+						case preview_flyer: rs.preview_set(preview_cabinet); break;
+						case preview_cabinet: rs.preview_set(preview_snap); break;
+						}
+					} while ((rs.preview_get() & rs.preview_mask) == 0);
+				}
+				break;
 			}
-			break;
-		case EVENT_PREVIEW :
-			if (rs.preview_mask) {
-				do {
-					switch (rs.preview_get()) {
-						case preview_icon :
-						case preview_marquee :
-						case preview_snap : rs.preview_set(preview_title); break;
-						case preview_title : rs.preview_set(preview_flyer); break;
-						case preview_flyer : rs.preview_set(preview_cabinet); break;
-						case preview_cabinet : rs.preview_set(preview_snap); break;
-					}
-				} while ((rs.preview_get() & rs.preview_mask) == 0);
-			}
-			break;
-		}
 
 		switch (key) {
-		case EVENT_ENTER :
-		case EVENT_CLONE :
-		case EVENT_IDLE_0 :
-		case EVENT_IDLE_1 :
-		case EVENT_LOCK :
-		case EVENT_HELP :
-		case EVENT_GROUP :
-		case EVENT_TYPE :
-		case EVENT_ATTRIB :
-		case EVENT_SORT :
-		case EVENT_SETGROUP :
-		case EVENT_SETTYPE :
-		case EVENT_COMMAND :
-		case EVENT_MENU :
-		case EVENT_EMU :
-		case EVENT_ROTATE :
-		case EVENT_ESC :
-		case EVENT_OFF :
-		case EVENT_ESC_FORCE :
-		case EVENT_OFF_FORCE :
+		case EVENT_ENTER:
+		case EVENT_CLONE:
+		case EVENT_IDLE_0:
+		case EVENT_IDLE_1:
+		case EVENT_LOCK:
+		case EVENT_HELP:
+		case EVENT_GROUP:
+		case EVENT_TYPE:
+		case EVENT_ATTRIB:
+		case EVENT_SORT:
+		case EVENT_SETGROUP:
+		case EVENT_SETTYPE:
+		case EVENT_COMMAND:
+		case EVENT_MENU:
+		case EVENT_EMU:
+		case EVENT_ROTATE:
+		case EVENT_ESC:
+		case EVENT_OFF:
+		case EVENT_ESC_FORCE:
+		case EVENT_OFF_FORCE:
 			done = true;
 			break;
 		}
@@ -2347,5 +2347,4 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 
 	return key;
 }
-
 

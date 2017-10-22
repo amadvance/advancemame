@@ -38,3 +38,4 @@ int map_create_selector(unsigned *segment, unsigned long linear, unsigned long s
 void map_remove_selector(unsigned *segment);
 
 #endif
+

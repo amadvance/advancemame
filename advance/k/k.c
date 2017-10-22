@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -27,13 +27,13 @@ void probe(void)
 	int i, j;
 
 	printf("Driver %s, keyboards %d\n", keyb_name(), keyb_count_get());
-	for(i=0;i<keyb_count_get();++i) {
+	for (i = 0; i < keyb_count_get(); ++i) {
 		char name[DEVICE_NAME_MAX];
 		if (keyb_device_name_get(i, name) != 0)
 			strcpy(name, DEVICE_NONAME);
 		printf("keyboard %d '%s'\n", i, name);
 		printf("\tkeys");
-		for(j=0;j<KEYB_MAX;++j) {
+		for (j = 0; j < KEYB_MAX; ++j) {
 			if (keyb_has(i, j)) {
 				printf(" %s", key_name(j));
 			}
@@ -77,10 +77,10 @@ void run(void)
 		unsigned count = 0;
 		*new_msg = 0;
 
-		for(k=0;k<keyb_count_get();++k) {
-			for(i=0;i<KEYB_MAX;++i) {
-				if (keyb_get(k,i)) {
-					if (i==KEYB_ESC)
+		for (k = 0; k < keyb_count_get(); ++k) {
+			for (i = 0; i < KEYB_MAX; ++i) {
+				if (keyb_get(k, i)) {
+					if (i == KEYB_ESC)
 						esc_pressed = 1;
 					++count;
 					snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "%s[%d] ", key_name(i), k);
@@ -88,14 +88,14 @@ void run(void)
 			}
 		}
 
-		if (strcmp(msg, new_msg)!=0) {
+		if (strcmp(msg, new_msg) != 0) {
 			target_clock_t current = target_clock();
 			double period = (current - last) * 1000.0 / TARGET_CLOCKS_PER_SEC;
 			last = current;
 			sncpy(msg, sizeof(msg), new_msg);
 			printf("(%6.1f ms) [%3d] %s\n", period, count, msg);
 
-			for(k=0;k<keyb_count_get();++k) {
+			for (k = 0; k < keyb_count_get(); ++k) {
 				keyb_led_set(k, led);
 			}
 			++led;
@@ -156,7 +156,7 @@ int os_main(int argc, char* argv[])
 	if (conf_input_args_load(context, 0, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
-	for(i=1;i<argc;++i) {
+	for (i = 1; i < argc; ++i) {
 		if (target_option_compare(argv[i], "log")) {
 			opt_log = 1;
 		} else if (target_option_compare(argv[i], "logsync")) {

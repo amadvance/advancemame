@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -125,7 +125,7 @@ struct safequit_entry {
 struct advance_safequit_config_context {
 	char file_buffer[FILE_MAXPATH]; /**< File safequit.dat to load. */
 	adv_bool debug_flag; /**< Show the debug flag on the screen. */
-        adv_bool safe_exit_flag; /**< Flag for safe exit. */
+	adv_bool safe_exit_flag; /**< Flag for safe exit. */
 };
 
 struct advance_safequit_state_context {
@@ -1057,3 +1057,4 @@ static inline double advance_timer(void)
 }
 
 #endif
+

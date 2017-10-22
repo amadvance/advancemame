@@ -100,8 +100,8 @@ static sdl_internal sdl_state;
 unsigned char* (*sdl_write_line)(unsigned y);
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "SDL video" },
-{ 0, 0, 0 }
+	{ "auto", -1, "SDL video" },
+	{ 0, 0, 0 }
 };
 
 /***************************************************************************/
@@ -109,7 +109,7 @@ static adv_device DEVICE[] = {
 
 static adv_bool sdl_is_active(void)
 {
-	 return sdl_state.active != 0;
+	return sdl_state.active != 0;
 }
 
 static adv_bool sdl_mode_is_active(void)
@@ -130,21 +130,21 @@ static unsigned sdl_mode_flags(void)
 	switch (sdl_state.output) {
 	default:
 		assert(0);
-	case adv_output_window :
+	case adv_output_window:
 		flags = 0; /* software surface */
 		break;
 #ifdef USE_VIDEO_RESTORE
-	case adv_output_fullscreen :
+	case adv_output_fullscreen:
 		flags = SDL_FULLSCREEN;
 		break;
-	case adv_output_overlay :
+	case adv_output_overlay:
 		flags = SDL_FULLSCREEN;
 		break;
 #else
-	case adv_output_fullscreen :
+	case adv_output_fullscreen:
 		flags = SDL_FULLSCREEN | SDL_HWSURFACE;
 		break;
-	case adv_output_overlay :
+	case adv_output_overlay:
 		flags = SDL_FULLSCREEN | SDL_HWSURFACE;
 		break;
 #endif
@@ -169,16 +169,16 @@ static void sdl_icon(void)
 		return;
 	}
 
-	for(y=0;y<ICON_SIZE;++y) {
+	for (y = 0; y < ICON_SIZE; ++y) {
 		unsigned char* p = (unsigned char*)surface->pixels + y * surface->pitch;
-		for(x=0;x<ICON_SIZE;++x)
-			p[x] = icon_pixel[y*ICON_SIZE+x];
+		for (x = 0; x < ICON_SIZE; ++x)
+			p[x] = icon_pixel[y * ICON_SIZE + x];
 	}
 
-	for(i=0;i<ICON_PALETTE;++i) {
-		colors[i].r = icon_palette[i*3+0];
-		colors[i].g = icon_palette[i*3+1];
-		colors[i].b = icon_palette[i*3+2];
+	for (i = 0; i < ICON_PALETTE; ++i) {
+		colors[i].r = icon_palette[i * 3 + 0];
+		colors[i].g = icon_palette[i * 3 + 1];
+		colors[i].b = icon_palette[i * 3 + 2];
 	}
 
 	if (SDL_SetColors(surface, colors, 0, ICON_PALETTE) != 1) {
@@ -205,22 +205,22 @@ static void sdl_icon(SDL_Window* window)
 		return;
 	}
 
-	for(y=0;y<ICON_SIZE;++y) {
-		for(x=0;x<ICON_SIZE;++x) {
-			unsigned mask = icon_mask[y*4+3] | (icon_mask[y*4+2] << 8) | (icon_mask[y*4+1] << 16) | (icon_mask[y*4+0] << 24);
-			if (mask & (1 << (31-x))) {
-				unsigned pal = icon_pixel[y*ICON_SIZE+x] * 3;
-				data[y*ICON_SIZE+x] = icon_palette[pal + 0]
+	for (y = 0; y < ICON_SIZE; ++y) {
+		for (x = 0; x < ICON_SIZE; ++x) {
+			unsigned mask = icon_mask[y * 4 + 3] | (icon_mask[y * 4 + 2] << 8) | (icon_mask[y * 4 + 1] << 16) | (icon_mask[y * 4 + 0] << 24);
+			if (mask & (1 << (31 - x))) {
+				unsigned pal = icon_pixel[y * ICON_SIZE + x] * 3;
+				data[y * ICON_SIZE + x] = icon_palette[pal + 0]
 					| (icon_palette[pal + 1] << 8)
 					| (icon_palette[pal + 2] << 16)
 					| 0xff000000;
 			} else {
-				data[y*ICON_SIZE+x] = 0;
+				data[y * ICON_SIZE + x] = 0;
 			}
 		}
 	}
 
-	surface = SDL_CreateRGBSurfaceFrom(data, ICON_SIZE, ICON_SIZE, 32, ICON_SIZE*4, 0xff, 0xff00, 0xff0000, 0xff000000);
+	surface = SDL_CreateRGBSurfaceFrom(data, ICON_SIZE, ICON_SIZE, 32, ICON_SIZE * 4, 0xff, 0xff00, 0xff0000, 0xff000000);
 	if (!surface) {
 		log_std(("video:sdl: Failed sdl_icon() in SDL_CreateRGBSurfaceFrom()\n"));
 		return;
@@ -296,7 +296,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 
 	initialized_now = 0;
 
-	if (SDL_WasInit(SDL_INIT_VIDEO)==0) {
+	if (SDL_WasInit(SDL_INIT_VIDEO) == 0) {
 		log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
 
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
@@ -332,11 +332,11 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 	log_std(("video:sdl: video blit_fill:%d\n", (unsigned)info->blit_fill));
 	log_std(("video:sdl: video video_mem:%d kBytes\n", (unsigned)info->video_mem));
 	log_std(("video:sdl: video bit:%d byte:%d rgb:%d/%d:%d/%d:%d/%d\n",
-			(unsigned)info->vfmt->BitsPerPixel, (unsigned)info->vfmt->BytesPerPixel,
-			(unsigned)8 - info->vfmt->Rloss, (unsigned)info->vfmt->Rshift,
-			(unsigned)8 - info->vfmt->Gloss, (unsigned)info->vfmt->Gshift,
-			(unsigned)8 - info->vfmt->Bloss, (unsigned)info->vfmt->Bshift
-	));
+		(unsigned)info->vfmt->BitsPerPixel, (unsigned)info->vfmt->BytesPerPixel,
+		(unsigned)8 - info->vfmt->Rloss, (unsigned)info->vfmt->Rshift,
+		(unsigned)8 - info->vfmt->Gloss, (unsigned)info->vfmt->Gshift,
+		(unsigned)8 - info->vfmt->Bloss, (unsigned)info->vfmt->Bshift
+		));
 	log_std(("video:sdl: video current_w:%d\n", (unsigned)info->current_w));
 	log_std(("video:sdl: video current_h:%d\n", (unsigned)info->current_h));
 
@@ -349,7 +349,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		if (map == 0) {
 			log_std(("video:sdl: no resolutions\n"));
 			has_window_manager = 0;
-		} else if (map == (SDL_Rect **)-1) {
+		} else if (map == (SDL_Rect**)-1) {
 			/* all resolution available */
 			log_std(("video:sdl: all resolutions\n"));
 			has_window_manager = 1;
@@ -385,10 +385,10 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 	map = SDL_ListModes(0, sdl_mode_flags());
 	if (map == 0) {
 		log_std(("video:sdl: no resolutions\n"));
-	} else if (map == (SDL_Rect **)-1) {
+	} else if (map == (SDL_Rect**)-1) {
 		log_std(("video:sdl: all resolutions\n"));
 	} else {
-		for(j=0;map[j];++j) {
+		for (j = 0; map[j]; ++j) {
 			log_std(("video:sdl: mode %dx%d\n", (unsigned)map[j]->w, (unsigned)map[j]->h));
 		}
 	}
@@ -403,11 +403,11 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW;
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_PALETTE8 | VIDEO_DRIVER_FLAGS_MODE_BGR15 | VIDEO_DRIVER_FLAGS_MODE_BGR16 | VIDEO_DRIVER_FLAGS_MODE_BGR24 | VIDEO_DRIVER_FLAGS_MODE_BGR32;
 		switch (info->vfmt->BitsPerPixel) {
-			case 8 : sdl_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_PALETTE8; break;
-			case 15 : sdl_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_BGR15; break;
-			case 16 : sdl_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_BGR16; break;
-			case 24 : sdl_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_BGR24; break;
-			case 32 : sdl_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_BGR32; break;
+		case 8: sdl_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_PALETTE8; break;
+		case 15: sdl_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_BGR15; break;
+		case 16: sdl_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_BGR16; break;
+		case 24: sdl_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_BGR24; break;
+		case 32: sdl_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_BGR32; break;
 		}
 	} else if (sdl_state.output == adv_output_fullscreen) {
 		unsigned x;
@@ -417,7 +417,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 
-		if (map == 0 || map == (SDL_Rect **)-1) {
+		if (map == 0 || map == (SDL_Rect**)-1) {
 			error_set("No fullscreen mode available.\n");
 			goto err_quit;
 		}
@@ -455,7 +455,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 #endif
 		sdl_state.flags |= VIDEO_DRIVER_FLAGS_MODE_YUY2;
 
-		if (map == 0 || map == (SDL_Rect **)-1) {
+		if (map == 0 || map == (SDL_Rect**)-1) {
 			error_set("No fullscreen video mode available.\n");
 			goto err_quit;
 		}
@@ -486,7 +486,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		mode_flag = 0;
 		mode_x = 0;
 		mode_y = 0;
-		for(j=0;map[j];++j) {
+		for (j = 0; map[j]; ++j) {
 			if (SDL_VideoModeOK(map[j]->w, map[j]->h, sdl_state.overlay_bit, sdl_mode_flags()) != 0) {
 				if (!mode_flag || abssum(mode_x, mode_y, size_x, size_y) > abssum(map[j]->w, map[j]->h, size_x, size_y)) {
 					mode_flag = 1;
@@ -515,7 +515,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 	/* print info */
 	driver_mac = SDL_GetNumVideoDrivers();
 	log_std(("video:sdl: SDL_GetNumVideoDrivers() -> %d\n", driver_mac));
-	for(driver=0;driver<driver_mac;++driver) {
+	for (driver = 0; driver < driver_mac; ++driver) {
 		log_std(("video:sdl: Driver name: %s\n", SDL_GetVideoDriver(driver)));
 	}
 
@@ -523,7 +523,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 
 	display_mac = SDL_GetNumVideoDisplays();
 	log_std(("video:sdl: SDL_GetNumVideoDisplays() -> %d\n", display_mac));
-	for(display=0;display<display_mac;++display) {
+	for (display = 0; display < display_mac; ++display) {
 		int mode;
 		int mode_mac;
 		SDL_DisplayMode dm;
@@ -543,7 +543,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 
 		log_std(("video:sdl: SDL_GetNumDisplayModes(%d) -> %d\n", display, mode_mac));
 
-		for(mode=0;mode<mode_mac;++mode) {
+		for (mode = 0; mode < mode_mac; ++mode) {
 			if (SDL_GetDisplayMode(display, mode, &dm) != 0) {
 				log_std(("video:sdl: Failed SDL_GetDisplayMode(%d, %d, ...)\n", display, mode));
 				continue;
@@ -555,7 +555,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 
 	driver_mac = SDL_GetNumRenderDrivers();
 	log_std(("video:sdl: SDL_GetNumRenderDrivers -> %d\n", driver_mac));
-	for(driver=0;driver<driver_mac;++driver) {
+	for (driver = 0; driver < driver_mac; ++driver) {
 		SDL_RendererInfo ri;
 		unsigned texture;
 
@@ -570,10 +570,10 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 			ri.flags & SDL_RENDERER_ACCELERATED ? " SDL_RENDERER_ACCELERATED" : "",
 			ri.flags & SDL_RENDERER_PRESENTVSYNC ? " SDL_RENDERER_PRESENTVSYNC" : "",
 			ri.flags & SDL_RENDERER_TARGETTEXTURE ? " SDL_RENDERER_TARGETTEXTURE" : ""
-		));
+			));
 		log_std(("video:sdl: max texture size: %ux%u\n", ri.max_texture_width, ri.max_texture_height));
 		log_std(("video:sdl: num formats: %u\n", ri.num_texture_formats));
-		for(texture=0;texture<ri.num_texture_formats;++texture)
+		for (texture = 0; texture < ri.num_texture_formats; ++texture)
 			log_std(("video:sdl: pixel format: %s, %u\n", SDL_GetPixelFormatName(ri.texture_formats[texture]), SDL_BYTESPERPIXEL(ri.texture_formats[texture])));
 	}
 
@@ -669,7 +669,7 @@ void sdl_done(void)
 
 	log_std(("video:sdl: sdl_done()\n"));
 
-	if (SDL_WasInit(SDL_INIT_VIDEO)!=0) {
+	if (SDL_WasInit(SDL_INIT_VIDEO) != 0) {
 		log_std(("video:sdl: call SDL_QuitSubSystem(SDL_INIT_VIDEO)\n"));
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	}
@@ -768,18 +768,18 @@ static adv_error sdl_overlay_set(void)
 		ri.flags & SDL_RENDERER_ACCELERATED ? " SDL_RENDERER_ACCELERATED" : "",
 		ri.flags & SDL_RENDERER_PRESENTVSYNC ? " SDL_RENDERER_PRESENTVSYNC" : "",
 		ri.flags & SDL_RENDERER_TARGETTEXTURE ? " SDL_RENDERER_TARGETTEXTURE" : ""
-	));
+		));
 	log_std(("video:sdl: max texture size: %ux%u\n", ri.max_texture_width, ri.max_texture_height));
 	log_std(("video:sdl: num formats: %u\n", ri.num_texture_formats));
-	for(texture=0;texture<ri.num_texture_formats;++texture)
+	for (texture = 0; texture < ri.num_texture_formats; ++texture)
 		log_std(("video:sdl: pixel format: %s, %u\n", SDL_GetPixelFormatName(ri.texture_formats[texture]), SDL_BYTESPERPIXEL(ri.texture_formats[texture])));
 
 	switch (sdl_state.index) {
-	case MODE_FLAGS_INDEX_BGR32 :
+	case MODE_FLAGS_INDEX_BGR32:
 		format = SDL_PIXELFORMAT_ARGB8888;
 		width = sdl_state.overlay_size_x;
 		break;
-	case MODE_FLAGS_INDEX_YUY2 :
+	case MODE_FLAGS_INDEX_YUY2:
 		format = SDL_PIXELFORMAT_YUY2;
 		/*
 		 * The SDL YUY2 format uses 16 bits pixel with alternate U and V,
@@ -793,10 +793,10 @@ static adv_error sdl_overlay_set(void)
 	}
 
 	sdl_state.texture = SDL_CreateTexture(sdl_state.renderer,
-		format,
-		SDL_TEXTUREACCESS_STREAMING,
-		width, sdl_state.overlay_size_y
-	);
+			format,
+			SDL_TEXTUREACCESS_STREAMING,
+			width, sdl_state.overlay_size_y
+		);
 	if (sdl_state.texture == 0) {
 		log_std(("ERROR:video:sdl: Failed SDL_CreateTexture(), %s\n", SDL_GetError()));
 		return -1;
@@ -871,7 +871,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 	log_std(("video:sdl: sdl_mode_set()\n"));
 
 	/* reopen the screen if needed */
-	if (SDL_WasInit(SDL_INIT_VIDEO)==0) {
+	if (SDL_WasInit(SDL_INIT_VIDEO) == 0) {
 		log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
 		if (SDL_InitSubSystem(SDL_INIT_VIDEO) != 0) {
 			log_std(("video:sdl: SDL_InitSubSystem(SDL_INIT_VIDEO) failed, %s\n", SDL_GetError()));
@@ -906,11 +906,11 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 	log_std(("video:sdl: video blit_fill:%d\n", (unsigned)info->blit_fill));
 	log_std(("video:sdl: video video_mem:%d kBytes\n", (unsigned)info->video_mem));
 	log_std(("video:sdl: video bit:%d byte:%d %d/%d:%d/%d:%d/%d\n",
-			(unsigned)info->vfmt->BitsPerPixel, (unsigned)info->vfmt->BytesPerPixel,
-			(unsigned)8 - info->vfmt->Rloss, (unsigned)info->vfmt->Rshift,
-			(unsigned)8 - info->vfmt->Gloss, (unsigned)info->vfmt->Gshift,
-			(unsigned)8 - info->vfmt->Bloss, (unsigned)info->vfmt->Bshift
-	));
+		(unsigned)info->vfmt->BitsPerPixel, (unsigned)info->vfmt->BytesPerPixel,
+		(unsigned)8 - info->vfmt->Rloss, (unsigned)info->vfmt->Rshift,
+		(unsigned)8 - info->vfmt->Gloss, (unsigned)info->vfmt->Gshift,
+		(unsigned)8 - info->vfmt->Bloss, (unsigned)info->vfmt->Bshift
+		));
 
 	sdl_state.index = mode->index;
 
@@ -949,11 +949,11 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 
 	log_std(("video:sdl: surface %dx%d\n", (unsigned)sdl_state.surface->w, (unsigned)sdl_state.surface->h));
 	log_std(("video:sdl: surface bit:%d byte:%d %d/%d:%d/%d:%d/%d\n",
-			(unsigned)sdl_state.surface->format->BitsPerPixel, (unsigned)sdl_state.surface->format->BytesPerPixel,
-			(unsigned)8 - sdl_state.surface->format->Rloss, (unsigned)sdl_state.surface->format->Rshift,
-			(unsigned)8 - sdl_state.surface->format->Gloss, (unsigned)sdl_state.surface->format->Gshift,
-			(unsigned)8 - sdl_state.surface->format->Bloss, (unsigned)sdl_state.surface->format->Bshift
-	));
+		(unsigned)sdl_state.surface->format->BitsPerPixel, (unsigned)sdl_state.surface->format->BytesPerPixel,
+		(unsigned)8 - sdl_state.surface->format->Rloss, (unsigned)sdl_state.surface->format->Rshift,
+		(unsigned)8 - sdl_state.surface->format->Gloss, (unsigned)sdl_state.surface->format->Gshift,
+		(unsigned)8 - sdl_state.surface->format->Bloss, (unsigned)sdl_state.surface->format->Bshift
+		));
 	if ((sdl_state.surface->flags & SDL_SWSURFACE) != 0)
 		log_std(("video:sdl: surface flag SDL_SWSURFACE\n"));
 	if ((sdl_state.surface->flags & SDL_HWSURFACE) != 0)
@@ -980,8 +980,8 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 		log_std(("video:sdl: surface flag SDL_PREALLOC\n"));
 #else
 	switch (mode->index) {
-	case MODE_FLAGS_INDEX_BGR32 :
-	case MODE_FLAGS_INDEX_YUY2 :
+	case MODE_FLAGS_INDEX_BGR32:
+	case MODE_FLAGS_INDEX_YUY2:
 		sdl_state.index = mode->index;
 		break;
 	default:
@@ -1023,7 +1023,7 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 			sdl_state.overlay_size_x, sdl_state.overlay_size_y,
 			sdl_state.output == adv_output_overlay ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0
-		);
+			);
 	}
 	if (sdl_state.window == 0) {
 		log_std(("ERROR:video:sdl: Failed SDL_CreateWindow(), %s\n", SDL_GetError()));
@@ -1049,17 +1049,17 @@ adv_error sdl_mode_set(const sdl_video_mode* mode)
 
 	/* disable the mouse cursor on fullscreen mode */
 	switch (sdl_state.cursor) {
-	case adv_cursor_auto :
+	case adv_cursor_auto:
 		if (sdl_state.output != adv_output_window) {
 			SDL_ShowCursor(SDL_DISABLE);
 		} else {
 			SDL_ShowCursor(SDL_ENABLE);
 		}
 		break;
-	case adv_cursor_on :
+	case adv_cursor_on:
 		SDL_ShowCursor(SDL_ENABLE);
 		break;
-	case adv_cursor_off :
+	case adv_cursor_off:
 		SDL_ShowCursor(SDL_DISABLE);
 		break;
 	}
@@ -1089,7 +1089,7 @@ void sdl_mode_done(adv_bool restore)
 #ifdef USE_VIDEO_RESTORE
 	/* close the screen if we are fullscreen to allow started sub process to have exclusive access at the screen. */
 	if ((sdl_state.surface->flags & SDL_FULLSCREEN) != 0) {
-		if (SDL_WasInit(SDL_INIT_VIDEO)!=0) {
+		if (SDL_WasInit(SDL_INIT_VIDEO) != 0) {
 			log_std(("video:sdl: call SDL_QuitSubSystem(SDL_INIT_VIDEO)\n"));
 			SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		}
@@ -1206,10 +1206,10 @@ adv_color_def sdl_color_def(void)
 
 #if SDL_MAJOR_VERSION == 1
 	switch (sdl_state.index) {
-	case MODE_FLAGS_INDEX_BGR15 :
-	case MODE_FLAGS_INDEX_BGR16 :
-	case MODE_FLAGS_INDEX_BGR24 :
-	case MODE_FLAGS_INDEX_BGR32 :
+	case MODE_FLAGS_INDEX_BGR15:
+	case MODE_FLAGS_INDEX_BGR16:
+	case MODE_FLAGS_INDEX_BGR24:
+	case MODE_FLAGS_INDEX_BGR32:
 		return color_def_make_rgb_from_sizelenpos(
 			sdl_state.surface->format->BytesPerPixel,
 			8 - sdl_state.surface->format->Rloss, sdl_state.surface->format->Rshift,
@@ -1282,14 +1282,14 @@ adv_error sdl_palette8_set(const adv_color_rgb* palette, unsigned start, unsigne
 	SDL_Color sdl_pal[256];
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		sdl_pal[i].r = palette[i].red;
 		sdl_pal[i].g = palette[i].green;
 		sdl_pal[i].b = palette[i].blue;
 	}
 
 	if (SDL_SetPalette(sdl_state.surface, SDL_PHYSPAL, sdl_pal, start, count) != 1) {
-		log_std(("video:sdl: SDL_SetPalette(SDL_PHYSPAL) failed, %s\n",  SDL_GetError()));
+		log_std(("video:sdl: SDL_SetPalette(SDL_PHYSPAL) failed, %s\n", SDL_GetError()));
 		return -1;
 	}
 
@@ -1351,11 +1351,11 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 
 #if SDL_MAJOR_VERSION == 1
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
-	case MODE_FLAGS_INDEX_PALETTE8 :
-	case MODE_FLAGS_INDEX_BGR15 :
-	case MODE_FLAGS_INDEX_BGR16 :
-	case MODE_FLAGS_INDEX_BGR24 :
-	case MODE_FLAGS_INDEX_BGR32 :
+	case MODE_FLAGS_INDEX_PALETTE8:
+	case MODE_FLAGS_INDEX_BGR15:
+	case MODE_FLAGS_INDEX_BGR16:
+	case MODE_FLAGS_INDEX_BGR24:
+	case MODE_FLAGS_INDEX_BGR32:
 		if (sdl_state.output == adv_output_overlay) {
 			error_nolog_set("Only yuy2 is supported in overlay mode.\n");
 			return -1;
@@ -1380,7 +1380,7 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 			}
 		}
 		break;
-	case MODE_FLAGS_INDEX_YUY2 :
+	case MODE_FLAGS_INDEX_YUY2:
 		if (sdl_state.output != adv_output_overlay) {
 			error_nolog_set("yuy2 supported only in overlay mode.\n");
 			return -1;
@@ -1392,8 +1392,8 @@ adv_error sdl_mode_generate(sdl_video_mode* mode, const adv_crtc* crtc, unsigned
 	}
 #else
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
-	case MODE_FLAGS_INDEX_BGR32 :
-	case MODE_FLAGS_INDEX_YUY2 :
+	case MODE_FLAGS_INDEX_BGR32:
+	case MODE_FLAGS_INDEX_YUY2:
 		break;
 	default:
 		error_nolog_set("Index mode not supported.\n");
@@ -1432,11 +1432,11 @@ void sdl_crtc_container_insert_default(adv_crtc_container* cc)
 		map = SDL_ListModes(0, sdl_mode_flags());
 		if (!map) {
 			/* no resolutions */
-		} else if (map == (SDL_Rect **)-1) {
+		} else if (map == (SDL_Rect**)-1) {
 			/* all resolutions available */
 		} else {
 			unsigned i;
-			for(i=0;map[i];++i) {
+			for (i = 0; map[i]; ++i) {
 				adv_crtc crtc;
 				crtc_fake_set(&crtc, map[i]->w, map[i]->h);
 				snprintf(crtc.name, CRTC_NAME_MAX, "sdl_%dx%d", map[i]->w, map[i]->h);

@@ -43,7 +43,7 @@ extern "C" {
 /*@{*/
 
 typedef struct adv_complex_struct {
-	double re, im; 
+	double re, im;
 } adv_complex;
 
 adv_complex adv_cconj(adv_complex x);
@@ -66,3 +66,4 @@ adv_complex adv_cimag(double x);
 #endif
 
 #endif
+

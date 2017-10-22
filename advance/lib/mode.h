@@ -128,14 +128,14 @@ typedef struct vmode_struct {
 static inline unsigned index_bits_per_pixel(unsigned index)
 {
 	switch (index) {
-	case MODE_FLAGS_INDEX_PALETTE8 : return 8;
-	case MODE_FLAGS_INDEX_BGR8 : return 8;
-	case MODE_FLAGS_INDEX_BGR15 : return 15;
-	case MODE_FLAGS_INDEX_BGR16 : return 16;
-	case MODE_FLAGS_INDEX_BGR24 : return 24;
-	case MODE_FLAGS_INDEX_BGR32 : return 32;
-	case MODE_FLAGS_INDEX_YUY2 : return 32;
-	case MODE_FLAGS_INDEX_TEXT : return 16;
+	case MODE_FLAGS_INDEX_PALETTE8: return 8;
+	case MODE_FLAGS_INDEX_BGR8: return 8;
+	case MODE_FLAGS_INDEX_BGR15: return 15;
+	case MODE_FLAGS_INDEX_BGR16: return 16;
+	case MODE_FLAGS_INDEX_BGR24: return 24;
+	case MODE_FLAGS_INDEX_BGR32: return 32;
+	case MODE_FLAGS_INDEX_YUY2: return 32;
+	case MODE_FLAGS_INDEX_TEXT: return 16;
 	default: return 0;
 	}
 }
@@ -149,14 +149,14 @@ static inline unsigned index_bits_per_pixel(unsigned index)
 static inline unsigned index_bytes_per_pixel(unsigned index)
 {
 	switch (index) {
-	case MODE_FLAGS_INDEX_PALETTE8 : return 1;
-	case MODE_FLAGS_INDEX_BGR8 : return 1;
-	case MODE_FLAGS_INDEX_BGR15 : return 2;
-	case MODE_FLAGS_INDEX_BGR16 : return 2;
-	case MODE_FLAGS_INDEX_BGR24 : return 3;
-	case MODE_FLAGS_INDEX_BGR32 : return 4;
-	case MODE_FLAGS_INDEX_YUY2 : return 4;
-	case MODE_FLAGS_INDEX_TEXT : return 2;
+	case MODE_FLAGS_INDEX_PALETTE8: return 1;
+	case MODE_FLAGS_INDEX_BGR8: return 1;
+	case MODE_FLAGS_INDEX_BGR15: return 2;
+	case MODE_FLAGS_INDEX_BGR16: return 2;
+	case MODE_FLAGS_INDEX_BGR24: return 3;
+	case MODE_FLAGS_INDEX_BGR32: return 4;
+	case MODE_FLAGS_INDEX_YUY2: return 4;
+	case MODE_FLAGS_INDEX_TEXT: return 2;
 	default: return 0;
 	}
 }
@@ -167,14 +167,14 @@ static inline unsigned index_bytes_per_pixel(unsigned index)
 static inline const char* index_name(unsigned index)
 {
 	switch (index) {
-	case MODE_FLAGS_INDEX_PALETTE8 : return "palette8";
-	case MODE_FLAGS_INDEX_BGR8 : return "bgr8";
-	case MODE_FLAGS_INDEX_BGR15 : return "bgr15";
-	case MODE_FLAGS_INDEX_BGR16 : return "bgr16";
-	case MODE_FLAGS_INDEX_BGR24 : return "bgr24";
-	case MODE_FLAGS_INDEX_BGR32 : return "bgr32";
-	case MODE_FLAGS_INDEX_YUY2 : return "yuy2";
-	case MODE_FLAGS_INDEX_TEXT : return "text";
+	case MODE_FLAGS_INDEX_PALETTE8: return "palette8";
+	case MODE_FLAGS_INDEX_BGR8: return "bgr8";
+	case MODE_FLAGS_INDEX_BGR15: return "bgr15";
+	case MODE_FLAGS_INDEX_BGR16: return "bgr16";
+	case MODE_FLAGS_INDEX_BGR24: return "bgr24";
+	case MODE_FLAGS_INDEX_BGR32: return "bgr32";
+	case MODE_FLAGS_INDEX_YUY2: return "yuy2";
+	case MODE_FLAGS_INDEX_TEXT: return "text";
 	default: return "unknown";
 	}
 }
@@ -188,11 +188,11 @@ static inline const char* index_name(unsigned index)
 static inline adv_bool index_is_rgb(unsigned index)
 {
 	switch (index & MODE_FLAGS_INDEX_MASK) {
-	case MODE_FLAGS_INDEX_BGR8 :
-	case MODE_FLAGS_INDEX_BGR15 :
-	case MODE_FLAGS_INDEX_BGR16 :
-	case MODE_FLAGS_INDEX_BGR24 :
-	case MODE_FLAGS_INDEX_BGR32 :
+	case MODE_FLAGS_INDEX_BGR8:
+	case MODE_FLAGS_INDEX_BGR15:
+	case MODE_FLAGS_INDEX_BGR16:
+	case MODE_FLAGS_INDEX_BGR24:
+	case MODE_FLAGS_INDEX_BGR32:
 		return 1;
 	default:
 		return 0;

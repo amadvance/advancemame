@@ -729,9 +729,9 @@ static inline void scale2x_8_asm_border(scale2x_uint8* dst, const scale2x_uint8*
 	assert(((unsigned)src2 & 0xF) == 0);
 
 	/* always do the first and last run */
-	count -= 2*16;
+	count -= 2 * 16;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 /* first run */
 		/* set the current, current_pre, current_next registers */
 		"movdqa 0(%1), %%xmm0\n"
@@ -928,9 +928,9 @@ static inline void scale2x_16_asm_border(scale2x_uint16* dst, const scale2x_uint
 	assert(((unsigned)src2 & 0xF) == 0);
 
 	/* always do the first and last run */
-	count -= 2*8;
+	count -= 2 * 8;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 /* first run */
 		/* set the current, current_pre, current_next registers */
 		"movdqa 0(%1), %%xmm0\n"
@@ -1130,9 +1130,9 @@ static inline void scale2x_32_asm_border(scale2x_uint32* dst, const scale2x_uint
 	assert(((unsigned)src2 & 0xF) == 0);
 
 	/* always do the first and last run */
-	count -= 2*4;
+	count -= 2 * 4;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 /* first run */
 		/* set the current, current_pre, current_next registers */
 		"movdqa 0(%1), %%xmm0\n"

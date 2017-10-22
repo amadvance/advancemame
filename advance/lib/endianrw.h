@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -311,10 +311,10 @@ static inline unsigned cpu_uint_read(const void* ptr, unsigned size)
 {
 	switch (size) {
 	default:
-	case 1 : return cpu_uint8_read(ptr);
-	case 2 : return cpu_uint16_read(ptr);
-	case 3 : return cpu_uint24_read(ptr);
-	case 4 : return cpu_uint32_read(ptr);
+	case 1: return cpu_uint8_read(ptr);
+	case 2: return cpu_uint16_read(ptr);
+	case 3: return cpu_uint24_read(ptr);
+	case 4: return cpu_uint32_read(ptr);
 	}
 }
 
@@ -322,10 +322,10 @@ static inline void cpu_uint_write(void* ptr, unsigned size, unsigned v)
 {
 	switch (size) {
 	default:
-	case 1 : cpu_uint8_write(ptr, v); break;
-	case 2 : cpu_uint16_write(ptr, v); break;
-	case 3 : cpu_uint24_write(ptr, v); break;
-	case 4 : cpu_uint32_write(ptr, v); break;
+	case 1: cpu_uint8_write(ptr, v); break;
+	case 2: cpu_uint16_write(ptr, v); break;
+	case 3: cpu_uint24_write(ptr, v); break;
+	case 4: cpu_uint32_write(ptr, v); break;
 	}
 }
 

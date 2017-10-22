@@ -114,43 +114,43 @@ static inline double crtc_pclock_get(const adv_crtc* crtc)
 int crtc_scan_get(const adv_crtc* crtc);
 
 /** Check if a CRTC specification is interlaced. */
-static inline  adv_bool crtc_is_interlace(const adv_crtc* crtc)
+static inline adv_bool crtc_is_interlace(const adv_crtc* crtc)
 {
 	return (crtc->flags & CRTC_FLAGS_INTERLACE) != 0;
 }
 
 /** Check if a CRTC specification is doublescan. */
-static inline  adv_bool crtc_is_doublescan(const adv_crtc* crtc)
+static inline adv_bool crtc_is_doublescan(const adv_crtc* crtc)
 {
 	return (crtc->flags & CRTC_FLAGS_DOUBLESCAN) != 0;
 }
 
 /** Check if a CRTC specification is singlescan. */
-static inline  adv_bool crtc_is_singlescan(const adv_crtc* crtc)
+static inline adv_bool crtc_is_singlescan(const adv_crtc* crtc)
 {
 	return !crtc_is_doublescan(crtc) && !crtc_is_interlace(crtc);
 }
 
 /** Check if a CRTC specification is negative horizontal sync. */
-static inline  adv_bool crtc_is_nhsync(const adv_crtc* crtc)
+static inline adv_bool crtc_is_nhsync(const adv_crtc* crtc)
 {
 	return (crtc->flags & CRTC_FLAGS_NHSYNC) != 0;
 }
 
 /** Check if a CRTC specification is positive horizontal sync. */
-static inline  adv_bool crtc_is_phsync(const adv_crtc* crtc)
+static inline adv_bool crtc_is_phsync(const adv_crtc* crtc)
 {
 	return !crtc_is_nhsync(crtc);
 }
 
 /** Check if a CRTC specification is negative vertical sync. */
-static inline  adv_bool crtc_is_nvsync(const adv_crtc* crtc)
+static inline adv_bool crtc_is_nvsync(const adv_crtc* crtc)
 {
 	return (crtc->flags & CRTC_FLAGS_NVSYNC) != 0;
 }
 
 /** Check if a CRTC specification is positive vertical sync. */
-static inline  adv_bool crtc_is_pvsync(const adv_crtc* crtc)
+static inline adv_bool crtc_is_pvsync(const adv_crtc* crtc)
 {
 	return !crtc_is_nvsync(crtc);
 }
@@ -218,7 +218,7 @@ void crtc_hsize_set(adv_crtc* crtc, unsigned hsize);
 /**
  * Return the horizontal size in pixel of the CRTC specification.
  */
-static inline  unsigned crtc_hsize_get(const adv_crtc* crtc)
+static inline unsigned crtc_hsize_get(const adv_crtc* crtc)
 {
 	return crtc->hde;
 }
@@ -226,7 +226,7 @@ static inline  unsigned crtc_hsize_get(const adv_crtc* crtc)
 /**
  * Return the vertical size in pixel of the CRTC specification.
  */
-static inline  unsigned crtc_vsize_get(const adv_crtc* crtc)
+static inline unsigned crtc_vsize_get(const adv_crtc* crtc)
 {
 	return crtc->vde;
 }
@@ -249,3 +249,4 @@ adv_bool crtc_is_valid(const adv_crtc* crtc);
 #endif
 
 /*@}*/
+

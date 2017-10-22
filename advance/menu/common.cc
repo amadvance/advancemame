@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -44,7 +44,7 @@ string file_ext(const string& s)
 	if (i == string::npos)
 		return "";
 	else
-		return string(s, i, s.length()-i);
+		return string(s, i, s.length() - i);
 }
 
 string file_dir(const string& s)
@@ -53,7 +53,7 @@ string file_dir(const string& s)
 	if (i == string::npos)
 		return "";
 	else
-		return string(s, 0, i+1);
+		return string(s, 0, i + 1);
 }
 
 string file_file(const string& s)
@@ -62,26 +62,26 @@ string file_file(const string& s)
 	if (i == string::npos)
 		return s;
 	else
-		return string(s, i+1, s.length()-(i+1));
+		return string(s, i + 1, s.length() - (i + 1));
 }
 
 string slash_add(const string& s)
 {
 	string r = s;
-	if (r.length() && r[r.length()-1]!='/')
+	if (r.length() && r[r.length() - 1] != '/')
 		r += '/';
 	return r;
 }
 
 bool file_exists(const string& path)
 {
-	return access(cpath_export(path), F_OK)==0;
+	return access(cpath_export(path), F_OK) == 0;
 }
 
 string slash_remove(const string& s)
 {
-	if (s.length() && s[s.length()-1]=='/')
-		return s.substr(0, s.length()-1);
+	if (s.length() && s[s.length() - 1] == '/')
+		return s.substr(0, s.length() - 1);
 	else
 		return s;
 }
@@ -90,7 +90,7 @@ bool file_crc(const string& file, unsigned& crc)
 {
 	struct stat st;
 
-	if (stat(cpath_export(file), &st)!=0)
+	if (stat(cpath_export(file), &st) != 0)
 		return false;
 
 	FILE* f = fopen(cpath_export(file), "rb");
@@ -99,7 +99,7 @@ bool file_crc(const string& file, unsigned& crc)
 
 	unsigned char* data = (unsigned char*)operator new(st.st_size);
 
-	if (fread(data, st.st_size, 1, f)!=1) {
+	if (fread(data, st.st_size, 1, f) != 1) {
 		fclose(f);
 		return false;
 	}
@@ -115,14 +115,14 @@ bool file_crc(const string& file, unsigned& crc)
 string token_get(const string& s, int& ptr, const char* sep)
 {
 	int start = ptr;
-	while (ptr < s.length() && strchr(sep, s[ptr])==0)
+	while (ptr < s.length() && strchr(sep, s[ptr]) == 0)
 		++ptr;
-	return string(s, start, ptr-start);
+	return string(s, start, ptr - start);
 }
 
 void token_skip(const string& s, int& ptr, const char* sep)
 {
-	while (ptr < s.length() && strchr(sep, s[ptr])!=0)
+	while (ptr < s.length() && strchr(sep, s[ptr]) != 0)
 		++ptr;
 }
 
@@ -147,8 +147,8 @@ string strip_space(const string& s)
 	string r = s;
 	while (r.length() && isspace(r[0]))
 		r.erase(0, 1);
-	while (r.length() && isspace(r[r.length()-1]))
-		r.erase(r.length()-1, 1);
+	while (r.length() && isspace(r[r.length() - 1]))
+		r.erase(r.length() - 1, 1);
 	return r;
 }
 
@@ -157,10 +157,10 @@ string strip_comment(const string& s)
 	bool in = false;
 	bool pred_space = true;
 	string r;
-	for(int i = 0;i<s.length();++i) {
-		if (s[i]=='(' || s[i]=='[') {
+	for (int i = 0; i < s.length(); ++i) {
+		if (s[i] == '(' || s[i] == '[') {
 			in = true;
-		} else if (s[i]==')' || s[i]==']') {
+		} else if (s[i] == ')' || s[i] == ']') {
 			in = false;
 		} else {
 			if (!in) {
@@ -179,14 +179,14 @@ bool file_findinzip_byname(const string& zip_file, const string& name, string& f
 	adv_zip* zip;
 	adv_zipent* ent;
 
-	if (access(cpath_export(zip_file), F_OK)!=0)
+	if (access(cpath_export(zip_file), F_OK) != 0)
 		return false;
 
 	zip = zip_open(cpath_export(zip_file));
 	if (!zip)
 		return false;
 
-	while ((ent = zip_read(zip))!=0) {
+	while ((ent = zip_read(zip)) != 0) {
 		string zfile = ent->name;
 		string zname = file_basename(zfile);
 		if (zname == name) {
@@ -206,14 +206,14 @@ bool file_findinzip_byfile(const string& zip_file, const string& name, string& f
 	adv_zip* zip;
 	adv_zipent* ent;
 
-	if (access(cpath_export(zip_file), F_OK)!=0)
+	if (access(cpath_export(zip_file), F_OK) != 0)
 		return false;
 
 	zip = zip_open(cpath_export(zip_file));
 	if (!zip)
 		return false;
 
-	while ((ent = zip_read(zip))!=0) {
+	while ((ent = zip_read(zip)) != 0) {
 		string zfile = ent->name;
 		if (zfile == name) {
 			crc = ent->crc32;
@@ -245,13 +245,13 @@ string arg_get(const string& s, int& ptr)
 		++ptr;
 
 	string r;
-	if (ptr < s.length() && s[ptr]=='"') {
+	if (ptr < s.length() && s[ptr] == '"') {
 		++ptr;
-		while (ptr < s.length() && s[ptr]!='"') {
+		while (ptr < s.length() && s[ptr] != '"') {
 			r += s[ptr];
 			++ptr;
 		}
-		if (ptr < s.length() && s[ptr]=='"')
+		if (ptr < s.length() && s[ptr] == '"')
 			++ptr;
 	} else {
 		while (ptr < s.length() && !isspace(s[ptr])) {
@@ -321,15 +321,15 @@ string path_abs(const string& rel, const string& cwd)
 	string r = slash_remove(cwd);
 	int pos = 0;
 	while (pos < rel.length()) {
-		if (rel.length() >= 3 && rel.substr(pos, 3)=="../") {
+		if (rel.length() >= 3 && rel.substr(pos, 3) == "../") {
 			int slash = r.rfind('/');
 			if (slash != string::npos) {
 				r.erase(slash, r.length() - slash);
 			}
 			pos += 3;
-		} else if (rel.length() >= 2 && rel.substr(pos, 2)=="./") {
+		} else if (rel.length() >= 2 && rel.substr(pos, 2) == "./") {
 			pos += 2;
-		} else if (rel.length() >= 1 && rel.substr(pos, 1)=="/") {
+		} else if (rel.length() >= 1 && rel.substr(pos, 1) == "/") {
 			r = "/";
 			pos += 1;
 		} else {
@@ -355,7 +355,7 @@ string path_rel(const string& abs, const string& cwd)
 
 	unsigned pos = 0;
 	int slash = c.find('/', pos);
-	while (slash != string::npos && abs.substr(pos, slash-pos) == cwd.substr(pos, slash-pos)) {
+	while (slash != string::npos && abs.substr(pos, slash - pos) == cwd.substr(pos, slash - pos)) {
 		pos = slash + 1;
 		slash = c.find('/', pos);
 	}
@@ -386,7 +386,7 @@ string list_abs(const string& list, const string& cwd)
 {
 	string r;
 	int i = 0;
-	while (i<list.length()) {
+	while (i < list.length()) {
 		if (r.length())
 			r += ':';
 		r += path_abs(token_get(list, i, ":"), cwd);
@@ -398,7 +398,7 @@ string list_abs(const string& list, const string& cwd)
 string dir_cwd()
 {
 	char cwd[FILE_MAXPATH];
-	if (getcwd(cwd, FILE_MAXPATH)==0) {
+	if (getcwd(cwd, FILE_MAXPATH) == 0) {
 		return "/";
 	} else {
 		return file_import(cwd);
@@ -426,7 +426,7 @@ bool case_equal(const string& A, const string& B)
 	if (A.length() != B.length())
 		return false;
 
-	for(int i=0;i<A.length();++i)
+	for (int i = 0; i < A.length(); ++i)
 		if (toupper(A[i]) != toupper(B[i]))
 			return false;
 
@@ -435,13 +435,13 @@ bool case_equal(const string& A, const string& B)
 
 string case_auto(const string& A)
 {
-	for(unsigned i=0;i<A.length();++i)
+	for (unsigned i = 0; i < A.length(); ++i)
 		if (isupper(A[i]))
 			return A;
 
 	string r = A;
-	for(unsigned i=0;i<r.length();++i) {
-		if (i==0 || isspace(r[i-1]))
+	for (unsigned i = 0; i < r.length(); ++i) {
+		if (i == 0 || isspace(r[i - 1]))
 			r[i] = toupper(r[i]);
 	}
 
@@ -467,7 +467,7 @@ bool is_glob(const char* str_begin, const char* str_end, const char* glob_begin,
 	if (str_begin != str_end && glob_begin != glob_end) {
 		if (*glob_begin == '*')
 			return is_glob(str_begin + 1, str_end, glob_begin, glob_end)
-				|| is_glob(str_begin, str_end, glob_begin + 1, glob_end);
+			       || is_glob(str_begin, str_end, glob_begin + 1, glob_end);
 		if (*glob_begin == *str_begin)
 			return is_glob(str_begin + 1, str_end, glob_begin + 1, glob_end);
 	}
@@ -484,7 +484,7 @@ bool is_globlist(const string& file, const string& globlist)
 	unsigned i = 0;
 	if (globlist.length() == 0)
 		return true;
-	while (i<globlist.length()) {
+	while (i < globlist.length()) {
 		int end = globlist.find(':', i);
 		if (end == string::npos) {
 			string filter(globlist, i);
@@ -492,7 +492,7 @@ bool is_globlist(const string& file, const string& globlist)
 			if (is_glob(file, filter))
 				return true;
 		} else {
-			string filter(globlist, i, end-i);
+			string filter(globlist, i, end - i);
 			if (is_glob(file, filter))
 				return true;
 			i = end + 1;
@@ -507,7 +507,7 @@ string file_read(const string& file)
 
 	const char* path = file_config_file_home(file.c_str());
 
-	if (stat(path, &st)!=0) {
+	if (stat(path, &st) != 0) {
 		target_err("Error opening the file '%s'.\n", path);
 		return string("");
 	}
@@ -520,7 +520,7 @@ string file_read(const string& file)
 
 	char* ssc = (char*)operator new(st.st_size + 1);
 
-	if (fread(ssc, st.st_size, 1, f)!=1) {
+	if (fread(ssc, st.st_size, 1, f) != 1) {
 		operator delete(ssc);
 		fclose(f);
 		target_err("Error reading the file '%s'.\n", path);

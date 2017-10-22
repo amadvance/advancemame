@@ -91,8 +91,8 @@ static void internal_maxmin_rgb_set(const struct video_pipeline_target_struct* t
 static inline unsigned internal_lum_rgb_value(unsigned v)
 {
 	return (v & max_rgb_mask_0)
-		+ ((v & max_rgb_mask_1) >> max_rgb_shift_1)
-		+ ((v & max_rgb_mask_2) >> max_rgb_shift_2);
+	       + ((v & max_rgb_mask_1) >> max_rgb_shift_1)
+	       + ((v & max_rgb_mask_2) >> max_rgb_shift_2);
 }
 
 static inline void internal_max_rgb8_vert_self(uint8* dst, const uint8* src, unsigned count)

@@ -57,3 +57,4 @@ extern adv_video_driver video_svgalib_driver;
 #endif
 
 #endif
+

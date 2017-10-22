@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -80,11 +80,11 @@ static adv_error sound_start(struct advance_record_context* context, const char*
 		if (v > 1)
 			v = 1 / v;
 		v = 1 - v;
-		if (v<SOUND_FREQUENCY_ERROR) {
+		if (v < SOUND_FREQUENCY_ERROR) {
 			context->state.sound_frequency = *f;
 			break;
 		}
-                 ++f;
+		++f;
 	}
 	if (!*f)
 		context->state.sound_frequency = frequency;
@@ -139,7 +139,7 @@ static adv_error sound_update(struct advance_record_context* context, const shor
 		return 0;
 	}
 
-	for(i=0;i<mac * context->state.sound_sample_size / 2;++i) {
+	for (i = 0; i < mac * context->state.sound_sample_size / 2; ++i) {
 		unsigned char p[2];
 		le_uint16_write(p, map[i]);
 		if (fwrite(p, 2, 1, context->state.sound_f) != 1)
@@ -189,19 +189,19 @@ static void png_orientation_size(unsigned* width, unsigned* height, unsigned ori
 
 static void png_orientation(const uint8** ptr, unsigned* width, unsigned* height, int* pixel_pitch, int* line_pitch, unsigned orientation)
 {
-	if ((orientation & OSD_ORIENTATION_SWAP_XY)!=0) {
+	if ((orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
 		SWAP(unsigned, *width, *height);
 		SWAP(int, *pixel_pitch, *line_pitch);
 	}
 
-	if ((orientation & OSD_ORIENTATION_FLIP_X)!=0) {
+	if ((orientation & OSD_ORIENTATION_FLIP_X) != 0) {
 		*ptr += *pixel_pitch * (*width - 1);
-		*pixel_pitch = - *pixel_pitch;
+		*pixel_pitch = -*pixel_pitch;
 	}
 
-	if ((orientation & OSD_ORIENTATION_FLIP_Y)!=0) {
+	if ((orientation & OSD_ORIENTATION_FLIP_Y) != 0) {
 		*ptr += *line_pitch * (*height - 1);
-		*line_pitch = - *line_pitch;
+		*line_pitch = -*line_pitch;
 	}
 }
 
@@ -239,7 +239,7 @@ static void video_freq_step(unsigned* base, unsigned* step, double freq)
 
 		err = (r - freq) / freq;
 		if (err < 0)
-			err = - err;
+			err = -err;
 
 		/* no more than 1:1000000 error */
 	} while (err > 1E-6);
@@ -344,7 +344,7 @@ static adv_error video_update(struct advance_record_context* context, const void
 		goto err;
 	}
 
-	if (adv_png_write_raw_def(pix_width, pix_height, color_def, pix_ptr, pix_pixel_pitch, pix_scanline_pitch, palette_map, palette_max, 1, context->state.video_f, 0)!=0) {
+	if (adv_png_write_raw_def(pix_width, pix_height, color_def, pix_ptr, pix_pixel_pitch, pix_scanline_pitch, palette_map, palette_max, 1, context->state.video_f, 0) != 0) {
 		log_std(("ERROR: writing image data in file %s\n", context->state.video_file_buffer));
 		goto err;
 	}
@@ -364,7 +364,7 @@ static adv_error video_stop(struct advance_record_context* context, unsigned* ti
 
 	context->state.video_active_flag = 0;
 
-	if (adv_mng_write_mend(context->state.video_f, 0)!=0) {
+	if (adv_mng_write_mend(context->state.video_f, 0) != 0) {
 		goto err;
 	}
 
@@ -459,12 +459,12 @@ static void advance_record_next(struct advance_record_context* context, const ma
 	snprintf(path_wav, size_wav, "%s/%.8s.wav", context->config.dir_buffer, mame_game_name(game));
 	snprintf(path_mng, size_mng, "%s/%.8s.mng", context->config.dir_buffer, mame_game_name(game));
 
-	if (access(path_wav, F_OK)==0 || access(path_mng, F_OK)==0) {
+	if (access(path_wav, F_OK) == 0 || access(path_mng, F_OK) == 0) {
 		do {
 			snprintf(path_wav, size_wav, "%s/%.4s%04d.wav", context->config.dir_buffer, mame_game_name(game), counter);
 			snprintf(path_mng, size_mng, "%s/%.4s%04d.mng", context->config.dir_buffer, mame_game_name(game), counter);
 			++counter;
-		} while (access(path_wav, F_OK)==0 || access(path_mng, F_OK)==0);
+		} while (access(path_wav, F_OK) == 0 || access(path_mng, F_OK) == 0);
 	}
 }
 
@@ -576,11 +576,11 @@ static void advance_snapshot_next(struct advance_record_context* context, const 
 
 	snprintf(path_png, size, "%s/%.8s.png", context->config.dir_buffer, mame_game_name(game));
 
-	if (access(path_png, F_OK)==0) {
+	if (access(path_png, F_OK) == 0) {
 		do {
-		snprintf(path_png, size, "%s/%.4s%04d.png", context->config.dir_buffer, mame_game_name(game), counter);
+			snprintf(path_png, size, "%s/%.4s%04d.png", context->config.dir_buffer, mame_game_name(game), counter);
 			++counter;
-		} while (access(path_png, F_OK)==0);
+		} while (access(path_png, F_OK) == 0);
 	}
 }
 
@@ -613,13 +613,13 @@ void osd_save_snapshot(void)
 adv_bool advance_record_sound_is_active(struct advance_record_context* context)
 {
 	return context->state.sound_active_flag
-		&& !context->state.sound_stopped_flag;
+	       && !context->state.sound_stopped_flag;
 }
 
 adv_bool advance_record_video_is_active(struct advance_record_context* context)
 {
 	return context->state.video_active_flag
-		&& !context->state.video_stopped_flag;
+	       && !context->state.video_stopped_flag;
 }
 
 adv_bool advance_record_snapshot_is_active(struct advance_record_context* context)
@@ -711,3 +711,4 @@ void advance_record_done(struct advance_record_context* context)
 	pthread_mutex_destroy(&context->state.access_mutex);
 #endif
 }
+

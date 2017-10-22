@@ -114,8 +114,8 @@ static fb_internal fb_state;
 unsigned char* (*fb_write_line)(unsigned y);
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "Frame Buffer video" },
-{ 0, 0, 0 }
+	{ "auto", -1, "Frame Buffer video" },
+	{ 0, 0, 0 }
 };
 
 /***************************************************************************/
@@ -150,18 +150,18 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 		log_std(("video:fb: mmio_start:%08xh, mmio_len:%08xh\n", (unsigned)fix->mmio_start, (unsigned)fix->mmio_len));
 		log_std(("video:fb: type:%d, type_aux:%d\n", (unsigned)fix->type, (unsigned)fix->type_aux));
 		switch (fix->visual) {
-			case FB_VISUAL_TRUECOLOR :
-				log_std(("video:fb: visual:%d FB_VISUAL_TRUECOLOR\n", (unsigned)fix->visual));
-				break;
-			case FB_VISUAL_PSEUDOCOLOR :
-				log_std(("video:fb: visual:%d FB_VISUAL_PSEUDOCOLOR\n", (unsigned)fix->visual));
-				break;
-			case FB_VISUAL_DIRECTCOLOR :
-				log_std(("video:fb: visual:%d FB_VISUAL_DIRECTCOLOR\n", (unsigned)fix->visual));
-				break;
-			default:
-				log_std(("video:fb: visual:%d\n", (unsigned)fix->visual));
-				break;
+		case FB_VISUAL_TRUECOLOR:
+			log_std(("video:fb: visual:%d FB_VISUAL_TRUECOLOR\n", (unsigned)fix->visual));
+			break;
+		case FB_VISUAL_PSEUDOCOLOR:
+			log_std(("video:fb: visual:%d FB_VISUAL_PSEUDOCOLOR\n", (unsigned)fix->visual));
+			break;
+		case FB_VISUAL_DIRECTCOLOR:
+			log_std(("video:fb: visual:%d FB_VISUAL_DIRECTCOLOR\n", (unsigned)fix->visual));
+			break;
+		default:
+			log_std(("video:fb: visual:%d\n", (unsigned)fix->visual));
+			break;
 		}
 		log_std(("video:fb: xpanstep:%d, ypanstep:%d, ywrapstep:%d\n", (unsigned)fix->xpanstep, (unsigned)fix->ypanstep, (unsigned)fix->ywrapstep));
 		log_std(("video:fb: line_length:%d\n", (unsigned)fix->line_length));
@@ -181,7 +181,7 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 			(unsigned)var->green.length, (unsigned)var->green.offset,
 			(unsigned)var->blue.length, (unsigned)var->blue.offset,
 			(unsigned)var->transp.length, (unsigned)var->transp.offset
-		));
+			));
 		log_std(("video:fb: nonstd:%d, activate:%xh\n", (unsigned)var->nonstd, (unsigned)var->activate));
 		log_std(("video:fb: height:%d, width:%d\n", var->height, var->width));
 		log_std(("video:fb: accel_flags:%d\n", var->accel_flags));
@@ -200,7 +200,7 @@ static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
 			(unsigned)var->lower_margin,
 			(unsigned)var->hsync_len,
 			(unsigned)var->vsync_len
-		));
+			));
 		log_std(("video:fb: sync:%xh", (unsigned)var->sync));
 		if ((var->sync & FB_SYNC_HOR_HIGH_ACT) != 0)
 			log_std((" phsync"));
@@ -236,7 +236,7 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 	var->yoffset = 0;
 	var->grayscale = 0;
 	switch (index) {
-	case MODE_FLAGS_INDEX_PALETTE8 :
+	case MODE_FLAGS_INDEX_PALETTE8:
 		var->bits_per_pixel = 8;
 		var->red.length = 0;
 		var->red.offset = 0;
@@ -245,7 +245,7 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 		var->blue.length = 0;
 		var->blue.offset = 0;
 		break;
-	case MODE_FLAGS_INDEX_BGR15 :
+	case MODE_FLAGS_INDEX_BGR15:
 		var->bits_per_pixel = 16; /* this is the real bits per pixel */
 		var->red.length = 5;
 		var->red.offset = 10;
@@ -254,7 +254,7 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 		var->blue.length = 5;
 		var->blue.offset = 0;
 		break;
-	case MODE_FLAGS_INDEX_BGR16 :
+	case MODE_FLAGS_INDEX_BGR16:
 		var->bits_per_pixel = 16;
 		var->red.length = 5;
 		var->red.offset = 11;
@@ -263,7 +263,7 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 		var->blue.length = 5;
 		var->blue.offset = 0;
 		break;
-	case MODE_FLAGS_INDEX_BGR24 :
+	case MODE_FLAGS_INDEX_BGR24:
 		var->bits_per_pixel = 24;
 		var->red.length = 8;
 		var->red.offset = 16;
@@ -272,7 +272,7 @@ static void fb_preset(struct fb_var_screeninfo* var, unsigned pixelclock, unsign
 		var->blue.length = 8;
 		var->blue.offset = 0;
 		break;
-	case MODE_FLAGS_INDEX_BGR32 :
+	case MODE_FLAGS_INDEX_BGR32:
 		var->bits_per_pixel = 32;
 		var->red.length = 8;
 		var->red.offset = 16;
@@ -380,7 +380,7 @@ static adv_error fb_getvar(struct fb_var_screeninfo* var, unsigned hint_index)
 	) {
 		log_std(("ERROR:video:fb: overlapping RGB nibble %x/%x/%x\n", r_mask, g_mask, b_mask));
 		switch (hint_index) {
-		case MODE_FLAGS_INDEX_BGR15 :
+		case MODE_FLAGS_INDEX_BGR15:
 			log_std(("video:fb: setting generic %s nibble\n", index_name(hint_index)));
 			var->red.length = 5;
 			var->red.offset = 10;
@@ -389,7 +389,7 @@ static adv_error fb_getvar(struct fb_var_screeninfo* var, unsigned hint_index)
 			var->blue.length = 5;
 			var->blue.offset = 0;
 			break;
-		case MODE_FLAGS_INDEX_BGR16 :
+		case MODE_FLAGS_INDEX_BGR16:
 			log_std(("video:fb: setting generic %s nibble\n", index_name(hint_index)));
 			var->red.length = 5;
 			var->red.offset = 11;
@@ -398,8 +398,8 @@ static adv_error fb_getvar(struct fb_var_screeninfo* var, unsigned hint_index)
 			var->blue.length = 5;
 			var->blue.offset = 0;
 			break;
-		case MODE_FLAGS_INDEX_BGR24 :
-		case MODE_FLAGS_INDEX_BGR32 :
+		case MODE_FLAGS_INDEX_BGR24:
+		case MODE_FLAGS_INDEX_BGR32:
 			log_std(("video:fb: setting generic %s nibble\n", index_name(hint_index)));
 			var->red.length = 8;
 			var->red.offset = 16;
@@ -510,7 +510,7 @@ static adv_error fb_detect(void)
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
 	}
 
-	if (strstr(fb_state.fixinfo.id, "GeForce")!=0) {
+	if (strstr(fb_state.fixinfo.id, "GeForce") != 0) {
 		log_std(("video:fb: disable interlaced modes, not supported by the GeForce hardware\n"));
 		/* the GeForce hardware doesn't support interlace */
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE;
@@ -524,7 +524,7 @@ static adv_error fb_detect(void)
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
 	}
 
-	if (strstr(fb_state.fixinfo.id, "nVidia")!=0) {
+	if (strstr(fb_state.fixinfo.id, "nVidia") != 0) {
 		log_std(("video:fb: disable doublescan modes, not supported by the nVidia driver\n"));
 		/* the Linux 2.4.20/2.4.21/2.4.22/2.4.23/2.4.24/2.4.25 driver doesn't support doublescan */
 		fb_state.flags &= ~VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN;
@@ -556,7 +556,7 @@ void vc_log(TV_DISPLAY_STATE_T* state)
 		state->state & VC_SDTV_CP_INACTIVE ? " SDTV_CP_INACTIVE" : "",
 		state->state & VC_SDTV_CP_ACTIVE ? " SDTV_CP_ACTIVE" : "",
 		state->state & VC_LCD_ATTACHED_DEFAULT ? " LCD_ATTACHED_DEFAULT" : ""
-	));
+		));
 
 	if (state->state & (VC_HDMI_HDMI | VC_HDMI_DVI)) {
 		log_std(("video:vc: HDMI state %08x\n", state->display.hdmi.state));
@@ -564,23 +564,23 @@ void vc_log(TV_DISPLAY_STATE_T* state)
 		log_std(("video:vc: framerate %u\n", state->display.hdmi.frame_rate));
 		log_std(("video:vc: scanmode %s\n", state->display.hdmi.scan_mode ? "interlaced" : "progressive"));
 		switch (state->display.hdmi.group) {
-		case HDMI_RES_GROUP_INVALID : log_std(("video:vc: group INVALID\n")); break;
-		case HDMI_RES_GROUP_CEA : log_std(("video:vc: group CEA\n")); break;
-		case HDMI_RES_GROUP_DMT : log_std(("video:vc: group DMT\n")); break;
-		case HDMI_RES_GROUP_CEA_3D : log_std(("video:vc: group CEA_3D\n")); break;
-		default : log_std(("video:vc: group UNKNOWN %u\n", state->display.hdmi.group)); break;
+		case HDMI_RES_GROUP_INVALID: log_std(("video:vc: group INVALID\n")); break;
+		case HDMI_RES_GROUP_CEA: log_std(("video:vc: group CEA\n")); break;
+		case HDMI_RES_GROUP_DMT: log_std(("video:vc: group DMT\n")); break;
+		case HDMI_RES_GROUP_CEA_3D: log_std(("video:vc: group CEA_3D\n")); break;
+		default: log_std(("video:vc: group UNKNOWN %u\n", state->display.hdmi.group)); break;
 		}
 		log_std(("video:vc: mode %u\n", state->display.hdmi.mode));
 		log_std(("video:vc: pixel_rep %u\n", state->display.hdmi.pixel_rep));
 		switch (state->display.hdmi.aspect_ratio) {
-		case HDMI_ASPECT_4_3 : log_std(("video:vc: aspect_ratio 4:3\n")); break;
-		case HDMI_ASPECT_14_9 : log_std(("video:vc: aspect_ratio 14:9\n")); break;
-		case HDMI_ASPECT_16_9 : log_std(("video:vc: aspect_ratio 16:9\n")); break;
-		case HDMI_ASPECT_5_4 : log_std(("video:vc: aspect_ratio 5:4\n")); break;
-		case HDMI_ASPECT_16_10 : log_std(("video:vc: aspect_ratio 16:10\n")); break;
-		case HDMI_ASPECT_15_9 : log_std(("video:vc: aspect_ratio 15:9\n")); break;
-		case HDMI_ASPECT_64_27 : log_std(("video:vc: aspect_ratio 64:27\n")); break;
-		default : log_std(("video:vc: aspect_ratio UNKNOWN %u\n", state->display.hdmi.aspect_ratio)); break;
+		case HDMI_ASPECT_4_3: log_std(("video:vc: aspect_ratio 4:3\n")); break;
+		case HDMI_ASPECT_14_9: log_std(("video:vc: aspect_ratio 14:9\n")); break;
+		case HDMI_ASPECT_16_9: log_std(("video:vc: aspect_ratio 16:9\n")); break;
+		case HDMI_ASPECT_5_4: log_std(("video:vc: aspect_ratio 5:4\n")); break;
+		case HDMI_ASPECT_16_10: log_std(("video:vc: aspect_ratio 16:10\n")); break;
+		case HDMI_ASPECT_15_9: log_std(("video:vc: aspect_ratio 15:9\n")); break;
+		case HDMI_ASPECT_64_27: log_std(("video:vc: aspect_ratio 64:27\n")); break;
+		default: log_std(("video:vc: aspect_ratio UNKNOWN %u\n", state->display.hdmi.aspect_ratio)); break;
 		}
 		log_std(("video:vc: display_option.aspect %u\n", state->display.hdmi.display_options.aspect));
 		log_std(("video:vc: display_option.vertical_bar_present %u\n", state->display.hdmi.display_options.vertical_bar_present));
@@ -590,21 +590,21 @@ void vc_log(TV_DISPLAY_STATE_T* state)
 		log_std(("video:vc: display_option.top_bar_height %u\n", state->display.hdmi.display_options.top_bar_height));
 		log_std(("video:vc: display_option.bottom_bar_height %u\n", state->display.hdmi.display_options.bottom_bar_height));
 		switch (state->display.hdmi.pixel_encoding) {
-		case HDMI_PIXEL_ENCODING_RGB_LIMITED : log_std(("video:vc: pixel_encoding RGB lim\n")); break;
-		case HDMI_PIXEL_ENCODING_RGB_FULL : log_std(("video:vc: pixel_encoding RGB full\n")); break;
-		case HDMI_PIXEL_ENCODING_YCbCr444_LIMITED : log_std(("video:vc: pixel_encoding YCbCr444 lim\n")); break;
-		case HDMI_PIXEL_ENCODING_YCbCr444_FULL : log_std(("video:vc: pixel_encoding YCbCr444 full\n")); break;
-		case HDMI_PIXEL_ENCODING_YCbCr422_LIMITED : log_std(("video:vc: pixel_encoding YCbCr422 lim\n")); break;
-		case HDMI_PIXEL_ENCODING_YCbCr422_FULL : log_std(("video:vc: pixel_encoding YCbCr422 full\n")); break;
-		default : log_std(("video:vc: pixel_encoding UNKNOWN %u\n", state->display.hdmi.pixel_encoding)); break;
+		case HDMI_PIXEL_ENCODING_RGB_LIMITED: log_std(("video:vc: pixel_encoding RGB lim\n")); break;
+		case HDMI_PIXEL_ENCODING_RGB_FULL: log_std(("video:vc: pixel_encoding RGB full\n")); break;
+		case HDMI_PIXEL_ENCODING_YCbCr444_LIMITED: log_std(("video:vc: pixel_encoding YCbCr444 lim\n")); break;
+		case HDMI_PIXEL_ENCODING_YCbCr444_FULL: log_std(("video:vc: pixel_encoding YCbCr444 full\n")); break;
+		case HDMI_PIXEL_ENCODING_YCbCr422_LIMITED: log_std(("video:vc: pixel_encoding YCbCr422 lim\n")); break;
+		case HDMI_PIXEL_ENCODING_YCbCr422_FULL: log_std(("video:vc: pixel_encoding YCbCr422 full\n")); break;
+		default: log_std(("video:vc: pixel_encoding UNKNOWN %u\n", state->display.hdmi.pixel_encoding)); break;
 		}
 		switch (state->display.hdmi.format_3d) {
-		case 0 : log_std(("video:vc: format_3d none\n")); break;
-		case HDMI_3D_FORMAT_SBS_HALF : log_std(("video:vc: format_3d SbS\n")); break;
-		case HDMI_3D_FORMAT_TB_HALF : log_std(("video:vc: format_3d T&B\n")); break;
-		case HDMI_3D_FORMAT_FRAME_PACKING : log_std(("video:vc: format_3d FP\n")); break;
-		case HDMI_3D_FORMAT_FRAME_SEQUENTIAL : log_std(("video:vc: format_3d FS\n")); break;
-		default : log_std(("video:vc: format_3d UNKNOWN %u\n", state->display.hdmi.format_3d)); break;
+		case 0: log_std(("video:vc: format_3d none\n")); break;
+		case HDMI_3D_FORMAT_SBS_HALF: log_std(("video:vc: format_3d SbS\n")); break;
+		case HDMI_3D_FORMAT_TB_HALF: log_std(("video:vc: format_3d T&B\n")); break;
+		case HDMI_3D_FORMAT_FRAME_PACKING: log_std(("video:vc: format_3d FP\n")); break;
+		case HDMI_3D_FORMAT_FRAME_SEQUENTIAL: log_std(("video:vc: format_3d FS\n")); break;
+		default: log_std(("video:vc: format_3d UNKNOWN %u\n", state->display.hdmi.format_3d)); break;
 		}
 	} else if (state->state & (VC_SDTV_NTSC | VC_SDTV_PAL)) {
 		log_std(("video:vc: SDTV state %08x\n", state->display.sdtv.state));
@@ -613,42 +613,42 @@ void vc_log(TV_DISPLAY_STATE_T* state)
 		log_std(("video:vc: scanmode %s\n", state->display.sdtv.scan_mode ? "interlaced" : "progressive"));
 		log_std(("video:vc: mode %08x\n", state->display.sdtv.mode));
 		switch (state->display.sdtv.mode & SDTV_MODE_FORMAT_MASK) {
-		case SDTV_MODE_NTSC : log_std(("video:vc: mode format NTSC\n")); break;
-		case SDTV_MODE_NTSC_J : log_std(("video:vc: mode format NTSC_J\n")); break;
-		case SDTV_MODE_PAL : log_std(("video:vc: mode format PAL\n")); break;
-		case SDTV_MODE_PAL_M : log_std(("video:vc: mode format PAL_M\n")); break;
+		case SDTV_MODE_NTSC: log_std(("video:vc: mode format NTSC\n")); break;
+		case SDTV_MODE_NTSC_J: log_std(("video:vc: mode format NTSC_J\n")); break;
+		case SDTV_MODE_PAL: log_std(("video:vc: mode format PAL\n")); break;
+		case SDTV_MODE_PAL_M: log_std(("video:vc: mode format PAL_M\n")); break;
 		}
 		switch (state->display.sdtv.mode & SDTV_MODE_OUTPUT_MASK) {
-		case SDTV_COLOUR_RGB : log_std(("video:vc: mode output RGB\n")); break;
-		case SDTV_COLOUR_YPRPB : log_std(("video:vc: mode output YPRPB\n")); break;
+		case SDTV_COLOUR_RGB: log_std(("video:vc: mode output RGB\n")); break;
+		case SDTV_COLOUR_YPRPB: log_std(("video:vc: mode output YPRPB\n")); break;
 		}
 		switch (state->display.sdtv.display_options.aspect) {
-		case SDTV_ASPECT_4_3 : log_std(("video:vc: aspect_ratio 4:3\n")); break;
-		case SDTV_ASPECT_14_9 : log_std(("video:vc: aspect_ratio 14:9\n")); break;
-		case SDTV_ASPECT_16_9 : log_std(("video:vc: aspect_ratio 16:9\n")); break;
-		default : log_std(("video:vc: aspect_ratio UNKNOWN %u\n", state->display.sdtv.display_options.aspect)); break;
+		case SDTV_ASPECT_4_3: log_std(("video:vc: aspect_ratio 4:3\n")); break;
+		case SDTV_ASPECT_14_9: log_std(("video:vc: aspect_ratio 14:9\n")); break;
+		case SDTV_ASPECT_16_9: log_std(("video:vc: aspect_ratio 16:9\n")); break;
+		default: log_std(("video:vc: aspect_ratio UNKNOWN %u\n", state->display.sdtv.display_options.aspect)); break;
 		}
 		log_std(("video:vc: colour %08x\n", state->display.sdtv.colour));
 		switch (state->display.sdtv.colour) {
-		case SDTV_COLOUR_RGB : log_std(("video:vc: colour RGB\n")); break;
-		case SDTV_COLOUR_YPRPB : log_std(("video:vc: colour YPRPB\n")); break;
+		case SDTV_COLOUR_RGB: log_std(("video:vc: colour RGB\n")); break;
+		case SDTV_COLOUR_YPRPB: log_std(("video:vc: colour YPRPB\n")); break;
 		default: log_std(("video:vc: colour UNKNOWN %u\n", state->display.sdtv.colour)); break;
 		}
 		switch (state->display.sdtv.cp_mode) {
-		case SDTV_CP_MACROVISION_TYPE1 : log_std(("video:vc: cp_mode Macrovision type 1\n")); break;
-		case SDTV_CP_MACROVISION_TYPE2 : log_std(("video:vc: cp_mode Macrovision type 2\n")); break;
-		case SDTV_CP_MACROVISION_TYPE3 : log_std(("video:vc: cp_mode Macrovision type 3\n")); break;
-		case SDTV_CP_MACROVISION_TEST1 : log_std(("video:vc: cp_mode Macrovision test 1\n")); break;
-		case SDTV_CP_MACROVISION_TEST2 : log_std(("video:vc: cp_mode Macrovision test 2\n")); break;
-		case SDTV_CP_CGMS_COPYFREE : log_std(("video:vc: cp_mode CGMS copy free\n")); break;
-		case SDTV_CP_CGMS_COPYNOMORE : log_std(("video:vc: cp_mode CGMS copy no more\n")); break;
-		case SDTV_CP_CGMS_COPYONCE : log_std(("video:vc: cp_mode CGMS copy once\n")); break;
-		case SDTV_CP_CGMS_COPYNEVER : log_std(("video:vc: cp_mode CGMS copy never\n")); break;
-		case SDTV_CP_WSS_COPYFREE : log_std(("video:vc: cp_mode WSS copy free\n")); break;
-		case SDTV_CP_WSS_COPYRIGHT_COPYFREE : log_std(("video:vc: cp_mode WSS (c) copy free\n")); break;
-		case SDTV_CP_WSS_NOCOPY : log_std(("video:vc: cp_mode WSS no copy\n")); break;
-		case SDTV_CP_WSS_COPYRIGHT_NOCOPY : log_std(("video:vc: cp_mode WSS (c) no copy\n")); break;
-		default : log_std(("video:vc: cp_mode UNKNOWN %u\n", state->display.sdtv.cp_mode)); break;
+		case SDTV_CP_MACROVISION_TYPE1: log_std(("video:vc: cp_mode Macrovision type 1\n")); break;
+		case SDTV_CP_MACROVISION_TYPE2: log_std(("video:vc: cp_mode Macrovision type 2\n")); break;
+		case SDTV_CP_MACROVISION_TYPE3: log_std(("video:vc: cp_mode Macrovision type 3\n")); break;
+		case SDTV_CP_MACROVISION_TEST1: log_std(("video:vc: cp_mode Macrovision test 1\n")); break;
+		case SDTV_CP_MACROVISION_TEST2: log_std(("video:vc: cp_mode Macrovision test 2\n")); break;
+		case SDTV_CP_CGMS_COPYFREE: log_std(("video:vc: cp_mode CGMS copy free\n")); break;
+		case SDTV_CP_CGMS_COPYNOMORE: log_std(("video:vc: cp_mode CGMS copy no more\n")); break;
+		case SDTV_CP_CGMS_COPYONCE: log_std(("video:vc: cp_mode CGMS copy once\n")); break;
+		case SDTV_CP_CGMS_COPYNEVER: log_std(("video:vc: cp_mode CGMS copy never\n")); break;
+		case SDTV_CP_WSS_COPYFREE: log_std(("video:vc: cp_mode WSS copy free\n")); break;
+		case SDTV_CP_WSS_COPYRIGHT_COPYFREE: log_std(("video:vc: cp_mode WSS (c) copy free\n")); break;
+		case SDTV_CP_WSS_NOCOPY: log_std(("video:vc: cp_mode WSS no copy\n")); break;
+		case SDTV_CP_WSS_COPYRIGHT_NOCOPY: log_std(("video:vc: cp_mode WSS (c) no copy\n")); break;
+		default: log_std(("video:vc: cp_mode UNKNOWN %u\n", state->display.sdtv.cp_mode)); break;
 		}
 	} else if (state->state & VC_LCD_ATTACHED_DEFAULT) {
 		/* print from the HDMI struct like tvservice */
@@ -734,7 +734,7 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 
 	fb_log(&fb_state.fixinfo, &fb_state.varinfo);
 
-	if (strcmp(id_buffer, "VESA VGA")==0) {
+	if (strcmp(id_buffer, "VESA VGA") == 0) {
 		error_set("The 'vesafb' FrameBuffer driver doesn't allow the creation of new video modes.\n");
 		goto err_close;
 	}
@@ -804,20 +804,20 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		/* set aspect */
 		if (fb_state.oldstate.state & (VC_HDMI_HDMI | VC_HDMI_DVI)) {
 			switch (fb_state.oldstate.display.hdmi.aspect_ratio) {
-			case HDMI_ASPECT_4_3 : target_aspect_set(4, 3); break;
-			case HDMI_ASPECT_14_9 : target_aspect_set(14, 9); break;
-			case HDMI_ASPECT_16_9 : target_aspect_set(16, 9); break;
-			case HDMI_ASPECT_5_4 : target_aspect_set(5, 4); break;
-			case HDMI_ASPECT_16_10 : target_aspect_set(16, 10); break;
-			case HDMI_ASPECT_15_9 : target_aspect_set(15, 9); break;
-			case HDMI_ASPECT_64_27 : target_aspect_set(64, 27); break;
+			case HDMI_ASPECT_4_3: target_aspect_set(4, 3); break;
+			case HDMI_ASPECT_14_9: target_aspect_set(14, 9); break;
+			case HDMI_ASPECT_16_9: target_aspect_set(16, 9); break;
+			case HDMI_ASPECT_5_4: target_aspect_set(5, 4); break;
+			case HDMI_ASPECT_16_10: target_aspect_set(16, 10); break;
+			case HDMI_ASPECT_15_9: target_aspect_set(15, 9); break;
+			case HDMI_ASPECT_64_27: target_aspect_set(64, 27); break;
 			default: break;
 			}
 		} else if (fb_state.oldstate.state & (VC_SDTV_NTSC | VC_SDTV_PAL)) {
 			switch (fb_state.oldstate.display.sdtv.display_options.aspect) {
-			case SDTV_ASPECT_4_3 : target_aspect_set(4, 3); break;
-			case SDTV_ASPECT_14_9 : target_aspect_set(14, 9); break;
-			case SDTV_ASPECT_16_9 : target_aspect_set(16, 9); break;
+			case SDTV_ASPECT_4_3: target_aspect_set(4, 3); break;
+			case SDTV_ASPECT_14_9: target_aspect_set(14, 9); break;
+			case SDTV_ASPECT_16_9: target_aspect_set(16, 9); break;
 			default: break;
 			}
 		}
@@ -893,17 +893,17 @@ static adv_error fb_setup_color(void)
 		blue_map = malloc(sizeof(__u16) * l);
 		trasp_map = malloc(sizeof(__u16) * l);
 
-		for (i=0;i<l;++i) {
+		for (i = 0; i < l; ++i) {
 			if (i < red_l)
-				red_map[i] = 65535 * i / (red_l-1);
+				red_map[i] = 65535 * i / (red_l - 1);
 			else
 				red_map[i] = 65535;
 			if (i < green_l)
-				green_map[i] = 65535 * i / (green_l-1);
+				green_map[i] = 65535 * i / (green_l - 1);
 			else
 				green_map[i] = 65535;
 			if (i < blue_l)
-				blue_map[i] = 65535 * i / (blue_l-1);
+				blue_map[i] = 65535 * i / (blue_l - 1);
 			else
 				blue_map[i] = 65535;
 			trasp_map[i] = 0;
@@ -1086,7 +1086,7 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 	 *
 	 * See:
 	 * "Please can the ability to modify HDMI timings on the fly"
-	 " (i.e. without having to carry out a reboot) be added to the firmware drivers"
+	   " (i.e. without having to carry out a reboot) be added to the firmware drivers"
 	 * https://github.com/raspberrypi/firmware/issues/637
 	 *
 	 * Format for hdmi_timings:
@@ -1103,8 +1103,8 @@ static int fb_raspberry_settiming(const adv_crtc* crtc, unsigned* size_x, unsign
 		"%u %u %u %u %u "
 		"%u %u %u %u %u "
 		"%u %u %u %u %u %u %u",
-		copy.hde, (int)crtc_is_nhsync(&copy), copy.hrs - copy.hde, copy.hre - copy.hrs,  copy.ht - copy.hre,
-		copy.vde, (int)crtc_is_nvsync(&copy), copy.vrs - copy.vde, copy.vre - copy.vrs,  copy.vt - copy.vre,
+		copy.hde, (int)crtc_is_nhsync(&copy), copy.hrs - copy.hde, copy.hre - copy.hrs, copy.ht - copy.hre,
+		copy.vde, (int)crtc_is_nvsync(&copy), copy.vrs - copy.vde, copy.vre - copy.vrs, copy.vt - copy.vre,
 		0, 0, 0, (unsigned)floor(crtc_vclock_get(&copy) + 0.5), (int)crtc_is_interlace(&copy), (unsigned)copy.pixelclock, 1
 	);
 
@@ -1177,7 +1177,7 @@ static void fb_raspberry_restoretiming(unsigned* size_x, unsigned* size_y)
 			drive == HDMI_MODE_HDMI ? "HDMI" : "DVI",
 			fb_state.oldstate.display.hdmi.group == HDMI_RES_GROUP_CEA ? "CEA" : "DMT",
 			fb_state.oldstate.display.hdmi.mode
-		));
+			));
 		ret = vc_tv_hdmi_power_on_explicit(drive, fb_state.oldstate.display.hdmi.group, fb_state.oldstate.display.hdmi.mode);
 		if (ret != 0) {
 			log_std(("ERROR:video:vc: vc_tv_hdmi_power_on_explicit() failed\n"));
@@ -1190,7 +1190,7 @@ static void fb_raspberry_restoretiming(unsigned* size_x, unsigned* size_y)
 		log_std(("video:vc: vc_tv_sdtv_power_on(%u, %u)\n",
 			fb_state.oldstate.display.sdtv.mode,
 			fb_state.oldstate.display.sdtv.display_options.aspect
-		));
+			));
 		ret = vc_tv_sdtv_power_on(fb_state.oldstate.display.sdtv.mode, &fb_state.oldstate.display.sdtv.display_options);
 		if (ret != 0) {
 			log_std(("ERROR:video:vc: vc_tv_sdtv_power_on() failed\n"));
@@ -1542,12 +1542,12 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 	fb_state.index = mode->index;
 
 	fb_state.ptr = mmap(0,
-		fb_state.fixinfo.smem_len,
-		PROT_READ | PROT_WRITE,
-		MAP_SHARED,
-		fb_state.fd,
-		0
-	);
+			fb_state.fixinfo.smem_len,
+			PROT_READ | PROT_WRITE,
+			MAP_SHARED,
+			fb_state.fd,
+			0
+		);
 
 	if (fb_state.ptr == MAP_FAILED) {
 		error_set("Error mapping the video memory.\n");
@@ -1638,10 +1638,10 @@ adv_color_def fb_color_def(void)
 	assert(fb_is_active() && fb_mode_is_active());
 
 	switch (fb_state.index) {
-	case MODE_FLAGS_INDEX_BGR15 :
-	case MODE_FLAGS_INDEX_BGR16 :
-	case MODE_FLAGS_INDEX_BGR24 :
-	case MODE_FLAGS_INDEX_BGR32 :
+	case MODE_FLAGS_INDEX_BGR15:
+	case MODE_FLAGS_INDEX_BGR16:
+	case MODE_FLAGS_INDEX_BGR24:
+	case MODE_FLAGS_INDEX_BGR32:
 		return color_def_make_rgb_from_sizelenpos(
 			fb_state.bytes_per_pixel,
 			fb_state.varinfo.red.length, fb_state.varinfo.red.offset,
@@ -1762,7 +1762,7 @@ static adv_error fb_wait_vsync_vga(void)
 void fb_wait_vsync(void)
 {
 	switch (fb_state.wait) {
-	case fb_wait_ext :
+	case fb_wait_ext:
 		if (fb_wait_vsync_ext() != 0) {
 			++fb_state.wait_error;
 			if (fb_state.wait_error > WAIT_ERROR_MAX)
@@ -1771,7 +1771,7 @@ void fb_wait_vsync(void)
 			fb_state.wait_error = 0;
 		}
 		break;
-	case fb_wait_api :
+	case fb_wait_api:
 		if (fb_wait_vsync_api() != 0) {
 			++fb_state.wait_error;
 			if (fb_state.wait_error > WAIT_ERROR_MAX)
@@ -1781,7 +1781,7 @@ void fb_wait_vsync(void)
 		}
 		break;
 #ifdef __i386__
-	case fb_wait_vga :
+	case fb_wait_vga:
 		if (fb_wait_vsync_vga() != 0) {
 			++fb_state.wait_error;
 			if (fb_state.wait_error > WAIT_ERROR_MAX)
@@ -1845,7 +1845,7 @@ adv_error fb_palette8_set(const adv_color_rgb* palette, unsigned start, unsigned
 	if (waitvsync)
 		fb_wait_vsync();
 
-	for (i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		r[i] = (palette[i].red << 8) | palette[i].red;
 		g[i] = (palette[i].green << 8) | palette[i].green;
 		b[i] = (palette[i].blue << 8) | palette[i].blue;
@@ -1893,31 +1893,31 @@ adv_error fb_mode_generate(fb_video_mode* mode, const adv_crtc* crtc, unsigned f
 	assert(fb_is_active());
 
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
-	case MODE_FLAGS_INDEX_PALETTE8 :
+	case MODE_FLAGS_INDEX_PALETTE8:
 		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) == 0) {
 			error_nolog_set("Index mode not supported.\n");
 			return -1;
 		}
 		break;
-	case MODE_FLAGS_INDEX_BGR15 :
+	case MODE_FLAGS_INDEX_BGR15:
 		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR15) == 0) {
 			error_nolog_set("Index mode not supported.\n");
 			return -1;
 		}
 		break;
-	case MODE_FLAGS_INDEX_BGR16 :
+	case MODE_FLAGS_INDEX_BGR16:
 		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) == 0) {
 			error_nolog_set("Index mode not supported.\n");
 			return -1;
 		}
 		break;
-	case MODE_FLAGS_INDEX_BGR24 :
+	case MODE_FLAGS_INDEX_BGR24:
 		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR24) == 0) {
 			error_nolog_set("Index mode not supported.\n");
 			return -1;
 		}
 		break;
-	case MODE_FLAGS_INDEX_BGR32 :
+	case MODE_FLAGS_INDEX_BGR32:
 		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR32) == 0) {
 			error_nolog_set("Index mode not supported.\n");
 			return -1;

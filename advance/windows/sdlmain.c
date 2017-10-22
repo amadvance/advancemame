@@ -1,8 +1,8 @@
 /*
     SDL_main.c, placed in the public domain by Sam Lantinga  4/13/98
 
-    The WinMain function -- calls your program's main() function 
-*/
+    The WinMain function -- calls your program's main() function
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -29,8 +29,8 @@
 #endif
 
 /* The standard output files */
-#define STDOUT_FILE	TEXT("stdout.txt")
-#define STDERR_FILE	TEXT("stderr.txt")
+#define STDOUT_FILE     TEXT("stdout.txt")
+#define STDERR_FILE     TEXT("stderr.txt")
 
 #if defined(_WIN32_WCE) && _WIN32_WCE < 300
 /* seems to be undefined in Win CE although in online help */
@@ -42,16 +42,16 @@ char *strrchr(char *str, int c)
 	char *p;
 
 	/* Skip to the end of the string */
-	p=str;
+	p = str;
 	while (*p)
 		p++;
 
 	/* Look for the given character */
-	while ( (p >= str) && (*p != (CHAR)c) )
+	while ((p >= str) && (*p != (CHAR)c))
 		p--;
 
 	/* Return NULL if character not found */
-	if ( p < str ) {
+	if (p < str) {
 		p = NULL;
 	}
 	return p;
@@ -65,47 +65,47 @@ static int ParseCommandLine(char *cmdline, char **argv)
 	int argc;
 
 	argc = 0;
-	for ( bufp = cmdline; *bufp; ) {
+	for (bufp = cmdline; *bufp; ) {
 		/* Skip leading whitespace */
-		while ( isspace(*bufp) ) {
+		while (isspace(*bufp)) {
 			++bufp;
 		}
 		/* Skip over argument */
-		if ( *bufp == '"' ) {
+		if (*bufp == '"') {
 			++bufp;
-			if ( *bufp ) {
-				if ( argv ) {
+			if (*bufp) {
+				if (argv) {
 					argv[argc] = bufp;
 				}
 				++argc;
 			}
 			/* Skip over word */
-			while ( *bufp && (*bufp != '"') ) {
+			while (*bufp && (*bufp != '"')) {
 				++bufp;
 			}
 		} else {
-			if ( *bufp ) {
-				if ( argv ) {
+			if (*bufp) {
+				if (argv) {
 					argv[argc] = bufp;
 				}
 				++argc;
 			}
 			/* Skip over word */
-			while ( *bufp && ! isspace(*bufp) ) {
+			while (*bufp && !isspace(*bufp)) {
 				++bufp;
 			}
 		}
-		if ( *bufp ) {
-			if ( argv ) {
+		if (*bufp) {
+			if (argv) {
 				*bufp = '\0';
 			}
 			++bufp;
 		}
 	}
-	if ( argv ) {
+	if (argv) {
 		argv[argc] = NULL;
 	}
-	return(argc);
+	return argc;
 }
 
 /* Show an error message */
@@ -113,7 +113,7 @@ static void ShowError(const char *title, const char *message)
 {
 /* If USE_MESSAGEBOX is defined, you need to link with user32.lib */
 #ifdef USE_MESSAGEBOX
-	MessageBox(NULL, message, title, MB_ICONEXCLAMATION|MB_OK);
+	MessageBox(NULL, message, title, MB_ICONEXCLAMATION | MB_OK);
 #else
 	fprintf(stderr, "%s: %s\n", title, message);
 #endif
@@ -127,8 +127,7 @@ static BOOL OutOfMemory(void)
 }
 
 /* Remove the output files if there was no output written */
-static void __cdecl cleanup_output(void)
-{
+static void __cdecl cleanup_output(void){
 #ifndef NO_STDIO_REDIRECT
 	FILE *file;
 	int empty;
@@ -141,18 +140,18 @@ static void __cdecl cleanup_output(void)
 #ifndef NO_STDIO_REDIRECT
 	/* See if the files have any output in them */
 	file = fopen(STDOUT_FILE, "rb");
-	if ( file ) {
+	if (file) {
 		empty = (fgetc(file) == EOF) ? 1 : 0;
 		fclose(file);
-		if ( empty ) {
+		if (empty) {
 			remove(STDOUT_FILE);
 		}
 	}
 	file = fopen(STDERR_FILE, "rb");
-	if ( file ) {
+	if (file) {
 		empty = (fgetc(file) == EOF) ? 1 : 0;
 		fclose(file);
-		if ( empty ) {
+		if (empty) {
 			remove(STDERR_FILE);
 		}
 	}
@@ -172,20 +171,19 @@ int console_main(int argc, char *argv[])
 
 	/* Get the class name from argv[0] */
 	appname = argv[0];
-	if ( (bufp=strrchr(argv[0], '\\')) != NULL ) {
-		appname = bufp+1;
-	} else
-	if ( (bufp=strrchr(argv[0], '/')) != NULL ) {
-		appname = bufp+1;
+	if ((bufp = strrchr(argv[0], '\\')) != NULL) {
+		appname = bufp + 1;
+	} else if ((bufp = strrchr(argv[0], '/')) != NULL) {
+		appname = bufp + 1;
 	}
 
-	if ( (bufp=strrchr(appname, '.')) == NULL )
+	if ((bufp = strrchr(appname, '.')) == NULL)
 		n = strlen(appname);
 	else
-		n = (bufp-appname);
+		n = (bufp - appname);
 
-	bufp = (char *)alloca(n+1);
-	if ( bufp == NULL ) {
+	bufp = (char*)alloca(n + 1);
+	if (bufp == NULL) {
 		return OutOfMemory();
 	}
 	strncpy(bufp, appname, n);
@@ -193,9 +191,9 @@ int console_main(int argc, char *argv[])
 	appname = bufp;
 
 	/* Load SDL dynamic link library */
-	if ( SDL_Init(SDL_INIT_NOPARACHUTE) < 0 ) {
+	if (SDL_Init(SDL_INIT_NOPARACHUTE) < 0) {
 		ShowError("WinMain() error", SDL_GetError());
-		return(FALSE);
+		return FALSE;
 	}
 	atexit(cleanup_output);
 	atexit(SDL_Quit);
@@ -207,11 +205,11 @@ int console_main(int argc, char *argv[])
 	   putenv(SDL_WINDOWID).  This is already called later by
 	   the (DIB|DX5)_CreateWindow function, so it should be
 	   safe to comment it out here.
-	if ( SDL_RegisterApp(appname, CS_BYTEALIGNCLIENT, 
+	   if ( SDL_RegisterApp(appname, CS_BYTEALIGNCLIENT,
 	                     GetModuleHandle(NULL)) < 0 ) {
-		ShowError("WinMain() error", SDL_GetError());
-		exit(1);
-	}*/
+	        ShowError("WinMain() error", SDL_GetError());
+	        exit(1);
+	   }*/
 #else
 	/* Sam:
 	   We still need to pass in the application handle so that
@@ -251,58 +249,58 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 #endif
 
 	/* Start up DDHELP.EXE before opening any files, so DDHELP doesn't
-	   keep them open.  This is a hack.. hopefully it will be fixed 
+	   keep them open.  This is a hack.. hopefully it will be fixed
 	   someday.  DDHELP.EXE starts up the first time DDRAW.DLL is loaded.
 	 */
 	handle = LoadLibrary(TEXT("DDRAW.DLL"));
-	if ( handle != NULL ) {
+	if (handle != NULL) {
 		FreeLibrary(handle);
 	}
 
 #ifndef NO_STDIO_REDIRECT
 	/* Redirect standard input and standard output */
 	newfp = freopen(STDOUT_FILE, "w", stdout);
-	if ( newfp == NULL ) {	/* This happens on NT */
+	if (newfp == NULL) {    /* This happens on NT */
 #if !defined(stdout)
 		stdout = fopen(STDOUT_FILE, "w");
 #else
 		newfp = fopen(STDOUT_FILE, "w");
-		if ( newfp ) {
+		if (newfp) {
 			*stdout = *newfp;
 		}
 #endif
 	}
 	newfp = freopen(STDERR_FILE, "w", stderr);
-	if ( newfp == NULL ) {	/* This happens on NT */
+	if (newfp == NULL) {    /* This happens on NT */
 #if !defined(stderr)
 		stderr = fopen(STDERR_FILE, "w");
 #else
 		newfp = fopen(STDERR_FILE, "w");
-		if ( newfp ) {
+		if (newfp) {
 			*stderr = *newfp;
 		}
 #endif
 	}
-	setvbuf(stdout, NULL, _IOLBF, BUFSIZ);	/* Line buffered */
-	setbuf(stderr, NULL);			/* No buffering */
+	setvbuf(stdout, NULL, _IOLBF, BUFSIZ);  /* Line buffered */
+	setbuf(stderr, NULL);                   /* No buffering */
 #endif /* !NO_STDIO_REDIRECT */
 
 #ifdef _WIN32_WCE
-	nLen = wcslen(szCmdLine)+128+1;
-	bufp = (wchar_t *)alloca(nLen*2);
+	nLen = wcslen(szCmdLine) + 128 + 1;
+	bufp = (wchar_t*)alloca(nLen * 2);
 	GetModuleFileName(NULL, bufp, 128);
-	wcsncpy(bufp+wcslen(bufp), szCmdLine, nLen-wcslen(bufp));
-	nLen = wcslen(bufp)+1;
-	cmdline = (char *)alloca(nLen);
-	if ( cmdline == NULL ) {
+	wcsncpy(bufp + wcslen(bufp), szCmdLine, nLen - wcslen(bufp));
+	nLen = wcslen(bufp) + 1;
+	cmdline = (char*)alloca(nLen);
+	if (cmdline == NULL) {
 		return OutOfMemory();
 	}
 	WideCharToMultiByte(CP_ACP, 0, bufp, -1, cmdline, nLen, NULL, NULL);
 #else
 	/* Grab the command line (use alloca() on Windows) */
 	bufp = GetCommandLine();
-	cmdline = (char *)alloca(strlen(bufp)+1);
-	if ( cmdline == NULL ) {
+	cmdline = (char*)alloca(strlen(bufp) + 1);
+	if (cmdline == NULL) {
 		return OutOfMemory();
 	}
 	strcpy(cmdline, bufp);
@@ -310,13 +308,14 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw)
 
 	/* Parse it into argv and argc */
 	argc = ParseCommandLine(cmdline, NULL);
-	argv = (char **)alloca((argc+1)*(sizeof *argv));
-	if ( argv == NULL ) {
+	argv = (char**)alloca((argc + 1) * (sizeof *argv));
+	if (argv == NULL) {
 		return OutOfMemory();
 	}
 	ParseCommandLine(cmdline, argv);
 
 	/* Run the main program (after a little SDL initialization) */
-	return(console_main(argc, argv));
+	return console_main(argc, argv);
 }
 #endif
+

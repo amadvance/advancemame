@@ -42,33 +42,33 @@
  * We use a partially semplified algorithm to gain speed, but without loosing too much quality.
  * We also use a color distance based exclusively on the pixel luminance, mostly ignoring any chroma information.
  */
- 
-/*
-	   A1 B1 C1
-	A0 PA PB PC C4
-	D0 PD PE PF F4
-	G0 PG PH PI I4
-	   G5 H5 I5
 
-	N0 N1
-	N2 N3
-*/
+/*
+           A1 B1 C1
+        A0 PA PB PC C4
+        D0 PD PE PF F4
+        G0 PG PH PI I4
+           G5 H5 I5
+
+        N0 N1
+        N2 N3
+ */
 
 #define XBR(type, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, N0, N1, N2, N3) \
-	if (PE!=PH && PE!=PF) {\
-		unsigned e = df3(PC,PE,PG) + df3(H5,PI,F4) + 4*df(PH,PF); \
-		unsigned i = df3(PD,PH,I5) + df3(I4,PF,PB) + 4*df(PE,PI); \
-		if (e<i) { \
-			int ex2 = PE!=PC && PB!=PC; \
-			int ex3 = PE!=PG && PD!=PG; \
-			unsigned ke = df(PF,PG); \
-			unsigned ki = df(PH,PC); \
-			type px = df(PE,PF) <= df(PE,PH) ? PF : PH; \
+	if (PE != PH && PE != PF) { \
+		unsigned e = df3(PC, PE, PG) + df3(H5, PI, F4) + 4 * df(PH, PF); \
+		unsigned i = df3(PD, PH, I5) + df3(I4, PF, PB) + 4 * df(PE, PI); \
+		if (e < i) { \
+			int ex2 = PE != PC && PB != PC; \
+			int ex3 = PE != PG && PD != PG; \
+			unsigned ke = df(PF, PG); \
+			unsigned ki = df(PH, PC); \
+			type px = df(PE, PF) <= df(PE, PH) ? PF : PH; \
 			if (ke == 0 && ki == 0 && ex3 && ex2) { \
 				LEFT_UP_2_2X(N3, N2, N1, px); \
-			} else if (2*ke <= ki && ex3) { \
+			} else if (2 * ke <= ki && ex3) { \
 				LEFT_2_2X(N3, N2, px); \
-			} else if (ke >= 2*ki && ex2)  { \
+			} else if (ke >= 2 * ki && ex2) { \
 				UP_2_2X(N3, N1, px); \
 			} else { \
 				DIA_2X(N3, px); \
@@ -98,29 +98,29 @@ void xbr2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict
 {
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		interp_uint16 PA, PB, PC, PD, PE, PF, PG, PH, xPI;
 		interp_uint16 A0, D0, G0, A1, B1, C1, C4, F4, I4, G5, H5, I5;
 		interp_uint16 E[4];
 
 		/* first two columns */
-		if (i>1) {
+		if (i > 1) {
 			A1 = src0[-1];
 			PA = src1[-1];
 			PD = src2[-1];
 			PG = src3[-1];
 			G5 = src4[-1];
-		
+
 			A0 = src1[-2];
 			D0 = src2[-2];
 			G0 = src3[-2];
-		} else if (i>0) {
+		} else if (i > 0) {
 			A1 = src0[-1];
 			PA = src1[-1];
 			PD = src2[-1];
 			PG = src3[-1];
 			G5 = src4[-1];
-			
+
 			A0 = src1[-1];
 			D0 = src2[-1];
 			G0 = src3[-1];
@@ -130,7 +130,7 @@ void xbr2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict
 			PD = src2[0];
 			PG = src3[0];
 			G5 = src4[0];
-			
+
 			A0 = src1[0];
 			D0 = src2[0];
 			G0 = src3[0];
@@ -144,7 +144,7 @@ void xbr2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict
 		H5 = src4[0];
 
 		/* last two columns */
-		if (i+2<count) {
+		if (i + 2 < count) {
 			C1 = src0[1];
 			PC = src1[1];
 			PF = src2[1];
@@ -154,7 +154,7 @@ void xbr2x_16_def(interp_uint16* restrict volatile dst0, interp_uint16* restrict
 			C4 = src1[2];
 			F4 = src2[2];
 			I4 = src3[2];
-		} else if (i+1<count) {
+		} else if (i + 1 < count) {
 			C1 = src0[1];
 			PC = src1[1];
 			PF = src2[1];
@@ -232,29 +232,29 @@ void xbr2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict
 {
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		interp_uint32 PA, PB, PC, PD, PE, PF, PG, PH, xPI;
 		interp_uint32 A0, D0, G0, A1, B1, C1, C4, F4, I4, G5, H5, I5;
 		interp_uint32 E[4];
 
 		/* first two columns */
-		if (i>1) {
+		if (i > 1) {
 			A1 = src0[-1];
 			PA = src1[-1];
 			PD = src2[-1];
 			PG = src3[-1];
 			G5 = src4[-1];
-		
+
 			A0 = src1[-2];
 			D0 = src2[-2];
 			G0 = src3[-2];
-		} else if (i>0) {
+		} else if (i > 0) {
 			A1 = src0[-1];
 			PA = src1[-1];
 			PD = src2[-1];
 			PG = src3[-1];
 			G5 = src4[-1];
-			
+
 			A0 = src1[-1];
 			D0 = src2[-1];
 			G0 = src3[-1];
@@ -264,7 +264,7 @@ void xbr2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict
 			PD = src2[0];
 			PG = src3[0];
 			G5 = src4[0];
-			
+
 			A0 = src1[0];
 			D0 = src2[0];
 			G0 = src3[0];
@@ -278,7 +278,7 @@ void xbr2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict
 		H5 = src4[0];
 
 		/* last two columns */
-		if (i+2<count) {
+		if (i + 2 < count) {
 			C1 = src0[1];
 			PC = src1[1];
 			PF = src2[1];
@@ -288,7 +288,7 @@ void xbr2x_32_def(interp_uint32* restrict volatile dst0, interp_uint32* restrict
 			C4 = src1[2];
 			F4 = src2[2];
 			I4 = src3[2];
-		} else if (i+1<count) {
+		} else if (i + 1 < count) {
 			C1 = src0[1];
 			PC = src1[1];
 			PF = src2[1];
@@ -366,29 +366,29 @@ void xbr2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restri
 {
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		interp_uint32 PA, PB, PC, PD, PE, PF, PG, PH, xPI;
 		interp_uint32 A0, D0, G0, A1, B1, C1, C4, F4, I4, G5, H5, I5;
 		interp_uint32 E[4];
 
 		/* first two columns */
-		if (i>1) {
+		if (i > 1) {
 			A1 = src0[-1];
 			PA = src1[-1];
 			PD = src2[-1];
 			PG = src3[-1];
 			G5 = src4[-1];
-		
+
 			A0 = src1[-2];
 			D0 = src2[-2];
 			G0 = src3[-2];
-		} else if (i>0) {
+		} else if (i > 0) {
 			A1 = src0[-1];
 			PA = src1[-1];
 			PD = src2[-1];
 			PG = src3[-1];
 			G5 = src4[-1];
-			
+
 			A0 = src1[-1];
 			D0 = src2[-1];
 			G0 = src3[-1];
@@ -398,7 +398,7 @@ void xbr2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restri
 			PD = src2[0];
 			PG = src3[0];
 			G5 = src4[0];
-			
+
 			A0 = src1[0];
 			D0 = src2[0];
 			G0 = src3[0];
@@ -412,7 +412,7 @@ void xbr2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restri
 		H5 = src4[0];
 
 		/* last two columns */
-		if (i+2<count) {
+		if (i + 2 < count) {
 			C1 = src0[1];
 			PC = src1[1];
 			PF = src2[1];
@@ -422,7 +422,7 @@ void xbr2x_yuy2_def(interp_uint32* restrict volatile dst0, interp_uint32* restri
 			C4 = src1[2];
 			F4 = src2[2];
 			I4 = src3[2];
-		} else if (i+1<count) {
+		} else if (i + 1 < count) {
 			C1 = src0[1];
 			PC = src1[1];
 			PF = src2[1];

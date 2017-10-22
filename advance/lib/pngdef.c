@@ -76,7 +76,7 @@ static adv_error png_write_raw_pal(
 	adv_fz* f, unsigned* count
 )
 {
-	uint8 palette[3*256];
+	uint8 palette[3 * 256];
 	uint8* i_ptr;
 	unsigned i_size;
 	uint8* p;
@@ -85,10 +85,10 @@ static adv_error png_write_raw_pal(
 	if (rgb_max > 256)
 		goto err;
 
-	for (i=0;i<rgb_max;++i) {
-		palette[i*3] = rgb_ptr[i].red;
-		palette[i*3+1] = rgb_ptr[i].green;
-		palette[i*3+2] = rgb_ptr[i].blue;
+	for (i = 0; i < rgb_max; ++i) {
+		palette[i * 3] = rgb_ptr[i].red;
+		palette[i * 3 + 1] = rgb_ptr[i].green;
+		palette[i * 3 + 2] = rgb_ptr[i].blue;
 	}
 
 	i_size = pix_height * pix_width;
@@ -97,8 +97,8 @@ static adv_error png_write_raw_pal(
 		goto err;
 
 	p = i_ptr;
-	for(i=0;i<pix_height;++i) {
-		for(j=0;j<pix_width;++j) {
+	for (i = 0; i < pix_height; ++i) {
+		for (j = 0; j < pix_width; ++j) {
 			adv_pixel pixel;
 
 			pixel = cpu_uint_read(pix_ptr, pix_pixel);
@@ -142,8 +142,8 @@ static adv_error png_write_raw_paltorgb(
 		goto err;
 
 	p = i_ptr;
-	for(i=0;i<pix_height;++i) {
-		for(j=0;j<pix_width;++j) {
+	for (i = 0; i < pix_height; ++i) {
+		for (j = 0; j < pix_width; ++j) {
 			adv_pixel pixel;
 
 			pixel = cpu_uint_read(pix_ptr, pix_pixel);
@@ -197,8 +197,8 @@ static adv_error png_write_raw_rgb(
 	rgb_shiftmask_get(&blue_shift, &blue_mask, def.nibble.blue_len, def.nibble.blue_pos);
 
 	p = i_ptr;
-	for(i=0;i<pix_height;++i) {
-		for(j=0;j<pix_width;++j) {
+	for (i = 0; i < pix_height; ++i) {
+		for (j = 0; j < pix_width; ++j) {
 			adv_pixel pixel;
 
 			pixel = cpu_uint_read(pix_ptr, pix_pixel);

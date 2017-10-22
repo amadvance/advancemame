@@ -41,7 +41,7 @@ static inline void internal_copy8_asm(uint8* dst, const uint8* src, unsigned cou
 {
 	unsigned rest = count % 16;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $4, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
@@ -81,9 +81,9 @@ static inline void internal_copy8_step2_asm(uint8* dst, const uint8* src, unsign
 {
 	unsigned rest = count % 16;
 
-	assert_align(((unsigned)src & 0xF)==0);
+	assert_align(((unsigned)src & 0xF) == 0);
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $4, %2\n"
 		"jz 1f\n"
 		"movdqu (%3), %%xmm2\n"
@@ -135,25 +135,25 @@ static inline void internal_copy8_step2_def(uint8* dst, const uint8* src, unsign
 #if defined(USE_ASM_INLINE)
 static inline void internal_copy16_asm(uint16* dst, const uint16* src, unsigned count)
 {
-	internal_copy8_asm((uint8*)dst, (uint8*)src, 2*count);
+	internal_copy8_asm((uint8*)dst, (uint8*)src, 2 * count);
 }
 #endif
 
 static inline void internal_copy16_def(uint16* dst, const uint16* src, unsigned count)
 {
-	internal_copy8_def((uint8*)dst, (uint8*)src, 2*count);
+	internal_copy8_def((uint8*)dst, (uint8*)src, 2 * count);
 }
 
 #if defined(USE_ASM_INLINE)
 static inline void internal_copy32_asm(uint32* dst, const uint32* src, unsigned count)
 {
-	internal_copy8_asm((uint8*)dst, (uint8*)src, 4*count);
+	internal_copy8_asm((uint8*)dst, (uint8*)src, 4 * count);
 }
 #endif
 
 static inline void internal_copy32_def(uint32* dst, const uint32* src, unsigned count)
 {
-	internal_copy8_def((uint8*)dst, (uint8*)src, 4*count);
+	internal_copy8_def((uint8*)dst, (uint8*)src, 4 * count);
 }
 
 #if defined(USE_ASM_INLINE)
@@ -161,7 +161,7 @@ static inline void internal_copy8_step_asm(uint8* dst, const uint8* src, unsigne
 {
 	unsigned rest = count % 16;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $4, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
@@ -273,9 +273,9 @@ static inline void internal_copy16_step_asm(uint16* dst, const uint16* src, unsi
 {
 	unsigned rest = count % 8;
 
-	assert_align(((unsigned)src & 0x1)==0);
+	assert_align(((unsigned)src & 0x1) == 0);
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
@@ -350,9 +350,9 @@ static inline void internal_copy32_step_asm(uint32* dst, const uint32* src, unsi
 {
 	unsigned rest = count % 4;
 
-	assert_align(((unsigned)src & 0x3)==0);
+	assert_align(((unsigned)src & 0x3) == 0);
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
@@ -444,7 +444,7 @@ static inline void internal_zero8_asm(uint8* dst, unsigned count)
 {
 	unsigned rest = count % 16;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $3, %2\n"
 		"xorq %%xmm0, %%xmm0\n"
 		"jz 1f\n"
@@ -477,25 +477,25 @@ static inline void internal_zero8_def(uint8* dst, unsigned count)
 #if defined(USE_ASM_INLINE)
 static inline void internal_zero16_asm(uint16* dst, unsigned count)
 {
-	internal_zero8_asm((uint8*)dst, 2*count);
+	internal_zero8_asm((uint8*)dst, 2 * count);
 }
 #endif
 
 static inline void internal_zero16_def(uint16* dst, unsigned count)
 {
-	internal_zero8_def((uint8*)dst, 2*count);
+	internal_zero8_def((uint8*)dst, 2 * count);
 }
 
 #if defined(USE_ASM_INLINE)
 static inline void internal_zero32_asm(uint32* dst, unsigned count)
 {
-	internal_zero8_asm((uint8*)dst, 4*count);
+	internal_zero8_asm((uint8*)dst, 4 * count);
 }
 #endif
 
 static inline void internal_zero32_def(uint32* dst, unsigned count)
 {
-	internal_zero8_def((uint8*)dst, 4*count);
+	internal_zero8_def((uint8*)dst, 4 * count);
 }
 
 #endif

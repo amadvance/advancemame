@@ -79,7 +79,7 @@ static void video_line_palette8to16_step1_asm(const struct video_stage_horz_stru
 	unsigned rest = count % 8;
 	const uint16* palette = stage->palette;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
@@ -225,7 +225,7 @@ static void video_line_palette16to8_step2_asm(const struct video_stage_horz_stru
 	unsigned rest = count % 16;
 	const uint8* palette = stage->palette;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $4, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
@@ -344,7 +344,7 @@ static void video_line_palette16to8_asm(const struct video_stage_horz_struct* st
 	unsigned rest = count % 16;
 	const uint8* palette = stage->palette;
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $4, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
@@ -491,9 +491,9 @@ static void video_line_palette16to16_step2_asm(const struct video_stage_horz_str
 	unsigned rest = count % 8;
 	const uint16* palette = stage->palette;
 
-	assert_align(((unsigned)src & 0x1)==0);
+	assert_align(((unsigned)src & 0x1) == 0);
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
@@ -575,9 +575,9 @@ static void video_line_palette16to16_asm(const struct video_stage_horz_struct* s
 	unsigned rest = count % 8;
 	const uint16* palette = stage->palette;
 
-	assert_align(((unsigned)src & 0x1)==0);
+	assert_align(((unsigned)src & 0x1) == 0);
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $3, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
@@ -677,9 +677,9 @@ static void video_line_palette16to32_step2_asm(const struct video_stage_horz_str
 	unsigned rest = count % 4;
 	const uint32* palette = stage->palette;
 
-	assert_align(((unsigned)src & 0x1)==0);
+	assert_align(((unsigned)src & 0x1) == 0);
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN
@@ -737,9 +737,9 @@ static void video_line_palette16to32_asm(const struct video_stage_horz_struct* s
 	unsigned rest = count % 4;
 	const uint32* palette = stage->palette;
 
-	assert_align(((unsigned)src & 0x1)==0);
+	assert_align(((unsigned)src & 0x1) == 0);
 
-	__asm__ __volatile__(
+	__asm__ __volatile__ (
 		"shrl $2, %2\n"
 		"jz 1f\n"
 		ASM_JUMP_ALIGN

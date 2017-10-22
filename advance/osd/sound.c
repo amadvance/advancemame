@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -41,7 +41,7 @@ static struct game_adjust_struct {
 	int gain;
 } GAME_ADJUST[] = {
 #include "adjust.h"
-{ 0 }
+	{ 0 }
 };
 
 /**
@@ -122,7 +122,7 @@ static void sound_dft_normalize(struct advance_sound_context* context, double* X
 
 	/* compute the power of the DFT using the equal loudness curve */
 	power = 0;
-	for(i=1;i<context->state.dft_padded_size/2;++i) {
+	for (i = 1; i < context->state.dft_padded_size / 2; ++i) {
 		m = X[i] * loudness[i];
 		power += m * m;
 	}
@@ -229,12 +229,12 @@ static void sound_dft_process(struct advance_sound_context* context, double* x, 
 	double normalize;
 
 	/* copy the input samples and use a window function */
-	for(i=0;i<size;++i) {
+	for (i = 0; i < size; ++i) {
 		xr[i] = x[i] * w[i];
 	}
 
 	/* pad with 0 if required */
-	for(;i<padded_size;++i) {
+	for (; i < padded_size; ++i) {
 		xr[i] = 0;
 	}
 
@@ -247,7 +247,7 @@ static void sound_dft_process(struct advance_sound_context* context, double* x, 
 	normalize = sqrt(padded_size);
 
 	/* compute the modulus (only the first halve+1) */
-	for(i=0;i<padded_size/2+1;++i) {
+	for (i = 0; i < padded_size / 2 + 1; ++i) {
 		X[i] = hypot(xr[i], xi[i]) / normalize;
 	}
 }
@@ -276,7 +276,7 @@ static void sound_dft(struct advance_sound_context* context, unsigned channel, c
 			}
 		} else if (channel == 2) {
 			while (run) {
-				x[counter] = ((double)sample[i*2] + (double)sample[i*2+1]) / 65536.0;
+				x[counter] = ((double)sample[i * 2] + (double)sample[i * 2 + 1]) / 65536.0;
 				++counter;
 
 				++i;
@@ -320,7 +320,7 @@ static void sound_adjust(struct advance_sound_context* context, unsigned channel
 
 	assert(mult != SAMPLE_MULT_BASE);
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		int v = input_sample[i];
 
 		v = v * mult / SAMPLE_MULT_BASE;
@@ -343,9 +343,9 @@ static void sound_equalizer(struct advance_sound_context* context, unsigned chan
 	unsigned i, j;
 	int mult;
 
-	for(j=0;j<channel;++j) {
+	for (j = 0; j < channel; ++j) {
 		unsigned off = j;
-		for(i=0;i<sample_count;++i) {
+		for (i = 0; i < sample_count; ++i) {
 			double v, vl, vm, vh, vr;
 			int vi;
 
@@ -468,7 +468,7 @@ static void sound_scale(struct advance_sound_context* context, unsigned channel,
 				output_sample[0] = input_sample[0];
 				output_sample[1] = input_sample[1];
 				output_sample += 2;
-				input_sample += 2*run;
+				input_sample += 2 * run;
 
 				--count;
 			}
@@ -508,7 +508,7 @@ static void sound_play_effect(struct advance_sound_context* context, const short
 			unsigned i;
 			const short* sample_mono = sample_buffer;
 			short* sample_stereo = sample_mix;
-			for(i=0;i<sample_count;++i) {
+			for (i = 0; i < sample_count; ++i) {
 				sample_stereo[0] = sample_mono[0];
 				sample_stereo[1] = sample_mono[0];
 				sample_mono += 1;
@@ -518,7 +518,7 @@ static void sound_play_effect(struct advance_sound_context* context, const short
 			unsigned i;
 			const short* sample_mono = sample_buffer;
 			short* sample_surround = sample_mix;
-			for(i=0;i<sample_count;++i) {
+			for (i = 0; i < sample_count; ++i) {
 				if (sample_mono[0] == -32768) { /* prevent overflow */
 					sample_surround[0] = -32768;
 					sample_surround[1] = 32767;
@@ -533,7 +533,7 @@ static void sound_play_effect(struct advance_sound_context* context, const short
 			unsigned i;
 			const short* sample_stereo = sample_buffer;
 			short* sample_mono = sample_mix;
-			for(i=0;i<sample_count;++i) {
+			for (i = 0; i < sample_count; ++i) {
 				sample_mono[0] = (sample_stereo[0] + sample_stereo[1]) / 2;
 				sample_mono += 1;
 				sample_stereo += 2;
@@ -542,9 +542,9 @@ static void sound_play_effect(struct advance_sound_context* context, const short
 			unsigned i;
 			const short* sample_stereo = sample_buffer;
 			short* sample_surround = sample_mix;
-			for(i=0;i<sample_count;++i) {
-				sample_surround[0] = (3*sample_stereo[0] - sample_stereo[1]) / 4;
-				sample_surround[1] = (3*sample_stereo[1] - sample_stereo[0]) / 4;
+			for (i = 0; i < sample_count; ++i) {
+				sample_surround[0] = (3 * sample_stereo[0] - sample_stereo[1]) / 4;
+				sample_surround[1] = (3 * sample_stereo[1] - sample_stereo[0]) / 4;
 				sample_surround += 2;
 				sample_stereo += 2;
 			}
@@ -684,10 +684,10 @@ int advance_sound_latency_diff(struct advance_sound_context* context, double ext
 }
 
 static adv_conf_enum_int OPTION_CHANNELS[] = {
-{ "auto", SOUND_MODE_AUTO },
-{ "mono", SOUND_MODE_MONO },
-{ "stereo", SOUND_MODE_STEREO },
-{ "surround", SOUND_MODE_SURROUND }
+	{ "auto", SOUND_MODE_AUTO },
+	{ "mono", SOUND_MODE_MONO },
+	{ "stereo", SOUND_MODE_STEREO },
+	{ "surround", SOUND_MODE_SURROUND }
 };
 
 adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cfg_context)
@@ -730,7 +730,7 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 	if (strcmp(s, "none") == 0) {
 		i = 0;
 	} else if (strcmp(s, "auto") == 0) {
-		for(i=0;GAME_ADJUST[i].name != 0;++i)
+		for (i = 0; GAME_ADJUST[i].name != 0; ++i)
 			if (mame_is_game_relative(GAME_ADJUST[i].name, option->game))
 				break;
 		if (GAME_ADJUST[i].name != 0)
@@ -757,7 +757,7 @@ adv_error advance_sound_config_load(struct advance_sound_context* context, adv_c
 	context->config.equalizer_mid = conf_int_get_default(cfg_context, "sound_equalizer_midvolume");
 	context->config.equalizer_high = conf_int_get_default(cfg_context, "sound_equalizer_highvolume");
 
-	if (soundb_load(cfg_context)!=0) {
+	if (soundb_load(cfg_context) != 0) {
 		return -1;
 	}
 
@@ -849,7 +849,7 @@ static void sound_equalizer_update(struct advance_sound_context* context)
 
 		if (reset) {
 			unsigned i;
-			for(i=0;i<2;++i) {
+			for (i = 0; i < 2; ++i) {
 				adv_filter_state_reset(&context->state.equalizer_low, &context->state.equalizer_low_state[i]);
 				adv_filter_state_reset(&context->state.equalizer_mid, &context->state.equalizer_mid_state[i]);
 				adv_filter_state_reset(&context->state.equalizer_high, &context->state.equalizer_high_state[i]);
@@ -961,44 +961,44 @@ struct loudness {
 	int f; /**< Frequency in Hz. */
 	double m; /**< Attenuation in dB. */
 } LOUDNESS[] = {
-{ 0, 120 },
-{ 20, 113 },
-{ 30, 103 },
-{ 40, 97 },
-{ 50, 93 },
-{ 60, 91 },
-{ 70, 89 },
-{ 80, 87 },
-{ 90, 86 },
-{ 100, 85 },
-{ 200, 78 },
-{ 300, 76 },
-{ 400, 76 },
-{ 500, 76 },
-{ 600, 76 },
-{ 700, 77 },
-{ 800, 78 },
-{ 900, 79.5 },
-{ 1000, 80 },
-{ 1500, 79 },
-{ 2000, 77 },
-{ 2500, 74 },
-{ 3000, 71.5 },
-{ 3700, 70 },
-{ 4000, 70.5 },
-{ 5000, 74 },
-{ 6000, 79 },
-{ 7000, 84 },
-{ 8000, 86 },
-{ 9000, 86 },
-{ 10000, 85 },
-{ 12000, 95 },
-{ 15000, 110 },
-{ 20000, 125 },
-{ 22050, 140 }
+	{ 0, 120 },
+	{ 20, 113 },
+	{ 30, 103 },
+	{ 40, 97 },
+	{ 50, 93 },
+	{ 60, 91 },
+	{ 70, 89 },
+	{ 80, 87 },
+	{ 90, 86 },
+	{ 100, 85 },
+	{ 200, 78 },
+	{ 300, 76 },
+	{ 400, 76 },
+	{ 500, 76 },
+	{ 600, 76 },
+	{ 700, 77 },
+	{ 800, 78 },
+	{ 900, 79.5 },
+	{ 1000, 80 },
+	{ 1500, 79 },
+	{ 2000, 77 },
+	{ 2500, 74 },
+	{ 3000, 71.5 },
+	{ 3700, 70 },
+	{ 4000, 70.5 },
+	{ 5000, 74 },
+	{ 6000, 79 },
+	{ 7000, 84 },
+	{ 8000, 86 },
+	{ 9000, 86 },
+	{ 10000, 85 },
+	{ 12000, 95 },
+	{ 15000, 110 },
+	{ 20000, 125 },
+	{ 22050, 140 }
 };
 
-#define LOUDNESS_MAX (sizeof(LOUDNESS)/sizeof(LOUDNESS[0]))
+#define LOUDNESS_MAX (sizeof(LOUDNESS) / sizeof(LOUDNESS[0]))
 
 int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 {
@@ -1065,13 +1065,13 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	context->state.dft_pre_counter = 0;
 	context->state.dft_pre_x = (double*)malloc(context->state.dft_size * sizeof(double));
 	context->state.dft_pre_X = (double*)malloc(context->state.dft_padded_size * sizeof(double));
-	for(i=0;i<context->state.dft_padded_size;++i)
+	for (i = 0; i < context->state.dft_padded_size; ++i)
 		context->state.dft_pre_X[i] = 0;
 
 	context->state.dft_post_counter = 0;
 	context->state.dft_post_x = (double*)malloc(context->state.dft_size * sizeof(double));
 	context->state.dft_post_X = (double*)malloc(context->state.dft_padded_size * sizeof(double));
-	for(i=0;i<context->state.dft_padded_size;++i)
+	for (i = 0; i < context->state.dft_padded_size; ++i)
 		context->state.dft_post_X[i] = 0;
 
 	/* set the DFT plan */
@@ -1080,9 +1080,9 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	/* set the DFT window */
 	context->state.dft_window = (double*)malloc(context->state.dft_size * sizeof(double));
 	d = 0;
-	for(i=0;i<context->state.dft_size;++i) {
+	for (i = 0; i < context->state.dft_size; ++i) {
 		double w;
-		w = 0.54 - 0.46 * cos(2*M_PI*i/(context->state.dft_size-1)); /* Hamming */
+		w = 0.54 - 0.46 * cos(2 * M_PI * i / (context->state.dft_size - 1)); /* Hamming */
 		/* w = 0.42 - 0.5 * cos(2*M_PI*i/(context->state.dft_size-1)) + 0.08 * cos(4*M_PI*i/(size-1)); */ /* Blackman */
 		/* w = 1.0; */
 		context->state.dft_window[i] = w;
@@ -1090,19 +1090,19 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 	}
 	/* adjust the window gain */
 	d /= context->state.dft_size;
-	for(i=0;i<context->state.dft_size;++i) {
+	for (i = 0; i < context->state.dft_size; ++i) {
 		context->state.dft_window[i] /= d;
 	}
 
 	/* set the equal loudness coefficients */
 	context->state.dft_equal_loudness = (double*)malloc(context->state.dft_padded_size * sizeof(double));
-	for(i=0;i<context->state.dft_padded_size/2+1;++i) {
+	for (i = 0; i < context->state.dft_padded_size / 2 + 1; ++i) {
 		unsigned j;
 		double f = *sample_rate * (double)i / context->state.dft_padded_size;
 		double a;
 
 		j = 0;
-		while (j<LOUDNESS_MAX) {
+		while (j < LOUDNESS_MAX) {
 			if (LOUDNESS[j].f > f)
 				break;
 			++j;
@@ -1110,11 +1110,11 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 		if (j == 0) {
 			a = LOUDNESS[0].m;
 		} else if (j == LOUDNESS_MAX) {
-			a = LOUDNESS[LOUDNESS_MAX-1].m;
+			a = LOUDNESS[LOUDNESS_MAX - 1].m;
 		} else {
-			double ml = LOUDNESS[j-1].m;
+			double ml = LOUDNESS[j - 1].m;
 			double mr = LOUDNESS[j].m;
-			double fl = LOUDNESS[j-1].f;
+			double fl = LOUDNESS[j - 1].f;
 			double fr = LOUDNESS[j].f;
 
 			/* linear interpolation */
@@ -1122,24 +1122,24 @@ int osd2_sound_init(unsigned* sample_rate, int stereo_flag)
 		}
 
 		/* convert from decibel */
-		a = pow(10,(80-a) / 20);
+		a = pow(10, (80 - a) / 20);
 
 		log_debug(("emu:sound: normalize freq:%g magnitute:%g\n", f, a));
 
 		context->state.dft_equal_loudness[i] = a;
 	}
 	/* second halve of the spectrum to 0 */
-	for(;i<context->state.dft_padded_size;++i) {
+	for (; i < context->state.dft_padded_size; ++i) {
 		context->state.dft_equal_loudness[i] = 0;
 	}
 
-	for(i=0;i<SOUND_POWER_DB_MAX;++i)
+	for (i = 0; i < SOUND_POWER_DB_MAX; ++i)
 		context->state.adjust_power_db_map[i] = 0;
 	context->state.adjust_power_db_counter = 0;
 
 	context->state.adjust_power_history_max = 3 * 60 * *sample_rate / context->state.dft_size; /* 3 minutes */
 	context->state.adjust_power_history_map = (unsigned char*)malloc(context->state.adjust_power_history_max * sizeof(unsigned char));
-	for(i=0;i<context->state.adjust_power_history_max;++i)
+	for (i = 0; i < context->state.adjust_power_history_max; ++i)
 		context->state.adjust_power_history_map[i] = 0;
 	context->state.adjust_power_history_mac = 0;
 

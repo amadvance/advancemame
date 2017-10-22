@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -52,7 +52,7 @@ static adv_bool partial_match_whole(const char* s, const char* partial)
 		return 0;
 
 	while (1) {
-		if (memcmp(p, partial, l)==0 && (p[l]==0 || p[l]=='_'))
+		if (memcmp(p, partial, l) == 0 && (p[l] == 0 || p[l] == '_'))
 			return 1;
 
 		p = strchr(p, '_');
@@ -73,7 +73,7 @@ static adv_bool partial_match(const char* s, const char* partial)
 		return 0;
 
 	while (1) {
-		if (memcmp(p, partial, l)==0)
+		if (memcmp(p, partial, l) == 0)
 			return 1;
 
 		p = strchr(p, '_');
@@ -86,7 +86,7 @@ static adv_bool partial_match(const char* s, const char* partial)
 
 static char* glob_subst(const char* format, char* own_s)
 {
-	if (strcmp(format, "%s")==0) {
+	if (strcmp(format, "%s") == 0) {
 		return own_s;
 	} else {
 		char* token = strstr(format, "%s");
@@ -134,14 +134,14 @@ static void option_free(struct adv_conf_option_struct* option)
 {
 	free(option->tag);
 	switch (option->type) {
-		case conf_type_string :
-			if (option->data.base_string.has_def)
-				free(option->data.base_string.def);
-			break;
-		case conf_type_bool :
-		case conf_type_int :
-		case conf_type_float :
-			break;
+	case conf_type_string:
+		if (option->data.base_string.has_def)
+			free(option->data.base_string.def);
+		break;
+	case conf_type_bool:
+	case conf_type_int:
+	case conf_type_float:
+		break;
 	}
 	free(option);
 }
@@ -151,7 +151,7 @@ static struct adv_conf_option_struct* option_search_tag(adv_conf* context, const
 	if (context->option_list) {
 		struct adv_conf_option_struct* option = context->option_list;
 		do {
-			if (strcmp(option->tag, tag)==0)
+			if (strcmp(option->tag, tag) == 0)
 				return option;
 			option = option->next;
 		} while (option != context->option_list);
@@ -226,7 +226,7 @@ static void input_free(struct adv_conf_input_struct* input)
 	unsigned i;
 	free(input->file_in);
 	free(input->file_out);
-	for(i=0;i<input->conv_mac;++i) {
+	for (i = 0; i < input->conv_mac; ++i) {
 		free((void*)input->conv_map[i].section_glob);
 		free((void*)input->conv_map[i].section_result);
 		free((void*)input->conv_map[i].tag_glob);
@@ -284,8 +284,8 @@ static struct adv_conf_value_struct* value_alloc(struct adv_conf_option_struct* 
 	value->format = 0;
 
 	switch (option->type) {
-		case conf_type_string : value->data.string_value = 0; break;
-		default: break;
+	case conf_type_string: value->data.string_value = 0; break;
+	default: break;
 	}
 
 	return value;
@@ -295,8 +295,8 @@ static void value_free(struct adv_conf_value_struct* value)
 {
 	if (value->option) {
 		switch (value->option->type) {
-			case conf_type_string : free(value->data.string_value); break;
-			default: break;
+		case conf_type_string: free(value->data.string_value); break;
+		default: break;
 		}
 	}
 	free(value->section);
@@ -381,8 +381,8 @@ static struct adv_conf_value_struct* value_searchbest_sectiontag(adv_conf* conte
 		struct adv_conf_value_struct* value = context->value_list;
 
 		do {
-			if (strcmp(value->section, section)==0
-				&& strcmp(value->option->tag, tag)==0) {
+			if (strcmp(value->section, section) == 0
+				&& strcmp(value->option->tag, tag) == 0) {
 				if (!best_value || best_value->input->priority < value->input->priority) {
 					best_value = value;
 				}
@@ -403,8 +403,8 @@ static struct adv_conf_value_struct* value_search_inputsectiontag(adv_conf* cont
 
 		do {
 			if (value->input == input
-				&& strcmp(value->section, section)==0
-				&& strcmp(value->option->tag, tag)==0) {
+				&& strcmp(value->section, section) == 0
+				&& strcmp(value->option->tag, tag) == 0) {
 				return value;
 			}
 			value = value->next;
@@ -418,7 +418,7 @@ static struct adv_conf_value_struct* value_searchbest_tag(adv_conf* context, con
 {
 	unsigned i;
 
-	for(i=0;i<section_mac;++i) {
+	for (i = 0; i < section_mac; ++i) {
 		struct adv_conf_value_struct* value;
 		value = value_searchbest_sectiontag(context, section_map[i], tag);
 		if (value)
@@ -436,7 +436,7 @@ static struct adv_conf_value_struct* value_searchbest_from(adv_conf* context, st
 
 		if (value->option == like_value->option
 			&& value->input == like_value->input
-			&& strcmp(value->section, like_value->section)==0) {
+			&& strcmp(value->section, like_value->section) == 0) {
 			return value;
 		}
 
@@ -507,7 +507,7 @@ void conf_done(adv_conf* context)
 		} while (input != context->input_list);
 	}
 
-	for(i=0;i<context->section_mac;++i)
+	for (i = 0; i < context->section_mac; ++i)
 		free(context->section_map[i]);
 	free(context->section_map);
 
@@ -863,7 +863,7 @@ void conf_int_register_enum_default(adv_conf* context, const char* tag, adv_conf
 
 	assert(option_search_tag(context, tag) == 0);
 
-	for(i=0;i<enum_mac;++i)
+	for (i = 0; i < enum_mac; ++i)
 		if (enum_map[i].map == def)
 			break;
 
@@ -892,13 +892,13 @@ void conf_int_register_enum_default(adv_conf* context, const char* tag, adv_conf
 
 static adv_error import_bool(struct adv_conf_value_struct* value, char* own_value, char* own_format, conf_error_callback* error, void* error_context)
 {
-	if (strcmp(own_value, "yes")==0) {
+	if (strcmp(own_value, "yes") == 0) {
 		value->data.bool_value = 1;
 		free(own_value);
 		free(value->format);
 		value->format = own_format;
 		return 0;
-	} else if (strcmp(own_value, "no")==0) {
+	} else if (strcmp(own_value, "no") == 0) {
 		value->data.bool_value = 0;
 		free(own_value);
 		free(value->format);
@@ -923,8 +923,8 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 		int r;
 
 		/* try comparing the string */
-		for(i=0;i<value->option->data.base_int.enum_mac;++i) {
-			if (strcmp(value->option->data.base_int.enum_map[i].value, own_value)==0) {
+		for (i = 0; i < value->option->data.base_int.enum_mac; ++i) {
+			if (strcmp(value->option->data.base_int.enum_map[i].value, own_value) == 0) {
 				value->data.int_value = value->option->data.base_int.enum_map[i].map;
 				free(own_value);
 				free(value->format);
@@ -937,7 +937,7 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 		r = strtol(own_value, &endp, 10);
 		if (*endp == 0 && *own_value != 0) {
 			/* check if is an allowed value */
-			for(i=0;i<value->option->data.base_int.enum_mac;++i) {
+			for (i = 0; i < value->option->data.base_int.enum_mac; ++i) {
 				if (value->option->data.base_int.enum_map[i].map == r) {
 					value->data.int_value = value->option->data.base_int.enum_map[i].map;
 					free(own_value);
@@ -950,7 +950,7 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 
 		inc_str_init(&valid);
 		inc_str_cat(&valid, "Valid values are ");
-		for(i=0;i<value->option->data.base_int.enum_mac;++i) {
+		for (i = 0; i < value->option->data.base_int.enum_mac; ++i) {
 			if (i)
 				inc_str_cat(&valid, ", ");
 			inc_str_cat(&valid, "'");
@@ -973,15 +973,15 @@ static adv_error import_int(struct adv_conf_value_struct* value, char* own_value
 		if (*endp != 0
 			|| *own_value == 0
 			|| (value->option->data.base_int.has_limit
-				&& (r < value->option->data.base_int.limit_low || r > value->option->data.base_int.limit_high))
-			) {
-				char valid_buffer[128];
-				snprintf(valid_buffer, sizeof(valid_buffer), "Valid arguments are int from %d to %d", value->option->data.base_int.limit_low, value->option->data.base_int.limit_high);
-				if (error)
-					error(error_context, conf_error_invalid, value->input->file_in, value->option->tag, valid_buffer, "Invalid argument '%s' for option '%s' in file '%s'", own_value, value->option->tag, value->input->file_in);
-				free(own_value);
-				free(own_format);
-				return -1;
+			&& (r < value->option->data.base_int.limit_low || r > value->option->data.base_int.limit_high))
+		) {
+			char valid_buffer[128];
+			snprintf(valid_buffer, sizeof(valid_buffer), "Valid arguments are int from %d to %d", value->option->data.base_int.limit_low, value->option->data.base_int.limit_high);
+			if (error)
+				error(error_context, conf_error_invalid, value->input->file_in, value->option->tag, valid_buffer, "Invalid argument '%s' for option '%s' in file '%s'", own_value, value->option->tag, value->input->file_in);
+			free(own_value);
+			free(own_format);
+			return -1;
 		}
 
 		value->data.int_value = r;
@@ -1002,7 +1002,7 @@ static adv_error import_float(struct adv_conf_value_struct* value, char* own_val
 	if (*endp != 0
 		|| *own_value == 0
 		|| (value->option->data.base_float.has_limit
-			&& (r < value->option->data.base_float.limit_low || r > value->option->data.base_float.limit_high)
+		&& (r < value->option->data.base_float.limit_low || r > value->option->data.base_float.limit_high)
 		)) {
 		char valid_buffer[128];
 		snprintf(valid_buffer, sizeof(valid_buffer), "Valid arguments are float from %g to %g", value->option->data.base_float.limit_low, value->option->data.base_float.limit_high);
@@ -1036,8 +1036,8 @@ static adv_error import_string(struct adv_conf_value_struct* value, char* own_va
 	}
 
 	/* try comparing the string */
-	for(i=0;i<value->option->data.base_string.enum_mac;++i) {
-		if (strcmp(value->option->data.base_string.enum_map[i].value, own_value)==0) {
+	for (i = 0; i < value->option->data.base_string.enum_mac; ++i) {
+		if (strcmp(value->option->data.base_string.enum_map[i].value, own_value) == 0) {
 			free(value->data.string_value);
 			value->data.string_value = own_value;
 			free(value->format);
@@ -1048,7 +1048,7 @@ static adv_error import_string(struct adv_conf_value_struct* value, char* own_va
 
 	inc_str_init(&valid);
 	inc_str_cat(&valid, "Valid values are ");
-	for(i=0;i<value->option->data.base_string.enum_mac;++i) {
+	for (i = 0; i < value->option->data.base_string.enum_mac; ++i) {
 		if (i)
 			inc_str_cat(&valid, ", ");
 		inc_str_cat(&valid, "'");
@@ -1073,13 +1073,13 @@ static adv_error import_string(struct adv_conf_value_struct* value, char* own_va
 static adv_error value_import(struct adv_conf_value_struct* value, char* own_value, char* own_format, conf_error_callback* error, void* error_context)
 {
 	switch (value->option->type) {
-		case conf_type_bool : return import_bool(value, own_value, own_format, error, error_context);
-		case conf_type_int : return import_int(value, own_value, own_format, error, error_context);
-		case conf_type_float : return import_float(value, own_value, own_format, error, error_context);
-		case conf_type_string : return import_string(value, own_value, own_format, error, error_context);
-		default:
-			assert(0);
-			return -1;
+	case conf_type_bool: return import_bool(value, own_value, own_format, error, error_context);
+	case conf_type_int: return import_int(value, own_value, own_format, error, error_context);
+	case conf_type_float: return import_float(value, own_value, own_format, error, error_context);
+	case conf_type_string: return import_string(value, own_value, own_format, error, error_context);
+	default:
+		assert(0);
+		return -1;
 	}
 }
 
@@ -1213,7 +1213,7 @@ static adv_error input_value_insert(adv_conf* context, struct adv_conf_input_str
 	int autoreg;
 
 	slash = strrchr(own_sectiontag, '/');
-	if (slash!=0) {
+	if (slash != 0) {
 		*slash = 0;
 		own_section = strdup(own_sectiontag);
 		own_tag = strdup(slash + 1);
@@ -1235,7 +1235,7 @@ static adv_error input_value_insert(adv_conf* context, struct adv_conf_input_str
 	if (input->conv_mac) {
 		unsigned conv;
 		/* use the conversion map to substitute options */
-		for(conv=0;conv<input->conv_mac;++conv) {
+		for (conv = 0; conv < input->conv_mac; ++conv) {
 			if (sglob(own_section, input->conv_map[conv].section_glob)
 				&& sglob(own_tag, input->conv_map[conv].tag_glob)
 				&& sglob(own_value, input->conv_map[conv].value_glob)
@@ -1318,7 +1318,7 @@ static adv_error input_section_insert(adv_conf* context, struct adv_conf_input_s
 	char* own_section;
 
 	/* remove [] */
-	own_tag[strlen(own_tag)-1] = 0;
+	own_tag[strlen(own_tag) - 1] = 0;
 	own_section = strdup(own_tag + 1);
 
 	free(*global_section);
@@ -1379,99 +1379,99 @@ static adv_error input_value_load(adv_conf* context, struct adv_conf_input_struc
 		c = fgetc(f);
 
 		switch (state) {
-			case state_comment :
-				if (c == EOF) {
-					state = state_eof;
-				} else if (c == '#') {
-					state = state_comment_line;
-					copy |= copy_in_comment;
-				} else if (!isspace(c)) {
-					state = state_tag;
-					copy |= copy_in_tag;
-				} else {
-					copy |= copy_in_comment;
-				}
-				break;
-			case state_comment_line :
-				if (c == EOF) {
-					state = state_eof;
-				} else if (c == '\n') {
-					state = state_comment;
-					copy |= copy_in_comment;
-				} else {
-					copy |= copy_in_comment;
-				}
-				break;
-			case state_tag : /* tag */
-				if (c == EOF) {
-					state = state_eof;
-				} else if (c == '\n') {
-					state = state_eof;
-				} else if (c == '=') {
-					state = state_after_equal;
-				} else if (isspace(c)) {
-					state = state_before_equal;
-				} else {
-					copy |= copy_in_tag;
-				}
-				break;
-			case state_before_equal :
-				if (c == EOF) {
-					state = state_eof;
-				} else if (c == '\n') {
-					state = state_eof;
-				} else if (c == '\\' && multi_line) {
-					state = state_value_line;
-					copy |= copy_in_format;
-				} else if (c == '=') {
-					state = state_after_equal;
-				} else if (!isspace(c)) {
-					state = state_value;
-					copy |= copy_in_value | copy_in_format;
-				}
-				break;
-			case state_after_equal :
-				if (c == EOF) {
-					state = state_eof;
-				} else if (c == '\n') {
-					state = state_eof;
-				} else if (c == '\\' && multi_line) {
-					state = state_value_line;
-					copy |= copy_in_format;
-				} else if (!isspace(c)) {
-					state = state_value;
-					copy |= copy_in_value | copy_in_format;
-				}
-				break;
-			case state_value : /* effective value */
-				if (c == EOF) {
-					state = state_eof;
-				} else if (c == '\n') {
-					state = state_eof;
-				} else if (c == '\\' && multi_line) {
-					state = state_value_line;
-					copy |= copy_in_format;
-				} else {
-					copy |= copy_in_value | copy_in_format;
-				}
-				break;
-			case state_value_line :
-				if (c == EOF) {
-					state = state_eof;
-					c = '\\';
-					copy |= copy_in_value;
-				} else if (c == '\n') {
-					state = state_value;
-					copy |= copy_in_value | copy_in_format;
-				} else {
-					ungetc(c, f);
-					state = state_value;
-					c = '\\';
-					copy |= copy_in_value;
-				}
-				break;
-			case state_eof:
-				break;
+		case state_comment:
+			if (c == EOF) {
+				state = state_eof;
+			} else if (c == '#') {
+				state = state_comment_line;
+				copy |= copy_in_comment;
+			} else if (!isspace(c)) {
+				state = state_tag;
+				copy |= copy_in_tag;
+			} else {
+				copy |= copy_in_comment;
+			}
+			break;
+		case state_comment_line:
+			if (c == EOF) {
+				state = state_eof;
+			} else if (c == '\n') {
+				state = state_comment;
+				copy |= copy_in_comment;
+			} else {
+				copy |= copy_in_comment;
+			}
+			break;
+		case state_tag:          /* tag */
+			if (c == EOF) {
+				state = state_eof;
+			} else if (c == '\n') {
+				state = state_eof;
+			} else if (c == '=') {
+				state = state_after_equal;
+			} else if (isspace(c)) {
+				state = state_before_equal;
+			} else {
+				copy |= copy_in_tag;
+			}
+			break;
+		case state_before_equal:
+			if (c == EOF) {
+				state = state_eof;
+			} else if (c == '\n') {
+				state = state_eof;
+			} else if (c == '\\' && multi_line) {
+				state = state_value_line;
+				copy |= copy_in_format;
+			} else if (c == '=') {
+				state = state_after_equal;
+			} else if (!isspace(c)) {
+				state = state_value;
+				copy |= copy_in_value | copy_in_format;
+			}
+			break;
+		case state_after_equal:
+			if (c == EOF) {
+				state = state_eof;
+			} else if (c == '\n') {
+				state = state_eof;
+			} else if (c == '\\' && multi_line) {
+				state = state_value_line;
+				copy |= copy_in_format;
+			} else if (!isspace(c)) {
+				state = state_value;
+				copy |= copy_in_value | copy_in_format;
+			}
+			break;
+		case state_value:          /* effective value */
+			if (c == EOF) {
+				state = state_eof;
+			} else if (c == '\n') {
+				state = state_eof;
+			} else if (c == '\\' && multi_line) {
+				state = state_value_line;
+				copy |= copy_in_format;
+			} else {
+				copy |= copy_in_value | copy_in_format;
+			}
+			break;
+		case state_value_line:
+			if (c == EOF) {
+				state = state_eof;
+				c = '\\';
+				copy |= copy_in_value;
+			} else if (c == '\n') {
+				state = state_value;
+				copy |= copy_in_value | copy_in_format;
+			} else {
+				ungetc(c, f);
+				state = state_value;
+				c = '\\';
+				copy |= copy_in_value;
+			}
+			break;
+		case state_eof:
+			break;
 		}
 
 		if ((copy & copy_in_comment) != 0) {
@@ -1512,15 +1512,15 @@ static adv_error input_value_load(adv_conf* context, struct adv_conf_input_struc
 
 		/* remove any space at the end of the value */
 		i = inc_str_len(&ivalue);
-		while (i && isspace(value[i-1]))
+		while (i && isspace(value[i - 1]))
 			value[--i] = 0;
 
 		if (!comment || !tag || !value || !format)
 			goto err_free;
 
 		/* conversion from the old [] section format */
-		if (tag[0] == '[' && tag[strlen(tag)-1]==']') {
-			if (input_section_insert(context, input, global_section, comment, tag, value, format)!=0)
+		if (tag[0] == '[' && tag[strlen(tag) - 1] == ']') {
+			if (input_section_insert(context, input, global_section, comment, tag, value, format) != 0)
 				goto err_done;
 		} else {
 			if (input_value_insert(context, input, global_section, comment, tag, value, format, error, error_context) != 0)
@@ -1632,7 +1632,7 @@ adv_error conf_input_file_load_adv(adv_conf* context, int priority, const char* 
 	if (conv_mac) {
 		unsigned i;
 		input->conv_map = malloc(conv_mac * sizeof(adv_conf_conv));
-		for(i=0;i<conv_mac;++i) {
+		for (i = 0; i < conv_mac; ++i) {
 			input->conv_map[i].section_glob = strdup(conv_map[i].section_glob);
 			input->conv_map[i].section_result = strdup(conv_map[i].section_result);
 			input->conv_map[i].tag_glob = strdup(conv_map[i].tag_glob);
@@ -1699,7 +1699,7 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 	input_insert(context, input);
 
 	i = 0;
-	while (i<*argc) {
+	while (i < *argc) {
 		adv_bool noformat;
 		struct adv_conf_option_struct* option;
 		const char* tag;
@@ -1721,7 +1721,7 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 		}
 
 		if (!option) {
-			if (tag[0]=='n' && tag[1]=='o') {
+			if (tag[0] == 'n' && tag[1] == 'o') {
 				option = option_search_tag(context, tag + 2);
 				if (option && option->type == conf_type_bool) {
 					noformat = 1;
@@ -1737,7 +1737,7 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 		}
 
 		if (!option) {
-			if (tag[0]=='n' && tag[1]=='o') {
+			if (tag[0] == 'n' && tag[1] == 'o') {
 				option = option_search_tag_partial_whole(context, tag + 2);
 				if (option && option->type == conf_type_bool) {
 					noformat = 1;
@@ -1753,7 +1753,7 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 		}
 
 		if (!option) {
-			if (tag[0]=='n' && tag[1]=='o') {
+			if (tag[0] == 'n' && tag[1] == 'o') {
 				option = option_search_tag_partial(context, tag + 2);
 				if (option && option->type == conf_type_bool) {
 					noformat = 1;
@@ -1764,7 +1764,7 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 		}
 
 		if (!option
-			|| (option->type != conf_type_bool && i+1>=*argc)) {
+			|| (option->type != conf_type_bool && i + 1 >= *argc)) {
 			++i;
 			continue;
 		}
@@ -1787,7 +1787,7 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 		} else {
 			char* own_section = strdup(section);
 			char* own_comment = strdup("");
-			char* own_value = strdup(argv[i+1]);
+			char* own_value = strdup(argv[i + 1]);
 			char* own_format = format_alloc(own_value);
 
 			if (value_make_own(context, input, option, own_section, own_comment, own_value, own_format, error, error_context) != 0)
@@ -1798,8 +1798,8 @@ adv_error conf_input_args_load(adv_conf* context, int priority, const char* sect
 
 		while (used) {
 			int j;
-			for(j=i;j<*argc;++j) {
-				argv[j] = argv[j+1];
+			for (j = i; j < *argc; ++j) {
+				argv[j] = argv[j + 1];
 			}
 			--*argc;
 			--used;
@@ -1892,7 +1892,7 @@ adv_error conf_save(adv_conf* context, adv_bool force, adv_bool quiet, conf_erro
 	if (context->input_list) {
 		struct adv_conf_input_struct* input = context->input_list;
 		do {
-			if (input_save(context, input, quiet, error, error_context)!=0)
+			if (input_save(context, input, quiet, error, error_context) != 0)
 				return -1;
 			input = input->next;
 		} while (input != context->input_list);
@@ -1963,13 +1963,13 @@ void conf_section_set(adv_conf* context, const char** section_map, unsigned sect
 {
 	unsigned i;
 
-	for(i=0;i<context->section_mac;++i)
+	for (i = 0; i < context->section_mac; ++i)
 		free(context->section_map[i]);
 	free(context->section_map);
 
 	context->section_mac = section_mac;
 	context->section_map = malloc(context->section_mac * sizeof(char*));
-	for(i=0;i<context->section_mac;++i)
+	for (i = 0; i < context->section_mac; ++i)
 		context->section_map[i] = strdup(section_map[i]);
 }
 
@@ -1995,13 +1995,13 @@ static void assert_option_def(adv_conf* context, const char* tag, enum adv_conf_
 	assert(option->type == type);
 
 	switch (option->type) {
-		case conf_type_bool : assert(option->data.base_bool.has_def || !has_def); break;
-		case conf_type_int : assert(option->data.base_int.has_def || !has_def); break;
-		case conf_type_float : assert(option->data.base_float.has_def || !has_def); break;
-		case conf_type_string : assert(option->data.base_string.has_def || !has_def); break;
-		default:
-			assert(0);
-			return;
+	case conf_type_bool: assert(option->data.base_bool.has_def || !has_def); break;
+	case conf_type_int: assert(option->data.base_int.has_def || !has_def); break;
+	case conf_type_float: assert(option->data.base_float.has_def || !has_def); break;
+	case conf_type_string: assert(option->data.base_string.has_def || !has_def); break;
+	default:
+		assert(0);
+		return;
 	}
 }
 #endif
@@ -2503,7 +2503,7 @@ adv_error conf_int_set(adv_conf* context, const char* section, const char* tag, 
 	} else {
 		unsigned i;
 		result_string = 0;
-		for(i=0;i<option->data.base_int.enum_mac;++i) {
+		for (i = 0; i < option->data.base_int.enum_mac; ++i) {
 			if (option->data.base_int.enum_map[i].map == result) {
 				result_string = option->data.base_int.enum_map[i].value;
 				break;
@@ -2598,66 +2598,66 @@ adv_error conf_remove(adv_conf* context, const char* section, const char* tag)
 static const char* option_default_get(struct adv_conf_option_struct* option, char* buffer, unsigned size)
 {
 	switch (option->type) {
-		case conf_type_bool :
-			if (!option->data.base_bool.has_def)
-				return 0;
-			return option->data.base_bool.def ? "yes" : "no";
-		case conf_type_int :
-			if (!option->data.base_int.has_def)
-				return 0;
-			if (!option->data.base_int.has_enum) {
-				snprintf(buffer, size, "%d", (int)option->data.base_int.def);
-				return buffer;
-			} else {
-				unsigned i;
-				for(i=0;i<option->data.base_int.enum_mac;++i) {
-					if (option->data.base_int.enum_map[i].map == option->data.base_int.def) {
-						return option->data.base_int.enum_map[i].value;
-					}
-				}
-				return 0;
-			}
-		case conf_type_float :
-			if (!option->data.base_float.has_def)
-				return 0;
-			snprintf(buffer, size, "%g", (double)option->data.base_float.def);
-			return buffer;
-		case conf_type_string :
-			if (!option->data.base_string.has_def)
-				return 0;
-			return option->data.base_string.def;
-		default:
-			assert(0);
+	case conf_type_bool:
+		if (!option->data.base_bool.has_def)
 			return 0;
+		return option->data.base_bool.def ? "yes" : "no";
+	case conf_type_int:
+		if (!option->data.base_int.has_def)
+			return 0;
+		if (!option->data.base_int.has_enum) {
+			snprintf(buffer, size, "%d", (int)option->data.base_int.def);
+			return buffer;
+		} else {
+			unsigned i;
+			for (i = 0; i < option->data.base_int.enum_mac; ++i) {
+				if (option->data.base_int.enum_map[i].map == option->data.base_int.def) {
+					return option->data.base_int.enum_map[i].value;
+				}
+			}
+			return 0;
+		}
+	case conf_type_float:
+		if (!option->data.base_float.has_def)
+			return 0;
+		snprintf(buffer, size, "%g", (double)option->data.base_float.def);
+		return buffer;
+	case conf_type_string:
+		if (!option->data.base_string.has_def)
+			return 0;
+		return option->data.base_string.def;
+	default:
+		assert(0);
+		return 0;
 	}
 }
 
 static const char* value_get(struct adv_conf_value_struct* value, char* buffer, unsigned size)
 {
 	switch (value->option->type) {
-		case conf_type_bool :
-			return value->data.bool_value ? "yes" : "no";
-		case conf_type_int :
-			if (!value->option->data.base_int.has_enum) {
-				snprintf(buffer, size, "%d", (int)value->data.int_value);
-				return buffer;
-			} else {
-				unsigned i;
-				for(i=0;i<value->option->data.base_int.enum_mac;++i) {
-					if (value->option->data.base_int.enum_map[i].map == value->data.int_value) {
-						return value->option->data.base_int.enum_map[i].value;
-					}
-				}
-				return 0;
-			}
-		case conf_type_float :
-			snprintf(buffer, size, "%g", (double)value->data.float_value);
+	case conf_type_bool:
+		return value->data.bool_value ? "yes" : "no";
+	case conf_type_int:
+		if (!value->option->data.base_int.has_enum) {
+			snprintf(buffer, size, "%d", (int)value->data.int_value);
 			return buffer;
-		case conf_type_string :
-			return value->data.string_value;
-		default:
-			assert(0);
+		} else {
+			unsigned i;
+			for (i = 0; i < value->option->data.base_int.enum_mac; ++i) {
+				if (value->option->data.base_int.enum_map[i].map == value->data.int_value) {
+					return value->option->data.base_int.enum_map[i].value;
+				}
+			}
 			return 0;
+		}
+	case conf_type_float:
+		snprintf(buffer, size, "%g", (double)value->data.float_value);
+		return buffer;
+	case conf_type_string:
+		return value->data.string_value;
+	default:
+		assert(0);
+		return 0;
 	}
 }
 /**
@@ -2682,7 +2682,7 @@ adv_error conf_set_if_different(adv_conf* context, const char* section, const ch
 	unsigned i;
 
 	/* limits the search only after the specified section */
-	for(i=0;i<context->section_mac;++i) {
+	for (i = 0; i < context->section_mac; ++i) {
 		if (strcmp(section, context->section_map[i]) == 0) {
 			++i;
 			break;
@@ -2745,7 +2745,7 @@ adv_error conf_int_set_if_different(adv_conf* context, const char* section, cons
 	} else {
 		unsigned i;
 		result_string = 0;
-		for(i=0;i<option->data.base_int.enum_mac;++i) {
+		for (i = 0; i < option->data.base_int.enum_mac; ++i) {
 			if (option->data.base_int.enum_map[i].map == result) {
 				result_string = option->data.base_int.enum_map[i].value;
 				break;
@@ -2847,7 +2847,7 @@ void conf_remove_all_if_default(adv_conf* context, const char* section)
 				const char* result_string = value_get(value, result_buffer, sizeof(result_buffer));
 				const char* default_string = option_default_get(option, default_buffer, sizeof(default_buffer));
 				assert(result_string);
-				if (default_string && strcmp(result_string, default_string)==0) {
+				if (default_string && strcmp(result_string, default_string) == 0) {
 					value_remove(context, value);
 				}
 			}

@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -52,7 +52,8 @@ category::category(const string& Aname, bool Aundefined) : name(Aname), state(fa
 
 #define CATEGORY_UNDEFINED "<undefined>"
 
-pcategory_container::pcategory_container()  {
+pcategory_container::pcategory_container()
+{
 	category* c = new category(CATEGORY_UNDEFINED, true);
 	undefined = c;
 	pcategory_container_base::insert(c);
@@ -81,5 +82,4 @@ const category* pcategory_container::insert(const std::string& name)
 	// return the category in the container
 	return *i.first;
 }
-
 

@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -128,15 +128,15 @@ static void mixer_channel_set(unsigned channel, unsigned rate, unsigned nchannel
 static void mixer_channel_free(unsigned channel)
 {
 	switch (mixer_map[channel].type) {
-		case mixer_raw_file :
-			fzclose(mixer_map[channel].file);
-			break;
-		case mixer_mp3_file :
-			fzclose(mixer_map[channel].file);
-			mp3_done(&mixer_map[channel].mp3);
-			break;
-		default:
-			break;
+	case mixer_raw_file:
+		fzclose(mixer_map[channel].file);
+		break;
+	case mixer_mp3_file:
+		fzclose(mixer_map[channel].file);
+		mp3_done(&mixer_map[channel].mp3);
+		break;
+	default:
+		break;
 	}
 
 	mixer_map[channel].type = mixer_none;
@@ -157,7 +157,7 @@ static inline void mixer_channel_abort(unsigned channel)
 static adv_bool mixer_channel_input_is_empty(unsigned channel)
 {
 	return mixer_map[channel].type == mixer_none
-		|| mixer_map[channel].empty != 0;
+	       || mixer_map[channel].empty != 0;
 }
 
 /**
@@ -168,7 +168,7 @@ static adv_bool mixer_channel_input_is_empty(unsigned channel)
 static adv_bool mixer_channel_output_is_empty(unsigned channel)
 {
 	return mixer_map[channel].type == mixer_none
-		|| (mixer_map[channel].count == 0 && mixer_map[channel].silence_count > mixer_latency_size);
+	       || (mixer_map[channel].count == 0 && mixer_map[channel].silence_count > mixer_latency_size);
 }
 
 /**
@@ -177,7 +177,7 @@ static adv_bool mixer_channel_output_is_empty(unsigned channel)
 static adv_bool mixer_channel_data_is_empty(unsigned channel)
 {
 	return mixer_map[channel].type == mixer_none
-		|| (mixer_map[channel].count == 0);
+	       || (mixer_map[channel].count == 0);
 }
 
 /**
@@ -186,7 +186,7 @@ static adv_bool mixer_channel_data_is_empty(unsigned channel)
 static adv_bool mixer_channel_is_active(unsigned channel)
 {
 	return mixer_map[channel].type != mixer_none
-		&& (!mixer_channel_input_is_empty(channel) || !mixer_channel_output_is_empty(channel));
+	       && (!mixer_channel_input_is_empty(channel) || !mixer_channel_output_is_empty(channel));
 }
 
 static void mixer_pump(unsigned buffered)
@@ -200,7 +200,7 @@ static void mixer_pump(unsigned buffered)
 	if (count < 0)
 		count = 0;
 
-	for(i=0;i<mixer_nchannel;++i) {
+	for (i = 0; i < mixer_nchannel; ++i) {
 		if (mixer_channel_is_active(i)) {
 			if (mixer_map[i].count && count > mixer_map[i].count) {
 				count = mixer_map[i].count;
@@ -211,7 +211,7 @@ static void mixer_pump(unsigned buffered)
 		}
 	}
 
-	for(i=0;i<mixer_nchannel;++i) {
+	for (i = 0; i < mixer_nchannel; ++i) {
 		if (mixer_channel_is_active(i)) {
 			if (mixer_map[i].count) {
 				assert(mixer_map[i].count >= count);
@@ -230,21 +230,21 @@ static void mixer_pump(unsigned buffered)
 		if (mixer_buffer_pos + run > MIXER_BUFFER_MAX)
 			run = MIXER_BUFFER_MAX - mixer_buffer_pos;
 
-		for(i=0;i<run;++i) {
+		for (i = 0; i < run; ++i) {
 			unsigned pos;
 			unsigned k;
 
 			int c0 = 0;
 			int c1 = 0;
 
-			pos = (mixer_buffer_pos+i)*2;
+			pos = (mixer_buffer_pos + i) * 2;
 
-			for(k=0;k<MIXER_CHANNEL_MAX;++k) {
+			for (k = 0; k < MIXER_CHANNEL_MAX; ++k) {
 				c0 += mixer_buffer[k][pos];
-				c1 += mixer_buffer[k][pos+1];
+				c1 += mixer_buffer[k][pos + 1];
 
 				mixer_buffer[k][pos] = 0;
-				mixer_buffer[k][pos+1] = 0;
+				mixer_buffer[k][pos + 1] = 0;
 			}
 
 			c0 /= mixer_ndivider; /* divider must be a signed int */
@@ -259,8 +259,8 @@ static void mixer_pump(unsigned buffered)
 			if (c1 < -32768)
 				c1 = -32768;
 
-			mixer_raw_buffer[i*2] = (short)c0;
-			mixer_raw_buffer[i*2+1] = (short)c1;
+			mixer_raw_buffer[i * 2] = (short)c0;
+			mixer_raw_buffer[i * 2 + 1] = (short)c1;
 		}
 
 		soundb_play(mixer_raw_buffer, run);
@@ -310,14 +310,14 @@ static void mixer_channel_mix_stereo16(unsigned channel, const unsigned char* da
 	if (pos >= MIXER_BUFFER_MAX)
 		pos -= MIXER_BUFFER_MAX;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		int c0, c1;
 		mixer_map[channel].pivot += mixer_map[channel].up;
 		c0 = s16le2int(data);
 		c1 = s16le2int(data + 2);
 		while (mixer_map[channel].pivot > 0) {
-			mixer_buffer[channel][pos*2] += c0;
-			mixer_buffer[channel][pos*2 + 1] += c1;
+			mixer_buffer[channel][pos * 2] += c0;
+			mixer_buffer[channel][pos * 2 + 1] += c1;
 			++pos;
 			if (pos == MIXER_BUFFER_MAX)
 				pos = 0;
@@ -335,13 +335,13 @@ static void mixer_channel_mix_mono16(unsigned channel, const unsigned char* data
 	if (pos >= MIXER_BUFFER_MAX)
 		pos -= MIXER_BUFFER_MAX;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		int c;
 		mixer_map[channel].pivot += mixer_map[channel].up;
 		c = s16le2int(data);
 		while (mixer_map[channel].pivot > 0) {
-			mixer_buffer[channel][pos*2] += c;
-			mixer_buffer[channel][pos*2 + 1] += c;
+			mixer_buffer[channel][pos * 2] += c;
+			mixer_buffer[channel][pos * 2 + 1] += c;
 			++pos;
 			if (pos == MIXER_BUFFER_MAX)
 				pos = 0;
@@ -359,14 +359,14 @@ static void mixer_channel_mix_stereo8(unsigned channel, const unsigned char* dat
 	if (pos >= MIXER_BUFFER_MAX)
 		pos -= MIXER_BUFFER_MAX;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		int c0, c1;
 		mixer_map[channel].pivot += mixer_map[channel].up;
 		c0 = u8le2int(data);
 		c1 = u8le2int(data + 1);
 		while (mixer_map[channel].pivot > 0) {
-			mixer_buffer[channel][pos*2] += c0;
-			mixer_buffer[channel][pos*2 + 1] += c1;
+			mixer_buffer[channel][pos * 2] += c0;
+			mixer_buffer[channel][pos * 2 + 1] += c1;
 			++pos;
 			if (pos == MIXER_BUFFER_MAX)
 				pos = 0;
@@ -384,13 +384,13 @@ static void mixer_channel_mix_mono8(unsigned channel, const unsigned char* data,
 	if (pos >= MIXER_BUFFER_MAX)
 		pos -= MIXER_BUFFER_MAX;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		int c;
 		mixer_map[channel].pivot += mixer_map[channel].up;
 		c = u8le2int(data);
 		while (mixer_map[channel].pivot > 0) {
-			mixer_buffer[channel][pos*2] += c;
-			mixer_buffer[channel][pos*2 + 1] += c;
+			mixer_buffer[channel][pos * 2] += c;
+			mixer_buffer[channel][pos * 2 + 1] += c;
 			++pos;
 			if (pos == MIXER_BUFFER_MAX)
 				pos = 0;
@@ -424,7 +424,7 @@ static void mixer_channel_loop_check(unsigned channel)
 		&& mixer_map[channel].loop) {
 
 		if (mixer_map[channel].file) {
-			if (fzseek(mixer_map[channel].file, mixer_map[channel].start, SEEK_SET)!=0) {
+			if (fzseek(mixer_map[channel].file, mixer_map[channel].start, SEEK_SET) != 0) {
 				mixer_channel_abort(channel);
 				return;
 			}
@@ -521,7 +521,7 @@ static adv_error mixer_raw_pump(unsigned channel)
 	run = nmin;
 
 	if (mixer_map[channel].pos + run > mixer_map[channel].end)
-		run = mixer_map[channel].end -  mixer_map[channel].pos;
+		run = mixer_map[channel].end - mixer_map[channel].pos;
 	if (run > MIXER_PAGE_SIZE)
 		run = MIXER_PAGE_SIZE;
 
@@ -574,7 +574,7 @@ static unsigned mp3_read_data(unsigned channel, unsigned char* data, unsigned ma
 		return 0;
 
 	if (mixer_map[channel].file) {
-		if (fzread(data, run, 1, mixer_map[channel].file)!=1) {
+		if (fzread(data, run, 1, mixer_map[channel].file) != 1) {
 			mixer_channel_abort(channel);
 			return 0;
 		}
@@ -628,13 +628,13 @@ static adv_error mp3_read(unsigned char* c, unsigned channel, unsigned char* dat
 
 static adv_error mp3_read_id(unsigned char* id, unsigned channel, unsigned char* data, unsigned* pos, unsigned* run)
 {
-	if (mp3_read(id+0, channel, data, pos, run) != 0)
+	if (mp3_read(id + 0, channel, data, pos, run) != 0)
 		return -1;
-	if (mp3_read(id+1, channel, data, pos, run) != 0)
+	if (mp3_read(id + 1, channel, data, pos, run) != 0)
 		return -1;
-	if (mp3_read(id+2, channel, data, pos, run) != 0)
+	if (mp3_read(id + 2, channel, data, pos, run) != 0)
 		return -1;
-	if (mp3_read(id+3, channel, data, pos, run) != 0)
+	if (mp3_read(id + 3, channel, data, pos, run) != 0)
 		return -1;
 	return 0;
 }
@@ -657,9 +657,9 @@ static adv_error mp3_first_read_stream(unsigned channel)
 		return -1;
 	}
 
-	if (run>=12
-		&& data[0]=='R' && data[1]=='I' && data[2]=='F' && data[3]=='F'
-		&& data[8]=='W' && data[9]=='A' && data[10]=='V' && data[11]=='E') {
+	if (run >= 12
+		&& data[0] == 'R' && data[1] == 'I' && data[2] == 'F' && data[3] == 'F'
+		&& data[8] == 'W' && data[9] == 'A' && data[10] == 'V' && data[11] == 'E') {
 		/* RIFF header */
 		unsigned char id[4];
 
@@ -671,7 +671,7 @@ static adv_error mp3_first_read_stream(unsigned channel)
 		if (mp3_read_id(id, channel, data, &pos, &run) != 0)
 			return -1;
 
-		while (memcmp(id, "data", 4)!=0) {
+		while (memcmp(id, "data", 4) != 0) {
 			unsigned size;
 			if (mp3_read_le32(&size, channel, data, &pos, &run) != 0)
 				return -1;
@@ -688,8 +688,8 @@ static adv_error mp3_first_read_stream(unsigned channel)
 		if (mp3_skip(channel, 4, data, &pos, &run) != 0)
 			return -1;
 
-	} else if (run>=10 && data[0]=='I' && data[1]=='D' && data[2]=='3'
-		&& data[3]!=0xFF && data[4]!=0xFF
+	} else if (run >= 10 && data[0] == 'I' && data[1] == 'D' && data[2] == '3'
+		&& data[3] != 0xFF && data[4] != 0xFF
 		&& (data[6] & 0x80) == 0 && (data[7] & 0x80) == 0
 		&& (data[8] & 0x80) == 0 && (data[9] & 0x80) == 0) {
 
@@ -703,7 +703,7 @@ static adv_error mp3_first_read_stream(unsigned channel)
 			return -1;
 	}
 
-	if (run>=4 && !mp3_is_valid(data + pos))
+	if (run >= 4 && !mp3_is_valid(data + pos))
 		return -1;
 
 	/* insert the data */
@@ -734,7 +734,7 @@ static adv_error mp3_read_stream(unsigned channel)
 
 static adv_error mixer_mp3_pump(unsigned channel)
 {
-	unsigned char buffer[2304*4]; /* 2304 samples for MP3 frame */
+	unsigned char buffer[2304 * 4]; /* 2304 samples for MP3 frame */
 	unsigned nmin;
 	unsigned nmax;
 	int bytes_done;
@@ -757,11 +757,11 @@ static adv_error mixer_mp3_pump(unsigned channel)
 	}
 
 	bytes_done = 0;
-	err = mp3_decode(&mixer_map[channel].mp3, 0, 0, buffer, sizeof(buffer)/2, &bytes_done);
+	err = mp3_decode(&mixer_map[channel].mp3, 0, 0, buffer, sizeof(buffer) / 2, &bytes_done);
 
 	/* insert data until it's required */
-	while (err == MP3_NEED_MORE && mp3_read_stream(channel)==0) {
-		err = mp3_decode(&mixer_map[channel].mp3, 0, 0, buffer, sizeof(buffer)/2, &bytes_done);
+	while (err == MP3_NEED_MORE && mp3_read_stream(channel) == 0) {
+		err = mp3_decode(&mixer_map[channel].mp3, 0, 0, buffer, sizeof(buffer) / 2, &bytes_done);
 	}
 
 	if (err == MP3_NEED_MORE) {
@@ -832,19 +832,19 @@ static void mixer_channel_pump(unsigned channel)
 	adv_error r;
 
 	switch (mixer_map[channel].type) {
-		case mixer_none :
-			break;
-		case mixer_raw_file :
-		case mixer_raw_memory :
-			do {
-				r = mixer_raw_pump(channel);
-			} while (r == 0);
-			break;
-		case mixer_mp3_file :
-			do {
-				r = mixer_mp3_pump(channel);
-			} while (r == 0);
-			break;
+	case mixer_none:
+		break;
+	case mixer_raw_file:
+	case mixer_raw_memory:
+		do {
+			r = mixer_raw_pump(channel);
+		} while (r == 0);
+		break;
+	case mixer_mp3_file:
+		do {
+			r = mixer_mp3_pump(channel);
+		} while (r == 0);
+		break;
 	}
 }
 
@@ -867,7 +867,7 @@ adv_bool mixer_is_playing(unsigned channel)
 adv_bool mixer_is_pushing(unsigned channel)
 {
 	return mixer_map[channel].type != mixer_none
-		&& (!mixer_channel_input_is_empty(channel) || !mixer_channel_data_is_empty(channel));
+	       && (!mixer_channel_input_is_empty(channel) || !mixer_channel_data_is_empty(channel));
 }
 
 /**
@@ -890,7 +890,7 @@ void mixer_poll(void)
 {
 	unsigned i;
 
-	for(i=0;i<mixer_nchannel;++i)
+	for (i = 0; i < mixer_nchannel; ++i)
 		mixer_channel_pump(i);
 
 	mixer_pump(soundb_buffered());
@@ -910,7 +910,7 @@ void mixer_reg(adv_conf* context)
  */
 adv_error mixer_load(adv_conf* context)
 {
-	if (soundb_load(context)!=0) {
+	if (soundb_load(context) != 0) {
 		return -1;
 	}
 
@@ -940,7 +940,7 @@ adv_error mixer_init(unsigned rate, unsigned nchannel, unsigned ndivider, double
 	/* clear the buffers */
 	memset(mixer_buffer, 0, sizeof(mixer_buffer));
 
-	for(i=0;i<MIXER_CHANNEL_MAX;++i)
+	for (i = 0; i < MIXER_CHANNEL_MAX; ++i)
 		mixer_map[i].type = mixer_none;
 
 	mp3_lib_init();
@@ -983,7 +983,7 @@ void mixer_done(void)
 
 	log_std(("mixer: mixer_done()\n"));
 
-	for(i=0;i<MIXER_CHANNEL_MAX;++i)
+	for (i = 0; i < MIXER_CHANNEL_MAX; ++i)
 		mixer_channel_abort(i);
 
 	soundb_stop();
@@ -999,5 +999,4 @@ void mixer_volume(double volume)
 {
 	soundb_volume(volume);
 }
-
 

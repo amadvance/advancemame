@@ -28,7 +28,7 @@
  * do so, delete this exception statement from your version.
  */
 
-/** 
+/**
  * Implementation of a mouse driver using the custom CPN driver.
  * More information at: http://cpnmouse.sourceforge.net/
  */
@@ -92,12 +92,11 @@ struct mouseb_cpn_context {
 static struct mouseb_cpn_context raw_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "CPN mouse" },
-{ 0, 0, 0 }
+	{ "auto", -1, "CPN mouse" },
+	{ 0, 0, 0 }
 };
 
-static void __cdecl mouseb_callback(int number, signed int dx, signed int dy, unsigned int buttons, int suspended)
-{
+static void __cdecl mouseb_callback(int number, signed int dx, signed int dy, unsigned int buttons, int suspended){
 	unsigned i;
 	struct raw_context* c;
 	POINT p;
@@ -106,7 +105,7 @@ static void __cdecl mouseb_callback(int number, signed int dx, signed int dy, un
 	log_debug(("mouseb:cpn: callback number:%d,dx,%d,dy:%d,buttons:0x%x,suspend:%d\n", number, dx, dy, buttons, suspended));
 
 	/* search the device */
-	for(i=0;i<raw_state.mac;++i)
+	for (i = 0; i < raw_state.mac; ++i)
 		if (number == raw_state.map[i].context.number)
 			break;
 
@@ -161,7 +160,7 @@ static void mouseb_setup(struct mouse_item_context* item)
 	};
 
 	item->button_mac = 0;
-	for(i=0;i<sizeof(button_map)/sizeof(button_map[0]);++i) {
+	for (i = 0; i < sizeof(button_map) / sizeof(button_map[0]); ++i) {
 		if (item->button_mac < RAW_MOUSE_BUTTON_MAX) {
 			item->button_map[item->button_mac].code = button_map[i].code;
 			item->button_map[item->button_mac].pvalue = &item->context.button;
@@ -171,12 +170,12 @@ static void mouseb_setup(struct mouse_item_context* item)
 	}
 
 	item->axe_mac = 0;
-	for(i=0;i<sizeof(axe_map)/sizeof(axe_map[0]);++i) {
+	for (i = 0; i < sizeof(axe_map) / sizeof(axe_map[0]); ++i) {
 		if (item->axe_mac < RAW_MOUSE_AXE_MAX) {
 			item->axe_map[item->axe_mac].code = axe_map[i].code;
 			switch (axe_map[i].code) {
-			case 0 : item->axe_map[item->axe_mac].pvalue = &item->context.x; break;
-			case 1 : item->axe_map[item->axe_mac].pvalue = &item->context.y; break;
+			case 0: item->axe_map[item->axe_mac].pvalue = &item->context.x; break;
+			case 1: item->axe_map[item->axe_mac].pvalue = &item->context.y; break;
 			}
 			sncpy(item->axe_map[item->axe_mac].name, sizeof(item->axe_map[item->axe_mac].name), axe_map[i].name);
 			++item->axe_mac;
@@ -191,10 +190,10 @@ static int mouseb_compare(const void* void_a, const void* void_b)
 
 	/* Typical names are:
 
-	\\?\acpi#pnp0f13#4&17a17c97&0#{db4bbc1e-cac8-47e9-8414-7365167feca3} -- PS2 mouse
-	\\?\hid#vid_046d&pid_c001#6&2fdeba9e&0&0000#{db4bbc1e-cac8-47e9-8414-7365167feca3} -- HID USB mouse
+	 \\?\acpi#pnp0f13#4&17a17c97&0#{db4bbc1e-cac8-47e9-8414-7365167feca3} -- PS2 mouse
+	 \\?\hid#vid_046d&pid_c001#6&2fdeba9e&0&0000#{db4bbc1e-cac8-47e9-8414-7365167feca3} -- HID USB mouse
 
-	*/
+	 */
 
 	/* reverse order to put HID device after the not HID */
 	return stricmp(a->context.name, b->context.name);
@@ -208,7 +207,7 @@ static DWORD WINAPI mouseb_thread(void* arg)
 
 	/* allocate */
 	lRegisterCallback(mouseb_callback);
-	
+
 	log_std(("mouseb:cpn: lRegisterCallback() completed\n"));
 
 	n = lGetMice(RAW_MOUSE_MAX);
@@ -216,7 +215,7 @@ static DWORD WINAPI mouseb_thread(void* arg)
 	log_std(("mouseb:cpn: lGetMice(%d) -> %d\n", RAW_MOUSE_MAX, n));
 
 	/* configure */
-	for(i=0;i<n;++i) {
+	for (i = 0; i < n; ++i) {
 		if (raw_state.mac < RAW_MOUSE_MAX) {
 			UINT size;
 			const char* name;
@@ -225,18 +224,18 @@ static DWORD WINAPI mouseb_thread(void* arg)
 			context->number = i + 1;
 
 			if (!lHasMouse(context->number)) {
-			    log_std(("WARNING:mouseb:cpn: lHasMouse(%d) failed\n", context->number));
+				log_std(("WARNING:mouseb:cpn: lHasMouse(%d) failed\n", context->number));
 				continue;
 			}
 
 			name = lGetDevicePath(context->number);
 			if (!name || !name[0]) {
-			    log_std(("WARNING:mouseb:cpn: lGetDevicePath(%d) failed\n", context->number));
+				log_std(("WARNING:mouseb:cpn: lGetDevicePath(%d) failed\n", context->number));
 				continue;
 			}
 
-            /* suspend the mouse to allow Windows to get events */
-            lSuspendMouse(context->number);
+			/* suspend the mouse to allow Windows to get events */
+			lSuspendMouse(context->number);
 
 			memset(context->name, 0, sizeof(context->name));
 			strncpy(context->name, name, sizeof(context->name) - 1);
@@ -255,7 +254,7 @@ static DWORD WINAPI mouseb_thread(void* arg)
 		}
 	}
 
-	qsort(raw_state.map, raw_state.mac, sizeof(raw_state.map[0]), mouseb_compare);	
+	qsort(raw_state.map, raw_state.mac, sizeof(raw_state.map[0]), mouseb_compare);
 
 	/* signal that the thread is ready */
 	SetEvent(raw_state.back_event);
@@ -271,14 +270,14 @@ static DWORD WINAPI mouseb_thread(void* arg)
 
 		r = WaitForSingleObjectEx(raw_state.forward_event, INFINITE, TRUE);
 		switch (r) {
-		case WAIT_OBJECT_0 :
+		case WAIT_OBJECT_0:
 			/* event signaled */
 			done = 1;
 			break;
-		case WAIT_IO_COMPLETION :
+		case WAIT_IO_COMPLETION:
 			/* APC callback */
 			break;
-		default :
+		default:
 			log_std(("WARNING:mouseb:cpn: thread WaitForSingleObjectEx() -> %d\n", (unsigned)r));
 			break;
 		}
@@ -286,16 +285,16 @@ static DWORD WINAPI mouseb_thread(void* arg)
 
 	/* deallocate */
 	lUnGetAllMice();
-	
+
 	log_std(("mouseb:cpn: lUnGetAllMice() completed\n"));
 
 	lUnRegisterCallback();
-	
+
 	log_std(("mouseb:cpn: lUnRegisterCallback() completed\n"));
 
 	return 0;
 }
- 
+
 static adv_error mouseb_thread_start(void)
 {
 	raw_state.forward_event = CreateEvent(0, FALSE, FALSE, 0);
@@ -316,12 +315,12 @@ static adv_error mouseb_thread_start(void)
 		log_std(("ERROR:mouseb:cpn: CreateThread() failed with error %d\n", (unsigned)GetLastError()));
 		return -1;
 	}
- 
+
 	/* increase thread priority */
 	if (!SetThreadPriority(raw_state.thread, THREAD_PRIORITY_TIME_CRITICAL)) {
 		log_std(("WARNING:mouseb:cpn: SetThreadPriority(THREAD_PRIORITY_TIME_CRITICAL) failed with error %d\n", (unsigned)GetLastError()));
 	}
- 
+
 	/* wait for completion */
 	while (WaitForSingleObjectEx(raw_state.back_event, INFINITE, TRUE) != WAIT_OBJECT_0) {
 	}
@@ -329,7 +328,7 @@ static adv_error mouseb_thread_start(void)
 
 	return 0;
 }
- 
+
 static void mouseb_thread_end(void)
 {
 	/* abort the thread */
@@ -346,8 +345,8 @@ static void mouseb_thread_end(void)
 	CloseHandle(raw_state.thread);
 	CloseHandle(raw_state.forward_event);
 	CloseHandle(raw_state.back_event);
-} 
- 
+}
+
 adv_error mouseb_cpn_init(int mouseb_id)
 {
 #if defined(USE_SDL) && SDL_MAJOR_VERSION != 1

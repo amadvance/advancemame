@@ -47,7 +47,7 @@
 /* Bit mask a register */
 static inline unsigned mask(unsigned value, unsigned rbit, unsigned len)
 {
-	return (value >> rbit) & ((1 << len)-1);
+	return (value >> rbit) & ((1 << len) - 1);
 }
 
 /* Compute an end value */
@@ -176,8 +176,8 @@ void vga_regs_masterclock_input_set(struct vga_regs* regs, unsigned value)
 
 void vga_regs_char_size_x_set(struct vga_regs* regs, unsigned value)
 {
-	assert(value==8 || value==9);
-	if (value==8)
+	assert(value == 8 || value == 9);
+	if (value == 8)
 		value = 1;
 	else
 		value = 0;
@@ -232,77 +232,77 @@ void vga_regs_info_get(struct vga_regs* regs, struct vga_info* info)
 	info->dotclock_master = mask(regs->misc, 2, 2);
 
 	switch (info->dotclock_master) {
-		case 0 :
-			info->dot_clock = VGA_DOTCLOCK_LOW;
-			break;
-		case 1 :
-			info->dot_clock = VGA_DOTCLOCK_HIGH;
-			break;
-		default:
-			info->dot_clock = 0;
+	case 0:
+		info->dot_clock = VGA_DOTCLOCK_LOW;
+		break;
+	case 1:
+		info->dot_clock = VGA_DOTCLOCK_HIGH;
+		break;
+	default:
+		info->dot_clock = 0;
 	}
 
 	switch (mask(regs->seq[0x1], 3, 1)) {
-		case 0:
-			info->dotclock_middle = 0;
-			break;
-		case 1:
-			info->dot_clock /= 2;
-			info->dotclock_middle = 1;
-			break;
+	case 0:
+		info->dotclock_middle = 0;
+		break;
+	case 1:
+		info->dot_clock /= 2;
+		info->dotclock_middle = 1;
+		break;
 	}
 
 	switch (mask(regs->seq[0x1], 0, 1)) {
-		case 0 :
-			info->char_size_x = 9;
-			break;
-		case 1 :
-			info->char_size_x = 8;
-			break;
-		default:
-			info->char_size_x = 0;
+	case 0:
+		info->char_size_x = 9;
+		break;
+	case 1:
+		info->char_size_x = 8;
+		break;
+	default:
+		info->char_size_x = 0;
 	}
 
 	switch (mask(regs->gracon[0x5], 5, 2)) {
-		case 0:
-			info->bits_per_pixel = 4; /* might also be COLOR2 !!! */
-			info->pixels_per_clock = 8;
-			info->bytes_per_clock = 1;
-			break;
-		case 1:
-			info->bits_per_pixel = 2;
-			info->pixels_per_clock = 16;
-			info->bytes_per_clock = 2;
-			break;
-		case 2:
-			info->bits_per_pixel = 8;
-			info->pixels_per_clock = 4;
-			info->bytes_per_clock = 4;
-			break;
-		default:
-			info->bits_per_pixel = 0;
-			info->pixels_per_clock = 0;
-			info->bytes_per_clock = 0;
-			break;
+	case 0:
+		info->bits_per_pixel = 4;         /* might also be COLOR2 !!! */
+		info->pixels_per_clock = 8;
+		info->bytes_per_clock = 1;
+		break;
+	case 1:
+		info->bits_per_pixel = 2;
+		info->pixels_per_clock = 16;
+		info->bytes_per_clock = 2;
+		break;
+	case 2:
+		info->bits_per_pixel = 8;
+		info->pixels_per_clock = 4;
+		info->bytes_per_clock = 4;
+		break;
+	default:
+		info->bits_per_pixel = 0;
+		info->pixels_per_clock = 0;
+		info->bytes_per_clock = 0;
+		break;
 	}
 
 	switch (mask(regs->gracon[0x6], 2, 2)) {
-		case 0 :
-			info->memory_address = 0xa0000;
-			info->memory_size = 0x20000;
-			break;
-		case 1 :
-			info->memory_address = 0xa0000;
-			info->memory_size = 0x10000;
-			break;
-		case 2 :
-			info->memory_address = 0xb0000;
-			info->memory_size = 0x8000;
-			break;
-		case 3 :
-			info->memory_address = 0xb8000;
-			info->memory_size = 0x8000;
-			break;
+	case 0:
+		info->memory_address = 0xa0000;
+		info->memory_size = 0x20000;
+		break;
+	case 1:
+		info->memory_address = 0xa0000;
+		info->memory_size = 0x10000;
+		break;
+	case 2:
+		info->memory_address = 0xb0000;
+		info->memory_size = 0x8000;
+		break;
+	case 3:
+		info->memory_address = 0xb8000;
+		info->memory_size = 0x8000;
+		break;
 	}
 
 	temp = ((regs->gracon[0x6] & 1) != 0);
@@ -324,7 +324,7 @@ void vga_regs_info_get(struct vga_regs* regs, struct vga_info* info)
 	info->is_linear = mask(regs->seq[0x4], 3, 1);
 	if (mask(regs->crtc[0x14], 6, 1))
 		info->memory_mode = 4; /* dword mode */
-	else if (mask(regs->crtc[0x17], 6, 1)==0)
+	else if (mask(regs->crtc[0x17], 6, 1) == 0)
 		info->memory_mode = 2; /* word mode */
 	else
 		info->memory_mode = 1; /* byte mode */
@@ -378,8 +378,8 @@ void vga_regs_info_get(struct vga_regs* regs, struct vga_info* info)
 	info->hsync = mask(regs->misc, 6, 1);
 	info->vsync = mask(regs->misc, 7, 1);
 
-	info->horz_clock = (double)info->dot_clock / (info->ht*info->dots_per_clock);
-	info->vert_clock = (double)info->dot_clock / (info->ht*info->dots_per_clock*info->vt);
+	info->horz_clock = (double)info->dot_clock / (info->ht * info->dots_per_clock);
+	info->vert_clock = (double)info->dot_clock / (info->ht * info->dots_per_clock * info->vt);
 	if (info->dots_per_clock)
 		info->pixel_clock = info->dot_clock * info->pixels_per_clock / info->dots_per_clock;
 	else
@@ -397,37 +397,37 @@ void vga_regs_info_get(struct vga_regs* regs, struct vga_info* info)
 unsigned char vga_inb(unsigned port, unsigned index)
 {
 	switch (port) {
-		case VGAREG_ATTRCON_ADDR :
-			inportb(VGAREG_ATTRCON_RESET); /* flip-flop reset */
-			outportb(VGAREG_ATTRCON_ADDR, index | 0x20);
-			return inportb(VGAREG_ATTRCON_READ_DATA);
-		case VGAREG_CRTC_ADDR :
-		case VGAREG_SEQ_ADDR :
-		case VGAREG_GRACON_ADDR :
-			outportb(port, index);
-			return inportb(port + 1);
-		default:
-			assert(0);
-			return 0;
+	case VGAREG_ATTRCON_ADDR:
+		inportb(VGAREG_ATTRCON_RESET);         /* flip-flop reset */
+		outportb(VGAREG_ATTRCON_ADDR, index | 0x20);
+		return inportb(VGAREG_ATTRCON_READ_DATA);
+	case VGAREG_CRTC_ADDR:
+	case VGAREG_SEQ_ADDR:
+	case VGAREG_GRACON_ADDR:
+		outportb(port, index);
+		return inportb(port + 1);
+	default:
+		assert(0);
+		return 0;
 	}
 }
 
 void vga_outb(unsigned port, unsigned index, unsigned char value)
 {
 	switch (port) {
-		case VGAREG_ATTRCON_ADDR :
-			inportb(VGAREG_ATTRCON_RESET); /* flip-flop reset */
-			outportb(VGAREG_ATTRCON_ADDR, index | 0x20);
-			outportb(VGAREG_ATTRCON_WRITE_DATA, value);
-			break;
-		case VGAREG_CRTC_ADDR :
-		case VGAREG_SEQ_ADDR :
-		case VGAREG_GRACON_ADDR :
-			outportb(port, index);
-			outportb(port + 1, value);
-			break;
-		default:
-			assert(0);
+	case VGAREG_ATTRCON_ADDR:
+		inportb(VGAREG_ATTRCON_RESET);         /* flip-flop reset */
+		outportb(VGAREG_ATTRCON_ADDR, index | 0x20);
+		outportb(VGAREG_ATTRCON_WRITE_DATA, value);
+		break;
+	case VGAREG_CRTC_ADDR:
+	case VGAREG_SEQ_ADDR:
+	case VGAREG_GRACON_ADDR:
+		outportb(port, index);
+		outportb(port + 1, value);
+		break;
+	default:
+		assert(0);
 	}
 }
 
@@ -464,7 +464,7 @@ void vga_mode_set(const struct vga_regs* regs)
 	vga_outb(VGAREG_SEQ_ADDR, 0, 0x01);
 
 	/* sequencer */
-	for(i=1;i<VGAREG_SEQ_MAX;++i)
+	for (i = 1; i < VGAREG_SEQ_MAX; ++i)
 		vga_outb(VGAREG_SEQ_ADDR, i, regs->seq[i]);
 
 	/* sequencer reset off */
@@ -474,15 +474,15 @@ void vga_mode_set(const struct vga_regs* regs)
 	vga_outb(VGAREG_CRTC_ADDR, 0x11, vga_inb(VGAREG_CRTC_ADDR, 0x11) & 0x7F);
 
 	/* crtc */
-	for(i=0;i<VGAREG_CRTC_MAX;++i)
+	for (i = 0; i < VGAREG_CRTC_MAX; ++i)
 		vga_outb(VGAREG_CRTC_ADDR, i, regs->crtc[i]);
 
 	/* graphics controller */
-	for(i=0;i<VGAREG_GRACON_MAX;++i)
+	for (i = 0; i < VGAREG_GRACON_MAX; ++i)
 		vga_outb(VGAREG_GRACON_ADDR, i, regs->gracon[i]);
 
 	/* attribute controller */
-	for(i=0;i<VGAREG_ATTRCON_MAX;++i)
+	for (i = 0; i < VGAREG_ATTRCON_MAX; ++i)
 		vga_outb(VGAREG_ATTRCON_ADDR, i, regs->attrcon[i]);
 }
 
@@ -493,19 +493,19 @@ void vga_mode_get(struct vga_regs* regs)
 	regs->misc = inportb(VGAREG_MISC_READ_DATA);
 
 	/* sequencer */
-	for(i=0;i<VGAREG_SEQ_MAX;++i)
+	for (i = 0; i < VGAREG_SEQ_MAX; ++i)
 		regs->seq[i] = vga_inb(VGAREG_SEQ_ADDR, i);
 
 	/* crtc */
-	for(i=0;i<VGAREG_CRTC_MAX;++i)
+	for (i = 0; i < VGAREG_CRTC_MAX; ++i)
 		regs->crtc[i] = vga_inb(VGAREG_CRTC_ADDR, i);
 
 	/* graphics controller */
-	for(i=0;i<VGAREG_GRACON_MAX;++i)
+	for (i = 0; i < VGAREG_GRACON_MAX; ++i)
 		regs->gracon[i] = vga_inb(VGAREG_GRACON_ADDR, i);
 
 	/* attribute controller */
-	for(i=0;i<VGAREG_ATTRCON_MAX;++i)
+	for (i = 0; i < VGAREG_ATTRCON_MAX; ++i)
 		regs->attrcon[i] = vga_inb(VGAREG_ATTRCON_ADDR, i);
 }
 
@@ -515,7 +515,7 @@ void vga_palette_raw_set(const unsigned char* palette, unsigned start, unsigned 
 
 	/* dac */
 	outportb(VGAREG_DAC_WRITE_ADDR, start);
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		outportb(VGAREG_DAC_DATA, palette[0]);
 		outportb(VGAREG_DAC_DATA, palette[1]);
 		outportb(VGAREG_DAC_DATA, palette[2]);
@@ -529,7 +529,7 @@ void vga_palette_raw_get(unsigned char* palette, unsigned start, unsigned count)
 
 	/* dac */
 	outportb(VGAREG_DAC_WRITE_ADDR, start);
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		palette[0] = inportb(VGAREG_DAC_DATA);
 		palette[1] = inportb(VGAREG_DAC_DATA);
 		palette[2] = inportb(VGAREG_DAC_DATA);
@@ -546,7 +546,7 @@ adv_error vga_palette6_set(const adv_color_rgb* palette, unsigned start, unsigne
 
 	/* dac */
 	outportb(VGAREG_DAC_WRITE_ADDR, start);
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		outportb(VGAREG_DAC_DATA, palette->red);
 		outportb(VGAREG_DAC_DATA, palette->green);
 		outportb(VGAREG_DAC_DATA, palette->blue);
@@ -565,7 +565,7 @@ adv_error vga_palette8_set(const adv_color_rgb* palette, unsigned start, unsigne
 
 	/* dac */
 	outportb(VGAREG_DAC_WRITE_ADDR, start);
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		outportb(VGAREG_DAC_DATA, palette->red >> 2);
 		outportb(VGAREG_DAC_DATA, palette->green >> 2);
 		outportb(VGAREG_DAC_DATA, palette->blue >> 2);
@@ -649,20 +649,20 @@ void vga_font_copy(unsigned char* font, unsigned row, unsigned slot, adv_bool se
 
 	if (set) {
 		unsigned i;
-		for(i=0;i<256;++i) {
+		for (i = 0; i < 256; ++i) {
 			unsigned j;
-			for(j=0;j<row;++j)
+			for (j = 0; j < row; ++j)
 				vga_writeb(addr++, *font++);
-			for(;j<32;++j)
+			for (; j < 32; ++j)
 				vga_writeb(addr++, 0);
 		}
 	} else {
 		unsigned i;
-		for(i=0;i<256;++i) {
+		for (i = 0; i < 256; ++i) {
 			unsigned j;
-			for(j=0;j<row;++j)
+			for (j = 0; j < row; ++j)
 				*font++ = vga_readb(addr++);
-			for(;j<32;++j)
+			for (; j < 32; ++j)
 				vga_readb(addr++);
 		}
 	}
@@ -721,8 +721,8 @@ void vga_font_size_set(adv_bool use_512)
 /* STATE */
 
 static unsigned vga_dotclock[] = {
-	VGA_DOTCLOCK_LOW/2,
-	VGA_DOTCLOCK_HIGH/2,
+	VGA_DOTCLOCK_LOW / 2,
+	VGA_DOTCLOCK_HIGH / 2,
 	VGA_DOTCLOCK_LOW,
 	VGA_DOTCLOCK_HIGH,
 	0
@@ -736,7 +736,7 @@ unsigned vga_dotclock_nearest_get(unsigned dotclock)
 
 	best = 0;
 	best_diff = abs(vga_dotclock[0] - dotclock);
-	for(i=1;vga_dotclock[i];++i) {
+	for (i = 1; vga_dotclock[i]; ++i) {
 		int diff = abs(vga_dotclock[i] - dotclock);
 		if (diff < best_diff) {
 			best = i;
@@ -781,7 +781,7 @@ unsigned vga_pixelclock_next_get(unsigned pixelclock, adv_bool is_text)
 	pixelclock *= multiplier;
 
 	i = 0;
-	while (vga_dotclock[i]!=0 && vga_dotclock[i]<=pixelclock)
+	while (vga_dotclock[i] != 0 && vga_dotclock[i] <= pixelclock)
 		++i;
 	if (!vga_dotclock[i])
 		--i;
@@ -803,7 +803,7 @@ unsigned vga_pixelclock_pred_get(unsigned pixelclock, adv_bool is_text)
 	pixelclock *= multiplier;
 
 	i = 0;
-	while (vga_dotclock[i]!=0 && vga_dotclock[i]<pixelclock)
+	while (vga_dotclock[i] != 0 && vga_dotclock[i] < pixelclock)
 		++i;
 	if (i)
 		--i;

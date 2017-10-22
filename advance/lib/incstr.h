@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -94,7 +94,7 @@ adv_error inc_str_catc(adv_string* str, char c);
 /**
  * Cat a string.
  * \param str Destination string.
- * \param s String to cat. 
+ * \param s String to cat.
  */
 static inline adv_error inc_str_cat(adv_string* str, const char* s)
 {

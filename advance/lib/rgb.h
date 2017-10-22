@@ -153,10 +153,10 @@ static inline adv_pixel rgb_lowmask_make_from_def(adv_color_def def_ordinal)
 	def.ordinal = def_ordinal;
 
 	return pixel_make_from_def(
-		1 << (8-def.nibble.red_len),
-		1 << (8-def.nibble.green_len),
-		1 << (8-def.nibble.blue_len),
-		def_ordinal
+		1 << (8 - def.nibble.red_len),
+			1 << (8 - def.nibble.green_len),
+			1 << (8 - def.nibble.blue_len),
+			def_ordinal
 	);
 }
 
@@ -172,7 +172,7 @@ static inline int rgb_shift_make_from_def(unsigned len, unsigned pos)
 
 /**
  * Get a channel mask from the RGB definition.
- * This value is the mask bit of the specified channel RGB definition. 
+ * This value is the mask bit of the specified channel RGB definition.
  */
 static inline unsigned rgb_mask_make_from_def(unsigned len, unsigned pos)
 {
@@ -253,3 +253,4 @@ adv_pixel rgb_conv_mask_get(unsigned s_len, unsigned s_pos, unsigned d_len, unsi
 #endif
 
 #endif
+

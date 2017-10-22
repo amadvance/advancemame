@@ -74,7 +74,7 @@ double adv_measure_median(double low, double high, double* map, unsigned count)
 		++map_start;
 
 	/* reject high values */
-	while (map_start < map_end && map[map_end-1] >= high)
+	while (map_start < map_end && map[map_end - 1] >= high)
 		--map_end;
 
 	if (map_start == map_end) {
@@ -84,7 +84,7 @@ double adv_measure_median(double low, double high, double* map, unsigned count)
 
 	median = map_start + (map_end - map_start) / 2; /* the median */
 
-	for(i=map_start;i<map_end;++i) {
+	for (i = map_start; i < map_end; ++i) {
 		log_std(("advance: measured time %g (1/%g)\n", map[i] / TARGET_CLOCKS_PER_SEC, TARGET_CLOCKS_PER_SEC / map[i]));
 	}
 
@@ -119,7 +119,7 @@ double adv_measure_mean(double low, double high, double* map, unsigned count)
 
 	total = 0;
 	total_count = 0;
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		if (map[i] >= low && map[i] <= high) {
 			total += map[i];
 			++total_count;

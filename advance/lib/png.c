@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -44,7 +44,7 @@ static unsigned char PNG_Signature[] = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A";
  * \param f File to read.
  * \param data Where to put the allocated data of the chunk.
  * \param size Where to put the size of the chunk.
- * \param type Where to put the type of the chunk. 
+ * \param type Where to put the type of the chunk.
  */
 adv_error adv_png_read_chunk(adv_fz* f, unsigned char** data, unsigned* size, unsigned* type)
 {
@@ -153,7 +153,7 @@ adv_error adv_png_read_signature(adv_fz* f)
 		return -1;
 	}
 
-	if (memcmp(signature, PNG_Signature, 8)!=0) {
+	if (memcmp(signature, PNG_Signature, 8) != 0) {
 		error_set("Invalid PNG signature");
 		return -1;
 	}
@@ -192,8 +192,8 @@ void adv_png_expand_4(unsigned width, unsigned height, unsigned char* ptr)
 	unsigned char* p4 = ptr + height * (width / 2 + 1) - 1;
 
 	width /= 2;
-	for(i=0;i<height;++i) {
-		for(j=0;j<width;++j) {
+	for (i = 0; i < height; ++i) {
+		for (j = 0; j < width; ++j) {
 			unsigned char v = *p4;
 			*p8-- = v & 0xF;
 			*p8-- = v >> 4;
@@ -217,8 +217,8 @@ void adv_png_expand_2(unsigned width, unsigned height, unsigned char* ptr)
 	unsigned char* p2 = ptr + height * (width / 4 + 1) - 1;
 
 	width /= 4;
-	for(i=0;i<height;++i) {
-		for(j=0;j<width;++j) {
+	for (i = 0; i < height; ++i) {
+		for (j = 0; j < width; ++j) {
 			unsigned char v = *p2;
 			*p8-- = v & 0x3;
 			*p8-- = (v >> 2) & 0x3;
@@ -244,8 +244,8 @@ void adv_png_expand_1(unsigned width, unsigned height, unsigned char* ptr)
 	unsigned char* p1 = ptr + height * (width / 8 + 1) - 1;
 
 	width /= 8;
-	for(i=0;i<height;++i) {
-		for(j=0;j<width;++j) {
+	for (i = 0; i < height; ++i) {
+		for (j = 0; j < width; ++j) {
 			unsigned char v = *p1;
 			*p8-- = v & 0x1;
 			*p8-- = (v >> 1) & 0x1;
@@ -273,21 +273,21 @@ void adv_png_unfilter_8(unsigned width, unsigned height, unsigned char* p, unsig
 {
 	unsigned i, j;
 
-	for(i=0;i<height;++i) {
+	for (i = 0; i < height; ++i) {
 		unsigned char f = *p++;
 
 		if (f == 0) { /* none */
 			p += width;
 		} else if (f == 1) { /* sub */
 			++p;
-			for(j=1;j<width;++j) {
+			for (j = 1; j < width; ++j) {
 				p[0] += p[-1];
 				++p;
 			}
 		} else if (f == 2) { /* up */
 			if (i) {
 				unsigned char* u = p - line;
-				for(j=0;j<width;++j) {
+				for (j = 0; j < width; ++j) {
 					*p += *u;
 					++p;
 					++u;
@@ -301,7 +301,7 @@ void adv_png_unfilter_8(unsigned width, unsigned height, unsigned char* p, unsig
 				p[0] += u[0] / 2;
 				++p;
 				++u;
-				for(j=1;j<width;++j) {
+				for (j = 1; j < width; ++j) {
 					unsigned a = (unsigned)u[0] + (unsigned)p[-1];
 					p[0] += a >> 1;
 					++p;
@@ -309,20 +309,20 @@ void adv_png_unfilter_8(unsigned width, unsigned height, unsigned char* p, unsig
 				}
 			} else {
 				++p;
-				for(j=1;j<width;++j) {
+				for (j = 1; j < width; ++j) {
 					p[0] += p[-1] / 2;
 					++p;
 				}
 			}
 		} else if (f == 4) { /* paeth */
 			unsigned char* u = p - line;
-			for(j=0;j<width;++j) {
+			for (j = 0; j < width; ++j) {
 				unsigned a, b, c;
 				int v;
 				int da, db, dc;
-				a = j<1 ? 0 : p[-1];
-				b = i<1 ? 0 : u[0];
-				c = (j<1 || i<1) ? 0 : u[-1];
+				a = j < 1 ? 0 : p[-1];
+				b = i < 1 ? 0 : u[0];
+				c = (j < 1 || i < 1) ? 0 : u[-1];
 				v = a + b - c;
 				da = v - a;
 				if (da < 0)
@@ -359,21 +359,21 @@ void adv_png_unfilter_24(unsigned width, unsigned height, unsigned char* p, unsi
 {
 	unsigned i, j;
 
-	for(i=0;i<height;++i) {
+	for (i = 0; i < height; ++i) {
 		unsigned char f = *p++;
 
 		if (f == 0) { /* none */
 			p += width;
 		} else if (f == 1) { /* sub */
 			p += 3;
-			for(j=3;j<width;++j) {
+			for (j = 3; j < width; ++j) {
 				p[0] += p[-3];
 				++p;
 			}
 		} else if (f == 2) { /* up */
 			if (i) {
 				unsigned char* u = p - line;
-				for(j=0;j<width;++j) {
+				for (j = 0; j < width; ++j) {
 					*p += *u;
 					++p;
 					++u;
@@ -389,7 +389,7 @@ void adv_png_unfilter_24(unsigned width, unsigned height, unsigned char* p, unsi
 				p[2] += u[2] / 2;
 				p += 3;
 				u += 3;
-				for(j=3;j<width;++j) {
+				for (j = 3; j < width; ++j) {
 					unsigned a = (unsigned)u[0] + (unsigned)p[-3];
 					p[0] += a >> 1;
 					++p;
@@ -397,20 +397,20 @@ void adv_png_unfilter_24(unsigned width, unsigned height, unsigned char* p, unsi
 				}
 			} else {
 				p += 3;
-				for(j=3;j<width;++j) {
+				for (j = 3; j < width; ++j) {
 					p[0] += p[-3] / 2;
 					++p;
 				}
 			}
 		} else if (f == 4) { /* paeth */
 			unsigned char* u = p - line;
-			for(j=0;j<width;++j) {
+			for (j = 0; j < width; ++j) {
 				unsigned a, b, c;
 				int v;
 				int da, db, dc;
-				a = j<3 ? 0 : p[-3];
-				b = i<1 ? 0 : u[0];
-				c = (j<3 || i<1) ? 0 : u[-3];
+				a = j < 3 ? 0 : p[-3];
+				b = i < 1 ? 0 : u[0];
+				c = (j < 3 || i < 1) ? 0 : u[-3];
 				v = a + b - c;
 				da = v - a;
 				if (da < 0)
@@ -447,21 +447,21 @@ void adv_png_unfilter_32(unsigned width, unsigned height, unsigned char* p, unsi
 {
 	unsigned i, j;
 
-	for(i=0;i<height;++i) {
+	for (i = 0; i < height; ++i) {
 		unsigned char f = *p++;
 
 		if (f == 0) { /* none */
 			p += width;
 		} else if (f == 1) { /* sub */
 			p += 4;
-			for(j=4;j<width;++j) {
+			for (j = 4; j < width; ++j) {
 				p[0] += p[-4];
 				++p;
 			}
 		} else if (f == 2) { /* up */
 			if (i) {
 				unsigned char* u = p - line;
-				for(j=0;j<width;++j) {
+				for (j = 0; j < width; ++j) {
 					*p += *u;
 					++p;
 					++u;
@@ -478,7 +478,7 @@ void adv_png_unfilter_32(unsigned width, unsigned height, unsigned char* p, unsi
 				p[3] += u[3] / 2;
 				p += 4;
 				u += 4;
-				for(j=4;j<width;++j) {
+				for (j = 4; j < width; ++j) {
 					unsigned a = (unsigned)u[0] + (unsigned)p[-4];
 					p[0] += a >> 1;
 					++p;
@@ -486,20 +486,20 @@ void adv_png_unfilter_32(unsigned width, unsigned height, unsigned char* p, unsi
 				}
 			} else {
 				p += 4;
-				for(j=4;j<width;++j) {
+				for (j = 4; j < width; ++j) {
 					p[0] += p[-4] / 2;
 					++p;
 				}
 			}
 		} else if (f == 4) { /* paeth */
 			unsigned char* u = p - line;
-			for(j=0;j<width;++j) {
+			for (j = 0; j < width; ++j) {
 				unsigned a, b, c;
 				int v;
 				int da, db, dc;
-				a = j<4 ? 0 : p[-4];
-				b = i<1 ? 0 : u[0];
-				c = (j<4 || i<1) ? 0 : u[-4];
+				a = j < 4 ? 0 : p[-4];
+				b = i < 1 ? 0 : u[0];
+				c = (j < 4 || i < 1) ? 0 : u[-4];
 				v = a + b - c;
 				da = v - a;
 				if (da < 0)
@@ -673,7 +673,7 @@ adv_error adv_png_read_ihdr(
 
 	while (type != ADV_PNG_CN_IDAT) {
 		if (type == ADV_PNG_CN_PLTE) {
-			if (ptr_size > 256*3) {
+			if (ptr_size > 256 * 3) {
 				error_set("Invalid palette size in PLTE chunk");
 				goto err_ptr;
 			}
@@ -801,7 +801,7 @@ adv_error adv_png_read_ihdr(
 		adv_png_expand_1(width_align, height, *dat_ptr);
 	}
 
-	if (adv_png_read_iend(f, ptr, ptr_size, type)!=0) {
+	if (adv_png_read_iend(f, ptr, ptr_size, type) != 0) {
 		goto err_ptr;
 	}
 
@@ -856,21 +856,21 @@ adv_error adv_png_read_rns(
 		}
 
 		switch (type) {
-			case ADV_PNG_CN_IHDR :
-				if (adv_png_read_ihdr(pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size, rns_ptr, rns_size, f, data, size) != 0)
-					goto err_data;
-				free(data);
-				return 0;
-			default :
-				/* ancillary bit. bit 5 of first byte. 0 (uppercase) = critical, 1 (lowercase) = ancillary. */
-				if ((type & 0x20000000) == 0) {
-					char buf[4];
-					be_uint32_write(buf, type);
-					error_unsupported_set("Unsupported critical chunk '%c%c%c%c'", buf[0], buf[1], buf[2], buf[3]);
-					goto err_data;
-				}
-				/* ignored */
-				break;
+		case ADV_PNG_CN_IHDR:
+			if (adv_png_read_ihdr(pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size, rns_ptr, rns_size, f, data, size) != 0)
+				goto err_data;
+			free(data);
+			return 0;
+		default:
+			/* ancillary bit. bit 5 of first byte. 0 (uppercase) = critical, 1 (lowercase) = ancillary. */
+			if ((type & 0x20000000) == 0) {
+				char buf[4];
+				be_uint32_write(buf, type);
+				error_unsupported_set("Unsupported critical chunk '%c%c%c%c'", buf[0], buf[1], buf[2], buf[3]);
+				goto err_data;
+			}
+			/* ignored */
+			break;
 		}
 
 		free(data);
@@ -922,7 +922,7 @@ adv_error adv_png_write_ihdr(
 	uint8 ihdr[13];
 
 	be_uint32_write(ihdr, pix_width);
-	be_uint32_write(ihdr+4, pix_height);
+	be_uint32_write(ihdr + 4, pix_height);
 
 	ihdr[8] = pix_depth;
 	ihdr[9] = pix_type;
@@ -930,7 +930,7 @@ adv_error adv_png_write_ihdr(
 	ihdr[11] = 0; /* filter */
 	ihdr[12] = 0; /* interlace */
 
-	if (adv_png_write_chunk(f, ADV_PNG_CN_IHDR, ihdr, 13, count)!=0)
+	if (adv_png_write_chunk(f, ADV_PNG_CN_IHDR, ihdr, 13, count) != 0)
 		return -1;
 
 	return 0;
@@ -938,7 +938,7 @@ adv_error adv_png_write_ihdr(
 
 adv_error adv_png_write_iend(adv_fz* f, unsigned* count)
 {
-	if (adv_png_write_chunk(f, ADV_PNG_CN_IEND, 0, 0, count)!=0)
+	if (adv_png_write_chunk(f, ADV_PNG_CN_IEND, 0, 0, count) != 0)
 		return -1;
 
 	return 0;
@@ -966,7 +966,7 @@ adv_error adv_png_write_idat(
 	z_stream z;
 	int r;
 
-	z_size = pix_height * (pix_width * (pix_pixel+1)) * 103 / 100 + 12;
+	z_size = pix_height * (pix_width * (pix_pixel + 1)) * 103 / 100 + 12;
 
 	if (pix_pixel_pitch != pix_pixel) {
 		r_ptr = (uint8*)malloc(pix_width * pix_pixel);
@@ -997,7 +997,7 @@ adv_error adv_png_write_idat(
 
 	r = deflateInit(&z, method);
 
-	for(i=0;i<pix_height;++i) {
+	for (i = 0; i < pix_height; ++i) {
 		z.next_in = &filter; /* filter byte */
 		z.avail_in = 1;
 
@@ -1010,9 +1010,9 @@ adv_error adv_png_write_idat(
 		if (r_ptr) {
 			unsigned char* r = r_ptr;
 			unsigned j;
-			for(j=0;j<pix_width;++j) {
+			for (j = 0; j < pix_width; ++j) {
 				unsigned k;
-				for(k=0;k<pix_pixel;++k) {
+				for (k = 0; k < pix_pixel; ++k) {
 					*r++ = *p++;
 				}
 				p += pix_pixel_pitch - pix_pixel;
@@ -1047,7 +1047,7 @@ adv_error adv_png_write_idat(
 		goto err_free;
 	}
 
-	if (adv_png_write_chunk(f, ADV_PNG_CN_IDAT, z_ptr, res_size, count)!=0)
+	if (adv_png_write_chunk(f, ADV_PNG_CN_IDAT, z_ptr, res_size, count) != 0)
 		goto err_free;
 
 	free(z_ptr);
@@ -1182,7 +1182,7 @@ adv_error adv_png_write_rns(
  * \param pix_pixel Image bytes per pixel.
  * \param pix_ptr Pointer at the start of the image data.
  * \param pix_pixel_pitch Pitch for the next pixel. It may differ from pix_pixel.
- * \param pix_scanline_pitch Pitch for the next scanline. 
+ * \param pix_scanline_pitch Pitch for the next scanline.
  * \param pal_ptr Palette data pointer. Use 0 for RGB image.
  * \param pal_size Palette size in bytes. Use 0 for RGB image.
  * \param f File to write.

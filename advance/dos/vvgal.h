@@ -77,3 +77,4 @@ extern adv_video_driver video_vgaline_driver;
 #endif
 
 #endif
+

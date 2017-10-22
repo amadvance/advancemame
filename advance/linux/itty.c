@@ -57,8 +57,8 @@ struct inputb_tty_context {
 static struct inputb_tty_context tty_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "Terminal input" },
-{ 0, 0, 0 }
+	{ "auto", -1, "Terminal input" },
+	{ 0, 0, 0 }
 };
 
 adv_error inputb_tty_init(int inputb_id)
@@ -70,7 +70,7 @@ adv_error inputb_tty_init(int inputb_id)
 	/* keyboard input must be used. */
 	if (os_internal_sdl_is_video_active()) {
 		error_set("Incompatible with the SDL video driver.\n");
-		return -1; 
+		return -1;
 	}
 #endif
 
@@ -91,7 +91,7 @@ adv_error inputb_tty_enable(adv_bool graphics)
 	/* keyboard input must be used. */
 	if (os_internal_sdl_is_video_active()) {
 		error_set("Incompatible with the SDL video driver.\n");
-		return -1; 
+		return -1;
 	}
 #endif
 
@@ -183,13 +183,13 @@ adv_bool inputb_tty_hit(void)
 unsigned inputb_tty_get(void)
 {
 	const unsigned max = 32;
-	char map[max+1];
+	char map[max + 1];
 	unsigned mac;
 
 	log_debug(("inputb:tty: inputb_tty_button_count_get()\n"));
 
 	mac = 0;
-	while (mac<max && (mac==0 || tty_state.last)) {
+	while (mac < max && (mac == 0 || tty_state.last)) {
 
 		if (tty_state.last) {
 			map[mac] = tty_state.last;
@@ -206,45 +206,45 @@ unsigned inputb_tty_get(void)
 	}
 	map[mac] = 0;
 
-	if (strcmp(map, "\033[A")==0)
+	if (strcmp(map, "\033[A") == 0)
 		return INPUTB_UP;
-	if (strcmp(map, "\033[B")==0)
+	if (strcmp(map, "\033[B") == 0)
 		return INPUTB_DOWN;
-	if (strcmp(map, "\033[D")==0)
+	if (strcmp(map, "\033[D") == 0)
 		return INPUTB_LEFT;
-	if (strcmp(map, "\033[C")==0)
+	if (strcmp(map, "\033[C") == 0)
 		return INPUTB_RIGHT;
-	if (strcmp(map, "\033[1~")==0)
+	if (strcmp(map, "\033[1~") == 0)
 		return INPUTB_HOME;
-	if (strcmp(map, "\033[4~")==0)
+	if (strcmp(map, "\033[4~") == 0)
 		return INPUTB_END;
-	if (strcmp(map, "\033[5~")==0)
+	if (strcmp(map, "\033[5~") == 0)
 		return INPUTB_PGUP;
-	if (strcmp(map, "\033[6~")==0)
+	if (strcmp(map, "\033[6~") == 0)
 		return INPUTB_PGDN;
-	if (strcmp(map, "\033[[A")==0)
+	if (strcmp(map, "\033[[A") == 0)
 		return INPUTB_F1;
-	if (strcmp(map, "\033[[B")==0)
+	if (strcmp(map, "\033[[B") == 0)
 		return INPUTB_F2;
-	if (strcmp(map, "\033[[C")==0)
+	if (strcmp(map, "\033[[C") == 0)
 		return INPUTB_F3;
-	if (strcmp(map, "\033[[D")==0)
+	if (strcmp(map, "\033[[D") == 0)
 		return INPUTB_F4;
-	if (strcmp(map, "\033[[E")==0)
+	if (strcmp(map, "\033[[E") == 0)
 		return INPUTB_F5;
-	if (strcmp(map, "\033[17~")==0)
+	if (strcmp(map, "\033[17~") == 0)
 		return INPUTB_F6;
-	if (strcmp(map, "\033[18~")==0)
+	if (strcmp(map, "\033[18~") == 0)
 		return INPUTB_F7;
-	if (strcmp(map, "\033[19~")==0)
+	if (strcmp(map, "\033[19~") == 0)
 		return INPUTB_F8;
-	if (strcmp(map, "\033[20~")==0)
+	if (strcmp(map, "\033[20~") == 0)
 		return INPUTB_F9;
-	if (strcmp(map, "\033[21~")==0)
+	if (strcmp(map, "\033[21~") == 0)
 		return INPUTB_F10;
-	if (strcmp(map, "\r")==0 || strcmp(map, "\n")==0)
+	if (strcmp(map, "\r") == 0 || strcmp(map, "\n") == 0)
 		return INPUTB_ENTER;
-	if (strcmp(map, "\x7F")==0)
+	if (strcmp(map, "\x7F") == 0)
 		return INPUTB_BACKSPACE;
 
 	if (mac != 1)

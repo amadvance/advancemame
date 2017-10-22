@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -55,7 +55,7 @@ struct file_context {
 	char file_host_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
 	char file_data_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
 	char file_home_buffer[FILE_MAXPATH]; /**< Static buffer for the returned strings. */
-	char list_buffer[FILE_MAXPATH*4]; /**< Static buffer for the returned strings. */
+	char list_buffer[FILE_MAXPATH * 4]; /**< Static buffer for the returned strings. */
 };
 
 static struct file_context FL;
@@ -75,8 +75,8 @@ adv_error file_init(void)
 		return -1;
 	}
 	/* clear the leading slash if present */
-	if (FL.current_dir_buffer[0] && FL.current_dir_buffer[strlen(FL.current_dir_buffer)-1]=='/')
-		FL.current_dir_buffer[strlen(FL.current_dir_buffer)-1] = 0;
+	if (FL.current_dir_buffer[0] && FL.current_dir_buffer[strlen(FL.current_dir_buffer) - 1] == '/')
+		FL.current_dir_buffer[strlen(FL.current_dir_buffer) - 1] = 0;
 
 
 	/* root */
@@ -93,7 +93,7 @@ adv_error file_init(void)
 		home = getenv("HOME");
 		if (home) {
 			/* add the .advance subdirectory */
-			if (!home[0] || home[strlen(home)-1] != '/')
+			if (!home[0] || home[strlen(home) - 1] != '/')
 				snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s/.advance", home);
 			else
 				snprintf(FL.home_dir_buffer, sizeof(FL.home_dir_buffer), "%s.advance", home);
@@ -112,8 +112,8 @@ adv_error file_init(void)
 	}
 
 	/* clear the leading slash if present */
-	if (FL.home_dir_buffer[0] && FL.home_dir_buffer[strlen(FL.home_dir_buffer)-1]=='/')
-		FL.home_dir_buffer[strlen(FL.home_dir_buffer)-1] = 0;
+	if (FL.home_dir_buffer[0] && FL.home_dir_buffer[strlen(FL.home_dir_buffer) - 1] == '/')
+		FL.home_dir_buffer[strlen(FL.home_dir_buffer) - 1] = 0;
 
 	/* create the dir */
 	if (FL.home_dir_buffer[0]) {
@@ -161,7 +161,7 @@ const char* file_abs(const char* dir, const char* file)
 	if (file[0] == '/') {
 		snprintf(FL.file_abs_buffer, sizeof(FL.file_abs_buffer), "%s", file);
 	} else {
-		if (!dir[0] || dir[strlen(dir)-1] != '/')
+		if (!dir[0] || dir[strlen(dir) - 1] != '/')
 			snprintf(FL.file_abs_buffer, sizeof(FL.file_abs_buffer), "%s/%s", dir, file);
 		else
 			snprintf(FL.file_abs_buffer, sizeof(FL.file_abs_buffer), "%s%s", dir, file);

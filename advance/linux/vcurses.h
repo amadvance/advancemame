@@ -57,3 +57,4 @@ extern adv_video_driver video_curses_driver;
 #endif
 
 #endif
+

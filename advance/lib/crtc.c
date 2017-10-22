@@ -82,7 +82,7 @@ adv_error crtc_adjust_clock(adv_crtc* crtc, const adv_monitor* monitor)
 		return 0;
 
 	/* check for every hclock limit */
-	for(j=0;j<monitor->mode_mac;++j) {
+	for (j = 0; j < monitor->mode_mac; ++j) {
 		const adv_monitor_mode* mode = &monitor->mode_map[j];
 		double try_hclock, try_vclock;
 
@@ -108,7 +108,7 @@ adv_error crtc_adjust_clock(adv_crtc* crtc, const adv_monitor* monitor)
 	}
 
 	/* check for every vclock limit */
-	for(j=0;j<monitor->mode_mac;++j) {
+	for (j = 0; j < monitor->mode_mac; ++j) {
 		const adv_monitor_mode* mode = &monitor->mode_map[j];
 		double try_hclock, try_vclock;
 
@@ -165,7 +165,7 @@ adv_error crtc_adjust_size(adv_crtc* crtc, const adv_monitor* monitor)
 	size = crtc->ht;
 
 	/* check for every hclock limit */
-	for(j=0;j<monitor->mode_mac;++j) {
+	for (j = 0; j < monitor->mode_mac; ++j) {
 		const adv_monitor_mode* mode = &monitor->mode_map[j];
 		if (monitor_mode_hvclock_check(mode, hclock, vclock)) {
 			double pclock;
@@ -175,14 +175,14 @@ adv_error crtc_adjust_size(adv_crtc* crtc, const adv_monitor* monitor)
 			try_size = ceil(pclock / hclock);
 			if (!best_size_found || fabs(try_size - size) < fabs(best_size - size)) {
 				best_size = size;
-				best_size_found =  1;
+				best_size_found = 1;
 			}
 
 			pclock = mode->pclock.high;
 			try_size = floor(pclock / hclock);
 			if (!best_size_found || fabs(try_size - size) < fabs(best_size - size)) {
 				best_size = size;
-				best_size_found =  1;
+				best_size_found = 1;
 			}
 		}
 	}
@@ -219,7 +219,7 @@ static adv_error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vcloc
 	vclock = *req_vclock;
 
 	/* check for every hclock limit */
-	for(j=0;j<monitor->mode_mac;++j) {
+	for (j = 0; j < monitor->mode_mac; ++j) {
 		const adv_monitor_mode* mode = &monitor->mode_map[j];
 		double try_hclock, try_vclock;
 
@@ -245,7 +245,7 @@ static adv_error crtc_find_nearest_vclock(unsigned req_vtotal, double* req_vcloc
 	}
 
 	/* check for every vclock limit */
-	for(j=0;j<monitor->mode_mac;++j) {
+	for (j = 0; j < monitor->mode_mac; ++j) {
 		const adv_monitor_mode* mode = &monitor->mode_map[j];
 		double try_hclock, try_vclock;
 
@@ -291,7 +291,7 @@ static adv_error crtc_find_nearest_vtotal(unsigned* req_vtotal, double* req_vclo
 	vtotal = *req_vtotal;
 
 	/* check for every hclock/vclock combination */
-	for(k=0;k<monitor->mode_mac;++k) {
+	for (k = 0; k < monitor->mode_mac; ++k) {
 		const adv_monitor_mode* mode = &monitor->mode_map[k];
 		int try_vtotal;
 		double try_hclock;
@@ -346,7 +346,7 @@ static adv_error crtc_find_nearest_vtotal_fix_vclock(unsigned* req_vtotal, doubl
 	vtotal = *req_vtotal;
 
 	/* check for every hclock limit */
-	for(j=0;j<monitor->mode_mac;++j) {
+	for (j = 0; j < monitor->mode_mac; ++j) {
 		const adv_monitor_mode* mode = &monitor->mode_map[j];
 		int try_vtotal;
 		double try_hclock;
@@ -397,21 +397,21 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 	if ((adjust & CRTC_ADJUST_EXACT) != 0) {
 		/* exact match */
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) != 0) {
-			if (crtc_find_exact(*req_vtotal, *req_vclock, monitor)==0) {
+			if (crtc_find_exact(*req_vtotal, *req_vclock, monitor) == 0) {
 				*req_factor = 1;
 				return 0;
 			}
 		}
 
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) != 0) {
-			if (crtc_find_exact(*req_vtotal * 2, *req_vclock, monitor)==0) {
+			if (crtc_find_exact(*req_vtotal * 2, *req_vclock, monitor) == 0) {
 				*req_factor = 2;
 				return 0;
 			}
 		}
 
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) != 0) {
-			if (crtc_find_exact(*req_vtotal / 2, *req_vclock, monitor)==0) {
+			if (crtc_find_exact(*req_vtotal / 2, *req_vclock, monitor) == 0) {
 				*req_factor = 0.5;
 				return 0;
 			}
@@ -422,7 +422,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 		/* best vclock */
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) != 0) {
 			double try_vclock = *req_vclock;
-			if (crtc_find_nearest_vclock(*req_vtotal, &try_vclock, monitor)==0) {
+			if (crtc_find_nearest_vclock(*req_vtotal, &try_vclock, monitor) == 0) {
 				if (!best_found || fabs(try_vclock - *req_vclock) < fabs(best_vclock - *req_vclock)) {
 					best_factor = 1;
 					best_vclock = try_vclock;
@@ -433,7 +433,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) != 0) {
 			double try_vclock = *req_vclock;
-			if (crtc_find_nearest_vclock(*req_vtotal * 2, &try_vclock, monitor)==0) {
+			if (crtc_find_nearest_vclock(*req_vtotal * 2, &try_vclock, monitor) == 0) {
 				if (!best_found || fabs(try_vclock - *req_vclock) < fabs(best_vclock - *req_vclock)) {
 					best_factor = 2;
 					best_vclock = try_vclock;
@@ -444,7 +444,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) != 0) {
 			double try_vclock = *req_vclock;
-			if (crtc_find_nearest_vclock(*req_vtotal / 2, &try_vclock, monitor)==0) {
+			if (crtc_find_nearest_vclock(*req_vtotal / 2, &try_vclock, monitor) == 0) {
 				if (!best_found || fabs(try_vclock - *req_vclock) < fabs(best_vclock - *req_vclock)) {
 					best_factor = 0.5;
 					best_vclock = try_vclock;
@@ -464,7 +464,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 		/* best vtotal */
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) != 0) {
 			unsigned try_vtotal = *req_vtotal;
-			if (crtc_find_nearest_vtotal_fix_vclock(&try_vtotal, *req_vclock, monitor)==0) {
+			if (crtc_find_nearest_vtotal_fix_vclock(&try_vtotal, *req_vclock, monitor) == 0) {
 				if (!best_found || abs(try_vtotal - *req_vtotal) < abs(best_vtotal - *req_vtotal)) {
 					best_factor = 1;
 					best_vtotal = try_vtotal;
@@ -475,7 +475,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) != 0) {
 			unsigned try_vtotal = *req_vtotal * 2;
-			if (crtc_find_nearest_vtotal_fix_vclock(&try_vtotal, *req_vclock, monitor)==0) {
+			if (crtc_find_nearest_vtotal_fix_vclock(&try_vtotal, *req_vclock, monitor) == 0) {
 				if (!best_found || abs(try_vtotal - *req_vtotal) < abs(best_vtotal - *req_vtotal)) {
 					best_factor = 2;
 					best_vtotal = try_vtotal / 2;
@@ -486,7 +486,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) != 0) {
 			unsigned try_vtotal = *req_vtotal / 2;
-			if (crtc_find_nearest_vtotal_fix_vclock(&try_vtotal, *req_vclock, monitor)==0) {
+			if (crtc_find_nearest_vtotal_fix_vclock(&try_vtotal, *req_vclock, monitor) == 0) {
 				if (!best_found || abs(try_vtotal - *req_vtotal) < abs(best_vtotal - *req_vtotal)) {
 					best_factor = 0.5;
 					best_vtotal = try_vtotal * 2;
@@ -507,7 +507,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN) != 0) {
 			double try_vclock = *req_vclock;
 			unsigned try_vtotal = *req_vtotal;
-			if (crtc_find_nearest_vtotal(&try_vtotal, &try_vclock, monitor)==0) {
+			if (crtc_find_nearest_vtotal(&try_vtotal, &try_vclock, monitor) == 0) {
 				if (!best_found || abs(try_vtotal - *req_vtotal) < abs(best_vtotal - *req_vtotal)) {
 					best_factor = 1;
 					best_vclock = try_vclock;
@@ -520,7 +520,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN) != 0) {
 			double try_vclock = *req_vclock;
 			unsigned try_vtotal = *req_vtotal * 2;
-			if (crtc_find_nearest_vtotal(&try_vtotal, &try_vclock, monitor)==0) {
+			if (crtc_find_nearest_vtotal(&try_vtotal, &try_vclock, monitor) == 0) {
 				if (!best_found || abs(try_vtotal - *req_vtotal) < abs(best_vtotal - *req_vtotal)) {
 					best_factor = 2;
 					best_vclock = try_vclock;
@@ -533,7 +533,7 @@ adv_error crtc_find(unsigned* req_vtotal, double* req_vclock, double* req_factor
 		if ((cap & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE) != 0) {
 			double try_vclock = *req_vclock;
 			unsigned try_vtotal = *req_vtotal / 2;
-			if (crtc_find_nearest_vtotal(&try_vtotal, &try_vclock, monitor)==0) {
+			if (crtc_find_nearest_vtotal(&try_vtotal, &try_vclock, monitor) == 0) {
 				if (!best_found || abs(try_vtotal - *req_vtotal) < abs(best_vtotal - *req_vtotal)) {
 					best_factor = 0.5;
 					best_vclock = try_vclock;
@@ -740,7 +740,8 @@ adv_bool crtc_is_fake(const adv_crtc* crtc)
  */
 adv_bool crtc_is_valid(const adv_crtc* crtc)
 {
-	return crtc->pixelclock>0
-		&& crtc->hde <= crtc->hrs && crtc->hrs < crtc->hre && crtc->hre <= crtc->ht
-		&& crtc->vde <= crtc->vrs && crtc->vrs < crtc->vre && crtc->vre <= crtc->vt;
+	return crtc->pixelclock > 0
+	       && crtc->hde <= crtc->hrs && crtc->hrs < crtc->hre && crtc->hre <= crtc->ht
+	       && crtc->vde <= crtc->vrs && crtc->vrs < crtc->vre && crtc->vre <= crtc->vt;
 }
+

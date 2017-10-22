@@ -62,3 +62,4 @@ void update_stop(unsigned x, unsigned y, unsigned size_x, unsigned size_y, adv_b
 #endif
 
 /*@}*/
+

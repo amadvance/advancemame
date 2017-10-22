@@ -157,8 +157,7 @@ typedef struct vbe_ModeInfoBlock_struct {
 #define vbeStAll 0x000F /* Save all states */
 
 /* VBE 2.0 Protected Mode Interface, optional in VBE 3.0 */
-typedef struct vbe_PMInterface_struct
-{
+typedef struct vbe_PMInterface_struct {
 	uint16 setWindow __attribute__ ((packed)); /* Offset of Set Window call */
 	uint16 setDisplayStart __attribute__ ((packed)); /* Offset of Set Display Start call */
 	uint16 setPalette __attribute__ ((packed)); /* Offset of Set Primary Palette */
@@ -363,3 +362,4 @@ adv_error vbe_restore_state(unsigned size, void* ptr);
 adv_error vbe_save_state(unsigned* psize, void** pptr);
 
 #endif
+

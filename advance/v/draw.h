@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -120,3 +120,4 @@ typedef int (*entry_separator)(void* data, int n);
 int draw_text_menu(int x, int y, int dx, int dy, void* data, int mac, entry_print print, entry_separator separator, int* abase, int* apos, int* akey);
 
 #endif
+

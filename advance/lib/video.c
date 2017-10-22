@@ -102,7 +102,7 @@ static void video_color_def_adjust(adv_color_def def_ordinal)
 		video_state.rgb_blue_len = 0;
 		video_state.rgb_mask_bit = 0;
 		video_state.rgb_high_bit = 0;
-		video_state.rgb_low_bit =  0;
+		video_state.rgb_low_bit = 0;
 	}
 }
 
@@ -155,22 +155,22 @@ static void video_fake_text_adjust(void)
 }
 
 static adv_color_rgb fake_text_palette[16] = {
-{   0,  0,  0, 0 },
-{ 192,  0,  0, 0 },
-{   0, 192,  0, 0 },
-{ 192, 192,  0, 0 },
-{   0,  0, 192, 0 },
-{ 192,  0, 192, 0 },
-{   0, 192, 192, 0 },
-{ 192, 192, 192, 0 },
-{ 128, 128, 128, 0 },
-{ 255, 128, 128, 0 },
-{ 128, 255, 128, 0 },
-{ 255, 255, 128, 0 },
-{ 128, 128, 255, 0 },
-{ 255, 128, 255, 0 },
-{ 128, 255, 255, 0 },
-{ 255, 255, 255, 0 }
+	{ 0, 0, 0, 0 },
+	{ 192, 0, 0, 0 },
+	{ 0, 192, 0, 0 },
+	{ 192, 192, 0, 0 },
+	{ 0, 0, 192, 0 },
+	{ 192, 0, 192, 0 },
+	{ 0, 192, 192, 0 },
+	{ 192, 192, 192, 0 },
+	{ 128, 128, 128, 0 },
+	{ 255, 128, 128, 0 },
+	{ 128, 255, 128, 0 },
+	{ 255, 255, 128, 0 },
+	{ 128, 128, 255, 0 },
+	{ 255, 128, 255, 0 },
+	{ 128, 255, 255, 0 },
+	{ 255, 255, 255, 0 }
 };
 
 #include "fonttxt.dat"
@@ -199,13 +199,13 @@ void video_fake_text_wait_vsync(void)
 	/* update the last buffer */
 	memcpy(video_state.fake_text_last_map, video_state.fake_text_map, size);
 
-	for(i=0;i<16;++i)
+	for (i = 0; i < 16; ++i)
 		color[i] = pixel_make_from_def(fake_text_palette[i].red, fake_text_palette[i].green, fake_text_palette[i].blue, color_def);
 
 	video_write_lock();
 
-	for(y=0;y<video_state.fake_text_dy;++y) {
-		for(x=0;x<video_state.fake_text_dx;++x) {
+	for (y = 0; y < video_state.fake_text_dy; ++y) {
+		for (x = 0; x < video_state.fake_text_dx; ++x) {
 			unsigned cx, cy;
 			unsigned sx, sy;
 			unsigned ch, at;
@@ -214,15 +214,15 @@ void video_fake_text_wait_vsync(void)
 
 			sx = x * 8;
 			sy = y * 16;
-			ch = video_state.fake_text_map[(y*video_state.fake_text_dx+x)*2];
-			at = video_state.fake_text_map[(y*video_state.fake_text_dx+x)*2+1];
+			ch = video_state.fake_text_map[(y * video_state.fake_text_dx + x) * 2];
+			at = video_state.fake_text_map[(y * video_state.fake_text_dx + x) * 2 + 1];
 			c0 = color[(at >> 4) & 0xF];
 			c1 = color[at & 0xF];
 			bit = FONT + ch * 16;
 
-			for(cy=0;cy<16;++cy) {
+			for (cy = 0; cy < 16; ++cy) {
 				unsigned char* line = write_line(sy + cy) + sx * 2;
-				for(cx=0;cx<8;++cx) {
+				for (cx = 0; cx < 8; ++cx) {
 					unsigned c;
 					if ((bit[cy] & (0x80 >> cx)) != 0)
 						c = c1;
@@ -301,16 +301,16 @@ void video_default(void)
 }
 
 static adv_conf_enum_int OPTION_OUTPUT[] = {
-{ "auto", adv_output_auto },
-{ "window", adv_output_window },
-{ "fullscreen", adv_output_fullscreen },
-{ "overlay", adv_output_overlay }
+	{ "auto", adv_output_auto },
+	{ "window", adv_output_window },
+	{ "fullscreen", adv_output_fullscreen },
+	{ "overlay", adv_output_overlay }
 };
 
 static adv_conf_enum_int OPTION_CURSOR[] = {
-{ "auto", adv_cursor_auto },
-{ "off", adv_cursor_off },
-{ "on", adv_cursor_on },
+	{ "auto", adv_cursor_auto },
+	{ "off", adv_cursor_off },
+	{ "on", adv_cursor_on },
 };
 
 /**
@@ -361,7 +361,7 @@ unsigned video_driver_vector_max(void)
 {
 	unsigned count = 0;
 	unsigned i;
-	for(i=0;i<video_state.driver_mac;++i)
+	for (i = 0; i < video_state.driver_mac; ++i)
 		if (video_state.driver_map[i] != 0)
 			++count;
 	return count;
@@ -375,7 +375,7 @@ const adv_video_driver* video_driver_vector_pos(unsigned i)
 {
 	unsigned count = 0;
 	unsigned j;
-	for(j=0;j<video_state.driver_mac;++j) {
+	for (j = 0; j < video_state.driver_mac; ++j) {
 		if (video_state.driver_map[j] != 0) {
 			if (i == count)
 				return video_state.driver_map[j];
@@ -420,7 +420,7 @@ adv_error adv_video_init(void)
 
 	at_least_one_failed = 0;
 	at_least_one_success = 0;
-	for(i=0;i<video_state.driver_mac;++i) {
+	for (i = 0; i < video_state.driver_mac; ++i) {
 		unsigned j;
 		const adv_device* dev;
 
@@ -489,7 +489,7 @@ void adv_video_done(void)
 	video_state.active = 0;
 
 	/* disable all the video driver */
-	for(i=0;i<video_state.driver_mac;++i) {
+	for (i = 0; i < video_state.driver_mac; ++i) {
 		if (video_state.driver_map[i]) {
 			video_state.driver_map[i]->done();
 		}
@@ -565,7 +565,7 @@ adv_error video_load(adv_conf* context, const char* driver_ignore)
 
 	/* load the specific driver options */
 	at_least_one = 0;
-	for(i=0;i<video_state.driver_mac;++i) {
+	for (i = 0; i < video_state.driver_mac; ++i) {
 		const adv_device* dev;
 
 		dev = device_match(video_option.name, (const adv_driver*)video_state.driver_map[i], 0);
@@ -783,9 +783,9 @@ adv_error video_mode_grab(adv_mode* mode)
 	unsigned char driver_mode[MODE_DRIVER_MODE_SIZE_MAX];
 	unsigned i;
 
-	for(i=0;i<video_state.driver_mac;++i) {
+	for (i = 0; i < video_state.driver_mac; ++i) {
 		if (video_state.driver_map[i] && video_state.driver_map[i]->mode_grab) {
-			if (video_state.driver_map[i]->mode_grab(&driver_mode)==0 && video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
+			if (video_state.driver_map[i]->mode_grab(&driver_mode) == 0 && video_state.driver_map[i]->mode_import(mode, &driver_mode) == 0) {
 				return 0;
 			}
 		}
@@ -810,7 +810,7 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned fla
 	error_nolog_set("No driver is capable to do the specified video mode. The errors are:\n");
 
 	/* try any enabled driver */
-	for(i=0;i<video_state.driver_mac;++i) {
+	for (i = 0; i < video_state.driver_mac; ++i) {
 		if (video_state.driver_map[i]) {
 			driver_flags = video_capability_flags(video_state.driver_map[i]->flags());
 
@@ -818,8 +818,8 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned fla
 
 			/* allow also faked crtc (with all values at 0), the driver */
 			/* must reject them if they are not allowed  */
-			if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, flags)==0
-				&& video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
+			if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, flags) == 0
+				&& video_state.driver_map[i]->mode_import(mode, &driver_mode) == 0) {
 				error_cat_set(0, 0);
 				error_reset();
 				log_pedantic(("video: using driver %s for mode %s\n", video_state.driver_map[i]->name, mode->name));
@@ -832,7 +832,7 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned fla
 				&& (driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR8) == 0
 			) {
 				unsigned fake_flags = (flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_PALETTE8;
-				if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, fake_flags)==0 && video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
+				if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, fake_flags) == 0 && video_state.driver_map[i]->mode_import(mode, &driver_mode) == 0) {
 					error_cat_set(0, 0);
 					error_reset();
 					/* adjust the flags */
@@ -850,7 +850,7 @@ adv_error video_mode_generate(adv_mode* mode, const adv_crtc* crtc, unsigned fla
 				&& (driver_flags & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0
 			) {
 				unsigned fake_flags = (flags & ~MODE_FLAGS_INDEX_MASK) | MODE_FLAGS_INDEX_BGR16;
-				if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, fake_flags)==0 && video_state.driver_map[i]->mode_import(mode, &driver_mode)==0) {
+				if (video_state.driver_map[i]->mode_generate(&driver_mode, crtc, fake_flags) == 0 && video_state.driver_map[i]->mode_import(mode, &driver_mode) == 0) {
 					error_cat_set(0, 0);
 					error_reset();
 					/* adjust the flags */
@@ -903,49 +903,49 @@ adv_error video_mode_generate_check(const char* driver, unsigned driver_flags, u
 	}
 
 	switch (flags & MODE_FLAGS_INDEX_MASK) {
-	case MODE_FLAGS_INDEX_PALETTE8 :
+	case MODE_FLAGS_INDEX_PALETTE8:
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) == 0) {
 			error_nolog_set("Mode palette8 not supported.\n");
 			return -1;
 		}
 		break;
-	case MODE_FLAGS_INDEX_BGR8 :
+	case MODE_FLAGS_INDEX_BGR8:
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR8) == 0) {
 			error_nolog_set("Mode bgr8 not supported.\n");
 			return -1;
 		}
 		break;
-	case MODE_FLAGS_INDEX_BGR15 :
+	case MODE_FLAGS_INDEX_BGR15:
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR15) == 0) {
 			error_nolog_set("Mode bgr15 not supported.\n");
 			return -1;
 		}
 		break;
-	case MODE_FLAGS_INDEX_BGR16 :
+	case MODE_FLAGS_INDEX_BGR16:
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) == 0) {
 			error_nolog_set("Mode bgr16 not supported.\n");
 			return -1;
 		}
 		break;
-	case MODE_FLAGS_INDEX_BGR24 :
+	case MODE_FLAGS_INDEX_BGR24:
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR24) == 0) {
 			error_nolog_set("Mode bgr24 not supported.\n");
 			return -1;
 		}
 		break;
-	case MODE_FLAGS_INDEX_BGR32 :
+	case MODE_FLAGS_INDEX_BGR32:
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_BGR32) == 0) {
 			error_nolog_set("Mode bgr32 not supported.\n");
 			return -1;
 		}
 		break;
-	case MODE_FLAGS_INDEX_YUY2 :
+	case MODE_FLAGS_INDEX_YUY2:
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_YUY2) == 0) {
 			error_nolog_set("Mode yuy2 not supported.\n");
 			return -1;
 		}
 		break;
-	case MODE_FLAGS_INDEX_TEXT :
+	case MODE_FLAGS_INDEX_TEXT:
 		if ((driver_flags & VIDEO_DRIVER_FLAGS_MODE_TEXT) == 0) {
 			error_nolog_set("Mode text not supported.\n");
 			return -1;
@@ -978,7 +978,7 @@ unsigned video_mode_generate_driver_flags(unsigned flags_or, unsigned flags_and)
 	/* add flags only with the same capabilities */
 	equality_mask = VIDEO_DRIVER_FLAGS_PROGRAMMABLE_MASK | VIDEO_DRIVER_FLAGS_OUTPUT_MASK;
 
-	for(i=0;i<video_state.driver_mac;++i) {
+	for (i = 0; i < video_state.driver_mac; ++i) {
 		if (video_state.driver_map[i]) {
 			/* limit the flags with the video internal options */
 			unsigned driver_flags = video_fake_flags(video_capability_flags(video_state.driver_map[i]->flags()));
@@ -1149,22 +1149,22 @@ static inline void video_put_pixel_noclip(unsigned x, unsigned y, unsigned color
 {
 	unsigned char* line = video_write_line(y);
 	switch (video_bytes_per_pixel()) {
-	case 1 :
+	case 1:
 		line[x] = color & 0xFF;
 		break;
-	case 2 :
-		line += 2*x;
+	case 2:
+		line += 2 * x;
 		line[0] = color & 0xFF;
 		line[1] = (color >> 8) & 0xFF;
 		break;
-	case 3 :
-		line += 3*x;
+	case 3:
+		line += 3 * x;
 		line[0] = color & 0xFF;
 		line[1] = (color >> 8) & 0xFF;
 		line[2] = (color >> 16) & 0xFF;
 		break;
-	case 4 :
-		line += 4*x;
+	case 4:
+		line += 4 * x;
 		line[0] = color & 0xFF;
 		line[1] = (color >> 8) & 0xFF;
 		line[2] = (color >> 16) & 0xFF;
@@ -1203,12 +1203,12 @@ void video_index_packed_to_rgb(int waitvsync)
 	video_state.mode.flags |= MODE_FLAGS_INDEX_PALETTE8;
 
 	/* set the new color definition */
-	video_color_def_adjust(color_def_make_rgb_from_sizelenpos(1, bit_r, bit_b+bit_g, bit_g, bit_b, bit_b, 0));
+	video_color_def_adjust(color_def_make_rgb_from_sizelenpos(1, bit_r, bit_b + bit_g, bit_g, bit_b, bit_b, 0));
 
 	palette = malloc(colors * sizeof(adv_color_rgb));
 	assert(palette);
 
-	for(i=0;i<colors;++i) {
+	for (i = 0; i < colors; ++i) {
 		palette[i].red = video_red_get_approx(i);
 		palette[i].green = video_green_get_approx(i);
 		palette[i].blue = video_blue_get_approx(i);

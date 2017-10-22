@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -67,7 +67,7 @@ typedef struct adv_mng_struct {
 	unsigned char* dat_ptr; /**< Current image buffer. */
 	unsigned dat_size; /**< Size of the buffer image. */
 	unsigned dat_line; /**< Bytes per scanline. */
-	
+
 	int dat_x; /**< X position of the displayed area in the working area. */
 	int dat_y; /**< Y position of the displayed area in the working area. */
 	unsigned dat_width; /**< Width of the working area. */
@@ -77,7 +77,7 @@ typedef struct adv_mng_struct {
 	unsigned dlt_size; /**< Delta buffer size. */
 	unsigned dlt_line; /**< Delta bufer bytes per scanline. */
 
-	unsigned char pal_ptr[256*3]; /**< Palette data. */
+	unsigned char pal_ptr[256 * 3]; /**< Palette data. */
 	unsigned pal_size; /**< Palette data size in bytes. */
 
 	unsigned frame_frequency; /**< Base frame rate. */

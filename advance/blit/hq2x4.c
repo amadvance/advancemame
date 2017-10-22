@@ -45,7 +45,7 @@ void hq2x4_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, in
 {
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		unsigned char mask;
 
 		interp_uint16 c[9];
@@ -54,7 +54,7 @@ void hq2x4_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, in
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i > 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -64,7 +64,7 @@ void hq2x4_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, in
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i < count - 1) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -93,17 +93,17 @@ void hq2x4_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, in
 		if (interp_16_diff(c[8], c[4]))
 			mask |= 1 << 7;
 
-#define P(a, b) dst##b[a]
+#define P(a, b) dst ## b[a]
 #define MUR interp_16_diff(c[1], c[5])
 #define MDR interp_16_diff(c[5], c[7])
 #define MDL interp_16_diff(c[7], c[3])
 #define MUL interp_16_diff(c[3], c[1])
 #define I1(p0) c[p0]
-#define I2(i0, i1, p0, p1) interp_16_##i0##i1(c[p0], c[p1])
-#define I3(i0, i1, i2, p0, p1, p2) interp_16_##i0##i1##i2(c[p0], c[p1], c[p2])
+#define I2(i0, i1, p0, p1) interp_16_ ## i0 ## i1(c[p0], c[p1])
+#define I3(i0, i1, i2, p0, p1, p2) interp_16_ ## i0 ## i1 ## i2(c[p0], c[p1], c[p2])
 
 		switch (mask) {
-		#include "hq2x4.dat"
+#include "hq2x4.dat"
 		}
 
 #undef P
@@ -129,7 +129,7 @@ void hq2x4_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, in
 {
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		unsigned char mask;
 
 		interp_uint32 c[9];
@@ -138,7 +138,7 @@ void hq2x4_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, in
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i > 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -148,7 +148,7 @@ void hq2x4_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, in
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i < count - 1) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -177,17 +177,17 @@ void hq2x4_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, in
 		if (interp_32_diff(c[8], c[4]))
 			mask |= 1 << 7;
 
-#define P(a, b) dst##b[a]
+#define P(a, b) dst ## b[a]
 #define MUR interp_32_diff(c[1], c[5])
 #define MDR interp_32_diff(c[5], c[7])
 #define MDL interp_32_diff(c[7], c[3])
 #define MUL interp_32_diff(c[3], c[1])
 #define I1(p0) c[p0]
-#define I2(i0, i1, p0, p1) interp_32_##i0##i1(c[p0], c[p1])
-#define I3(i0, i1, i2, p0, p1, p2) interp_32_##i0##i1##i2(c[p0], c[p1], c[p2])
+#define I2(i0, i1, p0, p1) interp_32_ ## i0 ## i1(c[p0], c[p1])
+#define I3(i0, i1, i2, p0, p1, p2) interp_32_ ## i0 ## i1 ## i2(c[p0], c[p1], c[p2])
 
 		switch (mask) {
-		#include "hq2x4.dat"
+#include "hq2x4.dat"
 		}
 
 #undef P
@@ -213,7 +213,7 @@ void hq2x4_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 {
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		unsigned char mask;
 
 		interp_uint32 c[9];
@@ -222,7 +222,7 @@ void hq2x4_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i > 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -232,7 +232,7 @@ void hq2x4_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i < count - 1) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -261,17 +261,17 @@ void hq2x4_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 		if (interp_yuy2_diff(c[8], c[4]))
 			mask |= 1 << 7;
 
-#define P(a, b) dst##b[a]
+#define P(a, b) dst ## b[a]
 #define MUR interp_yuy2_diff(c[1], c[5])
 #define MDR interp_yuy2_diff(c[5], c[7])
 #define MDL interp_yuy2_diff(c[7], c[3])
 #define MUL interp_yuy2_diff(c[3], c[1])
 #define I1(p0) c[p0]
-#define I2(i0, i1, p0, p1) interp_yuy2_##i0##i1(c[p0], c[p1])
-#define I3(i0, i1, i2, p0, p1, p2) interp_yuy2_##i0##i1##i2(c[p0], c[p1], c[p2])
+#define I2(i0, i1, p0, p1) interp_yuy2_ ## i0 ## i1(c[p0], c[p1])
+#define I3(i0, i1, i2, p0, p1, p2) interp_yuy2_ ## i0 ## i1 ## i2(c[p0], c[p1], c[p2])
 
 		switch (mask) {
-		#include "hq2x4.dat"
+#include "hq2x4.dat"
 		}
 
 #undef P

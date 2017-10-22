@@ -50,8 +50,8 @@ static const adv_device* device_match_one(const char* tag, const adv_driver* drv
 		tag_device = "auto";
 	}
 
-	if (strcmp(drv->name, "none")==0) {
-		if (allow_none || strcmp(tag_driver, "none")==0) {
+	if (strcmp(drv->name, "none") == 0) {
+		if (allow_none || strcmp(tag_driver, "none") == 0) {
 			assert(drv->device_map->name != 0);
 			return drv->device_map;
 		} else {
@@ -59,12 +59,12 @@ static const adv_device* device_match_one(const char* tag, const adv_driver* drv
 		}
 	}
 
-	if (strcmp(tag_driver, "auto")!=0 && strcmp(tag_driver, drv->name)!=0)
+	if (strcmp(tag_driver, "auto") != 0 && strcmp(tag_driver, drv->name) != 0)
 		return 0;
 
 	i = drv->device_map;
 	while (i->name) {
-		if (strcmp(i->name, tag_device)==0)
+		if (strcmp(i->name, tag_device) == 0)
 			break;
 		++i;
 	}
@@ -110,10 +110,10 @@ void device_error(const char* option, const char* arg, const adv_driver** driver
 	target_err("Valid values are:\n");
 	target_err("%16s %s\n", "auto", "Automatic detection");
 
-	for(i=0;i<driver_mac;++i) {
-		for(j=0;driver_map[i]->device_map[j].name;++j) {
+	for (i = 0; i < driver_mac; ++i) {
+		for (j = 0; driver_map[i]->device_map[j].name; ++j) {
 			char buffer[DEVICE_NAME_MAX];
-			if (strcmp(driver_map[i]->device_map[j].name, "auto")==0) {
+			if (strcmp(driver_map[i]->device_map[j].name, "auto") == 0) {
 				snprintf(buffer, sizeof(buffer), "%s", driver_map[i]->name);
 			} else {
 				snprintf(buffer, sizeof(buffer), "%s/%s", driver_map[i]->name, driver_map[i]->device_map[j].name);
@@ -133,14 +133,14 @@ adv_error device_check(const char* option, const char* arg, const adv_driver** d
 	sncpy(buffer, sizeof(buffer), arg);
 	tag_one = strtok(buffer, " \t");
 	while (tag_one) {
-		if (strcmp("auto", tag_one)!=0 && strstr(driver_ignore, tag_one)==0) {
-			for(i=0;i<driver_mac;++i) {
-				if (strcmp(driver_map[i]->name, tag_one)==0)
+		if (strcmp("auto", tag_one) != 0 && strstr(driver_ignore, tag_one) == 0) {
+			for (i = 0; i < driver_mac; ++i) {
+				if (strcmp(driver_map[i]->name, tag_one) == 0)
 					break;
-				for(j=0;driver_map[i]->device_map[j].name;++j) {
+				for (j = 0; driver_map[i]->device_map[j].name; ++j) {
 					char cat_buffer[DEVICE_NAME_MAX];
 					snprintf(cat_buffer, sizeof(cat_buffer), "%s/%s", driver_map[i]->name, driver_map[i]->device_map[j].name);
-					if (strcmp(cat_buffer, tag_one)==0)
+					if (strcmp(cat_buffer, tag_one) == 0)
 						break;
 				}
 				if (driver_map[i]->device_map[j].name)

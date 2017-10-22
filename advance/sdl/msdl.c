@@ -53,8 +53,8 @@ struct mouseb_sdl_context {
 static struct mouseb_sdl_context sdl_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "SDL mouse" },
-{ 0, 0, 0 }
+	{ "auto", -1, "SDL mouse" },
+	{ 0, 0, 0 }
 };
 
 adv_error mouseb_sdl_init(int mouseb_id)
@@ -69,7 +69,7 @@ adv_error mouseb_sdl_init(int mouseb_id)
 	/* SDL requires a video mode set with a window to have mouse working */
 	if (!os_internal_sdl_is_video_active()) {
 		error_set("The SDL mouse driver requires the SDL video driver.\n");
-		return -1; 
+		return -1;
 	}
 
 	sdl_state.button_map[0] = 0;
@@ -114,9 +114,9 @@ int mouseb_sdl_axe_get(unsigned mouse, unsigned axe)
 	log_debug(("mouseb:sdl: mouseb_sdl_pos_get()\n"));
 
 	switch (axe) {
-	case 0 : r = sdl_state.x; sdl_state.x = 0; break;
-	case 1 : r = sdl_state.y; sdl_state.y = 0; break;
-	default : r = 0;
+	case 0: r = sdl_state.x; sdl_state.x = 0; break;
+	case 1: r = sdl_state.y; sdl_state.y = 0; break;
+	default: r = 0;
 	}
 
 	return r;
@@ -188,5 +188,4 @@ mouseb_driver mouseb_sdl_driver = {
 	mouseb_sdl_button_get,
 	mouseb_sdl_poll
 };
-
 

@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -105,8 +105,8 @@ unsigned text_size_y(void)
 void text_clear(void)
 {
 	unsigned x, y;
-	for(x=0;x<text_size_x();++x)
-		for(y=0;y<text_size_y();++y)
+	for (x = 0; x < text_size_x(); ++x)
+		for (y = 0; y < text_size_y(); ++y)
 			video_put_char(x, y, ' ', 0);
 }
 
@@ -116,8 +116,8 @@ int text_crtc_compare(const adv_crtc* a, const adv_crtc* b)
 	unsigned as = a->hde * a->vde;
 	unsigned bs = b->hde * b->vde;
 
-	int ad = abs(as - 640*480);
-	int bd = abs(bs - 640*480);
+	int ad = abs(as - 640 * 480);
+	int bd = abs(bs - 640 * 480);
 
 	if (ad > bd)
 		return -1;
@@ -135,12 +135,12 @@ static int text_default_set(adv_crtc_container* cc, adv_monitor* monitor)
 
 	/* search for the default mode */
 	if (cc && monitor && !the_default_mode_flag) {
-		for(crtc_container_iterator_begin(&i, cc);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+		for (crtc_container_iterator_begin(&i, cc); !crtc_container_iterator_is_end(&i); crtc_container_iterator_next(&i)) {
 			const adv_crtc* crtc = crtc_container_iterator_get(&i);
 			adv_mode mode;
-			if (strcmp(crtc->name, DEFAULT_TEXT_MODE)==0) {
+			if (strcmp(crtc->name, DEFAULT_TEXT_MODE) == 0) {
 				if ((crtc_is_fake(crtc) || crtc_clock_check(monitor, crtc))
-					&& video_mode_generate(&mode, crtc, MODE_FLAGS_INDEX_TEXT)==0) {
+					&& video_mode_generate(&mode, crtc, MODE_FLAGS_INDEX_TEXT) == 0) {
 					log_std(("text: using specified %s mode\n", crtc->name));
 					the_default_mode = mode;
 					the_default_mode_flag = 1;
@@ -152,12 +152,12 @@ static int text_default_set(adv_crtc_container* cc, adv_monitor* monitor)
 	/* search the best mode in the list */
 	if (cc && monitor && !the_default_mode_flag) {
 		adv_crtc default_crtc = { 0 };
-		for(crtc_container_iterator_begin(&i, cc);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+		for (crtc_container_iterator_begin(&i, cc); !crtc_container_iterator_is_end(&i); crtc_container_iterator_next(&i)) {
 			const adv_crtc* crtc = crtc_container_iterator_get(&i);
 			adv_mode mode;
 			if ((crtc_is_fake(crtc) || crtc_clock_check(monitor, crtc))
-				&& video_mode_generate(&mode, crtc, MODE_FLAGS_INDEX_TEXT)==0) {
-				if (!the_default_mode_flag || text_crtc_compare(crtc, &default_crtc)>0) {
+				&& video_mode_generate(&mode, crtc, MODE_FLAGS_INDEX_TEXT) == 0) {
+				if (!the_default_mode_flag || text_crtc_compare(crtc, &default_crtc) > 0) {
 					log_std(("text: using mode %s from list\n", crtc->name));
 					the_default_mode = mode;
 					default_crtc = *crtc;
@@ -174,7 +174,7 @@ static int text_default_set(adv_crtc_container* cc, adv_monitor* monitor)
 			adv_mode mode;
 			crtc_reset(&crtc);
 			crtc_fake_set(&crtc, 640, 480);
-			if (video_mode_generate(&mode, &crtc, MODE_FLAGS_INDEX_TEXT)==0) {
+			if (video_mode_generate(&mode, &crtc, MODE_FLAGS_INDEX_TEXT) == 0) {
 				log_std(("text: using generated mode\n"));
 				the_default_mode = mode;
 				the_default_mode_flag = 1;
@@ -196,7 +196,7 @@ static int text_default_set(adv_crtc_container* cc, adv_monitor* monitor)
 	if (!the_default_mode_flag)
 		return 0;
 
-	if (video_mode_set(&the_default_mode)!=0)
+	if (video_mode_set(&the_default_mode) != 0)
 		return -1;
 
 	return 0;
@@ -204,7 +204,7 @@ static int text_default_set(adv_crtc_container* cc, adv_monitor* monitor)
 
 adv_error text_init(adv_crtc_container* cc, adv_monitor* monitor)
 {
-	if (text_default_set(cc, monitor)!=0) {
+	if (text_default_set(cc, monitor) != 0) {
 		video_mode_restore();
 		target_err("Error initialing the default video mode.\n\r\"%s\"\n\r", error_get());
 		return -1;
@@ -226,7 +226,7 @@ void text_reset(void)
 	if (video_mode_is_active())
 		video_mode_done(1);
 
-	if (video_mode_set(&the_default_mode)!=0) {
+	if (video_mode_set(&the_default_mode) != 0) {
 		video_mode_restore();
 		target_err("Error initialing the default video mode\n\r");
 		exit(EXIT_FAILURE);
@@ -245,7 +245,7 @@ void text_done(void)
 
 void text_put(int x, int y, char c, int color)
 {
-	if (y>=0 && y<text_size_y() && x>=0 && x<text_size_x()) {
+	if (y >= 0 && y < text_size_y() && x >= 0 && x < text_size_x()) {
 		video_put_char(x, y, c, color);
 	}
 }
@@ -254,7 +254,7 @@ adv_error text_mode_set(adv_mode* mode)
 {
 	inputb_disable();
 
-	if (video_mode_set(mode)!=0) {
+	if (video_mode_set(mode) != 0) {
 		inputb_enable(0); /* ignore error */
 		return -1;
 	}
@@ -356,15 +356,15 @@ void draw_char(int x, int y, char c, unsigned color)
 {
 	if (video_is_graphics()) {
 		int i, j;
-		unsigned char* p = draw_font + 8*(unsigned)c;
+		unsigned char* p = draw_font + 8 * (unsigned)c;
 		x *= DRAW_FONTX;
 		y *= DRAW_FONTY;
-		for(i=0;i<DRAW_FONTY;++i) {
-			for(j=0;j<DRAW_FONTX;++j) {
-				if (p[i] & (1 << (7-j)))
-					video_put_pixel(x+j, y+i, color);
+		for (i = 0; i < DRAW_FONTY; ++i) {
+			for (j = 0; j < DRAW_FONTX; ++j) {
+				if (p[i] & (1 << (7 - j)))
+					video_put_pixel(x + j, y + i, color);
 				else
-					video_put_pixel(x+j, y+i, DRAW_COLOR_BLACK);
+					video_put_pixel(x + j, y + i, DRAW_COLOR_BLACK);
 			}
 		}
 	} else if (video_is_text()) {
@@ -385,7 +385,7 @@ void draw_string(int x, int y, const char* s, unsigned color)
 
 void draw_text_fill(int x, int y, char c, int dx, unsigned color)
 {
-	while (dx>0) {
+	while (dx > 0) {
 		text_put(x, y, c, color);
 		--dx;
 		++x;
@@ -394,7 +394,7 @@ void draw_text_fill(int x, int y, char c, int dx, unsigned color)
 
 void draw_text_fillrect(int x, int y, char c, int dx, int dy, unsigned color)
 {
-	while (dy-->0) {
+	while (dy-- > 0) {
 		draw_text_fill(x, y++, c, dx, color);
 	}
 }
@@ -403,11 +403,11 @@ void draw_text_left(int x, int y, int dx, const char* s, unsigned color)
 {
 	int len = strlen(s);
 	int i;
-	for(i=0;i<dx;++i) {
-		if (i<len)
-			text_put(x+i, y, s[i], color);
+	for (i = 0; i < dx; ++i) {
+		if (i < len)
+			text_put(x + i, y, s[i], color);
 		else
-			text_put(x+i, y, ' ', color);
+			text_put(x + i, y, ' ', color);
 	}
 }
 
@@ -423,8 +423,8 @@ void draw_text_center(int x, int y, int dx, const char* s, unsigned color)
 	post = dx - pre - len;
 
 	draw_text_fill(x, y, ' ', pre, color);
-	draw_text_left(x+pre, y, len, s, color);
-	draw_text_fill(x+pre+len, y, ' ', post, color);
+	draw_text_left(x + pre, y, len, s, color);
+	draw_text_fill(x + pre + len, y, ' ', post, color);
 }
 
 unsigned draw_text_string(int x, int y, const char* s, unsigned color)
@@ -441,11 +441,11 @@ int draw_text_para(int x, int y, int dx, int dy, const char* s, unsigned color)
 	int iy = 0;
 	int ix = 0;
 	int needspace = 0;
-	while (*s && iy<=dy) {
+	while (*s && iy <= dy) {
 		unsigned l = strcspn(s, " \n");
 		if (needspace) {
-		if (ix<dx) {
-				draw_text_fill(x+ix, y+iy, ' ', 1, color);
+			if (ix < dx) {
+				draw_text_fill(x + ix, y + iy, ' ', 1, color);
 				++ix;
 			} else {
 				++iy;
@@ -453,21 +453,21 @@ int draw_text_para(int x, int y, int dx, int dy, const char* s, unsigned color)
 			}
 			needspace = 0;
 		}
-		if (ix+l>dx) {
-			draw_text_fill(x+ix, y+iy, ' ', dx-ix, color);
+		if (ix + l > dx) {
+			draw_text_fill(x + ix, y + iy, ' ', dx - ix, color);
 			++iy;
 			ix = 0;
 			needspace = 0;
 		}
-		if (iy<=dy) {
-			draw_text_left(x+ix, y+iy, l, s, color);
+		if (iy <= dy) {
+			draw_text_left(x + ix, y + iy, l, s, color);
 			ix += l;
 			s += l;
-			if (*s==' ') {
+			if (*s == ' ') {
 				++s;
 				needspace = 1;
-			} else if (*s=='\n') {
-				draw_text_fill(x+ix, y+iy, ' ', dx-ix, color);
+			} else if (*s == '\n') {
+				draw_text_fill(x + ix, y + iy, ' ', dx - ix, color);
 				++s;
 				++iy;
 				ix = 0;
@@ -475,11 +475,11 @@ int draw_text_para(int x, int y, int dx, int dy, const char* s, unsigned color)
 			}
 		}
 	}
-	if (iy<=dy && ix<dx) {
-		draw_text_fill(x+ix, y+iy, ' ', dx-ix, color);
+	if (iy <= dy && ix < dx) {
+		draw_text_fill(x + ix, y + iy, ' ', dx - ix, color);
 		++iy;
 	}
-	return y+iy;
+	return y + iy;
 }
 
 int draw_text_read(int x, int y, char* s, int dx, unsigned color)
@@ -493,7 +493,7 @@ int draw_text_read(int x, int y, char* s, int dx, unsigned color)
 		int userkey;
 		int len = strlen(s);
 		draw_text_string(x, y, s, color);
-		draw_text_fill(x+len, y, ' ', dx-len, color);
+		draw_text_fill(x + len, y, ' ', dx - len, color);
 
 		video_wait_vsync();
 
@@ -503,22 +503,22 @@ int draw_text_read(int x, int y, char* s, int dx, unsigned color)
 		userkey = inputb_get();
 
 		switch (userkey) {
-			case INPUTB_BACKSPACE :
-			case INPUTB_DEL :
-				if (len) {
-					s[len-1] = 0;
+		case INPUTB_BACKSPACE:
+		case INPUTB_DEL:
+			if (len) {
+				s[len - 1] = 0;
+			}
+			break;
+		case INPUTB_ENTER:
+		case INPUTB_ESC:
+			return userkey;
+		default:
+			if (len < maxlen) {
+				if (userkey >= 32 && userkey <= 126) {
+					s[len] = userkey;
+					s[len + 1] = 0;
 				}
-				break;
-			case INPUTB_ENTER :
-			case INPUTB_ESC :
-				return userkey;
-			default:
-				if (len < maxlen) {
-					if (userkey>=32 && userkey<=126) {
-						s[len] = userkey;
-						s[len+1] = 0;
-					}
-				}
+			}
 		}
 	}
 }
@@ -537,20 +537,20 @@ static void draw_graphics_ellipse(int xc, int yc, int a0, int b0, unsigned color
 	int y = b0;
 	int a = a0;
 	int b = b0;
-	int as = a*a;
-	int as2 = 2*as;
-	int bs = b*b;
-	int bs2 = 2*bs;
-	int d = bs - as*b + as/4;
+	int as = a * a;
+	int as2 = 2 * as;
+	int bs = b * b;
+	int bs2 = 2 * bs;
+	int d = bs - as * b + as / 4;
 	int dx = 0;
 	int dy = as2 * b;
 
-	while (dx<dy) {
-		video_put_pixel(xc+x, yc+y, color);
-		video_put_pixel(xc-x, yc+y, color);
-		video_put_pixel(xc+x, yc-y, color);
-		video_put_pixel(xc-x, yc-y, color);
-		if (d>0) {
+	while (dx < dy) {
+		video_put_pixel(xc + x, yc + y, color);
+		video_put_pixel(xc - x, yc + y, color);
+		video_put_pixel(xc + x, yc - y, color);
+		video_put_pixel(xc - x, yc - y, color);
+		if (d > 0) {
 			--y;
 			dy -= as2;
 			d -= dy;
@@ -560,14 +560,14 @@ static void draw_graphics_ellipse(int xc, int yc, int a0, int b0, unsigned color
 		d += bs + dx;
 	}
 
-	d += (3*(as-bs)/2 - (dx+dy)) / 2;
+	d += (3 * (as - bs) / 2 - (dx + dy)) / 2;
 
-	while (y>=0) {
-		video_put_pixel(xc+x, yc+y, color);
-		video_put_pixel(xc-x, yc+y, color);
-		video_put_pixel(xc+x, yc-y, color);
-		video_put_pixel(xc-x, yc-y, color);
-		if (d<0) {
+	while (y >= 0) {
+		video_put_pixel(xc + x, yc + y, color);
+		video_put_pixel(xc - x, yc + y, color);
+		video_put_pixel(xc + x, yc - y, color);
+		video_put_pixel(xc - x, yc - y, color);
+		if (d < 0) {
 			++x;
 			dx += bs2;
 			d += dx;
@@ -584,8 +584,8 @@ void draw_graphics_animate(int s_x, int s_y, int s_dx, int s_dy, unsigned counte
 	if (video_is_graphics()) {
 		adv_pixel c;
 
-		int dx = s_dx / (4*8);
-		int dy = s_dy / (3*8);
+		int dx = s_dx / (4 * 8);
+		int dy = s_dy / (3 * 8);
 
 		int x = counter % ((s_dx - dx) * 2);
 		int y = counter % ((s_dy - dy) * 2);
@@ -605,7 +605,7 @@ void draw_graphics_animate(int s_x, int s_y, int s_dx, int s_dy, unsigned counte
 			video_pixel_make(&c, 255, 255, 255);
 
 		video_clear(s_x + x, s_y, dx, s_dy, c);
-		video_clear(s_x, s_y+y, s_dx, dy, c);
+		video_clear(s_x, s_y + y, s_dx, dy, c);
 	}
 }
 
@@ -626,13 +626,13 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy)
 	if (video_is_graphics()) {
 		adv_pixel c;
 
-		unsigned dx = s_dx*3/5;
-		unsigned dy = s_dy*4/5;
-		unsigned x = (s_dx-dx)/2;
-		unsigned y = (s_dy-dy)/2;
-		unsigned dyB = dy/3;
-		unsigned dyM = dyB/2;
-		unsigned dyS = dyB/4;
+		unsigned dx = s_dx * 3 / 5;
+		unsigned dy = s_dy * 4 / 5;
+		unsigned x = (s_dx - dx) / 2;
+		unsigned y = (s_dy - dy) / 2;
+		unsigned dyB = dy / 3;
+		unsigned dyM = dyB / 2;
+		unsigned dyS = dyB / 4;
 
 		/* draw background */
 		video_pixel_make(&c, 128, 128, 128);
@@ -640,103 +640,103 @@ void draw_graphics_calib(int s_x, int s_y, int s_dx, int s_dy)
 
 		/* draw rows */
 		video_pixel_make(&c, 255, 255, 255);
-		for(i=0;i<15;++i)
-			video_clear(s_x, s_y + s_dy*i/15+s_dy/30, s_dx, 1, c);
+		for (i = 0; i < 15; ++i)
+			video_clear(s_x, s_y + s_dy * i / 15 + s_dy / 30, s_dx, 1, c);
 
 		/* draw columns */
-		for(i=0;i<20;++i) {
-			unsigned rx = s_dx*i/20+s_dx/40;
-			for(j=0;j<video_size_y();++j)
-				video_put_pixel(s_x+rx, s_y+j, c);
+		for (i = 0; i < 20; ++i) {
+			unsigned rx = s_dx * i / 20 + s_dx / 40;
+			for (j = 0; j < video_size_y(); ++j)
+				video_put_pixel(s_x + rx, s_y + j, c);
 		}
 
 		/* draw ramp */
-		for(i=0;i<dx;++i) {
-			switch (i*8/dx) {
-				case 0 : video_pixel_make(&c, 255, 255, 255); break;
-				case 1 : video_pixel_make(&c, 255, 255, 0); break;
-				case 2 : video_pixel_make(&c, 0, 255, 255); break;
-				case 3 : video_pixel_make(&c, 0, 255, 0); break;
-				case 4 : video_pixel_make(&c, 255, 0, 255); break;
-				case 5 : video_pixel_make(&c, 255, 0, 0); break;
-				case 6 : video_pixel_make(&c, 0, 0, 255); break;
-				case 7 : video_pixel_make(&c, 0, 0, 0); break;
+		for (i = 0; i < dx; ++i) {
+			switch (i * 8 / dx) {
+			case 0: video_pixel_make(&c, 255, 255, 255); break;
+			case 1: video_pixel_make(&c, 255, 255, 0); break;
+			case 2: video_pixel_make(&c, 0, 255, 255); break;
+			case 3: video_pixel_make(&c, 0, 255, 0); break;
+			case 4: video_pixel_make(&c, 255, 0, 255); break;
+			case 5: video_pixel_make(&c, 255, 0, 0); break;
+			case 6: video_pixel_make(&c, 0, 0, 255); break;
+			case 7: video_pixel_make(&c, 0, 0, 0); break;
 			}
-			for(j=0;j<dyB;++j)
-				video_put_pixel(s_x+x+i, s_y+y+j, c);
+			for (j = 0; j < dyB; ++j)
+				video_put_pixel(s_x + x + i, s_y + y + j, c);
 		}
 		y += dyB;
 
-		for(i=0;i<dx;++i) {
-			video_pixel_make(&c, i*255/dx, i*255/dx, i*255/dx);
-			for(j=0;j<dyS;++j)
-				video_put_pixel(s_x+x+i, s_y+y+j, c);
+		for (i = 0; i < dx; ++i) {
+			video_pixel_make(&c, i * 255 / dx, i * 255 / dx, i * 255 / dx);
+			for (j = 0; j < dyS; ++j)
+				video_put_pixel(s_x + x + i, s_y + y + j, c);
 		}
 		y += dyS;
 
 		k = 0;
 		l = 0;
-		for(i=0;i<dx;++i) {
+		for (i = 0; i < dx; ++i) {
 			if (k > i / (dx / 5)) {
 				l = !l;
 				k = 0;
 			}
 			++k;
-			if  (l)
+			if (l)
 				video_pixel_make(&c, 0, 0, 0);
 			else
 				video_pixel_make(&c, 255, 255, 255);
-			for(j=0;j<dyM;++j)
-				video_put_pixel(s_x+x+i, s_y+y+j, c);
+			for (j = 0; j < dyM; ++j)
+				video_put_pixel(s_x + x + i, s_y + y + j, c);
 		}
 		y += dyM;
 
-		for(i=0;i<dx;++i) {
-			if (i<dx/2)
-				video_pixel_make(&c, i*255/(dx/2), 0, 0);
+		for (i = 0; i < dx; ++i) {
+			if (i < dx / 2)
+				video_pixel_make(&c, i * 255 / (dx / 2), 0, 0);
 			else
-				video_pixel_make(&c, 255, (i-dx/2)*255/(dx/2), (i-dx/2)*255/(dx/2));
-			for(j=0;j<dyS;++j)
-				video_put_pixel(s_x+x+i, s_y+y+j, c);
+				video_pixel_make(&c, 255, (i - dx / 2) * 255 / (dx / 2), (i - dx / 2) * 255 / (dx / 2));
+			for (j = 0; j < dyS; ++j)
+				video_put_pixel(s_x + x + i, s_y + y + j, c);
 		}
 		y += dyS;
 
-		for(i=0;i<dx;++i) {
-			if (i<dx/2)
-				video_pixel_make(&c, 0, i*255/(dx/2), 0);
+		for (i = 0; i < dx; ++i) {
+			if (i < dx / 2)
+				video_pixel_make(&c, 0, i * 255 / (dx / 2), 0);
 			else
-				video_pixel_make(&c, (i-dx/2)*255/(dx/2), 255, (i-dx/2)*255/(dx/2));
-			for(j=0;j<dyS;++j)
-				video_put_pixel(s_x+x+i, s_y+y+j, c);
+				video_pixel_make(&c, (i - dx / 2) * 255 / (dx / 2), 255, (i - dx / 2) * 255 / (dx / 2));
+			for (j = 0; j < dyS; ++j)
+				video_put_pixel(s_x + x + i, s_y + y + j, c);
 		}
 		y += dyS;
 
-		for(i=0;i<dx;++i) {
-			if (i<dx/2)
-				video_pixel_make(&c, 0, 0, i*255/(dx/2));
+		for (i = 0; i < dx; ++i) {
+			if (i < dx / 2)
+				video_pixel_make(&c, 0, 0, i * 255 / (dx / 2));
 			else
-				video_pixel_make(&c, (i-dx/2)*255/(dx/2), (i-dx/2)*255/(dx/2), 255);
-			for(j=0;j<dyS;++j)
-				video_put_pixel(s_x+x+i, s_y+y+j, c);
+				video_pixel_make(&c, (i - dx / 2) * 255 / (dx / 2), (i - dx / 2) * 255 / (dx / 2), 255);
+			for (j = 0; j < dyS; ++j)
+				video_put_pixel(s_x + x + i, s_y + y + j, c);
 		}
 		y += dyS;
 
-		for(i=0;i<dx;++i) {
-			switch (i*5/dx) {
-				case 0 : video_pixel_make(&c, 0, 0, 0); break;
-				case 1 : video_pixel_make(&c, 64, 64, 64); break;
-				case 2 : video_pixel_make(&c, 128, 128, 128); break;
-				case 3 : video_pixel_make(&c, 196, 196, 196); break;
-				case 4 : video_pixel_make(&c, 255, 255, 255); break;
+		for (i = 0; i < dx; ++i) {
+			switch (i * 5 / dx) {
+			case 0: video_pixel_make(&c, 0, 0, 0); break;
+			case 1: video_pixel_make(&c, 64, 64, 64); break;
+			case 2: video_pixel_make(&c, 128, 128, 128); break;
+			case 3: video_pixel_make(&c, 196, 196, 196); break;
+			case 4: video_pixel_make(&c, 255, 255, 255); break;
 			}
-			for(j=0;j<dyM;++j)
-				video_put_pixel(s_x+x+i, s_y+y+j, c);
+			for (j = 0; j < dyM; ++j)
+				video_put_pixel(s_x + x + i, s_y + y + j, c);
 		}
 		y += dyM;
 
 
 		video_pixel_make(&c, 255, 255, 255);
-		draw_graphics_ellipse(s_dx / 2,  s_dy / 2, s_dx * 3 / 9, s_dy * 4 / 9, c);
+		draw_graphics_ellipse(s_dx / 2, s_dy / 2, s_dx * 3 / 9, s_dy * 4 / 9, c);
 	}
 }
 
@@ -755,7 +755,7 @@ void draw_graphics_speed(int s_x, int s_y, int s_dx, int s_dy, unsigned* speed_m
 		size = s_dy * video_bytes_per_scanline();
 
 		data = malloc(size);
-		for(i=0;i<size;++i)
+		for (i = 0; i < size; ++i)
 			data[i] = i;
 
 		/* fill cache */
@@ -824,9 +824,9 @@ void draw_test_default(void)
 
 		/* draw out of screen data */
 		video_pixel_make(&c, 255, 0, 0);
-		for(i=0;i<video_size_x();++i)
+		for (i = 0; i < video_size_x(); ++i)
 			video_put_pixel(i, video_size_y(), c);
-		for(j=0;j<video_size_y();++j)
+		for (j = 0; j < video_size_y(); ++j)
 			video_put_pixel(video_size_x(), j, c);
 
 		/* draw background */
@@ -835,55 +835,55 @@ void draw_test_default(void)
 
 		/* draw border */
 		video_pixel_make(&c, 255, 255, 255);
-		for(i=0;i<video_size_x();++i) {
+		for (i = 0; i < video_size_x(); ++i) {
 			video_put_pixel(i, 0, c);
-			video_put_pixel(i, video_size_y()-1, c);
+			video_put_pixel(i, video_size_y() - 1, c);
 		}
-		for(j=0;j<video_size_y();++j) {
+		for (j = 0; j < video_size_y(); ++j) {
 			video_put_pixel(0, j, c);
-			video_put_pixel(video_size_x()-1, j, c);
+			video_put_pixel(video_size_x() - 1, j, c);
 		}
 
 		/* draw grid */
 		video_pixel_make(&c, 128, 128, 128);
-		for(i=TEST_DELTA1;i<video_size_x()-1;i += TEST_DELTA1)
-			for(j=TEST_DELTA2;j<video_size_y()-1;j += TEST_DELTA2)
+		for (i = TEST_DELTA1; i < video_size_x() - 1; i += TEST_DELTA1)
+			for (j = TEST_DELTA2; j < video_size_y() - 1; j += TEST_DELTA2)
 				video_put_pixel(i, j, c);
-		for(j=TEST_DELTA1;j<video_size_y()-1;j += TEST_DELTA1)
-			for(i=TEST_DELTA2;i<video_size_x()-1;i += TEST_DELTA2)
+		for (j = TEST_DELTA1; j < video_size_y() - 1; j += TEST_DELTA1)
+			for (i = TEST_DELTA2; i < video_size_x() - 1; i += TEST_DELTA2)
 				video_put_pixel(i, j, c);
 
 		/* draw line */
 		video_pixel_make(&c, 196, 196, 196);
-		for(i=1;i<video_size_x()/2 && i<video_size_y()/2;++i) {
+		for (i = 1; i < video_size_x() / 2 && i < video_size_y() / 2; ++i) {
 			video_put_pixel(i, i, c);
-			video_put_pixel(video_size_x()-i-1, i, c);
-			video_put_pixel(i, video_size_y()-i-1, c);
-			video_put_pixel(video_size_x()-i-1, video_size_y()-i-1, c);
+			video_put_pixel(video_size_x() - i - 1, i, c);
+			video_put_pixel(i, video_size_y() - i - 1, c);
+			video_put_pixel(video_size_x() - i - 1, video_size_y() - i - 1, c);
 		}
 
 	} else if (video_is_text()) {
 		/* draw out of screen data */
-		for(i=0;i<text_size_x();++i) {
+		for (i = 0; i < text_size_x(); ++i) {
 			video_put_char(i, text_size_y(), 'Û', DRAW_COLOR_RED);
 		}
-		for(j=0;j<text_size_y();++j) {
+		for (j = 0; j < text_size_y(); ++j) {
 			video_put_char(text_size_x(), j, 'Û', DRAW_COLOR_RED);
 		}
 
 		/* draw border */
-		for(i=0;i<text_size_x();++i) {
+		for (i = 0; i < text_size_x(); ++i) {
 			video_put_char(i, 0, 'Û', DRAW_COLOR_GRAY);
-			video_put_char(i, text_size_y()-1, 'Û', DRAW_COLOR_GRAY);
+			video_put_char(i, text_size_y() - 1, 'Û', DRAW_COLOR_GRAY);
 		}
-		for(j=0;j<text_size_y();++j) {
+		for (j = 0; j < text_size_y(); ++j) {
 			video_put_char(0, j, 'Û', DRAW_COLOR_GRAY);
-			video_put_char(text_size_x()-1, j, 'Û', DRAW_COLOR_GRAY);
+			video_put_char(text_size_x() - 1, j, 'Û', DRAW_COLOR_GRAY);
 		}
 
 		/* draw grid */
-		for(i=1;i+1<text_size_x();++i) {
-			for(j=1;j+1<text_size_y();++j) {
+		for (i = 1; i + 1 < text_size_x(); ++i) {
+			for (j = 1; j + 1 < text_size_y(); ++j) {
 				video_put_char(i, j, 'ú', DRAW_COLOR_GRAY);
 			}
 		}
@@ -909,11 +909,11 @@ int draw_text_menu(int x, int y, int dx, int dy, void* data, int mac, entry_prin
 		int i;
 		int dir = 0;
 
-		for(i=0;i<dy;++i) {
-			if (base+i >= mac)
-				draw_text_fill(x, y+i, ' ', dx, COLOR_NORMAL);
+		for (i = 0; i < dy; ++i) {
+			if (base + i >= mac)
+				draw_text_fill(x, y + i, ' ', dx, COLOR_NORMAL);
 			else
-				print(x, y+i, dx, data, base+i, pos == i);
+				print(x, y + i, dx, data, base + i, pos == i);
 		}
 
 		video_wait_vsync();
@@ -924,56 +924,56 @@ int draw_text_menu(int x, int y, int dx, int dy, void* data, int mac, entry_prin
 		key = inputb_get();
 
 		switch (key) {
-			case INPUTB_SPACE:
-				done = 1;
-				break;
-			case INPUTB_ENTER:
-				done = 1;
-				break;
-			case INPUTB_ESC:
-				done = 1;
-				break;
-			case INPUTB_DOWN :
+		case INPUTB_SPACE:
+			done = 1;
+			break;
+		case INPUTB_ENTER:
+			done = 1;
+			break;
+		case INPUTB_ESC:
+			done = 1;
+			break;
+		case INPUTB_DOWN:
+			if (base + pos + 1 < mac) {
+				if (pos + 1 < dy)
+					++pos;
+				else
+					++base;
+			}
+			dir = 1;
+			break;
+		case INPUTB_PGDN:
+			for (i = 0; i < dy; ++i)
 				if (base + pos + 1 < mac) {
 					if (pos + 1 < dy)
 						++pos;
 					else
 						++base;
 				}
-				dir = 1;
-				break;
-			case INPUTB_PGDN :
-				for(i=0;i<dy;++i)
-				if (base + pos + 1 < mac) {
-					if (pos + 1 < dy)
-						++pos;
-					else
-						++base;
-				}
-				dir = 1;
-				break;
-			case INPUTB_UP :
+			dir = 1;
+			break;
+		case INPUTB_UP:
+			if (base + pos > 0) {
+				if (pos > 0)
+					--pos;
+				else
+					--base;
+			}
+			dir = 0;
+			break;
+		case INPUTB_PGUP:
+			for (i = 0; i < dy; ++i)
 				if (base + pos > 0) {
 					if (pos > 0)
 						--pos;
 					else
 						--base;
 				}
-				dir = 0;
-				break;
-			case INPUTB_PGUP :
-				for(i=0;i<dy;++i)
-				if (base + pos > 0) {
-					if (pos > 0)
-						--pos;
-					else
-						--base;
-				}
-				dir = 0;
-				break;
+			dir = 0;
+			break;
 		}
 
-		while (separator && separator(data, base+pos)) {
+		while (separator && separator(data, base + pos)) {
 			if (dir) {
 				if (base + pos + 1 < mac) {
 					if (pos + 1 < dy)

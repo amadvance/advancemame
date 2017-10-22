@@ -412,7 +412,7 @@ adv_error svgaline_mode_generate(svgaline_video_mode* mode, const adv_crtc* crtc
 		return -1;
 	}
 
-	if (video_mode_generate_check("svgaline", svgaline_flags(), 8, 2048, crtc, flags)!=0)
+	if (video_mode_generate_check("svgaline", svgaline_flags(), 8, 2048, crtc, flags) != 0)
 		return -1;
 
 	if (adv_svgalib_check(crtc->pixelclock, crtc->hde, crtc->hrs, crtc->hre, crtc->ht, crtc->vde, crtc->vrs, crtc->vre, crtc->vt, crtc_is_doublescan(crtc), crtc_is_interlace(crtc), crtc_is_nhsync(crtc), crtc_is_nvsync(crtc), index_bits_per_pixel(flags & MODE_FLAGS_INDEX_MASK), 0, 0) != 0) {

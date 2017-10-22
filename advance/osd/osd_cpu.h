@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -50,7 +50,7 @@ typedef signed int INT32;
 __extension__ typedef signed long long INT64;
 
 /* Combine two 32-bit integers into a 64-bit integer */
-#define COMBINE_64_32_32(A, B) ((((UINT64)(A))<<32) | (UINT32)(B))
+#define COMBINE_64_32_32(A, B) ((((UINT64)(A)) << 32) | (UINT32)(B))
 #define COMBINE_U64_U32_U32(A, B) COMBINE_64_32_32(A, B)
 
 /* Return upper 32 bits of a 64-bit integer */
@@ -61,11 +61,11 @@ __extension__ typedef signed long long INT64;
 #define LO32_32_64(A) ((A) & 0xffffffff)
 #define LO32_U32_U64(A) LO32_32_64(A)
 
-#define DIV_64_64_32(A, B) ((A)/(B))
-#define DIV_U64_U64_U32(A, B) ((A)/(UINT32)(B))
+#define DIV_64_64_32(A, B) ((A) / (B))
+#define DIV_U64_U64_U32(A, B) ((A) / (UINT32)(B))
 
-#define MOD_32_64_32(A, B) ((A)%(B))
-#define MOD_U32_U64_U32(A, B) ((A)%(UINT32)(B))
+#define MOD_32_64_32(A, B) ((A) % (B))
+#define MOD_U32_U64_U32(A, B) ((A) % (UINT32)(B))
 
 #define MUL_64_32_32(A, B) ((A)*(INT64)(B))
 #define MUL_U64_U32_U32(A, B) ((A)*(UINT64)(UINT32)(B))

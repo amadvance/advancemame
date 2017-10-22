@@ -94,4 +94,3 @@ void adv_font_put_string_trasp(adv_font* font, adv_bitmap* dst, int x, int y, co
 
 #endif
 
-

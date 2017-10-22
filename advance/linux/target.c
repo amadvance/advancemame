@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -135,21 +135,21 @@ static void vc_callback(void* arg, uint32_t reason, uint32_t param1, uint32_t pa
 	pthread_mutex_unlock(&vc_callback_mutex);
 
 	switch (reason) {
-	case VC_HDMI_UNPLUGGED : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_UNPLUGGED", param1, param2)); break;
-	case VC_HDMI_ATTACHED : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_ATTACHED", param1, param2)); break;
-	case VC_HDMI_DVI : log_std(("linux:vc: event %u: %s,group:%u,mode:%u\n", counter, "HDMI_DVI", param1, param2)); break;
-	case VC_HDMI_HDMI : log_std(("linux:vc: event %u: %s,group:%u,mode:%u\n", counter, "HDMI_HDMI", param1, param2)); break;
-	case VC_HDMI_HDCP_UNAUTH : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_HDCP_UNAUTH", param1, param2)); break;
-	case VC_HDMI_HDCP_AUTH : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_HDCP_AUTH", param1, param2)); break;
-	case VC_HDMI_HDCP_KEY_DOWNLOAD : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_HDCP_KEY_DOWNLOAD", param1, param2)); break;
-	case VC_HDMI_HDCP_SRM_DOWNLOAD : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_HDCP_SRM_DOWNLOAD", param1, param2)); break;
-	case VC_SDTV_UNPLUGGED : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "SDTV_UNPLUGGED", param1, param2)); break;
-	case VC_SDTV_ATTACHED : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "SDTV_ATTACHED", param1, param2)); break;
-	case VC_SDTV_NTSC : log_std(("linux:vc: event %u: %s,mode:%u,aspect:%u\n", counter, "SDTV_NTSC", param1, param2)); break;
-	case VC_SDTV_PAL : log_std(("linux:vc: event %u: %s,mode:%u,aspect:%u\n", counter, "SDTV_PAL", param1, param2)); break;
-	case VC_SDTV_CP_INACTIVE : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "SDTV_CP_INACTIVE", param1, param2)); break;
-	case VC_SDTV_CP_ACTIVE : log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "SDTV_CP_ACTIVE", param1, param2)); break;
-	default : log_std(("linux:vc: event %u: %u,%u,%u\n", counter, reason, param1, param2)); break;
+	case VC_HDMI_UNPLUGGED: log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_UNPLUGGED", param1, param2)); break;
+	case VC_HDMI_ATTACHED: log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_ATTACHED", param1, param2)); break;
+	case VC_HDMI_DVI: log_std(("linux:vc: event %u: %s,group:%u,mode:%u\n", counter, "HDMI_DVI", param1, param2)); break;
+	case VC_HDMI_HDMI: log_std(("linux:vc: event %u: %s,group:%u,mode:%u\n", counter, "HDMI_HDMI", param1, param2)); break;
+	case VC_HDMI_HDCP_UNAUTH: log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_HDCP_UNAUTH", param1, param2)); break;
+	case VC_HDMI_HDCP_AUTH: log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_HDCP_AUTH", param1, param2)); break;
+	case VC_HDMI_HDCP_KEY_DOWNLOAD: log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_HDCP_KEY_DOWNLOAD", param1, param2)); break;
+	case VC_HDMI_HDCP_SRM_DOWNLOAD: log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "HDMI_HDCP_SRM_DOWNLOAD", param1, param2)); break;
+	case VC_SDTV_UNPLUGGED: log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "SDTV_UNPLUGGED", param1, param2)); break;
+	case VC_SDTV_ATTACHED: log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "SDTV_ATTACHED", param1, param2)); break;
+	case VC_SDTV_NTSC: log_std(("linux:vc: event %u: %s,mode:%u,aspect:%u\n", counter, "SDTV_NTSC", param1, param2)); break;
+	case VC_SDTV_PAL: log_std(("linux:vc: event %u: %s,mode:%u,aspect:%u\n", counter, "SDTV_PAL", param1, param2)); break;
+	case VC_SDTV_CP_INACTIVE: log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "SDTV_CP_INACTIVE", param1, param2)); break;
+	case VC_SDTV_CP_ACTIVE: log_std(("linux:vc: event %u: %s,%u,%u\n", counter, "SDTV_CP_ACTIVE", param1, param2)); break;
+	default: log_std(("linux:vc: event %u: %u,%u,%u\n", counter, reason, param1, param2)); break;
 	}
 }
 #endif
@@ -802,7 +802,7 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 	int p;
 
 	log_std(("linux: spawn_redirect %s\n", file));
-	for(i=0;argv[i];++i)
+	for (i = 0; argv[i]; ++i)
 		log_std(("linux: spawn_redirect arg%d %s\n", i, argv[i]));
 	log_std(("linux: spawn_redirect input %s\n", output));
 
@@ -817,7 +817,7 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 
 		/* open the output file */
 		f = open(output, O_WRONLY | O_CREAT | O_TRUNC,
-			S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+				S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 		if (f == -1) {
 			log_std(("ERROR:linux: spawn_redirect open failed\n"));
 			exit(127);
@@ -871,7 +871,7 @@ adv_error target_spawn(const char* file, const char** argv)
 	int p;
 
 	log_std(("linux: spawn %s\n", file));
-	for(i=0;argv[i];++i)
+	for (i = 0; argv[i]; ++i)
 		log_std(("linux: spawn arg%d %s\n", i, argv[i]));
 
 	p = fork();
@@ -961,7 +961,7 @@ adv_error target_search(char* path, unsigned path_size, const char* file)
 		while (dir) {
 			sncpy(path, path_size, dir);
 
-			if (!path[0] || path[strlen(path)-1] != file_dir_slash()) {
+			if (!path[0] || path[strlen(path) - 1] != file_dir_slash()) {
 				char slash[2];
 				slash[0] = file_dir_slash();
 				slash[1] = 0;
@@ -1003,7 +1003,7 @@ static void target_wrap(FILE* f, unsigned col, char* s)
 		t = stoken(&c, &p, s, " \r\n", "");
 
 		if (*t) {
-			if (i>0 && i + !has_space + strlen(t) >= col) {
+			if (i > 0 && i + !has_space + strlen(t) >= col) {
 				fprintf(f, "\n");
 				i = 0;
 				has_space = 1;
@@ -1020,12 +1020,12 @@ static void target_wrap(FILE* f, unsigned col, char* s)
 		}
 
 		switch (c) {
-		case '\n' :
+		case '\n':
 			fprintf(f, "\n");
 			i = 0;
 			has_space = 1;
 			break;
-		case '\r' :
+		case '\r':
 			fprintf(f, "\r");
 			break;
 		}
@@ -1131,24 +1131,24 @@ void target_signal(int signum, void* void_info, void* void_context)
 #endif
 
 		switch (signum) {
-		case SIGILL : fprintf(stderr, "Signal SIGILL"); break;
-		case SIGFPE : fprintf(stderr, "Signal SIGFPE"); break;
-		case SIGSEGV : fprintf(stderr, "Signal SIGSEGV"); break;
-		case SIGBUS : fprintf(stderr, "Signal SIGBUS"); break;
-		case SIGABRT : fprintf(stderr, "Signal SIGABRT"); break;
-		default : fprintf(stderr, "Signal %d", signum); break;
+		case SIGILL: fprintf(stderr, "Signal SIGILL"); break;
+		case SIGFPE: fprintf(stderr, "Signal SIGFPE"); break;
+		case SIGSEGV: fprintf(stderr, "Signal SIGSEGV"); break;
+		case SIGBUS: fprintf(stderr, "Signal SIGBUS"); break;
+		case SIGABRT: fprintf(stderr, "Signal SIGABRT"); break;
+		default: fprintf(stderr, "Signal %d", signum); break;
 		}
 
 		if (signum == SIGSEGV) {
 			if (info) {
 				switch (info->si_code) {
 #ifdef SEGV_MAPERR
-				case SEGV_MAPERR : fprintf(stderr, "[MAPERR]"); break;
+				case SEGV_MAPERR: fprintf(stderr, "[MAPERR]"); break;
 #endif
 #ifdef SEGV_ACCERR
-				case SEGV_ACCERR : fprintf(stderr, "[ACCERR]"); break;
+				case SEGV_ACCERR: fprintf(stderr, "[ACCERR]"); break;
 #endif
-				default : fprintf(stderr, "[%xh]", (unsigned)info->si_code); break;
+				default: fprintf(stderr, "[%xh]", (unsigned)info->si_code); break;
 				}
 			}
 			fprintf(stderr, ", fault at %p, from code at %p\n", fault, caller);
@@ -1156,30 +1156,30 @@ void target_signal(int signum, void* void_info, void* void_context)
 			if (info) {
 				switch (info->si_code) {
 #ifdef ILL_ILLOPC
-				case ILL_ILLOPC : fprintf(stderr, "[ILLOPC]"); break;
+				case ILL_ILLOPC: fprintf(stderr, "[ILLOPC]"); break;
 #endif
 #ifdef ILL_ILLOPN
-				case ILL_ILLOPN : fprintf(stderr, "[ILLOPN]"); break;
+				case ILL_ILLOPN: fprintf(stderr, "[ILLOPN]"); break;
 #endif
 #ifdef ILL_ILLADR
-				case ILL_ILLADR : fprintf(stderr, "[ILLADR]"); break;
+				case ILL_ILLADR: fprintf(stderr, "[ILLADR]"); break;
 #endif
 #ifdef ILL_ILLTRP
-				case ILL_ILLTRP : fprintf(stderr, "[ILLTRP]"); break;
+				case ILL_ILLTRP: fprintf(stderr, "[ILLTRP]"); break;
 #endif
 #ifdef ILL_PRVOPC
-				case ILL_PRVOPC : fprintf(stderr, "[PRVOPC]"); break;
+				case ILL_PRVOPC: fprintf(stderr, "[PRVOPC]"); break;
 #endif
 #ifdef ILL_PRVREG
-				case ILL_PRVREG : fprintf(stderr, "[PRVREG]"); break;
+				case ILL_PRVREG: fprintf(stderr, "[PRVREG]"); break;
 #endif
 #ifdef ILL_COPROC
-				case ILL_COPROC : fprintf(stderr, "[COPROC]"); break;
+				case ILL_COPROC: fprintf(stderr, "[COPROC]"); break;
 #endif
 #ifdef ILL_BADSTK
-				case ILL_BADSTK : fprintf(stderr, "[BADSTK]"); break;
+				case ILL_BADSTK: fprintf(stderr, "[BADSTK]"); break;
 #endif
-				default : fprintf(stderr, "[%xh]", (unsigned)info->si_code); break;
+				default: fprintf(stderr, "[%xh]", (unsigned)info->si_code); break;
 				}
 			}
 			fprintf(stderr, ", fault at %p, from code at %p\n", fault, caller);
@@ -1187,15 +1187,15 @@ void target_signal(int signum, void* void_info, void* void_context)
 			if (info) {
 				switch (info->si_code) {
 #ifdef BUS_ADRALN
-				case BUS_ADRALN : fprintf(stderr, "[ADRALN]"); break;
+				case BUS_ADRALN: fprintf(stderr, "[ADRALN]"); break;
 #endif
 #ifdef BUS_ADRERR
-				case BUS_ADRERR : fprintf(stderr, "[ADRERR]"); break;
+				case BUS_ADRERR: fprintf(stderr, "[ADRERR]"); break;
 #endif
 #ifdef BUS_OBJERR
-				case BUS_OBJERR : fprintf(stderr, "[OBJERR]"); break;
+				case BUS_OBJERR: fprintf(stderr, "[OBJERR]"); break;
 #endif
-				default : fprintf(stderr, "[%xh]", (unsigned)info->si_code); break;
+				default: fprintf(stderr, "[%xh]", (unsigned)info->si_code); break;
 				}
 			}
 			fprintf(stderr, ", fault at %p, from code at %p\n", fault, caller);
@@ -1203,30 +1203,30 @@ void target_signal(int signum, void* void_info, void* void_context)
 			if (info) {
 				switch (info->si_code) {
 #ifdef FPE_INTDIV
-				case FPE_INTDIV : fprintf(stderr, "[INTDIV]"); break;
+				case FPE_INTDIV: fprintf(stderr, "[INTDIV]"); break;
 #endif
 #ifdef FPE_INTOVF
-				case FPE_INTOVF : fprintf(stderr, "[INTOVF]"); break;
+				case FPE_INTOVF: fprintf(stderr, "[INTOVF]"); break;
 #endif
 #ifdef FPE_FLTDIV
-				case FPE_FLTDIV : fprintf(stderr, "[FLTDIV]"); break;
+				case FPE_FLTDIV: fprintf(stderr, "[FLTDIV]"); break;
 #endif
 #ifdef FPE_FLTOVF
-				case FPE_FLTOVF : fprintf(stderr, "[FLTOVF]"); break;
+				case FPE_FLTOVF: fprintf(stderr, "[FLTOVF]"); break;
 #endif
 #ifdef FPE_FLTUND
-				case FPE_FLTUND : fprintf(stderr, "[FLTUND]"); break;
+				case FPE_FLTUND: fprintf(stderr, "[FLTUND]"); break;
 #endif
 #ifdef FPE_FLTRES
-				case FPE_FLTRES : fprintf(stderr, "[FLTRES]"); break;
+				case FPE_FLTRES: fprintf(stderr, "[FLTRES]"); break;
 #endif
 #ifdef FPE_FLTINV
-				case FPE_FLTINV : fprintf(stderr, "[FLTINV]"); break;
+				case FPE_FLTINV: fprintf(stderr, "[FLTINV]"); break;
 #endif
 #ifdef FPE_FLTSUB
-				case FPE_FLTSUB : fprintf(stderr, "[FLTSUB]"); break;
+				case FPE_FLTSUB: fprintf(stderr, "[FLTSUB]"); break;
 #endif
-				default : fprintf(stderr, "[%xh]", (unsigned)info->si_code); break;
+				default: fprintf(stderr, "[%xh]", (unsigned)info->si_code); break;
 				}
 			}
 			fprintf(stderr, ", fault at %p, from code at %p\n", fault, caller);
@@ -1255,7 +1255,7 @@ void target_signal(int signum, void* void_info, void* void_context)
 
 		if (size > 1) {
 			printf("Stack backtrace:\n");
-			for(i=0;i<size;++i) {
+			for (i = 0; i < size; ++i) {
 				printf("%s\n", symbols[i]);
 			}
 		} else {
@@ -1293,6 +1293,6 @@ const char* target_option_extract(const char* arg)
 adv_bool target_option_compare(const char* arg, const char* opt)
 {
 	const char* name = target_option_extract(arg);
-	return name!=0 && strcasecmp(name, opt) == 0;
+	return name != 0 && strcasecmp(name, opt) == 0;
 }
 

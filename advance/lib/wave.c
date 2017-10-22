@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -173,7 +173,7 @@ static adv_error wave_read_tag(adv_fz* f, char* tag)
 static adv_error wave_skip(adv_fz* f, unsigned num)
 {
 	unsigned count = 0;
-	while (count<num) {
+	while (count < num) {
 		char ch;
 		if (fzread(&ch, 1, 1, f) != 1)
 			return -1;
@@ -246,7 +246,7 @@ adv_error wave_read(adv_fz* f, unsigned* channel, unsigned* bit, unsigned* size,
 	if (wave_read_id(f, id, &r_size) != 0)
 		return -1;
 	while (memcmp(id, "fmt ", 4) != 0) {
-		if (wave_skip(f, r_size)!=0)
+		if (wave_skip(f, r_size) != 0)
 			return -1;
 		if (wave_read_id(f, id, &r_size) != 0)
 			return -1;
@@ -263,7 +263,7 @@ adv_error wave_read(adv_fz* f, unsigned* channel, unsigned* bit, unsigned* size,
 	if (r_channel != 1 && r_channel != 2)
 		return -1;
 
-	if (wave_read_fmt_PCM(f, &r_bit)!=0)
+	if (wave_read_fmt_PCM(f, &r_bit) != 0)
 		return -1;
 	if (r_bit != 8 && r_bit != 16)
 		return -1;
@@ -293,3 +293,4 @@ adv_error wave_read(adv_fz* f, unsigned* channel, unsigned* bit, unsigned* size,
 
 	return 0;
 }
+

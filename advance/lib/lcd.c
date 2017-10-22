@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -304,7 +304,7 @@ adv_lcd* adv_lcd_init(const char* address, unsigned timeout)
 		goto err_shutdown;
 	}
 
-	for(i=0;i<context->height;++i) {
+	for (i = 0; i < context->height; ++i) {
 		char buffer[256];
 		snprintf(buffer, sizeof(buffer), "widget_add advance message%d scroller\n", i);
 		r = adv_lcd_sendstr_wait(context, buffer, &tv);
@@ -390,11 +390,11 @@ adv_error adv_lcd_display(adv_lcd* context, unsigned row, const char* text, int 
 	size = 256 + strlen(text);
 	buffer = malloc(size);
 
-	snprintf(buffer, size, "widget_set advance message%d %d %d %d %d h %d \"", row, 1, row+1, context->width, row+1, speed);
+	snprintf(buffer, size, "widget_set advance message%d %d %d %d %d h %d \"", row, 1, row + 1, context->width, row + 1, speed);
 
 	s = buffer + strlen(buffer);
-	for(i=0;text[i];++i) {
-		if (text[i] != '"' && (text[i]>=' ' && text[i]<='~'))
+	for (i = 0; text[i]; ++i) {
+		if (text[i] != '"' && (text[i] >= ' ' && text[i] <= '~'))
 			*s++ = text[i];
 	}
 	*s = 0;

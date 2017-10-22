@@ -65,14 +65,14 @@ adv_bool monitor_mode_hclock_check(const adv_monitor_mode* mode, double hclock)
 	 */
 	const double monitor_error = 0.03;
 
-	return mode->hclock.low * (1-monitor_error) <= hclock && hclock <= mode->hclock.high * (1+monitor_error);
+	return mode->hclock.low * (1 - monitor_error) <= hclock && hclock <= mode->hclock.high * (1 + monitor_error);
 }
 
 adv_bool monitor_mode_vclock_check(const adv_monitor_mode* mode, double vclock)
 {
 	const double monitor_error = 0.03;
 
-	return mode->vclock.low * (1-monitor_error) <= vclock && vclock <= mode->vclock.high * (1+monitor_error);
+	return mode->vclock.low * (1 - monitor_error) <= vclock && vclock <= mode->vclock.high * (1 + monitor_error);
 }
 
 /**
@@ -84,7 +84,7 @@ adv_bool monitor_mode_pclock_check(const adv_monitor_mode* mode, double pclock)
 {
 	const double monitor_error = 0.03;
 
-	return mode->pclock.low * (1-monitor_error) <= pclock && pclock <= mode->pclock.high * (1+monitor_error);
+	return mode->pclock.low * (1 - monitor_error) <= pclock && pclock <= mode->pclock.high * (1 + monitor_error);
 }
 
 /**
@@ -96,7 +96,7 @@ adv_bool monitor_mode_pclock_check(const adv_monitor_mode* mode, double pclock)
 adv_bool monitor_mode_hvclock_check(const adv_monitor_mode* mode, double hclock, double vclock)
 {
 	return monitor_mode_hclock_check(mode, hclock)
-		&& monitor_mode_vclock_check(mode, vclock);
+	       && monitor_mode_vclock_check(mode, vclock);
 }
 
 /**
@@ -108,8 +108,8 @@ adv_bool monitor_mode_hvclock_check(const adv_monitor_mode* mode, double hclock,
 adv_bool monitor_mode_clock_check(const adv_monitor_mode* mode, double pclock, double hclock, double vclock)
 {
 	return monitor_mode_pclock_check(mode, pclock)
-		&& monitor_mode_hclock_check(mode, hclock)
-		&& monitor_mode_vclock_check(mode, vclock);
+	       && monitor_mode_hclock_check(mode, hclock)
+	       && monitor_mode_vclock_check(mode, vclock);
 }
 
 /**
@@ -123,7 +123,7 @@ adv_bool monitor_clock_check(const adv_monitor* monitor, double pclock, double h
 {
 	unsigned i;
 
-	for(i=0;i<monitor->mode_mac;++i)
+	for (i = 0; i < monitor->mode_mac; ++i)
 		if (monitor_mode_clock_check(&monitor->mode_map[i], pclock, hclock, vclock))
 			return 1;
 
@@ -141,7 +141,7 @@ adv_bool monitor_hvclock_check(const adv_monitor* monitor, double hclock, double
 {
 	unsigned i;
 
-	for(i=0;i<monitor->mode_mac;++i)
+	for (i = 0; i < monitor->mode_mac; ++i)
 		if (monitor_mode_hvclock_check(&monitor->mode_map[i], hclock, vclock))
 			return 1;
 
@@ -157,7 +157,7 @@ unsigned monitor_vt_max(const adv_monitor* monitor)
 	unsigned i;
 	unsigned vt_max = 0;
 
-	for(i=0;i<monitor->mode_mac;++i) {
+	for (i = 0; i < monitor->mode_mac; ++i) {
 		unsigned vt = monitor->mode_map[i].hclock.high / monitor->mode_map[i].vclock.low;
 		if (vt_max < vt)
 			vt_max = vt;

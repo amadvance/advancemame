@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -45,7 +45,7 @@ adv_font* adv_font_default(unsigned sizex, unsigned sizey, adv_bool disable_alph
 	adv_font* font;
 
 #ifdef USE_FREETYPE
-	if (!disable_alpha && sizey>=13) {
+	if (!disable_alpha && sizey >= 13) {
 		f = fzopenmemory(FONT_TTF, sizeof(FONT_TTF));
 
 		font = adv_font_load(f, sizex, sizey);

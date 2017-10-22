@@ -60,8 +60,8 @@ static curses_internal curses_state;
 unsigned char* (*curses_write_line)(unsigned y);
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "CURSES video" },
-{ 0, 0, 0 }
+	{ "auto", -1, "CURSES video" },
+	{ 0, 0, 0 }
 };
 
 /***************************************************************************/
@@ -139,9 +139,9 @@ adv_error curses_mode_set(const curses_video_mode* mode)
 	curses_state.font_size_y = mode->font_size_y;
 	size = curses_state.size_x * curses_state.size_y;
 	curses_state.ptr = malloc(size * 2);
-	for(i=0;i<size;++i) {
-		curses_state.ptr[i*2] = ' ';
-		curses_state.ptr[i*2+1] = 0;
+	for (i = 0; i < size; ++i) {
+		curses_state.ptr[i * 2] = ' ';
+		curses_state.ptr[i * 2 + 1] = 0;
 	}
 	curses_write_line = curses_linear_write_line;
 
@@ -171,7 +171,7 @@ unsigned curses_virtual_x(void)
 
 unsigned curses_virtual_y(void)
 {
-	return curses_state.size_y  * curses_state.font_size_y;
+	return curses_state.size_y * curses_state.font_size_y;
 }
 
 unsigned curses_bytes_per_scanline(void)
@@ -204,15 +204,15 @@ static unsigned color_mac = 1; /* the first color is reserved */
 static unsigned getattr(unsigned dos_attr)
 {
 	unsigned i;
-	for(i=1;i<color_mac && i<COLOR_MAX;++i)
+	for (i = 1; i < color_mac && i < COLOR_MAX; ++i)
 		if (color_map[i].dos_attr == dos_attr)
 			return color_map[i].attr;
-	if (color_mac<COLOR_MAX && color_mac<(unsigned)COLOR_PAIRS) {
+	if (color_mac < COLOR_MAX && color_mac < (unsigned)COLOR_PAIRS) {
 		unsigned f = (dos_attr) & 0x7;
 		unsigned b = (dos_attr >> 4) & 0x7;
 		unsigned attr;
-		init_pair( color_mac, COLOR[f], COLOR[b]);
-		attr = COLOR_PAIR( color_mac );
+		init_pair(color_mac, COLOR[f], COLOR[b]);
+		attr = COLOR_PAIR(color_mac);
 		if (dos_attr & 0x08)
 			attr |= A_BOLD;
 		if (dos_attr & 0x80)
@@ -222,7 +222,7 @@ static unsigned getattr(unsigned dos_attr)
 		++color_mac;
 		return attr;
 	} else
-		return COLOR_PAIR( 0 );
+		return COLOR_PAIR(0);
 }
 
 void curses_wait_vsync(void)
@@ -236,13 +236,13 @@ void curses_wait_vsync(void)
 	old_a = 0x100;
 	old_m = 0;
 
-	for(y=0;y<curses_state.size_y;++y) {
+	for (y = 0; y < curses_state.size_y; ++y) {
 		unsigned char* line;
 		move(y, 0);
 		line = curses_write_line(y);
-		for(x=0;x<curses_state.size_x;++x) {
-			unsigned a = line[2*x+1];
-			unsigned c = line[2*x];
+		for (x = 0; x < curses_state.size_x; ++x) {
+			unsigned a = line[2 * x + 1];
+			unsigned c = line[2 * x];
 			if (a != old_a) {
 				old_m = getattr(a);
 				old_a = a;

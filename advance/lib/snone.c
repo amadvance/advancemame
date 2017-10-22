@@ -41,8 +41,8 @@ struct soundb_none_context {
 static struct soundb_none_context none_state;
 
 static adv_device DEVICE[] = {
-{ "auto", 0, "No sound" },
-{ 0, 0, 0 }
+	{ "auto", 0, "No sound" },
+	{ 0, 0, 0 }
 };
 
 int soundb_none_init(int device_id, unsigned* rate, int stereo_flag, double buffer_time)
@@ -118,5 +118,4 @@ soundb_driver soundb_none_driver = {
 	soundb_none_stop,
 	soundb_none_volume
 };
-
 

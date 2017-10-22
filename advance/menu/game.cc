@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -104,7 +104,7 @@ void game::name_set(const std::string& A)
 void game::auto_description_set(const std::string& A) const
 {
 	if (!is_user_description_set()) {
-		if (A.length() >= 4 && A[0]=='T' && A[1]=='h' && A[2]=='e' && A[3]==' ') {
+		if (A.length() >= 4 && A[0] == 'T' && A[1] == 'h' && A[2] == 'e' && A[3] == ' ') {
 			description = A.substr(4, A.length() - 4) + ", The";
 		} else {
 			description = A;
@@ -125,21 +125,21 @@ void game::manufacturer_set(const std::string& s)
 	unsigned l = s.length();
 
 	// skip space at begin
-	while (i<s.length() && isspace(s[i]))
+	while (i < s.length() && isspace(s[i]))
 		++i;
 
 	// skip space at end
-	while (i<l && isspace(s[l-1]))
+	while (i < l && isspace(s[l - 1]))
 		--l;
 
 	if (s[i] == '[') {
 		++i;
-		while (i<l && s[i]!=']') {
+		while (i < l && s[i] != ']') {
 			manufacturer += s[i];
 			++i;
 		}
 	} else {
-		while (i<l && s[i]!='(' && s[i]!='/' && s[i]!='+' && s[i]!='&') {
+		while (i < l && s[i] != '(' && s[i] != '/' && s[i] != '+' && s[i] != '&') {
 			manufacturer += s[i];
 			++i;
 		}
@@ -154,7 +154,7 @@ void game::rom_zip_set_insert(const string& Afile) const
 const game& game::clone_best_get() const
 {
 	const game* r = this;
-	for(pgame_container::const_iterator i = clone_bag_get().begin();i!=clone_bag_get().end();++i) {
+	for (pgame_container::const_iterator i = clone_bag_get().begin(); i != clone_bag_get().end(); ++i) {
 		const game* rr = &(*i)->clone_best_get();
 		if (game_by_play_less()(*r, *rr)) {
 			r = rr;
@@ -166,7 +166,7 @@ const game& game::clone_best_get() const
 unsigned game::session_tree_get() const
 {
 	unsigned r = session_get();
-	for(pgame_container::const_iterator i = clone_bag_get().begin();i!=clone_bag_get().end();++i) {
+	for (pgame_container::const_iterator i = clone_bag_get().begin(); i != clone_bag_get().end(); ++i) {
 		r += (*i)->session_tree_get();
 	}
 	return r;
@@ -175,7 +175,7 @@ unsigned game::session_tree_get() const
 unsigned game::time_tree_get() const
 {
 	unsigned r = time_get();
-	for(pgame_container::const_iterator i = clone_bag_get().begin();i!=clone_bag_get().end();++i) {
+	for (pgame_container::const_iterator i = clone_bag_get().begin(); i != clone_bag_get().end(); ++i) {
 		r += (*i)->time_tree_get();
 	}
 	return r;
@@ -261,7 +261,7 @@ bool game::preview_zip_set(const string& zip, void (game::*preview_set)(const re
 	string game_name = name_without_emulator_get();
 
 	adv_zipent* dd;
-	while ((dd = zip_read(d))!=0) {
+	while ((dd = zip_read(d)) != 0) {
 		string file = file_file(dd->name);
 		string ext = file_ext(file);
 		string name = file_basename(file);
@@ -295,7 +295,7 @@ bool game::preview_dir_set(const string& dir, void (game::*preview_set)(const re
 	string game_name = name_without_emulator_get();
 
 	struct dirent* dd;
-	while ((dd = readdir(d))!=0) {
+	while ((dd = readdir(d)) != 0) {
 		string file = file_import(dd->d_name);
 		string ext = file_ext(file);
 		string name = file_basename(file);
@@ -318,7 +318,7 @@ bool game::preview_dir_set(const string& dir, void (game::*preview_set)(const re
 bool game::preview_list_set(const string& list, void (game::*preview_set)(const resource& s) const, const string& ext0, const string& ext1) const
 {
 	int i = 0;
-	while (i<list.length()) {
+	while (i < list.length()) {
 		string dir = token_get(list, i, ":");
 		token_skip(list, i, ":");
 		if (preview_dir_set(dir, preview_set, ext0, ext1))
@@ -335,7 +335,7 @@ bool game::preview_software_list_set(const string& list, void (game::*preview_se
 	string bios = bios_get().name_without_emulator_get();
 
 	int i = 0;
-	while (i<list.length()) {
+	while (i < list.length()) {
 		string dir = token_get(list, i, ":");
 		token_skip(list, i, ":");
 		if (preview_dir_set(dir + "/" + bios, preview_set, ext0, ext1))
@@ -352,7 +352,7 @@ bool game::preview_find_down(resource& path, const resource& (game::*preview_get
 		return true;
 	}
 
-	for(pgame_container::const_iterator i=clone_bag_get().begin();i!=clone_bag_get().end();++i) {
+	for (pgame_container::const_iterator i = clone_bag_get().begin(); i != clone_bag_get().end(); ++i) {
 		if (!(*i)->software_get() && (*i)->name_get() != exclude) {
 			if ((*i)->preview_find_down(path, preview_get, string())) {
 				return true;
@@ -394,7 +394,7 @@ void game_set::cache(merge_t merge)
 {
 	dupe_set dar;
 
-	for(iterator i=begin();i!=end();++i) {
+	for (iterator i = begin(); i != end(); ++i) {
 		// erase the clone list
 		i->clone_bag_erase();
 
@@ -442,27 +442,27 @@ void game_set::cache(merge_t merge)
 	}
 
 	// compute the clone list for every game
-	for(iterator i=begin();i!=end();++i) {
+	for (iterator i = begin(); i != end(); ++i) {
 		const game* j = i->parent_get();
-		while (j!=0) {
+		while (j != 0) {
 			j->clone_bag_get().insert(j->clone_bag_get().end(), &*i);
 			j = j->parent_get();
 		}
 	}
 
 	// compute the derived play_best
-	for(iterator i=begin();i!=end();++i) {
+	for (iterator i = begin(); i != end(); ++i) {
 		i->play_best_set(i->clone_best_get().play_get());
 	}
 
 	// compute the derived tree_present
-	for(iterator i=begin();i!=end();++i) {
+	for (iterator i = begin(); i != end(); ++i) {
 		bool present = is_tree_rom_of_present(i->name_get(), merge);
 		i->flag_set(present, game::flag_tree_present);
 	}
 
 	// specific emulator cache and fill up dup cache
-	for(iterator i=begin();i!=end();++i) {
+	for (iterator i = begin(); i != end(); ++i) {
 		i->emulator_get()->cache(*this, *i);
 
 		// skip prelimiary
@@ -471,12 +471,12 @@ void game_set::cache(merge_t merge)
 
 		std::string stripped_name = file_file(i->name_get());
 
-		pair<dupe_set::const_iterator,bool> j = dar.insert(dupe(stripped_name, 0));
+		pair<dupe_set::const_iterator, bool> j = dar.insert(dupe(stripped_name, 0));
 		j.first->count_set(j.first->count_get() + 1);
 	}
 
 	// set dupe info
-	for(iterator i=begin();i!=end();++i) {
+	for (iterator i = begin(); i != end(); ++i) {
 		std::string stripped_name = file_file(i->name_get());
 
 		dupe_set::const_iterator j = dar.find(dupe(stripped_name, 0));
@@ -488,42 +488,42 @@ void game_set::cache(merge_t merge)
 bool game_set::is_tree_rom_of_present(const string& name, merge_t type) const
 {
 	switch (type) {
-		case merge_differential : {
-			const_iterator i = find(game(name));
-			while (i!=end()) {
-				if (!i->present_get())
-					return false;
-				if (i->romof_get().length()==0)
-					return true;
-				i = find(game(i->romof_get()));
-			}
-			return false;
+	case merge_differential: {
+		const_iterator i = find(game(name));
+		while (i != end()) {
+			if (!i->present_get())
+				return false;
+			if (i->romof_get().length() == 0)
+				return true;
+			i = find(game(i->romof_get()));
 		}
-		case merge_any : {
-			const_iterator i = find(game(name));
-			while (i!=end()) {
-				if (i->present_get())
-					return true;
-				if (i->romof_get().length()==0)
-					return false;
-				i = find(game(i->romof_get()));
-			}
-			return false;
+		return false;
+	}
+	case merge_any: {
+		const_iterator i = find(game(name));
+		while (i != end()) {
+			if (i->present_get())
+				return true;
+			if (i->romof_get().length() == 0)
+				return false;
+			i = find(game(i->romof_get()));
 		}
-		case merge_no : {
-			const_iterator i = find(game(name));
-			if (i!=end())
-				return i->present_get();
-			return false;
-		}
-		case merge_parent : {
-			const_iterator i = root_clone_of_get(name);
-			if (i!=end())
-				return i->present_get();
-			return false;
-		}
-		case merge_disable :
-			return true;
+		return false;
+	}
+	case merge_no: {
+		const_iterator i = find(game(name));
+		if (i != end())
+			return i->present_get();
+		return false;
+	}
+	case merge_parent: {
+		const_iterator i = root_clone_of_get(name);
+		if (i != end())
+			return i->present_get();
+		return false;
+	}
+	case merge_disable:
+		return true;
 	}
 	return false;
 }
@@ -531,9 +531,9 @@ bool game_set::is_tree_rom_of_present(const string& name, merge_t type) const
 bool game_set::is_game_tag(const string& name, const string& tag) const
 {
 	game_set::const_iterator i = find(game(name));
-	while (i!=end()) {
-		if (i->name_get().length() >= 1+tag.length()
-			&& i->name_get()[i->name_get().length() - tag.length() - 1]=='/'
+	while (i != end()) {
+		if (i->name_get().length() >= 1 + tag.length()
+			&& i->name_get()[i->name_get().length() - tag.length() - 1] == '/'
 			&& i->name_get().substr(i->name_get().length() - tag.length(), tag.length()).compare(tag) == 0)
 			return true;
 		i = find(game(i->romof_get()));
@@ -566,7 +566,7 @@ game_set::const_iterator game_set::root_clone_of_get(const string& name) const
 bool game_set::is_game_clone_of(const string& name_son, const string& name_parent) const
 {
 	game_set::const_iterator i = find(game(name_son));
-	while (i!=end()) {
+	while (i != end()) {
 		if (i->name_get() == name_parent)
 			return true;
 		if (i->cloneof_get().length() == 0)
@@ -579,7 +579,7 @@ bool game_set::is_game_clone_of(const string& name_son, const string& name_paren
 bool game_set::is_game_rom_of(const string& name_son, const string& name_parent) const
 {
 	game_set::const_iterator i = find(game(name_son));
-	while (i!=end()) {
+	while (i != end()) {
 		if (i->name_get() == name_parent)
 			return true;
 		if (i->romof_get().length() == 0)
@@ -599,13 +599,13 @@ bool game_set::preview_zip_set(const string& zip, const string& emulator_name, v
 	}
 
 	adv_zipent* dd;
-	while ((dd = zip_read(d))!=0) {
+	while ((dd = zip_read(d)) != 0) {
 		string file = file_file(dd->name);
 		string ext = file_ext(file);
 		if (ext.length() && (ext == ext0 || ext == ext1)) {
 			string name = emulator_name + "/" + file_basename(file);
 			const_iterator j = find(name);
-			if (j!=end()) {
+			if (j != end()) {
 				string zipfile = slash_add(zip) + file;
 				off_t offset = dd->offset_lcl_hdr_frm_frst_disk;
 				if (dd->compression_method == 0x0) {
@@ -633,13 +633,13 @@ bool game_set::preview_dir_set(const string& dir, const string& emulator_name, v
 	}
 
 	struct dirent* dd;
-	while ((dd = readdir(d))!=0) {
+	while ((dd = readdir(d)) != 0) {
 		string file = file_import(dd->d_name);
 		string ext = file_ext(file);
 		if (ext.length() && (ext == ext0 || ext == ext1)) {
 			string name = emulator_name + "/" + file_basename(file);
 			const_iterator j = find(name);
-			if (j!=end()) {
+			if (j != end()) {
 				((*j).*preview_set)(slash_add(dir) + file);
 				almost_one = true;
 			}
@@ -658,7 +658,7 @@ bool game_set::preview_list_set(const string& list, const string& emulator_name,
 	bool almost_one = false;
 	int i = 0;
 
-	while (i<list.length()) {
+	while (i < list.length()) {
 		string dir = token_get(list, i, ":");
 		if (preview_dir_set(dir, emulator_name, preview_set, ext0, ext1))
 			almost_one = true;
@@ -678,13 +678,13 @@ bool game_set::preview_software_dir_set(const string& dir, const string& emulato
 	}
 
 	struct dirent* dd;
-	while ((dd = readdir(d))!=0) {
+	while ((dd = readdir(d)) != 0) {
 		string file = file_import(dd->d_name);
 		string path = slash_add(dir) + file;
 
 		// check for directory
 		struct stat st;
-		if (stat(cpath_export(path), &st)!=0)
+		if (stat(cpath_export(path), &st) != 0)
 			continue;
 		if (!S_ISDIR(st.st_mode))
 			continue;
@@ -692,7 +692,7 @@ bool game_set::preview_software_dir_set(const string& dir, const string& emulato
 		// check if is a bios
 		string name = emulator_name + "/" + file;
 		const_iterator j = find(name);
-		if (j!=end() && !j->software_get()) {
+		if (j != end() && !j->software_get()) {
 			// search in the directory
 			if (preview_dir_set(path, emulator_name + "/" + file, preview_set, ext0, ext1))
 				almost_one = true;
@@ -707,7 +707,7 @@ bool game_set::preview_software_list_set(const string& list, const string& emula
 {
 	bool almost_one = false;
 	int i = 0;
-	while (i<list.length()) {
+	while (i < list.length()) {
 		string dir = token_get(list, i, ":");
 		token_skip(list, i, ":");
 		if (preview_software_dir_set(dir, emulator_name, preview_set, ext0, ext1))

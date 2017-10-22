@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -39,35 +39,35 @@
 
 /***************************************************************************/
 /*
-	Description of the various coordinate systems and variables :
-	All these values are already postprocessed after any SWAP/FLIP.
+        Description of the various coordinate systems and variables :
+        All these values are already postprocessed after any SWAP/FLIP.
 
-	game_area_size_x/y
-		Max size of the visible part of the game screen.
+        game_area_size_x/y
+                Max size of the visible part of the game screen.
 
-	game_used_size_x/y
-		Current size of the used part of the game screen.
+        game_used_size_x/y
+                Current size of the used part of the game screen.
 
-	game_used_pos_x/y
-		Current position of the used part in the whole game are.
+        game_used_pos_x/y
+                Current position of the used part in the whole game are.
 
-	game_visible_size_x/y
-		Size of the visible part of the game screen. Can be smaller
-		than game_used_size_x/y if the video mode is too small.
-		game_visible_ is always internal of the game_used part.
+        game_visible_size_x/y
+                Size of the visible part of the game screen. Can be smaller
+                than game_used_size_x/y if the video mode is too small.
+                game_visible_ is always internal of the game_used part.
 
-	game_visible_pos_x/y
-		Position of the visible part in the game screen. The coords
-		are referenced on the used game area. So, they can be negative
-		but still valid because they are in the game area, also if it isn't
-		used.
+        game_visible_pos_x/y
+                Position of the visible part in the game screen. The coords
+                are referenced on the used game area. So, they can be negative
+                but still valid because they are in the game area, also if it isn't
+                used.
 
-	mode_visible_size_x/y
-		Part of the screen used for drawing. game_visible_* area is
-		drawn in screen_visible_* area, eventually stretching.
-		mode_visible_size may be smaller than the video mode if the game
-		doesn't have the same aspect ratio of the screen.
-*/
+        mode_visible_size_x/y
+                Part of the screen used for drawing. game_visible_* area is
+                drawn in screen_visible_* area, eventually stretching.
+                mode_visible_size may be smaller than the video mode if the game
+                doesn't have the same aspect ratio of the screen.
+ */
 
 static int adjust_step(long long multiplier, long long divider, int step)
 {
@@ -86,7 +86,7 @@ static int adjust_step(long long multiplier, long long divider, int step)
 static int adjust_multiplier(int value, int base, int step, int upper)
 {
 	int i;
-	for(i=1;i<8;++i)
+	for (i = 1; i < 8; ++i)
 		if (base * i <= upper && abs(value - base * i) <= step * i)
 			return base * i;
 	return value;
@@ -114,8 +114,8 @@ adv_bool advance_video_is_programmable(const struct advance_video_context* conte
 static adv_bool video_is_generable(const struct advance_video_context* context)
 {
 	return (context->config.adjust & ADJUST_GENERATE) != 0
-		&& advance_video_is_programmable(context)
-		&& context->config.interpolate.mac > 0;
+	       && advance_video_is_programmable(context)
+	       && context->config.interpolate.mac > 0;
 }
 
 /**
@@ -219,7 +219,7 @@ static adv_error video_make_crtc_for_game(struct advance_video_context* context,
  */
 static adv_error video_make_vidmode(struct advance_video_context* context, adv_mode* mode, const adv_crtc* crtc)
 {
-	if (video_mode_generate(mode, crtc, context->state.mode_index)!=0) {
+	if (video_mode_generate(mode, crtc, context->state.mode_index) != 0) {
 		log_std(("ERROR:emu:video: video_mode_generate failed '%s'\n", error_get()));
 		return -1;
 	}
@@ -250,7 +250,7 @@ static adv_bool is_crtc_acceptable(struct advance_video_context* context, const 
 
 	i = flags;
 	while (*i) {
-		if (video_mode_generate(&mode, &temp_crtc, *i)==0) {
+		if (video_mode_generate(&mode, &temp_crtc, *i) == 0) {
 			return 1;
 		}
 		++i;
@@ -299,7 +299,7 @@ static adv_bool is_crtc_acceptable_preventive(struct advance_video_context* cont
 	/* try generating the video mode */
 	i = flags;
 	while (*i) {
-		if (video_mode_generate(&mode, &temp_crtc, *i)==0) {
+		if (video_mode_generate(&mode, &temp_crtc, *i) == 0) {
 			return 1;
 		}
 		++i;
@@ -321,7 +321,7 @@ adv_error advance_video_update_index(struct advance_video_context* context)
 {
 	unsigned select_pref_palette8[] = { MODE_FLAGS_INDEX_PALETTE8, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR8, MODE_FLAGS_INDEX_YUY2, 0 };
 	unsigned select_pref_bgr8[] = { MODE_FLAGS_INDEX_BGR8, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_YUY2, 0 };
-	unsigned select_pref_bgr15[] = { MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR8,  MODE_FLAGS_INDEX_YUY2, 0 };
+	unsigned select_pref_bgr15[] = { MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR8, MODE_FLAGS_INDEX_YUY2, 0 };
 	unsigned select_pref_bgr16[] = { MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR8, MODE_FLAGS_INDEX_YUY2, 0 };
 	unsigned select_pref_bgr32[] = { MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR8, MODE_FLAGS_INDEX_YUY2, 0 };
 	unsigned select_pref_yuy2[] = { MODE_FLAGS_INDEX_YUY2, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR8, 0 };
@@ -341,26 +341,27 @@ adv_error advance_video_update_index(struct advance_video_context* context)
 	if (index == MODE_FLAGS_INDEX_NONE) {
 		/* get the video driver preferred bit depth */
 		switch (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_DEFAULT_MASK) {
-		case VIDEO_DRIVER_FLAGS_DEFAULT_PALETTE8 :
+		case VIDEO_DRIVER_FLAGS_DEFAULT_PALETTE8:
 			index = MODE_FLAGS_INDEX_PALETTE8;
 			break;
-		case VIDEO_DRIVER_FLAGS_DEFAULT_BGR8 :
+		case VIDEO_DRIVER_FLAGS_DEFAULT_BGR8:
 			index = MODE_FLAGS_INDEX_BGR8;
 			break;
-		case VIDEO_DRIVER_FLAGS_DEFAULT_BGR15 :
+		case VIDEO_DRIVER_FLAGS_DEFAULT_BGR15:
 			index = MODE_FLAGS_INDEX_BGR15;
 			break;
-		case VIDEO_DRIVER_FLAGS_DEFAULT_BGR16 :
+		case VIDEO_DRIVER_FLAGS_DEFAULT_BGR16:
 			index = MODE_FLAGS_INDEX_BGR16;
 			break;
-		case VIDEO_DRIVER_FLAGS_DEFAULT_BGR32 :
+		case VIDEO_DRIVER_FLAGS_DEFAULT_BGR32:
 			index = MODE_FLAGS_INDEX_BGR32;
 			break;
-		case VIDEO_DRIVER_FLAGS_DEFAULT_YUY2 :
+		case VIDEO_DRIVER_FLAGS_DEFAULT_YUY2:
 			index = MODE_FLAGS_INDEX_YUY2;
 			break;
 		}
-	};
+	}
+	;
 
 	if (index == MODE_FLAGS_INDEX_NONE) {
 		if (mode_may_be_palette) {
@@ -368,16 +369,16 @@ adv_error advance_video_update_index(struct advance_video_context* context)
 			index = MODE_FLAGS_INDEX_BGR16;
 		} else {
 			switch (context->state.game_bits_per_pixel) {
-			case 8 :
+			case 8:
 				index = MODE_FLAGS_INDEX_BGR8;
 				break;
-			case 15 :
+			case 15:
 				index = MODE_FLAGS_INDEX_BGR15;
 				break;
-			case 16 :
+			case 16:
 				index = MODE_FLAGS_INDEX_BGR16;
 				break;
-			case 32 :
+			case 32:
 				index = MODE_FLAGS_INDEX_BGR32;
 				break;
 			default:
@@ -388,29 +389,29 @@ adv_error advance_video_update_index(struct advance_video_context* context)
 	}
 
 	switch (index) {
-		case MODE_FLAGS_INDEX_PALETTE8 : select = select_pref_palette8; break;
-		case MODE_FLAGS_INDEX_BGR8 : select = select_pref_bgr8; break;
-		case MODE_FLAGS_INDEX_BGR15 : select = select_pref_bgr15; break;
-		case MODE_FLAGS_INDEX_BGR16 : select = select_pref_bgr16; break;
-		case MODE_FLAGS_INDEX_BGR32 : select = select_pref_bgr32; break;
-		case MODE_FLAGS_INDEX_YUY2 : select = select_pref_yuy2; break;
-		default:
-			log_std(("ERROR:emu:video: invalid index\n"));
-			return -1;
+	case MODE_FLAGS_INDEX_PALETTE8: select = select_pref_palette8; break;
+	case MODE_FLAGS_INDEX_BGR8: select = select_pref_bgr8; break;
+	case MODE_FLAGS_INDEX_BGR15: select = select_pref_bgr15; break;
+	case MODE_FLAGS_INDEX_BGR16: select = select_pref_bgr16; break;
+	case MODE_FLAGS_INDEX_BGR32: select = select_pref_bgr32; break;
+	case MODE_FLAGS_INDEX_YUY2: select = select_pref_yuy2; break;
+	default:
+		log_std(("ERROR:emu:video: invalid index\n"));
+		return -1;
 	}
 
 	while (*select) {
 		unsigned flag;
 		switch (*select) {
-			case MODE_FLAGS_INDEX_PALETTE8 : flag = VIDEO_DRIVER_FLAGS_MODE_PALETTE8; break;
-			case MODE_FLAGS_INDEX_BGR8 : flag = VIDEO_DRIVER_FLAGS_MODE_BGR8; break;
-			case MODE_FLAGS_INDEX_BGR15 : flag = VIDEO_DRIVER_FLAGS_MODE_BGR15; break;
-			case MODE_FLAGS_INDEX_BGR16 : flag = VIDEO_DRIVER_FLAGS_MODE_BGR16; break;
-			case MODE_FLAGS_INDEX_BGR32 : flag = VIDEO_DRIVER_FLAGS_MODE_BGR32; break;
-			case MODE_FLAGS_INDEX_YUY2 : flag = VIDEO_DRIVER_FLAGS_MODE_YUY2; break;
-			default:
-				log_std(("ERROR:emu:video: invalid *select\n"));
-				return -1;
+		case MODE_FLAGS_INDEX_PALETTE8: flag = VIDEO_DRIVER_FLAGS_MODE_PALETTE8; break;
+		case MODE_FLAGS_INDEX_BGR8: flag = VIDEO_DRIVER_FLAGS_MODE_BGR8; break;
+		case MODE_FLAGS_INDEX_BGR15: flag = VIDEO_DRIVER_FLAGS_MODE_BGR15; break;
+		case MODE_FLAGS_INDEX_BGR16: flag = VIDEO_DRIVER_FLAGS_MODE_BGR16; break;
+		case MODE_FLAGS_INDEX_BGR32: flag = VIDEO_DRIVER_FLAGS_MODE_BGR32; break;
+		case MODE_FLAGS_INDEX_YUY2: flag = VIDEO_DRIVER_FLAGS_MODE_YUY2; break;
+		default:
+			log_std(("ERROR:emu:video: invalid *select\n"));
+			return -1;
 		}
 		if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & flag) != 0) {
 			/* accept a palette mode only if it's usable */
@@ -455,7 +456,7 @@ void advance_video_invalidate_screen(struct advance_video_context* context)
 	/* intentionally doesn't clear the entire video memory, */
 	/* it's more safe to clear only the used part, for example */
 	/* if case the memory size detection is wrong  */
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		update_start();
 		log_std(("emu:video: clear %dx%d %dx%d\n", update_x_get(), update_y_get(), video_size_x(), video_size_y()));
 		video_clear(update_x_get(), update_y_get(), video_size_x(), video_size_y(), color);
@@ -473,7 +474,7 @@ static void video_invalidate_color(struct advance_video_context* context)
 	if (!context->state.game_rgb_flag) {
 		unsigned i;
 		context->state.palette_dirty_flag = 1;
-		for(i=0;i<context->state.palette_dirty_total;++i)
+		for (i = 0; i < context->state.palette_dirty_total; ++i)
 			context->state.palette_dirty_map[i] = osd_mask_full;
 	}
 }
@@ -483,7 +484,7 @@ static void video_done_pipeline(struct advance_video_context* context)
 	/* destroy the pipeline */
 	if (context->state.blit_pipeline_flag) {
 		unsigned i;
-		for(i=0;i<PIPELINE_BLIT_MAX;++i)
+		for (i = 0; i < PIPELINE_BLIT_MAX; ++i)
 			video_pipeline_done(&context->state.blit_pipeline[i]);
 		video_pipeline_done(&context->state.buffer_pipeline_video);
 		context->state.blit_pipeline_flag = 0;
@@ -573,7 +574,7 @@ static adv_error vidmode_update(struct advance_video_context* context, adv_mode*
 	advance_video_invalidate_pipeline(context);
 
 	if (!context->state.mode_flag
-		|| video_mode_compare(mode, video_current_mode())!=0
+		|| video_mode_compare(mode, video_current_mode()) != 0
 	) {
 		if (context->state.mode_flag)
 			vidmode_done(context, 0);
@@ -621,11 +622,11 @@ void advance_video_update_pan(struct advance_video_context* context)
 	unsigned size_y;
 
 	/* center if skips are negative */
-	if (context->config.skipcolumns<0)
+	if (context->config.skipcolumns < 0)
 		context->state.game_visible_pos_x = (context->state.game_used_size_x - context->state.game_visible_size_x) / 2;
 	else
 		context->state.game_visible_pos_x = context->config.skipcolumns;
-	if (context->config.skiplines<0)
+	if (context->config.skiplines < 0)
 		context->state.game_visible_pos_y = (context->state.game_used_size_y - context->state.game_visible_size_y) / 2;
 	else
 		context->state.game_visible_pos_y = context->config.skiplines;
@@ -673,9 +674,9 @@ void advance_video_update_pan(struct advance_video_context* context)
 		SWAP(unsigned, size_x, size_y);
 	}
 
-	log_std(("emu:video: mame_ui_area_set(min_x:%d, min_y:%d, max_x:%d, max_y:%d)\n", pos_x, pos_y, pos_x+size_x-1, pos_y+size_y-1));
+	log_std(("emu:video: mame_ui_area_set(min_x:%d, min_y:%d, max_x:%d, max_y:%d)\n", pos_x, pos_y, pos_x + size_x - 1, pos_y + size_y - 1));
 
-	mame_ui_area_set(pos_x, pos_y, pos_x+size_x-1, pos_y+size_y-1);
+	mame_ui_area_set(pos_x, pos_y, pos_x + size_x - 1, pos_y + size_y - 1);
 }
 
 /**
@@ -688,7 +689,7 @@ void advance_video_update_ui(struct advance_video_context* context, const adv_cr
 	unsigned aspect_x;
 	unsigned aspect_y;
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0) {
 		/* with window assume square pixel */
 		aspect_x = crtc_hsize_get(crtc);
 		aspect_y = crtc_vsize_get(crtc);
@@ -713,23 +714,23 @@ void advance_video_update_effect(struct advance_video_context* context)
 	context->state.combine = context->config.combine;
 
 	if (context->state.combine == COMBINE_AUTO) {
-		if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x
-			&& context->state.mode_visible_size_y == 2*context->state.game_visible_size_y) {
+		if (context->state.mode_visible_size_x == 2 * context->state.game_visible_size_x
+			&& context->state.mode_visible_size_y == 2 * context->state.game_visible_size_y) {
 			context->state.combine = context->config.combine_max;
-		} else if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x
-			&& context->state.mode_visible_size_y == 3*context->state.game_visible_size_y) {
+		} else if (context->state.mode_visible_size_x == 2 * context->state.game_visible_size_x
+			&& context->state.mode_visible_size_y == 3 * context->state.game_visible_size_y) {
 			context->state.combine = context->config.combine_max;
-		} else if (context->state.mode_visible_size_x == 2*context->state.game_visible_size_x
-			&& context->state.mode_visible_size_y == 4*context->state.game_visible_size_y) {
+		} else if (context->state.mode_visible_size_x == 2 * context->state.game_visible_size_x
+			&& context->state.mode_visible_size_y == 4 * context->state.game_visible_size_y) {
 			context->state.combine = context->config.combine_max;
-		} else if (context->state.mode_visible_size_x == 3*context->state.game_visible_size_x
-			&& context->state.mode_visible_size_y == 3*context->state.game_visible_size_y) {
+		} else if (context->state.mode_visible_size_x == 3 * context->state.game_visible_size_x
+			&& context->state.mode_visible_size_y == 3 * context->state.game_visible_size_y) {
 			context->state.combine = context->config.combine_max;
-		} else if (context->state.mode_visible_size_x == 4*context->state.game_visible_size_x
-			&& context->state.mode_visible_size_y == 4*context->state.game_visible_size_y) {
+		} else if (context->state.mode_visible_size_x == 4 * context->state.game_visible_size_x
+			&& context->state.mode_visible_size_y == 4 * context->state.game_visible_size_y) {
 			context->state.combine = context->config.combine_max;
-		} else if (context->state.mode_visible_size_x >= 3*context->state.game_visible_size_x
-			&& context->state.mode_visible_size_y >= 3*context->state.game_visible_size_y) {
+		} else if (context->state.mode_visible_size_x >= 3 * context->state.game_visible_size_x
+			&& context->state.mode_visible_size_y >= 3 * context->state.game_visible_size_y) {
 			context->state.combine = COMBINE_FILTER;
 		} else if ((context->state.mode_visible_size_x % context->state.game_visible_size_x) == 0
 			&& (context->state.mode_visible_size_y % context->state.game_visible_size_y) == 0) {
@@ -745,10 +746,10 @@ void advance_video_update_effect(struct advance_video_context* context)
 		|| context->state.combine == COMBINE_FILTER
 	) {
 		switch (context->state.mode_index) {
-		case MODE_FLAGS_INDEX_BGR8 :
-		case MODE_FLAGS_INDEX_BGR15 :
-		case MODE_FLAGS_INDEX_BGR16 :
-		case MODE_FLAGS_INDEX_BGR32 :
+		case MODE_FLAGS_INDEX_BGR8:
+		case MODE_FLAGS_INDEX_BGR15:
+		case MODE_FLAGS_INDEX_BGR16:
+		case MODE_FLAGS_INDEX_BGR32:
 			break;
 		default:
 			log_std(("emu:video: resizeeffect=* disabled because we aren't in a rgb mode\n"));
@@ -758,40 +759,40 @@ void advance_video_update_effect(struct advance_video_context* context)
 	}
 
 	if ((context->state.combine == COMBINE_SCALEX)
-		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 2*context->state.game_visible_size_y)
-		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
-		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
-		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
-		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 2 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 2 * context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 2 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 3 * context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 2 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 4 * context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 3 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 3 * context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 4 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 4 * context->state.game_visible_size_y)
 	) {
 		log_std(("emu:video: resizeeffect=scalex disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
 	if ((context->state.combine == COMBINE_SCALEK)
-		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 2*context->state.game_visible_size_y)
-		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
-		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 2 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 2 * context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 3 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 3 * context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 4 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 4 * context->state.game_visible_size_y)
 	) {
 		log_std(("emu:video: resizeeffect=scalek disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
 	if ((context->state.combine == COMBINE_HQ)
-		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 2*context->state.game_visible_size_y)
-		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
-		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
-		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
-		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 2 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 2 * context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 2 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 3 * context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 2 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 4 * context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 3 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 3 * context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 4 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 4 * context->state.game_visible_size_y)
 	) {
 		log_std(("emu:video: resizeeffect=lq|hq disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
 	}
 
 	if ((context->state.combine == COMBINE_XBR)
-		&& (context->state.mode_visible_size_x != 2*context->state.game_visible_size_x || context->state.mode_visible_size_y != 2*context->state.game_visible_size_y)
-		&& (context->state.mode_visible_size_x != 3*context->state.game_visible_size_x || context->state.mode_visible_size_y != 3*context->state.game_visible_size_y)
-		&& (context->state.mode_visible_size_x != 4*context->state.game_visible_size_x || context->state.mode_visible_size_y != 4*context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 2 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 2 * context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 3 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 3 * context->state.game_visible_size_y)
+		&& (context->state.mode_visible_size_x != 4 * context->state.game_visible_size_x || context->state.mode_visible_size_y != 4 * context->state.game_visible_size_y)
 	) {
 		log_std(("emu:video: resizeeffect=xbr disabled because the wrong mode size\n"));
 		context->state.combine = COMBINE_NONE;
@@ -816,17 +817,17 @@ void advance_video_update_effect(struct advance_video_context* context)
 	}
 
 	switch (context->state.rgb_effect) {
-	case EFFECT_RGB_TRIAD3PIX :
-	case EFFECT_RGB_TRIAD6PIX :
-	case EFFECT_RGB_TRIAD16PIX :
-	case EFFECT_RGB_TRIADSTRONG3PIX :
-	case EFFECT_RGB_TRIADSTRONG6PIX :
-	case EFFECT_RGB_TRIADSTRONG16PIX :
+	case EFFECT_RGB_TRIAD3PIX:
+	case EFFECT_RGB_TRIAD6PIX:
+	case EFFECT_RGB_TRIAD16PIX:
+	case EFFECT_RGB_TRIADSTRONG3PIX:
+	case EFFECT_RGB_TRIADSTRONG6PIX:
+	case EFFECT_RGB_TRIADSTRONG16PIX:
 		switch (context->state.mode_index) {
-		case MODE_FLAGS_INDEX_BGR8 :
-		case MODE_FLAGS_INDEX_BGR15 :
-		case MODE_FLAGS_INDEX_BGR16 :
-		case MODE_FLAGS_INDEX_BGR32 :
+		case MODE_FLAGS_INDEX_BGR8:
+		case MODE_FLAGS_INDEX_BGR15:
+		case MODE_FLAGS_INDEX_BGR16:
+		case MODE_FLAGS_INDEX_BGR32:
 			break;
 		default:
 			log_std(("emu:video: rgbeffect=triad* disabled because we aren't in a rgb mode\n"));
@@ -838,23 +839,23 @@ void advance_video_update_effect(struct advance_video_context* context)
 
 	/* adjust the gamma settings */
 	switch (context->state.rgb_effect) {
-		case EFFECT_NONE :
-			context->state.gamma_effect_factor = 1.0;
-			break;
-		case EFFECT_RGB_TRIAD3PIX :
-		case EFFECT_RGB_TRIAD6PIX :
-		case EFFECT_RGB_TRIAD16PIX :
-		case EFFECT_RGB_SCANDOUBLEHORZ :
-		case EFFECT_RGB_SCANDOUBLEVERT :
-			context->state.gamma_effect_factor = 1.2;
-			break;
-		case EFFECT_RGB_TRIADSTRONG3PIX :
-		case EFFECT_RGB_TRIADSTRONG6PIX :
-		case EFFECT_RGB_TRIADSTRONG16PIX :
-		case EFFECT_RGB_SCANTRIPLEHORZ :
-		case EFFECT_RGB_SCANTRIPLEVERT :
-			context->state.gamma_effect_factor = 1.3;
-			break;
+	case EFFECT_NONE:
+		context->state.gamma_effect_factor = 1.0;
+		break;
+	case EFFECT_RGB_TRIAD3PIX:
+	case EFFECT_RGB_TRIAD6PIX:
+	case EFFECT_RGB_TRIAD16PIX:
+	case EFFECT_RGB_SCANDOUBLEHORZ:
+	case EFFECT_RGB_SCANDOUBLEVERT:
+		context->state.gamma_effect_factor = 1.2;
+		break;
+	case EFFECT_RGB_TRIADSTRONG3PIX:
+	case EFFECT_RGB_TRIADSTRONG6PIX:
+	case EFFECT_RGB_TRIADSTRONG16PIX:
+	case EFFECT_RGB_SCANTRIPLEHORZ:
+	case EFFECT_RGB_SCANTRIPLEVERT:
+		context->state.gamma_effect_factor = 1.3;
+		break;
 	}
 
 	if (!crtc_is_interlace(&context->state.crtc_effective)) {
@@ -881,7 +882,7 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 		&& advance_video_is_programmable(context)
 	) {
 		if (stretch == STRETCH_FRACTIONAL_XY
-			&& strcmp(context->config.resolution_buffer, "auto")==0) {
+			&& strcmp(context->config.resolution_buffer, "auto") == 0) {
 			log_std(("emu:video: fractional converted in mixed because generate/x is active\n"));
 			stretch = STRETCH_INTEGER_X_FRACTIONAL_Y;
 		}
@@ -889,7 +890,7 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 
 	/* compute the mode visible part assuming a complete fraction stretch */
 	/* some values are overwritten later if the stretch method is different */
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW)!=0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0) {
 		/* with window assume square pixel */
 		context->state.mode_visible_size_x = crtc_hsize_get(crtc);
 		context->state.mode_visible_size_y = crtc_vsize_get(crtc);
@@ -902,17 +903,17 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 		unsigned long long arcade_aspect_y;
 
 /*
-	mode_pixelaspect_x/y
-		It's the size in pixel of a visible square drawn
-		on the current video mode.
+        mode_pixelaspect_x/y
+                It's the size in pixel of a visible square drawn
+                on the current video mode.
 
-	monitor_aspect_x   mode_pixelaspect_x   mode_size_x
-	---------------- * ------------------ = -----------
-	monitor_aspect_y   mode_pixelaspect_y   mode_size_y
+        monitor_aspect_x   mode_pixelaspect_x   mode_size_x
+        ---------------- * ------------------ = -----------
+        monitor_aspect_y   mode_pixelaspect_y   mode_size_y
 
-	if mode_pixelaspect is equal at game_pixelaspect no stretching is
-	required to adjust the aspect.
-*/
+        if mode_pixelaspect is equal at game_pixelaspect no stretching is
+        required to adjust the aspect.
+ */
 		mode_pixelaspect_x = crtc_hsize_get(crtc) * context->config.monitor_aspect_y;
 		mode_pixelaspect_y = crtc_vsize_get(crtc) * context->config.monitor_aspect_x;
 		video_aspect_reduce(&mode_pixelaspect_x, &mode_pixelaspect_y);
@@ -922,15 +923,15 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 		video_aspect_reduce(&arcade_aspect_x, &arcade_aspect_y);
 
 /*
-	The visible/used part of the video mode is computed in this way :
+        The visible/used part of the video mode is computed in this way :
 
-	arcade_aspect_x   mode_pixelaspect_x   mode_visible_size_x
-	--------------- * ------------------ = -------------------
-	arcade_aspect_y   mode_pixelaspect_y   mode_visible_size_y
+        arcade_aspect_x   mode_pixelaspect_x   mode_visible_size_x
+        --------------- * ------------------ = -------------------
+        arcade_aspect_y   mode_pixelaspect_y   mode_visible_size_y
 
-	Note that mode_pixelaspect doesn't change if you use only part of
-	the screen. So, we can change safely the visible size.
-*/
+        Note that mode_pixelaspect doesn't change if you use only part of
+        the screen. So, we can change safely the visible size.
+ */
 
 		factor_x = mode_pixelaspect_x * arcade_aspect_x;
 		factor_y = mode_pixelaspect_y * arcade_aspect_y;
@@ -949,7 +950,7 @@ void advance_video_update_visible(struct advance_video_context* context, const a
 			context->state.mode_visible_size_x = crtc_hsize_get(crtc);
 			context->state.mode_visible_size_y = context->state.mode_visible_size_x * factor_y / factor_x;
 			if (context->state.mode_visible_size_y > crtc_vsize_get(crtc))
-					context->state.mode_visible_size_y = crtc_vsize_get(crtc);
+				context->state.mode_visible_size_y = crtc_vsize_get(crtc);
 		}
 	}
 
@@ -1030,7 +1031,7 @@ static int video_resolution_cmp(const char* resolution, const char* name)
 	int nl;
 
 	/* match the exact mode name */
-	if (strcmp(resolution, name)==0)
+	if (strcmp(resolution, name) == 0)
 		return 0;
 
 	/* LEGACY (to be removed) */
@@ -1038,9 +1039,9 @@ static int video_resolution_cmp(const char* resolution, const char* name)
 	rl = strlen(resolution);
 	nl = strlen(name);
 	if (rl > nl
-		&& strncmp(resolution, name, nl)==0
-		&& resolution[nl]=='-'
-		&& strspn(resolution+nl, "-0123456789x")==strlen(resolution+nl))
+		&& strncmp(resolution, name, nl) == 0
+		&& resolution[nl] == '-'
+		&& strspn(resolution + nl, "-0123456789x") == strlen(resolution + nl))
 		return 0;
 
 	return -1;
@@ -1061,7 +1062,7 @@ adv_error advance_video_update_selectedcrtc(struct advance_video_context* contex
 
 	log_std(("emu:video: video mode selection\n"));
 
-	for(crtc_container_iterator_begin(&i, &context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for (crtc_container_iterator_begin(&i, &context->config.crtc_bag); !crtc_container_iterator_is_end(&i); crtc_container_iterator_next(&i)) {
 		adv_crtc* crtc = crtc_container_iterator_get(&i);
 		if (is_crtc_acceptable(context, crtc)) {
 			if (context->state.crtc_mac < VIDEO_CRTC_MAX) {
@@ -1089,16 +1090,16 @@ adv_error advance_video_update_selectedcrtc(struct advance_video_context* contex
 	crtc_sort(context, context->state.crtc_map, context->state.crtc_mac);
 
 	log_std(("emu:video: sorted list of video modes\n"));
-	for(j=0;j<context->state.crtc_mac;++j) {
+	for (j = 0; j < context->state.crtc_mac; ++j) {
 		char buffer[256];
 		crtc_print(buffer, sizeof(buffer), context->state.crtc_map[j]);
 		log_std(("emu:video: %3d modeline:\"%s\"\n", j, buffer));
 	}
 
 	crtc = 0;
-	if (strcmp(context->config.resolution_buffer, "auto")!=0) {
+	if (strcmp(context->config.resolution_buffer, "auto") != 0) {
 		int i;
-		for(i=0;i<context->state.crtc_mac;++i) {
+		for (i = 0; i < context->state.crtc_mac; ++i) {
 			if (video_resolution_cmp(context->config.resolution_buffer, crtc_name_get(context->state.crtc_map[i])) == 0) {
 				crtc = context->state.crtc_map[i];
 				break;
@@ -1394,32 +1395,32 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		video_aspect_reduce(&arcade_aspect_x, &arcade_aspect_y);
 
 /*
-	arcade_aspect
-		The aspect of the original arcade game. It's the
-		measured size of the original arcade display.
-		(Effectively only of the used area of the display).
+        arcade_aspect
+                The aspect of the original arcade game. It's the
+                measured size of the original arcade display.
+                (Effectively only of the used area of the display).
 
-	monitor_aspect
-		The aspect of the current monitor. It's the
-		measured size of the current monitor.
+        monitor_aspect
+                The aspect of the current monitor. It's the
+                measured size of the current monitor.
 
-	game_pixelaspect
-		It's the size in pixel of a visible square drawn on the original
-		arcade game.
+        game_pixelaspect
+                It's the size in pixel of a visible square drawn on the original
+                arcade game.
 
-	arcade_aspect_x   game_pixelaspect_x   game_used_size_x
-	--------------- * ------------------ = ----------------
-	arcade_aspect_y   game_pixelaspect_y   game_used_size_y
+        arcade_aspect_x   game_pixelaspect_x   game_used_size_x
+        --------------- * ------------------ = ----------------
+        arcade_aspect_y   game_pixelaspect_y   game_used_size_y
 
-	The mode size is computed in the this way :
+        The mode size is computed in the this way :
 
-	monitor_aspect_x   game_pixelaspect_x   mode_size_x
-	---------------- * ------------------ = ------------
-	monitor_aspect_y   game_pixelaspect_y   mode_size_y
+        monitor_aspect_x   game_pixelaspect_x   mode_size_x
+        ---------------- * ------------------ = ------------
+        monitor_aspect_y   game_pixelaspect_y   mode_size_y
 
-	This formula ensures that the current video mode has the same
-	pixelaspect of the original video mode.
-*/
+        This formula ensures that the current video mode has the same
+        pixelaspect of the original video mode.
+ */
 
 		/* compute the game pixel aspect ratio */
 		context->state.game_pixelaspect_x = context->state.game_used_size_x * arcade_aspect_y;
@@ -1440,21 +1441,21 @@ static adv_error video_init_state(struct advance_video_context* context, struct 
 		if (context->state.mode_aspect_vertgameinhorzscreen) {
 			best_size_y = context->state.game_used_size_y;
 			best_size_x = adjust_step(context->state.game_used_size_y * factor_x, factor_y, CRTC_HSTEP);
-			best_size_2y = 2*context->state.game_used_size_y;
+			best_size_2y = 2 * context->state.game_used_size_y;
 			best_size_2x = adjust_step(2 * context->state.game_used_size_y * factor_x, factor_y, CRTC_HSTEP);
-			best_size_3y = 3*context->state.game_used_size_y;
+			best_size_3y = 3 * context->state.game_used_size_y;
 			best_size_3x = adjust_step(3 * context->state.game_used_size_y * factor_x, factor_y, CRTC_HSTEP);
-			best_size_4y = 4*context->state.game_used_size_y;
+			best_size_4y = 4 * context->state.game_used_size_y;
 			best_size_4x = adjust_step(4 * context->state.game_used_size_y * factor_x, factor_y, CRTC_HSTEP);
 		} else {
 			best_size_x = adjust_step(context->state.game_used_size_x, 1, CRTC_HSTEP);
 			best_size_y = context->state.game_used_size_x * factor_y / factor_x;
 			best_size_2x = adjust_step(2 * context->state.game_used_size_x, 1, CRTC_HSTEP);
-			best_size_2y = 2*context->state.game_used_size_x * factor_y / factor_x;
+			best_size_2y = 2 * context->state.game_used_size_x * factor_y / factor_x;
 			best_size_3x = adjust_step(3 * context->state.game_used_size_x, 1, CRTC_HSTEP);
-			best_size_3y = 3*context->state.game_used_size_x * factor_y / factor_x;
+			best_size_3y = 3 * context->state.game_used_size_x * factor_y / factor_x;
 			best_size_4x = adjust_step(4 * context->state.game_used_size_x, 1, CRTC_HSTEP);
-			best_size_4y = 4*context->state.game_used_size_x * factor_y / factor_x;
+			best_size_4y = 4 * context->state.game_used_size_x * factor_y / factor_x;
 		}
 		best_bits = context->state.game_bits_per_pixel;
 		best_vclock = context->state.game_fps;
@@ -1591,12 +1592,12 @@ static adv_error video_init_color(struct advance_video_context* context, struct 
 	context->state.buffer_index8_map = (uint8*)malloc(context->state.palette_total * sizeof(uint8));
 
 	/* initialize the palette */
-	for(i=0;i<context->state.palette_total;++i) {
+	for (i = 0; i < context->state.palette_total; ++i) {
 		context->state.palette_map[i].red = 0;
 		context->state.palette_map[i].green = 0;
 		context->state.palette_map[i].blue = 0;
 	}
-	for(i=0;i<context->state.palette_total;++i) {
+	for (i = 0; i < context->state.palette_total; ++i) {
 		context->state.palette_index32_map[i] = 0;
 		context->state.palette_index16_map[i] = 0;
 		context->state.palette_index8_map[i] = 0;
@@ -1607,7 +1608,7 @@ static adv_error video_init_color(struct advance_video_context* context, struct 
 
 	/* make the palette completly dirty */
 	context->state.palette_dirty_flag = 1;
-	for(i=0;i<context->state.palette_dirty_total;++i)
+	for (i = 0; i < context->state.palette_dirty_total; ++i)
 		context->state.palette_dirty_map[i] = osd_mask_full;
 
 	/* set the rgb format for rgb games */
@@ -1664,9 +1665,9 @@ static void video_buffer_clear(struct advance_video_context* context)
 		/* fast clear to 0 */
 		memset(context->state.buffer_ptr, 0, context->state.buffer_size_y * context->state.buffer_bytes_per_scanline);
 	} else {
-		for(y=0;y<context->state.buffer_size_y;++y) {
+		for (y = 0; y < context->state.buffer_size_y; ++y) {
 			unsigned char* p = context->state.buffer_ptr + y * context->state.buffer_bytes_per_scanline;
-			for(x=0;x<context->state.buffer_size_x;++x) {
+			for (x = 0; x < context->state.buffer_size_x; ++x) {
 				cpu_uint_write(p, bytes_per_pixel, color);
 				p += bytes_per_pixel;
 			}
@@ -1782,71 +1783,71 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 	combine = 0;
 
 	switch (context->state.rgb_effect) {
-	case EFFECT_RGB_TRIAD3PIX :
+	case EFFECT_RGB_TRIAD3PIX:
 		combine |= VIDEO_COMBINE_X_RGB_TRIAD3PIX;
 		break;
-	case EFFECT_RGB_TRIADSTRONG3PIX :
+	case EFFECT_RGB_TRIADSTRONG3PIX:
 		combine |= VIDEO_COMBINE_X_RGB_TRIADSTRONG3PIX;
 		break;
-	case EFFECT_RGB_TRIAD6PIX :
+	case EFFECT_RGB_TRIAD6PIX:
 		combine |= VIDEO_COMBINE_X_RGB_TRIAD6PIX;
 		break;
-	case EFFECT_RGB_TRIADSTRONG6PIX :
+	case EFFECT_RGB_TRIADSTRONG6PIX:
 		combine |= VIDEO_COMBINE_X_RGB_TRIADSTRONG6PIX;
 		break;
-	case EFFECT_RGB_TRIAD16PIX :
+	case EFFECT_RGB_TRIAD16PIX:
 		combine |= VIDEO_COMBINE_X_RGB_TRIAD16PIX;
 		break;
-	case EFFECT_RGB_TRIADSTRONG16PIX :
+	case EFFECT_RGB_TRIADSTRONG16PIX:
 		combine |= VIDEO_COMBINE_X_RGB_TRIADSTRONG16PIX;
 		break;
-	case EFFECT_RGB_SCANDOUBLEHORZ :
+	case EFFECT_RGB_SCANDOUBLEHORZ:
 		combine |= VIDEO_COMBINE_X_RGB_SCANDOUBLEHORZ;
 		break;
-	case EFFECT_RGB_SCANTRIPLEHORZ :
+	case EFFECT_RGB_SCANTRIPLEHORZ:
 		combine |= VIDEO_COMBINE_X_RGB_SCANTRIPLEHORZ;
 		break;
-	case EFFECT_RGB_SCANDOUBLEVERT :
+	case EFFECT_RGB_SCANDOUBLEVERT:
 		combine |= VIDEO_COMBINE_X_RGB_SCANDOUBLEVERT;
 		break;
-	case EFFECT_RGB_SCANTRIPLEVERT :
+	case EFFECT_RGB_SCANTRIPLEVERT:
 		combine |= VIDEO_COMBINE_X_RGB_SCANTRIPLEVERT;
 		break;
 	}
 
 	switch (context->state.interlace_effect) {
-	case EFFECT_INTERLACE_EVEN :
+	case EFFECT_INTERLACE_EVEN:
 		combine |= VIDEO_COMBINE_SWAP_EVEN;
 		break;
-	case EFFECT_INTERLACE_ODD :
+	case EFFECT_INTERLACE_ODD:
 		combine |= VIDEO_COMBINE_SWAP_ODD;
 		break;
-	case EFFECT_INTERLACE_FILTER :
+	case EFFECT_INTERLACE_FILTER:
 		combine |= VIDEO_COMBINE_INTERLACE_FILTER;
 		break;
 	}
 
 	switch (context->state.combine) {
-	case COMBINE_MAXMIN :
+	case COMBINE_MAXMIN:
 		combine |= VIDEO_COMBINE_Y_MAXMIN | VIDEO_COMBINE_X_MAXMIN;
 		break;
-	case COMBINE_MEAN :
+	case COMBINE_MEAN:
 		combine |= VIDEO_COMBINE_Y_MEAN | VIDEO_COMBINE_X_MEAN;
 		break;
-	case COMBINE_FILTER :
+	case COMBINE_FILTER:
 		combine |= VIDEO_COMBINE_Y_FILTER | VIDEO_COMBINE_X_FILTER;
 		break;
-	case COMBINE_SCALEX :
+	case COMBINE_SCALEX:
 		combine |= VIDEO_COMBINE_Y_SCALEX;
 		break;
-	case COMBINE_SCALEK :
+	case COMBINE_SCALEK:
 		combine |= VIDEO_COMBINE_Y_SCALEK;
 		break;
 #ifndef USE_BLIT_SMALL
-	case COMBINE_HQ :
+	case COMBINE_HQ:
 		combine |= VIDEO_COMBINE_Y_HQ;
 		break;
-	case COMBINE_XBR :
+	case COMBINE_XBR:
 		combine |= VIDEO_COMBINE_Y_XBR;
 		break;
 #endif
@@ -1860,7 +1861,7 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 
 	free(context->state.buffer_ptr_alloc);
 
-	for(p=0;p<PIPELINE_BLIT_MAX;++p)
+	for (p = 0; p < PIPELINE_BLIT_MAX; ++p)
 		video_pipeline_init(&context->state.blit_pipeline[p]);
 	video_pipeline_init(&context->state.buffer_pipeline_video);
 	context->state.blit_pipeline_flag = 1;
@@ -1880,38 +1881,38 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 	video_pipeline_target(&context->state.buffer_pipeline_video, context->state.buffer_ptr, context->state.buffer_bytes_per_scanline, context->state.buffer_def);
 
 	if (context->state.game_rgb_flag) {
-		for(p=0;p<PIPELINE_BLIT_MAX;++p)
+		for (p = 0; p < PIPELINE_BLIT_MAX; ++p)
 			video_pipeline_direct(&context->state.blit_pipeline[p], context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.game_color_def, combine_video | pipeline_combine(p));
 		video_pipeline_direct(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.game_color_def, combine_buffer);
 	} else {
 		if (context->state.mode_index == MODE_FLAGS_INDEX_PALETTE8) {
 			assert(context->state.game_bytes_per_pixel == 2);
-			for(p=0;p<PIPELINE_BLIT_MAX;++p)
+			for (p = 0; p < PIPELINE_BLIT_MAX; ++p)
 				video_pipeline_palette16hw(&context->state.blit_pipeline[p], context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, combine_video | pipeline_combine(p));
 			video_pipeline_palette16hw(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, combine_buffer);
 		} else {
 			switch (context->state.game_bytes_per_pixel) {
-				case 1 :
-					for(p=0;p<PIPELINE_BLIT_MAX;++p)
-						video_pipeline_palette8(&context->state.blit_pipeline[p], context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_video | pipeline_combine(p));
-					/* use the alternate palette only if required */
-					if (context->state.buffer_def != video_color_def())
-						video_pipeline_palette8(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.buffer_index8_map, context->state.buffer_index16_map, context->state.buffer_index32_map, combine_buffer);
-					else
-						video_pipeline_palette8(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_buffer);
-					break;
-				case 2 :
-					for(p=0;p<PIPELINE_BLIT_MAX;++p)
-						video_pipeline_palette16(&context->state.blit_pipeline[p], context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_video | pipeline_combine(p));
-					/* use the alternate palette only if required */
-					if (context->state.buffer_def != video_color_def())
-						video_pipeline_palette16(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.buffer_index8_map, context->state.buffer_index16_map, context->state.buffer_index32_map, combine_buffer);
-					else
-						video_pipeline_palette16(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_buffer);
-					break;
-				default :
-					assert(0);
-					break;
+			case 1:
+				for (p = 0; p < PIPELINE_BLIT_MAX; ++p)
+					video_pipeline_palette8(&context->state.blit_pipeline[p], context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_video | pipeline_combine(p));
+				/* use the alternate palette only if required */
+				if (context->state.buffer_def != video_color_def())
+					video_pipeline_palette8(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.buffer_index8_map, context->state.buffer_index16_map, context->state.buffer_index32_map, combine_buffer);
+				else
+					video_pipeline_palette8(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_buffer);
+				break;
+			case 2:
+				for (p = 0; p < PIPELINE_BLIT_MAX; ++p)
+					video_pipeline_palette16(&context->state.blit_pipeline[p], context->state.mode_visible_size_x, context->state.mode_visible_size_y, context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.blit_src_dw, context->state.blit_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_video | pipeline_combine(p));
+				/* use the alternate palette only if required */
+				if (context->state.buffer_def != video_color_def())
+					video_pipeline_palette16(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.buffer_index8_map, context->state.buffer_index16_map, context->state.buffer_index32_map, combine_buffer);
+				else
+					video_pipeline_palette16(&context->state.buffer_pipeline_video, intermediate_mode_visible_size_x, intermediate_mode_visible_size_y, intermediate_game_visible_size_x, intermediate_game_visible_size_y, context->state.buffer_src_dw, context->state.buffer_src_dp, context->state.palette_index8_map, context->state.palette_index16_map, context->state.palette_index32_map, combine_buffer);
+				break;
+			default:
+				assert(0);
+				break;
 			}
 		}
 	}
@@ -1924,9 +1925,9 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 
 		log_std(("emu:video: pipeline scale from %dx%d to %dx%d\n", context->state.game_visible_size_x, context->state.game_visible_size_y, context->state.mode_visible_size_x, context->state.mode_visible_size_y));
 
-		for(p=0;p<PIPELINE_BLIT_MAX;++p) {
+		for (p = 0; p < PIPELINE_BLIT_MAX; ++p) {
 			log_std(("emu:video: pipeline_video %d\n", p));
-			for(i=1, stage=video_pipeline_begin(&context->state.blit_pipeline[p]);stage!=video_pipeline_end(&context->state.blit_pipeline[p]);++stage, ++i) {
+			for (i = 1, stage = video_pipeline_begin(&context->state.blit_pipeline[p]); stage != video_pipeline_end(&context->state.blit_pipeline[p]); ++stage, ++i) {
 				if (stage == video_pipeline_pivot(&context->state.blit_pipeline[p])) {
 					snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.blit_pipeline[p])->type));
 					++i;
@@ -1946,7 +1947,7 @@ static void video_recompute_pipeline(struct advance_video_context* context, cons
 		}
 
 		log_std(("emu:video: pipeline_buffer\n"));
-		for(i=1, stage=video_pipeline_begin(&context->state.buffer_pipeline_video);stage!=video_pipeline_end(&context->state.buffer_pipeline_video);++stage, ++i) {
+		for (i = 1, stage = video_pipeline_begin(&context->state.buffer_pipeline_video); stage != video_pipeline_end(&context->state.buffer_pipeline_video); ++stage, ++i) {
 			if (stage == video_pipeline_pivot(&context->state.buffer_pipeline_video)) {
 				snprintf(buffer, sizeof(buffer), "(%d) %s", i, pipe_name(video_pipeline_vert(&context->state.buffer_pipeline_video)->type));
 				++i;
@@ -2130,7 +2131,7 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 				if (context->state.pipeline_measure_j == PIPELINE_MEASURE_MAX) {
 					unsigned i;
 
-					for(i=0;i<PIPELINE_BLIT_MAX;++i) {
+					for (i = 0; i < PIPELINE_BLIT_MAX; ++i) {
 						context->state.pipeline_measure_result[i] = adv_measure_median(0.00001, 0.5, context->state.pipeline_measure_map[i], PIPELINE_MEASURE_MAX);
 						log_std(("emu:video: pipeline %d -> time %g\n", i, context->state.pipeline_measure_result[i]));
 					}
@@ -2138,7 +2139,7 @@ static void video_frame_put(struct advance_video_context* context, struct advanc
 					context->state.pipeline_measure_i = 0;
 
 					/* The first one is selected, then next one is selected only if a 3% gain is measured */
-					for(i=1;i<PIPELINE_BLIT_MAX;++i) {
+					for (i = 1; i < PIPELINE_BLIT_MAX; ++i) {
 						if (context->state.pipeline_measure_result[i] < 0.97 * context->state.pipeline_measure_result[context->state.pipeline_measure_i]) {
 							context->state.pipeline_measure_i = i;
 						}
@@ -2181,7 +2182,7 @@ static void video_frame_palette(struct advance_video_context* context)
 
 		context->state.palette_dirty_flag = 0;
 
-		for(i=0;i<context->state.palette_dirty_total;++i) {
+		for (i = 0; i < context->state.palette_dirty_total; ++i) {
 			if (context->state.palette_dirty_map[i]) {
 				unsigned j;
 				unsigned jl;
@@ -2196,7 +2197,7 @@ static void video_frame_palette(struct advance_video_context* context)
 					jl = osd_mask_size;
 
 				t = 1;
-				for(j=0;j<jl;++j) {
+				for (j = 0; j < jl; ++j) {
 					if ((m & t) != 0) {
 						unsigned p = i * osd_mask_size + j;
 
@@ -2215,13 +2216,13 @@ static void video_frame_palette(struct advance_video_context* context)
 
 							/* update only the currently used palette to not overload the memory cache */
 							switch (video_bytes_per_pixel()) {
-							case 4 :
+							case 4:
 								context->state.palette_index32_map[p] = pixel;
 								break;
-							case 2 :
+							case 2:
 								context->state.palette_index16_map[p] = pixel;
 								break;
-							case 1 :
+							case 1:
 								context->state.palette_index8_map[p] = pixel;
 								break;
 							}
@@ -2232,13 +2233,13 @@ static void video_frame_palette(struct advance_video_context* context)
 								context->state.buffer_index32_map[p] = pixel;
 							} else {
 								switch (video_bytes_per_pixel()) {
-								case 4 :
+								case 4:
 									context->state.buffer_index32_map[p] = pixel;
 									break;
-								case 2 :
+								case 2:
 									context->state.buffer_index16_map[p] = pixel;
 									break;
-								case 1 :
+								case 1:
 									context->state.buffer_index8_map[p] = pixel;
 									break;
 								}
@@ -2341,7 +2342,7 @@ static void video_frame_debugger(struct advance_video_context* context, const st
 	palette16_raw = (uint16*)malloc(palette_size * sizeof(uint16));
 	palette8_raw = (uint8*)malloc(palette_size * sizeof(uint8));
 
-	for(i=0;i<palette_size;++i) {
+	for (i = 0; i < palette_size; ++i) {
 		osd_rgb_t c = palette[i];
 		adv_pixel pixel;
 		video_pixel_make(&pixel, osd_rgb_red(c), osd_rgb_green(c), osd_rgb_blue(c));
@@ -2410,7 +2411,7 @@ void advance_video_mode_preinit(struct advance_video_context* context, struct ma
 	/* set the debugger size */
 	option->debug_width = 640;
 	option->debug_height = 480;
-	for(crtc_container_iterator_begin(&i, &context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for (crtc_container_iterator_begin(&i, &context->config.crtc_bag); !crtc_container_iterator_is_end(&i); crtc_container_iterator_next(&i)) {
 		adv_crtc* crtc = crtc_container_iterator_get(&i);
 		/* if a specific mode is chosen, size the debugger like it */
 		if (is_crtc_acceptable_preventive(context, crtc)
@@ -2441,15 +2442,15 @@ void advance_video_mode_preinit(struct advance_video_context* context, struct ma
 			/* select the similar mode if the user has some predefined modeline */
 			best_crtc = 0;
 			best_size = 0;
-			for(crtc_container_iterator_begin(&i, &context->config.crtc_bag);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+			for (crtc_container_iterator_begin(&i, &context->config.crtc_bag); !crtc_container_iterator_is_end(&i); crtc_container_iterator_next(&i)) {
 				adv_crtc* crtc = crtc_container_iterator_get(&i);
 				if (is_crtc_acceptable_preventive(context, crtc)
-					&& (strcmp(context->config.resolution_buffer, "auto")==0
-						|| video_resolution_cmp(context->config.resolution_buffer, crtc_name_get(crtc)) == 0
-						)
-					) {
+					&& (strcmp(context->config.resolution_buffer, "auto") == 0
+					|| video_resolution_cmp(context->config.resolution_buffer, crtc_name_get(crtc)) == 0
+					)
+				) {
 					int size = crtc_hsize_get(crtc) * crtc_vsize_get(crtc);
-					if (!best_crtc || abs(mode_size_x * mode_size_y - size) < abs(mode_size_x*mode_size_y - best_size)) {
+					if (!best_crtc || abs(mode_size_x * mode_size_y - size) < abs(mode_size_x * mode_size_y - best_size)) {
 						best_crtc = crtc;
 						best_size = size;
 					}
@@ -2495,13 +2496,13 @@ adv_error advance_video_mode_init(struct advance_video_context* context, struct 
 		return -1;
 	}
 
-	if (advance_video_update_index(context)!=0) {
+	if (advance_video_update_index(context) != 0) {
 		error_set("Unsupported bit depth.");
 		return -1;
 	}
 
 	if (advance_video_update_selectedcrtc(context) != 0) {
-		if (strcmp(context->config.resolution_buffer, "auto")==0)
+		if (strcmp(context->config.resolution_buffer, "auto") == 0)
 			error_set("No video modes available for the current game.");
 		else
 			error_set("The specified 'display_mode %s' doesn't exist.", context->config.resolution_buffer);

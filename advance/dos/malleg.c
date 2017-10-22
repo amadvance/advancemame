@@ -53,8 +53,8 @@ struct mouseb_allegro_context {
 static struct mouseb_allegro_context allegro_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "Allegro mouse" },
-{ 0, 0, 0 }
+	{ "auto", -1, "Allegro mouse" },
+	{ 0, 0, 0 }
 };
 
 /***************************************************************************/
@@ -65,7 +65,7 @@ static int mouse2_init(void)
 	__dpmi_regs r;
 
 	r.x.ax = 100;
-        __dpmi_int(0x33, &r);
+	__dpmi_int(0x33, &r);
 	if (r.x.ax == 100 || r.x.ax == 0)
 		return -1;
 
@@ -159,9 +159,9 @@ int mouseb_allegro_axe_get(unsigned mouse, unsigned axe)
 	log_debug(("mouseb:allegro: mouseb_allegro_pos_get()\n"));
 
 	switch (axe) {
-	case 0 : r = allegro_state.mouse[mouse].x; allegro_state.mouse[mouse].x = 0; break;
-	case 1 : r = allegro_state.mouse[mouse].y; allegro_state.mouse[mouse].y = 0; break;
-	default : r = 0;
+	case 0: r = allegro_state.mouse[mouse].x; allegro_state.mouse[mouse].x = 0; break;
+	case 1: r = allegro_state.mouse[mouse].y; allegro_state.mouse[mouse].y = 0; break;
+	default: r = 0;
 	}
 
 	return r;
@@ -186,7 +186,7 @@ void mouseb_allegro_poll(void)
 
 	log_debug(("mouseb:allegro: mouseb_allegro_poll()\n"));
 
-	for(i=0;i<allegro_state.counter;++i) {
+	for (i = 0; i < allegro_state.counter; ++i) {
 		int ax, ay;
 		if (i == allegro_state.secondary_at_index) {
 			mouse2_get(&ax, &ay);

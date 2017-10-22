@@ -28,8 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
-/** 
- * Implementation of a mouse driver using the Windows XP "Raw Input" API. 
+/**
+ * Implementation of a mouse driver using the Windows XP "Raw Input" API.
  * More information in the MSDN documentation (GetRawInputDeviceList) and at the site:
  * http://link.mywwwserver.com/~jstookey/arcade/rawmouse/
  */
@@ -88,10 +88,10 @@ struct mouseb_rawinput_context {
 
 static struct mouseb_rawinput_context raw_state;
 
-typedef INT (WINAPI* GetRawInputDeviceList_type)(RAWINPUTDEVICELIST* pRawInputDeviceList, PINT puiNumDevices, UINT cbSize);
-typedef INT (WINAPI* GetRawInputData_type)(HRAWINPUT hRawInput, UINT uiCommand, VOID* pData, INT* pcbSize, UINT cbSizeHeader);
-typedef INT (WINAPI* GetRawInputDeviceInfoA_type)(HANDLE hDevice, UINT uiCommand, VOID* pData, INT* pcbSize);
-typedef BOOL (WINAPI* RegisterRawInputDevices_type)(const RAWINPUTDEVICE* pRawInputDevices, UINT uiNumDevices, UINT cbSize);
+typedef INT (WINAPI * GetRawInputDeviceList_type)(RAWINPUTDEVICELIST* pRawInputDeviceList, PINT puiNumDevices, UINT cbSize);
+typedef INT (WINAPI * GetRawInputData_type)(HRAWINPUT hRawInput, UINT uiCommand, VOID* pData, INT* pcbSize, UINT cbSizeHeader);
+typedef INT (WINAPI * GetRawInputDeviceInfoA_type)(HANDLE hDevice, UINT uiCommand, VOID* pData, INT* pcbSize);
+typedef BOOL (WINAPI * RegisterRawInputDevices_type)(const RAWINPUTDEVICE* pRawInputDevices, UINT uiNumDevices, UINT cbSize);
 
 GetRawInputDeviceList_type GetRawInputDeviceList_ptr;
 GetRawInputData_type GetRawInputData_ptr;
@@ -99,8 +99,8 @@ GetRawInputDeviceInfoA_type GetRawInputDeviceInfoA_ptr;
 RegisterRawInputDevices_type RegisterRawInputDevices_ptr;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "RAW mouse" },
-{ 0, 0, 0 }
+	{ "auto", -1, "RAW mouse" },
+	{ 0, 0, 0 }
 };
 
 static void mouseb_setup(struct mouse_item_context* item, unsigned nbutton)
@@ -127,7 +127,7 @@ static void mouseb_setup(struct mouse_item_context* item, unsigned nbutton)
 	};
 
 	item->button_mac = 0;
-	for(i=0;i<sizeof(button_map)/sizeof(button_map[0]);++i) {
+	for (i = 0; i < sizeof(button_map) / sizeof(button_map[0]); ++i) {
 		if (i < nbutton) {
 			if (item->button_mac < RAW_MOUSE_BUTTON_MAX) {
 				item->button_map[item->button_mac].code = button_map[i].code;
@@ -139,13 +139,13 @@ static void mouseb_setup(struct mouse_item_context* item, unsigned nbutton)
 	}
 
 	item->axe_mac = 0;
-	for(i=0;i<sizeof(axe_map)/sizeof(axe_map[0]);++i) {
+	for (i = 0; i < sizeof(axe_map) / sizeof(axe_map[0]); ++i) {
 		if (item->axe_mac < RAW_MOUSE_AXE_MAX) {
 			item->axe_map[item->axe_mac].code = axe_map[i].code;
 			switch (axe_map[i].code) {
-			case 0 : item->axe_map[item->axe_mac].pvalue = &item->context.x; break;
-			case 1 : item->axe_map[item->axe_mac].pvalue = &item->context.y; break;
-			case 2 : item->axe_map[item->axe_mac].pvalue = &item->context.z; break;
+			case 0: item->axe_map[item->axe_mac].pvalue = &item->context.x; break;
+			case 1: item->axe_map[item->axe_mac].pvalue = &item->context.y; break;
+			case 2: item->axe_map[item->axe_mac].pvalue = &item->context.z; break;
 			}
 			sncpy(item->axe_map[item->axe_mac].name, sizeof(item->axe_map[item->axe_mac].name), axe_map[i].name);
 			++item->axe_mac;
@@ -160,13 +160,13 @@ static int mouseb_compare(const void* void_a, const void* void_b)
 
 	/* Typical names are:
 
-	\??\Root#RDP_KBD#0000#{884b96c3-56ef-11d1-bc8c-00a0c91405dd} -- Global keyboard
-	\??\Root#*PNP030b#1_0_22_0_32_0#{884b96c3-56ef-11d1-bc8c-00a0c91405dd} - Keyboard
-	\??\Root#RDP_MOU#0000#{378de44c-56ef-11d1-bc8c-00a0c91405dd} - Global mouse
-	\??\Root#*PNP0F03#1_0_21_0_31_0#{378de44c-56ef-11d1-bc8c-00a0c91405dd} - PS2 mouse
-	\??\HID#Vid_046d&Pid_c001#5&194dac4e&0&0000#{378de44c-56ef-11d1-bc8c-00a0c91405dd} - HID USB mouse
-  
-	*/
+	 \??\Root#RDP_KBD#0000#{884b96c3-56ef-11d1-bc8c-00a0c91405dd} -- Global keyboard
+	 \??\Root#*PNP030b#1_0_22_0_32_0#{884b96c3-56ef-11d1-bc8c-00a0c91405dd} - Keyboard
+	 \??\Root#RDP_MOU#0000#{378de44c-56ef-11d1-bc8c-00a0c91405dd} - Global mouse
+	 \??\Root#*PNP0F03#1_0_21_0_31_0#{378de44c-56ef-11d1-bc8c-00a0c91405dd} - PS2 mouse
+	 \??\HID#Vid_046d&Pid_c001#5&194dac4e&0&0000#{378de44c-56ef-11d1-bc8c-00a0c91405dd} - HID USB mouse
+
+	 */
 
 	/* reverse order to put HID device after the not HID */
 	return stricmp(b->context.name, a->context.name);
@@ -225,7 +225,7 @@ adv_error mouseb_rawinput_init(int mouseb_id)
 	log_std(("mouseb:rawinput: GetRawInputDeviceList() -> %d\n", (unsigned)n));
 
 	raw_state.mac = 0;
-	for(i=0;i<n;++i) {
+	for (i = 0; i < n; ++i) {
 		if (raw_state.mac < RAW_MOUSE_MAX) {
 			UINT size;
 			unsigned vid, pid, rev;
@@ -302,8 +302,7 @@ void mouseb_rawinput_done(void)
 	raw_state.mac = 0;
 }
 
-static LRESULT __stdcall mouseb_rawinput_proc(HWND h, UINT msg, WPARAM w, LPARAM l)
-{
+static LRESULT __stdcall mouseb_rawinput_proc(HWND h, UINT msg, WPARAM w, LPARAM l){
 	/* catch all the messages */
 	mouseb_rawinput_event_msg(msg, w, l);
 
@@ -319,7 +318,7 @@ adv_error mouseb_rawinput_enable(void)
 
 	raw_state.window = os_internal_window_get();
 	if (!raw_state.window) {
-	    log_std(("ERROR:mouseb:rawinput: os_internal_window_get() failed with error %d\n", (unsigned)GetLastError()));
+		log_std(("ERROR:mouseb:rawinput: os_internal_window_get() failed with error %d\n", (unsigned)GetLastError()));
 		error_set("Error getting the window handle.\n");
 		return -1;
 	}
@@ -327,7 +326,7 @@ adv_error mouseb_rawinput_enable(void)
 	/* grab the window proc */
 	raw_state.proc = (WNDPROC)SetWindowLong(raw_state.window, GWL_WNDPROC, (LONG)mouseb_rawinput_proc);
 	if (!raw_state.proc) {
-	    log_std(("ERROR:mouseb:rawinput: SetWindowLong(0x%x, GWL_WNDPROC) failed with error %d\n", (unsigned)raw_state.window, (unsigned)GetLastError()));
+		log_std(("ERROR:mouseb:rawinput: SetWindowLong(0x%x, GWL_WNDPROC) failed with error %d\n", (unsigned)raw_state.window, (unsigned)GetLastError()));
 		error_set("Error setting the window proc.\n");
 		return -1;
 	}
@@ -338,13 +337,13 @@ adv_error mouseb_rawinput_enable(void)
 	d[0].hwndTarget = raw_state.window;
 
 	if (!RegisterRawInputDevices_ptr(d, 1, sizeof(d[0]))) {
-	    log_std(("ERROR:mouseb:rawinput: RegisterRawInputDevices() failed with error %d\n", (unsigned)GetLastError()));
+		log_std(("ERROR:mouseb:rawinput: RegisterRawInputDevices() failed with error %d\n", (unsigned)GetLastError()));
 		error_set("Error registering input.\n");
 		return -1;
 	}
 
 	/* reset state */
-	for(i=0;i<raw_state.mac;++i) {
+	for (i = 0; i < raw_state.mac; ++i) {
 		raw_state.map[i].context.x = 0;
 		raw_state.map[i].context.y = 0;
 		raw_state.map[i].context.z = 0;
@@ -361,7 +360,7 @@ void mouseb_rawinput_disable(void)
 	log_std(("mouseb:rawinput: mouseb_rawinput_disable()\n"));
 
 	d[0].usUsagePage = 0x01;
-	d[0].usUsage = 0x02; 
+	d[0].usUsage = 0x02;
 	d[0].dwFlags = RIDEV_REMOVE;
 	d[0].hwndTarget = raw_state.window;
 
@@ -441,7 +440,7 @@ static void raw_event(RAWINPUT* r)
 	}
 
 	/* search the device */
-	for(i=0;i<raw_state.mac;++i)
+	for (i = 0; i < raw_state.mac; ++i)
 		if (r->header.hDevice == raw_state.map[i].context.h)
 			break;
 
@@ -468,25 +467,25 @@ static void raw_event(RAWINPUT* r)
 		c->z += (SHORT)m->usButtonData;
 	}
 
-	if (m->usButtonFlags & RI_MOUSE_BUTTON_1_DOWN) 
+	if (m->usButtonFlags & RI_MOUSE_BUTTON_1_DOWN)
 		c->button |= 0x1;
-	if (m->usButtonFlags & RI_MOUSE_BUTTON_1_UP) 
+	if (m->usButtonFlags & RI_MOUSE_BUTTON_1_UP)
 		c->button &= ~0x1;
-	if (m->usButtonFlags & RI_MOUSE_BUTTON_2_DOWN) 
+	if (m->usButtonFlags & RI_MOUSE_BUTTON_2_DOWN)
 		c->button |= 0x2;
-	if (m->usButtonFlags & RI_MOUSE_BUTTON_2_UP) 
+	if (m->usButtonFlags & RI_MOUSE_BUTTON_2_UP)
 		c->button &= ~0x2;
-	if (m->usButtonFlags & RI_MOUSE_BUTTON_3_DOWN) 
+	if (m->usButtonFlags & RI_MOUSE_BUTTON_3_DOWN)
 		c->button |= 0x4;
-	if (m->usButtonFlags & RI_MOUSE_BUTTON_3_UP) 
+	if (m->usButtonFlags & RI_MOUSE_BUTTON_3_UP)
 		c->button &= ~0x4;
-	if (m->usButtonFlags & RI_MOUSE_BUTTON_4_DOWN) 
+	if (m->usButtonFlags & RI_MOUSE_BUTTON_4_DOWN)
 		c->button |= 0x8;
-	if (m->usButtonFlags & RI_MOUSE_BUTTON_4_UP) 
+	if (m->usButtonFlags & RI_MOUSE_BUTTON_4_UP)
 		c->button &= ~0x8;
-	if (m->usButtonFlags & RI_MOUSE_BUTTON_5_DOWN) 
+	if (m->usButtonFlags & RI_MOUSE_BUTTON_5_DOWN)
 		c->button |= 0x10;
-	if (m->usButtonFlags & RI_MOUSE_BUTTON_5_UP) 
+	if (m->usButtonFlags & RI_MOUSE_BUTTON_5_UP)
 		c->button &= ~0x10;
 
 	log_debug(("mouseb:rawinput: id:%d,x:%d,y:%d,z:%d,button:%d\n", i, c->x, c->y, c->z, c->button));

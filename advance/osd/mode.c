@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -109,7 +109,7 @@ static unsigned long long aspect_MCD(unsigned long long m, unsigned long long n)
 		unsigned long long r = m % n;
 		m = n;
 		n = r;
-		}
+	}
 	return m;
 }
 
@@ -191,7 +191,7 @@ static adv_bool factor_has_effect(unsigned x, unsigned y)
 }
 
 /**
- * Score modes comparing two dimensions. 
+ * Score modes comparing two dimensions.
  * Modes which have a both dimensions as an exact multipler of the requested size
  * are scored better. All the modes which are not exact multiplier all scored all
  * equals.
@@ -344,23 +344,23 @@ static int score_compare_size(const struct advance_video_context* context, const
 
 	if (!context->state.game_vector_flag) {
 		switch (context->config.magnify_factor) {
-		case 1 :
+		case 1:
 			best_size_x = context->state.mode_best_size_x;
 			best_size_y = context->state.mode_best_size_y;
 			break;
-		case 2 :
+		case 2:
 			best_size_x = context->state.mode_best_size_2x;
 			best_size_y = context->state.mode_best_size_2y;
 			break;
-		case 3 :
+		case 3:
 			best_size_x = context->state.mode_best_size_3x;
 			best_size_y = context->state.mode_best_size_3y;
 			break;
-		case 4 :
+		case 4:
 			best_size_x = context->state.mode_best_size_4x;
 			best_size_y = context->state.mode_best_size_4y;
 			break;
-		default :
+		default:
 			if (advance_video_is_programmable(context)) {
 				/* limit the magnify_size to the maximum vertical resolution */
 				/* approximate maximum horizontal resolution */
@@ -410,7 +410,7 @@ static int score_compare_size(const struct advance_video_context* context, const
 		context->state.mode_best_size_x, context->state.mode_best_size_2x, context->state.mode_best_size_3x, context->state.mode_best_size_4x,
 		context->state.mode_best_size_y, context->state.mode_best_size_2y, context->state.mode_best_size_3y, context->state.mode_best_size_4y,
 		best_auto
-	);
+		);
 	if (r)
 		return r;
 
@@ -421,7 +421,7 @@ static int score_compare_size(const struct advance_video_context* context, const
 		crtc_vsize_get(b),
 		best_size_y,
 		context->state.mode_best_size_y, context->state.mode_best_size_2y, context->state.mode_best_size_3y, context->state.mode_best_size_4y
-	);
+		);
 	if (r)
 		return r;
 
@@ -435,7 +435,7 @@ static int score_compare_size(const struct advance_video_context* context, const
 		crtc_hsize_get(b),
 		best_size_x,
 		context->state.mode_best_size_x, context->state.mode_best_size_2x, context->state.mode_best_size_3x, context->state.mode_best_size_4x
-	);
+		);
 	if (r)
 		return r;
 
@@ -491,7 +491,7 @@ static int score_compare_crtc(const struct advance_video_context* context, const
 	r = score_compare_size(context, a, b);
 	if (r) return r;
 
-	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK)!=0) {
+	if ((video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK) != 0) {
 		/* only for programamble drivers */
 
 		r = score_compare_scanline(context, a, b);

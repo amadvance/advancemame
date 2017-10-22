@@ -281,3 +281,4 @@ adv_bool key_is_defined(unsigned code);
 #endif
 
 /*@}*/
+

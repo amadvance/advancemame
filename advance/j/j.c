@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -27,21 +27,21 @@ void probe(void)
 	int i, j, k;
 
 	printf("Driver %s, joysticks %d\n", joystickb_name(), joystickb_count_get());
-	for(i=0;i<joystickb_count_get();++i) {
+	for (i = 0; i < joystickb_count_get(); ++i) {
 		char name[DEVICE_NAME_MAX];
 		if (joystickb_device_name_get(i, name) != 0)
 			strcpy(name, DEVICE_NONAME);
 		printf("joy %d '%s', controls %d, buttons %d, ball axes %d\n", i, name, joystickb_stick_count_get(i), joystickb_button_count_get(i), joystickb_rel_count_get(i));
-		for(j=0;j<joystickb_stick_count_get(i);++j) {
+		for (j = 0; j < joystickb_stick_count_get(i); ++j) {
 			printf("\tcontrol %d [%s], axes %d\n", j, joystickb_stick_name_get(i, j), joystickb_stick_axe_count_get(i, j));
-			for(k=0;k<joystickb_stick_axe_count_get(i,j);++k) {
+			for (k = 0; k < joystickb_stick_axe_count_get(i, j); ++k) {
 				printf("\t\taxe %d [%s]\n", k, joystickb_stick_axe_name_get(i, j, k));
 			}
 		}
-		for(j=0;j<joystickb_button_count_get(i);++j) {
+		for (j = 0; j < joystickb_button_count_get(i); ++j) {
 			printf("\tbutton %d [%s]\n", j, joystickb_button_name_get(i, j));
 		}
-		for(j=0;j<joystickb_rel_count_get(i);++j) {
+		for (j = 0; j < joystickb_rel_count_get(i); ++j) {
 			printf("\tball axe %d [%s]\n", j, joystickb_rel_name_get(i, j));
 		}
 	}
@@ -57,8 +57,8 @@ int button_pressed(void)
 	joystickb_poll();
 	target_idle();
 
-	for(i=0;i<joystickb_count_get();++i) {
-		for(j=0;j<joystickb_button_count_get(i);++j) {
+	for (i = 0; i < joystickb_count_get(); ++i) {
+		for (j = 0; j < joystickb_button_count_get(i); ++j) {
 			if (joystickb_button_get(i, j))
 				return 1;
 		}
@@ -69,7 +69,7 @@ int button_pressed(void)
 
 void wait_button_press(void)
 {
-	while (!button_pressed());
+	while (!button_pressed()) ;
 }
 
 void wait_button_release(void)
@@ -130,21 +130,21 @@ void run(void)
 	while (!done) {
 
 		new_msg[0] = 0;
-		for(i=0;i<joystickb_count_get();++i) {
+		for (i = 0; i < joystickb_count_get(); ++i) {
 
-			if (i!=0)
+			if (i != 0)
 				sncat(new_msg, sizeof(new_msg), "\n");
 
 			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "joy %d, [", i);
-			for(j=0;j<joystickb_button_count_get(i);++j) {
+			for (j = 0; j < joystickb_button_count_get(i); ++j) {
 				if (joystickb_button_get(i, j))
 					sncat(new_msg, sizeof(new_msg), "_");
 				else
 					sncat(new_msg, sizeof(new_msg), "-");
 			}
 			sncat(new_msg, sizeof(new_msg), "], ");
-			for(j=0;j<joystickb_stick_count_get(i);++j) {
-				for(k=0;k<joystickb_stick_axe_count_get(i, j);++k) {
+			for (j = 0; j < joystickb_stick_count_get(i); ++j) {
+				for (k = 0; k < joystickb_stick_axe_count_get(i, j); ++k) {
 					char digital;
 					if (joystickb_stick_axe_digital_get(i, j, k, 0))
 						digital = '\\';
@@ -158,7 +158,7 @@ void run(void)
 
 			sncat(new_msg, sizeof(new_msg), " [");
 
-			for(j=0;j<joystickb_rel_count_get(i);++j) {
+			for (j = 0; j < joystickb_rel_count_get(i); ++j) {
 				if (j != 0)
 					sncat(new_msg, sizeof(new_msg), "/");
 				sncatf(new_msg, sizeof(new_msg), "%d", joystickb_rel_get(i, j));
@@ -167,7 +167,7 @@ void run(void)
 			sncat(new_msg, sizeof(new_msg), "]");
 		}
 
-		if (strcmp(msg, new_msg)!=0) {
+		if (strcmp(msg, new_msg) != 0) {
 			target_clock_t current = target_clock();
 			double period = (current - last) * 1000.0 / TARGET_CLOCKS_PER_SEC;
 			last = current;
@@ -219,7 +219,7 @@ int os_main(int argc, char* argv[])
 	if (conf_input_args_load(context, 0, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
-	for(i=1;i<argc;++i) {
+	for (i = 1; i < argc; ++i) {
 		if (target_option_compare(argv[i], "log")) {
 			opt_log = 1;
 		} else if (target_option_compare(argv[i], "logsync")) {

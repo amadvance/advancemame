@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -171,9 +171,9 @@ void target_mode_reset(void)
 	if (!info.is_graphics_mode) {
 		unsigned i;
 
-		if (info.char_size_y>=16) {
+		if (info.char_size_y >= 16) {
 			vga_font_copy(vga_font_bios_16, 16, 0, 1);
-		} else if (info.char_size_y>=14) {
+		} else if (info.char_size_y >= 14) {
 			vga_font_copy(vga_font_bios_14, 14, 0, 1);
 		} else {
 			vga_font_copy(vga_font_bios_8, 8, 0, 1);
@@ -181,7 +181,7 @@ void target_mode_reset(void)
 
 		vga_palette_raw_set(vga_palette_bios_text, 0, 256);
 
-		for(i=0;i<info.memory_size;i+=2) {
+		for (i = 0; i < info.memory_size; i += 2) {
 			vga_writeb(info.memory_address + i, 0);
 			vga_writeb(info.memory_address + i + 1, 0x7);
 		}
@@ -249,7 +249,7 @@ void target_sound_warn(void)
 void target_sound_signal(void)
 {
 	unsigned i;
-	for(i=0;i<10;++i) {
+	for (i = 0; i < 10; ++i) {
 		sound(800);
 		delay(10);
 		nosound();
@@ -271,7 +271,7 @@ adv_error target_apm_shutdown(void)
 	regs.x.ax = 0x5300;
 	regs.x.bx = 0x0000;
 	__dpmi_int(0x15, &regs);
-	if ((regs.x.flags & 1)!=0 || regs.x.bx != 0x504D) {
+	if ((regs.x.flags & 1) != 0 || regs.x.bx != 0x504D) {
 		/* APM BIOS not found */
 		return -1;
 	}
@@ -322,7 +322,7 @@ adv_error target_apm_standby(void)
 	r.x.es = 0;
 
 	__dpmi_int(0x10, &r);
-	if (r.x.ax!=0x004F) {
+	if (r.x.ax != 0x004F) {
 		return -1;
 	}
 
@@ -341,7 +341,7 @@ adv_error target_apm_standby(void)
 	r.h.bh = mode;
 
 	__dpmi_int(0x10, &r);
-	if (r.x.ax!=0x004F) {
+	if (r.x.ax != 0x004F) {
 		return -1;
 	}
 
@@ -361,7 +361,7 @@ adv_error target_apm_wakeup(void)
 	r.x.es = 0;
 
 	__dpmi_int(0x10, &r);
-	if (r.x.ax!=0x004F) {
+	if (r.x.ax != 0x004F) {
 		return -1;
 	}
 
@@ -370,7 +370,7 @@ adv_error target_apm_wakeup(void)
 	r.h.bh = 0x00;
 
 	__dpmi_int(0x10, &r);
-	if (r.x.ax!=0x004F) {
+	if (r.x.ax != 0x004F) {
 		return -1;
 	}
 
@@ -404,7 +404,7 @@ adv_error target_script(const char* script)
 	}
 
 	sncpy(file, FILE_MAXPATH, tmp);
-	if (file[0] && file[strlen(file)-1] != '\\')
+	if (file[0] && file[strlen(file) - 1] != '\\')
 		sncat(file, FILE_MAXPATH, "\\");
 	sncat(file, FILE_MAXPATH, "advs0000.bat");
 
@@ -452,7 +452,7 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 
 	*cmdline = 0;
 
-	for(i=0;argv[i];++i) {
+	for (i = 0; argv[i]; ++i) {
 		if (i)
 			sncat(cmdline, EXEC_MAX, " ");
 		sncat(cmdline, EXEC_MAX, argv[i]);
@@ -517,12 +517,12 @@ adv_error target_search(char* path, unsigned path_size, const char* file)
 		unsigned i;
 
 		/* convert to the DOS slash */
-		for(i=0;path[i];++i)
+		for (i = 0; path[i]; ++i)
 			if (path[i] == '/')
 				path[i] = file_dir_slash();
 
 		/* add the leading slash */
-		if (!path[0] || path[strlen(path)-1] != file_dir_slash()) {
+		if (!path[0] || path[strlen(path) - 1] != file_dir_slash()) {
 			char slash[2];
 			slash[0] = file_dir_slash();
 			slash[1] = 0;
@@ -555,11 +555,11 @@ adv_error target_search(char* path, unsigned path_size, const char* file)
 			sncpy(path, path_size, dir);
 
 			/* convert to the DOS slash */
-			for(i=0;path[i];++i)
+			for (i = 0; path[i]; ++i)
 				if (path[i] == '/')
 					path[i] = file_dir_slash();
 
-			if (!path[0] || path[strlen(path)-1] != file_dir_slash()) {
+			if (!path[0] || path[strlen(path) - 1] != file_dir_slash()) {
 				char slash[2];
 				slash[0] = file_dir_slash();
 				slash[1] = 0;
@@ -642,11 +642,11 @@ void target_signal(int signum, void* info, void* context)
 	} else {
 
 		switch (signum) {
-		case SIGILL : cprintf("Signal SIGILL\n\r"); break;
-		case SIGFPE : cprintf("Signal SIGFPE\n\r"); break;
-		case SIGSEGV : cprintf("Signal SIGSEGV\n\r"); break;
-		case SIGABRT : cprintf("Signal SIGABRT\n\r"); break;
-		default : cprintf("Signal %d\n\r", signum); break;
+		case SIGILL: cprintf("Signal SIGILL\n\r"); break;
+		case SIGFPE: cprintf("Signal SIGFPE\n\r"); break;
+		case SIGSEGV: cprintf("Signal SIGSEGV\n\r"); break;
+		case SIGABRT: cprintf("Signal SIGABRT\n\r"); break;
+		default: cprintf("Signal %d\n\r", signum); break;
 		}
 		cprintf("Compiled %s, %s\n\r", __DATE__, __TIME__);
 
@@ -671,6 +671,6 @@ const char* target_option_extract(const char* arg)
 adv_bool target_option_compare(const char* arg, const char* opt)
 {
 	const char* name = target_option_extract(arg);
-	return name!=0 && strcasecmp(name, opt) == 0;
+	return name != 0 && strcasecmp(name, opt) == 0;
 }
 

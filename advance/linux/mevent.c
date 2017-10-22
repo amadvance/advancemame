@@ -72,7 +72,7 @@ struct mouse_item_context {
 	unsigned product;
 	unsigned version;
 	unsigned bus;
-	unsigned char evtype_bitmask[EV_MAX/8 + 1];
+	unsigned char evtype_bitmask[EV_MAX / 8 + 1];
 	unsigned axe_mac;
 	struct mouse_axe_context axe_map[EVENT_MOUSE_AXE_MAX];
 	unsigned button_mac;
@@ -87,40 +87,40 @@ struct mouseb_event_context {
 static struct mouseb_event_context event_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "Linux input-event mouse" },
-{ 0, 0, 0 }
+	{ "auto", -1, "Linux input-event mouse" },
+	{ 0, 0, 0 }
 };
 
 static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 {
-	unsigned char key_bitmask[KEY_MAX/8 + 1];
-	unsigned char rel_bitmask[REL_MAX/8 + 1];
+	unsigned char key_bitmask[KEY_MAX / 8 + 1];
+	unsigned char rel_bitmask[REL_MAX / 8 + 1];
 	unsigned i;
 	struct button_entry {
 		int code;
 		const char* name;
 	} button_map[] = {
-		#ifdef BTN_LEFT
+#ifdef BTN_LEFT
 		{ BTN_LEFT, "left" },
-		#endif
-		#ifdef BTN_RIGHT
+#endif
+#ifdef BTN_RIGHT
 		{ BTN_RIGHT, "right" },
-		#endif
-		#ifdef BTN_MIDDLE
+#endif
+#ifdef BTN_MIDDLE
 		{ BTN_MIDDLE, "middle" },
-		#endif
-		#ifdef BTN_SIDE
+#endif
+#ifdef BTN_SIDE
 		{ BTN_SIDE, "side" },
-		#endif
-		#ifdef BTN_EXTRA
+#endif
+#ifdef BTN_EXTRA
 		{ BTN_EXTRA, "extra" },
-		#endif
-		#ifdef BTN_FORWARD
+#endif
+#ifdef BTN_FORWARD
 		{ BTN_FORWARD, "forward" },
-		#endif
-		#ifdef BTN_BACK
+#endif
+#ifdef BTN_BACK
 		{ BTN_BACK, "back" }
-		#endif
+#endif
 	};
 
 	/* WARNING: It must be syncronized with the list in event.c */
@@ -128,27 +128,27 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 		int code;
 		const char* name;
 	} axe_map[] = {
-		#ifdef REL_X
+#ifdef REL_X
 		{ REL_X, "x" },
-		#endif
-		#ifdef REL_Y
+#endif
+#ifdef REL_Y
 		{ REL_Y, "y" },
-		#endif
-		#ifdef REL_Z
+#endif
+#ifdef REL_Z
 		{ REL_Z, "z" },
-		#endif
-		#ifdef REL_WHEEL
+#endif
+#ifdef REL_WHEEL
 		{ REL_WHEEL, "wheel" },
-		#endif
-		#ifdef REL_HWHEEL
+#endif
+#ifdef REL_HWHEEL
 		{ REL_HWHEEL, "hwheel" },
-		#endif
-		#ifdef REL_DIAL
+#endif
+#ifdef REL_DIAL
 		{ REL_DIAL, "dial" },
-		#endif
-		#ifdef REL_MISC
+#endif
+#ifdef REL_MISC
 		{ REL_MISC, "misc" }
-		#endif
+#endif
 	};
 
 	item->f = f;
@@ -162,7 +162,7 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 	}
 
 	item->button_mac = 0;
-	for(i=0;i<sizeof(button_map)/sizeof(button_map[0]);++i) {
+	for (i = 0; i < sizeof(button_map) / sizeof(button_map[0]); ++i) {
 		if (event_test_bit(button_map[i].code, key_bitmask)) {
 			if (item->button_mac < EVENT_MOUSE_BUTTON_MAX) {
 				item->button_map[item->button_mac].code = button_map[i].code;
@@ -182,7 +182,7 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 	}
 
 	item->axe_mac = 0;
-	for(i=0;i<sizeof(axe_map)/sizeof(axe_map[0]);++i) {
+	for (i = 0; i < sizeof(axe_map) / sizeof(axe_map[0]); ++i) {
 		if (event_test_bit(axe_map[i].code, rel_bitmask)) {
 			if (item->axe_mac < EVENT_MOUSE_AXE_MAX) {
 				item->axe_map[item->axe_mac].code = axe_map[i].code;
@@ -218,7 +218,7 @@ adv_error mouseb_event_init(int mouseb_id)
 	mac = event_locate(map, EVENT_MOUSE_DEVICE_MAX, "event", &eacces);
 
 	event_state.mac = 0;
-	for(i=0;i<mac;++i) {
+	for (i = 0; i < mac; ++i) {
 		int f;
 		struct mouse_item_context* item = &event_state.map[event_state.mac];
 
@@ -269,7 +269,7 @@ void mouseb_event_done(void)
 
 	log_std(("mouseb:event: mouseb_event_done()\n"));
 
-	for(i=0;i<event_state.mac;++i)
+	for (i = 0; i < event_state.mac; ++i)
 		event_close(event_state.map[i].f);
 	event_state.mac = 0;
 }
@@ -347,13 +347,13 @@ void mouseb_event_poll(void)
 
 	log_debug(("mouseb:event: mouseb_event_poll()\n"));
 
-	for(i=0;i<event_state.mac;++i) {
+	for (i = 0; i < event_state.mac; ++i) {
 		struct mouse_item_context* item = event_state.map + i;
 
 		while (event_read(item->f, &type, &code, &value) == 0) {
 			if (type == EV_KEY) {
 				unsigned j;
-				for(j=0;j<item->button_mac;++j) {
+				for (j = 0; j < item->button_mac; ++j) {
 					if (code == item->button_map[j].code) {
 						item->button_map[j].state = value != 0;
 						break;
@@ -361,7 +361,7 @@ void mouseb_event_poll(void)
 				}
 			} else if (type == EV_REL) {
 				unsigned j;
-				for(j=0;j<item->axe_mac;++j) {
+				for (j = 0; j < item->axe_mac; ++j) {
 					if (code == item->axe_map[j].code) {
 						item->axe_map[j].value += value;
 						break;

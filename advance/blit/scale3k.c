@@ -37,17 +37,17 @@
 /***************************************************************************/
 /* Scale3k C implementation */
 
-			/*
-				ABC
-				DEF
-				GHI
+/*
+        ABC
+        DEF
+        GHI
 
-				E0E1E2
-				E3E4E5
-				E6E7E8
-			*/
+        E0E1E2
+        E3E4E5
+        E6E7E8
+ */
 
-#define SCALE3K(A,B,C,D,E,F,G,H,I,E0,E1,E2,E3,E4,E5,E6,E7,E8) \
+#define SCALE3K(A, B, C, D, E, F, G, H, I, E0, E1, E2, E3, E4, E5, E6, E7, E8) \
 	if (D == B && B != E) { \
 		/* diagonal */ \
 		if (B == C && D == G) { \
@@ -80,17 +80,17 @@
 		} \
 	}
 
-#define interp_31(A,B) interp_16_31(A, B)
-#define interp_13(A,B) interp_16_31(B, A)
-#define interp_71(A,B) interp_16_71(A, B)
-#define interp_17(A,B) interp_16_71(B, A)
-#define interp_11(A,B) interp_16_11(A, B)
+#define interp_31(A, B) interp_16_31(A, B)
+#define interp_13(A, B) interp_16_31(B, A)
+#define interp_71(A, B) interp_16_71(A, B)
+#define interp_17(A, B) interp_16_71(B, A)
+#define interp_11(A, B) interp_16_11(A, B)
 
 void scale3k_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, interp_uint16* restrict dst2, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, unsigned count)
 {
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		interp_uint16 c[9];
 		interp_uint16 e[9];
 
@@ -98,7 +98,7 @@ void scale3k_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, 
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i > 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -108,7 +108,7 @@ void scale3k_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, 
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i < count - 1) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -128,10 +128,10 @@ void scale3k_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, 
 		e[7] = c[4];
 		e[8] = c[4];
 
-		SCALE3K(c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],e[0],e[1],e[2],e[3],e[4],e[5],e[6],e[7],e[8]);
-		SCALE3K(c[6],c[3],c[0],c[7],c[4],c[1],c[8],c[5],c[2],e[6],e[3],e[0],e[7],e[4],e[1],e[8],e[5],e[2]);
-		SCALE3K(c[8],c[7],c[6],c[5],c[4],c[3],c[2],c[1],c[0],e[8],e[7],e[6],e[5],e[4],e[3],e[2],e[1],e[0]);
-		SCALE3K(c[2],c[5],c[8],c[1],c[4],c[7],c[0],c[3],c[6],e[2],e[5],e[8],e[1],e[4],e[7],e[0],e[3],e[6]);
+		SCALE3K(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8]);
+		SCALE3K(c[6], c[3], c[0], c[7], c[4], c[1], c[8], c[5], c[2], e[6], e[3], e[0], e[7], e[4], e[1], e[8], e[5], e[2]);
+		SCALE3K(c[8], c[7], c[6], c[5], c[4], c[3], c[2], c[1], c[0], e[8], e[7], e[6], e[5], e[4], e[3], e[2], e[1], e[0]);
+		SCALE3K(c[2], c[5], c[8], c[1], c[4], c[7], c[0], c[3], c[6], e[2], e[5], e[8], e[1], e[4], e[7], e[0], e[3], e[6]);
 
 		dst0[0] = e[0];
 		dst0[1] = e[1];
@@ -158,17 +158,17 @@ void scale3k_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, 
 #undef interp_17
 #undef interp_11
 
-#define interp_31(A,B) interp_32_31(A, B)
-#define interp_13(A,B) interp_32_31(B, A)
-#define interp_71(A,B) interp_32_71(A, B)
-#define interp_17(A,B) interp_32_71(B, A)
-#define interp_11(A,B) interp_32_11(A, B)
+#define interp_31(A, B) interp_32_31(A, B)
+#define interp_13(A, B) interp_32_31(B, A)
+#define interp_71(A, B) interp_32_71(A, B)
+#define interp_17(A, B) interp_32_71(B, A)
+#define interp_11(A, B) interp_32_11(A, B)
 
 void scale3k_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
 {
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		interp_uint32 c[9];
 		interp_uint32 e[9];
 
@@ -176,7 +176,7 @@ void scale3k_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i > 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -186,7 +186,7 @@ void scale3k_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i < count - 1) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -206,10 +206,10 @@ void scale3k_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 		e[7] = c[4];
 		e[8] = c[4];
 
-		SCALE3K(c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],e[0],e[1],e[2],e[3],e[4],e[5],e[6],e[7],e[8]);
-		SCALE3K(c[6],c[3],c[0],c[7],c[4],c[1],c[8],c[5],c[2],e[6],e[3],e[0],e[7],e[4],e[1],e[8],e[5],e[2]);
-		SCALE3K(c[8],c[7],c[6],c[5],c[4],c[3],c[2],c[1],c[0],e[8],e[7],e[6],e[5],e[4],e[3],e[2],e[1],e[0]);
-		SCALE3K(c[2],c[5],c[8],c[1],c[4],c[7],c[0],c[3],c[6],e[2],e[5],e[8],e[1],e[4],e[7],e[0],e[3],e[6]);
+		SCALE3K(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8]);
+		SCALE3K(c[6], c[3], c[0], c[7], c[4], c[1], c[8], c[5], c[2], e[6], e[3], e[0], e[7], e[4], e[1], e[8], e[5], e[2]);
+		SCALE3K(c[8], c[7], c[6], c[5], c[4], c[3], c[2], c[1], c[0], e[8], e[7], e[6], e[5], e[4], e[3], e[2], e[1], e[0]);
+		SCALE3K(c[2], c[5], c[8], c[1], c[4], c[7], c[0], c[3], c[6], e[2], e[5], e[8], e[1], e[4], e[7], e[0], e[3], e[6]);
 
 		dst0[0] = e[0];
 		dst0[1] = e[1];
@@ -236,17 +236,17 @@ void scale3k_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 #undef interp_17
 #undef interp_11
 
-#define interp_31(A,B) interp_yuy2_31(A, B)
-#define interp_13(A,B) interp_yuy2_31(B, A)
-#define interp_71(A,B) interp_yuy2_71(A, B)
-#define interp_17(A,B) interp_yuy2_71(B, A)
-#define interp_11(A,B) interp_yuy2_11(A, B)
+#define interp_31(A, B) interp_yuy2_31(A, B)
+#define interp_13(A, B) interp_yuy2_31(B, A)
+#define interp_71(A, B) interp_yuy2_71(A, B)
+#define interp_17(A, B) interp_yuy2_71(B, A)
+#define interp_11(A, B) interp_yuy2_11(A, B)
 
 void scale3k_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, unsigned count)
 {
 	unsigned i;
 
-	for(i=0;i<count;++i) {
+	for (i = 0; i < count; ++i) {
 		interp_uint32 c[9];
 		interp_uint32 e[9];
 
@@ -254,7 +254,7 @@ void scale3k_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1
 		c[4] = src1[0];
 		c[7] = src2[0];
 
-		if (i>0) {
+		if (i > 0) {
 			c[0] = src0[-1];
 			c[3] = src1[-1];
 			c[6] = src2[-1];
@@ -264,7 +264,7 @@ void scale3k_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1
 			c[6] = c[7];
 		}
 
-		if (i<count-1) {
+		if (i < count - 1) {
 			c[2] = src0[1];
 			c[5] = src1[1];
 			c[8] = src2[1];
@@ -284,10 +284,10 @@ void scale3k_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1
 		e[7] = c[4];
 		e[8] = c[4];
 
-		SCALE3K(c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],e[0],e[1],e[2],e[3],e[4],e[5],e[6],e[7],e[8]);
-		SCALE3K(c[6],c[3],c[0],c[7],c[4],c[1],c[8],c[5],c[2],e[6],e[3],e[0],e[7],e[4],e[1],e[8],e[5],e[2]);
-		SCALE3K(c[8],c[7],c[6],c[5],c[4],c[3],c[2],c[1],c[0],e[8],e[7],e[6],e[5],e[4],e[3],e[2],e[1],e[0]);
-		SCALE3K(c[2],c[5],c[8],c[1],c[4],c[7],c[0],c[3],c[6],e[2],e[5],e[8],e[1],e[4],e[7],e[0],e[3],e[6]);
+		SCALE3K(c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8]);
+		SCALE3K(c[6], c[3], c[0], c[7], c[4], c[1], c[8], c[5], c[2], e[6], e[3], e[0], e[7], e[4], e[1], e[8], e[5], e[2]);
+		SCALE3K(c[8], c[7], c[6], c[5], c[4], c[3], c[2], c[1], c[0], e[8], e[7], e[6], e[5], e[4], e[3], e[2], e[1], e[0]);
+		SCALE3K(c[2], c[5], c[8], c[1], c[4], c[7], c[0], c[3], c[6], e[2], e[5], e[8], e[1], e[4], e[7], e[0], e[3], e[6]);
 
 		dst0[0] = e[0];
 		dst0[1] = e[1];

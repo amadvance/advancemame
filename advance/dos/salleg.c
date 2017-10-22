@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -56,16 +56,16 @@ struct soundb_allegro_context {
 static struct soundb_allegro_context allegro_state;
 
 static adv_device DEVICE[] = {
-{ "auto", DIGI_AUTODETECT, "Allegro sound" },
-{ "sb10", DIGI_SB10, "Sound Blaster 1.0" },
-{ "sb15", DIGI_SB15, "Sound Blaster 1.5" },
-{ "sb20", DIGI_SB20, "Sound Blaster 2.0" },
-{ "sbpro", DIGI_SBPRO, "Sound Blaster Pro" },
-{ "sb16", DIGI_SB16, "Sound Blaster 16" },
-{ "audio", DIGI_AUDIODRIVE, "Ensoniq AudioDrive" },
-{ "wss", DIGI_WINSOUNDSYS, "Windows Sound System" },
-{ "ess", DIGI_SOUNDSCAPE, "Ensoniq Soundscape" },
-{ 0, 0, 0 }
+	{ "auto", DIGI_AUTODETECT, "Allegro sound" },
+	{ "sb10", DIGI_SB10, "Sound Blaster 1.0" },
+	{ "sb15", DIGI_SB15, "Sound Blaster 1.5" },
+	{ "sb20", DIGI_SB20, "Sound Blaster 2.0" },
+	{ "sbpro", DIGI_SBPRO, "Sound Blaster Pro" },
+	{ "sb16", DIGI_SB16, "Sound Blaster 16" },
+	{ "audio", DIGI_AUDIODRIVE, "Ensoniq AudioDrive" },
+	{ "wss", DIGI_WINSOUNDSYS, "Windows Sound System" },
+	{ "ess", DIGI_SOUNDSCAPE, "Ensoniq Soundscape" },
+	{ 0, 0, 0 }
 };
 
 static int allegro_freq;
@@ -171,7 +171,7 @@ adv_error soundb_allegro_start(double silence_time)
 	if (!allegro_state.wave)
 		return -1;
 
-	for(i=0;i<allegro_state.length * allegro_state.channel;++i)
+	for (i = 0; i < allegro_state.length * allegro_state.channel; ++i)
 		((unsigned short*)allegro_state.wave->data)[i] = 0x8000;
 
 	allegro_state.voice = allocate_voice(allegro_state.wave);
@@ -292,3 +292,4 @@ soundb_driver soundb_allegro_driver = {
 	soundb_allegro_stop,
 	soundb_allegro_volume
 };
+

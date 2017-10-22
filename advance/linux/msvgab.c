@@ -50,8 +50,8 @@ struct mouseb_svgalib_context {
 static struct mouseb_svgalib_context svgalib_state;
 
 static adv_device DEVICE[] = {
-{ "auto", -1, "SVGALIB mouse" },
-{ 0, 0, 0 }
+	{ "auto", -1, "SVGALIB mouse" },
+	{ 0, 0, 0 }
 };
 
 adv_error mouseb_svgalib_init(int mouseb_id)
@@ -83,7 +83,7 @@ adv_error mouseb_svgalib_init(int mouseb_id)
 
 	/* already opened internally by svgalib */
 
-	if (mouse_getcaps(&mouse_caps)!=0) {
+	if (mouse_getcaps(&mouse_caps) != 0) {
 		error_set("No mouse found.\n");
 		return -1;
 	}
@@ -94,7 +94,7 @@ adv_error mouseb_svgalib_init(int mouseb_id)
 	mouse_setwrap(MOUSE_NOWRAP);
 
 	svgalib_state.button_mac = 0;
-	for(i=0;buttons[i] && i<BUTTON_MAX;++i) {
+	for (i = 0; buttons[i] && i < BUTTON_MAX; ++i) {
 		if ((mouse_caps.buttons & buttons[i]) != 0) {
 			svgalib_state.button_map[svgalib_state.button_mac] = buttons[i];
 			++svgalib_state.button_mac;
@@ -140,11 +140,11 @@ int mouseb_svgalib_axe_get(unsigned mouse, unsigned axe)
 	log_debug(("mouseb:svgalib: mouseb_svgalib_pos_get()\n"));
 
 	switch (axe) {
-	case 0 :
+	case 0:
 		r = svgalib_state.x;
 		svgalib_state.x = 0;
 		break;
-	case 1 :
+	case 1:
 		r = svgalib_state.y;
 		svgalib_state.y = 0;
 		break;

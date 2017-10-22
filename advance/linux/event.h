@@ -56,7 +56,8 @@ unsigned event_locate(struct event_location* event_map, unsigned event_max, cons
 
 static inline adv_bool event_test_bit(unsigned bit, unsigned char* evtype_bitmask)
 {
-	return (evtype_bitmask[bit/8] & (1 << (bit % 8))) != 0;
+	return (evtype_bitmask[bit / 8] & (1 << (bit % 8))) != 0;
 }
 
 #endif
+

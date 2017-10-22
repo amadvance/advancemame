@@ -75,7 +75,7 @@ adv_error inputb_load(adv_conf* context)
 
 	/* load specific driver options */
 	at_least_one = 0;
-	for(i=0;i<inputb_state.driver_mac;++i) {
+	for (i = 0; i < inputb_state.driver_mac; ++i) {
 		const adv_device* dev;
 
 		dev = device_match(inputb_state.name, (adv_driver*)inputb_state.driver_map[i], 0);
@@ -110,7 +110,7 @@ adv_error inputb_init(void)
 	/* store the error prefix */
 	error_nolog_set("Unable to initialize the input driver. The errors are:\n");
 
-	for(i=0;i<inputb_state.driver_mac;++i) {
+	for (i = 0; i < inputb_state.driver_mac; ++i) {
 		const adv_device* dev;
 
 		dev = device_match(inputb_state.name, (const adv_driver*)inputb_state.driver_map[i], 0);

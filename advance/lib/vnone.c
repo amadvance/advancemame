@@ -94,19 +94,19 @@ static adv_error none_init(int device_id, adv_output output, unsigned overlay_si
 		| VIDEO_DRIVER_FLAGS_PROGRAMMABLE_ALL;
 
 	switch (output) {
-	case adv_output_auto :
-	case adv_output_fullscreen :
+	case adv_output_auto:
+	case adv_output_fullscreen:
 		none_state.cap |= VIDEO_DRIVER_FLAGS_OUTPUT_FULLSCREEN;
 		break;
-	case adv_output_window :
+	case adv_output_window:
 		none_state.cap |= VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW;
 		break;
-	case adv_output_overlay :
+	case adv_output_overlay:
 		none_state.cap |= VIDEO_DRIVER_FLAGS_OUTPUT_OVERLAY;
 		break;
 	}
 
-	none_state.size = 4*1024*1024;
+	none_state.size = 4 * 1024 * 1024;
 	none_state.pointer = 0;
 
 	none_state.active = 1;
@@ -246,7 +246,7 @@ static adv_error none_mode_generate(none_video_mode* mode, const adv_crtc* crtc,
 {
 	assert(none_is_active());
 
-	if (video_mode_generate_check("none", none_flags(), 8, 2048, crtc, flags)!=0)
+	if (video_mode_generate_check("none", none_flags(), 8, 2048, crtc, flags) != 0)
 		return -1;
 
 	mode->crtc = *crtc;

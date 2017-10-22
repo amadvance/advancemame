@@ -40,19 +40,19 @@
 /* wss.h from the VSyncMAME source */
 
 #ifndef X86DATATYPE
-typedef unsigned char		BYTE;
-typedef unsigned short		WORD;
-typedef unsigned long		DWORD;
+typedef unsigned char BYTE;
+typedef unsigned short WORD;
+typedef unsigned long DWORD;
 typedef int BOOL;
 #define X86DATATYPE
 #endif
 
 #ifndef FALSE
-#define FALSE	0
+#define FALSE   0
 #endif
 
 #ifndef TRUE
-#define TRUE	!FALSE
+#define TRUE    !FALSE
 #endif
 
 
@@ -120,3 +120,4 @@ void w_exit_critial(void);
 
 
 void vga_vsync(void);
+

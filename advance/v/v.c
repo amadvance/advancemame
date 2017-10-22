@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -59,13 +59,13 @@ adv_gtf the_gtf;
 
 static adv_bool crtc_select_by_addr(const adv_crtc* a, void* b)
 {
-	return a==b;
+	return a == b;
 }
 
 static adv_bool crtc_select_by_compare(const adv_crtc* a, void* _b)
 {
 	const adv_crtc* b = (const adv_crtc*)_b;
-	return crtc_compare(a, b)==0;
+	return crtc_compare(a, b) == 0;
 }
 
 /***************************************************************************/
@@ -81,43 +81,43 @@ static void draw_text_help(void)
 	text_clear();
 
 	y = draw_text_para(x, y, dx, dy,
-" HELP"
-	, COLOR_REVERSE);
+			" HELP"
+			, COLOR_REVERSE);
 
-	y = draw_text_para(x, y, dx, dy-y,
-"F2    Save the selected modes\n"
-"F5    Create a new modeline (favourite modes with the specified size)\n"
-"F6    Create a new modeline (favourite modes with the specified clock)\n"
-"F7    Duplicate the current mode\n"
-"F8    Set an arbitrary clock value\n"
-"F9    Show a static test screen for the current video mode\n"
-"F10   Show a dynamic test screen for the current video mode\n"
-"SPACE Select/Unselect the current video mode\n"
-"ENTER Test the current video mode\n"
-"TAB   Rename the current video mode\n"
-"ESC   Exit\n"
-"\n"
-"q/a   Increase the x/y Display End register (SHIFT to decrease)\n"
-"w/s   Increase the x/y Blank Start register (SHIFT to decrease)\n"
-"e/d   Increase the x/y Retrace Start register (SHIFT to decrease)\n"
-"r/f   Increase the x/y Retrace End register (SHIFT to decrease)\n"
-"t/g   Increase the x/y Blank End register (SHIFT to decrease)\n"
-"y/h   Increase the x/y Total End register (SHIFT to decrease)\n"
-"u/j   Change the polarization\n"
-"i/k   Expand the x/y size (SHIFT to shrink)\n"
-"v     Increase the pixel clock (SHIFT to decrease)\n"
-"x/c   Change the scan line mode\n"
-"n/m   Change the tv mode\n"
-"\n"
-"Press ESC"
-	, COLOR_NORMAL);
+	y = draw_text_para(x, y, dx, dy - y,
+			"F2    Save the selected modes\n"
+			"F5    Create a new modeline (favourite modes with the specified size)\n"
+			"F6    Create a new modeline (favourite modes with the specified clock)\n"
+			"F7    Duplicate the current mode\n"
+			"F8    Set an arbitrary clock value\n"
+			"F9    Show a static test screen for the current video mode\n"
+			"F10   Show a dynamic test screen for the current video mode\n"
+			"SPACE Select/Unselect the current video mode\n"
+			"ENTER Test the current video mode\n"
+			"TAB   Rename the current video mode\n"
+			"ESC   Exit\n"
+			"\n"
+			"q/a   Increase the x/y Display End register (SHIFT to decrease)\n"
+			"w/s   Increase the x/y Blank Start register (SHIFT to decrease)\n"
+			"e/d   Increase the x/y Retrace Start register (SHIFT to decrease)\n"
+			"r/f   Increase the x/y Retrace End register (SHIFT to decrease)\n"
+			"t/g   Increase the x/y Blank End register (SHIFT to decrease)\n"
+			"y/h   Increase the x/y Total End register (SHIFT to decrease)\n"
+			"u/j   Change the polarization\n"
+			"i/k   Expand the x/y size (SHIFT to shrink)\n"
+			"v     Increase the pixel clock (SHIFT to decrease)\n"
+			"x/c   Change the scan line mode\n"
+			"n/m   Change the tv mode\n"
+			"\n"
+			"Press ESC"
+			, COLOR_NORMAL);
 
 	video_wait_vsync();
 
 	do {
 		target_idle();
 		os_poll();
-	} while (inputb_get()==INPUTB_NONE);
+	} while (inputb_get() == INPUTB_NONE);
 }
 
 static void draw_text_error(void)
@@ -126,34 +126,34 @@ static void draw_text_error(void)
 	int y = 0;
 	int dx = text_size_x();
 	int dy = text_size_y();
-	
+
 	text_clear();
 
 	draw_text_center(x, y, dx,
-"ERROR! An error occurred in your last action!"
-	, COLOR_REVERSE);
+		"ERROR! An error occurred in your last action!"
+		, COLOR_REVERSE);
 	++y;
 
 	++y;
 	y = draw_text_para(x, y, dx, dy,
-"Your action has generated an error. Probably you have requested an "
-"unsupported feature by your hardware or software."
-	, COLOR_NORMAL);
+			"Your action has generated an error. Probably you have requested an "
+			"unsupported feature by your hardware or software."
+			, COLOR_NORMAL);
 
 	if (*error_get()) {
-		y = draw_text_para(x, y, dx, dy-y, "\nThe video software reports this error:", COLOR_NORMAL);
+		y = draw_text_para(x, y, dx, dy - y, "\nThe video software reports this error:", COLOR_NORMAL);
 		log_std(("v: error \"%s\"\n", error_get()));
-		y = draw_text_para(x, y, dx, dy-y, error_get(), COLOR_ERROR);
+		y = draw_text_para(x, y, dx, dy - y, error_get(), COLOR_ERROR);
 	}
 
-	y = draw_text_para(x, y, dx, dy-y, "\nPress ESC", COLOR_NORMAL);
+	y = draw_text_para(x, y, dx, dy - y, "\nPress ESC", COLOR_NORMAL);
 
 	video_wait_vsync();
 
 	do {
 		target_idle();
 		os_poll();
-	} while (inputb_get()==INPUTB_NONE);
+	} while (inputb_get() == INPUTB_NONE);
 }
 
 /***************************************************************************/
@@ -279,11 +279,11 @@ static void menu_item_draw(int x, int y, int dx, int pos, adv_bool selected)
 static void menu_draw(int x, int y, int dx, int dy)
 {
 	unsigned i;
-	for(i=0;i<dy;++i) {
+	for (i = 0; i < dy; ++i) {
 		if (menu_base + i < menu_max) {
-			menu_item_draw(x, y+i, dx, menu_base + i, i == menu_rel);
+			menu_item_draw(x, y + i, dx, menu_base + i, i == menu_rel);
 		} else
-			draw_text_fill(x, y+i, ' ', dx, COLOR_NORMAL);
+			draw_text_fill(x, y + i, ' ', dx, COLOR_NORMAL);
 	}
 }
 
@@ -300,7 +300,7 @@ static void format_info(char* buffer0, char* buffer1, char* buffer2, unsigned si
 	HF = crtc->hrs - crtc->hde;
 	HS = crtc->hre - crtc->hrs;
 	HB = crtc->ht - crtc->hre;
-	f = 1 / (HD+HF+HS+HB);
+	f = 1 / (HD + HF + HS + HB);
 	HD *= f;
 	HF *= f;
 	HS *= f;
@@ -310,7 +310,7 @@ static void format_info(char* buffer0, char* buffer1, char* buffer2, unsigned si
 	VF = crtc->vrs - crtc->vde;
 	VS = crtc->vre - crtc->vrs;
 	VB = crtc->vt - crtc->vre;
-	f = 1 / (VD+VF+VS+VB);
+	f = 1 / (VD + VF + VS + VB);
 	VD *= f;
 	VF *= f;
 	VS *= f;
@@ -335,17 +335,17 @@ static void draw_text_info(int x, int y, int dx, int dy, int pos)
 		sncpy(buffer[2], sizeof(buffer[2]), "");
 	}
 
-	draw_text_left(x, y+0, dx, buffer[0], COLOR_INFO_TITLE);
-	draw_text_left(x, y+1, dx, buffer[1], COLOR_INFO_NORMAL);
-	draw_text_left(x, y+2, dx, buffer[2], COLOR_INFO_NORMAL);
+	draw_text_left(x, y + 0, dx, buffer[0], COLOR_INFO_TITLE);
+	draw_text_left(x, y + 1, dx, buffer[1], COLOR_INFO_NORMAL);
+	draw_text_left(x, y + 2, dx, buffer[2], COLOR_INFO_NORMAL);
 
 	if (crtc) {
 		if (crtc_is_fake(crtc)) {
-			draw_text_left(x+dx-8, y, 8, " SYSTEM ", COLOR_INFO_NORMAL);
+			draw_text_left(x + dx - 8, y, 8, " SYSTEM ", COLOR_INFO_NORMAL);
 		} else if (!crtc_clock_check(&the_monitor, crtc)) {
-			draw_text_left(x+dx-14, y, 14, " OUT OF RANGE ", COLOR_ERROR);
+			draw_text_left(x + dx - 14, y, 14, " OUT OF RANGE ", COLOR_ERROR);
 		} else {
-			draw_text_left(x+dx-14, y, 14, " PROGRAMMABLE ", COLOR_INFO_NORMAL);
+			draw_text_left(x + dx - 14, y, 14, " PROGRAMMABLE ", COLOR_INFO_NORMAL);
 		}
 	} else {
 		draw_text_fillrect(x, y, ' ', dx, dy, COLOR_INFO_NORMAL);
@@ -359,20 +359,20 @@ static void draw_text_index(int x, int y, int dx)
 
 	pos += draw_text_string(pos, y, "Color ", COLOR_TITLE);
 
-	for(i=0;i<8;++i) {
+	for (i = 0; i < 8; ++i) {
 		const char* text;
 		unsigned index;
 		unsigned color;
 		switch (i) {
-			default:
-			case 0 : text = "text"; index = MODE_FLAGS_INDEX_TEXT; break;
-			case 1 : text = "palette8"; index = MODE_FLAGS_INDEX_PALETTE8; break;
-			case 2 : text = "bgr8"; index = MODE_FLAGS_INDEX_BGR8; break;
-			case 3 : text = "bgr15"; index = MODE_FLAGS_INDEX_BGR15; break;
-			case 4 : text = "bgr16"; index = MODE_FLAGS_INDEX_BGR16; break;
-			case 5 : text = "bgr24"; index = MODE_FLAGS_INDEX_BGR24; break;
-			case 6 : text = "bgr32"; index = MODE_FLAGS_INDEX_BGR32; break;
-			case 7 : text = "yuy2"; index = MODE_FLAGS_INDEX_YUY2; break;
+		default:
+		case 0: text = "text"; index = MODE_FLAGS_INDEX_TEXT; break;
+		case 1: text = "palette8"; index = MODE_FLAGS_INDEX_PALETTE8; break;
+		case 2: text = "bgr8"; index = MODE_FLAGS_INDEX_BGR8; break;
+		case 3: text = "bgr15"; index = MODE_FLAGS_INDEX_BGR15; break;
+		case 4: text = "bgr16"; index = MODE_FLAGS_INDEX_BGR16; break;
+		case 5: text = "bgr24"; index = MODE_FLAGS_INDEX_BGR24; break;
+		case 6: text = "bgr32"; index = MODE_FLAGS_INDEX_BGR32; break;
+		case 7: text = "yuy2"; index = MODE_FLAGS_INDEX_YUY2; break;
 		}
 		if (the_mode_index == index)
 			color = COLOR_SELECTED;
@@ -396,7 +396,7 @@ static void draw_text_bar(int x, int by1, int by2, int dx)
 	draw_text_left(x, by1, dx, buffer, COLOR_BAR);
 
 	sncpy(buffer, sizeof(buffer), "");
-	for(i=0;i<video_driver_vector_max();++i) {
+	for (i = 0; i < video_driver_vector_max(); ++i) {
 		if (video_driver_vector_pos(i) != 0) {
 			if (*buffer)
 				sncat(buffer, sizeof(buffer), "/");
@@ -407,7 +407,7 @@ static void draw_text_bar(int x, int by1, int by2, int dx)
 	draw_text_left(x + dx - strlen(buffer), by1, strlen(buffer), buffer, COLOR_BAR);
 
 	snprintf(buffer, sizeof(buffer), " #    x    y pclock hclock vclock name");
-	draw_text_left(x, by1+2, dx, buffer, COLOR_TITLE);
+	draw_text_left(x, by1 + 2, dx, buffer, COLOR_TITLE);
 
 	snprintf(buffer, sizeof(buffer), " F1 Help  F2 Save  SPACE Select  TAB Rename  ENTER Test  ESC Exit");
 	draw_text_left(x, by2, dx, buffer, COLOR_BAR);
@@ -453,12 +453,12 @@ static int test_crtc(int x, int y, adv_crtc* crtc, int print_clock, int print_me
 	snprintf(buffer, sizeof(buffer), "%4d  %4d %sRetrace Start", crtc->hrs, crtc->vrs, print_key ? "[ed] " : "");
 	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
-	if (!(crtc->hde<=crtc->hrs)) {
+	if (!(crtc->hde <= crtc->hrs)) {
 		snprintf(buffer, sizeof(buffer), "HDE<=HRS");
 		draw_string(x, y, buffer, DRAW_COLOR_RED);
 		++y;
 	}
-	if (!(crtc->vde<=crtc->vrs)) {
+	if (!(crtc->vde <= crtc->vrs)) {
 		snprintf(buffer, sizeof(buffer), "VDE<=VRS");
 		draw_string(x, y, buffer, DRAW_COLOR_RED);
 		++y;
@@ -467,12 +467,12 @@ static int test_crtc(int x, int y, adv_crtc* crtc, int print_clock, int print_me
 	snprintf(buffer, sizeof(buffer), "%4d  %4d %sRetrace End", crtc->hre, crtc->vre, print_key ? "[rf] " : "");
 	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
-	if (!(crtc->hrs<crtc->hre)) {
+	if (!(crtc->hrs < crtc->hre)) {
 		snprintf(buffer, sizeof(buffer), "HRS<HRE");
 		draw_string(x, y, buffer, DRAW_COLOR_RED);
 		++y;
 	}
-	if (!(crtc->vrs<crtc->vre)) {
+	if (!(crtc->vrs < crtc->vre)) {
 		snprintf(buffer, sizeof(buffer), "VRE<VRE");
 		draw_string(x, y, buffer, DRAW_COLOR_RED);
 		++y;
@@ -481,12 +481,12 @@ static int test_crtc(int x, int y, adv_crtc* crtc, int print_clock, int print_me
 	snprintf(buffer, sizeof(buffer), "%4d  %4d %sTotal", crtc->ht, crtc->vt, print_key ? "[yh] " : "");
 	draw_string(x, y, buffer, DRAW_COLOR_WHITE);
 	++y;
-	if (!(crtc->hre<=crtc->ht)) {
+	if (!(crtc->hre <= crtc->ht)) {
 		snprintf(buffer, sizeof(buffer), "HRE<=HT");
 		draw_string(x, y, buffer, DRAW_COLOR_RED);
 		++y;
 	}
-	if (!(crtc->vre<=crtc->vt)) {
+	if (!(crtc->vre <= crtc->vt)) {
 		snprintf(buffer, sizeof(buffer), "VRE<=VT");
 		draw_string(x, y, buffer, DRAW_COLOR_RED);
 		++y;
@@ -689,7 +689,7 @@ static int test_vga(int x, int y, vga_video_mode* mode)
 	++y;
 
 	tweak_crtc_get(&info, tweak_reg_read, 0);
-	if (crtc_import(&crtc, &info, video_size_x(), video_size_y(), video_measured_vclock())==0) {
+	if (crtc_import(&crtc, &info, video_size_x(), video_size_y(), video_measured_vclock()) == 0) {
 		++y;
 		y = test_crtc(x, y, &crtc, 0, 1, 0);
 	}
@@ -719,7 +719,7 @@ static int test_vbe(int x, int y, vbe_video_mode* mode)
 
 	vga_mode_get(&regs);
 	vga_regs_info_get(&regs, &info);
-	if (crtc_import(&crtc, &info, video_size_x(), video_size_y(), video_measured_vclock())==0) {
+	if (crtc_import(&crtc, &info, video_size_x(), video_size_y(), video_measured_vclock()) == 0) {
 		++y;
 		y = test_crtc(x, y, &crtc, 0, 1, 0);
 	}
@@ -785,164 +785,164 @@ static adv_bool test_exe_crtc(int userkey, adv_crtc* crtc)
 		xdelta = 8;
 
 	switch (userkey) {
-		case 'i' :
-			pred_t = crtc->ht;
-			crtc->ht -= crtc->ht % xdelta;
-			crtc->ht -= xdelta;
-			crtc->pixelclock = (double)crtc->pixelclock * crtc->ht / pred_t;
-			modify = 1;
-			break;
-		case 'I' :
-			pred_t = crtc->ht;
-			crtc->ht -= crtc->ht % xdelta;
-			crtc->ht += xdelta;
-			crtc->pixelclock = (double)crtc->pixelclock * crtc->ht / pred_t;
-			modify = 1;
-			break;
-		case 'k' :
-			crtc->vt -= 1;
-			modify = 1;
-			break;
-		case 'K' :
-			crtc->vt += 1;
-			modify = 1;
-			break;
-		case INPUTB_LEFT :
-			crtc->hrs -= crtc->hrs % xdelta;
-			crtc->hrs += xdelta;
-			crtc->hre -= crtc->hre % xdelta;
-			crtc->hre += xdelta;
-			modify = 1;
-			break;
-		case INPUTB_RIGHT :
-			crtc->hrs -= crtc->hrs % xdelta;
-			crtc->hrs -= xdelta;
-			crtc->hre -= crtc->hre % xdelta;
-			crtc->hre -= xdelta;
-			modify = 1;
-			break;
-		case INPUTB_DOWN :
-			crtc->vrs -= 1;
-			crtc->vre -= 1;
-			modify = 1;
-			break;
-		case INPUTB_UP :
-			crtc->vrs += 1;
-			crtc->vre += 1;
-			modify = 1;
-			break;
-		case 'u' :
-		case 'U' :
-			modify = 1;
-			if (crtc_is_nhsync(crtc))
-				crtc_phsync_set(crtc);
-			else
-				crtc_nhsync_set(crtc);
-			break;
-		case 'j' :
-		case 'J' :
-			modify = 1;
-			if (crtc_is_nvsync(crtc))
-				crtc_pvsync_set(crtc);
-			else
-				crtc_nvsync_set(crtc);
-			break;
-		case 'e' :
-			crtc->hrs -= crtc->hrs % xdelta;
-			crtc->hrs += xdelta;
-			modify = 1;
-			break;
-		case 'E' :
-			crtc->hrs -= crtc->hrs % xdelta;
-			crtc->hrs -= xdelta;
-			modify = 1;
-			break;
-		case 'r' :
-			crtc->hre -= crtc->hre % xdelta;
-			crtc->hre += xdelta;
-			modify = 1;
-			break;
-		case 'R' :
-			crtc->hre -= crtc->hre % xdelta;
-			crtc->hre -= xdelta;
-			modify = 1;
-			break;
-		case 'y' :
-			crtc->ht -= crtc->ht % xdelta;
-			crtc->ht += xdelta;
-			modify = 1;
-			break;
-		case 'Y' :
-			crtc->ht -= crtc->ht % xdelta;
-			crtc->ht -= xdelta;
-			modify = 1;
-			break;
-		case 'q' :
-			crtc->hde -= crtc->hde % xdelta;
-			crtc->hde += xdelta;
-			modify = 1;
-			break;
-		case 'Q' :
-			crtc->hde -= crtc->hde % xdelta;
-			crtc->hde -= xdelta;
-			modify = 1;
-			break;
-		case 'a' :
-			++crtc->vde;
-			modify = 1;
-			break;
-		case 'A' :
-			--crtc->vde;
-			modify = 1;
-			break;
-		case 'd' :
-			++crtc->vrs;
-			modify = 1;
-			break;
-		case 'D' :
-			--crtc->vrs;
-			modify = 1;
-			break;
-		case 'f' :
-			++crtc->vre;
-			modify = 1;
-			break;
-		case 'F' :
-			--crtc->vre;
-			modify = 1;
-			break;
-		case 'h' :
-			++crtc->vt;
-			modify = 1;
-			break;
-		case 'H' :
-			--crtc->vt;
-			modify = 1;
-			break;
-		case 'x' :
-		case 'X' :
-			modify = 1;
-			if (crtc_is_doublescan(crtc))
-				crtc_singlescan_set(crtc);
-			else
-				crtc_doublescan_set(crtc);
-			break;
-		case 'c' :
-		case 'C' :
-			modify = 1;
-			if (crtc_is_interlace(crtc))
-				crtc_singlescan_set(crtc);
-			else
-				crtc_interlace_set(crtc);
-			break;
-		case 'v' :
-			modify = 1;
-			crtc->pixelclock += 100000;
-			break;
-		case 'V' :
-			modify = 1;
-			crtc->pixelclock -= 100000;
-			break;
+	case 'i':
+		pred_t = crtc->ht;
+		crtc->ht -= crtc->ht % xdelta;
+		crtc->ht -= xdelta;
+		crtc->pixelclock = (double)crtc->pixelclock * crtc->ht / pred_t;
+		modify = 1;
+		break;
+	case 'I':
+		pred_t = crtc->ht;
+		crtc->ht -= crtc->ht % xdelta;
+		crtc->ht += xdelta;
+		crtc->pixelclock = (double)crtc->pixelclock * crtc->ht / pred_t;
+		modify = 1;
+		break;
+	case 'k':
+		crtc->vt -= 1;
+		modify = 1;
+		break;
+	case 'K':
+		crtc->vt += 1;
+		modify = 1;
+		break;
+	case INPUTB_LEFT:
+		crtc->hrs -= crtc->hrs % xdelta;
+		crtc->hrs += xdelta;
+		crtc->hre -= crtc->hre % xdelta;
+		crtc->hre += xdelta;
+		modify = 1;
+		break;
+	case INPUTB_RIGHT:
+		crtc->hrs -= crtc->hrs % xdelta;
+		crtc->hrs -= xdelta;
+		crtc->hre -= crtc->hre % xdelta;
+		crtc->hre -= xdelta;
+		modify = 1;
+		break;
+	case INPUTB_DOWN:
+		crtc->vrs -= 1;
+		crtc->vre -= 1;
+		modify = 1;
+		break;
+	case INPUTB_UP:
+		crtc->vrs += 1;
+		crtc->vre += 1;
+		modify = 1;
+		break;
+	case 'u':
+	case 'U':
+		modify = 1;
+		if (crtc_is_nhsync(crtc))
+			crtc_phsync_set(crtc);
+		else
+			crtc_nhsync_set(crtc);
+		break;
+	case 'j':
+	case 'J':
+		modify = 1;
+		if (crtc_is_nvsync(crtc))
+			crtc_pvsync_set(crtc);
+		else
+			crtc_nvsync_set(crtc);
+		break;
+	case 'e':
+		crtc->hrs -= crtc->hrs % xdelta;
+		crtc->hrs += xdelta;
+		modify = 1;
+		break;
+	case 'E':
+		crtc->hrs -= crtc->hrs % xdelta;
+		crtc->hrs -= xdelta;
+		modify = 1;
+		break;
+	case 'r':
+		crtc->hre -= crtc->hre % xdelta;
+		crtc->hre += xdelta;
+		modify = 1;
+		break;
+	case 'R':
+		crtc->hre -= crtc->hre % xdelta;
+		crtc->hre -= xdelta;
+		modify = 1;
+		break;
+	case 'y':
+		crtc->ht -= crtc->ht % xdelta;
+		crtc->ht += xdelta;
+		modify = 1;
+		break;
+	case 'Y':
+		crtc->ht -= crtc->ht % xdelta;
+		crtc->ht -= xdelta;
+		modify = 1;
+		break;
+	case 'q':
+		crtc->hde -= crtc->hde % xdelta;
+		crtc->hde += xdelta;
+		modify = 1;
+		break;
+	case 'Q':
+		crtc->hde -= crtc->hde % xdelta;
+		crtc->hde -= xdelta;
+		modify = 1;
+		break;
+	case 'a':
+		++crtc->vde;
+		modify = 1;
+		break;
+	case 'A':
+		--crtc->vde;
+		modify = 1;
+		break;
+	case 'd':
+		++crtc->vrs;
+		modify = 1;
+		break;
+	case 'D':
+		--crtc->vrs;
+		modify = 1;
+		break;
+	case 'f':
+		++crtc->vre;
+		modify = 1;
+		break;
+	case 'F':
+		--crtc->vre;
+		modify = 1;
+		break;
+	case 'h':
+		++crtc->vt;
+		modify = 1;
+		break;
+	case 'H':
+		--crtc->vt;
+		modify = 1;
+		break;
+	case 'x':
+	case 'X':
+		modify = 1;
+		if (crtc_is_doublescan(crtc))
+			crtc_singlescan_set(crtc);
+		else
+			crtc_doublescan_set(crtc);
+		break;
+	case 'c':
+	case 'C':
+		modify = 1;
+		if (crtc_is_interlace(crtc))
+			crtc_singlescan_set(crtc);
+		else
+			crtc_interlace_set(crtc);
+		break;
+	case 'v':
+		modify = 1;
+		crtc->pixelclock += 100000;
+		break;
+	case 'V':
+		modify = 1;
+		crtc->pixelclock -= 100000;
+		break;
 	}
 	return modify;
 }
@@ -954,25 +954,25 @@ static void cmd_type(int key)
 {
 	if (key == INPUTB_RIGHT) {
 		switch (the_mode_index) {
-			case MODE_FLAGS_INDEX_TEXT : the_mode_index = MODE_FLAGS_INDEX_PALETTE8; break;
-			case MODE_FLAGS_INDEX_PALETTE8 : the_mode_index = MODE_FLAGS_INDEX_BGR8; break;
-			case MODE_FLAGS_INDEX_BGR8 : the_mode_index = MODE_FLAGS_INDEX_BGR15; break;
-			case MODE_FLAGS_INDEX_BGR15 : the_mode_index = MODE_FLAGS_INDEX_BGR16; break;
-			case MODE_FLAGS_INDEX_BGR16 : the_mode_index = MODE_FLAGS_INDEX_BGR24; break;
-			case MODE_FLAGS_INDEX_BGR24 : the_mode_index = MODE_FLAGS_INDEX_BGR32; break;
-			case MODE_FLAGS_INDEX_BGR32 : the_mode_index = MODE_FLAGS_INDEX_YUY2; break;
-			case MODE_FLAGS_INDEX_YUY2 : the_mode_index = MODE_FLAGS_INDEX_TEXT; break;
+		case MODE_FLAGS_INDEX_TEXT: the_mode_index = MODE_FLAGS_INDEX_PALETTE8; break;
+		case MODE_FLAGS_INDEX_PALETTE8: the_mode_index = MODE_FLAGS_INDEX_BGR8; break;
+		case MODE_FLAGS_INDEX_BGR8: the_mode_index = MODE_FLAGS_INDEX_BGR15; break;
+		case MODE_FLAGS_INDEX_BGR15: the_mode_index = MODE_FLAGS_INDEX_BGR16; break;
+		case MODE_FLAGS_INDEX_BGR16: the_mode_index = MODE_FLAGS_INDEX_BGR24; break;
+		case MODE_FLAGS_INDEX_BGR24: the_mode_index = MODE_FLAGS_INDEX_BGR32; break;
+		case MODE_FLAGS_INDEX_BGR32: the_mode_index = MODE_FLAGS_INDEX_YUY2; break;
+		case MODE_FLAGS_INDEX_YUY2: the_mode_index = MODE_FLAGS_INDEX_TEXT; break;
 		}
 	} else {
 		switch (the_mode_index) {
-			case MODE_FLAGS_INDEX_TEXT : the_mode_index = MODE_FLAGS_INDEX_YUY2; break;
-			case MODE_FLAGS_INDEX_PALETTE8 : the_mode_index = MODE_FLAGS_INDEX_TEXT; break;
-			case MODE_FLAGS_INDEX_BGR8 : the_mode_index = MODE_FLAGS_INDEX_PALETTE8; break;
-			case MODE_FLAGS_INDEX_BGR15 : the_mode_index = MODE_FLAGS_INDEX_BGR8; break;
-			case MODE_FLAGS_INDEX_BGR16 : the_mode_index = MODE_FLAGS_INDEX_BGR15; break;
-			case MODE_FLAGS_INDEX_BGR24 : the_mode_index = MODE_FLAGS_INDEX_BGR16; break;
-			case MODE_FLAGS_INDEX_BGR32 : the_mode_index = MODE_FLAGS_INDEX_BGR24; break;
-			case MODE_FLAGS_INDEX_YUY2 : the_mode_index = MODE_FLAGS_INDEX_BGR32; break;
+		case MODE_FLAGS_INDEX_TEXT: the_mode_index = MODE_FLAGS_INDEX_YUY2; break;
+		case MODE_FLAGS_INDEX_PALETTE8: the_mode_index = MODE_FLAGS_INDEX_TEXT; break;
+		case MODE_FLAGS_INDEX_BGR8: the_mode_index = MODE_FLAGS_INDEX_PALETTE8; break;
+		case MODE_FLAGS_INDEX_BGR15: the_mode_index = MODE_FLAGS_INDEX_BGR8; break;
+		case MODE_FLAGS_INDEX_BGR16: the_mode_index = MODE_FLAGS_INDEX_BGR15; break;
+		case MODE_FLAGS_INDEX_BGR24: the_mode_index = MODE_FLAGS_INDEX_BGR16; break;
+		case MODE_FLAGS_INDEX_BGR32: the_mode_index = MODE_FLAGS_INDEX_BGR24; break;
+		case MODE_FLAGS_INDEX_YUY2: the_mode_index = MODE_FLAGS_INDEX_BGR32; break;
 		}
 	}
 }
@@ -1011,7 +1011,7 @@ static adv_error cmd_offvideo_test(int userkey)
 
 	menu_modify();
 
-	if (strcmp(crtc->name, DEFAULT_TEXT_MODE)==0) {
+	if (strcmp(crtc->name, DEFAULT_TEXT_MODE) == 0) {
 		if (!crtc_clock_check(&the_monitor, crtc) && crtc_clock_check(&the_monitor, &crtc_save)) {
 			*crtc = crtc_save;
 			sound_error();
@@ -1041,7 +1041,7 @@ static adv_error cmd_onvideo_test(void)
 	if (!crtc_is_fake(crtc) && !crtc_clock_check(&the_monitor, crtc))
 		return -1;
 
-	if (video_mode_generate(&mode, crtc, the_mode_index)!=0) {
+	if (video_mode_generate(&mode, crtc, the_mode_index) != 0) {
 		return -1;
 	}
 
@@ -1077,15 +1077,15 @@ static adv_error cmd_onvideo_test(void)
 		userkey = inputb_get();
 
 		switch (userkey) {
-			case INPUTB_ESC :
-				done = 1;
-				/* restore */
-				*crtc = crtc_save;
-				the_modes_modified = crtc_save_modified;
-				break;
-			case INPUTB_ENTER :
-				done = 1;
-				break;
+		case INPUTB_ESC:
+			done = 1;
+			/* restore */
+			*crtc = crtc_save;
+			the_modes_modified = crtc_save_modified;
+			break;
+		case INPUTB_ENTER:
+			done = 1;
+			break;
 		}
 
 		if (!done) {
@@ -1096,7 +1096,7 @@ static adv_error cmd_onvideo_test(void)
 				dirty = 1;
 
 				if ((crtc_is_fake(crtc) || crtc_clock_check(&the_monitor, crtc))
-					&& video_mode_generate(&mode, crtc, the_mode_index)==0) {
+					&& video_mode_generate(&mode, crtc, the_mode_index) == 0) {
 					if (text_mode_set(&mode) != 0) {
 						text_reset();
 						/* abort */
@@ -1143,7 +1143,7 @@ static adv_error cmd_onvideo_calib(void)
 	if (!crtc_is_fake(crtc) && !crtc_clock_check(&the_monitor, crtc))
 		return -1;
 
-	if (video_mode_generate(&mode, crtc, the_mode_index)!=0) {
+	if (video_mode_generate(&mode, crtc, the_mode_index) != 0) {
 		return -1;
 	}
 
@@ -1161,7 +1161,7 @@ static adv_error cmd_onvideo_calib(void)
 	draw_graphics_speed(0, 0, video_size_x(), video_size_y(), &speed_memcpy, &speed_blit);
 	draw_graphics_calib(0, 0, video_size_x(), video_size_y());
 
-	snprintf(buffer, sizeof(buffer), "memcpy %.2f MB/s, blit %.2f MB/s", speed_memcpy / (double)(1024*1024), speed_blit / (double)(1024*1024));
+	snprintf(buffer, sizeof(buffer), "memcpy %.2f MB/s, blit %.2f MB/s", speed_memcpy / (double)(1024 * 1024), speed_blit / (double)(1024 * 1024));
 	draw_string(0, 0, buffer, DRAW_COLOR_WHITE);
 
 	video_write_unlock(0, 0, 0, 0, 0);
@@ -1171,7 +1171,7 @@ static adv_error cmd_onvideo_calib(void)
 	do {
 		target_idle();
 		os_poll();
-	} while (inputb_get()==INPUTB_NONE);
+	} while (inputb_get() == INPUTB_NONE);
 
 	return 0;
 }
@@ -1197,7 +1197,7 @@ static adv_error cmd_onvideo_animate(void)
 	if (!crtc_is_fake(crtc) && !crtc_clock_check(&the_monitor, crtc))
 		return -1;
 
-	if (video_mode_generate(&mode, crtc, the_mode_index)!=0) {
+	if (video_mode_generate(&mode, crtc, the_mode_index) != 0) {
 		return -1;
 	}
 
@@ -1210,17 +1210,17 @@ static adv_error cmd_onvideo_animate(void)
 
 	draw_graphics_palette();
 
-	for(i=0;i<3;++i) {
+	for (i = 0; i < 3; ++i) {
 		update_start();
 		video_clear(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 0);
 		update_stop(update_x_get(), update_y_get(), video_size_x(), video_size_y(), 1);
 	}
 
 	counter = update_page_max_get();
-	
+
 	while (!inputb_hit()) {
 		os_poll();
-		
+
 		update_start();
 		draw_graphics_animate(update_x_get(), update_y_get(), video_size_x(), video_size_y(), counter - update_page_max_get() + 1, 1);
 		++counter;
@@ -1233,7 +1233,7 @@ static adv_error cmd_onvideo_animate(void)
 	do {
 		target_idle();
 		os_poll();
-	} while (inputb_get()==INPUTB_NONE);
+	} while (inputb_get() == INPUTB_NONE);
 
 	return 0;
 }
@@ -1242,16 +1242,16 @@ static void cmd_gotopos(int i)
 {
 	if (i >= menu_max)
 		i = menu_max - 1;
-	if (i<0)
+	if (i < 0)
 		i = 0;
 	if (menu_base <= i && i < menu_base + menu_rel_max) {
 		menu_rel = i - menu_base;
-	} else if (i<menu_base) {
+	} else if (i < menu_base) {
 		menu_base = i;
 		menu_rel = 0;
 	} else {
 		menu_base = i - menu_rel_max + 1;
-		if (menu_base<0)
+		if (menu_base < 0)
 			menu_base = 0;
 		menu_rel = i - menu_base;
 	}
@@ -1259,9 +1259,9 @@ static void cmd_gotopos(int i)
 
 static adv_error cmd_input_key(const char* tag, const char* keys)
 {
-	draw_text_fill(0, text_size_y()-1, ' ', text_size_x(), COLOR_REVERSE);
-	draw_text_string(2, text_size_y()-1, tag, COLOR_REVERSE);
-	draw_text_string(2+strlen(tag), text_size_y()-1, keys, COLOR_INPUT);
+	draw_text_fill(0, text_size_y() - 1, ' ', text_size_x(), COLOR_REVERSE);
+	draw_text_string(2, text_size_y() - 1, tag, COLOR_REVERSE);
+	draw_text_string(2 + strlen(tag), text_size_y() - 1, keys, COLOR_INPUT);
 
 	while (1) {
 		int i;
@@ -1276,18 +1276,18 @@ static adv_error cmd_input_key(const char* tag, const char* keys)
 		if (k == INPUTB_ESC)
 			return -1;
 
-		for(i=0;keys[i];++i)
-			if (toupper(k)==toupper(keys[i]))
+		for (i = 0; keys[i]; ++i)
+			if (toupper(k) == toupper(keys[i]))
 				return i;
 	}
 }
 
 static adv_error cmd_input_string(const char* tag, char* buffer, unsigned length)
 {
-	draw_text_fill(0, text_size_y()-1, ' ', text_size_x(), COLOR_REVERSE);
-	draw_text_string(2, text_size_y()-1, tag, COLOR_REVERSE);
+	draw_text_fill(0, text_size_y() - 1, ' ', text_size_x(), COLOR_REVERSE);
+	draw_text_string(2, text_size_y() - 1, tag, COLOR_REVERSE);
 
-	if (draw_text_read(2 + strlen(tag), text_size_y()-1, buffer, length, COLOR_INPUT) == INPUTB_ENTER) {
+	if (draw_text_read(2 + strlen(tag), text_size_y() - 1, buffer, length, COLOR_INPUT) == INPUTB_ENTER) {
 		return 0;
 	}
 
@@ -1304,7 +1304,7 @@ static void cmd_rename(void)
 		return;
 
 	sncpy(buffer, sizeof(buffer), "");
-	if (cmd_input_string(" Name : ", buffer, MODE_NAME_MAX)!=0)
+	if (cmd_input_string(" Name : ", buffer, MODE_NAME_MAX) != 0)
 		return;
 
 	crtc_name_set(crtc, buffer);
@@ -1337,7 +1337,7 @@ static adv_error cmd_modeline_create(int favourite_vtotal)
 	adv_error res;
 
 	sncpy(buffer, sizeof(buffer), "");
-	if (cmd_input_string(" Vertical clock [Hz] (example 60.0) : ", buffer, 10)!=0)
+	if (cmd_input_string(" Vertical clock [Hz] (example 60.0) : ", buffer, 10) != 0)
 		return 0;
 	freq = strtod(buffer, 0);
 	if (freq < 10 || freq > 200) {
@@ -1346,7 +1346,7 @@ static adv_error cmd_modeline_create(int favourite_vtotal)
 	}
 
 	sncpy(buffer, sizeof(buffer), "");
-	if (cmd_input_string(" X resolution [pixel] : ", buffer, 10)!=0)
+	if (cmd_input_string(" X resolution [pixel] : ", buffer, 10) != 0)
 		return 0;
 	x = atoi(buffer);
 	if (x < 64 || x > 2048) {
@@ -1355,7 +1355,7 @@ static adv_error cmd_modeline_create(int favourite_vtotal)
 	}
 
 	sncpy(buffer, sizeof(buffer), "");
-	if (cmd_input_string(" Y resolution [pixel] : ", buffer, 10)!=0)
+	if (cmd_input_string(" Y resolution [pixel] : ", buffer, 10) != 0)
 		return 0;
 	y = atoi(buffer);
 	if (y < 64 || y > 2048) {
@@ -1363,16 +1363,16 @@ static adv_error cmd_modeline_create(int favourite_vtotal)
 		return -1;
 	}
 
-	res = generate_find_interpolate_multi(&crtc, x, y, x*2, y*2, x*3, y*3, x*4, y*4, freq, &the_monitor, &the_interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC, GENERATE_ADJUST_EXACT);
+	res = generate_find_interpolate_multi(&crtc, x, y, x * 2, y * 2, x * 3, y * 3, x * 4, y * 4, freq, &the_monitor, &the_interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC, GENERATE_ADJUST_EXACT);
 	if (favourite_vtotal) {
 		if (res != 0)
-			res = generate_find_interpolate_multi(&crtc, x, y, x*2, y*2, x*3, y*3, x*4, y*4, freq, &the_monitor, &the_interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC, GENERATE_ADJUST_VCLOCK);
+			res = generate_find_interpolate_multi(&crtc, x, y, x * 2, y * 2, x * 3, y * 3, x * 4, y * 4, freq, &the_monitor, &the_interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC, GENERATE_ADJUST_VCLOCK);
 	} else {
 		if (res != 0)
-			res = generate_find_interpolate_multi(&crtc, x, y, x*2, y*2, x*3, y*3, x*4, y*4, freq, &the_monitor, &the_interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC, GENERATE_ADJUST_VTOTAL);
+			res = generate_find_interpolate_multi(&crtc, x, y, x * 2, y * 2, x * 3, y * 3, x * 4, y * 4, freq, &the_monitor, &the_interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC, GENERATE_ADJUST_VTOTAL);
 	}
 	if (res != 0)
-		res = generate_find_interpolate_multi(&crtc, x, y, x*2, y*2, x*3, y*3, x*4, y*4, freq, &the_monitor, &the_interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC, GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL);
+		res = generate_find_interpolate_multi(&crtc, x, y, x * 2, y * 2, x * 3, y * 3, x * 4, y * 4, freq, &the_monitor, &the_interpolate, VIDEO_DRIVER_FLAGS_PROGRAMMABLE_SINGLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_DOUBLESCAN | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_INTERLACE | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CLOCK | VIDEO_DRIVER_FLAGS_PROGRAMMABLE_CRTC, GENERATE_ADJUST_VCLOCK | GENERATE_ADJUST_VTOTAL);
 	if (res != 0) {
 		error_set("Request out of your monitor range");
 		return -1;
@@ -1397,41 +1397,41 @@ static adv_error cmd_mode_clock(void)
 
 	sncpy(buffer, sizeof(buffer), "");
 	switch (cmd_input_key(" Set Vertical/Horizontal/Pixel clock ? ", "vhp")) {
-		case 0 :
-			if (cmd_input_string(" Vertical clock [Hz] (example 60.0) : ", buffer, 10)!=0)
-				return 0;
-			freq = strtod(buffer, 0);
-			if (freq < 10 || freq > 200) {
-				error_set("Invalid vertical clock value, usually in the range 10 - 200.0 [Hz]");
-				return -1;
-			}
-			crtc->pixelclock = freq * crtc->ht * crtc->vt;
-			if (crtc_is_interlace(crtc))
-				crtc->pixelclock /= 2;
-			if (crtc_is_doublescan(crtc))
-				crtc->pixelclock *= 2;
-			break;
-		case 1 :
-			if (cmd_input_string(" Horizontal clock [kHz] (example 31.5) : ", buffer, 10)!=0)
-				return 0;
-			freq = strtod(buffer, 0) * 1E3;
-			if (freq < 10*1E3 || freq > 100*1E3) {
-				error_set("Invalid horizontal clock value, usually in the range 15.0 - 80.0 [kHz]");
-				return -1;
-			}
-			crtc->pixelclock = freq * crtc->ht;
-			break;
-		case 2 :
-			if (cmd_input_string(" Pixel clock [MHz] (example 14.0) : ", buffer, 10)!=0)
-				return 0;
-			freq = strtod(buffer, 0) * 1E6;
-			if (freq < 1*1E6 || freq > 300*1E6) {
-				error_set("Invalid pixel clock value, usually in the range 1.0 - 300.0 [MHz]");
-				return -1;
-			}
-			crtc->pixelclock = freq;
-			break;
-		default: return 0;
+	case 0:
+		if (cmd_input_string(" Vertical clock [Hz] (example 60.0) : ", buffer, 10) != 0)
+			return 0;
+		freq = strtod(buffer, 0);
+		if (freq < 10 || freq > 200) {
+			error_set("Invalid vertical clock value, usually in the range 10 - 200.0 [Hz]");
+			return -1;
+		}
+		crtc->pixelclock = freq * crtc->ht * crtc->vt;
+		if (crtc_is_interlace(crtc))
+			crtc->pixelclock /= 2;
+		if (crtc_is_doublescan(crtc))
+			crtc->pixelclock *= 2;
+		break;
+	case 1:
+		if (cmd_input_string(" Horizontal clock [kHz] (example 31.5) : ", buffer, 10) != 0)
+			return 0;
+		freq = strtod(buffer, 0) * 1E3;
+		if (freq < 10 * 1E3 || freq > 100 * 1E3) {
+			error_set("Invalid horizontal clock value, usually in the range 15.0 - 80.0 [kHz]");
+			return -1;
+		}
+		crtc->pixelclock = freq * crtc->ht;
+		break;
+	case 2:
+		if (cmd_input_string(" Pixel clock [MHz] (example 14.0) : ", buffer, 10) != 0)
+			return 0;
+		freq = strtod(buffer, 0) * 1E6;
+		if (freq < 1 * 1E6 || freq > 300 * 1E6) {
+			error_set("Invalid pixel clock value, usually in the range 1.0 - 300.0 [MHz]");
+			return -1;
+		}
+		crtc->pixelclock = freq;
+		break;
+	default: return 0;
 	}
 
 	menu_modify();
@@ -1456,7 +1456,7 @@ static void cmd_save(void)
 	adv_crtc_container_iterator i;
 	crtc_container_init(&selected);
 
-	for(crtc_container_iterator_begin(&i, &the_modes);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for (crtc_container_iterator_begin(&i, &the_modes); !crtc_container_iterator_is_end(&i); crtc_container_iterator_next(&i)) {
 		const adv_crtc* crtc = crtc_container_iterator_get(&i);
 		if (crtc->user_flags & MODE_FLAGS_USER_BIT0)
 			crtc_container_insert(&selected, crtc);
@@ -1493,16 +1493,16 @@ static adv_error cmd_exit(void)
 #define MENU_X 0
 #define MENU_Y 3
 #define MENU_DX (text_size_x())
-#define MENU_DY (text_size_y()-7)
+#define MENU_DY (text_size_y() - 7)
 
 #define INFO_X 0
-#define INFO_Y (text_size_y()-4)
+#define INFO_Y (text_size_y() - 4)
 #define INFO_DX (text_size_x())
 #define INFO_DY 3
 
 #define BAR_X 0
 #define BAR_Y1 0
-#define BAR_Y2 (text_size_y()-1)
+#define BAR_Y2 (text_size_y() - 1)
 #define BAR_DX (text_size_x())
 
 /* Menu */
@@ -1515,14 +1515,14 @@ static int menu_run(void)
 	menu_rel = 0;
 	menu_rel_max = MENU_DY;
 	menu_max = crtc_container_max(&the_modes);
-	menu_base_max = menu_max -  menu_rel_max;
+	menu_base_max = menu_max - menu_rel_max;
 	if (menu_base_max < 0)
 		menu_base_max = 0;
 
 	done = 0;
 	while (!done) {
 
-		draw_text_index(BAR_X, BAR_Y1+1, BAR_DX);
+		draw_text_index(BAR_X, BAR_Y1 + 1, BAR_DX);
 		draw_text_bar(BAR_X, BAR_Y1, BAR_Y2, BAR_DX);
 		draw_text_info(INFO_X, INFO_Y, INFO_DX, INFO_DY, menu_base + menu_rel);
 		menu_draw(MENU_X, MENU_Y, MENU_DX, MENU_DY);
@@ -1535,116 +1535,116 @@ static int menu_run(void)
 		userkey = inputb_get();
 
 		switch (userkey) {
-			case INPUTB_UP:
-				cmd_gotopos(menu_base + menu_rel - 1);
-				break;
-			case INPUTB_DOWN:
-				cmd_gotopos(menu_base + menu_rel + 1);
-				break;
-			case INPUTB_HOME: {
-				int i = menu_base + menu_rel - 1;
-				if (i<0)
-					i = 0;
-				while (i>0 && !(crtc_container_pos(&the_modes, i)->user_flags & MODE_FLAGS_USER_BIT0))
-					--i;
-				cmd_gotopos(i);
-				break;
+		case INPUTB_UP:
+			cmd_gotopos(menu_base + menu_rel - 1);
+			break;
+		case INPUTB_DOWN:
+			cmd_gotopos(menu_base + menu_rel + 1);
+			break;
+		case INPUTB_HOME: {
+			int i = menu_base + menu_rel - 1;
+			if (i < 0)
+				i = 0;
+			while (i > 0 && !(crtc_container_pos(&the_modes, i)->user_flags & MODE_FLAGS_USER_BIT0))
+				--i;
+			cmd_gotopos(i);
+			break;
+		}
+		case INPUTB_END: {
+			int i = menu_base + menu_rel + 1;
+			if (i >= menu_max)
+				i = menu_max - 1;
+			while (i < menu_max - 1 && !(crtc_container_pos(&the_modes, i)->user_flags & MODE_FLAGS_USER_BIT0))
+				++i;
+			cmd_gotopos(i);
+			break;
+		}
+		case INPUTB_PGDN:
+			cmd_gotopos(menu_base + menu_rel + menu_rel_max);
+			break;
+		case INPUTB_PGUP:
+			cmd_gotopos(menu_base + menu_rel - menu_rel_max);
+			break;
+		case INPUTB_F2:
+			cmd_save();
+			break;
+		case INPUTB_LEFT:
+		case INPUTB_RIGHT:
+			cmd_type(userkey);
+			break;
+		case INPUTB_ESC:
+			done = cmd_exit();
+			break;
+		case INPUTB_SPACE:
+			cmd_select();
+			cmd_gotopos(menu_base + menu_rel + 1);
+			break;
+		case INPUTB_ENTER:
+			if (cmd_onvideo_test() != 0) {
+				text_reset();
+				draw_text_error();
+			} else {
+				text_reset();
 			}
-			case INPUTB_END: {
-				int i = menu_base + menu_rel + 1;
-				if (i >= menu_max)
-					i = menu_max - 1;
-				while (i < menu_max - 1 && !(crtc_container_pos(&the_modes, i)->user_flags & MODE_FLAGS_USER_BIT0))
-					++i;
-				cmd_gotopos(i);
-				break;
+			break;
+		case INPUTB_F9:
+			if (cmd_onvideo_calib() != 0) {
+				text_reset();
+				draw_text_error();
+			} else {
+				text_reset();
 			}
-			case INPUTB_PGDN:
-				cmd_gotopos(menu_base + menu_rel + menu_rel_max);
-				break;
-			case INPUTB_PGUP:
-				cmd_gotopos(menu_base + menu_rel - menu_rel_max);
-				break;
-			case INPUTB_F2:
-				cmd_save();
-				break;
-			case INPUTB_LEFT :
-			case INPUTB_RIGHT :
-				cmd_type(userkey);
-				break;
-			case INPUTB_ESC:
-				done = cmd_exit();
-				break;
-			case INPUTB_SPACE:
-				cmd_select();
-				cmd_gotopos(menu_base + menu_rel + 1);
-				break;
-			case INPUTB_ENTER:
-				if (cmd_onvideo_test() != 0) {
-					text_reset();
-					draw_text_error();
-				} else {
-					text_reset();
-				}
-				break;
-			case INPUTB_F9:
-				if (cmd_onvideo_calib() != 0) {
-					text_reset();
-					draw_text_error();
-				} else {
-					text_reset();
-				}
-				break;
-			case INPUTB_F10:
-				if (cmd_onvideo_animate() != 0) {
-					text_reset();
-					draw_text_error();
-				} else {
-					text_reset();
-				}
-				break;
-			case INPUTB_TAB :
-				cmd_rename();
-				break;
-			case INPUTB_F5 :
-				if (cmd_modeline_create(1) !=0) {
-					text_reset();
-					draw_text_error();
-				} else {
-					text_reset();
-				}
-				break;
-			case INPUTB_F6 :
-				if (cmd_modeline_create(0) !=0) {
-					text_reset();
-					draw_text_error();
-				} else {
-					text_reset();
-				}
-				break;
-			case INPUTB_F7 :
-				cmd_copy();
-				break;
-			case INPUTB_F8 :
-				if (cmd_mode_clock() !=0) {
-					text_reset();
-					draw_text_error();
-				} else {
-					text_reset();
-				}
-				break;
-			case INPUTB_DEL :
-				cmd_del();
-				cmd_gotopos(menu_base + menu_rel);
-				break;
-			case INPUTB_F1:
-				draw_text_help();
-				break;
-			default:
-				if (cmd_offvideo_test(userkey) != 0) {
-					draw_text_error();
-				}
-				break;
+			break;
+		case INPUTB_F10:
+			if (cmd_onvideo_animate() != 0) {
+				text_reset();
+				draw_text_error();
+			} else {
+				text_reset();
+			}
+			break;
+		case INPUTB_TAB:
+			cmd_rename();
+			break;
+		case INPUTB_F5:
+			if (cmd_modeline_create(1) != 0) {
+				text_reset();
+				draw_text_error();
+			} else {
+				text_reset();
+			}
+			break;
+		case INPUTB_F6:
+			if (cmd_modeline_create(0) != 0) {
+				text_reset();
+				draw_text_error();
+			} else {
+				text_reset();
+			}
+			break;
+		case INPUTB_F7:
+			cmd_copy();
+			break;
+		case INPUTB_F8:
+			if (cmd_mode_clock() != 0) {
+				text_reset();
+				draw_text_error();
+			} else {
+				text_reset();
+			}
+			break;
+		case INPUTB_DEL:
+			cmd_del();
+			cmd_gotopos(menu_base + menu_rel);
+			break;
+		case INPUTB_F1:
+			draw_text_help();
+			break;
+		default:
+			if (cmd_offvideo_test(userkey) != 0) {
+				draw_text_error();
+			}
+			break;
 		}
 	}
 	return userkey;
@@ -1671,7 +1671,7 @@ static void msdos_rut(void)
 	__dpmi_regs r;
 	unsigned i;
 
-	for(i=0xC0;i<=0xFF;++i) {
+	for (i = 0xC0; i <= 0xFF; ++i) {
 		r.h.ah = i;
 		r.h.al = 0;
 		r.x.bx = 0;
@@ -1684,7 +1684,7 @@ static void msdos_rut(void)
 		}
 	}
 
-	for(i=0xC0;i<=0xFF;++i) {
+	for (i = 0xC0; i <= 0xFF; ++i) {
 		r.h.ah = i;
 		r.h.al = 0;
 		r.x.bx = 0;
@@ -1720,7 +1720,7 @@ static void error_callback(void* context, enum conf_callback_error error, const 
 }
 
 static adv_conf_conv STANDARD[] = {
-{ "*", "*", "*", "%s", "%s", "%s", 1 }
+	{ "*", "*", "*", "%s", "%s", "%s", 1 }
 };
 
 void os_signal(int signum, void* info, void* context)
@@ -1749,7 +1749,7 @@ void troubleshotting(void)
 #endif
 		}
 		term = getenv("TERM");
-		if (!term || strcmp(term, "linux")!=0)
+		if (!term || strcmp(term, "linux") != 0)
 			target_err("Try to run this program in a TERM=linux terminal.\n\r");
 	}
 #endif
@@ -1775,7 +1775,7 @@ int os_main(int argc, char* argv[])
 
 	the_config = conf_init();
 
-	if (os_init(the_config)!=0) {
+	if (os_init(the_config) != 0) {
 		target_err("Error initializing the OS support.\n");
 		goto err_conf;
 	}
@@ -1787,7 +1787,7 @@ int os_main(int argc, char* argv[])
 	gtf_register(the_config);
 	inputb_reg(the_config, 1);
 	inputb_reg_driver_all(the_config);
-	
+
 	/* MSDOS requires a special driver sub set */
 #ifndef __MSDOS__
 	video_reg_driver_all(the_config);
@@ -1796,8 +1796,8 @@ int os_main(int argc, char* argv[])
 	if (conf_input_args_load(the_config, 1, "", &argc, argv, error_callback, 0) != 0)
 		goto err_os;
 
-	for(j=1;j<argc;++j) {
-		if (target_option_compare(argv[j], "rc") && j+1<argc) {
+	for (j = 1; j < argc; ++j) {
+		if (target_option_compare(argv[j], "rc") && j + 1 < argc) {
 			opt_rc = argv[++j];
 		} else if (target_option_compare(argv[j], "log")) {
 			opt_log = 1;
@@ -1854,30 +1854,30 @@ int os_main(int argc, char* argv[])
 
 	if (!opt_rc) {
 		switch (the_advance) {
-			case advance_vbe : opt_rc = "vbe.rc"; break;
-			case advance_vga : opt_rc = "vga.rc"; break;
-			case advance_menu : opt_rc = file_config_file_home("advmenu.rc"); break;
-			case advance_mame : opt_rc = file_config_file_home("advmame.rc"); break;
-			case advance_mess : opt_rc = file_config_file_home("advmess.rc"); break;
-			case advance_pac : opt_rc = file_config_file_home("advpac.rc"); break;
-			case advance_videow : opt_rc = file_config_file_home("videow.rc"); break;
-			default : opt_rc = "advv.rc"; break;
+		case advance_vbe: opt_rc = "vbe.rc"; break;
+		case advance_vga: opt_rc = "vga.rc"; break;
+		case advance_menu: opt_rc = file_config_file_home("advmenu.rc"); break;
+		case advance_mame: opt_rc = file_config_file_home("advmame.rc"); break;
+		case advance_mess: opt_rc = file_config_file_home("advmess.rc"); break;
+		case advance_pac: opt_rc = file_config_file_home("advpac.rc"); break;
+		case advance_videow: opt_rc = file_config_file_home("videow.rc"); break;
+		default: opt_rc = "advv.rc"; break;
 		}
 	}
 
-	if (access(opt_rc, R_OK)!=0) {
+	if (access(opt_rc, R_OK) != 0) {
 		target_err("Configuration file %s not found.\n", opt_rc);
 		goto err_os;
 	}
 
-	if (conf_input_file_load_adv(the_config, 0, opt_rc, opt_rc, 1, 1, STANDARD, sizeof(STANDARD)/sizeof(STANDARD[0]), error_callback, 0) != 0)
+	if (conf_input_file_load_adv(the_config, 0, opt_rc, opt_rc, 1, 1, STANDARD, sizeof(STANDARD) / sizeof(STANDARD[0]), error_callback, 0) != 0)
 		goto err_os;
 
 	if (opt_log || opt_logsync) {
 		const char* log = "advv.log";
 		remove(log);
 		log_init(log, opt_logsync);
-        }
+	}
 
 	log_std(("v: %s %s %s %s\n", "AdvanceVIDEO", ADV_VERSION, __DATE__, __TIME__));
 
@@ -1937,12 +1937,12 @@ int os_main(int argc, char* argv[])
 
 	/* load generate_linear config */
 	res = generate_interpolate_load(the_config, &the_interpolate);
-	if (res<0) {
+	if (res < 0) {
 		target_err("Error loading the format options from the configuration file %s.\n\r", opt_rc);
 		target_err("%s\n\r", error_get());
 		goto err_input;
 	}
-	if (res>0) {
+	if (res > 0) {
 		generate_default_vga(&the_interpolate.map[0].gen);
 		the_interpolate.map[0].hclock = 31500;
 		the_interpolate.mac = 1;
@@ -1950,12 +1950,12 @@ int os_main(int argc, char* argv[])
 
 	/* load generate_linear config */
 	res = gtf_load(the_config, &the_gtf);
-	if (res<0) {
+	if (res < 0) {
 		target_err("Error loading the gtf options from the configuration file %s.\n\r", opt_rc);
 		target_err("%s\n\r", error_get());
 		goto err_input;
 	}
-	if (res>0) {
+	if (res > 0) {
 		gtf_default_vga(&the_gtf);
 	}
 
@@ -1969,7 +1969,7 @@ int os_main(int argc, char* argv[])
 
 	/* sort */
 	crtc_container_init(&the_modes);
-	for(crtc_container_iterator_begin(&i, &selected);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for (crtc_container_iterator_begin(&i, &selected); !crtc_container_iterator_is_end(&i); crtc_container_iterator_next(&i)) {
 		adv_crtc* crtc = crtc_container_iterator_get(&i);
 		crtc_container_insert_sort(&the_modes, crtc, crtc_compare);
 	}
@@ -1984,7 +1984,7 @@ int os_main(int argc, char* argv[])
 	}
 
 	/* union set */
-	for(crtc_container_iterator_begin(&i, &selected);!crtc_container_iterator_is_end(&i);crtc_container_iterator_next(&i)) {
+	for (crtc_container_iterator_begin(&i, &selected); !crtc_container_iterator_is_end(&i); crtc_container_iterator_next(&i)) {
 		adv_crtc* crtc = crtc_container_iterator_get(&i);
 		adv_bool has = crtc_container_has(&the_modes, crtc, crtc_compare) != 0;
 		if (has)

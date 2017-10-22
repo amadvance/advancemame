@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -107,7 +107,7 @@ void script_port_write(int address, unsigned char value)
 			unsigned i;
 			unsigned led_mask = 0;
 
-			for(i=0;led_bit[i] != 0;++i) {
+			for (i = 0; led_bit[i] != 0; ++i) {
 				if ((value & (1 << i)) != 0) {
 					led_mask |= led_bit[i];
 				}
@@ -126,11 +126,11 @@ struct symbol {
 	const char* name;
 	int value;
 } SYMBOL[] = {
-{ "lpt1", 0x378 }, /* LEGACY Removed in 0.87 */
-{ "lpt2", 0x278 }, /* LEGACY Removed in 0.87 */
-{ "lpt3", 0x3bc }, /* LEGACY Removed in 0.87 */
-{ "kdb", 0 }, /* LEGACY Removed in 0.87 */
-{ 0, 0 }
+	{ "lpt1", 0x378 }, /* LEGACY Removed in 0.87 */
+	{ "lpt2", 0x278 }, /* LEGACY Removed in 0.87 */
+	{ "lpt3", 0x3bc }, /* LEGACY Removed in 0.87 */
+	{ "kdb", 0 }, /* LEGACY Removed in 0.87 */
+	{ 0, 0 }
 };
 
 /* Evaluate a constant */
@@ -143,13 +143,13 @@ static struct script_value* script_constant_get(union script_arg_extra argextra)
 static struct script_value* script_text_get(union script_arg_extra argextra)
 {
 	switch (argextra.value) {
-	case 0 :
+	case 0:
 		return script_value_alloc_text(STATE.info_desc_buffer);
-	case 1 :
+	case 1:
 		return script_value_alloc_text(STATE.info_manufacturer_buffer);
-	case 2 :
+	case 2:
 		return script_value_alloc_text(STATE.info_year_buffer);
-	case 3 :
+	case 3:
 		return script_value_alloc_text(STATE.info_throttle_buffer);
 	}
 
@@ -164,7 +164,7 @@ script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg
 
 	/* check for global symbol */
 	while (p->name) {
-		if (strcmp(sym, p->name)==0) {
+		if (strcmp(sym, p->name) == 0) {
 			argextra->value = p->value;
 			return &script_constant_get;
 		}
@@ -175,10 +175,10 @@ script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg
 	if (memcmp(sym, "key_", 4) == 0) {
 		unsigned i;
 		const char* sym_name = sym + 4;
-		for(i=0;i<KEYB_MAX;++i) {
+		for (i = 0; i < KEYB_MAX; ++i) {
 			const char* name = key_name(i);
 			if (name) {
-				if (strcmp(sym_name, name)==0) {
+				if (strcmp(sym_name, name) == 0) {
 					argextra->value = i;
 					return &script_constant_get;
 				}
@@ -189,26 +189,26 @@ script_exp_op1s_evaluator* script_symbol_check(const char* sym, union script_arg
 	/* check for port names */
 	mp = mame_port_list();
 	while (mp->name) {
-		if (strcmp(sym, mp->name)==0) {
+		if (strcmp(sym, mp->name) == 0) {
 			argextra->value = mp->port;
 			return &script_constant_get;
 		}
 		++mp;
 	}
 
-	if (strcmp(sym, "info_desc")==0) {
+	if (strcmp(sym, "info_desc") == 0) {
 		argextra->value = 0;
 		return &script_text_get;
 	}
-	if (strcmp(sym, "info_manufacturer")==0) {
+	if (strcmp(sym, "info_manufacturer") == 0) {
 		argextra->value = 1;
 		return &script_text_get;
 	}
-	if (strcmp(sym, "info_year")==0) {
+	if (strcmp(sym, "info_year") == 0) {
 		argextra->value = 2;
 		return &script_text_get;
 	}
-	if (strcmp(sym, "info_throttle")==0) {
+	if (strcmp(sym, "info_throttle") == 0) {
 		argextra->value = 3;
 		return &script_text_get;
 	}
@@ -221,10 +221,10 @@ static struct script_value* script_function1_get(union script_arg_extra argextra
 	int r;
 
 	switch (argextra.value) {
-	case 0 : /* event */
+	case 0:  /* event */
 		r = STATE.script_condition;
 		break;
-	default :
+	default:
 		r = 0;
 		break;
 	}
@@ -238,13 +238,13 @@ static struct script_value* script_function2_get(struct script_value* varg0, uni
 	int r;
 
 	switch (argextra.value) {
-	case 0 :  /* event */
+	case 0:   /* event */
 		r = mame_ui_port_pressed(arg0);
 		break;
-	case 1 : /* get */
+	case 1:  /* get */
 		r = script_port_read(arg0);
 		break;
-	case 4 : /* rand */
+	case 4:  /* rand */
 		if (arg0 > 0) {
 			/* use an internal pseudo random number generator */
 			STATE.seed = STATE.seed * 1103515245 + 12345;
@@ -253,7 +253,7 @@ static struct script_value* script_function2_get(struct script_value* varg0, uni
 			r = -1;
 		}
 		break;
-	default :
+	default:
 		r = -1;
 		break;
 	}
@@ -266,7 +266,7 @@ static struct script_value* script_function2t_get(struct script_value* varg0, un
 	int r;
 
 	switch (argextra.value) {
-	case 2 : /* log */
+	case 2:  /* log */
 		if (varg0->type == SCRIPT_VALUE_NUM) {
 			log_std(("script: %d\n", varg0->value.num));
 			r = 0;
@@ -278,7 +278,7 @@ static struct script_value* script_function2t_get(struct script_value* varg0, un
 			r = -1;
 		}
 		break;
-	case 3 : /* msg */
+	case 3:  /* msg */
 		if (varg0->type == SCRIPT_VALUE_NUM) {
 			advance_global_message(&CONTEXT.global, "%d", varg0->value.num);
 			r = 0;
@@ -290,7 +290,7 @@ static struct script_value* script_function2t_get(struct script_value* varg0, un
 			r = -1;
 		}
 		break;
-	case 5 : /* system */
+	case 5:  /* system */
 		if (varg0->type == SCRIPT_VALUE_TEXT) {
 			r = advance_global_script(&CONTEXT.global, varg0->value.text);
 		} else {
@@ -298,7 +298,7 @@ static struct script_value* script_function2t_get(struct script_value* varg0, un
 			r = -1;
 		}
 		break;
-	default :
+	default:
 		r = -1;
 		break;
 	}
@@ -315,31 +315,31 @@ static struct script_value* script_function3_get(struct script_value* varg0, str
 	int r;
 
 	switch (argextra.value) {
-	case 0 : /* set */
+	case 0:  /* set */
 		script_port_write(arg0, arg1);
 		r = 0;
 		break;
-	case 1 : /* on */
+	case 1:  /* on */
 		script_port_write(arg0, script_port_read(arg0) | arg1);
 		r = 0;
 		break;
-	case 2 : /* off */
+	case 2:  /* off */
 		script_port_write(arg0, script_port_read(arg0) & ~arg1);
 		r = 0;
 		break;
-	case 3 : /* toggle */
+	case 3:  /* toggle */
 		script_port_write(arg0, script_port_read(arg0) ^ arg1);
 		r = 0;
 		break;
-	case 4 : /* simulate_event */
+	case 4:  /* simulate_event */
 		hardware_simulate_input(SIMULATE_EVENT, arg0, arg1 * (SCRIPT_TIME_UNIT / 1000));
 		r = 0;
 		break;
-	case 5 : /* simulate_key */
+	case 5:  /* simulate_key */
 		hardware_simulate_input(SIMULATE_KEY, arg0, arg1 * (SCRIPT_TIME_UNIT / 1000));
 		r = 0;
 		break;
-	default :
+	default:
 		r = -1;
 		break;
 	}
@@ -353,7 +353,7 @@ static struct script_value* script_function3t_get(struct script_value* varg0, st
 	int r;
 
 	switch (argextra.value) {
-	case 6 : /* lcd */
+	case 6:  /* lcd */
 		if (varg1->type == SCRIPT_VALUE_NUM) {
 			char buffer[32];
 			snprintf(buffer, sizeof(buffer), "%d", varg1->value.num);
@@ -367,7 +367,7 @@ static struct script_value* script_function3t_get(struct script_value* varg0, st
 			r = -1;
 		}
 		break;
-	default :
+	default:
 		r = -1;
 		break;
 	}
@@ -379,7 +379,7 @@ static struct script_value* script_function3t_get(struct script_value* varg0, st
 
 script_exp_op1f_evaluator* script_function1_check(const char* sym, union script_arg_extra* argextra)
 {
-	if (strcmp(sym, "event")==0) {
+	if (strcmp(sym, "event") == 0) {
 		argextra->value = 0;
 		return &script_function1_get;
 	}
@@ -388,22 +388,22 @@ script_exp_op1f_evaluator* script_function1_check(const char* sym, union script_
 
 script_exp_op2fe_evaluator* script_function2_check(const char* sym, union script_arg_extra* argextra)
 {
-	if (strcmp(sym, "event")==0) {
+	if (strcmp(sym, "event") == 0) {
 		argextra->value = 0;
 		return &script_function2_get;
-	} else if (strcmp(sym, "get")==0) {
+	} else if (strcmp(sym, "get") == 0) {
 		argextra->value = 1;
 		return &script_function2_get;
-	} else if (strcmp(sym, "log")==0) {
+	} else if (strcmp(sym, "log") == 0) {
 		argextra->value = 2;
 		return &script_function2t_get;
-	} else if (strcmp(sym, "msg")==0) {
+	} else if (strcmp(sym, "msg") == 0) {
 		argextra->value = 3;
 		return &script_function2t_get;
-	} else if (strcmp(sym, "rand")==0) {
+	} else if (strcmp(sym, "rand") == 0) {
 		argextra->value = 4;
 		return &script_function2_get;
-	} else if (strcmp(sym, "system")==0) {
+	} else if (strcmp(sym, "system") == 0) {
 		argextra->value = 5;
 		return &script_function2t_get;
 	}
@@ -413,25 +413,25 @@ script_exp_op2fe_evaluator* script_function2_check(const char* sym, union script
 script_exp_op3fee_evaluator* script_function3_check(const char* sym, union script_arg_extra* argextra)
 {
 	(void)sym;
-	if (strcmp(sym, "set")==0) {
+	if (strcmp(sym, "set") == 0) {
 		argextra->value = 0;
 		return &script_function3_get;
-	} else if (strcmp(sym, "on")==0) {
+	} else if (strcmp(sym, "on") == 0) {
 		argextra->value = 1;
 		return &script_function3_get;
-	} else if (strcmp(sym, "off")==0) {
+	} else if (strcmp(sym, "off") == 0) {
 		argextra->value = 2;
 		return &script_function3_get;
-	} else if (strcmp(sym, "toggle")==0) {
+	} else if (strcmp(sym, "toggle") == 0) {
 		argextra->value = 3;
 		return &script_function3_get;
-	} else if (strcmp(sym, "simulate_event")==0) {
+	} else if (strcmp(sym, "simulate_event") == 0) {
 		argextra->value = 4;
 		return &script_function3_get;
-	} else if (strcmp(sym, "simulate_key")==0) {
+	} else if (strcmp(sym, "simulate_key") == 0) {
 		argextra->value = 5;
 		return &script_function3_get;
-	} else if (strcmp(sym, "lcd")==0) {
+	} else if (strcmp(sym, "lcd") == 0) {
 		argextra->value = 6;
 		return &script_function3t_get;
 	}
@@ -478,7 +478,7 @@ int hardware_script_init(adv_conf* context)
 	conf_string_register_default(context, "script_event14", "");
 	conf_string_register_default(context, "script_knocker", "on(kdb, 0b100); wait(!event()); off(kdb, 0b100);");
 
-	STATE.active_flag  = 0;
+	STATE.active_flag = 0;
 
 	STATE.info_desc_buffer[0] = 0;
 	STATE.info_manufacturer_buffer[0] = 0;
@@ -501,7 +501,7 @@ int hardware_script_inner_init(void)
 
 	assert(!STATE.active_flag);
 
-	for(i=0;i<HARDWARE_SCRIPT_MAX;++i) {
+	for (i = 0; i < HARDWARE_SCRIPT_MAX; ++i) {
 		if (STATE.text_map[i]) {
 			STATE.script_text = STATE.text_map[i];
 			STATE.map[i].script = script_parse(STATE.text_map[i]);
@@ -528,7 +528,7 @@ void hardware_script_inner_done(void)
 
 	STATE.active_flag = 0;
 
-	for(i=0;i<HARDWARE_SCRIPT_MAX;++i) {
+	for (i = 0; i < HARDWARE_SCRIPT_MAX; ++i) {
 		script_free(STATE.map[i].script);
 		script_run_free(STATE.map[i].state);
 		free(STATE.text_map[i]);
@@ -578,7 +578,7 @@ static void hardware_script_idle_single(unsigned id, unsigned time_to_play)
 void hardware_script_idle(unsigned time_to_play)
 {
 	int i;
-	for(i=0;i<HARDWARE_SCRIPT_MAX;++i) {
+	for (i = 0; i < HARDWARE_SCRIPT_MAX; ++i) {
 		hardware_script_idle_single(i, time_to_play);
 	}
 }
@@ -700,7 +700,7 @@ void hardware_simulate_input(struct simulate* SIMULATE, int type, unsigned time_
 {
 	int best = 0;
 	int i;
-	for(i=1;i<SIMULATE_MAX;++i) {
+	for (i = 1; i < SIMULATE_MAX; ++i) {
 		if (SIMULATE[i].time_to_play < SIMULATE[best].time_to_play)
 			best = i;
 	}
@@ -711,7 +711,7 @@ void hardware_simulate_input(struct simulate* SIMULATE, int type, unsigned time_
 void hardware_simulate_input_idle(struct simulate* SIMULATE, unsigned time_to_play)
 {
 	int i;
-	for(i=0;i<SIMULATE_MAX;++i) {
+	for (i = 0; i < SIMULATE_MAX; ++i) {
 		if (SIMULATE[i].time_to_play > time_to_play)
 			SIMULATE[i].time_to_play -= time_to_play;
 		else {

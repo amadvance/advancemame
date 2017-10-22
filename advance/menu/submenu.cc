@@ -11,7 +11,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details. 
+ * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -32,9 +32,9 @@
 
 using namespace std;
 
-#define MSG_CHOICE_DX 30*int_font_dx_get()
-#define MSG_CHOICE_X (int_dx_get()-MSG_CHOICE_DX)/2
-#define MSG_CHOICE_Y int_dy_get()/2
+#define MSG_CHOICE_DX 30 * int_font_dx_get()
+#define MSG_CHOICE_X (int_dx_get() - MSG_CHOICE_DX) / 2
+#define MSG_CHOICE_Y int_dy_get() / 2
 
 string menu_name(config_state& rs, const string& s, unsigned event)
 {
@@ -51,7 +51,7 @@ string menu_name(config_state& rs, const string& s, unsigned event)
 // ------------------------------------------------------------------------
 // Sort menu
 
-#define SORT_CHOICE_DX 15*int_font_dx_get()
+#define SORT_CHOICE_DX 15 * int_font_dx_get()
 
 int run_sort(config_state& rs)
 {
@@ -87,7 +87,7 @@ int run_sort(config_state& rs)
 // ------------------------------------------------------------------------
 // Command menu
 
-#define COMMAND_CHOICE_DX 33*int_font_dx_get()
+#define COMMAND_CHOICE_DX 33 * int_font_dx_get()
 
 int run_command(config_state& rs)
 {
@@ -154,7 +154,7 @@ int run_command(config_state& rs)
 		}
 	}
 
-	for(script_container::iterator i=rs.script_bag.begin();i!=rs.script_bag.end();++i) {
+	for (script_container::iterator i = rs.script_bag.begin(); i != rs.script_bag.end(); ++i) {
 		if (i->text.find("%s") != string::npos) {
 			if (!rs.current_game)
 				continue;
@@ -177,33 +177,33 @@ int run_command(config_state& rs)
 
 	if (key == EVENT_ENTER) {
 		int r;
-		if (i->value_get()>=-1 && i->value_get()<=256) {
+		if (i->value_get() >= -1 && i->value_get() <= 256) {
 			switch (i->value_get()) {
-			case 0 :
+			case 0:
 				r = remove(cpath_export(rs.current_game->preview_snap_get().archive_get()));
 				break;
-			case 1 :
+			case 1:
 				r = remove(cpath_export(rs.current_game->preview_clip_get().archive_get()));
 				break;
-			case 2 :
+			case 2:
 				r = remove(cpath_export(rs.current_game->preview_flyer_get().archive_get()));
 				break;
-			case 3 :
+			case 3:
 				r = remove(cpath_export(rs.current_game->preview_cabinet_get().archive_get()));
 				break;
-			case 4 :
+			case 4:
 				r = remove(cpath_export(rs.current_game->preview_icon_get().archive_get()));
 				break;
-			case 5 :
+			case 5:
 				r = remove(cpath_export(rs.current_backdrop.archive_get()));
 				break;
-			case 6 :
+			case 6:
 				r = remove(cpath_export(rs.current_game->preview_sound_get().archive_get()));
 				break;
-			case 7 :
+			case 7:
 				r = remove(cpath_export(rs.current_sound.archive_get()));
 				break;
-			case -1 :
+			case -1:
 				r = 0;
 				break;
 			default:
@@ -245,7 +245,7 @@ int run_command(config_state& rs)
 // ------------------------------------------------------------------------
 // Mode menu
 
-#define MODE_CHOICE_DX 15*int_font_dx_get()
+#define MODE_CHOICE_DX 15 * int_font_dx_get()
 
 int run_mode(config_state& rs)
 {
@@ -281,7 +281,7 @@ int run_mode(config_state& rs)
 // ------------------------------------------------------------------------
 // Preview menu
 
-#define PREVIEW_CHOICE_DX 15*int_font_dx_get()
+#define PREVIEW_CHOICE_DX 15 * int_font_dx_get()
 
 int run_preview(config_state& rs)
 {
@@ -310,13 +310,13 @@ int run_preview(config_state& rs)
 // ------------------------------------------------------------------------
 // Group menu
 
-#define GROUP_CHOICE_DX 20*int_font_dx_get()
+#define GROUP_CHOICE_DX 20 * int_font_dx_get()
 
 int run_group(config_state& rs)
 {
 	choice_bag ch;
 
-	for(pcategory_container::const_iterator j = rs.group.begin();j!=rs.group.end();++j) {
+	for (pcategory_container::const_iterator j = rs.group.begin(); j != rs.group.end(); ++j) {
 		bool tag = rs.include_group_get().find((*j)->name_get()) != rs.include_group_get().end();
 		ch.insert(ch.end(), choice((*j)->name_get(), tag, 0));
 	}
@@ -327,7 +327,7 @@ int run_group(config_state& rs)
 
 	if (key == EVENT_ENTER) {
 		category_container c;
-		for(choice_bag::const_iterator j=ch.begin();j!=ch.end();++j) {
+		for (choice_bag::const_iterator j = ch.begin(); j != ch.end(); ++j) {
 			if (j->bistate_get())
 				c.insert(j->desc_get());
 		}
@@ -343,11 +343,11 @@ void run_group_next(config_state& rs)
 	bool all_select = true;
 
 	bool pred_in = false;
-	for(pcategory_container::const_iterator j=rs.group.begin();j!=rs.group.end();++j) {
+	for (pcategory_container::const_iterator j = rs.group.begin(); j != rs.group.end(); ++j) {
 		if (pred_in)
 			next_select = *j;
 		pred_in = false;
-		for(category_container::const_iterator k = rs.include_group_get().begin();k!=rs.include_group_get().end();++k) {
+		for (category_container::const_iterator k = rs.include_group_get().begin(); k != rs.include_group_get().end(); ++k) {
 			if ((*j)->name_get() == *k) {
 				pred_in = true;
 				break;
@@ -361,7 +361,7 @@ void run_group_next(config_state& rs)
 
 	if (!all_select && next_select == 0) {
 		// insert all
-		for(pcategory_container::const_iterator j=rs.group.begin();j!=rs.group.end();++j) {
+		for (pcategory_container::const_iterator j = rs.group.begin(); j != rs.group.end(); ++j) {
 			c.insert((*j)->name_get());
 		}
 	} else {
@@ -379,15 +379,15 @@ void run_group_next(config_state& rs)
 // ------------------------------------------------------------------------
 // Emu menu
 
-#define EMU_CHOICE_DX 20*int_font_dx_get()
+#define EMU_CHOICE_DX 20 * int_font_dx_get()
 
 int run_emu(config_state& rs)
 {
 	choice_bag ch;
 
-	for(pemulator_container::const_iterator j = rs.emu_active.begin();j!=rs.emu_active.end();++j) {
+	for (pemulator_container::const_iterator j = rs.emu_active.begin(); j != rs.emu_active.end(); ++j) {
 		bool tag = false;
-		for(emulator_container::const_iterator k = rs.include_emu_get().begin();k!=rs.include_emu_get().end();++k) {
+		for (emulator_container::const_iterator k = rs.include_emu_get().begin(); k != rs.include_emu_get().end(); ++k) {
 			if ((*j)->user_name_get() == *k) {
 				tag = true;
 				break;
@@ -402,7 +402,7 @@ int run_emu(config_state& rs)
 
 	if (key == EVENT_ENTER) {
 		emulator_container c;
-		for(choice_bag::const_iterator j=ch.begin();j!=ch.end();++j) {
+		for (choice_bag::const_iterator j = ch.begin(); j != ch.end(); ++j) {
 			if (j->bistate_get())
 				c.insert(c.end(), j->desc_get());
 		}
@@ -416,7 +416,7 @@ emulator* run_emu_select(config_state& rs)
 {
 	choice_bag ch;
 
-	for(emulator_container::const_iterator j = rs.include_emu_get().begin();j!=rs.include_emu_get().end();++j) {
+	for (emulator_container::const_iterator j = rs.include_emu_get().begin(); j != rs.include_emu_get().end(); ++j) {
 		ch.insert(ch.end(), choice(*j, 0));
 	}
 
@@ -434,7 +434,7 @@ emulator* run_emu_select(config_state& rs)
 		emu = ch.begin()->desc_get();
 	}
 
-	for(pemulator_container::const_iterator j = rs.emu_active.begin();j!=rs.emu_active.end();++j) {
+	for (pemulator_container::const_iterator j = rs.emu_active.begin(); j != rs.emu_active.end(); ++j) {
 		if ((*j)->user_name_get() == emu) {
 			return *j;
 		}
@@ -448,11 +448,11 @@ void run_emu_next(config_state& rs)
 	string next_select = "";
 	bool pred_in = false;
 
-	for(pemulator_container::const_iterator j=rs.emu_active.begin();j!=rs.emu_active.end();++j) {
+	for (pemulator_container::const_iterator j = rs.emu_active.begin(); j != rs.emu_active.end(); ++j) {
 		if (pred_in)
 			next_select = (*j)->user_name_get();
 		pred_in = false;
-		for(emulator_container::const_iterator k = rs.include_emu_get().begin();k!=rs.include_emu_get().end();++k) {
+		for (emulator_container::const_iterator k = rs.include_emu_get().begin(); k != rs.include_emu_get().end(); ++k) {
 			if ((*j)->user_name_get() == *k) {
 				pred_in = true;
 				break;
@@ -473,13 +473,13 @@ void run_emu_next(config_state& rs)
 // ------------------------------------------------------------------------
 // Type menu
 
-#define TYPE_CHOICE_DX 30*int_font_dx_get()
+#define TYPE_CHOICE_DX 30 * int_font_dx_get()
 
 int run_type(config_state& rs)
 {
 	choice_bag ch;
 
-	for(pcategory_container::const_iterator j = rs.type.begin();j!=rs.type.end();++j) {
+	for (pcategory_container::const_iterator j = rs.type.begin(); j != rs.type.end(); ++j) {
 		bool tag = rs.include_type_get().find((*j)->name_get()) != rs.include_type_get().end();
 		ch.insert(ch.end(), choice((*j)->name_get(), tag, 0));
 	}
@@ -490,7 +490,7 @@ int run_type(config_state& rs)
 
 	if (key == EVENT_ENTER) {
 		category_container c;
-		for(choice_bag::const_iterator j=ch.begin();j!=ch.end();++j) {
+		for (choice_bag::const_iterator j = ch.begin(); j != ch.end(); ++j) {
 			if (j->bistate_get())
 				c.insert(j->desc_get());
 		}
@@ -506,11 +506,11 @@ void run_type_next(config_state& rs)
 	bool all_select = true;
 
 	bool pred_in = false;
-	for(pcategory_container::const_iterator j=rs.type.begin();j!=rs.type.end();++j) {
+	for (pcategory_container::const_iterator j = rs.type.begin(); j != rs.type.end(); ++j) {
 		if (pred_in)
 			next_select = *j;
 		pred_in = false;
-		for(category_container::const_iterator k = rs.include_type_get().begin();k!=rs.include_type_get().end();++k) {
+		for (category_container::const_iterator k = rs.include_type_get().begin(); k != rs.include_type_get().end(); ++k) {
 			if ((*j)->name_get() == *k) {
 				pred_in = true;
 				break;
@@ -523,7 +523,7 @@ void run_type_next(config_state& rs)
 	category_container c;
 	if (!all_select && next_select == 0) {
 		// insert all
-		for(pcategory_container::const_iterator j=rs.type.begin();j!=rs.type.end();++j) {
+		for (pcategory_container::const_iterator j = rs.type.begin(); j != rs.type.end(); ++j) {
 			c.insert((*j)->name_get());
 		}
 	} else {
@@ -548,12 +548,12 @@ int run_group_move(config_state& rs)
 	if (!rs.current_game)
 		return EVENT_ENTER;
 
-	for(pcategory_container::const_iterator j = rs.group.begin();j!=rs.group.end();++j) {
+	for (pcategory_container::const_iterator j = rs.group.begin(); j != rs.group.end(); ++j) {
 		ch.insert(ch.end(), choice((*j)->name_get(), 0));
 	}
 
 	choice_bag::iterator i = ch.find_by_desc(rs.current_game->group_get()->name_get());
-	if (i==ch.end())
+	if (i == ch.end())
 		i = ch.begin();
 
 	int key = ch.run(" Select Game Group", THIRD_CHOICE_X, THIRD_CHOICE_Y, GROUP_CHOICE_DX, i);
@@ -572,12 +572,12 @@ int run_type_move(config_state& rs)
 	if (!rs.current_game)
 		return EVENT_ENTER;
 
-	for(pcategory_container::const_iterator j = rs.type.begin();j!=rs.type.end();++j) {
+	for (pcategory_container::const_iterator j = rs.type.begin(); j != rs.type.end(); ++j) {
 		ch.insert(ch.end(), choice((*j)->name_get(), 0));
 	}
 
 	choice_bag::iterator i = ch.find_by_desc(rs.current_game->type_get()->name_get());
-	if (i==ch.end())
+	if (i == ch.end())
 		i = ch.begin();
 
 	int key = ch.run(" Select Game Type", THIRD_CHOICE_X, THIRD_CHOICE_Y, TYPE_CHOICE_DX, i);
@@ -592,9 +592,9 @@ int run_type_move(config_state& rs)
 // ------------------------------------------------------------------------
 // Clone menu
 
-#define CLONE_CHOICE_X int_dx_get()/10
-#define CLONE_CHOICE_Y int_dy_get()/5
-#define CLONE_CHOICE_DX int_dx_get()*4/5
+#define CLONE_CHOICE_X int_dx_get() / 10
+#define CLONE_CHOICE_Y int_dy_get() / 5
+#define CLONE_CHOICE_DX int_dx_get() * 4 / 5
 
 void run_clone(config_state& rs)
 {
@@ -616,15 +616,15 @@ void run_clone(config_state& rs)
 	s << base->description_get() << ", " << base->manufacturer_get() << ", " << base->year_get();
 	ch.insert(ch.end(), choice(s.str(), (void*)base));
 
-	for(pgame_container::const_iterator j = base->clone_bag_get().begin();j!=base->clone_bag_get().end();++j) {
+	for (pgame_container::const_iterator j = base->clone_bag_get().begin(); j != base->clone_bag_get().end(); ++j) {
 		if (!(*j)->software_get()) {
 			ostringstream s;
 
 			s << (*j)->description_get() << ", " << (*j)->manufacturer_get() << ", " << (*j)->year_get();
 
 			switch ((*j)->play_get()) {
-			case play_imperfect : s << " [IMPERFECT]"; break;
-			case play_preliminary : s << " [PRELIMINARY]"; break;
+			case play_imperfect: s << " [IMPERFECT]"; break;
+			case play_preliminary: s << " [PRELIMINARY]"; break;
 			default: break;
 			}
 
@@ -644,9 +644,9 @@ void run_clone(config_state& rs)
 // ------------------------------------------------------------------------
 // Calib menu
 
-#define CALIB_CHOICE_DX 30*int_font_dx_get()
-#define CALIB_CHOICE_X (int_dx_get()-CALIB_CHOICE_DX)/2
-#define CALIB_CHOICE_Y int_dy_get()/2
+#define CALIB_CHOICE_DX 30 * int_font_dx_get()
+#define CALIB_CHOICE_X (int_dx_get() - CALIB_CHOICE_DX) / 2
+#define CALIB_CHOICE_Y int_dy_get() / 2
 
 void run_calib(config_state& rs)
 {
@@ -689,7 +689,7 @@ void run_calib(config_state& rs)
 // ------------------------------------------------------------------------
 // Volume
 
-#define VOLUME_CHOICE_DX 10*int_font_dx_get()
+#define VOLUME_CHOICE_DX 10 * int_font_dx_get()
 
 int run_volume(config_state& rs)
 {
@@ -727,7 +727,7 @@ int run_volume(config_state& rs)
 // ------------------------------------------------------------------------
 // Difficulty
 
-#define DIFFICULTY_CHOICE_DX 10*int_font_dx_get()
+#define DIFFICULTY_CHOICE_DX 10 * int_font_dx_get()
 
 int run_difficulty(config_state& rs)
 {
@@ -756,7 +756,7 @@ int run_difficulty(config_state& rs)
 // ------------------------------------------------------------------------
 // Sub Menu
 
-#define MENU_CHOICE_DX 20*int_font_dx_get()
+#define MENU_CHOICE_DX 20 * int_font_dx_get()
 
 int run_suballmenu(config_state& rs)
 {
@@ -784,37 +784,37 @@ int run_suballmenu(config_state& rs)
 
 		if (key == EVENT_ENTER) {
 			switch (i->value_get()) {
-			case 0 :
+			case 0:
 				key = run_sort(rs);
 				break;
-			case 1 :
+			case 1:
 				key = run_mode(rs);
 				break;
-			case 2 :
+			case 2:
 				key = run_preview(rs);
 				break;
-			case 3 :
+			case 3:
 				key = run_type(rs);
 				break;
-			case 4 :
+			case 4:
 				key = run_group(rs);
 				break;
-			case 6 :
+			case 6:
 				rs.restore_save();
 				break;
-			case 20 :
+			case 20:
 				rs.restore_load();
 				break;
-			case 7 :
+			case 7:
 				key = run_group_move(rs);
 				break;
-			case 8 :
+			case 8:
 				key = run_type_move(rs);
 				break;
-			case 9 :
+			case 9:
 				run_calib(rs);
 				break;
-			case 11 :
+			case 11:
 				rs.lock_effective = !rs.lock_effective;
 				break;
 			}
@@ -865,40 +865,40 @@ int run_subthismenu(config_state& rs)
 		if (key == EVENT_ENTER) {
 			emulator* emu;
 			switch (i->value_get()) {
-			case 0 :
+			case 0:
 				key = run_sort(rs);
 				break;
-			case 1 :
+			case 1:
 				key = run_mode(rs);
 				break;
-			case 2 :
+			case 2:
 				key = run_preview(rs);
 				break;
-			case 3 :
+			case 3:
 				key = run_type(rs);
 				break;
-			case 4 :
+			case 4:
 				key = run_group(rs);
 				break;
-			case 5 :
+			case 5:
 				rs.sub_get().restore_save();
 				break;
-			case 6 :
+			case 6:
 				rs.sub_get().sort_unset();
 				break;
-			case 7 :
+			case 7:
 				rs.sub_get().mode_unset();
 				break;
-			case 8 :
+			case 8:
 				rs.sub_get().preview_unset();
 				break;
-			case 9 :
+			case 9:
 				rs.sub_get().include_type_unset();
 				break;
-			case 10 :
+			case 10:
 				rs.sub_get().include_group_unset();
 				break;
-			case 11 :
+			case 11:
 				emu = run_emu_select(rs);
 				if (emu) {
 					key = emu->attrib_run(FOURTH_CHOICE_X, FOURTH_CHOICE_Y);
@@ -942,7 +942,7 @@ int run_submenu(config_state& rs)
 			ch.insert(ch.end(), choice(menu_name(rs, "Emulators...", EVENT_EMU), 7));
 		ch.insert(ch.end(), choice("Volume...", 16));
 		ch.insert(ch.end(), choice("Difficulty...", 17));
-		if (rs.script_bag.size()!=0)
+		if (rs.script_bag.size() != 0)
 			ch.insert(ch.end(), choice(menu_name(rs, rs.script_menu, EVENT_COMMAND), 8));
 	}
 
@@ -966,39 +966,39 @@ int run_submenu(config_state& rs)
 
 		if (key == EVENT_ENTER) {
 			switch (i->value_get()) {
-			case 0 :
+			case 0:
 				key = run_suballmenu(rs);
 				break;
-			case 1 :
+			case 1:
 				key = run_subthismenu(rs);
 				break;
-			case 7 :
+			case 7:
 				key = run_emu(rs);
 				break;
-			case 8 :
+			case 8:
 				key = run_command(rs);
 				break;
-			case 10 :
+			case 10:
 				run_help(rs);
 				break;
-			case 15 :
+			case 15:
 				done = true;
 				ret = EVENT_CLONE;
 				break;
-			case 16 :
+			case 16:
 				key = run_volume(rs);
 				break;
-			case 17 :
+			case 17:
 				key = run_difficulty(rs);
 				break;
-			case 18 :
+			case 18:
 				run_stat(rs);
 				break;
-			case 19 :
+			case 19:
 				done = true;
 				ret = EVENT_ESC;
 				break;
-			case 20 :
+			case 20:
 				done = true;
 				ret = EVENT_OFF;
 				break;
@@ -1037,8 +1037,8 @@ void run_help(config_state& rs)
 		int_clear_alpha(rs.ui_left, rs.ui_top, int_dx_get() - rs.ui_left - rs.ui_right, int_dy_get() - rs.ui_top - rs.ui_bottom, COLOR_HELP_NORMAL.background);
 
 		int y = rs.ui_top;
-		int xt = rs.ui_left + 2*int_font_dx_get();
-		int xd = rs.ui_left + (2+12)*int_font_dx_get();
+		int xt = rs.ui_left + 2 * int_font_dx_get();
+		int xd = rs.ui_left + (2 + 12) * int_font_dx_get();
 
 		y += int_font_dy_get();
 		int_put_alpha(xt, y, "In the game menu:", COLOR_HELP_NORMAL);
@@ -1170,11 +1170,11 @@ void run_help(config_state& rs)
 
 void stat_insert(const game* (&map)[STAT_MAX], unsigned (&val)[STAT_MAX], const game* g, unsigned v)
 {
-	for(unsigned i=0;i<STAT_MAX;++i) {
+	for (unsigned i = 0; i < STAT_MAX; ++i) {
 		if (!map[i] || val[i] < v) {
-			for(unsigned j=STAT_MAX-1;j>i;--j) {
-				map[j] = map[j-1];
-				val[j] = val[j-1];
+			for (unsigned j = STAT_MAX - 1; j > i; --j) {
+				map[j] = map[j - 1];
+				val[j] = val[j - 1];
 			}
 			map[i] = g;
 			val[i] = v;
@@ -1186,7 +1186,7 @@ void stat_insert(const game* (&map)[STAT_MAX], unsigned (&val)[STAT_MAX], const 
 string stat_time(unsigned v)
 {
 	ostringstream os;
-	os << (v/3600) << ":" << setw(2) << setfill('0') << ((v/60)%60);
+	os << (v / 3600) << ":" << setw(2) << setfill('0') << ((v / 60) % 60);
 	return os.str();
 }
 
@@ -1224,11 +1224,11 @@ void run_stat(config_state& rs)
 	unsigned n;
 
 	int y = rs.ui_top;
-	int xn = rs.ui_left + 2*int_font_dx_get();
-	int xs = rs.ui_left + (2+1*8)*int_font_dx_get();
-	int xt = rs.ui_left + (2+2*8)*int_font_dx_get();
-	int xp = rs.ui_left + (2+3*8)*int_font_dx_get();
-	int xe = rs.ui_left + (2+4*8)*int_font_dx_get();
+	int xn = rs.ui_left + 2 * int_font_dx_get();
+	int xs = rs.ui_left + (2 + 1 * 8) * int_font_dx_get();
+	int xt = rs.ui_left + (2 + 2 * 8) * int_font_dx_get();
+	int xp = rs.ui_left + (2 + 3 * 8) * int_font_dx_get();
+	int xe = rs.ui_left + (2 + 4 * 8) * int_font_dx_get();
 
 	n = ((int_dy_get() - rs.ui_top - rs.ui_bottom) / int_font_dy_get() - 12) / 3;
 	if (n > STAT_MAX)
@@ -1244,7 +1244,7 @@ void run_stat(config_state& rs)
 	int_clear_alpha(rs.ui_left, rs.ui_top, int_dx_get() - rs.ui_left - rs.ui_right, int_dy_get() - rs.ui_top - rs.ui_bottom, COLOR_HELP_NORMAL.background);
 
 	// select and sort
-	for(game_set::const_iterator i=rs.gar.begin();i!=rs.gar.end();++i) {
+	for (game_set::const_iterator i = rs.gar.begin(); i != rs.gar.end(); ++i) {
 		unsigned session;
 		unsigned time;
 		unsigned timepersession;
@@ -1292,72 +1292,72 @@ void run_stat(config_state& rs)
 	}
 
 	y += int_font_dy_get();
-	int_put_right_alpha(xs, y, xt-xs, "Listed", COLOR_HELP_TAG);
-	int_put_right_alpha(xt, y, xp-xt, "Total", COLOR_HELP_TAG);
-	int_put_right_alpha(xp, y, xe-xp, "Perc", COLOR_HELP_TAG);
+	int_put_right_alpha(xs, y, xt - xs, "Listed", COLOR_HELP_TAG);
+	int_put_right_alpha(xt, y, xp - xt, "Total", COLOR_HELP_TAG);
+	int_put_right_alpha(xp, y, xe - xp, "Perc", COLOR_HELP_TAG);
 
 	{
 
 		y += int_font_dy_get();
 		int_put_alpha(xn, y, "Games", COLOR_HELP_TAG);
-		int_put_right_alpha(xs, y, xt-xs, stat_int(select_count), COLOR_HELP_NORMAL);
-		int_put_right_alpha(xt, y, xp-xt, stat_int(total_count), COLOR_HELP_NORMAL);
-		int_put_right_alpha(xp, y, xe-xp, stat_perc(select_count, total_count), COLOR_HELP_NORMAL);
+		int_put_right_alpha(xs, y, xt - xs, stat_int(select_count), COLOR_HELP_NORMAL);
+		int_put_right_alpha(xt, y, xp - xt, stat_int(total_count), COLOR_HELP_NORMAL);
+		int_put_right_alpha(xp, y, xe - xp, stat_perc(select_count, total_count), COLOR_HELP_NORMAL);
 	}
 
 	{
 		y += int_font_dy_get();
 		int_put_alpha(xn, y, "Play", COLOR_HELP_TAG);
-		int_put_right_alpha(xs, y, xt-xs, stat_int(select_session), COLOR_HELP_NORMAL);
-		int_put_right_alpha(xt, y, xp-xt, stat_int(total_session), COLOR_HELP_NORMAL);
-		int_put_right_alpha(xp, y, xe-xp, stat_perc(select_session, total_session), COLOR_HELP_NORMAL);
+		int_put_right_alpha(xs, y, xt - xs, stat_int(select_session), COLOR_HELP_NORMAL);
+		int_put_right_alpha(xt, y, xp - xt, stat_int(total_session), COLOR_HELP_NORMAL);
+		int_put_right_alpha(xp, y, xe - xp, stat_perc(select_session, total_session), COLOR_HELP_NORMAL);
 	}
 
 	{
 		y += int_font_dy_get();
 		int_put_alpha(xn, y, "Time", COLOR_HELP_TAG);
-		int_put_right_alpha(xs, y, xt-xs, stat_time(select_time), COLOR_HELP_NORMAL);
-		int_put_right_alpha(xt, y, xp-xt, stat_time(total_time), COLOR_HELP_NORMAL);
-		int_put_right_alpha(xp, y, xe-xp, stat_perc(select_time, total_time), COLOR_HELP_NORMAL);
+		int_put_right_alpha(xs, y, xt - xs, stat_time(select_time), COLOR_HELP_NORMAL);
+		int_put_right_alpha(xt, y, xp - xt, stat_time(total_time), COLOR_HELP_NORMAL);
+		int_put_right_alpha(xp, y, xe - xp, stat_perc(select_time, total_time), COLOR_HELP_NORMAL);
 	}
 
-	xs = (1+7)*int_font_dx_get();
-	xe = (1+7+5)*int_font_dx_get();
-	xt = (1+7+5+2)*int_font_dx_get();
+	xs = (1 + 7) * int_font_dx_get();
+	xe = (1 + 7 + 5) * int_font_dx_get();
+	xt = (1 + 7 + 5 + 2) * int_font_dx_get();
 
-	if (n>0 && most_time_map[0]) {
+	if (n > 0 && most_time_map[0]) {
 		y += int_font_dy_get();
 		y += int_font_dy_get();
 		int_put_alpha(xn, y, "Most time", COLOR_HELP_TAG);
-		for(unsigned i=0;i<n && most_time_map[i];++i) {
+		for (unsigned i = 0; i < n && most_time_map[i]; ++i) {
 			y += int_font_dy_get();
-			int_put_right_alpha(xn, y, xs-xn, stat_time(most_time_val[i]), COLOR_HELP_NORMAL);
-			int_put_right_alpha(xs, y, xe-xs, stat_perc(most_time_val[i], select_time), COLOR_HELP_NORMAL);
+			int_put_right_alpha(xn, y, xs - xn, stat_time(most_time_val[i]), COLOR_HELP_NORMAL);
+			int_put_right_alpha(xs, y, xe - xs, stat_perc(most_time_val[i], select_time), COLOR_HELP_NORMAL);
 			int_put_alpha(xt, y, most_time_map[i]->description_get(), COLOR_HELP_NORMAL);
 		}
 	}
 
-	if (n>0 && most_session_map[0]) {
+	if (n > 0 && most_session_map[0]) {
 		ostringstream os;
 		y += int_font_dy_get();
 		y += int_font_dy_get();
 		int_put_alpha(xn, y, "Most play", COLOR_HELP_TAG);
-		for(unsigned i=0;i<n && most_session_map[i];++i) {
+		for (unsigned i = 0; i < n && most_session_map[i]; ++i) {
 			y += int_font_dy_get();
-			int_put_right_alpha(xn, y, xs-xn, stat_int(most_session_val[i]), COLOR_HELP_NORMAL);
-			int_put_right_alpha(xs, y, xe-xs, stat_perc(most_session_val[i], select_session), COLOR_HELP_NORMAL);
+			int_put_right_alpha(xn, y, xs - xn, stat_int(most_session_val[i]), COLOR_HELP_NORMAL);
+			int_put_right_alpha(xs, y, xe - xs, stat_perc(most_session_val[i], select_session), COLOR_HELP_NORMAL);
 			int_put_alpha(xt, y, most_session_map[i]->description_get(), COLOR_HELP_NORMAL);
 		}
 	}
 
-	if (n>0 && most_timepersession_map[0]) {
+	if (n > 0 && most_timepersession_map[0]) {
 		ostringstream os;
 		y += int_font_dy_get();
 		y += int_font_dy_get();
 		int_put_alpha(xn, y, "Most time per play", COLOR_HELP_TAG);
-		for(unsigned i=0;i<n && most_timepersession_map[i];++i) {
+		for (unsigned i = 0; i < n && most_timepersession_map[i]; ++i) {
 			y += int_font_dy_get();
-			int_put_right_alpha(xn, y, xs-xn, stat_time(most_timepersession_val[i]), COLOR_HELP_NORMAL);
+			int_put_right_alpha(xn, y, xs - xn, stat_time(most_timepersession_val[i]), COLOR_HELP_NORMAL);
 			int_put_alpha(xt, y, most_timepersession_map[i]->description_get(), COLOR_HELP_NORMAL);
 		}
 	}
