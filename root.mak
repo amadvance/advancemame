@@ -94,6 +94,26 @@ endif
 #############################################################################
 # Standard GNU targets
 
+uncrustify:
+	uncrustify -c uncrustify.cfg --no-backup \
+		$(srcdir)/advance/lib/*.c $(srcdir)/advance/lib/*.h \
+		$(srcdir)/advance/blit/*.c $(srcdir)/advance/blit/*.h \
+		$(srcdir)/advance/cfg/*.c \
+		$(srcdir)/advance/d2/*.cc \
+		$(srcdir)/advance/dos/*.c $(srcdir)/advance/dos/*.h \
+		$(srcdir)/advance/i/*.c \
+		$(srcdir)/advance/j/*.c \
+		$(srcdir)/advance/k/*.c \
+		$(srcdir)/advance/line/*.cc \
+		$(srcdir)/advance/linux/*.c $(srcdir)/advance/linux/*.h \
+		$(srcdir)/advance/m/*.c \
+		$(srcdir)/advance/menu/*.cc $(srcdir)/advance/menu/*.h \
+		$(srcdir)/advance/osd/*.c $(srcdir)/advance/osd/*.h \
+		$(srcdir)/advance/s/*.c \
+		$(srcdir)/advance/sdl/*.c $(srcdir)/advance/sdl/*.h \
+		$(srcdir)/advance/v/*.c $(srcdir)/advance/v/*.h \
+		$(srcdir)/advance/windows/*.c $(srcdir)/advance/windows/*.h
+
 info:
 
 dvi:
