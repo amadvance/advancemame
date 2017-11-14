@@ -729,7 +729,7 @@ ifeq ($(CONF_SYSTEM),unix)
 	tar cfzo $(MENU_DIST_FILE_BIN).tar.gz $(MENU_DIST_DIR_BIN)
 else
 	rm -f $(MENU_DIST_FILE_BIN).zip
-	find $(MENU_DIST_DIR_BIN) \( -name "*.txt" \) -type f -exec utod {} \;
+	find $(MENU_DIST_DIR_BIN) \( -name "*.txt" \) -type f -exec unix2dos {} \;
 	cd $(MENU_DIST_DIR_BIN) && zip -r ../$(MENU_DIST_FILE_BIN).zip *
 endif
 	rm -r $(MENU_DIST_DIR_BIN)

@@ -1143,7 +1143,7 @@ endif
 	cp -R $(srcdir)/src $(EMU_DIST_DIR_SRC)
 	cp -R $(srcdir)/srcmess $(EMU_DIST_DIR_SRC)
 	cp -R $(srcdir)/mess $(EMU_DIST_DIR_SRC)
-	find $(EMU_DIST_DIR_SRC) \( -name "*.dat" \) -type f -exec dtou {} \;
+	find $(EMU_DIST_DIR_SRC) \( -name "*.dat" \) -type f -exec dos2unix {} \;
 	rm -f $(EMU_DIST_FILE_SRC).tar.gz
 	tar cfzo $(EMU_DIST_FILE_SRC).tar.gz $(EMU_DIST_DIR_SRC)
 	rm -r $(EMU_DIST_DIR_SRC)
@@ -1171,13 +1171,13 @@ endif
 	mkdir $(EMU_DIST_DIR_BIN)/contrib
 	cp -R $(EMU_CONTRIB_SRC) $(EMU_DIST_DIR_BIN)/contrib
 ifeq ($(CONF_SYSTEM),unix)
-	find $(EMU_DIST_DIR_BIN) \( -name "*.dat" \) -type f -exec dtou {} \;
+	find $(EMU_DIST_DIR_BIN) \( -name "*.dat" \) -type f -exec dos2unix {} \;
 	rm -f $(EMU_DIST_FILE_BIN).tar.gz
 	tar cfzo $(EMU_DIST_FILE_BIN).tar.gz $(EMU_DIST_DIR_BIN)
 else
-	find $(EMU_DIST_DIR_BIN) \( -name "*.txt" \) -type f -exec utod {} \;
-	find $(EMU_DIST_DIR_BIN) \( -name "*.bat" \) -type f -exec utod {} \;
-	find $(EMU_DIST_DIR_BIN) \( -name "*.dat" \) -type f -exec utod {} \;
+	find $(EMU_DIST_DIR_BIN) \( -name "*.txt" \) -type f -exec unix2dos {} \;
+	find $(EMU_DIST_DIR_BIN) \( -name "*.bat" \) -type f -exec unix2dos {} \;
+	find $(EMU_DIST_DIR_BIN) \( -name "*.dat" \) -type f -exec unix2dos {} \;
 	rm -f $(EMU_DIST_FILE_BIN).zip
 	cd $(EMU_DIST_DIR_BIN) && zip -r ../$(EMU_DIST_FILE_BIN).zip *
 endif

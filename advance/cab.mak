@@ -237,6 +237,6 @@ ifeq ($(CONF_SYSTEM),dos)
 	cp -r $(CAB_CONTRIB_SRC) $(CAB_DIST_DIR_BIN)/contrib
 endif
 	rm -f $(CAB_DIST_FILE_BIN).zip
-	find $(CAB_DIST_DIR_BIN) \( -name "*.txt" \) -type f -exec utod {} \;
+	find $(CAB_DIST_DIR_BIN) \( -name "*.txt" \) -type f -exec unix2dos {} \;
 	cd $(CAB_DIST_DIR_BIN) && zip -r ../$(CAB_DIST_FILE_BIN).zip *
 	rm -r $(CAB_DIST_DIR_BIN)
