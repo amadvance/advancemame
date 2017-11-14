@@ -676,7 +676,7 @@ static void run_background_set(config_state& rs, const resource& sound)
 	}
 }
 
-static void run_background_wait(config_state& rs, const resource& sound, bool silent, int pos_current, int pos_max)
+static void run_background_wait(config_state& rs, const resource& sound, bool silent, int pos_current, int backdrop_max)
 {
 	target_clock_t back_start = target_clock();
 
@@ -687,10 +687,12 @@ static void run_background_wait(config_state& rs, const resource& sound, bool si
 	while (!int_event_waiting() && (target_clock() < back_stop)) {
 	}
 
-	if (!int_event_waiting()) {
-		bool sound_done = false; // game sound terminated
-		bool clip_done = false; // clip sound terminate
+	// set the backdrop index, with only one, it's always 0
+	int backdrop_index = pos_current;
+	if (backdrop_max == 1)
+		backdrop_index = 0;
 
+	if (!int_event_waiting()) {
 		if (!silent) {
 			// stop the previous playing
 			run_background_reset(rs);
@@ -699,7 +701,7 @@ static void run_background_wait(config_state& rs, const resource& sound, bool si
 			run_background_set(rs, sound);
 
 			// start the new game clip
-			int_clip_start(pos_current);
+			int_clip_start(backdrop_index);
 		}
 
 		// wait until something pressed
@@ -707,7 +709,6 @@ static void run_background_wait(config_state& rs, const resource& sound, bool si
 			// start some background music if required
 
 			if (!play_background_is_active()) {
-				sound_done = true;
 				rs.current_sound = resource();
 				if (!rs.sound_background.empty()) {
 					string path = file_select_random(rs.sound_background);
@@ -722,21 +723,15 @@ static void run_background_wait(config_state& rs, const resource& sound, bool si
 			}
 
 			if (rs.clip_mode == clip_singleloop || rs.clip_mode == clip_multiloop) {
-				if (!int_clip_is_active(pos_current)) {
-					int_clip_start(pos_current);
+				if (!int_clip_is_active(backdrop_index)) {
+					int_clip_start(backdrop_index);
 				}
-				clip_done = true; // disable the control, the clip never finish
 			} else if (rs.clip_mode == clip_multiloopall) {
 				unsigned i;
-				for (i = 0; i < pos_max; ++i) {
+				for (i = 0; i < backdrop_max; ++i) {
 					if (!int_clip_is_active(i)) {
 						int_clip_start(i);
 					}
-				}
-				clip_done = true; // disable the control, the clip never finish
-			} else {
-				if (!int_clip_is_active(pos_current)) {
-					clip_done = true;
 				}
 			}
 		}
