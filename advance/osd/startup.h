@@ -30,6 +30,7 @@
 
 /* the first match is used */
 
+{ "uccops", 14 }, /* 3.6 */
 { "samsho5", 4 }, /* 3.1 */
 { "mslug5", 4 }, /* 3.1 */
 { "vasara", 8 }, /* 3.1 */

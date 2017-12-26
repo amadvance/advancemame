@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS Version 3.7 2017/12
+	) Added the game uccopsar, "Undercover Cops - Alpha Renewal Version".
+		You can use the MAME rom.
+
 AdvanceMAME/MESS Version 3.6 2017/12
 	) Fixed Linux ALSA sound jitter increasing the number of periods.
 	) Fixed screen size computation using backdrops.
