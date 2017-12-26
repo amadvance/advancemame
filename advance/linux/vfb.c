@@ -779,6 +779,10 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		 * "Could the framebuffer driver be updated to provide the ability to"
 		 * "create custom screen modes whose pixels have an arbitrary aspect ratio?"
 		 * https://github.com/raspberrypi/firmware/issues/638
+		 *
+		 * Note that from Nov 2016, the new option "framebuffer_aspect=-1"
+		 * has the same effect of "sdtv_aspect=1" that gets deprecated
+		 * and it could be removed in future version.
 		 */
 		snprintf(cmd, sizeof(cmd), "vcgencmd get_config sdtv_aspect set 1");
 		log_std(("video:fb: run \"%s\"\n", cmd));
