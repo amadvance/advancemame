@@ -978,6 +978,7 @@ bool mame_mame::run(const game& g, const game* bios, unsigned orientation, bool 
 //---------------------------------------------------------------------------
 // dmame
 
+#if !USE_NIX
 dmame::dmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
 	: mame_mame(Aname, Aexe_path, Acmd_arg, false, false)
 {
@@ -1051,10 +1052,12 @@ bool dmame::load_cfg(const game_set& gar, bool quiet)
 
 	return true;
 }
+#endif
 
 //---------------------------------------------------------------------------
 // wmame
 
+#if !USE_NIX
 wmame::wmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
 	: mame_mame(Aname, Aexe_path, Acmd_arg, false, false)
 {
@@ -1128,18 +1131,20 @@ bool wmame::load_cfg(const game_set& gar, bool quiet)
 
 	return true;
 }
+#endif
 
 //---------------------------------------------------------------------------
-// sdlmame
+// umame
 
-sdlmame::sdlmame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
+#if USE_NIX
+umame::umame(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
 	: mame_mame(Aname, Aexe_path, Acmd_arg, false, false)
 {
 }
 
-string sdlmame::type_get() const
+string umame::type_get() const
 {
-	return "sdlmame";
+	return "mame";
 }
 
 string list_import_from_dos_forced(string s)
@@ -1150,7 +1155,7 @@ string list_import_from_dos_forced(string s)
 	return s;
 }
 
-bool sdlmame::load_cfg(const game_set& gar, bool quiet)
+bool umame::load_cfg(const game_set& gar, bool quiet)
 {
 	const char* s;
 	adv_conf* context;
@@ -1235,6 +1240,7 @@ bool sdlmame::load_cfg(const game_set& gar, bool quiet)
 
 	return true;
 }
+#endif
 
 //---------------------------------------------------------------------------
 // advmame
@@ -1496,6 +1502,7 @@ int mame_mess::attrib_run(int x, int y)
 //---------------------------------------------------------------------------
 // mess
 
+#if !USE_NIX
 dmess::dmess(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
 	: mame_mess(Aname, Aexe_path, Acmd_arg)
 {
@@ -1810,6 +1817,7 @@ bool dmess::run(const game& g, const game* bios, unsigned orientation, bool set_
 
 	return true;
 }
+#endif
 
 //---------------------------------------------------------------------------
 // advmess
@@ -2560,6 +2568,7 @@ bool raine_info::load_software(game_set&, bool quiet)
 //---------------------------------------------------------------------------
 // draine
 
+#if !USE_NIX
 draine::draine(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
 	: raine_info(Aname, Aexe_path, Acmd_arg)
 {
@@ -2671,6 +2680,7 @@ bool draine::run(const game& g, const game* bios, unsigned orientation, bool set
 
 	return ret;
 }
+#endif
 
 //---------------------------------------------------------------------------
 // generic

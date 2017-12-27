@@ -527,15 +527,22 @@ static bool config_load_iterator_emu(adv_conf* config_context, const string& tag
 		}
 		emulator* e;
 		if (a1 == "mame") {
+#if !USE_NIX
 			e = new wmame(a0, a2, a3);
+#else
+			e = new umame(a0, a2, a3);
+#endif
+#if !USE_NIX
 		} else if (a1 == "dmame") {
 			e = new dmame(a0, a2, a3);
-		} else if (a1 == "sdlmame") {
-			e = new sdlmame(a0, a2, a3);
 		} else if (a1 == "dmess") {
 			e = new dmess(a0, a2, a3);
 		} else if (a1 == "draine") {
 			e = new draine(a0, a2, a3);
+#else
+		} else if (a1 == "sdlmame") { // deprecated name but still supported
+			e = new umame(a0, a2, a3);
+#endif
 		} else if (a1 == "generic") {
 			e = new generic(a0, a2, a3);
 		} else if (a1 == "advmame") {
@@ -1119,7 +1126,7 @@ void config_state::conf_default(adv_conf* config_context)
 	conf_iterator_begin(&i, config_context, "emulator");
 	if (conf_iterator_is_end(&i)) {
 		char path[FILE_MAXPATH];
-#if defined(__MSDOS__) || defined(__WIN32__)
+#if !USE_NIX
 		if (target_search(path, FILE_MAXPATH, "advmame.exe") == 0) {
 			target_out("Adding emulator `advmame'...\n");
 			conf_set(config_context, "", "emulator", "\"advmame\" advmame \"advmame.exe\" \"-quiet\"");
@@ -1138,17 +1145,13 @@ void config_state::conf_default(adv_conf* config_context)
 			target_out("Adding emulator `dmame'...\n");
 			conf_set(config_context, "", "emulator", "\"dmame\" dmame \"dmame.exe\" \"\"");
 		}
+		if (target_search(path, FILE_MAXPATH, "mame64.exe") == 0) {
+			target_out("Adding emulator `mame'...\n");
+			conf_set(config_context, "", "emulator", "\"mame\" mame \"mame64.exe\" \"\"");
+		}
 		if (target_search(path, FILE_MAXPATH, "mame.exe") == 0) {
 			target_out("Adding emulator `mame'...\n");
 			conf_set(config_context, "", "emulator", "\"mame\" mame \"mame.exe\" \"\"");
-		}
-		if (target_search(path, FILE_MAXPATH, "mamepp.exe") == 0) {
-			target_out("Adding emulator `mamepp'...\n");
-			conf_set(config_context, "", "emulator", "\"mame\" mame \"mamepp.exe\" \"\"");
-		}
-		if (target_search(path, FILE_MAXPATH, "sdlmame.exe") == 0) {
-			target_out("Adding emulator `sdlmam'...\n");
-			conf_set(config_context, "", "emulator", "\"sdlmame\" sdlmame \"sdlmame.exe\" \"\"");
 		}
 		if (target_search(path, FILE_MAXPATH, "raine.exe") == 0) {
 			target_out("Adding emulator `draine'...\n");
@@ -1209,9 +1212,13 @@ void config_state::conf_default(adv_conf* config_context)
 			}
 #endif
 		}
+		if (target_search(path, FILE_MAXPATH, "mame64") == 0) {
+			target_out("Adding emulator `mame'...\n");
+			conf_set(config_context, "", "emulator", "\"mame\" mame \"mame64\" \"\"");
+		}
 		if (target_search(path, FILE_MAXPATH, "mame") == 0) {
-			target_out("Adding emulator `sdlmame'...\n");
-			conf_set(config_context, "", "emulator", "\"sdlmame\" sdlmame \"mame\" \"\"");
+			target_out("Adding emulator `mame'...\n");
+			conf_set(config_context, "", "emulator", "\"mame\" mame \"mame\" \"\"");
 		}
 #endif
 	}

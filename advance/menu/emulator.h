@@ -30,6 +30,10 @@
 
 #include <string>
 
+#if !defined(__MSDOS__) && !defined(__WIN32__)
+#define USE_NIX 1
+#endif
+
 struct config_emulator_state;
 
 class emulator {
@@ -247,6 +251,7 @@ public:
 	virtual bool load_software(game_set& gar, bool quiet);
 };
 
+#if !USE_NIX
 class dmame : public mame_mame {
 public:
 	dmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
@@ -254,7 +259,9 @@ public:
 	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual std::string type_get() const;
 };
+#endif
 
+#if !USE_NIX
 class wmame : public mame_mame {
 public:
 	wmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
@@ -262,14 +269,17 @@ public:
 	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual std::string type_get() const;
 };
+#endif
 
-class sdlmame : public mame_mame {
+#if USE_NIX
+class umame : public mame_mame {
 public:
-	sdlmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
+	umame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
 	virtual bool load_cfg(const game_set& gar, bool quiet);
 	virtual std::string type_get() const;
 };
+#endif
 
 class advmame : public mame_mame {
 public:
@@ -310,6 +320,7 @@ public:
 	virtual std::string type_get() const;
 };
 
+#if !USE_NIX
 class dmess : public mame_mess {
 	static std::string image_name_get(const std::string& snap_create, const std::string& name);
 
@@ -326,6 +337,7 @@ public:
 
 	virtual std::string type_get() const;
 };
+#endif
 
 class raine_info : public emulator {
 protected:
@@ -354,6 +366,7 @@ public:
 	virtual bool load_software(game_set& gar, bool quiet);
 };
 
+#if !USE_NIX
 class draine : public raine_info {
 public:
 	draine(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
@@ -363,6 +376,7 @@ public:
 
 	virtual std::string type_get() const;
 };
+#endif
 
 class generic : public emulator {
 	bool load_info(game_set& gar);

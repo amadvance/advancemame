@@ -5,6 +5,12 @@ AdvanceMAME/MESS Version 3.7 2017/12
 	) Added the game uccopsar, "Undercover Cops - Alpha Renewal Version".
 		You can use the MAME rom.
 
+AdvanceMENU Version 3.7 2017/12
+	) Added detection for mame64.exe and mame64 executables for the
+		autoconfiguration.
+	) Renamed 'sdlmame' emulator type in Linux to 'mame'. The old 'sdlmame'
+		name is still supported.
+
 AdvanceMAME/MESS Version 3.6 2017/12
 	) Fixed Linux ALSA sound jitter increasing the number of periods.
 	) Fixed screen size computation using backdrops.
