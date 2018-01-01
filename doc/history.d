@@ -4,6 +4,8 @@ Name
 AdvanceMAME/MESS Version 3.7 2017/12
 	) Added the game uccopsar, "Undercover Cops - Alpha Renewal Version".
 		You can use the MAME rom.
+	) Fixed some issues in the z80 emulator with modern gcc compilers
+		in the x86 32 bits platforms.
 
 AdvanceMENU Version 3.7 2017/12
 	) Added detection for mame64.exe and mame64 executables for the

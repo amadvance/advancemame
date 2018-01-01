@@ -589,7 +589,10 @@ $(MESSOBJ)/advance/%.o: $(srcdir)/advance/%.rc
 
 # Target CFLAGS
 ifneq (,$(findstring USE_ASM_INLINE,$(CFLAGS)))
-EMUCFLAGS += -DX86_ASM
+# Don't enable internam MAME assembler macros
+# There are issues in the z80 emulator when using modern gcc compilers like 6.4.0
+# For example, puckman/pengo games have video issues.
+#EMUCFLAGS += -DX86_ASM
 endif
 
 ifneq (,$(findstring USE_ASM_EMUMIPS3,$(CFLAGS)))
