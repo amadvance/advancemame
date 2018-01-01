@@ -152,6 +152,13 @@ AC_ARG_ENABLE(
 )
 AC_SUBST([CONF_TINY],[$ac_enable_tiny])
 
+AC_ARG_ENABLE(
+	[32],
+	AC_HELP_STRING([--enable-32],[force compilation for x86 32 bit. (default no)]),
+	[ac_enable_32=$enableval],
+	[ac_enable_32=no]
+)
+
 if test $ac_auto_cflags = yes; then
 	if test $ac_enable_debug = yes ; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
@@ -160,21 +167,29 @@ if test $ac_auto_cflags = yes; then
 		dnl Optimization level O2 generally gives better performance than O3,
 		dnl expecially in biggest and slowest games
 		AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [])
-		dnl GCC 4 has problems with -march=native in Raspbian,
-		dnl resulting in a "double free or corruption" error
-		dnl See: https://www.raspberrypi.org/forums/viewtopic.php?f=28&t=139091
-		if ! $GREP ARM /proc/cpuinfo >/dev/null 2>&1; then
-			AC_CHECK_CC_OPT([-march=native], [CFLAGS="$CFLAGS -march=native"], [])
+
+		if test $ac_enable_32 = yes ; then
+			dnl Force build for 32 bit x86
+			AC_CHECK_CC_OPT([-m32 -march=i686], [CFLAGS="$CFLAGS -m32 -march=i686"], [])
 			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
-		dnl Raspberry Pi 3
-		elif $GREP a02082\\\|a22082 /proc/cpuinfo >/dev/null 2>&1; then
-			AC_CHECK_CC_OPT([-march=armv8-a+crc], [CFLAGS="$CFLAGS -march=armv8-a+crc"], [])
-			AC_CHECK_CC_OPT([-mfpu=neon-fp-armv8], [CFLAGS="$CFLAGS -mfpu=neon-fp-armv8"], [])
-		dnl Raspberry Pi 2
-		elif $GREP a01040\\\|a01041\\\|a21041\\\|a22042 /proc/cpuinfo >/dev/null 2>&1; then
-			AC_CHECK_CC_OPT([-march=armv7-a], [CFLAGS="$CFLAGS -march=armv7-a"], [])
-			AC_CHECK_CC_OPT([-mfpu=neon-vfpv4], [CFLAGS="$CFLAGS -mfpu=neon-vfpv4"], [])
+		else
+			dnl GCC 4 has problems with -march=native in Raspbian,
+			dnl resulting in a "double free or corruption" error
+			dnl See: https://www.raspberrypi.org/forums/viewtopic.php?f=28&t=139091
+			if ! $GREP ARM /proc/cpuinfo >/dev/null 2>&1; then
+				AC_CHECK_CC_OPT([-march=native], [CFLAGS="$CFLAGS -march=native"], [])
+				AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
+			dnl Raspberry Pi 3
+			elif $GREP a02082\\\|a22082 /proc/cpuinfo >/dev/null 2>&1; then
+				AC_CHECK_CC_OPT([-march=armv8-a+crc], [CFLAGS="$CFLAGS -march=armv8-a+crc"], [])
+				AC_CHECK_CC_OPT([-mfpu=neon-fp-armv8], [CFLAGS="$CFLAGS -mfpu=neon-fp-armv8"], [])
+			dnl Raspberry Pi 2
+			elif $GREP a01040\\\|a01041\\\|a21041\\\|a22042 /proc/cpuinfo >/dev/null 2>&1; then
+				AC_CHECK_CC_OPT([-march=armv7-a], [CFLAGS="$CFLAGS -march=armv7-a"], [])
+				AC_CHECK_CC_OPT([-mfpu=neon-vfpv4], [CFLAGS="$CFLAGS -mfpu=neon-vfpv4"], [])
+			fi
 		fi
+
 		dnl Code was written when compilers where not aggressively optimizing undefined behaviour about aliasing
 		AC_CHECK_CC_OPT([-fno-strict-aliasing], [CFLAGS="$CFLAGS -fno-strict-aliasing"], [])
 		dnl Code was written when compilers where not aggressively optimizing undefined behaviour about overflow in signed integers
@@ -183,6 +198,7 @@ if test $ac_auto_cflags = yes; then
 		AC_CHECK_CC_OPT([-fsigned-char], [CFLAGS="$CFLAGS -fsigned-char"], [])
 		dnl We are not interested in stack protection
 		AC_CHECK_CC_OPT([-fno-stack-protector], [CFLAGS="$CFLAGS -fno-stack-protector"], [])
+		dnl Some useful warnings
 		AC_CHECK_CC_OPT([-Wall], [CFLAGS="$CFLAGS -Wall"], [])
 		AC_CHECK_CC_OPT([-Wno-sign-compare], [CFLAGS="$CFLAGS -Wno-sign-compare"], [])
 		AC_CHECK_CC_OPT([-Wno-unused], [CFLAGS="$CFLAGS -Wno-unused"], [])
@@ -206,6 +222,10 @@ if test $ac_auto_ldflags = yes ; then
 	fi
 	if test ! -z $ac_host_ldflags; then
 		LDFLAGS="$ac_host_ldflags $LDFLAGS"
+	fi
+	if test $ac_enable_32 = yes ; then
+		dnl Force build for 32 bit x86
+		LDFLAGS="-m32 $LDFLAGS"
 	fi
 fi
 
@@ -235,12 +255,12 @@ AC_SYS_LARGEFILE
 
 AC_ARG_ENABLE(
 	[asm],
-	AC_HELP_STRING([--enable-asm],[enable the Pentium assembler optimizations (default auto)]),
+	AC_HELP_STRING([--enable-asm],[enable the x86 assembler optimizations (default auto)]),
 	[ac_enable_asm=$enableval],
 	[ac_enable_asm=auto]
 )
 if test $ac_enable_asm = auto; then
-	AC_MSG_CHECKING([whether ${CC-cc} accepts Pentium assembler])
+	AC_MSG_CHECKING([whether ${CC-cc} accepts x86 Pentium assembler])
 	AC_TRY_COMPILE([
 		], [
 			#if !defined(__GNUC__) || !defined(__i386__)
@@ -267,7 +287,7 @@ fi
 
 AC_ARG_ENABLE(
 	[asm-mips3],
-	AC_HELP_STRING([--enable-asm-mips3],[enable the Pentium assembler MIPS3 emulator (default no)]),
+	AC_HELP_STRING([--enable-asm-mips3],[enable the x86 Pentium assembler MIPS3 emulator (default no)]),
 	[ac_enable_asm_mips3=$enableval],
 	[ac_enable_asm_mips3=no]
 )
@@ -280,7 +300,7 @@ if test $ac_enable_asm_mips3 = auto; then
 fi
 if test $ac_enable_asm_mips3 = yes; then
 	if test ! $ac_enable_asm = yes; then
-		AC_MSG_ERROR([the Pentium assembler is required for the "asm-mips3" compilation])
+		AC_MSG_ERROR([the x86 Pentium assembler is required for the "asm-mips3" compilation])
 	fi
 	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_EMUMIPS3"
 fi
@@ -850,23 +870,11 @@ AC_ARG_ENABLE(
 )
 
 if test $ac_lib_sdl2 = auto; then
-	AC_PATH_PROGS(
-		[ac_lib_sdl2_config],
-		[${ac_tool_prefix}sdl2-config],
-		[],
-		[${ac_lib_sdl2_path}]
-	)
-	if test -z $ac_lib_sdl2_config; then
-		ac_lib_sdl2=no
-	else
+	if test $ac_enable_32 = yes ; then
 		ac_save_CFLAGS="$CFLAGS"
 		ac_save_LIBS="$LIBS"
-		SDLCFLAGS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --cflags`
-		if test $ac_enable_static = yes ; then
-			SDLLIBS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --static-libs`
-		else
-			SDLLIBS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --libs`
-		fi
+		SDLCFLAGS="-I/usr/include/SDL2 -I/usr/include -D_REENTRANT"
+		SDLLIBS="-pthread -lSDL2"
 		CFLAGS="$SDLCFLAGS $CFLAGS"
 		LIBS="$SDLLIBS $LIBS"
 		AC_MSG_CHECKING([for SDL2])
@@ -879,6 +887,37 @@ if test $ac_lib_sdl2 = auto; then
 		AC_MSG_RESULT([$ac_lib_sdl2])
 		CFLAGS="$ac_save_CFLAGS"
 		LIBS="$ac_save_LIBS"
+	else
+		AC_PATH_PROGS(
+			[ac_lib_sdl2_config],
+			[${ac_tool_prefix}sdl2-config],
+			[],
+			[${ac_lib_sdl2_path}]
+		)
+		if test -z $ac_lib_sdl2_config; then
+			ac_lib_sdl2=no
+		else
+			ac_save_CFLAGS="$CFLAGS"
+			ac_save_LIBS="$LIBS"
+			SDLCFLAGS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --cflags`
+			if test $ac_enable_static = yes ; then
+				SDLLIBS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --static-libs`
+			else
+				SDLLIBS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --libs`
+			fi
+			CFLAGS="$SDLCFLAGS $CFLAGS"
+			LIBS="$SDLLIBS $LIBS"
+			AC_MSG_CHECKING([for SDL2])
+			AC_TRY_LINK([
+					#include "SDL.h"
+					#undef main
+				], [
+					SDL_Init(SDL_INIT_EVERYTHING);
+				],[ac_lib_sdl2=yes],[ac_lib_sdl2=no])
+			AC_MSG_RESULT([$ac_lib_sdl2])
+			CFLAGS="$ac_save_CFLAGS"
+			LIBS="$ac_save_LIBS"
+		fi
 	fi
 elif test $ac_lib_sdl2 = yes; then
 	AC_PATH_PROGS(
@@ -934,27 +973,16 @@ if test $ac_lib_sdl = auto; then
 	if test $ac_lib_sdl2 = yes; then
 		ac_lib_sdl=no
 	else
-		AC_PATH_PROGS(
-			[ac_lib_sdl_config],
-			[${ac_tool_prefix}sdl-config],
-			[],
-			[${ac_lib_sdl_path}]
-		)
-		if test -z $ac_lib_sdl_config; then
-			ac_lib_sdl=no
-		else
+		if test $ac_enable_32 = yes ; then
+			dnl Force build for 32 bit x86
 			ac_save_CFLAGS="$CFLAGS"
 			ac_save_LIBS="$LIBS"
-			SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
-			if test $ac_enable_static = yes ; then
-				SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
-			else
-				SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
-			fi
+			SDLCFLAGS="-I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT"
+			SDLLIBS="-lSDL -lpthread"
 			CFLAGS="$SDLCFLAGS $CFLAGS"
 			LIBS="$SDLLIBS $LIBS"
 			AC_MSG_CHECKING([for SDL])
-			AC_TRY_LINK([
+					AC_TRY_LINK([
 					#include "SDL.h"
 					#undef main
 				], [
@@ -963,6 +991,37 @@ if test $ac_lib_sdl = auto; then
 			AC_MSG_RESULT([$ac_lib_sdl])
 			CFLAGS="$ac_save_CFLAGS"
 			LIBS="$ac_save_LIBS"
+		else
+			AC_PATH_PROGS(
+				[ac_lib_sdl_config],
+				[${ac_tool_prefix}sdl-config],
+				[],
+				[${ac_lib_sdl_path}]
+			)
+			if test -z $ac_lib_sdl_config; then
+				ac_lib_sdl=no
+			else
+				ac_save_CFLAGS="$CFLAGS"
+				ac_save_LIBS="$LIBS"
+				SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
+				if test $ac_enable_static = yes ; then
+					SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
+				else
+					SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
+				fi
+				CFLAGS="$SDLCFLAGS $CFLAGS"
+				LIBS="$SDLLIBS $LIBS"
+				AC_MSG_CHECKING([for SDL])
+					AC_TRY_LINK([
+						#include "SDL.h"
+						#undef main
+					], [
+						SDL_Init(SDL_INIT_EVERYTHING);
+					],[ac_lib_sdl=yes],[ac_lib_sdl=no])
+				AC_MSG_RESULT([$ac_lib_sdl])
+				CFLAGS="$ac_save_CFLAGS"
+				LIBS="$ac_save_LIBS"
+			fi
 		fi
 	fi
 elif test $ac_lib_sdl = yes; then
@@ -1305,14 +1364,14 @@ else
 fi
 echo "Bits :" $((8 * $ac_cv_sizeof_voidp))
 if test $ac_enable_asm = yes; then
-	echo "Assembler for Pentium : yes"
+	echo "Assembler for x86 : yes"
 else
-	echo "Assembler for Pentium : no"
+	echo "Assembler for x86 : no"
 fi
 if test $ac_enable_asm_mips3 = yes; then
-	echo "Assembler MIPS3 emulator for Pentium : yes"
+	echo "Assembler MIPS3 emulator for x86 : yes"
 else
-	echo "Assembler MIPS3 emulator for Pentium : no"
+	echo "Assembler MIPS3 emulator for x86 : no"
 fi
 
 echo ""
@@ -1354,6 +1413,10 @@ echo "CC :" $CC
 echo "CXX :" $CXX
 echo "CFLAGS :" $CFLAGS $CFLAGS_OPTOPT
 echo "LDFLAGS :" $LDFLAGS
+if test $ac_lib_sdl = yes -o $ac_lib_sdl2 = yes; then
+	echo "SDLCFLAGS :" $SDLCFLAGS
+	echo "SDLLIBS :" $SDLLIBS
+fi
 
 if test ! $ac_with_emu = none ; then
 	echo ""
