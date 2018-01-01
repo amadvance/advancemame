@@ -2082,7 +2082,7 @@ static void input_setup_list(struct advance_input_context* context)
 				input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 				++mac;
 			} else {
-				log_std(("emu:input: ERROR full input code vector\n"));
+				log_std(("emu:input: ERROR full input code vector. Increased INPUT_DIGITAL_MAX\n"));
 			}
 		}
 	}
@@ -2108,7 +2108,7 @@ static void input_setup_list(struct advance_input_context* context)
 					input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 					++mac;
 				} else {
-					log_std(("emu:input: ERROR full input code vector\n"));
+					log_std(("emu:input: ERROR full input code vector. Increased INPUT_DIGITAL_MAX\n"));
 				}
 				if (mac + 1 < INPUT_DIGITAL_MAX) {
 					if (i < joystickb_count_get() && j < joystickb_stick_count_get(i) && k < joystickb_stick_axe_count_get(i, j)) {
@@ -2127,7 +2127,7 @@ static void input_setup_list(struct advance_input_context* context)
 					input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 					++mac;
 				} else {
-					log_std(("emu:input: ERROR full input code vector\n"));
+					log_std(("emu:input: ERROR full input code vector. Increased INPUT_DIGITAL_MAX\n"));
 				}
 			}
 		}
@@ -2150,7 +2150,7 @@ static void input_setup_list(struct advance_input_context* context)
 				input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 				++mac;
 			} else {
-				log_std(("emu:input: ERROR full input code vector\n"));
+				log_std(("emu:input: ERROR full input code vector. Increased INPUT_DIGITAL_MAX\n"));
 			}
 		}
 	}
@@ -2167,7 +2167,7 @@ static void input_setup_list(struct advance_input_context* context)
 				input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
 				++mac;
 			} else {
-				log_std(("emu:input: ERROR full input code vector\n"));
+				log_std(("emu:input: ERROR full input code vector. Increased INPUT_DIGITAL_MAX\n"));
 			}
 		}
 	}
