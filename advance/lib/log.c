@@ -145,7 +145,6 @@ void log_va(const char* text, va_list arg)
 
 			if (LOG.msg_sync_flag) {
 				fflush(LOG.msg);
-				target_sync();
 			}
 		}
 	}
