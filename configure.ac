@@ -260,7 +260,7 @@ AC_ARG_ENABLE(
 	[ac_enable_asm=auto]
 )
 if test $ac_enable_asm = auto; then
-	AC_MSG_CHECKING([whether ${CC-cc} accepts x86 Pentium assembler])
+	AC_MSG_CHECKING([whether ${CC-cc} accepts x86 assembler])
 	AC_TRY_COMPILE([
 		], [
 			#if !defined(__GNUC__) || !defined(__i386__)
@@ -287,7 +287,7 @@ fi
 
 AC_ARG_ENABLE(
 	[asm-mips3],
-	AC_HELP_STRING([--enable-asm-mips3],[enable the x86 Pentium assembler MIPS3 emulator (default no)]),
+	AC_HELP_STRING([--enable-asm-mips3],[enable the x86 assembler MIPS3 emulator (default no)]),
 	[ac_enable_asm_mips3=$enableval],
 	[ac_enable_asm_mips3=no]
 )
@@ -300,7 +300,7 @@ if test $ac_enable_asm_mips3 = auto; then
 fi
 if test $ac_enable_asm_mips3 = yes; then
 	if test ! $ac_enable_asm = yes; then
-		AC_MSG_ERROR([the x86 Pentium assembler is required for the "asm-mips3" compilation])
+		AC_MSG_ERROR([the x86 assembler is required for the "asm-mips3" compilation])
 	fi
 	CFLAGS_ARCH="$CFLAGS_ARCH -DUSE_ASM_EMUMIPS3"
 fi
