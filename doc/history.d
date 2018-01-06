@@ -1,7 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 3.7 2017/12
+AdvanceMAME/MESS Version 3.7 2087/01
+	) In the Exit menu added new Load/Save/Reset commands.
+		The Load and Save use the state file at position '0'.
 	) Added the game uccopsar, "Undercover Cops - Alpha Renewal Version".
 		You can use the MAME rom.
 	) Fixed some issues in the z80 emulator with modern gcc compilers

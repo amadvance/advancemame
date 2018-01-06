@@ -2578,11 +2578,26 @@ static int on_exit_menu(int selected)
 	int sel;
 	int total;
 
-	sel = selected - 1;
+	sel = selected;
 
 	total = 0;
 
 	exit_menu[total].text = "Continue";
+	exit_menu[total].subtext = 0;
+	exit_menu[total].flags = 0;
+	++total;
+
+	exit_menu[total].text = "Load";
+	exit_menu[total].subtext = 0;
+	exit_menu[total].flags = 0;
+	++total;
+
+	exit_menu[total].text = "Save";
+	exit_menu[total].subtext = 0;
+	exit_menu[total].flags = 0;
+	++total;
+
+	exit_menu[total].text = "Reset";
 	exit_menu[total].subtext = 0;
 	exit_menu[total].flags = 0;
 	++total;
@@ -2603,29 +2618,35 @@ static int on_exit_menu(int selected)
 	}
 
 	if (input_ui_pressed(IPT_UI_SELECT)) {
-		if (sel == 1)
-			sel = -2;
-		if (sel == 0)
-			sel = -1;
+		switch (sel) {
+		case 0 : sel = -1; break;
+		case 1 : sel = -2; break;
+		case 2 : sel = -3; break;
+		case 3 : sel = -4; break;
+		case 4 : sel = -5; break;
+		}
 	}
 
 	if (input_ui_pressed(IPT_UI_CANCEL)) {
 		sel = -1;
 	}
 
-	if (sel == -1 || sel == -2) {
+	if (sel < 0) {
 		/* tell updatescreen() to clean after us */
 		schedule_full_refresh();
 	}
 
-	return sel + 1;
+	return sel;
 }
 
 /**
  * Handle the OSD user interface.
  * \return
  * - ==0 Normal condition.
- * - ==1 User asked to exit from the program.
+ * - ==1 User asked to exit
+ * - ==2 User asked to reset
+ * - ==3 User asked to save
+ * - ==4 User asked to load
  */
 int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active)
 {
@@ -2641,16 +2662,20 @@ int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active)
 		if (res != 0) {
 			mame_pause(1);
 
-			res = 1;
-			while (res > 0) {
+			res = 0;
+			while (res >= 0) {
 				res = on_exit_menu(res);
 				update_video_and_audio();
 			}
 
 			mame_pause(0);
 
-			if (res < 0)
-				return 1;
+			switch (res) {
+			case -2 : return 4;
+			case -3 : return 3;
+			case -4 : return 2;
+			case -5 : return 1;
+			}
 		}
 	}
 

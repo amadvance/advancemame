@@ -1276,9 +1276,26 @@ static void create_font(void)
 
 static void handle_keys(mame_bitmap *bitmap)
 {
+	char filename[64];
+
 	/* AdvanceMAME: Intercept user interface handling */
-	if (osd_handle_user_interface(bitmap, menu_handler != NULL) != 0)
+	int cmd = osd_handle_user_interface(bitmap, menu_handler != NULL);
+	switch (cmd) {
+	case 1 :
 		mame_schedule_exit();
+		break;
+	case 2 :
+		mame_schedule_soft_reset();
+		break;
+	case 3 :
+		sprintf(filename, "%s-0", Machine->gamedrv->name);
+		mame_schedule_save(filename);
+		break;
+	case 4 :
+		sprintf(filename, "%s-0", Machine->gamedrv->name);
+		mame_schedule_load(filename);
+		break;
+	}
 
 #ifdef MESS
 	if (options.disable_normal_ui || ((Machine->gamedrv->flags & GAME_COMPUTER) && !mess_ui_active()))
