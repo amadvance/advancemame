@@ -109,14 +109,6 @@ extern "C" {
 #define ZIP_CO_relative_offset_of_local_header  0x2A
 #define ZIP_CO_FIXED                            0x2E /* size of fixed data structure */
 
-/**************************************************************************/
-/* Offsets in data descriptor structure */
-
-#define ZIP_DO_crc32                            0x00
-#define ZIP_DO_compressed_size                  0x04
-#define ZIP_DO_uncompressed_size                0x08
-#define ZIP_DO_FIXED                            0x0C /* size of fixed data structure */
-
 /* Offsets in local file header structure */
 #define ZIP_LO_local_file_header_signature      0x00
 #define ZIP_LO_version_needed_to_extract        0x04
