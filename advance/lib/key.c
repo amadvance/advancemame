@@ -263,12 +263,11 @@ unsigned key_code(const char* name)
 		if (strcmp(name, i->name) == 0)
 			return i->code;
 
-	if (strlen(name) >= 5 && strncmp(name, "scan", 4) == 0 && strspn(name + 4, "0123456789") == strlen(name + 4)) {
-		int v;
-
-		v = atoi(name + 4);
-
-		if (v >= 0 && v < KEYB_MAX)
+	if (strncmp(name, "scan", 4) == 0) {
+		char* e;
+		unsigned v;
+		v = strtoul(name + 4, &e, 10);
+		if (*e == 0 && v < KEYB_MAX)
 			return v;
 	}
 

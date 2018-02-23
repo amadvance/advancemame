@@ -123,6 +123,7 @@ struct joystick_item_context {
 	struct joystick_button_context button_map[EVENT_JOYSTICK_BUTTON_MAX];
 	unsigned rel_mac;
 	struct joystick_rel_context rel_map[EVENT_JOYSTICK_REL_MAX];
+	unsigned bind_map[JOYB_MAX];
 };
 
 struct joystickb_event_context {
@@ -153,6 +154,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	struct button_entry {
 		int code;
 		const char* name;
+		unsigned bind;
 	} button_map[] = {
 #ifdef BTN_TRIGGER
 		{ BTN_TRIGGER, "trigger" }, /* joystick */
@@ -247,55 +249,55 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ BTN_TRIGGER_HAPPY16, "happy16" }, /* joystick */
 #endif
 #ifdef BTN_A
-		{ BTN_A, "a" }, /* gamepad */
+		{ BTN_A, "a", JOYB_A }, /* gamepad */
 #endif
 #ifdef BTN_B
-		{ BTN_B, "b" }, /* gamepad */
+		{ BTN_B, "b", JOYB_B }, /* gamepad */
 #endif
 #ifdef BTN_C
-		{ BTN_C, "c" }, /* gamepad */
+		{ BTN_C, "c", JOYB_C }, /* gamepad */
 #endif
 #ifdef BTN_X
-		{ BTN_X, "x" }, /* gamepad */
+		{ BTN_X, "x", JOYB_X }, /* gamepad */
 #endif
 #ifdef BTN_Y
-		{ BTN_Y, "y" }, /* gamepad */
+		{ BTN_Y, "y", JOYB_Y }, /* gamepad */
 #endif
 #ifdef BTN_Z
-		{ BTN_Z, "z" }, /* gamepad */
+		{ BTN_Z, "z", JOYB_Z }, /* gamepad */
 #endif
 #ifdef BTN_TL
-		{ BTN_TL, "tl" }, /* gamepad (top left) */
+		{ BTN_TL, "tl", JOYB_TL }, /* gamepad (top left) */
 #endif
 #ifdef BTN_TR
-		{ BTN_TR, "tr" }, /* gamepad (top right) */
+		{ BTN_TR, "tr", JOYB_TR }, /* gamepad (top right) */
 #endif
 #ifdef BTN_TL2
-		{ BTN_TL2, "tl2" }, /* gamepad (top left 2) */
+		{ BTN_TL2, "tl2", JOYB_TL2 }, /* gamepad (top left 2) */
 #endif
 #ifdef BTN_TR2
-		{ BTN_TR2, "tr2" }, /* gamepad (top right 2) */
+		{ BTN_TR2, "tr2", JOYB_TR2 }, /* gamepad (top right 2) */
 #endif
 #ifdef BTN_SELECT
-		{ BTN_SELECT, "select" }, /* gamepad */
+		{ BTN_SELECT, "select", JOYB_SELECT }, /* gamepad */
 #endif
 #ifdef BTN_START
-		{ BTN_START, "start" }, /* gamepad */
+		{ BTN_START, "start", JOYB_START }, /* gamepad */
 #endif
 #ifdef BTN_MODE
-		{ BTN_MODE, "mode" }, /* gamepad */
+		{ BTN_MODE, "mode", JOYB_MODE }, /* gamepad */
 #endif
 #ifdef BTN_THUMBL
-		{ BTN_THUMBL, "thumbl" }, /* gamepad (thumb left) */
+		{ BTN_THUMBL, "thumbl", JOYB_THUMBL }, /* gamepad (thumb left) */
 #endif
 #ifdef BTN_THUMBR
-		{ BTN_THUMBR, "thumbr" }, /* gamepad (thumb right) */
+		{ BTN_THUMBR, "thumbr", JOYB_THUMBR }, /* gamepad (thumb right) */
 #endif
 #ifdef BTN_GEAR_DOWN
-		{ BTN_GEAR_DOWN, "gear_down" }, /* wheel */
+		{ BTN_GEAR_DOWN, "gear_down", JOYB_GEAR_DOWN }, /* wheel */
 #endif
 #ifdef BTN_GEAR_UP
-		{ BTN_GEAR_UP, "gear_up" }, /* wheel */
+		{ BTN_GEAR_UP, "gear_up", JOYB_GEAR_UP }, /* wheel */
 #endif
 #ifdef BTN_0
 		{ BTN_0, "0" }, /* misc */
@@ -436,6 +438,9 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		}
 	}
 
+	for (i = 0; i < JOYB_MAX; ++i)
+		item->bind_map[i] = -1;
+
 	item->button_mac = 0;
 	for (i = 0; i < sizeof(button_map) / sizeof(button_map[0]); ++i) {
 		if (event_test_bit(button_map[i].code, key_bitmask)) {
@@ -443,6 +448,9 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 				item->button_map[item->button_mac].code = button_map[i].code;
 				item->button_map[item->button_mac].state = 0;
 				sncpy(item->button_map[item->button_mac].name, sizeof(item->button_map[item->button_mac].name), button_map[i].name);
+				if (button_map[i].bind)
+					item->bind_map[button_map[i].bind] = item->button_mac;
+				item->bind_map[item->button_mac] = item->button_mac;
 				++item->button_mac;
 			}
 		}
@@ -818,6 +826,13 @@ static void joystickb_event_axe_set(struct joystick_axe_context* axe, int value)
 	axe->value_adj = joystickb_adjust_analog(value, min, max);
 }
 
+int joystickb_event_bind(unsigned joystick, unsigned code)
+{
+	log_debug(("joystickb:event: joystickb_event_bind_map()\n"));
+
+	return event_state.map[joystick].bind_map[code];
+}
+
 void joystickb_event_poll(void)
 {
 	unsigned i;
@@ -931,6 +946,7 @@ joystickb_driver joystickb_event_driver = {
 	0,
 	0,
 	joystickb_event_poll,
-	joystickb_event_device_name_get
+	joystickb_event_device_name_get,
+	joystickb_event_bind
 };
 

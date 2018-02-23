@@ -1,6 +1,10 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMENU Version 3.8 2018/03
+	) Added support for joystick and mouse button in the 'event'
+		configuration.
+
 AdvanceMAME/MESS Version 3.7 2018/02
 	) In the Exit menu added new Load/Save/Reset commands.
 		The Load and Save use the state file at position '0'.

@@ -37,6 +37,7 @@
 
 #include "device.h"
 #include "conf.h"
+#include "mouse.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,6 +76,7 @@ typedef struct mouseb_driver_struct {
 	unsigned (*button_get)(unsigned mouse, unsigned button);
 	void (*poll)(void);
 	int (*device_name_get)(unsigned mouse, char* name);
+	int (*bind)(unsigned mouse, unsigned code);
 } mouseb_driver;
 
 /**
@@ -122,9 +124,10 @@ int mouseb_device_name_get(unsigned mouse, char* name);
 unsigned mouseb_axe_count_get(unsigned mouse);
 unsigned mouseb_button_count_get(unsigned mouse);
 int mouseb_axe_get(unsigned mouse, unsigned axe);
-unsigned mouseb_button_get(unsigned mouse, unsigned button);
 const char* mouseb_button_name_get(unsigned mouse, unsigned button);
 const char* mouseb_axe_name_get(unsigned mouse, unsigned axe);
+unsigned mouseb_button_get(unsigned mouse, unsigned button);
+int mouseb_bind(unsigned mouse, unsigned code);
 void mouseb_poll(void);
 
 /**

@@ -77,6 +77,7 @@ struct mouse_item_context {
 	struct mouse_axe_context axe_map[EVENT_MOUSE_AXE_MAX];
 	unsigned button_mac;
 	struct mouse_button_context button_map[EVENT_MOUSE_BUTTON_MAX];
+	unsigned bind_map[MOUSEB_MAX];
 };
 
 struct mouseb_event_context {
@@ -99,27 +100,28 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 	struct button_entry {
 		int code;
 		const char* name;
+		unsigned bind;
 	} button_map[] = {
 #ifdef BTN_LEFT
-		{ BTN_LEFT, "left" },
+		{ BTN_LEFT, "left", MOUSEB_LEFT },
 #endif
 #ifdef BTN_RIGHT
-		{ BTN_RIGHT, "right" },
+		{ BTN_RIGHT, "right", MOUSEB_RIGHT },
 #endif
 #ifdef BTN_MIDDLE
-		{ BTN_MIDDLE, "middle" },
+		{ BTN_MIDDLE, "middle", MOUSEB_MIDDLE },
 #endif
 #ifdef BTN_SIDE
-		{ BTN_SIDE, "side" },
+		{ BTN_SIDE, "side", MOUSEB_SIDE },
 #endif
 #ifdef BTN_EXTRA
-		{ BTN_EXTRA, "extra" },
+		{ BTN_EXTRA, "extra", MOUSEB_EXTRA },
 #endif
 #ifdef BTN_FORWARD
-		{ BTN_FORWARD, "forward" },
+		{ BTN_FORWARD, "forward", MOUSEB_FORWARD },
 #endif
 #ifdef BTN_BACK
-		{ BTN_BACK, "back" }
+		{ BTN_BACK, "back", MOUSEB_BACK }
 #endif
 	};
 
@@ -161,6 +163,9 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 		}
 	}
 
+	for (i = 0; i < MOUSEB_MAX; ++i)
+		item->bind_map[i] = -1;
+
 	item->button_mac = 0;
 	for (i = 0; i < sizeof(button_map) / sizeof(button_map[0]); ++i) {
 		if (event_test_bit(button_map[i].code, key_bitmask)) {
@@ -168,6 +173,9 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 				item->button_map[item->button_mac].code = button_map[i].code;
 				item->button_map[item->button_mac].state = 0;
 				sncpy(item->button_map[item->button_mac].name, sizeof(item->button_map[item->button_mac].name), button_map[i].name);
+				if (button_map[i].bind)
+					item->bind_map[button_map[i].bind] = item->button_mac;
+				item->bind_map[item->button_mac] = item->button_mac;
 				++item->button_mac;
 			}
 		}
@@ -340,6 +348,13 @@ unsigned mouseb_event_button_get(unsigned mouse, unsigned button)
 	return event_state.map[mouse].button_map[button].state;
 }
 
+int mouseb_event_bind(unsigned mouse, unsigned code)
+{
+	log_debug(("mouseb:event: mouseb_event_bind_map()\n"));
+
+	return event_state.map[mouse].bind_map[code];
+}
+
 void mouseb_event_poll(void)
 {
 	unsigned i;
@@ -407,6 +422,7 @@ mouseb_driver mouseb_event_driver = {
 	mouseb_event_axe_get,
 	mouseb_event_button_get,
 	mouseb_event_poll,
-	mouseb_event_device_name_get
+	mouseb_event_device_name_get,
+	mouseb_event_bind
 };
 

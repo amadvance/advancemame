@@ -404,6 +404,22 @@ const char* joystickb_calib_next(void)
 		return 0;
 }
 
+int joystickb_bind(unsigned joystick, unsigned code)
+{
+	const char* name;
+	unsigned i;
+	unsigned count;
+
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+	assert(code < JOYB_MAX);
+
+	if (joystickb_state.driver_current->bind)
+		return joystickb_state.driver_current->bind(joystick, code);
+
+	return -1;
+}
+
 void joystickb_poll(void)
 {
 	assert(joystickb_state.is_active_flag);

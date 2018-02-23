@@ -1192,11 +1192,10 @@ Configuration
 		mute - Mute/unmute the audio.
 
 	Options:
-		EXPRESSION - Definition of the key expression that
+		EXPRESSION - Definition of the button expression that
 			generates the event. It's a combination of
-			the key names or scan-code, and of the operators
-			`not', `or'. The `and' operator is implicit
-			between consecutive scan-codes.
+			the key, joystick or mouse button and of the operators `not', `or'.
+			The `and' operator is implicit between consecutive codes.
 		KEY -  The available key names are:
 			a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r,
 			s, t, u, v, w, x, y, z, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
@@ -1210,14 +1209,31 @@ Configuration
 			plus_pad, period_pad, enter_pad, prtscr, pause,
 			lshift, rshift, lcontrol, rcontrol, lalt, ralt,
 			lwin, rwin, menu, scrlock, numlock, capslock.
+			You can also specify a keyboard scancode, like:
+			scan127, scan128, ...
+		JOYSTICK - The available joystick buttons are:
+			joy_a, joy_b, joy_c, joy_x, joy_y, joy_z, joy_tl (top left),
+			joy_tr (top right), joy_tl2 (second top left),
+			joy_tr2 (second top right), joy_start, joy_mode,
+			joy_select, joy_thumbl (thumb left), joy_thumbr (thumb right),
+			joy_gear_down, joy_gear_up.
+			You can also use ordinal values if the driver doesn't
+			export the button names:
+			joy_button0, joy_button1, joy_button2, joy_button3, ...
+		MOUSE - The available mouse buttons are:
+			mouse_left, mouse_right, mouse_middle, mouse_side,
+			mouse_extra, mouse_forward, mouse_back.
+			You can also use ordinal values if the driver doesn't
+			export the button names:
+			mouse_button0, mouse_button1, mouse_button2, ...
 
 	Examples:
-		:event_assign enter lcontrol or enter
-		:event_assign menu 90 or 35
-		:event_assign emulator 91 23 or not 21 33
+		:event_assign enter lcontrol or enter or joy_a or mouse_left
+		:event_assign menu joy_b or mouse_right
 
-	You can use the utility `advk' to get the key scancodes and
-	names.
+	The utility `advk' can be used to shown key scancodes and names.
+	The utilities `advj' and `advm' can be used to shown the joystick and
+	mouse button order.
 
     event_repeat
 	Selects the repeat rate of the various events.

@@ -39,6 +39,9 @@ extern "C" {
  * \note They are chosen like the Allegro library 4.0.1.
  */
 /*@{*/
+
+#define KEYB_BASE 1 /* start of named code */
+
 #define KEYB_A 1
 #define KEYB_B 2
 #define KEYB_C 3

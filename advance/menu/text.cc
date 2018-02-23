@@ -158,42 +158,6 @@ static void int_joystick_done()
 	joystickb_done();
 }
 
-static void int_joystick_button_raw_poll()
-{
-	for (int i = 0; i < joystickb_count_get(); ++i) {
-		for (int j = 0; j < joystickb_button_count_get(i); ++j) {
-			if (joystickb_button_get(i, j)) {
-				switch (j) {
-				case 0:
-					event_push(EVENT_ENTER);
-					break;
-				case 1:
-					event_push(EVENT_ESC);
-					break;
-				case 2:
-					event_push(EVENT_MENU);
-					break;
-				case 3:
-					event_push(EVENT_SPACE);
-					break;
-				case 4:
-					event_push(EVENT_MODE);
-					break;
-				case 5:
-					event_push(EVENT_PREVIEW);
-					break;
-				case 6:
-					event_push(EVENT_PGUP);
-					break;
-				case 7:
-					event_push(EVENT_PGDN);
-					break;
-				}
-			}
-		}
-	}
-}
-
 static void int_joystick_move_raw_poll()
 {
 	for (int i = 0; i < joystickb_count_get(); ++i) {
@@ -209,6 +173,12 @@ static void int_joystick_move_raw_poll()
 					event_push(EVENT_DOWN);
 				if (joystickb_stick_axe_digital_get(i, j, 1, 1))
 					event_push(EVENT_UP);
+			}
+			if (joystickb_stick_axe_count_get(i, j) > 2) {
+				if (joystickb_stick_axe_digital_get(i, j, 2, 0))
+					event_push(EVENT_PGDN);
+				if (joystickb_stick_axe_digital_get(i, j, 2, 1))
+					event_push(EVENT_PGUP);
 			}
 		}
 	}
@@ -316,20 +286,6 @@ static bool int_mouse_init()
 static void int_mouse_done()
 {
 	mouseb_done();
-}
-
-static void int_mouse_button_raw_poll()
-{
-	for (int i = 0; i < mouseb_count_get(); ++i) {
-		if (mouseb_button_count_get(i) > 0 && mouseb_button_get(i, 0))
-			event_push(EVENT_ENTER);
-
-		if (mouseb_button_count_get(i) > 1 && mouseb_button_get(i, 1))
-			event_push(EVENT_ESC);
-
-		if (mouseb_button_count_get(i) > 2 && mouseb_button_get(i, 2))
-			event_push(EVENT_MENU);
-	}
 }
 
 static void int_mouse_move_raw_poll()
@@ -2750,9 +2706,7 @@ static void key_poll()
 		event_push(EVENT_ESC);
 	}
 
-	int_joystick_button_raw_poll();
 	int_joystick_move_raw_poll();
-	int_mouse_button_raw_poll();
 	int_mouse_move_raw_poll();
 	event_poll();
 }

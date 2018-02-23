@@ -40,6 +40,7 @@
 
 #include "device.h"
 #include "conf.h"
+#include "joy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,6 +95,7 @@ typedef struct joystickb_driver_struct {
 	const char* (*calib_next)(void);
 	void (*poll)(void);
 	int (*device_name_get)(unsigned joystick, char* name);
+	int (*bind)(unsigned joystick, unsigned code);
 } joystickb_driver;
 
 #define JOYSTICK_DRIVER_MAX 8
@@ -148,6 +150,7 @@ int joystickb_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned a
 int joystickb_rel_get(unsigned joystick, unsigned rel);
 void joystickb_calib_start(void);
 const char* joystickb_calib_next(void);
+int joystickb_bind(unsigned joystick, unsigned code);
 void joystickb_poll(void);
 
 /**

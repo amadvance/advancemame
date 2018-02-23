@@ -314,6 +314,22 @@ const char* mouseb_axe_name_get(unsigned mouse, unsigned axe)
 	return mouseb_state.axe_name_buffer;
 }
 
+int mouseb_bind(unsigned mouse, unsigned code)
+{
+	const char* name;
+	unsigned i;
+	unsigned count;
+
+	assert(mouseb_state.is_active_flag);
+	assert(mouse < mouseb_count_get());
+	assert(code < MOUSEB_MAX);
+
+	if (mouseb_state.driver_current->bind)
+		return mouseb_state.driver_current->bind(mouse, code);
+
+	return -1;
+}
+
 void mouseb_poll(void)
 {
 	assert(mouseb_state.is_active_flag);

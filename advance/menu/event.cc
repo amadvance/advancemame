@@ -27,8 +27,11 @@
 
 #include "target.h"
 #include "keydrv.h"
+#include "joydrv.h"
+#include "mousedrv.h"
 
 #include <deque>
+#include <sstream>
 
 using namespace std;
 
@@ -52,41 +55,49 @@ struct event_item {
 	bool simulate;
 };
 
-#define OP_NONE KEYB_MAX
-#define OP_OR (KEYB_MAX + 1)
-#define OP_NOT (KEYB_MAX + 2)
+#define OP_NONE 0
+#define OP_OR 1
+#define OP_NOT 2
+
+#define OP_KEY (1 << 8)
+#define OP_JOY (2 << 8)
+#define OP_MOUSE (3 << 8)
+
+#define K(a) (OP_KEY + KEYB_##a)
+#define J(a) (OP_JOY + JOYB_##a)
+#define M(a) (OP_MOUSE + MOUSEB_##a)
 
 static struct event_item EVENT_TAB[] = {
-	{ "up", EVENT_UP, { KEYB_UP, OP_OR, KEYB_8_PAD, KEYB_MAX } },
-	{ "down", EVENT_DOWN, { KEYB_DOWN, OP_OR, KEYB_2_PAD, KEYB_MAX } },
-	{ "left", EVENT_LEFT, { KEYB_LEFT, OP_OR, KEYB_4_PAD, KEYB_MAX } },
-	{ "right", EVENT_RIGHT, { KEYB_RIGHT, OP_OR, KEYB_6_PAD, KEYB_MAX } },
-	{ "enter", EVENT_ENTER, { KEYB_ENTER, OP_OR, KEYB_ENTER_PAD, KEYB_MAX } },
-	{ "esc", EVENT_ESC, { KEYB_ESC, KEYB_MAX } },
-	{ "space", EVENT_SPACE, { KEYB_SPACE, KEYB_MAX } },
-	{ "home", EVENT_HOME, { KEYB_HOME, KEYB_MAX } },
-	{ "end", EVENT_END, { KEYB_END, KEYB_MAX } },
-	{ "pgup", EVENT_PGUP, { KEYB_PGUP, KEYB_MAX } },
-	{ "pgdn", EVENT_PGDN, { KEYB_PGDN, KEYB_MAX } },
-	{ "del", EVENT_DEL, { KEYB_DEL, KEYB_MAX } },
-	{ "ins", EVENT_INS, { KEYB_INSERT, KEYB_MAX } },
-	{ "shutdown", EVENT_OFF, { KEYB_LCONTROL, KEYB_ESC, KEYB_MAX } },
-	{ "mode", EVENT_MODE, { KEYB_TAB, KEYB_MAX } },
-	{ "help", EVENT_HELP, { KEYB_F1, KEYB_MAX } },
-	{ "group", EVENT_GROUP, { KEYB_F2, KEYB_MAX } },
-	{ "type", EVENT_TYPE, { KEYB_F3, KEYB_MAX } },
-	{ "exclude", EVENT_ATTRIB, { KEYB_F4, KEYB_MAX } },
-	{ "sort", EVENT_SORT, { KEYB_F5, KEYB_MAX } },
-	{ "setgroup", EVENT_SETGROUP, { KEYB_F9, KEYB_MAX } },
-	{ "settype", EVENT_SETTYPE, { KEYB_F10, KEYB_MAX } },
-	{ "runclone", EVENT_CLONE, { KEYB_F12, KEYB_MAX } },
-	{ "command", EVENT_COMMAND, { KEYB_F8, KEYB_MAX } },
-	{ "menu", EVENT_MENU, { KEYB_BACKQUOTE, OP_OR, KEYB_BACKSLASH, KEYB_MAX } },
-	{ "emulator", EVENT_EMU, { KEYB_F6, KEYB_MAX } },
-	{ "rotate", EVENT_ROTATE, { KEYB_0_PAD, KEYB_MAX } },
-	{ "lock", EVENT_LOCK, { KEYB_SCRLOCK, KEYB_MAX } },
-	{ "preview", EVENT_PREVIEW, { KEYB_SPACE, KEYB_MAX } },
-	{ "mute", EVENT_MUTE, { KEYB_PERIOD_PAD, KEYB_MAX } },
+	{ "up", EVENT_UP, { K(UP), OP_OR, K(8_PAD), OP_NONE } },
+	{ "down", EVENT_DOWN, { K(DOWN), OP_OR, K(2_PAD), OP_NONE } },
+	{ "left", EVENT_LEFT, { K(LEFT), OP_OR, K(4_PAD), OP_NONE } },
+	{ "right", EVENT_RIGHT, { K(RIGHT), OP_OR, K(6_PAD), OP_NONE } },
+	{ "enter", EVENT_ENTER, { K(ENTER), OP_OR, K(ENTER_PAD), OP_OR, J(0), OP_OR, M(0), OP_NONE } },
+	{ "esc", EVENT_ESC, { K(ESC), OP_OR, J(1), OP_OR, M(1), OP_NONE } },
+	{ "space", EVENT_SPACE, { K(SPACE), OP_OR, J(3), OP_NONE } },
+	{ "home", EVENT_HOME, { K(HOME), OP_NONE } },
+	{ "end", EVENT_END, { K(END), OP_NONE } },
+	{ "pgup", EVENT_PGUP, { K(PGUP), OP_OR, J(6), OP_NONE } },
+	{ "pgdn", EVENT_PGDN, { K(PGDN), OP_OR, J(7), OP_NONE } },
+	{ "del", EVENT_DEL, { K(DEL), OP_NONE } },
+	{ "ins", EVENT_INS, { K(INSERT), OP_NONE } },
+	{ "shutdown", EVENT_OFF, { K(LCONTROL), K(ESC), OP_NONE } },
+	{ "mode", EVENT_MODE, { K(TAB), OP_OR, J(4), OP_NONE } },
+	{ "help", EVENT_HELP, { K(F1), OP_NONE } },
+	{ "group", EVENT_GROUP, { K(F2), OP_NONE } },
+	{ "type", EVENT_TYPE, { K(F3), OP_NONE } },
+	{ "exclude", EVENT_ATTRIB, { K(F4), OP_NONE } },
+	{ "sort", EVENT_SORT, { K(F5), OP_NONE } },
+	{ "setgroup", EVENT_SETGROUP, { K(F9), OP_NONE } },
+	{ "settype", EVENT_SETTYPE, { K(F10), OP_NONE } },
+	{ "runclone", EVENT_CLONE, { K(F12), OP_NONE } },
+	{ "command", EVENT_COMMAND, { K(F8), OP_NONE } },
+	{ "menu", EVENT_MENU, { K(BACKQUOTE), OP_OR, K(BACKSLASH), OP_OR, J(2), OP_OR, M(2), OP_NONE } },
+	{ "emulator", EVENT_EMU, { K(F6), OP_NONE } },
+	{ "rotate", EVENT_ROTATE, { K(0_PAD), OP_NONE } },
+	{ "lock", EVENT_LOCK, { K(SCRLOCK), OP_NONE } },
+	{ "preview", EVENT_PREVIEW, { K(SPACE), OP_OR, J(5), OP_NONE } },
+	{ "mute", EVENT_MUTE, { K(PERIOD_PAD), OP_NONE } },
 	{ 0, 0, { 0 } }
 };
 
@@ -113,8 +124,29 @@ static int seq_pressed(const unsigned* code)
 		default:
 			if (res) {
 				adv_bool pressed = 0;
-				for (unsigned k = 0; k < keyb_count_get(); ++k)
-					pressed = pressed || (keyb_get(k, code[j]) != 0);
+				unsigned m = code[j] & 0xFF00;
+				unsigned c = code[j] & 0xFF;
+				switch (m) {
+				case OP_KEY :
+					for (unsigned k = 0; k < keyb_count_get(); ++k)
+						if (keyb_get(k, c))
+							pressed = 1;
+					break;
+				case OP_JOY :
+					for (unsigned i = 0; i < joystickb_count_get(); ++i) {
+						int b = joystickb_bind(i, c);
+						if (b >= 0 && joystickb_button_get(i, b))
+							pressed = 1;
+					}
+					break;
+				case OP_MOUSE :
+					for (unsigned i = 0; i < joystickb_count_get(); ++i) {
+						int b = mouseb_bind(i, c);
+						if (b >= 0 && mouseb_button_get(i, b))
+							pressed = 1;
+					}
+					break;
+				}
 				if ((pressed != 0) == invert)
 					res = 0;
 			}
@@ -257,18 +289,27 @@ bool event_in(const string& s)
 			seq[seq_count++] = OP_NOT;
 		} else if (skey == "and") {
 			/* nothing */
+		} else if (skey.substr(0,4) == "joy_") {
+			string sbutton = skey.substr(4);
+			unsigned button = joy_button_code(sbutton.c_str());
+			if (button >= JOYB_MAX)
+				return false;
+			seq[seq_count++] = OP_JOY + button;
+		} else if (skey.substr(0,6) == "mouse_") {
+			string sbutton = skey.substr(6);
+			unsigned button = mouse_button_code(sbutton.c_str());
+			if (button >= MOUSEB_MAX)
+				return false;
+			seq[seq_count++] = OP_MOUSE + button;
 		} else {
 			unsigned key;
 			key = key_code(skey.c_str());
-			if (key == KEYB_MAX) {
-				// LEGACY support the old scan code format only numeric
-				if (skey.find_first_not_of("0123456789") == string::npos)
-					key = atoi(skey.c_str());
-				if (key >= KEYB_MAX) {
-					return false;
-				}
-			}
-			seq[seq_count++] = key;
+			// LEGACY support the old scan code format only numeric
+			if (key == KEYB_MAX && skey.find_first_not_of("0123456789") == string::npos)
+				key = atoi(skey.c_str());
+			if (key >= KEYB_MAX)
+				return false;
+			seq[seq_count++] = OP_KEY + key;
 		}
 	}
 
@@ -288,16 +329,33 @@ void event_out(adv_conf* config_context, const char* tag)
 		string s;
 		s += EVENT_TAB[i].name;
 		s += " ";
-		for (unsigned j = 0; EVENT_TAB[i].seq[j] != KEYB_MAX && j < SEQ_MAX; ++j) {
-			unsigned k = EVENT_TAB[i].seq[j];
+		for (unsigned j = 0; EVENT_TAB[i].seq[j] != OP_NONE && j < SEQ_MAX; ++j) {
+			unsigned m = EVENT_TAB[i].seq[j] & 0xFF00;
+			unsigned c = EVENT_TAB[i].seq[j] & 0xFF;
+			ostringstream os;
+			const char* name;
+
 			if (j != 0)
 				s += " ";
-			if (k == OP_OR)
-				s += "or";
-			else if (k == OP_NOT)
-				s += "and";
-			else {
-				s += key_name(k);
+
+			switch (m) {
+			case OP_NONE :
+				switch (c) {
+				case OP_OR: s += "or"; break;
+				case OP_NOT: s += "and"; break;
+				}
+				break;
+			case OP_KEY:
+				s += key_name(c);
+				break;
+			case OP_JOY:
+				os << "joy_" << joy_button_name(c);
+				s += os.str();
+				break;
+			case OP_MOUSE:
+				os << "mouse_" << mouse_button_name(c);
+				s += os.str();
+				break;
 			}
 		}
 
