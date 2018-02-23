@@ -29,11 +29,11 @@ using namespace std;
 //---------------------------------------------------------------------------
 // string
 
-string fill(unsigned l, char c)
+string fill(size_t l, char c)
 {
 	string r;
 
-	for (unsigned i = 0; i < l; ++i)
+	for (size_t i = 0; i < l; ++i)
 		r += c;
 	return r;
 }
@@ -83,7 +83,7 @@ string up(const string& s)
 {
 	string r;
 
-	for (unsigned i = 0; i < s.length(); ++i)
+	for (size_t i = 0; i < s.length(); ++i)
 		r += toupper(s[i]);
 	return r;
 }
@@ -241,7 +241,7 @@ bool convert::is_tag(const string& s, string& a, string& b, bool root_tag)
 {
 	if (s.length() > 0 && (s[0] == ':' || s[0] == '+'))
 		return false;
-	unsigned d = s.find(" - ");
+	size_t d = s.find(" - ");
 	if (d == string::npos)
 		return false;
 	a = trim(s.substr(0, d));
@@ -282,12 +282,12 @@ void convert::step(const string& r)
 	string s = trim_right(r);
 
 	// count left space
-	unsigned nt = 0;
+	size_t nt = 0;
 
 	while (nt < s.length() && s[nt] == '\t')
 		++nt;
 	s.erase(0, nt);
-	unsigned ns = 0;
+	size_t ns = 0;
 	while (ns < s.length() && s[ns] == ' ')
 		++ns;
 	s.erase(0, ns);
@@ -478,7 +478,7 @@ void convert::step(const string& r)
 		return;
 	}
 
-	cerr << "warning: unrecognized (" << ns << ") `" << s << "'" << endl;
+	cerr << "warning: unrecognized space " << ns << " in state " << state << " on string '" << s << "'" << endl;
 
 	state = state_filled;
 	return;
@@ -550,7 +550,7 @@ void convert::run()
 	if (up(s) == "NAME" || up(s) == "NAME{NUMBER}") {
 		numbered = up(s) == "NAME{NUMBER}";
 		s = token(i, file);
-		unsigned d = s.find(" - ");
+		size_t d = s.find(" - ");
 		header(trim(s.substr(0, d)), trim(s.substr(d + 3)));
 	} else {
 		header("", "");
@@ -653,7 +653,7 @@ string convert_man::mask(string s)
 {
 	string r;
 
-	for (unsigned i = 0; i < s.length(); ++i) {
+	for (size_t i = 0; i < s.length(); ++i) {
 		switch (s[i]) {
 		case '"':
 			r += "\\[dq]";
@@ -930,7 +930,7 @@ string convert_html::mask(string s)
 {
 	string r;
 
-	for (unsigned i = 0; i < s.length(); ++i) {
+	for (size_t i = 0; i < s.length(); ++i) {
 		switch (s[i]) {
 		case '<':
 			r += "&lt;";
@@ -1273,7 +1273,7 @@ bool convert_frame::section_is_active(const string& s)
 
 class convert_txt : public convert {
 	bool first_line;
-	unsigned max_length;
+	size_t max_length;
 	string mask(string s);
 public:
 	convert_txt(istream& Ais, ostream& Aos) : convert(Ais, Aos) { };
@@ -1326,7 +1326,7 @@ string convert_txt::mask(string s)
 void convert_txt::header(const string& a, const string& b)
 {
 	if (b.length()) {
-		unsigned space = (80 - b.length()) / 2;
+		size_t space = (80 - b.length()) / 2;
 		os << fill(space, ' ') << fill(b.length(), '=') << endl;
 		os << fill(space, ' ') << b << endl;
 		os << fill(space, ' ') << fill(b.length(), '=') << endl;
