@@ -174,12 +174,9 @@ static void int_joystick_move_raw_poll()
 				if (joystickb_stick_axe_digital_get(i, j, 1, 1))
 					event_push(EVENT_UP);
 			}
-			if (joystickb_stick_axe_count_get(i, j) > 2) {
-				if (joystickb_stick_axe_digital_get(i, j, 2, 0))
-					event_push(EVENT_PGDN);
-				if (joystickb_stick_axe_digital_get(i, j, 2, 1))
-					event_push(EVENT_PGUP);
-			}
+
+			// do not use the x axis as some controller have it
+			// set the min instead than 0 as it's lever.
 		}
 	}
 }
