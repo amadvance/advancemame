@@ -128,8 +128,8 @@ Emulators
 
 	The directories specified in the `dir_rom' option in the
 	`advmame.rc' file are used to detect the list of the
-	available roms. In the DOS and Windows versions of the 
-	program the `advmenu.rc' file is searched in the same directory 
+	available roms. In the DOS and Windows versions of the
+	program the `advmenu.rc' file is searched in the same directory
 	of the emulator. In the Unix version it's searched in the
 	`HOME/.advance' directory.
 
@@ -191,23 +191,6 @@ Emulators
 	The directory specified in `snapshot_directory' is
 	used to detect the list of available snapshots.
 
-  sdlmame - SDL MAME
-	For the `sdlmame' emulator the roms informations are gathered
-	from the file `EMUNAME.xml'. If this file doesn't exist, it's
-	created automatically with emulator `-listxml' command.
-
-	The directories specified in the `rompath' option in the
-	`HOME/.mame/mame.ini' file in Linux and Mac OS X and in the 'mame.ini'
-	file in Windows are used to detect the list of the available roms.
-
-	Please note that in Linux and Mac OS X the 'mame.ini' file doesn't
-	support relative paths for roms and other files. Always use absolute
-	paths configuring SDL MAME. You can use the "$HOME" variable to
-	refers at the Linux/Mac OS X user home directory.
-
-	The directory specified in `snapshot_directory' is used to detect the
-	list of available snapshots files.
-
   dmame - DOS MAME
 	For the `dmame' emulator the roms informations are gathered
 	from the file `EMUNAME.xml'. If this file doesn't exist, it's
@@ -221,7 +204,7 @@ Emulators
 	detect the list of available snapshots.
 
   dmess - DOS MESS
-	For the `dmess' emulator the roms informations are gathered
+	For the `dmess' emulator the roms information are gathered
 	from the file `EMUNAME.xml'. If this file doesn't exist, it's
 	created automatically with emulator `-listxml' command.
 
@@ -268,7 +251,7 @@ Emulators
 	`snap\ti99_4a\alpiner.png'.
 
   draine - DOS Raine
-	For the `draine' emulator the roms informations are gathered
+	For the `draine' emulator the roms information are gathered
 	from the file `EMUNAME.lst'. If this file doesn't exist, it's
 	created automatically with emulator `-gameinfo' command.
 
@@ -337,7 +320,7 @@ Configuration
 	`preview', `group_include' and `type_include'.
 
     config
-	Selects if and when the configuration modified by the user at 
+	Selects if and when the configuration modified by the user at
 	runtime should be saved.
 
 	:config save_at_exit | restore_at_exit | restore_at_idle
@@ -354,7 +337,7 @@ Configuration
 	main menu.
 
     emulator
-	Selects the emulators to list in the menu. You can specify more than 
+	Selects the emulators to list in the menu. You can specify more than
 	one emulator.
 
 	WARNING! Before playing with this option, you should do a
@@ -395,10 +378,10 @@ Configuration
 			example "c:\emu\roms\pacman.zip".
 		%f - Expanded as the rom name with the extension. For
 			example "pacman.zip".
-		%o[R0,R90,R180,R270] - Expanded as one of the R* string, 
-			depending on the current menu orientation. 
-			Note that you cannot use space in the R* string. 
-			For example "%o[,-ror,-flipx,-rol] %o[,,-flipy,]" 
+		%o[R0,R90,R180,R270] - Expanded as one of the R* string,
+			depending on the current menu orientation.
+			Note that you cannot use space in the R* string.
+			For example "%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
 			correctly rotate the AdvanceMAME emulator.
 
 	For the `generic' emulator type you need use the % macros
@@ -733,7 +716,7 @@ Configuration
 
   Sound Configuration Options
 	This section describes the options used to customize the sound.
-  
+
     device_sound_*
 	These options are used to customize the audio drivers.
 
@@ -869,7 +852,7 @@ Configuration
 		STEP - Mouse/trackball position step (default 100).
 
   User Interface
-	This section describes the options used to customize the user 
+	This section describes the options used to customize the user
 	interface.
 
     ui_font
@@ -1057,8 +1040,8 @@ Configuration
 	image.
 
     ui_command
-	Defines the user commands. These commands are executed as 
-	shell scripts. The video mode is not changed, so they must be 
+	Defines the user commands. These commands are executed as
+	shell scripts. The video mode is not changed, so they must be
 	silent.
 
 	ui_command "MENU" SCRIPT
@@ -1077,7 +1060,7 @@ Configuration
 			example "pacman.zip".
 
 	If no game is selected the macros aren't substituted.
-	
+
 	If the script exits with an error code, a message is displayed.
 
 	Examples:
@@ -1110,8 +1093,8 @@ Configuration
 	ui_menukey yes | no
 
     ui_console
-	Changes the user interface behavior for the use on a game 
-	console system. Mainly for AdvanceCD.
+	Changes the user interface behavior for the use on a game
+	console system.
 
 	ui_console yes | no
 
@@ -1229,7 +1212,7 @@ Configuration
 
 	Examples:
 		:event_assign enter lcontrol or enter or joy_a or mouse_left
-		:event_assign menu joy_b or mouse_right
+		:event_assign menu space or joy_mode or mouse_right
 
 	The utility `advk' can be used to shown key scancodes and names.
 	The utilities `advj' and `advm' can be used to shown the joystick and
@@ -1258,8 +1241,8 @@ Configuration
 
     event_alpha
 	Disables the alphanumeric keys for fast moving.
-	If you have a keyboard encoder or a keyboard hack with some 
-	buttons remapped to alphanumeric keys, it's useful to disable 
+	If you have a keyboard encoder or a keyboard hack with some
+	buttons remapped to alphanumeric keys, it's useful to disable
 	them.
 
 	:event_alpha yes | no
@@ -1302,7 +1285,7 @@ Configuration
 		:idle_screensaver 40 5
 
     idle_screensaver_preview
-	Selects the preview type to use in the screensaver. Like 
+	Selects the preview type to use in the screensaver. Like
 	the preview option.
 
 	:idle_screensaver_preview none | exit | shutdown | play
