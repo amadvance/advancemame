@@ -2,8 +2,10 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMENU Version 3.8 2018/03
-	) Added support for joystick and mouse button in the 'event'
-		configuration.
+	) Added support for configuring joystick and mouse buttons in the 'event'
+		configuration option.
+	) In the screensaver if the clip is too short, don't restart it when
+		it finishes, but switch to the next one.
 
 AdvanceMAME/MESS Version 3.7 2018/02
 	) In the Exit menu added new Load/Save/Reset commands.

@@ -676,7 +676,7 @@ static void run_background_set(config_state& rs, const resource& sound)
 	}
 }
 
-static void run_background_wait(config_state& rs, const resource& sound, bool silent, int pos_current, int backdrop_max)
+static void run_background_wait(config_state& rs, const resource& sound, bool silent, int pos_current, int backdrop_max, bool is_idle)
 {
 	target_clock_t back_start = target_clock();
 
@@ -705,9 +705,15 @@ static void run_background_wait(config_state& rs, const resource& sound, bool si
 		}
 
 		// wait until something pressed
+		unsigned loop = 0;
 		while (!int_event_waiting()) {
-			// start some background music if required
 
+			// if in screensaver play mode, exit when the clip end
+			if (loop > 0 && is_idle) {
+				break;
+			}
+
+			// start some background music if required
 			if (!play_background_is_active()) {
 				rs.current_sound = resource();
 				if (!rs.sound_background.empty()) {
@@ -722,6 +728,7 @@ static void run_background_wait(config_state& rs, const resource& sound, bool si
 				}
 			}
 
+			// start a new clip if required
 			if (rs.clip_mode == clip_singleloop || rs.clip_mode == clip_multiloop) {
 				if (!int_clip_is_active(backdrop_index)) {
 					int_clip_start(backdrop_index);
@@ -734,6 +741,8 @@ static void run_background_wait(config_state& rs, const resource& sound, bool si
 					}
 				}
 			}
+
+			++loop;
 		}
 	}
 }
@@ -1619,7 +1628,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		int_idle_0_enable(rs.current_game && rs.current_game->emulator_get()->is_runnable());
 		int_idle_1_enable(true);
 
-		run_background_wait(rs, sound, silent, pos_rel, backdrop_mac);
+		run_background_wait(rs, sound, silent, pos_rel, backdrop_mac, false);
 
 		// replay the sound and clip
 		silent = false;
@@ -1843,7 +1852,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 		// next game
 		++counter;
 
-		run_background_wait(rs, sound, false, 0, 1);
+		run_background_wait(rs, sound, false, 0, 1, rs.idle_saver_type == saver_play);
 
 		key = int_event_get(false);
 
