@@ -1472,6 +1472,111 @@ static struct game_startup_struct {
 	{ 0 }
 };
 
+static const char* GAME_RESAMPLE[] = {
+	/*
+	 * Games using pokey sound chip
+	 *
+	 * At least "starwars" is crashing randomly, and possible others.
+	 * Increasing the buffer size in streams.c avoid the crash,
+	 * but the audio breaks.
+	 */
+
+	/* asteroid */
+	"asteroid",
+	"astdelux",
+	"llander",
+
+	/* atarisys1 */
+	"marble",
+	"peterpak",
+	"indytemp",
+	"roadrunn",
+	"roadblst",
+
+	/* atarisys2 */
+	"paperboy",
+	"720",
+	"ssprint",
+	"csprint",
+	"apb",
+
+	/* atetris */
+	"atetris",
+
+	/* bwidow */
+	"spacduel",
+	"bwidow",
+	"gravitar",
+
+	/* bzone */
+	"bzone",
+	"bradley",
+	"redbaron",
+
+	/* ccastles */
+	"ccastles",
+
+	/* centiped */
+	"centiped",
+	"milliped",
+	"warlords",
+	"ullsdrt",
+
+	/* cloak */
+	"cloak",
+
+	/* cloud9 */
+	"cloud9",
+
+	/* foodf */
+	"foodf",
+
+	/* gauntlet */
+	"gauntlet",
+	"gaunt2",
+	"vindctr2",
+
+	/* irobot */
+	"irobot",
+
+	/* jedi */
+	"jedi",
+
+	/* liberatr */
+	"liberatr",
+
+	/* maxaflex */
+	"maxaflex",
+
+	/* mhavoc */
+	"mhavoc",
+
+	/* missile */
+	"missile",
+
+	/* quantum */
+	"quantum",
+
+	/* runaway */
+	"qwak",
+	"runaway",
+
+	/* starwars */
+	"starwars",
+	"esb",
+
+	/* tempest */
+	"tempest",
+
+	/* toobin */
+	"toobin",
+
+	/* tunhunt */
+	"tunhunt",
+
+	0
+};
+
 void advance_video_config_save(struct advance_video_context* context, const char* section)
 {
 	adv_conf* cfg_context = CONTEXT.cfg;
@@ -1674,10 +1779,19 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 #endif
 
 	i = conf_int_get_default(cfg_context, "sync_resample");
-	if (i == 1)
+	if (i == -1) {
+		for (i = 0; GAME_RESAMPLE[i] != 0; ++i)
+			if (mame_is_game_relative(GAME_RESAMPLE[i], option->game))
+				break;
+		if (GAME_RESAMPLE[i] != 0)
+			context->config.internalresample_flag = 1; /* internal resampling */
+		else
+			context->config.internalresample_flag = 0; /* emulation resampling */
+	} else if (i == 1) {
 		context->config.internalresample_flag = 1; /* internal resampling */
-	else
+	} else {
 		context->config.internalresample_flag = 0; /* emulation resampling */
+	}
 
 	/* load context->config.monitor config */
 	err = monitor_load(cfg_context, &context->config.monitor);

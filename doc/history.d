@@ -2,7 +2,9 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 3.8 2018/03
-	) Fixed a crash in 'starwars'.
+	) Change the default 'sync_resample' mode to 'internal' to all games
+		using the pokey sound chip. This avoid crashes and provide
+		a better sound audio. One example is 'starwars'.
 
 AdvanceMENU Version 3.8 2018/03
 	) Added support for configuring joystick and mouse buttons in the 'event'
