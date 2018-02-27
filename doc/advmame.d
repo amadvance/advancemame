@@ -2144,14 +2144,14 @@ Configuration
 	The final blit stage in video memory is completely done by the
 	second thread. This behavior requires a complete bitmap redraw
 	by MAME for the games that don't already do it.
-	Generally you get a big speed improvement only if you are using
+	Generally you get a speed improvement, especially if you are using
 	a heavy video effect like `hq' and `xbr'.
 
 	:misc_smp yes | no
 
 	Options:
-		no - Disabled (default).
-		yes - Enabled.
+		no - Disabled.
+		yes - Enabled (default).
 
 	You can enable or disable it also on the runtime Video menu.
 
