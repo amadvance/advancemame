@@ -323,7 +323,8 @@ sound_stream *stream_create(int inputs, int outputs, int sample_rate, void *para
 	/* allocate output buffers */
 	for (outputnum = 0; outputnum < outputs; outputnum++)
 	{
-		stream->output[outputnum].buffer = auto_malloc(OUTPUT_BUFFER_SAMPLES * sizeof(*stream->output[outputnum].buffer));
+		/* AdvanceMAME: Some drivers write over the end of the buffer, like "starwars". Allocare 2* more to workaround the issue */
+		stream->output[outputnum].buffer = auto_malloc(2 * OUTPUT_BUFFER_SAMPLES * sizeof(*stream->output[outputnum].buffer));
 		stream->output[outputnum].gain = 0x100;
 		state_save_register_item(statetag, outputnum, stream->output[outputnum].gain);
 	}

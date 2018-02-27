@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS Version 3.8 2018/03
+	) Fixed a crash in 'starwars'.
+
 AdvanceMENU Version 3.8 2018/03
 	) Added support for configuring joystick and mouse buttons in the 'event'
 		configuration option.
