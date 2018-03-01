@@ -182,7 +182,10 @@ if test $ac_auto_cflags = yes; then
 			dnl Raspberry Pi 3
 			elif $GREP a02082\\\|a22082 /proc/cpuinfo >/dev/null 2>&1; then
 				AC_CHECK_CC_OPT([-march=armv8-a+crc], [CFLAGS="$CFLAGS -march=armv8-a+crc"], [])
-				AC_CHECK_CC_OPT([-mfpu=neon-fp-armv8], [CFLAGS="$CFLAGS -mfpu=neon-fp-armv8"], [])
+				AC_CHECK_CC_OPT([-mtune=cortex-a53], [CFLAGS="$CFLAGS -mtune=cortex-a53"], [])
+				AC_CHECK_CC_OPT([-mfloat-abi=hard], [CFLAGS="$CFLAGS -mfloat-abi=hard"], [])
+				AC_CHECK_CC_OPT([-mfpu=crypto-neon-fp-armv8], [CFLAGS="$CFLAGS -mfpu=crypto-neon-fp-armv8"], [])
+				AC_CHECK_CC_OPT([-funsafe-math-optimizations], [CFLAGS="$CFLAGS -funsafe-math-optimizations"], [])
 			dnl Raspberry Pi 2
 			elif $GREP a01040\\\|a01041\\\|a21041\\\|a22042 /proc/cpuinfo >/dev/null 2>&1; then
 				AC_CHECK_CC_OPT([-march=armv7-a], [CFLAGS="$CFLAGS -march=armv7-a"], [])
