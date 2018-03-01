@@ -116,7 +116,6 @@ int run_sub(config_state& rs, bool silent)
 				break;
 			case EVENT_ROTATE:
 			case EVENT_ESC:
-			case EVENT_OFF:
 				done = true;
 				break;
 			}
@@ -149,6 +148,9 @@ int run_sub(config_state& rs, bool silent)
 				done = true;
 				is_run = true;
 			}
+			break;
+		case EVENT_OFF:
+			done = true;
 			break;
 		}
 	}
@@ -229,7 +231,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 		// don't replay the sound and clip
 		silent = true;
 
-		if (!rs.lock_effective)
+		if (!rs.lock_effective) {
 			switch (key) {
 			case EVENT_ROTATE: {
 				unsigned mirror = rs.video_orientation_effective & (ADV_ORIENTATION_FLIP_X | ADV_ORIENTATION_FLIP_Y);
@@ -248,14 +250,16 @@ int run_main(config_state& rs, bool is_first, bool silent)
 			}
 			break;
 			case EVENT_ESC:
-			case EVENT_OFF:
 				done = true;
 				is_terminate = true;
 				break;
 			}
+		}
+
 		switch (key) {
 		case EVENT_ESC_FORCE:
 		case EVENT_OFF_FORCE:
+		case EVENT_OFF:
 			done = true;
 			is_terminate = true;
 			break;

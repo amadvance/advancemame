@@ -11,6 +11,8 @@ AdvanceMENU Version 3.8 2018/03
 		configuration option.
 	) In the screensaver if the clip is too short, don't restart it when
 		it finishes, but switch to the next one.
+	) In 'lock' mode is still possible to shutdown, if the 'misc_exit'
+		option allows it.
 
 AdvanceMAME/MESS Version 3.7 2018/02
 	) In the Exit menu added new Load/Save/Reset commands.

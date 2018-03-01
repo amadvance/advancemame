@@ -1136,6 +1136,9 @@ Configuration
 	only browse and run games. Options can't be changed and the user
 	cannot exit.
 
+	You can anyway allow the user to shutdown, changing the `misc_exit'
+	option.
+
 	:lock yes | no
 
 	Options:
@@ -1377,7 +1380,7 @@ Configuration
 
 	Options:
 		none - Exit is disabled.
-		normal - Exit is possible pressing ESC.
+		normal - Exit is possible pressing ESC (default).
 		shutdown - Exit is possible pressing CTRL-ESC.
 		all - All the exit modes are possible.
 

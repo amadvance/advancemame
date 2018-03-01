@@ -1699,7 +1699,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			done = true;
 			break;
 		}
-		if (!rs.lock_effective)
+		if (!rs.lock_effective) {
 			switch (key) {
 			case EVENT_MODE:
 			case EVENT_HELP:
@@ -1720,11 +1720,16 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all || rs.console_mode)
 					done = true;
 				break;
-			case EVENT_OFF:
-				if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all)
-					done = true;
-				break;
 			}
+		}
+
+		// allow shutdown in locked mode if the exit mode allows it
+		switch (key) {
+		case EVENT_OFF:
+			if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all)
+				done = true;
+			break;
+		}
 
 		if (pos_rel + pos_base < gc.size() && gc[pos_rel + pos_base]->has_game()) {
 			rs.current_game = &gc[pos_rel + pos_base]->game_get();
@@ -2282,7 +2287,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		// don't replay the sound and clip
 		silent = true;
 
-		if (!rs.lock_effective)
+		if (!rs.lock_effective) {
 			switch (key) {
 			case EVENT_MODE:
 				if (rs.mode_mask) {
@@ -2320,6 +2325,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 				}
 				break;
 			}
+		}
 
 		switch (key) {
 		case EVENT_ENTER:
