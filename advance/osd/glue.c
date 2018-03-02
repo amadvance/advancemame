@@ -732,6 +732,7 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 
 #ifdef MESS
 	options.ram = advance->ram;
+	options.ui_flag = advance->ui_flag;
 #endif
 
 	if (!context->game) {
@@ -2779,6 +2780,7 @@ static void mess_init(adv_conf* context)
 	}
 
 	conf_string_register_default(context, "misc_ramsize", "auto");
+	conf_bool_register_default(context, "misc_ui", 1);
 }
 
 static int mess_config_load(adv_conf* context, struct mame_option* option)
@@ -2843,6 +2845,8 @@ static int mess_config_load(adv_conf* context, struct mame_option* option)
 			return -1;
 		}
 	}
+
+	option->ui_flag = conf_bool_get_default(context, "misc_ui");
 
 	return 0;
 }

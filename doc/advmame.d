@@ -91,7 +91,7 @@ Keys
 
 	for AdvanceMESS are available also the following keys:
 
-		ScrollLock - Switch to partial keyboard emulation
+		SCRLOCK - Switch to partial keyboard emulation
 			which lets you use keys like TAB, ALT and
 			CTRL.
 
@@ -2077,6 +2077,18 @@ Configuration
 
 	Examples:
 		:misc_ramsize 1024k
+
+    misc_ui
+        Control the keyboard emulation in AdvanceMESS. When enabled, the keyboard
+	emaultion is only partial allowing to control the emulator user interface.
+	You can change this option at runtime pressing SCRLOCK or NUMLOCK.
+
+	:misc_ui yes | no
+
+	Options:
+		no - Full keyboard emulation.
+		yes - Partial keyboard emulation, allowing UI
+			interaction (default).
 
     misc_difficulty
 	Selects the game difficulty. This option works only with games

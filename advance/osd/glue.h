@@ -104,6 +104,7 @@ struct mame_option {
 	struct mame_image* image_map[MAME_MAXIMAGE];
 	unsigned image_mac;
 	unsigned ram;
+	int ui_flag; /* UI enabled at startup */
 #endif
 };
 

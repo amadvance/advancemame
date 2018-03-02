@@ -237,6 +237,7 @@ struct _global_options
 	int		disable_normal_ui;
 	int		min_width;		/* minimum width for the display */
 	int		min_height;		/* minimum height for the display */
+	int		ui_flag; /* AdvanceMAME: UI enabled at startup */
 #endif /* MESS */
 };
 

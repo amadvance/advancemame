@@ -5,6 +5,10 @@ AdvanceMAME/MESS Version 3.8 2018/03
 	) Change the default 'sync_resample' mode to 'internal' to all games
 		using the pokey sound chip. This avoid crashes and provide
 		a better sound audio. One example is 'starwars'.
+	) In AdvanceMESS added a new 'misc_ui' option to configure the keyboard
+		emulation. Note that the default is now to have partial emulation
+		by default to allow the user to control the emulator user
+		interface.
 
 AdvanceMENU Version 3.8 2018/03
 	) Added support for configuring joystick and mouse buttons in the 'event'

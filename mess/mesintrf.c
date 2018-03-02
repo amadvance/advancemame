@@ -8,7 +8,12 @@ static int ui_active = 0;
 
 int mess_ui_active(void)
 {
-	return ui_active;
+	 /* AdvanceMAME: Control the initial status of this variable */
+	if (options.ui_flag) {
+		return !ui_active;
+	} else {
+		return ui_active;
+	}
 }
 
 void mess_ui_update(void)
@@ -38,7 +43,7 @@ void mess_ui_update(void)
 			ui_toggle_key = 0;
 		}
 
-		if (ui_active)
+		if (mess_ui_active())
 		{
 			if( ui_display_count > 0 )
 			{
