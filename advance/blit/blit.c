@@ -122,6 +122,7 @@ static inline void internal_end(void)
 #include "imean.h"
 #include "irgb.h"
 #include "icconv.h"
+#include "interp.h"
 
 #ifndef USE_BLIT_TINY
 #include "scale2x.h"
@@ -577,28 +578,28 @@ static inline void stage_scale2x4(const struct video_stage_vert_struct* stage, v
 
 static inline void stage_scale2k(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned pos)
 {
-	scale2k(dst0, dst1, src0, src1, src2, stage->interp, stage->sdx);
+	scale2k(dst0, dst1, src0, src1, src2, stage->interp_pixel, stage->sdx);
 }
 
 #ifndef USE_BLIT_SMALL
 static inline void stage_hq2x(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2, unsigned pos)
 {
-	hq2x(dst0, dst1, src0, src1, src2, stage->interp, stage->sdx);
+	hq2x(dst0, dst1, src0, src1, src2, stage->interp_pixel, stage->sdx);
 }
 
 static inline void stage_hq2x3(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned pos)
 {
-	hq2x3(dst0, dst1, dst2, src0, src1, src2, stage->interp, stage->sdx);
+	hq2x3(dst0, dst1, dst2, src0, src1, src2, stage->interp_pixel, stage->sdx);
 }
 
 static inline void stage_hq2x4(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned pos)
 {
-	hq2x4(dst0, dst1, dst2, dst3, src0, src1, src2, stage->interp, stage->sdx);
+	hq2x4(dst0, dst1, dst2, dst3, src0, src1, src2, stage->interp_pixel, stage->sdx);
 }
 
 static inline void stage_xbr2x(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* src0, void* src1, void* src2, void* src3, void* src4, unsigned pos)
 {
-	xbr2x(dst0, dst1, src0, src1, src2, src3, src4, stage->interp, stage->sdx);
+	xbr2x(dst0, dst1, src0, src1, src2, src3, src4, stage->interp_pixel, stage->sdx);
 }
 #endif
 
@@ -609,18 +610,18 @@ static inline void stage_scale3x(const struct video_stage_vert_struct* stage, vo
 
 static inline void stage_scale3k(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned pos)
 {
-	scale3k(dst0, dst1, dst2, src0, src1, src2, stage->interp, stage->sdx);
+	scale3k(dst0, dst1, dst2, src0, src1, src2, stage->interp_pixel, stage->sdx);
 }
 
 #ifndef USE_BLIT_SMALL
 static inline void stage_hq3x(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, unsigned pos)
 {
-	hq3x(dst0, dst1, dst2, src0, src1, src2, stage->interp, stage->sdx);
+	hq3x(dst0, dst1, dst2, src0, src1, src2, stage->interp_pixel, stage->sdx);
 }
 
 static inline void stage_xbr3x(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* src0, void* src1, void* src2, void* src3, void* src4, unsigned pos)
 {
-	xbr3x(dst0, dst1, dst2, src0, src1, src2, src3, src4, stage->interp, stage->sdx);
+	xbr3x(dst0, dst1, dst2, src0, src1, src2, src3, src4, stage->interp_pixel, stage->sdx);
 }
 #endif
 
@@ -637,18 +638,18 @@ static inline void stage_scale4x(const struct video_stage_vert_struct* stage, vo
 
 static inline void stage_scale4k(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned pos)
 {
-	scale4k(dst0, dst1, dst2, dst3, src0, src1, src2, stage->interp, stage->sdx);
+	scale4k(dst0, dst1, dst2, dst3, src0, src1, src2, stage->interp_pixel, stage->sdx);
 }
 
 #ifndef USE_BLIT_SMALL
 static inline void stage_hq4x(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, unsigned pos)
 {
-	hq4x(dst0, dst1, dst2, dst3, src0, src1, src2, stage->interp, stage->sdx);
+	hq4x(dst0, dst1, dst2, dst3, src0, src1, src2, stage->interp_pixel, stage->sdx);
 }
 
 static inline void stage_xbr4x(const struct video_stage_vert_struct* stage, void* dst0, void* dst1, void* dst2, void* dst3, void* src0, void* src1, void* src2, void* src3, void* src4, unsigned pos)
 {
-	xbr4x(dst0, dst1, dst2, dst3, src0, src1, src2, src3, src4, stage->interp, stage->sdx);
+	xbr4x(dst0, dst1, dst2, dst3, src0, src1, src2, src3, src4, stage->interp_pixel, stage->sdx);
 }
 #endif
 #endif
@@ -4281,17 +4282,15 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 	stage_vert->sdw = sdw;
 	stage_vert->ddy = ddy;
 
-#if !defined(USE_BLIT_SMALL) && !defined(USE_BLIT_TINY)
-	/* The pixel type is always the target pixel type because, when used, any conversion is done before */
+	/* the pixel type is always the target pixel type because, when used, any conversion is done before */
 	if (color_def_type_get(target->color_def) == adv_color_type_yuy2)
-		stage_vert->interp = INTERP_YUY2;
+		stage_vert->interp_pixel = INTERP_YUY2;
 	else if (color_def_bytes_per_pixel_get(target->color_def) == 4)
-		stage_vert->interp = INTERP_32;
+		stage_vert->interp_pixel = INTERP_32;
 	else if (color_def_bytes_per_pixel_get(target->color_def) == 2)
-		stage_vert->interp = INTERP_16;
+		stage_vert->interp_pixel = INTERP_16;
 	else
-		stage_vert->interp = INTERP_NONE;
-#endif
+		stage_vert->interp_pixel = INTERP_NONE;
 
 	stage_vert->stage_begin = video_pipeline_begin(pipeline);
 	stage_vert->stage_end = video_pipeline_end(pipeline);

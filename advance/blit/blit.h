@@ -261,7 +261,7 @@ struct __attribute__((aligned(8))) video_stage_vert_struct {
 	unsigned sdy; /**< Source vertical size in rows. */
 	int sdw; /**< Source row size (in bytes). It may be negative for flip operations. */
 
-	unsigned interp; /**< Interpolation type in the vert stage. */
+	unsigned interp_pixel; /**< Interpolation type in the vert stage. */
 
 	unsigned ddx;
 	unsigned ddy; /**< Destination vertical size in rows. */
