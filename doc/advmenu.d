@@ -658,6 +658,35 @@ Configuration
 	Examples:
 		:display_size 1600x1200
 
+    display_resizeeffect
+	Control the scaling transformation applied to screenshots.
+
+	:display_resizeeffect auto | none | scalex | scalek | hq | xbr
+
+	Options:
+		auto - Selects automatically the best effect (default).
+		none - Simply removes or duplicates lines as required.
+		scalex - It adds the missing pixels matching the
+			original bitmap pattern.
+			It uses a 3x3 mapping analysis with 4 comparisons.
+			It doesn't interpolate pixels and it compares colors
+			for equality.
+		scalek - It adds the missing pixels matching the
+			original bitmap pattern.
+			It uses a 3x3 mapping analysis with 4 comparisons.
+			It interpolates pixels and it compares colors
+			for equality.
+		hq - It adds the missing pixels matching the
+			original bitmap pattern.
+			It uses a 3x3 mapping analysis with 8 comparisons.
+			It interpolates pixels and it compares colors
+			for distance.
+		xbr - It adds the missing pixels matching the
+			original bitmap pattern.
+			It uses a 5x5 mapping analysis with a gradient estimation.
+			It interpolates pixels and it compares colors
+			for distance.
+
     display_restoreatgame
 	Selects whether to reset the video mode before running the
 	emulator.

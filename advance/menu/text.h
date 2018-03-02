@@ -71,7 +71,7 @@ unsigned int_put_alpha(int x, int y, int dx, const std::string& s, const int_col
 unsigned int_put_right(int x, int y, int dx, const std::string& s, const int_color& color);
 unsigned int_put_right_alpha(int x, int y, int dx, const std::string& s, const int_color& color);
 
-void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Ainc, unsigned Aoutline, unsigned Acursor, double expand_factor, bool multiclip);
+void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Ainc, unsigned Aoutline, unsigned Acursor, double expand_factor, bool multiclip, int resizeeffect);
 void int_backdrop_done();
 void int_backdrop_pos(int index, int x, int y, int dx, int dy);
 void int_backdrop_set(int index, const resource& res, bool highlight, unsigned aspectx, unsigned aspecty);

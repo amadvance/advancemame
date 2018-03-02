@@ -23,6 +23,7 @@
 #include "text.h"
 #include "common.h"
 #include "play.h"
+#include "mconfig.h"
 
 #include "advance.h"
 
@@ -908,7 +909,7 @@ public:
 
 	void compute_size(unsigned* rx, unsigned* ry, const adv_bitmap* bitmap, unsigned aspectx, unsigned aspecty, double aspect_expand);
 	void draw_backdrop(const adv_bitmap* map, const adv_color_rgb& background);
-	void draw_clip(const adv_bitmap* map, adv_color_rgb* rgb_map, unsigned rgb_max, unsigned aspectx, unsigned aspecty, double aspect_expand, const adv_color_rgb& background, bool clear);
+	void draw_clip(const adv_bitmap* map, adv_color_rgb* rgb_map, unsigned rgb_max, unsigned aspectx, unsigned aspecty, double aspect_expand, const adv_color_rgb& background, bool clear, int resizeeffect);
 	void clear(const adv_color_rgb& background);
 	void redraw();
 	void border(int width, const adv_color_rgb& color);
@@ -995,7 +996,7 @@ void cell_pos_t::clear(const adv_color_rgb& background)
 	gen_clear_alpha(real_x, real_y, real_dx, real_dy, background);
 }
 
-void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, unsigned rgb_max, unsigned aspectx, unsigned aspecty, double aspect_expand, const adv_color_rgb& background, bool clear)
+void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, unsigned rgb_max, unsigned aspectx, unsigned aspecty, double aspect_expand, const adv_color_rgb& background, bool clear, int resizeeffect)
 {
 	adv_pixel pixel = video_pixel_get(background.red, background.green, background.blue);
 
@@ -1066,37 +1067,112 @@ void cell_pos_t::draw_clip(const adv_bitmap* bitmap, adv_color_rgb* rgb_map, uns
 		dst_dy = rel_dy;
 	}
 
-	unsigned combine = VIDEO_COMBINE_Y_NONE;
-	if (dst_dx < dx)
-		combine |= VIDEO_COMBINE_X_MEAN;
-	if (dst_dy < dy)
-		combine |= VIDEO_COMBINE_Y_MEAN;
+	if (resizeeffect != COMBINE_NONE && dst_dx >= 2 * dx && dst_dy >= 2 * dy) {
+		struct video_pipeline_struct pipeline;
 
-	struct video_pipeline_struct pipeline;
+		unsigned sdx;
+		unsigned sdy;
 
-	video_pipeline_init(&pipeline);
-
-	video_pipeline_target(&pipeline, video_foreground_buffer, video_buffer_line_size, video_color_def());
-
-	uint32 palette32[256];
-	uint16 palette16[256];
-	uint8 palette8[256];
-	if (bitmap->bytes_per_pixel == 1) {
-		for (unsigned i = 0; i < rgb_max; ++i) {
-			adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
-			palette32[i] = p;
-			palette16[i] = p;
-			palette8[i] = p;
+		if (dst_dx >= 4 * dx && dst_dy >= 4 * dy) {
+			sdx = 4 * dx;
+			sdy = 4 * dy;
+		} else if (dst_dx >= 3 * dx && dst_dy >= 3 * dy) {
+			sdx = 3 * dx;
+			sdy = 3 * dy;
+		} else {
+			sdx = 2 * dx;
+			sdy = 2 * dy;
 		}
-		video_pipeline_palette8(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
+
+		adv_color_def scaled_def = video_color_def();
+		adv_bitmap* scaled = adv_bitmap_alloc(sdx, sdy, color_def_bytes_per_pixel_get(scaled_def));
+
+		// blit the bitmap on a scaled one with effect
+		unsigned combine;
+		switch (resizeeffect) {
+		case COMBINE_SCALEX: combine = VIDEO_COMBINE_Y_SCALEX; break;
+		case COMBINE_SCALEK: combine = VIDEO_COMBINE_Y_SCALEK; break;
+		case COMBINE_HQ: combine = VIDEO_COMBINE_Y_HQ; break;
+		case COMBINE_XBR: combine = VIDEO_COMBINE_Y_XBR; break;
+		default: combine = VIDEO_COMBINE_Y_NONE; break;
+		}
+
+		video_pipeline_init(&pipeline);
+
+		video_pipeline_target(&pipeline, scaled->ptr, scaled->bytes_per_scanline, scaled_def);
+
+		uint32 palette32[256];
+		uint16 palette16[256];
+		uint8 palette8[256];
+		if (bitmap->bytes_per_pixel == 1) {
+			for (unsigned i = 0; i < rgb_max; ++i) {
+				adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
+				palette32[i] = p;
+				palette16[i] = p;
+				palette8[i] = p;
+			}
+			video_pipeline_palette8(&pipeline, sdx, sdy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
+		} else {
+			adv_color_def def = adv_png_color_def(bitmap->bytes_per_pixel);
+			video_pipeline_direct(&pipeline, sdx, sdy, dx, dy, dw, dp, def, combine);
+		}
+
+		video_pipeline_blit(&pipeline, 0, 0, ptr);
+
+		video_pipeline_done(&pipeline);
+
+		// now blit the scaled bitmap
+		ptr = scaled->ptr;
+		dw = scaled->bytes_per_scanline;
+		dp = scaled->bytes_per_pixel;
+		dx = scaled->size_x;
+		dy = scaled->size_y;
+		combine = VIDEO_COMBINE_Y_NONE;
+
+		video_pipeline_init(&pipeline);
+
+		video_pipeline_target(&pipeline, video_foreground_buffer, video_buffer_line_size, video_color_def());
+
+		video_pipeline_direct(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, scaled_def, combine);
+
+		video_pipeline_blit(&pipeline, dst_x, dst_y, ptr);
+
+		video_pipeline_done(&pipeline);
+
+		adv_bitmap_free(scaled);
 	} else {
-		adv_color_def def = adv_png_color_def(bitmap->bytes_per_pixel);
-		video_pipeline_direct(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
+		struct video_pipeline_struct pipeline;
+
+		unsigned combine = VIDEO_COMBINE_Y_NONE;
+		if (dst_dx < dx)
+			combine |= VIDEO_COMBINE_X_MEAN;
+		if (dst_dy < dy)
+			combine |= VIDEO_COMBINE_Y_MEAN;
+
+		video_pipeline_init(&pipeline);
+
+		video_pipeline_target(&pipeline, video_foreground_buffer, video_buffer_line_size, video_color_def());
+
+		uint32 palette32[256];
+		uint16 palette16[256];
+		uint8 palette8[256];
+		if (bitmap->bytes_per_pixel == 1) {
+			for (unsigned i = 0; i < rgb_max; ++i) {
+				adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
+				palette32[i] = p;
+				palette16[i] = p;
+				palette8[i] = p;
+			}
+			video_pipeline_palette8(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
+		} else {
+			adv_color_def def = adv_png_color_def(bitmap->bytes_per_pixel);
+			video_pipeline_direct(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
+		}
+
+		video_pipeline_blit(&pipeline, dst_x, dst_y, ptr);
+
+		video_pipeline_done(&pipeline);
 	}
-
-	video_pipeline_blit(&pipeline, dst_x, dst_y, ptr);
-
-	video_pipeline_done(&pipeline);
 }
 
 void cell_pos_t::border(int width, const adv_color_rgb& color)
@@ -1126,7 +1202,7 @@ class backdrop_data {
 
 	void icon_apply(adv_bitmap* bitmap, adv_bitmap* bitmap_mask, adv_color_rgb* rgb, unsigned* rgb_max, const adv_color_rgb& background);
 	adv_bitmap* image_load(const resource& res, adv_color_rgb* rgb, unsigned* rgb_max, const adv_color_rgb& background);
-	adv_bitmap* adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigned* rgb_max, unsigned dst_dx, unsigned dst_dy);
+	adv_bitmap* adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigned* rgb_max, unsigned dst_dx, unsigned dst_dy, int resizeeffect);
 
 public:
 	backdrop_data(const resource& Ares, unsigned Atarget_dx, unsigned Atarget_dy, unsigned Aaspectx, unsigned Aaspecty);
@@ -1141,7 +1217,7 @@ public:
 	unsigned aspectx_get() const { return aspectx; }
 	unsigned aspecty_get() const { return aspecty; }
 
-	void load(struct cell_pos_t* cell, const adv_color_rgb& background, double aspect_expand);
+	void load(struct cell_pos_t* cell, const adv_color_rgb& background, double aspect_expand, int resizeeffect);
 };
 
 backdrop_data::backdrop_data(const resource& Ares, unsigned Atarget_dx, unsigned Atarget_dy, unsigned Aaspectx, unsigned Aaspecty)
@@ -1300,7 +1376,7 @@ adv_bitmap* backdrop_data::image_load(const resource& res, adv_color_rgb* rgb, u
 	return 0;
 }
 
-adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigned* rgb_max, unsigned dst_dx, unsigned dst_dy)
+adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb_map, unsigned* rgb_max, unsigned dst_dx, unsigned dst_dy, int resizeeffect)
 {
 	// source range and steps
 	unsigned char* ptr = bitmap->ptr;
@@ -1328,44 +1404,119 @@ adv_bitmap* backdrop_data::adapt(adv_bitmap* bitmap, adv_color_rgb* rgb, unsigne
 		dw = -dw;
 	}
 
-	unsigned combine = VIDEO_COMBINE_Y_NONE;
-	if (dst_dx < dx)
-		combine |= VIDEO_COMBINE_X_MEAN;
-	if (dst_dy < dy)
-		combine |= VIDEO_COMBINE_Y_MEAN;
+	adv_bitmap* raw = adv_bitmap_alloc(dst_dx, dst_dy, video_bytes_per_pixel());
 
-	adv_bitmap* raw_bitmap = adv_bitmap_alloc(dst_dx, dst_dy, video_bytes_per_pixel());
+	if (resizeeffect != COMBINE_NONE && dst_dx >= 2 * dx && dst_dy >= 2 * dy) {
+		struct video_pipeline_struct pipeline;
 
-	struct video_pipeline_struct pipeline;
+		unsigned sdx;
+		unsigned sdy;
 
-	video_pipeline_init(&pipeline);
-
-	video_pipeline_target(&pipeline, raw_bitmap->ptr, raw_bitmap->bytes_per_scanline, video_color_def());
-
-	uint32 palette32[256];
-	uint16 palette16[256];
-	uint8 palette8[256];
-	if (bitmap->bytes_per_pixel == 1) {
-		for (unsigned i = 0; i < *rgb_max; ++i) {
-			adv_pixel p = video_pixel_get(rgb[i].red, rgb[i].green, rgb[i].blue);
-			palette32[i] = p;
-			palette16[i] = p;
-			palette8[i] = p;
+		if (dst_dx >= 4 * dx && dst_dy >= 4 * dy) {
+			sdx = 4 * dx;
+			sdy = 4 * dy;
+		} else if (dst_dx >= 3 * dx && dst_dy >= 3 * dy) {
+			sdx = 3 * dx;
+			sdy = 3 * dy;
+		} else {
+			sdx = 2 * dx;
+			sdy = 2 * dy;
 		}
-		video_pipeline_palette8(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
+
+		adv_color_def scaled_def = video_color_def();
+		adv_bitmap* scaled = adv_bitmap_alloc(sdx, sdy, color_def_bytes_per_pixel_get(scaled_def));
+
+		// blit the bitmap on a scaled one with effect
+		unsigned combine;
+		switch (resizeeffect) {
+		case COMBINE_SCALEX: combine = VIDEO_COMBINE_Y_SCALEX; break;
+		case COMBINE_SCALEK: combine = VIDEO_COMBINE_Y_SCALEK; break;
+		case COMBINE_HQ: combine = VIDEO_COMBINE_Y_HQ; break;
+		case COMBINE_XBR: combine = VIDEO_COMBINE_Y_XBR; break;
+		default: combine = VIDEO_COMBINE_Y_NONE; break;
+		}
+
+		video_pipeline_init(&pipeline);
+
+		video_pipeline_target(&pipeline, scaled->ptr, scaled->bytes_per_scanline, scaled_def);
+
+		uint32 palette32[256];
+		uint16 palette16[256];
+		uint8 palette8[256];
+		if (bitmap->bytes_per_pixel == 1) {
+			for (unsigned i = 0; i < *rgb_max; ++i) {
+				adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
+				palette32[i] = p;
+				palette16[i] = p;
+				palette8[i] = p;
+			}
+			video_pipeline_palette8(&pipeline, sdx, sdy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
+		} else {
+			adv_color_def def = adv_png_color_def(bitmap->bytes_per_pixel);
+			video_pipeline_direct(&pipeline, sdx, sdy, dx, dy, dw, dp, def, combine);
+		}
+
+		video_pipeline_blit(&pipeline, 0, 0, ptr);
+
+		video_pipeline_done(&pipeline);
+
+		// now blit the scaled bitmap
+		ptr = scaled->ptr;
+		dw = scaled->bytes_per_scanline;
+		dp = scaled->bytes_per_pixel;
+		dx = scaled->size_x;
+		dy = scaled->size_y;
+		combine = VIDEO_COMBINE_Y_NONE;
+
+		video_pipeline_init(&pipeline);
+
+		video_pipeline_target(&pipeline, raw->ptr, raw->bytes_per_scanline, video_color_def());
+
+		video_pipeline_direct(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, scaled_def, combine);
+
+		video_pipeline_blit(&pipeline, 0, 0, ptr);
+
+		video_pipeline_done(&pipeline);
+
+		adv_bitmap_free(scaled);
 	} else {
-		adv_color_def def = adv_png_color_def(bitmap->bytes_per_pixel);
-		video_pipeline_direct(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
+		struct video_pipeline_struct pipeline;
+
+		unsigned combine = VIDEO_COMBINE_Y_NONE;
+		if (dst_dx < dx)
+			combine |= VIDEO_COMBINE_X_MEAN;
+		if (dst_dy < dy)
+			combine |= VIDEO_COMBINE_Y_MEAN;
+
+		video_pipeline_init(&pipeline);
+
+		video_pipeline_target(&pipeline, raw->ptr, raw->bytes_per_scanline, video_color_def());
+
+		uint32 palette32[256];
+		uint16 palette16[256];
+		uint8 palette8[256];
+		if (bitmap->bytes_per_pixel == 1) {
+			for (unsigned i = 0; i < *rgb_max; ++i) {
+				adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
+				palette32[i] = p;
+				palette16[i] = p;
+				palette8[i] = p;
+			}
+			video_pipeline_palette8(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, palette8, palette16, palette32, combine);
+		} else {
+			adv_color_def def = adv_png_color_def(bitmap->bytes_per_pixel);
+			video_pipeline_direct(&pipeline, dst_dx, dst_dy, dx, dy, dw, dp, def, combine);
+		}
+
+		video_pipeline_blit(&pipeline, 0, 0, ptr);
+
+		video_pipeline_done(&pipeline);
 	}
 
-	video_pipeline_blit(&pipeline, 0, 0, ptr);
-
-	video_pipeline_done(&pipeline);
-
-	return raw_bitmap;
+	return raw;
 }
 
-void backdrop_data::load(struct cell_pos_t* cell, const adv_color_rgb& background, double aspect_expand)
+void backdrop_data::load(struct cell_pos_t* cell, const adv_color_rgb& background, double aspect_expand, int resizeeffect)
 {
 	if (map)
 		return; // already loaded
@@ -1383,7 +1534,7 @@ void backdrop_data::load(struct cell_pos_t* cell, const adv_color_rgb& backgroun
 
 	cell->compute_size(&dst_dx, &dst_dy, bitmap, aspectx, aspecty, aspect_expand);
 
-	adv_bitmap* scaled_bitmap = adapt(bitmap, rgb, &rgb_max, dst_dx, dst_dy);
+	adv_bitmap* scaled_bitmap = adapt(bitmap, rgb, &rgb_max, dst_dx, dst_dy, resizeeffect);
 
 	adv_bitmap_free(bitmap);
 
@@ -1745,6 +1896,7 @@ class cell_manager {
 	double backdrop_expand_factor; // stretch factor
 
 	bool multiclip;
+	int resizeeffect;
 
 	target_clock_t backdrop_box_last;
 
@@ -1753,7 +1905,7 @@ class cell_manager {
 	unsigned idle_iterator;
 
 public:
-	cell_manager(const int_color& Abackdrop_missing_color, const int_color& Abackdrop_box_color, unsigned Amac, unsigned Ainc, unsigned outline, unsigned cursor, double expand_factor, bool Amulticlip);
+	cell_manager(const int_color& Abackdrop_missing_color, const int_color& Abackdrop_box_color, unsigned Amac, unsigned Ainc, unsigned outline, unsigned cursor, double expand_factor, bool Amulticlip, int Aresizeeffect);
 	~cell_manager();
 
 	unsigned size() const { return backdrop_mac; }
@@ -1781,7 +1933,7 @@ unsigned cell_manager::backdrop_topline(int index)
 	return backdrop_map[index].pos.real_y - backdrop_outline;
 }
 
-cell_manager::cell_manager(const int_color& Abackdrop_missing_color, const int_color& Abackdrop_box_color, unsigned Amac, unsigned Ainc, unsigned outline, unsigned cursor, double expand_factor, bool Amulticlip)
+cell_manager::cell_manager(const int_color& Abackdrop_missing_color, const int_color& Abackdrop_box_color, unsigned Amac, unsigned Ainc, unsigned outline, unsigned cursor, double expand_factor, bool Amulticlip, int Aresizeeffect)
 {
 	backdrop_box_last = 0;
 	backdrop_missing_color = Abackdrop_missing_color;
@@ -1798,6 +1950,8 @@ cell_manager::cell_manager(const int_color& Abackdrop_missing_color, const int_c
 		int_clip_cache = new clip_cache(backdrop_mac);
 	else
 		int_clip_cache = new clip_cache(0);
+
+	resizeeffect = Aresizeeffect;
 
 	for (int i = 0; i < backdrop_mac; ++i) {
 		backdrop_map[i].data = 0;
@@ -1951,7 +2105,7 @@ void cell_manager::backdrop_update(int index)
 
 	if (back->data) {
 		if (!fast_exit_handler())
-			back->data->load(&back->pos, backdrop_missing_color.background, backdrop_expand_factor);
+			back->data->load(&back->pos, backdrop_missing_color.background, backdrop_expand_factor, resizeeffect);
 	}
 
 	if (back->redraw) {
@@ -2007,7 +2161,7 @@ bool cell_manager::idle_update(int index)
 		return false;
 	}
 
-	cell->pos.draw_clip(bitmap, rgb_map, rgb_max, cell->caspectx, cell->caspecty, backdrop_expand_factor, backdrop_missing_color.background, clip->is_first());
+	cell->pos.draw_clip(bitmap, rgb_map, rgb_max, cell->caspectx, cell->caspecty, backdrop_expand_factor, backdrop_missing_color.background, clip->is_first(), resizeeffect);
 
 	cell->pos.redraw();
 
@@ -2143,9 +2297,9 @@ static class cell_manager* int_cell; // global cell manager
 //---------------------------------------------------------------------------
 // Backgrop/Clip Interface
 
-void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Ainc, unsigned Aoutline, unsigned Acursor, double expand_factor, bool multiclip)
+void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Ainc, unsigned Aoutline, unsigned Acursor, double expand_factor, bool multiclip, int resizeeffect)
 {
-	int_cell = new cell_manager(back_color, back_box_color, Amac, Ainc, Aoutline, Acursor, expand_factor, multiclip);
+	int_cell = new cell_manager(back_color, back_box_color, Amac, Ainc, Aoutline, Acursor, expand_factor, multiclip, resizeeffect);
 }
 
 void int_backdrop_done()
@@ -2493,7 +2647,7 @@ bool int_clip(const string& file, bool loop)
 
 	bool wait = true;
 
-	int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_BACKDROP, 1, 0, 0, 0, 1.0, false);
+	int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_BACKDROP, 1, 0, 0, 0, 1.0, false, COMBINE_NONE);
 
 	int_backdrop_pos(0, 0, 0, int_dx_get(), int_dy_get());
 

@@ -134,6 +134,15 @@ static adv_conf_enum_int OPTION_CLIPMODE[] = {
 	{ "multiloopall", clip_multiloopall }
 };
 
+static adv_conf_enum_int OPTION_RESIZEEFFECT[] = {
+	{ "auto", COMBINE_AUTO },
+	{ "none", COMBINE_NONE },
+	{ "scalex", COMBINE_SCALEX },
+	{ "scalek", COMBINE_SCALEK },
+	{ "hq", COMBINE_HQ },
+	{ "xbr", COMBINE_XBR },
+};
+
 static void config_error_la(const string& line, const string& arg)
 {
 	target_err("Invalid argument '%s' at line '%s'.\n", arg.c_str(), line.c_str());
@@ -306,6 +315,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_float_register_limit_default(config_context, "display_brightness", 0.2, 5, 1);
 	conf_bool_register_default(config_context, "display_restoreatgame", 1);
 	conf_bool_register_default(config_context, "display_restoreatexit", 1);
+	conf_int_register_enum_default(config_context, "display_resizeeffect", conf_enum(OPTION_RESIZEEFFECT), COMBINE_AUTO);
 	conf_bool_register_default(config_context, "misc_quiet", 0);
 	conf_float_register_limit_default(config_context, "ui_translucency", 0, 1, 0.6);
 	conf_string_register_default(config_context, "ui_background", "none");
@@ -852,6 +862,16 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	video_brightness = conf_float_get_default(config_context, "display_brightness");
 	resetexit = conf_bool_get_default(config_context, "display_restoreatexit");
 	default_resetgame_unique = conf_bool_get_default(config_context, "display_restoreatgame");
+	resizeeffect = conf_int_get_default(config_context, "display_resizeeffect");
+	/* on Intel assume a fast machine */
+#if defined(__i386__) || defined(__x86_64__)
+	if (resizeeffect == COMBINE_AUTO)
+		resizeeffect = COMBINE_XBR;
+#else
+	if (resizeeffect == COMBINE_AUTO)
+		resizeeffect = COMBINE_SCALEK;
+#endif
+
 	quiet = conf_bool_get_default(config_context, "misc_quiet");
 	if (!config_split(conf_string_get_default(config_context, "ui_gamemsg"), ui_gamemsg))
 		return false;

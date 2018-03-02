@@ -9,8 +9,7 @@ MENUCFLAGS += -DADV_VERSION=\"$(VERSION)\" -DADV_MENU
 MENUCFLAGS += \
 	-I$(srcdir)/advance/lib \
 	-I$(srcdir)/advance/blit \
-	-I$(srcdir)/advance/mpglib \
-	-DUSE_BLIT_TINY
+	-I$(srcdir)/advance/mpglib
 MENUOBJDIRS += \
 	$(MENUOBJ)/menu \
 	$(MENUOBJ)/lib \
@@ -82,6 +81,20 @@ MENUOBJS += \
 	$(MENUOBJ)/lib/error.o \
 	$(MENUOBJ)/lib/filter.o \
 	$(MENUOBJ)/lib/complex.o \
+	$(MENUOBJ)/blit/hq2x.o \
+	$(MENUOBJ)/blit/hq2x3.o \
+	$(MENUOBJ)/blit/hq2x4.o \
+	$(MENUOBJ)/blit/hq3x.o \
+	$(MENUOBJ)/blit/hq4x.o \
+	$(MENUOBJ)/blit/xbr2x.o \
+	$(MENUOBJ)/blit/xbr3x.o \
+	$(MENUOBJ)/blit/xbr4x.o \
+	$(MENUOBJ)/blit/scale2x.o \
+	$(MENUOBJ)/blit/scale3x.o \
+	$(MENUOBJ)/blit/scale2k.o \
+	$(MENUOBJ)/blit/scale3k.o \
+	$(MENUOBJ)/blit/scale4k.o \
+	$(MENUOBJ)/blit/interp.o \
 	$(MENUOBJ)/blit/clear.o \
 	$(MENUOBJ)/blit/blit.o \
 	$(MENUOBJ)/blit/slice.o \

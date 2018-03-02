@@ -32,6 +32,13 @@
 #define ADV_COPY \
 	"AdvanceMENU - Copyright (C) 1999-2018 by Andrea Mazzoleni\n"
 
+#define COMBINE_AUTO -1
+#define COMBINE_NONE 0
+#define COMBINE_SCALEX 6
+#define COMBINE_SCALEK 7
+#define COMBINE_HQ 8
+#define COMBINE_XBR 9
+
 enum clip_mode_t {
 	clip_none,
 	clip_single,
@@ -321,6 +328,8 @@ public:
 
 	bool lock_orig; ///< Original interface locked.
 	bool lock_effective; ///< Interface locked.
+
+	int resizeeffect; ///< Display effect
 
 	// video
 	unsigned video_sizex; ///< Preferred video x size.
