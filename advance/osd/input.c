@@ -733,6 +733,11 @@ static adv_error parse_mouse_button(int* v, const char* s, int mouse)
 		return parse_int(v, s);
 	}
 
+	*v = mouse_button_code(s);
+	if (*v >= 0 && *v < MOUSEB_MAX) {
+		return 0;
+	}
+
 	if (mouse >= mouseb_count_get()) {
 		*v = 0; /* fake value, doesn't fail if you remove a device */
 		return 0;
@@ -763,6 +768,11 @@ static adv_error parse_joystick_button(int* v, const char* s, int joystick)
 		return parse_int(v, s);
 	}
 
+	*v = joy_button_code(s);
+	if (*v >= 0 && *v < JOYB_MAX) {
+		return 0;
+	}
+
 	if (joystick >= joystickb_count_get()) {
 		*v = 0; /* fake value, doesn't fail if you remove a device */
 		return 0;
@@ -787,14 +797,13 @@ static adv_error parse_key(int* v, const char* s, int keyboard)
 		return -1;
 	}
 
-	if (keyboard >= keyb_count_get()) {
-		*v = 0; /* fake value, doesn't fail if you remove a device */
+	*v = key_code(s);
+	if (*v >= 0 && *v < KEYB_MAX) {
 		return 0;
 	}
 
-	*v = key_code(s);
-
-	if (*v >= 0 && *v < KEYB_MAX) {
+	if (keyboard >= keyb_count_get()) {
+		*v = 0; /* fake value, doesn't fail if you remove a device */
 		return 0;
 	}
 

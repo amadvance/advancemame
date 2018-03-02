@@ -495,6 +495,7 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/lib/device.o \
 	$(OBJ)/advance/lib/videoall.o \
 	$(OBJ)/advance/lib/soundall.o \
+	$(OBJ)/advance/lib/joy.o \
 	$(OBJ)/advance/lib/joyall.o \
 	$(OBJ)/advance/lib/joydrv.o \
 	$(OBJ)/advance/lib/jnone.o \
@@ -502,6 +503,7 @@ ADVANCEOBJS += \
 	$(OBJ)/advance/lib/keydrv.o \
 	$(OBJ)/advance/lib/knone.o \
 	$(OBJ)/advance/lib/key.o \
+	$(OBJ)/advance/lib/mouse.o \
 	$(OBJ)/advance/lib/mouseall.o \
 	$(OBJ)/advance/lib/mousedrv.o \
 	$(OBJ)/advance/lib/mnone.o \
