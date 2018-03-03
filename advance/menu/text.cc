@@ -2546,20 +2546,10 @@ unsigned int_put_right_alpha(int x, int y, int dx, const string& s, const int_co
 	return int_put_alpha(x + dx - size, y, dx, s, color);
 }
 
-void int_clear(const adv_color_rgb& color)
+void int_clear(const adv_color_rgb& cbackground, const adv_color_rgb& coverscan)
 {
-	adv_pixel background = video_pixel_get(color.red, color.green, color.blue);
-	adv_pixel overscan;
-
-	// clear the whole bitmap using the overscan color
-	if ((video_driver_flags() & VIDEO_DRIVER_FLAGS_OUTPUT_WINDOW) != 0
-		&& video_buffer_pixel_size > 1) {
-		// fill with white in a window manager environment
-		overscan = video_pixel_get(0xff, 0xff, 0xff);
-	} else {
-		// fill with black in a full screen environment
-		overscan = video_pixel_get(0, 0, 0);
-	}
+	adv_pixel background = video_pixel_get(cbackground.red, cbackground.green, cbackground.blue);
+	adv_pixel overscan = video_pixel_get(coverscan.red, coverscan.green, coverscan.blue);
 
 	adv_bitmap_clear(video_foreground_bitmap, 0, 0, video_size_x(), video_size_y(), overscan);
 	adv_bitmap_clear(video_background_bitmap, 0, 0, video_size_x(), video_size_y(), background);

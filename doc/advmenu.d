@@ -1023,6 +1023,18 @@ Configuration
 	:ui_color TAG FOREGROUND BACKGROUND
 
 	Tags:
+		menu_item - Game menu entry.
+		menu_hidden - Game menu hidden entry.
+		menu_tag - Game menu highlight entry.
+		menu_item_select - Game menu selected entry.
+		menu_hidden_select - Game menu hidden selected entry.
+		menu_tag_select - Game menu selected highlight.
+		bar - Top and bottom bars.
+		bar_tag - Top and bottom barshighlight.
+		bar_hidden - Top and bottom bars hidden text.
+		grid - Scrollbar marker and generic background color.
+		overscan - Ooverscan area controled by skip_top/bottom/left/right.
+		backdrop - Backdropoutline and missing backdrop.
 		help - Help.
 		help_tag - Help highlight.
 		submenu_bar - Submenu title.
@@ -1030,17 +1042,6 @@ Configuration
 		submenu_item_select - Submenu selected entry.
 		submenu_hidden - Submenu hidden entry.
 		submenu_hidden_select - Submenu selected hidden entry.
-		menu_item - Menu entry.
-		menu_hidden - Menu hidden entry.
-		menu_tag - Menu highlight entry.
-		menu_item_select - Menu selected entry.
-		menu_hidden_select - Menu hidden selected entry.
-		menu_tag_select - Menu selected highlight.
-		bar - Title.
-		bar_tag - Title highlight.
-		bar_hidden - Title hidden text.
-		grid - Scrollbar marker and generic background color.
-		backdrop - Backdrop outline and missing backdrop.
 		icon - Icon outline and missing icon.
 		cursor - Flashing cursor.
 

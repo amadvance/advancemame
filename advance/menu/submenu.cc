@@ -1024,7 +1024,7 @@ void run_help(config_state& rs)
 {
 	bool wait = true;
 
-	int_clear(COLOR_HELP_NORMAL.background);
+	int_clear(COLOR_HELP_NORMAL.background, COLOR_MENU_OVERSCAN.background);
 
 	if (rs.ui_help != "none") {
 		wait = int_clip(rs.ui_help, true);
@@ -1234,7 +1234,7 @@ void run_stat(config_state& rs)
 	if (n > STAT_MAX)
 		n = STAT_MAX;
 
-	int_clear(COLOR_HELP_NORMAL.background);
+	int_clear(COLOR_HELP_NORMAL.background, COLOR_MENU_OVERSCAN.background);
 
 	if (rs.ui_back != "none") {
 		unsigned x, y;

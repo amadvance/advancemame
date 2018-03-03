@@ -812,7 +812,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	log_std(("menu: user begin\n"));
 
 	// clear all the screen
-	int_clear(COLOR_MENU_GRID.background);
+	int_clear(COLOR_MENU_GRID.background, COLOR_MENU_OVERSCAN.background);
 
 	ui_right = rs.ui_right;
 	ui_left = rs.ui_left;
@@ -1883,7 +1883,7 @@ int run_menu_idle_off()
 	bool done = false;
 	int key = 0;
 
-	int_clear(COLOR_MENU_GRID.background);
+	int_clear(COLOR_MENU_GRID.background, COLOR_MENU_OVERSCAN.background);
 
 	target_apm_standby();
 

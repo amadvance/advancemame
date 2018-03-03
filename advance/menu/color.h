@@ -50,6 +50,7 @@ extern int_color COLOR_MENU_BAR;
 extern int_color COLOR_MENU_BAR_TAG;
 extern int_color COLOR_MENU_BAR_HIDDEN;
 extern int_color COLOR_MENU_GRID;
+extern int_color COLOR_MENU_OVERSCAN;
 extern int_color COLOR_MENU_BACKDROP;
 extern int_color COLOR_MENU_ICON;
 extern int_color COLOR_MENU_CURSOR;

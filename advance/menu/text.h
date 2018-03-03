@@ -48,7 +48,7 @@ void* int_save();
 void int_restore(void* buffer);
 
 bool int_image(const std::string& file, unsigned& scale_x, unsigned& scale_y);
-void int_clear(const adv_color_rgb& color);
+void int_clear(const adv_color_rgb& cbackground, const adv_color_rgb& coverscan);
 void int_clear(int x, int y, int dx, int dy, const adv_color_rgb& color);
 void int_clear_alpha(int x, int y, int dx, int dy, const adv_color_rgb& color);
 void int_box(int x, int y, int dx, int dy, int width, const adv_color_rgb& color);

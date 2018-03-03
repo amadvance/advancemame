@@ -50,6 +50,7 @@ int_color COLOR_MENU_BAR = { C_NORMAL, C_BACK };
 int_color COLOR_MENU_BAR_TAG = { C_TITLE, C_BACK };
 int_color COLOR_MENU_BAR_HIDDEN = { C_HIDDEN, C_BACK };
 int_color COLOR_MENU_GRID = { C_TITLE, C_BACK };
+int_color COLOR_MENU_OVERSCAN = { C_NORMAL, C_BACK };
 int_color COLOR_MENU_BACKDROP = { C_NORMAL, C_HIDDEN };
 int_color COLOR_MENU_ICON = { C_BACK, C_BACK };
 int_color COLOR_MENU_CURSOR = { C_HIDDEN, C_BACK };
@@ -76,6 +77,7 @@ static struct {
 	{ &COLOR_MENU_BAR_TAG, "bar_tag", false },
 	{ &COLOR_MENU_BAR_HIDDEN, "bar_hidden", false },
 	{ &COLOR_MENU_GRID, "grid", false },
+	{ &COLOR_MENU_OVERSCAN, "overscan", false },
 	{ &COLOR_MENU_BACKDROP, "backdrop", false },
 	{ &COLOR_MENU_ICON, "icon", false },
 	{ &COLOR_MENU_CURSOR, "cursor", false },
