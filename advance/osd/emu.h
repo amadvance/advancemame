@@ -45,6 +45,8 @@
 #include "filter.h"
 #include "dft.h"
 #include "font.h"
+#include "joy.h"
+#include "mouse.h"
 
 #ifdef USE_LCD
 #include "lcd.h"
@@ -169,7 +171,6 @@ void advance_safequit_update(struct advance_safequit_context* context);
 #define INPUT_STICK_MAX 8 /**< Max number of sticks for a joystick. */
 #define INPUT_AXE_MAX 8 /**< Max number of axes for a stick or mouse. */
 #define INPUT_DIR_MAX 2 /**< Max number of direction for an axe (up/down or left/right). */
-#define INPUT_BUTTON_MAX 64 /**< Max number buttons for a joystick or mouses. */
 
 #define INPUT_HELP_MAX 512 /**< Max number of help entry. */
 /*@}*/
@@ -209,12 +210,12 @@ struct advance_input_state_context {
 	unsigned char key_old[INPUT_KEYBOARD_MAX][KEYB_MAX]; /**< Keyboard previous frame state. */
 	unsigned char key_current[INPUT_KEYBOARD_MAX][KEYB_MAX]; /**< Keyboard current frame state. */
 
-	int joystick_button_current[INPUT_JOY_MAX][INPUT_BUTTON_MAX]; /**< Joystick button state. */
+	int joystick_button_current[INPUT_JOY_MAX][JOYB_MAX]; /**< Joystick button state. */
 	int joystick_analog_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX]; /**< Joystick analog state. */
 	int joystick_digital_current[INPUT_JOY_MAX][INPUT_STICK_MAX][INPUT_AXE_MAX][INPUT_DIR_MAX]; /**< Joystick digital state. */
 	int ball_analog_current[INPUT_JOY_MAX][INPUT_AXE_MAX]; /**< Joystick ball analog state. */
 
-	int mouse_button_current[INPUT_MOUSE_MAX][INPUT_BUTTON_MAX]; /**< Mouse button state. */
+	int mouse_button_current[INPUT_MOUSE_MAX][MOUSEB_MAX]; /**< Mouse button state. */
 	int mouse_analog_current[INPUT_MOUSE_MAX][INPUT_AXE_MAX]; /**< Mouse analog state. */
 };
 

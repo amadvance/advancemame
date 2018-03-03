@@ -51,8 +51,8 @@
 
 #define DIGITAL_TYPE_SPECIAL 0 /* Special codes */
 #define DIGITAL_TYPE_JOY 1 /* Joy digital move - DAAASSSXXXTTT */
-#define DIGITAL_TYPE_JOY_BUTTON 2 /* Joy button - BBBBBBXXXTTT */
-#define DIGITAL_TYPE_MOUSE_BUTTON 3 /* Mouse button - BBBBBBXXXTTT */
+#define DIGITAL_TYPE_JOY_BUTTON 2 /* Joy button - BBBBBBBBXXXTTT */
+#define DIGITAL_TYPE_MOUSE_BUTTON 3 /* Mouse button - BBBBBBBBXXXTTT */
 #define DIGITAL_TYPE_KBD 4 /* Keyboard button - KKKKKKKKKKXXXTTT */
 #define DIGITAL_TYPE_GET(i) ((i) & 0x7)
 
@@ -75,11 +75,11 @@
 #define DIGITAL_JOY(joy, stick, axe, dir) (DIGITAL_TYPE_JOY | (joy) << 3 | (stick) << 6 | (axe) << 9 | (dir) << 12)
 
 #define DIGITAL_JOY_BUTTON_DEV_GET(i) (((i) >> 3) & 0x7)
-#define DIGITAL_JOY_BUTTON_BUTTON_GET(i) (((i) >> 6) & 0x3F)
+#define DIGITAL_JOY_BUTTON_BUTTON_GET(i) (((i) >> 6) & 0xFF)
 #define DIGITAL_JOY_BUTTON(joy, button) (DIGITAL_TYPE_JOY_BUTTON | (joy) << 3 | (button) << 6)
 
 #define DIGITAL_MOUSE_BUTTON_DEV_GET(i) (((i) >> 3) & 0x7)
-#define DIGITAL_MOUSE_BUTTON_BUTTON_GET(i) (((i) >> 6) & 0x3F)
+#define DIGITAL_MOUSE_BUTTON_BUTTON_GET(i) (((i) >> 6) & 0xFF)
 #define DIGITAL_MOUSE_BUTTON(mouse, button) (DIGITAL_TYPE_MOUSE_BUTTON | (mouse) << 3 | (button) << 6)
 
 /**************************************************************************/

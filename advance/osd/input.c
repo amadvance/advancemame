@@ -720,7 +720,7 @@ static adv_error parse_joystick_rel(int* v, const char* s, int joystick)
 	return -1;
 }
 
-static adv_error parse_mouse_button(int* v, const char* s, int mouse)
+static adv_error parse_mouse_button_scan(int* v, const char* s, int mouse)
 {
 	unsigned i;
 
@@ -729,6 +729,7 @@ static adv_error parse_mouse_button(int* v, const char* s, int mouse)
 		return -1;
 	}
 
+	/* LEGACY code for backward compatibility */
 	if (strspn(s, "0123456789") == strlen(s)) {
 		return parse_int(v, s);
 	}
@@ -755,7 +756,22 @@ static adv_error parse_mouse_button(int* v, const char* s, int mouse)
 	return -1;
 }
 
-static adv_error parse_joystick_button(int* v, const char* s, int joystick)
+static adv_error parse_mouse_button(int* v, const char* s, int mouse)
+{
+	if (parse_mouse_button_scan(v, s, mouse) != 0)
+		return -1;
+
+	/* promote buttons to high level codes */
+	if (mouse < mouseb_count_get() && *v < mouseb_button_count_get(mouse)) {
+		int k = mouseb_revbind(mouse, *v);
+		if (k >= 0)
+			*v = k;
+	}
+
+	return 0;
+}
+
+static adv_error parse_joystick_button_scan(int* v, const char* s, int joystick)
 {
 	unsigned i;
 
@@ -764,6 +780,7 @@ static adv_error parse_joystick_button(int* v, const char* s, int joystick)
 		return -1;
 	}
 
+	/* LEGACY code for backward compatibility */
 	if (strspn(s, "0123456789") == strlen(s)) {
 		return parse_int(v, s);
 	}
@@ -788,6 +805,21 @@ static adv_error parse_joystick_button(int* v, const char* s, int joystick)
 	error_set("Invalid joystick button '%s'", s);
 
 	return -1;
+}
+
+static adv_error parse_joystick_button(int* v, const char* s, int joystick)
+{
+	if (parse_joystick_button_scan(v, s, joystick) != 0)
+		return -1;
+
+	/* promote buttons to high level codes */
+	if (joystick < joystickb_count_get() && *v < joystickb_button_count_get(joystick)) {
+		int k = joystickb_revbind(joystick, *v);
+		if (k >= 0)
+			*v = k;
+	}
+
+	return 0;
 }
 
 static adv_error parse_key(int* v, const char* s, int keyboard)
@@ -1239,7 +1271,7 @@ adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char*
 				error_set("Invalid joystick '%d'", joystick);
 				return -1;
 			}
-			if (button < 0 || button >= INPUT_BUTTON_MAX) {
+			if (button < 0 || button >= JOYB_MAX) {
 				error_set("Invalid joystick button '%d'", button);
 				return -1;
 			}
@@ -1281,7 +1313,7 @@ adv_error advance_input_parse_digital(unsigned* seq_map, unsigned seq_max, char*
 				error_set("Invalid mouse '%d'", mouse);
 				return -1;
 			}
-			if (button < 0 || button >= INPUT_BUTTON_MAX) {
+			if (button < 0 || button >= MOUSEB_MAX) {
 				error_set("Invalid mouse button '%d'", button);
 				return -1;
 			}
@@ -1375,13 +1407,13 @@ void advance_input_print_digital(char* buffer, unsigned buffer_size, unsigned* s
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
 				output_joystick_name(DIGITAL_JOY_BUTTON_DEV_GET(v), name);
-				sncatf(buffer, buffer_size, "joystick_button[%s,%d]", name, DIGITAL_JOY_BUTTON_BUTTON_GET(v));
+				sncatf(buffer, buffer_size, "joystick_button[%s,%s]", name, joy_button_name(DIGITAL_JOY_BUTTON_BUTTON_GET(v)));
 				break;
 			case DIGITAL_TYPE_MOUSE_BUTTON:
 				if (buffer[0] != 0)
 					sncat(buffer, buffer_size, " ");
 				output_mouse_name(DIGITAL_MOUSE_BUTTON_DEV_GET(v), name);
-				sncatf(buffer, buffer_size, "mouse_button[%s,%d]", name, DIGITAL_MOUSE_BUTTON_BUTTON_GET(v));
+				sncatf(buffer, buffer_size, "mouse_button[%s,%s]", name, mouse_button_name(DIGITAL_MOUSE_BUTTON_BUTTON_GET(v)));
 				break;
 			default:
 				log_std(("ERROR:input: unknown input type %d (type:%d) in digital\n", v, DIGITAL_TYPE_GET(v)));
@@ -1513,7 +1545,7 @@ static adv_error parse_inputname(char* s)
 			error_set("Invalid joystick '%d'", joystick);
 			return -1;
 		}
-		if (button < 0 || button >= INPUT_BUTTON_MAX) {
+		if (button < 0 || button >= JOYB_MAX) {
 			error_set("Invalid joystick button '%d'", button);
 			return -1;
 		}
@@ -1535,7 +1567,7 @@ static adv_error parse_inputname(char* s)
 			error_set("Invalid mouse '%d'", mouse);
 			return -1;
 		}
-		if (button < 0 || button >= INPUT_BUTTON_MAX) {
+		if (button < 0 || button >= MOUSEB_MAX) {
 			error_set("Invalid mouse button '%d'", button);
 			return -1;
 		}
@@ -1812,7 +1844,7 @@ adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s)
 			error_set("Invalid joystick '%d'", joystick);
 			return -1;
 		}
-		if (button < 0 || button >= INPUT_BUTTON_MAX) {
+		if (button < 0 || button >= JOYB_MAX) {
 			error_set("Invalid joystick button '%d'", button);
 			return -1;
 		}
@@ -1834,7 +1866,7 @@ adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s)
 			error_set("Invalid mouse '%d'", mouse);
 			return -1;
 		}
-		if (button < 0 || button >= INPUT_BUTTON_MAX) {
+		if (button < 0 || button >= MOUSEB_MAX) {
 			error_set("Invalid mouse button '%d'", button);
 			return -1;
 		}
@@ -2073,19 +2105,17 @@ static void input_setup_list(struct advance_input_context* context)
 
 	/* add mouse buttons */
 	for (i = 0; i < INPUT_MOUSE_MAX; ++i) {
-		for (j = 0; j < INPUT_BUTTON_MAX; ++j) {
+		for (j = 0; j < MOUSEB_MAX; ++j) {
 			if (mac + 1 < INPUT_DIGITAL_MAX) {
-				if (i < mouseb_count_get() && j < mouseb_button_count_get(i)) {
-					if (i == 0)
-						snprintf(input_name_map[mac], INPUT_NAME_MAX, "m:%s", mouseb_button_name_get(i, j));
-					else
-						snprintf(input_name_map[mac], INPUT_NAME_MAX, "m%d:%s", i + 1, mouseb_button_name_get(i, j));
-				} else {
-					if (i == 0)
-						snprintf(input_name_map[mac], INPUT_NAME_MAX, "m:button%d", j + 1);
-					else
-						snprintf(input_name_map[mac], INPUT_NAME_MAX, "m%d:button%d", i + 1, j + 1);
-				}
+				const char* name;
+				if (i < mouseb_count_get() && j < mouseb_button_count_get(i))
+					name = mouseb_button_name_get(i, j);
+				else
+					name = mouse_button_name(j);
+				if (i == 0)
+					snprintf(input_name_map[mac], INPUT_NAME_MAX, "m:%s", name);
+				else
+					snprintf(input_name_map[mac], INPUT_NAME_MAX, "m%d:%s", i + 1, name);
 				input_code_map[mac].name = input_name_map[mac];
 				input_code_map[mac].oscode = DIGITAL_MOUSE_BUTTON(i, j);
 				input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
@@ -2141,19 +2171,17 @@ static void input_setup_list(struct advance_input_context* context)
 			}
 		}
 
-		for (j = 0; j < INPUT_BUTTON_MAX; ++j) {
+		for (j = 0; j < JOYB_MAX; ++j) {
 			if (mac + 1 < INPUT_DIGITAL_MAX) {
-				if (i < joystickb_count_get() && j < joystickb_button_count_get(i)) {
-					if (i == 0)
-						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%s", joystickb_button_name_get(i, j));
-					else
-						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%s", i + 1, joystickb_button_name_get(i, j));
-				} else {
-					if (i == 0)
-						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:button%d", j + 1);
-					else
-						snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:button%d", i + 1, j + 1);
-				}
+				const char* name;
+				if (i < joystickb_count_get() && j < joystickb_button_count_get(i))
+					name = joystickb_button_name_get(i, j);
+				else
+					name = joy_button_name(j);
+				if (i == 0)
+					snprintf(input_name_map[mac], INPUT_NAME_MAX, "j:%s", name);
+				else
+					snprintf(input_name_map[mac], INPUT_NAME_MAX, "j%d:%s", i + 1, name);
 				input_code_map[mac].name = input_name_map[mac];
 				input_code_map[mac].oscode = DIGITAL_JOY_BUTTON(i, j);
 				input_code_map[mac].inputcode = CODE_OTHER_DIGITAL;
@@ -2208,7 +2236,7 @@ static void input_setup_init(struct advance_input_context* context)
 		for (j = 0; j < INPUT_AXE_MAX; ++j) {
 			context->state.mouse_analog_current[i][j] = 0;
 		}
-		for (j = 0; j < INPUT_BUTTON_MAX; ++j) {
+		for (j = 0; j < MOUSEB_MAX; ++j) {
 			context->state.mouse_button_current[i][j] = 0;
 		}
 	}
@@ -2228,7 +2256,7 @@ static void input_setup_init(struct advance_input_context* context)
 			}
 		}
 
-		for (j = 0; j < INPUT_BUTTON_MAX; ++j) {
+		for (j = 0; j < JOYB_MAX; ++j) {
 			context->state.joystick_button_current[i][j] = 0;
 		}
 	}
@@ -2462,9 +2490,18 @@ static void input_mouse_update(struct advance_input_context* context)
 	unsigned i, j;
 
 	for (i = 0; i < mouseb_count_get() && i < INPUT_MOUSE_MAX; ++i) {
-		for (j = 0; j < mouseb_button_count_get(i) && j < INPUT_BUTTON_MAX; ++j) {
-			context->state.mouse_button_current[i][j] = mouseb_button_get(i, j);
-			if (context->state.mouse_button_current[i][j])
+		for (j = 0; j < mouseb_button_count_get(i) && j < MOUSEB_MAX; ++j) {
+			int k, s;
+
+			k = mouseb_revbind(i, j);
+
+			/* if the button has no code, map to the ordinal number */
+			if (k < 0)
+				k = j;
+
+			s = mouseb_button_get(i, j);
+			context->state.mouse_button_current[i][k] = s;
+			if (s)
 				input_something_pressed(context);
 		}
 
@@ -2501,9 +2538,18 @@ static void input_joystick_update(struct advance_input_context* context)
 			}
 		}
 
-		for (j = 0; j < joystickb_button_count_get(i) && j < INPUT_BUTTON_MAX; ++j) {
-			context->state.joystick_button_current[i][j] = joystickb_button_get(i, j);
-			if (context->state.joystick_button_current[i][j])
+		for (j = 0; j < joystickb_button_count_get(i) && j < JOYB_MAX; ++j) {
+			int k, s;
+
+			k = joystickb_revbind(i, j);
+
+			/* if the button has no code, map to the ordinal number */
+			if (k < 0)
+				k = j;
+
+			s = joystickb_button_get(i, j);
+			context->state.joystick_button_current[i][k] = s;
+			if (s)
 				input_something_pressed(context);
 		}
 	}
@@ -2633,14 +2679,14 @@ adv_bool advance_input_digital_pressed(struct advance_input_context* context, un
 	case DIGITAL_TYPE_JOY_BUTTON: {
 		unsigned j = DIGITAL_JOY_BUTTON_DEV_GET(code);
 		unsigned b = DIGITAL_JOY_BUTTON_BUTTON_GET(code);
-		if (j < INPUT_JOY_MAX && b < INPUT_BUTTON_MAX)
+		if (j < INPUT_JOY_MAX && b < JOYB_MAX)
 			return context->state.joystick_button_current[j][b];
 		break;
 	}
 	case DIGITAL_TYPE_MOUSE_BUTTON: {
 		unsigned m = DIGITAL_MOUSE_BUTTON_DEV_GET(code);
 		unsigned b = DIGITAL_MOUSE_BUTTON_BUTTON_GET(code);
-		if (m < INPUT_MOUSE_MAX && b < INPUT_BUTTON_MAX)
+		if (m < INPUT_MOUSE_MAX && b < MOUSEB_MAX)
 			return context->state.mouse_button_current[m][b];
 		break;
 	}
