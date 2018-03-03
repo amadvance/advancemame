@@ -1005,12 +1005,14 @@ Configuration
 		auto - Auto select depending on the tile mode and font size (default).
 		N - Number of pixel to skip.
 
-    ui_topbar/bottombar/scrollbar
+    ui_topbar/bottombar/scrollbar/outline
 	Enables or disables the top, bottom and scroll information bars.
+	The outline is the thin box around backdrops.
 
 	ui_topbar yes | no
 	ui_bottombar yes | no
 	ui_scrollbar yes | no
+	ui_outline yes | no
 
     ui_name
 	Enables or disables the display of the game name in the screensaver.
@@ -1034,7 +1036,7 @@ Configuration
 		bar_hidden - Top and bottom bars hidden text.
 		grid - Scrollbar marker and generic background color.
 		overscan - Ooverscan area controled by skip_top/bottom/left/right.
-		backdrop - Backdropoutline and missing backdrop.
+		backdrop - Backdrop outline and backdrop border/missing.
 		help - Help.
 		help_tag - Help highlight.
 		submenu_bar - Submenu title.

@@ -422,6 +422,7 @@ public:
 	unsigned ui_right; ///< User interface right border
 	unsigned ui_top; ///< User interface top border
 	unsigned ui_bottom; ///< User interface bottom border
+	bool ui_outline; ///< User interface outline around backdrops
 	bool ui_top_bar; ///< User interface need top bar
 	bool ui_bottom_bar; ///< User interface need bottom bar
 	bool ui_scroll_bar; ///< User interface need scroll bar

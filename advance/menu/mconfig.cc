@@ -328,6 +328,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_int_register_limit_default(config_context, "ui_skipright", 0, 1000, 0);
 	conf_string_register_default(config_context, "ui_skiphorz", "auto");
 	conf_string_register_default(config_context, "ui_skipvert", "auto");
+	conf_bool_register_default(config_context, "ui_outline", 1);
 	conf_bool_register_default(config_context, "ui_topbar", 1);
 	conf_bool_register_default(config_context, "ui_bottombar", 1);
 	conf_bool_register_default(config_context, "ui_scrollbar", 1);
@@ -821,6 +822,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	ui_right = conf_int_get_default(config_context, "ui_skipright");
 	ui_top = conf_int_get_default(config_context, "ui_skiptop");
 	ui_bottom = conf_int_get_default(config_context, "ui_skipbottom");
+	ui_outline = conf_bool_get_default(config_context, "ui_outline");
 	ui_top_bar = conf_bool_get_default(config_context, "ui_topbar");
 	ui_bottom_bar = conf_bool_get_default(config_context, "ui_bottombar");
 	ui_scroll_bar = conf_bool_get_default(config_context, "ui_scrollbar");

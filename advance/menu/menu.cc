@@ -1386,10 +1386,12 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		else if (rs.mode_get() == mode_list_mixed || rs.mode_get() == mode_full_mixed)
 			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, 1, 0, cursor_size, rs.preview_expand, false, rs.resizeeffect);
 		else {
-			if (space_x == 0)
-				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, coln, 0, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop || rs.clip_mode == clip_multiloopall, rs.resizeeffect);
+			int outline;
+			if (space_x == 0 || !rs.ui_outline)
+				outline = 0;
 			else
-				int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, coln, 1, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop || rs.clip_mode == clip_multiloopall, rs.resizeeffect);
+				outline = 1;
+			int_backdrop_init(COLOR_MENU_BACKDROP, COLOR_MENU_CURSOR, backdrop_mac, coln, outline, cursor_size, rs.preview_expand, rs.clip_mode == clip_multi || rs.clip_mode == clip_multiloop || rs.clip_mode == clip_multiloopall, rs.resizeeffect);
 		}
 		for (int i = 0; i < backdrop_mac; ++i)
 			int_backdrop_pos(i, backdrop_map[i].x, backdrop_map[i].y, backdrop_map[i].dx, backdrop_map[i].dy);
