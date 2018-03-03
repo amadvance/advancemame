@@ -77,6 +77,7 @@ typedef struct mouseb_driver_struct {
 	void (*poll)(void);
 	int (*device_name_get)(unsigned mouse, char* name);
 	int (*bind)(unsigned mouse, unsigned code);
+	int (*revbind)(unsigned mouse, unsigned button);
 } mouseb_driver;
 
 /**
@@ -127,7 +128,24 @@ int mouseb_axe_get(unsigned mouse, unsigned axe);
 const char* mouseb_button_name_get(unsigned mouse, unsigned button);
 const char* mouseb_axe_name_get(unsigned mouse, unsigned axe);
 unsigned mouseb_button_get(unsigned mouse, unsigned button);
+
+/**
+ * Map a MOUSEB_* code to a button number.
+ *
+ * Values less than mouseb_button_count_get() are mapped one to one.
+ * Values bigger than MOUSEB_BASE are mapped to the button number if present.
+ *
+ * \return -1 if the code is not assigned
+ */
 int mouseb_bind(unsigned mouse, unsigned code);
+
+/**
+ * Map a button number to a MOUSEB_* code
+ *
+ * \return -1 if the button has no code.
+ */
+int mouseb_revbind(unsigned mouse, unsigned button);
+
 void mouseb_poll(void);
 
 /**

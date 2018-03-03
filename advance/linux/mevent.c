@@ -62,6 +62,7 @@ struct mouse_axe_context {
 
 struct mouse_button_context {
 	unsigned code;
+	int revbind;
 	adv_bool state;
 	char name[EVENT_MOUSE_NAME_MAX];
 };
@@ -77,7 +78,7 @@ struct mouse_item_context {
 	struct mouse_axe_context axe_map[EVENT_MOUSE_AXE_MAX];
 	unsigned button_mac;
 	struct mouse_button_context button_map[EVENT_MOUSE_BUTTON_MAX];
-	unsigned bind_map[MOUSEB_MAX];
+	int bind_map[MOUSEB_MAX];
 };
 
 struct mouseb_event_context {
@@ -100,7 +101,7 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 	struct button_entry {
 		int code;
 		const char* name;
-		unsigned bind;
+		int bind;
 	} button_map[] = {
 #ifdef BTN_LEFT
 		{ BTN_LEFT, "left", MOUSEB_LEFT },
@@ -173,8 +174,12 @@ static adv_error mouseb_setup(struct mouse_item_context* item, int f)
 				item->button_map[item->button_mac].code = button_map[i].code;
 				item->button_map[item->button_mac].state = 0;
 				sncpy(item->button_map[item->button_mac].name, sizeof(item->button_map[item->button_mac].name), button_map[i].name);
-				if (button_map[i].bind)
+				if (button_map[i].bind) {
 					item->bind_map[button_map[i].bind] = item->button_mac;
+					item->button_map[item->button_mac].revbind = button_map[i].bind;
+				} else {
+					item->button_map[item->button_mac].revbind = -1;
+				}
 				item->bind_map[item->button_mac] = item->button_mac;
 				++item->button_mac;
 			}
@@ -355,6 +360,13 @@ int mouseb_event_bind(unsigned mouse, unsigned code)
 	return event_state.map[mouse].bind_map[code];
 }
 
+int mouseb_event_revbind(unsigned mouse, unsigned button)
+{
+	log_debug(("mouseb:event: mouseb_event_revbind()\n"));
+
+	return event_state.map[mouse].button_map[button].revbind;
+}
+
 void mouseb_event_poll(void)
 {
 	unsigned i;
@@ -423,6 +435,7 @@ mouseb_driver mouseb_event_driver = {
 	mouseb_event_button_get,
 	mouseb_event_poll,
 	mouseb_event_device_name_get,
-	mouseb_event_bind
+	mouseb_event_bind,
+	mouseb_event_revbind
 };
 

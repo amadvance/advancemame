@@ -330,6 +330,18 @@ int mouseb_bind(unsigned mouse, unsigned code)
 	return -1;
 }
 
+int mouseb_revbind(unsigned mouse, unsigned button)
+{
+	assert(mouseb_state.is_active_flag);
+	assert(mouse < mouseb_count_get());
+	assert(button < mouseb_button_count_get(mouse));
+
+	if (mouseb_state.driver_current->revbind)
+		return mouseb_state.driver_current->revbind(mouse, button);
+
+	return -1;
+}
+
 void mouseb_poll(void)
 {
 	assert(mouseb_state.is_active_flag);

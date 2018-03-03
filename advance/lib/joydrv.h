@@ -96,6 +96,7 @@ typedef struct joystickb_driver_struct {
 	void (*poll)(void);
 	int (*device_name_get)(unsigned joystick, char* name);
 	int (*bind)(unsigned joystick, unsigned code);
+	int (*revbind)(unsigned joystick, unsigned button);
 } joystickb_driver;
 
 #define JOYSTICK_DRIVER_MAX 8
@@ -150,7 +151,24 @@ int joystickb_stick_axe_analog_get(unsigned joystick, unsigned stick, unsigned a
 int joystickb_rel_get(unsigned joystick, unsigned rel);
 void joystickb_calib_start(void);
 const char* joystickb_calib_next(void);
+
+/**
+ * Map a JOYB_* code to a button number
+ *
+ * Values less than joystickb_button_count_get() are mapped one to one.
+ * Values bigger than JOYB_BASE are mapped to the button number if present.
+ *
+ * \return -1 if the code is not assigned
+ */
 int joystickb_bind(unsigned joystick, unsigned code);
+
+/**
+ * Map a button number to a JOYB_* code
+ *
+ * \return -1 if the button has no code.
+ */
+int joystickb_revbind(unsigned joystick, unsigned button);
+
 void joystickb_poll(void);
 
 /**

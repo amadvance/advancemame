@@ -420,6 +420,18 @@ int joystickb_bind(unsigned joystick, unsigned code)
 	return -1;
 }
 
+int joystickb_revbind(unsigned joystick, unsigned button)
+{
+	assert(joystickb_state.is_active_flag);
+	assert(joystick < joystickb_count_get());
+	assert(button < joystickb_button_count_get(joystick));
+
+	if (joystickb_state.driver_current->revbind)
+		return joystickb_state.driver_current->revbind(joystick, button);
+
+	return -1;
+}
+
 void joystickb_poll(void)
 {
 	assert(joystickb_state.is_active_flag);

@@ -77,6 +77,7 @@
 
 struct joystick_button_context {
 	unsigned code;
+	int revbind;
 	adv_bool state;
 	char name[EVENT_JOYSTICK_NAME_MAX];
 };
@@ -123,7 +124,7 @@ struct joystick_item_context {
 	struct joystick_button_context button_map[EVENT_JOYSTICK_BUTTON_MAX];
 	unsigned rel_mac;
 	struct joystick_rel_context rel_map[EVENT_JOYSTICK_REL_MAX];
-	unsigned bind_map[JOYB_MAX];
+	int bind_map[JOYB_MAX];
 };
 
 struct joystickb_event_context {
@@ -154,7 +155,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	struct button_entry {
 		int code;
 		const char* name;
-		unsigned bind;
+		int bind;
 	} button_map[] = {
 #ifdef BTN_TRIGGER
 		{ BTN_TRIGGER, "trigger" }, /* joystick */
@@ -448,8 +449,12 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 				item->button_map[item->button_mac].code = button_map[i].code;
 				item->button_map[item->button_mac].state = 0;
 				sncpy(item->button_map[item->button_mac].name, sizeof(item->button_map[item->button_mac].name), button_map[i].name);
-				if (button_map[i].bind)
+				if (button_map[i].bind) {
 					item->bind_map[button_map[i].bind] = item->button_mac;
+					item->button_map[item->button_mac].revbind = button_map[i].bind;
+				} else {
+					item->button_map[item->button_mac].revbind = -1;
+				}
 				item->bind_map[item->button_mac] = item->button_mac;
 				++item->button_mac;
 			}
@@ -833,6 +838,13 @@ int joystickb_event_bind(unsigned joystick, unsigned code)
 	return event_state.map[joystick].bind_map[code];
 }
 
+int joystickb_event_revbind(unsigned joystick, unsigned button)
+{
+	log_debug(("joystickb:event: joystickb_event_revbind()\n"));
+
+	return event_state.map[joystick].button_map[button].revbind;
+}
+
 void joystickb_event_poll(void)
 {
 	unsigned i;
@@ -947,6 +959,7 @@ joystickb_driver joystickb_event_driver = {
 	0,
 	joystickb_event_poll,
 	joystickb_event_device_name_get,
-	joystickb_event_bind
+	joystickb_event_bind,
+	joystickb_event_revbind
 };
 
