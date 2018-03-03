@@ -417,6 +417,8 @@ public:
 	std::string ui_exit; ///< User interface exit image/clip
 	std::string ui_startup; ///< User interface startup image/clip
 	unsigned ui_left; ///< User interface left border
+	int ui_x; /// < User interface space inside x, -1 for auto
+	int ui_y; /// < User interface space inside y, -1 for auto
 	unsigned ui_right; ///< User interface right border
 	unsigned ui_top; ///< User interface top border
 	unsigned ui_bottom; ///< User interface bottom border

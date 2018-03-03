@@ -15,6 +15,8 @@ AdvanceMENU Version 3.8 2018/03
 		configuration option.
 	) Added the 'display_resizeeffect' option like in AdvanceMAME to scale
 		screenshots.
+	) Added the 'skip_horz' and 'skip_vert' option to control the space between
+		tiles.
 	) In the screensaver if the clip is too short, don't restart it when
 		it finishes, but switch to the next one.
 	) In 'lock' mode is still possible to shutdown, if the 'misc_exit'

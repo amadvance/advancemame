@@ -326,6 +326,8 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_int_register_limit_default(config_context, "ui_skiptop", 0, 1000, 0);
 	conf_int_register_limit_default(config_context, "ui_skipleft", 0, 1000, 0);
 	conf_int_register_limit_default(config_context, "ui_skipright", 0, 1000, 0);
+	conf_string_register_default(config_context, "ui_skiphorz", "auto");
+	conf_string_register_default(config_context, "ui_skipvert", "auto");
 	conf_bool_register_default(config_context, "ui_topbar", 1);
 	conf_bool_register_default(config_context, "ui_bottombar", 1);
 	conf_bool_register_default(config_context, "ui_scrollbar", 1);
@@ -795,6 +797,26 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	if (!config_path(conf_string_get_default(config_context, "ui_startup"), ui_startup))
 		return false;
+	a0 = conf_string_get_default(config_context, "ui_skiphorz");
+	if (a0 == "auto") {
+		ui_x = -1;
+	} else {
+		ui_x = atoi(a0.c_str());
+		if (ui_x < 0)
+			ui_x = 0;
+		if (ui_x > 1000)
+			ui_x = 1000;
+	}
+	a0 = conf_string_get_default(config_context, "ui_skipvert");
+	if (a0 == "auto") {
+		ui_y = -1;
+	} else {
+		ui_y = atoi(a0.c_str());
+		if (ui_y < 0)
+			ui_y = 0;
+		if (ui_y > 1000)
+			ui_y = 1000;
+	}
 	ui_left = conf_int_get_default(config_context, "ui_skipleft");
 	ui_right = conf_int_get_default(config_context, "ui_skipright");
 	ui_top = conf_int_get_default(config_context, "ui_skiptop");

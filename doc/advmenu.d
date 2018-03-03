@@ -995,6 +995,16 @@ Configuration
 	Options:
 		N - Number of pixel to skip (default 0).
 
+    ui_skiphorz/vert
+	Defines the inner horizontal and vertical area between tiles.
+
+	ui_skiphorz auto | N
+	ui_skipvert auto | N
+
+	Options:
+		auto - Auto select depending on the tile mode and font size (default).
+		N - Number of pixel to skip.
+
     ui_topbar/bottombar/scrollbar
 	Enables or disables the top, bottom and scroll information bars.
 

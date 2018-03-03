@@ -942,8 +942,9 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		bar_left_dy = bar_right_dy = win_dy;
 	} else if (rs.mode_get() == mode_tile_marquee) {
 		// marquee mode
-		space_x = int_font_dx_get() / 2;
-		space_y = int_font_dx_get() / 2;
+		space_x = rs.ui_x >= 0 ? rs.ui_x : int_font_dx_get() / 2;
+		space_y = rs.ui_y >= 0 ? rs.ui_y : int_font_dx_get() / 2;
+
 		name_dy = 0;
 
 		if (!flipxy) {
@@ -1007,8 +1008,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 		name_dy = int_font_dy_get();
 
-		space_x = int_font_dx_get() / 2;
-		space_y = 0;
+		space_x = rs.ui_x >= 0 ? rs.ui_x : int_font_dx_get() / 2;
+		space_y = rs.ui_y >= 0 ? rs.ui_y : 0;
 
 		coln = scr_dx / (25 * int_font_dx_get());
 		if (coln < 2)
@@ -1077,8 +1078,9 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			bar_left_dy = bar_right_dy = win_dy;
 		} else {
 			// vertical
-			space_x = int_font_dx_get() / 2;
-			space_y = 0;
+			space_x = rs.ui_x >= 0 ? rs.ui_x : int_font_dx_get() / 2;
+			space_y = rs.ui_y >= 0 ? rs.ui_y : 0;
+
 			coln = scr_dx / (20 * int_font_dx_get());
 			if (coln < 2)
 				coln = 2;
@@ -1100,8 +1102,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		}
 	} else {
 		// tile modes
-		space_x = int_font_dx_get() / 2;
-		space_y = int_font_dx_get() / 2;
+		space_x = rs.ui_x >= 0 ? rs.ui_x : int_font_dx_get() / 2;
+		space_y = rs.ui_y >= 0 ? rs.ui_y : int_font_dx_get() / 2;
 
 		if (!flipxy) {
 			switch (rs.mode_get()) {
