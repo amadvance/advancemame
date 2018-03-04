@@ -47,6 +47,9 @@ void int_plug();
 void* int_save();
 void int_restore(void* buffer);
 
+adv_bitmap* int_image_load(const std::string& file, adv_color_rgb* rgb_map, unsigned& rgb_max);
+void int_image_buffer(adv_bitmap* bitmap, adv_color_rgb* rgb_map, unsigned rgb_max);
+void int_image_direct(adv_bitmap* bitmap, adv_color_rgb* rgb_map, unsigned rgb_max);
 bool int_image(const std::string& file, unsigned& scale_x, unsigned& scale_y);
 void int_clear(const adv_color_rgb& cbackground, const adv_color_rgb& coverscan);
 void int_clear(int x, int y, int dx, int dy, const adv_color_rgb& color);

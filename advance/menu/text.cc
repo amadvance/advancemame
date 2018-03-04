@@ -2671,17 +2671,15 @@ bool int_clip(const string& file, bool loop)
 	return wait;
 }
 
-bool int_image(const string& file, unsigned& scale_x, unsigned& scale_y)
+adv_bitmap* int_image_load(const string& file, adv_color_rgb* rgb_map, unsigned& rgb_max)
 {
 	adv_fz* f;
 	f = fzopen(file.c_str(), "rb");
 	if (!f) {
 		log_std(("ERROR:text: error opening file %s\n", file.c_str()));
-		return false;
+		return 0;
 	}
 
-	adv_color_rgb rgb_map[256];
-	unsigned rgb_max;
 	adv_bitmap* bitmap;
 
 	if (file.find(".mng") != string::npos) {
@@ -2690,7 +2688,7 @@ bool int_image(const string& file, unsigned& scale_x, unsigned& scale_y)
 		mng = adv_mng_init(f);
 		if (mng == 0) {
 			fzclose(f);
-			return false;
+			return 0;
 		}
 
 		unsigned pix_width;
@@ -2707,7 +2705,7 @@ bool int_image(const string& file, unsigned& scale_x, unsigned& scale_y)
 		int r = adv_mng_read_done(mng, &pix_width, &pix_height, &pix_pixel, &dat_ptr, &dat_size, &pix_ptr, &pix_scanline, &pal_ptr, &pal_size, &tick, f);
 		if (r != 0) {
 			fzclose(f);
-			return false;
+			return 0;
 		}
 
 		bitmap = adv_bitmap_import_palette(rgb_map, &rgb_max, pix_width, pix_height, pix_pixel, dat_ptr, dat_size, pix_ptr, pix_scanline, pal_ptr, pal_size);
@@ -2715,24 +2713,20 @@ bool int_image(const string& file, unsigned& scale_x, unsigned& scale_y)
 			free(dat_ptr);
 			free(pal_ptr);
 			fzclose(f);
-			return false;
+			return 0;
 		}
 
 		free(pal_ptr);
 	} else {
 		bitmap = adv_bitmap_load_png(rgb_map, &rgb_max, f);
 	}
-	if (!bitmap) {
-		log_std(("ERROR:text: error reading file %s\n", file.c_str()));
-		fzclose(f);
-		return false;
-	}
 
 	fzclose(f);
+	return bitmap;
+}
 
-	scale_x = bitmap->size_x;
-	scale_y = bitmap->size_y;
-
+void int_image_buffer(adv_bitmap* bitmap, adv_color_rgb* rgb_map, unsigned rgb_max)
+{
 	struct video_pipeline_struct pipeline;
 	unsigned combine = VIDEO_COMBINE_X_MEAN | VIDEO_COMBINE_Y_MEAN;
 
@@ -2760,13 +2754,59 @@ bool int_image(const string& file, unsigned& scale_x, unsigned& scale_y)
 
 	video_pipeline_done(&pipeline);
 
-	adv_bitmap_free(bitmap);
-
 	// copy also into the foreground
 	memcpy(video_foreground_buffer, video_background_buffer, video_buffer_size);
 
 	// invalidate all the backdrop if any
 	int_backdrop_redraw_all();
+}
+
+void int_image_direct(adv_bitmap* bitmap, adv_color_rgb* rgb_map, unsigned rgb_max)
+{
+	struct video_pipeline_struct pipeline;
+	unsigned combine = VIDEO_COMBINE_X_MEAN | VIDEO_COMBINE_Y_MEAN;
+
+	video_pipeline_init(&pipeline);
+
+	uint32 palette32[256];
+	uint16 palette16[256];
+	uint8 palette8[256];
+	if (bitmap->bytes_per_pixel == 1) {
+		for (unsigned i = 0; i < rgb_max; ++i) {
+			adv_pixel p = video_pixel_get(rgb_map[i].red, rgb_map[i].green, rgb_map[i].blue);
+			palette32[i] = p;
+			palette16[i] = p;
+			palette8[i] = p;
+		}
+		video_pipeline_palette8(&pipeline, video_size_x(), video_size_y(), bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, bitmap->bytes_per_pixel, palette8, palette16, palette32, combine);
+	} else {
+		adv_color_def def = adv_png_color_def(bitmap->bytes_per_pixel);
+		video_pipeline_direct(&pipeline, video_size_x(), video_size_y(), bitmap->size_x, bitmap->size_y, bitmap->bytes_per_scanline, bitmap->bytes_per_pixel, def, combine);
+	}
+
+	video_write_lock();
+
+	video_pipeline_blit(&pipeline, 0, 0, bitmap->ptr);
+
+	video_write_unlock(0, 0, video_size_x(), video_size_y(), 0);
+
+	video_display_set(0, 0);
+
+	video_pipeline_done(&pipeline);
+}
+
+bool int_image(const string& file, unsigned& scale_x, unsigned& scale_y)
+{
+	adv_color_rgb rgb_map[256];
+	unsigned rgb_max;
+
+	adv_bitmap* bitmap = int_image_load(file, rgb_map, rgb_max);
+	if (!bitmap) {
+		log_std(("ERROR:text: error reading file %s\n", file.c_str()));
+		return false;
+	}
+
+	int_image_buffer(bitmap, rgb_map, rgb_max);
 
 	return true;
 }
