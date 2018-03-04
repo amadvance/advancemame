@@ -616,13 +616,16 @@ bool int_init(unsigned sizex, unsigned sizey)
 	}
 
 	// check if the video driver has a default bit depth
+	index = 0;
 	switch (video_mode_generate_driver_flags(VIDEO_DRIVER_FLAGS_MODE_GRAPH_MASK, 0) & VIDEO_DRIVER_FLAGS_DEFAULT_MASK) {
-	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR8: index = MODE_FLAGS_INDEX_BGR8; break;
-	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR15: index = MODE_FLAGS_INDEX_BGR15; break;
-	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR16: index = MODE_FLAGS_INDEX_BGR16; break;
-	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR32: index = MODE_FLAGS_INDEX_BGR32; break;
-	default:
-		index = 0;
+	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR15:
+		index = MODE_FLAGS_INDEX_BGR15;
+		break;
+	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR16:
+		index = MODE_FLAGS_INDEX_BGR16;
+		break;
+	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR32:
+		index = MODE_FLAGS_INDEX_BGR32;
 		break;
 	}
 
@@ -633,7 +636,7 @@ bool int_init(unsigned sizex, unsigned sizey)
 
 	// if no mode found retry with a different bit depth
 	if (!mode_found) {
-		unsigned select[] = { MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR8, 0 };
+		unsigned select[] = { MODE_FLAGS_INDEX_BGR32, MODE_FLAGS_INDEX_BGR16, MODE_FLAGS_INDEX_BGR15, MODE_FLAGS_INDEX_BGR8, 0 };
 		unsigned* i;
 
 		i = select;
