@@ -782,6 +782,17 @@ Video Drivers Configuration
 		PCLOCK - Pixel clock in Hz (default 0 for HDMI,
 			and 31.25 MHz for DPI).
 
+    device_fb_fastset
+	Don't set the video mode if it's expected to be idential at the
+	current one. This can be used to avoid a screen refresh
+	when not required.
+
+	:device_fb_fastset yes | no
+
+	Options:
+		yes - Don't set identical video mode.
+		no - Always set the video mode (default).
+
   vbeline Configuration Options
 	The following are the common video configuration options
 	available only for the `vbeline' DOS video driver.

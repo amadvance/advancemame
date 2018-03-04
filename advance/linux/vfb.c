@@ -72,6 +72,7 @@ struct fb_option_struct {
 	adv_bool initialized;
 	unsigned hdmi_pclock_low;
 	unsigned dpi_pclock_low;
+	int fast_set;
 };
 
 static struct fb_option_struct fb_option;
@@ -140,6 +141,17 @@ static unsigned fb_flags(void)
 static unsigned char* fb_linear_write_line(unsigned y)
 {
 	return fb_state.ptr + fb_state.bytes_per_scanline * y;
+}
+
+static int fb_is_equal(struct fb_var_screeninfo* a, struct fb_var_screeninfo* b)
+{
+	if (a->xres != b->xres || a->yres != b->yres)
+		return 0;
+	if (a->xres_virtual != b->xres_virtual || a->yres_virtual != b->yres_virtual)
+		return 0;
+	if (a->bits_per_pixel != b->bits_per_pixel)
+		return 0;
+	return 1;
 }
 
 static void fb_log(struct fb_fix_screeninfo* fix, struct fb_var_screeninfo* var)
@@ -1452,9 +1464,14 @@ adv_error fb_mode_set(const fb_video_mode* mode)
 			goto err_restore;
 		}
 	} else {
-		if (fb_setvar(&fb_state.varinfo) != 0) {
-			error_set("Error setting the variable video mode information.\n");
-			goto err_restore;
+		/* if the mode is equal, don't set it again */
+		if (!fb_option.fast_set || !fb_is_equal(&fb_state.varinfo, &fb_state.oldinfo)) {
+			if (fb_setvar(&fb_state.varinfo) != 0) {
+				error_set("Error setting the variable video mode information.\n");
+				goto err_restore;
+			}
+		} else {
+			log_std(("video:fb: fast set because equal\n"));
 		}
 	}
 
@@ -2010,6 +2027,7 @@ void fb_reg(adv_conf* context)
 
 	conf_int_register_default(context, "device_hdmi_pclock_low", 0);
 	conf_int_register_default(context, "device_dpi_pclock_low", 31250000);
+	conf_bool_register_default(context, "device_fb_fastset", 0);
 }
 
 adv_error fb_load(adv_conf* context)
@@ -2018,6 +2036,7 @@ adv_error fb_load(adv_conf* context)
 
 	fb_option.hdmi_pclock_low = conf_int_get_default(context, "device_hdmi_pclock_low");
 	fb_option.dpi_pclock_low = conf_int_get_default(context, "device_dpi_pclock_low");
+	fb_option.fast_set = conf_int_get_default(context, "device_fb_fastset");
 
 	fb_option.initialized = 1;
 
