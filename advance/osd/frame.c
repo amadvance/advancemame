@@ -361,7 +361,6 @@ adv_error advance_video_update_index(struct advance_video_context* context)
 			break;
 		}
 	}
-	;
 
 	if (index == MODE_FLAGS_INDEX_NONE) {
 		if (mode_may_be_palette) {
