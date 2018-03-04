@@ -846,6 +846,22 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		}
 	}
 
+	/* set the preferred bit depth */
+	switch (fb_state.varinfo.bits_per_pixel) {
+	case 16:
+		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) != 0)
+			fb_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_BGR16;
+		break;
+	case 24:
+		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR24) != 0)
+			fb_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_BGR24;
+		break;
+	case 32:
+		if ((fb_state.flags & VIDEO_DRIVER_FLAGS_MODE_BGR32) != 0)
+			fb_state.flags |= VIDEO_DRIVER_FLAGS_DEFAULT_BGR32;
+		break;
+	}
+
 	log_std(("video:fb: size %ux%u\n", target_size_x(), target_size_y()));
 	log_std(("video:fb: aspect %ux%u\n", target_aspect_x(), target_aspect_y()));
 
