@@ -614,6 +614,34 @@ unsigned video_capability_flags(unsigned flags)
 	if (!video_option.mode_yuy2)
 		flags &= ~VIDEO_DRIVER_FLAGS_MODE_YUY2;
 
+	/* clear default mode if it cannot be selected */
+	switch (flags & VIDEO_DRIVER_FLAGS_DEFAULT_MASK) {
+	case VIDEO_DRIVER_FLAGS_DEFAULT_PALETTE8:
+		if ((flags & VIDEO_DRIVER_FLAGS_MODE_PALETTE8) == 0)
+			flags &= ~VIDEO_DRIVER_FLAGS_DEFAULT_MASK;
+		break;
+	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR8:
+		if ((flags & VIDEO_DRIVER_FLAGS_MODE_BGR8) == 0)
+			flags &= ~VIDEO_DRIVER_FLAGS_DEFAULT_MASK;
+		break;
+	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR15:
+		if ((flags & VIDEO_DRIVER_FLAGS_MODE_BGR15) == 0)
+			flags &= ~VIDEO_DRIVER_FLAGS_DEFAULT_MASK;
+		break;
+	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR16:
+		if ((flags & VIDEO_DRIVER_FLAGS_MODE_BGR16) == 0)
+			flags &= ~VIDEO_DRIVER_FLAGS_DEFAULT_MASK;
+		break;
+	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR24:
+		if ((flags & VIDEO_DRIVER_FLAGS_MODE_BGR24) == 0)
+			flags &= ~VIDEO_DRIVER_FLAGS_DEFAULT_MASK;
+		break;
+	case VIDEO_DRIVER_FLAGS_DEFAULT_BGR32:
+		if ((flags & VIDEO_DRIVER_FLAGS_MODE_BGR32) == 0)
+			flags &= ~VIDEO_DRIVER_FLAGS_DEFAULT_MASK;
+		break;
+	}
+
 	return flags;
 }
 
