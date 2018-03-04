@@ -177,24 +177,10 @@ int run_sub(config_state& rs, bool silent)
 
 int run_main(config_state& rs, bool is_first, bool silent)
 {
-	adv_bitmap* bitmap = 0;
-	adv_color_rgb rgb_map[256];
-	unsigned rgb_max;
-
 	log_std(("menu: int_set call\n"));
-
-	if (rs.ui_back != "none") {
-		bitmap = int_image_load(rs.ui_back, rgb_map, rgb_max);
-	}
 
 	if (!int_set(rs.video_gamma, rs.video_brightness, rs.idle_start_first, rs.idle_start_rep, rs.idle_saver_first, rs.idle_saver_rep, rs.preview_fast, rs.ui_translucency, rs.disable_special)) {
 		return EVENT_ESC;
-	}
-
-	// reload immediately the background, and show it directly to the screen
-	if (bitmap) {
-		int_image_direct(bitmap, rgb_map, rgb_max);
-		adv_bitmap_free(bitmap);
 	}
 
 	log_std(("menu: play_init call\n"));

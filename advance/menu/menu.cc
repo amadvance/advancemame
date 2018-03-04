@@ -832,9 +832,6 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 				ui_bottom = rs.ui_bottom * video_size_y() / scale_y;
 			}
 		}
-
-		// show the background image immediately
-		int_update();
 	}
 
 	scr_x = ui_left;
