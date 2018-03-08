@@ -997,10 +997,12 @@ int os_main(int argc, char* argv[])
 	log_std(("emu: conf_save()\n"));
 
 	/* save the configuration only if modified (force_flag=0), ignore the error but print the messages (if quiet_flag is not 0) */
-	if (access(file_config_file_home(ADV_NAME ".rc"), W_OK) == 0) {
-		conf_save(context->cfg, 0, context->global.config.quiet_flag, error_callback, 0);
-	} else {
-		log_std(("WARNING:emu: configuration file %s not writable\n", file_config_file_home(ADV_NAME ".rc")));
+	if (context->global.config.autosave) {
+		if (access(file_config_file_home(ADV_NAME ".rc"), W_OK) == 0) {
+			conf_save(context->cfg, 0, context->global.config.quiet_flag, error_callback, 0);
+		} else {
+			log_std(("WARNING:emu: configuration file %s not writable\n", file_config_file_home(ADV_NAME ".rc")));
+		}
 	}
 
 	log_std(("emu: conf_done()\n"));

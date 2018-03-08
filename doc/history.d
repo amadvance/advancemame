@@ -9,6 +9,8 @@ AdvanceMAME/MESS Version 3.8 2018/03
 		emulation. Note that the default is now to have partial emulation
 		by default to allow the user to control the emulator user
 		interface.
+	) Added a new 'config' option to alllow to decide if the configuration
+		should be autosaved at exit.
 
 AdvanceMENU Version 3.8 2018/03
 	) Added support for configuring joystick and mouse buttons in the 'event'

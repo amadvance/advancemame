@@ -1127,6 +1127,11 @@ static adv_conf_enum_int OPTION_DIFFICULTY[] = {
 	{ "hardest", DIFFICULTY_HARDEST }
 };
 
+static adv_conf_enum_int OPTION_RESTORE[] = {
+	{ "save_at_exit", 1 },
+	{ "restore_at_exit", 0 },
+};
+
 #define OPTION_LANG_MAX 64
 static adv_conf_enum_int OPTION_LANG[OPTION_LANG_MAX];
 
@@ -1134,6 +1139,7 @@ adv_error advance_global_init(struct advance_global_context* context, adv_conf* 
 {
 	unsigned i;
 
+	conf_int_register_enum_default(cfg_context, "config", conf_enum(OPTION_RESTORE), 0);
 	conf_bool_register_default(cfg_context, "misc_quiet", 0);
 	conf_int_register_enum_default(cfg_context, "misc_difficulty", conf_enum(OPTION_DIFFICULTY), DIFFICULTY_NONE);
 
@@ -1162,6 +1168,7 @@ adv_error advance_global_config_load(struct advance_global_context* context, adv
 {
 	const char* s;
 
+	context->config.autosave = conf_int_get_default(cfg_context, "config");
 	context->config.quiet_flag = conf_bool_get_default(cfg_context, "misc_quiet");
 	context->config.difficulty = conf_int_get_default(cfg_context, "misc_difficulty");
 

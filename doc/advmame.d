@@ -619,6 +619,23 @@ Configuration
 		:advmess ti99_4a -dev_cartridge attackg.bin
 		:advmess ti99_4a -cart alpinerc.bin -cart alpinerg.bin
 
+  Autosave Configuration Options
+
+    config
+	Selects if and when the configuration modified by the user at
+	runtime should be saved.
+
+	:config save_at_exit | restore_at_exit
+
+	Options:
+		save_at_exit - Save any changes before exiting
+			(default).
+		restore_at_exit - Don't save the changes. At the next
+			run, restore the previous configuration.
+
+	You can manually save the configuration at runtime from the
+	main menu.
+
   Directory Configuration Options
 	This section describes the options used to customize the
 	directories used by the program.

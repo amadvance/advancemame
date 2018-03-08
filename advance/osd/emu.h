@@ -969,6 +969,7 @@ unsigned lang_identify_text(int lang, const char* text);
 struct advance_global_config_context {
 	int difficulty; /**< Difficulty level. DIFFICULTY_NONE for default. */
 	int lang; /**< Language. -1 for default. */
+	adv_bool autosave; /**< If config should be autosaved. */
 	adv_bool freeplay_flag; /**< Free play switch. */
 	adv_bool quiet_flag; /**< Be quiet on message printing. */
 	adv_bool mutedemo_flag; /**< Mute demo mode. */
