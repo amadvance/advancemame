@@ -1603,8 +1603,8 @@ void osd_ui_menu(const ui_menu_item *items, int numitems, int selected)
 
 	advance_ui_menu_init(&menu);
 
-	/* HACK: Recognize main menu */
-	if (items && strstr(items[0].text, "Input") != 0) {
+	/* HACK: Recognize main and exit menu */
+	if (items && (strstr(items[0].text, "Input") != 0 || strstr(items[0].text, "Continue") != 0)) {
 		char buf[128];
 
 		snprintf(buf, sizeof(buf), "%s %s", ADV_TITLE, ADV_VERSION);
