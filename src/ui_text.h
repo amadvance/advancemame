@@ -194,8 +194,9 @@ enum
 	UI_decoding_gfx,
 
 	/* AdvanceMAME: Extra user interface commands */
-	UI_osd_1,
-	UI_osd_2,
+	UI_osd_1, /* Video */
+	UI_osd_2, /* Audio */
+	UI_osd_3, /* Autosave Config */
 
 	UI_last_mame_entry
 };

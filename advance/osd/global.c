@@ -1139,7 +1139,7 @@ adv_error advance_global_init(struct advance_global_context* context, adv_conf* 
 {
 	unsigned i;
 
-	conf_int_register_enum_default(cfg_context, "config", conf_enum(OPTION_RESTORE), 0);
+	conf_int_register_enum_default(cfg_context, "config", conf_enum(OPTION_RESTORE), 1);
 	conf_bool_register_default(cfg_context, "misc_quiet", 0);
 	conf_int_register_enum_default(cfg_context, "misc_difficulty", conf_enum(OPTION_DIFFICULTY), DIFFICULTY_NONE);
 

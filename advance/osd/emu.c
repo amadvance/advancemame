@@ -600,6 +600,18 @@ adv_error include_load(adv_conf* context, int priority, const char* include_spec
 	return 0;
 }
 
+int osd_save_config(void)
+{
+	CONTEXT.global.config.autosave = 1;
+	advance_global_message(&CONTEXT.global, "Config autosave enabled");
+	return 0;
+}
+
+int osd_has_save_config(void)
+{
+	return !CONTEXT.global.config.autosave;
+}
+
 /***************************************************************************/
 /* Main */
 

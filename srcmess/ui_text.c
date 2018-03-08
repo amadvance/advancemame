@@ -202,6 +202,7 @@ static const char *mame_default_text[] =
 	/* AdvanceMAME: Extra user interface commands */
 	"Video",
 	"Audio",
+	"Autosave Config",
 
 	NULL
 };

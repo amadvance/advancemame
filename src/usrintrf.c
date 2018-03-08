@@ -1416,6 +1416,12 @@ static UINT32 menu_osd_2(UINT32 state)
 	return result;
 }
 
+static UINT32 menu_osd_3(UINT32 state)
+{
+	osd_save_config();
+	return ui_menu_stack_pop();
+}
+
 static UINT32 menu_main(UINT32 state)
 {
 #define ADD_MENU(name, handler, param) \
@@ -1512,6 +1518,8 @@ do { \
 	/* AdvanceMAME: Extra menu UI_OSD */
 	ADD_MENU(UI_osd_1, menu_osd_1, 0);
 	ADD_MENU(UI_osd_2, menu_osd_2, 0);
+	if (osd_has_save_config())
+		ADD_MENU(UI_osd_3, menu_osd_3, 0);
 
 	/* add reset and exit menus */
 	ADD_MENU(UI_resetgame, menu_reset_game, 0);

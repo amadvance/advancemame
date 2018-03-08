@@ -345,6 +345,10 @@ void osd_reset(void);
 /* execute the specified menu (0,1,...) */
 int osd_menu(unsigned menu, int sel);
 
+/* save the configuration */
+int osd_save_config(void);
+int osd_has_save_config(void);
+
 /* filter the main exit request */
 int osd_input_exit_filter(int result);
 
