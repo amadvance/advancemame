@@ -40,7 +40,7 @@ int run_sub(config_state& rs, bool silent)
 
 	log_std(("menu: int_enable call\n"));
 
-	if (!int_enable(rs.video_fontx, rs.video_fonty, rs.video_font_path, rs.video_orientation_effective)) {
+	if (!int_enable(rs.video_font_text_x, rs.video_font_text_y, rs.video_font_text_path, rs.video_font_bar_x, rs.video_font_bar_y, rs.video_font_bar_path, rs.video_orientation_effective)) {
 		return EVENT_ESC;
 	}
 
@@ -211,7 +211,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 
 	if (is_first) {
 		if (rs.ui_startup != "none") {
-			if (int_enable(-1, -1, "none", rs.video_orientation_effective)) {
+			if (int_enable(-1, -1, "none", -1, -1, "none", rs.video_orientation_effective)) {
 				int_clip(rs.ui_startup, false);
 				int_disable();
 			}
@@ -292,7 +292,7 @@ int run_main(config_state& rs, bool is_first, bool silent)
 
 	if (is_terminate) {
 		if (rs.ui_exit != "none") {
-			if (int_enable(-1, -1, "none", rs.video_orientation_effective)) {
+			if (int_enable(-1, -1, "none", -1, -1, "none", rs.video_orientation_effective)) {
 				wait = int_clip(rs.ui_exit, false);
 				int_disable();
 			}
@@ -561,7 +561,7 @@ static adv_conf_conv STANDARD[] = {
 	{ "*", "run_preview", "*", "%s", "ui_game", "%s", 0 }, /* rename */
 /* 2.4.0 */
 	{ "*", "ui_game", "play", "%s", "%s", "snap", 0 }, /* rename */
-/* 3,2 */
+/* 3.2 */
 /* avoid errors when buildind without SDL */
 #ifndef USE_VIDEO_SDL
 	{ "*", "device_video", "sdl", "", "", "", 0 }, /* ignore */
@@ -579,6 +579,9 @@ static adv_conf_conv STANDARD[] = {
 #ifndef USE_KEYBOARD_SDL
 	{ "*", "device_keyboard", "sdl", "", "", "", 0 }, /* ignore */
 #endif
+/* 3.8 */
+	{ "*", "ui_font", "*", "%s", "ui_text_font", "%s", 0 }, /* rename */
+	{ "*", "ui_fontsize", "*", "%s", "ui_text_size", "%s", 0 }, /* rename */
 };
 
 adv_error include_load(adv_conf* context, int priority, const char* include_spec, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context)

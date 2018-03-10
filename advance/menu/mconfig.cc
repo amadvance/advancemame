@@ -308,8 +308,10 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_string_register_default(config_context, "sound_background_stop", "none");
 	conf_string_register_default(config_context, "sound_background_loop_dir", "\"mp3\"");
 	conf_string_register_default(config_context, "display_size", "auto");
-	conf_string_register_default(config_context, "ui_font", "auto");
-	conf_string_register_default(config_context, "ui_fontsize", "auto");
+	conf_string_register_default(config_context, "ui_text_font", "auto");
+	conf_string_register_default(config_context, "ui_text_size", "auto");
+	conf_string_register_default(config_context, "ui_bar_font", "auto");
+	conf_string_register_default(config_context, "ui_bar_size", "auto");
 	conf_string_register_default(config_context, "display_orientation", "");
 	conf_float_register_limit_default(config_context, "display_gamma", 0.2, 5, 1);
 	conf_float_register_limit_default(config_context, "display_brightness", 0.2, 5, 1);
@@ -874,12 +876,18 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 			video_sizey = atoi(a1.c_str());
 		}
 	}
-	if (!config_path(conf_string_get_default(config_context, "ui_font"), video_font_path))
+	if (!config_path(conf_string_get_default(config_context, "ui_text_font"), video_font_text_path))
 		return false;
-	if (!config_split(conf_string_get_default(config_context, "ui_fontsize"), a0, a1))
+	if (!config_split(conf_string_get_default(config_context, "ui_text_size"), a0, a1))
 		return false;
-	video_fonty = atoi(a0.c_str());
-	video_fontx = atoi(a1.c_str());
+	video_font_text_y = atoi(a0.c_str());
+	video_font_text_x = atoi(a1.c_str());
+	if (!config_path(conf_string_get_default(config_context, "ui_bar_font"), video_font_bar_path))
+		return false;
+	if (!config_split(conf_string_get_default(config_context, "ui_bar_size"), a0, a1))
+		return false;
+	video_font_bar_y = atoi(a0.c_str());
+	video_font_bar_x = atoi(a1.c_str());
 	if (!config_load_orientation(config_context, video_orientation_orig))
 		return false;
 	video_gamma = conf_float_get_default(config_context, "display_gamma");

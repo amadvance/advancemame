@@ -73,7 +73,7 @@ void draw_menu_game_center(const game_set& gar, const game& g, int x, int y, int
 	else
 		s = g.description_get();
 
-	unsigned ident = int_font_dx_get() / 2;
+	unsigned ident = int_font_dx_get(text) / 2;
 
 	int_color color;
 	int_color color_first;
@@ -101,35 +101,35 @@ void draw_menu_game_center(const game_set& gar, const game& g, int x, int y, int
 	unsigned py = 0;
 	bool in = false;
 
-	while (dy >= py + int_font_dy_get()) {
+	while (dy >= py + int_font_dy_get(text)) {
 		unsigned str_len = s.length() - str_pos;
 		while (str_len > 0 && issep(s[str_pos])) {
 			++str_pos;
 			--str_len;
 		}
-		unsigned pixel_len = int_put_width(s.substr(str_pos, str_len));
+		unsigned pixel_len = int_put_width(text, s.substr(str_pos, str_len));
 		while (pixel_len > dx - 2 * ident) {
 			while (str_len > 0 && !issep(s[str_pos + str_len - 1]))
 				--str_len;
 			while (str_len > 0 && issep(s[str_pos + str_len - 1]))
 				--str_len;
-			pixel_len = int_put_width(s.substr(str_pos, str_len));
+			pixel_len = int_put_width(text, s.substr(str_pos, str_len));
 		}
 
 		if (str_len == 0) {
 			// retry splitting in any point
 			str_len = s.length() - str_pos;
 			if (str_len) {
-				pixel_len = int_put_width(s.substr(str_pos, str_len));
+				pixel_len = int_put_width(text, s.substr(str_pos, str_len));
 				while (pixel_len > dx - 2 * ident) {
 					--str_len;
-					pixel_len = int_put_width(s.substr(str_pos, str_len));
+					pixel_len = int_put_width(text, s.substr(str_pos, str_len));
 				}
 			}
 		}
 
 		if (!str_len) {
-			int_clear_alpha(x, y + py, dx, int_font_dy_get(), color_back.background);
+			int_clear_alpha(x, y + py, dx, int_font_dy_get(text), color_back.background);
 		} else {
 			int space_left = (dx - pixel_len) / 2;
 			int ident_left = ident;
@@ -140,15 +140,15 @@ void draw_menu_game_center(const game_set& gar, const game& g, int x, int y, int
 			if (ident_right > space_right)
 				ident_right = space_right;
 
-			int_clear_alpha(x, y + py, space_left - ident_left, int_font_dy_get(), color_back.background);
-			int_clear_alpha(x + space_left - ident_left, y + py, ident_left, int_font_dy_get(), color.background);
-			int_put_special_alpha(in, x + space_left, y + py, pixel_len, s.substr(str_pos, str_len), color_first, color_in, color);
-			int_clear_alpha(x + space_left + pixel_len, y + py, ident_right, int_font_dy_get(), color.background);
-			int_clear_alpha(x + space_left + pixel_len + ident_right, y + py, space_right - ident_right, int_font_dy_get(), color_back.background);
+			int_clear_alpha(x, y + py, space_left - ident_left, int_font_dy_get(text), color_back.background);
+			int_clear_alpha(x + space_left - ident_left, y + py, ident_left, int_font_dy_get(text), color.background);
+			int_put_special_alpha(text, in, x + space_left, y + py, pixel_len, s.substr(str_pos, str_len), color_first, color_in, color);
+			int_clear_alpha(x + space_left + pixel_len, y + py, ident_right, int_font_dy_get(text), color.background);
+			int_clear_alpha(x + space_left + pixel_len + ident_right, y + py, space_right - ident_right, int_font_dy_get(text), color_back.background);
 		}
 
 		color_first = color;
-		py += int_font_dy_get();
+		py += int_font_dy_get(text);
 		str_pos += str_len;
 	}
 }
@@ -161,7 +161,7 @@ void draw_menu_game_left(const game_set& gar, const game& g, int x, int y, int d
 	else
 		s = g.description_get();
 
-	ident += int_font_dx_get() / 2;
+	ident += int_font_dx_get(text) / 2;
 
 	int_color color;
 	int_color color_first;
@@ -182,10 +182,10 @@ void draw_menu_game_left(const game_set& gar, const game& g, int x, int y, int d
 	}
 
 	if (ident)
-		int_clear_alpha(x, y, ident, int_font_dy_get(), color.background);
+		int_clear_alpha(x, y, ident, int_font_dy_get(text), color.background);
 
 	bool in = false;
-	int_put_special_alpha(in, x + ident, y, dx - ident, s, color_first, color_in, color);
+	int_put_special_alpha(text, in, x + ident, y, dx - ident, s, color_first, color_in, color);
 }
 
 void draw_menu_empty(int x, int y, int dx, int dy, bool selected)
@@ -199,69 +199,71 @@ void draw_menu_desc(const string& desc, int x, int y, int dx, bool selected)
 {
 	int_color color;
 	color = selected ? COLOR_MENU_TAG_SELECT : COLOR_MENU_TAG;
-	int_put_filled_alpha(x, y, dx, desc, color);
+	int_put_filled_alpha(text, x, y, dx, desc, color);
 }
 
 string reduce_string(const string& s, unsigned width)
 {
 	string r = s;
 
-	while (int_put_width(r) > width && r.length()) {
+	while (int_put_width(text, r) > width && r.length()) {
 		r.erase(r.length() - 1, 1);
 	}
 
 	return r;
 }
 
-void draw_tag_left(const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
+void draw_tag_left(font_t font, const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
 {
 	string r = reduce_string(s, (xr - xl) - sep);
 
-	int len = sep + int_put_width(r);
+	int len = sep + int_put_width(font, r);
 
 	if (len <= xr - xl) {
-		int_put_alpha(xl, y, r, color);
+		int_put_alpha(font, xl, y, r, color);
 		xl += len;
 	}
 }
 
-void draw_tag_left_whole(const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
+void draw_tag_left_whole(font_t font, const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
 {
-	if (int_put_width(s) <= (xr - xl) - sep)
-		draw_tag_left(s, xl, xr, y, sep, color);
+	if (int_put_width(font, s) <= (xr - xl) - sep)
+		draw_tag_left(font, s, xl, xr, y, sep, color);
 }
 
-void draw_tag_right(const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
+void draw_tag_right(font_t font, const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
 {
 	string r = reduce_string(s, (xr - xl) - sep);
 
-	int len = sep + int_put_width(r);
+	int len = sep + int_put_width(font, r);
 
 	if (len <= xr - xl) {
-		int_put_alpha(xr - len + sep, y, r, color);
+		int_put_alpha(font, xr - len + sep, y, r, color);
 		xr -= len;
 	}
 }
 
-void draw_tag_right_whole(const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
+void draw_tag_right_whole(font_t font, const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
 {
-	if (int_put_width(s) <= (xr - xl) - sep)
-		draw_tag_right(s, xl, xr, y, sep, color);
+	if (int_put_width(font, s) <= (xr - xl) - sep)
+		draw_tag_right(font, s, xl, xr, y, sep, color);
 }
 
 void draw_menu_bar(const game* g, int g2, int x, int y, int dx, bool lock)
 {
-	int_clear_alpha(x, y, dx, int_font_dy_get(), COLOR_MENU_BAR.background);
+	font_t font = bar;
 
-	int separator = dx > 40 * int_font_dx_get() ? 1 * int_font_dx_get() : 0 * int_font_dx_get();
-	int in_separator = dx > 40 * int_font_dx_get() ? 2 * int_font_dx_get() : 1 * int_font_dx_get();
+	int_clear_alpha(x, y, dx, int_font_dy_get(font), COLOR_MENU_BAR.background);
+
+	int separator = dx > 40 * int_font_dx_get(font) ? 1 * int_font_dx_get(font) : 0 * int_font_dx_get(font);
+	int in_separator = dx > 40 * int_font_dx_get(font) ? 2 * int_font_dx_get(font) : 1 * int_font_dx_get(font);
 	int xr = dx - separator + x;
 	int xl = separator + x;
 
 	if (g) {
 		ostringstream os;
 		os << setw(4) << setfill(' ') << g2;
-		draw_tag_right(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
+		draw_tag_right(font, os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
 	if (g) {
@@ -272,28 +274,7 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx, bool lock)
 		else
 			time = g->time_get();
 		os << setw(3) << setfill('0') << (time / 3600) << ":" << setw(2) << setfill('0') << ((time / 60) % 60);
-		draw_tag_right(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
-	}
-
-	if (!lock && g && !g->group_derived_get()->undefined_get()) {
-		ostringstream os;
-		os << g->group_derived_get()->name_get();
-		draw_tag_right(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
-	}
-
-	if (!lock && g && !g->type_derived_get()->undefined_get()) {
-		ostringstream os;
-		os << g->type_derived_get()->name_get();
-		draw_tag_right(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
-	}
-
-	if (g) {
-		ostringstream os;
-		if (g->emulator_get()->tree_get())
-			os << g->description_tree_get();
-		else
-			os << g->description_get();
-		draw_tag_left(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
+		draw_tag_right_whole(font, os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
 	if (g) {
@@ -304,7 +285,28 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx, bool lock)
 		else
 			session = g->session_get();
 		os << setw(3) << setfill(' ') << session << "p";
-		draw_tag_right_whole(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
+		draw_tag_right_whole(font, os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
+	}
+
+	if (!lock && g && !g->group_derived_get()->undefined_get()) {
+		ostringstream os;
+		os << g->group_derived_get()->name_get();
+		draw_tag_right(font, os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
+	}
+
+	if (!lock && g && !g->type_derived_get()->undefined_get()) {
+		ostringstream os;
+		os << g->type_derived_get()->name_get();
+		draw_tag_right(font, os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
+	}
+
+	if (g) {
+		ostringstream os;
+		if (g->emulator_get()->tree_get())
+			os << g->description_tree_get();
+		else
+			os << g->description_get();
+		draw_tag_left(font, os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
 	}
 
 	if (!lock && g) {
@@ -313,13 +315,13 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx, bool lock)
 			os << setw(4) << g->size_get() / 1000 / 1000 << "M";
 		else
 			os << setw(4) << g->size_get() / 1000 << "k";
-		draw_tag_right_whole(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
+		draw_tag_right_whole(font, os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
 	if (!lock && g && g->sizex_get() && g->sizey_get()) {
 		ostringstream os;
 		os << g->sizex_get() << "x" << g->sizey_get();
-		draw_tag_right_whole(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
+		draw_tag_right_whole(font, os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
 	if (!lock && g) {
@@ -330,16 +332,18 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx, bool lock)
 		} else {
 			os << g->name_get();
 		}
-		draw_tag_left_whole(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
+		draw_tag_left_whole(font, os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 }
 
 void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, merge_t merge, listpreview_t preview, listsort_t sort_mode, difficulty_t difficulty, bool lock)
 {
-	int_clear_alpha(x, y, dx, int_font_dy_get(), COLOR_MENU_BAR.background);
+	font_t font = bar;
 
-	int separator = dx > 40 * int_font_dx_get() ? 1 * int_font_dx_get() : 0 * int_font_dx_get();
-	int in_separator = dx > 40 * int_font_dx_get() ? 2 * int_font_dx_get() : 1 * int_font_dx_get();
+	int_clear_alpha(x, y, dx, int_font_dy_get(font), COLOR_MENU_BAR.background);
+
+	int separator = dx > 40 * int_font_dx_get(font) ? 1 * int_font_dx_get(font) : 0 * int_font_dx_get(font);
+	int in_separator = dx > 40 * int_font_dx_get(font) ? 2 * int_font_dx_get(font) : 1 * int_font_dx_get(font);
 	int xr = dx - separator + x;
 	int xl = separator + x;
 
@@ -351,63 +355,63 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 			gb = g;
 
 		if (!gb->present_tree_get())
-			draw_tag_right("MISSING", xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
+			draw_tag_right(font, "MISSING", xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
 		else if (gb->play_get() == play_preliminary)
-			draw_tag_right("  ALPHA", xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
+			draw_tag_right(font, "  ALPHA", xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
 		else
-			draw_tag_right("       ", xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
+			draw_tag_right(font, "       ", xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
 	}
 
 	if (lock)
-		draw_tag_right("locked", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN);
+		draw_tag_right(font, "locked", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN);
 
 	if (!lock) switch (preview) {
-	case preview_flyer: draw_tag_right("flyers", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case preview_cabinet: draw_tag_right("cabinets", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case preview_icon: draw_tag_right("icons", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case preview_marquee: draw_tag_right("marquees", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case preview_title: draw_tag_right("titles", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case preview_snap: draw_tag_right("snap", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case preview_flyer: draw_tag_right(font, "flyers", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case preview_cabinet: draw_tag_right(font, "cabinets", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case preview_icon: draw_tag_right(font, "icons", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case preview_marquee: draw_tag_right(font, "marquees", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case preview_title: draw_tag_right(font, "titles", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case preview_snap: draw_tag_right(font, "snap", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
 	if (!lock) switch (sort_mode) {
-	case sort_by_group: draw_tag_right("group", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_name: draw_tag_right("name", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_root_name: draw_tag_right("parent", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_time: draw_tag_right("time", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_session: draw_tag_right("play", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_year: draw_tag_right("year", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_manufacturer: draw_tag_right("manuf", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_type: draw_tag_right("type", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_size: draw_tag_right("size", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_res: draw_tag_right("res", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_info: draw_tag_right("info", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_timepersession: draw_tag_right("timeperplay", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_emulator: draw_tag_right("emulator", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_group: draw_tag_right(font, "group", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_name: draw_tag_right(font, "name", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_root_name: draw_tag_right(font, "parent", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_time: draw_tag_right(font, "time", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_session: draw_tag_right(font, "play", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_year: draw_tag_right(font, "year", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_manufacturer: draw_tag_right(font, "manuf", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_type: draw_tag_right(font, "type", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_size: draw_tag_right(font, "size", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_res: draw_tag_right(font, "res", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_info: draw_tag_right(font, "info", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_timepersession: draw_tag_right(font, "timeperplay", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_emulator: draw_tag_right(font, "emulator", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
 	if (!lock) switch (difficulty) {
-	case difficulty_none: draw_tag_right("none", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_easiest: draw_tag_right("easiest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_easy: draw_tag_right("easy", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_medium: draw_tag_right("normal", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_hard: draw_tag_right("hard", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_hardest: draw_tag_right("hardest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_none: draw_tag_right(font, "none", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_easiest: draw_tag_right(font, "easiest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_easy: draw_tag_right(font, "easy", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_medium: draw_tag_right(font, "normal", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_hard: draw_tag_right(font, "hard", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case difficulty_hardest: draw_tag_right(font, "hardest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
 	if (g) {
 		if (g->info_get().length())
-			draw_tag_right(g->info_get(), xl, xr, y, 0, COLOR_MENU_BAR_TAG);
+			draw_tag_right(font, g->info_get(), xl, xr, y, 0, COLOR_MENU_BAR_TAG);
 
-		draw_tag_left(g->manufacturer_get(), xl, xr, y, 0, COLOR_MENU_BAR);
+		draw_tag_left(font, g->manufacturer_get(), xl, xr, y, 0, COLOR_MENU_BAR);
 
 		if (g->year_get().length())
-			draw_tag_left(", " + g->year_get(), xl, xr, y, 0, COLOR_MENU_BAR);
+			draw_tag_left(font, ", " + g->year_get(), xl, xr, y, 0, COLOR_MENU_BAR);
 
 		if (g->clone_get() > 0) {
 			ostringstream os;
 			os << ", " << g->clone_get() << " clones";
-			draw_tag_left(os.str(), xl, xr, y, 0, COLOR_MENU_BAR);
+			draw_tag_left(font, os.str(), xl, xr, y, 0, COLOR_MENU_BAR);
 		}
 
 		if (!lock && g->parent_get()) {
@@ -418,7 +422,7 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 			else
 				os << "clone of";
 			os << " " << g->parent_get()->name_get();
-			draw_tag_left(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
+			draw_tag_left(font, os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 		}
 	}
 }
@@ -473,23 +477,23 @@ void draw_menu_scroll(int x, int y, int dx, int dy, int pos, int delta, int max)
 
 void draw_menu_desc(const string& desc, unsigned counter)
 {
-	int border = int_font_dx_get() / 2;
+	int border = int_font_dx_get(text) / 2;
 
-	int dx = int_put_width(desc);
+	int dx = int_put_width(text, desc);
 	int x = (int_dx_get() - dx) / 2;
 
-	int dy = int_font_dy_get();
+	int dy = int_font_dy_get(text);
 	int y;
 
 	if (counter % 2 == 0)
-		y = int_dy_get() - 3 * int_font_dy_get();
+		y = int_dy_get() - 3 * int_font_dy_get(text);
 	else
-		y = 2 * int_font_dy_get();
+		y = 2 * int_font_dy_get(text);
 
 	int_box(x - border, y - border, dx + 2 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
 	int_clear(x - border + 1, y - border + 1, dx + 2 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
 
-	int_put(x, y, dx, desc, COLOR_CHOICE_TITLE);
+	int_put(text, x, y, dx, desc, COLOR_CHOICE_TITLE);
 }
 
 // ------------------------------------------------------------------------
@@ -850,12 +854,12 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	bar_top_x = scr_x;
 	bar_top_y = scr_y;
 	if (rs.ui_top_bar)
-		bar_top_dy = int_font_dy_get();
+		bar_top_dy = int_font_dy_get(bar);
 	else
 		bar_top_dy = 0;
 	bar_bottom_x = scr_x;
 	if (rs.ui_bottom_bar)
-		bar_bottom_dy = int_font_dy_get();
+		bar_bottom_dy = int_font_dy_get(bar);
 	else
 		bar_bottom_dy = 0;
 	bar_left_x = scr_x;
@@ -863,8 +867,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	bar_right_y = scr_y + bar_top_dy;
 
 	if (rs.ui_scroll_bar) {
-		bar_left_dx = int_font_dx_get() / 2;
-		bar_right_dx = int_font_dx_get() / 2;
+		bar_left_dx = int_font_dx_get(text) / 2;
+		bar_right_dx = int_font_dx_get(text) / 2;
 	} else {
 		bar_left_dx = 0;
 		bar_right_dx = 0;
@@ -908,12 +912,12 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		unsigned icon_space = rs.icon_space;
 		if (icon_space > 64)
 			icon_space = 64;
-		if (icon_space < 2 * cursor_size + int_font_dy_get())
-			icon_space = 2 * cursor_size + int_font_dy_get();
+		if (icon_space < 2 * cursor_size + int_font_dy_get(text))
+			icon_space = 2 * cursor_size + int_font_dy_get(text);
 
 		space_x = 0;
 		space_y = 0;
-		name_dy = int_font_dy_get();
+		name_dy = int_font_dy_get(text);
 		if (!flipxy) {
 			coln = (int_dx_get() - bar_left_dx - bar_right_dx) / (32 + icon_space);
 			rown = (scr_dy - bar_top_dy - bar_bottom_dy) / (32 + icon_space);
@@ -942,8 +946,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		bar_left_dy = bar_right_dy = win_dy;
 	} else if (rs.mode_get() == mode_tile_marquee) {
 		// marquee mode
-		space_x = rs.ui_x >= 0 ? rs.ui_x : int_font_dx_get() / 2;
-		space_y = rs.ui_y >= 0 ? rs.ui_y : int_font_dx_get() / 2;
+		space_x = rs.ui_x >= 0 ? rs.ui_x : int_font_dx_get(text) / 2;
+		space_y = rs.ui_y >= 0 ? rs.ui_y : int_font_dx_get(text) / 2;
 
 		name_dy = 0;
 
@@ -1006,20 +1010,20 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		// text mode
 		backdrop_mac = 0;
 
-		name_dy = int_font_dy_get();
+		name_dy = int_font_dy_get(text);
 
-		space_x = rs.ui_x >= 0 ? rs.ui_x : int_font_dx_get() / 2;
+		space_x = rs.ui_x >= 0 ? rs.ui_x : int_font_dx_get(text) / 2;
 		space_y = rs.ui_y >= 0 ? rs.ui_y : 0;
 
-		coln = scr_dx / (25 * int_font_dx_get());
+		coln = scr_dx / (25 * int_font_dx_get(text));
 		if (coln < 2)
 			coln = 2;
-		rown = (scr_dy - bar_top_dy - bar_bottom_dy) / int_font_dy_get();
+		rown = (scr_dy - bar_top_dy - bar_bottom_dy) / int_font_dy_get(text);
 
 		win_x = scr_x + bar_left_dx;
 		win_y = scr_y + bar_top_dy;
 		win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln - 1) * space_x) / coln * coln + (coln - 1) * space_x;
-		win_dy = rown * int_font_dy_get();
+		win_dy = rown * int_font_dy_get(text);
 
 		backdrop_x = 0;
 		backdrop_y = 0;
@@ -1037,7 +1041,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			backdrop_mac = 4;
 		else
 			backdrop_mac = 1;
-		name_dy = int_font_dy_get();
+		name_dy = int_font_dy_get(text);
 
 		win_x = scr_x + bar_left_dx;
 		win_y = scr_y + bar_top_dy;
@@ -1061,10 +1065,10 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 
 			coln = 1;
 			win_dx = (scr_dx - bar_left_dx - bar_right_dx) * multiplier / divisor;
-			win_dx -= win_dx % int_font_dx_get();
+			win_dx -= win_dx % int_font_dx_get(text);
 
-			rown = (scr_dy - bar_top_dy - bar_bottom_dy) / int_font_dy_get();
-			win_dy = rown * int_font_dy_get();
+			rown = (scr_dy - bar_top_dy - bar_bottom_dy) / int_font_dy_get(text);
+			win_dy = rown * int_font_dy_get(text);
 
 			backdrop_x = win_x + win_dx;
 			backdrop_y = win_y;
@@ -1078,16 +1082,16 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			bar_left_dy = bar_right_dy = win_dy;
 		} else {
 			// vertical
-			space_x = rs.ui_x >= 0 ? rs.ui_x : int_font_dx_get() / 2;
+			space_x = rs.ui_x >= 0 ? rs.ui_x : int_font_dx_get(text) / 2;
 			space_y = rs.ui_y >= 0 ? rs.ui_y : 0;
 
-			coln = scr_dx / (20 * int_font_dx_get());
+			coln = scr_dx / (20 * int_font_dx_get(text));
 			if (coln < 2)
 				coln = 2;
 			win_dx = (scr_dx - bar_left_dx - bar_right_dx - (coln - 1) * space_x) / coln * coln + (coln - 1) * space_x;
 
-			rown = (scr_dy - bar_top_dy - bar_bottom_dy) * multiplier / (divisor * int_font_dy_get());
-			win_dy = rown * int_font_dy_get();
+			rown = (scr_dy - bar_top_dy - bar_bottom_dy) * multiplier / (divisor * int_font_dy_get(text));
+			win_dy = rown * int_font_dy_get(text);
 
 			backdrop_x = win_x;
 			backdrop_y = win_y + win_dy;
@@ -1102,8 +1106,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		}
 	} else {
 		// tile modes
-		space_x = rs.ui_x >= 0 ? rs.ui_x : int_font_dx_get() / 2;
-		space_y = rs.ui_y >= 0 ? rs.ui_y : int_font_dx_get() / 2;
+		space_x = rs.ui_x >= 0 ? rs.ui_x : int_font_dx_get(text) / 2;
+		space_y = rs.ui_y >= 0 ? rs.ui_y : int_font_dx_get(text) / 2;
 
 		if (!flipxy) {
 			switch (rs.mode_get()) {
@@ -1140,17 +1144,17 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			case mode_tile_normal:
 				coln = 5;
 				rown = 4;
-				name_dy = int_font_dy_get();
+				name_dy = int_font_dy_get(text);
 				break;
 			case mode_tile_small:
 				coln = 4;
 				rown = 3;
-				name_dy = int_font_dy_get();
+				name_dy = int_font_dy_get(text);
 				break;
 			case mode_tile_tiny:
 				coln = 3;
 				rown = 2;
-				name_dy = int_font_dy_get();
+				name_dy = int_font_dy_get(text);
 				break;
 			}
 		} else {
@@ -1188,17 +1192,17 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			case mode_tile_normal:
 				coln = 4;
 				rown = 5;
-				name_dy = int_font_dy_get();
+				name_dy = int_font_dy_get(text);
 				break;
 			case mode_tile_small:
 				coln = 3;
 				rown = 4;
-				name_dy = int_font_dy_get();
+				name_dy = int_font_dy_get(text);
 				break;
 			case mode_tile_tiny:
 				coln = 2;
 				rown = 3;
-				name_dy = int_font_dy_get();
+				name_dy = int_font_dy_get(text);
 				break;
 			}
 		}
@@ -1612,17 +1616,17 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			unsigned dx, dy;
 			int x = int_dx_get() / 2;
 			int y = int_dy_get() / 2;
-			int border = int_font_dx_get() / 2;
+			int border = int_font_dx_get(text) / 2;
 
 			// force an update to draw the first time the backdrop images
 			int_update(false);
 
-			dx = int_font_dx_get(over_msg);
-			dy = int_font_dy_get();
+			dx = int_font_dx_get(text, over_msg);
+			dy = int_font_dy_get(text);
 
 			int_box(x - 2 * border - dx / 2, y - border, dx + 4 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
 			int_clear(x - 2 * border - dx / 2 + 1, y - border + 1, dx + 4 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
-			int_put(x - dx / 2, y, dx, over_msg, COLOR_CHOICE_TITLE);
+			int_put(text, x - dx / 2, y, dx, over_msg, COLOR_CHOICE_TITLE);
 		}
 
 		int_update(rs.mode_get() != mode_full_mixed && rs.mode_get() != mode_list_mixed);
@@ -1931,7 +1935,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 				else
 					ident += 1;
 			}
-			gc.insert(gc.end(), new menu_entry(*i, ident * int_font_dx_get()));
+			gc.insert(gc.end(), new menu_entry(*i, ident * int_font_dx_get(text)));
 		}
 	} else if (rs.sort_get() == sort_by_root_name) {
 		gc.reserve(gss.size());
@@ -1943,7 +1947,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 				else
 					ident += 1;
 			}
-			gc.insert(gc.end(), new menu_entry(*i, ident * int_font_dx_get()));
+			gc.insert(gc.end(), new menu_entry(*i, ident * int_font_dx_get(text)));
 		}
 	} else {
 		string category = "dummy";
@@ -1954,7 +1958,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 				category = new_category;
 				gc.insert(gc.end(), new menu_entry(category));
 			}
-			gc.insert(gc.end(), new menu_entry(*i, int_font_dx_get()));
+			gc.insert(gc.end(), new menu_entry(*i, int_font_dx_get(text)));
 		}
 	}
 
@@ -2016,14 +2020,14 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 // Run Info
 
 #define RUNINFO_CHOICE_Y int_dy_get() / 10
-#define RUNINFO_CHOICE_DY 2 * int_font_dy_get()
+#define RUNINFO_CHOICE_DY 2 * int_font_dy_get(text)
 
 void run_runinfo(config_state& rs)
 {
 	int x = int_dx_get() / 2;
 	int y = RUNINFO_CHOICE_Y;
 	int dy = RUNINFO_CHOICE_DY;
-	int border = int_font_dx_get() / 2;
+	int border = int_font_dx_get(text) / 2;
 
 	const game* g = rs.current_clone ? rs.current_clone : rs.current_game;
 	if (!g)
@@ -2054,8 +2058,8 @@ void run_runinfo(config_state& rs)
 		unsigned dx;
 		string desc = g->description_tree_get();
 
-		w0 = int_font_dx_get(rs.ui_gamemsg);
-		w1 = int_font_dx_get(desc);
+		w0 = int_font_dx_get(text, rs.ui_gamemsg);
+		w1 = int_font_dx_get(text, desc);
 		if (w0 < w1)
 			dx = w1;
 		else
@@ -2064,11 +2068,11 @@ void run_runinfo(config_state& rs)
 		int_box(x - 2 * border - dx / 2, y - border, dx + 4 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
 		int_clear(x - 2 * border - dx / 2 + 1, y - border + 1, dx + 4 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
 
-		int_put(x - w0 / 2, y, w0, rs.ui_gamemsg, COLOR_CHOICE_TITLE);
-		y += int_font_dy_get();
+		int_put(text, x - w0 / 2, y, w0, rs.ui_gamemsg, COLOR_CHOICE_TITLE);
+		y += int_font_dy_get(text);
 
-		int_put(x - w1 / 2, y, w1, desc, COLOR_CHOICE_NORMAL);
-		y += int_font_dy_get();
+		int_put(text, x - w1 / 2, y, w1, desc, COLOR_CHOICE_NORMAL);
+		y += int_font_dy_get(text);
 
 		int_update();
 	}

@@ -70,7 +70,7 @@ static bool spawn_check(int r, bool ignore_error)
 //---------------------------------------------------------------------------
 // emulator
 
-#define ATTRIB_CHOICE_DX 20 * int_font_dx_get()
+#define ATTRIB_CHOICE_DX 20 * int_font_dx_get(text)
 
 emulator::emulator(const string& Aname, const string& Aexe_path, const string& Acmd_arg)
 	: config(0), state(false), name(Aname), has_atleastarom(false)

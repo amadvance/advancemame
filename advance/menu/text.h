@@ -40,7 +40,7 @@ bool int_init(unsigned video_sizex, unsigned video_sizey);
 void int_done();
 bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast, unsigned translucency, bool disable_special);
 void int_unset(bool reset_video_mode);
-bool int_enable(int fontx, int fonty, const std::string& font, unsigned orientation);
+bool int_enable(int font_text_x, int font_text_y, const std::string& font_text, int font_bar_x, int font_bar_y, const std::string& font_bar, unsigned orientation);
 void int_disable();
 void int_unplug();
 void int_plug();
@@ -58,21 +58,26 @@ void int_box(int x, int y, int dx, int dy, int width, const adv_color_rgb& color
 void int_rotate(int& x, int& y, int& dx, int& dy);
 void int_invrotate(int& x, int& y, int& dx, int& dy);
 
-unsigned int_put_width(char c);
-unsigned int_put_width(const std::string& s);
-void int_put(int x, int y, char c, const int_color& color);
-void int_put(int x, int y, const std::string& s, const int_color& color);
-void int_put_filled(int x, int y, int dx, const std::string& s, const int_color& color);
-void int_put_special(bool& in, int x, int y, int dx, const std::string& s, const int_color& c0, const int_color& c1, const int_color& c2);
-void int_put_alpha(int x, int y, char c, const int_color& color);
-void int_put_alpha(int x, int y, const std::string& s, const int_color& color);
-void int_put_filled_alpha(int x, int y, int dx, const std::string& s, const int_color& color);
-void int_put_special_alpha(bool& in, int x, int y, int dx, const std::string& s, const int_color& c0, const int_color& c1, const int_color& c2);
+typedef enum {
+	text = 0,
+	bar = 1
+} font_t;
 
-unsigned int_put(int x, int y, int dx, const std::string& s, const int_color& color);
-unsigned int_put_alpha(int x, int y, int dx, const std::string& s, const int_color& color);
-unsigned int_put_right(int x, int y, int dx, const std::string& s, const int_color& color);
-unsigned int_put_right_alpha(int x, int y, int dx, const std::string& s, const int_color& color);
+unsigned int_put_width(font_t font, char c);
+unsigned int_put_width(font_t font, const std::string& s);
+void int_put(font_t font, int x, int y, char c, const int_color& color);
+void int_put(font_t font, int x, int y, const std::string& s, const int_color& color);
+void int_put_filled(font_t font, int x, int y, int dx, const std::string& s, const int_color& color);
+void int_put_special(font_t font, bool& in, int x, int y, int dx, const std::string& s, const int_color& c0, const int_color& c1, const int_color& c2);
+void int_put_alpha(font_t font, int x, int y, char c, const int_color& color);
+void int_put_alpha(font_t font, int x, int y, const std::string& s, const int_color& color);
+void int_put_filled_alpha(font_t font, int x, int y, int dx, const std::string& s, const int_color& color);
+void int_put_special_alpha(font_t font, bool& in, int x, int y, int dx, const std::string& s, const int_color& c0, const int_color& c1, const int_color& c2);
+
+unsigned int_put(font_t font, int x, int y, int dx, const std::string& s, const int_color& color);
+unsigned int_put_alpha(font_t font, int x, int y, int dx, const std::string& s, const int_color& color);
+unsigned int_put_right(font_t font, int x, int y, int dx, const std::string& s, const int_color& color);
+unsigned int_put_right_alpha(font_t font, int x, int y, int dx, const std::string& s, const int_color& color);
 
 void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Ainc, unsigned Aoutline, unsigned Acursor, double expand_factor, bool multiclip, int resizeeffect);
 void int_backdrop_done();
@@ -98,9 +103,9 @@ void int_idle_time_reset();
 void int_idle_0_enable(bool state);
 void int_idle_1_enable(bool state);
 
-int int_font_dx_get();
-int int_font_dx_get(const std::string& s);
-int int_font_dy_get();
+int int_font_dx_get(font_t font);
+int int_font_dx_get(font_t font, const std::string& s);
+int int_font_dy_get(font_t font);
 
 int int_dx_get();
 int int_dy_get();

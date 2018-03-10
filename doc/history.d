@@ -17,6 +17,8 @@ AdvanceMENU Version 3.8 2018/03
 		configuration option.
 	) Added the 'display_resizeeffect' option like in AdvanceMAME to scale
 		screenshots.
+	) Added support for using a different font for the title bar with the new
+		'ui_text/bar_font' options.
 	) Added the 'skip_horz' and 'skip_vert' option to control the space between
 		tiles.
 	) In the screensaver if the clip is too short, don't restart it when

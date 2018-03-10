@@ -884,12 +884,13 @@ Configuration
 	This section describes the options used to customize the user
 	interface.
 
-    ui_font
-	Selects a font file. The formats TrueType (TTF), GRX, PSF and
-	RAW are supported. You can find a collection of fonts in the
-	`contrib' directory.
+    ui_text/bar_font
+	Selects a font file for normal text and the title bar.
+	The formats: TrueType (TTF), GRX, PSF and RAW are supported.
+	You can find a collection of fonts in the `contrib' directory.
 
-	:ui_font auto | "FILE"
+	:ui_text_font auto | "FILE"
+	:ui_bar_font auto | "FILE"
 
 	Options:
 		auto - Use the built-in font (default).
@@ -898,12 +899,13 @@ Configuration
 	The TrueType (TTF) format is supported only if the program is
 	compiled with the FreeType2 library.
 
-    ui_fontsize
+    ui_text/bar_size
 	Selects the font size, if the specified font is scalable.
 	The size is expressed in number of rows and columns of text in the
 	screen.
 
-	:ui_fontsize auto | ROWS [COLS]
+	:ui_text_size auto | ROWS [COLS]
+	:ui_bar_size auto | ROWS [COLS]
 
 	Options:
 		auto - Automatically compute the size (default).

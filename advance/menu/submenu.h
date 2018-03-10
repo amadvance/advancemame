@@ -46,12 +46,12 @@ void run_stat(config_state& rs);
 
 #define FIRST_CHOICE_X (int_dx_get() / 20)
 #define FIRST_CHOICE_Y (int_dy_get() / 15)
-#define SECOND_CHOICE_X (FIRST_CHOICE_X + int_font_dx_get() * 2)
-#define SECOND_CHOICE_Y (FIRST_CHOICE_Y + int_font_dx_get() * 2)
-#define THIRD_CHOICE_X (SECOND_CHOICE_X + int_font_dx_get() * 2)
-#define THIRD_CHOICE_Y (SECOND_CHOICE_Y + int_font_dx_get() * 2)
-#define FOURTH_CHOICE_X (THIRD_CHOICE_X + int_font_dx_get() * 2)
-#define FOURTH_CHOICE_Y (THIRD_CHOICE_Y + int_font_dx_get() * 2)
+#define SECOND_CHOICE_X (FIRST_CHOICE_X + int_font_dx_get(text) * 2)
+#define SECOND_CHOICE_Y (FIRST_CHOICE_Y + int_font_dx_get(text) * 2)
+#define THIRD_CHOICE_X (SECOND_CHOICE_X + int_font_dx_get(text) * 2)
+#define THIRD_CHOICE_Y (SECOND_CHOICE_Y + int_font_dx_get(text) * 2)
+#define FOURTH_CHOICE_X (THIRD_CHOICE_X + int_font_dx_get(text) * 2)
+#define FOURTH_CHOICE_Y (THIRD_CHOICE_Y + int_font_dx_get(text) * 2)
 
 #endif
 
