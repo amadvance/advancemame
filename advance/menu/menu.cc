@@ -202,11 +202,11 @@ void draw_menu_desc(const string& desc, int x, int y, int dx, bool selected)
 	int_put_filled_alpha(text, x, y, dx, desc, color);
 }
 
-string reduce_string(const string& s, unsigned width)
+string reduce_string(font_t font, const string& s, unsigned width)
 {
 	string r = s;
 
-	while (int_put_width(text, r) > width && r.length()) {
+	while (int_put_width(font, r) > width && r.length()) {
 		r.erase(r.length() - 1, 1);
 	}
 
@@ -215,7 +215,7 @@ string reduce_string(const string& s, unsigned width)
 
 void draw_tag_left(font_t font, const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
 {
-	string r = reduce_string(s, (xr - xl) - sep);
+	string r = reduce_string(font, s, (xr - xl) - sep);
 
 	int len = sep + int_put_width(font, r);
 
@@ -233,7 +233,7 @@ void draw_tag_left_whole(font_t font, const string& s, int& xl, int& xr, int y, 
 
 void draw_tag_right(font_t font, const string& s, int& xl, int& xr, int y, int sep, const int_color& color)
 {
-	string r = reduce_string(s, (xr - xl) - sep);
+	string r = reduce_string(font, s, (xr - xl) - sep);
 
 	int len = sep + int_put_width(font, r);
 
