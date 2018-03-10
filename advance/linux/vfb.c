@@ -2036,7 +2036,7 @@ adv_error fb_load(adv_conf* context)
 
 	fb_option.hdmi_pclock_low = conf_int_get_default(context, "device_hdmi_pclock_low");
 	fb_option.dpi_pclock_low = conf_int_get_default(context, "device_dpi_pclock_low");
-	fb_option.fast_set = conf_int_get_default(context, "device_fb_fastset");
+	fb_option.fast_set = conf_bool_get_default(context, "device_fb_fastset");
 
 	fb_option.initialized = 1;
 
