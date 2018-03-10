@@ -249,7 +249,7 @@ void draw_tag_right_whole(const string& s, int& xl, int& xr, int y, int sep, con
 		draw_tag_right(s, xl, xr, y, sep, color);
 }
 
-void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
+void draw_menu_bar(const game* g, int g2, int x, int y, int dx, bool lock)
 {
 	int_clear_alpha(x, y, dx, int_font_dy_get(), COLOR_MENU_BAR.background);
 
@@ -275,13 +275,13 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 		draw_tag_right(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
-	if (g && !g->group_derived_get()->undefined_get()) {
+	if (!lock && g && !g->group_derived_get()->undefined_get()) {
 		ostringstream os;
 		os << g->group_derived_get()->name_get();
 		draw_tag_right(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
 	}
 
-	if (g && !g->type_derived_get()->undefined_get()) {
+	if (!lock && g && !g->type_derived_get()->undefined_get()) {
 		ostringstream os;
 		os << g->type_derived_get()->name_get();
 		draw_tag_right(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
@@ -307,7 +307,7 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 		draw_tag_right_whole(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
-	if (g) {
+	if (!lock && g) {
 		ostringstream os;
 		if (g->size_get() >= 10 * 1000 * 1000)
 			os << setw(4) << g->size_get() / 1000 / 1000 << "M";
@@ -316,13 +316,13 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx)
 		draw_tag_right_whole(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
-	if (g && g->sizex_get() && g->sizey_get()) {
+	if (!lock && g && g->sizex_get() && g->sizey_get()) {
 		ostringstream os;
 		os << g->sizex_get() << "x" << g->sizey_get();
 		draw_tag_right_whole(os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
 	}
 
-	if (g) {
+	if (!lock && g) {
 		ostringstream os;
 		if (g->emulator_get()->tree_get()) {
 			const game* gb = &g->clone_best_get();
@@ -361,7 +361,7 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 	if (lock)
 		draw_tag_right("locked", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN);
 
-	switch (preview) {
+	if (!lock) switch (preview) {
 	case preview_flyer: draw_tag_right("flyers", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	case preview_cabinet: draw_tag_right("cabinets", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	case preview_icon: draw_tag_right("icons", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
@@ -370,7 +370,7 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 	case preview_snap: draw_tag_right("snap", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
-	switch (sort_mode) {
+	if (!lock) switch (sort_mode) {
 	case sort_by_group: draw_tag_right("group", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	case sort_by_name: draw_tag_right("name", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	case sort_by_root_name: draw_tag_right("parent", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
@@ -386,7 +386,7 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 	case sort_by_emulator: draw_tag_right("emulator", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	}
 
-	switch (difficulty) {
+	if (!lock) switch (difficulty) {
 	case difficulty_none: draw_tag_right("none", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	case difficulty_easiest: draw_tag_right("easiest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	case difficulty_easy: draw_tag_right("easy", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
@@ -410,7 +410,7 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 			draw_tag_left(os.str(), xl, xr, y, 0, COLOR_MENU_BAR);
 		}
 
-		if (g->parent_get()) {
+		if (!lock && g->parent_get()) {
 			ostringstream os;
 			os << ", ";
 			if (g->software_get())
@@ -1528,7 +1528,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		if (name_dy)
 			draw_menu_window(rs.gar, gc, int_map, coln, rown, pos_base, pos_base + pos_rel, use_ident, rs.merge, rs.mode_get() == mode_tile_icon);
 		if (bar_top_dy)
-			draw_menu_bar(rs.current_game, game_count, bar_top_x, bar_top_y, bar_top_dx);
+			draw_menu_bar(rs.current_game, game_count, bar_top_x, bar_top_y, bar_top_dx, rs.lock_effective);
 		if (bar_bottom_dy)
 			draw_menu_info(rs.gar, rs.current_game, bar_bottom_x, bar_bottom_y, bar_bottom_dx, rs.merge, effective_preview, rs.sort_get(), rs.difficulty_effective, rs.lock_effective);
 		if (bar_right_dx) {
