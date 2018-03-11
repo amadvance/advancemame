@@ -379,6 +379,7 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 	case sort_by_name: draw_tag_right(font, "name", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	case sort_by_root_name: draw_tag_right(font, "parent", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	case sort_by_time: draw_tag_right(font, "time", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+	case sort_by_smart_time: draw_tag_right(font, "stime", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	case sort_by_session: draw_tag_right(font, "play", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	case sort_by_year: draw_tag_right(font, "year", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
 	case sort_by_manufacturer: draw_tag_right(font, "manuf", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
@@ -1919,7 +1920,7 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 	log_std(("menu: insert begin\n"));
 
 	bool list_mode = rs.mode_get() == mode_list || rs.mode_get() == mode_list_mixed;
-	if (!list_mode || rs.sort_get() == sort_by_name || rs.sort_get() == sort_by_time || rs.sort_get() == sort_by_size || rs.sort_get() == sort_by_session || rs.sort_get() == sort_by_timepersession) {
+	if (!list_mode || rs.sort_get() == sort_by_name || rs.sort_get() == sort_by_time || rs.sort_get() == sort_by_smart_time || rs.sort_get() == sort_by_size || rs.sort_get() == sort_by_session || rs.sort_get() == sort_by_timepersession) {
 		gc.reserve(gss.size());
 		for (pgame_sort_set::const_iterator i = gss.begin(); i != gss.end(); ++i) {
 			gc.insert(gc.end(), new menu_entry(*i, 0));
@@ -2111,6 +2112,10 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 	case sort_by_time:
 		psc = new pgame_sort_set(sort_by_time_func);
 		category_func = sort_item_time;
+		break;
+	case sort_by_smart_time:
+		psc = new pgame_sort_set(sort_by_smart_time_func);
+		category_func = sort_item_smart_time;
 		break;
 	case sort_by_session:
 		psc = new pgame_sort_set(sort_by_session_func);

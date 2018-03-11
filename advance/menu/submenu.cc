@@ -61,6 +61,7 @@ int run_sort(config_state& rs)
 	ch.insert(ch.end(), choice("Emulator", sort_by_emulator));
 	ch.insert(ch.end(), choice("Name", sort_by_name));
 	ch.insert(ch.end(), choice("Time played", sort_by_time));
+	ch.insert(ch.end(), choice("Smart time", sort_by_smart_time));
 	ch.insert(ch.end(), choice("Play times", sort_by_session));
 	ch.insert(ch.end(), choice("Time per play", sort_by_timepersession));
 	ch.insert(ch.end(), choice("Group", sort_by_group));

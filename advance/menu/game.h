@@ -345,6 +345,18 @@ inline bool pgame_combine_less(const game* A, const game* B, bool (*FA)(const ga
 	return FC(A, B);
 }
 
+inline bool pgame_combine_less(const game* A, const game* B, bool (*FA)(const game*, const game*), bool (*FB)(const game*, const game*), bool (*FC)(const game*, const game*), bool (*FD)(const game*, const game*))
+{
+	if (FA(A, B)) return true;
+	if (FA(B, A)) return false;
+	if (FB(A, B)) return true;
+	if (FB(B, A)) return false;
+	if (FC(A, B)) return true;
+	if (FC(B, A)) return false;
+	return FD(A, B);
+}
+
+
 inline bool pgame_by_desc_less(const game* A, const game* B)
 {
 	return case_less(A->description_get(), B->description_get());
@@ -468,6 +480,7 @@ std::string sort_item_name(const game& g);
 std::string sort_item_manufacturer(const game& g);
 std::string sort_item_year(const game& g);
 std::string sort_item_time(const game& g);
+std::string sort_item_smart_time(const game& g);
 std::string sort_item_session(const game& g);
 std::string sort_item_group(const game& g);
 std::string sort_item_type(const game& g);

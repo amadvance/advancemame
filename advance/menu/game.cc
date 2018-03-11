@@ -777,6 +777,11 @@ string sort_item_time(const game& g)
 	return g.emulator_get()->user_name_get();
 }
 
+string sort_item_smart_time(const game& g)
+{
+	return sort_item_root_name(g);
+}
+
 string sort_item_session(const game& g)
 {
 	(void)g;

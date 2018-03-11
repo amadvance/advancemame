@@ -37,6 +37,7 @@ static adv_conf_enum_int OPTION_SORT[] = {
 	{ "name", sort_by_name },
 	{ "parent", sort_by_root_name },
 	{ "time", sort_by_time },
+	{ "smart_time", sort_by_smart_time },
 	{ "play", sort_by_session },
 	{ "year", sort_by_year },
 	{ "manufacturer", sort_by_manufacturer },

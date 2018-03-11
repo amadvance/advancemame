@@ -496,16 +496,17 @@ Configuration
     sort
 	Selects the sort order of the games displayed.
 
-	:[EMULATOR/]sort parent | name | time | play | year | manufacturer
+	:[EMULATOR/]sort parent | name | time | smart_time | play | year | manufacturer
 	:	| type | group | size | resolution | info
 
 	Options:
 		EMULATOR/ - Nothing for the default value, or an emulator
 			name for a specific emulator option.
-		parent - Game parent name.
+		parent - Game parent name (default).
 		emulator - Emulator name.
 		name - Game name.
 		time - Total Time played.
+		smart_time - Time played ignoring the first 20 minutes.
 		play - Total Play times.
 		timeperplay - Time per play.
 		year - Game year release.
