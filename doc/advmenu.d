@@ -1016,6 +1016,11 @@ Configuration
 	ui_scrollbar yes | no
 	ui_outline yes | no
 
+    ui_topname
+	Puts the game name at the top instead of at the bottom.
+
+	ui_topname yes | no
+
     ui_name
 	Enables or disables the display of the game name in the screensaver.
 

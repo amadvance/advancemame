@@ -1369,11 +1369,16 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 					int_map[i].dy = name_row * name_dy;
 				} else {
 					backdrop_map[i].x = x;
-					backdrop_map[i].y = y;
+					int_map[i].x = x;
+					if (rs.ui_top_name) {
+						backdrop_map[i].y = y + name_dy;
+						int_map[i].y = y;
+					} else {
+						backdrop_map[i].y = y;
+						int_map[i].y = y + cell_dy - name_dy;
+					}
 					backdrop_map[i].dx = cell_dx;
 					backdrop_map[i].dy = cell_dy - name_dy;
-					int_map[i].x = x;
-					int_map[i].y = y + cell_dy - name_dy;
 					int_map[i].dx = cell_dx;
 					int_map[i].dy = name_dy;
 				}
