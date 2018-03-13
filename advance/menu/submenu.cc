@@ -759,6 +759,16 @@ int run_difficulty(config_state& rs)
 
 #define MENU_CHOICE_DX 20 * int_font_dx_get(text)
 
+void clear_stat(config_state& rs)
+{
+	for (game_set::const_iterator i = rs.gar.begin(); i != rs.gar.end(); ++i) {
+		if (i->is_time_set() || i->is_session_set()) {
+			i->time_set(0);
+			i->session_set(0);
+		}
+	}
+}
+
 int run_suballmenu(config_state& rs)
 {
 	choice_bag ch;
@@ -771,6 +781,7 @@ int run_suballmenu(config_state& rs)
 	ch.insert(ch.end(), choice("Calibration...", 9));
 	ch.insert(ch.end(), choice("Save all settings", 6));
 	ch.insert(ch.end(), choice("Restore all settings", 20));
+	ch.insert(ch.end(), choice("Clear all stats", 21));
 	ch.insert(ch.end(), choice(menu_name(rs, "Lock settings", EVENT_LOCK), 11));
 
 	choice_bag::iterator i = ch.begin();
@@ -805,6 +816,9 @@ int run_suballmenu(config_state& rs)
 				break;
 			case 20:
 				rs.restore_load();
+				break;
+			case 21:
+				clear_stat(rs);
 				break;
 			case 7:
 				key = run_group_move(rs);
