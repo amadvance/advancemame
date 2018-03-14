@@ -173,7 +173,7 @@ public:
 	bool is_user_description_set() const { return flag_get(flag_user_description_set); }
 	void user_description_set(const std::string& A) const { flag |= flag_user_description_set; description = A; }
 	const std::string& description_get() const { return description; }
-	std::string description_tree_get() const { return strip_comment(description_get()); }
+	std::string description_tree_get() const;
 
 	void auto_info_set(const std::string& A) const { info = A; }
 	const std::string& info_get() const { return info; }

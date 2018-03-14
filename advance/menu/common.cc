@@ -171,6 +171,9 @@ string strip_comment(const string& s)
 			}
 		}
 	}
+
+	r = strip_space(r);
+
 	return r;
 }
 

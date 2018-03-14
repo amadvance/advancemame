@@ -112,6 +112,12 @@ void game::auto_description_set(const std::string& A) const
 	}
 }
 
+std::string game::description_tree_get() const
+{
+	// remove () and []
+	return strip_comment(description_get());
+}
+
 void game::manufacturer_set(const std::string& s)
 {
 	// clear previous value

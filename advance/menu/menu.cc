@@ -302,6 +302,19 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx, bool lock)
 
 	if (g) {
 		ostringstream os;
+		if (g->software_get()) {
+			string machine = g->root_get().description_tree_get();
+
+			// use some shorcuts for the top bar
+			if (machine == "TI99/4A Home Computer")
+				machine = "TI99/4A";
+			else if (machine == "Nintendo Entertainment System")
+				machine = "NES";
+			else if (machine == "Super Nintendo Entertainment System")
+				machine = "SNES";
+
+			os << machine << " - ";
+		}
 		if (g->emulator_get()->tree_get())
 			os << g->description_tree_get();
 		else
