@@ -176,7 +176,8 @@ unsigned game::time_tree_get() const
 {
 	unsigned r = time_get();
 	for (pgame_container::const_iterator i = clone_bag_get().begin(); i != clone_bag_get().end(); ++i) {
-		r += (*i)->time_tree_get();
+		if (!(*i)->software_get())
+			r += (*i)->time_tree_get();
 	}
 	return r;
 }
