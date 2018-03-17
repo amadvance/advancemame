@@ -411,17 +411,32 @@ bool config_state::load_game(const string& name, const string& group_name, const
 	if (i == gar.end())
 		return false;
 
-	i->user_group_set(group.insert(group_name));
-	i->user_type_set(type.insert(type_name));
+	if (group_name.length())
+		i->user_group_set(group.insert(group_name));
+
+	if (type_name.length())
+		i->user_type_set(type.insert(type_name));
 
 	if (desc.length() != 0)
 		i->user_description_set(desc);
 
-	if (time.length() != 0 && isdigit(time[0]))
-		i->time_set(atoi(time.c_str()));
+	if (time.length() != 0) {
+		int n = atoi(time.c_str());
+		if (n > 0) {
+			if (i->is_time_set())
+				n += i->time_get();
+			i->time_set(n);
+		}
+	}
 
-	if (session.length() != 0 && isdigit(session[0]))
-		i->session_set(atoi(session.c_str()));
+	if (session.length() != 0) {
+		int n = atoi(session.c_str());
+		if (n > 0) {
+			if (i->is_session_set())
+				n += i->session_get();
+			i->session_set(n);
+		}
+	}
 
 	return true;
 }
