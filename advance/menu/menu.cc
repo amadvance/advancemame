@@ -249,7 +249,7 @@ void draw_tag_right_whole(font_t font, const string& s, int& xl, int& xr, int y,
 		draw_tag_right(font, s, xl, xr, y, sep, color);
 }
 
-void draw_menu_bar(const game* g, int g2, int x, int y, int dx, bool lock)
+void draw_menu_bar(const game* g, int g2, int x, int y, int dx, bool lock, bool bottom)
 {
 	font_t font = bar;
 
@@ -319,7 +319,14 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx, bool lock)
 			os << g->description_tree_get();
 		else
 			os << g->description_get();
-		draw_tag_left(font, os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR_TAG);
+
+		draw_tag_left(font, os.str(), xl, xr, y, 0, COLOR_MENU_BAR_TAG);
+
+		if (!bottom && g->year_get().length())
+			draw_tag_left_whole(font, ", " + g->year_get(), xl, xr, y, 0, COLOR_MENU_BAR_TAG);
+
+		if (xr - xl >= in_separator)
+			xl += in_separator;
 	}
 
 	if (!lock && g) {
@@ -1552,7 +1559,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		if (name_dy)
 			draw_menu_window(rs.gar, gc, int_map, coln, rown, pos_base, pos_base + pos_rel, use_ident, rs.merge, rs.mode_get() == mode_tile_icon);
 		if (bar_top_dy)
-			draw_menu_bar(rs.current_game, game_count, bar_top_x, bar_top_y, bar_top_dx, rs.lock_effective);
+			draw_menu_bar(rs.current_game, game_count, bar_top_x, bar_top_y, bar_top_dx, rs.lock_effective, bar_bottom_dy != 0);
 		if (bar_bottom_dy)
 			draw_menu_info(rs.gar, rs.current_game, bar_bottom_x, bar_bottom_y, bar_bottom_dx, rs.merge, effective_preview, rs.sort_get(), rs.difficulty_effective, rs.lock_effective);
 		if (bar_right_dx) {
