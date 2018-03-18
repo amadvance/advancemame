@@ -2840,7 +2840,12 @@ bool int_image(const string& file, unsigned& scale_x, unsigned& scale_y)
 		return false;
 	}
 
+	scale_x = bitmap->size_x;
+	scale_y = bitmap->size_y;
+
 	int_image_buffer(bitmap, rgb_map, rgb_max);
+
+	adv_bitmap_free(bitmap);
 
 	return true;
 }

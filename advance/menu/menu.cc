@@ -853,8 +853,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 	}
 
 	scr_x = ui_left;
-	scr_y = ui_top;
 	scr_dx = video_size_x() - ui_right - scr_x;
+	scr_y = ui_top;
 	scr_dy = video_size_y() - ui_bottom - scr_y;
 	if (scr_dx <= 0 || scr_dy <= 0) {
 		scr_x = 0;
@@ -862,6 +862,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		scr_dx = video_size_x();
 		scr_dy = video_size_y();
 	}
+
 	int_invrotate(scr_x, scr_y, scr_dx, scr_dy);
 
 	// standard bars
