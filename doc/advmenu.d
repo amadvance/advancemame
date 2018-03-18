@@ -1332,10 +1332,10 @@ Configuration
 		START_TIMEOUT - Number of seconds to wait for the
 			first run. 0 means never (default 60).
 		REPEAT_TIMEOUT - Number of seconds to wait for the
-			next run. 0 means never (default 10).
+			next run. 0 means never (default 14).
 
 	Examples:
-		:idle_screensaver 40 5
+		:idle_screensaver 120 14
 
     idle_screensaver_preview
 	Selects the preview type to use in the screensaver. Like

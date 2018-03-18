@@ -274,7 +274,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_string_register_multi(config_context, "event_assign");
 	conf_string_register_multi(config_context, "ui_color");
 	conf_string_register_default(config_context, "idle_start", "0 0");
-	conf_string_register_default(config_context, "idle_screensaver", "60 10");
+	conf_string_register_default(config_context, "idle_screensaver", "60 14");
 	conf_int_register_enum_default(config_context, "idle_screensaver_preview", conf_enum(OPTION_SAVER), saver_play);
 	conf_int_register_default(config_context, "menu_base", 0);
 	conf_int_register_default(config_context, "menu_rel", 0);
