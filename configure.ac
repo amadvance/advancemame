@@ -174,39 +174,38 @@ if test $ac_auto_cflags = yes; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
 	else
 		CFLAGS=""
-		dnl Optimization level O2 generally gives better performance than O3,
-		dnl expecially in biggest and slowest games
-		AC_CHECK_CC_OPT([-O2], [CFLAGS="$CFLAGS -O2"], [])
+		dnl O3 generally gives better performance than O2 in both Intel and ARM
+		AC_CHECK_CC_OPT([-O3], [CFLAGS="$CFLAGS -O3"], [])
 
 		if test $ac_enable_32 = yes ; then
 			dnl Force build for 32 bit x86
 			AC_CHECK_CC_OPT([-m32 -march=i686], [CFLAGS="$CFLAGS -m32 -march=i686"], [])
 			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
-		else
+		elif $GREP a02082\\\|a22082 /proc/cpuinfo >/dev/null 2>&1; then
+			dnl Raspberry Pi 3
 			dnl GCC 4 has problems with -march=native in Raspbian,
 			dnl resulting in a "double free or corruption" error
 			dnl See: https://www.raspberrypi.org/forums/viewtopic.php?f=28&t=139091
-			if ! $GREP ARM /proc/cpuinfo >/dev/null 2>&1; then
-				AC_CHECK_CC_OPT([-march=native], [CFLAGS="$CFLAGS -march=native"], [])
-				AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
-			dnl Raspberry Pi 3
-			elif $GREP a02082\\\|a22082 /proc/cpuinfo >/dev/null 2>&1; then
-				AC_CHECK_CC_OPT([-march=armv8-a+crc], [CFLAGS="$CFLAGS -march=armv8-a+crc"], [])
-				AC_CHECK_CC_OPT([-mtune=cortex-a53], [CFLAGS="$CFLAGS -mtune=cortex-a53"], [])
-				AC_CHECK_CC_OPT([-mfloat-abi=hard], [CFLAGS="$CFLAGS -mfloat-abi=hard"], [])
-				AC_CHECK_CC_OPT([-mfpu=crypto-neon-fp-armv8], [CFLAGS="$CFLAGS -mfpu=crypto-neon-fp-armv8"], [])
-				AC_CHECK_CC_OPT([-funsafe-math-optimizations], [CFLAGS="$CFLAGS -funsafe-math-optimizations"], [])
+			AC_CHECK_CC_OPT([-march=armv8-a+crc], [CFLAGS="$CFLAGS -march=armv8-a+crc"], [])
+			AC_CHECK_CC_OPT([-mtune=cortex-a53], [CFLAGS="$CFLAGS -mtune=cortex-a53"], [])
+			AC_CHECK_CC_OPT([-mfloat-abi=hard], [CFLAGS="$CFLAGS -mfloat-abi=hard"], [])
+			AC_CHECK_CC_OPT([-mfpu=crypto-neon-fp-armv8], [CFLAGS="$CFLAGS -mfpu=crypto-neon-fp-armv8"], [])
+			AC_CHECK_CC_OPT([-funsafe-math-optimizations], [CFLAGS="$CFLAGS -funsafe-math-optimizations"], [])
 			dnl Raspberry Pi 2
-			elif $GREP a01040\\\|a01041\\\|a21041\\\|a22042 /proc/cpuinfo >/dev/null 2>&1; then
-				AC_CHECK_CC_OPT([-march=armv7-a], [CFLAGS="$CFLAGS -march=armv7-a"], [])
-				AC_CHECK_CC_OPT([-mfpu=neon-vfpv4], [CFLAGS="$CFLAGS -mfpu=neon-vfpv4"], [])
-			fi
+		elif $GREP a01040\\\|a01041\\\|a21041\\\|a22042 /proc/cpuinfo >/dev/null 2>&1; then
+			AC_CHECK_CC_OPT([-march=armv7-a], [CFLAGS="$CFLAGS -march=armv7-a"], [])
+			AC_CHECK_CC_OPT([-mfpu=neon-vfpv4], [CFLAGS="$CFLAGS -mfpu=neon-vfpv4"], [])
+		else
+			AC_CHECK_CC_OPT([-march=native], [CFLAGS="$CFLAGS -march=native"], [])
+			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
 		fi
 
 		dnl Code was written when compilers where not aggressively optimizing undefined behaviour about aliasing
-		AC_CHECK_CC_OPT([-fno-strict-aliasing], [CFLAGS="$CFLAGS -fno-strict-aliasing"], [])
+		dnl WARNING! At present disabled to maximize performance
+		dnl AC_CHECK_CC_OPT([-fno-strict-aliasing], [CFLAGS="$CFLAGS -fno-strict-aliasing"], [])
 		dnl Code was written when compilers where not aggressively optimizing undefined behaviour about overflow in signed integers
-		AC_CHECK_CC_OPT([-fno-strict-overflow], [CFLAGS="$CFLAGS -fno-strict-overflow"], [])
+		dnl WARNING! At present disabled to maximize performance
+		dnl AC_CHECK_CC_OPT([-fno-strict-overflow], [CFLAGS="$CFLAGS -fno-strict-overflow"], [])
 		dnl Code was written on Intel where char is signed
 		AC_CHECK_CC_OPT([-fsigned-char], [CFLAGS="$CFLAGS -fsigned-char"], [])
 		dnl We are not interested in stack protection
