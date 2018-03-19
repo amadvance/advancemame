@@ -531,7 +531,10 @@ $(sort $(MENUOBJDIRS)):
 $(MENUOBJ)/advmenu$(EXE) : $(sort $(MENUOBJDIRS)) $(MENUOBJS)
 	$(ECHO) $@ $(MSG)
 	$(LDXX) $(MENUOBJS) $(MENULDFLAGS) $(LDFLAGS) $(MENULIBS) $(LIBS) -o $@
-ifeq ($(CONF_DEBUG),yes)
+ifeq ($(CONF_PERF),yes)
+	$(RM) advmenup$(EXE)
+	$(LN_S) $@ advmenup$(EXE)
+else ifeq ($(CONF_DEBUG),yes)
 	$(RM) advmenud$(EXE)
 	$(LN_S) $@ advmenud$(EXE)
 else

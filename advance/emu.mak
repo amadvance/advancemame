@@ -717,7 +717,10 @@ MESSLIBS += $(EMULIBS) $(MESSDRVLIBS)
 $(OBJ)/advmame$(EXE): $(sort $(OBJDIRS)) $(ADVANCEOBJS) $(MAMEOBJS) $(MAMELIBS) $(ADVANCEBUILDLIBS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(ADVANCEOBJS) $(MAMEOBJS) $(ADVANCELDFLAGS) $(LDFLAGS) $(MAMELIBS) $(ADVANCEBUILDLIBS) $(ADVANCELIBS) $(LIBS) -o $@
-ifeq ($(CONF_DEBUG),yes)
+ifeq ($(CONF_PERF),yes)
+	$(RM) advmamep$(EXE)
+	$(LN_S) $(OBJ)/advmame$(EXE) advmamep$(EXE)
+else ifeq ($(CONF_DEBUG),yes)
 	$(RM) advmamed$(EXE)
 	$(LN_S) $(OBJ)/advmame$(EXE) advmamed$(EXE)
 else
@@ -764,7 +767,10 @@ MESSADVANCEOBJS = $(subst $(OBJ),$(MESSOBJ),$(ADVANCEOBJS))
 $(MESSOBJ)/advmess$(EXE): $(sort $(MESSOBJDIRS)) $(MESSADVANCEOBJS) $(MESSOBJS) $(MESSLIBS) $(ADVANCEBUILDLIBS) 
 	$(ECHO) $@ $(MSG)
 	$(LD) $(MESSADVANCEOBJS) $(MESSOBJS) $(ADVANCELDFLAGS) $(LDFLAGS) $(MESSLIBS) $(ADVANCEBUILDLIBS) $(ADVANCELIBS) $(LIBS) -o $@
-ifeq ($(CONF_DEBUG),yes)
+ifeq ($(CONF_PERF),yes)
+	$(RM) advmessp$(EXE)
+	$(LN_S) $(MESSOBJ)/advmess$(EXE) advmessp$(EXE)
+else ifeq ($(CONF_DEBUG),yes)
 	$(RM) advmessd$(EXE)
 	$(LN_S) $(MESSOBJ)/advmess$(EXE) advmessd$(EXE)
 else

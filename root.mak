@@ -34,7 +34,9 @@ LDFLAGS = $(CONF_LDFLAGS)
 LIBS = $(CONF_LIBS)
 
 # Compiling message
-ifeq ($(CONF_DEBUG),yes)
+ifeq ($(CONF_PERF),yes)
+MSG = "(perf)"
+else ifeq ($(CONF_DEBUG),yes)
 MSG = "(debug)"
 else
 MSG =

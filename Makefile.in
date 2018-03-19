@@ -45,6 +45,7 @@ CONF_LDFLAGS=@CONF_LDFLAGS@
 CONF_LIBS=@CONF_LIBS@
 CONF_DEBUGGER=@CONF_DEBUGGER@
 CONF_DEBUG=@CONF_DEBUG@
+CONF_PERF=@CONF_PERF@
 CONF_DEFS=@DEFS@
 CONF_TINY=@CONF_TINY@
 
@@ -58,10 +59,14 @@ endif
 
 # Name of the architecture. Used in the distribution file names.
 ifndef CONF_ARCH
+ifeq ($(CONF_PERF),yes)
+CONF_ARCH=perf
+else
 ifeq ($(CONF_DEBUG),yes)
 CONF_ARCH=debug
 else
 CONF_ARCH=blend
+endif
 endif
 endif
 

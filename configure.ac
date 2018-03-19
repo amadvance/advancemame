@@ -123,6 +123,14 @@ fi
 
 dnl Checks for optimizations
 AC_ARG_ENABLE(
+	[perf],
+	AC_HELP_STRING([--enable-perf],[enable the test compilation with profiler. Only for developers. (default no)]),
+	[ac_enable_perf=$enableval],
+	[ac_enable_perf=no]
+)
+AC_SUBST([CONF_PERF],[$ac_enable_perf])
+
+AC_ARG_ENABLE(
 	[debug],
 	AC_HELP_STRING([--enable-debug],[enable the test compilation without optimization and with debug info. Only for developers. (default no)]),
 	[ac_enable_debug=$enableval],
@@ -160,7 +168,9 @@ AC_ARG_ENABLE(
 )
 
 if test $ac_auto_cflags = yes; then
-	if test $ac_enable_debug = yes ; then
+	if test $ac_enable_perf = yes ; then
+		CFLAGS="-O1 -pg -Wall -Wno-sign-compare -Wno-unused"
+	elif test $ac_enable_debug = yes ; then
 		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
 	else
 		CFLAGS=""
@@ -211,7 +221,9 @@ if test $ac_auto_cflags = yes; then
 	fi
 fi
 if test $ac_auto_ldflags = yes ; then
-	if test $ac_enable_debug = yes ; then
+	if test $ac_enable_perf = yes ; then
+		LDFLAGS="-pg"
+	elif test $ac_enable_debug = yes ; then
 		if test $ac_system = unix ; then
 			LDFLAGS="-rdynamic"
 		else
@@ -1394,6 +1406,7 @@ echo "Misc :" $ac_lib_other
 
 if test $ac_enable_bare = no ; then
 if test $ac_enable_debug = no ; then
+if test $ac_enable_perf = no ; then
 	if test $ac_lib_video_flag = no; then
 		AC_MSG_ERROR([no video library found. If you have the SDL library installed somewhere try using the --with-sdl-prefix or --with-sdl2-prefix options.])
 	else
@@ -1407,6 +1420,7 @@ if test $ac_enable_debug = no ; then
 	if test $ac_lib_text_flag = no; then
 		AC_MSG_WARN([no text video mode library found. The advv/advcfg utilities will not work!])
 	fi
+fi
 fi
 fi
 
