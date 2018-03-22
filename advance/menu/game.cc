@@ -160,10 +160,14 @@ void game::rom_zip_set_insert(const string& Afile) const
 const game& game::clone_best_get() const
 {
 	const game* r = this;
+	bool is_software = software_get();
 	for (pgame_container::const_iterator i = clone_bag_get().begin(); i != clone_bag_get().end(); ++i) {
-		const game* rr = &(*i)->clone_best_get();
-		if (game_by_play_less()(*r, *rr)) {
-			r = rr;
+		// consider only clone of the same kind machine/software
+		if (is_software == (*i)->software_get()) {
+			const game* rr = &(*i)->clone_best_get();
+			if (game_by_play_less()(*r, *rr)) {
+				r = rr;
+			}
 		}
 	}
 	return *r;
