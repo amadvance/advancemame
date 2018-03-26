@@ -486,13 +486,17 @@ void event_poll()
 	}
 
 	if (event_alpha_mode) {
+		bool found = false;
 		for (unsigned i = 0; EVENT_CONV[i].code != KEYB_MAX; ++i) {
 			for (unsigned k = 0; k < keyb_count_get(); ++k) {
 				if (keyb_get(k, EVENT_CONV[i].code)) {
+					found = true;
 					event_push_filter(EVENT_CONV[i].c);
 				}
 			}
 		}
+		if (!found)
+			event_last_push = -1;
 	}
 }
 
