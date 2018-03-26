@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 3.8 2018/03
+AdvanceMAME/MESS Version 3.8 2018/04
 	) Change the default 'sync_resample' mode to 'internal' to all games
 		using the pokey sound chip. This avoid crashes and provide
 		a better sound audio. One example is 'starwars'.
@@ -9,22 +9,21 @@ AdvanceMAME/MESS Version 3.8 2018/03
 		emulation. Note that the default is now to have partial emulation
 		by default to allow the user to control the emulator user
 		interface.
-	) Added a new 'config' option to alllow to decide if the configuration
+	) Added a new 'config' option to allow to decide if the configuration
 		should be autosaved at exit.
+	) Fixed font size computation. Now the menu always has the same size.
 
-AdvanceMENU Version 3.8 2018/03
+AdvanceMENU Version 3.8 2018/04
 	) Added support for configuring joystick and mouse buttons in the 'event'
 		configuration option.
 	) Added the 'display_resizeeffect' option like in AdvanceMAME to scale
 		screenshots.
-	) Added support for using a different font for the title bar with the new
-		'ui_text/bar_font' options.
-	) Added the 'skip_horz' and 'skip_vert' option to control the space between
-		tiles.
 	) In the screensaver if the clip is too short, don't restart it when
 		it finishes, but switch to the next one.
 	) In 'lock' mode is still possible to shutdown, if the 'misc_exit'
 		option allows it.
+	) Other configuration options added: 'ui_topname', 'sort smart_time',
+		'ui_text/bar_font', 'ui_outline', 'skip_horz' and 'skip_vert'
 
 AdvanceMAME/MESS Version 3.7 2018/02
 	) In the Exit menu added new Load/Save/Reset commands.
