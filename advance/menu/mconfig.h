@@ -98,7 +98,7 @@ inline bool sort_by_time_func(const game* A, const game* B)
 
 inline bool sort_by_smart_time_func(const game* A, const game* B)
 {
-	return pgame_combine_less(A, B, pgame_by_smart_time_less, pgame_by_leveldesc_less, pgame_by_desc_less, pgame_by_name_less);
+	return pgame_combine_less(A, B, pgame_by_smart_time_less, pgame_by_desc_less, pgame_by_name_less);
 }
 
 inline bool sort_by_session_func(const game* A, const game* B)
