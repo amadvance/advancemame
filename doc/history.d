@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 3.8 2018/04
+AdvanceMAME/MESS Version 3.8 2018/05
 	) Change the default 'sync_resample' mode to 'internal' to all games
 		using the pokey sound chip. This avoid crashes and provide
 		a better sound audio. One example is 'starwars'.
@@ -13,7 +13,7 @@ AdvanceMAME/MESS Version 3.8 2018/04
 		should be autosaved at exit.
 	) Fixed font size computation. Now the menu always has the same size.
 
-AdvanceMENU Version 3.8 2018/04
+AdvanceMENU Version 3.8 2018/05
 	) Added support for configuring joystick and mouse buttons in the 'event'
 		configuration option.
 	) Added the 'display_resizeeffect' option like in AdvanceMAME to scale
