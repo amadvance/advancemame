@@ -99,6 +99,7 @@ AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_GREP
+PKG_PROG_PKG_CONFIG
 AC_CHECK_TOOLS(AR, ar)
 AC_CHECK_TOOLS(RC, windres)
 AC_CHECK_PROGS(RM, rm)
@@ -772,45 +773,20 @@ fi
 AC_SUBST([CONF_LIB_NCURSES],[$ac_lib_ncurses])
 
 dnl Checks for freetype
-ac_lib_freetype_args=
-ac_lib_freetype_path="$PATH"
-AC_ARG_WITH(
-	[freetype-prefix],
-	AC_HELP_STRING([--with-freetype-prefix=DIR],[Prefix where FreeType2 is installed (optional)]),
-	[ac_lib_freetype_prefix="$withval"],
-	[ac_lib_freetype_prefix=""]
-)
-if test ! -z $ac_lib_freetype_prefix; then
-	ac_lib_freetype_args="--prefix=${ac_lib_freetype_prefix}"
-	ac_lib_freetype_path="${ac_lib_freetype_prefix}/bin"
-fi
 AC_ARG_ENABLE(
 	[freetype],
-	AC_HELP_STRING([--enable-freetype],[enable the use of the FreeType2 library. (default auto)]),
+	AC_HELP_STRING([--enable-freetype],[enable the use of the freetype2 library. (default auto)]),
 	[ac_lib_freetype=$enableval],
 	[ac_lib_freetype=auto]
 )
 if test $ac_lib_freetype = auto; then
-	AC_PATH_PROGS(
-		[ac_lib_freetype_config],
-		[${ac_tool_prefix}freetype-config],
-		[],
-		[${ac_lib_freetype_path}]
-	)
-	if test -z $ac_lib_freetype_config; then
-		ac_lib_freetype=no
-	else
+	PKG_CHECK_MODULES([FREETYPE], [freetype2], [ac_lib_freetype=yes], [ac_lib_freetype=no])
+	if test $ac_lib_freetype = yes; then
 		ac_save_CFLAGS="$CFLAGS"
 		ac_save_LIBS="$LIBS"
-		FREETYPECFLAGS=`$ac_lib_freetype_config $ac_lib_freetype_args --cflags`
-		if test $ac_enable_static = yes ; then
-			FREETYPELIBS=`$ac_lib_freetype_config $ac_lib_freetype_args --libs --static`
-		else
-			FREETYPELIBS=`$ac_lib_freetype_config $ac_lib_freetype_args --libs`
-		fi
-		CFLAGS="$FREETYPECFLAGS $CFLAGS"
-		LIBS="$FREETYPELIBS $LIBS"
-		AC_MSG_CHECKING([for FreeType2])
+		CFLAGS="$FREETYPE_CFLAGS $CFLAGS"
+		LIBS="$FREETYPE_LIBS $LIBS"
+		AC_MSG_CHECKING([for linking freetype2])
 		AC_TRY_LINK([
 				#include <ft2build.h>
 				#include FT_FREETYPE_H
@@ -826,71 +802,30 @@ if test $ac_lib_freetype = auto; then
 		LIBS="$ac_save_LIBS"
 	fi
 elif test $ac_lib_freetype = yes; then
-	AC_PATH_PROGS(
-		[ac_lib_freetype_config],
-		[${ac_tool_prefix}freetype-config],
-		[],
-		[${ac_lib_freetype_path}]
-	)
-	if test -z $ac_lib_freetype_config ; then
-		AC_MSG_ERROR([the ${ac_tool_prefix}freetype-config tool is missing])
-	else
-		ac_save_CFLAGS="$CFLAGS"
-		ac_save_LIBS="$LIBS"
-		FREETYPECFLAGS=`$ac_lib_freetype_config $ac_lib_freetype_args --cflags`
-		FREETYPELIBS=`$ac_lib_freetype_config $ac_lib_freetype_args --libs`
-		CFLAGS="$FREETYPECFLAGS $CFLAGS"
-		LIBS="$FREETYPELIBS $LIBS"
-		AC_MSG_CHECKING([for FreeType2])
-		AC_TRY_LINK([
-				#include <ft2build.h>
-				#include FT_FREETYPE_H
-				#include FT_GLYPH_H
-			], [
-				FT_Library library;
-				FT_Init_FreeType(&library);
-				FT_Done_FreeType(library);
-			],[],[AC_MSG_ERROR([the FreeType2 library is missing])])
-		AC_MSG_RESULT([yes])
-		CFLAGS="$ac_save_CFLAGS"
-		LIBS="$ac_save_LIBS"
-	fi
+	PKG_CHECK_MODULES([FREETYPE], [freetype2], [], AC_MSG_ERROR([the freetype2 library is missing]))
 fi
 if test $ac_lib_freetype = yes; then
 	ac_lib_other="$ac_lib_other freetype2"
 fi
-AC_SUBST([FREETYPECFLAGS])
-AC_SUBST([FREETYPELIBS])
+AC_SUBST([FREETYPECFLAGS],[$FREETYPE_CFLAGS])
+AC_SUBST([FREETYPELIBS],[$FREETYPE_LIBS])
 AC_SUBST([CONF_LIB_FREETYPE],[$ac_lib_freetype])
 
 dnl Checks for SDL v1 and v2
-ac_lib_sdl2_args=
-ac_lib_sdl2_path="$PATH"
-AC_ARG_WITH(
-	[sdl2-prefix],
-	AC_HELP_STRING([--with-sdl2-prefix=DIR],[Prefix where SDL2 is installed (optional)]),
-	[ac_lib_sdl2_prefix="$withval"],
-	[ac_lib_sdl2_prefix=""]
-)
-if test ! -z $ac_lib_sdl2_prefix; then
-	ac_lib_sdl2_args="--prefix=${ac_lib_sdl2_prefix}"
-	ac_lib_sdl2_path="${ac_lib_sdl2_prefix}/bin"
-fi
 AC_ARG_ENABLE(
 	[sdl2],
 	AC_HELP_STRING([--enable-sdl2],[enable the use of the SDL2 library. (default auto)]),
 	[ac_lib_sdl2=$enableval],
 	[ac_lib_sdl2=auto]
 )
-
 if test $ac_lib_sdl2 = auto; then
 	if test $ac_enable_32 = yes ; then
 		ac_save_CFLAGS="$CFLAGS"
 		ac_save_LIBS="$LIBS"
-		SDLCFLAGS="-I/usr/include/SDL2 -I/usr/include -D_REENTRANT"
-		SDLLIBS="-pthread -lSDL2"
-		CFLAGS="$SDLCFLAGS $CFLAGS"
-		LIBS="$SDLLIBS $LIBS"
+		SDL_CFLAGS="-I/usr/include/SDL2 -I/usr/include -D_REENTRANT"
+		SDL_LIBS="-pthread -lSDL2"
+		CFLAGS="$SDL_CFLAGS $CFLAGS"
+		LIBS="$SDL_LIBS $LIBS"
 		AC_MSG_CHECKING([for SDL2])
 		AC_TRY_LINK([
 				#include "SDL.h"
@@ -902,26 +837,13 @@ if test $ac_lib_sdl2 = auto; then
 		CFLAGS="$ac_save_CFLAGS"
 		LIBS="$ac_save_LIBS"
 	else
-		AC_PATH_PROGS(
-			[ac_lib_sdl2_config],
-			[${ac_tool_prefix}sdl2-config],
-			[],
-			[${ac_lib_sdl2_path}]
-		)
-		if test -z $ac_lib_sdl2_config; then
-			ac_lib_sdl2=no
-		else
+		PKG_CHECK_MODULES([SDL], [sdl2], [ac_lib_sdl2=yes], [ac_lib_sdl2=no])
+		if test $ac_lib_sdl2 = yes; then
 			ac_save_CFLAGS="$CFLAGS"
 			ac_save_LIBS="$LIBS"
-			SDLCFLAGS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --cflags`
-			if test $ac_enable_static = yes ; then
-				SDLLIBS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --static-libs`
-			else
-				SDLLIBS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --libs`
-			fi
-			CFLAGS="$SDLCFLAGS $CFLAGS"
-			LIBS="$SDLLIBS $LIBS"
-			AC_MSG_CHECKING([for SDL2])
+			CFLAGS="$SDL_CFLAGS $CFLAGS"
+			LIBS="$SDL_LIBS $LIBS"
+			AC_MSG_CHECKING([for linking sdl2])
 			AC_TRY_LINK([
 					#include "SDL.h"
 					#undef main
@@ -934,48 +856,7 @@ if test $ac_lib_sdl2 = auto; then
 		fi
 	fi
 elif test $ac_lib_sdl2 = yes; then
-	AC_PATH_PROGS(
-		[ac_lib_sdl2_config],
-		[${ac_tool_prefix}sdl2-config],
-		[],
-		[${ac_lib_sdl2_path}]
-	)
-	if test -z $ac_lib_sdl2_config ; then
-		AC_MSG_ERROR([the ${ac_tool_prefix}sdl2-config tool is missing])
-	else
-		ac_save_CFLAGS="$CFLAGS"
-		ac_save_LIBS="$LIBS"
-		SDLCFLAGS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --cflags`
-		if test $ac_enable_static = yes ; then
-			SDLLIBS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --static-libs`
-		else
-			SDLLIBS=`$ac_lib_sdl2_config $ac_lib_sdl2_args --libs`
-		fi
-		CFLAGS="$SDLCFLAGS $CFLAGS"
-		LIBS="$SDLLIBS $LIBS"
-		AC_MSG_CHECKING([for SDL2])
-		AC_TRY_LINK([
-				#include "SDL.h"
-				#undef main
-			], [
-				SDL_Init(SDL_INIT_EVERYTHING);
-			],[],[AC_MSG_ERROR([the SDL2 library is missing])])
-		AC_MSG_RESULT([yes])
-		CFLAGS="$ac_save_CFLAGS"
-		LIBS="$ac_save_LIBS"
-	fi
-fi
-ac_lib_sdl_args=
-ac_lib_sdl_path="$PATH"
-AC_ARG_WITH(
-	[sdl-prefix],
-	AC_HELP_STRING([--with-sdl-prefix=DIR],[Prefix where SDL is installed (optional)]),
-	[ac_lib_sdl_prefix="$withval"],
-	[ac_lib_sdl_prefix=""]
-)
-if test ! -z $ac_lib_sdl_prefix; then
-	ac_lib_sdl_args="--prefix=${ac_lib_sdl_prefix}"
-	ac_lib_sdl_path="${ac_lib_sdl_prefix}/bin"
+	PKG_CHECK_MODULES([SDL], [sdl2], [ac_lib_sdl2=yes], AC_MSG_ERROR([the SDL2 library is missing]))
 fi
 AC_ARG_ENABLE(
 	[sdl],
@@ -991,10 +872,10 @@ if test $ac_lib_sdl = auto; then
 			dnl Force build for 32 bit x86
 			ac_save_CFLAGS="$CFLAGS"
 			ac_save_LIBS="$LIBS"
-			SDLCFLAGS="-I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT"
-			SDLLIBS="-lSDL -lpthread"
-			CFLAGS="$SDLCFLAGS $CFLAGS"
-			LIBS="$SDLLIBS $LIBS"
+			SDL_CFLAGS="-I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT"
+			SDL_LIBS="-lSDL -lpthread"
+			CFLAGS="$SDL_CFLAGS $CFLAGS"
+			LIBS="$SDL_LIBS $LIBS"
 			AC_MSG_CHECKING([for SDL])
 					AC_TRY_LINK([
 					#include "SDL.h"
@@ -1006,25 +887,12 @@ if test $ac_lib_sdl = auto; then
 			CFLAGS="$ac_save_CFLAGS"
 			LIBS="$ac_save_LIBS"
 		else
-			AC_PATH_PROGS(
-				[ac_lib_sdl_config],
-				[${ac_tool_prefix}sdl-config],
-				[],
-				[${ac_lib_sdl_path}]
-			)
-			if test -z $ac_lib_sdl_config; then
-				ac_lib_sdl=no
-			else
+			PKG_CHECK_MODULES([SDL], [sdl], [ac_lib_sdl=yes], [ac_lib_sdl=no])
+			if test $ac_lib_sdl = yes; then
 				ac_save_CFLAGS="$CFLAGS"
 				ac_save_LIBS="$LIBS"
-				SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
-				if test $ac_enable_static = yes ; then
-					SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
-				else
-					SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
-				fi
-				CFLAGS="$SDLCFLAGS $CFLAGS"
-				LIBS="$SDLLIBS $LIBS"
+				CFLAGS="$SDL_CFLAGS $CFLAGS"
+				LIBS="$SDL_LIBS $LIBS"
 				AC_MSG_CHECKING([for SDL])
 					AC_TRY_LINK([
 						#include "SDL.h"
@@ -1042,36 +910,7 @@ elif test $ac_lib_sdl = yes; then
 	if test $ac_lib_sdl2 = yes; then
 		AC_MSG_ERROR([You cannot enable both SDL and SDL2])
 	fi
-	AC_PATH_PROGS(
-		[ac_lib_sdl_config],
-		[${ac_tool_prefix}sdl-config],
-		[],
-		[${ac_lib_sdl_path}]
-	)
-	if test -z $ac_lib_sdl_config ; then
-		AC_MSG_ERROR([the ${ac_tool_prefix}sdl-config tool is missing])
-	else
-		ac_save_CFLAGS="$CFLAGS"
-		ac_save_LIBS="$LIBS"
-		SDLCFLAGS=`$ac_lib_sdl_config $ac_lib_sdl_args --cflags`
-		if test $ac_enable_static = yes ; then
-			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --static-libs`
-		else
-			SDLLIBS=`$ac_lib_sdl_config $ac_lib_sdl_args --libs`
-		fi
-		CFLAGS="$SDLCFLAGS $CFLAGS"
-		LIBS="$SDLLIBS $LIBS"
-		AC_MSG_CHECKING([for SDL])
-		AC_TRY_LINK([
-				#include "SDL.h"
-				#undef main
-			], [
-				SDL_Init(SDL_INIT_EVERYTHING);
-			],[],[AC_MSG_ERROR([the SDL library is missing])])
-		AC_MSG_RESULT([yes])
-		CFLAGS="$ac_save_CFLAGS"
-		LIBS="$ac_save_LIBS"
-	fi
+	PKG_CHECK_MODULES([SDL], [sdl], [ac_lib_sdl=yes], AC_MSG_ERROR([the SDL library is missing]))
 fi
 ac_lib_sdl_flag=no
 if test $ac_lib_sdl = yes -o $ac_lib_sdl2 = yes; then
@@ -1086,8 +925,8 @@ if test $ac_lib_sdl = yes -o $ac_lib_sdl2 = yes; then
 	ac_lib_keyboard_flag=yes
 fi
 AC_SUBST([CONF_LIB_SDL],[$ac_lib_sdl_flag])
-AC_SUBST([SDLCFLAGS])
-AC_SUBST([SDLLIBS])
+AC_SUBST([SDLCFLAGS],[$SDL_CFLAGS])
+AC_SUBST([SDLLIBS],[$SDL_LIBS])
 
 dnl Checks for svgawin
 AC_ARG_ENABLE(
