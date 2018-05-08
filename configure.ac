@@ -140,13 +140,6 @@ AC_ARG_ENABLE(
 AC_SUBST([CONF_DEBUG],[$ac_enable_debug])
 
 AC_ARG_ENABLE(
-	[static],
-	AC_HELP_STRING([--enable-static],[enable static compilation. (default no)]),
-	[ac_enable_static=$enableval],
-	[ac_enable_static=no]
-)
-
-AC_ARG_ENABLE(
 	[bare],
 	AC_HELP_STRING([--enable-bare],[enable compilation without drivers. (default no)]),
 	[ac_enable_bare=$enableval],
@@ -231,9 +224,6 @@ if test $ac_auto_ldflags = yes ; then
 		fi
 	else
 		LDFLAGS="-s"
-	fi
-	if test $ac_enable_static = yes ; then
-		LDFLAGS="-static $LDFLAGS"
 	fi
 	if test ! -z $ac_host_ldflags; then
 		LDFLAGS="$ac_host_ldflags $LDFLAGS"
