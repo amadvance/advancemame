@@ -1,20 +1,15 @@
-dnl @synopsis AC_CHECK_CC_OPT(flag, ifyes, ifno)
-dnl 
-dnl Shows a message as like "checking wether gcc accepts flag ... no"
-dnl and executess ifyes or ifno.
+# generated automatically by aclocal 1.15 -*- Autoconf -*-
 
-AC_DEFUN(AC_CHECK_CC_OPT,
-[
-AC_MSG_CHECKING([whether ${CC-cc} accepts $1])
-echo 'void f(){}' > conftest.c
-if test -z "`${CC-cc} -c $1 conftest.c 2>&1`"; then
-  AC_MSG_RESULT([yes])
-  $2
-else
-  AC_MSG_RESULT([no])
-  $3
-fi
-rm -f conftest*
-])
+# Copyright (C) 1996-2014 Free Software Foundation, Inc.
 
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+m4_ifndef([AC_CONFIG_MACRO_DIRS], [m4_defun([_AM_CONFIG_MACRO_DIRS], [])m4_defun([AC_CONFIG_MACRO_DIRS], [_AM_CONFIG_MACRO_DIRS($@)])])
+m4_include([acinclude.m4])
