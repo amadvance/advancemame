@@ -845,15 +845,50 @@ static void config_save_seq_default(unsigned port, unsigned* seq, unsigned seq_m
 		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
 
 		if (!seq || seq[0] == DIGITAL_SPECIAL_AUTO) {
-			log_std(("global: customize port default %s\n", tag_buffer));
+			const char* value = 0;
+			int store = 1;
 
-			conf_remove(cfg_context, "", tag_buffer);
+			/* parse the stored config and check if it's the same */
+			if (conf_string_section_get(cfg_context, "", tag_buffer, &value) != 0) {
+				/* not found, no need to delete it */
+				store = 0;
+			}
+
+			if (!value)
+				value = "<unset>";
+
+			if (store) {
+				log_std(("global: customize port default %s '%s' -> '<unset>'\n", tag_buffer, value));
+
+				conf_remove(cfg_context, "", tag_buffer);
+			}
 		} else {
-			advance_input_print_digital(value_buffer, sizeof(value_buffer), seq, seq_max);
+			const char* value = 0;
+			int store = 1;
 
-			log_std(("global: customize port %s %s\n", tag_buffer, value_buffer));
+			/* parse the stored config and check if it's the same */
+			if (conf_string_section_get(cfg_context, "", tag_buffer, &value) == 0) {
+				char* d = strdup(value);
+				unsigned store_seq[INPUT_MAP_MAX];
+				if (advance_input_parse_digital(store_seq, INPUT_MAP_MAX, d) == 0) {
+					if (memcmp(store_seq, seq, sizeof(store_seq)) == 0) {
+						/* found and equal, no need to save it */
+						store = 0;
+					}
+				}
+				free(d);
+			}
 
-			conf_string_set(cfg_context, "", tag_buffer, value_buffer);
+			if (!value)
+				value = "<unset>";
+
+			if (store) {
+				advance_input_print_digital(value_buffer, sizeof(value_buffer), seq, seq_max);
+
+				log_std(("global: customize port %s '%s' -> '%s'\n", tag_buffer, value, value_buffer));
+
+				conf_string_set(cfg_context, "", tag_buffer, value_buffer);
+			}
 		}
 	} else {
 		log_debug(("WARNING:global: customization for unknown port %d not saved\n", port));
@@ -879,21 +914,57 @@ static void config_save_seq(unsigned port, unsigned* seq, unsigned seq_max)
 	if (p) {
 		char tag_buffer[64];
 		char value_buffer[512];
+		const char* section = mame_section_name(game, cfg_context);
 
 		log_std(("global: setup port %s\n", p->name));
 
 		snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
 
 		if (!seq || seq[0] == DIGITAL_SPECIAL_AUTO) {
-			log_std(("global: customize port default %s/%s\n", mame_section_name(game, cfg_context), tag_buffer));
+			const char* value = 0;
+			int store = 1;
 
-			conf_remove(cfg_context, mame_section_name(game, cfg_context), tag_buffer);
+			/* parse the stored config and check if it's the same */
+			if (conf_string_section_get(cfg_context, section, tag_buffer, &value) != 0) {
+				/* not found, no need to delete it */
+				store = 0;
+			}
+
+			if (!value)
+				value = "<unset>";
+
+			if (store) {
+				log_std(("global: customize port default %s/%s '%s' -> '<unset>'\n", section, tag_buffer, value));
+
+				conf_remove(cfg_context, section, tag_buffer);
+			}
 		} else {
-			advance_input_print_digital(value_buffer, sizeof(value_buffer), seq, seq_max);
+			const char* value = 0;
+			int store = 1;
 
-			log_std(("global: customize port %s/%s %s\n", mame_section_name(game, cfg_context), tag_buffer, value_buffer));
+			/* parse the stored config and check if it's the same */
+			if (conf_string_section_get(cfg_context, section, tag_buffer, &value) == 0) {
+				char* d = strdup(value);
+				unsigned store_seq[INPUT_MAP_MAX];
+				if (advance_input_parse_digital(store_seq, INPUT_MAP_MAX, d) == 0) {
+					if (memcmp(store_seq, seq, sizeof(store_seq)) == 0) {
+						/* found and equal, no need to save it */
+						store = 0;
+					}
+				}
+				free(d);
+			}
 
-			conf_set_if_different(cfg_context, mame_section_name(game, cfg_context), tag_buffer, value_buffer);
+			if (!value)
+				value = "<unset>";
+
+			if (store) {
+				advance_input_print_digital(value_buffer, sizeof(value_buffer), seq, seq_max);
+
+				log_std(("global: customize port %s/%s '%s' -> '%s'\n", section, tag_buffer, value, value_buffer));
+
+				conf_set_if_different(cfg_context, section, tag_buffer, value_buffer);
+			}
 		}
 	} else {
 		log_debug(("WARNING:global: customization for unknown port %d not saved\n", port));

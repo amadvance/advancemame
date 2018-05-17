@@ -2660,6 +2660,7 @@ static const char* value_get(struct adv_conf_value_struct* value, char* buffer, 
 		return 0;
 	}
 }
+
 /**
  * Set the value of a option only if it change something.
  * The value is set only if the current value is different. Otherwise the

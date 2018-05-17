@@ -9,6 +9,7 @@ AdvanceMAME/MESS Version 3.8 2018/05
 		emulation. Note that the default is now to have partial emulation
 		by default to allow the user to control the emulator user
 		interface.
+	) Don't update input configurations that are not changed at runtime.
 	) Added a new 'config' option to allow to decide if the configuration
 		should be autosaved at exit.
 	) Fixed font size computation. Now the menu always has the same size.
