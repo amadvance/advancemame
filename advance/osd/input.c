@@ -1759,6 +1759,12 @@ adv_error advance_ui_parse_help(struct advance_ui_context* context, char* s)
 /**************************************************************************/
 /* Input */
 
+void advance_input_simulate_key(struct advance_input_context* context, int key, int frames)
+{
+	context->state.simulate_counter = frames;
+	context->state.simulate_key = key;
+}
+
 static inline void input_something_pressed(struct advance_input_context* context)
 {
 	context->state.input_on_this_frame_flag = 1;
@@ -1773,6 +1779,13 @@ static void input_keyboard_update(struct advance_input_context* context)
 	/* read the keys for all the keyboards */
 	for (i = 0; i < keyb_count_get(); ++i) {
 		keyb_all_get(i, last[i]);
+	}
+
+	/* simulate a key press on the first keyboard */
+	if (context->state.simulate_counter > 0) {
+		if (context->state.simulate_key < KEYB_MAX)
+			last[0][context->state.simulate_key] = 1;
+		--context->state.simulate_counter;
 	}
 
 	if (context->config.steadykey_flag) {

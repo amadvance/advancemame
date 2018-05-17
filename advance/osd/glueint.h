@@ -63,6 +63,7 @@
 #define IPT_UI_MODE_PRED IPT_OSD_6
 #define IPT_UI_RECORD_START IPT_OSD_7
 #define IPT_UI_RECORD_STOP IPT_OSD_8
+#define IPT_UI_KEYBOARD IPT_OSD_9
 
 input_seq* glue_portdef_seq_get(input_port_default_entry* port, int seqtype);
 input_seq* glue_port_seq_get(input_port_entry* port, int seqtype);

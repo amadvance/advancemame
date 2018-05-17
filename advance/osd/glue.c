@@ -1179,6 +1179,7 @@ static struct mame_port GLUE_PORT_STD[] = {
 	S("ui_turbo", "Turbo", UI_TURBO)
 	S("ui_cocktail", "Cocktail", UI_COCKTAIL)
 	S("ui_help", "Help", UI_HELP)
+	S("ui_keyboard", "Keyboard", UI_KEYBOARD)
 	S("ui_startup", "Startup", UI_STARTUP_END)
 
 	/* UI */
@@ -1748,6 +1749,7 @@ static unsigned PORT_TYPE_REPORT_DEFAULT[] = {
 	IPT_UI_TURBO,
 	IPT_UI_COCKTAIL,
 	IPT_UI_HELP,
+	IPT_UI_KEYBOARD,
 	IPT_UI_STARTUP_END,
 
 	IPT_UI_CONFIGURE,
@@ -2640,6 +2642,105 @@ static int on_exit_menu(int selected)
 	return sel;
 }
 
+static int on_key_menu(int selected)
+{
+	ui_menu_item key_menu[16];
+	int sel;
+	int total;
+
+	struct advance_input_context* context = &CONTEXT.input;
+
+	sel = selected;
+
+	total = 0;
+
+	key_menu[total].text = "1";
+	key_menu[total].subtext = 0;
+	key_menu[total].flags = 0;
+	++total;
+
+	key_menu[total].text = "2";
+	key_menu[total].subtext = 0;
+	key_menu[total].flags = 0;
+	++total;
+
+	key_menu[total].text = "3";
+	key_menu[total].subtext = 0;
+	key_menu[total].flags = 0;
+	++total;
+
+	key_menu[total].text = "4";
+	key_menu[total].subtext = 0;
+	key_menu[total].flags = 0;
+	++total;
+
+	key_menu[total].text = "A";
+	key_menu[total].subtext = 0;
+	key_menu[total].flags = 0;
+	++total;
+
+	key_menu[total].text = "B";
+	key_menu[total].subtext = 0;
+	key_menu[total].flags = 0;
+	++total;
+
+	key_menu[total].text = "8/REDO";
+	key_menu[total].subtext = 0;
+	key_menu[total].flags = 0;
+	++total;
+
+	key_menu[total].text = "9/BACK";
+	key_menu[total].subtext = 0;
+	key_menu[total].flags = 0;
+	++total;
+
+	key_menu[total].text = "ENTER";
+	key_menu[total].subtext = 0;
+	key_menu[total].flags = 0;
+	++total;
+
+	osd_ui_menu(key_menu, total, sel);
+
+	if (input_ui_pressed_repeat(IPT_UI_DOWN, 8)) {
+		sel = (sel + 1) % total;
+	}
+
+	if (input_ui_pressed_repeat(IPT_UI_UP, 8)) {
+		sel = (sel + total - 1) % total;
+	}
+
+	if (input_ui_pressed(IPT_UI_SELECT)) {
+		int key = 0;
+		switch (sel) {
+		case 0 : key = KEYB_1; break;
+		case 1 : key = KEYB_2; break;
+		case 2 : key = KEYB_3; break;
+		case 3 : key = KEYB_4; break;
+		case 4 : key = KEYB_A; break;
+		case 5 : key = KEYB_B; break;
+		case 6 : key = KEYB_8; break;
+		case 7 : key = KEYB_9; break;
+		case 8 : key = KEYB_ENTER; break;
+		}
+		if (key != 0) {
+			sel = -1;
+			advance_input_simulate_key(context, key, 5);
+		}
+	}
+
+	if (input_ui_pressed(IPT_UI_CANCEL)) {
+		sel = -1;
+	}
+
+	if (sel < 0) {
+		/* tell updatescreen() to clean after us */
+		schedule_full_refresh();
+	}
+
+	return sel;
+}
+
+
 /**
  * Handle the OSD user interface.
  * \return
@@ -2677,6 +2778,23 @@ int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active)
 			case -4 : return 2;
 			case -5 : return 1;
 			}
+		}
+	}
+
+	if (!is_menu_active) {
+		int res = input_ui_pressed(IPT_UI_KEYBOARD);
+		if (res > 1)
+			return 1;
+		if (res != 0) {
+			mame_pause(1);
+
+			res = 0;
+			while (res >= 0) {
+				res = on_key_menu(res);
+				update_video_and_audio();
+			}
+
+			mame_pause(0);
 		}
 	}
 

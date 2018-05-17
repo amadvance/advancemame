@@ -217,6 +217,9 @@ struct advance_input_state_context {
 
 	int mouse_button_current[INPUT_MOUSE_MAX][MOUSEB_MAX]; /**< Mouse button state. */
 	int mouse_analog_current[INPUT_MOUSE_MAX][INPUT_AXE_MAX]; /**< Mouse analog state. */
+
+	int simulate_key; /**< Key code to simulate. */
+	int simulate_counter; /**< Number of frames to simulate the key. */
 };
 
 struct advance_input_context {
@@ -238,7 +241,7 @@ adv_error advance_input_parse_analogname(unsigned* type, const char* buffer);
 adv_error advance_input_parse_analogvalue(int* delta, int* sensitivity, int* reverse, int* centerdelta, char* buffer);
 void advance_input_print_analogvalue(char* buffer, unsigned buffer_size, int delta, int sensitivity, int reverse, int center);
 adv_bool advance_input_digital_pressed(struct advance_input_context* context, unsigned code);
-
+void advance_input_simulate_key(struct advance_input_context* context, int key, int frames);
 
 /***************************************************************************/
 /* UI */

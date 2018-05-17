@@ -700,6 +700,10 @@ void osd_customize_inputport_list(input_port_default_entry* defaults)
 	seq_set_1(&i->defaultseq, KEYCODE_F1_REAL);
 	i->name = "Help";
 
+	i = config_portdef_find(defaults, IPT_UI_KEYBOARD);
+	seq_set_1(&i->defaultseq, KEYCODE_PLUS_PAD);
+	i->name = "Keyboard";
+
 	i = config_portdef_find(defaults, IPT_UI_RECORD_START);
 	seq_set_2(&i->defaultseq, KEYCODE_ENTER, KEYCODE_LCONTROL);
 	i->name = "Record Start";

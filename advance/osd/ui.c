@@ -1604,6 +1604,15 @@ void osd_ui_menu(const ui_menu_item *items, int numitems, int selected)
 		advance_ui_menu_title_insert(&menu, buf);
 	}
 
+	/* HACK: Recognize key menu */
+	if (items && strcmp(items[0].text, "1") == 0) {
+		char buf[128];
+
+		snprintf(buf, sizeof(buf), "Simulate Key");
+
+		advance_ui_menu_title_insert(&menu, buf);
+	}
+
 	for (i = 0; i < menu_mac; ++i) {
 		if (items[i].subtext) {
 			/* HACK: Recongnize options "None" and "n/a" */
