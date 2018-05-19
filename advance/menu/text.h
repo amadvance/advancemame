@@ -44,6 +44,7 @@ bool int_enable(int font_text_x, int font_text_y, const std::string& font_text, 
 void int_disable();
 void int_unplug();
 void int_plug();
+void int_replug();
 void* int_save();
 void int_restore(void* buffer);
 

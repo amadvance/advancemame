@@ -25,6 +25,7 @@ AdvanceMENU Version 3.8 2018/05
 		it finishes, but switch to the next one.
 	) In 'lock' mode is still possible to shutdown, if the 'misc_exit'
 		option allows it.
+	) In 'idle' mode detects the insertion of new joysticks.
 	) Other configuration options added: 'ui_topname', 'sort smart_time',
 		'ui_text/bar_font', 'ui_outline', 'skip_horz' and 'skip_vert'
 

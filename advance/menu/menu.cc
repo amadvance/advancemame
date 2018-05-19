@@ -1859,6 +1859,9 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 		unsigned pos;
 		bool found;
 
+		// replug to detect new devices
+		int_replug();
+
 		if (avail.size() > 0) {
 			pos = avail[counter % avail.size()];
 			found = true;
@@ -1897,6 +1900,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 		key = int_event_get(false);
 
 		if (key != EVENT_IDLE_1) {
+
 			done = true;
 
 			// select the game if the user press enter

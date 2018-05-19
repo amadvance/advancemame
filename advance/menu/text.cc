@@ -766,6 +766,21 @@ void int_plug()
 	}
 }
 
+void int_replug()
+{
+	joystickb_disable();
+	joystickb_done();
+
+	if (joystickb_init() != 0)
+		joystickb_init_null();
+
+	if (joystickb_enable() != 0) {
+		joystickb_done();
+		joystickb_init_null();
+		joystickb_enable();
+	}
+}
+
 void int_unset(bool reset_video_mode)
 {
 	int_key_disable();
