@@ -2684,12 +2684,12 @@ static int on_key_menu(int selected)
 	key_menu[total].flags = 0;
 	++total;
 
-	key_menu[total].text = "8/REDO";
+	key_menu[total].text = "REDO";
 	key_menu[total].subtext = 0;
 	key_menu[total].flags = 0;
 	++total;
 
-	key_menu[total].text = "9/BACK";
+	key_menu[total].text = "BACK";
 	key_menu[total].subtext = 0;
 	key_menu[total].flags = 0;
 	++total;
@@ -2710,21 +2710,22 @@ static int on_key_menu(int selected)
 	}
 
 	if (input_ui_pressed(IPT_UI_SELECT)) {
-		int key = 0;
+		int key0 = 0;
+		int key1 = 0;
 		switch (sel) {
-		case 0 : key = KEYB_1; break;
-		case 1 : key = KEYB_2; break;
-		case 2 : key = KEYB_3; break;
-		case 3 : key = KEYB_4; break;
-		case 4 : key = KEYB_A; break;
-		case 5 : key = KEYB_B; break;
-		case 6 : key = KEYB_8; break;
-		case 7 : key = KEYB_9; break;
-		case 8 : key = KEYB_ENTER; break;
+		case 0 : key0 = KEYB_1; break;
+		case 1 : key0 = KEYB_2; break;
+		case 2 : key0 = KEYB_3; break;
+		case 3 : key0 = KEYB_4; break;
+		case 4 : key0 = KEYB_A; break;
+		case 5 : key0 = KEYB_B; break;
+		case 6 : key0 = KEYB_8; key1 = KEYB_ALT; break;
+		case 7 : key0 = KEYB_9; key1 = KEYB_ALT; break;
+		case 8 : key0 = KEYB_ENTER; break;
 		}
-		if (key != 0) {
+		if (key0 != 0) {
 			sel = -1;
-			advance_input_simulate_key(context, key, 5);
+			advance_input_simulate_key(context, key0, key1, 5);
 		}
 	}
 
