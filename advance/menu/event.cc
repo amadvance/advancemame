@@ -423,6 +423,7 @@ static void event_push_norepeat(int event, target_clock_t& time, unsigned& count
 	case EVENT_PGDN:
 	case EVENT_IDLE_0:
 	case EVENT_IDLE_1:
+	case EVENT_IDLE_2:
 		is_repeat = true;
 		break;
 	default:

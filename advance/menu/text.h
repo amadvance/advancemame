@@ -103,6 +103,7 @@ bool int_event_waiting();
 void int_idle_time_reset();
 void int_idle_0_enable(bool state);
 void int_idle_1_enable(bool state);
+void int_idle_2_enable(bool state, unsigned delay);
 
 int int_font_dx_get(font_t font);
 int int_font_dx_get(font_t font, const std::string& s);

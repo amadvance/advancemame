@@ -51,6 +51,7 @@
 #define EVENT_CLONE (21 << 16)
 #define EVENT_IDLE_0 (22 << 16)
 #define EVENT_IDLE_1 (23 << 16)
+#define EVENT_IDLE_2 (24 << 16)
 #define EVENT_COMMAND (27 << 16)
 #define EVENT_OFF (28 << 16)
 #define EVENT_MENU (29 << 16)

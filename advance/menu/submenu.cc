@@ -645,46 +645,117 @@ void run_clone(config_state& rs)
 // ------------------------------------------------------------------------
 // Calib menu
 
-#define CALIB_CHOICE_DX 30 * int_font_dx_get(text)
+#define CALIB_CHOICE_DX 50 * int_font_dx_get(text)
+#define CALIB_CHOICE_DY 16 * int_font_dy_get(text)
 #define CALIB_CHOICE_X (int_dx_get() - CALIB_CHOICE_DX) / 2
-#define CALIB_CHOICE_Y int_dy_get() / 2
+#define CALIB_CHOICE_Y (int_dy_get() - CALIB_CHOICE_DY) / 2
 
 void run_calib(config_state& rs)
 {
-	const char* message = 0;
-	bool at_least_one = false;
+	int border = int_font_dx_get(text) / 2;
 
-	joystickb_calib_start();
+	int_idle_2_enable(true, 1);
 
-	while (1) {
-		const char* ope = joystickb_calib_next();
+	bool done = false;
+	while (!done) {
+		int x = CALIB_CHOICE_X;
+		int y = CALIB_CHOICE_Y;
+		int dy = CALIB_CHOICE_DY;
+		int dx = CALIB_CHOICE_DX;
+		int xc = x + dx / 2;
 
-		if (!ope) {
-			if (!at_least_one)
-				message = "Calibration not needed";
-			break;
+		// replug at every IDLE event to detect new ones
+		int_replug();
+
+		int_box(x - 2 * border, y - border, dx + 4 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
+		int_clear(x - 2 * border + 1, y - border + 1, dx + 4 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
+
+		const char* d_title = "Joystick Configuration";
+		int w_title = int_font_dx_get(text, d_title);
+
+		int_put(text, xc - w_title / 2, y, dx, d_title, COLOR_CHOICE_TITLE);
+		y += int_font_dy_get(text);
+
+		y += int_font_dy_get(text);
+
+		if (joystickb_count_get() == 0) {
+			const char* d_not_found = "No joystick found!";
+			int w_not_found = int_font_dx_get(text, d_not_found);
+
+			int_put(text, xc - w_not_found / 2, y, w_not_found, d_not_found, COLOR_CHOICE_NORMAL);
+			y += int_font_dy_get(text);
+
+			y += int_font_dy_get(text);
+
+			const char* d_exit = "Connect one to continue";
+			int w_exit = int_font_dx_get(text, d_exit);
+
+			int_put(text, xc - w_exit / 2, y, w_exit, d_exit, COLOR_CHOICE_NORMAL);
+			y += int_font_dy_get(text);
+		} else {
+			for (int j = 0; j < joystickb_count_get(); ++j) {
+				ostringstream os;
+
+				os << "Joystick " << j+1;
+
+				char name[DEVICE_NAME_MAX];
+				if (joystickb_device_name_get(j, name) == 0) {
+					os << " - " << name;
+				}
+
+				int_put(text, x, y, dx, os.str().c_str(), COLOR_CHOICE_TITLE);
+				y += int_font_dy_get(text);
+
+				for (int s = 0; s < joystickb_stick_count_get(j); ++s) {
+					ostringstream s_os;
+					s_os << "  Stick " << s+1 << " - " << joystickb_stick_name_get(j, s) << ":";
+					for (int a = 0; a < joystickb_stick_axe_count_get(j, s); ++a) {
+						s_os << " " << joystickb_stick_axe_name_get(j, s, a);
+					}
+
+					int_put(text, x, y, dx, s_os.str().c_str(), COLOR_CHOICE_NORMAL);
+					y += int_font_dy_get(text);
+				}
+
+				if (joystickb_rel_count_get(j) != 0) {
+					ostringstream r_os;
+					r_os << "  Rels " << joystickb_rel_count_get(j) << ":";
+					for (int r = 0; r < joystickb_rel_count_get(j); ++r) {
+						r_os << " " << joystickb_rel_name_get(j, r);
+					}
+					int_put(text, x, y, dx, r_os.str().c_str(), COLOR_CHOICE_NORMAL);
+					y += int_font_dy_get(text);
+				}
+
+				if (joystickb_button_count_get(j) != 0) {
+					ostringstream b_os;
+					b_os << "  Buttons " << joystickb_button_count_get(j) << ":";
+					for (int b = 0; b < joystickb_button_count_get(j); ++b) {
+						b_os << " " << joystickb_button_name_get(j, b);
+					}
+					int_put(text, x, y, dx, b_os.str().c_str(), COLOR_CHOICE_NORMAL);
+					y += int_font_dy_get(text);
+				}
+
+				y += int_font_dy_get(text);
+			}
+
+			const char* d_exit = "Press the fire button to continue";
+			int w_exit = int_font_dx_get(text, d_exit);
+
+			int_put(text, xc - w_exit / 2, y, w_exit, d_exit, COLOR_CHOICE_NORMAL);
+			y += int_font_dy_get(text);
 		}
 
-		choice_bag ch;
-		ch.insert(ch.end(), choice(ope, 0));
+		int_update();
 
-		choice_bag::iterator i = ch.begin();
-		int key = ch.run(" Joystick Calibration", CALIB_CHOICE_X, CALIB_CHOICE_Y, CALIB_CHOICE_DX, i);
-
-		if (key != EVENT_ENTER) {
-			message = 0;
-			break;
+		int key = int_event_get(false);
+		if (key == EVENT_ESC || key == EVENT_ENTER) {
+			done = true;
 		}
-
-		at_least_one = true;
 	}
 
-	if (message) {
-		choice_bag ch;
-		ch.insert(ch.end(), choice(message, 0));
-		choice_bag::iterator i = ch.begin();
-		ch.run(" Joystick Calibration", CALIB_CHOICE_X, CALIB_CHOICE_Y, CALIB_CHOICE_DX, i);
-	}
+	int_idle_2_enable(false, 0);
 }
 
 // ------------------------------------------------------------------------

@@ -448,9 +448,11 @@ static unsigned int_idle_0; ///< Seconds before the first 0 event.
 static unsigned int_idle_0_rep; ///< Seconds before the second 0 event.
 static unsigned int_idle_1; ///< Seconds before the first 1 event.
 static unsigned int_idle_1_rep; ///< Seconds before the second 1 event.
+static unsigned int_idle_2; ///< Seconds before the first 2 event.
 static time_t int_idle_time_current; ///< Last time check in idle.
 static bool int_idle_0_state; ///< Idle event 0 enabler.
 static bool int_idle_1_state; ///< Idle event 1 enabler.
+static bool int_idle_2_state; ///< Idle event 2 enabler.
 static int int_last; ///< Last event.
 
 static bool int_wait_for_backdrop; ///< Wait for the backdrop draw completion before accepting events.
@@ -2962,6 +2964,12 @@ void int_idle_1_enable(bool state)
 	int_idle_1_state = state;
 }
 
+void int_idle_2_enable(bool state, unsigned delay)
+{
+	int_idle_2_state = state;
+	int_idle_2 = delay;
+}
+
 static void int_idle()
 {
 	time_t now = time(0);
@@ -2994,6 +3002,15 @@ static void int_idle()
 		) {
 			log_std(("text: push IDLE_1\n"));
 			event_push_repeat(EVENT_IDLE_1);
+		}
+	}
+
+	if (int_idle_2_state) {
+		if (int_idle_2 != 0
+			&& elapsed > int_idle_2
+		) {
+			log_std(("text: push IDLE_2\n"));
+			event_push_repeat(EVENT_IDLE_2);
 		}
 	}
 
