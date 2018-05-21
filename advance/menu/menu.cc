@@ -260,7 +260,7 @@ void draw_menu_bar(const game* g, int g2, int x, int y, int dx, bool lock, bool 
 	int xr = dx - separator + x;
 	int xl = separator + x;
 
-	if (g) {
+	if (!lock && g) {
 		ostringstream os;
 		os << setw(4) << setfill(' ') << g2;
 		draw_tag_right(font, os.str(), xl, xr, y, in_separator, COLOR_MENU_BAR);
