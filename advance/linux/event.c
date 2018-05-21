@@ -1364,7 +1364,7 @@ void event_log(int f, unsigned char* evtype_bitmask)
 	int version;
 	unsigned short device_info[4];
 	const char* bus;
-	char name[256];
+	char buf[256];
 	unsigned i;
 
 	version = 0;
@@ -1423,10 +1423,16 @@ void event_log(int f, unsigned char* evtype_bitmask)
 			));
 	}
 
-	if (ioctl(f, EVIOCGNAME(sizeof(name)), name) < 0) {
+	if (ioctl(f, EVIOCGNAME(sizeof(buf)), buf) < 0) {
 		log_std(("event: error in ioctl(EVIOCGNAME)\n"));
 	} else {
-		log_std(("event: name:\"%s\"\n", name));
+		log_std(("event: name:\"%s\"\n", buf));
+	}
+
+	if (ioctl(f, EVIOCGPHYS(sizeof(buf)), buf) < 0) {
+		log_std(("event: error in ioctl(EVIOCGPHYS)\n"));
+	} else {
+		log_std(("event: physical_location:\"%s\"\n", buf));
 	}
 
 	for (i = 0; i < EV_MAX; ++i) {

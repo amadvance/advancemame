@@ -126,12 +126,16 @@ int joystickb_sdl_device_name_get(unsigned joystick, char* name)
 	if (!joy_name)
 		return -1;
 
+	log_std(("joystickb:sdl: name:\"%s\"\n", joy_name));
+
 	return device_trim_name(joy_name, name);
 #else
 	const char* joy_name = SDL_JoystickName(sdl_state.map[joystick]);
 
 	if (!joy_name)
 		return -1;
+
+	log_std(("joystickb:sdl: name:\"%s\"\n", joy_name));
 
 	return device_trim_name(joy_name, name);
 #endif
