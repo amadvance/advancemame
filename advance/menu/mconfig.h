@@ -431,6 +431,7 @@ public:
 	unsigned ui_right; ///< User interface right border
 	unsigned ui_top; ///< User interface top border
 	unsigned ui_bottom; ///< User interface bottom border
+	bool ui_autocalib; ///< Auto calibration
 	bool ui_outline; ///< User interface outline around backdrops
 	bool ui_top_name; ///< Put the title over the backdrop
 	bool ui_top_bar; ///< User interface need top bar

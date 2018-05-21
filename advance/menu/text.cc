@@ -454,6 +454,8 @@ static bool int_idle_0_state; ///< Idle event 0 enabler.
 static bool int_idle_1_state; ///< Idle event 1 enabler.
 static bool int_idle_2_state; ///< Idle event 2 enabler.
 static int int_last; ///< Last event.
+static bool int_auto_calib; ///< Auto calibration
+static bool int_auto_key; ///< Key detection
 
 static bool int_wait_for_backdrop; ///< Wait for the backdrop draw completion before accepting events.
 
@@ -673,7 +675,7 @@ void int_done()
 	adv_video_done();
 }
 
-bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast, unsigned translucency, bool disable_special)
+bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast, unsigned translucency, bool disable_special, bool auto_calib)
 {
 	int_idle_time_current = time(0);
 	int_idle_0 = idle_0;
@@ -687,6 +689,7 @@ bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_r
 	if (gamma > 10) gamma = 10;
 	int_gamma = 1.0 / gamma;
 	int_brightness = brightness;
+	int_auto_calib = auto_calib;
 
 	if (!int_key_init(disable_special)) {
 		target_err("%s\n", error_get());
@@ -3012,6 +3015,11 @@ static void int_idle()
 			log_std(("text: push IDLE_2\n"));
 			event_push_repeat(EVENT_IDLE_2);
 		}
+	} else if (int_auto_calib && !int_auto_key) {
+		if (elapsed > 1 && joystickb_count_get() == 0) {
+			log_std(("text: push CALIB"));
+			event_push_repeat(EVENT_CALIBRATION);
+		}
 	}
 
 	if (event_peek() == EVENT_NONE) {
@@ -3059,6 +3067,15 @@ bool int_event_waiting()
 		key_pressed_last_time = now;
 
 		key_poll();
+
+		// detect if any key is pressed
+		if (!int_auto_key) {
+			unsigned char code_map[KEYB_MAX];
+			keyb_all_get(0, code_map);
+			for (unsigned i = 0; i < KEYB_MAX; ++i)
+				if (code_map[i])
+					int_auto_key = true;
+		}
 	}
 
 	// low level mute/unmute management

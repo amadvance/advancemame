@@ -2280,6 +2280,13 @@ unsigned event_locate(struct event_location* event_map, unsigned event_max, cons
 			continue;
 		}
 
+		event_map[event_mac].desc[0] = 0;
+		if (ioctl(f, EVIOCGNAME(sizeof(event_map[event_mac].desc)), event_map[event_mac].desc) < 0) {
+			log_std(("event: error in ioctl(EVIOCGNAME)\n"));
+		} else {
+			log_std(("event: desc:\"%s\"\n", event_map[event_mac].desc));
+		}
+
 		event_map[event_mac].vendor = device_info[ID_VENDOR];
 		event_map[event_mac].product = device_info[ID_PRODUCT];
 		event_map[event_mac].version = device_info[ID_VERSION];

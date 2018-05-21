@@ -242,6 +242,19 @@ int joystickb_device_name_get(unsigned joystick, char* name)
 	return 0;
 }
 
+int joystickb_device_desc_get(unsigned joystick, char* desc)
+{
+	assert(joystickb_state.is_active_flag);
+
+	if (!joystickb_state.driver_current->device_desc_get)
+		return -1;
+
+	if (joystickb_state.driver_current->device_desc_get(joystick, desc) != 0)
+		return -1;
+
+	return 0;
+}
+
 unsigned joystickb_stick_count_get(unsigned joystick)
 {
 	assert(joystickb_state.is_active_flag);

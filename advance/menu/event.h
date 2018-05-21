@@ -62,6 +62,7 @@
 #define EVENT_MUTE (35 << 16)
 #define EVENT_OFF_FORCE (36 << 16)
 #define EVENT_ESC_FORCE (37 << 16)
+#define EVENT_CALIBRATION (38 << 16)
 
 bool event_in(const std::string& s);
 void event_out(adv_conf* config_context, const char* tag);

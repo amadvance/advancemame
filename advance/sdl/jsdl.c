@@ -37,6 +37,7 @@
 #include "jsdl.h"
 #include "log.h"
 #include "error.h"
+#include "snstring.h"
 
 #include "ossdl.h"
 
@@ -139,6 +140,30 @@ int joystickb_sdl_device_name_get(unsigned joystick, char* name)
 
 	return device_trim_name(joy_name, name);
 #endif
+}
+
+int joystickb_sdl_device_desc_get(unsigned joystick, char* desc)
+{
+#if SDL_MAJOR_VERSION == 1
+	const char* joy_name = SDL_JoystickName(joystick);
+
+	if (!joy_name)
+		return -1;
+
+	log_std(("joystickb:sdl: desc:\"%s\"\n", joy_name));
+
+	sncpy(desc, DEVICE_NAME_MAX, joy_name);
+#else
+	const char* joy_name = SDL_JoystickName(sdl_state.map[joystick]);
+
+	if (!joy_name)
+		return -1;
+
+	log_std(("joystickb:sdl: desc:\"%s\"\n", joy_name));
+
+	sncpy(desc, DEVICE_NAME_MAX, joy_name);
+#endif
+	return 0;
 }
 
 unsigned joystickb_sdl_stick_count_get(unsigned joystick)
@@ -244,6 +269,7 @@ joystickb_driver joystickb_sdl_driver = {
 	0,
 	0,
 	joystickb_sdl_poll,
-	joystickb_sdl_device_name_get
+	joystickb_sdl_device_name_get,
+	joystickb_sdl_device_desc_get
 };
 

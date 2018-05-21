@@ -109,6 +109,7 @@ struct joystick_rel_context {
 
 struct joystick_item_context {
 	int f;
+	char desc[DEVICE_NAME_MAX];
 	unsigned vendor;
 	unsigned product;
 	unsigned version;
@@ -589,6 +590,7 @@ adv_error joystickb_event_init(int joystickb_id)
 			continue;
 		}
 
+		sncpy(item->desc, sizeof(item->desc), map[i].desc);
 		item->vendor = map[i].vendor;
 		item->product = map[i].product;
 		item->version = map[i].version;
@@ -634,6 +636,18 @@ int joystickb_event_device_name_get(unsigned joystick, char* name)
 		return -1;
 
 	snprintf(name, DEVICE_NAME_MAX, "%04x_%04x", event_state.map[joystick].vendor, event_state.map[joystick].product);
+
+	return 0;
+}
+
+int joystickb_event_device_desc_get(unsigned joystick, char* desc)
+{
+	log_debug(("joystickb:event: joystickb_device_event_desc_get(%u)\n", joystick));
+
+	if (event_state.map[joystick].desc[0] == 0)
+		return -1;
+
+	sncpy(desc, DEVICE_NAME_MAX, event_state.map[joystick].desc);
 
 	return 0;
 }
@@ -959,6 +973,7 @@ joystickb_driver joystickb_event_driver = {
 	0,
 	joystickb_event_poll,
 	joystickb_event_device_name_get,
+	joystickb_event_device_desc_get,
 	joystickb_event_bind,
 	joystickb_event_revbind
 };

@@ -83,6 +83,7 @@ static struct event_item EVENT_TAB[] = {
 	{ "ins", EVENT_INS, { K(INSERT), OP_NONE } },
 	{ "shutdown", EVENT_OFF, { K(LCONTROL), K(ESC), OP_NONE } },
 	{ "mode", EVENT_MODE, { K(TAB), OP_OR, J(4), OP_NONE } },
+	{ "calib", EVENT_CALIBRATION, { K(PLUS_PAD), OP_NONE } },
 	{ "help", EVENT_HELP, { K(F1), OP_NONE } },
 	{ "group", EVENT_GROUP, { K(F2), OP_NONE } },
 	{ "type", EVENT_TYPE, { K(F3), OP_NONE } },

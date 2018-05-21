@@ -1746,6 +1746,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			case EVENT_SETTYPE:
 			case EVENT_COMMAND:
 			case EVENT_MENU:
+			case EVENT_CALIBRATION:
 			case EVENT_EMU:
 			case EVENT_ROTATE:
 			case EVENT_PREVIEW:
@@ -1859,7 +1860,7 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 		unsigned pos;
 		bool found;
 
-		// replug to detect new devices
+		// replug to detect device changes
 		int_replug();
 
 		if (avail.size() > 0) {
@@ -1925,6 +1926,9 @@ int run_menu_idle_off()
 	target_apm_standby();
 
 	while (!done) {
+		// replug to detect device changes
+		int_replug();
+
 		int_update();
 
 		key = int_event_get(false);
@@ -2385,6 +2389,7 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		case EVENT_SETTYPE:
 		case EVENT_COMMAND:
 		case EVENT_MENU:
+		case EVENT_CALIBRATION:
 		case EVENT_EMU:
 		case EVENT_ROTATE:
 		case EVENT_ESC:

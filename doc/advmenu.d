@@ -885,6 +885,13 @@ Configuration
 	This section describes the options used to customize the user
 	interface.
 
+    ui_autocalib
+	Enables or disables the auto joystick calibration menu. If enabled and no joystick
+	is found, the menu automatically starts if there was no keypress.
+	This is intended for a joustick only configuration.
+
+	:ui_autocalib yes | no
+
     ui_text/bar_font
 	Selects a font file for normal text and the title bar.
 	The formats: TrueType (TTF), GRX, PSF and RAW are supported.
@@ -1226,6 +1233,7 @@ Configuration
 		rotate - Rotate the screen of 90°.
 		lock - Lock/unlock the user interface.
 		mute - Mute/unmute the audio.
+		calib - Joystick calibration menu.
 
 	Options:
 		EXPRESSION - Definition of the button expression that

@@ -252,6 +252,18 @@ int joystickb_raw_device_name_get(unsigned joystick, char* name)
 	return device_trim_name(raw_state.map[joystick].name, name);
 }
 
+int joystickb_raw_device_desc_get(unsigned joystick, char* desc)
+{
+	log_debug(("joystickb:raw: joystickb_device_event_desc_get(%u)\n", joystick));
+
+	if (raw_state.map[joystick].name[0] == 0)
+		return -1;
+
+	sncpy(desc, DEVICE_NAME_MAX, raw_state.map[joystick].name);
+
+	return 0;
+}
+
 unsigned joystickb_raw_stick_count_get(unsigned joystick)
 {
 	log_debug(("joystickb:raw: joystickb_raw_stick_count_get()\n"));
@@ -420,6 +432,7 @@ joystickb_driver joystickb_raw_driver = {
 	0,
 	0,
 	joystickb_raw_poll,
-	joystickb_raw_device_name_get
+	joystickb_raw_device_name_get,
+	joystickb_raw_device_desc_get
 };
 

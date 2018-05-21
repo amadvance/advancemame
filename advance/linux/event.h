@@ -45,6 +45,7 @@ adv_bool event_is_keyboard(int f, unsigned char* evtype_bitmask);
 
 struct event_location {
 	char file[128];
+	char desc[128];
 	unsigned vendor;
 	unsigned product;
 	unsigned version;

@@ -95,6 +95,7 @@ typedef struct joystickb_driver_struct {
 	const char* (*calib_next)(void);
 	void (*poll)(void);
 	int (*device_name_get)(unsigned joystick, char* name);
+	int (*device_desc_get)(unsigned joystick, char* desc);
 	int (*bind)(unsigned joystick, unsigned code);
 	int (*revbind)(unsigned joystick, unsigned button);
 } joystickb_driver;
@@ -137,6 +138,7 @@ void joystickb_disable(void);
 void joystickb_abort(void);
 unsigned joystickb_count_get(void);
 int joystickb_device_name_get(unsigned joystick, char* name);
+int joystickb_device_desc_get(unsigned joystick, char* desc);
 unsigned joystickb_stick_count_get(unsigned joystick);
 unsigned joystickb_stick_axe_count_get(unsigned joystick, unsigned stick);
 unsigned joystickb_button_count_get(unsigned joystick);

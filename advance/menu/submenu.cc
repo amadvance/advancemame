@@ -645,8 +645,8 @@ void run_clone(config_state& rs)
 // ------------------------------------------------------------------------
 // Calib menu
 
-#define CALIB_CHOICE_DX 50 * int_font_dx_get(text)
-#define CALIB_CHOICE_DY 16 * int_font_dy_get(text)
+#define CALIB_CHOICE_DX 40 * int_font_dx_get(text)
+#define CALIB_CHOICE_DY 19 * int_font_dy_get(text)
 #define CALIB_CHOICE_X (int_dx_get() - CALIB_CHOICE_DX) / 2
 #define CALIB_CHOICE_Y (int_dy_get() - CALIB_CHOICE_DY) / 2
 
@@ -664,7 +664,7 @@ void run_calib(config_state& rs)
 		int dx = CALIB_CHOICE_DX;
 		int xc = x + dx / 2;
 
-		// replug at every IDLE event to detect new ones
+		// replug to detect device changes
 		int_replug();
 
 		int_box(x - 2 * border, y - border, dx + 4 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
@@ -678,68 +678,80 @@ void run_calib(config_state& rs)
 
 		y += int_font_dy_get(text);
 
+		int j;
+		for (j = 0; j < joystickb_count_get(); ++j) {
+			ostringstream os;
+
+			os << "Joystick " << j+1;
+
+			char name[DEVICE_NAME_MAX];
+			if (joystickb_device_desc_get(j, name) == 0) {
+				os << " - " << name;
+			}
+			if (joystickb_device_name_get(j, name) == 0) {
+				os << " [" << name << "]";
+			}
+
+			int_put(text, x, y, dx, os.str().c_str(), COLOR_CHOICE_TITLE);
+			y += int_font_dy_get(text);
+
+			if (joystickb_stick_count_get(j) != 0) {
+				ostringstream s_os;
+				s_os << "  Sticks " << joystickb_stick_count_get(j) << ":";
+				for (int s = 0; s < joystickb_stick_count_get(j); ++s) {
+					s_os << " " << joystickb_stick_name_get(j, s);
+				}
+				int_put(text, x, y, dx, s_os.str().c_str(), COLOR_CHOICE_NORMAL);
+				y += int_font_dy_get(text);
+			}
+
+			if (joystickb_rel_count_get(j) != 0) {
+				ostringstream r_os;
+				r_os << "  Rels " << joystickb_rel_count_get(j) << ":";
+				for (int r = 0; r < joystickb_rel_count_get(j); ++r) {
+					r_os << " " << joystickb_rel_name_get(j, r);
+				}
+				int_put(text, x, y, dx, r_os.str().c_str(), COLOR_CHOICE_NORMAL);
+				y += int_font_dy_get(text);
+			}
+
+			if (joystickb_button_count_get(j) != 0) {
+				ostringstream b_os;
+				b_os << "  Buttons " << joystickb_button_count_get(j) << ":";
+				for (int b = 0; b < joystickb_button_count_get(j); ++b) {
+					b_os << " " << joystickb_button_name_get(j, b);
+				}
+				int_put(text, x, y, dx, b_os.str().c_str(), COLOR_CHOICE_NORMAL);
+				y += int_font_dy_get(text);
+			}
+
+			y += int_font_dy_get(text);
+		}
+
+		for (;j < 4; ++j) {
+			ostringstream os;
+
+			os << "Joystick " << j+1 << " - <none>";
+
+			int_put(text, x, y, dx, os.str().c_str(), COLOR_CHOICE_TITLE);
+			y += int_font_dy_get(text);
+
+			int_put(text, x, y, dx, "  Sticks <none>", COLOR_CHOICE_NORMAL);
+			y += int_font_dy_get(text);
+
+			int_put(text, x, y, dx, "  Buttons <none>", COLOR_CHOICE_NORMAL);
+			y += int_font_dy_get(text);
+
+			y += int_font_dy_get(text);
+		}
+
 		if (joystickb_count_get() == 0) {
-			const char* d_not_found = "No joystick found!";
-			int w_not_found = int_font_dx_get(text, d_not_found);
-
-			int_put(text, xc - w_not_found / 2, y, w_not_found, d_not_found, COLOR_CHOICE_NORMAL);
-			y += int_font_dy_get(text);
-
-			y += int_font_dy_get(text);
-
-			const char* d_exit = "Connect one to continue";
+			const char* d_exit = "Connect one joystick to continue";
 			int w_exit = int_font_dx_get(text, d_exit);
 
 			int_put(text, xc - w_exit / 2, y, w_exit, d_exit, COLOR_CHOICE_NORMAL);
 			y += int_font_dy_get(text);
 		} else {
-			for (int j = 0; j < joystickb_count_get(); ++j) {
-				ostringstream os;
-
-				os << "Joystick " << j+1;
-
-				char name[DEVICE_NAME_MAX];
-				if (joystickb_device_name_get(j, name) == 0) {
-					os << " - " << name;
-				}
-
-				int_put(text, x, y, dx, os.str().c_str(), COLOR_CHOICE_TITLE);
-				y += int_font_dy_get(text);
-
-				for (int s = 0; s < joystickb_stick_count_get(j); ++s) {
-					ostringstream s_os;
-					s_os << "  Stick " << s+1 << " - " << joystickb_stick_name_get(j, s) << ":";
-					for (int a = 0; a < joystickb_stick_axe_count_get(j, s); ++a) {
-						s_os << " " << joystickb_stick_axe_name_get(j, s, a);
-					}
-
-					int_put(text, x, y, dx, s_os.str().c_str(), COLOR_CHOICE_NORMAL);
-					y += int_font_dy_get(text);
-				}
-
-				if (joystickb_rel_count_get(j) != 0) {
-					ostringstream r_os;
-					r_os << "  Rels " << joystickb_rel_count_get(j) << ":";
-					for (int r = 0; r < joystickb_rel_count_get(j); ++r) {
-						r_os << " " << joystickb_rel_name_get(j, r);
-					}
-					int_put(text, x, y, dx, r_os.str().c_str(), COLOR_CHOICE_NORMAL);
-					y += int_font_dy_get(text);
-				}
-
-				if (joystickb_button_count_get(j) != 0) {
-					ostringstream b_os;
-					b_os << "  Buttons " << joystickb_button_count_get(j) << ":";
-					for (int b = 0; b < joystickb_button_count_get(j); ++b) {
-						b_os << " " << joystickb_button_name_get(j, b);
-					}
-					int_put(text, x, y, dx, b_os.str().c_str(), COLOR_CHOICE_NORMAL);
-					y += int_font_dy_get(text);
-				}
-
-				y += int_font_dy_get(text);
-			}
-
 			const char* d_exit = "Press the fire button to continue";
 			int w_exit = int_font_dx_get(text, d_exit);
 
@@ -750,8 +762,13 @@ void run_calib(config_state& rs)
 		int_update();
 
 		int key = int_event_get(false);
-		if (key == EVENT_ESC || key == EVENT_ENTER) {
+		switch (key) {
+		case EVENT_ESC:
+		case EVENT_ENTER:
+		case EVENT_MENU:
+		case EVENT_SPACE:
 			done = true;
+			break;
 		}
 	}
 
