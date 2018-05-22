@@ -69,11 +69,6 @@ int run_sub(config_state& rs, bool silent)
 			}
 
 			switch (key) {
-			case EVENT_CALIBRATION:
-				// replay the sound and clip
-				silent = false;
-				run_calib(rs);
-				break;
 			case EVENT_HELP:
 				// replay the sound and clip
 				silent = false;
@@ -136,6 +131,11 @@ int run_sub(config_state& rs, bool silent)
 				done = true;
 				is_run = true;
 			}
+			break;
+		case EVENT_CALIBRATION:
+			// replay the sound and clip
+			silent = false;
+			run_calib(rs);
 			break;
 		case EVENT_CLONE:
 			// replay the sound and clip

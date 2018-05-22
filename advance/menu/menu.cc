@@ -1731,6 +1731,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			break;
 		case EVENT_IDLE_0:
 		case EVENT_IDLE_1:
+		case EVENT_CALIBRATION:
 			done = true;
 			break;
 		}
@@ -1746,7 +1747,6 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			case EVENT_SETTYPE:
 			case EVENT_COMMAND:
 			case EVENT_MENU:
-			case EVENT_CALIBRATION:
 			case EVENT_EMU:
 			case EVENT_ROTATE:
 			case EVENT_PREVIEW:
