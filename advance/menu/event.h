@@ -33,14 +33,11 @@
 #define EVENT_ENTER (6 << 16)
 #define EVENT_ESC (7 << 16)
 #define EVENT_SPACE (8 << 16)
+#define EVENT_MODE (9 << 16)
 #define EVENT_HOME (10 << 16)
 #define EVENT_END (11 << 16)
 #define EVENT_PGUP (12 << 16)
 #define EVENT_PGDN (13 << 16)
-#define EVENT_INS (25 << 16)
-#define EVENT_DEL (26 << 16)
-
-#define EVENT_MODE (9 << 16)
 #define EVENT_HELP (14 << 16)
 #define EVENT_GROUP (15 << 16)
 #define EVENT_TYPE (16 << 16)
@@ -52,6 +49,8 @@
 #define EVENT_IDLE_0 (22 << 16)
 #define EVENT_IDLE_1 (23 << 16)
 #define EVENT_IDLE_2 (24 << 16)
+#define EVENT_INS (25 << 16)
+#define EVENT_DEL (26 << 16)
 #define EVENT_COMMAND (27 << 16)
 #define EVENT_OFF (28 << 16)
 #define EVENT_MENU (29 << 16)
@@ -63,6 +62,7 @@
 #define EVENT_OFF_FORCE (36 << 16)
 #define EVENT_ESC_FORCE (37 << 16)
 #define EVENT_CALIBRATION (38 << 16)
+#define EVENT_UNASSIGNED (39 << 16)
 
 bool event_in(const std::string& s);
 void event_out(adv_conf* config_context, const char* tag);
@@ -75,6 +75,7 @@ int event_pop();
 int event_peek();
 
 void event_setup(const std::string& press_sound, double delay_repeat_ms, double delay_repeat_next_ms, bool alpha_mode);
+void event_unassigned(bool unassigned_mode);
 
 #endif
 

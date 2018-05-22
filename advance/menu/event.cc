@@ -40,6 +40,7 @@ static int event_last_push = EVENT_NONE;
 static target_clock_t event_last_time;
 static unsigned event_last_counter;
 static bool event_alpha_mode;
+static bool event_unassigned_mode;
 static double event_delay_repeat_ms;
 static double event_delay_repeat_next_ms;
 static string event_press_sound;
@@ -500,6 +501,17 @@ void event_poll()
 		if (!found)
 			event_last_push = -1;
 	}
+
+	if (event_unassigned_mode) {
+		// if anything is pressed report a generic event
+		bool pressed = false;
+		for(int j = 0; j < joystickb_count_get(); ++j)
+			for(int b = 0; b < joystickb_button_count_get(j); ++b)
+				if (joystickb_button_get(j, b))
+					pressed = true;
+		if (pressed)
+			event_push_filter(EVENT_UNASSIGNED);
+	}
 }
 
 void event_push(int event)
@@ -540,5 +552,10 @@ void event_setup(const string& press_sound, double delay_repeat_ms, double delay
 	event_alpha_mode = alpha_mode;
 	event_delay_repeat_ms = delay_repeat_ms;
 	event_delay_repeat_next_ms = delay_repeat_next_ms;
+}
+
+void event_unassigned(bool unassigned_mode)
+{
+	event_unassigned_mode = unassigned_mode;
 }
 

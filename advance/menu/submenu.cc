@@ -655,6 +655,7 @@ void run_calib(config_state& rs)
 	int border = int_font_dx_get(text) / 2;
 
 	int_idle_2_enable(true, 1);
+	event_unassigned(true);
 
 	bool done = false;
 	while (!done) {
@@ -752,7 +753,7 @@ void run_calib(config_state& rs)
 			int_put(text, xc - w_exit / 2, y, w_exit, d_exit, COLOR_CHOICE_NORMAL);
 			y += int_font_dy_get(text);
 		} else {
-			const char* d_exit = "Press the fire button to continue";
+			const char* d_exit = "Press any button to continue";
 			int w_exit = int_font_dx_get(text, d_exit);
 
 			int_put(text, xc - w_exit / 2, y, w_exit, d_exit, COLOR_CHOICE_NORMAL);
@@ -765,13 +766,13 @@ void run_calib(config_state& rs)
 		switch (key) {
 		case EVENT_ESC:
 		case EVENT_ENTER:
-		case EVENT_MENU:
-		case EVENT_SPACE:
+		case EVENT_UNASSIGNED:
 			done = true;
 			break;
 		}
 	}
 
+	event_unassigned(false);
 	int_idle_2_enable(false, 0);
 }
 
