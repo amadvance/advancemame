@@ -163,21 +163,19 @@ static void int_joystick_move_raw_poll()
 {
 	for (int i = 0; i < joystickb_count_get(); ++i) {
 		for (int j = 0; j < joystickb_stick_count_get(i); ++j) {
-			if (joystickb_stick_axe_count_get(i, j) > 0) {
+			// use only sticks with at least two axes
+			// this avoids "brake" and "gas" pedals
+			// that doesn't have a stable center position
+			if (joystickb_stick_axe_count_get(i, j) >= 2) {
 				if (joystickb_stick_axe_digital_get(i, j, 0, 0))
 					event_push(EVENT_RIGHT);
 				if (joystickb_stick_axe_digital_get(i, j, 0, 1))
 					event_push(EVENT_LEFT);
-			}
-			if (joystickb_stick_axe_count_get(i, j) > 1) {
 				if (joystickb_stick_axe_digital_get(i, j, 1, 0))
 					event_push(EVENT_DOWN);
 				if (joystickb_stick_axe_digital_get(i, j, 1, 1))
 					event_push(EVENT_UP);
 			}
-
-			// do not use the x axis as some controller have it
-			// set the min instead than 0 as it's lever.
 		}
 	}
 }
