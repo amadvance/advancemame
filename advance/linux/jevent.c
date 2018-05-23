@@ -152,6 +152,8 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	unsigned char rel_bitmask[REL_MAX / 8 + 1];
 	unsigned i;
 	unsigned short device_info[4];
+	int override_begin;
+	int override_end;
 
 	struct button_entry {
 		int code;
@@ -354,6 +356,19 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 #endif
 	};
 
+	struct override_entry {
+		unsigned vendor;
+		unsigned product;
+		const char* desc;
+		unsigned index;
+		const char* name;
+		int bind;
+	} override_map[] = {
+#if 0 /* for now disabled as I don't really trust the libretro info */
+#include "joverride.dat"
+#endif
+	};
+
 	/* WARNING: It must be syncronized with the list in event.c */
 	struct stick_entry {
 		struct axe_entry {
@@ -443,21 +458,89 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	for (i = 0; i < JOYB_MAX; ++i)
 		item->bind_map[i] = -1;
 
-	item->button_mac = 0;
-	for (i = 0; i < sizeof(button_map) / sizeof(button_map[0]); ++i) {
-		if (event_test_bit(button_map[i].code, key_bitmask)) {
-			if (item->button_mac < EVENT_JOYSTICK_BUTTON_MAX) {
+	/* check if there is an override */
+	override_begin = 0;
+	override_end = 0;
+	for (i = 0; i < sizeof(override_map) / sizeof(override_map[0]); ++i) {
+		if (override_map[i].vendor != item->vendor
+			|| override_map[i].product != item->product
+			|| strcmp(override_map[i].desc, item->desc) != 0
+		) {
+			if (override_begin != override_end)
+				break;
+		} else {
+			if (override_begin == override_end)
+				override_begin = i;
+			override_end = i + 1;
+		}
+	}
+
+	if (override_begin != override_end) {
+		log_std(("event: override %04x:%04x '%s' %u %u\n", item->vendor, item->product, item->desc, override_begin, override_end));
+
+		/* iterate over all possible buttons */
+		unsigned index = 0;
+		item->button_mac = 0;
+		for (i = 1; i < KEY_MAX; ++i) {
+			if (event_test_bit(i, key_bitmask)) {
+				unsigned j;
+
+				/* search for the override */
+				for (j = override_begin; j < override_end; ++j) {
+					if (override_map[j].index != index)
+						continue;
+					break;
+				}
+
+				/* if found, map the button */
+				if (j < override_end) {
+					const char* name = override_map[j].name;
+					int bind = override_map[j].bind;
+
+					item->button_map[item->button_mac].code = i;
+					item->button_map[item->button_mac].state = 0;
+
+					sncpy(item->button_map[item->button_mac].name, sizeof(item->button_map[item->button_mac].name), name);
+
+					item->bind_map[bind] = item->button_mac;
+					item->button_map[item->button_mac].revbind = bind;
+
+					item->bind_map[item->button_mac] = item->button_mac;
+					++item->button_mac;
+					if (item->button_mac >= EVENT_JOYSTICK_BUTTON_MAX)
+						break;
+				}
+
+				/* increment the index even if the button is unused */
+				++index;
+			}
+		}
+	} else {
+		/* iterate only over recognized buttons */
+		item->button_mac = 0;
+		for (i = 0; i < sizeof(button_map) / sizeof(button_map[0]); ++i) {
+			if (event_test_bit(button_map[i].code, key_bitmask)) {
+				unsigned j;
+				const char* name = button_map[i].name;
+				int bind = button_map[i].bind;
+				int has_device = 0;
+
 				item->button_map[item->button_mac].code = button_map[i].code;
 				item->button_map[item->button_mac].state = 0;
-				sncpy(item->button_map[item->button_mac].name, sizeof(item->button_map[item->button_mac].name), button_map[i].name);
-				if (button_map[i].bind) {
-					item->bind_map[button_map[i].bind] = item->button_mac;
-					item->button_map[item->button_mac].revbind = button_map[i].bind;
+
+				sncpy(item->button_map[item->button_mac].name, sizeof(item->button_map[item->button_mac].name), name);
+				if (bind) {
+					item->bind_map[bind] = item->button_mac;
+					item->button_map[item->button_mac].revbind = bind;
 				} else {
 					item->button_map[item->button_mac].revbind = -1;
 				}
+
 				item->bind_map[item->button_mac] = item->button_mac;
 				++item->button_mac;
+
+				if (item->button_mac >= EVENT_JOYSTICK_BUTTON_MAX)
+					break;
 			}
 		}
 	}
@@ -585,16 +668,16 @@ adv_error joystickb_event_init(int joystickb_id)
 			continue;
 		}
 
-		if (joystickb_setup(item, f) != 0) {
-			event_close(f);
-			continue;
-		}
-
 		sncpy(item->desc, sizeof(item->desc), map[i].desc);
 		item->vendor = map[i].vendor;
 		item->product = map[i].product;
 		item->version = map[i].version;
 		item->bus = map[i].bus;
+
+		if (joystickb_setup(item, f) != 0) {
+			event_close(f);
+			continue;
+		}
 
 		++event_state.mac;
 	}
