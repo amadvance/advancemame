@@ -131,10 +131,6 @@ void run(void)
 
 		new_msg[0] = 0;
 		for (i = 0; i < joystickb_count_get(); ++i) {
-
-			if (i != 0)
-				sncat(new_msg, sizeof(new_msg), "\n");
-
 			snprintf(new_msg + strlen(new_msg), sizeof(new_msg) - strlen(new_msg), "joy %d, [", i);
 			for (j = 0; j < joystickb_button_count_get(i); ++j) {
 				if (joystickb_button_get(i, j))
@@ -164,7 +160,17 @@ void run(void)
 				sncatf(new_msg, sizeof(new_msg), "%d", joystickb_rel_get(i, j));
 			}
 
-			sncat(new_msg, sizeof(new_msg), "]");
+			sncat(new_msg, sizeof(new_msg), "]\n");
+		}
+
+		sncat(new_msg, sizeof(new_msg), "->");
+
+		for (i = 0; i < joystickb_count_get(); ++i) {
+			for (j = 0; j < joystickb_button_count_get(i); ++j) {
+				if (joystickb_button_get(i, j)) {
+					sncatf(new_msg, sizeof(new_msg), " %d:%s", i, joystickb_button_name_get(i, j));
+				}
+			}
 		}
 
 		if (strcmp(msg, new_msg) != 0) {
