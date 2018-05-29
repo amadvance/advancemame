@@ -364,6 +364,34 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		const char* name;
 		int bind;
 	} override_map[] = {
+		/* QMOX SNES */
+		{ 0x0810, 0xe501, "usb gamepad           ", 1, "a", JOYB_A },
+		{ 0x0810, 0xe501, "usb gamepad           ", 2, "b", JOYB_B },
+		{ 0x0810, 0xe501, "usb gamepad           ", 0, "x", JOYB_X },
+		{ 0x0810, 0xe501, "usb gamepad           ", 3, "y", JOYB_Y },
+		{ 0x0810, 0xe501, "usb gamepad           ", 4, "tl", JOYB_TL },
+		{ 0x0810, 0xe501, "usb gamepad           ", 6, "tr", JOYB_TR },
+		{ 0x0810, 0xe501, "usb gamepad           ", 8, "select", JOYB_SELECT },
+		{ 0x0810, 0xe501, "usb gamepad           ", 9, "start", JOYB_START },
+		/* iNNEXT SNES */
+		{ 0x0079, 0x0011, "USB Gamepad ", 1, "a", JOYB_A },
+		{ 0x0079, 0x0011, "USB Gamepad ", 2, "b", JOYB_B },
+		{ 0x0079, 0x0011, "USB Gamepad ", 0, "x", JOYB_X },
+		{ 0x0079, 0x0011, "USB Gamepad ", 3, "y", JOYB_Y },
+		{ 0x0079, 0x0011, "USB Gamepad ", 4, "tl", JOYB_TL },
+		{ 0x0079, 0x0011, "USB Gamepad ", 5, "tr", JOYB_TR },
+		{ 0x0079, 0x0011, "USB Gamepad ", 8, "select", JOYB_SELECT },
+		{ 0x0079, 0x0011, "USB Gamepad ", 9, "start", JOYB_START },
+		/* 8BITDO GAMEPAD SF30 Wireless Controller */
+		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 0, "a", JOYB_A },
+		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 1, "b", JOYB_B },
+		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 3, "x", JOYB_X },
+		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 4, "y", JOYB_Y },
+		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 6, "tl", JOYB_TL },
+		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 7, "tr", JOYB_TR },
+		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 10, "select", JOYB_SELECT },
+		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 11, "start", JOYB_START },
+
 #if 0 /* for now disabled as I don't really trust the libretro info */
 #include "joverride.dat"
 #endif
