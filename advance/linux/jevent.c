@@ -392,9 +392,12 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 11, "start", JOYB_START },
 
-#if 0 /* for now disabled as I don't really trust the libretro info */
+/*
+ * Include libretro definitions from:
+ * https://github.com/libretro/retroarch-joypad-autoconfig/udev
+ * and converted with joverride.python.
+ */
 #include "joverride.dat"
-#endif
 	};
 
 	/* WARNING: It must be syncronized with the list in event.c */
