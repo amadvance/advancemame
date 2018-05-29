@@ -2725,11 +2725,11 @@ static int on_key_menu(int selected)
 		}
 		if (key0 != 0) {
 			sel = -1;
-			advance_input_simulate_key(context, key0, key1, 5);
+			advance_input_simulate_key(context, key0, key1, 10);
 		}
 	}
 
-	if (input_ui_pressed(IPT_UI_CANCEL)) {
+	if (input_ui_pressed(IPT_UI_CANCEL) || input_ui_pressed(IPT_UI_KEYBOARD)) {
 		sel = -1;
 	}
 
