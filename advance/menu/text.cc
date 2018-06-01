@@ -2279,7 +2279,7 @@ bool cell_manager::idle()
 	}
 
 	// render the screen
-	video_display_set(0, 0);
+	video_display_set(0, 1); // wait for vsync to not use 100% CPU
 
 	// recheck if some clip is already old
 	for (unsigned i = 0; i < backdrop_mac; ++i) {

@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 3.8 2018/05
+AdvanceMAME/MESS Version 3.8 2018/06
 	) Change the default 'sync_resample' mode to 'internal' to all games
 		using the pokey sound chip. This avoid crashes and provide
 		a better sound audio. One example is 'starwars'.
@@ -18,7 +18,7 @@ AdvanceMAME/MESS Version 3.8 2018/05
 	) Added a new 'advblue' tool to pair and connect automatically
 		bluetooth joysticks and gamepads. This Linux only.
 
-AdvanceMENU Version 3.8 2018/05
+AdvanceMENU Version 3.8 2018/06
 	) Added support for configuring joystick and mouse buttons in the 'event'
 		configuration option.
 	) Added the 'display_resizeeffect' option like in AdvanceMAME to scale
@@ -31,6 +31,7 @@ AdvanceMENU Version 3.8 2018/05
 		calibration and detection menu if no joystick is detected.
 	) Other configuration options added: 'ui_topname', 'sort smart_time',
 		'ui_text/bar_font', 'ui_outline', 'skip_horz' and 'skip_vert'
+	) Always wait for vsync to avoid to use 100% CPU.
 
 AdvanceMAME/MESS Version 3.7 2018/02
 	) In the Exit menu added new Load/Save/Reset commands.
