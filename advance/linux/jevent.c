@@ -80,6 +80,7 @@ struct joystick_button_context {
 	int revbind;
 	adv_bool state;
 	char name[EVENT_JOYSTICK_NAME_MAX];
+	int sort_order;
 };
 
 struct joystick_axe_context {
@@ -144,6 +145,18 @@ static adv_device DEVICE[] = {
 };
 
 #define ABS_UNASSIGNED -1
+
+static int button_compare(const void* void_a, const void* void_b)
+{
+	const struct joystick_button_context* a = void_a;
+	const struct joystick_button_context* b = void_b;
+
+	if (a->sort_order < b->sort_order)
+		return -1;
+	if (a->sort_order > b->sort_order)
+		return 1;
+	return 0;
+}
 
 static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 {
@@ -530,6 +543,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 
 					item->button_map[item->button_mac].code = i;
 					item->button_map[item->button_mac].state = 0;
+					item->button_map[item->button_mac].sort_order = j;
 
 					sncpy(item->button_map[item->button_mac].name, sizeof(item->button_map[item->button_mac].name), name);
 
@@ -546,6 +560,9 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 				++index;
 			}
 		}
+
+		/* sort the button in the listed order */
+		qsort(item->button_map, item->button_mac, sizeof(item->button_map[0]), button_compare);
 	} else {
 		/* iterate only over recognized buttons */
 		item->button_mac = 0;
@@ -558,6 +575,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 
 				item->button_map[item->button_mac].code = button_map[i].code;
 				item->button_map[item->button_mac].state = 0;
+				item->button_map[item->button_mac].sort_order = i;
 
 				sncpy(item->button_map[item->button_mac].name, sizeof(item->button_map[item->button_mac].name), name);
 				if (bind) {
