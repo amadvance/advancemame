@@ -15,6 +15,7 @@ KOBJ = obj/k/$(BINARYDIR)
 IOBJ = obj/i/$(BINARYDIR)
 VOBJ = obj/v/$(BINARYDIR)
 SOBJ = obj/s/$(BINARYDIR)
+BLUEOBJ = obj/blue/$(BINARYDIR)
 CFGOBJ = obj/cfg/$(BINARYDIR)
 LINEOBJ = obj/line/$(BINARYBUILDDIR)
 D2OBJ = obj/d2/$(BINARYBUILDDIR)
@@ -79,6 +80,8 @@ J_INSTALL_BINFILES = $(JOBJ)/advj$(EXE)
 J_INSTALL_MANFILES = $(DOCOBJ)/advj.1
 M_INSTALL_BINFILES = $(MOBJ)/advm$(EXE)
 M_INSTALL_MANFILES = $(DOCOBJ)/advm.1
+BLUE_INSTALL_BINFILES = $(BLUEOBJ)/advblue$(EXE)
+BLUE_INSTALL_MANFILES = $(DOCOBJ)/advblue.1
 
 ############################################################################
 # Install
@@ -139,6 +142,13 @@ INSTALL_BINFILES += $(M_INSTALL_BINFILES)
 INSTALL_MANFILES += $(M_INSTALL_MANFILES)
 endif
 endif
+ifeq ($(CONF_SYSTEM),unix)
+ifneq ($(wildcard $(srcdir)/advance/blue.mak),)
+OBJ_DIRS += $(BLUEOBJ)
+INSTALL_BINFILES += $(BLUE_INSTALL_BINFILES)
+INSTALL_MANFILES += $(BLUE_INSTALL_MANFILES)
+endif
+endif
 
 INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.txt,$(wildcard $(srcdir)/doc/*.d)))
 INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.html,$(wildcard $(srcdir)/doc/*.d)))
@@ -163,6 +173,7 @@ k: $(KOBJ) $(KOBJ)/advk$(EXE)
 i: $(IOBJ) $(IOBJ)/advi$(EXE)
 j: $(JOBJ) $(JOBJ)/advj$(EXE)
 m: $(MOBJ) $(MOBJ)/advm$(EXE)
+blue: $(BLUEOBJ) $(BLUEOBJ)/advblue$(EXE)
 line: $(LINEOBJ) $(LINEOBJ)/advline$(EXE_FOR_BUILD)
 d2: $(D2OBJ) $(D2OBJ)/advd2$(EXE_FOR_BUILD)
 web: $(WEB_DOCFILES)
@@ -298,6 +309,9 @@ MENU_SRC = \
 
 LINE_SRC = \
 	$(wildcard $(srcdir)/advance/line/*.cc)
+
+BLUE_SRC = \
+	$(wildcard $(srcdir)/advance/blue/*.c)
 
 SRCOSD = \
 	$(wildcard $(srcdir)/advance/osd/*.c) \
@@ -548,7 +562,8 @@ DEB_BINFILES = \
 	$(S_INSTALL_BINFILES) \
 	$(K_INSTALL_BINFILES) \
 	$(J_INSTALL_BINFILES) \
-	$(M_INSTALL_BINFILES)
+	$(M_INSTALL_BINFILES) \
+	$(BLUE_INSTALL_BINFILES)
 DEB_MANFILES = \
 	$(MAME_INSTALL_MANFILES) \
 	$(MESS_INSTALL_MANFILES) \
@@ -558,7 +573,8 @@ DEB_MANFILES = \
 	$(S_INSTALL_MANFILES) \
 	$(K_INSTALL_MANFILES) \
 	$(J_INSTALL_MANFILES) \
-	$(M_INSTALL_MANFILES)
+	$(M_INSTALL_MANFILES) \
+	$(BLUE_INSTALL_MANFILES)
 DEB_DATAFILES = \
 	$(MAME_INSTALL_DATAFILES) \
 	$(MESS_INSTALL_DATAFILES)

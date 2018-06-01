@@ -86,6 +86,9 @@ endif
 ifneq ($(wildcard $(srcdir)/advance/m.mak),)
 include $(srcdir)/advance/m.mak
 endif
+ifneq ($(wildcard $(srcdir)/advance/blue.mak),)
+include $(srcdir)/advance/blue.mak
+endif
 ifneq ($(wildcard $(srcdir)/advance/line.mak),)
 include $(srcdir)/advance/line.mak
 endif
@@ -100,6 +103,7 @@ uncrustify:
 	uncrustify -c uncrustify.cfg --no-backup \
 		$(srcdir)/advance/lib/*.c $(srcdir)/advance/lib/*.h \
 		$(srcdir)/advance/blit/*.c $(srcdir)/advance/blit/*.h \
+		$(srcdir)/advance/blue/*.c \
 		$(srcdir)/advance/cfg/*.c \
 		$(srcdir)/advance/d2/*.cc \
 		$(srcdir)/advance/dos/*.c $(srcdir)/advance/dos/*.h \

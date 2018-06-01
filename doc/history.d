@@ -15,6 +15,8 @@ AdvanceMAME/MESS Version 3.8 2018/05
 	) Fixed font size computation. Now the menu always has the same size.
 	) Added a new 'ui_keyboard' input to show a runtime menu to simulate
 		some keypress.
+	) Added a new 'advblue' tool to pair and connect automatically
+		bluetooth joysticks and gamepads. This Linux only.
 
 AdvanceMENU Version 3.8 2018/05
 	) Added support for configuring joystick and mouse buttons in the 'event'
