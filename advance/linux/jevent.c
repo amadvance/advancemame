@@ -522,10 +522,15 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 	if (override_begin != override_end) {
 		log_std(("event: override %04x:%04x '%s' %u %u\n", item->vendor, item->product, item->desc, override_begin, override_end));
 
-		/* iterate over all possible buttons */
+		/*
+		 * Iterate over all possible buttons
+		 *
+		 * Start from BTN_MISC like libretro to be compatible with its mapping:
+		 * See: https://github.com/libretro/RetroArch/blob/master/input/drivers_joypad/udev_joypad.c
+		 */
 		unsigned index = 0;
 		item->button_mac = 0;
-		for (i = 1; i < KEY_MAX; ++i) {
+		for (i = BTN_MISC; i < KEY_MAX; ++i) {
 			if (event_test_bit(i, key_bitmask)) {
 				unsigned j;
 
@@ -561,7 +566,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 			}
 		}
 
-		/* sort the button in the listed order */
+		/* sort the button in the defined order */
 		qsort(item->button_map, item->button_mac, sizeof(item->button_map[0]), button_compare);
 	} else {
 		/* iterate only over recognized buttons */

@@ -29,10 +29,9 @@
 #
 
 #
-# Convert files from:
+# Convert files from libretro udev mapping:
 #
-# https://github.com/libretro/retroarch-joypad-autoconfig/udev
-# https://github.com/libretro/retroarch-joypad-autoconfig/hid
+# https://github.com/libretro/retroarch-joypad-autoconfig/tree/master/udev
 #
 
 import sys
