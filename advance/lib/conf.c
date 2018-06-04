@@ -36,6 +36,12 @@
 #include "log.h"
 #include "target.h"
 
+#if defined(__linux__)
+/** Make file write operations relient to system crash and poweroff. */
+#include <linux/random.h>
+#define USE_RESILIENT 1
+#endif
+
 /** Buffer used for int/float values */
 #define CONF_NUM_BUFFER_MAX 48
 
@@ -1834,16 +1840,172 @@ err:
 	return -1;
 }
 
+static adv_error input_save_inner(adv_conf* context, struct adv_conf_input_struct* input, adv_bool quiet, conf_error_callback* error, void* error_context, FILE* f)
+{
+	const char* global_section;
+
+	global_section = "";
+
+	if (context->value_list) {
+		struct adv_conf_value_struct* value = context->value_list;
+		do {
+			if (value->input == input) {
+				if (value_save(input, value, &global_section, f, error, error_context) != 0) {
+					return -1;
+				}
+			}
+			value = value->next;
+		} while (value != context->value_list);
+	}
+
+	return 0;
+}
+
+#ifdef USE_RESILIENT
+/* reimplementation of getrandom not always available */
+static ssize_t rtl_getrandom(void* data, size_t size)
+{
+	ssize_t r;
+
+	int f = open("/dev/urandom", O_RDONLY);
+	if (f < 0)
+		return -1;
+
+	r = read(f, data, size);
+
+	close(f);
+
+	return r;
+}
+
 static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* input, adv_bool quiet, conf_error_callback* error, void* error_context)
 {
 	FILE* f;
-	const char* global_section;
+	int h;
+	int d;
+	char* dup;
+	char* dir;
+	char* name;
+	char* tmp;
+	size_t len;
 
 	/* if not writable skip */
 	if (!input->file_out)
 		return 0;
 
-	global_section = "";
+	/* split in dir + name */
+	dup = strdup(input->file_out);
+	name = strrchr(dup, '/');
+	if (!name) {
+		name = dup;
+		dir = ".";
+	} else {
+		*name = 0;
+		++name;
+		dir = dup;
+	}
+
+	/* allocate space for a temporary name */
+	len = strlen(name) + 16;
+	tmp = malloc(len);
+
+	/* open the directory */
+	d = open(dir, O_RDONLY | O_DIRECTORY);
+	if (d < 0) {
+		if (!quiet || errno != EACCES) {
+			if (error)
+				error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening the directory %s, %s.", dir, strerror(errno));
+		}
+		goto err;
+	}
+
+	do {
+		/* create a new file, being new is necessary to be resilient */
+		unsigned r = 0;
+		if (rtl_getrandom(&r, sizeof(r)) < 0) {
+			if (error)
+				error(error_context, conf_error_failure, input->file_out, 0, 0, "Error getting random data, %s.", strerror(errno));
+			goto err_close_d;
+		}
+		snprintf(tmp, len, "%s.%x.tmp", name, r);
+		h = openat(d, tmp, O_WRONLY | O_CREAT | O_EXCL, 0644);
+	} while (h < 0 && errno == EEXIST);
+	if (h < 0) {
+		if (!quiet || errno != EACCES) {
+			if (error)
+				error(error_context, conf_error_failure, input->file_out, 0, 0, "Error creating the file %s for writing, %s.", tmp, strerror(errno));
+		}
+		goto err_close_d;
+	}
+
+	f = fdopen(h, "w");
+	if (!f) {
+		close(h); /* only case to close */
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening the file %s for writing, %s.", tmp, strerror(errno));
+		goto err_close_d;
+	}
+
+	if (input_save_inner(context, input, quiet, error, error_context, f) != 0)
+		goto err_fclose_f;
+
+	if (fflush(f) != 0) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error flushing the file %s, %s.", tmp, strerror(errno));
+		goto err_fclose_f;
+	}
+
+	if (fsync(fileno(f)) != 0) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error syncing file %s, %s.", tmp, strerror(errno));
+		goto err_fclose_f;
+	}
+
+	if (fclose(f) != 0) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error closing file %s, %s.", tmp, strerror(errno));
+		goto err_close_d;
+	}
+
+	if (renameat(d, tmp, d, name) != 0) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error renaming the file %s to %s, %s.", tmp, input->file_out, strerror(errno));
+		goto err_close_d;
+	}
+
+	if (fsync(d) != 0) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error syncing file %s, %s.", tmp, strerror(errno));
+		goto err_close_d;
+	}
+
+	if (close(d) != 0) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error syncing file %s, %s.", tmp, strerror(errno));
+		goto err;
+	}
+
+	free(dup);
+	free(tmp);
+	return 0;
+
+err_fclose_f:
+	fclose(f);
+err_close_d:
+	close(d);
+err:
+	free(dup);
+	free(tmp);
+	return -1;
+}
+#else
+static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* input, adv_bool quiet, conf_error_callback* error, void* error_context)
+{
+	FILE* f;
+
+	/* if not writable skip */
+	if (!input->file_out)
+		return 0;
 
 	f = fopen(input->file_out, "wt");
 	if (!f) {
@@ -1854,19 +2016,15 @@ static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* inp
 		goto err;
 	}
 
-	if (context->value_list) {
-		struct adv_conf_value_struct* value = context->value_list;
-		do {
-			if (value->input == input) {
-				if (value_save(input, value, &global_section, f, error, error_context) != 0) {
-					goto err_close;
-				}
-			}
-			value = value->next;
-		} while (value != context->value_list);
+	if (input_save_inner(context, input, quiet, error, error_context, f) != 0)
+		goto err_close;
+
+	if (fclose(f) != 0) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error closing file %s, %s.", input->file_out, strerror(errno));
+		goto err;
 	}
 
-	fclose(f);
 	return 0;
 
 err_close:
@@ -1874,6 +2032,7 @@ err_close:
 err:
 	return -1;
 }
+#endif
 
 /**
  * Updates all the writable configuration files.

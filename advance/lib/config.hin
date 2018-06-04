@@ -37,6 +37,9 @@
 /* Define to 1 if you have the <execinfo.h> header file. */
 #undef HAVE_EXECINFO_H
 
+/* Define to 1 if you have the `fdopen' function. */
+#undef HAVE_FDOPEN
+
 /* Define to 1 if you have the `feof_unlocked' function. */
 #undef HAVE_FEOF_UNLOCKED
 
@@ -51,6 +54,9 @@
 
 /* Define to 1 if you have the `fseeko' function. */
 #undef HAVE_FSEEKO
+
+/* Define to 1 if you have the `fsync' function. */
+#undef HAVE_FSYNC
 
 /* Define to 1 if you have the `ftello' function. */
 #undef HAVE_FTELLO
@@ -105,6 +111,12 @@
 
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
+
+/* Define to 1 if you have the `openat' function. */
+#undef HAVE_OPENAT
+
+/* Define to 1 if you have the `renameat' function. */
+#undef HAVE_RENAMEAT
 
 /* Define to 1 if you have the `sched_getscheduler' function. */
 #undef HAVE_SCHED_GETSCHEDULER
