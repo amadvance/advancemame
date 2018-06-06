@@ -20,8 +20,23 @@
 
 #include "portable.h"
 
+size_t snprintfcat(char* buf, size_t size, char const* fmt, ...)
+{
+	size_t result;
+	va_list args;
+
+	size_t len = strnlen(buf, size);
+
+	va_start(args, fmt);
+	result = vsnprintf(buf + len, size - len, fmt, args);
+	va_end(args);
+
+	return result + len;
+}
+
 int opt_foreground; /** Run in foreground */
 int opt_stat; /** Print stats */
+int opt_msg; /** Save message */
 
 /**
  * Backlog
@@ -163,6 +178,7 @@ void blue_send(int f, const char* command)
 
 struct blue_device {
 	char* id;
+	char name[128];
 	int is_game;
 	int is_paired;
 	int is_trusted;
@@ -259,6 +275,16 @@ void process_list(int in_f, int out_f)
  */
 void process_info_line(struct blue_device* dev, const char* line)
 {
+	char* name;
+
+	name = strstr(line, "Name:");
+	if (name) {
+		name += 5;
+		while (*name != 0 && isspace(*name))
+			++name;
+		snprintf(dev->name, sizeof(dev->name), name);
+	}
+
 	if (strstr(line, "Icon: input-gaming")) {
 		dev->is_game = 1;
 	}
@@ -319,9 +345,19 @@ void process_info(int in_f, int out_f)
 void process_connect(int in_f, int out_f)
 {
 	struct blue_device* i = devs;
+	char processing[4096];
+	char connected[4096];
+	unsigned count_processing;
+	unsigned count_connected;
+
+	count_processing = 0;
+	count_connected = 0;
+	processing[0] = 0;
+	connected[0] = 0;
 
 	for (i = devs; i != 0; i = i->next) {
 		char cmd[128];
+		const char* name = i->name[0] ? i->name : i->id;
 
 		if (!i->is_game)
 			continue;
@@ -330,6 +366,8 @@ void process_connect(int in_f, int out_f)
 			snprintf(cmd, sizeof(cmd), "trust %s\n", i->id);
 			blue_send(in_f, cmd);
 			blue_discard(out_f);
+			snprintfcat(processing, sizeof(processing) - 1, "Trusting %s...\n", name);
+			++count_processing;
 			continue;
 		}
 
@@ -337,6 +375,8 @@ void process_connect(int in_f, int out_f)
 			snprintf(cmd, sizeof(cmd), "pair %s\n", i->id);
 			blue_send(in_f, cmd);
 			blue_discard(out_f);
+			snprintfcat(processing, sizeof(processing) - 1, "Pairing %s...\n", name);
+			++count_processing;
 			continue;
 		}
 
@@ -344,7 +384,38 @@ void process_connect(int in_f, int out_f)
 			snprintf(cmd, sizeof(cmd), "connect %s\n", i->id);
 			blue_send(in_f, cmd);
 			blue_discard(out_f);
+			snprintfcat(processing, sizeof(processing), "Connecting %s...\n", name);
+			++count_processing;
 			continue;
+		}
+
+		snprintfcat(connected, sizeof(connected), "Connected %s...", name);
+		++count_connected;
+	}
+
+	/* ensure to have the final terminator */
+	processing[sizeof(processing) - 1] = 0;
+	connected[sizeof(connected) - 1] = 0;
+
+	if (count_processing != 0) {
+		if (count_connected == 1)
+			snprintfcat(processing, sizeof(processing), "%s", connected);
+		else if (count_connected > 1)
+			snprintfcat(processing, sizeof(processing), "Connected %u devices", count_connected);
+	} else {
+		if (count_connected == 0)
+			strcpy(processing, "Bluetooth scanning...\n");
+		else if (count_connected > 1)
+			snprintf(processing, sizeof(processing), "Connected %u devices", count_connected);
+		else
+			strcpy(processing, connected);
+	}
+
+	if (opt_msg) {
+		int f = open("/tmp/blue.msg", O_CREAT | O_TRUNC | O_WRONLY, 0644);
+		if (f >= 0) {
+			write(f, processing, strlen(processing));
+			close(f);
 		}
 	}
 }
@@ -356,7 +427,7 @@ void print_list(void)
 	printf("\nDevices:\n");
 
 	for (i = devs; i != 0; i = i->next) {
-		printf("\t%s %s %s %s %s\n", i->id,
+		printf("\t\"%s\" %s %s %s %s %s\n", i->name, i->id,
 			i->is_game ? "game" : "",
 			i->is_trusted ? "trusted" : "",
 			i->is_paired ? "paired" : "",
@@ -394,9 +465,10 @@ void process(int in_f, int out_f)
 
 		process_connect(in_f, out_f);
 
-		backlog_print();
-
-		print_list();
+		if (opt_stat) {
+			backlog_print();
+			print_list();
+		}
 	}
 }
 
@@ -497,6 +569,8 @@ void blue_daemon(void)
 int main(int argc, char* argv[])
 {
 	int i;
+
+	opt_msg = 1;
 
 	for (i = 1; i < argc; ++i) {
 		if (strcmp(argv[i], "-f") == 0) {

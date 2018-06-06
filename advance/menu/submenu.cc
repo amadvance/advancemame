@@ -646,7 +646,7 @@ void run_clone(config_state& rs)
 // Calib menu
 
 #define CALIB_CHOICE_DX 40 * int_font_dx_get(text)
-#define CALIB_CHOICE_DY 19 * int_font_dy_get(text)
+#define CALIB_CHOICE_DY 21 * int_font_dy_get(text)
 #define CALIB_CHOICE_X (int_dx_get() - CALIB_CHOICE_DX) / 2
 #define CALIB_CHOICE_Y (int_dy_get() - CALIB_CHOICE_DY) / 2
 
@@ -664,6 +664,7 @@ void run_calib(config_state& rs)
 		int dy = CALIB_CHOICE_DY;
 		int dx = CALIB_CHOICE_DX;
 		int xc = x + dx / 2;
+		int y_last = y + dy - int_font_dy_get(text);
 
 		// replug to detect device changes
 		int_replug();
@@ -676,6 +677,34 @@ void run_calib(config_state& rs)
 
 		int_put(text, xc - w_title / 2, y, dx, d_title, COLOR_CHOICE_TITLE);
 		y += int_font_dy_get(text);
+
+		y += int_font_dy_get(text);
+
+		int bt_line = 0;
+		int f = open("/tmp/blue.msg", O_RDONLY);
+		if (f >= 0) {
+			char msg[4096];
+			int ret = read(f, msg, sizeof(msg) - 1);
+			if (ret > 0) {
+				msg[ret] = 0;
+			} else {
+				msg[0] = 0;
+			}
+			close(f);
+
+			char* token = strtok(msg, "\n");
+			while (token) {
+				int_put(text, x, y, dx, token, COLOR_CHOICE_NORMAL);
+				y += int_font_dy_get(text);
+				++bt_line;
+				token = strtok(NULL, "\n");
+			}
+		}
+
+		if (bt_line == 0) {
+			int_put(text, x, y, dx, "No bluetooth daemon", COLOR_CHOICE_NORMAL);
+			y += int_font_dy_get(text);
+		}
 
 		y += int_font_dy_get(text);
 
@@ -736,14 +765,22 @@ void run_calib(config_state& rs)
 
 			int_put(text, x, y, dx, os.str().c_str(), COLOR_CHOICE_TITLE);
 			y += int_font_dy_get(text);
+			if (y >= y_last)
+				break;
 
 			int_put(text, x, y, dx, "  Sticks <none>", COLOR_CHOICE_NORMAL);
 			y += int_font_dy_get(text);
+			if (y >= y_last)
+				break;
 
 			int_put(text, x, y, dx, "  Buttons <none>", COLOR_CHOICE_NORMAL);
 			y += int_font_dy_get(text);
+			if (y >= y_last)
+				break;
 
 			y += int_font_dy_get(text);
+			if (y >= y_last)
+				break;
 		}
 
 		if (joystickb_count_get() == 0) {
