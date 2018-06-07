@@ -453,7 +453,7 @@ static bool int_idle_1_state; ///< Idle event 1 enabler.
 static bool int_idle_2_state; ///< Idle event 2 enabler.
 static int int_last; ///< Last event.
 static bool int_auto_calib; ///< Auto calibration
-static bool int_auto_key; ///< Key detection
+static bool int_keyboard_detected; ///< If an active and *USED* keyboard was detected
 
 static bool int_wait_for_backdrop; ///< Wait for the backdrop draw completion before accepting events.
 
@@ -2938,7 +2938,7 @@ void int_update(bool progressive)
 	int_update_post(int_update_pre(progressive));
 }
 
-static void key_poll()
+static void input_poll()
 {
 	if (os_is_quit()) {
 		event_push(EVENT_ESC);
@@ -2947,6 +2947,15 @@ static void key_poll()
 	int_joystick_move_raw_poll();
 	int_mouse_move_raw_poll();
 	event_poll();
+
+	// detect if any key is pressed, and enable auto keyboard
+	if (!int_keyboard_detected) {
+		unsigned char code_map[KEYB_MAX];
+		keyb_all_get(0, code_map);
+		for (unsigned i = 0; i < KEYB_MAX; ++i)
+			if (code_map[i])
+				int_keyboard_detected = true;
+	}
 }
 
 void int_idle_time_reset()
@@ -3013,11 +3022,6 @@ static void int_idle()
 			log_std(("text: push IDLE_2\n"));
 			event_push_repeat(EVENT_IDLE_2);
 		}
-	} else if (int_auto_calib && !int_auto_key) {
-		if (elapsed > 1 && joystickb_count_get() == 0) {
-			log_std(("text: push CALIB"));
-			event_push_repeat(EVENT_CALIBRATION);
-		}
 	}
 
 	if (event_peek() == EVENT_NONE) {
@@ -3044,7 +3048,8 @@ static void int_idle()
 
 bool int_event_waiting()
 {
-	static target_clock_t key_pressed_last_time = 0;
+	static target_clock_t input_poll_time = 0;
+	static target_clock_t joy_idle_time = 0;
 
 	// low level mute/unmute management
 	while (event_peek() == EVENT_MUTE) {
@@ -3052,27 +3057,28 @@ bool int_event_waiting()
 		play_mute_set(!play_mute_get());
 	}
 
-	if (event_peek() != EVENT_NONE)
-		return 1;
-
 	target_clock_t now = target_clock();
 
 	// if you ask for keypress, assume a not CPU intensive state
 	int_idle();
 
-	// don't check too frequently
-	if (now - key_pressed_last_time >= TARGET_CLOCKS_PER_SEC / 25) {
-		key_pressed_last_time = now;
+	// check if an input is detected and generate events at the polling frequency
+	if (now - input_poll_time >= TARGET_CLOCKS_PER_SEC / 25) {
+		input_poll_time = now;
 
-		key_poll();
+		input_poll();
+	}
 
-		// detect if any key is pressed
-		if (!int_auto_key) {
-			unsigned char code_map[KEYB_MAX];
-			keyb_all_get(0, code_map);
-			for (unsigned i = 0; i < KEYB_MAX; ++i)
-				if (code_map[i])
-					int_auto_key = true;
+	// check if joystick need calibration, but only sometimes and if nothing is happening
+	if (now - joy_idle_time >= 3 * TARGET_CLOCKS_PER_SEC) {
+		joy_idle_time = now;
+
+		if (int_auto_calib && !int_keyboard_detected) {
+			int_replug();
+			if (joystickb_count_get() == 0) {
+				log_std(("text: push CALIB"));
+				event_push_repeat(EVENT_CALIBRATION);
+			}
 		}
 	}
 
@@ -3082,8 +3088,12 @@ bool int_event_waiting()
 		play_mute_set(!play_mute_get());
 	}
 
-	if (event_peek() != EVENT_NONE)
+	if (event_peek() != EVENT_NONE) {
+		// something happened, restart the timers
+		int_idle_time_current = time(0);
+		joy_idle_time = now;
 		return 1;
+	}
 
 	return 0;
 }
@@ -3096,8 +3106,6 @@ unsigned int_event_get(bool update_background)
 	// wait for a keypress, internally a idle call is already done
 	while (!int_event_waiting()) {
 	}
-
-	int_idle_time_current = time(0);
 
 #if 0 /* OSDEF: Save interface image, only for debugging. */
 	if (event_peek() == EVENT_INS) {
