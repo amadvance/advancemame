@@ -42,6 +42,10 @@
 
 #include "SDL.h"
 
+#if SDL_MAJOR_VERSION != 1
+#define SDLK_LAST SDL_NUM_SCANCODES
+#endif
+
 struct inputb_sdl_context {
 	unsigned last; /**< Last key pressed. */
 	unsigned shift; /**< Shift state counter. If >0 the state is shifted. */
@@ -226,6 +230,7 @@ unsigned inputb_sdl_get(void)
 	case SDLK_y: return SHIFT('y', 'Y');
 	case SDLK_z: return SHIFT('z', 'Z');
 	case SDLK_DELETE: return INPUTB_DEL;
+#if SDL_MAJOR_VERSION == 1
 	case SDLK_KP0: return '0';
 	case SDLK_KP1: return '1';
 	case SDLK_KP2: return '2';
@@ -236,6 +241,7 @@ unsigned inputb_sdl_get(void)
 	case SDLK_KP7: return '7';
 	case SDLK_KP8: return '8';
 	case SDLK_KP9: return '9';
+#endif
 	case SDLK_KP_PERIOD: return '.';
 	case SDLK_KP_DIVIDE: return '/';
 	case SDLK_KP_MULTIPLY: return '*';
