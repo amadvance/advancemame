@@ -549,13 +549,10 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 					item->button_map[item->button_mac].code = i;
 					item->button_map[item->button_mac].state = 0;
 					item->button_map[item->button_mac].sort_order = j;
+					item->button_map[item->button_mac].revbind = bind;
 
 					sncpy(item->button_map[item->button_mac].name, sizeof(item->button_map[item->button_mac].name), name);
 
-					item->bind_map[bind] = item->button_mac;
-					item->button_map[item->button_mac].revbind = bind;
-
-					item->bind_map[item->button_mac] = item->button_mac;
 					++item->button_mac;
 					if (item->button_mac >= EVENT_JOYSTICK_BUTTON_MAX)
 						break;
@@ -568,6 +565,12 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 
 		/* sort the button in the defined order */
 		qsort(item->button_map, item->button_mac, sizeof(item->button_map[0]), button_compare);
+
+		/* after sorting add the binding */
+		for (i = 0; i < item->button_mac; ++i) {
+			item->bind_map[item->button_map[i].revbind] = i;
+			item->bind_map[i] = i;
+		}
 	} else {
 		/* iterate only over recognized buttons */
 		item->button_mac = 0;
