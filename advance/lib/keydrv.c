@@ -288,11 +288,11 @@ void keyb_led_set(unsigned keyboard, unsigned led_mask)
 		keyb_state.driver_current->led_set(keyboard, led_mask);
 }
 
-void keyb_poll(void)
+int keyb_poll(void)
 {
 	assert(keyb_state.is_active_flag && keyb_state.is_enabled_flag);
 
-	keyb_state.driver_current->poll();
+	return keyb_state.driver_current->poll();
 }
 
 const char* keyb_name(void)

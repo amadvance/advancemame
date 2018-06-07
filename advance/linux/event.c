@@ -2192,7 +2192,7 @@ adv_error event_read(int f, int* type, int* code, int* value)
 
 	if (size == -1 && errno == EAGAIN) {
 		/* normal exit if data is missing */
-		return -1;
+		return 0;
 	}
 
 	if (size != sizeof(e)) {
@@ -2206,7 +2206,7 @@ adv_error event_read(int f, int* type, int* code, int* value)
 	*code = e.code;
 	*value = e.value;
 
-	return 0;
+	return 1;
 }
 
 adv_error event_write(int f, int type, int code, int value)

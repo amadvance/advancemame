@@ -85,9 +85,11 @@ unsigned mouseb_none_button_get(unsigned mouse, unsigned button)
 	return 0;
 }
 
-void mouseb_none_poll(void)
+int mouseb_none_poll(void)
 {
 	log_debug(("mouseb:none: mouseb_none_poll()\n"));
+
+	return 0;
 }
 
 unsigned mouseb_none_flags(void)

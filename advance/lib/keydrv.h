@@ -66,7 +66,7 @@ typedef struct keyb_driver_struct {
 	unsigned (*get)(unsigned keyboard, unsigned code);
 	void (*all_get)(unsigned keyboard, unsigned char* code_map);
 	void (*led_set)(unsigned keyboard, unsigned mask);
-	void (*poll)(void);
+	int (*poll)(void);
 	int (*device_name_get)(unsigned keyboard, char* name);
 } keyb_driver;
 
@@ -224,11 +224,14 @@ void keyb_all_get(unsigned keyboard, unsigned char* code_map);
 void keyb_led_set(unsigned keyboard, unsigned led_mask);
 
 /**
- * Poll the keyboard status.
- * This function must be called periodically to ensure that
- * the keyboard events are processed.
+ * Poll the keyboard state.
+ *
+ * This function must be called periodically to ensure
+ * that all the events are processed.
+ *
+ * \return -1 if a device was removed
  */
-void keyb_poll(void);
+int keyb_poll(void);
 
 /**
  * Get the driver/device name.

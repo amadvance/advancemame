@@ -445,11 +445,11 @@ int joystickb_revbind(unsigned joystick, unsigned button)
 	return -1;
 }
 
-void joystickb_poll(void)
+int joystickb_poll(void)
 {
 	assert(joystickb_state.is_active_flag);
 
-	joystickb_state.driver_current->poll();
+	return joystickb_state.driver_current->poll();
 }
 
 const char* joystickb_name(void)

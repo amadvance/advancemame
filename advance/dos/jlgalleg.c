@@ -265,7 +265,7 @@ int joystickb_lgallegro_stick_axe_analog_get(unsigned j, unsigned s, unsigned a)
 	return r;
 }
 
-void joystickb_lgallegro_poll(void)
+int joystickb_lgallegro_poll(void)
 {
 	unsigned j, s, a;
 
@@ -332,6 +332,8 @@ void joystickb_lgallegro_poll(void)
 			}
 		}
 	}
+
+	return 0;
 }
 
 unsigned joystickb_lgallegro_flags(void)

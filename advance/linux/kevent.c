@@ -1200,23 +1200,31 @@ static void keyb_event_process(unsigned keyboard, unsigned code)
 	}
 }
 
-void keyb_event_poll(void)
+int keyb_event_poll(void)
 {
 	unsigned i;
 	int type, code, value;
+	int error = 0;
 
 	log_debug(("keyb:event: keyb_event_poll()\n"));
 
 	for (i = 0; i < event_state.mac; ++i) {
 		struct keyboard_item_context* item = event_state.map + i;
-		while (event_read(item->fe, &type, &code, &value) == 0) {
+		int ret;
+		while ((ret = event_read(item->fe, &type, &code, &value)) == 1) {
 			if (type == EV_KEY) {
 				if (code < KEY_MAX)
 					item->state[code] = value != 0;
 				keyb_event_process(i, code);
 			}
 		}
+
+		/* keep track of any error */
+		if (ret < 0)
+			error = -1;
 	}
+
+	return error;
 }
 
 unsigned keyb_event_flags(void)

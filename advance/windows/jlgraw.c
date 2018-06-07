@@ -583,9 +583,11 @@ void joystickb_lgrawinput_event_msg(unsigned msg, unsigned wparam, unsigned lpar
 	free(r);
 }
 
-void joystickb_lgrawinput_poll(void)
+int joystickb_lgrawinput_poll(void)
 {
 	log_debug(("joystickb:lgrawinput: joystickb_lgrawinput_poll()\n"));
+
+	return 0;
 }
 
 unsigned joystickb_lgrawinput_flags(void)

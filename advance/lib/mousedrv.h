@@ -74,7 +74,7 @@ typedef struct mouseb_driver_struct {
 	const char* (*button_name_get)(unsigned mouse, unsigned button);
 	int (*axe_get)(unsigned mouse, unsigned axe);
 	unsigned (*button_get)(unsigned mouse, unsigned button);
-	void (*poll)(void);
+	int (*poll)(void);
 	int (*device_name_get)(unsigned mouse, char* name);
 	int (*bind)(unsigned mouse, unsigned code);
 	int (*revbind)(unsigned mouse, unsigned button);
@@ -146,7 +146,15 @@ int mouseb_bind(unsigned mouse, unsigned code);
  */
 int mouseb_revbind(unsigned mouse, unsigned button);
 
-void mouseb_poll(void);
+/**
+ * Poll the mouse state.
+ *
+ * This function must be called periodically to ensure
+ * that all the events are processed.
+ *
+ * \return -1 if a device was removed
+ */
+int mouseb_poll(void);
 
 /**
  * Get the driver/device name.

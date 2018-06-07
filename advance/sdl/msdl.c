@@ -129,9 +129,11 @@ unsigned mouseb_sdl_button_get(unsigned mouse, unsigned button)
 	return sdl_state.button_map[button];
 }
 
-void mouseb_sdl_poll(void)
+int mouseb_sdl_poll(void)
 {
 	log_debug(("mouseb:sdl: mouseb_sdl_poll()\n"));
+
+	return 0;
 }
 
 unsigned mouseb_sdl_flags(void)

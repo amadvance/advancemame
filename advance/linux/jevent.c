@@ -999,10 +999,11 @@ int joystickb_event_revbind(unsigned joystick, unsigned button)
 	return event_state.map[joystick].button_map[button].revbind;
 }
 
-void joystickb_event_poll(void)
+int joystickb_event_poll(void)
 {
 	unsigned i;
 	int type, code, value;
+	int error = 0;
 
 	log_debug(("joystickb:event: joystickb_event_poll()\n"));
 
@@ -1010,8 +1011,8 @@ void joystickb_event_poll(void)
 
 	for (i = 0; i < event_state.mac; ++i) {
 		struct joystick_item_context* item = event_state.map + i;
-
-		while (event_read(item->f, &type, &code, &value) == 0) {
+		int ret;
+		while ((ret = event_read(item->f, &type, &code, &value)) == 1) {
 
 			if (type == EV_KEY) {
 				unsigned j;
@@ -1066,7 +1067,13 @@ void joystickb_event_poll(void)
 				log_debug(("joystickb:event: read type %d (unknown), code %d, value %d\n", type, code, value));
 			}
 		}
+
+		/* keep track of any error */
+		if (ret < 0)
+			error = -1;
 	}
+
+	return error;
 }
 
 unsigned joystickb_event_flags(void)

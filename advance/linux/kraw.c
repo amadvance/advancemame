@@ -601,7 +601,7 @@ static void keyb_raw_process(unsigned char code)
 	keyb_raw_clear();
 }
 
-void keyb_raw_poll(void)
+int keyb_raw_poll(void)
 {
 	log_debug(("keyb:raw: keyb_raw_poll()\n"));
 
@@ -659,6 +659,8 @@ void keyb_raw_poll(void)
 
 		keyb_raw_process(code);
 	}
+
+	return 0;
 }
 
 unsigned keyb_raw_flags(void)

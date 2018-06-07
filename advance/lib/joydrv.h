@@ -93,7 +93,7 @@ typedef struct joystickb_driver_struct {
 	int (*rel_get)(unsigned joystick, unsigned rel);
 	void (*calib_start)(void);
 	const char* (*calib_next)(void);
-	void (*poll)(void);
+	int (*poll)(void);
 	int (*device_name_get)(unsigned joystick, char* name);
 	int (*device_desc_get)(unsigned joystick, char* desc);
 	int (*bind)(unsigned joystick, unsigned code);
@@ -171,7 +171,15 @@ int joystickb_bind(unsigned joystick, unsigned code);
  */
 int joystickb_revbind(unsigned joystick, unsigned button);
 
-void joystickb_poll(void);
+/**
+ * Poll the joystick state.
+ *
+ * This function must be called periodically to ensure
+ * that all the events are processed.
+ *
+ * \return -1 if a device was removed
+ */
+int joystickb_poll(void);
 
 /**
  * Get the driver/device name.

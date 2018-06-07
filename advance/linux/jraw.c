@@ -331,7 +331,7 @@ static adv_error joystickb_read(int f, int* type, int* code, int* value)
 
 	if (size == -1 && errno == EAGAIN) {
 		/* normal exit if data is missing */
-		return -1;
+		return 0;
 	}
 
 	if (size != sizeof(e)) {
@@ -345,20 +345,21 @@ static adv_error joystickb_read(int f, int* type, int* code, int* value)
 	*code = e.number;
 	*value = e.value;
 
-	return 0;
+	return 1;
 }
 
-void joystickb_raw_poll(void)
+int joystickb_raw_poll(void)
 {
 	unsigned i;
 	int type, code, value;
+	int error = 0;
 
 	log_debug(("joystickb:raw: joystickb_raw_poll()\n"));
 
 	for (i = 0; i < raw_state.mac; ++i) {
 		struct joystick_item_context* item = raw_state.map + i;
-
-		while (joystickb_read(item->f, &type, &code, &value) == 0) {
+		int ret;
+		while ((ret = joystickb_read(item->f, &type, &code, &value)) == 1) {
 
 			/* ignore INIT events */
 			/* some drivers reports bogus values and we don't really need them */
@@ -386,7 +387,13 @@ void joystickb_raw_poll(void)
 				}
 			}
 		}
+
+		/* keep track of any error */
+		if (ret < 0)
+			error = -1;
 	}
+
+	return error;
 }
 
 unsigned joystickb_raw_flags(void)

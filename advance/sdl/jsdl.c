@@ -219,11 +219,13 @@ unsigned joystickb_sdl_stick_axe_digital_get(unsigned joystick, unsigned stick, 
 		return r > JOYSTICK_DRIVER_BASE / 8; /* +1/8 of the partial range */
 }
 
-void joystickb_sdl_poll(void)
+int joystickb_sdl_poll(void)
 {
 	log_debug(("josytickb:sdl: joystickb_sdl_poll()\n"));
 
 	SDL_JoystickUpdate();
+
+	return 0;
 }
 
 unsigned joystickb_sdl_flags(void)

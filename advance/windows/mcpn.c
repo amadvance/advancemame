@@ -436,9 +436,11 @@ unsigned mouseb_cpn_button_get(unsigned mouse, unsigned button)
 	return (raw_state.map[mouse].button_map[button].code & *raw_state.map[mouse].button_map[button].pvalue) != 0;
 }
 
-void mouseb_cpn_poll(void)
+int mouseb_cpn_poll(void)
 {
 	log_debug(("mouseb:cpn: mouseb_cpn_poll()\n"));
+
+	return 0;
 }
 
 unsigned mouseb_cpn_flags(void)

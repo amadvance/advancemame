@@ -342,11 +342,11 @@ int mouseb_revbind(unsigned mouse, unsigned button)
 	return -1;
 }
 
-void mouseb_poll(void)
+int mouseb_poll(void)
 {
 	assert(mouseb_state.is_active_flag);
 
-	mouseb_state.driver_current->poll();
+	return mouseb_state.driver_current->poll();
 }
 
 /**

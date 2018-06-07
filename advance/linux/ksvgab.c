@@ -293,11 +293,13 @@ void keyb_svgalib_led_set(unsigned keyboard, unsigned led_mask)
 	/* TODO led support */
 }
 
-void keyb_svgalib_poll(void)
+int keyb_svgalib_poll(void)
 {
 	log_debug(("keyb:svgalib: keyb_svgalib_poll()\n"));
 
 	keyboard_update();
+
+	return 0;
 }
 
 unsigned keyb_svgalib_flags(void)

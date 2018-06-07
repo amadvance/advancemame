@@ -529,9 +529,11 @@ void mouseb_rawinput_event_msg(unsigned msg, unsigned wparam, unsigned lparam)
 	free(r);
 }
 
-void mouseb_rawinput_poll(void)
+int mouseb_rawinput_poll(void)
 {
 	log_debug(("mouseb:rawinput: mouseb_rawinput_poll()\n"));
+
+	return 0;
 }
 
 unsigned mouseb_rawinput_flags(void)

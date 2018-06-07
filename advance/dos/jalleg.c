@@ -434,7 +434,7 @@ const char* joystickb_allegro_calib_next(void)
 	return 0;
 }
 
-void joystickb_allegro_poll(void)
+int joystickb_allegro_poll(void)
 {
 	log_debug(("joystickb:allegro: joystickb_allegro_poll()\n"));
 
@@ -453,6 +453,8 @@ void joystickb_allegro_poll(void)
 	} else {
 		poll_joystick();
 	}
+
+	return 0;
 }
 
 unsigned joystickb_allegro_flags(void)

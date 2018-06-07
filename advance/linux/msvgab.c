@@ -163,7 +163,7 @@ unsigned mouseb_svgalib_button_get(unsigned mouse, unsigned button)
 	return (svgalib_state.button_mask & svgalib_state.button_map[button]) != 0;
 }
 
-void mouseb_svgalib_poll(void)
+int mouseb_svgalib_poll(void)
 {
 	log_debug(("mouseb:svgalib: mouseb_svgalib_poll()\n"));
 
@@ -183,6 +183,8 @@ void mouseb_svgalib_poll(void)
 	mouse_setyrange(-8191, 8191);
 
 	log_debug(("mouseb:svgalib: mouseb_svgalib_poll() -> %d,%d,%d\n", svgalib_state.x, svgalib_state.y, svgalib_state.button_mask));
+
+	return 0;
 }
 
 unsigned mouseb_svgalib_flags(void)

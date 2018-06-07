@@ -154,11 +154,13 @@ int joystickb_svgalib_stick_axe_analog_get(unsigned joystick, unsigned stick, un
 	return r;
 }
 
-void joystickb_svgalib_poll(void)
+int joystickb_svgalib_poll(void)
 {
 	log_debug(("joystickb:svgalib: joystickb_svgalib_poll()\n"));
 
 	joystick_update();
+
+	return 0;
 }
 
 unsigned joystickb_svgalib_flags(void)

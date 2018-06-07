@@ -82,9 +82,11 @@ void keyb_none_all_get(unsigned keyboard, unsigned char* code_map)
 	}
 }
 
-void keyb_none_poll()
+int keyb_none_poll()
 {
 	log_debug(("keyb:none: keyb_none_poll()\n"));
+
+	return 0;
 }
 
 unsigned keyb_none_flags(void)

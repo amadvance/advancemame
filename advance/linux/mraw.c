@@ -256,7 +256,7 @@ unsigned mouseb_raw_button_get(unsigned mouse, unsigned button)
 	return (raw_state.map[mouse].button_map[button].code & *raw_state.map[mouse].button_map[button].pvalue) != 0;
 }
 
-void mouseb_raw_poll(void)
+int mouseb_raw_poll(void)
 {
 	unsigned i;
 
@@ -267,6 +267,8 @@ void mouseb_raw_poll(void)
 			raw_mouse_poll(&raw_state.map[i].context, 0);
 		}
 	}
+
+	return 0;
 }
 
 unsigned mouseb_raw_flags(void)

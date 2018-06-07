@@ -394,11 +394,13 @@ void keyb_sdl_all_get(unsigned keyboard, unsigned char* code_map)
 	code_map[KEYB_PAUSE] = 0;
 }
 
-void keyb_sdl_poll(void)
+int keyb_sdl_poll(void)
 {
 	log_debug(("keyb:sdl: keyb_sdl_poll()\n"));
 
 	/* the polling is done in the os interface which call the keyb_sdl_event_* function */
+
+	return 0;
 }
 
 unsigned keyb_sdl_flags(void)

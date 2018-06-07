@@ -180,7 +180,7 @@ unsigned mouseb_allegro_button_get(unsigned mouse, unsigned button)
 	return 0;
 }
 
-void mouseb_allegro_poll(void)
+int mouseb_allegro_poll(void)
 {
 	unsigned i;
 
@@ -197,6 +197,8 @@ void mouseb_allegro_poll(void)
 		allegro_state.mouse[i].x += ax;
 		allegro_state.mouse[i].y += ay;
 	}
+
+	return 0;
 }
 
 unsigned mouseb_allegro_flags(void)

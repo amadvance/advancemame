@@ -57,9 +57,10 @@ unsigned joystickb_none_count_get(void)
 	return 0;
 }
 
-void joystickb_none_poll(void)
+int joystickb_none_poll(void)
 {
 	log_debug(("joystickb:none: joystickb_none_poll()\n"));
+	return 0;
 }
 
 unsigned joystickb_none_flags(void)

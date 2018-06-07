@@ -367,17 +367,18 @@ int mouseb_event_revbind(unsigned mouse, unsigned button)
 	return event_state.map[mouse].button_map[button].revbind;
 }
 
-void mouseb_event_poll(void)
+int mouseb_event_poll(void)
 {
 	unsigned i;
 	int type, code, value;
+	int error = 0;
 
 	log_debug(("mouseb:event: mouseb_event_poll()\n"));
 
 	for (i = 0; i < event_state.mac; ++i) {
 		struct mouse_item_context* item = event_state.map + i;
-
-		while (event_read(item->f, &type, &code, &value) == 0) {
+		int ret;
+		while ((ret = event_read(item->f, &type, &code, &value)) == 1) {
 			if (type == EV_KEY) {
 				unsigned j;
 				for (j = 0; j < item->button_mac; ++j) {
@@ -396,7 +397,13 @@ void mouseb_event_poll(void)
 				}
 			}
 		}
+
+		/* keep track of any error */
+		if (ret < 0)
+			error = -1;
 	}
+
+	return error;
 }
 
 unsigned mouseb_event_flags(void)

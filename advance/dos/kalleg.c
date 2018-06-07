@@ -282,12 +282,14 @@ void keyb_allegro_led_set(unsigned keyboard, unsigned led_mask)
 	set_leds(allegro_mask);
 }
 
-void keyb_allegro_poll(void)
+int keyb_allegro_poll(void)
 {
 	log_debug(("keyb:allegro: keyb_allegro_poll()\n"));
 
 	if (keyboard_needs_poll())
 		poll_keyboard();
+
+	return 0;
 }
 
 unsigned keyb_allegro_flags(void)
