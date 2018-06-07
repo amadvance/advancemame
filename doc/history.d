@@ -28,7 +28,10 @@ AdvanceMENU Version 3.8 2018/06
 	) In 'lock' mode is still possible to shutdown, if the 'misc_exit'
 		option allows it.
 	) Added a new 'ui_autocalib' option to automatically start a joystick
-		calibration and detection menu if no joystick is detected.
+		calibration menu if no joystick is detected. This works better
+		with the Linux event driver, with immediate notification.
+		With other drivers it checks only when the idle screensaver
+		starts.
 	) Other configuration options added: 'ui_topname', 'sort smart_time',
 		'ui_text/bar_font', 'ui_outline', 'skip_horz' and 'skip_vert'
 	) Always wait for vsync to avoid to use 100% CPU.

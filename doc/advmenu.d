@@ -887,7 +887,11 @@ Configuration
 
     ui_autocalib
 	Enables or disables the auto joystick calibration menu. If enabled and no joystick
-	is found, the menu automatically starts if there was no keypress.
+	is found, the calibration menu automatically starts.
+
+	If any keypress is detected this mechanism is automatically disabled, and you
+	have to start the calibration menu manually.
+
 	This is intended for a joustick only configuration.
 
 	:ui_autocalib yes | no

@@ -666,8 +666,8 @@ void run_calib(config_state& rs)
 		int xc = x + dx / 2;
 		int y_last = y + dy - int_font_dy_get(text);
 
-		// replug to detect device changes
-		int_replug();
+		// forced replug at every iteration, needed in case autocalib is disabled
+		int_joystick_replug();
 
 		int_box(x - 2 * border, y - border, dx + 4 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
 		int_clear(x - 2 * border + 1, y - border + 1, dx + 4 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);

@@ -454,6 +454,7 @@ static bool int_idle_2_state; ///< Idle event 2 enabler.
 static int int_last; ///< Last event.
 static bool int_auto_calib; ///< Auto calibration
 static bool int_keyboard_detected; ///< If an active and *USED* keyboard was detected
+static int int_joystick_removal; ///< If a joystick was removed
 
 static bool int_wait_for_backdrop; ///< Wait for the backdrop draw completion before accepting events.
 
@@ -769,8 +770,10 @@ void int_plug()
 	}
 }
 
-void int_replug()
+void int_joystick_replug()
 {
+	int_joystick_removal = 0;
+
 	joystickb_disable();
 	joystickb_done();
 
@@ -3041,9 +3044,6 @@ static void int_idle()
 	}
 
 	play_poll();
-	keyb_poll();
-	mouseb_poll();
-	joystickb_poll();
 }
 
 bool int_event_waiting()
@@ -3062,6 +3062,12 @@ bool int_event_waiting()
 	// if you ask for keypress, assume a not CPU intensive state
 	int_idle();
 
+	// poll low level state
+	keyb_poll();
+	mouseb_poll();
+	if (joystickb_poll() < 0)
+		int_joystick_removal = 1;
+
 	// check if an input is detected and generate events at the polling frequency
 	if (now - input_poll_time >= TARGET_CLOCKS_PER_SEC / 25) {
 		input_poll_time = now;
@@ -3069,15 +3075,21 @@ bool int_event_waiting()
 		input_poll();
 	}
 
-	// check if joystick need calibration, but only sometimes and if nothing is happening
-	if (now - joy_idle_time >= 3 * TARGET_CLOCKS_PER_SEC) {
-		joy_idle_time = now;
+	// check if a joystick needs auto calibration
+	if (int_auto_calib && !int_keyboard_detected) {
+		// check only if a joystick was removed, or no joystick is present
+		if (int_joystick_removal || joystickb_count_get() == 0) {
+			if (now - joy_idle_time >= TARGET_CLOCKS_PER_SEC) {
+				joy_idle_time = now;
 
-		if (int_auto_calib && !int_keyboard_detected) {
-			int_replug();
-			if (joystickb_count_get() == 0) {
-				log_std(("text: push CALIB"));
-				event_push_repeat(EVENT_CALIBRATION);
+				// replug all joysticks
+				int_joystick_replug();
+
+				// if nothing found,
+				if (joystickb_count_get() == 0) {
+					log_std(("text: push CALIB"));
+					event_push_repeat(EVENT_CALIBRATION);
+				}
 			}
 		}
 	}

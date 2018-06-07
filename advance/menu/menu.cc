@@ -1860,8 +1860,8 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 		unsigned pos;
 		bool found;
 
-		// replug to detect device changes
-		int_replug();
+		// replug all joysticks (in case joystick removal is not detected)
+		int_joystick_replug();
 
 		if (avail.size() > 0) {
 			pos = avail[counter % avail.size()];
@@ -1926,8 +1926,8 @@ int run_menu_idle_off()
 	target_apm_standby();
 
 	while (!done) {
-		// replug to detect device changes
-		int_replug();
+		// replug all joysticks (in case joystick removal is not detected)
+		int_joystick_replug();
 
 		int_update();
 
