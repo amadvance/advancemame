@@ -270,6 +270,8 @@ extern "C" {
 
 /* hole */
 
+#define KEYB_NONE 255 /* a not existing key */
+
 #define KEYB_MAX 256
 /*@}*/
 

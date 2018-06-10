@@ -230,6 +230,7 @@ static struct key_entry KEY[] = {
 	{ "f22", KEYB_F22 },
 	{ "f23", KEYB_F23 },
 	{ "f24", KEYB_F24 },
+	{ "none", KEYB_NONE },
 	{ 0, 0 }
 };
 
