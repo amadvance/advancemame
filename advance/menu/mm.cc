@@ -154,6 +154,7 @@ int run_sub(config_state& rs, bool silent)
 				is_run = true;
 			}
 			break;
+		case EVENT_EXIT:
 		case EVENT_OFF:
 			done = true;
 			break;
@@ -262,9 +263,10 @@ int run_main(config_state& rs, bool is_first, bool silent)
 		}
 
 		switch (key) {
-		case EVENT_ESC_FORCE:
-		case EVENT_OFF_FORCE:
+		case EVENT_EXIT:
 		case EVENT_OFF:
+		case EVENT_EXIT_FORCE:
+		case EVENT_OFF_FORCE:
 			done = true;
 			is_terminate = true;
 			break;
@@ -348,8 +350,9 @@ int run_all(adv_conf* config_context, config_state& rs)
 
 		switch (key) {
 		case EVENT_ESC:
+		case EVENT_EXIT:
 		case EVENT_OFF:
-		case EVENT_ESC_FORCE:
+		case EVENT_EXIT_FORCE:
 		case EVENT_OFF_FORCE:
 			done = true;
 			break;
@@ -587,6 +590,7 @@ static adv_conf_conv STANDARD[] = {
 /* 3.8 */
 	{ "*", "ui_font", "*", "%s", "ui_text_font", "%s", 0 }, /* rename */
 	{ "*", "ui_fontsize", "*", "%s", "ui_text_size", "%s", 0 }, /* rename */
+	{ "*", "misc_exit", "normal", "%s", "misc_exit", "esc", 0 }, /* rename */
 };
 
 adv_error include_load(adv_conf* context, int priority, const char* include_spec, adv_bool ignore_unknown, adv_bool multi_line, const adv_conf_conv* conv_map, unsigned conv_mac, conf_error_callback* error, void* error_context)

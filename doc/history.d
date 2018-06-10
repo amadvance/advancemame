@@ -35,6 +35,9 @@ AdvanceMENU Version 3.8 2018/06
 	) Other configuration options added: 'ui_topname', 'sort smart_time',
 		'ui_text/bar_font', 'ui_outline', 'skip_horz' and 'skip_vert'
 	) Always wait for vsync to avoid to use 100% CPU.
+	) Added a new 'exit' event to separate the exit action from the
+		generic esc one. Ensure to change also misc_exit to make this
+		command to work.
 
 AdvanceMAME/MESS Version 3.7 2018/02
 	) In the Exit menu added new Load/Save/Reset commands.

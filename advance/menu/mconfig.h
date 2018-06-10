@@ -189,7 +189,8 @@ enum restore_t {
 
 enum exit_t {
 	exit_none,
-	exit_normal,
+	exit_esc,
+	exit_exit,
 	exit_shutdown,
 	exit_all
 };
@@ -442,7 +443,7 @@ public:
 	saver_t ui_gamesaver; ///< Preview to display before a game run.
 	std::string ui_game; ///< User interface game image
 
-	bool console_mode; ///< Run in console mode with limited features. Mainly for AdvanceCD.
+	bool console_mode; ///< Run in console mode with limited features.
 	bool menu_key; ///< Show in the menu the associated keys.
 
 	std::string script_menu;

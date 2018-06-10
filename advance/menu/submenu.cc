@@ -1087,11 +1087,13 @@ int run_submenu(config_state& rs)
 			ch.insert(ch.end(), choice(menu_name(rs, rs.script_menu, EVENT_COMMAND), 8));
 	}
 
-	if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all) {
+	if (rs.exit_mode == exit_esc || rs.exit_mode == exit_all) {
 		ch.insert(ch.end(), choice(menu_name(rs, "Exit", EVENT_ESC), 19));
+	} else if (rs.exit_mode == exit_exit || rs.exit_mode == exit_all) {
+		ch.insert(ch.end(), choice(menu_name(rs, "Exit", EVENT_EXIT), 20));
 	}
 	if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all) {
-		ch.insert(ch.end(), choice(menu_name(rs, "Poweroff", EVENT_OFF), 20));
+		ch.insert(ch.end(), choice(menu_name(rs, "Poweroff", EVENT_OFF), 21));
 	}
 
 	choice_bag::iterator i = ch.begin();
@@ -1140,6 +1142,10 @@ int run_submenu(config_state& rs)
 				ret = EVENT_ESC;
 				break;
 			case 20:
+				done = true;
+				ret = EVENT_EXIT;
+				break;
+			case 21:
 				done = true;
 				ret = EVENT_OFF;
 				break;
@@ -1201,7 +1207,7 @@ void run_help(config_state& rs)
 		int_put_alpha(text, xt, y, event_name(EVENT_MODE), COLOR_HELP_TAG);
 		int_put_alpha(text, xd, y, "Next menu mode", COLOR_HELP_NORMAL);
 		y += int_font_dy_get(text);
-		if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all) {
+		if (rs.exit_mode == exit_esc || rs.exit_mode == exit_all) {
 			if (!rs.console_mode) {
 				int_put_alpha(text, xt, y, event_name(EVENT_ESC), COLOR_HELP_TAG);
 				int_put_alpha(text, xd, y, "Exit", COLOR_HELP_NORMAL);

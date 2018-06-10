@@ -1752,15 +1752,19 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			case EVENT_PREVIEW:
 				done = true;
 				break;
-			case EVENT_ESC:
-				if (rs.exit_mode == exit_normal || rs.exit_mode == exit_all || rs.console_mode)
-					done = true;
-				break;
 			}
 		}
 
-		// allow shutdown in locked mode if the exit mode allows it
+		// allow exit/shutdown in locked mode if the exit mode allows it
 		switch (key) {
+		case EVENT_ESC:
+			if (rs.exit_mode == exit_esc || rs.exit_mode == exit_all)
+				done = true;
+			break;
+		case EVENT_EXIT:
+			if (rs.exit_mode == exit_exit || rs.exit_mode == exit_all)
+				done = true;
+			break;
 		case EVENT_OFF:
 			if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all)
 				done = true;
@@ -2009,12 +2013,12 @@ int run_menu_sort(config_state& rs, const pgame_sort_set& gss, sort_item_func* c
 
 	while (!done) {
 		if (idle) {
-			if (rs.idle_saver_type == saver_shutdown) {
-				key = EVENT_OFF_FORCE;
+			if (rs.idle_saver_type == saver_exit) {
+				key = EVENT_EXIT_FORCE;
 				break;
 			}
-			if (rs.idle_saver_type == saver_exit) {
-				key = EVENT_ESC_FORCE;
+			if (rs.idle_saver_type == saver_shutdown) {
+				key = EVENT_OFF_FORCE;
 				break;
 			}
 			if (rs.restore == restore_idle)
@@ -2393,8 +2397,9 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		case EVENT_EMU:
 		case EVENT_ROTATE:
 		case EVENT_ESC:
+		case EVENT_EXIT:
 		case EVENT_OFF:
-		case EVENT_ESC_FORCE:
+		case EVENT_EXIT_FORCE:
 		case EVENT_OFF_FORCE:
 			done = true;
 			break;

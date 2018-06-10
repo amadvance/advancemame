@@ -1195,10 +1195,10 @@ Configuration
     lock
 	Locks or unlocks the user interface. When locked, the user can
 	only browse and run games. Options can't be changed and the user
-	cannot exit.
+	cannot exit with the generic 'esc' event.
 
-	You can anyway allow the user to shutdown, changing the `misc_exit'
-	option.
+	You can anyway allow the user to exit or shutdown, changing the
+	`misc_exit' option.
 
 	:lock yes | no
 
@@ -1232,7 +1232,8 @@ Configuration
 		setgroup - Select the group of the current game
 		settype - Select the type of the current game
 		runclone - Run a game clone.
-		shutdown - Shutdown the machine.
+		exit - Exit from the application.
+		shutdown - Exit and shutdown the machine.
 		command - The file command menu.
 		rotate - Rotate the screen of 90°.
 		lock - Lock/unlock the user interface.
@@ -1439,12 +1440,13 @@ Configuration
     misc_exit
 	Selects the exit mode.
 
-	:misc_exit none | normal | shutdown | all
+	:misc_exit none | esc | exit | shutdown | all
 
 	Options:
 		none - Exit is disabled.
-		normal - Exit is possible pressing ESC (default).
-		shutdown - Exit is possible pressing CTRL-ESC.
+		esc - Exit is possible with the 'esc' event [ESC] (default).
+		exit - Exit is possible with the 'exit' event [ALT-X].
+		shutdown - Exit is possible with the 'shutdown' event [CTRL-ESC].
 		all - All the exit modes are possible.
 
     misc_quiet

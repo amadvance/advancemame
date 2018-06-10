@@ -80,7 +80,8 @@ static adv_conf_enum_int OPTION_RESTORE[] = {
 
 static adv_conf_enum_int OPTION_EXIT[] = {
 	{ "none", exit_none },
-	{ "normal", exit_normal },
+	{ "esc", exit_esc },
+	{ "exit", exit_exit },
 	{ "shutdown", exit_shutdown },
 	{ "all", exit_all }
 };
@@ -268,7 +269,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_int_register_enum_default(config_context, "config", conf_enum(OPTION_RESTORE), restore_none);
 	conf_int_register_enum_default(config_context, "mode", conf_enum(OPTION_MODE), mode_list);
 	conf_string_register_default(config_context, "mode_skip", "");
-	conf_int_register_enum_default(config_context, "misc_exit", conf_enum(OPTION_EXIT), exit_normal);
+	conf_int_register_enum_default(config_context, "misc_exit", conf_enum(OPTION_EXIT), exit_esc);
 	conf_bool_register_default(config_context, "ui_console", 0);
 	conf_bool_register_default(config_context, "ui_menukey", 1);
 	conf_string_register_multi(config_context, "event_assign");

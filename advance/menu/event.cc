@@ -82,6 +82,7 @@ static struct event_item EVENT_TAB[] = {
 	{ "pgdn", EVENT_PGDN, { K(PGDN), OP_OR, J(7), OP_NONE } },
 	{ "del", EVENT_DEL, { K(DEL), OP_NONE } },
 	{ "ins", EVENT_INS, { K(INSERT), OP_NONE } },
+	{ "exit", EVENT_EXIT, { K(ALT), K(X), OP_NONE } },
 	{ "shutdown", EVENT_OFF, { K(LCONTROL), K(ESC), OP_NONE } },
 	{ "mode", EVENT_MODE, { K(TAB), OP_OR, J(4), OP_NONE } },
 	{ "calib", EVENT_CALIBRATION, { K(PLUS_PAD), OP_NONE } },
