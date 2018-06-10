@@ -431,8 +431,10 @@ bool emulator::run(const game& g, const game* bios, unsigned orientation, bool s
 	for (int i = 0; i < argc; ++i)
 		free(const_cast<char*>(argv[i]));
 
-	if (ret)
+	if (ret) {
 		g.time_set(g.time_get() + duration);
+		g.session_set(g.session_get() + 1);
+	}
 
 	return ret;
 }
@@ -1801,8 +1803,10 @@ bool dmess::run(const game& g, const game* bios, unsigned orientation, bool set_
 	for (int i = 0; i < argc; ++i)
 		free(const_cast<char*>(argv[i]));
 
-	if (ret)
+	if (ret) {
 		g.time_set(g.time_get() + duration);
+		g.session_set(g.session_get() + 1);
+	}
 
 	if (g.software_get()) {
 		if (access(cpath_export(image_create_file), F_OK) == 0) {
@@ -2234,8 +2238,10 @@ bool advmess::run(const game& g, const game* bios, unsigned orientation, bool se
 	for (int i = 0; i < argc; ++i)
 		free(const_cast<char*>(argv[i]));
 
-	if (ret)
+	if (ret) {
 		g.time_set(g.time_get() + duration);
+		g.session_set(g.session_get() + 1);
+	}
 
 	if (g.software_get()) {
 		if (access(cpath_export(image_create_file), F_OK) == 0) {
@@ -2675,8 +2681,10 @@ bool draine::run(const game& g, const game* bios, unsigned orientation, bool set
 	for (int i = 0; i < argc; ++i)
 		free(const_cast<char*>(argv[i]));
 
-	if (ret)
+	if (ret) {
 		g.time_set(g.time_get() + duration);
+		g.session_set(g.session_get() + 1);
+	}
 
 	return ret;
 }
