@@ -986,9 +986,9 @@ int run_subthismenu(config_state& rs)
 		ch.insert(ch.end(), choice(menu_name(rs, "Mode...", EVENT_MODE), 1));
 	if (event_is_visible(EVENT_PREVIEW))
 		ch.insert(ch.end(), choice(menu_name(rs, "Preview...", EVENT_PREVIEW), 2));
-	if (event_is_visible(EVENT_GROUP))
+	if (rs.group.size() > 1 && event_is_visible(EVENT_GROUP))
 		ch.insert(ch.end(), choice(menu_name(rs, "Groups...", EVENT_GROUP), 4));
-	if (event_is_visible(EVENT_TYPE))
+	if (rs.type.size() > 1 && event_is_visible(EVENT_TYPE))
 		ch.insert(ch.end(), choice(menu_name(rs, "Types...", EVENT_TYPE), 3));
 	if (event_is_visible(EVENT_ATTRIB))
 		ch.insert(ch.end(), choice(menu_name(rs, "Filters...", EVENT_ATTRIB), 11, rs.include_emu_get().size() != 0));
@@ -1080,7 +1080,7 @@ int run_submenu(config_state& rs)
 			ch.insert(ch.end(), choice(menu_name(rs, "Emulators...", EVENT_EMU), 7));
 		ch.insert(ch.end(), choice("Volume...", 16));
 		ch.insert(ch.end(), choice("Difficulty...", 17));
-		if (rs.script_bag.size() != 0 && event_is_visible(EVENT_COMMAND))
+		if (event_is_visible(EVENT_COMMAND))
 			ch.insert(ch.end(), choice(menu_name(rs, rs.script_menu, EVENT_COMMAND), 8));
 		if (event_is_visible(EVENT_CLONE))
 			ch.insert(ch.end(), choice(menu_name(rs, "Clone...", EVENT_CLONE), 15));
@@ -1094,7 +1094,7 @@ int run_submenu(config_state& rs)
 			ch.insert(ch.end(), choice(menu_name(rs, "Emulators...", EVENT_EMU), 7));
 		ch.insert(ch.end(), choice("Volume...", 16));
 		ch.insert(ch.end(), choice("Difficulty...", 17));
-		if (rs.script_bag.size() != 0 && event_is_visible(EVENT_COMMAND))
+		if (event_is_visible(EVENT_COMMAND))
 			ch.insert(ch.end(), choice(menu_name(rs, rs.script_menu, EVENT_COMMAND), 8));
 	}
 
@@ -1212,66 +1212,80 @@ void run_help(config_state& rs)
 		int_put_alpha(text, xt, y, event_name(EVENT_ENTER), COLOR_HELP_TAG);
 		int_put_alpha(text, xd, y, "Run the current game/On menu accept the choice", COLOR_HELP_NORMAL);
 		y += int_font_dy_get(text);
-		int_put_alpha(text, xt, y, event_name(EVENT_SPACE), COLOR_HELP_TAG);
-		int_put_alpha(text, xd, y, "Next preview mode/On menu change the option", COLOR_HELP_NORMAL);
-		y += int_font_dy_get(text);
-		int_put_alpha(text, xt, y, event_name(EVENT_MODE), COLOR_HELP_TAG);
-		int_put_alpha(text, xd, y, "Next menu mode", COLOR_HELP_NORMAL);
-		y += int_font_dy_get(text);
-		if (rs.exit_mode == exit_esc || rs.exit_mode == exit_all) {
-			if (!rs.console_mode) {
-				int_put_alpha(text, xt, y, event_name(EVENT_ESC), COLOR_HELP_TAG);
-				int_put_alpha(text, xd, y, "Exit", COLOR_HELP_NORMAL);
-				y += int_font_dy_get(text);
-			}
+		if (event_is_visible(EVENT_SPACE)) {
+			int_put_alpha(text, xt, y, event_name(EVENT_SPACE), COLOR_HELP_TAG);
+			int_put_alpha(text, xd, y, "Next preview mode/On menu change the option", COLOR_HELP_NORMAL);
+			y += int_font_dy_get(text);
 		}
-		if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all) {
+		if (event_is_visible(EVENT_MODE)) {
+			int_put_alpha(text, xt, y, event_name(EVENT_MODE), COLOR_HELP_TAG);
+			int_put_alpha(text, xd, y, "Next menu mode", COLOR_HELP_NORMAL);
+			y += int_font_dy_get(text);
+		}
+		if ((rs.exit_mode == exit_esc || rs.exit_mode == exit_all) && event_is_visible(EVENT_ESC)) {
+			int_put_alpha(text, xt, y, event_name(EVENT_ESC), COLOR_HELP_TAG);
+			int_put_alpha(text, xd, y, "Exit", COLOR_HELP_NORMAL);
+			y += int_font_dy_get(text);
+		} else if ((rs.exit_mode == exit_exit || rs.exit_mode == exit_all) && event_is_visible(EVENT_EXIT)) {
+			int_put_alpha(text, xt, y, event_name(EVENT_EXIT), COLOR_HELP_TAG);
+			int_put_alpha(text, xd, y, "Exit", COLOR_HELP_NORMAL);
+			y += int_font_dy_get(text);
+		}
+		if ((rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all) && event_is_visible(EVENT_OFF)) {
 			int_put_alpha(text, xt, y, event_name(EVENT_OFF), COLOR_HELP_TAG);
 			int_put_alpha(text, xd, y, "Shutdown", COLOR_HELP_NORMAL);
 			y += int_font_dy_get(text);
 		}
-		if (rs.group.size() > 1) {
+		if (rs.group.size() > 1 && event_is_visible(EVENT_GROUP)) {
 			int_put_alpha(text, xt, y, event_name(EVENT_GROUP), COLOR_HELP_TAG);
 			int_put_alpha(text, xd, y, "Next game group", COLOR_HELP_NORMAL);
 			y += int_font_dy_get(text);
 		}
-		if (rs.type.size() > 1) {
+		if (rs.type.size() > 1 && event_is_visible(EVENT_TYPE)) {
 			int_put_alpha(text, xt, y, event_name(EVENT_TYPE), COLOR_HELP_TAG);
 			int_put_alpha(text, xd, y, "Next game type", COLOR_HELP_NORMAL);
 			y += int_font_dy_get(text);
 		}
-		if (!rs.console_mode) {
+		if (event_is_visible(EVENT_ATTRIB)) {
 			int_put_alpha(text, xt, y, event_name(EVENT_ATTRIB), COLOR_HELP_TAG);
 			int_put_alpha(text, xd, y, "Include/Exclude games by attribute", COLOR_HELP_NORMAL);
 			y += int_font_dy_get(text);
+		}
+		if (event_is_visible(EVENT_SORT)) {
 			int_put_alpha(text, xt, y, event_name(EVENT_SORT), COLOR_HELP_TAG);
 			int_put_alpha(text, xd, y, "Select the game sort method", COLOR_HELP_NORMAL);
 			y += int_font_dy_get(text);
 		}
-		int_put_alpha(text, xt, y, event_name(EVENT_EMU), COLOR_HELP_TAG);
-		int_put_alpha(text, xd, y, "Next emulator", COLOR_HELP_NORMAL);
-		y += int_font_dy_get(text);
-		if (!rs.console_mode) {
+		if (rs.emu.size() > 1 && event_is_visible(EVENT_EMU)) {
+			int_put_alpha(text, xt, y, event_name(EVENT_EMU), COLOR_HELP_TAG);
+			int_put_alpha(text, xd, y, "Next emulator", COLOR_HELP_NORMAL);
+			y += int_font_dy_get(text);
+		}
+		if (event_is_visible(EVENT_COMMAND)) {
 			int_put_alpha(text, xt, y, event_name(EVENT_COMMAND), COLOR_HELP_TAG);
 			int_put_alpha(text, xd, y, "Commands", COLOR_HELP_NORMAL);
 			y += int_font_dy_get(text);
 		}
-		if (rs.group.size() > 1) {
+		if (rs.group.size() > 1 && event_is_visible(EVENT_SETGROUP)) {
 			int_put_alpha(text, xt, y, event_name(EVENT_SETGROUP), COLOR_HELP_TAG);
 			int_put_alpha(text, xd, y, "Change the current game group", COLOR_HELP_NORMAL);
 			y += int_font_dy_get(text);
 		}
-		if (rs.type.size() > 1) {
+		if (rs.type.size() > 1 && event_is_visible(EVENT_SETTYPE)) {
 			int_put_alpha(text, xt, y, event_name(EVENT_SETTYPE), COLOR_HELP_TAG);
 			int_put_alpha(text, xd, y, "Change the current game type", COLOR_HELP_NORMAL);
 			y += int_font_dy_get(text);
 		}
-		int_put_alpha(text, xt, y, event_name(EVENT_CLONE), COLOR_HELP_TAG);
-		int_put_alpha(text, xd, y, "Run a clone", COLOR_HELP_NORMAL);
-		y += int_font_dy_get(text);
-		int_put_alpha(text, xt, y, event_name(EVENT_ROTATE), COLOR_HELP_TAG);
-		int_put_alpha(text, xd, y, "Rotate the screen", COLOR_HELP_NORMAL);
-		y += int_font_dy_get(text);
+		if (event_is_visible(EVENT_CLONE)) {
+			int_put_alpha(text, xt, y, event_name(EVENT_CLONE), COLOR_HELP_TAG);
+			int_put_alpha(text, xd, y, "Run a clone", COLOR_HELP_NORMAL);
+			y += int_font_dy_get(text);
+		}
+		if (event_is_visible(EVENT_ROTATE)) {
+			int_put_alpha(text, xt, y, event_name(EVENT_ROTATE), COLOR_HELP_TAG);
+			int_put_alpha(text, xd, y, "Rotate the screen", COLOR_HELP_NORMAL);
+			y += int_font_dy_get(text);
+		}
 
 		y += int_font_dy_get(text);
 		int_put_alpha(text, xt, y, "In the submenus:", COLOR_HELP_NORMAL);
@@ -1291,30 +1305,6 @@ void run_help(config_state& rs)
 		int_put_alpha(text, xt, y, event_name(EVENT_ESC), COLOR_HELP_TAG);
 		int_put_alpha(text, xd, y, "Cancel", COLOR_HELP_NORMAL);
 		y += int_font_dy_get(text);
-
-		if (rs.console_mode) {
-			y += int_font_dy_get(text);
-			int_put_alpha(text, xt, y, "In the emulators:", COLOR_HELP_NORMAL);
-			y += int_font_dy_get(text);
-			int_put_alpha(text, xt, y, "F1", COLOR_HELP_TAG);
-			int_put_alpha(text, xd, y, "Help", COLOR_HELP_NORMAL);
-			y += int_font_dy_get(text);
-			int_put_alpha(text, xt, y, "5 6 7 8", COLOR_HELP_TAG);
-			int_put_alpha(text, xd, y, "Insert Coins", COLOR_HELP_NORMAL);
-			y += int_font_dy_get(text);
-			int_put_alpha(text, xt, y, "1 2 3 4", COLOR_HELP_TAG);
-			int_put_alpha(text, xd, y, "Start Player 1, 2, 3, 4", COLOR_HELP_NORMAL);
-			y += int_font_dy_get(text);
-			int_put_alpha(text, xt, y, "CTRL ALT SPACE", COLOR_HELP_TAG);
-			int_put_alpha(text, xd, y, "Buttons Player 1", COLOR_HELP_NORMAL);
-			y += int_font_dy_get(text);
-			int_put_alpha(text, xt, y, "ARROWS", COLOR_HELP_TAG);
-			int_put_alpha(text, xd, y, "Move Player 1", COLOR_HELP_NORMAL);
-			y += int_font_dy_get(text);
-			int_put_alpha(text, xt, y, "ESC", COLOR_HELP_TAG);
-			int_put_alpha(text, xd, y, "Return to the menu", COLOR_HELP_NORMAL);
-			y += int_font_dy_get(text);
-		}
 	}
 
 	if (wait)
