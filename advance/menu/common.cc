@@ -451,6 +451,17 @@ string case_auto(const string& A)
 	return r;
 }
 
+string case_upper(const string& A)
+{
+	string r = A;
+
+	for (unsigned i = 0; i < r.length(); ++i) {
+		r[i] = toupper(r[i]);
+	}
+
+	return r;
+}
+
 string subs(const string& s, const string& from, const string& to)
 {
 	string r = s;

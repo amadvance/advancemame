@@ -110,6 +110,7 @@ bool arg_split(const std::string& s, std::string& a0, std::string& a1, std::stri
 bool case_less(const std::string& A, const std::string& B);
 bool case_equal(const std::string& A, const std::string& B);
 std::string case_auto(const std::string& A);
+std::string case_upper(const std::string& A);
 
 std::string subs(const std::string& s, const std::string& from, const std::string& to);
 

@@ -357,7 +357,7 @@ void event_out(adv_conf* config_context, const char* tag)
 			case OP_NONE :
 				switch (c) {
 				case OP_OR: s += "or"; break;
-				case OP_NOT: s += "and"; break;
+				case OP_NOT: s += "not"; break;
 				case OP_HIDDEN: s += "hidden"; break;
 				}
 				break;
@@ -406,17 +406,41 @@ std::string event_name(unsigned event)
 	if (!EVENT_TAB[i].name)
 		return s;
 
-	for (unsigned j = 0; j < SEQ_MAX && EVENT_TAB[i].seq[j] != KEYB_MAX; ++j) {
-		if (EVENT_TAB[i].seq[j] < KEYB_MAX) {
-			string n = key_name(EVENT_TAB[i].seq[j]);
-			for (unsigned k = 0; k < n.length(); ++k)
-				n[k] = toupper(n[k]);
-			if (s.length()) {
-				s += "+";
+	bool first = true;
+	for (unsigned j = 0; EVENT_TAB[i].seq[j] != OP_NONE && j < SEQ_MAX; ++j) {
+		unsigned m = EVENT_TAB[i].seq[j] & 0xFF00;
+		unsigned c = EVENT_TAB[i].seq[j] & 0xFF;
+		const char* name;
+
+		switch (m) {
+		case OP_NONE :
+			switch (c) {
+			case OP_OR: j = SEQ_MAX; break; // print only the first sequence
+			case OP_NOT: s += "!"; break;
+			case OP_HIDDEN: break;
 			}
-			s += n;
-		} else {
-			break; // stop at the first sequence
+			first = true;
+			break;
+		case OP_KEY:
+			if (!first)
+				s += "+";
+			first = false;
+			s += case_upper(key_name(c));
+			break;
+		case OP_JOY:
+			if (!first)
+				s += "+";
+			first = false;
+			s += "j";
+			s += case_upper(joy_button_name(c));
+			break;
+		case OP_MOUSE:
+			if (!first)
+				s += "+";
+			first = false;
+			s += "m";
+			s += case_upper(mouse_button_name(c));
+			break;
 		}
 	}
 
