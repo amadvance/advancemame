@@ -68,7 +68,7 @@
 bool event_in(const std::string& s);
 void event_out(adv_conf* config_context, const char* tag);
 std::string event_name(unsigned event);
-
+bool event_is_visible(unsigned event);
 void event_poll();
 void event_push(int event);
 void event_push_repeat(int event);

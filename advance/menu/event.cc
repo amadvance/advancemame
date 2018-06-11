@@ -59,6 +59,7 @@ struct event_item {
 #define OP_NONE 0
 #define OP_OR 1
 #define OP_NOT 2
+#define OP_HIDDEN 3 /* Event disabled and hidden in the menus */
 
 #define OP_KEY (1 << 8)
 #define OP_JOY (2 << 8)
@@ -113,6 +114,8 @@ static int seq_pressed(const unsigned* code)
 
 	for (j = 0; j < SEQ_MAX; ++j) {
 		switch (code[j]) {
+		case OP_HIDDEN:
+			return 0;
 		case OP_NONE:
 			return res && count;
 		case OP_OR:
@@ -166,8 +169,15 @@ static int seq_valid(const unsigned* seq)
 	int positive = 0; // if isn't a completly negative sequence
 	int pred_not = 0;
 	int operand = 0;
+
+	// the only possible use of the hidden event
+	if (seq[0] == OP_HIDDEN && seq[1] == OP_NONE)
+		return 1;
+
 	for (j = 0; j < SEQ_MAX; ++j) {
 		switch (seq[j]) {
+		case OP_HIDDEN:
+			return 0;
 		case OP_NONE:
 			return positive && operand;
 		case OP_OR:
@@ -290,6 +300,8 @@ bool event_in(const string& s)
 			seq[seq_count++] = OP_OR;
 		} else if (skey == "not") {
 			seq[seq_count++] = OP_NOT;
+		} else if (skey == "hidden") {
+			seq[seq_count++] = OP_HIDDEN;
 		} else if (skey == "and") {
 			/* nothing */
 		} else if (skey.substr(0,4) == "joy_") {
@@ -346,6 +358,7 @@ void event_out(adv_conf* config_context, const char* tag)
 				switch (c) {
 				case OP_OR: s += "or"; break;
 				case OP_NOT: s += "and"; break;
+				case OP_HIDDEN: s += "hidden"; break;
 				}
 				break;
 			case OP_KEY:
@@ -364,6 +377,20 @@ void event_out(adv_conf* config_context, const char* tag)
 
 		conf_set(config_context, "", tag, s.c_str());
 	}
+}
+
+bool event_is_visible(unsigned event)
+{
+	unsigned i;
+	for (i = 0; EVENT_TAB[i].name; ++i) {
+		if (EVENT_TAB[i].event == event)
+			break;
+	}
+
+	if (!EVENT_TAB[i].name)
+		return 1;
+
+	return EVENT_TAB[i].seq[0] != OP_HIDDEN;
 }
 
 std::string event_name(unsigned event)

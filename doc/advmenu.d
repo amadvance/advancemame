@@ -1245,7 +1245,9 @@ Configuration
 			generates the event. It's a combination of
 			the key, joystick or mouse button and of the operators `not', `or'.
 			The `and' operator is implicit between consecutive codes.
-			To disable the event, use the 'none' keyword.
+			To not assign any input at the event, use the 'none' keyword.
+			To completely disable the event, and to make it to disappear
+			from the menus, use the 'hidden' keyword.
 		KEY -  The available key names are:
 			a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r,
 			s, t, u, v, w, x, y, z, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
@@ -1280,10 +1282,12 @@ Configuration
 	Examples:
 		:event_assign enter lcontrol or enter or joy_a or mouse_left
 		:event_assign menu space or joy_mode or mouse_right
+		:event_assign command none
+		:event_assign close hidden
 
 	The utility `advk' can be used to shown key scancodes and names.
 	The utilities `advj' and `advm' can be used to shown the joystick and
-	mouse button order.
+	mouse button names.
 
     event_repeat
 	Selects the repeat rate of the various events.

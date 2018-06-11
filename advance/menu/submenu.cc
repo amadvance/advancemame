@@ -900,15 +900,16 @@ int run_suballmenu(config_state& rs)
 	choice_bag ch;
 
 	rs.sub_disable(); // force the use of the default config
-	if (rs.group.size() > 1)
+	if (rs.group.size() > 1 && event_is_visible(EVENT_SETGROUP))
 		ch.insert(ch.end(), choice(menu_name(rs, "Game Group...", EVENT_SETGROUP), 7, rs.current_game != 0));
-	if (rs.type.size() > 1)
+	if (rs.type.size() > 1 && event_is_visible(EVENT_SETTYPE))
 		ch.insert(ch.end(), choice(menu_name(rs, "Game Type...", EVENT_SETTYPE), 8, rs.current_game != 0));
 	ch.insert(ch.end(), choice("Calibration...", 9));
 	ch.insert(ch.end(), choice("Save all settings", 6));
 	ch.insert(ch.end(), choice("Restore all settings", 20));
 	ch.insert(ch.end(), choice("Clear all stats", 21));
-	ch.insert(ch.end(), choice(menu_name(rs, "Lock settings", EVENT_LOCK), 11));
+	if (event_is_visible(EVENT_LOCK))
+		ch.insert(ch.end(), choice(menu_name(rs, "Lock settings", EVENT_LOCK), 11));
 
 	choice_bag::iterator i = ch.begin();
 
@@ -979,12 +980,18 @@ int run_subthismenu(config_state& rs)
 {
 	choice_bag ch;
 
-	ch.insert(ch.end(), choice(menu_name(rs, "Sort...", EVENT_SORT), 0));
-	ch.insert(ch.end(), choice(menu_name(rs, "Mode...", EVENT_MODE), 1));
-	ch.insert(ch.end(), choice(menu_name(rs, "Preview...", EVENT_PREVIEW), 2));
-	ch.insert(ch.end(), choice(menu_name(rs, "Groups...", EVENT_GROUP), 4));
-	ch.insert(ch.end(), choice(menu_name(rs, "Types...", EVENT_TYPE), 3));
-	ch.insert(ch.end(), choice(menu_name(rs, "Filters...", EVENT_ATTRIB), 11, rs.include_emu_get().size() != 0));
+	if (event_is_visible(EVENT_SORT))
+		ch.insert(ch.end(), choice(menu_name(rs, "Sort...", EVENT_SORT), 0));
+	if (event_is_visible(EVENT_MODE))
+		ch.insert(ch.end(), choice(menu_name(rs, "Mode...", EVENT_MODE), 1));
+	if (event_is_visible(EVENT_PREVIEW))
+		ch.insert(ch.end(), choice(menu_name(rs, "Preview...", EVENT_PREVIEW), 2));
+	if (event_is_visible(EVENT_GROUP))
+		ch.insert(ch.end(), choice(menu_name(rs, "Groups...", EVENT_GROUP), 4));
+	if (event_is_visible(EVENT_TYPE))
+		ch.insert(ch.end(), choice(menu_name(rs, "Types...", EVENT_TYPE), 3));
+	if (event_is_visible(EVENT_ATTRIB))
+		ch.insert(ch.end(), choice(menu_name(rs, "Filters...", EVENT_ATTRIB), 11, rs.include_emu_get().size() != 0));
 
 	string title;
 	if (rs.sub_has()) {
@@ -1069,30 +1076,34 @@ int run_submenu(config_state& rs)
 	if (!rs.console_mode) {
 		ch.insert(ch.end(), choice("Listing...", 1));
 		ch.insert(ch.end(), choice("Settings...", 0));
-		if (rs.emu.size() > 1)
+		if (rs.emu.size() > 1 && event_is_visible(EVENT_EMU))
 			ch.insert(ch.end(), choice(menu_name(rs, "Emulators...", EVENT_EMU), 7));
 		ch.insert(ch.end(), choice("Volume...", 16));
 		ch.insert(ch.end(), choice("Difficulty...", 17));
-		ch.insert(ch.end(), choice(menu_name(rs, rs.script_menu, EVENT_COMMAND), 8));
-		ch.insert(ch.end(), choice(menu_name(rs, "Clone...", EVENT_CLONE), 15));
-		ch.insert(ch.end(), choice(menu_name(rs, "Help", EVENT_HELP), 10));
+		if (rs.script_bag.size() != 0 && event_is_visible(EVENT_COMMAND))
+			ch.insert(ch.end(), choice(menu_name(rs, rs.script_menu, EVENT_COMMAND), 8));
+		if (event_is_visible(EVENT_CLONE))
+			ch.insert(ch.end(), choice(menu_name(rs, "Clone...", EVENT_CLONE), 15));
+		if (event_is_visible(EVENT_HELP))
+			ch.insert(ch.end(), choice(menu_name(rs, "Help", EVENT_HELP), 10));
 		ch.insert(ch.end(), choice("Statistics", 18));
 	} else {
-		ch.insert(ch.end(), choice(menu_name(rs, "Help", EVENT_HELP), 10));
-		if (rs.emu.size() > 1)
+		if (event_is_visible(EVENT_HELP))
+			ch.insert(ch.end(), choice(menu_name(rs, "Help", EVENT_HELP), 10));
+		if (rs.emu.size() > 1 && event_is_visible(EVENT_EMU))
 			ch.insert(ch.end(), choice(menu_name(rs, "Emulators...", EVENT_EMU), 7));
 		ch.insert(ch.end(), choice("Volume...", 16));
 		ch.insert(ch.end(), choice("Difficulty...", 17));
-		if (rs.script_bag.size() != 0)
+		if (rs.script_bag.size() != 0 && event_is_visible(EVENT_COMMAND))
 			ch.insert(ch.end(), choice(menu_name(rs, rs.script_menu, EVENT_COMMAND), 8));
 	}
 
-	if (rs.exit_mode == exit_esc || rs.exit_mode == exit_all) {
+	if ((rs.exit_mode == exit_esc || rs.exit_mode == exit_all) && event_is_visible(EVENT_ESC)) {
 		ch.insert(ch.end(), choice(menu_name(rs, "Exit", EVENT_ESC), 19));
-	} else if (rs.exit_mode == exit_exit || rs.exit_mode == exit_all) {
+	} else if ((rs.exit_mode == exit_exit || rs.exit_mode == exit_all) && event_is_visible(EVENT_EXIT)) {
 		ch.insert(ch.end(), choice(menu_name(rs, "Exit", EVENT_EXIT), 20));
 	}
-	if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all) {
+	if ((rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all) && event_is_visible(EVENT_OFF)) {
 		ch.insert(ch.end(), choice(menu_name(rs, "Poweroff", EVENT_OFF), 21));
 	}
 
