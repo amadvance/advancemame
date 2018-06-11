@@ -5,6 +5,20 @@ Name
 	is still based on MAME 0.106, and it needs a romset
 	aligned to that MAME version.
 
+AdvanceMAME/MENU 3.8
+	Many improvements targeted to be able to build a completely
+	standalone game console using Raspberry Pi hardware.
+
+	You can now configure joystick input in both the emulator
+	and the menu using button names, like "a", "tl", and
+	with the advblue tool to automatically connect Bluetooth
+	joysticks.
+
+	The configuration files are now also saved in a resilient
+	way that is resistant to unexpected power-downs, avoiding
+	that a filesystem curruption prevents the programs to start
+	at the next boot.
+
 AdvanceMAME 3.4
 	Another bugfix release that adds support for up of 8
 	players in games like xmen6p. It also fixes the input_map[]

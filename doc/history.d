@@ -5,18 +5,17 @@ AdvanceMAME/MESS Version 3.8 2018/06
 	) Change the default 'sync_resample' mode to 'internal' to all games
 		using the pokey sound chip. This avoid crashes and provide
 		a better sound audio. One example is 'starwars'.
+	) Don't update input configurations that are not changed at runtime.
+	) Added a new 'config' option to allow to decide if the .rc configuration
+		should be saved at exit or not. If saved, they are written
+		in a resiliant way, able to resist to unexpected power-downs.
+	) Fixed font size computation. Now the menu always has the same size.
 	) In AdvanceMESS added a new 'misc_ui' option to configure the keyboard
 		emulation. Note that the default is now to have partial emulation
 		by default to allow the user to control the emulator user
 		interface.
-	) Don't update input configurations that are not changed at runtime.
-	) Added a new 'config' option to allow to decide if the configuration
-		should be autosaved at exit.
-	) Fixed font size computation. Now the menu always has the same size.
-	) Added a new 'ui_keyboard' input to show a runtime menu to simulate
-		some keypress.
-	) Added a new 'advblue' tool to pair and connect automatically
-		bluetooth joysticks and gamepads. This Linux only.
+	) In AdvanceMESS added a new 'ui_keyboard' input to show a runtime menu
+		to simulate some keypress.
 
 AdvanceMENU Version 3.8 2018/06
 	) Added support for configuring joystick and mouse buttons in the 'event'
@@ -27,13 +26,17 @@ AdvanceMENU Version 3.8 2018/06
 		it finishes, but switch to the next one.
 	) In 'lock' mode is still possible to shutdown, if the 'misc_exit'
 		option allows it.
+	) Added a new 'advblue' tool able to pair and connect automatically
+		bluetooth joysticks and gamepads. This is Linux only.
 	) Added a new 'ui_autocalib' option to automatically start a joystick
 		calibration menu if no joystick is detected. This works better
-		with the Linux event driver, with immediate notification.
+		with the Linux event driver, with an immediate notification.
 		With other drivers it checks only when the idle screensaver
 		starts.
 	) Other configuration options added: 'ui_topname', 'sort smart_time',
 		'ui_text/bar_font', 'ui_outline', 'skip_horz' and 'skip_vert'
+	) The configuration .rc file is wrote in a resiliant way, able to
+		resist to unexpected power-downs.
 	) Always wait for vsync to avoid to use 100% CPU.
 	) Added a new 'exit' event to separate the exit action from the
 		generic esc one. Ensure to change also misc_exit to make this
