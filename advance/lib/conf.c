@@ -1861,6 +1861,56 @@ static adv_error input_save_inner(adv_conf* context, struct adv_conf_input_struc
 	return 0;
 }
 
+static adv_error input_save_unsafe(adv_conf* context, struct adv_conf_input_struct* input, adv_bool quiet, conf_error_callback* error, void* error_context)
+{
+	FILE* f;
+
+	f = fopen(input->file_out, "wt");
+	if (!f) {
+		if (!quiet || errno != EACCES) {
+			if (error)
+				error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening the file %s for writing, %s.", input->file_out, strerror(errno));
+		}
+		goto err;
+	}
+
+	if (input_save_inner(context, input, quiet, error, error_context, f) != 0)
+		goto err_close;
+
+	if (fflush(f) != 0) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error flushing the file %s, %s.", input->file_out, strerror(errno));
+		goto err;
+	}
+
+#ifdef WIN32
+	if (_commit(_fileno(f)) != 0) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error syncing file %s, %s.", input->file_out, strerror(errno));
+		goto err;
+	}
+#else
+	if (fsync(fileno(f)) != 0) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error syncing file %s, %s.", input->file_out, strerror(errno));
+		goto err;
+	}
+#endif
+
+	if (fclose(f) != 0) {
+		if (error)
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error closing file %s, %s.", input->file_out, strerror(errno));
+		goto err;
+	}
+
+	return 0;
+
+err_close:
+	fclose(f);
+err:
+	return -1;
+}
+
 #ifdef USE_RESILIENT
 /* reimplementation of getrandom not always available */
 static ssize_t rtl_getrandom(void* data, size_t size)
@@ -1878,7 +1928,7 @@ static ssize_t rtl_getrandom(void* data, size_t size)
 	return r;
 }
 
-static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* input, adv_bool quiet, conf_error_callback* error, void* error_context)
+static adv_error input_save_safe(adv_conf* context, struct adv_conf_input_struct* input, adv_bool quiet, conf_error_callback* error, void* error_context)
 {
 	FILE* f;
 	int h;
@@ -1888,10 +1938,6 @@ static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* inp
 	char* name;
 	char* tmp;
 	size_t len;
-
-	/* if not writable skip */
-	if (!input->file_out)
-		return 0;
 
 	/* split in dir + name */
 	dup = strdup(input->file_out);
@@ -1998,39 +2044,37 @@ err:
 	free(tmp);
 	return -1;
 }
-#else
+
 static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* input, adv_bool quiet, conf_error_callback* error, void* error_context)
 {
-	FILE* f;
+	struct stat st;
+	int use_safe;
 
 	/* if not writable skip */
 	if (!input->file_out)
 		return 0;
 
-	f = fopen(input->file_out, "wt");
-	if (!f) {
-		if (!quiet || errno != EACCES) {
-			if (error)
-				error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening the file %s for writing, %s.", input->file_out, strerror(errno));
+	use_safe = 1; /* safe mode by default */
+
+	if (lstat(input->file_out, &st) == 0) {
+		if (S_ISLNK(st.st_mode)) {
+			use_safe = 0; /* if it's a link, use the unsafe saving mode */
 		}
-		goto err;
 	}
 
-	if (input_save_inner(context, input, quiet, error, error_context, f) != 0)
-		goto err_close;
+	if (use_safe)
+		return input_save_safe(context, input, quiet, error, error_context);
+	else
+		return input_save_unsafe(context, input, quiet, error, error_context);
+}
+#else
+static adv_error input_save(adv_conf* context, struct adv_conf_input_struct* input, adv_bool quiet, conf_error_callback* error, void* error_context)
+{
+	/* if not writable skip */
+	if (!input->file_out)
+		return 0;
 
-	if (fclose(f) != 0) {
-		if (error)
-			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error closing file %s, %s.", input->file_out, strerror(errno));
-		goto err;
-	}
-
-	return 0;
-
-err_close:
-	fclose(f);
-err:
-	return -1;
+	return input_save_unsafe(context, input, quiet, error, error_context);
 }
 #endif
 

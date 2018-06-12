@@ -36,7 +36,8 @@ AdvanceMENU Version 3.8 2018/06
 	) Other configuration options added: 'ui_topname', 'sort smart_time',
 		'ui_text/bar_font', 'ui_outline', 'skip_horz' and 'skip_vert'
 	) The configuration .rc file is wrote in a resiliant way, able to
-		resist to unexpected power-downs.
+		resist to unexpected power-downs. Take care that this is
+		automatically disabled if the .rc is a symbolic link.
 	) Always wait for vsync to avoid to use 100% CPU.
 	) Added a new 'exit' event to separate the exit action from the
 		generic esc one. Ensure to change also misc_exit to make this
