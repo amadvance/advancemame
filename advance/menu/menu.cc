@@ -1746,6 +1746,8 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			case EVENT_SETGROUP:
 			case EVENT_SETTYPE:
 			case EVENT_COMMAND:
+			case EVENT_VOLUME:
+			case EVENT_DIFFICULTY:
 			case EVENT_MENU:
 			case EVENT_EMU:
 			case EVENT_ROTATE:
@@ -2392,6 +2394,8 @@ int run_menu(config_state& rs, bool flipxy, bool silent)
 		case EVENT_SETGROUP:
 		case EVENT_SETTYPE:
 		case EVENT_COMMAND:
+		case EVENT_VOLUME:
+		case EVENT_DIFFICULTY:
 		case EVENT_MENU:
 		case EVENT_CALIBRATION:
 		case EVENT_EMU:

@@ -102,6 +102,8 @@ static struct event_item EVENT_TAB[] = {
 	{ "lock", EVENT_LOCK, { K(SCRLOCK), OP_NONE } },
 	{ "preview", EVENT_PREVIEW, { K(SPACE), OP_OR, J(5), OP_NONE } },
 	{ "mute", EVENT_MUTE, { K(PERIOD_PAD), OP_NONE } },
+	{ "volume", EVENT_VOLUME, { OP_NONE } },
+	{ "difficulty", EVENT_DIFFICULTY, { OP_NONE } },
 	{ 0, 0, { 0 } }
 };
 

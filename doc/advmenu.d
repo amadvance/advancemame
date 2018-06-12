@@ -1239,6 +1239,8 @@ Configuration
 		lock - Lock/unlock the user interface.
 		mute - Mute/unmute the audio.
 		calib - Joystick calibration menu.
+		volume - The volume menu.
+		difficulty - The difficulty menu.
 
 	Options:
 		EXPRESSION - Definition of the button expression that

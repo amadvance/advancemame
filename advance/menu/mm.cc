@@ -99,6 +99,16 @@ int run_sub(config_state& rs, bool silent)
 			case EVENT_COMMAND:
 				run_command(rs);
 				break;
+			case EVENT_VOLUME:
+				// replay the sound and clip
+				silent = false;
+				run_volume(rs);
+				break;
+			case EVENT_DIFFICULTY:
+				// replay the sound and clip
+				silent = false;
+				run_difficulty(rs);
+				break;
 			case EVENT_SORT:
 				// replay the sound and clip
 				silent = false;

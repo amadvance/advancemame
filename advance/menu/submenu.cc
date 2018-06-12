@@ -1078,8 +1078,10 @@ int run_submenu(config_state& rs)
 		ch.insert(ch.end(), choice("Settings...", 0));
 		if (rs.emu.size() > 1 && event_is_visible(EVENT_EMU))
 			ch.insert(ch.end(), choice(menu_name(rs, "Emulators...", EVENT_EMU), 7));
-		ch.insert(ch.end(), choice("Volume...", 16));
-		ch.insert(ch.end(), choice("Difficulty...", 17));
+		if (event_is_visible(EVENT_VOLUME))
+			ch.insert(ch.end(), choice(menu_name(rs, "Volume...", EVENT_VOLUME), 16));
+		if (event_is_visible(EVENT_DIFFICULTY))
+			ch.insert(ch.end(), choice(menu_name(rs, "Difficulty...", EVENT_DIFFICULTY), 17));
 		if (event_is_visible(EVENT_COMMAND))
 			ch.insert(ch.end(), choice(menu_name(rs, rs.script_menu, EVENT_COMMAND), 8));
 		if (event_is_visible(EVENT_CLONE))
@@ -1092,8 +1094,10 @@ int run_submenu(config_state& rs)
 			ch.insert(ch.end(), choice(menu_name(rs, "Help", EVENT_HELP), 10));
 		if (rs.emu.size() > 1 && event_is_visible(EVENT_EMU))
 			ch.insert(ch.end(), choice(menu_name(rs, "Emulators...", EVENT_EMU), 7));
-		ch.insert(ch.end(), choice("Volume...", 16));
-		ch.insert(ch.end(), choice("Difficulty...", 17));
+		if (event_is_visible(EVENT_VOLUME))
+			ch.insert(ch.end(), choice("Volume...", 16));
+		if (event_is_visible(EVENT_DIFFICULTY))
+			ch.insert(ch.end(), choice("Difficulty...", 17));
 		if (event_is_visible(EVENT_COMMAND))
 			ch.insert(ch.end(), choice(menu_name(rs, rs.script_menu, EVENT_COMMAND), 8));
 	}

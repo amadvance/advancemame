@@ -63,7 +63,9 @@
 #define EVENT_OFF_FORCE (36 << 16)
 #define EVENT_EXIT_FORCE (37 << 16)
 #define EVENT_CALIBRATION (38 << 16)
-#define EVENT_UNASSIGNED (39 << 16)
+#define EVENT_VOLUME (39 << 16)
+#define EVENT_DIFFICULTY (40 << 16)
+#define EVENT_UNASSIGNED (41 << 16)
 
 bool event_in(const std::string& s);
 void event_out(adv_conf* config_context, const char* tag);
