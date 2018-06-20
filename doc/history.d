@@ -42,6 +42,8 @@ AdvanceMENU Version 3.8 2018/06
 	) Added a new 'exit' event to separate the exit action from the
 		generic esc one. Ensure to change also misc_exit to make this
 		command to work.
+	) Avoid to flash the cursor if it has equal foreground and background
+		color.
 
 AdvanceMAME/MESS Version 3.7 2018/02
 	) In the Exit menu added new Load/Save/Reset commands.

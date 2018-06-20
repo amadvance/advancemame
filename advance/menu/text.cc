@@ -1972,6 +1972,7 @@ public:
 	void backdrop_update(int index);
 	unsigned backdrop_topline(int index);
 	void backdrop_box();
+	bool is_box_flashing();
 	void backdrop_redraw_all();
 
 	void clip_set(int index, const resource& res, unsigned aspectx, unsigned aspecty, bool restart);
@@ -2127,6 +2128,13 @@ static void box(int x, int y, int dx, int dy, int width, const adv_color_rgb& co
 	video_clear(x + dx - width, y + width, width, dy - 2 * width, pixel);
 }
 
+bool cell_manager::is_box_flashing()
+{
+	return backdrop_box_color.foreground.red != backdrop_box_color.background.red
+		|| backdrop_box_color.foreground.green != backdrop_box_color.background.green
+		|| backdrop_box_color.foreground.blue != backdrop_box_color.background.blue;
+}
+
 void cell_manager::backdrop_box()
 {
 	if (!backdrop_cursor)
@@ -2251,7 +2259,7 @@ bool cell_manager::idle()
 		// update all the clip
 		for (unsigned i = 0; i < backdrop_mac; ++i) {
 			target_clock_t backdrop_box_new = target_clock();
-			if (backdrop_box_new >= backdrop_box_last + TARGET_CLOCKS_PER_SEC / 20) {
+			if (!is_box_flashing() || backdrop_box_new >= backdrop_box_last + TARGET_CLOCKS_PER_SEC / 20) {
 				backdrop_box_last = backdrop_box_new;
 				backdrop_box();
 			}
@@ -2275,7 +2283,7 @@ bool cell_manager::idle()
 		}
 
 		target_clock_t backdrop_box_new = target_clock();
-		if (backdrop_box_new >= backdrop_box_last + TARGET_CLOCKS_PER_SEC / 20) {
+		if (!is_box_flashing() || backdrop_box_new >= backdrop_box_last + TARGET_CLOCKS_PER_SEC / 20) {
 			backdrop_box_last = backdrop_box_new;
 			backdrop_box();
 		}

@@ -1064,7 +1064,8 @@ Configuration
 		submenu_hidden - Submenu hidden entry.
 		submenu_hidden_select - Submenu selected hidden entry.
 		icon - Icon outline and missing icon.
-		cursor - Flashing cursor.
+		cursor - Flashing cursor. Use equal foreground and background to
+			avoid flashing.
 
 	Options:
 		FOREGROUND - Foreground color in RRGGBB
