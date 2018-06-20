@@ -121,7 +121,7 @@ Emulators
 	added at the game list.
 
   advmame - AdvanceMAME
-	For the `advmame' emulator type the roms informations are
+	For the `advmame' emulator type the roms information is
 	gathered from the file `ENUNAME.xml'. If this file doesn't
 	exist, it's created automatically with emulator `-listxml'
 	command.
@@ -192,7 +192,7 @@ Emulators
 	used to detect the list of available snapshots.
 
   dmame - DOS MAME
-	For the `dmame' emulator the roms informations are gathered
+	For the `dmame' emulator the roms information is gathered
 	from the file `EMUNAME.xml'. If this file doesn't exist, it's
 	created automatically with emulator `-listxml' command.
 
@@ -204,7 +204,7 @@ Emulators
 	detect the list of available snapshots.
 
   dmess - DOS MESS
-	For the `dmess' emulator the roms information are gathered
+	For the `dmess' emulator the roms information is gathered
 	from the file `EMUNAME.xml'. If this file doesn't exist, it's
 	created automatically with emulator `-listxml' command.
 
@@ -251,7 +251,7 @@ Emulators
 	`snap\ti99_4a\alpiner.png'.
 
   draine - DOS Raine
-	For the `draine' emulator the roms information are gathered
+	For the `draine' emulator the roms information is gathered
 	from the file `EMUNAME.lst'. If this file doesn't exist, it's
 	created automatically with emulator `-gameinfo' command.
 
@@ -780,7 +780,7 @@ Configuration
 	Increase the value if your hear a choppy audio.
 
     sound_buffer
-	Sets the size of the lookahead audio buffer for decoding.
+	Sets the size of the look-ahead audio buffer for decoding.
 
 	:sound_buffer TIME
 
@@ -1051,10 +1051,10 @@ Configuration
 		menu_hidden_select - Game menu hidden selected entry.
 		menu_tag_select - Game menu selected highlight.
 		bar - Top and bottom bars.
-		bar_tag - Top and bottom barshighlight.
+		bar_tag - Top and bottom bars highlight.
 		bar_hidden - Top and bottom bars hidden text.
 		grid - Scrollbar marker and generic background color.
-		overscan - Ooverscan area controled by skip_top/bottom/left/right.
+		overscan - Overscan area controlled by skip_top/bottom/left/right.
 		backdrop - Backdrop outline and backdrop border/missing.
 		help - Help.
 		help_tag - Help highlight.
