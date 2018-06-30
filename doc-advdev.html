@@ -232,6 +232,9 @@ and keyboard drivers used by the Advance programs.
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#4.3.1">4.3.1 device_hdmi/dpi_pclock_low</a><br>
 </td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#4.3.2">4.3.2 device_fb_fastset</a><br>
+</td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
 <a href="#4.4">4.4 vbeline Configuration Options</a><br>
 </td></tr>
@@ -1483,6 +1486,30 @@ PCLOCK
 </em></td><td width="90%">
 Pixel clock in Hz (default 0 for HDMI,
 and 31.25 MHz for DPI).
+</td></tr>
+</table>
+<h4><a name="4.3.2">4.3.2</a> 
+device_fb_fastset
+</h4>
+Don't set the video mode if it's expected to be idential at the
+current one. This can be used to avoid a screen refresh
+when not required.
+<p>
+<pre>
+device_fb_fastset yes | no
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+yes
+</em></td><td width="90%">
+Don't set identical video mode.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+Always set the video mode (default).
 </td></tr>
 </table>
 <h3><a name="4.4">4.4</a> 

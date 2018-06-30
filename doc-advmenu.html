@@ -133,16 +133,13 @@ Selectable background and help images with translucency.
 <a href="#4.4">4.4 mame - Windows MAME</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.5">4.5 sdlmame - SDL MAME</a><br>
+<a href="#4.5">4.5 dmame - DOS MAME</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.6">4.6 dmame - DOS MAME</a><br>
+<a href="#4.6">4.6 dmess - DOS MESS</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.7">4.7 dmess - DOS MESS</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#4.8">4.8 draine - DOS Raine</a><br>
+<a href="#4.7">4.7 draine - DOS Raine</a><br>
 </td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#5">5 Configuration</a><br>
@@ -196,19 +193,22 @@ Selectable background and help images with translucency.
 <a href="#5.2.2">5.2.2 display_size</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.2.3">5.2.3 display_restoreatgame</a><br>
+<a href="#5.2.3">5.2.3 display_resizeeffect</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.2.4">5.2.4 display_restoreatexit</a><br>
+<a href="#5.2.4">5.2.4 display_restoreatgame</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.2.5">5.2.5 display_orientation</a><br>
+<a href="#5.2.5">5.2.5 display_restoreatexit</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.2.6">5.2.6 display_brightness</a><br>
+<a href="#5.2.6">5.2.6 display_orientation</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.2.7">5.2.7 display_gamma</a><br>
+<a href="#5.2.7">5.2.7 display_brightness</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.2.8">5.2.8 display_gamma</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
 <a href="#5.3">5.3 Sound Configuration Options</a><br>
@@ -247,61 +247,70 @@ Selectable background and help images with translucency.
 <a href="#5.5">5.5 User Interface</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.1">5.5.1 ui_font</a><br>
+<a href="#5.5.1">5.5.1 ui_autocalib</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.2">5.5.2 ui_fontsize</a><br>
+<a href="#5.5.2">5.5.2 ui_text/bar_font</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.3">5.5.3 ui_background</a><br>
+<a href="#5.5.3">5.5.3 ui_text/bar_size</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.4">5.5.4 ui_exit</a><br>
+<a href="#5.5.4">5.5.4 ui_background</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.5">5.5.5 ui_startup</a><br>
+<a href="#5.5.5">5.5.5 ui_exit</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.6">5.5.6 ui_help</a><br>
+<a href="#5.5.6">5.5.6 ui_startup</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.7">5.5.7 ui_gamemsg</a><br>
+<a href="#5.5.7">5.5.7 ui_help</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.8">5.5.8 ui_game</a><br>
+<a href="#5.5.8">5.5.8 ui_gamemsg</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.9">5.5.9 ui_skiptop/bottom/left/right</a><br>
+<a href="#5.5.9">5.5.9 ui_game</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.10">5.5.10 ui_topbar/bottombar/scrollbar</a><br>
+<a href="#5.5.10">5.5.10 ui_skiptop/bottom/left/right</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.11">5.5.11 ui_name</a><br>
+<a href="#5.5.11">5.5.11 ui_skiphorz/vert</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.12">5.5.12 ui_color</a><br>
+<a href="#5.5.12">5.5.12 ui_topbar/bottombar/scrollbar/outline</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.13">5.5.13 ui_clip</a><br>
+<a href="#5.5.13">5.5.13 ui_topname</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.14">5.5.14 ui_translucency</a><br>
+<a href="#5.5.14">5.5.14 ui_name</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.15">5.5.15 ui_command</a><br>
+<a href="#5.5.15">5.5.15 ui_color</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.16">5.5.16 ui_command_menu</a><br>
+<a href="#5.5.16">5.5.16 ui_clip</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.17">5.5.17 ui_command_error</a><br>
+<a href="#5.5.17">5.5.17 ui_translucency</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.18">5.5.18 ui_menukey</a><br>
+<a href="#5.5.18">5.5.18 ui_command</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.19">5.5.19 ui_console</a><br>
+<a href="#5.5.19">5.5.19 ui_command_menu</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.20">5.5.20 ui_command_error</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.21">5.5.21 ui_menukey</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.5.22">5.5.22 ui_console</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
 <a href="#5.6">5.6 Input Configuration Options</a><br>
@@ -486,7 +495,7 @@ added at the game list.
 <h3><a name="4.2">4.2</a> 
 advmame - AdvanceMAME
 </h3>
-For the `advmame' emulator type the roms informations are
+For the `advmame' emulator type the roms information is
 gathered from the file `ENUNAME.xml'. If this file doesn't
 exist, it's created automatically with emulator `-listxml'
 command.
@@ -558,27 +567,9 @@ roms.
 The directory specified in `snapshot_directory' is
 used to detect the list of available snapshots.
 <h3><a name="4.5">4.5</a> 
-sdlmame - SDL MAME
-</h3>
-For the `sdlmame' emulator the roms informations are gathered
-from the file `EMUNAME.xml'. If this file doesn't exist, it's
-created automatically with emulator `-listxml' command.
-<p>
-The directories specified in the `rompath' option in the
-`HOME/.mame/mame.ini' file in Linux and Mac OS X and in the 'mame.ini'
-file in Windows are used to detect the list of the available roms.
-<p>
-Please note that in Linux and Mac OS X the 'mame.ini' file doesn't
-support relative paths for roms and other files. Always use absolute
-paths configuring SDL MAME. You can use the "$HOME" variable to
-refers at the Linux/Mac OS X user home directory.
-<p>
-The directory specified in `snapshot_directory' is used to detect the
-list of available snapshots files.
-<h3><a name="4.6">4.6</a> 
 dmame - DOS MAME
 </h3>
-For the `dmame' emulator the roms informations are gathered
+For the `dmame' emulator the roms information is gathered
 from the file `EMUNAME.xml'. If this file doesn't exist, it's
 created automatically with emulator `-listxml' command.
 <p>
@@ -588,10 +579,10 @@ roms.
 <p>
 The directory specified in `snap' is used to
 detect the list of available snapshots.
-<h3><a name="4.7">4.7</a> 
+<h3><a name="4.6">4.6</a> 
 dmess - DOS MESS
 </h3>
-For the `dmess' emulator the roms informations are gathered
+For the `dmess' emulator the roms information is gathered
 from the file `EMUNAME.xml'. If this file doesn't exist, it's
 created automatically with emulator `-listxml' command.
 <p>
@@ -644,10 +635,10 @@ software `alpiner'. If you press F12 during the emulation, the
 file `snap\ti99_4a.png' is created. When you return to
 AdvanceMENU the file is moved automatically to
 `snap\ti99_4a\alpiner.png'.
-<h3><a name="4.8">4.8</a> 
+<h3><a name="4.7">4.7</a> 
 draine - DOS Raine
 </h3>
-For the `draine' emulator the roms informations are gathered
+For the `draine' emulator the roms information is gathered
 from the file `EMUNAME.lst'. If this file doesn't exist, it's
 created automatically with emulator `-gameinfo' command.
 <p>
@@ -1109,7 +1100,7 @@ sort
 Selects the sort order of the games displayed.
 <p>
 <pre>
-[EMULATOR/]sort parent | name | time | play | year | manufacturer
+[EMULATOR/]sort parent | name | time | smart_time | play | year | manufacturer
 &nbsp;&nbsp;&nbsp;&nbsp;| type | group | size | resolution | info
 </pre>
 <p>
@@ -1124,7 +1115,7 @@ name for a specific emulator option.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 parent
 </em></td><td width="90%">
-Game parent name.
+Game parent name (default).
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 emulator
@@ -1140,6 +1131,11 @@ Game name.
 time
 </em></td><td width="90%">
 Total Time played.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+smart_time
+</em></td><td width="90%">
+Time played ignoring the first 20 minutes.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 play
@@ -1481,6 +1477,64 @@ display_size 1600x1200
 </pre>
 </td></tr></table>
 <h4><a name="5.2.3">5.2.3</a> 
+display_resizeeffect
+</h4>
+Control the scaling transformation applied to screenshots.
+<p>
+<pre>
+display_resizeeffect auto | none | scalex | scalek | hq | xbr
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+auto
+</em></td><td width="90%">
+Selects automatically the best effect (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+none
+</em></td><td width="90%">
+Simply removes or duplicates lines as required.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+scalex
+</em></td><td width="90%">
+It adds the missing pixels matching the
+original bitmap pattern.
+It uses a 3x3 mapping analysis with 4 comparisons.
+It doesn't interpolate pixels and it compares colors
+for equality.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+scalek
+</em></td><td width="90%">
+It adds the missing pixels matching the
+original bitmap pattern.
+It uses a 3x3 mapping analysis with 4 comparisons.
+It interpolates pixels and it compares colors
+for equality.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+hq
+</em></td><td width="90%">
+It adds the missing pixels matching the
+original bitmap pattern.
+It uses a 3x3 mapping analysis with 8 comparisons.
+It interpolates pixels and it compares colors
+for distance.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+xbr
+</em></td><td width="90%">
+It adds the missing pixels matching the
+original bitmap pattern.
+It uses a 5x5 mapping analysis with a gradient estimation.
+It interpolates pixels and it compares colors
+for distance.
+</td></tr>
+</table>
+<h4><a name="5.2.4">5.2.4</a> 
 display_restoreatgame
 </h4>
 Selects whether to reset the video mode before running the
@@ -1509,7 +1563,7 @@ no
 Maintain the current graphics mode.
 </td></tr>
 </table>
-<h4><a name="5.2.4">5.2.4</a> 
+<h4><a name="5.2.5">5.2.5</a> 
 display_restoreatexit
 </h4>
 Selects whether to reset the video mode before exiting.
@@ -1531,7 +1585,7 @@ no
 Maintain the current graphics mode.
 </td></tr>
 </table>
-<h4><a name="5.2.5">5.2.5</a> 
+<h4><a name="5.2.6">5.2.6</a> 
 display_orientation
 </h4>
 Selects the desired orientation of the screen.
@@ -1565,7 +1619,7 @@ Examples:
 display_orientation flip_xy mirror_x
 </pre>
 </td></tr></table>
-<h4><a name="5.2.6">5.2.6</a> 
+<h4><a name="5.2.7">5.2.7</a> 
 display_brightness
 </h4>
 Selects the image brightness factor.
@@ -1589,7 +1643,7 @@ Examples:
 display_brightness 0.9
 </pre>
 </td></tr></table>
-<h4><a name="5.2.7">5.2.7</a> 
+<h4><a name="5.2.8">5.2.8</a> 
 display_gamma
 </h4>
 Selects the image gamma correction factor.
@@ -1675,7 +1729,7 @@ Increase the value if your hear a choppy audio.
 <h4><a name="5.3.4">5.3.4</a> 
 sound_buffer
 </h4>
-Sets the size of the lookahead audio buffer for decoding.
+Sets the size of the look-ahead audio buffer for decoding.
 <p>
 <pre>
 sound_buffer TIME
@@ -1895,14 +1949,29 @@ User Interface
 This section describes the options used to customize the user
 interface.
 <h4><a name="5.5.1">5.5.1</a> 
-ui_font
+ui_autocalib
 </h4>
-Selects a font file. The formats TrueType (TTF), GRX, PSF and
-RAW are supported. You can find a collection of fonts in the
-`contrib' directory.
+Enables or disables the auto joystick calibration menu. If enabled and no joystick
+is found, the calibration menu automatically starts.
+<p>
+If any keypress is detected this mechanism is automatically disabled, and you
+have to start the calibration menu manually.
+<p>
+This is intended for a joustick only configuration.
 <p>
 <pre>
-ui_font auto | "FILE"
+ui_autocalib yes | no
+</pre>
+<h4><a name="5.5.2">5.5.2</a> 
+ui_text/bar_font
+</h4>
+Selects a font file for normal text and the title bar.
+The formats: TrueType (TTF), GRX, PSF and RAW are supported.
+You can find a collection of fonts in the `contrib' directory.
+<p>
+<pre>
+ui_text_font auto | "FILE"
+ui_bar_font auto | "FILE"
 </pre>
 <p>
 Options:
@@ -1921,15 +1990,16 @@ Font file path.
 <p>
 The TrueType (TTF) format is supported only if the program is
 compiled with the FreeType2 library.
-<h4><a name="5.5.2">5.5.2</a> 
-ui_fontsize
+<h4><a name="5.5.3">5.5.3</a> 
+ui_text/bar_size
 </h4>
 Selects the font size, if the specified font is scalable.
 The size is expressed in number of rows and columns of text in the
 screen.
 <p>
 <pre>
-ui_fontsize auto | ROWS [COLS]
+ui_text_size auto | ROWS [COLS]
+ui_bar_size auto | ROWS [COLS]
 </pre>
 <p>
 Options:
@@ -1951,7 +2021,7 @@ Number of text columns. If omitted is computed from
 the number of rows.
 </td></tr>
 </table>
-<h4><a name="5.5.3">5.5.3</a> 
+<h4><a name="5.5.4">5.5.4</a> 
 ui_background
 </h4>
 Defines a background image in .PNG or MNG format. The image is
@@ -1974,7 +2044,7 @@ File in .PNG or .MNG format to load.
 </table>
 <p>
 For .MNG files only the first frame is used.
-<h4><a name="5.5.4">5.5.4</a> 
+<h4><a name="5.5.5">5.5.5</a> 
 ui_exit
 </h4>
 Defines an exit image/clip in .PNG or .MNG format displayed
@@ -1995,7 +2065,7 @@ FILE
 File in .PNG or .MNG format to load.
 </td></tr>
 </table>
-<h4><a name="5.5.5">5.5.5</a> 
+<h4><a name="5.5.6">5.5.6</a> 
 ui_startup
 </h4>
 Defines a startup image/clip in .PNG or .MNG format displayed
@@ -2016,7 +2086,7 @@ FILE
 File in .PNG or .MNG format to load.
 </td></tr>
 </table>
-<h4><a name="5.5.6">5.5.6</a> 
+<h4><a name="5.5.7">5.5.7</a> 
 ui_help
 </h4>
 Defines an help image/clip in .PNG or .MNG format displayed when the
@@ -2037,7 +2107,7 @@ FILE
 File in .PNG or .MNG format to load.
 </td></tr>
 </table>
-<h4><a name="5.5.7">5.5.7</a> 
+<h4><a name="5.5.8">5.5.8</a> 
 ui_gamemsg
 </h4>
 One line message displayed when a game is chosen. The
@@ -2065,7 +2135,7 @@ Examples:
 ui_gamemsg "Avvio il gioco..."
 </pre>
 </td></tr></table>
-<h4><a name="5.5.8">5.5.8</a> 
+<h4><a name="5.5.9">5.5.9</a> 
 ui_game
 </h4>
 Selects the preview type to display when a game is run. The
@@ -2090,7 +2160,7 @@ Display the
 specified preview. (default snap).
 </td></tr>
 </table>
-<h4><a name="5.5.9">5.5.9</a> 
+<h4><a name="5.5.10">5.5.10</a> 
 ui_skiptop/bottom/left/right
 </h4>
 Defines the border area of the screen not used by the menu.
@@ -2112,21 +2182,50 @@ N
 Number of pixel to skip (default 0).
 </td></tr>
 </table>
-<h4><a name="5.5.10">5.5.10</a> 
-ui_topbar/bottombar/scrollbar
+<h4><a name="5.5.11">5.5.11</a> 
+ui_skiphorz/vert
+</h4>
+Defines the inner horizontal and vertical area between tiles.
+<p>
+ui_skiphorz auto | N
+ui_skipvert auto | N
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+auto
+</em></td><td width="90%">
+Auto select depending on the tile mode and font size (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+N
+</em></td><td width="90%">
+Number of pixel to skip.
+</td></tr>
+</table>
+<h4><a name="5.5.12">5.5.12</a> 
+ui_topbar/bottombar/scrollbar/outline
 </h4>
 Enables or disables the top, bottom and scroll information bars.
+The outline is the thin box around backdrops.
 <p>
 ui_topbar yes | no
 ui_bottombar yes | no
 ui_scrollbar yes | no
-<h4><a name="5.5.11">5.5.11</a> 
+ui_outline yes | no
+<h4><a name="5.5.13">5.5.13</a> 
+ui_topname
+</h4>
+Puts the game name at the top instead of at the bottom.
+<p>
+ui_topname yes | no
+<h4><a name="5.5.14">5.5.14</a> 
 ui_name
 </h4>
 Enables or disables the display of the game name in the screensaver.
 <p>
 ui_name yes | no
-<h4><a name="5.5.12">5.5.12</a> 
+<h4><a name="5.5.15">5.5.15</a> 
 ui_color
 </h4>
 Selects the user interface colors.
@@ -2137,6 +2236,66 @@ ui_color TAG FOREGROUND BACKGROUND
 <p>
 Tags:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu_item
+</em></td><td width="90%">
+Game menu entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu_hidden
+</em></td><td width="90%">
+Game menu hidden entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu_tag
+</em></td><td width="90%">
+Game menu highlight entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu_item_select
+</em></td><td width="90%">
+Game menu selected entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu_hidden_select
+</em></td><td width="90%">
+Game menu hidden selected entry.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu_tag_select
+</em></td><td width="90%">
+Game menu selected highlight.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+bar
+</em></td><td width="90%">
+Top and bottom bars.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+bar_tag
+</em></td><td width="90%">
+Top and bottom bars highlight.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+bar_hidden
+</em></td><td width="90%">
+Top and bottom bars hidden text.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+grid
+</em></td><td width="90%">
+Scrollbar marker and generic background color.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+overscan
+</em></td><td width="90%">
+Overscan area controlled by skip_top/bottom/left/right.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+backdrop
+</em></td><td width="90%">
+Backdrop outline and backdrop border/missing.
+</td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 help
 </em></td><td width="90%">
@@ -2173,61 +2332,6 @@ submenu_hidden_select
 Submenu selected hidden entry.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-menu_item
-</em></td><td width="90%">
-Menu entry.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-menu_hidden
-</em></td><td width="90%">
-Menu hidden entry.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-menu_tag
-</em></td><td width="90%">
-Menu highlight entry.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-menu_item_select
-</em></td><td width="90%">
-Menu selected entry.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-menu_hidden_select
-</em></td><td width="90%">
-Menu hidden selected entry.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-menu_tag_select
-</em></td><td width="90%">
-Menu selected highlight.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-bar
-</em></td><td width="90%">
-Title.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-bar_tag
-</em></td><td width="90%">
-Title highlight.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-bar_hidden
-</em></td><td width="90%">
-Title hidden text.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-grid
-</em></td><td width="90%">
-Scrollbar marker and generic background color.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-backdrop
-</em></td><td width="90%">
-Backdrop outline and missing backdrop.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 icon
 </em></td><td width="90%">
 Icon outline and missing icon.
@@ -2235,7 +2339,8 @@ Icon outline and missing icon.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 cursor
 </em></td><td width="90%">
-Flashing cursor.
+Flashing cursor. Use equal foreground and background to
+avoid flashing.
 </td></tr>
 </table>
 <p>
@@ -2254,7 +2359,7 @@ BACKGROUND
 Background color. Like foreground color.
 </td></tr>
 </table>
-<h4><a name="5.5.13">5.5.13</a> 
+<h4><a name="5.5.16">5.5.16</a> 
 ui_clip
 </h4>
 Selects how play the video clips.
@@ -2299,7 +2404,7 @@ Play all the clips, and loop all the clips.
 The sound is not looped (default).
 </td></tr>
 </table>
-<h4><a name="5.5.14">5.5.14</a> 
+<h4><a name="5.5.17">5.5.17</a> 
 ui_translucency
 </h4>
 Selects the translucency of the user interface.
@@ -2318,7 +2423,7 @@ Translucency factor from 0 to 1
 <p>
 The translucency has effect only if you have a background
 image.
-<h4><a name="5.5.15">5.5.15</a> 
+<h4><a name="5.5.18">5.5.18</a> 
 ui_command
 </h4>
 Defines the user commands. These commands are executed as
@@ -2379,7 +2484,7 @@ ui_command "Enable GamePad" \
 &nbsp;&nbsp;&nbsp;&nbsp;modprobe analog js=gamepad
 </pre>
 </td></tr></table>
-<h4><a name="5.5.16">5.5.16</a> 
+<h4><a name="5.5.19">5.5.19</a> 
 ui_command_menu
 </h4>
 Selects the name of the menu entry for the commands submenu.
@@ -2394,7 +2499,7 @@ MENU
 Name of the menu entry (default "Command").
 </td></tr>
 </table>
-<h4><a name="5.5.17">5.5.17</a> 
+<h4><a name="5.5.20">5.5.20</a> 
 ui_command_error
 </h4>
 Selects the message to display if a command fails.
@@ -2409,17 +2514,17 @@ MSG
 Message to display (default "Error running the command").
 </td></tr>
 </table>
-<h4><a name="5.5.18">5.5.18</a> 
+<h4><a name="5.5.21">5.5.21</a> 
 ui_menukey
 </h4>
 Enables or disables the key names in the menu entries.
 <p>
 ui_menukey yes | no
-<h4><a name="5.5.19">5.5.19</a> 
+<h4><a name="5.5.22">5.5.22</a> 
 ui_console
 </h4>
 Changes the user interface behavior for the use on a game
-console system. Mainly for AdvanceCD.
+console system.
 <p>
 ui_console yes | no
 <p>
@@ -2499,7 +2604,10 @@ lock
 </h4>
 Locks or unlocks the user interface. When locked, the user can
 only browse and run games. Options can't be changed and the user
-cannot exit.
+cannot exit with the generic 'esc' event.
+<p>
+You can anyway allow the user to exit or shutdown, changing the
+`misc_exit' option.
 <p>
 <pre>
 lock yes | no
@@ -2626,9 +2734,14 @@ runclone
 Run a game clone.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+exit
+</em></td><td width="90%">
+Exit from the application.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 shutdown
 </em></td><td width="90%">
-Shutdown the machine.
+Exit and shutdown the machine.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 command
@@ -2650,6 +2763,21 @@ mute
 </em></td><td width="90%">
 Mute/unmute the audio.
 </td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+calib
+</em></td><td width="90%">
+Joystick calibration menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+volume
+</em></td><td width="90%">
+The volume menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+difficulty
+</em></td><td width="90%">
+The difficulty menu.
+</td></tr>
 </table>
 <p>
 Options:
@@ -2657,11 +2785,13 @@ Options:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 EXPRESSION
 </em></td><td width="90%">
-Definition of the key expression that
+Definition of the button expression that
 generates the event. It's a combination of
-the key names or scan-code, and of the operators
-`not', `or'. The `and' operator is implicit
-between consecutive scan-codes.
+the key, joystick or mouse button and of the operators `not', `or'.
+The `and' operator is implicit between consecutive codes.
+To not assign any input at the event, use the 'none' keyword.
+To completely disable the event, and to make it to disappear
+from the menus, use the 'hidden' keyword.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 KEY
@@ -2679,20 +2809,47 @@ right, up, down, slash_pad, asterisk_pad, minus_pad,
 plus_pad, period_pad, enter_pad, prtscr, pause,
 lshift, rshift, lcontrol, rcontrol, lalt, ralt,
 lwin, rwin, menu, scrlock, numlock, capslock.
+You can also specify a keyboard scancode, like:
+scan127, scan128, ...
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+JOYSTICK
+</em></td><td width="90%">
+The available joystick buttons are:
+joy_a, joy_b, joy_c, joy_x, joy_y, joy_z, joy_tl (top left),
+joy_tr (top right), joy_tl2 (second top left),
+joy_tr2 (second top right), joy_start, joy_mode,
+joy_select, joy_thumbl (thumb left), joy_thumbr (thumb right),
+joy_gear_down, joy_gear_up.
+You can also use ordinal values if the driver doesn't
+export the button names:
+joy_button0, joy_button1, joy_button2, joy_button3, ...
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+MOUSE
+</em></td><td width="90%">
+The available mouse buttons are:
+mouse_left, mouse_right, mouse_middle, mouse_side,
+mouse_extra, mouse_forward, mouse_back.
+You can also use ordinal values if the driver doesn't
+export the button names:
+mouse_button0, mouse_button1, mouse_button2, ...
 </td></tr>
 </table>
 <p>
 Examples:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-event_assign enter lcontrol or enter
-event_assign menu 90 or 35
-event_assign emulator 91 23 or not 21 33
+event_assign enter lcontrol or enter or joy_a or mouse_left
+event_assign menu space or joy_mode or mouse_right
+event_assign command none
+event_assign close hidden
 </pre>
 </td></tr></table>
 <p>
-You can use the utility `advk' to get the key scancodes and
-names.
+The utility `advk' can be used to shown key scancodes and names.
+The utilities `advj' and `advm' can be used to shown the joystick and
+mouse button names.
 <h4><a name="5.6.5">5.6.5</a> 
 event_repeat
 </h4>
@@ -2823,14 +2980,14 @@ first run. 0 means never (default 60).
 REPEAT_TIMEOUT
 </em></td><td width="90%">
 Number of seconds to wait for the
-next run. 0 means never (default 10).
+next run. 0 means never (default 14).
 </td></tr>
 </table>
 <p>
 Examples:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-idle_screensaver 40 5
+idle_screensaver 120 14
 </pre>
 </td></tr></table>
 <h4><a name="5.7.3">5.7.3</a> 
@@ -3038,7 +3195,7 @@ misc_exit
 Selects the exit mode.
 <p>
 <pre>
-misc_exit none | normal | shutdown | all
+misc_exit none | esc | exit | shutdown | all
 </pre>
 <p>
 Options:
@@ -3049,14 +3206,19 @@ none
 Exit is disabled.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-normal
+esc
 </em></td><td width="90%">
-Exit is possible pressing ESC.
+Exit is possible with the 'esc' event [ESC] (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+exit
+</em></td><td width="90%">
+Exit is possible with the 'exit' event [ALT-X].
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 shutdown
 </em></td><td width="90%">
-Exit is possible pressing CTRL-ESC.
+Exit is possible with the 'shutdown' event [CTRL-ESC].
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 all

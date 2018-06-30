@@ -49,6 +49,145 @@ The WIP version is available in <a href="https://github.com/amadvance/advancemam
 </p>
 
 <h2> 
+AdvanceMAME/MESS Version 3.8 2018/06
+</h2>
+<ul>
+<li>
+Change the default 'sync_resample' mode to 'internal' to all games
+using the pokey sound chip. This avoid crashes and provide
+a better sound audio. One example is 'starwars'.
+</li>
+<li>
+Don't update input configurations that are not changed at runtime.
+</li>
+<li>
+Added a new 'config' option to allow to decide if the .rc configuration
+should be saved at exit or not. If saved, they are written
+in a resiliant way, able to resist to unexpected power-downs.
+</li>
+<li>
+Fixed font size computation. Now the menu always has the same size.
+</li>
+<li>
+In AdvanceMESS added a new 'misc_ui' option to configure the keyboard
+emulation. Note that the default is now to have partial emulation
+by default to allow the user to control the emulator user
+interface.
+</li>
+<li>
+In AdvanceMESS added a new 'ui_keyboard' input to show a runtime menu
+to simulate some keypress.
+</li>
+</ul>
+<h2> 
+AdvanceMENU Version 3.8 2018/06
+</h2>
+<ul>
+<li>
+Added support for configuring joystick and mouse buttons in the 'event'
+configuration option.
+</li>
+<li>
+Added the 'display_resizeeffect' option like in AdvanceMAME to scale
+screenshots.
+</li>
+<li>
+In the screensaver if the clip is too short, don't restart it when
+it finishes, but switch to the next one.
+</li>
+<li>
+In 'lock' mode is still possible to shutdown, if the 'misc_exit'
+option allows it.
+</li>
+<li>
+Added a new 'advblue' tool able to pair and connect automatically
+bluetooth joysticks and gamepads. This is Linux only.
+</li>
+<li>
+Added a new 'ui_autocalib' option to automatically start a joystick
+calibration menu if no joystick is detected. This works better
+with the Linux event driver, with an immediate notification.
+With other drivers it checks only when the idle screensaver
+starts.
+</li>
+<li>
+Other configuration options added: 'ui_topname', 'sort smart_time',
+'ui_text/bar_font', 'ui_outline', 'skip_horz' and 'skip_vert'
+</li>
+<li>
+The configuration .rc file is wrote in a resiliant way, able to
+resist to unexpected power-downs. Take care that this is
+automatically disabled if the .rc is a symbolic link.
+</li>
+<li>
+Always wait for vsync to avoid to use 100% CPU.
+</li>
+<li>
+Added a new 'exit' event to separate the exit action from the
+generic esc one. Ensure to change also misc_exit to make this
+command to work.
+</li>
+<li>
+Avoid to flash the cursor if it has equal foreground and background
+color.
+</li>
+</ul>
+<h2> 
+AdvanceMAME/MESS Version 3.7 2018/02
+</h2>
+<ul>
+<li>
+In the Exit menu added new Load/Save/Reset commands.
+The Load and Save use the state file at position '0'.
+</li>
+<li>
+Added the game uccopsar, "Undercover Cops - Alpha Renewal Version".
+You can use the MAME rom.
+</li>
+<li>
+Fixed some issues in the z80 emulator with modern gcc compilers
+in the x86 32 bits platforms.
+</li>
+</ul>
+<h2> 
+AdvanceMENU Version 3.7 2017/12
+</h2>
+<ul>
+<li>
+Added detection for mame64.exe and mame64 executables for the
+autoconfiguration.
+</li>
+<li>
+Renamed 'sdlmame' emulator type in Linux to 'mame'. The old 'sdlmame'
+name is still supported.
+</li>
+</ul>
+<h2> 
+AdvanceMAME/MESS Version 3.6 2017/12
+</h2>
+<ul>
+<li>
+Fixed Linux ALSA sound jitter increasing the number of periods.
+</li>
+<li>
+Fixed screen size computation using backdrops.
+</li>
+<li>
+Disabled by default in the source distribution the MIPS DRC emulator
+because it makes various games to crash. Like biofreak, blitz,
+calspeed, carnevil, kinst and others...
+It was already disabled in the binary releases from version 3.0.
+</li>
+</ul>
+<h2> 
+AdvanceMENU Version 3.6 2017/12
+</h2>
+<ul>
+<li>
+Fixed loop for clips in list mode.
+</li>
+</ul>
+<h2> 
 AdvanceMAME/MESS Version 3.5 2017/06
 </h2>
 <ul>
