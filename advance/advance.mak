@@ -322,7 +322,9 @@ SRCOSD = \
 
 LINUX_SRC = \
 	$(wildcard $(srcdir)/advance/linux/*.c) \
-	$(wildcard $(srcdir)/advance/linux/*.h)
+	$(wildcard $(srcdir)/advance/linux/*.h) \
+	$(wildcard $(srcdir)/advance/linux/*.dat) \
+	$(wildcard $(srcdir)/advance/linux/*.py)
 
 DOS_SRC = \
 	$(wildcard $(srcdir)/advance/dos/*.c) \
