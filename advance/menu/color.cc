@@ -273,11 +273,9 @@ void color_setup(adv_color_def opaque_def, adv_color_def alpha_def, unsigned tra
 {
 	for (unsigned i = 0; COLOR_TAB[i].name; ++i) {
 		unsigned t;
-		if (COLOR_TAB[i].foreground) {
-			t = (translucency + 255) / 2;
-			if (t < 204)
-				t = 204;
-		} else
+		if (COLOR_TAB[i].foreground)
+			t = 255;
+		else
 			t = translucency;
 		color_map(*COLOR_TAB[i].var, opaque_def, alpha_def, t);
 		log_std(("menu: color %s foreground:%s background:%s opaque:%08x->%08x alpha:%08x->%08x\n", COLOR_TAB[i].name,
