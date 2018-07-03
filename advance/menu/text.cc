@@ -712,6 +712,9 @@ bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_r
 	}
 
 	video_alpha_flag = translucency != 255;
+
+	log_std(("menu: color translucency %u %s\n", translucency, video_alpha_flag ? "(alpha)" : "(opaque)"));
+
 	video_alpha_color_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0); /* BGRA */
 	video_alpha_bytes_per_pixel = color_def_bytes_per_pixel_get(video_alpha_color_def);
 
