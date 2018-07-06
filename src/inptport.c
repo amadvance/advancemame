@@ -2497,12 +2497,39 @@ static void update_analog_port(int portnum)
 		input_port_entry *port = info->port;
 		INT32 delta = 0, rawvalue;
 		int analog_type, keypressed = 0;
+		int port_kind;
 
 		/* clamp the previous value to the min/max range and remember it */
 		info->previous = info->accum = apply_analog_min_max(info, info->accum);
 
 		/* AdvanceMAME: Get the analog input for different players from the osd core. */
 		rawvalue = osd_get_analog_value(port->type, port->player, &analog_type);
+
+		switch (port->type) {
+		case IPT_PADDLE:
+		case IPT_PADDLE_V:
+		case IPT_LIGHTGUN_X:
+		case IPT_LIGHTGUN_Y:
+		case IPT_DIAL:
+		case IPT_DIAL_V:
+		case IPT_TRACKBALL_X:
+		case IPT_TRACKBALL_Y:
+		case IPT_MOUSE_X:
+		case IPT_MOUSE_Y:
+			port_kind = ANALOG_TYPE_RELATIVE;
+			break;
+		case IPT_AD_STICK_X:
+		case IPT_AD_STICK_Y:
+		case IPT_AD_STICK_Z:
+		case IPT_PEDAL:
+		case IPT_PEDAL2:
+		case IPT_PEDAL3:
+			port_kind = ANALOG_TYPE_ABSOLUTE;
+			break;
+		default:
+			port_kind = ANALOG_TYPE_NONE;
+			break;
+		}
 
 		/* if we got it from a relative device, use that as the starting delta */
 		/* also note that the last input was not a digital one */
@@ -2517,7 +2544,16 @@ static void update_analog_port(int portnum)
 		/* AdvanceMAME: Filter all the input ports */
 		if (osd_input_port_filter(seq_pressed(input_port_seq(info->port, SEQ_TYPE_DECREMENT)), info->port->type, info->port->player, SEQ_TYPE_DECREMENT))
 		{
-			delta -= (INT32)(port->analog.delta * info->keyscale);
+			int analog_delta = port->analog.delta;
+
+			/* AdvanceMAME: scale the digital step with the absolute position if present */
+			if (analog_type == ANALOG_TYPE_ABSOLUTE && rawvalue != 0
+			) {
+				analog_delta = analog_delta * rawvalue / 65536;
+				if (analog_delta < 0)
+					analog_delta = -analog_delta;
+			}
+			delta -= (INT32)(analog_delta * info->keyscale);
 			keypressed = info->lastdigital = 1;
 		}
 
@@ -2525,8 +2561,23 @@ static void update_analog_port(int portnum)
 		/* AdvanceMAME: Filter all the input ports */
 		if (osd_input_port_filter(seq_pressed(input_port_seq(info->port, SEQ_TYPE_INCREMENT)), info->port->type, info->port->player, SEQ_TYPE_INCREMENT))
 		{
-			delta += (INT32)(port->analog.delta * info->keyscale);
+			int analog_delta = port->analog.delta;
+
+			/* AdvanceMAME: scale the digital step with the absolute position if present */
+			if (analog_type == ANALOG_TYPE_ABSOLUTE && rawvalue != 0
+			) {
+				analog_delta = analog_delta * rawvalue / 65536;
+				if (analog_delta < 0)
+					analog_delta = -analog_delta;
+			}
+			delta += (INT32)(analog_delta * info->keyscale);
 			keypressed = info->lastdigital = 1;
+		}
+
+		/* AdvanceMAME: mask out absolute input for relative controls */
+		if (port_kind == ANALOG_TYPE_RELATIVE && analog_type == ANALOG_TYPE_ABSOLUTE) {
+			analog_type = ANALOG_TYPE_NONE;
+			rawvalue = 0;
 		}
 
 		/* if resetting is requested, clear the accumulated position to 0 before */

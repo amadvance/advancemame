@@ -2606,22 +2606,34 @@ adv_bool advance_input_digital_pressed(struct advance_input_context* context, un
 }
 
 /**
- * Get the analog control input for the specified player and control
+ * Get the analog control input for the specified player and control.
+ *
+ * Use both relative and absolute control, and return the type of control used.
+ *
+ * The MAME code behave differently depending on the type returned.
+ *
+ * For example in "starwars" that uses absolute STICK input.
+ * If absolute is returned, there is autocenter.
+ * If relative is returned, there is no autocenter.
+ *
+ * Another example is "cabal" that uses relative TRACKBALL input.
+ * If relative is returned, it's applied as it's.
+ * If absolute is returned, the value is used to scale
+ * the digital input in src/intport.c:update_analog_port().
+ *
  * Analog absolute inputs return a value between -65536 and +65536.
+ *
  * \param player Player.
  * \param control Control to read. One of INPUT_ANALOG_*.
  * \param value Value read.
  * \return Type of value returned.
  */
-static int advance_input_analog_read(struct advance_input_context* context, unsigned player, unsigned control, int* value)
+static int advance_input_analog_read(struct advance_input_context* context, unsigned player, unsigned control, int input, int* value)
 {
 	unsigned n;
 	int absolute = 0;
 	int relative = 0;
 	unsigned last;
-
-	adv_bool at_least_one_absolute = 0;
-	adv_bool at_least_one_relative = 0;
 
 	assert(context->state.active_flag != 0);
 
@@ -2643,7 +2655,6 @@ static int advance_input_analog_read(struct advance_input_context* context, unsi
 					absolute -= context->state.joystick_analog_current[j][s][a];
 				else
 					absolute += context->state.joystick_analog_current[j][s][a];
-				at_least_one_absolute = 1;
 			}
 		} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_MOUSE) {
 			unsigned m = ANALOG_MOUSE_DEV_GET(v);
@@ -2654,7 +2665,6 @@ static int advance_input_analog_read(struct advance_input_context* context, unsi
 					relative -= context->state.mouse_analog_current[m][a];
 				else
 					relative += context->state.mouse_analog_current[m][a];
-				at_least_one_relative = 1;
 			}
 		} else if (ANALOG_TYPE_GET(v) == ANALOG_TYPE_BALL) {
 			unsigned j = ANALOG_BALL_DEV_GET(v);
@@ -2665,7 +2675,6 @@ static int advance_input_analog_read(struct advance_input_context* context, unsi
 					relative -= context->state.ball_analog_current[j][a];
 				else
 					relative += context->state.ball_analog_current[j][a];
-				at_least_one_relative = 1;
 			}
 		} else {
 			break;
@@ -2689,6 +2698,7 @@ static int advance_input_analog_read(struct advance_input_context* context, unsi
 
 	last = context->config.analog_map[player][control].last;
 
+	/* return what we returned previously if both are != 0 */
 	if (last == INPUT_ANALOG_ABSOLUTE && absolute != 0) {
 		*value = absolute;
 		return ANALOG_TYPE_ABSOLUTE;
@@ -2699,34 +2709,43 @@ static int advance_input_analog_read(struct advance_input_context* context, unsi
 		return ANALOG_TYPE_RELATIVE;
 	}
 
-	if (absolute != 0) {
-		context->config.analog_map[player][control].last = INPUT_ANALOG_ABSOLUTE;
-		*value = absolute;
-		return ANALOG_TYPE_ABSOLUTE;
-	}
-
+	/*
+	 * In case we have both relative and absolute controls,
+	 * give precedence to relative.
+	 *
+	 * This because the absolute one is more likely to have jitter
+	 * that results in having a fake value different than 0.
+	 */
 	if (relative != 0) {
 		context->config.analog_map[player][control].last = INPUT_ANALOG_RELATIVE;
 		*value = relative;
 		return ANALOG_TYPE_RELATIVE;
 	}
 
-	if (last == INPUT_ANALOG_ABSOLUTE && at_least_one_absolute) {
+	if (absolute != 0) {
+		context->config.analog_map[player][control].last = INPUT_ANALOG_ABSOLUTE;
+		*value = absolute;
+		return ANALOG_TYPE_ABSOLUTE;
+	}
+
+	/* if both are 0, return what we returned previously */
+	if (last == INPUT_ANALOG_ABSOLUTE) {
 		*value = 0;
 		return ANALOG_TYPE_ABSOLUTE;
 	}
 
-	if (last == INPUT_ANALOG_RELATIVE && at_least_one_relative) {
-		*value = relative;
+	if (last == INPUT_ANALOG_RELATIVE) {
+		*value = 0;
 		return ANALOG_TYPE_RELATIVE;
 	}
 
-	if (at_least_one_absolute) {
+	/* if it's the first time, return the input kind */
+	if (input == INPUT_ANALOG_ABSOLUTE) {
 		*value = 0;
 		return ANALOG_TYPE_ABSOLUTE;
 	}
 
-	if (at_least_one_relative) {
+	if (input == INPUT_ANALOG_RELATIVE) {
 		*value = relative;
 		return ANALOG_TYPE_RELATIVE;
 	}
@@ -2776,52 +2795,52 @@ INT32 osd_get_analog_value(unsigned type, unsigned player, int* analog_type)
 
 	switch (type) {
 	case IPT_PADDLE:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PADDLE_X, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PADDLE_X, INPUT_ANALOG_RELATIVE, &value);
 		break;
 	case IPT_PADDLE_V:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PADDLE_Y, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PADDLE_Y, INPUT_ANALOG_RELATIVE, &value);
 		break;
 	case IPT_AD_STICK_X:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_STICK_X, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_STICK_X, INPUT_ANALOG_ABSOLUTE, &value);
 		break;
 	case IPT_AD_STICK_Y:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_STICK_Y, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_STICK_Y, INPUT_ANALOG_ABSOLUTE, &value);
 		break;
 	case IPT_AD_STICK_Z:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_STICK_Z, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_STICK_Z, INPUT_ANALOG_ABSOLUTE, &value);
 		break;
 	case IPT_LIGHTGUN_X:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_LIGHTGUN_X, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_LIGHTGUN_X, INPUT_ANALOG_RELATIVE, &value);
 		break;
 	case IPT_LIGHTGUN_Y:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_LIGHTGUN_Y, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_LIGHTGUN_Y, INPUT_ANALOG_RELATIVE, &value);
 		break;
 	case IPT_PEDAL:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PEDAL, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PEDAL, INPUT_ANALOG_ABSOLUTE, &value);
 		break;
 	case IPT_PEDAL2:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PEDAL2, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PEDAL2, INPUT_ANALOG_ABSOLUTE, &value);
 		break;
 	case IPT_PEDAL3:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PEDAL3, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_PEDAL3, INPUT_ANALOG_ABSOLUTE, &value);
 		break;
 	case IPT_DIAL:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_DIAL_X, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_DIAL_X, INPUT_ANALOG_RELATIVE, &value);
 		break;
 	case IPT_DIAL_V:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_DIAL_Y, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_DIAL_Y, INPUT_ANALOG_RELATIVE, &value);
 		break;
 	case IPT_TRACKBALL_X:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_TRACKBALL_X, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_TRACKBALL_X, INPUT_ANALOG_RELATIVE, &value);
 		break;
 	case IPT_TRACKBALL_Y:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_TRACKBALL_Y, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_TRACKBALL_Y, INPUT_ANALOG_RELATIVE, &value);
 		break;
 	case IPT_MOUSE_X:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_MOUSE_X, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_MOUSE_X, INPUT_ANALOG_RELATIVE, &value);
 		break;
 	case IPT_MOUSE_Y:
-		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_MOUSE_Y, &value);
+		value_type = advance_input_analog_read(context, player, INPUT_ANALOG_MOUSE_Y, INPUT_ANALOG_RELATIVE, &value);
 		break;
 	default:
 		log_std(("ERROR:input: invalid port type %d\n", type));

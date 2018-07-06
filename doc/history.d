@@ -1,6 +1,11 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS Version 3.9 2018/07
+	) Fixed input games with a relative input when controlled with
+		an absolute controller. Like 'cabal' or 'offroad' when
+		controlled with a joystick.
+
 AdvanceMAME/MESS Version 3.8 2018/06
 	) Change the default 'sync_resample' mode to 'internal' to all games
 		using the pokey sound chip. This avoid crashes and provide
