@@ -1195,6 +1195,19 @@ Configuration
 		no - Doesn't display the artwork (default for
 			bezel).
 
+    display_artwork_scale
+	Scale the artwork by the specified factor to use a bigger screen
+	resolution than the one originally used by the game.
+
+	:display_artwork_scale auto | 1 | 2
+
+	Options:
+		auto - Automatically selcet the scaling factor (default).
+		1 - Do not scale.
+		2 - Alwats scale by 2.
+
+	This options has no effect with games that don't have any artwork.
+
     display_artwork_crop
 	Crops the artwork at the game size.
 

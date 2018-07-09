@@ -639,7 +639,9 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 		options.use_artwork |= ARTWORK_USE_OVERLAYS;
 	if (advance->artwork_bezel_flag)
 		options.use_artwork |= ARTWORK_USE_BEZELS;
-	options.artwork_res = 1; /* no artwork scaling */
+	options.artwork_res = advance->artwork_scale;
+	if (options.artwork_res == 0)
+		options.artwork_res = 2; /* auto is 2 */
 	options.artwork_crop = advance->artwork_crop_flag;
 	if (advance->savegame_file_buffer[0] != 0)
 		options.savegame = advance->savegame_file_buffer;
@@ -2869,14 +2871,6 @@ void osd_log_va(const char* text, va_list arg)
 /***************************************************************************/
 /* Initialization */
 
-static adv_conf_enum_int OPTION_DEPTH[] = {
-	{ "auto", 0 },
-	{ "8", 8 },
-	{ "15", 15 },
-	{ "16", 16 },
-	{ "32", 32 }
-};
-
 #ifdef MESS
 static void mess_init(adv_conf* context)
 {
@@ -2975,6 +2969,12 @@ static void mess_done(void)
 }
 #endif
 
+static adv_conf_enum_int OPTION_ARTWORK_SCALE[] = {
+	{ "auto", 0 },
+	{ "1", 1 },
+	{ "2", 2 }
+};
+
 adv_error mame_init(struct advance_context* context)
 {
 	unsigned i, j;
@@ -3027,6 +3027,7 @@ adv_error mame_init(struct advance_context* context)
 	conf_bool_register_default(context->cfg, "display_artwork_overlay", 1);
 	conf_bool_register_default(context->cfg, "display_artwork_bezel", 0);
 	conf_bool_register_default(context->cfg, "display_artwork_crop", 1);
+	conf_int_register_enum_default(context->cfg, "display_artwork_scale", conf_enum(OPTION_ARTWORK_SCALE), 0);
 	conf_bool_register_default(context->cfg, "sound_samples", 1);
 
 	conf_bool_register_default(context->cfg, "display_antialias", 1);
@@ -3069,6 +3070,7 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 	option->artwork_overlay_flag = conf_bool_get_default(cfg_context, "display_artwork_overlay");
 	option->artwork_bezel_flag = conf_bool_get_default(cfg_context, "display_artwork_bezel");
 	option->artwork_crop_flag = conf_bool_get_default(cfg_context, "display_artwork_crop");
+	option->artwork_scale = conf_int_get_default(cfg_context, "display_artwork_scale");
 	option->samples_flag = conf_bool_get_default(cfg_context, "sound_samples");
 
 	option->antialias = conf_bool_get_default(cfg_context, "display_antialias");
