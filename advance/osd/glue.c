@@ -2972,7 +2972,9 @@ static void mess_done(void)
 static adv_conf_enum_int OPTION_ARTWORK_SCALE[] = {
 	{ "auto", 0 },
 	{ "1", 1 },
-	{ "2", 2 }
+	{ "2", 2 },
+	{ "3", 3 },
+	{ "4", 4 }
 };
 
 adv_error mame_init(struct advance_context* context)

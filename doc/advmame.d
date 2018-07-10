@@ -1199,12 +1199,12 @@ Configuration
 	Scale the artwork by the specified factor to use a bigger screen
 	resolution than the one originally used by the game.
 
-	:display_artwork_scale auto | 1 | 2
+	:display_artwork_scale auto | 1 | 2 | 3 | 4
 
 	Options:
-		auto - Automatically selcet the scaling factor (default).
+		auto - Automatically select the scaling factor (default).
 		1 - Do not scale.
-		2 - Alwats scale by 2.
+		2,3,4 - Always scale by the specified factor.
 
 	This options has no effect with games that don't have any artwork.
 

@@ -629,8 +629,8 @@ int artwork_create_display(osd_create_params *params, UINT32 *rgb_components, co
 	gamescale = options.artwork_res;
 	if (gamescale < 1 || (params->video_attributes & VIDEO_TYPE_VECTOR))
 		gamescale = 1;
-	else if (gamescale > 2)
-		gamescale = 2;
+	else if (gamescale > 4)
+		gamescale = 4;
 
 	/* compute the extent of all the artwork */
 	min_x = min_y = 0.0;
@@ -1432,6 +1432,10 @@ static void render_game_bitmap(mame_bitmap *bitmap, const rgb_t *palette, mame_d
 	void *srcbase, *dstbase;
 	int width, height;
 	int x, y;
+	int src_dx, src_dy, src_dp, src_dw;
+	UINT8 *src_ptr;
+	int scaled_dx, scaled_dy, scaled_dp, scaled_dw;
+	UINT8 *scaled_ptr;
 
 	/* compute common parameters */
 	width = Machine->absolute_visible_area.max_x - Machine->absolute_visible_area.min_x + 1;
@@ -1470,10 +1474,12 @@ static void render_game_bitmap(mame_bitmap *bitmap, const rgb_t *palette, mame_d
 				PIXEL(x,y,dst,dst,32) = PIXEL(x,y,src,src,32);
 			}
 		}
+
+		return;
 	}
 
 	/* 1x scale */
-	else if (gamescale == 1)
+	if (gamescale == 1)
 	{
 		/* 16/15bpp case */
 		if (bitmap->depth != 32)
@@ -1498,48 +1504,37 @@ static void render_game_bitmap(mame_bitmap *bitmap, const rgb_t *palette, mame_d
 					*dst++ = *src++;
 			}
 		}
+
+		return;
 	}
 
-	/* 2x scale */
-	else if (gamescale == 2)
-	{
-		/* 16/15bpp case */
-		if (bitmap->depth != 32)
-		{
-			for (y = 0; y < height; y++)
-			{
-				UINT16 *src = (UINT16 *)srcbase + y * srcrowpixels + Machine->absolute_visible_area.min_x;
-				UINT32 *dst = (UINT32 *)dstbase + y * 2 * dstrowpixels;
-				for (x = 0; x < width; x++)
-				{
-					UINT32 val = palette[*src++];
-					dst[0] = val;
-					dst[1] = val;
-					dst[dstrowpixels] = val;
-					dst[dstrowpixels + 1] = val;
-					dst += 2;
-				}
-			}
-		}
+	/* for any other scale use the OSD layer to strech the game bitmap with effects */
+	src_dx = width;
+	src_dy = height;
+	src_dp = bitmap->depth != 32 ? 2 : 4;
+	src_dw = bitmap->rowbytes;
+	src_ptr = (UINT8 *)bitmap->base + Machine->absolute_visible_area.min_y * src_dw + Machine->absolute_visible_area.min_x * src_dp;
 
-		/* 32bpp case */
-		else
-		{
-			for (y = 0; y < height; y++)
-			{
-				UINT32 *src = (UINT32 *)srcbase + y * srcrowpixels + Machine->absolute_visible_area.min_x;
-				UINT32 *dst = (UINT32 *)dstbase + y * 2 * dstrowpixels;
-				for (x = 0; x < width; x++)
-				{
-					UINT32 val = *src++;
-					dst[0] = val;
-					dst[1] = val;
-					dst[dstrowpixels] = val;
-					dst[dstrowpixels + 1] = val;
-					dst += 2;
-				}
-			}
-		}
+	scaled_dx = width * gamescale;
+	scaled_dy = height * gamescale;
+	scaled_dp = 4;
+	scaled_dw = scaled_dx * scaled_dp;
+	scaled_ptr = malloc(scaled_dy * scaled_dw);
+
+	/* we have only two case, palette16 or rgb32 */
+	if (src_dp == 2) {
+		osd_stretch_palett16to32(scaled_ptr, scaled_dx, scaled_dy, scaled_dw, src_ptr, src_dx, src_dy, src_dw, palette);
+	} else {
+		osd_stretch_32to32(scaled_ptr, scaled_dx, scaled_dy, scaled_dw, src_ptr, src_dx, src_dy, src_dw);
+	}
+
+	/* draw the scaled bitmap */
+	for (y = 0; y < scaled_dy; y++)
+	{
+		UINT32 *src = (UINT32*)(scaled_ptr + y * scaled_dw);
+		UINT32 *dst = (UINT32 *)dstbase + y * dstrowpixels;
+
+		memcpy(dst, src, scaled_dw);
 	}
 }
 
@@ -1557,6 +1552,10 @@ static void render_game_bitmap_underlay(mame_bitmap *bitmap, const rgb_t *palett
 	void *srcbase, *dstbase, *undbase;
 	int width, height;
 	int x, y;
+	int src_dx, src_dy, src_dp, src_dw;
+	UINT8 *src_ptr;
+	int scaled_dx, scaled_dy, scaled_dp, scaled_dw;
+	UINT8 *scaled_ptr;
 
 	/* compute common parameters */
 	width = Machine->absolute_visible_area.max_x - Machine->absolute_visible_area.min_x + 1;
@@ -1596,10 +1595,12 @@ static void render_game_bitmap_underlay(mame_bitmap *bitmap, const rgb_t *palett
 				PIXEL(x,y,dst,dst,32) = add_and_clamp(PIXEL(x,y,src,src,32), PIXEL(x,y,und,dst,32));
 			}
 		}
+
+		return;
 	}
 
 	/* 1x scale */
-	else if (gamescale == 1)
+	if (gamescale == 1)
 	{
 		/* 16/15bpp case */
 		if (bitmap->depth != 32)
@@ -1626,50 +1627,66 @@ static void render_game_bitmap_underlay(mame_bitmap *bitmap, const rgb_t *palett
 					*dst++ = add_and_clamp(*src++, *und++);
 			}
 		}
+
+		return;
 	}
 
-	/* 2x scale */
-	else if (gamescale == 2)
-	{
-		/* 16/15bpp case */
-		if (bitmap->depth != 32)
-		{
-			for (y = 0; y < height; y++)
-			{
-				UINT16 *src = (UINT16 *)srcbase + y * srcrowpixels + Machine->absolute_visible_area.min_x;
-				UINT32 *dst = (UINT32 *)dstbase + y * 2 * dstrowpixels;
-				UINT32 *und = (UINT32 *)undbase + y * 2 * dstrowpixels;
-				for (x = 0; x < width; x++)
-				{
-					UINT32 val = palette[*src++];
-					dst[0] = add_and_clamp(val, und[0]);
-					dst[1] = add_and_clamp(val, und[1]);
-					dst[dstrowpixels] = add_and_clamp(val, und[dstrowpixels]);
-					dst[dstrowpixels + 1] = add_and_clamp(val, und[dstrowpixels + 1]);
-					dst += 2;
-					und += 2;
-				}
-			}
-		}
+	/* for any other scale use the OSD layer to strech the game bitmap with effects */
+	src_dx = width;
+	src_dy = height;
+	src_dp = bitmap->depth != 32 ? 2 : 4;
+	src_dw = bitmap->rowbytes;
+	src_ptr = (UINT8 *)bitmap->base + Machine->absolute_visible_area.min_y * src_dw + Machine->absolute_visible_area.min_x * src_dp;
 
-		/* 32bpp case */
-		else
-		{
-			for (y = 0; y < height; y++)
+	scaled_dx = width * gamescale;
+	scaled_dy = height * gamescale;
+	scaled_dp = 4;
+	scaled_dw = scaled_dx * scaled_dp;
+	scaled_ptr = malloc(scaled_dy * scaled_dw);
+
+	/* we have only two case, palette16 or rgb32 */
+	if (src_dp == 2) {
+		osd_stretch_palett16to32(scaled_ptr, scaled_dx, scaled_dy, scaled_dw, src_ptr, src_dx, src_dy, src_dw, palette);
+	} else {
+		osd_stretch_32to32(scaled_ptr, scaled_dx, scaled_dy, scaled_dw, src_ptr, src_dx, src_dy, src_dw);
+	}
+
+	/* draw the scaled bitmap */
+	for (y = 0; y < scaled_dy; y++)
+	{
+		UINT32 *src = (UINT32*)(scaled_ptr + y * scaled_dw);
+		UINT32 *dst = (UINT32 *)dstbase + y * dstrowpixels;
+		UINT32 *und = (UINT32 *)undbase + y * dstrowpixels;
+
+		if (gamescale == 2) {
+			for (x = 0; x < width; x++)
 			{
-				UINT32 *src = (UINT32 *)srcbase + y * srcrowpixels + Machine->absolute_visible_area.min_x;
-				UINT32 *dst = (UINT32 *)dstbase + y * 2 * dstrowpixels;
-				UINT32 *und = (UINT32 *)undbase + y * 2 * dstrowpixels;
-				for (x = 0; x < width; x++)
-				{
-					UINT32 val = *src++;
-					dst[0] = add_and_clamp(val, und[0]);
-					dst[1] = add_and_clamp(val, und[1]);
-					dst[dstrowpixels] = add_and_clamp(val, und[dstrowpixels]);
-					dst[dstrowpixels + 1] = add_and_clamp(val, und[dstrowpixels + 1]);
-					dst += 2;
-					und += 2;
-				}
+				dst[0] = add_and_clamp(src[0], und[0]);
+				dst[1] = add_and_clamp(src[1], und[1]);
+				src += 2;
+				dst += 2;
+				und += 2;
+			}
+		} else if (gamescale == 3) {
+			for (x = 0; x < width; x++)
+			{
+				dst[0] = add_and_clamp(src[0], und[0]);
+				dst[1] = add_and_clamp(src[1], und[1]);
+				dst[2] = add_and_clamp(src[2], und[2]);
+				src += 3;
+				dst += 3;
+				und += 3;
+			}
+		} else if (gamescale == 4) {
+			for (x = 0; x < width; x++)
+			{
+				dst[0] = add_and_clamp(src[0], und[0]);
+				dst[1] = add_and_clamp(src[1], und[1]);
+				dst[2] = add_and_clamp(src[2], und[2]);
+				dst[3] = add_and_clamp(src[3], und[3]);
+				src += 4;
+				dst += 4;
+				und += 4;
 			}
 		}
 	}
@@ -1689,6 +1706,10 @@ static void render_game_bitmap_overlay(mame_bitmap *bitmap, const rgb_t *palette
 	void *srcbase, *dstbase, *overbase, *overyrgbbase;
 	int width, height;
 	int x, y;
+	int src_dx, src_dy, src_dp, src_dw;
+	UINT8 *src_ptr;
+	int scaled_dx, scaled_dy, scaled_dp, scaled_dw;
+	UINT8 *scaled_ptr;
 
 	/* compute common parameters */
 	width = Machine->absolute_visible_area.max_x - Machine->absolute_visible_area.min_x + 1;
@@ -1729,10 +1750,12 @@ static void render_game_bitmap_overlay(mame_bitmap *bitmap, const rgb_t *palette
 				PIXEL(x,y,dst,dst,32) = blend_over(PIXEL(x,y,src,src,32), PIXEL(x,y,over,dst,32), PIXEL(x,y,overyrgb,dst,32));
 			}
 		}
+
+		return;
 	}
 
 	/* 1x scale */
-	else if (gamescale == 1)
+	if (gamescale == 1)
 	{
 		/* 16/15bpp case */
 		if (bitmap->depth != 32)
@@ -1761,54 +1784,70 @@ static void render_game_bitmap_overlay(mame_bitmap *bitmap, const rgb_t *palette
 					*dst++ = blend_over(*src++, *over++, *overyrgb++);
 			}
 		}
+
+		return;
 	}
 
-	/* 2x scale */
-	else if (gamescale == 2)
-	{
-		/* 16/15bpp case */
-		if (bitmap->depth != 32)
-		{
-			for (y = 0; y < height; y++)
-			{
-				UINT16 *src = (UINT16 *)srcbase + y * srcrowpixels + Machine->absolute_visible_area.min_x;
-				UINT32 *dst = (UINT32 *)dstbase + y * 2 * dstrowpixels;
-				UINT32 *over = (UINT32 *)overbase + y * 2 * dstrowpixels;
-				UINT32 *overyrgb = (UINT32 *)overyrgbbase + y * 2 * dstrowpixels;
-				for (x = 0; x < width; x++)
-				{
-					UINT32 val = palette[*src++];
-					dst[0] = blend_over(val, over[0], overyrgb[0]);
-					dst[1] = blend_over(val, over[1], overyrgb[1]);
-					dst[dstrowpixels] = blend_over(val, over[dstrowpixels], overyrgb[dstrowpixels]);
-					dst[dstrowpixels + 1] = blend_over(val, over[dstrowpixels + 1], overyrgb[dstrowpixels + 1]);
-					dst += 2;
-					over += 2;
-					overyrgb += 2;
-				}
-			}
-		}
+	/* for any other scale use the OSD layer to strech the game bitmap with effects */
+	src_dx = width;
+	src_dy = height;
+	src_dp = bitmap->depth != 32 ? 2 : 4;
+	src_dw = bitmap->rowbytes;
+	src_ptr = (UINT8 *)bitmap->base + Machine->absolute_visible_area.min_y * src_dw + Machine->absolute_visible_area.min_x * src_dp;
 
-		/* 32bpp case */
-		else
-		{
-			for (y = 0; y < height; y++)
+	scaled_dx = width * gamescale;
+	scaled_dy = height * gamescale;
+	scaled_dp = 4;
+	scaled_dw = scaled_dx * scaled_dp;
+	scaled_ptr = malloc(scaled_dy * scaled_dw);
+
+	/* we have only two case, palette16 or rgb32 */
+	if (src_dp == 2) {
+		osd_stretch_palett16to32(scaled_ptr, scaled_dx, scaled_dy, scaled_dw, src_ptr, src_dx, src_dy, src_dw, palette);
+	} else {
+		osd_stretch_32to32(scaled_ptr, scaled_dx, scaled_dy, scaled_dw, src_ptr, src_dx, src_dy, src_dw);
+	}
+
+	/* draw the scaled bitmap */
+	for (y = 0; y < scaled_dy; y++)
+	{
+		UINT32 *src = (UINT32*)(scaled_ptr + y * scaled_dw);
+		UINT32 *dst = (UINT32 *)dstbase + y * dstrowpixels;
+		UINT32 *over = (UINT32 *)overbase + y * dstrowpixels;
+		UINT32 *overyrgb = (UINT32 *)overyrgbbase + y * dstrowpixels;
+
+		if (gamescale == 2) {
+			for (x = 0; x < width; x++)
 			{
-				UINT32 *src = (UINT32 *)srcbase + y * srcrowpixels + Machine->absolute_visible_area.min_x;
-				UINT32 *dst = (UINT32 *)dstbase + y * 2 * dstrowpixels;
-				UINT32 *over = (UINT32 *)overbase + y * 2 * dstrowpixels;
-				UINT32 *overyrgb = (UINT32 *)overyrgbbase + y * 2 * dstrowpixels;
-				for (x = 0; x < width; x++)
-				{
-					UINT32 val = *src++;
-					dst[0] = blend_over(val, over[0], overyrgb[0]);
-					dst[1] = blend_over(val, over[1], overyrgb[1]);
-					dst[dstrowpixels] = blend_over(val, over[dstrowpixels], overyrgb[dstrowpixels]);
-					dst[dstrowpixels + 1] = blend_over(val, over[dstrowpixels + 1], overyrgb[dstrowpixels + 1]);
-					dst += 2;
-					over += 2;
-					overyrgb += 2;
-				}
+				dst[0] = blend_over(src[0], over[0], overyrgb[0]);
+				dst[1] = blend_over(src[1], over[1], overyrgb[1]);
+				src += 2;
+				dst += 2;
+				over += 2;
+				overyrgb += 2;
+			}
+		} else if (gamescale == 3) {
+			for (x = 0; x < width; x++)
+			{
+				dst[0] = blend_over(src[0], over[0], overyrgb[0]);
+				dst[1] = blend_over(src[1], over[1], overyrgb[1]);
+				dst[2] = blend_over(src[2], over[2], overyrgb[2]);
+				src += 3;
+				dst += 3;
+				over += 3;
+				overyrgb += 3;
+			}
+		} else if (gamescale == 4) {
+			for (x = 0; x < width; x++)
+			{
+				dst[0] = blend_over(src[0], over[0], overyrgb[0]);
+				dst[1] = blend_over(src[1], over[1], overyrgb[1]);
+				dst[2] = blend_over(src[2], over[2], overyrgb[2]);
+				dst[3] = blend_over(src[3], over[3], overyrgb[3]);
+				src += 4;
+				dst += 4;
+				over += 4;
+				overyrgb += 4;
 			}
 		}
 	}
@@ -1829,6 +1868,10 @@ static void render_game_bitmap_underlay_overlay(mame_bitmap *bitmap, const rgb_t
 	void *srcbase, *dstbase, *undbase, *overbase, *overyrgbbase;
 	int width, height;
 	int x, y;
+	int src_dx, src_dy, src_dp, src_dw;
+	UINT8 *src_ptr;
+	int scaled_dx, scaled_dy, scaled_dp, scaled_dw;
+	UINT8 *scaled_ptr;
 
 	/* compute common parameters */
 	width = Machine->absolute_visible_area.max_x - Machine->absolute_visible_area.min_x + 1;
@@ -1870,10 +1913,12 @@ static void render_game_bitmap_underlay_overlay(mame_bitmap *bitmap, const rgb_t
 				PIXEL(x,y,dst,dst,32) = add_and_clamp(blend_over(PIXEL(x,y,src,src,32), PIXEL(x,y,over,dst,32), PIXEL(x,y,overyrgb,dst,32)), PIXEL(x,y,und,dst,32));
 			}
 		}
+
+		return;
 	}
 
 	/* 1x scale */
-	else if (gamescale == 1)
+	if (gamescale == 1)
 	{
 		/* 16/15bpp case */
 		if (bitmap->depth != 32)
@@ -1904,61 +1949,79 @@ static void render_game_bitmap_underlay_overlay(mame_bitmap *bitmap, const rgb_t
 					*dst++ = add_and_clamp(blend_over(*src++, *over++, *overyrgb++), *und++);
 			}
 		}
+
+		return;
 	}
 
-	/* 2x scale */
-	else if (gamescale == 2)
+	/* for any other scale use the OSD layer to strech the game bitmap with effects */
+	src_dx = width;
+	src_dy = height;
+	src_dp = bitmap->depth != 32 ? 2 : 4;
+	src_dw = bitmap->rowbytes;
+	src_ptr = (UINT8 *)bitmap->base + Machine->absolute_visible_area.min_y * src_dw + Machine->absolute_visible_area.min_x * src_dp;
+
+	scaled_dx = width * gamescale;
+	scaled_dy = height * gamescale;
+	scaled_dp = 4;
+	scaled_dw = scaled_dx * scaled_dp;
+	scaled_ptr = malloc(scaled_dy * scaled_dw);
+
+	/* we have only two case, palette16 or rgb32 */
+	if (src_dp == 2) {
+		osd_stretch_palett16to32(scaled_ptr, scaled_dx, scaled_dy, scaled_dw, src_ptr, src_dx, src_dy, src_dw, palette);
+	} else {
+		osd_stretch_32to32(scaled_ptr, scaled_dx, scaled_dy, scaled_dw, src_ptr, src_dx, src_dy, src_dw);
+	}
+
+	/* draw the scaled bitmap */
+	for (y = 0; y < scaled_dy; y++)
 	{
-		/* 16/15bpp case */
-		if (bitmap->depth != 32)
-		{
-			for (y = 0; y < height; y++)
-			{
-				UINT16 *src = (UINT16 *)srcbase + y * srcrowpixels + Machine->absolute_visible_area.min_x;
-				UINT32 *dst = (UINT32 *)dstbase + y * 2 * dstrowpixels;
-				UINT32 *und = (UINT32 *)undbase + y * 2 * dstrowpixels;
-				UINT32 *over = (UINT32 *)overbase + y * 2 * dstrowpixels;
-				UINT32 *overyrgb = (UINT32 *)overyrgbbase + y * 2 * dstrowpixels;
-				for (x = 0; x < width; x++)
-				{
-					UINT32 val = palette[*src++];
-					dst[0] = add_and_clamp(blend_over(val, over[0], overyrgb[0]), und[0]);
-					dst[1] = add_and_clamp(blend_over(val, over[1], overyrgb[1]), und[1]);
-					dst[dstrowpixels] = add_and_clamp(blend_over(val, over[dstrowpixels], overyrgb[dstrowpixels]), und[dstrowpixels]);
-					dst[dstrowpixels + 1] = add_and_clamp(blend_over(val, over[dstrowpixels + 1], overyrgb[dstrowpixels + 1]), und[dstrowpixels + 1]);
-					dst += 2;
-					und += 2;
-					over += 2;
-					overyrgb += 2;
-				}
-			}
-		}
+		UINT32 *src = (UINT32*)(scaled_ptr + y * scaled_dw);
+		UINT32 *dst = (UINT32 *)dstbase + y * dstrowpixels;
+		UINT32 *und = (UINT32 *)undbase + y * dstrowpixels;
+		UINT32 *over = (UINT32 *)overbase + y * dstrowpixels;
+		UINT32 *overyrgb = (UINT32 *)overyrgbbase + y * dstrowpixels;
 
-		/* 32bpp case */
-		else
-		{
-			for (y = 0; y < height; y++)
+		if (gamescale == 2) {
+			for (x = 0; x < width; x++)
 			{
-				UINT32 *src = (UINT32 *)srcbase + y * srcrowpixels + Machine->absolute_visible_area.min_x;
-				UINT32 *dst = (UINT32 *)dstbase + y * 2 * dstrowpixels;
-				UINT32 *und = (UINT32 *)undbase + y * 2 * dstrowpixels;
-				UINT32 *over = (UINT32 *)overbase + y * 2 * dstrowpixels;
-				UINT32 *overyrgb = (UINT32 *)overyrgbbase + y * 2 * dstrowpixels;
-				for (x = 0; x < width; x++)
-				{
-					UINT32 val = *src++;
-					dst[0] = add_and_clamp(blend_over(val, over[0], overyrgb[0]), und[0]);
-					dst[1] = add_and_clamp(blend_over(val, over[1], overyrgb[1]), und[1]);
-					dst[dstrowpixels] = add_and_clamp(blend_over(val, over[dstrowpixels], overyrgb[dstrowpixels]), und[dstrowpixels]);
-					dst[dstrowpixels + 1] = add_and_clamp(blend_over(val, over[dstrowpixels + 1], overyrgb[dstrowpixels + 1]), und[dstrowpixels + 1]);
-					dst += 2;
-					und += 2;
-					over += 2;
-					overyrgb += 2;
-				}
+				dst[0] = add_and_clamp(blend_over(src[0], over[0], overyrgb[0]), und[0]);
+				dst[1] = add_and_clamp(blend_over(src[1], over[1], overyrgb[1]), und[1]);
+				src += 2;
+				dst += 2;
+				und += 2;
+				over += 2;
+				overyrgb += 2;
+			}
+		} else if (gamescale == 3) {
+			for (x = 0; x < width; x++)
+			{
+				dst[0] = add_and_clamp(blend_over(src[0], over[0], overyrgb[0]), und[0]);
+				dst[1] = add_and_clamp(blend_over(src[1], over[1], overyrgb[1]), und[1]);
+				dst[2] = add_and_clamp(blend_over(src[2], over[2], overyrgb[2]), und[2]);
+				src += 3;
+				dst += 3;
+				und += 3;
+				over += 3;
+				overyrgb += 3;
+			}
+		} else if (gamescale == 4) {
+			for (x = 0; x < width; x++)
+			{
+				dst[0] = add_and_clamp(blend_over(src[0], over[0], overyrgb[0]), und[0]);
+				dst[1] = add_and_clamp(blend_over(src[1], over[1], overyrgb[1]), und[1]);
+				dst[2] = add_and_clamp(blend_over(src[2], over[2], overyrgb[2]), und[2]);
+				dst[3] = add_and_clamp(blend_over(src[3], over[3], overyrgb[3]), und[3]);
+				src += 4;
+				dst += 4;
+				und += 4;
+				over += 4;
+				overyrgb += 4;
 			}
 		}
 	}
+
+	free(scaled_ptr);
 }
 
 

@@ -852,6 +852,100 @@ void advance_video_reconfigure(struct advance_video_context* context, struct adv
 /***************************************************************************/
 /* OSD */
 
+void osd_stretch_palett16to32(void* dst, unsigned dst_dx, unsigned dst_dy, unsigned dst_dw, const void* src, unsigned src_dx, unsigned src_dy, int src_dw, const UINT32* palette)
+{
+	struct video_pipeline_struct pipeline;
+	struct advance_video_context* context = &CONTEXT.video;
+	adv_color_def def = adv_png_color_def(4);
+	unsigned combine = context->config.combine;
+
+	if (combine == COMBINE_AUTO)
+		combine = context->config.combine_max;
+
+	switch (combine) {
+	case COMBINE_MEAN:
+		combine = VIDEO_COMBINE_Y_MEAN | VIDEO_COMBINE_X_MEAN;
+		break;
+	case COMBINE_FILTER:
+		combine = VIDEO_COMBINE_Y_FILTER | VIDEO_COMBINE_X_FILTER;
+		break;
+	case COMBINE_SCALEX:
+		combine = VIDEO_COMBINE_Y_SCALEX;
+		break;
+	case COMBINE_SCALEK:
+		combine = VIDEO_COMBINE_Y_SCALEK;
+		break;
+#ifndef USE_BLIT_SMALL
+	case COMBINE_HQ:
+		combine = VIDEO_COMBINE_Y_HQ;
+		break;
+	case COMBINE_XBR:
+		combine = VIDEO_COMBINE_Y_XBR;
+		break;
+#endif
+	default:
+		combine = VIDEO_COMBINE_Y_NONE;
+		break;
+	}
+
+	video_pipeline_init(&pipeline);
+
+	video_pipeline_target(&pipeline, dst, dst_dw, video_color_def());
+
+	video_pipeline_palette16(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, 2, 0, 0, palette, combine);
+
+	video_pipeline_blit(&pipeline, 0, 0, src);
+
+	video_pipeline_done(&pipeline);
+}
+
+void osd_stretch_32to32(void* dst, unsigned dst_dx, unsigned dst_dy, unsigned dst_dw, const void* src, unsigned src_dx, unsigned src_dy, int src_dw)
+{
+	struct video_pipeline_struct pipeline;
+	struct advance_video_context* context = &CONTEXT.video;
+	adv_color_def def = adv_png_color_def(4);
+	unsigned combine = context->config.combine;
+
+	if (combine == COMBINE_AUTO)
+		combine = context->config.combine_max;
+
+	switch (combine) {
+	case COMBINE_MEAN:
+		combine = VIDEO_COMBINE_Y_MEAN | VIDEO_COMBINE_X_MEAN;
+		break;
+	case COMBINE_FILTER:
+		combine = VIDEO_COMBINE_Y_FILTER | VIDEO_COMBINE_X_FILTER;
+		break;
+	case COMBINE_SCALEX:
+		combine = VIDEO_COMBINE_Y_SCALEX;
+		break;
+	case COMBINE_SCALEK:
+		combine = VIDEO_COMBINE_Y_SCALEK;
+		break;
+#ifndef USE_BLIT_SMALL
+	case COMBINE_HQ:
+		combine = VIDEO_COMBINE_Y_HQ;
+		break;
+	case COMBINE_XBR:
+		combine = VIDEO_COMBINE_Y_XBR;
+		break;
+#endif
+	default:
+		combine = VIDEO_COMBINE_Y_NONE;
+		break;
+	}
+
+	video_pipeline_init(&pipeline);
+
+	video_pipeline_target(&pipeline, dst, dst_dw, video_color_def());
+
+	video_pipeline_direct(&pipeline, dst_dx, dst_dy, src_dx, src_dy, src_dw, 4, def, combine);
+
+	video_pipeline_blit(&pipeline, 0, 0, src);
+
+	video_pipeline_done(&pipeline);
+}
+
 /**
  * Initialize and start the video thread.
  */

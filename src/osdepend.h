@@ -336,6 +336,10 @@ int osd_is_bad_read_ptr(const void *ptr, size_t size);
 
 /* AdvanceMAME: Specific OSD interface */
 
+/* helpers for artwork */
+void osd_stretch_palett16to32(void* dst, unsigned dst_dx, unsigned dst_dy, unsigned dst_dw, const void* src, unsigned src_dx, unsigned src_dy, int src_dw, const UINT32* palette);
+void osd_stretch_32to32(void* dst, unsigned dst_dx, unsigned dst_dy, unsigned dst_dw, const void* src, unsigned src_dx, unsigned src_dy, int src_dw);
+
 /* return the analog value of the specified input. */
 INT32 osd_get_analog_value(unsigned type, unsigned player, int* analog_type);
 
