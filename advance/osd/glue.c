@@ -2969,7 +2969,7 @@ static void mess_done(void)
 }
 #endif
 
-static adv_conf_enum_int OPTION_ARTWORK_SCALE[] = {
+static adv_conf_enum_int OPTION_ARTWORK_MAGNIFY[] = {
 	{ "auto", 0 },
 	{ "1", 1 },
 	{ "2", 2 },
@@ -3029,7 +3029,7 @@ adv_error mame_init(struct advance_context* context)
 	conf_bool_register_default(context->cfg, "display_artwork_overlay", 1);
 	conf_bool_register_default(context->cfg, "display_artwork_bezel", 0);
 	conf_bool_register_default(context->cfg, "display_artwork_crop", 1);
-	conf_int_register_enum_default(context->cfg, "display_artwork_scale", conf_enum(OPTION_ARTWORK_SCALE), 0);
+	conf_int_register_enum_default(context->cfg, "display_artwork_magnify", conf_enum(OPTION_ARTWORK_MAGNIFY), 0);
 	conf_bool_register_default(context->cfg, "sound_samples", 1);
 
 	conf_bool_register_default(context->cfg, "display_antialias", 1);
@@ -3072,7 +3072,7 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 	option->artwork_overlay_flag = conf_bool_get_default(cfg_context, "display_artwork_overlay");
 	option->artwork_bezel_flag = conf_bool_get_default(cfg_context, "display_artwork_bezel");
 	option->artwork_crop_flag = conf_bool_get_default(cfg_context, "display_artwork_crop");
-	option->artwork_scale = conf_int_get_default(cfg_context, "display_artwork_scale");
+	option->artwork_scale = conf_int_get_default(cfg_context, "display_artwork_magnify");
 	option->samples_flag = conf_bool_get_default(cfg_context, "sound_samples");
 
 	option->antialias = conf_bool_get_default(cfg_context, "display_antialias");
