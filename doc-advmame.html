@@ -339,7 +339,10 @@ Help screen describing the user input keys.
 <a href="#8.7.1">8.7.1 display_artwork_backdrop/overlay/bezel</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.7.2">8.7.2 display_artwork_crop</a><br>
+<a href="#8.7.2">8.7.2 display_artwork_magnify</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.7.3">8.7.3 display_artwork_crop</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
 <a href="#8.8">8.8 Display Vector Configuration Options</a><br>
@@ -2659,6 +2662,36 @@ bezel).
 </td></tr>
 </table>
 <h4><a name="8.7.2">8.7.2</a> 
+display_artwork_magnify
+</h4>
+Scale the artwork by the specified factor to use a bigger screen
+resolution than the one originally used by the game.
+<p>
+<pre>
+display_artwork_magnify auto | 1 | 2 | 3 | 4
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+auto
+</em></td><td width="90%">
+Automatically select the scaling factor (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+1
+</em></td><td width="90%">
+Do not scale.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+2,3,4
+</em></td><td width="90%">
+Always scale by the specified factor.
+</td></tr>
+</table>
+<p>
+This options has no effect with games that don't have any artwork.
+<h4><a name="8.7.3">8.7.3</a> 
 display_artwork_crop
 </h4>
 Crops the artwork at the game size.
