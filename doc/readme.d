@@ -1,7 +1,7 @@
 Name
 	advmame - AdvanceMAME Emulator
 
-	AdvanceMAME is an unofficial MAME versions with an advanced video
+	AdvanceMAME is an unofficial MAME 0.106 version with an advanced video
 	support for helping the use with TVs, Arcade monitors, PC monitors
 	and LCD screens.
 

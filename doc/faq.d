@@ -6,12 +6,6 @@ Name{number}
 SubSubIndex
 
 General FAQ
-  What version is this FAQ ?
-	Since the FAQ is part of the AdvanceMAME documentation and included
-	with every version of AdvanceMAME, there has been no need to have a
-	separate version number. The version of the FAQ is therefore equal
-	to the version of AdvanceMAME that it was shipped with.
-
   Where can I get the latest version of this FAQ ?
 	The latest version of the FAQ is included with the latest version
 	of AdvanceMAME, available for download from the project homepage
@@ -45,34 +39,9 @@ General FAQ
 	archives can be found at
 	http://lists.sourceforge.net/lists/listinfo/advancemame-users.
 
-	Also, if possible, check your problem against the official MAME
-	before posting to the AdvanceMAME mailing list.
-
 AdvanceMAME FAQ
-  Is the Linux version of AdvanceMAME able to program my video board ?
-	The Linux version of AdvanceMAME uses both the SVGALIB library and 
-	FrameBuffer kernel service to directly program the video board.
-
-	The file cardlinx.txt in the documentation directory contains a
-	list of supported graphics adaptors under Linux.
-
-  Is the DOS version of AdvanceMAME able to program my video board ?
-	The DOS version of AdvanceMAME uses a modified version of the Linux 
-	SVGALIB library that allows the direct programming the video board.
-
-	The file carddos.txt in the documentation directory contains a
-	list of supported graphics adaptors under DOS.
-
-  Is the Windows version of AdvanceMAME able to program my video board ?
-	Under Windows NT/2000/XP AdvanceMAME uses a modified version of the
-	Linux SVGALIB library, called SVGAWIN, that allows the direct
-	programming of the video board. 
-
-	The file cardwin.txt in the documentation directory contains a
-	list of supported graphics adaptors under Linux.
-
-	Under Windows 98/Me you can use the DOS version to directly program 
-	your video board.
+  What MAME version AdvanceMAME is based on ?
+	AdvanceMAME is based on the MAME 0.106 source code.
 
   How do I automatically record video and audio clips ?
 	Add this script to your advmame.rc. For any game started a 15 seconds
@@ -90,24 +59,8 @@ AdvanceMAME FAQ
   game starts. How do I get rid of it ?
 	Take a look at the `misc_quiet' option.
 
-  Where can I get ROM-files of games for AdvanceMAME ?
-	Well, not here in any case. And please do not ask for this on the
-	AdvanceMAME mailing list. Such requests are frowned upon on the 
-	list, and will only make you look bad to the AdvanceMAME community.
-
-	Also note that MAME and hence AdvanceMAME explicitly forbid the 
-	distribution of ROM files along with the emulator, and also 
-	strictly forbids the use of the emulators for any kind economic
-	gain, either by selling, or by creating systems where games are
-	paid for with coin mechanisms or bill acceptors.
-
 AdvanceMENU FAQ
-  Why does the mouse and the joystick not work ?
-	As default, the mouse and joystick inputs are disabled.
-	To enable them you can use the `device_mouse auto' and
-	`device_joystick auto' options.
-
-  Each time I start AdvanceMENU, I see a message about 
+  Each time I start AdvanceMENU, I see a message about
   "Updating the ... information file ..." How do I get rid of it ?
 	The information file is recreated if the emulator executable
 	is newer than the named file. If this happens all the time, you probably
@@ -127,17 +80,6 @@ AdvanceMENU FAQ
 	:emulator_altss "mp3" "C:\MP3;C:\MUSIC"
 	:emulator_roms "mp3" "C:\MP3;C:\MUSIC"
 	:emulator_roms_filter "mp3" "*.mp3"
-
-  Can I change the colors of AdvanceMENU (eg. to avoid burn-in on
-  arcade monitors) ?
-	Yes. All the colors of AdvanceMENU can be changed. Take a look at
-	the description of the `ui_color' option in the advmenu
-	documentation.
-
-  How do I configure AdvanceMENU to use a certain video-mode (for use on
-  my arcade monitor) ?
-	Simply copy the modeline (from advmame.rc) into advmenu.rc and
-	specify the width of the video-mode in the `display_size' option.
 
   How do I avoid AdvanceMENU jumping to different games when I press
   letter keys ?
@@ -202,99 +144,11 @@ DOS FAQ
 	a short text instruction file.
 
 Linux FAQ
-  Is there a way I can test the Linux version of AdvanceMAME without
-  installing Linux on my system ?
-	Yes. You can try the AdvanceCD-package, which is a CDROM-image
-	of a small Linux-system configured to run AdvanceMENU and
-	AdvanceMAME on startup. AdvanceCD will autodetect most hardware,
-	but is mainly made for use with PC monitors.
-
-  How can I load the svgalib_helper.o kernel module automatically ?
-	Insert this line :
-
-		:alias char-major-209 svgalib_helper
-
-	in your /etc/modules.conf file and run the following command once :
-
-		:depmod -a
-
-	After that the module is loaded automatically every time is
-	needed.
-
-  On scrolling games I see a missing frame every 5 or 10 seconds, also
-  with vsync enabled. How can I fix it ?
-	If you are using a gameport joystick try disabling the joystick support
-	with the `device_joystick none' option.
-
-	Or upgrade the svgalib library to version 1.9.16, which supports
-	vsync IRQ for some more graphics adapters.
-
-  Using the last svgalib and enabling vsync my system freezes randomly
-  from time to time.
-	Try using the svgalib patch in the contrib/svgalib directory or
-	downgrade the version to 1.9.15 or 1.9.14.
-
-  How can I enable the XFree86 DGA extension ?
-	Ensure that in your XF86Config file the line :
-
-		:Option    "omit xfree86-dga"
-
-	is not present or commented. To test it you can use
-	the `dga' utility. Run :
-
-		:man dga
-
-  I have some background system activity, and the emulated games are
-  not playing smoothly. How do I fix this ?
-	To run AdvanceMAME the system must be almost in idle state.
-
-	Anyway, to reduce "jumpy" effect you can disable the vertical
-	vsync. The problem with vsync is that if the system is busy on
-	a vsync the result is a complete frame drop (a wait of 17 ms).
-
-  Can I run AdvanceMENU directly from /etc/inittab ?
-	The SVGALIB library needs a controlling tty and programs using it
-	cannot be run directly from init. You can anyway start them in
-	a shell, like :
-
-		:::respawn:-/bin/sh -c advmenu
-
-	or write a simple program wrapper which sets a tty and
-	execs the program you want, like :
-
-		:i=open("/dev/tty1", O_RDWR);
-		:ioctl(i, TIOCSCTTY, 1);
-		:exec(...)
-
   Can I run the Advance programs from a readonly filesystem ?
 	Yes. All the writable files are put in the $HOME/.advance
 	directory. If they are readonly, they are not updated.
 
 Windows FAQ
-  The SVGAWIN driver doesn't seem to work with my video board. How can I
-  solve this ?
-	The SVGAWIN driver is experimental. At present it's only tested
-	on Windows 2000 with a GeForce 2 board. It may not work will all
-	the other boards.
-
-	The svgawin drivers are inherently unsafe because they should coexist
-	with the normal Windows drivers.
-
-	The most common problem is that the Windows driver sets the video
-	card in a state that the SVGAWIN driver cannot understand or
-	restore.
-
-	The only possible solution is to try to reduce the video hardware
-	acceleration to a minimum in
-	DisplayProperties/Settings/Advanced/Troubleshooting.
-
-	If you want a stable solution you must use the Linux or DOS
-	version of AdvanceMAME and AdvanceMENU.
-
-	Alternatively you can try to use two different video boards, one for
-	Windows and the other for the game display. Check the
-	`device_svgawin_skipboard' option to control which video board to use.
-
   How do I disable the Windows hotkeys ?
 	Check the Microsoft online documents "Disabling the Windows Key
 	on Microsoft Natural Keyboard" at http://support.microsoft.com/?kbid=181348.
@@ -406,13 +260,17 @@ Video FAQ
 	the specified range.
 
 License FAQ
-  Is MAME Open Source ?
-	No. The MAME License is not an Open Source License as defined
-	at http://www.opensource.org/.
-
-  Is MAME Free Software ?
-	No. The MAME License is not a Free Software License as defined
+  Is MAME 0.106 Open Source/Free Software ?
+	No. The MAME 0.106 License is not an Open Source License as defined
+	at http://www.opensource.org/ and not a Free Software License as defined
 	at http://www.gnu.org/.
+
+  How can be MAME 0.106 not Open Source/Free Software when the latest
+  MAME is released with the GPL 2 License ?
+	MAME 0.106 was never released with the GPL 2 License.
+	Most, if not all, same source code can be found released
+	with the GPL 2 in the latest MAME, but it's safer to
+	assume that MAME 0.106 is not GPL 2.
 
   Is AdvanceMAME Open Source and Free Software ?
 	Yes. AdvanceMAME is released with the GPL License which is
@@ -423,20 +281,14 @@ License FAQ
 
 	In addition you have some extra rights granted by a special
 	license exception which allow you to link the AdvanceMAME GPL
-	source with the not GPL MAME source.
+	source with the MAME 0.106 source.
 
 	The exception also gives you the rights to eliminate it
 	if you don't like it or if you want to include the
-	AdvanceMAME source in another GPL program. So, AdvanceMAME
-	is 100% GPL.
+	AdvanceMAME source in another GPL program.
 
 	You can more easily think at it as a sort of double license.
-	A GPL or a GPL + exception. You have all the rights of the
-	GPL, and, if you want, some others.
-
-	The only limitation is for AdvanceMAME. AdvanceMAME cannot
-	include external GPL source without the explicit permission
-	of the source copyright holder.
+	A GPL or a GPL + exception.
 
   Why the AdvanceMAME license is called GPL if it's different
   than the GPL ?
@@ -464,30 +316,26 @@ License FAQ
 	Which explicitly claims that the program with the license
 	exception is still GPL.
 
-  Does the MAME license allow linking the MAME source with
+  Does the MAME 0.106 license allow linking the MAME 0.106 source with
   a GPL source ?
-	Yes. The only requirement of the MAME License for the
+	Yes. The only requirement of the MAME 0.106 License for the
 	derivative works is the whole source availability.
 	With the GPL you have it.
-	Obviously this assuming that the MAME License isn't changed
-	and it maintains complete validity.
 
   Does the GPL license allow to link a GPL source with a
-  MAME source ?
+  MAME 0.106 source ?
 	No. The GPL license requires that the whole program be
 	released with the GPL license or with a GPL compatible
-	license. The MAME License isn't a GPL compatible license.
+	license. The MAME 0.106 License isn't a GPL compatible license.
 
   Does the GPL license + exception allow linking a
-  GPL + exception source with a MAME source ?
+  GPL + exception source with a MAME 0.106 source ?
 	Yes. The license exception specifically allows it.
 
   The license exception say "MAME library". Is MAME a library or
   a program ?
-	AdvanceMAME uses only the internal MAME core, which is
-	effectively a library.  For example MESS is distributed with
-	the MAME core as a DLL (Dynamic Linked Library) and two
-	different frontends as .EXE files.
+	AdvanceMAME uses only the internal MAME 0.106 core, which is
+	effectively a library.
 
 	Anyway, calling a piece of software a program or a library 
 	doesn't change its license.
@@ -501,7 +349,7 @@ License FAQ
 	any exception.
 
 	The license exception explicitly allows you to combine the
-	GPL program with MAME. These exceptions exist specifically
+	GPL program with MAME 0.106. These exceptions exist specifically
 	to solve this problem. Essentially, if your GPL program needs
 	to use another module which is not under a GPL license, you 
 	(as copyright holder) can grant at the user the rights to link 
@@ -521,19 +369,8 @@ License FAQ
 	permitted by ALL these licenses.
 
   Can I sell the AdvanceMAME binary ?
-	No. The AdvanceMAME binary contains compiled MAME source and
-	the "MAME License" prohibits selling.
-
-  Why has SourceForge accepted the AdvanceMAME project and not the
-  xmame project ?
-	SourceForge accepts only Open Source licenses.
-
-	The source distribution of AdvanceMAME is released with
-	an Open Source license. So, it was accepted.
-
-	The xmame is released with the "MAME License". The MAME
-	License isn't an Open Source license as defined on
-	http://www.opensource.org/. So, it was rejected.
+	No. The AdvanceMAME binary contains compiled MAME 0.106 source and
+	the "MAME 0.106 License" prohibits selling.
 
   Who is the copyright holder of AdvanceMAME ?
 	Andrea Mazzoleni is the copyright holder of AdvanceMAME.

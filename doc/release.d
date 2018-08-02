@@ -1,9 +1,9 @@
 Name
 	release notes - Release Notes For AdvanceMAME
 
-	Note that despite the version number, AdvanceMAME
-	is still based on MAME 0.106, and it needs a romset
-	aligned to that MAME version.
+	Note that regarless of the version number, AdvanceMAME
+	is based on MAME 0.106, and it needs a romset aligned to
+	such MAME version.
 
 AdvanceMAME/MENU 3.8
 	Many improvements targeted to be able to build a completely
