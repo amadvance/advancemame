@@ -1091,8 +1091,8 @@ static struct mame_port GLUE_PORT_STD[] = {
 	PE("dial_left", "dial_right", "Dial Left", "Dial Right", DIAL)
 	PE("dial_up", "dial_down", "Dial Up", "Dial Down", DIAL_V)
 
-	PE("trackball_left", "trackball_right", "Trackball Left", "Trackball Right", TRACKBALL_X)
-	PE("trackball_up", "trackball_down", "Trackball Up", "Trackball Down", TRACKBALL_Y)
+	PE("trackball_right", "trackball_left", "Trackball Right", "Trackball Left", TRACKBALL_X)
+	PE("trackball_down", "trackball_up", "Trackball Down", "Trackball Up", TRACKBALL_Y)
 
 	PE("mouse_left", "mouse_right", "Mouse Left", "Mouse Right", MOUSE_X)
 	PE("mouse_up", "mouse_down", "Mouse Up", "Mouse Down", MOUSE_Y)
