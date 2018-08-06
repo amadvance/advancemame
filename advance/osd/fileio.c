@@ -216,12 +216,15 @@ osd_file* osd_fopen(int pathtype, int pathindex, const char* filename, const cha
 	}
 
 #ifndef MESS
-	/* HACK: for .CHD file MAME adds an initial slash */
-	/* remove it assuming always relative paths */
-	/* Note that for MESS is instead required to support absolute paths */
-	/* to load files from the UI */
-	if (filename[0] == file_dir_slash())
-		++filename;
+	if (pathtype == FILETYPE_IMAGE || pathtype == FILETYPE_IMAGE_DIFF) {
+		/* HACK: for .CHD file MAME adds an initial slash */
+		/* remove it assuming always relative paths */
+		/* Note that for MESS is instead required to support absolute paths */
+		/* to load files from the UI. */
+		/* Also for other file types we need to keep absolute paths specified by the user. */
+		if (filename[0] == file_dir_slash())
+			++filename;
+	}
 #endif
 
 	sncpy(path_buffer, sizeof(path_buffer), file_abs(i->dir_map[pathindex], filename));

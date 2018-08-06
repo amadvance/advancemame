@@ -29,6 +29,7 @@ MAME_INSTALL_MANFILES = $(DOCOBJ)/advmame.1 $(DOCOBJ)/advdev.1
 MAME_INSTALL_DATAFILES = $(srcdir)/support/event.dat \
 	$(srcdir)/support/history.dat \
 	$(srcdir)/support/hiscore.dat \
+	$(srcdir)/support/cheat.dat \
 	$(srcdir)/support/category.ini
 # Freely available roms: http://www.mame.net/roms/
 MAME_INSTALL_ROMFILES = $(srcdir)/support/free/rom/gridlee.zip \

@@ -858,6 +858,7 @@ EMU_SUPPORT_SRC += \
 	$(srcdir)/support/history.dat \
 	$(srcdir)/support/hiscore.dat \
 	$(srcdir)/support/sysinfo.dat  \
+	$(srcdir)/support/cheat.dat  \
 	$(srcdir)/support/category.ini \
 	$(srcdir)/support/advmess.1 \
 	$(srcdir)/support/advmessv.bat \
@@ -1017,6 +1018,7 @@ EMU_ROOT_BIN += \
 	$(srcdir)/support/history.dat \
 	$(srcdir)/support/hiscore.dat \
 	$(srcdir)/support/sysinfo.dat \
+	$(srcdir)/support/cheat.dat \
 	$(srcdir)/support/category.ini
 ifeq ($(CONF_SYSTEM),unix)
 EMU_ROOT_BIN += \

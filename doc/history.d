@@ -7,6 +7,8 @@ AdvanceMAME/MESS Version 3.9 2018/07
 		controlled with a joystick.
 	) Added the new 'display_artwork_magnify' to use a bigger screen
 		size when the game has an artwork to display.
+	) Included the cheat.dat resource in the main distribution.
+	) Fixed loading files with an absolute path, like with misc_cheatfile.
 
 AdvanceMAME/MESS Version 3.8 2018/06
 	) Change the default 'sync_resample' mode to 'internal' to all games
