@@ -852,6 +852,40 @@ int run_volume(config_state& rs)
 }
 
 // ------------------------------------------------------------------------
+// Exit
+
+#define EXIT_CHOICE_DX 15 * int_font_dx_get(text)
+#define EXIT_CHOICE_DY 4 * int_font_dy_get(text)
+#define EXIT_CHOICE_X (int_dx_get() - EXIT_CHOICE_DX) / 2
+#define EXIT_CHOICE_Y (int_dy_get() - EXIT_CHOICE_DY) / 2
+
+bool run_exit(config_state& rs, int key)
+{
+	choice_bag ch;
+
+	ch.insert(ch.end(), choice("Continue", 0));
+	switch (key) {
+	case EVENT_ESC :
+	case EVENT_EXIT :
+		ch.insert(ch.end(), choice("Exit", EVENT_EXIT));
+		break;
+	case EVENT_OFF :
+		ch.insert(ch.end(), choice("Shutdown", EVENT_OFF));
+		break;
+	}
+
+	choice_bag::iterator i = ch.begin();
+
+	key = ch.run(" Select", EXIT_CHOICE_X, EXIT_CHOICE_Y, EXIT_CHOICE_DX, i);
+
+	if (key == EVENT_ENTER && i->value_get())
+		return true;
+
+	return false;
+}
+
+
+// ------------------------------------------------------------------------
 // Difficulty
 
 #define DIFFICULTY_CHOICE_DX 10 * int_font_dx_get(text)
@@ -1102,12 +1136,12 @@ int run_submenu(config_state& rs)
 			ch.insert(ch.end(), choice(menu_name(rs, rs.script_menu, EVENT_COMMAND), 8));
 	}
 
-	if ((rs.exit_mode == exit_esc || rs.exit_mode == exit_all) && event_is_visible(EVENT_ESC)) {
+	if ((rs.exit_mode == exit_esc || rs.exit_mode == exit_all || rs.exit_mode == exit_menu) && event_is_visible(EVENT_ESC)) {
 		ch.insert(ch.end(), choice(menu_name(rs, "Exit", EVENT_ESC), 19));
-	} else if ((rs.exit_mode == exit_exit || rs.exit_mode == exit_all) && event_is_visible(EVENT_EXIT)) {
+	} else if ((rs.exit_mode == exit_exit || rs.exit_mode == exit_all || rs.exit_mode == exit_menu) && event_is_visible(EVENT_EXIT)) {
 		ch.insert(ch.end(), choice(menu_name(rs, "Exit", EVENT_EXIT), 20));
 	}
-	if ((rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all) && event_is_visible(EVENT_OFF)) {
+	if ((rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all || rs.exit_mode == exit_menu) && event_is_visible(EVENT_OFF)) {
 		ch.insert(ch.end(), choice(menu_name(rs, "Poweroff", EVENT_OFF), 21));
 	}
 
@@ -1226,16 +1260,16 @@ void run_help(config_state& rs)
 			int_put_alpha(text, xd, y, "Next menu mode", COLOR_HELP_NORMAL);
 			y += int_font_dy_get(text);
 		}
-		if ((rs.exit_mode == exit_esc || rs.exit_mode == exit_all) && event_is_visible(EVENT_ESC)) {
+		if ((rs.exit_mode == exit_esc || rs.exit_mode == exit_all || rs.exit_mode == exit_menu) && event_is_visible(EVENT_ESC)) {
 			int_put_alpha(text, xt, y, event_name(EVENT_ESC), COLOR_HELP_TAG);
 			int_put_alpha(text, xd, y, "Exit", COLOR_HELP_NORMAL);
 			y += int_font_dy_get(text);
-		} else if ((rs.exit_mode == exit_exit || rs.exit_mode == exit_all) && event_is_visible(EVENT_EXIT)) {
+		} else if ((rs.exit_mode == exit_exit || rs.exit_mode == exit_all || rs.exit_mode == exit_menu) && event_is_visible(EVENT_EXIT)) {
 			int_put_alpha(text, xt, y, event_name(EVENT_EXIT), COLOR_HELP_TAG);
 			int_put_alpha(text, xd, y, "Exit", COLOR_HELP_NORMAL);
 			y += int_font_dy_get(text);
 		}
-		if ((rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all) && event_is_visible(EVENT_OFF)) {
+		if ((rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all || rs.exit_mode == exit_menu) && event_is_visible(EVENT_OFF)) {
 			int_put_alpha(text, xt, y, event_name(EVENT_OFF), COLOR_HELP_TAG);
 			int_put_alpha(text, xd, y, "Shutdown", COLOR_HELP_NORMAL);
 			y += int_font_dy_get(text);

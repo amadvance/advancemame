@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 3.9 2018/07
+AdvanceMAME/MESS Version 3.9 2018/09
 	) Fixed input games with a relative input when controlled with
 		an absolute controller. Like 'cabal' or 'offroad' when
 		controlled with a joystick.
@@ -9,6 +9,10 @@ AdvanceMAME/MESS Version 3.9 2018/07
 		size when the game has an artwork to display.
 	) Included the cheat.dat resource in the main distribution.
 	) Fixed loading files with an absolute path, like with misc_cheatfile.
+
+AdvanceMENU Version 3.9 2018/09
+	) Added a new 'menu' option at the 'misc_exit' configuration to
+		have a confirmation menu before quitting.
 
 AdvanceMAME/MESS Version 3.8 2018/06
 	) Change the default 'sync_resample' mode to 'internal' to all games

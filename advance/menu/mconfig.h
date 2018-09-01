@@ -192,7 +192,8 @@ enum exit_t {
 	exit_esc,
 	exit_exit,
 	exit_shutdown,
-	exit_all
+	exit_all,
+	exit_menu
 };
 
 struct script {

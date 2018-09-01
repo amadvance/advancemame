@@ -25,6 +25,7 @@
 
 void run_help(config_state& rs);
 int run_volume(config_state& rs);
+bool run_exit(config_state& rs, int key);
 int run_sort(config_state& rs);
 void run_exclude(config_state& rs);
 int run_type(config_state& rs);

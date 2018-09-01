@@ -83,7 +83,8 @@ static adv_conf_enum_int OPTION_EXIT[] = {
 	{ "esc", exit_esc },
 	{ "exit", exit_exit },
 	{ "shutdown", exit_shutdown },
-	{ "all", exit_all }
+	{ "all", exit_all },
+	{ "menu", exit_menu }
 };
 
 static adv_conf_enum_int OPTION_SAVER[] = {

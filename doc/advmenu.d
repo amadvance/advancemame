@@ -1451,10 +1451,14 @@ Configuration
 
 	Options:
 		none - Exit is disabled.
-		esc - Exit is possible with the 'esc' event [ESC] (default).
+		esc - Exit is possible with the 'esc' event [ESC]
+			if the interface is not locked (default).
 		exit - Exit is possible with the 'exit' event [ALT-X].
 		shutdown - Exit is possible with the 'shutdown' event [CTRL-ESC].
-		all - All the exit modes are possible.
+		all - All the exit events work.
+		menu - All the exit events work but you get a menu confirmation.
+
+	To lock the interface use the 'lock' option.
 
     misc_quiet
 	Disables the copyright text message at the startup.

@@ -1760,15 +1760,15 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		// allow exit/shutdown in locked mode if the exit mode allows it
 		switch (key) {
 		case EVENT_ESC:
-			if (rs.exit_mode == exit_esc || rs.exit_mode == exit_all)
+			if (rs.exit_mode == exit_esc || rs.exit_mode == exit_all || rs.exit_mode == exit_menu)
 				done = true;
 			break;
 		case EVENT_EXIT:
-			if (rs.exit_mode == exit_exit || rs.exit_mode == exit_all)
+			if (rs.exit_mode == exit_exit || rs.exit_mode == exit_all || rs.exit_mode == exit_menu)
 				done = true;
 			break;
 		case EVENT_OFF:
-			if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all)
+			if (rs.exit_mode == exit_shutdown || rs.exit_mode == exit_all || rs.exit_mode == exit_menu)
 				done = true;
 			break;
 		}

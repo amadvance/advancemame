@@ -169,6 +169,16 @@ int run_sub(config_state& rs, bool silent)
 			done = true;
 			break;
 		}
+
+		switch (key) {
+		case EVENT_ESC:
+		case EVENT_EXIT:
+		case EVENT_OFF:
+			// ask confirmation for the exit condition
+			if (done && rs.exit_mode == exit_menu)
+				done = run_exit(rs, key);
+			break;
+		}
 	}
 
 	if (is_run) {
