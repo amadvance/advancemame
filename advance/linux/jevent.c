@@ -395,15 +395,92 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ 0x0079, 0x0011, "USB Gamepad ", 5, "tr", JOYB_TR },
 		{ 0x0079, 0x0011, "USB Gamepad ", 8, "select", JOYB_SELECT },
 		{ 0x0079, 0x0011, "USB Gamepad ", 9, "start", JOYB_START },
-		/* 8BITDO GAMEPAD SF30 Wireless Controller */
-		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 0, "a", JOYB_A },
-		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 1, "b", JOYB_B },
-		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 3, "x", JOYB_X },
-		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 4, "y", JOYB_Y },
-		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 6, "tl", JOYB_TL },
-		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 7, "tr", JOYB_TR },
-		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 10, "select", JOYB_SELECT },
-		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 11, "start", JOYB_START },
+		/* 8BITDO SF30 - ANDROID mode (START) */
+		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 0, "a", JOYB_A },
+		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 1, "b", JOYB_B },
+		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 3, "x", JOYB_X },
+		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 4, "y", JOYB_Y },
+		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 6, "tl", JOYB_TL },
+		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 7, "tr", JOYB_TR },
+		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 10, "select", JOYB_SELECT },
+		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 11, "start", JOYB_START },
+		/* 8BITDO SF30 - PC mode (START+X) */
+		{ 0x045e, 0x02e0, "8Bitdo SFC30 GamePad(x)", 1, "a", JOYB_A },
+		{ 0x045e, 0x02e0, "8Bitdo SFC30 GamePad(x)", 0, "b", JOYB_B },
+		{ 0x045e, 0x02e0, "8Bitdo SFC30 GamePad(x)", 3, "x", JOYB_X },
+		{ 0x045e, 0x02e0, "8Bitdo SFC30 GamePad(x)", 2, "y", JOYB_Y },
+		{ 0x045e, 0x02e0, "8Bitdo SFC30 GamePad(x)", 4, "tl", JOYB_TL },
+		{ 0x045e, 0x02e0, "8Bitdo SFC30 GamePad(x)", 5, "tr", JOYB_TR },
+		{ 0x045e, 0x02e0, "8Bitdo SFC30 GamePad(x)", 6, "select", JOYB_SELECT },
+		{ 0x045e, 0x02e0, "8Bitdo SFC30 GamePad(x)", 7, "start", JOYB_START },
+		/* 8BITDO SF30 - MAC mode (START+A) */
+		/* ... listed as "Wireless Controller" as "input-gaming", but do not show in joystick */
+		/* 8BITDO SF30 - SWITCH mode (START+Y) */
+		/* 0x57e, 0x2007, ""Pro Controller" - No input is working (need firmare update ?) */
+		/* 8Bitdo SF30 Pro - SWITCH mode (START+Y), 8Bitdo N30 Pro - SWITCH mode (POWER+Y) */
+		{ 0x057e, 0x2009, "Pro Controller", 1, "a", JOYB_A },
+		{ 0x057e, 0x2009, "Pro Controller", 0, "b", JOYB_B },
+		{ 0x057e, 0x2009, "Pro Controller", 3, "x", JOYB_X },
+		{ 0x057e, 0x2009, "Pro Controller", 2, "y", JOYB_Y },
+		{ 0x057e, 0x2009, "Pro Controller", 4, "tl", JOYB_TL },
+		{ 0x057e, 0x2009, "Pro Controller", 5, "tr", JOYB_TR },
+		{ 0x057e, 0x2009, "Pro Controller", 6, "tl2", JOYB_TL2 },
+		{ 0x057e, 0x2009, "Pro Controller", 7, "tr2", JOYB_TR2 },
+		{ 0x057e, 0x2009, "Pro Controller", 8, "select", JOYB_SELECT },
+		{ 0x057e, 0x2009, "Pro Controller", 9, "start", JOYB_START },
+		{ 0x057e, 0x2009, "Pro Controller", 12, "mode", JOYB_MODE },
+		/* 8Bitdo SF30 Pro - ANDROID (START+B) */
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 0, "a", JOYB_A },
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 1, "b", JOYB_B },
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 3, "x", JOYB_X },
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 4, "y", JOYB_Y },
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 6, "tl", JOYB_TL },
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 7, "tr", JOYB_TR },
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 8, "tl2", JOYB_TL2 },
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 9, "tr2", JOYB_TR2 },
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 10, "select", JOYB_SELECT },
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 11, "start", JOYB_START },
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 2, "mode", JOYB_MODE },
+		/* 8Bitdo SF30 Pro - PC mode (START+Y) */
+		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 1, "a", JOYB_A },
+		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 0, "b", JOYB_B },
+		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 3, "x", JOYB_X },
+		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 2, "y", JOYB_Y },
+		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 4, "tl", JOYB_TL },
+		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 5, "tr", JOYB_TR },
+		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 6, "select", JOYB_SELECT },
+		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 7, "start", JOYB_START },
+		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 8, "thumbl", JOYB_THUMBL },
+		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 9, "thumbr", JOYB_THUMBR },
+		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 10, "mode", JOYB_MODE },
+		/* 8Bitdo SF30 Pro - MAC mode (START+A) */
+		/* ... listed as "Wireless Controller" as "input-gaming", but do not show in joystick */
+		/* 8Bitdo N30 Pro - ANDROID mode (POWER) */
+		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 0, "a", JOYB_A },
+		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 1, "b", JOYB_B },
+		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 3, "x", JOYB_X },
+		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 4, "y", JOYB_Y },
+		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 6, "tl", JOYB_TL },
+		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 7, "tr", JOYB_TR },
+		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 8, "tl2", JOYB_TL2 },
+		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 9, "tr2", JOYB_TR2 },
+		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 10, "select", JOYB_SELECT },
+		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 11, "start", JOYB_START },
+		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 2, "mode", JOYB_MODE },
+		/* 8Bitdo N30 Pro - PC mode (POWER+X) */
+		{ 0x045e, 0x02e0, "8Bitdo NES30 Pro(x)", 1, "a", JOYB_A },
+		{ 0x045e, 0x02e0, "8Bitdo NES30 Pro(x)", 0, "b", JOYB_B },
+		{ 0x045e, 0x02e0, "8Bitdo NES30 Pro(x)", 3, "x", JOYB_X },
+		{ 0x045e, 0x02e0, "8Bitdo NES30 Pro(x)", 2, "y", JOYB_Y },
+		{ 0x045e, 0x02e0, "8Bitdo NES30 Pro(x)", 4, "tl", JOYB_TL },
+		{ 0x045e, 0x02e0, "8Bitdo NES30 Pro(x)", 5, "tr", JOYB_TR },
+		{ 0x045e, 0x02e0, "8Bitdo NES30 Pro(x)", 6, "select", JOYB_SELECT },
+		{ 0x045e, 0x02e0, "8Bitdo NES30 Pro(x)", 7, "start", JOYB_START },
+		{ 0x045e, 0x02e0, "8Bitdo NES30 Pro(x)", 8, "thumbl", JOYB_THUMBL },
+		{ 0x045e, 0x02e0, "8Bitdo NES30 Pro(x)", 9, "thumbr", JOYB_THUMBR },
+		{ 0x045e, 0x02e0, "8Bitdo NES30 Pro(x)", 10, "mode", JOYB_MODE },
+		/* 8Bitdo N30 Pro - MAC mode (POWER+A) */
+		/* ... listed as "Wireless Controller" as "input-gaming", but do not show in joystick */
 
 /*
  * Include libretro definitions from:
