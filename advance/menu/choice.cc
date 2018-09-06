@@ -308,6 +308,8 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 			}
 			break;
 		case EVENT_ESC:
+		case EVENT_EXIT:
+		case EVENT_OFF:
 		case EVENT_MENU:
 			done = 1;
 			break;
