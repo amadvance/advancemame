@@ -183,6 +183,7 @@ struct blue_device {
 	int is_paired;
 	int is_trusted;
 	int is_connected;
+	int need_connect;
 
 	struct blue_device* next;
 };
@@ -372,6 +373,13 @@ void process_connect(int in_f, int out_f)
 		}
 
 		if (!i->is_paired) {
+			/*
+			 * If the device is paired now, we need a manual connect
+			 * If instead the device was already paired, the bluetooth daemon
+			 * will connect it automatically.
+			 */
+			i->need_connect = 1;
+
 			snprintf(cmd, sizeof(cmd), "pair %s\n", i->id);
 			blue_send(in_f, cmd);
 			blue_discard(out_f);
@@ -380,7 +388,7 @@ void process_connect(int in_f, int out_f)
 			continue;
 		}
 
-		if (!i->is_connected) {
+		if (!i->is_connected && i->need_connect) {
 			snprintf(cmd, sizeof(cmd), "connect %s\n", i->id);
 			blue_send(in_f, cmd);
 			blue_discard(out_f);
@@ -389,8 +397,10 @@ void process_connect(int in_f, int out_f)
 			continue;
 		}
 
-		snprintfcat(connected, sizeof(connected), "Connected %s...", name);
-		++count_connected;
+		if (i->is_connected) {
+			snprintfcat(connected, sizeof(connected), "Connected %s...", name);
+			++count_connected;
+		}
 	}
 
 	/* ensure to have the final terminator */
@@ -427,11 +437,12 @@ void print_list(void)
 	printf("\nDevices:\n");
 
 	for (i = devs; i != 0; i = i->next) {
-		printf("\t\"%s\" %s %s %s %s %s\n", i->name, i->id,
+		printf("\t\"%s\" %s %s %s %s %s %s\n", i->name, i->id,
 			i->is_game ? "game" : "",
 			i->is_trusted ? "trusted" : "",
 			i->is_paired ? "paired" : "",
-			i->is_connected ? "connected" : ""
+			i->is_connected ? "connected" : "",
+			i->need_connect ? "[need_connect]" : "[auto_connect]"
 		);
 	}
 }
