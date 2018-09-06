@@ -81,6 +81,9 @@ unsigned int_put_alpha(font_t font, int x, int y, int dx, const std::string& s, 
 unsigned int_put_right(font_t font, int x, int y, int dx, const std::string& s, const int_color& color);
 unsigned int_put_right_alpha(font_t font, int x, int y, int dx, const std::string& s, const int_color& color);
 
+void int_set_overlay(const std::string& desc, unsigned counter);
+void int_clear_overlay(void);
+
 void int_backdrop_init(const int_color& back_color, const int_color& back_box_color, unsigned Amac, unsigned Ainc, unsigned Aoutline, unsigned Acursor, double expand_factor, bool multiclip, int resizeeffect);
 void int_backdrop_done();
 void int_backdrop_pos(int index, int x, int y, int dx, int dy);

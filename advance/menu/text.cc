@@ -471,6 +471,19 @@ adv_bool video_alpha_flag; ///< Color translucency enabled.
 adv_color_def video_alpha_color_def; ///< Color definition for the alpha buffers.
 unsigned video_alpha_bytes_per_pixel; ///< Pixel size of the alpha buffers.
 
+static void int_copy_partial(unsigned y0, unsigned y1)
+{
+	video_write_lock();
+
+	unsigned char* buffer = video_foreground_buffer + y0 * video_buffer_line_size;
+	for (unsigned y = y0; y < y1; ++y) {
+		memcpy(video_write_line(y), buffer, video_buffer_line_size);
+		buffer += video_buffer_line_size;
+	}
+
+	video_write_unlock(0, y0, video_size_x(), y1 - y0, 0);
+}
+
 void int_reg(adv_conf* config_context)
 {
 	int_mouse_reg(config_context);
@@ -946,6 +959,49 @@ static int fast_exit_handler(void)
 	       || key == EVENT_LEFT
 	       || key == EVENT_RIGHT
 	       || key == EVENT_MODE;
+}
+
+//---------------------------------------------------------------------------
+// Text overlay
+
+static string overlay_text;
+static unsigned overlay_counter;
+
+static void int_overlay(void)
+{
+	if (overlay_text.length() == 0)
+		return;
+
+	int border = int_font_dx_get(text) / 2;
+
+	int dx = int_put_width(text, overlay_text);
+	int x = (int_dx_get() - dx) / 2;
+
+	int dy = int_font_dy_get(text);
+	int y;
+
+	if (overlay_counter % 2 == 0)
+		y = int_dy_get() - 3 * int_font_dy_get(text);
+	else
+		y = 2 * int_font_dy_get(text);
+
+	int_box(x - border, y - border, dx + 2 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
+	int_clear(x - border + 1, y - border + 1, dx + 2 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
+
+	int_put(text, x, y, dx, overlay_text, COLOR_CHOICE_TITLE);
+
+	int_copy_partial(y - border, y + dy + border * 2);
+}
+
+void int_set_overlay(const std::string& desc, unsigned counter)
+{
+	overlay_text = desc;
+	overlay_counter = counter;
+}
+
+void int_clear_overlay(void)
+{
+	overlay_text = "";
 }
 
 // -------------------------------------------------------------------------
@@ -2296,6 +2352,8 @@ bool cell_manager::idle()
 		}
 	}
 
+	int_overlay();
+
 	// render the screen
 	if (late)
 		video_display_set(0, 0); // do NOT wait for vsync
@@ -2905,19 +2963,6 @@ bool int_image(const string& file, unsigned& scale_x, unsigned& scale_y)
 
 //---------------------------------------------------------------------------
 // Update Interface
-
-static void int_copy_partial(unsigned y0, unsigned y1)
-{
-	video_write_lock();
-
-	unsigned char* buffer = video_foreground_buffer + y0 * video_buffer_line_size;
-	for (unsigned y = y0; y < y1; ++y) {
-		memcpy(video_write_line(y), buffer, video_buffer_line_size);
-		buffer += video_buffer_line_size;
-	}
-
-	video_write_unlock(0, y0, video_size_x(), y1 - y0, 0);
-}
 
 unsigned int_update_pre(bool progressive)
 {

@@ -496,27 +496,6 @@ void draw_menu_scroll(int x, int y, int dx, int dy, int pos, int delta, int max)
 	int_clear_alpha(x, y + y0, dx, y1 - y0 + 1, COLOR_MENU_GRID.foreground);
 }
 
-void draw_menu_desc(const string& desc, unsigned counter)
-{
-	int border = int_font_dx_get(text) / 2;
-
-	int dx = int_put_width(text, desc);
-	int x = (int_dx_get() - dx) / 2;
-
-	int dy = int_font_dy_get(text);
-	int y;
-
-	if (counter % 2 == 0)
-		y = int_dy_get() - 3 * int_font_dy_get(text);
-	else
-		y = 2 * int_font_dy_get(text);
-
-	int_box(x - border, y - border, dx + 2 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
-	int_clear(x - border + 1, y - border + 1, dx + 2 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
-
-	int_put(text, x, y, dx, desc, COLOR_CHOICE_TITLE);
-}
-
 // ------------------------------------------------------------------------
 // Menu utility
 
@@ -1890,11 +1869,13 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 			int_update_pre();
 
 			if (rs.ui_gamename)
-				draw_menu_desc(gc[pos]->game_get().description_get(), counter);
+				int_set_overlay(gc[pos]->game_get().description_tree_get(), counter);
 
 			int_update_post();
 		} else {
 			backdrop_game_set(0, 0, preview, false, false, true, rs);
+
+			int_clear_overlay();
 
 			int_update();
 		}
@@ -1916,6 +1897,8 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 			}
 		}
 	}
+
+	int_clear_overlay();
 
 	int_backdrop_done();
 
