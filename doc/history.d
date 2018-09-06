@@ -13,6 +13,8 @@ AdvanceMAME/MESS Version 3.9 2018/09
 AdvanceMENU Version 3.9 2018/09
 	) Added a new 'menu' option at the 'misc_exit' configuration to
 		have a confirmation menu before quitting.
+	) Fixed the creation of the default advmenu.rc, avoiding the "volume"
+		syntax error.
 
 AdvanceMAME/MESS Version 3.8 2018/06
 	) Change the default 'sync_resample' mode to 'internal' to all games

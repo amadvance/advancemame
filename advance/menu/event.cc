@@ -343,10 +343,11 @@ bool event_in(const string& s)
 void event_out(adv_conf* config_context, const char* tag)
 {
 	for (unsigned i = 0; EVENT_TAB[i].name; ++i) {
+		unsigned j;
 		string s;
 		s += EVENT_TAB[i].name;
 		s += " ";
-		for (unsigned j = 0; EVENT_TAB[i].seq[j] != OP_NONE && j < SEQ_MAX; ++j) {
+		for (j = 0; EVENT_TAB[i].seq[j] != OP_NONE && j < SEQ_MAX; ++j) {
 			unsigned m = EVENT_TAB[i].seq[j] & 0xFF00;
 			unsigned c = EVENT_TAB[i].seq[j] & 0xFF;
 			ostringstream os;
@@ -376,6 +377,9 @@ void event_out(adv_conf* config_context, const char* tag)
 				break;
 			}
 		}
+
+		if (j == 0)
+			s += "none";
 
 		conf_set(config_context, "", tag, s.c_str());
 	}
