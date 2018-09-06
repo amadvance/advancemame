@@ -70,6 +70,7 @@ void int_put(font_t font, int x, int y, char c, const int_color& color);
 void int_put(font_t font, int x, int y, const std::string& s, const int_color& color);
 void int_put_filled(font_t font, int x, int y, int dx, const std::string& s, const int_color& color);
 void int_put_special(font_t font, bool& in, int x, int y, int dx, const std::string& s, const int_color& c0, const int_color& c1, const int_color& c2);
+void int_put_special_center(font_t font, bool& in, int x, int y, int dx, const std::string& s, const int_color& c0, const int_color& c1, const int_color& c2);
 void int_put_alpha(font_t font, int x, int y, char c, const int_color& color);
 void int_put_alpha(font_t font, int x, int y, const std::string& s, const int_color& color);
 void int_put_filled_alpha(font_t font, int x, int y, int dx, const std::string& s, const int_color& color);

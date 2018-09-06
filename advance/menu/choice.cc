@@ -138,7 +138,7 @@ const string& choice::print_get() const
 	}
 }
 
-void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, int pos_rel, int rows)
+void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, int pos_rel, int rows, bool center)
 {
 	int_put_filled(text, x, y, dx, title, COLOR_CHOICE_TITLE);
 
@@ -198,13 +198,16 @@ void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, i
 		}
 
 		bool in = false;
-		int_put_special(text, in, x + indent, y, dx - indent - key_width, rest, colorf, color, color);
+		if (center)
+			int_put_special_center(text, in, x + indent, y, dx - indent - key_width, rest, colorf, color, color);
+		else
+			int_put_special(text, in, x + indent, y, dx - indent - key_width, rest, colorf, color, color);
 
 		y += int_font_dy_get(text);
 	}
 }
 
-int choice_bag::run(const string& title, int x, int y, int dx, choice_container::iterator& pos)
+int choice_bag::run(const string& title, int x, int y, int dx, choice_container::iterator& pos, bool center)
 {
 	int key = EVENT_ESC;
 	int done = 0;
@@ -253,7 +256,7 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 	}
 
 	while (!done) {
-		draw(title, x, y, dx, pos_base, pos_rel, pos_rel_max);
+		draw(title, x, y, dx, pos_base, pos_rel, pos_rel_max, center);
 
 		key = int_event_get();
 

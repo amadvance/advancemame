@@ -854,7 +854,7 @@ int run_volume(config_state& rs)
 // ------------------------------------------------------------------------
 // Exit
 
-#define EXIT_CHOICE_DX 15 * int_font_dx_get(text)
+#define EXIT_CHOICE_DX 14 * int_font_dx_get(text)
 #define EXIT_CHOICE_DY 4 * int_font_dy_get(text)
 #define EXIT_CHOICE_X (int_dx_get() - EXIT_CHOICE_DX) / 2
 #define EXIT_CHOICE_Y (int_dy_get() - EXIT_CHOICE_DY) / 2
@@ -876,7 +876,7 @@ bool run_exit(config_state& rs, int key)
 
 	choice_bag::iterator i = ch.begin();
 
-	key = ch.run(" Select", EXIT_CHOICE_X, EXIT_CHOICE_Y, EXIT_CHOICE_DX, i);
+	key = ch.run(" Select command", EXIT_CHOICE_X, EXIT_CHOICE_Y, EXIT_CHOICE_DX, i, true);
 
 	if (key == EVENT_ENTER && i->value_get())
 		return true;

@@ -2535,6 +2535,20 @@ void int_put_special(font_t font, bool& in, int x, int y, int dx, const string& 
 		int_clear(x, y, dx, int_font_dy_get(font), c0.background);
 }
 
+void int_put_special_center(font_t font, bool& in, int x, int y, int dx, const string& s, const int_color& c0, const int_color& c1, const int_color& c2)
+{
+	int width = int_put_width(font, s);
+	if (width + 1 < dx) {
+		int prefix_dx = (dx - width) / 2;
+		int_clear(x, y, prefix_dx, int_font_dy_get(font), c0.background);
+		x += prefix_dx;
+		dx -= prefix_dx;
+	}
+
+	int_put_special(font, in, x, y, dx, s, c0, c1, c2);
+}
+
+
 void int_put_special_alpha(font_t font, bool& in, int x, int y, int dx, const string& s, const int_color& c0, const int_color& c1, const int_color& c2)
 {
 	for (unsigned i = 0; i < s.length(); ++i) {
