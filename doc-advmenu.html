@@ -3208,7 +3208,8 @@ Exit is disabled.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 esc
 </em></td><td width="90%">
-Exit is possible with the 'esc' event [ESC] (default).
+Exit is possible with the 'esc' event [ESC]
+if the interface is not locked (default).
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 exit
@@ -3223,9 +3224,16 @@ Exit is possible with the 'shutdown' event [CTRL-ESC].
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 all
 </em></td><td width="90%">
-All the exit modes are possible.
+All the exit events work.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu
+</em></td><td width="90%">
+All the exit events work but you get a menu confirmation.
 </td></tr>
 </table>
+<p>
+To lock the interface use the 'lock' option.
 <h4><a name="5.7.7">5.7.7</a> 
 misc_quiet
 </h4>
