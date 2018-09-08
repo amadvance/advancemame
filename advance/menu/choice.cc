@@ -216,6 +216,14 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 	int done = 0;
 	int border = int_font_dx_get(text) / 2;
 
+	// adjust dx size if needed
+	if (int_put_width(bar, title) + 2 * border > dx) {
+		int ndx = int_put_width(bar, title) + 2 * border;
+		if (center)
+			x -= (ndx - dx) / 2;
+		dx = ndx;
+	}
+
 	if (x < 0)
 		x = (int_dx_get() - dx - border * 2) / 2;
 	if (y < 0)
