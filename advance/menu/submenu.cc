@@ -854,7 +854,7 @@ int run_volume(config_state& rs)
 // ------------------------------------------------------------------------
 // Exit
 
-#define EXIT_CHOICE_DX 14 * int_font_dx_get(text)
+#define EXIT_CHOICE_DX 18 * int_font_dx_get(text)
 #define EXIT_CHOICE_DY 4 * int_font_dy_get(text)
 #define EXIT_CHOICE_X (int_dx_get() - EXIT_CHOICE_DX) / 2
 #define EXIT_CHOICE_Y (int_dy_get() - EXIT_CHOICE_DY) / 2

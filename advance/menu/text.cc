@@ -2564,6 +2564,19 @@ void int_put_filled(font_t font, int x, int y, int dx, const string& s, const in
 		int_clear(x, y, dx, int_font_dy_get(font), color.background);
 }
 
+void int_put_filled_center(font_t font, int x, int y, int dx, const string& s, const int_color& color)
+{
+	int width = int_put_width(font, s);
+	if (width + 1 < dx) {
+		int prefix_dx = (dx - width) / 2;
+		int_clear(x, y, prefix_dx, int_font_dy_get(font), color.background);
+		x += prefix_dx;
+		dx -= prefix_dx;
+	}
+
+	int_put_filled(font, x, y, dx, s, color);
+}
+
 void int_put_filled_alpha(font_t font, int x, int y, int dx, const string& s, const int_color& color)
 {
 	for (unsigned i = 0; i < s.length(); ++i) {

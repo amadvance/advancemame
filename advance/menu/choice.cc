@@ -140,9 +140,12 @@ const string& choice::print_get() const
 
 void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, int pos_rel, int rows, bool center)
 {
-	int_put_filled(text, x, y, dx, title, COLOR_CHOICE_TITLE);
+	if (center)
+		int_put_filled_center(bar, x, y, dx, title, COLOR_CHOICE_TITLE);
+	else
+		int_put_filled(bar, x, y, dx, title, COLOR_CHOICE_TITLE);
 
-	y += int_font_dy_get(text);
+	y += int_font_dy_get(bar);
 
 	for (unsigned j = 0; j < rows; ++j) {
 		int_color color;
@@ -216,7 +219,7 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 	if (x < 0)
 		x = (int_dx_get() - dx - border * 2) / 2;
 	if (y < 0)
-		y = (int_dy_get() - (size() + 1) * int_font_dy_get(text) - border * 2) / 2;
+		y = (int_dy_get() - (int_font_dy_get(bar) + size() * int_font_dy_get(text)) - border * 2) / 2;
 
 	int pos_rel_max = (int_dy_get() - y) / int_font_dy_get(text);
 	pos_rel_max -= 2;
@@ -228,7 +231,7 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 	int pos_base = 0;
 	int pos_rel = 0;
 
-	int dy = (pos_rel_max + 1) * int_font_dy_get(text);
+	int dy = int_font_dy_get(bar) + pos_rel_max * int_font_dy_get(text);
 
 	int_box(x - border, y - border, dx + 2 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
 	int_clear(x - border + 1, y - border + 1, dx + 2 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
