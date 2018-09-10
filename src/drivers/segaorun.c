@@ -8,11 +8,8 @@
         * LED connected to stop lights no longer working
 
     To do for each game:
-        * verify memory test
-        * verify inputs
-        * verify DIP switches
+        * verify analog input min/max
         * verify protection
-        * check playability
 
 ***************************************************************************/
 
@@ -63,6 +60,9 @@ extern void fd1094_driver_init(void);
 static READ16_HANDLER( misc_io_r );
 static WRITE16_HANDLER( misc_io_w );
 
+static READ8_HANDLER( unknown_porta_r );
+static READ8_HANDLER( unknown_portb_r );
+static READ8_HANDLER( unknown_portc_r );
 static WRITE8_HANDLER( unknown_porta_w );
 static WRITE8_HANDLER( unknown_portb_w );
 static WRITE8_HANDLER( video_control_w );
@@ -78,9 +78,9 @@ static WRITE8_HANDLER( video_control_w );
 static ppi8255_interface single_ppi_intf =
 {
 	1,
-	{ NULL },
-	{ NULL },
-	{ NULL },
+	{ unknown_porta_r },
+	{ unknown_portb_r },
+	{ unknown_portc_r },
 	{ unknown_porta_w },
 	{ unknown_portb_w },
 	{ video_control_w }
@@ -118,16 +118,30 @@ static const struct segaic16_memory_map_entry outrun_info[] =
  *
  *************************************/
 
-static void sound_w(UINT8 data)
+static void delayed_sound_data_w(int data)
 {
 	soundlatch_w(0, data);
-	cpunum_set_input_line(2, INPUT_LINE_NMI, PULSE_LINE);
+	cpunum_set_input_line(2, INPUT_LINE_NMI, ASSERT_LINE);
 }
+
+
+static void sound_data_w(UINT8 data)
+{
+	timer_set(TIME_NOW, data, delayed_sound_data_w);
+}
+
+
+static READ8_HANDLER( sound_data_r )
+{
+	cpunum_set_input_line(2, INPUT_LINE_NMI, CLEAR_LINE);
+	return soundlatch_r(offset);
+}
+
 
 
 static void outrun_generic_init(void)
 {
-	/* allocate memory for regions not autmatically assigned */
+	/* allocate memory for regions not automatically assigned */
 	segaic16_spriteram_0 = auto_malloc(0x01000);
 	paletteram16         = auto_malloc(0x02000);
 	segaic16_tileram_0   = auto_malloc(0x10000);
@@ -135,7 +149,7 @@ static void outrun_generic_init(void)
 	workram              = auto_malloc(0x08000);
 
 	/* init the memory mapper */
-	segaic16_memory_mapper_init(0, outrun_info, sound_w, NULL);
+	segaic16_memory_mapper_init(0, outrun_info, sound_data_w, NULL);
 
 	/* init the FD1094 */
 	fd1094_driver_init();
@@ -270,15 +284,52 @@ static MACHINE_RESET( outrun )
  *
  *************************************/
 
+static void log_unknown_ppi_read( unsigned port )
+{
+	static const char ports[] = "ABC";
+
+	logerror("%06X:read from 8255 port %c\n", activecpu_get_pc(), ports[port]);
+}
+
+
+static void log_unknown_ppi_write( unsigned port, UINT8 data )
+{
+	static const char ports[] = "ABC";
+
+	logerror("%06X:write %02X to 8255 port %c\n", activecpu_get_pc(), data, ports[port]);
+}
+
+
+static READ8_HANDLER( unknown_porta_r )
+{
+	log_unknown_ppi_read(0);
+	return 0;
+}
+
+
+static READ8_HANDLER( unknown_portb_r )
+{
+	log_unknown_ppi_read(1);
+	return 0;
+}
+
+
+static READ8_HANDLER( unknown_portc_r )
+{
+	log_unknown_ppi_read(2);
+	return 0;
+}
+
+
 static WRITE8_HANDLER( unknown_porta_w )
 {
-	logerror("8255 port A = %02X\n", data);
+	log_unknown_ppi_write(0, data);
 }
 
 
 static WRITE8_HANDLER( unknown_portb_w )
 {
-	logerror("8255 port B = %02X\n", data);
+	log_unknown_ppi_write(1, data);
 }
 
 
@@ -506,7 +557,7 @@ static ADDRESS_MAP_START( sound_portmap, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_UNMAP(1) | AMEF_ABITS(8) )
 	AM_RANGE(0x00, 0x00) AM_MIRROR(0x3e) AM_WRITE(YM2151_register_port_0_w)
 	AM_RANGE(0x01, 0x01) AM_MIRROR(0x3e) AM_READWRITE(YM2151_status_port_0_r, YM2151_data_port_0_w)
-	AM_RANGE(0x40, 0x40) AM_MIRROR(0x3f) AM_READ(soundlatch_r)
+	AM_RANGE(0x40, 0x40) AM_MIRROR(0x3f) AM_READ(sound_data_r)
 ADDRESS_MAP_END
 
 
@@ -532,7 +583,7 @@ static INPUT_PORTS_START( outrun_generic )
 	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNKNOWN )
 
 	PORT_START_TAG("COINAGE")
-	PORT_DIPNAME( 0x0f, 0x0f, DEF_STR( Coin_A ) )
+	PORT_DIPNAME( 0x0f, 0x0f, DEF_STR( Coin_A ) ) PORT_DIPLOCATION("SWA:1,2,3,4")
 	PORT_DIPSETTING(    0x07, DEF_STR( 4C_1C ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( 3C_1C ) )
 	PORT_DIPSETTING(    0x09, DEF_STR( 2C_1C ) )
@@ -549,7 +600,7 @@ static INPUT_PORTS_START( outrun_generic )
 	PORT_DIPSETTING(    0x0b, DEF_STR( 1C_5C ) )
 	PORT_DIPSETTING(    0x0a, DEF_STR( 1C_6C ) )
 	PORT_DIPSETTING(    0x00, "Free Play (if Coin B too) or 1/1" )
-	PORT_DIPNAME( 0xf0, 0xf0, DEF_STR( Coin_B ) )
+	PORT_DIPNAME( 0xf0, 0xf0, DEF_STR( Coin_B ) ) PORT_DIPLOCATION("SWA:5,6,7,8")
 	PORT_DIPSETTING(    0x70, DEF_STR( 4C_1C ) )
 	PORT_DIPSETTING(    0x80, DEF_STR( 3C_1C ) )
 	PORT_DIPSETTING(    0x90, DEF_STR( 2C_1C ) )
@@ -568,28 +619,28 @@ static INPUT_PORTS_START( outrun_generic )
 	PORT_DIPSETTING(    0x00, "Free Play (if Coin A too) or 1/1" )
 
 	PORT_START_TAG("DSW")
-	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) ) PORT_DIPLOCATION("SWB:1")
 	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) ) PORT_DIPLOCATION("SWB:2")
 	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) ) PORT_DIPLOCATION("SWB:3")
 	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) ) PORT_DIPLOCATION("SWB:4")
 	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) ) PORT_DIPLOCATION("SWB:5")
 	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) ) PORT_DIPLOCATION("SWB:6")
 	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) ) PORT_DIPLOCATION("SWB:7")
 	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) ) PORT_DIPLOCATION("SWB:8")
 	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 INPUT_PORTS_END
@@ -602,34 +653,32 @@ INPUT_PORTS_END
  *
  *************************************/
 
-static INPUT_PORTS_START( outrun )
+static INPUT_PORTS_START( outrundx )
 	PORT_INCLUDE( outrun_generic )
 
 	PORT_MODIFY("SERVICE")
-	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_TOGGLE PORT_CODE(KEYCODE_SPACE)
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_NAME("Gear Shift") PORT_CODE(KEYCODE_SPACE) PORT_TOGGLE
 
 	PORT_MODIFY("DSW")
-	PORT_DIPNAME( 0x03, 0x02, DEF_STR( Cabinet ) )
-	PORT_DIPSETTING(    0x02, "Up Cockpit" )
-	PORT_DIPSETTING(    0x01, "Mini Up" )
-	PORT_DIPSETTING(    0x03, "Moving" )
-//  PORT_DIPSETTING(    0x00, "No Use" )
-	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Demo_Sounds ) )
-	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Cabinet ) ) PORT_DIPLOCATION("SWB:1")
+	PORT_DIPSETTING(    0x00, "Not Moving" )
+	PORT_DIPSETTING(    0x01, "Moving" )
+	PORT_DIPNAME( 0x02, 0x00, DEF_STR( Demo_Sounds ) ) PORT_DIPLOCATION("SWB:2")
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x30, 0x30, "Time" )
+	PORT_DIPNAME( 0x30, 0x30, "Time Adj." )  PORT_DIPLOCATION("SWB:5,6")
 	PORT_DIPSETTING(    0x20, DEF_STR( Easy ) )
 	PORT_DIPSETTING(    0x30, DEF_STR( Normal ) )
 	PORT_DIPSETTING(    0x10, DEF_STR( Hard ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
-	PORT_DIPNAME( 0xc0, 0xc0, "Enemies" )
+	PORT_DIPNAME( 0xc0, 0xc0, "Enemies" ) PORT_DIPLOCATION("SWB:7,8")
 	PORT_DIPSETTING(    0x80, DEF_STR( Easy ) )
 	PORT_DIPSETTING(    0xc0, DEF_STR( Normal ) )
 	PORT_DIPSETTING(    0x40, DEF_STR( Hard ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
 
 	PORT_START_TAG("ADC0")	/* steering */
-	PORT_BIT( 0xff, 0x7f, IPT_PADDLE ) PORT_MINMAX(0x01,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(4)
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x20,0xe0) PORT_SENSITIVITY(100) PORT_KEYDELTA(4)
 
 	PORT_START_TAG("ADC1")	/* gas pedal */
 	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20)
@@ -639,35 +688,28 @@ static INPUT_PORTS_START( outrun )
 INPUT_PORTS_END
 
 
-static INPUT_PORTS_START( outrundx )
-	PORT_INCLUDE( outrun )
+static INPUT_PORTS_START( outrun )
+	PORT_INCLUDE( outrundx )
 
 	PORT_MODIFY("DSW")
-	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Cabinet ) )
-	PORT_DIPSETTING(    0x00, "Not Moving" )
-	PORT_DIPSETTING(    0x01, "Moving" )
-	PORT_DIPNAME( 0x02, 0x00, DEF_STR( Demo_Sounds ) )
-	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x03, 0x01, DEF_STR( Cabinet ) ) PORT_DIPLOCATION("SWB:1,2")
+	PORT_DIPSETTING(    0x03, "Moving" )
+	PORT_DIPSETTING(    0x02, "Up Cockpit" )
+	PORT_DIPSETTING(    0x01, "Mini Up" )
+//  PORT_DIPSETTING(    0x00, DEF_STR( Unused ) )
+	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Demo_Sounds ) )  PORT_DIPLOCATION("SWB:3")
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x30, 0x30, "Time" )
+	PORT_DIPNAME( 0x30, 0x30, "Time Adj." )  PORT_DIPLOCATION("SWB:5,6")
 	PORT_DIPSETTING(    0x20, DEF_STR( Easy ) )
 	PORT_DIPSETTING(    0x30, DEF_STR( Normal ) )
 	PORT_DIPSETTING(    0x10, DEF_STR( Hard ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
-	PORT_DIPNAME( 0xc0, 0xc0, "Enemies" )
+	PORT_DIPNAME( 0xc0, 0xc0, "Enemies" ) PORT_DIPLOCATION("SWB:7,8")
 	PORT_DIPSETTING(    0x80, DEF_STR( Easy ) )
 	PORT_DIPSETTING(    0xc0, DEF_STR( Normal ) )
 	PORT_DIPSETTING(    0x40, DEF_STR( Hard ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
-
-	PORT_START_TAG("ADC0")	/* steering */
-	PORT_BIT( 0xff, 0x7f, IPT_PADDLE ) PORT_MINMAX(0x01,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(4)
-
-	PORT_START_TAG("ADC1")	/* gas pedal */
-	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20)
-
-	PORT_START_TAG("ADC2")	/* brake */
-	PORT_BIT( 0xff, 0x00, IPT_PEDAL2 ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(40)
 INPUT_PORTS_END
 
 
@@ -675,40 +717,68 @@ static INPUT_PORTS_START( toutrun )
 	PORT_INCLUDE( outrun_generic )
 
 	PORT_MODIFY("SERVICE")
-	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_TOGGLE PORT_CODE(KEYCODE_SPACE)
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_CODE(KEYCODE_LSHIFT)
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON1 ) PORT_NAME("Gear Shift") PORT_CODE(KEYCODE_SPACE) PORT_TOGGLE
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_NAME("Turbo") PORT_CODE(KEYCODE_LSHIFT)
 
 	PORT_MODIFY("DSW")
-	PORT_DIPNAME( 0x03, 0x02, DEF_STR( Cabinet ) )
+	PORT_DIPNAME( 0x03, 0x01, DEF_STR( Cabinet ) ) PORT_DIPLOCATION("SWB:1,2")
+	PORT_DIPSETTING(    0x03, "Moving" )
 	PORT_DIPSETTING(    0x02, "Cockpit Conversion" )
 	PORT_DIPSETTING(    0x01, "Mini Up" )
-	PORT_DIPSETTING(    0x03, "Moving" )
 	PORT_DIPSETTING(    0x00, "Cockpit" )
-	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Demo_Sounds ) ) PORT_DIPLOCATION("SWB:3")
 	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x08, 0x08, "Turbo" )
-	PORT_DIPSETTING(    0x00, "Start Button" )
+	PORT_DIPNAME( 0x08, 0x08, "Turbo" ) PORT_DIPLOCATION("SWB:4")
+	PORT_DIPSETTING(    0x00, "Use Start Button" )
 	PORT_DIPSETTING(    0x08, "Use Turbo Shifter" )
-	PORT_DIPNAME( 0x30, 0x10, "Credits" )
+	PORT_DIPNAME( 0x30, 0x10, "Credits" ) PORT_DIPLOCATION("SWB:5,6")
 	PORT_DIPSETTING(    0x20, "3 to Start/2 to Continue" )
 	PORT_DIPSETTING(    0x30, "2 to Start/1 to Continue" )
 	PORT_DIPSETTING(    0x10, "1 to Start/1 to Continue" )
 	PORT_DIPSETTING(    0x00, "2 to Start/2 to Continue" )
-	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Difficulty ) )
+	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Difficulty ) ) PORT_DIPLOCATION("SWB:7,8")
 	PORT_DIPSETTING(    0x80, DEF_STR( Easy ) )
 	PORT_DIPSETTING(    0xc0, DEF_STR( Normal ) )
 	PORT_DIPSETTING(    0x40, DEF_STR( Hard ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
 
 	PORT_START_TAG("ADC0")	/* steering */
-	PORT_BIT( 0xff, 0x7f, IPT_PADDLE ) PORT_MINMAX(0x01,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(4)
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x20,0xe0) PORT_SENSITIVITY(100) PORT_KEYDELTA(4)
 
 	PORT_START_TAG("ADC1")	/* gas pedal */
 	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20)
 
 	PORT_START_TAG("ADC2")	/* brake */
 	PORT_BIT( 0xff, 0x00, IPT_PEDAL2 ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(40)
+INPUT_PORTS_END
+
+
+static INPUT_PORTS_START( toutrun2 )
+	PORT_INCLUDE( toutrun )
+
+	PORT_MODIFY("DSW")
+	PORT_DIPNAME( 0x03, 0x00, DEF_STR( Cabinet ) ) PORT_DIPLOCATION("SWB:1,2")
+//  PORT_DIPSETTING(    0x03, DEF_STR( Unused ) )
+//  PORT_DIPSETTING(    0x02, DEF_STR( Unused ) )
+//  PORT_DIPSETTING(    0x01, DEF_STR( Unused ) )
+	PORT_DIPSETTING(    0x00, "Cockpit" )
+	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Demo_Sounds ) ) PORT_DIPLOCATION("SWB:3")
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, "Turbo" ) PORT_DIPLOCATION("SWB:4")
+//  PORT_DIPSETTING(    0x00, DEF_STR( Unused ) )
+	PORT_DIPSETTING(    0x08, "Use Turbo Shifter" )
+	PORT_DIPNAME( 0x30, 0x10, "Credits" ) PORT_DIPLOCATION("SWB:5,6")
+	PORT_DIPSETTING(    0x20, "3 to Start/2 to Continue" )
+	PORT_DIPSETTING(    0x30, "2 to Start/1 to Continue" )
+	PORT_DIPSETTING(    0x10, "1 to Start/1 to Continue" )
+	PORT_DIPSETTING(    0x00, "2 to Start/2 to Continue" )
+	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Difficulty ) ) PORT_DIPLOCATION("SWB:7,8")
+	PORT_DIPSETTING(    0x80, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
 INPUT_PORTS_END
 
 
@@ -724,27 +794,27 @@ static INPUT_PORTS_START( shangon )
 	PORT_SERVICE_NO_TOGGLE( 0x04, IP_ACTIVE_LOW )
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_SERVICE1 )
 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_START1 )
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON3 )	/* S.C. SW? */
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_NAME("Supercharger") PORT_CODE(KEYCODE_LSHIFT)
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
 
 	PORT_MODIFY("DSW")
-	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPNAME( 0x01, 0x00, DEF_STR( Demo_Sounds ) ) PORT_DIPLOCATION("SWB:1")
 	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x06, 0x06, "Time" )
+	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Difficulty ) ) PORT_DIPLOCATION("SWB:2,3")
 	PORT_DIPSETTING(    0x04, DEF_STR( Easy ) )
 	PORT_DIPSETTING(    0x06, DEF_STR( Normal ) )
 	PORT_DIPSETTING(    0x02, DEF_STR( Hard ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
-	PORT_DIPNAME( 0x18, 0x18, "Enemies" )
+	PORT_DIPNAME( 0x18, 0x18, "Time Adj." ) PORT_DIPLOCATION("SWB:4,5")
 	PORT_DIPSETTING(    0x10, DEF_STR( Easy ) )
 	PORT_DIPSETTING(    0x18, DEF_STR( Normal ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( Hard ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
 
 	PORT_START_TAG("ADC0")	/* steering */
-	PORT_BIT( 0xff, 0x7f, IPT_PADDLE ) PORT_MINMAX(0x01,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(4) PORT_REVERSE
+	PORT_BIT( 0xff, 0x80, IPT_PADDLE ) PORT_MINMAX(0x20,0xe0) PORT_SENSITIVITY(100) PORT_KEYDELTA(4) PORT_REVERSE
 
 	PORT_START_TAG("ADC1")	/* gas pedal */
 	PORT_BIT( 0xff, 0x00, IPT_PEDAL ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(100) PORT_KEYDELTA(20)
@@ -801,7 +871,7 @@ static const gfx_decode gfxdecodeinfo[] =
  *
  *************************************/
 
-static MACHINE_DRIVER_START( outrun )
+static MACHINE_DRIVER_START( outrundx )
 
 	/* basic machine hardware */
 	MDRV_CPU_ADD_TAG("main", M68000, MASTER_CLOCK/4)
@@ -819,7 +889,6 @@ static MACHINE_DRIVER_START( outrun )
 	MDRV_VBLANK_DURATION(1000000 * (262 - 224) / (262 * 60))
 
 	MDRV_MACHINE_RESET(outrun)
-	MDRV_NVRAM_HANDLER(outrun)
 	MDRV_INTERLEAVE(100)
 
 	/* video hardware */
@@ -846,6 +915,12 @@ static MACHINE_DRIVER_START( outrun )
 MACHINE_DRIVER_END
 
 
+MACHINE_DRIVER_START( outrun )
+	MDRV_IMPORT_FROM(outrundx)
+	MDRV_NVRAM_HANDLER(outrun)
+MACHINE_DRIVER_END
+
+
 MACHINE_DRIVER_START( shangon )
 	MDRV_IMPORT_FROM(outrun)
 	MDRV_VIDEO_START(shangon)
@@ -865,6 +940,12 @@ MACHINE_DRIVER_END
  **************************************************************************************************************************
     Outrun
     CPU: 68000
+     GAME BD  834-6065-02 (or 834-6065-04)
+     CPU BD   837-6063-02
+     VIDEO BD 837-6064-02
+
+Note: GAME BD 834-6065-01 (or 834-6065-03) & CPU BD  837-6063-01
+      Use EPR-10331 to EPR-10334 for the Main 68000 code, it's unknown if they are the same... they are not currently dumped
 */
 ROM_START( outrun )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 ) /* 68000 code */
@@ -897,25 +978,34 @@ ROM_START( outrun )
 	ROM_LOAD32_BYTE( "mpr10376.15", 0x80002, 0x20000, CRC(f3b8f318) SHA1(a5f2532613f33a64441e0f75443c10ba78dccc6e) )
 	ROM_LOAD32_BYTE( "mpr10378.16", 0x80003, 0x20000, CRC(a1062984) SHA1(4399030a155caf71f2dec7f75c4b65531ab53576) )
 
-	ROM_REGION( 0x8000, REGION_GFX3, 0 ) /* road gfx (2 identical roms, 1 for each road?) */
-	ROM_LOAD( "opr10185.11", 0x0000, 0x8000, CRC(22794426) SHA1(a554d4b68e71861a0d0da4d031b3b811b246f082) )
+	ROM_REGION( 0x10000, REGION_GFX3, 0 ) /* road gfx (2 identical roms, 1 for each road) */
 	ROM_LOAD( "opr10186.47", 0x0000, 0x8000, CRC(22794426) SHA1(a554d4b68e71861a0d0da4d031b3b811b246f082) )
+	ROM_LOAD( "opr10185.11", 0x8000, 0x8000, CRC(22794426) SHA1(a554d4b68e71861a0d0da4d031b3b811b246f082) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* sound CPU */
 	ROM_LOAD( "epr10187.88",       0x00000, 0x8000, CRC(a10abaa9) SHA1(01c8a819587a66d2ee4d255656e36fa0904377b0) )
 
-	ROM_REGION( 0x60000, REGION_SOUND1, 0 ) /* sound PCM data */
-	ROM_LOAD( "opr10193.66",       0x00000, 0x8000, CRC(bcd10dde) SHA1(417ce1d7242884640c5b14f4db8ee57cde7d085d) )
-	ROM_LOAD( "opr10192.67",       0x10000, 0x8000, CRC(770f1270) SHA1(686bdf44d45c1d6002622f6658f037735382f3e0) )
-	ROM_LOAD( "opr10191.68",       0x20000, 0x8000, CRC(20a284ab) SHA1(7c9027416d4122791ba53782fe2230cf02b7d506) )
-	ROM_LOAD( "opr10190.69",       0x30000, 0x8000, CRC(7cab70e2) SHA1(a3c581d2b438630d0d4c39481dcfd85681c9f889) )
-	ROM_LOAD( "opr10189.70",       0x40000, 0x8000, CRC(01366b54) SHA1(f467a6b807694d5832a985f5381c170d24aaee4e) )
-	ROM_LOAD( "opr10188.71",       0x50000, 0x8000, CRC(bad30ad9) SHA1(f70dd3a6362c314adef313b064102f7a250401c8) )
+	ROM_REGION( 0x80000, REGION_SOUND1, ROMREGION_ERASEFF ) /* sound PCM data */
+	ROM_LOAD( "opr10193.66",       0x00000, 0x08000, CRC(bcd10dde) SHA1(417ce1d7242884640c5b14f4db8ee57cde7d085d) )
+	ROM_RELOAD(                    0x08000, 0x08000 )
+	ROM_LOAD( "opr10192.67",       0x10000, 0x08000, CRC(770f1270) SHA1(686bdf44d45c1d6002622f6658f037735382f3e0) )
+	ROM_RELOAD(                    0x18000, 0x08000 )
+	ROM_LOAD( "opr10191.68",       0x20000, 0x08000, CRC(20a284ab) SHA1(7c9027416d4122791ba53782fe2230cf02b7d506) )
+	ROM_RELOAD(                    0x28000, 0x08000 )
+	ROM_LOAD( "opr10190.69",       0x30000, 0x08000, CRC(7cab70e2) SHA1(a3c581d2b438630d0d4c39481dcfd85681c9f889) )
+	ROM_RELOAD(                    0x38000, 0x08000 )
+	ROM_LOAD( "opr10189.70",       0x40000, 0x08000, CRC(01366b54) SHA1(f467a6b807694d5832a985f5381c170d24aaee4e) )
+	ROM_RELOAD(                    0x48000, 0x08000 )
+	ROM_LOAD( "opr10188.71",       0x50000, 0x08000, CRC(bad30ad9) SHA1(f70dd3a6362c314adef313b064102f7a250401c8) )
+	ROM_RELOAD(                    0x58000, 0x08000 )
 ROM_END
 
 /**************************************************************************************************************************
     Outrun
     CPU: 68000
+     GAME BD  834-6065-02 (or 834-6065-04)
+     CPU BD   837-6063-02
+     VIDEO BD 837-6064-02
 */
 ROM_START( outrun2 )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 ) /* 68000 code */
@@ -948,29 +1038,38 @@ ROM_START( outrun2 )
 	ROM_LOAD32_BYTE( "mpr10376.15", 0x80002, 0x20000, CRC(f3b8f318) SHA1(a5f2532613f33a64441e0f75443c10ba78dccc6e) )
 	ROM_LOAD32_BYTE( "mpr10378.16", 0x80003, 0x20000, CRC(a1062984) SHA1(4399030a155caf71f2dec7f75c4b65531ab53576) )
 
-	ROM_REGION( 0x8000, REGION_GFX3, 0 ) /* road gfx (2 identical roms, 1 for each road?) */
-	ROM_LOAD( "opr10185.11", 0x0000, 0x8000, CRC(22794426) SHA1(a554d4b68e71861a0d0da4d031b3b811b246f082) )
+	ROM_REGION( 0x10000, REGION_GFX3, 0 ) /* road gfx (2 identical roms, 1 for each road) */
 	ROM_LOAD( "opr10186.47", 0x0000, 0x8000, CRC(22794426) SHA1(a554d4b68e71861a0d0da4d031b3b811b246f082) )
+	ROM_LOAD( "opr10185.11", 0x8000, 0x8000, CRC(22794426) SHA1(a554d4b68e71861a0d0da4d031b3b811b246f082) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* sound CPU */
 	ROM_LOAD( "epr10187.88",       0x00000, 0x8000, CRC(a10abaa9) SHA1(01c8a819587a66d2ee4d255656e36fa0904377b0) )
 
-	ROM_REGION( 0x60000, REGION_SOUND1, 0 ) /* sound PCM data */
-	ROM_LOAD( "opr10193.66",       0x00000, 0x8000, CRC(bcd10dde) SHA1(417ce1d7242884640c5b14f4db8ee57cde7d085d) )
-	ROM_LOAD( "opr10192.67",       0x10000, 0x8000, CRC(770f1270) SHA1(686bdf44d45c1d6002622f6658f037735382f3e0) )
-	ROM_LOAD( "opr10191.68",       0x20000, 0x8000, CRC(20a284ab) SHA1(7c9027416d4122791ba53782fe2230cf02b7d506) )
-	ROM_LOAD( "opr10190.69",       0x30000, 0x8000, CRC(7cab70e2) SHA1(a3c581d2b438630d0d4c39481dcfd85681c9f889) )
-	ROM_LOAD( "opr10189.70",       0x40000, 0x8000, CRC(01366b54) SHA1(f467a6b807694d5832a985f5381c170d24aaee4e) )
-	ROM_LOAD( "opr10188.71",       0x50000, 0x8000, CRC(bad30ad9) SHA1(f70dd3a6362c314adef313b064102f7a250401c8) )
+	ROM_REGION( 0x80000, REGION_SOUND1, ROMREGION_ERASEFF ) /* sound PCM data */
+	ROM_LOAD( "opr10193.66",       0x00000, 0x08000, CRC(bcd10dde) SHA1(417ce1d7242884640c5b14f4db8ee57cde7d085d) )
+	ROM_RELOAD(                    0x08000, 0x08000 )
+	ROM_LOAD( "opr10192.67",       0x10000, 0x08000, CRC(770f1270) SHA1(686bdf44d45c1d6002622f6658f037735382f3e0) )
+	ROM_RELOAD(                    0x18000, 0x08000 )
+	ROM_LOAD( "opr10191.68",       0x20000, 0x08000, CRC(20a284ab) SHA1(7c9027416d4122791ba53782fe2230cf02b7d506) )
+	ROM_RELOAD(                    0x28000, 0x08000 )
+	ROM_LOAD( "opr10190.69",       0x30000, 0x08000, CRC(7cab70e2) SHA1(a3c581d2b438630d0d4c39481dcfd85681c9f889) )
+	ROM_RELOAD(                    0x38000, 0x08000 )
+	ROM_LOAD( "opr10189.70",       0x40000, 0x08000, CRC(01366b54) SHA1(f467a6b807694d5832a985f5381c170d24aaee4e) )
+	ROM_RELOAD(                    0x48000, 0x08000 )
+	ROM_LOAD( "opr10188.71",       0x50000, 0x08000, CRC(bad30ad9) SHA1(f70dd3a6362c314adef313b064102f7a250401c8) )
+	ROM_RELOAD(                    0x58000, 0x08000 )
 ROM_END
 
 /**************************************************************************************************************************
     Outrun
     CPU: 68000 (317-????)
+     GAME BD  834-6065 Rev A
+     CPU BD   837-6063
+     VIDEO BD 837-6064-01
 
     Sega Outrun Japan version
     -------------------------
-
+    GAME Board (834-6065 Revision A)
     CPU Board (837-6063)
     ---------
     EPR10173 - IC66 - 5826
@@ -991,7 +1090,7 @@ ROM_END
     EPR10263 - IC132 - 905E
     EPR10264 - IC133 - 8498
 
-    Video Board (834-6065 Revision A)
+    Video Board (837-6064-01)
     -----------
     EPR10194 - IC26 - 8C35
     EPR10195 - IC27 - 4012
@@ -1093,20 +1192,26 @@ ROM_START( outrun1 )
 	ROM_LOAD32_BYTE( "epr10219.59", 0xe0002, 0x08000, CRC(e73b9224) SHA1(1904a71a0c18ab2a3a5929e72b1c215dbb0fa213) )
 	ROM_LOAD32_BYTE( "epr10228.73", 0xe0003, 0x08000, CRC(25803978) SHA1(1a18922aeb516e8deb026d52e3cdcc4e69385af5) )
 
-	ROM_REGION( 0x8000, REGION_GFX3, 0 ) /* road gfx (2 identical roms, 1 for each road?) */
-	ROM_LOAD( "opr10185.11", 0x0000, 0x8000, CRC(22794426) SHA1(a554d4b68e71861a0d0da4d031b3b811b246f082) )
+	ROM_REGION( 0x10000, REGION_GFX3, 0 ) /* road gfx (2 identical roms, 1 for each road) */
 	ROM_LOAD( "opr10186.47", 0x0000, 0x8000, CRC(22794426) SHA1(a554d4b68e71861a0d0da4d031b3b811b246f082) )
+	ROM_LOAD( "opr10185.11", 0x8000, 0x8000, CRC(22794426) SHA1(a554d4b68e71861a0d0da4d031b3b811b246f082) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* sound CPU */
 	ROM_LOAD( "epr10187.88",       0x00000, 0x8000, CRC(a10abaa9) SHA1(01c8a819587a66d2ee4d255656e36fa0904377b0) )
 
-	ROM_REGION( 0x60000, REGION_SOUND1, 0 ) /* sound PCM data */
-	ROM_LOAD( "opr10193.66",       0x00000, 0x8000, CRC(bcd10dde) SHA1(417ce1d7242884640c5b14f4db8ee57cde7d085d) )
-	ROM_LOAD( "opr10192.67",       0x10000, 0x8000, CRC(770f1270) SHA1(686bdf44d45c1d6002622f6658f037735382f3e0) )
-	ROM_LOAD( "opr10191.68",       0x20000, 0x8000, CRC(20a284ab) SHA1(7c9027416d4122791ba53782fe2230cf02b7d506) )
-	ROM_LOAD( "opr10190.69",       0x30000, 0x8000, CRC(7cab70e2) SHA1(a3c581d2b438630d0d4c39481dcfd85681c9f889) )
-	ROM_LOAD( "opr10189.70",       0x40000, 0x8000, CRC(01366b54) SHA1(f467a6b807694d5832a985f5381c170d24aaee4e) )
-	ROM_LOAD( "opr10188.71",       0x50000, 0x8000, CRC(bad30ad9) SHA1(f70dd3a6362c314adef313b064102f7a250401c8) )
+	ROM_REGION( 0x80000, REGION_SOUND1, ROMREGION_ERASEFF ) /* sound PCM data */
+	ROM_LOAD( "opr10193.66",       0x00000, 0x08000, CRC(bcd10dde) SHA1(417ce1d7242884640c5b14f4db8ee57cde7d085d) )
+	ROM_RELOAD(                    0x08000, 0x08000 )
+	ROM_LOAD( "opr10192.67",       0x10000, 0x08000, CRC(770f1270) SHA1(686bdf44d45c1d6002622f6658f037735382f3e0) )
+	ROM_RELOAD(                    0x18000, 0x08000 )
+	ROM_LOAD( "opr10191.68",       0x20000, 0x08000, CRC(20a284ab) SHA1(7c9027416d4122791ba53782fe2230cf02b7d506) )
+	ROM_RELOAD(                    0x28000, 0x08000 )
+	ROM_LOAD( "opr10190.69",       0x30000, 0x08000, CRC(7cab70e2) SHA1(a3c581d2b438630d0d4c39481dcfd85681c9f889) )
+	ROM_RELOAD(                    0x38000, 0x08000 )
+	ROM_LOAD( "opr10189.70",       0x40000, 0x08000, CRC(01366b54) SHA1(f467a6b807694d5832a985f5381c170d24aaee4e) )
+	ROM_RELOAD(                    0x48000, 0x08000 )
+	ROM_LOAD( "opr10188.71",       0x50000, 0x08000, CRC(bad30ad9) SHA1(f70dd3a6362c314adef313b064102f7a250401c8) )
+	ROM_RELOAD(                    0x58000, 0x08000 )
 ROM_END
 
 /**************************************************************************************************************************
@@ -1177,14 +1282,14 @@ ROM_START( outrunb )
 	ROM_LOAD32_BYTE( "a-31.bin",	0xc0002, 0x10000, CRC(ef7d06fe) SHA1(541b5ba45f4140e2cc29a9da2592b476d414af5d) )
 	ROM_LOAD32_BYTE( "a-33.bin",	0xc0003, 0x10000, CRC(1222af9f) SHA1(2364bd54cbe21dd688efff32e93bf154546c93d6) )
 
-	ROM_REGION( 0x8000, REGION_GFX3, 0 ) /* road gfx */
+	ROM_REGION( 0x10000, REGION_GFX3, 0 ) /* road gfx - correct order unknown (identical after bitswapping) */
 	ROM_LOAD( "a-2.bin", 0x0000, 0x8000, CRC(ed5bda9c) SHA1(f09a34caf1f9f6b119700a00635ab8fa8244362d) )
-	ROM_LOAD( "a-3.bin", 0x0000, 0x8000, CRC(666fe754) SHA1(606090db53d658d7b04dca4748014a411e12f259) ) // we only use htis one for now
+	ROM_LOAD( "a-3.bin", 0x8000, 0x8000, CRC(666fe754) SHA1(606090db53d658d7b04dca4748014a411e12f259) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* sound CPU */
 	ROM_LOAD( "a-1.bin", 0x00000, 0x8000, CRC(209bb53a) SHA1(4ec9ca7532354f05f06295a01c4fa4982268e1d5) )
 
-	ROM_REGION( 0x60000, REGION_SOUND1, 0 ) /* sound PCM data */
+	ROM_REGION( 0x80000, REGION_SOUND1, ROMREGION_ERASEFF ) /* sound PCM data */
 	ROM_LOAD( "a-6.bin", 0x00000, 0x08000, CRC(191f98f4) SHA1(a6ac6feeeeed8e08a19bfa280c5f5f8bc69833e2) )
 	ROM_CONTINUE(        0x10000, 0x08000 )
 	ROM_LOAD( "a-5.bin", 0x20000, 0x08000, CRC(374466d0) SHA1(c648bcb17ed0501bb3e94994716b4a7b81ec75e4) )
@@ -1197,8 +1302,10 @@ ROM_END
 /**************************************************************************************************************************
  **************************************************************************************************************************
  **************************************************************************************************************************
-    Turbo Outrun
+    Turbo Outrun (Out Run upgrade set)
     CPU: FD1094 (317-0118)
+     CPU BD   837-6905-12
+     VIDEO BD 837-6906-02
 */
 ROM_START( toutrun )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 ) /* 68000 code */
@@ -1224,6 +1331,7 @@ ROM_START( toutrun )
 	ROM_LOAD( "opr12325.104", 0x20000, 0x10000, CRC(1405137a) SHA1(367db88d36852e35c5e839f692be5ea8c8e072d2) )
 
 	ROM_REGION32_LE( 0x100000, REGION_GFX2, 0 ) /* sprites */
+	/* Video BD 837-6906-2, Mask Roms twice the size as EPR/OPR counterparts */
 	ROM_LOAD32_BYTE( "mpr12336.9",   0x00000, 0x20000, CRC(dda465c7) SHA1(83acc12a387b004986f084f25964c15a9f88a41a) )
 	ROM_LOAD32_BYTE( "mpr12337.10",  0x00001, 0x20000, CRC(828233d1) SHA1(d73a200af4245d590e1fd3ac436723f99cc50452) )
 	ROM_LOAD32_BYTE( "mpr12338.11",  0x00002, 0x20000, CRC(46b4b5f4) SHA1(afeb2e5ac6792edafe7328993fe8dfcd4bce1924) )
@@ -1233,13 +1341,14 @@ ROM_START( toutrun )
 	ROM_LOAD32_BYTE( "mpr12366.15",  0x80002, 0x20000, CRC(385cb3ab) SHA1(fec6d80d488bfe26524fa3a48b195a45a073e481) )
 	ROM_LOAD32_BYTE( "mpr12367.16",  0x80003, 0x20000, CRC(4930254a) SHA1(00f24be3bf02b143fa554f4d32e283bdac79af6a) )
 
-	ROM_REGION( 0x8000, REGION_GFX3, 0 ) /* road gfx */
-	ROM_LOAD( "epr12298.11", 0x00000, 0x08000, CRC(fc9bc41b) SHA1(9af73e096253cf2c4f283f227530110a4b37fcee) )
+	ROM_REGION( 0x10000, REGION_GFX3, 0 ) /* road gfx (2 identical roms, 1 for each road) */
+	ROM_LOAD( "epr12299.47", 0x0000, 0x8000, CRC(fc9bc41b) SHA1(9af73e096253cf2c4f283f227530110a4b37fcee) ) /* Manual shows both as EPR-12298 */
+	ROM_LOAD( "epr12298.11", 0x8000, 0x8000, CRC(fc9bc41b) SHA1(9af73e096253cf2c4f283f227530110a4b37fcee) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* sound CPU */
 	ROM_LOAD( "epr12300.88",	0x00000, 0x10000, CRC(e8ff7011) SHA1(6eaf3aea507007ea31d507ed7825d905f4b8e7ab) )
 
-	ROM_REGION( 0x60000, REGION_SOUND1, 0 ) /* sound PCM data */
+	ROM_REGION( 0x80000, REGION_SOUND1, ROMREGION_ERASEFF ) /* sound PCM data */
 	ROM_LOAD( "opr12301.66",    0x00000, 0x10000, CRC(6e78ad15) SHA1(c31ddf434b459cd1a381d2a028beabddd4ed10d2) )
 	ROM_LOAD( "opr12302.67",    0x10000, 0x10000, CRC(e72928af) SHA1(40e0b178958cfe97c097fe9d82b5de54bc27a29f) )
 	ROM_LOAD( "opr12303.68",    0x20000, 0x10000, CRC(8384205c) SHA1(c1f9d52bc587eab5a97867198e9aa7c19e973429) )
@@ -1251,6 +1360,8 @@ ROM_END
 /**************************************************************************************************************************
     Turbo Outrun
     CPU: FD1094 (317-????)
+     CPU BD   837-6905-12
+     VIDEO BD 837-6906-01
 */
 ROM_START( toutrun2 )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 ) /* 68000 code */
@@ -1293,13 +1404,14 @@ ROM_START( toutrun2 )
 	ROM_LOAD32_BYTE( "opr12321.23", 0xc0002, 0x10000, CRC(830bacd4) SHA1(5a4816969437ee1edca5845006c0b8e9ba365491) )
 	ROM_LOAD32_BYTE( "opr12322.24", 0xc0003, 0x10000, CRC(8b812492) SHA1(bf1f9e059c093c0991c7caf1b01c739ed54b8357) )
 
-	ROM_REGION( 0x8000, REGION_GFX3, 0 ) /* road gfx */
-	ROM_LOAD( "epr12298.11", 0x00000, 0x08000, CRC(fc9bc41b) SHA1(9af73e096253cf2c4f283f227530110a4b37fcee) )
+	ROM_REGION( 0x10000, REGION_GFX3, 0 ) /* road gfx (2 identical roms, 1 for each road) */
+	ROM_LOAD( "epr12299.47", 0x0000, 0x8000, CRC(fc9bc41b) SHA1(9af73e096253cf2c4f283f227530110a4b37fcee) ) /* Manual shows both as EPR-12298 */
+	ROM_LOAD( "epr12298.11", 0x8000, 0x8000, CRC(fc9bc41b) SHA1(9af73e096253cf2c4f283f227530110a4b37fcee) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* sound CPU */
 	ROM_LOAD( "epr12300.88",	0x00000, 0x10000, CRC(e8ff7011) SHA1(6eaf3aea507007ea31d507ed7825d905f4b8e7ab) )
 
-	ROM_REGION( 0x60000, REGION_SOUND1, 0 ) /* sound PCM data */
+	ROM_REGION( 0x80000, REGION_SOUND1, ROMREGION_ERASEFF ) /* sound PCM data */
 	ROM_LOAD( "opr12301.66",    0x00000, 0x10000, CRC(6e78ad15) SHA1(c31ddf434b459cd1a381d2a028beabddd4ed10d2) )
 	ROM_LOAD( "opr12302.67",    0x10000, 0x10000, CRC(e72928af) SHA1(40e0b178958cfe97c097fe9d82b5de54bc27a29f) )
 	ROM_LOAD( "opr12303.68",    0x20000, 0x10000, CRC(8384205c) SHA1(c1f9d52bc587eab5a97867198e9aa7c19e973429) )
@@ -1311,6 +1423,8 @@ ROM_END
 /**************************************************************************************************************************
     Turbo Outrun
     CPU: FD1094 (317-????)
+     CPU BD   837-6905-12
+     VIDEO BD 837-6906-01
 */
 ROM_START( toutrun1 )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 ) /* 68000 code */
@@ -1350,13 +1464,14 @@ ROM_START( toutrun1 )
 	ROM_LOAD32_BYTE( "opr12321.23", 0xc0002, 0x10000, CRC(830bacd4) SHA1(5a4816969437ee1edca5845006c0b8e9ba365491) )
 	ROM_LOAD32_BYTE( "opr12322.24", 0xc0003, 0x10000, CRC(8b812492) SHA1(bf1f9e059c093c0991c7caf1b01c739ed54b8357) )
 
-	ROM_REGION( 0x8000, REGION_GFX3, 0 ) /* road gfx */
-	ROM_LOAD( "epr12298.11", 0x00000, 0x08000, CRC(fc9bc41b) SHA1(9af73e096253cf2c4f283f227530110a4b37fcee) )
+	ROM_REGION( 0x10000, REGION_GFX3, 0 ) /* road gfx (2 identical roms, 1 for each road) */
+	ROM_LOAD( "epr12299.47", 0x0000, 0x8000, CRC(fc9bc41b) SHA1(9af73e096253cf2c4f283f227530110a4b37fcee) ) /* Manual shows both as EPR-12298 */
+	ROM_LOAD( "epr12298.11", 0x8000, 0x8000, CRC(fc9bc41b) SHA1(9af73e096253cf2c4f283f227530110a4b37fcee) )
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* sound CPU */
 	ROM_LOAD( "epr12300.88",	0x00000, 0x10000, CRC(e8ff7011) SHA1(6eaf3aea507007ea31d507ed7825d905f4b8e7ab) )
 
-	ROM_REGION( 0x60000, REGION_SOUND1, 0 ) /* sound PCM data */
+	ROM_REGION( 0x80000, REGION_SOUND1, ROMREGION_ERASEFF ) /* sound PCM data */
 	ROM_LOAD( "opr12301.66",    0x00000, 0x10000, CRC(6e78ad15) SHA1(c31ddf434b459cd1a381d2a028beabddd4ed10d2) )
 	ROM_LOAD( "opr12302.67",    0x10000, 0x10000, CRC(e72928af) SHA1(40e0b178958cfe97c097fe9d82b5de54bc27a29f) )
 	ROM_LOAD( "opr12303.68",    0x20000, 0x10000, CRC(8384205c) SHA1(c1f9d52bc587eab5a97867198e9aa7c19e973429) )
@@ -1371,6 +1486,8 @@ ROM_END
  **************************************************************************************************************************
     Super Hangon
     CPU: 68000 (317-????)
+     CPU BD SUPER HANG-ON   837-6278-01 (or 837-6278-03)
+     VIDEO BD SUPER HANG-ON 837-6279-01
 */
 ROM_START( shangon )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 ) /* 68000 code */
@@ -1391,31 +1508,39 @@ ROM_START( shangon )
 	ROM_LOAD( "epr10650.56",        0x10000, 0x08000, CRC(b236a403) SHA1(af02b8122794c083a66f2ab35d2c73b84b2df0be) )
 
 	ROM_REGION16_BE( 0x100000, REGION_GFX2, 0 ) /* sprites */
-	ROM_LOAD16_BYTE( "epr10794.8",	0x000001, 0x020000, CRC(7c958e63) SHA1(ef79614e94280607a6cdf6e13db051accfd2add0) )
-	ROM_LOAD16_BYTE( "epr10798.16",  0x000000, 0x020000, CRC(7d58f807) SHA1(783c9929d27a0270b3f7d5eb799cee6b2e5b7ae5) )
-	ROM_LOAD16_BYTE( "epr10795.6",   0x040001, 0x020000, CRC(d9d31f8c) SHA1(3ce07b83e3aa2d8834c1a449fa31e003df5486a3) )
-	ROM_LOAD16_BYTE( "epr10799.14",  0x040000, 0x020000, CRC(96d90d3d) SHA1(6572cbce8f98a1a7a8e59b0c502ab274f78d2819) )
-	ROM_LOAD16_BYTE( "epr10796.4",   0x080001, 0x020000, CRC(fb48957c) SHA1(86a66bcf38686be5537a1361d390ecbbccdddc11) )
-	ROM_LOAD16_BYTE( "epr10800.12",  0x080000, 0x020000, CRC(feaff98e) SHA1(20e38f9039079f64919d750a2e1382503d437463) )
-	ROM_LOAD16_BYTE( "epr10797.2",   0x0c0001, 0x020000, CRC(27f2870d) SHA1(40a34e4555885bf3c6a42e472b80d11c3bd4dcba) )
-	ROM_LOAD16_BYTE( "epr10801.10",  0x0c0000, 0x020000, CRC(12781795) SHA1(44bf6f657f32b9fab119557eb73c2fbf78700204) )
+	/* Super Hang-On Video board 837-6279-01 (mask rom type), same data but mask roms twice the size as "EPR" counterparts */
+	ROM_LOAD16_BYTE( "mpr10794.8",	 0x000001, 0x020000, CRC(7c958e63) SHA1(ef79614e94280607a6cdf6e13db051accfd2add0) )
+	ROM_LOAD16_BYTE( "mpr10798.16",  0x000000, 0x020000, CRC(7d58f807) SHA1(783c9929d27a0270b3f7d5eb799cee6b2e5b7ae5) )
+	ROM_LOAD16_BYTE( "mpr10795.6",   0x040001, 0x020000, CRC(d9d31f8c) SHA1(3ce07b83e3aa2d8834c1a449fa31e003df5486a3) )
+	ROM_LOAD16_BYTE( "mpr10799.14",  0x040000, 0x020000, CRC(96d90d3d) SHA1(6572cbce8f98a1a7a8e59b0c502ab274f78d2819) )
+	ROM_LOAD16_BYTE( "mpr10796.4",   0x080001, 0x020000, CRC(fb48957c) SHA1(86a66bcf38686be5537a1361d390ecbbccdddc11) )
+	ROM_LOAD16_BYTE( "mpr10800.12",  0x080000, 0x020000, CRC(feaff98e) SHA1(20e38f9039079f64919d750a2e1382503d437463) )
+	ROM_LOAD16_BYTE( "mpr10797.2",   0x0c0001, 0x020000, CRC(27f2870d) SHA1(40a34e4555885bf3c6a42e472b80d11c3bd4dcba) )
+	ROM_LOAD16_BYTE( "mpr10801.10",  0x0c0000, 0x020000, CRC(12781795) SHA1(44bf6f657f32b9fab119557eb73c2fbf78700204) )
 
-	ROM_REGION( 0x8000, REGION_GFX3, 0 ) /* road gfx */
-	ROM_LOAD( "mpr10642.47", 0x0000, 0x8000, CRC(7836bcc3) SHA1(26f308bf96224311ddf685799d7aa29aac42dd2f) )
+	ROM_REGION( 0x10000, REGION_GFX3, 0 ) /* road gfx */
+	ROM_LOAD( "epr10642.47", 0x0000, 0x8000, CRC(7836bcc3) SHA1(26f308bf96224311ddf685799d7aa29aac42dd2f) )
+	/* socket IC11 not populated */
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* sound CPU */
 	ROM_LOAD( "epr10649c.88", 0x0000, 0x08000, CRC(f6c1ce71) SHA1(12299f7e5378a56be3a31cce3b8b74e48744f33a) )
 
-	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* sound PCM data */
+	ROM_REGION( 0x40000, REGION_SOUND1, ROMREGION_ERASEFF ) /* sound PCM data */
 	ROM_LOAD( "epr10643.66", 0x00000, 0x08000, CRC(06f55364) SHA1(fd685795e12541e3d0059d383fab293b3980d247) )
+	ROM_RELOAD(              0x08000, 0x08000 )
 	ROM_LOAD( "epr10644.67", 0x10000, 0x08000, CRC(b41d541d) SHA1(28bbfa5edaa4a5901c74074354ba6f14d8f42ff6) )
+	ROM_RELOAD(              0x18000, 0x08000 )
 	ROM_LOAD( "epr10645.68", 0x20000, 0x08000, CRC(a60dabff) SHA1(bbef0fb0d7837cc7efc866226bfa2bd7fab06459) )
+	ROM_RELOAD(              0x28000, 0x08000 )
 	ROM_LOAD( "epr10646.69", 0x30000, 0x08000, CRC(473cc411) SHA1(04ca2d047eb59581cd5d76e0ac6eca8b19eef497) )
+	ROM_RELOAD(              0x38000, 0x08000 )
 ROM_END
 
 /**************************************************************************************************************************
     Super Hangon
     CPU: FD1089B (317-0034)
+     CPU BD SUPER HANG-ON   837-6278-01 (or 837-6278-03)
+     VIDEO BD SUPER HANG-ON 837-6279 (or 837-6279-02, roms would be "OPR")
 */
 ROM_START( shangon3 )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 ) /* 68000 code - protected */
@@ -1425,10 +1550,10 @@ ROM_START( shangon3 )
 	ROM_LOAD16_BYTE( "epr10635a.117", 0x020001, 0x10000, CRC(a2415595) SHA1(2a8b960ea70066bf43c7b3772a0ed53d7c737b2c) )
 
 	ROM_REGION( 0x60000, REGION_CPU2, 0 ) /* second 68000 CPU */
-	ROM_LOAD16_BYTE( "epr10640.76", 0x00000, 0x10000, CRC(02be68db) SHA1(8c9f98ee49db54ee53b721ecf53f91737ae6cd73) )
-	ROM_LOAD16_BYTE( "epr10638.58", 0x00001, 0x10000, CRC(f13e8bee) SHA1(1c16c018f58f1fb49e240314a7e97a947087fad9) )
-	ROM_LOAD16_BYTE( "epr10641.75", 0x20000, 0x10000, CRC(38c3f808) SHA1(36fae99b56980ef33853170afe10b363cd41c053) )
-	ROM_LOAD16_BYTE( "epr10639.57", 0x20001, 0x10000, CRC(8cdbcde8) SHA1(0bcb4df96ee16db3dd4ce52fccd939f48a4bc1a0) )
+	ROM_LOAD16_BYTE( "epr10792.76", 0x00000, 0x10000, CRC(16299d25) SHA1(b14d5feef3e6889320d51ffca36801f4c9c4d5f8) )
+	ROM_LOAD16_BYTE( "epr10790.58", 0x00001, 0x10000, CRC(2246cbc1) SHA1(c192b1ddf4c848adb564c7c87d5413d62ed650d7) )
+	ROM_LOAD16_BYTE( "epr10793.75", 0x20000, 0x10000, CRC(d9525427) SHA1(cdb24db9f7a293f20fd8becc4afe84fd6abd678a) )
+	ROM_LOAD16_BYTE( "epr10791.57", 0x20001, 0x10000, CRC(5faf4cbe) SHA1(41659a961e6469d9233849c3c587cd5a0a141344) )
 
 	ROM_REGION( 0x18000, REGION_GFX1, ROMREGION_DISPOSE ) /* tiles */
 	ROM_LOAD( "epr10652.54",        0x00000, 0x08000, CRC(260286f9) SHA1(dc7c8d2c6ef924a937328685eed19bda1c8b1819) )
@@ -1436,7 +1561,7 @@ ROM_START( shangon3 )
 	ROM_LOAD( "epr10650.56",        0x10000, 0x08000, CRC(b236a403) SHA1(af02b8122794c083a66f2ab35d2c73b84b2df0be) )
 
 	ROM_REGION16_BE( 0x0e0000, REGION_GFX2, 0 ) /* sprites */
-	ROM_LOAD16_BYTE( "epr10675.8",	0x000001, 0x010000, CRC(d6ac012b) SHA1(305023b1a0a9d84cfc081ffc2ad7578b53d562f2) )
+	ROM_LOAD16_BYTE( "epr10675.8",	 0x000001, 0x010000, CRC(d6ac012b) SHA1(305023b1a0a9d84cfc081ffc2ad7578b53d562f2) )
 	ROM_LOAD16_BYTE( "epr10682.16",  0x000000, 0x010000, CRC(d9d83250) SHA1(f8ca3197edcdf53643a5b335c3c044ddc1310cd4) )
 	ROM_LOAD16_BYTE( "epr10676.7",   0x020001, 0x010000, CRC(25ebf2c5) SHA1(abcf673ae4e280417dd9f46d18c0ec7c0e4802ae) )
 	ROM_LOAD16_BYTE( "epr10683.15",  0x020000, 0x010000, CRC(6365d2e9) SHA1(688e2ba194e859f86cd3486c2575ebae257e975a) )
@@ -1451,22 +1576,29 @@ ROM_START( shangon3 )
 	ROM_LOAD16_BYTE( "epr10681.2",   0x0c0001, 0x010000, CRC(b176ea72) SHA1(7ec0eb0f13398d014c2e235773ded00351edb3e2) )
 	ROM_LOAD16_BYTE( "epr10688.10",  0x0c0000, 0x010000, CRC(42fcd51d) SHA1(0eacb3527dc21746e5b901fcac83f2764a0f9e2c) )
 
-	ROM_REGION( 0x8000, REGION_GFX3, 0 ) /* road gfx */
-	ROM_LOAD( "mpr10642.47", 0x0000, 0x8000, CRC(7836bcc3) SHA1(26f308bf96224311ddf685799d7aa29aac42dd2f) )
+	ROM_REGION( 0x10000, REGION_GFX3, 0 ) /* road gfx */
+	ROM_LOAD( "epr10642.47", 0x0000, 0x8000, CRC(7836bcc3) SHA1(26f308bf96224311ddf685799d7aa29aac42dd2f) )
+	/* socket IC11 not populated */
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* sound CPU */
 	ROM_LOAD( "epr10649a.88", 0x0000, 0x08000, CRC(bf38330f) SHA1(3d825bb02ef5a9f5c4fcaa71b3735e7f8e47f178) )
 
-	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* sound PCM data */
+	ROM_REGION( 0x40000, REGION_SOUND1, ROMREGION_ERASEFF ) /* sound PCM data */
 	ROM_LOAD( "epr10643.66", 0x00000, 0x08000, CRC(06f55364) SHA1(fd685795e12541e3d0059d383fab293b3980d247) )
+	ROM_RELOAD(              0x08000, 0x08000 )
 	ROM_LOAD( "epr10644.67", 0x10000, 0x08000, CRC(b41d541d) SHA1(28bbfa5edaa4a5901c74074354ba6f14d8f42ff6) )
+	ROM_RELOAD(              0x18000, 0x08000 )
 	ROM_LOAD( "epr10645.68", 0x20000, 0x08000, CRC(a60dabff) SHA1(bbef0fb0d7837cc7efc866226bfa2bd7fab06459) )
+	ROM_RELOAD(              0x28000, 0x08000 )
 	ROM_LOAD( "epr10646.69", 0x30000, 0x08000, CRC(473cc411) SHA1(04ca2d047eb59581cd5d76e0ac6eca8b19eef497) )
+	ROM_RELOAD(              0x38000, 0x08000 )
 ROM_END
 
 /**************************************************************************************************************************
     Super Hangon
     CPU: FD1089B (317-0034)
+     CPU BD SUPER HANG-ON   837-6278-01 (or 837-6278-03)
+     VIDEO BD SUPER HANG-ON 837-6279 (or 837-6279-02, roms would be "OPR")
 */
 ROM_START( shangon2 )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 ) /* 68000 code - protected */
@@ -1487,7 +1619,7 @@ ROM_START( shangon2 )
 	ROM_LOAD( "epr10650.56",        0x10000, 0x08000, CRC(b236a403) SHA1(af02b8122794c083a66f2ab35d2c73b84b2df0be) )
 
 	ROM_REGION16_BE( 0x0e0000, REGION_GFX2, 0 ) /* sprites */
-	ROM_LOAD16_BYTE( "epr10675.8",	0x000001, 0x010000, CRC(d6ac012b) SHA1(305023b1a0a9d84cfc081ffc2ad7578b53d562f2) )
+	ROM_LOAD16_BYTE( "epr10675.8",	 0x000001, 0x010000, CRC(d6ac012b) SHA1(305023b1a0a9d84cfc081ffc2ad7578b53d562f2) )
 	ROM_LOAD16_BYTE( "epr10682.16",  0x000000, 0x010000, CRC(d9d83250) SHA1(f8ca3197edcdf53643a5b335c3c044ddc1310cd4) )
 	ROM_LOAD16_BYTE( "epr10676.7",   0x020001, 0x010000, CRC(25ebf2c5) SHA1(abcf673ae4e280417dd9f46d18c0ec7c0e4802ae) )
 	ROM_LOAD16_BYTE( "epr10683.15",  0x020000, 0x010000, CRC(6365d2e9) SHA1(688e2ba194e859f86cd3486c2575ebae257e975a) )
@@ -1502,22 +1634,29 @@ ROM_START( shangon2 )
 	ROM_LOAD16_BYTE( "epr10681.2",   0x0c0001, 0x010000, CRC(b176ea72) SHA1(7ec0eb0f13398d014c2e235773ded00351edb3e2) )
 	ROM_LOAD16_BYTE( "epr10688.10",  0x0c0000, 0x010000, CRC(42fcd51d) SHA1(0eacb3527dc21746e5b901fcac83f2764a0f9e2c) )
 
-	ROM_REGION( 0x8000, REGION_GFX3, 0 ) /* road gfx */
-	ROM_LOAD( "mpr10642.47", 0x0000, 0x8000, CRC(7836bcc3) SHA1(26f308bf96224311ddf685799d7aa29aac42dd2f) )
+	ROM_REGION( 0x10000, REGION_GFX3, 0 ) /* road gfx */
+	ROM_LOAD( "epr10642.47", 0x0000, 0x8000, CRC(7836bcc3) SHA1(26f308bf96224311ddf685799d7aa29aac42dd2f) )
+	/* socket IC11 not populated */
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* sound CPU */
 	ROM_LOAD( "ic88", 0x0000, 0x08000, CRC(1254efa6) SHA1(997770ccdd776de6e335a6d8b1e15d200cbd4410) )
 
-	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* sound PCM data */
+	ROM_REGION( 0x40000, REGION_SOUND1, ROMREGION_ERASEFF ) /* sound PCM data */
 	ROM_LOAD( "epr10643.66", 0x00000, 0x08000, CRC(06f55364) SHA1(fd685795e12541e3d0059d383fab293b3980d247) )
+	ROM_RELOAD(              0x08000, 0x08000 )
 	ROM_LOAD( "epr10644.67", 0x10000, 0x08000, CRC(b41d541d) SHA1(28bbfa5edaa4a5901c74074354ba6f14d8f42ff6) )
+	ROM_RELOAD(              0x18000, 0x08000 )
 	ROM_LOAD( "epr10645.68", 0x20000, 0x08000, CRC(a60dabff) SHA1(bbef0fb0d7837cc7efc866226bfa2bd7fab06459) )
+	ROM_RELOAD(              0x28000, 0x08000 )
 	ROM_LOAD( "epr10646.69", 0x30000, 0x08000, CRC(473cc411) SHA1(04ca2d047eb59581cd5d76e0ac6eca8b19eef497) )
+	ROM_RELOAD(              0x38000, 0x08000 )
 ROM_END
 
 /**************************************************************************************************************************
     Super Hangon
     CPU: FD1089B (317-0034)
+     CPU BD SUPER HANG-ON   837-6278-01 (or 837-6278-03)
+     VIDEO BD SUPER HANG-ON 837-6279 (or 837-6279-02, roms would be "OPR")
 */
 ROM_START( shangon1 )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 ) /* 68000 code - protected */
@@ -1538,7 +1677,7 @@ ROM_START( shangon1 )
 	ROM_LOAD( "epr10650.56",        0x10000, 0x08000, CRC(b236a403) SHA1(af02b8122794c083a66f2ab35d2c73b84b2df0be) )
 
 	ROM_REGION16_BE( 0x0e0000, REGION_GFX2, 0 ) /* sprites */
-	ROM_LOAD16_BYTE( "epr10675.8",	0x000001, 0x010000, CRC(d6ac012b) SHA1(305023b1a0a9d84cfc081ffc2ad7578b53d562f2) )
+	ROM_LOAD16_BYTE( "epr10675.8",	 0x000001, 0x010000, CRC(d6ac012b) SHA1(305023b1a0a9d84cfc081ffc2ad7578b53d562f2) )
 	ROM_LOAD16_BYTE( "epr10682.16",  0x000000, 0x010000, CRC(d9d83250) SHA1(f8ca3197edcdf53643a5b335c3c044ddc1310cd4) )
 	ROM_LOAD16_BYTE( "epr10676.7",   0x020001, 0x010000, CRC(25ebf2c5) SHA1(abcf673ae4e280417dd9f46d18c0ec7c0e4802ae) )
 	ROM_LOAD16_BYTE( "epr10683.15",  0x020000, 0x010000, CRC(6365d2e9) SHA1(688e2ba194e859f86cd3486c2575ebae257e975a) )
@@ -1553,22 +1692,29 @@ ROM_START( shangon1 )
 	ROM_LOAD16_BYTE( "epr10681.2",   0x0c0001, 0x010000, CRC(b176ea72) SHA1(7ec0eb0f13398d014c2e235773ded00351edb3e2) )
 	ROM_LOAD16_BYTE( "epr10688.10",  0x0c0000, 0x010000, CRC(42fcd51d) SHA1(0eacb3527dc21746e5b901fcac83f2764a0f9e2c) )
 
-	ROM_REGION( 0x8000, REGION_GFX3, 0 ) /* road gfx */
-	ROM_LOAD( "mpr10642.47", 0x0000, 0x8000, CRC(7836bcc3) SHA1(26f308bf96224311ddf685799d7aa29aac42dd2f) )
+	ROM_REGION( 0x10000, REGION_GFX3, 0 ) /* road gfx */
+	ROM_LOAD( "epr10642.47", 0x0000, 0x8000, CRC(7836bcc3) SHA1(26f308bf96224311ddf685799d7aa29aac42dd2f) )
+	/* socket IC11 not populated */
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* sound CPU */
 	ROM_LOAD( "ic88", 0x0000, 0x08000, CRC(1254efa6) SHA1(997770ccdd776de6e335a6d8b1e15d200cbd4410) )
 
-	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* sound PCM data */
+	ROM_REGION( 0x40000, REGION_SOUND1, ROMREGION_ERASEFF ) /* sound PCM data */
 	ROM_LOAD( "epr10643.66", 0x00000, 0x08000, CRC(06f55364) SHA1(fd685795e12541e3d0059d383fab293b3980d247) )
+	ROM_RELOAD(              0x08000, 0x08000 )
 	ROM_LOAD( "epr10644.67", 0x10000, 0x08000, CRC(b41d541d) SHA1(28bbfa5edaa4a5901c74074354ba6f14d8f42ff6) )
+	ROM_RELOAD(              0x18000, 0x08000 )
 	ROM_LOAD( "epr10645.68", 0x20000, 0x08000, CRC(a60dabff) SHA1(bbef0fb0d7837cc7efc866226bfa2bd7fab06459) )
+	ROM_RELOAD(              0x28000, 0x08000 )
 	ROM_LOAD( "epr10646.69", 0x30000, 0x08000, CRC(473cc411) SHA1(04ca2d047eb59581cd5d76e0ac6eca8b19eef497) )
+	ROM_RELOAD(              0x38000, 0x08000 )
 ROM_END
 
 /**************************************************************************************************************************
     Limited Edition Hangon
     CPU: 68000 (317-????)
+     CPU BD SUPER HANG-ON   837-6278-01 (or 837-6278-03)
+     VIDEO BD SUPER HANG-ON 837-6279 (or 837-6279-02, rom would be "OPR")
 */
 ROM_START( shangnle )
 	ROM_REGION( 0x60000, REGION_CPU1, 0 ) /* 68000 code  */
@@ -1589,7 +1735,7 @@ ROM_START( shangnle )
 	ROM_LOAD( "epr10650.56",        0x10000, 0x08000, CRC(b236a403) SHA1(af02b8122794c083a66f2ab35d2c73b84b2df0be) )
 
 	ROM_REGION16_BE( 0x0e0000, REGION_GFX2, 0 ) /* sprites */
-	ROM_LOAD16_BYTE( "epr10675.8",	0x000001, 0x010000, CRC(d6ac012b) SHA1(305023b1a0a9d84cfc081ffc2ad7578b53d562f2) )
+	ROM_LOAD16_BYTE( "epr10675.8",	 0x000001, 0x010000, CRC(d6ac012b) SHA1(305023b1a0a9d84cfc081ffc2ad7578b53d562f2) )
 	ROM_LOAD16_BYTE( "epr10682.16",  0x000000, 0x010000, CRC(d9d83250) SHA1(f8ca3197edcdf53643a5b335c3c044ddc1310cd4) )
 	ROM_LOAD16_BYTE( "epr13945.7",   0x020001, 0x010000, CRC(fbb1eef9) SHA1(2798df2f25706e0d3be01d945274f478d7e5a2ae) )
 	ROM_LOAD16_BYTE( "epr13946.15",  0x020000, 0x010000, CRC(03144930) SHA1(c20f4883ee2de35cd0b67949de0e41464f2c5fae) )
@@ -1604,17 +1750,22 @@ ROM_START( shangnle )
 	ROM_LOAD16_BYTE( "epr10681.2",   0x0c0001, 0x010000, CRC(b176ea72) SHA1(7ec0eb0f13398d014c2e235773ded00351edb3e2) )
 	ROM_LOAD16_BYTE( "epr10688.10",  0x0c0000, 0x010000, CRC(42fcd51d) SHA1(0eacb3527dc21746e5b901fcac83f2764a0f9e2c) )
 
-	ROM_REGION( 0x8000, REGION_GFX3, 0 ) /* Road Graphics */
+	ROM_REGION( 0x10000, REGION_GFX3, 0 ) /* Road Graphics */
 	ROM_LOAD( "epr10642.47", 0x0000, 0x8000, CRC(7836bcc3) SHA1(26f308bf96224311ddf685799d7aa29aac42dd2f) )
+	/* socket IC11 not populated */
 
 	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* sound CPU */
 	ROM_LOAD( "epr10649c.88", 0x0000, 0x08000, CRC(f6c1ce71) SHA1(12299f7e5378a56be3a31cce3b8b74e48744f33a) )
 
-	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* sound PCM data */
+	ROM_REGION( 0x40000, REGION_SOUND1, ROMREGION_ERASEFF ) /* sound PCM data */
 	ROM_LOAD( "epr10643.66", 0x00000, 0x08000, CRC(06f55364) SHA1(fd685795e12541e3d0059d383fab293b3980d247) )
+	ROM_RELOAD(              0x08000, 0x08000 )
 	ROM_LOAD( "epr10644.67", 0x10000, 0x08000, CRC(b41d541d) SHA1(28bbfa5edaa4a5901c74074354ba6f14d8f42ff6) )
+	ROM_RELOAD(              0x18000, 0x08000 )
 	ROM_LOAD( "epr10645.68", 0x20000, 0x08000, CRC(a60dabff) SHA1(bbef0fb0d7837cc7efc866226bfa2bd7fab06459) )
+	ROM_RELOAD(              0x28000, 0x08000 )
 	ROM_LOAD( "epr10646.69", 0x30000, 0x08000, CRC(473cc411) SHA1(04ca2d047eb59581cd5d76e0ac6eca8b19eef497) )
+	ROM_RELOAD(              0x38000, 0x08000 )
 ROM_END
 
 
@@ -1658,13 +1809,15 @@ static DRIVER_INIT( outrunb )
 		word[i] = BITSWAP16(word[i], 14,15,13,12,11,10,9,8,7,6,5,4,2,3,1,0);
 
 	/* road gfx */
-	/* rom orun_me.rom - swap bits 5,6 */
-	/* rom orun_mf.rom - swap bits 6,7 */
-	/* I don't know why there's 2 road roms, but I'm using orun_me.rom */
+	/* rom a-2.bin: swap bits 6,7 */
+	/* rom a-3.bin: swap bits 5,6 */
 	byte = memory_region(REGION_GFX3);
-	length = memory_region_length(REGION_GFX3);
+	length = memory_region_length(REGION_GFX3) / 2;
 	for (i = 0; i < length; i++)
-		byte[i] = BITSWAP8(byte[i], 7,5,6,4,3,2,1,0);
+	{
+		byte[i]        = BITSWAP8(byte[i],        6,7,5,4,3,2,1,0);
+		byte[i+length] = BITSWAP8(byte[i+length], 7,5,6,4,3,2,1,0);
+	}
 
 	/* Z80 code: swap bits 5,6 */
 	byte = memory_region(REGION_CPU3);
@@ -1699,15 +1852,15 @@ static DRIVER_INIT( shangon3 )
  *
  *************************************/
 
-GAME( 1986, outrun,   0,        outrun,  outrun,   outrun,   ROT0, "Sega",    "Out Run (set 3)", 0 )
-GAME( 1986, outrun2,  outrun,   outrun,  outrun,   outrun,   ROT0, "Sega",    "Out Run (set 2)", 0 )
-GAME( 1986, outrun1,  outrun,   outrun,  outrundx, outrun,   ROT0, "Sega",    "Out Run (set 1, Deluxe?)", 0 )
-GAME( 1986, outrunb,  outrun,   outrun,  outrun,   outrunb,  ROT0, "bootleg", "Out Run (bootleg)", 0 )
-GAME( 1987, shangon,  0,        shangon, shangon,  shangon,  ROT0, "Sega",    "Super Hang-On (set 4, 68000)", 0 )
-GAME( 1987, shangon3, shangon,  shangon, shangon,  shangon3, ROT0, "Sega",    "Super Hang-On (set 3, FD1089B 317-0034)", 0 )
-GAME( 1987, shangon2, shangon,  shangon, shangon,  shangon3, ROT0, "Sega",    "Super Hang-On (set 2, FD1089B 317-0034)", 0 )
-GAME( 1987, shangon1, shangon,  shangon, shangon,  shangon3, ROT0, "Sega",    "Super Hang-On (set 1, FD1089B 317-0034)", 0 )
-GAME( 1991, shangnle, shangon,  shangon, shangon,  shangon,  ROT0, "Sega",    "Limited Edition Hang-On", 0 )
-GAME( 1989, toutrun,  0,        outrun,  toutrun,  outrun,   ROT0, "Sega",    "Turbo Out Run (set 3, upgrade kit, FD1094 317-0118)" , 0 )
-GAME( 1989, toutrun2, toutrun,  outrun,  toutrun,  outrun,   ROT0, "Sega",    "Turbo Out Run (set 2, upright, FD1094 317-unknown)", 0 )
-GAME( 1989, toutrun1, toutrun,  outrun,  toutrun,  outrun,   ROT0, "Sega",    "Turbo Out Run (set 1, FD1094 317-unknown)", GAME_NOT_WORKING ) // not decrypted
+GAME( 1986, outrun,   0,        outrun,   outrun,   outrun,   ROT0, "Sega",    "Out Run (standard/upright, Rev B)", 0 )
+GAME( 1986, outrun2,  outrun,   outrun,   outrun,   outrun,   ROT0, "Sega",    "Out Run (standard/upright, Rev A)", 0 )
+GAME( 1986, outrun1,  outrun,   outrundx, outrundx, outrun,   ROT0, "Sega",    "Out Run (deluxe)", 0 )
+GAME( 1986, outrunb,  outrun,   outrun,   outrun,   outrunb,  ROT0, "bootleg", "Out Run (bootleg)", 0 )
+GAME( 1987, shangon,  0,        shangon,  shangon,  shangon,  ROT0, "Sega",    "Super Hang-On (sitdown/upright, unprotected)", 0 )
+GAME( 1987, shangon3, shangon,  shangon,  shangon,  shangon3, ROT0, "Sega",    "Super Hang-On (sitdown/upright, FD1089B 317-0034)", 0 )
+GAME( 1987, shangon2, shangon,  shangon,  shangon,  shangon3, ROT0, "Sega",    "Super Hang-On (mini ride-on, Rev A, FD1089B 317-0034)", 0 )
+GAME( 1987, shangon1, shangon,  shangon,  shangon,  shangon3, ROT0, "Sega",    "Super Hang-On (mini ride-on?, FD1089B 317-0034)", GAME_NOT_WORKING ) // bad prg rom
+GAME( 1991, shangnle, shangon,  shangon,  shangon,  shangon,  ROT0, "Sega",    "Limited Edition Hang-On", 0 )
+GAME( 1989, toutrun,  0,        outrun,   toutrun,  outrun,   ROT0, "Sega",    "Turbo Out Run (Out Run upgrade, FD1094 317-0118)" , 0 )
+GAME( 1989, toutrun2, toutrun,  outrun,   toutrun2, outrun,   ROT0, "Sega",    "Turbo Out Run (upright, FD1094 317-unknown)", 0 )
+GAME( 1989, toutrun1, toutrun,  outrun,   toutrun,  outrun,   ROT0, "Sega",    "Turbo Out Run (FD1094 317-unknown)", GAME_NOT_WORKING ) // not decrypted
