@@ -969,28 +969,32 @@ static unsigned overlay_counter;
 
 static void int_overlay(void)
 {
+	font_t font = bar;
+
 	if (overlay_text.length() == 0)
 		return;
 
-	int border = int_font_dx_get(text) / 2;
+	int border = int_font_dx_get(font) / 2;
 
-	int dx = int_put_width(text, overlay_text);
+	int dx = int_put_width(font, overlay_text);
 	int x = (int_dx_get() - dx) / 2;
 
-	int dy = int_font_dy_get(text);
+	int dy = int_font_dy_get(font);
 	int y;
 
+	int wdy = dy + border * 2;
+
 	if (overlay_counter % 2 == 0)
-		y = int_dy_get() - 3 * int_font_dy_get(text);
+		y = int_dy_get() - 3 * wdy;
 	else
-		y = 2 * int_font_dy_get(text);
+		y = int_dy_get() - 2 * wdy;
 
-	int_box(x - border, y - border, dx + 2 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
-	int_clear(x - border + 1, y - border + 1, dx + 2 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
+	int_box(x - border, y - border, dx + 2 * border, wdy, 1, COLOR_CHOICE_NORMAL.foreground);
+	int_clear(x - border + 1, y - border + 1, dx + 2 * border - 2, wdy - 2, COLOR_CHOICE_NORMAL.background);
 
-	int_put(text, x, y, dx, overlay_text, COLOR_CHOICE_TITLE);
+	int_put(font, x, y, dx, overlay_text, COLOR_CHOICE_TITLE);
 
-	int_copy_partial(y - border, y + dy + border * 2);
+	int_copy_partial(y - border, y + wdy);
 }
 
 void int_set_overlay(const std::string& desc, unsigned counter)

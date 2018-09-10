@@ -104,11 +104,7 @@ void game::name_set(const std::string& A)
 void game::auto_description_set(const std::string& A) const
 {
 	if (!is_user_description_set()) {
-		if (A.length() >= 4 && A[0] == 'T' && A[1] == 'h' && A[2] == 'e' && A[3] == ' ') {
-			description = A.substr(4, A.length() - 4) + ", The";
-		} else {
-			description = A;
-		}
+		description = A;
 	}
 }
 

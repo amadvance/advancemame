@@ -645,14 +645,14 @@ void run_clone(config_state& rs)
 // ------------------------------------------------------------------------
 // Calib menu
 
-#define CALIB_CHOICE_DX 40 * int_font_dx_get(text)
-#define CALIB_CHOICE_DY 21 * int_font_dy_get(text)
+#define CALIB_CHOICE_DX (40 * int_font_dx_get(text))
+#define CALIB_CHOICE_DY (20 * int_font_dy_get(text) + int_font_dy_get(bar))
 #define CALIB_CHOICE_X (int_dx_get() - CALIB_CHOICE_DX) / 2
 #define CALIB_CHOICE_Y (int_dy_get() - CALIB_CHOICE_DY) / 2
 
 void run_calib(config_state& rs)
 {
-	int border = int_font_dx_get(text) / 2;
+	int border = int_font_dx_get(bar) / 2;
 
 	int_idle_2_enable(true, 1);
 	event_unassigned(true);
@@ -673,10 +673,10 @@ void run_calib(config_state& rs)
 		int_clear(x - 2 * border + 1, y - border + 1, dx + 4 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
 
 		const char* d_title = "Joystick Configuration";
-		int w_title = int_font_dx_get(text, d_title);
+		int w_title = int_font_dx_get(bar, d_title);
 
-		int_put(text, xc - w_title / 2, y, dx, d_title, COLOR_CHOICE_TITLE);
-		y += int_font_dy_get(text);
+		int_put(bar, xc - w_title / 2, y, dx, d_title, COLOR_CHOICE_TITLE);
+		y += int_font_dy_get(bar);
 
 		y += int_font_dy_get(text);
 

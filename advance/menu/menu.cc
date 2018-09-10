@@ -1622,7 +1622,7 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 			unsigned dx, dy;
 			int x = int_dx_get() / 2;
 			int y = int_dy_get() / 2;
-			int border = int_font_dx_get(text) / 2;
+			int border = int_font_dx_get(bar) / 2;
 
 			// force an update to draw the first time the backdrop images
 			int_update(false);
@@ -1868,8 +1868,16 @@ int run_menu_idle(config_state& rs, menu_array& gc)
 
 			int_update_pre();
 
-			if (rs.ui_gamename)
-				int_set_overlay(gc[pos]->game_get().description_tree_get(), counter);
+			if (rs.ui_gamename) {
+				ostringstream os;
+				const game& g = gc[pos]->game_get();
+				os << g.description_tree_get();
+				if (g.manufacturer_get().length())
+					os << ", " << g.manufacturer_get();
+				if (g.year_get().length())
+					os << ", " << g.year_get();
+				int_set_overlay(os.str(), counter);
+			}
 
 			int_update_post();
 		} else {
@@ -2051,7 +2059,7 @@ void run_runinfo(config_state& rs)
 	int x = int_dx_get() / 2;
 	int y = RUNINFO_CHOICE_Y;
 	int dy = RUNINFO_CHOICE_DY;
-	int border = int_font_dx_get(text) / 2;
+	int border = int_font_dx_get(bar) / 2;
 
 	const game* g = rs.current_clone ? rs.current_clone : rs.current_game;
 	if (!g)

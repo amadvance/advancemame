@@ -214,7 +214,7 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 {
 	int key = EVENT_ESC;
 	int done = 0;
-	int border = int_font_dx_get(text) / 2;
+	int border = int_font_dx_get(bar) / 2;
 
 	// adjust dx size if needed
 	if (int_put_width(bar, title) + 2 * border > dx) {
