@@ -1329,9 +1329,11 @@ void glue_seq_convert(unsigned* mame_seq, unsigned mame_max, unsigned* seq, unsi
 			if (c != 0) {
 				c_set = 1;
 			} else {
+				char token[128];
+				code_to_token(mame_seq[j], token);
 				c_set = 0;
 				prev_not = 0; /* remove a code specific not */
-				log_std(("WARNING:glue: unable to convert MAME code %d\n", mame_seq[j]));
+				log_std(("WARNING:glue: unable to convert MAME code %d %s\n", mame_seq[j], token));
 			}
 			break;
 		}
