@@ -414,7 +414,7 @@ void process_connect(int in_f, int out_f)
 			snprintfcat(processing, sizeof(processing), "Connected %u devices", count_connected);
 	} else {
 		if (count_connected == 0)
-			strcpy(processing, "Bluetooth scanning...\n");
+			strcpy(processing, "Press START for one second to power on");
 		else if (count_connected > 1)
 			snprintf(processing, sizeof(processing), "Connected %u devices", count_connected);
 		else
