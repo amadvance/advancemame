@@ -694,7 +694,7 @@ void run_calib(config_state& rs)
 
 			char* token = strtok(msg, "\n");
 			while (token) {
-				int_put(menu, x, y, dx, token, COLOR_CHOICE_NORMAL);
+				int_put_filled_center(menu, x, y, dx, token, COLOR_CHOICE_NORMAL);
 				y += int_font_dy_get(menu);
 				++bt_line;
 				token = strtok(NULL, "\n");
@@ -702,7 +702,7 @@ void run_calib(config_state& rs)
 		}
 
 		if (bt_line == 0) {
-			int_put(menu, x, y, dx, "No bluetooth daemon", COLOR_CHOICE_NORMAL);
+			int_put_filled_center(menu, x, y, dx, "No bluetooth daemon", COLOR_CHOICE_NORMAL);
 			y += int_font_dy_get(menu);
 		}
 
