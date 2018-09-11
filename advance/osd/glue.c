@@ -1074,8 +1074,8 @@ static struct mame_port GLUE_PORT_STD[] = {
 	P("doubleleft_left", "Double Left Left", JOYSTICKLEFT_LEFT)
 	P("doubleleft_right", "Double Left Right", JOYSTICKLEFT_RIGHT)
 
-	PE("paddle_left", "paddle_right", "Paddle Left", "Paddle Right", PADDLE)
-	PE("paddle_up", "paddle_down", "Paddle Up", "Paddle Down", PADDLE_V)
+	PE("paddle_right", "paddle_left", "Paddle Right", "Paddle Left", PADDLE)
+	PE("paddle_down", "paddle_up", "Paddle Down", "Paddle Up", PADDLE_V)
 
 	PE("stick_left", "stick_right", "Stick Left", "Stick Right", AD_STICK_X)
 	PE("stick_up", "stick_down", "Stick Up", "Stick Down", AD_STICK_Y)
@@ -1088,8 +1088,8 @@ static struct mame_port GLUE_PORT_STD[] = {
 	PE("pedalbrake_push", "pedalbrake_release", "Pedal Brake", "Pedal Brake Release", PEDAL2)
 	PE("pedalother_push", "pedalother_release", "Pedal Other", "Pedal Other Release", PEDAL3)
 
-	PE("dial_left", "dial_right", "Dial Left", "Dial Right", DIAL)
-	PE("dial_up", "dial_down", "Dial Up", "Dial Down", DIAL_V)
+	PE("dial_right", "dial_left", "Dial Right", "Dial Left", DIAL)
+	PE("dial_down", "dial_up", "Dial Down", "Dial Up", DIAL_V)
 
 	PE("trackball_right", "trackball_left", "Trackball Right", "Trackball Left", TRACKBALL_X)
 	PE("trackball_down", "trackball_up", "Trackball Down", "Trackball Up", TRACKBALL_Y)
