@@ -671,7 +671,10 @@ bool mame_info::update_xml()
 	unsigned argc = 0;
 
 	argv[argc++] = strdup(cpath_export(config_exe_path_get()));
-	argv[argc++] = strdup("-listxml");
+	if (has_bare_xml())
+		argv[argc++] = strdup("-listbare");
+	else
+		argv[argc++] = strdup("-listxml");
 	argv[argc] = 0;
 
 	int r = target_spawn_redirect(argv[0], argv, cpath_export(xml_file));

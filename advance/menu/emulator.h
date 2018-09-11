@@ -193,6 +193,7 @@ protected:
 	bool update_xml();
 	bool is_update_xml();
 	bool is_present_xml();
+	virtual bool has_bare_xml() { return false; }
 public:
 	mame_info(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -282,6 +283,7 @@ public:
 #endif
 
 class advmame : public mame_mame {
+	virtual bool has_bare_xml() { return true; }
 public:
 	advmame(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 
@@ -309,6 +311,8 @@ class advmess : public mame_mess {
 
 	bool scan_software_by_sys(game_container& gac, const std::string& software, const game& bios);
 	void scan_software(game_container& gac, const game_set& gar);
+
+	virtual bool has_bare_xml() { return true; }
 public:
 	advmess(const std::string& Aname, const std::string& Aexe_path, const std::string& Acmd_arg);
 

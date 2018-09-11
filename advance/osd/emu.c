@@ -229,6 +229,7 @@ static void help(void)
 	target_out("%sremove         remove all the default option from the configuration file\n", slash);
 	target_out("%slog            create a log of operations\n", slash);
 	target_out("%slistxml        output the rom XML file\n", slash);
+	target_out("%slistbare       output the rom XML file removing info not required by frontends\n", slash);
 	target_out("%srecord FILE    record an .inp file\n", slash);
 	target_out("%splayback FILE  play an .inp file\n", slash);
 	target_out("%sversion        print the version\n", slash);
@@ -621,6 +622,7 @@ int os_main(int argc, char* argv[])
 	int i;
 	struct mame_option option;
 	int opt_xml;
+	int opt_bare;
 	int opt_log;
 	int opt_logsync;
 	int opt_default;
@@ -638,6 +640,7 @@ int os_main(int argc, char* argv[])
 	const char* control;
 
 	opt_xml = 0;
+	opt_bare = 0;
 	opt_log = 0;
 	opt_logsync = 0;
 	opt_gamename = 0;
@@ -714,6 +717,8 @@ int os_main(int argc, char* argv[])
 			option.debug_flag = 1;
 		} else if (target_option_compare(argv[i], "listxml")) {
 			opt_xml = 1;
+		} else if (target_option_compare(argv[i], "listbare")) {
+			opt_bare = 1;
 		} else if (target_option_compare(argv[i], "record") && i + 1 < argc && argv[i + 1][0] != '-') {
 			if (strchr(argv[i + 1], '.') == 0)
 				snprintf(option.record_file_buffer, sizeof(option.record_file_buffer), "%s.inp", argv[i + 1]);
@@ -817,7 +822,12 @@ int os_main(int argc, char* argv[])
 	}
 
 	if (opt_xml) {
-		mame_print_xml(stdout);
+		mame_print_xml(stdout, 0);
+		goto done_os;
+	}
+
+	if (opt_bare) {
+		mame_print_xml(stdout, 1);
 		goto done_os;
 	}
 

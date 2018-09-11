@@ -347,7 +347,7 @@ static void print_game_bios(FILE* out, const game_driver* game)
 	}
 }
 
-static void print_game_rom(FILE* out, const game_driver* game)
+static void print_game_rom(FILE* out, int bare, const game_driver* game)
 {
 	const rom_entry *region, *rom, *chunk;
 	const rom_entry *pregion, *prom, *fprom=NULL;
@@ -386,6 +386,10 @@ static void print_game_rom(FILE* out, const game_driver* game)
 						}
 			}
 
+			if (bare && in_parent) {
+				continue;
+			}
+
 			found_bios = 0;
 			if(!is_disk && is_bios && game->bios)
 			{
@@ -410,7 +414,7 @@ static void print_game_rom(FILE* out, const game_driver* game)
 			else
 				fprintf(out, "\t\t<disk");
 
-			if (*name)
+			if (!bare && *name)
 				fprintf(out, " name=\"%s\"", normalize_string(name));
 			if (in_parent)
 				fprintf(out, " merge=\"%s\"", normalize_string(ROM_GETNAME(fprom)));
@@ -418,6 +422,11 @@ static void print_game_rom(FILE* out, const game_driver* game)
 				fprintf(out, " bios=\"%s\"", normalize_string(bios_name));
 			if (!is_disk)
 				fprintf(out, " size=\"%d\"", length);
+
+			if (bare) {
+				fprintf(out, "/>\n");
+				continue;
+			}
 
 			/* dump checksum information only if there is a known dump */
 			if (!hash_data_has_info(ROM_GETHASHDATA(rom), HASH_INFO_NO_DUMP))
@@ -764,7 +773,7 @@ static void print_game_driver(FILE* out, const game_driver* game)
 }
 
 /* Print the MAME info record for a game */
-static void print_game_info(FILE* out, const game_driver* game)
+static void print_game_info(FILE* out, int bare, const game_driver* game)
 {
 	const char *start;
 	const game_driver *clone_of;
@@ -805,18 +814,25 @@ static void print_game_info(FILE* out, const game_driver* game)
 	if (game->manufacturer)
 		fprintf(out, "\t\t<manufacturer>%s</manufacturer>\n", normalize_string(game->manufacturer));
 
-	print_game_bios(out, game);
-	print_game_rom(out, game);
-	print_game_sample(out, game);
-	print_game_micro(out, game);
+	if (!bare)
+		print_game_bios(out, game);
+	print_game_rom(out, bare, game);
+	if (!bare)
+		print_game_sample(out, game);
+	if (!bare)
+		print_game_micro(out, game);
 	print_game_video(out, game);
-	print_game_sound(out, game);
-	print_game_input(out, game);
-	print_game_switch(out, game);
+	if (!bare)
+		print_game_sound(out, game);
+	if (!bare)
+		print_game_input(out, game);
+	if (!bare)
+		print_game_switch(out, game);
 	print_game_driver(out, game);
 #ifdef MESS
 	print_game_device(out, game);
-	print_game_ramoptions(out, game);
+	if (!bare)
+		print_game_ramoptions(out, game);
 #endif
 
 	fprintf(out, "\t</" XML_TOP ">\n");
@@ -824,7 +840,7 @@ static void print_game_info(FILE* out, const game_driver* game)
 
 #if !defined(MESS)
 /* Print the resource info */
-static void print_resource_info(FILE* out, const game_driver* game)
+static void print_resource_info(FILE* out, int bare, const game_driver* game)
 {
 	const char *start;
 
@@ -862,30 +878,31 @@ static void print_resource_info(FILE* out, const game_driver* game)
 		fprintf(out, "\t\t<manufacturer>%s</manufacturer>\n", normalize_string(game->manufacturer));
 
 	print_game_bios(out, game);
-	print_game_rom(out, game);
+	if (!bare)
+		print_game_rom(out, bare, game);
 	print_game_sample(out, game);
 
 	fprintf(out, "\t</" XML_TOP ">\n");
 }
 #endif
 
-static void print_mame_data(FILE* out, const game_driver* const games[])
+static void print_mame_data(FILE* out, int bare, const game_driver* const games[])
 {
 	int j;
 
 	/* print games */
 	for(j=0;games[j];++j)
-		print_game_info(out, games[j]);
+		print_game_info(out, bare, games[j]);
 
 #if !defined(MESS)
 	/* print resources */
  	for (j=0;games[j];++j)
- 		print_resource_info(out, games[j]);
+ 		print_resource_info(out, bare, games[j]);
 #endif
 }
 
 /* Print the MAME database in XML format */
-void print_mame_xml(FILE* out, const game_driver* const games[])
+void print_mame_xml(FILE* out, int bare, const game_driver* const games[])
 {
 	fprintf(out,
 		"<?xml version=\"1.0\"?>\n"
@@ -986,7 +1003,8 @@ void print_mame_xml(FILE* out, const game_driver* const games[])
 		normalize_string(build_version)
 	);
 
-	print_mame_data(out, games);
+	print_mame_data(out, bare, games);
 
 	fprintf(out, "</" XML_ROOT ">\n");
 }
+

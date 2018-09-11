@@ -512,11 +512,11 @@ const mame_game* mame_game_at(unsigned i)
 /**
  * Print the information database in XML format.
  */
-void mame_print_xml(FILE* out)
+void mame_print_xml(FILE* out, int bare)
 {
 	cpuintrf_init();
 	sndintrf_init();
-	print_mame_xml(out, drivers);
+	print_mame_xml(out, bare, drivers);
 }
 
 /**
