@@ -32,7 +32,7 @@
 
 using namespace std;
 
-#define MSG_CHOICE_DX 30 * int_font_dx_get(text)
+#define MSG_CHOICE_DX 30 * int_font_dx_get(menu)
 #define MSG_CHOICE_X (int_dx_get() - MSG_CHOICE_DX) / 2
 #define MSG_CHOICE_Y int_dy_get() / 2
 
@@ -51,7 +51,7 @@ string menu_name(config_state& rs, const string& s, unsigned event)
 // ------------------------------------------------------------------------
 // Sort menu
 
-#define SORT_CHOICE_DX 15 * int_font_dx_get(text)
+#define SORT_CHOICE_DX 15 * int_font_dx_get(menu)
 
 int run_sort(config_state& rs)
 {
@@ -88,7 +88,7 @@ int run_sort(config_state& rs)
 // ------------------------------------------------------------------------
 // Command menu
 
-#define COMMAND_CHOICE_DX 33 * int_font_dx_get(text)
+#define COMMAND_CHOICE_DX 33 * int_font_dx_get(menu)
 
 int run_command(config_state& rs)
 {
@@ -246,7 +246,7 @@ int run_command(config_state& rs)
 // ------------------------------------------------------------------------
 // Mode menu
 
-#define MODE_CHOICE_DX 15 * int_font_dx_get(text)
+#define MODE_CHOICE_DX 15 * int_font_dx_get(menu)
 
 int run_mode(config_state& rs)
 {
@@ -282,7 +282,7 @@ int run_mode(config_state& rs)
 // ------------------------------------------------------------------------
 // Preview menu
 
-#define PREVIEW_CHOICE_DX 15 * int_font_dx_get(text)
+#define PREVIEW_CHOICE_DX 15 * int_font_dx_get(menu)
 
 int run_preview(config_state& rs)
 {
@@ -311,7 +311,7 @@ int run_preview(config_state& rs)
 // ------------------------------------------------------------------------
 // Group menu
 
-#define GROUP_CHOICE_DX 20 * int_font_dx_get(text)
+#define GROUP_CHOICE_DX 20 * int_font_dx_get(menu)
 
 int run_group(config_state& rs)
 {
@@ -380,7 +380,7 @@ void run_group_next(config_state& rs)
 // ------------------------------------------------------------------------
 // Emu menu
 
-#define EMU_CHOICE_DX 20 * int_font_dx_get(text)
+#define EMU_CHOICE_DX 20 * int_font_dx_get(menu)
 
 int run_emu(config_state& rs)
 {
@@ -474,7 +474,7 @@ void run_emu_next(config_state& rs)
 // ------------------------------------------------------------------------
 // Type menu
 
-#define TYPE_CHOICE_DX 30 * int_font_dx_get(text)
+#define TYPE_CHOICE_DX 30 * int_font_dx_get(menu)
 
 int run_type(config_state& rs)
 {
@@ -594,7 +594,7 @@ int run_type_move(config_state& rs)
 // Clone menu
 
 #define CLONE_CHOICE_X int_dx_get() / 10
-#define CLONE_CHOICE_Y int_dy_get() / 5
+#define CLONE_CHOICE_Y int_dy_get() / 8
 #define CLONE_CHOICE_DX int_dx_get() * 4 / 5
 
 void run_clone(config_state& rs)
@@ -636,7 +636,7 @@ void run_clone(config_state& rs)
 	}
 
 	i = ch.begin();
-	int key = ch.run(" Select game clone", CLONE_CHOICE_X, CLONE_CHOICE_Y, CLONE_CHOICE_DX, i);
+	int key = ch.run(" Select clone", CLONE_CHOICE_X, CLONE_CHOICE_Y, CLONE_CHOICE_DX, i);
 	if (key == EVENT_ENTER) {
 		rs.current_clone = (game*)i->ptr_get();
 	}
@@ -645,8 +645,8 @@ void run_clone(config_state& rs)
 // ------------------------------------------------------------------------
 // Calib menu
 
-#define CALIB_CHOICE_DX (40 * int_font_dx_get(text))
-#define CALIB_CHOICE_DY (20 * int_font_dy_get(text) + int_font_dy_get(bar))
+#define CALIB_CHOICE_DX (40 * int_font_dx_get(menu))
+#define CALIB_CHOICE_DY (20 * int_font_dy_get(menu) + int_font_dy_get(bar))
 #define CALIB_CHOICE_X (int_dx_get() - CALIB_CHOICE_DX) / 2
 #define CALIB_CHOICE_Y (int_dy_get() - CALIB_CHOICE_DY) / 2
 
@@ -664,7 +664,7 @@ void run_calib(config_state& rs)
 		int dy = CALIB_CHOICE_DY;
 		int dx = CALIB_CHOICE_DX;
 		int xc = x + dx / 2;
-		int y_last = y + dy - int_font_dy_get(text);
+		int y_last = y + dy - int_font_dy_get(menu);
 
 		// forced replug at every iteration, needed in case autocalib is disabled
 		int_joystick_replug();
@@ -678,7 +678,7 @@ void run_calib(config_state& rs)
 		int_put(bar, xc - w_title / 2, y, dx, d_title, COLOR_CHOICE_TITLE);
 		y += int_font_dy_get(bar);
 
-		y += int_font_dy_get(text);
+		y += int_font_dy_get(menu);
 
 		int bt_line = 0;
 		int f = open("/tmp/blue.msg", O_RDONLY);
@@ -694,19 +694,19 @@ void run_calib(config_state& rs)
 
 			char* token = strtok(msg, "\n");
 			while (token) {
-				int_put(text, x, y, dx, token, COLOR_CHOICE_NORMAL);
-				y += int_font_dy_get(text);
+				int_put(menu, x, y, dx, token, COLOR_CHOICE_NORMAL);
+				y += int_font_dy_get(menu);
 				++bt_line;
 				token = strtok(NULL, "\n");
 			}
 		}
 
 		if (bt_line == 0) {
-			int_put(text, x, y, dx, "No bluetooth daemon", COLOR_CHOICE_NORMAL);
-			y += int_font_dy_get(text);
+			int_put(menu, x, y, dx, "No bluetooth daemon", COLOR_CHOICE_NORMAL);
+			y += int_font_dy_get(menu);
 		}
 
-		y += int_font_dy_get(text);
+		y += int_font_dy_get(menu);
 
 		int j;
 		for (j = 0; j < joystickb_count_get(); ++j) {
@@ -722,8 +722,8 @@ void run_calib(config_state& rs)
 				os << " [" << name << "]";
 			}
 
-			int_put(text, x, y, dx, os.str().c_str(), COLOR_CHOICE_TITLE);
-			y += int_font_dy_get(text);
+			int_put(menu, x, y, dx, os.str().c_str(), COLOR_CHOICE_TITLE);
+			y += int_font_dy_get(menu);
 
 			if (joystickb_stick_count_get(j) != 0) {
 				ostringstream s_os;
@@ -731,8 +731,8 @@ void run_calib(config_state& rs)
 				for (int s = 0; s < joystickb_stick_count_get(j); ++s) {
 					s_os << " " << joystickb_stick_name_get(j, s);
 				}
-				int_put(text, x, y, dx, s_os.str().c_str(), COLOR_CHOICE_NORMAL);
-				y += int_font_dy_get(text);
+				int_put(menu, x, y, dx, s_os.str().c_str(), COLOR_CHOICE_NORMAL);
+				y += int_font_dy_get(menu);
 			}
 
 			if (joystickb_rel_count_get(j) != 0) {
@@ -741,8 +741,8 @@ void run_calib(config_state& rs)
 				for (int r = 0; r < joystickb_rel_count_get(j); ++r) {
 					r_os << " " << joystickb_rel_name_get(j, r);
 				}
-				int_put(text, x, y, dx, r_os.str().c_str(), COLOR_CHOICE_NORMAL);
-				y += int_font_dy_get(text);
+				int_put(menu, x, y, dx, r_os.str().c_str(), COLOR_CHOICE_NORMAL);
+				y += int_font_dy_get(menu);
 			}
 
 			if (joystickb_button_count_get(j) != 0) {
@@ -751,11 +751,11 @@ void run_calib(config_state& rs)
 				for (int b = 0; b < joystickb_button_count_get(j); ++b) {
 					b_os << " " << joystickb_button_name_get(j, b);
 				}
-				int_put(text, x, y, dx, b_os.str().c_str(), COLOR_CHOICE_NORMAL);
-				y += int_font_dy_get(text);
+				int_put(menu, x, y, dx, b_os.str().c_str(), COLOR_CHOICE_NORMAL);
+				y += int_font_dy_get(menu);
 			}
 
-			y += int_font_dy_get(text);
+			y += int_font_dy_get(menu);
 		}
 
 		for (;j < 4; ++j) {
@@ -763,38 +763,38 @@ void run_calib(config_state& rs)
 
 			os << "Joystick " << j+1 << " - <none>";
 
-			int_put(text, x, y, dx, os.str().c_str(), COLOR_CHOICE_TITLE);
-			y += int_font_dy_get(text);
+			int_put(menu, x, y, dx, os.str().c_str(), COLOR_CHOICE_TITLE);
+			y += int_font_dy_get(menu);
 			if (y >= y_last)
 				break;
 
-			int_put(text, x, y, dx, "  Sticks <none>", COLOR_CHOICE_NORMAL);
-			y += int_font_dy_get(text);
+			int_put(menu, x, y, dx, "  Sticks <none>", COLOR_CHOICE_NORMAL);
+			y += int_font_dy_get(menu);
 			if (y >= y_last)
 				break;
 
-			int_put(text, x, y, dx, "  Buttons <none>", COLOR_CHOICE_NORMAL);
-			y += int_font_dy_get(text);
+			int_put(menu, x, y, dx, "  Buttons <none>", COLOR_CHOICE_NORMAL);
+			y += int_font_dy_get(menu);
 			if (y >= y_last)
 				break;
 
-			y += int_font_dy_get(text);
+			y += int_font_dy_get(menu);
 			if (y >= y_last)
 				break;
 		}
 
 		if (joystickb_count_get() == 0) {
 			const char* d_exit = "Connect one joystick to continue";
-			int w_exit = int_font_dx_get(text, d_exit);
+			int w_exit = int_font_dx_get(menu, d_exit);
 
-			int_put(text, xc - w_exit / 2, y, w_exit, d_exit, COLOR_CHOICE_NORMAL);
-			y += int_font_dy_get(text);
+			int_put(menu, xc - w_exit / 2, y, w_exit, d_exit, COLOR_CHOICE_NORMAL);
+			y += int_font_dy_get(menu);
 		} else {
 			const char* d_exit = "Press any button to continue";
-			int w_exit = int_font_dx_get(text, d_exit);
+			int w_exit = int_font_dx_get(menu, d_exit);
 
-			int_put(text, xc - w_exit / 2, y, w_exit, d_exit, COLOR_CHOICE_NORMAL);
-			y += int_font_dy_get(text);
+			int_put(menu, xc - w_exit / 2, y, w_exit, d_exit, COLOR_CHOICE_NORMAL);
+			y += int_font_dy_get(menu);
 		}
 
 		int_update();
@@ -816,7 +816,7 @@ void run_calib(config_state& rs)
 // ------------------------------------------------------------------------
 // Volume
 
-#define VOLUME_CHOICE_DX 10 * int_font_dx_get(text)
+#define VOLUME_CHOICE_DX 10 * int_font_dx_get(menu)
 
 int run_volume(config_state& rs)
 {
@@ -854,8 +854,8 @@ int run_volume(config_state& rs)
 // ------------------------------------------------------------------------
 // Exit
 
-#define EXIT_CHOICE_DX 18 * int_font_dx_get(text)
-#define EXIT_CHOICE_DY 4 * int_font_dy_get(text)
+#define EXIT_CHOICE_DX 18 * int_font_dx_get(menu)
+#define EXIT_CHOICE_DY 4 * int_font_dy_get(menu)
 #define EXIT_CHOICE_X (int_dx_get() - EXIT_CHOICE_DX) / 2
 #define EXIT_CHOICE_Y (int_dy_get() - EXIT_CHOICE_DY) / 2
 
@@ -888,7 +888,7 @@ bool run_exit(config_state& rs, int key)
 // ------------------------------------------------------------------------
 // Difficulty
 
-#define DIFFICULTY_CHOICE_DX 10 * int_font_dx_get(text)
+#define DIFFICULTY_CHOICE_DX 10 * int_font_dx_get(menu)
 
 int run_difficulty(config_state& rs)
 {
@@ -917,7 +917,7 @@ int run_difficulty(config_state& rs)
 // ------------------------------------------------------------------------
 // Sub Menu
 
-#define MENU_CHOICE_DX 20 * int_font_dx_get(text)
+#define MENU_CHOICE_DX 20 * int_font_dx_get(menu)
 
 void clear_stat(config_state& rs)
 {

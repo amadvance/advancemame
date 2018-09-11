@@ -1,6 +1,12 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS Version 3.10 WIP
+	) Improved automatic joystick button mapping for games with gear shift.
+
+AdvanceMENU Version 3.10 WIP
+	) Added the new 'ui_menu_font' to change the font for the online menus.
+
 AdvanceMAME/MESS Version 3.9 2018/09
 	) Fixed input games with a relative input when controlled with
 		an absolute controller. Like 'cabal' or 'offroad' when

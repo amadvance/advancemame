@@ -40,10 +40,12 @@ using namespace std;
 // -------------------------------------------------------------------------
 // Orientation/Size
 
+#define FONT_MAX 3
+
 static unsigned int_orientation = 0; // orientation flags
-static unsigned int_font_dx[2]; // font width
-static unsigned int_font_dy[2]; // font height
-static adv_font* int_font[2]; // font (already orientation corrected)
+static unsigned int_font_dx[FONT_MAX]; // font width
+static unsigned int_font_dy[FONT_MAX]; // font height
+static adv_font* int_font[FONT_MAX]; // font (already orientation corrected)
 
 static inline void swap(unsigned& a, unsigned& b)
 {
@@ -824,7 +826,11 @@ void int_unset(bool reset_video_mode)
 	int_key_done();
 }
 
-bool int_enable(int font_text_x, int font_text_y, const string& font_text, int font_bar_x, int font_bar_y, const string& font_bar, unsigned orientation)
+bool int_enable(
+	int font_text_x, int font_text_y, const string& font_text,
+	int font_bar_x, int font_bar_y, const string& font_bar,
+	int font_menu_x, int font_menu_y, const string& font_menu,
+	unsigned orientation)
 {
 	int_orientation = orientation;
 	unsigned font_size_x;
@@ -863,7 +869,7 @@ bool int_enable(int font_text_x, int font_text_y, const string& font_text, int f
 	if (font_bar_y >= 5 && font_bar_y <= 100)
 		font_size_y = video_size_y() / font_bar_y;
 	else
-		font_size_y = video_size_y() / 35;
+		font_size_y = video_size_y() / 25;
 	if (font_bar_x >= 5 && font_bar_x <= 200)
 		font_size_x = video_size_x() / font_bar_x;
 	else
@@ -888,6 +894,35 @@ bool int_enable(int font_text_x, int font_text_y, const string& font_text, int f
 	int_font_dx[bar] = adv_font_sizex(int_font[bar]);
 	int_font_dy[bar] = adv_font_sizey(int_font[bar]);
 
+	// menu
+	if (font_menu_y >= 5 && font_menu_y <= 100)
+		font_size_y = video_size_y() / font_menu_y;
+	else
+		font_size_y = video_size_y() / 35;
+	if (font_menu_x >= 5 && font_menu_x <= 200)
+		font_size_x = video_size_x() / font_menu_x;
+	else
+		font_size_x = font_size_y * video_size_x() * 3 / video_size_y() / 4;
+
+	// load the font
+	int_font[menu] = 0;
+	if (font_menu != "none" && font_menu != "auto") {
+		adv_fz* f = fzopen(font_menu.c_str(), "rb");
+		if (f) {
+			int_font[menu] = adv_font_load(f, font_size_x, font_size_y);
+			fzclose(f);
+		}
+	}
+	if (!int_font[menu])
+		int_font[menu] = adv_font_default(font_size_x, font_size_y, 0);
+
+	// set the orientation
+	adv_font_orientation(int_font[menu], int_orientation);
+
+	// compute font size
+	int_font_dx[menu] = adv_font_sizex(int_font[menu]);
+	int_font_dy[menu] = adv_font_sizey(int_font[menu]);
+
 	video_buffer_pixel_size = video_bytes_per_pixel();
 	video_buffer_line_size = ALIGN_UNSIGNED(video_size_x() * video_bytes_per_pixel(), ALIGN);
 	video_buffer_size = video_size_y() * video_buffer_line_size;
@@ -910,6 +945,7 @@ void int_disable()
 {
 	adv_font_free(int_font[text]);
 	adv_font_free(int_font[bar]);
+	adv_font_free(int_font[menu]);
 	operator delete(video_foreground_alloc);
 	adv_bitmap_free(video_foreground_bitmap);
 	operator delete(video_background_alloc);

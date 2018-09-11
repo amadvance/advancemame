@@ -315,6 +315,8 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_string_register_default(config_context, "ui_text_size", "auto");
 	conf_string_register_default(config_context, "ui_bar_font", "auto");
 	conf_string_register_default(config_context, "ui_bar_size", "auto");
+	conf_string_register_default(config_context, "ui_menu_font", "auto");
+	conf_string_register_default(config_context, "ui_menu_size", "auto");
 	conf_string_register_default(config_context, "display_orientation", "");
 	conf_float_register_limit_default(config_context, "display_gamma", 0.2, 5, 1);
 	conf_float_register_limit_default(config_context, "display_brightness", 0.2, 5, 1);
@@ -910,6 +912,12 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	video_font_bar_y = atoi(a0.c_str());
 	video_font_bar_x = atoi(a1.c_str());
+	if (!config_path(conf_string_get_default(config_context, "ui_menu_font"), video_font_menu_path))
+		return false;
+	if (!config_split(conf_string_get_default(config_context, "ui_menu_size"), a0, a1))
+		return false;
+	video_font_menu_y = atoi(a0.c_str());
+	video_font_menu_x = atoi(a1.c_str());
 	if (!config_load_orientation(config_context, video_orientation_orig))
 		return false;
 	video_gamma = conf_float_get_default(config_context, "display_gamma");

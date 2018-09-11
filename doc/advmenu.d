@@ -896,13 +896,14 @@ Configuration
 
 	:ui_autocalib yes | no
 
-    ui_text/bar_font
-	Selects a font file for normal text and the title bar.
+    ui_text/bar_font/menu_font
+	Selects a font file for normal text, the title bar and online menus.
 	The formats: TrueType (TTF), GRX, PSF and RAW are supported.
 	You can find a collection of fonts in the `contrib' directory.
 
 	:ui_text_font auto | "FILE"
 	:ui_bar_font auto | "FILE"
+	:ui_menu_font auto | "FILE"
 
 	Options:
 		auto - Use the built-in font (default).
@@ -918,6 +919,7 @@ Configuration
 
 	:ui_text_size auto | ROWS [COLS]
 	:ui_bar_size auto | ROWS [COLS]
+	:ui_menu_size auto | ROWS [COLS]
 
 	Options:
 		auto - Automatically compute the size (default).

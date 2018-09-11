@@ -40,7 +40,11 @@ bool int_init(unsigned video_sizex, unsigned video_sizey);
 void int_done();
 bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast, unsigned translucency, bool disable_special, bool auto_calib);
 void int_unset(bool reset_video_mode);
-bool int_enable(int font_text_x, int font_text_y, const std::string& font_text, int font_bar_x, int font_bar_y, const std::string& font_bar, unsigned orientation);
+bool int_enable(
+	int font_text_x, int font_text_y, const std::string& font_text,
+	int font_bar_x, int font_bar_y, const std::string& font_bar,
+	int font_menu_x, int font_menu_y, const std::string& font_menu,
+	unsigned orientation);
 void int_disable();
 void int_unplug();
 void int_plug();
@@ -61,7 +65,8 @@ void int_invrotate(int& x, int& y, int& dx, int& dy);
 
 typedef enum {
 	text = 0,
-	bar = 1
+	bar = 1,
+	menu = 2
 } font_t;
 
 unsigned int_put_width(font_t font, char c);

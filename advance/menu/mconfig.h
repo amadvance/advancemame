@@ -344,10 +344,13 @@ public:
 	unsigned video_sizey;
 	std::string video_font_text_path; ///< Font path, "auto"== default.
 	std::string video_font_bar_path; ///< Font path, "auto"== default.
+	std::string video_font_menu_path; ///< Font path, "auto"== default.
 	int video_font_text_x; ///< Font size, "-1"==auto.
 	int video_font_text_y; ///< Font size, "-1"==auto.
 	int video_font_bar_x; ///< Font size, "-1"==auto.
 	int video_font_bar_y; ///< Font size, "-1"==auto.
+	int video_font_menu_x; ///< Font size, "-1"==auto.
+	int video_font_menu_y; ///< Font size, "-1"==auto.
 	double video_gamma; ///< Video gamma.
 	double video_brightness; ///< Video brightness.
 	unsigned video_orientation_orig; ///< Original video orientation.

@@ -173,9 +173,9 @@ void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, i
 
 		int indent = 0;
 		switch (i->state_get()) {
-		case 1: indent = int_put_width(text, CHOICE_INDENT_1); break;
-		case 2: indent = int_put_width(text, CHOICE_INDENT_2); break;
-		case 3: indent = int_put_width(text, CHOICE_INDENT_3); break;
+		case 1: indent = int_put_width(menu, CHOICE_INDENT_1); break;
+		case 2: indent = int_put_width(menu, CHOICE_INDENT_2); break;
+		case 3: indent = int_put_width(menu, CHOICE_INDENT_3); break;
 		}
 
 		int pos = 0;
@@ -192,21 +192,21 @@ void choice_bag::draw(const string& title, int x, int y, int dx, int pos_base, i
 			tag = "";
 		}
 
-		int_put_filled(text, x, y, dx, tag, colorf);
+		int_put_filled(menu, x, y, dx, tag, colorf);
 
 		int key_width = 0;
-		if (int_put_width(text, key) + int_put_width(text, CHOICE_INDENT_1) + int_put_width(text, rest) < dx - indent) {
-			key_width = int_put_width(text, key) + int_put_width(text, CHOICE_INDENT_1);
-			int_put(text, x + dx - key_width, y, key_width, key, color);
+		if (int_put_width(menu, key) + int_put_width(menu, CHOICE_INDENT_1) + int_put_width(menu, rest) < dx - indent) {
+			key_width = int_put_width(menu, key) + int_put_width(menu, CHOICE_INDENT_1);
+			int_put(menu, x + dx - key_width, y, key_width, key, color);
 		}
 
 		bool in = false;
 		if (center)
-			int_put_special_center(text, in, x + indent, y, dx - indent - key_width, rest, colorf, color, color);
+			int_put_special_center(menu, in, x + indent, y, dx - indent - key_width, rest, colorf, color, color);
 		else
-			int_put_special(text, in, x + indent, y, dx - indent - key_width, rest, colorf, color, color);
+			int_put_special(menu, in, x + indent, y, dx - indent - key_width, rest, colorf, color, color);
 
-		y += int_font_dy_get(text);
+		y += int_font_dy_get(menu);
 	}
 }
 
@@ -227,9 +227,9 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 	if (x < 0)
 		x = (int_dx_get() - dx - border * 2) / 2;
 	if (y < 0)
-		y = (int_dy_get() - (int_font_dy_get(bar) + size() * int_font_dy_get(text)) - border * 2) / 2;
+		y = (int_dy_get() - (int_font_dy_get(bar) + size() * int_font_dy_get(menu)) - border * 2) / 2;
 
-	int pos_rel_max = (int_dy_get() - y) / int_font_dy_get(text);
+	int pos_rel_max = (int_dy_get() - y) / int_font_dy_get(menu);
 	pos_rel_max -= 2;
 	if (pos_rel_max > size())
 		pos_rel_max = size();
@@ -239,7 +239,7 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 	int pos_base = 0;
 	int pos_rel = 0;
 
-	int dy = int_font_dy_get(bar) + pos_rel_max * int_font_dy_get(text);
+	int dy = int_font_dy_get(bar) + pos_rel_max * int_font_dy_get(menu);
 
 	int_box(x - border, y - border, dx + 2 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
 	int_clear(x - border + 1, y - border + 1, dx + 2 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
