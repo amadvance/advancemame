@@ -39,6 +39,10 @@
 
 #include <linux/input.h>
 
+#ifndef BTN_PLAY
+#define BTN_PLAY 0x13f /* missing in kernel 4.19 but used by joystick */
+#endif
+
 #if HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
@@ -310,6 +314,9 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 #ifdef BTN_THUMBR
 		{ BTN_THUMBR, "thumbr", JOYB_THUMBR }, /* gamepad (thumb right) */
 #endif
+#ifdef BTN_PLAY
+		{ BTN_PLAY, "play", JOYB_PLAY }, /* gamepad (play) */
+#endif
 #ifdef BTN_GEAR_DOWN
 		{ BTN_GEAR_DOWN, "gear_down", JOYB_GEAR_DOWN }, /* wheel */
 #endif
@@ -428,7 +435,6 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ 0x057e, 0x2009, "Pro Controller", 7, "tr2", JOYB_TR2 },
 		{ 0x057e, 0x2009, "Pro Controller", 8, "select", JOYB_SELECT },
 		{ 0x057e, 0x2009, "Pro Controller", 9, "start", JOYB_START },
-		{ 0x057e, 0x2009, "Pro Controller", 12, "mode", JOYB_MODE },
 		/* 8Bitdo SF30 Pro - ANDROID (START+B) */
 		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 1, "b", JOYB_B },
@@ -441,6 +447,8 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 2, "mode", JOYB_MODE },
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 13, "thumbl", JOYB_THUMBL },
+		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 14, "thumbr", JOYB_THUMBR },
 		/* 8Bitdo SF30 Pro - PC mode (START+Y) */
 		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 1, "a", JOYB_A },
 		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 0, "b", JOYB_B },
@@ -452,7 +460,6 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 7, "start", JOYB_START },
 		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 8, "thumbl", JOYB_THUMBL },
 		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 9, "thumbr", JOYB_THUMBR },
-		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 10, "mode", JOYB_MODE },
 		/* 8Bitdo SF30 Pro - MAC mode (START+A) */
 		/* ... listed as "Wireless Controller" as "input-gaming", but do not show in joystick */
 		/* 8Bitdo N30 Pro - ANDROID mode (POWER) */

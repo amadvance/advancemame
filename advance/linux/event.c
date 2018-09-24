@@ -35,10 +35,58 @@
 
 #include <linux/input.h>
 
+#ifndef BTN_PLAY
+#define BTN_PLAY 0x13f /* missing in kernel 4.19 but used by joystick */
+#endif
+
+#ifdef EV_SYN
+static void event_syn_log(int f)
+{
+	unsigned char msc_bitmask[SYN_MAX / 8 + 1];
+	unsigned i;
+
+	memset(msc_bitmask, 0, sizeof(msc_bitmask));
+	if (ioctl(f, EVIOCGBIT(EV_SYN, sizeof(msc_bitmask)), msc_bitmask) < 0) {
+		log_std(("event: error in ioctl(EVIOCGBIT(EV_SYN,%d))\n", (int)SYN_MAX));
+		return;
+	}
+
+	log_std(("event: EV_SYN:"));
+
+	for (i = 0; i < SYN_MAX; ++i) {
+		if (event_test_bit(i, msc_bitmask)) {
+			const char* desc;
+			switch (i) {
+#ifdef SYN_REPORT
+			case SYN_REPORT: desc = "SYN_REPORT"; break;
+#endif
+#ifdef SYN_CONFIG
+			case SYN_CONFIG: desc = "SYN_CONFIG"; break;
+#endif
+#ifdef SYN_MT_REPORT
+			case SYN_MT_REPORT: desc = "SYN_MT_REPORT"; break;
+#endif
+#ifdef SYN_DROPPED
+			case SYN_DROPPED: desc = "SYN_DROPPED"; break;
+#endif
+			default: desc = 0; break;
+			}
+			if (desc)
+				log_std((" %s", desc));
+			else
+				log_std((" 0x%x", i));
+		}
+	}
+
+	log_std(("\n"));
+}
+#endif
+
 static void event_key_log(int f)
 {
 	unsigned char key_bitmask[KEY_MAX / 8 + 1];
 	unsigned i;
+	unsigned count;
 
 	memset(key_bitmask, 0, sizeof(key_bitmask));
 	if (ioctl(f, EVIOCGBIT(EV_KEY, sizeof(key_bitmask)), key_bitmask) < 0) {
@@ -48,9 +96,11 @@ static void event_key_log(int f)
 
 	log_std(("event: EV_KEY:"));
 
+	count = 0;
 	for (i = 0; i < KEY_MAX; ++i) {
 		if (event_test_bit(i, key_bitmask)) {
 			const char* desc;
+			++count;
 			switch (i) {
 #ifdef KEY_ESC
 			case KEY_ESC: desc = "KEY_ESC"; break;
@@ -808,6 +858,9 @@ static void event_key_log(int f)
 #ifdef BTN_THUMBR
 			case BTN_THUMBR: desc = "BTN_THUMBR"; break;
 #endif
+#ifdef BTN_PLAY
+			case BTN_PLAY: desc = "BTN_PLAY"; break;
+#endif
 #ifdef BTN_TOOL_PEN
 			case BTN_TOOL_PEN: desc = "BTN_TOOL_PEN"; break;
 #endif
@@ -850,7 +903,7 @@ static void event_key_log(int f)
 		}
 	}
 
-	log_std(("\n"));
+	log_std((" [%u]\n", count));
 }
 
 static void event_rel_log(int f)
@@ -1033,6 +1086,18 @@ static void event_msc_log(int f)
 #endif
 #ifdef MSC_PULSELED
 			case MSC_PULSELED: desc = "MSC_PULSELED"; break;
+#endif
+#ifdef MSC_GESTURE
+			case MSC_GESTURE: desc = "MSC_GESTURE"; break;
+#endif
+#ifdef MSC_RAW
+			case MSC_RAW: desc = "MSC_RAW"; break;
+#endif
+#ifdef MSC_SCAN
+			case MSC_SCAN: desc = "MSC_SCAN"; break;
+#endif
+#ifdef MSC_TIMESTAMP
+			case MSC_TIMESTAMP: desc = "MSC_TIMESTAMP"; break;
 #endif
 			default: desc = 0; break;
 			}
@@ -1438,6 +1503,9 @@ void event_log(int f, unsigned char* evtype_bitmask)
 	for (i = 0; i < EV_MAX; ++i) {
 		if (event_test_bit(i, evtype_bitmask)) {
 			switch (i) {
+#ifdef EV_SYN
+			case EV_SYN: event_syn_log(f); break;
+#endif
 			case EV_KEY: event_key_log(f); break;
 			case EV_REL: event_rel_log(f); break;
 			case EV_ABS: event_abs_log(f); break;

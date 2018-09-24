@@ -74,6 +74,7 @@ extern "C" {
 #define JOYB_THUMBR 142 /* gamepad thumb right */
 #define JOYB_GEAR_DOWN 143 /* wheel */
 #define JOYB_GEAR_UP 144 /* wheel */
+#define JOYB_PLAY 145 /* play */
 
 #define JOYB_MAX 256
 /*@}*/

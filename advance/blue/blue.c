@@ -398,7 +398,7 @@ void process_connect(int in_f, int out_f)
 		}
 
 		if (i->is_connected) {
-			snprintfcat(connected, sizeof(connected), "Connected %s...", name);
+			snprintfcat(connected, sizeof(connected), "Connected %s", name);
 			++count_connected;
 		}
 	}

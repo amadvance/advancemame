@@ -45,6 +45,7 @@ static struct joy_entry JOY_BUTTON[] = {
 	{ "thumbr", JOYB_THUMBR },
 	{ "gear_down", JOYB_GEAR_DOWN },
 	{ "gear_up", JOYB_GEAR_UP },
+	{ "play", JOYB_PLAY },
 	{ 0, 0 }
 };
 
