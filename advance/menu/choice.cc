@@ -271,7 +271,7 @@ int choice_bag::run(const string& title, int x, int y, int dx, choice_container:
 
 		key = int_event_get();
 
-		key = menu_key(key, pos_base, pos_rel, pos_rel_max, pos_base_upper, 1, pos_max);
+		key = menu_key(key, pos_base, pos_rel, pos_rel_max, pos_base_upper, 1, pos_max, true);
 
 		switch (key) {
 		case EVENT_DEL:
@@ -357,8 +357,15 @@ choice_container::iterator choice_bag::find_by_desc(const string& desc)
 	return i;
 }
 
-void menu_pos(int pos, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base_upper, int coln, int pos_max)
+void menu_pos(int pos, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base_upper, int coln, int pos_max, bool roll)
 {
+	if (roll) {
+		if (pos == -1) {
+			pos = pos_max - 1;
+		} else if (pos == pos_max) {
+			pos = 0;
+		}
+	}
 
 	while (pos >= pos_base_upper + pos_rel_max)
 		pos -= coln;
@@ -393,21 +400,20 @@ void menu_pos(int pos, int& pos_base, int& pos_rel, int pos_rel_max, int pos_bas
 	}
 }
 
-int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base_upper, int coln, int pos_max)
+int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base_upper, int coln, int pos_max, bool roll)
 {
 	switch (key) {
 	case EVENT_HOME:
-		menu_pos(0, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
+		menu_pos(0, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max, roll);
 		break;
 	case EVENT_END:
-		menu_pos(pos_max, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
+		menu_pos(pos_max, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max, roll);
 		break;
 	case EVENT_LEFT:
 		if (coln > 1) {
-			menu_pos(pos_base + pos_rel - 1, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
-			break;
+			menu_pos(pos_base + pos_rel - 1, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max, roll);
 		}
-	// otherwise continue
+		break;
 	case EVENT_PGUP:
 		if (pos_base >= pos_rel_max) {
 			pos_base -= pos_rel_max;
@@ -419,10 +425,9 @@ int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base
 		break;
 	case EVENT_RIGHT:
 		if (coln > 1) {
-			menu_pos(pos_base + pos_rel + 1, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
-			break;
+			menu_pos(pos_base + pos_rel + 1, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max, roll);
 		}
-	// otherwise continue
+		break;
 	case EVENT_PGDN:
 		if (pos_base + pos_rel_max <= pos_base_upper) {
 			pos_base += pos_rel_max;
@@ -436,10 +441,10 @@ int menu_key(int key, int& pos_base, int& pos_rel, int pos_rel_max, int pos_base
 		}
 		break;
 	case EVENT_UP:
-		menu_pos(pos_base + pos_rel - coln, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
+		menu_pos(pos_base + pos_rel - coln, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max, roll);
 		break;
 	case EVENT_DOWN:
-		menu_pos(pos_base + pos_rel + coln, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max);
+		menu_pos(pos_base + pos_rel + coln, pos_base, pos_rel, pos_rel_max, pos_base_upper, coln, pos_max, roll);
 		break;
 	default:
 		return key;
