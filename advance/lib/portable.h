@@ -76,6 +76,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <math.h>
+#include <limits.h>
 
 #if HAVE_UNISTD_H
 #include <unistd.h>
