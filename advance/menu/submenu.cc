@@ -712,7 +712,7 @@ void run_calib(config_state& rs)
 		for (j = 0; j < joystickb_count_get(); ++j) {
 			ostringstream os;
 
-			os << "Joystick " << j+1;
+			os << "Joystick " << j + 1;
 
 			char name[DEVICE_NAME_MAX];
 			if (joystickb_device_desc_get(j, name) == 0) {
@@ -758,10 +758,10 @@ void run_calib(config_state& rs)
 			y += int_font_dy_get(menu);
 		}
 
-		for (;j < 4; ++j) {
+		for (; j < 4; ++j) {
 			ostringstream os;
 
-			os << "Joystick " << j+1 << " - <none>";
+			os << "Joystick " << j + 1 << " - <none>";
 
 			int_put(menu, x, y, dx, os.str().c_str(), COLOR_CHOICE_TITLE);
 			y += int_font_dy_get(menu);
@@ -865,11 +865,11 @@ bool run_exit(config_state& rs, int key)
 
 	ch.insert(ch.end(), choice("Continue", 0));
 	switch (key) {
-	case EVENT_ESC :
-	case EVENT_EXIT :
+	case EVENT_ESC:
+	case EVENT_EXIT:
 		ch.insert(ch.end(), choice("Exit", EVENT_EXIT));
 		break;
-	case EVENT_OFF :
+	case EVENT_OFF:
 		ch.insert(ch.end(), choice("Shutdown", EVENT_OFF));
 		break;
 	}

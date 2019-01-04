@@ -282,7 +282,7 @@ void color_setup(adv_color_def opaque_def, adv_color_def alpha_def, unsigned tra
 			color2string(COLOR_TAB[i].var->foreground).c_str(), color2string(COLOR_TAB[i].var->background).c_str(),
 			COLOR_TAB[i].var->opaque[0], COLOR_TAB[i].var->opaque[255],
 			COLOR_TAB[i].var->alpha[0], COLOR_TAB[i].var->alpha[255]
-		));
+			));
 	}
 }
 

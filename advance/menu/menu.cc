@@ -386,39 +386,39 @@ void draw_menu_info(const game_set& gar, const game* g, int x, int y, int dx, me
 		draw_tag_right(font, "locked", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN);
 
 	if (!lock) switch (preview) {
-	case preview_flyer: draw_tag_right(font, "flyers", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case preview_cabinet: draw_tag_right(font, "cabinets", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case preview_icon: draw_tag_right(font, "icons", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case preview_marquee: draw_tag_right(font, "marquees", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case preview_title: draw_tag_right(font, "titles", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case preview_snap: draw_tag_right(font, "snap", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	}
+		case preview_flyer: draw_tag_right(font, "flyers", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case preview_cabinet: draw_tag_right(font, "cabinets", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case preview_icon: draw_tag_right(font, "icons", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case preview_marquee: draw_tag_right(font, "marquees", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case preview_title: draw_tag_right(font, "titles", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case preview_snap: draw_tag_right(font, "snap", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		}
 
 	if (!lock) switch (sort_mode) {
-	case sort_by_group: draw_tag_right(font, "group", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_name: draw_tag_right(font, "name", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_root_name: draw_tag_right(font, "parent", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_time: draw_tag_right(font, "time", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_smart_time: draw_tag_right(font, "stime", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_session: draw_tag_right(font, "play", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_year: draw_tag_right(font, "year", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_manufacturer: draw_tag_right(font, "manuf", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_type: draw_tag_right(font, "type", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_size: draw_tag_right(font, "size", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_res: draw_tag_right(font, "res", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_info: draw_tag_right(font, "info", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_timepersession: draw_tag_right(font, "timeperplay", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case sort_by_emulator: draw_tag_right(font, "emulator", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	}
+		case sort_by_group: draw_tag_right(font, "group", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_name: draw_tag_right(font, "name", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_root_name: draw_tag_right(font, "parent", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_time: draw_tag_right(font, "time", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_smart_time: draw_tag_right(font, "stime", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_session: draw_tag_right(font, "play", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_year: draw_tag_right(font, "year", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_manufacturer: draw_tag_right(font, "manuf", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_type: draw_tag_right(font, "type", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_size: draw_tag_right(font, "size", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_res: draw_tag_right(font, "res", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_info: draw_tag_right(font, "info", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_timepersession: draw_tag_right(font, "timeperplay", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case sort_by_emulator: draw_tag_right(font, "emulator", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		}
 
 	if (!lock) switch (difficulty) {
-	case difficulty_none: draw_tag_right(font, "none", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_easiest: draw_tag_right(font, "easiest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_easy: draw_tag_right(font, "easy", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_medium: draw_tag_right(font, "normal", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_hard: draw_tag_right(font, "hard", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	case difficulty_hardest: draw_tag_right(font, "hardest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
-	}
+		case difficulty_none: draw_tag_right(font, "none", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case difficulty_easiest: draw_tag_right(font, "easiest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case difficulty_easy: draw_tag_right(font, "easy", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case difficulty_medium: draw_tag_right(font, "normal", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case difficulty_hard: draw_tag_right(font, "hard", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		case difficulty_hardest: draw_tag_right(font, "hardest", xl, xr, y, in_separator, COLOR_MENU_BAR_HIDDEN); break;
+		}
 
 	if (g) {
 		if (g->info_get().length())

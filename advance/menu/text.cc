@@ -2230,8 +2230,8 @@ static void box(int x, int y, int dx, int dy, int width, const adv_color_rgb& co
 bool cell_manager::is_box_flashing()
 {
 	return backdrop_box_color.foreground.red != backdrop_box_color.background.red
-		|| backdrop_box_color.foreground.green != backdrop_box_color.background.green
-		|| backdrop_box_color.foreground.blue != backdrop_box_color.background.blue;
+	       || backdrop_box_color.foreground.green != backdrop_box_color.background.green
+	       || backdrop_box_color.foreground.blue != backdrop_box_color.background.blue;
 }
 
 void cell_manager::backdrop_box()

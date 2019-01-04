@@ -429,13 +429,13 @@ inline bool pgame_by_smart_time_less(const game* A, const game* B)
 		vA = A->time_tree_get();
 	else
 		vA = A->time_get();
-	if (vA < 30*60)
+	if (vA < 30 * 60)
 		vA = 0;
 	if (B->emulator_get()->tree_get())
 		vB = B->time_tree_get();
 	else
 		vB = B->time_get();
-	if (vB < 30*60)
+	if (vB < 30 * 60)
 		vB = 0;
 	return vA > vB;
 }

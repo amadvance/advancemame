@@ -65,9 +65,9 @@ struct event_item {
 #define OP_JOY (2 << 8)
 #define OP_MOUSE (3 << 8)
 
-#define K(a) (OP_KEY + KEYB_##a)
-#define J(a) (OP_JOY + JOYB_##a)
-#define M(a) (OP_MOUSE + MOUSEB_##a)
+#define K(a) (OP_KEY + KEYB_ ## a)
+#define J(a) (OP_JOY + JOYB_ ## a)
+#define M(a) (OP_MOUSE + MOUSEB_ ## a)
 
 static struct event_item EVENT_TAB[] = {
 	{ "up", EVENT_UP, { K(UP), OP_OR, K(8_PAD), OP_NONE } },
@@ -135,19 +135,19 @@ static int seq_pressed(const unsigned* code)
 				unsigned m = code[j] & 0xFF00;
 				unsigned c = code[j] & 0xFF;
 				switch (m) {
-				case OP_KEY :
+				case OP_KEY:
 					for (unsigned k = 0; k < keyb_count_get(); ++k)
 						if (keyb_get(k, c))
 							pressed = 1;
 					break;
-				case OP_JOY :
+				case OP_JOY:
 					for (unsigned i = 0; i < joystickb_count_get(); ++i) {
 						int b = joystickb_bind(i, c);
 						if (b >= 0 && joystickb_button_get(i, b))
 							pressed = 1;
 					}
 					break;
-				case OP_MOUSE :
+				case OP_MOUSE:
 					for (unsigned i = 0; i < joystickb_count_get(); ++i) {
 						int b = mouseb_bind(i, c);
 						if (b >= 0 && mouseb_button_get(i, b))
@@ -306,13 +306,13 @@ bool event_in(const string& s)
 			seq[seq_count++] = OP_HIDDEN;
 		} else if (skey == "and") {
 			/* nothing */
-		} else if (skey.substr(0,4) == "joy_") {
+		} else if (skey.substr(0, 4) == "joy_") {
 			string sbutton = skey.substr(4);
 			unsigned button = joy_button_code(sbutton.c_str());
 			if (button >= JOYB_MAX)
 				return false;
 			seq[seq_count++] = OP_JOY + button;
-		} else if (skey.substr(0,6) == "mouse_") {
+		} else if (skey.substr(0, 6) == "mouse_") {
 			string sbutton = skey.substr(6);
 			unsigned button = mouse_button_code(sbutton.c_str());
 			if (button >= MOUSEB_MAX)
@@ -357,7 +357,7 @@ void event_out(adv_conf* config_context, const char* tag)
 				s += " ";
 
 			switch (m) {
-			case OP_NONE :
+			case OP_NONE:
 				switch (c) {
 				case OP_OR: s += "or"; break;
 				case OP_NOT: s += "not"; break;
@@ -419,7 +419,7 @@ std::string event_name(unsigned event)
 		const char* name;
 
 		switch (m) {
-		case OP_NONE :
+		case OP_NONE:
 			switch (c) {
 			case OP_OR: j = SEQ_MAX; break; // print only the first sequence
 			case OP_NOT: s += "!"; break;
@@ -563,8 +563,8 @@ void event_poll()
 	if (event_unassigned_mode) {
 		// if anything is pressed report a generic event
 		bool pressed = false;
-		for(int j = 0; j < joystickb_count_get(); ++j)
-			for(int b = 0; b < joystickb_button_count_get(j); ++b)
+		for (int j = 0; j < joystickb_count_get(); ++j)
+			for (int b = 0; b < joystickb_button_count_get(j); ++b)
 				if (joystickb_button_get(j, b))
 					pressed = true;
 		if (pressed)

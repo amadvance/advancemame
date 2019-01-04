@@ -41,10 +41,10 @@ int run_sub(config_state& rs, bool silent)
 	log_std(("menu: int_enable call\n"));
 
 	if (!int_enable(
-		rs.video_font_text_x, rs.video_font_text_y, rs.video_font_text_path,
-		rs.video_font_bar_x, rs.video_font_bar_y, rs.video_font_bar_path,
-		rs.video_font_menu_x, rs.video_font_menu_y, rs.video_font_menu_path,
-		rs.video_orientation_effective)
+			rs.video_font_text_x, rs.video_font_text_y, rs.video_font_text_path,
+			rs.video_font_bar_x, rs.video_font_bar_y, rs.video_font_bar_path,
+			rs.video_font_menu_x, rs.video_font_menu_y, rs.video_font_menu_path,
+			rs.video_orientation_effective)
 	) {
 		return EVENT_ESC;
 	}

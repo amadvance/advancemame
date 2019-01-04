@@ -2626,11 +2626,11 @@ static int on_exit_menu(int selected)
 
 	if (input_ui_pressed(IPT_UI_SELECT)) {
 		switch (sel) {
-		case 0 : sel = -1; break;
-		case 1 : sel = -2; break;
-		case 2 : sel = -3; break;
-		case 3 : sel = -4; break;
-		case 4 : sel = -5; break;
+		case 0: sel = -1; break;
+		case 1: sel = -2; break;
+		case 2: sel = -3; break;
+		case 3: sel = -4; break;
+		case 4: sel = -5; break;
 		}
 	}
 
@@ -2717,15 +2717,15 @@ static int on_key_menu(int selected)
 		int key0 = 0;
 		int key1 = 0;
 		switch (sel) {
-		case 0 : key0 = KEYB_1; break;
-		case 1 : key0 = KEYB_2; break;
-		case 2 : key0 = KEYB_3; break;
-		case 3 : key0 = KEYB_4; break;
-		case 4 : key0 = KEYB_A; break;
-		case 5 : key0 = KEYB_B; break;
-		case 6 : key0 = KEYB_8; key1 = KEYB_ALT; break;
-		case 7 : key0 = KEYB_9; key1 = KEYB_ALT; break;
-		case 8 : key0 = KEYB_ENTER; break;
+		case 0: key0 = KEYB_1; break;
+		case 1: key0 = KEYB_2; break;
+		case 2: key0 = KEYB_3; break;
+		case 3: key0 = KEYB_4; break;
+		case 4: key0 = KEYB_A; break;
+		case 5: key0 = KEYB_B; break;
+		case 6: key0 = KEYB_8; key1 = KEYB_ALT; break;
+		case 7: key0 = KEYB_9; key1 = KEYB_ALT; break;
+		case 8: key0 = KEYB_ENTER; break;
 		}
 		if (key0 != 0) {
 			sel = -1;
@@ -2778,10 +2778,10 @@ int osd_handle_user_interface(mame_bitmap *bitmap, int is_menu_active)
 			mame_pause(0);
 
 			switch (res) {
-			case -2 : return 4;
-			case -3 : return 3;
-			case -4 : return 2;
-			case -5 : return 1;
+			case -2: return 4;
+			case -3: return 3;
+			case -4: return 2;
+			case -5: return 1;
 			}
 		}
 	}
