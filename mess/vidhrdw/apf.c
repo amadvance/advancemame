@@ -23,7 +23,7 @@ static ATTR_CONST UINT8 apf_get_attributes(UINT8 c)
 
 static void apf_vsync_int(int line)
 {
-	extern unsigned int apf_ints;
+	extern unsigned char apf_ints;
 	if (line)
 		apf_ints |= 0x10;
 	else
