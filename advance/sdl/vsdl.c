@@ -260,6 +260,9 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 
 	log_std(("video:sdl: sdl_init(id:%d,output:%d,overlay_size:%d)\n", device_id, (unsigned)output, overlay_size));
 
+	memset(&sdl_state, 0, sizeof(sdl_state));
+	initialized_now = 0;
+
 	if (sizeof(sdl_video_mode) > MODE_DRIVER_MODE_SIZE_MAX) {
 		error_set("Invalid structure size.\n");
 		goto err;
@@ -267,7 +270,7 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 
 	if (!os_internal_sdl_get()) {
 		error_set("Unsupported without the SDL library.\n");
-		return -1;
+		goto err;
 	}
 
 #if defined(USE_VIDEO_SVGALIB)
@@ -284,7 +287,12 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 	}
 #endif
 
-	memset(&sdl_state, 0, sizeof(sdl_state));
+#ifdef USE_VC
+	if (!target_wm()) {
+		error_set("With VideoCore you can use SDL only from a Window Manager.\n");
+		goto err;
+	}
+#endif
 
 	sdl_state.cursor = cursor;
 
@@ -293,8 +301,6 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 		++i;
 	if (!i->name)
 		goto err;
-
-	initialized_now = 0;
 
 	if (SDL_WasInit(SDL_INIT_VIDEO) == 0) {
 		log_std(("video:sdl: call SDL_InitSubSystem(SDL_INIT_VIDEO)\n"));
@@ -628,12 +634,14 @@ static adv_error sdl_init(int device_id, adv_output output, unsigned overlay_siz
 #ifdef USE_VC /* only for Raspberry */
 	if (has_window_manager) {
 		/*
-		 * In X the opengl/opengles/opengles2 renderers are very very slow.
+		 * In X the opengl/opengles/opengles2 renderers are slower than the software one.
 		 *
-		 * To write a texture of 640x480 (ARGB8888 format) takes more than 100 ms,
-		 * when isntead the software renderer takes 3 ms.
+		 * This applies to both the "-output overlay" and "-output window" modes.
 		 *
-		 * Tested with SDL2 2.0.5 and Raspbian updated 6/1/2017.
+		 * Verified with SDL2 2.0.5 and Raspbian "jessie" 6/1/2017 on Raspberry 3B+.
+		 * Verified with SDL2 2.0.9 and Raspbian "buster" 26/9/2019 on Raspberry 4.
+		 *
+		 * You can override with the environment variable SDL_RENDER_DRIVER=...
 		 */
 		SDL_SetHintWithPriority(SDL_HINT_RENDER_DRIVER, "software", SDL_HINT_DEFAULT);
 	}

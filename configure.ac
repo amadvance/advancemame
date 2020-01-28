@@ -175,6 +175,12 @@ if test $ac_auto_cflags = yes; then
 			dnl Force build for 32 bit x86
 			AC_CHECK_CC_OPT([-m32 -march=i686], [CFLAGS="$CFLAGS -m32 -march=i686"], [])
 			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
+		elif $GREP a03111\\\|b03111\\\|c03111 /proc/cpuinfo >/dev/null 2>&1; then
+			dnl Raspberry Pi 4
+			AC_CHECK_CC_OPT([-march=armv8-a+crc], [CFLAGS="$CFLAGS -march=armv8-a+crc"], [])
+			AC_CHECK_CC_OPT([-mtune=cortex-a72], [CFLAGS="$CFLAGS -mtune=cortex-a72"], [])
+			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
+			AC_CHECK_CC_OPT([-funsafe-math-optimizations], [CFLAGS="$CFLAGS -funsafe-math-optimizations"], [])
 		elif $GREP a02082\\\|a22082 /proc/cpuinfo >/dev/null 2>&1; then
 			dnl Raspberry Pi 3
 			dnl GCC 4 has problems with -march=native in Raspbian,
@@ -185,11 +191,12 @@ if test $ac_auto_cflags = yes; then
 			AC_CHECK_CC_OPT([-mfloat-abi=hard], [CFLAGS="$CFLAGS -mfloat-abi=hard"], [])
 			AC_CHECK_CC_OPT([-mfpu=crypto-neon-fp-armv8], [CFLAGS="$CFLAGS -mfpu=crypto-neon-fp-armv8"], [])
 			AC_CHECK_CC_OPT([-funsafe-math-optimizations], [CFLAGS="$CFLAGS -funsafe-math-optimizations"], [])
-			dnl Raspberry Pi 2
 		elif $GREP a01040\\\|a01041\\\|a21041\\\|a22042 /proc/cpuinfo >/dev/null 2>&1; then
+			dnl Raspberry Pi 2
 			AC_CHECK_CC_OPT([-march=armv7-a], [CFLAGS="$CFLAGS -march=armv7-a"], [])
 			AC_CHECK_CC_OPT([-mfpu=neon-vfpv4], [CFLAGS="$CFLAGS -mfpu=neon-vfpv4"], [])
 		else
+			dnl Generic
 			AC_CHECK_CC_OPT([-march=native], [CFLAGS="$CFLAGS -march=native"], [])
 			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
 		fi

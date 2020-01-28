@@ -751,7 +751,12 @@ adv_error fb_init(int device_id, adv_output output, unsigned overlay_size, adv_c
 		goto err_close;
 	}
 
-	/* check if it's a Raspberry Pi */
+	if (strcmp(id_buffer, "DRM emulated") == 0) {
+		error_set("The FrameBuffer driver is emulated and doesn't allow the creation of new video modes. Please comment the option dtoverlay=vc4-fkms-v3d on /boot/config to enable a real framebuffer.\n");
+		goto err_close;
+	}
+
+	/* check if it's a Raspberry Pi 3 or Pi 4 */
 	fb_state.is_raspberry = strstr(id_buffer, "BCM2708") != 0;
 
 	if (fb_state.is_raspberry) {

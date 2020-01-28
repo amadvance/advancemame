@@ -43,7 +43,8 @@ Build
 
 	The -j3 option uses three parallel processes, speeding up the build.
 
-	The build process may be long, up to 45 minutes on a Raspberry Pi 3.
+	The build process may be long, up to 45 minutes on a Raspberry Pi 3, or 25 on
+	Raspberry Pi 4.
 
 	No option is generally required. You can get the complete configure option list with
 	the `./configure --help' command.
