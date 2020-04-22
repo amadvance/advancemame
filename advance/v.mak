@@ -53,15 +53,17 @@ VOBJS += \
 	$(VOBJ)/linux/os.o
 ifeq ($(CONF_LIB_SLANG),yes)
 VCFLAGS += \
+	$(SLANGCFLAGS) \
 	-DUSE_VIDEO_SLANG
-VLIBS += -lslang
+VLIBS += $(SLANGLIBS)
 VOBJS += \
 	$(VOBJ)/linux/vslang.o
 endif
 ifeq ($(CONF_LIB_NCURSES),yes)
 VCFLAGS += \
+	$(NCURSESCFLAGS) \
 	-DUSE_VIDEO_CURSES
-VLIBS += -lncurses
+VLIBS += $(NCURSESLIBS)
 VOBJS += \
 	$(VOBJ)/linux/vcurses.o
 endif

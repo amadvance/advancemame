@@ -57,15 +57,17 @@ CFGOBJS += \
 	$(CFGOBJ)/linux/os.o
 ifeq ($(CONF_LIB_SLANG),yes)
 CFGCFLAGS += \
+	$(SLANGCFLAGS) \
 	-DUSE_VIDEO_SLANG
-CFGLIBS += -lslang
+CFGLIBS += $(SLANGLIBS)
 CFGOBJS += \
 	$(CFGOBJ)/linux/vslang.o
 endif
 ifeq ($(CONF_LIB_NCURSES),yes)
 CFGCFLAGS += \
+	$(NCURSESCFLAGS) \
 	-DUSE_VIDEO_CURSES
-CFGLIBS += -lncurses
+CFGLIBS += $(NCURSESLIBS)
 CFGOBJS += \
 	$(CFGOBJ)/linux/vcurses.o
 endif
