@@ -302,6 +302,8 @@ SDLCFLAGS = $(shell sdl-config --cflags)
 SDLLIBS = $(shell sdl-config --libs)
 FREETYPECFLAGS = $(shell freetype-config --cflags)
 FREETYPELIBS = $(shell freetype-config --libs)
+NCURSESCFLAGS = $(shell ncurses6-config --cflags)
+NCURSESLIBS = $(shell ncurses6-config --libs)
 endif
 ifeq ($(CONF_HOST),dos)
 # Probably you need to changes these to cross compile:
