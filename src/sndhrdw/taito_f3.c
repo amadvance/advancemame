@@ -5,7 +5,12 @@
 static int counter,vector_reg,imr_status;
 static UINT16 es5510_dsp_ram[0x200];
 static UINT32	es5510_gpr[0xc0];
+static UINT32   es5510_dram[1<<16];
+static UINT32   es5510_dol_latch;
+static UINT32   es5510_dil_latch;
+static UINT32   es5510_dadr_latch;
 static UINT32	es5510_gpr_latch;
+static UINT8    es5510_ram_sel;
 static void *timer_68681=NULL;
 static int timer_mode,m68681_imr;
 
@@ -164,23 +169,16 @@ WRITE16_HANDLER(f3_68681_w)
 
 READ16_HANDLER(es5510_dsp_r)
 {
-//  logerror("%06x: DSP read offset %04x (data is %04x)\n",activecpu_get_pc(),offset,es5510_dsp_ram[offset]);
-//  if (es_tmp) return es5510_dsp_ram[offset];
-/*
-    switch (offset) {
-        case 0x00: return (es5510_gpr_latch>>16)&0xff;
-        case 0x01: return (es5510_gpr_latch>> 8)&0xff;
-        case 0x02: return (es5510_gpr_latch>> 0)&0xff;
-        case 0x03: return 0;
-    }
-*/
-//  offset<<=1;
-
-//if (offset<7 && es5510_dsp_ram[0]!=0xff) return rand()%0xffff;
+	switch(offset)
+	{
+		case 0x09: return (es5510_dil_latch >> 16) & 0xff;
+		case 0x0a: return (es5510_dil_latch >> 8) & 0xff;
+		case 0x0b: return (es5510_dil_latch >> 0) & 0xff; //TODO: docs says that this always returns 0
+	}
 
 	if (offset==0x12) return 0;
 
-//  if (offset>4)
+//	if (offset>4)
 	if (offset==0x16) return 0x27;
 
 	return es5510_dsp_ram[offset];
@@ -190,19 +188,46 @@ WRITE16_HANDLER(es5510_dsp_w)
 {
 	UINT8 *snd_mem = (UINT8 *)memory_region(REGION_SOUND1);
 
-//  if (offset>4 && offset!=0x80  && offset!=0xa0  && offset!=0xc0  && offset!=0xe0)
-//      logerror("%06x: DSP write offset %04x %04x\n",activecpu_get_pc(),offset,data);
+//	if (offset>4 && offset!=0x80  && offset!=0xa0  && offset!=0xc0  && offset!=0xe0)
+//		logerror("%06x: DSP write offset %04x %04x\n",activecpu_get_pc(),offset,data);
 
 	COMBINE_DATA(&es5510_dsp_ram[offset]);
 
 	switch (offset) {
-		case 0x00: es5510_gpr_latch=(es5510_gpr_latch&0x00ffff)|((data&0xff)<<16);
-		case 0x01: es5510_gpr_latch=(es5510_gpr_latch&0xff00ff)|((data&0xff)<< 8);
-		case 0x02: es5510_gpr_latch=(es5510_gpr_latch&0xffff00)|((data&0xff)<< 0);
-		case 0x03: break;
+		case 0x00: es5510_gpr_latch=(es5510_gpr_latch&0x00ffff)|((data&0xff)<<16); break;
+		case 0x01: es5510_gpr_latch=(es5510_gpr_latch&0xff00ff)|((data&0xff)<< 8); break;
+		case 0x02: es5510_gpr_latch=(es5510_gpr_latch&0xffff00)|((data&0xff)<< 0); break;
+
+		/* 0x03 to 0x08 INSTR Register */
+		/* 0x09 to 0x0b DIL Register (r/o) */
+
+		case 0x0c: es5510_dol_latch=(es5510_dol_latch&0x00ffff)|((data&0xff)<<16); break;
+		case 0x0d: es5510_dol_latch=(es5510_dol_latch&0xff00ff)|((data&0xff)<< 8); break;
+		case 0x0e: es5510_dol_latch=(es5510_dol_latch&0xffff00)|((data&0xff)<< 0); break; //TODO: docs says that this always returns 0xff
+
+		case 0x0f:
+			es5510_dadr_latch=(es5510_dadr_latch&0x00ffff)|((data&0xff)<<16);
+
+            if(es5510_ram_sel)
+                es5510_dil_latch = es5510_dram[es5510_dadr_latch&(1<<16)-2];
+            else
+                es5510_dram[es5510_dadr_latch&(1<<16)-2] = es5510_dol_latch;
+            break;
+
+		case 0x10: es5510_dadr_latch=(es5510_dadr_latch&0xff00ff)|((data&0xff)<< 8); break;
+		case 0x11: es5510_dadr_latch=(es5510_dadr_latch&0xffff00)|((data&0xff)<< 0); break;
+
+		/* 0x12 Host Control */
+
+		case 0x14: es5510_ram_sel = data & 0x80; /* bit 6 is i/o select, everything else is undefined */break;
+
+		/* 0x16 Program Counter (test purpose, r/o?) */
+		/* 0x17 Internal Refresh counter (test purpose) */
+		/* 0x18 Host Serial Control */
+		/* 0x1f Halt enable (w) / Frame Counter (r) */
 
 		case 0x80: /* Read select - GPR + INSTR */
-	//      logerror("ES5510:  Read GPR/INSTR %06x (%06x)\n",data,es5510_gpr[data]);
+	//		logerror("ES5510:  Read GPR/INSTR %06x (%06x)\n",data,es5510_gpr[data]);
 
 			/* Check if a GPR is selected */
 			if (data<0xc0) {
@@ -212,17 +237,17 @@ WRITE16_HANDLER(es5510_dsp_w)
 			break;
 
 		case 0xa0: /* Write select - GPR */
-	//      logerror("ES5510:  Write GPR %06x %06x (0x%04x:=0x%06x\n",data,es5510_gpr_latch,data,snd_mem[es5510_gpr_latch>>8]);
+	//		logerror("ES5510:  Write GPR %06x %06x (0x%04x:=0x%06x\n",data,es5510_gpr_latch,data,snd_mem[es5510_gpr_latch>>8]);
 			if (data<0xc0)
 				es5510_gpr[data]=snd_mem[es5510_gpr_latch>>8];
 			break;
 
 		case 0xc0: /* Write select - INSTR */
-	//      logerror("ES5510:  Write INSTR %06x %06x\n",data,es5510_gpr_latch);
+	//		logerror("ES5510:  Write INSTR %06x %06x\n",data,es5510_gpr_latch);
 			break;
 
 		case 0xe0: /* Write select - GPR + INSTR */
-	//      logerror("ES5510:  Write GPR/INSTR %06x %06x\n",data,es5510_gpr_latch);
+	//		logerror("ES5510:  Write GPR/INSTR %06x %06x\n",data,es5510_gpr_latch);
 			break;
 	}
 }
