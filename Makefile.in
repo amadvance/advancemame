@@ -5,6 +5,7 @@
 # configuration edit the Makefile.usr file and NOT this file.
 #
 
+PACKAGE_TARNAME=@PACKAGE_TARNAME@
 VERSION=@PACKAGE_VERSION@
 prefix=@prefix@
 datadir=@datadir@
