@@ -240,6 +240,7 @@ sysconfdir=${prefix}/etc
 bindir=${prefix}/bin
 mandir=${datadir}/man
 docdir=${datadir}/doc/advance
+htmldir=${docdir}
 
 #############################################################################
 # Extra configuration common for ./configure and manual

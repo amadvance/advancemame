@@ -15,6 +15,7 @@ exec_prefix=@exec_prefix@
 bindir=@bindir@
 mandir=@mandir@
 docdir=@docdir@
+htmldir=@htmldir@
 CONF_SYSTEM=@CONF_SYSTEM@
 CONF_HOST=@CONF_HOST@
 CONF_BUILD=@CONF_BUILD@
