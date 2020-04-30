@@ -82,12 +82,12 @@ case "$build" in
 esac
 AC_SUBST([CONF_BUILD],[$ac_build])
 
-if test -z "$CFLAGS" ; then
+if test -z "${CFLAGS+set}" ; then
 	ac_auto_cflags=yes
 else
 	ac_auto_cflags=no
 fi
-if test -z "$LDFLAGS" ; then
+if test -z "${LDFLAGS+set}" ; then
 	ac_auto_ldflags=yes
 else
 	ac_auto_ldflags=no
