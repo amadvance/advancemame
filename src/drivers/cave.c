@@ -1013,7 +1013,7 @@ static ADDRESS_MAP_START( pwrinst2_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 /**/AM_RANGE(0xc00000, 0xc00005) AM_READ(MRA16_RAM					)	// Layer 1 Control
 /**/AM_RANGE(0xc80000, 0xc80005) AM_READ(MRA16_RAM					)	// Layer 3 Control
 	AM_RANGE(0xa80000, 0xa8007f) AM_READ(donpachi_videoregs_r		)	// Video Regs
-	AM_RANGE(0xd80000, 0xd80001) AM_READ(MRA16_NOP					)	// ? From Sound CPU
+	AM_RANGE(0xd80000, 0xd80001) AM_READ(soundlatch_ack_r			)	// From Sound CPU
 	AM_RANGE(0xe80000, 0xe80001) AM_READ(pwrinst2_eeprom_r			)	// EEPROM
 	AM_RANGE(0xf00000, 0xf04fff) AM_READ(MRA16_RAM					)	// Palette
 ADDRESS_MAP_END
@@ -1357,7 +1357,7 @@ static ADDRESS_MAP_START( pwrinst2_sound_writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x10, 0x17) AM_WRITE(NMK112_okibank_w			)	// Samples bank
 	AM_RANGE(0x40, 0x40) AM_WRITE(YM2203_control_port_0_w	)	// YM2203
 	AM_RANGE(0x41, 0x41) AM_WRITE(YM2203_write_port_0_w		)	//
-//  AM_RANGE(0x50, 0x50) AM_WRITE(MWA8_NOP      )   // ?? volume
+        AM_RANGE(0x50, 0x50) AM_WRITE(soundlatch_ack_w			)       // To Main CPU
 //  AM_RANGE(0x51, 0x51) AM_WRITE(MWA8_NOP      )   // ?? volume
 	AM_RANGE(0x80, 0x80) AM_WRITE(pwrinst2_rombank_w		)	// ROM bank
 ADDRESS_MAP_END
