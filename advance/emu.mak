@@ -429,6 +429,7 @@ MESSOBJS += \
 ADVANCEOBJS += \
 	$(OBJ)/advance/osd/emu.o \
 	$(OBJ)/advance/osd/glue.o \
+	$(OBJ)/advance/osd/dvg.o \
 	$(OBJ)/advance/osd/global.o \
 	$(OBJ)/advance/osd/ui.o \
 	$(OBJ)/advance/osd/video.o \
