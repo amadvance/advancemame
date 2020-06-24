@@ -45,8 +45,8 @@
 
 #include "portable.h"
 #include "advance.h"
-#include "vidhrdw/vector.h"
 #include "driver.h"
+#include "vidhrdw/vector.h"
 #include "osdepend.h"
 
 
