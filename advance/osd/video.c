@@ -43,7 +43,10 @@
 #ifdef USE_SMP
 #include <pthread.h>
 #endif
+
+#ifndef __MSDOS__
 #include "dvg.h"
+#endif
 
 /***************************************************************************/
 /* Commands */
@@ -1743,12 +1746,15 @@ adv_error advance_video_config_load(struct advance_video_context* context, adv_c
 	context->config.magnify_size = conf_int_get_default(cfg_context, "display_magnifysize");
 	context->config.adjust = conf_int_get_default(cfg_context, "display_adjust");
 
+#ifndef __MSDOS__
         s = conf_string_get_default(cfg_context, "vector_aux_renderer");
 	if (strcmp(s, "dvg") == 0) {
 		vector_dual_display = conf_bool_get_default(cfg_context, "vector_aux_renderer_dual_display");
 		s = conf_string_get_default(cfg_context, "vector_aux_renderer_port");
 		dvg_init(s, vector_dual_display);
 	}
+#endif
+
 	context->config.monitor_aspect_x = 0;
 	context->config.monitor_aspect_y = 0;
 	s = conf_string_get_default(cfg_context, "display_aspect");

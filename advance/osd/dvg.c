@@ -28,6 +28,8 @@
  * do so, delete this exception statement from your version.
  */
 
+#ifndef __MSDOS__ /* nothing for dos */
+
 #ifdef __WIN32__
 #include <windows.h>
 #else
@@ -269,7 +271,8 @@ void sort_and_reconnect_vectors()
         min_v = &head;
         reverse = 0;
         dmin = INT32_MAX;
-        for (vector_t **v = min_v; *v; v = &(*v)->next) {
+	vector_t **v;
+        for (v = min_v; *v; v = &(*v)->next) {
             dx0 = (*v)->x0 - last_x;
             dy0 = (*v)->y0 - last_y;
             dx1 = (*v)->x1 - last_x;
@@ -337,7 +340,8 @@ void reconnect_vectors()
     
     s_out_vec_cnt = 0;
 
-    for (uint32_t i = 0; i < s_in_vec_cnt ; i++) {
+    uint32_t i;
+    for (i = 0; i < s_in_vec_cnt ; i++) {
         x0 = s_in_vec_list[i].x0;
         y0 = s_in_vec_list[i].y0;
         x1 = s_in_vec_list[i].x1;
@@ -624,8 +628,9 @@ static int serial_send()
     s_cmd_buf[s_cmd_offs++] = cmd >> 16;
     s_cmd_buf[s_cmd_offs++] = cmd >>  8;
     s_cmd_buf[s_cmd_offs++] = cmd >>  0;    
-    
-    for (uint32_t i = 0 ; i < s_out_vec_cnt ; i++) {
+
+    uint32_t i;
+    for (i = 0 ; i < s_out_vec_cnt ; i++) {
         cmd_add_point(s_out_vec_list[i].x1, s_out_vec_list[i].y1, s_out_vec_list[i].r, s_out_vec_list[i].g, s_out_vec_list[i].b);
     }   
     cmd = (FLAG_COMPLETE << 29); 
@@ -747,7 +752,7 @@ int dvg_update(point *p, int num_points)
         }
         s_xscale = (float)(DVG_RES_MAX + 1) / (s_xmax - s_xmin);
         s_yscale = (float)(DVG_RES_MAX + 1) / (s_ymax - s_ymin);
-        log_std(("dvg: xmin %d xmax %d ymin %d ymax %d xscale %g yscale %g\n", s_xmin, s_xmax, s_ymin, s_ymax, s_xscale, s_yscale));
+        log_std(("dvg: xmin %d xmax %d ymin %d ymax %d xscale %g yscale %g\n", (int)s_xmin, (int)s_xmax, (int)s_ymin, (int)s_ymax, s_xscale, s_yscale));
         determine_game_settings();     
         recalc_gamma_table(vector_get_gamma());  
         s_clipx_min = DVG_RES_MIN;
@@ -1009,3 +1014,4 @@ void dvg_close()
         serial_close();   
     } 
 }
+#endif
