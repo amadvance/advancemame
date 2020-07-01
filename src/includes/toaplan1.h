@@ -18,9 +18,6 @@ WRITE16_HANDLER( demonwld_dsp_bio_w );
 WRITE16_HANDLER( demonwld_dsp_ctrl_w );
 READ16_HANDLER ( demonwld_BIO_r );
 READ16_HANDLER ( samesame_port_6_word_r );
-READ16_HANDLER ( vimana_mcu_r );
-WRITE16_HANDLER( vimana_mcu_w );
-READ16_HANDLER ( vimana_input_port_5_word_r );
 
 WRITE8_HANDLER( rallybik_coin_w );
 WRITE8_HANDLER( toaplan1_coin_w );
@@ -33,7 +30,7 @@ MACHINE_RESET( zerozone );	/* hack for ZeroWing/OutZone. See vidhrdw */
 
 extern void toaplan1_driver_savestate(void);
 extern void demonwld_driver_savestate(void);
-extern void vimana_driver_savestate(void);
+
 
 
 extern int toaplan1_unk_reset_port;
@@ -77,25 +74,10 @@ VIDEO_START( rallybik );
 VIDEO_START( toaplan1 );
 VIDEO_UPDATE( rallybik );
 VIDEO_UPDATE( toaplan1 );
-VIDEO_UPDATE( zerowing );
 VIDEO_UPDATE( demonwld );
-VIDEO_UPDATE( samesame );
-VIDEO_UPDATE( vimana );
-VIDEO_UPDATE( hellfire );
 
 
 extern UINT16 *toaplan1_colorram1;
 extern UINT16 *toaplan1_colorram2;
 extern size_t toaplan1_colorram1_size;
 extern size_t toaplan1_colorram2_size;
-extern int start,start2;
-
-extern int vfadeout_ready;
-extern int vfadeout_stop;
-extern int vplaying1;
-extern int vplaying2;
-
-extern UINT8 toaplan1_hellfire_b1_pre;
-extern UINT8 toaplan1_hellfire_b1_buff;
-extern UINT8 toaplan1_hellfire_b2_pre;
-extern UINT8 toaplan1_hellfire_b2_buff;

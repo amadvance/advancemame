@@ -2727,9 +2727,9 @@ INPUT_PORTS_START( gunmast )
 	PORT_DIPNAME( 0x0400, 0x0400, DEF_STR( Allow_Continue ) )
 	PORT_DIPSETTING(      0x0000, DEF_STR( No ) )
 	PORT_DIPSETTING(      0x0400, DEF_STR( Yes ) )
-	PORT_DIPNAME( 0x0800, 0x0800, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0800, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0800, 0x0800, "Allow P2 to Join Game" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( No ) )
+	PORT_DIPSETTING(      0x0800, DEF_STR( Yes ) )
 	PORT_DIPNAME( 0x1000, 0x1000, DEF_STR( Demo_Sounds ) )
 	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x1000, DEF_STR( On ) )
@@ -4328,6 +4328,47 @@ static MACHINE_DRIVER_START( pururun )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.40)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( gunmast )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(M68000, 12000000)
+	MDRV_CPU_PROGRAM_MAP(pururun_readmem,pururun_writemem)
+	MDRV_CPU_VBLANK_INT(metro_interrupt,6)	/* prevents random hanging  */
+
+	MDRV_CPU_ADD(UPD7810, 12000000)
+	/* audio CPU */
+	MDRV_CPU_CONFIG(metro_cpu_config)
+	MDRV_CPU_PROGRAM_MAP(daitorid_snd_readmem,daitorid_snd_writemem)
+	MDRV_CPU_IO_MAP(daitorid_snd_readport,daitorid_snd_writeport)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	MDRV_MACHINE_RESET(metro)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(320, 224)
+	MDRV_VISIBLE_AREA(0, 320-1, 0, 224-1)
+	MDRV_GFXDECODE(gfxdecodeinfo_14100)
+	MDRV_PALETTE_LENGTH(8192)
+
+	MDRV_VIDEO_START(metro_14100)
+	MDRV_VIDEO_UPDATE(metro)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+
+	MDRV_SOUND_ADD(YM2151, 4000000)
+	MDRV_SOUND_CONFIG(ym2151_interface)
+	MDRV_SOUND_ROUTE(0, "left", 0.80)
+	MDRV_SOUND_ROUTE(1, "right", 0.80)
+
+	MDRV_SOUND_ADD(OKIM6295, 1200000/128)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.40)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.40)
+MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( skyalert )
 
@@ -5831,7 +5872,7 @@ GAME( 1994, lastfero, lastfort, lastfort, lastfero, metro,    ROT0,   "Metro",  
 GAME( 1994, lastforg, lastfort, lastforg, ladykill, metro,    ROT0,   "Metro",                      "Last Fortress - Toride (German)"    , 0 )
 GAME( 1994, toride2g, 0,        toride2g, toride2g, metro,    ROT0,   "Metro",                      "Toride II Adauchi Gaiden",        GAME_IMPERFECT_GRAPHICS )
 GAME( 1994, torid2gg, toride2g, toride2g, toride2g, metro,    ROT0,   "Metro",                      "Toride II Adauchi Gaiden (German)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1994, gunmast,  0,        pururun,  gunmast,  daitorid, ROT0,   "Metro",                      "Gun Master"                      , 0 )
+GAME( 1994, gunmast,  0,        gunmast,  gunmast,  daitorid, ROT0,   "Metro",                      "Gun Master"                      , 0 )
 GAME( 1995, daitorid, 0,        daitorid, daitorid, daitorid, ROT0,   "Metro",                      "Daitoride",                       GAME_IMPERFECT_GRAPHICS )
 GAME( 1995, dokyusei, 0,        dokyusei, dokyusei, gakusai,  ROT0,   "Make Software / Elf / Media Trading", "Mahjong Doukyuusei"        , 0 )
 GAME( 1995, dokyusp,  0,        dokyusp,  gakusai,  gakusai,  ROT0,   "Make Software / Elf / Media Trading", "Mahjong Doukyuusei Special", 0 )

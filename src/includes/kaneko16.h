@@ -6,10 +6,13 @@
 
 /*----------- defined in machine/kaneko16.c -----------*/
 
-extern UINT16 *mcu_ram; /* for calc3 and toybox */
+extern UINT16 *kaneko16_mcu_ram; /* for calc3 and toybox */
 
 READ16_HANDLER( galpanib_calc_r );
 WRITE16_HANDLER( galpanib_calc_w );
+
+READ16_HANDLER( bloodwar_calc_r );
+WRITE16_HANDLER( bloodwar_calc_w );
 
 void calc3_mcu_init(void);
 WRITE16_HANDLER( calc3_mcu_ram_w );
@@ -25,7 +28,16 @@ WRITE16_HANDLER( toybox_mcu_com2_w );
 WRITE16_HANDLER( toybox_mcu_com3_w );
 READ16_HANDLER( toybox_mcu_status_r );
 
+extern void (*toybox_mcu_run)(void);	/* one of the following */
+void bloodwar_mcu_run(void);
+void bonkadv_mcu_run(void);
+void gtmr_mcu_run(void);
+void calc3_mcu_run(void);
 
+void toxboy_handle_04_subcommand(UINT8 mcu_subcmd, UINT16*mcu_ram);
+
+extern void calc3_scantables(void);
+extern void decrypt_toybox_rom(void);
 
 /*----------- defined in drivers/kaneko16.c -----------*/
 
@@ -54,6 +66,7 @@ WRITE16_HANDLER( kaneko16_layers_1_regs_w );
 /* Sprites: */
 
 extern int kaneko16_sprite_type;
+extern int kaneko16_sprite_fliptype;
 extern UINT16 kaneko16_sprite_xoffs, kaneko16_sprite_flipx;
 extern UINT16 kaneko16_sprite_yoffs, kaneko16_sprite_flipy;
 extern UINT16 *kaneko16_sprites_regs;

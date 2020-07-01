@@ -231,7 +231,8 @@ static ADDRESS_MAP_START( segae_readport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0xba, 0xbb) AM_READ(segae_port_ba_bb_r)			/* Back Layer VDP */
 	AM_RANGE(0xbe, 0xbf) AM_READ(segae_port_be_bf_r)			/* Front Layer VDP */
 	AM_RANGE(0xe0, 0xe0) AM_READ(input_port_2_r) /* Coins + Starts */
-	AM_RANGE(0xe1, 0xe1) AM_READ(input_port_3_r) /* Controls */
+	AM_RANGE(0xe1, 0xe1) AM_READ(input_port_3_r) /* 1P Controls */
+	AM_RANGE(0xe2, 0xe2) AM_READ(input_port_4_r) /* 2P Controls */
 	AM_RANGE(0xf2, 0xf2) AM_READ(input_port_0_r) /* DSW0 */
 	AM_RANGE(0xf3, 0xf3) AM_READ(input_port_1_r) /* DSW1 */
 ADDRESS_MAP_END
@@ -586,12 +587,22 @@ INPUT_PORTS_START( tetrisse ) /* Used By Transformer */
 	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_START2 )
 
 	PORT_START_TAG("IN1")	/* Read from Port 0xe1 */
-	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_JOYSTICK_UP  ) PORT_8WAY
-	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_JOYSTICK_DOWN ) PORT_8WAY
-	PORT_BIT( 0x04, IP_ACTIVE_LOW,  IPT_JOYSTICK_LEFT ) PORT_8WAY
-	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_JOYSTICK_RIGHT ) PORT_8WAY
-	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_BUTTON1 )
-	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_BUTTON2 )
+	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_JOYSTICK_UP  ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW,  IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNUSED )
+
+	PORT_START_TAG("IN2")   /* Read from Port 0xe2 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_JOYSTICK_UP  ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW,  IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_BUTTON2 ) PORT_PLAYER(2)
 	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_UNUSED )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNUSED )
 INPUT_PORTS_END
@@ -719,6 +730,67 @@ INPUT_PORTS_START( ridleofp ) /* Used By Riddle Of Pythagoras */
 	PORT_BIT( 0x8000, IP_ACTIVE_LOW,  IPT_UNKNOWN )
 INPUT_PORTS_END
 
+INPUT_PORTS_START( opaopa )
+	PORT_START_TAG("DSW0")	/* DSW0 Read from Port 0xf2 */
+	SEGA_COIN_A
+	SEGA_COIN_B
+
+	PORT_START_TAG("DSW1")	/* DSW1 Read from Port 0xf3 */
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "2" )
+	PORT_DIPSETTING(    0x0c, "3" )
+	PORT_DIPSETTING(    0x08, "4" )
+	PORT_DIPSETTING(    0x04, "5" )
+	PORT_DIPNAME( 0x30, 0x30, DEF_STR( Bonus_Life ) ) /* Bonus life egg appearance */
+	PORT_DIPSETTING(    0x20, "25k, 45k and 70k" )
+	PORT_DIPSETTING(    0x30, "40k, 60k and 90k" )
+	PORT_DIPSETTING(    0x10, "50k and 90k" )
+	PORT_DIPSETTING(    0x00, "None" )
+	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x80, "Easy" )
+	PORT_DIPSETTING(    0xc0, "Normal" )
+	PORT_DIPSETTING(    0x40, "Hard" )
+	PORT_DIPSETTING(    0x00, "Hardest" )
+
+	PORT_START_TAG("IN0")	/* Read from Port 0xe0 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_COIN2 )
+	PORT_SERVICE_NO_TOGGLE(0x04, IP_ACTIVE_LOW)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_SERVICE1 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_START1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_START2 )
+
+	PORT_START_TAG("IN1")	/* Read from Port 0xe1 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_JOYSTICK_UP  ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW,  IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNUSED )
+
+	PORT_START_TAG("IN2")	/* Read from Port 0xe2 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_JOYSTICK_UP  ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW,  IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNUSED )
+INPUT_PORTS_END
+
+
+
 /*******************************************************************************
  Interrupt Function
 ********************************************************************************
@@ -753,6 +825,8 @@ INPUT_PORTS_END
 			if  ((segae_vdp_regs[1][0] & 0x10)) {
 				cpunum_set_input_line(0, 0, HOLD_LINE);
 				return;
+			} else {
+				cpunum_set_input_line(0, 0, CLEAR_LINE);
 			}
 
 		} else {
@@ -764,7 +838,11 @@ INPUT_PORTS_END
 		hintcount = segae_vdp_regs[1][10];
 
 		if ( (sline<0xe0) && (vintpending) ) {
-			cpunum_set_input_line(0, 0, HOLD_LINE);
+			if (segae_vdp_regs[1][0x1]&0x20) {
+				cpunum_set_input_line(0, 0, HOLD_LINE);
+			} else {
+				cpunum_set_input_line(0, 0, CLEAR_LINE);
+			}
 		}
 	}
 }
@@ -828,6 +906,8 @@ static MACHINE_DRIVER_START( segae )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
+
+
 /*******************************************************************************
  Game Inits
 ********************************************************************************
@@ -843,6 +923,8 @@ static DRIVER_INIT( hangonjr )
 	state_save_register_global(port_fa_last);
 }
 
+
+
 static DRIVER_INIT( ridleofp )
 {
 	memory_install_read8_handler(0, ADDRESS_SPACE_IO, 0xf8, 0xf8, 0, 0, segae_ridleofp_port_f8_r);
@@ -854,6 +936,7 @@ static DRIVER_INIT( astrofl )
 	astrofl_decode();
 }
 
+
 /*******************************************************************************
  Rom Loaders / Game Drivers
 ********************************************************************************
@@ -863,6 +946,8 @@ static DRIVER_INIT( astrofl )
  ridleofp - Riddle of Pythagoras (Jp.)
  transfrm - Transformer
  astrofl  - Astro Flash (Jp. Version of Transformer) (was encrypted)
+ opaopan  - Opa Opa (Rev A, unprotected)
+ slapshtr - Slap Shooter
 
  NOT DECRYPTED
 
@@ -926,6 +1011,17 @@ ROM_START( astrofl )
 	ROM_LOAD( "epr-7350.ic2",	0x28000, 0x08000, CRC(0052165d) SHA1(cf4b5dffa54238e513515b3fc90faa7ce0b65d34) )
 ROM_END
 
+ROM_START( opaopan )
+	ROM_REGION( 0x50000, REGION_CPU1, 0 )
+	ROM_LOAD( "epr-11023a.ic7",  0x00000, 0x08000, CRC(101c5c6a) SHA1(5862c6b8d9e1fc8dc9cd26d87f36fde5ce9484ac) ) /* Fixed Code */
+
+	/* The following are 8 0x4000 banks that get mapped to reads from 0x8000 - 0xbfff */
+	ROM_LOAD( "epr-11022.ic5",  0x10000, 0x08000, CRC(15203a42) SHA1(41cfb9a884ed313d4dc3a36696a63a87e49b3b34) )
+	ROM_LOAD( "epr-11021.ic4",  0x18000, 0x08000, CRC(b4e83340) SHA1(57955b2b1e5c55b50ed6b53f1b52787442fe716b) )
+	ROM_LOAD( "epr-11020.ic3",  0x20000, 0x08000, CRC(c51aad27) SHA1(b6828d7f7283d00964bde7c93f67f4b7f3b9dd87) )
+	ROM_LOAD( "epr-11019.ic2",  0x28000, 0x08000, CRC(bd0a6248) SHA1(6b313809dffdb50ee1dc4d83e0567811dc2f1a67) )
+ROM_END
+
 /* Below are encrypted with an NEC MC-8123 processor... it is ESSENTIAL we find these in working condition
    AS SOON AS POSSIBLE, the batteries on these are dying at an ever increasing rate */
 
@@ -955,6 +1051,10 @@ GAME( 1985, hangonjr, 0,        segae, hangonjr, hangonjr, ROT0,  "Sega", "Hang-
 GAME( 1986, transfrm, 0,        segae, transfrm, 0,        ROT0,  "Sega", "Transformer", 0 )
 GAME( 1986, astrofl,  transfrm, segae, transfrm, astrofl,  ROT0,  "Sega", "Astro Flash (Japan)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1986, ridleofp, 0,        segae, ridleofp, ridleofp, ROT90, "Sega / Nasco", "Riddle of Pythagoras (Japan)", 0 )
-GAME( 1988, fantzn2,  0,        segae, dummy,    0,        ROT0,  "Sega", "Fantasy Zone 2", GAME_NOT_WORKING )	/* encrypted */
-GAME( 198?, opaopa,   0,        segae, dummy,    0,        ROT0,  "Sega", "Opa Opa", GAME_NOT_WORKING )	/* either encrypted or bad */
+GAME( 1987, opaopan,  opaopa,   segae, opaopa,   0,        ROT0,  "Sega", "Opa Opa (Rev A, unprotected)", 0 )
 GAME( 1988, tetrisse, 0,        segae, tetrisse, 0,        ROT0,  "Sega", "Tetris (Japan, System E)", 0 )
+
+
+/* Not Working */
+GAME( 1988, fantzn2,  0,        segae, dummy,    0,        ROT0,  "Sega", "Fantasy Zone 2", GAME_NOT_WORKING )	/* encrypted */
+GAME( 1987, opaopa,   0,        segae, opaopa,   0,        ROT0,  "Sega", "Opa Opa (MC-8123, 317-0042)", GAME_NOT_WORKING ) /* encrypted */

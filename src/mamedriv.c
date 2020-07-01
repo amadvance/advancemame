@@ -3066,6 +3066,7 @@ V-V                           TP-027
 	DRIVER( wbmljo )	/* (c) 1987 Sega/Westone (S2) */
 	DRIVER( wbmljb )	/* (c) 1987 Sega/Westone (S2) */
 	DRIVER( wbmlb )		/* bootleg? (S2) */
+    DRIVER( wbmlvc )    /* (c) 2009 Sega/Westone (S2) Virtual Console English Version */
 	DRIVER( dakkochn )	/* 836-6483? (S2) */
 	DRIVER( ufosensi )	/* 834-6659 (S2) */
 	DRIVER( ufosensb )	/* bootleg */
@@ -3083,7 +3084,8 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( astrofl )	/* 834-5803 (c) 1986 */
 	DRIVER( ridleofp )	/* (c) 1986 Sega / Nasco */
 	DRIVER( fantzn2 )
-	DRIVER( opaopa )
+	DRIVER( opaopa )    /* (c) 1987 */
+    DRIVER( opaopan )   /* (c) 1987 */
 	DRIVER( tetrisse )	/* (c) 1988 */
 
 	/* other Sega 8-bit games */
@@ -4466,6 +4468,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( mtrap )		/* (c) 1981 */
 	DRIVER( mtrap3 )	/* (c) 1981 */
 	DRIVER( mtrap4 )	/* (c) 1981 */
+	DRIVER( teetert )	/* (c) 1982 */
 	DRIVER( pepper2 )	/* (c) 1982 */
 	DRIVER( hardhat )	/* (c) 1982 */
 	DRIVER( fax )		/* (c) 1983 */
@@ -5099,7 +5102,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( pspikes2 )	/* 0068 (c) 1994 Video System Co. */
 	DRIVER( fatfury3 )	/* 0069 (c) 1995 SNK */
 	DRIVER( zupapa )	/* 0070 Zupapa - released in 2001, 1994 prototype probably exists */
-				/* 0071 Bang Bang Busters (prototype) 1994 Visco */
+	DRIVER( b2b )       /* 0071 (c) 1994 Visco */
 				/* 0072 Last Odyssey Pinball Fantasia (prototype) 1995 Monolith */
 	DRIVER( panicbom )	/* 0073 (c) 1994 Eighting / Hudson */
 	DRIVER( aodk )		/* 0074 (c) 1994 ADK / SNK */
@@ -5155,7 +5158,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( ninjamas )	/* 0217 (c) 1996 ADK / SNK */
 	DRIVER( ragnagrd )	/* 0218 (c) 1996 Saurus */
 	DRIVER( pgoal )		/* 0219 (c) 1996 Saurus */
-				/* 0220 Choutetsu Brikin'ger - iron clad (MVS existance seems to have been confirmed) */
+    DRIVER( ironclad )  /* 0220 (c) 1996 Saurus */
 	DRIVER( magdrop2 )	/* 0221 (c) 1996 Data East Corporation */
 	DRIVER( samsho4 )	/* 0222 (c) 1996 SNK */
 	DRIVER( rbffspec )	/* 0223 (c) 1996 SNK */
@@ -5762,8 +5765,10 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( rfjetus )	/* (c) 1998 Seibu Kaihatsu (Fabtek license) */
 
 	/* Tad games (Tad games run on Seibu hardware) */
-	DRIVER( cabal )		/* (c) 1988 Tad + Fabtek license */
-	DRIVER( cabal2 )	/* (c) 1988 Tad + Fabtek license */
+	DRIVER( cabal )		/* (c) 1988 Tad */
+	DRIVER( cabala )	/* (c) 1988 Tad + Alpha Trading license */
+	DRIVER( cabalus )	/* (c) 1988 Tad + Fabtek license */
+	DRIVER( cabalus2 )	/* (c) 1988 Tad + Fabtek license */
 	DRIVER( cabalbl )	/* bootleg */
 	DRIVER( toki )		/* (c) 1989 Tad (World) */
 	DRIVER( tokia )		/* (c) 1989 Tad (World) */
@@ -6083,8 +6088,10 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( explbrkr )	/* (c) 1992 Kaneko */
 	DRIVER( bakubrkr )	/* (c) 1992 Kaneko */
 	DRIVER( shogwarr )	/* (c) 1992 Kaneko */
+	DRIVER( shogwarre )	/* (c) 1992 Kaneko */
 	DRIVER( fjbuster )	/* (c) 1992 Kaneko */
 	DRIVER( brapboys )	/* (c) 1992 Kaneko */
+	DRIVER( brapboysj )	/* (c) 1992 Kaneko */
 	DRIVER( bloodwar )	/* (c) 1994 Kaneko */
 	DRIVER( bonkadv )	/* (c) 1994 Kaneko */
 	DRIVER( gtmr )		/* (c) 1994 Kaneko */
@@ -6609,9 +6616,10 @@ Other Sun games
 	DRIVER( killbld )	/* (c) 1998 */
 	DRIVER( killbldt )	/* (c) 1998 */
 	DRIVER( puzlstar )	/* (c) 1999 */
-	DRIVER( olds )		/* (c) 1999 */
-	DRIVER( olds100 )	/* (c) 1999 */
-	DRIVER( olds100a )	/* (c) 1999 */
+	DRIVER( olds )		/* (c) 1998 */
+	DRIVER( olds100 )	/* (c) 1998 */
+	DRIVER( olds100a )	/* (c) 1998 */
+	DRIVER( olds103t )	/* (c) 1998 */
   	DRIVER( kov2 )		/* (c) 2000 */
  	DRIVER( kov2106 )	/* (c) 2000 */
   	DRIVER( kov2p )		/* (c) 2000 */

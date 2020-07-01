@@ -2,6 +2,19 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 3.10 WIP
+	) Added support for Teeter Torture [arcadez2003]
+	) Hooked up Bubble Bobble Protection MCU [arcadez2003]
+	) Get DJ Boy playable [arcadez2003]
+	) Get B-Rap Boys, Blood Warrior and Shogun Warriors playable [arcadez2003]
+	) Hook up Fire Shark / Vimana (Sound MCU's) [arcadez2003]
+	) Support Wonder Boy in Monsterland English Virtual Console [arcadez2003]
+	) Support Opa Opa unprotected set and fix Tetris System E 2 player mode [arcadez2003]
+	) Support Cabal Joystick Version [arcadez2003]
+	) Fix Night Slashers sound [arcadez2003]
+	) Fix Sunset Riders protection [arcadez2003]
+	) Add support for Bang Bang Busters and Choutetsu Brikin'ger / Iron Clad [arcadez2003]
+	) Support the only working version of Oriental Legend Special [arcadez2003]
+	) Prevent Gun Master from randomly hanging and add 2p buy in via the inputs [arcadez2003]
 	) Improved automatic joystick button mapping for games with gear shift.
 
 AdvanceMENU Version 3.10 WIP

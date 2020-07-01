@@ -55,6 +55,7 @@ UINT16 *kaneko16_vram_0,    *kaneko16_vram_1,    *kaneko16_layers_0_regs;
 UINT16 *kaneko16_vscroll_0, *kaneko16_vscroll_1;
 UINT16 *kaneko16_vram_2,    *kaneko16_vram_3,    *kaneko16_layers_1_regs;
 UINT16 *kaneko16_vscroll_2, *kaneko16_vscroll_3;
+int kaneko16_sprite_fliptype = 0;
 
 
 int kaneko16_sprite_type;
@@ -631,8 +632,12 @@ void kaneko16_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int p
 			s->priority		=	priority;
 			s->xoffs		=	xoffs;
 			s->yoffs		=	yoffs;
-			s->flipx		=	flipx;
-			s->flipy		=	flipy;
+
+			if (kaneko16_sprite_fliptype==0)
+			{
+				s->flipx		=	flipx;
+				s->flipy		=	flipy;
+			}
 		}
 		else
 		{
@@ -640,6 +645,17 @@ void kaneko16_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int p
 			priority	=	s->priority;
 			xoffs		=	s->xoffs;
 			yoffs		=	s->yoffs;
+
+			if (kaneko16_sprite_fliptype==0)
+			{
+				flipx = s->flipx;
+				flipy = s->flipy;
+			}
+		}
+
+		// brap boys explicitly doesn't want the flip to be latched, maybe there is a different bit to enable that behavior?
+		if (kaneko16_sprite_fliptype==1)
+		{
 			flipx		=	s->flipx;
 			flipy		=	s->flipy;
 		}
