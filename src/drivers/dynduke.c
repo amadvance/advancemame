@@ -222,9 +222,11 @@ static const gfx_layout spritelayout =
 static const gfx_layout bg_layout =
 {
 	16,16,
-	0x2000,
-	5,	/* actually 4, 5th bit is transparency */
-	{ 0x100000*8+4, 0x80000*8+4,0x80000*8,4,0 },
+	RGN_FRAC(1,3),
+	6,
+	{ RGN_FRAC(2,3)+4, RGN_FRAC(2,3)+0,
+	  RGN_FRAC(1,3)+4, RGN_FRAC(1,3)+0,
+	                4,               0 },
 	{
 		0,1,2,3,8,9,10,11,
 		256+0,256+1,256+2,256+3,256+8,256+9,256+10,256+11
@@ -235,6 +237,7 @@ static const gfx_layout bg_layout =
 	},
 	512
 };
+
 
 static const gfx_layout fg_layout =
 {
@@ -257,10 +260,10 @@ static const gfx_layout fg_layout =
 
 static const gfx_decode gfxdecodeinfo[] =
 {
-	{ REGION_GFX1, 0, &charlayout,   1280, 16 },
-	{ REGION_GFX2, 0, &bg_layout,    2048, 32 }, // Really 0
-	{ REGION_GFX3, 0, &fg_layout,     512, 16 },
-	{ REGION_GFX4, 0, &spritelayout,  768, 32 },
+	{ REGION_GFX1, 0, &charlayout,   0x500, 16 },
+	{ REGION_GFX2, 0, &bg_layout,    0x000, 128 },
+	{ REGION_GFX3, 0, &fg_layout,    0x200, 16 },
+	{ REGION_GFX4, 0, &spritelayout, 0x300, 32 },
 	{ -1 }
 };
 
@@ -300,7 +303,7 @@ static MACHINE_DRIVER_START( dynduke )
 	MDRV_SCREEN_SIZE(32*8, 32*8)
 	MDRV_VISIBLE_AREA(0*8, 32*8-1, 2*8, 30*8-1)
 	MDRV_GFXDECODE(gfxdecodeinfo)
-	MDRV_PALETTE_LENGTH(2048+1024)	// 2048 real palette, 1024 for transparency kludge
+	MDRV_PALETTE_LENGTH(2048)
 
 	MDRV_VIDEO_START(dynduke)
 	MDRV_VIDEO_UPDATE(dynduke)
