@@ -105,7 +105,7 @@ static int sound_status;
 
 static READ8_HANDLER( m92_sound_status_r )
 {
-	return 0xff;
+	return sound_status;
 }
 
 static READ8_HANDLER( m92_soundlatch_r )
@@ -129,11 +129,16 @@ static WRITE8_HANDLER( m92_sound_irq_ack_w )
 
 static WRITE8_HANDLER( m92_sound_status_w )
 {
-	if (offset == 0)
-	{
-//      ui_popup("sound answer %02x",data);
-		sound_status = data;
-	}
+   if (offset == 0)
+   {
+   sound_status = data;
+   cpunum_set_input_line_and_vector(0,0,HOLD_LINE,m107_IRQ_3);
+   }
+}
+
+static WRITE8_HANDLER( m107_sound_reset_w )
+{
+    cpunum_set_input_line(1, INPUT_LINE_RESET, (data) ? CLEAR_LINE : ASSERT_LINE);
 }
 
 /*****************************************************************************/
@@ -178,6 +183,7 @@ static ADDRESS_MAP_START( writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x80, 0x9f) AM_WRITE(m107_control_w)
 	AM_RANGE(0xa0, 0xaf) AM_WRITE(MWA8_NOP) /* Written with 0's in interrupt */
 	AM_RANGE(0xb0, 0xb1) AM_WRITE(m107_spritebuffer_w)
+	AM_RANGE(0xc0, 0xc1) AM_WRITE(m107_sound_reset_w)
 ADDRESS_MAP_END
 
 /******************************************************************************/
@@ -487,10 +493,10 @@ static INTERRUPT_GEN( m107_raster_interrupt )
 	}
 
 	/* Kludge to get Fire Barrel running */
-	else if (line==118)
-	{
-		cpunum_set_input_line_and_vector(0, 0, HOLD_LINE, m107_IRQ_3);
-	}
+	//else if (line==118)
+	//{
+	//	cpunum_set_input_line_and_vector(0, 0, HOLD_LINE, m107_IRQ_3);
+	//}
 
 	/* Redraw screen, then set vblank and trigger the VBL interrupt */
 	else if (line==248) {
@@ -688,7 +694,7 @@ static DRIVER_INIT( firebarr )
 	RAM = memory_region(REGION_CPU2);
 	memcpy(RAM+0xffff0,RAM+0x1fff0,0x10); /* Sound cpu Start vector */
 
-	irem_cpu_decrypt(1,rtypeleo_decryption_table);
+	irem_cpu_decrypt(1,firebarr_decryption_table);
 
 	m107_irq_vectorbase=0x20;
 	m107_spritesystem = 1;
@@ -735,6 +741,6 @@ static DRIVER_INIT( wpksoc )
 
 /***************************************************************************/
 
-GAME( 1993, firebarr, 0, firebarr, firebarr, firebarr, ROT270, "Irem", "Fire Barrel (Japan)", GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, firebarr, 0, firebarr, firebarr, firebarr, ROT270, "Irem", "Fire Barrel (Japan)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1994, dsoccr94, 0, dsoccr94, dsoccr94, dsoccr94, ROT0,   "Irem (Data East Corporation license)", "Dream Soccer '94", 0 )
-GAME( 1995, wpksoc,   0, firebarr, wpksoc,	 wpksoc,   ROT0,   "Jaleco", "World PK Soccer", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS )
+GAME( 1995, wpksoc,   0, firebarr, wpksoc,   wpksoc,   ROT0,   "Jaleco", "World PK Soccer", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS )
