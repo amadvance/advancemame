@@ -57,6 +57,7 @@ VIDEO_EOF( exidy );
 VIDEO_UPDATE( exidy );
 
 INTERRUPT_GEN( exidy_vblank_interrupt );
+INTERRUPT_GEN( teetert_vblank_interrupt );
 
 WRITE8_HANDLER( exidy_characterram_w );
 WRITE8_HANDLER( exidy_color_w );
