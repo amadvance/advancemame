@@ -240,9 +240,6 @@ Notes:
 
 
 Notes:
-- the original bubble bobble board has a 68701 protection MCU, which hasn't been
-  read. Its behaviour is simulated and should be a good approximation but not
-  100% accurate.
 - The coin inputs are handled by a custom called PC030. It would be responsible of
   handling the coin counters.
 - There is a weird dip switch in Bubble Bobble (SWB #7). When it is on, the game
@@ -254,12 +251,14 @@ Notes:
   Frankly I don't know what this could be. The schematics don't show anything
   special there. A debug feature seems unlikely - why care about the score?
   Could it be provision for some kind of externally controlled redemption scheme?
-- "Attract Sound" in Tokio is a very relative term - it just plays a veryshort
+- "Attract Sound" in Tokio is a very relative term - it just plays a very short
   sound every four rounds of demo play.
 
 TODO:
-- bublbobl: the randomization of EXTEND letters is handled by the MCU. The simulation
-  is probably not accurate and the same letter might appear too many times.
+- the MCU is actually a 6801U4, which has additional features like internal timers
+  (similar to the HD63701). I've just mapped the I/O ports since that's the only
+    thing required for normal operation, but the program does use some of the
+    additional features in its special "test" mode.
 - emulate the CPU #1 <-> sound CPU communication status flags (which are not used)
 - why does emulating the sound CPU reset port (fa03) cause sound to stop working?
 - tokio: doesn't work due to missing MCU protection emulation.
@@ -289,13 +288,30 @@ READ8_HANDLER( tokiob_mcu_r );
 WRITE8_HANDLER( bublbobl_sound_command_w );
 WRITE8_HANDLER( bublbobl_sh_nmi_disable_w );
 WRITE8_HANDLER( bublbobl_sh_nmi_enable_w );
-INTERRUPT_GEN( bublbobl_interrupt );
 READ8_HANDLER( boblbobl_ic43_a_r );
 WRITE8_HANDLER( boblbobl_ic43_a_w );
 READ8_HANDLER( boblbobl_ic43_b_r );
 WRITE8_HANDLER( boblbobl_ic43_b_w );
+
+READ8_HANDLER( bublbobl_mcu_ddr1_r );
+WRITE8_HANDLER( bublbobl_mcu_ddr1_w );
+READ8_HANDLER( bublbobl_mcu_ddr2_r );
+WRITE8_HANDLER( bublbobl_mcu_ddr2_w );
+READ8_HANDLER( bublbobl_mcu_ddr3_r );
+WRITE8_HANDLER( bublbobl_mcu_ddr3_w );
+READ8_HANDLER( bublbobl_mcu_ddr4_r );
+WRITE8_HANDLER( bublbobl_mcu_ddr4_w );
+READ8_HANDLER( bublbobl_mcu_port1_r );
+WRITE8_HANDLER( bublbobl_mcu_port1_w );
+READ8_HANDLER( bublbobl_mcu_port2_r );
+WRITE8_HANDLER( bublbobl_mcu_port2_w );
+READ8_HANDLER( bublbobl_mcu_port3_r );
+WRITE8_HANDLER( bublbobl_mcu_port3_w );
+READ8_HANDLER( bublbobl_mcu_port4_r );
+WRITE8_HANDLER( bublbobl_mcu_port4_w );
+
 #if 0
-// left for reference. The 68705 was from a bootleg, the original MCU is a 68701
+// left for reference. The 68705 was from a bootleg, the original MCU is a 6801U4
 INTERRUPT_GEN( bublbobl_m68705_interrupt );
 READ8_HANDLER( bublbobl_68705_portA_r );
 WRITE8_HANDLER( bublbobl_68705_portA_w );
@@ -345,8 +361,21 @@ static ADDRESS_MAP_START( sound_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xe000, 0xffff) AM_ROM	// space for diagnostic ROM?
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( mcu_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x0000) AM_READWRITE(bublbobl_mcu_ddr1_r,  bublbobl_mcu_ddr1_w)
+	AM_RANGE(0x0001, 0x0001) AM_READWRITE(bublbobl_mcu_ddr2_r,  bublbobl_mcu_ddr2_w)
+	AM_RANGE(0x0002, 0x0002) AM_READWRITE(bublbobl_mcu_port1_r, bublbobl_mcu_port1_w)
+	AM_RANGE(0x0003, 0x0003) AM_READWRITE(bublbobl_mcu_port2_r, bublbobl_mcu_port2_w)
+	AM_RANGE(0x0004, 0x0004) AM_READWRITE(bublbobl_mcu_ddr3_r,  bublbobl_mcu_ddr3_w)
+	AM_RANGE(0x0005, 0x0005) AM_READWRITE(bublbobl_mcu_ddr4_r,  bublbobl_mcu_ddr4_w)
+	AM_RANGE(0x0006, 0x0006) AM_READWRITE(bublbobl_mcu_port3_r, bublbobl_mcu_port3_w)
+	AM_RANGE(0x0007, 0x0007) AM_READWRITE(bublbobl_mcu_port4_r, bublbobl_mcu_port4_w)
+	AM_RANGE(0x0040, 0x00ff) AM_RAM
+	AM_RANGE(0xf000, 0xffff) AM_ROM
+ADDRESS_MAP_END
+
 #if 0
-// left for reference. The 68705 was from a bootleg, the original MCU is a 68701
+// left for reference. The 68705 was from a bootleg, the original MCU is a 6801U4
 static ADDRESS_MAP_START( mcu_map, ADDRESS_SPACE_PROGRAM, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(11) )
 	AM_RANGE(0x000, 0x000) AM_READWRITE(bublbobl_68705_portA_r, bublbobl_68705_portA_w)
@@ -427,8 +456,8 @@ INPUT_PORTS_START( bublbobl )
 	PORT_START_TAG("IN0")
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_TILT )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_SERVICE1 )
-	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_COIN1 ) PORT_IMPULSE(1)
-	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_COIN2 ) PORT_IMPULSE(1)
+	PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_COIN2 )
 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_SPECIAL )	// output: coin lockout
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_SPECIAL )	// output: select 1-way or 2-way coin counter
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_SPECIAL )	// output: trigger IRQ on main CPU (jumper switchable to vblank)
@@ -750,7 +779,7 @@ static MACHINE_DRIVER_START( bublbobl )
 	// basic machine hardware
 	MDRV_CPU_ADD_TAG("main", Z80, MAIN_XTAL/4)	// 6 MHz
 	MDRV_CPU_PROGRAM_MAP(master_map, 0)
-	MDRV_CPU_VBLANK_INT(bublbobl_interrupt, 1) // IRQs should be triggered by the MCU, but we don't have it
+	// IRQs are triggered by the MCU
 
 	MDRV_CPU_ADD(Z80, MAIN_XTAL/4)	// 6 MHz
 	MDRV_CPU_PROGRAM_MAP(slave_map, 0)
@@ -760,8 +789,12 @@ static MACHINE_DRIVER_START( bublbobl )
 	/* audio CPU */	// 3 MHz
 	MDRV_CPU_PROGRAM_MAP(sound_map, 0) // IRQs are triggered by the YM2203
 
+	MDRV_CPU_ADD_TAG("mcu", M6801, 4000000/4)	// actually 6801U4  // xtal is 4MHz, divided by 4 internally
+	MDRV_CPU_PROGRAM_MAP(mcu_map, 0)
+	MDRV_CPU_VBLANK_INT(irq0_line_pulse, 1) // comes from the same clock that latches the INT pin on the second Z80
+
 #if 0
-	// left for reference. The 68705 was from a bootleg, the original MCU is a 68701
+	// left for reference. The 68705 was from a bootleg, the original MCU is a 6801U4
 	MDRV_CPU_ADD_TAG("mcu", M68705, 4000000/2)	// xtal is 4MHz, I think it's divided by 2 internally
 	MDRV_CPU_PROGRAM_MAP(mcu_map, 0)
 	MDRV_CPU_VBLANK_INT(bublbobl_m68705_interrupt, 2) // ??? should come from the same clock which latches the INT pin on the second Z80
@@ -799,7 +832,7 @@ static MACHINE_DRIVER_START( boblbobl )
 	MDRV_CPU_PROGRAM_MAP(bootleg_map, 0)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold, 1)	// interrupt mode 1, unlike Bubble Bobble
 
-//  MDRV_CPU_REMOVE("mcu")
+	MDRV_CPU_REMOVE("mcu")
 MACHINE_DRIVER_END
 
 
@@ -921,7 +954,7 @@ ROM_START( tokiob )
 	ROM_LOAD( "a71-25.41",    0x0000, 0x0100, CRC(2d0f8545) SHA1(089c31e2f614145ef2743164f7b52ae35bc06808) )	/* video timing */
 ROM_END
 
-// left for reference. The 68705 was from a bootleg, the original MCU is a 68701
+// left for reference. The 68705 was from a bootleg, the original MCU is a 6801U4
 //  ROM_LOAD( "68705.bin",    0x0000, 0x0800, CRC(78caa635) SHA1(a756e45b25b007843ba4f2204cad6081cf7260e9) )    /* from a pirate board */
 
 
@@ -952,8 +985,8 @@ ROM_START( bublbobl )
 	ROM_REGION( 0x10000, REGION_CPU3, 0 )	/* 64k for the third CPU */
 	ROM_LOAD( "a78-07.46",    0x0000, 0x08000, CRC(4f9a26e8) SHA1(3105b34b88a7134493c2b3f584729f8b0407a011) )
 
-	ROM_REGION( 0x0800, REGION_CPU4, 0 )	/* 2k for the microcontroller */
-	ROM_LOAD( "68701.bin",    0x0000, 0x0800, NO_DUMP )
+	ROM_REGION( 0x10000, REGION_CPU4, 0 )	/* 64k for the MCU */
+	ROM_LOAD( "a78-01.17",    0xf000, 0x1000, CRC(b1bfb53d) SHA1(31b8f31acd3aa394acd80db362774749842e1285) )
 
 	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_INVERT )
 	ROM_LOAD( "a78-09.12",    0x00000, 0x8000, CRC(20358c22) SHA1(2297af6c53d5807bf90a8e081075b8c72a994fc5) )    /* 1st plane */
@@ -995,8 +1028,8 @@ ROM_START( bublbob1 )
 	ROM_REGION( 0x10000, REGION_CPU3, 0 )	/* 64k for the third CPU */
 	ROM_LOAD( "a78-07.46",    0x0000, 0x08000, CRC(4f9a26e8) SHA1(3105b34b88a7134493c2b3f584729f8b0407a011) )
 
-	ROM_REGION( 0x0800, REGION_CPU4, 0 )	/* 2k for the microcontroller */
-	ROM_LOAD( "68701.bin",    0x0000, 0x0800, NO_DUMP )
+	ROM_REGION( 0x10000, REGION_CPU4, 0 )	/* 64k for the MCU */
+	ROM_LOAD( "a78-01.17",    0xf000, 0x1000, CRC(b1bfb53d) SHA1(31b8f31acd3aa394acd80db362774749842e1285) )
 
 	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_INVERT )
 	ROM_LOAD( "a78-09.12",    0x00000, 0x8000, CRC(20358c22) SHA1(2297af6c53d5807bf90a8e081075b8c72a994fc5) )    /* 1st plane */
@@ -1038,8 +1071,8 @@ ROM_START( bublbobr )
 	ROM_REGION( 0x10000, REGION_CPU3, 0 )	/* 64k for the third CPU */
 	ROM_LOAD( "a78-07.46",    0x0000, 0x08000, CRC(4f9a26e8) SHA1(3105b34b88a7134493c2b3f584729f8b0407a011) )
 
-	ROM_REGION( 0x0800, REGION_CPU4, 0 )	/* 2k for the microcontroller */
-	ROM_LOAD( "68701.bin",    0x0000, 0x0800, NO_DUMP )
+	ROM_REGION( 0x10000, REGION_CPU4, 0 )	/* 64k for the MCU */
+	ROM_LOAD( "a78-01.17",    0xf000, 0x1000, CRC(b1bfb53d) SHA1(31b8f31acd3aa394acd80db362774749842e1285) )
 
 	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_INVERT )
 	ROM_LOAD( "a78-09.12",    0x00000, 0x8000, CRC(20358c22) SHA1(2297af6c53d5807bf90a8e081075b8c72a994fc5) )    /* 1st plane */
@@ -1081,8 +1114,8 @@ ROM_START( bubbobr1 )
 	ROM_REGION( 0x10000, REGION_CPU3, 0 )	/* 64k for the third CPU */
 	ROM_LOAD( "a78-07.46",    0x0000, 0x08000, CRC(4f9a26e8) SHA1(3105b34b88a7134493c2b3f584729f8b0407a011) )
 
-	ROM_REGION( 0x0800, REGION_CPU4, 0 )	/* 2k for the microcontroller */
-	ROM_LOAD( "68701.bin",    0x0000, 0x0800, NO_DUMP )
+	ROM_REGION( 0x10000, REGION_CPU4, 0 )	/* 64k for the MCU */
+	ROM_LOAD( "a78-01.17",    0xf000, 0x1000, CRC(b1bfb53d) SHA1(31b8f31acd3aa394acd80db362774749842e1285) )
 
 	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_INVERT )
 	ROM_LOAD( "a78-09.12",    0x00000, 0x8000, CRC(20358c22) SHA1(2297af6c53d5807bf90a8e081075b8c72a994fc5) )    /* 1st plane */
