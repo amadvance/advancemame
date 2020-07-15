@@ -14,7 +14,7 @@
 
 UINT8 *bublbobl_mcu_sharedram;
 extern int bublbobl_video_enable;
-static int mcu_running;
+
 
 WRITE8_HANDLER( bublbobl_bankswitch_w )
 {
@@ -29,7 +29,8 @@ WRITE8_HANDLER( bublbobl_bankswitch_w )
 	cpunum_set_input_line(1, INPUT_LINE_RESET, (data & 0x10) ? CLEAR_LINE : ASSERT_LINE);
 
 	/* bit 5 resets mcu */
-	mcu_running = data & 0x20;
+	if (Machine->drv->cpu[3].cpu_type)	// only if we have a MCU
+		cpunum_set_input_line(3, INPUT_LINE_RESET, (data & 0x20) ? CLEAR_LINE : ASSERT_LINE);
 
 	/* bit 6 enables display */
 	bublbobl_video_enable = data & 0x40;
@@ -125,126 +126,153 @@ WRITE8_HANDLER( bublbobl_sh_nmi_enable_w )
 
 
 
+
 /***************************************************************************
 
-Bubble Bobble protection simulation.
-
-The game has a 68701 MCU whose code we don't have.
+Bubble Bobble MCU
 
 ***************************************************************************/
 
-/*
-Z80 memory usage mask:
-fc00: R- -W -W -W -W -W -W -W -W -W -W -W -W -W -W -W
-fc10: -W -W -W -W -W -W -W -W -W -W -W -W -W -- -W RW
-fc20: R- R- R- R- -- -- -- R- R- R- R- R- R- R- R- R-
-fc30: R- R- R- R- R- R- R- R- R- R- R- R- R- R- R- R-
-fc40: R- R- R- R- R- R- R- R- R- R- R- R- R- R- R- R-
-fc50: R- R- R- R- R- R- R- R- R- R- R- R- R- R- R- -W
-fc60: -W -W -- -- -- -- -- -W -W -W -- -- -- -- -- --
-fc70: -- -- -- -- -- -- RW -- -W -W RW RW R- R- -- --
-fc80: -- -- R- R- -- R- -- -- -- -- -- -- -- -- -- --
-also...
-ff90: -- -- -- -- -W -- -- -- -W -- -- -- -- -- -- --
+static UINT8 ddr1, ddr2, ddr3, ddr4;
+static UINT8 port1_in, port2_in, port3_in, port4_in;
+static UINT8 port1_out, port2_out, port3_out, port4_out;
 
-fc00      R  irq vector
-fc01-fc1c  W enemy data (4 bytes per enemy: status, y, x, unknown)
-fc1e       W current credits
-fc1f-fc23 R  input ports
-fc27-fc5e R  enemy-player coords comparison results
-fc5f-fc61  W p1 data (status, y, x)
-fc67-fc69  W p2 data (status, y, x)
-fc76      RW unknown but should be in the range 00-1e, or even 00-28
-             it affects how quickly the bubbles go up, is the MCU supposed to change it?
-fc78-fc79  W stop clock counter (initialized to 0258 = 10 seconds)
-fc7a-fc7b RW related to stop clock item. Z80 sets fc7a to 01 when time is stopped.
-             The MCU counts down fc78-fc79, and when it reaches 0 sets fc7a to 00
-             and fc7b to 01.
-fc7c      R  EXTEND randomization (must be in range 00-05)
-fc7d      R  MCU I/O error (must be 00)
-fc82-fc83 R  MCU ROM checksum (must be 00)
-fc85      R  "running ok" signal to Z80 (must be 37)
-ff94       W coin lockout (ff = accept coins 01 = lock out)
-ff98       W unknown, 47 or 00. irq related?
-*/
-
-static void mcu_compare_coords(void)
+READ8_HANDLER( bublbobl_mcu_ddr1_r )
 {
-	int player,enemy,coord;
-
-	for (player = 0;player < 2;player++)
-	{
-		for (coord = 0;coord < 2;coord++)
-		{
-			int player_coord = bublbobl_mcu_sharedram[0x060 + 8 * player + coord];
-
-			for (enemy = 0;enemy < 7;enemy++)
-			{
-				int enemy_coord = bublbobl_mcu_sharedram[0x002 + 4 * enemy + coord];
-				int flag,absdiff;
-
-				if (player_coord == enemy_coord)
-					flag = 0x80;
-				else if (player_coord < enemy_coord)
-					flag = 0x01;
-				else
-					flag = 0x00;
-
-				bublbobl_mcu_sharedram[0x027 + player + 2 * coord + 8 * enemy] = flag;
-
-				absdiff = player_coord - enemy_coord;
-				if (absdiff < 0) absdiff = -absdiff;
-
-				bublbobl_mcu_sharedram[0x027+4 + player + 2 * coord + 8 * enemy] = absdiff;
-			}
-		}
-	}
+	return ddr1;
 }
 
-static void mcu_simulate(void)
+WRITE8_HANDLER( bublbobl_mcu_ddr1_w )
 {
-	bublbobl_mcu_sharedram[0x000] = 0x2e;	// IRQ vector
-	bublbobl_mcu_sharedram[0x01f] = readinputport(0);	// coins (we should handle this differently)
-	bublbobl_mcu_sharedram[0x020] = readinputport(1);	// dsw a
-	bublbobl_mcu_sharedram[0x021] = readinputport(2);	// dsw b
-	bublbobl_mcu_sharedram[0x022] = readinputport(3);	// player 1
-	bublbobl_mcu_sharedram[0x023] = readinputport(4);	// player 2
+	ddr1 = data;
+}
 
-	mcu_compare_coords();
+READ8_HANDLER( bublbobl_mcu_ddr2_r )
+{
+	return ddr2;
+}
 
-	if (bublbobl_mcu_sharedram[0x07a] == 0x01)	// timer is stopped
+WRITE8_HANDLER( bublbobl_mcu_ddr2_w )
+{
+	ddr2 = data;
+}
+
+READ8_HANDLER( bublbobl_mcu_ddr3_r )
+{
+	return ddr3;
+}
+
+WRITE8_HANDLER( bublbobl_mcu_ddr3_w )
+{
+	ddr3 = data;
+}
+
+READ8_HANDLER( bublbobl_mcu_ddr4_r )
+{
+	return ddr4;
+}
+
+WRITE8_HANDLER( bublbobl_mcu_ddr4_w )
+{
+	ddr4 = data;
+}
+
+READ8_HANDLER( bublbobl_mcu_port1_r )
+{
+//logerror("%04x: 6801U4 port 1 read\n",activecpu_get_pc());
+	port1_in = readinputport(0);
+	return (port1_out & ddr1) | (port1_in & ~ddr1);
+}
+
+WRITE8_HANDLER( bublbobl_mcu_port1_w )
+{
+//logerror("%04x: 6801U4 port 1 write %02x\n",activecpu_get_pc(),data);
+
+	// bit 4: coin lockout
+	coin_lockout_global_w(~data & 0x10);
+
+	// bit 5: select 1-way or 2-way coin counter
+
+	// bit 6: trigger IRQ on main CPU (jumper switchable to vblank)
+	// trigger on high->low transition
+	if ((port1_out & 0x40) && (~data & 0x40))
 	{
-		bublbobl_mcu_sharedram[0x078]--;
-		if (bublbobl_mcu_sharedram[0x078] == 0xff)
-		bublbobl_mcu_sharedram[0x079]--;
-		if (bublbobl_mcu_sharedram[0x079] == 0xff)
-		{
-			bublbobl_mcu_sharedram[0x07a] = 0x00;	// restart enemies
-			bublbobl_mcu_sharedram[0x07b] = 0x01;	// restore original screen color
-		}
+//      logerror("triggering IRQ on main CPU\n");
+		cpunum_set_input_line_vector(0,0,bublbobl_mcu_sharedram[0]);
+		cpunum_set_input_line(0,0,HOLD_LINE);
 	}
 
-	bublbobl_mcu_sharedram[0x07c] = mame_rand() % 6;	// EXTEND randomization (WRONG)
-	bublbobl_mcu_sharedram[0x07d] = 0x00;	// MCU I/O error (must be 00)
-	bublbobl_mcu_sharedram[0x082] = 0x00;	// MCU ROM checksum (must be 00)
-	bublbobl_mcu_sharedram[0x083] = 0x00;	// MCU ROM checksum (must be 00)
-	bublbobl_mcu_sharedram[0x085] = 0x37;	// "running ok" signal to Z80 (must be 37)
+	// bit 7: select read or write shared RAM
 
-	if (bublbobl_mcu_sharedram[0x394] == 0x01)	// coin lockout
-		coin_lockout_global_w(1);
-	else
-		coin_lockout_global_w(0);
+	port1_out = data;
 }
 
-INTERRUPT_GEN( bublbobl_interrupt )
+READ8_HANDLER( bublbobl_mcu_port2_r )
 {
-	if (mcu_running)
-		mcu_simulate();
-
-	cpunum_set_input_line_vector(0,0,bublbobl_mcu_sharedram[0]);
-	cpunum_set_input_line(0,0,HOLD_LINE);
+//logerror("%04x: 6801U4 port 2 read\n",activecpu_get_pc());
+	return (port2_out & ddr2) | (port2_in & ~ddr2);
 }
 
+WRITE8_HANDLER( bublbobl_mcu_port2_w )
+{
+//logerror("%04x: 6801U4 port 2 write %02x\n",activecpu_get_pc(),data);
+
+	// bits 0-3: bits 8-11 of shared RAM address
+
+	// bit 4: clock (goes to PAL A78-04.12)
+	// latch on low->high transition
+	if ((~port2_out & 0x10) && (data & 0x10))
+	{
+		int address = port4_out | ((data & 0x0f) << 8);
+
+		if (port1_out & 0x80)
+		{
+			// read
+			if ((address & 0x0800) == 0x0000)
+				port3_in = readinputport((address & 3) + 1);
+			else if ((address & 0x0c00) == 0x0c00)
+				port3_in = bublbobl_mcu_sharedram[address & 0x03ff];
+//          logerror("reading %02x from shared RAM %04x\n",port3_in,address);
+		}
+		else
+		{
+			// write
+//          logerror("writing %02x to shared RAM %04x\n",port3_out,address);
+			if ((address & 0x0c00) == 0x0c00)
+				bublbobl_mcu_sharedram[address & 0x03ff] = port3_out;
+		}
+	}
+
+	port2_out = data;
+}
+
+READ8_HANDLER( bublbobl_mcu_port3_r )
+{
+//logerror("%04x: 6801U4 port 3 read\n",activecpu_get_pc());
+	return (port3_out & ddr3) | (port3_in & ~ddr3);
+}
+
+WRITE8_HANDLER( bublbobl_mcu_port3_w )
+{
+//logerror("%04x: 6801U4 port 3 write %02x\n",activecpu_get_pc(),data);
+
+	port3_out = data;
+}
+
+READ8_HANDLER( bublbobl_mcu_port4_r )
+{
+//logerror("%04x: 6801U4 port 4 read\n",activecpu_get_pc());
+	return (port4_out & ddr4) | (port4_in & ~ddr4);
+}
+
+WRITE8_HANDLER( bublbobl_mcu_port4_w )
+{
+//logerror("%04x: 6801U4 port 4 write %02x\n",activecpu_get_pc(),data);
+
+	// bits 0-7 of shared RAM address
+
+	port4_out = data;
+}
 
 /***************************************************************************
 
@@ -321,7 +349,7 @@ READ8_HANDLER( boblbobl_ic43_b_r )
 	if (offset == 0)
 		return ic43_b << 4;
 	else
-		return rand() & 0xff;
+		return 0xff;	// not used?
 }
 
 
