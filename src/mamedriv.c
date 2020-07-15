@@ -4466,6 +4466,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( mtrap )		/* (c) 1981 */
 	DRIVER( mtrap3 )	/* (c) 1981 */
 	DRIVER( mtrap4 )	/* (c) 1981 */
+	DRIVER( teetert )	/* (c) 1982 */
 	DRIVER( pepper2 )	/* (c) 1982 */
 	DRIVER( hardhat )	/* (c) 1982 */
 	DRIVER( fax )		/* (c) 1983 */
