@@ -7,7 +7,7 @@
 #include "cpu/m68000/m68000.h"
 #include "cpu/tms32010/tms32010.h"
 #include "includes/toaplan1.h"
-#include "sound/samples.h"
+
 
 #define CLEAR 0
 #define ASSERT 1
@@ -15,13 +15,11 @@
 
 static int toaplan1_coin_count; /* coin count increments on startup ? , so dont count it */
 static int toaplan1_intenable;
-static int vimana_credits;
-static int vimana_latch;
 static int demonwld_dsp_on;
 static int demonwld_dsp_BIO;
 static int dsp_execute;							/* Demon world */
 static unsigned int dsp_addr_w, main_ram_seg;	/* Demon world */
-static int vim_play1 = 0;
+
 
 int toaplan1_unk_reset_port;
 
@@ -164,155 +162,6 @@ READ16_HANDLER( samesame_port_6_word_r )
 	return (0x80 | input_port_6_word_r(0,0)) & 0xff;
 }
 
-READ16_HANDLER( vimana_input_port_5_word_r )
-{
-	int data, p;
-
-	p = input_port_5_word_r(0,0);
-	vimana_latch ^= p;
-	data = (vimana_latch & p );
-
-	/* simulate the mcu keeping track of credits */
-	/* latch so it doesn't add more than one */
-	/* credit per keypress */
-	if (data & 0x18)
-	{
-		vimana_credits++ ;
-		sample_start (14, 0 , 0);
-	}
-	vimana_latch = p;
-
-	return p & 0xffff;
-}
-
-READ16_HANDLER( vimana_mcu_r )
-{
-	int data = 0 ;
-	switch (offset)
-	{
-		case 0:  data = 0xff; break;
-		case 1:  data = 0; break;
-		case 2:  data = vimana_credits; break;
-	}
-	return data & 0xff;
-}
-
-WRITE16_HANDLER( vimana_mcu_w )
-{		
-	if (data == 0x00)
-	{
-		vfadeout_stop = 1;
-		sample_stop(0);sample_stop(1);sample_stop(2);sample_stop(3);
-		sample_stop(4);sample_stop(5);sample_stop(6);sample_stop(7);
-		sample_stop(8);sample_stop(9);sample_stop(10);
-		sample_stop(11);sample_stop(12);sample_stop(13);
-	}
-
-	if (data >= 0x01 && data <= 0x06)
-	{
-		if (vim_play1 >= 0x01 && vim_play1 <= 0x06)
-		{
-			vfadeout_ready = 1;
-			vplaying2 = data;
-			vim_play1 = data;
-		}
-		else
-		{
-			vfadeout_stop = 1;
-			sample_start (0, data , 1);
-			vim_play1 = data;
-		}
-	}
-
-	if (data == 0x07)
-	{
-		vfadeout_stop = 1;
-		sample_start (0, data , 0);
-		vim_play1 = 0;
-	}
-
-	if (data == 0x08)
-		sample_start (1, data , 0);
-
-	if (data >= 0x09 && data <= 0x0c)
-		sample_start (2, data , 0);
-
-	if (data == 0x0d)
-		sample_start (3, data , 0);
-
-	if (data >= 0x0e && data <= 0x10)
-		sample_start (4, data , 0);
-
-	if (data == 0x11)
-		sample_start (5, data , 0);
-
-	if (data == 0x12)
-		sample_start (6, data , 0);
-
-	if (data == 0x91)
-	{
-		sample_stop (5);
-		sample_stop (6);
-	}
-	
-	if (data == 0x13)
-		sample_start (6, data , 0);
-
-	if (data == 0x14)
-		sample_start (7, data , 0);
-
-	if (data == 0x15)
-		sample_start (8, data , 0);
-
-	if (data == 0x16)
-		sample_start (9, data , 0);
-
-	if (data == 0x17)
-		sample_start (10, data , 0);
-
-	if (data == 0x18 || data == 0x19)
-		sample_start (11, data , 0);
-
-	if (data == 0x1a)
-	{
-		vfadeout_ready = 1;
-		sample_start (11, data , 0);
-	}
-
-	if (data == 0x1c)
-		sample_start (12, data , 0);
-		
-	if (data == 0x1d)
-	{
-		vfadeout_stop = 1;
-		sample_start (0, data , 1);
-		vim_play1 = 1;
-	}
-
-	if (data == 0x1e)
-	{
-		sample_start (0, data , 0);
-		vim_play1 = 0;
-	}
-
-	if (data == 0x20)
-		sample_start (13, data , 0);
-
-	if (data == 0x22)
-	{
-		sample_start (0, data , 0);
-		vim_play1 = 0;
-	}
-
-//	fprintf(stderr, "cmd %x",data);
-
-	switch (offset)
-	{
-		case 0:  break;
-		case 1:  break;
-		case 2:  if (ACCESSING_LSB) vimana_credits = data & 0xff; break;
-	}
-}
 
 READ16_HANDLER( toaplan1_shared_r )
 {
@@ -441,37 +290,5 @@ void demonwld_driver_savestate(void)
 MACHINE_RESET( vimana )
 {
 	machine_reset_toaplan1();
-	vimana_credits = 0;
-	vimana_latch = 0;
-
-	sample_stop(0);sample_stop(1);sample_stop(2);sample_stop(3);
-	sample_stop(4);sample_stop(5);sample_stop(6);sample_stop(7);
-	sample_stop(8);sample_stop(9);sample_stop(10);
-	sample_stop(11);sample_stop(12);sample_stop(13);
-
-	sample_set_volume (0, 1.00);
-	sample_set_volume (1, 0.60);
-	sample_set_volume (2, 0.60);
-	sample_set_volume (3, 0.60);
-	sample_set_volume (4, 0.60);
-	sample_set_volume (5, 0.60);
-	sample_set_volume (6, 0.60);
-	sample_set_volume (7, 0.60);
-	sample_set_volume (8, 0.60);
-	sample_set_volume (9, 0.60);
-	sample_set_volume (10, 0.60);
-	sample_set_volume (11, 0.60);
-	sample_set_volume (12, 0.60);
-	sample_set_volume (13, 0.60);
-
-	vfadeout_ready = 0;
-	vfadeout_stop = 0;
-	vplaying1 = 0xff;
-	vplaying2 = 0xff;
 }
 
-void vimana_driver_savestate(void)
-{
-	state_save_register_global(vimana_credits);
-	state_save_register_global(vimana_latch);
-}
