@@ -50,182 +50,26 @@ Notes:
     level sequence compared to the Taito licensed version.
 
 
-To Do:
-    Add support for HD647180 (Z180) sound CPUs (once their internal
-    ROMS are dumped). These are:
-        Fire Shark/Same! Same! Same!
-        Vimana
-
 ***************************************************************************/
 
 #include "driver.h"
 #include "cpu/tms32010/tms32010.h"
 #include "toaplan1.h"
 #include "sound/3812intf.h"
-#include "sound/samples.h"
 
-int start,start2;
 
-int vfadeout_ready = 0;
-int vfadeout_stop = 0;
-int vplaying1 = 0xff;
-int vplaying2 = 0xff;
+// Fire Shark / Same Same Same! / Vimana MCU
+UINT8 to_mcu;
+UINT8 cmdavailable;
+
+WRITE16_HANDLER(samesame_mcu_w);
+READ8_HANDLER(samesame_soundlatch_r);
+WRITE8_HANDLER(samesame_sound_done_w);
+READ8_HANDLER(samesame_cmdavailable_r);
+READ8_HANDLER(vimana_dswb_invert_r);
+READ8_HANDLER(vimana_tjump_invert_r);
+
 /***************************** 68000 Memory Map *****************************/
-
-static WRITE16_HANDLER(samesame_snd_cmd)
-{
-
-	if (data == 0x00 || data == 0xdf)
-	{
-		sample_stop (0);sample_stop (1);sample_stop (2);
-		sample_stop (3);sample_stop (4);sample_stop (5);
-		sample_stop (6);sample_stop (7);sample_stop (8);
-	}
-
-	if (data >= 0x01 && data <= 0x05)
-	{
-		sample_set_volume (0,1.00);
-		vfadeout_stop = 1;
-		start2=0;
-		sample_start (0, data , 1);
-	}
-
-	if (data == 0x06) {
-		sample_start (0, data , 0);
-		start2=72;
-		}
-
-	if (data == 0x07) {
-		vfadeout_ready = 1;
-		start=1;
-	}
-
-	if (data == 0x08 || data == 0x09)
-		sample_start (1, data , 0);
-
-	if (data >= 0x0a && data <= 0x0f)
-		sample_start (2, data , 0);
-
-	if (data == 0x10 || data == 0x11)
-		sample_start (3, data , 0);
-
-	if (data >= 0x12 && data <= 0x16)
-		sample_start (4, data , 0);
-
-	if (data >= 0x17 && data <= 0x1b)
-		sample_start (5, data , 0);
-
-	if (data >= 0x1c && data <= 0x1f)
-		sample_start (0, data , 0);
-
-	if (data == 0x20 || data == 0x21)
-		sample_start (6, data , 0);
-
-	if (data == 0x22)
-		sample_start (0, data , 0);
-
-	if (data == 0x23 || data == 0x24)
-		sample_start (7, data , 0);
-
-	if (data == 0x24)
-	{
-		sample_start (7, data , 0);
-		vfadeout_ready = 1;
-	}
-
-	if (data == 0x25)
-	{
-		sample_set_volume (0, 1.00);
-		sample_start (0, data , 0);
-		vfadeout_stop = 1;
-	}
-
-	if (data == 0x26)
-		sample_start (2, data , 0);
-
-	if (data == 0x27)
-	{
-		sample_set_volume (0, 1.00);
-		sample_start (0, data , 0);
-		vfadeout_stop = 1;
-	}
-
-	if (data == 0x28)
-		sample_start (8, data , 0);
-}
-
-static const char *samesame_sample_names[] =
-{
-	"*samesame",
-	"dm.wav","01.wav","02.wav","03.wav","04.wav","05.wav","06.wav","07.wav",
-	"08.wav","09.wav","0a.wav","0b.wav","0c.wav","0d.wav","0e.wav","0f.wav",
-	"10.wav","11.wav","12.wav","13.wav","14.wav","15.wav","16.wav","17.wav",
-	"18.wav","19.wav","1a.wav","1b.wav","1c.wav","1d.wav","1e.wav","1f.wav",
-	"20.wav","21.wav","22.wav","23.wav","24.wav","25.wav","26.wav","27.wav",
-	"28.wav",0
-};
-
-static struct Samplesinterface samesame_samples_interface =
-{
-	9,samesame_sample_names
-};
-
-static const char *vimana_sample_names[] =
-{
-	"*vimana",
-	"00.wav","01.wav","02.wav","03.wav","04.wav","05.wav","06.wav","07.wav",
-	"08.wav","09.wav","0a.wav","0b.wav","0c.wav","0d.wav","0e.wav","0f.wav",
-	"10.wav","11.wav","12.wav","13.wav","14.wav","15.wav","16.wav","17.wav",
-	"18.wav","19.wav","dm.wav","dm.wav","1c.wav","1d.wav","1e.wav","dm.wav",
-	"20.wav","dm.wav","22.wav",0
-};
-
-static struct Samplesinterface vimana_samples_interface =
-{
-	16,vimana_sample_names
-};
-
-
-READ8_HANDLER ( hellfire_port1_r )
-{
-	UINT8 data = input_port_1_r(0);
-	UINT8 b1 = data&0x20;
-
-		if(toaplan1_hellfire_b1_pre == 0){
-			if(b1==0x20)  toaplan1_hellfire_b1_buff = 0x08;
-		} else {
-			if(b1==0){
-				toaplan1_hellfire_b1_buff = 0;
-				toaplan1_hellfire_b1_pre = 0;
-			}
-			b1 = 0;
-		}
-		if(b1==0) data &= 0xdf;
-		else data &= 0xef;
-
-	return data;
-};
-
-READ8_HANDLER ( hellfire_port2_r )
-{
-	UINT8 data = input_port_2_r(0);
-	UINT8 b2 = data&0x20;
-
-		if(toaplan1_hellfire_b2_pre == 0){
-			if(b2==0x20)  toaplan1_hellfire_b2_buff = 0x08;
-		} else {
-			if(b2==0){
-				toaplan1_hellfire_b2_buff = 0;
-				toaplan1_hellfire_b2_pre = 0;
-
-			}
-			b2 = 0;
-		}
-		if(b2==0) data &= 0xdf;
-		else data &= 0xef;
-
-	return data;
-};
 
 static ADDRESS_MAP_START( rallybik_main_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x00ffff) AM_ROM
@@ -359,7 +203,7 @@ static ADDRESS_MAP_START( samesame_main_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x140008, 0x140009) AM_READ(input_port_5_word_r)
 	AM_RANGE(0x14000a, 0x14000b) AM_READ(samesame_port_6_word_r)	/* Territory, and MCU ready */
 	AM_RANGE(0x14000c, 0x14000d) AM_WRITE(samesame_coin_w)	/* Coin counter/lockout */
-	AM_RANGE(0x14000e, 0x14000f) AM_WRITE(samesame_snd_cmd)   /* Commands sent to HD647180 */
+	AM_RANGE(0x14000e, 0x14000f) AM_WRITE(samesame_mcu_w)   /* Commands sent to HD647180 */
 	AM_RANGE(0x180000, 0x180001) AM_WRITE(toaplan1_bcu_flipscreen_w)
 	AM_RANGE(0x180002, 0x180003) AM_READWRITE(toaplan1_tileram_offs_r, toaplan1_tileram_offs_w)
 	AM_RANGE(0x180004, 0x180007) AM_READWRITE(toaplan1_tileram16_r, toaplan1_tileram16_w)
@@ -407,13 +251,7 @@ static ADDRESS_MAP_START( vimana_main_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x400008, 0x40000f) AM_WRITE(toaplan1_bcu_control_w)
 	AM_RANGE(0x404000, 0x4047ff) AM_READWRITE(toaplan1_colorram1_r, toaplan1_colorram1_w) AM_BASE(&toaplan1_colorram1) AM_SIZE(&toaplan1_colorram1_size)
 	AM_RANGE(0x406000, 0x4067ff) AM_READWRITE(toaplan1_colorram2_r, toaplan1_colorram2_w) AM_BASE(&toaplan1_colorram2) AM_SIZE(&toaplan1_colorram2_size)
-	AM_RANGE(0x440000, 0x440005) AM_READWRITE(vimana_mcu_r, vimana_mcu_w)
-	AM_RANGE(0x440006, 0x440007) AM_READ(input_port_3_word_r)
-	AM_RANGE(0x440008, 0x440009) AM_READ(vimana_input_port_5_word_r)
-	AM_RANGE(0x44000a, 0x44000b) AM_READ(input_port_1_word_r)
-	AM_RANGE(0x44000c, 0x44000d) AM_READ(input_port_2_word_r)
-	AM_RANGE(0x44000e, 0x44000f) AM_READ(input_port_4_word_r)
-	AM_RANGE(0x440010, 0x440011) AM_READ(input_port_6_word_r)
+    AM_RANGE(0x440000, 0x4407ff) AM_READWRITE(toaplan1_shared_r, toaplan1_shared_w) /* inputs, coins and sound handled by 647180 MCU via this space */
 	AM_RANGE(0x480000, 0x487fff) AM_RAM
 	AM_RANGE(0x4c0000, 0x4c0001) AM_WRITE(toaplan1_bcu_flipscreen_w)
 	AM_RANGE(0x4c0002, 0x4c0003) AM_READWRITE(toaplan1_tileram_offs_r, toaplan1_tileram_offs_w)
@@ -461,8 +299,8 @@ static ADDRESS_MAP_START( hellfire_sound_io_map, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x10, 0x10) AM_READ(input_port_4_r)	/* DSW2 */
 	AM_RANGE(0x20, 0x20) AM_READ(input_port_6_r)	/* Territory Jumper Block */
 	AM_RANGE(0x30, 0x30) AM_WRITE(toaplan1_coin_w)	/* Coin counter/lockout */
-	AM_RANGE(0x40, 0x40) AM_READ(hellfire_port1_r)	/* Player 1 */
-	AM_RANGE(0x50, 0x50) AM_READ(hellfire_port2_r)	/* Player 2 */
+	AM_RANGE(0x40, 0x40) AM_READ(input_port_1_r)	/* Player 1 */
+	AM_RANGE(0x50, 0x50) AM_READ(input_port_2_r)	/* Player 2 */
 	AM_RANGE(0x60, 0x60) AM_READ(input_port_5_r)	/* Coin/Start inputs */
 	AM_RANGE(0x70, 0x70) AM_READWRITE(YM3812_status_port_0_r, YM3812_control_port_0_w)
 	AM_RANGE(0x71, 0x71) AM_WRITE(YM3812_write_port_0_w)
@@ -523,18 +361,87 @@ static ADDRESS_MAP_START( DSP_io_map, ADDRESS_SPACE_IO, 16 )
 	AM_RANGE(TMS32010_BIO, TMS32010_BIO) AM_READ(demonwld_BIO_r)
 ADDRESS_MAP_END
 
+/***************************** HD647180 Memory Map **************************/
 
+READ8_HANDLER(vimana_dswb_invert_r)
+{
+    return input_port_4_r(0)^0xFF;
+}
+
+READ8_HANDLER(vimana_tjump_invert_r)
+{
+	return (input_port_6_r(0)^0xFF)|0xC0; // high 2 bits of port G always read as 1
+} 
+
+static ADDRESS_MAP_START( vimana_hd647180_mem_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x03fff) AM_ROM   /* Internal 16k byte ROM */
+	AM_RANGE(0x08000, 0x087ff) AM_RAM AM_BASE(&toaplan1_sharedram) /* 2048 bytes of shared ram w/maincpu */
+	AM_RANGE(0x0fe00, 0x0ffff) AM_RAM   /* Internal 512 byte RAM */
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( vimana_hd647180_io_map, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x32, 0x32) AM_WRITENOP // DMA WAIT/Control register
+	AM_RANGE(0x33, 0x33) AM_WRITENOP // IL (int vector low) register
+	AM_RANGE(0x36, 0x36) AM_WRITENOP // refresh control register for RFSH pin
+	AM_RANGE(0x60, 0x60) AM_READ(vimana_dswb_invert_r) // read/write port A
+	AM_RANGE(0x66, 0x66) AM_READ(vimana_tjump_invert_r) // read/write port G, bits 7 and 6 ALWAYS read as 1 due to port G being just 6 bits
+	AM_RANGE(0x71, 0x71) AM_WRITENOP // ddr for port B
+	AM_RANGE(0x72, 0x72) AM_WRITENOP // ddr for port C
+	AM_RANGE(0x73, 0x73) AM_WRITENOP // ddr for port D
+	AM_RANGE(0x74, 0x74) AM_WRITENOP // ddr for port E
+	AM_RANGE(0x75, 0x75) AM_WRITENOP // ddr for port F
+	AM_RANGE(0x80, 0x80) AM_READ(input_port_1_r)
+	AM_RANGE(0x81, 0x81) AM_READ(input_port_2_r)
+	AM_RANGE(0x82, 0x82) AM_READ(input_port_3_r)
+	AM_RANGE(0x83, 0x83) AM_READ(input_port_5_r)
+	AM_RANGE(0x84, 0x84) AM_WRITE(toaplan1_coin_w)  // Coin counter/lockout // needs verify
+	AM_RANGE(0x87, 0x87) AM_READWRITE(YM3812_status_port_0_r, YM3812_control_port_0_w)
+	AM_RANGE(0x8f, 0x8f) AM_READWRITE(YM3812_status_port_0_r, YM3812_write_port_0_w )
+ADDRESS_MAP_END
+
+WRITE16_HANDLER(samesame_mcu_w)
+{
+    to_mcu = data;
+	cmdavailable = 1;
+};
+
+READ8_HANDLER(samesame_soundlatch_r)
+{
+	return to_mcu;
+};
+
+WRITE8_HANDLER(samesame_sound_done_w)
+{
+	to_mcu = data;
+	cmdavailable = 0;
+}
+
+READ8_HANDLER(samesame_cmdavailable_r)
+{
+	if (cmdavailable) return 0xff;
+	else return 0x00;
+};
+
+static ADDRESS_MAP_START( samesame_hd647180_mem_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x03fff) AM_ROM   /* Internal 16k byte ROM */
+ 	AM_RANGE(0x0fe00, 0x0ffff) AM_RAM   /* Internal 512 byte RAM */
+ ADDRESS_MAP_END
+ 
+static ADDRESS_MAP_START( samesame_hd647180_io_map, ADDRESS_SPACE_IO, 8 )
+    ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x63, 0x63) AM_READ( samesame_cmdavailable_r )
+	AM_RANGE(0xa0, 0xa0) AM_READ( samesame_soundlatch_r )
+	AM_RANGE(0xb0, 0xb0) AM_WRITE( samesame_sound_done_w )
+	AM_RANGE(0x80, 0x80) AM_READWRITE(YM3812_status_port_0_r, YM3812_control_port_0_w)
+	AM_RANGE(0x81, 0x81) AM_READWRITE(YM3812_status_port_0_r, YM3812_write_port_0_w )
+ADDRESS_MAP_END
+ 
+ 
 
 /*****************************************************************************
     Input Port definitions
 *****************************************************************************/
-
-INPUT_PORTS_START( toaplan1_extr )
-	PORT_START_TAG("EXTR")
-	PORT_DIPNAME( 0x0001,	0x0001, "Buffer Delay" )
-	PORT_DIPSETTING(		0x0000, DEF_STR( Off ) )
-	PORT_DIPSETTING(		0x0001, DEF_STR( On ) )
-INPUT_PORTS_END
 
 #define  TOAPLAN1_PLAYER_INPUT( player, button3, options )										\
 	PORT_START																	\
@@ -605,7 +512,7 @@ INPUT_PORTS_START( rallybik )
 	PORT_DIPNAME( 0x08, 0x00, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
-	PORT_DIPNAME( 0x30, 0x00, "Territory/Copyright" )
+	PORT_DIPNAME( 0x30, 0x20, "Territory/Copyright" )
 	PORT_DIPSETTING(    0x20, "World/Taito Corp Japan" )
 	PORT_DIPSETTING(    0x10, "USA/Taito America" )
 	PORT_DIPSETTING(    0x00, "Japan/Taito Corp" )
@@ -689,7 +596,7 @@ INPUT_PORTS_START( truxton )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x07, 0x00, "Territory/Copyright" )
+	PORT_DIPNAME( 0x07, 0x02, "Territory/Copyright" )
 	PORT_DIPSETTING(    0x02, "World/Taito Corp" )
 	PORT_DIPSETTING(    0x06, "World/Taito America" )
 	PORT_DIPSETTING(    0x04, "US/Taito America" )
@@ -702,8 +609,6 @@ INPUT_PORTS_START( truxton )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( hellfire )
@@ -761,7 +666,7 @@ INPUT_PORTS_START( hellfire )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper block */
-	PORT_DIPNAME( 0x03, 0x00, "Territory" )
+	PORT_DIPNAME( 0x03, 0x02, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 //  PORT_DIPSETTING(    0x03, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
@@ -773,8 +678,6 @@ INPUT_PORTS_START( hellfire )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( hellfir1 )
@@ -832,7 +735,7 @@ INPUT_PORTS_START( hellfir1 )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper block */
-	PORT_DIPNAME( 0x03, 0x00, "Territory" )
+	PORT_DIPNAME( 0x03, 0x02, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 //  PORT_DIPSETTING(    0x03, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
@@ -844,8 +747,6 @@ INPUT_PORTS_START( hellfir1 )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( zerowing )
@@ -903,7 +804,7 @@ INPUT_PORTS_START( zerowing )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper block */
-	PORT_DIPNAME( 0x03, 0x00, "Territory" )
+	PORT_DIPNAME( 0x03, 0x02, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 //  PORT_DIPSETTING(    0x03, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
@@ -915,8 +816,6 @@ INPUT_PORTS_START( zerowing )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( demonwld )
@@ -987,8 +886,6 @@ INPUT_PORTS_START( demonwld )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( demonwl1 )
@@ -1046,7 +943,7 @@ INPUT_PORTS_START( demonwl1 )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x03, 0x03, "Territory/Copyright" )
+	PORT_DIPNAME( 0x03, 0x02, "Territory/Copyright" )
 	PORT_DIPSETTING(    0x02, "World/Taito Japan" )
 	PORT_DIPSETTING(    0x03, "US/Toaplan" )
 	PORT_DIPSETTING(    0x01, "US/Taito America" )
@@ -1058,8 +955,6 @@ INPUT_PORTS_START( demonwl1 )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( samesame )
@@ -1144,8 +1039,6 @@ INPUT_PORTS_START( samesame )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( samesam2 )
@@ -1237,8 +1130,6 @@ INPUT_PORTS_START( samesam2 )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf2, IP_ACTIVE_HIGH, IPT_UNKNOWN )	/* Mask bit 2 aswell */
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( fireshrk )
@@ -1307,8 +1198,6 @@ INPUT_PORTS_START( fireshrk )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( outzone )
@@ -1366,7 +1255,7 @@ INPUT_PORTS_START( outzone )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x0f, 0x00, "Territory" )
+	PORT_DIPNAME( 0x0f, 0x02, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
 	PORT_DIPSETTING(    0x00, DEF_STR( Japan ) )
@@ -1384,8 +1273,6 @@ INPUT_PORTS_START( outzone )
 //  PORT_DIPSETTING(    0x0e, DEF_STR( Japan ) )
 //  PORT_DIPSETTING(    0x0f, DEF_STR( Japan ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( outzoneb )
@@ -1443,7 +1330,7 @@ INPUT_PORTS_START( outzoneb )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x07, 0x00, "Territory" )
+	PORT_DIPNAME( 0x07, 0x02, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
 	PORT_DIPSETTING(    0x00, DEF_STR( Japan ) )
@@ -1456,8 +1343,6 @@ INPUT_PORTS_START( outzoneb )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x80, DEF_STR( On ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( outzonec )
@@ -1515,7 +1400,7 @@ INPUT_PORTS_START( outzonec )
 	TOAPLAN1_SYSTEM_INPUTS
 
 	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x0f, 0x00, "Territory" )
+	PORT_DIPNAME( 0x0f, 0x02, "Territory" )
 	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
 	PORT_DIPSETTING(    0x01, "US" )
 	PORT_DIPSETTING(    0x00, DEF_STR( Japan ) )
@@ -1533,8 +1418,6 @@ INPUT_PORTS_START( outzonec )
 //  PORT_DIPSETTING(    0x0e, DEF_STR( Japan ) )
 //  PORT_DIPSETTING(    0x0f, DEF_STR( Japan ) )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( vimana )
@@ -1591,27 +1474,25 @@ INPUT_PORTS_START( vimana )
 
 	TOAPLAN1_SYSTEM_INPUTS
 
-	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x0f, 0x00, "Territory" )
-	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
-	PORT_DIPSETTING(    0x01, "US" )
-	PORT_DIPSETTING(    0x00, DEF_STR( Japan ) )
-	PORT_DIPSETTING(    0x03, "Hong Kong" )
-	PORT_DIPSETTING(    0x04, "Korea" )
+	PORT_START		/* Region Jumper Block */
+    PORT_DIPNAME( 0x0f, 0x02, "Region" )
+	PORT_DIPSETTING(    0x02, "Europe" )
+	PORT_DIPSETTING(    0x01, "USA" )
+	PORT_DIPSETTING(    0x07, "USA (Romstar license)" )
+//  PORT_DIPSETTING(    0x00, "Japan (distributed by Tecmo)" )
+//  PORT_DIPSETTING(    0x0f, "Japan (distributed by Tecmo)" )
+	PORT_DIPSETTING(    0x04, "Korea")
+	PORT_DIPSETTING(    0x03, "Hong_Kong" )
+	PORT_DIPSETTING(    0x08, "Hong Kong (Honest Trading license)" )
 	PORT_DIPSETTING(    0x05, "Taiwan" )
-//  PORT_DIPSETTING(    0x06, "Taiwan" )
-//  PORT_DIPSETTING(    0x07, "US" )
-//  PORT_DIPSETTING(    0x08, "Hong Kong" )
-//  PORT_DIPSETTING(    0x09, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0a, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0b, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0c, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0d, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0e, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0f, DEF_STR( Japan ) )
+	PORT_DIPSETTING(    0x06, "Taiwan (Spacy license)" )
+//  PORT_DIPSETTING(    0x09, "???" )
+//  PORT_DIPSETTING(    0x0a, "???" )
+//  PORT_DIPSETTING(    0x0b, "???" )
+//  PORT_DIPSETTING(    0x0c, "???" )
+//  PORT_DIPSETTING(    0x0d, "???" )
+//  PORT_DIPSETTING(    0x0e, "???" )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 INPUT_PORTS_START( vimanan )
@@ -1682,27 +1563,25 @@ INPUT_PORTS_START( vimanan )
 
 	TOAPLAN1_SYSTEM_INPUTS
 
-	PORT_START		/* Territory Jumper Block */
-	PORT_DIPNAME( 0x0f, 0x00, "Territory" )
-	PORT_DIPSETTING(    0x02, DEF_STR( Europe ) )
-	PORT_DIPSETTING(    0x01, "US" )
-	PORT_DIPSETTING(    0x00, DEF_STR( Japan ) )
-	PORT_DIPSETTING(    0x03, "Hong Kong" )
-	PORT_DIPSETTING(    0x04, "Korea" )
+	PORT_START		/* Region Jumper Block */
+    PORT_DIPNAME( 0x0f, 0x02, "Region" )
+	PORT_DIPSETTING(    0x02, "Europe" )
+	PORT_DIPSETTING(    0x01, "USA" )
+	PORT_DIPSETTING(    0x07, "USA (Romstar license)" )
+//  PORT_DIPSETTING(    0x00, "Japan (distributed by Tecmo)" )
+//  PORT_DIPSETTING(    0x0f, "Japan (distributed by Tecmo)" )
+	PORT_DIPSETTING(    0x04, "Korea")
+	PORT_DIPSETTING(    0x03, "Hong_Kong" )
+	PORT_DIPSETTING(    0x08, "Hong Kong (Honest Trading license)" )
 	PORT_DIPSETTING(    0x05, "Taiwan" )
-//  PORT_DIPSETTING(    0x06, "Taiwan" )
-//  PORT_DIPSETTING(    0x07, "US" )
-//  PORT_DIPSETTING(    0x08, "Hong Kong" )
-//  PORT_DIPSETTING(    0x09, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0a, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0b, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0c, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0d, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0e, DEF_STR( Unused ) )
-//  PORT_DIPSETTING(    0x0f, DEF_STR( Japan ) )
+	PORT_DIPSETTING(    0x06, "Taiwan (Spacy license)" )
+//  PORT_DIPSETTING(    0x09, "???" )
+//  PORT_DIPSETTING(    0x0a, "???" )
+//  PORT_DIPSETTING(    0x0b, "???" )
+//  PORT_DIPSETTING(    0x0c, "???" )
+//  PORT_DIPSETTING(    0x0d, "???" )
+//  PORT_DIPSETTING(    0x0e, "???" )
 	PORT_BIT( 0xf0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
-
-	PORT_INCLUDE(toaplan1_extr)
 INPUT_PORTS_END
 
 
@@ -1859,11 +1738,11 @@ MACHINE_DRIVER_END
 static MACHINE_DRIVER_START( hellfire )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(M68000, 11000000)
+	MDRV_CPU_ADD(M68000, 10000000)
 	MDRV_CPU_PROGRAM_MAP(hellfire_main_map, 0)
 	MDRV_CPU_VBLANK_INT(toaplan1_interrupt,1)
 
-	MDRV_CPU_ADD(Z80,28000000/8*1.01)		/* 3.5MHz (28MHz Oscillator) */
+	MDRV_CPU_ADD(Z80,28000000/8)		/* 3.5MHz (28MHz Oscillator) */
 	MDRV_CPU_PROGRAM_MAP(toaplan1_sound_map, 0)
 	MDRV_CPU_IO_MAP(hellfire_sound_io_map, 0)
 
@@ -1882,7 +1761,7 @@ static MACHINE_DRIVER_START( hellfire )
 
 	MDRV_VIDEO_START(toaplan1)
 	MDRV_VIDEO_EOF(toaplan1)
-	MDRV_VIDEO_UPDATE(hellfire)
+	MDRV_VIDEO_UPDATE(toaplan1)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
@@ -1919,7 +1798,7 @@ static MACHINE_DRIVER_START( zerowing )
 
 	MDRV_VIDEO_START(toaplan1)
 	MDRV_VIDEO_EOF(toaplan1)
-	MDRV_VIDEO_UPDATE(zerowing)
+	MDRV_VIDEO_UPDATE(toaplan1)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
@@ -1945,7 +1824,7 @@ static MACHINE_DRIVER_START( demonwld )
 	MDRV_CPU_PROGRAM_MAP(DSP_program_map,0)
 	MDRV_CPU_IO_MAP(DSP_io_map,0)
 
-	MDRV_FRAMES_PER_SECOND( (28000000.0 / 4) / (450 * 282) )	/* fixed by SUZ */
+    MDRV_FRAMES_PER_SECOND( (28000000.0 / 4) / (450 * 282) )   /* fixed by SUZ */
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 	MDRV_INTERLEAVE(10)
 
@@ -1977,9 +1856,14 @@ static MACHINE_DRIVER_START( samesame )
 	MDRV_CPU_ADD(M68000, 10000000)
 	MDRV_CPU_PROGRAM_MAP(samesame_main_map, 0)
 	MDRV_CPU_VBLANK_INT(toaplan1_interrupt,1)
+	
+    MDRV_CPU_ADD(Z180, 28000000/8)    /* HD647180XOFS6 CPU */
+	MDRV_CPU_PROGRAM_MAP(samesame_hd647180_mem_map, 0)
+	MDRV_CPU_IO_MAP(samesame_hd647180_io_map, 0)
 
 	MDRV_FRAMES_PER_SECOND( (28000000.0 / 4) / (450 * 270) )
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
+	MDRV_INTERLEAVE(10)
 
 	MDRV_MACHINE_RESET(toaplan1)
 
@@ -1992,18 +1876,15 @@ static MACHINE_DRIVER_START( samesame )
 
 	MDRV_VIDEO_START(toaplan1)
 	MDRV_VIDEO_EOF(samesame)
-	MDRV_VIDEO_UPDATE(samesame)
+	MDRV_VIDEO_UPDATE(toaplan1)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
-	/*
+	
 	MDRV_SOUND_ADD(YM3812, 28000000/8)
 	MDRV_SOUND_CONFIG(ym3812_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
-	*/
-	MDRV_SOUND_ADD(SAMPLES, 0)
-	MDRV_SOUND_CONFIG(samesame_samples_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)	
+		
 MACHINE_DRIVER_END
 
 
@@ -2050,10 +1931,15 @@ static MACHINE_DRIVER_START( vimana )
 	MDRV_CPU_ADD(M68000, 10000000)
 	MDRV_CPU_PROGRAM_MAP(vimana_main_map, 0)
 	MDRV_CPU_VBLANK_INT(toaplan1_interrupt,1)
+	
+	MDRV_CPU_ADD(Z180, 28000000/8)    /* HD647180XOFS6 CPU */
+	MDRV_CPU_PROGRAM_MAP(vimana_hd647180_mem_map, 0)
+	MDRV_CPU_IO_MAP(vimana_hd647180_io_map,0)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
-
+    MDRV_INTERLEAVE(10)
+	
 	MDRV_MACHINE_RESET(vimana)
 
 	/* video hardware */
@@ -2065,17 +1951,13 @@ static MACHINE_DRIVER_START( vimana )
 
 	MDRV_VIDEO_START(toaplan1)
 	MDRV_VIDEO_EOF(toaplan1)
-	MDRV_VIDEO_UPDATE(vimana)
+	MDRV_VIDEO_UPDATE(toaplan1)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
-	/*
+
 	MDRV_SOUND_ADD(YM3812, 28000000/8)
 	MDRV_SOUND_CONFIG(ym3812_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
-	*/
-	MDRV_SOUND_ADD(SAMPLES, 0)
-	MDRV_SOUND_CONFIG(vimana_samples_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
@@ -2399,8 +2281,7 @@ ROM_START( samesame )
 	ROM_LOAD16_BYTE( "o17_12.bin",  0x040001, 0x20000, CRC(ef698811) SHA1(4c729704eba0bf469599c79009327e4fa5dc540b) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound HD647180 code */
-	/* sound CPU is a HD647180 (Z180) with internal ROM - not yet supported */
-	ROM_LOAD( "hd647180.017",  0x00000, 0x08000, NO_DUMP )
+    ROM_LOAD( "hd647180.017", 0x00000, 0x08000, CRC(43523032) SHA1(1b94003a00e7bf6bdf1b1b946f42ff5d04629949) )
 
 	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "o17_05.bin",  0x00000, 0x20000, CRC(565315f8) SHA1(6b1c5ef52359483228b329c89c2e1174e3fbf017) )
@@ -2427,8 +2308,7 @@ ROM_START( samesam2 )
 	ROM_LOAD16_BYTE( "o17_12x.bin", 0x040001, 0x20000, CRC(6adb6eb5) SHA1(9b6e63aa50d271c2bb0b4cf822fc6f3684f10230) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound HD647180 code */
-	/* sound CPU is a HD647180 (Z180) with internal ROM - not yet supported */
-	ROM_LOAD( "hd647180.017",  0x00000, 0x08000, NO_DUMP )
+    ROM_LOAD( "hd647180.017", 0x00000, 0x08000, CRC(43523032) SHA1(1b94003a00e7bf6bdf1b1b946f42ff5d04629949) )
 
 	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "o17_05.bin",  0x00000, 0x20000, CRC(565315f8) SHA1(6b1c5ef52359483228b329c89c2e1174e3fbf017) )
@@ -2455,8 +2335,7 @@ ROM_START( fireshrk )
 	ROM_LOAD16_BYTE( "o17_12x.bin", 0x040001, 0x20000, CRC(6adb6eb5) SHA1(9b6e63aa50d271c2bb0b4cf822fc6f3684f10230) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound HD647180 code */
-	/* sound CPU is a HD647180 (Z180) with internal ROM - not yet supported */
-	ROM_LOAD( "hd647180.017",  0x00000, 0x08000, NO_DUMP )
+    ROM_LOAD( "hd647180.017", 0x00000, 0x08000, CRC(43523032) SHA1(1b94003a00e7bf6bdf1b1b946f42ff5d04629949) )
 
 	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "o17_05.bin",  0x00000, 0x20000, CRC(565315f8) SHA1(6b1c5ef52359483228b329c89c2e1174e3fbf017) )
@@ -2625,8 +2504,8 @@ ROM_START( vimana )			/* From board serial number 1547.04 (July '94) */
 	ROM_LOAD16_BYTE( "tp019-8a.bin",  0x000001, 0x20000, CRC(03ba27e8) SHA1(edb5fe741d2a6a7fe5cde9a82317ea1e9447cf73) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound HD647180 code */
-	/* sound CPU is a HD647180 (Z180) with internal ROM - not yet supported */
-	ROM_LOAD( "hd647180.019",  0x00000, 0x08000, NO_DUMP )
+	/* sound CPU is a HD647180 (Z180) with internal ROM */
+	ROM_LOAD( "hd647180.019", 0x00000, 0x08000, CRC(41a97ebe) SHA1(9b377086e4d9b8de6e3c8c7d2dd099b80ab88934) )
 
 	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "vim6.bin",  0x00000, 0x20000, CRC(2886878d) SHA1(f44933d87bbcd3bd58f46e0f0f89b05c409b713b) )
@@ -2649,8 +2528,8 @@ ROM_START( vimana1 )
 	ROM_LOAD16_BYTE( "vim08.bin",  0x000001, 0x20000, CRC(e45b7def) SHA1(6b92a91d64581954da8ecdbeb5fed79bcc9c5217) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound HD647180 code */
-	/* sound CPU is a HD647180 (Z180) with internal ROM - not yet supported */
-	ROM_LOAD( "hd647180.019",  0x00000, 0x08000, NO_DUMP )
+	/* sound CPU is a HD647180 (Z180) with internal ROM */
+	ROM_LOAD( "hd647180.019", 0x00000, 0x08000, CRC(41a97ebe) SHA1(9b377086e4d9b8de6e3c8c7d2dd099b80ab88934) )
 
 	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "vim6.bin",  0x00000, 0x20000, CRC(2886878d) SHA1(f44933d87bbcd3bd58f46e0f0f89b05c409b713b) )
@@ -2673,8 +2552,8 @@ ROM_START( vimanan )
 	ROM_LOAD16_BYTE( "tp019-08.rom",  0x000001, 0x20000, CRC(6cd2dc3c) SHA1(029d974eb938c5e2fbe7575f0dda342b4b12b731) )
 
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )	/* Sound HD647180 code */
-	/* sound CPU is a HD647180 (Z180) with internal ROM - not yet supported */
-	ROM_LOAD( "hd647180.019",  0x00000, 0x08000, NO_DUMP )
+	/* sound CPU is a HD647180 (Z180) with internal ROM */
+	ROM_LOAD( "hd647180.019", 0x00000, 0x08000, CRC(41a97ebe) SHA1(9b377086e4d9b8de6e3c8c7d2dd099b80ab88934) )
 
 	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "vim6.bin",  0x00000, 0x20000, CRC(2886878d) SHA1(f44933d87bbcd3bd58f46e0f0f89b05c409b713b) )
@@ -2752,12 +2631,6 @@ DRIVER_INIT( demonwld )
 	demonwld_driver_savestate();
 }
 
-DRIVER_INIT( vimana )
-{
-	toaplan1_driver_savestate();
-	vimana_driver_savestate();
-}
-
 
 
 GAME( 1988, rallybik, 0,        rallybik, rallybik, toaplan1, ROT270, "[Toaplan] Taito Corporation", "Rally Bike / Dash Yarou", 0 )
@@ -2781,6 +2654,6 @@ GAME( 1990, outzonea, outzone,  outzone,  outzone,  toaplan1, ROT270, "Toaplan",
 GAME( 1990, outzoneb, outzone,  outzone,  outzoneb, toaplan1, ROT270, "Toaplan", "Out Zone (set 3, prototype?)", 0 ) // early revision at least
 GAME( 1990, outzonec, outzone,  outzone,  outzonec, toaplan1, ROT270, "Toaplan", "Out Zone (set 4)", 0 )
 GAME( 1990, outzoned, outzone,  outzone,  outzonec, toaplan1, ROT270, "Toaplan", "Out Zone (set 5)", 0 )
-GAME( 1991, vimana,   0,        vimana,   vimana,   vimana,   ROT270, "Toaplan", "Vimana", 0 )
-GAME( 1991, vimana1,  vimana,   vimana,   vimana,   vimana,   ROT270, "Toaplan", "Vimana (old set)", 0 )
-GAME( 1991, vimanan,  vimana,   vimana,   vimanan,  vimana,   ROT270, "Toaplan (Nova Apparate GMBH & Co license)", "Vimana (Nova Apparate GMBH & Co)", 0 )
+GAME( 1991, vimana,   0,        vimana,   vimana,   toaplan1, ROT270, "Toaplan", "Vimana", 0 )
+GAME( 1991, vimana1,  vimana,   vimana,   vimana,   toaplan1, ROT270, "Toaplan", "Vimana (old set)", 0 )
+GAME( 1991, vimanan,  vimana,   vimana,   vimanan,  toaplan1, ROT270, "Toaplan (Nova Apparate GMBH & Co license)", "Vimana (Nova Apparate GMBH & Co)", 0 )
