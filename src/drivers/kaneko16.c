@@ -17,51 +17,69 @@ CUSTOM :  VU-001 046A                  (48pin PQFP)
           VU-003                                        <- High Colour Background
           VIEW2-CHIP 23160-509 9047EAI (144pin PQFP)    <- Tilemaps
           MUX2-CHIP                    (64pin PQFP)
-          HELP1-CHIP
+          HELP1-CHIP                   (64pin PQFP)
           IU-001 9045KP002             (44pin PQFP)
           I/O JAMMA MC-8282 047        (46pin)          <- Inputs
 
 
----------------------------------------------------------------------------
-Year + Game                 PCB         Notes
----------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+Year + Game                    PCB         Notes
+----------------------------------------------------------------------------------------
 91  The Berlin Wall
-    Magical Crystals        Z00FC-02
-92  Bakuretsu Breaker
-    Blaze On                            2 Sprites Chips !?
-    Sand Scorpion (by Face)             MCU protection (collision detection etc.)
-    Shogun Warriors                     MCU protection (68k code snippets, NOT WORKING)
-    B.Rap Boys                          MCU protection (not working, game can be
-                                                        run on a shoggwar board ok)
-94  Great 1000 Miles Rally              MCU protection (EEPROM handling etc.)
-    Bonk's Adventure        Z09AF-003   MCU protection (EEPROM handling etc.)
-95  Great 1000 Miles Rally 2            MCU protection (EEPROM handling etc.)
----------------------------------------------------------------------------
+    Magical Crystals           Z00FC-02
+92  Bakuretsu Breaker          ZOOFC-02
+    Blaze On                   Z02AT-002   2 VU-002 Sprites Chips (Atlus PCB ID: ATL-67140)
+    Shogun Warriors            ZO1DK-002   CALC3 MCU protection (EEPROM handling, 68k code snippet, data - palettes, tilemaps, fighters)
+    B.Rap Boys                 ZO1DK-002   CALC3 MCU protection (EEPROM handling, 68k code snippet, data - palettes, tilemaps, fighters)
+94  Great 1000 Miles Rally                 TBSOP01 MCU protection (EEPROM handling etc.)
+    Bonk's Adventure           Z09AF-003   TBSOP01 MCU protection (EEPROM handling, 68k code snippet, data)
+    Blood Warrior              Z09AF-005   TBSOP01 MCU protection (EEPROM handling etc.)
+95  Great 1000 Miles Rally 2   M201F00138  TBSOP02 MCU protection (EEPROM handling etc.)
+----------------------------------------------------------------------------------------
 
 Note: gtmr manual shows "Compatible with AX Kaneko System Board"
 Note: Magic Crystals reports "TOYBOX SYSTEM Version 0.93B+"
 
+Note: Decapping shows the CALC3 MCU to be a NEC uPD78322 series MCU with 16K internal ROM.  Both the
+      TBSOP01 and TBSOP02 are thought to be the NEC uPD78324 series MCU with 32K internal ROM.
+
 To Do:
 
 [gtmr]
-
 - Stage 4: The layers' scrolling is very jerky for a couple of seconds
   in the middle of this level (probably interrupt related)
-
 - The layers' colours are not initialised when showing the self test
   screen and the very first screen (with the Kaneko logo in the middle).
   They're probably supposed to be disabled in those occasions, but the
   relevant registers aren't changed throughout the game (?)
 
 [gtmr2]
-
 - Finish the Inputs (different wheels and pedals)
-
 - Find infos about the communication stuff (even if it won't be supported)
 
-[bonkadv]
+[brapboys / shogwarr]
 
-- Bad tilemap colors in levels 2 and 3
+- Verify collision protection on real hardware (appears to be a function of the system/memory controller, NOT the MCU)
+  - currently B.Rap Boys has it's own special case, it should work with the same code as Blood Warriors / Shogun Warriors (and probably SuperNova)
+- Figure out how MCU resets writeback address (currently hacked)
+- Find relationship between Key tables and final datablock
+- Clean up debug code file writes etc. (when above are done only!)
+- Interrupt timing? (some sprites flicker)
+- Sprite buffering (1-2 frames?, or related to above)
+
+Dip locations verified from manual for:
+
+- berlwall
+- mgcrystl
+- blazeon
+- bakubrkr
+- bloodwar
+- gtmr
+- gtmr2
+- shogwarr
+
+[general]
+- replace sample bank copying with new ADDRESS MAP system for OKI and do banking like CPUs
 
 ***************************************************************************/
 
@@ -72,10 +90,22 @@ To Do:
 #include "sound/2151intf.h"
 #include "sound/okim6295.h"
 
+static int shogwarr_mcu_status, shogwarr_mcu_command_offset;
+
+extern UINT16 *kaneko16_mcu_ram; /* for calc3 and toybox */
+static UINT16* kaneko16_mainram;
+
 extern void (*toybox_mcu_run)(void);	/* one of the following */
 void bloodwar_mcu_run(void);
 void bonkadv_mcu_run(void);
 void gtmr_mcu_run(void);
+void calc3_mcu_run(void);
+
+extern void calc3_scantables(void);
+extern void decrypt_toybox_rom(void);
+
+
+
 
 /***************************************************************************
 
@@ -91,6 +121,8 @@ MACHINE_RESET( kaneko16 )
 
 	kaneko16_sprite_xoffs = 0;
 	kaneko16_sprite_yoffs = 0;
+	
+	kaneko16_sprite_fliptype = 0;
 
 /*
     Sx = Sprites with priority x, x = tiles with priority x,
@@ -138,6 +170,8 @@ static MACHINE_RESET( blazeon )
 
 static MACHINE_RESET( bloodwar )
 {
+	machine_reset_kaneko16();
+	
 	kaneko16_priority.sprite[0] = 2;	// ever used ?
 	kaneko16_priority.sprite[1] = 3;	// character selection / vs. portraits
 	kaneko16_priority.sprite[2] = 5;	// winning portrait
@@ -153,6 +187,8 @@ static MACHINE_RESET( bloodwar )
 
 static MACHINE_RESET( bonkadv )
 {
+	machine_reset_kaneko16();
+	
 	kaneko16_priority.sprite[0] = 2;	// ever used ?
 	kaneko16_priority.sprite[1] = 3;	// volcano lava on level 2
 	kaneko16_priority.sprite[2] = 5;	// in-game player
@@ -226,13 +262,54 @@ static MACHINE_RESET( sandscrp )
 	watchdog_reset16_r(0,0);	// start with an armed watchdog
 }
 
+
 static MACHINE_RESET( shogwarr )
 {
 	machine_reset_kaneko16();
 
+	kaneko16_sprite_xoffs = 0xa00;
+
+	kaneko16_sprite_yoffs = -0x40;
+
+	kaneko16_sprite_type = 0;
+	kaneko16_sprite_fliptype = 1;
+
+	shogwarr_mcu_status = 0;
+	shogwarr_mcu_command_offset = 0;
+
+	kaneko16_priority.sprite[0] = 1;	// below all
+	kaneko16_priority.sprite[1] = 3;	// above tile[0], below the others
+	kaneko16_priority.sprite[2] = 5;	// above all
+	kaneko16_priority.sprite[3] = 7;	// ""
+	kaneko16_priority.VIEW2_2_pri = 0;
+
 	calc3_mcu_init();
+	calc3_scantables();
 }
 
+static MACHINE_RESET( brapboys )
+{
+	machine_reset_kaneko16();
+
+	kaneko16_sprite_xoffs = 0xa00;
+
+	kaneko16_sprite_yoffs = -0x40;
+
+	kaneko16_sprite_type = 0;
+	kaneko16_sprite_fliptype = 1;
+
+	shogwarr_mcu_status = 0;
+	shogwarr_mcu_command_offset = 0;
+
+	kaneko16_priority.sprite[0] = 1;	// below all
+	kaneko16_priority.sprite[1] = 3;	// above tile[0], below the others
+	kaneko16_priority.sprite[2] = 5;	// above all
+	kaneko16_priority.sprite[3] = 7;	// ""
+	kaneko16_priority.VIEW2_2_pri = 0;
+
+	calc3_mcu_init();
+	calc3_scantables();
+}
 
 /***************************************************************************
 
@@ -529,8 +606,8 @@ static WRITE16_HANDLER( bloodwar_oki_0_bank_w )
 {
 	if (ACCESSING_LSB)
 	{
-		OKIM6295_set_bank_base(0, 0x40000 * (data & 0xf) );
-//      logerror("CPU #0 PC %06X : OKI0  bank %08X\n",activecpu_get_pc(),data);
+		OKIM6295_set_bank_base(0, 0x40000 * (data & 0x3) );
+//		logerror("CPU #0 PC %06X : OKI0  bank %08X\n",activecpu_get_pc(),data);
 	}
 }
 
@@ -538,8 +615,8 @@ static WRITE16_HANDLER( bloodwar_oki_1_bank_w )
 {
 	if (ACCESSING_LSB)
 	{
-		OKIM6295_set_bank_base(1, 0x40000 * data );
-//      logerror("CPU #0 PC %06X : OKI1  bank %08X\n",activecpu_get_pc(),data);
+		OKIM6295_set_bank_base(1, 0x40000 * (data & 0x3) );
+//		logerror("CPU #0 PC %06X : OKI1  bank %08X\n",activecpu_get_pc(),data);
 	}
 }
 
@@ -557,7 +634,7 @@ static WRITE16_HANDLER( bloodwar_coin_lockout_w )
 static ADDRESS_MAP_START( bloodwar, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0fffff) AM_ROM		// ROM
 	AM_RANGE(0x100000, 0x10ffff) AM_RAM		// Work RAM
-	AM_RANGE(0x200000, 0x20ffff) AM_RAM AM_BASE(&mcu_ram)		// Shared With MCU
+	AM_RANGE(0x200000, 0x20ffff) AM_RAM AM_BASE(&kaneko16_mcu_ram)		// Shared With MCU
 	AM_RANGE(0x2a0000, 0x2a0001) AM_WRITE(toybox_mcu_com0_w)	// To MCU ?
 	AM_RANGE(0x2b0000, 0x2b0001) AM_WRITE(toybox_mcu_com1_w)
 	AM_RANGE(0x2c0000, 0x2c0001) AM_WRITE(toybox_mcu_com2_w)
@@ -577,7 +654,7 @@ static ADDRESS_MAP_START( bloodwar, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x700000, 0x70001f) AM_READWRITE(MRA16_RAM, kaneko16_sprites_regs_w) AM_BASE(&kaneko16_sprites_regs)	// Sprites Regs
 	AM_RANGE(0x800000, 0x800001) AM_READWRITE(OKIM6295_status_0_lsb_r, OKIM6295_data_0_lsb_w)
 	AM_RANGE(0x880000, 0x880001) AM_READWRITE(OKIM6295_status_1_lsb_r, OKIM6295_data_1_lsb_w)
-	AM_RANGE(0x900000, 0x90003f) AM_READWRITE(galpanib_calc_r,galpanib_calc_w)	// WIP: more collision chip registers!
+	AM_RANGE(0x900000, 0x900039) AM_READWRITE(bloodwar_calc_r, bloodwar_calc_w)
 	AM_RANGE(0xa00000, 0xa00001) AM_READWRITE(watchdog_reset16_r, watchdog_reset16_w)	// Watchdog
 	AM_RANGE(0xb00000, 0xb00001) AM_READ(input_port_0_word_r)	// Inputs
 	AM_RANGE(0xb00002, 0xb00003) AM_READ(input_port_1_word_r)	//
@@ -617,7 +694,7 @@ static WRITE16_HANDLER( bonkadv_oki_1_bank_w )
 static ADDRESS_MAP_START( bonkadv, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0fffff) AM_ROM		// ROM
 	AM_RANGE(0x100000, 0x10ffff) AM_RAM		// Work RAM
-	AM_RANGE(0x200000, 0x20ffff) AM_RAM AM_BASE(&mcu_ram)		// Shared With MCU
+	AM_RANGE(0x200000, 0x20ffff) AM_RAM AM_BASE(&kaneko16_mcu_ram)		// Shared With MCU
 	AM_RANGE(0x2a0000, 0x2a0001) AM_WRITE(toybox_mcu_com0_w)	// To MCU ?
 	AM_RANGE(0x2b0000, 0x2b0001) AM_WRITE(toybox_mcu_com1_w)
 	AM_RANGE(0x2c0000, 0x2c0001) AM_WRITE(toybox_mcu_com2_w)
@@ -727,7 +804,7 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( gtmr_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0fffff) AM_WRITE(MWA16_ROM					)	// ROM
 	AM_RANGE(0x100000, 0x10ffff) AM_WRITE(MWA16_RAM					)	// Work RAM
-	AM_RANGE(0x200000, 0x20ffff) AM_WRITE(MWA16_RAM) AM_BASE(&mcu_ram		)	// Shared With MCU
+	AM_RANGE(0x200000, 0x20ffff) AM_WRITE(MWA16_RAM) AM_BASE(&kaneko16_mcu_ram		)	// Shared With MCU
 	AM_RANGE(0x2a0000, 0x2a0001) AM_WRITE(toybox_mcu_com0_w			)	// To MCU ?
 	AM_RANGE(0x2b0000, 0x2b0001) AM_WRITE(toybox_mcu_com1_w			)
 	AM_RANGE(0x2c0000, 0x2c0001) AM_WRITE(toybox_mcu_com2_w			)
@@ -924,30 +1001,30 @@ WRITE16_HANDLER( shogwarr_oki_bank_w )
 {
 	if (ACCESSING_LSB)
 	{
-		OKIM6295_set_bank_base(0, 0x10000 * ((data >> 0) & 0x3) );
-		OKIM6295_set_bank_base(1, 0x10000 * ((data >> 4) & 0x3) );
+		OKIM6295_set_bank_base(1, 0x40000 * ((data >> 0) & 0xf) );
+		OKIM6295_set_bank_base(0, 0x40000 * ((data >> 4) & 0xf) );
 	}
 }
 
 static ADDRESS_MAP_START( shogwarr, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x03ffff) AM_ROM		// ROM
-	AM_RANGE(0x100000, 0x10ffff) AM_RAM		// Work RAM
-	AM_RANGE(0x200000, 0x20ffff) AM_READWRITE(MRA16_RAM,calc3_mcu_ram_w) AM_BASE(&mcu_ram)	// Shared With MCU
+	AM_RANGE(0x100000, 0x10ffff) AM_RAM AM_BASE(&kaneko16_mainram)		// Work RAM
+	AM_RANGE(0x200000, 0x20ffff) AM_READWRITE(MRA16_RAM,calc3_mcu_ram_w) AM_BASE(&kaneko16_mcu_ram)	// Shared With MCU
 	AM_RANGE(0x280000, 0x280001) AM_WRITE(calc3_mcu_com0_w)
 	AM_RANGE(0x290000, 0x290001) AM_WRITE(calc3_mcu_com1_w)
 	AM_RANGE(0x2b0000, 0x2b0001) AM_WRITE(calc3_mcu_com2_w)
 	AM_RANGE(0x2d0000, 0x2d0001) AM_WRITE(calc3_mcu_com3_w)
-	AM_RANGE(0x380000, 0x380fff) AM_READWRITE(MRA16_RAM, paletteram16_xGGGGGRRRRRBBBBB_word_w) AM_BASE(&paletteram16)	// Palette
-	AM_RANGE(0x400000, 0x400001) AM_READWRITE(OKIM6295_status_0_lsb_r, OKIM6295_data_0_lsb_w)	// Samples
+	AM_RANGE(0x380000, 0x380fff) AM_READWRITE(MRA16_RAM,paletteram16_xGGGGGRRRRRBBBBB_word_w) AM_BASE(&paletteram16)	// Palette
+	AM_RANGE(0x400000, 0x400001) AM_READWRITE(OKIM6295_status_0_lsb_r, OKIM6295_data_0_lsb_w)
 	AM_RANGE(0x480000, 0x480001) AM_READWRITE(OKIM6295_status_1_lsb_r, OKIM6295_data_1_lsb_w)
 	AM_RANGE(0x580000, 0x581fff) AM_RAM AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)					// Sprites
-	AM_RANGE(0x600000, 0x600fff) AM_READWRITE(MRA16_RAM, kaneko16_vram_1_w) AM_BASE(&kaneko16_vram_1)	// Layers 0
+	AM_RANGE(0x600000, 0x600fff) AM_READWRITE(MRA16_RAM,kaneko16_vram_1_w) AM_BASE(&kaneko16_vram_1)	// Layers 0
 	AM_RANGE(0x601000, 0x601fff) AM_READWRITE(MRA16_RAM,kaneko16_vram_0_w) AM_BASE(&kaneko16_vram_0)
 	AM_RANGE(0x602000, 0x602fff) AM_RAM AM_BASE(&kaneko16_vscroll_1)
 	AM_RANGE(0x603000, 0x603fff) AM_RAM AM_BASE(&kaneko16_vscroll_0)
-	AM_RANGE(0x800000, 0x80000f) AM_READWRITE(MRA16_RAM, kaneko16_layers_0_regs_w) AM_BASE(&kaneko16_layers_0_regs)	// Layers 0 Regs
-	AM_RANGE(0x900000, 0x90001f) AM_READWRITE(MRA16_RAM, kaneko16_sprites_regs_w) AM_BASE(&kaneko16_sprites_regs)	// Sprites Regs
-	AM_RANGE(0xa00014, 0xa00015) AM_READ(kaneko16_rnd_r)		// Random Number ?
+	AM_RANGE(0x800000, 0x80000f) AM_READWRITE(MRA16_RAM,kaneko16_layers_0_regs_w) AM_BASE(&kaneko16_layers_0_regs)	// Layers 0 Regs
+	AM_RANGE(0x900000, 0x90001f) AM_READWRITE(MRA16_RAM,kaneko16_sprites_regs_w) AM_BASE(&kaneko16_sprites_regs)	// Sprites Regs
+	AM_RANGE(0xa00000, 0xa0007f) AM_READWRITE(bloodwar_calc_r, bloodwar_calc_w)
 	AM_RANGE(0xa80000, 0xa80001) AM_READWRITE(watchdog_reset16_r, watchdog_reset16_w)	// Watchdog
 	AM_RANGE(0xb80000, 0xb80001) AM_READ(input_port_0_word_r)	// Inputs
 	AM_RANGE(0xb80002, 0xb80003) AM_READ(input_port_1_word_r)
@@ -1908,9 +1985,9 @@ INPUT_PORTS_START( shogwarr )
 	PORT_BIT(  0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
 	PORT_BIT(  0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
 	PORT_BIT(  0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
-	PORT_BIT(  0x4000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
-	PORT_BIT(  0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )	// ? tested
-
+	PORT_BIT(  0x4000, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT(  0x8000, IP_ACTIVE_LOW, IPT_COIN1 )
+	
 	PORT_START	// IN1 - - b80002.w
 	PORT_BIT(  0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
 	PORT_BIT(  0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
@@ -1918,19 +1995,19 @@ INPUT_PORTS_START( shogwarr )
 	PORT_BIT(  0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
 	PORT_BIT(  0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
 	PORT_BIT(  0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
-	PORT_BIT(  0x4000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
-	PORT_BIT(  0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )	// ? tested
-
+	PORT_BIT(  0x4000, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT(  0x8000, IP_ACTIVE_LOW, IPT_COIN2 )
+	
 	PORT_START	// IN2 - Coins - b80004.w
-	PORT_BIT(  0x0100, IP_ACTIVE_LOW, IPT_START1	)
-	PORT_BIT(  0x0200, IP_ACTIVE_LOW, IPT_START2	)
-	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(2)
-	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_COIN2 ) PORT_IMPULSE(2)
-	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_SERVICE ) PORT_NAME( DEF_STR( Service_Mode )) PORT_CODE(KEYCODE_F2)
-	PORT_BIT(  0x2000, IP_ACTIVE_LOW, IPT_TILT		)
-	PORT_BIT(  0x4000, IP_ACTIVE_LOW, IPT_SERVICE1	)
-	PORT_BIT(  0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN	)	// ? tested
-
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START1	)
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_START2	)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_SERVICE1	)
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN	)
+	
 	PORT_START	// IN3 - ? - b80006.w
 	PORT_BIT(  0x0100, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_BIT(  0x0200, IP_ACTIVE_LOW, IPT_UNKNOWN )
@@ -1950,23 +2027,84 @@ INPUT_PORTS_START( shogwarr )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x04, DEF_STR( On ) )
 	PORT_DIPNAME( 0x38, 0x38, DEF_STR( Difficulty ) )
-	PORT_DIPSETTING(    0x38, "1" )	// easy
+	PORT_DIPSETTING(    0x38, "1 Easy" )
 	PORT_DIPSETTING(    0x30, "2" )
 	PORT_DIPSETTING(    0x28, "3" )
-	PORT_DIPSETTING(    0x20, "4" )
+	PORT_DIPSETTING(    0x20, "4 Normal" )
 	PORT_DIPSETTING(    0x18, "5" )
 	PORT_DIPSETTING(    0x10, "6" )
 	PORT_DIPSETTING(    0x08, "7" )
-	PORT_DIPSETTING(    0x00, "8" )
+	PORT_DIPSETTING(    0x00, "8 Hard" )
 	PORT_DIPNAME( 0x40, 0x40, "Can Join During Game" )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )	//  2 credits       winner vs computer
 	PORT_DIPSETTING(    0x40, DEF_STR( On ) )	//  1 credit        game over
-	PORT_DIPNAME( 0x80, 0x80, "Special Continue Mode" )
+	PORT_DIPNAME( 0x80, 0x80, "Continue Coin" )
 	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 INPUT_PORTS_END
 
+static INPUT_PORTS_START( brapboys )
+	PORT_START		/* b80000.w */
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_COIN1 )
 
+	PORT_START		/* b80002.w */
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_COIN2 )
+
+	PORT_START	/* b80004.w */
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(3)
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(3)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(3)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(3)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(3)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(3)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_START3 )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_COIN3 )
+
+	PORT_START		/* ? - b80006.w */
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_SERVICE(0x02, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x04, 0x04, "Switch Test" )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_DIPNAME( 0x10, 0x10, "Coin Slots" )
+	PORT_DIPSETTING(    0x10, "Separate Coins" )
+	PORT_DIPSETTING(    0x00, "Shared Coins" )
+	PORT_DIPNAME( 0x20, 0x20, "Players" )
+	PORT_DIPSETTING(    0x20, "3" )
+	PORT_DIPSETTING(    0x00, "2" )
+	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Very_Hard) )
+INPUT_PORTS_END	
 
 /***************************************************************************
 
@@ -2460,7 +2598,52 @@ INTERRUPT_GEN( shogwarr_interrupt )
 	{
 		case 2:  cpunum_set_input_line(0, 2, HOLD_LINE); break;
 		case 1:  cpunum_set_input_line(0, 3, HOLD_LINE); break;
-//      case 0:  cpunum_set_input_line(0, 4, HOLD_LINE); break;
+		case 0:  cpunum_set_input_line(0, 4, HOLD_LINE); calc3_mcu_run();break;
+	}
+}
+
+// the above eeprom looks corrupt, some of the text is wrong, the game never writes this text tho.. maybe it should be as below
+// leaving both here incase they relate to which tables get 'locked out' by the MCU somehow
+static UINT8 shogwarr_default_eeprom[128] = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x4B, 0x41, 0x4E, 0x45, 0x4B, 0x4F, 0x2F, 0x41, 0x54, 0x4F, 0x50, 0x20, 0x31, 0x39, 0x39, 0x32,
+	0x46, 0x55, 0x4A, 0x49, 0x59, 0x41, 0x4D, 0x41, 0x20, 0x42, 0x55, 0x53, 0x54, 0x45, 0x52, 0x20,
+	0x20, 0x53, 0x48, 0x4F, 0x47, 0x55, 0x4E, 0x20, 0x57, 0x41, 0x52, 0x52, 0x49, 0x4F, 0x52, 0x53,
+	0x63, 0x6F, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74, 0x20, 0x4B, 0x41, 0x4E, 0x45, 0x4B, 0x4F,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF
+};
+
+static UINT8 brapboys_default_eeprom[128] = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x05, 0x00, 0x06, 0x20, 0x30, 0x00, 0x03, 0x68, 0x18, 0x01, 0x01, 0x01, 0x01,
+	0x01, 0x01, 0x00, 0x01, 0x00, 0x04, 0x00, 0x08, 0x4B, 0x41, 0x4E, 0x45, 0x4B, 0x4F, 0x20, 0x20,
+	0x42, 0x65, 0x20, 0x52, 0x61, 0x70, 0x20, 0x42, 0x6F, 0x79, 0x73, 0x00, 0x30, 0x30, 0x30, 0x2E,
+	0x30, 0x38, 0x10, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x35, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+};
+
+static NVRAM_HANDLER( shogwarr )
+{
+	int isbrap = ( !strcmp(Machine->gamedrv->name,"brapboysj") || !strcmp(Machine->gamedrv->name,"brapboys"));
+
+	if (read_or_write)
+		EEPROM_save(file);
+	else
+	{
+		EEPROM_init(&eeprom_interface_93C46);
+
+		if (file) EEPROM_load(file);
+		else
+		{
+			if (isbrap)
+				EEPROM_set_data(brapboys_default_eeprom,128);
+			else
+				EEPROM_set_data(shogwarr_default_eeprom,128);
+		}
 	}
 }
 
@@ -2471,15 +2654,16 @@ static MACHINE_DRIVER_START( shogwarr )
 	MDRV_CPU_PROGRAM_MAP(shogwarr,0)
 	MDRV_CPU_VBLANK_INT(shogwarr_interrupt,SHOGWARR_INTERRUPTS_NUM)
 
-	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_FRAMES_PER_SECOND(59.1854)
+	MDRV_VBLANK_DURATION(TIME_IN_USEC(0))
 
 	MDRV_MACHINE_RESET(shogwarr)
+	MDRV_NVRAM_HANDLER(shogwarr)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
 	MDRV_SCREEN_SIZE(320, 240)
-	MDRV_VISIBLE_AREA(0, 320-1, 0, 240-1)
+	MDRV_VISIBLE_AREA(40, 296-1, 16, 240-1)
 	MDRV_GFXDECODE(kaneko16_gfx_1x4bit_1x4bit)
 	MDRV_PALETTE_LENGTH(2048)
 
@@ -2500,6 +2684,42 @@ static MACHINE_DRIVER_START( shogwarr )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( brapboys )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(M68000, 12000000)
+	MDRV_CPU_PROGRAM_MAP(shogwarr,0)
+	MDRV_CPU_VBLANK_INT(shogwarr_interrupt,SHOGWARR_INTERRUPTS_NUM)
+
+	MDRV_FRAMES_PER_SECOND(59.1854)
+	MDRV_VBLANK_DURATION(TIME_IN_USEC(0))
+
+	MDRV_MACHINE_RESET(brapboys)
+	MDRV_NVRAM_HANDLER(shogwarr)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(320, 240)
+	MDRV_VISIBLE_AREA(40, 296-1, 16, 240-1)
+	MDRV_GFXDECODE(kaneko16_gfx_1x4bit_1x4bit)
+	MDRV_PALETTE_LENGTH(2048)
+
+	MDRV_VIDEO_START(kaneko16_1xVIEW2)
+	MDRV_VIDEO_UPDATE(kaneko16)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(OKIM6295, 12000)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+
+	MDRV_SOUND_ADD(OKIM6295, 12000)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_2)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+MACHINE_DRIVER_END
 
 /***************************************************************************
 
@@ -2572,8 +2792,83 @@ DRIVER_INIT( samplebank )
 	kaneko16_unscramble_tiles(REGION_GFX2);
 	kaneko16_unscramble_tiles(REGION_GFX3);
 	kaneko16_expand_sample_banks(REGION_SOUND1);
+	decrypt_toybox_rom();
 }
 
+
+static void expand_shogwarr_samples(void)
+{
+	/*
+        Expand the OKI sample data
+
+        OKI 1:
+        Address space 0x00000-0x2ffff is fixed
+        Address space 0x30000-0x3ffff is banked (13 banks)
+    */
+
+	int bank;
+	UINT8 *src = memory_region(REGION_USER1);
+	UINT8 *dst1 = memory_region(REGION_SOUND1);
+
+	/* OKI 1 */
+	for (bank = 0; bank < 13; ++bank)
+	{
+		UINT8 *dst;
+		UINT8 *srcn;
+
+		dst = dst1 + 0x40000 * bank;
+		srcn = src + 0x30000 + (0x10000 * bank);
+		memcpy(dst, src, 0x30000);
+		memcpy(dst + 0x30000, srcn, 0x10000);
+	}
+}
+
+static void calc3_init(void)
+{
+	kaneko16_unscramble_tiles(REGION_GFX2);
+	kaneko16_unscramble_tiles(REGION_GFX3);
+	expand_shogwarr_samples();
+    //  MCU is a 78K series III type CPU
+}
+
+static void expand_brapboys_music(void)
+{
+	/*
+        Expand the OKI sample data
+
+        OKI 2:
+        Address space 0x00000-0x1ffff is fixed
+        Address space 0x20000-0x3ffff is banked (15 banks)
+    */
+
+	int bank;
+	UINT8 *src = memory_region(REGION_USER1);
+	UINT8 *dst2 = memory_region(REGION_SOUND2);
+
+	/* OKI 2 */
+	for (bank = 0; bank < 15; ++bank)
+	{
+		UINT8 *dst;
+		UINT8 *srcn;
+		dst = dst2 + 0x40000 * bank;
+		srcn = src + 0x120000 + (0x20000 * bank);
+		memcpy(dst, src + 0x100000, 0x20000);
+		memcpy(dst + 0x20000, srcn, 0x20000);
+	}
+}
+
+
+DRIVER_INIT( brapboys )
+{
+	// sample banking is different on brap boys for the music, why? GALs / PALs ?
+	expand_brapboys_music();
+	calc3_init();
+}
+
+DRIVER_INIT( shogwarr )
+{
+	calc3_init();
+}
 
 /***************************************************************************
 
@@ -2971,12 +3266,9 @@ ROM_START( bloodwar )
 	ROM_LOAD16_BYTE( "p1f3.513", 0x000001, 0x080000, CRC(894ecbe5) SHA1(bf403d19e6315266114ac742a08cac903e7b54b5) )
 
  	ROM_REGION( 0x020000, REGION_CPU2, 0 )			/* MCU Code */
-	ROM_LOAD( "dox3.124",  0x000000, 0x020000, CRC(399f2005) SHA1(ff0370724770c35963953fd9596d9f808ba87d8f) )
+	ROM_LOAD16_WORD_SWAP( "dox3.124",  0x000000, 0x020000, CRC(399f2005) SHA1(ff0370724770c35963953fd9596d9f808ba87d8f) )
 
- 	ROM_REGION16_BE( 0x0080, REGION_USER1, 0 )			/* EEPROM */
-	ROM_LOAD16_WORD( "9346.126",  0x0000, 0x0080, CRC(1579db94) SHA1(acb842676946efea29b73bdc9ecb266f49d2f5a8) )
-
-	ROM_REGION( 0x1e00000, REGION_GFX1, ROMREGION_DISPOSE )	/* Sprites */
+	ROM_REGION( 0x1e00000, REGION_GFX1, 0 )	/* Sprites */
 	ROM_LOAD       ( "2000201.8",   0x0000000, 0x200000, CRC(bba63025) SHA1(daec5285469ee953f6f838fe3cb3903524e9ac39) )
 	ROM_LOAD       ( "2010202.9",   0x0200000, 0x200000, CRC(4ffd9ddc) SHA1(62bc8c0ed2efab407fc2956c514c3e732bcc47ee) )
 	ROM_LOAD       ( "2020203.10",  0x0400000, 0x200000, CRC(fbcc5363) SHA1(9eff48c29d5c887d39e4db442c6ee51ec879521e) )
@@ -2999,10 +3291,10 @@ ROM_START( bloodwar )
 	ROM_LOAD16_BYTE( "214e0220.26", 0x1c00000, 0x100000, CRC(43c622de) SHA1(73efe57233f056127e2d34590c624f39d1c0ab79) )
 	ROM_LOAD16_BYTE( "21400221.27", 0x1c00001, 0x100000, CRC(d10bf03c) SHA1(a81d6b7df7382fc8d50614c1332611e0c202b805) )
 
-	ROM_REGION( 0x100000, REGION_GFX2, ROMREGION_DISPOSE )	/* Tiles (scrambled) */
+	ROM_REGION( 0x100000, REGION_GFX2, 0 )	/* Tiles (scrambled) */
 	ROM_LOAD( "3000225.51", 0x000000, 0x100000, CRC(fbc3c08a) SHA1(0ba52b381e7a10fb1513244b394438b440950af3) )
 
-	ROM_REGION( 0x100000, REGION_GFX3, ROMREGION_DISPOSE )	/* Tiles (scrambled) */
+	ROM_REGION( 0x100000, REGION_GFX3, 0 )	/* Tiles (scrambled) */
 	ROM_LOAD( "3010226.55", 0x000000, 0x100000, CRC(fcf215de) SHA1(83015f10e62b917efd6e3edfbd45fb8f9b35db2b) )
 
 	ROM_REGION( 0x400000, REGION_SOUND1, 0 )	/* Samples, plus room for expansion */
@@ -3622,47 +3914,66 @@ ROM_START( shogwarr )
  	ROM_REGION( 0x020000, REGION_CPU2, 0 )			/* MCU Code */
 	ROM_LOAD( "fb040a.u33",  0x000000, 0x020000, CRC(4b62c4d9) SHA1(35c943dde70438a411714070e42a84366db5ef83) )
 
-	ROM_REGION( 0x600000, REGION_GFX1, ROMREGION_DISPOSE )	/* Sprites */
-	ROM_LOAD( "fb020a.u1",  0x000000, 0x080000, CRC(da1b7373) SHA1(89510901848f1798fb76dd82d1cd9ac97c41521d) )
-	ROM_LOAD( "fb022a.u5",  0x080000, 0x080000, CRC(60aa1282) SHA1(4648816016e00df3256226ba5134f6e5bb429909) )
+	ROM_REGION( 0x1000000, REGION_GFX1, ROMREGION_ERASEFF )	/* Sprites */
+	ROM_LOAD( "fb-020a.u1", 0x000000, 0x100000, CRC(87e55c6d) SHA1(87886c045d7c30b8dee3c8fb0bf8f2cdbc5fd7fb) )
 	ROM_LOAD( "fb020b.u2",  0x100000, 0x100000, CRC(276b9d7b) SHA1(7a154f65b4737f2b6ac8effa3352711079f571dc) )
 	ROM_LOAD( "fb021a.u3",  0x200000, 0x100000, CRC(7da15d37) SHA1(345cf2242e8210a697294a45197f2b3b974de885) )
 	ROM_LOAD( "fb021b.u4",  0x300000, 0x100000, CRC(6a512d7b) SHA1(7fc3002d23262a9a590a283ea9e111e38d889ef2) )
-	ROM_LOAD( "fb023.u7",   0x400000, 0x100000, CRC(132794bd) SHA1(bcc73c3183c59a4b66f79d04774773b8a9239501) )
-	ROM_LOAD( "fb022b.u6",  0x500000, 0x080000, CRC(cd05a5c8) SHA1(9f000cca8d31e19fdc4b38c00c3ed13f71e5541c) )
+	ROM_LOAD( "fb-22a.u5",  0x400000, 0x100000, CRC(9039e5d3) SHA1(222452cd7947f7c99c68e495835cca62e0449b5c) )
+	ROM_LOAD( "fb-22b.u6",  0x500000, 0x100000, CRC(96ac9e54) SHA1(2b066375963dc57fe2ce89d65f6c0a9d183a838d) )
+	ROM_LOAD( "fb023.u7",   0x600000, 0x100000, CRC(132794bd) SHA1(bcc73c3183c59a4b66f79d04774773b8a9239501) )
 
-	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )	/* Tiles (scrambled) */
-	ROM_LOAD( "fb010.u65",  0x000000, 0x100000, CRC(296ffd92) SHA1(183a28e4594c428deb4726ed22d5166592b94b60) )
-	ROM_LOAD( "fb011.u66",  0x100000, 0x080000, CRC(500a0367) SHA1(6dc5190f81b21f59ee56a3b2332c8d86d6599782) )	// ?!
-	ROM_LOAD( "rb012.u67",  0x200000, 0x100000, CRC(bfdbe0d1) SHA1(3abc5398ee8ee1871b4d081f9b748539d69bcdba) )
-	ROM_LOAD( "rb013.u68",  0x300000, 0x100000, CRC(28c37fe8) SHA1(e10dd1a810983077328b44e6e33ce2e899c506d2) )
+	ROM_REGION( 0x400000, REGION_GFX2, 0 )	/* Tiles (scrambled) */
+	ROM_LOAD( "fb010.u65",  0x000000, 0x100000, CRC(296ffd92) SHA1(183a28e4594c428deb4726ed22d5166592b94b60) )	// 42 pin mask rom
+	ROM_LOAD( "fb011.u66",  0x100000, 0x080000, CRC(500a0367) SHA1(6dc5190f81b21f59ee56a3b2332c8d86d6599782) )	// 40 pin mask rom (verified correct)
 
-	ROM_REGION( 0x100000, REGION_SOUND1, 0 )	/* Samples */
-	ROM_LOAD( "fb000e.u42",  0x000000, 0x080000, CRC(969f1465) SHA1(4f56d1ad341b08f4db41b7ab2498740612ff7c3d) )	// 2 x $40000
-	ROM_LOAD( "fb001e.u43",  0x080000, 0x080000, CRC(f524aaa1) SHA1(006a886f9df2e57c51b61c6cea70a6574fc20304) )	// 2 x $40000
+	ROM_REGION( 0x300000, REGION_USER1, 0 ) /*samples*/
+	ROM_LOAD( "fb001e.u43",  0x000000, 0x080000, CRC(f524aaa1) SHA1(006a886f9df2e57c51b61c6cea70a6574fc20304) )
+	ROM_LOAD( "fb000e.u42",  0x080000, 0x080000, CRC(969f1465) SHA1(4f56d1ad341b08f4db41b7ab2498740612ff7c3d) )
 
-	ROM_REGION( 0x100000, REGION_SOUND2, 0 )	/* Samples */
-	ROM_LOAD( "fb002.u44",   0x000000, 0x080000, CRC(05d7c2a9) SHA1(e34d395985caec10139a22daa179bb185df157d6) )	// 2 x $40000
-	ROM_LOAD( "fb003.u45",   0x080000, 0x080000, CRC(405722e9) SHA1(92e51093d50f74f650ba137f5fc2910e0f85337e) )	// 2 x $40000
+	/* Sound data is copied here during driver init */
+	ROM_REGION( 0x400000*16, REGION_SOUND1, 0 )
+	ROM_FILL(                0x00000, 0x400000*16, 0x00 )
+
+	ROM_REGION( 0x200000, REGION_SOUND2, 0 )
+	ROM_LOAD( "fb-002.u45",   0x000000, 0x100000, CRC(010acc17) SHA1(2dc0897c7778eacf6bce12ff0adbadb307ea6c17) )
+	ROM_LOAD( "fb-003.u44",   0x100000, 0x100000, CRC(0aea4ac5) SHA1(8f3b30e505b0ba51c140a0a2c071680d4fa05db9) )
 ROM_END
 
+ROM_START( shogwarre )
+ 	ROM_REGION( 0x040000, REGION_CPU1, 0 )			/* 68000 Code */
+	ROM_LOAD16_BYTE( "fb030e.u61", 0x000000, 0x020000, CRC(32ce7909) SHA1(02d87342706ac9547eb611bd542f8498ba41e34a) )
+	ROM_LOAD16_BYTE( "fb031e.u62", 0x000001, 0x020000, CRC(228aeaf5) SHA1(5e080d7975bc5dcf6fccfbc286eafe939496d9bf) )
 
-DRIVER_INIT( shogwarr )
-{
-	init_kaneko16();
+ 	ROM_REGION( 0x020000, REGION_CPU2, 0 )			/* MCU Code */
+	ROM_LOAD( "fb040e.u33",  0x000000, 0x020000, CRC(299d0746) SHA1(67fe3a47ab01fa02ce2bb5836c2041986c19d875) )
 
-/*
-    ROM test at 2237e:
+	ROM_REGION( 0x1000000, REGION_GFX1, ROMREGION_ERASEFF )	/* Sprites */
+	ROM_LOAD( "fb-020a.u1", 0x000000, 0x100000, CRC(87e55c6d) SHA1(87886c045d7c30b8dee3c8fb0bf8f2cdbc5fd7fb) )
+	ROM_LOAD( "fb020b.u2",  0x100000, 0x100000, CRC(276b9d7b) SHA1(7a154f65b4737f2b6ac8effa3352711079f571dc) )
+	ROM_LOAD( "fb021a.u3",  0x200000, 0x100000, CRC(7da15d37) SHA1(345cf2242e8210a697294a45197f2b3b974de885) )
+	ROM_LOAD( "fb021b.u4",  0x300000, 0x100000, CRC(6a512d7b) SHA1(7fc3002d23262a9a590a283ea9e111e38d889ef2) )
+	ROM_LOAD( "fb-22a.u5",  0x400000, 0x100000, CRC(9039e5d3) SHA1(222452cd7947f7c99c68e495835cca62e0449b5c) )
+	ROM_LOAD( "fb-22b.u6",  0x500000, 0x100000, CRC(96ac9e54) SHA1(2b066375963dc57fe2ce89d65f6c0a9d183a838d) )
+	ROM_LOAD( "fb023.u7",   0x600000, 0x100000, CRC(132794bd) SHA1(bcc73c3183c59a4b66f79d04774773b8a9239501) )
 
-    the chksum of 00000-03fffd = $657f is added to ($200042).w
-    [from shared ram]. The result must be $f463 [=($3fffe).w]
+	ROM_REGION( 0x400000, REGION_GFX2, 0 )	/* Tiles (scrambled) */
+	ROM_LOAD( "fb010.u65",  0x000000, 0x100000, CRC(296ffd92) SHA1(183a28e4594c428deb4726ed22d5166592b94b60) )	// 42 pin mask rom
+	ROM_LOAD( "fb011.u66",  0x100000, 0x080000, CRC(500a0367) SHA1(6dc5190f81b21f59ee56a3b2332c8d86d6599782) )	// 40 pin mask rom (verified correct)
 
-    Now, $f463-$657f = $8ee4 = byte sum of FB040A.U33 !!
+	ROM_REGION( 0x300000, REGION_USER1, 0 )
+	ROM_LOAD( "fb001e.u43",  0x000000, 0x080000, CRC(f524aaa1) SHA1(006a886f9df2e57c51b61c6cea70a6574fc20304) )
+	ROM_LOAD( "fb000e.u42",  0x080000, 0x080000, CRC(969f1465) SHA1(4f56d1ad341b08f4db41b7ab2498740612ff7c3d) )
 
-    So, there's probably the MCU's code in there, though
-    I can't id what kind of CPU should run it :-(
-*/
-}
+	/* Sound data is copied here during driver init */
+	ROM_REGION( 0x400000*16, REGION_SOUND1, 0 )
+	ROM_FILL(                0x00000, 0x400000*16, 0x00 )
+
+	ROM_REGION( 0x200000, REGION_SOUND2, 0 )
+	ROM_LOAD( "fb-002.u45",   0x000000, 0x100000, CRC(010acc17) SHA1(2dc0897c7778eacf6bce12ff0adbadb307ea6c17) )
+	ROM_LOAD( "fb-003.u44",   0x100000, 0x100000, CRC(0aea4ac5) SHA1(8f3b30e505b0ba51c140a0a2c071680d4fa05db9) )
+ROM_END
+
 
 /***************************************************************************
 
@@ -3710,28 +4021,31 @@ ROM_START( fjbuster )	// Fujiyama Buster - Japan version of Shogun Warriors
  	ROM_REGION( 0x020000, REGION_CPU2, 0 )			/* MCU Code */
 	ROM_LOAD( "fb040j.u33",  0x000000, 0x020000, CRC(299d0746) SHA1(67fe3a47ab01fa02ce2bb5836c2041986c19d875) )
 
-	ROM_REGION( 0x600000, REGION_GFX1, ROMREGION_DISPOSE )	/* Sprites */
-	ROM_LOAD( "fb020a.u1",  0x000000, 0x080000, CRC(da1b7373) SHA1(89510901848f1798fb76dd82d1cd9ac97c41521d) )
-	ROM_LOAD( "fb022a.u5",  0x080000, 0x080000, CRC(60aa1282) SHA1(4648816016e00df3256226ba5134f6e5bb429909) )
+	ROM_REGION( 0x1000000, REGION_GFX1, ROMREGION_ERASEFF )	/* Sprites */
+	ROM_LOAD( "fb-020a.u1", 0x000000, 0x100000, CRC(87e55c6d) SHA1(87886c045d7c30b8dee3c8fb0bf8f2cdbc5fd7fb) )
 	ROM_LOAD( "fb020b.u2",  0x100000, 0x100000, CRC(276b9d7b) SHA1(7a154f65b4737f2b6ac8effa3352711079f571dc) )
 	ROM_LOAD( "fb021a.u3",  0x200000, 0x100000, CRC(7da15d37) SHA1(345cf2242e8210a697294a45197f2b3b974de885) )
 	ROM_LOAD( "fb021b.u4",  0x300000, 0x100000, CRC(6a512d7b) SHA1(7fc3002d23262a9a590a283ea9e111e38d889ef2) )
-	ROM_LOAD( "fb023.u7",   0x400000, 0x100000, CRC(132794bd) SHA1(bcc73c3183c59a4b66f79d04774773b8a9239501) )
-	ROM_LOAD( "fb022b.u6",  0x500000, 0x080000, CRC(cd05a5c8) SHA1(9f000cca8d31e19fdc4b38c00c3ed13f71e5541c) )
+	ROM_LOAD( "fb-22a.u5",  0x400000, 0x100000, CRC(9039e5d3) SHA1(222452cd7947f7c99c68e495835cca62e0449b5c) )
+	ROM_LOAD( "fb-22b.u6",  0x500000, 0x100000, CRC(96ac9e54) SHA1(2b066375963dc57fe2ce89d65f6c0a9d183a838d) )
+	ROM_LOAD( "fb023.u7",   0x600000, 0x100000, CRC(132794bd) SHA1(bcc73c3183c59a4b66f79d04774773b8a9239501) )
 
-	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )	/* Tiles (scrambled) */
-	ROM_LOAD( "fb010.u65",  0x000000, 0x100000, CRC(296ffd92) SHA1(183a28e4594c428deb4726ed22d5166592b94b60) )
-	ROM_LOAD( "fb011.u66",  0x100000, 0x080000, CRC(500a0367) SHA1(6dc5190f81b21f59ee56a3b2332c8d86d6599782) )	// ?!
-//  ROM_LOAD( "rb012.u67",  0x200000, 0x100000, CRC(bfdbe0d1) SHA1(3abc5398ee8ee1871b4d081f9b748539d69bcdba) )  Not used!  No ROMs here
-//  ROM_LOAD( "rb013.u68",  0x300000, 0x100000, CRC(28c37fe8) SHA1(e10dd1a810983077328b44e6e33ce2e899c506d2) )  Not used!  No ROMs here
+	ROM_REGION( 0x400000, REGION_GFX2, 0 )	/* Tiles (scrambled) */
+	ROM_LOAD( "fb010.u65",  0x000000, 0x100000, CRC(296ffd92) SHA1(183a28e4594c428deb4726ed22d5166592b94b60) )	// 42 pin mask rom
+	ROM_LOAD( "fb011.u66",  0x100000, 0x080000, CRC(500a0367) SHA1(6dc5190f81b21f59ee56a3b2332c8d86d6599782) )	// 40 pin mask rom (verified correct)
 
-	ROM_REGION( 0x100000, REGION_SOUND1, 0 )	/* Samples */
-	ROM_LOAD( "fb000j.u43",    0x000000, 0x080000, CRC(a7522555) SHA1(ea88d90dda20bc309f98a1924c41551e7708e6af) )	// 2 x $40000
-	ROM_LOAD( "fb001j_u.101",  0x080000, 0x080000, CRC(07d4e8e2) SHA1(0de911f452ddeb54b0b435b9c1cf5d5881175d44) )	// 2 x $40000
 
-	ROM_REGION( 0x100000, REGION_SOUND2, 0 )	/* Samples */
-	ROM_LOAD( "fb002.u44",   0x000000, 0x080000, CRC(05d7c2a9) SHA1(e34d395985caec10139a22daa179bb185df157d6) )	// 2 x $40000
-	ROM_LOAD( "fb003.u45",   0x080000, 0x080000, CRC(405722e9) SHA1(92e51093d50f74f650ba137f5fc2910e0f85337e) )	// 2 x $40000
+	ROM_REGION( 0x300000, REGION_USER1, 0 )
+	ROM_LOAD( "fb000j.u43",    0x000000, 0x080000, CRC(a7522555) SHA1(ea88d90dda20bc309f98a1924c41551e7708e6af) )
+	ROM_LOAD( "fb001j_u.101",  0x080000, 0x080000, CRC(07d4e8e2) SHA1(0de911f452ddeb54b0b435b9c1cf5d5881175d44) )
+
+	/* Sound data is copied here during driver init */
+	ROM_REGION( 0x400000*16, REGION_SOUND1, 0 )
+	ROM_FILL(                0x00000, 0x400000*16, 0x00 )
+
+	ROM_REGION( 0x200000, REGION_SOUND2, 0 )
+	ROM_LOAD( "fb-002.u45",   0x000000, 0x100000, CRC(010acc17) SHA1(2dc0897c7778eacf6bce12ff0adbadb307ea6c17) )
+	ROM_LOAD( "fb-003.u44",   0x100000, 0x100000, CRC(0aea4ac5) SHA1(8f3b30e505b0ba51c140a0a2c071680d4fa05db9) )
 ROM_END
 
 /***************************************************************************
@@ -3846,7 +4160,46 @@ Game can be ROM Swapped onto a Shogun Warriors board and works
 
 ***************************************************************************/
 
-ROM_START( brapboys )
+ROM_START( brapboys ) /* Single PCB, fully populated, no rom sub board */
+ 	ROM_REGION( 0x040000, REGION_CPU1, 0 )			/* 68000 Code */
+	ROM_LOAD16_BYTE( "rb-030.u61", 0x000000, 0x020000, CRC(ccbe9a53) SHA1(b96baf0ecbf6550bfaf8e512d9275c53a3928bee) )
+	ROM_LOAD16_BYTE( "rb-031.u62", 0x000001, 0x020000, CRC(c72b8dda) SHA1(450e1fb8acb140fa0ab23630daad82924f7ce72b) )
+
+ 	ROM_REGION( 0x020000, REGION_CPU2, 0 )			/* MCU Code */
+	ROM_LOAD( "rb-040.u33",  0x000000, 0x020000, CRC(757c6e19) SHA1(0f1c37b1b1eb6b230c593e4648c4302f413a61f5) )
+
+	ROM_REGION( 0x600000, REGION_GFX1, ROMREGION_ERASEFF )	/* Sprites */
+	ROM_LOAD( "rb-020.c2",  0x000000, 0x100000, CRC(ce220d38) SHA1(b88d7c89a3e1a826bf19a1fa692ec77c944596d9) )
+	ROM_LOAD( "rb-021.u76", 0x100000, 0x100000, CRC(74001407) SHA1(90002056ceb4e0401246950b8c3f996af0a2463c) )
+	ROM_LOAD( "rb-022.u77", 0x200000, 0x100000, CRC(cb3f42dc) SHA1(5415f15621924dd263b8fe7daaf3dc25d470b814) )
+	ROM_LOAD( "rb-023.u78", 0x300000, 0x100000, CRC(0e6530c5) SHA1(72bff46f0672927e540f4f3546ae533dd0a231e0) )
+	ROM_LOAD( "rb-024.u79", 0x400000, 0x080000, CRC(65fa6447) SHA1(551e540d7bf412753b4a7098e25e6f9d8774bcf4) ) // correct, both halves identical when dumped as larger
+	ROM_LOAD( "rb-025.u80", 0x500000, 0x040000, CRC(36cd6b90) SHA1(45c50f2652726ded67c9c24185a71a6367e09270) ) // eprom, contains title logo for this version
+
+	ROM_REGION( 0x400000, REGION_GFX2, 0 )	/* Tiles (scrambled) */
+	ROM_LOAD( "rb-010.u65",  0x000000, 0x100000, CRC(ffd73f87) SHA1(1a661f71976be61c22d9b962850e738ba17f1d45) )
+	ROM_LOAD( "rb-011.u66",  0x100000, 0x100000, CRC(d9325f78) SHA1(346832608664aa8f3ac9260a549903386b4125a8) )
+	ROM_LOAD( "rb-012.u67",  0x200000, 0x100000, CRC(bfdbe0d1) SHA1(3abc5398ee8ee1871b4d081f9b748539d69bcdba) )
+	ROM_LOAD( "rb-013.u68",  0x300000, 0x100000, CRC(28c37fe8) SHA1(e10dd1a810983077328b44e6e33ce2e899c506d2) )
+
+	ROM_REGION( 0x300000, REGION_USER1, 0 ) /* samples */
+	/* OKI 1 */
+	ROM_LOAD( "rb-000.u43",  0x000000, 0x080000, CRC(58ad1a62) SHA1(1d2643b5f6eac22682972a88d284e00de3e3b223) )
+	ROM_LOAD( "rb-003.101",  0x080000, 0x080000, CRC(2cac25d7) SHA1(0412c317bf650a93051b9304d23035efde0c026a) )
+
+	/* OKI 2 */
+	ROM_LOAD( "rb-001.u44",  0x100000, 0x100000, CRC(7cf774b3) SHA1(3fb0a5096ce9480f97e311439042eb8cbc26efb4) )
+	ROM_LOAD( "rb-002.u45",  0x200000, 0x100000, CRC(e4b30444) SHA1(be6756dce3721226e0b7f5d4d168008c31aeea8e) )
+
+	/* Sound data is copied here during driver init */
+	ROM_REGION( 0x40000*16, REGION_SOUND1, 0 )
+	ROM_FILL(                0x00000, 0x40000*16, 0x00 )
+
+	ROM_REGION( 0x40000*16, REGION_SOUND2, 0 )
+	ROM_FILL(                0x00000, 0x40000*16, 0x00 )
+ROM_END
+
+ROM_START( brapboysj ) /* The Japanese version has an extra rom??? and used a rom sub board */
  	ROM_REGION( 0x040000, REGION_CPU1, 0 )			/* 68000 Code */
 	ROM_LOAD16_BYTE( "rb-004.u61", 0x000000, 0x020000, CRC(5432442c) SHA1(f0f7328ece96ef25e6d4fd1958d734f64a9ef371) )
 	ROM_LOAD16_BYTE( "rb-005.u62", 0x000001, 0x020000, CRC(118b3cfb) SHA1(1690ecf5c629879bd97131ff77029e152919e45d) )
@@ -3854,33 +4207,40 @@ ROM_START( brapboys )
  	ROM_REGION( 0x020000, REGION_CPU2, 0 )			/* MCU Code */
 	ROM_LOAD( "rb-006.u33",  0x000000, 0x020000, CRC(f1d76b20) SHA1(c571b5f28e529589ee2d7697ef5d4b60ccb66e7a) )
 
-	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE )	/* Sprites */
-	/* order is probably wrong, but until it does more we can't tell */
-	ROM_LOAD( "rb-020.u2",  0x000000, 0x080000, CRC(b038440e) SHA1(9e32cb62358ab846470d9a75d4dab771d608a3cf) )
-	ROM_LOAD( "rb-025.u4",  0x080000, 0x080000, CRC(aa795ba5) SHA1(c5256dcceded2e76f548b60c18e51d0dd0209d81) )
-	ROM_LOAD( "rb-026.u5",  0x100000, 0x080000, CRC(bb7604d4) SHA1(57d51ce4ea2000f9a50bae326cfcb66ec494249f) )
+	ROM_REGION( 0x600000, REGION_GFX1, ROMREGION_ERASEFF )	/* Sprites */
+	/* prety sure all these are at least half size */
+	ROM_LOAD( "rb-020.c2",  0x000000, 0x100000, CRC(ce220d38) SHA1(b88d7c89a3e1a826bf19a1fa692ec77c944596d9) )
+	ROM_LOAD( "rb-021.u76", 0x100000, 0x100000, CRC(74001407) SHA1(90002056ceb4e0401246950b8c3f996af0a2463c) )
+	ROM_LOAD( "rb-022.u77", 0x200000, 0x100000, CRC(cb3f42dc) SHA1(5415f15621924dd263b8fe7daaf3dc25d470b814) )
+	ROM_LOAD( "rb-023.u78", 0x300000, 0x100000, CRC(0e6530c5) SHA1(72bff46f0672927e540f4f3546ae533dd0a231e0) )
+	ROM_LOAD( "rb-024.u79", 0x400000, 0x080000, CRC(65fa6447) SHA1(551e540d7bf412753b4a7098e25e6f9d8774bcf4) ) // correct, both halves identical when dumped as larger
+	ROM_LOAD( "rb-025.u4",  0x500000, 0x080000, CRC(aa795ba5) SHA1(c5256dcceded2e76f548b60c18e51d0dd0209d81) ) // eprom, special title screen
+	ROM_LOAD( "rb-026.u5",  0x580000, 0x080000, CRC(bb7604d4) SHA1(57d51ce4ea2000f9a50bae326cfcb66ec494249f) ) // eprom, logs that bounce past
 
-	ROM_LOAD( "rb-021.u76", 0x200000, 0x080000, CRC(b7e2d362) SHA1(7e98e5b3d1ee972fc4cf9bebd33a3ca96a77357c) )
-	ROM_LOAD( "rb-022.u77", 0x280000, 0x080000, CRC(8d40c97a) SHA1(353b0a4a508f2fff8eeed680b1f685c7fdc29a7d) ) // right pos. (text)
-	ROM_LOAD( "rb-023.u78", 0x300000, 0x080000, CRC(dcf11c8d) SHA1(eed801f7cca3d3a941b1a4e4815cac9d20d970f7) )
-	ROM_LOAD( "rb-024.u79", 0x380000, 0x080000, CRC(65fa6447) SHA1(551e540d7bf412753b4a7098e25e6f9d8774bcf4) )
-
-	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )	/* Tiles (scrambled) */
+	ROM_REGION( 0x400000, REGION_GFX2, 0 )	/* Tiles (scrambled) */
 	ROM_LOAD( "rb-010.u65",  0x000000, 0x100000, CRC(ffd73f87) SHA1(1a661f71976be61c22d9b962850e738ba17f1d45) )
 	ROM_LOAD( "rb-011.u66",  0x100000, 0x100000, CRC(d9325f78) SHA1(346832608664aa8f3ac9260a549903386b4125a8) )
-	ROM_LOAD( "rb-012.u67",  0x200000, 0x100000, CRC(bfdbe0d1) SHA1(3abc5398ee8ee1871b4d081f9b748539d69bcdba) ) // same as shoggwar
-	ROM_LOAD( "rb-013.u68",  0x300000, 0x100000, CRC(28c37fe8) SHA1(e10dd1a810983077328b44e6e33ce2e899c506d2) ) // same as shoggwar
+	ROM_LOAD( "rb-012.u67",  0x200000, 0x100000, CRC(bfdbe0d1) SHA1(3abc5398ee8ee1871b4d081f9b748539d69bcdba) )
+	ROM_LOAD( "rb-013.u68",  0x300000, 0x100000, CRC(28c37fe8) SHA1(e10dd1a810983077328b44e6e33ce2e899c506d2) )
 
-	ROM_REGION( 0x100000, REGION_SOUND1, 0 )	/* Samples */
-	/* order is probably wrong, but until it does more we can't tell */
-	ROM_LOAD( "rb-003.101",  0x000000, 0x080000, CRC(2cac25d7) SHA1(0412c317bf650a93051b9304d23035efde0c026a) )
-	ROM_LOAD( "rb-000.u43",  0x080000, 0x040000, CRC(c7c848ac) SHA1(77754efd6efeac50a40dcd530de504090257d8b3) )
+	ROM_REGION( 0x300000, REGION_USER1, 0 )
+	/* OKI 1 */
+	ROM_LOAD( "rb-000.u43",  0x000000, 0x080000, CRC(58ad1a62) SHA1(1d2643b5f6eac22682972a88d284e00de3e3b223) )
+	ROM_LOAD( "rb-003.101",  0x080000, 0x080000, CRC(2cac25d7) SHA1(0412c317bf650a93051b9304d23035efde0c026a) )
 
-	ROM_REGION( 0x100000, REGION_SOUND2, 0 )	/* Samples */
-	/* order is probably wrong, but until it does more we can't tell */
-	ROM_LOAD( "rb-001.u44",   0x000000, 0x080000, CRC(09c779e3) SHA1(c9c9bf939d58d329b87e0aa08ec3d35f7440d3c7) )
-	ROM_LOAD( "rb-002.u45",   0x080000, 0x080000, CRC(55de7003) SHA1(cc349fd8671926cafed4d86d1a5cb671e591c408) )
+	/* OKI 2 */
+	ROM_LOAD( "rb-001.u44",  0x100000, 0x100000, CRC(7cf774b3) SHA1(3fb0a5096ce9480f97e311439042eb8cbc26efb4) )
+	ROM_LOAD( "rb-002.u45",  0x200000, 0x100000, CRC(e4b30444) SHA1(be6756dce3721226e0b7f5d4d168008c31aeea8e) )
+
+	/* Sound data is copied here during driver init */
+	ROM_REGION( 0x40000*16, REGION_SOUND1, 0 )
+	ROM_FILL(                0x00000, 0x40000*16, 0x00 )
+
+	ROM_REGION( 0x40000*16, REGION_SOUND2, 0 )
+	ROM_FILL(                0x00000, 0x40000*16, 0x00 )
 ROM_END
+
+
 
 /**********************************************************************
 
@@ -3938,7 +4298,7 @@ ROM_START( bonkadv )
 	ROM_LOAD16_BYTE( "prg.7",        0x000001, 0x080000, CRC(a1cc6a78) SHA1(a9cea21a6a0dfd3b0952664681c057190aa27f8c) )
 
 	ROM_REGION( 0x020000, REGION_CPU2, 0 )			/* MCU Code */
-	ROM_LOAD( "mcu.124",			 0x000000, 0x020000, CRC(9d4e2724) SHA1(9dd43703265e39f876877020a0ac3875de6faa8d) )
+	ROM_LOAD16_WORD_SWAP( "mcu.124",	 0x000000, 0x020000, CRC(9d4e2724) SHA1(9dd43703265e39f876877020a0ac3875de6faa8d) )
 
 	ROM_REGION( 0x500000, REGION_GFX1, ROMREGION_DISPOSE )	/* Sprites */
 	ROM_LOAD( "pc100101.37",		 0x000000, 0x200000, CRC(c96e7c10) SHA1(607cc7745abc3ff820047e8a00060ece61646623) )
@@ -3965,6 +4325,8 @@ ROM_START( bonkadv )
 	ROM_LOAD16_WORD( "eeprom.126",  0x0000, 0x0080, CRC(d04adc84) SHA1(85415062867605587b09a646ead4700014ebcb5c) )
 ROM_END
 
+
+
 /***************************************************************************
 
 
@@ -3985,18 +4347,18 @@ GAME( 1992, explbrkr, 0,        bakubrkr, bakubrkr, kaneko16,   ROT90, "Kaneko",
 GAME( 1992, bakubrkr, explbrkr, bakubrkr, bakubrkr, kaneko16,   ROT90, "Kaneko", "Bakuretsu Breaker", 0 )
 GAME( 1992, sandscrp, 0,        sandscrp, sandscrp, 0,          ROT90, "Face",   "Sand Scorpion (set 1)", 0 )
 GAME( 1992, sandscra, sandscrp, sandscrp, sandscrp, 0,          ROT90, "Face",   "Sand Scorpion (set 2)", 0 )
-GAME( 1994, bonkadv,  0,        bonkadv , bonkadv,  samplebank, ROT0,  "Kaneko", "B.C. Kid / Bonk's Adventure / Kyukyoku!! PC Genjin", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1994, bonkadv,  0,        bonkadv , bonkadv,  samplebank, ROT0,  "Kaneko", "B.C. Kid / Bonk's Adventure / Kyukyoku!! PC Genjin", GAME_IMPERFECT_SOUND )
+GAME( 1994, bloodwar, 0,        bloodwar, bloodwar, samplebank, ROT0,  "Kaneko", "Blood Warrior", 0 )
 GAME( 1994, gtmr,     0,        gtmr,     gtmr,     samplebank, ROT0,  "Kaneko", "1000 Miglia: Great 1000 Miles Rally (94/07/18)", 0 )
 GAME( 1994, gtmra,    gtmr,     gtmr,     gtmr,     samplebank, ROT0,  "Kaneko", "1000 Miglia: Great 1000 Miles Rally (94/06/13)", 0 )
-GAME( 1994, gtmre,    gtmr,     gtmr,     gtmr,     samplebank, ROT0,  "Kaneko", "Great 1000 Miles Rally: Evolution Model!!! (94/09/06)", 0 )
-GAME( 1994, gtmrusa,  gtmr,     gtmr,     gtmr,     samplebank, ROT0,  "Kaneko", "Great 1000 Miles Rally: U.S.A Version! (94/09/06)", 0 ) // U.S.A version seems part of the title, rather than region
-GAME( 1995, gtmr2,    0,        gtmr2,    gtmr2,    samplebank, ROT0,  "Kaneko", "Mille Miglia 2: Great 1000 Miles Rally (95/05/24)", 0 )
-GAME( 1995, gtmr2a,   gtmr2,    gtmr2,    gtmr2,    samplebank, ROT0,  "Kaneko", "Mille Miglia 2: Great 1000 Miles Rally (95/04/04)", 0 )
-GAME( 1995, gtmr2u,   gtmr2,    gtmr2,    gtmr2,    samplebank, ROT0,  "Kaneko", "Great 1000 Miles Rally 2 USA (95/05/18)", 0 )
-
-/* Non-working games (mainly due to protection) */
-
-GAME( 1992, shogwarr, 0,        shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Shogun Warriors",         GAME_NOT_WORKING )
-GAME( 1992, fjbuster, shogwarr, shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Fujiyama Buster (Japan)", GAME_NOT_WORKING )
-GAME( 1992, brapboys, 0,        shogwarr, shogwarr, 0,          ROT0,  "Kaneko", "B.Rap Boys",              GAME_NOT_WORKING )
-GAME( 1994, bloodwar, 0,        bloodwar, bloodwar, samplebank, ROT0,  "Kaneko", "Blood Warrior",           GAME_NOT_WORKING )
+GAME( 1994, gtmre,    gtmr,     gtmr,     gtmr,     kaneko16,   ROT0,  "Kaneko", "Great 1000 Miles Rally: Evolution Model!!! (94/09/06)", 0 )
+GAME( 1994, gtmrusa,  gtmr,     gtmr,     gtmr,     kaneko16,   ROT0,  "Kaneko", "Great 1000 Miles Rally: U.S.A Version! (94/09/06)", 0 ) // U.S.A version seems part of the title, rather than region
+GAME( 1995, gtmr2,    0,        gtmr2,    gtmr2,    kaneko16,   ROT0,  "Kaneko", "Mille Miglia 2: Great 1000 Miles Rally (95/05/24)", 0 )
+GAME( 1995, gtmr2a,   gtmr2,    gtmr2,    gtmr2,    kaneko16,   ROT0,  "Kaneko", "Mille Miglia 2: Great 1000 Miles Rally (95/04/04)", 0 )
+GAME( 1995, gtmr2u,   gtmr2,    gtmr2,    gtmr2,    kaneko16,   ROT0,  "Kaneko", "Great 1000 Miles Rally 2 USA (95/05/18)", 0 )
+GAME( 1992, brapboys, 0,        brapboys, brapboys, brapboys,   ROT0,  "Kaneko", "B.Rap Boys (World)", 0 )
+GAME( 1992, brapboysj,brapboys, brapboys, brapboys, brapboys,   ROT0,  "Kaneko", "B.Rap Boys Special (Japan)", 0 )
+GAME( 1992, shogwarr, 0,        shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Shogun Warriors (US)", 0 )
+GAME( 1992, shogwarre,shogwarr, shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Shogun Warriors (World)", 0 )
+GAME( 1992, fjbuster, shogwarr, shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Fujiyama Buster (Japan)", 0 )
+	
