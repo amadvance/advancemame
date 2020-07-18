@@ -5762,8 +5762,10 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( rfjetus )	/* (c) 1998 Seibu Kaihatsu (Fabtek license) */
 
 	/* Tad games (Tad games run on Seibu hardware) */
-	DRIVER( cabal )		/* (c) 1988 Tad + Fabtek license */
-	DRIVER( cabal2 )	/* (c) 1988 Tad + Fabtek license */
+	DRIVER( cabal )		/* (c) 1988 Tad */
+	DRIVER( cabala )	/* (c) 1988 Tad + Alpha Trading license */
+	DRIVER( cabalus )	/* (c) 1988 Tad + Fabtek license */
+	DRIVER( cabalus2 )	/* (c) 1988 Tad + Fabtek license */
 	DRIVER( cabalbl )	/* bootleg */
 	DRIVER( toki )		/* (c) 1989 Tad (World) */
 	DRIVER( tokia )		/* (c) 1989 Tad (World) */
