@@ -769,6 +769,19 @@ int dvg_update(point *p, int num_points)
             y1 = p->arg2;
             transform_coords(&x0, &y0);
             transform_coords(&x1, &y1);
+            // Make sure the clip coordinates fall within the display coordinates.
+            if (x0 > DVG_RES_MAX) {
+                x0 = DVG_RES_MAX;
+            }     
+            if (y0 > DVG_RES_MAX) {
+                y0 = DVG_RES_MAX;
+            }
+            if (x1 > DVG_RES_MAX) {
+                x1 = DVG_RES_MAX;
+            }
+            if (y1 > DVG_RES_MAX) {
+                y1 = DVG_RES_MAX;
+            }   
             s_clipx_min = x0;
             s_clipy_min = y0;
             s_clipx_max = x1;
