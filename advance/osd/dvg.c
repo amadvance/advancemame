@@ -117,6 +117,8 @@ static uint32_t  s_in_vec_last_y;
 static vector_t  *s_out_vec_list;
 static uint32_t  s_out_vec_cnt;
 
+static void transform_final(int *px, int *py);
+
 //
 // Function to compute region code for a point(x, y) 
 //
@@ -465,6 +467,7 @@ static void cmd_add_point(int x, int y, int r, int g, int b)
             }
         }
     }
+    transform_final(&x, &y);
     cmd = (FLAG_XY << 29) | ((blank & 0x1) << 28) | ((x & 0x3fff) << 14) | (y & 0x3fff); 
     if (s_cmd_offs <= (CMD_BUF_SIZE - 8)) {
         s_cmd_buf[s_cmd_offs++] = cmd >> 24;   
@@ -723,6 +726,18 @@ static void transform_final(int *px, int *py)
     if (s_flip_y) {
        y = DVG_RES_MAX - y;
     }
+    if (x < 0) {
+       x = 0;
+    }
+    else if (x > DVG_RES_MAX) {
+        x = DVG_RES_MAX;
+    }    
+    if (y < 0) {
+        y = 0;
+    } 
+    else if (y > DVG_RES_MAX) {
+       y = DVG_RES_MAX;
+    }
     *px = x;
     *py = y;
 }
@@ -803,7 +818,6 @@ int dvg_update(point *p, int num_points)
                 b  = RGB_BLUE(col);    
             }
             transform_coords(&x, &y);
-            transform_final(&x, &y);
             cmd_add_vec(x, y, r, g, b);         
         }
         p++;
