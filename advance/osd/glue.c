@@ -1002,7 +1002,7 @@ static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
 	KR2("period", "period", ".")
 	KR2("slash", "slash", "/")
 	KR2("colon", "colon", ":")
-	KR2("pound", "pound", "£")
+	KR2("pound", "pound", "Â£")
 	KR2("doublequote", "doublequote", "\"")
 	KR2("diesis", "diessi", "#")
 
@@ -2595,6 +2595,12 @@ static int on_exit_menu(int selected)
 	int sel;
 	int total;
 
+        /* Quiet option - no dialog */
+        if (options.skip_warnings) {
+            /* Return exit */
+            return -5;
+        }
+	
 	sel = selected;
 
 	total = 0;
