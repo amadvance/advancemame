@@ -2,19 +2,35 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 3.10 WIP
-	) Added support for Teeter Torture [arcadez2003]
-	) Hooked up Bubble Bobble Protection MCU [arcadez2003]
-	) Get DJ Boy playable [arcadez2003]
-	) Get B-Rap Boys, Blood Warrior and Shogun Warriors playable [arcadez2003]
-	) Hook up Fire Shark / Vimana (Sound MCU's) [arcadez2003]
-	) Support Wonder Boy in Monsterland English Virtual Console [arcadez2003]
-	) Support Opa Opa unprotected set and fix Tetris System E 2 player mode [arcadez2003]
-	) Support Cabal Joystick Version [arcadez2003]
-	) Fix Night Slashers sound [arcadez2003]
-	) Fix Sunset Riders protection [arcadez2003]
-	) Add support for Bang Bang Busters and Choutetsu Brikin'ger / Iron Clad [arcadez2003]
-	) Support the only working version of Oriental Legend Special [arcadez2003]
-	) Prevent Gun Master from randomly hanging and add 2p buy in via the inputs [arcadez2003]
+	) Added support for Exidy's Teeter Torture [arcadez]
+	) Hooked up the M6801 protection MCU for Bubble Bobble [arcadez]
+	) Hooked up the HD647180 sound MCU for Fire Shark and Vimana.
+	  The toaplan samples are no longer required for both of these games [arcadez]
+	) Fixed DJ Boy protection simulation and video issues game is now playable [iq_132, arcadez]
+	) Fixed B-Rap Boys, Blood Warrior and Shogun Warriors protection simulation plus numerous video 
+	  and sound problems all three games are now playable, also sorted some incorrect tilemap colours 
+	  B.C. Kid / Bonk's Adventure / Kyukyoku!! PC Genjin [iq_132, arcadez]
+	) Added support for Wonder Boy in Monsterland (English virtual console) [arcadez]
+	) Fixed Tetris (Sega system e version) 2 player vs mode [arcadez]
+	) Added support for the joystick version of Cabal [arcadez]
+	) Improved the sound in Night Slashers [arcadez]
+	) Improved Sunset Riders protection simulation [arcadez]
+	) Added support for Bang Bang Busters and Choutetsu Brikin'ger / Iron Clad [arcadez]
+	) Added Support for the only working version of Oriental Legend Special.
+	  (ver. 103, China, Tencent) (unprotected) [arcadez]
+	) Prevent Gun Master from randomly hanging plus added 2p buy in via the inputs [arcadez]
+	) Added support for Opa Opa (Rev, A unprotected) and ported across from FBN some required 
+	  video fixes for Opa Opa [dink, arcadez]
+	) Fixed a random crash problem in Gunbird II [arcadez] 
+        ) Riding Fight and Ring Rage now have sound [arcadez]
+	) Fixed the background colours during boss fights in Dynamite Duke / The Double Dynamites [arcadez]
+	) Fixed background character movements in Power Instinct 2 and Power Instinct Legends [arcadez]
+	) Enabled breakable backgrounds in 64th street [BritneysPAIRS]
+	) Fixed random crash issues in Rampage World Tour [arcadez]
+        ) Added protection simulation for Gaelco's Snowboard Championship game now playable [arcadez]
+	) Fixed numerous graphical and sound problems in Irem's Fire Barrel game now playable [arcadez]
+	) Fixed lights dont go out when shot in Elevator Action II / Returns [ShmupMAME]
+	) Added DAC and sample sounds for Cosmic Alien [arcadez]
 	) Improved automatic joystick button mapping for games with gear shift.
 
 AdvanceMENU Version 3.10 WIP
