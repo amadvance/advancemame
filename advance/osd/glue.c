@@ -2624,6 +2624,9 @@ static int on_exit_menu(int selected)
 	exit_menu[total].flags = 0;
 	++total;
 
+    if (options.skip_warnings ) {
+        return -5;
+	}
 	osd_ui_menu(exit_menu, total, sel);
 
 	if (input_ui_pressed_repeat(IPT_UI_DOWN, 8)) {

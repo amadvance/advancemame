@@ -59,6 +59,7 @@
 #define FLAG_XY         0x2
 #define FLAG_EXIT       0x7
 #define FLAG_FRAME      0x4
+#define FLAG_QUALITY    0x3
 
 #define DVG_RES_MIN     0
 #define DVG_RES_MAX     4095
@@ -77,6 +78,8 @@
 #define GAME_ARMORA     1
 #define GAME_WARRIOR    2
 
+#define DEFAULT_QUALITY 6
+
 typedef struct vec_t {
     struct vec_t *next;
     int32_t       x0;
@@ -87,6 +90,13 @@ typedef struct vec_t {
     uint8_t       g;
     uint8_t       b;
 } vector_t;
+
+typedef struct {
+    char     *name;
+    uint32_t qual;
+    uint32_t artwork;
+} game_info_t;
+
 
 static uint32_t  s_init;
 static int       s_dual_display;
@@ -116,6 +126,31 @@ static uint32_t  s_in_vec_last_x;
 static uint32_t  s_in_vec_last_y;
 static vector_t  *s_out_vec_list;
 static uint32_t  s_out_vec_cnt;
+static uint32_t  s_game_quality;
+
+
+static game_info_t s_games[] = {
+    {"armora", DEFAULT_QUALITY, GAME_ARMORA},
+    {"armorap", DEFAULT_QUALITY, GAME_ARMORA},    
+    {"armorar", DEFAULT_QUALITY, GAME_ARMORA},
+    {"warrior", DEFAULT_QUALITY, GAME_WARRIOR},
+    {"starwars", 7, GAME_NONE},
+    {"starwar1", 7, GAME_NONE},
+    {"esb", 7, GAME_NONE},
+    {"spacfury", 7, GAME_NONE},
+    {"spacfura", 7, GAME_NONE},
+    {"zektor", 7, GAME_NONE},
+    {"tacscan", 7, GAME_NONE},
+    {"elim2a", 7, GAME_NONE},
+    {"elim2c", 7, GAME_NONE},
+    {"elim2", 7, GAME_NONE},
+    {"elim4", 7, GAME_NONE},
+    {"elim4p", 7, GAME_NONE},
+    {"startrek", 7, GAME_NONE},
+    {"aztarac", 7, GAME_NONE},
+    {"tempest", 5, GAME_NONE}
+};
+
 
 static void transform_final(int *px, int *py);
 
@@ -610,6 +645,7 @@ static int serial_send()
 {
     int      result = -1;
     uint32_t cmd, length;
+    uint32_t chunk, size, offset;
 
     if (s_serial_fd < 0) {
         log_std(("dvg: device not opened.\n"));            
@@ -632,6 +668,12 @@ static int serial_send()
     s_cmd_buf[s_cmd_offs++] = cmd >>  8;
     s_cmd_buf[s_cmd_offs++] = cmd >>  0;    
 
+   cmd = (FLAG_QUALITY << 29) | s_game_quality;
+   s_cmd_buf[s_cmd_offs++] = cmd >> 24;
+   s_cmd_buf[s_cmd_offs++] = cmd >> 16;
+   s_cmd_buf[s_cmd_offs++] = cmd >>  8;
+   s_cmd_buf[s_cmd_offs++] = cmd >>  0;
+
     uint32_t i;
     for (i = 0 ; i < s_out_vec_cnt ; i++) {
         cmd_add_point(s_out_vec_list[i].x1, s_out_vec_list[i].y1, s_out_vec_list[i].r, s_out_vec_list[i].g, s_out_vec_list[i].b);
@@ -641,7 +683,15 @@ static int serial_send()
     s_cmd_buf[s_cmd_offs++] = cmd >> 16;
     s_cmd_buf[s_cmd_offs++] = cmd >>  8;
     s_cmd_buf[s_cmd_offs++] = cmd >>  0;     
-    result = serial_write(s_cmd_buf, s_cmd_offs);
+
+   size = s_cmd_offs;
+   offset = 0;
+   while (size) {
+        chunk   = MIN(size, 1024);
+        result  = serial_write(&s_cmd_buf[offset], chunk);
+        size   -= chunk;
+        offset += chunk;
+   }
 END:
     cmd_reset();
     return result;
@@ -678,7 +728,7 @@ static void  transform_coords(int *px, int *py)
 //
 int determine_game_settings() 
 {
-    uint32_t cmd;
+    uint32_t i;
 
     if (Machine->gamedrv->flags & ORIENTATION_SWAP_XY) {
         s_swap_xy = 1;
@@ -689,18 +739,14 @@ int determine_game_settings()
     if (Machine->gamedrv->flags & ORIENTATION_FLIP_X) {
         s_flip_x = 1;
     }  
-    s_artwork = GAME_NONE;
-    if (!strcmp(Machine->gamedrv->name, "armora")) {
-        s_artwork = GAME_ARMORA;
-    }
-    else if (!strcmp(Machine->gamedrv->name, "armorap")) {
-        s_artwork = GAME_ARMORA;
-    }
-    else if (!strcmp(Machine->gamedrv->name, "armorar")) {
-        s_artwork = GAME_ARMORA;
-    }
-    else if (!strcmp(Machine->gamedrv->name, "warrior")) {
-        s_artwork = GAME_WARRIOR;
+    s_game_quality = DEFAULT_QUALITY;
+    s_artwork      = GAME_NONE;
+    for (i = 0 ; i < ARRAY_SIZE(s_games); i++) {
+        if (!strcmp(Machine->gamedrv->name, s_games[i].name)) {
+            s_artwork      = s_games[i].artwork;
+            s_game_quality = s_games[i].qual;
+            break;
+        }
     }
     return 0;    
 }
