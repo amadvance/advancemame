@@ -58,6 +58,7 @@
 		INT32 offs;
 		pc = R15;
 		insn = cpu_readop16(pc & (~1));
+		ARM7_ICOUNT += (3 - thumbCycles[insn >> 8]);
 		switch( ( insn & THUMB_INSN_TYPE ) >> THUMB_INSN_TYPE_SHIFT )
 		{
 			case 0x0: /* Logical shifting */
@@ -84,7 +85,8 @@
 					{
 						SET_CPSR(GET_CPSR &~ C_MASK);
 					}
-					HandleALUNZFlags( GET_REGISTER(rd) );
+					SET_CPSR(GET_CPSR &~ ( Z_MASK | N_MASK ) );
+					SET_CPSR( GET_CPSR | HandleALUNZFlags( GET_REGISTER(rd) ) );
 				}
 				else /* Shift left */
 				{
@@ -120,7 +122,7 @@
 						}
 					}
 					SET_CPSR( GET_CPSR &~ ( Z_MASK | N_MASK ) );
-					HandleALUNZFlags( GET_REGISTER(rd) );
+					SET_CPSR( GET_CPSR | HandleALUNZFlags( GET_REGISTER(rd) ) );
 				}
 				break;
 			case 0x1: /* Arithmetic */
@@ -129,36 +131,36 @@
 					switch( ( insn & THUMB_ADDSUB_TYPE ) >> THUMB_ADDSUB_TYPE_SHIFT )
 					{
 						case 0x0: /* ADD Rd, Rs, Rn */
-							rn = ( insn & THUMB_ADDSUB_RNIMM ) >> THUMB_ADDSUB_RNIMM_SHIFT;
-							rs = ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
+							rn = GET_REGISTER( ( insn & THUMB_ADDSUB_RNIMM ) >> THUMB_ADDSUB_RNIMM_SHIFT );
+							rs = GET_REGISTER( ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT );
 							rd = ( insn & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
-							SET_REGISTER( rd, GET_REGISTER(rs) + GET_REGISTER(rn) );
-							VERBOSELOG((2,"%08x:  Thumb instruction: ADD R%d, R%d (%08x), R%d (%08x)\n", pc, rd, rs, GET_REGISTER(rs), rn, GET_REGISTER(rn)));
-							HandleThumbALUAddFlags( GET_REGISTER(rd), GET_REGISTER(rs), GET_REGISTER(rn) );
+							SET_REGISTER( rd, rs + rn );
+							VERBOSELOG((2,"%08x:  Thumb instruction: ADD R%d, R%d (%08x), R%d (%08x)\n", pc, rd, ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT, rs, ( insn & THUMB_ADDSUB_RNIMM ) >> THUMB_ADDSUB_RNIMM_SHIFT, rn));
+							HandleThumbALUAddFlags( GET_REGISTER(rd), rs, rn );
 							break;
 						case 0x1: /* SUB Rd, Rs, Rn */
-							rn = ( insn & THUMB_ADDSUB_RNIMM ) >> THUMB_ADDSUB_RNIMM_SHIFT;
-							rs = ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
+							rn = GET_REGISTER( ( insn & THUMB_ADDSUB_RNIMM ) >> THUMB_ADDSUB_RNIMM_SHIFT );
+							rs = GET_REGISTER( ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT );
 							rd = ( insn & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
-							SET_REGISTER( rd, GET_REGISTER(rs) - GET_REGISTER(rn) );
-							VERBOSELOG((2,"%08x:  Thumb instruction: SUB R%d, R%d (%08x), R%d (%08x)\n", pc, rd, rs, GET_REGISTER(rs), rn, GET_REGISTER(rn)));
-							HandleThumbALUSubFlags( GET_REGISTER(rd), GET_REGISTER(rs), GET_REGISTER(rn) );
+							SET_REGISTER( rd, rs - rn );
+							VERBOSELOG((2,"%08x:  Thumb instruction: SUB R%d, R%d (%08x), R%d (%08x)\n", pc, rd, ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT, rs, ( insn & THUMB_ADDSUB_RNIMM ) >> THUMB_ADDSUB_RNIMM_SHIFT, rn));
+							HandleThumbALUSubFlags( GET_REGISTER(rd), rs, rn );
 							break;
 						case 0x2: /* ADD Rd, Rs, #imm */
 							imm = ( insn & THUMB_ADDSUB_RNIMM ) >> THUMB_ADDSUB_RNIMM_SHIFT;
-							rs = ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
+							rs = GET_REGISTER( ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT );
 							rd = ( insn & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
-							VERBOSELOG((2,"%08x:  Thumb instruction: ADD R%d, R%d (%08x), #%d\n", pc, rd, rs, GET_REGISTER(rs), imm));
-							SET_REGISTER( rd, GET_REGISTER(rs) + imm );
-							HandleThumbALUAddFlags( GET_REGISTER(rd), GET_REGISTER(rs), imm );
+							VERBOSELOG((2,"%08x:  Thumb instruction: ADD R%d, R%d (%08x), #%d\n", pc, rd, ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT, rs, imm));
+							SET_REGISTER( rd, rs + imm );
+							HandleThumbALUAddFlags( GET_REGISTER(rd), rs, imm );
 							break;
 						case 0x3: /* SUB Rd, Rs, #imm */
 							imm = ( insn & THUMB_ADDSUB_RNIMM ) >> THUMB_ADDSUB_RNIMM_SHIFT;
-							rs = ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
+							rs = GET_REGISTER( ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT );
 							rd = ( insn & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
-							VERBOSELOG((2,"%08x:  Thumb instruction: SUB R%d, R%d (%08x), #%d\n", pc, rd, rs, GET_REGISTER(rs), imm));
-							SET_REGISTER( rd, GET_REGISTER(rs) - imm );
-							HandleThumbALUSubFlags( GET_REGISTER(rd), GET_REGISTER(rs),imm );
+							VERBOSELOG((2,"%08x:  Thumb instruction: SUB R%d, R%d (%08x), #%d\n", pc, rd, ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT, rs, imm));
+							SET_REGISTER( rd, rs - imm );
+							HandleThumbALUSubFlags( GET_REGISTER(rd), rs,imm );
 							break;
 						default:
 							fatalerror("%08x:  Undefined Thumb instruction: %04x\n", pc, insn);
@@ -169,7 +171,6 @@
 				else
 				{
 					/* ASR.. */
-					SET_CPSR(GET_CPSR &~ (N_MASK | Z_MASK));
 					//if( insn & THUMB_SHIFT_R ) /* Shift right */
 					{
 						rs = ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
@@ -183,7 +184,6 @@
 							offs = 32;
 						}
 						SET_REGISTER( rd, (INT32)(GET_REGISTER(rs)) >> offs );
-						SET_CPSR(GET_CPSR | Z_MASK);
 						if( rrs & ( 1 << (offs-1) ) )
 						{
 							SET_CPSR(GET_CPSR | C_MASK);
@@ -192,7 +192,8 @@
 						{
 							SET_CPSR(GET_CPSR &~ C_MASK);
 						}
-						HandleALUNZFlags(  GET_REGISTER(rd) );
+						SET_CPSR(GET_CPSR &~ (N_MASK | Z_MASK));
+						SET_CPSR( GET_CPSR | HandleALUNZFlags( GET_REGISTER(rd) ) );
 					}
 
 				}
@@ -213,7 +214,7 @@
 					op2 = ( insn & THUMB_INSN_IMM );
 					SET_REGISTER( rd, op2 );
 					SET_CPSR( GET_CPSR &~ ( Z_MASK | N_MASK ) );
-					HandleALUNZFlags(GET_REGISTER(rd));
+					SET_CPSR( GET_CPSR | HandleALUNZFlags( GET_REGISTER(rd) ) );
 					VERBOSELOG((2,"%08x:  Thumb instruction: MOV R%d, %02x\n", pc, rd, op2));
 					R15 += 2;
 				}
@@ -251,7 +252,7 @@
 								rd = ( insn & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
 								SET_REGISTER( rd, GET_REGISTER(rd) & GET_REGISTER(rs) );
 								SET_CPSR( GET_CPSR &~ ( Z_MASK | N_MASK ) );
-								HandleALUNZFlags( GET_REGISTER(rd) );
+								SET_CPSR( GET_CPSR | HandleALUNZFlags( GET_REGISTER(rd) ) );
 								VERBOSELOG((2,"%08x:  Thumb instruction: AND R%d, R%d (%08x) (=%08x)\n", pc, rd, rs, GET_REGISTER(rs), GET_REGISTER(rd)));
 								R15 += 2;
 								break;
@@ -261,14 +262,23 @@
 								rd = ( insn & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
 								SET_REGISTER( rd, GET_REGISTER(rd) ^ GET_REGISTER(rs) );
 								SET_CPSR( GET_CPSR &~ ( Z_MASK | N_MASK ) );
-								HandleALUNZFlags( GET_REGISTER(rd) );
+								SET_CPSR( GET_CPSR | HandleALUNZFlags( GET_REGISTER(rd) ) );
 								VERBOSELOG((2,"%08x:  Thumb instruction: EOR R%d, R%d (%08x) (=%08x)\n", pc, rd, rs, GET_REGISTER(rs), GET_REGISTER(rd)));
+								R15 += 2;
+								break;
+							case 0x3: /* LSR Rd, Rs */
+								rs = ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
+								rd = ( insn & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
+								// printf( "LSR R%d (%08x), R%d (%08x) (= %08x)\n", rd, GET_REGISTER(rd), rs, GET_REGISTER(rs), GET_REGISTER(rd) << GET_REGISTER(rs) );
+								VERBOSELOG((2,"%08x:  Thumb instruction: LSR R%d (%08x), R%d (%08x) (=%08x)\n", pc, rd, GET_REGISTER(rd), rs, GET_REGISTER(rs), GET_REGISTER(rd) << GET_REGISTER(rs)));
+								SET_REGISTER( rd, GET_REGISTER(rd) >> GET_REGISTER(rs) );
+								SET_CPSR( GET_CPSR | HandleALUNZFlags( GET_REGISTER(rd) ) );
 								R15 += 2;
 								break;
 							case 0x5: /* ADC Rd, Rs - toto: add dasm -- is this right here? */
 								rs = ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
 								rd = ( insn & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
-								VERBOSELOG((2,"%08x:  Thumb instruction: ORR R%d (%08x), R%d (%08x) (=%08x)\n", pc, rd, GET_REGISTER(rd), rs, GET_REGISTER(rs), GET_REGISTER(rd) | GET_REGISTER(rs)));
+								VERBOSELOG((2,"%08x:  Thumb instruction: ADC R%d (%08x), R%d (%08x) (=%08x)\n", pc, rd, GET_REGISTER(rd), rs, GET_REGISTER(rs), GET_REGISTER(rd) | GET_REGISTER(rs)));
 								op2=(GET_CPSR & C_MASK)?1:0;
 								rn=GET_REGISTER(rd) + GET_REGISTER(rs) + op2;
 								HandleThumbALUAddFlags( rn, GET_REGISTER(rd), GET_REGISTER(rs)+op2 ); //?
@@ -278,14 +288,14 @@
 								rs = ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
 								rd = ( insn & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
 								imm = GET_REGISTER(rs) & 0x0000001f;
-								SET_REGISTER( rd, ( GET_REGISTER(rs) >> imm ) | ( GET_REGISTER(rs) << ( 32 - imm ) ) );
+								SET_REGISTER( rd, ( GET_REGISTER(rd) >> imm ) | ( GET_REGISTER(rd) << ( 32 - imm ) ) );
 								SET_CPSR( GET_CPSR &~ C_MASK );
 								if( GET_REGISTER(rd) & 0x80000000 )
 								{
 									SET_CPSR( GET_CPSR | C_BIT );
 								}
 								SET_CPSR( GET_CPSR &~ ( Z_MASK | N_MASK ) );
-								HandleALUNZFlags( GET_REGISTER(rd) );
+								SET_CPSR( GET_CPSR | HandleALUNZFlags( GET_REGISTER(rd) ) );
 								VERBOSELOG((2,"%08x:  Thumb instruction: TST R%d, R%d (%08x) (%02x)\n", pc, rd, rs, GET_REGISTER(rs), imm));
 								R15 += 2;
 								break;
@@ -293,7 +303,7 @@
 								rs = ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
 								rd = ( insn & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
 								SET_CPSR( GET_CPSR &~ ( Z_MASK | N_MASK ) );
-								HandleALUNZFlags(GET_REGISTER(rd) & GET_REGISTER(rs));
+								SET_CPSR( GET_CPSR | HandleALUNZFlags( GET_REGISTER(rd) & GET_REGISTER(rs) ) );
 								VERBOSELOG((2,"%08x:  Thumb instruction: TST R%d (%08x), R%d (%08x) (N=%d, Z=%d)\n", pc, rd, GET_REGISTER(rd), rs, GET_REGISTER(rs), N_IS_SET(GET_CPSR) ? 1 : 0, Z_IS_SET(GET_CPSR) ? 1 : 0));
 								R15 += 2;
 								break;
@@ -325,7 +335,7 @@
 								VERBOSELOG((2,"%08x:  Thumb instruction: ORR R%d (%08x), R%d (%08x) (=%08x)\n", pc, rd, GET_REGISTER(rd), rs, GET_REGISTER(rs), GET_REGISTER(rd) | GET_REGISTER(rs)));
 								SET_REGISTER( rd, GET_REGISTER(rd) | GET_REGISTER(rs) );
 								SET_CPSR( GET_CPSR &~ ( Z_MASK | N_MASK ) );
-								HandleALUNZFlags(GET_REGISTER(rd));
+								SET_CPSR( GET_CPSR | HandleALUNZFlags( GET_REGISTER(rd) ) );
 								R15 += 2;
 								break;
 							case 0xd: /* MUL Rd, Rs */
@@ -335,15 +345,15 @@
 								VERBOSELOG((2,"%08x:  Thumb instruction: MUL R%d (%08x), R%d (%08x) (=%08x)\n", pc, rd, GET_REGISTER(rd), rs, GET_REGISTER(rs), rn));
 								SET_CPSR( GET_CPSR &~ ( Z_MASK | N_MASK ) );
 								SET_REGISTER( rd, rn );
-								HandleALUNZFlags( rn );
+								SET_CPSR( GET_CPSR | HandleALUNZFlags( rn ) );
 								R15 += 2;
 								break;
-							case 0xe: /* BIC Rd, Rs - todo add dasm*/
+							case 0xe: /* BIC Rd, Rs */
 								rs = ( insn & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
 								rd = ( insn & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
 								SET_REGISTER( rd, GET_REGISTER(rd) & (~GET_REGISTER(rs)) );
 								SET_CPSR( GET_CPSR &~ ( Z_MASK | N_MASK ) );
-								HandleALUNZFlags( GET_REGISTER(rd) );
+								SET_CPSR( GET_CPSR | HandleALUNZFlags( GET_REGISTER(rd) ) );
 								VERBOSELOG((2,"%08x:  Thumb instruction: BIC R%d, R%d (%08x) (=%08x)\n", pc, rd, rs, GET_REGISTER(rs), GET_REGISTER(rd)));
 								R15 += 2;
 								break;
@@ -353,7 +363,7 @@
 								op2 = GET_REGISTER(rs);
 								SET_REGISTER( rd, ~op2 );
 								SET_CPSR( GET_CPSR &~ ( Z_MASK | N_MASK ) );
-								HandleALUNZFlags(GET_REGISTER(rd));
+								SET_CPSR( GET_CPSR | HandleALUNZFlags( GET_REGISTER(rd) ) );
 								VERBOSELOG((2,"%08x:  Thumb instruction: MVN R%d, R%d (%08x, ~=%08x)\n", pc, rd, rs, op2, GET_REGISTER(rd)));
 								R15 += 2;
 								break;
@@ -386,10 +396,11 @@
 								switch( ( insn & THUMB_HIREG_H ) >> THUMB_HIREG_H_SHIFT )
 								{
 									case 0x1: /* CMP Rd, HRs */
-										rs = ( insn & THUMB_HIREG_RS ) >> THUMB_HIREG_RS_SHIFT;
-										rd = insn & THUMB_HIREG_RD;
-										HandleThumbALUSubFlags( GET_REGISTER(rd) - GET_REGISTER(rs), GET_REGISTER(rd), GET_REGISTER(rs) );
-										VERBOSELOG((2,"%08x:  Thumb instruction: CMP R%d (%08x), R%d (%08x)\n", pc, rd, GET_REGISTER(rd), rs + 8, GET_REGISTER(rs + 8)));
+										rs = GET_REGISTER( ( ( insn & THUMB_HIREG_RS ) >> THUMB_HIREG_RS_SHIFT ) + 8 );
+										rd = GET_REGISTER( insn & THUMB_HIREG_RD );
+										rn = rd - rs;
+										HandleThumbALUSubFlags( rn, rs, rd );
+										VERBOSELOG((2,"%08x:  Thumb instruction: CMP R%d (%08x), R%d (%08x)\n", pc, insn & THUMB_HIREG_RD, rd, ( ( insn & THUMB_HIREG_RS ) >> THUMB_HIREG_RS_SHIFT ) + 8, rs ));
 										break;
 									default:
 										fatalerror("%08x:  Undefined Thumb instruction: %04x\n", pc, insn);
@@ -445,11 +456,19 @@
 										{
 											SET_CPSR(GET_CPSR &~ T_MASK);
 											VERBOSELOG((2,"%08x:  Thumb instruction: BX R%d (%08x) (Switching to ARM mode)\n", pc, rd, addr ));
+											if( addr & 2 )
+											{
+												addr += 2;
+											}
 										}
 										R15 = addr;
 										break;
 									case 0x1:
 										addr = GET_REGISTER( ( ( insn & THUMB_HIREG_RS ) >> THUMB_HIREG_RS_SHIFT ) + 8 );
+										if( ( ( ( insn & THUMB_HIREG_RS ) >> THUMB_HIREG_RS_SHIFT ) + 8 ) == 15 )
+										{
+											addr += 2;
+										}
 										if( addr & 1 )
 										{
 											VERBOSELOG((2,"%08x:  Thumb instruction: BX R%d (%08x)\n", pc, ( ( insn & THUMB_HIREG_RS ) >> THUMB_HIREG_RS_SHIFT ) + 8, addr));
@@ -459,6 +478,10 @@
 										{
 											SET_CPSR(GET_CPSR &~ T_MASK);
 											VERBOSELOG((2,"%08x:  Thumb instruction: BX R%d (%08x) (Switching to ARM mode)\n", pc, ( ( insn & THUMB_HIREG_RS ) >> THUMB_HIREG_RS_SHIFT ) + 8, addr));
+											if( addr & 2 )
+											{
+												addr += 2;
+											}
 										}
 										R15 = addr;
 										break;
@@ -781,7 +804,7 @@
 				{
 					rd = ( insn & THUMB_MULTLS_BASE ) >> THUMB_MULTLS_BASE_SHIFT;
 					VERBOSELOG((2,"%08x:  Thumb instruction: STMIA R%d!,{", pc, rd));
-					for( offs = 7; offs >= 0; offs-- )
+					for( offs = 0; offs < 8; offs++ )
 					{
 						if( insn & ( 1 << offs ) )
 						{
@@ -899,7 +922,7 @@
 						break;
 					case COND_LS:
 						VERBOSELOG((2,"%08x:  Thumb instruction: BLS %08x (%02x)\n", pc, pc + 4 + (offs << 1), offs << 1));
-	        	    	if( C_IS_CLEAR(GET_CPSR) && Z_IS_SET(GET_CPSR) )
+	        	    	if( C_IS_CLEAR(GET_CPSR) || Z_IS_SET(GET_CPSR) )
 	        	    	{
 							R15 += 4 + (offs << 1);
 						}
