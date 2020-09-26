@@ -729,10 +729,20 @@ void thumb_disasm( char *pBuf, UINT32 pc, UINT16 opcode )
 								rd = ( opcode & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
 								pBuf += sprintf( pBuf, "EOR R%d, R%d", rd, rs );
 								break;
+							case 0x3: /* LSR Rd, Rs */
+								rs = ( opcode & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
+								rd = ( opcode & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
+								pBuf += sprintf( pBuf, "LSR R%d, R%d", rd, rs );
+								break;
+							case 0x5: /* ADC Rd, Rs */
+								rs = ( opcode & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
+								rd = ( opcode & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
+								pBuf += sprintf( pBuf, "ADC R%d, R%d", rd, rs );
+								break;
 							case 0x7: /* ROR Rd, Rs */
 								rs = ( opcode & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
 								rd = ( opcode & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
-								pBuf += sprintf( pBuf, "TST R%d, R%d", rd, rs );
+								pBuf += sprintf( pBuf, "ROR R%d, R%d", rd, rs );
 								break;
 							case 0x8: /* TST Rd, Rs */
 								rs = ( opcode & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
@@ -753,6 +763,11 @@ void thumb_disasm( char *pBuf, UINT32 pc, UINT16 opcode )
 								rs = ( opcode & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
 								rd = ( opcode & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
 								pBuf += sprintf( pBuf, "MUL R%d, R%d", rd, rs );
+								break;
+							case 0xe: /* MUL Rd, Rs */
+								rs = ( opcode & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
+								rd = ( opcode & THUMB_ADDSUB_RD ) >> THUMB_ADDSUB_RD_SHIFT;
+								pBuf += sprintf( pBuf, "BIC R%d, R%d", rd, rs );
 								break;
 							case 0xf: /* MVN Rd, Rs */
 								rs = ( opcode & THUMB_ADDSUB_RS ) >> THUMB_ADDSUB_RS_SHIFT;
@@ -863,6 +878,12 @@ void thumb_disasm( char *pBuf, UINT32 pc, UINT16 opcode )
 						rn = ( opcode & THUMB_GROUP5_RN ) >> THUMB_GROUP5_RN_SHIFT;
 						rd = ( opcode & THUMB_GROUP5_RD ) >> THUMB_GROUP5_RD_SHIFT;
 						pBuf += sprintf( pBuf, "STRB R%d, [R%d, R%d]", rd, rn, rm );
+						break;
+					case 0x3: /* LDRSB Rd, [Rn, Rm] */
+						rm = ( opcode & THUMB_GROUP5_RM ) >> THUMB_GROUP5_RM_SHIFT;
+						rn = ( opcode & THUMB_GROUP5_RN ) >> THUMB_GROUP5_RN_SHIFT;
+						rd = ( opcode & THUMB_GROUP5_RD ) >> THUMB_GROUP5_RD_SHIFT;
+						pBuf += sprintf( pBuf, "LDRSB R%d, [R%d, R%d]", rd, rn, rm );
 						break;
 					case 0x4: /* LDR Rd, [Rn, Rm] */ /* check */
 						rm = ( opcode & THUMB_GROUP5_RM ) >> THUMB_GROUP5_RM_SHIFT;
