@@ -245,8 +245,8 @@ logerror("EEPROM unlock\n");
 
 static void EEPROM_reset(void)
 {
-if (serial_count)
-	logerror("EEPROM reset, buffer = %s\n",serial_buffer);
+	if (serial_count)
+logerror("EEPROM reset, buffer = %s\n",serial_buffer);
 
 	serial_count = 0;
 	sending = 0;

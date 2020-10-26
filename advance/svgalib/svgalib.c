@@ -1628,7 +1628,7 @@ void ADV_SVGALIB_CALL adv_svgalib_save(unsigned char* regs)
 {
 	adv_svgalib_log("svgalib: adv_svgalib_save()\n");
 
-	memset(regs, ADV_SVGALIB_STATE_SIZE, 0);
+	memset(regs, 0, ADV_SVGALIB_STATE_SIZE);
 
 	if (adv_svgalib_state.driver->drv->unlock)
 		adv_svgalib_state.driver->drv->unlock();

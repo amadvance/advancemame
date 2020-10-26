@@ -5323,7 +5323,7 @@ DWORD w_get_actual_sample_rate(void)
 			d1 = 65536;
 			get_played_sample_count();
 			while (d1 > 0) {
-				if (get_played_sample_count != 0) break;
+				if (get_played_sample_count() != 0) break;
 				d1 -= 1;
 			}
 			prev = osd_cycles();
