@@ -51,34 +51,39 @@
 #include "vidhrdw/vector.h"
 #include "osdepend.h"
 
+#include "jsmn.h"
 
-#define ARRAY_SIZE(a)   (sizeof(a)/sizeof((a)[0]))
-#define CMD_BUF_SIZE    0x20000
-#define FLAG_COMPLETE   0x0
-#define FLAG_RGB        0x1
-#define FLAG_XY         0x2
-#define FLAG_EXIT       0x7
-#define FLAG_FRAME      0x4
-#define FLAG_QUALITY    0x3
 
-#define DVG_RES_MIN     0
-#define DVG_RES_MAX     4095
+// 0-15
+#define DVG_RELEASE             0
+#define DVG_BUILD               0
+#define ARRAY_SIZE(a)           (sizeof(a)/sizeof((a)[0]))
+#define CMD_BUF_SIZE             0x20000
+#define FLAG_COMPLETE            0x0
+#define FLAG_RGB                 0x1
+#define FLAG_XY                  0x2
+#define FLAG_EXIT                0x7
+#define FLAG_CMD                 0x5
+#define FLAG_CMD_GET_DVG_INFO    0x1
 
-#define SAVE_TO_FILE    0
-#define SORT_VECTORS    0
-#define MAX_VECTORS     0x10000
+#define FLAG_COMPLETE_MONOCHROME (1 << 28)
+
+#define DVG_RES_MIN              0
+#define DVG_RES_MAX              4095
+
+#define SAVE_TO_FILE             0
+#define SORT_VECTORS             0
+#define MAX_VECTORS              0x10000
 
 // Defining region codes 
-#define LEFT            0x1
-#define RIGHT           0x2
-#define BOTTOM          0x4
-#define TOP             0x8
+#define LEFT                     0x1
+#define RIGHT                    0x2
+#define BOTTOM                   0x4
+#define TOP                      0x8
 
-#define GAME_NONE       0
-#define GAME_ARMORA     1
-#define GAME_WARRIOR    2
-
-#define DEFAULT_QUALITY 6
+#define GAME_NONE                0
+#define GAME_ARMORA              1
+#define GAME_WARRIOR             2
 
 typedef struct vec_t {
     struct vec_t *next;
@@ -93,11 +98,12 @@ typedef struct vec_t {
 
 typedef struct {
     char     *name;
-    uint32_t qual;
+    uint32_t exclude_blank_vectors;
     uint32_t artwork;
+    uint32_t bw_game;
 } game_info_t;
 
-
+static uint32_t  s_exclude_blank_vectors;
 static uint32_t  s_init;
 static int       s_dual_display;
 static int32_t   s_serial_fd = -1;
@@ -120,39 +126,51 @@ static int32_t   s_last_b;
 static int32_t   s_intensity_table[256];
 static uint8_t   s_gamma_table[256]; 
 static uint32_t  s_artwork;
+static uint32_t  s_bw_game;
 static vector_t  *s_in_vec_list;
 static uint32_t  s_in_vec_cnt;
 static uint32_t  s_in_vec_last_x;
 static uint32_t  s_in_vec_last_y;
 static vector_t  *s_out_vec_list;
 static uint32_t  s_out_vec_cnt;
-static uint32_t  s_game_quality;
+static char      s_json_buf[512];
+static int       s_json_length;
+static uint32_t  s_vertical_display;
 
 
 static game_info_t s_games[] = {
-    {"armora", DEFAULT_QUALITY, GAME_ARMORA},
-    {"armorap", DEFAULT_QUALITY, GAME_ARMORA},    
-    {"armorar", DEFAULT_QUALITY, GAME_ARMORA},
-    {"warrior", DEFAULT_QUALITY, GAME_WARRIOR},
-    {"starwars", 7, GAME_NONE},
-    {"starwar1", 7, GAME_NONE},
-    {"esb", 7, GAME_NONE},
-    {"spacfury", 7, GAME_NONE},
-    {"spacfura", 7, GAME_NONE},
-    {"zektor", 7, GAME_NONE},
-    {"tacscan", 7, GAME_NONE},
-    {"elim2a", 7, GAME_NONE},
-    {"elim2c", 7, GAME_NONE},
-    {"elim2", 7, GAME_NONE},
-    {"elim4", 7, GAME_NONE},
-    {"elim4p", 7, GAME_NONE},
-    {"startrek", 7, GAME_NONE},
-    {"aztarac", 7, GAME_NONE},
-    {"tempest", 5, GAME_NONE}
+    {"armora",   0, GAME_ARMORA, 1},
+    {"armorap",  0, GAME_ARMORA, 1},
+    {"armorar",  0, GAME_ARMORA, 1},        
+    {"asteroid", 0, GAME_NONE, 1},  
+    {"asteroi1", 0, GAME_NONE, 1},    
+    {"astdelux", 0, GAME_NONE, 1},   
+    {"astdelu1", 0, GAME_NONE, 1},  
+    {"llander",  0, GAME_NONE, 1},
+    {"llander1", 0, GAME_NONE, 1},
+    {"barrier",  0, GAME_NONE, 1},
+    {"bzone",    0, GAME_NONE, 1},   
+    {"bzone2",   0, GAME_NONE, 1},  
+    {"bzonec",   0, GAME_NONE, 1},  
+    {"redbaron", 0, GAME_NONE, 1},   
+    {"ripoff",   0, GAME_NONE, 1},   
+    {"solarq",   0, GAME_NONE, 1},
+    {"speedfrk", 0, GAME_NONE, 1},  
+    {"starhawk", 0, GAME_NONE, 1},   
+    {"sundance", 0, GAME_NONE, 1},   
+    {"tailg",    0, GAME_NONE, 1},  
+    {"warrior",  0, GAME_WARRIOR, 1}, 
+    {"wotw",     0, GAME_NONE, 1},   
+    {"starwars", 1, GAME_NONE, 0},
+    {"starwar1", 1, GAME_NONE, 0},
+    {"esb",      1, GAME_NONE, 0}
 };
 
 
 static void transform_final(int *px, int *py);
+static int dvg_get_option(char *option, char *val_buf, uint32_t val_buf_size);
+
+
 
 //
 // Function to compute region code for a point(x, y) 
@@ -262,32 +280,6 @@ uint32_t line_clip(int32_t *pX1, int32_t *pY1, int32_t *pX2, int32_t *pY2)
     return accept;
 }  
 
-//
-// Return the vector length of the supplied vector list.
-//
-int vector_length(vector_t *v, uint32_t size)
-{
-    uint32_t i, x_last, y_last, dx, dy, len;
-
-    x_last = y_last = 0;
-    len = 0;
-    for (i = 0; i < size; i++) {
-        dx = v[i].x0 - x_last;
-        dy = v[i].y0 - y_last;
-
-        len += (uint32_t)sqrt((dx * dx) + (dy * dy));
-
-        dx = v[i].x1 - v[i].x0;
-        dy = v[i].y1 - v[i].y0;
-
-        len += (uint32_t)sqrt((dx * dx) + (dy * dy));
-
-        x_last = v[i].x1;
-        y_last = v[i].y1;
-
-    }
-    return len;
-}
 
 //
 // Sort, optimize and add vectors (and blank vectors) to the output vector list.
@@ -426,13 +418,22 @@ static void recalc_gamma_table(float _gamma)
 //
 // Reset the indexes to the vector list and command buffer.
 //
-static void cmd_reset()
+static void cmd_reset(uint32_t initial)
 {
+    uint32_t i, cnt;
     s_in_vec_last_x  = 0;
     s_in_vec_last_y  = 0;
     s_in_vec_cnt     = 0;
     s_out_vec_cnt    = 0;
     s_cmd_offs         = 0;
+   // Special sync pattern
+   cnt = 8;
+   if (initial) {
+      cnt = 512;
+   }
+   for (i = 0 ; i < cnt ; i++) {
+      s_cmd_buf[s_cmd_offs++] = 0xc0 | (i & 0x3);
+   }
 }
 
 //
@@ -450,8 +451,14 @@ static void cmd_add_vec(int x, int y, int r, int g, int b)
     x1 = x;
     y1 = y;
 
-    blank = (r == 0) && (g == 0) && (b == 0);
-    // Don't include blank vectors.  We will add them again (see reconnect_vectors()) before sending.
+    if (s_exclude_blank_vectors) {
+        // Don't include blank vectors.  We will add them again (see reconnect_vectors()) before sending.
+        blank = (r == 0) && (g == 0) && (b == 0);
+    }
+    else {
+        blank = 0;
+    }
+
     if (!blank) {
         if (s_in_vec_cnt < MAX_VECTORS) {
             add = line_clip(&x0, &y0, &x1, &y1);
@@ -524,7 +531,6 @@ static int serial_open()
     s_serial_fd = (int32_t)CreateFile("dvg.dat",  GENERIC_WRITE, 0, NULL, CREATE_NEW,  0, NULL);
 #else
     DCB dcb;
-    COMMTIMEOUTS timeouts;
     BOOL res;
     s_serial_fd = (int32_t)CreateFile(s_serial_dev, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,  0, NULL);
     if (s_serial_fd < 0) {
@@ -554,12 +560,6 @@ static int serial_open()
         log_std(("dvg: SetCommState(%s) failed. (%ld) \n", s_serial_dev, GetLastError()));
         goto END;       
     }
-    memset(&timeouts, 0, sizeof(COMMTIMEOUTS));
-    res= SetCommTimeouts((HANDLE)s_serial_fd, &timeouts);
-    if (res == FALSE) {
-        log_std(("dvg: SetCommTimeouts(%s) failed. (%ld) \n", s_serial_dev, GetLastError()));
-        goto END;       
-    }
 #endif
 
 #else
@@ -570,7 +570,7 @@ static int serial_open()
         result = 0;
         goto END;
     }
-    s_serial_fd = open(s_serial_dev, O_RDWR | O_NOCTTY | O_SYNC, 0666);
+    s_serial_fd = open(s_serial_dev, O_RDWR | O_NOCTTY);
     if (s_serial_fd < 0) {
         log_std(("dvg: open(%s) failed. (%d) \n", s_serial_dev, errno));    
         goto END;
@@ -579,14 +579,38 @@ static int serial_open()
     cfmakeraw(&attr);
     attr.c_cflag |= (CLOCAL | CREAD);
     attr.c_oflag &= ~OPOST;
+    attr.c_cc[VMIN] = 0;
+    attr.c_cc[VTIME] = 30;
     tcsetattr(s_serial_fd, TCSAFLUSH, &attr);
     sleep(2); //required to make flush work, for some reason
-    tcflush(s_serial_fd, TCIOFLUSH);
+    tcflush(s_serial_fd, TCIOFLUSH); 
     result = 0;
 #endif
 END:
-    cmd_reset();
+    cmd_reset(1);
     s_last_r = s_last_g = s_last_b = -1;
+    return result;
+}
+
+//
+//  Read responses from USB-DVG via the virtual serial port over USB.
+// 
+static int serial_read(void *buf, uint32_t size)
+{
+    int result = -1;
+#ifdef __WIN32__
+    DWORD read;
+    if (ReadFile(s_serial_fd, buf, size, &read, NULL))
+    {
+        result = read;
+    }
+#else
+    result = read(s_serial_fd, buf, size);
+    if (result != (int)size) {
+        log_std(("dvg: read error %d, expected %d\n", result, size));
+        result = -1;
+    }
+#endif
     return result;
 }
 
@@ -595,16 +619,26 @@ END:
 // 
 static int serial_write(void *buf, uint32_t size) 
 {
-    int result = -1;
+   int result = -1, written;
+   uint32_t chunk, total;
+
+    total = size;
+    while (size) {
+        chunk = MIN(size, 512);
 #ifdef __WIN32__
-    DWORD written;
-    if (WriteFile((HANDLE)s_serial_fd, buf,  size, &written, NULL)) {
-        result = written;
-    }        
-#else  
-    result = write(s_serial_fd, buf, size);         
+        WriteFile(s_serial_fd, buf,  chunk, (DWORD *)&written, NULL);
+#else
+        written = write(s_serial_fd, buf, chunk);
 #endif
-    return result;
+        if (written != (int)chunk) {
+            goto END;
+        }
+        buf  += chunk;
+        size -= chunk;
+    }
+    result = total;
+END:
+   return result;
 }
 
 //
@@ -644,56 +678,37 @@ END:
 static int serial_send()
 {
     int      result = -1;
-    uint32_t cmd, length;
-    uint32_t chunk, size, offset;
+    uint32_t cmd;
 
     if (s_serial_fd < 0) {
         log_std(("dvg: device not opened.\n"));            
         goto END;
     }
-#if SORT_VECTORS
-    // USB-DVG has difficulties rendering sorted vectors.  The screen (especially text) wobbles.
-    // I have yet to know why it does that.  Otherwise the algorithm works fine.
-    sort_and_reconnect_vectors();
-#else
-    reconnect_vectors();
-#endif
-    // Give a hint to USB-DVG as to what kind of jobs awaits for the next frame.
-    // USB DVG uses dynamic stepping in order to be able to render the vectors
-    // in 16 ms or less.
-    length = vector_length(s_out_vec_list, s_out_vec_cnt);
-    cmd = (FLAG_FRAME << 29) | length; 
-    s_cmd_buf[s_cmd_offs++] = cmd >> 24;
-    s_cmd_buf[s_cmd_offs++] = cmd >> 16;
-    s_cmd_buf[s_cmd_offs++] = cmd >>  8;
-    s_cmd_buf[s_cmd_offs++] = cmd >>  0;    
 
-   cmd = (FLAG_QUALITY << 29) | s_game_quality;
-   s_cmd_buf[s_cmd_offs++] = cmd >> 24;
-   s_cmd_buf[s_cmd_offs++] = cmd >> 16;
-   s_cmd_buf[s_cmd_offs++] = cmd >>  8;
-   s_cmd_buf[s_cmd_offs++] = cmd >>  0;
+    #if SORT_VECTORS
+        // USB-DVG has difficulties rendering sorted vectors.  The screen (especially text) wobbles.
+        // I have yet to know why it does that.  Otherwise the algorithm works fine.
+        sort_and_reconnect_vectors();
+    #else
+        reconnect_vectors();
+    #endif
 
     uint32_t i;
     for (i = 0 ; i < s_out_vec_cnt ; i++) {
         cmd_add_point(s_out_vec_list[i].x1, s_out_vec_list[i].y1, s_out_vec_list[i].r, s_out_vec_list[i].g, s_out_vec_list[i].b);
     }   
     cmd = (FLAG_COMPLETE << 29); 
+    if (s_bw_game) {
+        cmd |= FLAG_COMPLETE_MONOCHROME;
+    }
     s_cmd_buf[s_cmd_offs++] = cmd >> 24;
     s_cmd_buf[s_cmd_offs++] = cmd >> 16;
     s_cmd_buf[s_cmd_offs++] = cmd >>  8;
     s_cmd_buf[s_cmd_offs++] = cmd >>  0;     
 
-   size = s_cmd_offs;
-   offset = 0;
-   while (size) {
-        chunk   = MIN(size, 1024);
-        result  = serial_write(&s_cmd_buf[offset], chunk);
-        size   -= chunk;
-        offset += chunk;
-   }
+    result  = serial_write(s_cmd_buf, s_cmd_offs);
 END:
-    cmd_reset();
+    cmd_reset(0);
     return result;
 }
 
@@ -703,20 +718,11 @@ END:
 // 
 static void  transform_coords(int *px, int *py)
 {
-    int x, y;
+    float x, y;
 
-    x = (*px >> 16);
-    // Sign extend.
-    if (x & 0x8000) {
-        x |= 0xffff0000;
-    }  
+    x = (*px >> 16) + (*px & 0xffff) / 65536.0;
     x *= s_xscale;
-
-    y = *py >> 16;
-    // Sign extend.
-    if (y & 0x8000) {
-        y |= 0xffff0000;
-    }   
+    y = (*py >> 16) + (*py & 0xffff) / 65536.0;
     y *= s_yscale;
 
     *px = x;
@@ -729,6 +735,13 @@ static void  transform_coords(int *px, int *py)
 int determine_game_settings() 
 {
     uint32_t i;
+    char opt[64];
+
+    memset(opt, 0, sizeof(opt));
+    if (dvg_get_option("vertical", opt, sizeof(opt) - 1) >= 0) {
+        s_vertical_display = strncmp(opt, "true", 4) == 0;
+        log_std(("dvg: display is %s\n", s_vertical_display ? "vertical":"horizontal"));
+    }
 
     if (Machine->gamedrv->flags & ORIENTATION_SWAP_XY) {
         s_swap_xy = 1;
@@ -739,15 +752,22 @@ int determine_game_settings()
     if (Machine->gamedrv->flags & ORIENTATION_FLIP_X) {
         s_flip_x = 1;
     }  
-    s_game_quality = DEFAULT_QUALITY;
-    s_artwork      = GAME_NONE;
+
+    s_bw_game               = 0;
+    s_artwork               = GAME_NONE;
+    s_exclude_blank_vectors = 0;
+#ifdef MESS
+    s_bw_game               = 1;
+#else
     for (i = 0 ; i < ARRAY_SIZE(s_games); i++) {
         if (!strcmp(Machine->gamedrv->name, s_games[i].name)) {
-            s_artwork      = s_games[i].artwork;
-            s_game_quality = s_games[i].qual;
+            s_artwork               = s_games[i].artwork;
+            s_exclude_blank_vectors = s_games[i].exclude_blank_vectors;
+            s_bw_game               = s_games[i].bw_game;
             break;
         }
     }
+#endif
     return 0;    
 }
 
@@ -784,6 +804,29 @@ static void transform_final(int *px, int *py)
     else if (y > DVG_RES_MAX) {
        y = DVG_RES_MAX;
     }
+
+
+    if (s_vertical_display) {
+        if (s_swap_xy) {
+            // Vertical on vertical display
+        }
+        else {
+            // Horizontal on vertical display
+            y = 512 + (0.75 * y);
+        }
+
+    }
+    else {
+        if (s_swap_xy) {
+            // Vertical on horizontal display
+            x = 512 + (0.75 * x);
+        }
+        else {
+            // Horizontal on horizontal display
+        }
+        
+    }
+
     *px = x;
     *py = y;
 }
@@ -871,9 +914,9 @@ int dvg_update(point *p, int num_points)
     if (num_points) {
         switch (s_artwork) {
             case GAME_ARMORA:
-                r = 0x99;
-                g = 0x99;
-                b = 0x10;
+                r = 108;
+                g = 108;
+                b = 108;
                 // Upper Right Quadrant
                 // Outer structure
                 cmd_add_vec(3446, 2048, 0, 0, 0);
@@ -1021,9 +1064,9 @@ int dvg_update(point *p, int num_points)
                 break;
 
             case GAME_WARRIOR:
-                r = 0x20;
-                g = 0x20;
-                b = 0x40;
+                r = 108;
+                g = 108;
+                b = 108;
                 cmd_add_vec(1187, 2232, 0, 0, 0);
                 cmd_add_vec(1863, 2232, r, g, b);
                 cmd_add_vec(1187, 1372, 0, 0, 0);
@@ -1047,6 +1090,84 @@ int dvg_update(point *p, int num_points)
 END:    
     return s_dual_display;        
 }
+
+
+
+static void get_dvg_info()
+{
+    uint32_t cmd;
+    uint8_t cmd_buf[4];
+    int result;
+    uint32_t version, major, minor;
+
+    if (s_json_length) {
+        return;
+    }
+    cmd = (FLAG_CMD << 29) | FLAG_CMD_GET_DVG_INFO;
+    sscanf(ADV_VERSION, "%u.%u", &major, &minor);
+    version = ((major & 0xf) << 12) | ((minor & 0xf) << 8) | (DVG_RELEASE << 4) | (DVG_BUILD);
+    cmd |= version << 8;
+    cmd_buf[0] = cmd >> 24;
+    cmd_buf[1] = cmd >> 16;
+    cmd_buf[2] = cmd >> 8;
+    cmd_buf[3] = cmd >> 0;
+    serial_write(cmd_buf, 4);
+    result = serial_read(&cmd, sizeof(cmd));
+    if (result < 0) goto END;
+    result = serial_read(&s_json_length, sizeof(s_json_length));
+    if (result < 0) goto END;
+    s_json_length = MIN(s_json_length, sizeof(s_json_buf) - 1);
+    result = serial_read(s_json_buf, s_json_length);
+    if (result < 0) goto END;
+    log_std(("dvg: JSON data %s\n", s_json_buf));
+END:;
+
+}
+
+
+static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
+    if (tok->type == JSMN_STRING && (int)strlen(s) == tok->end - tok->start &&
+        strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
+        return 0;
+    }
+    return -1;
+}
+
+
+static int dvg_get_option(char *option, char *val_buf, uint32_t val_buf_size)
+{
+    int result = -1;
+    jsmntok_t t[128];
+    jsmn_parser p;
+    int         r, i;
+
+    get_dvg_info();
+    jsmn_init(&p);
+    r = jsmn_parse(&p, s_json_buf, strlen(s_json_buf), t, ARRAY_SIZE(t));
+    if (r < 0) {
+        log_std(("dvg: failed to parse JSON: %d\n", r));
+        goto END;
+    }
+    if (r < 1 || t[0].type != JSMN_OBJECT) {
+        log_std(("dvg: JSON object expected.\n"));
+        goto END;
+    }
+    for (i = 1; i < r; i++) {
+        if (jsoneq(s_json_buf, &t[i], option) == 0) {
+            int  size;
+            size = t[i + 1].end - t[i + 1].start + 1;
+            size = MIN(size, val_buf_size);
+            strncpy(val_buf, s_json_buf + t[i + 1].start, size);
+            val_buf[size - 1] = 0;
+            result = 0;
+            break;
+        }
+    }
+END:
+    return result;
+}
+
+
 //
 // Init function
 //
@@ -1071,7 +1192,7 @@ int dvg_open()
     if (s_init) {
         log_std(("dvg: dvg_open()\n"));    
         s_first_call = 1;
-        serial_open();        
+        serial_open();
         vector_register_aux_renderer(dvg_update);
     }
     return 0;

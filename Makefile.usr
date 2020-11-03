@@ -334,7 +334,7 @@ RC = @$(CROSSDIR)/bin/$(CROSSTARGET)-windres
 SDLCFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/SDL2 -Dmain=SDL_main
 SDLLIBS = -L$(CROSSDIR)/$(CROSSTARGET)/lib -lmingw32 -lSDL2main -lSDL2 -mwindows -Wl,--no-undefined -lm -ldinput8 -ldxguid -ldxerr8 -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lshell32 -lversion -luuid -static-libgcc
 FREETYPECFLAGS = -I$(CROSSDIR)/$(CROSSTARGET)/include/freetype2
-FREETYPELIBS = -L$(CROSSDIR)/$(CROSSTARGET)/lib -lfreetype -lz -lbz2 -lpng16 -lz -lharfbuzz -lcairo -lgobject-2.0 -lfontconfig -lglib-2.0 -lusp10 -lmsimg32 -lgdi32 -lpixman-1 -L/mnt/bag/local/mxe/usr/i686-w64-mingw32.static/lib/../lib -lffi -lexpat -lfreetype -lbz2 -lpng16 -lz -lws2_32 -lole32 -lwinmm -lshlwapi -L/mnt/bag/local/mxe/usr/i686-w64-mingw32.static/lib -lpcre -lintl -liconv -lharfbuzz_too -lglib-2.0 -lws2_32 -lole32 -lwinmm -lshlwapi -lpcre -lintl -liconv
+FREETYPELIBS = -L$(CROSSDIR)/$(CROSSTARGET)/lib -lfreetype -lz -lbz2 -lpng16 -lz -lharfbuzz -lcairo -lgobject-2.0 -lfontconfig -lglib-2.0 -lusp10 -lmsimg32 -lgdi32 -lpixman-1 -L/usr/local/mxe/usr/i686-w64-mingw32.static/lib/../lib -lffi -lexpat -lfreetype -lbz2 -lpng16 -lz -lws2_32 -lole32 -lwinmm -lshlwapi -L/usr/local/mxe/usr/i686-w64-mingw32.static/lib -lpcre -lintl -liconv -lharfbuzz_too -lglib-2.0 -lws2_32 -lole32 -lwinmm -lshlwapi -lpcre -lintl -liconv
 endif
 endif
 
