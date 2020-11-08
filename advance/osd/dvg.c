@@ -66,9 +66,10 @@
 #define DVG_RES_MIN     0
 #define DVG_RES_MAX     4095
 
-#define SAVE_TO_FILE    0
-#define SORT_VECTORS    0
-#define MAX_VECTORS     0x10000
+#define SAVE_TO_FILE          0
+#define SORT_VECTORS          0
+#define EXCLUDE_BLANK_VECTORS 0
+#define MAX_VECTORS           0x10000
 
 // Defining region codes 
 #define LEFT            0x1
@@ -413,8 +414,13 @@ static void cmd_add_vec(int x, int y, int r, int g, int b)
     x1 = x;
     y1 = y;
 
-    blank = (r == 0) && (g == 0) && (b == 0);
+#if EXCLUDE_BLANK_VECTORS
     // Don't include blank vectors.  We will add them again (see reconnect_vectors()) before sending.
+    blank = (r == 0) && (g == 0) && (b == 0);
+#else
+    blank = 0;
+#endif
+
     if (!blank) {
         if (s_in_vec_cnt < MAX_VECTORS) {
             add = line_clip(&x0, &y0, &x1, &y1);
@@ -630,13 +636,14 @@ static int serial_send()
         log_std(("dvg: device not opened.\n"));            
         goto END;
     }
-#if SORT_VECTORS
-    // USB-DVG has difficulties rendering sorted vectors.  The screen (especially text) wobbles.
-    // I have yet to know why it does that.  Otherwise the algorithm works fine.
-    sort_and_reconnect_vectors();
-#else
-    reconnect_vectors();
-#endif
+
+    #if SORT_VECTORS
+        // USB-DVG has difficulties rendering sorted vectors.  The screen (especially text) wobbles.
+        // I have yet to know why it does that.  Otherwise the algorithm works fine.
+        sort_and_reconnect_vectors();
+    #else
+        reconnect_vectors();
+    #endif
 
     uint32_t i;
     for (i = 0 ; i < s_out_vec_cnt ; i++) {
