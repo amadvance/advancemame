@@ -68,7 +68,6 @@
 
 #define SAVE_TO_FILE          0
 #define SORT_VECTORS          0
-#define EXCLUDE_BLANK_VECTORS 0
 #define MAX_VECTORS           0x10000
 
 // Defining region codes 
@@ -94,10 +93,11 @@ typedef struct vec_t {
 
 typedef struct {
     char     *name;
+    uint32_t exclude_blank_vectors;
     uint32_t artwork;
 } game_info_t;
 
-
+static uint32_t  s_exclude_blank_vectors;
 static uint32_t  s_init;
 static int       s_dual_display;
 static int32_t   s_serial_fd = -1;
@@ -132,10 +132,12 @@ static uint32_t  s_vertical_display;
 
 
 static game_info_t s_games[] = {
-    {"armora" , GAME_ARMORA},
-    {"armorap" , GAME_ARMORA},    
-    {"armorar", GAME_ARMORA},
-    {"warrior" , GAME_WARRIOR},
+    {"armora" ,  0, GAME_ARMORA},
+    {"armorap" , 0, GAME_ARMORA},    
+    {"armorar",  0, GAME_ARMORA},
+    {"warrior" , 0, GAME_WARRIOR},
+    {"starwars", 1, GAME_NONE},
+    {"esb",      1, GAME_NONE}
 };
 
 
@@ -414,12 +416,13 @@ static void cmd_add_vec(int x, int y, int r, int g, int b)
     x1 = x;
     y1 = y;
 
-#if EXCLUDE_BLANK_VECTORS
-    // Don't include blank vectors.  We will add them again (see reconnect_vectors()) before sending.
-    blank = (r == 0) && (g == 0) && (b == 0);
-#else
-    blank = 0;
-#endif
+    if (s_exclude_blank_vectors) {
+        // Don't include blank vectors.  We will add them again (see reconnect_vectors()) before sending.
+        blank = (r == 0) && (g == 0) && (b == 0);
+    }
+    else {
+        blank = 0;
+    }
 
     if (!blank) {
         if (s_in_vec_cnt < MAX_VECTORS) {
@@ -710,10 +713,13 @@ int determine_game_settings()
     if (Machine->gamedrv->flags & ORIENTATION_FLIP_X) {
         s_flip_x = 1;
     }  
-    s_artwork      = GAME_NONE;
+
+    s_artwork               = GAME_NONE;
+    s_exclude_blank_vectors = 0;
     for (i = 0 ; i < ARRAY_SIZE(s_games); i++) {
         if (!strcmp(Machine->gamedrv->name, s_games[i].name)) {
-            s_artwork      = s_games[i].artwork;
+            s_artwork               = s_games[i].artwork;
+            s_exclude_blank_vectors = s_games[i].exclude_blank_vectors;
             break;
         }
     }
