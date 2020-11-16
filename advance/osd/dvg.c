@@ -670,20 +670,11 @@ END:
 // 
 static void  transform_coords(int *px, int *py)
 {
-    int x, y;
+    float x, y;
 
-    x = (*px >> 16);
-    // Sign extend.
-    if (x & 0x8000) {
-        x |= 0xffff0000;
-    }  
+    x = (*px >> 16) + (*px & 0xffff) / 65536.0;
     x *= s_xscale;
-
-    y = *py >> 16;
-    // Sign extend.
-    if (y & 0x8000) {
-        y |= 0xffff0000;
-    }   
+    y = (*py >> 16) + (*py & 0xffff) / 65536.0;
     y *= s_yscale;
 
     *px = x;
