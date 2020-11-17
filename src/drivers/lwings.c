@@ -337,8 +337,9 @@ static ADDRESS_MAP_START( trojan_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xf802, 0xf803) AM_WRITE(lwings_bg1_scrolly_w)
 	AM_RANGE(0xf804, 0xf804) AM_WRITE(trojan_bg2_scrollx_w)
 	AM_RANGE(0xf805, 0xf805) AM_WRITE(trojan_bg2_image_w)
+	AM_RANGE(0xf808, 0xf808) AM_WRITE(MWA8_NOP) /* watchdog */
 	AM_RANGE(0xf80c, 0xf80c) AM_WRITE(soundlatch_w)
-	AM_RANGE(0xf80d, 0xf80d) AM_WRITE(watchdog_reset_w)
+	AM_RANGE(0xf80d, 0xf80d) AM_WRITE(soundlatch2_w)
 	AM_RANGE(0xf80e, 0xf80e) AM_WRITE(lwings_bankswitch_w)
 ADDRESS_MAP_END
 
@@ -372,6 +373,11 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( avengers_adpcm_readport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x00, 0x00) AM_READ(avengers_adpcm_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( trojan_adpcm_readport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x00, 0x00) AM_READ(soundlatch2_r)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( adpcm_readport, ADDRESS_SPACE_IO, 8 )
@@ -912,7 +918,7 @@ static MACHINE_DRIVER_START( trojan )
 	MDRV_CPU_ADD(Z80, 4000000) // 3.579545 Mhz (?)
 	/* audio CPU */	/* ? */
 	MDRV_CPU_PROGRAM_MAP(adpcm_readmem,adpcm_writemem)
-	MDRV_CPU_IO_MAP(adpcm_readport,adpcm_writeport)
+	MDRV_CPU_IO_MAP(trojan_adpcm_readport,adpcm_writeport)
 	MDRV_CPU_PERIODIC_INT(irq0_line_hold,TIME_IN_HZ(4000))
 
 	MDRV_FRAMES_PER_SECOND(60)
