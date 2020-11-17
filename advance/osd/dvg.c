@@ -584,16 +584,26 @@ static int serial_read(void *buf, uint32_t size)
 // 
 static int serial_write(void *buf, uint32_t size) 
 {
-    int result = -1;
+   int result = -1, written;
+   uint32_t chunk, total;
+
+    total = size;
+    while (size) {
+        chunk = MIN(size, 1024);
 #ifdef __WIN32__
-    DWORD written;
-    if (WriteFile((HANDLE)s_serial_fd, buf,  size, &written, NULL)) {
-        result = written;
-    }        
-#else  
-    result = write(s_serial_fd, buf, size);         
+        WriteFile(s_serial_fd, buf,  chunk, (DWORD *)&written, NULL);
+#else
+        written = write(s_serial_fd, buf, chunk);
 #endif
-    return result;
+        if (written != (int)chunk) {
+            goto END;
+        }
+        buf  += chunk;
+        size -= chunk;
+    }
+    result = total;
+END:
+   return result;
 }
 
 //
