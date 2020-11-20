@@ -392,13 +392,22 @@ static void recalc_gamma_table(float _gamma)
 //
 // Reset the indexes to the vector list and command buffer.
 //
-static void cmd_reset()
+static void cmd_reset(uint32_t initial)
 {
+    uint32_t i, cnt;
     s_in_vec_last_x  = 0;
     s_in_vec_last_y  = 0;
     s_in_vec_cnt     = 0;
     s_out_vec_cnt    = 0;
     s_cmd_offs         = 0;
+   // Special sync pattern
+   cnt = 8;
+   if (initial) {
+      cnt = 512;
+   }
+   for (i = 0 ; i < cnt ; i++) {
+      s_cmd_buf[s_cmd_offs++] = 0xc0 | (i & 0x3);
+   }
 }
 
 //
@@ -552,7 +561,7 @@ static int serial_open()
     result = 0;
 #endif
 END:
-    cmd_reset();
+    cmd_reset(1);
     s_last_r = s_last_g = s_last_b = -1;
     return result;
 }
@@ -670,7 +679,7 @@ static int serial_send()
 
     result  = serial_write(s_cmd_buf, s_cmd_offs);
 END:
-    cmd_reset();
+    cmd_reset(0);
     return result;
 }
 
