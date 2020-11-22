@@ -598,7 +598,7 @@ static int serial_write(void *buf, uint32_t size)
 
     total = size;
     while (size) {
-        chunk = MIN(size, 1024);
+        chunk = MIN(size, 512);
 #ifdef __WIN32__
         WriteFile(s_serial_fd, buf,  chunk, (DWORD *)&written, NULL);
 #else
