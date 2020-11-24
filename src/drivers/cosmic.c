@@ -40,72 +40,77 @@ static unsigned int pixel_clock = 0;
 
 static WRITE8_HANDLER( panic_sound_output_w )
 {
-    static int sound_enabled=1;
+	static int sound_enabled=1;
 
-    /* Sound Enable / Disable */
+	/* Sound Enable / Disable */
 
-    if (offset == 11)
-    {
-    	int count;
-    	if (data == 0)
-        	for(count=0; count<9; count++) sample_stop(count);
+	if (offset == 11)
+	{
+		int count;
+		if (data == 0)
+			for(count=0; count<9; count++) sample_stop(count);
 
-    	sound_enabled = data;
-    }
+		sound_enabled = data;
+	}
 
-    if (sound_enabled)
-    {
-        switch (offset)
-        {
-		case 0:  if (data) sample_start(0, 0, 0); break;  	/* Walk */
-        case 1:  if (data) sample_start(0, 5, 0); break;  	/* Enemy Die 1 */
-        case 2:  if (data)								  	/* Drop 1 */
-				 {
-					 if (!sample_playing(1))
-					 {
-						 sample_stop(2);
-						 sample_start(1, 3, 0);
-					 }
-				 }
-				 else
-				 	sample_stop(1);
-				 	break;
+	if (sound_enabled)
+	{
+		switch (offset)
+		{
+		case 0:  if (data) sample_start(0, 0, 0); break;	/* Walk */
+		case 1:  if (data) sample_start(0, 5, 0); break;	/* Enemy Die 1 */
+		case 2:
+			if (data)										/* Drop 1 */
+			{
+				if (!sample_playing(1))
+				{
+					sample_stop(2);
+					sample_start(1, 3, 0);
+				}
+			}
+			else
+				sample_stop(1);
+			break;
 
-		case 3:	 if (data && !sample_playing(6))			/* Oxygen */
-					sample_start(6, 9, 1);
-                 break;
+		case 3:
+			if (data && !sample_playing(6))		 		/* Oxygen */
+				sample_start(6, 9, 1);
+			break;
 
-        case 4:  break;										/* Drop 2 */
-        case 5:  if (data) sample_start(0, 5, 0); break;	/* Enemy Die 2 (use same sample as 1) */
-        case 6:  if (data && !sample_playing(1) && !sample_playing(3))   /* Hang */
-                 	sample_start(2, 2, 0);
-                    break;
+		case 4:  break;										/* Drop 2 */
+		case 5:  if (data) sample_start(0, 5, 0); break;	/* Enemy Die 2 (use same sample as 1) */
+		case 6:
+			if (data && !sample_playing(1) && !sample_playing(3))	/* Hang */
+				sample_start(2, 2, 0);
+			break;
 
-		case 7:  if (data) 									/* Escape */
-				 {
-					 sample_stop(2);
-					 sample_start(3, 4, 0);
-				 }
-				 else
-				 	 sample_stop(3);
-                     break;
+		case 7:
+			if (data)										/* Escape */
+			{
+				sample_stop(2);
+				sample_start(3, 4, 0);
+			}
+			else
+				sample_stop(3);
+			break;
 
-    	case 8:  if (data) sample_start(0, 1, 0); break;	/* Stairs */
-    	case 9:  if (data)									/* Extend */
-				 	sample_start(4, 8, 0);
-				 else
-					sample_stop(4);
-	  			 break;
+		case 8:  if (data) sample_start(0, 1, 0); break;	/* Stairs */
+		case 9:
+			if (data)										/* Extend */
+				sample_start(4, 8, 0);
+			else
+				sample_stop(4);
+			break;
 
-        case 10: DAC_data_w(0, data); break;				/* Bonus */
+		case 10: DAC_data_w(0, data); break;				/* Bonus */
 		case 15: if (data) sample_start(0, 6, 0); break;	/* Player Die */
 		case 16: if (data) sample_start(5, 7, 0); break;	/* Enemy Laugh */
-        case 17: if (data) sample_start(0, 10, 0); break;	/* Coin - Not triggered by software */
-        }
-    }
+		case 17: if (data) sample_start(0, 10, 0); break;	/* Coin - Not triggered by software */
+		}
+	}
 
-    #ifdef MAME_DEBUG
- 	logerror("Sound output %x=%x\n",offset,data);
+	#ifdef MAME_DEBUG
+	logerror("Sound output %x=%x\n",offset,data);
 	#endif
 }
 
@@ -117,24 +122,24 @@ WRITE8_HANDLER( panic_sound_output2_w )
 WRITE8_HANDLER( cosmicg_output_w )
 {
 	static int march_select;
-    static int gun_die_select;
-    static int sound_enabled;
+	static int gun_die_select;
+	static int sound_enabled;
 
-    /* Sound Enable / Disable */
+	/* Sound Enable / Disable */
 
-    if (offset == 12)
-    {
-	    int count;
+	if (offset == 12)
+	{
+		int count;
 
-    	sound_enabled = data;
-    	if (data == 0)
-        	for(count=0;count<9;count++) sample_stop(count);
-    }
+		sound_enabled = data;
+		if (data == 0)
+			for(count=0;count<9;count++) sample_stop(count);
+	}
 
-    if (sound_enabled)
-    {
-        switch (offset)
-        {
+	if (sound_enabled)
+	{
+		switch (offset)
+		{
 		/* The schematics show a direct link to the sound amp  */
 		/* as other cosmic series games, but it never seems to */
 		/* be used for anything. It is implemented for sake of */
@@ -142,188 +147,157 @@ WRITE8_HANDLER( cosmicg_output_w )
 		case 1:  DAC_data_w(0, -data); break;
 		case 2:  if (data) sample_start (0, march_select, 0); break;	/* March Sound */
 		case 3:  march_select = (march_select & 0xfe) | data; break;
-        case 4:  march_select = (march_select & 0xfd) | (data << 1); break;
-        case 5:  march_select = (march_select & 0xfb) | (data << 2); break;
+		case 4:  march_select = (march_select & 0xfd) | (data << 1); break;
+		case 5:  march_select = (march_select & 0xfb) | (data << 2); break;
 
-        case 6:  if (data)  							/* Killer Attack (crawly thing at bottom of screen) */
-					sample_start(1, 8, 1);
-				 else
-					sample_stop(1);
-				 break;
+		case 6:
+			if (data)							/* Killer Attack (crawly thing at bottom of screen) */
+				sample_start(1, 8, 1);
+			else
+				sample_stop(1);
+			break;
 
-		case 7:  if (data)								/* Bonus Chance & Got Bonus */
-				 {
-					 sample_stop(4);
-					 sample_start(4, 10, 0);
-				 }
-				 break;
+		case 7:
+			if (data)								/* Bonus Chance & Got Bonus */
+			{
+				sample_stop(4);
+				sample_start(4, 10, 0);
+			}
+			break;
 
-		case 8:  if (data)
-				 {
-					 if (!sample_playing(4)) sample_start(4, 9, 1);
-				 }
-				 else
-				 	sample_stop(4);
-				 break;
+		case 8:
+			if (data)
+			{
+				if (!sample_playing(4)) sample_start(4, 9, 1);
+			}
+			else
+				sample_stop(4);
+			break;
 
 		case 9:  if (data) sample_start(3, 11, 0); break;	/* Got Ship */
-//      case 11: watchdog_reset_w(0, 0); break;             /* Watchdog */
+//		case 11: watchdog_reset_w(0, 0); break;			/* Watchdog */
 		case 13: if (data) sample_start(8, 13-gun_die_select, 0); break;  /* Got Monster / Gunshot */
 		case 14: gun_die_select = data; break;
 		case 15: if (data) sample_start(5, 14, 0); break;	/* Coin Extend (extra base) */
-        }
-    }
+		}
+	}
 
 	#ifdef MAME_DEBUG
- 	if (offset != 11) logerror("Output %x=%x\n",offset,data);
-    #endif
+	if (offset != 11) logerror("Output %x=%x\n",offset,data);
+	#endif
 }
 
 static WRITE8_HANDLER( cosmica_sound_output_w )
 {
-    static int  sound_enabled=1;
-    static int dive_bomb_b_select=0;
+	static int  sound_enabled=1;
+	static int dive_bomb_b_select=0;
 
-    /* Sound Enable / Disable */
-    if (offset == 11)
-    {
-    	int count;
-    	if (data == 0)
-        	for(count=0; count<13; count++) sample_stop(count);
-	else
+	/* Sound Enable / Disable */
+	if (offset == 11)
 	{
-	  sample_start(0, 0, 1); /*Background Noise*/
+		int count;
+		if (data == 0)
+			for(count=0; count<13; count++) sample_stop(count);
+		else
+		{
+			sample_start(0, 0, 1); /*Background Noise*/
+		}
+
+		sound_enabled = data;
 	}
 
-    	sound_enabled = data;
-    }
+	if (sound_enabled)
+	{
+		switch (offset)
+		{
+		case 0:  if (data) sample_start(1, 2, 0); break; /*Dive Bombing Type A*/
 
-    if (sound_enabled)
-    {
-        switch (offset)
-        {
-		case 0: if (data) sample_start(1, 2, 0); break; /*Dive Bombing Type A*/
-
-		case 2:	/*Dive Bombing Type B (Main Control)*/
-
-
+		case 2:	 /*Dive Bombing Type B (Main Control)*/
 			if (data)
 			{
-
-			  switch(dive_bomb_b_select)
-			  {
-
-			    case 2:
-
+				switch(dive_bomb_b_select)
+				{
+				case 2:
 					if (sample_playing(2))
-					{
-					  sample_stop(2);
-	   				  sample_start(2, 3, 0); break;
-					}
-					else
- 		    			 sample_start(2, 3, 0); break;
+						sample_stop(2);
+					sample_start(2, 3, 0);
+					break;
 
-
-			    case 3:
-
+				case 3:
 					if (sample_playing(3))
-					{
-					  sample_stop(3);
-	   				  sample_start(3, 4, 0); break;
-					}
-					else
- 		    			 sample_start(3, 4, 0); break;
+						sample_stop(3);
+					sample_start(3, 4, 0);
+					break;
 
-
-			    case 4:
+				case 4:
 					if (sample_playing(4))
-					{
-					  sample_stop(4);
-	   				  sample_start(4, 5, 0); break;
-					}
-					else
-	 	    			 sample_start(4, 5, 0); break;
+						sample_stop(4);
+					sample_start(4, 5, 0);
+					break;
 
-
-			    case 5:
+				case 5:
 					if (sample_playing(5))
-					{
-					  sample_stop(5);
-	   				  sample_start(5, 6, 0); break;
-					}
-					else
- 		    			 sample_start(5, 6, 0); break;
+						sample_stop(5);
+					sample_start(5, 6, 0);
+					break;
 
-
-			    case 6:
+				case 6:
 					if (sample_playing(6))
-					{
-					  sample_stop(6);
-	   				  sample_start(6, 7, 0); break;
-					}
-					else
- 		    			 sample_start(6, 7, 0); break;
+						sample_stop(6);
+					sample_start(6, 7, 0);
+					break;
 
-			    case 7:
-
+				case 7:
 					if (sample_playing(7))
-					{
-					  sample_stop(7);
-	   				  sample_start(7, 8, 0); break;
-					}
-					else
- 		    			 sample_start(7, 8, 0); break;
-			  }
+						sample_stop(7);
+					sample_start(7, 8, 0);
+					break;
+				}
 			}
-
-		case 3: /*Dive Bombing Type B (G.S.B)*/
-
-			if (data)
-			  dive_bomb_b_select |= 0x04;
-			else
-			  dive_bomb_b_select &= 0xFB;
 			break;
 
-
-		case 4: /*Dive Bombing Type B (M.S.B)*/
+		case 3:  /*Dive Bombing Type B (G.S.B)*/
 			if (data)
-			  dive_bomb_b_select |= 0x02;
+				dive_bomb_b_select |= 0x04;
 			else
-			  dive_bomb_b_select &= 0xFD;
+				dive_bomb_b_select &= 0xFB;
+			break;
+
+		case 4:  /*Dive Bombing Type B (M.S.B)*/
+			if (data)
+				dive_bomb_b_select |= 0x02;
+			else
+				dive_bomb_b_select &= 0xFD;
 
 			break;
 
-		case 5: /*Dive Bombing Type B (L.S.B)*/
-
-
+		case 5:  /*Dive Bombing Type B (L.S.B)*/
 			if (data)
-			  dive_bomb_b_select |= 0x01;
+				dive_bomb_b_select |= 0x01;
 			else
-			  dive_bomb_b_select &= 0xFE;
+				dive_bomb_b_select &= 0xFE;
 			break;
 
+		case 6:  if (data) sample_start(8, 9, 0); break; /*Fire Control*/
 
-		case 6: if (data) sample_start(8, 9, 0); break; /*Fire Control*/
+		case 7:  if (data) sample_start(9, 10, 0); break; /*Small Explosion*/
 
-		case 7: if (data) sample_start(9, 10, 0); break; /*Small Explosion*/
+		case 8:  if (data) sample_start(10, 11, 0); break; /*Loud Explosion*/
 
-		case 8: if (data) sample_start(10, 11, 0); break; /*Loud Explosion*/
-
-		case 9:
-		 if (data)
-		  sample_start(11, 1, 1);
-		else
-		 sample_stop(11);
-
-		break; /*Extend Sound control*/
+		case 9:  /*Extend Sound control*/
+			if (data)
+				sample_start(11, 1, 1);
+			else
+				sample_stop(11);
+			break;
 
 		case 12:
-		 if (data) sample_start(11,12, 0); break; /*Insert Coin*/
-        }
-    }
+			if (data) sample_start(11,12, 0); break; /*Insert Coin*/
+		}
+	}
 
-    #ifdef MAME_DEBUG
- 	logerror("Sound output %x=%x\n",offset,data);
+	#ifdef MAME_DEBUG
+	logerror("Sound output %x=%x\n",offset,data);
 	#endif
 }
 
@@ -331,41 +305,41 @@ static INTERRUPT_GEN( panic_interrupt )
 {
 	if (cpu_getiloops() != 0)
 	{
-    	/* Coin insert - Trigger Sample */
+		/* Coin insert - Trigger Sample */
 
-        /* mostly not noticed since sound is */
+		/* mostly not noticed since sound is */
 		/* only enabled if game in progress! */
 
-    	if ((input_port_3_r(0) & 0xc0) != 0xc0)
-        	panic_sound_output_w(17,1);
+		if ((input_port_3_r(0) & 0xc0) != 0xc0)
+			panic_sound_output_w(17,1);
 
 		cpunum_set_input_line_and_vector(0, 0, HOLD_LINE, 0xcf);	/* RST 08h */
-    }
-    else
-    {
-        cpunum_set_input_line_and_vector(0, 0, HOLD_LINE, 0xd7);	/* RST 10h */
-    }
+	}
+	else
+	{
+		cpunum_set_input_line_and_vector(0, 0, HOLD_LINE, 0xd7);	/* RST 10h */
+	}
 }
 
 static INTERRUPT_GEN( cosmica_interrupt )
 {
-    pixel_clock = (pixel_clock + 2) & 0x3f;
+	pixel_clock = (pixel_clock + 2) & 0x3f;
 
-    if (pixel_clock == 0)
-    {
+	if (pixel_clock == 0)
+	{
 		if (readinputport(3) & 1)	/* Left Coin */
 			cpunum_set_input_line(0, INPUT_LINE_NMI, PULSE_LINE);
-    }
+	}
 }
 
 static INTERRUPT_GEN( cosmicg_interrupt )
 {
-    /* Insert Coin */
+	/* Insert Coin */
 
 	/* R Nabet : fixed to make this piece of code sensible.
-    I assumed that the interrupt request lasted for as long as the coin was "sensed".
-    It makes sense and works fine, but I cannot be 100% sure this is correct,
-    as I have no Cosmic Guerilla console :-) . */
+	I assumed that the interrupt request lasted for as long as the coin was "sensed".
+	It makes sense and works fine, but I cannot be 100% sure this is correct,
+	as I have no Cosmic Guerilla console :-) . */
 
 	if ((readinputport(2) & 1)) /* Coin */
 	{
@@ -383,7 +357,7 @@ static INTERRUPT_GEN( magspot2_interrupt )
 	/* Coin 1 causes an IRQ, Coin 2 an NMI */
 	if (input_port_4_r(0) & 0x01)
 	{
-  		cpunum_set_input_line(0, 0, HOLD_LINE);
+		cpunum_set_input_line(0, 0, HOLD_LINE);
 	}
 	else if (input_port_4_r(0) & 0x02)
 	{
@@ -425,25 +399,25 @@ static READ8_HANDLER( magspot2_coinage_dip_r )
 static READ8_HANDLER( nomnlnd_port_0_1_r )
 {
 	int control;
-    int fire = input_port_3_r(0);
+	int fire = input_port_3_r(0);
 
 	if (offset)
 		control = input_port_1_r(0);
-    else
+	else
 		control = input_port_0_r(0);
 
-    /* If firing - stop tank */
+	/* If firing - stop tank */
 
-    if ((fire & 0xc0) == 0) return 0xff;
+	if ((fire & 0xc0) == 0) return 0xff;
 
-    /* set bit according to 8 way direction */
+	/* set bit according to 8 way direction */
 
-    if ((control & 0x82) == 0 ) return 0xfe;    /* Up & Left */
-    if ((control & 0x0a) == 0 ) return 0xfb;    /* Down & Left */
-    if ((control & 0x28) == 0 ) return 0xef;    /* Down & Right */
-    if ((control & 0xa0) == 0 ) return 0xbf;    /* Up & Right */
+	if ((control & 0x82) == 0 ) return 0xfe;	/* Up & Left */
+	if ((control & 0x0a) == 0 ) return 0xfb;	/* Down & Left */
+	if ((control & 0x28) == 0 ) return 0xef;	/* Down & Right */
+	if ((control & 0xa0) == 0 ) return 0xbf;	/* Up & Right */
 
-    return control;
+	return control;
 }
 
 
@@ -1073,7 +1047,7 @@ static const gfx_layout cosmic_spritelayout32 =
 	{ 0*32*8+0, 0*32*8+1, 0*32*8+2, 0*32*8+3, 0*32*8+4, 0*32*8+5, 0*32*8+6, 0*32*8+7,
 	  1*32*8+0, 1*32*8+1, 1*32*8+2, 1*32*8+3, 1*32*8+4, 1*32*8+5, 1*32*8+6, 1*32*8+7,
 	  2*32*8+0, 2*32*8+1, 2*32*8+2, 2*32*8+3, 2*32*8+4, 2*32*8+5, 2*32*8+6, 2*32*8+7,
-  	  3*32*8+0, 3*32*8+1, 3*32*8+2, 3*32*8+3, 3*32*8+4, 3*32*8+5, 3*32*8+6, 3*32*8+7 },
+	  3*32*8+0, 3*32*8+1, 3*32*8+2, 3*32*8+3, 3*32*8+4, 3*32*8+5, 3*32*8+6, 3*32*8+7 },
 	{  0*8,  1*8,  2*8,  3*8,  4*8,  5*8,  6*8,  7*8,
 	   8*8,  9*8, 10*8, 11*8, 12*8, 13*8, 14*8, 15*8,
 	  16*8, 17*8, 18*8, 19*8, 20*8, 21*8, 22*8, 23*8,
@@ -1101,17 +1075,17 @@ static const char *panic_sample_names[] =
 {
 	"*panic",
 	"walk.wav",
-    "upordown.wav",
-    "trapped.wav",
-    "falling.wav",
-    "escaping.wav",
+	"upordown.wav",
+	"trapped.wav",
+	"falling.wav",
+	"escaping.wav",
 	"ekilled.wav",
-    "death.wav",
-    "elaugh.wav",
-    "extral.wav",
-    "oxygen.wav",
-    "coin.wav",
-	0       /* end of array */
+	"death.wav",
+	"elaugh.wav",
+	"extral.wav",
+	"oxygen.wav",
+	"coin.wav",
+	0		/* end of array */
 };
 
 static struct Samplesinterface panic_samples_interface =
@@ -1138,7 +1112,7 @@ static const char *cosmicg_sample_names[] =
 	"cg_gun.wav",	/* Gun Shot */
 	"cg_gotm.wav",	/* Got Monster */
 	"cg_ext.wav",	/* Coin Extend */
-	0       /* end of array */
+	0		/* end of array */
 };
 
 static struct Samplesinterface cosmicg_samples_interface =
@@ -1163,7 +1137,7 @@ static const char *cosmica_sample_names[] =
 	"loudexp.wav",
 	"smallexp.wav",
 	"coin.wav",
-	0       /* end of array */
+	0		/* end of array */
 };
 
 static struct Samplesinterface cosmica_samples_interface =
@@ -1232,7 +1206,7 @@ static MACHINE_DRIVER_START( cosmica )
 
 	MDRV_PALETTE_INIT(cosmica)
 	MDRV_VIDEO_UPDATE(cosmica)
-	
+
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
@@ -1249,10 +1223,10 @@ static MACHINE_DRIVER_START( cosmicg )
 
 	/* basic machine hardware */
 	MDRV_CPU_ADD(TMS9980, 1228500)
-			/* 9.828 MHz Crystal */
-			/* R Nabet : huh ? This would imply the crystal frequency is somehow divided by 2 before being
-            fed to the tms9904 or tms9980.  Also, I have never heard of a tms9900/9980 operating under
-            1.5MHz.  So, if someone can check this... */
+	/* 9.828 MHz Crystal */
+	/* R Nabet : huh ? This would imply the crystal frequency is somehow divided by 2 before being
+		fed to the tms9904 or tms9980.  Also, I have never heard of a tms9900/9980 operating under
+		1.5MHz.  So, if someone can check this... */
 	MDRV_CPU_PROGRAM_MAP(cosmicg_readmem,cosmicg_writemem)
 	MDRV_CPU_IO_MAP(cosmicg_readport,cosmicg_writeport)
 	MDRV_CPU_VBLANK_INT(cosmicg_interrupt,1)
@@ -1264,7 +1238,7 @@ static MACHINE_DRIVER_START( cosmicg )
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
 	MDRV_SCREEN_SIZE(32*8, 32*8)
 	MDRV_VISIBLE_AREA(0*8, 32*8-1, 4*8, 28*8-1)
-    MDRV_PALETTE_LENGTH(16)
+	MDRV_PALETTE_LENGTH(16)
 
 	MDRV_PALETTE_INIT(cosmicg)
 	MDRV_VIDEO_UPDATE(cosmicg)
@@ -1520,16 +1494,16 @@ ROM_END
 /* rom 9 not dumped according to readme? */
 ROM_START( magspot )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
-	ROM_LOAD( "ms1.bin",	  0x0000, 0x0800, CRC(59e9019d) SHA1(3c64ae956ec4eed988018b89c986ad8f6f065fe0) )
-	ROM_LOAD( "ms2.bin",	  0x0800, 0x0800, CRC(98b913b1) SHA1(2ce86f5069e2664e2ea44bda567ca26432fd59f7) )
-	ROM_LOAD( "ms3.bin",	  0x1000, 0x0800, CRC(ea58c124) SHA1(7551c14ed9563e3aed7220cc03f7bca4029b3a4e) )
-	ROM_LOAD( "ms5.bin",	  0x1800, 0x0800, CRC(4302a658) SHA1(9590be8db27b7122c87cfb27f8e09c2ecbf6fbd0) )
-	ROM_LOAD( "ms4.bin",	  0x2000, 0x0800, CRC(088582ab) SHA1(ad2d86184b4a6ee74464d1df40f4e841434c46c8) )
-	ROM_LOAD( "ms6.bin",	  0x2800, 0x0800, CRC(e6bf492c) SHA1(ada3a33c54b6c02f3fb9590181fceefafdc429bc) )
+	ROM_LOAD( "ms1.bin",      0x0000, 0x0800, CRC(59e9019d) SHA1(3c64ae956ec4eed988018b89c986ad8f6f065fe0) )
+	ROM_LOAD( "ms2.bin",      0x0800, 0x0800, CRC(98b913b1) SHA1(2ce86f5069e2664e2ea44bda567ca26432fd59f7) )
+	ROM_LOAD( "ms3.bin",      0x1000, 0x0800, CRC(ea58c124) SHA1(7551c14ed9563e3aed7220cc03f7bca4029b3a4e) )
+	ROM_LOAD( "ms5.bin",      0x1800, 0x0800, CRC(4302a658) SHA1(9590be8db27b7122c87cfb27f8e09c2ecbf6fbd0) )
+	ROM_LOAD( "ms4.bin",      0x2000, 0x0800, CRC(088582ab) SHA1(ad2d86184b4a6ee74464d1df40f4e841434c46c8) )
+	ROM_LOAD( "ms6.bin",      0x2800, 0x0800, CRC(e6bf492c) SHA1(ada3a33c54b6c02f3fb9590181fceefafdc429bc) )
 
 	ROM_REGION( 0x1000, REGION_GFX1, ROMREGION_DISPOSE )	/* sprites */
-	ROM_LOAD( "ms8.bin",	  0x0000, 0x0800, CRC(9e1d63a2) SHA1(d8642e515871da44880e105e6891c4b25222744f) )
-	ROM_LOAD( "ms7.bin",	  0x0800, 0x0800, CRC(1ab338d3) SHA1(4e3bf93f94119fd10c40953245cec735db8417fb) )
+	ROM_LOAD( "ms8.bin",      0x0000, 0x0800, CRC(9e1d63a2) SHA1(d8642e515871da44880e105e6891c4b25222744f) )
+	ROM_LOAD( "ms7.bin",      0x0800, 0x0800, CRC(1ab338d3) SHA1(4e3bf93f94119fd10c40953245cec735db8417fb) )
 
 	ROM_REGION( 0x0020, REGION_PROMS, 0 )
 	ROM_LOAD( "ms.d9",        0x0000, 0x0020, CRC(36e2aa2a) SHA1(4813b013cb8260157858e3adc7323efc6654e170) )
@@ -1665,24 +1639,24 @@ static DRIVER_INIT( cosmicg )
 
 	offs_t offs;
 
-    for (offs =0; offs < memory_region_length(REGION_CPU1); offs++)
+	for (offs =0; offs < memory_region_length(REGION_CPU1); offs++)
 	{
-        UINT8 scrambled = memory_region(REGION_CPU1)[offs];
+		UINT8 scrambled = memory_region(REGION_CPU1)[offs];
 
-        UINT8 normal = (scrambled >> 3 & 0x11)
-                       | (scrambled >> 1 & 0x22)
-                       | (scrambled << 1 & 0x44)
-                       | (scrambled << 3 & 0x88);
+		UINT8 normal = (scrambled >> 3 & 0x11)
+		               | (scrambled >> 1 & 0x22)
+		               | (scrambled << 1 & 0x44)
+		               | (scrambled << 3 & 0x88);
 
-        memory_region(REGION_CPU1)[offs] = normal;
-    }
+		memory_region(REGION_CPU1)[offs] = normal;
+	}
 
 
-    /* Patch to avoid crash - Seems like duff romcheck routine */
-    /* I would expect it to be bitrot, but have two romsets    */
-    /* from different sources with the same problem!           */
-    memory_region(REGION_CPU1)[0x1e9e] = 0x04;
-    memory_region(REGION_CPU1)[0x1e9f] = 0xc0;
+	/* Patch to avoid crash - Seems like duff romcheck routine */
+	/* I would expect it to be bitrot, but have two romsets    */
+	/* from different sources with the same problem!           */
+	memory_region(REGION_CPU1)[0x1e9e] = 0x04;
+	memory_region(REGION_CPU1)[0x1e9f] = 0xc0;
 }
 
 
