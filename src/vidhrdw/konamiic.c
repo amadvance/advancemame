@@ -2089,9 +2089,10 @@ READ8_HANDLER( K052109_r )
 		int bank = K052109_charrombank[(color & 0x0c) >> 2] >> 2;   /* discard low bits (TMNT) */
 		int addr;
 
-if (has_extra_video_ram) code |= color << 8;	/* kludge for X-Men */
-else
-		(*K052109_callback)(0,bank,&code,&color);
+		if (has_extra_video_ram)
+			code |= color << 8;	/* kludge for X-Men */
+		else
+			(*K052109_callback)(0,bank,&code,&color);
 
 		addr = (code << 5) + (offset & 0x1f);
 		addr &= memory_region_length(K052109_memory_region)-1;

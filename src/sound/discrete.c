@@ -375,8 +375,8 @@ static void discrete_stop(void *chip)
 	if (DISCRETE_DEBUGLOG)
 	{
 		/* close the debug log */
-	    if (discrete_current_context->disclogfile)
-	    	fclose(discrete_current_context->disclogfile);
+		if (discrete_current_context->disclogfile)
+			fclose(discrete_current_context->disclogfile);
 		discrete_current_context->disclogfile = NULL;
 	}
 }
