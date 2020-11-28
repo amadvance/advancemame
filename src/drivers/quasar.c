@@ -174,7 +174,7 @@ static READ8_HANDLER( quasar_IO_r )
 
 WRITE8_HANDLER( quasar_bullet_w )
 {
-    bullet_ram[offset] = (data ^ 0xff);
+	bullet_ram[offset] = (data ^ 0xff);
 }
 
 static int Quasar_T1=0;
@@ -266,7 +266,7 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( writeport_sound, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x00    , 0x7F    ) AM_WRITE(MWA8_RAM)
-  	AM_RANGE(I8039_p1, I8039_p1) AM_WRITE(Quasar_DAC_w)
+	AM_RANGE(I8039_p1, I8039_p1) AM_WRITE(Quasar_DAC_w)
 ADDRESS_MAP_END
 
 /************************************************************************
@@ -277,24 +277,24 @@ ADDRESS_MAP_END
 
 INPUT_PORTS_START( quasar )
 	PORT_START	/* Controls 0 */
-    PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
-    PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START2 )
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_COIN2 )
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 )
-    PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_TILT )
-	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON3 )			/* switch collaudo */
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_TILT )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE )			/* switch collaudo */
 
 	PORT_START	/* Controls 1 */
-	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON4 )			/* tavalino */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN )			/* tavalino */
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_COCKTAIL
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT )
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_COCKTAIL
 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )
-    PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_COCKTAIL
-    PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON2 )
-	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START3 )				/* count enable */
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_COCKTAIL
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )				/* count enable */
 
 	PORT_START	/* DSW0 */
 	PORT_DIPNAME( 0x0c, 0x04, DEF_STR( Coin_A ) )			/* confirmed */
@@ -392,7 +392,7 @@ static const gfx_layout s2636_character10 =
 	1,
 	{ 0 },
 	{ 0,1,2,3,4,5,6,7 },
-   	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8, 8*8, 9*8 },
+	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8, 8*8, 9*8 },
 	8*16
 };
 
@@ -411,9 +411,9 @@ static const gfx_decode gfxdecodeinfo[] =
 {
 	{ REGION_GFX1, 0x0000, &charlayout,     0, 256},		/* Rom chars */
 	{ REGION_GFX1, 0x0000, &charlayout8colour, 0, 259 },	/* Ram chars (NOT USED) */
-  	{ REGION_GFX1, 0x0000, &s2636_character10, 2072, 8 },	/* s2636 #1  */
-  	{ REGION_GFX1, 0x0000, &s2636_character10, 2072, 8 },	/* s2636 #2  */
-  	{ REGION_GFX1, 0x0000, &s2636_character10, 2072, 8 },	/* s2636 #3  */
+	{ REGION_GFX1, 0x0000, &s2636_character10, 2072, 8 },	/* s2636 #1  */
+	{ REGION_GFX1, 0x0000, &s2636_character10, 2072, 8 },	/* s2636 #2  */
+	{ REGION_GFX1, 0x0000, &s2636_character10, 2072, 8 },	/* s2636 #3  */
 	{ -1 } /* end of array */
 };
 
