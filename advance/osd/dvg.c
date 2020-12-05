@@ -54,31 +54,33 @@
 #include "jsmn.h"
 
 
-#define ARRAY_SIZE(a)          (sizeof(a)/sizeof((a)[0]))
-#define CMD_BUF_SIZE            0x20000
-#define FLAG_COMPLETE           0x0
-#define FLAG_RGB                0x1
-#define FLAG_XY                 0x2
-#define FLAG_EXIT               0x7
-#define FLAG_CMD                0x5
-#define FLAG_CMD_GET_DVG_INFO   0x1
+#define ARRAY_SIZE(a)           (sizeof(a)/sizeof((a)[0]))
+#define CMD_BUF_SIZE             0x20000
+#define FLAG_COMPLETE            0x0
+#define FLAG_RGB                 0x1
+#define FLAG_XY                  0x2
+#define FLAG_EXIT                0x7
+#define FLAG_CMD                 0x5
+#define FLAG_CMD_GET_DVG_INFO    0x1
 
-#define DVG_RES_MIN     0
-#define DVG_RES_MAX     4095
+#define FLAG_COMPLETE_MONOCHROME (1 << 28)
 
-#define SAVE_TO_FILE          0
-#define SORT_VECTORS          0
-#define MAX_VECTORS           0x10000
+#define DVG_RES_MIN              0
+#define DVG_RES_MAX              4095
+
+#define SAVE_TO_FILE             0
+#define SORT_VECTORS             0
+#define MAX_VECTORS              0x10000
 
 // Defining region codes 
-#define LEFT            0x1
-#define RIGHT           0x2
-#define BOTTOM          0x4
-#define TOP             0x8
+#define LEFT                     0x1
+#define RIGHT                    0x2
+#define BOTTOM                   0x4
+#define TOP                      0x8
 
-#define GAME_NONE       0
-#define GAME_ARMORA     1
-#define GAME_WARRIOR    2
+#define GAME_NONE                0
+#define GAME_ARMORA              1
+#define GAME_WARRIOR             2
 
 typedef struct vec_t {
     struct vec_t *next;
@@ -95,6 +97,7 @@ typedef struct {
     char     *name;
     uint32_t exclude_blank_vectors;
     uint32_t artwork;
+    uint32_t bw_game;
 } game_info_t;
 
 static uint32_t  s_exclude_blank_vectors;
@@ -120,6 +123,7 @@ static int32_t   s_last_b;
 static int32_t   s_intensity_table[256];
 static uint8_t   s_gamma_table[256]; 
 static uint32_t  s_artwork;
+static uint32_t  s_bw_game;
 static vector_t  *s_in_vec_list;
 static uint32_t  s_in_vec_cnt;
 static uint32_t  s_in_vec_last_x;
@@ -132,12 +136,23 @@ static uint32_t  s_vertical_display;
 
 
 static game_info_t s_games[] = {
-    {"armora" ,  0, GAME_ARMORA},
-    {"armorap" , 0, GAME_ARMORA},    
-    {"armorar",  0, GAME_ARMORA},
-    {"warrior" , 0, GAME_WARRIOR},
-    {"starwars", 1, GAME_NONE},
-    {"esb",      1, GAME_NONE}
+    {"armora",   0, GAME_ARMORA, 1},
+    {"asteroid", 0, GAME_NONE, 1},   
+    {"astdelux", 0, GAME_NONE, 1},   
+    {"llander",  0, GAME_NONE, 1},
+    {"barrier",  0, GAME_NONE, 1},
+    {"bzone",    0, GAME_NONE, 1},   
+    {"redbaron", 0, GAME_NONE, 1},   
+    {"ripoff",   0, GAME_NONE, 1},   
+    {"solarq",   0, GAME_NONE, 1},
+    {"speedfrk", 0, GAME_NONE, 1},  
+    {"starhawk", 0, GAME_NONE, 1},   
+    {"sundance", 0, GAME_NONE, 1},   
+    {"tailg",    0, GAME_NONE, 1},  
+    {"warrior",  0, GAME_WARRIOR, 1}, 
+    {"wotw",     0, GAME_NONE, 1},   
+    {"starwars", 1, GAME_NONE, 0},
+    {"esb",      1, GAME_NONE, 0}
 };
 
 
@@ -672,6 +687,9 @@ static int serial_send()
         cmd_add_point(s_out_vec_list[i].x1, s_out_vec_list[i].y1, s_out_vec_list[i].r, s_out_vec_list[i].g, s_out_vec_list[i].b);
     }   
     cmd = (FLAG_COMPLETE << 29); 
+    if (s_bw_game) {
+        cmd |= FLAG_COMPLETE_MONOCHROME;
+    }
     s_cmd_buf[s_cmd_offs++] = cmd >> 24;
     s_cmd_buf[s_cmd_offs++] = cmd >> 16;
     s_cmd_buf[s_cmd_offs++] = cmd >>  8;
@@ -724,15 +742,21 @@ int determine_game_settings()
         s_flip_x = 1;
     }  
 
+    s_bw_game               = 0;
     s_artwork               = GAME_NONE;
     s_exclude_blank_vectors = 0;
+#ifdef MESS
+    s_bw_game               = 1;
+#else
     for (i = 0 ; i < ARRAY_SIZE(s_games); i++) {
         if (!strcmp(Machine->gamedrv->name, s_games[i].name)) {
             s_artwork               = s_games[i].artwork;
             s_exclude_blank_vectors = s_games[i].exclude_blank_vectors;
+            s_bw_game               = s_games[i].bw_game;
             break;
         }
     }
+#endif
     return 0;    
 }
 
