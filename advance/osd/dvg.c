@@ -137,11 +137,18 @@ static uint32_t  s_vertical_display;
 
 static game_info_t s_games[] = {
     {"armora",   0, GAME_ARMORA, 1},
-    {"asteroid", 0, GAME_NONE, 1},   
+    {"armorap",  0, GAME_ARMORA, 1},
+    {"armorar",  0, GAME_ARMORA, 1},        
+    {"asteroid", 0, GAME_NONE, 1},  
+    {"asteroi1", 0, GAME_NONE, 1},    
     {"astdelux", 0, GAME_NONE, 1},   
+    {"astdelu1", 0, GAME_NONE, 1},  
     {"llander",  0, GAME_NONE, 1},
+    {"llander1", 0, GAME_NONE, 1},
     {"barrier",  0, GAME_NONE, 1},
     {"bzone",    0, GAME_NONE, 1},   
+    {"bzone2",   0, GAME_NONE, 1},  
+    {"bzonec",   0, GAME_NONE, 1},  
     {"redbaron", 0, GAME_NONE, 1},   
     {"ripoff",   0, GAME_NONE, 1},   
     {"solarq",   0, GAME_NONE, 1},
@@ -152,6 +159,7 @@ static game_info_t s_games[] = {
     {"warrior",  0, GAME_WARRIOR, 1}, 
     {"wotw",     0, GAME_NONE, 1},   
     {"starwars", 1, GAME_NONE, 0},
+    {"starwar1", 1, GAME_NONE, 0},
     {"esb",      1, GAME_NONE, 0}
 };
 
