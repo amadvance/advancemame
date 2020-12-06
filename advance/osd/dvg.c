@@ -911,9 +911,9 @@ int dvg_update(point *p, int num_points)
     if (num_points) {
         switch (s_artwork) {
             case GAME_ARMORA:
-                r = 0x99;
-                g = 0x99;
-                b = 0x10;
+                r = 108;
+                g = 108;
+                b = 108;
                 // Upper Right Quadrant
                 // Outer structure
                 cmd_add_vec(3446, 2048, 0, 0, 0);
@@ -1061,9 +1061,9 @@ int dvg_update(point *p, int num_points)
                 break;
 
             case GAME_WARRIOR:
-                r = 0x20;
-                g = 0x20;
-                b = 0x40;
+                r = 108;
+                g = 108;
+                b = 108;
                 cmd_add_vec(1187, 2232, 0, 0, 0);
                 cmd_add_vec(1863, 2232, r, g, b);
                 cmd_add_vec(1187, 1372, 0, 0, 0);
