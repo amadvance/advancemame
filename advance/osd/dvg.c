@@ -10,7 +10,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See thef
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -54,6 +54,9 @@
 #include "jsmn.h"
 
 
+// 0-15
+#define DVG_RELEASE             0
+#define DVG_BUILD               0
 #define ARRAY_SIZE(a)           (sizeof(a)/sizeof((a)[0]))
 #define CMD_BUF_SIZE             0x20000
 #define FLAG_COMPLETE            0x0
@@ -1095,11 +1098,15 @@ static void get_dvg_info()
     uint32_t cmd;
     uint8_t cmd_buf[4];
     int result;
+    uint32_t version, major, minor;
 
     if (s_json_length) {
         return;
     }
     cmd = (FLAG_CMD << 29) | FLAG_CMD_GET_DVG_INFO;
+    sscanf(ADV_VERSION, "%u.%u", &major, &minor);
+    version = ((major & 0xf) << 12) | ((minor & 0xf) << 8) | (DVG_RELEASE << 4) | (DVG_BUILD);
+    cmd |= version << 8;
     cmd_buf[0] = cmd >> 24;
     cmd_buf[1] = cmd >> 16;
     cmd_buf[2] = cmd >> 8;
