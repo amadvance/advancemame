@@ -134,8 +134,7 @@ WRITE8_HANDLER( asteroid_bank_switch_w )
 	int asteroid_newbank, cocktail;
 	unsigned char *RAM = memory_region(REGION_CPU1);
 
-	cocktail=readinputport(3);
-
+	cocktail=readinputport(3) & 0x1;
 	asteroid_newbank = (data >> 2) & 1;
 	if (asteroid_bank != asteroid_newbank) {
 		/* Perform bankswitching on page 2 and page 3 */
@@ -151,10 +150,11 @@ WRITE8_HANDLER( asteroid_bank_switch_w )
 	}
 	set_led_status (0, ~data & 0x02);
 	set_led_status (1, ~data & 0x01);
-    if (cocktail & 0x1) {
-        avg_set_flip_x(cocktail);
-        avg_set_flip_y(cocktail);
+    if (cocktail) {
+        avg_set_flip_x(asteroid_newbank);
+        avg_set_flip_y(asteroid_newbank);
     }
+
 
 }
 
