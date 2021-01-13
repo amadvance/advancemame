@@ -131,9 +131,10 @@ READ8_HANDLER( asteroid_DSW1_r )
 WRITE8_HANDLER( asteroid_bank_switch_w )
 {
 	static int asteroid_bank = 0;
-	int asteroid_newbank;
+	int asteroid_newbank, cocktail;
 	unsigned char *RAM = memory_region(REGION_CPU1);
 
+	cocktail=readinputport(3);
 
 	asteroid_newbank = (data >> 2) & 1;
 	if (asteroid_bank != asteroid_newbank) {
@@ -150,6 +151,11 @@ WRITE8_HANDLER( asteroid_bank_switch_w )
 	}
 	set_led_status (0, ~data & 0x02);
 	set_led_status (1, ~data & 0x01);
+    if (cocktail & 0x1) {
+        avg_set_flip_x(cocktail);
+        avg_set_flip_y(cocktail);
+    }
+
 }
 
 
