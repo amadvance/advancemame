@@ -146,15 +146,15 @@ WRITE8_HANDLER( asteroid_bank_switch_w )
 			temp = RAM[0x200 + i];
 			RAM[0x200 + i] = RAM[0x300 + i];
 			RAM[0x300 + i] = temp;
-		}
-	}
+		}    
+        if (cocktail) {
+            avg_set_flip_x(asteroid_bank);
+            avg_set_flip_y(asteroid_bank);
+        }
+    }
+    
 	set_led_status (0, ~data & 0x02);
 	set_led_status (1, ~data & 0x01);
-    if (cocktail) {
-        avg_set_flip_x(asteroid_newbank);
-        avg_set_flip_y(asteroid_newbank);
-    }
-
 
 }
 
@@ -162,10 +162,10 @@ WRITE8_HANDLER( asteroid_bank_switch_w )
 WRITE8_HANDLER( astdelux_bank_switch_w )
 {
 	static int astdelux_bank = 0;
-	int astdelux_newbank;
+	int astdelux_newbank, cocktail;
 	unsigned char *RAM = memory_region(REGION_CPU1);
 
-
+	cocktail=readinputport(4) & 0x1;
 	astdelux_newbank = (data >> 7) & 1;
 	if (astdelux_bank != astdelux_newbank) {
 		/* Perform bankswitching on page 2 and page 3 */
@@ -177,8 +177,13 @@ WRITE8_HANDLER( astdelux_bank_switch_w )
 			temp = RAM[0x200 + i];
 			RAM[0x200 + i] = RAM[0x300 + i];
 			RAM[0x300 + i] = temp;
-		}
+		}    
+        if (cocktail) {
+            avg_set_flip_x(astdelux_bank);
+            avg_set_flip_y(astdelux_bank);
+        }
 	}
+
 }
 
 
