@@ -39,7 +39,6 @@
 #include "driver.h"
 #include "avgdvg.h"
 #include "vector.h"
-#include "../lib/log.h"
 
 
 //#define VG_DEBUG
