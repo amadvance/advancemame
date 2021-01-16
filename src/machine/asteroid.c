@@ -155,6 +155,7 @@ WRITE8_HANDLER( asteroid_bank_switch_w )
     if (!cocktail) {
         avg_set_flip_x(0);
         avg_set_flip_y(0);       
+	    set_led_status (2, 0); 
     }
 	set_led_status (0, ~data & 0x02);
 	set_led_status (1, ~data & 0x01);
@@ -192,6 +193,7 @@ WRITE8_HANDLER( astdelux_bank_switch_w )
     if (!cocktail) {
         avg_set_flip_x(0);
         avg_set_flip_y(0);       
+	    set_led_status (2, 0); 
     }
     if (cocktail) {
 	    set_led_status (2, astdelux_bank); // RAMSEL signal reflected in LED2
