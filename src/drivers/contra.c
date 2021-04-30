@@ -63,9 +63,54 @@ static WRITE8_HANDLER( cpu_sound_command_w )
 	soundlatch_w(offset,data);
 }
 
+UINT32 math_regs[6];
+UINT16 multiply_result;
+UINT16 divide_quotient;
+UINT16 divide_remainder;
+
+
+READ8_HANDLER(contra_k007452_r)
+{
+	switch (offset & 7)
+	{
+		case 0: return multiply_result & 0xff;
+		case 1: return (multiply_result >> 8) & 0xff;
+		case 2: return divide_remainder & 0xff;
+		case 3: return (divide_remainder >> 8) & 0xff;
+		case 4:	return divide_quotient & 0xff;
+		case 5: return (divide_quotient >> 8) & 0xff;
+		default: return 0;
+	}
+}
+
+
+WRITE8_HANDLER(contra_k007452_w)
+{
+	if (offset < 6) math_regs[offset] = data;
+
+	if (offset == 1)
+	{
+		// Starts multiplication process
+		multiply_result = math_regs[0] * math_regs[1];
+	}
+	else if (offset == 5)
+	{
+		// Starts division process
+		UINT16 dividend = (math_regs[4]<<8) + math_regs[5];
+		UINT16 divisor = (math_regs[2]<<8) + math_regs[3];
+		if (!divisor) {
+			divide_quotient = 0xffff;
+			divide_remainder = 0x0000;
+		} else {
+			divide_quotient = dividend / divisor;
+			divide_remainder = dividend % divisor;
+		}
+	}
+}
 
 
 static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0008, 0x000f) AM_READ(contra_k007452_r)
 	AM_RANGE(0x0010, 0x0010) AM_READ(input_port_0_r)		/* IN0 */
 	AM_RANGE(0x0011, 0x0011) AM_READ(input_port_1_r)		/* IN1 */
 	AM_RANGE(0x0012, 0x0012) AM_READ(input_port_2_r)		/* IN2 */
@@ -82,6 +127,7 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x0007) AM_WRITE(contra_K007121_ctrl_0_w)
+	AM_RANGE(0x0008, 0x000f) AM_WRITE(contra_k007452_w)
 	AM_RANGE(0x0018, 0x0018) AM_WRITE(contra_coin_counter_w)
 	AM_RANGE(0x001a, 0x001a) AM_WRITE(contra_sh_irqtrigger_w)
 	AM_RANGE(0x001c, 0x001c) AM_WRITE(cpu_sound_command_w)
