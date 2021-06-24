@@ -244,7 +244,7 @@ Typically, only the high 2 bits are read.
 
 */
 
-static READ8_HANDLER( spacduel_IN3_r )
+static READ8_HANDLER(  spacduel_IN3_r )
 {
 	int res;
 	int res1;
@@ -301,8 +301,8 @@ static READ8_HANDLER( spacduel_IN3_r )
 WRITE8_HANDLER( bwidow_misc_w )
 {
 	/*
-        0x10 = p1 led
-        0x20 = p2 led
+        0x10 = p1 led (space duel: select led)
+        0x20 = p2 led (space duel: start led)
         0x01 = coin counter 1
         0x02 = coin counter 2
     */
@@ -315,6 +315,8 @@ WRITE8_HANDLER( bwidow_misc_w )
 	coin_counter_w(1, data & 0x02);
 	lastdata = data;
 }
+
+
 
 
 
@@ -351,7 +353,7 @@ static ADDRESS_MAP_START( spacduel_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0900, 0x0907) AM_READ(spacduel_IN3_r)	/* IN1 */
 	AM_RANGE(0x0905, 0x0906) AM_WRITE(MWA8_NOP) /* ignore? */
 	AM_RANGE(0x0a00, 0x0a00) AM_READ(atari_vg_earom_r)
-//  AM_RANGE(0x0c00, 0x0c00) AM_WRITE(coin_counter_w) /* coin out */
+    AM_RANGE(0x0c00, 0x0c00) AM_WRITE(bwidow_misc_w) 
 	AM_RANGE(0x0c80, 0x0c80) AM_WRITE(avgdvg_go_w)
 	AM_RANGE(0x0d00, 0x0d00) AM_WRITE(MWA8_NOP) /* watchdog clear */
 	AM_RANGE(0x0d80, 0x0d80) AM_WRITE(avgdvg_reset_w)
@@ -364,6 +366,7 @@ static ADDRESS_MAP_START( spacduel_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x2800, 0x3fff) AM_ROM
 	AM_RANGE(0x4000, 0xffff) AM_ROM
 ADDRESS_MAP_END
+
 
 
 
