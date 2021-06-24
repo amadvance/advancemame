@@ -56,7 +56,7 @@
 
 // 0-15
 #define DVG_RELEASE             0
-#define DVG_BUILD               0
+#define DVG_BUILD               1
 #define ARRAY_SIZE(a)           (sizeof(a)/sizeof((a)[0]))
 #define CMD_BUF_SIZE             0x20000
 #define FLAG_COMPLETE            0x0
