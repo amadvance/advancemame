@@ -451,7 +451,7 @@ int hardware_script_init(adv_conf* context)
 	conf_string_register_default(context, "script_play", "");
 	conf_string_register_default(context, "script_led1", "on(kdb, 0b1); wait(!event()); off(kdb, 0b1);");
 	conf_string_register_default(context, "script_led2", "on(kdb, 0b10); wait(!event()); off(kdb, 0b10);");
-	conf_string_register_default(context, "script_led3", "");
+	conf_string_register_default(context, "script_led3", "on(kdb, 0b100); wait(!event()); off(kdb, 0b100);");
 	conf_string_register_default(context, "script_coin1", "");
 	conf_string_register_default(context, "script_coin2", "");
 	conf_string_register_default(context, "script_coin3", "");
@@ -476,7 +476,7 @@ int hardware_script_init(adv_conf* context)
 	conf_string_register_default(context, "script_event12", "");
 	conf_string_register_default(context, "script_event13", "");
 	conf_string_register_default(context, "script_event14", "");
-	conf_string_register_default(context, "script_knocker", "on(kdb, 0b100); wait(!event()); off(kdb, 0b100);");
+	conf_string_register_default(context, "script_knocker", "");
 
 	STATE.active_flag = 0;
 
