@@ -227,6 +227,7 @@ static WRITE8_HANDLER( tempest_led_w )
 	set_led_status(0, ~data & 0x02);
 	set_led_status(1, ~data & 0x01);
 	/* FLIP is bit 0x04 */
+	set_led_status(2, data & 0x04);
 }
 
 
