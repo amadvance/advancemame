@@ -4602,6 +4602,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( mhavocrv )	/* (hack) */
 	DRIVER( alphaone )	/* (proto)          (c) 1983 */
 	DRIVER( alphaona )	/* (proto)          (c) 1983 */
+	DRIVER( mhavocpex7) /* 136025           (c) 2018 */
 	DRIVER( esb )		/* 136031           (c) 1985 */
 
 	/* Atari "Centipede hardware" games */

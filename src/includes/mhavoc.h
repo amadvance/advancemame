@@ -30,6 +30,7 @@ READ8_HANDLER( mhavoc_gamma_r );
 
 WRITE8_HANDLER( mhavoc_ram_banksel_w );
 WRITE8_HANDLER( mhavoc_rom_banksel_w );
+WRITE8_HANDLER( mhavocpe_rom_banksel_w );
 
 READ8_HANDLER( mhavoc_port_0_r );
 READ8_HANDLER( alphaone_port_0_r );

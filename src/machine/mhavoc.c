@@ -137,14 +137,12 @@ static void delayed_gamma_w(int data)
 
 WRITE8_HANDLER( mhavoc_gamma_w )
 {
-	logerror("  writing to gamma processor: %02x (%d %d)\n", data, gamma_rcvd, alpha_xmtd);
 	timer_set(TIME_NOW, data, delayed_gamma_w);
 }
 
 
 READ8_HANDLER( mhavoc_alpha_r )
 {
-	logerror("\t\t\t\t\treading from alpha processor: %02x (%d %d)\n", alpha_data, gamma_rcvd, alpha_xmtd);
 	gamma_rcvd = 1;
 	alpha_xmtd = 0;
 	return alpha_data;
@@ -160,7 +158,6 @@ READ8_HANDLER( mhavoc_alpha_r )
 
 WRITE8_HANDLER( mhavoc_alpha_w )
 {
-	logerror("\t\t\t\t\twriting to alpha processor: %02x %d %d\n", data, alpha_rcvd, gamma_xmtd);
 	alpha_rcvd = 0;
 	gamma_xmtd = 1;
 	gamma_data = data;
@@ -169,7 +166,6 @@ WRITE8_HANDLER( mhavoc_alpha_w )
 
 READ8_HANDLER( mhavoc_gamma_r )
 {
-	logerror("  reading from gamma processor: %02x (%d %d)\n", gamma_data, alpha_rcvd, gamma_xmtd);
 	alpha_rcvd = 1;
 	gamma_xmtd = 0;
 	return gamma_data;
@@ -189,7 +185,6 @@ WRITE8_HANDLER( mhavoc_ram_banksel_w )
 
 	data &= 0x01;
 	memory_set_bankptr(1, &ram_base[bank[data]]);
-/*  logerror("Alpha RAM select: %02x\n",data);*/
 }
 
 
@@ -199,7 +194,14 @@ WRITE8_HANDLER( mhavoc_rom_banksel_w )
 
 	data &= 0x03;
 	memory_set_bankptr(2, &ram_base[bank[data]]);
-/*  logerror("Alpha ROM select: %02x\n",data);*/
+}
+
+
+WRITE8_HANDLER( mhavocpe_rom_banksel_w )
+{
+	static const offs_t bank[8] = { 0x30000, 0x32000, 0x34000, 0x36000, 0x38000, 0x3a000, 0x3c000, 0x3e000 };
+    data = (data & 1) | ((data & 2)<<1) | ((data & 4)>>1);
+	memory_set_bankptr(2, &ram_base[bank[data]]);
 }
 
 
@@ -320,7 +322,6 @@ WRITE8_HANDLER( alphaone_out_0_w )
 	/* Bit 0 = left coin counter */
 	coin_counter_w(0, data & 0x01);
 
-logerror("alphaone_out_0_w(%02X)\n", data);
 }
 
 
