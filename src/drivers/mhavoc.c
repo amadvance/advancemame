@@ -870,4 +870,4 @@ GAME( 1983, mhavocrv, mhavoc, mhavoc,   mhavoc,   0, ROT0, "hack",  "Major Havoc
 GAME( 1983, mhavocp,  mhavoc, mhavoc,   mhavocp,  0, ROT0, "Atari", "Major Havoc (prototype)", 0 )
 GAME( 1983, alphaone, mhavoc, alphaone, alphaone, 0, ROT0, "Atari", "Alpha One (prototype, 3 lives)", 0 )
 GAME( 1983, alphaona, mhavoc, alphaone, alphaone, 0, ROT0, "Atari", "Alpha One (prototype, 5 lives)", 0 )
-GAME( 2018, mhavocpex7,mhavoc, mhavocpe, mhavoc,   0, ROT0, "HaxRus","Major Havoc (The Promised End)", 0 )
+GAME( 2021, mhavocpex7,mhavoc, mhavocpe, mhavoc,   0, ROT0, "JMA","Major Havoc-The Promised End (BETA 0.78)", 0 )
