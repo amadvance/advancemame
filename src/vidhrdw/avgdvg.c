@@ -108,6 +108,9 @@ static unsigned char *vectorbank[NUM_BANKS];
 
 static rgb_t sparkle_callback(void);
 
+void avg_add_point(int x, int y, rgb_t color, int intensity);
+void avg_add_point_callback(int x, int y, rgb_t (*color_callback)(void), int intensity);
+
 
 
 /*************************************
@@ -315,7 +318,7 @@ static int dvg_generate_vector_list(void)
 				total_length += dvg_vector_timer(temp);
 
 				/* add the new point */
-				vector_add_point(currentx, currenty, vcolorram[1], z);
+				avg_add_point(currentx, currenty, vcolorram[1], z);
 				break;
 
 			/* DSVEC: draw a short vector */
@@ -352,7 +355,7 @@ static int dvg_generate_vector_list(void)
 				total_length += dvg_vector_timer(temp);
 
 				/* add the new point */
-				vector_add_point(currentx, currenty, vcolorram[1], z);
+				avg_add_point(currentx, currenty, vcolorram[1], z);
 				break;
 
 			/* DLABS: move to an absolute location */
@@ -475,6 +478,8 @@ void avg_apply_flipping_and_swapping(int *x, int *y)
 		*y = temp - xcenter + ycenter;
 	}
 }
+
+
 
 void avg_add_point(int x, int y, rgb_t color, int intensity)
 {

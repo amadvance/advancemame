@@ -1002,7 +1002,7 @@ static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
 	KR2("period", "period", ".")
 	KR2("slash", "slash", "/")
 	KR2("colon", "colon", ":")
-	KR2("pound", "pound", "£")
+	KR2("pound", "pound", "Â£")
 	KR2("doublequote", "doublequote", "\"")
 	KR2("diesis", "diessi", "#")
 

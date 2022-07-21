@@ -222,7 +222,7 @@ OP(aa) {		  m6502_ICount -= 2;		 TAX;		  } /* 2 TAX */
 OP(ca) {		  m6502_ICount -= 2;		 DEX;		  } /* 2 DEX */
 OP(ea) {		  m6502_ICount -= 2;		 NOP;		  } /* 2 NOP */
 
-OP(1a) {		  m6502_ICount -= 2;		 ILL;		  } /* 2 ILL */
+OP(1a) {		  m6502_ICount -= 2;		 NOP;		  } /* 2 NOP */
 OP(3a) {		  m6502_ICount -= 2;		 ILL;		  } /* 2 ILL */
 OP(5a) {		  m6502_ICount -= 2;		 ILL;		  } /* 2 ILL */
 OP(7a) {		  m6502_ICount -= 2;		 ILL;		  } /* 2 ILL */

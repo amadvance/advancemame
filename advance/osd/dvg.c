@@ -56,7 +56,7 @@
 
 // 0-15
 #define DVG_RELEASE             0
-#define DVG_BUILD               0
+#define DVG_BUILD               1
 #define ARRAY_SIZE(a)           (sizeof(a)/sizeof((a)[0]))
 #define CMD_BUF_SIZE             0x20000
 #define FLAG_COMPLETE            0x0
@@ -141,26 +141,33 @@ static uint32_t  s_vertical_display;
 static game_info_t s_games[] = {
     {"armora",   0, GAME_ARMORA, 1},
     {"armorap",  0, GAME_ARMORA, 1},
-    {"armorar",  0, GAME_ARMORA, 1},        
-    {"asteroid", 0, GAME_NONE, 1},  
-    {"asteroi1", 0, GAME_NONE, 1},    
-    {"astdelux", 0, GAME_NONE, 1},   
-    {"astdelu1", 0, GAME_NONE, 1},  
+    {"armorar",  0, GAME_ARMORA, 1},
+    {"asteroid", 0, GAME_NONE, 1},
+    {"asteroi1", 0, GAME_NONE, 1},
+    {"astdelux", 0, GAME_NONE, 1},
+    {"astdelu1", 0, GAME_NONE, 1},
     {"llander",  0, GAME_NONE, 1},
     {"llander1", 0, GAME_NONE, 1},
+    {"demon",    0, GAME_NONE, 1},
     {"barrier",  0, GAME_NONE, 1},
-    {"bzone",    0, GAME_NONE, 1},   
-    {"bzone2",   0, GAME_NONE, 1},  
-    {"bzonec",   0, GAME_NONE, 1},  
-    {"redbaron", 0, GAME_NONE, 1},   
-    {"ripoff",   0, GAME_NONE, 1},   
+    {"bzone",    0, GAME_NONE, 1},
+    {"bzone2",   0, GAME_NONE, 1},
+    {"bzonec",   0, GAME_NONE, 1},
+    {"redbaron", 0, GAME_NONE, 1},
+    {"omegrace", 0, GAME_NONE, 1},
+    {"ripoff",   0, GAME_NONE, 1},
     {"solarq",   0, GAME_NONE, 1},
-    {"speedfrk", 0, GAME_NONE, 1},  
-    {"starhawk", 0, GAME_NONE, 1},   
-    {"sundance", 0, GAME_NONE, 1},   
-    {"tailg",    0, GAME_NONE, 1},  
-    {"warrior",  0, GAME_WARRIOR, 1}, 
-    {"wotw",     0, GAME_NONE, 1},   
+    {"speedfrk", 0, GAME_NONE, 1},
+    {"starhawk", 0, GAME_NONE, 1},
+    {"sundance", 0, GAME_NONE, 1},
+    {"tailg",    0, GAME_NONE, 1},
+    {"warrior",  0, GAME_WARRIOR, 1},
+    {"wotw",     0, GAME_NONE, 1},
+    {"spacewar", 0, GAME_NONE, 1},
+    {"starcas",  0, GAME_NONE, 1},
+    {"starcas1", 0, GAME_NONE, 1},
+    {"starcasp", 0, GAME_NONE, 1},
+    {"starcase", 0, GAME_NONE, 1},
     {"starwars", 1, GAME_NONE, 0},
     {"starwar1", 1, GAME_NONE, 0},
     {"esb",      1, GAME_NONE, 0}
