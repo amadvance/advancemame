@@ -2279,7 +2279,7 @@ static READ8_HANDLER( kaiteids_cycle_r ) // by bkc
 
 static READ8_HANDLER( uccops_cycle_r )
 {
-	int a=m92_ram[0x3f28]+(m92_ram[0x3f29]<<8);
+	int a=m92_ram[0x3f18]+(m92_ram[0x3f19]<<8); // MODIFIED 3f28 to 3f18, 3f29 to 3f19
 	int b=m92_ram[0x3a00]+(m92_ram[0x3a01]<<8);
 	int c=m92_ram[0x3a02]+(m92_ram[0x3a03]<<8);
 	int d=activecpu_geticount();
@@ -2291,13 +2291,14 @@ static READ8_HANDLER( uccops_cycle_r )
 			cpu_spinuntil_int();
 			/* Update internal counter based on cycles left to run */
 			a=(a+d/127)&0xffff; /* 127 cycles per loop increment */
-			m92_ram[0x3f28]=a&0xff;
-			m92_ram[0x3f29]=a>>8;
+			m92_ram[0x3f18]=a&0xff;  // MODIFIED
+			m92_ram[0x3f19]=a>>8;  // MODIFIED
 		}
 	}
 
 	return m92_ram[0x3a02 + offset];
 }
+
 
 static READ8_HANDLER( rtypeleo_cycle_r )
 {
