@@ -10,6 +10,7 @@
     Thunder Blaster (Japan)                 (c) 1991 Irem Corp
     Undercover Cops (World)                 (c) 1992 Irem Corp
     Undercover Cops (Japan)                 (c) 1992 Irem Corp
+    Undercover Cops (Alpha Renewal)	    (c) 1992 Irem Corp
     Mystic Riders (World)                   (c) 1992 Irem Corp
     Gun Hohki (Japan)                       (c) 1992 Irem Corp
     Major Title 2 (World)           M92-F   (c) 1992 Irem Corp
@@ -23,10 +24,10 @@
     In The Hunt (World)             M92-E   (c) 1993 Irem Corp
     In The Hunt (USA)               M92-E   (c) 1993 Irem Corp
     Kaitei Daisensou (Japan)        M92-E   (c) 1993 Irem Corp
-    Ninja Baseball Batman (USA)             (c) 1993 Irem America Corp
+    Ninja Baseball Bat Man (USA)            (c) 1993 Irem America Corp
     Yakyuu Kakutou League-Man (Japan)       (c) 1993 Irem Corp
     Perfect Soldiers (Japan)        M92-G   (c) 1993 Irem Corp
-    Dream Soccer 94 (Japan)         M92-G   (c) 1994 Irem Corp
+    Dream Soccer '94 (Japan)        M92-G   (c) 1994 Irem Corp
     Gunforce 2 (US)                 M92-G   (c) 1994 Irem Corp
     Geostorm (Japan)                M92-G   (c) 1994 Irem Corp
 
@@ -70,7 +71,7 @@ Glitch list!
     LeagueMan:
         Raster effects don't work properly (not even cpu time per line?).
 
-    Dream Soccer 94:
+    Dream Soccer '94:
         Slight priority problems when goal scoring animation is played
 
     Emulation by Bryan McPhail, mish@tendril.co.uk
@@ -90,7 +91,7 @@ Major Title 2                 1992  Rev 3.44 M92
 Hook                          1992  Rev 3.45 M92
 R-Type Leo                    1992  Rev 3.45 M92
 In The Hunt                   1993  Rev 3.45 M92
-Ninja Baseball Batman         1993  Rev 3.50 M92
+Ninja Baseball Bat Man        1993  Rev 3.50 M92
 Perfect Soldiers              1993  Rev 3.50 M92
 World PK Soccer               1995  Rev 3.51 M92
 Fire Barrel                   1993  Rev 3.52 M92
@@ -2279,7 +2280,7 @@ static READ8_HANDLER( kaiteids_cycle_r ) // by bkc
 
 static READ8_HANDLER( uccops_cycle_r )
 {
-	int a=m92_ram[0x3f18]+(m92_ram[0x3f19]<<8); // MODIFIED 3f28 to 3f18, 3f29 to 3f19
+	int a=m92_ram[0x3f28]+(m92_ram[0x3f29]<<8);
 	int b=m92_ram[0x3a00]+(m92_ram[0x3a01]<<8);
 	int c=m92_ram[0x3a02]+(m92_ram[0x3a03]<<8);
 	int d=activecpu_geticount();
@@ -2291,14 +2292,37 @@ static READ8_HANDLER( uccops_cycle_r )
 			cpu_spinuntil_int();
 			/* Update internal counter based on cycles left to run */
 			a=(a+d/127)&0xffff; /* 127 cycles per loop increment */
-			m92_ram[0x3f18]=a&0xff;  // MODIFIED
-			m92_ram[0x3f19]=a>>8;  // MODIFIED
+			m92_ram[0x3f28]=a&0xff;
+			m92_ram[0x3f29]=a>>8;
 		}
 	}
 
 	return m92_ram[0x3a02 + offset];
 }
 
+
+static READ8_HANDLER( uccopsj_cycle_r )
+{
+	int a=m92_ram[0x3f18]+(m92_ram[0x3f19]<<8);
+	int b=m92_ram[0x3a00]+(m92_ram[0x3a01]<<8);
+	int c=m92_ram[0x3a02]+(m92_ram[0x3a03]<<8);
+	int d=activecpu_geticount();
+	int line = 256 - cpu_getiloops();
+
+	/* If possible skip this cpu segment - idle loop */
+	if (d>159 && d<0xf0000000 && line<247) {
+		if ((activecpu_get_pc()==0x900ff || activecpu_get_pc()==0x90103) && b==c && offset==1) {
+			cpu_spinuntil_int();
+			/* Update internal counter based on cycles left to run */
+			a=(a+d/127)&0xffff; /* 127 cycles per loop increment */
+			m92_ram[0x3f18]=a&0xff;
+			m92_ram[0x3f19]=a>>8;
+		}
+	}
+
+	return m92_ram[0x3a02 + offset];
+	
+}
 
 static READ8_HANDLER( rtypeleo_cycle_r )
 {
@@ -2446,6 +2470,14 @@ static DRIVER_INIT( uccops )
 	init_m92(dynablaster_decryption_table, 1);
 }
 
+
+static DRIVER_INIT( uccopsj )
+{
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0xe3a02, 0xe3a03, 0, 0, uccopsj_cycle_r);
+	init_m92(dynablaster_decryption_table, 1);
+}
+
+
 static DRIVER_INIT( rtypeleo )
 {
 	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0xe0032, 0xe0033, 0, 0, rtypeleo_cycle_r);
@@ -2558,8 +2590,8 @@ GAME( 1991, bmaster,  0,        nonraster, bmaster,  bmaster,  ROT0,   "Irem",  
 GAME( 1991, lethalth, 0,        lethalth,  lethalth, lethalth, ROT270, "Irem",         "Lethal Thunder (World)", 0 )
 GAME( 1991, thndblst, lethalth, lethalth,  lethalth, lethalth, ROT270, "Irem",         "Thunder Blaster (Japan)", 0 )
 GAME( 1992, uccops,   0,        raster,    uccops,   uccops,   ROT0,   "Irem",         "Undercover Cops (World)", 0 )
-GAME( 1992, uccopsar, uccops,   raster,    uccops,   uccops,   ROT0,   "Irem",         "Undercover Cops  - Alpha Renewal Version", 0 )
-GAME( 1992, uccopsj,  uccops,   raster,    uccops,   uccops,   ROT0,   "Irem",         "Undercover Cops (Japan)", 0 )
+GAME( 1992, uccopsar, uccops,   raster,    uccops,   uccopsj,  ROT0,   "Irem",         "Undercover Cops - Alpha Renewal Version", 0 )
+GAME( 1992, uccopsj,  uccops,   raster,    uccops,   uccopsj,  ROT0,   "Irem",         "Undercover Cops (Japan)", 0 )
 GAME( 1992, mysticri, 0,        nonraster, mysticri, mysticri, ROT0,   "Irem",         "Mystic Riders (World)", 0 )
 GAME( 1992, gunhohki, mysticri, nonraster, mysticri, mysticri, ROT0,   "Irem",         "Gun Hohki (Japan)", 0 )
 GAME( 1992, majtitl2, 0,        raster,    majtitl2, majtitl2, ROT0,   "Irem",         "Major Title 2 (World)", GAME_IMPERFECT_GRAPHICS )
@@ -2572,8 +2604,8 @@ GAME( 1992, rtypeleo, 0,        raster,    rtypeleo, rtypeleo, ROT0,   "Irem",  
 GAME( 1992, rtypelej, rtypeleo, raster,    rtypeleo, rtypelej, ROT0,   "Irem",         "R-Type Leo (Japan)", 0 )
 GAME( 1993, inthunt,  0,        raster,    inthunt,  inthunt,  ROT0,   "Irem",         "In The Hunt (World)", 0 )
 GAME( 1993, inthuntu, inthunt,  raster,    inthunt,  inthunt,  ROT0,   "Irem America", "In The Hunt (US)", 0 )
-GAME( 1993, kaiteids, inthunt,  raster,    inthunt,  kaiteids,  ROT0,   "Irem",         "Kaitei Daisensou (Japan)", 0 )
-GAME( 1993, nbbatman, 0,        raster,    nbbatman, nbbatman, ROT0,   "Irem America", "Ninja Baseball Batman (US)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, kaiteids, inthunt,  raster,    inthunt,  kaiteids, ROT0,   "Irem",         "Kaitei Daisensou (Japan)", 0 )
+GAME( 1993, nbbatman, 0,        raster,    nbbatman, nbbatman, ROT0,   "Irem America", "Ninja Baseball Bat Man (US)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1993, leaguemn, nbbatman, raster,    nbbatman, nbbatman, ROT0,   "Irem",         "Yakyuu Kakutou League-Man (Japan)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1993, ssoldier, 0,        psoldier,  psoldier, ssoldier, ROT0,   "Irem America", "Superior Soldiers (US)", GAME_IMPERFECT_SOUND )
 GAME( 1993, psoldier, ssoldier, psoldier,  psoldier, psoldier, ROT0,   "Irem",         "Perfect Soldiers (Japan)", GAME_IMPERFECT_SOUND )
