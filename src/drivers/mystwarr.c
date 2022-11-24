@@ -6,7 +6,7 @@
  * Violent Storm (c) 1993 Konami
  * Martial Champion (c) 1993 Konami
  * Gaiapolis (c) 1993 Konami
- * Ultimate Battler Dadandarn!! (c) 1993 Konami
+ * Ultimate Battler Dadandarn (c) 1993 Konami
  *
  * Driver by R. Belmont, Phil Stroffolino, Acho Tang, and Nicola Salmoria.
  * Assists from Olivier Galibert, Brian Troha, The Guru, and Yasuhiro Ogawa.
@@ -509,7 +509,7 @@ static ADDRESS_MAP_START( vsreadmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x27c000, 0x27c001) AM_READ(MRA16_NOP)		// watchdog lives here
 	AM_RANGE(0x300000, 0x301fff) AM_READ(K056832_ram_word_r)
 	AM_RANGE(0x302000, 0x303fff) AM_READ(K056832_ram_word_r) // tilemap RAM mirror read(essential)
-	AM_RANGE(0x304000, 0x3041ff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x304000, 0x305fff) AM_READ(K056832_ram_word_r) // tilemap RAM mirror read(essential)
 	AM_RANGE(0x310000, 0x311fff) AM_READ(K056832_mw_rom_word_r)
 	AM_RANGE(0x330000, 0x331fff) AM_READ(MRA16_RAM)
 #if MW_DEBUG
@@ -544,7 +544,7 @@ static ADDRESS_MAP_START( vswritemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x27C000, 0x27C001) AM_WRITE(mmeeprom_w)
 	AM_RANGE(0x300000, 0x301fff) AM_WRITE(K056832_ram_word_w)
 	AM_RANGE(0x302000, 0x303fff) AM_WRITE(K056832_ram_word_w) // tilemap RAM mirror write(essential)
-	AM_RANGE(0x304000, 0x3041ff) AM_WRITE(MWA16_RAM)
+	AM_RANGE(0x304000, 0x305fff) AM_WRITE(K056832_ram_word_w) // tilemap RAM mirror write(essential)
 	AM_RANGE(0x330000, 0x331fff) AM_WRITE(paletteram16_xrgb_word_be_w) AM_BASE(&paletteram16)
 ADDRESS_MAP_END
 
