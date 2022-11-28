@@ -27,7 +27,11 @@
 
 
     Todo:
-
+    
+    Due to an un-emulated protection the behavior of the two final 
+    bosses (Clown and Karnow) is altered, but the game is perfectly 
+    playable and can be completed. (Scandy)
+   
     Tattoo Assassins & Dragongun use an unemulated chip (Ace/Jack) for
     special blending effects.  It's exact effect is unclear.
 
