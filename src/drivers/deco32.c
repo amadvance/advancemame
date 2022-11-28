@@ -27,7 +27,12 @@
 
 
     Todo:
-
+    
+    Due to an un-emulated protection the behavior of the two final 
+    bosses is altered: Clown just dodges or parries; in the stage 
+    against Karnov the player automatically wins to avoid a possible 
+    bug, and thus having the possibility to see the ending. (Scandy)
+   
     Tattoo Assassins & Dragongun use an unemulated chip (Ace/Jack) for
     special blending effects.  It's exact effect is unclear.
 
@@ -231,7 +236,7 @@ Notes:
 #include "sound/okim6295.h"
 #include "sound/bsmt2000.h"
 
-static UINT32 *deco32_ram;
+UINT32 *deco32_ram;
 static int raster_enable,raster_offset;
 static void *raster_irq_timer;
 static UINT8 nslasher_sound_irq;
