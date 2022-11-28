@@ -1694,7 +1694,7 @@ READ32_HANDLER( deco16_146_fghthist_prot_r )
 		)
 	{
 		logerror("Protection PC %06x: warning - read unmapped protection address %04x (ret %04x)\n", activecpu_get_pc(), addr, val);
-		ui_popup("Read protection port %04x", addr);
+		// ui_popup("Read protection port %04x", addr);
 	}
 	//  logerror("Protection PC %06x: warning - read unmapped protection address %04x (ret %04x)\n", activecpu_get_pc(), addr, val);
 
