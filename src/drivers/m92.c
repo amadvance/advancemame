@@ -362,6 +362,11 @@ static WRITE8_HANDLER( m92_sound_status_w )
 		sound_status = (data<<8) | (sound_status&0xff);
 }
 
+static WRITE8_HANDLER( m92_sound_reset_w )
+{
+   cpunum_set_input_line(1, INPUT_LINE_RESET, (data) ? CLEAR_LINE : ASSERT_LINE);
+}
+
 /*****************************************************************************/
 
 static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -428,6 +433,18 @@ static ADDRESS_MAP_START( writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x90, 0x97) AM_WRITE(m92_pf3_control_w)
 	AM_RANGE(0x98, 0x9f) AM_WRITE(m92_master_control_w)
 //  AM_RANGE(0xc0, 0xc1) AM_WRITE(m92_unknown_w)    // sound related?
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( psoldier_writeport, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x00, 0x01) AM_WRITE(m92_soundlatch_w)
+	AM_RANGE(0x02, 0x03) AM_WRITE(m92_coincounter_w)
+	AM_RANGE(0x20, 0x21) AM_WRITE(m92_bankswitch_w)
+	AM_RANGE(0x40, 0x43) AM_WRITE(MWA8_NOP) /* Interrupt controller, only written to at bootup */
+	AM_RANGE(0x80, 0x87) AM_WRITE(m92_pf1_control_w)
+	AM_RANGE(0x88, 0x8f) AM_WRITE(m92_pf2_control_w)
+	AM_RANGE(0x90, 0x97) AM_WRITE(m92_pf3_control_w)
+	AM_RANGE(0x98, 0x9f) AM_WRITE(m92_master_control_w)
+	AM_RANGE(0xc0, 0xc1) AM_WRITE(m92_sound_reset_w)	// sound related?
 ADDRESS_MAP_END
 
 /******************************************************************************/
@@ -1317,7 +1334,7 @@ static MACHINE_DRIVER_START( psoldier )
 	/* basic machine hardware */
 	MDRV_CPU_ADD(V33, 18000000/2)		/* NEC V33, 18 MHz clock */
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
-	MDRV_CPU_IO_MAP(readport,writeport)
+	MDRV_CPU_IO_MAP(readport,psoldier_writeport)
 	MDRV_CPU_VBLANK_INT(m92_interrupt,1)
 
 	MDRV_CPU_ADD(V30, 14318180/2)
@@ -2607,8 +2624,8 @@ GAME( 1993, inthuntu, inthunt,  raster,    inthunt,  inthunt,  ROT0,   "Irem Ame
 GAME( 1993, kaiteids, inthunt,  raster,    inthunt,  kaiteids, ROT0,   "Irem",         "Kaitei Daisensou (Japan)", 0 )
 GAME( 1993, nbbatman, 0,        raster,    nbbatman, nbbatman, ROT0,   "Irem America", "Ninja Baseball Bat Man (US)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1993, leaguemn, nbbatman, raster,    nbbatman, nbbatman, ROT0,   "Irem",         "Yakyuu Kakutou League-Man (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, ssoldier, 0,        psoldier,  psoldier, ssoldier, ROT0,   "Irem America", "Superior Soldiers (US)", GAME_IMPERFECT_SOUND )
-GAME( 1993, psoldier, ssoldier, psoldier,  psoldier, psoldier, ROT0,   "Irem",         "Perfect Soldiers (Japan)", GAME_IMPERFECT_SOUND )
+GAME( 1993, ssoldier, 0,        psoldier,  psoldier, ssoldier, ROT0,   "Irem America", "Superior Soldiers (US)", 0 )
+GAME( 1993, psoldier, ssoldier, psoldier,  psoldier, psoldier, ROT0,   "Irem",         "Perfect Soldiers (Japan)", 0 )
 GAME( 1994, dsccr94j, dsoccr94, psoldier,  dsccr94j, dsccr94j, ROT0,   "Irem",         "Dream Soccer '94 (Japan)", 0 )
 GAME( 1994, gunforc2, 0,        raster,    gunforc2, gunforc2, ROT0,   "Irem",         "Gunforce 2 (US)", 0 )
 GAME( 1994, geostorm, gunforc2, raster,    gunforc2, gunforc2, ROT0,   "Irem",         "Geostorm (Japan)", 0 )
