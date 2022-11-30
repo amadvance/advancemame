@@ -235,7 +235,7 @@ Notes:
 #include "sound/okim6295.h"
 #include "sound/bsmt2000.h"
 
-static UINT32 *deco32_ram;
+UINT32 *deco32_ram;
 static int raster_enable,raster_offset;
 static void *raster_irq_timer;
 static UINT8 nslasher_sound_irq;
