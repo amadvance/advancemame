@@ -1639,6 +1639,12 @@ READ32_HANDLER( deco16_146_fghthist_prot_r )
 {
 	UINT16 addr=BITSWAP16(offset<<1, 0, 0, 0, 0, 0, 10, 1, 9, 2, 8, 3, 7, 4, 6, 5, 0);
 	UINT16 val;
+	
+	if (addr==0x49)
+	{
+		extern UINT32* deco32_ram;		
+		deco32_ram[0x9e5 / 4] = 0; // Finish this Round Now!
+	}
 
 	/* Special case inputs, because this is the only game with an eprom */
 	switch (addr)
