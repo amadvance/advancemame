@@ -1640,10 +1640,12 @@ READ32_HANDLER( deco16_146_fghthist_prot_r )
 	UINT16 addr=BITSWAP16(offset<<1, 0, 0, 0, 0, 0, 10, 1, 9, 2, 8, 3, 7, 4, 6, 5, 0);
 	UINT16 val;
 	
-	if (addr==0x49)
+	if (addr==0x24)
 	{
-		extern UINT32* deco32_ram;		
-		deco32_ram[0x9e5 / 4] = 0; // Finish this Round Now!
+		extern UINT32* deco32_ram;
+		deco32_ram[0x5dd / 4] = 0; // Drain all P2 energy (1/2) 
+		deco32_ram[0xb00 / 4] = 0; // Drain all P2 energy (2/2)
+		// deco32_ram[0x9e5 / 4] = 0; // Finish this Round Now!
 	}
 
 	/* Special case inputs, because this is the only game with an eprom */
