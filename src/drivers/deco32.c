@@ -29,8 +29,9 @@
     Todo:
     
     Due to an un-emulated protection the behavior of the two final 
-    bosses (Clown and Karnow) is altered, but the game is perfectly 
-    playable and can be completed. (Scandy)
+    bosses is altered: Clown just dodges or parries; in the stage 
+    against Karnov the player automatically wins to avoid a possible 
+    bug, and thus having the possibility to see the ending. (Scandy)
    
     Tattoo Assassins & Dragongun use an unemulated chip (Ace/Jack) for
     special blending effects.  It's exact effect is unclear.
