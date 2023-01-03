@@ -1405,7 +1405,7 @@ int event_open(const char* file, unsigned char* evtype_bitmask, unsigned evtype_
 
 	if (evtype_bitmask) {
 		memset(evtype_bitmask, 0, evtype_size);
-		if (ioctl(f, EVIOCGBIT(0, EV_MAX), evtype_bitmask) < 0) {
+		if (ioctl(f, EVIOCGBIT(0, evtype_size), evtype_bitmask) < 0) {
 			log_std(("event: error in ioctl(EVIOCGBIT(0,%d)) on device %s\n", (int)EV_MAX, file));
 			goto err_close;
 		}
