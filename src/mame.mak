@@ -765,6 +765,7 @@ $(OBJ)/kaneko.a: \
 	$(OBJ)/drivers/galpani2.o $(OBJ)/vidhrdw/galpani2.o \
 	$(OBJ)/drivers/galpani3.o \
 	$(OBJ)/drivers/jchan.o \
+	$(OBJ)/drivers/hvyunit.o \
 	$(OBJ)/drivers/kaneko16.o $(OBJ)/machine/kaneko16.o $(OBJ)/vidhrdw/kaneko16.o \
 	$(OBJ)/drivers/suprnova.o $(OBJ)/vidhrdw/suprnova.o \
 
