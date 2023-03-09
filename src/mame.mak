@@ -1198,6 +1198,7 @@ $(OBJ)/tad.a: \
 	$(OBJ)/drivers/cabal.o $(OBJ)/vidhrdw/cabal.o \
 	$(OBJ)/drivers/goal92.o $(OBJ)/vidhrdw/goal92.o \
 	$(OBJ)/drivers/legionna.o $(OBJ)/vidhrdw/legionna.o \
+	$(OBJ)/drivers/denjinmk.o $(OBJ)/machine/seicop.o $(OBJ)/vidhrdw/denjinmk.o \
 	$(OBJ)/drivers/toki.o $(OBJ)/vidhrdw/toki.o \
 
 $(OBJ)/taito.a: \
