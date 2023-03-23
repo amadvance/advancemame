@@ -522,7 +522,7 @@ DEFS_LINUX = -DSTDC_HEADERS=1 -DHAVE_SYS_WAIT_H=1 -DHAVE_DIRENT_H=1 -DTIME_WITH_
 # Optimized
 WHOLE_CFLAGS_OPT = -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-strict-overflow -fno-merge-constants -Wall -Wno-sign-compare -Wno-unused
 WHOLE_CFLAGS_EMU =
-WHOLE_LDFLAGS = -s
+WHOLE_LDFLAGS =
 
 ARCH_X86 = CONF_MAP=yes CONF_ARCH=x86 CONF_CFLAGS_OPT="-march=i686 $(WHOLE_CFLAGS_OPT)" CONF_CFLAGS_EMU="$(WHOLE_CFLAGS_EMU)" CONF_LDFLAGS="$(WHOLE_LDFLAGS)"
 

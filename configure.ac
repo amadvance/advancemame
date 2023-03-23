@@ -230,7 +230,7 @@ if test $ac_auto_ldflags = yes ; then
 			LDFLAGS="-g"
 		fi
 	else
-		LDFLAGS="-s"
+		LDFLAGS=""
 	fi
 	if test ! -z $ac_host_ldflags; then
 		LDFLAGS="$ac_host_ldflags $LDFLAGS"
