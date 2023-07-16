@@ -181,6 +181,7 @@ extern int megasys1_bits_per_color_code;
 
 /* Functions */
 VIDEO_START( megasys1 );
+VIDEO_EOF( megasys1 );
 
 WRITE16_HANDLER( megasys1_scrollram_0_w );
 WRITE16_HANDLER( megasys1_scrollram_1_w );
