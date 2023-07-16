@@ -213,6 +213,7 @@ static tilemap *megasys1_tilemap[3][2][4];
 
 /* Variables defined in driver: */
 static int hardware_type_z;
+static UINT16 *megasys1_buffer_objectram,*megasys1_buffer2_objectram,*megasys1_buffer_spriteram16,*megasys1_buffer2_spriteram16;
 
 static void create_tilemaps(void);
 
@@ -246,6 +247,10 @@ VIDEO_START( megasys1 )
 	int i;
 
 	spriteram16 = &megasys1_ram[0x8000/2];
+	megasys1_buffer_objectram = auto_malloc(0x2000);
+	megasys1_buffer_spriteram16 = auto_malloc(0x2000);
+	megasys1_buffer2_objectram = auto_malloc(0x2000);
+	megasys1_buffer2_spriteram16 = auto_malloc(0x2000);
 
 	create_tilemaps();
 	megasys1_tmap[0] = megasys1_tilemap[0][0][0];
@@ -589,8 +594,8 @@ static void draw_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
 		{
 			for (sprite = 0; sprite < 4 ; sprite ++)
 			{
-				UINT16 *objectdata = &megasys1_objectram[offs + (0x800/2) * sprite];
-				UINT16 *spritedata = &spriteram16[ (objectdata[ 0 ] & 0x7f) * 0x10/2];
+	            UINT16 *objectdata = &megasys1_buffer2_objectram[offs + (0x800/2) * sprite];
+				UINT16 *spritedata = &megasys1_buffer2_spriteram16[ (objectdata[ 0 ] & 0x7f) * 0x10/2];
 
 				attr = spritedata[ 8/2 ];
 				if (((attr & 0xc0)>>6) != sprite)	continue;	// flipping
@@ -702,20 +707,6 @@ int megasys1_layers_order[16];
 
 */
 
-static const struct priority priorities[] =
-{
-	{	"64street",
-		{ 0xfffff,0x03142,0xfffff,0x04132,0xfffff,0x04132,0xfffff,0xfffff,
-		  0xfffff,0xfffff,0xfffff,0xfffff,0xfffff,0xfffff,0xfffff,0xfffff }
-	},
-	{	"chimerab",
-		{ 0x14032,0x04132,0x14032,0x04132,0xfffff,0xfffff,0xfffff,0xfffff,
-		  0xfffff,0xfffff,0x01324,0xfffff,0xfffff,0xfffff,0xfffff,0xfffff }
-	},
-	{	0	}	// end of list: use the prom's data
-};
-
-
 /*
     Convert the 512 bytes in the Priority Prom into 16 ints, encoding
     the layers order for 16 selectable priority schemes.
@@ -764,27 +755,8 @@ PALETTE_INIT( megasys1 )
 {
 	int pri_code, offset, i, order;
 
-	/* First check if we have an hand-crafted priority scheme
-       available (this should happen only if no good dump
-       of the prom is known) */
-
-	i = 0;
-	while (	priorities[i].driver &&
-			strcmp(priorities[i].driver, Machine->gamedrv->name) != 0 &&
-			strcmp(priorities[i].driver, Machine->gamedrv->parent) != 0)
-		i++;
-
-	if (priorities[i].driver)
-	{
-		memcpy (megasys1_layers_order, priorities[i].priorities, 16 * sizeof(int));
-
-		logerror("WARNING: using an hand-crafted priorities scheme\n");
-
-		return;
-	}
-
-	/* Otherwise, perform the conversion from the prom itself */
-
+    /* convert PROM to something we can use */
+	
 	for (pri_code = 0; pri_code < 0x10 ; pri_code++)	// 16 priority codes
 	{
 		int layers_order[2];	// 2 layers orders (split sprites on/off)
@@ -1020,4 +992,16 @@ VIDEO_UPDATE( megasys1 )
 
 	if (active_layers & 0x08)
 		draw_sprites(bitmap,cliprect);
+}
+
+VIDEO_EOF( megasys1 )
+{
+	/* Sprite are TWO frames ahead, like NMK16 HW. */
+/* megasys1_objectram */
+	memcpy(megasys1_buffer2_objectram,megasys1_buffer_objectram, 0x2000);
+	memcpy(megasys1_buffer_objectram, megasys1_objectram, 0x2000);
+/* spriteram16 */
+	memcpy(megasys1_buffer2_spriteram16, megasys1_buffer_spriteram16, 0x2000);
+	memcpy(megasys1_buffer_spriteram16, spriteram16, 0x2000);
+
 }
