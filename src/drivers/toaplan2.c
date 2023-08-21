@@ -17,6 +17,7 @@ Supported games:
     tekipaki    TP-020        Toaplan       Teki Paki
     ghox        TP-021        Toaplan       Ghox
     dogyuun     TP-022        Toaplan       Dogyuun
+    dogyuunto   TP-022        Toaplan       Dogyuun (8/25/1992 location test)
     kbash       TP-023        Toaplan       Knuckle Bash
     kbash2      bootleg       Toaplan       Knuckle Bash 2
     truxton2    TP-024        Toaplan       Truxton 2 / Tatsujin 2
@@ -218,6 +219,7 @@ Game status:
 Teki Paki                      Working, but no sound. Missing sound MCU dump. Chip is protected. It's a QFP80 Hitachi HD647180.
 Ghox                           Working, but no sound. Missing sound MCU dump. It's a QFP80 Hitachi HD647180.
 Dogyuun                        Working, but no sound. MCU type is likely a NEC V25+. Chip is a PLCC94 stamped 'TS-002-MACH'.
+Dogyuun (location test)        Working.
 Knuckle Bash                   Working, but sound FX only (missing music). MCU type is a NEC V25+. Chip is a PLCC94 stamped 'TS-004-DASH'. Some PCBs use another version stamped 'NITRO' which is the same chip type.
 Truxton 2                      Working.
 Pipi & Bibis                   Working.
@@ -1998,6 +2000,42 @@ static ADDRESS_MAP_START( dogyuun_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x700000, 0x700001) AM_READ(video_count_r)			/* test bit 8 */
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( dogyuun_z80_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x07ffff) AM_READ(MRA16_ROM)
+	AM_RANGE(0x100000, 0x103fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x218000, 0x218fff) AM_READ(toaplan2_shared_r)
+	AM_RANGE(0x21c020, 0x21c021) AM_READ(port_tag_to_handler16("IN1"))	/* Player 1 controls */
+	AM_RANGE(0x21c024, 0x21c025) AM_READ(port_tag_to_handler16("IN2"))	/* Player 2 controls */
+	AM_RANGE(0x21c028, 0x21c029) AM_READ(port_tag_to_handler16("SYS"))	/* Coin/System inputs */
+	AM_RANGE(0x21c02c, 0x21c02d) AM_READ(port_tag_to_handler16("DSWA"))	/* Dip Switch A */
+	AM_RANGE(0x21c030, 0x21c031) AM_READ(port_tag_to_handler16("DSWB"))	/* Dip Switch B */
+	AM_RANGE(0x21f008, 0x21f009) AM_READ(port_tag_to_handler16("JMPR"))	/* Territory Jumper block */ /* no change over the V25 set assumed to be the same */
+	/***** The following in 0x30000x are for video controller 1 ******/
+	AM_RANGE(0x300004, 0x300007) AM_READ(toaplan2_0_videoram16_r)/* tile layers */
+	AM_RANGE(0x30000c, 0x30000d) AM_READ(toaplan2_inputport_0_word_r)	/* VBlank */
+	AM_RANGE(0x400000, 0x400fff) AM_READ(paletteram16_word_r)
+	/***** The following in 0x50000x are for video controller 2 ******/
+	AM_RANGE(0x500004, 0x500007) AM_READ(toaplan2_1_videoram16_r)/* tile layers 2 */
+	AM_RANGE(0x700000, 0x700001) AM_READ(video_count_r)			/* test bit 8 */
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( dogyuun_z80_writemem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x07ffff) AM_WRITE(MWA16_ROM)
+	AM_RANGE(0x100000, 0x103fff) AM_WRITE(MWA16_RAM)
+	AM_RANGE(0x21c01d, 0x21c01d) AM_WRITE(toaplan2_coin_word_w)
+	AM_RANGE(0x218000, 0x218fff) AM_WRITE(toaplan2_shared_w)
+	/***** The following in 0x30000x are for video controller 1 ******/
+	AM_RANGE(0x300000, 0x300001) AM_WRITE(toaplan2_0_voffs_w)	/* VideoRAM selector/offset */
+	AM_RANGE(0x300004, 0x300007) AM_WRITE(toaplan2_0_videoram16_w)/* Tile/Sprite VideoRAM */
+	AM_RANGE(0x300008, 0x300009) AM_WRITE(toaplan2_0_scroll_reg_select_w)
+	AM_RANGE(0x30000c, 0x30000d) AM_WRITE(toaplan2_0_scroll_reg_data_w)
+	AM_RANGE(0x400000, 0x400fff) AM_WRITE(paletteram16_xBBBBBGGGGGRRRRR_word_w) AM_BASE(&paletteram16)
+	/***** The following in 0x50000x are for video controller 2 ******/
+	AM_RANGE(0x500000, 0x500001) AM_WRITE(toaplan2_1_voffs_w)	/* VideoRAM selector/offset */
+	AM_RANGE(0x500004, 0x500007) AM_WRITE(toaplan2_1_videoram16_w)/* Tile/Sprite VideoRAM */
+	AM_RANGE(0x500008, 0x500009) AM_WRITE(toaplan2_1_scroll_reg_select_w)
+	AM_RANGE(0x50000c, 0x50000d) AM_WRITE(toaplan2_1_scroll_reg_data_w)
+ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( kbash_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x07ffff) AM_ROM
@@ -2505,6 +2543,20 @@ static ADDRESS_MAP_START( V25_port, ADDRESS_SPACE_IO, 8 )
 ADDRESS_MAP_END
 #endif
 
+static ADDRESS_MAP_START( dogyuun_z80_sound_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_READ(MRA8_ROM)
+	AM_RANGE(0xc000, 0xc7ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0xe001, 0xe001) AM_READ(YM2151_status_port_0_r)
+	AM_RANGE(0xe004, 0xe004) AM_READ(OKIM6295_status_0_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( dogyuun_z80_sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0xc000, 0xc7ff) AM_WRITE(MWA8_RAM) AM_BASE(&toaplan2_shared_ram)
+	AM_RANGE(0xe000, 0xe000) AM_WRITE(YM2151_register_port_0_w)
+	AM_RANGE(0xe001, 0xe001) AM_WRITE(YM2151_data_port_0_w)
+	AM_RANGE(0xe004, 0xe004) AM_WRITE(OKIM6295_data_0_w)
+ADDRESS_MAP_END
 
 
 /*****************************************************************************
@@ -4136,6 +4188,45 @@ static MACHINE_DRIVER_START( dogyuun )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( dogyuunto )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(M68000, 24000000/2)		/* 12MHz Oscillator */
+	MDRV_CPU_PROGRAM_MAP(dogyuun_z80_readmem,dogyuun_z80_writemem)
+	MDRV_CPU_VBLANK_INT(toaplan2_vblank_irq4,262)
+
+	MDRV_CPU_ADD(Z80,27000000/8)			/* ??? 3.37MHz , 27MHz Oscillator */
+	MDRV_CPU_PROGRAM_MAP(dogyuun_z80_sound_readmem,dogyuun_z80_sound_writemem)
+
+
+	MDRV_FRAMES_PER_SECOND( (27000000.0 / 4) / (432 * 263) )
+	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
+
+	MDRV_MACHINE_RESET(dogyuun)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_BEFORE_VBLANK)
+	MDRV_SCREEN_SIZE(32*16, 32*16)
+	MDRV_VISIBLE_AREA(0, 319, 0, 239)
+	MDRV_GFXDECODE(gfxdecodeinfo_2)
+	MDRV_PALETTE_LENGTH(2048)
+
+	MDRV_VIDEO_START(toaplan2_1)
+	MDRV_VIDEO_EOF(toaplan2_1)
+	MDRV_VIDEO_UPDATE(dogyuun_1)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+
+	MDRV_SOUND_ADD(YM2151, 27000000/8)
+	MDRV_SOUND_ROUTE(0, "left", 0.25)
+	MDRV_SOUND_ROUTE(1, "right", 0.25)
+
+	MDRV_SOUND_ADD(OKIM6295, 1056000/132)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.40)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.40)
+MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( kbash )
 
@@ -4856,6 +4947,25 @@ ROM_START( dogyuun )
 
 	ROM_REGION( 0x40000, REGION_SOUND1, 0 )		/* ADPCM Samples */
 	ROM_LOAD( "tp022_2.w30", 0x00000, 0x40000, CRC(043271b3) SHA1(c7eaa929e55dd956579b824ea9d20a1d0129a925) )
+ROM_END
+
+ROM_START( dogyuunto )
+	ROM_REGION( 0x080000, REGION_CPU1, 0 )			/* Main 68K code */
+	ROM_LOAD16_WORD_SWAP( "8-25.u11", 0x000000, 0x080000, CRC(4d3c952f) SHA1(194f3065c513238921047ead8b425c3d0538b9a7) ) // real hand-written label is '8/25'
+
+	ROM_REGION( 0x08000,  REGION_CPU2, 0 )
+	ROM_LOAD( "u25", 0x00000, 0x08000, CRC(41a34a7e) SHA1(c4f7833249436fd064c7088c9776d12dee4a7d39) ) // only had a white label
+
+	ROM_REGION( 0x200000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD16_WORD_SWAP( "tp022_3.w92", 0x000000, 0x100000, CRC(191b595f) SHA1(89344946daa18087cc83f92027cf5da659b1c7a5) )
+	ROM_LOAD16_WORD_SWAP( "tp022_4.w93", 0x100000, 0x100000, CRC(d58d29ca) SHA1(90d142fef37764ef817347a2bed77892a288a077) )
+
+	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD16_WORD_SWAP( "tp022_5.w16", 0x000000, 0x200000, CRC(d4c1db45) SHA1(f5655467149ba737128c2f54c9c6cdaca6e4c35c) )
+	ROM_LOAD16_WORD_SWAP( "tp022_6.w17", 0x200000, 0x200000, CRC(d48dc74f) SHA1(081b5a00a2ff2bd82b98b30aab3cb5b6ae1014d5) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 )		/* ADPCM Samples */
+	ROM_LOAD( "2m.u29", 0x00000, 0x40000, CRC(5e7a77d8) SHA1(da6beb5e8e015965ff42fd52f5aa0c0ae5bcee4f) ) // '2M' hand-written
 ROM_END
 
 
@@ -5641,6 +5751,7 @@ GAME( 1991, tekipaki, 0,        tekipaki, tekipaki, T2_Z180,  ROT0,   "Toaplan",
 GAME( 1991, ghox,     0,        ghox,     ghox,     T2_Z180,  ROT270, "Toaplan", "Ghox", 0 )
 GAME( 1991, ghoxj,    ghox,     ghox,     ghox,     T2_Z180,  ROT270, "Toaplan", "Ghox (Joystick version)", 0 )
 GAME( 1992, dogyuun,  0,        dogyuun,  dogyuun,  T2_V25,   ROT270, "Toaplan", "Dogyuun", 0 )
+GAME( 1992, dogyuunto,dogyuun,  dogyuunto,dogyuun,  T2_Z80,   ROT270, "Toaplan", "Dogyuun (8/25/1992 location test)", 0 )
 GAME( 1993, kbash,    0,        kbash,    kbash,    T2_V25,   ROT0,   "Toaplan", "Knuckle Bash", GAME_IMPERFECT_SOUND )
 GAME( 1999, kbash2,   0,        kbash2,   kbash2,   T2_noZ80, ROT0,   "bootleg", "Knuckle Bash 2 (bootleg)", 0 )
 GAME( 1992, truxton2, 0,        truxton2, truxton2, T2_noZ80, ROT270, "Toaplan", "Truxton II / Tatsujin II / Tatsujin Oh (Japan)", 0 )
