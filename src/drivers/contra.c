@@ -54,7 +54,7 @@ WRITE8_HANDLER( contra_bankswitch_w )
 	if (bankaddress < 0x28000)	/* for safety */
 		memory_set_bankptr(1,&RAM[bankaddress]);
     else
-		usrintf_showmessage("bankswitch %X", data & 0xf);
+		ui_popup("bankswitch %X", data & 0xf);
 }
 
 WRITE8_HANDLER( contra_sh_irqtrigger_w )
