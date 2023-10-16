@@ -11,10 +11,18 @@ Notes:
   rely on vblank for timing. It all seems to be controlled by the CPU clock.
   The NMI handler just handles the "Stop Mode" dip switch.
 
+TS 2008.06.14:
+- Addedd sound emulation - atomboy and fghtbskt req different interrupt (T1)
+  timing than wilytowr, otherwise music/fx tempo is too fast.
+  Music tempo and pitch verified on real pcb.
+- Extra space in atomboy 2764 eproms is filled with garbage z80 code
+  (taken from one of code roms, but from different offset)
+- Fghtbskt has one AY, but every frame writes 0 to 2nd AY regs - probably
+  leftover from Wily Tower sound driver/code
+- I'm not sure about sound_status write - maybe it's something else or
+  different data (p1?) is used as status
+
 TODO:
-- Sound: it's difficult to guess how the I8039 is connected... there's also a
-  OKI MSM80C39RS chip.
-- One unknown ROM. Samples?
 - Sprite positioning is wacky. The electric 'bands' that go along the pipes
   are drawn 2 pixels off in x/y directions. If you fix that, then the player
   sprite doesn't slide in the middle of the pipes when climbing...
@@ -34,6 +42,9 @@ UINT8 *wilytowr_videoram2, *wilytowr_scrollram;
 static int pal_bank, fg_flag, sy_offset;
 
 static tilemap *bg_tilemap, *fg_tilemap;
+static UINT8 sound_irq;
+static int sound_status;
+static int p1,p2;
 
 
 PALETTE_INIT( wilytowr )
@@ -209,6 +220,17 @@ static void wilytowr_draw_sprites( mame_bitmap *bitmap )
 			sx, sy,
 			&Machine->visible_area,
 			TRANSPARENCY_PEN, 0);
+			
+	    /* sprite wrapping - verified on real hardware*/
+		if(sx>0xf0)
+		{
+		    drawgfx(bitmap, Machine->gfx[2],
+			code, color,
+			flipx, flipy,
+			sx-0x100, sy,
+			&Machine->visible_area,
+			TRANSPARENCY_PEN, 0);
+		}
 	}
 }
 
@@ -233,12 +255,10 @@ static WRITE8_HANDLER( coin_w )
 
 static WRITE8_HANDLER( snd_irq_w )
 {
-	cpunum_set_input_line(1, 0, PULSE_LINE);
+	cpunum_set_input_line(1, 0, ASSERT_LINE);
+	timer_set(TIME_NOW, 0, NULL); /* correct i think */
 }
 
-
-
-static int p1,p2;
 
 static WRITE8_HANDLER( snddata_w )
 {
@@ -251,9 +271,8 @@ static WRITE8_HANDLER( snddata_w )
 		AY8910_control_port_1_w(0,offset);
 	else if (num_ays == 2 && (p1 & 0xe0) == 0x40)
 		AY8910_write_port_1_w(0,offset);
-	else // if ((p2 & 0xf0) != 0x70)
-		/* the port address is the data, while the data seems to be control bits */
-		logerror("%04x: snddata_w ctrl = %02x, p1 = %02x, p2 = %02x, data = %02x\n",activecpu_get_pc(),data,p1,p2,offset);
+    else if ((p2 & 0xf0) == 0x70 )
+		sound_status=offset;
 }
 
 static WRITE8_HANDLER( p1_w )
@@ -264,8 +283,36 @@ static WRITE8_HANDLER( p1_w )
 static WRITE8_HANDLER( p2_w )
 {
 	p2 = data;
+	if((p2&0xf0)==0x50)
+	{
+		cpunum_set_input_line(1, 0, CLEAR_LINE);
+	}
 }
 
+static READ8_HANDLER( snd_status_r )
+{
+	return sound_status;
+}
+
+static READ8_HANDLER( irq_r )
+{
+	if (sound_irq)
+	{
+		sound_irq = 0;
+		return 1;
+	}
+	return 0;
+}
+
+static READ8_HANDLER( snddata_r )
+{
+	switch(p2&0xf0)
+	{
+		case 0x60:	return soundlatch_r(0); ;
+		case 0x70:	return memory_region(REGION_USER1)[((p1&0x1f)<<8)|offset];
+	}
+	return 0xff;
+}
 
 static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0xbfff) AM_READ(MRA8_ROM)
@@ -291,7 +338,7 @@ static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xf003, 0xf003) AM_WRITE(wilytwr_palbank_w)
 	AM_RANGE(0xf006, 0xf007) AM_WRITE(coin_w)
 	AM_RANGE(0xf800, 0xf800) AM_WRITE(soundlatch_w)
-	AM_RANGE(0xf801, 0xf801) AM_WRITE(watchdog_reset_w)	/* unknown (cleared by NMI handler) */
+	AM_RANGE(0xf801, 0xf801) AM_WRITE(MWA8_NOP)	/* unknown (cleared by NMI handler) */
 	AM_RANGE(0xf803, 0xf803) AM_WRITE(snd_irq_w)
 ADDRESS_MAP_END
 
@@ -305,7 +352,7 @@ static ADDRESS_MAP_START( fghtbskt_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xd400, 0xd7ff) AM_READWRITE(MRA8_RAM, wilytowr_videoram2_w) AM_BASE(&wilytowr_videoram2)
 	AM_RANGE(0xd800, 0xdbff) AM_READWRITE(MRA8_RAM, wilytowr_videoram_w) AM_BASE(&videoram)
 	AM_RANGE(0xdc00, 0xdfff) AM_READWRITE(MRA8_RAM, wilytowr_colorram_w) AM_BASE(&colorram)
-	AM_RANGE(0xf000, 0xf000) AM_READNOP //sound status
+	AM_RANGE(0xf000, 0xf000) AM_READ(snd_status_r)
 	AM_RANGE(0xf001, 0xf001) AM_READ(input_port_0_r)
 	AM_RANGE(0xf002, 0xf002) AM_READ(input_port_1_r)
 	AM_RANGE(0xf003, 0xf003) AM_READ(input_port_2_r)
@@ -331,8 +378,8 @@ static ADDRESS_MAP_START( i8039_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( i8039_readport, ADDRESS_SPACE_IO, 8 )
-//  AM_RANGE(0x00, 0xff)
-//  AM_RANGE(I8039_t1, I8039_t1)
+    AM_RANGE(0x00, 0xff) AM_READ(snddata_r)
+	AM_RANGE(I8039_t1, I8039_t1) AM_READ(irq_r)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( i8039_writeport, ADDRESS_SPACE_IO, 8 )
@@ -376,6 +423,11 @@ INPUT_PORTS_START( wilytowr )
 	PORT_DIPNAME( 0x08, 0x00, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0c, 0x00, "Bonus Points Rate" ) 
+	PORT_DIPSETTING(    0x00, "Normal" )
+	PORT_DIPSETTING(    0x04, "x1.2" )
+	PORT_DIPSETTING(    0x08, "x1.4" )
+	PORT_DIPSETTING(    0x0c, "x1.6" )
 	/* TODO: support the different settings which happen in Coin Mode 2 */
 	PORT_DIPNAME( 0xf0, 0x00, DEF_STR( Coinage ) ) /* mapped on coin mode 1 */
 	PORT_DIPSETTING(    0x60, DEF_STR( 7C_1C ) )
@@ -528,18 +580,24 @@ static struct Samplesinterface custom_interface =
 	fghtbskt_sh_start
 };
 
+/* we'll use standard interrupt handling seems fine with it */
+static INTERRUPT_GEN( snd_irq )
+{
+	sound_irq = 1;
+}
 
 static MACHINE_DRIVER_START( wilytowr )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(Z80,4000000)	/* 4 MHz ???? */
+	MDRV_CPU_ADD(Z80,12000000/4)	/* 3 MHz */
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
 	MDRV_CPU_VBLANK_INT(nmi_line_pulse,1)
 
-	MDRV_CPU_ADD(I8039,8000000/15)	/* ????? */
+	MDRV_CPU_ADD(I8039,12000000/4)	/* ????? */
 	/* audio CPU */
 	MDRV_CPU_PROGRAM_MAP(i8039_readmem,i8039_writemem)
 	MDRV_CPU_IO_MAP(i8039_readport,i8039_writeport)
+	MDRV_CPU_PERIODIC_INT(snd_irq, 60)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
@@ -558,11 +616,49 @@ static MACHINE_DRIVER_START( wilytowr )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(AY8910, 3579545/4)
+	MDRV_SOUND_ADD(AY8910, 12000000/8)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.20)
 
-	MDRV_SOUND_ADD(AY8910, 3579545/4)
+	MDRV_SOUND_ADD(AY8910, 12000000/8)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0) /* music needs to be louder */
+MACHINE_DRIVER_END
+
+/* different sound irq value */
+static MACHINE_DRIVER_START( atomboy )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(Z80,12000000/4)	/* 3 MHz */
+	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
+	MDRV_CPU_VBLANK_INT(nmi_line_pulse,1)
+
+	MDRV_CPU_ADD(I8039,12000000/4)	/* ????? */
+	/* audio CPU */
+	MDRV_CPU_PROGRAM_MAP(i8039_readmem,i8039_writemem)
+	MDRV_CPU_IO_MAP(i8039_readport,i8039_writeport)
+	MDRV_CPU_PERIODIC_INT(snd_irq, 60/2)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(32*8, 32*8)
+	MDRV_VISIBLE_AREA(0*8, 32*8-1, 2*8, 30*8-1)
+	MDRV_GFXDECODE(gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(256+4)
+
+	MDRV_PALETTE_INIT(wilytowr)
+	MDRV_VIDEO_START(wilytowr)
+	MDRV_VIDEO_UPDATE(wilytowr)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(AY8910, 12000000/8)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.20)
+
+	MDRV_SOUND_ADD(AY8910, 12000000/8)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0) /* music needs to be louder */
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( fghtbskt )
@@ -576,6 +672,7 @@ static MACHINE_DRIVER_START( fghtbskt )
 	/* audio CPU */
 	MDRV_CPU_PROGRAM_MAP(i8039_readmem,i8039_writemem)
 	MDRV_CPU_IO_MAP(i8039_readport,i8039_writeport)
+    MDRV_CPU_PERIODIC_INT(snd_irq, 60/2)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
@@ -640,7 +737,7 @@ ROM_START( wilytowr )
 	ROM_LOAD( "wt_a-3p.bin",  0x4000, 0x1000, CRC(7299f362) SHA1(5ba309d789df8432c08d67e4f9e8bf6c447fc425) )
 	ROM_LOAD( "wt_a-3s.bin",  0x5000, 0x1000, CRC(9b37d50d) SHA1(a08d4a7654b815cb652be66dbaa097011327f5d5) )
 
-	ROM_REGION( 0x1000, REGION_USER1, 0 )	/* unknown; sound? */
+	ROM_REGION( 0x2000, REGION_USER1, 0 )
 	ROM_LOAD( "wt_a-6d.bin",  0x0000, 0x1000, CRC(a5dde29b) SHA1(8f7545d2022da7c98d47112179dce717f6c3c5e2) )
 
 	ROM_REGION( 0x0320, REGION_PROMS, 0 )
@@ -681,7 +778,7 @@ ROM_START( atomboy )
 	ROM_LOAD( "wt_a-3p.bin",  0x4000, 0x1000, CRC(7299f362) SHA1(5ba309d789df8432c08d67e4f9e8bf6c447fc425) )
 	ROM_LOAD( "wt_a-3s.bin",  0x5000, 0x1000, CRC(9b37d50d) SHA1(a08d4a7654b815cb652be66dbaa097011327f5d5) )
 
-	ROM_REGION( 0x1000, REGION_USER1, 0 )	/* unknown; sound? */
+	ROM_REGION( 0x1000, REGION_USER1, 0 )
 	ROM_LOAD( "wt_a-6d.bin",  0x0000, 0x1000, CRC(a5dde29b) SHA1(8f7545d2022da7c98d47112179dce717f6c3c5e2) )
 
 	ROM_REGION( 0x0320, REGION_PROMS, 0 )
@@ -699,10 +796,8 @@ ROM_START( fghtbskt )
 	ROM_LOAD( "fb10.6f",      0x8000, 0x2000, CRC(6b47efba) SHA1(cb55c7a9d5afe748c1c88f87dd1909e106932798) )
 	ROM_LOAD( "fb09.7f",      0xa000, 0x2000, CRC(be69e087) SHA1(be95ecafa494cb0787ee18eb3ecea4ad545a6ae3) )
 
-	ROM_REGION( 0x3000, REGION_CPU2, 0 )	/* 8039 */
+	ROM_REGION( 0x1000, REGION_CPU2, 0 )	/* 8039 */
 	ROM_LOAD( "fb07.0b",      0x0000, 0x1000, CRC(50432dbd) SHA1(35a2218ed243bde47dbe06b5a11a65502ba734ea) )
-	/* on the real pcb if you remove it the ay8910 doesn't sound anymore, probably the cpu reads it somehow */
-	ROM_LOAD( "fb06.12a",     0x1000, 0x2000, CRC(bea3df99) SHA1(18b795f8626b22f6a1620e04c23f4967c3122c89) )
 
 	ROM_REGION( 0x2000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "fb08.12f",     0x0000, 0x1000, CRC(271cd7b8) SHA1(00cfeb6ba429cf6cc59d6542dea8de2ca79155ed) )
@@ -728,6 +823,9 @@ ROM_START( fghtbskt )
 	ROM_LOAD( "fb04.39a",     0x6000, 0x2000, CRC(02ddc42d) SHA1(9d40967071f674592c174b5a5470db56a5f99adf) )
 	ROM_LOAD( "fb05.38a",     0x8000, 0x2000, CRC(72ea6b49) SHA1(e081a1cad5abf373a2489169b5c86ee63dcf5823) )
 
+        ROM_REGION( 0x2000, REGION_USER1, 0 )
+	ROM_LOAD( "fb06.12a",     0x0000, 0x2000, CRC(bea3df99) SHA1(18b795f8626b22f6a1620e04c23f4967c3122c89) )
+
 	ROM_REGION( 0x0300, REGION_PROMS, 0 )
 	ROM_LOAD( "fb_r.9e",      0x0000, 0x0100, CRC(c5cdc8ba) SHA1(3fcef3ebe0dda72dfa35e042ff611758c345d749) )
 	ROM_LOAD( "fb_g.10e",     0x0100, 0x0100, CRC(1460c936) SHA1(f99a544c83931de098a6cfac391f63ae43f5cdd0) )
@@ -744,6 +842,6 @@ DRIVER_INIT( fghtbskt )
 	sy_offset = 240;
 }
 
-GAME( 1984, wilytowr, 0,        wilytowr, wilytowr, wilytowr, ROT180, "Irem",                    "Wily Tower", GAME_NO_SOUND )
-GAME( 1985, atomboy,  wilytowr, wilytowr, wilytowr, wilytowr, ROT180, "Irem (Memetron license)", "Atomic Boy", GAME_NO_SOUND )
-GAME( 1984, fghtbskt, 0,        fghtbskt, fghtbskt, fghtbskt, ROT0,   "Paradise Co. Ltd.",       "Fighting Basketball", GAME_IMPERFECT_SOUND )
+GAME( 1984, wilytowr, 0,        wilytowr, wilytowr, wilytowr, ROT180, "Irem",                    "Wily Tower", 0 )
+GAME( 1985, atomboy,  wilytowr, atomboy,  wilytowr, wilytowr, ROT180, "Irem (Memetron license)", "Atomic Boy", 0 )
+GAME( 1984, fghtbskt, 0,        fghtbskt, fghtbskt, fghtbskt, ROT0,   "Paradise Co. Ltd.",       "Fighting Basketball", 0 )
