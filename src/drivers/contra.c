@@ -14,7 +14,9 @@ Credits:
 ***************************************************************************/
 
 #include "driver.h"
+#include "vidhrdw/konamiic.h"
 #include "cpu/m6809/m6809.h"
+#include "cpu/hd6309/hd6309.h"
 #include "sound/2151intf.h"
 
 extern unsigned char *contra_fg_vram,*contra_fg_cram;
@@ -35,6 +37,12 @@ WRITE8_HANDLER( contra_K007121_ctrl_1_w );
 VIDEO_UPDATE( contra );
 VIDEO_START( contra );
 
+static INTERRUPT_GEN( contra_interrupt )
+{
+	if (K007121_ctrlram[0][0x07] & 0x02)
+		cpunum_set_input_line(0, HD6309_IRQ_LINE, HOLD_LINE);
+}
+
 
 WRITE8_HANDLER( contra_bankswitch_w )
 {
@@ -45,6 +53,8 @@ WRITE8_HANDLER( contra_bankswitch_w )
 	bankaddress = 0x10000 + (data & 0x0f) * 0x2000;
 	if (bankaddress < 0x28000)	/* for safety */
 		memory_set_bankptr(1,&RAM[bankaddress]);
+    else
+		ui_popup("bankswitch %X", data & 0xf);
 }
 
 WRITE8_HANDLER( contra_sh_irqtrigger_w )
@@ -121,6 +131,9 @@ static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
 
 	AM_RANGE(0x0c00, 0x0cff) AM_READ(MRA8_RAM)
 	AM_RANGE(0x1000, 0x5fff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x3000, 0x3fff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x4800, 0x4fff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x5000, 0x5fff) AM_READ(MRA8_RAM)
 	AM_RANGE(0x6000, 0x7fff) AM_READ(MRA8_BANK1)
 	AM_RANGE(0x8000, 0xffff) AM_READ(MRA8_ROM)
 ADDRESS_MAP_END
@@ -139,11 +152,11 @@ static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x2400, 0x27ff) AM_WRITE(contra_fg_vram_w) AM_BASE(&contra_fg_vram)
 	AM_RANGE(0x2800, 0x2bff) AM_WRITE(contra_text_cram_w) AM_BASE(&contra_text_cram)
 	AM_RANGE(0x2c00, 0x2fff) AM_WRITE(contra_text_vram_w) AM_BASE(&contra_text_vram)
-	AM_RANGE(0x3000, 0x37ff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram)/* 2nd bank is at 0x5000 */
-	AM_RANGE(0x3800, 0x3fff) AM_WRITE(MWA8_RAM) // second sprite buffer
+	AM_RANGE(0x3000, 0x3fff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram)
 	AM_RANGE(0x4000, 0x43ff) AM_WRITE(contra_bg_cram_w) AM_BASE(&contra_bg_cram)
 	AM_RANGE(0x4400, 0x47ff) AM_WRITE(contra_bg_vram_w) AM_BASE(&contra_bg_vram)
-	AM_RANGE(0x4800, 0x5fff) AM_WRITE(MWA8_RAM)
+    AM_RANGE(0x4800, 0x4fff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x5000, 0x5fff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram_2)
 	AM_RANGE(0x6000, 0x6fff) AM_WRITE(MWA8_ROM)
  	AM_RANGE(0x7000, 0x7000) AM_WRITE(contra_bankswitch_w)
 	AM_RANGE(0x7001, 0xffff) AM_WRITE(MWA8_ROM)
@@ -293,18 +306,18 @@ static const gfx_decode gfxdecodeinfo[] =
 
 static MACHINE_DRIVER_START( contra )
 
-	/* basic machine hardware */
- 	MDRV_CPU_ADD(M6809, 1500000)
+	/* basic machine hardware */ 
+ 	MDRV_CPU_ADD(HD6309, 3000000) /* 24MHz/8 */
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
-	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
+	MDRV_CPU_VBLANK_INT(contra_interrupt,1)
 
- 	MDRV_CPU_ADD(M6809, 2000000)
+ 	MDRV_CPU_ADD(M6809, 3579545)	/* 3.579545 MHz */
 	/* audio CPU */
 	MDRV_CPU_PROGRAM_MAP(readmem_sound,writemem_sound)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
-	MDRV_INTERLEAVE(10)	/* 10 CPU slices per frame - enough for the sound CPU to read all commands */
+	MDRV_INTERLEAVE(100)	/* 100 CPU slices per frame - enough for the sound CPU to read all commands */
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
