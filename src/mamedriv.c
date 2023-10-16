@@ -3589,6 +3589,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tfrceacb )	/* bootleg */
 	DRIVER( twinsqua )	/* (c) 1991 Sega */
 	DRIVER( ribbit )	/* (c) 1991 Sega */
+        DRIVER( ssonicbr )      /* (c) 1992 Sega (Unreleased) */
+        DRIVER( ooparts )       /* (c) 1992 Sega (Unreleased) */
 	DRIVER( tantr )		/* (c) 1992 Sega */
 	DRIVER( tantrkor )	/* (c) 1992 Sega */
 	DRIVER( tantrbl )	/* bootleg */
@@ -3606,6 +3608,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( puyopuy2 )	/* (c) 1994 Compile + Sega license */
 	DRIVER( potopoto )	/* (c) 1994 Sega */
 	DRIVER( zunkyou )	/* (c) 1994 Sega */
+	DRIVER( headonch )      /* (c) 1994 Sega (Unreleased) */
 
 	/* Atlus Print Club 'Games' C-2 board */
 	DRIVER( pclubj )
