@@ -3230,7 +3230,8 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( wb3bbl )	/* BOOTLEG */
 
 	/* System 18 */
-	DRIVER( astorm )	/* (c) 1990 (protected 2 Players) */
+	DRIVER( aquario )       /* (c) 2021 Sega / Westone Unreleased Prototype */
+	DRIVER( astorm )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( astorm3 )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( astormu )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( astormj )	/* (c) 1990 (FD1094, decrypted) */
