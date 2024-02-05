@@ -45,7 +45,7 @@
 #define ROM_BOARD_171_SHADOW	(0)		/* 171-???? -- used by shadow dancer */
 #define ROM_BOARD_171_5874		(1)		/* 171-5874 */
 #define ROM_BOARD_171_5987		(2)		/* 171-5987 */
-
+#define ROM_BOARD_171_5987_AQUARIO		(3)		/* Clockwork Aquario */
 
 
 /*************************************
@@ -131,11 +131,26 @@ static const struct segaic16_memory_map_entry rom_171_5987_info[] =
 	{ 0 }
 };
 
+static const struct segaic16_memory_map_entry rom_171_5987_aquario_info[] =
+{
+	{ 0x3d/2, 0x00000, 0x04000, 0xffc000,      ~0, misc_io_r,             misc_io_w,             NULL,                  "I/O space" },
+	{ 0x39/2, 0x00000, 0x02000, 0xffe000,      ~0, MRA16_BANK10,          segaic16_paletteram_w, &paletteram16,         "color RAM" },
+	{ 0x35/2, 0x00000, 0x10000, 0xfe0000,      ~0, MRA16_BANK11,          segaic16_tileram_0_w,  &segaic16_tileram_0,   "tile RAM" },
+	{ 0x35/2, 0x10000, 0x01000, 0xfef000,      ~0, MRA16_BANK12,          segaic16_textram_0_w,  &segaic16_textram_0,   "text RAM" },
+	{ 0x31/2, 0x00000, 0x00800, 0xfff800,      ~0, MRA16_BANK13,          MWA16_BANK13,          &segaic16_spriteram_0, "object RAM" },
+	{ 0x2d/2, 0x00000, 0x04000, 0xffc000,      ~0, MRA16_BANK14,          MWA16_BANK14,          &workram,              "work RAM" },
+	{ 0x29/2, 0x00000, 0x00010, 0xfffff0,      ~0, genesis_vdp_r,         genesis_vdp_w,         NULL,                  "VDP" },
+	{ 0x25/2, 0x00000, 0x100000, 0xf00000, 0x100000, MRA16_BANK16,          rom_5987_bank_w,       NULL,                  "ROM 1/banking" },
+	{ 0x21/2, 0x00000, 0x100000,0xf00000, 0x00000, MRA16_BANK17,          MWA16_ROM,             NULL,                  "ROM 0" },
+	{ 0 }
+};
+
 static const struct segaic16_memory_map_entry *region_info_list[] =
 {
 	&rom_171_shad_info[0],
 	&rom_171_5874_info[0],
-	&rom_171_5987_info[0]
+	&rom_171_5987_info[0],
+	&rom_171_5987_aquario_info[0]
 };
 
 
@@ -769,6 +784,30 @@ INPUT_PORTS_END
  *
  *************************************/
 
+static INPUT_PORTS_START( aquario )
+	PORT_INCLUDE( system18_generic )
+	PORT_MODIFY("DSW")
+	PORT_DIPNAME( 0x01, 0x01, "Credits to Start" ) 
+	PORT_DIPSETTING(    0x01, "1")
+	PORT_DIPSETTING(    0x00, "2")
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0c, 0x00, "Number of Players" )
+	PORT_DIPSETTING(    0x00, "1" )
+	PORT_DIPSETTING(    0x04, "2" )
+	PORT_DIPSETTING(    0x0c, "3" )
+	PORT_DIPSETTING(    0x08, "4" )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Normal ) )
+	PORT_DIPNAME( 0x20, 0x20, "Switch to Start" ) 
+	PORT_DIPSETTING(    0x20, "Start" )
+	PORT_DIPSETTING(    0x00, "Attack" )
+	//"SW2:7" unused
+	//"SW2:8" unused
+INPUT_PORTS_END
+
 static INPUT_PORTS_START( astorm )
 	PORT_INCLUDE( system18_generic )
 
@@ -1336,9 +1375,9 @@ MACHINE_DRIVER_END
 /**************************************************************************************************************************
  **************************************************************************************************************************
  **************************************************************************************************************************
-    Alien Storm (2 players version), Sega System 18
-    CPU: FD1094 (317-????)
-    ROM Board: 171-5873B
+    Alien Storm (2 players World version), Sega System 18
+    CPU: FD1094 (317-0154)
+	ROM Board: 171-5873B
 */
 ROM_START( astorm )
 	ROM_REGION( 0x080000, REGION_CPU1, 0 ) /* 68000 code */
@@ -1346,7 +1385,7 @@ ROM_START( astorm )
 	ROM_LOAD16_BYTE( "epr13181.bin", 0x000001, 0x40000, CRC(78cd3b26) SHA1(a81b807c5da625d8e4648ae80c41e4ca3870c0fa) )
 
 	ROM_REGION( 0x2000, REGION_USER1, 0 )	/* decryption key */
-	ROM_LOAD( "317-????.key", 0x0000, 0x2000, NO_DUMP )
+	ROM_LOAD( "317-0154.key", 0x0000, 0x2000, CRC(b86b6b8f) SHA1(869405383d563a3f3842c89462a7b2e184928532) )
 
 	ROM_REGION( 0xc0000, REGION_GFX1, ROMREGION_DISPOSE ) /* tiles */
 	ROM_LOAD( "epr13073.bin", 0x00000, 0x40000, CRC(df5d0a61) SHA1(79ad71de348f280bad847566c507b7a31f022292) )
@@ -1504,6 +1543,41 @@ ROM_START( bloxeed )
 	ROM_LOAD( "epr12888.a4", 0x010000, 0x20000, CRC(6f2fc63c)SHA1(3cce22c8f80013f05b5a2d36c42a61a81e4d6cbd) )
 ROM_END
 
+/**************************************************************************************************************************
+ **************************************************************************************************************************
+ **************************************************************************************************************************
+	Clockwork Aquario, Sega / Westone System 18 
+	Unreleased prototype
+*/
+
+ROM_START( aquario )
+	ROM_REGION( 0x300000, REGION_CPU1, 0 ) /* 68000 code */
+	ROM_LOAD16_BYTE( "a4.bin",  0x000000, 0x80000, CRC(c58ff95f) SHA1(dfeb15d6d605bd80ab289daf1e90e4c1e270892b) )
+	ROM_LOAD16_BYTE( "a6.bin",  0x000001, 0x80000, CRC(b4a94cd9) SHA1(2059942a26d9e1de63b329d1c8b643535761d2d8) )
+	ROM_LOAD16_BYTE( "a5.bin",  0x200000, 0x80000, CRC(1cef8145) SHA1(78a1be8ea0cc0d4e56b2cf9a7c1bd3e08352e175) )
+	ROM_LOAD16_BYTE( "a7.bin",  0x200001, 0x80000, CRC(504e4665) SHA1(9b052b48b7cb2da880d6589fdcd1041eca555f7c) )
+
+	ROM_REGION( 0x180000,  REGION_GFX1, ROMREGION_DISPOSE ) /* tiles */
+	ROM_LOAD( "c1.bin",       0x000000, 0x080000, CRC(93ad1357) SHA1(09b35481798035b5f7d7d533e27418a298c6e2c7) )
+	ROM_LOAD( "c2.bin",       0x080000, 0x080000, CRC(4010d14b) SHA1(f9d2e726a032f49fac69a223107966f2884821b5) )
+	ROM_LOAD( "c3.bin",       0x100000, 0x080000, CRC(3a3d0285) SHA1(21899b3b2bcb979d53e78b0d48c493a9a15955c7) )
+	
+	ROM_REGION16_BE( 0x800000, REGION_GFX2, 0 ) /* sprites */
+	ROM_LOAD16_BYTE( "a10.bin",      0x000000, 0x080000, CRC(b863e533) SHA1(e80fa6a74c43c040fd4b857247aecf03a3de3d87) )
+	ROM_LOAD16_BYTE( "c10.bin",      0x000001, 0x080000, CRC(c9ce76f9) SHA1(a096583f5e81f02d6a34802688d201d8d986a84a) )
+	ROM_LOAD16_BYTE( "a11.bin",      0x200000, 0x080000, CRC(8b568940) SHA1(19cd028cd43fa07904deb0250564251ba0128c4b) )
+	ROM_LOAD16_BYTE( "c11.bin",      0x200001, 0x080000, CRC(06edb7bc) SHA1(e24ec7b52638edaa8debee0aca40ddf902c63334) )
+	ROM_LOAD16_BYTE( "a12.bin",      0x400000, 0x080000, CRC(0219923f) SHA1(1e52df5ef155f5a4d74eabea22bb431a569e344f) )
+	ROM_LOAD16_BYTE( "c12.bin",      0x400001, 0x080000, CRC(0bb79c56) SHA1(fdaa6cc9efb3104b78392530547bd82c21cff825) )
+	ROM_LOAD16_BYTE( "a13.bin",      0x600000, 0x080000, CRC(9ea5c73d) SHA1(e42002cc13548a8aba6ffb0c60470b345b88eaa8) )
+	ROM_LOAD16_BYTE( "c13.bin",      0x600001, 0x080000, CRC(0beef46e) SHA1(eccba6d4e015e93f5ca25ef6df31a491193d08a4) )
+
+	ROM_REGION( 0x210000, REGION_CPU2, ROMREGION_ERASEFF ) /* sound CPU */
+	ROM_LOAD( "c7.bin",	 0x010000, 0x40000, CRC(f1183938) SHA1(9409f0dc02773892803bc6d37f1bdbd894cf1805) )
+	ROM_LOAD( "c6.bin",  0x090000, 0x80000, CRC(39f11291) SHA1(3b4680bd2e20bd297644dda0a26f958c74826d47) )
+	ROM_LOAD( "c5.bin",  0x110000, 0x80000, CRC(6a380dca) SHA1(4589efc9e994ef9d07d4033e20c21afca4875005) )
+	ROM_LOAD( "c4.bin",  0x190000, 0x80000, CRC(1bd081f8) SHA1(e5b0b5d8334486f813d7c430bb7fce3f69605a21) )
+ROM_END
 
 /**************************************************************************************************************************
  **************************************************************************************************************************
@@ -2221,7 +2295,10 @@ static DRIVER_INIT( generic_5987 )
 	system18_generic_init(ROM_BOARD_171_5987);
 }
 
-
+static DRIVER_INIT( aquario )
+{
+	system18_generic_init(ROM_BOARD_171_5987_AQUARIO);
+}
 
 /*************************************
  *
@@ -2257,7 +2334,7 @@ static DRIVER_INIT( wwally )
  *
  *************************************/
 
-GAME( 1990, astorm,   0,        system18,      astorm2p, generic_5874, ROT0,   "Sega",    "Alien Storm (set 4, 2 Players, FD1094 317-?)", GAME_NOT_WORKING ) // not decrypted
+GAME( 1990, astorm,   0,        system18,      astorm2p, generic_5874, ROT0,   "Sega",    "Alien Storm (set 4, World, 2 Players, FD1094 317-0154)", 0 )
 GAME( 1990, astorm3,  astorm,   system18,      astorm,   generic_5874, ROT0,   "Sega",    "Alien Storm (set 3, World, 3 Players, FD1094 317-0148)", 0 )
 GAME( 1990, astormu,  astorm,   system18,      astorm,   generic_5874, ROT0,   "Sega",    "Alien Storm (set 2, US, 3 Players, FD1094 317-0147)", 0 )
 GAME( 1990, astormj,  astorm,   system18,      astorm2p, generic_5874, ROT0,   "Sega",    "Alien Storm (set 1, Japan, 2 Players, FD1094 317-0146)", 0 )
@@ -2281,3 +2358,4 @@ GAME( 1989, shdancej, shdancer, system18,      shdancer, generic_shad, ROT0,   "
 GAME( 1989, shdance1, shdancer, system18,      shdancer, generic_shad, ROT0,   "Sega",    "Shadow Dancer (set 1)", 0 )
 GAME( 1992, wwallyj,  0,        system18,      wwally,   wwally,       ROT0,   "Sega",    "Wally wo Sagase! (rev B, Japan, FD1094 317-0197B)" , 0) /* the roms do contain an english logo so maybe there is a world / us set too */
 GAME( 1992, wwallyja, wwallyj,  system18,      wwally,   wwally,       ROT0,   "Sega",    "Wally wo Sagase! (rev A, Japan, FD1094 317-0197A)", 0 )
+GAME( 2021, aquario,  0,        system18,      aquario,  aquario,      ROT0,   "Sega / Westone", "Clockwork Aquario (prototype)", 0 )
