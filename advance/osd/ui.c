@@ -761,7 +761,7 @@ void advance_ui_scroll(struct advance_ui_context* context, const char* begin, co
 
 adv_bool advance_ui_buffer_active(struct advance_ui_context* context)
 {
-	return context->state.ui_extra_flag
+	return __atomic_load_n(&context->state.ui_extra_flag, __ATOMIC_SEQ_CST)
 	       || context->state.ui_message_flag
 	       || context->state.ui_help_flag
 	       || context->state.ui_menu_flag
@@ -1194,7 +1194,7 @@ void advance_ui_buffer_update(struct advance_ui_context* context, void* ptr, uns
 
 	dst = adv_bitmap_import_rgb(dx, dy, color_def_bytes_per_pixel_get(color_def), 0, 0, ptr, dw);
 
-	context->state.ui_extra_flag = 0;
+	__atomic_store_n(&context->state.ui_extra_flag, 0, __ATOMIC_SEQ_CST);
 
 	if (context->state.ui_help_flag) {
 		ui_help_update(context, dst, color);

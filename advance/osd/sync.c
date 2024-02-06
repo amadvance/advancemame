@@ -456,7 +456,7 @@ void advance_video_sync(struct advance_video_context* context, struct advance_so
 
 		delay = context->state.skip_step;
 
-		context->state.latency_diff = advance_sound_latency_diff(sound_context, delay);
+		__atomic_store_n(&context->state.latency_diff, advance_sound_latency_diff(sound_context, delay), __ATOMIC_SEQ_CST);
 	} else {
 		++context->state.sync_skip_counter;
 	}
@@ -465,26 +465,30 @@ void advance_video_sync(struct advance_video_context* context, struct advance_so
 static void video_frame_skip(struct advance_video_context* context, struct advance_estimate_context* estimate_context)
 {
 	if (context->state.skip_warming_up_flag) {
+		double skip_step;
+
 		context->state.skip_flag = 0;
 		context->state.skip_level_counter = 0;
 
 		if (context->state.measure_flag) {
-			context->state.skip_step = 1.0 / context->state.game_fps;
+			skip_step = 1.0 / context->state.game_fps;
 			context->state.skip_level_full = 1;
 			context->state.skip_level_skip = 0;
 		} else if (context->state.fastest_flag) {
-			context->state.skip_step = 1.0 / context->state.game_fps;
+			skip_step = 1.0 / context->state.game_fps;
 			context->state.skip_level_full = 1;
 			context->state.skip_level_skip = SYNC_MAX;
 		} else if (context->state.turbo_flag) {
-			context->state.skip_step = 1.0 / (context->state.game_fps * context->config.turbo_speed_factor);
+			skip_step = 1.0 / (context->state.game_fps * context->config.turbo_speed_factor);
 		} else if (context->state.vsync_flag) {
-			context->state.skip_step = 1.0 / context->state.mode_vclock;
+			skip_step = 1.0 / context->state.mode_vclock;
 		} else {
-			context->state.skip_step = 1.0 / context->state.game_fps;
+			skip_step = 1.0 / context->state.game_fps;
 		}
 
-		advance_estimate_init(estimate_context, context->state.skip_step);
+		context->state.skip_step = skip_step;
+
+		advance_estimate_init(estimate_context, skip_step);
 
 		context->state.skip_warming_up_flag = 0;
 

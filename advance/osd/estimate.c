@@ -40,7 +40,7 @@ static inline double estimate_merge(double estimator, double v)
 void advance_estimate_init(struct advance_estimate_context* context, double step)
 {
 	context->estimate_mame_flag = 0;
-	context->estimate_osd_flag = 0;
+	__atomic_store_n(&context->estimate_osd_flag, 0, __ATOMIC_SEQ_CST);
 	context->estimate_frame_flag = 0;
 	context->estimate_common_flag = 0;
 
@@ -71,7 +71,7 @@ void advance_estimate_osd_begin(struct advance_estimate_context* context)
 {
 	double current = advance_timer();
 
-	context->estimate_osd_flag = 1;
+	__atomic_store_n(&context->estimate_osd_flag, 1, __ATOMIC_SEQ_CST);
 	context->estimate_osd_last = current;
 }
 
@@ -79,7 +79,7 @@ void advance_estimate_osd_end(struct advance_estimate_context* context, adv_bool
 {
 	double current = advance_timer();
 
-	if (context->estimate_osd_flag) {
+	if (__atomic_load_n(&context->estimate_osd_flag, __ATOMIC_SEQ_CST)) {
 		double previous;
 		previous = current - context->estimate_osd_last;
 		if (skip_flag)

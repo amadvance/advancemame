@@ -1482,7 +1482,7 @@ int osd2_frame(const struct osd_bitmap* game, const struct osd_bitmap* debug, co
 	adv_bool normal_speed = video_is_normal_speed(&CONTEXT.video);
 
 	/* store the current audio video syncronization error measured in sound samples */
-	context->state.av_sync_map[context->state.av_sync_mac] = context->state.latency_diff;
+	context->state.av_sync_map[context->state.av_sync_mac] = __atomic_load_n(&context->state.latency_diff, __ATOMIC_SEQ_CST);
 
 	/* move the position on the circular buffer */
 	if (context->state.av_sync_mac == AUDIOVIDEO_MEASURE_MAX - 1)
