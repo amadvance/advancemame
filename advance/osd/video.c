@@ -885,7 +885,8 @@ static adv_error vidmode_update(struct advance_video_context* context, adv_mode*
 
 void advance_thread_vidmode_done(struct advance_video_context* context, adv_bool restore)
 {
-#ifdef USE_SMP
+	/* in Windows using the thread makes the keyboard not working */
+#if defined(USE_SMP) && defined(__linux__)
 	context->state.thread_arg_bool = restore;
 
 	advance_video_thread_signal(context, THREAD_DONE);
@@ -898,7 +899,8 @@ void advance_thread_vidmode_done(struct advance_video_context* context, adv_bool
 
 adv_error advance_thread_vidmode_update(struct advance_video_context* context, adv_mode* mode, adv_bool ignore_input)
 {
-#ifdef USE_SMP
+	/* in Windows using the thread makes the keyboard not working */
+#if defined(USE_SMP) && defined(__linux__)
 	context->state.thread_arg_mode = mode;
 	context->state.thread_arg_bool = ignore_input;
 

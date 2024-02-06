@@ -1266,6 +1266,7 @@ adv_error sdl_scroll(unsigned offset, adv_bool waitvsync)
 #endif
 	) {
 		log_std(("video:sdl: recompute renderer for thread/vsync change\n"));
+		sdl_state.overlay_vsync = waitvsync;
 		sdl_overlay_set();
 	}
 
