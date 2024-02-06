@@ -813,6 +813,9 @@ struct advance_video_state_context {
 	unsigned thread_state_led; /**< Thread game led to set. */
 	unsigned thread_state_input; /**< Thread input to process. */
 	adv_bool thread_state_skip_flag; /**< Thread frame skip_flag to use. */
+	adv_mode* thread_arg_mode; /**< Argument to pass */
+	adv_bool thread_arg_bool; /**< Argument to pass */
+	adv_error thread_arg_result; /**< Argument to pass */
 #endif
 
 	unsigned frame_counter; /**< Counter of number of frames. */
@@ -942,6 +945,14 @@ adv_error advance_video_mode_init(struct advance_video_context* context, struct 
 void advance_video_mode_done(struct advance_video_context* context);
 adv_error advance_video_mode_update(struct advance_video_context* context);
 
+#define THREAD_FRAME 1
+#define THREAD_INIT 2
+#define THREAD_DONE 3
+#define THREAD_UPDATE 4
+
+void advance_thread_vidmode_done(struct advance_video_context* context, adv_bool restore);
+adv_error advance_thread_vidmode_update(struct advance_video_context* context, adv_mode* mode, adv_bool ignore_input);
+void advance_video_thread_signal(struct advance_video_context* context, int ready);
 void advance_video_thread_wait(struct advance_video_context* context);
 void advance_video_reconfigure(struct advance_video_context* context, struct advance_video_config_context* config);
 

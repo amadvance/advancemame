@@ -1244,19 +1244,28 @@ adv_error sdl_scroll(unsigned offset, adv_bool waitvsync)
 	if (offset != 0)
 		return -1;
 
+#if SDL_MAJOR_VERSION != 1
 	/* normalize to 0 1 */
 	waitvsync = waitvsync != 0;
 
-#if SDL_MAJOR_VERSION != 1
-	/* reset the renderer if the thread or the vsync request change */
-	if (
-#ifdef USE_SMP
-		sdl_state.thread != pthread_self() ||
-#endif
-		waitvsync != sdl_state.overlay_vsync
-	) {
-		log_std(("video:sdl: recompute renderer for thread/vsync change. New vsync=%d\n", waitvsync));
+/* SDL_RenderSetVSync is available only from 2.18 */
+#if SDL_MAJOR_VERSION > 2 || (SDL_MAJOR_VERSION == 2 && SDL_MAJOR_VERSION >= 18)
+	/* update the vsync configuration */
+	if (waitvsync != sdl_state.overlay_vsync) {
+		log_std(("video:sdl: change renderer vsync. New vsync=%d\n", waitvsync));
 		sdl_state.overlay_vsync = waitvsync;
+		SDL_RenderSetVSync(sdl_state.renderer, waitvsync);
+	}
+#endif
+
+	/* reset the renderer if the thread or vsync change */
+	if (
+		waitvsync != sdl_state.overlay_vsync
+#ifdef USE_SMP
+		|| sdl_state.thread != pthread_self()
+#endif
+	) {
+		log_std(("video:sdl: recompute renderer for thread/vsync change\n"));
 		sdl_overlay_set();
 	}
 

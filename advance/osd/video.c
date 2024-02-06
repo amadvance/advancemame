@@ -580,6 +580,8 @@ static void video_frame_update_now(struct advance_video_context* context, struct
 void advance_video_thread_wait(struct advance_video_context* context)
 {
 #ifdef USE_SMP
+	log_debug(("advance:thread: wait stop\n"));
+
 	/* wait until the thread is ready */
 	pthread_mutex_lock(&context->state.thread_video_mutex);
 
@@ -587,6 +589,28 @@ void advance_video_thread_wait(struct advance_video_context* context)
 	while (context->state.thread_state_ready_flag) {
 		pthread_cond_wait(&context->state.thread_video_cond, &context->state.thread_video_mutex);
 	}
+
+	pthread_mutex_unlock(&context->state.thread_video_mutex);
+#else
+	/* nothing */
+#endif
+}
+
+/**
+ * Trigger the start of the video thread.
+ */
+void advance_video_thread_signal(struct advance_video_context* context, int ready)
+{
+#ifdef USE_SMP
+	pthread_mutex_lock(&context->state.thread_video_mutex);
+
+	log_debug(("advance:thread: signal start\n"));
+
+	/* notify that the data is ready */
+	context->state.thread_state_ready_flag = ready;
+
+	/* signal at the thread to start */
+	pthread_cond_signal(&context->state.thread_video_cond);
 
 	pthread_mutex_unlock(&context->state.thread_video_mutex);
 #else
@@ -653,42 +677,38 @@ static void video_thread_bitmap_free(struct osd_bitmap* bitmap)
 static void video_frame_prepare(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
 #ifdef USE_SMP
-	/* don't use the thread if the debugger is active */
-	if (context->config.smp_flag && !context->state.debugger_flag) {
+	/* duplicate the data */
+	pthread_mutex_lock(&context->state.thread_video_mutex);
 
-		/* duplicate the data */
-		pthread_mutex_lock(&context->state.thread_video_mutex);
-
-		/* wait for the stop notification  */
-		while (context->state.thread_state_ready_flag) {
-			pthread_cond_wait(&context->state.thread_video_cond, &context->state.thread_video_mutex);
-		}
-
-		advance_estimate_common_begin(estimate_context);
-
-		if (!skip_flag) {
-			context->state.thread_state_game = video_thread_bitmap_duplicate(context->state.thread_state_game, game);
-		}
-
-		context->state.thread_state_led = led;
-		context->state.thread_state_input = input;
-		context->state.thread_state_skip_flag = skip_flag;
-
-		if (sample_count > context->state.thread_state_sample_max) {
-			log_std(("advance:thread: realloc sample buffer %d samples -> %d samples, %d bytes\n", context->state.thread_state_sample_max, 2 * sample_count, sound_context->state.input_bytes_per_sample * 2 * sample_count));
-			context->state.thread_state_sample_max = 2 * sample_count;
-			context->state.thread_state_sample_buffer = realloc(context->state.thread_state_sample_buffer, sound_context->state.input_bytes_per_sample * context->state.thread_state_sample_max);
-			assert(context->state.thread_state_sample_buffer);
-		}
-
-		memcpy(context->state.thread_state_sample_buffer, sample_buffer, sample_count * sound_context->state.input_bytes_per_sample);
-		context->state.thread_state_sample_count = sample_count;
-		context->state.thread_state_sample_recount = sample_recount;
-
-		advance_estimate_common_end(estimate_context, skip_flag);
-
-		pthread_mutex_unlock(&context->state.thread_video_mutex);
+	/* wait for the stop notification  */
+	while (context->state.thread_state_ready_flag) {
+		pthread_cond_wait(&context->state.thread_video_cond, &context->state.thread_video_mutex);
 	}
+
+	advance_estimate_common_begin(estimate_context);
+
+	if (!skip_flag) {
+		context->state.thread_state_game = video_thread_bitmap_duplicate(context->state.thread_state_game, game);
+	}
+
+	context->state.thread_state_led = led;
+	context->state.thread_state_input = input;
+	context->state.thread_state_skip_flag = skip_flag;
+
+	if (sample_count > context->state.thread_state_sample_max) {
+		log_std(("advance:thread: realloc sample buffer %d samples -> %d samples, %d bytes\n", context->state.thread_state_sample_max, 2 * sample_count, sound_context->state.input_bytes_per_sample * 2 * sample_count));
+		context->state.thread_state_sample_max = 2 * sample_count;
+		context->state.thread_state_sample_buffer = realloc(context->state.thread_state_sample_buffer, sound_context->state.input_bytes_per_sample * context->state.thread_state_sample_max);
+		assert(context->state.thread_state_sample_buffer);
+	}
+
+	memcpy(context->state.thread_state_sample_buffer, sample_buffer, sample_count * sound_context->state.input_bytes_per_sample);
+	context->state.thread_state_sample_count = sample_count;
+	context->state.thread_state_sample_recount = sample_recount;
+
+	advance_estimate_common_end(estimate_context, skip_flag);
+
+	pthread_mutex_unlock(&context->state.thread_video_mutex);
 #endif
 }
 
@@ -701,26 +721,194 @@ static void video_frame_prepare(struct advance_video_context* context, struct ad
 static void video_frame_update(struct advance_video_context* context, struct advance_sound_context* sound_context, struct advance_estimate_context* estimate_context, struct advance_record_context* record_context, struct advance_ui_context* ui_context, struct advance_safequit_context* safequit_context, const struct osd_bitmap* game, const struct osd_bitmap* debug, const osd_rgb_t* debug_palette, unsigned debug_palette_size, unsigned led, unsigned input, const short* sample_buffer, unsigned sample_count, unsigned sample_recount, adv_bool skip_flag)
 {
 #ifdef USE_SMP
-	if (context->config.smp_flag && !context->state.debugger_flag
+	advance_video_thread_signal(context, THREAD_FRAME);
+
+	if (!context->config.smp_flag || context->state.debugger_flag
 	        /* we don't duplicate the UI data, and then we cannot access it directly from the thread */
-		&& !advance_ui_buffer_active(ui_context)
+		|| advance_ui_buffer_active(ui_context)
 	) {
-		pthread_mutex_lock(&context->state.thread_video_mutex);
-
-		log_debug(("advance:thread: signal\n"));
-
-		/* notify that the data is ready */
-		context->state.thread_state_ready_flag = 1;
-
-		/* signal at the thread to start */
-		pthread_cond_signal(&context->state.thread_video_cond);
-
-		pthread_mutex_unlock(&context->state.thread_video_mutex);
-	} else {
-		video_frame_update_now(context, sound_context, estimate_context, record_context, ui_context, safequit_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
+		advance_video_thread_wait(context);
 	}
 #else
 	video_frame_update_now(context, sound_context, estimate_context, record_context, ui_context, safequit_context, game, debug, debug_palette, debug_palette_size, led, input, sample_buffer, sample_count, sample_recount, skip_flag);
+#endif
+}
+
+/**
+ * Invalidate all the color information.
+ * At the next frame all the color information are recomputed.
+ */
+static void video_invalidate_color(struct advance_video_context* context)
+{
+	/* set all dirty */
+	if (!context->state.game_rgb_flag) {
+		unsigned i;
+		context->state.palette_dirty_flag = 1;
+		for (i = 0; i < context->state.palette_dirty_total; ++i)
+			context->state.palette_dirty_map[i] = osd_mask_full;
+	}
+}
+
+/**
+ * Set the video mode.
+ * The mode is copied in the context if it is set with success.
+ * \return 0 on success
+ */
+static adv_error vidmode_init(struct advance_video_context* context, adv_mode* mode)
+{
+	union adv_color_def_union def;
+
+	assert(!context->state.mode_flag);
+
+	if (video_mode_set(mode) != 0) {
+		log_std(("ERROR:emu:video: calling video_mode_set() '%s'\n", error_get()));
+		return -1;
+	}
+
+	def.ordinal = video_color_def();
+
+	log_std(("emu:video: color %s, bytes_per_pixel %d\n", color_def_name_get(def.ordinal), color_def_bytes_per_pixel_get(def.ordinal)));
+
+	/* save the video mode */
+	context->state.mode_flag = 1;
+	context->state.mode = *mode;
+
+	/* initialize the blit pipeline */
+	context->state.blit_pipeline_flag = 0;
+	context->state.buffer_ptr_alloc = 0;
+
+	/* initialize the update system */
+	update_init(context->config.triplebuf_flag != 0 ? 3 : 1);
+	log_std(("emu:video: using %d hardware video buffers\n", update_page_max_get()));
+
+	/* set the buffer color mode */
+	if (color_def_type_get(video_color_def()) == adv_color_type_yuy2) {
+		/* the buffer is always an RGB mode */
+		context->state.buffer_def = color_def_make_rgb_from_sizelenpos(4, 8, 16, 8, 8, 8, 0);
+	} else {
+		context->state.buffer_def = video_color_def();
+	}
+
+	advance_video_invalidate_screen(context);
+	video_invalidate_color(context);
+
+	log_std(("emu:video: mode %s, size %dx%d, bits_per_pixel %d, bytes_per_scanline %d, pages %d\n", video_name(), video_size_x(), video_size_y(), video_bits_per_pixel(), video_bytes_per_scanline(), update_page_max_get()));
+
+	return 0;
+}
+
+static void video_done_pipeline(struct advance_video_context* context)
+{
+	/* destroy the pipeline */
+	if (context->state.blit_pipeline_flag) {
+		unsigned i;
+		for (i = 0; i < PIPELINE_BLIT_MAX; ++i)
+			video_pipeline_done(&context->state.blit_pipeline[i]);
+		video_pipeline_done(&context->state.buffer_pipeline_video);
+		context->state.blit_pipeline_flag = 0;
+	}
+
+	if (context->state.buffer_ptr_alloc) {
+		free(context->state.buffer_ptr_alloc);
+		context->state.buffer_ptr_alloc = 0;
+	}
+}
+
+/**
+ * Invalidate the blit pipeline.
+ * Forget the current pipeline and for a recomputation on the next use.
+ */
+void advance_video_invalidate_pipeline(struct advance_video_context* context)
+{
+	/* destroy the pipeline, this force the pipeline update at the next frame */
+	video_done_pipeline(context);
+}
+
+static void vidmode_done(struct advance_video_context* context, adv_bool restore)
+{
+	assert(context->state.mode_flag);
+
+	/* clear all the video memory used */
+	if (restore)
+		advance_video_invalidate_screen(context);
+
+	video_done_pipeline(context);
+
+	update_done();
+
+	context->state.mode_flag = 0;
+}
+
+static adv_error vidmode_update(struct advance_video_context* context, adv_mode* mode, adv_bool ignore_input)
+{
+	advance_video_invalidate_pipeline(context);
+
+	if (!context->state.mode_flag
+		|| video_mode_compare(mode, video_current_mode()) != 0
+	) {
+		if (context->state.mode_flag)
+			vidmode_done(context, 0);
+
+		if (!ignore_input) {
+			joystickb_disable();
+			mouseb_disable();
+			keyb_disable();
+		}
+
+		if (vidmode_init(context, mode) != 0) {
+			return -1;
+		}
+
+		if (!ignore_input) {
+			if (keyb_enable(1) != 0) {
+				log_std(("ERROR:emu:video: calling keyb_enable() '%s'\n", error_get()));
+				return -1;
+			}
+			if (mouseb_enable() != 0) {
+				keyb_disable();
+				log_std(("ERROR:emu:video: calling mouseb_enable() '%s'\n", error_get()));
+				return -1;
+			}
+			if (joystickb_enable() != 0) {
+				mouseb_disable();
+				keyb_disable();
+				log_std(("ERROR:emu:video: calling joystickb_enable() '%s'\n", error_get()));
+				return -1;
+			}
+		}
+	}
+
+	advance_video_invalidate_screen(context);
+
+	return 0;
+}
+
+void advance_thread_vidmode_done(struct advance_video_context* context, adv_bool restore)
+{
+#ifdef USE_SMP
+	context->state.thread_arg_bool = restore;
+
+	advance_video_thread_signal(context, THREAD_DONE);
+
+	advance_video_thread_wait(context);
+#else
+	vidmode_done(context, restore);
+#endif
+}
+
+adv_error advance_thread_vidmode_update(struct advance_video_context* context, adv_mode* mode, adv_bool ignore_input)
+{
+#ifdef USE_SMP
+	context->state.thread_arg_mode = mode;
+	context->state.thread_arg_bool = ignore_input;
+
+	advance_video_thread_signal(context, THREAD_UPDATE);
+
+	advance_video_thread_wait(context);
+
+	return context->state.thread_arg_result;
+#else
+	return vidmode_update(context, mode, ignore_input);
 #endif
 }
 
@@ -737,14 +925,15 @@ static void* video_thread(void* void_context)
 	struct advance_ui_context* ui_context = &CONTEXT.ui;
 	struct advance_safequit_context* safequit_context = &CONTEXT.safequit;
 
-	log_std(("advance:thread: start\n"));
+	log_std(("advance:thread: thread start\n"));
 
 	pthread_mutex_lock(&context->state.thread_video_mutex);
 
 	while (1) {
 		adv_bool exit;
+		int ready;
 
-		log_debug(("advance:thread: wait\n"));
+		log_debug(("advance:thread: wait start\n"));
 
 		/* wait for the start notification */
 		while (!context->state.thread_state_ready_flag && !context->state.thread_exit_flag) {
@@ -754,6 +943,7 @@ static void* video_thread(void* void_context)
 		log_debug(("advance:thread: wakeup\n"));
 
 		exit = context->state.thread_exit_flag;
+		ready = context->state.thread_state_ready_flag;
 
 		/* now we can start to draw outside the lock */
 		pthread_mutex_unlock(&context->state.thread_video_mutex);
@@ -763,29 +953,36 @@ static void* video_thread(void* void_context)
 			break;
 		}
 
-		log_debug(("advance:thread: draw start\n"));
+		if (ready == THREAD_FRAME) {
+			log_debug(("advance:thread: frame\n"));
+			/* update the frame */
+			video_frame_update_now(
+				context,
+				sound_context,
+				estimate_context,
+				record_context,
+				ui_context,
+				safequit_context,
+				context->state.thread_state_game,
+				0,
+				0,
+				0,
+				context->state.thread_state_led,
+				context->state.thread_state_input,
+				context->state.thread_state_sample_buffer,
+				context->state.thread_state_sample_count,
+				context->state.thread_state_sample_recount,
+				context->state.thread_state_skip_flag
+			);
+		} else if (ready == THREAD_DONE) {
+			log_debug(("advance:thread: done\n"));
+			vidmode_done(context, context->state.thread_arg_bool);
+		} else if (ready == THREAD_UPDATE) {
+			log_debug(("advance:thread: update\n"));
+			context->state.thread_arg_result = vidmode_update(context, context->state.thread_arg_mode, context->state.thread_arg_bool);
+		}
 
-		/* update the frame */
-		video_frame_update_now(
-			context,
-			sound_context,
-			estimate_context,
-			record_context,
-			ui_context,
-			safequit_context,
-			context->state.thread_state_game,
-			0,
-			0,
-			0,
-			context->state.thread_state_led,
-			context->state.thread_state_input,
-			context->state.thread_state_sample_buffer,
-			context->state.thread_state_sample_count,
-			context->state.thread_state_sample_recount,
-			context->state.thread_state_skip_flag
-		);
-
-		log_debug(("advance:thread: draw stop\n"));
+		log_debug(("advance:thread: signal stop\n"));
 
 		pthread_mutex_lock(&context->state.thread_video_mutex);
 
