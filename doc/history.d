@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 3.11 2024/02
+AdvanceMAME/MESS Version 3.10 2024/02
 	) Alcon / Slap Fight MCU hookup (#116) [arcadez2003]
 	) Add the protection MCU for the official Alcon / Slap Fight sets (#115) [arcadez2003]
 	) Fixed crash with Linux nvidia proprietary driver
@@ -71,7 +71,7 @@ AdvanceMAME/MESS Version 3.11 2024/02
 	) apf_vsync_int: fix invalid access to apf_ints variable (#5) [Andreas Oberritter]
 	) Adding pkg-config for ncurses and slang. (#8) [Alex Barker]
 
-AdvanceMENU Version 3.11 2024/02
+AdvanceMENU Version 3.10 2024/02
 	) Added the new 'ui_menu_font' to change the font for the online menus.
 
 AdvanceMAME/MESS Version 3.9 2018/09

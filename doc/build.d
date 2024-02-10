@@ -5,10 +5,11 @@ Name{number}
 	programs from the source archives.
 
 Build
-	To build the Advance programs you need to have installed the development tools.
+	To build the Advance programs you need to have installed the
+	development tools.
 
-	What to install depends on your system, but in general you need the GCC compiler,
-	and the SDL library.
+	What to install depends on your system, but in general you need the
+	GCC compiler, and the SDL library.
 
 	For Ubuntu run:
 		:$ sudo apt-get update
@@ -18,13 +19,13 @@ Build
 		:$ sudo apt-get update
 		:$ sudo apt-get install git autoconf automake libsdl2-dev libasound2-dev libfreetype6-dev zlib1g-dev libexpat1-dev libslang2-dev libncurses5-dev
 
-	Note that in Raspbian it's highly recommended to run the Advance programs outside
-	the X/Pixel graphics environment to get the best performance.
-	For this reason the SDL library "libsdl2-dev" is not required, and you can omit
-	it if you like.
+	Note that in Raspbian it's highly recommended to run the Advance
+	programs outside the X Window graphics environment to get the best
+	performance. For this reason the SDL library "libsdl2-dev" is not
+	required, and you can omit it if you like.
 
-	At this point you can get the source code from the http://www.advancemame.it site,
-	and untar it with:
+	At this point you can get the source code from the http://www.advancemame.it
+	site, and untar it with:
 
 		:$ tar xf advancemame-*.tar.gz
 		:$ cd advancemame-*
@@ -43,11 +44,11 @@ Build
 
 	The -j3 option uses three parallel processes, speeding up the build.
 
-	The build process may be long, up to 45 minutes on a Raspberry Pi 3, or 25 on
-	Raspberry Pi 4.
+	The build process may be long, up to 45 minutes on a Raspberry Pi 3,
+	or 25 on Raspberry Pi 4.
 
-	No option is generally required. You can get the complete configure option list with
-	the `./configure --help' command.
+	No option is generally required. You can get the complete configure
+	option list with the `./configure --help' command.
 
 	The default installation prefix is /usr/local. You can change it
 	with the `--prefix=' option.
