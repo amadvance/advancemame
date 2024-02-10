@@ -219,7 +219,7 @@ BLIT_SRC = \
 CARD_SRC = \
 	$(wildcard $(srcdir)/advance/card/*.c) \
 	$(wildcard $(srcdir)/advance/card/*.h)
-	
+
 SVGALIB_SRC = \
 	$(wildcard $(srcdir)/advance/svgalib/*.c) \
 	$(wildcard $(srcdir)/advance/svgalib/*.h) \
@@ -588,7 +588,7 @@ DEB_SNAPFILES = $(MAME_INSTALL_SNAPFILES) $(MESS_INSTALL_SNAPFILES)
 DEB_SNAPFILES_TI99_4A = $(MESS_INSTALL_SNAPFILES_TI99_4A)
 DEB_DOCFILES = $(INSTALL_DOCFILES)
 DEB_MACHINE = $(subst armv7l,armhf,$(subst i686,i386,$(subst x86_64,amd64,$(shell uname -m))))
-DEB_DIST_FILE_BIN = advancemame_$(VERSION)-$(DEB_REVISION)_$(DEB_MACHINE)
+DEB_DIST_FILE_BIN = advancemame_$(VERSION)$(SUB)-$(DEB_REVISION)_$(DEB_MACHINE)
 DEB_DIST_DIR_BIN = $(DEB_DIST_FILE_BIN)
 
 deb:
@@ -624,6 +624,12 @@ deb:
 	find $(DEB_DIST_DIR_BIN)
 	dpkg-deb --build $(DEB_DIST_DIR_BIN)
 	rm -rf $(DEB_DIST_DIR_BIN)
+
+deb_sdl:
+	make deb SUB=_sdl
+
+deb_fb:
+	make deb SUB=_fb
 
 #############################################################################
 # Development targets
