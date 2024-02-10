@@ -2,6 +2,8 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 3.11 2024/02
+	) Alcon / Slap Fight MCU hookup (#116) [arcadez2003]
+	) Add the protection MCU for the official Alcon / Slap Fight sets (#115) [arcadez2003]
 	) Fixed crash with Linux nvidia proprietary driver
 	) aquario (#114) [arcadez2003]
 	) New Working Clockwork Aquario (Prototype) (#113) [arcadez2003]
