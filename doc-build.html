@@ -63,10 +63,11 @@ programs from the source archives.
 <h2><a name="1">1</a> 
 Build
 </h2>
-To build the Advance programs you need to have installed the development tools.
+To build the Advance programs you need to have installed the
+development tools.
 <p>
-What to install depends on your system, but in general you need the GCC compiler,
-and the SDL library.
+What to install depends on your system, but in general you need the
+GCC compiler, and the SDL library.
 <p>
 For Ubuntu run:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
@@ -84,13 +85,13 @@ $ sudo apt-get install git autoconf automake libsdl2-dev libasound2-dev libfreet
 </pre>
 </td></tr></table>
 <p>
-Note that in Raspbian it's highly recommended to run the Advance programs outside
-the X/Pixel graphics environment to get the best performance.
-For this reason the SDL library "libsdl2-dev" is not required, and you can omit
-it if you like.
+Note that in Raspbian it's highly recommended to run the Advance
+programs outside the X Window graphics environment to get the best
+performance. For this reason the SDL library "libsdl2-dev" is not
+required, and you can omit it if you like.
 <p>
-At this point you can get the source code from the <a href="http://www.advancemame.it">http://www.advancemame.it</a> site,
-and untar it with:
+At this point you can get the source code from the <a href="http://www.advancemame.it">http://www.advancemame.it</a>
+site, and untar it with:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -119,10 +120,11 @@ $ sudo make install
 <p>
 The -j3 option uses three parallel processes, speeding up the build.
 <p>
-The build process may be long, up to 45 minutes on a Raspberry Pi 3.
+The build process may be long, up to 45 minutes on a Raspberry Pi 3,
+or 25 on Raspberry Pi 4.
 <p>
-No option is generally required. You can get the complete configure option list with
-the `./configure --help' command.
+No option is generally required. You can get the complete configure
+option list with the `./configure --help' command.
 <p>
 The default installation prefix is /usr/local. You can change it
 with the `--prefix=' option.

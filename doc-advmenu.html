@@ -263,7 +263,7 @@ Selectable background and help images with translucency.
 <a href="#5.5.1">5.5.1 ui_autocalib</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.5.2">5.5.2 ui_text/bar_font</a><br>
+<a href="#5.5.2">5.5.2 ui_text/bar_font/menu_font</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#5.5.3">5.5.3 ui_text/bar_size</a><br>
@@ -1976,15 +1976,16 @@ This is intended for a joustick only configuration.
 ui_autocalib yes | no
 </pre>
 <h4><a name="5.5.2">5.5.2</a> 
-ui_text/bar_font
+ui_text/bar_font/menu_font
 </h4>
-Selects a font file for normal text and the title bar.
+Selects a font file for normal text, the title bar and online menus.
 The formats: TrueType (TTF), GRX, PSF and RAW are supported.
 You can find a collection of fonts in the `contrib' directory.
 <p>
 <pre>
 ui_text_font auto | "FILE"
 ui_bar_font auto | "FILE"
+ui_menu_font auto | "FILE"
 </pre>
 <p>
 Options:
@@ -2013,6 +2014,7 @@ screen.
 <pre>
 ui_text_size auto | ROWS [COLS]
 ui_bar_size auto | ROWS [COLS]
+ui_menu_size auto | ROWS [COLS]
 </pre>
 <p>
 Options:
