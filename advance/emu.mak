@@ -61,7 +61,7 @@ ADVANCECFLAGS += \
 	-DUSE_SOUND_SDL \
 	-DUSE_KEYBOARD_SDL \
 	-DUSE_MOUSE_SDL \
-	-DUSE_JOYSTICK_SDL 
+	-DUSE_JOYSTICK_SDL
 ADVANCELIBS += $(SDLLIBS)
 ADVANCEOBJS += \
 	$(OBJ)/advance/sdl/ssdl.o \
@@ -393,8 +393,10 @@ endif
 
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(OBJ)/advance/osd/emu.o: Makefile
+$(OBJ)/advance/linux/file.o: Makefile
 $(OBJ)/advance/osd/ui.o: Makefile
 $(MESSOBJ)/advance/osd/emu.o: Makefile
+$(MESSOBJ)/advance/linux/file.o: Makefile
 $(MESSOBJ)/advance/osd/ui.o: Makefile
 
 ADVANCECFLAGS += -DADV_VERSION=\"$(VERSION)\" -DADV_EMU
@@ -765,7 +767,7 @@ $(sort $(OBJDIRS)):
 
 MESSADVANCEOBJS = $(subst $(OBJ),$(MESSOBJ),$(ADVANCEOBJS))
 
-$(MESSOBJ)/advmess$(EXE): $(sort $(MESSOBJDIRS)) $(MESSADVANCEOBJS) $(MESSOBJS) $(MESSLIBS) $(ADVANCEBUILDLIBS) 
+$(MESSOBJ)/advmess$(EXE): $(sort $(MESSOBJDIRS)) $(MESSADVANCEOBJS) $(MESSOBJS) $(MESSLIBS) $(ADVANCEBUILDLIBS)
 	$(ECHO) $@ $(MSG)
 	$(LD) $(MESSADVANCEOBJS) $(MESSOBJS) $(ADVANCELDFLAGS) $(LDFLAGS) $(MESSLIBS) $(ADVANCEBUILDLIBS) $(ADVANCELIBS) $(LIBS) -o $@
 ifeq ($(CONF_PERF),yes)
