@@ -37,6 +37,7 @@ size_t snprintfcat(char* buf, size_t size, char const* fmt, ...)
 int opt_foreground; /** Run in foreground */
 int opt_stat; /** Print stats */
 int opt_msg; /** Save message */
+int opt_verbose; /** Verbose output */
 
 /**
  * Backlog
@@ -64,10 +65,8 @@ void backlog_print(void)
 {
 	int i;
 
-	printf("---\n");
-
 	for (i = backlog_begin; i != backlog_end; i = (i + 1) % BACKLOG_LINES) {
-		printf("%s\n", backlog[i]);
+		printf(": %s\n", backlog[i]);
 	}
 }
 
@@ -171,6 +170,9 @@ void blue_send(int f, const char* command)
 		fprintf(stderr, "Failed to write command\n");
 		exit(EXIT_FAILURE);
 	}
+
+	if (opt_verbose)
+		printf("# %s", command);
 
 	/* give some time to process the command */
 	usleep(500);
@@ -427,6 +429,8 @@ void process_connect(int in_f, int out_f)
 			write(f, processing, strlen(processing));
 			close(f);
 		}
+		if (opt_verbose)
+			printf("<%s>\n", processing);
 	}
 }
 
@@ -587,6 +591,7 @@ int main(int argc, char* argv[])
 		if (strcmp(argv[i], "-f") == 0) {
 			opt_foreground = 1;
 			opt_stat = 1;
+			opt_verbose = 1;
 		} else {
 			printf("Syntax: advblue [-f]\n");
 			exit(EXIT_FAILURE);
