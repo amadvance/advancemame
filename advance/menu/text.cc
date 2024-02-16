@@ -1087,13 +1087,9 @@ void cell_pos_t::compute_size(unsigned* rx, unsigned* ry, const adv_bitmap* bitm
 	}
 
 	if (!aspectx || !aspecty) {
-		aspectx = bitmap->size_x;
-		aspecty = bitmap->size_y;
-	}
-
-	if (!aspectx || !aspecty) {
-		aspectx = 1;
-		aspecty = 1;
+		*rx = real_dx;
+		*ry = real_dy;
+		return;
 	}
 
 	aspectx *= 3 * video_size_x();
@@ -2829,8 +2825,8 @@ void int_clear_alpha(int x, int y, int dx, int dy, const adv_color_rgb& color)
 
 bool int_clip(const string& file, bool loop)
 {
-	unsigned aspectx = int_dx_get();
-	unsigned aspecty = int_dy_get();
+	unsigned aspectx = 0; // 0 stretch the bitmap to fill all the screen
+	unsigned aspecty = 0;
 	resource res = path_import(file);
 
 	bool wait = true;
