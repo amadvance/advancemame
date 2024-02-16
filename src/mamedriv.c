@@ -3171,6 +3171,8 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( eswatu )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( eswatj )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( exctleag )	/* (protected) */
+	DRIVER( fantzn2x )      /* (c) 2008 (Sega, M2) */
+	DRIVER( fantzn2xp )     /* (c) 2008 (Sega, M2) */
 	DRIVER( fpoint )	/* (c) 1989 (Japan, FD1094, decrypted) */
 	DRIVER( fpoint1 )	/* (c) 1989 (Japan, FD1094, decrypted) */
 	DRIVER( goldnaxe )	/* (c) 1989 (8751) */
