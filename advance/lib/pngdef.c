@@ -108,7 +108,7 @@ static adv_error png_write_raw_pal(
 			p += 1;
 			pix_ptr += pix_pixel_pitch;
 		}
-		pix_ptr += pix_scanline_pitch - pix_pixel_pitch * pix_width;
+		pix_ptr += pix_scanline_pitch - pix_pixel_pitch * (int)pix_width;
 	}
 
 	if (adv_png_write_raw(pix_width, pix_height, 1, i_ptr, 1, 1 * pix_width, palette, rgb_max * 3, 0, 0, fast, f, count) != 0) {
@@ -155,7 +155,7 @@ static adv_error png_write_raw_paltorgb(
 			p += 3;
 			pix_ptr += pix_pixel_pitch;
 		}
-		pix_ptr += pix_scanline_pitch - pix_pixel_pitch * pix_width;
+		pix_ptr += pix_scanline_pitch - pix_pixel_pitch * (int)pix_width;
 	}
 
 	if (adv_png_write_raw(pix_width, pix_height, 3, i_ptr, 3, 3 * pix_width, 0, 0, 0, 0, fast, f, count) != 0) {
@@ -211,7 +211,7 @@ static adv_error png_write_raw_rgb(
 			pix_ptr += pix_pixel_pitch;
 		}
 
-		pix_ptr += pix_scanline_pitch - pix_pixel_pitch * pix_width;
+		pix_ptr += pix_scanline_pitch - pix_pixel_pitch * (int)pix_width;
 	}
 
 	if (adv_png_write_raw(pix_width, pix_height, 3, i_ptr, 3, 3 * pix_width, 0, 0, 0, 0, fast, f, count) != 0) {
