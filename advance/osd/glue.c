@@ -2654,11 +2654,13 @@ static int on_exit_menu(int selected)
 	int sel;
 	int total;
 
+	struct advance_input_context* context = &CONTEXT.input;
+
 	sel = selected;
 
 	total = 0;
 
-	exit_menu[total].text = "Continue";
+	exit_menu[total].text = "Insert Coin";
 	exit_menu[total].subtext = 0;
 	exit_menu[total].flags = 0;
 	++total;
@@ -2694,12 +2696,17 @@ static int on_exit_menu(int selected)
 	}
 
 	if (input_ui_pressed(IPT_UI_SELECT)) {
+		int key0 = 0;
 		switch (sel) {
-		case 0: sel = -1; break;
+		case 0: key0 = KEYB_5; sel = -1; break;
 		case 1: sel = -2; break;
 		case 2: sel = -3; break;
 		case 3: sel = -4; break;
 		case 4: sel = -5; break;
+		}
+		if (key0 != 0) {
+			sel = -1;
+			advance_input_simulate_key(context, key0, 0, 10);
 		}
 	}
 
