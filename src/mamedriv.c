@@ -924,6 +924,7 @@ const game_driver * const drivers[] =
 	DRIVER( spnchout )	/* (c) 1984 */
 	DRIVER( spnchotj )	/* (c) 1984 (Japan) */
 	DRIVER( armwrest )	/* (c) 1985 */
+	DRIVER( dkongx )	/* (c) 2015 Braze Tech Upgrade Kit */
 
 	/* Nintendo Playchoice 10 games */
 	DRIVER( playch10 )
@@ -3170,6 +3171,8 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( eswatu )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( eswatj )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( exctleag )	/* (protected) */
+	DRIVER( fantzn2x )      /* (c) 2008 (Sega, M2) */
+	DRIVER( fantzn2xp )     /* (c) 2008 (Sega, M2) */
 	DRIVER( fpoint )	/* (c) 1989 (Japan, FD1094, decrypted) */
 	DRIVER( fpoint1 )	/* (c) 1989 (Japan, FD1094, decrypted) */
 	DRIVER( goldnaxe )	/* (c) 1989 (8751) */
@@ -3247,6 +3250,7 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( cltchitr )	/* (c) 1991 (FD1094, decrypted) */
 	DRIVER( cltchtrj )	/* (c) 1991 (FD1094, decrypted) */
 	DRIVER( desertbr )	/* (c) 1993 (FD1094, decrypted) */
+	DRIVER( hamaway )       /* (c) 1991 Sega / Santos Unreleased Prototype */
 	DRIVER( mwalk )		/* (c) 1990 (FD1094+8751, decrypted) */
 	DRIVER( mwalku )	/* (c) 1990 (FD1094+8751, decrypted) */
 	DRIVER( mwalkj )	/* (c) 1990 (FD1094+8751, decrypted) */
