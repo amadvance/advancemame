@@ -3250,6 +3250,7 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( cltchitr )	/* (c) 1991 (FD1094, decrypted) */
 	DRIVER( cltchtrj )	/* (c) 1991 (FD1094, decrypted) */
 	DRIVER( desertbr )	/* (c) 1993 (FD1094, decrypted) */
+	DRIVER( hamaway )       /* (c) 1991 Sega / Santos Unreleased Prototype */
 	DRIVER( mwalk )		/* (c) 1990 (FD1094+8751, decrypted) */
 	DRIVER( mwalku )	/* (c) 1990 (FD1094+8751, decrypted) */
 	DRIVER( mwalkj )	/* (c) 1990 (FD1094+8751, decrypted) */
