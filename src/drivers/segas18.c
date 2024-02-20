@@ -46,6 +46,7 @@
 #define ROM_BOARD_171_5874		(1)		/* 171-5874 */
 #define ROM_BOARD_171_5987		(2)		/* 171-5987 */
 #define ROM_BOARD_171_5987_AQUARIO		(3)		/* Clockwork Aquario */
+#define ROM_BOARD_837_7525		(4)		        /* Hammer Away */
 
 
 /*************************************
@@ -80,6 +81,7 @@ extern void fd1094_driver_init(void);
 static READ16_HANDLER( misc_io_r );
 static WRITE16_HANDLER( misc_io_w );
 static WRITE16_HANDLER( rom_5987_bank_w );
+static WRITE16_HANDLER( rom_837_7525_bank_w );
 
 
 
@@ -145,12 +147,27 @@ static const struct segaic16_memory_map_entry rom_171_5987_aquario_info[] =
 	{ 0 }
 };
 
+static const struct segaic16_memory_map_entry rom_837_7525_info[] =
+{
+	{ 0x3d/2, 0x00000, 0x04000, 0xffc000,      ~0, misc_io_r,             misc_io_w,             NULL,                  "I/O space" },
+	{ 0x39/2, 0x00000, 0x02000, 0xffe000,      ~0, MRA16_BANK10,          segaic16_paletteram_w, &paletteram16,         "color RAM" },
+	{ 0x35/2, 0x00000, 0x10000, 0xfe0000,      ~0, MRA16_BANK11,          segaic16_tileram_0_w,  &segaic16_tileram_0,   "tile RAM" },
+	{ 0x35/2, 0x10000, 0x01000, 0xfef000,      ~0, MRA16_BANK12,          segaic16_textram_0_w,  &segaic16_textram_0,   "text RAM" },
+	{ 0x31/2, 0x00000, 0x00800, 0xfff800,      ~0, MRA16_BANK13,          MWA16_BANK13,          &segaic16_spriteram_0, "object RAM" },
+	{ 0x2d/2, 0x00000, 0x04000, 0xffc000,      ~0, MRA16_BANK14,          MWA16_BANK14,          &workram,              "work RAM" },
+	{ 0x29/2, 0x00000, 0x00010, 0xfffff0,      ~0, genesis_vdp_r,         genesis_vdp_w,         NULL,                  "VDP" },
+	{ 0x25/2, 0x00000, 0x80000, 0xf80000, 0x80000, MRA16_BANK16,          rom_837_7525_bank_w,   NULL,                  "ROM 1/banking" },
+	{ 0x21/2, 0x00000, 0x80000, 0xf00000, 0x00000, MRA16_BANK17,          MWA16_ROM,             NULL,                  "ROM 0" },
+	{ 0 }
+};
+
 static const struct segaic16_memory_map_entry *region_info_list[] =
 {
 	&rom_171_shad_info[0],
 	&rom_171_5874_info[0],
 	&rom_171_5987_info[0],
-	&rom_171_5987_aquario_info[0]
+	&rom_171_5987_aquario_info[0],
+	&rom_837_7525_info[0]
 };
 
 
@@ -419,7 +436,32 @@ static WRITE16_HANDLER( rom_5987_bank_w )
 	}
 }
 
+static WRITE16_HANDLER( rom_837_7525_bank_w )
+{
+	if (!ACCESSING_LSB)
+		return;
+	offset &= 0xf;
+	data &= 0xff;
 
+	/* tile banking */
+	if (offset < 8)
+	{
+	//	int maxbanks = m_gfxdecode->gfx(0)->elements() / 1024;
+		data &= 0x9f;
+
+		if (data & 0x80) data += 0x20;
+		data &= 0x3f;
+
+	    segaic16_tilemap_set_bank(0, offset, data);
+	}
+
+	// sprite banking
+	else
+	{
+		//printf("%02x %02x\n", offset, data);
+		// not needed?
+	}
+}
 
 /*************************************
  *
@@ -1269,6 +1311,29 @@ static INPUT_PORTS_START( wwally )
 INPUT_PORTS_END
 
 
+static INPUT_PORTS_START( hamaway )
+	PORT_INCLUDE( system18_generic )
+
+	PORT_MODIFY("DSW")
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x08, "1" )
+	PORT_DIPSETTING(    0x04, "2" )
+	PORT_DIPSETTING(    0x0c, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	//"SW2:5" is unknown - Not listed in the service mode
+	//"SW2:6" is unknown - Not listed in the service mode
+	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, "2 Credits to Start" )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+INPUT_PORTS_END
 
 /*************************************
  *
@@ -1294,7 +1359,16 @@ static const gfx_decode gfxdecodeinfo[] =
 	{ -1 }
 };
 
+/* Hammer Away sound requires an irq */
+static void irq_handler(int irq)
+{
+	cpunum_set_input_line(1,0,irq ? ASSERT_LINE : CLEAR_LINE);
+}
 
+struct YM3438interface hamaway_ym3438_interface =
+{
+	irq_handler
+};
 
 /*************************************
  *
@@ -1364,7 +1438,19 @@ static MACHINE_DRIVER_START( lghost )
 	MDRV_VIDEO_UPDATE(lghost)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( hamaway )
+	MDRV_IMPORT_FROM(system18)
 
+	MDRV_SOUND_ADD_TAG("3438", YM3438, 8000000)
+	MDRV_SOUND_CONFIG(hamaway_ym3438_interface)
+	MDRV_SOUND_ROUTE(0, "left", 0.40)
+	MDRV_SOUND_ROUTE(1, "right", 0.40)
+
+	MDRV_SOUND_ADD_TAG("3438", YM3438, 8000000)
+	MDRV_SOUND_CONFIG(hamaway_ym3438_interface)
+	MDRV_SOUND_ROUTE(0, "left", 0.40)
+	MDRV_SOUND_ROUTE(1, "right", 0.40)
+MACHINE_DRIVER_END
 
 /*************************************
  *
@@ -2272,6 +2358,39 @@ ROM_START( wwallyja )
 	ROM_LOAD( "mpr14722.c4",   0x190000, 0x80000, CRC(1bd081f8) SHA1(e5b0b5d8334486f813d7c430bb7fce3f69605a21) )
 ROM_END
 
+/**************************************************************************************************************************
+    Hammer Away, Sega System 18
+    CPU: M68000
+    ROM Board: 837-7525
+*/
+
+ROM_START( hamaway )
+	ROM_REGION( 0x280000, REGION_CPU1, 0 ) // 68000 code
+	ROM_LOAD16_BYTE( "4.bin",  0x000000, 0x40000, CRC(cc0981e1) SHA1(63528bd36f27e62fdf40715101e6d05b73e48f16) ) // 1xxxxxxxxxxxxxxxxx = 0xFF
+	ROM_LOAD16_BYTE( "6.bin",  0x000001, 0x40000, CRC(e8599ee6) SHA1(3e32b025403aecbaecfcdd0325e4acd676e99c4e) ) // 1xxxxxxxxxxxxxxxxx = 0xFF
+	ROM_LOAD16_BYTE( "5.bin",  0x200000, 0x40000, CRC(fdb247fd) SHA1(ee9db799fb5de27f81904f8ef792203415b6d4a6) )
+	ROM_LOAD16_BYTE( "7.bin",  0x200001, 0x40000, CRC(63711470) SHA1(6c4be3a0cf0f897c34ef0b3bf549f52b185bb915) )
+
+	ROM_REGION( 0x180000, REGION_GFX1, ROMREGION_DISPOSE ) /* tiles */
+	ROM_LOAD( "c10.bin",  0x000000, 0x40000, CRC(c55cb5cf) SHA1(396179632b29ac5f8b7f8f3c91d7cf834e548bdf) )
+	ROM_LOAD( "1.bin",    0x040000, 0x40000, CRC(33be003f) SHA1(134fa6b3347c306d9e30882dfcf24632b49f85ea) )
+	ROM_LOAD( "c11.bin",  0x080000, 0x40000, CRC(37787915) SHA1(c8d251be6c41de3aed2da6da70aa87071b70b1f6) )
+	ROM_LOAD( "2.bin",    0x0c0000, 0x40000, CRC(60ca5c9f) SHA1(6358ea00125a5e3f55acf73aeb9c36b1db6e711e) )
+	ROM_LOAD( "c12.bin",  0x100000, 0x40000, CRC(f12f1cf3) SHA1(45e883029c58e617a2a20ac1ab5c5f598c95f4bd) )
+	ROM_LOAD( "3.bin",    0x140000, 0x40000, CRC(520aa7ae) SHA1(9584206aedd8be5ce9dca0ed370f8fe77aabaf76) )
+
+	ROM_REGION16_BE( 0x200000, REGION_GFX2, ROMREGION_ERASEFF ) // sprites
+	ROM_LOAD16_BYTE( "c17.bin", 0x000001, 0x40000, CRC(aa28d7aa) SHA1(3dd5d95b05e408c023f9bd77753c37080714239d) )
+	ROM_LOAD16_BYTE( "10.bin",  0x000000, 0x40000, CRC(c4c95161) SHA1(2e313a4ca9506f53a2062b4a8e5ba7b381ba93ae) )
+	ROM_LOAD16_BYTE( "c18.bin", 0x080001, 0x40000, CRC(0f8fe8bb) SHA1(e6f68442b8d4def29b106458496a47344f70d511) )
+	ROM_LOAD16_BYTE( "11.bin",  0x080000, 0x40000, CRC(2b5eacbc) SHA1(ba3690501588b9c88a31022b44bc3c82b44ae26b) )
+	ROM_LOAD16_BYTE( "c19.bin", 0x100001, 0x40000, CRC(3c616caa) SHA1(d48a6239b7a52ac13971f7513a65a17af492bfdf) ) // 11xxxxxxxxxxxxxxxx = 0xFF
+	ROM_LOAD16_BYTE( "12.bin",  0x100000, 0x40000, CRC(c7bbd579) SHA1(ab87bfdad66ea241cb23c9bbfea05f5a1574d6c9) ) // 1ST AND 2ND HALF IDENTICAL (but ok, because pairing ROM has no data in the 2nd half anyway)
+
+	ROM_REGION( 0x210000, REGION_CPU2, ROMREGION_ERASEFF ) // sound CPU
+	ROM_LOAD( "c16.bin", 0x010000, 0x40000, CRC(913cc18c) SHA1(4bf4ec14937586c3ae77fcad57dcb21f6433ef81) )
+	ROM_LOAD( "c15.bin", 0x090000, 0x40000, CRC(b53694fc) SHA1(0e42be2730abce1b52ea94a9fe61cbd1c9a0ccae) )
+ROM_END
 
 
 /*************************************
@@ -2298,6 +2417,11 @@ static DRIVER_INIT( generic_5987 )
 static DRIVER_INIT( aquario )
 {
 	system18_generic_init(ROM_BOARD_171_5987_AQUARIO);
+}
+
+static DRIVER_INIT( hamaway )
+{
+	system18_generic_init(ROM_BOARD_837_7525);
 }
 
 /*************************************
@@ -2358,4 +2482,7 @@ GAME( 1989, shdancej, shdancer, system18,      shdancer, generic_shad, ROT0,   "
 GAME( 1989, shdance1, shdancer, system18,      shdancer, generic_shad, ROT0,   "Sega",    "Shadow Dancer (set 1)", 0 )
 GAME( 1992, wwallyj,  0,        system18,      wwally,   wwally,       ROT0,   "Sega",    "Wally wo Sagase! (rev B, Japan, FD1094 317-0197B)" , 0) /* the roms do contain an english logo so maybe there is a world / us set too */
 GAME( 1992, wwallyja, wwallyj,  system18,      wwally,   wwally,       ROT0,   "Sega",    "Wally wo Sagase! (rev A, Japan, FD1094 317-0197A)", 0 )
+
+/* Unreleased Prototypes */
+GAME( 1991, hamaway,  0,        hamaway,       hamaway,  hamaway,      ROT90,  "Sega / Santos", "Hammer Away (Japan, prototype)", 0 )
 GAME( 2021, aquario,  0,        system18,      aquario,  aquario,      ROT0,   "Sega / Westone", "Clockwork Aquario (prototype)", 0 )
