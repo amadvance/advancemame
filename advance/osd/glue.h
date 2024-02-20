@@ -128,6 +128,7 @@ const char* mame_game_description(const mame_game* game);
 const char* mame_game_year(const mame_game* game);
 const char* mame_game_manufacturer(const mame_game* game);
 unsigned mame_game_players(const mame_game* game);
+unsigned mame_game_buttons(const mame_game* game);
 const char* mame_game_control(const mame_game* game);
 void mame_print_xml(FILE* out, int bare);
 adv_bool mame_is_game_vector(const mame_game* game);

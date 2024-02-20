@@ -916,7 +916,9 @@ int os_main(int argc, char* argv[])
 	if (control) {
 		section_map[section_mac++] = strdup(control);
 	}
-	snprintf(buffer, sizeof(buffer), "%dplayer", mame_game_players(option.game));
+	snprintf(buffer, sizeof(buffer), "%dplayers", mame_game_players(option.game));
+	section_map[section_mac++] = strdup(buffer);
+	snprintf(buffer, sizeof(buffer), "%dbuttons", mame_game_buttons(option.game));
 	section_map[section_mac++] = strdup(buffer);
 	section_map[section_mac++] = strdup("");
 	conf_section_set(context->cfg, section_map, section_mac);
