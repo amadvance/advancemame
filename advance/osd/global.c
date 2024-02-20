@@ -758,7 +758,7 @@ void osd_config_load_default(input_port_default_entry* backup, input_port_defaul
 
 				snprintf(tag_buffer, sizeof(tag_buffer), "input_map[%s]", p->name);
 
-				if (conf_string_section_get(cfg_context, "", tag_buffer, &value) == 0) {
+				if (conf_string_get(cfg_context, tag_buffer, &value) == 0) {
 					char* d = strdup(value);
 					unsigned seq[INPUT_MAP_MAX];
 
@@ -853,7 +853,7 @@ static void config_save_seq_default(unsigned port, unsigned* seq, unsigned seq_m
 			int store = 1;
 
 			/* parse the stored config and check if it's the same */
-			if (conf_string_section_get(cfg_context, "", tag_buffer, &value) != 0) {
+			if (conf_string_get(cfg_context, tag_buffer, &value) != 0) {
 				/* not found, no need to delete it */
 				store = 0;
 			}
@@ -871,7 +871,7 @@ static void config_save_seq_default(unsigned port, unsigned* seq, unsigned seq_m
 			int store = 1;
 
 			/* parse the stored config and check if it's the same */
-			if (conf_string_section_get(cfg_context, "", tag_buffer, &value) == 0) {
+			if (conf_string_get(cfg_context, tag_buffer, &value) == 0) {
 				char* d = strdup(value);
 				unsigned store_seq[INPUT_MAP_MAX];
 				if (advance_input_parse_digital(store_seq, INPUT_MAP_MAX, d) == 0) {
@@ -929,7 +929,7 @@ static void config_save_seq(unsigned port, unsigned* seq, unsigned seq_max)
 			int store = 1;
 
 			/* parse the stored config and check if it's the same */
-			if (conf_string_section_get(cfg_context, section, tag_buffer, &value) != 0) {
+			if (conf_string_get(cfg_context, tag_buffer, &value) != 0) {
 				/* not found, no need to delete it */
 				store = 0;
 			}
@@ -947,7 +947,7 @@ static void config_save_seq(unsigned port, unsigned* seq, unsigned seq_max)
 			int store = 1;
 
 			/* parse the stored config and check if it's the same */
-			if (conf_string_section_get(cfg_context, section, tag_buffer, &value) == 0) {
+			if (conf_string_get(cfg_context, tag_buffer, &value) == 0) {
 				char* d = strdup(value);
 				unsigned store_seq[INPUT_MAP_MAX];
 				if (advance_input_parse_digital(store_seq, INPUT_MAP_MAX, d) == 0) {
