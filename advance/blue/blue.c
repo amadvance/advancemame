@@ -42,7 +42,7 @@ int opt_verbose; /** Verbose output */
 /**
  * Backlog
  */
-#define BACKLOG_LINES 16
+#define BACKLOG_LINES 256
 #define BACKLOG_MAX 128
 
 char backlog[BACKLOG_LINES][BACKLOG_MAX];
@@ -68,6 +68,10 @@ void backlog_print(void)
 	for (i = backlog_begin; i != backlog_end; i = (i + 1) % BACKLOG_LINES) {
 		printf(": %s\n", backlog[i]);
 	}
+
+	/* clear backlog */
+	backlog_begin = 0;
+	backlog_end = 0;
 }
 
 /**
@@ -175,7 +179,7 @@ void blue_send(int f, const char* command)
 		printf("# %s", command);
 
 	/* give some time to process the command */
-	usleep(500);
+	usleep(100000);
 }
 
 struct blue_device {
@@ -350,20 +354,27 @@ void process_connect(int in_f, int out_f)
 	struct blue_device* i = devs;
 	char processing[4096];
 	char connected[4096];
+	char ignored[128];
 	unsigned count_processing;
 	unsigned count_connected;
+	unsigned count_ignored;
 
 	count_processing = 0;
 	count_connected = 0;
+	count_ignored = 0;
 	processing[0] = 0;
 	connected[0] = 0;
+	ignored[0] = 0;
 
 	for (i = devs; i != 0; i = i->next) {
 		char cmd[128];
 		const char* name = i->name[0] ? i->name : i->id;
 
-		if (!i->is_game)
+		if (!i->is_game) {
+			snprintf(ignored, sizeof(ignored) - 1, "%s", name);
+			++count_ignored;
 			continue;
+		}
 
 		if (!i->is_trusted) {
 			snprintf(cmd, sizeof(cmd), "trust %s\n", i->id);
@@ -415,9 +426,15 @@ void process_connect(int in_f, int out_f)
 		else if (count_connected > 1)
 			snprintfcat(processing, sizeof(processing), "Connected %u devices", count_connected);
 	} else {
-		if (count_connected == 0)
-			strcpy(processing, "Press START for one second to power on");
-		else if (count_connected > 1)
+		if (count_connected == 0) {
+			if (count_ignored == 0) {
+				strcpy(processing, "Scanning for devices...");
+			} else if (count_ignored == 1) {
+				snprintf(processing, sizeof(processing), "Scanning... (%s ignored)", ignored);
+			} else {
+				snprintf(processing, sizeof(processing), "Scanning... (%u ignored)", count_ignored);
+			}
+		} else if (count_connected > 1)
 			snprintf(processing, sizeof(processing), "Connected %u devices", count_connected);
 		else
 			strcpy(processing, connected);
