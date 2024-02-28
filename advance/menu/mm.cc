@@ -892,7 +892,7 @@ done_init:
 
 	conf_done(config_context);
 
-	return EXIT_SUCCESS;
+	exit(EXIT_SUCCESS);
 
 err_inner_init:
 	os_inner_done();
@@ -903,6 +903,6 @@ err_init:
 
 err_conf:
 	conf_done(config_context);
-	return EXIT_FAILURE;
+	exit(EXIT_FAILURE);
 }
 
