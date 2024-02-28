@@ -39,7 +39,17 @@ import sys
 def entry(amap, desc, vendor, product, key, v0, v1):
 	if not amap.has_key(key):
 		return
+
 	value = amap[key]
+
+	# remove dummy +
+	if value[0] == '+':
+		value = value[1:]
+
+	if not value.isdigit():
+		sys.stderr.write("Skip not numeric value " + key + "=" + value + " for " + desc + "\n")
+		return
+
 	print "\t\t{ 0x" + format(vendor, '04x') + ", 0x" + format(product, '04x') + ", \"" + desc + "\", " + str(value) + ", \"" + v0 + "\", " + v1 + " },"
 
 def process(file):
@@ -49,13 +59,27 @@ def process(file):
 	amap = dict()
 
 	for s in lines:
-		if len(s) == 0 or s[0] == '#':
+		# cut '#' comments
+		t = s.split('#')
+		s = t[0].strip()
+
+		# ignore empty lines
+		if len(s) == 0:
 			continue
+
 		t = s.split("=")
 		if len(t) != 2:
+			sys.stderr.write("Skip multiple = in " + t[0] + " in " + file + "\n")
 			continue
+
 		t0 = t[0].strip()
 		t1 = t[1].strip().strip("\"")
+
+		# skip empty assignments
+		if len(t1) == 0:
+			sys.stderr.write("Skip empty assignment of " + t0 + " in " + file + "\n")
+			continue
+
 		amap[t0] = t1
 
 	if not amap.has_key("input_vendor_id"):
