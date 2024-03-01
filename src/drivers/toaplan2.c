@@ -216,14 +216,14 @@ Notes:
 
 Game status:
 
-Teki Paki                      Working, but no sound. Missing sound MCU dump. Chip is protected. It's a QFP80 Hitachi HD647180.
-Ghox                           Working, but no sound. Missing sound MCU dump. It's a QFP80 Hitachi HD647180.
+Teki Paki                      Working.
+Ghox                           Working.
 Dogyuun                        Working, but no sound. MCU type is likely a NEC V25+. Chip is a PLCC94 stamped 'TS-002-MACH'.
 Dogyuun (location test)        Working.
 Knuckle Bash                   Working, but sound FX only (missing music). MCU type is a NEC V25+. Chip is a PLCC94 stamped 'TS-004-DASH'. Some PCBs use another version stamped 'NITRO' which is the same chip type.
 Truxton 2                      Working.
 Pipi & Bibis                   Working.
-Whoopee                        Working. Missing sound MCU dump. It's a Hitachi HD647180. Using bootleg sound CPU dump for now.
+Whoopee                        Working.
 Pipi & Bibis (Ryouta Kikaku)   Working.
 FixEight                       Not working properly. Missing background GFX, and sound FX only (missing music). Both controlled by MCU. MCU type is a NEC V25+. Chip is a PLCC94 stamped 'TS-001-TURBO'
 FixEight bootleg               Working. One unknown ROM (same as pipibibi one). Region hardcoded to Korea (@ $4d8)
@@ -270,6 +270,7 @@ To Do / Unknowns:
 #include "driver.h"
 #include "cpu/m68000/m68000.h"
 #include "cpu/z80/z80.h"
+#include "cpu/z180/z180.h"
 #include "machine/eeprom.h"
 #include "machine/nmk112.h"
 #include "sound/2151intf.h"
@@ -380,6 +381,11 @@ void dogyuun_okisnd_w(int data);
 void kbash_okisnd_w(int data);
 void fixeight_okisnd_w(int data);
 void batsugun_okisnd_w(int data);
+
+UINT8 m_cmdavailable;
+
+READ8_HANDLER(tekipaki_soundlatch_r);
+READ8_HANDLER(tekipaki_cmdavailable_r);
 
 int fadeout_ready = 0;
 int fadeout_stop = 0;
@@ -752,92 +758,20 @@ static WRITE16_HANDLER( toaplan2_shared_w )
 
 static WRITE16_HANDLER( toaplan2_hd647180_cpu_w )
 {
-	/* Command sent to secondary CPU. Support for HD647180 will be
-       required when a ROM dump becomes available for this hardware */
-
-	if (ACCESSING_LSB)
-	{
-		if (toaplan2_sub_cpu == CPU_2_Z80)			/* Whoopee */
-		{
-			toaplan2_shared_ram[0] = data & 0xff;
-		}
-		else										/* Teki Paki */
-		{
-			mcu_data = data & 0xff;
-			logerror("PC:%08x Writing command (%04x) to secondary CPU shared port\n",activecpu_get_previouspc(),mcu_data);
-		}
-	}
-}
-
-static WRITE16_HANDLER( tekipaki_hd647180_w )
-{
-	if (data == 0xfe)
-	{
-		sample_stop(0);sample_stop(1);sample_stop(2);sample_stop(3);
-		sample_stop(4);sample_stop(5);sample_stop(6);sample_stop(7);
-	}
-	
-	if (data >= 0x01 && data <= 0x03)
-		sample_start (0, data, 1);
-	
-	if (data >= 0x04 && data <= 0x05)
-		sample_start (0, data, 0);
-	
-	if (data == 0x06)
-		sample_start (1, data ,0);
-	
-	if (data == 0x07)
-		sample_start (1, data ,0);
-	
-	if (data >= 0x08 && data <= 0x09)
-		sample_start (2, data, 0);
-	
-	if (data >= 0x0a && data <= 0x0d)
-		sample_start (3, data, 0);
-	
-	if (data >= 0x0e && data <= 0x12)
-		sample_start (4, data, 0);
-	
-	if (data >= 0x13 && data <= 0x14)
-		sample_start (5, data, 0);
-	
-	if (data == 0x15)
-		sample_start (6, data, 0);
-	
 	if (ACCESSING_LSB)
 	{
 		mcu_data = data & 0xff;
-		/* logerror("PC:%08x Writing command (%04x) to secondary CPU shared port\n",activecpu_get_previouspc(),mcu_data); */
+        m_cmdavailable = 1;
 	}
 }
-
-static const char *tekipaki_sample_names[] =
-{
-	"*tekipaki",
-	"dm.wav","01.wav","02.wav","03.wav","04.wav","05.wav","06.wav","07.wav",
-	"08.wav","09.wav","0a.wav","0b.wav","0c.wav","0d.wav","0e.wav","0f.wav",
-	"10.wav","11.wav","12.wav","13.wav","14.wav","15.wav",0
-};
-
-struct Samplesinterface tekipaki_samples_interface =
-{
-	8,tekipaki_sample_names
-};
 
 static READ16_HANDLER( c2map_port_6_r )
 {
 	/* For Teki Paki hardware */
 	/* bit 4 high signifies secondary CPU is ready */
 	/* bit 5 is tested low before V-Blank bit ??? */
-	switch (toaplan2_sub_cpu)
-	{
-		case CPU_2_Z80:			mcu_data = toaplan2_shared_ram[0]; break; /* Whoopee */
-		case CPU_2_HD647180:	mcu_data = 0xff; break;					  /* Teki Paki */
-		default:				mcu_data = 0x00; break;
-	}
-	if (mcu_data == 0xff) mcu_data = 0x10;
-	else mcu_data = 0x00;
-	return ( mcu_data | input_port_6_r(0) );
+    return (((m_cmdavailable) ? 0x00 : 0x10) | (input_port_6_r(0) & 0x0f)); /* dink */
+
 }
 
 static READ16_HANDLER( pipibibi_z80_status_r )
@@ -875,142 +809,6 @@ static READ16_HANDLER( ghox_p2_h_analog_r )
 	return value;
 }
 
-static READ16_HANDLER( ghox_mcu_r )
-{
-	return 0xff;
-}
-
-static WRITE16_HANDLER( ghox_mcu_w )
-{
-//	ui_popup("%x",data);
-//	fprintf(stderr, "cmd %x ",data);
-
-	if (data == 0xfe)
-		sample_stop (0);
-
-	if (data == 0x42 || data == 0x44 || data == 0x45 || data == 0x47 || data == 0x48 || data == 0x4c || data == 0x4d || data == 0x4e)
-		sample_start (0, data , 1);
-
-	if (data == 0xd0)
-		sample_start (0, 0, 1);
-
-	if (data == 0x49)
-		sample_start (0, data , 0);
-
-	if (data >= 0x02 && data <= 0x0f)
-		sample_start (1, data , 0);
-
-	if (data >= 0x10 && data <= 0x17)
-		sample_start (2, data , 0);
-
-	if (data >= 0x18 && data <= 0x1f)
-		sample_start (3, data , 0);
-
-	if (data >= 0x20 && data <= 0x27)
-		sample_start (4, data , 0);
-
-	if (data >= 0x28 && data <= 0x2f)
-		sample_start (5, data , 0);
-
-	if (data >= 0x30 && data <= 0x38)
-		sample_start (6, data , 0);
-
-	if (data == 0x39)
-		sample_start (8, data , 0);
-
-	if (data >= 0x3a && data <= 0x3f)
-		sample_start (7, data , 0);
-
-	if (data == 0x01)
-		sample_start (8, data , 0);
-
-	if (data == 0x4b)
-		sample_start (0, 0x4f , 0);
-
-	if (ACCESSING_LSB)
-	{
-		mcu_data = data;
-		if ((data >= 0xd0) && (data < 0xe0))
-		{
-			offset = ((data & 0x0f) * 2) + (0x38 / 2);
-			toaplan2_shared_ram16[offset  ] = 0x0005;	/* Return address for */
-			toaplan2_shared_ram16[offset-1] = 0x0056;	/*   RTS instruction */
-		}
-		else
-		{
-			logerror("PC:%08x Writing %08x to HD647180 cpu shared ram status port\n",activecpu_get_previouspc(),mcu_data);
-		}
-		toaplan2_shared_ram16[0x56 / 2] = 0x004e;	/* Return a RTS instruction */
-		toaplan2_shared_ram16[0x58 / 2] = 0x0075;
-
-		if (data == 0xd3)
-		{
-		toaplan2_shared_ram16[0x56 / 2] = 0x003a;	//  move.w  d1,d5
-		toaplan2_shared_ram16[0x58 / 2] = 0x0001;
-		toaplan2_shared_ram16[0x5a / 2] = 0x0008;	//  bclr.b  #0,d5
-		toaplan2_shared_ram16[0x5c / 2] = 0x0085;
-		toaplan2_shared_ram16[0x5e / 2] = 0x0000;
-		toaplan2_shared_ram16[0x60 / 2] = 0x0000;
-		toaplan2_shared_ram16[0x62 / 2] = 0x00cb;	//  muls.w  #3,d5
-		toaplan2_shared_ram16[0x64 / 2] = 0x00fc;
-		toaplan2_shared_ram16[0x66 / 2] = 0x0000;
-		toaplan2_shared_ram16[0x68 / 2] = 0x0003;
-		toaplan2_shared_ram16[0x6a / 2] = 0x0090;	//  sub.w   d5,d0
-		toaplan2_shared_ram16[0x6c / 2] = 0x0045;
-		toaplan2_shared_ram16[0x6e / 2] = 0x00e5;	//  lsl.b   #2,d1
-		toaplan2_shared_ram16[0x70 / 2] = 0x0009;
-		toaplan2_shared_ram16[0x72 / 2] = 0x004e;	//  rts
-		toaplan2_shared_ram16[0x74 / 2] = 0x0075;
-		}
-	}
-}
-
-
-static const char *ghox_sample_names[] =
-{
-	"*ghox",
-	"d0.wav","01.wav","02.wav","dm.wav","04.wav","05.wav","06.wav","dm.wav",
-	"08.wav","09.wav","dm.wav","0b.wav","0c.wav","dm.wav","dm.wav","0f.wav",
-	"dm.wav","11.wav","12.wav","12.wav","14.wav","15.wav","16.wav","17.wav",
-	"18.wav","19.wav","1a.wav","1b.wav","1c.wav","1c.wav","1c.wav","1f.wav",
-	"20.wav","21.wav","22.wav","23.wav","24.wav","dm.wav","dm.wav","27.wav",
-	"dm.wav","dm.wav","2a.wav","2b.wav","dm.wav","2d.wav","2e.wav","2f.wav",
-	"dm.wav","dm.wav","dm.wav","33.wav","34.wav","35.wav","36.wav","37.wav",
-	"38.wav","39.wav","dm.wav","dm.wav","3c.wav","dm.wav","3e.wav","dm.wav",
-	"dm.wav","dm.wav","42.wav","43.wav","44.wav","45.wav","43.wav","47.wav",
-	"48.wav","49.wav","43.wav","dm.wav","4c.wav","4d.wav","4e.wav","d1.wav",0
-};
-
-struct Samplesinterface ghox_samples_interface =
-{
-	9,ghox_sample_names
-};
-
-static READ16_HANDLER( ghox_shared_ram_r )
-{
-	/* Ghox 68K reads data from MCU shared RAM and writes it to main RAM.
-       It then subroutine jumps to main RAM and executes this code.
-       Here, we're just returning a RTS instruction for now.
-       See above ghox_mcu_w routine.
-
-       Offset $56 and $58 are accessed from around PC:0F814
-
-       Offset $38 and $36 are accessed from around PC:0DA7C
-       Offset $3c and $3a are accessed from around PC:02E3C
-       Offset $40 and $3E are accessed from around PC:103EE
-       Offset $44 and $42 are accessed from around PC:0FB52
-       Offset $48 and $46 are accessed from around PC:06776
-    */
-
-	return toaplan2_shared_ram16[offset] & 0xff;
-}
-static WRITE16_HANDLER( ghox_shared_ram_w )
-{
-	if (ACCESSING_LSB)
-	{
-		toaplan2_shared_ram16[offset] = data & 0xff;
-	}
-}
 
 static READ16_HANDLER( shared_ram_r )
 {
@@ -1942,10 +1740,10 @@ static ADDRESS_MAP_START( tekipaki_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x180040, 0x180041) AM_WRITE(toaplan2_coin_word_w)	/* Coin count/lock */
 	AM_RANGE(0x180050, 0x180051) AM_READ(port_tag_to_handler16("IN1"))
 	AM_RANGE(0x180060, 0x180061) AM_READ(port_tag_to_handler16("IN2"))
-	AM_RANGE(0x180070, 0x180071) AM_WRITE(tekipaki_hd647180_w)
+	AM_RANGE(0x180070, 0x180071) AM_WRITE(toaplan2_hd647180_cpu_w) /* MCU commands */
 ADDRESS_MAP_END
 
-
+/* Most inputs are now read via the mcu */
 static ADDRESS_MAP_START( ghox_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x03ffff) AM_ROM
 	AM_RANGE(0x040000, 0x040001) AM_READ(ghox_p2_h_analog_r)	/* Paddle 2 */
@@ -1956,13 +1754,7 @@ static ADDRESS_MAP_START( ghox_68k_mem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x140004, 0x140007) AM_READWRITE(toaplan2_0_videoram16_r, toaplan2_0_videoram16_w)	/* Tile/Sprite VideoRAM */
 	AM_RANGE(0x140008, 0x140009) AM_WRITE(toaplan2_0_scroll_reg_select_w)
 	AM_RANGE(0x14000c, 0x14000d) AM_READWRITE(toaplan2_inputport_0_word_r, toaplan2_0_scroll_reg_data_w)
-	AM_RANGE(0x180000, 0x180001) AM_READWRITE(ghox_mcu_r, ghox_mcu_w)	/* really part of shared RAM */
-	AM_RANGE(0x180006, 0x180007) AM_READ(port_tag_to_handler16("DSWA"))
-	AM_RANGE(0x180008, 0x180009) AM_READ(port_tag_to_handler16("DSWB"))
-	AM_RANGE(0x180010, 0x180011) AM_READ(port_tag_to_handler16("SYS"))
-	AM_RANGE(0x18000c, 0x18000d) AM_READ(port_tag_to_handler16("IN1"))
-	AM_RANGE(0x18000e, 0x18000f) AM_READ(port_tag_to_handler16("IN2"))
-	AM_RANGE(0x180500, 0x180fff) AM_READWRITE(ghox_shared_ram_r, ghox_shared_ram_w) AM_BASE(&toaplan2_shared_ram16)
+	AM_RANGE(0x180000, 0x180fff) AM_READWRITE(toaplan2_shared_r, toaplan2_shared_w)
 	AM_RANGE(0x181000, 0x181001) AM_WRITE(toaplan2_coin_word_w)
 	AM_RANGE(0x18100c, 0x18100d) AM_READ(port_tag_to_handler16("JMPR"))
 ADDRESS_MAP_END
@@ -2508,15 +2300,64 @@ static ADDRESS_MAP_START( bbakraid_sound_z80_port, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x81, 0x81) AM_READWRITE(YMZ280B_status_0_r, YMZ280B_data_0_w)
 ADDRESS_MAP_END
 
-
-
-
-#if HD64x180
-static ADDRESS_MAP_START( hd647180_mem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x7fff) AM_ROM
-	AM_RANGE(0xfe00, 0xffff) AM_RAM			/* Internal 512 bytes of RAM */
+static ADDRESS_MAP_START( ghox_hd647180_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x03fff) AM_READ(MRA8_ROM)   /* Internal 16k byte ROM */
+	AM_RANGE(0x0fe00, 0x0ffff) AM_READ(MRA8_RAM)   /* Internal 512 byte RAM */
+	AM_RANGE(0x3fe00, 0x3ffff) AM_READ(MRA8_RAM)   /* RAM (is this actually just internal RAM getting mapped badly?) */
+	AM_RANGE(0x40000, 0x4f7ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x80002, 0x80002) AM_READ(port_tag_to_handler8("DSWA"))
+	AM_RANGE(0x80004, 0x80004) AM_READ(port_tag_to_handler8("DSWB"))
+	AM_RANGE(0x80006, 0x80006) AM_READNOP // nothing?
+	AM_RANGE(0x80008, 0x80008) AM_READ(port_tag_to_handler8("IN1"))
+	AM_RANGE(0x8000a, 0x8000a) AM_READ(port_tag_to_handler8("IN2"))
+	AM_RANGE(0x8000c, 0x8000e) AM_READ(port_tag_to_handler8("SYS"))
+	AM_RANGE(0x8000e, 0x8000f) AM_READ(YM2151_status_port_0_r)
 ADDRESS_MAP_END
-#endif
+
+static ADDRESS_MAP_START( ghox_hd647180_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x03fff) AM_WRITE(MWA8_ROM)   /* Internal 16k byte ROM */
+	AM_RANGE(0x0fe00, 0x0ffff) AM_WRITE(MWA8_RAM)   /* Internal 512 byte RAM */
+	AM_RANGE(0x3fe00, 0x3ffff) AM_WRITE(MWA8_RAM)   /* RAM (is this actually just internal RAM getting mapped badly?) */
+	AM_RANGE(0x40000, 0x4f7ff) AM_WRITE(MWA8_RAM) AM_BASE(&toaplan2_shared_ram)
+	AM_RANGE(0x8000e, 0x8000f) AM_WRITE(YM2151_word_0_w)
+ADDRESS_MAP_END
+
+
+READ8_HANDLER(tekipaki_soundlatch_r)
+{
+	m_cmdavailable = 0;
+	return mcu_data;
+};
+
+READ8_HANDLER(tekipaki_cmdavailable_r)
+{
+	if (m_cmdavailable) return 0xff;
+	else return 0x00;
+};
+
+
+static ADDRESS_MAP_START( hd647180_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x03fff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x0fe00, 0x0ffff) AM_READ(MRA8_RAM)			/* Internal 512 bytes of RAM */
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( hd647180_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x03fff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0x0fe00, 0x0ffff) AM_WRITE(MWA8_RAM)			/* Internal 512 bytes of RAM */
+ADDRESS_MAP_END
+
+
+static ADDRESS_MAP_START( hd647180_port_readmem, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x60, 0x60) AM_READ(tekipaki_cmdavailable_r)
+	AM_RANGE(0x82, 0x82) AM_READ(YM3812_status_port_0_r)
+	AM_RANGE(0x83, 0x83) AM_READ(YM3812_status_port_0_r)
+	AM_RANGE(0x84, 0x84) AM_READ(tekipaki_soundlatch_r)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( hd647180_port_writemem, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x82, 0x82) AM_WRITE(YM3812_control_port_0_w)
+	AM_RANGE(0x83, 0x83) AM_WRITE(YM3812_write_port_0_w)
+ADDRESS_MAP_END
 
 
 #if V25
@@ -4061,13 +3902,13 @@ static MACHINE_DRIVER_START( tekipaki )
 	MDRV_CPU_PROGRAM_MAP(tekipaki_68k_mem, 0)
 	MDRV_CPU_VBLANK_INT(toaplan2_vblank_irq4,262)
 
-#if HD64x180
 	MDRV_CPU_ADD(Z180, 10000000)			/* HD647180 CPU actually */
-	MDRV_CPU_PROGRAM_MAP(hd647180_mem, 0)
-#endif
-
+	MDRV_CPU_PROGRAM_MAP(hd647180_readmem,hd647180_writemem)
+	MDRV_CPU_IO_MAP(hd647180_port_readmem,hd647180_port_writemem)
+	
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
+    MDRV_INTERLEAVE(10)
 
 	MDRV_MACHINE_RESET(toaplan2)
 
@@ -4084,13 +3925,9 @@ static MACHINE_DRIVER_START( tekipaki )
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
-/*
+
 	MDRV_SOUND_ADD(YM3812, 27000000/8)
 	MDRV_SOUND_CONFIG(ym3812_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
-*/
-	MDRV_SOUND_ADD(SAMPLES, 0)
-	MDRV_SOUND_CONFIG(tekipaki_samples_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
@@ -4102,14 +3939,13 @@ static MACHINE_DRIVER_START( ghox )
 	MDRV_CPU_PROGRAM_MAP(ghox_68k_mem, 0)
 	MDRV_CPU_VBLANK_INT(toaplan2_vblank_irq4,262)
 
-#if HD64x180
 	MDRV_CPU_ADD(Z180, 10000000)			/* HD647180 CPU actually */
-	MDRV_CPU_PROGRAM_MAP(hd647180_mem, 0)
-#endif
+	MDRV_CPU_PROGRAM_MAP(ghox_hd647180_readmem,ghox_hd647180_writemem)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
-
+	MDRV_INTERLEAVE(10)
+	
 	MDRV_MACHINE_RESET(ghox)
 
 	/* video hardware */
@@ -4124,18 +3960,11 @@ static MACHINE_DRIVER_START( ghox )
 	MDRV_VIDEO_UPDATE(toaplan2_0)
 
 	/* sound hardware */
-/*
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
 	MDRV_SOUND_ADD(YM2151, 27000000/8)
 	MDRV_SOUND_ROUTE(0, "left", 0.25)
 	MDRV_SOUND_ROUTE(1, "right", 0.25)
-*/
-	MDRV_SPEAKER_STANDARD_MONO("mono")
-
-	MDRV_SOUND_ADD(SAMPLES, 0)
-	MDRV_SOUND_CONFIG(ghox_samples_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
 
 
@@ -4880,11 +4709,9 @@ ROM_START( tekipaki )
 	ROM_LOAD16_BYTE( "tp020-1.bin", 0x000000, 0x010000, CRC(d8420bd5) SHA1(30c1ad9e053cd7e79adb42aa428ebee28e144755) )
 	ROM_LOAD16_BYTE( "tp020-2.bin", 0x000001, 0x010000, CRC(7222de8e) SHA1(8352ae23efc24a2e20cc24b6d37cb8fc6b1a730c) )
 
-#if HD64x180
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )			/* Sound HD647180 code */
-	/* sound CPU is a HD647180 (Z180) with internal ROM - not yet supported */
-	ROM_LOAD( "hd647180.020", 0x00000, 0x08000, NO_DUMP )
-#endif
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )    /* Sound HD647180 code */
+	ROM_LOAD( "hd647180.020", 0x00000, 0x08000, CRC(d5157c12) SHA1(b2c6c087bb539456a9e562d0b40f05dde26cacd3) )
+
 
 	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "tp020-4.bin", 0x000000, 0x080000, CRC(3ebbe41e) SHA1(cea196c5f83e1a23d5b538a0db9bbbffa7af5118) )
@@ -4897,11 +4724,8 @@ ROM_START( ghox )
 	ROM_LOAD16_BYTE( "tp021-01.u10", 0x000000, 0x020000, CRC(9e56ac67) SHA1(daf241d9e55a6e60fc004ed61f787641595b1e62) )
 	ROM_LOAD16_BYTE( "tp021-02.u11", 0x000001, 0x020000, CRC(15cac60f) SHA1(6efa3a50a5dfe6ef4072738d6a7d0d95dca8a675) )
 
-#if HD64x180
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )			/* Sound HD647180 code */
-	/* sound CPU is a HD647180 (Z180) with internal ROM - not yet supported */
-	ROM_LOAD( "hd647180.021", 0x00000, 0x08000, NO_DUMP )
-#endif
+    ROM_LOAD( "hd647180.021", 0x00000, 0x08000, CRC(6ab59e5b) SHA1(d814dd3a8f1ee638794e2bd422eed4247ba4a15e) )
 
 	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "tp021-03.u36", 0x000000, 0x080000, CRC(a15d8e9d) SHA1(640a33997bdce8e84bea6a944139716379839037) )
@@ -4914,11 +4738,8 @@ ROM_START( ghoxj )
 	ROM_LOAD16_BYTE( "tp021-01a.u10", 0x000000, 0x020000, CRC(c11b13c8) SHA1(da7defc1d3b6ddded910ba56c31fbbdb5ed57b09) )
 	ROM_LOAD16_BYTE( "tp021-02a.u11", 0x000001, 0x020000, CRC(8d426767) SHA1(1ed4a8bcbf4352257e7d58cb5c2c91eb48c2f047) )
 
-#if HD64x180
 	ROM_REGION( 0x10000, REGION_CPU2, 0 )			/* Sound HD647180 code */
-	/* sound CPU is a HD647180 (Z180) with internal ROM - not yet supported */
-	ROM_LOAD( "hd647180.021", 0x00000, 0x08000, NO_DUMP )
-#endif
+    ROM_LOAD( "hd647180.021", 0x00000, 0x08000, CRC(6ab59e5b) SHA1(d814dd3a8f1ee638794e2bd422eed4247ba4a15e) )
 
 	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "tp021-03.u36", 0x000000, 0x080000, CRC(a15d8e9d) SHA1(640a33997bdce8e84bea6a944139716379839037) )
@@ -5045,11 +4866,9 @@ ROM_START( whoopee )
 	ROM_LOAD16_BYTE( "whoopee.1", 0x000000, 0x020000, CRC(28882e7e) SHA1(8fcd278a7d005eb81cd9e461139c0c0f756a4fa4) )
 	ROM_LOAD16_BYTE( "whoopee.2", 0x000001, 0x020000, CRC(6796f133) SHA1(d4e657be260ba3fd3f0556ade617882513b52685) )
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )			/* Sound Z80 code */
-	/* sound CPU is a HD647180 (Z180) with internal ROM - not yet supported */
-	/* use the Z80 version from the bootleg Pipi & Bibis set for now */
-	ROM_LOAD( "hd647180.025", 0x00000, 0x08000, BAD_DUMP CRC(101c0358) SHA1(162e02d00b7bdcdd3b48a0cd0527b7428435ec50)  )
-
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )			/* Sound HD647180 code */
+    ROM_LOAD( "hd647180.025", 0x00000, 0x08000, CRC(c02436f6) SHA1(385343f88991646ec23b385eaea82718f1251ea6) )
+	
 	ROM_REGION( 0x200000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "tp025-4.bin", 0x000000, 0x100000, CRC(ab97f744) SHA1(c1620e614345dbd5c6567e4cb6f55c61b900d0ee) )
 	ROM_LOAD( "tp025-3.bin", 0x100000, 0x100000, CRC(7b16101e) SHA1(ae0119bbfa0937d18c4fbb0a3ef7cdc3b9fa6b56) )
@@ -5756,7 +5575,7 @@ GAME( 1993, kbash,    0,        kbash,    kbash,    T2_V25,   ROT0,   "Toaplan",
 GAME( 1999, kbash2,   0,        kbash2,   kbash2,   T2_noZ80, ROT0,   "bootleg", "Knuckle Bash 2 (bootleg)", 0 )
 GAME( 1992, truxton2, 0,        truxton2, truxton2, T2_noZ80, ROT270, "Toaplan", "Truxton II / Tatsujin II / Tatsujin Oh (Japan)", 0 )
 GAME( 1991, pipibibs, 0,        pipibibs, pipibibs, T2_Z80,   ROT0,   "Toaplan", "Pipi & Bibis / Whoopee!!", 0 )
-GAME( 1991, whoopee,  pipibibs, whoopee,  whoopee,  T2_Z80,   ROT0,   "Toaplan", "Whoopee!! / Pipi & Bibis", 0 )
+GAME( 1991, whoopee,  pipibibs, tekipaki, whoopee,  T2_Z180,  ROT0,   "Toaplan", "Whoopee!! / Pipi & Bibis", 0 )
 GAME( 1991, pipibibi, pipibibs, pipibibi, pipibibi, pipibibi, ROT0,   "[Toaplan] Ryouta Kikaku", "Pipi & Bibis / Whoopee!! (bootleg ?)", 0 )
 GAME( 1992, fixeight, 0,        fixeight, fixeight, fixeight, ROT270, "Toaplan", "FixEight", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING )
 GAME( 1992, fixeighb, fixeight, fixeighb, fixeighb, fixeighb, ROT270, "bootleg", "FixEight (bootleg)", 0 )
