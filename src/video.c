@@ -343,7 +343,7 @@ static int allocate_graphics(const gfx_decode *gfxdecodeinfo)
 		for (j = 0; j < glcopy.planes; j++)
 		{
 			UINT32 value = glcopy.planeoffset[j];
-			if (IS_FRAC(value))
+			if (IS_FRAC(value) && FRAC_DEN(value))
 				glcopy.planeoffset[j] = FRAC_OFFSET(value) + region_length * FRAC_NUM(value) / FRAC_DEN(value);
 		}
 
@@ -352,7 +352,7 @@ static int allocate_graphics(const gfx_decode *gfxdecodeinfo)
 		for (j = 0; j < glcopy.width; j++)
 		{
 			UINT32 value = xoffset[j];
-			if (IS_FRAC(value))
+			if (IS_FRAC(value) && FRAC_DEN(value))
 				xoffset[j] = FRAC_OFFSET(value) + region_length * FRAC_NUM(value) / FRAC_DEN(value);
 		}
 
@@ -360,7 +360,7 @@ static int allocate_graphics(const gfx_decode *gfxdecodeinfo)
 		for (j = 0; j < glcopy.height; j++)
 		{
 			UINT32 value = yoffset[j];
-			if (IS_FRAC(value))
+			if (IS_FRAC(value) && FRAC_DEN(value))
 				yoffset[j] = FRAC_OFFSET(value) + region_length * FRAC_NUM(value) / FRAC_DEN(value);
 		}
 
