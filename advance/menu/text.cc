@@ -449,7 +449,7 @@ static unsigned int_idle_0_rep; ///< Seconds before the second 0 event.
 static unsigned int_idle_1; ///< Seconds before the first 1 event.
 static unsigned int_idle_1_rep; ///< Seconds before the second 1 event.
 static unsigned int_idle_2; ///< Seconds before the first 2 event.
-static time_t int_idle_time_current; ///< Last time check in idle.
+static target_clock_t int_idle_time_current; ///< Last time check in idle.
 static bool int_idle_0_state; ///< Idle event 0 enabler.
 static bool int_idle_1_state; ///< Idle event 1 enabler.
 static bool int_idle_2_state; ///< Idle event 2 enabler.
@@ -691,7 +691,7 @@ void int_done()
 
 bool int_set(double gamma, double brightness, unsigned idle_0, unsigned idle_0_rep, unsigned idle_1, unsigned idle_1_rep, bool backdrop_fast, unsigned translucency, bool disable_special, bool auto_calib)
 {
-	int_idle_time_current = time(0);
+	int_idle_time_current = target_clock() / 1000000;
 	int_idle_0 = idle_0;
 	int_idle_1 = idle_1;
 	int_idle_0_rep = idle_0_rep;
@@ -3089,7 +3089,7 @@ static void input_poll()
 
 void int_idle_time_reset()
 {
-	int_idle_time_current = time(0);
+	int_idle_time_current = target_clock() / 1000000;
 	int_last = EVENT_NONE;
 }
 
@@ -3111,18 +3111,18 @@ void int_idle_2_enable(bool state, unsigned delay)
 
 static void int_idle()
 {
-	time_t now = time(0);
-	time_t elapsed = now - int_idle_time_current;
+	target_clock_t now = target_clock() / 1000000;
+	target_clock_t elapsed = now - int_idle_time_current;
 
 	if (int_idle_0_state) {
 		if (int_idle_0_rep != 0
 			&& int_last == EVENT_IDLE_0
-			&& elapsed > int_idle_0_rep
+			&& elapsed >= int_idle_0_rep
 		) {
 			log_std(("text: push IDLE_0 repeat\n"));
 			event_push_repeat(EVENT_IDLE_0);
 		} else if (int_idle_0 != 0
-			&& elapsed > int_idle_0
+			&& elapsed >= int_idle_0
 		) {
 			log_std(("text: push IDLE_0\n"));
 			event_push_repeat(EVENT_IDLE_0);
@@ -3132,12 +3132,12 @@ static void int_idle()
 	if (int_idle_1_state) {
 		if (int_idle_1_rep != 0
 			&& int_last == EVENT_IDLE_1
-			&& elapsed > int_idle_1_rep
+			&& elapsed >= int_idle_1_rep
 		) {
 			log_std(("text: push IDLE_1 repeat\n"));
 			event_push_repeat(EVENT_IDLE_1);
 		} else if (int_idle_1 != 0
-			&& elapsed > int_idle_1
+			&& elapsed >= int_idle_1
 		) {
 			log_std(("text: push IDLE_1\n"));
 			event_push_repeat(EVENT_IDLE_1);
@@ -3146,7 +3146,7 @@ static void int_idle()
 
 	if (int_idle_2_state) {
 		if (int_idle_2 != 0
-			&& elapsed > int_idle_2
+			&& elapsed >= int_idle_2
 		) {
 			log_std(("text: push IDLE_2\n"));
 			event_push_repeat(EVENT_IDLE_2);
@@ -3228,7 +3228,7 @@ bool int_event_waiting()
 
 	if (event_peek() != EVENT_NONE) {
 		// something happened, restart the timers
-		int_idle_time_current = time(0);
+		int_idle_time_current = target_clock() / 1000000;
 		joy_idle_time = now;
 		return 1;
 	}

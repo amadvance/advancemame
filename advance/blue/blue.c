@@ -183,6 +183,7 @@ void blue_send(int f, const char* command)
 }
 
 struct blue_device {
+	unsigned cookie;
 	char* id;
 	char name[128];
 	int is_game;
@@ -194,15 +195,17 @@ struct blue_device {
 	struct blue_device* next;
 };
 
-struct blue_device* devs;
+struct blue_device* DEVS;
 
-struct blue_device* dev_find(const char* id)
+struct blue_device* dev_insert(const char* id, unsigned cookie)
 {
-	struct blue_device* i = devs;
+	struct blue_device* i = DEVS;
 
 	while (i != 0) {
-		if (strcmp(id, i->id) == 0)
+		if (strcmp(id, i->id) == 0) {
+			i->cookie = cookie;
 			return i;
+		}
 		i = i->next;
 	}
 
@@ -210,10 +213,31 @@ struct blue_device* dev_find(const char* id)
 	i = calloc(1, sizeof(struct blue_device));
 
 	i->id = strdup(id);
-	i->next = devs;
-	devs = i;
+	i->cookie = cookie;
+	i->next = DEVS;
+	DEVS = i;
 
 	return i;
+}
+
+void dev_flush(unsigned cookie)
+{
+
+	struct blue_device* i = DEVS;
+
+	DEVS = 0;
+	while (i != 0) {
+		struct blue_device* i_next = i->next;
+
+		if (i->cookie == cookie) {
+			i->next = DEVS;
+			DEVS = i;
+		} else {
+			free(i);
+		}
+
+		i = i_next;
+	}
 }
 
 /**
@@ -221,7 +245,7 @@ struct blue_device* dev_find(const char* id)
  *
  * Like: 'Device E4:17:D8:B8:0B:7E 8Bitdo SFC30 GamePad'
  */
-void process_device_line(char* line)
+void process_device_line(char* line, unsigned cookie)
 {
 	char* id;
 	int i;
@@ -244,23 +268,29 @@ void process_device_line(char* line)
 	*line = 0;
 
 	/* allocate if missing */
-	dev_find(id);
+	dev_insert(id, cookie);
 }
+
+unsigned COOKIE = 0;
 
 /**
  * List all devices
  */
-void process_list(int in_f, int out_f)
+void process_devices(int in_f, int out_f)
 {
 	char* line;
 
 	blue_send(in_f, "devices\n");
 
+	++COOKIE;
+
 	line = blue_line(out_f);
 	while (line) {
-		process_device_line(line);
+		process_device_line(line, COOKIE);
 		line = blue_line(out_f);
 	}
+
+	dev_flush(COOKIE);
 }
 
 /**
@@ -326,7 +356,7 @@ void process_info_line(struct blue_device* dev, const char* line)
  */
 void process_info(int in_f, int out_f)
 {
-	struct blue_device* i = devs;
+	struct blue_device* i = DEVS;
 
 	while (i != 0) {
 		char cmd[128];
@@ -351,27 +381,35 @@ void process_info(int in_f, int out_f)
  */
 void process_connect(int in_f, int out_f)
 {
-	struct blue_device* i = devs;
+	struct blue_device* i;
 	char processing[4096];
 	char connected[4096];
+	char msg[4096];
 	char ignored[128];
+	char paired[128];
 	unsigned count_processing;
 	unsigned count_connected;
 	unsigned count_ignored;
+	unsigned count_paired;
+	int ret;
+	time_t now;
 
+	now = time(0);
 	count_processing = 0;
 	count_connected = 0;
 	count_ignored = 0;
+	count_paired = 0;
 	processing[0] = 0;
 	connected[0] = 0;
 	ignored[0] = 0;
+	paired[0] = 0;
 
-	for (i = devs; i != 0; i = i->next) {
+	for (i = DEVS; i != 0; i = i->next) {
 		char cmd[128];
 		const char* name = i->name[0] ? i->name : i->id;
 
 		if (!i->is_game) {
-			snprintf(ignored, sizeof(ignored) - 1, "%s", name);
+			snprintf(ignored, sizeof(ignored), "%s", name);
 			++count_ignored;
 			continue;
 		}
@@ -380,7 +418,7 @@ void process_connect(int in_f, int out_f)
 			snprintf(cmd, sizeof(cmd), "trust %s\n", i->id);
 			blue_send(in_f, cmd);
 			blue_discard(out_f);
-			snprintfcat(processing, sizeof(processing) - 1, "Trusting %s...\n", name);
+			snprintfcat(processing, sizeof(processing), "Trusting %s...\n", name);
 			++count_processing;
 			continue;
 		}
@@ -396,9 +434,12 @@ void process_connect(int in_f, int out_f)
 			snprintf(cmd, sizeof(cmd), "pair %s\n", i->id);
 			blue_send(in_f, cmd);
 			blue_discard(out_f);
-			snprintfcat(processing, sizeof(processing) - 1, "Pairing %s...\n", name);
+			snprintfcat(processing, sizeof(processing), "Pairing %s...\n", name);
 			++count_processing;
 			continue;
+		} else {
+			snprintf(paired, sizeof(paired), "%s", name);
+			++count_paired;
 		}
 
 		if (!i->is_connected && i->need_connect) {
@@ -411,7 +452,7 @@ void process_connect(int in_f, int out_f)
 		}
 
 		if (i->is_connected) {
-			snprintfcat(connected, sizeof(connected), "Connected %s", name);
+			snprintf(connected, sizeof(connected), "%s", name);
 			++count_connected;
 		}
 	}
@@ -419,31 +460,45 @@ void process_connect(int in_f, int out_f)
 	/* ensure to have the final terminator */
 	processing[sizeof(processing) - 1] = 0;
 	connected[sizeof(connected) - 1] = 0;
+	ignored[sizeof(ignored) - 1] = 0;
+	paired[sizeof(paired) - 1] = 0;
 
-	if (count_processing != 0) {
-		if (count_connected == 1)
-			snprintfcat(processing, sizeof(processing), "%s", connected);
-		else if (count_connected > 1)
-			snprintfcat(processing, sizeof(processing), "Connected %u devices", count_connected);
-	} else {
-		if (count_connected == 0) {
-			if (count_ignored == 0) {
-				strcpy(processing, "Scanning for devices...");
-			} else if (count_ignored == 1) {
-				snprintf(processing, sizeof(processing), "Scanning... (%s ignored)", ignored);
+	if (count_connected == 0) {
+		if (count_processing != 0) {
+			/* processing is already set */
+		} else {
+			if (count_paired != 0) {
+				snprintf(processing, sizeof(processing), "Turn on %s or pair another gamepad", paired);
+			} else if (count_ignored == 0) {
+				strcpy(processing, "Insert or pair a gamepad");
 			} else {
-				snprintf(processing, sizeof(processing), "Scanning... (%u ignored)", count_ignored);
+				snprintf(processing, sizeof(processing), "Insert or pair a gamepad (%u ignored)", count_ignored);
 			}
-		} else if (count_connected > 1)
-			snprintf(processing, sizeof(processing), "Connected %u devices", count_connected);
-		else
-			strcpy(processing, connected);
+		}
+	} else {
+		if (count_connected == 1) {
+			snprintf(processing, sizeof(processing), "Connected %s", connected);
+		} else {
+			snprintf(processing, sizeof(processing), "Connected %u gamepads", count_connected);
+		}
 	}
+
+	if (count_connected == 0 && count_processing == 0) {
+		if (count_paired != 0)
+			snprintf(msg, sizeof(msg), "WAITING\n");
+		else
+			snprintf(msg, sizeof(msg), "EMPTY\n");
+	} else {
+		snprintf(msg, sizeof(msg), "WORKING\n");
+	}
+
+	snprintfcat(msg, sizeof(msg), processing);
+	msg[sizeof(msg) - 1] = 0;
 
 	if (opt_msg) {
 		int f = open("/tmp/blue.msg", O_CREAT | O_TRUNC | O_WRONLY, 0644);
 		if (f >= 0) {
-			write(f, processing, strlen(processing));
+			write(f, msg, strlen(msg));
 			close(f);
 		}
 		if (opt_verbose)
@@ -451,13 +506,41 @@ void process_connect(int in_f, int out_f)
 	}
 }
 
-void print_list(void)
+void kill_devices(int in_f, int out_f)
 {
-	struct blue_device* i = devs;
+	struct blue_device* i = DEVS;
+
+	i = DEVS;
+	while (i != 0) {
+		char cmd[128];
+		struct blue_device* i_next = i->next;
+
+		if (!i->is_game) {
+			free(i);
+			i = i_next;
+			continue;
+		}
+
+		snprintf(cmd, sizeof(cmd), "remove %s\n", i->id);
+
+		blue_send(in_f, cmd);
+		blue_discard(out_f);
+		usleep(1000000);
+
+		free(i);
+		i = i_next;
+	}
+
+	DEVS = 0;
+}
+
+void print_devices(void)
+{
+	struct blue_device* i = DEVS;
 
 	printf("\nDevices:\n");
 
-	for (i = devs; i != 0; i = i->next) {
+	for (i = DEVS; i != 0; i = i->next) {
 		printf("\t\"%s\" %s %s %s %s %s %s\n", i->name, i->id,
 			i->is_game ? "game" : "",
 			i->is_trusted ? "trusted" : "",
@@ -484,14 +567,15 @@ void process(int in_f, int out_f)
 
 	blue_discard(out_f);
 
-	blue_send(in_f, "scan on\n");
-
-	blue_discard(out_f);
-
 	while (1) {
-		sleep(1);
+		usleep(500000);
 
-		process_list(in_f, out_f);
+		/* sometimes at startup the scan is lost, better to repeat it every time */
+		blue_send(in_f, "scan on\n");
+
+		blue_discard(out_f);
+
+		process_devices(in_f, out_f);
 
 		process_info(in_f, out_f);
 
@@ -499,7 +583,7 @@ void process(int in_f, int out_f)
 
 		if (opt_stat) {
 			backlog_print();
-			print_list();
+			print_devices();
 		}
 	}
 }

@@ -346,12 +346,12 @@ target_clock_t TARGET_CLOCKS_PER_SEC = 1000000LL;
 
 target_clock_t target_clock(void)
 {
-	struct timeval tv;
+	struct timespec ts;
 	target_clock_t r;
 
-	gettimeofday(&tv, NULL);
+	clock_gettime(CLOCK_MONOTONIC, &ts);
 
-	r = tv.tv_sec * 1000000LL + tv.tv_usec;
+	r = ts.tv_sec * 1000000LL + ts.tv_nsec / 1000;
 
 	return r;
 }

@@ -297,9 +297,9 @@ void emulator::load_dirlist(game_set& gar, const string& dirlist, const string& 
 	}
 }
 
-bool emulator::run_process(time_t& duration, const string& dir, int argc, const char** argv, bool ignore_error) const
+bool emulator::run_process(target_clock_t& duration, const string& dir, int argc, const char** argv, bool ignore_error) const
 {
-	time_t start, stop;
+	target_clock_t start, stop;
 
 	bool resume_error = false;
 
@@ -334,11 +334,11 @@ bool emulator::run_process(time_t& duration, const string& dir, int argc, const 
 
 	log_std(("menu: run '%s'\n", cmdline.str().c_str()));
 
-	start = time(0);
+	start = target_clock() / 1000000;
 
 	int r = target_spawn(argv[0], argv);
 
-	stop = time(0);
+	stop = target_clock() / 1000000;
 
 	if (stop - start > 8)
 		duration = stop - start;
@@ -425,7 +425,7 @@ bool emulator::run(const game& g, const game* bios, unsigned orientation, bool s
 	argc = compile(g, argv, argc, user_cmd_arg, orientation);
 	argv[argc] = 0;
 
-	time_t duration;
+	target_clock_t duration;
 	bool ret = run_process(duration, exe_dir_get(), argc, argv, ignore_error);
 
 	for (int i = 0; i < argc; ++i)
@@ -966,7 +966,7 @@ bool mame_mame::run(const game& g, const game* bios, unsigned orientation, bool 
 	argc = compile(g, argv, argc, user_cmd_arg, orientation);
 	argv[argc] = 0;
 
-	time_t duration;
+	target_clock_t duration;
 	bool ret = run_process(duration, exe_dir_get(), argc, argv, ignore_error);
 
 	for (int i = 0; i < argc; ++i)
@@ -1800,7 +1800,7 @@ bool dmess::run(const game& g, const game* bios, unsigned orientation, bool set_
 
 	argv[argc] = 0;
 
-	time_t duration;
+	target_clock_t duration;
 	bool ret = run_process(duration, exe_dir_get(), argc, argv, ignore_error);
 
 	for (int i = 0; i < argc; ++i)
@@ -2235,7 +2235,7 @@ bool advmess::run(const game& g, const game* bios, unsigned orientation, bool se
 
 	argv[argc] = 0;
 
-	time_t duration;
+	target_clock_t duration;
 	bool ret = run_process(duration, exe_dir_get(), argc, argv, ignore_error);
 
 	for (int i = 0; i < argc; ++i)
@@ -2678,7 +2678,7 @@ bool draine::run(const game& g, const game* bios, unsigned orientation, bool set
 	argc = compile(g, argv, argc, user_cmd_arg, orientation);
 	argv[argc] = 0;
 
-	time_t duration;
+	target_clock_t duration;
 	bool ret = run_process(duration, exe_dir_get(), argc, argv, ignore_error);
 
 	for (int i = 0; i < argc; ++i)
