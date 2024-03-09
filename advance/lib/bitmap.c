@@ -1158,26 +1158,15 @@ adv_bitmap* adv_bitmap_cvt_palettergb(adv_color_def dst_def, adv_bitmap* src, ad
 	return dst;
 }
 
-static void bitmap_vclear(adv_bitmap* dst, int x, int y, int dy, unsigned color)
+static void bitmap_v_set(uint8* dst_ptr, unsigned dp, unsigned ds, unsigned count, unsigned color)
 {
-	unsigned dp;
-	unsigned ds;
-	uint8* dst_ptr;
-
-	dp = dst->bytes_per_pixel;
-	ds = dst->bytes_per_scanline;
-
-	dst_ptr = adv_bitmap_pixel(dst, x, y);
-
 	if (dp == 1) {
-		unsigned count = dy;
 		while (count) {
 			*dst_ptr = color;
 			dst_ptr += ds;
 			--count;
 		}
 	} else if (dp == 2) {
-		unsigned count = dy;
 		while (count) {
 			uint16* dst16 = (uint16*)dst_ptr;
 			*dst16 = color;
@@ -1185,7 +1174,6 @@ static void bitmap_vclear(adv_bitmap* dst, int x, int y, int dy, unsigned color)
 			--count;
 		}
 	} else if (dp == 4) {
-		unsigned count = dy;
 		while (count) {
 			uint32* dst32 = (uint32*)dst_ptr;
 			*dst32 = color;
@@ -1193,10 +1181,39 @@ static void bitmap_vclear(adv_bitmap* dst, int x, int y, int dy, unsigned color)
 			--count;
 		}
 	} else {
-		unsigned count = dy;
 		while (count) {
 			cpu_uint_write(dst_ptr, dp, color);
 			dst_ptr += ds;
+			--count;
+		}
+	}
+}
+
+static void bitmap_h_set(uint8* dst_ptr, unsigned dp, unsigned count, unsigned color)
+{
+	if (dp == 1) {
+		uint8* dst8 = (uint8*)dst_ptr;
+		while (count) {
+			*dst8++ = color;
+			--count;
+		}
+	} else if (dp == 2) {
+		uint16* dst16 = (uint16*)dst_ptr;
+		while (count) {
+			*dst16++ = color;
+			--count;
+		}
+	} else if (dp == 4) {
+		uint32* dst32 = (uint32*)dst_ptr;
+		while (count) {
+			*dst32++ = color;
+			--count;
+		}
+	} else {
+		uint8* dst8 = (uint8*)dst_ptr;
+		while (count) {
+			cpu_uint_write(dst8, dp, color);
+			dst8 += dp;
 			--count;
 		}
 	}
@@ -1208,7 +1225,6 @@ static void bitmap_vclear(adv_bitmap* dst, int x, int y, int dy, unsigned color)
  */
 void adv_bitmap_clear(adv_bitmap* dst, int x, int y, int dx, int dy, unsigned color)
 {
-	unsigned cy;
 	unsigned dp;
 	unsigned ds;
 	uint8* dst_ptr;
@@ -1228,49 +1244,19 @@ void adv_bitmap_clear(adv_bitmap* dst, int x, int y, int dx, int dy, unsigned co
 	if (dx <= 0 || dy <= 0)
 		return;
 
-	if (dx == 1) {
-		bitmap_vclear(dst, x, y, dy, color);
-		return;
-	}
-
 	dp = dst->bytes_per_pixel;
 	ds = dst->bytes_per_scanline;
 
 	dst_ptr = adv_bitmap_pixel(dst, x, y);
 
-	for (cy = 0; cy < dy; ++cy) {
-		if (dp == 1) {
-			uint8* dst8 = (uint8*)dst_ptr;
-			unsigned count = dx;
-			while (count) {
-				*dst8++ = color;
-				--count;
-			}
-		} else if (dp == 2) {
-			uint16* dst16 = (uint16*)dst_ptr;
-			unsigned count = dx;
-			while (count) {
-				*dst16++ = color;
-				--count;
-			}
-		} else if (dp == 4) {
-			uint32* dst32 = (uint32*)dst_ptr;
-			unsigned count = dx;
-			while (count) {
-				*dst32++ = color;
-				--count;
-			}
-		} else {
-			uint8* dst8 = (uint8*)dst_ptr;
-			unsigned count = dx;
-			while (count) {
-				cpu_uint_write(dst8, dp, color);
-				dst8 += dp;
-				--count;
-			}
+	if (dx == 1) {
+		bitmap_v_set(dst_ptr, dp, ds, dy, color);
+	} else {
+		unsigned y;
+		for (y = 0; y < dy; ++y) {
+			bitmap_h_set(dst_ptr, dp, dx, color);
+			dst_ptr += ds;
 		}
-		++y;
-		dst_ptr += ds;
 	}
 }
 

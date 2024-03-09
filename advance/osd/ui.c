@@ -994,126 +994,211 @@ static void ui_direct_text_update(struct advance_ui_context* context, adv_bitmap
 	context->state.ui_direct_text_flag = 0;
 }
 
-static void adv_bitmap_mark(adv_bitmap* dst, int x, int y, int d, unsigned color)
+static void bitmap_h_set(uint8* dst_ptr, unsigned dp, unsigned count, unsigned color)
 {
-	unsigned h0, h1;
+	if (dp == 1) {
+		uint8* dst8 = (uint8*)dst_ptr;
+		while (count) {
+			*dst8++ = color;
+			--count;
+		}
+	} else if (dp == 2) {
+		uint16* dst16 = (uint16*)dst_ptr;
+		while (count) {
+			*dst16++ = color;
+			--count;
+		}
+	} else if (dp == 4) {
+		uint32* dst32 = (uint32*)dst_ptr;
+		while (count) {
+			*dst32++ = color;
+			--count;
+		}
+	} else {
+		uint8* dst8 = (uint8*)dst_ptr;
+		while (count) {
+			cpu_uint_write(dst8, dp, color);
+			dst8 += dp;
+			--count;
+		}
+	}
+}
+
+static void adv_bitmap_mark_ur(adv_bitmap* dst, int x, int y, int d, unsigned color)
+{
 	unsigned dp;
 	unsigned ds;
 	uint8* dst_ptr;
 	unsigned i;
-	unsigned w;
+	unsigned c;
+	unsigned s;
 
-	if (x < 0 || y < 0) 
+	if (x < 0 || y < 0)
 		return;
 	if (x + d > dst->size_x || y + d > dst->size_y)
 		return;
 	if (d <= 0)
 		return;
 
+	c = d / 2;
+	s = (d + 1) / 2;
+
 	dp = dst->bytes_per_pixel;
 	ds = dst->bytes_per_scanline + dp;
 
 	dst_ptr = adv_bitmap_pixel(dst, x, y);
-	
-	h0 = d / 2;
-	h1 = (d + 1) / 2;
-	w = h0;
 
-	for (i = 0; i < h1; ++i) {
-		if (dp == 1) {
-			uint8* dst8 = (uint8*)dst_ptr;
-			unsigned count = w;
-			while (count) {
-				*dst8++ = color;
-				--count;
-			}
-		} else if (dp == 2) {
-			uint16* dst16 = (uint16*)dst_ptr;
-			unsigned count = w;
-			while (count) {
-				*dst16++ = color;
-				--count;
-			}
-		} else if (dp == 4) {
-			uint32* dst32 = (uint32*)dst_ptr;
-			unsigned count = w;
-			while (count) {
-				*dst32++ = color;
-				--count;
-			}
-		} else {
-			uint8* dst8 = (uint8*)dst_ptr;
-			unsigned count = w;
-			while (count) {
-				cpu_uint_write(dst8, dp, color);
-				dst8 += dp;
-				--count;
-			}
-		}
+	for (i = 0; i < d; ++i) {
+		bitmap_h_set(dst_ptr, dp, c, color);
 		dst_ptr += ds;
-	}
-	
-	for (i = 0; i < h0; ++i) {
-		if (dp == 1) {
-			uint8* dst8 = (uint8*)dst_ptr;
-			unsigned count = w;
-			while (count) {
-				*dst8++ = color;
-				--count;
-			}
-		} else if (dp == 2) {
-			uint16* dst16 = (uint16*)dst_ptr;
-			unsigned count = w;
-			while (count) {
-				*dst16++ = color;
-				--count;
-			}
-		} else if (dp == 4) {
-			uint32* dst32 = (uint32*)dst_ptr;
-			unsigned count = w;
-			while (count) {
-				*dst32++ = color;
-				--count;
-			}
-		} else {
-			uint8* dst8 = (uint8*)dst_ptr;
-			unsigned count = w;
-			while (count) {
-				cpu_uint_write(dst8, dp, color);
-				dst8 += dp;
-				--count;
-			}
-		}
-		dst_ptr += ds;
-		--w;
+		if (i >= s)
+			--c;
 	}
 }
 
-static void ui_direct_slow_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
+static void adv_bitmap_mark_lr(adv_bitmap* dst, int x, int y, int d, unsigned color)
 {
-	int step = dst->size_x / 20;
+	unsigned dp;
+	unsigned ds;
+	uint8* dst_ptr;
+	unsigned i;
+	unsigned c;
+	unsigned s;
 
-	adv_bitmap_mark(dst, dst->size_x - step, 0, step, color->help_p3.p);
+	if (x < 0 || y < 0)
+		return;
+	if (x + d > dst->size_x || y + d > dst->size_y)
+		return;
+	if (d <= 0)
+		return;
 
-	context->state.ui_direct_slow_flag = 0;
+	c = d / 2;
+	s = (d + 1) / 2;
+
+	dp = dst->bytes_per_pixel;
+	ds = dst->bytes_per_scanline - dp;
+
+	dst_ptr = adv_bitmap_pixel(dst, x, y + d - 1);
+
+	for (i = 0; i < d; ++i) {
+		bitmap_h_set(dst_ptr, dp, c, color);
+		dst_ptr -= ds;
+		if (i >= s)
+			--c;
+	}
 }
 
-static void ui_direct_frameskip_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
+static void adv_bitmap_mark_ul(adv_bitmap* dst, int x, int y, int d, unsigned color)
 {
-	int step = dst->size_x / 20;
+	unsigned dp;
+	unsigned ds;
+	uint8* dst_ptr;
+	unsigned i;
+	unsigned c;
+	unsigned s;
 
-	adv_bitmap_mark(dst, dst->size_x - step, 0, step, color->help_p1.p);
+	if (x < 0 || y < 0)
+		return;
+	if (x + d > dst->size_x || y + d > dst->size_y)
+		return;
+	if (d <= 0)
+		return;
 
-	context->state.ui_direct_frameskip_flag = 0;
+	c = d / 2;
+	s = (d + 1) / 2;
+
+	dp = dst->bytes_per_pixel;
+	ds = dst->bytes_per_scanline - dp;
+
+	dst_ptr = adv_bitmap_pixel(dst, x + c, y);
+
+	for (i = 0; i < d; ++i) {
+		bitmap_h_set(dst_ptr, dp, c, color);
+		dst_ptr += ds;
+		if (i >= s) {
+			dst_ptr += dp;
+			--c;
+		}
+	}
 }
 
-static void ui_direct_fast_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
+static void adv_bitmap_mark_ll(adv_bitmap* dst, int x, int y, int d, unsigned color)
 {
-	int step = dst->size_x / 20;
+	unsigned dp;
+	unsigned ds;
+	uint8* dst_ptr;
+	unsigned i;
+	unsigned c;
+	unsigned s;
 
-	adv_bitmap_mark(dst, dst->size_x - step, 0, step, color->help_p2.p);
+	if (x < 0 || y < 0)
+		return;
+	if (x + d > dst->size_x || y + d > dst->size_y)
+		return;
+	if (d <= 0)
+		return;
 
-	context->state.ui_direct_fast_flag = 0;
+	c = d / 2;
+	s = (d + 1) / 2;
+
+	dp = dst->bytes_per_pixel;
+	ds = dst->bytes_per_scanline + dp;
+
+	dst_ptr = adv_bitmap_pixel(dst, x + c, y + d - 1);
+
+	for (i = 0; i < d; ++i) {
+		bitmap_h_set(dst_ptr, dp, c, color);
+		dst_ptr -= ds;
+		if (i >= s) {
+			dst_ptr += dp;
+			--c;
+		}
+	}
+}
+
+static void ui_direct_mark_update(struct advance_ui_context* context, adv_bitmap* dst, adv_pixel color)
+{
+	int size;
+	int pos_x;
+	int pos_y;
+	unsigned orientation;
+
+	orientation = context->config.ui_font_orientation;
+
+	if ((orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
+		size = dst->size_y / 20;
+		pos_x = 0;
+		pos_y = dst->size_y - size;
+	} else {
+		size = dst->size_x / 20;
+		pos_x = dst->size_x - size;
+		pos_y = 0;
+	}
+
+	if ((orientation & OSD_ORIENTATION_FLIP_X) != 0) {
+		pos_x = dst->size_x - size - pos_x;
+	}
+	if ((orientation & OSD_ORIENTATION_FLIP_Y) != 0) {
+		pos_y = dst->size_y - size - pos_y;
+	}
+
+	if ((orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
+		orientation ^= OSD_ORIENTATION_FLIP_X | OSD_ORIENTATION_FLIP_Y;
+	}
+
+	if ((orientation & OSD_ORIENTATION_FLIP_Y) != 0) {
+		if ((orientation & OSD_ORIENTATION_FLIP_X) != 0) {
+			adv_bitmap_mark_ll(dst, pos_x, pos_y, size, color);
+		} else {
+			adv_bitmap_mark_lr(dst, pos_x, pos_y, size, color);
+		}
+	} else {
+		if ((orientation & OSD_ORIENTATION_FLIP_X) != 0) {
+			adv_bitmap_mark_ul(dst, pos_x, pos_y, size, color);
+		} else {
+			adv_bitmap_mark_ur(dst, pos_x, pos_y, size, color);
+		}
+	}
 }
 
 static void ui_color_rgb_set(struct ui_color* color, const adv_color_rgb* c, adv_color_def color_def, adv_color_def buffer_def, unsigned translucency, adv_pixel* background)
@@ -1317,15 +1402,18 @@ void advance_ui_direct_update(struct advance_ui_context* context, void* ptr, uns
 	dst = adv_bitmap_import_rgb(dx, dy, color_def_bytes_per_pixel_get(color_def), 0, 0, ptr, dw);
 
 	if (context->state.ui_direct_slow_flag) {
-		ui_direct_slow_update(context, dst, &color);
+		ui_direct_mark_update(context, dst, color.help_p3.p);
+		context->state.ui_direct_slow_flag = 0;
 	}
 
 	if (context->state.ui_direct_frameskip_flag) {
-		ui_direct_frameskip_update(context, dst, &color);
+		ui_direct_mark_update(context, dst, color.help_p1.p);
+		context->state.ui_direct_frameskip_flag = 0;
 	}
 
 	if (context->state.ui_direct_fast_flag) {
-		ui_direct_fast_update(context, dst, &color);
+		ui_direct_mark_update(context, dst, color.help_p2.p);
+		context->state.ui_direct_fast_flag = 0;
 	}
 
 	if (context->state.ui_direct_text_flag) {
