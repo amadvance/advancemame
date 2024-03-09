@@ -445,9 +445,19 @@ static void video_command(struct advance_video_context* context, struct advance_
 		}
 	}
 
-	advance_ui_direct_fast(ui_context, context->state.fastest_flag || context->state.turbo_flag);
-
-	advance_ui_direct_slow(ui_context, context->state.skip_level_disable_flag);
+	if (context->state.fastest_flag || context->state.turbo_flag) {
+		advance_ui_direct_slow(ui_context, 0);
+		advance_ui_direct_frameskip(ui_context, 0);
+		advance_ui_direct_fast(ui_context, 1);
+	} else if (context->state.skip_level_disable_flag) {
+		advance_ui_direct_slow(ui_context, 1);
+		advance_ui_direct_frameskip(ui_context, 0);
+		advance_ui_direct_fast(ui_context, 0);
+	} else {
+		advance_ui_direct_slow(ui_context, 0);
+		advance_ui_direct_frameskip(ui_context, context->state.skip_level_skip != 0);
+		advance_ui_direct_fast(ui_context, 0);
+	}
 
 	if (context->state.info_flag) {
 		char buffer[256];

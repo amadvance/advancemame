@@ -350,6 +350,7 @@ struct advance_ui_state_context {
 	adv_bool ui_direct_text_flag; /**< Direct text on screen flag. */
 	char ui_direct_buffer[256]; /**< Direct text on screen message. */
 	adv_bool ui_direct_slow_flag; /**< Direct slow tag on screen flag. */
+	adv_bool ui_direct_frameskip_flag; /**< Direct frameskip tag on screen flag. */
 	adv_bool ui_direct_fast_flag; /**< Direct fast tag on screen flag. */
 
 	adv_bitmap* help_image; /**< Help image. */
@@ -370,6 +371,7 @@ void advance_ui_message_va(struct advance_ui_context* context, const char* text,
 void advance_ui_message(struct advance_ui_context* context, const char* text, ...) __attribute__((format(printf, 2, 3)));
 void advance_ui_direct_text(struct advance_ui_context* context, const char* text);
 void advance_ui_direct_slow(struct advance_ui_context* context, int flag);
+void advance_ui_direct_frameskip(struct advance_ui_context* context, int flag);
 void advance_ui_direct_fast(struct advance_ui_context* context, int flag);
 void advance_ui_help(struct advance_ui_context* context);
 

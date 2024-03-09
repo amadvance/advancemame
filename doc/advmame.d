@@ -2326,9 +2326,11 @@ Configuration
 		yes - Sound output without any syncronization.
 
     debug_speedmark
-	Enables or disabled the on screen speed mark. If enabled a red square
-	is displayed if the game is too slow. A red triangle when you press
-	the `turbo' key or when the game is accelerated for other reasons.
+	Enables or disables the on-screen speed mark. If enabled, a red band
+	is displayed when the game is running at a low speed. A yellow band is
+	shown when frames are skipped to maintain speed. A green band appears
+	when you press the 'turbo' key or when the game is accelerated for
+	other reasons.
 
 	:debug_speedmark yes | no
 
