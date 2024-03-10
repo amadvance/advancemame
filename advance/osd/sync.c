@@ -339,7 +339,7 @@ static void video_frame_sync(struct advance_video_context* context)
 		/* the vsync is used only if all the frames are displayed */
 		if ((video_flags() & MODE_FLAGS_RETRACE_WAIT_SYNC) != 0
 			&& context->state.vsync_flag
-			&& context->state.skip_level_full == SYNC_MAX
+			&& context->state.skip_level_full == SYNC_MAX /* only if we are not skipping */
 		) {
 			double limit;
 			double error;
@@ -378,7 +378,7 @@ static void video_frame_sync(struct advance_video_context* context)
 			context->state.sync_pivot = 0;
 		} else if ((video_flags() & (MODE_FLAGS_RETRACE_SCROLL_SYNC | MODE_FLAGS_RETRACE_WRITE_SYNC)) != 0
 			&& context->state.vsync_flag
-			&& context->state.skip_level_full == SYNC_MAX
+			&& context->state.skip_level_full == SYNC_MAX /* only if we are not skipping */
 		) {
 			/*
 			 * We do nothing here, as we are going to vsync later when updating.
@@ -407,7 +407,9 @@ static void video_frame_sync(struct advance_video_context* context)
 			/* update the error state */
 			context->state.sync_pivot = expected - current;
 
-			if (context->state.sync_pivot < -context->state.skip_step * 16) {
+			if (context->config.frameskip_auto_flag
+				&& context->state.skip_level_full == SYNC_MAX /* only if we are not skipping */
+				&& context->state.sync_pivot < -context->state.skip_step * 16) {
 				/* if the error is too big (negative) the delay is unrecoverable */
 				/* generally it happen with a virtual terminal switch */
 				/* the best solution is to restart the sync computation */
