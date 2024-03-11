@@ -1,6 +1,23 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS Version 3.11 2024/04
+        ) Fix the frameskipping with slow game
+        ) Fix and extend the speedmark support
+        ) Fix crashes in some games like p47aces
+        ) dangerex (#123) [arcadez2003]
+        ) New Working Danger Express Atari Prototype (#122) [arcadez2003]
+        ) Hookup the HD647180 sound mcu for Ghox, TekiPaki and Whoopee! (#121) [arcadez2003]
+        ) Update joystick definition from libretro
+        ) New Working Hammer Away (#120) [arcadez2003]
+        ) New Working Fantasy Zone II - The Tears Of Opa Opa (system16c) (#119) [arcadez2003]
+        ) dkongx (#118) [arcadez2003]
+        ) New Working Game Donkey Kong II Jumpman Returns (#117) [arcadez2003]
+        ) Fix handling of customization sectioned input maps
+        ) Add coin option in the exit menu [Andrea Mazzoleni]
+        ) Add advmame Xbuttons configuration category [Andrea Mazzoleni]
+        ) Fix crash when saving a rotated png due integer promotion to unsigned
+
 AdvanceMAME/MESS Version 3.10 2024/02
 	) Alcon / Slap Fight MCU hookup (#116) [arcadez2003]
 	) Add the protection MCU for the official Alcon / Slap Fight sets (#115) [arcadez2003]
