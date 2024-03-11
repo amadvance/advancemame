@@ -472,7 +472,7 @@ void process_connect(int in_f, int out_f)
 			} else if (count_ignored == 0) {
 				strcpy(processing, "Insert or pair a gamepad");
 			} else {
-				snprintf(processing, sizeof(processing), "Insert or pair a gamepad (%u ignored)", count_ignored);
+				snprintf(processing, sizeof(processing), "Insert or pair a gamepad (%u not gamepads)", count_ignored);
 			}
 		}
 	} else {
