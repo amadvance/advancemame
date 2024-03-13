@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 3.11 2024/04
+AdvanceMAME/MESS Version 4.0 2024/04
         ) Fix the frameskipping with slow game
         ) Fix and extend the speedmark support
         ) Fix crashes in some games like p47aces
