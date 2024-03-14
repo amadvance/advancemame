@@ -64,7 +64,7 @@ NOTE: The version number (A/B) on Lode Runner: The Dig Fight is ONLY displayed w
 #include "machine/eeprom.h"
 #include "sound/ymf278b.h"
 
-#define DUAL_SCREEN 1 /* Display both screens simultaneously if 1, change in vidhrdw too */
+#define DUAL_SCREEN 0 /* Display both screens simultaneously if 1, change in vidhrdw too */
 #define ROMTEST 0 /* Does necessary stuff to perform rom test, uses RAM as it doesn't dispose of GFX after decoding */
 
 UINT32 *psikyo4_vidregs;
