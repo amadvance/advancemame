@@ -215,6 +215,7 @@ if test $ac_auto_cflags = yes; then
 		AC_CHECK_CC_OPT([-Wall], [CFLAGS="$CFLAGS -Wall"], [])
 		AC_CHECK_CC_OPT([-Wno-sign-compare], [CFLAGS="$CFLAGS -Wno-sign-compare"], [])
 		AC_CHECK_CC_OPT([-Wno-unused], [CFLAGS="$CFLAGS -Wno-unused"], [])
+		AC_CHECK_CC_OPT([-Wno-format-truncation], [CFLAGS="$CFLAGS -Wno-format-truncation"], [])
 	fi
 	if test ! -z $ac_host_cflags; then
 		CFLAGS="$ac_host_cflags $CFLAGS"
