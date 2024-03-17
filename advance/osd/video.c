@@ -48,6 +48,10 @@
 #include "dvg.h"
 #endif
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 /***************************************************************************/
 /* Commands */
 
@@ -938,6 +942,11 @@ static void* video_thread(void* void_context)
 	struct advance_safequit_context* safequit_context = &CONTEXT.safequit;
 
 	log_std(("advance:thread: thread start\n"));
+
+#ifdef _OPENMP
+	/* reserve one thread to MAME */
+	omp_set_num_threads(omp_get_max_threads() - 1);
+#endif
 
 	pthread_mutex_lock(&context->state.thread_video_mutex);
 

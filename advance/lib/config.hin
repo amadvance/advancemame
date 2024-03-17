@@ -70,7 +70,7 @@
 /* Define to 1 if you have the `getpagesize' function. */
 #undef HAVE_GETPAGESIZE
 
-/* Define to 1 if you have the `inb' and `outb' functions. */
+/* Define to 1 if you have the inb and outb functions. */
 #undef HAVE_INOUT
 
 /* Define to 1 if you have the <inttypes.h> header file. */
