@@ -217,84 +217,47 @@ static inline void internal_end(void)
 
 /* A very fast dynamic buffers allocations */
 
-/* Max number of allocable buffers */
-#define FAST_BUFFER_MAX 128
-
 /* Total size of the buffers */
-#define FAST_BUFFER_SIZE (256 * 1024)
+#define FAST_BUFFER_SIZE (4 * 1024 * 1024)
 
 /* Align */
 #define FAST_BUFFER_ALIGN 16 /* SSE2 requirement */
 
-void* fast_buffer; /* raw pointer */
-void* fast_buffer_aligned; /* aligned pointer */
-unsigned fast_buffer_map[FAST_BUFFER_MAX]; /* stack of incremental size used */
-unsigned fast_buffer_mac; /* top of the stack */
+uint8* fast_buffer; /* raw pointer */
+uint8* fast_buffer_aligned; /* aligned pointer */
+uint8* fast_buffer_ptr; /* top of the stack */
+
+static void* video_buffer_mark(void)
+{
+	return fast_buffer_ptr;
+}
+
+static void video_buffer_reset(void* ptr)
+{
+	fast_buffer_ptr = ptr;
+}
 
 static void* video_buffer_alloc(unsigned size)
 {
 	unsigned size_aligned = ALIGN_UNSIGNED(size, FAST_BUFFER_ALIGN);
+	void* ptr;
 
-	assert(fast_buffer_mac < FAST_BUFFER_MAX);
+	ptr = fast_buffer_ptr;
 
-	if (fast_buffer_map[fast_buffer_mac] + size_aligned > FAST_BUFFER_SIZE - FAST_BUFFER_ALIGN) {
-		log_std(("ERROR:blit: out of memory\n"));
-		return 0;
-	}
+	fast_buffer_ptr += size_aligned;
 
-	++fast_buffer_mac;
-	fast_buffer_map[fast_buffer_mac] = fast_buffer_map[fast_buffer_mac - 1] + size_aligned;
-
-	return (uint8*)fast_buffer_aligned + fast_buffer_map[fast_buffer_mac - 1];
+	return ptr;
 }
-
-/* Buffers must be allocated and freed in exact reverse order */
-static void video_buffer_free(void* buffer)
-{
-	(void)buffer;
-	assert(fast_buffer_mac != 0);
-	--fast_buffer_mac;
-}
-
-/* Debug version of the alloc functions */
-#ifndef NDEBUG
-
-#define WRAP_SIZE 32
-
-static void* video_buffer_alloc_wrap(unsigned size)
-{
-	uint8* buffer8 = (uint8*)video_buffer_alloc(size + WRAP_SIZE);
-	unsigned i;
-	for (i = 0; i < WRAP_SIZE; ++i)
-		buffer8[i] = i;
-	return buffer8 + WRAP_SIZE;
-}
-
-static void video_buffer_free_wrap(void* buffer)
-{
-	uint8* buffer8 = (uint8*)buffer - WRAP_SIZE;
-	unsigned i;
-	for (i = 0; i < WRAP_SIZE; ++i)
-		assert(buffer8[i] == i);
-	video_buffer_free(buffer8);
-}
-
-#define video_buffer_free video_buffer_free_wrap
-#define video_buffer_alloc video_buffer_alloc_wrap
-
-#endif
 
 static void video_buffer_init(void)
 {
 	fast_buffer = malloc(FAST_BUFFER_SIZE + FAST_BUFFER_ALIGN);
 	fast_buffer_aligned = ALIGN_PTR(fast_buffer, FAST_BUFFER_ALIGN);
-	fast_buffer_mac = 0;
-	fast_buffer_map[0] = 0;
+	fast_buffer_ptr = fast_buffer_aligned;
 }
 
 static void video_buffer_done(void)
 {
-	assert(fast_buffer_mac == 0);
 	free(fast_buffer);
 }
 
@@ -672,6 +635,7 @@ void video_pipeline_init(struct video_pipeline_struct* pipeline)
 	unsigned i;
 
 	pipeline->stage_mac = 0;
+	pipeline->mark = 0;
 	pipeline->target.line = &video_line;
 	pipeline->target.ptr = 0;
 	pipeline->target.color_def = video_color_def();
@@ -690,21 +654,8 @@ void video_pipeline_target(struct video_pipeline_struct* pipeline, void* ptr, un
 
 void video_pipeline_done(struct video_pipeline_struct* pipeline)
 {
-	int i;
-
-	if (pipeline->stage_mac) {
-		/* deallocate with the same allocation order */
-		for (i = pipeline->stage_mac - 1; i >= 0; --i) {
-			struct video_stage_horz_struct* stage = &pipeline->stage_map[i];
-			if (stage->buffer_extra)
-				video_buffer_free(stage->buffer_extra);
-		}
-		for (i = pipeline->stage_mac - 1; i >= 0; --i) {
-			struct video_stage_horz_struct* stage = &pipeline->stage_map[i];
-			if (stage->buffer)
-				video_buffer_free(stage->buffer);
-		}
-	}
+	if (pipeline->mark)
+		video_buffer_reset(pipeline->mark);
 }
 
 static inline struct video_stage_horz_struct* video_pipeline_begin_mutable(struct video_pipeline_struct* pipeline)
@@ -754,6 +705,9 @@ static void video_pipeline_realize(struct video_pipeline_struct* pipeline, unsig
 		stage_vert->ddx = stage_vert->stage_pivot->sdx;
 		stage_vert->bpp = stage_vert->stage_pivot->sbpp;
 	}
+
+	assert(pipeline->mark == 0);
+	pipeline->mark = video_buffer_mark();
 
 	/* allocate buffers */
 	stage = stage_begin;
@@ -1076,6 +1030,7 @@ static void video_stage_stretchy_max_x1(const struct video_pipeline_target_struc
 	const struct video_stage_horz_struct* stage_end = stage_vert->stage_end;
 	const struct video_stage_horz_struct* stage_pivot = stage_vert->stage_pivot;
 
+	void* mark = video_buffer_mark();
 	void* buffer = video_buffer_alloc(stage_vert->stage_begin->sdx * stage_vert->stage_begin->sbpp);
 
 	unsigned whole = stage_vert->slice.whole;
@@ -1122,7 +1077,7 @@ static void video_stage_stretchy_max_x1(const struct video_pipeline_target_struc
 		--count;
 	}
 
-	video_buffer_free(buffer);
+	video_buffer_reset(mark);
 }
 
 /* Compute the mean of every lines reduced to a single line */
@@ -1134,6 +1089,7 @@ static void video_stage_stretchy_mean_x1(const struct video_pipeline_target_stru
 	const struct video_stage_horz_struct* stage_end = stage_vert->stage_end;
 	const struct video_stage_horz_struct* stage_pivot = stage_vert->stage_pivot;
 
+	void* mark = video_buffer_mark();
 	void* buffer = video_buffer_alloc(stage_pivot->sdx * stage_pivot->sbpp);
 
 	unsigned whole = stage_vert->slice.whole;
@@ -1177,7 +1133,7 @@ static void video_stage_stretchy_mean_x1(const struct video_pipeline_target_stru
 		--count;
 	}
 
-	video_buffer_free(buffer);
+	video_buffer_reset(mark);
 }
 
 /* Compute the mean of the previous line and the first of every iteration */
@@ -1190,6 +1146,7 @@ static void video_stage_stretchy_filter_x1(const struct video_pipeline_target_st
 	const struct video_stage_horz_struct* stage_pivot = stage_vert->stage_pivot;
 
 	adv_bool buffer_full = 0;
+	void* mark = video_buffer_mark();
 	void* buffer = video_buffer_alloc(stage_pivot->sdx * stage_pivot->sbpp);
 
 	unsigned whole = stage_vert->slice.whole;
@@ -1233,7 +1190,7 @@ static void video_stage_stretchy_filter_x1(const struct video_pipeline_target_st
 		--count;
 	}
 
-	video_buffer_free(buffer);
+	video_buffer_reset(mark);
 }
 
 /***************************************************************************/
@@ -1305,6 +1262,7 @@ static void video_stage_stretchy_mean_1x(const struct video_pipeline_target_stru
 	const struct video_stage_horz_struct* stage_end = stage_vert->stage_end;
 	const struct video_stage_horz_struct* stage_pivot = stage_vert->stage_pivot;
 
+	void* mark = video_buffer_mark();
 	void* buffer = video_buffer_alloc(stage_pivot->sdx * stage_pivot->sbpp);
 	void* previous_buffer = 0;
 
@@ -1362,7 +1320,7 @@ static void video_stage_stretchy_mean_1x(const struct video_pipeline_target_stru
 		--count;
 	}
 
-	video_buffer_free(buffer);
+	video_buffer_reset(mark);
 }
 
 static void video_stage_stretchy_min_1x(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
@@ -1373,6 +1331,7 @@ static void video_stage_stretchy_min_1x(const struct video_pipeline_target_struc
 	const struct video_stage_horz_struct* stage_end = stage_vert->stage_end;
 	const struct video_stage_horz_struct* stage_pivot = stage_vert->stage_pivot;
 
+	void* mark = video_buffer_mark();
 	void* buffer = video_buffer_alloc(stage_pivot->sdx * stage_pivot->sbpp);
 	adv_bool buffer_set = 0;
 
@@ -1428,7 +1387,7 @@ static void video_stage_stretchy_min_1x(const struct video_pipeline_target_struc
 		--count;
 	}
 
-	video_buffer_free(buffer);
+	video_buffer_reset(mark);
 }
 
 
@@ -1441,6 +1400,7 @@ static void video_stage_stretchy_filter_1x(const struct video_pipeline_target_st
 	const struct video_stage_horz_struct* stage_end = stage_vert->stage_end;
 	const struct video_stage_horz_struct* stage_pivot = stage_vert->stage_pivot;
 
+	void* mark = video_buffer_mark();
 	void* buffer = video_buffer_alloc(stage_pivot->sdx * stage_pivot->sbpp);
 	void* previous_buffer = 0;
 
@@ -1494,7 +1454,7 @@ static void video_stage_stretchy_filter_1x(const struct video_pipeline_target_st
 		--count;
 	}
 
-	video_buffer_free(buffer);
+	video_buffer_reset(mark);
 }
 
 /***************************************************************************/
@@ -1515,9 +1475,10 @@ static void video_stage_stretchy_scale2x(const struct video_pipeline_target_stru
 	void* final[2];
 	const void* input[3];
 	void* partial[3];
-	void* partial_copy[3];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 2; ++i) {
@@ -1536,7 +1497,7 @@ static void video_stage_stretchy_scale2x(const struct video_pipeline_target_stru
 	PADD(input[2], stage_vert->sdw * 2);
 
 	for (i = 0; i < 3; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -1641,15 +1602,7 @@ static void video_stage_stretchy_scale2x(const struct video_pipeline_target_stru
 		line += 2;
 	}
 
-	for (i = 0; i < 3; ++i) {
-		video_buffer_free(partial_copy[2 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 2; ++i) {
-			video_buffer_free(final[1 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 
 static void video_stage_stretchy_scale2x3(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
@@ -1666,9 +1619,10 @@ static void video_stage_stretchy_scale2x3(const struct video_pipeline_target_str
 	void* final[3];
 	const void* input[3];
 	void* partial[3];
-	void* partial_copy[3];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 3; ++i) {
@@ -1687,7 +1641,7 @@ static void video_stage_stretchy_scale2x3(const struct video_pipeline_target_str
 	PADD(input[2], stage_vert->sdw * 2);
 
 	for (i = 0; i < 3; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -1791,15 +1745,7 @@ static void video_stage_stretchy_scale2x3(const struct video_pipeline_target_str
 		line += 3;
 	}
 
-	for (i = 0; i < 3; ++i) {
-		video_buffer_free(partial_copy[2 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 3; ++i) {
-			video_buffer_free(final[2 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 
 static void video_stage_stretchy_scale2x4(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
@@ -1816,9 +1762,10 @@ static void video_stage_stretchy_scale2x4(const struct video_pipeline_target_str
 	void* final[4];
 	const void* input[3];
 	void* partial[3];
-	void* partial_copy[3];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 4; ++i) {
@@ -1837,7 +1784,7 @@ static void video_stage_stretchy_scale2x4(const struct video_pipeline_target_str
 	PADD(input[2], stage_vert->sdw * 2);
 
 	for (i = 0; i < 3; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -1941,15 +1888,7 @@ static void video_stage_stretchy_scale2x4(const struct video_pipeline_target_str
 		line += 4;
 	}
 
-	for (i = 0; i < 3; ++i) {
-		video_buffer_free(partial_copy[2 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 4; ++i) {
-			video_buffer_free(final[3 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 #endif
 
@@ -1971,9 +1910,10 @@ static void video_stage_stretchy_scale2k(const struct video_pipeline_target_stru
 	void* final[2];
 	const void* input[3];
 	void* partial[3];
-	void* partial_copy[3];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 2; ++i) {
@@ -1992,7 +1932,7 @@ static void video_stage_stretchy_scale2k(const struct video_pipeline_target_stru
 	PADD(input[2], stage_vert->sdw * 2);
 
 	for (i = 0; i < 3; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -2096,15 +2036,7 @@ static void video_stage_stretchy_scale2k(const struct video_pipeline_target_stru
 		line += 2;
 	}
 
-	for (i = 0; i < 3; ++i) {
-		video_buffer_free(partial_copy[2 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 2; ++i) {
-			video_buffer_free(final[1 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 #endif
 
@@ -2127,9 +2059,10 @@ static void video_stage_stretchy_hq2x(const struct video_pipeline_target_struct*
 	void* final[2];
 	const void* input[3];
 	void* partial[3];
-	void* partial_copy[3];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 2; ++i) {
@@ -2148,7 +2081,7 @@ static void video_stage_stretchy_hq2x(const struct video_pipeline_target_struct*
 	PADD(input[2], stage_vert->sdw * 2);
 
 	for (i = 0; i < 3; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -2252,15 +2185,7 @@ static void video_stage_stretchy_hq2x(const struct video_pipeline_target_struct*
 		line += 2;
 	}
 
-	for (i = 0; i < 3; ++i) {
-		video_buffer_free(partial_copy[2 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 2; ++i) {
-			video_buffer_free(final[1 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 
 static void video_stage_stretchy_hq2x3(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
@@ -2277,9 +2202,10 @@ static void video_stage_stretchy_hq2x3(const struct video_pipeline_target_struct
 	void* final[3];
 	const void* input[3];
 	void* partial[3];
-	void* partial_copy[3];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 3; ++i) {
@@ -2298,7 +2224,7 @@ static void video_stage_stretchy_hq2x3(const struct video_pipeline_target_struct
 	PADD(input[2], stage_vert->sdw * 2);
 
 	for (i = 0; i < 3; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -2402,15 +2328,7 @@ static void video_stage_stretchy_hq2x3(const struct video_pipeline_target_struct
 		line += 3;
 	}
 
-	for (i = 0; i < 3; ++i) {
-		video_buffer_free(partial_copy[2 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 3; ++i) {
-			video_buffer_free(final[2 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 
 static void video_stage_stretchy_hq2x4(const struct video_pipeline_target_struct* target, const struct video_stage_vert_struct* stage_vert, unsigned x, unsigned y, const void* src)
@@ -2427,9 +2345,10 @@ static void video_stage_stretchy_hq2x4(const struct video_pipeline_target_struct
 	void* final[4];
 	const void* input[3];
 	void* partial[3];
-	void* partial_copy[3];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 4; ++i) {
@@ -2448,7 +2367,7 @@ static void video_stage_stretchy_hq2x4(const struct video_pipeline_target_struct
 	PADD(input[2], stage_vert->sdw * 2);
 
 	for (i = 0; i < 3; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -2552,15 +2471,7 @@ static void video_stage_stretchy_hq2x4(const struct video_pipeline_target_struct
 		line += 4;
 	}
 
-	for (i = 0; i < 3; ++i) {
-		video_buffer_free(partial_copy[2 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 4; ++i) {
-			video_buffer_free(final[3 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 #endif
 #endif
@@ -2584,9 +2495,10 @@ static void video_stage_stretchy_xbr2x(const struct video_pipeline_target_struct
 	void* final[2];
 	const void* input[5];
 	void* partial[5];
-	void* partial_copy[5];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 2; ++i) {
@@ -2609,7 +2521,7 @@ static void video_stage_stretchy_xbr2x(const struct video_pipeline_target_struct
 	PADD(input[4], stage_vert->sdw * 4);
 
 	for (i = 0; i < 5; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -2763,15 +2675,7 @@ static void video_stage_stretchy_xbr2x(const struct video_pipeline_target_struct
 		line += 2;
 	}
 
-	for (i = 0; i < 5; ++i) {
-		video_buffer_free(partial_copy[4 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 2; ++i) {
-			video_buffer_free(final[1 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 #endif
 #endif
@@ -2795,9 +2699,10 @@ static void video_stage_stretchy_scale3x(const struct video_pipeline_target_stru
 	void* final[3];
 	const void* input[3];
 	void* partial[3];
-	void* partial_copy[3];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 3; ++i) {
@@ -2816,7 +2721,7 @@ static void video_stage_stretchy_scale3x(const struct video_pipeline_target_stru
 	PADD(input[2], stage_vert->sdw * 2);
 
 	for (i = 0; i < 3; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -2920,15 +2825,7 @@ static void video_stage_stretchy_scale3x(const struct video_pipeline_target_stru
 		line += 3;
 	}
 
-	for (i = 0; i < 3; ++i) {
-		video_buffer_free(partial_copy[2 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 3; ++i) {
-			video_buffer_free(final[2 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 #endif
 
@@ -2950,9 +2847,10 @@ static void video_stage_stretchy_scale3k(const struct video_pipeline_target_stru
 	void* final[3];
 	const void* input[3];
 	void* partial[3];
-	void* partial_copy[3];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 3; ++i) {
@@ -2971,7 +2869,7 @@ static void video_stage_stretchy_scale3k(const struct video_pipeline_target_stru
 	PADD(input[2], stage_vert->sdw * 2);
 
 	for (i = 0; i < 3; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -3075,15 +2973,7 @@ static void video_stage_stretchy_scale3k(const struct video_pipeline_target_stru
 		line += 3;
 	}
 
-	for (i = 0; i < 3; ++i) {
-		video_buffer_free(partial_copy[2 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 3; ++i) {
-			video_buffer_free(final[2 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 #endif
 
@@ -3106,9 +2996,10 @@ static void video_stage_stretchy_hq3x(const struct video_pipeline_target_struct*
 	void* final[3];
 	const void* input[3];
 	void* partial[3];
-	void* partial_copy[3];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 3; ++i) {
@@ -3127,7 +3018,7 @@ static void video_stage_stretchy_hq3x(const struct video_pipeline_target_struct*
 	PADD(input[2], stage_vert->sdw * 2);
 
 	for (i = 0; i < 3; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -3231,15 +3122,7 @@ static void video_stage_stretchy_hq3x(const struct video_pipeline_target_struct*
 		line += 3;
 	}
 
-	for (i = 0; i < 3; ++i) {
-		video_buffer_free(partial_copy[2 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 3; ++i) {
-			video_buffer_free(final[2 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 #endif
 #endif
@@ -3263,9 +3146,10 @@ static void video_stage_stretchy_xbr3x(const struct video_pipeline_target_struct
 	void* final[3];
 	const void* input[5];
 	void* partial[5];
-	void* partial_copy[5];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 3; ++i) {
@@ -3288,7 +3172,7 @@ static void video_stage_stretchy_xbr3x(const struct video_pipeline_target_struct
 	PADD(input[4], stage_vert->sdw * 4);
 
 	for (i = 0; i < 5; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -3442,15 +3326,7 @@ static void video_stage_stretchy_xbr3x(const struct video_pipeline_target_struct
 		line += 3;
 	}
 
-	for (i = 0; i < 5; ++i) {
-		video_buffer_free(partial_copy[4 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 3; ++i) {
-			video_buffer_free(final[2 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 #endif
 #endif
@@ -3473,11 +3349,11 @@ static void video_stage_stretchy_scale4x(const struct video_pipeline_target_stru
 	void* final[4];
 	const void* input[5];
 	void* partial[5];
-	void* partial_copy[5];
 	void* middle[6];
-	void* middle_copy[6];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 4; ++i) {
@@ -3500,11 +3376,11 @@ static void video_stage_stretchy_scale4x(const struct video_pipeline_target_stru
 	PADD(input[4], stage_vert->sdw * 4);
 
 	for (i = 0; i < 5; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	for (i = 0; i < 6; ++i) {
-		middle_copy[i] = middle[i] = video_buffer_alloc(2 * stage_vert->sdx * stage_vert->bpp);
+		middle[i] = video_buffer_alloc(2 * stage_vert->sdx * stage_vert->bpp);
 	}
 
 	for (i = 0; i < 4; ++i) {
@@ -3679,19 +3555,7 @@ static void video_stage_stretchy_scale4x(const struct video_pipeline_target_stru
 		line += 4;
 	}
 
-	for (i = 0; i < 6; ++i) {
-		video_buffer_free(middle_copy[5 - i]);
-	}
-
-	for (i = 0; i < 5; ++i) {
-		video_buffer_free(partial_copy[4 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 4; ++i) {
-			video_buffer_free(final[3 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 #endif
 
@@ -3713,9 +3577,10 @@ static void video_stage_stretchy_scale4k(const struct video_pipeline_target_stru
 	void* final[4];
 	const void* input[3];
 	void* partial[3];
-	void* partial_copy[3];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 4; ++i) {
@@ -3734,7 +3599,7 @@ static void video_stage_stretchy_scale4k(const struct video_pipeline_target_stru
 	PADD(input[2], stage_vert->sdw * 2);
 
 	for (i = 0; i < 3; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -3838,15 +3703,7 @@ static void video_stage_stretchy_scale4k(const struct video_pipeline_target_stru
 		line += 4;
 	}
 
-	for (i = 0; i < 3; ++i) {
-		video_buffer_free(partial_copy[2 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 4; ++i) {
-			video_buffer_free(final[3 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 #endif
 
@@ -3869,9 +3726,10 @@ static void video_stage_stretchy_hq4x(const struct video_pipeline_target_struct*
 	void* final[4];
 	const void* input[3];
 	void* partial[3];
-	void* partial_copy[3];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 4; ++i) {
@@ -3890,7 +3748,7 @@ static void video_stage_stretchy_hq4x(const struct video_pipeline_target_struct*
 	PADD(input[2], stage_vert->sdw * 2);
 
 	for (i = 0; i < 3; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -3994,15 +3852,7 @@ static void video_stage_stretchy_hq4x(const struct video_pipeline_target_struct*
 		line += 4;
 	}
 
-	for (i = 0; i < 3; ++i) {
-		video_buffer_free(partial_copy[2 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 4; ++i) {
-			video_buffer_free(final[3 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 #endif
 #endif
@@ -4026,9 +3876,10 @@ static void video_stage_stretchy_xbr4x(const struct video_pipeline_target_struct
 	void* final[4];
 	const void* input[5];
 	void* partial[5];
-	void* partial_copy[5];
 	void* tmp;
 	unsigned i;
+
+	void* mark = video_buffer_mark();
 
 	if (stage_pivot != stage_end) {
 		for (i = 0; i < 4; ++i) {
@@ -4051,7 +3902,7 @@ static void video_stage_stretchy_xbr4x(const struct video_pipeline_target_struct
 	PADD(input[4], stage_vert->sdw * 4);
 
 	for (i = 0; i < 5; ++i) {
-		partial_copy[i] = partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
+		partial[i] = video_buffer_alloc(stage_vert->sdx * stage_vert->bpp);
 	}
 
 	partial[0] = video_pipeline_run_partial(partial[0], stage_begin, stage_pivot, 0, input[0], -1);
@@ -4205,15 +4056,7 @@ static void video_stage_stretchy_xbr4x(const struct video_pipeline_target_struct
 		line += 4;
 	}
 
-	for (i = 0; i < 5; ++i) {
-		video_buffer_free(partial_copy[4 - i]);
-	}
-
-	if (stage_pivot != stage_end) {
-		for (i = 0; i < 4; ++i) {
-			video_buffer_free(final[3 - i]);
-		}
-	}
+	video_buffer_reset(mark);
 }
 #endif
 #endif

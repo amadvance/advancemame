@@ -812,9 +812,9 @@ static void video_done_pipeline(struct advance_video_context* context)
 	/* destroy the pipeline */
 	if (context->state.blit_pipeline_flag) {
 		unsigned i;
-		for (i = 0; i < PIPELINE_BLIT_MAX; ++i)
-			video_pipeline_done(&context->state.blit_pipeline[i]);
 		video_pipeline_done(&context->state.buffer_pipeline_video);
+		for (i = 0; i < PIPELINE_BLIT_MAX; ++i)
+			video_pipeline_done(&context->state.blit_pipeline[PIPELINE_BLIT_MAX - 1 - i]);
 		context->state.blit_pipeline_flag = 0;
 	}
 
