@@ -4534,7 +4534,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		video_stage_pivot_late_set(stage_vert, combine);
-#ifdef _OPENMP
+#if defined(_OPENMP) && (defined(__i386__) || defined(__x86_64__)) /* on ARM OpenMP is slower */
 		stage_vert->put = video_stage_stretchy_scale2k_openmp;
 #else
 		stage_vert->put = video_stage_stretchy_scale2k;
@@ -4586,7 +4586,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		video_stage_pivot_late_set(stage_vert, combine);
-#ifdef _OPENMP
+#if defined(_OPENMP) && (defined(__i386__) || defined(__x86_64__)) /* on ARM OpenMP is slower */
 		stage_vert->put = video_stage_stretchy_scale3k_openmp;
 #else
 		stage_vert->put = video_stage_stretchy_scale3k;
@@ -4624,7 +4624,7 @@ static void video_stage_stretchy_set(const struct video_pipeline_target_struct* 
 		slice_set(&stage_vert->slice, sdy, ddy);
 
 		video_stage_pivot_late_set(stage_vert, combine);
-#ifdef _OPENMP
+#if defined(_OPENMP) && (defined(__i386__) || defined(__x86_64__)) /* on ARM OpenMP is slower */
 		stage_vert->put = video_stage_stretchy_scale4k_openmp;
 #else
 		stage_vert->put = video_stage_stretchy_scale4k;
