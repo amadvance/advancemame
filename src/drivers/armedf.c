@@ -179,7 +179,6 @@ extern UINT16 *armedf_bg_videoram;
 extern UINT16 *armedf_fg_videoram;
 extern UINT16 *terraf_text_videoram;
 extern UINT16 *legion_cmd;
-extern UINT16 *legion_cmd;
 extern tilemap *armedf_tx_tilemap;
 
 static WRITE16_HANDLER( io_w )
