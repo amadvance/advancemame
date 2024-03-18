@@ -163,9 +163,9 @@ AC_ARG_ENABLE(
 
 if test $ac_auto_cflags = yes; then
 	if test $ac_enable_perf = yes ; then
-		CFLAGS="-O1 -pg -Wall -Wno-sign-compare -Wno-unused"
+		CFLAGS="-O1 -pg -Wall -Wno-sign-compare -Wno-unused -Wno-format-truncation"
 	elif test $ac_enable_debug = yes ; then
-		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
+		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused -Wno-format-truncation"
 	else
 		CFLAGS=""
 		dnl O3 generally gives better performance than O2 in both Intel and ARM
