@@ -1148,6 +1148,16 @@ Configuration
 		: G   E   G   G+F
 		: H   H   F   H+G
 
+    display_writeeffect
+	Selects how to write the video memory. In some very old video board
+	you may gain speed selecting `buffer'.
+
+	:display_writeeffect direct | buffer
+
+	Options:
+		direct - Write directly the video memory (default).
+		even - Use a buffered write.
+
     Display Color Configuration Options
 	This section describes the options used to customize the display
 	color adjustments.
