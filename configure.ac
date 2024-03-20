@@ -549,11 +549,16 @@ fi
 AC_SUBST([CONF_LIB_FB],[$ac_lib_fb])
 
 dnl Checks for Raspberry Pi VideoCore
+if test -d /opt/vc; then
+	ac_lib_vc_prefix_default="/opt/vc"
+else
+	ac_lib_vc_prefix_default="/usr"
+fi
 AC_ARG_WITH(
 	[vc-prefix],
 	AC_HELP_STRING([--with-vc-prefix=DIR],[Prefix where the Raspberry Pi VideoCore is installed (optional)]),
 	[ac_lib_vc_prefix="$withval"],
-	[ac_lib_vc_prefix="/opt/vc"]
+	[ac_lib_vc_prefix="$ac_lib_vc_prefix_default"]
 )
 AC_ARG_ENABLE(
 	[vc],
