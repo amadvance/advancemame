@@ -4,6 +4,7 @@
 UINT16 armedf_vreg;
 
 UINT16 *terraf_text_videoram;
+UINT16 *spr_pal_clut;
 UINT16 *armedf_bg_videoram;
 UINT16 *armedf_fg_videoram;
 UINT16 *legion_cmd;
@@ -58,6 +59,37 @@ static void get_tx_tile_info(int tile_index)
 	{
 		attributes = terraf_text_videoram[tile_index+0x400]&0xff;
 	}
+	SET_TILE_INFO(
+			0,
+			tile_number + 256 * (attributes & 0x3),
+			attributes >> 4,
+			0)
+}
+
+static void get_legion_tx_tile_info(int tile_index)
+{
+	int tile_number = terraf_text_videoram[tile_index]&0xff;
+	int attributes;
+	
+	if(tile_index<0x10) tile_number=0x20;
+
+	if( scroll_type == 1 )
+	{
+		attributes = terraf_text_videoram[tile_index+0x800]&0xff;
+	}
+	else
+	{
+		attributes = terraf_text_videoram[tile_index+0x400]&0xff;
+	}
+	
+	
+	tile_info.priority = 0;
+
+	if((attributes & 0x3) == 3)
+	{
+		tile_info.priority = 1;	
+	}
+	
 	SET_TILE_INFO(
 			0,
 			tile_number + 256 * (attributes & 0x3),
@@ -127,6 +159,39 @@ VIDEO_START( armedf )
 	return 0;
 }
 
+VIDEO_START( legion )
+{
+	if( scroll_type == 4 || /* cclimbr2 */
+		scroll_type == 3 || /* legion */
+		scroll_type == 6 )  /* legiono */
+	{
+		sprite_offy = 0;
+	}
+	else
+	{
+		sprite_offy = 128;
+	}
+
+	//bg_tilemap = tilemap_create(get_bg_tile_info,tilemap_scan_cols,TILEMAP_OPAQUE,16,16,64,32);
+	bg_tilemap = tilemap_create(get_bg_tile_info,tilemap_scan_cols,TILEMAP_TRANSPARENT,16,16,64,32);
+	fg_tilemap = tilemap_create(get_fg_tile_info,tilemap_scan_cols,TILEMAP_TRANSPARENT,16,16,64,32);
+	armedf_tx_tilemap = tilemap_create(get_legion_tx_tile_info,armedf_scan,TILEMAP_TRANSPARENT,8,8,64,32);
+
+	if (!bg_tilemap || !fg_tilemap || !armedf_tx_tilemap)
+		return 1;
+
+	tilemap_set_transparent_pen(fg_tilemap,0xf);
+	tilemap_set_transparent_pen(armedf_tx_tilemap,0xf);
+	tilemap_set_transparent_pen(bg_tilemap,0xf);
+
+	if( scroll_type!=1 )
+	{
+		tilemap_set_scrollx(armedf_tx_tilemap,0,-128);
+	}
+
+	return 0;
+}
+
 /***************************************************************************
 
   Memory handlers
@@ -149,14 +214,6 @@ WRITE16_HANDLER( armedf_text_videoram_w )
 		}
 	}
 
-/*  if (offset<0x10)
-        logerror("%04x %04x %04x %04x %04x %04x %04x %04x-%04x %04x %04x %04x %04x %04x %04x %04x (%04x)\n",
-            terraf_text_videoram[0], terraf_text_videoram[1], terraf_text_videoram[2],
-            terraf_text_videoram[3], terraf_text_videoram[4], terraf_text_videoram[5],
-            terraf_text_videoram[6], terraf_text_videoram[7], terraf_text_videoram[8],
-            terraf_text_videoram[9], terraf_text_videoram[10], terraf_text_videoram[11],
-            terraf_text_videoram[12], terraf_text_videoram[13], terraf_text_videoram[14],
-            terraf_text_videoram[15], offset);*/
 }
 
 
@@ -241,6 +298,81 @@ WRITE16_HANDLER( armedf_mcu_cmd )
 
 ***************************************************************************/
 
+/* custom code to handle color cycling effect, handled by m_spr_pal_clut */
+static void armedf_drawgfx(mame_bitmap *dest_bmp, const rectangle *clip, const gfx_element *gfx,
+							UINT32 code,UINT32 color, UINT32 clut,int flipx,int flipy,int offsx,int offsy,
+							int transparent_color)
+{
+//	const pen_t *pal = &gfx->machine().pens[gfx->color_base + gfx->color_granularity * (color % gfx->total_colors)];
+	const pen_t *pal = &gfx->colortable[0 + gfx->color_granularity * (color % gfx->total_colors)];
+//	const UINT8 *source_base = gfx_element_get_data(gfx, code % gfx->total_elements);
+	const UINT8 *source_base = gfx->gfxdata + (code % gfx->total_elements) * gfx->char_modulo;
+	int x_index_base, y_index, sx, sy, ex, ey;
+	int xinc, yinc;
+
+	xinc = flipx ? -1 : 1;
+	yinc = flipy ? -1 : 1;
+
+	x_index_base = flipx ? gfx->width-1 : 0;
+	y_index = flipy ? gfx->height-1 : 0;
+
+	/* start coordinates */
+	sx = offsx;
+	sy = offsy;
+
+	/* end coordinates */
+	ex = sx + gfx->width;
+	ey = sy + gfx->height;
+
+	if (clip)
+	{
+		if (sx < clip->min_x)
+		{ /* clip left */
+			int pixels = clip->min_x-sx;
+			sx += pixels;
+			x_index_base += xinc*pixels;
+		}
+		if (sy < clip->min_y)
+		{ /* clip top */
+			int pixels = clip->min_y-sy;
+			sy += pixels;
+			y_index += yinc*pixels;
+		}
+		/* NS 980211 - fixed incorrect clipping */
+		if (ex > clip->max_x+1)
+		{ /* clip right */
+			ex = clip->max_x+1;
+		}
+		if (ey > clip->max_y+1)
+		{ /* clip bottom */
+			ey = clip->max_y+1;
+		}
+	}
+
+	if (ex > sx)
+	{ /* skip if inner loop doesn't draw anything */
+		int x, y;
+		{
+			for (y = sy; y < ey; y++)
+			{
+				const UINT8 *source = source_base + y_index*gfx->line_modulo;
+                //UINT16 *dest = BITMAP_ADDR16(dest_bmp, y, 0);
+				UINT16 *dest = (UINT16*)dest_bmp->line[y];
+				int x_index = x_index_base;
+				for (x = sx; x < ex; x++)
+				{
+					int c = (source[x_index] & ~0xf) | ((spr_pal_clut[clut*0x10+(source[x_index] & 0xf)]) & 0xf);
+					if (c != transparent_color)
+						dest[x] = pal[c];
+
+					x_index += xinc;
+				}
+				y_index += yinc;
+			}
+		}
+	}
+}
+
 static void draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect, int priority )
 {
 	int offs;
@@ -251,6 +383,7 @@ static void draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect, int pr
 		int flipx = code & 0x2000;
 		int flipy = code & 0x1000;
 		int color = (buffered_spriteram16[offs+2]>>8)&0x1f;
+		int clut = (buffered_spriteram16[offs+2]) & 0x7f;
 		int sx = buffered_spriteram16[offs+3];
 		int sy = sprite_offy+240-(buffered_spriteram16[offs+0]&0x1ff);
 
@@ -263,14 +396,52 @@ static void draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect, int pr
 
 		if (((buffered_spriteram16[offs+0] & 0x3000) >> 12) == priority)
 		{
-			drawgfx(bitmap,Machine->gfx[3],
+			armedf_drawgfx(bitmap,cliprect,Machine->gfx[3],
 				code & 0xfff,
-				color,
+				color, clut,
  				flipx,flipy,
-				sx,sy,
-				cliprect,TRANSPARENCY_PEN,15);
+				sx,sy,15);
 		}
 	}
+}
+
+static void copy_textmap(int index)
+{
+	/*
+		(not simulated)
+		1st half of the MCU ROM contains various strings and
+		gfx elements (copied by MCU to textram)
+				
+		
+		(partially simulated)
+		2nd half of the MCu external ROM contains text tilemaps:
+		 4 - title screen
+		 5 - ??? - should be (when comapred with legiono set) displayed(? inivisble? different prority?) during game 
+		 6 - test mode screen
+		 7 - portraits (title)
+	*/
+
+	UINT8 * data = (UINT8 *)memory_region(REGION_GFX5);
+	int bank;
+	int tile;
+    int i;
+	for(i=0;i<0x400;++i)
+	{
+		if(i<0x10) continue;
+
+		tile=data[0x800*index+i];
+		bank=data[0x800*index+i+0x400]&3;
+			
+		if( (tile|(bank<<8))!=0x20)
+		{
+			terraf_text_videoram[i]=tile;
+			terraf_text_videoram[i+0x400]=data[0x800*index+i+0x400];
+		}
+	
+	}
+
+	tilemap_mark_all_tiles_dirty(armedf_tx_tilemap);
+
 }
 
 
@@ -340,6 +511,13 @@ VIDEO_UPDATE( armedf )
 
 
 	fillbitmap( bitmap, 0xff, cliprect );
+
+
+	if(scroll_type == 3 || scroll_type == 6) /* legion / legiono */
+	{
+		tilemap_draw(bitmap, cliprect, armedf_tx_tilemap, 1, 0);
+	}
+
 	if (armedf_vreg & 0x0800) tilemap_draw( bitmap, cliprect, bg_tilemap, 0, 0);
 	/*if( armedf_vreg & 0x0800 )
     {
@@ -358,7 +536,27 @@ VIDEO_UPDATE( armedf )
 	if( sprite_enable ) draw_sprites( bitmap, cliprect, 1 );
 	if ((mcu_mode&0x0030)==0x0000) tilemap_draw( bitmap, cliprect, armedf_tx_tilemap, 0, 0);
 	if( sprite_enable ) draw_sprites( bitmap, cliprect, 0 );
-
+	
+	if(scroll_type == 3) /* legion */
+	{
+		static int oldmode=-1;	
+	
+		int mode=terraf_text_videoram[1]&0xff;
+		
+		if (mode != oldmode)
+		{
+			oldmode=mode;
+			switch(mode)
+			{
+				case 0x01: copy_textmap(4); break; /* title screen */
+				case 0x06: copy_textmap(7); break; /* portraits on title screen */
+				case 0x1c: copy_textmap(5); break; /* bottom, in-game layer */
+				default: logerror("unknown mode %d\n", mode); break;
+			}
+		}
+			
+	}
+	
 }
 
 VIDEO_EOF( armedf )
