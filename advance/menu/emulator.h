@@ -25,6 +25,7 @@
 #include "crc.h"
 #include "choice.h"
 #include "conf.h"
+#include "target.h"
 
 #include <time.h>
 
@@ -92,7 +93,7 @@ protected:
 	void load_dir(game_set& gar, const std::string& dir, const std::string& filterlist, bool quiet);
 	void load_dirlist(game_set& gar, const std::string& dirlist, const std::string& filterlist, bool quiet);
 
-	bool run_process(time_t& duration, const std::string& dir, int argc, const char** argv, bool ignore_error) const;
+	bool run_process(target_clock_t& duration, const std::string& dir, int argc, const char** argv, bool ignore_error) const;
 	unsigned compile(const game& g, const char** argv, unsigned argc, const std::string& list, unsigned orientation) const;
 
 	bool validate_config_file(const std::string& file) const;

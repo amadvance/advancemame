@@ -165,9 +165,11 @@ Changes:
 #include "cpu/i8039/i8039.h"
 #include "cpu/s2650/s2650.h"
 #include "cpu/m6502/m6502.h"
+#include "machine/eeprom.h"
 #include "sound/dac.h"
 #include "sound/samples.h"
 #include "sound/nes_apu.h"
+#include "sound/sn76496.h"
 #include <math.h>
 
 static UINT8 page,mcustatus;
@@ -177,7 +179,6 @@ static double envelope,tt;
 static UINT8 decay;
 static INT8 counter;
 int hunchloopback;
-
 
 extern WRITE8_HANDLER( radarscp_grid_enable_w );
 extern WRITE8_HANDLER( radarscp_grid_color_w );
@@ -271,6 +272,78 @@ static WRITE8_HANDLER( dkong_sh_p2_w )
 static READ8_HANDLER( dkong_in2_r )
 {
 	return input_port_2_r(offset) | (mcustatus << 6);
+}
+
+/*************************************
+ *
+ *  Braze Tech Addon boards
+ *
+ *************************************/
+
+static int banks = 0;
+
+static struct EEPROM_interface braze_eeprom_intf =
+{
+	7,				/* address bits */
+	8,				/* data bits */
+	"*110",			/* read command */
+	"*101",			/* write command */
+	0,				/* erase command */
+	"*10000xxxxx",	/* lock command */
+	"*10011xxxxx",	/* unlock command */
+};
+
+NVRAM_HANDLER( braze )
+{
+	if (read_or_write)
+		EEPROM_save(file);
+	else
+	{
+		EEPROM_init(&braze_eeprom_intf);
+
+		if (file) EEPROM_load(file);
+	}
+}
+
+static READ8_HANDLER( braze_eeprom_r )
+{
+	return EEPROM_read_bit();
+}
+
+static WRITE8_HANDLER( braze_a15_w )
+{
+	if (banks != (data & 1)) {
+		banks = data & 1;
+		memcpy (memory_region(REGION_CPU1) + 0x0000, memory_region(REGION_USER1) + 0x10000 + (0x8000 * banks), 0x06000); // ?
+		memcpy (memory_region(REGION_CPU1) + 0x8000, memory_region(REGION_USER1) + 0x10000 + (0x8000 * banks), 0x08000); // ?
+	}
+}
+
+static WRITE8_HANDLER( braze_eeprom_w )
+{
+	EEPROM_write_bit(data & 0x01);
+	EEPROM_set_cs_line(data & 0x04 ? CLEAR_LINE : ASSERT_LINE);
+	EEPROM_set_clock_line(data & 0x02 ? ASSERT_LINE : CLEAR_LINE);
+}
+
+static void braze_decrypt_rom(UINT8 *dest)
+{
+	UINT8 oldbyte,newbyte;
+	UINT8 *ROM;
+	UINT32 mem;
+	UINT32 newmem;
+
+	ROM = memory_region(REGION_USER1);
+
+	for (mem=0;mem<0x10000;mem++)
+	{
+		oldbyte = ROM[mem];
+
+		newmem = ((BITSWAP8((mem >> 8),7,2,3,1,0,6,4,5))<<8) | (mem & 0xff);
+		newbyte = BITSWAP8(oldbyte, 1,4,5,7,6,0,3,2);
+
+		dest[newmem] = newbyte;
+	}
 }
 
 /* EPOS games */
@@ -370,6 +443,20 @@ static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xd000, 0xdfff) AM_READ(MRA8_ROM)	/* DK3 bootleg only */
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( braze_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x5fff) AM_READ(MRA8_ROM)	/* DK: 0000-3fff */
+	AM_RANGE(0x6000, 0x6fff) AM_READ(MRA8_RAM)	/* including sprites RAM */
+	AM_RANGE(0x7400, 0x77ff) AM_READ(MRA8_RAM)	/* video RAM */
+	AM_RANGE(0x7c00, 0x7c00) AM_READ(input_port_0_r)	/* IN0 */
+	AM_RANGE(0x7c80, 0x7c80) AM_READ(input_port_1_r)	/* IN1 */
+	AM_RANGE(0x7d00, 0x7d00) AM_READ(dkong_in2_r)	/* IN2/DSW2 */
+	AM_RANGE(0x7d80, 0x7d80) AM_READ(input_port_3_r)	/* DSW1 */
+	AM_RANGE(0x8000, 0x9fff) AM_READ(MRA8_ROM)	/* DK3 and bootleg DKjr only */
+	AM_RANGE(0xb000, 0xbfff) AM_READ(MRA8_ROM)	/* Pest Place only */
+	AM_RANGE(0xc800, 0xc800) AM_READ(braze_eeprom_r)
+	AM_RANGE(0xd000, 0xdfff) AM_READ(MRA8_ROM)	/* DK3 bootleg only */
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( dkong3_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x5fff) AM_READ(MRA8_ROM)	/* DK: 0000-3fff */
 	AM_RANGE(0x6000, 0x6fff) AM_READ(MRA8_RAM)	/* including sprites RAM */
@@ -427,6 +514,32 @@ static ADDRESS_MAP_START( dkong_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x7d84, 0x7d84) AM_WRITE(interrupt_enable_w)
 	AM_RANGE(0x7d85, 0x7d85) AM_WRITE(MWA8_RAM)
 	AM_RANGE(0x7d86, 0x7d87) AM_WRITE(dkong_palettebank_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( braze_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x5fff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0x6000, 0x68ff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x6900, 0x6a7f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x6a80, 0x6fff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x7000, 0x73ff) AM_WRITE(MWA8_RAM)    /* ???? */
+	AM_RANGE(0x7400, 0x77ff) AM_WRITE(dkong_videoram_w) AM_BASE(&videoram)
+	AM_RANGE(0x7800, 0x7803) AM_WRITE(MWA8_RAM)	/* ???? */
+	AM_RANGE(0x7808, 0x7808) AM_WRITE(MWA8_RAM)	/* ???? */
+	AM_RANGE(0x7c00, 0x7c00) AM_WRITE(dkong_sh_tuneselect_w)
+//  AM_RANGE(0x7c80, 0x7c80)
+	AM_RANGE(0x7d00, 0x7d02) AM_WRITE(dkong_sh1_w)	/* walk/jump/boom sample trigger */
+	AM_RANGE(0x7d03, 0x7d03) AM_WRITE(dkong_sh_sound3_w)
+	AM_RANGE(0x7d04, 0x7d04) AM_WRITE(dkong_sh_sound4_w)
+	AM_RANGE(0x7d05, 0x7d05) AM_WRITE(dkong_sh_sound5_w)
+	AM_RANGE(0x7d80, 0x7d80) AM_WRITE(dkong_sh_w)
+	AM_RANGE(0x7d81, 0x7d81) AM_WRITE(MWA8_RAM)	/* ???? */
+	AM_RANGE(0x7d82, 0x7d82) AM_WRITE(dkong_flipscreen_w)
+	AM_RANGE(0x7d83, 0x7d83) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x7d84, 0x7d84) AM_WRITE(interrupt_enable_w)
+	AM_RANGE(0x7d85, 0x7d85) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x7d86, 0x7d87) AM_WRITE(dkong_palettebank_w)
+	AM_RANGE(0xc800, 0xc800) AM_WRITE(braze_eeprom_w)
+	AM_RANGE(0xe000, 0xe000) AM_WRITE(braze_a15_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( hunchbkd_readmem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -567,6 +680,10 @@ READ8_HANDLER( shootgal_port0_r )
 
 static ADDRESS_MAP_START( hunchbkd_writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(S2650_DATA_PORT, S2650_DATA_PORT) AM_WRITE(hunchbkd_data_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START(  spclforc_writeport, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(S2650_DATA_PORT, S2650_DATA_PORT) AM_WRITE(SN76496_0_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( hunchbkd_readport, ADDRESS_SPACE_IO, 8 )
@@ -1669,6 +1786,48 @@ static MACHINE_DRIVER_START( dkong )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( braze )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(Z80, 3072000)	/* 3.072 MHz (?) */
+	MDRV_CPU_PROGRAM_MAP(braze_readmem,braze_writemem)
+	MDRV_CPU_VBLANK_INT(nmi_line_pulse,1)
+
+	MDRV_CPU_ADD(I8035,6000000/15)	/* 6MHz crystal */
+	MDRV_CPU_PROGRAM_MAP(readmem_sound,writemem_sound)
+	MDRV_CPU_IO_MAP(readport_sound,writeport_sound)
+	
+	MDRV_NVRAM_HANDLER(braze)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_MACHINE_START(dkong)
+	MDRV_MACHINE_RESET(dkong)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(32*8, 32*8)
+	MDRV_VISIBLE_AREA(0*8, 32*8-1, 2*8, 30*8-1)
+	MDRV_GFXDECODE(gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(256)
+	MDRV_COLORTABLE_LENGTH(64*4)
+
+	MDRV_PALETTE_INIT(dkong)
+	MDRV_VIDEO_START(dkong)
+	MDRV_VIDEO_UPDATE(dkong)
+
+	/* sound hardware */
+	MDRV_SOUND_START(dkong)
+
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.55)
+
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(dkong_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
+MACHINE_DRIVER_END
+
 static INTERRUPT_GEN( hunchbkd_interrupt )
 {
 	cpunum_set_input_line_and_vector(0, 0, HOLD_LINE, 0x03);
@@ -1724,14 +1883,18 @@ static MACHINE_DRIVER_START( spclforc )
 	/* basic machine hardware */
 	MDRV_IMPORT_FROM(hunchbkd)
 	MDRV_CPU_MODIFY("main")
-	MDRV_CPU_IO_MAP(spclforc_readport,hunchbkd_writeport)
+	MDRV_CPU_IO_MAP(spclforc_readport,spclforc_writeport)
 
 	MDRV_CPU_REMOVE("sound")
 
 	/* video hardware */
 	MDRV_VIDEO_UPDATE(spclforc)
 
-	/* analog sound */
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(SN76496, 3072000)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( eightact )
@@ -2824,6 +2987,39 @@ ROM_START( shootgal )
 	ROM_LOAD( "sg-01-2n",    0x0200, 0x0200, CRC(e08ed788) SHA1(6982f6bcc70dbf4c75ff538a5df70da11bc89bb4) )
 ROM_END
 
+/* Braze Technologies bootleg hardware */
+
+ROM_START( dkongx )
+	ROM_REGION( 0x20000, REGION_CPU1, 0 )
+	ROM_LOAD( "c_5et_g.bin",  0x10000, 0x1000, CRC(ba70b88b) SHA1(d76ebecfea1af098d843ee7e578e480cd658ac1a) )
+	ROM_LOAD( "c_5ct_g.bin",  0x11000, 0x1000, CRC(5ec461ec) SHA1(acb11a8fbdbb3ab46068385fe465f681e3c824bd) )
+	ROM_LOAD( "c_5bt_g.bin",  0x12000, 0x1000, CRC(1c97d324) SHA1(c7966261f3a1d3296927e0b6ee1c58039fc53c1f) )
+	ROM_LOAD( "c_5at_g.bin",  0x13000, 0x1000, CRC(b9005ac0) SHA1(3fe3599f6fa7c496f782053ddf7bacb453d197c4) )
+	/* space for diagnostic ROM */
+
+	ROM_REGION( 0x20000, REGION_USER1, 0 )
+	ROM_LOAD( "d2k12.bin",  0x0000, 0x10000,  CRC(6e95ca0d) SHA1(c058add0f146d577e3df0ba60828fe1734e78d01) ) /* Version 1.2 */
+
+	ROM_REGION( 0x1800, REGION_CPU2, 0 )	/* sound */
+	ROM_LOAD( "s_3i_b.bin",   0x0000, 0x0800, CRC(45a4ed06) SHA1(144d24464c1f9f01894eb12f846952290e6e32ef) )
+	ROM_RELOAD(               0x0800, 0x0800 )
+	ROM_LOAD( "s_3j_b.bin",   0x1000, 0x0800, CRC(4743fe92) SHA1(6c82b57637c0212a580591397e6a5a1718f19fd2) )
+
+	ROM_REGION( 0x1000, REGION_GFX1, 0 )
+	ROM_LOAD( "v_5h_b.bin",   0x0000, 0x0800, CRC(12c8c95d) SHA1(a57ff5a231c45252a63b354137c920a1379b70a3) )
+	ROM_LOAD( "v_3pt.bin",    0x0800, 0x0800, CRC(15e9c5e9) SHA1(976eb1e18c74018193a35aa86cff482ebfc5cc4e) )
+
+	ROM_REGION( 0x2000, REGION_GFX2, 0 )
+	ROM_LOAD( "l_4m_b.bin",   0x0000, 0x0800, CRC(59f8054d) SHA1(793dba9bf5a5fe76328acdfb90815c243d2a65f1) )
+	ROM_LOAD( "l_4n_b.bin",   0x0800, 0x0800, CRC(672e4714) SHA1(92e5d379f4838ac1fa44d448ce7d142dae42102f) )
+	ROM_LOAD( "l_4r_b.bin",   0x1000, 0x0800, CRC(feaa59ee) SHA1(ecf95db5a20098804fc8bd59232c66e2e0ed3db4) )
+	ROM_LOAD( "l_4s_b.bin",   0x1800, 0x0800, CRC(20f2ef7e) SHA1(3bc482a38bf579033f50082748ee95205b0f673d) )
+
+	ROM_REGION( 0x0300, REGION_PROMS, 0 )
+	ROM_LOAD( "c-2k.bpr",     0x0000, 0x0100, CRC(e273ede5) SHA1(b50ec9e1837c00c20fb2a4369ec7dd0358321127) ) /* palette low 4 bits (inverted) */
+	ROM_LOAD( "c-2j.bpr",     0x0100, 0x0100, CRC(d6412358) SHA1(f9c872da2fe8e800574ae3bf483fb3ccacc92eb3) ) /* palette high 4 bits (inverted) */
+	ROM_LOAD( "v-5e.bpr",     0x0200, 0x0100, CRC(b869b8f5) SHA1(c2bdccbf2654b64ea55cd589fd21323a9178a660) ) /* character color codes on a per-column basis */
+ROM_END
 
 static DRIVER_INIT( herodk )
 {
@@ -2857,6 +3053,21 @@ static DRIVER_INIT( radarscp )
 	RAM[0x1e9d] = 0xbd;
 }
 
+static DRIVER_INIT( dkongx )
+{
+	braze_decrypt_rom(memory_region(REGION_USER1) + 0x10000);
+
+	memset (memory_region(REGION_CPU1), 0, 0x10000);
+
+	banks = 0;
+	memcpy (memory_region(REGION_CPU1) + 0x0000, memory_region(REGION_USER1) + 0x10000, 0x06000); 
+	memcpy (memory_region(REGION_CPU1) + 0x8000, memory_region(REGION_USER1) + 0x10000, 0x08000); // ?
+
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xe000, 0xe000, 0, 0, braze_a15_w);
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xc800, 0xc800, 0, 0, braze_eeprom_w);
+	memory_install_read8_handler(0,  ADDRESS_SPACE_PROGRAM, 0xc800, 0xc800, 0, 0, braze_eeprom_r);
+}
+
 
 GAME( 1980, radarscp, 0,        radarscp, dkong,    radarscp, ROT90, "Nintendo", "Radar Scope", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
 
@@ -2869,7 +3080,7 @@ GAME( 1981, dkongjo1, dkong,    dkong,    dkong,    0,        ROT90, "Nintendo",
 GAME( 1982, dkongjr,  0,        dkongjr,  dkong,    0,        ROT90, "Nintendo of America", "Donkey Kong Junior (US)", GAME_SUPPORTS_SAVE )
 GAME( 1982, dkongjrj, dkongjr,  dkongjr,  dkong,    0,        ROT90, "Nintendo", "Donkey Kong Jr. (Japan)", GAME_SUPPORTS_SAVE )
 GAME( 1982, dkngjnrj, dkongjr,  dkongjr,  dkong,    0,        ROT90, "Nintendo", "Donkey Kong Junior (Japan?)", GAME_SUPPORTS_SAVE )
-GAME( 1982, dkongjrb, dkongjr,  dkongjr,  dkong,    0,        ROT90, "bootleg", "Donkey Kong Jr. (bootleg)", GAME_SUPPORTS_SAVE )
+GAME( 1982, dkongjrb, dkongjr,  dkongjr,  dkong,    0,        ROT90, "bootleg",  "Donkey Kong Jr. (bootleg)", GAME_SUPPORTS_SAVE )
 GAME( 1982, dkngjnrb, dkongjr,  dkongjr,  dkong,    0,        ROT90, "Nintendo of America", "Donkey Kong Junior (bootleg?)", GAME_SUPPORTS_SAVE )
 
 GAME( 1983, dkong3,   0,        dkong3,   dkong3,   0,        ROT90, "Nintendo of America", "Donkey Kong 3 (US)", GAME_SUPPORTS_SAVE )
@@ -2880,7 +3091,7 @@ GAME( 1984, herbiedk, huncholy, herbiedk, herbiedk, 0,        ROT90, "CVS", "Her
 
 GAME( 1983, hunchbkd, hunchbak, hunchbkd, hunchbkd, 0,        ROT90, "Century Electronics", "Hunchback (DK conversion)", GAME_WRONG_COLORS | GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
 
-GAME( 1984, sbdk,	  superbik,	hunchbkd, sbdk,		0,        ROT90, "Century Electronics", "Super Bike (DK conversion)", GAME_SUPPORTS_SAVE )
+GAME( 1984, sbdk,     superbik,	hunchbkd, sbdk,	    0,        ROT90, "Century Electronics", "Super Bike (DK conversion)", GAME_SUPPORTS_SAVE )
 
 GAME( 1984, herodk,   hero,     hunchbkd, herodk,   herodk,   ROT90, "Seatongrove Ltd (Crown license)", "Hero in the Castle of Doom (DK conversion)", GAME_SUPPORTS_SAVE )
 GAME( 1984, herodku,  hero,     hunchbkd, herodk,   0,        ROT90, "Seatongrove Ltd (Crown license)", "Hero in the Castle of Doom (DK conversion not encrypted)", GAME_SUPPORTS_SAVE )
@@ -2888,12 +3099,15 @@ GAME( 1984, herodku,  hero,     hunchbkd, herodk,   0,        ROT90, "Seatongrov
 GAME( 1984, 8ballact, 0,    	eightact, 8ballact, 0,        ROT90, "Seatongrove Ltd (Magic Eletronics USA licence)", "Eight Ball Action (DK conversion)", GAME_SUPPORTS_SAVE )
 GAME( 1984, 8ballat2, 8ballact,	eightact, 8ballact, 0,        ROT90, "Seatongrove Ltd (Magic Eletronics USA licence)", "Eight Ball Action (DKJr conversion)", GAME_SUPPORTS_SAVE )
 
-GAME( 1984, shootgal, 0,		shootgal, hunchbkd, 0,		  ROT180, "Seatongrove Ltd (Zaccaria licence)", "Shooting Gallery", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
+GAME( 1984, shootgal, 0,        shootgal, hunchbkd, 0,	      ROT180, "Seatongrove Ltd (Zaccaria licence)", "Shooting Gallery", GAME_NOT_WORKING | GAME_SUPPORTS_SAVE )
 
 GAME( 1983, pestplce, mario,	pestplce, pestplce, 0,        ROT180, "bootleg", "Pest Place", GAME_WRONG_COLORS | GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
 
-GAME( 1985, spclforc, 0,		spclforc, spclforc, 0,        ROT90, "Senko Industries (Magic Eletronics Inc. licence)", "Special Forces", GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
-GAME( 1985, spcfrcii, 0,		spclforc, spclforc, 0,        ROT90, "Senko Industries (Magic Eletronics Inc. licence)", "Special Forces II", GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1985, spclforc, 0,        spclforc, spclforc, 0,        ROT90, "Senko Industries (Magic Eletronics Inc. licence)", "Special Forces", GAME_SUPPORTS_SAVE )
+GAME( 1985, spcfrcii, 0,	spclforc, spclforc, 0,        ROT90, "Senko Industries (Magic Eletronics Inc. licence)", "Special Forces II", GAME_SUPPORTS_SAVE )
 
 GAME( 1984, drakton,  0,        drakton,  drakton,  drakton,  ROT90, "Epos Corporation", "Drakton", GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
 GAME( 1985, strtheat, 0,        strtheat, strtheat, strtheat, ROT90, "Epos Corporation", "Street Heat - Cardinal Amusements", GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
+
+/* Braze Technologies bootleg hardware */
+GAME( 2015, dkongx,   dkong,    braze,    dkong,    dkongx,   ROT90,  "bootleg",  "Donkey Kong II - Jumpman Returns (V1.2) (hack)", 0 )

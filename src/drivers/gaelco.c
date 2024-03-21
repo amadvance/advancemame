@@ -1112,7 +1112,7 @@ static MACHINE_DRIVER_START( squash )
 	MDRV_CPU_PROGRAM_MAP(squash_readmem,squash_writemem)
 	MDRV_CPU_VBLANK_INT(irq6_line_hold,1)
 
-	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_FRAMES_PER_SECOND(57.42)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 	MDRV_INTERLEAVE(10)
 
@@ -1278,7 +1278,7 @@ static MACHINE_DRIVER_START( thoop )
 	MDRV_CPU_PROGRAM_MAP(squash_readmem,thoop_writemem)
 	MDRV_CPU_VBLANK_INT(irq6_line_hold,1)
 
-	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_FRAMES_PER_SECOND(57.42)
 	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
 	MDRV_INTERLEAVE(10)
 
@@ -1290,7 +1290,7 @@ static MACHINE_DRIVER_START( thoop )
 	MDRV_PALETTE_LENGTH(1024)
 
 	MDRV_VIDEO_START(maniacsq)
-	MDRV_VIDEO_UPDATE(maniacsq)
+	MDRV_VIDEO_UPDATE(bigkarnk)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
@@ -1333,5 +1333,5 @@ ROM_END
 GAME( 1991, bigkarnk, 0,        bigkarnk, bigkarnk, 0, ROT0, "Gaelco", "Big Karnak", 0 )
 GAME( 1995, biomtoy,  0,        maniacsq, biomtoy,  0, ROT0, "Gaelco", "Biomechanical Toy (unprotected)", 0 )
 GAME( 1996, maniacsp, maniacsq, maniacsq, maniacsq, 0, ROT0, "Gaelco", "Maniac Square (prototype)", 0 )
-GAME( 1992, squash,   0,		squash,   squash,   0, ROT0, "Gaelco", "Squash (Ver. 1.0)", GAME_IMPERFECT_GRAPHICS )  // problems with decryption + prioirites
-GAME( 1992, thoop,    0,		thoop,    thoop,    0, ROT0, "Gaelco", "Thunder Hoop (Ver. 1)", 0 )
+GAME( 1992, squash,   0,        squash,   squash,   0, ROT0, "Gaelco", "Squash (Ver. 1.0)", GAME_IMPERFECT_GRAPHICS )  // problems with decryption + prioirites
+GAME( 1992, thoop,    0,	thoop,    thoop,    0, ROT0, "Gaelco", "Thunder Hoop (Ver. 1)", 0 )

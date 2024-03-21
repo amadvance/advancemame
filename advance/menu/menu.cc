@@ -1713,6 +1713,10 @@ static int run_menu_user(config_state& rs, bool flipxy, menu_array& gc, sort_ite
 		case EVENT_CALIBRATION:
 			done = true;
 			break;
+		case EVENT_HELP:
+			if (rs.ui_help != "none")
+				done = true;
+			break;
 		}
 		if (!rs.lock_effective) {
 			switch (key) {

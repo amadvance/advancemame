@@ -924,6 +924,7 @@ const game_driver * const drivers[] =
 	DRIVER( spnchout )	/* (c) 1984 */
 	DRIVER( spnchotj )	/* (c) 1984 (Japan) */
 	DRIVER( armwrest )	/* (c) 1985 */
+	DRIVER( dkongx )	/* (c) 2015 Braze Tech Upgrade Kit */
 
 	/* Nintendo Playchoice 10 games */
 	DRIVER( playch10 )
@@ -1999,6 +2000,7 @@ const game_driver * const drivers[] =
 	DRIVER( tekipaki )	/* TP-020 (c) 1991 Toaplan */
 	DRIVER( ghox )		/* TP-021 (c) 1991 Toaplan */
 	DRIVER( dogyuun )	/* TP-022 (c) 1992 Toaplan */
+	DRIVER( dogyuunto )	/* TP-022 (c) 1992 Toaplan */
 	DRIVER( kbash )		/* TP-023 (c) 1993 Toaplan */
 	DRIVER( kbash2 )	/* bootleg */
 	DRIVER( truxton2 )	/* TP-024 (c) 1992 Toaplan */
@@ -3169,6 +3171,8 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( eswatu )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( eswatj )	/* (c) 1989 (FD1094, decrypted) */
 	DRIVER( exctleag )	/* (protected) */
+	DRIVER( fantzn2x )      /* (c) 2008 (Sega, M2) */
+	DRIVER( fantzn2xp )     /* (c) 2008 (Sega, M2) */
 	DRIVER( fpoint )	/* (c) 1989 (Japan, FD1094, decrypted) */
 	DRIVER( fpoint1 )	/* (c) 1989 (Japan, FD1094, decrypted) */
 	DRIVER( goldnaxe )	/* (c) 1989 (8751) */
@@ -3229,7 +3233,8 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( wb3bbl )	/* BOOTLEG */
 
 	/* System 18 */
-	DRIVER( astorm )	/* (c) 1990 (protected 2 Players) */
+	DRIVER( aquario )       /* (c) 2021 Sega / Westone Unreleased Prototype */
+	DRIVER( astorm )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( astorm3 )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( astormu )	/* (c) 1990 (FD1094, decrypted) */
 	DRIVER( astormj )	/* (c) 1990 (FD1094, decrypted) */
@@ -3245,6 +3250,7 @@ DokiDoki Penguin Land *not confirmed
 	DRIVER( cltchitr )	/* (c) 1991 (FD1094, decrypted) */
 	DRIVER( cltchtrj )	/* (c) 1991 (FD1094, decrypted) */
 	DRIVER( desertbr )	/* (c) 1993 (FD1094, decrypted) */
+	DRIVER( hamaway )       /* (c) 1991 Sega / Santos Unreleased Prototype */
 	DRIVER( mwalk )		/* (c) 1990 (FD1094+8751, decrypted) */
 	DRIVER( mwalku )	/* (c) 1990 (FD1094+8751, decrypted) */
 	DRIVER( mwalkj )	/* (c) 1990 (FD1094+8751, decrypted) */
@@ -3588,6 +3594,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tfrceacb )	/* bootleg */
 	DRIVER( twinsqua )	/* (c) 1991 Sega */
 	DRIVER( ribbit )	/* (c) 1991 Sega */
+        DRIVER( ssonicbr )      /* (c) 1992 Sega (Unreleased) */
+        DRIVER( ooparts )       /* (c) 1992 Sega (Unreleased) */
 	DRIVER( tantr )		/* (c) 1992 Sega */
 	DRIVER( tantrkor )	/* (c) 1992 Sega */
 	DRIVER( tantrbl )	/* bootleg */
@@ -3605,6 +3613,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( puyopuy2 )	/* (c) 1994 Compile + Sega license */
 	DRIVER( potopoto )	/* (c) 1994 Sega */
 	DRIVER( zunkyou )	/* (c) 1994 Sega */
+	DRIVER( headonch )      /* (c) 1994 Sega (Unreleased) */
 
 	/* Atlus Print Club 'Games' C-2 board */
 	DRIVER( pclubj )
@@ -4898,6 +4907,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( offtwall )	/* 136090           (c) 1991 */
 	DRIVER( offtwalc )	/* 136090           (c) 1991 */
 	DRIVER( guardian )	/* 136092           (c) 1992 */
+	DRIVER( dangerex )	/* (proto)	    (c) 1992 */
 	DRIVER( relief )	/* 136093           (c) 1992 */
 	DRIVER( relief2 )	/* 136093           (c) 1992 */
 	DRIVER( arcadecl )	/* (proto)          (c) 1992 */

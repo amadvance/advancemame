@@ -304,6 +304,7 @@ struct __attribute__((aligned(8))) video_pipeline_struct {
 	struct video_stage_horz_struct stage_map[VIDEO_STAGE_MAX]; /**< Horizontal stages. */
 	struct video_stage_vert_struct stage_vert; /**< Vertical stage. */
 	unsigned stage_mac; /**< Number of horizontal stages. */
+	void* mark; /**< Marker for buffer allocation */
 	struct video_pipeline_target_struct target; /**< Target of the pipeline. */
 };
 

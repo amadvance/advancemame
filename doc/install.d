@@ -28,72 +28,87 @@ System Requirements
 	and CRT TVs, is available only from the Linux console, using
 	the Linux Framebuffer.
 
-  Raspberry Pi
-	With a Raspberry Pi you have the same support you have in Linux,
-	plus some specific Raspberry functionality, like the accelerated
+  Raspberry Pi 3
+	With a Raspberry Pi 3, you have the same support as in Linux, along
+	with specific Raspberry functionality, such as the accelerated
 	Framebuffer.
 
-	With a Raspberry, it's recommended run the Advance program directly
-	from Linux Console because using the Linux Framebuffer you also get
-	hardware acceleration that is missing when run from the X Window system
-	using the SDL library.
+	For optimal performance with a Raspberry Pi 3, it's recommended to run
+	the Advance programs directly from the Linux Console. Utilizing the
+	Linux Framebuffer provides hardware acceleration, which is not
+	available when running it from the X Window system using the SDL
+	library.
 
-	This is the best operating mode when using a modern monitor or flat TV,
-	and it doesn't need any configuration step. It just works.
+	This operating mode is ideal for use with modern monitors or
+	flat-screen TVs and requires no additional configuration steps; it
+	simply works.
 
-	With a Raspberry Pi 3 you can expect to run most of the games at
-	full speed, with vsync enabled, even when using the Scale2x effect.
+	On a Raspberry Pi 3, you can expect most games to run at full speed
+	with vsync enabled, even when applying the Scale2x effect.
 
-	If instead you want to use an old CRT Arcade or TV screen, you can
-	configure the Advance programs to generate modelines customized
-	for your video hardware, following the 'Video Setup' chapter.
+	If, however, you prefer to use an old Arcade CRT or TV screen, you can
+	configure the Advance programs to generate custom modelines for your
+	video hardware, following the instructions in the 'Video Setup'
+	chapter.
+
+	Users have reported achieving optimal results with Arcade CRT by using
+	the legacy Raspbian stretch, as opposed to the more recent Raspbian
+	buster and other versions. You can obtain the legacy Raspbian stretch
+	from the following link:
+
+		:http://downloads.raspberrypi.org/raspbian/images/raspbian-2019-04-09/
+
+	Additionally, you can download packages by editing the /etc/apt/sources.list
+	file and adding the following line:
+
+		:deb http://legacy.raspbian.org/raspbian/ stretch main contrib non-free rpi
 
     HDMI Port
-	To use the programmable modelines with the Raspberry HDMI port, you
-	need a kind of HDMI->VGA or HDMI->SCART converter to connect it to a
-	CRT monitor.
+	To utilize programmable modelines with the Raspberry HDMI port, you'll
+	need an HDMI->VGA or HDMI->SCART converter to connect it to a CRT
+	monitor.
 
-	You don't need any special option in your '/boot/config.txt', just the
-	options needed to start the Raspberry with your video hardware,
-	and be able to enter commands.
+	There's no need for any special options in your '/boot/config.txt';
+	include only the options required to start the Raspberry with your
+	video hardware and enable command entry.
 
-	Whatever hdmi_mode you select, the Advance programs will use mode 87
-	group 2, restoring your selected original mode when finished.
+	Regardless of the hdmi_mode you select, the Advance programs will use
+	mode 87, group 2, and restore your initially selected mode when
+	finished.
 
     DPI Port
-	To use the programmable modelines with the Raspberry DPI port you
-	need a GPIO add-on board like the Gert's VGA 666.
+	To use programmable modelines with the Raspberry DPI port, you'll need
+	a GPIO add-on board such as Gert's VGA 666.
 
-	The Raspberry Pi has strong limitations on the lower range of pixel
-	clocks when using the DPI/GPIO interface, that will affect your
-	ability to control low frequency monitors, like Arcade screens.
+	The Raspberry Pi imposes limitations on the lower range of pixel
+	clocks when using the DPI/GPIO interface, impacting your ability to
+	control low-frequency monitors like Arcade screens.
 
-	The only allowed pixel clocks suitable for low resolutions
-	are 4.8 MHz, 6.4 MHz, 9.6MHz and 19.2 MHz.
-	You can instead choose any pixel clock greater than 31.25 MHz.
+	Allowed pixel clocks suitable for low resolutions are 4.8 MHz, 6.4
+	MHz, 9.6 MHz, and 19.2 MHz. Alternatively, you can choose any pixel
+	clock greater than 31.25 MHz.
 
-	To overcome this problematic, AdvanceMAME transparently increase
-	the modeline horizontal size, until it reaches the 31.25 MHz pixel clock.
-	Don't be surprised if a modeline that works in AdvanceMAME, doesn't
-	work when setting manually the timings in other ways.
+	To address this limitation, AdvanceMAME transparently increases the
+	modeline horizontal size until it reaches the 31.25 MHz pixel clock.
+	If a modeline works in AdvanceMAME, it might not work when manually
+	setting timings in other ways.
 
-	To have the programmable modes working, you have to start the
-	Raspberry with the custom mode 87 group 2 in '/boot/config.txt'.
+	To enable programmable modes, start the Raspberry with custom mode 87
+	group 2 in '/boot/config.txt'. For example, with an Arcade Monitor:
 
-	For example, with an Arcade Monitor, you can use:
 
 		:dpi_group=2
 		:dpi_mode=87
 		:hdmi_timings=320 1 20 29 35 224 1 10 14 16 0 0 0 60 0 6400000 1
 
-	With a standard SVGA Monitor, you can use:
+	Or with a standard SVGA Monitor:
 
 		:dpi_group=2
 		:dpi_mode=87
 		:hdmi_cvt=1024 768 60
 
-	Usually you have to also add other options, for example with a Raspberry
-	Pi 3 and a Gert's VGA 666, you need also:
+	You may also need additional options, such as with a Raspberry Pi 3
+	and Gert's VGA 666:
 
 		:device_tree=bcm2710-rpi-3-b.dtb
 		:dtparam=i2c_arm=off
@@ -107,6 +122,22 @@ System Requirements
 		:force_pwm_open=0
 		:dtparam=audio=on
 		:gpu_mem=128
+
+  Raspberry Pi 4
+	The Raspberry Pi 4 features a new video driver that, unfortunately, no
+	longer supports direct programming of the Linux FrameBuffer.
+
+	To address this issue, you will need to edit the /boot/config.txt file
+	and comment out the 'dtoverlay=vc4-kms-v3d' line. This action
+	activates the legacy video driver that still maintains support for the
+	Linux FrameBuffer (tested with Raspbian bullseye).
+
+	However, it's important to note that this support is sufficient for an
+	LCD screen but potentially inadequate for a real Arcade monitor.
+
+	Nevertheless, with the new video driver, it is always possible to run
+	within the X Window system using the SDL library, albeit not at the
+	optimal speed.
 
   Windows/Mac OS X
 	In Windows and Mac OS X, the Advance programs use the SDL library

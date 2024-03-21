@@ -645,7 +645,7 @@ void run_clone(config_state& rs)
 // ------------------------------------------------------------------------
 // Calib menu
 
-#define CALIB_CHOICE_DX (40 * int_font_dx_get(menu))
+#define CALIB_CHOICE_DX (44 * int_font_dx_get(menu))
 #define CALIB_CHOICE_DY (20 * int_font_dy_get(menu) + int_font_dy_get(bar))
 #define CALIB_CHOICE_X (int_dx_get() - CALIB_CHOICE_DX) / 2
 #define CALIB_CHOICE_Y (int_dy_get() - CALIB_CHOICE_DY) / 2
@@ -653,10 +653,14 @@ void run_clone(config_state& rs)
 void run_calib(config_state& rs)
 {
 	int border = int_font_dx_get(bar) / 2;
+	target_clock_t start;
+	bool was_processing = false;
+	bool now_waiting = false;
 
 	int_idle_2_enable(true, 1);
 	event_unassigned(true);
 
+	start = target_clock();
 	bool done = false;
 	while (!done) {
 		int x = CALIB_CHOICE_X;
@@ -672,7 +676,7 @@ void run_calib(config_state& rs)
 		int_box(x - 2 * border, y - border, dx + 4 * border, dy + border * 2, 1, COLOR_CHOICE_NORMAL.foreground);
 		int_clear(x - 2 * border + 1, y - border + 1, dx + 4 * border - 2, dy + border * 2 - 2, COLOR_CHOICE_NORMAL.background);
 
-		const char* d_title = "Joystick Configuration";
+		const char* d_title = "Gamepad Configuration";
 		int w_title = int_font_dx_get(bar, d_title);
 
 		int_put(bar, xc - w_title / 2, y, dx, d_title, COLOR_CHOICE_TITLE);
@@ -684,6 +688,10 @@ void run_calib(config_state& rs)
 		int f = open("/tmp/blue.msg", O_RDONLY);
 		if (f >= 0) {
 			char msg[4096];
+			char c;
+			int p;
+			char* show;
+			const char* state;
 			int ret = read(f, msg, sizeof(msg) - 1);
 			if (ret > 0) {
 				msg[ret] = 0;
@@ -692,12 +700,22 @@ void run_calib(config_state& rs)
 			}
 			close(f);
 
-			char* token = strtok(msg, "\n");
-			while (token) {
+			p = 0;
+			state = stoken(&c, &p, msg, "\n", "");
+			sskip(&p, msg, "\n");
+			show = &msg[p];
+
+			if (strcmp(state, "WORKING") == 0)
+				was_processing = true;
+			now_waiting = strcmp(state, "WAITING") == 0;
+
+			p = 0;
+			const char* token = stoken(&c, &p, show, "\n", "");
+			while (*token) {
 				int_put_filled_center(menu, x, y, dx, token, COLOR_CHOICE_NORMAL);
 				y += int_font_dy_get(menu);
 				++bt_line;
-				token = strtok(NULL, "\n");
+				token = stoken(&c, &p, show, "\n", "");
 			}
 		}
 
@@ -761,7 +779,7 @@ void run_calib(config_state& rs)
 		for (; j < 4; ++j) {
 			ostringstream os;
 
-			os << "Joystick " << j + 1 << " - <none>";
+			os << "Player " << j + 1 << " - <none>";
 
 			int_put(menu, x, y, dx, os.str().c_str(), COLOR_CHOICE_TITLE);
 			y += int_font_dy_get(menu);
@@ -783,14 +801,32 @@ void run_calib(config_state& rs)
 				break;
 		}
 
-		if (joystickb_count_get() == 0) {
-			const char* d_exit = "Connect one joystick to continue";
-			int w_exit = int_font_dx_get(menu, d_exit);
+		target_clock_t now = target_clock();
 
-			int_put(menu, xc - w_exit / 2, y, w_exit, d_exit, COLOR_CHOICE_NORMAL);
+		if (joystickb_count_get() == 0) {
+			ostringstream os;
+
+			string command = rs.ui_autocalib_reset;
+			if (command.length() != 0 && now_waiting && !was_processing) {
+				target_clock_t elapsed = (now - start) / 1000000;
+
+				if (elapsed < 60) {
+					os << "Connect a gamepad in " << 120 - elapsed << " seconds" ;
+				} else if (elapsed < 120) {
+					os << "Going to unpair all gamepads in " << 120 - elapsed << " seconds" ;
+				} else {
+					system(command.c_str());
+					start = target_clock();
+				}
+			} else {
+				os << "Connect a gamepad to continue" ;
+			}
+
+			int w_exit = int_font_dx_get(menu, os.str().c_str());
+			int_put(menu, xc - w_exit / 2, y, w_exit, os.str().c_str(), COLOR_CHOICE_NORMAL);
 			y += int_font_dy_get(menu);
 		} else {
-			const char* d_exit = "Press any button to continue";
+			const char* d_exit = "Connect another gamepad or press any button to continue";
 			int w_exit = int_font_dx_get(menu, d_exit);
 
 			int_put(menu, xc - w_exit / 2, y, w_exit, d_exit, COLOR_CHOICE_NORMAL);

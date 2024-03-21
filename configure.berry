@@ -1,0 +1,1 @@
+CFLAGS="-O3 -march=armv8-a -mtune=cortex-a53 -mfpu=neon-fp-armv8 -mfloat-abi=hard -funsafe-math-optimizations -fsigned-char" ./configure --prefix=/opt/advance --disable-sdl --disable-sdl2

@@ -350,6 +350,7 @@ struct advance_ui_state_context {
 	adv_bool ui_direct_text_flag; /**< Direct text on screen flag. */
 	char ui_direct_buffer[256]; /**< Direct text on screen message. */
 	adv_bool ui_direct_slow_flag; /**< Direct slow tag on screen flag. */
+	adv_bool ui_direct_frameskip_flag; /**< Direct frameskip tag on screen flag. */
 	adv_bool ui_direct_fast_flag; /**< Direct fast tag on screen flag. */
 
 	adv_bitmap* help_image; /**< Help image. */
@@ -370,6 +371,7 @@ void advance_ui_message_va(struct advance_ui_context* context, const char* text,
 void advance_ui_message(struct advance_ui_context* context, const char* text, ...) __attribute__((format(printf, 2, 3)));
 void advance_ui_direct_text(struct advance_ui_context* context, const char* text);
 void advance_ui_direct_slow(struct advance_ui_context* context, int flag);
+void advance_ui_direct_frameskip(struct advance_ui_context* context, int flag);
 void advance_ui_direct_fast(struct advance_ui_context* context, int flag);
 void advance_ui_help(struct advance_ui_context* context);
 
@@ -677,6 +679,7 @@ struct advance_video_config_context {
 	unsigned game_orientation; /**< Game orientation mask. Mask of ORIENTATION_*. */
 	int combine; /**< Combine effect. Mask of COMBINE_*. */
 	int combine_max; /**< Maximum combine effect. Always starting with COMBINE_XBR and then decreasing at runtime. */
+	int combine_write; /**< Combine write effect */
 	int rgb_effect; /**< Special additional effect. Mask of EFFECT_*. */
 	int interlace_effect; /**< Special additional interlace effect. Mask of EFFECT_*. */
 	double turbo_speed_factor; /**< Speed of the turbo function. Multiplicative factor. */
@@ -718,7 +721,6 @@ struct advance_video_config_context {
 #define AUDIOVIDEO_MEASURE_MAX 17
 
 #define PIPELINE_MEASURE_MAX 13
-#define PIPELINE_BLIT_MAX 2 /**< Number of pipelines to create. 0 for buffered, 1 for direct write. */
 
 /** State for the video part. */
 struct advance_video_state_context {
@@ -813,6 +815,9 @@ struct advance_video_state_context {
 	unsigned thread_state_led; /**< Thread game led to set. */
 	unsigned thread_state_input; /**< Thread input to process. */
 	adv_bool thread_state_skip_flag; /**< Thread frame skip_flag to use. */
+	adv_mode* thread_arg_mode; /**< Argument to pass */
+	adv_bool thread_arg_bool; /**< Argument to pass */
+	adv_error thread_arg_result; /**< Argument to pass */
 #endif
 
 	unsigned frame_counter; /**< Counter of number of frames. */
@@ -842,7 +847,7 @@ struct advance_video_state_context {
 	int blit_src_dw; /**< Source row step of the game bitmap. */
 	int blit_src_offset; /**< Pointer at the first pixel of the game bitmap. */
 	adv_bool blit_pipeline_flag; /**< !=0 if blit_pipeline is computed. */
-	struct video_pipeline_struct blit_pipeline[PIPELINE_BLIT_MAX]; /**< Put pipeline to video. */
+	struct video_pipeline_struct blit_pipeline; /**< Put pipeline to video. */
 	unsigned blit_pipeline_index; /**< Pipeline to use. */
 
 	/* Buffer info */
@@ -871,12 +876,6 @@ struct advance_video_state_context {
 
 	/** Basic increment of number of pixel for mantaining the alignement. */
 	unsigned game_visible_pos_x_increment;
-
-	adv_bool pipeline_measure_flag; /**< !=0 if the time measure is active. */
-	double pipeline_measure_map[PIPELINE_BLIT_MAX][PIPELINE_MEASURE_MAX]; /**< Single measure. */
-	double pipeline_measure_result[PIPELINE_BLIT_MAX]; /**< Selected measure. */
-	unsigned pipeline_measure_i;
-	unsigned pipeline_measure_j;
 
 	double pipeline_timing_map[PIPELINE_MEASURE_MAX]; /**< Continuous measure of pipeline timing. */
 	unsigned pipeline_timing_i; /**< Index of the measure. */
@@ -942,6 +941,14 @@ adv_error advance_video_mode_init(struct advance_video_context* context, struct 
 void advance_video_mode_done(struct advance_video_context* context);
 adv_error advance_video_mode_update(struct advance_video_context* context);
 
+#define THREAD_FRAME 1
+#define THREAD_INIT 2
+#define THREAD_DONE 3
+#define THREAD_UPDATE 4
+
+void advance_thread_vidmode_done(struct advance_video_context* context, adv_bool restore);
+adv_error advance_thread_vidmode_update(struct advance_video_context* context, adv_mode* mode, adv_bool ignore_input);
+void advance_video_thread_signal(struct advance_video_context* context, int ready);
 void advance_video_thread_wait(struct advance_video_context* context);
 void advance_video_reconfigure(struct advance_video_context* context, struct advance_video_config_context* config);
 

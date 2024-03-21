@@ -163,9 +163,9 @@ AC_ARG_ENABLE(
 
 if test $ac_auto_cflags = yes; then
 	if test $ac_enable_perf = yes ; then
-		CFLAGS="-O1 -pg -Wall -Wno-sign-compare -Wno-unused"
+		CFLAGS="-O1 -pg -Wall -Wno-sign-compare -Wno-unused -Wno-format-truncation"
 	elif test $ac_enable_debug = yes ; then
-		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused"
+		CFLAGS="-O0 -g -Wall -Wno-sign-compare -Wno-unused -Wno-format-truncation"
 	else
 		CFLAGS=""
 		dnl O3 generally gives better performance than O2 in both Intel and ARM
@@ -180,7 +180,6 @@ if test $ac_auto_cflags = yes; then
 			AC_CHECK_CC_OPT([-march=armv8-a+crc], [CFLAGS="$CFLAGS -march=armv8-a+crc"], [])
 			AC_CHECK_CC_OPT([-mtune=cortex-a72], [CFLAGS="$CFLAGS -mtune=cortex-a72"], [])
 			AC_CHECK_CC_OPT([-fomit-frame-pointer], [CFLAGS="$CFLAGS -fomit-frame-pointer"], [])
-			AC_CHECK_CC_OPT([-funsafe-math-optimizations], [CFLAGS="$CFLAGS -funsafe-math-optimizations"], [])
 		elif $GREP a02082\\\|a22082 /proc/cpuinfo >/dev/null 2>&1; then
 			dnl Raspberry Pi 3
 			dnl GCC 4 has problems with -march=native in Raspbian,
@@ -190,7 +189,6 @@ if test $ac_auto_cflags = yes; then
 			AC_CHECK_CC_OPT([-mtune=cortex-a53], [CFLAGS="$CFLAGS -mtune=cortex-a53"], [])
 			AC_CHECK_CC_OPT([-mfloat-abi=hard], [CFLAGS="$CFLAGS -mfloat-abi=hard"], [])
 			AC_CHECK_CC_OPT([-mfpu=crypto-neon-fp-armv8], [CFLAGS="$CFLAGS -mfpu=crypto-neon-fp-armv8"], [])
-			AC_CHECK_CC_OPT([-funsafe-math-optimizations], [CFLAGS="$CFLAGS -funsafe-math-optimizations"], [])
 		elif $GREP a01040\\\|a01041\\\|a21041\\\|a22042 /proc/cpuinfo >/dev/null 2>&1; then
 			dnl Raspberry Pi 2
 			AC_CHECK_CC_OPT([-march=armv7-a], [CFLAGS="$CFLAGS -march=armv7-a"], [])
@@ -211,10 +209,14 @@ if test $ac_auto_cflags = yes; then
 		AC_CHECK_CC_OPT([-fsigned-char], [CFLAGS="$CFLAGS -fsigned-char"], [])
 		dnl We are not interested in stack protection
 		AC_CHECK_CC_OPT([-fno-stack-protector], [CFLAGS="$CFLAGS -fno-stack-protector"], [])
+		dnl Generic better performance
+		AC_CHECK_CC_OPT([-funsafe-math-optimizations], [CFLAGS="$CFLAGS -funsafe-math-optimizations"], [])
+
 		dnl Some useful warnings
 		AC_CHECK_CC_OPT([-Wall], [CFLAGS="$CFLAGS -Wall"], [])
 		AC_CHECK_CC_OPT([-Wno-sign-compare], [CFLAGS="$CFLAGS -Wno-sign-compare"], [])
 		AC_CHECK_CC_OPT([-Wno-unused], [CFLAGS="$CFLAGS -Wno-unused"], [])
+		AC_CHECK_CC_OPT([-Wno-format-truncation], [CFLAGS="$CFLAGS -Wno-format-truncation"], [])
 	fi
 	if test ! -z $ac_host_cflags; then
 		CFLAGS="$ac_host_cflags $CFLAGS"
@@ -240,6 +242,11 @@ if test $ac_auto_ldflags = yes ; then
 		LDFLAGS="-m32 $LDFLAGS"
 	fi
 fi
+
+dnl Enable OpenMP support
+AC_OPENMP
+CFLAGS="$CFLAGS $OPENMP_CFLAGS"
+LDFLAGS="$LDFLAGS $OPENMP_CFLAGS"
 
 AC_SUBST([CONF_CFLAGS_OPT],[$CFLAGS])
 AC_SUBST([CONF_LDFLAGS],[$LDFLAGS])
@@ -360,7 +367,7 @@ if test $ac_system = unix ; then
 		],[ac_func_inout=yes],[ac_func_inout=no])
 	AC_MSG_RESULT([$ac_func_inout])
 	if test $ac_func_inout = yes; then
-		AC_DEFINE([HAVE_INOUT],[1],[Define to 1 if you have the `inb' and `outb' functions.])
+		AC_DEFINE([HAVE_INOUT],[1],[Define to 1 if you have the inb and outb functions.])
 	fi
 fi
 
@@ -542,11 +549,16 @@ fi
 AC_SUBST([CONF_LIB_FB],[$ac_lib_fb])
 
 dnl Checks for Raspberry Pi VideoCore
+if test -d /opt/vc; then
+	ac_lib_vc_prefix_default="/opt/vc"
+else
+	ac_lib_vc_prefix_default="/usr"
+fi
 AC_ARG_WITH(
 	[vc-prefix],
 	AC_HELP_STRING([--with-vc-prefix=DIR],[Prefix where the Raspberry Pi VideoCore is installed (optional)]),
 	[ac_lib_vc_prefix="$withval"],
-	[ac_lib_vc_prefix="/opt/vc"]
+	[ac_lib_vc_prefix="$ac_lib_vc_prefix_default"]
 )
 AC_ARG_ENABLE(
 	[vc],

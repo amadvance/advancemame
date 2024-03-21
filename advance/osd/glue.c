@@ -412,6 +412,65 @@ unsigned mame_game_players(const mame_game* game)
 }
 
 /**
+ * Return the game number of buttons.
+ * \return Number of buttons of the game.
+ */
+unsigned mame_game_buttons(const mame_game* game)
+{
+	const game_driver* driver = (const game_driver*)game;
+	input_port_entry* input;
+	int nbutton;
+
+	/* memory management for input_port_allocate */
+	begin_resource_tracking();
+
+	/* create the input port list */
+	input = input_port_allocate(driver->construct_ipt, NULL);
+
+	nbutton = 0;
+	while (input->type != IPT_END) {
+		switch (input->type) {
+		case IPT_BUTTON1:
+			if (nbutton<1) nbutton = 1;
+			break;
+		case IPT_BUTTON2:
+			if (nbutton<2) nbutton = 2;
+			break;
+		case IPT_BUTTON3:
+			if (nbutton<3) nbutton = 3;
+			break;
+		case IPT_BUTTON4:
+			if (nbutton<4) nbutton = 4;
+			break;
+		case IPT_BUTTON5:
+			if (nbutton<5) nbutton = 5;
+			break;
+		case IPT_BUTTON6:
+			if (nbutton<6) nbutton = 6;
+			break;
+		case IPT_BUTTON7:
+			if (nbutton<7) nbutton = 7;
+			break;
+		case IPT_BUTTON8:
+			if (nbutton<8) nbutton = 8;
+			break;
+		case IPT_BUTTON9:
+			if (nbutton<9) nbutton = 9;
+			break;
+		case IPT_BUTTON10:
+			if (nbutton<10) nbutton = 10;
+			break;
+		}
+		++input;
+	}
+
+	/* memory management for input_port_allocate */
+	end_resource_tracking();
+
+	return nbutton;
+}
+
+/**
  * Return the game control string.
  * \return A string like "joy4way" or 0 if unknown.
  */
@@ -2595,11 +2654,17 @@ static int on_exit_menu(int selected)
 	int sel;
 	int total;
 
+	struct advance_input_context* context = &CONTEXT.input;
+
 	sel = selected;
 
 	total = 0;
 
+#ifdef MESS
 	exit_menu[total].text = "Continue";
+#else
+	exit_menu[total].text = "Insert Coin";
+#endif
 	exit_menu[total].subtext = 0;
 	exit_menu[total].flags = 0;
 	++total;
@@ -2635,12 +2700,19 @@ static int on_exit_menu(int selected)
 	}
 
 	if (input_ui_pressed(IPT_UI_SELECT)) {
+		int key0 = 0;
 		switch (sel) {
-		case 0: sel = -1; break;
+		case 0: key0 = KEYB_5; sel = -1; break;
 		case 1: sel = -2; break;
 		case 2: sel = -3; break;
 		case 3: sel = -4; break;
 		case 4: sel = -5; break;
+		}
+		if (key0 != 0) {
+			sel = -1;
+#ifndef MESS
+			advance_input_simulate_key(context, key0, 0, 10);
+#endif
 		}
 	}
 

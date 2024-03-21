@@ -74,11 +74,6 @@ int run_sub(config_state& rs, bool silent)
 			}
 
 			switch (key) {
-			case EVENT_HELP:
-				// replay the sound and clip
-				silent = false;
-				run_help(rs);
-				break;
 			case EVENT_GROUP:
 				// replay the sound and clip
 				silent = false;
@@ -137,6 +132,11 @@ int run_sub(config_state& rs, bool silent)
 		}
 
 		switch (key) {
+		case EVENT_HELP:
+			// replay the sound and clip
+			silent = false;
+			run_help(rs);
+			break;
 		case EVENT_LOCK:
 			rs.lock_effective = !rs.lock_effective;
 			break;
@@ -699,7 +699,7 @@ int os_main(int argc, char* argv[])
 	const char* section_map[1];
 	char cfg_buffer[512];
 
-	srand(time(0));
+	srand(target_clock());
 
 	config_context = conf_init();
 
@@ -892,7 +892,7 @@ done_init:
 
 	conf_done(config_context);
 
-	return EXIT_SUCCESS;
+	exit(EXIT_SUCCESS);
 
 err_inner_init:
 	os_inner_done();
@@ -903,6 +903,6 @@ err_init:
 
 err_conf:
 	conf_done(config_context);
-	return EXIT_FAILURE;
+	exit(EXIT_FAILURE);
 }
 

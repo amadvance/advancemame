@@ -5,6 +5,21 @@ Name
 	is based on MAME 0.106, and it needs a romset aligned to
 	such MAME version.
 
+AdvanceMAME/MENU 3.10
+	This version includes numerous game improvements contributed by
+	various individuals. For detailed information, please refer to the
+	History file.
+
+	Additionally, a crash when showing the onscreen menu with NVidia cards
+	has been fixed.
+
+	Moreover, this release introduces partial support for the Raspberry Pi
+	4. More details can be found in the Install document.
+
+	However, it's important to note that this support may not be
+	sufficient for using a real Arcade monitor. As of now, the Raspberry
+	Pi 3 remains the recommended and preferred option for this purpose.
+
 AdvanceMAME/MENU 3.8
 	Many improvements targeted to be able to build a completely
 	standalone game console using Raspberry Pi hardware.
@@ -323,9 +338,9 @@ AdvanceMAME 0.62.0 / AdvanceMESS 0.61.2
 	Simply run "svgawin /u" and "svgawin /l".
 
 AdvanceMAME 0.61.4 / AdvanceMESS 0.61.1
-	This is the first Windows NT/2000/XP version able to directly 
-	program your video board. This puts the Windows version at the same level 
-	of the other Linux and DOS versions. It's very experimental, and tested only 
+	This is the first Windows NT/2000/XP version able to directly
+	program your video board. This puts the Windows version at the same level
+	of the other Linux and DOS versions. It's very experimental, and tested only
 	with a GeForce 2. Anyway, it should work with all the video boards that
 	work in DOS and Linux because the SVGA drivers are the same.
 
@@ -336,9 +351,9 @@ AdvanceMAME 0.61.4 / AdvanceMESS 0.61.1
 	version using only the SDL library.
 
 AdvanceMENU 2.2.0
-	This is the first Windows NT/2000/XP version able to directly 
-	program your video board. This puts the Windows version at the same level 
-	of the other Linux and DOS versions. It's very experimental, and tested only 
+	This is the first Windows NT/2000/XP version able to directly
+	program your video board. This puts the Windows version at the same level
+	of the other Linux and DOS versions. It's very experimental, and tested only
 	with a GeForce 2. Anyway, it should work with all the video boards that
 	work in DOS and Linux because the SVGA drivers are the same.
 

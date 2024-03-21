@@ -352,6 +352,7 @@ static void print_game_rom(FILE* out, int bare, const game_driver* game)
 	const rom_entry *region, *rom, *chunk;
 	const rom_entry *pregion, *prom, *fprom=NULL;
 	const game_driver *clone_of;
+	unsigned rom_bare_size = 0;
 
 	if (!game->rom)
 		return;
@@ -409,12 +410,17 @@ static void print_game_rom(FILE* out, int bare, const game_driver* game)
 			}
 
 
+			if (bare) {
+				rom_bare_size += length;
+				continue;
+			}
+
 			if (!is_disk)
 				fprintf(out, "\t\t<rom");
 			else
 				fprintf(out, "\t\t<disk");
 
-			if (!bare && *name)
+			if (*name)
 				fprintf(out, " name=\"%s\"", normalize_string(name));
 			if (in_parent)
 				fprintf(out, " merge=\"%s\"", normalize_string(ROM_GETNAME(fprom)));
@@ -422,11 +428,6 @@ static void print_game_rom(FILE* out, int bare, const game_driver* game)
 				fprintf(out, " bios=\"%s\"", normalize_string(bios_name));
 			if (!is_disk)
 				fprintf(out, " size=\"%d\"", length);
-
-			if (bare) {
-				fprintf(out, "/>\n");
-				continue;
-			}
 
 			/* dump checksum information only if there is a known dump */
 			if (!hash_data_has_info(ROM_GETHASHDATA(rom), HASH_INFO_NO_DUMP))
@@ -501,6 +502,10 @@ static void print_game_rom(FILE* out, int bare, const game_driver* game)
 			fprintf(out, " index=\"%x\"", DISK_GETINDEX(rom));
 			fprintf(out, "/>\n");
 		}
+	}
+
+	if (bare && rom_bare_size) {
+		fprintf(out, "\t\t<rom size=\"%u\"/>\n", rom_bare_size);
 	}
 }
 
@@ -791,7 +796,8 @@ static void print_game_info(FILE* out, int bare, const game_driver* game)
 		start = strrchr(game->source_file, '\\');
 	if (!start)
 		start = game->source_file - 1;
-	fprintf(out, " sourcefile=\"%s\"", normalize_string(start + 1));
+	if (!bare)
+		fprintf(out, " sourcefile=\"%s\"", normalize_string(start + 1));
 
 	clone_of = driver_get_clone(game);
 	if (clone_of && !(clone_of->flags & NOT_A_DRIVER))
@@ -863,7 +869,8 @@ static void print_resource_info(FILE* out, int bare, const game_driver* game)
 		start = strrchr(game->source_file, '\\');
 	if (!start)
 		start = game->source_file - 1;
-	fprintf(out, " sourcefile=\"%s\"", normalize_string(start + 1));
+	if (!bare)
+		fprintf(out, " sourcefile=\"%s\"", normalize_string(start + 1));
 
 	fprintf(out, ">\n");
 

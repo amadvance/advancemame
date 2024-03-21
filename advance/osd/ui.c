@@ -697,6 +697,12 @@ void advance_ui_direct_slow(struct advance_ui_context* context, int flag)
 		context->state.ui_direct_slow_flag = flag;
 }
 
+void advance_ui_direct_frameskip(struct advance_ui_context* context, int flag)
+{
+	if (context->config.ui_speedmark_flag)
+		context->state.ui_direct_frameskip_flag = flag;
+}
+
 void advance_ui_direct_fast(struct advance_ui_context* context, int flag)
 {
 	if (context->config.ui_speedmark_flag)
@@ -761,7 +767,7 @@ void advance_ui_scroll(struct advance_ui_context* context, const char* begin, co
 
 adv_bool advance_ui_buffer_active(struct advance_ui_context* context)
 {
-	return context->state.ui_extra_flag
+	return __atomic_load_n(&context->state.ui_extra_flag, __ATOMIC_SEQ_CST)
 	       || context->state.ui_message_flag
 	       || context->state.ui_help_flag
 	       || context->state.ui_menu_flag
@@ -773,6 +779,7 @@ adv_bool advance_ui_direct_active(struct advance_ui_context* context)
 {
 	return context->state.ui_direct_text_flag
 	       || context->state.ui_direct_slow_flag
+	       || context->state.ui_direct_frameskip_flag
 	       || context->state.ui_direct_fast_flag;
 }
 
@@ -987,47 +994,211 @@ static void ui_direct_text_update(struct advance_ui_context* context, adv_bitmap
 	context->state.ui_direct_text_flag = 0;
 }
 
-static void ui_direct_slow_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
+static void bitmap_h_set(uint8* dst_ptr, unsigned dp, unsigned count, unsigned color)
 {
-	int pos_x, pos_y;
-	int size_x, size_y;
-
-	size_x = dst->size_x / 20;
-	size_y = dst->size_y * 4 / 3 / 20;
-
-	pos_x = dst->size_x - 1 - size_x - size_x / 4;
-	pos_y = size_y / 4;
-
-	adv_bitmap_clear(dst, pos_x, pos_y, size_x, size_y, color->help_p3.p);
-
-	context->state.ui_direct_slow_flag = 0;
+	if (dp == 1) {
+		uint8* dst8 = (uint8*)dst_ptr;
+		while (count) {
+			*dst8++ = color;
+			--count;
+		}
+	} else if (dp == 2) {
+		uint16* dst16 = (uint16*)dst_ptr;
+		while (count) {
+			*dst16++ = color;
+			--count;
+		}
+	} else if (dp == 4) {
+		uint32* dst32 = (uint32*)dst_ptr;
+		while (count) {
+			*dst32++ = color;
+			--count;
+		}
+	} else {
+		uint8* dst8 = (uint8*)dst_ptr;
+		while (count) {
+			cpu_uint_write(dst8, dp, color);
+			dst8 += dp;
+			--count;
+		}
+	}
 }
 
-static void ui_direct_fast_update(struct advance_ui_context* context, adv_bitmap* dst, struct ui_color_set* color)
+static void adv_bitmap_mark_ur(adv_bitmap* dst, int x, int y, int d, unsigned color)
 {
-	int pos_x, pos_y;
-	int size_x, size_y;
-	int i;
-	unsigned m;
+	unsigned dp;
+	unsigned ds;
+	uint8* dst_ptr;
+	unsigned i;
+	unsigned c;
+	unsigned s;
 
-	size_x = dst->size_x / 20;
-	size_y = dst->size_y * 4 / 3 / 20;
-	if (size_y % 2 == 0)
-		++size_y; /* make it odd */
+	if (x < 0 || y < 0)
+		return;
+	if (x + d > dst->size_x || y + d > dst->size_y)
+		return;
+	if (d <= 0)
+		return;
 
-	pos_x = dst->size_x - 1 - size_x - size_x / 4;
-	pos_y = size_y / 4;
+	c = d / 2;
+	s = (d + 1) / 2;
 
-	m = size_y / 2;
-	if (!m)
-		m = 1;
-	for (i = 0; i <= m; ++i) {
-		unsigned l = (size_x * i + m - 1) / m + 1;
-		adv_bitmap_clear(dst, pos_x, pos_y + i, l, 1, color->help_p3.p);
-		adv_bitmap_clear(dst, pos_x, pos_y + size_y - 1 - i, l, 1, color->help_p3.p);
+	dp = dst->bytes_per_pixel;
+	ds = dst->bytes_per_scanline + dp;
+
+	dst_ptr = adv_bitmap_pixel(dst, x, y);
+
+	for (i = 0; i < d; ++i) {
+		bitmap_h_set(dst_ptr, dp, c, color);
+		dst_ptr += ds;
+		if (i >= s)
+			--c;
+	}
+}
+
+static void adv_bitmap_mark_lr(adv_bitmap* dst, int x, int y, int d, unsigned color)
+{
+	unsigned dp;
+	unsigned ds;
+	uint8* dst_ptr;
+	unsigned i;
+	unsigned c;
+	unsigned s;
+
+	if (x < 0 || y < 0)
+		return;
+	if (x + d > dst->size_x || y + d > dst->size_y)
+		return;
+	if (d <= 0)
+		return;
+
+	c = d / 2;
+	s = (d + 1) / 2;
+
+	dp = dst->bytes_per_pixel;
+	ds = dst->bytes_per_scanline - dp;
+
+	dst_ptr = adv_bitmap_pixel(dst, x, y + d - 1);
+
+	for (i = 0; i < d; ++i) {
+		bitmap_h_set(dst_ptr, dp, c, color);
+		dst_ptr -= ds;
+		if (i >= s)
+			--c;
+	}
+}
+
+static void adv_bitmap_mark_ul(adv_bitmap* dst, int x, int y, int d, unsigned color)
+{
+	unsigned dp;
+	unsigned ds;
+	uint8* dst_ptr;
+	unsigned i;
+	unsigned c;
+	unsigned s;
+
+	if (x < 0 || y < 0)
+		return;
+	if (x + d > dst->size_x || y + d > dst->size_y)
+		return;
+	if (d <= 0)
+		return;
+
+	c = d / 2;
+	s = (d + 1) / 2;
+
+	dp = dst->bytes_per_pixel;
+	ds = dst->bytes_per_scanline - dp;
+
+	dst_ptr = adv_bitmap_pixel(dst, x + c, y);
+
+	for (i = 0; i < d; ++i) {
+		bitmap_h_set(dst_ptr, dp, c, color);
+		dst_ptr += ds;
+		if (i >= s) {
+			dst_ptr += dp;
+			--c;
+		}
+	}
+}
+
+static void adv_bitmap_mark_ll(adv_bitmap* dst, int x, int y, int d, unsigned color)
+{
+	unsigned dp;
+	unsigned ds;
+	uint8* dst_ptr;
+	unsigned i;
+	unsigned c;
+	unsigned s;
+
+	if (x < 0 || y < 0)
+		return;
+	if (x + d > dst->size_x || y + d > dst->size_y)
+		return;
+	if (d <= 0)
+		return;
+
+	c = d / 2;
+	s = (d + 1) / 2;
+
+	dp = dst->bytes_per_pixel;
+	ds = dst->bytes_per_scanline + dp;
+
+	dst_ptr = adv_bitmap_pixel(dst, x + c, y + d - 1);
+
+	for (i = 0; i < d; ++i) {
+		bitmap_h_set(dst_ptr, dp, c, color);
+		dst_ptr -= ds;
+		if (i >= s) {
+			dst_ptr += dp;
+			--c;
+		}
+	}
+}
+
+static void ui_direct_mark_update(struct advance_ui_context* context, adv_bitmap* dst, adv_pixel color)
+{
+	int size;
+	int pos_x;
+	int pos_y;
+	unsigned orientation;
+
+	orientation = context->config.ui_font_orientation;
+
+	if ((orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
+		size = dst->size_y / 20;
+		pos_x = 0;
+		pos_y = dst->size_y - size;
+	} else {
+		size = dst->size_x / 20;
+		pos_x = dst->size_x - size;
+		pos_y = 0;
 	}
 
-	context->state.ui_direct_slow_flag = 0;
+	if ((orientation & OSD_ORIENTATION_FLIP_X) != 0) {
+		pos_x = dst->size_x - size - pos_x;
+	}
+	if ((orientation & OSD_ORIENTATION_FLIP_Y) != 0) {
+		pos_y = dst->size_y - size - pos_y;
+	}
+
+	if ((orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
+		orientation ^= OSD_ORIENTATION_FLIP_X | OSD_ORIENTATION_FLIP_Y;
+	}
+
+	if ((orientation & OSD_ORIENTATION_FLIP_Y) != 0) {
+		if ((orientation & OSD_ORIENTATION_FLIP_X) != 0) {
+			adv_bitmap_mark_ll(dst, pos_x, pos_y, size, color);
+		} else {
+			adv_bitmap_mark_lr(dst, pos_x, pos_y, size, color);
+		}
+	} else {
+		if ((orientation & OSD_ORIENTATION_FLIP_X) != 0) {
+			adv_bitmap_mark_ul(dst, pos_x, pos_y, size, color);
+		} else {
+			adv_bitmap_mark_ur(dst, pos_x, pos_y, size, color);
+		}
+	}
 }
 
 static void ui_color_rgb_set(struct ui_color* color, const adv_color_rgb* c, adv_color_def color_def, adv_color_def buffer_def, unsigned translucency, adv_pixel* background)
@@ -1128,6 +1299,7 @@ static void ui_color_alpha_set(adv_pixel* map, const adv_color_rgb* fore, const 
 			| rgb_nibble_insert(cb, blue_shift, blue_mask)
 			| rgb_nibble_insert(ca, alpha_shift, alpha_mask);
 	}
+
 }
 
 static void ui_color_palette_set(struct ui_color* color, const adv_color_rgb* c, adv_color_rgb* palette_map, unsigned palette_max)
@@ -1194,7 +1366,7 @@ void advance_ui_buffer_update(struct advance_ui_context* context, void* ptr, uns
 
 	dst = adv_bitmap_import_rgb(dx, dy, color_def_bytes_per_pixel_get(color_def), 0, 0, ptr, dw);
 
-	context->state.ui_extra_flag = 0;
+	__atomic_store_n(&context->state.ui_extra_flag, 0, __ATOMIC_SEQ_CST);
 
 	if (context->state.ui_help_flag) {
 		ui_help_update(context, dst, color);
@@ -1223,18 +1395,25 @@ void advance_ui_buffer_update(struct advance_ui_context* context, void* ptr, uns
 void advance_ui_direct_update(struct advance_ui_context* context, void* ptr, unsigned dx, unsigned dy, unsigned dw, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max)
 {
 	adv_bitmap* dst;
-	struct ui_color_set color;
+	struct ui_color_set color = context->state.color_map;
 
 	ui_setup_color(context, &color, color_def, palette_map, palette_max);
 
 	dst = adv_bitmap_import_rgb(dx, dy, color_def_bytes_per_pixel_get(color_def), 0, 0, ptr, dw);
 
 	if (context->state.ui_direct_slow_flag) {
-		ui_direct_slow_update(context, dst, &color);
+		ui_direct_mark_update(context, dst, color.help_p3.p);
+		context->state.ui_direct_slow_flag = 0;
+	}
+
+	if (context->state.ui_direct_frameskip_flag) {
+		ui_direct_mark_update(context, dst, color.help_p1.p);
+		context->state.ui_direct_frameskip_flag = 0;
 	}
 
 	if (context->state.ui_direct_fast_flag) {
-		ui_direct_fast_update(context, dst, &color);
+		ui_direct_mark_update(context, dst, color.help_p2.p);
+		context->state.ui_direct_fast_flag = 0;
 	}
 
 	if (context->state.ui_direct_text_flag) {
@@ -1259,6 +1438,7 @@ adv_error advance_ui_init(struct advance_ui_context* context, adv_conf* cfg_cont
 	context->state.ui_scroll_end = 0;
 	context->state.ui_direct_text_flag = 0;
 	context->state.ui_direct_slow_flag = 0;
+	context->state.ui_direct_frameskip_flag = 0;
 	context->state.ui_direct_fast_flag = 0;
 	context->state.ui_font = 0;
 	context->state.ui_font_oriented = 0;

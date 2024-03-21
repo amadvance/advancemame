@@ -1,23 +1,94 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 3.10 WIP
-	) Added support for Teeter Torture [arcadez2003]
-	) Hooked up Bubble Bobble Protection MCU [arcadez2003]
-	) Get DJ Boy playable [arcadez2003]
-	) Get B-Rap Boys, Blood Warrior and Shogun Warriors playable [arcadez2003]
-	) Hook up Fire Shark / Vimana (Sound MCU's) [arcadez2003]
-	) Support Wonder Boy in Monsterland English Virtual Console [arcadez2003]
-	) Support Opa Opa unprotected set and fix Tetris System E 2 player mode [arcadez2003]
-	) Support Cabal Joystick Version [arcadez2003]
-	) Fix Night Slashers sound [arcadez2003]
-	) Fix Sunset Riders protection [arcadez2003]
-	) Add support for Bang Bang Busters and Choutetsu Brikin'ger / Iron Clad [arcadez2003]
-	) Support the only working version of Oriental Legend Special [arcadez2003]
-	) Prevent Gun Master from randomly hanging and add 2p buy in via the inputs [arcadez2003]
-	) Improved automatic joystick button mapping for games with gear shift.
+AdvanceMAME/MESS Version 4.0 2024/04
+        ) Fix the frameskipping with slow game
+        ) Fix and extend the speedmark support
+        ) Fix crashes in some games like p47aces
+        ) dangerex (#123) [arcadez2003]
+        ) New Working Danger Express Atari Prototype (#122) [arcadez2003]
+        ) Hookup the HD647180 sound mcu for Ghox, TekiPaki and Whoopee! (#121) [arcadez2003]
+        ) Update joystick definition from libretro
+        ) New Working Hammer Away (#120) [arcadez2003]
+        ) New Working Fantasy Zone II - The Tears Of Opa Opa (system16c) (#119) [arcadez2003]
+        ) dkongx (#118) [arcadez2003]
+        ) New Working Game Donkey Kong II Jumpman Returns (#117) [arcadez2003]
+        ) Fix handling of customization sectioned input maps
+        ) Add coin option in the exit menu [Andrea Mazzoleni]
+        ) Add advmame Xbuttons configuration category [Andrea Mazzoleni]
+        ) Fix crash when saving a rotated png due integer promotion to unsigned
 
-AdvanceMENU Version 3.10 WIP
+AdvanceMAME/MESS Version 3.10 2024/02
+	) Alcon / Slap Fight MCU hookup (#116) [arcadez2003]
+	) Add the protection MCU for the official Alcon / Slap Fight sets (#115) [arcadez2003]
+	) Fixed crash with Linux nvidia proprietary driver
+	) aquario (#114) [arcadez2003]
+	) New Working Clockwork Aquario (Prototype) (#113) [arcadez2003]
+	) Vastly improve the sound for the Cave PGM games (#112) [arcadez2003]
+	) 64th Street A Detective Story fix some gfx niggles (#111) [arcadez2003]
+	) New segac2 romsets (#110) [arcadez2003]
+	) Add three recently released Sega C2 prototypes (#108) [arcadez2003]
+	) Add sound for Atomic Boy / Wilytower fix sound for Fighting Basketball (#107) [arcadez2003]
+	) More fixes for Contra / Gryzor (#106) [arcadez2003]
+	) Sprite fix for Contra / Gryzor (#105) [arcadez2003]
+	) New working Dogyuun (8/25/1992 location test) (#103) [arcadez2003]
+	) Thunder (#95) [arcadez2003]
+	) Optimized driver for Denjin Makai (#89) [Scandy]
+	) Support of new driver "Heavy Unit" by Arcadez  (#88) [Scandy]
+	) Two new working games Tecmo System [arcadez2003]
+	) Fix some broken gfx in Buggy Challenge [arcadez2003]
+	) Use bitmask size not EV_MAX for EVIOCGBIT ioctl. [Mark Davies]
+	) [FGHTHIST] Avoid Karnov bug [Scandy]
+	) Fix sound for Perfect Soldiers / Superior Soldiers [arcadez2003]
+	) Hide "Read protection port" pop-ups [Scandy]
+	) Violent Storm (ver EAB) works correctly [Scandy]
+	) Fix UCCOPSJ and UCCOPSAR citysweepers attract mode [Scandy]
+	) Fix VIOSTORM attract mode glitch [Scandy]
+	) Fix priority issues in FGHTHIST [arcadez2003]
+	) UCCOPSAR citysweepers attract mode test [Scandy]
+	) Disable palette banking for R-Type leo - fixes invincibility flash [Haze] [arcadez2003]
+	) Operation Wolf improve the C-Chip simulation [arcadez2003]
+	) New working game Marble Madness II [arcadez2003]
+	) Cocktail mode support for Asteroids and Asteroids Deluxe (#71) [Mario Montminy]
+	) improve bonze Adventure c-chip simulation to prevent crash [arcadez2003]
+	) Contra protection improvements [arcadez2003]
+	) Fix random crashes in GunBird 2 [arcadez2003]
+	) Correct aspect ratio support and cleanup [Mario Montminy]
+	) quasar.c: Fix inputs for quasar [Greg Kennedy]
+	) Several fixes for compile warnings, backported from more recent MAME [Greg Kennedy]
+	) Fix sound problems in Trojan / Tatakai No Banka [arcadez2003]
+	) New working game Off Road Challenge [arcadez2003]
+	) Backport a TMS32031 fix for Midway's Off Road Challenge [arcadez2003]
+	) Fix some minor issues in advancemame compilation. (#64) [Greg Kennedy]
+	) Fix build errors due new gcc 10 default for -fno-common
+	) Knights Of Valour 2 and Martial Masters now playable (#63) [arcadez2003]
+	) Backport Ryan Holtz thumbsign improvments from MAME111.u6 (#60) Arm7 thumbsign improvements cont (#61) Last of the ARM7 thumbsign changes (#62) [arcadez2003]
+	) Use Toaplan1 vidhrdw from ShmupMAME v3.0 (#58) [arcadez2003]
+	) Fix USB issue and did various optimizations (#59) [Mario Montminy]
+	) Corrected clipping issue with battlezone, major havoc (#53) [Mario Montminy]
+	) Varius game fixes from arcadez2003
+	) Fix incorrect bg colours in Dynamite Duke cont (#27) [arcadez2003]
+	) Fix for bad bg colours at various points all through the game and every boss fight (#26) [arcadez2003]
+	) Fix the lights dont go out when shot in Elevator Action II / Returns (#25) [arcadez2003]
+	) Fix the graphical tile layer and irq triggering (#24) [arcadez2003]
+	) firebarr_decryption_table (#23) [arcadez2003]
+	) Fire Barrel requires a new decryption table (#22) [arcadez2003]
+	) New working game Fire Barrel (#21) [arcadez2003]
+	) Fix gfx for DJ Boy (#20) [arcadez2003]
+	) Hook up DAC and sample sound support for Cosmic Alien (#18) [arcadez2003]
+	) New Working Game Snow Board Championship (#17) [arcadez2003]
+	) Hook up the decryption tables for Snow Board Championship (#16) [arcadez2003]
+	) Added USB-DVG vector generator board support (#15) [Goldfinch2]
+	) Fix background character movements for Power Instinct 2 and Legends (#14) [arcadez2003]
+	) Enable breakable backgrounds in 64th street (#13) [arcadez2003]
+	) Support make install DESTDIR=/foo just like Automake does (#10) [James Le Cuirot]
+	) Don't use auto CFLAGS/LDFLAGS if they are set but blank (#9) [James Le Cuirot]
+	) Fix random crash in Rampage World Tour (#12) [arcadez2003]
+	) Fix sound in Ring Rage and add sound support for Riding Fight (#6) [arcadez2003]
+	) apf_vsync_int: fix invalid access to apf_ints variable (#5) [Andreas Oberritter]
+	) Adding pkg-config for ncurses and slang. (#8) [Alex Barker]
+
+AdvanceMENU Version 3.10 2024/02
 	) Added the new 'ui_menu_font' to change the font for the online menus.
 
 AdvanceMAME/MESS Version 3.9 2018/09

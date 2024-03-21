@@ -163,7 +163,7 @@ Features
 	board to get the best possible video modes with always the
 	correct size and aspect ratio.
 
-	You can control how the video modes are generated with the 
+	You can control how the video modes are generated with the
 	`display_adjust' option. More details are in the `install.txt'
 	file.
 
@@ -265,7 +265,7 @@ Features
 
 	But if you want, you can permit a small aspect error
 	to enlarge the effective game image on the screen.
-	It's very useful to display vertical games on 
+	It's very useful to display vertical games on
 	horizontal monitors and vice versa.
 
 	More details are in the description of the `display_expand'
@@ -570,13 +570,15 @@ Configuration
 			`joy8way', `doublejoy4way', `doublejoy8way',
 			`paddle', `dial', `trackball', `stick', `lightgun',
 			`mouse'.
-		`Nplayer' - Number of players in the game. One of `1player',
-			`2player', `3player', ...
+		`Nplayers' - Number of players in the game. One of `1players',
+			`2players', `3players', ...
+		`Nbuttons' - Number of buttons for each player One of `1buttons',
+			`2buttons', `3buttons', up to `10buttons'.
 		`' - The default empty section.
 
 	For example for the game `pacman' the following sections are
 	read: `pacman', `puckman', `224x288x60', `224x288', `vertical',
-	`joy4way', `2player' and `'.
+	`joy4way', `2players' and `1buttons'.
 
 	You can override any global options inserting new options in
 	any of the sections of the game.
@@ -728,11 +730,11 @@ Configuration
   Display Configuration Options
 	This section describes the options used to customize the
 	display.
-  
+
     device_video_*
 	These options are used to customize the video drivers.
 
-	All the `device_video_*' options described in the `advdev.txt' file 
+	All the `device_video_*' options described in the `advdev.txt' file
 	can be used.
 
 	If you use a `System' video driver, you don't need to set these
@@ -754,8 +756,8 @@ Configuration
 			available (default).
 
     display_adjust
-	Controls how are generate the video modes. Correct use of this 
-	option removes the need of any software stretching improving a 
+	Controls how are generate the video modes. Correct use of this
+	option removes the need of any software stretching improving a
 	lot the game image.
 
 	For an introduction on how the program operates on video mode,
@@ -769,7 +771,7 @@ Configuration
 		none - No automatic video mode creation. Use only the
 			available modelines (default).
 		x - Adjusts the available modeline horizontal resolution
-			to match the game image's size. The stretched modeline 
+			to match the game image's size. The stretched modeline
 			keeps all the clock attributes of the original
 			modeline. Also all other modeline attributes,
 			like doublescan and interlace, are maintained.
@@ -780,8 +782,8 @@ Configuration
 		generate_exact - Creates automatically some new modelines using
 			the format specified on the `device_video_format'
 			option. The generated modelines will be named `generate-*'.
-			Check the `advdef.txt' file for the description of 
-			the `device_video_format' option or simply use the 
+			Check the `advdef.txt' file for the description of
+			the `device_video_format' option or simply use the
 			`advcfg' utility to set it up correctly.
 			If the `device_video_format' option isn't
 			specified a default value for your monitor clock
@@ -793,11 +795,11 @@ Configuration
 			modes with a vertical clock different than the game
 			original clock if a perfect mode is not	possible.
 		generate_yclock - Like generate_exact, and it allows
-			generating modes with a wrong vertical clock and/or size 
+			generating modes with a wrong vertical clock and/or size
 			if a perfect mode is not possible. Modes with a correct size
 			are favorite over mode than a correct clock.
 		generate_clocky - Like generate_exact, and it allows
-			generating modes with a wrong vertical clock and/or size 
+			generating modes with a wrong vertical clock and/or size
 			if a perfect mode is not possible. Modes with a correct clock
 			are favorite over mode with a correct size.
 
@@ -809,7 +811,7 @@ Configuration
 	the `device_video_modeline' option in the configuration file.
 	You can add them manually or using the `advv' utility.
 	Check the `advdev.txt' file for more details on the
-	`device_video_modeline' option. 
+	`device_video_modeline' option.
 
 	Of all the `generate' options, the `generate_yclock' is the
 	suggested and the most powerful. The `advcfg' utility always
@@ -843,14 +845,14 @@ Configuration
 		yuy2 - YUV mode in the YUY2 format.
 
 	Note that the 24 bit color mode isn't supported.
-	
+
 	The modes are called bgr because in the video memory the order of
 	the color channel is: Blue, Green, Red.
 
     display_resize
 	Suggests the favorite image stretching when a video mode
 	with the correct size isn't available.
-	This option doesn't have any effect for vector games, they are 
+	This option doesn't have any effect for vector games, they are
 	always stretched to fit the whole screen.
 
 	:display_resize none | integer | mixed | fractional
@@ -1062,7 +1064,7 @@ Configuration
 			or scrolling background. Like "1941".
 		filter - It removes or duplicates columns and rows with
 			a low pass filter in the x and the y directions.
-			It's a simple FIR filter with two points of 
+			It's a simple FIR filter with two points of
 			equal value.
 			Supported only in rgb video modes.
 		scalex - It adds the missing pixels matching the
@@ -1096,8 +1098,8 @@ Configuration
 			It works only for expansion factor of 2, 3 and 4.
 
     display_rgbeffect
-	Selects a special effect to simulate the aspect of an Arcade Monitor 
-	with a PC monitor. The resulting image is better when you use a 
+	Selects a special effect to simulate the aspect of an Arcade Monitor
+	with a PC monitor. The resulting image is better when you use a
 	big video mode. These effects require a RGB video mode, they don't
 	work with palettized or YUV modes.
 
@@ -1122,7 +1124,7 @@ Configuration
     display_interlaceeffect
 	Selects some special effects for interlaced video modes.
 	On not interlaced modes the effects are always disabled.
-	
+
 	:display_interlaceeffect none | even | odd | filter
 
 	Options:
@@ -1131,7 +1133,7 @@ Configuration
 		odd - Swap the odd rows.
 		filter - Apply a vertical filter.
 
-	If your monitor uses a swapped order for interlaced rows, using the 
+	If your monitor uses a swapped order for interlaced rows, using the
 	`even' or `odd' effect you can probably fix the image.
 
 	The effects operate on the rows in the following way:
@@ -1145,6 +1147,16 @@ Configuration
 		: F   F   D   F+E
 		: G   E   G   G+F
 		: H   H   F   H+G
+
+    display_writeeffect
+	Selects how to write the video memory. In some very old video board
+	you may gain speed selecting `buffer'.
+
+	:display_writeeffect direct | buffer
+
+	Options:
+		direct - Write directly the video memory (default).
+		even - Use a buffered write.
 
     Display Color Configuration Options
 	This section describes the options used to customize the display
@@ -1225,7 +1237,7 @@ Configuration
 	Enables or disables the anti-aliasing for vector games.
 
 	:display_antialias yes | no
-	
+
 	Options:
 		yes - Anti-aliasing enabled (default)
 		no - Anti-aliasing disabled.
@@ -1301,8 +1313,8 @@ Configuration
 	Options:
 		RATE - Sample rate. Common values are 11025, 22050,
 			44100 and 48000 (default 44100).
-			
-	If the sound driver doesn't support the specified sample rate a 
+
+	If the sound driver doesn't support the specified sample rate a
 	different value is selected.
 
     sound_volume
@@ -1792,11 +1804,11 @@ Configuration
 	:input_configswitch[NAME] SETTING
 
   User Interface Configuration Options
-	This section describes the options used to customize the user 
+	This section describes the options used to customize the user
 	interface.
 
     ui_helpimage
-	Selects the image to display on help request. The image must be 
+	Selects the image to display on help request. The image must be
 	a PNG file. The pixels in black are used as background, any other
 	color is used as foreground. Please note that the displayed image
 	is always black and white.
@@ -2324,9 +2336,11 @@ Configuration
 		yes - Sound output without any syncronization.
 
     debug_speedmark
-	Enables or disabled the on screen speed mark. If enabled a red square 
-	is displayed if the game is too slow. A red triangle when you press 
-	the `turbo' key or when the game is accelerated for other reasons.
+	Enables or disables the on-screen speed mark. If enabled, a red band
+	is displayed when the game is running at a low speed. A yellow band is
+	shown when frames are skipped to maintain speed. A green band appears
+	when you press the 'turbo' key or when the game is accelerated for
+	other reasons.
 
 	:debug_speedmark yes | no
 

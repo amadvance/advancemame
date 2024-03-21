@@ -1,18 +1,10 @@
 #!/bin/sh
 #
-echo "Generating build information using autoconf"
-echo "This may take a while ..."
+echo "Generating build information using autoreconf"
 
-# Touch the timestamps on all the files since CVS messes them up
-touch configure.ac
-
-# Regenerate configuration files
-# Note that we cannot use autoreconf because it won't call automake
-# to add missing files, because we don't use automake
-aclocal
-automake --add-missing --force-missing 2>/dev/null
-autoconf
-autoheader && touch advance/lib/config.hin
+# All is done by autoreconf
+autoreconf -f -i
 
 # Run configure for this platform
 echo "Now you are ready to run ./configure"
+
