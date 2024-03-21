@@ -1,94 +1,92 @@
 /***************************************************************************
 
-                            -= Jaleco Mega System 1 =-
+							-= Jaleco Mega System 1 =-
 
-                    driver by   Luca Elia (l.elia@tin.it)
+					driver by	Luca Elia (l.elia@tin.it)
 
 
 To enter service mode in some games press service1+F3.
 
 
-Year + Game                         System      Protection
+Year + Game							System		Protection
 ----------------------------------------------------------------------------
-88  Legend of Makai (World) /       Z
-    Makai Densetsu  (Japan)         Z
-    P-47  (World) /                 A
-    P-47  (Japan)                   A
-    Kick Off (Japan)                A
-    Takeda Shingen (Japan)          A                 Encryption (key 1)
-    Ninja Kazan (World) /           A           Yes + Encryption (key 1)
-    Iga Ninjyutsuden (Japan)        A           Yes + Encryption (key 1)
-89  Astyanax          (World) /     A           Yes + Encryption (key 2)
-    The Lord of King  (Japan)       A           Yes + Encryption (key 2)
-    Hachoo!                         A           Yes + Encryption (key 2)
-    Jitsuryoku!! Pro Yakyuu (Japan) A           Yes + Encryption (key 2)
-    Plus Alpha                      A           Yes + Encryption (key 2)
-    Saint Dragon                    A           Yes + Encryption (key 1)
-90  RodLand  (World) /              A                 Encryption (key 3)
-    RodLand  (Japan)                A                 Encryption (key 2)
-    Phantasm        (Japan) /       A                 Encryption (key 1)
-91  Avenging Spirit (World)         B           Inputs
-    Earth Defense Force             B           Inputs
-    64th Street  (World) /          C       *   Inputs
-    64th Street  (Japan)            C       *   Inputs
-92  Soldam (Japan)                  A                 Encryption (key 2)
-    Big Striker                     C           Inputs
-93  Chimera Beast                   C       *   Inputs
-    Cybattler                       C           Inputs
-    Peek-a-Boo!                     D           Inputs
---------------------------------------------^-------------------------------
-                                            |
-                            The Priority Prom is missing for these games !
+88	Legend of Makai (World) /		Z
+	Makai Densetsu  (Japan)			Z
+	P-47  (World) /					A
+	P-47  (Japan)					A
+	Kick Off (Japan)				A		
+	Takeda Shingen (Japan)			A			      Encryption (key 1)
+	Ninja Kazan      (World)		A			Yes + Encryption (key 1)
+	Iga Ninjyutsuden (Japan)		A			Yes + Encryption (key 1)
+89	Astyanax          (World) /		A			Yes + Encryption (key 2)
+	The Lord of King  (Japan)		A	 		Yes + Encryption (key 2)
+	Hachoo!							A			Yes + Encryption (key 2)
+	Jitsuryoku!! Pro Yakyuu (Japan)	A			Yes + Encryption (key 2)
+	Plus Alpha						A			Yes + Encryption (key 2)
+	Saint Dragon					A			Yes + Encryption (key 1)
+90	RodLand  (World) /				A			      Encryption (key 3)
+	RodLand  (Japan)				A			      Encryption (key 2)
+	Phantasm        (Japan)	/		A			      Encryption (key 1)
+91	Avenging Spirit (World) 		B			Inputs
+	Earth Defense Force				B			Inputs
+	64th Street  (World) /			C			Inputs
+	64th Street  (Japan)			C			Inputs
+92	Soldam (Japan)					A			      Encryption (key 2)
+	Big Striker						C			Inputs
+93	Chimera Beast					C			Inputs
+	Cybattler						C			Inputs
+	Peek-a-Boo!						D			Inputs
+----------------------------------------------------------------------------
+NOTE: Chimera Beast PROM has not been dumped, but looks like it should match 64street based on game analysis.
 
 
-
-Hardware    Main CPU    Sound CPU   Sound Chips
+Hardware	Main CPU	Sound CPU	Sound Chips
 -----------------------------------------------------------
-MS1 - Z     68000       Z80         YM2203c
-MS1 - A     68000       68000       YM2151      2xOKI-M6295
-MS1 - B     68000       68000       YM2151      2xOKI-M6295
-MS1 - C     68000       68000       YM2151      2xOKI-M6295
-MS1 - D     68000       -           -             OKI-M6295
+MS1 - Z		68000		Z80			YM2203c
+MS1 - A		68000		68000		YM2151		2xOKI-M6295
+MS1 - B		68000		68000		YM2151		2xOKI-M6295
+MS1 - C		68000		68000		YM2151		2xOKI-M6295
+MS1 - D		68000		-			-			  OKI-M6295
 -----------------------------------------------------------
 
 
 
-Main CPU    RW      MS1-A/Z         MS1-B           MS1-C           MS1-D
+Main CPU	RW		MS1-A/Z			MS1-B			MS1-C			MS1-D
 -----------------------------------------------------------------------------------
-ROM         R   000000-03ffff   000000-03ffff   000000-07ffff   000000-03ffff
-                                080000-0bffff
-Video Regs   W  084000-0843ff   044000-0443ff   0c0000-0cffff   0c0000-0cffff
-Palette     RW  088000-0887ff   048000-0487ff   0f8000-0f87ff   0d8000-0d87ff
-Object RAM  RW  08e000-08ffff   04e000-04ffff   0d2000-0d3fff   0ca000-0cbfff
-Scroll 0    RW  090000-093fff   050000-053fff   0e0000-0e3fff   0d0000-0d3fff
-Scroll 1    RW  094000-097fff   054000-057fff   0e8000-0ebfff   0e8000-0ebfff
-Scroll 2    RW  098000-09bfff   058000-05bfff   0f0000-0f3fff   -
-Work RAM    RW  0f0000-0fffff*  060000-07ffff*  1f0000-1fffff*  1f0000-1fffff
-Input Ports R   080000-080009   0e0000-0e0001** 0d8000-d80001** 100000-100001**
+ROM			R	000000-03ffff	000000-03ffff	000000-07ffff	000000-03ffff
+								080000-0bffff
+Video Regs	 W	084000-0843ff	044000-0443ff	0c0000-0cffff	0c0000-0cffff
+Palette		RW	088000-0887ff	048000-0487ff	0f8000-0f87ff	0d8000-0d87ff
+Object RAM	RW	08e000-08ffff	04e000-04ffff	0d2000-0d3fff	0ca000-0cbfff
+Scroll 0	RW	090000-093fff	050000-053fff	0e0000-0e3fff	0d0000-0d3fff
+Scroll 1	RW	094000-097fff	054000-057fff	0e8000-0ebfff	0e8000-0ebfff
+Scroll 2	RW	098000-09bfff	058000-05bfff	0f0000-0f3fff	-
+Work RAM	RW	0f0000-0fffff*	060000-07ffff*	1f0000-1fffff*	1f0000-1fffff
+Input Ports R	080000-080009	0e0000-0e0001**	0d8000-d80001**	100000-100001**
 -----------------------------------------------------------------------------------
 *  Some games use mirror addresses
 ** Through protection.
 
 
 
-Sound CPU       RW      MS1-A           MS1-B           MS1-C           MS1-D
+Sound CPU		RW		MS1-A			MS1-B			MS1-C			MS1-D
 -----------------------------------------------------------------------------------
-ROM         R       000000-01ffff       000000-01ffff       000000-01ffff       No Sound CPU
-Latch #1        R       040000-040001       <           060000-060001
-Latch #2         W      060000-060001       <           <
-2151 reg         W      080000-080001       <           <
-2151 data        W      080002-080003       <           <
-2151 status     R       080002-080003       <           <
-6295 #1 data         W      0a0000-0a0003       <           <
-6295 #1 status      R       0a0000-0a0001       <           <
-6295 #2 data         W      0c0000-0c0003       <           <
-6295 #2 status      R       0c0000-0c0001       <           <
-RAM         RW      0f0000-0f3fff       0e0000-0effff?      <
+ROM			R		000000-01ffff		000000-01ffff		000000-01ffff	 	No Sound CPU
+Latch #1		R		040000-040001		<			060000-060001
+Latch #2		 W		060000-060001		<			<
+2151 reg		 W		080000-080001		<			<
+2151 data		 W		080002-080003		<			<
+2151 status		R 		080002-080003		<			<
+6295 #1 data	 	 W 		0a0000-0a0003		<			<
+6295 #1 status		R 		0a0000-0a0001		<			<
+6295 #2 data	 	 W 		0c0000-0c0003		<			<
+6295 #2 status		R 		0c0000-0c0001		<			<
+RAM			RW		0f0000-0f3fff		0e0000-0effff?		<
 -----------------------------------------------------------------------------------
 
 
-                                Issues / To Do
-                                --------------
+								Issues / To Do
+								--------------
 
 - There's a 512 byte PROM in the video section (different for every game)
   that controls the priorities. It's been dumped for only a few games, so
@@ -676,6 +674,7 @@ static MACHINE_DRIVER_START( system_A )
 	MDRV_PALETTE_INIT(megasys1)
 	MDRV_VIDEO_START(megasys1)
 	MDRV_VIDEO_UPDATE(megasys1)
+	MDRV_VIDEO_EOF(megasys1)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
@@ -768,6 +767,7 @@ static MACHINE_DRIVER_START( system_D )
 	MDRV_PALETTE_INIT(megasys1)
 	MDRV_VIDEO_START(megasys1)
 	MDRV_VIDEO_UPDATE(megasys1)
+	MDRV_VIDEO_EOF(megasys1)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
@@ -915,7 +915,7 @@ ROM_START( 64street )
 	ROM_LOAD( "64th_10.rom", 0x000000, 0x040000, CRC(a3390561) SHA1(f86d5c61e3e80d30408535c2203940ca1e95ac18) )
 
 	ROM_REGION( 0x0200, REGION_PROMS, 0 )		/* Priority PROM */
-	ROM_LOAD( "prom",        0x0000, 0x0200, NO_DUMP )
+	ROM_LOAD( "pr91009.12",  0x0000, 0x0200, CRC(c69423d6) SHA1(ba9644a9899df2d73a5a16bf7ceef1954c2e25f3) ) /* same as pr-91044 on hayaosi1 */
 ROM_END
 
 
@@ -948,7 +948,7 @@ ROM_START( 64streej )
 	ROM_LOAD( "64th_10.rom", 0x000000, 0x040000, CRC(a3390561) SHA1(f86d5c61e3e80d30408535c2203940ca1e95ac18) )
 
 	ROM_REGION( 0x0200, REGION_PROMS, 0 )		/* Priority PROM */
-	ROM_LOAD( "prom",        0x0000, 0x0200, NO_DUMP )
+	ROM_LOAD( "pr91009.12",  0x0000, 0x0200, CRC(c69423d6) SHA1(ba9644a9899df2d73a5a16bf7ceef1954c2e25f3) ) /* same as pr-91044 on hayaosi1 */
 ROM_END
 
 
@@ -1448,7 +1448,8 @@ ROM_START( chimerab )
 	ROM_LOAD( "voi10.bin", 0x000000, 0x040000, CRC(67498914) SHA1(8d89fa90f38fd102b15f26f71491ea833ec32cb2) )
 
 	ROM_REGION( 0x0200, REGION_PROMS, 0 )		/* Priority PROM */
-	ROM_LOAD( "prom",         0x0000, 0x0200, NO_DUMP )
+    /*guess, but 99% sure it's meant to be the same as 64street/hayaosi1 based on analysis of game and previous handcrafted data */
+	ROM_LOAD( "pr-91044",  0x0000, 0x0200, CRC(c69423d6) SHA1(ba9644a9899df2d73a5a16bf7ceef1954c2e25f3) )
 ROM_END
 
 INPUT_PORTS_START( chimerab )
@@ -2151,9 +2152,7 @@ ROM_START( kickoff )
 	ROM_LOAD( "kioff21.rom", 0x020000, 0x020000, CRC(195940cf) SHA1(5b1880a576046dae32cf1fd48cd4e8830649b7f7) )
 
 	ROM_REGION( 0x040000, REGION_SOUND2, 0 )		/* Samples */
-	// same rom for 2 oki chips ?? Unlikely
-	ROM_LOAD( "kioff20.rom", 0x000000, 0x020000, CRC(5c28bd2d) SHA1(95d70a30118dfd2649f8d1f726a89e61233b4ae1) )
-	ROM_LOAD( "kioff21.rom", 0x020000, 0x020000, CRC(195940cf) SHA1(5b1880a576046dae32cf1fd48cd4e8830649b7f7) )
+    ROM_LOAD( "kioff10.rom", 0x000000, 0x020000, CRC(fd739fec) SHA1(1442d5ef7b8fbaa0c9f71c12ce993626364d2e1a) )
 
 	ROM_REGION( 0x0200, REGION_PROMS, 0 )		/* Priority PROM */
 	ROM_LOAD( "kick.bin",    0x0000, 0x0200, CRC(85b30ac4) SHA1(b03f577ceb0f26b67453ffa52ef61fea76a93184) )
@@ -3320,8 +3319,85 @@ INPUT_PORTS_START( tshingen )
 
 INPUT_PORTS_END
 
+/***************************************************************************
 
+                            [ In Your Face (North America, Prototype) ]
 
+***************************************************************************/
+
+ROM_START( inyourfa )
+	ROM_REGION( 0x60000, REGION_CPU1, 0 )     /* Main CPU Code */
+	ROM_LOAD16_BYTE( "02.27C1001", 0x000000, 0x020000, CRC(ae77e5b7) SHA1(222e1f4c3d82cdedb88ec524ea11500145bc8c87) )
+	ROM_LOAD16_BYTE( "01.27C1001", 0x000001, 0x020000, CRC(e5ea92ef) SHA1(0afcaa1451572aee7486b76c21bdd4617d2b25d2) )
+	ROM_LOAD16_BYTE( "03.27C512",  0x040000, 0x010000, CRC(a1efe9be) SHA1(3f49c337f0cd8634d0049c80631e32ea887d8fef) )
+	ROM_LOAD16_BYTE( "04.27C512",  0x040001, 0x010000, CRC(f786cf3e) SHA1(83de4e679e34bbd2bdad62f2c3b707cf032942b5) )
+
+	ROM_REGION( 0x20000, REGION_CPU2, 0 )        /* Sound CPU Code */
+	ROM_LOAD16_BYTE( "05.27C512",  0x000000, 0x010000, CRC(1737ed64) SHA1(20be59c43d7975fcc5048f1ee9ed5af893bdef85) )
+	ROM_LOAD16_BYTE( "06.27C512",  0x000001, 0x010000, CRC(9f12bcb9) SHA1(7c5faf6a295b2124e16823f50e57b234b6127a38) )
+
+	ROM_REGION( 0x080000, REGION_GFX1, ROMREGION_DISPOSE ) 
+	ROM_LOAD( "11.27C1001", 0x000000, 0x020000, CRC(451a1428) SHA1(c017ef4dd3dffd26a93f5b926d80fd5e7bd7dea1) )
+	ROM_LOAD( "12.27C1001", 0x020000, 0x020000, CRC(9ead7432) SHA1(0690b640ebe9d1461f44040a33236705a303dc7e) )
+	ROM_LOAD( "13.27C1001", 0x040000, 0x020000, CRC(7e39842a) SHA1(00a4c86e8ef6e8e20d8f01eccd7d37f46be5f904) )
+	ROM_LOAD( "14.27C1001", 0x060000, 0x020000, CRC(a91a3569) SHA1(0e530cdc0cf5ff0db589fb644c2181d35701fb2e) )
+
+	ROM_REGION( 0x080000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "15.27C1001", 0x000000, 0x020000, CRC(420081b6) SHA1(02fedf7bc18a1b8f12b4e549a910801c0e315a32) )
+	ROM_LOAD( "16.27C1001", 0x020000, 0x020000, CRC(87b1a582) SHA1(75a8762041cbd72fad821083ce9ea65474e4b2c8) )
+	ROM_LOAD( "17.27C1001", 0x040000, 0x020000, CRC(00857146) SHA1(1a2e6ac6efbec4a825525933b92de933233ad3b2) )
+	ROM_FILL(               0x60000,  0x20000, 0xff )// 18? not populated?
+
+	ROM_REGION( 0x020000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "19.27C1001", 0x000000, 0x020000, CRC(b82c94ec) SHA1(cf83355fb8941cf4332b764bb7de01d4c2aead21) )
+
+	ROM_REGION( 0x080000, REGION_GFX4, ROMREGION_DISPOSE )
+	ROM_LOAD( "20.27C1001", 0x000000, 0x020000, CRC(4a322d18) SHA1(17a514e50da13bbcbecfbe186bc99c5383eefd38) )
+	ROM_LOAD( "21.27C1001", 0x020000, 0x020000, CRC(7bb4b35d) SHA1(001ef590a5245126182ab7af54bc1c56012ab218) )
+	ROM_LOAD( "22.27C1001", 0x040000, 0x020000, CRC(1dc040d2) SHA1(bda3a441a20f253b67ca646d71d3703a8c59e210) )
+	ROM_LOAD( "23.27C1001", 0x060000, 0x020000, CRC(50478530) SHA1(a17b8fdba4fbcbb2d0b715d5cfb2192edbf5a457) )
+
+	ROM_REGION( 0x040000, REGION_SOUND1, 0 )       /* Samples */
+	ROM_LOAD( "09.27C1001", 0x000000, 0x020000, CRC(27f4bfb4) SHA1(36c8c8b73f26d812711403135a8210af520efb66) )
+	ROM_LOAD( "10.27C1001", 0x020000, 0x020000, CRC(cf5430ff) SHA1(8d0b1ab9c25312a65fa534a758f7f3ab01b3b593) )
+
+	ROM_REGION( 0x040000, REGION_SOUND2, 0 )       /* Samples */
+	ROM_LOAD( "07.27C1001",  0x000000, 0x020000, CRC(dc254c7c) SHA1(4daed57c5603bd021f9effb228a4d40b569f72d4) )
+	ROM_LOAD( "08.27C1001",  0x020000, 0x020000, CRC(cadd4731) SHA1(1c4e7ea7064b9c6b2dfdf01fd64f37de6d50bdfa) ) // 11xxxxxxxxxxxxxxx = 0xFF
+
+	ROM_REGION( 0x0200, REGION_PROMS, 0 )        /* Priority PROM */
+    ROM_LOAD( "prom.14m",    0x0000,   0x0200, CRC(21390e3a) SHA1(e641be8ee6ed2ac62a027bf47ec49acb30d65ced) ) /* was missing from PCB, this one has been handcrafted */ /* dink */
+ROM_END
+
+INPUT_PORTS_START( inyourfa )
+	COINS				/* IN0 0x80001.b */
+//	pass	shoot	change player
+	PORT_START_TAG("IN1")
+	JOY_3BUTTONS(1)	    /* IN1 0x80003.b */
+	PORT_START_TAG("IN2")
+	RESERVE				/* IN2 0x80004.b */
+	PORT_START_TAG("IN3")
+	JOY_3BUTTONS(2)	    /* IN3 0x80005.b */
+
+	PORT_START_TAG("DSW1") 			/* IN4 0x80006.b */
+	COINAGE_6BITS
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( On ) )
+    PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPNAME( 0x80, 0x80, "Freeze Screen (Cheat)")
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_START_TAG("DSW2")			/* IN5 - 0x80007.b */
+	PORT_DIPNAME( 0x03, 0x03, "Game Time" )
+	PORT_DIPSETTING(    0x02, "00:50" )
+	PORT_DIPSETTING(    0x01, "01:00" )
+	PORT_DIPSETTING(    0x03, "01:10" )
+	PORT_DIPSETTING(    0x00, "01:20" )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+INPUT_PORTS_END
 
 /***************************************************************************
 
@@ -3705,3 +3781,4 @@ GAME( 1992, bigstrik, 0,        system_C,          bigstrik, bigstrik, ROT0,   "
 GAME( 1993, chimerab, 0,        system_C,          chimerab, chimerab, ROT0,   "Jaleco", "Chimera Beast (prototype)", 0 )
 GAME( 1993, cybattlr, 0,        system_C,          cybattlr, cybattlr, ROT90,  "Jaleco", "Cybattler", 0 )
 GAME( 1993, peekaboo, 0,        system_D,          peekaboo, peekaboo, ROT0,   "Jaleco", "Peek-a-Boo!", 0 )
+GAME( 1991, inyourfa, 0,        system_A,          inyourfa, iganinju, ROT0,   "Jaleco", "In Your Face (North America, prototype)", 0 )
