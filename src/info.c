@@ -730,9 +730,9 @@ static void print_game_driver(FILE* out, const game_driver* game)
 	/* some minor issues, games marked as status=preliminary */
 	/* don't work or have major emulation problems. */
 
-	if (game->flags & (GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_NO_SOUND | GAME_WRONG_COLORS))
+	if (game->flags & (GAME_NOT_WORKING | GAME_NO_SOUND | GAME_WRONG_COLORS))
 		fprintf(out, " status=\"preliminary\"");
-	else if (game->flags & (GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS))
+	else if (game->flags & (GAME_IMPERFECT_COLORS | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_UNEMULATED_PROTECTION))
 		fprintf(out, " status=\"imperfect\"");
 	else
 		fprintf(out, " status=\"good\"");
