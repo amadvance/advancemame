@@ -5878,6 +5878,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( chimerab )	/* (c) 1993 */
 	DRIVER( cybattlr )	/* (c) 1993 */
 	DRIVER( peekaboo )	/* (c) 1993 */
+	DRIVER( inyourfa )      /* (c) 1991 (North America, Prototype) */
 
 	/* Jaleco Mega System 1 games */
 	DRIVER( hayaosi1 )	/* (c) 1994 */
