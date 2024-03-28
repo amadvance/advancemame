@@ -193,6 +193,13 @@ WRITE8_HANDLER( pacman_videoram_w )
 	tilemap_mark_tile_dirty( bg_tilemap, offset );
 }
 
+WRITE8_HANDLER( mspactwin_videoram_w )
+{
+	videoram[offset] = data;
+	tilemap_mark_tile_dirty( bg_tilemap, offset );
+	force_partial_update(cpu_getscanline() + 8);
+}
+
 WRITE8_HANDLER( pacman_colorram_w )
 {
 	colorram[offset] = data;
