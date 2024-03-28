@@ -82,6 +82,7 @@ const game_driver * const drivers[] =
 	DRIVER( mspacman )	/* (c) 1981 Midway */ /* made by Gencomp */
 	DRIVER( mspacmnf )	/* hack */
 	DRIVER( mspacmat )	/* hack */
+	DRIVER( mspactwin )	/* hack */
 	DRIVER( woodpek )
 	DRIVER( woodpeka )
 	DRIVER( mspacmab )	/* bootleg */
