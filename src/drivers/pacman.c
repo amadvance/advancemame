@@ -334,6 +334,7 @@ Boards:
 #include "sound/ay8910.h"
 #include "sound/sn76496.h"
 
+static UINT8 *decrypted_opcodes;
 
 /*************************************
  *
@@ -353,7 +354,45 @@ MACHINE_RESET( mschamp )
 	memory_set_bank(2, whichbank);
 }
 
+MACHINE_RESET( mspactwin )
+{
+	static UINT8 firstrun = 0;
+	static UINT8 *decrypted_opcodes; 
+	static UINT8 data_holder[0xc000];
 
+	if (!firstrun)
+	{
+		UINT8 *rom = memory_region(REGION_CPU1);
+		int A;
+
+		decrypted_opcodes = data_holder; /* auto_malloc(0xc000); */
+		for (A = 0x0000; A < 0x4000; A+=2) {
+
+			/* decode opcode */
+			decrypted_opcodes     [A  ] = BITSWAP8(rom[       A  ]       , 4, 5, 6, 7, 0, 1, 2, 3);
+			decrypted_opcodes     [A+1] = BITSWAP8(rom[       A+1] ^ 0x9A, 6, 4, 5, 7, 2, 0, 3, 1);
+			decrypted_opcodes[0x8000+A  ] = BITSWAP8(rom[0x8000+A  ]       , 4, 5, 6, 7, 0, 1, 2, 3);
+			decrypted_opcodes[0x8000+A+1] = BITSWAP8(rom[0x8000+A+1] ^ 0x9A, 6, 4, 5, 7, 2, 0, 3, 1);
+
+			/* decode operand */
+			rom[       A  ] = BITSWAP8(rom[       A  ]       , 0, 1, 2, 3, 4, 5, 6, 7);
+			rom[       A+1] = BITSWAP8(rom[       A+1] ^ 0xA3, 2, 4, 6, 3, 7, 0, 5, 1);
+			rom[0x8000+A  ] = BITSWAP8(rom[0x8000+A  ]       , 0, 1, 2, 3, 4, 5, 6, 7);
+			rom[0x8000+A+1] = BITSWAP8(rom[0x8000+A+1] ^ 0xA3, 2, 4, 6, 3, 7, 0, 5, 1);
+		}
+
+		for (A = 0x0000; A < 0x2000; A++) {
+
+			decrypted_opcodes[0x6000+A] = decrypted_opcodes[A+0x2000];
+			rom[0x6000+A  ] = BITSWAP8(rom[0x6000+A  ]       , 0, 1, 2, 3, 4, 5, 6, 7);
+			rom[0x6000+A+1] = BITSWAP8(rom[0x6000+A+1] ^ 0xA3, 2, 4, 6, 3, 7, 0, 5, 1);
+		}
+		firstrun=1;
+		memory_set_opcode_base(0,decrypted_opcodes);
+	}
+	else
+	memory_set_opcode_base(0,decrypted_opcodes);
+}
 
 /*************************************
  *
@@ -388,6 +427,10 @@ static INTERRUPT_GEN( pacman_interrupt )
 	}
 }
 
+static INTERRUPT_GEN( mspactwin_interrupt )
+{
+	irq0_line_hold();
+}
 
 /*
    The piranha board has a sync bus controler card similar to Midway's pacman. It
@@ -817,6 +860,48 @@ static ADDRESS_MAP_START( mspacman_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x5080, 0x5080) AM_MIRROR(0xaf3f) AM_READ(input_port_2_r)	/* DSW1 */
 	AM_RANGE(0x50c0, 0x50c0) AM_MIRROR(0xaf3f) AM_READ(input_port_3_r)	/* DSW2 */
 	AM_RANGE(0x8000, 0xbfff) AM_READWRITE(MRA8_BANK1,MWA8_ROM)
+ADDRESS_MAP_END
+
+READ8_HANDLER(mspactwin_spriteram_r)
+{
+	return spriteram[offset];
+}
+
+static ADDRESS_MAP_START( mspactwin_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x1fff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x2000, 0x3fff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x4000, 0x47ff) AM_READ(MRA8_RAM)	/* video and color RAM */
+    AM_RANGE(0x4c00, 0x4fef) AM_READ(MRA8_RAM)
+	AM_RANGE(0x4ff0, 0x4fff) AM_READ(mspactwin_spriteram_r)	/*sprite codes at 4ff0-4fff */
+	AM_RANGE(0x5000, 0x5000) AM_READ(input_port_0_r)	/* IN0 */
+	AM_RANGE(0x5040, 0x5040) AM_READ(input_port_1_r)	/* IN1 */
+	AM_RANGE(0x5080, 0x50bf) AM_READ(input_port_4_r)	/* DSW1 */
+    AM_RANGE(0x8000, 0xbffe) AM_READ(MRA8_ROM)
+	AM_RANGE(0x8000, 0xbfff) AM_READ(MRA8_ROM)
+ADDRESS_MAP_END
+
+
+static ADDRESS_MAP_START( mspactwin_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x1fff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0x2000, 0x3fff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0x4000, 0x43ff) AM_WRITE(mspactwin_videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
+	AM_RANGE(0x4400, 0x47ff) AM_WRITE(pacman_colorram_w) AM_BASE(&colorram)
+	AM_RANGE(0x4c00, 0x4fef) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x4ff0, 0x4fff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x5000, 0x5000) AM_WRITE(interrupt_enable_w)
+	AM_RANGE(0x5001, 0x5001) AM_WRITE(pacman_sound_enable_w)
+	AM_RANGE(0x5002, 0x5002) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x5003, 0x5003) AM_WRITE(pacman_flipscreen_w)
+ 	AM_RANGE(0x5004, 0x5005) AM_WRITE(pacman_leds_w)
+	AM_RANGE(0x5006, 0x5006) AM_WRITE(mspacman_activate_rom)	/* Not actually, just handy */
+ 	AM_RANGE(0x5007, 0x5007) AM_WRITE(pacman_coin_counter_w)
+	AM_RANGE(0x5040, 0x505f) AM_WRITE(pacman_sound_w) AM_BASE(&pacman_soundregs)
+	AM_RANGE(0x5060, 0x506f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram_2)
+	AM_RANGE(0x50c0, 0x50c0) AM_WRITE(watchdog_reset_w)
+	AM_RANGE(0x8000, 0xbffe) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0x8000, 0xbfff) AM_WRITE(MWA8_BANK1)	/* Ms. Pac-Man / Ponpoko only */
+	AM_RANGE(0xc000, 0xc3ff) AM_WRITE(mspactwin_videoram_w) /* mirror address for video ram, */
+	AM_RANGE(0xc400, 0xc7ef) AM_WRITE(pacman_colorram_w) /* used to display HIGH SCORE and CREDITS */
 ADDRESS_MAP_END
 
 
@@ -1270,6 +1355,59 @@ INPUT_PORTS_START( mspacman )
 	PORT_DIPSETTING(    0x04, "Enabled with Button" )
 INPUT_PORTS_END
 
+INPUT_PORTS_START( mspactwin )
+	PORT_START	/* IN0 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY
+	PORT_BIT( 0x0f, IP_ACTIVE_LOW, IPT_SPECIAL )
+	PORT_DIPNAME( 0x10, 0x10, "Speed" ) //Jama
+	PORT_DIPSETTING(    0x10, "Slow" )
+	PORT_DIPSETTING(    0x00, "Fast" )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_SERVICE1 )
+
+	PORT_START	/* IN1 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0f, IP_ACTIVE_LOW, IPT_SPECIAL )
+	PORT_SERVICE( 0x10, IP_ACTIVE_LOW )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_DIPNAME(0x80,  0x80, "Rack Test (Cheat)" )	PORT_CODE(KEYCODE_F1)
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	/* multiplexed player inputs */
+	PORT_START	/* P1 */
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START	/* P2 */
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START	/* DSW1 */
+	PORT_DIPNAME( 0x03, 0x01, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x00, "Free Play (Invalid)" ) /* causes watchdog reset at title screen, see comments above */
+	PORT_SERVICE( 0x08, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x0c, 0x08, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x00, "1" )
+	PORT_DIPSETTING(    0x04, "2" )
+	PORT_DIPSETTING(    0x08, "3" )
+	PORT_DIPSETTING(    0x0c, "5" )
+	PORT_DIPNAME( 0x30, 0x00, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x00, "10000" )
+	PORT_DIPSETTING(    0x10, "15000" )
+	PORT_DIPSETTING(    0x20, "20000" )
+	PORT_DIPSETTING(    0x30, "None"  )
+	PORT_BIT( 0xc0, IP_ACTIVE_LOW, IPT_UNUSED )
+INPUT_PORTS_END
 
 /* Same as 'mspacman', but no fake input port */
 INPUT_PORTS_START( mspacpls )
@@ -2933,6 +3071,18 @@ static MACHINE_DRIVER_START( mspacman )
 	MDRV_CPU_PROGRAM_MAP(mspacman_map,0)
 
 	MDRV_MACHINE_RESET(mspacman)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( mspactwin )
+
+	/* basic machine hardware */
+	MDRV_IMPORT_FROM(pacman)
+
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(mspactwin_readmem,mspactwin_writemem)
+	MDRV_CPU_VBLANK_INT(mspactwin_interrupt,1)
+
+	MDRV_MACHINE_RESET(mspactwin)
 MACHINE_DRIVER_END
 
 
@@ -4789,6 +4939,26 @@ ROM_START( rocktrv2 )
 	ROM_LOAD( "18.aux",       0x3c000, 0x4000, CRC(feb195fd) SHA1(5677d31e526cc7752254e9af0d694f05bc6bc907) )
 ROM_END
 
+ROM_START( mspactwin )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for encrypted code */
+	ROM_LOAD( "m27256.bin",  0x0000, 0x4000, CRC(77a99184) SHA1(9dcb1a1b78994aa401d653bec571cb3e6f9d900b) )
+	ROM_CONTINUE(0x8000,0x4000)
+
+	ROM_REGION( 0x2000, REGION_GFX1, 0 )
+	ROM_LOAD( "4__2716.5d",  0x0000, 0x0800, CRC(483c1d1c) SHA1(d3b967c6a71cf02b825d800f56d5268f2e0e60eb) )
+	ROM_LOAD( "2__2716.5g",  0x0800, 0x0800, CRC(c08d73a2) SHA1(072e57641ac5ae3c47b4f8d9c55e3da5b35489ea) )
+	ROM_LOAD( "3__2516.5f",  0x1000, 0x0800, CRC(22b0188a) SHA1(a9ed9ca8b36a60081fd364abc9bc23963932cc0b) )
+	ROM_LOAD( "1__2516.5j",  0x1800, 0x0800, CRC(0a8c46a0) SHA1(e38e9e3258ab26fcbc6fdf258844e364f4b165ab) )
+
+	ROM_REGION( 0x0120, REGION_PROMS, 0 )
+	ROM_LOAD( "mb7051.8h",   0x0000, 0x0020, CRC(ff344446) SHA1(45eb37533da8912645a089b014f3b3384702114a) )
+	ROM_LOAD( "82s129.4a",   0x0020, 0x0100, CRC(a8202d0d) SHA1(2a615211c33f3ef75af14e4bbedd2a700100be29) )
+
+	ROM_REGION( 0x0200, REGION_SOUND1, 0 )	/* Sound PROMs */
+	ROM_LOAD( "82s126.1m",   0x0000, 0x0100, CRC(a9cc86bf) SHA1(bbcec0570aeceb582ff8238a4bc8546a23430081) )
+	ROM_LOAD( "82s126.3m",   0x0100, 0x0100, CRC(77245b66) SHA1(0c4d0bee858b97632411c440bea6948a74759746) )
+ROM_END
+
 /*************************************
  *
  *  Driver initialization
@@ -5089,3 +5259,6 @@ GAME( 1985, porky,    0,        porky,    porky,    porky,    ROT90,  "Shinkai I
 GAME( 1986, rocktrv2, 0,        rocktrv2, rocktrv2, rocktrv2, ROT90,  "Triumph Software Inc.", "MTV Rock-N-Roll Trivia (Part 2)", GAME_SUPPORTS_SAVE )
 GAME( 1986, bigbucks, 0,        bigbucks, bigbucks, 0,        ROT90,  "Dynasoft Inc.", "Big Bucks", GAME_SUPPORTS_SAVE )
 GAME( 1995, mschamp,  mspacman, mschamp,  mschamp,  0,        ROT90,  "hack", "Ms. Pacman Champion Edition / Super Zola Pac Gal", GAME_SUPPORTS_SAVE )
+
+/* Simultaneous 2 player hack of Ms Pac-Man */
+GAME( 1992, mspactwin, 0,       mspactwin, mspactwin, 0,      ROT90,  "SUSILU", "Ms. Pac-Man Twin (Argentina)", GAME_SUPPORTS_SAVE )
