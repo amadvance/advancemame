@@ -388,10 +388,10 @@ MACHINE_RESET( mspactwin )
 			rom[0x6000+A+1] = BITSWAP8(rom[0x6000+A+1] ^ 0xA3, 2, 4, 6, 3, 7, 0, 5, 1);
 		}
 		firstrun=1;
-		memory_set_decrypted_region(0,0,0,decrypted_opcodes);
+		memory_set_decrypted_region(0, 0x0000, 0x1fff, decrypt);
 	}
 	else
-	memory_set_decrypted_region(0,0,0,decrypted_opcodes);
+	memory_set_decrypted_region(0, 0x0000, 0x1fff, decrypt);
 }
 
 /*************************************
