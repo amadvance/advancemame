@@ -11,6 +11,7 @@ VIDEO_START( pacman );
 VIDEO_UPDATE( pacman );
 
 WRITE8_HANDLER( pacman_videoram_w );
+WRITE8_HANDLER( mspactwin_videoram_w );
 WRITE8_HANDLER( pacman_colorram_w );
 WRITE8_HANDLER( pacman_flipscreen_w );
 
