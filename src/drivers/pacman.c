@@ -356,6 +356,7 @@ MACHINE_RESET( mschamp )
 
 MACHINE_RESET( mspactwin )
 {
+#if 0 /* missing memory_set_opcode_base */
 	static UINT8 firstrun = 0;
 	static UINT8 *decrypted_opcodes; 
 	static UINT8 data_holder[0xc000];
@@ -392,6 +393,7 @@ MACHINE_RESET( mspactwin )
 	}
 	else
 	memory_set_opcode_base(0,decrypted_opcodes);
+#endif
 }
 
 /*************************************
