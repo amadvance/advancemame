@@ -356,7 +356,6 @@ MACHINE_RESET( mschamp )
 
 MACHINE_RESET( mspactwin )
 {
-#if 0 /* missing memory_set_opcode_base */
 	static UINT8 firstrun = 0;
 	static UINT8 *decrypted_opcodes; 
 	static UINT8 data_holder[0xc000];
@@ -389,11 +388,10 @@ MACHINE_RESET( mspactwin )
 			rom[0x6000+A+1] = BITSWAP8(rom[0x6000+A+1] ^ 0xA3, 2, 4, 6, 3, 7, 0, 5, 1);
 		}
 		firstrun=1;
-		memory_set_opcode_base(0,decrypted_opcodes);
+		memory_set_decrypted_region(0,0,0,decrypted_opcodes);
 	}
 	else
-	memory_set_opcode_base(0,decrypted_opcodes);
-#endif
+	memory_set_decrypted_region(0,0,0,decrypted_opcodes);
 }
 
 /*************************************
