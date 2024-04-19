@@ -379,28 +379,27 @@ MACHINE_RESET( mspactwin )
 			rom[0x8000+A  ] = BITSWAP8(rom[0x8000+A  ]       , 0, 1, 2, 3, 4, 5, 6, 7);
 			rom[0x8000+A+1] = BITSWAP8(rom[0x8000+A+1] ^ 0xA3, 2, 4, 6, 3, 7, 0, 5, 1);
 		}
-		/*this makes no sense to me at this point its no even mapped but ill leave it in
+		/*this makes no sense to me at this point its no even mapped but ill leave it in just in case it goes pear shaped and needs added 
+
 		for (A = 0x0000; A < 0x2000; A++) {
 
 			decrypted_opcodes[0x6000+A] = decrypted_opcodes[A+0x2000];
 			rom[0x6000+A  ] = BITSWAP8(rom[0x6000+A  ]       , 0, 1, 2, 3, 4, 5, 6, 7);
 			rom[0x6000+A+1] = BITSWAP8(rom[0x6000+A+1] ^ 0xA3, 2, 4, 6, 3, 7, 0, 5, 1);
-		}
-		*/
-		firstrun=1;
-		memory_configure_bank(1, 1, 1, rom             , 0);
-		memory_configure_bank(2, 1, 1, &rom[0x2000], 0x2000);
-		memory_configure_bank(3, 1, 1, &rom[0x8000], 0x8000);
+		}*/
 
-		memory_configure_bank_decrypted(1, 1, 1, decrypted_opcodes          , 0);
+		firstrun=1;
+		memory_configure_bank(1, 1, 1, rom         , 0);
+		memory_configure_bank(2, 1, 1, &rom[0x2000], 0);
+		memory_configure_bank(3, 1, 1, &rom[0x8000], 0);
+
+		memory_configure_bank_decrypted(1, 1, 1, decrypted_opcodes         ,  0);
 		memory_configure_bank_decrypted(2, 1, 1, &decrypted_opcodes[0x2000],  0);
 		memory_configure_bank_decrypted(3, 1, 1, &decrypted_opcodes[0x8000],  0);
 
 		memory_set_bank(1, 1);
 		memory_set_bank(2, 1);
 		memory_set_bank(3, 1);
-
-
 	}
 	else
 	{
@@ -411,12 +410,11 @@ MACHINE_RESET( mspactwin )
 
 		memory_configure_bank_decrypted(1, 1, 1, decrypted_opcodes         , 0);
 		memory_configure_bank_decrypted(2, 1, 1, &decrypted_opcodes[0x2000], 0);
-		memory_configure_bank_decrypted(3, 1, 1, &decrypted_opcodes[0x8000], 00);
+		memory_configure_bank_decrypted(3, 1, 1, &decrypted_opcodes[0x8000], 0);
 
 		memory_set_bank(1, 1);
 		memory_set_bank(2, 1);
 		memory_set_bank(3, 1);
-
 	}
 }
 
