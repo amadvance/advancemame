@@ -357,7 +357,6 @@ MACHINE_RESET( mschamp )
 MACHINE_RESET( mspactwin )
 {
 	static UINT8 firstrun = 0;
-	static UINT8 *decrypted_opcodes; 
 	static UINT8 data_holder[0xc000];
 
 	if (!firstrun)
@@ -365,7 +364,7 @@ MACHINE_RESET( mspactwin )
 		UINT8 *rom = memory_region(REGION_CPU1);
 		int A;
 
-		decrypted_opcodes = data_holder; /* auto_malloc(0xc000); */
+		decrypted_opcodes = data_holder;
 		for (A = 0x0000; A < 0x4000; A+=2) {
 
 			/* decode opcode */
@@ -380,18 +379,45 @@ MACHINE_RESET( mspactwin )
 			rom[0x8000+A  ] = BITSWAP8(rom[0x8000+A  ]       , 0, 1, 2, 3, 4, 5, 6, 7);
 			rom[0x8000+A+1] = BITSWAP8(rom[0x8000+A+1] ^ 0xA3, 2, 4, 6, 3, 7, 0, 5, 1);
 		}
-
+		/*this makes no sense to me at this point its no even mapped but ill leave it in
 		for (A = 0x0000; A < 0x2000; A++) {
 
 			decrypted_opcodes[0x6000+A] = decrypted_opcodes[A+0x2000];
 			rom[0x6000+A  ] = BITSWAP8(rom[0x6000+A  ]       , 0, 1, 2, 3, 4, 5, 6, 7);
 			rom[0x6000+A+1] = BITSWAP8(rom[0x6000+A+1] ^ 0xA3, 2, 4, 6, 3, 7, 0, 5, 1);
 		}
+		*/
 		firstrun=1;
-		memory_set_decrypted_region(0, 0x0000, 0x1fff, decrypted_opcodes);
+		memory_configure_bank(1, 1, 1, rom             , 0);
+		memory_configure_bank(2, 1, 1, &rom[0x2000], 0x2000);
+		memory_configure_bank(3, 1, 1, &rom[0x8000], 0x8000);
+
+		memory_configure_bank_decrypted(1, 1, 1, decrypted_opcodes          , 0);
+		memory_configure_bank_decrypted(2, 1, 1, &decrypted_opcodes[0x2000],  0);
+		memory_configure_bank_decrypted(3, 1, 1, &decrypted_opcodes[0x8000],  0);
+
+		memory_set_bank(1, 1);
+		memory_set_bank(2, 1);
+		memory_set_bank(3, 1);
+
+
 	}
 	else
-	memory_set_decrypted_region(0, 0x0000, 0x1fff, decrypted_opcodes);
+	{
+		UINT8 *rom = memory_region(REGION_CPU1);
+		memory_configure_bank(1, 1, 1, rom         , 0);
+		memory_configure_bank(2, 1, 1, &rom[0x2000], 0);
+		memory_configure_bank(3, 1, 1, &rom[0x8000], 0);
+
+		memory_configure_bank_decrypted(1, 1, 1, decrypted_opcodes         , 0);
+		memory_configure_bank_decrypted(2, 1, 1, &decrypted_opcodes[0x2000], 0);
+		memory_configure_bank_decrypted(3, 1, 1, &decrypted_opcodes[0x8000], 00);
+
+		memory_set_bank(1, 1);
+		memory_set_bank(2, 1);
+		memory_set_bank(3, 1);
+
+	}
 }
 
 /*************************************
@@ -868,22 +894,21 @@ READ8_HANDLER(mspactwin_spriteram_r)
 }
 
 static ADDRESS_MAP_START( mspactwin_readmem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x1fff) AM_READ(MRA8_ROM)
-	AM_RANGE(0x2000, 0x3fff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x0000, 0x1fff) AM_ROMBANK(1)
+	AM_RANGE(0x2000, 0x3fff) AM_ROMBANK(2)
 	AM_RANGE(0x4000, 0x47ff) AM_READ(MRA8_RAM)	/* video and color RAM */
     AM_RANGE(0x4c00, 0x4fef) AM_READ(MRA8_RAM)
 	AM_RANGE(0x4ff0, 0x4fff) AM_READ(mspactwin_spriteram_r)	/*sprite codes at 4ff0-4fff */
 	AM_RANGE(0x5000, 0x5000) AM_READ(input_port_0_r)	/* IN0 */
 	AM_RANGE(0x5040, 0x5040) AM_READ(input_port_1_r)	/* IN1 */
-	AM_RANGE(0x5080, 0x50bf) AM_READ(input_port_4_r)	/* DSW1 */
-    AM_RANGE(0x8000, 0xbffe) AM_READ(MRA8_ROM)
-	AM_RANGE(0x8000, 0xbfff) AM_READ(MRA8_ROM)
+	AM_RANGE(0x5080, 0x5080) AM_READ(input_port_4_r)	/* DSW1 */
+	AM_RANGE(0x8000, 0xbfff) AM_ROMBANK(2)
 ADDRESS_MAP_END
 
 
 static ADDRESS_MAP_START( mspactwin_writemem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x1fff) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0x2000, 0x3fff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0x0000, 0x1fff) AM_ROMBANK(1)
+	AM_RANGE(0x2000, 0x3fff) AM_ROMBANK(2)
 	AM_RANGE(0x4000, 0x43ff) AM_WRITE(mspactwin_videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
 	AM_RANGE(0x4400, 0x47ff) AM_WRITE(pacman_colorram_w) AM_BASE(&colorram)
 	AM_RANGE(0x4c00, 0x4fef) AM_WRITE(MWA8_RAM)
@@ -898,8 +923,7 @@ static ADDRESS_MAP_START( mspactwin_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x5040, 0x505f) AM_WRITE(pacman_sound_w) AM_BASE(&pacman_soundregs)
 	AM_RANGE(0x5060, 0x506f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram_2)
 	AM_RANGE(0x50c0, 0x50c0) AM_WRITE(watchdog_reset_w)
-	AM_RANGE(0x8000, 0xbffe) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0x8000, 0xbfff) AM_WRITE(MWA8_BANK1)	/* Ms. Pac-Man / Ponpoko only */
+	AM_RANGE(0x8000, 0xbfff) AM_ROMBANK(3)
 	AM_RANGE(0xc000, 0xc3ff) AM_WRITE(mspactwin_videoram_w) /* mirror address for video ram, */
 	AM_RANGE(0xc400, 0xc7ef) AM_WRITE(pacman_colorram_w) /* used to display HIGH SCORE and CREDITS */
 ADDRESS_MAP_END
