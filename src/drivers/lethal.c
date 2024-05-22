@@ -296,6 +296,15 @@ static READ8_HANDLER( le_4800_r )
 				case 0x44:
 				case 0x45:
 				case 0x46:
+				case 0x47:
+				case 0x48:
+				case 0x49:
+				case 0x4a:
+				case 0x4b:
+				case 0x4c:
+				case 0x4d:
+				case 0x4e:
+				case 0x4f:
 					return K053244_r(offset-0x40);
 					break;
 
@@ -381,6 +390,15 @@ static WRITE8_HANDLER( le_4800_w )
 				case 0x44:
 				case 0x45:
 				case 0x46:
+				case 0x47:
+				case 0x48:
+				case 0x49:
+				case 0x4a:
+				case 0x4b:
+				case 0x4c:
+				case 0x4d:
+				case 0x4e:
+				case 0x4f:
 					K053244_w(offset-0x40, data);
 					break;
 
@@ -522,7 +540,7 @@ INPUT_PORTS_START( lethalen )
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_SERVICE1 )
 	PORT_SERVICE_NO_TOGGLE(0x08, IP_ACTIVE_LOW )
 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
-	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START2 )
 
