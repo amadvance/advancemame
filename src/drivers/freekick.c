@@ -778,19 +778,12 @@ ROM_START( pbillrds )
 	ROM_LOAD( "82s129.3c", 0x0500, 0x0100, CRC(cc1657e5) SHA1(358f20dce376c2389009f9673ce38b297af863f6) )
 ROM_END
 
-/*
-
-original sets don't work, they're missing the main cpu code which is probably inside
-the custom cpu, battery backed too so hopefully somebody can work out how to get it
-from an original counter run board before they all die :-(
-
-*/
 
 ROM_START( freekick )
-	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* Z80 Code */
-	// Custom (NS6201-A 1987.9)
-	ROM_LOAD( "freekck.cpu", 0x00000, 0x10000, NO_DUMP ) // missing, might be the same as the bootleg but not confirmed
-
+        ROM_REGION( 0x0d000*2, REGION_CPU1, 0 ) /* Z80 Code, internal program RAM is 52K in custom cpu module */
+	/* Custom CPU (pack) No. NS6201-A 1987.10 FREE KICK */
+	ROM_LOAD( "ns6201-a_1987.10_free_kick.cpu", 0x00000, 0x0d000, CRC(6d172850) SHA1(ac461bff9da263681085920ad6acd778241dedd3) )
+	
 	ROM_REGION( 0x08000, REGION_USER1, 0 ) /* sound data */
 	ROM_LOAD( "11.1e",       0x00000, 0x08000, CRC(a6030ba9) SHA1(f363100f54a7a80701a6395c7539b8daa60db054) )
 
@@ -831,13 +824,19 @@ ROM_START( freekckb )
 	ROM_LOAD( "17.1r",       0x008000, 0x04000, CRC(e7894def) SHA1(5c97b7cce43d1e51c709603a0d2394b8119764bd) )	// freekbl7.r2
 
 	ROM_REGION( 0x0600, REGION_PROMS, 0 )
-    ROM_LOAD( "8j.bpr",    0x0000, 0x0100, CRC(53a6bc21) SHA1(d4beedc226004c1aa9b6aae29bee9c8a9b0fff7c) )
+        ROM_LOAD( "8j.bpr",    0x0000, 0x0100, CRC(53a6bc21) SHA1(d4beedc226004c1aa9b6aae29bee9c8a9b0fff7c) )
 	ROM_LOAD( "7j.bpr",    0x0100, 0x0100, CRC(38dd97d8) SHA1(468a0f87a704982dc1bce1ca21f9bb252ac241a0) )
 	ROM_LOAD( "8k.bpr",    0x0200, 0x0100, CRC(18e66087) SHA1(54857526179b738862d11ce87e9d0edcb7878488) )
 	ROM_LOAD( "7k.bpr",    0x0300, 0x0100, CRC(bc21797a) SHA1(4d6cf05e51b7ef9147eeff051c3728764021cfdb) )
 	ROM_LOAD( "8h.bpr",    0x0400, 0x0100, CRC(8aac5fd0) SHA1(07a179603c0167c1f998b2337d66be95db9911cc) )
 	ROM_LOAD( "7h.bpr",    0x0500, 0x0100, CRC(a507f941) SHA1(97619959ee4c366cb010525636ab5eefe5a3127a) )
 ROM_END
+
+/*
+The original Counter Run set doesn't work, it's missing the main CPU code which is inside a custom CPU "block"
+just like the original Freekick boards. Hopefully an original Counter Run board can be found and dumped (using
+the same method as used for Freekick) before they all die, batteries don't last for ever :-(
+*/
 
 ROM_START( countrun )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 ) /* Z80 Code */
@@ -1029,7 +1028,7 @@ GAME( 1986, oigas,    gigasb,   oigas,    gigas,    gigas, ROT270, "bootleg", "O
 GAME( 1986, gigasm2b, 0,        gigas,    gigasm2,  gigas, ROT270, "bootleg", "Gigas Mark II (bootleg)", GAME_NO_COCKTAIL )
 GAME( 1987, pbillrd,  0,        pbillrd,  pbillrd,  0,     ROT0,   "Nihon System", "Perfect Billiard", 0 )
 GAME( 1987, pbillrds, pbillrd,  pbillrd,  pbillrd,  0,     ROT0,   "Nihon System", "Perfect Billiard (Sega)", GAME_UNEMULATED_PROTECTION )	// encrypted
-GAME( 1987, freekick, 0,        freekckb, freekck,  0,     ROT270, "Nihon System (Sega license)", "Free Kick", GAME_NOT_WORKING )
+GAME( 1987, freekick, 0,        freekckb, freekck,  0,     ROT270, "Nihon System (Sega license)", "Free Kick", 0 )
 GAME( 1987, freekckb, freekick, freekckb, freekck,  0,     ROT270, "bootleg", "Free Kick (bootleg)", 0 )
 GAME( 1988, countrun, 0,        freekckb, countrun, 0,     ROT0,   "Nihon System (Sega license)", "Counter Run", GAME_NOT_WORKING )
 GAME( 1988, countrnb, countrun, freekckb, countrun, 0,     ROT0,   "bootleg", "Counter Run (bootleg set 1)", 0 )
