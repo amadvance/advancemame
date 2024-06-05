@@ -2634,7 +2634,7 @@ VIDEO_UPDATE( multi32 )
 	/* update the visible area */
 	if (system32_videoram[0x1ff00/2] & 0x8000)
 	{
-		set_visible_area(0, 52*2*8-1, 0, 28*8-1);
+		set_visible_area(0, 52*2*8/2-1, 0, 28*8-1);
 		clipleft.min_x = 0;
 		clipleft.max_x = 52*8-1;
 		clipright.min_x = 52*8;
@@ -2642,7 +2642,7 @@ VIDEO_UPDATE( multi32 )
 	}
 	else
 	{
-		set_visible_area(0, 40*2*8-1, 0, 28*8-1);
+		set_visible_area(0, 40*2*8/2-1, 0, 28*8-1);
 		clipleft.min_x = 0;
 		clipleft.max_x = 40*8-1;
 		clipright.min_x = 40*8;
