@@ -249,6 +249,59 @@ VIDEO_START( sandscrp_1xVIEW2 )
 	return 0;
 }
 
+/* lazy way but will do for now */
+VIDEO_START( wingforce_1xVIEW2 )
+{
+	if (	video_start_kaneko16_sprites()	)
+		return 1;
+
+	kaneko16_tmap_0 = tilemap_create(	get_tile_info_0, tilemap_scan_rows,
+										TILEMAP_TRANSPARENT, 16,16, 0x20,0x20	);
+	kaneko16_tmap_1 = tilemap_create(	get_tile_info_1, tilemap_scan_rows,
+										TILEMAP_TRANSPARENT, 16,16, 0x20,0x20	);
+
+	kaneko16_tmap_2 = 0;
+
+	kaneko16_tmap_3 = 0;
+
+	if ((sprites_bitmap = auto_bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height)) == 0)
+		return 1;
+
+	if (	!kaneko16_tmap_0 || !kaneko16_tmap_1	)
+		return 1;
+
+	{
+		int dx, xdim = Machine->drv->screen_width;
+		int dy, ydim = Machine->drv->screen_height;
+
+		switch (xdim)
+		{
+			case 320:	dx = 0x33;	break;
+			case 256:	dx = 0x5b;	break;
+			default:	dx = 0;
+		}
+		switch (Machine->visible_area.max_y - Machine->visible_area.min_y + 1)
+		{
+			case 240- 8:	dy = +0x08;	    break;	/* blazeon */
+			case 240- 16:	dy = +0x08+1;	break;	/* wing force */
+			default:		dy = 0;
+		}
+
+		tilemap_set_scrolldx( kaneko16_tmap_0, -dx,		xdim + dx -1        );
+		tilemap_set_scrolldx( kaneko16_tmap_1, -(dx+2),	xdim + (dx + 2) - 1 );
+
+		tilemap_set_scrolldy( kaneko16_tmap_0, -dy,		ydim + dy -1 );
+		tilemap_set_scrolldy( kaneko16_tmap_1, -dy,		ydim + dy -1 );
+
+		tilemap_set_transparent_pen(kaneko16_tmap_0, 0);
+		tilemap_set_transparent_pen(kaneko16_tmap_1, 0);
+
+		tilemap_set_scroll_rows(kaneko16_tmap_0, 0x200);	// Line Scroll
+		tilemap_set_scroll_rows(kaneko16_tmap_1, 0x200);
+
+		return 0;
+	}
+}
 
 /* Berlwall has an additional hi-color background */
 
