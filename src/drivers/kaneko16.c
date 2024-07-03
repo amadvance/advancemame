@@ -1116,7 +1116,7 @@ WRITE8_HANDLER(wingforc_oki_bank_w)
 	if (data <= 2)
 		OKIM6295_set_bank_base(0, 0x40000 * data );
 	else
-		logerror("%s: unknown OKI bank %02X\n", activecpu_get_pc(),data);
+		logerror("%x: unknown OKI bank %02X\n", activecpu_get_pc(),data);
 }
 
 static ADDRESS_MAP_START( wingforc_sound_readmem, ADDRESS_SPACE_PROGRAM, 8 )
