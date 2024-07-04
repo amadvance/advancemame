@@ -2580,8 +2580,8 @@ V-V                           TP-027
 	DRIVER( progeara )	/* 17/01/2001 (c) 2001 Cave (Asia) */
 	DRIVER( pzloop2j )	/* 05/02/2001 (c) 2001 Mitchell (Japan) */
 	DRIVER( choko )		/* 20/08/2001 (c) 2001 Mitchell (Japan) */
-						/* 22/12/2003 Hyper Street Fighter 2 (Capcom, Japan) */
-						/* 02/02/2004 Hyper Street Fighter 2 (Capcom, Asia) */
+				/* 22/12/2003 Hyper Street Fighter 2 (Capcom, Japan) */
+	DRIVER( hsf2 )          /* 02/02/2004 Hyper Street Fighter 2 (Capcom, Asia) */
 
 	/* Capcom CPS3 games */
 	DRIVER( warzard )	/* 10/1996 Warzard */
