@@ -6114,7 +6114,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( fjbuster )	/* (c) 1992 Kaneko */
 	DRIVER( brapboys )	/* (c) 1992 Kaneko */
 	DRIVER( brapboysj )	/* (c) 1992 Kaneko */
-	DRIVER( wingforc  ) /* (c) 1993 Atlus (Japan, prototype) */
+	DRIVER( wingforc  )     /* (c) 1993 Atlus (Japan, prototype) */
+        DRIVER( packbang )      /* (c) 1994 Kaneko */
 	DRIVER( bloodwar )	/* (c) 1994 Kaneko */
 	DRIVER( bonkadv )	/* (c) 1994 Kaneko */
 	DRIVER( gtmr )		/* (c) 1994 Kaneko */
@@ -6124,6 +6125,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( gtmr2 )		/* (c) 1995 Kaneko */
 	DRIVER( gtmr2a )	/* (c) 1995 Kaneko */
 	DRIVER( gtmr2u )	/* (c) 1995 Kaneko */
+
 
 	/* Kaneko "Super Nova System" games */
 	DRIVER( skns )
