@@ -1116,6 +1116,7 @@ const game_driver * const drivers[] =
 	DRIVER( polarisa )	/* PS  (c) 1980 Taito */
 	DRIVER( ballbomb )	/* TN  (c) 1980 Taito */
 	DRIVER( indianbt )	/* (c) 1980 Taito */
+	DRIVER( steelwkr )	/* (c) 1980 Taito */
 	DRIVER( m79amb )
 	DRIVER( alieninv )
 	DRIVER( tst_invd )
@@ -2258,6 +2259,7 @@ V-V                           TP-027
 	DRIVER( madgear )	/*  2/1989 (c) 1989 (US) */
 	DRIVER( madgearj )	/*  2/1989 (c) 1989 (Japan) */
 	DRIVER( ledstorm )	/*  2/1989 (c) 1989 (US) */
+	DRIVER( leds2011 )     /*  2/1988 (c) 1988 (World) */
 	/*  3/1989 Dokaben (baseball) - see below among "Mitchell" games */
 	/*  8/1989 Dokaben 2 (baseball) - see below among "Mitchell" games */
 	/* 10/1989 Capcom Baseball - see below among "Mitchell" games */
@@ -2295,6 +2297,7 @@ V-V                           TP-027
 	DRIVER( ffightj1 )	/* 12/1989 (c) (Japan) */
 	DRIVER( 1941 )		/*  2/1990 (c) 1990 (World) */
 	DRIVER( 1941j )		/*  2/1990 (c) 1990 (Japan) */
+	DRIVER( 1943mii )       /*  6/1987 (c) 1987 (US) */
 	DRIVER( mercs )		/* 02/03/1990 (c) 1990 (World) */
 	DRIVER( mercsu )	/* 02/03/1990 (c) 1990 (US)    */
 	DRIVER( mercsua )	/* 08/06/1990 (c) 1990 (US)    */
@@ -6112,7 +6115,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( fjbuster )	/* (c) 1992 Kaneko */
 	DRIVER( brapboys )	/* (c) 1992 Kaneko */
 	DRIVER( brapboysj )	/* (c) 1992 Kaneko */
-	DRIVER( wingforc  ) /* (c) 1993 Atlus (Japan, prototype) */
+	DRIVER( wingforc  )     /* (c) 1993 Atlus (Japan, prototype) */
+        DRIVER( packbang )      /* (c) 1994 Kaneko */
 	DRIVER( bloodwar )	/* (c) 1994 Kaneko */
 	DRIVER( bonkadv )	/* (c) 1994 Kaneko */
 	DRIVER( gtmr )		/* (c) 1994 Kaneko */
@@ -6122,6 +6126,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( gtmr2 )		/* (c) 1995 Kaneko */
 	DRIVER( gtmr2a )	/* (c) 1995 Kaneko */
 	DRIVER( gtmr2u )	/* (c) 1995 Kaneko */
+
 
 	/* Kaneko "Super Nova System" games */
 	DRIVER( skns )
