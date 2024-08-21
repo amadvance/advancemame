@@ -524,6 +524,36 @@ static ADDRESS_MAP_START( berlwall, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xd00000, 0xd0001f) AM_READWRITE(MRA16_RAM, kaneko16_layers_0_regs_w) AM_BASE(&kaneko16_layers_0_regs)	// Layers Regs
 ADDRESS_MAP_END
 
+/***************************************************************************
+                        Pack'n Bang Bang
+***************************************************************************/
+
+static ADDRESS_MAP_START( packbang, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x03ffff) AM_ROM		// ROM
+	AM_RANGE(0x200000, 0x20ffff) AM_RAM		// Work RAM
+	AM_RANGE(0x30e000, 0x30ffff) AM_RAM AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)		// Sprites
+	AM_RANGE(0x400000, 0x400fff) AM_READWRITE(MRA16_RAM, paletteram16_xGGGGGRRRRRBBBBB_word_w) AM_BASE(&paletteram16)	// Palette
+//  AM_RANGE(0x480000, 0x480001) AM_RAM     // ?
+	AM_RANGE(0x500000, 0x500001) AM_READWRITE(kaneko16_bg15_reg_r, kaneko16_bg15_reg_w) AM_BASE(&kaneko16_bg15_reg)	// High Color Background
+	AM_RANGE(0x580000, 0x580001) AM_READWRITE(kaneko16_bg15_select_r, kaneko16_bg15_select_w) AM_BASE(&kaneko16_bg15_select)
+	AM_RANGE(0x600000, 0x60003f) AM_READWRITE(MRA16_RAM, kaneko16_sprites_regs_w) AM_BASE(&kaneko16_sprites_regs)	// Sprites Regs
+	AM_RANGE(0x680000, 0x680001) AM_READ(input_port_0_word_r)		// Inputs
+	AM_RANGE(0x680002, 0x680003) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x680004, 0x680005) AM_READ(input_port_2_word_r)
+//  AM_RANGE(0x680006, 0x680007) AM_READ(input_port_3_word_r)
+	AM_RANGE(0x700000, 0x700001) AM_WRITE(kaneko16_coin_lockout_w)	// Coin Lockout
+	AM_RANGE(0x780000, 0x780001) AM_READ(watchdog_reset16_r)		// Watchdog
+	AM_RANGE(0x800000, 0x80001f) AM_READWRITE(kaneko16_YM2149_0_r, kaneko16_YM2149_0_w)	// Sound
+	AM_RANGE(0x800200, 0x80021f) AM_READWRITE(kaneko16_YM2149_1_r, kaneko16_YM2149_1_w)
+	AM_RANGE(0x8003fe, 0x8003ff) AM_NOP // for OKI when accessed as .l
+	AM_RANGE(0x800400, 0x800401) AM_READWRITE(OKIM6295_status_0_msb_r, OKIM6295_data_0_msb_w) // msb for pack'n Bang Bang
+	AM_RANGE(0xc00000, 0xc00fff) AM_READWRITE(MRA16_RAM, kaneko16_vram_1_w) AM_BASE(&kaneko16_vram_1)	// Layers
+	AM_RANGE(0xc01000, 0xc01fff) AM_READWRITE(MRA16_RAM, kaneko16_vram_0_w) AM_BASE(&kaneko16_vram_0)	//
+	AM_RANGE(0xc02000, 0xc02fff) AM_RAM AM_BASE(&kaneko16_vscroll_1)									//
+	AM_RANGE(0xc03000, 0xc03fff) AM_RAM AM_BASE(&kaneko16_vscroll_0)									//
+	AM_RANGE(0xd00000, 0xd0001f) AM_READWRITE(MRA16_RAM, kaneko16_layers_0_regs_w) AM_BASE(&kaneko16_layers_0_regs)	// Layers Regs
+ADDRESS_MAP_END
+
 
 /***************************************************************************
                             Bakuretsu Breaker
@@ -1465,6 +1495,97 @@ INPUT_PORTS_START( berlwalt )
 	PORT_SERVICE( 0x80, IP_ACTIVE_LOW )
 INPUT_PORTS_END
 
+/***************************************************************************
+                               Pack'n Bang Bang
+***************************************************************************/
+
+INPUT_PORTS_START( packbang )
+	PORT_START	// IN0 - Player 1 - 680000.w
+	PORT_BIT(  0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT(  0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT(  0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT(  0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT(  0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT(  0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT(  0x4000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT(  0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START	// IN1 - Player 2 - 680002.w
+	PORT_BIT(  0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT(  0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT(  0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT(  0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT(  0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT(  0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT(  0x4000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT(  0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START   /* 680000.w */
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(2)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_COIN2 ) PORT_IMPULSE(2)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_SERVICE ) PORT_NAME( DEF_STR( Service_Mode )) PORT_CODE(KEYCODE_F2)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_TILT )
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START       /* ? - 680006.w */
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, "Unused" ) /* Listed as "Unused" */
+	PORT_DIPNAME( 0x1c, 0x1c, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x0c, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x1c, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x18, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x14, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( 1C_4C ) )
+	PORT_DIPNAME( 0xe0, 0xe0, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x60, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0xe0, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0xa0, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_6C ) )
+
+	PORT_START
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Easy )    )
+	PORT_DIPSETTING(    0x03, DEF_STR( Normal )  )
+	PORT_DIPSETTING(    0x01, DEF_STR( Hard )    )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
+	PORT_DIPNAME(       0x04, 0x04, "Timer Speed" )
+	PORT_DIPSETTING(    0x00, "Slow" )
+	PORT_DIPSETTING(    0x04, "Standard" )
+	PORT_DIPNAME(       0x18, 0x18, "Language" )
+	PORT_DIPSETTING(    0x00, "Invalid" ) /* Japanese text, Korean Kaneko logo 'Unusued' according to test mode*/
+	PORT_DIPSETTING(    0x08, "Korea" )
+	PORT_DIPSETTING(    0x10, "Japan" )
+	PORT_DIPSETTING(    0x18, "World" )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Free_Play ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( On ) )
+	PORT_SERVICE( 0x80, IP_ACTIVE_LOW )
+INPUT_PORTS_END
 
 /***************************************************************************
                                     Blaze On
@@ -2372,6 +2493,49 @@ static MACHINE_DRIVER_START( berlwall )
 	/* basic machine hardware */
 	MDRV_CPU_ADD(M68000, 12000000)	/* MC68000P12 */
 	MDRV_CPU_PROGRAM_MAP(berlwall,0)
+	MDRV_CPU_VBLANK_INT(kaneko16_interrupt,KANEKO16_INTERRUPTS_NUM)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
+
+	MDRV_MACHINE_RESET(berlwall)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_UPDATE_AFTER_VBLANK)	// mangled sprites otherwise
+	MDRV_SCREEN_SIZE(256, 256)
+	MDRV_VISIBLE_AREA(0, 256-1, 16, 240-1)
+	MDRV_GFXDECODE(kaneko16_gfx_1x4bit_1x4bit)
+	MDRV_PALETTE_LENGTH(2048 + 32768)	/* 32768 static colors for the bg */
+
+	MDRV_PALETTE_INIT(berlwall)
+	MDRV_VIDEO_START(berlwall)
+	MDRV_VIDEO_UPDATE(kaneko16)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+
+	MDRV_SOUND_ADD(AY8910, 1000000)
+	MDRV_SOUND_CONFIG(ay8910_intf_dsw)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 1.0)
+
+	MDRV_SOUND_ADD(AY8910, 1000000)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
+
+	MDRV_SOUND_ADD(OKIM6295, 12000000/6/165)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 1.0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
+MACHINE_DRIVER_END
+
+/***************************************************************************
+                        Pack'n Bang Bang
+***************************************************************************/
+
+static MACHINE_DRIVER_START( packbang )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(M68000, 12000000)	/* MC68000P12 */
+	MDRV_CPU_PROGRAM_MAP(packbang,0)
 	MDRV_CPU_VBLANK_INT(kaneko16_interrupt,KANEKO16_INTERRUPTS_NUM)
 
 	MDRV_FRAMES_PER_SECOND(60)
@@ -3319,6 +3483,35 @@ ROM_START( berlwalt )
 	ROM_LOAD( "bw000",  0x000000, 0x040000, CRC(d8fe869d) SHA1(75e9044c4164ca6db9519fcff8eca6c8a2d8d5d1) )
 ROM_END
 
+/***************************************************************************
+
+                      Pack'n Bang Bang (Prototype)
+
+***************************************************************************/
+
+ROM_START( packbang ) /* Final/retail version */
+	ROM_REGION( 0x040000, REGION_CPU1, 0 )            /* 68000 Code */
+	ROM_LOAD16_BYTE( "bbp0x3_u23.u23", 0x000000, 0x020000, CRC(8f879c9d) SHA1(07c793f486f2c00624ee5b4d982de42358854ac9) ) /* labeled BBP0X3/U23 */
+	ROM_LOAD16_BYTE( "bbp1x3_u39.u39", 0x000001, 0x020000, CRC(3a90ad84) SHA1(b25d2de8d6ee15822a5f4ca445956cfce3d30cc4) ) /* labeled BBP1X3/U39 */
+
+	ROM_REGION( 0x120000, REGION_GFX1, ROMREGION_DISPOSE )  /* Sprites */
+	ROM_LOAD( "bb-u84-007__w22.u84", 0x000000, 0x080000, CRC(97837aaa) SHA1(303780621afea01f9e4d1386229c7421307562ec) ) /* mask ROM */
+	ROM_LOAD( "bbs0x1_u83.u83",      0x080000, 0x040000, CRC(3d95b1e5) SHA1(3bc54b4af4a059feb88779d786798dd06386cc48) ) /* labeled BBS0X1/U83 */
+
+	ROM_REGION( 0x080000, REGION_GFX2, ROMREGION_DISPOSE )   /* Tiles (Scrambled) */
+	ROM_LOAD( "bbb0x1_u77.u77",  0x000000, 0x080000, CRC(b2ffd081) SHA1(e4b8b60ed0c5f2e0709477cc840864e1c0a351ea) ) /* labeled BBB0X1/U77 - 1ST AND 2ND HALF IDENTICAL */
+
+	ROM_REGION( 0x400000, REGION_GFX3, ROMREGION_DISPOSE )   /* High Color Background */
+	ROM_LOAD16_BYTE( "bb-u73-004__w19.u73",  0x000000, 0x080000, CRC(896d88cb) SHA1(7546e64149d8d8e3425d9112a7a63b2d2e59b8bb) ) /* These are all mask ROMs */
+	ROM_LOAD16_BYTE( "bb-u65-001__w16.u65",  0x000001, 0x080000, CRC(fe17c5b5) SHA1(daea65bd87d2137526250d521f36f122f733fd9d) ) /* FIXED BITS (xxxxxxx0) */
+	ROM_LOAD16_BYTE( "bb-u74-005__w20.u74",  0x100000, 0x080000, CRC(b01e77b9) SHA1(73f3adaf6468f4e9c54bff63268af1765cfc5f67) )
+	ROM_LOAD16_BYTE( "bb-u66-002__w17.u66",  0x100001, 0x080000, CRC(caec5098) SHA1(9966cd643abe498f84a9e01bc32003f4654584de) ) /* FIXED BITS (xxxxxxx0) */
+	ROM_LOAD16_BYTE( "bb-u75-006__w21.u75",  0x200000, 0x080000, CRC(5cb4669f) SHA1(ab061f5b34435dca46f710ea8118c919a3a9f87c) )
+	ROM_LOAD16_BYTE( "bb-u67-003__w18.u67",  0x200001, 0x080000, CRC(ce5c9417) SHA1(30aca496d1f4218b44a32b3630e58889f0c54564) ) /* FIXED BITS (xxxxxxx0) */
+
+	ROM_REGION( 0x040000, REGION_SOUND1, 0 )    /* Samples */
+	ROM_LOAD( "bw_u46.u46",  0x000000, 0x040000, CRC(d8fe869d) SHA1(75e9044c4164ca6db9519fcff8eca6c8a2d8d5d1) ) /* labeled BW    /U46 */
+ROM_END
 
 /***************************************************************************
 
@@ -4625,3 +4818,4 @@ GAME( 1992, brapboysj,brapboys, brapboys, brapboys, brapboys,   ROT0,  "Kaneko",
 GAME( 1992, shogwarr, 0,        shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Shogun Warriors (US)", 0 )
 GAME( 1992, shogwarre,shogwarr, shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Shogun Warriors (World)", 0 )
 GAME( 1992, fjbuster, shogwarr, shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Fujiyama Buster (Japan)", 0 )
+GAME( 1994, packbang, 0,        packbang, packbang, berlwall,   ROT90, "Kaneko", "Pack'n Bang Bang", GAME_IMPERFECT_GRAPHICS ) /* priorities between stages?*/
