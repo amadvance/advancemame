@@ -83,7 +83,7 @@ static WRITE8_HANDLER( sound_command_w )
 	if (sn_nmi_enable)
 		cpunum_set_input_line(2, INPUT_LINE_NMI, PULSE_LINE);
 }
-
+/*
 static ADDRESS_MAP_START( flower_cpu1, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_ROM
 	AM_RANGE(0xa000, 0xa000) AM_WRITENOP	//watchdog?
@@ -117,6 +117,29 @@ static ADDRESS_MAP_START( flower_cpu2, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xf800, 0xf9ff) AM_READWRITE(MRA8_RAM, flower_bg1ram_w)  AM_SHARE(6)
 	AM_RANGE(0xfa00, 0xfa00) AM_RAM AM_SHARE(7)
 ADDRESS_MAP_END
+*/
+static ADDRESS_MAP_START( flower_cpu1_2, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+	AM_RANGE(0xa000, 0xa000) AM_WRITENOP	//watchdog?
+	AM_RANGE(0xa001, 0xa001) AM_WRITE(flower_flipscreen_w)
+	AM_RANGE(0xa002, 0xa002) AM_WRITE(flower_irq_ack)	//irq ack / enable, maybe?
+	AM_RANGE(0xa003, 0xa003) AM_WRITENOP	//irq enable
+	AM_RANGE(0xa005, 0xa005) AM_WRITENOP	//nmi enable (routine is empty)
+	AM_RANGE(0xa004, 0xa004) AM_WRITENOP	//nmi enable (routine is empty)
+	AM_RANGE(0xa100, 0xa100) AM_READ(input_port_2_r)
+	AM_RANGE(0xa101, 0xa101) AM_READ(input_port_3_r)
+	AM_RANGE(0xa102, 0xa102) AM_READ(input_port_0_r)
+	AM_RANGE(0xa103, 0xa103) AM_READ(input_port_1_r)
+	AM_RANGE(0xa400, 0xa400) AM_WRITE(sound_command_w)
+	AM_RANGE(0xc000, 0xddff) AM_SHARE(1) AM_RAM
+	AM_RANGE(0xde00, 0xdfff) AM_SHARE(2) AM_RAM AM_BASE(&spriteram)
+	AM_RANGE(0xe000, 0xe7ff) AM_SHARE(3) AM_RAM AM_WRITE(flower_textram_w)  AM_BASE(&flower_textram)
+	AM_RANGE(0xe000, 0xefff) AM_SHARE(4) AM_RAM //only cleared?
+	AM_RANGE(0xf000, 0xf1ff) AM_SHARE(5) AM_RAM AM_WRITE(flower_bg0ram_w)   AM_BASE(&flower_bg0ram)
+	AM_RANGE(0xf200, 0xf200) AM_SHARE(6) AM_RAM AM_BASE(&flower_bg0_scroll)
+	AM_RANGE(0xf800, 0xf9ff) AM_SHARE(7) AM_RAM AM_WRITE(flower_bg1ram_w)  AM_BASE(&flower_bg1ram)
+	AM_RANGE(0xfa00, 0xfa00) AM_SHARE(8) AM_RAM AM_BASE(&flower_bg1_scroll)
+ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( flower_sound_cpu, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x3fff) AM_ROM
@@ -134,20 +157,20 @@ INPUT_PORTS_START( flower )
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START1  )
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_START2 )
-	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Difficulty ) )
-	PORT_DIPSETTING(    0x08, DEF_STR( Easy ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Hard ) )
+	PORT_DIPNAME( 0x08, 0x08, "Energy Decrease" )
+	PORT_DIPSETTING(    0x08, "Slow" )
+	PORT_DIPSETTING(    0x00, "Fast" )
 	PORT_DIPNAME( 0x10, 0x10, "Invulnerability (Cheat)")
 	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x00, "Keep Items on Life Loss" )	// check code at 0x74a2
+	PORT_DIPNAME( 0x20, 0x00, "Keep Weapon Items When Destroyed" )	// check code at 0x74a2
 	PORT_DIPSETTING(    0x20, DEF_STR( No ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
-	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unused ) )
-	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x80, 0x80, "Shot Range" )			// check code at 0x75f9
-	PORT_DIPSETTING(    0x80, DEF_STR( Medium ) )
+	PORT_DIPNAME( 0x40, 0x40, "Enemy Bullets" )
+	PORT_DIPSETTING(    0x40, "Less" )
+	PORT_DIPSETTING(    0x00, "More" )
+	PORT_DIPNAME( 0x80, 0x80, "Shot Range" ) /* check code at 0x75f9 */
+	PORT_DIPSETTING(    0x80, "Short" )
 	PORT_DIPSETTING(    0x00, "Long" )
 
 	PORT_START_TAG("IN1CPU0")
@@ -168,12 +191,12 @@ INPUT_PORTS_START( flower )
 	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Cabinet ) )		// check code at 0x759f
 	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
 	PORT_DIPSETTING(    0x20, DEF_STR( Cocktail ) )
-	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unused ) )
+	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Demo_Sounds ) )
 	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Bonus_Life ) )
-	PORT_DIPSETTING(    0x80, "30k, 80k then every 50k" )
-	PORT_DIPSETTING(    0x00, "50k, 130k then every 80k" )
+	PORT_DIPSETTING(    0x80, "30k, then every 50k" )
+	PORT_DIPSETTING(    0x00, "50k, then every 80k" )
 
 	PORT_START_TAG("IN0CPU1")
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    )
@@ -226,6 +249,11 @@ static const gfx_decode flower_gfxdecodeinfo[] =
 	{ -1 }
 };
 
+static INTERRUPT_GEN( flower_cpu0_interrupt )
+{
+	cpunum_set_input_line(0, 0, ASSERT_LINE);
+}
+
 static struct CustomSound_interface custom_interface =
 {
 	flower_sh_start
@@ -235,12 +263,12 @@ static MACHINE_DRIVER_START( flower )
 
 	/* basic machine hardware */
 	MDRV_CPU_ADD(Z80,8000000)
-	MDRV_CPU_PROGRAM_MAP(flower_cpu1,0)
-	MDRV_CPU_VBLANK_INT(irq0_line_hold,10)
-//  MDRV_CPU_VBLANK_INT(nmi_line_pulse,1) //nmis stuff up the writes to shared ram
-
+    MDRV_CPU_PROGRAM_MAP(flower_cpu1_2,0)
+//	MDRV_CPU_VBLANK_INT_HACK(flower_cpu0_interrupt,10)
+    MDRV_CPU_VBLANK_INT(flower_cpu0_interrupt,1) //nmis stuff up the writes to shared ram
+  
 	MDRV_CPU_ADD(Z80,8000000)
-	MDRV_CPU_PROGRAM_MAP(flower_cpu2,0)
+	MDRV_CPU_PROGRAM_MAP(flower_cpu1_2,0)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
 //  MDRV_CPU_VBLANK_INT(nmi_line_pulse,1)
 
@@ -360,5 +388,5 @@ ROM_START( flowerbl )
 ROM_END
 
 
-GAME( 1986, flower, 0, flower, flower, 0, ROT0, "Komax", "Flower", GAME_IMPERFECT_SOUND )
+GAME( 1986, flower,   0,      flower, flower, 0, ROT0, "Komax",   "Flower", GAME_IMPERFECT_SOUND )
 GAME( 1986, flowerbl, flower, flower, flower, 0, ROT0, "bootleg", "Flower (bootleg)", GAME_IMPERFECT_SOUND )
