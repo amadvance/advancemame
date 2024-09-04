@@ -216,8 +216,8 @@ WRITE8_HANDLER( flower_sound1_w )
 
 		voice->volume = (flower_soundregs1[7 + base] >> 4) | ((flower_soundregs2[7 + base] & 0x03) << 4);
 // the following would fix the hanging notes...
-//if ((flower_soundregs2[7 + base] & 0x01) == 0)
-//  voice->volume = 0;
+if ((flower_soundregs2[7 + base] & 0x01) == 0)
+  voice->volume = 0;
 
 		if (flower_soundregs1[4 + base] & 0x10)
 		{
