@@ -916,6 +916,28 @@ ROM_START( ctornado )
 	ROM_LOAD( "ctornado.cas", 0x0000, 0x8000, CRC(e4e36ce0) SHA1(48a11823121fb2e3de31ae08e453c0124fc4f7f3) )
 ROM_END
 
+/* Angler Dangler / Fishing */
+ROM_START( cadanglr ) /* version 5-B-0 */
+	DECOCASS_COMMON_ROMS
+
+	ROM_REGION( 0x01000, REGION_USER1, 0 )	  /* dongle data */
+	ROM_LOAD( "dp-1250-a-0.dgl", 0x0000, 0x1000, CRC(92a3b387) SHA1(e17a155d02e9ed806590b23a845dc7806b6720b1) )
+
+	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
+	ROM_LOAD( "dt-1255-b-0.cas", 0x0000, 0x7400, CRC(eb985257) SHA1(1285724352a59c96cc4edf4f43e89dd6d8c585b2) )
+ROM_END
+
+ROM_START( cfishing )
+	DECOCASS_COMMON_ROMS
+
+	ROM_REGION( 0x01000, REGION_USER1, 0 )	  /* dongle data */
+	ROM_LOAD( "dp-1250-a-0.dgl", 0x0000, 0x1000, CRC(92a3b387) SHA1(e17a155d02e9ed806590b23a845dc7806b6720b1) )
+
+	ROM_REGION( 0x10000, REGION_USER2, 0 )	  /* (max) 64k for cassette image */
+	ROM_LOAD( "dt-1250-a-0.cas", 0x0000, 0x7500, CRC(d4a16425) SHA1(25afaabdc8b2217d5e73606a36ea9ba408d7bc4b) )
+ROM_END	
+	
+
 /* The Following use Dongle Type 3 (unknown part number?)
     (dongle data differs for each game)      */
 
@@ -1209,6 +1231,8 @@ GAMEB( 1982, cburnrub, decocass, decocass, cburnrub, decocass, decocass, ROT270,
 GAMEB( 1982, cburnrb2, cburnrub, decocass, cburnrub, decocass, decocass, ROT270, "Data East Corporation", "Burnin' Rubber (Cassette, set 2)", 0 )
 GAMEB( 1982, cbnj,     cburnrub, decocass, cbnj,     decocass, decocass, ROT270, "Data East Corporation", "Bump N Jump (Cassette)", 0 )
 GAMEB( 1983, cbtime,   decocass, decocass, cbtime,   dc_btime, decocass, ROT270, "Data East Corporation", "Burger Time (Cassette)", 0 )
+GAMEB( 1982, cadanglr, decocass, decocass, cppicf,   decocass, decocass, ROT270, "Data East Corporation", "Angler Dangler (Cassette)", 0 )
+GAMEB( 1982, cfishing, cadanglr, decocass, cppicf,   decocass, decocass, ROT270, "Data East Corporation", "Fishing (Cassette)",0 )
 GAMEB( 1983, cgraplop, decocass, decocass, cgraplop, decocass, decocass, ROT270, "Data East Corporation", "Graplop (aka Cluster Buster) (Cassette, set 1)", 0 )
 GAMEB( 1983, cgraplp2, cgraplop, decocass, cgraplp2, decocass, decocass, ROT270, "Data East Corporation", "Graplop (aka Cluster Buster) (Cassette, set 2)", GAME_NOT_WORKING )
 GAMEB( 1983, clapapa,  decocass, decocass, clapapa,  decocass, decocass, ROT270, "Data East Corporation", "Rootin' Tootin' (aka La.Pa.Pa) (Cassette)" , 0) /* Displays 'LaPaPa during attract */
