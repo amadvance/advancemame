@@ -334,16 +334,19 @@ Help screen describing the user input keys.
 <a href="#8.6.3">8.6.3 display_interlaceeffect</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.6.4">8.6.4 Display Color Configuration Options</a><br>
+<a href="#8.6.4">8.6.4 display_writeeffect</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.6.5">8.6.5 display_brightness</a><br>
+<a href="#8.6.5">8.6.5 Display Color Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.6.6">8.6.6 display_gamma</a><br>
+<a href="#8.6.6">8.6.6 display_brightness</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.6.7">8.6.7 display_pausebrightness</a><br>
+<a href="#8.6.7">8.6.7 display_gamma</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.6.8">8.6.8 display_pausebrightness</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
 <a href="#8.7">8.7 Display Artwork Configuration Options</a><br>
@@ -1361,10 +1364,16 @@ The game input device. One of `joy4way',
 `mouse'.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-`Nplayer'
+`Nplayers'
 </em></td><td width="90%">
-Number of players in the game. One of `1player',
-`2player', `3player', ...
+Number of players in the game. One of `1players',
+`2players', `3players', ...
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+`Nbuttons'
+</em></td><td width="90%">
+Number of buttons for each player One of `1buttons',
+`2buttons', `3buttons', up to `10buttons'.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 `'
@@ -1375,7 +1384,7 @@ The default empty section.
 <p>
 For example for the game `pacman' the following sections are
 read: `pacman', `puckman', `224x288x60', `224x288', `vertical',
-`joy4way', `2player' and `'.
+`joy4way', `2players' and `1buttons'.
 <p>
 You can override any global options inserting new options in
 any of the sections of the game.
@@ -2580,11 +2589,34 @@ Row Even Odd Filter
 </pre>
 </td></tr></table>
 <h4><a name="8.6.4">8.6.4</a> 
+display_writeeffect
+</h4>
+Selects how to write the video memory. In some very old video board
+you may gain speed selecting `buffer'.
+<p>
+<pre>
+display_writeeffect direct | buffer
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+direct
+</em></td><td width="90%">
+Write directly the video memory (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+even
+</em></td><td width="90%">
+Use a buffered write.
+</td></tr>
+</table>
+<h4><a name="8.6.5">8.6.5</a> 
 Display Color Configuration Options
 </h4>
 This section describes the options used to customize the display
 color adjustments.
-<h4><a name="8.6.5">8.6.5</a> 
+<h4><a name="8.6.6">8.6.6</a> 
 display_brightness
 </h4>
 Selects the image brightness factor.
@@ -2601,7 +2633,7 @@ FACTOR
 Brightness float factor (default 1.0).
 </td></tr>
 </table>
-<h4><a name="8.6.6">8.6.6</a> 
+<h4><a name="8.6.7">8.6.7</a> 
 display_gamma
 </h4>
 Sets the image gamma correction factor.
@@ -2618,7 +2650,7 @@ FACTOR
 Gamma float factor (default 1.0).
 </td></tr>
 </table>
-<h4><a name="8.6.7">8.6.7</a> 
+<h4><a name="8.6.8">8.6.8</a> 
 display_pausebrightness
 </h4>
 Selects the brightness of the display when game is paused.
@@ -4954,9 +4986,11 @@ Sound output without any syncronization.
 <h4><a name="8.17.3">8.17.3</a> 
 debug_speedmark
 </h4>
-Enables or disabled the on screen speed mark. If enabled a red square
-is displayed if the game is too slow. A red triangle when you press
-the `turbo' key or when the game is accelerated for other reasons.
+Enables or disables the on-screen speed mark. If enabled, a red band
+is displayed when the game is running at a low speed. A yellow band is
+shown when frames are skipped to maintain speed. A green band appears
+when you press the 'turbo' key or when the game is accelerated for
+other reasons.
 <p>
 <pre>
 debug_speedmark yes | no
