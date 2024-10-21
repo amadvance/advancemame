@@ -402,6 +402,4 @@ DRIVER_INIT(topshoot)
 
 /* Sun Mixing Hardware, very close to actual Genesis */
 GAME( 1995, topshoot,  0,        topshoot, topshoot, topshoot, ROT0, "Sun Mixing",  "Top Shooter", 0 )
-/*
 GAME( 1996, sbubsm,    0,        sbubsm,   sbubsm,   sbubsm,   ROT0, "Sun Mixing",  "Super Bubble Bobble (Sun Mixing, Mega Drive clone hardware)", 0 )
-*/
