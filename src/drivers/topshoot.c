@@ -1,33 +1,15 @@
-
 /*
 
 Sun Mixing board, looks like a hacked up Genesis clone.
 
+ Driver by David Haywood
+ Inputs by Mariusz Wojcieszek
 
-Top Shooter - (c)1995  - older board, look more like an actual hacked cart system, has an MCU, doesn't
-                         work in MAME due to VDP status etc.  boots in Kega Fusion but has no inputs
-                         (MCU related?)
+Top Shooter - (c)1995  - older board, look more like an actual hacked cart system, has an MCU
 
 */
 
 #define MASTER_CLOCK		53693100
-
-
-/* Not Dumped
-
- Super Bubble Bobble (a bubble bobble rip-off from Sun Mixing, looks like it may be on this hardware)
-
- */
-
-/*
-
-note:
-
-inputs don't work.. (MCU related?)
-no sprites in MAME (VDP related? they show in Kega Fusion)
-
-*/
-
 
 /*
 
@@ -138,55 +120,79 @@ connector, but of course, I can be wrong.
 
 
 INPUT_PORTS_START( topshoot ) /* Top Shooter Input Ports */
-	PORT_START	/* 16bit */
-	PORT_DIPNAME( 0x0001, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0002, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0004, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0004, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0008, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0008, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0010, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0020, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0040, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0080, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0100, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0100, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0200, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0200, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0400, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0400, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0800, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x0800, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x1000, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x1000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x2000, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x2000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x4000, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x4000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x8000, 0x0000, DEF_STR( Unknown ) )
-	PORT_DIPSETTING(      0x8000, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_START
+	PORT_BIT( 0x4f, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_IMPULSE(1) PORT_NAME("Bet") 
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_IMPULSE(1) PORT_NAME("Start")
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_IMPULSE(1) PORT_NAME("Fire")
+	
+	PORT_START
+	PORT_BIT( 0xe7, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_SERVICE_NO_TOGGLE( 0x08, IP_ACTIVE_LOW )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_IMPULSE(1) PORT_NAME("Test mode down")
+	
+	PORT_START
+	PORT_BIT( 0xfd, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(1)
+	
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN2 ) PORT_IMPULSE(1)
+	PORT_BIT( 0xfe, IP_ACTIVE_LOW, IPT_UNKNOWN )
+INPUT_PORTS_END
+
+
+INPUT_PORTS_START( sbubsm )
+	// the bit ordering in the ports is strange here because this is being read through shared RAM, the MCU presumably reads the real inputs then scrambles them in RAM for the 68k to sort out
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_START1 )
+	
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+	
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(10)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+	
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+	
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+	// no service mode here?
 INPUT_PORTS_END
 
 static ADDRESS_MAP_START( topshoot_readmem, ADDRESS_SPACE_PROGRAM, 16 )
@@ -198,8 +204,6 @@ static ADDRESS_MAP_START( topshoot_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x400004, 0x400005) AM_READ(input_port_0_word_r)       // ??
 	AM_RANGE(0xa10000, 0xa1001f) AM_READ(input_port_0_word_r)
 	AM_RANGE(0xa11100, 0xa11101) AM_READ(input_port_0_word_r)		// ??
-
-
 	AM_RANGE(0xa00000, 0xa0ffff) AM_READ(genesis_68k_to_z80_r)
 	AM_RANGE(0xc00000, 0xc0001f) AM_READ(genesis_vdp_r)				/* VDP Access */
 	AM_RANGE(0xe00000, 0xe1ffff) AM_READ(MRA16_BANK3)
@@ -217,6 +221,29 @@ static ADDRESS_MAP_START( topshoot_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xa00000, 0xa0ffff) AM_WRITE(megaplay_68k_to_z80_w)
 	AM_RANGE(0xc00000, 0xc0001f) AM_WRITE(genesis_vdp_w)				/* VDP Access */
 	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_BANK4)
+	AM_RANGE(0xff0000, 0xffffff) AM_WRITE(MWA16_RAM) AM_BASE(&genesis_68k_ram)/* Main Ram */
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( sbubsm_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x0fffff) AM_READ(MRA16_ROM)					/* Cartridge Program Rom */
+	AM_RANGE(0x202000, 0x2023ff) AM_READ(MRA16_RAM)
+	AM_RANGE(0xa00000, 0xa0ffff) AM_READ(genesis_68k_to_z80_r)
+	AM_RANGE(0xc00000, 0xc0001f) AM_READ(genesis_vdp_r)				/* VDP Access */
+	AM_RANGE(0xe00000, 0xe1ffff) AM_READ(MRA16_BANK3)
+	AM_RANGE(0xfe0000, 0xfeffff) AM_READ(MRA16_BANK4)
+	AM_RANGE(0xff0000, 0xffffff) AM_READ(MRA16_RAM)					/* Main Ram */
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( sbubsm_writemem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x0fffff) AM_WRITE(MWA16_ROM)					/* Cartridge Program Rom */
+//  AM_RANGE(0x200000, 0x20007f) AM_WRITE(MWA16_RAM)
+	AM_RANGE(0x200000, 0x2023ff) AM_WRITE(MWA16_RAM) // tested
+	AM_RANGE(0xa10000, 0xa1001f) AM_WRITE(genesis_io_w) AM_BASE(&genesis_io_ram)				/* Genesis Input */
+	AM_RANGE(0xa11000, 0xa11203) AM_WRITE(genesis_ctrl_w)
+	AM_RANGE(0xa00000, 0xa0ffff) AM_WRITE(megaplay_68k_to_z80_w)
+	AM_RANGE(0xc00000, 0xc0001f) AM_WRITE(genesis_vdp_w)				/* VDP Access */
+//	AM_RANGE(0xc00010, 0xc00017) AM_WRITE(sn76489_w) // this is handled elsewhere circa 106					/* SN76489 Access */
+    AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_BANK4)
 	AM_RANGE(0xff0000, 0xffffff) AM_WRITE(MWA16_RAM) AM_BASE(&genesis_68k_ram)/* Main Ram */
 ADDRESS_MAP_END
 
@@ -285,10 +312,35 @@ static MACHINE_DRIVER_START( topshoot )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( sbubsm )
+	/* basic machine hardware */
+	MDRV_IMPORT_FROM( genesis_base )
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(sbubsm_readmem,sbubsm_writemem)
+
+	/* video hardware */
+	MDRV_VIDEO_START(genesis)
+	MDRV_VISIBLE_AREA(0, 319, 0, 223)
+
+	/* sound hardware */
+	MDRV_SOUND_ADD(SN76496, MASTER_CLOCK/15)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
+MACHINE_DRIVER_END
+
+
 ROM_START( topshoot ) /* Top Shooter (c)1995 Sun Mixing */
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )
 	ROM_LOAD16_BYTE( "tc574000ad_u11_2.bin", 0x000000, 0x080000, CRC(b235c4d9) SHA1(fbb308a5f6e769f3277824cb6a3b50c308969ac2) )
 	ROM_LOAD16_BYTE( "tc574000ad_u12_1.bin", 0x000001, 0x080000, CRC(e826f6ad) SHA1(23ec8bb608f954d3b915f061e7076c0c63b8259e) )
+ROM_END
+
+ROM_START( sbubsm )  /* Super Bubble Bobble (c)1996 Sun Mixing */
+	ROM_REGION( 0x200000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "u11.bin", 0x000000, 0x080000, CRC(4f9337ea) SHA1(b245eb615f80afd25e29b2efdddb7f61c1deff6b) )
+	ROM_LOAD16_BYTE( "u12.bin", 0x000001, 0x080000, CRC(f5374835) SHA1(3a97910f5f7327ec7ad6425dfdfa72c86196ed33) )
+	
+	ROM_REGION( 0x1000, REGION_CPU2, 0 ) /* could be the same as topshoot (same PCB) */
+//	ROM_LOAD( "89c51.bin", 0x0000, 0x1000, NO_DUMP )
 ROM_END
 
 static READ16_HANDLER( vdp_fake_r )
@@ -296,15 +348,60 @@ static READ16_HANDLER( vdp_fake_r )
 	return rand();
 }
 
+static READ16_HANDLER(sbubsm_200051_r)
+{
+	return -0x5b;
+}
+
+static READ16_HANDLER(sbubsm_400000_r)
+{
+	logerror("%s: sbubsm_400000_r\n");
+	return 0x5500;
+}
+
+
+static READ16_HANDLER(sbubsm_400002_r)
+{
+	logerror("%s: sbubsm_400002_r\n");
+	return 0x0f00;
+}
+
+
+DRIVER_INIT(sbubsm)
+{
+	// needed to boot, somme kind of hardware ident?
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x400000, 0x400001, 0, 0, sbubsm_400000_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x400002, 0x400003, 0, 0, sbubsm_400002_r );
+	
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x200050, 0x200051, 0, 0, sbubsm_200051_r );
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x200042, 0x200043, 0, 0, input_port_0_word_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x200044, 0x200045, 0, 0, input_port_1_word_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x200046, 0x200047, 0, 0, input_port_2_word_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x200048, 0x200049, 0, 0, input_port_3_word_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x20007e, 0x20007f, 0, 0, input_port_4_word_r);
+
+	memory_set_bankptr(3, memory_region(REGION_CPU1) );
+//	memory_set_bankptr(4, &genesis_68k_ram[0]);
+	memory_set_bankptr(4, genesis_68k_ram ); //correct for 106.??
+}
+
 DRIVER_INIT(topshoot)
 {
 	/* hack -- fix vdp emulation instead */
 	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0xC00004, 0xC00005, 0, 0, vdp_fake_r);
+	
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x200050, 0x200051, 0, 0, sbubsm_200051_r );
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x200042, 0x200043, 0, 0, input_port_0_word_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x200044, 0x200045, 0, 0, input_port_1_word_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x200046, 0x200047, 0, 0, input_port_2_word_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x200048, 0x200049, 0, 0, input_port_3_word_r);
 
 	memory_set_bankptr(3, memory_region(REGION_CPU1) );
 	memory_set_bankptr(4, genesis_68k_ram );
 }
 
-
 /* Sun Mixing Hardware, very close to actual Genesis */
-GAME( 1995, topshoot,  0,        topshoot, topshoot, topshoot, ROT0, "Sun Mixing",                  "Top Shooter",GAME_NOT_WORKING )
+GAME( 1995, topshoot,  0,        topshoot, topshoot, topshoot, ROT0, "Sun Mixing",  "Top Shooter", 0 )
+/*
+GAME( 1996, sbubsm,    0,        sbubsm,   sbubsm,   sbubsm,   ROT0, "Sun Mixing",  "Super Bubble Bobble (Sun Mixing, Mega Drive clone hardware)", 0 )
+*/
