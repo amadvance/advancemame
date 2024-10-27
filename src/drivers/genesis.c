@@ -749,6 +749,12 @@ WRITE8_HANDLER ( genesis_z80_w )
 	/* VDP */
 	if ((offset >= 0x7f00) && (offset <= 0x7fff))
 	{
+		offset &= 0x1f;
+ 
+		if ( (offset >= 0x10) && (offset <=0x17) )
+		{
+			SN76496_0_w(0, data & 0xff);
+		}
 
 	}
 }
