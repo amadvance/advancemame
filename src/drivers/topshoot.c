@@ -691,14 +691,14 @@ static READ16_HANDLER(sbubsm_200051_r)
 
 static READ16_HANDLER(sbubsm_400000_r)
 {
-	logerror("%s: sbubsm_400000_r\n");
+	logerror("sbubsm_400000_r\n");
 	return 0x5500;
 }
 
 
 static READ16_HANDLER(sbubsm_400002_r)
 {
-	logerror("%s: sbubsm_400002_r\n");
+	logerror("sbubsm_400002_r\n");
 	return 0x0f00;
 }
 

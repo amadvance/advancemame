@@ -765,7 +765,7 @@ READ16_HANDLER ( genesis_68000_io_r )
 		case 0x0e:
 		case 0x0f:
 		default:
-			printf("Unhandled I/O read \n");
+			logerror("Unhandled I/O read \n");
 			return genesis_io_ram[offset];
 
 	}
