@@ -631,6 +631,240 @@ WRITE16_HANDLER ( genesis_io_w )
 
 }
 
+/* Ripped From MESS Aladdin And Bare Knuckle III Genesis Gamepad Emulation */
+int genesis_region;
+
+void genesis_init_io (void)
+{
+
+	genesis_io_ram[0x00] = (genesis_region & 0xc0)| (0x00 & 0x3f); // region / pal / segacd etc. important!
+	genesis_io_ram[0x01] = 0x7f;
+	genesis_io_ram[0x02] = 0x7f;
+	genesis_io_ram[0x03] = 0x7f;
+	genesis_io_ram[0x04] = 0x00;
+	genesis_io_ram[0x05] = 0x00;
+	genesis_io_ram[0x06] = 0x00;
+	genesis_io_ram[0x07] = 0xff;
+	genesis_io_ram[0x08] = 0x00;
+	genesis_io_ram[0x09] = 0x00;
+	genesis_io_ram[0x0a] = 0xff;
+	genesis_io_ram[0x0b] = 0x00;
+	genesis_io_ram[0x0c] = 0x00;
+	genesis_io_ram[0x0d] = 0xfb;
+	genesis_io_ram[0x0e] = 0x00;
+	genesis_io_ram[0x0f] = 0x00;
+
+
+  /*
+  	$A10001 = $80 (Bits 7,6,5 depend on the domestic/export, PAL/NTSC jumpers and having a Sega CD or not)
+    $A10003 = $7F
+    $A10005 = $7F
+    $A10007 = $7F
+    $A10009 = $00
+    $A1000B = $00
+    $A1000D = $00
+    $A1000F = $FF
+    $A10011 = $00
+    $A10013 = $00
+    $A10015 = $FF
+    $A10017 = $00
+    $A10019 = $00
+    $A1001B = $FB
+    $A1001D = $00
+    $A1001F = $00
+*/
+
+}
+
+READ16_HANDLER ( genesis_68000_io_r )
+{
+	int paddata,p;
+	int inlines, outlines;
+
+//printf("I/O read .. offset %02x data %02x\n",offset,genesis_io_ram[offset]);
+
+	switch (offset)
+	{
+		case 0x00: // version register
+			return genesis_io_ram[offset];
+		case 0x01:
+//			printf("I/O Data A read \n");
+
+/*
+                When TH=0          When TH=1
+    D6 : (TH)   0                  1
+    D5 : (TR)   Start button       Button C
+    D4 : (TL)   Button A           Button B
+    D3 : (D3)   0                  D-pad Right
+    D2 : (D2)   0                  D-pad Left
+    D1 : (D1)   D-pad Down         D-pad Down
+    D0 : (D0)   D-pad Up           D-pad Up
+*/
+
+			/* process pad input for std 3 button pad */
+
+
+			p = readinputport(0);
+			if (genesis_io_ram[offset]&0x40)
+			{
+				paddata = ((p&0x0f)>>0) | ((p&0xc0)>>2) | 0x40;
+			}
+			else
+			{
+				paddata = ((p&0x03)>>0) | ((p&0x30)>>0) | 0x00;
+			}
+
+			inlines = (genesis_io_ram[0x04]^0xff)&0x7f;
+			outlines = (genesis_io_ram[0x04] | 0x80);
+
+//			printf ("ioram %02x inlines %02x paddata %02x outlines %02x othdata %02x\n",genesis_io_ram[0x04], inlines, paddata, outlines, genesis_io_ram[0x01]);
+
+
+
+			p = (paddata & inlines) | (genesis_io_ram[0x01] & outlines);
+
+			return p | p << 8;
+
+
+			return genesis_io_ram[offset];
+		case 0x02:
+//			printf("I/O Data B read \n");
+
+			p = readinputport(1);
+			if (genesis_io_ram[offset]&0x40)
+			{
+				paddata = ((p&0x0f)>>0) | ((p&0xc0)>>2) | 0x40;
+			}
+			else
+			{
+				paddata = ((p&0x03)>>0) | ((p&0x30)>>0) | 0x00;
+			}
+
+			inlines = (genesis_io_ram[0x05]^0xff)&0x7f;
+			outlines = (genesis_io_ram[0x05] | 0x80);
+
+
+			p = (paddata & inlines) | (genesis_io_ram[0x02] & outlines);
+
+			return p | p <<8;
+
+		case 0x03:
+//			printf("I/O Data C read \n");
+			return genesis_io_ram[offset];
+
+		case 0x04:
+		case 0x05:
+		case 0x06:
+		case 0x07:
+		case 0x08:
+		case 0x09:
+		case 0x0a:
+		case 0x0b:
+		case 0x0c:
+		case 0x0d:
+		case 0x0e:
+		case 0x0f:
+		default:
+			printf("Unhandled I/O read \n");
+			return genesis_io_ram[offset];
+
+	}
+
+	return genesis_io_ram[offset];
+
+/*
+   D7 : Console is 1= Export (USA, Europe, etc.) 0= Domestic (Japan)
+    D6 : Video type is 1= PAL, 0= NTSC
+    D5 : Sega CD unit is 1= not present, 0= connected.
+    D4 : Unused (always returns zero)
+    D3 : Bit 3 of version number
+    D2 : Bit 2 of version number
+    D1 : Bit 1 of version number
+    D0 : Bit 0 of version number
+    */
+
+
+//	return 0x30;
+//	return mame_rand();
+//	return 0xff;
+}
+
+/*
+ The I/O chip is mapped to $A10000-$A1001F in the 68000/VDP/Z80 banked address space.
+ It is normally read and written in byte units at odd addresses. The chip gets /LWR only,
+ so writing to even addresses has no effect. Reading even addresses returns the same data
+ ou'd get from an odd address. If a word-sized write is done, the LSB is sent to the I/O chip
+ and the MSB is ignored.
+ */
+
+/*
+$A10001  	Version
+$A10003 	Port A data
+$A10005 	Port B data
+$A10007 	Port C data
+$A10009 	Port A control
+$A1000B 	Port B control
+$A1000D 	Port C control
+$A1000F 	Port A TxData
+$A10011 	Port A RxData
+$A10013 	Port A serial control
+$A10015 	Port B TxData
+$A10017 	Port B RxData
+$A10019 	Port B serial control
+$A1001B 	Port C TxData
+$A1001D 	Port C RxData
+$A1001F 	Port C serial contro
+*/
+
+WRITE16_HANDLER ( genesis_68000_io_w )
+{
+
+//	printf("I/O write offset %02x data %04x\n",offset,data);
+
+	switch (offset)
+	{
+		case 0x00:  // Version (read only?)
+			printf("attempted write to version register?!\n");
+			break;
+		case 0x01: // Port A data
+//			printf("write to data port A with control register A %02x step1 %02x step2 %02x\n", genesis_io_ram[0x04], (genesis_io_ram[0x01] & !((genesis_io_ram[0x04]&0x7f)|0x80)),  (data & ((genesis_io_ram[0x04]&0x7f)|0x80))   );
+			genesis_io_ram[0x01] = (genesis_io_ram[0x01] & ((genesis_io_ram[0x04]^0xff)|0x80)) | (data & ((genesis_io_ram[0x04]&0x7f)|0x80));
+			break;
+		case 0x02: // Port B data
+//			printf("write to data port B with control register B %02x\n", genesis_io_ram[0x05]);
+			genesis_io_ram[0x02] = (genesis_io_ram[0x02] & ((genesis_io_ram[0x05]^0xff)|0x80)) | (data & ((genesis_io_ram[0x05]&0x7f)|0x80));
+			break;
+		case 0x03: // Port C data
+//			printf("write to data port C with control register C %02x\n", genesis_io_ram[0x06]);
+			genesis_io_ram[0x03] = (genesis_io_ram[0x03] & ((genesis_io_ram[0x06]^0xff)|0x80)) | (data & ((genesis_io_ram[0x06]&0x7f)|0x80));
+			break;
+		case 0x04: // Port A control
+			genesis_io_ram[offset]=data;
+			break;
+		case 0x05: // Port B control
+			genesis_io_ram[offset]=data;
+			break;
+		case 0x06: // Port C control
+			genesis_io_ram[offset]=data;
+			break;
+
+		/* unhandled */
+		case 0x07:
+		case 0x08:
+		case 0x09:
+		case 0x0a:
+		case 0x0b:
+		case 0x0c:
+		case 0x0d:
+		case 0x0e:
+		case 0x0f:
+		default:
+			genesis_io_ram[offset]=data;
+			printf("unhandled IO write (offset %02x data %02x)\n",offset,data);
+			break;
+	}
+}
+
 static ADDRESS_MAP_START( genesis_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x3fffff) AM_READ(MRA16_ROM)					/* Cartridge Program Rom */
 	AM_RANGE(0xa10000, 0xa1001f) AM_READ(genesis_io_r)				/* Genesis Input */
