@@ -38,6 +38,9 @@ extern READ16_HANDLER ( genesis_io_r );
 extern READ16_HANDLER ( genesis_68k_to_z80_r );
 extern INTERRUPT_GEN( genesis_vblank_interrupt );
 extern void genesis_irq2_interrupt(int state);
+extern int genesis_region;
+extern READ16_HANDLER ( genesis_68000_io_r );
+extern WRITE16_HANDLER ( genesis_68000_io_w );
 
 /*----------- defined in vidhrdw/genesis.c -----------*/
 
