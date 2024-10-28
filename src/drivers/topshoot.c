@@ -829,8 +829,9 @@ DRIVER_INIT( barek2ch )
 DRIVER_INIT( sonic2mb )
 {
    /* 100000 = writes to unpopulated MCU? */
-	install_mem_write16_handler(0, 0x100000, 0x100001, aladbl_w);
-    install_mem_read16_handler(0, 0x300000, 0x300001, input_port_3_word_r);
+        memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x100000, 0x100001, 0, 0, aladbl_w);
+        memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x300000, 0x300001, 0, 0, input_port_3_word_r);
+	
 	
 	genesis_region = 0x00; /* read via io */
 		
