@@ -952,9 +952,7 @@ GAME( 1996, sbubsm,    0,        sbubsm,   sbubsm,   sbubsm,   ROT0, "Sun Mixing
 /* Bootlegs Using Genesis Hardware */
 GAME( 1993, aladmdb,   0,        barek3,   aladbl,   aladbl,   ROT0, "bootleg / Sega", "Aladdin (bootleg of Japanese Megadrive version)", 0 )
 GAME( 1993, sonic2mb,  0,        barek2ch, sonic2mb, sonic2mb, ROT0, "bootleg / Sega", "Sonic The Hedgehog 2 (bootleg of Mega Drive version)", 0 )
-/*
 GAME( 1993, sonic3mb,  0,        barek2ch, sonic3mb, sonic3mb, ROT0, "bootleg / Sega", "Sonic The Hedgehog 3 (bootleg of Mega Drive version)", 0 ) 
-*/	
 GAME( 1994, barek2ch,  0,        barek2ch, barek2ch, barek2ch, ROT0, "bootleg / Sega", "Bare Knuckle II (Chinese bootleg of Megadrive version)", 0 )
 GAME( 1994, barek3mb,  0,        barek3,   barek3,   barek3,   ROT0, "bootleg / Sega", "Bare Knuckle III (bootleg of Megadrive version)", 0 ) 
 
