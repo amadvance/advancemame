@@ -474,7 +474,7 @@ static void config_customize_freeplay(struct advance_global_context* context, in
 			}
 
 			if (freeplay_exact) {
-				/* set the difficulty */
+				/* set the freeplay mode */
 				value->default_value = freeplay_exact->default_value & value->mask;
 				atleastone = 1;
 			}
@@ -485,6 +485,64 @@ static void config_customize_freeplay(struct advance_global_context* context, in
 
 	if (atleastone) {
 		log_std(("emu:global: freeplay dip switch set\n"));
+	}
+}
+
+
+/**
+ * User customization of the cocktail dipswitch.
+ */
+static void config_customize_cocktail(struct advance_global_context* context, input_port_entry* current)
+{
+	input_port_entry* i;
+	adv_bool atleastone;
+
+	if (!context->config.cocktail_flag)
+		return;
+
+	atleastone = 0;
+
+	i = current;
+	while (i->type != IPT_END) {
+		if (i->type == IPT_DIPSWITCH_NAME) {
+			input_port_entry* value;
+			input_port_entry* cocktail_exact;
+			input_port_entry* cocktail_in;
+
+			/* the value is stored in the NAME item */
+			value = i;
+
+			cocktail_exact = 0;
+			cocktail_in = 0;
+
+			++i;
+
+			/* read the value */
+			while (i->type == IPT_DIPSWITCH_SETTING) {
+				if (!cocktail_exact && sglob(i->name, "Cocktail")) {
+					cocktail_exact = i;
+				} else if (!cocktail_in && sglob(i->name, "*Cocktail*")) {
+					cocktail_in = i;
+				}
+				++i;
+			}
+
+			if (cocktail_exact == 0 && cocktail_in != 0) {
+				cocktail_exact = cocktail_in;
+			}
+
+			if (cocktail_exact) {
+				/* set the cocktail mode */
+				value->default_value = cocktail_exact->default_value & value->mask;
+				atleastone = 1;
+			}
+		} else {
+			++i;
+		}
+	}
+
+	if (atleastone) {
+		log_std(("emu:global: cocktail dip switch set\n"));
 	}
 }
 
@@ -797,6 +855,7 @@ void osd_config_load(input_port_entry* backup, input_port_entry* list)
 	config_customize_language(context, list);
 	config_customize_difficulty(context, list);
 	config_customize_freeplay(context, list);
+	config_customize_cocktail(context, list);
 	config_customize_mutedemo(context, list);
 
 	config_customize_switch(context, cfg_context, game, list, "input_dipswitch", IPT_DIPSWITCH_NAME, IPT_DIPSWITCH_SETTING);
@@ -1227,6 +1286,7 @@ adv_error advance_global_init(struct advance_global_context* context, adv_conf* 
 
 	conf_int_register_enum_default(cfg_context, "misc_lang", OPTION_LANG, i + 1, -1);
 	conf_bool_register_default(cfg_context, "misc_freeplay", 0);
+	conf_bool_register_default(cfg_context, "misc_cocktail", 0);
 	conf_bool_register_default(cfg_context, "misc_mutedemo", 0);
 	conf_float_register_limit_default(cfg_context, "display_pausebrightness", 0.0, 1.0, 1.0);
 
@@ -1250,6 +1310,7 @@ adv_error advance_global_config_load(struct advance_global_context* context, adv
 	context->config.lang = conf_int_get_default(cfg_context, "misc_lang");
 
 	context->config.freeplay_flag = conf_bool_get_default(cfg_context, "misc_freeplay");
+	context->config.cocktail_flag = conf_bool_get_default(cfg_context, "misc_cocktail");
 	context->config.mutedemo_flag = conf_bool_get_default(cfg_context, "misc_mutedemo");
 	context->config.pause_brightness = conf_float_get_default(cfg_context, "display_pausebrightness");
 

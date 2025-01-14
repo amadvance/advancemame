@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS Version 4.1 2025/??
+	) Added the new misc_cocktail option
+
 AdvanceMAME/MESS Version 4.0 2024/10
         ) Attempt to get Mirax up and Running (#170) [arcadez2003]
         ) Karate Champ fix some sound issues (#169) [arcadez2003]

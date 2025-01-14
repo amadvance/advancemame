@@ -982,6 +982,7 @@ struct advance_global_config_context {
 	int lang; /**< Language. -1 for default. */
 	adv_bool autosave; /**< If config should be autosaved. */
 	adv_bool freeplay_flag; /**< Free play switch. */
+	adv_bool cocktail_flag; /**< Cocktail switch. */
 	adv_bool quiet_flag; /**< Be quiet on message printing. */
 	adv_bool mutedemo_flag; /**< Mute demo mode. */
 	double pause_brightness; /**< Display brightness when paused. */

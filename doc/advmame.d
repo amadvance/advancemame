@@ -386,8 +386,8 @@ Features
 	the game freeplay. These options are smart enough to solve
 	common ambiguities and errors in the game dipswitches definitions.
 
-	More details are in the description of the `misc_diffucilty' and
-	`misc_freeplay' options.
+	More details are in the description of the `misc_difficulty',
+	`misc_freeplay' and 'misc_cocktail' options.
 
   LCD Panel
 	AdvanceMAME is able to talk to an `lcdproc' server located anywhere
@@ -2156,6 +2156,17 @@ Configuration
 	Options:
 		no - Don't change the default mode (default).
 		yes - Activate the freeplay.
+
+    misc_cocktail
+	Selects the cocktail mode if the game support it. This
+	option works only with games that select the cocktail mode
+	with dipswitches.
+
+	:misc_cocktail yes | no
+
+	Options:
+		no - Don't change the default mode (default).
+		yes - Activate the cocktail mode.
 
     misc_mutedemo
 	Selects the demo nosound mode if the game support it. This
