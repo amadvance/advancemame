@@ -1465,6 +1465,8 @@ void run_stat(config_state& rs)
 
 	int_clear_alpha(rs.ui_left, rs.ui_top, int_dx_get() - rs.ui_left - rs.ui_right, int_dy_get() - rs.ui_top - rs.ui_bottom, COLOR_HELP_NORMAL.background);
 
+	log_std(("stat: listing\n"));
+
 	// select and sort
 	for (game_set::const_iterator i = rs.gar.begin(); i != rs.gar.end(); ++i) {
 		unsigned session;
@@ -1504,6 +1506,8 @@ void run_stat(config_state& rs)
 		if (!i->emulator_get()->filter(*i))
 			continue;
 
+		log_std(("%s\n", i->name_get().c_str()));
+
 		select_count += 1;
 		select_session += session;
 		select_time += time;
@@ -1512,6 +1516,8 @@ void run_stat(config_state& rs)
 		stat_insert(most_time_map, most_time_val, &*i, time);
 		stat_insert(most_timepersession_map, most_timepersession_val, &*i, timepersession);
 	}
+
+	log_std(("stat: %u\n", select_count));
 
 	y += int_font_dy_get(text);
 	int_put_right_alpha(text, xs, y, xt - xs, "Listed", COLOR_HELP_TAG);
