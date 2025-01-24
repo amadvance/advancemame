@@ -238,8 +238,9 @@ srcdir=.
 datadir=${prefix}/share
 sysconfdir=${prefix}/etc
 bindir=${prefix}/bin
-mandir=${prefix}/man
-docdir=${prefix}/share/doc
+mandir=${datadir}/man
+docdir=${datadir}/doc/advancemame
+htmldir=${docdir}
 
 #############################################################################
 # Extra configuration common for ./configure and manual
