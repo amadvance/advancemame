@@ -9,68 +9,10 @@
 
  The hardware similar to Knuckle Joe.
 
-        TODO - Sound
-           - YM2151 + YM 3012
-       - custom  T5182 cpu
-       - 27256 ROM with data/code (?)  (can be replaced with 27512)
-                     ______________________
-                   _|*                     |_
-             GND  |_|1                   50|_| Vcc
-                   _|                      |_
-              A8  |_|2                   49|_| A7
-                   _|                      |_
-              A9  |_|3                   48|_| A6
-                   _|                      |_
-             A10  |_|4                   47|_| A5
-                   _|                      |_
-             A11  |_|5                   46|_| A4
-                   _|       TOSHIBA        |_
-             A12  |_|6       T5182       45|_| A3
-                   _|                      |_
-             A13  |_|7                   44|_| A2
-                   _|     JAPAN  8612      |_
-             A14  |_|8                   43|_| A1
-                   _|                      |_
-            A15?  |_|9                   42|_| A0
-                   _|                      |_
-       ROM/YM D4  |_|10                  41|_| D3 ROM/YM
-                   _|                      |_
-       ROM/YM D5  |_|11                  40|_| D2 ROM/YM
-                   _|                      |_
-       ROM/YM D6  |_|12                  39|_| D1 ROM/YM
-                   _|                      |_
-       ROM/YM D7  |_|13                  38|_| D0 ROM/YM
-                   _|                      |_
-                  |_|14                  37|_|
-                   _|                      |_   __
-                  |_|15                  36|_|  CS YM2151
-                   _|                      |_
-                  |_|16                  35|_|
-                   _|                      |_
-                  |_|17                  34|_|
-                   _|                      |_
-                  |_|18                  33|_|
-                   _|                      |_   __
-                  |_|19                  32|_|  IC  YM2151
-                   _|                      |_
-                  |_|20                  31|_|
-                   _|                      |_
-                  |_|21                  30|_|
-                   _|                      |_
-                  |_|22                  29|_|
-                   _|                      |_
-                  |_|23                  28|_|
-                   _|                      |_
-                  |_|24                  27|_|
-                   _|                      |_
-             GND  |_|25                  26|_|  Vcc
-                    |______________________|
-
-Based on sketch made by Tormod
-
 ***************************************************************************/
 #include "driver.h"
-#include "sndhrdw/seibu.h"
+#include "sndhrdw/seibu.h" // for seibu_sound_decrypt on the MAIN cpu (not sound)
+#include "sndhrdw/t5182.h"
 
 WRITE8_HANDLER( mustache_videoram_w );
 WRITE8_HANDLER( mustache_scroll_w );
@@ -80,6 +22,16 @@ VIDEO_UPDATE( mustache );
 PALETTE_INIT( mustache );
 
 
+static READ8_HANDLER(t5182shared_r)
+{
+	return t5182_sharedram[offset];
+}
+
+static WRITE8_HANDLER(t5182shared_w)
+{
+	t5182_sharedram[offset] = data;
+}
+
 static int read_coins=0;
 
 READ8_HANDLER ( mustache_coin_hack_r )
@@ -88,29 +40,24 @@ READ8_HANDLER ( mustache_coin_hack_r )
 }
 
 
-static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x7fff) AM_READ(MRA8_ROM)
-	AM_RANGE(0x8000, 0xbfff) AM_READ(MRA8_ROM)
-	AM_RANGE(0xc000, 0xcfff) AM_READ(videoram_r)		/* videoram */
-	AM_RANGE(0xd001, 0xd001) AM_READ(MRA8_RAM) /* T5182 ? */
-	AM_RANGE(0xd400, 0xd4ff) AM_READ(MRA8_RAM) /* shared with T5182 ?*/
+static ADDRESS_MAP_START( memmap, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+	AM_RANGE(0x8000, 0xbfff) AM_ROM
+	AM_RANGE(0xc000, 0xcfff) AM_READWRITE(videoram_r, mustache_videoram_w) AM_BASE(&videoram)
+	AM_RANGE(0xd000, 0xd000) AM_WRITE(t5182_sound_irq_w)
+	AM_RANGE(0xd001, 0xd001) AM_READ(t5182_sharedram_semaphore_snd_r)
+	AM_RANGE(0xd002, 0xd002) AM_WRITE(t5182_sharedram_semaphore_main_acquire_w)
+	AM_RANGE(0xd003, 0xd003) AM_WRITE(t5182_sharedram_semaphore_main_release_w)
+	AM_RANGE(0xd400, 0xd4ff) AM_READWRITE(t5182shared_r, t5182shared_w)
 	AM_RANGE(0xd800, 0xd800) AM_READ(input_port_0_r) /* IN 0 */
 	AM_RANGE(0xd801, 0xd801) AM_READ(input_port_1_r) /* IN 1 */
 	AM_RANGE(0xd802, 0xd802) AM_READ(input_port_2_r) /* IN 2 */
 	AM_RANGE(0xd803, 0xd803) AM_READ(input_port_3_r)	/* DSW A */
 	AM_RANGE(0xd804, 0xd804) AM_READ(input_port_4_r)	/* DSW B */
-	AM_RANGE(0xf000, 0xffff) AM_READ(MRA8_RAM)
-ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0xbfff) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0xc000, 0xcfff) AM_WRITE(mustache_videoram_w) AM_BASE(&videoram)
-	AM_RANGE(0xd000, 0xd003) AM_WRITE(MWA8_RAM) /* T5182 ? */
-	AM_RANGE(0xd400, 0xd4ff) AM_WRITE(MWA8_RAM) /* shared with T5182 ?*/
 	AM_RANGE(0xd806, 0xd806) AM_WRITE(mustache_scroll_w)
 	AM_RANGE(0xd807, 0xd807) AM_WRITE(mustache_video_control_w)
 	AM_RANGE(0xe800, 0xefff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
-	AM_RANGE(0xf000, 0xffff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xf000, 0xffff) AM_RAM
 ADDRESS_MAP_END
 
 /******************************************************************************/
@@ -217,21 +164,40 @@ static const gfx_decode gfxdecodeinfo[] =
 };
 
 
-INTERRUPT_GEN( mustache_interrupt)
+static void clear_irq_cb(int param)
 {
-	read_coins^=1;
-	cpunum_set_input_line(0, 0, PULSE_LINE);
+    read_coins^=1;
+	cpunum_set_input_line(0, 0, CLEAR_LINE);
+}
+
+static void assert_irq(void)
+{
+	cpunum_set_input_line(0, 0, ASSERT_LINE);
+	timer_set(TIME_IN_CYCLES(14288, 0),0, clear_irq_cb);
+       /* Timing here is an educated GUESS, Z80 /INT must stay high so the irq
+          fires no less than TWICE per frame, else game doesn't work right.
+      6000000 / 56.747 = 105732.4616 cycles per frame, we'll call it A
+      screen size is 256x256, though less is visible.
+          lets assume we have 256 lines L and 40 'lines' (really line-times)
+          of vblank V:
+      So (A/(L+V))*V = the number of cycles spent in vblank.
+      (105732.4616 / (256+40)) * 40 = 14288.17049 z80 clocks in vblank
+       */
 }
 
 
 static MACHINE_DRIVER_START( mustache )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(Z80, 18432000/4) /* maybe 12000000/3 - two xtals (18.432 and 12.xxx) near cpu*/
-	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
-	MDRV_CPU_VBLANK_INT(mustache_interrupt,2)
+	MDRV_CPU_ADD(Z80, 18432000/4)
+	MDRV_CPU_PROGRAM_MAP(memmap, 0)
+    MDRV_CPU_VBLANK_INT(assert_irq,1)
 
-	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_CPU_ADD_TAG(CPUTAG_T5182,Z80, 14318180/4)
+	MDRV_CPU_PROGRAM_MAP(t5182_map, 0)
+	MDRV_CPU_IO_MAP(t5182_io, 0)
+
+	MDRV_FRAMES_PER_SECOND(56.747)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 
 	/* video hardware */
@@ -244,6 +210,14 @@ static MACHINE_DRIVER_START( mustache )
 	MDRV_PALETTE_INIT(mustache)
 	MDRV_VIDEO_START(mustache)
 	MDRV_VIDEO_UPDATE(mustache)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(YM2151, 14318180/4)	/* 3.579545 MHz */
+	MDRV_SOUND_CONFIG(t5182_ym2151_interface)
+	MDRV_SOUND_ROUTE(0, "mono", 1.0)
+	MDRV_SOUND_ROUTE(1, "mono", 1.0)
 MACHINE_DRIVER_END
 
 ROM_START( mustache )
@@ -251,8 +225,9 @@ ROM_START( mustache )
 	ROM_LOAD( "mustache.h18", 0x0000, 0x8000, CRC(123bd9b8) SHA1(33a7cba5c3a54b0b1a15dd1e24d298b6f7274321) )
 	ROM_LOAD( "mustache.h16", 0x8000, 0x4000, CRC(62552beb) SHA1(ee10991d7de0596608fa1db48805781cbfbbdb9f) )
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 )  /* T5182 */
-	ROM_LOAD( "mustache.e5",0x0000, 0x8000, CRC(efbb1943) SHA1(3320e9eaeb776d09ed63f7dedc79e720674e6718) )
+	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* Toshiba T5182 module */
+	ROM_LOAD( "t5182.rom",   0x0000, 0x2000, CRC(d354c8fc) SHA1(a1c9e1ac293f107f69cc5788cf6abc3db1646e33) )
+	ROM_LOAD( "mustache.e5", 0x8000, 0x8000, CRC(efbb1943) SHA1(3320e9eaeb776d09ed63f7dedc79e720674e6718) )
 
 	ROM_REGION( 0x0c000, REGION_GFX1,0)	/* BG tiles  */
 	ROM_LOAD( "mustache.a13", 0x0000,  0x4000, CRC(9baee4a7) SHA1(31bcec838789462e67e54ebe7256db9fc4e51b69) )
@@ -327,4 +302,4 @@ static DRIVER_INIT( mustache )
 }
 
 
-GAME( 1987, mustache, 0, mustache, mustache, mustache, ROT90, "[Seibu Kaihatsu] (March license)", "Mustache Boy", GAME_NO_SOUND )
+GAME( 1987, mustache, 0, mustache, mustache, mustache, ROT90, "[Seibu Kaihatsu] (March license)", "Mustache Boy", 0 )
