@@ -3992,8 +3992,9 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( fghthsta )	/* MBF (c) 1993 Data East Corporation (US) */
 	DRIVER( hvysmsh )	/* MBG */
 	DRIVER( nslasher )	/* MBH (c) 1993 Data East Corporation */
-	DRIVER( nslashej )	/* MBH (c) 1993 Data East Corporation (Japan)*/
-	DRIVER( nslashes )	/* MBH (c) 1993 Data East Corporation (Japan)*/
+	DRIVER( nslashej )	/* MBH (c) 1993 Data East Corporation (Japan) */
+	DRIVER( nslashes )	/* MBH (c) 1993 Data East Corporation (Japan) */
+	DRIVER( nslasheru )	/* MBH (c) 1993 Data East Corporation (USA) */
 				/* MBI ?? */
 				/* MBJ ?? */
 				/* MBK ?? */
