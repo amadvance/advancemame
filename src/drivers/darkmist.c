@@ -25,6 +25,16 @@ TODO:
 */
 
 #include "driver.h"
+#include "sndhrdw/t5182.h"
+#include "decocrpt.h"
+
+#define XTAL1  14318180
+#define XTAL2  18432000
+#define XTAL3  12000000
+
+#define CPU_CLOCK   (XTAL3/2)
+#define T5182_CLOCK (XTAL1/4)
+#define YM_CLOCK    (XTAL1/4)
 
 READ8_HANDLER(darkmist_palette_r);
 WRITE8_HANDLER(darkmist_palette_w);
@@ -45,9 +55,18 @@ static WRITE8_HANDLER(darkmist_hw_w)
   memory_set_bankptr(1,&memory_region(REGION_CPU1)[0x010000+((data&0x80)?0x4000:0)]);
 }
 
+static READ8_HANDLER(t5182shared_r)
+{
+	return t5182_sharedram[offset];
+}
+
+static WRITE8_HANDLER(t5182shared_w)
+{
+	t5182_sharedram[offset] = data;
+}
+
 static void darkmist_coin_hack(void)
 {
-	/* coin inputs are handled by (unemulated) custom T5182 cpu, so here's a dirty hack  */
 
 	if(input_port_6_r(0)&1)
 	{
@@ -87,7 +106,11 @@ static ADDRESS_MAP_START( memmap, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xc808, 0xc808) AM_READ(input_port_5_r)
 	AM_RANGE(0xd000, 0xd3ff) AM_WRITE(darkmist_palette_w) AM_READ(darkmist_palette_r) AM_BASE(&paletteram)
 	AM_RANGE(0xd400, 0xd41f) AM_RAM AM_BASE(&darkmist_scroll)
-	AM_RANGE(0xd600, 0xd6ff) AM_RAM /* shared with T5182 */
+	AM_RANGE(0xd600, 0xd67f) AM_READWRITE(t5182shared_r, t5182shared_w)
+	AM_RANGE(0xd680, 0xd680) AM_WRITE(t5182_sound_irq_w)
+	AM_RANGE(0xd681, 0xd681) AM_READ(t5182_sharedram_semaphore_snd_r)
+	AM_RANGE(0xd682, 0xd682) AM_WRITE(t5182_sharedram_semaphore_main_acquire_w)
+	AM_RANGE(0xd683, 0xd683) AM_WRITE(t5182_sharedram_semaphore_main_release_w)
 	AM_RANGE(0xd800, 0xdfff) AM_RAM AM_BASE(&videoram)
 	AM_RANGE(0xe000, 0xefff) AM_RAM AM_BASE(&darkmist_workram)
 	AM_RANGE(0xf000, 0xffff) AM_RAM AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
@@ -135,25 +158,24 @@ INPUT_PORTS_START( darkmist )
 	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
 
 	PORT_START
-	PORT_DIPNAME( 0x01, 0x01, "3-0" )
-	PORT_DIPSETTING(    0x01, DEF_STR( No ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
-	PORT_DIPNAME( 0x02, 0x02, "3-1" )
-	PORT_DIPSETTING(    0x02, DEF_STR( No ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
-	PORT_DIPNAME( 0x04, 0x04, "3-2" )
-	PORT_DIPSETTING(    0x04, DEF_STR( No ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
-	PORT_DIPNAME( 0x08, 0x08, "3-3" )
-	PORT_DIPSETTING(    0x08, DEF_STR( No ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
-	PORT_DIPNAME( 0x10, 0x10, "3-4" )
-	PORT_DIPSETTING(    0x10, DEF_STR( No ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
+	PORT_DIPNAME( 0x07, 0x07, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 5C_1C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x06, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x07, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x05, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_5C ) )
+	PORT_DIPNAME( 0x18, 0x18, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x18, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 2C_3C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 1C_2C ) )
 	PORT_SERVICE( 0x20, IP_ACTIVE_LOW)
-	PORT_DIPNAME( 0x40, 0x40, "3-6" )
-	PORT_DIPSETTING(    0x40, DEF_STR( No ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )	/* Listed as "ALWAYS ON" */
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Free_Play ) )
 	PORT_DIPSETTING(    0x80, DEF_STR( No ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
@@ -167,20 +189,19 @@ INPUT_PORTS_START( darkmist )
 	PORT_DIPSETTING(    0x04, DEF_STR( Normal ) )
 	PORT_DIPSETTING(    0x02, DEF_STR( Hard ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
-	PORT_DIPNAME( 0x18, 0x18, DEF_STR( Lives ) )
+	PORT_DIPNAME( 0x18, 0x08, DEF_STR( Lives ) )
 	PORT_DIPSETTING(    0x18, "1" )
 	PORT_DIPSETTING(    0x10, "2" )
 	PORT_DIPSETTING(    0x08, "3" )
 	PORT_DIPSETTING(    0x00, "4" )
-	PORT_DIPNAME( 0x20, 0x20, "4-5" )
-	PORT_DIPSETTING(    0x20, DEF_STR( No ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
-	PORT_DIPNAME( 0x40, 0x40, "4-6" )
-	PORT_DIPSETTING(    0x40, DEF_STR( No ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
-	PORT_DIPNAME( 0x80, 0x80, "4-7" )
-	PORT_DIPSETTING(    0x80, DEF_STR( No ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Yes ) )
+	PORT_DIPNAME( 0x60, 0x60, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x20, "10K / 20K" )
+	PORT_DIPSETTING(    0x60, "20K / 40K" )
+	PORT_DIPSETTING(    0x40, "30K / 60K" )
+	PORT_DIPSETTING(    0x00, "40K / 80K" )
+	PORT_DIPNAME( 0x80, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 
 
 	PORT_START
@@ -270,6 +291,10 @@ static MACHINE_DRIVER_START( darkmist )
 	MDRV_CPU_PROGRAM_MAP(memmap, 0)
 	MDRV_CPU_VBLANK_INT(darkmist_interrupt,2)
 
+	MDRV_CPU_ADD_TAG(CPUTAG_T5182,Z80,14318180/4)
+	MDRV_CPU_PROGRAM_MAP(t5182_map, 0)
+	MDRV_CPU_IO_MAP(t5182_io, 0)
+
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 
@@ -284,6 +309,13 @@ static MACHINE_DRIVER_START( darkmist )
 	MDRV_VIDEO_START(darkmist)
 	MDRV_VIDEO_UPDATE(darkmist)
 
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(YM2151, 14318180/4)	/* 3.579545 MHz */
+	MDRV_SOUND_CONFIG(t5182_ym2151_interface)
+	MDRV_SOUND_ROUTE(0, "mono", 1.0)
+	MDRV_SOUND_ROUTE(1, "mono", 1.0)
 MACHINE_DRIVER_END
 
 ROM_START( darkmist )
@@ -292,9 +324,9 @@ ROM_START( darkmist )
 
 	ROM_LOAD( "dm_16.rom", 0x10000, 0x08000, CRC(094579d9) SHA1(2449bc9ba38396912ee9b72dd870ea9fcff95776)  )
 
-	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* Toshiba T5182 module*/
-	ROM_LOAD( "t5182.rom", 0x02000, 0x02000, NO_DUMP  )
-	ROM_LOAD( "dm_17.rom", 0x08000, 0x08000, CRC(7723dcae) SHA1(a0c69e7a7b6fd74f7ed6b9c6419aed94aabcd4b0)  )
+	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* Toshiba T5182 module */
+	ROM_LOAD( "t5182.rom", 0x0000, 0x2000, CRC(d354c8fc) SHA1(a1c9e1ac293f107f69cc5788cf6abc3db1646e33) )
+	ROM_LOAD( "dm_17.rom", 0x8000, 0x8000, CRC(7723dcae) SHA1(a0c69e7a7b6fd74f7ed6b9c6419aed94aabcd4b0) )
 
 	ROM_REGION( 0x4000, REGION_GFX1, 0 )
 	ROM_LOAD( "dm_13.rom", 0x00000, 0x02000, CRC(38bb38d9) SHA1(d751990166dd3d503c5de7667679b96210061cd1)  )
@@ -418,6 +450,15 @@ static void decrypt_gfx(void)
 	free(buf);
 }
 
+static void decrypt_snd(void)
+{
+	int i;
+	unsigned char *ROM = memory_region(REGION_CPU2);
+
+	for(i=0x8000;i<0x10000;i++)
+		ROM[i] = BITSWAP8(ROM[i], 7,1,2,3,4,5,6,0);
+}
+
 
 static DRIVER_INIT(darkmist)
 {
@@ -427,6 +468,8 @@ static DRIVER_INIT(darkmist)
 	UINT8 *decrypt = auto_malloc(0x8000);
 
 	decrypt_gfx();
+
+	decrypt_snd();
 
 	for(i=0;i<0x8000;i++)
 	{
@@ -488,4 +531,4 @@ static DRIVER_INIT(darkmist)
 	free(buffer);
 }
 
-GAME( 1986, darkmist, 0, darkmist, darkmist, darkmist, ROT270, "Taito", "The Lost Castle In Darkmist", GAME_IMPERFECT_GRAPHICS|GAME_NO_COCKTAIL|GAME_NO_SOUND )
+GAME( 1986, darkmist, 0, darkmist, darkmist, darkmist, ROT270, "Taito", "The Lost Castle In Darkmist", GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
