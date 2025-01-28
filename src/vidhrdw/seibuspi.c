@@ -83,141 +83,150 @@ WRITE32_HANDLER( spi_layer_enable_w )
 
 WRITE32_HANDLER( tilemap_dma_start_w )
 {
-	int i;
-	int index = (video_dma_address / 4) - 0x200;
-
-	if (layer_bank & 0x80000000)
+	if (video_dma_address != 0)
 	{
-		/* back layer */
-		for (i=0; i < 0x800/4; i++) {
-			UINT32 tile = spimainram[index];
-			if (tilemap_ram[i] != tile) {
-				tilemap_ram[i] = tile;
-				tilemap_mark_tile_dirty( back_layer, (i * 2) );
-				tilemap_mark_tile_dirty( back_layer, (i * 2) + 1 );
+		int i;
+		int index = (video_dma_address / 4) - 0x200;
+
+		if (layer_bank & 0x80000000)
+		{
+			/* back layer */
+			for (i=0; i < 0x800/4; i++) {
+				UINT32 tile = spimainram[index];
+				if (tilemap_ram[i] != tile) {
+					tilemap_ram[i] = tile;
+					tilemap_mark_tile_dirty( back_layer, (i * 2) );
+					tilemap_mark_tile_dirty( back_layer, (i * 2) + 1 );
+				}
+				index++;
 			}
-			index++;
+
+			/* back layer row scroll */
+			memcpy(&tilemap_ram[0x800/4], &spimainram[index], 0x800/4);
+			index += 0x800/4;
+
+			/* fore layer */
+			for (i=0; i < 0x800/4; i++) {
+				UINT32 tile = spimainram[index];
+				if (tilemap_ram[i+fore_layer_offset] != tile) {
+					tilemap_ram[i+fore_layer_offset] = tile;
+					tilemap_mark_tile_dirty( fore_layer, (i * 2) );
+					tilemap_mark_tile_dirty( fore_layer, (i * 2) + 1 );
+				}
+				index++;
+			}
+
+			/* fore layer row scroll */
+			memcpy(&tilemap_ram[0x1800/4], &spimainram[index], 0x800/4);
+			index += 0x800/4;
+
+			/* mid layer */
+			for (i=0; i < 0x800/4; i++) {
+				UINT32 tile = spimainram[index];
+				if (tilemap_ram[i+mid_layer_offset] != tile) {
+					tilemap_ram[i+mid_layer_offset] = tile;
+					tilemap_mark_tile_dirty( mid_layer, (i * 2) );
+					tilemap_mark_tile_dirty( mid_layer, (i * 2) + 1 );
+				}
+				index++;
+			}
+
+			/* mid layer row scroll */
+			memcpy(&tilemap_ram[0x1800/4], &spimainram[index], 0x800/4);
+			index += 0x800/4;
+
+			/* text layer */
+			for (i=0; i < 0x1000/4; i++) {
+				UINT32 tile = spimainram[index];
+				if (tilemap_ram[i+text_layer_offset] != tile) {
+					tilemap_ram[i+text_layer_offset] = tile;
+					tilemap_mark_tile_dirty( text_layer, (i * 2) );
+					tilemap_mark_tile_dirty( text_layer, (i * 2) + 1 );
+				}
+				index++;
+			}
 		}
-
-		/* back layer row scroll */
-		memcpy(&tilemap_ram[0x800/4], &spimainram[index], 0x800/4);
-		index += 0x800/4;
-
-		/* fore layer */
-		for (i=0; i < 0x800/4; i++) {
-			UINT32 tile = spimainram[index];
-			if (tilemap_ram[i+fore_layer_offset] != tile) {
-				tilemap_ram[i+fore_layer_offset] = tile;
-				tilemap_mark_tile_dirty( fore_layer, (i * 2) );
-				tilemap_mark_tile_dirty( fore_layer, (i * 2) + 1 );
+		else
+		{
+			/* back layer */
+			for (i=0; i < 0x800/4; i++) {
+				UINT32 tile = spimainram[index];
+				if (tilemap_ram[i] != tile) {
+					tilemap_ram[i] = tile;
+					tilemap_mark_tile_dirty( back_layer, (i * 2) );
+					tilemap_mark_tile_dirty( back_layer, (i * 2) + 1 );
+				}
+				index++;
 			}
-			index++;
-		}
 
-		/* fore layer row scroll */
-		memcpy(&tilemap_ram[0x1800/4], &spimainram[index], 0x800/4);
-		index += 0x800/4;
-
-		/* mid layer */
-		for (i=0; i < 0x800/4; i++) {
-			UINT32 tile = spimainram[index];
-			if (tilemap_ram[i+mid_layer_offset] != tile) {
-				tilemap_ram[i+mid_layer_offset] = tile;
-				tilemap_mark_tile_dirty( mid_layer, (i * 2) );
-				tilemap_mark_tile_dirty( mid_layer, (i * 2) + 1 );
+			/* fore layer */
+			for (i=0; i < 0x800/4; i++) {
+				UINT32 tile = spimainram[index];
+				if (tilemap_ram[i+fore_layer_offset] != tile) {
+					tilemap_ram[i+fore_layer_offset] = tile;
+					tilemap_mark_tile_dirty( fore_layer, (i * 2) );
+					tilemap_mark_tile_dirty( fore_layer, (i * 2) + 1 );
+				}
+				index++;
 			}
-			index++;
-		}
 
-		/* mid layer row scroll */
-		memcpy(&tilemap_ram[0x1800/4], &spimainram[index], 0x800/4);
-		index += 0x800/4;
+			/* mid layer */
+			for (i=0; i < 0x800/4; i++) {
+				UINT32 tile = spimainram[index];
+				if (tilemap_ram[i+mid_layer_offset] != tile) {
+					tilemap_ram[i+mid_layer_offset] = tile;
+					tilemap_mark_tile_dirty( mid_layer, (i * 2) );
+					tilemap_mark_tile_dirty( mid_layer, (i * 2) + 1 );
+				}
+				index++;
+			}
 
-		/* text layer */
-		for (i=0; i < 0x1000/4; i++) {
-			UINT32 tile = spimainram[index];
-			if (tilemap_ram[i+text_layer_offset] != tile) {
-				tilemap_ram[i+text_layer_offset] = tile;
-				tilemap_mark_tile_dirty( text_layer, (i * 2) );
-				tilemap_mark_tile_dirty( text_layer, (i * 2) + 1 );
+			/* text layer */
+			for (i=0; i < 0x1000/4; i++) {
+				UINT32 tile = spimainram[index];
+				if (tilemap_ram[i+text_layer_offset] != tile) {
+					tilemap_ram[i+text_layer_offset] = tile;
+					tilemap_mark_tile_dirty( text_layer, (i * 2) );
+					tilemap_mark_tile_dirty( text_layer, (i * 2) + 1 );
+				}
+				index++;
 			}
-			index++;
-		}
-	}
-	else
-	{
-		/* back layer */
-		for (i=0; i < 0x800/4; i++) {
-			UINT32 tile = spimainram[index];
-			if (tilemap_ram[i] != tile) {
-				tilemap_ram[i] = tile;
-				tilemap_mark_tile_dirty( back_layer, (i * 2) );
-				tilemap_mark_tile_dirty( back_layer, (i * 2) + 1 );
-			}
-			index++;
-		}
-
-		/* fore layer */
-		for (i=0; i < 0x800/4; i++) {
-			UINT32 tile = spimainram[index];
-			if (tilemap_ram[i+fore_layer_offset] != tile) {
-				tilemap_ram[i+fore_layer_offset] = tile;
-				tilemap_mark_tile_dirty( fore_layer, (i * 2) );
-				tilemap_mark_tile_dirty( fore_layer, (i * 2) + 1 );
-			}
-			index++;
-		}
-
-		/* mid layer */
-		for (i=0; i < 0x800/4; i++) {
-			UINT32 tile = spimainram[index];
-			if (tilemap_ram[i+mid_layer_offset] != tile) {
-				tilemap_ram[i+mid_layer_offset] = tile;
-				tilemap_mark_tile_dirty( mid_layer, (i * 2) );
-				tilemap_mark_tile_dirty( mid_layer, (i * 2) + 1 );
-			}
-			index++;
-		}
-
-		/* text layer */
-		for (i=0; i < 0x1000/4; i++) {
-			UINT32 tile = spimainram[index];
-			if (tilemap_ram[i+text_layer_offset] != tile) {
-				tilemap_ram[i+text_layer_offset] = tile;
-				tilemap_mark_tile_dirty( text_layer, (i * 2) );
-				tilemap_mark_tile_dirty( text_layer, (i * 2) + 1 );
-			}
-			index++;
 		}
 	}
 }
 
 WRITE32_HANDLER( palette_dma_start_w )
 {
-	int i;
-	for (i=0; i < ((video_dma_length+1) * 2) / 4; i++)
+	if (video_dma_address != 0)
 	{
-		int r1,g1,b1,r2,g2,b2;
+		int i;
+		for (i=0; i < ((video_dma_length+1) * 2) / 4; i++)
+		{
+			int r1,g1,b1,r2,g2,b2;
 
-		UINT32 color = spimainram[(video_dma_address / 4) + i - 0x200];
-		if (palette_ram[i] != color) {
-			palette_ram[i] = color;
-			b1 = ((palette_ram[i] & 0x7c000000) >>26) << 3;
-			g1 = ((palette_ram[i] & 0x03e00000) >>21) << 3;
-			r1 = ((palette_ram[i] & 0x001f0000) >>16) << 3;
-			b2 = ((palette_ram[i] & 0x00007c00) >>10) << 3;
-			g2 = ((palette_ram[i] & 0x000003e0) >>5) << 3;
-			r2 = ((palette_ram[i] & 0x0000001f) >>0) << 3;
+			UINT32 color = spimainram[(video_dma_address / 4) + i - 0x200];
+			if (palette_ram[i] != color) {
+				palette_ram[i] = color;
+				b1 = ((palette_ram[i] & 0x7c000000) >>26) << 3;
+				g1 = ((palette_ram[i] & 0x03e00000) >>21) << 3;
+				r1 = ((palette_ram[i] & 0x001f0000) >>16) << 3;
+				b2 = ((palette_ram[i] & 0x00007c00) >>10) << 3;
+				g2 = ((palette_ram[i] & 0x000003e0) >>5) << 3;
+				r2 = ((palette_ram[i] & 0x0000001f) >>0) << 3;
 
-			palette_set_color( (i * 2), r2, g2, b2 );
-			palette_set_color( (i * 2) + 1, r1, g1, b1 );
+				palette_set_color( (i * 2), r2, g2, b2 );
+				palette_set_color( (i * 2) + 1, r1, g1, b1 );
+			}
 		}
 	}
 }
 
 WRITE32_HANDLER( sprite_dma_start_w )
 {
-	memcpy( sprite_ram, &spimainram[(video_dma_address / 4) - 0x200], 0x1000);
+	if (video_dma_address != 0)
+	{
+		memcpy( sprite_ram, &spimainram[(video_dma_address / 4) - 0x200], 0x1000);
+	}
 }
 
 WRITE32_HANDLER( video_dma_length_w )
