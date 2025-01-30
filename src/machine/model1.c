@@ -140,6 +140,11 @@ static float ram_get_f(void)
 	return u2f(ram_data[ram_scanadr++]);
 }
 
+#define fadd fadd_model1
+#define fsub fsub_model1
+#define fmul fmul_model1
+#define fdiv fdiv_model1
+
 static void fadd(void)
 {
 	float a = fifoin_pop_f();

@@ -214,9 +214,12 @@ if test $ac_auto_cflags = yes; then
 
 		dnl Some useful warnings
 		AC_CHECK_CC_OPT([-Wall], [CFLAGS="$CFLAGS -Wall"], [])
+
+		dnl Disable some annoying warnings
 		AC_CHECK_CC_OPT([-Wno-sign-compare], [CFLAGS="$CFLAGS -Wno-sign-compare"], [])
 		AC_CHECK_CC_OPT([-Wno-unused], [CFLAGS="$CFLAGS -Wno-unused"], [])
 		AC_CHECK_CC_OPT([-Wno-format-truncation], [CFLAGS="$CFLAGS -Wno-format-truncation"], [])
+		AC_CHECK_CC_OPT([-Wno-misleading-indentation], [CFLAGS="$CFLAGS -Wno-misleading-indentation"], [])
 	fi
 	if test ! -z $ac_host_cflags; then
 		CFLAGS="$ac_host_cflags $CFLAGS"

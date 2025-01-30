@@ -2477,7 +2477,7 @@ SimulateSlaveDSP( mame_bitmap *bitmap )
 			break;
 
 		default:
-         logerror( "unk 3d data(%d) addr=0x%x!", len, pSource-(INT32*)namcos22_polygonram );
+         logerror( "unk 3d data(%d) addr=0x%lx!", len, pSource-(INT32*)namcos22_polygonram );
          {
             int i;
             for( i=0; i<len; i++ )
