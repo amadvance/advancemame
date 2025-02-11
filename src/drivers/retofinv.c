@@ -62,6 +62,16 @@ extern UINT8 *retofinv_sharedram;
 static unsigned char cpu2_m6000=0;
 
 
+static READ8_HANDLER( retofinv_shared_ram_r )
+{
+	return retofinv_sharedram[offset];
+}
+
+static WRITE8_HANDLER( retofinv_shared_ram_w )
+{
+	retofinv_sharedram[offset] = data;
+}
+
 static WRITE8_HANDLER( cpu1_reset_w )
 {
 	cpunum_set_input_line(1, INPUT_LINE_RESET, data ? CLEAR_LINE : ASSERT_LINE);
@@ -129,9 +139,9 @@ static ADDRESS_MAP_START( main_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x7fff, 0x7fff) AM_WRITE(coincounter_w)
 	AM_RANGE(0x7b00, 0x7bff) AM_ROM	/* space for diagnostic ROM? The code looks */
 									/* for a string here, and jumps if it's present */
-	AM_RANGE(0x8000, 0x87ff) AM_READWRITE(MRA8_RAM, retofinv_fg_videoram_w) AM_SHARE(2) AM_BASE(&retofinv_fg_videoram)
-	AM_RANGE(0x8800, 0x9fff) AM_RAM AM_SHARE(1) AM_BASE(&retofinv_sharedram)
-	AM_RANGE(0xa000, 0xa7ff) AM_READWRITE(MRA8_RAM, retofinv_bg_videoram_w) AM_SHARE(3) AM_BASE(&retofinv_bg_videoram)
+	AM_RANGE(0x8000, 0x87ff) AM_READWRITE(retofinv_fg_videoram_r, retofinv_fg_videoram_w) AM_BASE(&retofinv_fg_videoram)
+	AM_RANGE(0x8800, 0x9fff) AM_READWRITE(retofinv_shared_ram_r, retofinv_shared_ram_w) AM_BASE(&retofinv_sharedram)
+	AM_RANGE(0xa000, 0xa7ff) AM_READWRITE(retofinv_bg_videoram_r, retofinv_bg_videoram_w) AM_BASE(&retofinv_bg_videoram)
 	AM_RANGE(0xb800, 0xb802) AM_WRITE(retofinv_gfx_ctrl_w)
 	AM_RANGE(0xc000, 0xc000) AM_READ(input_port_1_r)
 	AM_RANGE(0xc001, 0xc001) AM_READ(input_port_2_r)
@@ -156,9 +166,9 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( sub_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x1fff) AM_ROM
-	AM_RANGE(0x8000, 0x87ff) AM_READWRITE(MRA8_RAM, retofinv_fg_videoram_w) AM_SHARE(2)
-	AM_RANGE(0x8800, 0x9fff) AM_RAM AM_SHARE(1)
-	AM_RANGE(0xa000, 0xa7ff) AM_READWRITE(MRA8_RAM, retofinv_bg_videoram_w) AM_SHARE(3)
+	AM_RANGE(0x8000, 0x87ff) AM_READWRITE(retofinv_fg_videoram_r, retofinv_fg_videoram_w)
+	AM_RANGE(0x8800, 0x9fff) AM_READWRITE(retofinv_shared_ram_r, retofinv_shared_ram_w)
+	AM_RANGE(0xa000, 0xa7ff) AM_READWRITE(retofinv_bg_videoram_r, retofinv_bg_videoram_w)
 	AM_RANGE(0xc804, 0xc804) AM_WRITE(irq1_ack_w)
 ADDRESS_MAP_END
 
@@ -434,10 +444,9 @@ ROM_START( retofinv )
 	ROM_REGION( 0x10000, REGION_CPU3, 0 )	/* 64k for sound cpu */
 	ROM_LOAD( "a37-05.17", 0x0000, 0x2000, CRC(9025abea) SHA1(2f03e8572f23624d7cd1215a55109e97fd66e271) )
 
-	ROM_REGION( 0x0800, REGION_CPU4, 0 )	/* 8k for the microcontroller */
-	/* the only available dump is from a bootleg board, and is not the real thing (see notes at top of driver) */
-	ROM_LOAD( "a37-09.37", 0x00000, 0x0800, NO_DUMP CRC(79bd6ded) SHA1(4967e95b4461c1bfb4e933d1804677799014f77b) )
-
+	ROM_REGION( 0x0800,  REGION_CPU4, 0 )	/* 8k for the microcontroller */
+	ROM_LOAD( "a37__09.ic37", 0x00000, 0x0800, CRC(6a6d008d) SHA1(dce55b65db22ba97cb7b3d6d545575e7945d42ad) ) /* original mc68705p5 from Taito board */
+	
 	ROM_REGION( 0x02000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "a37-16.61", 0x0000, 0x2000, CRC(4e3f501c) SHA1(2d832f4038ae65bfdeedfab870f6f1176ec6b676) )
 
