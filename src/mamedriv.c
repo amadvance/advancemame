@@ -1523,6 +1523,7 @@ const game_driver * const drivers[] =
 	DRIVER( onna34ro )	/* A52 (c) 1985 Taito Corporation (Japan) */
 	DRIVER( onna34ra )	/* A52 (c) 1985 Taito Corporation (Japan) */
 	DRIVER( victnine )	/* A16 (c) 1985 Taito Corporation (Japan) */
+	DRIVER( rumba )		/* A23 (c) 1985 Taito Corporation (Japan) */
 	DRIVER( gladiatr )	/* QB  (c) 1986 Taito America Corporation (US) */
 	DRIVER( ogonsiro )	/* QB  (c) 1986 Taito Corporation (Japan) */
 	DRIVER( greatgur )	/* QB  (c) 1986 Taito Corporation (Japan?) */
