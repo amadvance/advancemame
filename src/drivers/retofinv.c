@@ -187,7 +187,7 @@ ADDRESS_MAP_END
 
 
 INPUT_PORTS_START( retofinv )
-	PORT_START_TAG("IN0")
+	PORT_START
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START2 )
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_TILT )
@@ -197,7 +197,7 @@ INPUT_PORTS_START( retofinv )
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
 
-	PORT_START_TAG("IN1")
+	PORT_START
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_2WAY
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )
@@ -207,7 +207,7 @@ INPUT_PORTS_START( retofinv )
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 )
 
-	PORT_START_TAG("IN2")
+	PORT_START
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_2WAY PORT_COCKTAIL
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )
@@ -217,7 +217,7 @@ INPUT_PORTS_START( retofinv )
 	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_COCKTAIL
 
-	PORT_START_TAG("DSW1")
+	PORT_START
 	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Bonus_Life ) )
 	PORT_DIPSETTING(    0x03, "30k, 80k & every 80k" )
 	PORT_DIPSETTING(    0x02, "30k, 80k" )
@@ -241,7 +241,7 @@ INPUT_PORTS_START( retofinv )
 	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
 	PORT_DIPSETTING(    0x80, DEF_STR( Cocktail ) )
 
-    PORT_START_TAG("DSW2")
+        PORT_START
 	PORT_DIPNAME( 0x0f, 0x00, DEF_STR( Coin_A ) )
 	PORT_DIPSETTING(    0x0f, DEF_STR( 9C_1C ) )
 	PORT_DIPSETTING(    0x0e, DEF_STR( 8C_1C ) )
@@ -277,7 +277,7 @@ INPUT_PORTS_START( retofinv )
 	PORT_DIPSETTING(    0x60, DEF_STR( 1C_7C ) )
 	PORT_DIPSETTING(    0x70, DEF_STR( 1C_8C ) )
 
-	PORT_START_TAG("DSW3")
+	PORT_START
 	PORT_DIPNAME( 0x01, 0x01, "Push Start to Skip Stage (Cheat)")
 	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
@@ -304,6 +304,7 @@ INPUT_PORTS_START( retofinv )
 	PORT_DIPSETTING(    0x00, "A only" )
 INPUT_PORTS_END
 
+/*
 INPUT_PORTS_START( retofin2 )
 	PORT_INCLUDE( retofinv )
 
@@ -314,8 +315,7 @@ INPUT_PORTS_START( retofin2 )
 	PORT_DIPSETTING(    0x08, "3" )
 	PORT_DIPSETTING(    0x00, "4" )
 INPUT_PORTS_END
-
-
+*/
 
 static const gfx_layout charlayout =
 {
@@ -526,4 +526,4 @@ ROM_END
 
 GAME( 1985, retofinv, 0,        retofinv, retofinv, 0, ROT90, "Taito Corporation", "Return of the Invaders", GAME_NOT_WORKING )
 GAME( 1985, retofin1, retofinv, retofinb, retofinv, 0, ROT90, "bootleg", "Return of the Invaders (bootleg set 1)", 0 )
-GAME( 1985, retofin2, retofinv, retofinb, retofin2, 0, ROT90, "bootleg", "Return of the Invaders (bootleg set 2)", 0 )
+GAME( 1985, retofin2, retofinv, retofinb, retofinv, 0, ROT90, "bootleg", "Return of the Invaders (bootleg set 2)", 0 )
