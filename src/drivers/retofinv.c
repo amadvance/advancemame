@@ -433,7 +433,7 @@ ROM_START( retofinv )
 
 	ROM_REGION( 0x0800, REGION_CPU4, 0 )	/* 8k for the microcontroller */
 	/* the only available dump is from a bootleg board, and is not the real thing (see notes at top of driver) */
-	ROM_LOAD( "a37-09.37", 0x00000, 0x0800, NO_DUMP CRC(79bd6ded) SHA1(4967e95b4461c1bfb4e933d1804677799014f77b) )
+	ROM_LOAD( "a37-09.37", 0x00000, 0x0800, CRC(79bd6ded) SHA1(4967e95b4461c1bfb4e933d1804677799014f77b) )
 
 	ROM_REGION( 0x02000, REGION_GFX1, ROMREGION_DISPOSE )
 	ROM_LOAD( "a37-16.61", 0x0000, 0x2000, CRC(4e3f501c) SHA1(2d832f4038ae65bfdeedfab870f6f1176ec6b676) )
