@@ -943,8 +943,6 @@ ROM_END
 
 
 GAME( 1986, renegade, 0,        renegade, renegade, 0, ROT0, "Technos (Taito America license)", "Renegade (US)", 0 )
-/*
 GAME( 1986, renegadeb,renegade, kuniokub, renegade, 0, ROT0, "bootleg", "Renegade (US bootleg)", 0)
-*/
 GAME( 1986, kuniokun, renegade, renegade, renegade, 0, ROT0, "Technos", "Nekketsu Kouha Kunio-kun (Japan)", 0 )
 GAME( 1986, kuniokub, renegade, kuniokub, renegade, 0, ROT0, "bootleg", "Nekketsu Kouha Kunio-kun (Japan bootleg)", 0 )
