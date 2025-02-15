@@ -6,18 +6,23 @@
  */
 
 #include "driver.h"
+#include "cpu/z80/z80.h"
+#include "cpu/m6805/m6805.h"
 #include "sound/ay8910.h"
 
 /* machine/chaknpop.c */
-extern UINT8 *chaknpop_ram;
-DRIVER_INIT( chaknpop );
-MACHINE_RESET( chaknpop );
-READ8_HANDLER( chaknpop_mcu_portA_r );
-READ8_HANDLER( chaknpop_mcu_portB_r );
-READ8_HANDLER( chaknpop_mcu_portC_r );
-WRITE8_HANDLER( chaknpop_mcu_portA_w );
-WRITE8_HANDLER( chaknpop_mcu_portB_w );
-WRITE8_HANDLER( chaknpop_mcu_portC_w );
+READ8_HANDLER( chaknpop_68705_portA_r );
+WRITE8_HANDLER( chaknpop_68705_portA_w );
+READ8_HANDLER( chaknpop_68705_portB_r );
+WRITE8_HANDLER( chaknpop_68705_portB_w );
+READ8_HANDLER( chaknpop_68705_portC_r );
+WRITE8_HANDLER( chaknpop_68705_portC_w );
+WRITE8_HANDLER( chaknpop_68705_ddrA_w );
+WRITE8_HANDLER( chaknpop_68705_ddrB_w );
+WRITE8_HANDLER( chaknpop_68705_ddrC_w );
+WRITE8_HANDLER( chaknpop_mcu_w );
+READ8_HANDLER( chaknpop_mcu_r );
+READ8_HANDLER( chaknpop_mcu_status_r );
 
 
 /* vidhrdw/chaknpop.c */
@@ -70,9 +75,9 @@ static WRITE8_HANDLER ( coinlock_w )
 static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_READ(MRA8_ROM)
 	AM_RANGE(0x8000, 0x87ff) AM_READ(MRA8_RAM)
-	AM_RANGE(0x8800, 0x8800) AM_READ(chaknpop_mcu_portA_r)
-	AM_RANGE(0x8801, 0x8801) AM_READ(chaknpop_mcu_portB_r)
-	AM_RANGE(0x8802, 0x8802) AM_READ(chaknpop_mcu_portC_r)
+    AM_RANGE(0x8800, 0x8800) AM_READ(chaknpop_mcu_r)
+	AM_RANGE(0x8801, 0x8801) AM_READ(chaknpop_mcu_status_r)
+	AM_RANGE(0x8802, 0x8802) AM_READ(MRA8_NOP)            /* watchdog? */
 	AM_RANGE(0x8805, 0x8805) AM_READ(AY8910_read_port_0_r)
 	AM_RANGE(0x8807, 0x8807) AM_READ(AY8910_read_port_1_r)
 	AM_RANGE(0x8808, 0x8808) AM_READ(input_port_3_r)		// DSW C
@@ -89,10 +94,9 @@ ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x7fff) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0x8000, 0x87ff) AM_WRITE(MWA8_RAM) AM_BASE(&chaknpop_ram)
-	AM_RANGE(0x8800, 0x8800) AM_WRITE(chaknpop_mcu_portA_w)
-	AM_RANGE(0x8801, 0x8801) AM_WRITE(chaknpop_mcu_portB_w)
-	AM_RANGE(0x8802, 0x8802) AM_WRITE(chaknpop_mcu_portC_w)
+	AM_RANGE(0x8000, 0x87ff) AM_WRITE(MWA8_RAM)
+    AM_RANGE(0x8800, 0x8800) AM_WRITE(chaknpop_mcu_w)
+	AM_RANGE(0x8802, 0x8802) AM_WRITE(MWA8_NOP) 
 	AM_RANGE(0x8804, 0x8804) AM_WRITE(AY8910_control_port_0_w)
 	AM_RANGE(0x8805, 0x8805) AM_WRITE(AY8910_write_port_0_w)
 	AM_RANGE(0x8806, 0x8806) AM_WRITE(AY8910_control_port_1_w)
@@ -104,6 +108,27 @@ static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x9840, 0x98ff) AM_WRITE(MWA8_RAM) AM_BASE(&chaknpop_sprram) AM_SIZE(&chaknpop_sprram_size)
 	AM_RANGE(0xa000, 0xbfff) AM_WRITE(MWA8_ROM)
 	AM_RANGE(0xc000, 0xffff) AM_WRITE(MWA8_BANK1)			// bitmap plane 1-4
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( chaknpop_m68705_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(11) )
+	AM_RANGE(0x0000, 0x0000) AM_READ(chaknpop_68705_portA_r)
+	AM_RANGE(0x0001, 0x0001) AM_READ(chaknpop_68705_portB_r)
+	AM_RANGE(0x0002, 0x0002) AM_READ(chaknpop_68705_portC_r)
+	AM_RANGE(0x0010, 0x007f) AM_READ(MRA8_RAM)
+	AM_RANGE(0x0080, 0x07ff) AM_READ(MRA8_ROM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( chaknpop_m68705_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(11) )
+	AM_RANGE(0x0000, 0x0000) AM_WRITE(chaknpop_68705_portA_w)
+	AM_RANGE(0x0001, 0x0001) AM_WRITE(chaknpop_68705_portB_w)
+	AM_RANGE(0x0002, 0x0002) AM_WRITE(chaknpop_68705_portC_w)
+	AM_RANGE(0x0004, 0x0004) AM_WRITE(chaknpop_68705_ddrA_w)
+	AM_RANGE(0x0005, 0x0005) AM_WRITE(chaknpop_68705_ddrB_w)
+	AM_RANGE(0x0006, 0x0006) AM_WRITE(chaknpop_68705_ddrC_w)
+	AM_RANGE(0x0010, 0x007f) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x0080, 0x07ff) AM_WRITE(MWA8_ROM)
 ADDRESS_MAP_END
 
 static struct AY8910interface ay8910_interface_1 =
@@ -286,17 +311,17 @@ static const gfx_decode gfxdecodeinfo[] =
 static MACHINE_DRIVER_START( chaknpop )
 
 	/* basic machine hardware */
-	/* the real board is 3.072MHz, but it is faster for MAME */
-	//MDRV_CPU_ADD(Z80, 18432000 / 6)   /* 3.072 MHz */
-	MDRV_CPU_ADD(Z80, 2350000)
-	//MDRV_CPU_ADD(Z80, 2760000)
+	MDRV_CPU_ADD(Z80, 18000000 / 6)	/* Verified on PCB */
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
+	
+	MDRV_CPU_ADD(M68705, 18000000 / 6)	/* Verified on PCB */
+	MDRV_CPU_PROGRAM_MAP(chaknpop_m68705_readmem,chaknpop_m68705_writemem)
 
-	MDRV_FRAMES_PER_SECOND(60.606060)
+	MDRV_FRAMES_PER_SECOND(59.1828)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
-
-	MDRV_MACHINE_RESET(chaknpop)
+	MDRV_INTERLEAVE(100)	/* 100 CPU slices per frame - an high value to ensure proper */
+							/* synchronization of the CPUs */
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
@@ -312,11 +337,11 @@ static MACHINE_DRIVER_START( chaknpop )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(AY8910, 18432000 / 12)
+	MDRV_SOUND_ADD(AY8910, 18000000 / 12)
 	MDRV_SOUND_CONFIG(ay8910_interface_1)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.15)
 
-	MDRV_SOUND_ADD(AY8910, 18432000 / 12)
+	MDRV_SOUND_ADD(AY8910, 18000000 / 12)
 	MDRV_SOUND_CONFIG(ay8910_interface_2)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.10)
 MACHINE_DRIVER_END
@@ -336,10 +361,8 @@ ROM_START( chaknpop )
 	ROM_LOAD( "a04-04.25",    0x06000, 0x2000, CRC(5209c7d4) SHA1(dcba785a697df55d84d65735de38365869a1da9d) )
 	ROM_LOAD( "a04-05.3",     0x0a000, 0x2000, CRC(8720e024) SHA1(99e445c117d1501a245f9eb8d014abc4712b4963) )
 
-	ROM_REGION( 0x0800, REGION_CPU2, 0 )	/* 2k for the microcontroller */
-	/* MCU isn't dumped (its protected) however we simulate it using data
-       extracted with a trojan, see machine/chaknpop.c */
-	ROM_LOAD( "68705.mcu",   0x0000, 0x0800, NO_DUMP )
+	ROM_REGION( 0x0800,  REGION_CPU2, 0 )	/* 2k for the microcontroller */
+    ROM_LOAD( "ao4_06.ic23", 0x0000, 0x0800, CRC(9c78c24c) SHA1(f74c7f3ee106e5c45c907e590ec09614a2bc6751) )
 
 	ROM_REGION( 0x4000, REGION_GFX1, ROMREGION_DISPOSE )	/* Sprite */
 	ROM_LOAD( "a04-08.14",     0x0000, 0x2000, CRC(5575a021) SHA1(c2fad53fe6a12c19cec69d27c13fce6aea2502f2) )
@@ -355,5 +378,5 @@ ROM_START( chaknpop )
 ROM_END
 
 
-/*  ( YEAR  NAME      PARENT    MACHINE   INPUT     INIT      MONITOR  COMPANY              FULLNAME ) */
-GAME( 1983, chaknpop, 0,        chaknpop, chaknpop, chaknpop, ROT0,    "Taito Corporation", "Chack'n Pop", 0)
+/*  ( YEAR  NAME      PARENT    MACHINE   INPUT     INIT  MONITOR  COMPANY              FULLNAME ) */
+GAME( 1983, chaknpop, 0,        chaknpop, chaknpop, 0,    ROT0,  "Taito Corporation", "Chack'n Pop", 0)
