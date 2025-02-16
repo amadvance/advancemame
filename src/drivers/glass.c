@@ -70,7 +70,7 @@ static const gfx_decode glass_gfxdecodeinfo[] =
 
 
 static ADDRESS_MAP_START( glass_readmem, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x000000, 0x07ffff) AM_READ(MRA16_ROM)				/* ROM */
+	AM_RANGE(0x000000, 0x0fffff) AM_READ(MRA16_ROM)				/* ROM */
 	AM_RANGE(0x100000, 0x101fff) AM_READ(MRA16_RAM)				/* Video RAM */
 	AM_RANGE(0x102000, 0x102fff) AM_READ(MRA16_RAM)				/* Extra Video RAM */
 	AM_RANGE(0x200000, 0x2007ff) AM_READ(MRA16_RAM)				/* Palette */
@@ -110,7 +110,7 @@ static WRITE16_HANDLER( glass_coin_w )
 }
 
 static ADDRESS_MAP_START( glass_writemem, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x000000, 0x07ffff) AM_WRITE(MWA16_ROM)								/* ROM */
+	AM_RANGE(0x000000, 0x0fffff) AM_WRITE(MWA16_ROM)								/* ROM */
 	AM_RANGE(0x100000, 0x101fff) AM_WRITE(glass_vram_w) AM_BASE(&glass_videoram)			/* Video RAM */
 	AM_RANGE(0x102000, 0x102fff) AM_WRITE(MWA16_RAM)								/* Extra Video RAM */
 	AM_RANGE(0x108000, 0x108007) AM_WRITE(MWA16_RAM) AM_BASE(&glass_vregs)				/* Video Registers */
@@ -294,6 +294,27 @@ ROM_START( glass10a )
 	ROM_RELOAD(				0x040000, 0x100000 )
 ROM_END
 
+ROM_START( glasskr )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )    /* 68000 code */
+	ROM_LOAD16_BYTE( "glassk.c23", 0x000000, 0x080000, CRC(6ee19376) SHA1(8a8fdeebe094bd3e29c35cf59584e3cab708732d) )
+	ROM_LOAD16_BYTE( "glassk.c22", 0x000001, 0x080000, CRC(bd546568) SHA1(bcd5e7591f4e68c9470999b8a0ef1ee4392c907c) )
+
+	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE )	/* Graphics */
+	/* 0x000000-0x3fffff filled in later in the DRIVER_INIT */
+
+	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE )	/* Graphics */
+	ROM_LOAD( "h13.bin", 0x000000, 0x200000, CRC(13ab7f31) SHA1(468424f74d6cccd1b445a9f20e2d24bc46d61ed6) )
+	ROM_LOAD( "h11.bin", 0x200000, 0x200000, CRC(c6ac41c8) SHA1(22408ef1e35c66d0fba0c72972c46fad891d1193) )
+
+	ROM_REGION( 0x100000, REGION_GFX3, 0 )   /* 16 bitmaps (320x200, indexed colors) */
+	ROM_LOAD( "glassk.h9", 0x000000, 0x100000, CRC(d499be4c) SHA1(204f754813be687e8dc00bfe7b5dbc4857ac8738) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )    /* ADPCM samples - sound chip is OKIM6295 */
+	ROM_LOAD( "c1.bin", 0x000000, 0x100000, CRC(d9f075a2) SHA1(31a7a677861f39d512e9d1f51925c689e481159a) )
+	/* 0x00000-0x2ffff is fixed, 0x30000-0x3ffff is bank switched from all the ROMs */
+	ROM_RELOAD(         0x040000, 0x100000 )
+ROM_END
+
 /***************************************************************************
 
     Split even/odd bytes from ROMs in 16 bit mode to different memory areas
@@ -338,6 +359,7 @@ static DRIVER_INIT( glass )
 	glass_ROM16_split(REGION_GFX2, REGION_GFX1, 0x0200000, 0x0200000, 0x0200000, 0x0300000);
 }
 
-GAME( 1993, glass, 0, glass,glass, glass, ROT0, "Gaelco", "Glass (Ver 1.1)", GAME_UNEMULATED_PROTECTION )
-GAME( 1993, glass10 , glass, glass,glass, glass, ROT0, "Gaelco", "Glass (Ver 1.0)", GAME_UNEMULATED_PROTECTION )
-GAME( 1993, glass10a, glass, glass,glass, glass, ROT0, "Gaelco", "Glass (Ver 1.0 set 2)", GAME_UNEMULATED_PROTECTION )
+GAME( 1993, glass,    0,     glass, glass, glass, ROT0, "Gaelco", "Glass (Ver 1.1)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
+GAME( 1993, glass10 , glass, glass, glass, glass, ROT0, "Gaelco", "Glass (Ver 1.0)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
+GAME( 1993, glass10a, glass, glass, glass, glass, ROT0, "Gaelco", "Glass (Ver 1.0 set 2)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
+GAME( 1993, glasskr,  glass, glass, glass, glass, ROT0, "Gaelco (Promat license)", "Glass (Ver 1.1, Break Edition) (censored, unprotected)", 0 )
