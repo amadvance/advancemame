@@ -48,9 +48,8 @@ WRITE8_HANDLER( flstory_68705_ddrC_w );
 WRITE8_HANDLER( flstory_mcu_w );
 READ8_HANDLER( flstory_mcu_r );
 READ8_HANDLER( flstory_mcu_status_r );
-WRITE8_HANDLER( onna34ro_mcu_w );
-READ8_HANDLER( onna34ro_mcu_r );
-READ8_HANDLER( onna34ro_mcu_status_r );
+
+/* mcu sim */
 WRITE8_HANDLER( victnine_mcu_w );
 READ8_HANDLER( victnine_mcu_r );
 READ8_HANDLER( victnine_mcu_status_r );
@@ -146,12 +145,17 @@ static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xe000, 0xe7ff) AM_WRITE(MWA8_RAM)	/* work RAM */
 ADDRESS_MAP_END
 
+/* Using Fairyland Story MCU hookup for Rumba Lumba and
+Onna Sansirou - Typhoon Gal, 95% of Taito 68705 MCU's 
+all use the same address values so it's highly likely 
+to be correct anyhow.
+*/
 
 static ADDRESS_MAP_START( onna34ro_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0xbfff) AM_READ(MRA8_ROM)
 	AM_RANGE(0xc000, 0xc7ff) AM_READ(MRA8_RAM)
 	AM_RANGE(0xc800, 0xcfff) AM_READ(MRA8_RAM) /* unknown */
-	AM_RANGE(0xd000, 0xd000) AM_READ(onna34ro_mcu_r)
+	AM_RANGE(0xd000, 0xd000) AM_READ(flstory_mcu_r)
 	AM_RANGE(0xd400, 0xd400) AM_READ(from_snd_r)
 	AM_RANGE(0xd401, 0xd401) AM_READ(snd_flag_r)
 	AM_RANGE(0xd403, 0xd403) AM_READ(MRA8_NOP) /* unknown */
@@ -160,7 +164,7 @@ static ADDRESS_MAP_START( onna34ro_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xd802, 0xd802) AM_READ(input_port_2_r)
 	AM_RANGE(0xd803, 0xd803) AM_READ(input_port_3_r)
 	AM_RANGE(0xd804, 0xd804) AM_READ(input_port_4_r)
-	AM_RANGE(0xd805, 0xd805) AM_READ(onna34ro_mcu_status_r)
+	AM_RANGE(0xd805, 0xd805) AM_READ(flstory_mcu_status_r)
 	AM_RANGE(0xd806, 0xd806) AM_READ(input_port_5_r)
 	AM_RANGE(0xdc00, 0xdcff) AM_READ(MRA8_RAM) /* spriteram / scrollram */
 	AM_RANGE(0xdd00, 0xdeff) AM_READ(flstory_palette_r)
@@ -171,12 +175,48 @@ static ADDRESS_MAP_START( onna34ro_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0xbfff) AM_WRITE(MWA8_ROM)
 	AM_RANGE(0xc000, 0xc7ff) AM_WRITE(flstory_videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
 	AM_RANGE(0xc800, 0xcfff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0xd000, 0xd000) AM_WRITE(onna34ro_mcu_w)
+	AM_RANGE(0xd000, 0xd000) AM_WRITE(flstory_mcu_w)
 	AM_RANGE(0xd001, 0xd001) AM_WRITE(MWA8_NOP)	/* watchdog? */
 	AM_RANGE(0xd002, 0xd002) AM_WRITE(MWA8_NOP)	/* coin lock out? */
 	AM_RANGE(0xd400, 0xd400) AM_WRITE(sound_command_w)
 	AM_RANGE(0xd403, 0xd403) AM_WRITE(MWA8_NOP)	/* unknown */
-//  AM_RANGE(0xda00, 0xda00) AM_WRITE(MWA8_RAM)
+//	AM_RANGE(0xda00, 0xda00) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xdc00, 0xdc9f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0xdca0, 0xdcbf) AM_WRITE(flstory_scrlram_w) AM_BASE(&flstory_scrlram)
+	AM_RANGE(0xdcc0, 0xdcff) AM_WRITE(MWA8_RAM) /* unknown */
+	AM_RANGE(0xdd00, 0xdeff) AM_WRITE(flstory_palette_w)
+	AM_RANGE(0xdf03, 0xdf03) AM_WRITE(flstory_gfxctrl_w)
+	AM_RANGE(0xe000, 0xe7ff) AM_WRITE(MWA8_RAM)	/* work RAM */
+ADDRESS_MAP_END
+
+/* bootleg no mcu */
+static ADDRESS_MAP_START( onna34ra_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xbfff) AM_READ(MRA8_ROM)
+	AM_RANGE(0xc000, 0xc7ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0xc800, 0xcfff) AM_READ(MRA8_RAM) /* unknown */
+	AM_RANGE(0xd400, 0xd400) AM_READ(from_snd_r)
+	AM_RANGE(0xd401, 0xd401) AM_READ(snd_flag_r)
+	AM_RANGE(0xd403, 0xd403) AM_READ(MRA8_NOP) /* unknown */
+	AM_RANGE(0xd800, 0xd800) AM_READ(input_port_0_r)
+	AM_RANGE(0xd801, 0xd801) AM_READ(input_port_1_r)
+	AM_RANGE(0xd802, 0xd802) AM_READ(input_port_2_r)
+	AM_RANGE(0xd803, 0xd803) AM_READ(input_port_3_r)
+	AM_RANGE(0xd804, 0xd804) AM_READ(input_port_4_r)
+	AM_RANGE(0xd806, 0xd806) AM_READ(input_port_5_r)
+	AM_RANGE(0xdc00, 0xdcff) AM_READ(MRA8_RAM) /* spriteram / scrollram */
+	AM_RANGE(0xdd00, 0xdeff) AM_READ(flstory_palette_r)
+	AM_RANGE(0xe000, 0xe7ff) AM_READ(MRA8_RAM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( onna34ra_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xbfff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0xc000, 0xc7ff) AM_WRITE(flstory_videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
+	AM_RANGE(0xc800, 0xcfff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xd001, 0xd001) AM_WRITE(MWA8_NOP)	/* watchdog? */
+	AM_RANGE(0xd002, 0xd002) AM_WRITE(MWA8_NOP)	/* coin lock out? */
+	AM_RANGE(0xd400, 0xd400) AM_WRITE(sound_command_w)
+	AM_RANGE(0xd403, 0xd403) AM_WRITE(MWA8_NOP)	/* unknown */
+//	AM_RANGE(0xda00, 0xda00) AM_WRITE(MWA8_RAM)
 	AM_RANGE(0xdc00, 0xdc9f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
 	AM_RANGE(0xdca0, 0xdcbf) AM_WRITE(flstory_scrlram_w) AM_BASE(&flstory_scrlram)
 	AM_RANGE(0xdcc0, 0xdcff) AM_WRITE(MWA8_RAM) /* unknown */
@@ -229,10 +269,6 @@ static ADDRESS_MAP_START( victnine_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xe000, 0xe7ff) AM_WRITE(MWA8_RAM)	/* work RAM */
 ADDRESS_MAP_END
 
-/* Using Fairyland Story MCU hookup for Rumba Lumba 
-95% of Taito 68705 MCU's all use the same address values so 
-it's highly likely to be correct anyhow.
-*/
 
 static ADDRESS_MAP_START( rumba_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0xbfff) AM_READ(MRA8_ROM)
@@ -964,9 +1000,54 @@ static MACHINE_DRIVER_START( onna34ro )
 	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,2)	/* IRQ generated by ??? */
 						/* NMI generated by the main CPU */
-//  MDRV_CPU_ADD(M68705,4000000/2)  /* ??? */
-//  MDRV_CPU_PROGRAM_MAP(m68705_readmem,m68705_writemem)
+						
+	MDRV_CPU_ADD(M68705,4000000/2)	/* ??? */
+	MDRV_CPU_PROGRAM_MAP(m68705_readmem,m68705_writemem)
 
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_INTERLEAVE(100)	/* 100 CPU slices per frame - an high value to ensure proper */
+							/* synchronization of the CPUs */
+	MDRV_MACHINE_RESET(ta7630)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(32*8, 32*8)
+	MDRV_VISIBLE_AREA(0*8, 32*8-1, 2*8, 30*8-1)
+	MDRV_GFXDECODE(gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(512)
+
+	MDRV_VIDEO_START(flstory)
+	MDRV_VIDEO_UPDATE(flstory)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(AY8910, 8000000/4)
+	MDRV_SOUND_CONFIG(ay8910_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.10)
+
+	MDRV_SOUND_ADD(MSM5232, 2000000)
+	MDRV_SOUND_CONFIG(msm5232_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.20)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( onna34ra )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(Z80,10733000/2)		/* ??? */
+	MDRV_CPU_PROGRAM_MAP(onna34ra_readmem,onna34ra_writemem)
+	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
+
+	MDRV_CPU_ADD(Z80,8000000/2)
+	/* audio CPU */		/* 4 MHz */
+	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
+	MDRV_CPU_VBLANK_INT(irq0_line_hold,2)	/* IRQ generated by ??? */
+						/* NMI generated by the main CPU */
+						
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
 	MDRV_INTERLEAVE(100)	/* 100 CPU slices per frame - an high value to ensure proper */
@@ -1160,7 +1241,7 @@ ROM_START( onna34ro )
 	ROM_LOAD( "a52-16.38s",   0x8000, 0x2000, CRC(ccf42aee) SHA1(a6eb01c5384724999631b55700dade430b71ca95) )
 
 	ROM_REGION( 0x0800, REGION_CPU3, 0 )	/* 2k for the microcontroller */
-	ROM_LOAD( "a52-17.54c",   0x0000, 0x0800, NO_DUMP )
+    ROM_LOAD( "a52_17.54c",   0x0000, 0x0800, CRC(0ab2612e) SHA1(2bc74e9ef5b9dd51d733dc62902d92c269f7d6a7) )
 
 	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_INVERT )
 	ROM_LOAD( "a52-04.11v",   0x00000, 0x4000, CRC(5b126294) SHA1(fc31e062e665f7313f923e84d6497716f0658ac0) )
@@ -1185,9 +1266,6 @@ ROM_START( onna34ra )
 	ROM_LOAD( "a52-14.10s",   0x4000, 0x2000, CRC(90a6f4e8) SHA1(101767a90e963f3031e0830fd25a537ca8296de9) )
 	ROM_LOAD( "a52-15.37s",   0x6000, 0x2000, CRC(5afc21d0) SHA1(317d5fb3a48ce5e13e02c5c6431fa08ada115d27) )
 	ROM_LOAD( "a52-16.38s",   0x8000, 0x2000, CRC(ccf42aee) SHA1(a6eb01c5384724999631b55700dade430b71ca95) )
-
-	ROM_REGION( 0x0800, REGION_CPU3, 0 )	/* 2k for the microcontroller */
-	ROM_LOAD( "a52-17.54c",   0x0000, 0x0800, NO_DUMP )
 
 	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_INVERT )
 	ROM_LOAD( "a52-04.11v",   0x00000, 0x4000, CRC(5b126294) SHA1(fc31e062e665f7313f923e84d6497716f0658ac0) )
@@ -1255,7 +1333,7 @@ ROM_END
 
 GAME( 1985, flstory,  0,        flstory,  flstory,  0, ROT180, "Taito", "The FairyLand Story", GAME_IMPERFECT_SOUND )
 GAME( 1985, flstoryj, flstory,  flstory,  flstory,  0, ROT180, "Taito", "The FairyLand Story (Japan)", GAME_IMPERFECT_SOUND )
-GAME( 1985, onna34ro, 0,        onna34ro, onna34ro, 0, ROT0,   "Taito", "Onna Sansirou - Typhoon Gal (set 1)", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_SOUND )
-GAME( 1985, onna34ra, onna34ro, onna34ro, onna34ro, 0, ROT0,   "Taito", "Onna Sansirou - Typhoon Gal (set 2)", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_SOUND )
+GAME( 1985, onna34ro, 0,        onna34ro, onna34ro, 0, ROT0,   "Taito", "Onna Sansirou - Typhoon Gal (set 1)", GAME_IMPERFECT_SOUND )
+GAME( 1985, onna34ra, onna34ro, onna34ra, onna34ro, 0, ROT0,   "Taito", "Onna Sansirou - Typhoon Gal (bootleg)", GAME_IMPERFECT_SOUND )
 GAME( 1984, victnine, 0,        victnine, victnine, 0, ROT0,   "Taito", "Victorious Nine", GAME_IMPERFECT_SOUND )
 GAME( 1984, rumba,    0,        rumba,    rumba,    0, ROT270, "Taito", "Rumba Lumber", GAME_IMPERFECT_SOUND )
