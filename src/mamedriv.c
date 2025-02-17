@@ -1539,6 +1539,7 @@ const game_driver * const drivers[] =
 	DRIVER( halleycj )	/* A62 (c) 1986 Taito Corporation (Japan) */
 	DRIVER( lsasquad )	/* A64 (c) 1986 Taito Corporation / Taito America (dip switch) */
 	DRIVER( storming )	/* A64 (c) 1986 Taito Corporation */
+	DRIVER( daikaiju )      /* A65 (c) 1986 Taito Corporation */
 	DRIVER( tokio )		/* A71 1986 */
 	DRIVER( tokiou )	/* A71 1986 */
 	DRIVER( tokiob )	/* bootleg */
@@ -6063,6 +6064,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( glass )		/* (c) 1993 - Ref 931021 */
 	DRIVER( glass10 )	/* (c) 1993 - Ref 931021 */
 	DRIVER( glass10a )	/* (c) 1993 - Ref 931021 */
+	DRIVER( glasskr )	/* (c) 1994 - Ref 931021 Anime girls, unprotected */
 	DRIVER( targeth )	/* (c) 1994 - Ref 940531 */
 	DRIVER( thoop2 )	/* (c) 1994 - Ref ??? */
 	DRIVER( aligator )	/* (c) 1994 - Ref 940411 */
