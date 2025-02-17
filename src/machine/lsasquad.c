@@ -72,6 +72,21 @@ READ8_HANDLER( lsasquad_sound_status_r )
 }
 
 
+READ8_HANDLER( daikaiju_sh_sound_command_r )
+{
+	sound_pending &= ~0x01;
+	sound_pending |= 0x02;
+//logerror("%04x: read sound cmd %02x\n",activecpu_get_pc(),sound_cmd);
+	return sound_cmd;
+}
+
+READ8_HANDLER( daikaiju_sound_status_r )
+{
+	/* bit 0: message pending for sound cpu */
+	/* bit 1: message pending for main cpu */
+	return sound_pending^3;
+}
+
 
 /***************************************************************************
 
@@ -173,4 +188,22 @@ READ8_HANDLER( lsasquad_mcu_status_r )
 	if (!mcu_sent) res |= 0x02;
 
 	return res ^ lsasquad_invertcoin;
+}
+
+READ8_HANDLER( daikaiju_mcu_status_r )
+{
+	int res = input_port_3_r(0);
+
+	/* bit 0 = when 1, mcu is ready to receive data from main cpu */
+	/* bit 1 = when 0, mcu has sent data to the main cpu */
+
+	if (!main_sent)
+		res |= 0x01;
+	if (!mcu_sent)
+		res |= 0x02;
+	
+	//res^=mame_rand()&3;
+	res |=((sound_pending & 0x02)^2)<<3; /* inverted flag */
+	sound_pending &= ~0x02;
+	return res;
 }
