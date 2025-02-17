@@ -138,45 +138,6 @@ READ8_HANDLER( flstory_mcu_status_r )
 	return res;
 }
 
-WRITE8_HANDLER( onna34ro_mcu_w )
-{
-	UINT8 *RAM = memory_region(REGION_CPU1);
-	UINT16 score_adr = RAM[0xe29e]*0x100 + RAM[0xe29d];
-
-	switch (data)
-	{
-		case 0x0e:
-			from_mcu = 0xff;
-			break;
-		case 0x01:
-			from_mcu = 0x6a;
-			break;
-		case 0x40:
-			from_mcu = RAM[score_adr];			/* score l*/
-			break;
-		case 0x41:
-			from_mcu = RAM[score_adr+1];		/* score m*/
-			break;
-		case 0x42:
-			from_mcu = RAM[score_adr+2] & 0x0f;	/* score h*/
-			break;
-		default:
-			from_mcu = 0x80;
-	}
-}
-
-READ8_HANDLER( onna34ro_mcu_r )
-{
-	return from_mcu;
-}
-
-READ8_HANDLER( onna34ro_mcu_status_r )
-{
-	int res = 3;
-
-	return res;
-}
-
 
 #define VICTNINE_MCU_SEED	(memory_region(REGION_CPU1)[0xE685])
 
