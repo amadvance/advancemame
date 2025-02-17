@@ -28,7 +28,7 @@ extern UINT16 *snowboar_protection;
 extern UINT32  snowboard_latch;
 
 /* comment this line to display 2 monitors for the dual monitor games */
-//#define ONE_MONITOR
+#define ONE_MONITOR
 
 /* from machine/gaelco2.c */
 DRIVER_INIT( alighunt );
@@ -680,6 +680,20 @@ static ADDRESS_MAP_START( touchgo_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xfe0000, 0xfeffff) AM_READ(MRA16_RAM)			/* Work RAM */
 ADDRESS_MAP_END
 
+/* For the Korean version without the dallas protection */
+static ADDRESS_MAP_START( touchgok_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x0fffff) AM_READ(MRA16_ROM)			/* ROM */
+	AM_RANGE(0x202890, 0x2028ff) AM_READ(gaelcosnd_r)		/* Sound Registers */
+	AM_RANGE(0x200000, 0x20ffff) AM_READ(MRA16_RAM)			/* Video RAM */
+	AM_RANGE(0x210000, 0x211fff) AM_READ(MRA16_RAM)			/* Palette */
+	AM_RANGE(0x218004, 0x218009) AM_READ(MRA16_RAM)			/* Video Registers */
+	AM_RANGE(0x300000, 0x300001) AM_READ(input_port_0_word_r)/* DSW #2 + Input 1P */
+	AM_RANGE(0x300002, 0x300003) AM_READ(input_port_1_word_r)/* DSW #1 + Input 2P */
+	AM_RANGE(0x300004, 0x300005) AM_READ(input_port_2_word_r)/* COINSW + Input 3P */
+	AM_RANGE(0x300006, 0x300007) AM_READ(input_port_3_word_r)/* SERVICESW + Input 4P */
+	AM_RANGE(0xfe0000, 0xfeffff) AM_READ(MRA16_RAM)			/* Work RAM */
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( touchgo_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0fffff) AM_WRITE(MWA16_ROM)							/* ROM */
 	AM_RANGE(0x202890, 0x2028ff) AM_WRITE(gaelcosnd_w) AM_BASE(&gaelco_sndregs)		/* Sound Registers */
@@ -849,6 +863,43 @@ static MACHINE_DRIVER_START( touchgo )
 	MDRV_SOUND_ROUTE(1, "right", 1.0)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( touchgok )
+	/* basic machine hardware */
+	MDRV_CPU_ADD(M68000, 32000000/2)			/* 16 MHz */
+	MDRV_CPU_PROGRAM_MAP(touchgok_readmem, touchgo_writemem)
+	MDRV_CPU_VBLANK_INT(irq6_line_hold, 1)
+
+	MDRV_FRAMES_PER_SECOND(59.1)
+	MDRV_VBLANK_DURATION(DEFAULT_REAL_60HZ_VBLANK_DURATION)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_BUFFERS_SPRITERAM)
+	MDRV_SCREEN_SIZE(64*16, 32*16)
+#ifdef ONE_MONITOR
+	MDRV_VISIBLE_AREA(0, 480-1, 16, 256-1)
+#else
+	MDRV_VISIBLE_AREA(0, 2*480-1, 16, 256-1)
+	MDRV_ASPECT_RATIO(8,3)
+#endif
+	MDRV_GFXDECODE(gfxdecodeinfo_0x0400000)
+	MDRV_PALETTE_LENGTH(4096*16 - 16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
+
+	MDRV_VIDEO_START(gaelco2_dual)
+	MDRV_VIDEO_EOF(gaelco2)
+	MDRV_VIDEO_UPDATE(gaelco2_dual)
+
+	/* sound hardware */
+	/* the chip is stereo, but the game sound is mono because the right channel
+       output is for cabinet 1 and the left channel output is for cabinet 2 */
+#ifndef ONE_MONITOR
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+#endif
+	MDRV_SOUND_ADD(GAELCO_GAE1, 0)
+	MDRV_SOUND_CONFIG(touchgo_snd_interface)
+	MDRV_SOUND_ROUTE(0, "left", 1.0)
+	MDRV_SOUND_ROUTE(1, "right", 1.0)
+MACHINE_DRIVER_END
+
 /*
 PCB Layout:
 
@@ -940,6 +991,21 @@ ROM_START( touchgoe ) /* REF: 950510-1 */
 	ROM_LOAD( "ic67",  0x0800000, 0x0400000, CRC(c0a2ce5b) SHA1(94b024373c7c546c0f4fe9737639f02e9c7ebbdb) )	/* GFX only */
 ROM_END
 
+ROM_START( touchgok ) /* REF: 950510-1 - ds5002fp unpopulated, game is unprotected */
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )    /* 68000 code */
+	ROM_LOAD16_BYTE( "56.IC56", 0x000000, 0x080000, CRC(cbb87505) SHA1(f19832af60fb6273c3263ebdd93bb7705ab61e20) )
+	ROM_LOAD16_BYTE( "57.IC57", 0x000001, 0x080000, CRC(36bcc7e7) SHA1(2fff881ba0a99ebcfe3c03fdc61f4bf40e152c7f))
+
+	ROM_REGION( 0x1400000, REGION_GFX1, 0 ) /* GFX + Sound */
+	/* 0x0000000-0x0ffffff filled in in the DRIVER_INIT */
+	ROM_LOAD( "ic69",  0x1000000, 0x0200000, CRC(18bb12d4) SHA1(ee6e7a63b86c56d71e62db0ae5892ab3ab94b0a0) ) /* GFX only */
+
+ 	ROM_REGION( 0x0c00000, REGION_GFX2, ROMREGION_DISPOSE ) /* Temporary storage */
+	ROM_LOAD( "ic65",		0x0000000, 0x0400000, CRC(91b89c7c) SHA1(1c24b494b56845b0f21be40ab737f251d7683c7d) )	/* GFX only */
+	ROM_LOAD( "ic66",		0x0400000, 0x0200000, CRC(52682953) SHA1(82cde061bdd827ed4a47a9a4256cd0e887ebc29d) )	/* Sound only */
+	ROM_FILL(				0x0600000, 0x0200000, 0x0 )			/* Empty */
+	ROM_LOAD( "ic67",		0x0800000, 0x0400000, CRC(c0a2ce5b) SHA1(94b024373c7c546c0f4fe9737639f02e9c7ebbdb) )	/* GFX only */
+ROM_END
 
 /*============================================================================
                             SNOW BOARD
@@ -1377,12 +1443,13 @@ ROM_END
 
 
 
-GAME( 1994, aligator, 0,        alighunt, alighunt, alighunt, ROT0, "Gaelco", "Alligator Hunt", GAME_UNEMULATED_PROTECTION )
+GAME( 1994, aligator, 0,        alighunt, alighunt, alighunt, ROT0, "Gaelco", "Alligator Hunt", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1994, aligatun, aligator, alighunt, alighunt, alighunt, ROT0, "Gaelco", "Alligator Hunt (unprotected)", 0 )
 GAME( 1995, touchgo,  0,        touchgo,  touchgo,  touchgo,  ROT0, "Gaelco", "Touch & Go (World)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1995, touchgon, touchgo,  touchgo,  touchgo,  touchgo,  ROT0, "Gaelco", "Touch & Go (Non North America)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1995, touchgoe, touchgo,  touchgo,  touchgo,  touchgo,  ROT0, "Gaelco", "Touch & Go (earlier revision)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1995, wrally2,  0,        wrally2,  wrally2,  0,        ROT0, "Gaelco", "World Rally 2: Twin Racing", GAME_UNEMULATED_PROTECTION )
+GAME( 1995, touchgok, touchgo,  touchgok, touchgo,  touchgo,  ROT0, "Gaelco", "Touch & Go (Korea, unprotected)", GAME_IMPERFECT_SOUND )
+GAME( 1995, wrally2,  0,        wrally2,  wrally2,  0,        ROT0, "Gaelco", "World Rally 2: Twin Racing", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1996, maniacsq, 0,        maniacsq, maniacsq, 0,        ROT0, "Gaelco", "Maniac Square (unprotected)", 0 )
 GAME( 1996, snowboar, 0,        snowboar, snowboar, snowboar, ROT0, "Gaelco", "Snow Board Championship (set 1)", 0 )
 GAME( 1996, snowbalt, snowboar, snowboar, snowboar, 0,        ROT0, "Gaelco", "Snow Board Championship (set 2)", 0 )
