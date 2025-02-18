@@ -87,7 +87,7 @@ static tilemap *pant[2];
 int dual_monitor;
 
 /* comment this line to display 2 monitors for the dual monitor games */
-//#define ONE_MONITOR
+#define ONE_MONITOR
 
 /***************************************************************************
 

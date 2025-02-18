@@ -28,7 +28,7 @@ extern UINT16 *snowboar_protection;
 extern UINT32  snowboard_latch;
 
 /* comment this line to display 2 monitors for the dual monitor games */
-//#define ONE_MONITOR
+#define ONE_MONITOR
 
 /* from machine/gaelco2.c */
 DRIVER_INIT( alighunt );
@@ -854,9 +854,9 @@ static MACHINE_DRIVER_START( touchgo )
 	/* sound hardware */
 	/* the chip is stereo, but the game sound is mono because the right channel
        output is for cabinet 1 and the left channel output is for cabinet 2 */
-#ifndef ONE_MONITOR
+//#ifndef ONE_MONITOR
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
-#endif
+//#endif
 	MDRV_SOUND_ADD(GAELCO_GAE1, 0)
 	MDRV_SOUND_CONFIG(touchgo_snd_interface)
 	MDRV_SOUND_ROUTE(0, "left", 1.0)
@@ -891,9 +891,9 @@ static MACHINE_DRIVER_START( touchgok )
 	/* sound hardware */
 	/* the chip is stereo, but the game sound is mono because the right channel
        output is for cabinet 1 and the left channel output is for cabinet 2 */
-#ifndef ONE_MONITOR
+//#ifndef ONE_MONITOR
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
-#endif
+//#endif
 	MDRV_SOUND_ADD(GAELCO_GAE1, 0)
 	MDRV_SOUND_CONFIG(touchgo_snd_interface)
 	MDRV_SOUND_ROUTE(0, "left", 1.0)
@@ -1356,9 +1356,9 @@ static MACHINE_DRIVER_START( wrally2 )
 	/* sound hardware */
 	/* the chip is stereo, but the game sound is mono because the right channel
        output is for cabinet 1 and the left channel output is for cabinet 2 */
-#ifndef ONE_MONITOR
+//#ifndef ONE_MONITOR
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
-#endif
+//#endif
 	MDRV_SOUND_ADD(GAELCO_GAE1, 0)
 	MDRV_SOUND_CONFIG(wrally2_snd_interface)
 	MDRV_SOUND_ROUTE(0, "left", 1.0)
