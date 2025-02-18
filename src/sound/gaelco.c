@@ -194,6 +194,8 @@ READ16_HANDLER( gaelcosnd_r )
 #ifdef LOG_READ_WRITES
 	logerror("%06x: (GAE1): read from %04x\n", activecpu_get_pc(), offset);
 #endif
+	/* first update the stream to this point in time */
+	stream_update(info->stream, 0);
 
 	return gaelco_sndregs[offset];
 }
