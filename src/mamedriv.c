@@ -6792,6 +6792,7 @@ Other Sun games
 	DRIVER( apache3 )	/* (c) 1988 */
 	DRIVER( roundup5 )	/* (c) 1989 */
 	DRIVER( cyclwarr )	/* (c) 1991 */
+	DRIVER( bigfight )	/* (c) 1992 */
 
 	/* Electronic Devices */
 	DRIVER( mugsmash )	/* (c) Electronic Devices (Italy) / 3D Games (England) */
