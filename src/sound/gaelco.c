@@ -191,6 +191,8 @@ static void gaelco_update(void *param, stream_sample_t **inputs, stream_sample_t
 
 READ16_HANDLER( gaelcosnd_r )
 {
+	struct GAELCOSND *info = sndti_token(chip_type, 0);
+	
 #ifdef LOG_READ_WRITES
 	logerror("%06x: (GAE1): read from %04x\n", activecpu_get_pc(), offset);
 #endif
