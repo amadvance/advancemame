@@ -360,7 +360,8 @@ READ8_HANDLER(tatsumi_hack_ym2151_r)
 	int r=YM2151_status_port_0_r(0);
 
 	if (activecpu_get_pc()==0x2aca || activecpu_get_pc()==0x29fe
-		|| activecpu_get_pc()==0xf9721)
+		|| activecpu_get_pc()==0xf9721
+		|| activecpu_get_pc()==0x1b96 || activecpu_get_pc()==0x1c65) // BigFight
 		return 0x80;
 	return r;
 }
@@ -371,11 +372,22 @@ READ8_HANDLER(tatsumi_hack_oki_r)
 {
 	int r=OKIM6295_status_0_r(0);
 
-	if (activecpu_get_pc()==0x2b70 || activecpu_get_pc()==0x2bb5
-		|| activecpu_get_pc()==0x2acc
-		|| activecpu_get_pc()==0xf9881)
-		return 0xf;
-	if (activecpu_get_pc()==0x2ba3 || activecpu_get_pc()==0x2a9b || activecpu_get_pc()==0x2adc)
-		return 0;
-	return r;
+    // Cycle Warriors and Big Fight access this with reversed activeness.
+	// this is particularly noticeable with the "We got em" sample played in CW at stage clear:
+    // gets cut too early with the old hack below.
+	// fwiw returning normal oki status doesn't work at all, both games don't make any sound.
+	// TODO: verify with HW
+	return (r ^ 0xff);
+
+
+	//if (activecpu_get_pc()==0x2b70 || activecpu_get_pc()==0x2bb5 
+	//	|| activecpu_get_pc()==0x2acc
+	//    || activecpu_get_pc()==0x1c79 // BigFight
+	//	|| activecpu_get_pc()==0x1cbe // BigFight
+	//	|| activecpu_get_pc()==0xf9881)
+	//	return 0xf;
+	//if (activecpu_get_pc()==0x2ba3 || activecpu_get_pc()==0x2a9b || activecpu_get_pc()==0x2adc
+	//	|| activecpu_get_pc()==0x1cac) // BigFight
+	//	return 0;
+	//return r;
 }
