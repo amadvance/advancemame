@@ -318,6 +318,24 @@ INTERRUPT_GEN( dokyusei_interrupt )
 	}
 }
 
+INTERRUPT_GEN( msgogo_interrupt )
+{
+
+    switch (cpu_getiloops())
+    {
+        case 10:
+            requested_int[0] = 1;
+            update_irq_state();
+            break;
+
+        case 224:
+            requested_int[4] = 1;
+            update_irq_state();
+            break;
+    }
+}
+
+
 static void ymf278b_interrupt(int active)
 {
 	cpunum_set_input_line(0, 2, active);
@@ -1231,6 +1249,50 @@ static ADDRESS_MAP_START( karatour_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x8788ac, 0x8788ad) AM_WRITE(MWA16_RAM) AM_BASE(&metro_screenctrl	)	// Screen Control
 ADDRESS_MAP_END
 
+/***************************************************************************
+                             Mouse Shooter GoGo
+***************************************************************************/
+
+static ADDRESS_MAP_START( msgogo_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0xf00000, 0xf0ffff) AM_READ(MRA16_RAM						)	// RAM
+	AM_RANGE(0x000000, 0x07ffff) AM_READ(MRA16_ROM						)	// ROM
+	AM_RANGE(0x160000, 0x16ffff) AM_READ(metro_bankedrom_r		)	// Banked ROM
+	AM_RANGE(0x200000, 0x200001) AM_READ(input_port_0_word_r	)	// Inputs
+	AM_RANGE(0x200002, 0x200003) AM_READ(input_port_1_word_r	)	//
+	AM_RANGE(0x200006, 0x200007) AM_READ(MRA16_NOP				)	//
+	AM_RANGE(0x100000, 0x11ffff) AM_READ(MRA16_RAM             )	// Layer 0
+	AM_RANGE(0x120000, 0x13ffff) AM_READ(MRA16_RAM             )	// Layer 1
+	AM_RANGE(0x140000, 0x15ffff) AM_READ(MRA16_RAM             )	// Layer 2
+	AM_RANGE(0x400000, 0x400001) AM_READ(ymf278b_r      )					// Sound
+	AM_RANGE(0x300000, 0x31ffff) AM_READ(balcube_dsw_r )								// 3 x DSW
+	AM_RANGE(0x170000, 0x173fff) AM_READ(MRA16_RAM            )	// Palette
+	AM_RANGE(0x174000, 0x174fff) AM_READ(MRA16_RAM            )	// Sprites
+	AM_RANGE(0x178000, 0x1787ff) AM_READ(MRA16_RAM            )	// Tiles Set
+	AM_RANGE(0x1788a2, 0x1788a3) AM_READ(metro_irq_cause_r		)	// IRQ Cause
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( msgogo_writemem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x170000, 0x173fff) AM_WRITE(metro_paletteram_w) AM_BASE(&paletteram16	)	// Palette
+	AM_RANGE(0x174000, 0x174fff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16) AM_SIZE(&spriteram_size				)	// Sprites
+	AM_RANGE(0x178000, 0x1787ff) AM_WRITE(MWA16_RAM) AM_BASE(&metro_tiletable) AM_SIZE(&metro_tiletable_size		)	// Tiles Set
+	AM_RANGE(0x178840, 0x17884d) AM_WRITE(metro_blitter_w) AM_BASE(&metro_blitter_regs		)	// Tiles Blitter
+	AM_RANGE(0x178860, 0x17886b) AM_WRITE(metro_window_w) AM_BASE(&metro_window				)	// Tilemap Window
+	AM_RANGE(0x178870, 0x17887b) AM_WRITE(MWA16_RAM) AM_BASE(&metro_scroll		)	// Scroll
+	AM_RANGE(0x178880, 0x178881) AM_WRITE(MWA16_NOP								)		// ? increasing
+	AM_RANGE(0x178890, 0x178891) AM_WRITE(MWA16_NOP								)		// ? increasing
+	AM_RANGE(0x1788a2, 0x1788a3) AM_WRITE(metro_irq_cause_w     )			// IRQ Cause / IRQ Acknowledge
+	AM_RANGE(0x1788a4, 0x1788a5) AM_WRITE(MWA16_RAM) AM_BASE(&metro_irq_enable	)	// IRQ Enable
+	AM_RANGE(0x1788aa, 0x1788ab) AM_WRITE(MWA16_RAM) AM_BASE(&metro_rombank		)	// Rom Bank
+	AM_RANGE(0x1788ac, 0x1788ad) AM_WRITE(MWA16_RAM) AM_BASE(&metro_screenctrl	)	// Screen Control
+	AM_RANGE(0x179700, 0x179713) AM_WRITE(MWA16_RAM) AM_BASE(&metro_videoregs	)	// Video Registers
+	AM_RANGE(0x200002, 0x200009) AM_WRITE(metro_coin_lockout_4words_w)					// Coin Lockout
+	AM_RANGE(0x400000, 0x40000b) AM_WRITE(ymf278b_w     )					//
+	AM_RANGE(0xf00000, 0xf0ffff) AM_WRITE(MWA16_RAM						)	// RAM
+	AM_RANGE(0x000000, 0x07ffff) AM_WRITE(MWA16_ROM						)	// ROM
+	AM_RANGE(0x100000, 0x11ffff) AM_WRITE(metro_vram_0_w) AM_BASE(&metro_vram_0)	// Layer 0
+	AM_RANGE(0x120000, 0x13ffff) AM_WRITE(metro_vram_1_w) AM_BASE(&metro_vram_1)	// Layer 1
+	AM_RANGE(0x140000, 0x15ffff) AM_WRITE(metro_vram_2_w) AM_BASE(&metro_vram_2)	// Layer 2
+ADDRESS_MAP_END
 
 /***************************************************************************
                                 Sankokushi
@@ -3210,6 +3272,73 @@ INPUT_PORTS_START( mouja )
 	PORT_BIT(  0xffff, IP_ACTIVE_LOW, IPT_UNKNOWN )
 INPUT_PORTS_END
 
+/***************************************************************************
+                             Mouse Shooter GoGo
+***************************************************************************/
+
+INPUT_PORTS_START( msgogo )
+
+	PORT_START_TAG("IN0")   // IN0 - $500000
+	COINS
+
+	PORT_START_TAG("IN1")   // IN1 - $500002
+	JOY_LSB(1, BUTTON1, BUTTON2, UNKNOWN, UNKNOWN)
+	JOY_MSB(2, BUTTON1, BUTTON2, UNKNOWN, UNKNOWN)
+
+	PORT_START_TAG("IN2")	// IN2 - Strangely mapped in the 0x400000-0x41ffff range
+	COINAGE_DSW
+	PORT_DIPNAME( 0x0300, 0x0300, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(      0x0200, "Easy"    )	// 0
+	PORT_DIPSETTING(      0x0300, "Normal"  )	// 1
+	PORT_DIPSETTING(      0x0100, "Hard"    )	// 2
+	PORT_DIPSETTING(      0x0000, "Hardest" )	// 3
+	PORT_DIPNAME( 0x0400, 0x0400, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0400, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0800, 0x0800, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0800, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x1000, 0x1000, "Allow P2 to Join Game" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+        PORT_DIPSETTING(      0x1000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x2000, 0x2000, DEF_STR( Lives ) )
+	PORT_DIPSETTING(      0x2000, "2" )
+	PORT_DIPSETTING(      0x0000, "3" )
+	PORT_DIPNAME( 0x4000, 0x4000, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x4000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x8000, 0x0000, "Language" )
+	PORT_DIPSETTING(      0x8000, "Japanese" )
+	PORT_DIPSETTING(      0x0000, "English" )
+
+	PORT_START_TAG("IN3")	// Strangely mapped in the 0x300000-0x31ffff range
+	// DSW3 is used for debug (it's not soldered on the PCB)
+	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0004, 0x0004, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0008, 0x0008, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0040, 0x0040, "Debug: Offset" )
+	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0080, 0x0080, "Debug: Menu" )
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+INPUT_PORTS_END
+
 
 /***************************************************************************
                                 Pang Poms
@@ -4368,6 +4497,37 @@ static MACHINE_DRIVER_START( gunmast )
 	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.40)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.40)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( msgogo )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(M68000, 16000000)
+	MDRV_CPU_PROGRAM_MAP(msgogo_readmem,msgogo_writemem)
+	MDRV_CPU_VBLANK_INT(msgogo_interrupt,262)    /* ? */
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	MDRV_MACHINE_RESET(metro)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(320, 224)
+	MDRV_VISIBLE_AREA(0, 320-1, 0, 224-1)
+	MDRV_GFXDECODE(gfxdecodeinfo_14220)
+	MDRV_PALETTE_LENGTH(8192)
+
+	MDRV_VIDEO_START(metro_14220)
+	MDRV_VIDEO_UPDATE(metro)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+
+	MDRV_SOUND_ADD(YMF278B, YMF278B_STD_CLOCK)
+	MDRV_SOUND_CONFIG(ymf278b_interface)
+	MDRV_SOUND_ROUTE(0, "left", 1.0)
+	MDRV_SOUND_ROUTE(1, "right", 1.0)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( skyalert )
@@ -5850,6 +6010,22 @@ ROM_START( torid2gg )
 	ROM_LOAD( "trii_ja_7", 0x000000, 0x020000, CRC(6ee32315) SHA1(ef4d59576929deab0aa459a67be21d97c2803dea) )
 ROM_END
 
+ROM_START( msgogo )
+	ROM_REGION( 0x080000, REGION_CPU1, 0 )		/* 68000 Code */
+	ROM_LOAD16_BYTE( "ms_wa-6.6", 0x000000, 0x040000, CRC(986acac8) SHA1(97c24f5b730aa811951db4c7e9c894c0701c58fd) )
+	ROM_LOAD16_BYTE( "ms_wa-5.5", 0x000001, 0x040000, CRC(746d9f99) SHA1(6e3e34dfb67fecc93213fe040465eccd88575822) )
+
+	ROM_REGION( 0x200000, REGION_GFX1, 0 )	/* Gfx + Data (Addressable by CPU & Blitter) */
+	ROMX_LOAD( "ms_wa-2.2", 0x000000, 0x080000, CRC(0d36c2b9) SHA1(3fd6631ad657c73e7e6bfdff9d9caf5ab044bdeb), ROM_GROUPWORD | ROM_SKIP(6))
+	ROMX_LOAD( "ms_wa-4.4", 0x000002, 0x080000, CRC(fd387126) SHA1(a2f82a66b098a97d8f245e3c2f96c31c63642fec), ROM_GROUPWORD | ROM_SKIP(6))
+	ROMX_LOAD( "ms_ja-1.1", 0x000004, 0x080000, CRC(8ec4e81d) SHA1(46947ad2941af154f91e47acee281302a12e3aa5), ROM_GROUPWORD | ROM_SKIP(6))
+	ROMX_LOAD( "ms_wa-3.3", 0x000006, 0x080000, CRC(06cb6807) SHA1(d7303b4047983117cd33e057b1f4b98ed3f7dd32), ROM_GROUPWORD | ROM_SKIP(6))
+
+	ROM_REGION( 0x280000, REGION_SOUND1, 0 )	/* Samples */
+	ROM_LOAD( "yrw801-m",  0x000000, 0x200000, CRC(2a9d8d43) SHA1(32760893ce06dbe3930627755ba065cc3d8ec6ca) )
+	ROM_LOAD( "ms_wa-7.7", 0x200000, 0x080000, CRC(e19941cb) SHA1(93777c9cd22ddd33d9584b6edad33b95c1e28bde) )
+ROM_END
+
 /***************************************************************************
 
 
@@ -5885,6 +6061,7 @@ GAME( 1999, batlbubl, bangball, batlbubl, batlbubl, balcube,  ROT0,   "Limenko",
 GAME( 1996, mouja,    0,        mouja,    mouja,    mouja,    ROT0,   "Etona",                      "Mouja (Japan)",                   GAME_NO_COCKTAIL )
 GAME( 1997, gakusai,  0,        gakusai,  gakusai,  gakusai,  ROT0,   "MakeSoft",                   "Mahjong Gakuensai (Japan)",       GAME_IMPERFECT_GRAPHICS )
 GAME( 1998, gakusai2, 0,        gakusai2, gakusai,  gakusai,  ROT0,   "MakeSoft",                   "Mahjong Gakuensai 2 (Japan)"        , 0 )
+GAME( 1995, msgogo,   0,        msgogo,   msgogo,   balcube,  ROT0,   "Metro",                      "Mouse Shooter GoGo", 0 ) 
 
 GAME( 1994, blzntrnd, 0,        blzntrnd, blzntrnd, blzntrnd, ROT0,   "Human Amusement",            "Blazing Tornado",                 GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, gstrik2,  0,        gstrik2,  gstrik2,  blzntrnd, ROT0,   "Human Amusement",            "Grand Striker 2 (Japan)",			GAME_IMPERFECT_GRAPHICS ) // priority between rounds
