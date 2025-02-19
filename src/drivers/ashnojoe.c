@@ -4,11 +4,6 @@ Ashita no Joe (Success Joe) [Wave]
 
 driver by David Haywood and bits from Pierpaolo Prazzoli
 
-todo:
-- sound
-- frequencies
-- 1 unused rom
-
 there is an english logo in the roms, needs different program roms?
 
 Tow sub-boards:
@@ -89,21 +84,23 @@ extern WRITE16_HANDLER( joe_tilemaps_yscroll_w );
 extern VIDEO_START( ashnojoe );
 extern VIDEO_UPDATE( ashnojoe );
 
+static UINT8 adpcm_byte;
+static int soundlatch_status;
+static int msm5205_vclk_toggle;
+
 static READ16_HANDLER(fake_4a00a_r)
 {
-	//if it returns 1 there's no sound. is it used to sync the game and sound?
-	//or just a debug enable/disble register?
+	/* If it returns 1 there's no sound. Is it used to sync the game and sound?
+	or just a debug enable/disable register? */
 	return 0;
-	return 1;
 }
 
 static WRITE16_HANDLER( ashnojoe_soundlatch_w )
 {
 	if(ACCESSING_LSB)
 	{
-		soundlatch_w(0,data & 0xff);
-		//needed?
-		cpunum_set_input_line(1,0,HOLD_LINE);
+		soundlatch_status = 1;
+		soundlatch_w(0, data & 0xff);
 	}
 }
 
@@ -138,21 +135,20 @@ static ADDRESS_MAP_START( ashnojoe_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x080000, 0x0bffff) AM_WRITE(MWA16_ROM)
 ADDRESS_MAP_END
 
-static READ8_HANDLER(fake_6_r)
+static WRITE8_HANDLER( adpcm_w )
 {
-	// if it returns 0 the cpu doesn't read from port $4 ?
-	int ret = 0;
-	ret ^= 1;
-	return ret;
-	return 1;
-	return 0;
-	return rand();
+	adpcm_byte = data;
 }
 
-static WRITE8_HANDLER( adpcm_data_w )
+static READ8_HANDLER( sound_latch_r )
 {
-	MSM5205_data_w(0, data & 0xf);
-	MSM5205_data_w(0, data>>4);
+	soundlatch_status = 0;
+	return soundlatch_r(0);
+}
+
+static READ8_HANDLER( sound_latch_status_r )
+{
+    return soundlatch_status;
 }
 
 static ADDRESS_MAP_START( sound_readmem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -171,15 +167,15 @@ static ADDRESS_MAP_START( sound_readport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x00, 0x00) AM_READ(YM2203_status_port_0_r)
 	AM_RANGE(0x01, 0x01) AM_READ(YM2203_read_port_0_r)
-	AM_RANGE(0x04, 0x04) AM_READ(soundlatch_r) //PC: 15D -> cp $7f
-	AM_RANGE(0x06, 0x06) AM_READ(fake_6_r/*soundlatch_r */) //PC: 14A -> and $1
+	AM_RANGE(0x04, 0x04) AM_READ(sound_latch_r)
+	AM_RANGE(0x06, 0x06) AM_READ(sound_latch_status_r)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( sound_writeport, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x00, 0x00) AM_WRITE(YM2203_control_port_0_w)
 	AM_RANGE(0x01, 0x01) AM_WRITE(YM2203_write_port_0_w)
-	AM_RANGE(0x02, 0x02) AM_WRITE(adpcm_data_w)
+	AM_RANGE(0x02, 0x02) AM_WRITE(adpcm_w)
 ADDRESS_MAP_END
 
 INPUT_PORTS_START( ashnojoe )
@@ -310,7 +306,9 @@ static void irqhandler(int irq)
 
 static WRITE8_HANDLER(writeA)
 {
-	if (data == 0xff) return;	// this gets called at 8910 startup with 0xff before the 5205 exists, causing a crash
+	/* This gets called at 8910 startup with 0xff before the 5205 exists, causing a crash */
+	if (data == 0xff)
+		return;
 
 	MSM5205_reset_w(0, !(data & 0x01));
 }
@@ -320,14 +318,24 @@ static WRITE8_HANDLER(writeB)
 	memory_set_bankptr(4, memory_region(REGION_SOUND1) + ((data & 0xf) * 0x8000));
 }
 
-static void ashnojoe_adpcm_int (int data)
+static void ashnojoe_vclk_cb(int data)
 {
-	cpunum_set_input_line(1, INPUT_LINE_NMI, PULSE_LINE);
+	if (msm5205_vclk_toggle == 0)
+	{
+		MSM5205_data_w(0, adpcm_byte >> 4);
+	}
+	else
+	{
+		MSM5205_data_w(0, adpcm_byte & 0xf);
+		cpunum_set_input_line(1, INPUT_LINE_NMI, PULSE_LINE);
+	}
+
+	msm5205_vclk_toggle ^= 1;
 }
 
 static struct MSM5205interface msm5205_interface =
 {
-	ashnojoe_adpcm_int,	/* interrupt function */
+	ashnojoe_vclk_cb,	/* interrupt function */
 	MSM5205_S48_4B		/* 4KHz 4-bit */
 };
 
@@ -374,14 +382,51 @@ static MACHINE_DRIVER_START( ashnojoe )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(YM2203, 3000000)
+	MDRV_SOUND_ADD(YM2203, 4000000)
 	MDRV_SOUND_CONFIG(ym2203_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.1)
 
 	MDRV_SOUND_ADD(MSM5205, 384000)
 	MDRV_SOUND_CONFIG(msm5205_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
 MACHINE_DRIVER_END
+
+ROM_START( scessjoe )
+	ROM_REGION( 0xc0000, REGION_CPU1, 0 )     /* 68000 code */
+	ROM_LOAD16_BYTE( "5.4q", 0x00000, 0x10000, CRC(c805f9e7) SHA1(e1e85701bde496b1fd64211b94bfb0def597ae51) )
+	ROM_LOAD16_BYTE( "6.4s", 0x00001, 0x10000, CRC(eda7a537) SHA1(3bb19fbdfb6c8af4e2078958fa445ac1f4434d0d) )
+	ROM_LOAD16_WORD_SWAP( "sj201-nw.6m", 0x80000, 0x40000, CRC(5a64ca42) SHA1(660b8bca21ef3c2230adce7cb7e7d1f018714f23) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )     /* 32k for Z80 code */
+	ROM_LOAD( "9.8q", 0x0000, 0x8000, CRC(8767e212) SHA1(13bf927febedff9d7d164fbf0da7fb3a588c2a94) )
+
+	ROM_REGION( 0x20000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "8.5e", 0x00000, 0x10000, CRC(9bcb160e) SHA1(1677048e5ce26562ff7ba36fcc2d0ed5a652b91e) )
+	ROM_LOAD( "7.5c", 0x10000, 0x10000, CRC(b250c69d) SHA1(594b1bb94a162b07944a971b7fedddca5c37f2cb) )
+
+	ROM_REGION( 0x20000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "4.4e", 0x00000, 0x10000, CRC(aa6336d3) SHA1(43f70cc3223f11d7929dd44b0edf0a31f5fe41c3) )
+	ROM_LOAD( "3.4c", 0x10000, 0x10000, CRC(7e2d86b5) SHA1(8b8d1b9240a700e29afc109eddf6e58a0a7666a4) )
+
+	ROM_REGION( 0x20000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "2.3m", 0x00000, 0x10000, CRC(c3254938) SHA1(fd57163f740cd4fdecca94cced91314c289741ae) )
+	ROM_LOAD( "1.1m", 0x10000, 0x10000, CRC(5d16a6fa) SHA1(2af907b0fcb9ff93340de3301da4b10e945455e5) )
+
+	ROM_REGION( 0x100000, REGION_GFX4, ROMREGION_DISPOSE )
+	ROM_LOAD16_WORD_SWAP( "sj402-nw.8e", 0x000000, 0x80000, CRC(b6d33d06) SHA1(688ccf467a5112ec522811894e2626ab5f155903) )
+	ROM_LOAD16_WORD_SWAP( "sj403-nw.7e", 0x080000, 0x80000, CRC(07143f56) SHA1(1b953c8826d3993a486eed6b9d94d37145fd2e79) )
+
+	ROM_REGION( 0x300000, REGION_GFX5, ROMREGION_DISPOSE )
+	ROM_LOAD16_WORD_SWAP( "sj404-nw.7a", 0x000000, 0x80000, CRC(8f134128) SHA1(026a6076d54cd5f1d06b29c51031cb79a6b2c11d) )
+	ROM_LOAD16_WORD_SWAP( "sj405-nw.7c", 0x080000, 0x80000, CRC(6fd81699) SHA1(8a4f9e47dd39b4b0213c3682da2221ca53bba658) )
+	ROM_LOAD16_WORD_SWAP( "sj406-nw.7d", 0x100000, 0x80000, CRC(634e33e6) SHA1(1d6a72a4ca80cd1c1fd6ce9359c304b45091cdfe) )
+	ROM_LOAD16_WORD_SWAP( "sj407-nw.7f", 0x180000, 0x80000, CRC(5c66ff06) SHA1(9923ba00679e1b47b5da63c1a13e0f8dd4c78bb5) )
+	ROM_LOAD16_WORD_SWAP( "sj408-nw.7g", 0x200000, 0x80000, CRC(6a3b1ea1) SHA1(e39a6e52d930f291bf237cf9db3d4b3d2fad53e0) )
+	ROM_LOAD16_WORD_SWAP( "sj409-nw.7j", 0x280000, 0x80000, CRC(d8764213) SHA1(89eadefb956863216c8e3d0380394aba35e8c856) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )   /* samples? */
+	ROM_LOAD( "sj401-nw.10r", 0x00000, 0x80000, CRC(25dfab59) SHA1(7d50159204ba05323a2442778f35192e66117dda) )
+ROM_END
 
 ROM_START( ashnojoe )
 	ROM_REGION( 0xc0000, REGION_CPU1, 0 )     /* 68000 code */
@@ -420,4 +465,5 @@ ROM_START( ashnojoe )
 	ROM_LOAD( "sj401-nw.bin", 0x00000, 0x80000, CRC(25dfab59) SHA1(7d50159204ba05323a2442778f35192e66117dda) )
 ROM_END
 
-GAME( 1990, ashnojoe, 0, ashnojoe, ashnojoe, ashnojoe, ROT0, "WAVE / Taito Corporation", "Ashita no Joe (Japan)", GAME_IMPERFECT_SOUND )
+GAME(1990, scessjoe, 0,        ashnojoe, ashnojoe, ashnojoe, ROT0, "WAVE / Taito Corporation", "Success Joe (World)", 0 )
+GAME(1990, ashnojoe, scessjoe, ashnojoe, ashnojoe, ashnojoe, ROT0, "WAVE / Taito Corporation", "Ashita no Joe (Japan)", 0 )
