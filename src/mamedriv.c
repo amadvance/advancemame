@@ -1623,7 +1623,9 @@ const game_driver * const drivers[] =
 	DRIVER( slapshot )	/* D71 (c) 1994 Taito Corporation (Japan) */
 	DRIVER( opwolf3 )	/* D74 (c) 1994 Taito */
 	DRIVER( opwolf3u )	/* D74 (c) 1994 Taito */
+	DRIVER( scessjoe )	/* ??? (c) 1990 Wave / Taito */
 	DRIVER( ashnojoe )	/* ??? (c) 1990 Wave / Taito */
+
 
 	/* Taito multi-screen games */
 	DRIVER( ninjaw )	/* B31 (c) 1987 Taito Corporation Japan (World) */
@@ -3939,6 +3941,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( rohga2 )	/* MAM (c) 1991 Data East Corporation (Asia/Euro) */
 	DRIVER( rohgah )	/* MAM (c) 1991 Data East Corporation (Hong Kong) */
 	DRIVER( rohgau )	/* MAM (c) 1991 Data East Corporation (US) */
+	DRIVER( wolffang )	/* MAM (c) 1991 Data East Corporation (Japan) */
+	DRIVER( hangzo )	/*     (c) 1992 Hot B */
 	DRIVER( schmeisr )	/*     (c) 1993 Hot B */
 	DRIVER( captaven )	/* MAN (c) 1991 Data East Corporation (Asia) */
 	DRIVER( captavna )	/* MAN (c) 1991 Data East Corporation (Asia) */
@@ -6458,6 +6462,7 @@ Other Sun games
 	DRIVER( dokyusei )	/* (c) 1995 Make Software / Elf / Media Trading */
 	DRIVER( dokyusp )	/* (c) 1995 Make Software / Elf / Media Trading */
 	DRIVER( puzzli )	/* (c) 1995 Metro / Banpresto */
+	DRIVER( msgogo )	/* (c) 1995 Metro */
 	DRIVER( 3kokushi )	/* (c) 1996 Mitchell */
 	DRIVER( pururun )	/* (c) 1995 Metro / Banpresto */
 	DRIVER( balcube )	/* (c) 1996 */
