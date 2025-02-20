@@ -6862,6 +6862,13 @@ Other Sun games
 	DRIVER( mating )	/* 199? */
 	DRIVER( matinga )	/* 199? */
 
+	/* SemiCom 68020 based hardware */
+	DRIVER( baryon )    /* (c) 1997 SemiCom / Tirano */
+	DRIVER( cutefght )  /* (c) 1998 SemiCom */
+	DRIVER( dreamwld )  /* (c) 2000 SemiCom */
+	DRIVER( gaialast )  /* (c) 1999 SemiCom / XESS */
+	DRIVER( rolcrush )  /* (c) 1999 Trust / SemiCom */
+
 	/* Other Games */
 	DRIVER( astinvad )	/* (c) 1980 Stern */
 	DRIVER( kosmokil )	/* bootleg */
@@ -7119,7 +7126,6 @@ Other Sun games
 	DRIVER( pipeline )	/* (c) 1990 Daehyun Electronics */
 	DRIVER( ttchamp )
 	DRIVER( ttchampa )
-	DRIVER( dreamwld )	/* (c) 2000 SemiCom */
 	DRIVER( cybertnk )	/* (c) 1990 Coreland */
 	DRIVER( pkscram )	/* (c) 1993 Cosmo Electronics Corporation */
 	DRIVER( jollycrd )	/* (c) 1985 TAB-Austria */
