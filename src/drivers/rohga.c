@@ -5,12 +5,10 @@
     Rogha Armour Attack         (c) 1991 Data East Corporation
     Wizard Fire                 (c) 1992 Data East Corporation
     Nitro Ball/Gun Ball         (c) 1992 Data East Corporation
+    Hangzo                      (c) 1992 Hot B
     Schmeiser Robo              (c) 1993 Hot B
 
     This hardware is capable of alpha-blending on sprites and playfields
-
-    Todo:  On Wizard Fire when you insert a coin and press start, the start
-    button being held seems to select the knight right away.  Emulation bug.
 
     Todo:  Sprite priority errors in Nitro Ball.
 
@@ -128,13 +126,29 @@ static READ16_HANDLER( rohga_dip3_r ) { return readinputport(3); }
 static READ16_HANDLER( nitrobal_control_r ) { return readinputport(3); }
 static READ16_HANDLER( schmeisr_control_r ) { return readinputport(1); }
 
+static READ16_HANDLER( rohga_irq_ack_r )
+{
+	cpunum_set_input_line(0, 6, CLEAR_LINE);
+	return 0;
+}
+
+
+static WRITE16_HANDLER( wizdfire_irq_ack_w )
+{
+	/* This might actually do more, nitrobal for example sets 0xca->0xffff->0x80 at startup then writes 7 all the time
+	   except when a credit is inserted (writes 6 twice).
+	   Wizard Fire / Dark Seal 2 just writes 1 all the time, so I just don't trust it much for now... -AS */
+	cpunum_set_input_line(0, 6, CLEAR_LINE);
+}
+
+
 /**********************************************************************************/
 
 static ADDRESS_MAP_START( rohga_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x1fffff) AM_READ(MRA16_ROM)
 	AM_RANGE(0x280000, 0x2807ff) AM_MIRROR(0x800) AM_READ(deco16_104_rohga_prot_r) /* Protection device */
 	AM_RANGE(0x2c0000, 0x2c0001) AM_READ(rohga_dip3_r)
-	AM_RANGE(0x321100, 0x321101) AM_READ(MRA16_NOP) /* Irq ack?  Value not used */
+	AM_RANGE(0x321100, 0x321101) AM_READ(rohga_irq_ack_r) /* Irq ack?  Value not used */
 	AM_RANGE(0x3c0000, 0x3c1fff) AM_READ(MRA16_RAM)
 	AM_RANGE(0x3c2000, 0x3c2fff) AM_READ(MRA16_RAM)
 	AM_RANGE(0x3c4000, 0x3c4fff) AM_READ(MRA16_RAM)
@@ -206,7 +220,7 @@ static ADDRESS_MAP_START( wizdfire_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 
 	AM_RANGE(0x320000, 0x320001) AM_WRITE(deco16_priority_w) /* Priority */
 	AM_RANGE(0x320002, 0x320003) AM_WRITE(MWA16_NOP) /* ? */
-	AM_RANGE(0x320004, 0x320005) AM_WRITE(MWA16_NOP) /* VBL IRQ ack */
+	AM_RANGE(0x320004, 0x320005) AM_WRITE(wizdfire_irq_ack_w) /* VBL IRQ ack */
 
 	AM_RANGE(0x340000, 0x3407ff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
 	AM_RANGE(0x350000, 0x350001) AM_WRITE(buffer_spriteram16_w) /* Triggers DMA for spriteram */
@@ -263,7 +277,7 @@ static ADDRESS_MAP_START( nitrobal_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 
 	AM_RANGE(0x320000, 0x320001) AM_WRITE(deco16_priority_w) /* Priority */
 	AM_RANGE(0x320002, 0x320003) AM_WRITE(MWA16_NOP) /* ? */
-	AM_RANGE(0x320004, 0x320005) AM_WRITE(MWA16_NOP) /* VBL IRQ ack */
+	AM_RANGE(0x320004, 0x320005) AM_WRITE(wizdfire_irq_ack_w) /* VBL IRQ ack */
 
 	AM_RANGE(0x340000, 0x3407ff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
 	AM_RANGE(0x350000, 0x350001) AM_WRITE(buffer_spriteram16_w) /* Triggers DMA for spriteram */
@@ -276,6 +290,51 @@ static ADDRESS_MAP_START( nitrobal_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xfec000, 0xff3fff) AM_WRITE(MWA16_RAM)
 	AM_RANGE(0xff4000, 0xff47ff) AM_MIRROR(0x800) AM_WRITE(deco16_146_nitroball_prot_w) AM_BASE(&deco16_prot_ram) /* Protection writes */
 	AM_RANGE(0xff8000, 0xffffff) AM_WRITE(MWA16_RAM) /* Main ram */
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( hangzo_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x0fffff) AM_READ(MRA16_ROM)
+	AM_RANGE(0x280000, 0x2807ff) AM_READ(deco16_104_rohga_prot_r) /* Protection device */
+	AM_RANGE(0x2c0000, 0x2c0001) AM_READ(rohga_dip3_r)
+	AM_RANGE(0x300000, 0x300001) AM_READ(nitrobal_control_r)
+	AM_RANGE(0x310002, 0x310003) AM_READ(schmeisr_control_r)
+	AM_RANGE(0x321100, 0x321101) AM_READ(MRA16_NOP) /* Irq ack?  Value not used */
+	AM_RANGE(0x3c0000, 0x3c1fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x3c2000, 0x3c2fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x3c4000, 0x3c4fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x3c6000, 0x3c6fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x3c8000, 0x3c9fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x3ca000, 0x3cafff) AM_MIRROR(0x1000) AM_READ(MRA16_RAM)
+	AM_RANGE(0x3cc000, 0x3ccfff) AM_MIRROR(0x1000) AM_READ(MRA16_RAM)
+	AM_RANGE(0x3ce000, 0x3cefff) AM_MIRROR(0x1000) AM_READ(MRA16_RAM)
+	AM_RANGE(0x3d0000, 0x3d07ff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x3e0000, 0x3e1fff) AM_MIRROR(0x2000) AM_READ(MRA16_RAM)
+    AM_RANGE(0x3f0000, 0x3f3fff) AM_READ(MRA16_RAM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( hangzo_writemem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x1fffff) AM_WRITE(MWA16_ROM)
+	AM_RANGE(0x200000, 0x20000f) AM_WRITE(MWA16_RAM) AM_BASE(&deco16_pf12_control)
+	AM_RANGE(0x240000, 0x24000f) AM_WRITE(MWA16_RAM) AM_BASE(&deco16_pf34_control)
+	AM_RANGE(0x280000, 0x2807ff) AM_MIRROR(0x800) AM_WRITE(deco16_104_rohga_prot_w) AM_BASE(&deco16_prot_ram) /* Protection writes */
+
+	AM_RANGE(0x300000, 0x300001) AM_WRITE(rohga_buffer_spriteram16_w) /* write 1 for sprite dma */
+	AM_RANGE(0x310000, 0x310009) AM_WRITE(MWA16_NOP) /* Palette control? */
+	AM_RANGE(0x31000a, 0x31000b) AM_WRITE(deco16_palette_dma_w) /* Write 1111 for dma?  (Or any value?) */
+	AM_RANGE(0x320000, 0x320001) AM_WRITE(MWA16_NOP) /* ? */
+	AM_RANGE(0x322000, 0x322001) AM_WRITE(deco16_priority_w)
+
+	AM_RANGE(0x3c0000, 0x3c1fff) AM_WRITE(deco16_pf1_data_w) AM_BASE(&deco16_pf1_data)
+	AM_RANGE(0x3c2000, 0x3c2fff) AM_WRITE(deco16_pf2_data_w) AM_BASE(&deco16_pf2_data)
+	AM_RANGE(0x3c4000, 0x3c4fff) AM_WRITE(deco16_pf3_data_w) AM_BASE(&deco16_pf3_data)
+	AM_RANGE(0x3c6000, 0x3c6fff) AM_WRITE(deco16_pf4_data_w) AM_BASE(&deco16_pf4_data)
+	AM_RANGE(0x3c8000, 0x3c9fff) AM_WRITE(MWA16_RAM) AM_BASE(&deco16_pf1_rowscroll)
+	AM_RANGE(0x3ca000, 0x3cafff) AM_MIRROR(0x1000) AM_WRITE(MWA16_RAM) AM_BASE(&deco16_pf2_rowscroll)
+	AM_RANGE(0x3cc000, 0x3ccfff) AM_MIRROR(0x1000) AM_WRITE(MWA16_RAM) AM_BASE(&deco16_pf3_rowscroll)
+	AM_RANGE(0x3ce000, 0x3cefff) AM_MIRROR(0x1000) AM_WRITE(MWA16_RAM) AM_BASE(&deco16_pf4_rowscroll)
+	AM_RANGE(0x3d0000, 0x3d07ff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x3e0000, 0x3e1fff) AM_MIRROR(0x2000) AM_WRITE(deco16_buffered_palette_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x3f0000, 0x3f3fff) AM_WRITE(MWA16_RAM) /* Main ram */
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( schmeisr_readmem, ADDRESS_SPACE_PROGRAM, 16 )
@@ -603,6 +662,108 @@ INPUT_PORTS_START( nitrobal )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN3 )
 INPUT_PORTS_END
 
+
+INPUT_PORTS_START( hangzo )
+	PORT_START
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON3 )
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_START2 )
+
+	PORT_START
+    PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x08, IP_ACTIVE_HIGH, IPT_VBLANK )
+
+	PORT_START
+    PORT_DIPNAME( 0x0007, 0x0007, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0007, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0006, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x0005, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(      0x0003, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( 1C_6C ) )
+	PORT_DIPNAME( 0x0038, 0x0038, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0038, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0030, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x0028, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(      0x0018, DEF_STR( 1C_5C ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( 1C_6C ) )
+	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0080, 0x0080, "2 Credits to Start, 1 to Continue" )
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0300, 0x0300, DEF_STR( Lives ) )
+	PORT_DIPSETTING(      0x0100, "1" )
+	PORT_DIPSETTING(      0x0000, "2" )
+	PORT_DIPSETTING(      0x0300, "3" )
+	PORT_DIPSETTING(      0x0200, "4" )
+	PORT_DIPNAME( 0x0400, 0x0400, DEF_STR( Unknown ) ) /* Either 3 & 4 are Difficulty */
+	PORT_DIPSETTING(      0x0400, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0800, 0x0800, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0800, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x1000, 0x1000, DEF_STR( Unknown ) ) /* or more likely 5 & 6 are Player's Vitality like Rohga (all other dips seem to match Rohga) */
+	PORT_DIPSETTING(      0x1000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x2000, 0x2000, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x2000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x4000, 0x4000, "Allow_Continue" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x4000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x8000, 0x0000, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(      0x8000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+
+	PORT_START
+	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0004, 0x0004, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0008, 0x0008, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0080, 0x0080, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+INPUT_PORTS_END
+
 INPUT_PORTS_START( schmeisr )
 	PORT_START
 	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY
@@ -822,7 +983,7 @@ static MACHINE_DRIVER_START( rohga )
 	/* basic machine hardware */
 	MDRV_CPU_ADD(M68000, 14000000)
 	MDRV_CPU_PROGRAM_MAP(rohga_readmem,rohga_writemem)
-	MDRV_CPU_VBLANK_INT(irq6_line_hold,1)
+	MDRV_CPU_VBLANK_INT(irq6_line_assert,1)
 
 	MDRV_CPU_ADD(H6280,32220000/4)
 	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
@@ -864,7 +1025,7 @@ static MACHINE_DRIVER_START( wizdfire )
 	/* basic machine hardware */
 	MDRV_CPU_ADD(M68000, 14000000)
 	MDRV_CPU_PROGRAM_MAP(wizdfire_readmem,wizdfire_writemem)
-	MDRV_CPU_VBLANK_INT(irq6_line_hold,1)
+	MDRV_CPU_VBLANK_INT(irq6_line_assert,1)
 
 	MDRV_CPU_ADD(H6280,32220000/4)
 	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
@@ -906,7 +1067,7 @@ static MACHINE_DRIVER_START( nitrobal )
 	/* basic machine hardware */
 	MDRV_CPU_ADD(M68000, 14000000)
 	MDRV_CPU_PROGRAM_MAP(nitrobal_readmem,nitrobal_writemem)
-	MDRV_CPU_VBLANK_INT(irq6_line_hold,1)
+	MDRV_CPU_VBLANK_INT(irq6_line_assert,1)
 
 	MDRV_CPU_ADD(H6280,32220000/4)
 	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
@@ -923,6 +1084,48 @@ static MACHINE_DRIVER_START( nitrobal )
 
 	MDRV_VIDEO_START(nitrobal)
 	MDRV_VIDEO_UPDATE(nitrobal)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+
+	MDRV_SOUND_ADD(YM2151, 32220000/9)
+	MDRV_SOUND_CONFIG(ym2151_interface)
+	MDRV_SOUND_ROUTE(0, "left", 0.80)
+	MDRV_SOUND_ROUTE(1, "right", 0.80)
+
+	MDRV_SOUND_ADD(OKIM6295, 32220000/32/132)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 1.0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
+
+	MDRV_SOUND_ADD(OKIM6295, 32220000/16/132)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_2)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 0.40)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.40)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( hangzo )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(M68000, 14000000)
+	MDRV_CPU_PROGRAM_MAP(hangzo_readmem,hangzo_writemem)
+	MDRV_CPU_VBLANK_INT(irq6_line_hold,1)
+
+	MDRV_CPU_ADD(H6280,32220000/4)
+	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
+
+	MDRV_FRAMES_PER_SECOND(58)
+	MDRV_VBLANK_DURATION(529)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_BUFFERS_SPRITERAM)
+	MDRV_SCREEN_SIZE(40*8, 32*8)
+	MDRV_VISIBLE_AREA(0*8, 40*8-1, 1*8, 31*8-1)
+	MDRV_GFXDECODE(gfxdecodeinfo_schmeisr)
+	MDRV_PALETTE_LENGTH(2048)
+
+	MDRV_VIDEO_START(rohga)
+	MDRV_VIDEO_UPDATE(schmeisr)
 
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
@@ -1187,6 +1390,46 @@ ROM_START( rohgau ) /* US v1.0 */
 	ROM_LOAD( "hb-00.11p", 0x00000,  0x200,  CRC(b7a7baad) SHA1(39781c3412493b985d3616ac31142fc00bbcddf4) )	/* ? */
 ROM_END
 
+ROM_START( wolffang ) /* Japan */
+	ROM_REGION(0x200000, REGION_CPU1, 0 ) /* 68000 code */
+	ROM_LOAD16_BYTE( "hw_00-1.2a",  0x000000, 0x40000, CRC(69dc611e) SHA1(37fc54df32cc8e0502b59d33d94a805dbd7018c5) )
+	ROM_LOAD16_BYTE( "hw_03-1.2d",  0x000001, 0x40000, CRC(b66d9680) SHA1(6bb97a720cc8a5df4051d8ae55586baf03cdc6bc) )
+	ROM_LOAD16_BYTE( "mam00.8a",    0x100000, 0x80000, CRC(0fa440a6) SHA1(f0f84c630fc30ec164acc21de871c857d391c398) )
+	ROM_LOAD16_BYTE( "mam07.8d",    0x100001, 0x80000, CRC(f8bc7f20) SHA1(909324248bd207f3b01d9f694975b629d8ccaa08) )
+
+	ROM_REGION(0x10000, REGION_CPU2, 0 ) /* Sound CPU */
+	ROM_LOAD( "hw_04-.18p",  0x00000,  0x10000,  CRC(eb6608eb) SHA1(0233677970aba12783dd4d6d58d70568ef641115) )
+
+	ROM_REGION( 0x020000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD16_BYTE( "hw_01-.13a",  0x00000,  0x10000,  CRC(d9810ca4) SHA1(f8d85c93eaf8e26f115afff6193617caa864a6b7) ) /* Encrypted tiles */
+	ROM_LOAD16_BYTE( "hw_02-.14a",  0x00001,  0x10000,  CRC(2a27ac8e) SHA1(9ed752cc212d29a621226deee79e62585232c923) )
+
+	ROM_REGION( 0x100000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "mam01.10a", 0x000000, 0x080000,  CRC(dbf4fbcc) SHA1(2f289556fd25beb7d30501cba17ac35ad28c5b91) ) /* Encrypted tiles */
+	ROM_LOAD( "mam02.11a", 0x080000, 0x080000,  CRC(b1fac481) SHA1(da370499ea8ff7b3dd338b31f3799b760fd0d981) )
+
+	ROM_REGION( 0x200000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "mam08.17d",  0x000000, 0x100000,  CRC(ca97a83f) SHA1(2e097840ae56cf19ad2651d59c31182f47239d60) ) /* tiles 1 & 2 */
+	ROM_LOAD( "mam09.18d",  0x100000, 0x100000,  CRC(3f57d56f) SHA1(0d4537da6ab62762179215deae72fe2e6a7869e1) )
+
+	ROM_REGION( 0x600000, REGION_GFX4, ROMREGION_DISPOSE )
+	ROM_LOAD( "mam05.19a", 0x000000, 0x100000,  CRC(307a2cd1) SHA1(d7a795e47cf1533f0bb5a96162c8025282abe09f) ) /* 6bpp sprites */
+	ROM_LOAD( "mam06.20a", 0x100000, 0x100000,  CRC(a1119a2d) SHA1(876f9295c2032ce491b45a103ffafc750d8c78e1) )
+	ROM_LOAD( "mam10.19d", 0x200000, 0x100000,  CRC(99f48f9f) SHA1(685787de54e9158ced80f3821996c3a63f2a72a2) )
+	ROM_LOAD( "mam11.20d", 0x300000, 0x100000,  CRC(c3f12859) SHA1(45fdfd55f606316c936f0a9e6b4940740138d344) )
+	ROM_LOAD( "mam03.17a", 0x400000, 0x100000,  CRC(fc4dfd48) SHA1(0c5f5a09833ebeb3018e65edd6f7ce06d4ba84ed) )
+	ROM_LOAD( "mam04.18a", 0x500000, 0x100000,  CRC(7d3b38bf) SHA1(9f83ad7497ed57405ad648f403eb69f776567a50) )
+
+	ROM_REGION(0x80000, REGION_SOUND2, 0 ) /* Oki samples */
+	ROM_LOAD( "mam12.14p", 0x00000,  0x80000,  CRC(6f00b791) SHA1(c9fbc9ab5ce84fec79efa0a23373be97a27bf898) )
+
+	ROM_REGION(0x80000, REGION_SOUND1, 0 ) /* Oki samples */
+	ROM_LOAD( "mam13.15p", 0x00000,  0x80000,  CRC(525b9461) SHA1(1d9bb3725dfe601b05a779b84b4191455087b969) )
+
+	ROM_REGION( 512, REGION_PROMS, 0 )
+	ROM_LOAD( "hb-00.11p", 0x00000,  0x200,  CRC(b7a7baad) SHA1(39781c3412493b985d3616ac31142fc00bbcddf4) )	/* ? */
+ROM_END
+
 ROM_START( wizdfire )
 	ROM_REGION(0x200000, REGION_CPU1, 0 ) /* 68000 code */
 	ROM_LOAD16_BYTE( "jf-01.3d",   0x000000, 0x20000, CRC(bde42a41) SHA1(0379de9c4cdcce35554b5dc15241ed2c4f0d7611) )
@@ -1365,6 +1608,45 @@ ROM_START( gunball )
 	ROM_LOAD( "jn-00.17l", 0x00000,  0x400,  CRC(6ac77b84) SHA1(9e1e2cabdb20b819e592a0f07d15658062227fa4) )	/* Priority (unused) */
 ROM_END
 
+ROM_START( hangzo )
+	ROM_REGION(0x200000, REGION_CPU1, 0 ) /* 68000 code */
+	ROM_LOAD16_BYTE( "Pro0H 12.18.2A.27C1001",  0x000000, 0x20000, CRC(ac8087db) SHA1(518193372cde6024fda96c6ed1862245e0bfb465) )
+	ROM_LOAD16_BYTE( "Pro0H 12.18.2D.27C1001",  0x000001, 0x20000, CRC(a6b7f4f4) SHA1(1b3a00ef124d130317171d9042018fbb30662fec) )
+	ROM_LOAD16_BYTE( "Pro1H 12.10.4A.27C010",   0x040000, 0x20000, CRC(0d04f43d) SHA1(167b595450f6f9b842dc909f6c61a96fa34b7991) )
+	ROM_LOAD16_BYTE( "Pro1L 12.10.4D.27C010",   0x040001, 0x20000, CRC(2e323918) SHA1(f3d9168f395e835b075dfcbb0464770044d350f3) )
+	ROM_LOAD16_BYTE( "Pro2H 12.10.6A.27C010",   0x080000, 0x20000, CRC(bb3185a6) SHA1(fa4ba7b4b53a5b3486c36441463a290b12c2acbe) )
+	ROM_LOAD16_BYTE( "Pro2L 12.10.6D.27C010",   0x080001, 0x20000, CRC(11ce97bb) SHA1(d9c1872762f9acaeed1ebc640a71fa7a4b9d013c) )
+
+	ROM_REGION(0x10000, REGION_CPU2, 0 ) /* Sound CPU */
+	ROM_LOAD( "SND 12.18.18P.27C512",  0x00000,  0x10000,  CRC(97c592dc) SHA1(7a0e08f3ffd42d07d1d0a9db52c7fd85dba28bd8) )
+
+	ROM_REGION( 0x040000, REGION_GFX1, ROMREGION_DISPOSE )
+	/* filled in later */
+
+	ROM_REGION( 0x100000, REGION_GFX2, ROMREGION_DISPOSE )
+	ROM_LOAD( "BK1L 12.10.9A.574200",  0x000000, 0x080000,  CRC(5199729b) SHA1(1cb8e7b91e5d0b3a699e47b6bbb3e6e9c53c8590) ) /* Encrypted tiles */
+	ROM_LOAD( "BK1H 12.10.11A.574200", 0x080000, 0x080000,  CRC(85887bd8) SHA1(6cb6f9c9e6e5824c6b8006ab195f27014031907e) )
+
+	ROM_REGION( 0x200000, REGION_GFX3, ROMREGION_DISPOSE )
+	ROM_LOAD( "BK23L 12.10.17D.574200",  0x000000, 0x080000,  CRC(ed4e47c6) SHA1(b09ed1a6bf1b42139c7817bae18cd5580c42cf91) ) /* tiles 1 & 2 */
+	ROM_LOAD( "BK23H 12.10.18D.574200",  0x100000, 0x080000,  CRC(6a725fb2) SHA1(f4da4da62eb7e3ec2f1a54b57eaf94dc748dec68) )
+
+	ROM_REGION( 0x400000, REGION_GFX4, ROMREGION_DISPOSE )
+	ROM_LOAD( "OBJ01L 12.10.19A.27C4000", 0x000000, 0x080000,  CRC(c141e310) SHA1(81eb0b977aaf44a110a663416e385ca617de8f28) ) /* 6bpp sprites */
+	ROM_LOAD( "OBJ01H 12.10.20A.27C4000", 0x100000, 0x080000,  CRC(6a7b4252) SHA1(4bd588bc96c07cc9367afdeab4976af6f8dcc823) )
+	ROM_LOAD( "OBJ23L 12.10.19D.27C4000", 0x200000, 0x080000,  CRC(0db6df6c) SHA1(fe7ef7b5a279656d9e46334c4833ab8911caa5db) )
+	ROM_LOAD( "OBJ23H 12.10.20D.27C4000", 0x300000, 0x080000,  CRC(165031a1) SHA1(0e88fe45fd78d352fdbd398c1d98feefe1b43917) )
+
+	ROM_REGION(0x80000, REGION_SOUND2, 0 ) /* Oki samples */
+	ROM_LOAD( "PCM16K 11.5.14P.574000", 0x00000,  0x80000,  CRC(5b95c6c7) SHA1(587e7f87d085af3a5d24f317fffc1716c8027e43) )
+
+	ROM_REGION(0x80000, REGION_SOUND1, 0 ) /* Oki samples */
+	ROM_LOAD( "PCM8K 11.5.15P.27C020", 0x00000,  0x40000,  CRC(02682a9a) SHA1(914ffc7c16e90c1ac28a228df415a956684f8192) )
+
+	ROM_REGION( 512, REGION_PROMS,  0 )
+	ROM_LOAD( "hb-00.11p", 0x00000,  0x200,  CRC(b7a7baad) SHA1(39781c3412493b985d3616ac31142fc00bbcddf4) ) /* ? */
+ROM_END
+
 ROM_START( schmeisr )
 	ROM_REGION(0x100000, REGION_CPU1, 0 ) /* 68000 code */
 	ROM_LOAD16_BYTE( "sr001j.8a",  0x000000, 0x80000, CRC(ed31f3ff) SHA1(3e0ae92a07ef94f377730c19069560bda864a64b) )
@@ -1426,6 +1708,17 @@ static DRIVER_INIT( nitrobal )
 	decoprot_reset();
 }
 
+static DRIVER_INIT( hangzo )
+{
+	const UINT8 *src = memory_region(REGION_GFX2);
+	UINT8 *dst = memory_region(REGION_GFX1);
+
+	memcpy(dst,src,0x20000);
+	memcpy(dst+0x20000,src+0x80000,0x20000);
+
+        decoprot_reset();
+}
+
 static DRIVER_INIT( schmeisr )
 {
 	const UINT8 *src = memory_region(REGION_GFX2);
@@ -1445,8 +1738,10 @@ GAME( 1991, rohga1,   rohga,   rohga,    rohga,    rohga,    ROT0,   "Data East 
 GAME( 1991, rohga2,   rohga,   rohga,    rohga,    rohga,    ROT0,   "Data East Corporation", "Rohga Armor Force (Asia/Europe v3.0 Set 2)", 0 )
 GAME( 1991, rohgah,   rohga,   rohga,    rohga,    rohga,    ROT0,   "Data East Corporation", "Rohga Armor Force (Hong Kong v3.0)", 0 )
 GAME( 1991, rohgau,   rohga,   rohga,    rohga,    rohga,    ROT0,   "Data East Corporation", "Rohga Armor Force (US v1.0)", 0 )
+GAME( 1991, wolffang, rohga,   rohga,    rohga,    rohga,    ROT0,   "Data East Corporation", "Wolf Fang -Kuhga 2001- (Japan)", 0 )
 GAME( 1992, wizdfire, 0,       wizdfire, wizdfire, wizdfire, ROT0,   "Data East Corporation", "Wizard Fire (US v1.1)", 0 )
 GAME( 1992, darksel2, wizdfire,wizdfire, wizdfire, wizdfire, ROT0,   "Data East Corporation", "Dark Seal 2 (Japan v2.1)", 0 )
 GAME( 1992, nitrobal, 0,       nitrobal, nitrobal, nitrobal, ROT270, "Data East Corporation", "Nitro Ball (US)", 0 )
 GAME( 1992, gunball,  nitrobal,nitrobal, nitrobal, nitrobal, ROT270, "Data East Corporation", "Gun Ball (Japan)", 0 )
+GAME( 1992, hangzo,   0,       hangzo,   hangzo,   hangzo,   ROT0,   "Hot-B",                 "Hangzo (Japan, prototype)", 0 )
 GAME( 1993, schmeisr, 0,       schmeisr, schmeisr, schmeisr, ROT0,   "Hot B",                 "Schmeiser Robo (Japan)", 0 )
