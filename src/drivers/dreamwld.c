@@ -80,7 +80,7 @@ Stephh's notes (based on the game M68EC020 code and some tests) :
 
 #define MASTER_CLOCK 32000000
 
-static unsigned int *spriteram32;
+//static unsigned int *spriteram32;
 static unsigned int *spritebuf32a;
 static unsigned int *spritebuf32b;
 
