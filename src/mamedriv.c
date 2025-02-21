@@ -852,6 +852,7 @@ const game_driver * const drivers[] =
 	DRIVER( ladybgb2 )	/* bootleg */
 	DRIVER( snapjack )	/* (c) */
 	DRIVER( sraider )	/* (c) 1982 Universal */
+        DRIVER( mrsdyna )	/* (c) 1982 Universal */
 	DRIVER( cavenger )	/* (c) 1981 */
 	DRIVER( dorodon )	/* Falcon */
 	DRIVER( dorodon2 )	/* Falcon */
