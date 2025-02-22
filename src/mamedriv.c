@@ -852,6 +852,7 @@ const game_driver * const drivers[] =
 	DRIVER( ladybgb2 )	/* bootleg */
 	DRIVER( snapjack )	/* (c) */
 	DRIVER( sraider )	/* (c) 1982 Universal */
+        DRIVER( mrsdyna )	/* (c) 1982 Universal */
 	DRIVER( cavenger )	/* (c) 1981 */
 	DRIVER( dorodon )	/* Falcon */
 	DRIVER( dorodon2 )	/* Falcon */
@@ -6231,6 +6232,14 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( myangel2 )	/* (c) 1997 Namco */
 	DRIVER( pzlbowl )	/* (c) 1999 Nihon System / Moss */
 	DRIVER( penbros )	/* (c) 2000 Subsino */
+	DRIVER( deerhunt  )     /* (c) 2000 American Sammy */
+	DRIVER( deerhunta )     /* (c) 2000 American Sammy */
+	DRIVER( deerhuntb )     /* (c) 2000 American Sammy */
+	DRIVER( turkhunt )      /* (c) 2001 American Sammy */
+	DRIVER( wschamp )       /* (c) 2001 American Sammy */
+	DRIVER( wschampa )      /* (c) 2001 American Sammy */
+	DRIVER( trophyh )       /* (c) 2002 American Sammy */
+
 
 	/* SSV System (Seta, Sammy, Visco) games */
 	DRIVER( srmp4 )		/* (c) 1993 Seta */
@@ -6862,6 +6871,13 @@ Other Sun games
 	DRIVER( mating )	/* 199? */
 	DRIVER( matinga )	/* 199? */
 
+	/* SemiCom 68020 based hardware */
+	DRIVER( baryon )    /* (c) 1997 SemiCom / Tirano */
+	DRIVER( cutefght )  /* (c) 1998 SemiCom */
+	DRIVER( dreamwld )  /* (c) 2000 SemiCom */
+	DRIVER( gaialast )  /* (c) 1999 SemiCom / XESS */
+	DRIVER( rolcrush )  /* (c) 1999 Trust / SemiCom */
+
 	/* Other Games */
 	DRIVER( astinvad )	/* (c) 1980 Stern */
 	DRIVER( kosmokil )	/* bootleg */
@@ -7119,7 +7135,6 @@ Other Sun games
 	DRIVER( pipeline )	/* (c) 1990 Daehyun Electronics */
 	DRIVER( ttchamp )
 	DRIVER( ttchampa )
-	DRIVER( dreamwld )	/* (c) 2000 SemiCom */
 	DRIVER( cybertnk )	/* (c) 1990 Coreland */
 	DRIVER( pkscram )	/* (c) 1993 Cosmo Electronics Corporation */
 	DRIVER( jollycrd )	/* (c) 1985 TAB-Austria */
