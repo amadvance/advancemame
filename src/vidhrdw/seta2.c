@@ -384,6 +384,32 @@ VIDEO_UPDATE( seta2 )
 	seta2_draw_sprites(bitmap,cliprect);
 }
 
+int xpos = 0;
+
+VIDEO_UPDATE( seta2_gun )
+{
+	/* Black or pens[0]? */
+	fillbitmap(bitmap,Machine->pens[0],cliprect);
+
+	if (seta2_vregs[0x30/2] & 1)	return;		// BLANK SCREEN
+
+	seta2_draw_sprites(bitmap,cliprect);
+
+/* 
+old style hookup
+gun 1 = ports 3 and 2
+gun 2 - ports 5 and 4 
+*/
+
+	xpos = (readinputport(3) * 320) / 160; 
+	if (readinputport(3) != 0xff) // player 1
+	draw_crosshair(bitmap,xpos-8,readinputport(2)+46,cliprect,0);
+
+	xpos = (readinputport(5) * 320) / 160;
+	if (readinputport(5) != 0xff) // player 2
+	draw_crosshair(bitmap,xpos-8,readinputport(4)+46,cliprect,1);
+}
+
 VIDEO_EOF( seta2 )
 {
 	/* Buffer sprites by 1 frame */
