@@ -163,6 +163,65 @@ PALETTE_INIT( sraider )
 	colortable[32 + 64 + 1] = 64;
 }
 
+PALETTE_INIT( mrsdyna )
+{
+	int i;
+
+	for (i = 0;i < 32;i++)
+	{
+		int bit1,bit2,r,g,b;
+
+
+		bit1 = (~color_prom[i] >> 3) & 0x01;
+		bit2 = (~color_prom[i] >> 0) & 0x01;
+		r = 0x47 * bit1 + 0x97 * bit2;
+		bit1 = (~color_prom[i] >> 5) & 0x01;
+		bit2 = (~color_prom[i] >> 4) & 0x01;
+		g = 0x47 * bit1 + 0x97 * bit2;
+		bit1 = (~color_prom[i] >> 7) & 0x01;
+		bit2 = (~color_prom[i] >> 6) & 0x01;
+		b = 0x47 * bit1 + 0x97 * bit2;
+		palette_set_color(i,r,g,b);
+	}
+
+	/* This is reserved for the grid color */
+	palette_set_color(64,0,0,0);
+
+	/* characters */
+	for (i = 0;i < 8;i++)
+	{
+		colortable[4 * i] = 0;
+		colortable[4 * i + 1] = i + 0x08;
+		colortable[4 * i + 2] = i + 0x10;
+		colortable[4 * i + 3] = i + 0x18;
+	}
+
+	/* sprites */
+	for (i = 0;i < 4 * 8;i++)
+	{
+		int bit0,bit1,bit2,bit3;
+
+
+		/* low 4 bits are for sprite n */
+		bit0 = (color_prom[i + 32] >> 3) & 0x01;
+		bit1 = (color_prom[i + 32] >> 2) & 0x01;
+		bit2 = (color_prom[i + 32] >> 1) & 0x01;
+		bit3 = (color_prom[i + 32] >> 0) & 0x01;
+		colortable[i + 4 * 8] = 1 * bit0 + 2 * bit1 + 4 * bit2 + 8 * bit3;
+
+		/* high 4 bits are for sprite n + 8 */
+		bit0 = (color_prom[i + 32] >> 7) & 0x01;
+		bit1 = (color_prom[i + 32] >> 6) & 0x01;
+		bit2 = (color_prom[i + 32] >> 5) & 0x01;
+		bit3 = (color_prom[i + 32] >> 4) & 0x01;
+		colortable[i + 4 * 16] = 1 * bit0 + 2 * bit1 + 4 * bit2 + 8 * bit3;
+	}
+
+	/* stationary part of grid */
+	colortable[32 + 64] = 0;
+	colortable[32 + 64 + 1] = 64;
+}
+
 WRITE8_HANDLER( ladybug_videoram_w )
 {
 	if (videoram[offset] != data)
@@ -308,6 +367,28 @@ WRITE8_HANDLER( sraider_io_w )
      */
 
 	redclash_set_stars_speed((data&0x07) - 1);
+}
+
+WRITE8_HANDLER( mrsdyna_io_w )
+{
+	// bit7 = flip
+	// bit6 = grid red
+	// bit5 = grid green
+	// bit4 = grid blue
+
+	if (flip_screen != (data & 0x80))
+	{
+		flip_screen_set(data & 0x80);
+		tilemap_mark_all_tiles_dirty(ALL_TILEMAPS);
+	}
+
+	palette_set_color(64,
+		              ((data&0x40)>>6)*0xff,
+		              ((data&0x20)>>5)*0xff,
+		              ((data&0x10)>>4)*0xff);
+					  
+	//m_grid_color = data & 0x70;
+
 }
 
 static void get_bg_tile_info(int tile_index)
@@ -491,3 +572,15 @@ VIDEO_UPDATE( sraider )
 
 }
 
+VIDEO_UPDATE( mrsdyna )
+{
+	// clear the bg bitmap
+	fillbitmap(bitmap,Machine->pens[0],&Machine->visible_area);
+
+	// now the chars
+	tilemap_draw(bitmap, &Machine->visible_area, bg_tilemap, 0, flip_screen);
+
+	// now the sprites
+	ladybug_draw_sprites(bitmap);
+
+}
