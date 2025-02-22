@@ -139,12 +139,6 @@ To Do:
 
 - srmp7     :   Needs interrupts by the sound chip (not properly hooked up yet). Kludged to work.
 
-- stmblade  :   There is a rogue "tilemap" sprite that pops up at level 2 and stays
-                there till the end of the game (a piece of sky to the left of the screen).
-                It seems that the x&y offsets in the sprite list should be apllied
-                to it (-$200,-$200) to move it off screen. But currently those offsets
-                are ignored for "tilemap" sprites. This may be related to the kludge for srmp4.
-
 - ultrax    :   bad gfx offsets and wrong visible area
 - twineag2  :   bad gfx offsets on some scenes
 
@@ -1231,7 +1225,7 @@ INPUT_PORTS_END
 
 INPUT_PORTS_START( eaglshot )
 	PORT_START	// IN0 - $210002
-	PORT_DIPNAME( 0x000f, 0x000f, DEF_STR( Coinage ) )
+	PORT_DIPNAME( 0x000f, 0x0009, DEF_STR( Coinage ) )
 	PORT_DIPSETTING(      0x0007, DEF_STR( 4C_1C ) )
 	PORT_DIPSETTING(      0x0008, DEF_STR( 3C_1C ) )
 	PORT_DIPSETTING(      0x0009, DEF_STR( 2C_1C ) )
@@ -1254,12 +1248,12 @@ INPUT_PORTS_START( eaglshot )
 	PORT_DIPSETTING(      0x0001, "Multiple Coin Feature E" )
 // 1c-1c, 2c-3c
 	PORT_DIPSETTING(      0x0000, DEF_STR( Free_Play ) )
-	PORT_DIPNAME( 0x0010, 0x0010, "Credits To Start" )
-	PORT_DIPSETTING(      0x0010, "1" )
-	PORT_DIPSETTING(      0x0000, "2" )
-	PORT_DIPNAME( 0x0020, 0x0000, DEF_STR( Controls ) )	// trackball dosn't work yet
-	PORT_DIPSETTING(      0x0020, DEF_STR( Trackball ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( Joystick ) )
+	PORT_DIPNAME( 0x0010, 0x0010, "Discount to Continue" )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) ) // 2 Coins to start, 1 to continue
+	PORT_DIPNAME( 0x0020, 0x0020, "Controls" )
+	PORT_DIPSETTING(      0x0020, "Trackball" )
+	PORT_DIPSETTING(      0x0000, "Joystick" )
 	PORT_DIPNAME( 0x0040, 0x0040, "Trackball Type" )
 	PORT_DIPSETTING(      0x0040, "24 Counts (USA)" )
 	PORT_DIPSETTING(      0x0000, "12 Counts (Japan)" )
@@ -1268,11 +1262,11 @@ INPUT_PORTS_START( eaglshot )
 	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 
 	PORT_START	// IN1 - $210004
-	PORT_DIPNAME( 0x0003, 0x0003, "Number Of Holes" )
-	PORT_DIPSETTING(      0x0002, "2" )
-	PORT_DIPSETTING(      0x0003, "3" )
-	PORT_DIPSETTING(      0x0001, "4" )
-	PORT_DIPSETTING(      0x0000, "5" )
+	PORT_DIPNAME( 0x0003, 0x0003, "Number of Holes" )
+	PORT_DIPSETTING(      0x0002, "2 Holes" )
+	PORT_DIPSETTING(      0x0003, "3 Holes" )
+	PORT_DIPSETTING(      0x0001, "4 Holes" )
+	PORT_DIPSETTING(      0x0000, "5 Holes" )
 	PORT_DIPNAME( 0x000c, 0x000c, DEF_STR( Difficulty ) ) // No listed value for ON & ON
 	PORT_DIPSETTING(      0x0008, DEF_STR( Easy ) )
 	PORT_DIPSETTING(      0x000c, DEF_STR( Normal ) )
@@ -1371,16 +1365,16 @@ INPUT_PORTS_START( gdfs )
 	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Demo_Sounds ) )
 	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0010, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0020, 0x0020, "Unknown 2-5*" )	// F76E34
-	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0040, 0x0040, "Unknown 2-6*" )	// F77487
-	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-	PORT_DIPNAME( 0x0080, 0x0080, "Unknown 2-7*" )	// F77255
-	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
-
+	PORT_DIPNAME( 0x0020, 0x0020, "Damage From Machine Gun" )	// F76E34
+	PORT_DIPSETTING(      0x0020, "Light" )
+	PORT_DIPSETTING(      0x0000, "Heavy" )
+	PORT_DIPNAME( 0x0040, 0x0040, "Damage From Beam Cannon" )	// F77487
+	PORT_DIPSETTING(      0x0040, "Light" )
+	PORT_DIPSETTING(      0x0000, "Heavy" )
+	PORT_DIPNAME( 0x0080, 0x0080, "Damage From Missle" )	// F77255
+	PORT_DIPSETTING(      0x0080, "Light" )
+	PORT_DIPSETTING(      0x0000, "Heavy" )
+	
 	PORT_START	// IN2 - $210008
 	PORT_BIT(  0x0001, IP_ACTIVE_LOW, IPT_START1  )					// press at boot for service mode
 	PORT_BIT(  0x0002, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)	// used in test mode
@@ -2461,9 +2455,9 @@ INPUT_PORTS_START( stmblade )
 	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 
 	PORT_START	// IN1 - $210004
-	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Flip_Screen ) )
-	PORT_DIPSETTING(      0x0001, DEF_STR( Off ) )
-	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+    PORT_DIPNAME( 0x0001, 0x0000, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Demo_Sounds ) )
 	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0002, DEF_STR( On ) )
@@ -2517,7 +2511,7 @@ INPUT_PORTS_END
 
 INPUT_PORTS_START( survarts )
 	PORT_START	// IN0 - $210002
-	PORT_DIPNAME( 0x000f, 0x0009, DEF_STR( Coin_A ) ) // Verified Default is 2 coins 1 Credit
+	PORT_DIPNAME( 0x000f, 0x000f, DEF_STR( Coin_A ) ) // Verified Defualt is 2 coins 1 Credit
 	PORT_DIPSETTING(      0x0007, DEF_STR( 4C_1C ) )
 	PORT_DIPSETTING(      0x0008, DEF_STR( 3C_1C ) )
 	PORT_DIPSETTING(      0x0009, DEF_STR( 2C_1C ) )
@@ -2528,7 +2522,6 @@ INPUT_PORTS_START( survarts )
 	PORT_DIPSETTING(      0x000c, DEF_STR( 1C_4C ) )
 	PORT_DIPSETTING(      0x000b, DEF_STR( 1C_5C ) )
 	PORT_DIPSETTING(      0x000a, DEF_STR( 1C_6C ) )
-	PORT_DIPSETTING(      0x0000, "2 Credits Start, 1 to continue" )
 // "** ADDED MULTIPLE COIN FEATURE **"
 	PORT_DIPSETTING(      0x0005, "Multiple Coin Feature A" )
 // 2c-1c, 4c-2c, 5c-3c & 6c-4c
@@ -2538,10 +2531,11 @@ INPUT_PORTS_START( survarts )
 // 1c-1c, 2c-2c, 3c-3c, 4c-4c, 5c-6c
 	PORT_DIPSETTING(      0x0002, "Multiple Coin Feature D" )
 // 1c-1c, 2c-2c, 3c-3c & 4c-5c
-	PORT_DIPNAME( 0x00f0, 0x0090, DEF_STR( Coin_B ) ) // Verified Defualt is 2 coins 1 Credit
+	PORT_DIPNAME( 0x00f0, 0x00f0, DEF_STR( Coin_B ) ) // Verified Defualt is 2 coins 1 Credit
 	PORT_DIPSETTING(      0x0070, DEF_STR( 4C_1C ) )
 	PORT_DIPSETTING(      0x0080, DEF_STR( 3C_1C ) )
 	PORT_DIPSETTING(      0x0090, DEF_STR( 2C_1C ) )
+//	PORT_DIPSETTING(      0x0000, DEF_STR( 2C_1C ) ) // 2 Credits Start, 1 to continue
 	PORT_DIPSETTING(      0x00f0, DEF_STR( 1C_1C ) )
 	PORT_DIPSETTING(      0x0060, DEF_STR( 2C_3C ) )
 	PORT_DIPSETTING(      0x00e0, DEF_STR( 1C_2C ) )
@@ -2549,7 +2543,6 @@ INPUT_PORTS_START( survarts )
 	PORT_DIPSETTING(      0x00c0, DEF_STR( 1C_4C ) )
 	PORT_DIPSETTING(      0x00b0, DEF_STR( 1C_5C ) )
 	PORT_DIPSETTING(      0x00a0, DEF_STR( 1C_6C ) )
-	PORT_DIPSETTING(      0x0000, "2 Credits Start, 1 to continue" )
 // "** ADDED MULTIPLE COIN FEATURE **"
 	PORT_DIPSETTING(      0x0050, "Multiple Coin Feature A" )
 // 2c-1c, 4c-2c, 5c-3c & 6c-4c
@@ -3221,8 +3214,8 @@ static const gfx_layout layout_16x8x6_2 =
 
 static const gfx_decode eaglshot_gfxdecodeinfo[] =
 {
-	{ REGION_GFX1, 0, &layout_16x8x8_2, 0, 0x8000/64 }, // [0] Sprites (256 colors, decoded from ram)
-	{ REGION_GFX1, 0, &layout_16x8x6_2, 0, 0x8000/64 }, // [1] Sprites (64 colors, decoded from ram)
+	{ REGION_GFX1, 0, &layout_16x8x8_2, 0, 0x8000/64 }, // [0] Sprites (256 colors)
+	{ REGION_GFX1, 0, &layout_16x8x6_2, 0, 0x8000/64 }, // [1] Sprites (64 colors)
 	{ -1 }
 };
 
@@ -3287,7 +3280,7 @@ void init_ssv(void)
 	eaglshot_dirty = 0;
 }
 
-void init_ssv_hypreac2(void)
+void hypreac2_init(void)
 {
 	int i;
 
@@ -3301,16 +3294,16 @@ void init_ssv_hypreac2(void)
 DRIVER_INIT( drifto94 )		{	init_ssv();
 								ssv_sprites_offsx = -8;	ssv_sprites_offsy = +0xf0;
 								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = -0xf0;	}
-DRIVER_INIT( eaglshot )		{	init_ssv_hypreac2();
+DRIVER_INIT( eaglshot )		{	hypreac2_init();
 								ssv_sprites_offsx = -8;	ssv_sprites_offsy = +0xf0;
-								ssv_tilemap_offsx = 0;	ssv_tilemap_offsy = -0xef; }
+								ssv_tilemap_offsx = 0;	ssv_tilemap_offsy = -0xef; }								
 DRIVER_INIT( gdfs )			{	init_ssv();
 								ssv_sprites_offsx = -8;	ssv_sprites_offsy = 1;
-								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = 0;	}
+								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = 0;	}								
 DRIVER_INIT( hypreact )		{	init_ssv();
 								ssv_sprites_offsx = +0;	ssv_sprites_offsy = +0xf0;
 								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = -0xf7;	}
-DRIVER_INIT( hypreac2 )		{	init_ssv_hypreac2();	// different
+DRIVER_INIT( hypreac2 )		{	hypreac2_init();	// different
 								ssv_sprites_offsx = +0;	ssv_sprites_offsy = +0xf0;
 								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = -0xf8;	}
 DRIVER_INIT( janjans1 )		{	init_ssv();
@@ -3342,13 +3335,10 @@ DRIVER_INIT( stmblade )		{	init_ssv();
 DRIVER_INIT( survarts )		{	init_ssv();
 								ssv_sprites_offsx = +0;	ssv_sprites_offsy = +0xe8;
 								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = -0xef;	}
-DRIVER_INIT( dynagear )		{	init_ssv();
+DRIVER_INIT( dynagear )		{	init_ssv(); ssv_special = 3;
 								ssv_sprites_offsx = -8;	ssv_sprites_offsy = +0xec;
 								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = -0xec;	}
-DRIVER_INIT( sxyreact )		{	init_ssv_hypreac2();	// different
-								ssv_sprites_offsx = +0;	ssv_sprites_offsy = +0xe8;
-								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = -0xef;	}
-DRIVER_INIT( sxyreac2 )		{	init_ssv_hypreac2();
+DRIVER_INIT( sxyreact )		{	hypreac2_init();	// different
 								ssv_sprites_offsx = +0;	ssv_sprites_offsy = +0xe8;
 								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = -0xef;	}
 DRIVER_INIT( twineag2 )		{	init_ssv();interrupt_ultrax=1;
@@ -3360,11 +3350,9 @@ DRIVER_INIT( ultrax )		{	init_ssv();interrupt_ultrax=1;
 DRIVER_INIT( vasara )		{	init_ssv();
 								ssv_sprites_offsx = +0;	ssv_sprites_offsy = +0xf0;
 								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = -0xf8;	}
-DRIVER_INIT( jsk )			{	memory_set_bankptr(2, memory_region(REGION_USER2));
-								init_ssv();
-								ssv_sprites_offsx = +0;	ssv_sprites_offsy = +0xe8;
-								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = -0xf0;	}
-
+DRIVER_INIT( vasara2 )		{	init_ssv();
+								ssv_sprites_offsx = +0;	ssv_sprites_offsy = +0xf0;
+								ssv_tilemap_offsx = +0;	ssv_tilemap_offsy = -0xf8;	}
 
 static MACHINE_DRIVER_START( ssv )
 
@@ -3549,7 +3537,7 @@ static MACHINE_DRIVER_START( stmblade )
 
 	MDRV_NVRAM_HANDLER(ssv)
 	/* video hardware */
-	MDRV_VISIBLE_AREA(0, 0x158-1, 0, 0xf0-1)
+	MDRV_VISIBLE_AREA(0, 0x158-1, 1, 0xf0-1)
 MACHINE_DRIVER_END
 
 
@@ -3582,7 +3570,7 @@ static MACHINE_DRIVER_START( eaglshot )
 	MDRV_NVRAM_HANDLER(ssv)
 
 	/* video hardware */
-	MDRV_VISIBLE_AREA(0, 0x140-1, 8, 0xe8-1)
+	MDRV_VISIBLE_AREA(0, 0x140-1, 4, 0xe8-1)
 
 	MDRV_GFXDECODE(eaglshot_gfxdecodeinfo)
 	MDRV_VIDEO_START(eaglshot)
@@ -5253,7 +5241,7 @@ GAME( 1997,  mslider,  0,        mslider,  mslider,  mslider,  ROT0,   "Visco / 
 GAME( 1997,  srmp7,    0,        srmp7,    srmp7,    srmp7,    ROT0,   "Seta",               "Super Real Mahjong P7 (Japan)",                    GAME_NO_COCKTAIL | GAME_IMPERFECT_SOUND )
 GAME( 1998,  ryorioh,  0,        ryorioh,  ryorioh,  ryorioh,  ROT0,   "Visco",              "Gourmet Battle Quiz Ryohrioh CooKing (Japan)",     GAME_NO_COCKTAIL )
 GAME( 1998,  sxyreact, 0,        sxyreact, sxyreact, sxyreact, ROT0,   "Sammy",              "Pachinko Sexy Reaction (Japan)",                   GAME_NO_COCKTAIL )
-GAME( 1999,  sxyreac2, 0,        sxyreact, sxyreact, sxyreac2, ROT0,   "Sammy",              "Pachinko Sexy Reaction 2 (Japan)",                 GAME_NO_COCKTAIL )
+GAME( 1999,  sxyreac2, 0,        sxyreact, sxyreact, sxyreact, ROT0,   "Sammy",              "Pachinko Sexy Reaction 2 (Japan)",                 GAME_NO_COCKTAIL )
 GAME( 1999,  cairblad, 0,        sxyreact, cairblad, sxyreact, ROT270, "Sammy",              "Change Air Blade (Japan)",                         GAME_NO_COCKTAIL )
 GAME( 2000,  janjans2, 0,        janjans1, janjans1, janjans1, ROT0,   "Visco",              "Lovely Pop Mahjong JangJang Shimasho 2 (Japan)",   GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
 GAME( 2000,  vasara,   0,        ryorioh,  vasara,   vasara,   ROT270, "Visco",              "Vasara",                                           GAME_NO_COCKTAIL )
@@ -5266,4 +5254,4 @@ GAME( 2001,  vasara2a, vasara2,  ryorioh,  vasara2,  vasara,   ROT270, "Visco", 
 
 //  Games not working at all:
 
-GAME( 1997,  jsk,      0,        jsk,      janjans1, jsk,      ROT0,   "Visco",              "Joryuu Syougi Kyoushitsu (Japan)",                 GAME_NO_COCKTAIL | GAME_NOT_WORKING )
+GAME( 1997,  jsk,      0,        jsk,      janjans1, janjans1,      ROT0,   "Visco",              "Joryuu Syougi Kyoushitsu (Japan)",                 GAME_NO_COCKTAIL | GAME_NOT_WORKING )
