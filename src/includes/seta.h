@@ -52,6 +52,7 @@ WRITE16_HANDLER( seta2_vregs_w );
 VIDEO_START( seta2 );
 VIDEO_START( seta2_offset );
 VIDEO_UPDATE( seta2 );
+VIDEO_UPDATE( seta2_gun );
 VIDEO_EOF( seta2 );
 
 
