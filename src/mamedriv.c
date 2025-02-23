@@ -3018,6 +3018,7 @@ V-V                           TP-027
 	/* Sega SG1000 based games */
 	DRIVER( chboxing )	/* (c) 1984 */
 	DRIVER( chwrestl )	/* (c) 1985 */
+        DRIVER( dokidoki )	/* (c) 1985 */
 
 	/* Sega System 1 / System 2 games */
 	DRIVER( starjack )	/* 834-5191 (c) 1983 (S1) */
