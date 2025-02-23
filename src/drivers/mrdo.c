@@ -5,10 +5,10 @@ Mr Do!
 driver by Nicola Salmoria
 
 
-Video clock: XTAL = 20 MHz
-Horizontal video frequency: HSYNC = XTAL/4/312 = 16.02564103 kHz
-Video frequency: VSYNC = HSYNC/262 = 61.1665688 Hz
-VBlank duration: 1/VSYNC * (70/262) = 4368 us
+Video clock: XTAL = 19.6 MHz
+Horizontal video frequency: HSYNC = XTAL/4/312 = 15.7051282051 kHz
+Video frequency: VSYNC = HSYNC/262 = 59.94323742 Hz
+VBlank duration: 1/VSYNC * (70/262) = 4457 us
 
 ***************************************************************************/
 
@@ -16,6 +16,8 @@ VBlank duration: 1/VSYNC * (70/262) = 4368 us
 #include "cpu/z80/z80.h"
 #include "sound/sn76496.h"
 
+#define MAIN_CLOCK   8200000	/* XTAL_8_2MHz */
+#define VIDEO_CLOCK 19600000.0	/* XTAL_19_6_MHz */
 
 extern unsigned char *mrdo_bgvideoram,*mrdo_fgvideoram;
 WRITE8_HANDLER( mrdo_bgvideoram_w );
@@ -178,12 +180,12 @@ static const gfx_decode gfxdecodeinfo[] =
 static MACHINE_DRIVER_START( mrdo )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(Z80,8000000/2)	/* 4 MHz */
+	MDRV_CPU_ADD(Z80,MAIN_CLOCK/2)	/* 4.1 MHz */
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
 
-	MDRV_FRAMES_PER_SECOND(5000000.0/312/262)
-	MDRV_VBLANK_DURATION(4368)
+	MDRV_FRAMES_PER_SECOND((VIDEO_CLOCK/4)/312/262)
+	MDRV_VBLANK_DURATION(4457)
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
@@ -200,10 +202,10 @@ static MACHINE_DRIVER_START( mrdo )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(SN76496, 4000000)
+	MDRV_SOUND_ADD(SN76496, MAIN_CLOCK/2)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 
-	MDRV_SOUND_ADD(SN76496, 4000000)
+	MDRV_SOUND_ADD(SN76496, MAIN_CLOCK/2)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
