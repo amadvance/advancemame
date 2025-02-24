@@ -1309,7 +1309,7 @@ VIDEO_UPDATE( eaglshot )
 		}
 	}
 
-	video_update_ssv(bitmap, cliprect);
+	video_update_ssv(screen, bitmap, cliprect);
 }
 
 /*
@@ -1479,7 +1479,7 @@ VIDEO_UPDATE( gdfs )
 {
 	int tile, pri;
 
-	video_update_ssv(bitmap, cliprect);
+	video_update_ssv(screen, bitmap, cliprect);
 
 	// Decode zooming sprites tiles from ram
 	if (eaglshot_dirty)

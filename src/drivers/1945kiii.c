@@ -138,7 +138,7 @@ WRITE16_HANDLER( flagrall_soundbanks_w )
 		ui_popup("unk control %04x", data & 0xfcc9);
 		
     OKIM6295_set_bank_base(0, 0x40000 * ((data & 0x6)>>1) ); 
-
+}
 
 static ADDRESS_MAP_START( k3_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0fffff) AM_READ(MRA16_ROM)
