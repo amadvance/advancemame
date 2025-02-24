@@ -700,7 +700,7 @@ adv_error advance_sound_init(struct advance_sound_context* context, adv_conf* cf
 	conf_string_register_default(cfg_context, "sound_adjust", "auto");
 	conf_int_register_limit_default(cfg_context, "sound_samplerate", 5000, 96000, 44100);
 	conf_bool_register_default(cfg_context, "sound_normalize", 1);
-	conf_float_register_limit_default(cfg_context, "sound_latency", 0.0, 2.0, 0.1);
+	conf_float_register_limit_default(cfg_context, "sound_latency", 0.0, 2.0, 0.2);
 
 	soundb_reg(cfg_context, 1);
 	soundb_reg_driver_all(cfg_context);

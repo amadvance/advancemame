@@ -115,8 +115,8 @@ void play_reg(adv_conf* context)
 	mixer_reg(context);
 	conf_int_register_limit_default(context, "sound_volume", -40, 0, -3);
 	conf_int_register_limit_default(context, "sound_samplerate", 5000, 96000, 44100);
-	conf_float_register_limit_default(context, "sound_latency", 0.01, 2.0, 0.1);
-	conf_float_register_limit_default(context, "sound_buffer", 0.05, 2.0, 0.1);
+	conf_float_register_limit_default(context, "sound_latency", 0.01, 2.0, 0.2);
+	conf_float_register_limit_default(context, "sound_buffer", 0.05, 2.0, 0.2);
 }
 
 bool play_load(adv_conf* context)
