@@ -1744,6 +1744,7 @@ const game_driver * const drivers[] =
 	DRIVER( sciu )		/* C09 (c) 1989 Taito America Corporation (US) */
 	DRIVER( bshark )	/* C34 (c) 1989 Taito America Corporation (US) */
 	DRIVER( bsharkj )	/* C34 (c) 1989 Taito Corporation (Japan) */
+        DRIVER( bsharkjjs )	/* C34 (c) 1989 Taito Corporation (Japan) */
 	DRIVER( aquajack )	/* B77 (c) 1990 Taito Corporation Japan (World) */
 	DRIVER( aquajckj )	/* B77 (c) 1990 Taito Corporation (Japan) */
 	DRIVER( spacegun )	/* C57 (c) 1990 Taito Corporation Japan (World) */
