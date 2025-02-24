@@ -3018,6 +3018,7 @@ V-V                           TP-027
 	/* Sega SG1000 based games */
 	DRIVER( chboxing )	/* (c) 1984 */
 	DRIVER( chwrestl )	/* (c) 1985 */
+        DRIVER( dokidoki )	/* (c) 1985 */
 
 	/* Sega System 1 / System 2 games */
 	DRIVER( starjack )	/* 834-5191 (c) 1983 (S1) */
@@ -7096,6 +7097,7 @@ Other Sun games
 
 	DRIVER( onetwo )	/* (c) 1997 Barko */
 	DRIVER( 1945kiii )	/* (c) 2000 Oriental */
+        DRIVER( flagrall )      /* (c) 1996 Promat? */
 	DRIVER( witch )		/* (c) 1992 Sega / Vic Tokai / Excellent Systems */
 	DRIVER( pbchmp95 )	/* (c) 1995 Veltmeijer Automaten */
 	DRIVER( cardline )	/* (c) 199? Veltmeijer */
