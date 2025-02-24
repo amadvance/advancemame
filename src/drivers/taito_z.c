@@ -4745,5 +4745,5 @@ GAME( 1990, aquajckj, aquajack, aquajack, aquajckj, taitoz,   ROT0,             
 GAME( 1990, spacegun, 0,        spacegun, spacegun, bshark,   ORIENTATION_FLIP_X, "Taito Corporation Japan", "Space Gun (World)", 0 )
 GAME( 1991, dblaxle,  0,        dblaxle,  dblaxle,  taitoz,   ROT0,               "Taito America Corporation", "Double Axle (US)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1991, pwheelsj, dblaxle,  dblaxle,  pwheelsj, taitoz,   ROT0,               "Taito Corporation", "Power Wheels (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1991, racingb,  0,        racingb,  dblaxle,  taitoz,   ROT0,               "Taito Corporation Japan", "Racing Beat (World)", GAME_IMPERFECT_GRAPHICS  )
+GAME( 1991, racingb,  0,        racingb,  racingb,  taitoz,   ROT0,               "Taito Corporation Japan", "Racing Beat (World)", GAME_IMPERFECT_GRAPHICS )
 
