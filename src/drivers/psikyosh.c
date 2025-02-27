@@ -1384,7 +1384,7 @@ GAME( 1999, s1945iii, 0,        psikyo5,     s1945iii, s1945iii, ROT270, "Psikyo
 
 /* ps5v2 */
 GAME( 2000, dragnblz, 0,        psikyo5,     dragnblz, dragnblz, ROT270, "Psikyo", "Dragon Blaze", 0 )
-GAME( 2000, tgm2,     0,      	psikyo5_240, mjgtaste, tgm2,     ROT0,   "Arika"   "Tetris the Absolute The Grand Master 2", 0 )
-GAME( 2000, tgm2p,    tgm2, 	psikyo5_240, mjgtaste, tgm2p,    ROT0,   "Arika",  "Tetris the Absolute The Grand Master 2 Plus", 0 )
+GAME( 2000, tgm2,     0,        psikyo5_240, mjgtaste, tgm2,     ROT0,   "Arika",  "Tetris the Absolute The Grand Master 2", 0 )
+GAME( 2000, tgm2p,    tgm2,     psikyo5_240, mjgtaste, tgm2p,    ROT0,   "Arika",  "Tetris the Absolute The Grand Master 2 Plus", 0 )
 GAME( 2001, gnbarich, 0,        psikyo5,     gnbarich, gnbarich, ROT270, "Psikyo", "Gunbarich", 0 )
 GAME( 2002, mjgtaste, 0,        psikyo5,     mjgtaste, mjgtaste, ROT0,   "Psikyo", "Mahjong G-Taste", GAME_NOT_WORKING )
