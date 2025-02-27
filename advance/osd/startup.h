@@ -30,6 +30,7 @@
 
 /* the first match is used */
 
+{ "tgm2", 22 }, /* 4.1 */
 { "tkmmpzdm", 22 }, /* 4.0 */
 { "3in1semi", 4 }, /* 4.0 */
 { "woodpek", 2 }, /* 4.0 */
