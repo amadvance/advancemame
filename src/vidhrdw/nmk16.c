@@ -13,6 +13,8 @@ static int videoshift;
 static int bioship_background_bank;
 static UINT8 bioship_scroll[4];
 
+extern UINT16 *nmk16_mainram;
+
 static tilemap *bg_tilemap,*fg_tilemap,*tx_tilemap;
 static mame_bitmap *background_bitmap;
 
@@ -80,6 +82,15 @@ static void bjtwin_get_bg_tile_info(int tile_index)
 			0)
 }
 
+static void get_tile_info_0_8bit(int tile_index)
+{
+	int code = nmk_bgvideoram[tile_index];
+	SET_TILE_INFO(
+			1,
+			code,
+			0,
+			0);
+}
 
 
 /***************************************************************************
@@ -92,11 +103,11 @@ VIDEO_START( bioship )
 {
 	bg_tilemap = tilemap_create(macross_get_bg_tile_info,bg_scan,TILEMAP_TRANSPARENT,16,16,256,32);
 	tx_tilemap = tilemap_create(macross_get_tx_tile_info,tilemap_scan_cols,TILEMAP_TRANSPARENT,8,8,32,32);
-	spriteram_old = auto_malloc(spriteram_size);
-	spriteram_old2 = auto_malloc(spriteram_size);
+	spriteram_old = auto_malloc(0x1000);
+	spriteram_old2 = auto_malloc(0x1000);
 	background_bitmap = auto_bitmap_alloc(8192,512);
 
-	if (!bg_tilemap || !background_bitmap)
+	if (!bg_tilemap || !spriteram_old || !spriteram_old2 || !background_bitmap)
 		return 1;
 
 	tilemap_set_transparent_pen(bg_tilemap,15);
@@ -104,8 +115,8 @@ VIDEO_START( bioship )
 	bioship_background_bank=0;
 	redraw_bitmap = 1;
 
-	memset(spriteram_old,0,spriteram_size);
-	memset(spriteram_old2,0,spriteram_size);
+	memset(spriteram_old,0,0x1000);
+	memset(spriteram_old2,0,0x1000);
 
 	videoshift =  0;	/* 256x224 screen, no shift */
 
@@ -117,17 +128,17 @@ VIDEO_START( strahl )
 	bg_tilemap = tilemap_create(macross_get_bg_tile_info,bg_scan,TILEMAP_OPAQUE,16,16,256,32);
 	fg_tilemap = tilemap_create(strahl_get_fg_tile_info, bg_scan,TILEMAP_TRANSPARENT,16,16,256,32);
 	tx_tilemap = tilemap_create(macross_get_tx_tile_info,tilemap_scan_cols,TILEMAP_TRANSPARENT,8,8,32,32);
-	spriteram_old = auto_malloc(spriteram_size);
-	spriteram_old2 = auto_malloc(spriteram_size);
+	spriteram_old = auto_malloc(0x1000);
+	spriteram_old2 = auto_malloc(0x1000);
 
-	if (!bg_tilemap || !fg_tilemap)
+	if (!bg_tilemap || !fg_tilemap || !spriteram_old || !spriteram_old2)
 		return 1;
 
 	tilemap_set_transparent_pen(fg_tilemap,15);
 	tilemap_set_transparent_pen(tx_tilemap,15);
 
-	memset(spriteram_old,0,spriteram_size);
-	memset(spriteram_old2,0,spriteram_size);
+	memset(spriteram_old,0,0x1000);
+	memset(spriteram_old2,0,0x1000);
 
 	videoshift =  0;	/* 256x224 screen, no shift */
 	background_bitmap = NULL;
@@ -138,16 +149,16 @@ VIDEO_START( macross )
 {
 	bg_tilemap = tilemap_create(macross_get_bg_tile_info,bg_scan,TILEMAP_OPAQUE,16,16,256,32);
 	tx_tilemap = tilemap_create(macross_get_tx_tile_info,tilemap_scan_cols,TILEMAP_TRANSPARENT,8,8,32,32);
-	spriteram_old = auto_malloc(spriteram_size);
-	spriteram_old2 = auto_malloc(spriteram_size);
+	spriteram_old = auto_malloc(0x1000);
+	spriteram_old2 = auto_malloc(0x1000);
 
-	if (!bg_tilemap)
+	if (!bg_tilemap || !spriteram_old || !spriteram_old2)
 		return 1;
 
 	tilemap_set_transparent_pen(tx_tilemap,15);
 
-	memset(spriteram_old,0,spriteram_size);
-	memset(spriteram_old2,0,spriteram_size);
+	memset(spriteram_old,0,0x1000);
+	memset(spriteram_old2,0,0x1000);
 
 	videoshift =  0;	/* 256x224 screen, no shift */
 	background_bitmap = NULL;
@@ -159,17 +170,17 @@ VIDEO_START( gunnail )
 {
 	bg_tilemap = tilemap_create(macross_get_bg_tile_info,bg_scan,TILEMAP_OPAQUE,16,16,256,32);
 	tx_tilemap = tilemap_create(macross_get_tx_tile_info,tilemap_scan_cols,TILEMAP_TRANSPARENT,8,8,64,32);
-	spriteram_old = auto_malloc(spriteram_size);
-	spriteram_old2 = auto_malloc(spriteram_size);
+	spriteram_old = auto_malloc(0x1000);
+	spriteram_old2 = auto_malloc(0x1000);
 
-	if (!bg_tilemap)
+	if (!bg_tilemap || !spriteram_old || !spriteram_old2)
 		return 1;
 
 	tilemap_set_transparent_pen(tx_tilemap,15);
 	tilemap_set_scroll_rows(bg_tilemap,512);
 
-	memset(spriteram_old,0,spriteram_size);
-	memset(spriteram_old2,0,spriteram_size);
+	memset(spriteram_old,0,0x1000);
+	memset(spriteram_old2,0,0x1000);
 
 	videoshift = 64;	/* 384x224 screen, leftmost 64 pixels have to be retrieved */
 						/* from the other side of the tilemap (!) */
@@ -182,16 +193,16 @@ VIDEO_START( macross2 )
 {
 	bg_tilemap = tilemap_create(macross_get_bg_tile_info,bg_scan,TILEMAP_OPAQUE,16,16,1024,128);
 	tx_tilemap = tilemap_create(macross_get_tx_tile_info,tilemap_scan_cols,TILEMAP_TRANSPARENT,8,8,64,32);
-	spriteram_old = auto_malloc(spriteram_size);
-	spriteram_old2 = auto_malloc(spriteram_size);
+	spriteram_old = auto_malloc(0x1000);
+	spriteram_old2 = auto_malloc(0x1000);
 
-	if (!bg_tilemap)
+	if (!bg_tilemap || !spriteram_old || !spriteram_old2)
 		return 1;
 
 	tilemap_set_transparent_pen(tx_tilemap,15);
 
-	memset(spriteram_old,0,spriteram_size);
-	memset(spriteram_old2,0,spriteram_size);
+	memset(spriteram_old,0,0x1000);
+	memset(spriteram_old2,0,0x1000);
 
 	videoshift = 64;	/* 384x224 screen, leftmost 64 pixels have to be retrieved */
 						/* from the other side of the tilemap (!) */
@@ -203,16 +214,16 @@ VIDEO_START( tdragon2 )
 {
 	bg_tilemap = tilemap_create(macross_get_bg_tile_info,bg_scan_td2,TILEMAP_OPAQUE,16,16,1024,32);
 	tx_tilemap = tilemap_create(macross_get_tx_tile_info,tilemap_scan_cols,TILEMAP_TRANSPARENT,8,8,64,32);
-	spriteram_old = auto_malloc(spriteram_size);
-	spriteram_old2 = auto_malloc(spriteram_size);
+	spriteram_old = auto_malloc(0x1000);
+	spriteram_old2 = auto_malloc(0x1000);
 
-	if (!bg_tilemap)
+	if (!bg_tilemap || !spriteram_old || !spriteram_old2)
 		return 1;
 
 	tilemap_set_transparent_pen(tx_tilemap,15);
 
-	memset(spriteram_old,0,spriteram_size);
-	memset(spriteram_old2,0,spriteram_size);
+	memset(spriteram_old,0,0x1000);
+	memset(spriteram_old2,0,0x1000);
 
 	videoshift = 64;	/* 384x224 screen, leftmost 64 pixels have to be retrieved */
 						/* from the other side of the tilemap (!) */
@@ -223,14 +234,14 @@ VIDEO_START( tdragon2 )
 VIDEO_START( bjtwin )
 {
 	bg_tilemap = tilemap_create(bjtwin_get_bg_tile_info,tilemap_scan_cols,TILEMAP_OPAQUE,8,8,64,32);
-	spriteram_old = auto_malloc(spriteram_size);
-	spriteram_old2 = auto_malloc(spriteram_size);
+	spriteram_old = auto_malloc(0x1000);
+	spriteram_old2 = auto_malloc(0x1000);
 
-	if (!bg_tilemap)
+	if (!bg_tilemap || !spriteram_old || !spriteram_old2)
 		return 1;
 
-	memset(spriteram_old,0,spriteram_size);
-	memset(spriteram_old2,0,spriteram_size);
+	memset(spriteram_old,0,0x1000);
+	memset(spriteram_old2,0,0x1000);
 
 	videoshift = 64;	/* 384x224 screen, leftmost 64 pixels have to be retrieved */
 						/* from the other side of the tilemap (!) */
@@ -300,36 +311,7 @@ WRITE16_HANDLER( nmk_txvideoram_w )
 	}
 }
 
-static int mustang_bg_xscroll;
-
 WRITE16_HANDLER( mustang_scroll_w )
-{
-//  printf("mustang %04x %04x %04x\n",offset,data,mem_mask);
-
-	switch (data & 0xff00)
-	{
-		case 0x0000:
-			mustang_bg_xscroll = (mustang_bg_xscroll & 0x00ff) | ((data & 0x00ff)<<8);
-			break;
-
-		case 0x0100:
-			mustang_bg_xscroll = (mustang_bg_xscroll & 0xff00) | (data & 0x00ff);
-			break;
-
-		case 0x0200:
-			break;
-
-		case 0x0300:
-			break;
-
-		default:
-			break;
-	}
-
-	tilemap_set_scrollx(bg_tilemap,0,mustang_bg_xscroll - videoshift);
-}
-
-WRITE16_HANDLER( bioshipbg_scroll_w )
 {
 	static UINT8 scroll[4];
 
@@ -455,17 +437,15 @@ WRITE16_HANDLER( gunnail_scrolly_w )
 
 ***************************************************************************/
 
-extern int is_blkheart;
-
 // manybloc uses extra flip bits on the sprites, but these break other games
 
-static void draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int priority)
+static void nmk16_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int priority)
 {
 	int offs;
 
-	for (offs = 0;offs < spriteram_size/2;offs += 8)
+	for (offs = 0;offs < 0x1000/2;offs += 8)
 	{
-		if ((spriteram_old2[offs] & 0x0001) || (spriteram_old2[offs] && is_blkheart))
+		if (spriteram_old2[offs] & 0x0001)
 		{
 			int sx = (spriteram_old2[offs+4] & 0x1ff) + videoshift;
 			int sy = (spriteram_old2[offs+6] & 0x1ff);
@@ -477,8 +457,7 @@ static void draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int pri
 			int xx,yy,x;
 			int delta = 16;
 
-			if(pri != priority)
-				continue;
+			if (pri!=priority) continue;
 
 			if (flip_screen)
 			{
@@ -500,65 +479,6 @@ static void draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int pri
 							flip_screen, flip_screen,
 							((x + 16) & 0x1ff) - 16,sy & 0x1ff,
 							cliprect,TRANSPARENCY_PEN,15);
-					code++;
-					x += delta;
-				} while (--xx >= 0);
-
-				sy += delta;
-			} while (--yy >= 0);
-		}
-	}
-}
-
-/* sprites have flipping and are not delayed 2 frames */
-static void manybloc_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int priority)
-{
-	int offs;
-
-	for (offs = 0;offs < spriteram_size/2;offs += 8)
-	{
-		if ((spriteram16[offs] & 0x0001) || (spriteram16[offs] && is_blkheart))
-		{
-			int sx = (spriteram16[offs+4] & 0x1ff) + videoshift;
-			int sy = (spriteram16[offs+6] & 0x1ff);
-			int code = spriteram16[offs+3];
-			int color = spriteram16[offs+7];
-			int w = (spriteram16[offs+1] & 0x0f);
-			int h = ((spriteram16[offs+1] & 0xf0) >> 4);
-			int pri = (spriteram16[offs] & 0xc0) >> 6;
-			/* these would break some of the nmk games ... */
-			int flipy= ((spriteram16[offs+1] & 0x0200) >> 9);
-			int flipx = ((spriteram16[offs+1] & 0x0100) >> 8);
-
-			int xx,yy,x;
-			int delta = 16;
-
-			if(pri != priority)
-				continue;
-
-			flipx ^= flip_screen;
-			flipy ^= flip_screen;
-
-			if (flip_screen)
-			{
-				sx = 368 - sx;
-				sy = 240 - sy;
-				delta = -16;
-			}
-
-			yy = h;
-			do
-			{
-				x = sx;
-				xx = w;
-				do
-				{
-					drawgfx(bitmap,Machine->gfx[2],
-							code,
-							color,
-							flipx, flipy,
-							((x + 16) & 0x1ff) - 16,sy & 0x1ff,
-							cliprect,TRANSPARENCY_PEN,15);
 
 					code++;
 					x += delta;
@@ -570,23 +490,23 @@ static void manybloc_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect
 	}
 }
 
-static void tharrier_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int priority)
+static void nmk16_draw_sprites_flipsupported(mame_bitmap *bitmap, const rectangle *cliprect, int priority)
 {
 	int offs;
 
-	for (offs = 0;offs < spriteram_size/2;offs += 8)
+	for (offs = 0;offs < 0x1000/2;offs += 8)
 	{
-		if ((spriteram16[offs] & 0x0001) || (spriteram16[offs] && is_blkheart))
+		if (spriteram_old2[offs] & 0x0001)
 		{
-			int sx = (spriteram16[offs+4] & 0x1ff) + videoshift;
-			int sy = (spriteram16[offs+6] & 0x1ff);
-			int code = spriteram16[offs+3];
-			int color = spriteram16[offs+7];
-			int w = (spriteram16[offs+1] & 0x0f);
-			int h = ((spriteram16[offs+1] & 0xf0) >> 4);
-			int pri = (spriteram16[offs] & 0xc0) >> 6;
-			int flipy= ((spriteram16[offs+1] & 0x0200) >> 9);
-			int flipx = ((spriteram16[offs+1] & 0x0100) >> 8);
+			int sx = (spriteram_old2[offs+4] & 0x1ff) + videoshift;
+			int sy = (spriteram_old2[offs+6] & 0x1ff);
+			int code = spriteram_old2[offs+3];
+			int color = spriteram_old2[offs+7];
+			int w = (spriteram_old2[offs+1] & 0x0f);
+			int h = ((spriteram_old2[offs+1] & 0xf0) >> 4);
+			int pri = (spriteram_old2[offs] & 0xc0) >> 6;
+			int flipy= ((spriteram_old2[offs+1] & 0x0200) >> 9);
+			int flipx = ((spriteram_old2[offs+1] & 0x0100) >> 8);
 
 			int xx,yy,x;
 			int delta = 16;
@@ -594,11 +514,10 @@ static void tharrier_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect
 			if(pri != priority)
 				continue;
 
-			flipx ^= flip_screen;
-			flipy ^= flip_screen;
-
 			if (flip_screen)
 			{
+				flipx ^= 1;
+				flipy ^= 1;
 				sx = 368 - sx;
 				sy = 240 - sy;
 				delta = -16;
@@ -638,165 +557,12 @@ VIDEO_UPDATE( macross )
 	tilemap_set_scrollx(tx_tilemap,0,-videoshift);
 
 	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
-	draw_sprites(bitmap,cliprect,3);
-	draw_sprites(bitmap,cliprect,2);
-	draw_sprites(bitmap,cliprect,1);
-	draw_sprites(bitmap,cliprect,0);
-	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
-}
 
-extern UINT16 *mcu_shared_ram;
-extern UINT16 *mcu_work_ram;
+	nmk16_draw_sprites(bitmap,cliprect,3);
+	nmk16_draw_sprites(bitmap,cliprect,2);
+	nmk16_draw_sprites(bitmap,cliprect,1);
+	nmk16_draw_sprites(bitmap,cliprect,0);
 
-/*coin setting MCU simulation*/
-static void mcu_run(UINT8 dsw_setting)
-{
-	static UINT8 read_coin;
-	static UINT8 old_value;
-	static UINT8 coina,coinb;
-	UINT8 dsw_a,dsw_b;
-	/*needed because of the uncompatibility of the dsw settings.*/
-	if(dsw_setting)
-	{
-		dsw_a = (readinputport(2+dsw_setting) & 0x7);
-		dsw_b = (readinputport(2+dsw_setting) & 0x38) >> 3;
-	}
-	else
-	{
-		dsw_a = (readinputport(2) & 0x0700) >> 8;
-		dsw_b = (readinputport(2) & 0x3800) >> 11;
-	}
-
-	read_coin = old_value;
-	old_value = readinputport(0);
-
-	if(dsw_a == 0 || dsw_b == 0)
-		mcu_work_ram[0x000/2]|=0x4000; //free_play
-
-	if(read_coin != old_value)
-	{
-		if(!(readinputport(0) & 0x01))//COIN1
-		{
-			switch(dsw_a & 7)
-			{
-				case 1: mcu_shared_ram[0xf00/2]+=4; break;
-				case 2: mcu_shared_ram[0xf00/2]+=3; break;
-				case 3: mcu_shared_ram[0xf00/2]+=2; break;
-				case 4:
-				coina++;
-				if(coina >= 4)
-				{
-					coina = 0;
-					mcu_shared_ram[0xf00/2]++;
-				}
-				break;
-				case 5:
-				coina++;
-				if(coina >= 3)
-				{
-					coina = 0;
-					mcu_shared_ram[0xf00/2]++;
-				}
-				break;
-				case 6:
-				coina++;
-				if(coina >= 2)
-				{
-					coina = 0;
-					mcu_shared_ram[0xf00/2]++;
-				}
-				break;
-				case 7: mcu_shared_ram[0xf00/2]++; break;
-			}
-		}
-
-		if(!(readinputport(0) & 0x02))//COIN2
-		{
-			switch(dsw_b & 7)
-			{
-				case 1: mcu_shared_ram[0xf00/2]+=4; break;
-				case 2: mcu_shared_ram[0xf00/2]+=3; break;
-				case 3: mcu_shared_ram[0xf00/2]+=2; break;
-				case 4:
-				coinb++;
-				if(coinb >= 4)
-				{
-					coinb = 0;
-					mcu_shared_ram[0xf00/2]++;
-				}
-				break;
-				case 5:
-				coinb++;
-				if(coinb >= 3)
-				{
-					coinb = 0;
-					mcu_shared_ram[0xf00/2]++;
-				}
-				break;
-				case 6:
-				coinb++;
-				if(coinb >= 2)
-				{
-					coinb = 0;
-					mcu_shared_ram[0xf00/2]++;
-				}
-				break;
-				case 7: mcu_shared_ram[0xf00/2]++; break;
-			}
-		}
-
-		if(!(readinputport(0) & 0x04))//SERVICE_COIN
-			mcu_shared_ram[0xf00/2]++;
-
-		if(mcu_shared_ram[0xf00/2] >= 1 && (mcu_work_ram[0x000/2] & 0x8000))/*enable start button*/
-		{
-			/*Start a 1-player game,but don't decrement if the player 1 is already playing*/
-			if((!(readinputport(0) & 0x08)) /*START1*/
-			&& (!(mcu_work_ram[0x000/2] & 0x0200)) /*PLAYER-1 playing*/
-			)
-				mcu_shared_ram[0xf00/2]--;
-
-			/*Start a 2-players game,but don't decrement if the player 2 is already playing*/
-			if((!(readinputport(0) & 0x10))
-			&& (!(mcu_work_ram[0x000/2] & 0x0100))
-			)
-			{
-				if(!(mcu_work_ram[0x000/2] & 0x0200) && mcu_shared_ram[0xf00/2] >= 2)
-					mcu_shared_ram[0xf00/2]-=2;
-				else
-					mcu_shared_ram[0xf00/2]--;
-			}
-		}
-
-		if(mcu_shared_ram[0xf00/2] > 99) mcu_shared_ram[0xf00/2] = 99;
-	}
-}
-
-VIDEO_UPDATE( tdragon )
-{
-	mcu_run(1);
-
-	tilemap_set_scrollx(tx_tilemap,0,-videoshift);
-
-	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
-	draw_sprites(bitmap,cliprect,3);
-	draw_sprites(bitmap,cliprect,2);
-	draw_sprites(bitmap,cliprect,1);
-	draw_sprites(bitmap,cliprect,0);
-	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
-}
-
-VIDEO_UPDATE( hachamf )
-{
-	mcu_run(0);
-
-	tilemap_set_scrollx(tx_tilemap,0,-videoshift);
-
-	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
-	draw_sprites(bitmap,cliprect,3);
-	draw_sprites(bitmap,cliprect,2);
-	draw_sprites(bitmap,cliprect,1);
-	draw_sprites(bitmap,cliprect,0);
 	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
 }
 
@@ -805,22 +571,29 @@ VIDEO_UPDATE( manybloc )
 	tilemap_set_scrollx(tx_tilemap,0,-videoshift);
 
 	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
-	manybloc_draw_sprites(bitmap,cliprect,3);
-	manybloc_draw_sprites(bitmap,cliprect,2);
-	manybloc_draw_sprites(bitmap,cliprect,1);
-	manybloc_draw_sprites(bitmap,cliprect,0);
+
+	nmk16_draw_sprites_flipsupported(bitmap,cliprect,3);
+	nmk16_draw_sprites_flipsupported(bitmap,cliprect,2);
+	nmk16_draw_sprites_flipsupported(bitmap,cliprect,1);
+	nmk16_draw_sprites_flipsupported(bitmap,cliprect,0);
+
 	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
 }
 
 VIDEO_UPDATE( tharrier )
 {
+	tharrier_scroll = nmk16_mainram[0x9f00/2];
+
 	tilemap_set_scrollx(tx_tilemap,0,-videoshift);
 	tilemap_set_scrollx(bg_tilemap,0,tharrier_scroll);
+
 	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
-	tharrier_draw_sprites(bitmap,cliprect,3);
-	tharrier_draw_sprites(bitmap,cliprect,2);
-	tharrier_draw_sprites(bitmap,cliprect,1);
-	tharrier_draw_sprites(bitmap,cliprect,0);
+
+	nmk16_draw_sprites_flipsupported(bitmap,cliprect,3);
+	nmk16_draw_sprites_flipsupported(bitmap,cliprect,2);
+	nmk16_draw_sprites_flipsupported(bitmap,cliprect,1);
+	nmk16_draw_sprites_flipsupported(bitmap,cliprect,0);
+
 	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
 }
 
@@ -881,10 +654,12 @@ VIDEO_UPDATE( bioship )
 
 	copyscrollbitmap(bitmap,background_bitmap,1,&scrollx,1,&scrolly,cliprect,TRANSPARENCY_NONE,0);
 	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
-	draw_sprites(bitmap,cliprect,3);
-	draw_sprites(bitmap,cliprect,2);
-	draw_sprites(bitmap,cliprect,1);
-	draw_sprites(bitmap,cliprect,0);
+
+	nmk16_draw_sprites(bitmap,cliprect,3);
+	nmk16_draw_sprites(bitmap,cliprect,2);
+	nmk16_draw_sprites(bitmap,cliprect,1);
+	nmk16_draw_sprites(bitmap,cliprect,0);
+
 	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
 }
 
@@ -894,10 +669,12 @@ VIDEO_UPDATE( strahl )
 
 	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
 	tilemap_draw(bitmap,cliprect,fg_tilemap,0,0);
-	draw_sprites(bitmap,cliprect,3);
-	draw_sprites(bitmap,cliprect,2);
-	draw_sprites(bitmap,cliprect,1);
-	draw_sprites(bitmap,cliprect,0);
+
+	nmk16_draw_sprites(bitmap,cliprect,3);
+	nmk16_draw_sprites(bitmap,cliprect,2);
+	nmk16_draw_sprites(bitmap,cliprect,1);
+	nmk16_draw_sprites(bitmap,cliprect,0);
+
 	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
 }
 
@@ -906,15 +683,35 @@ VIDEO_UPDATE( bjtwin )
 	tilemap_set_scrollx(bg_tilemap,0,-videoshift);
 
 	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
-	draw_sprites(bitmap,cliprect,3);
-	draw_sprites(bitmap,cliprect,2);
-	draw_sprites(bitmap,cliprect,1);
-	draw_sprites(bitmap,cliprect,0);
+
+	nmk16_draw_sprites(bitmap,cliprect,3);
+	nmk16_draw_sprites(bitmap,cliprect,2);
+	nmk16_draw_sprites(bitmap,cliprect,1);
+	nmk16_draw_sprites(bitmap,cliprect,0);
+}
+
+VIDEO_UPDATE( hachamf )
+{
+	tilemap_set_scrollx(tx_tilemap,0,-videoshift);
+
+	tilemap_draw(bitmap,cliprect,bg_tilemap,0,0);
+
+	nmk16_draw_sprites(bitmap,cliprect,3);
+	nmk16_draw_sprites(bitmap,cliprect,2);
+	nmk16_draw_sprites(bitmap,cliprect,1);
+	nmk16_draw_sprites(bitmap,cliprect,0);
+
+	tilemap_draw(bitmap,cliprect,tx_tilemap,0,0);
 }
 
 VIDEO_EOF( nmk )
 {
 	/* looks like sprites are *two* frames ahead */
-	memcpy(spriteram_old2,spriteram_old,spriteram_size);
-	memcpy(spriteram_old,spriteram16,spriteram_size);
+	memcpy(spriteram_old2,nmk16_mainram+0x8000/2,0x1000);
+}
+
+VIDEO_EOF( strahl )
+{
+	/* looks like sprites are *two* frames ahead */
+	memcpy(spriteram_old2,nmk16_mainram+0xf000/2,0x1000);
 }
