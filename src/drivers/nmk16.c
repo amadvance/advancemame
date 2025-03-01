@@ -4991,7 +4991,7 @@ GAME( 1991, blkhearj, blkheart,macross,  blkheart, 0,        ROT0,   "UPL",				 
 GAME( 1991, acrobatm, 0,       acrobatm, acrobatm, 0,        ROT270, "UPL (Taito license)",		    "Acrobat Mission", GAME_IMPERFECT_SOUND )
 GAME( 1992, strahl,   0,       strahl,   strahl,   0,        ROT0,   "UPL",				    "Koutetsu Yousai Strahl (Japan set 1)", GAME_IMPERFECT_SOUND )
 GAME( 1992, strahla,  strahl,  strahl,   strahl,   0,        ROT0,   "UPL",			            "Koutetsu Yousai Strahl (Japan set 2)", GAME_IMPERFECT_SOUND )
-GAME( 1991, tdragon,  0,       tdragon,  tdragon,  tdragon,  ROT270, "NMK (Tecmo license)",		    "Thunder Dragon", GAME_IMPERFECT_SOUND )
+GAME( 1991, tdragon,  0,       tdragon,  tdragon,  tdragon,  ROT270, "NMK (Tecmo license)",		    "Thunder Dragon (unprotected)", GAME_IMPERFECT_SOUND )
 GAME( 1991, tdragonb, tdragon, tdragonb, tdragonb, tdragonb, ROT270, "NMK / Tecmo",			    "Thunder Dragon (Bootleg)", 0 )
 GAME( 1992, ssmissin, 0,       ssmissin, ssmissin, ssmissin, ROT270, "Comad",				    "S.S. Mission", GAME_NO_COCKTAIL )
 GAME( 1996, airattck, 0,       ssmissin, airattck, ssmissin, ROT270, "Comad",				    "Air Attack", GAME_NO_COCKTAIL )
