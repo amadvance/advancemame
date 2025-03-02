@@ -885,6 +885,8 @@ static void push_object(UINT32 tex_adr, UINT32 poly_adr, UINT32 size)
 			lumval>>=2;	//there must be a luma translation table somewhere
 			if(lumval>0x3f)
 				lumval=0x3f;
+			if (lumval<0)
+				lumval = 0;
 			r=(model1_color_xlat[(r<<8)|lumval|0x0]>>3)&0x1f;
 			g=(model1_color_xlat[(g<<8)|lumval|0x2000]>>3)&0x1f;
 			b=(model1_color_xlat[(b<<8)|lumval|0x4000]>>3)&0x1f;
