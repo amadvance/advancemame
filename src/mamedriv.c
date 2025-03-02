@@ -5506,6 +5506,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tdragon )	/* (c) 1991 NMK / Tecmo */
 	DRIVER( tdragonb )	/* bootleg */
 	DRIVER( hachamf )	/* (c) 1991 NMK */
+        DRIVER( hachamfb )	/* bootleg */
 	DRIVER( macross )	/* (c) 1992 Banpresto */
 	DRIVER( riot )		/* (c) 1992 NMK */
 	DRIVER( gunnail )	/* (c) 1993 NMK / Tecmo */
