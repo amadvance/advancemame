@@ -3718,10 +3718,11 @@ static MACHINE_DRIVER_START( raphero )
 	MDRV_CPU_PROGRAM_MAP(macross2_readmem,raphero_writemem)
 	MDRV_CPU_VBLANK_INT(irq4_line_hold,1)
 	MDRV_CPU_PERIODIC_INT(irq1_line_hold,TIME_IN_HZ(112))/* ???????? */
-/*
+
 	MDRV_CPU_ADD(TMP90841, 8000000)
+        /* audio CPU */ /* 8 MHz */
 	MDRV_CPU_PROGRAM_MAP(raphero_sound_map,0)
-*/
+
 	MDRV_FRAMES_PER_SECOND(56) // measured
 	MDRV_VBLANK_DURATION(TIME_IN_USEC(2500))
 	MDRV_MACHINE_RESET(nmk16)
