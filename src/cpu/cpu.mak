@@ -421,7 +421,18 @@ DBGOBJS += $(OBJ)/cpu/konami/knmidasm.o
 $(OBJ)/cpu/konami/konami.o: konami.c konami.h konamops.c konamtbl.c
 endif
 
+#-------------------------------------------------
+# Fujitsu MB86233
+#-------------------------------------------------
 
+CPUDEFS += -DHAS_MB86233=$(if $(filter MB86233,$(CPUS)),1,0)
+
+ifneq ($(filter MB86233,$(CPUS)),)
+OBJDIRS += $(OBJ)/cpu/mb86233
+CPUOBJS += $(OBJ)/cpu/mb86233/mb86233.o
+DBGOBJS += $(OBJ)/cpu/mb86233/mb86233d.o
+$(OBJ)/cpu/mb86233/mb86233.o: mb86233.c mb86233.h
+endif
 
 #-------------------------------------------------
 # Microchip PIC16C5x

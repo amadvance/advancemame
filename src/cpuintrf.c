@@ -170,6 +170,7 @@ void tmp90840_get_info(UINT32 state, union cpuinfo *info);
 void tmp90841_get_info(UINT32 state, union cpuinfo *info);
 void tmp91640_get_info(UINT32 state, union cpuinfo *info);
 void tmp91641_get_info(UINT32 state, union cpuinfo *info);
+void mb86233_get_info(UINT32 state, union cpuinfo *info);
 
 #ifdef MESS
 void apexc_get_info(UINT32 state, union cpuinfo *info);
@@ -684,6 +685,9 @@ static const struct
 	{ CPU_TMP90841, tmp90841_get_info },
 	{ CPU_TMP91640, tmp91640_get_info },
 	{ CPU_TMP91641, tmp91641_get_info },
+#endif
+#if (HAS_MB86233)
+	{ CPU_MB86233, mb86233_get_info },
 #endif
 
 #ifdef MESS
