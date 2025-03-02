@@ -1062,11 +1062,17 @@ static ADDRESS_MAP_START( raphero_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x1f0000, 0x1fffff) AM_WRITE(MWA16_RAM) AM_BASE(&nmk16_mainram)	/* Work RAM again */
 ADDRESS_MAP_END
 
-
+/*
 static WRITE8_HANDLER( raphero_sound_rombank_w )
 {
 	int bank = data & 7;
 	memory_set_bankptr(1,memory_region(REGION_CPU2) + 0x10000 + (bank * 0x4000));
+}
+*/
+
+static WRITE8_HANDLER( raphero_sound_rombank_w )
+{
+	memory_set_bankptr(1,memory_region(REGION_CPU2) + 0x10000 + (data & 0x07) * 0x4000);
 }
 
 static ADDRESS_MAP_START( raphero_sound_map, ADDRESS_SPACE_PROGRAM, 8 )
