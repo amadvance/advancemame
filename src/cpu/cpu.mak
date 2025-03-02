@@ -961,6 +961,21 @@ endif
 
 
 #-------------------------------------------------
+# Toshiba TLCS-90 Series
+#@src/emu/cpu/tlcs90/tlcs90.h,CPUS += TLCS90
+#-------------------------------------------------
+
+ifneq ($(filter TLCS90,$(CPUS)),)
+OBJDIRS += $(OBJ)/cpu/tlcs90
+CPUOBJS += $(OBJ)/cpu/tlcs90/tlcs90.o
+DBGOBJS += $(OBJ)/cpu/tlcs90/tlcs90.o
+endif
+
+$(CPUOBJ)/tlcs90/tlcs90.o:  $(CPUSRC)/tlcs90/tlcs90.c $(CPUSRC)/tlcs90/tlcs90.h
+
+
+
+#-------------------------------------------------
 # Zilog Z80
 #-------------------------------------------------
 

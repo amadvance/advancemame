@@ -166,6 +166,10 @@ void dsp56k_get_info(UINT32 state, union cpuinfo *info);
 void rsp_get_info(UINT32 state, union cpuinfo *info);
 void alpha8201_get_info(UINT32 state, union cpuinfo *info);
 void alpha8301_get_info(UINT32 state, union cpuinfo *info);
+void tmp90840_get_info(UINT32 state, union cpuinfo *info);
+void tmp90841_get_info(UINT32 state, union cpuinfo *info);
+void tmp91640_get_info(UINT32 state, union cpuinfo *info);
+void tmp91641_get_info(UINT32 state, union cpuinfo *info);
 
 #ifdef MESS
 void apexc_get_info(UINT32 state, union cpuinfo *info);
@@ -674,6 +678,12 @@ static const struct
 #endif
 #if (HAS_ALPHA8301)
 	{ CPU_ALPHA8301, alpha8301_get_info },
+#endif
+#if (HAS_TLCS90)
+	{ CPU_TMP90840, tmp90840_get_info },
+	{ CPU_TMP90841, tmp90841_get_info },
+	{ CPU_TMP91640, tmp91640_get_info },
+	{ CPU_TMP91641, tmp91641_get_info },
 #endif
 
 #ifdef MESS

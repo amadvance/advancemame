@@ -160,6 +160,7 @@ CPUS += DSP56156
 CPUS += RSP
 CPUS += ALPHA8201
 CPUS += ALPHA8301
+CPUS += TLCS90
 
 
 #-------------------------------------------------
