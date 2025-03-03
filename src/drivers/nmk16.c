@@ -1048,6 +1048,25 @@ static ADDRESS_MAP_START( macross2_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x1f0000, 0x1fffff) AM_WRITE(MWA16_RAM) AM_BASE(&nmk16_mainram)	/* Work RAM again */
 ADDRESS_MAP_END
 
+static READ16_HANDLER( raphero_sound_result_r )
+{
+	return soundlatch2_r(0);
+}
+
+static ADDRESS_MAP_START( raphero_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x07ffff) AM_READ(MRA16_ROM)
+	AM_RANGE(0x100000, 0x100001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x100002, 0x100003) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x100008, 0x100009) AM_READ(input_port_2_word_r)
+	AM_RANGE(0x10000a, 0x10000b) AM_READ(input_port_3_word_r)
+	AM_RANGE(0x10000e, 0x10000f) AM_READ(raphero_sound_result_r)	/* from Z80 */
+	AM_RANGE(0x120000, 0x1207ff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x140000, 0x14ffff) AM_READ(nmk_bgvideoram_r)
+	AM_RANGE(0x170000, 0x170fff) AM_READ(nmk_txvideoram_r)
+	AM_RANGE(0x171000, 0x171fff) AM_READ(nmk_txvideoram_r)	/* mirror */
+	AM_RANGE(0x1f0000, 0x1fffff) AM_READ(MRA16_RAM)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( raphero_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x07ffff) AM_WRITE(MWA16_ROM)
 	AM_RANGE(0x100014, 0x100015) AM_WRITE(nmk_flipscreen_w)
@@ -3721,7 +3740,7 @@ static MACHINE_DRIVER_START( raphero )
 
 	/* basic machine hardware */
 	MDRV_CPU_ADD(M68000, 14000000) /* 14 MHz measured */
-	MDRV_CPU_PROGRAM_MAP(macross2_readmem,raphero_writemem)
+	MDRV_CPU_PROGRAM_MAP(raphero_readmem,raphero_writemem)
 	MDRV_CPU_VBLANK_INT(irq4_line_hold,1)
 	MDRV_CPU_PERIODIC_INT(irq1_line_hold,TIME_IN_HZ(112))/* ???????? */
 
