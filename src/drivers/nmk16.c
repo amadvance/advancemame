@@ -1081,18 +1081,14 @@ static ADDRESS_MAP_START( raphero_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x1f0000, 0x1fffff) AM_WRITE(MWA16_RAM) AM_BASE(&nmk16_mainram)	/* Work RAM again */
 ADDRESS_MAP_END
 
-/*
+
 static WRITE8_HANDLER( raphero_sound_rombank_w )
 {
 	int bank = data & 7;
 	memory_set_bankptr(1,memory_region(REGION_CPU2) + 0x10000 + (bank * 0x4000));
 }
-*/
 
-static WRITE8_HANDLER( raphero_sound_rombank_w )
-{
-	memory_set_bankptr(1,memory_region(REGION_CPU2) + 0x10000 + (data & 0x07) * 0x4000);
-}
+
 
 static ADDRESS_MAP_START( raphero_sound_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE( 0x0000, 0x7fff ) AM_ROM
@@ -3768,15 +3764,18 @@ static MACHINE_DRIVER_START( raphero )
 
 	MDRV_SOUND_ADD(YM2203, 1500000)
 	MDRV_SOUND_CONFIG(ym2203_interface)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.90)
+	MDRV_SOUND_ROUTE(0, "mono", 0.70)
+	MDRV_SOUND_ROUTE(1, "mono", 0.70)
+	MDRV_SOUND_ROUTE(2, "mono", 0.70)
+	MDRV_SOUND_ROUTE(3, "mono", 1.00)
 
 	MDRV_SOUND_ADD(OKIM6295, 16000000/4/165)
 	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.20)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.10)
 
 	MDRV_SOUND_ADD(OKIM6295, 16000000/4/165)
 	MDRV_SOUND_CONFIG(okim6295_interface_region_2)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.20)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.10)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( bjtwin )
@@ -5028,7 +5027,7 @@ GAME( 1993, gunnail,  0,       gunnail,  gunnail,  nmk,      ROT270, "NMK / Tecm
 GAME( 1993, macross2, 0,       macross2, macross2, 0,        ROT0,   "Banpresto",			    "Super Spacefortress Macross II / Chou-Jikuu Yousai Macross II", GAME_NO_COCKTAIL )
 GAME( 1993, tdragon2, 0,       tdragon2, tdragon2, 0,        ROT270, "NMK",				    "Thunder Dragon 2", GAME_NO_COCKTAIL )
 GAME( 1993, bigbang,  tdragon2,tdragon2, tdragon2, 0,        ROT270, "NMK",				    "Big Bang", GAME_NO_COCKTAIL )
-GAME( 1994, raphero,  0,       raphero,  tdragon2, 0,        ROT270, "Media Trading Corp",                  "Rapid Hero (Japan)", GAME_NO_SOUND ) // 23rd July 1993 in test mode, (c)1994 on title screen
+GAME( 1994, raphero,  0,       raphero,  tdragon2, 0,        ROT270, "Media Trading Corp",                  "Rapid Hero (Japan)", 0 ) // 23rd July 1993 in test mode, (c)1994 on title screen
 
 GAME( 1992, sabotenb, 0,       bjtwin,   sabotenb, nmk,      ROT0,   "NMK / Tecmo",			    "Saboten Bombers (set 1)", GAME_NO_COCKTAIL )
 GAME( 1992, sabotnba, sabotenb,bjtwin,   sabotenb, nmk,      ROT0,   "NMK / Tecmo",			    "Saboten Bombers (set 2)", GAME_NO_COCKTAIL )
