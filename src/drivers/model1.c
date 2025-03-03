@@ -1620,8 +1620,8 @@ static MACHINE_DRIVER_START( model1_vr )
 MACHINE_DRIVER_END
 
 GAME( 1993, vf,       0,       model1,    vf,       0, ROT0, "Sega", "Virtua Fighter", GAME_IMPERFECT_GRAPHICS )
-GAME( 1992, vr,       0,       model1_vr, vr,       0, ROT0, "Sega", "Virtua Racing", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, vformula, vr,      model1_vr, vr,       0, ROT0, "Sega", "Virtua Formula", GAME_NOT_WORKING | GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, swa,      0,       model1,    swa,      0, ROT0, "Sega", "Star Wars Arcade", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND )
-GAME( 1994, wingwar,  0,       model1,    wingwar,  0, ROT0, "Sega", "Wing War (US)", GAME_NOT_WORKING )
-GAME( 1994, wingwara, wingwar, model1,    wingwar,  0, ROT0, "Sega", "Wing War", GAME_NOT_WORKING )
+GAME( 1992, vr,       0,       model1_vr, vr,       0, ROT0, "Sega", "Virtua Racing", GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, vformula, vr,      model1_vr, vr,       0, ROT0, "Sega", "Virtua Formula", GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, swa,      0,       model1,    swa,      0, ROT0, "Sega", "Star Wars Arcade", GAME_IMPERFECT_SOUND )
+GAME( 1994, wingwar,  0,       model1,    wingwar,  0, ROT0, "Sega", "Wing War (US)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1994, wingwara, wingwar, model1,    wingwar,  0, ROT0, "Sega", "Wing War", GAME_IMPERFECT_GRAPHICS )
