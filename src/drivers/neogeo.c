@@ -7416,6 +7416,43 @@ ROM_START( crswd2bl )
 	ROM_LOAD16_BYTE( "054-c2.c2", 0x000001, 0x400000, CRC(d6c6183d) SHA1(cc546ff063fae2c01c109fabcd5b2d29ec3299db) )
 ROM_END
 
+/* Unlicensed Prototypes */
+
+ROM_START( diggerma )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "dig-p1.bin", 0x000000, 0x080000, CRC(eda433d7) SHA1(abb14c66777ab0fe4ac76a402e253a49df7178d8) )
+
+	NEO_SFIX_128K( "dig-s1.bin", CRC(9b3168f0) SHA1(9be8c625686a1482f7399e5a856cfe2fef25ec52) )
+
+	NEO_BIOS_SOUND_128K( "dig-m1.bin", CRC(e777a234) SHA1(9f3974ac07859337bc0203f903c40ae3f60dc1fb) )
+
+	ROM_REGION( 0x200000, REGION_SOUND1, 0 )
+	ROM_LOAD( "dig-v1.bin", 0x000000, 0x080000, CRC(ee15bda4) SHA1(fe2206728e6efd02d6302869a98b196eb19a17df) )
+
+	ROM_REGION( 0x400000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "dig-c1.bin", 0x000000, 0x080000, CRC(3db0a4ed) SHA1(6214faa883d97ea05809b6af7e0c85a236a18a28) ) /* Plane 0,1 */
+	ROM_LOAD16_BYTE( "dig-c2.bin", 0x000001, 0x080000, CRC(3e632161) SHA1(83711c4286fb1d9f3f91414ac6e5fed36618033e) ) /* Plane 2,3 */
+ROM_END
+
+ROM_START( lasthope )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ngdt-300-p1.bin", 0x000000, 0x100000, CRC(3776a88f) SHA1(ea8b669da06d7c6b5ff7fa97a195f56a9253a7a1) )
+
+	NEO_SFIX_64K( "ngdt-300-s1.bin", CRC(0c0ff9e6) SHA1(c87d1ea8731ac1e63ab960b8182dd1043bcc10bb) )
+
+	NEO_BIOS_SOUND_128K( "ngdt-300-m1.bin", CRC(113c870f) SHA1(854425eb4be0d7fa088a6c3bf6078fdd011707f5) )
+
+	ROM_REGION( 0x600000, REGION_SOUND1, 0 )
+	ROM_LOAD( "ngdt-300-v1.bin", 0x000000, 0x200000, CRC(b765bafe) SHA1(b2048c44089bf250c8dcfabb27c7981e9ee5002a) )
+	ROM_LOAD( "ngdt-300-v2.bin", 0x200000, 0x200000, CRC(9fd0d559) SHA1(09e70d5e1c6e172a33f48feb3e442515c34a8f3d) )
+	ROM_LOAD( "ngdt-300-v3.bin", 0x400000, 0x200000, CRC(6d5107e2) SHA1(4ba74836e3d0421a28af47d3d8341ac16af1d7d7) )
+
+	ROM_REGION( 0x1000000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "ngdt-300-c1.bin", 0x000000, 0x400000, CRC(53ef41b5) SHA1(a8f1fe546403b609e12f0df211c05d7ac479d98d) ) /* Plane 0,1 */
+	ROM_LOAD16_BYTE( "ngdt-300-c2.bin", 0x000001, 0x400000, CRC(f9b15ab3) SHA1(d8ff2f43686bfc8c2f7ead3ef445e51c15dfbf16) ) /* Plane 2,3 */
+	ROM_LOAD16_BYTE( "ngdt-300-c3.bin", 0x800000, 0x400000, CRC(50cc21cf) SHA1(0350aaef480c5fa12e68e540a4c974dbf5870add) ) /* Plane 0,1 */
+	ROM_LOAD16_BYTE( "ngdt-300-c4.bin", 0x800001, 0x400000, CRC(8486ad9e) SHA1(19a2a73c825687e0cb9fd62bde00db91b5409529)) /* Plane 2,3 */
+ROM_END
 
 /******************************************************************************/
 
@@ -8324,3 +8361,9 @@ GAMEB( 2001, vlinero,  vliner,   neogeo, neogeo, vliner,  vliner,   ROT0, "Dyna 
 
 /* Bootleg NeoCD to MVS conversion */
 GAMEB( 1996, crswd2bl, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "bootleg", "Crossed Swords 2 (bootleg of CD version)", 0 )
+
+/* Kyle Hodgetts */
+GAMEB( 2000, diggerma,  neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Kyle Hodgetts", "Digger Man (prototype)", 0 )
+
+/* NG:DEV.TEAM */
+GAMEB( 2005, lasthope,  neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "NG:DEV.TEAM", "Last Hope (bootleg AES to MVS conversion, no coin support)", 0 )
