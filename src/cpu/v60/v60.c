@@ -1,785 +1,2399 @@
-// V60.C
-// Undiscover the beast!
-// Main hacking and coding by Farfetch'd
-// Portability fixes by Richter Belmont
+/*
+ * MUL* and MULU* do not set OV correctly
+ * DIVX: the second operand should be treated as dword instead of word
+ * GETATE, GETPTE and GETRA should not be used
+ * UPDPSW: _CY and _OV must be cleared or unchanged? I suppose
+ *   cleared, like TEST being done on the mask operand.
+ * MOVT: I cannot understand exactly what happens to the result
+ *   when an overflow occurs
+ *
+ * Unimplemented opcodes:
+ * ROTC, UPDATE, UPDPTE
+ */
 
-#include "debugger.h"
-#include "v60.h"
+static UINT32 f12Op1, f12Op2;
+static UINT8 f12Flag1, f12Flag2;
 
-// memory accessors
-#include "v60mem.c"
-
-
-// macros stolen from MAME for flags calc
-// note that these types are in x86 naming:
-// byte = 8 bit, word = 16 bit, long = 32 bit
-
-// parameter x = result, y = source 1, z = source 2
-
-#define SetOFL_Add(x,y,z)	(_OV = (((x) ^ (y)) & ((x) ^ (z)) & 0x80000000) ? 1: 0)
-#define SetOFW_Add(x,y,z)	(_OV = (((x) ^ (y)) & ((x) ^ (z)) & 0x8000) ? 1 : 0)
-#define SetOFB_Add(x,y,z)	(_OV = (((x) ^ (y)) & ((x) ^ (z)) & 0x80) ? 1 : 0)
-
-#define SetOFL_Sub(x,y,z)	(_OV = (((z) ^ (y)) & ((z) ^ (x)) & 0x80000000) ? 1 : 0)
-#define SetOFW_Sub(x,y,z)	(_OV = (((z) ^ (y)) & ((z) ^ (x)) & 0x8000) ? 1 : 0)
-#define SetOFB_Sub(x,y,z)	(_OV = (((z) ^ (y)) & ((z) ^ (x)) & 0x80) ? 1 : 0)
-
-#define SetCFB(x)		{_CY = ((x) & 0x100) ? 1 : 0; }
-#define SetCFW(x)		{_CY = ((x) & 0x10000) ? 1 : 0; }
-#define SetCFL(x)		{_CY = ((x) & (((UINT64)1) << 32)) ? 1 : 0; }
-
-#define SetSF(x)		(_S = (x))
-#define SetZF(x)		(_Z = (x))
-
-#define SetSZPF_Byte(x) 	{_Z = ((UINT8)(x)==0);  _S = ((x)&0x80) ? 1 : 0; }
-#define SetSZPF_Word(x) 	{_Z = ((UINT16)(x)==0);  _S = ((x)&0x8000) ? 1 : 0; }
-#define SetSZPF_Long(x) 	{_Z = ((UINT32)(x)==0);  _S = ((x)&0x80000000) ? 1 : 0; }
-
-#define ORB(dst,src)		{ (dst) |= (src); _CY = _OV = 0; SetSZPF_Byte(dst); }
-#define ORW(dst,src)		{ (dst) |= (src); _CY = _OV = 0; SetSZPF_Word(dst); }
-#define ORL(dst,src)		{ (dst) |= (src); _CY = _OV = 0; SetSZPF_Long(dst); }
-
-#define ANDB(dst,src)		{ (dst) &= (src); _CY = _OV = 0; SetSZPF_Byte(dst); }
-#define ANDW(dst,src)		{ (dst) &= (src); _CY = _OV = 0; SetSZPF_Word(dst); }
-#define ANDL(dst,src)		{ (dst) &= (src); _CY = _OV = 0; SetSZPF_Long(dst); }
-
-#define XORB(dst,src)		{ (dst) ^= (src); _CY = _OV = 0; SetSZPF_Byte(dst); }
-#define XORW(dst,src)		{ (dst) ^= (src); _CY = _OV = 0; SetSZPF_Word(dst); }
-#define XORL(dst,src)		{ (dst) ^= (src); _CY = _OV = 0; SetSZPF_Long(dst); }
-
-#define SUBB(dst, src)		{ unsigned res=(dst)-(src); SetCFB(res); SetOFB_Sub(res,src,dst); SetSZPF_Byte(res); dst=(UINT8)res; }
-#define SUBW(dst, src)		{ unsigned res=(dst)-(src); SetCFW(res); SetOFW_Sub(res,src,dst); SetSZPF_Word(res); dst=(UINT16)res; }
-#define SUBL(dst, src)		{ UINT64 res=(UINT64)(dst)-(INT64)(src); SetCFL(res); SetOFL_Sub(res,src,dst); SetSZPF_Long(res); dst=(UINT32)res; }
-
-#define ADDB(dst, src)		{ unsigned res=(dst)+(src); SetCFB(res); SetOFB_Add(res,src,dst); SetSZPF_Byte(res); dst=(UINT8)res; }
-#define ADDW(dst, src)		{ unsigned res=(dst)+(src); SetCFW(res); SetOFW_Add(res,src,dst); SetSZPF_Word(res); dst=(UINT16)res; }
-#define ADDL(dst, src)		{ UINT64 res=(UINT64)(dst)+(UINT64)(src); SetCFL(res); SetOFL_Add(res,src,dst); SetSZPF_Long(res); dst=(UINT32)res; }
-
-#define SETREG8(a, b)  (a) = ((a) & ~0xff) | ((b) & 0xff)
-#define SETREG16(a, b) (a) = ((a) & ~0xffff) | ((b) & 0xffff)
-
-typedef struct
-{
-	UINT8 CY;
-	UINT8 OV;
-	UINT8 S;
-	UINT8 Z;
-} Flags;
-
-// v60 Register Inside (Hm... It's not a pentium inside :-))) )
-static struct v60info {
-	struct cpu_info info;
-	UINT32 reg[68];
-	Flags flags;
-	UINT8 irq_line;
-	UINT8 nmi_line;
-	int (*irq_cb)(int irqline);
-	UINT32 PPC;
-} v60;
-
-static int v60_ICount;
 
 /*
- * Prevent warnings on NetBSD.  All identifiers beginning with an underscore
- * followed by an uppercase letter are reserved by the C standard (ISO/IEC
- * 9899:1999, 7.1.3) to be used by the implementation.  It'd be best to rename
- * all such instances, but this is less intrusive and error-prone.
+ *  Macro to access data in operands decoded with ReadAMAddress()
  */
-#undef _S
 
-#define _CY v60.flags.CY
-#define _OV v60.flags.OV
-#define _S v60.flags.S
-#define _Z v60.flags.Z
+#define F12LOADOPBYTE(num)			  \
+	if (f12Flag##num)								\
+		appb = (UINT8)v60.reg[f12Op##num];  \
+	else														\
+		appb = MemRead8(f12Op##num);
 
+#define F12LOADOPHALF(num)			  \
+	if (f12Flag##num)								\
+		apph = (UINT16)v60.reg[f12Op##num];  \
+	else														\
+		apph = MemRead16(f12Op##num);
 
-// Defines of all v60 register...
-#define R0 v60.reg[0]
-#define R1 v60.reg[1]
-#define R2 v60.reg[2]
-#define R3 v60.reg[3]
-#define R4 v60.reg[4]
-#define R5 v60.reg[5]
-#define R6 v60.reg[6]
-#define R7 v60.reg[7]
-#define R8 v60.reg[8]
-#define R9 v60.reg[9]
-#define R10 v60.reg[10]
-#define R11 v60.reg[11]
-#define R12 v60.reg[12]
-#define R13 v60.reg[13]
-#define R14 v60.reg[14]
-#define R15 v60.reg[15]
-#define R16 v60.reg[16]
-#define R17 v60.reg[17]
-#define R18 v60.reg[18]
-#define R19 v60.reg[19]
-#define R20 v60.reg[20]
-#define R21 v60.reg[21]
-#define R22 v60.reg[22]
-#define R23 v60.reg[23]
-#define R24 v60.reg[24]
-#define R25 v60.reg[25]
-#define R26 v60.reg[26]
-#define R27 v60.reg[27]
-#define R28 v60.reg[28]
-#define AP v60.reg[29]
-#define FP v60.reg[30]
-#define SP v60.reg[31]
+#define F12LOADOPWORD(num)			  \
+	if (f12Flag##num)								\
+		appw = v60.reg[f12Op##num];  \
+	else														\
+		appw = MemRead32(f12Op##num);
 
-#define PC		v60.reg[32]
-#define PSW		v60.reg[33]
+#define F12STOREOPBYTE(num)				\
+	if (f12Flag##num)								\
+		SETREG8(v60.reg[f12Op##num], appb);	\
+	else														\
+		MemWrite8(f12Op##num,appb);
 
-#define PPC		v60.PPC
+#define F12STOREOPHALF(num)				\
+	if (f12Flag##num)								\
+		SETREG16(v60.reg[f12Op##num], apph);	\
+	else														\
+		MemWrite16(f12Op##num,apph);
 
-// Privileged registers
-#define ISP		v60.reg[36]
-#define L0SP	v60.reg[37]
-#define L1SP	v60.reg[38]
-#define L2SP	v60.reg[39]
-#define L3SP	v60.reg[40]
-#define SBR		v60.reg[41]
-#define TR		v60.reg[42]
-#define SYCW	v60.reg[43]
-#define TKCW	v60.reg[44]
-#define PIR		v60.reg[45]
-//10-14 reserved
-#define PSW2	v60.reg[51]
-#define ATBR0	v60.reg[52]
-#define ATLR0	v60.reg[53]
-#define ATBR1	v60.reg[54]
-#define ATLR1	v60.reg[55]
-#define ATBR2	v60.reg[56]
-#define ATLR2	v60.reg[57]
-#define ATBR3	v60.reg[58]
-#define ATLR3	v60.reg[59]
-#define TRMODE v60.reg[60]
-#define ADTR0	v60.reg[61]
-#define ADTR1	v60.reg[62]
-#define ADTMR0	v60.reg[63]
-#define ADTMR1	v60.reg[64]
-//29-31 reserved
+#define F12STOREOPWORD(num)				\
+	if (f12Flag##num)								\
+		v60.reg[f12Op##num] = appw;	\
+	else														\
+		MemWrite32(f12Op##num,appw);
 
-// Register names
-const char *v60_reg_names[69] = {
-	"R0", "R1", "R2", "R3",
-	"R4", "R5", "R6", "R7",
-	"R8", "R9", "R10", "R11",
-	"R12", "R13", "R14", "R15",
-	"R16", "R17", "R18", "R19",
-	"R20", "R21", "R22", "R23",
-	"R24", "R25", "R26", "R27",
-	"R28", "AP", "FP", "SP",
-	"PC", "PSW","Unk","Unk",
-	"ISP", "L0SP", "L1SP", "L2SP",
-	"L3SP", "SBR","TR","SYCW",
-	"TKCW", "PIR", "Reserved","Reserved",
-	"Reserved","Reserved","Reserved","PSW2",
-	"ATBR0", "ATLR0", "ATBR1", "ATLR1",
-	"ATBR2", "ATLR2", "ATBR3", "ATLR3",
-	"TRMODE", "ADTR0", "ADTR1","ADTMR0",
-	"ADTMR1","Reserved","Reserved","Reserved"
-};
+#define F12LOADOP1BYTE()  F12LOADOPBYTE(1)
+#define F12LOADOP1HALF()  F12LOADOPHALF(1)
+#define F12LOADOP1WORD()  F12LOADOPWORD(1)
 
-// Defines...
-#define NORMALIZEFLAGS() \
-{ \
-	_S	= _S  ? 1 : 0; \
-	_OV	= _OV ? 1 : 0; \
-	_Z	= _Z  ? 1 : 0; \
-	_CY	= _CY ? 1 : 0; \
-}
+#define F12LOADOP2BYTE()  F12LOADOPBYTE(2)
+#define F12LOADOP2HALF()  F12LOADOPHALF(2)
+#define F12LOADOP2WORD()  F12LOADOPWORD(2)
 
-static void v60_try_irq(void);
+#define F12STOREOP1BYTE()  F12STOREOPBYTE(1)
+#define F12STOREOP1HALF()  F12STOREOPHALF(1)
+#define F12STOREOP1WORD()  F12STOREOPWORD(1)
+
+#define F12STOREOP2BYTE()  F12STOREOPBYTE(2)
+#define F12STOREOP2HALF()  F12STOREOPHALF(2)
+#define F12STOREOP2WORD()  F12STOREOPWORD(2)
 
 
-INLINE void v60SaveStack(void)
+
+#define F12END()									\
+	return amLength1 + amLength2 + 2;
+
+static UINT8 if12;
+
+// Decode the first operand of the instruction and prepare
+// writing to the second operand.
+static void F12DecodeFirstOperand(UINT32 (*DecodeOp1)(void), UINT8 dim1)
 {
-	if (PSW & 0x10000000)
-		ISP = SP;
+	if12 = OpRead8(PC + 1);
+
+	// Check if F1 or F2
+	if (if12 & 0x80)
+	{
+		modDim = dim1;
+		modM = if12 & 0x40;
+		modAdd = PC + 2;
+		amLength1 = DecodeOp1();
+		f12Op1 = amOut;
+		f12Flag1 = amFlag;
+	}
 	else
-		v60.reg[37 + ((PSW >> 24) & 3)] = SP;
+	{
+		// Check D flag
+		if (if12 & 0x20)
+		{
+			modDim = dim1;
+			modM = if12 & 0x40;
+			modAdd = PC + 2;
+			amLength1 = DecodeOp1();
+			f12Op1 = amOut;
+			f12Flag1 = amFlag;
+		}
+		else
+		{
+			if (DecodeOp1==ReadAM)
+			{
+				switch (dim1)
+				{
+				case 0:
+					f12Op1 = (UINT8)v60.reg[if12 & 0x1F];
+					break;
+				case 1:
+					f12Op1 = (UINT16)v60.reg[if12 & 0x1F];
+					break;
+				case 2:
+					f12Op1 = v60.reg[if12 & 0x1F];
+					break;
+				}
+
+				f12Flag1 = 0;
+			}
+			else
+			{
+				f12Flag1 = 1;
+				f12Op1 = if12 & 0x1F;
+			}
+
+			amLength1 = 0;
+		}
+	}
 }
 
-INLINE void v60ReloadStack(void)
+static void F12WriteSecondOperand(UINT8 dim2)
 {
-	if (PSW & 0x10000000)
-		SP = ISP;
+	modDim = dim2;
+
+	// Check if F1 or F2
+	if (if12 & 0x80)
+	{
+		modM = if12 & 0x20;
+		modAdd = PC + 2 + amLength1;
+		modDim = dim2;
+		amLength2 = WriteAM();
+	}
 	else
-		SP = v60.reg[37 + ((PSW >> 24) & 3)];
-}
+	{
+		// Check D flag
+		if (if12 & 0x20)
+		{
+			switch (dim2)
+			{
+			case 0:
+				SETREG8(v60.reg[if12 & 0x1F], modWriteValB);
+				break;
+			case 1:
+				SETREG16(v60.reg[if12 & 0x1F], modWriteValH);
+				break;
+			case 2:
+				v60.reg[if12 & 0x1F] = modWriteValW;
+				break;
+			}
 
-INLINE UINT32 v60ReadPSW(void)
-{
-	PSW &= 0xfffffff0;
-	PSW |= (_Z?1:0) | (_S?2:0) | (_OV?4:0) | (_CY?8:0);
-	return PSW;
-}
-
-INLINE void v60WritePSW(UINT32 newval)
-{
-	/* determine if we need to save/restore the stacks */
-	int updateStack = 0;
-
-	/* if the interrupt state is changing, we definitely need to update */
-	if ((newval ^ PSW) & 0x10000000)
-		updateStack = 1;
-
-	/* if we are not in interrupt mode and the level is changing, we also must update */
-	else if (!(PSW & 0x10000000) && ((newval ^ PSW) & 0x03000000))
-		updateStack = 1;
-
-	/* save the previous stack value */
-	if (updateStack)
-		v60SaveStack();
-
-	/* set the new value and update the flags */
-	PSW = newval;
-	_Z =  (UINT8)(PSW & 1);
-	_S =  (UINT8)(PSW & 2);
-	_OV = (UINT8)(PSW & 4);
-	_CY = (UINT8)(PSW & 8);
-
-	/* fetch the new stack value */
-	if (updateStack)
-		v60ReloadStack();
+			amLength2 = 0;
+		}
+		else
+		{
+			modM = if12 & 0x40;
+			modAdd = PC + 2;
+			modDim = dim2;
+			amLength2 = WriteAM();
+		}
+	}
 }
 
 
-INLINE UINT32 v60_update_psw_for_exception(int is_interrupt, int target_level)
+
+// Decode both format 1/2 operands
+static void F12DecodeOperands(UINT32 (*DecodeOp1)(void), UINT8 dim1, UINT32 (*DecodeOp2)(void), UINT8 dim2)
 {
-	UINT32 oldPSW = v60ReadPSW();
-	UINT32 newPSW = oldPSW;
+	UINT8 _if12 = OpRead8(PC + 1);
 
-	// Change to interrupt context
-	newPSW &= ~(3 << 24);  // PSW.EL = 0
-	newPSW |= target_level << 24; // set target level
-	newPSW &= ~(1 << 18);  // PSW.IE = 0
-	newPSW &= ~(1 << 16);  // PSW.TE = 0
-	newPSW &= ~(1 << 27);  // PSW.TP = 0
-	newPSW &= ~(1 << 17);  // PSW.AE = 0
-	newPSW &= ~(1 << 29);  // PSW.EM = 0
-	if (is_interrupt)
-		newPSW |=  (1 << 28);// PSW.IS = 1
-	newPSW |=  (1 << 31);  // PSW.ASA = 1
-	v60WritePSW(newPSW);
+	// Check if F1 or F2
+	if (_if12 & 0x80)
+	{
+		modDim = dim1;
+		modM = _if12 & 0x40;
+		modAdd = PC + 2;
+		amLength1 = DecodeOp1();
+		f12Op1 = amOut;
+		f12Flag1 = amFlag;
 
-	return oldPSW;
+		modDim = dim2;
+		modM = _if12 & 0x20;
+		modAdd = PC + 2 + amLength1;
+		amLength2 = DecodeOp2();
+		f12Op2 = amOut;
+		f12Flag2 = amFlag;
+	}
+	else
+	{
+		// Check D flag
+		if (_if12 & 0x20)
+		{
+			if (DecodeOp2==ReadAMAddress)
+			{
+				f12Op2 = _if12 & 0x1F;
+				f12Flag2 = 1;
+			}
+			else
+			{
+				switch (dim2)
+				{
+				case 0:
+					f12Op2 = (UINT8)v60.reg[_if12 & 0x1F];
+					break;
+				case 1:
+					f12Op2 = (UINT16)v60.reg[_if12 & 0x1F];
+					break;
+				case 2:
+					f12Op2 = v60.reg[_if12 & 0x1F];
+					break;
+				}
+			}
+
+			amLength2 = 0;
+
+			modDim = dim1;
+			modM = _if12 & 0x40;
+			modAdd = PC + 2;
+			amLength1 = DecodeOp1();
+			f12Op1 = amOut;
+			f12Flag1 = amFlag;
+		}
+		else
+		{
+			if (DecodeOp1==ReadAMAddress)
+			{
+				f12Op1 = _if12 & 0x1F;
+				f12Flag1 = 1;
+			}
+			else
+			{
+				switch (dim1)
+				{
+				case 0:
+					f12Op1 = (UINT8)v60.reg[_if12 & 0x1F];
+					break;
+				case 1:
+					f12Op1 = (UINT16)v60.reg[_if12 & 0x1F];
+					break;
+				case 2:
+					f12Op1 = v60.reg[_if12 & 0x1F];
+					break;
+				}
+			}
+			amLength1 = 0;
+
+			modDim = dim2;
+			modM = _if12 & 0x40;
+			modAdd = PC + 2 + amLength1;
+			amLength2 = DecodeOp2();
+			f12Op2 = amOut;
+			f12Flag2 = amFlag;
+		}
+	}
 }
 
-
-#define GETINTVECT(nint)	MemRead32((SBR & ~0xfff) + (nint)*4)
-#define EXCEPTION_CODE_AND_SIZE(code, size)	(((code) << 16) | (size))
-
-
-// Addressing mode decoding functions
-#include "am.c"
-
-// Opcode functions
-#include "op12.c"
-#include "op2.c"
-#include "op3.c"
-#include "op4.c"
-#include "op5.c"
-#include "op6.c"
-#include "op7a.c"
-
-static UINT32 opUNHANDLED(void)
+static UINT32 opADDB(void) /* TRUSTED (C too!)*/
 {
-	fatalerror("Unhandled OpCode found : %02x at %08x", OpRead16(PC), PC);
-	return 0; /* never reached, fatalerror won't return */
+	UINT8 appb;
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	ADDB(appb, (UINT8)f12Op1);
+
+	F12STOREOP2BYTE();
+	F12END();
 }
 
-// Opcode jump table
-#include "optable.c"
-
-static int v60_default_irq_cb(int irqline)
+static UINT32 opADDH(void) /* TRUSTED (C too!)*/
 {
+	UINT16 apph;
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	ADDW(apph, (UINT16)f12Op1);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opADDW(void) /* TRUSTED (C too!) */
+{
+	UINT32 appw;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	ADDL(appw, (UINT32)f12Op1);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opADDCB(void)
+{
+	UINT8 appb, temp;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	temp = ((UINT8)f12Op1 + (_CY?1:0));
+	ADDB(appb, temp);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opADDCH(void)
+{
+	UINT16 apph, temp;
+
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	temp = ((UINT16)f12Op1 + (_CY?1:0));
+	ADDW(apph, temp);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opADDCW(void)
+{
+	UINT32 appw, temp;
+
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	temp = f12Op1 + (_CY?1:0);
+	ADDL(appw, temp);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opANDB(void) /* TRUSTED */
+{
+	UINT8 appb;
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	appb &= f12Op1;
+	_OV = 0;
+	_S = ((appb&0x80)!=0);
+	_Z = (appb==0);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opANDH(void) /* TRUSTED */
+{
+	UINT16 apph;
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	apph &= f12Op1;
+	_OV = 0;
+	_S = ((apph&0x8000)!=0);
+	_Z = (apph==0);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opANDW(void) /* TRUSTED */
+{
+	UINT32 appw;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	appw &= f12Op1;
+	_OV = 0;
+	_S = ((appw&0x80000000)!=0);
+	_Z = (appw==0);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opCALL(void) /* TRUSTED */
+{
+	F12DecodeOperands(ReadAMAddress,0,ReadAMAddress,2);
+
+	SP -= 4;
+	MemWrite32(SP, AP);
+	AP = f12Op2;
+
+	SP -= 4;
+	MemWrite32(SP, PC + amLength1 + amLength2 + 2);
+	PC = f12Op1;
+	ChangePC(PC);
+
 	return 0;
 }
 
-void v60_stall(void)
+static UINT32 opCHKAR(void)
 {
+	F12DecodeOperands(ReadAM,0,ReadAM,0);
+
+	// No MMU and memory permissions yet @@@
+	_Z = 1;
+	_CY = 0;
+	_S = 0;
+
+	F12END();
 }
 
-static void base_init(const char *type, int index, int (*irqcallback)(int))
+static UINT32 opCHKAW(void)
 {
-	v60.irq_cb = irqcallback;
-	v60.irq_line = CLEAR_LINE;
-	v60.nmi_line = CLEAR_LINE;
+	F12DecodeOperands(ReadAM,0,ReadAM,0);
 
-	state_save_register_item_array(type, index, v60.reg);
-	state_save_register_item(type, index, v60.irq_line);
-	state_save_register_item(type, index, v60.nmi_line);
-	state_save_register_item(type, index, PPC);
-	state_save_register_item(type, index, _CY);
-	state_save_register_item(type, index, _OV);
-	state_save_register_item(type, index, _S);
-	state_save_register_item(type, index, _Z);
+	// No MMU and memory permissions yet @@@
+	_Z = 1;
+	_CY = 0;
+	_S = 0;
+
+	F12END();
 }
 
-static void v60_init(int index, int clock, const void *config, int (*irqcallback)(int))
+static UINT32 opCHKAE(void)
 {
-	base_init("v60", index, irqcallback);
-	// Set PIR (Processor ID) for NEC v60. LSB is reserved to NEC,
-	// so I don't know what it contains.
-	PIR = 0x00006000;
-	v60.info = v60_i;
+	F12DecodeOperands(ReadAM,0,ReadAM,0);
+
+	// No MMU and memory permissions yet @@@
+	_Z = 1;
+	_CY = 0;
+	_S = 0;
+
+	F12END();
 }
 
-static void v70_init(int index, int clock, const void *config, int (*irqcallback)(int))
+static UINT32 opCHLVL(void)
 {
-	base_init("v70", index, irqcallback);
-	// Set PIR (Processor ID) for NEC v70. LSB is reserved to NEC,
-	// so I don't know what it contains.
-	PIR = 0x00007000;
-	v60.info = v70_i;
-}
+	UINT32 oldPSW;
 
-static void v60_reset(void)
-{
-	PSW		= 0x10000000;
-	PC		= v60.info.start_pc;
-	SBR		= 0x00000000;
-	SYCW	= 0x00000070;
-	TKCW	= 0x0000e000;
-	PSW2	= 0x0000f002;
+	F12DecodeOperands(ReadAM,0,ReadAM,0);
+
+	if (f12Op1>3)
+	{
+		fatalerror("Illegal data field on opCHLVL, PC=%x", PC);
+	}
+
+	oldPSW = v60_update_psw_for_exception(0, f12Op1);
+
+	SP -= 4;
+	MemWrite32(SP,f12Op2);
+
+	SP -= 4;
+	MemWrite32(SP,EXCEPTION_CODE_AND_SIZE(0x1800 + f12Op1*0x100, 8));
+
+	SP -= 4;
+	MemWrite32(SP,oldPSW);
+
+	SP -= 4;
+	MemWrite32(SP,PC + amLength1 + amLength2 + 2);
+
+	PC = GETINTVECT(24+f12Op1);
 	ChangePC(PC);
 
-	_CY	= 0;
-	_OV	= 0;
-	_S	= 0;
-	_Z	= 0;
+	return 0;
 }
 
-static void v60_exit(void)
+static UINT32 opCLR1(void) /* TRUSTED */
 {
+	UINT32 appw;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	_CY = ((appw & (1<<f12Op1))!=0);
+	_Z = !(_CY);
+
+	appw &= ~(1<<f12Op1);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opCMPB(void) /* TRUSTED (C too!) */
+{
+	UINT8 appb;
+	F12DecodeOperands(ReadAM,0,ReadAM,0);
+
+	appb = (UINT8)f12Op2;
+	SUBB(appb, (UINT8)f12Op1);
+
+	F12END();
+}
+
+static UINT32 opCMPH(void) /* TRUSTED (C too!) */
+{
+	UINT16 apph;
+	F12DecodeOperands(ReadAM,1,ReadAM,1);
+
+	apph = (UINT16)f12Op2;
+	SUBW(apph, (UINT16)f12Op1);
+
+	F12END();
 }
 
 
-static void v60_do_irq(int vector)
+static UINT32 opCMPW(void) /* TRUSTED (C too!)*/
 {
-	UINT32 oldPSW = v60_update_psw_for_exception(1, 0);
+	F12DecodeOperands(ReadAM,2,ReadAM,2);
 
-	// Push PC and PSW onto the stack
-	SP-=4;
-	MemWrite32(SP, oldPSW);
-	SP-=4;
-	MemWrite32(SP, PC);
+	SUBL(f12Op2, (UINT32)f12Op1);
 
-	// Jump to vector for user interrupt
-	PC = GETINTVECT(vector);
+	F12END();
 }
 
-static void v60_try_irq(void)
+static UINT32 opDIVB(void) /* TRUSTED */
 {
-	if(v60.irq_line == CLEAR_LINE)
-		return;
-	if((PSW & (1<<18)) != 0) {
-		int vector;
-		if(v60.irq_line != ASSERT_LINE)
-			v60.irq_line = CLEAR_LINE;
+	UINT8 appb;
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
 
-		vector = v60.irq_cb(0);
+	F12LOADOP2BYTE();
 
-		v60_do_irq(vector + 0x40);
-	} else if(v60.irq_line == PULSE_LINE)
-		v60.irq_line = CLEAR_LINE;
+	_OV = ((appb == 0x80) && (f12Op1==0xFF));
+	if (f12Op1 && !_OV)
+		appb= (INT8)appb / (INT8)f12Op1;
+	_Z = (appb == 0);
+	_S = ((appb & 0x80)!=0);
+
+	F12STOREOP2BYTE();
+	F12END();
 }
 
-static void set_irq_line(int irqline, int state)
+static UINT32 opDIVH(void) /* TRUSTED */
 {
-	if(irqline == INPUT_LINE_NMI) {
-		switch(state) {
-		case ASSERT_LINE:
-			if(v60.nmi_line == CLEAR_LINE) {
-				v60.nmi_line = ASSERT_LINE;
-				v60_do_irq(2);
-			}
-			break;
-		case CLEAR_LINE:
-			v60.nmi_line = CLEAR_LINE;
-			break;
-		case HOLD_LINE:
-		case PULSE_LINE:
-			v60.nmi_line = CLEAR_LINE;
-			v60_do_irq(2);
-			break;
+	UINT16 apph;
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	_OV = ((apph == 0x8000) && (f12Op1==0xFFFF));
+	if (f12Op1 && !_OV)
+		apph = (INT16)apph / (INT16)f12Op1;
+	_Z = (apph == 0);
+	_S = ((apph & 0x8000)!=0);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opDIVW(void) /* TRUSTED */
+{
+	UINT32 appw;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	_OV = ((appw == 0x80000000) && (f12Op1==0xFFFFFFFF));
+	if (f12Op1 && !_OV)
+		appw = (INT32)appw / (INT32)f12Op1;
+	_Z = (appw == 0);
+	_S = ((appw & 0x80000000)!=0);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opDIVX(void)
+{
+	UINT32 a,b;
+	INT64 dv;
+
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,3);
+
+	if (f12Flag2)
+	{
+		a=v60.reg[f12Op2&0x1F];
+		b=v60.reg[(f12Op2&0x1F)+1];
+	}
+	else
+	{
+		a=MemRead32(f12Op2);
+		b=MemRead32(f12Op2+4);
+	}
+
+	dv = ((UINT64)b<<32) | ((UINT64)a);
+
+	a = dv / (INT64)((INT32)f12Op1);
+	b = dv % (INT64)((INT32)f12Op1);
+
+	_S = ((a & 0x80000000)!=0);
+	_Z = (a == 0);
+
+	if (f12Flag2)
+	{
+		v60.reg[f12Op2&0x1F]=a;
+		v60.reg[(f12Op2&0x1F)+1]=b;
+	}
+	else
+	{
+		MemWrite32(f12Op2,a);
+		MemWrite32(f12Op2+4,b);
+	}
+
+	F12END();
+}
+
+static UINT32 opDIVUX(void)
+{
+	UINT32 a,b;
+	UINT64 dv;
+
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,3);
+
+	if (f12Flag2)
+	{
+		a=v60.reg[f12Op2&0x1F];
+		b=v60.reg[(f12Op2&0x1F)+1];
+	}
+	else
+	{
+		a=MemRead32(f12Op2);
+		b=MemRead32(f12Op2+4);
+	}
+
+	dv = (UINT64)(((UINT64)b<<32) | (UINT64)a);
+	a = (UINT32)(dv / (UINT64)f12Op1);
+	b = (UINT32)(dv % (UINT64)f12Op1);
+
+	_S = ((a & 0x80000000) != 0);
+	_Z = (a == 0);
+
+	if (f12Flag2)
+	{
+		v60.reg[f12Op2&0x1F]=a;
+		v60.reg[(f12Op2&0x1F)+1]=b;
+	}
+	else
+	{
+		MemWrite32(f12Op2,a);
+		MemWrite32(f12Op2+4,b);
+	}
+
+	F12END();
+}
+
+
+static UINT32 opDIVUB(void) /* TRUSTED */
+{
+	UINT8 appb;
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	_OV = 0;
+	if (f12Op1)	appb /= (UINT8)f12Op1;
+	_Z = (appb == 0);
+	_S = ((appb & 0x80)!=0);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opDIVUH(void) /* TRUSTED */
+{
+	UINT16 apph;
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	_OV = 0;
+	if (f12Op1)	apph /= (UINT16)f12Op1;
+	_Z = (apph == 0);
+	_S = ((apph & 0x8000)!=0);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opDIVUW(void) /* TRUSTED */
+{
+	UINT32 appw;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	_OV = 0;
+	if (f12Op1)	appw /= f12Op1;
+	_Z = (appw == 0);
+	_S = ((appw & 0x80000000)!=0);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opINB(void)
+{
+	F12DecodeFirstOperand(ReadAMAddress,0);
+	modWriteValB=PortRead8(f12Op1);
+
+	if ( v60_stall_io )
+	{
+		v60_stall_io = 0;
+		return 0;
+	}
+
+	F12WriteSecondOperand(0);
+	F12END();
+}
+
+static UINT32 opINH(void)
+{
+	F12DecodeFirstOperand(ReadAMAddress,1);
+	modWriteValH=PortRead16(f12Op1);
+
+	if ( v60_stall_io )
+	{
+		v60_stall_io = 0;
+		return 0;
+	}
+
+	F12WriteSecondOperand(1);
+	F12END();
+}
+
+static UINT32 opINW(void)
+{
+	F12DecodeFirstOperand(ReadAMAddress,2);
+	modWriteValW=PortRead32(f12Op1);
+
+	if ( v60_stall_io )
+	{
+		v60_stall_io = 0;
+		return 0;
+	}
+
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+static UINT32 opLDPR(void)
+{
+	F12DecodeOperands(ReadAMAddress,2,ReadAM,2);
+	if (f12Op2 >= 0 && f12Op2 <= 28)
+	{
+	  if (f12Flag1 &&(!(OpRead8(PC + 1)&0x80 && OpRead8(PC + 2)==0xf4 ) ))
+			v60.reg[f12Op2 + 36] = v60.reg[f12Op1];
+		else
+			v60.reg[f12Op2 + 36] = f12Op1;
+	}
+	else
+	{
+		fatalerror("Invalid operand on LDPR PC=%x", PC);
+	}
+	F12END();
+}
+
+static UINT32 opLDTASK(void)
+{
+	int i;
+	F12DecodeOperands(ReadAMAddress,2,ReadAM,2);
+
+	v60WritePSW(v60ReadPSW() & 0xefffffff);
+
+	TR = f12Op2;
+
+	TKCW = MemRead32(f12Op2);
+	f12Op2 += 4;
+	if(SYCW & 0x100) {
+		L0SP = MemRead32(f12Op2);
+		f12Op2 += 4;
+	}
+	if(SYCW & 0x200) {
+		L1SP = MemRead32(f12Op2);
+		f12Op2 += 4;
+	}
+	if(SYCW & 0x400) {
+		L2SP = MemRead32(f12Op2);
+		f12Op2 += 4;
+	}
+	if(SYCW & 0x800) {
+		L3SP = MemRead32(f12Op2);
+		f12Op2 += 4;
+	}
+
+	v60ReloadStack();
+
+	// 31 registers supported, _not_ 32
+	for(i=0; i<31; i++)
+		if(f12Op1 & (1<<i)) {
+			v60.reg[i] = MemRead32(f12Op2);
+			f12Op2 += 4;
 		}
-	} else {
-		v60.irq_line = state;
-		v60_try_irq();
-	}
+
+	// #### Ignore the virtual addressing crap.
+
+	F12END();
 }
 
-// Actual cycles/instruction is unknown
-
-static int v60_execute(int cycles)
+static UINT32 opMOVD(void) /* TRUSTED */
 {
-	v60_ICount = cycles;
-	if(v60.irq_line != CLEAR_LINE)
-		v60_try_irq();
-	while(v60_ICount >= 0) {
-		PPC = PC;
-		CALL_MAME_DEBUG;
-		v60_ICount -= 8;	/* fix me -- this is just an average */
-		PC += OpCodeTable[OpRead8(PC)]();
-		if(v60.irq_line != CLEAR_LINE)
-			v60_try_irq();
-	}
+	UINT32 a,b;
 
-	return cycles - v60_ICount;
-}
+	F12DecodeOperands(ReadAMAddress,3,ReadAMAddress,3);
 
-static void v60_get_context(void *dst)
-{
-	if(dst)
-		*(struct v60info *)dst = v60;
-}
-
-static void v60_set_context(void *src)
-{
-	if(src)
+	if (f12Flag1)
 	{
-		v60 = *(struct v60info *)src;
-		ChangePC(PC);
+		a=v60.reg[f12Op1&0x1F];
+		b=v60.reg[(f12Op1&0x1F)+1];
 	}
-}
-
-static UINT8 v60_reg_layout[] = {
-	V60_PC, V60_TR, -1,
-	-1,
-	V60_R0, V60_R1, -1,
-	V60_R2, V60_R3, -1,
-	V60_R4, V60_R5, -1,
-	V60_R6, V60_R7, -1,
-	V60_R8, V60_R9, -1,
-	V60_R10, V60_R11, -1,
-	V60_R12, V60_R13, -1,
-	V60_R14, V60_R15, -1,
-	V60_R16, V60_R17, -1,
-	V60_R18, V60_R19, -1,
-	V60_R20, V60_R21, -1,
-	V60_R22, V60_R23, -1,
-	V60_R24, V60_R25, -1,
-	V60_R26, V60_R27, -1,
-	V60_R28, V60_AP, -1,
-	V60_FP, V60_SP, -1,
-	-1,
-	V60_SBR, V60_ISP, -1,
-	V60_L0SP, V60_L1SP, -1,
-	V60_L2SP, V60_L3SP, -1,
-	V60_PSW, 0
-};
-
-static UINT8 v60_win_layout[] = {
-	45, 0,35,13,	/* register window (top right) */
-	 0, 0,44,13,	/* disassembler window (left, upper) */
-	 0,14,44, 8,	/* memory #1 window (left, middle) */
-	45,14,35, 8,	/* memory #2 window (lower) */
-	 0,23,80, 1 	/* command line window (bottom rows) */
-};
-
-
-#ifndef MAME_DEBUG
-static offs_t v60_dasm(char *buffer,  offs_t pc)
-{
-	sprintf(buffer, "$%02X", program_read_byte_16le(pc));
-	return 1;
-}
-
-static offs_t v70_dasm(char *buffer,  offs_t pc)
-{
-	sprintf(buffer, "$%02X", program_read_byte_32le(pc));
-	return 1;
-}
-#else
-offs_t v60_dasm(char *buffer,  offs_t pc);
-offs_t v70_dasm(char *buffer,  offs_t pc);
-#endif
-
-
-
-/**************************************************************************
- * Generic set_info
- **************************************************************************/
-
-static void v60_set_info(UINT32 state, union cpuinfo *info)
-{
-	switch (state)
+	else
 	{
-		/* --- the following bits of info are set as 64-bit signed integers --- */
-		case CPUINFO_INT_INPUT_STATE + 0:				set_irq_line(0, info->i);				break;
-		case CPUINFO_INT_INPUT_STATE + INPUT_LINE_NMI:	set_irq_line(INPUT_LINE_NMI, info->i);	break;
-
-		case CPUINFO_INT_PC:							PC = info->i; ChangePC(PC);				break;
-		case CPUINFO_INT_SP:							SP = info->i;							break;
-
-		case CPUINFO_INT_REGISTER + V60_R0:				R0 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R1:				R1 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R2:				R2 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R3:				R3 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R4:				R4 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R5:				R5 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R6:				R6 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R7:				R7 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R8:				R8 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R9:				R9 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R10:			R10 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R11:			R11 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R12:			R12 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R13:			R13 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R14:			R14 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R15:			R15 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R16:			R16 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R17:			R17 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R18:			R18 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R19:			R19 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R20:			R20 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R21:			R21 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R22:			R22 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R23:			R23 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R24:			R24 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R25:			R25 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R26:			R26 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R27:			R27 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_R28:			R28 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_AP:				AP = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_FP:				FP = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_SP:				SP = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_PC:				PC = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_PSW:			v60WritePSW(info->i);					break;
-		case CPUINFO_INT_REGISTER + V60_ISP:			ISP = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_L0SP:			L0SP = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_L1SP:			L1SP = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_L2SP:			L2SP = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_L3SP:			L3SP = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_SBR:			SBR = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_TR:				TR = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_SYCW:			SYCW = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_TKCW:			TKCW = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_PIR:			PIR = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_PSW2:			PSW2 = info->i;							break;
-		case CPUINFO_INT_REGISTER + V60_ATBR0:			ATBR0 = info->i;						break;
-		case CPUINFO_INT_REGISTER + V60_ATLR0:			ATLR0 = info->i;						break;
-		case CPUINFO_INT_REGISTER + V60_ATBR1:			ATBR1 = info->i;						break;
-		case CPUINFO_INT_REGISTER + V60_ATLR1:			ATLR1 = info->i;						break;
-		case CPUINFO_INT_REGISTER + V60_ATBR2:			ATBR2 = info->i;						break;
-		case CPUINFO_INT_REGISTER + V60_ATLR2:			ATLR2 = info->i;						break;
-		case CPUINFO_INT_REGISTER + V60_ATBR3:			ATBR3 = info->i;						break;
-		case CPUINFO_INT_REGISTER + V60_ATLR3:			ATLR3 = info->i;						break;
-		case CPUINFO_INT_REGISTER + V60_TRMODE:			TRMODE = info->i;						break;
-		case CPUINFO_INT_REGISTER + V60_ADTR0:			ADTR0 = info->i;						break;
-		case CPUINFO_INT_REGISTER + V60_ADTR1:			ADTR1 = info->i;						break;
-		case CPUINFO_INT_REGISTER + V60_ADTMR0:			ADTMR0 = info->i;						break;
-		case CPUINFO_INT_REGISTER + V60_ADTMR1:			ADTMR1 = info->i;						break;
+		a=MemRead32(f12Op1);
+		b=MemRead32(f12Op1+4);
 	}
+
+	if (f12Flag2)
+	{
+		v60.reg[f12Op2&0x1F]=a;
+		v60.reg[(f12Op2&0x1F)+1]=b;
+	}
+	else
+	{
+		MemWrite32(f12Op2,a);
+		MemWrite32(f12Op2+4,b);
+	}
+
+	F12END();
+}
+
+static UINT32 opMOVB(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAM,0);
+	modWriteValB = (UINT8)f12Op1;
+	F12WriteSecondOperand(0);
+	F12END();
+}
+
+static UINT32 opMOVH(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAM,1);
+	modWriteValH = (UINT16)f12Op1;
+	F12WriteSecondOperand(1);
+	F12END();
+}
+
+static UINT32 opMOVW(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAM,2);
+	modWriteValW = f12Op1;
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+static UINT32 opMOVEAB(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAMAddress,0);
+	modWriteValW = f12Op1;
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+static UINT32 opMOVEAH(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAMAddress,1);
+	modWriteValW = f12Op1;
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+static UINT32 opMOVEAW(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAMAddress,2);
+	modWriteValW = f12Op1;
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+static UINT32 opMOVSBH(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAM,0);
+	modWriteValH = (INT8)(f12Op1&0xFF);
+	F12WriteSecondOperand(1);
+	F12END();
+}
+
+static UINT32 opMOVSBW(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAM,0);
+	modWriteValW = (INT8)(f12Op1&0xFF);
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+static UINT32 opMOVSHW(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAM,1);
+	modWriteValW = (INT16)(f12Op1&0xFFFF);
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+static UINT32 opMOVTHB(void)
+{
+	F12DecodeFirstOperand(ReadAM,1);
+	modWriteValB = (UINT8)(f12Op1&0xFF);
+
+	// Check for overflow: the truncated bits must match the sign
+	//  of the result, otherwise overflow
+	if (((modWriteValB&0x80)==0x80 && ((f12Op1&0xFF00)==0xFF00)) ||
+		  ((modWriteValB&0x80)==0 && ((f12Op1&0xFF00)==0x0000)))
+		_OV = 0;
+	else
+		_OV = 1;
+
+	F12WriteSecondOperand(0);
+	F12END();
+}
+
+static UINT32 opMOVTWB(void)
+{
+	F12DecodeFirstOperand(ReadAM,2);
+	modWriteValB = (UINT8)(f12Op1&0xFF);
+
+	// Check for overflow: the truncated bits must match the sign
+	//  of the result, otherwise overflow
+	if (((modWriteValB&0x80)==0x80 && ((f12Op1&0xFFFFFF00)==0xFFFFFF00)) ||
+		  ((modWriteValB&0x80)==0 && ((f12Op1&0xFFFFFF00)==0x00000000)))
+		_OV = 0;
+	else
+		_OV = 1;
+
+	F12WriteSecondOperand(0);
+	F12END();
+}
+
+static UINT32 opMOVTWH(void)
+{
+	F12DecodeFirstOperand(ReadAM,2);
+	modWriteValH = (UINT16)(f12Op1&0xFFFF);
+
+	// Check for overflow: the truncated bits must match the sign
+	//  of the result, otherwise overflow
+	if (((modWriteValH&0x8000)==0x8000 && ((f12Op1&0xFFFF0000)==0xFFFF0000)) ||
+		  ((modWriteValH&0x8000)==0 && ((f12Op1&0xFFFF0000)==0x00000000)))
+		_OV = 0;
+	else
+		_OV = 1;
+
+	F12WriteSecondOperand(1);
+	F12END();
 }
 
 
-
-/**************************************************************************
- * Generic get_info
- **************************************************************************/
-
-void v60_get_info(UINT32 state, union cpuinfo *info)
+static UINT32 opMOVZBH(void) /* TRUSTED */
 {
-	switch (state)
+	F12DecodeFirstOperand(ReadAM,0);
+	modWriteValH = (UINT16)f12Op1;
+	F12WriteSecondOperand(1);
+	F12END();
+}
+
+static UINT32 opMOVZBW(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAM,0);
+	modWriteValW = f12Op1;
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+static UINT32 opMOVZHW(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAM,1);
+	modWriteValW = f12Op1;
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+static UINT32 opMULB(void)
+{
+	UINT8 appb;
+	UINT32 tmp;
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	// @@@ OV not set!!
+	tmp=(INT8)appb * (INT32)(INT8)f12Op1;
+	appb = tmp;
+	_Z = (appb == 0);
+	_S = ((appb & 0x80)!=0);
+	_OV = ((tmp >> 8)!=0);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opMULH(void)
+{
+	UINT16 apph;
+	UINT32 tmp;
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	// @@@ OV not set!!
+	tmp=(INT16)apph * (INT32)(INT16)f12Op1;
+	apph = tmp;
+	_Z = (apph == 0);
+	_S = ((apph & 0x8000)!=0);
+	_OV = ((tmp >> 16)!=0);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opMULW(void)
+{
+	UINT32 appw;
+	UINT64 tmp;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	// @@@ OV not set!!
+	tmp=(INT32)appw * (INT64)(INT32)f12Op1;
+	appw = tmp;
+	_Z = (appw == 0);
+	_S = ((appw & 0x80000000)!=0);
+	_OV = ((tmp >> 32) != 0);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opMULUB(void)
+{
+	UINT8 appb;
+	UINT32 tmp;
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	// @@@ OV not set!!
+	tmp = appb * (UINT8)f12Op1;
+	appb = tmp;
+	_Z = (appb == 0);
+	_S = ((appb & 0x80)!=0);
+	_OV = ((tmp >> 8)!=0);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opMULUH(void)
+{
+	UINT16 apph;
+	UINT32 tmp;
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	// @@@ OV not set!!
+	tmp=apph * (UINT16)f12Op1;
+	apph = tmp;
+	_Z = (apph == 0);
+	_S = ((apph & 0x8000)!=0);
+	_OV = ((tmp >> 16)!=0);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opMULUW(void)
+{
+	UINT32 appw;
+	UINT64 tmp;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	// @@@ OV not set!!
+	tmp=(UINT64)appw * (UINT64)f12Op1;
+	appw = tmp;
+	_Z = (appw == 0);
+	_S = ((appw & 0x80000000)!=0);
+	_OV = ((tmp >> 32)!=0);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opNEGB(void) /* TRUSTED  (C too!)*/
+{
+	F12DecodeFirstOperand(ReadAM,0);
+
+	modWriteValB = 0;
+	SUBB(modWriteValB, (INT8)f12Op1);
+
+	F12WriteSecondOperand(0);
+	F12END();
+}
+
+static UINT32 opNEGH(void) /* TRUSTED  (C too!)*/
+{
+	F12DecodeFirstOperand(ReadAM,1);
+
+	modWriteValH = 0;
+	SUBW(modWriteValH, (INT16)f12Op1);
+
+	F12WriteSecondOperand(1);
+	F12END();
+}
+
+static UINT32 opNEGW(void) /* TRUSTED  (C too!)*/
+{
+	F12DecodeFirstOperand(ReadAM,2);
+
+	modWriteValW = 0;
+	SUBL(modWriteValW, (INT32)f12Op1);
+
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+static UINT32 opNOTB(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAM,0);
+	modWriteValB=~f12Op1;
+
+	_OV=0;
+	_S=((modWriteValB&0x80)!=0);
+	_Z=(modWriteValB==0);
+
+	F12WriteSecondOperand(0);
+	F12END();
+}
+
+static UINT32 opNOTH(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAM,1);
+	modWriteValH=~f12Op1;
+
+	_OV=0;
+	_S=((modWriteValH&0x8000)!=0);
+	_Z=(modWriteValH==0);
+
+	F12WriteSecondOperand(1);
+	F12END();
+}
+
+static UINT32 opNOTW(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAM,2);
+	modWriteValW=~f12Op1;
+
+	_OV=0;
+	_S=((modWriteValW&0x80000000)!=0);
+	_Z=(modWriteValW==0);
+
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+static UINT32 opNOT1(void) /* TRUSTED */
+{
+	UINT32 appw;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	_CY = ((appw & (1<<f12Op1))!=0);
+	_Z = !(_CY);
+
+	if (_CY)
+		appw &= ~(1<<f12Op1);
+	else
+		appw |= (1<<f12Op1);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opORB(void) /* TRUSTED  (C too!)*/
+{
+	UINT8 appb;
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	ORB(appb, (UINT8)f12Op1);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opORH(void) /* TRUSTED (C too!)*/
+{
+	UINT16 apph;
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	ORW(apph, (UINT16)f12Op1);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opORW(void) /* TRUSTED (C too!) */
+{
+	UINT32 appw;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	ORL(appw, (UINT32)f12Op1);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opOUTB(void)
+{
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,2);
+	PortWrite8(f12Op2,(UINT8)f12Op1);
+	F12END();
+}
+
+static UINT32 opOUTH(void)
+{
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,2);
+	PortWrite16(f12Op2,(UINT16)f12Op1);
+	F12END();
+}
+
+static UINT32 opOUTW(void)
+{
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+	PortWrite32(f12Op2,f12Op1);
+	F12END();
+}
+
+static UINT32 opREMB(void)
+{
+	UINT8 appb;
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	_OV = 0;
+	if (f12Op1)
+		appb= (INT8)appb % (INT8)f12Op1;
+	_Z = (appb == 0);
+	_S = ((appb & 0x80)!=0);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opREMH(void)
+{
+	UINT16 apph;
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	_OV = 0;
+	if (f12Op1)
+		apph=(INT16)apph % (INT16)f12Op1;
+	_Z = (apph == 0);
+	_S = ((apph & 0x8000)!=0);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opREMW(void)
+{
+	UINT32 appw;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	_OV = 0;
+	if (f12Op1)
+		appw=(INT32)appw % (INT32)f12Op1;
+	_Z = (appw == 0);
+	_S = ((appw & 0x80000000)!=0);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opREMUB(void)
+{
+	UINT8 appb;
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	_OV = 0;
+	if (f12Op1)
+		appb %= (UINT8)f12Op1;
+	_Z = (appb == 0);
+	_S = ((appb & 0x80)!=0);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opREMUH(void)
+{
+	UINT16 apph;
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	_OV = 0;
+	if (f12Op1)
+		apph %= (UINT16)f12Op1;
+	_Z = (apph == 0);
+	_S = ((apph & 0x8000)!=0);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opREMUW(void)
+{
+	UINT32 appw;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	_OV = 0;
+	if (f12Op1)
+		appw %= f12Op1;
+	_Z = (appw == 0);
+	_S = ((appw & 0x80000000)!=0);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opROTB(void) /* TRUSTED */
+{
+	UINT8 appb;
+	INT8 i,count;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	count=(INT8)(f12Op1&0xFF);
+	if (count>0)
 	{
-		/* --- the following bits of info are returned as 64-bit signed integers --- */
-		case CPUINFO_INT_CONTEXT_SIZE:					info->i = sizeof(v60);					break;
-		case CPUINFO_INT_INPUT_LINES:					info->i = 1;							break;
-		case CPUINFO_INT_DEFAULT_IRQ_VECTOR:			info->i = 0;							break;
-		case CPUINFO_INT_ENDIANNESS:					info->i = CPU_IS_LE;					break;
-		case CPUINFO_INT_CLOCK_DIVIDER:					info->i = 1;							break;
-		case CPUINFO_INT_MIN_INSTRUCTION_BYTES:			info->i = 1;							break;
-		case CPUINFO_INT_MAX_INSTRUCTION_BYTES:			info->i = 22;							break;
-		case CPUINFO_INT_MIN_CYCLES:					info->i = 1;							break;
-		case CPUINFO_INT_MAX_CYCLES:					info->i = 1;							break;
+		for (i=0;i<count;i++)
+			appb = (appb<<1) | ((appb&0x80) >> 7);
 
-		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_PROGRAM:	info->i = 16;					break;
-		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_PROGRAM: info->i = 24;					break;
-		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_PROGRAM: info->i = 0;					break;
-		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_DATA:	info->i = 0;					break;
-		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_DATA: 	info->i = 0;					break;
-		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_DATA: 	info->i = 0;					break;
-		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_IO:		info->i = 16;					break;
-		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_IO: 		info->i = 24;					break;
-		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_IO: 		info->i = 0;					break;
-
-		case CPUINFO_INT_INPUT_STATE + 0:				info->i = v60.irq_line;					break;
-		case CPUINFO_INT_INPUT_STATE + INPUT_LINE_NMI:	info->i = v60.nmi_line;					break;
-
-		case CPUINFO_INT_PREVIOUSPC:					info->i = PPC;							break;
-
-		case CPUINFO_INT_REGISTER + V60_R0:				info->i = R0;							break;
-		case CPUINFO_INT_REGISTER + V60_R1:				info->i = R1;							break;
-		case CPUINFO_INT_REGISTER + V60_R2:				info->i = R2;							break;
-		case CPUINFO_INT_REGISTER + V60_R3:				info->i = R3;							break;
-		case CPUINFO_INT_REGISTER + V60_R4:				info->i = R4;							break;
-		case CPUINFO_INT_REGISTER + V60_R5:				info->i = R5;							break;
-		case CPUINFO_INT_REGISTER + V60_R6:				info->i = R6;							break;
-		case CPUINFO_INT_REGISTER + V60_R7:				info->i = R7;							break;
-		case CPUINFO_INT_REGISTER + V60_R8:				info->i = R8;							break;
-		case CPUINFO_INT_REGISTER + V60_R9:				info->i = R9;							break;
-		case CPUINFO_INT_REGISTER + V60_R10:			info->i = R10;							break;
-		case CPUINFO_INT_REGISTER + V60_R11:			info->i = R11;							break;
-		case CPUINFO_INT_REGISTER + V60_R12:			info->i = R12;							break;
-		case CPUINFO_INT_REGISTER + V60_R13:			info->i = R13;							break;
-		case CPUINFO_INT_REGISTER + V60_R14:			info->i = R14;							break;
-		case CPUINFO_INT_REGISTER + V60_R15:			info->i = R15;							break;
-		case CPUINFO_INT_REGISTER + V60_R16:			info->i = R16;							break;
-		case CPUINFO_INT_REGISTER + V60_R17:			info->i = R17;							break;
-		case CPUINFO_INT_REGISTER + V60_R18:			info->i = R18;							break;
-		case CPUINFO_INT_REGISTER + V60_R19:			info->i = R19;							break;
-		case CPUINFO_INT_REGISTER + V60_R20:			info->i = R20;							break;
-		case CPUINFO_INT_REGISTER + V60_R21:			info->i = R21;							break;
-		case CPUINFO_INT_REGISTER + V60_R22:			info->i = R22;							break;
-		case CPUINFO_INT_REGISTER + V60_R23:			info->i = R23;							break;
-		case CPUINFO_INT_REGISTER + V60_R24:			info->i = R24;							break;
-		case CPUINFO_INT_REGISTER + V60_R25:			info->i = R25;							break;
-		case CPUINFO_INT_REGISTER + V60_R26:			info->i = R26;							break;
-		case CPUINFO_INT_REGISTER + V60_R27:			info->i = R27;							break;
-		case CPUINFO_INT_REGISTER + V60_R28:			info->i = R28;							break;
-		case CPUINFO_INT_REGISTER + V60_AP:				info->i = AP;							break;
-		case CPUINFO_INT_REGISTER + V60_FP:				info->i = FP;							break;
-		case CPUINFO_INT_SP:
-		case CPUINFO_INT_REGISTER + V60_SP:				info->i = SP;							break;
-		case CPUINFO_INT_PC:
-		case CPUINFO_INT_REGISTER + V60_PC:				info->i = PC;							break;
-		case CPUINFO_INT_REGISTER + V60_PSW:			info->i = v60ReadPSW();					break;
-		case CPUINFO_INT_REGISTER + V60_ISP:			info->i = ISP;							break;
-		case CPUINFO_INT_REGISTER + V60_L0SP:			info->i = L0SP;							break;
-		case CPUINFO_INT_REGISTER + V60_L1SP:			info->i = L1SP;							break;
-		case CPUINFO_INT_REGISTER + V60_L2SP:			info->i = L2SP;							break;
-		case CPUINFO_INT_REGISTER + V60_L3SP:			info->i = L3SP;							break;
-		case CPUINFO_INT_REGISTER + V60_SBR:			info->i = SBR;							break;
-		case CPUINFO_INT_REGISTER + V60_TR:				info->i = TR;							break;
-		case CPUINFO_INT_REGISTER + V60_SYCW:			info->i = SYCW;							break;
-		case CPUINFO_INT_REGISTER + V60_TKCW:			info->i = TKCW;							break;
-		case CPUINFO_INT_REGISTER + V60_PIR:			info->i = PIR;							break;
-		case CPUINFO_INT_REGISTER + V60_PSW2:			info->i = PSW2;							break;
-		case CPUINFO_INT_REGISTER + V60_ATBR0:			info->i = ATBR0;						break;
-		case CPUINFO_INT_REGISTER + V60_ATLR0:			info->i = ATLR0;						break;
-		case CPUINFO_INT_REGISTER + V60_ATBR1:			info->i = ATBR1;						break;
-		case CPUINFO_INT_REGISTER + V60_ATLR1:			info->i = ATLR1;						break;
-		case CPUINFO_INT_REGISTER + V60_ATBR2:			info->i = ATBR2;						break;
-		case CPUINFO_INT_REGISTER + V60_ATLR2:			info->i = ATLR2;						break;
-		case CPUINFO_INT_REGISTER + V60_ATBR3:			info->i = ATBR3;						break;
-		case CPUINFO_INT_REGISTER + V60_ATLR3:			info->i = ATLR3;						break;
-		case CPUINFO_INT_REGISTER + V60_TRMODE:			info->i = TRMODE;						break;
-		case CPUINFO_INT_REGISTER + V60_ADTR0:			info->i = ADTR0;						break;
-		case CPUINFO_INT_REGISTER + V60_ADTR1:			info->i = ADTR1;						break;
-		case CPUINFO_INT_REGISTER + V60_ADTMR0:			info->i = ADTMR0;						break;
-		case CPUINFO_INT_REGISTER + V60_ADTMR1:			info->i = ADTMR1;						break;
-
-		/* --- the following bits of info are returned as pointers to data or functions --- */
-		case CPUINFO_PTR_SET_INFO:						info->setinfo = v60_set_info;			break;
-		case CPUINFO_PTR_GET_CONTEXT:					info->getcontext = v60_get_context;		break;
-		case CPUINFO_PTR_SET_CONTEXT:					info->setcontext = v60_set_context;		break;
-		case CPUINFO_PTR_INIT:							info->init = v60_init;					break;
-		case CPUINFO_PTR_RESET:							info->reset = v60_reset;				break;
-		case CPUINFO_PTR_EXIT:							info->exit = v60_exit;					break;
-		case CPUINFO_PTR_EXECUTE:						info->execute = v60_execute;			break;
-		case CPUINFO_PTR_BURN:							info->burn = NULL;						break;
-		case CPUINFO_PTR_DISASSEMBLE:					info->disassemble = v60_dasm;			break;
-		case CPUINFO_PTR_INSTRUCTION_COUNTER:			info->icount = &v60_ICount;				break;
-		case CPUINFO_PTR_REGISTER_LAYOUT:				info->p = v60_reg_layout;				break;
-		case CPUINFO_PTR_WINDOW_LAYOUT:					info->p = v60_win_layout;				break;
-
-		/* --- the following bits of info are returned as NULL-terminated strings --- */
-		case CPUINFO_STR_NAME:							strcpy(info->s = cpuintrf_temp_str(), "V60"); break;
-		case CPUINFO_STR_CORE_FAMILY:					strcpy(info->s = cpuintrf_temp_str(), "NEC V60"); break;
-		case CPUINFO_STR_CORE_VERSION:					strcpy(info->s = cpuintrf_temp_str(), "1.0"); break;
-		case CPUINFO_STR_CORE_FILE:						strcpy(info->s = cpuintrf_temp_str(), __FILE__); break;
-		case CPUINFO_STR_CORE_CREDITS:					strcpy(info->s = cpuintrf_temp_str(), "Farfetch'd and R.Belmont"); break;
-
-		case CPUINFO_STR_FLAGS:							strcpy(info->s = cpuintrf_temp_str(), " "); break;
-
-		case CPUINFO_STR_REGISTER + V60_R0:				sprintf(info->s = cpuintrf_temp_str(), "R0:%08X", R0);	break;
-		case CPUINFO_STR_REGISTER + V60_R1:				sprintf(info->s = cpuintrf_temp_str(), "R1:%08X", R1);	break;
-		case CPUINFO_STR_REGISTER + V60_R2:				sprintf(info->s = cpuintrf_temp_str(), "R2:%08X", R2);	break;
-		case CPUINFO_STR_REGISTER + V60_R3:				sprintf(info->s = cpuintrf_temp_str(), "R3:%08X", R3);	break;
-		case CPUINFO_STR_REGISTER + V60_R4:				sprintf(info->s = cpuintrf_temp_str(), "R4:%08X", R4);	break;
-		case CPUINFO_STR_REGISTER + V60_R5:				sprintf(info->s = cpuintrf_temp_str(), "R5:%08X", R5);	break;
-		case CPUINFO_STR_REGISTER + V60_R6:				sprintf(info->s = cpuintrf_temp_str(), "R6:%08X", R6);	break;
-		case CPUINFO_STR_REGISTER + V60_R7:				sprintf(info->s = cpuintrf_temp_str(), "R7:%08X", R7);	break;
-		case CPUINFO_STR_REGISTER + V60_R8:				sprintf(info->s = cpuintrf_temp_str(), "R8:%08X", R8);	break;
-		case CPUINFO_STR_REGISTER + V60_R9:				sprintf(info->s = cpuintrf_temp_str(), "R9:%08X", R9);	break;
-		case CPUINFO_STR_REGISTER + V60_R10:			sprintf(info->s = cpuintrf_temp_str(), "R10:%08X", R10); break;
-		case CPUINFO_STR_REGISTER + V60_R11:			sprintf(info->s = cpuintrf_temp_str(), "R11:%08X", R11); break;
-		case CPUINFO_STR_REGISTER + V60_R12:			sprintf(info->s = cpuintrf_temp_str(), "R12:%08X", R12); break;
-		case CPUINFO_STR_REGISTER + V60_R13:			sprintf(info->s = cpuintrf_temp_str(), "R13:%08X", R13); break;
-		case CPUINFO_STR_REGISTER + V60_R14:			sprintf(info->s = cpuintrf_temp_str(), "R14:%08X", R14); break;
-		case CPUINFO_STR_REGISTER + V60_R15:			sprintf(info->s = cpuintrf_temp_str(), "R15:%08X", R15); break;
-		case CPUINFO_STR_REGISTER + V60_R16:			sprintf(info->s = cpuintrf_temp_str(), "R16:%08X", R16); break;
-		case CPUINFO_STR_REGISTER + V60_R17:			sprintf(info->s = cpuintrf_temp_str(), "R17:%08X", R17); break;
-		case CPUINFO_STR_REGISTER + V60_R18:			sprintf(info->s = cpuintrf_temp_str(), "R18:%08X", R18); break;
-		case CPUINFO_STR_REGISTER + V60_R19:			sprintf(info->s = cpuintrf_temp_str(), "R19:%08X", R19); break;
-		case CPUINFO_STR_REGISTER + V60_R20:			sprintf(info->s = cpuintrf_temp_str(), "R20:%08X", R20); break;
-		case CPUINFO_STR_REGISTER + V60_R21:			sprintf(info->s = cpuintrf_temp_str(), "R21:%08X", R21); break;
-		case CPUINFO_STR_REGISTER + V60_R22:			sprintf(info->s = cpuintrf_temp_str(), "R22:%08X", R22); break;
-		case CPUINFO_STR_REGISTER + V60_R23:			sprintf(info->s = cpuintrf_temp_str(), "R23:%08X", R23); break;
-		case CPUINFO_STR_REGISTER + V60_R24:			sprintf(info->s = cpuintrf_temp_str(), "R24:%08X", R24); break;
-		case CPUINFO_STR_REGISTER + V60_R25:			sprintf(info->s = cpuintrf_temp_str(), "R25:%08X", R25); break;
-		case CPUINFO_STR_REGISTER + V60_R26:			sprintf(info->s = cpuintrf_temp_str(), "R26:%08X", R26); break;
-		case CPUINFO_STR_REGISTER + V60_R27:			sprintf(info->s = cpuintrf_temp_str(), "R27:%08X", R27); break;
-		case CPUINFO_STR_REGISTER + V60_R28:			sprintf(info->s = cpuintrf_temp_str(), "R28:%08X", R28); break;
-		case CPUINFO_STR_REGISTER + V60_AP:				sprintf(info->s = cpuintrf_temp_str(), "AP:%08X", AP); break;
-		case CPUINFO_STR_REGISTER + V60_FP:				sprintf(info->s = cpuintrf_temp_str(), "FP:%08X", FP); break;
-		case CPUINFO_STR_REGISTER + V60_SP:				sprintf(info->s = cpuintrf_temp_str(), "SP:%08X", SP); break;
-		case CPUINFO_STR_REGISTER + V60_PC:				sprintf(info->s = cpuintrf_temp_str(), "PC:%08X", PC); break;
-		case CPUINFO_STR_REGISTER + V60_PSW:			sprintf(info->s = cpuintrf_temp_str(), "PSW:%08X", v60ReadPSW()); break;
-		case CPUINFO_STR_REGISTER + V60_ISP:			sprintf(info->s = cpuintrf_temp_str(), "ISP:%08X", ISP); break;
-		case CPUINFO_STR_REGISTER + V60_L0SP:			sprintf(info->s = cpuintrf_temp_str(), "L0SP:%08X", L0SP); break;
-		case CPUINFO_STR_REGISTER + V60_L1SP:			sprintf(info->s = cpuintrf_temp_str(), "L1SP:%08X", L1SP); break;
-		case CPUINFO_STR_REGISTER + V60_L2SP:			sprintf(info->s = cpuintrf_temp_str(), "L2SP:%08X", L2SP); break;
-		case CPUINFO_STR_REGISTER + V60_L3SP:			sprintf(info->s = cpuintrf_temp_str(), "L3SP:%08X", L3SP); break;
-		case CPUINFO_STR_REGISTER + V60_SBR:			sprintf(info->s = cpuintrf_temp_str(), "SBR:%08X", SBR); break;
-		case CPUINFO_STR_REGISTER + V60_TR:				sprintf(info->s = cpuintrf_temp_str(), "TR:%08X", TR); break;
-		case CPUINFO_STR_REGISTER + V60_SYCW:			sprintf(info->s = cpuintrf_temp_str(), "SYCW:%08X", SYCW); break;
-		case CPUINFO_STR_REGISTER + V60_TKCW:			sprintf(info->s = cpuintrf_temp_str(), "TKCW:%08X", TKCW); break;
-		case CPUINFO_STR_REGISTER + V60_PIR:			sprintf(info->s = cpuintrf_temp_str(), "PIR:%08X", PIR); break;
-		case CPUINFO_STR_REGISTER + V60_PSW2:			sprintf(info->s = cpuintrf_temp_str(), "PSW2:%08X", PSW2); break;
-		case CPUINFO_STR_REGISTER + V60_ATBR0:			sprintf(info->s = cpuintrf_temp_str(), "ATBR0:%08X", ATBR0); break;
-		case CPUINFO_STR_REGISTER + V60_ATLR0:			sprintf(info->s = cpuintrf_temp_str(), "ATLR0:%08X", ATLR0); break;
-		case CPUINFO_STR_REGISTER + V60_ATBR1:			sprintf(info->s = cpuintrf_temp_str(), "ATBR1:%08X", ATBR1); break;
-		case CPUINFO_STR_REGISTER + V60_ATLR1:			sprintf(info->s = cpuintrf_temp_str(), "ATLR1:%08X", ATLR1); break;
-		case CPUINFO_STR_REGISTER + V60_ATBR2:			sprintf(info->s = cpuintrf_temp_str(), "ATBR2:%08X", ATBR2); break;
-		case CPUINFO_STR_REGISTER + V60_ATLR2:			sprintf(info->s = cpuintrf_temp_str(), "ATLR2:%08X", ATLR2); break;
-		case CPUINFO_STR_REGISTER + V60_ATBR3:			sprintf(info->s = cpuintrf_temp_str(), "ATBR3:%08X", ATBR3); break;
-		case CPUINFO_STR_REGISTER + V60_ATLR3:			sprintf(info->s = cpuintrf_temp_str(), "ATLR3:%08X", ATLR3); break;
-		case CPUINFO_STR_REGISTER + V60_TRMODE:			sprintf(info->s = cpuintrf_temp_str(), "TRMODE:%08X", TRMODE); break;
-		case CPUINFO_STR_REGISTER + V60_ADTR0:			sprintf(info->s = cpuintrf_temp_str(), "ADTR0:%08X", ADTR0); break;
-		case CPUINFO_STR_REGISTER + V60_ADTR1:			sprintf(info->s = cpuintrf_temp_str(), "ADTR1:%08X", ADTR1); break;
-		case CPUINFO_STR_REGISTER + V60_ADTMR0:			sprintf(info->s = cpuintrf_temp_str(), "ADTMR0:%08X", ADTMR0); break;
-		case CPUINFO_STR_REGISTER + V60_ADTMR1:			sprintf(info->s = cpuintrf_temp_str(), "ADTMR1:%08X", ADTMR1); break;
+		_CY=(appb&0x1)!=0;
 	}
+	else if (count<0)
+	{
+		count=-count;
+		for (i=0;i<count;i++)
+			appb = (appb>>1) | ((appb&0x1) << 7);
+
+		_CY=(appb&0x80)!=0;
+	}
+	else
+		_CY=0;
+
+	_OV=0;
+	_S=(appb&0x80)!=0;
+	_Z=(appb==0);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opROTH(void) /* TRUSTED */
+{
+	UINT16 apph;
+	INT8 i,count;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	count=(INT8)(f12Op1&0xFF);
+	if (count>0)
+	{
+		for (i=0;i<count;i++)
+			apph = (apph<<1) | ((apph&0x8000) >> 15);
+
+		_CY=(apph&0x1)!=0;
+	}
+	else if (count<0)
+	{
+		count=-count;
+		for (i=0;i<count;i++)
+			apph = (apph>>1) | ((apph&0x1) << 15);
+
+		_CY=(apph&0x8000)!=0;
+	}
+	else
+		_CY=0;
+
+	_OV=0;
+	_S=(apph&0x8000)!=0;
+	_Z=(apph==0);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opROTW(void) /* TRUSTED */
+{
+	UINT32 appw;
+	INT8 i,count;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	count=(INT8)(f12Op1&0xFF);
+	if (count>0)
+	{
+		for (i=0;i<count;i++)
+			appw = (appw<<1) | ((appw&0x80000000) >> 31);
+
+		_CY=(appw&0x1)!=0;
+	}
+	else if (count<0)
+	{
+		count=-count;
+		for (i=0;i<count;i++)
+			appw = (appw>>1) | ((appw&0x1) << 31);
+
+		_CY=(appw&0x80000000)!=0;
+	}
+	else
+		_CY=0;
+
+	_OV=0;
+	_S=(appw&0x80000000)!=0;
+	_Z=(appw==0);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opROTCB(void) /* TRUSTED */
+{
+	UINT8 appb;
+	INT8 i,cy,count;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+	NORMALIZEFLAGS();
+
+	count=(INT8)(f12Op1&0xFF);
+	if (count>0)
+	{
+		for (i=0;i<count;i++)
+		{
+			cy = _CY;
+			_CY = (UINT8)((appb & 0x80) >> 7);
+			appb = (appb<<1) | cy;
+		}
+	}
+	else if (count<0)
+	{
+		count=-count;
+		for (i=0;i<count;i++)
+		{
+			cy = _CY;
+			_CY = (appb & 1);
+			appb = (appb>>1) | (cy << 7);
+		}
+	}
+	else
+		_CY = 0;
+
+	_OV=0;
+	_S=(appb&0x80)!=0;
+	_Z=(appb==0);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opROTCH(void) /* TRUSTED */
+{
+	UINT16 apph;
+	INT8 i,cy,count;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+	NORMALIZEFLAGS();
+
+	count=(INT8)(f12Op1&0xFF);
+	if (count>0)
+	{
+		for (i=0;i<count;i++)
+		{
+			cy = _CY;
+			_CY = (UINT8)((apph & 0x8000) >> 15);
+			apph = (apph<<1) | cy;
+		}
+	}
+	else if (count<0)
+	{
+		count=-count;
+		for (i=0;i<count;i++)
+		{
+			cy = _CY;
+			_CY = (UINT8)(apph & 1);
+			apph = (apph>>1) | ((UINT16)cy << 15);
+		}
+	}
+	else
+		_CY = 0;
+
+	_OV=0;
+	_S=(apph&0x8000)!=0;
+	_Z=(apph==0);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opROTCW(void) /* TRUSTED */
+{
+	UINT32 appw;
+	INT8 i,cy,count;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+	NORMALIZEFLAGS();
+
+	count=(INT8)(f12Op1&0xFF);
+	if (count>0)
+	{
+		for (i=0;i<count;i++)
+		{
+			cy = _CY;
+			_CY = (UINT8)((appw & 0x80000000) >> 31);
+			appw = (appw<<1) | cy;
+		}
+	}
+	else if (count<0)
+	{
+		count=-count;
+		for (i=0;i<count;i++)
+		{
+			cy = _CY;
+			_CY = (UINT8)(appw & 1);
+			appw = (appw>>1) | ((UINT32)cy << 31);
+		}
+	}
+	else
+		_CY=0;
+
+	_OV=0;
+	_S=(appw&0x80000000)!=0;
+	_Z=(appw==0);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opRVBIT(void)
+{
+	F12DecodeFirstOperand(ReadAM,0);
+
+	modWriteValB =(UINT8)
+								(((f12Op1 & (1<<0)) << 7) |
+								 ((f12Op1 & (1<<1)) << 5) |
+								 ((f12Op1 & (1<<2)) << 3) |
+								 ((f12Op1 & (1<<3)) << 1) |
+								 ((f12Op1 & (1<<4)) >> 1) |
+								 ((f12Op1 & (1<<5)) >> 3) |
+								 ((f12Op1 & (1<<6)) >> 5) |
+								 ((f12Op1 & (1<<7)) >> 7));
+
+	F12WriteSecondOperand(0);
+	F12END();
+}
+
+static UINT32 opRVBYT(void) /* TRUSTED */
+{
+	F12DecodeFirstOperand(ReadAM,2);
+
+	modWriteValW = ((f12Op1 & 0x000000FF) << 24) |
+								 ((f12Op1 & 0x0000FF00) << 8)  |
+								 ((f12Op1 & 0x00FF0000) >> 8)  |
+								 ((f12Op1 & 0xFF000000) >> 24);
+
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+static UINT32 opSET1(void) /* TRUSTED */
+{
+	UINT32 appw;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	_CY = ((appw & (1<<f12Op1))!=0);
+	_Z = !(_CY);
+
+	appw |= (1<<f12Op1);
+
+	F12STOREOP2WORD();
+	F12END();
 }
 
 
-/**************************************************************************
- * CPU-specific set_info
- **************************************************************************/
-
-void v70_get_info(UINT32 state, union cpuinfo *info)
+static UINT32 opSETF(void)
 {
-	switch (state)
+	F12DecodeFirstOperand(ReadAM,0);
+
+	// Normalize the flags
+	NORMALIZEFLAGS();
+
+	switch (f12Op1 & 0xF)
 	{
-		/* --- the following bits of info are returned as 64-bit signed integers --- */
-		case CPUINFO_INT_DATABUS_WIDTH + ADDRESS_SPACE_PROGRAM:	info->i = 32;					break;
-		case CPUINFO_INT_ADDRBUS_WIDTH + ADDRESS_SPACE_PROGRAM: info->i = 32;					break;
-		case CPUINFO_INT_ADDRBUS_SHIFT + ADDRESS_SPACE_PROGRAM: info->i = 0;					break;
-
-		/* --- the following bits of info are returned as pointers to data or functions --- */
-		case CPUINFO_PTR_INIT:							info->init = v70_init;					break;
-		case CPUINFO_PTR_DISASSEMBLE:					info->disassemble = v70_dasm;			break;
-
-		/* --- the following bits of info are returned as NULL-terminated strings --- */
-		case CPUINFO_STR_NAME:							strcpy(info->s = cpuintrf_temp_str(), "V70"); break;
-
-		default:
-			v60_get_info(state, info);
-			break;
+	case 0:
+		if (!_OV) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 1:
+		if (_OV) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 2:
+		if (!_CY) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 3:
+		if (_CY) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 4:
+		if (!_Z) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 5:
+		if (_Z) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 6:
+		if (!(_CY | _Z)) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 7:
+		if ((_CY | _Z)) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 8:
+		if (!_S) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 9:
+		if (_S) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 10:
+		modWriteValB=1;
+		break;
+	case 11:
+		modWriteValB=0;
+		break;
+	case 12:
+		if (!(_S^_OV)) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 13:
+		if ((_S^_OV)) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 14:
+		if (!((_S^_OV)|_Z)) modWriteValB=0;
+		else modWriteValB=1;
+		break;
+	case 15:
+		if (((_S^_OV)|_Z)) modWriteValB=0;
+		else modWriteValB=1;
+		break;
 	}
+
+	F12WriteSecondOperand(0);
+
+	F12END();
+}
+
+/*
+#define SHIFTLEFT_OY(val, count, bitsize) \
+{\
+    UINT32 tmp = ((val) >> (bitsize-1)) & 1; \
+    tmp <<= count; \
+    tmp -= 1; \
+    tmp <<= (bitsize - (count)); \
+    _OV = (((val) & tmp) != tmp); \
+    _CY = (((val) & (1 << (count-1))) != 0); \
+}
+*/
+
+// During the shift, the overflow is set if the sign bit changes at any point during the shift
+#define SHIFTLEFT_OV(val, count, bitsize) \
+{\
+	UINT32 tmp; \
+	if (count == 32) \
+		tmp = 0xFFFFFFFF; \
+	else \
+		tmp = ((1 << (count)) - 1); \
+	tmp <<= (bitsize - (count)); \
+	if (((val) >> (bitsize-1)) & 1) \
+		_OV = (((val) & tmp) != tmp); \
+	else \
+		_OV = (((val) & tmp) != 0); \
+}
+
+#define SHIFTLEFT_CY(val, count, bitsize) \
+	_CY = (UINT8)(((val) >> (bitsize - count)) & 1);
+
+
+
+#define SHIFTARITHMETICRIGHT_OV(val, count, bitsize) \
+	_OV = 0;
+
+#define SHIFTARITHMETICRIGHT_CY(val, count, bitsize) \
+	_CY = (UINT8)(((val) >> (count-1)) & 1);
+
+
+
+static UINT32 opSHAB(void)
+{
+	UINT8 appb;
+	INT8 count;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	count=(INT8)(f12Op1&0xFF);
+
+	// Special case: destination unchanged, flags set
+	if (count == 0)
+	{
+		_CY = _OV = 0;
+		SetSZPF_Byte(appb);
+	}
+	else if (count>0)
+	{
+		SHIFTLEFT_OV(appb, count, 8);
+
+		// @@@ Undefined what happens to CY when count >= bitsize
+		SHIFTLEFT_CY(appb, count, 8);
+
+		// do the actual shift...
+		if (count >= 8)
+			appb = 0;
+		else
+			appb <<= count;
+
+		// and set zero and sign
+		SetSZPF_Byte(appb);
+	}
+	else
+	{
+		count = -count;
+
+		SHIFTARITHMETICRIGHT_OV(appb, count, 8);
+		SHIFTARITHMETICRIGHT_CY(appb, count, 8);
+
+		if (count >= 8)
+			appb = (appb & 0x80) ? 0xFF : 0;
+		else
+			appb = ((INT8)appb) >> count;
+
+		SetSZPF_Byte(appb);
+	}
+
+//  printf("SHAB: %x _CY: %d _Z: %d _OV: %d _S: %d\n", appb, _CY, _Z, _OV, _S);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opSHAH(void)
+{
+	UINT16 apph;
+	INT8 count;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	count=(INT8)(f12Op1&0xFF);
+
+	// Special case: destination unchanged, flags set
+	if (count == 0)
+	{
+		_CY = _OV = 0;
+		SetSZPF_Word(apph);
+	}
+	else if (count>0)
+	{
+		SHIFTLEFT_OV(apph, count, 16);
+
+		// @@@ Undefined what happens to CY when count >= bitsize
+		SHIFTLEFT_CY(apph, count, 16);
+
+		// do the actual shift...
+		if (count >= 16)
+			apph = 0;
+		else
+			apph <<= count;
+
+		// and set zero and sign
+		SetSZPF_Word(apph);
+	}
+	else
+	{
+		count = -count;
+
+		SHIFTARITHMETICRIGHT_OV(apph, count, 16);
+		SHIFTARITHMETICRIGHT_CY(apph, count, 16);
+
+		if (count >= 16)
+			apph = (apph & 0x8000) ? 0xFFFF : 0;
+		else
+			apph = ((INT16)apph) >> count;
+
+		SetSZPF_Word(apph);
+	}
+
+//  printf("SHAH: %x >> %d = %x _CY: %d _Z: %d _OV: %d _S: %d\n", oldval, count, apph, _CY, _Z, _OV, _S);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opSHAW(void)
+{
+	UINT32 appw;
+	INT8 count;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	count=(INT8)(f12Op1&0xFF);
+
+	// Special case: destination unchanged, flags set
+	if (count == 0)
+	{
+		_CY = _OV = 0;
+		SetSZPF_Long(appw);
+	}
+	else if (count>0)
+	{
+		SHIFTLEFT_OV(appw, count, 32);
+
+		// @@@ Undefined what happens to CY when count >= bitsize
+		SHIFTLEFT_CY(appw, count, 32);
+
+		// do the actual shift...
+		if (count >= 32)
+			appw = 0;
+		else
+			appw <<= count;
+
+		// and set zero and sign
+		SetSZPF_Long(appw);
+	}
+	else
+	{
+		count = -count;
+
+		SHIFTARITHMETICRIGHT_OV(appw, count, 32);
+		SHIFTARITHMETICRIGHT_CY(appw, count, 32);
+
+		if (count >= 32)
+			appw = (appw & 0x80000000) ? 0xFFFFFFFF : 0;
+		else
+			appw = ((INT32)appw) >> count;
+
+		SetSZPF_Long(appw);
+	}
+
+//  printf("SHAW: %x >> %d = %x _CY: %d _Z: %d _OV: %d _S: %d\n", oldval, count, appw, _CY, _Z, _OV, _S);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+
+static UINT32 opSHLB(void) /* TRUSTED */
+{
+	UINT8 appb;
+	INT8 count;
+	UINT32 tmp;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	count=(INT8)(f12Op1&0xFF);
+	if (count>0)
+	{
+		// left shift flags:
+		// carry gets the last bit shifted out,
+		// overflow is always CLEARed
+
+		_OV = 0;	// default to no overflow
+
+		// now handle carry
+		tmp = appb & 0xff;
+		tmp <<= count;
+		SetCFB(tmp);	// set carry properly
+
+		// do the actual shift...
+		appb <<= count;
+
+		// and set zero and sign
+		SetSZPF_Byte(appb);
+	}
+	else
+	{
+		if (count == 0)
+		{
+			// special case: clear carry and overflow, do nothing else
+			_CY = _OV = 0;
+			SetSZPF_Byte(appb);	// doc. is unclear if this is true...
+		}
+		else
+		{
+			// right shift flags:
+			// carry = last bit shifted out
+			// overflow always cleared
+			tmp = appb & 0xff;
+			tmp >>= ((-count)-1);
+			_CY = (UINT8)(tmp & 0x1);
+			_OV = 0;
+
+			appb >>= -count;
+			SetSZPF_Byte(appb);
+		}
+	}
+
+//  printf("SHLB: %x _CY: %d _Z: %d _OV: %d _S: %d\n", appb, _CY, _Z, _OV, _S);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opSHLH(void) /* TRUSTED */
+{
+	UINT16 apph;
+	INT8 count;
+	UINT32 tmp;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	count=(INT8)(f12Op1&0xFF);
+//  printf("apph: %x count: %d  ", apph, count);
+	if (count>0)
+	{
+		// left shift flags:
+		// carry gets the last bit shifted out,
+		// overflow is always CLEARed
+
+		_OV = 0;
+
+		// now handle carry
+		tmp = apph & 0xffff;
+		tmp <<= count;
+		SetCFW(tmp);	// set carry properly
+
+		// do the actual shift...
+		apph <<= count;
+
+		// and set zero and sign
+		SetSZPF_Word(apph);
+	}
+	else
+	{
+		if (count == 0)
+		{
+			// special case: clear carry and overflow, do nothing else
+			_CY = _OV = 0;
+			SetSZPF_Word(apph);	// doc. is unclear if this is true...
+		}
+		else
+		{
+			// right shift flags:
+			// carry = last bit shifted out
+			// overflow always cleared
+			tmp = apph & 0xffff;
+			tmp >>= ((-count)-1);
+			_CY = (UINT8)(tmp & 0x1);
+			_OV = 0;
+
+			apph >>= -count;
+			SetSZPF_Word(apph);
+		}
+	}
+
+//  printf("SHLH: %x _CY: %d _Z: %d _OV: %d _S: %d\n", apph, _CY, _Z, _OV, _S);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opSHLW(void) /* TRUSTED */
+{
+	UINT32 appw;
+	INT8 count;
+	UINT64 tmp;
+
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	count=(INT8)(f12Op1&0xFF);
+	if (count>0)
+	{
+		// left shift flags:
+		// carry gets the last bit shifted out,
+		// overflow is always CLEARed
+
+		_OV = 0;
+
+		// now handle carry
+		tmp = appw & 0xffffffff;
+		tmp <<= count;
+		SetCFL(tmp);	// set carry properly
+
+		// do the actual shift...
+		appw <<= count;
+
+		// and set zero and sign
+		SetSZPF_Long(appw);
+	}
+	else
+	{
+		if (count == 0)
+		{
+			// special case: clear carry and overflow, do nothing else
+			_CY = _OV = 0;
+			SetSZPF_Long(appw);	// doc. is unclear if this is true...
+		}
+		else
+		{
+			// right shift flags:
+			// carry = last bit shifted out
+			// overflow always cleared
+			tmp = (UINT64)(appw & 0xffffffff);
+			tmp >>= ((-count)-1);
+			_CY = (UINT8)(tmp & 0x1);
+			_OV = 0;
+
+			appw >>= -count;
+			SetSZPF_Long(appw);
+		}
+	}
+
+//  printf("SHLW: %x _CY: %d _Z: %d _OV: %d _S: %d\n", appw, _CY, _Z, _OV, _S);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opSTPR(void)
+{
+	F12DecodeFirstOperand(ReadAM,2);
+	if (f12Op1 >= 0 && f12Op1 <= 28)
+		modWriteValW = v60.reg[f12Op1 + 36];
+	else
+	{
+		fatalerror("Invalid operand on STPR PC=%x", PC);
+	}
+	F12WriteSecondOperand(2);
+	F12END();
+}
+
+
+static UINT32 opSUBB(void) /* TRUSTED (C too!) */
+{
+	UINT8 appb;
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	SUBB(appb, (UINT8)f12Op1);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opSUBH(void) /* TRUSTED (C too!) */
+{
+	UINT16 apph;
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	SUBW(apph, (UINT16)f12Op1);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opSUBW(void) /* TRUSTED (C too!) */
+{
+	UINT32 appw;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	SUBL(appw, (UINT32)f12Op1);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+
+static UINT32 opSUBCB(void)
+{
+	UINT8 appb;
+	UINT8 src;
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	src = (UINT8)f12Op1 + (_CY?1:0);
+	SUBB(appb, src);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opSUBCH(void)
+{
+	UINT16 apph;
+	UINT16 src;
+
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	src = (UINT16)f12Op1 + (_CY?1:0);
+	SUBW(apph, src);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opSUBCW(void)
+{
+	UINT32 appw;
+	UINT32 src;
+
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	src = (UINT32)f12Op1 + (_CY?1:0);
+	SUBL(appw, src);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opTEST1(void)
+{
+	F12DecodeOperands(ReadAM,2,ReadAM,2);
+
+	_CY = ((f12Op2 & (1<<f12Op1))!=0);
+	_Z = !(_CY);
+
+	F12END();
+}
+
+static UINT32 opUPDPSWW(void)
+{
+	F12DecodeOperands(ReadAM,2,ReadAM,2);
+
+	/* can only modify condition code and control fields */
+	f12Op2 &= 0xFFFFFF;
+	f12Op1 &= 0xFFFFFF;
+	v60WritePSW((v60ReadPSW() & (~f12Op2)) | (f12Op1 & f12Op2));
+
+	F12END();
+}
+
+static UINT32 opUPDPSWH(void)
+{
+	F12DecodeOperands(ReadAM,2,ReadAM,2);
+
+	/* can only modify condition code fields */
+	f12Op2 &= 0xFFFF;
+	f12Op1 &= 0xFFFF;
+	v60WritePSW((v60ReadPSW() & (~f12Op2)) | (f12Op1 & f12Op2));
+
+	F12END();
+}
+
+static UINT32 opXCHB(void) /* TRUSTED */
+{
+	UINT8 appb, temp;
+
+	F12DecodeOperands(ReadAMAddress,0,ReadAMAddress,0);
+
+	F12LOADOP1BYTE();
+	temp=appb;
+	F12LOADOP2BYTE();
+	F12STOREOP1BYTE();
+	appb=temp;
+	F12STOREOP2BYTE();
+
+	F12END()
+}
+
+static UINT32 opXCHH(void) /* TRUSTED */
+{
+	UINT16 apph, temp;
+
+	F12DecodeOperands(ReadAMAddress,1,ReadAMAddress,1);
+
+	F12LOADOP1HALF();
+	temp=apph;
+	F12LOADOP2HALF();
+	F12STOREOP1HALF();
+	apph=temp;
+	F12STOREOP2HALF();
+
+	F12END()
+}
+
+static UINT32 opXCHW(void) /* TRUSTED */
+{
+	UINT32 appw, temp;
+
+	F12DecodeOperands(ReadAMAddress,2,ReadAMAddress,2);
+
+	F12LOADOP1WORD();
+	temp=appw;
+	F12LOADOP2WORD();
+	F12STOREOP1WORD();
+	appw=temp;
+	F12STOREOP2WORD();
+
+	F12END()
+}
+
+static UINT32 opXORB(void) /* TRUSTED (C too!) */
+{
+	UINT8 appb;
+	F12DecodeOperands(ReadAM,0,ReadAMAddress,0);
+
+	F12LOADOP2BYTE();
+
+	XORB(appb, (UINT8)f12Op1);
+
+	F12STOREOP2BYTE();
+	F12END();
+}
+
+static UINT32 opXORH(void) /* TRUSTED (C too!) */
+{
+	UINT16 apph;
+	F12DecodeOperands(ReadAM,1,ReadAMAddress,1);
+
+	F12LOADOP2HALF();
+
+	XORW(apph, (UINT16)f12Op1);
+
+	F12STOREOP2HALF();
+	F12END();
+}
+
+static UINT32 opXORW(void) /* TRUSTED (C too!) */
+{
+	UINT32 appw;
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,2);
+
+	F12LOADOP2WORD();
+
+	XORL(appw, (UINT32)f12Op1);
+
+	F12STOREOP2WORD();
+	F12END();
+}
+
+static UINT32 opMULX(void)
+{
+	INT32 a,b;
+	INT64 res;
+
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,3);
+
+	if (f12Flag2)
+	{
+		a=v60.reg[f12Op2&0x1F];
+	}
+	else
+	{
+		a=MemRead32(f12Op2);
+	}
+
+	res = (INT64)a * (INT64)(INT32)f12Op1;
+
+	b = (INT32)((res >> 32)&0xffffffff);
+	a = (INT32)(res&0xffffffff);
+
+	_S = ((b & 0x80000000) != 0);
+	_Z = (a == 0 && b == 0);
+
+	if (f12Flag2)
+	{
+		v60.reg[f12Op2&0x1F]=a;
+		v60.reg[(f12Op2&0x1F)+1]=b;
+	}
+	else
+	{
+		MemWrite32(f12Op2,a);
+		MemWrite32(f12Op2+4,b);
+	}
+
+	F12END();
+}
+
+static UINT32 opMULUX(void)
+{
+	INT32 a,b;
+	UINT64 res;
+
+	F12DecodeOperands(ReadAM,2,ReadAMAddress,3);
+
+	if (f12Flag2)
+	{
+		a=v60.reg[f12Op2&0x1F];
+	}
+	else
+	{
+		a=MemRead32(f12Op2);
+	}
+
+	res = (UINT64)a * (UINT64)f12Op1;
+	b = (INT32)((res >> 32)&0xffffffff);
+	a = (INT32)(res&0xffffffff);
+
+	_S = ((b & 0x80000000) != 0);
+	_Z = (a == 0 && b == 0);
+
+	if (f12Flag2)
+	{
+		v60.reg[f12Op2&0x1F]=a;
+		v60.reg[(f12Op2&0x1F)+1]=b;
+	}
+	else
+	{
+		MemWrite32(f12Op2,a);
+		MemWrite32(f12Op2+4,b);
+	}
+
+	F12END();
 }
