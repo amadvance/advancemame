@@ -1508,5 +1508,5 @@ VIDEO_EOF(model1)
 {
 	tgp_scan();
 	end_frame();
-	logerror("TGP: vsync\n");
+	LOG_TGP("TGP: vsync\n");
 }
