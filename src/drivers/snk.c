@@ -4653,9 +4653,7 @@ static DRIVER_INIT( psychos ){
 /*          rom       parent    machine   inp       init */
 GAME( 1985, tnk3,     0,        tnk3,     tnk3,     tnk3,     ROT270, "SNK", "T.N.K. III (US)", GAME_NO_COCKTAIL )
 GAME( 1985, tnk3j,    tnk3,     tnk3,     tnk3,     tnk3,     ROT270, "SNK", "T.A.N.K. (Japan)", GAME_NO_COCKTAIL )
-/*
 GAME( 1985, tnk3b,    tnk3,     tnk3,     tnk3,     tnk3b,    ROT270, "bootleg", "T.A.N.K. (joystick hack bootleg)", GAME_NO_COCKTAIL ) 
-*/
 GAME( 1986, athena,   0,        athena,   athena,   athena,   ROT0,   "SNK", "Athena", GAME_NO_COCKTAIL )
 GAME( 1988, fitegolf, 0,        athena,   fitegolf, fitegolf, ROT0,   "SNK", "Fighting Golf (World?)", GAME_NO_COCKTAIL )
 GAME( 1988, fitegol2, fitegolf, athena,   fitegolf, fitegolf, ROT0,   "SNK", "Fighting Golf (US)", GAME_NO_COCKTAIL )
