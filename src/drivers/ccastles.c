@@ -5,7 +5,7 @@
     driver by Pat Lawrence
 
     Games supported:
-        * Crystal Castles (1983) [3 sets]
+        * Crystal Castles (1983) [4 sets]
 
     Known issues:
         * none at this time
@@ -198,6 +198,42 @@ INPUT_PORTS_START( ccastles )
 	PORT_BIT( 0xff, 0x7f, IPT_TRACKBALL_X ) PORT_SENSITIVITY(10) PORT_KEYDELTA(30)
 INPUT_PORTS_END
 
+INPUT_PORTS_START( ccastlej )
+	PORT_START	/* IN0 */
+	PORT_BIT ( 0x01, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT ( 0x02, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT ( 0x04, IP_ACTIVE_LOW, IPT_COIN3 )
+	PORT_BIT ( 0x08, IP_ACTIVE_LOW, IPT_TILT )
+	PORT_SERVICE( 0x10, IP_ACTIVE_LOW )
+	PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_VBLANK )
+	PORT_BIT ( 0x40, IP_ACTIVE_LOW, IPT_BUTTON1 )				/* 1p Jump, non-cocktail start1 */
+	PORT_BIT ( 0x80, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2) /* 2p Jump, non-cocktail start2 */
+
+	PORT_START	/* IN1 */
+	PORT_BIT ( 0x07, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT ( 0x08, IP_ACTIVE_LOW, IPT_START1 )				/* cocktail only */
+	PORT_BIT ( 0x10, IP_ACTIVE_LOW, IPT_START2 )				/* cocktail only */
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING (   0x00, DEF_STR( Upright ) )
+	PORT_DIPSETTING (   0x20, DEF_STR( Cocktail ) )
+	PORT_BIT ( 0xc0, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_UP )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT )
+	PORT_BIT( 0xf0, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNKNOWN )
+INPUT_PORTS_END
 
 
 /*************************************
@@ -347,6 +383,24 @@ ROM_START( ccastle2 )
      ROM_LOAD( "136022-111.bin", 0x0300, 0x0100, CRC(c29c18d9) SHA1(278bf61a290ae72ddaae2bafb4ab6739d3fb6238) ) /* Color PROM I.C., not used */
 ROM_END
 
+ROM_START( ccastlej )
+     ROM_REGION( 0x14000, REGION_CPU1, 0 )	/* 64k for code */
+	 ROM_LOAD( "a000.12m",       0x0a000, 0x2000, CRC(0d911ef4) SHA1(fbd6a5a0e4e865421ed3720aa61221d03583f248) )
+	 ROM_LOAD( "c000.13m",       0x0c000, 0x2000, CRC(246079de) SHA1(ade2c63656339c3e7e634470a17bc30da1006979) )
+	 ROM_LOAD( "e000.14m",       0x0e000, 0x2000, CRC(3beec4f3) SHA1(076caffe67910bdcd1f51a41f2cc4ebdb930c7ca) )
+     ROM_LOAD( "136022-102.bin", 0x10000, 0x2000, CRC(f6ccfbd4) SHA1(69c3da2cbefc5e03a77357e817e3015da5d8334a) )	/* Bank switched ROMs */
+     ROM_LOAD( "136022-101.bin", 0x12000, 0x2000, CRC(e2e17236) SHA1(81fa95b4d9beacb06d6b4afdf346d94117396557) )	/* containing level data. */
+
+     ROM_REGION( 0x4000, REGION_GFX1, ROMREGION_DISPOSE )
+     ROM_LOAD( "136022-107.bin", 0x0000, 0x2000, CRC(39960b7d) SHA1(82bdf764ac23e72598883283c5e957169387abd4) )
+     ROM_LOAD( "136022-106.bin", 0x2000, 0x2000, CRC(9d1d89fc) SHA1(01c279edee322cc28f34506c312e4a9e3363b1be) )
+
+     ROM_REGION( 0x0400, REGION_PROMS, 0 )
+     ROM_LOAD( "136022-108.bin", 0x0000, 0x0100, CRC(6ed31e3b) SHA1(c3f3e4e7f313ecfd101cc52dfc44bd6b51a2ac88) ) /* Synchronous PROM I.C., not used */
+     ROM_LOAD( "136022-109.bin", 0x0100, 0x0100, CRC(b3515f1a) SHA1(c1bf077242481ef2f958580602b8113532b58612) ) /* Bus PROM I.C., not used */
+     ROM_LOAD( "136022-110.bin", 0x0200, 0x0100, CRC(068bdc7e) SHA1(ae155918fdafd14299bc448b43eed8ad9c1ef5ef) ) /* Write PROM I.C., not used */
+     ROM_LOAD( "136022-111.bin", 0x0300, 0x0100, CRC(c29c18d9) SHA1(278bf61a290ae72ddaae2bafb4ab6739d3fb6238) ) /* Color PROM I.C., not used */
+ROM_END
 
 
 /*************************************
@@ -358,3 +412,4 @@ ROM_END
 GAME( 1983, ccastles, 0,        ccastles, ccastles, 0, ROT0, "Atari", "Crystal Castles (version 4)", 0 )
 GAME( 1983, ccastle3, ccastles, ccastles, ccastles, 0, ROT0, "Atari", "Crystal Castles (version 3)", 0 )
 GAME( 1983, ccastle2, ccastles, ccastles, ccastles, 0, ROT0, "Atari", "Crystal Castles (version 2)", 0 )
+GAME( 1983, ccastlej, ccastles, ccastles, ccastlej, 0, ROT0, "Atari", "Crystal Castles (joystick version)", 0 )
