@@ -2121,6 +2121,7 @@ V-V                           TP-027
 	DRIVER( uopoko )	/* (c) 1998 Cave + Jaleco license */
 	DRIVER( uopokoj )	/* (c) 1998 Cave + Jaleco license */
 	DRIVER( guwange )	/* (c) 1999 Atlus/Cave */
+	DRIVER( guwanges )	/* (c) 2000 Atlus/Cave */
 	DRIVER( gaia )		/* (c) 1999 Noise Factory */
 	DRIVER( korokoro )	/* (c) 1999 Takumi */
 
@@ -4665,6 +4666,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( ccastles )	/* 136022           (c) 1983 */
 	DRIVER( ccastle3 )	/* 136022           (c) 1983 */
 	DRIVER( ccastle2 )	/* 136022           (c) 1983 */
+        DRIVER( ccastlej )	/* 136022           (c) 1983 */
 	DRIVER( cloak )		/* 136023           (c) 1983 */
 	DRIVER( cloaksp )	/* 136023           (c) 1983 */
 	DRIVER( cloakfr )	/* 136023           (c) 1983 */
