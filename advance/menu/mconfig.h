@@ -414,6 +414,7 @@ public:
 	restore_t restore; ///< Configuration restore mode.
 
 	bool quiet; ///< Quiet mode.
+	bool sync; ///< Filesystem sync.
 
 	// internal state
 	unsigned mode_mask; ///< Mask of available modes.

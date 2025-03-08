@@ -1467,6 +1467,20 @@ Configuration
 
 	:misc_quiet yes | no
 
+    misc_sync
+	Synchronize the filesystem before starting a game.
+	This helps prevent filesystem damage in case the system is
+	unexpectedly powered off.
+
+	On a standard desktop system, if other applications are writing to the
+	disk, this may cause a delay before the game starts.
+
+	:misc_sync yes | no
+
+	Options:
+		yes - Enables filesystem syncronization (default).
+		no - Disables.
+
 Formats Supported
 	This is the list of the file formats supported by AdvanceMENU.
 

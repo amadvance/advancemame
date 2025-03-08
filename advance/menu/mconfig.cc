@@ -324,6 +324,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_bool_register_default(config_context, "display_restoreatexit", 1);
 	conf_int_register_enum_default(config_context, "display_resizeeffect", conf_enum(OPTION_RESIZEEFFECT), COMBINE_AUTO);
 	conf_bool_register_default(config_context, "misc_quiet", 0);
+	conf_bool_register_default(config_context, "misc_sync", 1);
 	conf_float_register_limit_default(config_context, "ui_translucency", 0, 1, 0.6);
 	conf_string_register_default(config_context, "ui_background", "none");
 	conf_string_register_default(config_context, "ui_help", "none");
@@ -937,6 +938,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 #endif
 
 	quiet = conf_bool_get_default(config_context, "misc_quiet");
+	sync = conf_bool_get_default(config_context, "misc_sync");
 	if (!config_split(conf_string_get_default(config_context, "ui_gamemsg"), ui_gamemsg))
 		return false;
 	ui_gamesaver = (saver_t)conf_int_get_default(config_context, "ui_game");
@@ -1422,7 +1424,8 @@ bool config_state::save(adv_conf* config_context) const
 		return false;
 
 	// prevent data lost if crashing
-	target_sync();
+	if (sync)
+		target_sync();
 
 	return true;
 }
