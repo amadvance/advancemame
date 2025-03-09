@@ -8610,7 +8610,7 @@ GAMEB( 1999, garouo,   garou,    neogeo, neogeo, neogeo,  garouo,   ROT0, "SNK",
 GAMEB( 1999, garoup,   garou,    neogeo, neogeo, neogeo,  neogeo,   ROT0, "SNK", "Garou - Mark of the Wolves (prototype)", 0 )
 GAMEB( 2000, mslug3,   neogeo,   neogeo, neogeo, neogeo,  mslug3,   ROT0, "SNK", "Metal Slug 3" , 0) /* Encrypted Code & GFX */
 GAMEB( 2000, mslug3n,  mslug3,   neogeo, neogeo, neogeo,  mslug3n,  ROT0, "SNK", "Metal Slug 3 (not encrypted)" , 0) /* Encrypted GFX */
-GAMEB( 2000, mslug3b6, mslug3,   neogeo, neogeo, neogeo,  mslug3b6, ROT0, "bootleg", "Metal Slug 6 (Metal Slug 3 bootleg)", 0 ) /* real Metal Slug 6 is an Atomiswave HW game, see atomswav.c ;-) */
+GAMEB( 2000, mslug3b6, neogeo,   neogeo, neogeo, neogeo,  mslug3b6, ROT0, "bootleg", "Metal Slug 6 (Metal Slug 3 bootleg)", 0 ) /* real Metal Slug 6 is an Atomiswave HW game, see atomswav.c ;-) */
 GAMEB( 2000, kof2000,  neogeo,   neogeo, neogeo, neogeo,  kof2000,  ROT0, "SNK", "The King of Fighters 2000" , 0) /* Encrypted Code & GFX */
 GAMEB( 2000, kof2000n, kof2000,  neogeo, neogeo, neogeo,  kof2000n, ROT0, "SNK", "The King of Fighters 2000 (not encrypted)" , 0) /* Encrypted GFX */
 GAMEB( 2001, zupapa,   neogeo,   neogeo, neogeo, neogeo,  zupapa,   ROT0, "SNK", "Zupapa!" , 0)	/* Encrypted GFX */
