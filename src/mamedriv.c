@@ -5278,7 +5278,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( kof2k4se )	/* bootleg of kof2002 */
 	DRIVER( matrim )	/* 0266 (c) 2002 Atlus */
 	DRIVER( pnyaa )		/* 0267 (c) 2003 Aiky / Taito */
-	DRIVER( ms5pcb )	/* 0268 (c) 2003 Playmore */
+//	DRIVER( ms5pcb )	/* 0268 (c) 2003 Playmore */  // Just like mslug5
 	DRIVER( mslug5 )	/* 0268 (c) 2003 Playmore */
 	DRIVER( ms5plus )	/* bootleg */
 	DRIVER( svcpcb )	/* 0269 (c) 2003 Playmore / Capcom - JAMMA PCB */
