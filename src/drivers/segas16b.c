@@ -960,14 +960,14 @@ static const struct segaic16_memory_map_entry rom_171_5797_info[] =
 static const struct segaic16_memory_map_entry rom_171_5704_extra_ram_info[] =
 {
 	{ 0x3d/2, 0x00000, 0x04000, 0xffc000,      ~0, misc_io_r,             misc_io_w,             NULL,                  "I/O space" },
-	{ 0x39/2, 0x00000, 0x01000, 0xfff000,      ~0, MRA16_BANK10,          segaic16_paletteram_w, &paletteram16,         "color RAM" },
-	{ 0x35/2, 0x00000, 0x10000, 0xfe0000,      ~0, MRA16_BANK11,          segaic16_tileram_0_w,  &segaic16_tileram_0,   "tile RAM" },
-	{ 0x35/2, 0x10000, 0x01000, 0xfef000,      ~0, MRA16_BANK12,          segaic16_textram_0_w,  &segaic16_textram_0,   "text RAM" },
-	{ 0x31/2, 0x00000, 0x00800, 0xfff800,      ~0, MRA16_BANK13,          MWA16_BANK13,          &segaic16_spriteram_0, "object RAM" },
-	{ 0x2d/2, 0x00000, 0x40000, 0xfc0000,      ~0, MRA16_BANK14,          MWA16_BANK14,          &workram,              "work RAM" },
+	{ 0x39/2, 0x00000, 0x01000, 0xfff000,      ~0, MRA16_BANK11,          segaic16_paletteram_w, &paletteram16,         "color RAM" },
+	{ 0x35/2, 0x00000, 0x10000, 0xfe0000,      ~0, MRA16_BANK12,          segaic16_tileram_0_w,  &segaic16_tileram_0,   "tile RAM" },
+	{ 0x35/2, 0x10000, 0x01000, 0xfef000,      ~0, MRA16_BANK13,          segaic16_textram_0_w,  &segaic16_textram_0,   "text RAM" },
+	{ 0x31/2, 0x00000, 0x00800, 0xfff800,      ~0, MRA16_BANK14,          MWA16_BANK14,          &segaic16_spriteram_0, "object RAM" },
+	{ 0x2d/2, 0x00000, 0x40000, 0xfc0000,      ~0, MRA16_BANK15,          MWA16_BANK15,          &workram,              "work RAM" },
 	{ 0x29/2, 0x00000, 0x10000, 0xff0000,      ~0, NULL,                  rom_5704_bank_w,       NULL,                  "tile bank" },
-	{ 0x25/2, 0x00000, 0x80000, 0xfc0000, 0x80000, MRA16_BANK16,          MWA16_ROM,             NULL,                  "ROM 1" },
-	{ 0x21/2, 0x00000, 0x80000, 0xfc0000, 0x00000, MRA16_BANK17,          MWA16_ROM,             NULL,                  "ROM 0" },
+	{ 0x25/2, 0x00000, 0x80000, 0xfc0000, 0x80000, MRA16_BANK17,          MWA16_ROM,             NULL,                  "ROM 1" },
+	{ 0x21/2, 0x00000, 0x80000, 0xfc0000, 0x00000, MRA16_BANK18,          MWA16_ROM,             NULL,                  "ROM 0" },
 	{ 0 }
 };
 
