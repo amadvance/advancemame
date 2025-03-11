@@ -94,8 +94,7 @@ READ16_HANDLER(galpanib_calc_r) /* Simulation of the CALC1 MCU */
 			return (mame_rand() & 0xffff);
 
 		default:
-			break;
-			//logerror("CPU #0 PC %06x: warning - read unmapped calc address %06x\n",cpu_get_pc(space->cpu),offset<<1);
+			logerror("CPU #0 PC %06x: warning - read unmapped calc address %06x\n",activecpu_get_pc(),offset<<1);
 	}
 
 	return 0;
@@ -118,7 +117,7 @@ WRITE16_HANDLER(galpanib_calc_w)
 		case 0x12/2: hit.mult_b = data; break;
 
 		default:
-			break;//logerror("CPU #0 PC %06x: warning - write unmapped hit address %06x\n",cpu_get_pc(space->cpu),offset<<1);
+			logerror("CPU #0 PC %06x: warning - write unmapped hit address %06x\n",activecpu_get_pc(),offset<<1);
 	}
 }
 
@@ -152,7 +151,7 @@ WRITE16_HANDLER(bloodwar_calc_w)
 		case 0x38/2: break;
 
 		default:
-			break;//logerror("CPU #0 PC %06x: warning - write unmapped hit address %06x\n",cpu_get_pc(space->cpu),offset<<1);
+			logerror("CPU #0 PC %06x: warning - write unmapped hit address %06x\n",activecpu_get_pc(),offset<<1);
 	}
 }
 
@@ -256,7 +255,7 @@ READ16_HANDLER(bloodwar_calc_r)
 		case 0x32/2: return hit.y2s;
 
 		default:
-			break; //logerror("CPU #0 PC %06x: warning - read unmapped calc address %06x\n",cpu_get_pc(space->cpu),offset<<1);
+			logerror("CPU #0 PC %06x: warning - read unmapped calc address %06x\n",activecpu_get_pc(),offset<<1);
 	}
 
 	return 0;
@@ -457,7 +456,7 @@ static WRITE16_HANDLER(shogwarr_calc_w)
 					shogwarr_hit.mode=data;break;
 
 		default:
-			break;//logerror("CPU #0 PC %06x: warning - write unmapped hit address %06x [ %06x] = %06x\n",cpu_get_pc(space->cpu),offset<<1, idx, data);
+			logerror("CPU #0 PC %06x: warning - write unmapped hit address %06x [ %06x] = %06x\n",activecpu_get_pc(),offset<<1, idx, data);
 	}
 
 	shogwarr_recalc_collisions();
@@ -509,7 +508,7 @@ static READ16_HANDLER(shogwarr_calc_r)
 		case 0x88: return shogwarr_hit.z1toz2;
 
 		default:
-			break;//logerror("CPU #0 PC %06x: warning - read unmapped calc address %06x [ %06x]\n",cpu_get_pc(space->cpu),offset<<1, idx);
+			logerror("CPU #0 PC %06x: warning - read unmapped calc address %06x [ %06x]\n",activecpu_get_pc(),offset<<1, idx);
 	}
 
 	return 0;
@@ -549,7 +548,7 @@ FFFE : probably polled by MCU, needs to be kept alive (cleared by main cpu - IT2
 00207FE0 : base of 'stack' used when transfering tables out of MCU
 */
 
-void calc3_mcu_run(void);
+
 static int calc3_mcu_status, calc3_mcu_command_offset;
 
 
@@ -1760,7 +1759,7 @@ static int calc3_decompress_table(int tabnum, UINT8* dstram, int dstoffset)
 				}
 				else if (!dstram)
 				{
-					//printf("unknown blank table command\n");
+					printf("unknown blank table command\n");
 				}
 
 				return 0;
@@ -1872,7 +1871,7 @@ static int calc3_decompress_table(int tabnum, UINT8* dstram, int dstoffset)
 
 				if (key[0] == -1)
 				{
-				//	fatalerror("attempting to use invalid decryption data\n");
+					fatalerror("attempting to use invalid decryption data\n");
 				}
 
 				for (i=0;i<length;i++)
@@ -1995,6 +1994,10 @@ void calc3_mcu_run(void)
 
 	if (mcu_command == 0) return;
 
+	logerror("CPU #0 PC %06x : MCU executed command at %04X: %04X\n",
+	 	activecpu_get_pc(),calc3_mcu_command_offset,mcu_command);
+
+
 	if (mcu_command>0)
 	{
 		/* 0xff is a special 'init' command */
@@ -2039,6 +2042,8 @@ void calc3_mcu_run(void)
 
 			// clear old command (handshake to main cpu)
 			kaneko16_mcu_ram[calc3_mcu_command_offset>>1] = 0x0000;;
+
+			logerror("Calc3 transfer request, %d transfers\n", num_transfers);
 
 			for (i=0;i<num_transfers;i++)
 			{
@@ -2307,12 +2312,15 @@ void bloodwar_mcu_run(void)
 
 		case 0x04:	// Protection
 		{
+			logerror("CPU #0 PC %06X : MCU executed command: %04X %04X %04X\n", activecpu_get_pc(), mcu_command, mcu_offset*2, mcu_data);
+
 			toxboy_handle_04_subcommand(mcu_data, kaneko16_mcu_ram);
 
 		}
 		break;
 
 		default:
+             	logerror("CPU #0 PC %06X : MCU executed command: %04X %04X %04X(UNKNOWN COMMAND)\n", activecpu_get_pc(), mcu_command, mcu_offset*2, mcu_data);
 		break;
 	}
 }
@@ -2370,6 +2378,7 @@ void bonkadv_mcu_run(void)
 
 		case 0x04:	// Protection
 		{
+	        logerror("CPU #0 PC %06X : MCU executed command: %04X %04X %04X\n", activecpu_get_pc(), mcu_command, mcu_offset*2, mcu_data);
 			switch(mcu_data)
 			{
 				// static, in this order, at boot/reset - these aren't understood, different params in Mcu data rom, data can't be found
@@ -2389,7 +2398,8 @@ void bonkadv_mcu_run(void)
 		break;
 
 		default:
-			//logerror("%s : MCU executed command: %04X %04X %04X (UNKNOWN COMMAND)\n", cpuexec_describe_context(machine), mcu_command, mcu_offset*2, mcu_data);
+			logerror("CPU #0 PC %06X : MCU executed command: %04X %04X %04X(UNKNOWN COMMAND)\n", activecpu_get_pc(), mcu_command, mcu_offset*2, mcu_data);
+
 		break;
 	}
 }
