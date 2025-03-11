@@ -91,8 +91,6 @@ Dip locations verified from manual for:
 #include "sound/2151intf.h"
 #include "sound/okim6295.h"
 
-static int shogwarr_mcu_status, shogwarr_mcu_command_offset;
-
 extern UINT16 *kaneko16_mcu_ram; /* for calc3 and toybox */
 static UINT16* kaneko16_mainram;
 
@@ -275,9 +273,6 @@ static MACHINE_RESET( shogwarr )
 	kaneko16_sprite_type = 0;
 	kaneko16_sprite_fliptype = 1;
 
-	shogwarr_mcu_status = 0;
-	shogwarr_mcu_command_offset = 0;
-
 	kaneko16_priority.sprite[0] = 1;	// below all
 	kaneko16_priority.sprite[1] = 3;	// above tile[0], below the others
 	kaneko16_priority.sprite[2] = 5;	// above all
@@ -285,7 +280,6 @@ static MACHINE_RESET( shogwarr )
 	kaneko16_priority.VIEW2_2_pri = 0;
 
 	calc3_mcu_init();
-	calc3_scantables();
 }
 
 static MACHINE_RESET( brapboys )
@@ -299,9 +293,6 @@ static MACHINE_RESET( brapboys )
 	kaneko16_sprite_type = 0;
 	kaneko16_sprite_fliptype = 1;
 
-	shogwarr_mcu_status = 0;
-	shogwarr_mcu_command_offset = 0;
-
 	kaneko16_priority.sprite[0] = 1;	// below all
 	kaneko16_priority.sprite[1] = 3;	// above tile[0], below the others
 	kaneko16_priority.sprite[2] = 5;	// above all
@@ -309,7 +300,7 @@ static MACHINE_RESET( brapboys )
 	kaneko16_priority.VIEW2_2_pri = 0;
 
 	calc3_mcu_init();
-	calc3_scantables();
+
 }
 
 /***************************************************************************
@@ -3170,6 +3161,7 @@ static void calc3_init(void)
 	kaneko16_unscramble_tiles(REGION_GFX3);
 	expand_shogwarr_samples();
     //  MCU is a 78K series III type CPU
+	calc3_scantables();
 }
 
 static void expand_brapboys_music(void)
