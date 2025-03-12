@@ -31,6 +31,7 @@ VOBJS += \
 	$(VOBJ)/lib/videoall.o \
 	$(VOBJ)/lib/error.o \
 	$(VOBJ)/blit/blit.o \
+	$(VOBJ)/blit/interp.o \
 	$(VOBJ)/blit/clear.o \
 	$(VOBJ)/blit/slice.o \
 	$(VOBJ)/v/v.o \

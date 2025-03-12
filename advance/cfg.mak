@@ -37,6 +37,7 @@ CFGOBJS += \
 	$(CFGOBJ)/lib/videoall.o \
 	$(CFGOBJ)/lib/error.o \
 	$(CFGOBJ)/blit/blit.o \
+	$(CFGOBJ)/blit/interp.o \
 	$(CFGOBJ)/blit/clear.o \
 	$(CFGOBJ)/blit/slice.o \
 	$(CFGOBJ)/cfg/cfg.o \
