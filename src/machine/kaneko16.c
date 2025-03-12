@@ -2070,6 +2070,14 @@ void calc3_mcu_run(void)
 			}
 		}
 	}
+	if(strcmp(Machine->gamedrv->name, "brapboys") == 0)
+		if(strcmp(Machine->gamedrv->name, "brapboysj") == 0)
+	{   // Hack to get us past brapboys calc test
+        if (kaneko16_mcu_ram[0xE3] == 0x7F) 
+		{
+			kaneko16_mcu_ram[0xE3] |= 0x80;
+		}
+	} 
 }
 
 
