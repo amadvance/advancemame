@@ -85,13 +85,13 @@ Dip locations verified from manual for:
 ***************************************************************************/
 
 #include "driver.h"
+#include "cpu/z80/z80.h"
+#include "cpu/m68000/m68000.h"
 #include "machine/eeprom.h"
 #include "includes/kaneko16.h"
 #include "sound/2203intf.h"
 #include "sound/2151intf.h"
 #include "sound/okim6295.h"
-
-static int shogwarr_mcu_status, shogwarr_mcu_command_offset;
 
 extern UINT16 *kaneko16_mcu_ram; /* for calc3 and toybox */
 static UINT16* kaneko16_mainram;
@@ -104,6 +104,10 @@ void calc3_mcu_run(void);
 
 extern void calc3_scantables(void);
 extern void decrypt_toybox_rom(void);
+
+extern DRIVER_INIT( decrypt_toybox_rom );
+extern DRIVER_INIT( decrypt_toybox_rom_alt );
+extern DRIVER_INIT( calc3_scantables );
 
 
 
@@ -275,9 +279,6 @@ static MACHINE_RESET( shogwarr )
 	kaneko16_sprite_type = 0;
 	kaneko16_sprite_fliptype = 1;
 
-	shogwarr_mcu_status = 0;
-	shogwarr_mcu_command_offset = 0;
-
 	kaneko16_priority.sprite[0] = 1;	// below all
 	kaneko16_priority.sprite[1] = 3;	// above tile[0], below the others
 	kaneko16_priority.sprite[2] = 5;	// above all
@@ -285,7 +286,6 @@ static MACHINE_RESET( shogwarr )
 	kaneko16_priority.VIEW2_2_pri = 0;
 
 	calc3_mcu_init();
-	calc3_scantables();
 }
 
 static MACHINE_RESET( brapboys )
@@ -299,9 +299,6 @@ static MACHINE_RESET( brapboys )
 	kaneko16_sprite_type = 0;
 	kaneko16_sprite_fliptype = 1;
 
-	shogwarr_mcu_status = 0;
-	shogwarr_mcu_command_offset = 0;
-
 	kaneko16_priority.sprite[0] = 1;	// below all
 	kaneko16_priority.sprite[1] = 3;	// above tile[0], below the others
 	kaneko16_priority.sprite[2] = 5;	// above all
@@ -309,7 +306,6 @@ static MACHINE_RESET( brapboys )
 	kaneko16_priority.VIEW2_2_pri = 0;
 
 	calc3_mcu_init();
-	calc3_scantables();
 }
 
 /***************************************************************************
@@ -3133,83 +3129,8 @@ DRIVER_INIT( samplebank )
 	kaneko16_unscramble_tiles(REGION_GFX2);
 	kaneko16_unscramble_tiles(REGION_GFX3);
 	kaneko16_expand_sample_banks(REGION_SOUND1);
-	decrypt_toybox_rom();
 }
 
-
-static void expand_shogwarr_samples(void)
-{
-	/*
-        Expand the OKI sample data
-
-        OKI 1:
-        Address space 0x00000-0x2ffff is fixed
-        Address space 0x30000-0x3ffff is banked (13 banks)
-    */
-
-	int bank;
-	UINT8 *src = memory_region(REGION_USER1);
-	UINT8 *dst1 = memory_region(REGION_SOUND1);
-
-	/* OKI 1 */
-	for (bank = 0; bank < 13; ++bank)
-	{
-		UINT8 *dst;
-		UINT8 *srcn;
-
-		dst = dst1 + 0x40000 * bank;
-		srcn = src + 0x30000 + (0x10000 * bank);
-		memcpy(dst, src, 0x30000);
-		memcpy(dst + 0x30000, srcn, 0x10000);
-	}
-}
-
-static void calc3_init(void)
-{
-	kaneko16_unscramble_tiles(REGION_GFX2);
-	kaneko16_unscramble_tiles(REGION_GFX3);
-	expand_shogwarr_samples();
-    //  MCU is a 78K series III type CPU
-}
-
-static void expand_brapboys_music(void)
-{
-	/*
-        Expand the OKI sample data
-
-        OKI 2:
-        Address space 0x00000-0x1ffff is fixed
-        Address space 0x20000-0x3ffff is banked (15 banks)
-    */
-
-	int bank;
-	UINT8 *src = memory_region(REGION_USER1);
-	UINT8 *dst2 = memory_region(REGION_SOUND2);
-
-	/* OKI 2 */
-	for (bank = 0; bank < 15; ++bank)
-	{
-		UINT8 *dst;
-		UINT8 *srcn;
-		dst = dst2 + 0x40000 * bank;
-		srcn = src + 0x120000 + (0x20000 * bank);
-		memcpy(dst, src + 0x100000, 0x20000);
-		memcpy(dst + 0x20000, srcn, 0x20000);
-	}
-}
-
-
-DRIVER_INIT( brapboys )
-{
-	// sample banking is different on brap boys for the music, why? GALs / PALs ?
-	expand_brapboys_music();
-	calc3_init();
-}
-
-DRIVER_INIT( shogwarr )
-{
-	calc3_init();
-}
 
 /***************************************************************************
 
@@ -4782,6 +4703,88 @@ ROM_START( bonkadv )
 	ROM_LOAD16_WORD( "eeprom.126",  0x0000, 0x0080, CRC(d04adc84) SHA1(85415062867605587b09a646ead4700014ebcb5c) )
 ROM_END
 
+DRIVER_INIT( bloodwar )
+{
+	init_samplebank();
+	init_decrypt_toybox_rom();
+}
+
+
+DRIVER_INIT( calc3 )
+{
+	init_calc3_scantables();
+	init_kaneko16();
+    //  MCU is a 78K series III type CPU
+}
+
+static void expand_shogwarr_samples(void)
+{
+	/*
+        Expand the OKI sample data
+
+        OKI 1:
+        Address space 0x00000-0x2ffff is fixed
+        Address space 0x30000-0x3ffff is banked (13 banks)
+    */
+
+	int bank;
+	UINT8 *src = memory_region(REGION_USER1);
+	UINT8 *dst1 = memory_region(REGION_SOUND1);
+
+	/* OKI 1 */
+	for (bank = 0; bank < 13; ++bank)
+	{
+		UINT8 *dst;
+		UINT8 *srcn;
+
+		dst = dst1 + 0x40000 * bank;
+		srcn = src + 0x30000 + (0x10000 * bank);
+		memcpy(dst, src, 0x30000);
+		memcpy(dst + 0x30000, srcn, 0x10000);
+	}
+}
+
+static void expand_brapboys_music(void)
+{
+	/*
+        Expand the OKI sample data
+
+        OKI 2:
+        Address space 0x00000-0x1ffff is fixed
+        Address space 0x20000-0x3ffff is banked (15 banks)
+    */
+
+	int bank;
+	UINT8 *src = memory_region(REGION_USER1);
+	UINT8 *dst2 = memory_region(REGION_SOUND2);
+
+	/* OKI 2 */
+	for (bank = 0; bank < 15; ++bank)
+	{
+		UINT8 *dst;
+		UINT8 *srcn;
+		dst = dst2 + 0x40000 * bank;
+		srcn = src + 0x120000 + (0x20000 * bank);
+		memcpy(dst, src + 0x100000, 0x20000);
+		memcpy(dst + 0x20000, srcn, 0x20000);
+	}
+}
+
+
+DRIVER_INIT( brapboys )
+{
+	expand_shogwarr_samples();
+	// sample banking is different on brap boys for the music, why? GALs / PALs ?
+	expand_brapboys_music();
+	calc3_mcu_init();
+}
+
+DRIVER_INIT( shogwarr )
+{
+	expand_shogwarr_samples();
+	calc3_mcu_init();
+}
+
 
 /***************************************************************************
 
@@ -4804,18 +4807,18 @@ GAME( 1992, bakubrkr, explbrkr, bakubrkr, bakubrkr, kaneko16,   ROT90, "Kaneko",
 GAME( 1993, wingforc, 0,        wingforc, wingforc, kaneko16,   ROT270,"Atlus",  "Wing Force (Japan, prototype)", 0 )	
 GAME( 1992, sandscrp, 0,        sandscrp, sandscrp, 0,          ROT90, "Face",   "Sand Scorpion (set 1)", 0 )
 GAME( 1992, sandscra, sandscrp, sandscrp, sandscrp, 0,          ROT90, "Face",   "Sand Scorpion (set 2)", 0 )
-GAME( 1994, bonkadv,  0,        bonkadv , bonkadv,  samplebank, ROT0,  "Kaneko", "B.C. Kid / Bonk's Adventure / Kyukyoku!! PC Genjin", GAME_IMPERFECT_SOUND )
-GAME( 1994, bloodwar, 0,        bloodwar, bloodwar, samplebank, ROT0,  "Kaneko", "Blood Warrior", 0 )
-GAME( 1994, gtmr,     0,        gtmr,     gtmr,     samplebank, ROT0,  "Kaneko", "1000 Miglia: Great 1000 Miles Rally (94/07/18)", 0 )
-GAME( 1994, gtmra,    gtmr,     gtmr,     gtmr,     samplebank, ROT0,  "Kaneko", "1000 Miglia: Great 1000 Miles Rally (94/06/13)", 0 )
+GAME( 1994, bonkadv,  0,        bonkadv , bonkadv,  bloodwar,   ROT0,  "Kaneko", "B.C. Kid / Bonk's Adventure / Kyukyoku!! PC Genjin", GAME_IMPERFECT_SOUND )
+GAME( 1994, bloodwar, 0,        bloodwar, bloodwar, bloodwar,   ROT0,  "Kaneko", "Blood Warrior", 0 )
+GAME( 1994, gtmr,     0,        gtmr,     gtmr,     bloodwar,   ROT0,  "Kaneko", "1000 Miglia: Great 1000 Miles Rally (94/07/18)", 0 )
+GAME( 1994, gtmra,    gtmr,     gtmr,     gtmr,     bloodwar,   ROT0,  "Kaneko", "1000 Miglia: Great 1000 Miles Rally (94/06/13)", 0 )
 GAME( 1994, gtmre,    gtmr,     gtmr,     gtmr,     kaneko16,   ROT0,  "Kaneko", "Great 1000 Miles Rally: Evolution Model!!! (94/09/06)", 0 )
 GAME( 1994, gtmrusa,  gtmr,     gtmr,     gtmr,     kaneko16,   ROT0,  "Kaneko", "Great 1000 Miles Rally: U.S.A Version! (94/09/06)", 0 ) // U.S.A version seems part of the title, rather than region
 GAME( 1995, gtmr2,    0,        gtmr2,    gtmr2,    kaneko16,   ROT0,  "Kaneko", "Mille Miglia 2: Great 1000 Miles Rally (95/05/24)", 0 )
 GAME( 1995, gtmr2a,   gtmr2,    gtmr2,    gtmr2,    kaneko16,   ROT0,  "Kaneko", "Mille Miglia 2: Great 1000 Miles Rally (95/04/04)", 0 )
 GAME( 1995, gtmr2u,   gtmr2,    gtmr2,    gtmr2,    kaneko16,   ROT0,  "Kaneko", "Great 1000 Miles Rally 2 USA (95/05/18)", 0 )
-GAME( 1992, brapboys, 0,        brapboys, brapboys, brapboys,   ROT0,  "Kaneko", "B.Rap Boys (World)", GAME_NOT_WORKING )
-GAME( 1992, brapboysj,brapboys, brapboys, brapboys, brapboys,   ROT0,  "Kaneko", "B.Rap Boys Special (Japan)", GAME_NOT_WORKING )
-GAME( 1992, shogwarr, 0,        shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Shogun Warriors (US)", GAME_NOT_WORKING )
-GAME( 1992, shogwarre,shogwarr, shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Shogun Warriors (World)", GAME_NOT_WORKING )
-GAME( 1992, fjbuster, shogwarr, shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Fujiyama Buster (Japan)", GAME_NOT_WORKING )
+GAME( 1992, brapboys, 0,        brapboys, brapboys, brapboys,   ROT0,  "Kaneko", "B.Rap Boys (World)", 0 )
+GAME( 1992, brapboysj,brapboys, brapboys, brapboys, brapboys,   ROT0,  "Kaneko", "B.Rap Boys Special (Japan)", 0 )
+GAME( 1992, shogwarr, 0,        shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Shogun Warriors (US)", 0 )
+GAME( 1992, shogwarre,shogwarr, shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Shogun Warriors (World)", 0 )
+GAME( 1992, fjbuster, shogwarr, shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Fujiyama Buster (Japan)", 0 )
 GAME( 1994, packbang, 0,        packbang, packbang, berlwall,   ROT90, "Kaneko", "Pack'n Bang Bang", GAME_IMPERFECT_GRAPHICS ) /* priorities between stages?*/

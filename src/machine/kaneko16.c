@@ -1951,7 +1951,7 @@ static int calc3_decompress_table(int tabnum, UINT8* dstram, int dstoffset)
 
 
 
-void calc3_scantables(void)
+DRIVER_INIT(calc3_scantables)
 {
 	UINT8* rom = memory_region(REGION_CPU2);
 	UINT8 numregions;
@@ -2181,7 +2181,7 @@ static const UINT8 toybox_mcu_decryption_table_alt[0x100] = {
 
 // I use a byteswapped MCU data rom to make the transfers to the 68k side easier
 //  not sure if it's all 100% endian safe
-void decrypt_toybox_rom(void)
+DRIVER_INIT( decrypt_toybox_rom )
 {
 
 	UINT8 *src = (UINT8 *)memory_region(REGION_CPU2);
@@ -2194,7 +2194,7 @@ void decrypt_toybox_rom(void)
 	}
 }
 
-void decrypt_toybox_rom_alt(void)
+DRIVER_INIT( decrypt_toybox_rom_alt )
 {
 	UINT8 *src = (UINT8 *)memory_region(REGION_CPU2);
 

@@ -33,11 +33,13 @@ void bloodwar_mcu_run(void);
 void bonkadv_mcu_run(void);
 void gtmr_mcu_run(void);
 void calc3_mcu_run(void);
-
 void toxboy_handle_04_subcommand(UINT8 mcu_subcmd, UINT16*mcu_ram);
+DRIVER_INIT( decrypt_toybox_rom );
+DRIVER_INIT( decrypt_toybox_rom_alt );
+DRIVER_INIT( calc3_scantables );
 
-extern void calc3_scantables(void);
-extern void decrypt_toybox_rom(void);
+
+
 
 /*----------- defined in drivers/kaneko16.c -----------*/
 
