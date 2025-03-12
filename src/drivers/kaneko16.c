@@ -102,9 +102,6 @@ void bonkadv_mcu_run(void);
 void gtmr_mcu_run(void);
 void calc3_mcu_run(void);
 
-extern void calc3_scantables(void);
-extern void decrypt_toybox_rom(void);
-
 extern DRIVER_INIT( decrypt_toybox_rom );
 extern DRIVER_INIT( decrypt_toybox_rom_alt );
 extern DRIVER_INIT( calc3_scantables );
@@ -4776,13 +4773,13 @@ DRIVER_INIT( brapboys )
 	expand_shogwarr_samples();
 	// sample banking is different on brap boys for the music, why? GALs / PALs ?
 	expand_brapboys_music();
-	calc3_mcu_init();
+	init_calc3();
 }
 
 DRIVER_INIT( shogwarr )
 {
 	expand_shogwarr_samples();
-	calc3_mcu_init();
+	init_calc3();
 }
 
 
