@@ -857,6 +857,7 @@ WW.B11    Object 5 - Even
  *************************************/
 
 static UINT16 *workram;
+int segas16b_workram_size;
 
 static UINT8 rom_board;
 static int atomicp_sound_rate;
@@ -960,14 +961,14 @@ static const struct segaic16_memory_map_entry rom_171_5797_info[] =
 static const struct segaic16_memory_map_entry rom_171_5704_extra_ram_info[] =
 {
 	{ 0x3d/2, 0x00000, 0x04000, 0xffc000,      ~0, misc_io_r,             misc_io_w,             NULL,                  "I/O space" },
-	{ 0x39/2, 0x00000, 0x01000, 0xfff000,      ~0, MRA16_BANK11,          segaic16_paletteram_w, &paletteram16,         "color RAM" },
-	{ 0x35/2, 0x00000, 0x10000, 0xfe0000,      ~0, MRA16_BANK12,          segaic16_tileram_0_w,  &segaic16_tileram_0,   "tile RAM" },
-	{ 0x35/2, 0x10000, 0x01000, 0xfef000,      ~0, MRA16_BANK13,          segaic16_textram_0_w,  &segaic16_textram_0,   "text RAM" },
-	{ 0x31/2, 0x00000, 0x00800, 0xfff800,      ~0, MRA16_BANK14,          MWA16_BANK14,          &segaic16_spriteram_0, "object RAM" },
-	{ 0x2d/2, 0x00000, 0x40000, 0xfc0000,      ~0, MRA16_BANK15,          MWA16_BANK15,          &workram,              "work RAM" },
+	{ 0x39/2, 0x00000, 0x01000, 0xfff000,      ~0, MRA16_BANK10,          segaic16_paletteram_w, &paletteram16,         "color RAM" },
+	{ 0x35/2, 0x00000, 0x10000, 0xfe0000,      ~0, MRA16_BANK11,          segaic16_tileram_0_w,  &segaic16_tileram_0,   "tile RAM" },
+	{ 0x35/2, 0x10000, 0x01000, 0xfef000,      ~0, MRA16_BANK12,          segaic16_textram_0_w,  &segaic16_textram_0,   "text RAM" },
+	{ 0x31/2, 0x00000, 0x00800, 0xfff800,      ~0, MRA16_BANK13,          MWA16_BANK13,          &segaic16_spriteram_0, "object RAM" },
+	{ 0x2d/2, 0x00000, 0x40000, 0xfc0000,      ~0, MRA16_BANK14,          MWA16_BANK14,          &workram,              "work RAM" },
 	{ 0x29/2, 0x00000, 0x10000, 0xff0000,      ~0, NULL,                  rom_5704_bank_w,       NULL,                  "tile bank" },
-	{ 0x25/2, 0x00000, 0x80000, 0xfc0000, 0x80000, MRA16_BANK17,          MWA16_ROM,             NULL,                  "ROM 1" },
-	{ 0x21/2, 0x00000, 0x80000, 0xfc0000, 0x00000, MRA16_BANK18,          MWA16_ROM,             NULL,                  "ROM 0" },
+	{ 0x25/2, 0x00000, 0x80000, 0xfc0000, 0x80000, MRA16_BANK16,          MWA16_ROM,             NULL,                  "ROM 1" },
+	{ 0x21/2, 0x00000, 0x80000, 0xfc0000, 0x00000, MRA16_BANK17,          MWA16_ROM,             NULL,                  "ROM 0" },
 	{ 0 }
 };
 
@@ -1017,13 +1018,19 @@ static void system16b_generic_init(int _rom_board)
 {
 	/* set the ROM board */
 	rom_board = _rom_board;
+	
+	/* System 16C board has more workram */
+	if (_rom_board == ROM_BOARD_171_5704_EXTRA_RAM)
+		segas16b_workram_size = 0x40000;
+	else
+		segas16b_workram_size = 0x04000;
 
 	/* allocate memory for regions not autmatically assigned */
 	segaic16_spriteram_0 = auto_malloc(0x00800);
 	paletteram16         = auto_malloc(0x01000);
 	segaic16_tileram_0   = auto_malloc(0x10000);
 	segaic16_textram_0   = auto_malloc(0x01000);
-	workram              = auto_malloc(0x04000);
+	workram              = auto_malloc(segas16b_workram_size);
 
 	/* init the memory mapper */
 	segaic16_memory_mapper_init(0, region_info_list[rom_board], sound_w, NULL);
@@ -1707,9 +1714,9 @@ static READ16_HANDLER( passshtj_custom_io_r )
 static NVRAM_HANDLER( system16b )
 {
 	if (read_or_write)
-		mame_fwrite(file, workram, 0x4000);
+		mame_fwrite(file, workram, segas16b_workram_size);
 	else if (file)
-		mame_fread(file, workram, 0x4000);
+		mame_fread(file, workram, segas16b_workram_size);
 }
 
 
