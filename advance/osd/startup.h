@@ -30,6 +30,9 @@
 
 /* the first match is used */
 
+{ "totc", 14 }, /* 4.1 */
+{ "tekipaki", 20 }, /* 4.1 */
+{ "fantzn2x", 6 }, /* 4.1 */
 { "lasthope", 15 }, /* 4.1 */
 { "swa", 16 }, /* 4.1 */
 { "wingwar", 8 }, /* 4.1 */
