@@ -24,10 +24,10 @@ jobs:
       - uses: actions/checkout@v2
       - uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64
+          msystem: MINGW32
           update: true
-          install: mingw-w64-x86_64-gcc mingw-w64-x86_64-pkg-config mingw-w64-x86_64-SDL2 autoconf automake make
-      - run: autoreconf -i --include=/mingw64/share/aclocal
+          install: mingw-w64-i686-gcc mingw-w64-i686-pkg-config mingw-w64-i686-SDL2 autoconf automake make
+      - run: autoreconf -i --include=/mingw32/share/aclocal
       - run: ./configure
       - run: make all
       - run: make dist
