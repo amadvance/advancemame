@@ -4939,7 +4939,7 @@ ROM_START( rocktrv2 )
 	ROM_LOAD( "18.aux",       0x3c000, 0x4000, CRC(feb195fd) SHA1(5677d31e526cc7752254e9af0d694f05bc6bc907) )
 ROM_END
 
-ROM_START( mspactwin )
+ROM_START( mspactwn )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for encrypted code */
 	ROM_LOAD( "m27256.bin",  0x0000, 0x4000, CRC(77a99184) SHA1(9dcb1a1b78994aa401d653bec571cb3e6f9d900b) )
 	ROM_CONTINUE(0x8000,0x4000)
@@ -5261,4 +5261,4 @@ GAME( 1986, bigbucks, 0,        bigbucks, bigbucks, 0,        ROT90,  "Dynasoft 
 GAME( 1995, mschamp,  mspacman, mschamp,  mschamp,  0,        ROT90,  "hack", "Ms. Pacman Champion Edition / Super Zola Pac Gal", GAME_SUPPORTS_SAVE )
 
 /* Simultaneous 2 player hack of Ms Pac-Man */
-GAME( 1992, mspactwin, 0,       mspactwin, mspactwin, mspactwin,      ROT90,  "SUSILU", "Ms. Pac-Man Twin (Argentina)", GAME_SUPPORTS_SAVE )
+GAME( 1992, mspactwn, 0,       mspactwin, mspactwin, mspactwin,      ROT90,  "SUSILU", "Ms. Pac-Man Twin (Argentina)", GAME_SUPPORTS_SAVE )
