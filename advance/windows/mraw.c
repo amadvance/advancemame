@@ -68,7 +68,7 @@ struct raw_context {
 	char name[256];
 	RID_DEVICE_INFO info;
 	int x, y, z;
-	unsigned button;
+	int button;
 };
 
 struct mouse_item_context {

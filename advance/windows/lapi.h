@@ -57,7 +57,7 @@ void __cdecl lUnGetMouse(int number);
 
 /** Release all registered mice.
  */
-void __cdecl lUnGetAllMice();
+void __cdecl lUnGetAllMice(void);
 
 /** Suspend the specified mouse. The mouse now again sends
  * events to the system mouse, but also special events to

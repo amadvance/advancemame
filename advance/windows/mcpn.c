@@ -69,7 +69,7 @@ struct raw_context {
 	unsigned number;
 	char name[256];
 	int x, y;
-	unsigned button;
+	int button;
 };
 
 struct mouse_item_context {

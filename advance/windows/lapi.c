@@ -167,14 +167,14 @@ void __cdecl lUnGetMouse(int number) {
 	}
 }
 
-void __cdecl lUnGetAllMice() {
+void __cdecl lUnGetAllMice(void) {
 	int i;
 	for (i = 1; i <= maxused; ++i) {
 		lUnGetMouse(i);
 	}
 }
 
-void __cdecl lSuspendMouse(number) {
+void __cdecl lSuspendMouse(int number) {
 	if (lHasMouse(number)) {
 		if (mice[number].suspend == NULL) {
 			char c[MAXLENGTH];
@@ -191,7 +191,7 @@ void __cdecl lSuspendMouse(number) {
 	}
 }
 
-void __cdecl lUnSuspendMouse(number) {
+void __cdecl lUnSuspendMouse(int number) {
 	if (lHasMouse(number)) {
 		if (mice[number].suspend) {
 			CloseHandle(mice[number].suspend);

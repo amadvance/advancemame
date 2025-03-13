@@ -607,7 +607,7 @@ static int serial_read(void *buf, uint32_t size)
     int result = -1;
 #ifdef __WIN32__
     DWORD read;
-    if (ReadFile(s_serial_fd, buf, size, &read, NULL))
+    if (ReadFile((HANDLE)s_serial_fd, buf, size, &read, NULL))
     {
         result = read;
     }
@@ -633,7 +633,7 @@ static int serial_write(void *buf, uint32_t size)
     while (size) {
         chunk = MIN(size, 512);
 #ifdef __WIN32__
-        WriteFile(s_serial_fd, buf,  chunk, (DWORD *)&written, NULL);
+        WriteFile((HANDLE)s_serial_fd, buf,  chunk, (DWORD *)&written, NULL);
 #else
         written = write(s_serial_fd, buf, chunk);
 #endif
