@@ -1849,7 +1849,7 @@ static int calc3_decompress_table(int tabnum, UINT8* dstram, int dstoffset)
 
 					if(local_counter>1)
 					{
-						//if (space)
+						if (cpu_getactivecpu() != -1)
 						{
 							program_write_byte(dstoffset+i, dat);
 						}
@@ -1923,13 +1923,15 @@ static int calc3_decompress_table(int tabnum, UINT8* dstram, int dstoffset)
 
 					if(local_counter>1)
 					{
-						//if (space)
+						
+						if (cpu_getactivecpu() != -1)
 						{
 							program_write_byte(dstoffset+i, dat);
 						}
 
 						// debug, used to output tables at the start
 						if (dstram)
+						
 						{
 							dstram[(dstoffset+i)^1] = dat;
 						}
