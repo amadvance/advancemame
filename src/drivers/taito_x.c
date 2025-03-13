@@ -1226,4 +1226,4 @@ GAME( 1989, daisenpu, twinhawk, daisenpu, daisenpu, 0,        ROT270, "Taito Cor
 GAME( 1989, gigandes, 0,        gigandes, gigandes, 0,        ROT0,   "East Technology", "Gigandes", 0 )
 GAME( 1989, gigandsj, gigandes, gigandes, gigandes, 0,        ROT0,   "East Technology", "Gigandes (Japan)", 0 )
 GAME( 1989, kyustrkr, 0,        ballbros, kyustrkr, kyustrkr, ROT180, "East Technology", "Last Striker / Kyuukyoku no Striker", 0 )
-GAME( 1992, ballbros, 0,        ballbros, ballbros, 0,        ROT0,   "East Technology", "Balloon Brothers", 0 )
+GAME( 1992, ballbros, 0,        ballbros, ballbros, 0,        ROT180, "East Technology", "Balloon Brothers", 0 )
