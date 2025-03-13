@@ -26,8 +26,8 @@ jobs:
         with:
           msystem: MINGW64
           update: true
-          install: mingw-w64-x86_64-gcc autoconf automake make
-      - run: autoreconf -i
+          install: mingw-w64-x86_64-gcc mingw-w64-x86_64-pkg-config autoconf automake make
+      - run: autoreconf -i --include=/mingw64/share/aclocal
       - run: ./configure
       - run: make all
       - run: make dist
