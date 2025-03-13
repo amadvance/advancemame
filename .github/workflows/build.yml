@@ -16,6 +16,7 @@ jobs:
       - run: make all
       - run: make dist
   build-win:
+    if: false # Disabled as it takes too much time, more than half an hour
     runs-on: windows-latest
     defaults:
       run:
