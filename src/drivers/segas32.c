@@ -1476,10 +1476,10 @@ INPUT_PORTS_START( f1lap )
 	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) ) // service coin mirror
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Unknown ) ) // service coin mirror
 	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) ) // seems to be a service switch mirror
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Unknown ) ) // seems to be a service switch mirror
 	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
