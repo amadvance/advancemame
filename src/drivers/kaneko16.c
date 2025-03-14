@@ -4706,6 +4706,11 @@ DRIVER_INIT( bloodwar )
 	init_decrypt_toybox_rom();
 }
 
+DRIVER_INIT( gtmr )
+{
+	init_samplebank();
+}
+
 
 DRIVER_INIT( calc3 )
 {
@@ -4808,11 +4813,11 @@ GAME( 1994, bonkadv,  0,        bonkadv , bonkadv,  bloodwar,   ROT0,  "Kaneko",
 GAME( 1994, bloodwar, 0,        bloodwar, bloodwar, bloodwar,   ROT0,  "Kaneko", "Blood Warrior", 0 )
 GAME( 1994, gtmr,     0,        gtmr,     gtmr,     bloodwar,   ROT0,  "Kaneko", "1000 Miglia: Great 1000 Miles Rally (94/07/18)", 0 )
 GAME( 1994, gtmra,    gtmr,     gtmr,     gtmr,     bloodwar,   ROT0,  "Kaneko", "1000 Miglia: Great 1000 Miles Rally (94/06/13)", 0 )
-GAME( 1994, gtmre,    gtmr,     gtmr,     gtmr,     kaneko16,   ROT0,  "Kaneko", "Great 1000 Miles Rally: Evolution Model!!! (94/09/06)", 0 )
-GAME( 1994, gtmrusa,  gtmr,     gtmr,     gtmr,     kaneko16,   ROT0,  "Kaneko", "Great 1000 Miles Rally: U.S.A Version! (94/09/06)", 0 ) // U.S.A version seems part of the title, rather than region
-GAME( 1995, gtmr2,    0,        gtmr2,    gtmr2,    kaneko16,   ROT0,  "Kaneko", "Mille Miglia 2: Great 1000 Miles Rally (95/05/24)", 0 )
-GAME( 1995, gtmr2a,   gtmr2,    gtmr2,    gtmr2,    kaneko16,   ROT0,  "Kaneko", "Mille Miglia 2: Great 1000 Miles Rally (95/04/04)", 0 )
-GAME( 1995, gtmr2u,   gtmr2,    gtmr2,    gtmr2,    kaneko16,   ROT0,  "Kaneko", "Great 1000 Miles Rally 2 USA (95/05/18)", 0 )
+GAME( 1994, gtmre,    gtmr,     gtmr,     gtmr,     gtmr,       ROT0,  "Kaneko", "Great 1000 Miles Rally: Evolution Model!!! (94/09/06)", 0 )
+GAME( 1994, gtmrusa,  gtmr,     gtmr,     gtmr,     gtmr,       ROT0,  "Kaneko", "Great 1000 Miles Rally: U.S.A Version! (94/09/06)", 0 ) // U.S.A version seems part of the title, rather than region
+GAME( 1995, gtmr2,    0,        gtmr2,    gtmr2,    gtmr,       ROT0,  "Kaneko", "Mille Miglia 2: Great 1000 Miles Rally (95/05/24)", 0 )
+GAME( 1995, gtmr2a,   gtmr2,    gtmr2,    gtmr2,    gtmr,       ROT0,  "Kaneko", "Mille Miglia 2: Great 1000 Miles Rally (95/04/04)", 0 )
+GAME( 1995, gtmr2u,   gtmr2,    gtmr2,    gtmr2,    gtmr,       ROT0,  "Kaneko", "Great 1000 Miles Rally 2 USA (95/05/18)", 0 )
 GAME( 1992, brapboys, 0,        brapboys, brapboys, brapboys,   ROT0,  "Kaneko", "B.Rap Boys (World)", 0 )
 GAME( 1992, brapboysj,brapboys, brapboys, brapboys, brapboys,   ROT0,  "Kaneko", "B.Rap Boys Special (Japan)", 0 )
 GAME( 1992, shogwarr, 0,        shogwarr, shogwarr, shogwarr,   ROT0,  "Kaneko", "Shogun Warriors (US)", 0 )
