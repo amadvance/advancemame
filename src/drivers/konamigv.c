@@ -1064,4 +1064,4 @@ GAME( 1996, btchamp,  konamigv, btchamp,  btchamp,  btchamp,  ROT0, "Konami", "B
 GAME( 1996, kdeadeye, konamigv, kdeadeye, kdeadeye, kdeadeye, ROT0, "Konami", "Dead Eye (GV054 UA01)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, weddingr, konamigv, konamigv, konamigv, konamigv, ROT0, "Konami", "Wedding Rhapsody (GX624 JAA)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1998, nagano98, konamigv, konamigv, konamigv, konamigv, ROT0, "Konami", "Nagano Winter Olympics '98 (GX720 EAA)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 2000, simpbowl, konamigv, simpbowl, simpbowl, simpbowl, ROT0, "Konami", "Simpsons Bowling (GQ829 UAA)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 2000, simpbowl, konamigv, simpbowl, simpbowl, simpbowl, ROT0, "Konami", "Simpsons Bowling (GQ829 UAA)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // fail rom check

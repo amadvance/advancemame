@@ -233,4 +233,4 @@ ROM_START( targeth )
 	ROM_LOAD( "targeth.c3",		0x0c0000, 0x080000, CRC(d4c771df) SHA1(7cc0a86ef6aa3d26ab8f19d198f62112bf012870) )
 ROM_END
 
-GAME( 1994, targeth, 0, targeth,targeth, 0, ROT0, "Gaelco", "Target Hits", GAME_UNEMULATED_PROTECTION )
+GAME( 1994, targeth, 0, targeth,targeth, 0, ROT0, "Gaelco", "Target Hits", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING ) // not getting the game?

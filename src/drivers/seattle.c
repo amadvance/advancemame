@@ -2995,7 +2995,7 @@ GAME( 1998, vaportrp, vaportrx, seattle200, vaportrx, vaportrx, ROT0, "Atari Gam
 GAME( 1997, biofreak, 0,        seattle150, biofreak, biofreak, ROT0, "Midway Games", "BioFreaks (prototype)", 0 )
 GAME( 1997, blitz,    0,        seattle150, blitz,    blitz,    ROT0, "Midway Games", "NFL Blitz (boot ROM 1.2)", 0 )
 GAME( 1997, blitz11,  blitz,    seattle150, blitz,    blitz,    ROT0, "Midway Games", "NFL Blitz (boot ROM 1.1)", 0 )
-GAME( 1998, blitz99,  0,        seattle150, blitz99,  blitz99,  ROT0, "Midway Games", "NFL Blitz '99", 0 )
-GAME( 1999, blitz2k,  0,        seattle150, blitz99,  blitz2k,  ROT0, "Midway Games", "NFL Blitz 2000 Gold Edition", 0 )
+GAME( 1998, blitz99,  0,        seattle150, blitz99,  blitz99,  ROT0, "Midway Games", "NFL Blitz '99", GAME_NOT_WORKING ) // game play doesn't start
+GAME( 1999, blitz2k,  0,        seattle150, blitz99,  blitz2k,  ROT0, "Midway Games", "NFL Blitz 2000 Gold Edition", GAME_NOT_WORKING ) // game play doesn't start
 GAME( 1998, carnevil, 0,        carnevil,   carnevil, carnevil, ROT0, "Midway Games", "CarnEvil", 0 )
 GAME( 1998, hyprdriv, 0,        seattle200, hyprdriv, hyprdriv, ROT0, "Midway Games", "Hyperdrive", 0 )

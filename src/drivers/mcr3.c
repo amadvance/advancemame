@@ -1574,4 +1574,4 @@ GAME( 1987, stargrds, 0,        mono_sg,   stargrds, stargrds, ROT0,  "Bally Mid
 /* MCR scrolling games */
 GAME( 1983, spyhunt,  0,        mcrsc_csd, spyhunt,  spyhunt,  ROT90, "Bally Midway", "Spy Hunter", GAME_SUPPORTS_SAVE )
 GAME( 1984, crater,   0,        mcrscroll, crater,   crater,   ORIENTATION_FLIP_X, "Bally Midway", "Crater Raider", GAME_SUPPORTS_SAVE )
-GAME( 1985, turbotag, 0,        mcrsc_csd, turbotag, turbotag, ROT90, "Bally Midway", "Turbo Tag (prototype)", GAME_SUPPORTS_SAVE )
+GAME( 1985, turbotag, 0,        mcrsc_csd, turbotag, turbotag, ROT90, "Bally Midway", "Turbo Tag (prototype)", GAME_SUPPORTS_SAVE | GAME_NOT_WORKING ) // controls issues ?

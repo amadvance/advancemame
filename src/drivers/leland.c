@@ -2541,7 +2541,7 @@ GAME( 1985, cerberus, 0,       leland,  cerberus, cerberus, ROT0,   "Cinematroni
 GAME( 1985, mayhem,   0,       leland,  mayhem,   mayhem,   ROT0,   "Cinematronics", "Mayhem 2002", 0 )
 GAME( 1985, powrplay, 0,       leland,  mayhem,   powrplay, ROT0,   "Cinematronics", "Power Play", 0 )
 GAME( 1985, wseries,  0,       leland,  wseries,  wseries,  ROT0,   "Cinematronics", "World Series: The Season", 0 )
-GAME( 1986, alleymas, 0,       leland,  alleymas, alleymas, ROT270, "Cinematronics", "Alley Master", 0 )
+GAME( 1986, alleymas, 0,       leland,  alleymas, alleymas, ROT270, "Cinematronics", "Alley Master", GAME_NOT_WORKING ) // unable to control
 GAME( 1987, upyoural, 0,       leland,  upyoural, upyoural, ROT270, "Cinematronics", "Up Your Alley", 0 )
 
 /* odd master banks, small slave banks */

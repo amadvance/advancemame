@@ -2205,6 +2205,6 @@ GAME( 1999, ghlpanic,  0,        coh700g,  ghlpanic, ghlpanic, ROT0, "Namco",   
 GAME( 1999, pacapp2,   0,        coh700,   namcos12, namcos12, ROT0, "Produce/Namco", "Paca Paca Passion 2 (PKS1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC046 */
 GAME( 1999, mrdrillr,  0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Mr Driller (DRI1/VER.A2)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC048 */
 GAME( 1999, pacappsp,  0,        coh700,   namcos12, namcos12, ROT0, "Produce/Namco", "Paca Paca Passion Special (PSP1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC052 */
-GAME( 1999, aquarush,  0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Aqua Rush (AQ1/VER.A1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC053 */
+GAME( 1999, aquarush,  0,        coh700,   namcos12, namcos12, ROT0, "Namco",         "Aqua Rush (AQ1/VER.A1)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) /* KC053 */ // crash
 GAME( 1999, golgo13,   0,        coh700g,  golgo13,  golgo13,  ROT0, "Raizing/Namco", "Golgo 13 (GLG1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC054 */
 GAME( 1999, g13knd,    0,        coh700g,  golgo13,  golgo13,  ROT0, "Raizing/Namco", "Golgo 13 Kiseki no Dandou (GLS1/VER.A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* KC059 */

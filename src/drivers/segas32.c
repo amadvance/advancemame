@@ -3817,7 +3817,7 @@ GAME( 1992, darkedge, 0,        system32,     darkedge, darkedge, ROT0, "Sega", 
 GAME( 1992, darkedgj, darkedge, system32,     darkedge, darkedge, ROT0, "Sega",   "Dark Edge (Japan)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1994, dbzvrvs,  0,        system32,     dbzvrvs,  dbzvrvs,  ROT0, "Sega / Banpresto", "Dragon Ball Z V.R.V.S.", GAME_IMPERFECT_GRAPHICS)
 GAME( 1991, f1en,     0,        system32,     f1en,     f1en,     ROT0, "Sega",   "F1 Exhaust Note", GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, f1lap,    0,        system32,     f1lap,    f1lap,    ROT0, "Sega",   "F1 Super Lap", GAME_IMPERFECT_GRAPHICS )
+GAME( 1993, f1lap,    0,        system32,     f1lap,    f1lap,    ROT0, "Sega",   "F1 Super Lap", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // not passing the "networking check"
 GAME( 1992, ga2,      0,        system32_v20, ga2,      ga2,      ROT0, "Sega",   "Golden Axe: The Revenge of Death Adder (World)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1992, ga2u,     ga2,      system32_v20, ga2u,     ga2,      ROT0, "Sega",   "Golden Axe: The Revenge of Death Adder (US)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1992, ga2j,     ga2,      system32_v20, ga2,      ga2,      ROT0, "Sega",   "Golden Axe: The Revenge of Death Adder (Japan)", GAME_IMPERFECT_GRAPHICS )

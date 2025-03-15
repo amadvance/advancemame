@@ -3507,12 +3507,12 @@ GAME( 1995, dragoona, konamigx, dragoonj, dragoonj, konamigx, ROT0, "Konami", "D
 GAME( 1995, dragoonj, dragoona, dragoonj, dragoonj, konamigx, ROT0, "Konami", "Dragoon Might (ver JAA)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, sexyparo, konamigx, konamigx, gokuparo, konamigx, ROT0, "Konami", "Sexy Parodius (ver JAA)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, daiskiss, konamigx, konamigx, gokuparo, konamigx, ROT0, "Konami", "Daisu-Kiss (ver JAA)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, tokkae,   konamigx, konamigx_6bpp, puzldama, konamigx, ROT0, "Konami", "Taisen Tokkae-dama (ver JAA)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, tokkae,   konamigx, konamigx_6bpp, puzldama, konamigx, ROT0, "Konami", "Taisen Tokkae-dama (ver JAA)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // rom error, continously reset
 /* protection controls player ship direction in attract mode - doesn't impact playability */
 GAME( 1996, salmndr2, konamigx, konamigx_6bpp_2, gokuparo, konamigx, ROT0, "Konami", "Salamander 2 (ver JAA)", GAME_IMPERFECT_GRAPHICS|GAME_UNEMULATED_PROTECTION )
 /* bad sprite colours, part of tilemap gets blanked out when a game starts (might be more protection) */
-GAME( 1997, winspike, konamigx, winspike, konamigx, konamigx, ROT0, "Konami", "Winning Spike (ver EAA)", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS )
-GAME( 1997, winspikj, winspike, winspike, konamigx, konamigx, ROT0, "Konami", "Winning Spike (ver JAA)", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS )
+GAME( 1997, winspike, konamigx, winspike, konamigx, konamigx, ROT0, "Konami", "Winning Spike (ver EAA)", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // wrong background
+GAME( 1997, winspikj, winspike, winspike, konamigx, konamigx, ROT0, "Konami", "Winning Spike (ver JAA)", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // wrong background
 
 /* this game is unplayable due to protection */
 GAME( 1994, fantjour, gokuparo, konamigx, gokuparo, konamigx, ROT0, "Konami", "Fantastic Journey", GAME_NOT_WORKING|GAME_UNEMULATED_PROTECTION )

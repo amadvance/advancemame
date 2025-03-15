@@ -900,7 +900,7 @@ didn't have original Sega part numbers it's probably a converted TWC cart
 /* 01 */ GAMEB( 1993, mp_sonic, megaplay, megaplay, megaplay, mp_sonic, megaplay, ROT0, "Sega",                  "Sonic The Hedgehog (Mega Play)" , 0 )
 /* 02 */ GAMEB( 1993, mp_gaxe2, megaplay, megaplay, megaplay, mp_gaxe2, megaplay, ROT0, "Sega",                  "Golden Axe II (Mega Play)" , 0 )
 /* 03 */ GAMEB( 1993, mp_gslam, megaplay, megaplay, megaplay, mp_gslam,	megaplay, ROT0, "Sega",                  "Grand Slam (Mega Play)",GAME_NOT_WORKING  )
-/* 04 */ GAMEB( 1993, mp_twc,   megaplay, megaplay, megaplay, mp_twc,	megaplay, ROT0, "Sega",                  "Tecmo World Cup (Mega Play)" , 0 )
+/* 04 */ GAMEB( 1993, mp_twc,   megaplay, megaplay, megaplay, mp_twc,	megaplay, ROT0, "Sega",                  "Tecmo World Cup (Mega Play)" , GAME_NOT_WORKING ) // doesn't boot
 /* 05 */ GAMEB( 1993, mp_sor2,  megaplay, megaplay, megaplay, mp_sor2,	megaplay, ROT0, "Sega",                  "Streets of Rage II (Mega Play)" , 0 )
 /* 06 */ GAMEB( 1993, mp_bio,   megaplay, megaplay, megaplay, mp_bio,	megaplay, ROT0, "Sega",                  "Bio-hazard Battle (Mega Play)" , 0 )
 /* 07 */ GAMEB( 1993, mp_soni2, megaplay, megaplay, megaplay, mp_soni2, megaplay, ROT0, "Sega",                  "Sonic The Hedgehog 2 (Mega Play)" , 0 )

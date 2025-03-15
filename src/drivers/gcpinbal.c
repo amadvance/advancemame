@@ -440,4 +440,4 @@ ROM_END
 
 
 
-GAME( 1994, gcpinbal, 0, gcpinbal, gcpinbal, 0, ROT270, "Excellent System", "Grand Cross", GAME_IMPERFECT_SOUND | GAME_NO_COCKTAIL )
+GAME( 1994, gcpinbal, 0, gcpinbal, gcpinbal, 0, ROT270, "Excellent System", "Grand Cross", GAME_IMPERFECT_SOUND | GAME_NO_COCKTAIL | GAME_NOT_WORKING ) // address error at boot

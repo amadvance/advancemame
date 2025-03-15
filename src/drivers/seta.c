@@ -9108,7 +9108,7 @@ GAME( 1994, wiggie,   0,        wiggie,   thunderl, wiggie,   ROT270, "Promat", 
 GAME( 1991, rezon,    0,        rezon,    rezon,    rezon,    ROT0,   "Allumer",                "Rezon", 0 )
 GAME( 1992, rezont,   rezon,    rezon,    rezont,   rezon,    ROT0,   "Allumer (Taito license)","Rezon (Taito)", 0 )
 GAME( 1991, stg,      0,        drgnunit, stg,      0,        ROT270, "Athena / Tecmo",         "Strike Gunner S.T.G", 0 )
-GAME( 1991, pairlove, 0,        pairlove, pairlove, 0,        ROT270, "Athena",                 "Pairs Love", 0 )
+GAME( 1991, pairlove, 0,        pairlove, pairlove, 0,        ROT270, "Athena",                 "Pairs Love", GAME_NOT_WORKING ) // doesn't boot
 GAME( 1992, blandia,  0,        blandia,  blandia,  blandia,  ROT0,   "Allumer",                "Blandia", 0 )
 GAME( 1992, blandiap, blandia,  blandiap, blandia,  0,        ROT0,   "Allumer",                "Blandia (prototype)", 0 )
 GAME( 1992, blockcar, 0,        blockcar, blockcar, 0,        ROT90,  "Visco",                  "Block Carnival / Thunder & Lightning 2" , 0) // Title: DSW
@@ -9135,4 +9135,4 @@ GAME( 1995, extdwnhl, 0,        extdwnhl, extdwnhl, 0,        ROT0,   "Sammy Ind
 GAME( 1995, gundhara, 0,        gundhara, gundhara, 0,        ROT270, "Banpresto",              "Gundhara", 0 )
 GAME( 1995, sokonuke, 0,        extdwnhl, sokonuke, 0,        ROT0,   "Sammy Industries",       "Sokonuke Taisen Game (Japan)", GAME_IMPERFECT_SOUND )
 GAME( 1995, zombraid, 0,        gundhara, zombraid, zombraid, ROT0,   "American Sammy",         "Zombie Raid (US)", GAME_NO_COCKTAIL )
-GAME( 1996, crazyfgt, 0,        crazyfgt, crazyfgt, crazyfgt, ROT0,   "Subsino",                "Crazy Fight", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1996, crazyfgt, 0,        crazyfgt, crazyfgt, crazyfgt, ROT0,   "Subsino",                "Crazy Fight", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING) // controls not working

@@ -4604,9 +4604,9 @@ GAME( 1995, taitofx1, 0,        coh1000ta,zn, coh1000ta, ROT0, "Sony/Taito", "Ta
 
 GAME( 1995, sfchamp,  taitofx1, coh1000ta,zn, coh1000ta, ROT0, "Taito", "Super Football Champ (Ver 2.5O)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 GAME( 1995, sfchampj, sfchamp,  coh1000ta,zn, coh1000ta, ROT0, "Taito", "Super Football Champ (Ver 2.4J)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
-GAME( 1995, psyforce, taitofx1, coh1000ta,zn, coh1000ta, ROT0, "Taito", "Psychic Force (Ver 2.4O)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1995, psyforcj, psyforce, coh1000ta,zn, coh1000ta, ROT0, "Taito", "Psychic Force (Ver 2.4J)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1995, psyfrcex, psyforce, coh1000ta,zn, coh1000ta, ROT0, "Taito", "Psychic Force EX (Ver 2.0J)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1995, psyforce, taitofx1, coh1000ta,zn, coh1000ta, ROT0, "Taito", "Psychic Force (Ver 2.4O)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // emulator hang
+GAME( 1995, psyforcj, psyforce, coh1000ta,zn, coh1000ta, ROT0, "Taito", "Psychic Force (Ver 2.4J)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // emulator hang
+GAME( 1995, psyfrcex, psyforce, coh1000ta,zn, coh1000ta, ROT0, "Taito", "Psychic Force EX (Ver 2.0J)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // emulator hang
 GAME( 1996, mgcldate, mgcldtex, coh1000ta,zn, coh1000ta, ROT0, "Taito", "Magical Date / Magical Date - dokidoki kokuhaku daisakusen (Ver 2.02J)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 GAME( 1996, raystorm, taitofx1, coh1000tb,zn, coh1000tb, ROT0, "Taito", "Ray Storm (Ver 2.06A)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAME( 1996, raystorj, raystorm, coh1000tb,zn, coh1000tb, ROT0, "Taito", "Ray Storm (Ver 2.05J)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )

@@ -1281,7 +1281,7 @@ static DRIVER_INIT( bigfight )
 
 /* 1986 Lock On */
 /* 1987 Gray Out */
-GAME( 1988, apache3,  0, apache3,   apache3,  apache3,  ROT0, "Tatsumi", "Apache 3", GAME_IMPERFECT_GRAPHICS )
+GAME( 1988, apache3,  0, apache3,   apache3,  apache3,  ROT0, "Tatsumi", "Apache 3", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // not passing the test screen
 GAME( 1989, roundup5, 0, roundup5,  roundup5, roundup5, ROT0, "Tatsumi", "Round Up 5 - Super Delta Force", GAME_IMPERFECT_GRAPHICS )
 GAME( 1991, cyclwarr, 0, cyclwarr,  cyclwarr, cyclwarr, ROT0, "Tatsumi", "Cycle Warriors", GAME_IMPERFECT_GRAPHICS )
 GAME( 1992, bigfight, 0, bigfight,  bigfight, bigfight, ROT0, "Tatsumi", "Big Fight - Big Trouble In The Atlantic Ocean", GAME_IMPERFECT_GRAPHICS )

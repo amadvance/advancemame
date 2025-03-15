@@ -2696,7 +2696,7 @@ GAME( 1987, aliensy2, aliensyn, system16a,        aliensyn, aliensy1,    ROT0,  
 GAME( 1987, aliensy1, aliensyn, system16a,        aliensyn, aliensy1,    ROT0,   "Sega",           "Alien Syndrome (set 1, System 16A, FD1089A 317-0033)", 0 )
 GAME( 1986, bodyslam, 0,        system16a_8751,   bodyslam, bodyslam,    ROT0,   "Sega",           "Body Slam (8751 317-unknown)", 0 )
 GAME( 1986, dumpmtmt, bodyslam, system16a_8751,   bodyslam, bodyslam,    ROT0,   "Sega",           "Dump Matsumoto (Japan, 8751 317-unknown)", 0 )
-GAME( 1985, mjleague, 0,        system16a,        mjleague, mjleague,    ROT270, "Sega",           "Major League", 0 )
+GAME( 1985, mjleague, 0,        system16a,        mjleague, mjleague,    ROT270, "Sega",           "Major League", GAME_NOT_WORKING ) // controls not working
 GAME( 1986, quartet,  0,        system16a_8751,   quartet,  quartet,     ROT0,   "Sega",           "Quartet (8751 317-unknown)", 0 )
 GAME( 1986, quartetj, quartet,  system16a_8751,   quartet,  quartet,     ROT0,   "Sega",           "Quartet (Japan, 8751 317-unknown)", 0 )
 GAME( 1986, quartet2, quartet,  system16a_8751,   quartet2, quartet,     ROT0,   "Sega",           "Quartet 2 (8751 317-unknown)", 0 )

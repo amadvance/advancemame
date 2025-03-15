@@ -4390,19 +4390,19 @@ GAME( 1994, ridgera2, 0,        namcos22,  ridgera,  ridger2j, ROT0, "Namco", "R
 GAME( 1994, ridger2a, ridgera2, namcos22,  ridgera,  ridger2j, ROT0, "Namco", "Ridge Racer 2 (Rev. RRS1, Ver.B, Japan)"   , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS|GAME_NOT_WORKING )
 GAME( 1994, ridger2b, ridgera2, namcos22,  ridgera,  ridger2j, ROT0, "Namco", "Ridge Racer 2 (Rev. RRS1, Japan)"          , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS|GAME_NOT_WORKING )
 GAME( 1994, acedrvrw, 0,        namcos22,  acedrvr,  acedrvr,  ROT0, "Namco", "Ace Driver (Rev. AD2, World)"              , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, victlapw, 0,        namcos22,  victlap,  victlap,  ROT0, "Namco", "Ace Driver: Victory Lap (Rev. ADV2, World)", GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, victlapw, 0,        namcos22,  victlap,  victlap,  ROT0, "Namco", "Ace Driver: Victory Lap (Rev. ADV2, World)", GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS|GAME_NOT_WORKING ) // not able to insert coins
 
 /* Super System22 games */
 GAME( 1995, airco22b, 0,        namcos22s, airco22,  airco22,  ROT0, "Namco", "Air Combat 22 (Rev. ACS1 Ver.B)"           , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS|GAME_NOT_WORKING ) /* fails DSP RAM test */
-GAME( 1995, alpinerd, 0,        namcos22s, alpiner,  alpiner,  ROT0, "Namco", "Alpine Racer (Rev. AR2 Ver.D)"             , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS )
-GAME( 1995, alpinerc, alpinerd, namcos22s, alpiner,  alpiner,  ROT0, "Namco", "Alpine Racer (Rev. AR2 Ver.C)"             , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS )
-GAME( 1995, cybrcycc, 0,        namcos22s, cybrcycc, cybrcyc,  ROT0, "Namco", "Cyber Cycles (Rev. CB2 Ver.C)"             , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS )
+GAME( 1995, alpinerd, 0,        namcos22s, alpiner,  alpiner,  ROT0, "Namco", "Alpine Racer (Rev. AR2 Ver.D)"             , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // control doesn't autocenter?
+GAME( 1995, alpinerc, alpinerd, namcos22s, alpiner,  alpiner,  ROT0, "Namco", "Alpine Racer (Rev. AR2 Ver.C)"             , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // control doesn't autocenter?
+GAME( 1995, cybrcycc, 0,        namcos22s, cybrcycc, cybrcyc,  ROT0, "Namco", "Cyber Cycles (Rev. CB2 Ver.C)"             , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING) // wrong background
 //GAME( 1995, dirtdshx, "Dirt Dash")
 GAME( 1995, timecris, 0,        namcos22s, timecris, timecris, ROT0, "Namco", "Time Crisis (Rev. TS2 Ver.B)"              , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS )
 GAME( 1995, timecrsa, timecris, namcos22s, timecris, timecris, ROT0, "Namco", "Time Crisis (Rev. TS2 Ver.A)"              , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, alpinr2b, 0,        namcos22s, alpiner,  alpiner2, ROT0, "Namco", "Alpine Racer 2 (Rev. ARS2 Ver.B)"          , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, alpinesa, 0,        namcos22s, alpiner,  alpinesa, ROT0, "Namco", "Alpine Surfer (Rev. AF2 Ver.A)"            , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, propcycl, 0,        namcos22s, propcycl, propcycl, ROT0, "Namco", "Prop Cycle (Rev PR2 Ver.A)"                , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, alpinr2b, 0,        namcos22s, alpiner,  alpiner2, ROT0, "Namco", "Alpine Racer 2 (Rev. ARS2 Ver.B)"          , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // control goes only on the left
+GAME( 1996, alpinesa, 0,        namcos22s, alpiner,  alpinesa, ROT0, "Namco", "Alpine Surfer (Rev. AF2 Ver.A)"            , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS|GAME_NOT_WORKING ) // unable to start playing
+GAME( 1996, propcycl, 0,        namcos22s, propcycl, propcycl, ROT0, "Namco", "Prop Cycle (Rev PR2 Ver.A)"                , GAME_IMPERFECT_SOUND|GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // control goes only on the left
 //GAME( 1996, tokyowrx, "Tokyo Wars")
 //GAME( 1996, aquajetx, "Aqua Jet")
 //GAME( 1997, armdilox, "Armidillo Racing")

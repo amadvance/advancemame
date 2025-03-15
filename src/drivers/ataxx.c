@@ -846,5 +846,5 @@ GAME( 1990, ataxxa,   ataxx,  ataxx,   ataxx,    ataxx,    ROT0,   "Leland Corp.
 GAME( 1990, ataxxj,   ataxx,  ataxx,   ataxx,    ataxxj,   ROT0,   "Leland Corp.", "Ataxx (Japan)", 0 )
 GAME( 1990, wsf,      0,      wsf,     wsf,      wsf,      ROT0,   "Leland Corp.", "World Soccer Finals", 0 )
 GAME( 1991, indyheat, 0,      wsf,     indyheat, indyheat, ROT0,   "Leland Corp.", "Danny Sullivan's Indy Heat", 0 )
-GAME( 1991, brutforc, 0,      wsf,     brutforc, brutforc, ROT0,   "Leland Corp.", "Brute Force", 0 )
+GAME( 1991, brutforc, 0,      wsf,     brutforc, brutforc, ROT0,   "Leland Corp.", "Brute Force", GAME_NOT_WORKING ) // flashing background
 GAME( 1991, asylum,   0,      wsf,     brutforc, asylum,   ROT270, "Leland Corp.", "Asylum (prototype)", 0 )

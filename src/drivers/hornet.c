@@ -1299,8 +1299,8 @@ ROM_END
 
 /*************************************************************************/
 
-GAME( 1998, gradius4,	0,		hornet,			hornet,	gradius4,	ROT0,	"Konami",	"Gradius 4: Fukkatsu", GAME_IMPERFECT_SOUND )
-GAME( 1998, nbapbp,		0,		hornet,			hornet,	nbapbp,		ROT0,	"Konami",	"NBA Play By Play", GAME_IMPERFECT_SOUND )
+GAME( 1998, gradius4,	0,		hornet,			hornet,	gradius4,	ROT0,	"Konami",	"Gradius 4: Fukkatsu", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // crash
+GAME( 1998, nbapbp,		0,		hornet,			hornet,	nbapbp,		ROT0,	"Konami",	"NBA Play By Play", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING) // crash
 GAME( 2000, sscope,		0,		hornet_2board,	hornet,	sscope,		ROT0,	"Konami",	"Silent Scope (ver UAB)", GAME_IMPERFECT_SOUND|GAME_NOT_WORKING )
 GAME( 2000, sscopea,	sscope, hornet_2board,	hornet,	sscope,		ROT0,	"Konami",	"Silent Scope (ver UAA)", GAME_IMPERFECT_SOUND|GAME_NOT_WORKING )
 GAME( 2000, sscope2,	0,		hornet_2board,	hornet,	sscope2,	ROT0,	"Konami",	"Silent Scope 2", GAME_IMPERFECT_SOUND|GAME_NOT_WORKING )

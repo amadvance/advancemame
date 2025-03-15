@@ -4029,7 +4029,7 @@ GAMEB( 1996, stvbios,   0,       stvbios, stv, stv,  stv,       ROT0,   "Sega", 
 /* Playable */
 GAMEB( 1996, bakubaku,  stvbios, stvbios, stv, stv,  bakubaku,  ROT0,   "Sega",     				  "Baku Baku Animal (J 950407 V1.000)", GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1996, batmanfr,  stvbios, stvbios, stv, stv,  batmanfr,  ROT0,   "Acclaim",    				  "Batman Forever (JUE 960507 V1.000)", GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAMEB( 1996, colmns97,  stvbios, stvbios, stv, stv,  colmns97,  ROT0,   "Sega", 	 				  "Columns '97 (JET 961209 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAMEB( 1996, colmns97,  stvbios, stvbios, stv, stv,  colmns97,  ROT0,   "Sega", 	 				  "Columns '97 (JET 961209 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // graphics issues
 GAMEB( 1997, cotton2,   stvbios, stvbios, stv, stv,  cotton2,   ROT0,   "Success",  				  "Cotton 2 (JUET 970902 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1998, cottonbm,  stvbios, stvbios, stv, stv,  cottonbm,  ROT0,   "Success",  				  "Cotton Boomerang (JUET 980709 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1999, danchih,   stvbios, stvbios, stv, stvmp,danchih,   ROT0,   "Altron (Tecmo license)", 	  "Danchi de Hanafuoda (J 990607 V1.400)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
@@ -4051,12 +4051,12 @@ GAMEB( 1996, prikura,   stvbios, stvbios, stv, stv,  prikura,   ROT0,   "Atlus",
 GAMEB( 1996, puyosun,   stvbios, stvbios, stv, stv,  puyosun,   ROT0,   "Compile",  				  "Puyo Puyo Sun (J 961115 V0.001)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1998, rsgun,     stvbios, stvbios, stv, stv,  rsgun,     ROT0,   "Treasure",   				  "Radiant Silvergun (JUET 980523 V1.000)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAMEB( 1996, sassisu,   stvbios, stvbios, stv, stv,  sassisu,   ROT0,   "Sega", 	     			  "Taisen Tanto-R Sashissu!! (J 980216 V1.000)", GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAMEB( 1998, seabass,   stvbios, stvbios, stv, stv,  seabass,   ROT0,   "A wave inc. (Able license)","Sea Bass Fishing (JUET 971110 V0.001)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAMEB( 1998, seabass,   stvbios, stvbios, stv, stv,  seabass,   ROT0,   "A wave inc. (Able license)","Sea Bass Fishing (JUET 971110 V0.001)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // not passing the test screen, error on cartridge
 GAMEB( 1995, shanhigw,  stvbios, stvbios, stv, stv,  shanhigw,	ROT0,   "Sunsoft / Activision", 	  "Shanghai - The Great Wall / Shanghai Triple Threat (JUE 950623 V1.005)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1997, shienryu,  stvbios, stvbios, stv, stv,  shienryu,  ROT270, "Warashi",  				  "Shienryu (JUET 961226 V1.000)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAMEB( 1995, smleague,  stvbios, stvbios, stv, stv,  smleague,  ROT0,   "Sega", 	     			  "Super Major League (U 960108 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAMEB( 1995, finlarch,  smleague,stvbios, stv, stv,  finlarch,  ROT0,   "Sega", 	     			  "Final Arch (J 950714 V1.001)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAMEB( 1998, sss,       stvbios, stvbios, stv, stv,  sss,       ROT0,   "Capcom / Cave / Victor",	  "Steep Slope Sliders (JUET 981110 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAMEB( 1995, smleague,  stvbios, stvbios, stv, stv,  smleague,  ROT0,   "Sega", 	     			  "Super Major League (U 960108 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // not passing the test screen, error on cartridge
+GAMEB( 1995, finlarch,  smleague,stvbios, stv, stv,  finlarch,  ROT0,   "Sega", 	     			  "Final Arch (J 950714 V1.001)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // wrong graphics
+GAMEB( 1998, sss,       stvbios, stvbios, stv, stv,  sss,       ROT0,   "Capcom / Cave / Victor",	  "Steep Slope Sliders (JUET 981110 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // not passing the test screen, error on cartridge
 GAMEB( 1995, sandor,    stvbios, stvbios, stv, stv,  sandor,    ROT0,   "Sega", 	     			  "Sando-R (J 951114 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1996, sokyugrt,  stvbios, stvbios, stv, stv,  sokyugrt,  ROT0,   "Raizing / 8ing",    		  "Soukyugurentai / Terra Diver (JUET 960821 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1995, suikoenb,  stvbios, stvbios, stv, stv,  suikoenb,  ROT0,   "Data East",  				  "Suikoenbu (J 950314 V2.001)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
@@ -4065,9 +4065,9 @@ GAMEB( 1996, vfkids,    stvbios, stvbios, stv, stv,  ic13,      ROT0,   "Sega", 
 GAMEB( 1997, winterht,  stvbios, stvbios, stv, stv,  winterht,  ROT0,   "Sega", 	 				  "Winter Heat (JUET 971012 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 
 /* Almost */
-GAMEB( 1997, vmahjong,  stvbios, stvbios, stv, stvmp,stv,       ROT0,   "Micronet",   				  "Virtual Mahjong (J 961214 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAMEB( 1997, vmahjong,  stvbios, stvbios, stv, stvmp,stv,       ROT0,   "Micronet",   				  "Virtual Mahjong (J 961214 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // not passing the test screen, error on cartridge
 GAMEB( 1998, myfairld,  stvbios, stvbios, stv, stvmp,stv,       ROT0,   "Micronet",   				  "Virtual Mahjong 2 - My Fair Lady (J 980608 V1.000)", GAME_NO_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING )
-GAMEB( 1998, astrass,   stvbios, stvbios, stv, stv,  astrass,   ROT0,   "Sunsoft",    				  "Astra SuperStars (J 980514 V1.002)", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAMEB( 1998, astrass,   stvbios, stvbios, stv, stv,  astrass,   ROT0,   "Sunsoft",    				  "Astra SuperStars (J 980514 V1.002)", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_NOT_WORKING) // wrong background
 GAMEB( 1998, twcup98,   stvbios, stvbios, stv, stv,  twcup98,   ROT0,   "Tecmo",      				  "Tecmo World Cup '98 (JUET 980410 V1.000)", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS|GAME_NOT_WORKING ) // player movement
 GAMEB( 1997, znpwfv,    stvbios, stvbios, stv, stv,  znpwfv,    ROT0,   "Sega", 	     			  "Zen Nippon Pro-Wrestling Featuring Virtua (J 971123 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 

@@ -4722,11 +4722,11 @@ DRIVER_INIT( luckywld ){
 /* and metal hawk have the B version and dragon saber has the C version       */
 
 /*    YEAR, NAME,     PARENT,   MACHINE,  INPUT,    INIT,     MONITOR, COMPANY, FULLNAME */
-GAME( 1987, finallap, 0,        finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Rev E)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1987, finalapd, finallap, finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Rev D)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1987, finalapc, finallap, finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Rev C)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1987, finlapjc, finallap, finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Japan - Rev C)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1987, finlapjb, finallap, finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Japan - Rev B)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1987, finallap, 0,        finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Rev E)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // unable to control
+GAME( 1987, finalapd, finallap, finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Rev D)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // unable to control
+GAME( 1987, finalapc, finallap, finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Rev C)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // unable to control
+GAME( 1987, finlapjc, finallap, finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Japan - Rev C)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // unable to control
+GAME( 1987, finlapjb, finallap, finallap, finallap, finallap, ROT0,   "Namco", "Final Lap (Japan - Rev B)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // unable to control
 GAME( 1988, assault,  0,        default2, assault,  assault , ROT90,  "Namco", "Assault" , 0)		/* adjusted */
 GAME( 1988, assaultj, assault,  default2, assault,  assaultj, ROT90,  "Namco", "Assault (Japan)" , 0)	/* adjusted */
 GAME( 1988, assaultp, assault,  default2, assault,  assaultp, ROT90,  "Namco", "Assault Plus (Japan)" , 0)	/* adjusted */
@@ -4737,7 +4737,7 @@ GAME( 1988, ordynej,  ordyne,   default,  default,  ordyne,   ROT180, "Namco", "
 GAME( 1988, mirninja, 0,        default,  default,  mirninja, ROT0,   "Namco", "Mirai Ninja (Japan)", 0 )
 GAME( 1988, phelios,  0,        default2, default,  phelios , ROT90,  "Namco", "Phelios (Japan)" , 0)	/* adjusted */
 GAME( 1989, dirtfoxj, 0,        default2, dirtfox,  dirtfoxj, ROT90,  "Namco", "Dirt Fox (Japan)" , 0)	/* adjusted */
-GAME( 1989, fourtrax, 0,        finallap, fourtrax, fourtrax, ROT0,   "Namco", "Four Trax", GAME_IMPERFECT_GRAPHICS )
+GAME( 1989, fourtrax, 0,        finallap, fourtrax, fourtrax, ROT0,   "Namco", "Four Trax", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING )  // control goes only on the right?
 GAME( 1989, valkyrie, 0,        default3, default,  valkyrie, ROT90,  "Namco", "Valkyrie No Densetsu (Japan)", 0 )
 GAME( 1989, finehour, 0,        default2, default,  finehour, ROT0,   "Namco", "Finest Hour (Japan)" , 0)		/* adjusted */
 GAME( 1989, burnforc, 0,        default3, default,  burnforc, ROT0,   "Namco", "Burning Force (Japan new version)", 0 )

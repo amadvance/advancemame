@@ -1279,4 +1279,4 @@ GAME( 1995, bigtwin,  0,        bigtwin,  bigtwin,  bigtwin, ROT0, "Playmark", "
 GAME( 1995, wbeachvl, 0,        wbeachvl, wbeachvl, 0,       ROT0, "Playmark", "World Beach Volley (set 1)", GAME_NO_COCKTAIL | GAME_NO_SOUND )
 GAME( 1995, wbeachv2, wbeachvl, wbeachvl, wbeachvl, 0,       ROT0, "Playmark", "World Beach Volley (set 2)",  GAME_NO_COCKTAIL | GAME_NO_SOUND )
 GAME( 1996, excelsr,  0,        excelsr,  excelsr,  bigtwin, ROT0, "Playmark", "Excelsior", 0 )
-GAME( 1995, hotmind,  0,        hotmind,  hotmind,  bigtwin, ROT0, "Playmark", "Hot Mind", 0 )
+GAME( 1995, hotmind,  0,        hotmind,  hotmind,  bigtwin, ROT0, "Playmark", "Hot Mind", GAME_NOT_WORKING ) // unable to pass initial test

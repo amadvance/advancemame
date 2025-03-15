@@ -2335,9 +2335,9 @@ GAME( 1987, aburner2, 0,        xboard,  aburner2, aburner2,       ROT0, "Sega",
 GAME( 1987, aburner,  aburner2, xboard,  aburner,  aburner2,       ROT0, "Sega", "After Burner (Japan)", 0 )
 GAME( 1987, thndrbld, 0,        xboard,  thndrbld, generic_xboard, ROT0, "Sega", "Thunder Blade (FD1094 317-0056)", 0 )
 GAME( 1987, thndrbdj, thndrbld, xboard,  thndrbld, generic_xboard, ROT0, "Sega", "Thunder Blade (Japan)", 0 )
-GAME( 1989, loffire,  0,        loffire, loffire,  loffire,        ROT0, "Sega", "Line of Fire / Bakudan Yarou (World, FD1094 317-0136)", 0 )
-GAME( 1989, loffireu, loffire,  loffire, loffire,  loffire,        ROT0, "Sega", "Line of Fire / Bakudan Yarou (US, FD1094 317-0135)", 0 )
-GAME( 1989, loffirej, loffire,  loffire, loffire,  loffire,        ROT0, "Sega", "Line of Fire / Bakudan Yarou (Japan, FD1094 317-0134)", 0 )
+GAME( 1989, loffire,  0,        loffire, loffire,  loffire,        ROT0, "Sega", "Line of Fire / Bakudan Yarou (World, FD1094 317-0136)", GAME_NOT_WORKING ) // fire button not working
+GAME( 1989, loffireu, loffire,  loffire, loffire,  loffire,        ROT0, "Sega", "Line of Fire / Bakudan Yarou (US, FD1094 317-0135)", GAME_NOT_WORKING )
+GAME( 1989, loffirej, loffire,  loffire, loffire,  loffire,        ROT0, "Sega", "Line of Fire / Bakudan Yarou (Japan, FD1094 317-0134)", GAME_NOT_WORKING )
 GAME( 1989, rachero,  0,        xboard,  rachero,  generic_xboard, ROT0, "Sega", "Racing Hero (FD1094 317-0144)", 0 )
 GAME( 1989, smgp,     0,        smgp,    smgp,     smgp,           ROT0, "Sega", "Super Monaco GP (set 8, World, Rev B, 'Twin', FD1094 317-0126a)", 0 )
 GAME( 1989, smgp6,    smgp,     smgp,    smgp,     smgp,           ROT0, "Sega", "Super Monaco GP (set 7, World, Rev A, FD1094 317-0126a)", 0 )

@@ -962,4 +962,4 @@ static DRIVER_INIT(josvolly)
 
 GAME( 1984, gsword,   0,      gsword,   gsword, gsword,  ROT0,  "Taito Corporation", "Great Swordsman (World?)", 0 )
 GAME( 1984, gsword2,  gsword, gsword,   gsword, gsword2, ROT0,  "Taito Corporation", "Great Swordsman (Japan?)", 0 )
-GAME( 1983, josvolly, 0,      josvolly, josvolly, josvolly,       ROT90, "Taito Corporation", "Joshi Volleyball", GAME_UNEMULATED_PROTECTION|GAME_IMPERFECT_GRAPHICS|GAME_IMPERFECT_SOUND )
+GAME( 1983, josvolly, 0,      josvolly, josvolly, josvolly,       ROT90, "Taito Corporation", "Joshi Volleyball", GAME_UNEMULATED_PROTECTION|GAME_IMPERFECT_GRAPHICS|GAME_IMPERFECT_SOUND | GAME_NOT_WORKING ) // never ending test

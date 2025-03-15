@@ -853,7 +853,7 @@ static DRIVER_INIT(mayjisn2)
  *************************************/
 
 GAME(  1994, renju,	0,	  st0016,   renju,    renju,    ROT0, "Visco", "Renju Kizoku", 0)
-GAME(  1996, nratechu,	0,	  st0016,   nratechu, nratechu, ROT0, "Seta",  "Neratte Chu", 0)
+GAME(  1996, nratechu,	0,	  st0016,   nratechu, nratechu, ROT0, "Seta",  "Neratte Chu", GAME_NOT_WORKING ) // graphics issues
 GAME(  1994, mayjisn2,	0,	  mayjinsn, mayjisn2, mayjisn2, ROT0, "Seta",  "Mayjinsen 2", 0)
 /* Not working */
 GAME( 199?, srmp5,	0,	  srmp5,    srmp5,    srmp5,    ROT0, "Seta",  "Super Real Mahjong P5",GAME_NOT_WORKING)

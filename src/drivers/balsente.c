@@ -2467,8 +2467,8 @@ GAME( 1984, triviayp, 0,        balsente, triviayp, triviag2, ROT0, "Bally/Sente
 GAME( 1984, triviabb, 0,        balsente, triviabb, triviag2, ROT0, "Bally/Sente", "Trivial Pursuit (Baby Boomer Edition)", GAME_SUPPORTS_SAVE )
 GAME( 1987, triviaes, 0,        balsente, triviaes, triviaes, ROT0, "Bally/Sente", "Trivial Pursuit (Spanish Edition)", GAME_SUPPORTS_SAVE )
 GAME( 1985, gimeabrk, 0,        balsente, gimeabrk, gimeabrk, ROT0, "Bally/Sente", "Gimme A Break", GAME_SUPPORTS_SAVE )
-GAME( 1985, minigolf, 0,        balsente, minigolf, minigolf, ROT0, "Bally/Sente", "Mini Golf (set 1)", GAME_SUPPORTS_SAVE )
-GAME( 1985, minigol2, minigolf, balsente, minigol2, minigol2, ROT0, "Bally/Sente", "Mini Golf (set 2)", GAME_SUPPORTS_SAVE )
+GAME( 1985, minigolf, 0,        balsente, minigolf, minigolf, ROT0, "Bally/Sente", "Mini Golf (set 1)", GAME_SUPPORTS_SAVE | GAME_NOT_WORKING ) // uanble to control
+GAME( 1985, minigol2, minigolf, balsente, minigol2, minigol2, ROT0, "Bally/Sente", "Mini Golf (set 2)", GAME_SUPPORTS_SAVE | GAME_NOT_WORKING ) // uanble to control
 GAME( 1985, toggle,   0,        balsente, toggle,   toggle,   ROT0, "Bally/Sente", "Toggle (prototype)", GAME_SUPPORTS_SAVE )
 GAME( 1986, nametune, 0,        balsente, nametune, nametune, ROT0, "Bally/Sente", "Name That Tune", GAME_SUPPORTS_SAVE )
 GAME( 1986, nstocker, 0,        balsente, nstocker, nstocker, ROT0, "Bally/Sente", "Night Stocker", GAME_SUPPORTS_SAVE )
