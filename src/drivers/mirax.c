@@ -390,7 +390,7 @@ static MACHINE_DRIVER_START( mirax )
 
 	MDRV_CPU_ADD(Z80, 12000000/4) // audio cpu ?
 	MDRV_CPU_PROGRAM_MAP(mirax_sound_map,0)
-	MDRV_CPU_PERIODIC_INT(irq0_line_hold, 4*60)
+	MDRV_CPU_PERIODIC_INT(irq0_line_hold,TIME_IN_HZ(4*60))
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
