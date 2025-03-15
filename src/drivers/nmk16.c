@@ -3480,7 +3480,7 @@ static MACHINE_DRIVER_START( hachamfb )
 	MDRV_CPU_ADD(M68000, 10000000) /* 10 MHz ? */
 	MDRV_CPU_PROGRAM_MAP(hachamfb_readmem,hachamfb_writemem)
 	MDRV_CPU_VBLANK_INT(nmk_interrupt,2)// No mcu
-	MDRV_CPU_PERIODIC_INT(irq1_line_hold,112)/* ???????? */
+	MDRV_CPU_PERIODIC_INT(irq1_line_hold,TIME_IN_HZ(112))/* ???????? */
 
 	MDRV_FRAMES_PER_SECOND(56)
 	MDRV_VBLANK_DURATION(TIME_IN_USEC(2500))
