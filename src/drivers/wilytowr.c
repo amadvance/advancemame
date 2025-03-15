@@ -580,8 +580,7 @@ static struct Samplesinterface custom_interface =
 	fghtbskt_sh_start
 };
 
-/* we'll use standard interrupt handling seems fine with it */
-static INTERRUPT_GEN( snd_irq )
+static void snd_irq(int num)
 {
 	sound_irq = 1;
 }
@@ -672,7 +671,7 @@ static MACHINE_DRIVER_START( fghtbskt )
 	/* audio CPU */
 	MDRV_CPU_PROGRAM_MAP(i8039_readmem,i8039_writemem)
 	MDRV_CPU_IO_MAP(i8039_readport,i8039_writeport)
-    MDRV_CPU_PERIODIC_INT(snd_irq, 60/2)
+        MDRV_CPU_PERIODIC_INT(snd_irq, 60/2)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
