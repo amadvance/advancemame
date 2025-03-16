@@ -1869,7 +1869,7 @@ static adv_error input_save_unsafe(adv_conf* context, struct adv_conf_input_stru
 	if (!f) {
 		if (!quiet || errno != EACCES) {
 			if (error)
-				error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening the file %s for writing, %s.", input->file_out, strerror(errno));
+				error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening file %s for writing, %s.", input->file_out, strerror(errno));
 		}
 		goto err;
 	}
@@ -1879,7 +1879,7 @@ static adv_error input_save_unsafe(adv_conf* context, struct adv_conf_input_stru
 
 	if (fflush(f) != 0) {
 		if (error)
-			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error flushing the file %s, %s.", input->file_out, strerror(errno));
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error flushing file %s, %s.", input->file_out, strerror(errno));
 		goto err;
 	}
 
@@ -1960,7 +1960,7 @@ static adv_error input_save_safe(adv_conf* context, struct adv_conf_input_struct
 	if (d < 0) {
 		if (!quiet || errno != EACCES) {
 			if (error)
-				error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening the directory %s, %s.", dir, strerror(errno));
+				error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening directory %s, %s.", dir, strerror(errno));
 		}
 		goto err;
 	}
@@ -1979,7 +1979,7 @@ static adv_error input_save_safe(adv_conf* context, struct adv_conf_input_struct
 	if (h < 0) {
 		if (!quiet || errno != EACCES) {
 			if (error)
-				error(error_context, conf_error_failure, input->file_out, 0, 0, "Error creating the file %s for writing, %s.", tmp, strerror(errno));
+				error(error_context, conf_error_failure, input->file_out, 0, 0, "Error creating file %s for writing, %s.", tmp, strerror(errno));
 		}
 		goto err_close_d;
 	}
@@ -1988,7 +1988,7 @@ static adv_error input_save_safe(adv_conf* context, struct adv_conf_input_struct
 	if (!f) {
 		close(h); /* only case to close */
 		if (error)
-			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening the file %s for writing, %s.", tmp, strerror(errno));
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error opening file %s for writing, %s.", tmp, strerror(errno));
 		goto err_close_d;
 	}
 
@@ -1997,7 +1997,7 @@ static adv_error input_save_safe(adv_conf* context, struct adv_conf_input_struct
 
 	if (fflush(f) != 0) {
 		if (error)
-			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error flushing the file %s, %s.", tmp, strerror(errno));
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error flushing file %s, %s.", tmp, strerror(errno));
 		goto err_fclose_f;
 	}
 
@@ -2015,19 +2015,19 @@ static adv_error input_save_safe(adv_conf* context, struct adv_conf_input_struct
 
 	if (renameat(d, tmp, d, name) != 0) {
 		if (error)
-			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error renaming the file %s to %s, %s.", tmp, input->file_out, strerror(errno));
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error renaming file %s to %s, %s.", tmp, input->file_out, strerror(errno));
 		goto err_close_d;
 	}
 
 	if (fsync(d) != 0) {
 		if (error)
-			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error syncing file %s, %s.", tmp, strerror(errno));
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error syncing dir %s, %s.", tmp, strerror(errno));
 		goto err_close_d;
 	}
 
 	if (close(d) != 0) {
 		if (error)
-			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error syncing file %s, %s.", tmp, strerror(errno));
+			error(error_context, conf_error_failure, input->file_out, 0, 0, "Error closing dir %s, %s.", tmp, strerror(errno));
 		goto err;
 	}
 
