@@ -5666,7 +5666,7 @@ ROM_START( tturf )
 	ROM_LOAD16_BYTE( "12280.b8", 0xc0000, 0x10000, CRC(639a57cb) SHA1(84fd8b96758d38f9e1ba1a3c2cf8099ec0452784) )
 
 	ROM_REGION( 0x50000, REGION_CPU2, 0 ) /* sound CPU */
-	ROM_LOAD( "12328.a10", 0x00000, 0x08000, NO_DUMP )
+	ROM_LOAD( "12328.a10", 0x00000, 0x08000, CRC(13a346de) SHA1(4e8cb12b7936c4c5d8ebc9ba563099ac2056ee60) )
 	ROM_LOAD( "12329.a11", 0x10000, 0x10000, CRC(ed9a686d) SHA1(da433033d501ee871429ee676b3972b14179df9f) )		// speech
 	/* note: it needs this gap otherwise voice samples won't playback */
 	ROM_LOAD( "12330.12a", 0x30000, 0x10000, CRC(fb762bca) SHA1(ff9191c5ec38c711ebb7c2ad043f62b6d7e2203c) )
@@ -6287,7 +6287,7 @@ GAME( 1988, tetris2,  tetris,   system16b,      tetris,   generic_5704,         
 GAME( 1988, tetris1,  tetris,   system16b,      tetris,   generic_5358,           ROT0,   "Sega",           "Tetris (set 1, Japan, System 16B, FD1094 317-0091)", 0 )
 GAME( 1987, timescan, 0,        timescan,       timescan, generic_5358,           ROT270, "Sega",           "Time Scanner (set 2, System 16B)", 0 )
 GAME( 1994, toryumon, 0,        system16b,      toryumon, generic_5797,           ROT0,   "Sega",           "Toryumon", 0 )
-GAME( 1989, tturf,    0,        system16b_8751, tturf,    tturf_5704,             ROT0,   "Sega / Sunsoft", "Tough Turf (set 2, Japan, 8751 317-0104)", GAME_NO_SOUND)
+GAME( 1989, tturf,    0,        system16b_8751, tturf,    tturf_5704,             ROT0,   "Sega / Sunsoft", "Tough Turf (set 2, Japan, 8751 317-0104)", 0)
 GAME( 1989, tturfu,   tturf,    system16b_8751, tturf,    tturf_5358,             ROT0,   "Sega / Sunsoft", "Tough Turf (set 1, US, 8751 317-0099)", 0)
 GAME( 1988, wb3,      0,        system16b_8751, wb3,      wb3_5704,               ROT0,   "Sega / Westone", "Wonder Boy III - Monster Lair (set 5, World, System 16B, 8751 317-0098)", 0 )
 GAME( 1988, wb34,     wb3,      system16b,      wb3,      generic_5704,           ROT0,   "Sega / Westone", "Wonder Boy III - Monster Lair (set 4, Japan, System 16B, FD1094 317-0087)", 0 )
