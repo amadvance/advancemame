@@ -524,7 +524,7 @@ static MACHINE_DRIVER_START( st0016 )
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
 	MDRV_SCREEN_SIZE(48*8, 48*8)
-	MDRV_VISIBLE_AREA(0*8, 48*8-1, 0*8, 48*8-1)
+	MDRV_VISIBLE_AREA(7*8, (48-7)*8+2, 9*8-2, (48-9)*8-1-2)
 	MDRV_GFXDECODE(gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(16*16*4+1)
 
@@ -853,7 +853,7 @@ static DRIVER_INIT(mayjisn2)
  *************************************/
 
 GAME(  1994, renju,	0,	  st0016,   renju,    renju,    ROT0, "Visco", "Renju Kizoku", 0)
-GAME(  1996, nratechu,	0,	  st0016,   nratechu, nratechu, ROT0, "Seta",  "Neratte Chu", GAME_NOT_WORKING ) // graphics issues
+GAME(  1996, nratechu,	0,	  st0016,   nratechu, nratechu, ROT0, "Seta",  "Neratte Chu", 0)
 GAME(  1994, mayjisn2,	0,	  mayjinsn, mayjisn2, mayjisn2, ROT0, "Seta",  "Mayjinsen 2", 0)
 /* Not working */
 GAME( 199?, srmp5,	0,	  srmp5,    srmp5,    srmp5,    ROT0, "Seta",  "Super Real Mahjong P5",GAME_NOT_WORKING)
