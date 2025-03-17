@@ -1048,6 +1048,14 @@ const game_driver * const drivers[] =
 	DRIVER( nss_fzer )
 	DRIVER( nss_sten )
 
+	/* SNES-based hacks */
+	DRIVER( kinstb )        /* bootleg */
+	DRIVER( ffight2b )      /* bootleg */
+	DRIVER( sblast2b )      /* bootleg */
+	DRIVER( iron )          /* bootleg */
+	DRIVER( denseib )       /* bootleg */
+	DRIVER( endless )       /* bootleg */
+
 	/* Midway 8080 b/w games */
 	DRIVER( seawolf )	/* 596 [1976] */
 	DRIVER( gunfight )	/* 597 [1975] */
