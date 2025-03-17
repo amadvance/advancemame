@@ -420,5 +420,5 @@ static DRIVER_INIT( parodius )
 
 
 
-GAME( 1990, parodius, 0,        parodius, parodius, parodius, ROT0, "Konami", "Parodius DA! (World)", GAME_NOT_WORKING ) // reset continously on rom check
-GAME( 1990, parodisj, parodius, parodius, parodius, parodius, ROT0, "Konami", "Parodius DA! (Japan)", GAME_NOT_WORKING )
+GAME( 1990, parodius, 0,        parodius, parodius, parodius, ROT0, "Konami", "Parodius DA! (World)", 0 )
+GAME( 1990, parodisj, parodius, parodius, parodius, parodius, ROT0, "Konami", "Parodius DA! (Japan)", 0 )

@@ -99,7 +99,7 @@ static int get_mseq_bit(struct c352_info *info)
 	return (reg & 1);
 }
 
-static void c352_mix_one_channel(struct c352_info *info, unsigned long ch, long sample_count)
+static void c352_mix_one_channel(struct c352_info *info, UINT32 ch, long sample_count)
 
 {
 
@@ -340,9 +340,9 @@ static void c352_update(void *param, stream_sample_t **inputs, stream_sample_t *
 	}
 }
 
-static unsigned short c352_read_reg16(struct c352_info *info, unsigned long address)
+static unsigned short c352_read_reg16(struct c352_info *info, UINT32 address)
 {
-	unsigned long	chan;
+	UINT32	chan;
 	unsigned short	val;
 
 	stream_update(info->stream, 0);
@@ -368,10 +368,10 @@ static unsigned short c352_read_reg16(struct c352_info *info, unsigned long addr
 	return val;
 }
 
-static void c352_write_reg16(struct c352_info *info, unsigned long address, unsigned short val)
+static void c352_write_reg16(struct c352_info *info, UINT32 address, unsigned short val)
 {
-	unsigned long	chan;
-	unsigned long	temp;
+	UINT32	chan;
+	UINT32	temp;
 	chan = (address >> 4) & 0xfff;
 
 	stream_update(info->stream, 0);

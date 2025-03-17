@@ -376,9 +376,9 @@ struct
 } chip;
 
 #ifndef LSB_FIRST
-INLINE unsigned long LE32(unsigned long addr)
+INLINE UINT32 LE32(UINT32 addr)
 {
-	unsigned long res = (((addr&0xff000000)>>24) |
+	UINT32 res = (((addr&0xff000000)>>24) |
 		 ((addr&0x00ff0000)>>8) |
 		 ((addr&0x0000ff00)<<8) |
 		 ((addr&0x000000ff)<<24));

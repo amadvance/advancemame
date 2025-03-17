@@ -138,7 +138,7 @@ typedef struct opcode {
 	char extcode;	/* value that gets extension code */
 	const char *parse;	/* how to parse bits */
 	const char *fmt;	/* instruction format */
-	unsigned long flags;
+	UINT32 flags;
 } M48Opcode;
 
 static M48Opcode Op[MAX_OPS+1];
@@ -153,7 +153,7 @@ static void InitDasm8039(void)
 
 	ops = Formats; i = 0;
 	while (*ops) {
-	unsigned long flags = 0;
+	UINT32 flags = 0;
 	p = *ops;
 	mask = 0; bits = 0; bit = 7;
 	while (*p && bit >= 0) {

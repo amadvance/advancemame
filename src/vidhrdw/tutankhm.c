@@ -136,8 +136,8 @@ WRITE8_HANDLER( junofrst_blitter_w )
 	if (offset==3)
 	{
 		int i;
-		unsigned long srcaddress;
-		unsigned long destaddress;
+		UINT32 srcaddress;
+		UINT32 destaddress;
 		unsigned char srcflag;
 		unsigned char destflag;
 		unsigned char *JunoBLTRom = memory_region(REGION_GFX1);

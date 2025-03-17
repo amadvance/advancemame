@@ -16,14 +16,14 @@
 #define BASE_SHIFT	16
 
 struct K053260_channel_def {
-	unsigned long		rate;
-	unsigned long		size;
-	unsigned long		start;
-	unsigned long		bank;
-	unsigned long		volume;
+	UINT32		rate;
+	UINT32		size;
+	UINT32		start;
+	UINT32		bank;
+	UINT32		volume;
 	int					play;
-	unsigned long		pan;
-	unsigned long		pos;
+	UINT32		pan;
+	UINT32		pos;
 	int					loop;
 	int					ppcm; /* packed PCM ( 4 bit signed ) */
 	int					ppcm_data;
@@ -34,7 +34,7 @@ struct K053260_chip_def {
 	int								regs[0x30];
 	unsigned char					*rom;
 	int								rom_size;
-	unsigned long					*delta_table;
+	UINT32					*delta_table;
 	struct K053260_channel_def		channels[4];
 	const struct K053260_interface	*intf;
 };
@@ -44,7 +44,7 @@ static void InitDeltaTable( struct K053260_chip_def *ic, int clock ) {
 	int		i;
 	double	base = ( double )Machine->sample_rate;
 	double	max = (double)(clock); /* Hz */
-	unsigned long val;
+	UINT32 val;
 
 	for( i = 0; i < 0x1000; i++ ) {
 		double v = ( double )( 0x1000 - i );
@@ -53,7 +53,7 @@ static void InitDeltaTable( struct K053260_chip_def *ic, int clock ) {
 
 		if ( target && base ) {
 			target = fixed / ( base / target );
-			val = ( unsigned long )target;
+			val = ( UINT32 )target;
 			if ( val == 0 )
 				val = 1;
 		} else
@@ -99,7 +99,7 @@ void K053260_update( void * param, stream_sample_t **inputs, stream_sample_t **b
 
 	int i, j, lvol[4], rvol[4], play[4], loop[4], ppcm_data[4], ppcm[4];
 	unsigned char *rom[4];
-	unsigned long delta[4], end[4], pos[4];
+	UINT32 delta[4], end[4], pos[4];
 	int dataL, dataR;
 	signed char d;
 	struct K053260_chip_def *ic = param;
@@ -213,7 +213,7 @@ static void *k053260_start(int sndindex, int clock, const void *config)
 	for ( i = 0; i < 0x30; i++ )
 		ic->regs[i] = 0;
 
-	ic->delta_table = ( unsigned long * )auto_malloc( 0x1000 * sizeof( unsigned long ) );
+	ic->delta_table = ( UINT32 * )auto_malloc( 0x1000 * sizeof( UINT32 ) );
 
 	ic->channel = stream_create( 0, 2, Machine->sample_rate, ic, K053260_update );
 

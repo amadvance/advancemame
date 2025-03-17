@@ -37,12 +37,12 @@ struct samples_info
 #ifdef LSB_FIRST
 #define intelLong(x) (x)
 #else
-#define intelLong(x) (((x << 24) | (((unsigned long) x) >> 24) | (( x & 0x0000ff00) << 8) | (( x & 0x00ff0000) >> 8)))
+#define intelLong(x) (((x << 24) | (((UINT32) x) >> 24) | (( x & 0x0000ff00) << 8) | (( x & 0x00ff0000) >> 8)))
 #endif
 
 static int read_wav_sample(mame_file *f, struct loaded_sample *sample)
 {
-	unsigned long offset = 0;
+	UINT32 offset = 0;
 	UINT32 length, rate, filesize;
 	UINT16 bits, temp16;
 	char buf[32];

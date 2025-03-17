@@ -12,7 +12,7 @@ struct _wav_file
 #define intel_long(x) (x)
 #define intel_short(x) (x)
 #else
-#define intel_long(x) (((x << 24) | (((unsigned long) x) >> 24) | (( x & 0x0000ff00) << 8) | (( x & 0x00ff0000) >> 8)))
+#define intel_long(x) (((x << 24) | (((UINT32) x) >> 24) | (( x & 0x0000ff00) << 8) | (( x & 0x00ff0000) >> 8)))
 #define intel_short(x) (((x) << 8) | ((x) >> 8))
 #endif
 

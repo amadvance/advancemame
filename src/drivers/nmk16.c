@@ -4795,7 +4795,7 @@ static unsigned char decode_byte(unsigned char src, unsigned char *bitp)
 	return ret;
 }
 
-static unsigned long bjtwin_address_map_bg0(unsigned long addr)
+static UINT32 bjtwin_address_map_bg0(UINT32 addr)
 {
    return ((addr&0x00004)>> 2) | ((addr&0x00800)>> 10) | ((addr&0x40000)>>16);
 }
@@ -4813,7 +4813,7 @@ static unsigned short decode_word(unsigned short src, unsigned char *bitp)
 }
 
 
-static unsigned long bjtwin_address_map_sprites(unsigned long addr)
+static UINT32 bjtwin_address_map_sprites(UINT32 addr)
 {
    return ((addr&0x00010)>> 4) | ((addr&0x20000)>>16) | ((addr&0x100000)>>18);
 }

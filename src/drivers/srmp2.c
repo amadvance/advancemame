@@ -79,8 +79,8 @@ extern int mjyuugi_gfx_bank;
 
 static int srmp2_adpcm_bank;
 static int srmp2_adpcm_data;
-static unsigned long srmp2_adpcm_sptr;
-static unsigned long srmp2_adpcm_eptr;
+static UINT32 srmp2_adpcm_sptr;
+static UINT32 srmp2_adpcm_eptr;
 
 static int srmp2_port_select;
 

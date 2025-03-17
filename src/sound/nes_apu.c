@@ -83,10 +83,10 @@ static void create_vbltimes(uint16 * table,const uint8 *vbl,unsigned int rate)
 }
 
 /* INITIALIZE SAMPLE TIMES IN TERMS OF VSYNCS */
-static void create_syncs(struct nesapu_info *info, unsigned long sps)
+static void create_syncs(struct nesapu_info *info, UINT32 sps)
 {
   int i;
-  unsigned long val=sps;
+  UINT32 val=sps;
 
   for (i=0;i<SYNCS_MAX1;i++)
   {

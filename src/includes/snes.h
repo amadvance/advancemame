@@ -469,7 +469,7 @@ typedef struct                      /* Voice state type             */
     int             on_cnt;         /* Is it time to turn on yet?   */
     int             pitch;          /* Sample pitch (4096->32000Hz) */
     int             range;          /* Last header's range          */
-    unsigned long   samp_id;        /* Sample ID#                   */
+    UINT32   samp_id;        /* Sample ID#                   */
     int             sampptr;        /* Where in sampbuf we are      */
     signed long     smp1;           /* Last sample (for BRR filter) */
     signed long     smp2;           /* Second-to-last sample decoded*/

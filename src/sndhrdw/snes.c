@@ -300,7 +300,7 @@ for( v = 0, m = 1, V = 0; v < 8; v++, V += 16, m <<= 1 )
         keys       |= m;
         keyed_on   |= m;
         vl          = DSPregs[ ( v<<4 ) + 4 ];
-        vp->samp_id = *( unsigned long * )&sd[ vl ];
+        vp->samp_id = *( UINT32 * )&sd[ vl ];
         vp->mem_ptr = LEtoME16( sd[ vl ].vptr );
 
 #ifdef DBG_KEY

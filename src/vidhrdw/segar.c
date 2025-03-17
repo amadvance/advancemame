@@ -811,8 +811,8 @@ VIDEO_UPDATE( sindbadm )
 	int offs;
 	int charcode;
 	int sprite_transparency;
-	unsigned long backoffs;
-	unsigned long back_scene;
+	UINT32 backoffs;
+	UINT32 back_scene;
 
 	unsigned char *back_charmap = memory_region(REGION_USER1);
 

@@ -121,7 +121,7 @@ static const char *regnames[32] =
 #define COBRSRC1 ((iCode >> 19) & 0x1f)
 #define COBRSRC2 ((iCode >> 14) & 0x1f)
 
-static char *dis_decode_reg(unsigned long iCode, char* tmpStr,unsigned char cnt)
+static char *dis_decode_reg(UINT32 iCode, char* tmpStr,unsigned char cnt)
 {
 	char src1[10];
 	char src2[10];
@@ -154,7 +154,7 @@ char *i960_disassemble(disassemble_t *diss)
 	unsigned char mode, modeh, model;
 	unsigned char dst,abase,reg2;
 	unsigned short opc;
-	unsigned long iCode;
+	UINT32 iCode;
 	char tmpStr[256];
 	long i;
 

@@ -4138,8 +4138,8 @@ static void h2000(UINT16 opcode)
 		/* Results:  D:D+1 = D*S */
 		/* Note that early TMS9995 reportedly performs an extra dummy read in PC space */
 		{
-			unsigned long prod = ((unsigned long) readwordX(src, src_map));
-			prod = prod * ((unsigned long) readword(dest));
+			UINT32 prod = ((UINT32) readwordX(src, src_map));
+			prod = prod * ((UINT32) readword(dest));
 			writeword(dest, prod >> 16);
 			writeword((dest+2)&0xffff, prod);
 		}
@@ -4152,7 +4152,7 @@ static void h2000(UINT16 opcode)
 		{
 			UINT16 d = readwordX(src, src_map);
 			UINT16 hi = readword(dest);
-			unsigned long divq = (((unsigned long) hi) << 16) | readword((dest+2)&0xffff);
+			UINT32 divq = (((UINT32) hi) << 16) | readword((dest+2)&0xffff);
 
 			if (d <= hi)
 			{

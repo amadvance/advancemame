@@ -143,22 +143,22 @@ struct _hash_function_desc
 
 	// Functions used to calculate the hash of a memory block
 	void (*calculate_begin)(void);
-	void (*calculate_buffer)(const void* mem, unsigned long len);
+	void (*calculate_buffer)(const void* mem, UINT32 len);
 	void (*calculate_end)(UINT8* bin_chksum);
 
 };
 typedef struct _hash_function_desc hash_function_desc;
 
 static void h_crc_begin(void);
-static void h_crc_buffer(const void* mem, unsigned long len);
+static void h_crc_buffer(const void* mem, UINT32 len);
 static void h_crc_end(UINT8* chksum);
 
 static void h_sha1_begin(void);
-static void h_sha1_buffer(const void* mem, unsigned long len);
+static void h_sha1_buffer(const void* mem, UINT32 len);
 static void h_sha1_end(UINT8* chksum);
 
 static void h_md5_begin(void);
-static void h_md5_buffer(const void* mem, unsigned long len);
+static void h_md5_buffer(const void* mem, UINT32 len);
 static void h_md5_end(UINT8* chksum);
 
 static const hash_function_desc hash_descs[HASH_NUM_FUNCTIONS] =
@@ -662,7 +662,7 @@ static void h_crc_begin(void)
 	crc = 0;
 }
 
-static void h_crc_buffer(const void* mem, unsigned long len)
+static void h_crc_buffer(const void* mem, UINT32 len)
 {
 	crc = crc32(crc, (UINT8*)mem, len);
 }
@@ -683,7 +683,7 @@ static void h_sha1_begin(void)
 	sha1_init(&sha1ctx);
 }
 
-static void h_sha1_buffer(const void* mem, unsigned long len)
+static void h_sha1_buffer(const void* mem, UINT32 len)
 {
 	sha1_update(&sha1ctx, len, (UINT8*)mem);
 }
@@ -702,7 +702,7 @@ static void h_md5_begin(void)
 	MD5Init(&md5_ctx);
 }
 
-static void h_md5_buffer(const void* mem, unsigned long len)
+static void h_md5_buffer(const void* mem, UINT32 len)
 {
 	MD5Update(&md5_ctx, (md5byte*)mem, len);
 }

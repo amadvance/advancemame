@@ -31,7 +31,7 @@
 /* this structure defines the parameters for a channel */
 typedef struct
 {
-	unsigned long counter;
+	UINT32 counter;
 	int frequency;
 	int volume;
 	int key;

@@ -19,17 +19,6 @@
 static int use_profiler;
 
 
-/*
- * Versions of GNU C earlier that 2.7 have big problems with the UINT64
- * so we make it into an unsigned long here.
- */
-
-#ifdef __GNUC__
-#if (__GNUC__ < 2) || ((__GNUC__ == 2) && (__GNUC_MINOR__ <= 7))
-#define UINT64		unsigned long
-#endif
-#endif
-
 #define MEMORY 6
 
 struct _profile_data
