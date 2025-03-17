@@ -146,8 +146,11 @@ static void snes_scanline_tick(int ref)
 	/* Start of VBlank */
 	if( snes_ppu.beam.current_vert == snes_ppu.beam.last_visible_line )
 	{
-		program_write_byte(OAMADDL, snes_ppu.oam.address_low ); /* Reset oam address */
-		program_write_byte(OAMADDH, snes_ppu.oam.address_high );
+		if(!(snes_ram[INIDISP]&0x80))
+		{
+			program_write_byte(OAMADDL, snes_ppu.oam.saved_address_low ); /* Reset oam address */
+			program_write_byte(OAMADDH, snes_ppu.oam.saved_address_high );
+		}
 		snes_ram[HVBJOY] |= 0x81;		/* Set vblank bit to on & indicate controllers being read */
 		snes_ram[RDNMI] |= 0x80;		/* Set NMI occured bit */
 
@@ -906,7 +909,7 @@ READ8_HANDLER( snes_r_io )
 //      case 0x420c: //PC: 9c7d - 8fab          //only nss_ssoc
 
 		default:
-			printf("snes_r: offset = %x pc = %x\n",offset,activecpu_get_pc());
+			//printf("snes_r: offset = %x pc = %x\n",offset,activecpu_get_pc());
 #endif	/* MESS */
 
 	}
@@ -979,11 +982,13 @@ WRITE8_HANDLER( snes_w_io )
 			break;
 		case OAMADDL:	/* Address for accessing OAM (low) */
 			snes_ppu.oam.address_low = data;
+			snes_ppu.oam.saved_address_low = data;
 			snes_ppu.oam.address = ((snes_ppu.oam.address_high & 0x1) << 8) + data;
 			snes_ram[OAMDATA] = 0;
 			break;
 		case OAMADDH:	/* Address for accessing OAM (high) */
 			snes_ppu.oam.address_high = data & 0x1;
+			snes_ppu.oam.saved_address_high = data;
 			snes_ppu.oam.address = ((data & 0x1) << 8) + snes_ppu.oam.address_low;
 			snes_ppu.oam.priority_rotation = (data & 0x80) ? 1 : 0;
 			snes_ram[OAMDATA] = 0;
@@ -1517,7 +1522,48 @@ DRIVER_INIT( snes )
 			snes_cart.sram = snes_cart.sram_max;
 	}
 }
+
+DRIVER_INIT( snes_hirom )
+ {
+ 	int i;
+ 	UINT16 totalblocks, readblocks;
+ 	UINT8  *rom;
+ 
+ 	rom = memory_region( REGION_USER3 );
+ 	snes_ram = auto_malloc(0x1000000);
+ 	memset( snes_ram, 0, 0x1000000 );
+ 
+ 	snes_cart.mode = SNES_MODE_21;
+ 	snes_cart.sram_max = 0x40000;
+ 
+ 	/* Find the number of blocks in this ROM */
+ 	//totalblocks = ((mame_fsize(file) - offset) >> (snes_cart.mode == MODE_20 ? 15 : 16));
+ 	totalblocks = (memory_region_length(REGION_USER3) / 0x10000) - 1;
+ 
+ 	/* FIXME: Insert crc check here */
+ 
+ 	readblocks = 0;
+ 	{
+ 		i = 0;
+ 		while( i < 64 && readblocks <= totalblocks )
+ 		{
+ 			memcpy( &snes_ram[0xc00000 + (i * 0x10000)],  &rom[i * 0x10000], 0x10000);
+ 			i++;
+ 			readblocks++;
+ 		}
+ 	}
+ 
+ 	/* Find the amount of sram */
+ 	snes_cart.sram = snes_r_bank1(0x00ffd8);
+ 	if( snes_cart.sram > 0 )
+ 	{
+ 		snes_cart.sram = ((1 << (snes_cart.sram + 3)) / 8);
+ 		if( snes_cart.sram > snes_cart.sram_max )
+ 			snes_cart.sram = snes_cart.sram_max;
+ 	}
+ }
 #endif	/* MESS */
+
 
 void snes_hdma_init()
 {

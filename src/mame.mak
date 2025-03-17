@@ -977,7 +977,7 @@ $(OBJ)/nintendo.a: \
 	$(OBJ)/drivers/dkong.o $(OBJ)/sndhrdw/dkong.o $(OBJ)/vidhrdw/dkong.o \
 	$(OBJ)/drivers/mario.o $(OBJ)/sndhrdw/mario.o $(OBJ)/vidhrdw/mario.o \
 	$(OBJ)/drivers/n8080.o $(OBJ)/sndhrdw/n8080.o $(OBJ)/vidhrdw/n8080.o \
-	$(OBJ)/drivers/nss.o $(OBJ)/machine/snes.o $(OBJ)/sndhrdw/snes.o $(OBJ)/vidhrdw/snes.o \
+	$(OBJ)/drivers/nss.o $(OBJ)/machine/snes.o $(OBJ)/sndhrdw/snes.o $(OBJ)/vidhrdw/snes.o $(OBJ)/drivers/snesb.o \
 	$(OBJ)/drivers/playch10.o $(OBJ)/machine/playch10.o $(OBJ)/vidhrdw/playch10.o \
 	$(OBJ)/drivers/popeye.o $(OBJ)/vidhrdw/popeye.o \
 	$(OBJ)/drivers/punchout.o $(OBJ)/vidhrdw/punchout.o \
