@@ -38,7 +38,7 @@ static struct
 } timers[3];
 static sound_stream *channel;
 static UINT8 DSPregs[256];		/* DSP registers */
-static UINT8 ipl_region[64];	/* SPC top 64 bytes */
+UINT8 snes_ipl_region[64];	/* SPC top 64 bytes */
 
 static const int gauss[]=
 {
@@ -1136,7 +1136,7 @@ void *snes_sh_start(int clock, const struct CustomSound_interface *config)
 	UINT8 ii;
 
 	/* put IPL image at the top of RAM */
-	memcpy(ipl_region, memory_region(REGION_USER5), 64);
+	memcpy(snes_ipl_region, memory_region(REGION_USER5), 64);
 
 	/* default to ROM visible */
 	spc_ram[0xf1] = 0x80;
@@ -1288,11 +1288,11 @@ WRITE8_HANDLER( spc_io_w )
 			{
 				if (data & 0x80)
 				{
-					memcpy(ipl_region, memory_region(REGION_USER5), 64);
+					memcpy(snes_ipl_region, memory_region(REGION_USER5), 64);
 				}
 				else
 				{
-					memcpy(ipl_region, &spc_ram[0xffc0], 64);
+					memcpy(snes_ipl_region, &spc_ram[0xffc0], 64);
 				}
 			}
 			break;
@@ -1335,12 +1335,12 @@ WRITE8_HANDLER( spc_ram_w )
 	// if RAM is mapped in, mirror accordingly
 	if ((!(spc_ram[0xf1] & 0x80)) && (offset >= 0xffc0))
 	{
-		ipl_region[offset-0xffc0] = data;
+		snes_ipl_region[offset-0xffc0] = data;
 	}
 }
 
 READ8_HANDLER( spc_ipl_r )
 {
-	return ipl_region[offset];
+	return snes_ipl_region[offset];
 }
 

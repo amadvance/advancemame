@@ -333,7 +333,12 @@ static void snes_init_ram(void)
 /* should we treat this as nvram in MAME? */
 static OPBASE_HANDLER(spc_opbase)
 {
-	opcode_base = opcode_arg_base = spc_ram;
+	extern UINT8 snes_ipl_region[];	/* SPC top 64 bytes */
+
+	if (address < 0xffc0)
+		opcode_base = opcode_arg_base = spc_ram;
+	else
+		opcode_base = opcode_arg_base = snes_ipl_region - 0xffc0;
 	return ~0;
 }
 
