@@ -3,6 +3,25 @@
 
 #include "sound/custom.h"
 
+/*
+    SNES timing theory:
+
+    the master clock drives the CPU and PPU
+    4  MC ticks = 1 PPU dot
+    6  MC ticks = 1 65816 cycle for 3.58 MHz (3.579545)
+    8  MC ticks = 1 65816 cycle for 2.68 MHz (2.684659)
+    12 MC ticks = 1 65816 cycle for 1.78 MHz (1.789772)
+
+    Each scanline has 341 readable positions and 342 actual dots.
+    This is because 2 dots are "long" dots that last 6 MC ticks, resulting in 1 extra dot per line.
+*/
+
+#define MCLK_NTSC	(21477272)	/* verified */
+#define MCLK_PAL	(21218370)	/* verified */
+
+#define DOTCLK_NTSC	(MCLK_NTSC/4)
+#define DOTCLK_PAL	(MCLK_PAL/4)
+
 /* Debug definitions */
 #ifdef MAME_DEBUG
 /* #define SNES_DBG_GENERAL*/		/* Display general debug info */
@@ -15,10 +34,15 @@
 
 /* Useful definitions */
 #define SNES_SCR_WIDTH		256		/* 32 characters 8 pixels wide */
-#define SNES_SCR_HEIGHT		240		/* Can be 224 of 240 height (maybe we'll have switching later on) */
-#define SNES_MAX_LINES_NTSC	262		/* Maximum number of lines for NTSC systems */
-#define SNES_MAX_LINES_PAL	312		/* Maximum number of lines for PAL systems */
-#define SNES_MAX_WIDTH		342		/* Maximum number pixels per line (incl. hblank) */
+#define SNES_SCR_HEIGHT		240		/* Can be 224 of 240 height (maybe we'll have switching later on) */ /* 106 def */
+#define SNES_MAX_LINES_NTSC	262		/* Maximum number of lines for NTSC systems */ /* 106 def */
+#define SNES_MAX_LINES_PAL	312		/* Maximum number of lines for PAL systems */ /* 106 def */
+#define SNES_MAX_WIDTH		342		/* Maximum number pixels per line (incl. hblank) */ /* 106 def */
+#define SNES_SCR_HEIGHT_NTSC	224		/* Can be 224 or 240 height */
+#define SNES_SCR_HEIGHT_PAL	274		/* ??? */
+#define SNES_VTOTAL_NTSC	262		/* Maximum number of lines for NTSC systems */
+#define SNES_VTOTAL_PAL		312		/* Maximum number of lines for PAL systems */
+#define SNES_HTOTAL		341		/* Maximum number pixels per line (incl. hblank) */
 #define SNES_DMA_BASE		0x4300	/* Base DMA register address */
 #define SNES_MODE_20		0x1		/* Lo-ROM cart */
 #define SNES_MODE_21		0x2		/* Hi-ROM cart */

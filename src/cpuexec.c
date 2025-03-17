@@ -1119,6 +1119,105 @@ int cpu_getcurrentframe(void)
 }
 
 
+/***************************************************************************
+    SCREEN RENDERING
+***************************************************************************/
+
+/*-------------------------------------------------
+    video_screen_configure - configure the parameters
+    of a screen
+-------------------------------------------------*/
+
+subseconds_t INFO_frametime;
+subseconds_t INFO_scantime;
+subseconds_t INFO_pixeltime;
+float INFO_refresh;
+int INFO_width;
+int INFO_height;
+
+void video_screen_configure(int width, int height, float refresh)
+{
+	mame_time timeval;
+
+	/* compute timing parameters */
+	timeval = double_to_mame_time(TIME_IN_HZ(refresh) / (double)height);
+
+	INFO_width = width;
+	INFO_height = height;
+	INFO_refresh = refresh;
+	INFO_pixeltime = timeval.subseconds / width;
+	INFO_scantime = INFO_pixeltime * width;
+	INFO_frametime = INFO_scantime * height;
+}
+
+
+double video_screen_get_scanlineperiod(void)
+{
+	return SUBSECONDS_TO_DOUBLE(INFO_scantime);
+}
+
+/*-------------------------------------------------
+    video_screen_get_vpos - returns the current
+    vertical position of the beam for a given
+    screen
+-------------------------------------------------*/
+
+int video_screen_get_vpos(void)
+{
+	mame_time delta = mame_timer_timeelapsed(refresh_timer);
+	int vpos;
+
+	vpos = delta.subseconds / INFO_scantime;
+
+	vpos = vpos % INFO_height;
+
+	return vpos;
+}
+
+
+/*-------------------------------------------------
+    video_screen_get_hpos - returns the current
+    horizontal position of the beam for a given
+    screen
+-------------------------------------------------*/
+
+int video_screen_get_hpos(void)
+{
+	mame_time delta = mame_timer_timeelapsed(refresh_timer);
+	int vpos, hpos;
+
+	vpos = delta.subseconds / INFO_scantime;
+
+	hpos = (delta.subseconds - (vpos * INFO_scantime)) / INFO_pixeltime;
+
+	return hpos;
+}
+
+
+/*-------------------------------------------------
+    video_screen_get_time_until_pos - returns the
+    amount of time remaining until the beam is
+    at the given hpos,vpos
+-------------------------------------------------*/
+
+mame_time video_screen_get_time_until_pos(int vpos, int hpos)
+{
+	mame_time delta = mame_timer_timeelapsed(refresh_timer);
+	mame_time ret;
+
+	/* compute the delta for the given X,Y position */
+	ret.subseconds = vpos * INFO_scantime + hpos * INFO_pixeltime;
+
+	/* if we're past that time, head to the next frame */
+	if (ret.subseconds <= delta.subseconds)
+		ret.subseconds += DOUBLE_TO_SUBSECONDS(TIME_IN_HZ(INFO_refresh));
+
+	ret.subseconds -= delta.subseconds;
+	ret.seconds = 0;
+	
+	/* return the difference */
+	return ret;
+}
 
 #if 0
 #pragma mark -

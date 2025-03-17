@@ -198,6 +198,21 @@ int cpu_gethorzbeampos(void);
 int cpu_getvblank(void);
 
 
+/***************************************************************************
+    SCREEN RENDERING
+***************************************************************************/
+
+/* set the resolution of a screen */
+void video_screen_configure(int width, int height, float refresh);
+
+/* return the current vertical or horizontal position of the beam for a screen */
+int video_screen_get_vpos(void);
+int video_screen_get_hpos(void);
+
+mame_time video_screen_get_time_until_pos(int vpos, int hpos);
+
+double video_screen_get_scanlineperiod(void);
+
 
 /*************************************
  *
