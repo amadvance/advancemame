@@ -3017,7 +3017,7 @@ static ADDRESS_MAP_START( pairlove_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x100000, 0x100001) AM_WRITE(MWA16_NOP					)	// ? 1 (start of interrupts, main loop: watchdog?)
 	AM_RANGE(0x200000, 0x200001) AM_WRITE(MWA16_NOP					)	// ? 0/1 (IRQ acknowledge?)
 	AM_RANGE(0x400000, 0x400001) AM_WRITE(seta_vregs_w) AM_BASE(&seta_vregs	)	// Coin Lockout + Sound Enable (bit 4?)
-        AM_RANGE(0x900000, 0x9001ff) AM_READ(pairlove_prot_w)
+        AM_RANGE(0x900000, 0x9001ff) AM_WRITE(pairlove_prot_w)
 	AM_RANGE(0xa00000, 0xa03fff) AM_WRITE(seta_sound_word_w			)	// Sound
 	AM_RANGE(0xb00000, 0xb00fff) AM_WRITE(paletteram16_xRRRRRGGGGGBBBBB_word_w) AM_BASE(&paletteram16	)	// Palette
 	AM_RANGE(0xc00000, 0xc03fff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16_2	)	// Sprites Code + X + Attr
