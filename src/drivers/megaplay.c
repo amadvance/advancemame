@@ -401,6 +401,28 @@ static INPUT_PORTS_START ( mp_shnb3 )
     PORT_DIPSETTING( 0x0c, DEF_STR ( Normal ) )
 INPUT_PORTS_END
 
+INPUT_PORTS_START ( mp_gunhe )
+	GENESIS_PORTS
+	MEGAPLAY_TEST
+	MEGAPLAY_COIN
+	MEGAPLAY_DSWA
+	MEGAPLAY_DSWB
+
+	PORT_START
+	/* DSW C  (per game settings) */
+	PORT_DIPNAME( 0x03, 0x01, DEF_STR( Lives ) )
+    PORT_DIPSETTING( 0x00, "4" )
+    PORT_DIPSETTING( 0x01, "3" )
+    PORT_DIPSETTING( 0x02, "2" )
+    PORT_DIPSETTING( 0x03, "1" )
+	
+	PORT_DIPNAME( 0xc, 0x0c, DEF_STR ( Difficulty ) ) 
+    PORT_DIPSETTING( 0x00, "Expert" )
+    PORT_DIPSETTING( 0x04, "Hard" )
+    PORT_DIPSETTING( 0x08, "Easy" )
+    PORT_DIPSETTING( 0x0c, "Normal" )
+INPUT_PORTS_END
+
 /*MEGAPLAY specific*/
 
 static READ8_HANDLER( megaplay_bios_banksel_r )
@@ -844,6 +866,18 @@ ROM_START( mp_shnb3 ) /* Shinobi 3 */
 	MEGAPLAY_BIOS
 ROM_END
 
+ROM_START( mp_gunhe ) /* Gunstar Heroes */
+	ROM_REGION( 0x400000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "mpr-16390.ic1", 0x000000, 0x100000, CRC(d963a748) SHA1(adf231c5180a9307fd6675fe77fffd4c5bfa3d6a) )
+	/* Game Instruction rom copied to 0x300000 - 0x310000 (odd / even bytes equal) */
+	
+	ROM_REGION( 0x8000, REGION_USER1, 0 ) /* Game Instructions */
+	ROM_LOAD( "epr-15175-10.ic2", 0x000000, 0x08000, CRC(e4f08233) SHA1(b7e0ad3f6ae1c56df6ec76375842050f08afcbef) )
+
+	ROM_REGION( 0x28000, REGION_CPU3, 0 ) /* Bios */
+	MEGAPLAY_BIOS
+ROM_END
+
 
 static DRIVER_INIT (megaplay)
 {
@@ -909,7 +943,8 @@ didn't have original Sega part numbers it's probably a converted TWC cart
 /* 10 */
 /* 11 */ GAMEB( 1993, mp_mazin,   megaplay, megaplay, megaplay, mp_mazin,	megaplay, ROT0, "Sega",                  "Mazin Wars (Mega Play)",GAME_NOT_WORKING  )
 
-/* ?? */ GAMEB( 1993, mp_col3,   megaplay, megaplay, megaplay, mp_col3,	megaplay, ROT0, "Sega",                  "Columns III (Mega Play)" , 0 )
+/* ?? */ GAMEB( 1993, mp_col3,   megaplay, megaplay, megaplay, mp_col3,	 megaplay, ROT0, "Sega",                  "Columns III (Mega Play)" , 0 )
+/* ?? */ GAMEB( 1993, mp_gunhe,  megaplay, megaplay, megaplay, mp_gunhe, megaplay, ROT0, "Sega",                  "Gunstar Heroes (Mega Play)", GAME_NOT_WORKING ) // player 1 button doesn't work
 
 
 /* Also known to exist:

@@ -3725,6 +3725,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 						/* 10 */
 	DRIVER( mp_mazin )	/* 11 */
 	DRIVER( mp_col3 )	/* ?? */
+	DRIVER( mp_gunhe )
 
 	/* Data East "Burger Time hardware" games */
 	DRIVER( lnc )		/* (c) 1981 */
