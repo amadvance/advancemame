@@ -2972,6 +2972,27 @@ static ADDRESS_MAP_START( utoukond_sound_writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x80, 0x80) AM_WRITE(MWA8_NOP) //?
 ADDRESS_MAP_END
 
+/* it has a series of tests on startup, if they don't pass it causes an address error */
+static UINT16 pairslove_protram[0x200];
+static UINT16 pairslove_protram_old[0x200];
+
+READ16_HANDLER( pairlove_prot_r )
+{
+	int retdata;
+	retdata = pairslove_protram[offset];
+	//printf("pairs love protection? read %06x %04x %04x\n",activecpu_get_pc(), offset,retdata);
+	pairslove_protram[offset]=pairslove_protram_old[offset];
+	return retdata;
+}
+
+WRITE16_HANDLER( pairlove_prot_w )
+{
+//  printf("pairs love protection? write %06x %04x %04x\n",activecpu_get_pc(), offset,data);
+	pairslove_protram_old[offset]=pairslove_protram[offset];
+	pairslove_protram[offset]=data;
+}
+
+
 /***************************************************************************
                                 Pairs Love
 ***************************************************************************/
@@ -2982,6 +3003,7 @@ static ADDRESS_MAP_START( pairlove_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x500000, 0x500001) AM_READ(input_port_0_word_r	)	// P1
 	AM_RANGE(0x500002, 0x500003) AM_READ(input_port_1_word_r	)	// P2
 	AM_RANGE(0x500004, 0x500005) AM_READ(input_port_2_word_r	)	// Coins
+        AM_RANGE(0x900000, 0x9001ff) AM_READ(pairlove_prot_r)
 	AM_RANGE(0xa00000, 0xa03fff) AM_READ(seta_sound_word_r		)	// Sound
 	AM_RANGE(0xb00000, 0xb00fff) AM_READ(MRA16_RAM				)	// Palette
 	AM_RANGE(0xc00000, 0xc03fff) AM_READ(MRA16_RAM				)	// Sprites Code + X + Attr
@@ -2995,6 +3017,7 @@ static ADDRESS_MAP_START( pairlove_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x100000, 0x100001) AM_WRITE(MWA16_NOP					)	// ? 1 (start of interrupts, main loop: watchdog?)
 	AM_RANGE(0x200000, 0x200001) AM_WRITE(MWA16_NOP					)	// ? 0/1 (IRQ acknowledge?)
 	AM_RANGE(0x400000, 0x400001) AM_WRITE(seta_vregs_w) AM_BASE(&seta_vregs	)	// Coin Lockout + Sound Enable (bit 4?)
+        AM_RANGE(0x900000, 0x9001ff) AM_WRITE(pairlove_prot_w)
 	AM_RANGE(0xa00000, 0xa03fff) AM_WRITE(seta_sound_word_w			)	// Sound
 	AM_RANGE(0xb00000, 0xb00fff) AM_WRITE(paletteram16_xRRRRRGGGGGBBBBB_word_w) AM_BASE(&paletteram16	)	// Palette
 	AM_RANGE(0xc00000, 0xc03fff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16_2	)	// Sprites Code + X + Attr
@@ -9108,7 +9131,7 @@ GAME( 1994, wiggie,   0,        wiggie,   thunderl, wiggie,   ROT270, "Promat", 
 GAME( 1991, rezon,    0,        rezon,    rezon,    rezon,    ROT0,   "Allumer",                "Rezon", 0 )
 GAME( 1992, rezont,   rezon,    rezon,    rezont,   rezon,    ROT0,   "Allumer (Taito license)","Rezon (Taito)", 0 )
 GAME( 1991, stg,      0,        drgnunit, stg,      0,        ROT270, "Athena / Tecmo",         "Strike Gunner S.T.G", 0 )
-GAME( 1991, pairlove, 0,        pairlove, pairlove, 0,        ROT270, "Athena",                 "Pairs Love", GAME_NOT_WORKING ) // doesn't boot
+GAME( 1991, pairlove, 0,        pairlove, pairlove, 0,        ROT270, "Athena",                 "Pairs Love", 0 )
 GAME( 1992, blandia,  0,        blandia,  blandia,  blandia,  ROT0,   "Allumer",                "Blandia", 0 )
 GAME( 1992, blandiap, blandia,  blandiap, blandia,  0,        ROT0,   "Allumer",                "Blandia (prototype)", 0 )
 GAME( 1992, blockcar, 0,        blockcar, blockcar, 0,        ROT90,  "Visco",                  "Block Carnival / Thunder & Lightning 2" , 0) // Title: DSW
