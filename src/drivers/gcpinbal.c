@@ -63,7 +63,7 @@ static INTERRUPT_GEN( gcpinbal_interrupt )
 	/* Unsure of actual sequence */
 
 	timer_set(TIME_IN_CYCLES(500,0),0, gcpinbal_interrupt1);
-	timer_set(TIME_IN_CYCLES(1000,0),0, gcpinbal_interrupt3);
+//	timer_set(TIME_IN_CYCLES(1000,0),0, gcpinbal_interrupt3);
 	cpunum_set_input_line(0, 4, HOLD_LINE);
 }
 
@@ -440,4 +440,4 @@ ROM_END
 
 
 
-GAME( 1994, gcpinbal, 0, gcpinbal, gcpinbal, 0, ROT270, "Excellent System", "Grand Cross", GAME_IMPERFECT_SOUND | GAME_NO_COCKTAIL | GAME_NOT_WORKING ) // address error at boot
+GAME( 1994, gcpinbal, 0, gcpinbal, gcpinbal, 0, ROT270, "Excellent System", "Grand Cross", GAME_NO_SOUND | GAME_NO_COCKTAIL) // almost no sound
