@@ -193,6 +193,7 @@ static WRITE8_HANDLER (segae_port_be_bf_w);
 
 VIDEO_START( segae );
 VIDEO_UPDATE( segae );
+VIDEO_UPDATE( megrescu );
 
 unsigned char segae_vdp_ctrl_r ( UINT8 chip );
 unsigned char segae_vdp_data_r ( UINT8 chip );
@@ -439,7 +440,7 @@ static WRITE8_HANDLER (segae_ridleofp_port_fa_w)
 	}
 	if (data & 2)
 	{
-		int curr = readinputport(5) & 0x0fff;
+		int curr = readinputport(5);// & 0x0fff; // fixes player 2 inputs in cocktail mode
 		diff2 = ((curr - last2) & 0x0fff) | (curr & 0xf000);
 		last2 = curr;
 	}
@@ -789,6 +790,130 @@ INPUT_PORTS_START( opaopa )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNUSED )
 INPUT_PORTS_END
 
+INPUT_PORTS_START( slapshtr )
+	PORT_START_TAG("DSW0")	/* Read from Port 0xf2 */
+	SEGA_COIN_A
+	SEGA_COIN_B
+
+	PORT_START_TAG("DSW1")	/* Read from Port 0xf3 */
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_START_TAG("IN0")	/* Read from Port 0xe0 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_COIN2 )
+	PORT_SERVICE_NO_TOGGLE(0x04, IP_ACTIVE_LOW)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_SERVICE1 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_START1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_START2 )
+
+	PORT_START_TAG("IN1")	/* Read from Port 0xe1 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_JOYSTICK_UP  ) PORT_8WAY
+	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_JOYSTICK_DOWN ) PORT_8WAY
+	PORT_BIT( 0x04, IP_ACTIVE_LOW,  IPT_JOYSTICK_LEFT ) PORT_8WAY
+	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_JOYSTICK_RIGHT ) PORT_8WAY
+	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_BUTTON1 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_BUTTON2 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNUSED )
+INPUT_PORTS_END
+
+INPUT_PORTS_START( megrescu ) /* Used By Megumi Rescue */
+	PORT_START_TAG("DSW0")	/* Read from Port 0xf2 */
+	SEGA_COIN_A
+	PORT_DIPSETTING(    0x00, DEF_STR( Free_Play ) )
+	SEGA_COIN_B
+	PORT_DIPSETTING(    0x00, DEF_STR( Free_Play ) )
+
+	PORT_START_TAG("DSW1")	/* Read from Port 0xf3 */
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x0c, "2" )
+	PORT_DIPSETTING(    0x08, "3" )
+	PORT_DIPSETTING(    0x04, "4" )
+	PORT_DIPSETTING(    0x00, "100 (Cheat)")
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )  // Unknown
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Cocktail ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )  // Unknown
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_START_TAG("IN0")	/* Read from Port 0xe0 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_COIN1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_COIN2 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_SERVICE1 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_START1 )
+    PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_START2 )
+
+	PORT_START_TAG("IN1")	/* Port 0xe1 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+
+	PORT_START_TAG("IN2")	/* Read from Port 0xf8 */
+	PORT_BIT( 0x0fff, 0x0000, IPT_DIAL ) PORT_SENSITIVITY(8) PORT_KEYDELTA(125)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW,  IPT_BUTTON2 )	/* is this used in the game? */
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW,  IPT_BUTTON1 )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+
+    PORT_START_TAG("IN3")	/* Read from Port 0xf8 */
+	PORT_BIT( 0x0fff, 0x0000, IPT_DIAL ) PORT_SENSITIVITY(8) PORT_KEYDELTA(125) PORT_COCKTAIL
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW,  IPT_BUTTON2 ) PORT_COCKTAIL
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW,  IPT_BUTTON1 ) PORT_COCKTAIL
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW,  IPT_UNKNOWN )
+INPUT_PORTS_END
 
 
 /*******************************************************************************
@@ -907,6 +1032,37 @@ static MACHINE_DRIVER_START( segae )
 MACHINE_DRIVER_END
 
 
+static MACHINE_DRIVER_START( megrescu )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(Z80,10738600/2) /* correct for hangonjr, and astroflash/transformer at least  */
+	MDRV_CPU_PROGRAM_MAP(segae_readmem,segae_writemem)
+	MDRV_CPU_IO_MAP(segae_readport,segae_writeport)
+	MDRV_CPU_VBLANK_INT(segae_interrupt,262)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	MDRV_MACHINE_START( segasyse )
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(256, 192)
+	MDRV_VISIBLE_AREA(0, 256-1, 0, 192-1)
+	MDRV_PALETTE_LENGTH(64)
+
+	MDRV_VIDEO_START(segae)
+	MDRV_VIDEO_UPDATE(megrescu)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(SN76496, 4000000)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
+
+	MDRV_SOUND_ADD(SN76496, 4000000)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
+MACHINE_DRIVER_END
 
 /*******************************************************************************
  Game Inits
@@ -941,13 +1097,14 @@ static DRIVER_INIT( astrofl )
  Rom Loaders / Game Drivers
 ********************************************************************************
  Good Dumps:
- tetrisse  - Tetris (System E version)
+ tetrisse - Tetris (System E version)
  hangonjr - Hang On Jr.
  ridleofp - Riddle of Pythagoras (Jp.)
  transfrm - Transformer
  astrofl  - Astro Flash (Jp. Version of Transformer) (was encrypted)
  opaopan  - Opa Opa (Rev A, unprotected)
  slapshtr - Slap Shooter
+ megrescu - Megumi Rescue
 
  NOT DECRYPTED
 
@@ -1022,6 +1179,28 @@ ROM_START( opaopan )
 	ROM_LOAD( "epr-11019.ic2",  0x28000, 0x08000, CRC(bd0a6248) SHA1(6b313809dffdb50ee1dc4d83e0567811dc2f1a67) )
 ROM_END
 
+ROM_START( slapshtr )
+	ROM_REGION( 0x30000, REGION_CPU1, 0 )
+	ROM_LOAD( "epr7351.ic7.27256",   0x00000, 0x08000, CRC(894adb04) SHA1(e38d296aa56c531985cde75423ae03f0d9cc8f5d) ) /* Fixed Code */
+
+	/* The following are 8 0x4000 banks that get mapped to reads from 0x8000 - 0xbfff */
+	ROM_LOAD( "epr7352.ic5.27256",   0x10000, 0x08000, CRC(61c938b6) SHA1(bdce617050371c7b2880967c7c7356f34b91911d) )
+	ROM_LOAD( "epr7353.ic4.27256",   0x18000, 0x08000, CRC(8ee2951a) SHA1(562fef28e6358cbbb4889cc7cd592ca659c238fb) )
+	ROM_LOAD( "epr7354.ic3.27256",   0x20000, 0x08000, CRC(41482aa0) SHA1(280d5a1c5685c692a924c62ed928fc25fec2352a) )
+	ROM_LOAD( "epr7355.ic1.27256",   0x28000, 0x08000, CRC(c67e1aef) SHA1(121bc40d652449c7b1b5f66a837baeaffb7af0b9) )
+ROM_END
+
+ROM_START( megrescu )
+	ROM_REGION( 0x30000, REGION_CPU1, 0 )
+	ROM_LOAD( "v10_30ic.7",   0x00000, 0x08000, CRC(490d0059) SHA1(de4e23eb862ef3c29b2fbdceba14360eb6e2a8ef) ) /* Fixed Code */
+
+	/* The following are 8 0x4000 banks that get mapped to reads from 0x8000 - 0xbfff */
+	ROM_LOAD( "v10_30ic.5",   0x10000, 0x08000, CRC(278caba8) SHA1(809e504f6c680f742f0a5968d6bb16c2f67f851c) )
+	ROM_LOAD( "v10_30ic.4",   0x18000, 0x08000, CRC(bda242d1) SHA1(3704da98fe91d9e7f4380ea5e1f897b6b7049466) )
+	ROM_LOAD( "v10_30ic.3",   0x20000, 0x08000, CRC(56e36f85) SHA1(84aa78bc628bce64b1b990a8c9fcca25e5940bd3) )
+	ROM_LOAD( "v10_30ic.2",   0x28000, 0x08000, CRC(5b74c767) SHA1(dbc82a4e046f01130c72bbd7a81190d7f0ca209c) )
+ROM_END
+
 /* Below are encrypted with an NEC MC-8123 processor... it is ESSENTIAL we find these in working condition
    AS SOON AS POSSIBLE, the batteries on these are dying at an ever increasing rate */
 
@@ -1047,14 +1226,15 @@ ROM_END
 
 /*-- Game Drivers --*/
 
-GAME( 1985, hangonjr, 0,        segae, hangonjr, hangonjr, ROT0,  "Sega", "Hang-On Jr.", 0 )
-GAME( 1986, transfrm, 0,        segae, transfrm, 0,        ROT0,  "Sega", "Transformer", 0 )
-GAME( 1986, astrofl,  transfrm, segae, transfrm, astrofl,  ROT0,  "Sega", "Astro Flash (Japan)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1986, ridleofp, 0,        segae, ridleofp, ridleofp, ROT90, "Sega / Nasco", "Riddle of Pythagoras (Japan)", 0 )
-GAME( 1987, opaopan,  opaopa,   segae, opaopa,   0,        ROT0,  "Sega", "Opa Opa (Rev A, unprotected)", 0 )
-GAME( 1988, tetrisse, 0,        segae, tetrisse, 0,        ROT0,  "Sega", "Tetris (Japan, System E)", 0 )
-
+GAME( 1985, hangonjr, 0,        segae,    hangonjr, hangonjr, ROT0,  "Sega", "Hang-On Jr.", 0 )
+GAME( 1986, transfrm, 0,        segae,    transfrm, 0,        ROT0,  "Sega", "Transformer", 0 )
+GAME( 1986, astrofl,  transfrm, segae,    transfrm, astrofl,  ROT0,  "Sega", "Astro Flash (Japan)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1986, slapshtr, 0,        segae,    slapshtr, 0,        ROT0,  "Sega", "Slap Shooter", 0 ) /* 1986 date from flyer */
+GAME( 1986, ridleofp, 0,        segae,    ridleofp, ridleofp, ROT90, "Sega / Nasco", "Riddle of Pythagoras (Japan)", 0 )
+GAME( 1987, megrescu, 0,        megrescu, megrescu, ridleofp, ROT90, "Sega / Exa", "Megumi Rescue", 0 )
+GAME( 1987, opaopan,  opaopa,   segae,    opaopa,   0,        ROT0,  "Sega", "Opa Opa (Rev A, unprotected)", 0 )
+GAME( 1988, tetrisse, 0,        segae,    tetrisse, 0,        ROT0,  "Sega", "Tetris (Japan, System E)", 0 )
 
 /* Not Working */
-GAME( 1988, fantzn2,  0,        segae, dummy,    0,        ROT0,  "Sega", "Fantasy Zone 2", GAME_NOT_WORKING )	/* encrypted */
-GAME( 1987, opaopa,   0,        segae, opaopa,   0,        ROT0,  "Sega", "Opa Opa (MC-8123, 317-0042)", GAME_NOT_WORKING ) /* encrypted */
+GAME( 1988, fantzn2,  0,        segae,    dummy,    0,        ROT0,  "Sega", "Fantasy Zone 2", GAME_NOT_WORKING )	/* encrypted */
+GAME( 1987, opaopa,   0,        segae,    opaopa,   0,        ROT0,  "Sega", "Opa Opa (MC-8123, 317-0042)", GAME_NOT_WORKING ) /* encrypted */
