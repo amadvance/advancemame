@@ -285,6 +285,7 @@ static struct CPS1config cps1_config_table[]=
 	{"ffightua",CPS_B_05, 0,0,0, 0x0001,0xffff,0x0001,0xffff }, // I think
 	{"ffightj", CPS_B_04, 0,0,0, 0x0001,0xffff,0x0001,0xffff },
 	{"ffightj1",CPS_B_02, 0,0,0, 0x0001,0xffff,0x0001,0xffff },
+	{"ffightae",NOBATTRY, 0,0,0, 0x0001,0xffff,0x0001,0xffff },
 	{"1941",    CPS_B_05, 0,0,0, 0x0000,0xffff,0x0400,0x07ff },
 	{"1941j",   CPS_B_05, 0,0,0, 0x0000,0xffff,0x0400,0x07ff },
 	{"unsquad", CPS_B_11, 0,0,0, 0x0000,0xffff,0x0001,0xffff },	/* CPSB ID not checked, but it's the same as sf2eg */
@@ -381,6 +382,7 @@ static struct CPS1config cps1_config_table[]=
 	{"pnickj",  NOBATTRY, 0,0,0, 0x0000,0xffff,0x0000,0xffff },
 	{"pang3",   NOBATTRY, 0,0,0, 0x0000,0xffff,0x0000,0xffff, 5 },	/* EEPROM port is among the CPS registers */
 	{"pang3j",  NOBATTRY, 0,0,0, 0x0000,0xffff,0x0000,0xffff, 5 },	/* EEPROM port is among the CPS registers */
+	{"gulunpa", NOBATTRY, 0,0,0, 0x0000,0xffff,0x0000,0xffff },
 	#ifdef MESS
 	{"sfzch",   NOBATTRY, 0,0,0, 0x0000,0xffff,0x0000,0xffff },
 	#endif
