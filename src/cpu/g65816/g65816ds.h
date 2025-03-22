@@ -17,7 +17,7 @@ author (Karl Stenerud) at karl@higashiyama-unet.ocn.ne.jp.
 
 */
 
-unsigned g65816_disassemble(char* buff, unsigned int pc, unsigned int pb, int m_flag, int x_flag);
+unsigned g65816_disassemble(char* buff, unsigned int pc, unsigned int pb, const UINT8 *oprom, int m_flag, int x_flag);
 
 
 #endif /* HEADER__G65816DS */

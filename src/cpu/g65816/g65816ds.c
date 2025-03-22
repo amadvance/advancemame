@@ -144,10 +144,13 @@ static const opcode_struct g_opcodes[256] =
 	{JSR, I, AXI }, {SBC, M, AX  }, {INC, M, AX  }, {SBC, M, ALX }
 };
 
+static const UINT8 *base_oprom;
+static UINT32 base_pc;
+
 INLINE unsigned int read_8(unsigned int address)
 {
 	address = ADDRESS_65816(address);
-	return program_read_byte_8(address);
+	return base_oprom[address - base_pc];
 }
 
 INLINE unsigned int read_16(unsigned int address)
@@ -192,7 +195,7 @@ INLINE char* int_16_str(unsigned int val)
 }
 
 
-unsigned g65816_disassemble(char* buff, unsigned int pc, unsigned int pb, int m_flag, int x_flag)
+unsigned g65816_disassemble(char* buff, unsigned int pc, unsigned int pb, const UINT8 *oprom, int m_flag, int x_flag)
 {
 	unsigned int instruction;
 	const opcode_struct* opcode;
@@ -204,6 +207,9 @@ unsigned g65816_disassemble(char* buff, unsigned int pc, unsigned int pb, int m_
 
 	pb <<= 16;
 	address = pc | pb;
+
+	base_oprom = oprom;
+	base_pc = address;
 
 	instruction = read_8(address);
 	opcode = g_opcodes + instruction;

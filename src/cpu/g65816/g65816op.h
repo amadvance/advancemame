@@ -1141,40 +1141,60 @@ INLINE uint EA_SIY(void)   {return MAKE_UINT_16(read_16_SIY(REGISTER_S + OPER_8_
 			SRC = OPER_8_IMM()<<16;											\
 			REGISTER_DB = DST;								\
 			REGISTER_A |= REGISTER_B;													\
-			CLK((REGISTER_A+1)<<3);												\
-			for(;(int)REGISTER_A >= 0;REGISTER_A--)									\
+			CLK(7);												\
+			if (REGISTER_A >= 0)								\
 			{																\
 				write_8_NORM(DST | REGISTER_Y, read_8_NORM(SRC | REGISTER_X));		\
 				REGISTER_X = MAKE_UINT_8(REGISTER_X+1);								\
 				REGISTER_Y = MAKE_UINT_8(REGISTER_Y+1);								\
+				REGISTER_A--;								\
+				if ((REGISTER_A&0xffff) != 0xffff) \
+				{\
+				  	REGISTER_PC -= 3; \
+				}\
+				else \
+				{ \
+					if (FLAG_M) \
+					{ \
+						REGISTER_A = 0xff; \
+						REGISTER_B = 0xff00; \
 			}																\
-			if(!FLAG_M)														\
+					else \
 			{																\
 				REGISTER_A = 0xffff;												\
-				BREAKOUT;													\
 			}																\
-			REGISTER_A = 0x00ff;													\
-			REGISTER_B = 0xff00
+				} \
+			}
 #else
 #define OP_MVN()															\
 			DST = OPER_8_IMM()<<16;											\
 			SRC = OPER_8_IMM()<<16;											\
 			REGISTER_DB = DST;								\
 			REGISTER_A |= REGISTER_B;													\
-			CLK((REGISTER_A+1)<<3);												\
-			for(;(int)REGISTER_A >= 0;REGISTER_A--)									\
+			CLK(7);												\
+			if (REGISTER_A >= 0)								\
 			{																\
 				write_8_NORM(DST | REGISTER_Y, read_8_NORM(SRC | REGISTER_X));		\
 				REGISTER_X = MAKE_UINT_16(REGISTER_X+1);								\
 				REGISTER_Y = MAKE_UINT_16(REGISTER_Y+1);								\
+				REGISTER_A--;								\
+				if ((REGISTER_A&0xffff) != 0xffff) \
+				{\
+				  	REGISTER_PC -= 3; \
+				}\
+				else \
+				{ \
+					if (FLAG_M) \
+					{ \
+						REGISTER_A = 0xff; \
+						REGISTER_B = 0xff00; \
 			}																\
-			if(!FLAG_M)														\
+					else \
 			{																\
 				REGISTER_A = 0xffff;												\
-				BREAKOUT;													\
 			}																\
-			REGISTER_A = 0x00ff;													\
-			REGISTER_B = 0xff00
+				} \
+			}
 #endif
 
 /* G65816  Move Block Positive */
@@ -1185,40 +1205,60 @@ INLINE uint EA_SIY(void)   {return MAKE_UINT_16(read_16_SIY(REGISTER_S + OPER_8_
 			SRC = OPER_8_IMM()<<16;											\
 			REGISTER_DB = DST;								\
 			REGISTER_A |= REGISTER_B;													\
-			CLK((REGISTER_A+1)<<3);												\
-			for(;(int)REGISTER_A >= 0;REGISTER_A--)									\
+			CLK(7);												\
+			if (REGISTER_A >= 0)								\
 			{																\
 				write_8_NORM(DST | REGISTER_Y, read_8_NORM(SRC | REGISTER_X));		\
 				REGISTER_X = MAKE_UINT_8(REGISTER_X-1);								\
 				REGISTER_Y = MAKE_UINT_8(REGISTER_Y-1);								\
+				REGISTER_A--;								\
+				if ((REGISTER_A&0xffff) != 0xffff) \
+				{\
+				  	REGISTER_PC -= 3; \
+				}\
+				else \
+				{ \
+					if (FLAG_M) \
+					{ \
+						REGISTER_A = 0xff; \
+						REGISTER_B = 0xff00; \
 			}																\
-			if(!FLAG_M)														\
+					else \
 			{																\
 				REGISTER_A = 0xffff;												\
-				BREAKOUT;													\
 			}																\
-			REGISTER_A = 0x00ff;													\
-			REGISTER_B = 0xff00
+				} \
+			}
 #else
 #define OP_MVP()															\
 			DST = OPER_8_IMM()<<16;											\
 			SRC = OPER_8_IMM()<<16;											\
 			REGISTER_DB = DST;								\
 			REGISTER_A |= REGISTER_B;													\
-			CLK((REGISTER_A+1)<<3);												\
-			for(;(int)REGISTER_A >= 0;REGISTER_A--)									\
+			CLK(7);												\
+			if (REGISTER_A >= 0)								\
 			{																\
 				write_8_NORM(DST | REGISTER_Y, read_8_NORM(SRC | REGISTER_X));		\
 				REGISTER_X = MAKE_UINT_16(REGISTER_X-1);								\
 				REGISTER_Y = MAKE_UINT_16(REGISTER_Y-1);								\
+				REGISTER_A--;								\
+				if ((REGISTER_A&0xffff) != 0xffff) \
+				{\
+				  	REGISTER_PC -= 3; \
+				}\
+				else \
+				{ \
+					if (FLAG_M) \
+					{ \
+						REGISTER_A = 0xff; \
+						REGISTER_B = 0xff00; \
 			}																\
-			if(!FLAG_M)														\
+					else \
 			{																\
 				REGISTER_A = 0xffff;												\
-				BREAKOUT;													\
 			}																\
-			REGISTER_A = 0x00ff;													\
-			REGISTER_B = 0xff00
+				}		\
+			}
 #endif
 
 /* M6502   No Operation */
