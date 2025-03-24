@@ -83,6 +83,7 @@ TODO:
 #include "includes/snes.h"
 
 extern DRIVER_INIT( snes );
+extern DRIVER_INIT( snes_hirom );
 
 static INT8 *shared_ram;
 static UINT8 ffight2b_coins;
@@ -91,7 +92,13 @@ static READ8_HANDLER(sharedram_r)
 {
 	static INT32 oldinput=0;
 	INT32 coincnt;
-	INT32 input = readinputport(13); // input_port_read(machine, "COIN");
+	
+#ifdef MAME_DEBUG
+ 	INT32	input=readinputport(13);
+#else
+ 	INT32	input=readinputport(13);
+#endif
+
 
 	if(input&3)
 	{
@@ -116,7 +123,11 @@ static WRITE8_HANDLER(sharedram_w)
 static READ8_HANDLER(ffight2b_coin_r)
 {
 	static INT32 oldinput=0;
-	INT32 input = readinputport(13); // input_port_read(machine, "COIN");
+#ifdef MAME_DEBUG
+ 	INT32	input=readinputport(13);
+#else
+ 	INT32	input=readinputport(13);
+#endif
 
 	if( ((input&1)==1)&&((oldinput&1)==0))
 	{
@@ -404,8 +415,8 @@ static const gfx_decode gfxdecodeinfo[] =
 static PALETTE_INIT( snes )
 {
 	int i, r, g, b;
-
-	for( i = 0; i < 32768; i++ )
+ 
+ 	for( i = 0; i < 32768; i++ )
 	{
 		r = (i & 0x1F) << 3;
 		g = ((i >> 5) & 0x1F) << 3;
@@ -429,7 +440,7 @@ static MACHINE_DRIVER_START( kinstb )
 	MDRV_CPU_VBLANK_INT(NULL, 0)
 
 	MDRV_FRAMES_PER_SECOND(60)
-	MDRV_VBLANK_DURATION((int)(((262. - 240.) / 262.) * 1000000. / 60.))
+	MDRV_VBLANK_DURATION((int)(((262. - 224.) / 262.) * 1000000. / 60.))
 	MDRV_INTERLEAVE(400)
 
 	MDRV_MACHINE_START( snes )
@@ -471,8 +482,8 @@ static DRIVER_INIT(kinstb)
 	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x781000, 0x7810ff, 0, 0, sharedram_r);
 	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x781000, 0x7810ff, 0, 0, sharedram_w);
 
-	// DISABLED FOR NOW AS NOT REQUIRED FOR ffight2b
 	//DRIVER_INIT_CALL(snes_hirom);
+	init_snes_hirom();
 }
 
 DRIVER_INIT( ffight2b )
