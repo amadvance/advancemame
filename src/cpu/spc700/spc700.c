@@ -867,7 +867,7 @@ INLINE void SET_FLAG_I(uint value)
 			DST     = EA_DP();												\
 			FLAG_NZ = MAKE_UINT_16(read_16_DP(DST) - 1);					\
 			write_16_DP(DST, FLAG_NZ);										\
-			FLAG_NZ = NZFLAG_16(FLAG_NZ)
+			FLAG_NZ = NZFLAG_16(FLAG_Z)
 
 /* Disable interrupts */
 #define OP_DI(BCLK)															\
@@ -937,7 +937,7 @@ INLINE void SET_FLAG_I(uint value)
 			DST     = EA_DP();												\
 			FLAG_NZ = MAKE_UINT_16(read_16_DP(DST) + 1);					\
 			write_16_DP(DST, FLAG_NZ);										\
-			FLAG_NZ = NZFLAG_16(FLAG_NZ)
+			FLAG_NZ = NZFLAG_16(FLAG_Z)
 
 /* Jump */
 /* If we're in a busy loop, eat all clock cycles */
@@ -1000,7 +1000,7 @@ INLINE void SET_FLAG_I(uint value)
 			CLK(BCLK);														\
 			FLAG_NZ = OPER_16_DP();											\
 			SET_REG_YA(FLAG_NZ);											\
-			FLAG_NZ = NZFLAG_16(FLAG_NZ)
+			FLAG_NZ = NZFLAG_16(FLAG_Z)
 
 /* Move from Stack pointer to X */
 #define OP_MOVSX(BCLK)														\
