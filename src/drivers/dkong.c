@@ -3110,4 +3110,4 @@ GAME( 1984, drakton,  0,        drakton,  drakton,  drakton,  ROT90, "Epos Corpo
 GAME( 1985, strtheat, 0,        strtheat, strtheat, strtheat, ROT90, "Epos Corporation", "Street Heat - Cardinal Amusements", GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
 
 /* Braze Technologies bootleg hardware */
-GAME( 2015, dkongx,   dkong,    braze,    dkong,    dkongx,   ROT90,  "bootleg",  "Donkey Kong II - Jumpman Returns (V1.2) (hack)", 0 )
+GAME( 2015, dkongx,   dkong,    braze,    dkong,    dkongx,   ROT90,  "bootleg",  "Donkey Kong II - Jumpman Returns (V1.2) (hack)", GAME_NOT_WORKING ) // Test reports bad video RAM and DMA and BOOTUP FAILURE
