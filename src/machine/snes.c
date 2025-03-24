@@ -1525,6 +1525,46 @@ DRIVER_INIT( snes )
 			snes_cart.sram = snes_cart.sram_max;
 	}
 }
+
+DRIVER_INIT( snes_hirom )
+{
+	int i;
+	UINT16 totalblocks, readblocks;
+	UINT8  *rom;
+
+	rom = memory_region( REGION_USER3 );
+	snes_ram = auto_malloc(0x1000000);
+	memset( snes_ram, 0, 0x1000000 );
+
+	snes_cart.mode = SNES_MODE_21;
+	snes_cart.sram_max = 0x40000;
+
+	/* Find the number of blocks in this ROM */
+	//totalblocks = ((mame_fsize(file) - offset) >> (snes_cart.mode == MODE_20 ? 15 : 16));
+	totalblocks = (memory_region_length(REGION_USER3) / 0x10000) - 1;
+
+	/* FIXME: Insert crc check here */
+
+	readblocks = 0;
+	{
+		i = 0;
+		while( i < 64 && readblocks <= totalblocks )
+		{
+			memcpy( &snes_ram[0xc00000 + (i * 0x10000)],  &rom[i * 0x10000], 0x10000);
+			i++;
+			readblocks++;
+		}
+	}
+
+	/* Find the amount of sram */
+	snes_cart.sram = snes_r_bank1(0x00ffd8);
+	if( snes_cart.sram > 0 )
+	{
+		snes_cart.sram = ((1 << (snes_cart.sram + 3)) / 8);
+		if( snes_cart.sram > snes_cart.sram_max )
+			snes_cart.sram = snes_cart.sram_max;
+	}
+}
 #endif	/* MESS */
 
 void snes_hdma_init()

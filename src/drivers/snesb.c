@@ -83,6 +83,7 @@ TODO:
 #include "includes/snes.h"
 
 extern DRIVER_INIT( snes );
+extern DRIVER_INIT( snes_hirom );
 
 static INT8 *shared_ram;
 static UINT8 ffight2b_coins;
@@ -471,8 +472,8 @@ static DRIVER_INIT(kinstb)
 	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x781000, 0x7810ff, 0, 0, sharedram_r);
 	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x781000, 0x7810ff, 0, 0, sharedram_w);
 
-	// DISABLED FOR NOW AS NOT REQUIRED FOR ffight2b
 	//DRIVER_INIT_CALL(snes_hirom);
+	init_snes_hirom();
 }
 
 DRIVER_INIT( ffight2b )
