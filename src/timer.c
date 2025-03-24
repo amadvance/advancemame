@@ -116,14 +116,14 @@ INLINE mame_time get_current_time(void)
 {
 	int activecpu;
 
+	/* if we're currently in a callback, use the timer's expiration time as a base */
+	if (callback_timer)
+		return callback_timer_expire_time;
+
 	/* if we're executing as a particular CPU, use its local time as a base */
 	activecpu = cpu_getactivecpu();
 	if (activecpu >= 0)
 		return cpunum_get_localtime(activecpu);
-
-	/* if we're currently in a callback, use the timer's expiration time as a base */
-	if (callback_timer)
-		return callback_timer_expire_time;
 
 	/* otherwise, return the current global base time */
 	return global_basetime;
