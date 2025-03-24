@@ -347,11 +347,6 @@ int os_inner_init(const char* title)
 #endif
 #endif
 
-	/* sync to avoid that the cache flush interfers with timings */
-	if (system("sync") != 0) {
-		log_std(("os: sync failed with error: %s\n", strerror(errno)));
-	}
-
 	/* print the compiler version */
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__) /* OSDEF Detect compiler version */
 #define COMPILER_RESOLVE(a) #a
