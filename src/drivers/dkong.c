@@ -280,8 +280,6 @@ static READ8_HANDLER( dkong_in2_r )
  *
  *************************************/
 
-static int banks = 0;
-
 static struct EEPROM_interface braze_eeprom_intf =
 {
 	7,				/* address bits */
@@ -312,11 +310,8 @@ static READ8_HANDLER( braze_eeprom_r )
 
 static WRITE8_HANDLER( braze_a15_w )
 {
-	if (banks != (data & 1)) {
-		banks = data & 1;
-		memcpy (memory_region(REGION_CPU1) + 0x0000, memory_region(REGION_USER1) + 0x10000 + (0x8000 * banks), 0x06000); // ?
-		memcpy (memory_region(REGION_CPU1) + 0x8000, memory_region(REGION_USER1) + 0x10000 + (0x8000 * banks), 0x08000); // ?
-	}
+	memory_set_bank(1, data & 0x01);
+	memory_set_bank(2, data & 0x01);
 }
 
 static WRITE8_HANDLER( braze_eeprom_w )
@@ -443,20 +438,6 @@ static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xd000, 0xdfff) AM_READ(MRA8_ROM)	/* DK3 bootleg only */
 ADDRESS_MAP_END
 
-static ADDRESS_MAP_START( braze_readmem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x5fff) AM_READ(MRA8_ROM)	/* DK: 0000-3fff */
-	AM_RANGE(0x6000, 0x6fff) AM_READ(MRA8_RAM)	/* including sprites RAM */
-	AM_RANGE(0x7400, 0x77ff) AM_READ(MRA8_RAM)	/* video RAM */
-	AM_RANGE(0x7c00, 0x7c00) AM_READ(input_port_0_r)	/* IN0 */
-	AM_RANGE(0x7c80, 0x7c80) AM_READ(input_port_1_r)	/* IN1 */
-	AM_RANGE(0x7d00, 0x7d00) AM_READ(dkong_in2_r)	/* IN2/DSW2 */
-	AM_RANGE(0x7d80, 0x7d80) AM_READ(input_port_3_r)	/* DSW1 */
-	AM_RANGE(0x8000, 0x9fff) AM_READ(MRA8_ROM)	/* DK3 and bootleg DKjr only */
-	AM_RANGE(0xb000, 0xbfff) AM_READ(MRA8_ROM)	/* Pest Place only */
-	AM_RANGE(0xc800, 0xc800) AM_READ(braze_eeprom_r)
-	AM_RANGE(0xd000, 0xdfff) AM_READ(MRA8_ROM)	/* DK3 bootleg only */
-ADDRESS_MAP_END
-
 static ADDRESS_MAP_START( dkong3_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x0000, 0x5fff) AM_READ(MRA8_ROM)	/* DK: 0000-3fff */
 	AM_RANGE(0x6000, 0x6fff) AM_READ(MRA8_RAM)	/* including sprites RAM */
@@ -514,32 +495,6 @@ static ADDRESS_MAP_START( dkong_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x7d84, 0x7d84) AM_WRITE(interrupt_enable_w)
 	AM_RANGE(0x7d85, 0x7d85) AM_WRITE(MWA8_RAM)
 	AM_RANGE(0x7d86, 0x7d87) AM_WRITE(dkong_palettebank_w)
-ADDRESS_MAP_END
-
-static ADDRESS_MAP_START( braze_writemem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x5fff) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0x6000, 0x68ff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x6900, 0x6a7f) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
-	AM_RANGE(0x6a80, 0x6fff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x7000, 0x73ff) AM_WRITE(MWA8_RAM)    /* ???? */
-	AM_RANGE(0x7400, 0x77ff) AM_WRITE(dkong_videoram_w) AM_BASE(&videoram)
-	AM_RANGE(0x7800, 0x7803) AM_WRITE(MWA8_RAM)	/* ???? */
-	AM_RANGE(0x7808, 0x7808) AM_WRITE(MWA8_RAM)	/* ???? */
-	AM_RANGE(0x7c00, 0x7c00) AM_WRITE(dkong_sh_tuneselect_w)
-//  AM_RANGE(0x7c80, 0x7c80)
-	AM_RANGE(0x7d00, 0x7d02) AM_WRITE(dkong_sh1_w)	/* walk/jump/boom sample trigger */
-	AM_RANGE(0x7d03, 0x7d03) AM_WRITE(dkong_sh_sound3_w)
-	AM_RANGE(0x7d04, 0x7d04) AM_WRITE(dkong_sh_sound4_w)
-	AM_RANGE(0x7d05, 0x7d05) AM_WRITE(dkong_sh_sound5_w)
-	AM_RANGE(0x7d80, 0x7d80) AM_WRITE(dkong_sh_w)
-	AM_RANGE(0x7d81, 0x7d81) AM_WRITE(MWA8_RAM)	/* ???? */
-	AM_RANGE(0x7d82, 0x7d82) AM_WRITE(dkong_flipscreen_w)
-	AM_RANGE(0x7d83, 0x7d83) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x7d84, 0x7d84) AM_WRITE(interrupt_enable_w)
-	AM_RANGE(0x7d85, 0x7d85) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0x7d86, 0x7d87) AM_WRITE(dkong_palettebank_w)
-	AM_RANGE(0xc800, 0xc800) AM_WRITE(braze_eeprom_w)
-	AM_RANGE(0xe000, 0xe000) AM_WRITE(braze_a15_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( hunchbkd_readmem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -1790,7 +1745,7 @@ static MACHINE_DRIVER_START( braze )
 
 	/* basic machine hardware */
 	MDRV_CPU_ADD(Z80, 3072000)	/* 3.072 MHz (?) */
-	MDRV_CPU_PROGRAM_MAP(braze_readmem,braze_writemem)
+	MDRV_CPU_PROGRAM_MAP(readmem,dkong_writemem)
 	MDRV_CPU_VBLANK_INT(nmi_line_pulse,1)
 
 	MDRV_CPU_ADD(I8035,6000000/15)	/* 6MHz crystal */
@@ -2990,14 +2945,14 @@ ROM_END
 /* Braze Technologies bootleg hardware */
 
 ROM_START( dkongx )
-	ROM_REGION( 0x20000, REGION_CPU1, 0 )
-	ROM_LOAD( "c_5et_g.bin",  0x10000, 0x1000, CRC(ba70b88b) SHA1(d76ebecfea1af098d843ee7e578e480cd658ac1a) )
-	ROM_LOAD( "c_5ct_g.bin",  0x11000, 0x1000, CRC(5ec461ec) SHA1(acb11a8fbdbb3ab46068385fe465f681e3c824bd) )
-	ROM_LOAD( "c_5bt_g.bin",  0x12000, 0x1000, CRC(1c97d324) SHA1(c7966261f3a1d3296927e0b6ee1c58039fc53c1f) )
-	ROM_LOAD( "c_5at_g.bin",  0x13000, 0x1000, CRC(b9005ac0) SHA1(3fe3599f6fa7c496f782053ddf7bacb453d197c4) )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "c_5et_g.bin",  0x0000, 0x1000, CRC(ba70b88b) SHA1(d76ebecfea1af098d843ee7e578e480cd658ac1a) )
+	ROM_LOAD( "c_5ct_g.bin",  0x1000, 0x1000, CRC(5ec461ec) SHA1(acb11a8fbdbb3ab46068385fe465f681e3c824bd) )
+	ROM_LOAD( "c_5bt_g.bin",  0x2000, 0x1000, CRC(1c97d324) SHA1(c7966261f3a1d3296927e0b6ee1c58039fc53c1f) )
+	ROM_LOAD( "c_5at_g.bin",  0x3000, 0x1000, CRC(b9005ac0) SHA1(3fe3599f6fa7c496f782053ddf7bacb453d197c4) )
 	/* space for diagnostic ROM */
 
-	ROM_REGION( 0x20000, REGION_USER1, 0 )
+	ROM_REGION( 0x10000, REGION_USER1, 0 )
 	ROM_LOAD( "d2k12.bin",  0x0000, 0x10000,  CRC(6e95ca0d) SHA1(c058add0f146d577e3df0ba60828fe1734e78d01) ) /* Version 1.2 */
 
 	ROM_REGION( 0x1800, REGION_CPU2, 0 )	/* sound */
@@ -3055,18 +3010,24 @@ static DRIVER_INIT( radarscp )
 
 static DRIVER_INIT( dkongx )
 {
-	braze_decrypt_rom(memory_region(REGION_USER1) + 0x10000);
+	UINT8 *decrypted;
 
-	memset (memory_region(REGION_CPU1), 0, 0x10000);
+	decrypted = auto_malloc(0x10000);
+	
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x0000, 0x5fff, 0, 0, MRA8_BANK1 );
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x8000, 0xffff, 0, 0, MRA8_BANK2 );
 
-	banks = 0;
-	memcpy (memory_region(REGION_CPU1) + 0x0000, memory_region(REGION_USER1) + 0x10000, 0x06000); 
-	memcpy (memory_region(REGION_CPU1) + 0x8000, memory_region(REGION_USER1) + 0x10000, 0x08000); // ?
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xE000, 0xE000, 0, 0, braze_a15_w );
 
-	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xe000, 0xe000, 0, 0, braze_a15_w);
-	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xc800, 0xc800, 0, 0, braze_eeprom_w);
-	memory_install_read8_handler(0,  ADDRESS_SPACE_PROGRAM, 0xc800, 0xc800, 0, 0, braze_eeprom_r);
-}
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0xC800, 0xC800, 0, 0, braze_eeprom_r );
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xC800, 0xC800, 0, 0, braze_eeprom_w );
+
+	braze_decrypt_rom(decrypted);
+
+	memory_configure_bank(1, 0, 2, &decrypted[0], 0x8000);
+	memory_set_bank(1, 0);
+	memory_configure_bank(2, 0, 2, &decrypted[0], 0x8000);
+	memory_set_bank(2, 0);
 
 
 GAME( 1980, radarscp, 0,        radarscp, dkong,    radarscp, ROT90, "Nintendo", "Radar Scope", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_SUPPORTS_SAVE )
@@ -3110,4 +3071,4 @@ GAME( 1984, drakton,  0,        drakton,  drakton,  drakton,  ROT90, "Epos Corpo
 GAME( 1985, strtheat, 0,        strtheat, strtheat, strtheat, ROT90, "Epos Corporation", "Street Heat - Cardinal Amusements", GAME_NO_SOUND | GAME_SUPPORTS_SAVE )
 
 /* Braze Technologies bootleg hardware */
-GAME( 2015, dkongx,   dkong,    braze,    dkong,    dkongx,   ROT90,  "bootleg",  "Donkey Kong II - Jumpman Returns (V1.2) (hack)", GAME_NOT_WORKING ) // Test reports bad video RAM and DMA and BOOTUP FAILURE
+GAME( 2015, dkongx,   dkong,    braze,    dkong,    dkongx,   ROT90,  "bootleg",  "Donkey Kong II - Jumpman Returns (V1.2) (hack)", 0 )
