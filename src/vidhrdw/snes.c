@@ -1895,9 +1895,15 @@ static void snes_refresh_scanline( mame_bitmap *bitmap, UINT16 curline )
 	profiler_mark(PROFILER_END);
 }
 
+extern UINT32 ffight2b_hack;
+extern UINT32 ffight2b_skip_frame;
+
 VIDEO_UPDATE( snes )
 {
 	int y;
+
+	if (ffight2b_hack && ffight2b_skip_frame != 0)
+		return;
 
 	for (y = cliprect->min_y; y <= cliprect->max_y; y++)
 		snes_refresh_scanline(bitmap, y);
