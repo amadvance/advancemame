@@ -224,10 +224,10 @@ READ8_HANDLER(endless_580xxx_r)
 		case 0xe83: return 0x6b;
 	}
 
+	logerror("Unknown protection read read %x @ %x\n",offset, activecpu_get_pc());
+	
 	return 0;
 }
-
-static UINT8 cnt;
 
 READ8_HANDLER(endless_624b7f_r)
 {
@@ -902,6 +902,9 @@ static MACHINE_DRIVER_START( kinstb )
 	MDRV_CPU_VBLANK_INT(NULL, 0)
 
 	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION((int)(((262. - 224.) / 262.) * 1000000. / 60.))
+//These are worth checking
+	//MDRV_VBLANK_DURATION((int)(((262. - 240.) / 262.) * 1000000. / 60.))
 	MDRV_INTERLEAVE(400)
 
 	MDRV_MACHINE_START( snes )
@@ -912,8 +915,12 @@ static MACHINE_DRIVER_START( kinstb )
 	MDRV_VIDEO_UPDATE( snes )
 
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+//These are worth checking
+        //MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN | VIDEO_RGB_DIRECT)
+        //MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_NEEDS_6BITS_PER_GUN)
+        //MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_RGB_DIRECT)
 	MDRV_SCREEN_SIZE(SNES_SCR_WIDTH * 2, SNES_SCR_HEIGHT * 2)
-	MDRV_VISIBLE_AREA(0, SNES_SCR_WIDTH-1, 0, SNES_SCR_HEIGHT-1 )
+	MDRV_VISIBLE_AREA(0, SNES_SCR_WIDTH*2-1, 0, SNES_SCR_HEIGHT*2-1 )
 	MDRV_GFXDECODE(gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(32768)
 	MDRV_COLORTABLE_LENGTH(257)
@@ -926,12 +933,6 @@ static MACHINE_DRIVER_START( kinstb )
 	MDRV_SOUND_CONFIG(snes_sound_interface)
 	MDRV_SOUND_ROUTE(0, "left", 1.00)
 	MDRV_SOUND_ROUTE(1, "right", 1.00)
-MACHINE_DRIVER_END
-
-static MACHINE_DRIVER_START( ffight2b )
-	MDRV_IMPORT_FROM(kinstb)
-	MDRV_FRAMES_PER_SECOND(120)
-	MDRV_VISIBLE_AREA(0, SNES_SCR_WIDTH-1, 16, SNES_SCR_HEIGHT-1-24)
 MACHINE_DRIVER_END
 
 static DRIVER_INIT(kinstb)
@@ -1316,9 +1317,10 @@ ROM_START( endless )
 ROM_END
 
 GAME( 199?, kinstb,       0,     kinstb,	     kinstb,    kinstb,		ROT0, "bootleg",	"Killer Instinct (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, ffight2b,     0,     ffight2b,	     ffight2b,  ffight2b,	ROT0, "bootleg",	"Final Fight 2 (SNES bootleg)", GAME_IMPERFECT_SOUND )
+GAME( 1996, ffight2b,     0,     kinstb,	     ffight2b,  ffight2b,	ROT0, "bootleg",	"Final Fight 2 (SNES bootleg)", GAME_IMPERFECT_SOUND )
 GAME( 1997, sblast2b,     0,     kinstb,	     sblast2b,  sblast2b,	ROT0, "bootleg",	"Sonic Blast Man TURBO 2 (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_SOUND )
 GAME( 1996, iron,         0,     kinstb,	     iron,      iron,		ROT0, "bootleg",	"Iron (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+/*
 GAME( 1996, denseib,      0,     kinstb,	     denseib,   denseib,	ROT0, "bootleg",	"Ghost Chaser Densei (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, endless,      0,     kinstb,	     iron,      endless,        ROT0, "bootleg",	"Gundam Wing: Endless Duel (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-
+*/
