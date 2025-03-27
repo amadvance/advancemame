@@ -1337,17 +1337,18 @@ static DRIVER_INIT(ffight3b)
 	rom[0xfffc] = 0x00;
 	rom[0xfffd] = 0xfe;
 
+		// extra inputs
+   	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770071, 0x770071, 0, 0, iron_770071_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770073, 0x770073, 0, 0, iron_770073_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770079, 0x770079, 0, 0, iron_770079_r);
+	
+
 	// patch out protection
 	rom[0xfe33] = 0x5c;
 	rom[0xfe34] = 0x00;
 	rom[0xfe35] = 0x00;
 	rom[0xfe36] = 0xc0;
 	rom[0xfeab] = 0x60;
-	
-	// extra inputs
-   	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770071, 0x770071, 0, 0, iron_770071_r);
-	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770073, 0x770073, 0, 0, iron_770073_r);
-	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770079, 0x770079, 0, 0, iron_770079_r);
 	
 	init_snes_hirom();
 }
