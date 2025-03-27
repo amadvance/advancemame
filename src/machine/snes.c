@@ -42,6 +42,8 @@ static mame_timer *snes_hblank_timer;
 static mame_timer *snes_nmi_timer;
 static mame_timer *snes_hirq_timer;
 static double hblank_offset;
+UINT32 ffight2b_skip_frame = 0;
+UINT32 ffight2b_hack = 0;
 
 // full graphic variables
 static UINT16 vram_fgr_high, vram_fgr_increment, vram_fgr_count, vram_fgr_mask, vram_fgr_shift, vram_read_buffer;
@@ -159,6 +161,8 @@ static void snes_scanline_tick(int ref)
 			// NMI goes off about 12 cycles after this (otherwise Chrono Trigger, NFL QB Club, etc. lock up)
 			timer_adjust(snes_nmi_timer, TIME_IN_CYCLES(12, 0), 0, TIME_NEVER);
 		}
+
+		ffight2b_skip_frame = 1;
 	}
 
 	// hdma reset happens at scanline 0, H=~6
@@ -323,13 +327,17 @@ static void snes_init_ram(void)
 	has_dsp1 = ((snes_r_bank1(0xffd6) >= 3) && (snes_r_bank1(0xffd6) <= 5)) ? 1 : 0;
 
 	// init frame counter so first line is 0
-	if( Machine->drv->frames_per_second == 60 )
+	if( Machine->drv->frames_per_second >= 59 )
 	{
 		snes_ppu.beam.current_vert = SNES_MAX_LINES_NTSC;
 	}
 	else
 	{
 		snes_ppu.beam.current_vert = SNES_MAX_LINES_PAL;
+	}
+
+	if (strcmp(Machine->gamedrv->name, "ffight2b") == 0) {
+		ffight2b_hack = 1;
 	}
 }
 
@@ -354,9 +362,9 @@ MACHINE_RESET( snes )
 	snes_init_ram();
 
 	/* Set STAT78 to NTSC or PAL */
-	if( Machine->drv->frames_per_second == 60 )
+	if( Machine->drv->frames_per_second >= 59 )
 		snes_ram[STAT78] = SNES_NTSC;
-	else /* if( Machine->drv->frames_per_second == 50 ) */
+	else
 		snes_ram[STAT78] = SNES_PAL;
 }
 
@@ -1037,10 +1045,14 @@ WRITE8_HANDLER( snes_w_io )
 			else
 				set_visible_area(0, (SNES_SCR_WIDTH * 2 * 1.75) - 1, 0, snes_ppu.beam.last_visible_line - 1 );
 #else
-			if( snes_ppu.mode == 5 || snes_ppu.mode == 6 )
-				set_visible_area(0, (SNES_SCR_WIDTH * 2) - 1, 0, snes_ppu.beam.last_visible_line - 1 );
-			else
-				set_visible_area(0, SNES_SCR_WIDTH - 1, 0, snes_ppu.beam.last_visible_line - 1 );
+			// HACK Assume that the game driver sets the correct visible area as AdvanceMAME doesn't like changes of the visible area
+			// This applies to snesb,nss,vsnes... 
+			if (0) {
+				if( snes_ppu.mode == 5 || snes_ppu.mode == 6 )
+					set_visible_area(0, (SNES_SCR_WIDTH * 2) - 1, 0, snes_ppu.beam.last_visible_line - 1 );
+				else
+					set_visible_area(0, SNES_SCR_WIDTH - 1, 0, snes_ppu.beam.last_visible_line - 1 );
+			}
 #endif
 
 			snes_ppu.layer[0].tile_size = (data >> 4) & 0x1;
@@ -1244,6 +1256,8 @@ WRITE8_HANDLER( snes_w_io )
 			break;
 		case TM:		/* Main screen designation */
 		case TS:		/* Subscreen designation */
+			ffight2b_skip_frame = 0;
+			break;
 		case TMW:		/* Window mask for main screen designation */
 		case TSW:		/* Window mask for subscreen designation */
 			break;
