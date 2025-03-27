@@ -1344,6 +1344,20 @@ ROM_START( ffight3b ) // CS101P049-1 PCB
 	ROM_REGION(0x800,     REGION_USER6, ROMREGION_ERASEFF)
 ROM_END
 
+ROM_START( ffight3b2 )
+	ROM_REGION( 0x300000, REGION_USER3, ROMREGION_ERASEFF )
+	ROM_LOAD( "4.u34",   0x000000, 0x080000, CRC(0b4711cd) SHA1(9f9f325026a2605105233fb63ef5046b1d606979) )
+	ROM_LOAD( "2.u36",   0x200000, 0x080000, CRC(6e2f7309) SHA1(ad5f37d79590c4bc4b1d33432595eb9d53f1bb90) )
+	ROM_CONTINUE(        0x080000, 0x080000)
+	ROM_LOAD( "3.u35",   0x100000, 0x100000, CRC(efbdd541) SHA1(85c7a674bd976414e916b87239571615d255d7eb) )
+	ROM_LOAD( "1.u37",   0x280000, 0x080000, CRC(b69e9eaf) SHA1(7a06245016b20e529eb3bc8cd186e2a335873372) )
+
+	ROM_REGION(0x100,     REGION_USER5, 0)
+	ROM_LOAD("spc700.rom", 0, 0x40, CRC(44bb3a40) SHA1(97e352553e94242ae823547cd853eecda55c20f0) )
+
+	ROM_REGION(0x800,     REGION_USER6, ROMREGION_ERASEFF)
+ROM_END
+
 
 ROM_START( legendsb )
 	ROM_REGION( 0x100000, REGION_USER3, 0 )
@@ -1449,5 +1463,6 @@ GAME( 1996, denseib,      0,     kinstb,	     denseib,   denseib,	ROT0, "bootleg
 GAME( 1996, endless,      0,     kinstb,	     iron,      endless,    ROT0, "bootleg",	"Gundam Wing: Endless Duel (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 /*
 GAME( 199?, ffight3b,     0,     kinstb,         iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based on beta version? protected?
+GAME( 199?, ffight3b2,    ffight3b, kinstb,      iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // ""
 GAME( 1996, legendsb,     0,     kinstb,         iron,      legendsb,   ROT0, "bootleg",    "Legend (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 */
