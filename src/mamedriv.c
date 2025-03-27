@@ -1053,6 +1053,8 @@ const game_driver * const drivers[] =
 	DRIVER( ffight2b )      /* bootleg */
 	DRIVER( sblast2b )      /* bootleg */
 	DRIVER( iron )          /* bootleg */
+	DRIVER( denseib )       /* bootleg */
+	DRIVER( endless )       /* bootleg */
 
 	/* Midway 8080 b/w games */
 	DRIVER( seawolf )	/* 596 [1976] */
