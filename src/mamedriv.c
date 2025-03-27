@@ -1059,6 +1059,7 @@ const game_driver * const drivers[] =
 	DRIVER( ffight3b2 )     /* bootleg */
 	DRIVER( legendsb )      /* bootleg */
 	DRIVER( rushbets )      /* bootleg */
+	DRIVER( tmntmwb )       /* bootleg */
 	DRIVER( venom )         /* bootleg */
 	DRIVER( wldgunsb )      /* bootleg */
 
