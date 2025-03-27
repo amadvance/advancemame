@@ -30,6 +30,17 @@
 
 /* the first match is used */
 
+{ "tmntmwb", 3 }, /* 4.1 */
+{ "legendsb", 13 }, /* 4.1 */
+{ "rushbets", 6 }, /* 4.1 */
+{ "venom", 7 }, /* 4.1 */
+{ "wldgunsb", 2 }, /* 4.1 */
+{ "endless", 6 }, /* 4.1 */
+{ "denseib", 2 }, /* 4.1 */
+{ "iron", 12 }, /* 4.1 */
+{ "sblast2b", 6 }, /* 4.1 */
+{ "ffight2b", 4 }, /* 4.1 */
+{ "kinstb", 8 }, /* 4.1 */
 { "ninjakun", 26 }, /* 4.1 */
 { "metamrph", 14 }, /* 4.1 */
 { "gaiapols", 22 }, /* 4.1 */
