@@ -1548,8 +1548,8 @@ static DRIVER_INIT(wldgunsb)
 	dst[0x7ffd] = 0x80;
 	
 	// initialize continue counter
-	shared_ram[0][0x10] = 9;
-	shared_ram[0][0x12] = 0;
+	shared_ram[0x10] = 9;
+	shared_ram[0x12] = 0;
 
 	shared_ram=auto_malloc(0x22);
 
@@ -1810,11 +1810,9 @@ GAME( 1997, sblast2b,     0,     kinstb,	     sblast2b,  sblast2b,	ROT0, "bootle
 GAME( 1996, iron,         0,     kinstb,	     iron,      iron,		ROT0, "bootleg",	"Iron (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, denseib,      0,     kinstb,	     denseib,   denseib,	ROT0, "bootleg",	"Ghost Chaser Densei (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, endless,      0,     kinstb,	     iron,      endless,    ROT0, "bootleg",	"Gundam Wing: Endless Duel (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-/*
-GAME( 199?, ffight3b,     0,     kinstb,         iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based on beta version? protected?
-GAME( 199?, ffight3b2,    ffight3b, kinstb,      iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // ""
+GAME( 199?, ffight3b,     0,     kinstb,         iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based on beta version? protected? // black screen
+GAME( 199?, ffight3b2,    ffight3b, kinstb,      iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 2)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // black screen
 GAME( 1996, legendsb,     0,     kinstb,         iron,      legendsb,   ROT0, "bootleg",    "Legend (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1997, rushbets,     0,     kinstb,         sblast2b,  rushbets,   ROT0, "bootleg",    "Rushing Beat Shura (SNES bootleg)",  GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1997, rushbets,     0,     ffight2b,       sblast2b,  rushbets,   ROT0, "bootleg",    "Rushing Beat Shura (SNES bootleg)",  GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, venom,        0,     kinstb,         iron,      venom,      ROT0, "bootleg",    "Venom & Spider-Man - Separation Anxiety (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, wldgunsb,     0,     kinstb,         iron,      wldgunsb,   ROT0, "bootleg",    "Wild Guns (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based off Japanese version
-*/
+GAME( 1996, wldgunsb,     0,     kinstb,         iron,      wldgunsb,   ROT0, "bootleg",    "Wild Guns (SNES bootleg)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based off Japanese version // crash at startup
