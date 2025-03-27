@@ -931,6 +931,12 @@ static MACHINE_DRIVER_START( kinstb )
 	MDRV_SOUND_ROUTE(1, "right", 1.00)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( ffight2b )
+	MDRV_IMPORT_FROM(kinstb)
+	MDRV_FRAMES_PER_SECOND(120)
+	MDRV_VISIBLE_AREA(0, SNES_SCR_WIDTH-1, 16, SNES_SCR_HEIGHT-1-24)
+MACHINE_DRIVER_END
+
 static DRIVER_INIT(kinstb)
 {
 	INT32 i;
@@ -1313,7 +1319,7 @@ ROM_START( endless )
 ROM_END
 
 GAME( 199?, kinstb,       0,     kinstb,	     kinstb,    kinstb,		ROT0, "bootleg",	"Killer Instinct (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, ffight2b,     0,     kinstb,	     ffight2b,  ffight2b,	ROT0, "bootleg",	"Final Fight 2 (SNES bootleg)", GAME_IMPERFECT_SOUND )
+GAME( 1996, ffight2b,     0,     ffight2b,	     ffight2b,  ffight2b,	ROT0, "bootleg",	"Final Fight 2 (SNES bootleg)", GAME_IMPERFECT_SOUND )
 GAME( 1997, sblast2b,     0,     kinstb,	     sblast2b,  sblast2b,	ROT0, "bootleg",	"Sonic Blast Man TURBO 2 (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_SOUND )
 GAME( 1996, iron,         0,     kinstb,	     iron,      iron,		ROT0, "bootleg",	"Iron (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, denseib,      0,     kinstb,	     denseib,   denseib,	ROT0, "bootleg",	"Ghost Chaser Densei (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
