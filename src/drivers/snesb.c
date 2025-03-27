@@ -1734,7 +1734,7 @@ ROM_START( ffight2b )
 ROM_END
 
 ROM_START( ffight3b ) // CS101P049-1 PCB
-	ROM_REGION( 0x300000, REGION_USER3, ROMREGION_ERASEFF )
+	ROM_REGION( 0x300000, REGION_USER3, ROMREGION_DISPOSE )
 	ROM_LOAD( "801.u6",  0x000000, 0x080000, CRC(b6c637a7) SHA1(8ab041b9d7ab4318002b11bb876bce8f9764f644) )
 	ROM_CONTINUE(        0x280000, 0x080000)
 	ROM_LOAD( "801.u7",  0x100000, 0x100000, CRC(efbdd541) SHA1(85c7a674bd976414e916b87239571615d255d7eb) )
@@ -1748,7 +1748,7 @@ ROM_START( ffight3b ) // CS101P049-1 PCB
 ROM_END
 
 ROM_START( ffight3b2 )
-	ROM_REGION( 0x300000, REGION_USER3, ROMREGION_ERASEFF )
+	ROM_REGION( 0x300000, REGION_USER3, ROMREGION_DISPOSE )
 	ROM_LOAD( "4.u34",   0x000000, 0x080000, CRC(0b4711cd) SHA1(9f9f325026a2605105233fb63ef5046b1d606979) )
 	ROM_LOAD( "2.u36",   0x200000, 0x080000, CRC(6e2f7309) SHA1(ad5f37d79590c4bc4b1d33432595eb9d53f1bb90) )
 	ROM_CONTINUE(        0x080000, 0x080000)
@@ -1916,16 +1916,16 @@ ROM_START( wldgunsb )
 	ROM_LOAD( "c20.bin", 0x080000, 0x080000, CRC(62ae4acb) SHA1(62aa320bcc7eeedb00c70baa909ac0230256c9a4) )
 ROM_END
 
-GAME( 199?, kinstb,       0,     kinstb,	 kinstb,    kinstb,	ROT0, "bootleg",    "Killer Instinct (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, ffight2b,     0,     ffight2b,	 ffight2b,  ffight2b,	ROT0, "bootleg",    "Final Fight 2 (SNES bootleg)", GAME_IMPERFECT_SOUND )
-GAME( 1997, sblast2b,     0,     kinstb,	 sblast2b,  sblast2b,	ROT0, "bootleg",    "Sonic Blast Man TURBO 2 (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_SOUND )
-GAME( 1996, iron,         0,     kinstb,	 iron,      iron,	ROT0, "bootleg",    "Iron (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, denseib,      0,     kinstb,	 denseib,   denseib,	ROT0, "bootleg",    "Ghost Chaser Densei (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, endless,      0,     kinstb,	 iron,      endless,    ROT0, "bootleg",    "Gundam Wing: Endless Duel (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 199?, ffight3b,     0,     kinstb,         iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based on beta version? protected? // black screen
-GAME( 199?, ffight3b2,    ffight3b, kinstb,      iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 2)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // black screen
-GAME( 1996, legendsb,     0,     kinstb,         iron,      legendsb,   ROT0, "bootleg",    "Legend (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1997, rushbets,     0,     ffight2b,       sblast2b,  rushbets,   ROT0, "bootleg",    "Rushing Beat Shura (SNES bootleg)",  GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1997, tmntmwb,      0,     kinstb,         sblast2b,  tmntmwb,    ROT0, "bootleg",    "Teenage Mutant Ninja Turtles - Mutant Warriors (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1997, venom,        0,     kinstb,         iron,      venom,      ROT0, "bootleg",    "Venom & Spider-Man - Separation Anxiety (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, wldgunsb,     0,     kinstb,         iron,      wldgunsb,   ROT0, "bootleg",    "Wild Guns (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based off Japanese version
+GAME( 199?, kinstb,       0,         kinstb,	 kinstb,    kinstb,	ROT0, "bootleg",    "Killer Instinct (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, ffight2b,     0,         ffight2b,	 ffight2b,  ffight2b,	ROT0, "bootleg",    "Final Fight 2 (SNES bootleg)", GAME_IMPERFECT_SOUND )
+GAME( 1997, sblast2b,     0,         kinstb,	 sblast2b,  sblast2b,	ROT0, "bootleg",    "Sonic Blast Man TURBO 2 (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_SOUND )
+GAME( 1996, iron,         0,         kinstb,	 iron,      iron,	ROT0, "bootleg",    "Iron (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, denseib,      0,         kinstb,	 denseib,   denseib,	ROT0, "bootleg",    "Ghost Chaser Densei (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, endless,      0,         kinstb,	 iron,      endless,    ROT0, "bootleg",    "Gundam Wing: Endless Duel (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 199?, ffight3b,     0,         kinstb,     ffight2b,  ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based on beta version? protected? // black screen
+GAME( 199?, ffight3b2,    ffight3b,  kinstb,     ffight2b,  ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 2)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // black screen
+GAME( 1996, legendsb,     0,         kinstb,     iron,      legendsb,   ROT0, "bootleg",    "Legend (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1997, rushbets,     0,         ffight2b,   sblast2b,  rushbets,   ROT0, "bootleg",    "Rushing Beat Shura (SNES bootleg)",  GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1997, tmntmwb,      0,         kinstb,     sblast2b,  tmntmwb,    ROT0, "bootleg",    "Teenage Mutant Ninja Turtles - Mutant Warriors (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1997, venom,        0,         kinstb,     iron,      venom,      ROT0, "bootleg",    "Venom & Spider-Man - Separation Anxiety (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, wldgunsb,     0,         kinstb,     iron,      wldgunsb,   ROT0, "bootleg",    "Wild Guns (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based off Japanese version
