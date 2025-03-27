@@ -7,13 +7,12 @@
     Supported games:
     - Killer Instinct
     - Final Fight 2
+	- Final Fight 3
     - Sonic Blast Man 2
 	- Iron (bootleg of Iron Commando)
 	- Ghost Chaser Densei
 	- Gundam Wing Endless Duel
-
-    Not dumped:
-    - Final Fight 3
+	- Legend
 
 TODO:
 
@@ -1206,6 +1205,74 @@ static DRIVER_INIT(endless)
 	init_snes();
 }
 
+static DRIVER_INIT(legendsb)
+{
+	INT32 i;
+	UINT8 *rom = memory_region(REGION_USER3);
+
+	for(i = 0; i < 0x100000; i++)
+	{
+		UINT8 val = rom[i] ^ 0xff;
+
+		if (i < 0x10000)
+			rom[i] = BITSWAP8(val,6,5,4,2,1,0,3,7); // 0x00000 - 0x0ffff
+		else if (i < 0x20000)
+			rom[i] = BITSWAP8(val,6,1,3,5,2,0,7,4); // 0x10000 - 0x1ffff
+		else if (i < 0x30000)
+			rom[i] = BITSWAP8(val,2,6,3,0,4,5,7,1); // 0x20000 - 0x2ffff
+		else if (i < 0x40000)
+			rom[i] = BITSWAP8(val,5,4,2,7,0,3,6,1); // 0x30000 - 0x3ffff
+		else
+			rom[i] = BITSWAP8(val,3,6,0,5,1,4,7,2); // 0x40000 - 0xfffff
+	}
+
+	// boot vector
+	rom[0x7ffc] = 0x19;
+	rom[0x7ffd] = 0x80;
+
+	// extra inputs
+   	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770071, 0x770071, 0, 0, iron_770071_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770073, 0x770073, 0, 0, iron_770073_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770079, 0x770079, 0, 0, iron_770079_r);
+	
+//	DRIVER_INIT_CALL(snes);
+	init_snes();
+}
+
+static DRIVER_INIT(ffight3b)
+{
+	INT32 i;
+	UINT8 *rom = memory_region(REGION_USER3);
+
+	for (i = 0; i < 0x300000; i++)
+	{
+		if (i < 0x80000)
+			rom[i] = BITSWAP8(rom[i], 7, 4, 2, 0, 3, 5, 6, 1) ^ 0xff;
+		else if (i < 0x280000)
+			rom[i] = BITSWAP8(rom[i], 0, 5, 1, 3, 2, 7, 6, 4);
+		else
+			rom[i] = BITSWAP8(rom[i], 4, 7, 0, 2, 5, 3, 1, 6) ^ 0xff;
+	}
+
+	// boot vector. TODO: this is the same as the console version, but needs to be verified
+	rom[0xfffc] = 0x00;
+	rom[0xfffd] = 0xfe;
+
+	// patch out protection
+	rom[0xfe33] = 0x5c;
+	rom[0xfe34] = 0x00;
+	rom[0xfe35] = 0x00;
+	rom[0xfe36] = 0xc0;
+	rom[0xfeab] = 0x60;
+	
+	// extra inputs
+   	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770071, 0x770071, 0, 0, iron_770071_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770073, 0x770073, 0, 0, iron_770073_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770079, 0x770079, 0, 0, iron_770079_r);
+	
+	init_snes_hirom();
+}
+
 ROM_START( kinstb )
 	ROM_REGION( 0x400000, REGION_USER3, ROMREGION_DISPOSE )
 	ROM_LOAD( "1.u14", 0x000000, 0x100000, CRC(70889919) SHA1(1451714cbdacb7f6ced2bc7afa478ad7264cf3b7) )
@@ -1263,6 +1330,62 @@ ROM_START( ffight2b )
 
 ROM_END
 
+ROM_START( ffight3b ) // CS101P049-1 PCB
+	ROM_REGION( 0x300000, REGION_USER3, ROMREGION_ERASEFF )
+	ROM_LOAD( "801.u6",  0x000000, 0x080000, CRC(b6c637a7) SHA1(8ab041b9d7ab4318002b11bb876bce8f9764f644) )
+	ROM_CONTINUE(        0x280000, 0x080000)
+	ROM_LOAD( "801.u7",  0x100000, 0x100000, CRC(efbdd541) SHA1(85c7a674bd976414e916b87239571615d255d7eb) )
+	ROM_LOAD( "801.u8",  0x200000, 0x080000, CRC(6e2f7309) SHA1(ad5f37d79590c4bc4b1d33432595eb9d53f1bb90) )
+	ROM_CONTINUE(        0x080000, 0x080000)
+	
+	ROM_REGION(0x100,     REGION_USER5, 0)
+	ROM_LOAD("spc700.rom", 0, 0x40, CRC(44bb3a40) SHA1(97e352553e94242ae823547cd853eecda55c20f0) )
+
+	ROM_REGION(0x800,     REGION_USER6, ROMREGION_ERASEFF)
+ROM_END
+
+
+ROM_START( legendsb )
+	ROM_REGION( 0x100000, REGION_USER3, 0 )
+	ROM_LOAD( "u37",   0x000000, 0x008000, BAD_DUMP CRC(bbcb643f) SHA1(f8c013a50ad43aca231032c731c14d298a7a1e31) ) // Combined from a number of bad dumps
+	ROM_CONTINUE(      0x088000, 0x008000 )
+	ROM_CONTINUE(      0x010000, 0x008000 )
+	ROM_CONTINUE(      0x098000, 0x008000 )
+	ROM_CONTINUE(      0x020000, 0x008000 )
+	ROM_CONTINUE(      0x0a8000, 0x008000 )
+	ROM_CONTINUE(      0x030000, 0x008000 )
+	ROM_CONTINUE(      0x0b8000, 0x008000 )
+	ROM_CONTINUE(      0x040000, 0x008000 )
+	ROM_CONTINUE(      0x0c8000, 0x008000 )
+	ROM_CONTINUE(      0x050000, 0x008000 )
+	ROM_CONTINUE(      0x0d8000, 0x008000 )
+	ROM_CONTINUE(      0x060000, 0x008000 )
+	ROM_CONTINUE(      0x0e8000, 0x008000 )
+	ROM_CONTINUE(      0x070000, 0x008000 )
+	ROM_CONTINUE(      0x0f8000, 0x008000 )
+	ROM_LOAD( "u36",   0x080000, 0x008000, CRC(c33a5362) SHA1(537b1b7ef22baa289523fac8f9843db155408c56) )
+	ROM_CONTINUE(      0x008000, 0x008000 )
+	ROM_CONTINUE(      0x090000, 0x008000 )
+	ROM_CONTINUE(      0x018000, 0x008000 )
+	ROM_CONTINUE(      0x0a0000, 0x008000 )
+	ROM_CONTINUE(      0x028000, 0x008000 )
+	ROM_CONTINUE(      0x0b0000, 0x008000 )
+	ROM_CONTINUE(      0x038000, 0x008000 )
+	ROM_CONTINUE(      0x0c0000, 0x008000 )
+	ROM_CONTINUE(      0x048000, 0x008000 )
+	ROM_CONTINUE(      0x0d0000, 0x008000 )
+	ROM_CONTINUE(      0x058000, 0x008000 )
+	ROM_CONTINUE(      0x0e0000, 0x008000 )
+	ROM_CONTINUE(      0x068000, 0x008000 )
+	ROM_CONTINUE(      0x0f0000, 0x008000 )
+	ROM_CONTINUE(      0x078000, 0x008000 )
+
+	ROM_REGION(0x100,           REGION_USER5, 0)
+	ROM_LOAD("spc700.rom", 0, 0x40, CRC(44bb3a40) SHA1(97e352553e94242ae823547cd853eecda55c20f0) )
+
+	ROM_REGION(0x800,           REGION_USER6, ROMREGION_ERASEFF)
+ROM_END
+
 ROM_START( sblast2b )
 	ROM_REGION( 0x180000, REGION_USER3, ROMREGION_DISPOSE )
 
@@ -1311,7 +1434,7 @@ ROM_START( endless )
 
 	ROM_REGION(0x800,     REGION_USER6, ROMREGION_ERASEFF)
 
-        ROM_REGION( 0x200000, REGION_USER7, ROMREGION_DISPOSE )
+    ROM_REGION( 0x200000, REGION_USER7, ROMREGION_DISPOSE )
 	ROM_LOAD( "endlessduel.unknownposition1", 0x000000, 0x80000, CRC(e49acd29) SHA1(ac137261fe7a7691738ac812bea9591256eb9038) )
 	ROM_LOAD( "endlessduel.unknownposition2", 0x080000, 0x80000, CRC(ad2052f9) SHA1(d61382e3d93eb0bff45fb534cec0ce5ae3626165) )
 	ROM_LOAD( "endlessduel.unknownposition3", 0x100000, 0x80000, CRC(30d06d7a) SHA1(17c617d94abb10c3bdf9d51013b116f4ef4debe8) )
@@ -1323,5 +1446,8 @@ GAME( 1996, ffight2b,     0,     ffight2b,	     ffight2b,  ffight2b,	ROT0, "boot
 GAME( 1997, sblast2b,     0,     kinstb,	     sblast2b,  sblast2b,	ROT0, "bootleg",	"Sonic Blast Man TURBO 2 (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_SOUND )
 GAME( 1996, iron,         0,     kinstb,	     iron,      iron,		ROT0, "bootleg",	"Iron (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, denseib,      0,     kinstb,	     denseib,   denseib,	ROT0, "bootleg",	"Ghost Chaser Densei (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, endless,      0,     kinstb,	     iron,      endless,        ROT0, "bootleg",	"Gundam Wing: Endless Duel (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-
+GAME( 1996, endless,      0,     kinstb,	     iron,      endless,    ROT0, "bootleg",	"Gundam Wing: Endless Duel (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+/*
+GAME( 199?, ffight3b,     0,     kinstb,         iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based on beta version? protected?
+GAME( 1996, legendsb,     0,     kinstb,         iron,      legendsb,   ROT0, "bootleg",    "Legend (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+*/
