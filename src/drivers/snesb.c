@@ -1546,12 +1546,12 @@ static DRIVER_INIT(wldgunsb)
 	// boot vector
 	dst[0x7ffc] = 0x40;
 	dst[0x7ffd] = 0x80;
-	
+
+	shared_ram=auto_malloc(0x22);
+
 	// initialize continue counter
 	shared_ram[0x10] = 9;
 	shared_ram[0x12] = 0;
-
-	shared_ram=auto_malloc(0x22);
 
 	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x781000, 0x781021, 0, 0, sharedram_r);
 	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x781000, 0x781021, 0, 0, sharedram_w);
@@ -1815,4 +1815,4 @@ GAME( 199?, ffight3b2,    ffight3b, kinstb,      iron,      ffight3b,   ROT0, "b
 GAME( 1996, legendsb,     0,     kinstb,         iron,      legendsb,   ROT0, "bootleg",    "Legend (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, rushbets,     0,     ffight2b,       sblast2b,  rushbets,   ROT0, "bootleg",    "Rushing Beat Shura (SNES bootleg)",  GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, venom,        0,     kinstb,         iron,      venom,      ROT0, "bootleg",    "Venom & Spider-Man - Separation Anxiety (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, wldgunsb,     0,     kinstb,         iron,      wldgunsb,   ROT0, "bootleg",    "Wild Guns (SNES bootleg)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based off Japanese version // crash at startup
+GAME( 1996, wldgunsb,     0,     kinstb,         iron,      wldgunsb,   ROT0, "bootleg",    "Wild Guns (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based off Japanese version
