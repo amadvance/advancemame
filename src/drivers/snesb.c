@@ -7,13 +7,14 @@
     Supported games:
     - Killer Instinct
     - Final Fight 2
-	- Final Fight 3
+    - Final Fight 3
     - Sonic Blast Man 2
-	- Iron (bootleg of Iron Commando)
-	- Ghost Chaser Densei
-	- Gundam Wing Endless Duel
-	- Legend
-	- Venom & Spider-Man - Separation Anxiety
+    - Iron (bootleg of Iron Commando)
+    - Ghost Chaser Densei
+    - Gundam Wing Endless Duel
+    - Legend
+    - Venom & Spider-Man - Separation Anxiety
+    - Wild Guns
 
 TODO:
 
@@ -269,6 +270,37 @@ READ8_HANDLER(rushbets_5b8e3c_r)
 {
 	/* protection check */
 	return ++cnt;
+}
+
+/* Wild Guns */
+READ8_HANDLER(wldgunsb_722262_r)
+{
+	// PC 2e2f6
+	return 0x2b;
+} 
+
+READ8_HANDLER(wldgunsb_723364_r)
+{
+	// PC b983
+	return 0x93;
+}
+
+READ8_HANDLER(wldgunsb_721197_r)
+{
+	// PC 2e30c
+	return 0xe4;
+}
+
+READ8_HANDLER(wldgunsb_72553b_r)
+{
+	// PC 2e216
+	return 0xbf;
+}
+
+READ8_HANDLER(wldgunsb_72443a_r)
+{
+	// PC 2e322
+	return 0x66;
 }
 
 static ADDRESS_MAP_START( snesb_map, ADDRESS_SPACE_PROGRAM, 8)
@@ -1462,6 +1494,91 @@ static DRIVER_INIT (rushbets)
 	init_snes_hirom();
 }
 
+static DRIVER_INIT(wldgunsb)
+{
+	int i, j;
+	UINT8 *src = memory_region(REGION_USER7);
+	UINT8 *dst = memory_region(REGION_USER3);
+
+	static UINT8 address_tab_high[0x20] = {
+		0x0b, 0x1d, 0x05, 0x15, 0x09, 0x19, 0x04, 0x13, 0x02, 0x1f, 0x07, 0x17, 0x0d, 0x11, 0x0a, 0x1a,
+		0x14, 0x0e, 0x18, 0x06, 0x1e, 0x01, 0x10, 0x0c, 0x1b, 0x0f, 0x16, 0x00, 0x12, 0x08, 0x1c, 0x03 
+	};
+
+	static UINT8 address_tab_low[0x40] = {
+		0x14, 0x1d, 0x11, 0x3c, 0x0a, 0x29, 0x2d, 0x2e, 0x30, 0x32, 0x16, 0x36, 0x05, 0x25, 0x26, 0x37,
+		0x20, 0x21, 0x27, 0x28, 0x33, 0x34, 0x23, 0x12, 0x1e, 0x1f, 0x3b, 0x24, 0x2c, 0x35, 0x38, 0x39,
+		0x3d, 0x0c, 0x2a, 0x0d, 0x22, 0x18, 0x19, 0x1a, 0x03, 0x08, 0x04, 0x3a, 0x0b, 0x0f, 0x15, 0x17,
+		0x1b, 0x13, 0x00, 0x1c, 0x2b, 0x01, 0x06, 0x2f, 0x07, 0x09, 0x02, 0x31, 0x10, 0x0e, 0x3f, 0x3e
+	};
+
+	static const UINT8 data_low[16] = {
+		0x30, 0xa8, 0x80, 0xb0, 0x90, 0x00, 0x20, 0xa0, 0x08, 0xb8, 0x38, 0x18, 0x88, 0x10, 0x28, 0x98
+	};
+
+	static const UINT8 data_high[16] = {
+		0x05, 0x43, 0x40, 0x45, 0x44, 0x00, 0x01, 0x41, 0x02, 0x47, 0x07, 0x06, 0x42, 0x04, 0x03, 0x46
+	};
+
+	for (i = 0; i < 0x100000; i++)
+	{
+		j = (address_tab_high[i >> 15] << 15) + (i & 0x7fc0) + address_tab_low[i & 0x3f];
+
+		dst[i] = data_high[src[j]>>4] | data_low[src[j]&0xf];
+
+		if (i >= 0x00000 && i < 0x10000) {
+			dst[i] = BITSWAP8(dst[i], 3, 1, 7, 0, 6, 4, 5, 2) ^ 0xff;
+		}
+
+		if (i >= 0x10000 && i < 0x20000) {
+			dst[i] = BITSWAP8(dst[i], 4, 7, 3, 2, 0, 1, 6, 5);
+		}
+
+		if (i >= 0x20000 && i < 0x30000) {
+			dst[i] = BITSWAP8(dst[i], 6, 0, 7, 1, 4, 3, 5, 2) ^ 0xff;
+		}
+
+		if (i >= 0x30000 && i < 0x40000) {
+			dst[i] = BITSWAP8(dst[i], 0, 2, 6, 4, 1, 5, 7, 3);
+		}
+	}
+
+	// boot vector
+	dst[0x7ffc] = 0x40;
+	dst[0x7ffd] = 0x80;
+	
+	// initialize continue counter
+	shared_ram[0][0x10] = 9;
+	shared_ram[0][0x12] = 0;
+
+	shared_ram=auto_malloc(0x22);
+
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x781000, 0x781021, 0, 0, sharedram_r);
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0x781000, 0x781021, 0, 0, sharedram_w);
+
+
+	// extra inputs
+   	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770071, 0x770071, 0, 0, iron_770071_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770073, 0x770073, 0, 0, iron_770073_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770079, 0x770079, 0, 0, iron_770079_r);
+	
+	
+	// protection overlays
+	// counter (PC=0x2dfe7 / 0x2dfee)
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x7bf45b, 0x7bf45b, 0, 0, sb2b_75bd37_r);
+
+	// these reads with a LDA but discards the upper 8-bit values
+	// POST
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x722262, 0x722262, 0, 0, wldgunsb_722262_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x723363, 0x723363, 0, 0, wldgunsb_723364_r);
+	// in-game
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x721197, 0x721197, 0, 0, wldgunsb_721197_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x72553b, 0x72553b, 0, 0, wldgunsb_72553b_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x72443a, 0x72443a, 0, 0, wldgunsb_72443a_r);
+
+	init_snes();
+}
+
 ROM_START( kinstb )
 	ROM_REGION( 0x400000, REGION_USER3, ROMREGION_DISPOSE )
 	ROM_LOAD( "1.u14", 0x000000, 0x100000, CRC(70889919) SHA1(1451714cbdacb7f6ced2bc7afa478ad7264cf3b7) )
@@ -1674,6 +1791,19 @@ ROM_START( venom )
     ROM_LOAD( "u34.bin", 0x280000, 0x0080000, CRC(7a09c9e0) SHA1(794965d5501ec0e21f1f3a8cb8fd66f913d42760) )
 ROM_END
 
+ROM_START( wldgunsb )
+	ROM_REGION( 0x100000, REGION_USER3, ROMREGION_ERASEFF )
+
+	ROM_REGION(0x100,     REGION_USER5, 0)
+	ROM_LOAD("spc700.rom", 0, 0x40, CRC(44bb3a40) SHA1(97e352553e94242ae823547cd853eecda55c20f0) )
+
+	ROM_REGION(0x800,     REGION_USER6, ROMREGION_ERASEFF)
+
+	ROM_REGION( 0x100000, REGION_USER7, ROMREGION_DISPOSE )
+	ROM_LOAD( "c19.bin", 0x000000, 0x080000, CRC(59df0dc8) SHA1(d18b7f204ad4e0fcd64c2e2a25d60b64930419e7) )
+	ROM_LOAD( "c20.bin", 0x080000, 0x080000, CRC(62ae4acb) SHA1(62aa320bcc7eeedb00c70baa909ac0230256c9a4) )
+ROM_END
+
 GAME( 199?, kinstb,       0,     kinstb,	     kinstb,    kinstb,		ROT0, "bootleg",	"Killer Instinct (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, ffight2b,     0,     ffight2b,	     ffight2b,  ffight2b,	ROT0, "bootleg",	"Final Fight 2 (SNES bootleg)", GAME_IMPERFECT_SOUND )
 GAME( 1997, sblast2b,     0,     kinstb,	     sblast2b,  sblast2b,	ROT0, "bootleg",	"Sonic Blast Man TURBO 2 (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_SOUND )
@@ -1686,4 +1816,5 @@ GAME( 199?, ffight3b2,    ffight3b, kinstb,      iron,      ffight3b,   ROT0, "b
 GAME( 1996, legendsb,     0,     kinstb,         iron,      legendsb,   ROT0, "bootleg",    "Legend (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, rushbets,     0,     kinstb,         sblast2b,  rushbets,   ROT0, "bootleg",    "Rushing Beat Shura (SNES bootleg)",  GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, venom,        0,     kinstb,         iron,      venom,      ROT0, "bootleg",    "Venom & Spider-Man - Separation Anxiety (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, wldgunsb,     0,     kinstb,         iron,      wldgunsb,   ROT0, "bootleg",    "Wild Guns (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based off Japanese version
 */
