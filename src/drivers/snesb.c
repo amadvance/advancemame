@@ -1320,7 +1320,7 @@ static DRIVER_INIT(legendsb)
 
 static DRIVER_INIT(ffight3b)
 {
-	INT32 i;
+	int i;
 	UINT8 *rom = memory_region(REGION_USER3);
 
 	for (i = 0; i < 0x300000; i++)
