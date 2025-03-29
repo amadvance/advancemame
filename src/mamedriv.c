@@ -1374,6 +1374,7 @@ const game_driver * const drivers[] =
 	DRIVER( dynablsb )	/* bootleg */
 	DRIVER( bombrman )	/* (c) 1991 Irem (Japan) */
 	DRIVER( atompunk )	/* (c) 1991 Irem America (licensed from Hudson Soft) */
+	DRIVER( dicegame )	/* (c) 1991 Bootleg */
 	/* M97 */
 	DRIVER( bbmanw )	/* (c) 1992 Irem (World) */
 	DRIVER( bbmanwj )	/* (c) 1992 Irem (Japan) */

@@ -19,6 +19,10 @@ Notes:
 - Not sure about the clock speeds. In hasamu and quizf1 service mode, the
   selection moves too fast with the clock set at 16 MHz. It's still fast at
   8 MHz, but at least it's usable.
+  
+- Probably all games use a nec V35+ cpu: for gussun and risky challenge
+  we need a proper V35+ core for the use of the 0x63 instruction (brkn, to call a unencrypted
+  routine from encrypted code); for simulate the instruction there's an hack (m90_game_kludge).
 
 *****************************************************************************/
 
@@ -32,6 +36,7 @@ Notes:
 static UINT32 bankaddress;
 
 extern UINT8 *m90_video_data;
+extern int m90_game_kludge;
 
 VIDEO_UPDATE( m90 );
 VIDEO_UPDATE( m90_bootleg );
@@ -126,6 +131,13 @@ static ADDRESS_MAP_START( writeport, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x00, 0x01) AM_WRITE(m72_sound_command_w)
 	AM_RANGE(0x02, 0x03) AM_WRITE(m90_coincounter_w)
 	AM_RANGE(0x04, 0x05) AM_WRITE(quizf1_bankswitch_w)
+	AM_RANGE(0x80, 0x8f) AM_WRITE(m90_video_control_w)
+ADDRESS_MAP_END
+
+/* to avoid a non valid bankcall message on boot */
+static ADDRESS_MAP_START( dice_writeport, ADDRESS_SPACE_IO, 8 )
+	AM_RANGE(0x00, 0x01) AM_WRITE(m72_sound_command_w)
+	AM_RANGE(0x02, 0x03) AM_WRITE(m90_coincounter_w)
 	AM_RANGE(0x80, 0x8f) AM_WRITE(m90_video_control_w)
 ADDRESS_MAP_END
 
@@ -599,16 +611,16 @@ INPUT_PORTS_START( riskchal )
 	PORT_DIPSETTING(    0x01, "4" )
 	PORT_DIPSETTING(    0x00, "5" )
 	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Difficulty ) )
-	PORT_DIPSETTING(    0x08, DEF_STR( Easy ) )
-	PORT_DIPSETTING(    0x0c, DEF_STR( Medium ) )
-	PORT_DIPSETTING(    0x04, DEF_STR( Hard ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
-	PORT_DIPNAME( 0x10, 0x10, "Game Title" )	/* Manual says "NOT USE" */
-	PORT_DIPSETTING(    0x10, "Bomber Man World" )
-	PORT_DIPSETTING(    0x00, "New Dyna Blaster Global Quest" )
-	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Allow_Continue ) )
-	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
-	PORT_DIPSETTING(    0x20, DEF_STR( Yes ) )
+	PORT_DIPSETTING(    0x08, "Easy" )
+	PORT_DIPSETTING(    0x0c, "Medium" )
+	PORT_DIPSETTING(    0x04, "Hard" )
+	PORT_DIPSETTING(    0x00, "Hardest" )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Demo_Sounds ) )
 	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
@@ -618,21 +630,66 @@ INPUT_PORTS_START( riskchal )
 	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Flip_Screen ) )
 	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-	PORT_DIPNAME( 0x06, 0x06, DEF_STR( Cabinet ) )
-	PORT_DIPSETTING(    0x04, "2 Player" )
-	PORT_DIPSETTING(    0x06, "4 Player Seprate Coins" )		/* Each player has a seperate Coin Slot */
-	PORT_DIPSETTING(    0x02, "4 Player Shared Coins" )		/* All 4 players Share coin 1&2 */
-	PORT_DIPSETTING(    0x00, "4 Player 1&2 3&4 Share Coins" )	/* Players 1&2 share coin 1&2, Players 3&4 share coin 3&4 */
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
 	PORT_DIPNAME( 0x08, 0x08, "Coin Mode" )
 	PORT_DIPSETTING(    0x08, "1" )
 	PORT_DIPSETTING(    0x00, "2" )
 	/* Coin Mode 1 */
 	IREM_COIN_MODE_1_NEW
 	/* Coin Mode 2, not supported yet */
-//  IREM_COIN_MODE_2
+/*	IREM_COIN_MODE_2 */
+INPUT_PORTS_END
 
-	IREM_JOYSTICK_3_4(3)
-	IREM_JOYSTICK_3_4(4)
+INPUT_PORTS_START( dicegame )
+	IREM_JOYSTICK_1_2(1)
+	IREM_JOYSTICK_1_2(2)
+	IREM_COINS
+
+	PORT_START	/* Dip switch bank 1 */
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x02, "2" )
+	PORT_DIPSETTING(    0x03, "3" )
+	PORT_DIPSETTING(    0x01, "4" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) ) /* Probably difficulty */
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_SERVICE( 0x80, IP_ACTIVE_LOW )
+
+	PORT_START	/* Dip switch bank 2 */
+	PORT_DIPNAME( 0x01, 0x01, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, "Coin Mode" )
+	PORT_DIPSETTING(    0x08, "1" )
+	PORT_DIPSETTING(    0x00, "2" )
+	/* Coin Mode 1 */
+	IREM_COIN_MODE_1_NEW
+	/* Coin Mode 2, not supported yet */
+//	IREM_COIN_MODE_2
 INPUT_PORTS_END
 
 /*****************************************************************************/
@@ -830,6 +887,88 @@ static MACHINE_DRIVER_START( bomblord )
 
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( dicegame )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(V30,32000000/4)	/* 8 MHz ??????? */
+	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
+	MDRV_CPU_IO_MAP(readport,dice_writeport)
+	MDRV_CPU_VBLANK_INT(m90_interrupt,1)
+
+	MDRV_CPU_ADD(Z80, 3579545)
+	/* audio CPU */	/* 3.579545 MHz */
+	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
+	MDRV_CPU_IO_MAP(sound_readport,sound_writeport)
+	MDRV_CPU_VBLANK_INT(nmi_line_pulse,128)	/* clocked by V1? (Vigilante) */
+								/* IRQs are generated by main Z80 and YM2151 */
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	MDRV_MACHINE_RESET(m72_sound)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(64*8, 64*8)
+	MDRV_VISIBLE_AREA(10*8, 50*8-1, 17*8, 47*8-1)
+	MDRV_GFXDECODE(gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(512)
+
+	MDRV_VIDEO_START(m90)
+	MDRV_VIDEO_UPDATE(m90)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(YM2151, 3579545)
+	MDRV_SOUND_CONFIG(ym2151_interface)
+	MDRV_SOUND_ROUTE(0, "mono", 0.90)
+	MDRV_SOUND_ROUTE(1, "mono", 0.90)
+
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.60)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( riskchal )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(V30,32000000/4)	/* 8 MHz ??????? */
+	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
+	MDRV_CPU_IO_MAP(readport,writeport)
+	MDRV_CPU_VBLANK_INT(m90_interrupt,1)
+
+	MDRV_CPU_ADD(Z80, 3579545)
+	/* audio CPU */	/* 3.579545 MHz */
+	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
+	MDRV_CPU_IO_MAP(sound_readport,sound_writeport)
+	MDRV_CPU_VBLANK_INT(nmi_line_pulse,128)	/* clocked by V1? (Vigilante) */
+								/* IRQs are generated by main Z80 and YM2151 */
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	MDRV_MACHINE_RESET(m72_sound)
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(64*8, 64*8)
+	MDRV_VISIBLE_AREA(10*8, 50*8-1, 17*8, 47*8-1)
+	MDRV_GFXDECODE(gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(512)
+
+	MDRV_VIDEO_START(m90)
+	MDRV_VIDEO_UPDATE(m90)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(YM2151, 3579545)
+	MDRV_SOUND_CONFIG(ym2151_interface)
+	MDRV_SOUND_ROUTE(0, "mono", 0.90)
+	MDRV_SOUND_ROUTE(1, "mono", 0.90)
+
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.60)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( bootleg )
 
 	/* basic machine hardware */
@@ -869,6 +1008,7 @@ static MACHINE_DRIVER_START( bootleg )
 	MDRV_SOUND_ADD(DAC, 0)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.60)
 MACHINE_DRIVER_END
+
 
 /***************************************************************************/
 
@@ -1144,15 +1284,37 @@ ROM_START( shisen2 )
 	/* Does this have a sample rom? */
 ROM_END
 
+/*This is a clone of Dice Dice Dice (Irem Corp, 1991). It came from Germany sold by Tuning, and is JP language. */
+ROM_START( dicegame )
+	ROM_REGION( CODE_SIZE, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "dice-p1.ic61",  0x00001, 0x20000, CRC(8f2257d8) SHA1(d804c0ca7cd70bdc30c028607040eaf260d877d4) )
+	ROM_LOAD16_BYTE( "dice-p0.ic65",  0x00000, 0x20000, CRC(9c191d18) SHA1(5016b0c688cfd62aee5b829653f28ab1889e5b46) )
+	ROM_COPY( REGION_CPU1, 0x3fff0,  0xffff0, 0x10 )  /* start vector */
+
+	ROM_REGION( 0x20000, REGION_CPU2, 0 )
+	ROM_LOAD( "dice-sp.ic23",    0x0000, 0x20000, CRC(73e8796e) SHA1(3edcc462254ec42a80be036e3c87c3a506b00679) )
+ 
+	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "dice-c0.ic66",    0x000000, 0x20000, CRC(a1eda342) SHA1(59f23528d0d04115a0bd062911772446e342520d) )
+	ROM_LOAD( "dice-c1.ic67",    0x020000, 0x20000, CRC(20850a15) SHA1(b1e3478ae883a9de5accd3b79a64b27138c79829) )
+	ROM_LOAD( "dice-c2.ic68",    0x040000, 0x20000, CRC(6c39915f) SHA1(5862f2b442417c243e4c34122f88d4903497d8f4) )
+	ROM_LOAD( "dice-c3.ic69",    0x060000, 0x20000, CRC(81d58e68) SHA1(af0e34f276d2607f5c7ed2c50e417b2e7fcef83d) )
+
+	ROM_REGION( 0x20000, REGION_SOUND1, 0 ) /* samples */
+	ROM_LOAD( "dice-v0.ic20",    0x0000, 0x20000, CRC(04dc9196) SHA1(3e3ecbf0e2b6e691f9894698aaf41a64ec7b41f1) )
+ROM_END
+
 
 
 static DRIVER_INIT( hasamu )
 {
+	m90_game_kludge=0;
 	irem_cpu_decrypt(0,gunforce_decryption_table);
 }
 
 static DRIVER_INIT( bombrman )
 {
+	m90_game_kludge=0;
 	irem_cpu_decrypt(0,bomberman_decryption_table);
 }
 
@@ -1173,6 +1335,7 @@ static READ8_HANDLER( bbmanw_ram_read )
 
 static DRIVER_INIT( bbmanw )
 {
+	m90_game_kludge=0;
 	irem_cpu_decrypt(0,dynablaster_decryption_table);
 
 	bbmanw_ram_base = memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xa0c00, 0xa0cff, 0, 0, bbmanw_ram_write);
@@ -1181,6 +1344,7 @@ static DRIVER_INIT( bbmanw )
 
 static DRIVER_INIT( quizf1 )
 {
+	m90_game_kludge=0;
 	irem_cpu_decrypt(0,lethalth_decryption_table);
 
 	bankaddress = 0;
@@ -1190,18 +1354,32 @@ static DRIVER_INIT( quizf1 )
 	state_save_register_func_postload(set_m90_bank);
 }
 
+static DRIVER_INIT( gussun )
+{
+	m90_game_kludge=2;
+	irem_cpu_decrypt(0,gussun_decryption_table);
+}
+
 static DRIVER_INIT( riskchal )
 {
+	m90_game_kludge=1;
 	irem_cpu_decrypt(0,gussun_decryption_table);
 }
 
 static DRIVER_INIT( matchit2 )
 {
+	m90_game_kludge=0;
 	irem_cpu_decrypt(0,matchit2_decryption_table);
+}
+
+static DRIVER_INIT( dicegame )
+{
+	m90_game_kludge=0;
 }
 
 static DRIVER_INIT( bomblord )
 {
+	m90_game_kludge=0;
 	UINT8 *RAM = memory_region(REGION_CPU1);
 
 	int i;
@@ -1221,6 +1399,7 @@ static DRIVER_INIT( bomblord )
 
 
 GAME( 1991, hasamu,   0,        m90,      hasamu,   hasamu,   ROT0, "Irem", "Hasamu (Japan)", GAME_NO_COCKTAIL )
+GAME( 1991, dicegame, 0,        dicegame, dicegame, dicegame, ROT0, "bootleg (Tuning)", "Dice - The Dice Game", GAME_NO_COCKTAIL )
 GAME( 1991, dynablst, 0,        bombrman, dynablst, bombrman, ROT0, "Irem (licensed from Hudson Soft)", "Dynablaster / Bomber Man", GAME_NO_COCKTAIL )
 GAME( 1991, bombrman, dynablst, bombrman, bombrman, bombrman, ROT0, "Irem (licensed from Hudson Soft)", "Bomber Man (Japan)", GAME_NO_COCKTAIL )
 GAME( 1991, atompunk, dynablst, bombrman, atompunk, bombrman, ROT0, "Irem America (licensed from Hudson Soft)", "Atomic Punk (US)", GAME_NO_COCKTAIL )
@@ -1229,8 +1408,8 @@ GAME( 1992, bbmanw,   0,        bbmanw,   bbmanw,   bbmanw,   ROT0, "Irem", "Bom
 GAME( 1992, bbmanwj,  bbmanw,   bombrman, bbmanwj,  bbmanw,   ROT0, "Irem", "Bomber Man World (Japan)", GAME_NO_COCKTAIL )
 GAME( 1992, newapunk, bbmanw,   bbmanw,   bbmanwj,  bbmanw,   ROT0, "Irem America", "New Atomic Punk - Global Quest (US)", GAME_NO_COCKTAIL )
 GAME( 1992, bomblord, bbmanw,   bomblord, bbmanw,   bomblord, ROT0, "bootleg", "Bomber Lord (bootleg)", GAME_IMPERFECT_SOUND | GAME_NO_COCKTAIL | GAME_NOT_WORKING )
-GAME( 1992, quizf1,   0,        quizf1,   quizf1,   quizf1,   ROT0, "Irem", "Quiz F-1 1,2finish", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_GRAPHICS | GAME_NO_COCKTAIL )
-GAME( 1993, riskchal, 0,        m90,      riskchal, riskchal, ROT0, "Irem", "Risky Challenge", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
-GAME( 1993, gussun,   riskchal, m90,      riskchal, riskchal, ROT0, "Irem", "Gussun Oyoyo (Japan)", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
-GAME( 1993, matchit2, 0,        quizf1,   matchit2, matchit2, ROT0, "Tamtex", "Match It II", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
-GAME( 1993, shisen2,  matchit2, quizf1,   shisen2,  matchit2, ROT0, "Tamtex", "Shisensho II", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
+GAME( 1992, quizf1,   0,        quizf1,   quizf1,   quizf1,   ROT0, "Irem", "Quiz F-1 1,2finish", GAME_NO_COCKTAIL )
+GAME( 1993, riskchal, 0,        riskchal, riskchal, riskchal, ROT0, "Irem", "Risky Challenge", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
+GAME( 1993, gussun,   riskchal, riskchal, riskchal, gussun,   ROT0, "Irem", "Gussun Oyoyo (Japan)", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
+GAME( 1993, matchit2, 0,        quizf1,   matchit2, matchit2, ROT0, "Tamtex", "Match It II", GAME_NO_COCKTAIL )
+GAME( 1993, shisen2,  matchit2, quizf1,   shisen2,  matchit2, ROT0, "Tamtex", "Shisensho II", GAME_NO_COCKTAIL )
