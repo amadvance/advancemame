@@ -30,6 +30,7 @@
 
 /* the first match is used */
 
+{ "dicegame", 2 }, /* 4.1 */
 { "tmntmwb", 3 }, /* 4.1 */
 { "legendsb", 13 }, /* 4.1 */
 { "rushbets", 6 }, /* 4.1 */
