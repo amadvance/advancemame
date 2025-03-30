@@ -53,6 +53,7 @@ READ8_HANDLER( flstory_mcu_status_r );
 WRITE8_HANDLER( victnine_mcu_w );
 READ8_HANDLER( victnine_mcu_r );
 READ8_HANDLER( victnine_mcu_status_r );
+UINT8 *victnine_workram;
 
 
 static UINT8 snd_data;
@@ -266,7 +267,7 @@ static ADDRESS_MAP_START( victnine_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xdce0, 0xdce0) AM_WRITE(victnine_gfxctrl_w)
 	AM_RANGE(0xdce1, 0xdce1) AM_WRITE(MWA8_NOP)	/* unknown */
 	AM_RANGE(0xdd00, 0xdeff) AM_WRITE(flstory_palette_w)
-	AM_RANGE(0xe000, 0xe7ff) AM_WRITE(MWA8_RAM)	/* work RAM */
+	AM_RANGE(0xe000, 0xe7ff) AM_WRITE(MWA8_RAM) AM_BASE(&victnine_workram) /* work RAM */
 ADDRESS_MAP_END
 
 
