@@ -38,8 +38,6 @@
 #include "driver.h"
 #include "irem_cpu.h"
 
-int m90_game_kludge;
-
 /* CAVEATS:*/
 /* 0x80 and 0x82 pre- opcodes can easily be confused. They perform exactly the same*/
 /* function when operating on memory, but when working with registers one affects*/
@@ -698,41 +696,6 @@ void irem_cpu_decrypt(int cpu,const UINT8 *decryption_table)
 	memory_set_decrypted_region(cpu,0,size-1,irem_cpu_decrypted);
 	for (A = 0;A < size;A++)
 		irem_cpu_decrypted[A] = decryption_table[rom[A]];
-
-	// robiza note:
-	// for "gussun" and "riskchal" is necessary an hack to not decrypt not encrypted routines
-	// we need a real nec v25+/35+ core to support 0x63 (brkn for "break native") instruction
-	// for now we use "cd" (int) instruction + hack
-
-	if (m90_game_kludge==1) // for riskchal
-		{
-			for (A = 0xa8fd;A < 0xa90c; A++)
-				irem_cpu_decrypted[A] = rom[A];
-			for (A = 0x12b3a;A < 0x12b4b; A++)
-				irem_cpu_decrypted[A] = rom[A];
-			for (A = 0x13500;A < 0x13510; A++)
-				irem_cpu_decrypted[A] = rom[A];
-			for (A = 0x14be5;A < 0x14bf5; A++)
-				irem_cpu_decrypted[A] = rom[A];
-			for (A = 0x130de;A < 0x130eb; A++)
-				irem_cpu_decrypted[A] = rom[A];
-			for (A = 0x147a4;A < 0x147bf; A++)
-				irem_cpu_decrypted[A] = rom[A];
-
-		}
-	if (m90_game_kludge==2) // for gussun
-		{
-			for (A = 0xa8fd;A < 0xa90c; A++)
-				irem_cpu_decrypted[A] = rom[A];
-			for (A = 0x1369c;A < 0x136ac; A++)
-				irem_cpu_decrypted[A] = rom[A];
-			for (A = 0x14ec8;A < 0x14ed8; A++)
-				irem_cpu_decrypted[A] = rom[A];
-			for (A = 0x13246;A < 0x13253; A++)
-				irem_cpu_decrypted[A] = rom[A];
-			for (A = 0x14a7d;A < 0x14a98; A++)
-				irem_cpu_decrypted[A] = rom[A];
-		}
 
 /*
     for (A=0; A<256; A++) {
