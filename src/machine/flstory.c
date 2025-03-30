@@ -206,9 +206,7 @@ WRITE8_HANDLER( victnine_mcu_w )
 		}
 		else if (data >= 0x38 && data <= 0x3a)
 		{
-			UINT8 *RAM = memory_region(REGION_CPU1);
-
-			from_mcu = RAM[0xe691 - 0x38 + data];
+			from_mcu = victnine_workram[0x691 - 0x38 + data];
 		}
 		else
 		{
