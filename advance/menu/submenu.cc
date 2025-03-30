@@ -1506,7 +1506,7 @@ void run_stat(config_state& rs)
 		if (!i->emulator_get()->filter(*i))
 			continue;
 
-		log_std(("%s\n", i->name_get().c_str()));
+		log_std(("%s %s\n", i->name_get().c_str(), i->description_get().c_str()));
 
 		select_count += 1;
 		select_session += session;
