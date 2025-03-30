@@ -139,7 +139,7 @@ READ8_HANDLER( flstory_mcu_status_r )
 }
 
 
-#define VICTNINE_MCU_SEED	(memory_region(REGION_CPU1)[0xE685])
+#define VICTNINE_MCU_SEED (victnine_workram[0x685])
 
 static UINT8 victnine_mcu_data[0x100] =
 {
