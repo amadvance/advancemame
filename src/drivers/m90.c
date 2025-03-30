@@ -36,7 +36,6 @@ Notes:
 static UINT32 bankaddress;
 
 extern UINT8 *m90_video_data;
-extern int m90_game_kludge;
 
 VIDEO_UPDATE( m90 );
 VIDEO_UPDATE( m90_bootleg );
@@ -1209,7 +1208,7 @@ ROM_START( quizf1 )
 ROM_END
 
 ROM_START( riskchal )
-	ROM_REGION( CODE_SIZE * 2, REGION_CPU1, 0 )
+	ROM_REGION( CODE_SIZE, REGION_CPU1, 0 )
 	ROM_LOAD16_BYTE( "rc_h0.rom",    0x00001, 0x40000, CRC(4c9b5344) SHA1(61e26950a672c6404e2386acdd098536b61b9933) )
 	ROM_LOAD16_BYTE( "rc_l0.rom",    0x00000, 0x40000, CRC(0455895a) SHA1(1072b8d280f7ccc48cd8fbd81323e1f8c8d0db95) )
 	ROM_COPY( REGION_CPU1, 0x7fff0,  0xffff0, 0x10 )	/* start vector */
@@ -1228,7 +1227,7 @@ ROM_START( riskchal )
 ROM_END
 
 ROM_START( gussun )
-	ROM_REGION( CODE_SIZE * 2, REGION_CPU1, 0 )
+	ROM_REGION( CODE_SIZE, REGION_CPU1, 0 )
 	ROM_LOAD16_BYTE( "l4_h0.rom",    0x00001, 0x40000, CRC(9d585e61) SHA1(e108a9dc2dc1b75c1439271a2391f943c3a53fe1) )
 	ROM_LOAD16_BYTE( "l4_l0.rom",    0x00000, 0x40000, CRC(c7b4c519) SHA1(44887ccf54f5e507d2db4f09a7c2b7b9ea217058) )
 	ROM_COPY( REGION_CPU1, 0x7fff0,  0xffff0, 0x10 )	/* start vector */
@@ -1308,13 +1307,11 @@ ROM_END
 
 static DRIVER_INIT( hasamu )
 {
-	m90_game_kludge=0;
 	irem_cpu_decrypt(0,gunforce_decryption_table);
 }
 
 static DRIVER_INIT( bombrman )
 {
-	m90_game_kludge=0;
 	irem_cpu_decrypt(0,bomberman_decryption_table);
 }
 
@@ -1335,7 +1332,6 @@ static READ8_HANDLER( bbmanw_ram_read )
 
 static DRIVER_INIT( bbmanw )
 {
-	m90_game_kludge=0;
 	irem_cpu_decrypt(0,dynablaster_decryption_table);
 
 	bbmanw_ram_base = memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xa0c00, 0xa0cff, 0, 0, bbmanw_ram_write);
@@ -1344,7 +1340,6 @@ static DRIVER_INIT( bbmanw )
 
 static DRIVER_INIT( quizf1 )
 {
-	m90_game_kludge=0;
 	irem_cpu_decrypt(0,lethalth_decryption_table);
 
 	bankaddress = 0;
@@ -1356,30 +1351,21 @@ static DRIVER_INIT( quizf1 )
 
 static DRIVER_INIT( gussun )
 {
-	m90_game_kludge=2;
 	irem_cpu_decrypt(0,gussun_decryption_table);
 }
 
 static DRIVER_INIT( riskchal )
 {
-	m90_game_kludge=1;
 	irem_cpu_decrypt(0,gussun_decryption_table);
 }
 
 static DRIVER_INIT( matchit2 )
 {
-	m90_game_kludge=0;
 	irem_cpu_decrypt(0,matchit2_decryption_table);
-}
-
-static DRIVER_INIT( dicegame )
-{
-	m90_game_kludge=0;
 }
 
 static DRIVER_INIT( bomblord )
 {
-	m90_game_kludge=0;
 	UINT8 *RAM = memory_region(REGION_CPU1);
 
 	int i;
@@ -1399,7 +1385,7 @@ static DRIVER_INIT( bomblord )
 
 
 GAME( 1991, hasamu,   0,        m90,      hasamu,   hasamu,   ROT0, "Irem", "Hasamu (Japan)", GAME_NO_COCKTAIL )
-GAME( 1991, dicegame, 0,        dicegame, dicegame, dicegame, ROT0, "bootleg (Tuning)", "Dice - The Dice Game", GAME_NO_COCKTAIL )
+GAME( 1991, dicegame, 0,        dicegame, dicegame, 0,        ROT0, "bootleg (Tuning)", "Dice - The Dice Game", GAME_NO_COCKTAIL )
 GAME( 1991, dynablst, 0,        bombrman, dynablst, bombrman, ROT0, "Irem (licensed from Hudson Soft)", "Dynablaster / Bomber Man", GAME_NO_COCKTAIL )
 GAME( 1991, bombrman, dynablst, bombrman, bombrman, bombrman, ROT0, "Irem (licensed from Hudson Soft)", "Bomber Man (Japan)", GAME_NO_COCKTAIL )
 GAME( 1991, atompunk, dynablst, bombrman, atompunk, bombrman, ROT0, "Irem America (licensed from Hudson Soft)", "Atomic Punk (US)", GAME_NO_COCKTAIL )
