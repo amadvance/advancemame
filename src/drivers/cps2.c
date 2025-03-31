@@ -7927,7 +7927,7 @@ GAME( 2000, mmatrixj, mmatrix, cps2, 19xx,    cps2, ROT0,   "Capcom, supported b
 
 GAME( 2000, mpangj,   0,       cps2, ssf2,    cps2, ROT0,   "Mitchell, distributed by Capcom", "Mighty! Pang (Japan 001011)", 0 )
 GAME( 2001, pzloop2j, 0,       cps2, puzloop2, puzloop2, ROT0,   "Mitchell, distributed by Capcom", "Puzz Loop 2 (Japan 010205)", 0 )
-GAME( 2001, choko,    0,       cps2, cps2,    cps2, ROT0,   "Mitchell, distributed by Capcom", "Choko (Japan 010820)", GAME_IMPERFECT_GRAPHICS )
+GAME( 2001, choko,    0,       cps2, cps2,    cps2, ROT0,   "Mitchell, distributed by Capcom", "Choko (Japan 010820)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // complete garbled graphics
 
 /* Games released on CPS-2 hardware by Eighting/Raizing */
 

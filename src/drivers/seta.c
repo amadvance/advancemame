@@ -9147,7 +9147,7 @@ GAME( 1993, madshark, 0,        madshark, madshark, 0,        ROT270, "Allumer",
 GAME( 1993, msgundam, 0,        msgundam, msgundam, 0,        ROT0,   "Banpresto",              "Mobile Suit Gundam", 0 )
 GAME( 1993, msgunda1, msgundam, msgundam, msgunda1, 0,        ROT0,   "Banpresto",              "Mobile Suit Gundam (Japan)", 0 )
 GAME( 1993, oisipuzl, 0,        oisipuzl, oisipuzl, 0,        ROT0,   "Sunsoft + Atlus",        "Oishii Puzzle Ha Irimasenka", 0 )
-GAME( 1993, qzkklgy2, 0,        qzkklgy2, qzkklgy2, 0,        ROT0,   "Tecmo",                  "Quiz Kokology 2", 0 )
+GAME( 1993, qzkklgy2, 0,        qzkklgy2, qzkklgy2, 0,        ROT0,   "Tecmo",                  "Quiz Kokology 2", GAME_NOT_WORKING ) // test screen report ROM ERROR
 GAME( 1993, triplfun, oisipuzl, triplfun, oisipuzl, 0,        ROT0,   "bootleg",                "Triple Fun", 0 )
 GAME( 1993, utoukond, 0,        utoukond, utoukond, 0,        ROT0,   "Banpresto + Tsuburaya Prod.", "Ultra Toukon Densetsu (Japan)", 0 )
 GAME( 1993, wrofaero, 0,        wrofaero, wrofaero, 0,        ROT270, "Yang Cheng",             "War of Aero - Project MEIOU", 0 )

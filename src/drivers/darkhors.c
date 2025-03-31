@@ -688,4 +688,4 @@ static DRIVER_INIT( darkhors )
 		eeprom[i] = eeprom[i*2];
 }
 
-GAME( 2001, darkhors, 0, darkhors, darkhors, darkhors, ROT0, "bootleg", "Dark Horse", GAME_IMPERFECT_GRAPHICS )
+GAME( 2001, darkhors, 0, darkhors, darkhors, darkhors, ROT0, "bootleg", "Dark Horse", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // inserting coin doesn't work

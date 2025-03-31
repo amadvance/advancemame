@@ -4042,7 +4042,7 @@ GAMEB( 1998, grdforce,  stvbios, stvbios, stv, stv,  grdforce,  ROT0,   "Success
 GAMEB( 1996, groovef,   stvbios, stvbios, stv, stv,  groovef,   ROT0,   "Atlus",    				  "Power Instinct 3 - Groove On Fight (J 970416 V1.001)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1998, hanagumi,  stvbios, stvbios, stv, stv,  hanagumi,  ROT0,   "Sega",     				  "Hanagumi Taisen Columns - Sakura Wars (J 971007 V1.010)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 GAMEB( 1996, introdon,  stvbios, stvbios, stv, stv,  ic13,		ROT0,   "Sunsoft / Success", 		  "Karaoke Quiz Intro Don Don! (J 960213 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAMEB( 1995, kiwames,   stvbios, stvbios, stv, stvmp,ic13,      ROT0,   "Athena",   				  "Pro Mahjong Kiwame S (J 951020 V1.208)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAMEB( 1995, kiwames,   stvbios, stvbios, stv, stvmp,ic13,      ROT0,   "Athena",   				  "Pro Mahjong Kiwame S (J 951020 V1.208)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // not passing the test screen, error on cartridge
 GAMEB( 1997, maruchan,  stvbios, stvbios, stv, stv,  maruchan,  ROT0,   "Sega / Toyosuisan", 	      "Maru-Chan de Goo! (J 971216 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1995, mausuke,   stvbios, stvbios, stv, stv,  mausuke,   ROT0,   "Data East",				  "Mausuke no Ojama the World (J 960314 V1.000)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAMEB( 1998, othellos,  stvbios, stvbios, stv, stv,  othellos,  ROT0,   "Success",  				  "Othello Shiyouyo (J 980423 V1.002)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
