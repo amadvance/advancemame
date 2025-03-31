@@ -1303,44 +1303,26 @@ ROM_START( dicegame )
 	ROM_LOAD( "dice-v0.ic20",    0x0000, 0x20000, CRC(04dc9196) SHA1(3e3ecbf0e2b6e691f9894698aaf41a64ec7b41f1) )
 ROM_END
 
-
+extern const UINT8* v25v35_decryptiontable;
 
 static DRIVER_INIT( hasamu )
 {
-	irem_cpu_decrypt(0,gunforce_decryption_table);
+	v25v35_decryptiontable = gunforce_decryption_table;
 }
 
 static DRIVER_INIT( bombrman )
 {
-	irem_cpu_decrypt(0,bomberman_decryption_table);
-}
-
-/* Bomberman World executes encrypted code from RAM! */
-static UINT8 *bbmanw_ram_base;
-extern UINT8 *irem_cpu_decrypted;
-
-static WRITE8_HANDLER( bbmanw_ram_write )
-{
-	bbmanw_ram_base[offset]=data;
-	irem_cpu_decrypted[0xa0c00+offset]=dynablaster_decryption_table[data];
-}
-
-static READ8_HANDLER( bbmanw_ram_read )
-{
-	return bbmanw_ram_base[offset];
+	v25v35_decryptiontable = bomberman_decryption_table;
 }
 
 static DRIVER_INIT( bbmanw )
 {
-	irem_cpu_decrypt(0,dynablaster_decryption_table);
-
-	bbmanw_ram_base = memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xa0c00, 0xa0cff, 0, 0, bbmanw_ram_write);
-	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0xa0c00, 0xa0cff, 0, 0, bbmanw_ram_read);
+	v25v35_decryptiontable = dynablaster_decryption_table;
 }
 
 static DRIVER_INIT( quizf1 )
 {
-	irem_cpu_decrypt(0,lethalth_decryption_table);
+	v25v35_decryptiontable = lethalth_decryption_table;
 
 	bankaddress = 0;
 	set_m90_bank();
@@ -1351,17 +1333,17 @@ static DRIVER_INIT( quizf1 )
 
 static DRIVER_INIT( gussun )
 {
-	irem_cpu_decrypt(0,gussun_decryption_table);
+	v25v35_decryptiontable = gussun_decryption_table;
 }
 
 static DRIVER_INIT( riskchal )
 {
-	irem_cpu_decrypt(0,gussun_decryption_table);
+	v25v35_decryptiontable = gussun_decryption_table;
 }
 
 static DRIVER_INIT( matchit2 )
 {
-	irem_cpu_decrypt(0,matchit2_decryption_table);
+	v25v35_decryptiontable = matchit2_decryption_table;
 }
 
 static DRIVER_INIT( bomblord )
@@ -1395,7 +1377,7 @@ GAME( 1992, bbmanwj,  bbmanw,   bombrman, bbmanwj,  bbmanw,   ROT0, "Irem", "Bom
 GAME( 1992, newapunk, bbmanw,   bbmanw,   bbmanwj,  bbmanw,   ROT0, "Irem America", "New Atomic Punk - Global Quest (US)", GAME_NO_COCKTAIL )
 GAME( 1992, bomblord, bbmanw,   bomblord, bbmanw,   bomblord, ROT0, "bootleg", "Bomber Lord (bootleg)", GAME_IMPERFECT_SOUND | GAME_NO_COCKTAIL | GAME_NOT_WORKING )
 GAME( 1992, quizf1,   0,        quizf1,   quizf1,   quizf1,   ROT0, "Irem", "Quiz F-1 1,2finish", GAME_NO_COCKTAIL )
-GAME( 1993, riskchal, 0,        riskchal, riskchal, riskchal, ROT0, "Irem", "Risky Challenge", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
-GAME( 1993, gussun,   riskchal, riskchal, riskchal, gussun,   ROT0, "Irem", "Gussun Oyoyo (Japan)", GAME_NOT_WORKING | GAME_NO_COCKTAIL )
+GAME( 1993, riskchal, 0,        riskchal, riskchal, riskchal, ROT0, "Irem", "Risky Challenge", GAME_NO_COCKTAIL )
+GAME( 1993, gussun,   riskchal, riskchal, riskchal, gussun,   ROT0, "Irem", "Gussun Oyoyo (Japan)", GAME_NO_COCKTAIL )
 GAME( 1993, matchit2, 0,        quizf1,   matchit2, matchit2, ROT0, "Tamtex", "Match It II", GAME_NO_COCKTAIL )
 GAME( 1993, shisen2,  matchit2, quizf1,   shisen2,  matchit2, ROT0, "Tamtex", "Shisensho II", GAME_NO_COCKTAIL )

@@ -88,7 +88,6 @@ typedef enum { AH,AL,CH,CL,DH,DL,BH,BL,SPH,SPL,BPH,BPL,IXH,IXL,IYH,IYL } BREGS;
 #define write_port(port,val) io_write_byte_8(port,val)
 
 #define FETCH (cpu_readop_arg((I.sregs[CS]<<4)+I.ip++))
-#define FETCHOP (cpu_readop((I.sregs[CS]<<4)+I.ip++))
 #define FETCHWORD(var) { var=cpu_readop_arg((((I.sregs[CS]<<4)+I.ip)))+(cpu_readop_arg((((I.sregs[CS]<<4)+I.ip+1)))<<8); I.ip+=2; }
 #define PUSH(val) { I.regs.w[SP]-=2; WriteWord((((I.sregs[SS]<<4)+I.regs.w[SP])),val); }
 #define POP(var) { var = ReadWord((((I.sregs[SS]<<4)+I.regs.w[SP]))); I.regs.w[SP]+=2; }
