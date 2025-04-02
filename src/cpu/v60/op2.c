@@ -55,7 +55,7 @@ static UINT32 opCVTWS(void)
 
 	F2DecodeFirstOperand(ReadAM,2);
 
-	// Convert to float
+	/* Convert to float */
 	val = (float)(INT32)f2Op1;
 	modWriteValW = f2u(val);
 
@@ -74,15 +74,22 @@ static UINT32 opCVTSW(void)
 
 	F2DecodeFirstOperand(ReadAM,2);
 
-	// Convert to UINT32
+	// Apply RDI rounding control
 	val = u2f(f2Op1);
-	modWriteValW = (UINT32)val;
+	switch (TKCW & 7)
+	{
+	case 0: val = roundf(val); break;
+	case 1: val = floorf(val); break;
+	case 2: val = ceilf(val); break;
+	default: val = truncf(val); break;
+	}
 
-	_OV=0;
-	_CY=(val < 0.0f);
-	_S=((modWriteValW & 0x80000000)!=0);
-	_Z=(val == 0.0f);
+	// Convert to uint32_t
+	modWriteValW = (UINT32)(INT64)val;
 
+	_S = ((modWriteValW & 0x80000000) != 0);
+	_OV = (_S && val >= 0.0f) || (!_S && val <= -1.0f);
+	_Z = (modWriteValW  == 0);
 	F2WriteSecondOperand(2);
 	F2END();
 }
@@ -357,3 +364,4 @@ static UINT32 op5C(void)
 	if2 = OpRead8(PC + 1);
 	return Op5CTable[if2&0x1F]();
 }
+

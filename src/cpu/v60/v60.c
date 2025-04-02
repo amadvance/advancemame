@@ -2,7 +2,7 @@
 // Undiscover the beast!
 // Main hacking and coding by Farfetch'd
 // Portability fixes by Richter Belmont
-
+#include <math.h>
 #include "debugger.h"
 #include "v60.h"
 
