@@ -1217,10 +1217,16 @@ void config_state::conf_default(adv_conf* config_context)
 			target_out("Adding emulator `advmame'...\n");
 			conf_set(config_context, "", "emulator", "\"advmame\" advmame \"advmame.exe\" \"-quiet\"");
 			string path;
-			path = "category.ini";
+			path = "genre.ini";
 			if (access(cpath_export(path), F_OK) == 0) {
 				string opt = "catver \"advmame\" \"" + path_export(path) + "\" \"Category\"";
 				conf_set(config_context, "", "type_import", opt.c_str());
+			} else {
+				path = "category.ini";
+				if (access(cpath_export(path), F_OK) == 0) {
+					string opt = "catver \"advmame\" \"" + path_export(path) + "\" \"Category\"";
+					conf_set(config_context, "", "type_import", opt.c_str());
+				}
 			}
 		}
 		if (target_search(path, FILE_MAXPATH, "advmess.exe") == 0) {
@@ -1269,10 +1275,16 @@ void config_state::conf_default(adv_conf* config_context)
 				string opt = "\"advmame\" \"" + path_export(path) + "\"";
 				conf_set(config_context, "", "emulator_roms", opt.c_str());
 			}
-			path = string(ADV_DATADIR) + "/category.ini";
+			path = string(ADV_DATADIR) + "/genre.ini";
 			if (access(cpath_export(path), F_OK) == 0) {
 				string opt = "catver \"advmame\" \"" + path_export(path) + "\" \"Category\"";
 				conf_set(config_context, "", "type_import", opt.c_str());
+			} else {
+				path = string(ADV_DATADIR) + "/category.ini";
+				if (access(cpath_export(path), F_OK) == 0) {
+					string opt = "catver \"advmame\" \"" + path_export(path) + "\" \"Category\"";
+					conf_set(config_context, "", "type_import", opt.c_str());
+				}
 			}
 #endif
 		}
