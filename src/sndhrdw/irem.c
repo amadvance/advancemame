@@ -94,8 +94,8 @@ static WRITE8_HANDLER( irem_analog_w )
 {
 	if (data == 0xff)
 		return;
-	
-	if (data > 0)
+
+	if (data > 0 && sndti_exists(SOUND_SAMPLES, 0))
 	{
 		if (data & 0x01) sample_start(2, 2, 0);  // TR606 - Kick
 		if (data & 0x02) sample_start(1, 1, 0);  // TR606 - Snare
