@@ -22,6 +22,7 @@ VIDEO_UPDATE( warlords );
 VIDEO_UPDATE( bullsdrt );
 
 WRITE8_HANDLER( centiped_paletteram_w );
+WRITE8_HANDLER( mazeinv_paletteram_w );
 WRITE8_HANDLER( milliped_paletteram_w );
 
 WRITE8_HANDLER( centiped_videoram_w );

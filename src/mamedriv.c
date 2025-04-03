@@ -4673,6 +4673,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( caterplr )	/* (bootleg) */
 	DRIVER( millpac )	/* Valadon */
 	DRIVER( magworm )	/* (bootleg) */
+	DRIVER( mazeinv )	/* (proto)			(c) 1981 */
 	DRIVER( milliped )	/* 136013           (c) 1982 */
 	DRIVER( qwak )	 	/* (proto)          (c) 1982 */
 	DRIVER( runaway )	/* (proto)          (c) 1982 */

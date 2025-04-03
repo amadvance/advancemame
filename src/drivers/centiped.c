@@ -5,6 +5,7 @@
     Games supported:
         * Centipede (5 sets)
         * Warlords
+        * Maze Invaders (prototype)
         * Millipede
         * Bulls Eye Darts
 
@@ -284,7 +285,7 @@
 
 static int oldpos[4];
 static UINT8 sign[4];
-static UINT8 dsw_select;
+static UINT8 dsw_select, control_select;
 static UINT8 *rambase;
 
 
@@ -299,6 +300,9 @@ static void generate_interrupt(int scanline)
 	/* IRQ is clocked on the rising edge of 16V, equal to the previous 32V */
 	if (scanline & 16)
 		cpunum_set_input_line(0, 0, ((scanline - 1) & 32) ? ASSERT_LINE : CLEAR_LINE);
+
+	/* do a partial update now to handle sprite multiplexing (Maze Invaders) */
+	force_partial_update(scanline);
 
 	/* call back again after 16 scanlines */
 	scanline += 16;
@@ -415,6 +419,22 @@ static READ8_HANDLER( bullsdrt_data_port_r )
 	}
 
 	return 0;
+}
+
+/* used P2 controls if 1, P1 controls if 0 */
+static WRITE8_HANDLER( control_select_w )
+{
+	control_select = (data >> 7) & 1;
+}
+
+static READ8_HANDLER( mazeinv_input_r )
+{
+	return readinputport(6 + control_select);
+}
+
+static WRITE8_HANDLER( mazeinv_input_select_w )
+{
+	control_select = offset & 3;
 }
 
 
@@ -560,6 +580,37 @@ static ADDRESS_MAP_START( milliped_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0x4000, 0x7fff) AM_ROM
 ADDRESS_MAP_END
 
+/**************************************
+ *
+ *  Maze Invaders CPU memory handlers
+ *
+ **************************************/
+
+static ADDRESS_MAP_START( mazeinv_map, ADDRESS_SPACE_PROGRAM, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(15) )
+	AM_RANGE(0x0000, 0x03ff) AM_RAM
+	AM_RANGE(0x0400, 0x040f) AM_READWRITE(pokey1_r, pokey1_w)
+	AM_RANGE(0x0800, 0x080f) AM_READWRITE(pokey2_r, pokey2_w)
+	AM_RANGE(0x1000, 0x13bf) AM_READWRITE(MRA8_RAM, centiped_videoram_w) AM_BASE(&videoram)
+	AM_RANGE(0x13c0, 0x13ff) AM_RAM AM_BASE(&spriteram)
+	AM_RANGE(0x2000, 0x2000) AM_READ(input_port_0_r)
+	AM_RANGE(0x2001, 0x2001) AM_READ(input_port_1_r)
+	AM_RANGE(0x2010, 0x2010) AM_READ(input_port_2_r)
+	AM_RANGE(0x2011, 0x2011) AM_READ(input_port_3_r)
+	AM_RANGE(0x2020, 0x2020) AM_READ(mazeinv_input_r)
+	AM_RANGE(0x2030, 0x2030) AM_READ(atari_vg_earom_r)
+	AM_RANGE(0x2480, 0x249f) AM_WRITE(mazeinv_paletteram_w) AM_BASE(&paletteram)
+	AM_RANGE(0x2500, 0x2502) AM_WRITE(coin_count_w)
+	AM_RANGE(0x2503, 0x2504) AM_WRITE(led_w)
+	AM_RANGE(0x2505, 0x2505) AM_WRITE(input_select_w)
+	AM_RANGE(0x2506, 0x2506) AM_WRITE(centiped_flip_screen_w)
+	AM_RANGE(0x2580, 0x2583) AM_WRITE(mazeinv_input_select_w)
+	AM_RANGE(0x2600, 0x2600) AM_WRITE(irq_ack_w)
+	AM_RANGE(0x2680, 0x2680) AM_WRITE(watchdog_reset_w)
+	AM_RANGE(0x2700, 0x2700) AM_WRITE(atari_vg_earom_ctrl_w)
+	AM_RANGE(0x2780, 0x27bf) AM_WRITE(atari_vg_earom_w)
+	AM_RANGE(0x3000, 0x7fff) AM_ROM
+ADDRESS_MAP_END
 
 
 /*************************************
@@ -1018,6 +1069,111 @@ INPUT_PORTS_START( milliped )
 	PORT_BIT( 0xff, 0x00, IPT_TRACKBALL_Y ) PORT_SENSITIVITY(50) PORT_KEYDELTA(10)
 INPUT_PORTS_END
 
+INPUT_PORTS_START( mazeinv )
+	PORT_START	/* IN0 */
+	PORT_DIPNAME( 0x03, 0x00, "Language")
+	PORT_DIPSETTING(    0x00, "English")
+	PORT_DIPSETTING(    0x01, "German")
+	PORT_DIPSETTING(    0x02, "French")
+	PORT_DIPSETTING(    0x03, "Spanish")
+	PORT_DIPNAME( 0x04, 0x00, DEF_STR( Unknown ))
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ))
+	PORT_DIPSETTING(    0x04, DEF_STR( On ))
+	PORT_DIPNAME( 0x08, 0x00, DEF_STR( Unknown ))
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ))
+	PORT_DIPSETTING(    0x08, DEF_STR( On ))
+	PORT_DIPNAME( 0x10, 0x00, DEF_STR( Unknown ))
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ))
+	PORT_DIPSETTING(    0x10, DEF_STR( On ))
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Unknown ))
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ))
+	PORT_DIPSETTING(    0x20, DEF_STR( On ))
+	PORT_DIPNAME( 0x40, 0x00, "Minimum credits" )
+	PORT_DIPSETTING(    0x00, "1" )
+	PORT_DIPSETTING(    0x40, "2" )
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_VBLANK )
+
+	PORT_START      /* IN1 */
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START      /* IN2 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_TILT )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN3 )
+
+	PORT_START      /* IN3 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_UNUSED)
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING( 0x20, DEF_STR( Upright ) )
+	PORT_DIPSETTING( 0x00, DEF_STR( Cocktail ) )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED)
+	PORT_SERVICE( 0x80, IP_ACTIVE_LOW )
+
+	PORT_START	/* IN4 */
+	PORT_DIPNAME( 0x03, 0x00, "Doors for bonus" )
+	PORT_DIPSETTING(    0x00, "10" )
+	PORT_DIPSETTING(    0x01, "12" )
+	PORT_DIPSETTING(    0x02, "14" )
+	PORT_DIPSETTING(    0x03, "16" )
+	PORT_DIPNAME( 0x0c, 0x04, DEF_STR( Lives ))
+	PORT_DIPSETTING(    0x00, "2" )
+	PORT_DIPSETTING(    0x04, "3" )
+	PORT_DIPSETTING(    0x08, "4" )
+	PORT_DIPSETTING(    0x0c, "5" )
+	PORT_DIPNAME( 0x30, 0x00, "Extra life at" )
+	PORT_DIPSETTING(    0x00, "20000" )
+	PORT_DIPSETTING(    0x10, "25000" )
+	PORT_DIPSETTING(    0x20, "30000" )
+	PORT_DIPSETTING(    0x30, "Never" )
+	PORT_DIPNAME( 0xc0, 0x40, DEF_STR( Difficulty ))
+	PORT_DIPSETTING(    0x00, "Easiest")
+	PORT_DIPSETTING(    0x40, "Easy")
+	PORT_DIPSETTING(    0x80, "Hard")
+	PORT_DIPSETTING(    0xc0, "Harder")
+
+	PORT_START	/* IN5 */
+	PORT_DIPNAME( 0x03, 0x02, DEF_STR( Coinage ))
+	PORT_DIPSETTING(    0x03, DEF_STR( 2C_1C ))
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_1C ))
+	PORT_DIPSETTING(    0x01, DEF_STR( 1C_2C ))
+	PORT_DIPSETTING(    0x00, DEF_STR( Free_Play ))
+	PORT_DIPNAME( 0x0c, 0x00, "Coin 2" )
+	PORT_DIPSETTING(    0x00, "*1" )
+	PORT_DIPSETTING(    0x04, "*4" )
+	PORT_DIPSETTING(    0x08, "*5" )
+	PORT_DIPSETTING(    0x0c, "*6" )
+	PORT_DIPNAME( 0x10, 0x00, "Coin 3" )
+	PORT_DIPSETTING(    0x00, "*1" )
+	PORT_DIPSETTING(    0x10, "*2" )
+	PORT_DIPNAME( 0xe0, 0x00, "Bonus Coins" )
+	PORT_DIPSETTING(    0x00, "None")
+	PORT_DIPSETTING(    0x20, "3 credits/2 coins" )
+	PORT_DIPSETTING(    0x40, "5 credits/4 coins" )
+	PORT_DIPSETTING(    0x60, "6 credits/4 coins" )
+	PORT_DIPSETTING(    0x80, "6 credits/5 coins" )
+
+	/* IN6-9 fake to control player joysticks */
+	PORT_START
+	PORT_BIT( 0xff, 0x7f, IPT_AD_STICK_Y ) PORT_MINMAX(0x40, 0xbf) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_REVERSE PORT_PLAYER(1)
+
+	PORT_START
+	PORT_BIT( 0xff, 0x7f, IPT_AD_STICK_Y ) PORT_MINMAX(0x40, 0xbf) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(2)
+
+	PORT_START
+	PORT_BIT( 0xff, 0x7f, IPT_AD_STICK_X ) PORT_MINMAX(0x40, 0xbf) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_PLAYER(1)
+
+	PORT_START
+	PORT_BIT( 0xff, 0x7f, IPT_AD_STICK_X ) PORT_MINMAX(0x40, 0xbf) PORT_SENSITIVITY(100) PORT_KEYDELTA(10) PORT_REVERSE PORT_PLAYER(2)
+INPUT_PORTS_END
 
 INPUT_PORTS_START( warlords )
 	PORT_START	/* IN0 */
@@ -1383,6 +1539,15 @@ static MACHINE_DRIVER_START( milliped )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( mazeinv )
+
+	/* basic machine hardware */
+	MDRV_IMPORT_FROM(milliped)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(mazeinv_map,0)
+	MDRV_VIDEO_UPDATE(centiped)
+MACHINE_DRIVER_END
+
 
 static MACHINE_DRIVER_START( warlords )
 
@@ -1568,6 +1733,23 @@ ROM_START( milliped )
 	ROM_LOAD( "milliped.106", 0x0800, 0x0800, CRC(f4468045) SHA1(602fcc7290f9f4eacb841c76665961ebf4307f80) )
 ROM_END
 
+ROM_START( mazeinv )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
+	ROM_LOAD( "005.011",      0x3000, 0x1000, CRC(37129536) SHA1(356cb986a40b332100e00fb72194fd4dade2cba7) )
+	ROM_LOAD( "004.011",      0x4000, 0x1000, CRC(2d0fbf2f) SHA1(9d4c2bc9f80604d1ff5c5bf5a4a78378efdd8b33) )
+	ROM_LOAD( "003.011",      0x5000, 0x1000, CRC(0ff3747c) SHA1(1a7e1c487c24875dada967fb3a9ceaca25b7e2a7) )
+	ROM_LOAD( "002.011",      0x6000, 0x1000, CRC(96478e07) SHA1(e99d9970dc12ed36520d91646f1955cce87b55b6) )
+	ROM_LOAD( "001.011",      0x7000, 0x1000, CRC(d5c29a01) SHA1(5201a6cd42e4954c6cd4298f7b6cee4a8c181248) )
+
+	ROM_REGION( 0x1000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "007.011",      0x0000, 0x0800, CRC(16e738f4) SHA1(96335afc4510aae6b4ee6dfd8f5c1b2baa8c2798) )
+	ROM_LOAD( "006.011",      0x0800, 0x0800, CRC(d4705e4e) SHA1(e099f3df0d2f56d557631e69bc76ae2f09a80b42) )
+
+	ROM_REGION( 0x0120, REGION_PROMS, 0 )
+	ROM_LOAD( "009.011",      0x0000, 0x0020, CRC(dcc48de5) SHA1(5594568dd6a605d6d9d9646b1af645af72a7f53d) )
+	ROM_LOAD( "008.011",      0x0020, 0x0100, CRC(6fa3093a) SHA1(2b7aeca74c1ae4156bf1878453a047330f96f0a8) )
+ROM_END
+
 
 ROM_START( warlords )
 	ROM_REGION( 0x10000, REGION_CPU1, 0 )	/* 64k for code */
@@ -1649,6 +1831,7 @@ GAME( 1980, centipdb, centiped, centipdb, centiped, 0,        ROT270, "bootleg",
 GAME( 1980, caterplr, centiped, caterplr, caterplr, caterplr, ROT270, "bootleg", "Caterpillar", 0 )
 GAME( 1980, millpac,  centiped, centipdb, centiped, 0, 	      ROT270, "Valadon Automation", "Millpac", 0 )
 GAME( 1980, magworm,  centiped, magworm,  magworm,  magworm,  ROT270, "bootleg", "Magic Worm (bootleg)", 0 )
+GAME( 1981, mazeinv,  0,        mazeinv,  mazeinv,  0,        ROT270, "Atari",   "Maze Invaders (prototype)", 0 )
 GAME( 1982, milliped, 0,        milliped, milliped, 0,        ROT270, "Atari",   "Millipede", 0 )
 
 GAME( 1980, warlords, 0,        warlords, warlords, 0,        ROT0,   "Atari",   "Warlords", 0 )
