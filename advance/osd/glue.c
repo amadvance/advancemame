@@ -90,11 +90,6 @@ struct advance_glue_context {
 	const short* sound_current_buffer; /**< Last buffer of samples to play. */
 	unsigned sound_current_count; /**< Number of samples in the last buffer. */
 
-#ifdef MESS
-	char crc_file_buffer[MAME_MAXPATH]; /**< Storage for the the crcfile MESS pointer. */
-	char parent_crc_file_buffer[MAME_MAXPATH]; /**< Storage for the the pcrcfile MESS pointer. */
-#endif
-
 	char resolution_buffer[32]; /**< Buffer used by mame_resolution(). */
 	char resolutionclock_buffer[32]; /**< Buffer used by mame_resolutionclock(). */
 	char software_buffer[256]; /**< Buffer for software name. */
@@ -110,10 +105,6 @@ static struct advance_glue_context GLUE;
 /* MAME internal variables */
 extern char* cheatfile;
 extern const char *db_filename;
-#ifdef MESS
-const char* crcfile;
-const char* pcrcfile;
-#endif
 
 /**
  * Check if the game is working perfectly.
@@ -807,29 +798,6 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 
 	cheatfile = (char*)advance->cheat_file_buffer;
 	db_filename = advance->hiscore_file_buffer;
-
-#ifdef MESS
-	{
-		const game_driver* driver = (const game_driver*)context->game;
-		const game_driver* clone_of = driver_get_clone(driver);
-
-		snprintf(GLUE.crc_file_buffer, sizeof(GLUE.crc_file_buffer), "%s%c%s.crc", advance->crc_dir_buffer, file_dir_slash(), driver->name);
-		crcfile = GLUE.crc_file_buffer;
-
-		log_std(("glue: file_crc %s\n", crcfile));
-
-		if (clone_of
-			&& clone_of->name
-			&& (clone_of->flags & NOT_A_DRIVER) == 0) {
-			snprintf(GLUE.parent_crc_file_buffer, sizeof(GLUE.parent_crc_file_buffer), "%s%c%s.crc", advance->crc_dir_buffer, file_dir_slash(), clone_of->name);
-		} else {
-			GLUE.parent_crc_file_buffer[0] = 0;
-		}
-		pcrcfile = GLUE.parent_crc_file_buffer;
-
-		log_std(("glue: parent_file_crc %s\n", pcrcfile));
-	}
-#endif
 
 	for (game_index = 0; drivers[game_index]; ++game_index)
 		if ((const game_driver*)context->game == drivers[game_index])

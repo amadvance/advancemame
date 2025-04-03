@@ -542,6 +542,10 @@ static adv_conf_conv STANDARD[] = {
 #ifndef USE_KEYBOARD_SDL
 	{ "*", "device_keyboard", "sdl", "", "", "", 0 }, /* ignore */
 #endif
+/* 4.1 */
+#ifdef MESS
+	{ "*", "dir_crc", "*", "", "", "", 0 }, /* ignore */
+#endif
 };
 
 static void error_callback(void* context, enum conf_callback_error error, const char* file, const char* tag, const char* valid, const char* desc, ...)

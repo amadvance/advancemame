@@ -670,7 +670,6 @@ Configuration
 		dir_sta - Single directory for `sta' files.
 		dir_snap - Single directory for the `snapshot'
 			files.
-		dir_crc - Single directory for the `crc' files.
 
 	Defaults for DOS and Windows:
 		dir_rom - rom
@@ -684,7 +683,6 @@ Configuration
 		dir_inp - inp
 		dir_sta - sta
 		dir_snap - snap
-		dir_crc - crc
 
 	Defaults for Linux and Mac OS X:
 		dir_rom - $home/rom:$data/rom
@@ -698,7 +696,6 @@ Configuration
 		dir_inp - $home/inp
 		dir_sta - $home/sta
 		dir_snap - $home/snap
-		dir_crc - $home/crc
 
 	If a not absolute dir is specified, in Linux and Mac OS X
 	it's expanded as "$home/DIR:$data/DIR". In DOS and Windows
