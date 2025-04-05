@@ -233,6 +233,9 @@ struct mame_digital_map_entry {
 #define MAME_PORT_KEYBOARD(keyboard) \
 	MAME_PORT_INDEX(IPT_KEYBOARD, 0, keyboard)
 
+#define MAME_PORT_OTHER(other) \
+	MAME_PORT_INDEX(IPT_OTHER, 0, other)
+
 #define MAME_PORT_TYPE_GET(port) \
 	(((port) & MAME_PORT_TYPE_MASK) >> MAME_PORT_TYPE_SHIFT)
 

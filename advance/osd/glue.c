@@ -887,35 +887,45 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 #define K(name) \
 	{ "key_" name, "Key " name, { name } },
 
-#define KR1(name, re1) \
+#define O(name) \
+	{ "other_" name, "Other " name, { name } },
+
+#define O1(name, re1) \
+	{ "other_" name, "Other " name, { re1 } },
+
+#define O2(name, re1, re2) \
+	{ "other_" name, "Other " name, { re1, re2 } },
+
+#define K1(name, re1) \
 	{ "key_" name, "Key " name, { re1 } },
 
-#define KR2(name, re1, re2) \
+#define K2(name, re1, re2) \
 	{ "key_" name, "Key " name, { re1, re2 } },
 
-#define KR3(name, re1, re2, re3) \
+#define K3(name, re1, re2, re3) \
 	{ "key_" name, "Key " name, { re1, re2, re3 } },
 
-#define KR4(name, re1, re2, re3, re4) \
+#define K4(name, re1, re2, re3, re4) \
 	{ "key_" name, "Key " name, { re1, re2, re3, re4 } },
 
-#define KR5(name, re1, re2, re3, re4, re5) \
+#define K5(name, re1, re2, re3, re4, re5) \
 	{ "key_" name, "Key " name, { re1, re2, re3, re4, re5 } },
 
-#ifdef MESS
-struct glue_keyboard_name {
+struct glue_port_name {
 	const char* name;
 	char desc[64];
 	const char* glob[8];
 };
 
+
+#ifdef MESS
 /**
  * Keyboard name definitions.
  * This list defines some common names used in keyboards.
  * Note that the order of definition is relevant on the recognition of
  * the key from it's free form description on the MESS driver port list.
  */
-static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
+static struct glue_port_name GLUE_KEYBOARD_STD[] = {
 
 	K("q")
 	K("w")
@@ -944,42 +954,42 @@ static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
 	K("n")
 	K("m")
 
-	KR4("pad_0", "keypad*0", "0*keypad?", "0*kp?", "kp*0")
-	KR4("pad_1", "keypad*1", "1*keypad?", "1*kp?", "kp*1")
-	KR4("pad_2", "keypad*2", "2*keypad?", "2*kp?", "kp*2")
-	KR4("pad_3", "keypad*3", "3*keypad?", "3*kp?", "kp*3")
-	KR4("pad_4", "keypad*4", "4*keypad?", "4*kp?", "kp*4")
-	KR4("pad_5", "keypad*5", "5*keypad?", "5*kp?", "kp*5")
-	KR4("pad_6", "keypad*6", "6*keypad?", "6*kp?", "kp*6")
-	KR4("pad_7", "keypad*7", "7*keypad?", "7*kp?", "kp*7")
-	KR4("pad_8", "keypad*8", "8*keypad?", "8*kp?", "kp*8")
-	KR4("pad_9", "keypad*9", "9*keypad?", "9*kp?", "kp*9")
-	KR4("pad_enter", "keypad*enter", "enter*keypad?", "enter*kp?", "kp*enter")
-	KR4("pad_minus", "keypad*-", "-*keypad?", "-*kp?", "kp*-")
-	KR4("pad_plus", "keypad*+", "+*keypad?", "+*kp?", "kp*+")
-	KR4("pad_slash", "keypad*/", "/*keypad?", "/*kp?", "kp*/")
-	KR4("pad_colon", "keypad*.", ".*keypad?", ".*kp?", "kp*.")
-	KR4("pad_diesis", "keypad*#", "#*keypad?", "#*kp?", "kp*#")
-	KR4("pad_asterisk", "keypad*\\*", "\\**keypad?", "\\**kp?", "kp*\\*")
+	K4("pad_0", "keypad*0", "0*keypad?", "0*kp?", "kp*0")
+	K4("pad_1", "keypad*1", "1*keypad?", "1*kp?", "kp*1")
+	K4("pad_2", "keypad*2", "2*keypad?", "2*kp?", "kp*2")
+	K4("pad_3", "keypad*3", "3*keypad?", "3*kp?", "kp*3")
+	K4("pad_4", "keypad*4", "4*keypad?", "4*kp?", "kp*4")
+	K4("pad_5", "keypad*5", "5*keypad?", "5*kp?", "kp*5")
+	K4("pad_6", "keypad*6", "6*keypad?", "6*kp?", "kp*6")
+	K4("pad_7", "keypad*7", "7*keypad?", "7*kp?", "kp*7")
+	K4("pad_8", "keypad*8", "8*keypad?", "8*kp?", "kp*8")
+	K4("pad_9", "keypad*9", "9*keypad?", "9*kp?", "kp*9")
+	K4("pad_enter", "keypad*enter", "enter*keypad?", "enter*kp?", "kp*enter")
+	K4("pad_minus", "keypad*-", "-*keypad?", "-*kp?", "kp*-")
+	K4("pad_plus", "keypad*+", "+*keypad?", "+*kp?", "kp*+")
+	K4("pad_slash", "keypad*/", "/*keypad?", "/*kp?", "kp*/")
+	K4("pad_colon", "keypad*.", ".*keypad?", ".*kp?", "kp*.")
+	K4("pad_diesis", "keypad*#", "#*keypad?", "#*kp?", "kp*#")
+	K4("pad_asterisk", "keypad*\\*", "\\**keypad?", "\\**kp?", "kp*\\*")
 
-	KR1("0", "0")
-	KR1("1", "1")
-	KR1("2", "2")
-	KR1("3", "3")
-	KR1("4", "4")
-	KR1("5", "5")
-	KR1("6", "6")
-	KR1("7", "7")
-	KR1("8", "8")
-	KR1("9", "9")
+	K1("0", "0")
+	K1("1", "1")
+	K1("2", "2")
+	K1("3", "3")
+	K1("4", "4")
+	K1("5", "5")
+	K1("6", "6")
+	K1("7", "7")
+	K1("8", "8")
+	K1("9", "9")
 
-	KR2("esc", "esc", "escape")
-	KR2("enter", "enter", "return")
-	KR2("backspace", "back*space", "clr")
+	K2("esc", "esc", "escape")
+	K2("enter", "enter", "return")
+	K2("backspace", "back*space", "clr")
 	K("tab")
-	KR2("space", "space", "?space?")
-	KR2("ins", "ins", "insert")
-	KR2("del", "del", "delete")
+	K2("space", "space", "?space?")
+	K2("ins", "ins", "insert")
+	K2("del", "del", "delete")
 	K("home")
 	K("end")
 	K("fctn")
@@ -990,7 +1000,7 @@ static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
 	K("hold")
 	K("rew")
 	K("record")
-	KR2("break", "break", "brk")
+	K2("break", "break", "brk")
 	K("graph")
 	K("pause")
 	K("menu")
@@ -1007,48 +1017,48 @@ static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
 	K("help")
 	K("back")
 	K("forward")
-	KR2("capslock", "caps*lock", "shift*lock")
-	KR1("scrlock", "scroll*lock")
-	KR1("numlock", "num*lock")
+	K2("capslock", "caps*lock", "shift*lock")
+	K1("scrlock", "scroll*lock")
+	K1("numlock", "num*lock")
 	K("quickload")
-	KR2("pgup", "pgup", "page*up")
-	KR2("pgdn", "pgdn", "page*down")
+	K2("pgup", "pgup", "page*up")
+	K2("pgdn", "pgdn", "page*down")
 
-	KR2("backquote", "backquote", "`")
-	KR2("minus", "minus", "-")
-	KR2("plus", "plus", "+")
-	KR2("asterisk", "asterisk", "\\*")
-	KR2("equals", "equals", "=")
-	KR2("openbrace", "openbrace", "(")
-	KR2("closebrace", "closebrace", ")")
-	KR2("semicolon", "semicolon", ";")
-	KR2("quote", "quote", "'")
-	KR2("backslash", "backslash", "\\\\")
-	KR2("less", "less", "<")
-	KR2("comma", "comma", ",")
-	KR2("period", "period", ".")
-	KR2("slash", "slash", "/")
-	KR2("colon", "colon", ":")
-	KR2("pound", "pound", "£")
-	KR2("doublequote", "doublequote", "\"")
-	KR2("diesis", "diessi", "#")
+	K2("backquote", "backquote", "`")
+	K2("minus", "minus", "-")
+	K2("plus", "plus", "+")
+	K2("asterisk", "asterisk", "\\*")
+	K2("equals", "equals", "=")
+	K2("openbrace", "openbrace", "(")
+	K2("closebrace", "closebrace", ")")
+	K2("semicolon", "semicolon", ";")
+	K2("quote", "quote", "'")
+	K2("backslash", "backslash", "\\\\")
+	K2("less", "less", "<")
+	K2("comma", "comma", ",")
+	K2("period", "period", ".")
+	K2("slash", "slash", "/")
+	K2("colon", "colon", ":")
+	K2("pound", "pound", "£")
+	K2("doublequote", "doublequote", "\"")
+	K2("diesis", "diessi", "#")
 
-	KR3("lshift", "lshift", "left?shift", "shift?left")
-	KR3("rshift", "rshift", "right?shift", "shift?right")
-	KR4("lctrl", "lctrl", "lcontrol", "left?ctrl", "ctrl?left")
-	KR4("rctrl", "rctrl", "rcontrol", "right?ctrl", "ctrl?right")
-	KR3("lalt", "lalt", "left?alt", "alt?left")
-	KR3("ralt", "ralt", "right?alt", "alt?right")
-	KR2("ctrl", "ctrl", "control")
+	K3("lshift", "lshift", "left?shift", "shift?left")
+	K3("rshift", "rshift", "right?shift", "shift?right")
+	K4("lctrl", "lctrl", "lcontrol", "left?ctrl", "ctrl?left")
+	K4("rctrl", "rctrl", "rcontrol", "right?ctrl", "ctrl?right")
+	K3("lalt", "lalt", "left?alt", "alt?left")
+	K3("ralt", "ralt", "right?alt", "alt?right")
+	K2("ctrl", "ctrl", "control")
 	K("alt")
 	K("shift")
 
 	/* it's safe to have directions as last entries to prevent incorrect */
 	/* recognition of "ctrl left" or similar */
-	KR2("left", "left", "cursor*left")
-	KR2("right", "right", "cursor*right")
-	KR2("up", "up", "cursor*up")
-	KR2("down", "down", "cursor*down")
+	K2("left", "left", "cursor*left")
+	K2("right", "right", "cursor*right")
+	K2("up", "up", "cursor*up")
+	K2("down", "down", "cursor*down")
 
 	K("f1")
 	K("f2")
@@ -1078,6 +1088,82 @@ static struct glue_keyboard_name GLUE_KEYBOARD_STD[] = {
 	}
 };
 #endif
+
+/**
+ * Other port name definitions.
+ */
+static struct glue_port_name GLUE_OTHER_STD[] = {
+
+	O2("stats", "stats", "statistics")
+	O("start")
+	O("select")
+	O("collect")
+	O("enter")
+	O("stop")
+	O2("pay", "pay", "payout")
+	O("bet")
+	O("confim")
+	O("take")
+	O("small")
+	O("big")
+	O("double")
+	O("analyzer")
+	O("advance")
+	O("yes")
+	O("no")
+
+	O("up")
+	O("down")
+	O("left")
+	O("right")
+	
+	O2("next", "next", "next game")
+	O2("previous", "previous", "previous game")
+	O2("test", "test", "test switch")
+	O2("operator", "operator", "operator menu")
+	O("suicide")
+	O2("center", "center", "move to center")
+
+	O("0")
+	O("1")
+	O("2")
+	O("3")
+	O("4")
+	O("5")
+	O("6")
+	O("7")
+	O("8")
+	O("9")
+
+	O("q")
+	O("w")
+	O("e")
+	O("r")
+	O("t")
+	O("y")
+	O("u")
+	O("i")
+	O("o")
+	O("p")
+	O2("a", "a", "game a")
+	O("s")
+	O("d")
+	O("f")
+	O("g")
+	O("h")
+	O("j")
+	O("k")
+	O("l")
+	O("z")
+	O("x")
+	O2("c", "c", "game c")
+	O("v")
+	O2("b", "b", "game b")
+	O("n")
+	O("m"){
+		0
+	}
+};
 
 /**
  * Input ports.
@@ -1540,6 +1626,43 @@ static unsigned glue_keyboard_find(const char* const_name)
 }
 #endif
 
+static unsigned glue_other_find(const char* const_name)
+{
+	int i;
+	char name_buffer[128];
+	char* name;
+	char* s;
+	unsigned name_len;
+	unsigned j, k;
+
+	if (!const_name) {
+		log_std(("ERROR:glue: other port without a name\n"));
+		return 0;
+	}
+
+	/* duplicate */
+	sncpy(name_buffer, sizeof(name_buffer), const_name);
+	name = name_buffer;
+
+	/* comparison is in lower case */
+	osd_strlwr(name);
+
+
+	/* search for exact match */
+	for (j = 0; GLUE_OTHER_STD[j].name; ++j) {
+		for (k = 0; GLUE_OTHER_STD[j].glob[k]; ++k) {
+			if (sglob(name_buffer, GLUE_OTHER_STD[j].glob[k])) {
+				log_std(("glue: map other '%s' to control '%s' (exact)\n", name, GLUE_OTHER_STD[j].name));
+				return MAME_PORT_OTHER(j);
+			}
+		}
+	}
+
+	log_std(("WARNING:glue: other port '%s' not recognized\n", name));
+
+	return 0;
+}
+
 /**
  * Begin index of sequences for a MAME port type.
  */
@@ -1681,11 +1804,16 @@ unsigned glue_port_convert(unsigned type, unsigned player, unsigned seqtype, con
 	unsigned index;
 
 #ifdef MESS
-	/* keyboard ports have a special recongnition */
+	/* keyboard ports have a special recognition */
 	if (type == IPT_KEYBOARD) {
 		return glue_keyboard_find(name);
 	}
 #endif
+
+	/* other ports have a special recognition */
+	if (type == IPT_OTHER) {
+		return glue_other_find(name);
+	}
 
 	if (port_type_is_analog(type)) {
 		switch (seqtype) {
@@ -3066,6 +3194,16 @@ adv_error mame_init(struct advance_context* context)
 	}
 #endif
 
+	/* add the keyboard names */
+	for (i = 0; GLUE_OTHER_STD[i].name; ++i) {
+		if (j + 1 < GLUE_PORT_MAX) {
+			GLUE_PORT[j].name = GLUE_OTHER_STD[i].name;
+			GLUE_PORT[j].desc = GLUE_OTHER_STD[i].desc;
+			GLUE_PORT[j].port = MAME_PORT_OTHER(i);
+			++j;
+		}
+	}
+
 	if (j + 1 >= GLUE_PORT_MAX) {
 		printf("Internal error, increase GLUE_PORT_MAX!\n");
 		abort();
@@ -3185,6 +3323,16 @@ adv_error mame_config_load(adv_conf* cfg_context, struct mame_option* option)
 	for (i = 0; GLUE_KEYBOARD_STD[i].name; ++i) {
 		j += strlen(GLUE_KEYBOARD_STD[i].name) + 2;
 		log_std(("%s,", GLUE_KEYBOARD_STD[i].name));
+		if (j > 54) {
+			j = 0;
+			log_std(("\n\t\t"));
+		} else {
+			log_std((" "));
+		}
+	}
+	for (i = 0; GLUE_OTHER_STD[i].name; ++i) {
+		j += strlen(GLUE_OTHER_STD[i].name) + 2;
+		log_std(("%s,", GLUE_OTHER_STD[i].name));
 		if (j > 54) {
 			j = 0;
 			log_std(("\n\t\t"));
