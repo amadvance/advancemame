@@ -80,7 +80,7 @@ endif
 # additional core files needed for the debugger
 #-------------------------------------------------
 
-ifdef DEBUG
+ifeq ($(CONF_DEBUGGER),yes)
 COREOBJS += \
 	$(OBJ)/profiler.o
 

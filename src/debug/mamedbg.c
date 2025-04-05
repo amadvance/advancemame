@@ -2215,7 +2215,7 @@ static void dbg_open_windows( void )
 			cmds.max_x+1-cmds.min_x,cmds.max_y+1-cmds.min_y,
 			cur_col[E_CMDS], cur_col[E_FRAME], ' ', flags );
 
-		win_set_title(WIN_CMDS(i), "Command (press F1 for help)");
+		win_set_title(WIN_CMDS(i), "Command (press NUMLOCK for help)");
 	}
 }
 
@@ -3183,7 +3183,7 @@ static int edit_cmds_info( void )
 	}
 	else
 	{
-		win_set_title( WIN_CMDS(active_cpu), "Command (press F1 for help)%s", hist_info );
+		win_set_title( WIN_CMDS(active_cpu), "Command (press NUMLOCK for help)%s", hist_info );
 	}
 	return INVALID;
 }

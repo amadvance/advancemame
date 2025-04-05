@@ -428,6 +428,11 @@ MESSOBJS += \
 	$(sort $(MESSCPUOBJS)) \
 	$(sort $(MESSSOUNDOBJS))
 
+ifeq ($(CONF_DEBUGGER),yes)
+MAMEOBJS += $(sort $(DBGOBJS))
+MESSOBJS += $(sort $(MESSDBGOBJS))
+endif
+
 ADVANCEOBJS += \
 	$(OBJ)/advance/osd/emu.o \
 	$(OBJ)/advance/osd/glue.o \

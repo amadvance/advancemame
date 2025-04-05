@@ -18,8 +18,13 @@ endif
 endif
 
 # Binaries names
+ifeq ($(CONF_DEBUGGER),yes)
+BINARYTAG = $(CONF_HOST)-$(CONF_ARCH)-debugger
+BINARYDIR = $(CONF_HOST)/$(CONF_ARCH)-debugger
+else
 BINARYTAG = $(CONF_HOST)-$(CONF_ARCH)
 BINARYDIR = $(CONF_HOST)/$(CONF_ARCH)
+endif
 BINARYBUILDDIR = $(CONF_BUILD)
 
 #############################################################################
