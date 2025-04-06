@@ -896,6 +896,9 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 #define O2(name, re1, re2) \
 	{ "other_" name, "Other " name, { re1, re2 } },
 
+#define O3(name, re1, re2, re3) \
+	{ "other_" name, "Other " name, { re1, re2, re3 } },
+
 #define K1(name, re1) \
 	{ "key_" name, "Key " name, { re1 } },
 
@@ -1100,10 +1103,17 @@ static struct glue_port_name GLUE_OTHER_STD[] = {
 	O("collect")
 	O("enter")
 	O("stop")
+	O1("stop_1", "stop?1")
+	O1("stop_2", "stop?2")
+	O1("stop_3", "stop?3")
 	O2("pay", "pay", "payout")
 	O("bet")
-	O("confim")
+	O1("cancel", "cancel*")
+	O1("call", "call*")
+	O("confirm")
 	O("take")
+	O("hp")
+	O("play")
 	O("small")
 	O("big")
 	O("double")
@@ -1111,29 +1121,75 @@ static struct glue_port_name GLUE_OTHER_STD[] = {
 	O("advance")
 	O("yes")
 	O("no")
+	O("chi")
+	O("pon")
+	O("kan")
+	O("reach")
+	O("ron")
+	O("red")
+	O("black")
+	O2("grid", "grid", "toggle?grid")
+	O1("p1_pad_1", "p1?pad?1")
+	O1("p1_pad_2", "p1?pad?2")
+	O1("p1_pad_3", "p1?pad?3")
+	O1("p1_pad_4", "p1?pad?4")
+	O1("p1_pad_5", "p1?pad?5")
+	O1("p1_pad_6", "p1?pad?6")
+	O1("p1_pad_7", "p1?pad?7")
+	O1("p1_pad_8", "p1?pad?8")
+	O1("p1_pad_9", "p1?pad?9")
+	O1("p2_pad_1", "p2?pad?1")
+	O1("p2_pad_2", "p2?pad?2")
+	O1("p2_pad_3", "p2?pad?3")
+	O1("p2_pad_4", "p2?pad?4")
+	O1("p2_pad_5", "p2?pad?5")
+	O1("p2_pad_6", "p2?pad?6")
+	O1("p2_pad_7", "p2?pad?7")
+	O1("p2_pad_8", "p2?pad?8")
+	O1("p2_pad_9", "p2?pad?9")
+
+	O("reset")
+	O1("memory_reset", "memory?reset")
+	O1("hopper_reset", "hopper?reset")
+	O1("high_score_reset", "high?score?reset")
+	O1("auto_up", "auto?up")
+	O1("auto_down", "auto?down")
 
 	O("up")
-	O("down")
+	O2("down", "down", "key?down")
 	O("left")
 	O("right")
-	
-	O2("next", "next", "next game")
-	O2("previous", "previous", "previous game")
-	O2("test", "test", "test switch")
-	O2("operator", "operator", "operator menu")
-	O("suicide")
-	O2("center", "center", "move to center")
 
-	O("0")
-	O("1")
-	O("2")
-	O("3")
-	O("4")
-	O("5")
-	O("6")
-	O("7")
-	O("8")
-	O("9")
+	O1("top_center", "top?center")
+	O1("bottom_center", "bottom?center")
+	O1("top_left", "top?left")
+	O1("bottom_left", "bottom?left")
+	O1("top_right", "top?right")
+	O1("bottom_right", "bottom?right")
+
+	O1("hook_right", "hook?right")
+	O1("hook_left", "hook?left")
+
+	O1("left_trig", "l?trig")
+	O1("right_trig", "r?trig")
+
+	O2("next", "next", "next?game")
+	O2("previous", "previous", "previous?game")
+	O3("test", "test", "test switch", "test 1")
+	O2("operator", "operator", "operator?menu")
+	O("suicide")
+	O2("center", "center", "move?to?center")
+
+	O2("0", "0", "option?0")
+	O2("1", "1", "option?1")
+	O2("2", "2", "option?2")
+	O2("3", "3", "option?3")
+	O2("4", "4", "option?4")
+	O2("5", "5", "option?5")
+	O2("6", "6", "option?6")
+	O2("7", "7", "option?7")
+	O2("8", "8", "option?8")
+	O2("9", "9", "option?9")
 
 	O("q")
 	O("w")
@@ -1145,7 +1201,7 @@ static struct glue_port_name GLUE_OTHER_STD[] = {
 	O("i")
 	O("o")
 	O("p")
-	O2("a", "a", "game a")
+	O3("a", "a", "game?a", "skill?a")
 	O("s")
 	O("d")
 	O("f")
@@ -1156,9 +1212,9 @@ static struct glue_port_name GLUE_OTHER_STD[] = {
 	O("l")
 	O("z")
 	O("x")
-	O2("c", "c", "game c")
+	O3("c", "c", "game?c", "skill?c")
 	O("v")
-	O2("b", "b", "game b")
+	O3("b", "b", "game?b", "skill?b")
 	O("n")
 	O("m"){
 		0
@@ -1636,7 +1692,7 @@ static unsigned glue_other_find(const char* const_name)
 	unsigned j, k;
 
 	if (!const_name) {
-		log_std(("ERROR:glue: other port without a name\n"));
+		log_std(("WARNING:glue: other port without a name\n"));
 		return 0;
 	}
 
@@ -1646,7 +1702,6 @@ static unsigned glue_other_find(const char* const_name)
 
 	/* comparison is in lower case */
 	osd_strlwr(name);
-
 
 	/* search for exact match */
 	for (j = 0; GLUE_OTHER_STD[j].name; ++j) {
