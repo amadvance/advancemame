@@ -483,8 +483,8 @@ static adv_error parse_joystick_stick(int* v, const char* s, int joystick)
 		}
 	}
 
-	error_set("Invalid stick '%s'", s);
-	return -1;
+	*v = INPUT_STICK_MAX - 1; /* fake value, doesn't fail if the name is not present */
+	return 0;
 }
 
 static adv_error parse_joystick_stick_axe(int* v, const char* s, int joystick, int stick)
@@ -522,9 +522,8 @@ static adv_error parse_joystick_stick_axe(int* v, const char* s, int joystick, i
 		}
 	}
 
-	error_set("Invalid joystick axe '%s'", s);
-
-	return -1;
+	*v = INPUT_AXE_MAX - 1; /* fake value, doesn't fail if the name is not present */
+	return 0;
 }
 
 static adv_error parse_mouse_axe(int* v, const char* s, int mouse)
@@ -552,9 +551,8 @@ static adv_error parse_mouse_axe(int* v, const char* s, int mouse)
 		}
 	}
 
-	error_set("Invalid mouse axe '%s'", s);
-
-	return -1;
+	*v = INPUT_AXE_MAX - 1; /* fake value, doesn't fail if the name is not present */
+	return 0;
 }
 
 static adv_error parse_joystick_rel(int* v, const char* s, int joystick)
@@ -618,9 +616,8 @@ static adv_error parse_mouse_button_scan(int* v, const char* s, int mouse)
 		}
 	}
 
-	error_set("Invalid mouse button '%s'", s);
-
-	return -1;
+	*v = MOUSEB_MAX - 1; /* fake value, doesn't fail if the name is not present */
+	return 0;
 }
 
 static adv_error parse_mouse_button(int* v, const char* s, int mouse)
@@ -669,9 +666,8 @@ static adv_error parse_joystick_button_scan(int* v, const char* s, int joystick)
 		}
 	}
 
-	error_set("Invalid joystick button '%s'", s);
-
-	return -1;
+	*v = JOYB_MAX - 1; /* fake value, doesn't fail if the name is not present */
+	return 0;
 }
 
 static adv_error parse_joystick_button(int* v, const char* s, int joystick)
