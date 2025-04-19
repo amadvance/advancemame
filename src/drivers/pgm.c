@@ -291,6 +291,7 @@ UINT16 *pgm_mainram, *pgm_bg_videoram, *pgm_tx_videoram, *pgm_videoregs, *pgm_ro
 static UINT8 *z80_mainram;
 static UINT32 *arm7_shareram;
 static UINT32 arm7_latch;
+static UINT32 *svg_shareram[2];
 WRITE16_HANDLER( pgm_tx_videoram_w );
 WRITE16_HANDLER( pgm_bg_videoram_w );
 VIDEO_START( pgm );
@@ -307,6 +308,7 @@ void pgm_killbld_decrypt(void);
 void pgm_pstar_decrypt(void);
 void pgm_puzzli2_decrypt(void);
 void pgm_ddp2_decrypt(void);
+void pgm_dfront_decrypt(void);
 
 READ16_HANDLER( pgm_asic3_r );
 WRITE16_HANDLER( pgm_asic3_w );
@@ -727,6 +729,127 @@ static ADDRESS_MAP_START( arm7_map, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x48000000, 0x4800ffff) AM_READWRITE(arm7_shareram_r, arm7_shareram_w) AM_BASE(&arm7_shareram)
 	AM_RANGE(0x50000000, 0x500003ff) AM_RAM
 ADDRESS_MAP_END
+
+//5585G
+unsigned char svg_ram_sel;
+
+static WRITE32_HANDLER( svg_arm7_ram_sel_w )
+{
+	svg_ram_sel=data&1;
+}
+
+static READ32_HANDLER( svg_arm7_shareram_r )
+{
+	unsigned char ram_sel=svg_ram_sel&1;
+
+	return svg_shareram[ram_sel][offset];
+}
+
+static WRITE32_HANDLER( svg_arm7_shareram_w )
+{
+	unsigned char ram_sel=svg_ram_sel&1;
+	COMBINE_DATA(&svg_shareram[ram_sel][offset]);
+}
+
+static READ16_HANDLER( svg_m68k_ram_r )
+{
+	unsigned char ram_sel=(svg_ram_sel&1)^1;
+	UINT16 *share16 = (UINT16 *)(svg_shareram[ram_sel]);
+	return share16[BYTE_XOR_LE(offset)];
+}
+
+static WRITE16_HANDLER( svg_m68k_ram_w )
+{
+	unsigned char ram_sel=(svg_ram_sel&1)^1;
+	UINT16 *share16 = (UINT16 *)(svg_shareram[ram_sel]);
+	COMBINE_DATA(&share16[BYTE_XOR_LE(offset)]);
+}
+
+static READ16_HANDLER( svg_68k_nmi_r )
+{
+	return 0;
+}
+
+static WRITE16_HANDLER( svg_68k_nmi_w )
+{
+//	generic_pulse_irq_line(space->machine->cpu[2], ARM7_FIRQ_LINE);
+//	cpuexec_boost_interleave(space->machine, attotime_zero, ATTOTIME_IN_USEC(200));
+//	cpu_spinuntil_time(space->cpu, cpu_clocks_to_attotime(space->machine->cpu[2], 200)); // give the arm time to respond (just boosting the interleave doesn't help
+
+#ifdef PGMARM7SPEEDHACK
+	cpu_trigger(1000);
+	timer_set(TIME_IN_USEC(50), 0, arm_irq); // i don't know how long..
+	cpu_spinuntil_trigger(1002);
+#else
+	cpunum_set_input_line(2, ARM7_FIRQ_LINE, PULSE_LINE);
+	cpu_boost_interleave(0, TIME_IN_USEC(200));
+	cpu_spinuntil_time(TIME_IN_CYCLES(200, 2)); // give the arm time to respond (just boosting the interleave doesn't help
+#endif
+}
+
+static WRITE16_HANDLER( svg_latch_68k_w )
+{
+//	if (PGMARM7LOGERROR) logerror("M68K: Latch write: %04x (%04x) (%06x)\n", data & 0x0000ffff, mem_mask, cpu_get_pc(space->cpu) );
+//	COMBINE_DATA(&kov2_latchdata_68k_w);
+
+	if (PGMARM7LOGERROR) logerror("M68K: Latch write: %04x (%04x) (%06x)\n", data & 0x0000ffff, mem_mask, activecpu_get_pc() );
+	COMBINE_DATA(&arm7_latch);
+/*
+#ifdef PGMARM7SPEEDHACK
+	cpu_trigger(1000);
+	timer_set(TIME_IN_USEC(50), 0, arm_irq); // i don't know how long..
+	cpu_spinuntil_trigger(1002);
+#else
+	cpunum_set_input_line(2, ARM7_FIRQ_LINE, PULSE_LINE);
+	cpu_boost_interleave(0, TIME_IN_USEC(200));
+	cpu_spinuntil_time(TIME_IN_CYCLES(200, 2)); // give the arm time to respond (just boosting the interleave doesn't help
+#endif
+*/
+}
+
+static ADDRESS_MAP_START( svg_mem, ADDRESS_SPACE_PROGRAM, 16)
+	AM_RANGE(0x000000, 0x07ffff) AM_ROM   /* BIOS ROM */
+	AM_RANGE(0x100000, 0x1fffff) AM_ROMBANK(1) /* Game ROM */
+
+	AM_RANGE(0x700006, 0x700007) AM_WRITENOP // Watchdog?
+
+	AM_RANGE(0x800000, 0x81ffff) AM_RAM AM_MIRROR(0x0e0000) AM_BASE(&pgm_mainram) /* Main Ram */
+
+	AM_RANGE(0x900000, 0x903fff) AM_READWRITE(MRA16_RAM, pgm_bg_videoram_w) AM_BASE(&pgm_bg_videoram) /* Backgrounds */
+	AM_RANGE(0x904000, 0x905fff) AM_READWRITE(MRA16_RAM, pgm_tx_videoram_w) AM_BASE(&pgm_tx_videoram) /* Text Layer */
+	AM_RANGE(0x907000, 0x9077ff) AM_RAM AM_BASE(&pgm_rowscrollram)
+	AM_RANGE(0xa00000, 0xa011ff) AM_READWRITE(MRA16_RAM, paletteram16_xRRRRRGGGGGBBBBB_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0xb00000, 0xb0ffff) AM_RAM AM_BASE(&pgm_videoregs) /* Video Regs inc. Zoom Table */
+
+	AM_RANGE(0xc00002, 0xc00003) AM_READWRITE(soundlatch_word_r, m68k_l1_w)
+	AM_RANGE(0xc00004, 0xc00005) AM_READWRITE(soundlatch2_word_r, soundlatch2_word_w)
+	AM_RANGE(0xc00006, 0xc00007) AM_READWRITE(pgm_calendar_r, pgm_calendar_w)
+	AM_RANGE(0xc00008, 0xc00009) AM_WRITE(z80_reset_w)
+	AM_RANGE(0xc0000a, 0xc0000b) AM_WRITE(z80_ctrl_w)
+	AM_RANGE(0xc0000c, 0xc0000d) AM_READWRITE(soundlatch3_word_r, soundlatch3_word_w)
+
+	AM_RANGE(0xc08000, 0xc08001) AM_READ(input_port_0_word_r) // p1+p2 controls
+	AM_RANGE(0xc08002, 0xc08003) AM_READ(input_port_1_word_r) // p3+p4 controls
+	AM_RANGE(0xc08004, 0xc08005) AM_READ(input_port_2_word_r) // extra controls
+	AM_RANGE(0xc08006, 0xc08007) AM_READ(input_port_3_word_r) // dipswitches
+
+	AM_RANGE(0xc10000, 0xc1ffff) AM_READWRITE(z80_ram_r, z80_ram_w) /* Z80 Program */
+	AM_RANGE(0x500000, 0x51ffff) AM_READWRITE(svg_m68k_ram_r, svg_m68k_ram_w)    /* ARM7 Shared RAM */
+	AM_RANGE(0x5c0000, 0x5c0001) AM_READWRITE(svg_68k_nmi_r, svg_68k_nmi_w)      /* ARM7 FIQ */	
+	AM_RANGE(0x5c0300, 0x5c0301) AM_READWRITE(arm7_latch_68k_r, svg_latch_68k_w) /* ARM7 Latch */	
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( svg_arm7_map, ADDRESS_SPACE_PROGRAM, 32 )
+	AM_RANGE(0x00000000, 0x00003fff) AM_ROM
+	AM_RANGE(0x08000000, 0x087fffff) AM_ROM AM_REGION(REGION_USER1, 0)
+	AM_RANGE(0x10000000, 0x100003ff) AM_RAM
+	AM_RANGE(0x18000000, 0x1803ffff) AM_RAM
+	AM_RANGE(0x38000000, 0x3801ffff) AM_READWRITE(svg_arm7_shareram_r, svg_arm7_shareram_w)
+	AM_RANGE(0x48000000, 0x48000003) AM_READWRITE(arm7_latch_arm_r, arm7_latch_arm_w) /* 68k Latch */
+	AM_RANGE(0x40000018, 0x4000001b) AM_WRITE(svg_arm7_ram_sel_w) /* RAM SEL */
+	AM_RANGE(0x50000000, 0x500003ff) AM_RAM
+ADDRESS_MAP_END
+
 
 /*** Input Ports *************************************************************/
 
@@ -1433,6 +1556,16 @@ static MACHINE_DRIVER_START( cavepgm )
 //  MDRV_CPU_PROGRAM_MAP(arm7_map, 0)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( svg )
+	MDRV_IMPORT_FROM(pgm)
+
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(svg_mem,0)
+
+	/* protection CPU */
+	MDRV_CPU_ADD("prot", ARM7, 20000000)	// 5585G
+	MDRV_CPU_PROGRAM_MAP(svg_arm7_map, 0)
+MACHINE_DRIVER_END
 
 /*** Init Stuff **************************************************************/
 
@@ -1912,7 +2045,7 @@ static DRIVER_INIT( ddp2 )
  
 	// we only have a Japan internal ROM dumped for now, allow us to override that for debugging purposes.
 //	machine.device("prot")->memory().space(AS_PROGRAM)->install_legacy_write_handler(0x48000000, 0x48000003, FUNC(ddp2_arm_region_w));
-	memory_install_write16_handler(2, ADDRESS_SPACE_PROGRAM, 0x48000000, 0x48000003, 0, 0, ddp2_arm_region_w); // correct i think
+	memory_install_write16_handler(2, ADDRESS_SPACE_PROGRAM, 0x48000000, 0x48000003, 0, 0, ddp2_arm_region_w); // prot = CPU3 in this driver so it's cpu 0 1 "2" correct.??
 }
 
 static DRIVER_INIT( puzzli2 )
@@ -2070,6 +2203,35 @@ static DRIVER_INIT( olds )
 static DRIVER_INIT( olds103t )
 {
 	pgm_basic_init();
+}
+
+static void svg_basic_init(void)
+{
+	pgm_basic_init();
+	svg_shareram[0]=auto_malloc(0x10000);
+	svg_shareram[1]=auto_malloc(0x10000);
+	svg_ram_sel=0;
+}
+
+static DRIVER_INIT( dmnfrnt )
+{
+	svg_basic_init();
+	pgm_dfront_decrypt();
+	
+	/* put some fake code for the ARM here ... */
+	UINT16 *temp16 = (UINT16 *)memory_region(REGION_CPU3);
+	temp16[(0x0000)/2] = 0xd088;
+	temp16[(0x0002)/2] = 0xe59f;
+	temp16[(0x0004)/2] = 0x0680;
+	temp16[(0x0006)/2] = 0xe3a0;
+	temp16[(0x0008)/2] = 0xff10;
+	temp16[(0x000a)/2] = 0xe12f;
+	temp16[(0x0090)/2] = 0x0400;
+	temp16[(0x0092)/2] = 0x1000;
+	
+	// the internal rom probably also supplies the region here
+	UINT16 *share16 = (UINT16 *)(svg_shareram[0]);
+	share16[0x158/2] = 0x0005;
 }
 
 /*** Rom Loading *************************************************************/
@@ -3756,6 +3918,7 @@ ROM_START( dmnfrnta )
 
 	ROM_REGION( 0x400000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data, internal missing) */
 	ROM_LOAD( "v105_32m.u26", 0x000000, 0x400000,  CRC(d200ee63) SHA1(3128c27c5f5a4361d31e7b4bb006de631b3a228c) )
+    ROM_LOAD( "chinese-v105.u62", 0x000000, 0x400000,  CRC(c798c2ef) SHA1(91e364c33b935293fa765ca521cdb67ac45ec70f) )
 
 	ROM_REGION( 0xc00000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
@@ -3846,12 +4009,12 @@ GAME( 1998, olds100a, olds,       olds, olds,    olds,   ROT0,   "IGS", "Orienta
 GAME( 2000, kov2,     pgm,       kov2, sango,    kov2,       ROT0,   "IGS", "Knights of Valour 2", GAME_IMPERFECT_SOUND )
 GAME( 2000, kov2106,  kov2,      kov2, sango,    kov2,       ROT0,   "IGS", "Knights of Valour 2 (106)", GAME_IMPERFECT_SOUND )
 GAME( 2000, kov2p,    kov2,      kov2, sango,    kov2,       ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 2001, ddp2,     pgm,       kov2, ddp2,     ddp2,       ROT270, "IGS", "DoDonPachi II - Bee Storm", GAME_IMPERFECT_SOUND )
+GAME( 2001, ddp2,     pgm,       kov2, ddp2,     ddp2,       ROT270, "IGS", "Bee Storm - DoDonPachi II", GAME_IMPERFECT_SOUND )
 GAME( 2001, puzzli2,  pgm,        pgm, sango,    puzzli2,    ROT0,   "IGS", "Puzzli 2 Super", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 2001, martmast, pgm,       kov2, sango,    martmast,        ROT0,   "IGS", "Martial Masters", GAME_IMPERFECT_SOUND )
 GAME( 2001, theglad,  pgm,        pgm, sango,    pgm,        ROT0,   "IGS", "The Gladiator", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 2002, dmnfrnt,  pgm,        pgm, sango,    pgm,        ROT0,   "IGS", "Demon Front (V102)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 2002, dmnfrnta, dmnfrnt,    pgm, sango,    pgm,        ROT0,   "IGS", "Demon Front (V105)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
+GAME( 2002, dmnfrnt,  pgm,        svg, sango,    dmnfrnt,        ROT0,   "IGS", "Demon Front (V102)", GAME_IMPERFECT_SOUND )
+GAME( 2002, dmnfrnta, dmnfrnt,    svg, sango,    dmnfrnt,        ROT0,   "IGS", "Demon Front (V105)", GAME_IMPERFECT_SOUND )
 
 /* No protection */
 GAME( 1998, olds103t, olds,       pgm, pgm,      olds103t,   ROT0,   "IGS", "Oriental Legend Special / Xi You Shi E Zhuan Super (ver. 103, China, Tencent) (unprotected)", GAME_IMPERFECT_SOUND )  // without overseas region
