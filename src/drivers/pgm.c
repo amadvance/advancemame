@@ -300,6 +300,7 @@ VIDEO_UPDATE( pgm );
 void pgm_kov_decrypt(void);
 void pgm_kovsh_decrypt(void);
 void pgm_kov2_decrypt(void);
+void pgm_kov2p_decrypt(void);
 void pgm_mm_decrypt(void);
 void pgm_dw2_decrypt(void);
 void pgm_djlzz_decrypt(void);
@@ -1717,6 +1718,12 @@ static DRIVER_INIT( kov2 )
 {
 	pgm_basic_init();
 	pgm_kov2_decrypt();
+}
+
+static DRIVER_INIT( kov2p )
+{
+	pgm_basic_init();
+	pgm_kov2p_decrypt();
 }
 
 static DRIVER_INIT( martmast )
@@ -3566,7 +3573,7 @@ ROM_START( kov2p )
 	/* CPU2 = Z80, romless, code uploaded by 68k */
 
 	ROM_REGION( 0x4000, REGION_CPU3, 0 ) /* ARM protection ASIC - internal rom */
-	ROM_LOAD( "kov2p_asic.rom", 0x000000, 0x04000, BAD_DUMP CRC(e0d7679f) SHA1(e1c2d127eba4ddbeb8ad173c55b90ac1467e1ca8) ) // NOT for this version, works with a patch
+	ROM_LOAD( "kov2p_igs027a_china.bin", 0x000000, 0x04000, CRC(19a0bd95) SHA1(83e9f22512832a51d41c588debe8be7adb3b1df7) )
 
 	ROM_REGION( 0x400000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data) */
 	ROM_LOAD( "v200-16.rom", 0x000000, 0x200000,  CRC(16a0c11f) SHA1(ce449cef76ebd5657d49b57951e2eb0f132e203e) )
@@ -3986,8 +3993,12 @@ GAME( 1997, drgw2c,   drgw2,      drgw2, pgm,      drgw2c,     ROT0,   "IGS", "Z
 GAME( 1999, kov,      pgm,        pgm, sango,    kov,        ROT0,   "IGS", "Knights of Valour / Sangoku Senki (ver. 117)", GAME_IMPERFECT_SOUND ) /* ver # provided by protection? */
 GAME( 1999, kov115,   kov,        pgm, sango,    kov,        ROT0,   "IGS", "Knights of Valour / Sangoku Senki (ver. 115)", GAME_IMPERFECT_SOUND ) /* ver # provided by protection? */
 GAME( 1999, kovj,     kov,        pgm, sango,    kov,        ROT0,   "IGS", "Knights of Valour / Sangoku Senki (ver. 100, Japanese Board)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* ver # provided by protection? */
+GAME( 2000, kov2,     pgm,        kov2, sango,   kov2,       ROT0,   "IGS", "Knights of Valour 2", GAME_IMPERFECT_SOUND )
+GAME( 2000, kov2106,  kov2,       kov2, sango,   kov2,       ROT0,   "IGS", "Knights of Valour 2 (106)", GAME_IMPERFECT_SOUND )
+GAME( 2000, kov2p,    kov2,       kov2, sango,   kov2p,      ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND )
 GAME( 1999, photoy2k, pgm,        pgm, photoy2k,    djlzz,      ROT0,   "IGS", "Photo Y2K", GAME_IMPERFECT_SOUND ) /* region provided by protection device */
 GAME( 1999, raf102j,  photoy2k,   pgm, photoy2k,    djlzz,      ROT0,   "IGS", "Real and Fake / Photo Y2K (ver. 102, Japan Board)", GAME_IMPERFECT_SOUND ) /* region provided by protection device */
+GAME( 2001, martmast, pgm,        kov2, sango,    martmast,     ROT0,   "IGS", "Martial Masters", GAME_IMPERFECT_SOUND )
 
 /* Playable but maybe imperfect protection emulation */
 GAME( 1997, drgw2,    pgm,        drgw2, pgm,      drgw2,      ROT0,   "IGS", "Dragon World II (ver. 110X, Export)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
@@ -4006,12 +4017,8 @@ GAME( 1998, killbld,  pgm,     killbld,killbld,  killbld,    ROT0,   "IGS", "The
 GAME( 1998, olds,     pgm,        olds, olds,    olds,   ROT0,   "IGS", "Oriental Legend Special / Xi You Shi E Zhuan Super (Korea 101)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1998, olds100,  olds,       olds, olds,    olds,   ROT0,   "IGS", "Oriental Legend Special / Xi You Shi E Zhuan Super (100)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1998, olds100a, olds,       olds, olds,    olds,   ROT0,   "IGS", "Oriental Legend Special / Xi You Shi E Zhuan Super (100 alt)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 2000, kov2,     pgm,       kov2, sango,    kov2,       ROT0,   "IGS", "Knights of Valour 2", GAME_IMPERFECT_SOUND )
-GAME( 2000, kov2106,  kov2,      kov2, sango,    kov2,       ROT0,   "IGS", "Knights of Valour 2 (106)", GAME_IMPERFECT_SOUND )
-GAME( 2000, kov2p,    kov2,      kov2, sango,    kov2,       ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 2001, ddp2,     pgm,       kov2, ddp2,     ddp2,       ROT270, "IGS", "Bee Storm - DoDonPachi II", GAME_IMPERFECT_SOUND )
+GAME( 2001, ddp2,     pgm,       kov2, ddp2,     ddp2,       ROT270, "IGS", "DoDonPachi II - Bee Storm", GAME_IMPERFECT_SOUND )
 GAME( 2001, puzzli2,  pgm,        pgm, sango,    puzzli2,    ROT0,   "IGS", "Puzzli 2 Super", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 2001, martmast, pgm,       kov2, sango,    martmast,        ROT0,   "IGS", "Martial Masters", GAME_IMPERFECT_SOUND )
 GAME( 2001, theglad,  pgm,        pgm, sango,    pgm,        ROT0,   "IGS", "The Gladiator", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 2002, dmnfrnt,  pgm,        svg, sango,    dmnfrnt,        ROT0,   "IGS", "Demon Front (V102)", GAME_IMPERFECT_SOUND )
 GAME( 2002, dmnfrnta, dmnfrnt,    svg, sango,    dmnfrnt,        ROT0,   "IGS", "Demon Front (V105)", GAME_IMPERFECT_SOUND )
