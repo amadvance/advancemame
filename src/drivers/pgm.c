@@ -1564,7 +1564,7 @@ static MACHINE_DRIVER_START( svg )
 	MDRV_CPU_PROGRAM_MAP(svg_mem,0)
 
 	/* protection CPU */
-	MDRV_CPU_ADD("prot", ARM7, 20000000)	// 5585G
+	MDRV_CPU_ADD_TAG("prot", ARM7, 20000000)	// 5585G
 	MDRV_CPU_PROGRAM_MAP(svg_arm7_map, 0)
 MACHINE_DRIVER_END
 
@@ -2052,7 +2052,7 @@ static DRIVER_INIT( ddp2 )
  
 	// we only have a Japan internal ROM dumped for now, allow us to override that for debugging purposes.
 //	machine.device("prot")->memory().space(AS_PROGRAM)->install_legacy_write_handler(0x48000000, 0x48000003, FUNC(ddp2_arm_region_w));
-	memory_install_write16_handler(2, ADDRESS_SPACE_PROGRAM, 0x48000000, 0x48000003, 0, 0, ddp2_arm_region_w); // prot = CPU3 in this driver so it's cpu 0 1 "2" correct.??
+	memory_install_write32_handler(2, ADDRESS_SPACE_PROGRAM, 0x48000000, 0x48000003, 0, 0, ddp2_arm_region_w); // prot = CPU3 in this driver so it's cpu 0 1 "2" correct.??
 }
 
 static DRIVER_INIT( puzzli2 )
