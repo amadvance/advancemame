@@ -1724,6 +1724,7 @@ static DRIVER_INIT( kov2p )
 {
 	pgm_basic_init();
 	pgm_kov2p_decrypt();
+	kov2_latch_init();
 }
 
 static DRIVER_INIT( martmast )
