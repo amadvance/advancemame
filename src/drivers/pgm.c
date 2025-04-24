@@ -1714,6 +1714,21 @@ static DRIVER_INIT( kov )
  	pgm_kov_decrypt();
 }
 
+static void kov2_latch_init( void )
+{
+	//pgm_state *state = machine.driver_data<pgm_state>();
+
+	//state->m_kov2_latchdata_68k_w = 0;
+	//state->m_kov2_latchdata_arm_w = 0;
+
+	//state->save_item(NAME(state->m_kov2_latchdata_68k_w));
+	//state->save_item(NAME(state->m_kov2_latchdata_arm_w));
+
+	arm7_latch = 0;
+
+	
+}
+
 static DRIVER_INIT( kov2 )
 {
 	pgm_basic_init();
@@ -2035,20 +2050,6 @@ static DRIVER_INIT( killbld )
 	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xd40000, 0xd40003, 0, 0, killbld_prot_w);
 }
 
-static void kov2_latch_init( void )
-{
-	//pgm_state *state = machine.driver_data<pgm_state>();
-
-	//state->m_kov2_latchdata_68k_w = 0;
-	//state->m_kov2_latchdata_arm_w = 0;
-
-	//state->save_item(NAME(state->m_kov2_latchdata_68k_w));
-	//state->save_item(NAME(state->m_kov2_latchdata_arm_w));
-
-	arm7_latch = 0;
-
-	
-}
 
 static WRITE32_HANDLER( ddp2_arm_region_w )
 {	
