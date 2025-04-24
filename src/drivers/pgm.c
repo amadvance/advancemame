@@ -2034,6 +2034,21 @@ static DRIVER_INIT( killbld )
 	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xd40000, 0xd40003, 0, 0, killbld_prot_w);
 }
 
+static void kov2_latch_init( void )
+{
+	//pgm_state *state = machine.driver_data<pgm_state>();
+
+	//state->m_kov2_latchdata_68k_w = 0;
+	//state->m_kov2_latchdata_arm_w = 0;
+
+	//state->save_item(NAME(state->m_kov2_latchdata_68k_w));
+	//state->save_item(NAME(state->m_kov2_latchdata_arm_w));
+
+	arm7_latch = 0;
+
+	
+}
+
 static WRITE32_HANDLER( ddp2_arm_region_w )
 {	
     int pc = activecpu_get_pc();
@@ -2048,7 +2063,7 @@ static DRIVER_INIT( ddp2 )
 	pgm_basic_init();
 	pgm_ddp2_decrypt();
 	
-//	kov2_latch_init(); // disabled for now we might not need it
+	kov2_latch_init(); // disabled for now we might not need it
  
 	// we only have a Japan internal ROM dumped for now, allow us to override that for debugging purposes.
 //	machine.device("prot")->memory().space(AS_PROGRAM)->install_legacy_write_handler(0x48000000, 0x48000003, FUNC(ddp2_arm_region_w));
@@ -2224,6 +2239,7 @@ static DRIVER_INIT( dmnfrnt )
 {
 	svg_basic_init();
 	pgm_dfront_decrypt();
+        kov2_latch_init();
 	
 	/* put some fake code for the ARM here ... */
 	UINT16 *temp16 = (UINT16 *)memory_region(REGION_CPU3);
