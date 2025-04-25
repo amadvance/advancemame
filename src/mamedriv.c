@@ -6727,7 +6727,7 @@ Other Sun games
 	DRIVER( photoy2k )	/* (c) 1999 */
 	DRIVER( raf102j )	/* (c) 1999 */
 	DRIVER( killbld )	/* (c) 1998 */
-	DRIVER( killbldt )	/* (c) 1998 */
+	DRIVER( killbld104 )	/* (c) 1998 */
 	DRIVER( puzlstar )	/* (c) 1999 */
 	DRIVER( olds )		/* (c) 1998 */
 	DRIVER( olds100 )	/* (c) 1998 */
