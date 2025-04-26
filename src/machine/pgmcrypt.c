@@ -343,7 +343,7 @@ void pgm_dfront_decrypt(void)
 	int i;
 	UINT16 *src = (UINT16 *)(memory_region(REGION_USER1));
 
-	int rom_size = 0x200000;
+	int rom_size = 0x400000;
 
 	for(i=0; i<rom_size/2; i++) {
     	unsigned short x = src[i];
@@ -826,7 +826,7 @@ void pgm_theglad_decrypt(void)
 	int i;
 	UINT16 *src = (UINT16 *) (memory_region(REGION_USER1));
 
-	int rom_size = 0x800000;
+	int rom_size = 0x200000;
 
 	for(i=0; i<rom_size/2; i++) {
 		UINT16 x = src[i];
@@ -860,5 +860,3 @@ void pgm_theglad_decrypt(void)
 		src[i] = x;
 	}
 }
-
-
