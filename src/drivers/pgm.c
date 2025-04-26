@@ -1,4 +1,3 @@
-
 /* PGM System (c)1997 IGS
 
 Based on Information from ElSemi
@@ -277,8 +276,7 @@ Notes:
 */
 
 #define PGMLOGERROR 0
-#define PGMARM7LOGERROR 1
-#define PGMARM7SPEEDHACK 1
+#define PGMARM7LOGERROR 0
 
 #include "driver.h"
 #include "sound/ics2115.h"
@@ -286,12 +284,16 @@ Notes:
 #include <time.h>
 #include "timer.h"
 
-
+static MACHINE_RESET( killbld );
+static MACHINE_RESET( olds );
+static MACHINE_RESET( theglad );
 UINT16 *pgm_mainram, *pgm_bg_videoram, *pgm_tx_videoram, *pgm_videoregs, *pgm_rowscrollram;
 static UINT8 *z80_mainram;
 static UINT32 *arm7_shareram;
-static UINT32 arm7_latch;
-static UINT32 *svg_shareram[2];
+static UINT32 *svg_shareram[2];	//for 5585G MACHINE
+static UINT32 kov2_latchdata_68k_w;
+static UINT32 kov2_latchdata_arm_w;
+static UINT32* arm_ram, arm_ram2; // speedups
 WRITE16_HANDLER( pgm_tx_videoram_w );
 WRITE16_HANDLER( pgm_bg_videoram_w );
 VIDEO_START( pgm );
@@ -310,6 +312,7 @@ void pgm_pstar_decrypt(void);
 void pgm_puzzli2_decrypt(void);
 void pgm_ddp2_decrypt(void);
 void pgm_dfront_decrypt(void);
+void pgm_theglad_decrypt(void);
 
 READ16_HANDLER( pgm_asic3_r );
 WRITE16_HANDLER( pgm_asic3_w );
@@ -329,32 +332,16 @@ static READ16_HANDLER ( z80_ram_r )
 
 static READ32_HANDLER( arm7_latch_arm_r )
 {
-	if (PGMARM7LOGERROR) logerror("ARM7: Latch read: %08x (%08x) (%06x)\n", arm7_latch, mem_mask, activecpu_get_pc() );
-	return arm7_latch;
+	cpunum_set_input_line(2, ARM7_FIRQ_LINE, CLEAR_LINE ); // guess
+	
+	if (PGMARM7LOGERROR) logerror("ARM7: Latch read: %08x (%08x) (%06x)\n", kov2_latchdata_68k_w, mem_mask, activecpu_get_pc() );
+	return kov2_latchdata_68k_w;
 }
 
-
-#ifdef PGMARM7SPEEDHACK
-static void arm_irq(int param)
-{
-	cpunum_set_input_line(2, ARM7_FIRQ_LINE, PULSE_LINE);
-}
-#endif
-
-//static mame_timer *   arm_comms_timer;
 static WRITE32_HANDLER( arm7_latch_arm_w )
 {
 	if (PGMARM7LOGERROR) logerror("ARM7: Latch write: %08x (%08x) (%06x)\n", data, mem_mask, activecpu_get_pc() );
-	COMBINE_DATA(&arm7_latch);
-
-#ifdef PGMARM7SPEEDHACK
-//  cpu_boost_interleave(0, TIME_IN_USEC(100));
-	if (data!=0xaa) cpu_spinuntil_trigger(1000);
-	cpu_trigger(1002);
-#else
-	cpu_boost_interleave(0, TIME_IN_USEC(100));
-	cpu_spinuntil_time(TIME_IN_CYCLES(100, 0));
-#endif
+	COMBINE_DATA(&kov2_latchdata_arm_w);
 }
 
 static READ32_HANDLER( arm7_shareram_r )
@@ -371,24 +358,16 @@ static WRITE32_HANDLER( arm7_shareram_w )
 
 static READ16_HANDLER( arm7_latch_68k_r )
 {
-	if (PGMARM7LOGERROR) logerror("M68K: Latch read: %04x (%04x) (%06x)\n", arm7_latch & 0x0000ffff, mem_mask, activecpu_get_pc() );
-	return arm7_latch;
+	if (PGMARM7LOGERROR) logerror("M68K: Latch read: %04x (%04x) (%06x)\n", kov2_latchdata_arm_w & 0x0000ffff, mem_mask, activecpu_get_pc() );
+	return kov2_latchdata_arm_w;
 }
 
 static WRITE16_HANDLER( arm7_latch_68k_w )
 {
 	if (PGMARM7LOGERROR) logerror("M68K: Latch write: %04x (%04x) (%06x)\n", data & 0x0000ffff, mem_mask, activecpu_get_pc() );
-	COMBINE_DATA(&arm7_latch);
+	COMBINE_DATA(&kov2_latchdata_68k_w);
 
-#ifdef PGMARM7SPEEDHACK
-	cpu_trigger(1000);
-	timer_set(TIME_IN_USEC(50), 0, arm_irq); // i don't know how long..
-	cpu_spinuntil_trigger(1002);
-#else
-	cpunum_set_input_line(2, ARM7_FIRQ_LINE, PULSE_LINE);
-	cpu_boost_interleave(0, TIME_IN_USEC(200));
-	cpu_spinuntil_time(TIME_IN_CYCLES(200, 2)); // give the arm time to respond (just boosting the interleave doesn't help
-#endif
+    cpunum_set_input_line(2, ARM7_FIRQ_LINE, ASSERT_LINE ); // guess
 }
 
 static READ16_HANDLER( arm7_ram_r )
@@ -622,7 +601,7 @@ UINT16*olds_sharedprotram;
 static ADDRESS_MAP_START( olds_mem, ADDRESS_SPACE_PROGRAM, 16)
 	AM_RANGE(0x000000, 0x01ffff) AM_ROM   /* BIOS ROM */
 	AM_RANGE(0x100000, 0x3fffff) AM_ROMBANK(1) /* Game ROM */
-	AM_RANGE(0x400000, 0x4fffff) AM_RAM AM_BASE(&olds_sharedprotram) // Shared with protection device
+	AM_RANGE(0x400000, 0x403fff) AM_RAM AM_BASE(&olds_sharedprotram) // Shared with protection device
 
 	AM_RANGE(0x700006, 0x700007) AM_WRITENOP // Watchdog?
 
@@ -725,7 +704,7 @@ static ADDRESS_MAP_START( arm7_map, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x00000000, 0x00003fff) AM_ROM
 	AM_RANGE(0x08000000, 0x083fffff) AM_ROM AM_REGION(REGION_USER1, 0)
 	AM_RANGE(0x10000000, 0x100003ff) AM_RAM
-	AM_RANGE(0x18000000, 0x1800ffff) AM_RAM
+	AM_RANGE(0x18000000, 0x1800ffff) AM_RAM /*AM_BASE(&arm_ram) */
 	AM_RANGE(0x38000000, 0x38000003) AM_READWRITE(arm7_latch_arm_r, arm7_latch_arm_w) /* 68k Latch */
 	AM_RANGE(0x48000000, 0x4800ffff) AM_READWRITE(arm7_shareram_r, arm7_shareram_w) AM_BASE(&arm7_shareram)
 	AM_RANGE(0x50000000, 0x500003ff) AM_RAM
@@ -773,39 +752,14 @@ static READ16_HANDLER( svg_68k_nmi_r )
 
 static WRITE16_HANDLER( svg_68k_nmi_w )
 {
-//	generic_pulse_irq_line(space->machine->cpu[2], ARM7_FIRQ_LINE);
-//	cpuexec_boost_interleave(space->machine, attotime_zero, ATTOTIME_IN_USEC(200));
-//	cpu_spinuntil_time(space->cpu, cpu_clocks_to_attotime(space->machine->cpu[2], 200)); // give the arm time to respond (just boosting the interleave doesn't help
-
-#ifdef PGMARM7SPEEDHACK
-	cpu_trigger(1000);
-	timer_set(TIME_IN_USEC(50), 0, arm_irq); // i don't know how long..
-	cpu_spinuntil_trigger(1002);
-#else
 	cpunum_set_input_line(2, ARM7_FIRQ_LINE, PULSE_LINE);
-	cpu_boost_interleave(0, TIME_IN_USEC(200));
-	cpu_spinuntil_time(TIME_IN_CYCLES(200, 2)); // give the arm time to respond (just boosting the interleave doesn't help
-#endif
+
 }
 
 static WRITE16_HANDLER( svg_latch_68k_w )
 {
-//	if (PGMARM7LOGERROR) logerror("M68K: Latch write: %04x (%04x) (%06x)\n", data & 0x0000ffff, mem_mask, cpu_get_pc(space->cpu) );
-//	COMBINE_DATA(&kov2_latchdata_68k_w);
-
 	if (PGMARM7LOGERROR) logerror("M68K: Latch write: %04x (%04x) (%06x)\n", data & 0x0000ffff, mem_mask, activecpu_get_pc() );
-	COMBINE_DATA(&arm7_latch);
-/*
-#ifdef PGMARM7SPEEDHACK
-	cpu_trigger(1000);
-	timer_set(TIME_IN_USEC(50), 0, arm_irq); // i don't know how long..
-	cpu_spinuntil_trigger(1002);
-#else
-	cpunum_set_input_line(2, ARM7_FIRQ_LINE, PULSE_LINE);
-	cpu_boost_interleave(0, TIME_IN_USEC(200));
-	cpu_spinuntil_time(TIME_IN_CYCLES(200, 2)); // give the arm time to respond (just boosting the interleave doesn't help
-#endif
-*/
+	COMBINE_DATA(&kov2_latchdata_68k_w);
 }
 
 static ADDRESS_MAP_START( svg_mem, ADDRESS_SPACE_PROGRAM, 16)
@@ -843,8 +797,8 @@ ADDRESS_MAP_END
 static ADDRESS_MAP_START( svg_arm7_map, ADDRESS_SPACE_PROGRAM, 32 )
 	AM_RANGE(0x00000000, 0x00003fff) AM_ROM
 	AM_RANGE(0x08000000, 0x087fffff) AM_ROM AM_REGION(REGION_USER1, 0)
-	AM_RANGE(0x10000000, 0x100003ff) AM_RAM
-	AM_RANGE(0x18000000, 0x1803ffff) AM_RAM
+	AM_RANGE(0x10000000, 0x100003ff) AM_RAM /*AM_BASE(&arm_ram2) */
+	AM_RANGE(0x18000000, 0x1803ffff) AM_RAM /*AM_BASE(&arm_ram) */
 	AM_RANGE(0x38000000, 0x3801ffff) AM_READWRITE(svg_arm7_shareram_r, svg_arm7_shareram_w)
 	AM_RANGE(0x48000000, 0x48000003) AM_READWRITE(arm7_latch_arm_r, arm7_latch_arm_w) /* 68k Latch */
 	AM_RANGE(0x40000018, 0x4000001b) AM_WRITE(svg_arm7_ram_sel_w) /* RAM SEL */
@@ -1124,15 +1078,14 @@ INPUT_PORTS_START( olds )
 	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 
-	PORT_START	/* Region - supplied by protection device */
-	PORT_DIPNAME( 0x000f, 0x0006, DEF_STR( Region ) )
-	// includes region 1 = taiwan , 2 = china, 3 = japan (title = orlegend special), 4 = korea, 5 = hongkong, 6 = world
+    PORT_START	/* Region - supplied by protection device */
+	PORT_DIPNAME( 0x000f, 0x0006, "Region" )
 	PORT_DIPSETTING(      0x0001, "Taiwan" )
 	PORT_DIPSETTING(      0x0002, "China" )
-	PORT_DIPSETTING(      0x0003, DEF_STR( Japan ) )
-	PORT_DIPSETTING(      0x0004, "Korea" )
+	PORT_DIPSETTING(      0x0003, "Japan" )
+	PORT_DIPSETTING(      0x0004, "Korea")
 	PORT_DIPSETTING(      0x0005, "Hong Kong" )
-	PORT_DIPSETTING(      0x0006, DEF_STR( World ) )
+	PORT_DIPSETTING(      0x0006, "World" )
 INPUT_PORTS_END
 
 INPUT_PORTS_START( killbld )
@@ -1414,6 +1367,100 @@ INPUT_PORTS_START( ddp2 )
 	PORT_DIPSETTING(      0x00ff, "Untouched" ) // don't hack the region
 INPUT_PORTS_END
 
+INPUT_PORTS_START( theglad )
+	PORT_START	/* P1P2 */
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+
+	PORT_START	/* P3P4 */
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_START3 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(3)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(3)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(3)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(3)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(3)
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(3)
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(3)
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START4 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(4)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(4)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(4)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(4)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(4)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(4)
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(4)
+
+	PORT_START	/* Service */
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_COIN3 )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_COIN4 )
+//  PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON5 ) // test 1p+2p
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_UNKNOWN ) //  what should i use?
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_SERVICE1 ) // service 1p+2p
+//  PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON6 ) // test 3p+4p
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_UNKNOWN ) // what should i use?
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_SERVICE2 ) // service 3p+4p
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(3)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(4)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_UNKNOWN ) // unused?
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_UNKNOWN ) // unused?
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNKNOWN ) // unused?
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN ) // unused?
+
+	PORT_START	/* DSW */
+	PORT_SERVICE( 0x0001, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x0002, 0x0002, "Music" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0004, 0x0004, "Voice" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0008, 0x0008, "Free" )
+	PORT_DIPSETTING(      0x0008, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0010, 0x0010, "Stop" )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0080, 0x0080, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+
+    PORT_START_TAG("RegionHack")	/* Region - supplied by protection device */
+	PORT_DIPNAME( 0x00ff, 0x00ff, DEF_STR( Region ) )
+	PORT_DIPSETTING(      0x0000, "China" )
+	PORT_DIPSETTING(      0x0001, "Taiwan" )
+	PORT_DIPSETTING(      0x0002, "Japan" )
+	PORT_DIPSETTING(      0x0003, "Korea" )
+	PORT_DIPSETTING(      0x0004, "Hong Kong" )
+	PORT_DIPSETTING(      0x0005, "Spanish Territories" )
+	PORT_DIPSETTING(      0x0006, DEF_STR( World ) )
+	PORT_DIPSETTING(      0x00ff, "Dont Change" ) // don't hack the region
+INPUT_PORTS_END
+
+
 /*** GFX Decodes *************************************************************/
 
 /* we can't decode the sprite data like this because it isn't tile based.  the
@@ -1510,7 +1557,6 @@ static MACHINE_DRIVER_START( drgw2 )
 	MDRV_CPU_VBLANK_INT(drgw_interrupt,2) // needs an extra IRQ, puzzli2 doesn't want this irq!
 MACHINE_DRIVER_END
 
-static MACHINE_RESET( killbld );
 
 static MACHINE_DRIVER_START( killbld )
 	MDRV_IMPORT_FROM(pgm)
@@ -1522,7 +1568,6 @@ static MACHINE_DRIVER_START( killbld )
 
 MACHINE_DRIVER_END
 
-static MACHINE_RESET( olds );
 
 static MACHINE_DRIVER_START( olds )
 	MDRV_IMPORT_FROM(pgm)
@@ -1564,8 +1609,22 @@ static MACHINE_DRIVER_START( svg )
 	MDRV_CPU_PROGRAM_MAP(svg_mem,0)
 
 	/* protection CPU */
-	MDRV_CPU_ADD_TAG("prot", ARM7, 20000000)	// 5585G
+	MDRV_CPU_ADD_TAG("prot", ARM7, 33333333)
 	MDRV_CPU_PROGRAM_MAP(svg_arm7_map, 0)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( theglad )
+	MDRV_IMPORT_FROM(pgm)
+
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(svg_mem,0)
+
+	/* protection CPU */
+	MDRV_CPU_ADD_TAG("prot", ARM7, 33333333)
+	MDRV_CPU_PROGRAM_MAP(svg_arm7_map, 0)
+	
+	MDRV_MACHINE_RESET(theglad)
+	
 MACHINE_DRIVER_END
 
 /*** Init Stuff **************************************************************/
@@ -1714,22 +1773,31 @@ static DRIVER_INIT( kov )
  	pgm_kov_decrypt();
 }
 
+static void kov2_latch_init( void )
+{
+    kov2_latchdata_68k_w = 0;
+    kov2_latchdata_arm_w = 0;
+}
+
 static DRIVER_INIT( kov2 )
 {
 	pgm_basic_init();
 	pgm_kov2_decrypt();
+	kov2_latch_init();
 }
 
 static DRIVER_INIT( kov2p )
 {
 	pgm_basic_init();
 	pgm_kov2p_decrypt();
+	kov2_latch_init();
 }
 
 static DRIVER_INIT( martmast )
 {
 	pgm_basic_init();
 	pgm_mm_decrypt();
+	kov2_latch_init();
 }
 
 
@@ -1791,77 +1859,72 @@ static DRIVER_INIT( dw3 )
 /* Killing Blade uses some kind of DMA protection device which can copy data from a data rom.  The
    MCU appears to have an internal ROM as if you remove the data ROM then the shared ram is filled
    with a constant value.
-
-   The device can perform various decryption operations on the data it copies.  for now we're just
-   using a dump of the shared RAM instead.  This will be improved later.
+   The device can perform various decryption operations on the data it copies.
 */
 
 static int kb_cmd;
-static int reg;
-static int ptr;
+static int kb_reg;
+static int kb_ptr;
+UINT32 kb_regs[0x10];
 
-WRITE16_HANDLER( killbld_prot_w )
+
+static WRITE16_HANDLER( killbld_prot_w )
 {
-//  printf("killbrd prot r\n");
-//  return 0;
-	offset&=0xf;
+	offset &= 0xf;
 
-	if(offset==0)
-		kb_cmd=data;
-	else //offset==2
+	if (offset == 0)
+		kb_cmd = data;
+	else /*offset==2 */
 	{
-		logerror("%06X: ASIC25 W CMD %X  VAL %X",activecpu_get_pc(),kb_cmd,data);
-		if(kb_cmd==0)
-			reg=data;
-		else if(kb_cmd==2)
+		logerror("%06X: ASIC25 W CMD %X  VAL %X\n", activecpu_get_pc(),kb_cmd,data);
+		if (kb_cmd == 0)
+			kb_reg = data;
+		else if (kb_cmd == 2)
 		{
-
-			if(data==1)	//Execute cmd
+			if (data == 1)	/* Execute cmd */
 			{
-				unsigned short cmd=killbld_sharedprotram[0x200/2];
-				//printf("command %04x\n",cmd);
-				if(cmd==0x6d)	//Store values to asic ram
+				UINT16 cmd = killbld_sharedprotram[0x200/2];
+
+				if (cmd == 0x6d)	//Store values to asic ram
 				{
-					unsigned int p1=(killbld_sharedprotram[0x298/2] << 16) | killbld_sharedprotram[0x29a/2];
-					unsigned int p2=(killbld_sharedprotram[0x29c/2] << 16) | killbld_sharedprotram[0x29e/2];
-					static unsigned int Regs[0x10];
-					if((p2&0xFFFF)==0x9)	//Set value
+					UINT32 p1 = (killbld_sharedprotram[0x298/2] << 16) | killbld_sharedprotram[0x29a/2];
+					UINT32 p2 = (killbld_sharedprotram[0x29c/2] << 16) | killbld_sharedprotram[0x29e/2];
+
+					if ((p2 & 0xffff) == 0x9)	//Set value
 					{
-						int reg=(p2>>16)&0xFFFF;
-						if(reg&0x200)
-							Regs[reg&0xFF]=p1;
+						int reg = (p2 >> 16) & 0xffff;
+						if (reg & 0x200)
+							kb_regs[reg & 0xff] = p1;
 					}
-					if((p2&0xFFFF)==0x6)	//Add value
+					if ((p2 & 0xffff) == 0x6)	//Add value
 					{
-						int src1=(p1>>16)&0xFF;
-						int src2=(p1>>0)&0xFF;
-						int dst=(p2>>16)&0xFF;
-						Regs[dst]=Regs[src2]-Regs[src1];
+						int src1 = (p1 >> 16) & 0xff;
+						int src2 = (p1 >> 0) & 0xff;
+						int dst = (p2 >> 16) & 0xff;
+						kb_regs[dst] = kb_regs[src2] - kb_regs[src1];
 					}
-					if((p2&0xFFFF)==0x1)	//Add Imm?
+					if ((p2 & 0xffff) == 0x1)	//Add Imm?
 					{
-						int reg=(p2>>16)&0xFF;
-						int imm=(p1>>0)&0xFFFF;
-						Regs[reg]+=imm;
+						int reg = (p2 >> 16) & 0xff;
+						int imm = (p1 >> 0) & 0xffff;
+						kb_regs[reg] += imm;
 					}
-					if((p2&0xFFFF)==0xa)	//Get value
+					if ((p2 & 0xffff) == 0xa)	//Get value
 					{
-						int reg=(p1>>16)&0xFF;
-						killbld_sharedprotram[0x29c/2] = (Regs[reg]>>16)&0xffff;
-						killbld_sharedprotram[0x29e/2] = Regs[reg]&0xffff;
+						int reg = (p1 >> 16) & 0xFF;
+						killbld_sharedprotram[0x29c/2] = (kb_regs[reg] >> 16) & 0xffff;
+						killbld_sharedprotram[0x29e/2] = kb_regs[reg] & 0xffff;
 					}
 				}
-				if(cmd==0x4f)	//memcpy with encryption / scrambling
+				if(cmd == 0x4f)	//memcpy with encryption / scrambling
 				{
-					unsigned short src=killbld_sharedprotram[0x290/2]>>1; // ?
-					unsigned int dst=killbld_sharedprotram[0x292/2];
-					unsigned short size=killbld_sharedprotram[0x294/2];
-					unsigned short mode=killbld_sharedprotram[0x296/2];
+					UINT16 src = killbld_sharedprotram[0x290 / 2] >> 1; // ?
+					UINT32 dst = killbld_sharedprotram[0x292 / 2];
+					UINT16 size = killbld_sharedprotram[0x294 / 2];
+					UINT16 mode = killbld_sharedprotram[0x296 / 2];
 
-
-				//  int a=1;
-				//  if(src==0x580)
-				//      int a=1;
+					UINT16 param;
+					
 					/*
                     P_SRC =0x300290 (offset from prot rom base)
                     P_DST =0x300292 (words from 0x300000)
@@ -1870,120 +1933,176 @@ WRITE16_HANDLER( killbld_prot_w )
 
                     Mode 5 direct
                     Mode 6 swap nibbles and bytes
-
-                    1,2,3 unk.
+                    1,2,3 table based ops
                     */
-
-					//printf("src %04x dst %04x size %04x mode %04x\n",src,dst,size,mode);
-
-					//if (src&1) printf("odd offset\n");
-
+	
+					param = mode >> 8;
 					mode &=0xf;  // what are the other bits?
 
-					if (mode == 1 || mode == 2 || mode == 3)
+					if (mode == 0)
 					{
-						/* for now, cheat -- the scramble isn't understood, it might
-                           be state based */
+						printf("unhandled copy mode %04x!\n", mode);
+						// not used by killing blade
+						/* plain byteswapped copy */
+					}
+					if ((mode == 1) || (mode == 2) || (mode == 3))
+					{
+						/* mode3 applies a xor from a 0x100 byte table to the data being
+						   transferred
+						   the table is stored at the start of the protection rom.
+						   the param used with the mode gives a start offset into the table
+						   odd offsets seem to change the table slightly (see rawDataOdd)
+					   */
+						  					
+						/*
+						unsigned char rawDataOdd[256] = {
+							0xB6, 0xA8, 0xB1, 0x5D, 0x2C, 0x5D, 0x4F, 0xC1,
+							0xCF, 0x39, 0x3A, 0xB7,	0x65, 0x85, 0xD9, 0xEE,
+							0xDB, 0x7B, 0x5F, 0x81, 0x03, 0x6D, 0xEB, 0x07,
+							0x0F, 0xB5, 0x61, 0x59, 0xCD, 0x60, 0x06, 0x21,
+							0xA0, 0x99, 0xDD, 0x27,	0x42, 0xD7, 0xC5, 0x5B,
+							0x3B, 0xC6, 0x4F, 0xA2, 0x20, 0xF6, 0x61, 0x61,
+							0x8C, 0x46, 0x8C, 0xCA, 0xE0, 0x0E, 0x2C, 0xE9,
+							0xBA, 0x0F, 0x45, 0x6D,	0x36, 0x1C, 0x18, 0x37,
+							0xE7, 0x85, 0x89, 0xA4, 0x94, 0x46, 0x30, 0x9B,
+							0xB2, 0xF4, 0x41, 0x55, 0xA5, 0x63, 0x1C, 0xEF,
+							0xB7, 0x18, 0xB3, 0xB1,	0xD4, 0x72, 0xA0, 0x1C,
+							0x0B, 0x97, 0x02, 0xB6, 0xC5, 0x1F, 0x1B, 0x94,
+							0xC3, 0x83, 0xAA, 0xAC, 0xD9, 0x44, 0x09, 0xD7,
+							0x6C, 0xDB, 0x07, 0xA9,	0xAD, 0x64, 0x83, 0xF1,
+							0x92, 0x09, 0xCD, 0x0E, 0x99, 0x2F, 0xBC, 0xF8,
+							0x3C, 0x63, 0x8F, 0x0A, 0x33, 0x03, 0x84, 0x91,
+							0x6C, 0xAC, 0x3A, 0x15,	0xCB, 0x67, 0xC7, 0x69,
+							0xA1, 0x92, 0x99, 0x74, 0xEE, 0x90, 0x0D, 0xBE,
+							0x57, 0x30, 0xD1, 0xBA, 0xE5, 0xDE, 0xFA, 0xD6,
+							0x83, 0x8C, 0xE4, 0x43,	0x36, 0x5E, 0xCD, 0x84,
+							0x1A, 0x18, 0x31, 0xB9, 0x20, 0x48, 0xE3, 0xA8,
+							0x89, 0x32, 0xF0, 0x90, 0x21, 0x80, 0x33, 0xAE,
+							0x3C, 0xA6, 0xB8, 0x8C,	0x72, 0x17, 0xD1, 0x0C,
+							0x1A, 0x29, 0xFA, 0x38, 0x87, 0xC9, 0x6E, 0xC7,
+							0x05, 0xDE, 0x85, 0x6E, 0x92, 0x7E, 0xD4, 0xED,
+							0x5C, 0xD3, 0x03, 0xD4,	0xFE, 0xCB, 0x6C, 0x19,
+							0x7A, 0x83, 0x79, 0x5B, 0xF6, 0x71, 0xBA, 0xF4,
+							0x37, 0x53, 0xC9, 0xC1, 0xDE, 0xDB, 0xDE, 0xB1,
+							0x64, 0x17, 0x31, 0x0E,	0xD7, 0xA2, 0x13, 0x8E,
+							0x52, 0x8D, 0xCB, 0x19, 0x3D, 0x0B, 0x31, 0x58,
+							0x4A, 0xDE, 0x0C, 0x01, 0x2B, 0x85, 0x2D, 0xE5,
+							0x13, 0x22, 0x48, 0xB6,	0xF3, 0x2D, 0x00, 0x9A
+						};
+						*/
 						int x;
-						for (x=0;x<size;x++)
-						{
-							UINT16 *RAMDUMP = (UINT16*)memory_region(REGION_USER2);
-							UINT16 dat;
+						UINT16 *PROTROM = (UINT16*)memory_region(REGION_USER1);
 
-							dat = RAMDUMP[dst+x];
-							killbld_sharedprotram[dst+x] = dat;
+						for (x = 0; x < size; x++)
+						{
+				
+							UINT16 dat2 = PROTROM[src + x];
+
+							UINT8 extraoffset = param&0xfe; // the lowest bit changed the table addressing in tests, see 'rawDataOdd' table instead.. it's still related to the main one, not identical
+							UINT8* dectable = (UINT8*)memory_region(REGION_USER1);//rawDataEven; // the basic decryption table is at the start of the mcu data rom! at least in killbld
+							UINT16 extraxor = ((dectable[((x*2)+0+extraoffset)&0xff]) << 8) | (dectable[((x*2)+1+extraoffset)&0xff] << 0);
+							
+							dat2 = ((dat2 & 0x00ff)<<8) | ((dat2 & 0xff00)>>8);
+							
+							if (mode==3) dat2 ^= extraxor;						
+							if (mode==2) dat2 += extraxor;
+							if (mode==1) dat2 -= extraxor;
+							
+							/*if (dat!=dat2)
+								printf("Mode %04x Param %04x Mismatch %04x %04x\n", mode, param, dat, dat2);
+							*/
+
+							killbld_sharedprotram[dst + x] = dat2;
 						}
+	
+						/* hack, patches out some additional security checks... we need to emulate them instead!
+						  they occur before it displays the disclaimer, so if you remove the overlay patches it will display
+						  the highscore table before coming up with this error... */
+						if ((mode==3) && (param==0x54) && (src*2==0x2120) && (dst*2==0x2600)) killbld_sharedprotram[0x2600 / 2] = 0x4e75;
+						
+					}
+					if (mode == 4)
+					{
+						printf("unhandled copy mode %04x!\n", mode);
+						/* not used by killing blade */
+						/* looks almost like a fixed value xor, but isn't */
 					}
 					else if (mode == 5)
 					{
 						/* mode 5 seems to be a straight copy */
 						int x;
-						for (x=0;x<size;x++)
+						UINT16 *PROTROM = (UINT16*)memory_region(REGION_USER1);
+						for (x = 0; x < size; x++)
 						{
-							UINT16 *RAMDUMP = (UINT16*)memory_region(REGION_USER2);
-							UINT16 *PROTROM = (UINT16*)memory_region(REGION_USER1);
-							UINT16 dat;
-							dat = PROTROM[src+x];
+							UINT16 dat = PROTROM[src + x];
 
-							if (RAMDUMP[dst+x] != dat)
-								printf("Mismatch! %04x %04x\n", RAMDUMP[dst+x], dat);
 
-							killbld_sharedprotram[dst+x] = dat;
+							killbld_sharedprotram[dst + x] = dat;
 						}
 					}
 					else if (mode == 6)
 					{
 						/* mode 6 seems to swap bytes and nibbles */
 						int x;
-						for (x=0;x<size;x++)
+						UINT16 *PROTROM = (UINT16*)memory_region(REGION_USER1);
+						for (x = 0; x < size; x++)
 						{
-							UINT16 *RAMDUMP = (UINT16*)memory_region(REGION_USER2);
-							UINT16 *PROTROM = (UINT16*)memory_region(REGION_USER1);
-							UINT16 dat;
-							dat = PROTROM[src+x];
+							UINT16 dat = PROTROM[src + x];
 
 							dat = ((dat & 0xf000) >> 12)|
 								  ((dat & 0x0f00) >> 4)|
 								  ((dat & 0x00f0) << 4)|
 								  ((dat & 0x000f) << 12);
 
-
-							if (RAMDUMP[dst+x] != dat)
-								printf("Mismatch! Mode 6 %04x %04x\n", RAMDUMP[dst+x], dat);
-
-							killbld_sharedprotram[dst+x] = dat;
+							killbld_sharedprotram[dst + x] = dat;
 						}
+					}
+					else if (mode == 7)
+					{
+						printf("unhandled copy mode %04x!\n", mode);
+						/* not used by killing blade */
+						/* weird mode, the params get left in memory? - maybe it's a NOP? */
 					}
 					else
 					{
-						printf("unknown copy mode!\n");
+						printf("unhandled copy mode %04x!\n", mode);
+						/* not used by killing blade */
+						/* invalid? */
+
 					}
-					/* hack.. it jumps here but there isn't valid code even when we do
-                       use what was in ram.. probably some more protection as the game
-                       still doesn't behave 100% correctly :-/
-
-                       the code is copied in 'mode 3' but even the code put here on
-                       the real ram dump is corrupt??? something _very_ strange is
-                       going on.. maybe more rom overlays, or ram overlays too??
-
-                    */
-					killbld_sharedprotram[0x2600/2]=0x4e75;
-
 
 				}
-				reg++;
+				kb_reg++;
 			}
 		}
-		else if(kb_cmd==4)
-			ptr=data;
-		else if(kb_cmd==0x20)
-			ptr++;
+		else if (kb_cmd == 4)
+			kb_ptr = data;
+		else if (kb_cmd == 0x20)
+			kb_ptr++;
 	}
 }
 
-READ16_HANDLER( killbld_prot_r )
+static READ16_HANDLER( killbld_prot_r )
 {
-//  printf("killbld prot w\n");
-	unsigned short res ;
 
-	offset&=0xf;
-	res=0;
+	UINT16 res ;
 
-	if(offset==1)
+	offset &= 0xf;
+	res = 0;
+
+	if (offset == 1)
 	{
-		if(kb_cmd==1)
+		if (kb_cmd == 1)
 		{
-			res=reg&0x7f;
+			res = kb_reg & 0x7f;
 		}
-		else if(kb_cmd==5)
+		else if (kb_cmd == 5)
 		{
-			UINT32 protvalue;
-			protvalue = 0x89911400|readinputport(4); // region
-			res=(protvalue>>(8*(ptr-1)))&0xff;
-
+			UINT32 protvalue = 0x89911400 | readinputport(4);
+			res = (protvalue >> (8 * (kb_ptr - 1))) & 0xff;
 		}
 	}
-	logerror("%06X: ASIC25 R CMD %X  VAL %X",activecpu_get_pc(),kb_cmd,res);
+	logerror("%06X: ASIC25 R CMD %X  VAL %X\n", activecpu_get_pc(),kb_cmd,res);
 	return res;
 }
 
@@ -1994,44 +2113,26 @@ static MACHINE_RESET( killbld )
 	machine_reset_pgm();
 
 	/* fill the protection ram with a5 */
-	for (i = 0;i < 0x4000/2;i++)
+	for (i = 0; i < 0x4000/2; i++)
 		killbld_sharedprotram[i] = 0xa5a5;
 
 }
 
 
+/* ASIC025/ASIC022 don't provide rom patches like the DW2 protection does, the previous dump was bad :-) */
 static DRIVER_INIT( killbld )
 {
-	UINT16 *mem16 = (UINT16 *)memory_region(REGION_CPU1);
 
 	pgm_basic_init();
- 	pgm_killbld_decrypt();
-
-
-
-	/* this isn't a hack.. doing a rom dump while the game is running shows the
-       rom space to look like this.. there may be more overlays / enables tho */
-
-	/* the game actually performs a CRC check of the rom during the 'Please Wait'
-       screen, the checksum expected is that of the patched rom.  if the checksum
-       fails the please wait screen doesn't last as long and the region supplied
-       by the protection device is ignored and the attract sequence appears out
-       of order */
-	mem16[0x108a2c/2]=0xB6AA;
-	mem16[0x108a30/2]=0x6610;
-	mem16[0x108a32/2]=0x13c2;
-	mem16[0x108a34/2]=0x0080;
-	mem16[0x108a36/2]=0x9c76;
-	mem16[0x108a38/2]=0x23c3;
-	mem16[0x108a3a/2]=0x0080;
-	mem16[0x108a3c/2]=0x9c78;
-	mem16[0x108a3e/2]=0x1002;
-	mem16[0x108a40/2]=0x6054;
-	mem16[0x108a42/2]=0x5202;
-	mem16[0x108a44/2]=0x0c02;
+	pgm_killbld_decrypt();
 
 	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0xd40000, 0xd40003, 0, 0, killbld_prot_r);
 	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xd40000, 0xd40003, 0, 0, killbld_prot_w);
+	
+	kb_cmd = 0;
+	kb_reg = 0;
+	kb_ptr = 0;
+	memset(kb_regs, 0, 0x10);
 }
 
 static WRITE32_HANDLER( ddp2_arm_region_w )
@@ -2042,17 +2143,39 @@ static WRITE32_HANDLER( ddp2_arm_region_w )
 	COMBINE_DATA(&arm7_shareram[0x0]);
 }
 
+static READ32_HANDLER( ddp2_speedup_r )
+{
+	int pc = activecpu_get_pc();
+	UINT32 data = arm_ram[0x300c/4];
+
+	if (pc==0x080109b4)
+	{
+		/* if we've hit the loop where this is read and both values are 0 then the only way out is an interrupt */
+//		int r4 = (cpu_get_reg(&space->device(), ARM7_R4));
+		int r4 = activecpu_get_reg(ARM7_R4);
+		r4 += 0xe;
+		
+		if (r4==0x18002f9e)
+		{
+			UINT32 data2 = arm_ram[0x2F9C/4]&0xffff0000;
+			if ((data==0x00000000) && (data2==0x00000000)) cpu_spinuntil_int();
+		}
+	}
+
+	return data;
+}
 
 static DRIVER_INIT( ddp2 )
 {
 	pgm_basic_init();
 	pgm_ddp2_decrypt();
-	
-//	kov2_latch_init(); // disabled for now we might not need it
+	kov2_latch_init();
  
 	// we only have a Japan internal ROM dumped for now, allow us to override that for debugging purposes.
 //	machine.device("prot")->memory().space(AS_PROGRAM)->install_legacy_write_handler(0x48000000, 0x48000003, FUNC(ddp2_arm_region_w));
-	memory_install_write32_handler(2, ADDRESS_SPACE_PROGRAM, 0x48000000, 0x48000003, 0, 0, ddp2_arm_region_w); // prot = CPU3 in this driver so it's cpu 0 1 "2" correct.??
+	memory_install_write32_handler(2, ADDRESS_SPACE_PROGRAM, 0x48000000, 0x48000003, 0, 0, ddp2_arm_region_w);	// prot = CPU3 in this driver so it's cpu 0 1 "2" correct.??
+	
+//	memory_install_read32_handler(2, ADDRESS_SPACE_PROGRAM, 0x1800300c, 0x1800300f, 0, 0, ddp2_speedup_r); // 16 or 32.??
 }
 
 static DRIVER_INIT( puzzli2 )
@@ -2094,115 +2217,451 @@ static DRIVER_INIT( puzzli2 )
 
 static MACHINE_RESET( olds )
 {
-	UINT16 *mem16 = (UINT16 *)memory_region(REGION_USER2);
-//  UINT16 *mem16_a = (UINT16 *)memory_region(REGION_CPU1);
-	int i;
-
 	machine_reset_pgm();
+	/*	written by protection device
+	there seems to be an auto-dma that writes from $401000-402573?
+	*/
+	olds_sharedprotram[0x1000/2] = 0x4749; /* 'IGS.28' */
+	olds_sharedprotram[0x1002/2] = 0x2E53;
+	olds_sharedprotram[0x1004/2] = 0x3832;
 
-	/* populate shared protection ram with data read from pcb .. */
-
-//  for(i=0;i<0x100000/2;i++)
-//  {
-//      mem16_a[i+(0x300000/2)] = mem16[i];
-//  }
-
-	for(i=0;i<0x100000/2;i++)
-	{
-		olds_sharedprotram[i] = mem16[(0x100000/2)+i];
-
-	}
+	olds_sharedprotram[0x3064/2] = 0xB315; /* crc? */
 }
 
-
-unsigned short olds_bs,olds_cmd3;
-
-
-//unsigned short olds_r16(unsigned int addr)
-READ16_HANDLER( olds_r16 )
+/* olds */
+int           olds_cmd;
+int           olds_reg;
+int           olds_ptr;
+UINT16        olds_bs;
+UINT16        olds_cmd3;
+UINT16        olds_prot_hold;
+UINT16        olds_prot_hilo;
+UINT16        olds_prot_hilo_select;
+const UINT8  *olds_prot_hilo_source2;
+UINT32 olds_prot_addr( UINT16 addr );
+UINT32 olds_read_reg( UINT16 addr );
+void olds_write_reg( UINT16 addr, UINT32 val );
+void IGS028_do_dma(UINT16 src, UINT16 dst, UINT16 size, UINT16 mode);
+void olds_protection_calculate_hilo();
+void olds_protection_calculate_hold(int y, int z);
+READ16_HANDLER( olds_r );
+WRITE16_HANDLER( olds_w );
+/* tables are xored by table at $1998dc
+   tables are the same as drgw3 and drgw2
+*/
+static const UINT8 olds_source_data[8][0xec] = /* table addresses $2951CA */
 {
-//  int offset=addr&0xf;
-	unsigned short res ;
-	res=0;
-
-	if(offset==1)
-	{
-		if(kb_cmd==1)
-			res=reg&0x7f;
-		if(kb_cmd==2)
-			res=olds_bs|0x80;
-		if(kb_cmd==3)
-			res=olds_cmd3;
-		else if(kb_cmd==5)
-		{
-			UINT32 protvalue = 0x900000|readinputport(4); // region from protection device.
-			res=(protvalue>>(8*(ptr-1)))&0xff; // includes region 1 = taiwan , 2 = china, 3 = japan (title = orlegend special), 4 = korea, 5 = hongkong, 6 = world
-
-		}
+	{ /* region 0, unused... */
+		0,
+	},
+	{ /* region 1, $1A669A */
+		0x67, 0x51, 0xf3, 0x19, 0xa0, 0x11, 0xe1, 0x11, 0x10, 0xee, 0xe3, 0xf6, 0xbe, 0x81, 0x35, 0xe3,
+		0xfb, 0xe6, 0xef, 0xdf, 0x61, 0x01, 0xfa, 0x22, 0x5d, 0x43, 0x01, 0xa5, 0x3b, 0x17, 0xd4, 0x74,
+		0xf0, 0xf4, 0xf3, 0x43, 0xb5, 0x19, 0x04, 0xd5, 0x84, 0xce, 0x87, 0xfe, 0x35, 0x3e, 0xc4, 0x3c,
+		0xc7, 0x85, 0x2a, 0x33, 0x00, 0x86, 0xd0, 0x4d, 0x65, 0x4b, 0xf9, 0xe9, 0xc0, 0xba, 0xaa, 0x77,
+		0x9e, 0x66, 0xf6, 0x0f, 0x4f, 0x3a, 0xb6, 0xf1, 0x64, 0x9a, 0xe9, 0x25, 0x1a, 0x5f, 0x22, 0xa3,
+		0xa2, 0xbf, 0x4b, 0x77, 0x3f, 0x34, 0xc9, 0x6e, 0xdb, 0x12, 0x5c, 0x33, 0xa5, 0x8b, 0x6c, 0xb1,
+		0x74, 0xc8, 0x40, 0x4e, 0x2f, 0xe7, 0x46, 0xae, 0x99, 0xfc, 0xb0, 0x55, 0x54, 0xdf, 0xa7, 0xa1,
+		0x0f, 0x5e, 0x49, 0xcf, 0x56, 0x3c, 0x90, 0x2b, 0xac, 0x65, 0x6e, 0xdb, 0x58, 0x3e, 0xc9, 0x00,
+		0xae, 0x53, 0x4d, 0x92, 0xfa, 0x40, 0xb2, 0x6b, 0x65, 0x4b, 0x90, 0x8a, 0x0c, 0xe2, 0xa5, 0x9a,
+		0xd0, 0x20, 0x29, 0x55, 0xa4, 0x44, 0xac, 0x51, 0x87, 0x54, 0x53, 0x34, 0x24, 0x4b, 0x81, 0x67,
+		0x34, 0x4c, 0x5f, 0x31, 0x4e, 0xf2, 0xf1, 0x19, 0x18, 0x1c, 0x34, 0x38, 0xe1, 0x81, 0x17, 0xcf,
+		0x24, 0xb9, 0x9a, 0xcb, 0x34, 0x51, 0x50, 0x59, 0x44, 0xb1, 0x0b, 0x50, 0x95, 0x6c, 0x48, 0x7e,
+		0x14, 0xa4, 0xc6, 0xd9, 0xd3, 0xa5, 0xd6, 0xd0, 0xc5, 0x97, 0xf0, 0x45, 0xd0, 0x98, 0x51, 0x91,
+		0x9f, 0xa3, 0x43, 0x51, 0x05, 0x90, 0xee, 0xca, 0x7e, 0x5f, 0x72, 0x53, 0xb1, 0xd3, 0xaf, 0x36,
+		0x08, 0x75, 0xb0, 0x9b, 0xe0, 0x0d, 0x43, 0x88, 0xaa, 0x27, 0x44, 0x11
+	},
+	{ /* region 2, $19A5F8 */
+		0xf9, 0x19, 0xf3, 0x09, 0xa0, 0x11, 0xe0, 0x11, 0x10, 0x22, 0xfd, 0x8e, 0xd3, 0xc8, 0x31, 0x67,
+		0xc0, 0x10, 0x3c, 0xc2, 0x03, 0xf2, 0x6a, 0x0a, 0x54, 0x49, 0xca, 0xb5, 0x4b, 0xe0, 0x94, 0xe8,
+		0x8d, 0xc8, 0x90, 0xee, 0x6b, 0x6f, 0xfa, 0x09, 0x76, 0x84, 0x6f, 0x55, 0xd1, 0x94, 0xca, 0x9c,
+		0xe1, 0x22, 0xc6, 0x02, 0xb5, 0x8c, 0xf9, 0x3a, 0x52, 0x10, 0xf0, 0x22, 0xe4, 0x11, 0x15, 0x73,
+		0x5e, 0x9e, 0xde, 0xc4, 0x5a, 0xbd, 0xa3, 0x89, 0xe7, 0x9b, 0x95, 0x5d, 0x75, 0xf6, 0xc3, 0x9f,
+		0xe4, 0xcf, 0x65, 0x73, 0x90, 0xd0, 0x75, 0x56, 0xfa, 0xcc, 0xe4, 0x3e, 0x9c, 0x41, 0x81, 0x62,
+		0xb1, 0xd3, 0x28, 0xbd, 0x6c, 0xed, 0x60, 0x28, 0x27, 0xee, 0xf2, 0xa1, 0xb4, 0x2c, 0x6c, 0xbb,
+		0x42, 0xd7, 0x1d, 0x62, 0xc0, 0x33, 0x7d, 0xf9, 0xe4, 0x5c, 0xe2, 0x41, 0xa4, 0x1c, 0x98, 0xa1,
+		0x87, 0x95, 0xad, 0x61, 0x56, 0x96, 0x40, 0x08, 0x6b, 0xe2, 0x4b, 0x95, 0x7b, 0x1b, 0xd8, 0x64,
+		0xb3, 0xee, 0x9d, 0x79, 0x69, 0xea, 0x5d, 0xcf, 0x01, 0x91, 0xea, 0x3f, 0x70, 0x29, 0xdc, 0xe0,
+		0x08, 0x20, 0xbf, 0x46, 0x90, 0xa8, 0xfc, 0x29, 0x14, 0xd1, 0x0d, 0x20, 0x79, 0xd2, 0x2c, 0xe9,
+		0x52, 0xa6, 0x8c, 0xbd, 0xa3, 0x3e, 0x88, 0x2d, 0xb8, 0x4e, 0xf2, 0x74, 0x50, 0xcc, 0x12, 0xde,
+		0xd3, 0x5a, 0xa4, 0x7b, 0xa2, 0x8d, 0x91, 0x68, 0x12, 0x0c, 0x9c, 0xb9, 0x6d, 0x26, 0x66, 0x60,
+		0xc3, 0x6d, 0xd0, 0x11, 0x33, 0x05, 0x1d, 0xa8, 0xb6, 0x51, 0xe6, 0xe0, 0x58, 0x61, 0x74, 0x37,
+		0xcc, 0x3a, 0x4d, 0x6a, 0x0a, 0x09, 0x71, 0xe3, 0x7e, 0xa5, 0x3b, 0xe9
+	},
+	{ /* region 3, $1F9508 */
+		0x73, 0x59, 0xf3, 0x09, 0xa0, 0x11, 0xe1, 0x11, 0x10, 0x55, 0x18, 0x0d, 0xe8, 0x29, 0x2d, 0x04,
+		0x85, 0x39, 0x88, 0xbe, 0x8b, 0xcb, 0xd9, 0x0b, 0x32, 0x36, 0x94, 0xac, 0x74, 0xc3, 0x3b, 0x5d,
+		0x2a, 0x83, 0x46, 0xb3, 0x3a, 0xac, 0xd8, 0x55, 0x68, 0x21, 0x57, 0xab, 0x6e, 0xd1, 0xd0, 0xfc,
+		0xe2, 0xbe, 0x63, 0xd0, 0x6b, 0x79, 0x23, 0x40, 0x58, 0xd4, 0xe7, 0x73, 0x22, 0x67, 0x7f, 0x88,
+		0x05, 0xbd, 0xdf, 0x7a, 0x65, 0x41, 0x90, 0x3a, 0x52, 0x83, 0x28, 0xae, 0xe9, 0x8e, 0x65, 0x82,
+		0x0e, 0xdf, 0x98, 0x88, 0xe1, 0x86, 0x21, 0x3e, 0x1a, 0x87, 0x6d, 0x62, 0x7a, 0xf6, 0xaf, 0x2c,
+		0xd5, 0xc5, 0x10, 0x2d, 0xa9, 0xda, 0x93, 0xa1, 0x9b, 0xc7, 0x35, 0xd4, 0x15, 0x78, 0x18, 0xd5,
+		0x75, 0x6a, 0xd7, 0xdb, 0x12, 0x2a, 0x6a, 0xc8, 0x36, 0x53, 0x57, 0xa6, 0xf0, 0x13, 0x67, 0x43,
+		0x79, 0xf0, 0x0e, 0x49, 0xb1, 0xec, 0xcd, 0xa4, 0x8a, 0x61, 0x06, 0xb9, 0xea, 0x53, 0xf2, 0x47,
+		0x7d, 0xd6, 0xf8, 0x9d, 0x2e, 0xaa, 0x27, 0x35, 0x61, 0xce, 0x9b, 0x63, 0xbc, 0x07, 0x51, 0x5a,
+		0xc2, 0x0d, 0x39, 0x42, 0xd2, 0x5e, 0x21, 0x20, 0x10, 0xa0, 0xe5, 0x08, 0xf7, 0x3d, 0x28, 0x04,
+		0x99, 0x93, 0x97, 0xaf, 0xf9, 0x12, 0xc0, 0x01, 0x2d, 0xea, 0xf3, 0x98, 0x0b, 0x46, 0xc2, 0x26,
+		0x93, 0x10, 0x69, 0x1d, 0x71, 0x8e, 0x33, 0x00, 0x5e, 0x80, 0x2f, 0x47, 0x0a, 0xcc, 0x94, 0x16,
+		0xe7, 0x37, 0x45, 0xd0, 0x61, 0x79, 0x32, 0x86, 0x08, 0x2a, 0x5b, 0x55, 0xfe, 0xee, 0x52, 0x38,
+		0xaa, 0x18, 0xe9, 0x39, 0x1a, 0x1e, 0xb8, 0x26, 0x6b, 0x3d, 0x4b, 0xa9
+	},
+	{ /* region 4, $1CA7B8 */
+		0x06, 0x01, 0xf3, 0x39, 0xa0, 0x11, 0xf0, 0x11, 0x10, 0x6f, 0x32, 0x8b, 0xfd, 0x89, 0x29, 0xa0,
+		0x4a, 0x62, 0xed, 0xa1, 0x2d, 0xa4, 0x49, 0xf2, 0x10, 0x3c, 0x77, 0xa3, 0x84, 0x8d, 0xfa, 0xd1,
+		0xc6, 0x57, 0xe2, 0x78, 0xef, 0xe9, 0xb6, 0xa1, 0x5a, 0xbd, 0x3f, 0x02, 0x0b, 0x28, 0xd6, 0x76,
+		0xfc, 0x5b, 0x19, 0x9f, 0x21, 0x66, 0x4c, 0x2d, 0x45, 0x99, 0xde, 0xab, 0x46, 0xbd, 0xe9, 0x84,
+		0xc4, 0xdc, 0xc7, 0x30, 0x70, 0xdd, 0x64, 0xea, 0xbc, 0x6b, 0xd3, 0xe6, 0x45, 0x3f, 0x07, 0x7e,
+		0x50, 0xef, 0xb2, 0x84, 0x33, 0x3c, 0xcc, 0x3f, 0x39, 0x5b, 0xf5, 0x6d, 0x71, 0xc5, 0xdd, 0xf5,
+		0xf9, 0xd0, 0xf7, 0x9c, 0xe6, 0xc7, 0xad, 0x1b, 0x29, 0xb9, 0x90, 0x08, 0x75, 0xc4, 0xc3, 0xef,
+		0xa8, 0xfc, 0xab, 0x55, 0x7c, 0x21, 0x57, 0x97, 0x87, 0x4a, 0xcb, 0x0c, 0x56, 0x0a, 0x4f, 0xcb,
+		0x52, 0x33, 0x87, 0x31, 0xf3, 0x43, 0x5b, 0x41, 0x90, 0xf8, 0xc0, 0xdd, 0x5a, 0xa4, 0x26, 0x2a,
+		0x60, 0xa5, 0x6d, 0xda, 0xf2, 0x6a, 0xf0, 0xb3, 0xda, 0x25, 0x33, 0x87, 0x22, 0xe4, 0xac, 0xd3,
+		0x96, 0xe0, 0x99, 0x3e, 0xfb, 0x14, 0x45, 0x17, 0x25, 0x56, 0xbe, 0xef, 0x8f, 0x8e, 0x3d, 0x1e,
+		0xc7, 0x99, 0xa2, 0xa1, 0x50, 0xfe, 0xdf, 0xd4, 0xa1, 0x87, 0xf4, 0xd5, 0xde, 0xa6, 0x8c, 0x6d,
+		0x6c, 0xde, 0x47, 0xbe, 0x59, 0x8f, 0xd4, 0x97, 0xc3, 0xf4, 0xda, 0xbb, 0xa6, 0x73, 0xa9, 0xcb,
+		0xf2, 0x01, 0xb9, 0x90, 0x8f, 0xed, 0x60, 0x64, 0x40, 0x1c, 0xb6, 0xc9, 0xa5, 0x7c, 0x17, 0x52,
+		0x6f, 0xdc, 0x6d, 0x08, 0x2a, 0x1a, 0xe6, 0x68, 0x3f, 0xd4, 0x42, 0x69
+	},
+	{ /* region 5, $1A19FA */
+		0x7f, 0x41, 0xf3, 0x39, 0xa0, 0x11, 0xf1, 0x11, 0x10, 0xa2, 0x4c, 0x23, 0x13, 0xe9, 0x25, 0x3d,
+		0x0f, 0x72, 0x3a, 0x9d, 0xb5, 0x96, 0xd1, 0xda, 0x07, 0x29, 0x41, 0x9a, 0xad, 0x70, 0xba, 0x46,
+		0x63, 0x2b, 0x7f, 0x3d, 0xbe, 0x40, 0xad, 0xd4, 0x4c, 0x73, 0x27, 0x58, 0xa7, 0x65, 0xdc, 0xd6,
+		0xfd, 0xde, 0xb5, 0x6e, 0xd6, 0x6c, 0x75, 0x1a, 0x32, 0x45, 0xd5, 0xe3, 0x6a, 0x14, 0x6d, 0x80,
+		0x84, 0x15, 0xaf, 0xcc, 0x7b, 0x61, 0x51, 0x82, 0x40, 0x53, 0x7f, 0x38, 0xa0, 0xd6, 0x8f, 0x61,
+		0x79, 0x19, 0xe5, 0x99, 0x84, 0xd8, 0x78, 0x27, 0x3f, 0x16, 0x97, 0x78, 0x4f, 0x7b, 0x0c, 0xa6,
+		0x37, 0xdb, 0xc6, 0x0c, 0x24, 0xb4, 0xc7, 0x94, 0x9d, 0x92, 0xd2, 0x3b, 0xd5, 0x11, 0x6f, 0x0a,
+		0xdb, 0x76, 0x66, 0xe7, 0xcd, 0x18, 0x2b, 0x66, 0xd8, 0x41, 0x40, 0x58, 0xa2, 0x01, 0x1e, 0x6d,
+		0x44, 0x75, 0xe7, 0x19, 0x4f, 0xb2, 0xe8, 0xc4, 0x96, 0x77, 0x62, 0x02, 0xc9, 0xdc, 0x59, 0xf3,
+		0x43, 0x8d, 0xc8, 0xfe, 0x9e, 0x2a, 0xba, 0x32, 0x3b, 0x62, 0xe3, 0x92, 0x6e, 0xc2, 0x08, 0x4d,
+		0x51, 0xcd, 0xf9, 0x3a, 0x3e, 0xc9, 0x50, 0x27, 0x21, 0x25, 0x97, 0xd7, 0x0e, 0xf8, 0x39, 0x38,
+		0xf5, 0x86, 0x94, 0x93, 0xbf, 0xeb, 0x18, 0xa8, 0xfc, 0x24, 0xf5, 0xf9, 0x99, 0x20, 0x3d, 0xcd,
+		0x2c, 0x94, 0x25, 0x79, 0x28, 0x77, 0x8f, 0x2f, 0x10, 0x69, 0x86, 0x30, 0x43, 0x01, 0xd7, 0x9a,
+		0x17, 0xe3, 0x47, 0x37, 0xbd, 0x62, 0x75, 0x42, 0x78, 0xf4, 0x2b, 0x57, 0x4c, 0x0a, 0xdb, 0x53,
+		0x4d, 0xa1, 0x0a, 0xd6, 0x3a, 0x16, 0x15, 0xaa, 0x2c, 0x6c, 0x39, 0x42
+	},
+	{ /* region 6, $2937EA */
+		0x12, 0x09, 0xf3, 0x29, 0xa0, 0x11, 0xf0, 0x11, 0x10, 0xd5, 0x66, 0xa1, 0x28, 0x4a, 0x21, 0xc0,
+		0xd3, 0x9b, 0x86, 0x80, 0x57, 0x6f, 0x41, 0xc2, 0xe4, 0x2f, 0x0b, 0x91, 0xbd, 0x3a, 0x7a, 0xba,
+		0x00, 0xe5, 0x35, 0x02, 0x74, 0x7d, 0x8b, 0x21, 0x57, 0x10, 0x0f, 0xae, 0x44, 0xbb, 0xe2, 0x37,
+		0x18, 0x7b, 0x52, 0x3d, 0x8c, 0x59, 0x9e, 0x20, 0x1f, 0x0a, 0xcc, 0x1c, 0x8e, 0x6a, 0xd7, 0x95,
+		0x2b, 0x34, 0xb0, 0x82, 0x6d, 0xfd, 0x25, 0x33, 0xaa, 0x3b, 0x2b, 0x70, 0x15, 0x87, 0x31, 0x5d,
+		0xbb, 0x29, 0x19, 0x95, 0xd5, 0x8e, 0x24, 0x28, 0x5e, 0xd0, 0x20, 0x83, 0x46, 0x4a, 0x21, 0x70,
+		0x5b, 0xcd, 0xae, 0x7b, 0x61, 0xa1, 0xfa, 0xf4, 0x2b, 0x84, 0x15, 0x6e, 0x36, 0x5d, 0x1b, 0x24,
+		0x0f, 0x09, 0x3a, 0x61, 0x38, 0x0f, 0x18, 0x35, 0x11, 0x38, 0xb4, 0xbd, 0xee, 0xf7, 0xec, 0x0f,
+		0x1d, 0xb7, 0x48, 0x01, 0xaa, 0x09, 0x8f, 0x61, 0xb5, 0x0f, 0x1d, 0x26, 0x39, 0x2e, 0x8c, 0xd6,
+		0x26, 0x5c, 0x3d, 0x23, 0x63, 0xe9, 0x6b, 0x97, 0xb4, 0x9f, 0x7b, 0xb6, 0xba, 0xa0, 0x7c, 0xc6,
+		0x25, 0xa1, 0x73, 0x36, 0x67, 0x7f, 0x74, 0x1e, 0x1d, 0xda, 0x70, 0xbf, 0xa5, 0x63, 0x35, 0x39,
+		0x24, 0x8c, 0x9f, 0x85, 0x16, 0xd8, 0x50, 0x95, 0x71, 0xc0, 0xf6, 0x1e, 0x6d, 0x80, 0xed, 0x15,
+		0xeb, 0x63, 0xe9, 0x1b, 0xf6, 0x78, 0x31, 0xc6, 0x5c, 0xdd, 0x19, 0xbd, 0xdf, 0xa7, 0xec, 0x50,
+		0x22, 0xad, 0xbb, 0xf6, 0xeb, 0xd6, 0xa3, 0x20, 0xc9, 0xe6, 0x9f, 0xcb, 0xf2, 0x97, 0xb9, 0x54,
+		0x12, 0x66, 0xa6, 0xbe, 0x4a, 0x12, 0x43, 0xec, 0x00, 0xea, 0x49, 0x02
+	},
+	{ /* region 7, $255E8C */
+		0xa4, 0x49, 0xf3, 0x29, 0xa0, 0x11, 0xf1, 0x11, 0x10, 0xef, 0x80, 0x20, 0x3d, 0xaa, 0x36, 0x5d,
+		0x98, 0xc4, 0xd2, 0x63, 0xdf, 0x61, 0xb0, 0xc3, 0xc2, 0x35, 0xd4, 0x88, 0xe6, 0x1d, 0x3a, 0x2f,
+		0x9c, 0xb9, 0xd1, 0xc6, 0x43, 0xba, 0x69, 0x6d, 0x49, 0xac, 0xdd, 0x05, 0xe0, 0xf8, 0xe8, 0x97,
+		0x19, 0x18, 0x08, 0x0c, 0x42, 0x46, 0xc7, 0x0d, 0x25, 0xce, 0xc3, 0x54, 0xb2, 0xd9, 0x42, 0x91,
+		0xea, 0x53, 0x98, 0x38, 0x78, 0x81, 0x12, 0xca, 0x15, 0x23, 0xbd, 0xc1, 0x70, 0x1f, 0xd2, 0x40,
+		0xfd, 0x39, 0x33, 0xaa, 0x27, 0x2b, 0xe8, 0x10, 0x7d, 0xa4, 0xa8, 0x8e, 0x3d, 0x00, 0x4f, 0x3a,
+		0x7f, 0xd8, 0x96, 0xea, 0x9e, 0x8e, 0x15, 0x6e, 0x9f, 0x76, 0x57, 0xba, 0x7d, 0xc2, 0xdf, 0x57,
+		0x42, 0x82, 0xf4, 0xda, 0x89, 0x06, 0x05, 0x04, 0x62, 0x2f, 0x29, 0x23, 0x54, 0xd5, 0xbb, 0x97,
+		0xf5, 0xf9, 0xc1, 0xcf, 0xec, 0x5f, 0x1d, 0xfd, 0xbb, 0xa6, 0xd7, 0x4a, 0xa8, 0x66, 0xbf, 0xb9,
+		0x09, 0x44, 0xb1, 0x60, 0x28, 0xa9, 0x35, 0x16, 0x15, 0xf5, 0x13, 0xc1, 0x07, 0x7e, 0xd7, 0x40,
+		0xdf, 0x8e, 0xd3, 0x32, 0xa9, 0x35, 0x98, 0x15, 0x32, 0xa9, 0x49, 0xc0, 0x24, 0xb4, 0x4a, 0x53,
+		0x6b, 0x79, 0xaa, 0x77, 0x6c, 0xc5, 0x88, 0x69, 0xe5, 0x5d, 0xde, 0x42, 0x28, 0xf9, 0xb7, 0x5c,
+		0xab, 0x19, 0xc7, 0xbc, 0xc5, 0x60, 0xeb, 0x5e, 0xa8, 0x52, 0xc4, 0x32, 0x7c, 0x35, 0x02, 0x06,
+		0x46, 0x77, 0x30, 0xb6, 0x33, 0x4b, 0xb8, 0xfd, 0x02, 0xd8, 0x14, 0x40, 0x99, 0x25, 0x7e, 0x55,
+		0xd6, 0x44, 0x43, 0x8d, 0x73, 0x0e, 0x71, 0x48, 0xd3, 0x82, 0x40, 0xda
 	}
-	logerror("%06X: ASIC25 R CMD %X  VAL %X\n",activecpu_get_pc(),kb_cmd,res);
-	return res;
+};
+
+UINT32 olds_prot_addr(UINT16 addr)
+{
+	switch (addr & 0xff)
+	{
+		case 0x0:
+		case 0x5:
+		case 0xa: return 0x402a00 + ((addr >> 8) << 2);
+		case 0x2:
+		case 0x8: return 0x402e00 + ((addr >> 8) << 2);
+		case 0x1: return 0x40307e;
+		case 0x3: return 0x403090;
+		case 0x4: return 0x40309a;
+		case 0x6: return 0x4030a4;
+		case 0x7: return 0x403000;
+		case 0x9: return 0x40306e;
+	}
+
+	return 0;
 }
 
-//void olds_w16(unsigned int addr,unsigned short data)
-WRITE16_HANDLER( olds_w16 )
+UINT32 olds_read_reg(UINT16 addr)
 {
-//  int offset=addr&0xf;
+	UINT32 protaddr = (olds_prot_addr(addr) - 0x400000) / 2;
+	return olds_sharedprotram[protaddr] << 16 | olds_sharedprotram[protaddr + 1];
+}
 
-	if(offset==0)
-		kb_cmd=data;
-	else //offset==2
+void olds_write_reg( UINT16 addr, UINT32 val )
+{
+	olds_sharedprotram[((olds_prot_addr(addr) - 0x400000) / 2) + 0] = val >> 16;
+	olds_sharedprotram[((olds_prot_addr(addr) - 0x400000) / 2) + 1] = val & 0xffff;
+}
+
+void IGS028_do_dma(UINT16 src, UINT16 dst, UINT16 size, UINT16 mode)
+{
+	UINT16 param = mode >> 8;
+	UINT16 *PROTROM = (UINT16*)memory_region(REGION_USER1);
+
+/*	logerror ("mode: %2.2x, src: %4.4x, dst: %4.4x, size: %4.4x, data: %4.4x\n", (mode &0xf), src, dst, size, mode); */
+
+	mode &= 0x0f;
+
+	switch (mode)
 	{
-		logerror("%06X: ASIC25 W CMD %X  VAL %X\n",activecpu_get_pc(),kb_cmd,data);
-		if(kb_cmd==0)
-			reg=data;
-		else if(kb_cmd==2)	//a bitswap=
+		case 0x00: 
+		/* This mode copies code later on in the game! Encrypted somehow?
+		 src:2fc8, dst: 045a, size: 025e, mode: 0000
+		 jumps from 12beb4 in unprotected set
+		 jumps from 1313e0 in protected set
+		*/
+		case 0x01: /* swap bytes and nibbles */
+		case 0x02: /* ^= encryption */
+		case 0x05: /* copy */
+		case 0x06: /* += encryption (correct?) */
 		{
-			int reg=0;
-			if(data&0x01)
-				reg|=0x40;
-			if(data&0x02)
-				reg|=0x80;
-			if(data&0x04)
-				reg|=0x20;
-			if(data&0x08)
-				reg|=0x10;
-			olds_bs=reg;
-		}
-		else if(kb_cmd==3)
-		{
-			//unsigned short cmd=fast_r16(0x403026);
-			unsigned short cmd = 0;
-			if(cmd==0x12)	//memcpy
+			UINT8 extraoffset = param & 0xff;
+			UINT8 *dectable = (UINT8 *)(PROTROM + (0x100 / 2));
+
+			INT32 x = 0;
+			for (x = 0; x < size; x++)
 			{
-			//  unsigned short src=fast_r16(0x40306A);
-			//  unsigned int dst=0x400000+(fast_r16(0x403084)<<1);
-			//  unsigned short size=fast_r16(0x4030A2);
-			//  unsigned short mode=fast_r16(0x40303E)&0xf;
-				//int a=1;
+				UINT16 dat2 = PROTROM[src + x];
+
+				int taboff = ((x*2)+extraoffset) & 0xff; /* must allow for overflow in instances of odd offsets */
+				unsigned short extraxor = ((dectable[taboff + 0]) << 0) | (dectable[taboff + 1] << 8);
+
+				if (mode==0) dat2 = 0x4e75; /* hack */
+				if (mode==1) dat2  = ((dat2 & 0xf000) >> 12) | ((dat2 & 0x0f00) >> 4) | ((dat2 & 0x00f0) << 4) | ((dat2 & 0x000f) << 12);
+				if (mode==2) dat2 ^= extraxor;
+			/*	if (mode==5) dat2  = dat2; */
+				if (mode==6) dat2 += extraxor;
+
+				if (mode==2 || mode==6) dat2 = (dat2<<8)|(dat2>>8);
+
+				olds_sharedprotram[dst + x] = (dat2 << 8) | (dat2 >> 8);
 			}
-			//else
-			//  int a=1;
-			olds_cmd3=((data>>4)+1)&0x3;
 		}
-		else if(kb_cmd==4)
-			ptr=data;
-		else if(kb_cmd==0x20)
-		  ptr++;
+		break;
+
+	/*	default: */
+	/*		logerror ("DMA mode unknown!!!\nsrc:%4.4x, dst: %4.4x, size: %4.4x, mode: %4.4x\n", src, dst, size, mode); */
 	}
 }
 
-
-
-
-static DRIVER_INIT( olds )
+void olds_protection_calculate_hold(int y, int z) /* calculated in routine $12dbc2 in olds */
 {
-//  UINT16 *mem16 = (UINT16 *)memory_region(REGION_CPU1);
+	unsigned short old = olds_prot_hold;
 
+	olds_prot_hold = ((old << 1) | (old >> 15));
+
+	olds_prot_hold ^= 0x2bad;
+	olds_prot_hold ^= BIT(z, y);
+	olds_prot_hold ^= BIT( old,  7) <<  0;
+	olds_prot_hold ^= BIT(~old, 13) <<  4;
+	olds_prot_hold ^= BIT( old,  3) << 11;
+
+	olds_prot_hold ^= (olds_prot_hilo & ~0x0408) << 1; /* $81790c */
+}
+
+void olds_protection_calculate_hilo() /* calculated in routine $12dbc2 in olds */
+{
+	UINT8 source;
+
+	olds_prot_hilo_select++;
+	if (olds_prot_hilo_select > 0xeb) {
+		olds_prot_hilo_select = 0;
+	}
+
+	source = olds_source_data[readinputport(4)][olds_prot_hilo_select];
+
+	if (olds_prot_hilo_select & 1)    /* $8178fa */
+	{
+		olds_prot_hilo = (olds_prot_hilo & 0x00ff) | (source << 8);     /* $8178d8 */
+	}
+	else
+	{
+		olds_prot_hilo = (olds_prot_hilo & 0xff00) | (source << 0);     /* $8178d8 */
+	}
+}
+
+WRITE16_HANDLER(olds_w )
+{
+	if (offset == 0)
+	{
+		olds_cmd = data;
+	}
+	else
+	{
+		switch (olds_cmd)
+		{
+			case 0x00:
+				olds_reg = data;
+			break;
+
+			case 0x02:
+				olds_bs = ((data & 0x03) << 6) | ((data & 0x04) << 3) | ((data & 0x08) << 1);
+			break;
+
+			case 0x03:
+			{
+				UINT16 cmd = olds_sharedprotram[0x3026 / 2];
+
+			/*  logerror ("command: %x\n", cmd); */
+
+				switch (cmd)
+				{
+					case 0x12:
+					{
+						UINT16 mode = olds_sharedprotram[0x303e / 2];  /* ? */
+						UINT16 src  = olds_sharedprotram[0x306a / 2] >> 1; /* ? */
+						UINT16 dst  = olds_sharedprotram[0x3084 / 2] & 0x1fff;
+						UINT16 size = olds_sharedprotram[0x30a2 / 2] & 0x1fff;
+
+						IGS028_do_dma(src, dst, size, mode);
+					}
+					break;
+
+					case 0x64: /* incomplete? */
+					{
+					        UINT16 p1 = olds_sharedprotram[0x3050 / 2];
+					        UINT16 p2 = olds_sharedprotram[0x3082 / 2];
+					        UINT16 p3 = olds_sharedprotram[0x3054 / 2];
+					        UINT16 p4 = olds_sharedprotram[0x3088 / 2];
+
+					        if (p2  == 0x02)
+					                olds_write_reg(p1, olds_read_reg(p1) + 0x10000);
+
+					        switch (p4)
+					        {
+					                case 0xd:
+					                        olds_write_reg(p1,olds_read_reg(p3));
+					                        break;
+					                case 0x0:
+					                        olds_write_reg(p3,(olds_read_reg(p2))^(olds_read_reg(p1)));
+					                        break;
+					                case 0xe:
+					                        olds_write_reg(p3,olds_read_reg(p3)+0x10000);
+					                        break;
+					                case 0x2:
+					                        olds_write_reg(p1,(olds_read_reg(p2))+(olds_read_reg(p3)));
+					                        break;
+					                case 0x6:
+					                        olds_write_reg(p3,(olds_read_reg(p2))&(olds_read_reg(p1)));
+					                        break;
+					                case 0x1:
+					                        olds_write_reg(p2,olds_read_reg(p1)+0x10000);
+					                        break;
+					                case 0x7:
+					                        olds_write_reg(p3,olds_read_reg(p1));
+					                        break;
+					                default:
+					                        break;
+					        }
+					}
+					break;
+
+				/*  default: */
+				/*      logerror ("unemulated command!\n"); */
+				}
+
+				olds_cmd3 = ((data >> 4) + 1) & 0x3;
+			}
+			break;
+
+			case 0x04:
+				olds_ptr = data;
+			break;
+
+			case 0x20:
+			case 0x21:
+			case 0x22:
+			case 0x23:
+			case 0x24:
+			case 0x25:
+			case 0x26:
+			case 0x27:
+				olds_ptr++;
+				olds_protection_calculate_hold(olds_cmd & 0x0f, data & 0xff);
+			break;
+
+		/*	default: */
+		/*		logerror ("unemulated write mode!\n"); */
+		}
+	}
+}
+
+READ16_HANDLER(olds_r )
+{
+	if (offset)
+	{
+		switch (olds_cmd)
+		{
+			case 0x01:
+				return olds_reg & 0x7f;
+
+			case 0x02:
+				return olds_bs | 0x80;
+
+			case 0x03:
+				return olds_cmd3;
+
+			case 0x05:
+			{
+				switch (olds_ptr)
+				{
+					case 1: return 0x3f00 | readinputport(4);
+
+					case 2:
+						return 0x3f00 | 0x00;
+
+					case 3:
+						return 0x3f00 | 0x90;
+
+					case 4:
+						return 0x3f00 | 0x00;
+
+					case 5:
+					default: /* >= 5 */
+						return 0x3f00 | BITSWAP8(olds_prot_hold, 5,2,9,7,10,13,12,15);    /* $817906 */
+				}
+			}
+
+			case 0x40:
+				olds_protection_calculate_hilo();
+				return 0; /* unused? */
+		}
+	}
+
+	return 0;
+}
+
+
+DRIVER_INIT(olds)
+{
 	pgm_basic_init();
 
-	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0xDCB400, 0xDCB403, 0, 0, olds_r16);
-	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xdcb400, 0xdcb403, 0, 0, olds_w16);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0xdcb400, 0xdcb403, 0, 0, olds_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xdcb400, 0xdcb403, 0, 0, olds_w);
+
+	olds_prot_hold = 0;
+	olds_prot_hilo = 0;
+	olds_prot_hilo_select = 0;
+
+	olds_cmd = 0;
+	olds_reg = 0;
+	olds_ptr = 0;
+	olds_bs = 0;
+	olds_cmd3 = 0;
 
 }
 
@@ -2210,6 +2669,14 @@ static DRIVER_INIT( olds )
 static DRIVER_INIT( olds103t )
 {
 	pgm_basic_init();
+}
+
+static READ32_HANDLER( dmnfrnt_speedup_r )
+{
+	int pc = activecpu_get_pc();
+    if (pc == 0x8000fea) activecpu_eat_cycles(500); // correct i think
+//	else printf("dmn_speedup_r %08x\n", pc);
+	return arm_ram[0x000444/4];
 }
 
 static void svg_basic_init(void)
@@ -2224,6 +2691,7 @@ static DRIVER_INIT( dmnfrnt )
 {
 	svg_basic_init();
 	pgm_dfront_decrypt();
+	kov2_latch_init();
 	
 	/* put some fake code for the ARM here ... */
 	UINT16 *temp16 = (UINT16 *)memory_region(REGION_CPU3);
@@ -2236,9 +2704,257 @@ static DRIVER_INIT( dmnfrnt )
 	temp16[(0x0090)/2] = 0x0400;
 	temp16[(0x0092)/2] = 0x1000;
 	
+//	memory_install_read32_handler(2, ADDRESS_SPACE_PROGRAM, 0x18000444, 0x18000447, 0, 0, dmnfrnt_speedup_r); // 16 or 32.??
+
 	// the internal rom probably also supplies the region here
 	UINT16 *share16 = (UINT16 *)(svg_shareram[0]);
 	share16[0x158/2] = 0x0005;
+}
+
+static MACHINE_RESET(theglad)
+{
+	// this is the location of the region in the internal rom, for some reason Japan doesn't play attract music (original game feature? bad code flow?)
+	UINT16 *temp16 = (UINT16 *)memory_region(REGION_CPU3);
+	int base = -1;
+
+	if(strcmp(Machine->gamedrv->name, "theglad") == 0)
+	{
+       base = 0x3316; // correct.??
+	} 
+	//if (!strcmp(machine().system().name, "theglad")) base = 0x3316;
+
+	if (base != -1)
+	{
+		int regionhack = readinputportbytag("RegionHack");
+		if (regionhack != 0xff)
+		{
+			temp16[(base) / 2] = regionhack; base += 2;
+		}
+	}
+	machine_reset_pgm();
+}
+
+READ32_HANDLER(theglad_speedup_r )
+{
+	int pc = activecpu_get_pc();
+	if (pc == 0x7c4) activecpu_eat_cycles(500); // correct i think
+	//else printf("theglad_speedup_r %08x\n", pc);
+	return arm_ram2[0x00c/4];
+}
+
+
+static void armsim_theglad(void)
+{
+	UINT16 *temp16 = (UINT16 *) memory_region(REGION_CPU3);
+
+	int i;
+	for (i=0;i<0x188/2;i+=2)
+	{
+		temp16[i] = 0xFFFE;
+		temp16[i+1] = 0xEAFF;
+
+	}
+
+	// the interrupt code appears to be at 0x08000010
+	// so point the FIQ vector to jump there, the actual internal EO area code
+	// would not look like this because this reads from the EO area to get the jump address which is verified
+	// as impossible
+	int base = 0x1c;
+	temp16[(base) /2] = 0xf000; base += 2;
+	temp16[(base) /2] = 0xe59f; base += 2;
+	temp16[(base) /2] = 0x0010; base += 2;
+	temp16[(base) /2] = 0x0800; base += 2;
+	temp16[(base) /2] = 0x0010; base += 2;
+	temp16[(base) /2] = 0x0800; base += 2;
+	 
+
+	// some startup code to set up the stacks etc. we're assuming
+	// behavior is basically the same as killing blade plus here, this code
+	// could be very wrong
+	base = 0x30;
+
+	temp16[(base) /2] = 0x00D2; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+
+	temp16[(base) /2] = 0x4001; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x4B06; base += 2;
+	temp16[(base) /2] = 0xE284; base += 2;
+	temp16[(base) /2] = 0x0CFA; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xD804; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x00D1; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0x0CF6; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xD804; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x00D7; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0x0CFF; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xD804; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x00DB; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0x4140; base += 2;
+	temp16[(base) /2] = 0xE1C4; base += 2;
+	temp16[(base) /2] = 0x0CFE; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xD804; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x00D3; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0x4A01; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x0B01; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xD804; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x5A0F; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x0008; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x8805; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x0010; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x0000; base += 2;
+	temp16[(base) /2] = 0xE5C8; base += 2;
+	temp16[(base) /2] = 0x7805; base += 2;
+	temp16[(base) /2] = 0xE1A0; base += 2;
+	temp16[(base) /2] = 0x6A01; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x0012; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x0A02; base += 2;
+	temp16[(base) /2] = 0xE280; base += 2;
+	temp16[(base) /2] = 0x6806; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+	temp16[(base) /2] = 0x6000; base += 2;
+	temp16[(base) /2] = 0xE587; base += 2;
+	
+	// set the SR13 to something sensible
+	temp16[(base) /2] = 0x00D3; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0x4001; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x4B06; base += 2;
+	temp16[(base) /2] = 0xE284; base += 2;
+	temp16[(base) /2] = 0x0CF2; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xD804; base += 2;
+	temp16[(base) /2] = 0xE080; base += 2;
+
+	temp16[(base) /2] = 0x0013; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+
+	temp16[(base) /2] = 0x0028; base += 2; // jump to 0x184
+	temp16[(base) /2] = 0xEA00; base += 2;
+
+	base = 0;
+	temp16[(base) /2] = 0x000a; base += 2;
+	temp16[(base) /2] = 0xEA00; base += 2;
+
+	// see table at ~080824A4 in The Gladiator (ARM space)
+	// there are pointers to
+	// 0000 00FC
+	// 0000 00E8
+	// 0000 0110
+	// 0000 0150
+	// in the table.. for e8 / fc we can deduce from the calling code and size of the functions expected that they should be the
+	// same as those in the killing blade plus 'killbldp'  (there are also explicit jumps to these addresses in the code)
+	//
+	// 0x110 is called after the 'continue' screen, and on inserting coin, I guess it should change the game state, causing it to jump to the title screen when you insert a coin, and back to the attract after the game.. some kind of 'soft reset'
+	// 0x150 I haven't seen called, I guess it is 0x38 in size because the execute-only area ends at 0x188
+
+	base = 0xe8;
+	temp16[(base) /2] = 0xE004; base += 2; // based on killbldp
+	temp16[(base) /2] = 0xE52D; base += 2;
+	temp16[(base) /2] = 0x00D3; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0xE004; base += 2;
+	temp16[(base) /2] = 0xE49D; base += 2;
+	temp16[(base) /2] = 0xFF1E; base += 2;
+	temp16[(base) /2] = 0xE12F; base += 2;
+
+//	base = 0xfc; // already at 0xfc
+	temp16[(base) /2] = 0xE004; base += 2; // based on killbldp
+	temp16[(base) /2] = 0xE52D; base += 2;
+	temp16[(base) /2] = 0x0013; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0xE004; base += 2;
+	temp16[(base) /2] = 0xE49D; base += 2;
+	temp16[(base) /2] = 0xFF1E; base += 2;
+	temp16[(base) /2] = 0xE12F; base += 2;
+
+//	base = 0x110; // already at 0x110
+//	temp16[(base) /2] = 0xff1e; base += 2;
+//	temp16[(base) /2] = 0xe12f; base += 2;
+//	temp16[(base) /2] = 0xf302; base += 2;
+//	temp16[(base) /2] = 0xe3a0; base += 2;
+	// set up stack again, soft-reset reset with a ram variable set to 0
+	temp16[(base) /2] = 0x00D1; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0xD0b8; base += 2;
+	temp16[(base) /2] = 0xE59F; base += 2;
+	temp16[(base) /2] = 0x00D3; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0xF000; base += 2;
+	temp16[(base) /2] = 0xE121; base += 2;
+	temp16[(base) /2] = 0xD0b0; base += 2;
+	temp16[(base) /2] = 0xE59F; base += 2;
+	temp16[(base) /2] = 0x10b8; base += 2;
+	temp16[(base) /2] = 0xE59F; base += 2;
+	temp16[(base) /2] = 0x0000; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+	temp16[(base) /2] = 0x0000; base += 2;
+	temp16[(base) /2] = 0xE581; base += 2;
+	temp16[(base) /2] = 0xF302; base += 2;
+	temp16[(base) /2] = 0xE3A0; base += 2;
+
+	base = 0x150;
+	temp16[(base) /2] = 0xff1e; base += 2;
+	temp16[(base) /2] = 0xe12f; base += 2;
+
+	// the non-EO area starts in the middle of a function that seems similar to those  at 000037E4 / 000037D4 in killbldp.. by setting this up we allow the intro to run, but can no longer can get in game..
+	// it sets '0x10000038' to a value ot 1
+	// maybe this flag needs to be flipped on interrupts or similar??
+	base = 0x184;
+	temp16[(base) /2] = 0x105c; base += 2;
+	temp16[(base) /2] = 0xE59F; base += 2;
+}
+
+DRIVER_INIT(theglad)
+{
+	svg_basic_init();
+	pgm_theglad_decrypt();
+	kov2_latch_init();
+	armsim_theglad();
+	
+//	memory_install_read32_handler(2, ADDRESS_SPACE_PROGRAM, 0x1000000c, 0x1000000f, 0, 0, theglad_speedup_r);
 }
 
 /*** Rom Loading *************************************************************/
@@ -3147,17 +3863,12 @@ Notes:
 ROM_START( killbld )
 	ROM_REGION( 0x600000, REGION_CPU1, 0 ) /* 68000 Code */
 	ROM_LOAD16_WORD_SWAP( "pgm_p01s.rom", 0x000000, 0x020000, CRC(e42b166e) SHA1(2a9df9ec746b14b74fae48b1a438da14973702ea) )  // (BIOS)
-	ROM_LOAD16_BYTE( "kb_u3_v104.u3",     0x100001, 0x080000, CRC(6db1d719) SHA1(804002f014d275aaf0368fb7f904938fe4ac07ee) )
-	ROM_LOAD16_BYTE( "kb_u6_v104.u6",     0x100000, 0x080000, CRC(31ecc978) SHA1(82666d534e4151775063af6d39f575faba0f1047) )
-	ROM_LOAD16_BYTE( "kb_u4_v104.u4",     0x200001, 0x080000, CRC(1ed8b2e7) SHA1(331c037640cfc1fe743cd0e65a1156c470b3303e) ) // order?
-	ROM_LOAD16_BYTE( "kb_u5_v104.u5",     0x200000, 0x080000, CRC(a0bafc29) SHA1(b20db7c16353c6f87ed3c08c9d037b07336711f1) ) // order?
-
-	ROM_REGION( 0x4000, REGION_USER2, ROMREGION_ERASEFF )
+	ROM_LOAD16_WORD_SWAP( "p0300_v109.u9", 0x100000, 0x200000, CRC(2fcee215) SHA1(855281a9090bfdf3da9f4d50c121765131a13400) )
 
 	/* CPU2 = Z80, romless, code uploaded by 68k */
 
 	ROM_REGION( 0x010000, REGION_USER1, 0 ) /* Protection Data */
-	ROM_LOAD16_WORD_SWAP( "kb_u2_v104.u2", 0x000000, 0x010000,  CRC(c970f6d5) SHA1(399fc6f80262784c566363c847dc3fdc4fb37494) )
+	ROM_LOAD16_WORD_SWAP( "kb_u2.rom", 0x000000, 0x010000,  CRC(de3eae63) SHA1(03af767ef764055bda528b5cc6a24b9e1218cca8) )
 
 	ROM_REGION( 0x800000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
@@ -3187,18 +3898,18 @@ ROM_START( killbld )
 	ROM_LOAD( "m0300.u1",     0x400000, 0x400000, CRC(93159695) SHA1(50c5976c9b681bd3d1ebefa3bfa9fe6e72dcb96f) )
 ROM_END
 
-ROM_START( killbldt )
+ROM_START( killbld104 )
 	ROM_REGION( 0x600000, REGION_CPU1, 0 ) /* 68000 Code */
 	ROM_LOAD16_WORD_SWAP( "pgm_p01s.rom", 0x000000, 0x020000, CRC(e42b166e) SHA1(2a9df9ec746b14b74fae48b1a438da14973702ea) )  // (BIOS)
-	ROM_LOAD16_WORD_SWAP( "kb.u9", 0x100000, 0x200000, BAD_DUMP CRC(43da77d7) SHA1(f99e89da4587d6c9e3c2ae66fa139830d893fdda) ) // not verified to be correct
-
-	ROM_REGION( 0x4000, REGION_USER2, 0 ) /* dump of RAM shared with protection device, todo, emulate protection device instead! */
-	ROM_LOAD( "kb.ram", 0x000000, 0x04000,  CRC(6994c507) SHA1(8264c56709488b72282d6ddfce3a4b188c6cc109) )
+	ROM_LOAD16_BYTE( "kb_u3_v104.u3",     0x100001, 0x080000, CRC(6db1d719) SHA1(804002f014d275aaf0368fb7f904938fe4ac07ee) )
+	ROM_LOAD16_BYTE( "kb_u6_v104.u6",     0x100000, 0x080000, CRC(31ecc978) SHA1(82666d534e4151775063af6d39f575faba0f1047) )
+	ROM_LOAD16_BYTE( "kb_u4_v104.u4",     0x200001, 0x080000, CRC(1ed8b2e7) SHA1(331c037640cfc1fe743cd0e65a1156c470b3303e) )
+	ROM_LOAD16_BYTE( "kb_u5_v104.u5",     0x200000, 0x080000, CRC(a0bafc29) SHA1(b20db7c16353c6f87ed3c08c9d037b07336711f1) )
 
 	/* CPU2 = Z80, romless, code uploaded by 68k */
 
 	ROM_REGION( 0x010000, REGION_USER1, 0 ) /* Protection Data */
-	ROM_LOAD16_WORD_SWAP( "kb_u2.rom", 0x000000, 0x010000,  CRC(de3eae63) SHA1(03af767ef764055bda528b5cc6a24b9e1218cca8) )
+	ROM_LOAD16_WORD_SWAP( "kb_u2_v104.u2", 0x000000, 0x010000,  CRC(c970f6d5) SHA1(399fc6f80262784c566363c847dc3fdc4fb37494) )
 
 	ROM_REGION( 0x800000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
@@ -3328,10 +4039,9 @@ ROM_START( olds )
 	ROM_REGION( 0x010000, REGION_USER1, 0 ) /* ASIC25? Protection Data */
 	ROM_LOAD( "sp_v101.u6", 0x000000, 0x010000,  CRC(097046bc) SHA1(6d75db85cf4c79b63e837897785c253014b2126d) )
 
-	ROM_REGION( 0x200000, REGION_USER2, ROMREGION_ERASEFF ) /* its a dump of the shared protection rom/ram from pcb. */
+//	ROM_REGION( 0x200000, REGION_USER2, ROMREGION_ERASEFF ) /* its a dump of the shared protection rom/ram from pcb. */
 	// clearly not for this revision
 	//ROM_LOAD16_WORD_SWAP( "ram_dump", 0x000000, 0x200000, CRC(e7b26aea) SHA1(17d101f760d790619ce4858984787b494bdbbc8a) )
-
 
 	ROM_REGION( 0xc00000, REGION_GFX1,  ROMREGION_DISPOSE ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
@@ -3356,7 +4066,6 @@ ROM_START( olds )
 	ROM_LOAD( "b0502.rom",    0x0800000, 0x400000, CRC(e97b31c3) SHA1(1a7ca4f6c8644e84a33ae41cd4637f21046b14c5) )
 	ROM_LOAD( "b0503.u16",    0x0c00000, 0x400000, CRC(e41d98e4) SHA1(f80b27fcee81762993e09bf1b3cad6e85274760c) )
 
-
 	ROM_REGION( 0x600000, REGION_SOUND1, 0 ) /* Samples - (8 bit mono 11025Hz) - */
 	ROM_LOAD( "pgm_m01s.rom", 0x000000, 0x200000, CRC(45ae7159) SHA1(d3ed3ff3464557fd0df6b069b2e431528b0ebfa8) ) // (BIOS)
 	ROM_LOAD( "m0500.rom",    0x400000, 0x200000, CRC(37928cdd) SHA1(e80498cabc2a6a54d4f3ebcb097d4b3fad96fe55) )
@@ -3369,15 +4078,13 @@ ROM_START( olds100 )
 	ROM_LOAD16_BYTE( "v100-u3.040",      0x100000, 0x080000,  CRC(d0e2b741) SHA1(2e671dbb4320d1f0c059b35efd33cdea26f12131) )
 	ROM_LOAD16_BYTE( "v100-u4.040",      0x200001, 0x080000,  CRC(32a6bdbd) SHA1(a93d7f4eae722a58eca9ec351ad5890cefda56f0) )
 	ROM_LOAD16_BYTE( "v100-u5.040",      0x200000, 0x080000,  CRC(b4a1cafb) SHA1(b2fccd480ede93f58ad043387b18b898152f06ef) )
-	/* u1 is missing from this set? - the parent has v101 rom for u1 so it probably doesn't go with v100 main program roms */
-//  ROM_LOAD16_WORD_SWAP( "v100-u1.040",0x300000, 0x080000,    CRC(1) SHA1(1) )
+    ROM_LOAD16_WORD_SWAP( "v100-u1.040", 0x300000, 0x080000,  CRC(37ea4e75) SHA1(a94fcb89da3394a43d360f885419677f511d2580) )
 
 	/* CPU2 = Z80, romless, code uploaded by 68k */
 
-	ROM_REGION( 0x200000, REGION_USER2, ROMREGION_ERASEFF ) /* its a dump of the shared protection rom/ram from pcb. */
+//	ROM_REGION( 0x200000, REGION_USER2, ROMREGION_ERASEFF ) /* its a dump of the shared protection rom/ram from pcb. */
 	// used to simulate encrypted DMA protection device for now ..
 	//ROM_LOAD16_WORD_SWAP( "ram_dump", 0x000000, 0x200000, CRC(e7b26aea) SHA1(17d101f760d790619ce4858984787b494bdbbc8a) )
-
 
 	ROM_REGION( 0x010000, REGION_USER1, 0 ) /* ASIC25? Protection Data */
 	ROM_LOAD( "kd-u6.512", 0x000000, 0x010000,  CRC(e7613dda) SHA1(0d7c043b90e2f9a36a45066f22e3e305dc716676) )
@@ -3423,10 +4130,9 @@ ROM_START( olds100a )
 	/* missing from this set .. */
 	ROM_LOAD( "protection_data.u6", 0x000000, 0x010000, NO_DUMP )
 
-	ROM_REGION( 0x200000, REGION_USER2, ROMREGION_ERASEFF ) /* its a dump of the shared protection rom/ram from pcb. */
+//	ROM_REGION( 0x200000, REGION_USER2, ROMREGION_ERASEFF ) /* its a dump of the shared protection rom/ram from pcb. */
 	// used to simulate encrypted DMA protection device for now ..
-	ROM_LOAD16_WORD_SWAP( "ram_dump", 0x000000, 0x200000, CRC(e7b26aea) SHA1(17d101f760d790619ce4858984787b494bdbbc8a) )
-
+//	ROM_LOAD16_WORD_SWAP( "ram_dump", 0x000000, 0x200000, CRC(e7b26aea) SHA1(17d101f760d790619ce4858984787b494bdbbc8a) )
 
 	ROM_REGION( 0xc00000, REGION_GFX1,  ROMREGION_DISPOSE ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
@@ -3504,7 +4210,7 @@ ROM_START( kov2 )
 	ROM_REGION( 0x400000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data) */
 	ROM_LOAD( "igs_u19.rom", 0x000000, 0x200000,   CRC(edd59922) SHA1(09b14f20f685944a93292c83e5830849aade42c9) )
 
-	ROM_REGION( 0xc00000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
 	ROM_LOAD( "t1200.rom",    0x400000, 0x800000, CRC(d7e26609) SHA1(bdad810f82fcf1d50a8791bdc495374ec5a309c6) )
 
@@ -3541,7 +4247,7 @@ ROM_START( kov2106 )
 	ROM_REGION( 0x400000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data) */
 	ROM_LOAD( "u19.102", 0x000000, 0x200000,   CRC(462e2980) SHA1(3da7c3d2c65b59f50c78be1c25922b71d40f6080) )
 
-	ROM_REGION( 0xc00000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
 	ROM_LOAD( "t1200.rom",    0x400000, 0x800000, CRC(d7e26609) SHA1(bdad810f82fcf1d50a8791bdc495374ec5a309c6) )
 
@@ -3573,12 +4279,12 @@ ROM_START( kov2p )
 	/* CPU2 = Z80, romless, code uploaded by 68k */
 
 	ROM_REGION( 0x4000, REGION_CPU3, 0 ) /* ARM protection ASIC - internal rom */
-	ROM_LOAD( "kov2p_igs027a_china.bin", 0x000000, 0x04000, CRC(19a0bd95) SHA1(83e9f22512832a51d41c588debe8be7adb3b1df7) )
+    ROM_LOAD( "kov2p_igs027a_china.bin", 0x000000, 0x04000, CRC(19a0bd95) SHA1(83e9f22512832a51d41c588debe8be7adb3b1df7) )
 
 	ROM_REGION( 0x400000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data) */
 	ROM_LOAD( "v200-16.rom", 0x000000, 0x200000,  CRC(16a0c11f) SHA1(ce449cef76ebd5657d49b57951e2eb0f132e203e) )
 
-	ROM_REGION( 0xc00000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
 	ROM_LOAD( "t1200.rom",    0x400000, 0x800000, CRC(d7e26609) SHA1(bdad810f82fcf1d50a8791bdc495374ec5a309c6) )
 
@@ -3629,7 +4335,7 @@ ROM_START( ddp2 )
 	ROM_REGION( 0x400000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data, internal missing) */
 	ROM_LOAD( "v100.u23", 0x000000, 0x20000, CRC(06c3dd29) SHA1(20c9479f158467fc2037dcf162b6c6be18c91d46) )
 
-	ROM_REGION( 0xc00000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
 	ROM_LOAD( "t1300.u21",    0x400000, 0x800000, CRC(e748f0cb) SHA1(5843bee3a17c33648ce904af2b98c6a90aff7393) )
 
@@ -3805,7 +4511,7 @@ ROM_START( martmast )
 	ROM_REGION( 0x400000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data) */
 	ROM_LOAD( "v102_16m.u10", 0x000000, 0x200000,  CRC(18b745e6) SHA1(7bcb58dd3a2d6072f492cf0dd7181cb061c1f49d) )
 
-	ROM_REGION( 0xc00000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
 	ROM_LOAD( "t1000.u3",    0x400000, 0x800000, CRC(bbf879b5) SHA1(bd9a6aea34ad4001e89e62ff4b7a2292eb833c00) )
 
@@ -3892,7 +4598,7 @@ ROM_START( dmnfrnt )
 	ROM_REGION( 0x800000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data, internal missing) */
 	ROM_LOAD( "v101_32m.u26", 0x000000, 0x400000,  CRC(93965281) SHA1(89da198aaa7ca759cb96b5f18859a477e55fd590) )
 
-	ROM_REGION( 0xc00000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
 	ROM_LOAD( "t04501.u29",    0x400000, 0x800000, CRC(900eaaac) SHA1(4033cb7b28fcadb92d5af3ea7fdd1c22747618fd) )
 
@@ -3927,7 +4633,7 @@ ROM_START( dmnfrnta )
 	ROM_LOAD( "v105_32m.u26", 0x000000, 0x400000,  CRC(d200ee63) SHA1(3128c27c5f5a4361d31e7b4bb006de631b3a228c) )
         ROM_LOAD( "chinese-v105.u62", 0x000000, 0x400000,  CRC(c798c2ef) SHA1(91e364c33b935293fa765ca521cdb67ac45ec70f) )
 
-	ROM_REGION( 0xc00000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
 	ROM_LOAD( "t04501.u29",    0x400000, 0x800000, CRC(900eaaac) SHA1(4033cb7b28fcadb92d5af3ea7fdd1c22747618fd) )
 
@@ -3951,16 +4657,20 @@ ROM_END
 ROM_START( theglad )
 	ROM_REGION( 0x600000, REGION_CPU1, 0 ) /* 68000 Code */
 	ROM_LOAD16_WORD_SWAP( "pgm_p01s.rom", 0x000000, 0x020000, CRC(e42b166e) SHA1(2a9df9ec746b14b74fae48b1a438da14973702ea) )  // (BIOS)
-	ROM_LOAD16_WORD_SWAP( "u6.rom",    0x100000, 0x080000, CRC(14c85212) SHA1(8d2489708e176a2c460498a13173be01f645b79e) )
+	ROM_LOAD16_WORD_SWAP( "v101.u6",      0x100000, 0x080000, CRC(f799e866) SHA1(dccc3c903357c40c3cf85ac0ae8fc12fb0f853a6) )
 
 	/* CPU2 = Z80, romless, code uploaded by 68k */
 
-	ROM_REGION( 0x200000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data, internal missing) */
-	ROM_LOAD( "u2.rom", 0x000000, 0x200000,  CRC(c7bcf2ae) SHA1(10bc012c83987f594d5375a51bc4be2e17568a81) )
+	ROM_REGION( 0x4000, REGION_CPU3, 0 ) /* ARM protection ASIC - internal rom */
+	ROM_LOAD( "theglad_igs027a_execute_only_area", 0x0000, 0x00188, NO_DUMP )
+        ROM_LOAD( "theglad_igs027a_v100_overseas.bin", 0x0188, 0x3e78, CRC(02fe6f52) SHA1(0b0ddf4507856cfc5b7d4ef7e4c5375254c2a024) )
 
-	ROM_REGION( 0xc00000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
+	ROM_REGION( 0x800000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data, internal missing) */
+	ROM_LOAD( "v107.u26", 0x000000, 0x200000,  CRC(f7c61357) SHA1(52d31c464dfc83c5371b078cb6b73c0d0e0d57e3) )
+
+	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
-	ROM_LOAD( "t04601.u33",    0x400000, 0x800000, BAD_DUMP CRC(2da3be8e) SHA1(704be0efc09bc931c71efd0b3e9f1bc4bfcdd3c1) )
+        ROM_LOAD( "t04601.u33",   0x400000, 0x800000, CRC(e5dab371) SHA1(2e3c93958eb0326b6b84b95c2168626f26bbac76) )
 
 	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF ) /* Region for 32x32 BG Tiles */
 	/* 32x32 Tile Data is put here for easier Decoding */
@@ -3990,38 +4700,35 @@ GAME( 1997, orlegndc, orlegend,   pgm, pgm,      orlegend,   ROT0,   "IGS", "Ori
 GAME( 1997, orld111c, orlegend,   pgm, pgm,      orlegend,   ROT0,   "IGS", "Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 111, Chinese Board)", GAME_IMPERFECT_SOUND  )
 GAME( 1997, orld105k, orlegend,   pgm, orld105k, orlegend,   ROT0,   "IGS", "Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 105, Korean Board)", GAME_IMPERFECT_SOUND  )
 GAME( 1997, drgw2c,   drgw2,      drgw2, pgm,      drgw2c,     ROT0,   "IGS", "Zhong Guo Long II (ver. 100C, China)", GAME_IMPERFECT_SOUND )
+GAME( 1998, olds,     pgm,        olds, olds,    olds,       ROT0,   "IGS", "Oriental Legend Special / Xi You Shi E Zhuan Super (Korea 101)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION )
+GAME( 1998, olds100,  olds,       olds, olds,    olds,       ROT0,   "IGS", "Oriental Legend Special / Xi You Shi E Zhuan Super (100)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION )
+GAME( 1998, olds100a, olds,       olds, olds,    olds,       ROT0,   "IGS", "Oriental Legend Special / Xi You Shi E Zhuan Super (100 alt)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION )
+GAME( 1998, olds103t, olds,       pgm, pgm,      olds103t,   ROT0,   "IGS", "Oriental Legend Special / Xi You Shi E Zhuan Super (ver. 103, China, Tencent) (unprotected)", GAME_IMPERFECT_SOUND )  // without overseas region
 GAME( 1999, kov,      pgm,        pgm, sango,    kov,        ROT0,   "IGS", "Knights of Valour / Sangoku Senki (ver. 117)", GAME_IMPERFECT_SOUND ) /* ver # provided by protection? */
 GAME( 1999, kov115,   kov,        pgm, sango,    kov,        ROT0,   "IGS", "Knights of Valour / Sangoku Senki (ver. 115)", GAME_IMPERFECT_SOUND ) /* ver # provided by protection? */
 GAME( 1999, kovj,     kov,        pgm, sango,    kov,        ROT0,   "IGS", "Knights of Valour / Sangoku Senki (ver. 100, Japanese Board)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND ) /* ver # provided by protection? */
-GAME( 2000, kov2,     pgm,        kov2, sango,   kov2,       ROT0,   "IGS", "Knights of Valour 2", GAME_IMPERFECT_SOUND )
-GAME( 2000, kov2106,  kov2,       kov2, sango,   kov2,       ROT0,   "IGS", "Knights of Valour 2 (106)", GAME_IMPERFECT_SOUND )
-GAME( 2000, kov2p,    kov2,       kov2, sango,   kov2p,      ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND )
 GAME( 1999, photoy2k, pgm,        pgm, photoy2k,    djlzz,      ROT0,   "IGS", "Photo Y2K", GAME_IMPERFECT_SOUND ) /* region provided by protection device */
 GAME( 1999, raf102j,  photoy2k,   pgm, photoy2k,    djlzz,      ROT0,   "IGS", "Real and Fake / Photo Y2K (ver. 102, Japan Board)", GAME_IMPERFECT_SOUND ) /* region provided by protection device */
-GAME( 2001, martmast, pgm,        kov2, sango,    martmast,     ROT0,   "IGS", "Martial Masters", GAME_IMPERFECT_SOUND )
+GAME( 2000, kov2,     pgm,        kov2, sango,    kov2,       ROT0,   "IGS", "Knights of Valour 2", GAME_IMPERFECT_SOUND )
+GAME( 2000, kov2106,  kov2,       kov2, sango,    kov2,       ROT0,   "IGS", "Knights of Valour 2 (106)", GAME_IMPERFECT_SOUND )
+GAME( 2000, kov2p,    kov2,       kov2, sango,    kov2p,       ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND )
+GAME( 2001, martmast, pgm,        kov2, sango,    martmast,   ROT0,   "IGS", "Martial Masters", GAME_IMPERFECT_SOUND )
 
 /* Playable but maybe imperfect protection emulation */
 GAME( 1997, drgw2,    pgm,        drgw2, pgm,      drgw2,      ROT0,   "IGS", "Dragon World II (ver. 110X, Export)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1997, drgw2j,   drgw2,      drgw2, pgm,      drgw2j,     ROT0,   "IGS", "Chuugokuryuu II (ver. 100J, Japan)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1999, kovplus,  kov,        pgm, sango,    kov,        ROT0,   "IGS", "Knights of Valour Plus / Sangoku Senki Plus (ver. 119)", GAME_IMPERFECT_SOUND )
 GAME( 1999, kovplusa, kov,        pgm, sango,    kov,        ROT0,   "IGS", "Knights of Valour Plus / Sangoku Senki Plus (alt ver. 119)", GAME_IMPERFECT_SOUND )
-GAME( 1998, killbldt, killbld, killbld,killbld,    killbld,    ROT0,   "IGS", "The Killing Blade (Chinese Board)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION ) // it's playable, but there are some things unclear about the protection
+GAME( 1998, killbld,  pgm,        killbld, killbld, killbld, ROT0,   "IGS", "The Killing Blade (ver. 109, Chinese Board)", GAME_IMPERFECT_SOUND )
+GAME( 1998, killbld104, killbld,  killbld, killbld, killbld, ROT0,   "IGS", "The Killing Blade (ver. 104)", GAME_IMPERFECT_SOUND )
 GAME( 1999, puzlstar, pgm,        pgm, sango,    pstar,      ROT0,   "IGS", "Puzzle Star", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION )
-
 
 /* not working */
 GAME( 1998, drgw3,    pgm,        pgm, sango,    dw3,        ROT0,   "IGS", "Dragon World 3", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1998, drgw3k,   drgw3,      pgm, sango,    dw3,        ROT0,   "IGS", "Dragon World 3 (Korean Board)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1999, kovsh,    kov,        pgm, sango,    kovsh,      ROT0,   "IGS", "Knights of Valour Superheroes / Sangoku Senki Superheroes (ver. 322)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1998, killbld,  pgm,     killbld,killbld,  killbld,    ROT0,   "IGS", "The Killing Blade", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1998, olds,     pgm,        olds, olds,    olds,   ROT0,   "IGS", "Oriental Legend Special / Xi You Shi E Zhuan Super (Korea 101)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1998, olds100,  olds,       olds, olds,    olds,   ROT0,   "IGS", "Oriental Legend Special / Xi You Shi E Zhuan Super (100)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1998, olds100a, olds,       olds, olds,    olds,   ROT0,   "IGS", "Oriental Legend Special / Xi You Shi E Zhuan Super (100 alt)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 2001, ddp2,     pgm,       kov2, ddp2,     ddp2,       ROT270, "IGS", "DoDonPachi II - Bee Storm", GAME_IMPERFECT_SOUND )
+GAME( 2001, ddp2,     pgm,       kov2, ddp2,     ddp2,       ROT270, "IGS", "DoDonPachi II - Bee Storm ", GAME_IMPERFECT_SOUND )
 GAME( 2001, puzzli2,  pgm,        pgm, sango,    puzzli2,    ROT0,   "IGS", "Puzzli 2 Super", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 2001, theglad,  pgm,        pgm, sango,    pgm,        ROT0,   "IGS", "The Gladiator", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
+GAME( 2001, theglad,  pgm,        theglad, theglad, theglad, ROT0,   "IGS", "The Gladiator / Road of the Sword / Shen Jian (V101)", GAME_IMPERFECT_SOUND )
 GAME( 2002, dmnfrnt,  pgm,        svg, sango,    dmnfrnt,        ROT0,   "IGS", "Demon Front (V102)", GAME_IMPERFECT_SOUND )
 GAME( 2002, dmnfrnta, dmnfrnt,    svg, sango,    dmnfrnt,        ROT0,   "IGS", "Demon Front (V105)", GAME_IMPERFECT_SOUND )
-
-/* No protection */
-GAME( 1998, olds103t, olds,       pgm, pgm,      olds103t,   ROT0,   "IGS", "Oriental Legend Special / Xi You Shi E Zhuan Super (ver. 103, China, Tencent) (unprotected)", GAME_IMPERFECT_SOUND )  // without overseas region
