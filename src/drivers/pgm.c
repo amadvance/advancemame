@@ -328,6 +328,8 @@ static READ16_HANDLER ( z80_ram_r )
 
 static READ32_HANDLER( arm7_latch_arm_r )
 {
+	cpunum_set_input_line(2, ARM7_FIRQ_LINE, CLEAR_LINE ); // guess
+	
 	if (PGMARM7LOGERROR) logerror("ARM7: Latch read: %08x (%08x) (%06x)\n", arm7_latch, mem_mask, activecpu_get_pc() );
 	return arm7_latch;
 }
@@ -337,7 +339,7 @@ static READ32_HANDLER( arm7_latch_arm_r )
 static void arm_irq(int param)
 {
 //	cpunum_set_input_line(2, ARM7_FIRQ_LINE, PULSE_LINE);
-	cpunum_set_input_line(2, ARM7_FIRQ_LINE, CLEAR_LINE ); // guess
+	cpunum_set_input_line(2, ARM7_FIRQ_LINE, ASSERT_LINE ); // guess
 }
 #endif
 
