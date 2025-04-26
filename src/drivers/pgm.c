@@ -293,7 +293,7 @@ static UINT32 *arm7_shareram;
 static UINT32 *svg_shareram[2];	//for 5585G MACHINE
 static UINT32 kov2_latchdata_68k_w;
 static UINT32 kov2_latchdata_arm_w;
-static UINT32* arm_ram, arm_ram2; // speedups
+static UINT32* arm_ram, *arm_ram2; // speedups
 WRITE16_HANDLER( pgm_tx_videoram_w );
 WRITE16_HANDLER( pgm_bg_videoram_w );
 VIDEO_START( pgm );
@@ -2132,7 +2132,7 @@ static DRIVER_INIT( killbld )
 	kb_cmd = 0;
 	kb_reg = 0;
 	kb_ptr = 0;
-	memset(kb_regs, 0, 0x10);
+	memset(kb_regs, 0, sizeof(kb_regs));
 }
 
 static WRITE32_HANDLER( ddp2_arm_region_w )
