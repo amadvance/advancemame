@@ -2063,18 +2063,29 @@ static READ32_HANDLER( ddp2_speedup_r )
 	if (pc==0x080109b4)
 	{
 		/* if we've hit the loop where this is read and both values are 0 then the only way out is an interrupt */
-//		int r4 = (cpu_get_reg(&space->device(), ARM7_R4));
 		int r4 = activecpu_get_reg(ARM7_R4);
 		r4 += 0xe;
 		
 		if (r4==0x18002f9e)
 		{
 			UINT32 data2 = arm_ram[0x2F9C/4]&0xffff0000;
-			if ((data==0x00000000) && (data2==0x00000000)) cpu_spinuntil_int();
+		    if ((data==0x00000000) && (data2==0x00000000)) cpu_spinuntil_int();
 		}
 	}
 
 	return data;
+}
+
+static READ16_HANDLER( ddp2_main_speedup_r )
+{
+	UINT16 data = pgm_mainram[0x0ee54/2];
+        int pc = activecpu_get_pc();
+
+	if (pc == 0x149dce) cpu_spinuntil_int();
+	if (pc == 0x149cfe) cpu_spinuntil_int();
+
+	return data;
+
 }
 
 static DRIVER_INIT( ddp2 )
@@ -2084,8 +2095,11 @@ static DRIVER_INIT( ddp2 )
 	kov2_latch_init();
  
 	memory_install_write32_handler(2, ADDRESS_SPACE_PROGRAM, 0x48000000, 0x48000003, 0, 0, ddp2_arm_region_w);
-    memory_install_read32_handler(2, ADDRESS_SPACE_PROGRAM, 0x1800300c, 0x1800300f, 0, 0, ddp2_speedup_r);
+	
+        memory_install_read32_handler(2, ADDRESS_SPACE_PROGRAM, 0x1800300c, 0x1800300f, 0, 0, ddp2_speedup_r);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x80ee54, 0x80ee55, 0, 0, ddp2_main_speedup_r);
 }
+
 
 static DRIVER_INIT( puzzli2 )
 {
