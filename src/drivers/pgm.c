@@ -2022,13 +2022,13 @@ static DRIVER_INIT( ddp2 )
 	/* some kind of busy / counter */
 	/* the actual protection is an arm cpu with internal rom */
 
-//	ddp2_protram = auto_malloc(0x2000);
+	ddp2_protram = auto_malloc(0x2000);
 
-//	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0xd10000, 0xd10001, 0, 0, ddp2_asic27_0xd10000_r);
-//	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xd10000, 0xd10001, 0, 0, ddp2_asic27_0xd10000_w);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0xd10000, 0xd10001, 0, 0, ddp2_asic27_0xd10000_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xd10000, 0xd10001, 0, 0, ddp2_asic27_0xd10000_w);
 
-//	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0xd00000, 0xd01fff, 0, 0, ddp2_protram_r);
-//	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xd00000, 0xd01fff, 0, 0, ddp2_protram_w);
+        memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0xd00000, 0xd01fff, 0, 0, ddp2_protram_r);
+        memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0xd00000, 0xd01fff, 0, 0, ddp2_protram_w);
 
 }
 
