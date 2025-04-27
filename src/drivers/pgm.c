@@ -3020,7 +3020,7 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 			if (object_value==0xffff)
 			{
 				object_value = 0x110;
-				usrintf_showmessage("unknown object type %02x\n", rawvalue); 
+				ui_popup("unknown object type %02x\n", rawvalue); 
 			}
 
 			realrow = get_position_of_bit(row_bitmask, currentrow);
