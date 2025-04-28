@@ -2192,43 +2192,6 @@ static DRIVER_INIT( ddp2 )
 }
 
 
-static DRIVER_INIT( puzzli2 )
-{
-	/* this protection emulation is wrong
-     it uses an arm with no external rom
-     an acts in a similar way to kov etc. */
-
-	UINT16 *mem16 = (UINT16 *)memory_region(REGION_CPU1);
-
-	pgm_basic_init();
-
-	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x500000, 0x500003, 0, 0, ASIC28_r16);
-	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x500000, 0x500003, 0, 0, ASIC28_w16);
-
-	/* 0x4f0000 - ? is actually ram shared with the protection device,
-      the protection device provides the region code */
-	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x4f0000, 0x4fffff, 0, 0, sango_protram_r);
-
- 	pgm_puzzli2_decrypt();
-
-	/* protection related? */
-	mem16[0x1548ec/2]=0x4e71;
-	mem16[0x1548fc/2]=0x4e71;
-	mem16[0x1549FA/2]=0x4e71;
-	mem16[0x154A0A/2]=0x4e71;
-	mem16[0x15496A/2]=0x4e71;
-	mem16[0x14cee0/2]=0x4e71;
-	mem16[0x1268c0/2]=0x4e71;
-	mem16[0x1268c2/2]=0x4e71;
-	mem16[0x1268c4/2]=0x4e71;
-	mem16[0x154948/2]=0x4e71;
-	mem16[0x13877a/2]=0x662c;
-
-	/* patch irq4 vector (irq4 should be disabled on this game? how?) */
-//  mem16[0x100070/2]=0x0012;
-//  mem16[0x100072/2]=0x5D78;
-}
-
 static MACHINE_RESET( olds )
 {
 	machine_reset_pgm();
