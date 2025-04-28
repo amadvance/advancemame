@@ -1939,7 +1939,7 @@ static WRITE16_HANDLER( killbld_prot_w )
 
 					if (mode == 0)
 					{
-						printf("unhandled copy mode %04x!\n", mode);
+						logerror("unhandled copy mode %04x!\n", mode);
 						// not used by killing blade
 						/* plain byteswapped copy */
 					}
@@ -2007,7 +2007,7 @@ static WRITE16_HANDLER( killbld_prot_w )
 							if (mode==1) dat2 -= extraxor;
 							
 							/*if (dat!=dat2)
-								printf("Mode %04x Param %04x Mismatch %04x %04x\n", mode, param, dat, dat2);
+								logerror("Mode %04x Param %04x Mismatch %04x %04x\n", mode, param, dat, dat2);
 							*/
 
 							killbld_sharedprotram[dst + x] = dat2;
@@ -2021,7 +2021,7 @@ static WRITE16_HANDLER( killbld_prot_w )
 					}
 					if (mode == 4)
 					{
-						printf("unhandled copy mode %04x!\n", mode);
+						logerror("unhandled copy mode %04x!\n", mode);
 						/* not used by killing blade */
 						/* looks almost like a fixed value xor, but isn't */
 					}
@@ -2057,13 +2057,13 @@ static WRITE16_HANDLER( killbld_prot_w )
 					}
 					else if (mode == 7)
 					{
-						printf("unhandled copy mode %04x!\n", mode);
+						logerror("unhandled copy mode %04x!\n", mode);
 						/* not used by killing blade */
 						/* weird mode, the params get left in memory? - maybe it's a NOP? */
 					}
 					else
 					{
-						printf("unhandled copy mode %04x!\n", mode);
+						logerror("unhandled copy mode %04x!\n", mode);
 						/* not used by killing blade */
 						/* invalid? */
 
@@ -2753,7 +2753,7 @@ UINT8 puzzli2_level_decode[256] = {
 };
 
 
-//#define printf logerror
+//#define logerror logerror
 
 static int puzzli2_take_leveldata_value(UINT8 datvalue)
 {
@@ -2774,7 +2774,7 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 		depth = 0;
 		row_bitmask = 0;
 
-		printf("%02x <- table offset\n", datvalue);
+		logerror("%02x <- table offset\n", datvalue);
 		tableoffs = datvalue;
 		tableoffs2 = 0;
 		stage = 0;
@@ -2798,7 +2798,7 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 			numbercolumns = (rawvalue & 0x0f);
 			numbercolumns++;
 
-			printf("%02x <- Sizes (level depth %01x) (number of columns %01x)", rawvalue, depth>>4, numbercolumns);
+			logerror("%02x <- Sizes (level depth %01x) (number of columns %01x)", rawvalue, depth>>4, numbercolumns);
 
 
 			if ((depth != 0x80) && (depth != 0x70) && (depth != 0x50))
@@ -2811,12 +2811,12 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 			if ((numbercolumns != 0x6) && (numbercolumns != 0x7) && (numbercolumns != 0x8))
 				//fatalerror("number of columns specified isn't 6,7, or 8");
 
-			printf("\n");
+			logerror("\n");
 
 		}
 		else if (stage==1)
 		{
-			printf("%02x <- Number of Entries for this Column (and upper mask) (column is %d) (xor table location is %02x) ", rawvalue, currentcolumn, tableloc);
+			logerror("%02x <- Number of Entries for this Column (and upper mask) (column is %d) (xor table location is %02x) ", rawvalue, currentcolumn, tableloc);
 			stage = 2;
 			entries_left = (rawvalue >> 4);
 			row_bitmask = (rawvalue & 0x0f)<<8;
@@ -2828,18 +2828,18 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 
 			if (num_entries == 0x00)
 			{
-				printf("0 entries for this column?"); // seems a valid condition based on the data
+				logerror("0 entries for this column?"); // seems a valid condition based on the data
 			}
 
 
 
-			printf("\n");
+			logerror("\n");
 
 					
 		}
 		else if (stage==2)
 		{	
-			printf("%02x <- Mask value equal to number of entries (xor table location is %02x)", rawvalue, tableloc);
+			logerror("%02x <- Mask value equal to number of entries (xor table location is %02x)", rawvalue, tableloc);
 			stage = 3;
 
 			row_bitmask |= rawvalue;
@@ -2847,7 +2847,7 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 			num_mask_bits = count_bits(row_bitmask);
 
 			if (num_mask_bits != num_entries)
-				printf(" error - number of mask bits != number of entries - ");
+				logerror(" error - number of mask bits != number of entries - ");
 
 			// 
 			if (entries_left == 0)
@@ -2861,7 +2861,7 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 				coverage[tableloc] = 1;
 				if (rawvalue!=0)
 				{
-					printf(" invalid mask after 00 length?");
+					logerror(" invalid mask after 00 length?");
 					// attempt to correct the table
 					//new_puzzli2_level_decode[tableloc] = new_puzzli2_level_decode[tableloc] ^ rawvalue;
 
@@ -2869,7 +2869,7 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 				coverage[prev_tablloc] = 1;
 				if (full_entry!=0)
 				{
-					printf(" previous value wasn't 0x00");
+					logerror(" previous value wasn't 0x00");
 				}
 
 				if (currentcolumn==numbercolumns)
@@ -2882,7 +2882,7 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 			{
 				if (num_entries> 0xa)
 				{
-					printf(" more than 10 entries?");
+					logerror(" more than 10 entries?");
 				}
 				else
 				{
@@ -2907,7 +2907,7 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 
 					if (rawvalue!=desired_mask)
 					{
-						printf(" possible wrong mask?");
+						logerror(" possible wrong mask?");
 					}
 
 
@@ -2915,7 +2915,7 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 
 			}
 
-			printf("\n");
+			logerror("\n");
 
 		}
 		else if (stage==3)
@@ -2940,21 +2940,21 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 			if (rawvalue<=0x10) // regular fish
 			{
 				int fishtype = rawvalue;
-				printf("%02x <- fish type %d", rawvalue, fishtype);
+				logerror("%02x <- fish type %d", rawvalue, fishtype);
 				object_value = 0x0100 + fishtype; 
 				// 0x110 is a flashy fish? might be glitchy and need a special number..
 			}
 			else if (rawvalue<=0x21) // fish in bubbles
 			{
 				int fishtype = rawvalue - 0x11;
-				printf("%02x <- fish in bubble %d", rawvalue, fishtype);
+				logerror("%02x <- fish in bubble %d", rawvalue, fishtype);
 				object_value = 0x0120 + fishtype; 
 				// 0x130 is a flashy fish? might be glitchy and need a special number..
 			}
 			else if (rawvalue<=0x32) // fish in eggs
 			{
 				int fishtype = rawvalue - 0x22;
-				printf("%02x <- fish in egg %d", rawvalue, fishtype);
+				logerror("%02x <- fish in egg %d", rawvalue, fishtype);
 				object_value = 0x0140 + fishtype; 
 				// 0x150 is a flashy fish? might be glitchy and need a special number..
 
@@ -2962,24 +2962,24 @@ static int puzzli2_take_leveldata_value(UINT8 datvalue)
 			else if (rawvalue<=0x43) // fish on hook cases, seem to be base 0x180
 			{
 				int fishtype = rawvalue - 0x33;
-				printf("%02x <- fish on hook %d", rawvalue, fishtype);
+				logerror("%02x <- fish on hook %d", rawvalue, fishtype);
 				object_value = 0x0180 + fishtype; 
 				// 0x190 is a flashy fish? might be glitchy and need a special number..
 
 			}
 			////////////////////// special objects follow
-			else if (rawvalue==0xd0) {object_value = 0x0200; printf("%02x <- generic bubbles", rawvalue);}
+			else if (rawvalue==0xd0) {object_value = 0x0200; logerror("%02x <- generic bubbles", rawvalue);}
 
-			else if (rawvalue==0xe0) {object_value = 0x8000; printf("%02x <- solid middle", rawvalue);}
-			else if (rawvalue==0xe1) {object_value = 0x8020; printf("%02x <- solid top slant down", rawvalue);} // solid slant top down
-			else if (rawvalue==0xe2) {object_value = 0x8040; printf("%02x <- solid top slant up", rawvalue);} // solid slant top up
-			else if (rawvalue==0xe3) {object_value = 0x8060; printf("%02x <- solid bottom slant up", rawvalue);}
-			else if (rawvalue==0xe4) {object_value = 0x8080; printf("%02x <- solid bottom slant down", rawvalue);} // sold slant bottom up
+			else if (rawvalue==0xe0) {object_value = 0x8000; logerror("%02x <- solid middle", rawvalue);}
+			else if (rawvalue==0xe1) {object_value = 0x8020; logerror("%02x <- solid top slant down", rawvalue);} // solid slant top down
+			else if (rawvalue==0xe2) {object_value = 0x8040; logerror("%02x <- solid top slant up", rawvalue);} // solid slant top up
+			else if (rawvalue==0xe3) {object_value = 0x8060; logerror("%02x <- solid bottom slant up", rawvalue);}
+			else if (rawvalue==0xe4) {object_value = 0x8080; logerror("%02x <- solid bottom slant down", rawvalue);} // sold slant bottom up
 
 
-			else                     {object_value = 0xffff; printf("%02x <- unknown object", rawvalue);}
+			else                     {object_value = 0xffff; logerror("%02x <- unknown object", rawvalue);}
 
-			printf("  (xor table location is %02x)\n",tableloc);
+			logerror("  (xor table location is %02x)\n",tableloc);
 
 			if (object_value==0xffff)
 			{
@@ -3025,7 +3025,7 @@ static READ16_HANDLER( puzzli2_asic_r )
 		realkey |= valuekey;
 		d ^= realkey;
 
-		//printf("ASIC read: 0x%x\n", d);
+		//logerror("ASIC read: 0x%x\n", d);
 
 		return d;
 
@@ -3037,7 +3037,7 @@ static READ16_HANDLER( puzzli2_asic_r )
 		realkey |= valuekey;
 		d ^= realkey;
 
-		//printf("ASIC read: 0x%x\n", d);
+		//logerror("ASIC read: 0x%x\n", d);
 
 		return d;
 
@@ -3147,7 +3147,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 
 			if (command_31_write_type==2)
 			{
-				printf("%08x: %02x %04x | ",pc, ddp3lastcommand, value0);
+				logerror("%08x: %02x %04x | ",pc, ddp3lastcommand, value0);
 
 				// this shouldn't apply to the stuff written on startup, only the level data..
 
@@ -3160,7 +3160,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 					hackcount2++;
 					valueresponse = 0x00d20000;
 
-					//printf("(set xor table offset)\n");
+					//logerror("(set xor table offset)\n");
 				}
 				else  // how do we decide end?
 				{
@@ -3175,7 +3175,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 
 						//UINT8 tableaddr = (hack_31_table_offset + (hack_31_table_offset2&0xf))&0xff;
 						//UINT8 xoredval = m_value0 ^ puzzli2_level_decode[tableaddr];
-						//printf("value %02x, after xor is %02x (table address,value %02x,%02x)\n", m_value0, xoredval, tableaddr, puzzli2_level_decode[tableaddr]);
+						//logerror("value %02x, after xor is %02x (table address,value %02x,%02x)\n", m_value0, xoredval, tableaddr, puzzli2_level_decode[tableaddr]);
 				
 						hackcount2++;
 						hack_31_table_offset2++;
@@ -3189,7 +3189,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 				
 						//UINT8 tableaddr = (hack_31_table_offset + (hack_31_table_offset2&0xf))&0xff;
 						//UINT8 xoredval = m_value0 ^ puzzli2_level_decode[tableaddr];
-						//printf("value %02x, after xor is %02x (table address,value %02x,%02x) (end, returning %02x as playfield width)\n", m_value0, xoredval, tableaddr, puzzli2_level_decode[tableaddr], m_valueresponse);
+						//logerror("value %02x, after xor is %02x (table address,value %02x,%02x) (end, returning %02x as playfield width)\n", m_value0, xoredval, tableaddr, puzzli2_level_decode[tableaddr], m_valueresponse);
 
 
 					}
@@ -3200,7 +3200,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 			else
 			{
 				// todo, responses when uploading the startup values are different
-				printf("%08x: %02x %04x (for z80 address?)\n ",pc, ddp3lastcommand, value0);
+				logerror("%08x: %02x %04x (for z80 address?)\n ",pc, ddp3lastcommand, value0);
 
 				valueresponse = 0x00d20000 | p2_31_retcounter;
 				p2_31_retcounter++; // returns 0xc for the first one, 0x19 for the last one
@@ -3214,7 +3214,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 		// the game expects to read back a fully formed level structure from the ARM
 		case 0x13:
 		{
-			//printf("%08x: %02x %04x (READ LEVEL DATA) |",pc, ddp3lastcommand, value0);
+			//logerror("%08x: %02x %04x (READ LEVEL DATA) |",pc, ddp3lastcommand, value0);
 
 			// this is the how to play screen, correctly returned with current code
 			/*
@@ -3234,18 +3234,18 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 			if (hackcount==0)
 			{
 				valueresponse = 0x002d0000 | ((depth>>4)+1); // this *seems* to come from upper bits of the first real value written to the device during the level stream (verify, seems wrong for some levels because you get a black bar on the bottom of the screen, but might be bad xors)
-				printf("level depth returning %08x\n", valueresponse );
+				logerror("level depth returning %08x\n", valueresponse );
 			}
 			else if (hackcount<((10*numbercolumns)+1))
 			{
 				valueresponse = 0x002d0000 | leveldata[hackcount-1];
-				printf("level data returning %08x\n", valueresponse );
+				logerror("level data returning %08x\n", valueresponse );
 			}
 			else
 			{
 				hackcount=0;
 				valueresponse = 0x00740054;  // 0x0074 0054 is returned after how to play reads above.. where does 0x54 come from?
-				printf("END returning %08x\n", valueresponse );
+				logerror("END returning %08x\n", valueresponse );
 
 			}
 
@@ -3262,7 +3262,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 
 
 		case 0x38: // Reset
-			printf("%08x: %02x %04x (RESET)\n",pc, ddp3lastcommand, value0);
+			logerror("%08x: %02x %04x (RESET)\n",pc, ddp3lastcommand, value0);
 			simregion = readinputport(4);
 			valueresponse = 0x780000 | simregion<<8; // this must also return the cart region or the game will act in odd ways when inserting a coin on continue, or during the game on later levels
 			valuekey = 0x100;
@@ -3277,25 +3277,25 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 		// also some other gfx?
 		// logic here seems correct, not sure where the 0x19 and 0x5 etc. come from tho!
 		case 0x47:
-			printf("%08x: %02x %04x (GFX OFF PART 1)\n",pc, ddp3lastcommand, value0);
+			logerror("%08x: %02x %04x (GFX OFF PART 1)\n",pc, ddp3lastcommand, value0);
 
 			hack_47_value = value0;
 
 			//hack_47_value = ((m_value0 & 0x0700)>>8) * 0x19;
 			//hack_47_value +=((m_value0 & 0x0007)>>0) * 0x05;
-			if (value0 & 0xf0f0) printf("unhandled 0x47 bits %04x\n", value0);
+			if (value0 & 0xf0f0) logerror("unhandled 0x47 bits %04x\n", value0);
 
-			//printf("0x47 value was %04x - using %04x\n", m_value0, hack_47_value);
+			//logerror("0x47 value was %04x - using %04x\n", m_value0, hack_47_value);
 
 			valueresponse = 0x00740047;
 
 		break;
 
 		case 0x52:
-			printf("%08x: %02x %04x (GFX OFF PART 2)\n",pc, ddp3lastcommand, value0);
+			logerror("%08x: %02x %04x (GFX OFF PART 2)\n",pc, ddp3lastcommand, value0);
 
-			//printf("which %04x\n", m_value0);
-			if (value0 & 0xfff0) printf("unhandled 0x52 bits %04x\n", value0);
+			//logerror("which %04x\n", m_value0);
+			if (value0 & 0xfff0) logerror("unhandled 0x52 bits %04x\n", value0);
 
 			// it writes a value of 0x0000 then expects to read back like
 			// this for the lower part of the game backgrounds
@@ -3321,7 +3321,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 
 
 		case 0x61: // ??
-			printf("%08x: %02x %04x\n",pc, ddp3lastcommand, value0);
+			logerror("%08x: %02x %04x\n",pc, ddp3lastcommand, value0);
 			
 			// this command is written before the values used to decrypt the z80 addresses (assumed) are uploaded with command 31
 			command_31_write_type = 1;
@@ -3331,7 +3331,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 		break;
 
 		case 0x41: // ASIC status?
-			printf("%08x: %02x %04x (UNK)\n",pc, ddp3lastcommand, value0);
+			logerror("%08x: %02x %04x (UNK)\n",pc, ddp3lastcommand, value0);
 
 			// this command is written after the values used to decrypt the z80 addresses (assumed) are uploaded with command 31
 			command_31_write_type = 0;
@@ -3341,7 +3341,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 		break;
 
 		case 0x54: // ??
-			printf("%08x: %02x %04x\n",pc, ddp3lastcommand, value0);
+			logerror("%08x: %02x %04x\n",pc, ddp3lastcommand, value0);
 			
 			// this command is written before uploading the compressed level data stream with command 31
 
@@ -3394,7 +3394,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 		// I think the values returned here must be connected to the values written to command 31 on startup
 		// 63/67 are used on startup to get the z80 music at least
 		case 0x63: // used as a read address by the 68k code (related to previous uploaded values like cave?) should point at a table of ~0x80 in size? seems to use values as further pointers?
-			printf("%08x: %02x %04x (Z80 ADDR PART 1)\n",pc, ddp3lastcommand, value0);
+			logerror("%08x: %02x %04x (Z80 ADDR PART 1)\n",pc, ddp3lastcommand, value0);
 
 			if (!strcmp(Machine->gamedrv->name,"puzzli2"))
 			{
@@ -3420,7 +3420,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 				}
 				else
 				{
-					printf("unk case x63\n");
+					logerror("unk case x63\n");
 					valueresponse = 0x00600000; // wrong
 
 				}
@@ -3449,14 +3449,14 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 				}
 				else
 				{
-					printf("unk case x63\n");
+					logerror("unk case x63\n");
 					valueresponse = 0x00600000; // wrong
 				}
 			}
 		break;
 
 		case 0x67: // used as a read address by the 68k code (related to previous uploaded values like cave?) directly reads ~0xDBE from the address..
-			printf("%08x: %02x %04x (Z80 ADDR PART 2)\n",pc, ddp3lastcommand, value0);
+			logerror("%08x: %02x %04x (Z80 ADDR PART 2)\n",pc, ddp3lastcommand, value0);
 
 			if (!strcmp(Machine->gamedrv->name,"puzzli2"))
 			{
@@ -3470,7 +3470,7 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 				}
 				else
 				{
-					printf("unk case x67\n");
+					logerror("unk case x67\n");
 					valueresponse = 0x00400000; // wrong
 				}
 			}
@@ -3486,14 +3486,14 @@ static WRITE16_HANDLER( puzzli2_asic_w )
 				}
 				else
 				{
-					printf("unk case x67\n");
+					logerror("unk case x67\n");
 					valueresponse = 0x00600000; // wrong
 				}
 			}
 		break;
 
 		default:
-			printf("%08x: %02x %04x\n",pc, ddp3lastcommand, value0);
+			logerror("%08x: %02x %04x\n",pc, ddp3lastcommand, value0);
 
 			valueresponse = 0x74<<16;
 		break;
@@ -3634,7 +3634,7 @@ static WRITE16_HANDLER( py2k2_asic_w )
 			valueresponse = 0x00880000 | simregion<<8;
 		break;
 		case 0xc0:
-			printf("%06x command %02x | %04x\n", pc, ddp3lastcommand, value0);
+			logerror("%06x command %02x | %04x\n", pc, ddp3lastcommand, value0);
 			valueresponse = 0x880000;
 			break;
 		case 0xc3:
@@ -3665,7 +3665,7 @@ static WRITE16_HANDLER( py2k2_asic_w )
 		case 0x37:
 		case 0x38:
 		default:
-			printf("%06x command %02x | %04x\n", pc, ddp3lastcommand, value0);
+			logerror("%06x command %02x | %04x\n", pc, ddp3lastcommand, value0);
 			valueresponse = 0x880000;
 			break;
 	}
