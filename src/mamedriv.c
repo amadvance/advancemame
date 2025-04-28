@@ -6095,6 +6095,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	/* the name "Orca" */
 	DRIVER( vastar )	/* (c) 1983 Sesame Japan */
 	DRIVER( vastar2 )	/* (c) 1983 Sesame Japan */
+        DRIVER( pprobe )        /* (c) 1985 Crux / Kyugo */
 /*
    other Orca games:
    82 Battle Cross                         Kit 2P
@@ -6737,7 +6738,8 @@ Other Sun games
  	DRIVER( kov2106 )	/* (c) 2000 */
   	DRIVER( kov2p )		/* (c) 2000 */
 	DRIVER( ddp2 )		/* (c) 2001 */
-	DRIVER( puzzli2 )	/* (c) 2001 */
+	DRIVER( puzzli2 )	/* (c) 1999 */
+	DRIVER( puzzli2s )	/* (c) 2001 */
 	DRIVER( martmast )	/* (c) 2001 */
 	DRIVER( theglad )	/* (c) 2001 */
 	DRIVER( dmnfrnt )	/* (c) 2002 */
