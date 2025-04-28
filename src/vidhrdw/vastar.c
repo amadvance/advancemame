@@ -26,41 +26,44 @@ static tilemap *fg_tilemap, *bg1_tilemap, *bg2_tilemap;
 
 static void get_fg_tile_info(int tile_index)
 {
-	int code, color;
+	int code, color, fxy;
 
 	code = vastar_fgvideoram[tile_index + 0x800] | (vastar_fgvideoram[tile_index + 0x400] << 8);
 	color = vastar_fgvideoram[tile_index];
+	fxy = (code & 0xc00) >> 10;
 	SET_TILE_INFO(
 			0,
 			code,
 			color & 0x3f,
-			0)
+			TILE_FLIPXY(fxy));
 }
 
 static void get_bg1_tile_info(int tile_index)
 {
-	int code, color;
+	int code, color, fxy;
 
 	code = vastar_bg1videoram[tile_index + 0x800] | (vastar_bg1videoram[tile_index] << 8);
 	color = vastar_bg1videoram[tile_index + 0xc00];
+	fxy = (code & 0xc00) >> 10;
 	SET_TILE_INFO(
 			4,
 			code,
 			color & 0x3f,
-			0)
+			TILE_FLIPXY(fxy));
 }
 
 static void get_bg2_tile_info(int tile_index)
 {
-	int code, color;
+	int code, color, fxy;
 
 	code = vastar_bg2videoram[tile_index + 0x800] | (vastar_bg2videoram[tile_index] << 8);
 	color = vastar_bg2videoram[tile_index + 0xc00];
+	fxy = (code & 0xc00) >> 10;
 	SET_TILE_INFO(
 			3,
 			code,
 			color & 0x3f,
-			0)
+			TILE_FLIPXY(fxy));
 }
 
 
@@ -136,8 +139,7 @@ static void draw_sprites(mame_bitmap *bitmap,const rectangle *cliprect)
 {
 	int offs;
 
-
-	for (offs = 0; offs < spriteram_size; offs += 2)
+	for (offs = spriteram_size-2; offs >=0; offs -= 2)
 	{
 		int code, sx, sy, color, flipx, flipy;
 
@@ -208,6 +210,60 @@ VIDEO_UPDATE( vastar )
 		tilemap_draw(bitmap,cliprect, bg1_tilemap, TILEMAP_IGNORE_TRANSPARENCY,0);
 		draw_sprites(bitmap,cliprect);
 		tilemap_draw(bitmap,cliprect, bg2_tilemap, 0,0);
+		tilemap_draw(bitmap,cliprect, fg_tilemap, 0,0);
+		break;
+
+	case 1: // ?? planet probe
+		tilemap_draw(bitmap,cliprect, bg1_tilemap, TILEMAP_IGNORE_TRANSPARENCY,0);
+		tilemap_draw(bitmap,cliprect, bg2_tilemap, 0,0);
+		draw_sprites(bitmap,cliprect);
+		tilemap_draw(bitmap,cliprect, fg_tilemap, 0,0);
+		break;
+
+	case 2:
+		tilemap_draw(bitmap,cliprect, bg1_tilemap, TILEMAP_IGNORE_TRANSPARENCY,0);
+		draw_sprites(bitmap,cliprect);
+		tilemap_draw(bitmap,cliprect, bg1_tilemap, 0,0);
+		tilemap_draw(bitmap,cliprect, bg2_tilemap, 0,0);
+		tilemap_draw(bitmap,cliprect, fg_tilemap, 0,0);
+		break;
+
+	case 3:
+		tilemap_draw(bitmap,cliprect, bg1_tilemap, TILEMAP_IGNORE_TRANSPARENCY,0);
+		tilemap_draw(bitmap,cliprect, bg2_tilemap, 0,0);
+		tilemap_draw(bitmap,cliprect, fg_tilemap, 0,0);
+		draw_sprites(bitmap,cliprect);
+		break;
+
+	default:
+		logerror("Unimplemented priority %X\n", *vastar_sprite_priority);
+		break;
+	}
+}
+VIDEO_UPDATE( pprobe )
+{
+	int i;
+
+
+	for (i = 0;i < 32;i++)
+	{
+		tilemap_set_scrolly(bg1_tilemap,i,vastar_bg1_scroll[i]);
+		tilemap_set_scrolly(bg2_tilemap,i,vastar_bg2_scroll[i]);
+	}
+
+	switch (*vastar_sprite_priority)
+	{
+	case 0:
+		tilemap_draw(bitmap,cliprect, bg1_tilemap, TILEMAP_IGNORE_TRANSPARENCY,0);
+		tilemap_draw(bitmap,cliprect, bg2_tilemap, 0,0);
+		tilemap_draw(bitmap,cliprect, fg_tilemap, 0,0);
+		draw_sprites(bitmap,cliprect);
+		break;
+
+	case 1: // ?? planet probe
+		tilemap_draw(bitmap,cliprect, bg1_tilemap, TILEMAP_IGNORE_TRANSPARENCY,0);
+		tilemap_draw(bitmap,cliprect, bg2_tilemap, 0,0);
+		draw_sprites(bitmap,cliprect);
 		tilemap_draw(bitmap,cliprect, fg_tilemap, 0,0);
 		break;
 
