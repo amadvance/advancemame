@@ -1390,6 +1390,97 @@ INPUT_PORTS_START( ddp2 )
 	PORT_DIPSETTING(      0x00ff, "Untouched" ) // don't hack the region
 INPUT_PORTS_END
 
+INPUT_PORTS_START( puzzli2 )
+	PORT_START	/* P1P2 */
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+
+	PORT_START	/* P3P4 */
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_START3 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(3)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(3)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(3)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(3)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(3)
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(3)
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(3)
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START4 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(4)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(4)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(4)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(4)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(4)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(4)
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(4)
+
+	PORT_START	/* Service */
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_COIN3 )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_COIN4 )
+//  PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON5 ) // test 1p+2p
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_UNKNOWN ) //  what should i use?
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_SERVICE1 ) // service 1p+2p
+//  PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON6 ) // test 3p+4p
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_UNKNOWN ) // what should i use?
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_SERVICE2 ) // service 3p+4p
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(3)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(4)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_UNKNOWN ) // unused?
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_UNKNOWN ) // unused?
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNKNOWN ) // unused?
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN ) // unused?
+
+	PORT_START	/* DSW */
+	PORT_SERVICE( 0x0001, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x0002, 0x0002, "Music" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0004, 0x0004, "Voice" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0004, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0008, 0x0008, "Free" )
+	PORT_DIPSETTING(      0x0008, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0010, 0x0010, "Stop" )
+	PORT_DIPSETTING(      0x0010, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0020, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0080, 0x0080, DEF_STR( Unused ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+
+	PORT_START	/* Region */
+	PORT_DIPNAME( 0x000f, 0x0005, "Region" )
+	PORT_DIPSETTING(      0x0000, "Taiwan" )
+	PORT_DIPSETTING(      0x0001, "China" )
+	PORT_DIPSETTING(      0x0002, "Japan (Alta License)" )
+	PORT_DIPSETTING(      0x0003, "Korea" )
+	PORT_DIPSETTING(      0x0004, "Hong Kong" )
+	PORT_DIPSETTING(      0x0005, "World" )
+INPUT_PORTS_END
+
 /*** GFX Decodes *************************************************************/
 
 /* we can't decode the sprite data like this because it isn't tile based.  the
@@ -2101,43 +2192,6 @@ static DRIVER_INIT( ddp2 )
 }
 
 
-static DRIVER_INIT( puzzli2 )
-{
-	/* this protection emulation is wrong
-     it uses an arm with no external rom
-     an acts in a similar way to kov etc. */
-
-	UINT16 *mem16 = (UINT16 *)memory_region(REGION_CPU1);
-
-	pgm_basic_init();
-
-	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x500000, 0x500003, 0, 0, ASIC28_r16);
-	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x500000, 0x500003, 0, 0, ASIC28_w16);
-
-	/* 0x4f0000 - ? is actually ram shared with the protection device,
-      the protection device provides the region code */
-	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x4f0000, 0x4fffff, 0, 0, sango_protram_r);
-
- 	pgm_puzzli2_decrypt();
-
-	/* protection related? */
-	mem16[0x1548ec/2]=0x4e71;
-	mem16[0x1548fc/2]=0x4e71;
-	mem16[0x1549FA/2]=0x4e71;
-	mem16[0x154A0A/2]=0x4e71;
-	mem16[0x15496A/2]=0x4e71;
-	mem16[0x14cee0/2]=0x4e71;
-	mem16[0x1268c0/2]=0x4e71;
-	mem16[0x1268c2/2]=0x4e71;
-	mem16[0x1268c4/2]=0x4e71;
-	mem16[0x154948/2]=0x4e71;
-	mem16[0x13877a/2]=0x662c;
-
-	/* patch irq4 vector (irq4 should be disabled on this game? how?) */
-//  mem16[0x100070/2]=0x0012;
-//  mem16[0x100072/2]=0x5D78;
-}
-
 static MACHINE_RESET( olds )
 {
 	machine_reset_pgm();
@@ -2594,6 +2648,895 @@ static DRIVER_INIT( olds103t )
 	pgm_basic_init();
 }
 
+/* Puzzli 2 / Puzzli 2 Super */
+static UINT16 value0, value1, valuekey, ddp3lastcommand;
+static UINT32 valueresponse;
+INT32 puzzli_54_trigger;
+static int stage;
+static int tableoffs;
+static int tableoffs2;
+static int entries_left;
+static int currentcolumn;
+static int currentrow;
+static int num_entries;
+static int full_entry;
+static int prev_tablloc;
+static int numbercolumns;
+static int depth;
+UINT16 row_bitmask;
+static int hackcount;
+static int hackcount2;
+static int hack_47_value;
+static int hack_31_table_offset;
+static int hack_31_table_offset2;
+static int p2_31_retcounter;
+static int simregion;
+static int num_mask_bits;
+static int columns;
+static int desired_mask;
+static int leveldata;
+static int rows;
+static int realrow;
+static int pc;
+UINT8 coverage[256]; // coverage is how much of the table we've managed to verify using known facts about the table structure
+static int command_31_write_type;
+UINT16 level_structure[8][10];
+static int puzzli2_take_leveldata_value(UINT8 datvalue);
+
+static int count_bits(UINT16 value)
+{
+	int count = 0;
+	int i = 0;
+	for (i=0;i<16;i++)
+	{
+		int bit = (value >> i) & 1;
+
+		if (bit) count++;
+	}
+
+	return count;
+}
+
+static int get_position_of_bit(UINT16 value, int bit_wanted)
+{
+	int count = 0;
+	int i=0;
+	for (i=0;i<16;i++)
+	{
+		int bit = (value >> i) & 1;
+
+		if (bit) count++;
+
+		if (count==(bit_wanted+1))
+			return i;
+	}
+
+	return -1;
+}
+
+// should be correct, note each value only appears once
+UINT8 puzzli2_level_decode[256] = {
+  // 0  ,  1  ,  2  ,  3  ,  4  ,  5   , 6  ,  7  ,  8  ,  9  ,  a  ,  b  ,  c  ,  d  ,  e  ,  f  ,
+	0x32, 0x3e, 0xb2, 0x37, 0x31, 0x22, 0xd6, 0x0d, 0x35, 0x5c, 0x8d, 0x3c, 0x7a, 0x5f, 0xd7, 0xac, // 0x0
+//   0  ,  0  ,  0  ,  0  ,  0  ,  1  ,  1  ,  0  ,  1  ,  1  ,  0  ,  0  ,  0  ,  0  ,  x  ,  x  , 
+    0x53, 0xff, 0xeb, 0x44, 0xe8, 0x11, 0x69, 0x77, 0xd9, 0x34, 0x36, 0x45, 0xa6, 0xe9, 0x1c, 0xc6, // 0x1
+//   0  ,  0  ,  x  ,  x  ,  x  ,  0  ,  x  ,  0  ,  x  ,  0  ,  0  ,  0  ,  0  ,  x  ,  0  ,  x  , 
+	0x3b, 0xbd, 0xad, 0x2e, 0x18, 0xdf, 0xa1, 0xab, 0xdd, 0x52, 0x57, 0xc2, 0xe5, 0x0a, 0x00, 0x6d, // 0x2
+//   0  ,  0  ,  0  ,  1  ,  1  ,  1  ,  1  ,  x  ,  1  ,  1  ,  0  ,  0  ,  1  ,  1  ,  x  ,  0  , 
+	0x67, 0x64, 0x15, 0x70, 0xb6, 0x39, 0x27, 0x78, 0x82, 0xd2, 0x71, 0xb9, 0x13, 0xf5, 0x93, 0x92, // 0x3
+//   0  ,  x  ,  1  ,  1  ,  x  ,  1  ,  1  ,  1  ,  1  ,  1  ,  1  ,  1  ,  x  ,  0  ,  x  ,  x  , 
+	0xfa, 0xe7, 0x5e, 0xb0, 0xf6, 0xaf, 0x95, 0x8a, 0x7c, 0x73, 0xf9, 0x63, 0x86, 0xcb, 0x1a, 0x56, // 0x4
+//   0  ,  1  ,  1  ,  0  ,  0  ,  0  ,  0  ,  1  ,  1  ,  1  ,  1  ,  0  ,  1  ,  1  ,  1  ,  0  , 
+    0xf1, 0x3a, 0xae, 0x61, 0x01, 0x29, 0x97, 0x23, 0x8e, 0x5d, 0x9a, 0x65, 0x74, 0x21, 0x20, 0x40, // 0x5
+//   0  ,  1  ,  1  ,  1  ,  1  ,  0  ,  x  ,  x  ,  x  ,  0  ,  0  ,  1  ,  1  ,  1  ,  1  ,  1  , 
+    0xd3, 0x05, 0xa2, 0xe1, 0xbc, 0x9e, 0x1e, 0x10, 0x14, 0x0c, 0x88, 0x9c, 0xec, 0x38, 0xb5, 0x9d, // 0x6
+//   1  ,  0  ,  0  ,  x  ,  1  ,  1  ,  0  ,  0  ,  x  ,  0  ,  x  ,  0  ,  0  ,  1  ,  1  ,  1  , 
+    0x2d, 0xf7, 0x17, 0x0e, 0x84, 0xc7, 0x7d, 0xce, 0x94, 0x16, 0x48, 0xa8, 0x81, 0x6e, 0x7b, 0xd8, // 0x7
+//   1  ,  1  ,  1  ,  1  ,  x  ,  0  ,  x  ,  0  ,  1  ,  1  ,  1  ,  x  ,  x  ,  1  ,  1  ,  1  , 
+    0xa7, 0x7f, 0x42, 0xe6, 0xa0, 0x2a, 0xef, 0xee, 0x24, 0xba, 0xb8, 0x7e, 0xc9, 0x2b, 0x90, 0xcc, // 0x8
+//   1  ,  x  ,  1  ,  1  ,  1  ,  1  ,  1  ,  1  ,  0  ,  0  ,  0  ,  0  ,  0  ,  0  ,  0  ,  0  , 
+    0x5b, 0xd1, 0xf3, 0xe2, 0x6f, 0xed, 0x9f, 0xf0, 0x4b, 0x54, 0x8c, 0x08, 0xf8, 0x51, 0x68, 0xc8, // 0x9
+//   x  ,  0  ,  0  ,  0  ,  0  ,  0  ,  0  ,  0  ,  x  ,  0  ,  x  ,  0  ,  0  ,  0  ,  0  ,  1  , 
+    0x03, 0x0b, 0xbb, 0xc1, 0xe3, 0x4d, 0x04, 0xc5, 0x8f, 0x09, 0x0f, 0xbf, 0x62, 0x49, 0x76, 0x59, // 0xa
+//   1  ,  1  ,  1  ,  1  ,  1  ,  x  ,  0  ,  1  ,  1  ,  0  ,  x  ,  1  ,  1  ,  1  ,  1  ,  0  , 
+    0x1d, 0x80, 0xde, 0x60, 0x07, 0xe0, 0x1b, 0x66, 0xa5, 0xbe, 0xcd, 0x87, 0xdc, 0xc3, 0x6b, 0x4e, // 0xb
+//   0  ,  1  ,  1  ,  1  ,  1  ,  x  ,  0  ,  x  ,  0  ,  x  ,  0  ,  1  ,  1  ,  0  ,  1  ,  1  , 
+    0xd0, 0xfd, 0xd4, 0x3f, 0x98, 0x96, 0x2f, 0x4c, 0xb3, 0xea, 0x2c, 0x75, 0xe4, 0xc0, 0x6c, 0x6a, // 0xc
+//   0  ,  x  ,  1  ,  1  ,  0  ,  1  ,  1  ,  1  ,  1  ,  0  ,  1  ,  1  ,  x  ,  1  ,  1  ,  1  , 
+    0x9b, 0xb7, 0x43, 0x8b, 0x41, 0x47, 0x02, 0xdb, 0x99, 0x3d, 0xa3, 0x79, 0x50, 0x4f, 0xb4, 0x55, // 0xd
+//   1  ,  0  ,  0  ,  0  ,  1  ,  0  ,  0  ,  x  ,  x  ,  1  ,  1  ,  1  ,  0  ,  1  ,  1  ,  1  ,
+    0x5a, 0x25, 0xf4, 0xca, 0x58, 0x30, 0xc4, 0x12, 0xa9, 0x46, 0xda, 0x91, 0xa4, 0xaa, 0xfc, 0x85, // 0xe
+//   1  ,  1  ,  0  ,  1  ,  1  ,  1  ,  1  ,  0  ,  0  ,  1  ,  1  ,  1  ,  1  ,  0  ,  0  ,  x  , 
+    0xfb, 0x89, 0x06, 0xcf, 0xfe, 0x33, 0xd5, 0x28, 0x1f, 0x19, 0x4a, 0xb1, 0x83, 0xf2, 0x72, 0x26, // 0xf
+//   x  ,  x  ,  1  ,  1  ,  1  ,  1  ,  1  ,  1  ,  x  ,  0  ,  1  ,  1  ,  1  ,  1  ,  1  ,  1  , 
+};
+
+
+//#define printf logerror
+
+static int puzzli2_take_leveldata_value(UINT8 datvalue)
+{
+	int num_mask_bits;
+    int desired_mask;
+    int realrow;
+	if (stage==-1)
+	{
+		tableoffs = 0;
+		tableoffs2 = 0;
+		entries_left = 0;
+		currentcolumn = 0;
+		currentrow = 0;
+		num_entries = 0;
+		full_entry = 0;
+		prev_tablloc = 0;
+		numbercolumns = 0;
+		depth = 0;
+		row_bitmask = 0;
+
+		printf("%02x <- table offset\n", datvalue);
+		tableoffs = datvalue;
+		tableoffs2 = 0;
+		stage = 0;
+	}
+	else
+	{
+	
+		UINT8 rawvalue = datvalue;
+		UINT8 tableloc = (tableoffs+tableoffs2)&0xff;
+		rawvalue ^= puzzli2_level_decode[tableloc];
+
+		tableoffs2++;
+		tableoffs2&=0xf;
+
+		if (stage==0)
+		{
+			stage = 1;
+
+			// this seems to be the first thing returned back when reading the level structure always seems to be 0x8 or 0x7, makes sense, levels would be too difficult otherwise ;-) (actually puzzli2 seems to have one specifying 5 unless it's a decrypt table error?!)
+			depth = (rawvalue & 0xf0);
+			numbercolumns = (rawvalue & 0x0f);
+			numbercolumns++;
+
+			printf("%02x <- Sizes (level depth %01x) (number of columns %01x)", rawvalue, depth>>4, numbercolumns);
+
+
+			if ((depth != 0x80) && (depth != 0x70) && (depth != 0x50))
+				//fatalerror("depth isn't 0x5, 0x7 or 0x8");
+
+
+
+			// it seems to use this to specify the number of columns, ie how many data structures follow, so that the ARM knows when to send back the 'finished' flag.
+			// it also gets returned at the end with said flag
+			if ((numbercolumns != 0x6) && (numbercolumns != 0x7) && (numbercolumns != 0x8))
+				//fatalerror("number of columns specified isn't 6,7, or 8");
+
+			printf("\n");
+
+		}
+		else if (stage==1)
+		{
+			printf("%02x <- Number of Entries for this Column (and upper mask) (column is %d) (xor table location is %02x) ", rawvalue, currentcolumn, tableloc);
+			stage = 2;
+			entries_left = (rawvalue >> 4);
+			row_bitmask = (rawvalue & 0x0f)<<8;
+			
+			full_entry = rawvalue;
+			prev_tablloc = tableloc;
+
+			num_entries = entries_left;
+
+			if (num_entries == 0x00)
+			{
+				printf("0 entries for this column?"); // seems a valid condition based on the data
+			}
+
+
+
+			printf("\n");
+
+					
+		}
+		else if (stage==2)
+		{	
+			printf("%02x <- Mask value equal to number of entries (xor table location is %02x)", rawvalue, tableloc);
+			stage = 3;
+
+			row_bitmask |= rawvalue;
+
+			num_mask_bits = count_bits(row_bitmask);
+
+			if (num_mask_bits != num_entries)
+				printf(" error - number of mask bits != number of entries - ");
+
+			// 
+			if (entries_left == 0)
+			{
+				// for 0 entries skip back to state 1 instead of 3, because there is nothing following
+				stage = 1;
+				currentcolumn++;
+				currentrow = 0;
+				row_bitmask = 0;
+
+				coverage[tableloc] = 1;
+				if (rawvalue!=0)
+				{
+					printf(" invalid mask after 00 length?");
+					// attempt to correct the table
+					//new_puzzli2_level_decode[tableloc] = new_puzzli2_level_decode[tableloc] ^ rawvalue;
+
+				}
+				coverage[prev_tablloc] = 1;
+				if (full_entry!=0)
+				{
+					printf(" previous value wasn't 0x00");
+				}
+
+				if (currentcolumn==numbercolumns)
+				{
+					return 1;
+				}
+	
+			}
+			else
+			{
+				if (num_entries> 0xa)
+				{
+					printf(" more than 10 entries?");
+				}
+				else
+				{
+
+					// this isn't a strict rule
+					// the mask is used so they can specify spaces between elements too without storing the 00 bytes
+					coverage[tableloc] = 1;
+
+					desired_mask = 0;
+
+					if (num_entries==0x00) desired_mask = 0x00;
+					if (num_entries==0x01) desired_mask = 0x01;
+					if (num_entries==0x02) desired_mask = 0x03;
+					if (num_entries==0x03) desired_mask = 0x07;
+					if (num_entries==0x04) desired_mask = 0x0f;
+					if (num_entries==0x05) desired_mask = 0x1f;
+					if (num_entries==0x06) desired_mask = 0x3f;
+					if (num_entries==0x07) desired_mask = 0x7f;
+					if (num_entries==0x08) desired_mask = 0xff;
+					if (num_entries==0x09) desired_mask = 0xff;
+					if (num_entries==0x0a) desired_mask = 0xff;
+
+					if (rawvalue!=desired_mask)
+					{
+						printf(" possible wrong mask?");
+					}
+
+
+				}
+
+			}
+
+			printf("\n");
+
+		}
+		else if (stage==3)
+		{
+			UINT16 object_value;
+
+			// return values
+			// 0x0100 = normal fish
+			// 0x0120 = fish in bubble
+			// 0x0140 = fish in egg
+			// 0x0160 = buggy fish in egg (displayed as normal fish)
+			// 0x0180 = fish on hook
+			// 0x01a0 = fish on hook (uncatchable)
+			// 0x01c0 - fish on hook (uncatchable)
+			// 0x01e0 - fish on hook (uncatchable)
+
+			// fish values
+			// 100 101 102 103 104 105 106 107 108 normal
+			// 110 - renders as a flashing fish you can't catch? glitches game?
+			// 111 - repeat of other fish type you can't catch...
+
+			if (rawvalue<=0x10) // regular fish
+			{
+				int fishtype = rawvalue;
+				printf("%02x <- fish type %d", rawvalue, fishtype);
+				object_value = 0x0100 + fishtype; 
+				// 0x110 is a flashy fish? might be glitchy and need a special number..
+			}
+			else if (rawvalue<=0x21) // fish in bubbles
+			{
+				int fishtype = rawvalue - 0x11;
+				printf("%02x <- fish in bubble %d", rawvalue, fishtype);
+				object_value = 0x0120 + fishtype; 
+				// 0x130 is a flashy fish? might be glitchy and need a special number..
+			}
+			else if (rawvalue<=0x32) // fish in eggs
+			{
+				int fishtype = rawvalue - 0x22;
+				printf("%02x <- fish in egg %d", rawvalue, fishtype);
+				object_value = 0x0140 + fishtype; 
+				// 0x150 is a flashy fish? might be glitchy and need a special number..
+
+			}
+			else if (rawvalue<=0x43) // fish on hook cases, seem to be base 0x180
+			{
+				int fishtype = rawvalue - 0x33;
+				printf("%02x <- fish on hook %d", rawvalue, fishtype);
+				object_value = 0x0180 + fishtype; 
+				// 0x190 is a flashy fish? might be glitchy and need a special number..
+
+			}
+			////////////////////// special objects follow
+			else if (rawvalue==0xd0) {object_value = 0x0200; printf("%02x <- generic bubbles", rawvalue);}
+
+			else if (rawvalue==0xe0) {object_value = 0x8000; printf("%02x <- solid middle", rawvalue);}
+			else if (rawvalue==0xe1) {object_value = 0x8020; printf("%02x <- solid top slant down", rawvalue);} // solid slant top down
+			else if (rawvalue==0xe2) {object_value = 0x8040; printf("%02x <- solid top slant up", rawvalue);} // solid slant top up
+			else if (rawvalue==0xe3) {object_value = 0x8060; printf("%02x <- solid bottom slant up", rawvalue);}
+			else if (rawvalue==0xe4) {object_value = 0x8080; printf("%02x <- solid bottom slant down", rawvalue);} // sold slant bottom up
+
+
+			else                     {object_value = 0xffff; printf("%02x <- unknown object", rawvalue);}
+
+			printf("  (xor table location is %02x)\n",tableloc);
+
+			if (object_value==0xffff)
+			{
+				object_value = 0x110;
+				ui_popup("unknown object type %02x\n", rawvalue); 
+			}
+
+			realrow = get_position_of_bit(row_bitmask, currentrow);
+
+			if (realrow != -1)
+				level_structure[currentcolumn][realrow] = object_value;
+
+			currentrow++;
+
+			entries_left--;
+			if (entries_left == 0)
+			{
+				stage = 1;
+				currentcolumn++;
+				currentrow = 0;
+				row_bitmask = 0;
+
+				if (currentcolumn==numbercolumns)
+				{
+					return 1;
+				}
+
+			}
+		}
+				
+	}
+
+	return 0;
+}
+
+static READ16_HANDLER( puzzli2_asic_r )
+{
+
+	if (offset == 0)
+	{
+		UINT16 d = valueresponse & 0xffff;
+		UINT16 realkey = valuekey >> 8;
+		realkey |= valuekey;
+		d ^= realkey;
+
+		//printf("ASIC read: 0x%x\n", d);
+
+		return d;
+
+	}
+	else if (offset == 1)
+	{
+		UINT16 d = valueresponse >> 16;
+		UINT16 realkey = valuekey >> 8;
+		realkey |= valuekey;
+		d ^= realkey;
+
+		//printf("ASIC read: 0x%x\n", d);
+
+		return d;
+
+	}
+	return 0xffff;
+}
+
+static WRITE16_HANDLER( puzzli2_asic_w )
+{
+	int columns = 0;
+	int rows = 0;
+
+	if (offset == 0)
+	{
+		value0 = data;
+		return;
+	}
+	else if (offset == 1)
+	{
+		UINT16 realkey;
+		if ((data >> 8) == 0xff)
+			valuekey = 0xff00;
+		realkey = valuekey >> 8;
+		realkey |= valuekey;
+		{
+			valuekey += 0x0100;
+			valuekey &= 0xff00;
+			if (valuekey == 0xff00)
+				valuekey =  0x0100;
+		}
+		data ^= realkey;
+		value1 = data;
+		value0 ^= realkey;
+
+		ddp3lastcommand = value1 & 0xff;
+
+	switch (ddp3lastcommand)
+	{
+
+		case 0x31:
+		{
+			// how is this selected? command 54?
+
+
+			/* writes the following sequence before how to play 
+			 each level has a different sequence written before it, size of sequence doesn't seem directly connected to level size (unlike the reads)
+			 so it's probably compressed somehow as well as scrambled?  68k doesnt know in advance how big each lot of data is either, it only stops
+			 writing when it gets a difference response from the MCU.
+
+		
+			00138278: 31 00fd | (set xor table offset)
+		UNKNOWN - related to depth / number of columns?
+			00138278: 31 0087 | value 87, after xor is 75 (table address,value fd,f2)
+		COLUMN 1
+			00138278: 31 0032 | value 32, after xor is 40 (table address,value fe,72) << 4 is the number of entries in this column
+			00138278: 31 0029 | value 29, after xor is 0f (table address,value ff,26) << 0x0f is a mask of 4 bits..
+
+			00138278: 31 0031 | value 31, after xor is 03 (table address,value 00,32)  -> 0x0103
+			00138278: 31 003f | value 3f, after xor is 01 (table address,value 01,3e)  -> 0x0101
+			00138278: 31 00b0 | value b0, after xor is 02 (table address,value 02,b2)  -> 0x0102
+			00138278: 31 0035 | value 35, after xor is 02 (table address,value 03,37)  -> 0x0102
+        COLUMN 2
+			00138278: 31 0071 | value 71, after xor is 40 (table address,value 04,31) << 4 is the number of entries in this column
+			00138278: 31 002d | value 2d, after xor is 0f (table address,value 05,22) << 0x0f is a mask of 4 bits..
+
+			00138278: 31 00d5 | value d5, after xor is 03 (table address,value 06,d6)  -> 0x0103
+			00138278: 31 000d | value 0d, after xor is 00 (table address,value 07,0d)  -> 0x0100
+			00138278: 31 0034 | value 34, after xor is 01 (table address,value 08,35)  -> 0x0101
+			00138278: 31 0059 | value 59, after xor is 05 (table address,value 09,5c)  -> 0x0105
+		COLUMN 3
+			00138278: 31 00dd | value dd, after xor is 50 (table address,value 0a,8d) << 5 is the number of entries in this column
+			00138278: 31 0023 | value 23, after xor is 1f (table address,value 0b,3c) << 0x1f is a mask of 5 bits..
+			
+			00138278: 31 007a | value 7a, after xor is 00 (table address,value 0c,7a)  -> 0x0100
+			00138278: 31 00f3 | value f3, after xor is 01 (table address,value fd,f2)  -> 0x0101
+			00138278: 31 0077 | value 77, after xor is 05 (table address,value fe,72)  -> 0x0105
+			00138278: 31 0022 | value 22, after xor is 04 (table address,value ff,26)  -> 0x0104
+			00138278: 31 0036 | value 36, after xor is 04 (table address,value 00,32)  -> 0x0104	  
+		COLUMN 4
+			00138278: 31 002e | value 2e, after xor is 10 (table address,value 01,3e) << 1 is the number of entries in this column
+			00138278: 31 00b3 | value b3, after xor is 01 (table address,value 02,b2) << 0x01 is a mask of 1 bit..
+
+			00138278: 31 0035 | value 35, after xor is 02 (table address,value 03,37)  -> 0x0102
+		COLUMN 5
+			00138278: 31 0041 | value 41, after xor is 70 (table address,value 04,31) << 7 is the number of entries in this column
+			00138278: 31 005d | value 5d, after xor is 7f (table address,value 05,22) << 0x7f is a mask of 7 bits..
+			
+			00138278: 31 00d6 | value d6, after xor is 00 (table address,value 06,d6)  -> 0x0100
+			00138278: 31 000c | value 0c, after xor is 01 (table address,value 07,0d)  -> 0x0101
+			00138278: 31 0036 | value 36, after xor is 03 (table address,value 08,35)  -> 0x0103
+			00138278: 31 005e | value 5e, after xor is 02 (table address,value 09,5c)  -> 0x0102
+			00138278: 31 0089 | value 89, after xor is 04 (table address,value 0a,8d)  -> 0x0104
+			00138278: 31 003c | value 3c, after xor is 00 (table address,value 0b,3c)  -> 0x0100
+			00138278: 31 007a | value 7a, after xor is 00 (table address,value 0c,7a)  -> 0x0100
+		COLUMN 6
+			00138278: 31 00a2 | value a2, after xor is 50 (table address,value fd,f2) << 5 is the number of entries in this column
+			00138278: 31 006d | value 6d, after xor is 1f (table address,value fe,72) << 0x1f is a mask of 5 bits..
+			
+			00138278: 31 0023 | value 23, after xor is 05 (table address,value ff,26)  -> 0x0105
+			00138278: 31 0037 | value 37, after xor is 05 (table address,value 00,32)  -> 0x0105
+			00138278: 31 003f | value 3f, after xor is 01 (table address,value 01,3e)  -> 0x0101
+			00138278: 31 00b3 | value b3, after xor is 01 (table address,value 02,b2)  -> 0x0101
+			00138278: 31 0034 | value 34, after xor is 03 (table address,value 03,37)  -> 0x0103
+			 ^ (end, returning 630006 as playfield width)
+
+			*/
+
+			if (command_31_write_type==2)
+			{
+				printf("%08x: %02x %04x | ",pc, ddp3lastcommand, value0);
+
+				// this shouldn't apply to the stuff written on startup, only the level data..
+
+				if (hackcount2==0)
+				{
+					puzzli2_take_leveldata_value(value0&0xff);
+
+					hack_31_table_offset = value0 & 0xff;
+					hack_31_table_offset2 = 0;
+					hackcount2++;
+					valueresponse = 0x00d20000;
+
+					//printf("(set xor table offset)\n");
+				}
+				else  // how do we decide end?
+				{
+					int end = puzzli2_take_leveldata_value(value0&0xff);
+
+					if (!end)
+					{
+
+						// always d2 0000 when writing doing level data
+						// but different for the writes on startup?
+						valueresponse = 0x00d20000;
+
+						//UINT8 tableaddr = (hack_31_table_offset + (hack_31_table_offset2&0xf))&0xff;
+						//UINT8 xoredval = m_value0 ^ puzzli2_level_decode[tableaddr];
+						//printf("value %02x, after xor is %02x (table address,value %02x,%02x)\n", m_value0, xoredval, tableaddr, puzzli2_level_decode[tableaddr]);
+				
+						hackcount2++;
+						hack_31_table_offset2++;
+					}
+					else
+					{
+						hackcount2=0;
+	
+						// when the ARM detects the end of the stream has been reached it returns a 0x63 status with the number of columns in the data word
+						valueresponse = 0x00630000 | numbercolumns;
+				
+						//UINT8 tableaddr = (hack_31_table_offset + (hack_31_table_offset2&0xf))&0xff;
+						//UINT8 xoredval = m_value0 ^ puzzli2_level_decode[tableaddr];
+						//printf("value %02x, after xor is %02x (table address,value %02x,%02x) (end, returning %02x as playfield width)\n", m_value0, xoredval, tableaddr, puzzli2_level_decode[tableaddr], m_valueresponse);
+
+
+					}
+				}
+
+
+			}
+			else
+			{
+				// todo, responses when uploading the startup values are different
+				printf("%08x: %02x %04x (for z80 address?)\n ",pc, ddp3lastcommand, value0);
+
+				valueresponse = 0x00d20000 | p2_31_retcounter;
+				p2_31_retcounter++; // returns 0xc for the first one, 0x19 for the last one
+			}
+
+		}
+		break;
+	
+
+		// after writing the compressed and scrambled data stream for the level (copied from ROM) with command 0x31
+		// the game expects to read back a fully formed level structure from the ARM
+		case 0x13:
+		{
+			//printf("%08x: %02x %04x (READ LEVEL DATA) |",pc, ddp3lastcommand, value0);
+
+			// this is the how to play screen, correctly returned with current code
+			/*
+			UINT16 retvals[61] = 
+			{ 0x0008, // depth (-2?)
+			  0x0103, 0x0101, 0x0102, 0x0102, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // first column
+			  0x0103, 0x0100, 0x0101, 0x0105, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+			  0x0100, 0x0101, 0x0105, 0x0104, 0x0104, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+			  0x0102, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+			  0x0100, 0x0101, 0x0103, 0x0102, 0x0104, 0x0100 ,0x0100, 0x0000, 0x0000, 0x0000,
+			  0x0105, 0x0105, 0x0101, 0x0101, 0x0103, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000  // last column
+			};
+			*/
+
+
+			UINT16* leveldata = &level_structure[0][0];
+			if (hackcount==0)
+			{
+				valueresponse = 0x002d0000 | ((depth>>4)+1); // this *seems* to come from upper bits of the first real value written to the device during the level stream (verify, seems wrong for some levels because you get a black bar on the bottom of the screen, but might be bad xors)
+				printf("level depth returning %08x\n", valueresponse );
+			}
+			else if (hackcount<((10*numbercolumns)+1))
+			{
+				valueresponse = 0x002d0000 | leveldata[hackcount-1];
+				printf("level data returning %08x\n", valueresponse );
+			}
+			else
+			{
+				hackcount=0;
+				valueresponse = 0x00740054;  // 0x0074 0054 is returned after how to play reads above.. where does 0x54 come from?
+				printf("END returning %08x\n", valueresponse );
+
+			}
+
+			hackcount++;
+
+
+			// 2d seems to be used when there is more data available
+			// 74 seems to be used when there isn't.. (end of buffer reached?)
+			// 2d or 74! (based on?)
+
+		}
+		break;
+
+
+
+		case 0x38: // Reset
+			printf("%08x: %02x %04x (RESET)\n",pc, ddp3lastcommand, value0);
+			simregion = readinputport(4);
+			valueresponse = 0x780000 | simregion<<8; // this must also return the cart region or the game will act in odd ways when inserting a coin on continue, or during the game on later levels
+			valuekey = 0x100;
+			puzzli_54_trigger = 0;
+			
+		break;
+
+
+
+
+		// 47 and 52 are used to get the images during the intro sequence, different each loop
+		// also some other gfx?
+		// logic here seems correct, not sure where the 0x19 and 0x5 etc. come from tho!
+		case 0x47:
+			printf("%08x: %02x %04x (GFX OFF PART 1)\n",pc, ddp3lastcommand, value0);
+
+			hack_47_value = value0;
+
+			//hack_47_value = ((m_value0 & 0x0700)>>8) * 0x19;
+			//hack_47_value +=((m_value0 & 0x0007)>>0) * 0x05;
+			if (value0 & 0xf0f0) printf("unhandled 0x47 bits %04x\n", value0);
+
+			//printf("0x47 value was %04x - using %04x\n", m_value0, hack_47_value);
+
+			valueresponse = 0x00740047;
+
+		break;
+
+		case 0x52:
+			printf("%08x: %02x %04x (GFX OFF PART 2)\n",pc, ddp3lastcommand, value0);
+
+			//printf("which %04x\n", m_value0);
+			if (value0 & 0xfff0) printf("unhandled 0x52 bits %04x\n", value0);
+
+			// it writes a value of 0x0000 then expects to read back like
+			// this for the lower part of the game backgrounds
+			if (value0==0x0000)
+			{
+				int val = ((hack_47_value & 0x0f00)>>8) * 0x19;
+				valueresponse = 0x00740000 | (val & 0xffff);
+			}
+			else
+			{
+
+				int val = ((hack_47_value & 0x0f00)>>8) * 0x19;
+				val +=((hack_47_value & 0x000f)>>0) * 0x05;
+				val += value0 & 0x000f;
+				valueresponse = 0x00740000 | (val & 0xffff);
+
+			}
+
+
+			
+		break;
+
+
+
+		case 0x61: // ??
+			printf("%08x: %02x %04x\n",pc, ddp3lastcommand, value0);
+			
+			// this command is written before the values used to decrypt the z80 addresses (assumed) are uploaded with command 31
+			command_31_write_type = 1;
+
+			valueresponse = 0x36<<16;
+			p2_31_retcounter = 0xc;
+		break;
+
+		case 0x41: // ASIC status?
+			printf("%08x: %02x %04x (UNK)\n",pc, ddp3lastcommand, value0);
+
+			// this command is written after the values used to decrypt the z80 addresses (assumed) are uploaded with command 31
+			command_31_write_type = 0;
+
+			//m_valueresponse = 0x74<<16;
+			valueresponse = 0x740061;
+		break;
+
+		case 0x54: // ??
+			printf("%08x: %02x %04x\n",pc, ddp3lastcommand, value0);
+			
+			// this command is written before uploading the compressed level data stream with command 31
+
+			command_31_write_type = 2;
+			stage = -1;
+			puzzli_54_trigger = 1;
+			hackcount2 = 0;
+			hackcount = 0;
+			valueresponse = 0x36<<16;
+			
+			//  clear the return structure
+			for (columns=0;columns<8;columns++)
+				for (rows=0;rows<10;rows++)
+					level_structure[columns][rows] = 0x0000;
+
+		break;
+
+	/* 
+
+  puzzli2 on startup (00148a84)         puzzli2s on startup (0014cf58)
+	                                             
+		(001489f6: 61 0202  0014ceca: 61 0202)
+		                                       always
+		: 31 004e a6f7 | : 31 | 0051 14c9       + 26DD2
+		: 31 279e 534f | : 31 | 27a0 c121  
+		: 31 ab5c a7cf | : 31 | ab5f 15a1  
+		: 31 145f 7054 | : 31 | 1461 de26  
+		: 31 85a0 7b7f | : 31 | 85a2 e951  
+		: 31 7003 c5ab | : 31 | 7006 337d  
+		: 31 456d f3aa | : 31 | 4570 617c  
+
+		(00148b34: 41 e2bb  0014d008: 41 706d)
+
+		actual values needed       always
+		0x001694a8 / 0x0019027a  + 26DD2
+		0x0016cfae / 0x00193D80
+		0x0016ebf2 / 0x001959c4
+		0x0016faa8 / 0x0019687a
+		0x00174416 / 0x0019b1e8
+
+		0x00166178 / 0x0018cf4a
+		0x00166e72 / 0x0018dc44
+
+		 as you can see the difference between the values written is always 26dd2, as is the difference between offsets expected
+		 this makes it impossible to know which value is for which address without further tests!
+	
+	
+	*/
+
+		// I think the values returned here must be connected to the values written to command 31 on startup
+		// 63/67 are used on startup to get the z80 music at least
+		case 0x63: // used as a read address by the 68k code (related to previous uploaded values like cave?) should point at a table of ~0x80 in size? seems to use values as further pointers?
+			printf("%08x: %02x %04x (Z80 ADDR PART 1)\n",pc, ddp3lastcommand, value0);
+
+			if (!strcmp(Machine->gamedrv->name,"puzzli2"))
+			{
+				if (value0==0x0000)
+				{
+					valueresponse = 0x001694a8;
+				}
+				else if (value0==0x0001)
+				{
+					valueresponse = 0x0016cfae;
+				}
+				else if (value0==0x0002)
+				{
+					valueresponse = 0x0016ebf2; // right for puzzli2 , wrong for puzzli2s, probably calculated from the writes then?
+				}
+				else if (value0==0x0003) // before 'cast' screen
+				{
+					valueresponse = 0x0016faa8;
+				}
+				else if (value0==0x0004) // 2 player demo
+				{
+					valueresponse = 0x00174416;
+				}
+				else
+				{
+					printf("unk case x63\n");
+					valueresponse = 0x00600000; // wrong
+
+				}
+			}
+			else // puzzli2 super
+			{
+				if (value0==0x0000)
+				{
+					valueresponse = 0x19027a;
+				}
+				else if (value0==0x0001)
+				{
+					valueresponse = 0x193D80;
+				}
+				else if (value0==0x0002)
+				{
+					valueresponse = 0x1959c4;
+				}
+				else if (value0==0x0003)
+				{
+					valueresponse = 0x19687a;
+				}
+				else if (value0==0x0004)
+				{
+					valueresponse = 0x19b1e8;
+				}
+				else
+				{
+					printf("unk case x63\n");
+					valueresponse = 0x00600000; // wrong
+				}
+			}
+		break;
+
+		case 0x67: // used as a read address by the 68k code (related to previous uploaded values like cave?) directly reads ~0xDBE from the address..
+			printf("%08x: %02x %04x (Z80 ADDR PART 2)\n",pc, ddp3lastcommand, value0);
+
+			if (!strcmp(Machine->gamedrv->name,"puzzli2"))
+			{
+				if ( (value0==0x0000) || (value0==0x0001) || (value0==0x0002) || (value0==0x0003) )
+				{
+					valueresponse = 0x00166178; // right for puzzli2 , wrong for puzzli2s, probably calculated from the writes then?
+				}
+				else if ( value0==0x0004 ) // 2 player demo
+				{
+					valueresponse = 0x00166e72;
+				}
+				else
+				{
+					printf("unk case x67\n");
+					valueresponse = 0x00400000; // wrong
+				}
+			}
+			else // puzzli2 super
+			{
+				if ((value0==0x0000) || (value0==0x0001) || (value0==0x0002) ||  (value0==0x0003))
+				{
+					valueresponse = 0x18cf4a;
+				}
+				else if ( value0==0x0004 ) // 2 player demo
+				{
+					valueresponse = 0x0018dc44;
+				}
+				else
+				{
+					printf("unk case x67\n");
+					valueresponse = 0x00600000; // wrong
+				}
+			}
+		break;
+
+		default:
+			printf("%08x: %02x %04x\n",pc, ddp3lastcommand, value0);
+
+			valueresponse = 0x74<<16;
+		break;
+	}
+ }
+	else if (offset==2)
+	{
+
+	}
+}
+
+static READ16_HANDLER( puzzli2_ram_mirror_r )
+{
+	if (offset == 4)
+		return simregion;
+
+	return 0x0000;
+}
+
+void install_asic27a_puzzli2(void)
+{
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM,  0x500000, 0x500005, 0, 0, puzzli2_asic_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x500000, 0x500005, 0, 0, puzzli2_asic_w);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM,  0x4f0000, 0x4f003f, 0, 0, puzzli2_ram_mirror_r);
+}
+
+DRIVER_INIT(puzzli2)
+{
+    UINT16 *mem16 = (UINT16 *)memory_region(REGION_CPU1);
+	pgm_basic_init();
+	pgm_puzzli2_decrypt();
+    install_asic27a_puzzli2();
+	
+	hackcount = 0;
+	hackcount2 = 0;
+	hack_47_value = 0;
+	hack_31_table_offset = 0;
+	hack_31_table_offset = 0;
+
+    /* use ole IRQ4 disable patch as Puzzli 2 will lock into service mode if enabled */
+    mem16[0x100070/2]=0x0012;
+	mem16[0x100072/2]=0x5D78;
+
+}
 
 /*** Rom Loading *************************************************************/
 
@@ -4048,18 +4991,13 @@ Notes:
       U4 - 16MBit MaskROM (SOP44)
 
 */
+
 ROM_START( puzzli2 )
 	ROM_REGION( 0x600000, REGION_CPU1, 0 ) /* 68000 Code */
 	ROM_LOAD16_WORD_SWAP( "pgm_p01s.rom", 0x000000, 0x020000, CRC(e42b166e) SHA1(2a9df9ec746b14b74fae48b1a438da14973702ea) )  // (BIOS)
-	ROM_LOAD16_BYTE( "2sp_v200.u3",     0x100001, 0x080000, CRC(2a5ba8a6) SHA1(4c87b849fd6f39152e3e2ef699b78ce24b3fb6d0) )
-	ROM_LOAD16_BYTE( "2sp_v200.u4",     0x100000, 0x080000, CRC(fa5c86c1) SHA1(11c219722b891b775c0f7f9bc8276cdd8f74d657) )
+        ROM_LOAD( "v100.u5",     0x100000, 0x200000, CRC(1abb4595) SHA1(860bb49efc3cb55b6b9846f5ab787d6fd586432d) )
 
 	/* CPU2 = Z80, romless, code uploaded by 68k */
-
-	ROM_REGION( 0x4000, REGION_CPU3, ROMREGION_ERASEFF ) /* ARM protection ASIC - internal rom */
-	/* this has no external rom so the internal rom probably can't be dumped */
-//  ROM_LOAD( "puzzli2_igs027a.bin", 0x000000, 0x04000, NO_DUMP )
-
 
 	ROM_REGION( 0x600000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
@@ -4076,7 +5014,33 @@ ROM_START( puzzli2 )
 
 	ROM_REGION( 0x1000000, REGION_SOUND1, 0 ) /* Samples - (8 bit mono 11025Hz) - */
 	ROM_LOAD( "pgm_m01s.rom", 0x000000, 0x200000, CRC(45ae7159) SHA1(d3ed3ff3464557fd0df6b069b2e431528b0ebfa8) ) // (BIOS)
-	ROM_LOAD( "m0900.u2",    0x400000, 0x400000, CRC(9ea7af2e) SHA1(d2593d391a93c5cf5a554750c32886dea6599b3d) )
+	ROM_LOAD( "m0900.u2",     0x400000, 0x400000, CRC(9ea7af2e) SHA1(d2593d391a93c5cf5a554750c32886dea6599b3d) )
+ROM_END
+
+ROM_START( puzzli2s )
+	ROM_REGION( 0x600000, REGION_CPU1, 0 ) /* 68000 Code */
+	ROM_LOAD16_WORD_SWAP( "pgm_p01s.rom", 0x000000, 0x020000, CRC(e42b166e) SHA1(2a9df9ec746b14b74fae48b1a438da14973702ea) )  // (BIOS)
+	ROM_LOAD16_BYTE( "2sp_v200.u3",     0x100001, 0x080000, CRC(2a5ba8a6) SHA1(4c87b849fd6f39152e3e2ef699b78ce24b3fb6d0) )
+	ROM_LOAD16_BYTE( "2sp_v200.u4",     0x100000, 0x080000, CRC(fa5c86c1) SHA1(11c219722b891b775c0f7f9bc8276cdd8f74d657) )
+
+	/* CPU2 = Z80, romless, code uploaded by 68k */
+
+	ROM_REGION( 0x600000, REGION_GFX1, 0 ) /* 8x8 Text Tiles + 32x32 BG Tiles */
+	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
+	ROM_LOAD( "t0900.u9",    0x400000, 0x200000, CRC(70615611) SHA1(a46d4aa71396947b427f9ba4ba0e636876c09d6b) )
+
+	ROM_REGION( 0x600000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF ) /* Region for 32x32 BG Tiles */
+	/* 32x32 Tile Data is put here for easier Decoding */
+
+	ROM_REGION( 0x400000, REGION_GFX3, 0 ) /* Sprite Colour Data */
+	ROM_LOAD( "a0900.u3",    0x0000000, 0x0400000, CRC(14911251) SHA1(e0d10ef50c408dbcf0907f81d4f0e49aeb651a6c) ) // FIXED BITS (xxxxxxxx1xxxxxxx)
+
+	ROM_REGION( 0x0200000, REGION_GFX4, 0 ) /* Sprite Masks + Colour Indexes */
+	ROM_LOAD( "b0900.u4",    0x0000000, 0x0200000,  CRC(6f0638b6) SHA1(14b315fe9e80b3314bb63487e6ea9ce04c9703bd) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 ) /* Samples - (8 bit mono 11025Hz) - */
+	ROM_LOAD( "pgm_m01s.rom", 0x000000, 0x200000, CRC(45ae7159) SHA1(d3ed3ff3464557fd0df6b069b2e431528b0ebfa8) ) // (BIOS)
+	ROM_LOAD( "m0900.u2",     0x400000, 0x400000, CRC(9ea7af2e) SHA1(d2593d391a93c5cf5a554750c32886dea6599b3d) )
 ROM_END
 
 
@@ -4349,6 +5313,7 @@ GAME( 2000, kov2,     pgm,        kov2, sango,    kov2,       ROT0,   "IGS", "Kn
 GAME( 2000, kov2106,  kov2,       kov2, sango,    kov2,       ROT0,   "IGS", "Knights of Valour 2 (106)", GAME_IMPERFECT_SOUND )
 GAME( 2000, kov2p,    kov2,       kov2, sango,    kov2p,       ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 GAME( 2001, martmast, pgm,        kov2, sango,    martmast,   ROT0,   "IGS", "Martial Masters", GAME_IMPERFECT_SOUND )
+GAME( 2001, ddp2,     pgm,        ddp2, ddp2,     ddp2,       ROT270, "IGS", "DoDonPachi II - Bee Storm ", GAME_IMPERFECT_SOUND )
 
 /* Playable but maybe imperfect protection emulation */
 GAME( 1997, drgw2,    pgm,        drgw2, pgm,      drgw2,      ROT0,   "IGS", "Dragon World II (ver. 110X, Export)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
@@ -4358,15 +5323,14 @@ GAME( 1999, kovplusa, kov,        pgm, sango,    kov,        ROT0,   "IGS", "Kni
 GAME( 1998, killbld,  pgm,        killbld, killbld, killbld, ROT0,   "IGS", "The Killing Blade (ver. 109, Chinese Board)", GAME_IMPERFECT_SOUND )
 GAME( 1998, killbld104, killbld,  killbld, killbld, killbld, ROT0,   "IGS", "The Killing Blade (ver. 104)", GAME_IMPERFECT_SOUND )
 GAME( 1999, puzlstar, pgm,        pgm, sango,    pstar,      ROT0,   "IGS", "Puzzle Star", GAME_IMPERFECT_SOUND )
-
-
+GAME( 1999, puzzli2,  pgm,        pgm, puzzli2,  puzzli2,    ROT0,   "IGS", "Puzzli 2 (ver. 100)", GAME_IMPERFECT_SOUND )
+/* 
+GAME( 2001, puzzli2s, puzzli2,    pgm, puzzli2,  puzzli2,    ROT0,   "IGS", "Puzzli 2 Super (ver. 200)", GAME_IMPERFECT_SOUND )
+*/
 /* not working */
 GAME( 1998, drgw3,    pgm,        pgm, sango,    dw3,        ROT0,   "IGS", "Dragon World 3", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1998, drgw3k,   drgw3,      pgm, sango,    dw3,        ROT0,   "IGS", "Dragon World 3 (Korean Board)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 1999, kovsh,    kov,        pgm, sango,    kovsh,      ROT0,   "IGS", "Knights of Valour Superheroes / Sangoku Senki Superheroes (ver. 322)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 2001, ddp2,     pgm,        ddp2,ddp2,     ddp2,       ROT270, "IGS", "DoDonPachi II - Bee Storm ", GAME_IMPERFECT_SOUND )
-GAME( 2001, puzzli2,  pgm,        pgm, sango,    puzzli2,    ROT0,   "IGS", "Puzzli 2 Super", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 2001, theglad,  pgm,        pgm, sango,    pgm,        ROT0,   "IGS", "The Gladiator", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 2002, dmnfrnt,  pgm,        pgm, sango,    pgm,        ROT0,   "IGS", "Demon Front (V102)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
 GAME( 2002, dmnfrnta, dmnfrnt,    pgm, sango,    pgm,        ROT0,   "IGS", "Demon Front (V105)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-
