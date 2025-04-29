@@ -2202,6 +2202,9 @@ static READ16_HANDLER( ddp2_main_speedup_r )
 
 }
 
+/* 
+0 to disable or actually 1 to make it fire.??
+*/
 static UINT32 ddp2_counter=0;
 
 static READ32_HANDLER( ddp2_busy_r )
@@ -2220,7 +2223,7 @@ static DRIVER_INIT( ddp2 )
 //        memory_install_read32_handler(2, ADDRESS_SPACE_PROGRAM, 0x1800300c, 0x1800300f, 0, 0, ddp2_speedup_r);
 	//memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x80ee54, 0x80ee55, 0, 0, ddp2_main_speedup_r);
 
-	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0xd10000, 0xd10001, 0, 0, ddp2_busy_r);
+	memory_install_read32_handler(2, ADDRESS_SPACE_PROGRAM, 0xd10000, 0xd10001, 0, 0, ddp2_busy_r);
 }
 
 
