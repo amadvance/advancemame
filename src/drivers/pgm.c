@@ -828,7 +828,7 @@ WRITE32_HANDLER( kovsh_arm7_protlatch_w )
 READ16_HANDLER( kovsh_68k_protlatch_r )
 {
 	//cpu_boost_interleave(0, TIME_IN_USEC(200));
-//	cpu_spinuntil_time(TIME_IN_CYCLES(600, 0));
+	cpu_spinuntil_time(TIME_IN_CYCLES(600, 0));
 
 	switch (offset)
 	{
