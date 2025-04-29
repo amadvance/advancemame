@@ -2202,16 +2202,25 @@ static READ16_HANDLER( ddp2_main_speedup_r )
 
 }
 
+static UINT32 ddp2_counter=0;
+
+static READ32_HANDLER( ddp2_busy_r )
+{
+	return ddp2_counter++;
+}
+
 static DRIVER_INIT( ddp2 )
 {
 	pgm_basic_init();
 	pgm_ddp2_decrypt();
-	kov2_latch_init();
+	//kov2_latch_init();
  
 	memory_install_write32_handler(2, ADDRESS_SPACE_PROGRAM, 0x48000000, 0x48000003, 0, 0, ddp2_arm_region_w);
 	
-        memory_install_read32_handler(2, ADDRESS_SPACE_PROGRAM, 0x1800300c, 0x1800300f, 0, 0, ddp2_speedup_r);
-	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x80ee54, 0x80ee55, 0, 0, ddp2_main_speedup_r);
+//        memory_install_read32_handler(2, ADDRESS_SPACE_PROGRAM, 0x1800300c, 0x1800300f, 0, 0, ddp2_speedup_r);
+	//memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x80ee54, 0x80ee55, 0, 0, ddp2_main_speedup_r);
+
+	memory_install_read32_handler(0, ADDRESS_SPACE_PROGRAM, 0xd10000, 0xd10001, 0, 0, ddp2_busy_r);
 }
 
 
@@ -5336,7 +5345,7 @@ GAME( 2000, kov2,     pgm,        kov2, sango,    kov2,       ROT0,   "IGS", "Kn
 GAME( 2000, kov2106,  kov2,       kov2, sango,    kov2,       ROT0,   "IGS", "Knights of Valour 2 (106)", GAME_IMPERFECT_SOUND )
 GAME( 2000, kov2p,    kov2,       kov2, sango,    kov2p,       ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 GAME( 2001, martmast, pgm,        kov2, sango,    martmast,   ROT0,   "IGS", "Martial Masters", GAME_IMPERFECT_SOUND )
-GAME( 2001, ddp2,     pgm,        ddp2, ddp2,     ddp2,       ROT270, "IGS", "DoDonPachi II - Bee Storm ", GAME_IMPERFECT_SOUND )
+GAME( 2001, ddp2,     pgm,        kov2, ddp2,     ddp2,       ROT270, "IGS", "DoDonPachi II - Bee Storm ", GAME_IMPERFECT_SOUND )
 
 /* Playable but maybe imperfect protection emulation */
 GAME( 1997, drgw2,    pgm,        drgw2, pgm,      drgw2,      ROT0,   "IGS", "Dragon World II (ver. 110X, Export)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
