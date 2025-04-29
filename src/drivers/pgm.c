@@ -2203,9 +2203,9 @@ static READ16_HANDLER( ddp2_main_speedup_r )
 }
 
 /* 
-0 to disable or actually 1 to make it fire.??
+   do we want 0 to disable or actually 1 to make it fire.??
 */
-static UINT32 ddp2_counter=0;
+static UINT32 ddp2_counter=1;
 
 static READ32_HANDLER( ddp2_busy_r )
 {
