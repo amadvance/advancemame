@@ -5513,9 +5513,7 @@ GAME( 1998, killbld104, killbld,  killbld, killbld, killbld, ROT0,   "IGS", "The
 GAME( 1999, puzlstar, pgm,        pgm, sango,    pstar,      ROT0,   "IGS", "Puzzle Star", GAME_IMPERFECT_SOUND )
 GAME( 1999, puzzli2,  pgm,        pgm, puzzli2,  puzzli2,    ROT0,   "IGS", "Puzzli 2 (ver. 100)", GAME_IMPERFECT_SOUND )
 GAME( 2001, puzzli2s, puzzli2,    pgm, puzzli2,  puzzli2,    ROT0,   "IGS", "Puzzli 2 Super (ver. 200)", GAME_IMPERFECT_SOUND )
-/*
 GAME( 2001, py2k2,    pgm,        pgm, photoy2k, py2k2,      ROT0,   "IGS", "Photo Y2K 2", GAME_IMPERFECT_GRAPHICS )  /* need internal rom of IGS027A */
-*/
 
 /* not working */
 GAME( 1998, drgw3,    pgm,        pgm, sango,    dw3,        ROT0,   "IGS", "Dragon World 3", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )

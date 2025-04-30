@@ -6744,6 +6744,7 @@ Other Sun games
 	DRIVER( theglad )	/* (c) 2001 */
 	DRIVER( dmnfrnt )	/* (c) 2002 */
 	DRIVER( dmnfrnta )	/* (c) 2002 */
+	DRIVER( py2k2 )
 
 	/* AdvanceMAME new games from ShmupMAME v3.0b */
 	/* Cave PGM System Games */
