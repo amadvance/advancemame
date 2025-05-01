@@ -1566,6 +1566,8 @@ const game_driver * const drivers[] =
 	DRIVER( bubbobr1 )	/* A78 (c) 1986 Taito America Corporation + Romstar license */
 	DRIVER( boblbobl )	/* bootleg */
 	DRIVER( sboblbob )	/* bootleg */
+        DRIVER( bublboblu )	/* bootleg */
+        DRIVER( bublcave )	/* bootleg */
 	DRIVER( missb2 )	/* bootleg on enhanced hardware */
 	DRIVER( kikikai )	/* A85 (c) 1986 Taito Corporation */
 	DRIVER( knightb )	/* bootleg */
@@ -5332,6 +5334,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( hypernoi )
 	DRIVER( cyborg )
 	DRIVER( cbarrel )
+	DRIVER( gladmort )
 	DRIVER( 19yy )
 	DRIVER( bpanicdx )
 	DRIVER( columnsn )
