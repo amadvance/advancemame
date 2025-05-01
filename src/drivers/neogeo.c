@@ -7561,6 +7561,28 @@ ROM_START( xeno )
 	ROM_LOAD16_BYTE( "BB01-c2.c2", 0x000001, 0x200000, CRC(a8610100) SHA1(aded6eaa17a518a8f4af9c3779c41ef8dd32a316) )
 ROM_END
 
+// 503 : Gladmort by Pixelheart/ChipsOnSteroids
+ROM_START( gladmort )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "503.p1", 0x000000, 0x100000, CRC(64d77ca4) SHA1(8cf0e12d462dd1f4f67c782c5c643a7da29bc718) )
+
+	NEO_SFIX_128K( "503.s1", CRC(c96154b9) SHA1(c95251dc566d4649496b7785c8e4cddd0aa67d7f) )
+
+	NEO_BIOS_SOUND_64K( "503.m1", CRC(fbccedbd) SHA1(61e7f745d24c4ec3598cbf3cefc603f7deb21497) )
+
+	ROM_REGION( 0x1000000, REGION_SOUND1, ROMREGION_SOUNDONLY )
+	ROM_LOAD( "503.v1",   0x000000, 0x400000, CRC(4c0efb20) SHA1(80424564a8cd19bbe7e3f8003129585174cc9367) )
+	ROM_LOAD( "503.v2",   0x400000, 0x400000, CRC(dbd083f5) SHA1(c76980473550fda0ece72fa87104ea79a6a8024e) )
+	ROM_LOAD( "503.v3",   0x800000, 0x400000, CRC(2f5c4eeb) SHA1(4ed687bde1d3b549581270e90832d90a46101df0) )
+	ROM_LOAD( "503.v4",   0xc00000, 0x400000, CRC(12e01947) SHA1(b8147e584712d77c47e97c7a4790807536a22a86) )
+
+        NO_DELTAT_REGION
+
+	ROM_REGION( 0x2800000, REGION_GFX3, 0 )
+	ROM_LOAD16_BYTE( "503.c1",   0x0000000, 0x1400000, CRC(c7d367cc) SHA1(91a5241ba793c367e06341c951e9fb43726d0944) )
+	ROM_LOAD16_BYTE( "503.c2",   0x0000001, 0x1400000, CRC(2c39b98e) SHA1(da26d5073fe483650cbcacf595b4410e4f5f4787) )
+ROM_END
+
 ROM_START( 19yy ) // sound fixed by elrayzeur, 2022-10-20
 	ROM_REGION( 0x200000, REGION_CPU1, 0 )
 	ROM_LOAD16_WORD_SWAP( "334.p1", 0x100000, 0x100000, CRC(59374c47) SHA1(dfd8f5b8edba3116998c12b77dd2583d0363b76a) )
@@ -8818,6 +8840,9 @@ GAMEB( 2023, cyborg,   neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Neo B
 
 /* NEO.BYTE.FORCE */
 GAMEB( 2024, cbarrel,  neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Neo Byte Force Ltd", "Captain Barrel", 0 )  
+
+/* Pixelheart / ChipsOnSteroids */
+GAMEB( 2024, gladmort, neogeo,   neogeo, neogeo, neogeo,  neogeo,   ROT0, "Pixelheart / ChipsOnSteroids", "Gladmort", 0 ) 
 
 GAMEB( 2022, 19yy,       neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Ichikyu Wai Wai/EKORZ/Elrayzeur", "19YY", 0 )
 GAMEB( 2025, bpanicdx,   neogeo,   neogeo,   neogeo,  neogeo, neogeo,   ROT0, "Blastar", "Block Panic DX (2025-01-01)", 0 )
