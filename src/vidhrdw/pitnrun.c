@@ -90,6 +90,11 @@ WRITE8_HANDLER( pitnrun_scroll_w )
 	tilemap_set_scrollx( bg, 0, pitnrun_scroll);
 }
 
+WRITE8_HANDLER( pitnrun_scroll_y_w )
+{
+	tilemap_set_scrolly( bg, 0, data);
+}
+
 WRITE8_HANDLER(pitnrun_ha_w)
 {
 	pitnrun_ha=data;
@@ -198,7 +203,7 @@ static void pitnrun_draw_sprites( mame_bitmap *bitmap, const rectangle *cliprect
 		pal=spriteram[offs+2]&0x3;
 
 		sy = 256-spriteram[offs+0]-16;
-		sx = spriteram[offs+3];
+		sx = spriteram[offs+3]+1; /* +1 needed to properly align Jump Kun */
 		flipy = (spriteram[offs+1]&0x80)>>7;
 		flipx = (spriteram[offs+1]&0x40)>>6;
 
@@ -284,7 +289,3 @@ VIDEO_UPDATE( pitnrun )
 		copybitmap(bitmap,tmp_bitmap[pitnrun_ha&3],flip_screen_x,flip_screen_y,dx,dy,&myclip,TRANSPARENCY_PEN, 1);
 	tilemap_draw(bitmap,cliprect,fg, 0,0);
 }
-
-
-
-
