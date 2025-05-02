@@ -11,6 +11,7 @@ unico used for zero point etc.
 #include "driver.h"
 #include "cpu/pic16c5x/pic16c5x.h"
 #include "sound/okim6295.h"
+#include "sound/2151intf.h"
 
 
 static UINT16 drgnmst_snd_command;
