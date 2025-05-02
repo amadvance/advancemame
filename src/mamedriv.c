@@ -1566,6 +1566,8 @@ const game_driver * const drivers[] =
 	DRIVER( bubbobr1 )	/* A78 (c) 1986 Taito America Corporation + Romstar license */
 	DRIVER( boblbobl )	/* bootleg */
 	DRIVER( sboblbob )	/* bootleg */
+        DRIVER( bublboblu )	/* bootleg */
+        DRIVER( bublcave )	/* bootleg */
 	DRIVER( missb2 )	/* bootleg on enhanced hardware */
 	DRIVER( kikikai )	/* A85 (c) 1986 Taito Corporation */
 	DRIVER( knightb )	/* bootleg */
@@ -5332,6 +5334,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( hypernoi )
 	DRIVER( cyborg )
 	DRIVER( cbarrel )
+	DRIVER( gladmort )
 	DRIVER( 19yy )
 	DRIVER( bpanicdx )
 	DRIVER( columnsn )
@@ -6159,6 +6162,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
     */
 
 	/* Kaneko games */
+        DRIVER( jumpkun )       /* (c) 1984 Kaneko */
 	DRIVER( hvyunit )	/* (c) 1988 Kaneko + Taito */
 	DRIVER( hvyunitj )	/* (c) 1988 Kaneko + Taito (Japan) */
 	DRIVER( hvyunitjo )	/* (c) 1988 Kaneko + Taito (Japan Older) */
@@ -6589,6 +6593,7 @@ Other Sun games
 
 	/* Unico games */
 	DRIVER( drgnmst )	/* (c) 1994 */
+	DRIVER( mastfury )	/* (c) 1996 */
 	DRIVER( burglarx )	/* (c) 1997 */
 	DRIVER( zeropnt )	/* (c) 1998 */
 	DRIVER( zeropnta )	/* (c) 1998 */
