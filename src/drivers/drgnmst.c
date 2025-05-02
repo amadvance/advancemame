@@ -34,6 +34,8 @@ WRITE16_HANDLER( drgnmst_bg_videoram_w );
 WRITE16_HANDLER( drgnmst_md_videoram_w );
 VIDEO_START(drgnmst);
 VIDEO_UPDATE(drgnmst);
+VIDEO_UPDATE(mastfury);
+
 
 
 static WRITE16_HANDLER( drgnmst_coin_w )
@@ -178,9 +180,9 @@ static ADDRESS_MAP_START( drgnmst_main_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x80001a, 0x80001b) AM_READ(input_port_2_word_r)
 	AM_RANGE(0x80001c, 0x80001d) AM_READ(input_port_3_word_r)
 	AM_RANGE(0x800030, 0x800031) AM_WRITE(drgnmst_coin_w)
-	AM_RANGE(0x800100, 0x80011f) AM_WRITE(MWA16_RAM) AM_BASE(&drgnmst_vidregs)
-	AM_RANGE(0x800120, 0x800121) AM_WRITENOP
-	AM_RANGE(0x80014a, 0x80014b) AM_WRITENOP
+	AM_RANGE(0x800100, 0x800121) AM_WRITE(MWA16_RAM) AM_BASE(&drgnmst_vidregs)
+//	AM_RANGE(0x800120, 0x800121) AM_WRITENOP
+//	AM_RANGE(0x80014a, 0x80014b) AM_WRITENOP
 	AM_RANGE(0x800154, 0x800155) AM_WRITE(MWA16_RAM) AM_BASE(&drgnmst_vidregs2) // seems to be priority control
 	AM_RANGE(0x800176, 0x800177) AM_READ(input_port_4_word_r)
 	AM_RANGE(0x800180, 0x800181) AM_WRITE(drgnmst_snd_command_w)
@@ -196,6 +198,31 @@ static ADDRESS_MAP_START( drgnmst_main_map, ADDRESS_SPACE_PROGRAM, 16 )
 ADDRESS_MAP_END
 
 
+/* Masters Fury no PIC */
+static ADDRESS_MAP_START( mastfury_main_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x0fffff) AM_ROM
+	AM_RANGE(0x800000, 0x800001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x800018, 0x800019) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x80001a, 0x80001b) AM_READ(input_port_2_word_r)
+	AM_RANGE(0x80001c, 0x80001d) AM_READ(input_port_3_word_r)
+	AM_RANGE(0x800030, 0x800031) AM_WRITE(drgnmst_coin_w)
+	AM_RANGE(0x800100, 0x800121) AM_WRITE(MWA16_RAM) AM_BASE(&drgnmst_vidregs)
+//	AM_RANGE(0x800120, 0x800121) AM_WRITENOP
+//	AM_RANGE(0x80014a, 0x80014b) AM_WRITENOP
+	AM_RANGE(0x800154, 0x800155) AM_WRITE(MWA16_RAM) AM_BASE(&drgnmst_vidregs2) // seems to be priority control
+	AM_RANGE(0x800176, 0x800177) AM_READ(input_port_4_word_r)
+	AM_RANGE(0x800182, 0x800183) AM_READWRITE(YM2151_status_port_0_lsb_r, YM2151_data_port_0_lsb_w)
+    AM_RANGE(0x800180, 0x800181) AM_WRITE(YM2151_register_port_0_lsb_w)
+	AM_RANGE(0x800188, 0x800189) AM_READWRITE(OKIM6295_status_0_lsb_r, OKIM6295_data_0_lsb_w)
+    AM_RANGE(0x8001e0, 0x8001e1) AM_WRITENOP
+	AM_RANGE(0x900000, 0x903fff) AM_READWRITE(MRA16_RAM, paletteram16_xxxxRRRRGGGGBBBB_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x904000, 0x907fff) AM_READWRITE(MRA16_RAM, drgnmst_md_videoram_w) AM_BASE(&drgnmst_md_videoram)
+	AM_RANGE(0x908000, 0x90bfff) AM_READWRITE(MRA16_RAM, drgnmst_bg_videoram_w) AM_BASE(&drgnmst_bg_videoram)
+	AM_RANGE(0x90c000, 0x90ffff) AM_READWRITE(MRA16_RAM, drgnmst_fg_videoram_w) AM_BASE(&drgnmst_fg_videoram)
+	AM_RANGE(0x920000, 0x923fff) AM_RAM AM_BASE(&drgnmst_rowscrollram) // rowscroll ram
+	AM_RANGE(0x930000, 0x9307ff) AM_RAM AM_BASE(&spriteram16) AM_SIZE(&spriteram_size	)	// Sprites
+	AM_RANGE(0xff0000, 0xffffff) AM_RAM
+ADDRESS_MAP_END
 
 /***************************** PIC16C55 Memory Map **************************/
 
@@ -395,6 +422,36 @@ static MACHINE_DRIVER_START( drgnmst )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 0.50)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( mastfury )
+	MDRV_CPU_ADD(M68000, 12000000) /* Confirmed */
+	MDRV_CPU_PROGRAM_MAP(mastfury_main_map, 0)
+	MDRV_CPU_VBLANK_INT(irq2_line_hold,1)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	MDRV_GFXDECODE(gfxdecodeinfo)
+
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(64*8, 32*8)
+	MDRV_VISIBLE_AREA(8*8, 56*8-1, 2*8, 30*8-1)
+	MDRV_PALETTE_LENGTH(0x2000)
+
+	MDRV_VIDEO_START(drgnmst)
+	MDRV_VIDEO_UPDATE(mastfury)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(YM2151, 3000000)
+	MDRV_SOUND_ROUTE(0, "mono", 0.10)
+	MDRV_SOUND_ROUTE(1, "mono", 0.10)
+
+	MDRV_SOUND_ADD(OKIM6295, 32000000/32/132 )
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.90)
+MACHINE_DRIVER_END
+
 
 ROM_START( drgnmst )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 ) /* 68000 Code */
@@ -431,6 +488,36 @@ ROM_START( drgnmst )
 	ROM_REGION( 0x200000, REGION_GFX2, 0 ) /* BG Tiles (8x8x4, 16x16x4 and 32x32x4) */
 	ROM_LOAD16_BYTE( "dm1007", 0x000001, 0x100000, CRC(d5ad81c4) SHA1(03df467b218682a02245a6e8f500ab83de382448) )
 	ROM_LOAD16_BYTE( "dm1008", 0x000000, 0x100000, CRC(b8572be3) SHA1(29aab76821e0a56033cf06b0a1890b11804da8d8) )
+ROM_END
+
+ROM_START( mastfury )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )        /* 68000 Code */
+	ROM_LOAD16_BYTE( "master012.4m", 0x000000, 0x080000, CRC(020a3c50) SHA1(d6762b66f06fe91f3bff8cdcbff42c247df64671) )
+	ROM_LOAD16_BYTE( "master013.4m", 0x000001, 0x080000, CRC(1e7dd287) SHA1(67764aa054731a0548f6c7d3b898597792d96eec) )
+
+	ROM_REGION( 0x40000, REGION_SOUND1, 0 ) /* Samples */
+	ROM_LOAD( "dmast96_voi1x", 0x00000, 0x40000, CRC(fc5161a1) SHA1(999e73e36df317aabefebf94444690f439d64559) )
+
+	ROM_REGION( 0x800000, REGION_GFX1, 0 ) /* Sprites (16x16x4) */
+	// Some versions of the game use 2x32MBit ROMs instead.
+	// This set comes from a PCB marked "Dragon Master 96" but the PCB was missing program ROMs, was Dragon Master 96
+	// an alt title for the Chinese market?
+	ROM_LOAD16_BYTE( "dmast96_mvo1x", 0x000000, 0x080000, CRC(9a597497) SHA1(4f63e17629a00fa505e2165f7fa46f0c5ef2bc60) )
+	ROM_CONTINUE(0x400000, 0x080000)
+	ROM_CONTINUE(0x100000, 0x080000)
+	ROM_CONTINUE(0x500000, 0x080000)
+	ROM_LOAD16_BYTE( "dmast96_mvo3x", 0x000001, 0x080000, CRC(be01b829) SHA1(ab9858aadb0bba8415c674e27f9ea905de27871c) )
+	ROM_CONTINUE(0x400001, 0x080000)
+	ROM_CONTINUE(0x100001, 0x080000)
+	ROM_CONTINUE(0x500001, 0x080000)
+	ROM_LOAD16_BYTE( "dmast96_mvo2x", 0x200000, 0x080000, CRC(3eab296c) SHA1(d2add71e01aa6bd1b6539e72ed373bb71f65c437) )
+	ROM_CONTINUE(0x600000, 0x080000)
+	ROM_LOAD16_BYTE( "dmast96_mvo4x", 0x200001, 0x080000, CRC(d870b6ce) SHA1(e81c24eeaa5b857910436bfb6cac2b9fa05839e8) )
+	ROM_CONTINUE(0x600001, 0x080000)
+
+	ROM_REGION( 0x400000, REGION_GFX2, 0 ) /* BG Tiles (8x8x4, 16x16x4 and 32x32x4) */
+	ROM_LOAD16_BYTE( "mf0016-3", 0x000000, 0x200000, CRC(0946bc61) SHA1(8b10c7f76daf21afb2aa6961100d83b1f6ca89bb) )
+	ROM_LOAD16_BYTE( "mf0016-4", 0x000001, 0x200000, CRC(8f5b7c82) SHA1(5947c015c8a13539a3125c7ffe07cca0691b4348) )
 ROM_END
 
 
@@ -527,4 +614,6 @@ static DRIVER_INIT( drgnmst )
 }
 
 
-GAME( 1994, drgnmst, 0, drgnmst,  drgnmst, drgnmst, ROT0, "Unico", "Dragon Master", 0 )
+GAME( 1994, drgnmst,  0, drgnmst,  drgnmst, drgnmst, ROT0, "Unico", "Dragon Master", 0 )
+GAME( 1996, mastfury, 0, mastfury, drgnmst, 0,       ROT0, "Unico", "Master's Fury", 0 ) 
+
