@@ -66,15 +66,7 @@ UINT16 *headpanic_platform_y;
 
 WRITE16_HANDLER( esd16_spriteram_w ) {	COMBINE_DATA(&spriteram16[offset]);	}
 
-WRITE16_HANDLER( esd16_flip_screen_w )
-{
-	if (ACCESSING_LSB && !(data & 0x7e))
-	{
-		flip_screen_set( data & 0x80 );
-		//               data & 0x01 ?? always 1
-	}
-	else	logerror("CPU #0 - PC %06X: unknown flip screen bits: %02X\n",activecpu_get_pc(),data);
-}
+
 
 WRITE16_HANDLER( esd16_sound_command_w )
 {
@@ -187,11 +179,8 @@ static ADDRESS_MAP_START( hedpanic_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xb00004, 0xb00007) AM_WRITE(MWA16_RAM) AM_BASE(&esd16_scroll_1	)	//
 	AM_RANGE(0xb00008, 0xb00009) AM_WRITE(MWA16_RAM) AM_BASE(&headpanic_platform_x)
 	AM_RANGE(0xb0000a, 0xb0000b) AM_WRITE(MWA16_RAM) AM_BASE(&headpanic_platform_y)
-//	AM_RANGE(0xb0000c, 0xb0000d) AM_WRITE(MWA16_RAM) AM_BASE(&head_unknown1) // ??
 	AM_RANGE(0xb0000e, 0xb0000f) AM_WRITE(MWA16_RAM) AM_BASE(&head_layersize) // ??
-//	AM_RANGE(0xc00000, 0xc00001) AM_WRITE(MWA16_RAM) AM_BASE(&head_unknown3	)	// IRQ Ack
 	AM_RANGE(0xc00008, 0xc00009) AM_WRITE(esd16_tilemap0_color_w)
-//	AM_RANGE(0xc0000a, 0xc0000b) AM_WRITE(MWA16_RAM) AM_BASE(&head_unknown4	)	// ? 2 not checked
 	AM_RANGE(0xc0000c, 0xc0000d) AM_WRITE(esd16_sound_command_w			)	// To Sound CPU // ok
 	AM_RANGE(0xc0000e, 0xc0000f) AM_WRITE(esd_eeprom_w)
 	AM_RANGE(0xd00008, 0xd00009) AM_WRITE(hedpanic_platform_w)
