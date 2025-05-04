@@ -5501,7 +5501,7 @@ GAME( 2000, kov2,     pgm,        kov2, sango,    kov2,      ROT0,   "IGS", "Kni
 GAME( 2000, kov2106,  kov2,       kov2, sango,    kov2,      ROT0,   "IGS", "Knights of Valour 2 (106)", GAME_IMPERFECT_SOUND )
 GAME( 2000, kov2p,    kov2,       kov2, pgm,      kov2p,     ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 GAME( 2001, martmast, pgm,        kov2, sango,    martmast,  ROT0,   "IGS", "Martial Masters", GAME_IMPERFECT_SOUND )
-GAME( 2001, ddp2,     pgm,        ddp2, ddp2,     ddp2,      ROT270, "IGS", "DoDonPachi II - Bee Storm ", GAME_IMPERFECT_SOUND )
+GAME( 2001, ddp2,     pgm,        ddp2, ddp2,     ddp2,      ROT270, "IGS", "DoDonPachi II - Bee Storm ", GAME_IMPERFECT_SOUND  | GAME_NOT_WORKING )
 
 /* Playable but maybe imperfect protection emulation */
 GAME( 1997, drgw2,    pgm,        drgw2, pgm,    drgw2,      ROT0,   "IGS", "Dragon World II (ver. 110X, Export)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
