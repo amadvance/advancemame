@@ -773,7 +773,29 @@
 								SET_REGISTER( 13, GET_REGISTER(13) + 4 );
 							}
 						}
-						R15 = READ32( GET_REGISTER(13) ) & ~1;
+						//R15 = READ32( GET_REGISTER(13) ) & ~1;
+						 UINT32 addr = READ32(GET_REGISTER(13));
+                         // in v4T, bit 0 is ignored.  v5 and later, it's an ARM/Thumb flag like the BX instruction
+                        if (archRev < 5)
+                        {
+                            R15 = addr & ~1;
+                        }
+                        else
+                        {
+                            if (addr & 1)
+                            {
+                               addr &= ~1;
+                            }
+                            else
+                            {
+                               SET_CPSR(GET_CPSR & ~T_MASK);
+                               if (addr & 2)
+                               {
+                                   addr += 2;
+                               }
+                            }
+                               R15 = addr;
+                        }
 						SET_REGISTER( 13, GET_REGISTER(13) + 4 );
 						VERBOSELOG((2,"PC}\n"));
 						break;
