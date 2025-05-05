@@ -1621,6 +1621,8 @@ static MACHINE_DRIVER_START( ddp2 )
 	/* protection CPU */
 	MDRV_CPU_ADD_TAG("prot", ARM7, 20000000)	// ???
 	MDRV_CPU_PROGRAM_MAP(ddp2_arm7_map, 0)
+	MDRV_INTERLEAVE(100) // 100 CPU slices per frame - a high value to ensure proper synchronization of the CPUs
+
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( cavepgm )
