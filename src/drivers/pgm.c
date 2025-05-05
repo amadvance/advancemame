@@ -2152,7 +2152,8 @@ static READ32_HANDLER( ddp2_speedup_r )
 	int pc = activecpu_get_pc();
 	UINT32 data = arm_ram[0x300c/4];
 
-	if (pc==0x080109b4)
+//	if (pc==0x080109b4)
+	if (pc==0x8010998)
 	{
 		/* if we've hit the loop where this is read and both values are 0 then the only way out is an interrupt */
 		int r4 = activecpu_get_reg(ARM7_R4);
