@@ -65,13 +65,23 @@ VIDEO_UPDATE( esd16 );
 
 ***************************************************************************/
 
-tilemap *esdtilemap_0, *esdtilemap_1, *esdtilemap_1_16x16;
+tilemap *esdtilemap_0, *esdtilemap_1, *esdtilemap_0_16x16, *esdtilemap_1_16x16;
 
 static void get_tile_info_0(int tile_index)
 {
 	UINT16 code = esd16_vram_0[tile_index];
 	SET_TILE_INFO(
 			1,
+			code,
+			esd16_tilemap0_color,
+			0)
+}
+
+static void get_tile_info_0_16x16(int tile_index)
+{
+	UINT16 code = esd16_vram_0[tile_index];
+	SET_TILE_INFO(
+			2,
 			code,
 			esd16_tilemap0_color,
 			0)
@@ -101,7 +111,11 @@ WRITE16_HANDLER( esd16_vram_0_w )
 {
 	UINT16 old_data	=	esd16_vram_0[offset];
 	UINT16 new_data	=	COMBINE_DATA(&esd16_vram_0[offset]);
-	if (old_data != new_data)	tilemap_mark_tile_dirty(esdtilemap_0,offset);
+	if (old_data != new_data)
+	{
+		tilemap_mark_tile_dirty(esdtilemap_0,offset);
+		tilemap_mark_tile_dirty(esdtilemap_0_16x16,offset);
+	}
 }
 
 WRITE16_HANDLER( esd16_vram_1_w )
@@ -119,6 +133,7 @@ WRITE16_HANDLER( esd16_tilemap0_color_w )
 {
 	esd16_tilemap0_color = data & 3;
 	tilemap_mark_all_tiles_dirty(esdtilemap_0);
+	tilemap_mark_all_tiles_dirty(esdtilemap_0_16x16);
 
 	flip_screen_set(data & 0x80);
 }
@@ -136,7 +151,10 @@ WRITE16_HANDLER( esd16_tilemap0_color_w )
 VIDEO_START( esd16 )
 {
 	esdtilemap_0 = tilemap_create(	get_tile_info_0, tilemap_scan_rows,
-								TILEMAP_OPAQUE,			8,8,	0x80,0x40);
+								TILEMAP_OPAQUE,		8,8,	0x80,0x40);
+
+	esdtilemap_0_16x16 = tilemap_create(	get_tile_info_0_16x16, tilemap_scan_rows,
+								TILEMAP_OPAQUE,		16,16,	0x40,0x40);
 
 	esdtilemap_1 = tilemap_create(	get_tile_info_1, tilemap_scan_rows,
 								TILEMAP_TRANSPARENT,	8,8,	0x80,0x40);
@@ -145,14 +163,14 @@ VIDEO_START( esd16 )
 	esdtilemap_1_16x16 = tilemap_create(	get_tile_info_1_16x16, tilemap_scan_rows,
 								TILEMAP_TRANSPARENT,	16,16,	0x40,0x40);
 
-	if ( !esdtilemap_0 || !esdtilemap_1 || !esdtilemap_1_16x16 )
+	if ( !esdtilemap_0 || !esdtilemap_1 || !esdtilemap_0_16x16 || !esdtilemap_1_16x16 )
 		return 1;
 
 	tilemap_set_scrolldx(esdtilemap_0, -0x60 + 2, -0x60     );
 	tilemap_set_scrolldx(esdtilemap_1, -0x60    , -0x60 + 2 );
+	tilemap_set_scrolldx(esdtilemap_0_16x16, -0x60 +2 , -0x60  );
 	tilemap_set_scrolldx(esdtilemap_1_16x16, -0x60    , -0x60 + 2 );
 
-	tilemap_set_transparent_pen(esdtilemap_0,0x00);
 	tilemap_set_transparent_pen(esdtilemap_1,0x00);
 	tilemap_set_transparent_pen(esdtilemap_1_16x16,0x00);
 
@@ -192,8 +210,8 @@ static void esd16_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 {
 	int offs;
 
-	int max_x		=	Machine->drv->screen_width;
-	int max_y		=	Machine->drv->screen_height;
+	int max_x = 319;
+	int max_y = 255;
 
 	for ( offs = spriteram_size/2 - 8/2; offs >= 0 ; offs -= 8/2 )
 	{
@@ -206,15 +224,18 @@ static void esd16_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 
 		int dimy	=	1 << ((sy >> 9) & 3);
 
-		int	flipx	=	attr & 0x0000;
+		int	flipx	=	sy & 0x2000;
 		int	flipy	=	attr & 0x0000;
+		int flash   =   sy & 0x1000;
 
 		int color	=	(sx >> 9) & 0xf;
 
 		int pri_mask;
 
+		if (flash && (cpu_getcurrentframe() & 1)) continue;
+
 		if(sx & 0x8000)
-			pri_mask = 0xfffe; // under "tilemap 1"
+			pri_mask = 0xfe; // under "tilemap 1"
 		else
 			pri_mask = 0; // above everything
 
@@ -233,12 +254,12 @@ static void esd16_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 
 		for (y = starty ; y != endy ; y += incy)
 		{
-			pdrawgfx(	bitmap, Machine->gfx[0],
-						code++,
-						color,
-						flipx, flipy,
-						sx, y,
-						cliprect, TRANSPARENCY_PEN, 0, pri_mask	);
+			pdrawgfx(bitmap,Machine->gfx[0],
+					code++,
+					color,
+					flipx, flipy,
+					sx, y,
+					&Machine->visible_area,TRANSPARENCY_PEN,0,pri_mask);
 		}
 	}
 }
@@ -248,8 +269,8 @@ static void hedpanic_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect
 {
 	int offs;
 
-	int max_x		=	Machine->drv->screen_width;
-	int max_y		=	Machine->drv->screen_height;
+	int max_x = 319;
+	int max_y = 255;
 
 	for ( offs = spriteram_size/2 - 8/2; offs >= 0 ; offs -= 8/2 )
 	{
@@ -262,12 +283,15 @@ static void hedpanic_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect
 
 		int dimy	=	1 << ((sy >> 9) & 3);
 
-		int	flipx	=	spriteram16[ offs + 0 ] & 0x2000;
+		int	flipx	=	sy & 0x2000;
 		int	flipy	=	sy & 0x0000;
+		int flash   =   sy & 0x1000;
 
 		int color	=	(sx >> 9) & 0xf;
 
 		int pri_mask;
+
+		if (flash && (cpu_getcurrentframe() & 1)) continue;
 
 		if(sx & 0x8000)
 			pri_mask = 0xfffe; // under "tilemap 1"
@@ -292,12 +316,12 @@ static void hedpanic_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect
 
 		for (y = starty ; y != endy ; y += incy)
 		{
-			pdrawgfx(	bitmap, Machine->gfx[0],
-						code++,
-						color,
-						flipx, flipy,
-						sx, y,
-						cliprect, TRANSPARENCY_PEN, 0, pri_mask	);
+			pdrawgfx(bitmap,Machine->gfx[0],
+					code++,
+					color,
+					flipx, flipy,
+					sx, y,
+					&Machine->visible_area,TRANSPARENCY_PEN,0,pri_mask);
 		}
 	}
 }
@@ -314,9 +338,7 @@ static void hedpanic_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect
 
 VIDEO_UPDATE( esd16 )
 {
-	int layers_ctrl = -1;
-
-	fillbitmap(priority_bitmap,0,cliprect);
+	fillbitmap(priority_bitmap,    0, cliprect);
 
 	tilemap_set_scrollx(esdtilemap_0, 0, esd16_scroll_0[0]);
 	tilemap_set_scrolly(esdtilemap_0, 0, esd16_scroll_0[1]);
@@ -324,64 +346,44 @@ VIDEO_UPDATE( esd16 )
 	tilemap_set_scrollx(esdtilemap_1, 0, esd16_scroll_1[0]);
 	tilemap_set_scrolly(esdtilemap_1, 0, esd16_scroll_1[1]);
 
-#ifdef MAME_DEBUG
-if ( code_pressed(KEYCODE_Z) )
-{	int msk = 0;
-	if (code_pressed(KEYCODE_Q))	msk |= 1;
-	if (code_pressed(KEYCODE_W))	msk |= 2;
-	if (code_pressed(KEYCODE_A))	msk |= 4;
-	if (msk != 0) layers_ctrl &= msk;	}
-#endif
-
-	if (layers_ctrl & 1)	tilemap_draw(bitmap,cliprect,esdtilemap_0,0,0);
-	else					fillbitmap(bitmap,Machine->pens[0],cliprect);
-
-	if (layers_ctrl & 2)	tilemap_draw(bitmap,cliprect,esdtilemap_1,0,1);
-
-	if (layers_ctrl & 4)	esd16_draw_sprites(bitmap,cliprect);
+	tilemap_draw(bitmap,cliprect,esdtilemap_0,0,0);
+	tilemap_draw(bitmap,cliprect,esdtilemap_1,0,1);
+	esd16_draw_sprites(bitmap,cliprect);
 }
 
 
 VIDEO_UPDATE( hedpanic )
 {
-	int layers_ctrl = -1;
-
-	fillbitmap(priority_bitmap,0,cliprect);
-
 	tilemap_set_scrollx(esdtilemap_0, 0, esd16_scroll_0[0]);
 	tilemap_set_scrolly(esdtilemap_0, 0, esd16_scroll_0[1]);
 
-#ifdef MAME_DEBUG
-if ( code_pressed(KEYCODE_Z) )
-{	int msk = 0;
-	if (code_pressed(KEYCODE_Q))	msk |= 1;
-	if (code_pressed(KEYCODE_W))	msk |= 2;
-	if (code_pressed(KEYCODE_A))	msk |= 4;
-	if (msk != 0) layers_ctrl &= msk;	}
-#endif
+	fillbitmap(priority_bitmap,    0, cliprect);
 
-	if (layers_ctrl & 1)	tilemap_draw(bitmap,cliprect,esdtilemap_0,0,0);
-	else					fillbitmap(bitmap,Machine->pens[0],cliprect);
-
-	if (layers_ctrl & 2)
+	if (head_layersize[0] & 0x0001)
 	{
-		if (head_layersize[0]&0x0002)
-		{
-			tilemap_set_scrollx(esdtilemap_1_16x16, 0, esd16_scroll_1[0]);
-			tilemap_set_scrolly(esdtilemap_1_16x16, 0, esd16_scroll_1[1]);
-			tilemap_draw(bitmap,cliprect,esdtilemap_1_16x16,0,1);
-		}
-		else
-		{
-			tilemap_set_scrollx(esdtilemap_1, 0, esd16_scroll_1[0]);
-			tilemap_set_scrolly(esdtilemap_1, 0, esd16_scroll_1[1]);
-			tilemap_draw(bitmap,cliprect,esdtilemap_1,0,1);
-		}
-
+		tilemap_set_scrollx(esdtilemap_0_16x16, 0, esd16_scroll_0[0]);
+		tilemap_set_scrolly(esdtilemap_0_16x16, 0, esd16_scroll_0[1]);
+		tilemap_draw(bitmap,cliprect,esdtilemap_0_16x16,0,0);
+	}
+	else
+	{
+		tilemap_set_scrollx(esdtilemap_0, 0, esd16_scroll_0[0]);
+		tilemap_set_scrolly(esdtilemap_0, 0, esd16_scroll_0[1]);
+		tilemap_draw(bitmap,cliprect,esdtilemap_0,0,0);
 	}
 
-	if (layers_ctrl & 4)	hedpanic_draw_sprites(bitmap,cliprect);
+	if (head_layersize[0]&0x0002)
+	{
+		tilemap_set_scrollx(esdtilemap_1_16x16, 0, esd16_scroll_1[0]);
+		tilemap_set_scrolly(esdtilemap_1_16x16, 0, esd16_scroll_1[1]);
+		tilemap_draw(bitmap,cliprect,esdtilemap_1_16x16,0,1);
+	}
+	else
+	{
+		tilemap_set_scrollx(esdtilemap_1, 0, esd16_scroll_1[0]);
+		tilemap_set_scrolly(esdtilemap_1, 0, esd16_scroll_1[1]);
+		tilemap_draw(bitmap,cliprect,esdtilemap_1,0,1);
+	}
 
-
-//  ui_popup("%04x %04x %04x %04x %04x",head_unknown1[0],head_layersize[0],head_unknown3[0],head_unknown4[0],head_unknown5[0]);
+	hedpanic_draw_sprites(bitmap,cliprect);
 }
