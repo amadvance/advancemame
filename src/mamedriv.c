@@ -6620,7 +6620,9 @@ Other Sun games
 	DRIVER( mchampdx )	/* (c) 1999 ESD */
 	DRIVER( mchampda )	/* (c) 1999 ESD */
 	DRIVER( hedpanic )	/* (c) 2000 ESD */
+	DRIVER( deluxe5 )	/* (c) 2000 ESD */
 	DRIVER( tangtang )	/* (c) 2000 ESD */
+	DRIVER( swatpolc )	/* (c) 2001 ESD */
 
 	/* Dyna Electronics / Dynax / Nakanihon games */
 	DRIVER( royalmah )	/* (c) 1982 Falcon */

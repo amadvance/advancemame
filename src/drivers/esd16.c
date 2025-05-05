@@ -1146,6 +1146,6 @@ GAME( 1999, mchampda, mchampdx, mchampdx, hedpanic, 0, ROT0, "ESD",  "Multi Cham
 GAME( 2000, hedpanic, 0,        hedpanic, hedpanic, 0, ROT0, "ESD / Fuuki", "Head Panic (ver. 0315, 15/03/2000)", 0 ) // 15/03/2000 ?
 
 /* ESD */
-//GAME( 2000, deluxe5,  0,        tangtang, hedpanic, 0, ROT0, "ESD",  "Deluxe 5 (ver. 0107, 07-01-2000)", 0 )
+GAME( 2000, deluxe5,  0,        tangtang, hedpanic, 0, ROT0, "ESD",  "Deluxe 5 (ver. 0107, 07-01-2000)", 0 )
 GAME( 2000, tangtang, 0,        tangtang, hedpanic, 0, ROT0, "ESD",  "Tang Tang (ver. 0526, 26-05-2000)", 0 ) // 26/05/2000 ?
-//GAME( 2001, swatpolc, 0,        swatpolc, swatpolc, 0, ROT0, "ESD",  "SWAT Police", 0 )
+GAME( 2001, swatpolc, 0,        swatpolc, swatpolc, 0, ROT0, "ESD",  "SWAT Police", 0 )
