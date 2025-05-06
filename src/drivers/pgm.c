@@ -2188,7 +2188,7 @@ static DRIVER_INIT( ddp2 )
 	pgm_ddp2_decrypt();
 	kov2_latch_init();
  
-	memory_install_write32_handler(2, ADDRESS_SPACE_PROGRAM, 0x48000000, 0x48000003, 0, 0, ddp2_arm_region_w);
+	//memory_install_write32_handler(2, ADDRESS_SPACE_PROGRAM, 0x48000000, 0x48000003, 0, 0, ddp2_arm_region_w);
 	
         memory_install_read32_handler(2, ADDRESS_SPACE_PROGRAM, 0x1800300c, 0x1800300f, 0, 0, ddp2_speedup_r);
 	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x80ee54, 0x80ee55, 0, 0, ddp2_main_speedup_r);
@@ -5075,7 +5075,9 @@ ROM_START( ddp2 )
 	/* CPU2 = Z80, romless, code uploaded by 68k */
 
 	ROM_REGION( 0x4000, REGION_CPU3, 0 ) /* ARM protection ASIC - internal rom */
-    ROM_LOAD( "ddp2_igs027a_japan.bin", 0x000000, 0x04000, CRC(742d34d2) SHA1(4491c08f3cefef2933ad5a741f4bb05cc2f3e1a0) )
+        //ROM_LOAD( "ddp2_igs027a_japan.bin", 0x000000, 0x04000, CRC(742d34d2) SHA1(4491c08f3cefef2933ad5a741f4bb05cc2f3e1a0) )
+        ROM_LOAD( "ddp2_igs027a_world.bin", 0x000000, 0x04000, CRC(3654e20b) SHA1(e00ef1d51efe66354e3eaf4750d9d819c74ddfbf) ) /* 05 */
+
 
 	ROM_REGION( 0x400000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data, internal missing) */
 	ROM_LOAD( "v100.u23", 0x000000, 0x20000, CRC(06c3dd29) SHA1(20c9479f158467fc2037dcf162b6c6be18c91d46) )
@@ -5501,9 +5503,9 @@ GAME( 1999, photoy2k, pgm,        pgm, photoy2k, djlzz,      ROT0,   "IGS", "Pho
 GAME( 1999, raf102j,  photoy2k,   pgm, photoy2k, djlzz,      ROT0,   "IGS", "Real and Fake / Photo Y2K (ver. 102, Japan Board)", GAME_IMPERFECT_SOUND ) /* region provided by protection device */
 GAME( 2000, kov2,     pgm,        kov2, sango,    kov2,      ROT0,   "IGS", "Knights of Valour 2", GAME_IMPERFECT_SOUND )
 GAME( 2000, kov2106,  kov2,       kov2, sango,    kov2,      ROT0,   "IGS", "Knights of Valour 2 (106)", GAME_IMPERFECT_SOUND )
-GAME( 2000, kov2p,    kov2,       kov2, pgm,      kov2p,     ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
+GAME( 2000, kov2p,    kov2,       ddp2, pgm,      kov2p,     ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 GAME( 2001, martmast, pgm,        kov2, sango,    martmast,  ROT0,   "IGS", "Martial Masters", GAME_IMPERFECT_SOUND )
-GAME( 2001, ddp2,     pgm,        ddp2, ddp2,     ddp2,      ROT270, "IGS", "DoDonPachi II - Bee Storm ", GAME_IMPERFECT_SOUND )
+GAME( 2001, ddp2,     pgm,        ddp2, pgm,      ddp2,      ROT270, "IGS", "DoDonPachi II - Bee Storm ", GAME_IMPERFECT_SOUND )
 
 /* Playable but maybe imperfect protection emulation */
 GAME( 1997, drgw2,    pgm,        drgw2, pgm,    drgw2,      ROT0,   "IGS", "Dragon World II (ver. 110X, Export)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
