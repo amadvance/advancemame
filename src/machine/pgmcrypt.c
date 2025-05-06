@@ -21,6 +21,47 @@ static const unsigned char kov_tab[256] = {
 	0x80, 0xe6, 0xba, 0xb3, 0x08, 0xd8, 0x30, 0x5b, 0x5f, 0xf2, 0x5a, 0xfb, 0x63, 0xb0, 0xa4, 0x41
 };
 
+
+void pgm_svg_decrypt(void)
+{
+	int i;
+
+	UINT16 *src = (UINT16 *) (memory_region(REGION_CPU1)+0x100000);
+
+	int rom_size = 0x800000;
+
+	for(i=0; i<rom_size/2; i++) {
+		UINT16 x = src[i];
+
+		if((i & 0x040080) != 0x000080)
+			x ^= 0x0001;
+
+		if((i & 0x004008) == 0x004008)
+			x ^= 0x0002;
+
+		if((i & 0x080030) == 0x080010)
+			x ^= 0x0004;
+
+		if((i & 0x000042) != 0x000042)
+			x ^= 0x0008;
+
+		if((i & 0x048100) == 0x048000)
+			x ^= 0x0010;
+
+		if((i & 0x002004) != 0x000004)
+			x ^= 0x0020;
+
+		if((i & 0x011800) != 0x010000)
+			x ^= 0x0040;
+
+		if((i & 0x000820) == 0x000820)
+			x ^= 0x0080;
+
+		src[i] = x;
+	}
+}
+
+
 void pgm_kov_decrypt(void)
 {
 
