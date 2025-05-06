@@ -1381,7 +1381,7 @@ INPUT_PORTS_START( ddp2 )
 	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
 
 	PORT_START_TAG("RegionHack")	/* Region - supplied by protection device */
-	PORT_DIPNAME( 0x00ff, 0x00ff, DEF_STR( Region ) )
+	PORT_DIPNAME( 0x00ff, 0x0005, DEF_STR( Region ) )
 	PORT_DIPSETTING(      0x0000, "China" )
 	PORT_DIPSETTING(      0x0001, "Taiwan" )
 	PORT_DIPSETTING(      0x0002, "Japan (Cave License)" )
@@ -1621,6 +1621,8 @@ static MACHINE_DRIVER_START( ddp2 )
 	/* protection CPU */
 	MDRV_CPU_ADD_TAG("prot", ARM7, 20000000)	// ???
 	MDRV_CPU_PROGRAM_MAP(ddp2_arm7_map, 0)
+	MDRV_INTERLEAVE(100) // 100 CPU slices per frame - a high value to ensure proper synchronization of the CPUs
+
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( cavepgm )
@@ -5501,7 +5503,7 @@ GAME( 2000, kov2,     pgm,        kov2, sango,    kov2,      ROT0,   "IGS", "Kni
 GAME( 2000, kov2106,  kov2,       kov2, sango,    kov2,      ROT0,   "IGS", "Knights of Valour 2 (106)", GAME_IMPERFECT_SOUND )
 GAME( 2000, kov2p,    kov2,       kov2, pgm,      kov2p,     ROT0,   "IGS", "Knights of Valour 2 Plus - Nine Dragons", GAME_IMPERFECT_SOUND | GAME_NOT_WORKING )
 GAME( 2001, martmast, pgm,        kov2, sango,    martmast,  ROT0,   "IGS", "Martial Masters", GAME_IMPERFECT_SOUND )
-GAME( 2001, ddp2,     pgm,        ddp2, ddp2,     ddp2,      ROT270, "IGS", "DoDonPachi II - Bee Storm ", GAME_IMPERFECT_SOUND  | GAME_NOT_WORKING )
+GAME( 2001, ddp2,     pgm,        ddp2, ddp2,     ddp2,      ROT270, "IGS", "DoDonPachi II - Bee Storm ", GAME_IMPERFECT_SOUND )
 
 /* Playable but maybe imperfect protection emulation */
 GAME( 1997, drgw2,    pgm,        drgw2, pgm,    drgw2,      ROT0,   "IGS", "Dragon World II (ver. 110X, Export)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
