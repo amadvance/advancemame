@@ -1,416 +1,224 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 4.1 2025/??
-	) Enable pacapp [Andrea Mazzoleni]
-	) synch the main sound and prot cpu's for ddp2 (#362) [arcadez2003]
-	) Enable new ESD games [Andrea Mazzoleni]
-	) Video changes for Swat Police + fixes for the other games (#359) [arcadez2003]
-	) Update esd16.c fix sound rom loading + gfx fixes + 2 new games (#358) [arcadez2003]
-	) Video changes for mastfury and video fixes for Dragon Master (#357) [arcadez2003]
-	) Attempt to add support for Master's Fury to drgnmst.c (#356) [arcadez2003]
-	) Some video changes for Jump Kun (#355) [arcadez2003]
-	) Add Jump Kun (Kaneko Prototype) (#354) [arcadez2003]
-	) New romsets (#353) [arcadez2003]
-	) Add a couple Of Bubble Bobble Hacks Ultra and Lost Cave (#352) [arcadez2003]
-	) NeoGeo Homebrew (#351) [arcadez2003]
-	) Enable py2k2 [Andrea Mazzoleni]
-	) Try again for kovsh and kov2p (#348) [arcadez2003]
-	) pprobe and puzzli2s (#345) [arcadez2003]
-	) Puzzli 2 Super (#344) [arcadez2003]
-	) Some video changes for Planet Probe (#343) [arcadez2003]
-	) Attempt to add support for Planet Probe (#342) [arcadez2003]
-	) Puzzli 2 WIP (#341) [arcadez2003]
-	) ddp2 two speedups are better than one :) (#340) [arcadez2003]
-	) ddp2 should work now but how will it play speedwise (#339) [arcadez2003]
-	) Humour me see if it'll boot using the ole prot hacks (#338) [arcadez2003]
-	) Update PGM game info to the present state [Andrea Mazzoleni]
-	) Correct decrypt rom_size for Demon Front and The Gladiator (#336) [arcadez2003]
-	) killbldt -> killbld104 (#335) [arcadez2003]
-	) PGM updated hopefully the games will work (#334) [arcadez2003]
-	) ddp2 and demon Front fix USER1 rom loading (#332) [arcadez2003]
-	) Fix build issue for PGM driver [Andrea Mazzoleni]
-	) KOV 2 Plus - Nine Dragons decryption (#330) [arcadez2003]
-	) Attempt to get DoDonPachi II - Bee Storm playable (#329) [arcadez2003]
-	) Improve the starfield emulation for the CPS1 games that use it (#328) [arcadez2003]
-	) Sound improvements for The Legend Of Silkroad (#327) [arcadez2003]
-	) Do not prevent startup if a mouse/joystick stick/axe/button name is not present [Andrea Mazzoleni]
-	) More IPT_OTHER names [Andrea Mazzoleni]
-	) Enable again support for the MAME debugger [Andrea Mazzoleni]
-	) Save input configuration of IPT_OTHER ports [Andrea Mazzoleni]
-	) Use standard ports for A2600 [Andrea Mazzoleni]
-	) Add Maze Invaders from arcadez2003 [Andrea Mazzoleni]
-	) Remove Atari 2600 default key mappings for non-standard DIP switches. [Andrea Mazzoleni]
-	) Drop the dir_crc support [Andrea Mazzoleni]
-	) Metal Blast Fix missing gfx effect (#326) [arcadez2003]
-	) Fix crash of some m62 games like battroad, ldrun3 ldrun4 [Andrea Mazzoleni]
+AdvanceMAME/MESS Version 4.1 2025/05
+	New games supported or improved: [arcadez2003] [grant2258] [Andrea Mazzoleni]
+		19yy - 19YY
+		aladmdb - Aladdin (bootleg of Japanese Megadrive version)
+		barek2ch - Bare Knuckle II (Chinese bootleg of Megadrive version)
+		barek3mb - Bare Knuckle III (bootleg of Megadrive version)
+		baryon - Baryon - Future Assault
+		bigfight - Big Fight - Big Trouble In The Atlantic Ocean
+		bpanicdx - Block Panic DX (2025-01-01)
+		brapboys - B.Rap Boys (World)
+		caravan - Project Neon Caravan Edition (Prealpha 0.4.19)
+		cbarrel - Captain Barrel
+		chinagat - China Gate (US)
+		cnbe2018 - Codename: Blut Engel (2018-09-05)
+		columnsn - Columns (NeoGeo)(Homebrew)
+		cutefght - Cute Fighter
+		cyborg - Cyborg Force
+		daikaiju - Daikaiju no Gyakushu
+		darkmist - The Lost Castle In Darkmist
+		dblewing - Double Wings
+		ddp2 - DoDonPachi II - Bee Storm
+		deerhunt - Deer Hunting USA V4.3
+		deluxe5 - Deluxe 5 (ver. 0107, 07-01-2000)
+		denseib - Ghost Chaser Densei (SNES bootleg)
+		dicegame - Dice - The Dice Game
+		diggerma - Digger Man (prototype)
+		dokidoki - Doki Doki Penguin Land
+		dreamwld - Dream World
+		endless - Gundam Wing: Endless Duel (SNES bootleg)
+		ffeast - Frog Feast (NeoGeo)
+		ffight2b - Final Fight 2 (SNES bootleg)
+		flagrall - '96 Flag Rally
+		flapchck - Flappy Chicken (2023-04-30)
+		fspiderb - Frog & Spiders (bootleg)
+		gaialast - Gaia - The Last Choice of Earth
+		gulunpa - Gulun.Pa! (Japan 931220 L)
+		hangzo - Hangzo (Japan, prototype)
+		hypernoi - Hypernoid (2021-11-28)
+		iron - Iron (SNES bootleg)
+		josvolly - Joshi Volleyball
+		jumpkun - Jump Kun (prototype)
+		karnovn - Karnov (Neo-Geo port)
+		kinstb - Killer Instinct (SNES bootleg)
+		knightsc - Knight's Chance
+		lasthope - Last Hope (bootleg AES to MVS conversion, no coin support)
+		legendsb - Legend (SNES bootleg)
+		looptris - Looptris (2021-12-26)
+		mastfury - Master's Fury
+		matchit2 - Match It II
+		mazeinv - Maze Invaders (prototype)
+		megrescu - Megumi Rescue
+		mrsdyna - Mrs. Dynamite
+		msgogo - Mouse Shooter GoGo
+		mslug3b6 - Metal Slug 6 (Metal Slug 3 bootleg)
+		mspactwn - Ms. Pac-Man Twin (Argentina)
+		mustache - Mustache Boy
+		neopang - Neo Pang
+		neopong - Neo Pong (v1.1)
+		ngtetris - NeoGeo 2-Player Tetris
+		nratechu - Neratte Chu
+		nsmb - New! Super Mario Bros.
+		pacapp - Paca Paca Passion (PPP1/VER.A2)
+		pairlove - Pairs Love
+		parodius - Parodius DA! (World)
+		pprobe - Planet Probe (prototype?)
+		puzzli2 - Puzzli 2 (ver. 100)
+		py2k2 - Photo Y2K 2
+		racingb - Racing Beat (World)
+		raphero - Rapid Hero (Japan)
+		riskchal - Risky Challenge
+		rolcrush - Rolling Crush (version 1.07.E - 1999/02/11)
+		rumba - Rumba Lumber
+		rushbets - Rushing Beat Shura (SNES bootleg)
+		safarir - Safari Rally (Japan)
+		sblast2b - Sonic Blast Man TURBO 2 (SNES bootleg)
+		sbubsm - Super Bubble Bobble (Sun Mixing, Mega Drive clone hardware)
+		scessjoe - Success Joe (World)
+		slapshtr - Slap Shooter
+		sonic2mb - Sonic The Hedgehog 2 (bootleg of Mega Drive version)
+		sonic3mb - Sonic The Hedgehog 3 (bootleg of Mega Drive version)
+		swa Star - Wars Arcade
+		swatpolc - SWAT Police
+		teot - The Eye of Typhoon (Tsunami Edition, beta 7, 2022-07-31)
+		tgm2 - Tetris the Absolute The Grand Master 2
+		tharrier - Task Force Harrier
+		timesup - Time's Up!
+		tmntmwb - Teenage Mutant Ninja Turtles - Mutant Warriors (SNES bootleg)
+		topshoot - Top Shooter
+		totc - Treasure of the Caribbean
+		touchgo - Touch & Go (World)
+		trophyh - Trophy Hunting - Bear & Moose V1.0
+		tturf - Tough Turf (set 2, Japan, 8751 317-0104)
+		turkhunt - Turkey Hunting USA V1.0
+		venom - Venom & Spider-Man - Separation Anxiety (SNES bootleg)
+		victnine - Victorious Nine
+		vr - Virtua Racing
+		wingwar - Wing War (US)
+		wldgunsb - Wild Guns (SNES bootleg)
+		wschamp - Wing Shooting Championship V2.00
+		xeno - Xeno Crisis (Neo Geo MVS)
+
+	) Do not prevent startup if a mouse/joystick stick/axe/button name configured in the .ini is unplugged [Andrea Mazzoleni]
+	) Fix saving of IPT_OTHER ports the .ini file [Andrea Mazzoleni]
+	) Enable support for the MAME debugger [Andrea Mazzoleni]
+	) Use standard ports for A2600 and remove default key mapping for non-standard DIP switches [Andrea Mazzoleni]
 	) Add a new genre.ini [Andrea Mazzoleni]
-	) update v60 (#325) [grant2258]
-	) Mark some more game as not working [Andrea Mazzoleni]
-	) Fix riskchal and gussun [Andrea Mazzoleni]
-	) In menu stats list also the game description [Andrea Mazzoleni]
-	) Roll back on Nec changes cont (#323) [arcadez2003]
-	) Rollback on Nec changes (#322) [arcadez2003]
-	) This time (#321) [arcadez2003]
-	) Remove dont decrypt hacks (#320) [arcadez2003]
-	) Last Roll of the dice maybe this core doesn't need the kludge hacks (#319) [arcadez2003]
-	) victnine fix (#318) [arcadez2003]
-	) This should fix Victorious Nine (#317) [arcadez2003]
-	) Maybe a fix (#316) [arcadez2003]
-	) Update M90 driver [Andrea Mazzoleni]
-	) Hopefully this will fix Final Fight 3 (#315) [arcadez2003]
-	) Maybe unlike the other games is uses the NOP's (#314) [arcadez2003]
-	) Try ffight3b with ffight2b inputs and dispose on CPU1 rather than erase (#313) [arcadez2003]
-	) Enable tmntmwb [Andrea Mazzoleni]
-	) Try to fix ffight3 (#312) [arcadez2003]
-	) Last one Teenage Mutant Ninja Turtles - Mutant Warriors (#311) [arcadez2003]
-	) Fix wldgunsb crash [Andrea Mazzoleni]
-	) Legend and Final Fight 3 WIP (#310) [arcadez2003]
-	) Hack to make Final Fight 2 (ffight2b) working in snesb [Andrea Mazzoleni]
-	) Backport snesb to MAME 0.106 format and add Killer Instinct, Sonic Blast Man 2, Iron, Ghost Chaser Densei, Gundam Wing Endless [Andrea Mazzoleni]
-	) Add MAME 0.127 snesb.c [Andrea Mazzoleni]
-	) Attempt to fix dkongx backport newer banking style (#304) [arcadez2003]
-	) Mark dkongx as not working [Andrea Mazzoleni]
 	) Remove startup "sync" to avoid delay when starting the game [Andrea Mazzoleni]
-	) Attempt to fix Joshi Vollyball (#302) [arcadez2003]
-	) Support the Japan version of Double Dragon 3 (#300) [arcadez2003]
-	) ddragon3j (#301) [arcadez2003]
-	) megrescu and slapshtr (#299) [arcadez2003]
-	) Some video hacks for Megumi Rescue and Slap Shooter (#298) [arcadez2003]
-	) Add Megumi Rescue and Slap Shooter to the segasyse driver (#297) [arcadez2003]
-	) CPS1 update to add ffightae and gulunpa [Andrea Mazzoleni]
-	) Fix address error at bootup (#296) [arcadez2003]
-	) Attempt to fix Pairs Love (#295) [arcadez2003]
-	) Virtua Racing fix pedal 2 (#294) [arcadez2003]
-	) Add mp_gunhe to megaplay [Andrea Mazzoleni]
-	) Add default eeprom for Run And Gun (#293) [arcadez2003]
-	) fix sha1 for aquario (#292) [grant2258]
-	) Fix screen size of nratechu [Andrea Mazzoleni]
-	) Use UINT32 instead of unsigned long [Andrea Mazzoleni]
-	) Fix background in chinagat from 0.145u6 [Andrea Mazzoleni]
-	) Tough Turf add the missing sound rom dump (#291) [arcadez2003]
-	) Run the github action on Linux with multiple CPUs [Andrea Mazzoleni]
-	) Set misc_sync as default off as it's not expected to be needed [Andrea Mazzoleni]
-	) Safari Rally fix colours and add sound sample support (#290) [arcadez2003]
-	) Mark some games as not working for various reasons [Andrea Mazzoleni]
-	) Mark chinagat as not working. Bootleg clones are OK [Andrea Mazzoleni]
-	) Mark Tough Turf Set 2 as with no sound. Set 1 is instead working. [Andrea Mazzoleni]
-	) Fix Sand Storm [Andrea Mazzoleni]
-	) More startup times [Andrea Mazzoleni]
-	) Fix some gfx niggles for Asura Buster (#289) [arcadez2003]
-	) Attempt to fix Mirax sound round 2 (#288) [arcadez2003]
-	) Attempt to fix missing sound round 2 (#287) [arcadez2003]
-	) Attempt to fix Hacha Mecha Fighter (unprotected	) (#285) [arcadez2003]
-	) Fix broken sound on some versions of gtmr and all versions of gtmr2 (#284) [arcadez2003]
-	) F1 Superlap attempt to bypass the comms check (#283) [arcadez2003]
-	) For now keeps the automated Windows build disabled as it's too slow [Andrea Mazzoleni]
-	) Avoid the dist target for the automated Windows build [Andrea Mazzoleni]
-	) Fix some Windows warnings [Andrea Mazzoleni]
-	) Build for Windows 32 bit [Andrea Mazzoleni]
-	) Add SDL2 to the Windows agent build [Andrea Mazzoleni]
-	) Add pkg-config to the Windows agent build [Andrea Mazzoleni]
-	) Updated configure.ac to avoid obsolete statements [Andrea Mazzoleni]
-	) Enable Windows workflow for github [Andrea Mazzoleni]
-	) More startup times [Andrea Mazzoleni]
-	) Fix orientation of ballbros [Andrea Mazzoleni]
+	) Drop the dir_crc support [Andrea Mazzoleni]
 	) Rename mspactwin to mspactwn to stay in the 8 chars limit [Andrea Mazzoleni]
-	) Make backfire as single monitor [Andrea Mazzoleni]
-	) fix brapboys (#282) [grant2258]
-	) Fix build errors of the debug version of CFG and V tools [Andrea Mazzoleni]
-	) Is this it i hope so :) [arcadez2003]
-	) Set up the kaneko16 driver inits as per MAME134.u1 [Andrea Mazzoleni]
-	) Marked some kaneko games as not working [Andrea Mazzoleni]
-	) Some new startup times [Andrea Mazzoleni]
-	) Try again to fix Fantasy Zone II Segas16c [arcadez2003]
-	) Fantasy Zone II come back to this later [arcadez2003]
-	) Try again on Hammer Away sound [arcadez2003]
-	) Updated joypad configurations [Andrea Mazzoleni]
-	) Add basic speed test [Andrea Mazzoleni]
-	) Possible fix for Fantasy Zone II - The Tears Of Opa Opa (#274) [arcadez2003]
-	) Attempt to fix sound for Hammer Away (#273) [arcadez2003]
-	) This should fix the sound for Teki Paki and Whoopie. (#272) [arcadez2003]
-	) Remove ms5pcb as just like mslug5 [Andrea Mazzoleni]
-	) Make mslug2b6 as a parent to show it in menu list [Andrea Mazzoleni]
-	) New misc_sync option for AdvanceMENU [Andrea Mazzoleni]
-	) Add some homebrew neogeo games [Andrea Mazzoleni]
-	) Add Guwange Special Version (#270) [arcadez2003]
-	) Support Crystal Castles Joystick Version (#269) [arcadez2003]
-	) ccastlej and guwanges (#271) [arcadez2003]
-	) tnk3b downtowj and 9ballshtc (#268) [arcadez2003]
-	) Add 9 Ball Shootout Championship Edition (#267) [arcadez2003]
-	) Support Downtown Joystick Bootleg (#266) [arcadez2003]
-	) T.A.N.K III Joystick bootleg (#265) [arcadez2003]
-	) Guerilla War Ikari Warriors and TNK3 enable the joystick bootlegs (#264) [arcadez2003]
-	) Update startup times [Andrea Mazzoleni]
-	) Mark model1 games as working [Andrea Mazzoleni]
-	) missed this by looks (#263) [arcadez2003]
-	) V60 stall final changes (#262) [arcadez2003]
-	) Hookup V60 stall cont (#261) [arcadez2003]
-	) missed this by looks [arcadez2003]
-	) V60 stall final changes [arcadez2003]
-	) Hookup V60 stall cont [arcadez2003]
-	) Add neogeo diggerma and lasthope [Andrea Mazzoleni]
-	) Add V60 stall needed for VR FifO (#259) [arcadez2003]
-	) Fix model1 crash [Andrea Mazzoleni]
-	) Attemp to add Sega model1 Virtual Racing support [Andrea Mazzoleni]
-	) hmmm (#258) [arcadez2003]
-	) Raphero sound try once more (#257) [arcadez2003]
-	) Attempt to fix raphero sound use newer banking style (#256) [arcadez2003]
-	) Rapid Hero now with TMP90841 to drive the sound and music (#255) [arcadez2003]
-	) Toshiba TLCS-90 Series MCU's [Andrea Mazzoleni]
-	) hachamfb (#254) [arcadez2003]
-	) Update nmk16 video to match up with the new driver (#253) [arcadez2003]
-	) Update nmk16 driver (#252) [arcadez2003]
-	) Fix build of psikyosh.c [Andrea Mazzoleni]
-	) tgm2 and tgm2p (#251) [arcadez2003]
-	) Re-add Tetris The Absolute The Grandmaster 2 (#250) [arcadez2003]
-	) bsharkjjs (#249) [arcadez2003]
-	) VIDEO_UPDATE(racingb	) (#248) [arcadez2003]
-	) Add joystick version of Battle Shark and get Racing Beat playable (#247) [arcadez2003]
-	) Increase sound latency to avoid some choppy audio in some games like 1943kiii and stmblade [Andrea Mazzoleni]
-	) Fix build issue in ssv.c and 1945kiii.c [Andrea Mazzoleni]
-	) Mr Do fix colours (#246) [arcadez2003]
-	) Mr Do fix colours and clock frq's (#245) [arcadez2003]
-	) Another bonus Doki Doki Penguin Land (#244) [arcadez2003]
-	) We now have gunsights for Underfire game now playable (#243) [arcadez2003]
-	) Add Gunsights for Taito's Underfire (#242) [arcadez2003]
-	) flagrall (#241) [arcadez2003]
-	) Bonus backport gfx fixes for 1945KIII and New game 96 Flag Rally (#240) [arcadez2003]
-	) Update ssv.c (#239) [arcadez2003]
-	) Backport some gfx fixes for Storm Blade and Ultra X Weapons (#238) [arcadez2003]
-	) Inorder to support the LG's we have to draw the crosshairs (#237) [arcadez2003]
-	) New video call to support the lightguns. (#236) [arcadez2003]
-	) Add American Sammy hunting games to the seta2 driver (#235) [arcadez2003]
-	) Some new video code for Mrs Dynamite (#234) [arcadez2003]
-	) Add Mrs Dynamite (#233) [arcadez2003]
-	) Declare the extra Semicom games (#232) [arcadez2003]
-	) Support the other games now playable in dreamwld.c (#231) [arcadez2003]
-	) Fix build issue [Andrea Mazzoleni]
-	) Testing the waters if it compiles i'll enable the other games (#230) [arcadez2003]
-	) Add Success Joe the english version of Ashita No Joe (#229) [arcadez2003]
-	) New working Mouse Shooter GoGo (#228) [arcadez2003]
-	) hangzo and wolffang (#227) [arcadez2003]
-	) Attempt to support Hangzo and add Wolf Fang Kuhga - 2001 (#226) [arcadez2003]
-	) This should add sound for Big Fight and Cycle Warriors (#225) [arcadez2003]
-	) Add support for Big Fight - Big Trouble In The Atlantic Ocean [arcadez2003] [Andrea Mazzoleni]
-	) Enable again the single monitor hack for gaelco2 [Andrea Mazzoleni]
-	) Add missing declaration fixing the build [Andrea Mazzoleni]
-	) Attempt to fix Touch And Go sound (#224) [arcadez2003]
-	) Revert on Gaelco 2 single screen hack (#223) [arcadez2003]
-	) Revert on the single screen hack (#222) [arcadez2003]
-	) Touch And Go requires some video changes (#221) [arcadez2003]
-	) touchgok (#220) [arcadez2003]
-	) Add unprotected set for Touch And Go (#219) [arcadez2003]
-	) Remove redundant mcu simulation code (#218) [arcadez2003]
-	) Hookup the M68705 mcu for Onna Sansirou - Typhoon Gal (#217) [arcadez2003]
-	) Glass and Daikaiju (#216) [arcadez2003]
-	) Add an unprotected version of Glass (#215) [arcadez2003]
-	) Daikaiju sound and M68705 mcu hookup (#214) [arcadez2003]
-	) Daikaiju video (#213) [arcadez2003]
-	) Support Taito's Daikaiju no Gyakushu (#212) [arcadez2003]
-	) Remove simulation and hookup the chack n pop mcu (#211) [arcadez2003]
-	) Hookup the proper protection mcu for Chack 'n pop (#210) [arcadez2003]
-	) Hook up the Taito MCU for Guardian / Get Star (#209) [arcadez2003]
-	) renegadeb (#208) [arcadez2003]
-	) Remove no longer needed code (#207) [arcadez2003]
-	) Hookup the M68705 MCU for Tokio / Scramble Formation game now playable (#206) [arcadez2003]
-	) Hook up the M68705 MCU's for Renegade and Nekketsu Kouha Kunio-kun (#205) [arcadez2003]
-	) Revert on https://github.com/amadvance/advancemame/commit/661f5969141… (#204) [arcadez2003]
-	) Check if the port tagging is the issue (#203) [arcadez2003]
-	) rumba (#202) [arcadez2003]
-	) New video code for Rumba Lumba (#201) [arcadez2003]
-	) Add Taito's Rumba Lumba and hookup official mcu for Fairy Land Story (#200) [arcadez2003]
+
+AdvanceMENU Version 4.1 2025/05
+	) In menu stats list also the game description [Andrea Mazzoleni]
+	) New misc_sync option as default off as it's not expected to be needed [Andrea Mazzoleni]
 	) Fix some warnings to allow building with gcc 15 using c23 as default [Andrea Mazzoleni]
-	) Data East's Secret Agent / Sly Spy add RNG protection emulation (#197) [arcadez2003]
-	) Import Seibu SPI changes from MAME 113 to fix crashes in Raiden Fighters [Andrea Mazzoleni]
-	) Fix broken sound in Raiden Fighters 2 + add sound for the 2.1 (us single board	) set (#196) [arcadez2003]
-	) Hook up the samples with IREM audio (#195) [arcadez2003]
-	) Hooks for the samples (#194) [arcadez2003]
-	) Add IREM tr606 drumkit sample support for the following games (#193) [arcadez2003]
-	) Log the game list in the menu stat [Andrea Mazzoleni]
-	) nslasheru (#192) [arcadez2003]
-	) Add USA version of Night Slashers and speedups for all the sets (#191) [arcadez2003]
-	) Hookup the T5182 adding full sound and music for Mustache Boy (#190) [arcadez2003]
-	) Hookup the T5182 adding full sound and music for darkmist (#189) [arcadez2003]
-	) Declare the new t5182 sound core (#188) [arcadez2003]
-	) New Sound Decryption t5182 cont (#187) [arcadez2003]
-	) New sound decryption t5182 (#186) [arcadez2003]
-	) Let's add full sound and music for two games which are currently silent (#185) [arcadez2003]
-	) Improve emulation for Double Wings (#184) [arcadez2003]
-	) New misc_cocktail mode [Andrea Mazzoleni]
-	) fspiderb (#183) [arcadez2003]
-	) Attempt to support Taito's Frog And Spiders (#182) [arcadez2003]
-	) F1 Superlap needs this either a bug or extra protection.?? (#181) [arcadez2003]
-	) Let's try and fix F1 Superlap (#180) [arcadez2003]
-	) Update joystick override [Andrea Mazzoleni]
-	) sonic3mb (#179) [arcadez2003]
-	) Added Sonic The Hedgehog 3 Arcade Bootleg (#178) [arcadez2003]
-	) Remove warnings/printfs [Andrea Mazzoleni]
-	) New romsets (#177) [arcadez2003]
-	) Add support for some arcade bootlegs using genesis hardware (#176) [arcadez2003]
-	) Let's hook up the new code so it can be seen by the driver (#175) [arcadez2003]
-	) Add some code from MESS to emulate the Genesis gamepads (#174) [arcadez2003]
-	) Fix Missing sfx for Super Bubble Bobble (Sun Mixing	) (#173) [arcadez2003]
-	) sbubsm (#172) [arcadez2003]
-	) Let's see if Super Bubble Bobble Megadrive bootleg will work (#171) [arcadez2003]
 
 AdvanceMAME/MESS Version 4.0 2024/10
-        ) Attempt to get Mirax up and Running (#170) [arcadez2003]
-        ) Karate Champ fix some sound issues (#169) [arcadez2003]
-        ) Romsets for Angler Dangler / Fishing (#168) [arcadez2003]
-        ) Add Angler Dangler / Fishing to decocass.c (#167) [arcadez2003]
-        ) Tidy up remove redundant sound call (#166) [arcadez2003]
-        ) Fix build issue of neogeo about ROMREGION_SOUNDONLY [Andrea Mazzoleni]
-        )  Improve sound for Flower (#165) [arcadez2003]
-        )  Fix some graphical niggles in Flower {dink} (#164) [arcadez2003]
-        ) Some fixes for Flower (#163) [arcadez2003]
-        ) asurabus and crswd2bl (#162) [arcadez2003]
-        ) Add Asura Buster to fuukifg3.c (#161) [arcadez2003]
-        ) Add support for Crossed Swords 2 (#160) [arcadez2003]
-        ) Finish hooking up the M6801 for Kiki Kai Kai and Kick And Run (#159) [arcadez2003]
-        ) Hook up the M6801 MCU's for Kiki Kai Kai and Kick And Run (#158) [arcadez2003]
-        ) Add Taito's Steel Worker (#157) [arcadez2003]
-        ) Finish Off the Kaneko16 driver add in Pack'N Bang Bang (#156) [arcadez2003]
-        ) New ones (#155) [arcadez2003]
-        ) Update 1943.c (#154) [arcadez2003]
-        ) Add two unique versions of 1943 and Led Storm (#153) [arcadez2003]
-        ) Bullet now playable and fix missing speech in Tough Turf (#152) [arcadez2003]
-        ) Small gfx fix for Taito's Super Ground Effects (#151) [arcadez2003]
-        ) cbombers (#150) [arcadez2003]
-        ) Video changes for cbombers and a fix for underfire (#149) [arcadez2003]
-        ) New one Chase Bombers (#148) [arcadez2003]
-        ) hsf2 (#147) [arcadez2003]
-        ) hsf2 video decryption (#146) [arcadez2003]
-        ) Hyper Street Fighter II (#145) [arcadez2003]
-        ) Attempt to fix Wing Force sound (revised) (#144) [arcadez2003]
-        ) Fix wrong logerror [Andrea Mazzoleni]
-        ) wingforc (#142) [arcadez2003]
-        ) wingforce video start (#141) [arcadez2003]
-        ) Hookup wingforce video call (#140) [arcadez2003]
-        ) New Working Game Wing Force (#139) [arcadez2003]
-        ) Force multi32 games like orunners as single screen [Andrea Mazzoleni]
-        ) Free Kick make the official version work (#138) [arcadez2003]
-        )  Fix Sample Sounds not playing in some versions of Bomber Man (#137) [arcadez2003]
-        ) Prevent debug popups appearing on screen in Lethal Enforcers (#135) [arcadez2003]
-        ) Small graphical hack for Lethal Enforcers (#134) [arcadez2003]
-        ) Lethal Enforcers improve emulation (#133) [arcadez2003]
-        ) Exerion Protection fix (#136) [arcadez2003]
-        ) fix mspactwin (#132) [grant2258]
-        ) Try again (#131) [arcadez2003]
-        ) Test A Possible Fix (#130) [arcadez2003]
-        ) Temporary build fix for mspactwin [Andrea Mazzoleni]
-        ) Assume imperfect games with incomplete protection emulation [Andrea Mazzoleni]
-        ) mspactwin (#129) [arcadez2003]
-        ) mspactwin_videoram_w (#128) [arcadez2003]
-        ) Hookup the new video call for mspactwin (#127) [arcadez2003]
-        ) Ms. Pacman Twin (#126) [arcadez2003]
-        ) New Working In Your Face (North America, Prototype) (#94) [arcadez2003]
-        ) Megasys1 video improvements (#93) [arcadez2003]
-        ) Megasys1 new EOF video call (#92) [arcadez2003]
-        ) Megasys1 gfx fixes and new working game (#91) [arcadez2003]
-        ) armedf improvements cont (#125) [arcadez2003]
-        ) Backport some improvements for armedf hardware (#124) [arcadez2003]
-        ) Add build for AdvanceBERRY 64 bit [Andrea Mazzoleni]
-        ) Detect the VideoCore also in /usr [Andrea Mazzoleni]
-        ) Remove the auto selection of buffered vs direct write [Andrea Mazzoleni]
-        ) Disable OpenMP for ScaleK on ARM [Andrea Mazzoleni]
-        ) Extend OpenMP support to ScaleK [Andrea Mazzoleni]
-        ) Remove unnecessary blit code [Andrea Mazzoleni]
+	New games supported or improved [arcadez2003] [grant2258] [Andrea Mazzoleni]
+		1943mii - 1943: The Battle of Midway Mark II (US)
+		alibaba - Ali Baba and 40 Thieves
+		asurabus - Asura Buster - Eternal Warriors (Japan)
+		birdtry - Birdie Try (Japan)
+		blkheart - Black Heart
+		bullet - Bullet (FD1094 317-0041)
+		bullfgtr - Bull Fighter
+		chqflag - Chequered Flag
+		crswd2bl - Crossed Swords 2 (bootleg of CD version)
+		dangerex - Danger Express (prototype)
+		equites - Equites
+		fantzn2x - Fantasy Zone II - The Tears of Opa-Opa (System 16C version)
+		glass - Glass (Ver 1.1)
+		glfgreat - Golfing Greats
+		hachamf - Hacha Mecha Fighter
+		hamaway - Hammer Away (Japan, prototype)
+		hsf2 - Hyper Street Fighter II: The Anniversary Edition (Asia 040202)
+		hvoltage - High Voltage
+		inyourfa - In Your Face (North America, prototype)
+		killbld - The Killing Blade
+		kodure - Kodure Ookami (Japan)
+		kouyakyu - The Koukouyakyuh
+		leds2011 - Led Storm Rally 2011 (World)
+		legion - Legion - Spinner-87 (World ver 2.03)
+		lordgun - Lord of Gun (USA)
+		mirax - Mirax
+		msisaac - Metal Soldier Isaac II
+		mustang - US AAF Mustang (Japan)
+		ncv2 - Namco Classics Collection Vol.2
+		onna34ro - Onna Sansirou - Typhoon Gal (set 1)
+		packbang - Pack'n Bang Bang
+		pettanp - Pettan Pyuu (Japan)
+		primrage - Primal Rage (version 2.3)
+		puzlstar - Puzzle Star
+		quiz365 - Quiz 365 (Japan)
+		quizf1 - Quiz F-1 1,2finish
+		roadriot - Road Riot 4WD
+		salmndr2 - Salamander 2 (ver JAA)
+		shougi - Shougi
+		spcfrcii - Special Forces II
+		spclforc - Special Forces
+		splndrbt - Splendor Blast
+		steelwkr - Steel Worker
+		terraf - Terra Force
+		tmnt2 - Teenage Mutant Ninja Turtles - Turtles in Time (4 Players ver UAA)
+		wingforc - Wing Force (Japan, prototype)
+
+	) Assume imperfect games with incomplete protection emulation [Andrea Mazzoleni]
+	) Add build for AdvanceBERRY 64 bit [Andrea Mazzoleni]
+	) Remove the auto selection of buffered vs direct write [Andrea Mazzoleni]
+	) Detect the VideoCore also in /usr [Andrea Mazzoleni]
         ) Use XBR in all platforms [Andrea Mazzoleni]
-        ) Support OpenMP for XBR effect [Andrea Mazzoleni]
-        ) Refactor the blit buffer allocation [Andrea Mazzoleni]
-        ) Disable format truncation warnings [Andrea Mazzoleni]
-        ) More startup times [Andrea Mazzoleni]
-        ) Use single screen in psikyo4 games [Andrea Mazzoleni]
-        ) Change to version 4 [Andrea Mazzoleni]
-        ) Minor advblue changes [Andrea Mazzoleni]
-        ) Update HISTORY [Andrea Mazzoleni]
+        ) Support OpenMP for XBR/ScaleK effect [Andrea Mazzoleni]
         ) Add a configuration script for AdvanceBERRY [Andrea Mazzoleni]
-        ) Fix the frameskipping with slow game
-        ) Fix and extend the speedmark support
-        ) Fix crashes in some games like p47aces
-        ) dangerex (#123) [arcadez2003]
-        ) New Working Danger Express Atari Prototype (#122) [arcadez2003]
-        ) Hookup the HD647180 sound mcu for Ghox, TekiPaki and Whoopee! (#121) [arcadez2003]
-        ) Update joystick definition from libretro
-        ) New Working Hammer Away (#120) [arcadez2003]
-        ) New Working Fantasy Zone II - The Tears Of Opa Opa (system16c) (#119) [arcadez2003]
-        ) dkongx (#118) [arcadez2003]
-        ) New Working Game Donkey Kong II Jumpman Returns (#117) [arcadez2003]
-        ) Fix handling of customization sectioned input maps
+        ) Fix the frameskipping with slow game [Andrea Mazzoleni]
+        ) Fix and extend the speedmark support [Andrea Mazzoleni]
+        ) Update joystick definition from libretro [Andrea Mazzoleni]
         ) Add coin option in the exit menu [Andrea Mazzoleni]
         ) Add advmame Xbuttons configuration category [Andrea Mazzoleni]
-        ) Fix crash when saving a rotated png due integer promotion to unsigned
+        ) Fix crash when saving a rotated png due integer promotion to unsigned [Andrea Mazzoleni]
 
 AdvanceMAME/MESS Version 3.10 2024/02
-	) Alcon / Slap Fight MCU hookup (#116) [arcadez2003]
-	) Add the protection MCU for the official Alcon / Slap Fight sets (#115) [arcadez2003]
-	) Fixed crash with Linux nvidia proprietary driver
-	) aquario (#114) [arcadez2003]
-	) New Working Clockwork Aquario (Prototype) (#113) [arcadez2003]
-	) Vastly improve the sound for the Cave PGM games (#112) [arcadez2003]
-	) 64th Street A Detective Story fix some gfx niggles (#111) [arcadez2003]
-	) New segac2 romsets (#110) [arcadez2003]
-	) Add three recently released Sega C2 prototypes (#108) [arcadez2003]
-	) Add sound for Atomic Boy / Wilytower fix sound for Fighting Basketball (#107) [arcadez2003]
-	) More fixes for Contra / Gryzor (#106) [arcadez2003]
-	) Sprite fix for Contra / Gryzor (#105) [arcadez2003]
-	) New working Dogyuun (8/25/1992 location test) (#103) [arcadez2003]
-	) Thunder (#95) [arcadez2003]
-	) Optimized driver for Denjin Makai (#89) [Scandy]
-	) Support of new driver "Heavy Unit" by Arcadez  (#88) [Scandy]
-	) Two new working games Tecmo System [arcadez2003]
-	) Fix some broken gfx in Buggy Challenge [arcadez2003]
+	New games supported or improved [arcadez2003] [grant2258] [Scandy] [Mario Montminy] [Haze] [Andrea Mazzoleni]
+		aquario - Clockwork Aquario (prototype)
+		b2b - Bang Bang Busters (2010 NCI release)
+		bloodwar - Blood Warrior
+		cosmica - Cosmic Alien
+		denjinmk - Denjin Makai
+		deroon - Deroon DeroDero
+		djboy - DJ Boy
+		firebarr - Fire Barrel (Japan)
+		headonch - Head On Channel (Japan, prototype)
+		hvyunit - Heavy Unit (World)
+		ironclad - Choutetsu Brikin'ger - Ironclad (Prototype)
+		kov2 - Knights of Valour 2
+		marblmd2 - Marble Madness II (prototype)
+		martmast - Martial Masters
+		offroadc - Off Road Challenge
+		olds - Oriental Legend Special / Xi You Shi E Zhuan Super (Korea 101)
+		ooparts - OOPArts (Japan, Prototype)
+		opaopa - Opa Opa (MC-8123, 317-0042)
+		ridingf - Riding Fight (Ver 1.0O)
+		shogwarr - Shogun Warriors (US)
+		snowboar - Snow Board Championship (set 1)
+		ssonicbr - SegaSonic Bros (Japan, prototype)
+		teetert - Teeter Torture (prototype)
+		tkdensho - Toukidenshou - Angel Eyes (VER. 960614)
+		wilytowr - Wily Tower
+
+	) Fixed crash with Linux nvidia proprietary driver [Andrea Mazzoleni}
 	) Use bitmask size not EV_MAX for EVIOCGBIT ioctl. [Mark Davies]
-	) [FGHTHIST] Avoid Karnov bug [Scandy]
-	) Fix sound for Perfect Soldiers / Superior Soldiers [arcadez2003]
-	) Hide "Read protection port" pop-ups [Scandy]
-	) Violent Storm (ver EAB) works correctly [Scandy]
-	) Fix UCCOPSJ and UCCOPSAR citysweepers attract mode [Scandy]
-	) Fix VIOSTORM attract mode glitch [Scandy]
-	) Fix priority issues in FGHTHIST [arcadez2003]
-	) UCCOPSAR citysweepers attract mode test [Scandy]
-	) Disable palette banking for R-Type leo - fixes invincibility flash [Haze] [arcadez2003]
-	) Operation Wolf improve the C-Chip simulation [arcadez2003]
-	) New working game Marble Madness II [arcadez2003]
-	) Cocktail mode support for Asteroids and Asteroids Deluxe (#71) [Mario Montminy]
-	) improve bonze Adventure c-chip simulation to prevent crash [arcadez2003]
-	) Contra protection improvements [arcadez2003]
-	) Fix random crashes in GunBird 2 [arcadez2003]
-	) Correct aspect ratio support and cleanup [Mario Montminy]
-	) quasar.c: Fix inputs for quasar [Greg Kennedy]
 	) Several fixes for compile warnings, backported from more recent MAME [Greg Kennedy]
-	) Fix sound problems in Trojan / Tatakai No Banka [arcadez2003]
-	) New working game Off Road Challenge [arcadez2003]
-	) Backport a TMS32031 fix for Midway's Off Road Challenge [arcadez2003]
-	) Fix some minor issues in advancemame compilation. (#64) [Greg Kennedy]
-	) Fix build errors due new gcc 10 default for -fno-common
-	) Knights Of Valour 2 and Martial Masters now playable (#63) [arcadez2003]
-	) Backport Ryan Holtz thumbsign improvments from MAME111.u6 (#60) Arm7 thumbsign improvements cont (#61) Last of the ARM7 thumbsign changes (#62) [arcadez2003]
-	) Use Toaplan1 vidhrdw from ShmupMAME v3.0 (#58) [arcadez2003]
-	) Fix USB issue and did various optimizations (#59) [Mario Montminy]
-	) Corrected clipping issue with battlezone, major havoc (#53) [Mario Montminy]
-	) Varius game fixes from arcadez2003
-	) Fix incorrect bg colours in Dynamite Duke cont (#27) [arcadez2003]
-	) Fix for bad bg colours at various points all through the game and every boss fight (#26) [arcadez2003]
-	) Fix the lights dont go out when shot in Elevator Action II / Returns (#25) [arcadez2003]
-	) Fix the graphical tile layer and irq triggering (#24) [arcadez2003]
-	) firebarr_decryption_table (#23) [arcadez2003]
-	) Fire Barrel requires a new decryption table (#22) [arcadez2003]
-	) New working game Fire Barrel (#21) [arcadez2003]
-	) Fix gfx for DJ Boy (#20) [arcadez2003]
-	) Hook up DAC and sample sound support for Cosmic Alien (#18) [arcadez2003]
-	) New Working Game Snow Board Championship (#17) [arcadez2003]
-	) Hook up the decryption tables for Snow Board Championship (#16) [arcadez2003]
-	) Added USB-DVG vector generator board support (#15) [Goldfinch2]
-	) Fix background character movements for Power Instinct 2 and Legends (#14) [arcadez2003]
-	) Enable breakable backgrounds in 64th street (#13) [arcadez2003]
-	) Support make install DESTDIR=/foo just like Automake does (#10) [James Le Cuirot]
-	) Don't use auto CFLAGS/LDFLAGS if they are set but blank (#9) [James Le Cuirot]
-	) Fix random crash in Rampage World Tour (#12) [arcadez2003]
-	) Fix sound in Ring Rage and add sound support for Riding Fight (#6) [arcadez2003]
-	) apf_vsync_int: fix invalid access to apf_ints variable (#5) [Andreas Oberritter]
-	) Adding pkg-config for ncurses and slang. (#8) [Alex Barker]
+	) Fix some minor issues in advancemame compilation [Greg Kennedy]
+	) Fix build errors due new gcc 10 default for -fno-common [Andrea Mazzoleni
+	) Fix USB issue and did various optimizations [Mario Montminy]
+	) Corrected clipping issue with battlezone, major havoc [Mario Montminy]
+	) Added USB-DVG vector generator board support [Goldfinch2]
+	) Support make install DESTDIR=/foo just like Automake does [James Le Cuirot]
+	) Don't use auto CFLAGS/LDFLAGS if they are set but blank [James Le Cuirot]
+	) apf_vsync_int: fix invalid access to apf_ints variable [Andreas Oberritter]
+	) Adding pkg-config for ncurses and slang [Alex Barker]
 
 AdvanceMENU Version 3.10 2024/02
 	) Added the new 'ui_menu_font' to change the font for the online menus.
