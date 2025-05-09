@@ -2719,14 +2719,14 @@ static MACHINE_RESET(theglad)
 	UINT16 *temp16 = (UINT16 *)memory_region(REGION_CPU3);
 	int base = -1;
 
-	if(strcmp(Machine->gamedrv->name, "theglad") == 0)
+	if(!strcmp(Machine->gamedrv->name, "theglad"))
 	{
-       base = 0x3316; // correct.??
+             base = 0x3316; // correct.??
 	} 
 	
-	if(strcmp(Machine->gamedrv->name, "svg") == 0)
+	if(!strcmp(Machine->gamedrv->name, "svg"))
 	{
-       base = 0x3c3e; // correct.??
+             base = 0x3c3e; // correct.??
 	} 
 	//if (!strcmp(machine().system().name, "theglad")) base = 0x3316;
 
@@ -4999,4 +4999,4 @@ GAME( 2001, puzzli2,  pgm,        pgm, sango,    puzzli2,    ROT0,   "IGS", "Puz
 GAME( 2001, theglad,  pgm,        theglad, theglad, theglad, ROT0,   "IGS", "The Gladiator / Road of the Sword / Shen Jian (V101)", GAME_IMPERFECT_SOUND )
 GAME( 2002, dmnfrnt,  pgm,        svg, sango,    dmnfrnt,    ROT0,   "IGS", "Demon Front (V102)", GAME_IMPERFECT_SOUND )
 GAME( 2002, dmnfrnta, dmnfrnt,    svg, sango,    dmnfrnt,    ROT0,   "IGS", "Demon Front (V105)", GAME_IMPERFECT_SOUND )
-//GAME( 2005, svg,      pgm,        theglad, svg,  svg,        ROT0,   "IGS", "S.V.G. - Spectral vs Generation (V200)", GAME_IMPERFECT_SOUND )
+//GAME( 2005, svg,      pgm,        theglad, theglad,  svg,    ROT0,   "IGS", "S.V.G. - Spectral vs Generation (V200)", GAME_IMPERFECT_SOUND )
