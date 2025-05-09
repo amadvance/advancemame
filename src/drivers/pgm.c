@@ -713,37 +713,36 @@ static ADDRESS_MAP_START( arm7_map, ADDRESS_SPACE_PROGRAM, 32 )
 ADDRESS_MAP_END
 
 //5585G
-unsigned char svg_ram_sel;
+int ram_sel, svg_ram_sel;
 
 static WRITE32_HANDLER( svg_arm7_ram_sel_w )
 {
-	svg_ram_sel=data&1;
+	svg_ram_sel = data & 1;
 }
 
 static READ32_HANDLER( svg_arm7_shareram_r )
 {
-	unsigned char ram_sel=svg_ram_sel&1;
-
-	return svg_shareram[ram_sel][offset];
+	return svg_shareram[svg_ram_sel & 1][offset];
 }
 
 static WRITE32_HANDLER( svg_arm7_shareram_w )
 {
-	unsigned char ram_sel=svg_ram_sel&1;
-	COMBINE_DATA(&svg_shareram[ram_sel][offset]);
+	COMBINE_DATA(&svg_shareram[svg_ram_sel & 1][offset]);
 }
 
 static READ16_HANDLER( svg_m68k_ram_r )
 {
-	unsigned char ram_sel=(svg_ram_sel&1)^1;
-	UINT16 *share16 = (UINT16 *)(svg_shareram[ram_sel]);
+	ram_sel = (svg_ram_sel & 1) ^ 1;
+	UINT16 *share16 = (UINT16 *)(svg_shareram[ram_sel & 1]);
+
 	return share16[BYTE_XOR_LE(offset)];
 }
 
 static WRITE16_HANDLER( svg_m68k_ram_w )
 {
-	unsigned char ram_sel=(svg_ram_sel&1)^1;
-	UINT16 *share16 = (UINT16 *)(svg_shareram[ram_sel]);
+        ram_sel = (svg_ram_sel & 1) ^ 1;
+	UINT16 *share16 = (UINT16 *)(svg_shareram[ram_sel & 1]);
+
 	COMBINE_DATA(&share16[BYTE_XOR_LE(offset)]);
 }
 
