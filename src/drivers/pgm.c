@@ -2684,8 +2684,8 @@ static READ32_HANDLER( dmnfrnt_speedup_r )
 static void svg_basic_init(void)
 {
 	pgm_basic_init();
-	svg_shareram[0]=auto_malloc(0x10000);
-	svg_shareram[1]=auto_malloc(0x10000);
+	svg_shareram[0]=auto_malloc(0x10000 /4);
+	svg_shareram[1]=auto_malloc(0x10000 /4);
 	svg_ram_sel=0;
 }
 
