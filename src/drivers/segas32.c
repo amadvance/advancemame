@@ -2645,7 +2645,8 @@ ROM_END
 ROM_START( f1lap )
 	ROM_REGION( 0x200000, REGION_CPU1, 0 ) /* v60 code + data */
 	ROM_LOAD_x4( "15598",        0x000000, 0x020000, CRC(9feab7cd) SHA1(2a14c0df39e7bdae12a34679fabc6abb7618e27d) )
-	ROM_LOAD_x4( "15599",        0x080000, 0x020000, CRC(5c5ac112) SHA1(2c071946e33f0700a832c7aad36f639acd35f555) )
+	//ROM_LOAD_x4( "15599",        0x080000, 0x020000, CRC(5c5ac112) SHA1(2c071946e33f0700a832c7aad36f639acd35f555) )
+	ROM_LOAD_x4( "epr-15611t.ic8", 0x080000, 0x020000, CRC(7a57b792) SHA1(77c96c841e90e9292182875822c85a2014d2d125) )
 	ROM_LOAD16_BYTE_x2( "15596", 0x100000, 0x040000, CRC(20e92909) SHA1(b974c79e11bfbd1cee61f9041cf79971fd96db3a) )
 	ROM_LOAD16_BYTE_x2( "15597", 0x100001, 0x040000, CRC(cd1ccddb) SHA1(ff0371a8010141d1ab81b5eba555ae7c64e5da37) )
 
@@ -3663,7 +3664,7 @@ static DRIVER_INIT( f1lap )
 	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x800000, 0x800fff, 0, 0, dual_pcb_comms_w);
 	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x801000, 0x801003, 0, 0, dual_pcb_masterslave);
 	
-	system32_prot_vblank = f1lap_fd1149_vblank;
+	//system32_prot_vblank = f1lap_fd1149_vblank;
 }
 
 
