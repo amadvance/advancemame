@@ -126,6 +126,7 @@ const game_driver * const drivers[] =
 	/* Epos games */
 	DRIVER( megadon )	/* (c) 1982 */
 	DRIVER( catapult )	/* (c) 1982 */
+        DRIVER( eeekk )		/* (c) 1983 */
 	DRIVER( suprglob )	/* (c) 1983 */
 	DRIVER( theglob )	/* (c) 1983 */
 	DRIVER( theglob2 )	/* (c) 1983 */
@@ -3630,6 +3631,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tfrceac )	/* (c) 1990 Sega / Technosoft */
 	DRIVER( tfrceacj )	/* (c) 1990 Sega / Technosoft */
 	DRIVER( tfrceacb )	/* bootleg */
+        DRIVER( tfrceacjpb )   /* Prototype Bootleg */
 	DRIVER( twinsqua )	/* (c) 1991 Sega */
 	DRIVER( ribbit )	/* (c) 1991 Sega */
         DRIVER( ssonicbr )      /* (c) 1992 Sega (Unreleased) */
@@ -4099,6 +4101,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( rygar2 )	/* 6002 - (c) 1986 Tecmo */
 	DRIVER( rygarj )	/* 6002 - (c) 1986 Tecmo */
 	DRIVER( gemini )	/* (c) 1987 Tecmo */
+        DRIVER( backfirt )	/* 6217 - (c) 1988 Tecmo */
 	DRIVER( silkworm )	/* 6217 - (c) 1988 Tecmo */
 	DRIVER( silkwrm2 )	/* 6217 - (c) 1988 Tecmo */
 	DRIVER( tbowl )		/* 6206 - (c) 1987 Tecmo */
