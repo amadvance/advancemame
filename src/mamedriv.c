@@ -1879,6 +1879,7 @@ const game_driver * const drivers[] =
 	DRIVER( dariusgu )	/* D87 (c) 1994 Taito America Corporation (US) */
 	DRIVER( dariusgx )	/* D87 (c) 1994 Taito Corporation */
 	DRIVER( bublbob2 )	/* D90 (c) 1994 Taito Corporation Japan (World) */
+	DRIVER( bublbob2p )	/* D90 (c) 1993 Taito Corporation Japan (Prototype) */
 	DRIVER( bubsympe )	/* D90 (c) 1994 Taito Corporation Japan (Europe) */
 	DRIVER( bubsympu )	/* D90 (c) 1994 Taito America Corporation (US) */
 	DRIVER( bubsymph )	/* D90 (c) 1994 Taito Corporation (Japan) */
