@@ -368,7 +368,7 @@ static READ16_HANDLER( io_chip_r )
 		case 0x0c/2:
 		case 0x0e/2:
 			/* if the port is configured as an output, return the last thing written */
-			if (misc_io_data & misc_io_data_override[0x1e/2] & (1 << offset))
+			if (misc_io_data_override & misc_io_data[0x1e/2] & (1 << offset))
 				return misc_io_data[offset];
 
 			/* otherwise, return an input port */
