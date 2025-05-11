@@ -1851,6 +1851,37 @@ ROM_START( bubsympu )
  	ROM_LOAD16_BYTE("d90-05", 0x400000, 0x200000, CRC(c192331f) SHA1(ebab05b3681c70b373bc06c1826be1cc397d3af7) )	// CC CD -std-
 ROM_END
 
+ROM_START( bublbob2p )
+	ROM_REGION(0x200000, REGION_CPU1, 0) /* 68020 code */
+	ROM_LOAD32_BYTE("soft-3-8c9b.ic60", 0x000000, 0x40000, CRC(15d0594e) SHA1(7556377355860c3f7f600c2c352e5291da6a62f1) )
+	ROM_LOAD32_BYTE("soft-2-0587.ic61", 0x000001, 0x40000, CRC(d1a5231f) SHA1(1e9ccac78f690ef79f933743ce7c4d6fa42f5acd) )
+	ROM_LOAD32_BYTE("soft-1-9a9c.ic62", 0x000002, 0x40000, CRC(c11a4d26) SHA1(b327413f5420608f1ccbbac2e8941a82862377c5) )
+	ROM_LOAD32_BYTE("soft-0-a523.ic63", 0x000003, 0x40000, CRC(58131f9e) SHA1(d07d34bf079277a48151ef9e5e7c1240a36d1bdb) )
+
+	ROM_REGION(0x200000, REGION_GFX1 , ROMREGION_DISPOSE) /* Sprites */
+	ROM_LOAD16_BYTE       ("cq80-obj-0l-c166.ic8",  0x000000, 0x80000, CRC(9bff223b) SHA1(acf22731d91d61aefc3373f78006fd310bb89edf) )
+	ROM_LOAD16_BYTE       ("cq80-obj-0m-24f4.ic30", 0x000001, 0x80000, CRC(ee71f643) SHA1(7a2042c6fad8f1b7e0a3ad077d054dc163a22230) )
+	ROM_LOAD              ("cq80-obj-0h-990d.ic32", 0x180000, 0x80000, CRC(4d3a78e0) SHA1(b19fb66e6082a68dc8600b8882ba50a3afce27c3) )
+
+	ROM_REGION(0x400000,  REGION_GFX2 , ROMREGION_DISPOSE) /* Tiles */
+	ROM_LOAD32_BYTE("cq80-scr0-5ba4.ic7", 0x000000, 0x080000, CRC(044dc38b) SHA1(0bb715c9ae8298c6852c6309d69f769e87ab2fdc) )
+	ROM_LOAD32_BYTE("cq80-scr1-a5f3.ic6", 0x000002, 0x080000, CRC(3cf3a3ba) SHA1(da7282104fbd9108bae12fa6722e077d80107d6d) )
+	ROM_LOAD32_BYTE("cq80-scr2-cc11.ic5", 0x000001, 0x080000, CRC(b81aa2c7) SHA1(4650c431dc2ed73f1e71337f3e7d4c1837b65bcf) )
+	ROM_LOAD32_BYTE("cq80-scr3-4266.ic4", 0x000003, 0x080000, CRC(c114583f) SHA1(ec85e8f4135e48607bb84b810d57d570ef56b228) )
+	ROM_LOAD16_BYTE("cq80-scr4-7fe1.ic3", 0x300000, 0x080000, CRC(2bba1728) SHA1(cdd2e651c233a185fcbb3fd8f5eabee2af30f781) )
+
+	ROM_REGION(0x180000, REGION_CPU2, 0) /* sound CPU */
+	ROM_LOAD16_BYTE("snd-h-348f.ic66", 0x100000, 0x20000, CRC(f66e60f2) SHA1(b94c97ccde179a69811137c77730c91924236bfe))
+	ROM_LOAD16_BYTE("snd-l-4ec1.ic65", 0x100001, 0x20000, CRC(d302d8bc) SHA1(02a2e69d0f4406578b12b05ab25d2abdf5bbba3c) )
+
+	ROM_REGION16_BE(0x800000, REGION_SOUND1 , ROMREGION_ERASE00)
+	ROM_LOAD16_BYTE("cq80-snd-data0-7b5f.ic43", 0x000000, 0x080000, CRC(bf8f26d3) SHA1(b165fc62ed30ae56d27caffbb0b16321d3c5ef8b) )    // C8
+	ROM_LOAD16_BYTE("cq80-snd-data1-933b.ic44", 0x100000, 0x080000, CRC(62b00475) SHA1(d2b44940cefca76897b291d83b5ca8ec18dbe1fa) )    // C9
+
+	ROM_LOAD16_BYTE("cq80-snd3-std5-3a9c.ic10", 0x600000, 0x080000, CRC(26312451) SHA1(9f947a11592fd8420fc581914bf16e7ade75390c) )    // -std-
+	ROM_LOAD16_BYTE("cq80-snd2-std6-a148.ic11", 0x700000, 0x080000, CRC(2edaa9dc) SHA1(72fead505c4f44e5736ff7d545d72dfa37d613e2) )    // -std-
+ROM_END
+
 ROM_START( spcinvdj )
 	ROM_REGION(0x200000, REGION_CPU1, 0) /* 68020 code */
  	ROM_LOAD32_BYTE("d93-04.bin", 0x000000, 0x20000, CRC(cd9a4e5c) SHA1(b163b8274570610af8697b1b38116dcf4c3593db) )
@@ -3437,6 +3468,7 @@ GAME( 1994, dariusgj, dariusg,  f3,      f3, dariusg,  ROT0,   "Taito Corporatio
 GAME( 1994, dariusgu, dariusg,  f3,      f3, dariusg,  ROT0,   "Taito America Corporation", "Darius Gaiden - Silver Hawk (Ver 2.5A 1994/09/19)", 0 )
 GAME( 1994, dariusgx, dariusg,  f3,      f3, dariusg,  ROT0,   "Taito Corporation",         "Darius Gaiden - Silver Hawk Extra Version (Ver 2.7J 1995/03/06) (Official Hack)", 0 )
 GAME( 1994, bublbob2, 0,        f3_224a, f3, bubsymph, ROT0,   "Taito Corporation Japan",   "Bubble Bobble II (Ver 2.5O 1994/10/05)", 0 )
+GAME( 1994, bublbob2p,bublbob2, f3_224a, f3, bubsymph, ROT0,   "Taito Corporation Japan",   "Bubble Bobble II (Ver 0.0J 1993/12/13, prototype)", 0 )
 GAME( 1994, bubsympe, bublbob2, f3_224a, f3, bubsymph, ROT0,   "Taito Corporation Japan",   "Bubble Symphony (Ver 2.5O 1994/10/05)", 0 )
 GAME( 1994, bubsympu, bublbob2, f3_224a, f3, bubsymph, ROT0,   "Taito America Corporation", "Bubble Symphony (Ver 2.5A 1994/10/05)", 0 )
 GAME( 1994, bubsymph, bublbob2, f3_224a, f3, bubsymph, ROT0,   "Taito Corporation",         "Bubble Symphony (Ver 2.5J 1994/10/05)", 0 )
