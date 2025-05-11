@@ -368,7 +368,7 @@ static READ16_HANDLER( io_chip_r )
 		case 0x0c/2:
 		case 0x0e/2:
 			/* if the port is configured as an output, return the last thing written */
-			if (misc_io_data_override & misc_io_data[0x1e/2] & (1 << offset))
+			if (misc_io_data[0x1e/2] & (1 << offset))
 				return misc_io_data[offset];
 
 			/* otherwise, return an input port */
@@ -399,6 +399,52 @@ static READ16_HANDLER( io_chip_r )
 	return 0xffff;
 }
 
+static READ16_HANDLER( tfrceacjpb_io_chip_r )
+{
+	offset &= 0x1f/2;
+
+	switch (offset)
+	{
+		/* I/O ports */
+		case 0x00/2:
+		case 0x02/2:
+		case 0x04/2:
+		case 0x06/2:
+		case 0x08/2:
+		case 0x0a/2:
+		case 0x0c/2:
+		case 0x0e/2:
+			/* if the port is configured as an output, return the last thing written */
+			if (misc_io_data_override & misc_io_data[0x1e/2] & (1 << offset))
+				return misc_io_data[offset];
+
+			/* otherwise, return an input port */
+			if (offset == 0x04/2 && sound_banks)
+				return (readinputport(offset) & 0xbf) | (upd7759_0_busy_r(0) << 6);
+			return readinputport(offset);
+
+		/* 'SEGA' protection */
+		case 0x10/2:
+			return 'S';
+		case 0x12/2:
+			return 'E';
+		case 0x14/2:
+			return 'G';
+		case 0x16/2:
+			return 'A';
+
+		/* CNT register & mirror */
+		case 0x18/2:
+		case 0x1c/2:
+			return misc_io_data[0x1c/2];
+
+		/* port direction register & mirror */
+		case 0x1a/2:
+		case 0x1e/2:
+			return misc_io_data[0x1e/2];
+	}
+	return 0xffff;
+}
 
 static WRITE16_HANDLER( io_chip_w )
 {
@@ -660,7 +706,18 @@ static ADDRESS_MAP_START( main_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xe00000, 0xe0ffff) AM_MIRROR(0x1f0000) AM_RAM AM_BASE(&generic_nvram16) AM_SIZE(&generic_nvram_size)
 ADDRESS_MAP_END
 
-
+static ADDRESS_MAP_START( tfrceacjpb_main_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x1fffff) AM_ROM
+	AM_RANGE(0x800000, 0x800001) AM_MIRROR(0x13fdfe) AM_READWRITE(prot_r, prot_w)
+	AM_RANGE(0x800200, 0x800201) AM_MIRROR(0x13fdfe) AM_WRITE(control_w)
+	AM_RANGE(0x840000, 0x84001f) AM_MIRROR(0x13fee0) AM_READWRITE(tfrceacjpb_io_chip_r, io_chip_w)
+	AM_RANGE(0x840100, 0x840107) AM_MIRROR(0x13fef8) AM_READWRITE(ym3438_r, ym3438_w)
+	AM_RANGE(0x880000, 0x880001) AM_MIRROR(0x13fefe) AM_WRITE(segac2_upd7759_w)
+	AM_RANGE(0x880100, 0x880101) AM_MIRROR(0x13fefe) AM_WRITE(counter_timer_w)
+	AM_RANGE(0x8c0000, 0x8c0fff) AM_MIRROR(0x13f000) AM_READWRITE(palette_r, palette_w) AM_BASE(&paletteram16)
+	AM_RANGE(0xc00000, 0xc0001f) AM_MIRROR(0x18ff00) AM_READWRITE(genesis_vdp_r, genesis_vdp_w)
+	AM_RANGE(0xe00000, 0xe0ffff) AM_MIRROR(0x1f0000) AM_RAM AM_BASE(&generic_nvram16) AM_SIZE(&generic_nvram_size)
+ADDRESS_MAP_END
 
 /******************************************************************************
     Input Ports
@@ -1433,7 +1490,19 @@ static MACHINE_DRIVER_START( segac2 )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( tfrceacjpb )
 
+	/* basic machine hardware */
+	MDRV_IMPORT_FROM( segac )
+	
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(tfrceacjpb_main_map,0)
+
+	/* sound hardware */
+	MDRV_SOUND_ADD(UPD7759, XL1_CLOCK)
+	MDRV_SOUND_CONFIG(upd7759_intf)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
+MACHINE_DRIVER_END
 
 /******************************************************************************
     Rom Definitions
@@ -2331,7 +2400,7 @@ GAME( 1990, borench,  0,        segac2,   borench,  borench,  ROT0, "Sega",     
 GAME( 1990, tfrceac,  0,        segac2,   tfrceac,  tfrceac,  ROT0, "Sega / Technosoft",      "ThunderForce AC", 0 )
 GAME( 1990, tfrceacj, tfrceac,  segac2,   tfrceac,  tfrceac,  ROT0, "Sega / Technosoft",      "ThunderForce AC (Japan)", 0 )
 GAME( 1990, tfrceacb, tfrceac,  segac2,   tfrceac,  tfrceacb, ROT0, "bootleg",                "ThunderForce AC (bootleg)", 0 )
-GAME( 1990, tfrceacjpb,tfrceac, segac2,   tfrceac,  tfrceacjpb,  ROT0, "Sega / Technosoft",      "ThunderForce AC (Japan, prototype, bootleg)", 0 )
+GAME( 1990, tfrceacjpb,tfrceac, tfrceacjpb,tfrceac, tfrceacjpb, ROT0, "Sega / Technosoft",    "ThunderForce AC (Japan, prototype, bootleg)", 0 )
 GAME( 1991, twinsqua, 0,        segac2,   twinsqua, twinsqua, ROT0, "Sega",                   "Twin Squash", 0 )
 GAME( 1991, ribbit,   0,        segac2,   ribbit,   ribbit,   ROT0, "Sega",                   "Ribbit!", 0 )
 GAME( 1992, ooparts,  0,        segac2,   ooparts,  c2boot,   ROT270, "Sega / Success",       "OOPArts (Japan, Prototype)", 0 )
