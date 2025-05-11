@@ -1984,7 +1984,7 @@ static DRIVER_INIT( tfrceacjpb )
 		0x5d19084c, 0x5d19084c, 0x5d9108c4, 0x4c8019d5
 	};
 	segac2_common_init(table);
-	misc_io_override = 0xf; // issue w/io chip
+	misc_io_data_override = 0xf; // issue w/io chip
 }
 
 
