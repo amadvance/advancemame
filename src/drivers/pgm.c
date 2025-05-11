@@ -713,36 +713,37 @@ static ADDRESS_MAP_START( arm7_map, ADDRESS_SPACE_PROGRAM, 32 )
 ADDRESS_MAP_END
 
 //5585G
-int ram_sel, svg_ram_sel;
+unsigned char svg_ram_sel;
 
 static WRITE32_HANDLER( svg_arm7_ram_sel_w )
 {
-	svg_ram_sel = data & 1;
+	svg_ram_sel=data&1;
 }
 
 static READ32_HANDLER( svg_arm7_shareram_r )
 {
-	return svg_shareram[svg_ram_sel & 1][offset];
+	unsigned char ram_sel=svg_ram_sel&1;
+
+	return svg_shareram[ram_sel][offset];
 }
 
 static WRITE32_HANDLER( svg_arm7_shareram_w )
 {
-	COMBINE_DATA(&svg_shareram[svg_ram_sel & 1][offset]);
+	unsigned char ram_sel=svg_ram_sel&1;
+	COMBINE_DATA(&svg_shareram[ram_sel][offset]);
 }
 
 static READ16_HANDLER( svg_m68k_ram_r )
 {
-	ram_sel = (svg_ram_sel & 1) ^ 1;
-	UINT16 *share16 = (UINT16 *)(svg_shareram[ram_sel & 1]);
-
+	unsigned char ram_sel=(svg_ram_sel&1)^1;
+	UINT16 *share16 = (UINT16 *)(svg_shareram[ram_sel]);
 	return share16[BYTE_XOR_LE(offset)];
 }
 
 static WRITE16_HANDLER( svg_m68k_ram_w )
 {
-        ram_sel = (svg_ram_sel & 1) ^ 1;
-	UINT16 *share16 = (UINT16 *)(svg_shareram[ram_sel & 1]);
-
+	unsigned char ram_sel=(svg_ram_sel&1)^1;
+	UINT16 *share16 = (UINT16 *)(svg_shareram[ram_sel]);
 	COMBINE_DATA(&share16[BYTE_XOR_LE(offset)]);
 }
 
@@ -2684,8 +2685,8 @@ static READ32_HANDLER( dmnfrnt_speedup_r )
 static void svg_basic_init(void)
 {
 	pgm_basic_init();
-	svg_shareram[0]=auto_malloc(0x10000 /4);
-	svg_shareram[1]=auto_malloc(0x10000 /4);
+	svg_shareram[0]=auto_malloc(0x10000);
+	svg_shareram[1]=auto_malloc(0x10000);
 	svg_ram_sel=0;
 }
 
@@ -2719,14 +2720,14 @@ static MACHINE_RESET(theglad)
 	UINT16 *temp16 = (UINT16 *)memory_region(REGION_CPU3);
 	int base = -1;
 
-	if(!strcmp(Machine->gamedrv->name, "theglad"))
+	if(strcmp(Machine->gamedrv->name, "theglad") == 0)
 	{
-             base = 0x3316; // correct.??
+       base = 0x3316; // correct.??
 	} 
 	
-	if(!strcmp(Machine->gamedrv->name, "svg"))
+	if(strcmp(Machine->gamedrv->name, "svg") == 0)
 	{
-             base = 0x3c3e; // correct.??
+       base = 0x3c3e; // correct.??
 	} 
 	//if (!strcmp(machine().system().name, "theglad")) base = 0x3316;
 
@@ -4999,4 +5000,4 @@ GAME( 2001, puzzli2,  pgm,        pgm, sango,    puzzli2,    ROT0,   "IGS", "Puz
 GAME( 2001, theglad,  pgm,        theglad, theglad, theglad, ROT0,   "IGS", "The Gladiator / Road of the Sword / Shen Jian (V101)", GAME_IMPERFECT_SOUND )
 GAME( 2002, dmnfrnt,  pgm,        svg, sango,    dmnfrnt,    ROT0,   "IGS", "Demon Front (V102)", GAME_IMPERFECT_SOUND )
 GAME( 2002, dmnfrnta, dmnfrnt,    svg, sango,    dmnfrnt,    ROT0,   "IGS", "Demon Front (V105)", GAME_IMPERFECT_SOUND )
-//GAME( 2005, svg,      pgm,        theglad, theglad,  svg,    ROT0,   "IGS", "S.V.G. - Spectral vs Generation (V200)", GAME_IMPERFECT_SOUND )
+//GAME( 2005, svg,      pgm,        theglad, theglad,  svg,        ROT0,   "IGS", "S.V.G. - Spectral vs Generation (V200)", GAME_IMPERFECT_SOUND )
