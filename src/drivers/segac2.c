@@ -98,6 +98,7 @@
 
 /* internal states */
 static UINT8 		misc_io_data[0x10];	/* holds values written to the I/O chip */
+static UINT8 		misc_io_data_override = 0;
 
 /* protection-related tracking */
 static const UINT32 *prot_table;		/* table of protection values */
@@ -367,7 +368,7 @@ static READ16_HANDLER( io_chip_r )
 		case 0x0c/2:
 		case 0x0e/2:
 			/* if the port is configured as an output, return the last thing written */
-			if (misc_io_data[0x1e/2] & (1 << offset))
+			if (misc_io_data & misc_io_data_override[0x1e/2] & (1 << offset))
 				return misc_io_data[offset];
 
 			/* otherwise, return an input port */
@@ -1969,6 +1970,23 @@ static DRIVER_INIT( tfrceacb )
 	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x800000, 0x800001, 0, 0, MWA16_NOP);
 }
 
+static DRIVER_INIT( tfrceacjpb )
+{
+	static const UINT32 table[256/8] =
+	{
+		0x3a3a6f6f, 0x38386d6d, 0x3a3a6f6f, 0x28287d7d,
+		0x3a3a6f6f, 0x38386d6d, 0x3a3a6f6f, 0x28287d7d,
+		0x7e3a2b6f, 0x7c38296d, 0x7eb22be7, 0x6ca039f5,
+		0x7e3a2b6f, 0x7c38296d, 0x7eb22be7, 0x6ca039f5,
+		0x3b3b6e6e, 0x39396c6c, 0x5dd50880, 0x4ec61b93,
+		0x3b3b6e6e, 0x39396c6c, 0x3bb36ee6, 0x28a07df5,
+		0x5d19084c, 0x5d19084c, 0x7ff72aa2, 0x6ee63bb3,
+		0x5d19084c, 0x5d19084c, 0x5d9108c4, 0x4c8019d5
+	};
+	segac2_common_init(table);
+	misc_io_data_override = 0xf; // issue w/io chip
+}
+
 
 static DRIVER_INIT( twinsqua )
 {
@@ -2313,7 +2331,7 @@ GAME( 1990, borench,  0,        segac2,   borench,  borench,  ROT0, "Sega",     
 GAME( 1990, tfrceac,  0,        segac2,   tfrceac,  tfrceac,  ROT0, "Sega / Technosoft",      "ThunderForce AC", 0 )
 GAME( 1990, tfrceacj, tfrceac,  segac2,   tfrceac,  tfrceac,  ROT0, "Sega / Technosoft",      "ThunderForce AC (Japan)", 0 )
 GAME( 1990, tfrceacb, tfrceac,  segac2,   tfrceac,  tfrceacb, ROT0, "bootleg",                "ThunderForce AC (bootleg)", 0 )
-GAME( 1990, tfrceacjpb,tfrceac, segac2,   tfrceac,  tfrceac,  ROT0, "Sega / Technosoft",      "ThunderForce AC (Japan, prototype, bootleg)", 0 )
+GAME( 1990, tfrceacjpb,tfrceac, segac2,   tfrceac,  tfrceacjpb,  ROT0, "Sega / Technosoft",      "ThunderForce AC (Japan, prototype, bootleg)", 0 )
 GAME( 1991, twinsqua, 0,        segac2,   twinsqua, twinsqua, ROT0, "Sega",                   "Twin Squash", 0 )
 GAME( 1991, ribbit,   0,        segac2,   ribbit,   ribbit,   ROT0, "Sega",                   "Ribbit!", 0 )
 GAME( 1992, ooparts,  0,        segac2,   ooparts,  c2boot,   ROT270, "Sega / Success",       "OOPArts (Japan, Prototype)", 0 )
