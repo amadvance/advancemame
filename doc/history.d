@@ -5,6 +5,7 @@ AdvanceMAME/MESS Version 4.1 2025/05
 	New games supported or improved: [arcadez2003] [grant2258] [Andrea Mazzoleni]
 		19yy - 19YY
 		aladmdb - Aladdin (bootleg of Japanese Megadrive version)
+		backfirt - Back Fire (Tecmo)
 		barek2ch - Bare Knuckle II (Chinese bootleg of Megadrive version)
 		barek3mb - Bare Knuckle III (bootleg of Megadrive version)
 		baryon - Baryon - Future Assault
@@ -29,6 +30,7 @@ AdvanceMAME/MESS Version 4.1 2025/05
 		diggerma - Digger Man (prototype)
 		dokidoki - Doki Doki Penguin Land
 		dreamwld - Dream World
+		eeekk - Eeekk!
 		endless - Gundam Wing: Endless Duel (SNES bootleg)
 		ffeast - Frog Feast (NeoGeo)
 		ffight2b - Final Fight 2 (SNES bootleg)
@@ -39,6 +41,7 @@ AdvanceMAME/MESS Version 4.1 2025/05
 		gulunpa - Gulun.Pa! (Japan 931220 L)
 		hangzo - Hangzo (Japan, prototype)
 		hypernoi - Hypernoid (2021-11-28)
+		igmo - IGMO
 		iron - Iron (SNES bootleg)
 		josvolly - Joshi Volleyball
 		jumpkun - Jump Kun (prototype)
@@ -88,6 +91,7 @@ AdvanceMAME/MESS Version 4.1 2025/05
 		tharrier - Task Force Harrier
 		timesup - Time's Up!
 		tmntmwb - Teenage Mutant Ninja Turtles - Mutant Warriors (SNES bootleg)
+		topdrive - Top Driving (version 1.1)
 		topshoot - Top Shooter
 		totc - Treasure of the Caribbean
 		touchgo - Touch & Go (World)

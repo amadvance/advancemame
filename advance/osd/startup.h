@@ -30,6 +30,9 @@
 
 /* the first match is used */
 
+{ "backfirt",  8 }, /* 4.1 */
+{ "eeekk",  9 }, /* 4.1 */
+{ "igmo",  8 }, /* 4.1 */
 { "mastfury",  13 }, /* 4.1 */
 { "py2k2",  3 }, /* 4.1 */
 { "jumpkun",  4 }, /* 4.1 */
