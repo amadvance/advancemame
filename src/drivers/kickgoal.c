@@ -3,6 +3,7 @@
 
 Kick Goal (c)1995 TCH
 Action Hollywood (c)1995 TCH
+Top Driving (c)1995 Proyesel
 
  prelim driver by David Haywood
 
@@ -113,16 +114,24 @@ static int snd_new, snd_sam[4];
 
 
 UINT16 *kickgoal_fgram, *kickgoal_bgram, *kickgoal_bg2ram, *kickgoal_scrram;
+UINT16 *topdrive_fgram, *topdrive_bgram, *topdrive_bg2ram, *topdrive_scrram;
 
 WRITE16_HANDLER( kickgoal_fgram_w  );
 WRITE16_HANDLER( kickgoal_bgram_w  );
 WRITE16_HANDLER( kickgoal_bg2ram_w );
+
+WRITE16_HANDLER( topdrive_fgram_w  );
+WRITE16_HANDLER( topdrive_bgram_w  );
+WRITE16_HANDLER( topdrive_bg2ram_w );
 
 VIDEO_START( kickgoal );
 VIDEO_UPDATE( kickgoal );
 
 VIDEO_START( actionhw );
 VIDEO_UPDATE( actionhw );
+
+VIDEO_START( topdrive );
+VIDEO_UPDATE( topdrive );
 
 
 static void kickgoal_play(int melody, int data)
@@ -293,7 +302,13 @@ WRITE16_HANDLER( actionhw_snd_w )
 	}
 }
 
-
+WRITE16_HANDLER( topdrive_snd_w )
+{
+		// In theory this would be sample banking (it writes a value of 01 on startup)
+		// however all samples addresses in header are sequential, and data after
+		// the last used sample doesn't appear to be sound data anyway.
+		// Furthermore no other values are ever written here
+}
 
 
 static int m6295_comm;
@@ -510,6 +525,31 @@ static ADDRESS_MAP_START( kickgoal_program_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xff0000, 0xffffff) AM_RAM
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( topdrive_program_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x0fffff) AM_ROM
+	AM_RANGE(0x800000, 0x800001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x800002, 0x800003) AM_READ(input_port_1_word_r)
+	// map(0x800006, 0x800007) // accessed in service menu, wheel maybe?
+	AM_RANGE(0x900000, 0x900005) AM_WRITE(kickgoal_eeprom_w)
+	AM_RANGE(0x900006, 0x900007) AM_READ(kickgoal_eeprom_r)
+	AM_RANGE(0xa00000, 0xa03fff) AM_READWRITE(MRA16_RAM, topdrive_fgram_w) AM_BASE(&topdrive_fgram) /* FG Layer */
+	AM_RANGE(0xa00400, 0xa01fff) AM_RAM
+	AM_RANGE(0xa02000, 0xa03fff) AM_RAM // buffer for scroll regs? or layer configs?
+	AM_RANGE(0xa04000, 0xa043ff) AM_READWRITE(MRA16_RAM, topdrive_bgram_w) AM_BASE(&topdrive_bgram) /* Higher BG Layer */
+	AM_RANGE(0xa04400, 0xa07fff) AM_RAM
+	AM_RANGE(0xa08000, 0xa083ff) AM_READWRITE(MRA16_RAM, topdrive_bg2ram_w) AM_BASE(&topdrive_bg2ram) /* Lower BG Layer */
+	AM_RANGE(0xa08400, 0xa0bfff) AM_RAM
+	AM_RANGE(0xa0c000, 0xa0c3ff) AM_RAM // seems to be a buffer for data that gets put at 0xa00000?
+	AM_RANGE(0xa0c400, 0xa0ffff) AM_RAM
+	AM_RANGE(0xa10000, 0xa1000f) AM_WRITE(MWA16_RAM) AM_BASE(&topdrive_scrram) /* Scroll Registers */
+	AM_RANGE(0xb00000, 0xb007ff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16) AM_SIZE(&spriteram_size) /* Sprites */
+	AM_RANGE(0xc00000, 0xc007ff) AM_READWRITE(MRA16_RAM, paletteram16_xBBBBBGGGGGRRRRR_word_w) AM_BASE(&paletteram16) /* Palette */ // actionhw reads this
+	AM_RANGE(0xe00003, 0xe00003) AM_READWRITE(OKIM6295_status_0_msb_r, OKIM6295_data_0_msb_w) // try msb 
+	AM_RANGE(0xe00004, 0xe00005) AM_WRITE(topdrive_snd_w)
+	AM_RANGE(0xf00000, 0xf2ffff) AM_RAM
+	AM_RANGE(0xff0000, 0xffffff) AM_RAM
+ADDRESS_MAP_END
+
 /***************************** PIC16C57 Memory Map **************************/
 
 	/* $000 - 7FF  PIC16C57 Internal Program ROM. Note: code is 12bits wide */
@@ -560,6 +600,46 @@ INPUT_PORTS_START( kickgoal )
 	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_COIN2 )
 	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_UNKNOWN )
 	PORT_SERVICE_NO_TOGGLE(0x0800, IP_ACTIVE_LOW)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+INPUT_PORTS_END
+
+INPUT_PORTS_START( topdrive )
+	PORT_START
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	
+	PORT_START
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_SERVICE_NO_TOGGLE( 0x0800, IP_ACTIVE_LOW )
 	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_START2 )
 	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNKNOWN )
@@ -658,6 +738,24 @@ static const gfx_decode actionhw_gfxdecodeinfo[] =
 	{ -1 } /* end of array */
 };
 
+static const gfx_layout topdrive_bg1616_charlayout =
+{
+	16,16,
+	RGN_FRAC(1,4),
+	4,
+	{ RGN_FRAC(3,4), RGN_FRAC(2,4), RGN_FRAC(1,4), RGN_FRAC(0,4) },
+	{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 },
+	{ 0*16,  1*16,  2*16,  3*16,   4*16,   5*16,   6*16,   7*16,
+	  8*16, 9*16, 10*16, 11*16, 12*16, 13*16, 14*16, 15*16 },
+	16*16
+};
+
+static const gfx_decode topdrive_gfxdecodeinfo[] =
+{
+	{ REGION_GFX1, 0, &topdrive_bg1616_charlayout,  0x000, 0x40 },
+	{ -1 } /* end of array */
+};
+
 /* MACHINE drivers ***********************************************************/
 
 
@@ -731,6 +829,35 @@ static MACHINE_DRIVER_START( actionhw )
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.80)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( topdrive )
+
+	/* basic machine hardware */
+	MDRV_CPU_ADD(M68000, 12000000)	/* 12 MHz */
+	MDRV_CPU_PROGRAM_MAP(topdrive_program_map, 0)
+	MDRV_CPU_VBLANK_INT(irq2_line_hold,1)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+
+	MDRV_NVRAM_HANDLER(kickgoal) // 93C46 really
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(64*8, 32*8)
+	MDRV_VISIBLE_AREA(0*8, 48*8-1, 0*8, 30*8-1)
+	MDRV_GFXDECODE(topdrive_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(0x400)
+
+	MDRV_VIDEO_START(topdrive)
+	MDRV_VIDEO_UPDATE(topdrive)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(OKIM6295, 1000000/165)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.95)
+MACHINE_DRIVER_END
+
 
 
 /* Rom Loading ***************************************************************/
@@ -791,6 +918,25 @@ ROM_START( actionhw )
 	ROM_COPY( REGION_SOUND1, 0x00000, 0xc0000, 0x20000) /* Last bank used in Test Mode */
 ROM_END
 
+ROM_START( topdrive )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "2-27c040.bin", 0x00000, 0x80000, CRC(37798c4e) SHA1(708a64b416bd2104fbc4b72a37bfeae33bbab454) )
+	ROM_LOAD16_BYTE( "1-27c040.bin", 0x00001, 0x80000, CRC(e2dc5096) SHA1(82b22e03be225ab7f20eff6314383a9f28d52294) )
+
+	ROM_REGION( 0x400000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "4-27c040.bin",  0x000000, 0x80000, CRC(a81ca7f7) SHA1(cc2030a9bea90b694adbf222389766945ce9552b) )
+	ROM_LOAD( "5-27c040.bin",  0x080000, 0x80000, CRC(a756d2b2) SHA1(59ddef858850b0f6c5865d555d6402c41cc3cb6c) )
+	ROM_LOAD( "6-27c040.bin",  0x100000, 0x80000, CRC(90c778a2) SHA1(8122ee085e388bb1f7952edb6a99dffc466f2e2c) )
+	ROM_LOAD( "7-27c040.bin",  0x180000, 0x80000, CRC(db219087) SHA1(c79145555678971db29e91a24d69738da7d8f07f) )
+	ROM_LOAD( "8-27c040.bin",  0x200000, 0x80000, CRC(0e5f4419) SHA1(4fc8173001e2b412f4a7b0b5160c853436bbb139) )
+	ROM_LOAD( "9-27c040.bin",  0x280000, 0x80000, CRC(159a7426) SHA1(6851fbc1fe11ae72a86d35011730d2df641e8fc5) )
+	ROM_LOAD( "10-27c040.bin", 0x300000, 0x80000, CRC(54c1617a) SHA1(7bb4faaa54581f080f19f98e78fa9cae899f4c2a) )
+	ROM_LOAD( "11-27c040.bin", 0x380000, 0x80000, CRC(6b3c3c73) SHA1(8ac76abdc4676cfcd9dc66a4c7b55010de099133) )
+
+	ROM_REGION( 0x80000, REGION_SOUND1, 0 )
+	ROM_LOAD( "3-27c040.bin",      0x00000, 0x80000, CRC(2894b89b) SHA1(cf884042edd2fc05e04d21ccd36f5183f9a7ec5c) )
+ROM_END
+
 /* GAME drivers **************************************************************/
 
 DRIVER_INIT( kickgoal )
@@ -809,3 +955,4 @@ DRIVER_INIT( kickgoal )
 
 GAME( 1995, kickgoal,0, kickgoal, kickgoal, kickgoal, ROT0, "TCH", "Kick Goal", GAME_NO_SOUND )
 GAME( 1995, actionhw,0, actionhw, kickgoal, kickgoal, ROT0, "TCH", "Action Hollywood", GAME_IMPERFECT_SOUND )
+GAME( 1995, topdrive,0, topdrive, topdrive, kickgoal, ROT0, "Proyesel", "Top Driving (version 1.1)", GAME_IMPERFECT_SOUND )
