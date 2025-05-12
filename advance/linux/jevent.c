@@ -492,7 +492,7 @@ static adv_error joystickb_setup(struct joystick_item_context* item, int f)
 /*
  * Include libretro definitions from:
  * https://github.com/libretro/retroarch-joypad-autoconfig/udev
- * and converted with joverride.python.
+ * and converted with joverride.py.
  */
 #include "joverride.dat"
 	};
