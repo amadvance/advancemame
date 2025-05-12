@@ -151,6 +151,7 @@ Stephh's additional notes (based on the game Z80 code and some tests) :
 #include "cpu/z80/z80.h"
 #include "sound/ay8910.h"
 #include "sound/msm5232.h"
+#include "sound/dac.h"
 
 VIDEO_START( nycaptor );
 VIDEO_UPDATE( nycaptor );
@@ -604,9 +605,26 @@ static ADDRESS_MAP_START( bronx_writemem_sub, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xe000, 0xffff) AM_WRITE(nycaptor_sharedram_w)
 ADDRESS_MAP_END
 
+
+static ADDRESS_MAP_START( bronx_sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xbfff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0xc000, 0xc7ff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xc800, 0xc800) AM_WRITE(AY8910_control_port_0_w)
+	AM_RANGE(0xc801, 0xc801) AM_WRITE(AY8910_write_port_0_w)
+	AM_RANGE(0xc802, 0xc802) AM_WRITE(AY8910_control_port_1_w)
+	AM_RANGE(0xc803, 0xc803) AM_WRITE(AY8910_write_port_1_w)
+	AM_RANGE(0xc900, 0xc90d) AM_WRITE(MSM5232_0_w)
+	AM_RANGE(0xca00, 0xca00) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xcb00, 0xcb00) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xcc00, 0xcc00) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0xd000, 0xd000) AM_WRITE(to_main_w)
+	AM_RANGE(0xd200, 0xd200) AM_WRITE(nmi_enable_w)
+	AM_RANGE(0xd400, 0xd400) AM_WRITE(nmi_disable_w)
+	AM_RANGE(0xd600, 0xd600) AM_WRITE(DAC_0_signed_data_w)
+	AM_RANGE(0xe000, 0xefff) AM_WRITE(MWA8_NOP)
+ADDRESS_MAP_END
+
 /* Cycle Shooting */
-
-
 INPUT_PORTS_START( cyclshtg )
 	PORT_START_TAG("IN0")
   PORT_DIPNAME( 0x04, 0x04, "Test Mode" )
@@ -655,6 +673,80 @@ INPUT_PORTS_START( cyclshtg )
 	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_X ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(15) PORT_PLAYER(1)
 INPUT_PORTS_END
 
+/* verified from Z80 code */
+INPUT_PORTS_START( bronx )
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_SERVICE( 0x04, IP_ACTIVE_LOW ) 
+	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Demo_Sounds ) ) 
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) ) 
+	PORT_DIPSETTING(    0x08, DEF_STR( On ) )
+	PORT_DIPNAME( 0x30, 0x30, DEF_STR( Coin_A ) ) 
+	PORT_DIPSETTING(    0x10, DEF_STR( 2C_1C ) ) 
+	PORT_DIPSETTING(    0x30, DEF_STR( 1C_1C ) ) 
+	PORT_DIPSETTING(    0x00, DEF_STR( 2C_3C ) ) 
+	PORT_DIPSETTING(    0x20, DEF_STR( 1C_2C ) ) 
+	/* coinage B isn't mentionned in the manual */
+	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Coin_B ) ) 
+	PORT_DIPSETTING(    0x40, DEF_STR( 2C_1C ) ) 
+	PORT_DIPSETTING(    0xc0, DEF_STR( 1C_1C ) ) 
+	PORT_DIPSETTING(    0x00, DEF_STR( 2C_3C ) ) 
+	PORT_DIPSETTING(    0x80, DEF_STR( 1C_2C ) )
+
+	PORT_START
+        PORT_DIPNAME( 0x03, 0x03, DEF_STR( Difficulty ) ) 
+	PORT_DIPSETTING(    0x02, "Easy" ) 
+	PORT_DIPSETTING(    0x03, "Medium" ) 
+	PORT_DIPSETTING(    0x01, "Hard" ) 
+	PORT_DIPSETTING(    0x00, "Hardest" )
+	PORT_DIPNAME( 0x0c, 0x08, DEF_STR( Bonus_Life ) )       /* table at 0x100f - see notes for 'bronx' */
+	PORT_DIPSETTING(	0x0c, "150k 350k 200k+" )
+	PORT_DIPSETTING(	0x08, "200k 500k 300k+" )
+	PORT_DIPSETTING(	0x04, "300k 700k 400k+" )
+	PORT_DIPSETTING(	0x00, "400k 900k 500k+" )
+	PORT_DIPNAME( 0x30, 0x30, DEF_STR( Lives ) )            /* see notes */
+	PORT_DIPSETTING(	0x00, "1" )
+	PORT_DIPSETTING(	0x30, "2" )
+	PORT_DIPSETTING(	0x10, "4" )
+	PORT_DIPSETTING(	0x20, "5" )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x80, 0x80, "Reset Damage (Cheat)" )      /* see notes */
+	PORT_DIPSETTING(	0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_DIPNAME( 0x10, 0x10, "Infinite Bullets" )          /* see notes */
+	PORT_DIPSETTING(	0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(	0x00, DEF_STR( On ) )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_UNKNOWN )            /* IPT_START2 is some similar Taito games (eg: 'flstory') */
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_TILT )
+	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_COIN2 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0xfe, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_X ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(15) PORT_PLAYER(1)
+
+	PORT_START
+	PORT_BIT( 0xff, 0x80, IPT_LIGHTGUN_Y ) PORT_MINMAX(0x00,0xff) PORT_SENSITIVITY(25) PORT_KEYDELTA(15) PORT_PLAYER(1)
+INPUT_PORTS_END
 
 INPUT_PORTS_START( nycaptor )
 	PORT_START_TAG("IN0")
@@ -860,7 +952,7 @@ static MACHINE_DRIVER_START( cyclshtg )
 
 	MDRV_CPU_ADD(Z80,8000000/2)
 	/* audio CPU */
-	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
+	MDRV_CPU_PROGRAM_MAP(sound_readmem,bronx_sound_writemem)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,2)
 
 #ifdef USE_MCU
@@ -894,24 +986,27 @@ static MACHINE_DRIVER_START( cyclshtg )
 	MDRV_SOUND_ADD(MSM5232, 2000000)
 	MDRV_SOUND_CONFIG(msm5232_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+	
+	MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
 
 static MACHINE_DRIVER_START( bronx )
 	MDRV_CPU_ADD(Z80,8000000/2)
 
-	MDRV_CPU_PROGRAM_MAP(bronx_readmem, bronx_writemem)
+	MDRV_CPU_PROGRAM_MAP(bronx_readmem,bronx_writemem)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
 
 	MDRV_CPU_ADD(Z80,8000000/2)
-	MDRV_CPU_PROGRAM_MAP(bronx_readmem_sub, bronx_writemem_sub)
+	MDRV_CPU_PROGRAM_MAP(bronx_readmem_sub,bronx_writemem_sub)
 	MDRV_CPU_IO_MAP(bronx_io, 0)
 
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,1)
 
 	MDRV_CPU_ADD(Z80,8000000/2)
 	/* audio CPU */
-	MDRV_CPU_PROGRAM_MAP(sound_readmem,sound_writemem)
+	MDRV_CPU_PROGRAM_MAP(sound_readmem,bronx_sound_writemem)
 	MDRV_CPU_VBLANK_INT(irq0_line_hold,2)
 
 	MDRV_FRAMES_PER_SECOND(60)
@@ -940,6 +1035,9 @@ static MACHINE_DRIVER_START( bronx )
 	MDRV_SOUND_ADD(MSM5232, 2000000)
 	MDRV_SOUND_CONFIG(msm5232_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+	
+        MDRV_SOUND_ADD(DAC, 0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
 
@@ -1300,8 +1398,8 @@ static DRIVER_INIT(cyclshtg)
 	nyc_gametype=1;
 }
 
-GAME( 1985, nycaptor, 0,       nycaptor,  nycaptor, nycaptor, ROT0,  "Taito", "N.Y. Captor", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
-GAME( 1986, cyclshtg, 0,       cyclshtg,  cyclshtg, cyclshtg, ROT90, "Taito", "Cycle Shooting", GAME_NOT_WORKING)
+GAME( 1985, nycaptor, 0,        nycaptor,  nycaptor, nycaptor, ROT0,  "Taito",   "N.Y. Captor", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1986, cyclshtg, 0,        cyclshtg,  cyclshtg, cyclshtg, ROT90, "Taito",   "Cycle Shooting", GAME_NOT_WORKING)
 //bootlegs
-GAME( 1986, bronx, cyclshtg,       bronx,  cyclshtg, bronx, ROT90, "bootleg", "Bronx",GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND)
-GAME( 1986, colt , nycaptor,       bronx,  nycaptor, colt, ROT0, "bootleg", "Colt",GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND|GAME_WRONG_COLORS)
+GAME( 1986, bronx,    cyclshtg, bronx,     bronx,    bronx,    ROT90, "bootleg", "Bronx",GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND)
+GAME( 1986, colt ,    nycaptor, bronx,     nycaptor, colt,     ROT0,  "bootleg", "Colt",GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND|GAME_WRONG_COLORS)
