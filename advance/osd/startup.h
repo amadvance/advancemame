@@ -30,12 +30,15 @@
 
 /* the first match is used */
 
-{ "backfirt",  8 }, /* 4.1 */
-{ "eeekk",  9 }, /* 4.1 */
-{ "igmo",  8 }, /* 4.1 */
-{ "mastfury",  13 }, /* 4.1 */
-{ "py2k2",  3 }, /* 4.1 */
-{ "jumpkun",  4 }, /* 4.1 */
+{ "matchit2", 7 }, /* 4.1 */
+{ "tfrceacjpb", 12 }, /* 4.1 */
+{ "bublbob2p", 6 }, /* 4.1 */
+{ "backfirt", 8 }, /* 4.1 */
+{ "eeekk", 9 }, /* 4.1 */
+{ "igmo", 8 }, /* 4.1 */
+{ "mastfury", 13 }, /* 4.1 */
+{ "py2k2", 3 }, /* 4.1 */
+{ "jumpkun", 4 }, /* 4.1 */
 { "dicegame", 2 }, /* 4.1 */
 { "olds", 4 }, /* 4.1 */
 { "puzlstar", 3 }, /* 4.1 */

@@ -105,7 +105,17 @@ AdvanceMAME/MESS Version 4.1 2025/05
 		wldgunsb - Wild Guns (SNES bootleg)
 		wschamp - Wing Shooting Championship V2.00
 		xeno - Xeno Crisis (Neo Geo MVS)
-
+	New clones with relevant differences:
+		bublbob2p - Bubble Bobble II (Ver 0.0J 1993/12/13, prototype)
+			https://mamedev.emulab.it/haze/2013/08/15/the-return-of-super-drunk/
+		tfrceacjpb - ThunderForce AC (Japan, prototype, bootleg)
+			https://shmups.system11.org/viewtopic.php?f=1&t=66235
+		ffightae - Final Fight 30th Anniversary Edition
+			Three Players mode http://adb.arcadeitalia.net/?mame=ffightae
+		dkongx - Donkey Kong II - Jumpman Returns (V1.2) (hack)
+			Four new stages http://adb.arcadeitalia.net/?mame=dkongx
+		guwanges - Guwange (Japan Special Ver 2000 7-7
+			http://adb.arcadeitalia.net/?mame=guwanges
 	) Do not prevent startup if a mouse/joystick stick/axe/button name configured in the .ini is unplugged [Andrea Mazzoleni]
 	) Fix saving of IPT_OTHER ports the .ini file [Andrea Mazzoleni]
 	) Enable support for the MAME debugger [Andrea Mazzoleni]
