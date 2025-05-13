@@ -4819,7 +4819,7 @@ Notes:
 ROM_START( dmnfrnt )
 	ROM_REGION( 0x600000, REGION_CPU1, 0 ) /* 68000 Code */
 	//ROM_LOAD16_WORD_SWAP( "pgm_p01s.rom", 0x000000, 0x020000, CRC(e42b166e) SHA1(2a9df9ec746b14b74fae48b1a438da14973702ea) )  // (BIOS)
-        ROM_LOAD16_WORD_SWAP( "pgm_p02s.u20",   0x00000, 0x020000, CRC(78c15fa2) SHA1(885a6558e022602cc6f482ac9667ba9f61e75092) ) /* Version 2 (Label: IGS | PGM P02S | 1P0792D1 | J992438 )*/ \
+        ROM_LOAD16_WORD_SWAP( "pgm_p02s.u20",   0x00000, 0x020000, CRC(78c15fa2) SHA1(885a6558e022602cc6f482ac9667ba9f61e75092) ) /* Version 2 (Label: IGS | PGM P02S | 1P0792D1 | J992438 )*/
 	ROM_LOAD16_WORD_SWAP( "v102_16m.u5",    0x100000, 0x200000, CRC(3d4d481a) SHA1(95953b8f31343389405cc722b4177ff5adf67b62) )
 
 	/* CPU2 = Z80, romless, code uploaded by 68k */
@@ -4853,7 +4853,8 @@ ROM_END
 
 ROM_START( dmnfrnta )
 	ROM_REGION( 0x600000, REGION_CPU1, 0 ) /* 68000 Code */
-	ROM_LOAD16_WORD_SWAP( "pgm_p01s.rom", 0x000000, 0x020000, CRC(e42b166e) SHA1(2a9df9ec746b14b74fae48b1a438da14973702ea) )  // (BIOS)
+	//ROM_LOAD16_WORD_SWAP( "pgm_p01s.rom", 0x000000, 0x020000, CRC(e42b166e) SHA1(2a9df9ec746b14b74fae48b1a438da14973702ea) )  // (BIOS)
+        ROM_LOAD16_WORD_SWAP( "pgm_p02s.u20",   0x00000, 0x020000, CRC(78c15fa2) SHA1(885a6558e022602cc6f482ac9667ba9f61e75092) ) /* Version 2 (Label: IGS | PGM P02S | 1P0792D1 | J992438 )*/
 	ROM_LOAD16_WORD_SWAP( "v105_16m.u5",    0x100000, 0x200000, CRC(bda083bd) SHA1(58d6438737a2c43aa8bbcb7f34fb51375b781b1c) )
 
 	/* CPU2 = Z80, romless, code uploaded by 68k */
@@ -4889,21 +4890,21 @@ ROM_END
 ROM_START( theglad )
 	ROM_REGION( 0x600000, REGION_CPU1, 0 ) /* 68000 Code */
 	//ROM_LOAD16_WORD_SWAP( "pgm_p01s.rom", 0x000000, 0x020000, CRC(e42b166e) SHA1(2a9df9ec746b14b74fae48b1a438da14973702ea) )  // (BIOS)
-        ROM_LOAD16_WORD_SWAP( "pgm_p02s.u20",  0x00000, 0x020000, CRC(78c15fa2) SHA1(885a6558e022602cc6f482ac9667ba9f61e75092) ) /* Version 2 (Label: IGS | PGM P02S | 1P0792D1 | J992438 )*/ \
+        ROM_LOAD16_WORD_SWAP( "pgm_p02s.u20",  0x00000, 0x020000, CRC(78c15fa2) SHA1(885a6558e022602cc6f482ac9667ba9f61e75092) ) /* Version 2 (Label: IGS | PGM P02S | 1P0792D1 | J992438 )*/ 
 	ROM_LOAD16_WORD_SWAP( "v101.u6",      0x100000, 0x080000, CRC(f799e866) SHA1(dccc3c903357c40c3cf85ac0ae8fc12fb0f853a6) )
 
 	/* CPU2 = Z80, romless, code uploaded by 68k */
 
 	ROM_REGION( 0x4000, REGION_CPU3, 0 ) /* ARM protection ASIC - internal rom */
 	ROM_LOAD( "theglad_igs027a_execute_only_area", 0x0000, 0x00188, NO_DUMP )
-    ROM_LOAD( "theglad_igs027a_v100_overseas.bin", 0x0188, 0x3e78, CRC(02fe6f52) SHA1(0b0ddf4507856cfc5b7d4ef7e4c5375254c2a024) )
+        ROM_LOAD( "theglad_igs027a_v100_overseas.bin", 0x0188, 0x3e78, CRC(02fe6f52) SHA1(0b0ddf4507856cfc5b7d4ef7e4c5375254c2a024) )
 
 	ROM_REGION( 0x800000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data, internal missing) */
 	ROM_LOAD( "v107.u26", 0x000000, 0x200000,  CRC(f7c61357) SHA1(52d31c464dfc83c5371b078cb6b73c0d0e0d57e3) )
 
 	ROM_REGION( 0xc00000, REGION_GFX1, ROMREGION_DISPOSE ) /* 8x8 Text Tiles + 32x32 BG Tiles */
 	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) ) // (BIOS)
-    ROM_LOAD( "t04601.u33",   0x400000, 0x800000, CRC(e5dab371) SHA1(2e3c93958eb0326b6b84b95c2168626f26bbac76) )
+        ROM_LOAD( "t04601.u33",   0x400000, 0x800000, CRC(e5dab371) SHA1(2e3c93958eb0326b6b84b95c2168626f26bbac76) )
 
 	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF ) /* Region for 32x32 BG Tiles */
 	/* 32x32 Tile Data is put here for easier Decoding */
@@ -4924,13 +4925,14 @@ ROM_END
 
 ROM_START( svg )
 	ROM_REGION( 0x600000, REGION_CPU1, 0 ) /* 68000 Code */
-	ROM_LOAD16_WORD_SWAP( "pgm_p01s.rom", 0x000000, 0x020000, CRC(e42b166e) SHA1(2a9df9ec746b14b74fae48b1a438da14973702ea) )  // (BIOS)
+//	ROM_LOAD16_WORD_SWAP( "pgm_p01s.rom", 0x000000, 0x020000, CRC(e42b166e) SHA1(2a9df9ec746b14b74fae48b1a438da14973702ea) )  // (BIOS)
+        ROM_LOAD16_WORD_SWAP( "pgm_p02s.u20",   0x00000, 0x020000, CRC(78c15fa2) SHA1(885a6558e022602cc6f482ac9667ba9f61e75092) ) /* Version 2 (Label: IGS | PGM P02S | 1P0792D1 | J992438 )*/
 	ROM_LOAD16_WORD_SWAP( "svg.u30.bin",  0x100000, 0x080000, CRC(34c18f3f) SHA1(42d1edd0dcfaa5e44861c6a1d4cb24f51ba23de8) )
 
 	/* CPU2 = Z80, romless, code uploaded by 68k */
 
 	ROM_REGION( 0x4000, REGION_CPU3, 0 ) /* ARM protection ASIC - internal rom */
-    ROM_LOAD( "svg_igs027a_execute_only_area", 0x0000, 0x00188, NO_DUMP )
+        ROM_LOAD( "svg_igs027a_execute_only_area", 0x0000, 0x00188, NO_DUMP )
 	ROM_LOAD( "svg_igs027a_v200_china.bin", 0x0188, 0x3e78, CRC(72b73169) SHA1(ffc0caea855ab4b01beb3aebd0bf17187c66c22c) )
 
 	ROM_REGION( 0x800000, REGION_USER1, 0 ) /* Protection Data (encrypted external ARM data) */
@@ -5002,4 +5004,4 @@ GAME( 2001, puzzli2,  pgm,        pgm, sango,    puzzli2,    ROT0,   "IGS", "Puz
 GAME( 2001, theglad,  pgm,        theglad, theglad, theglad, ROT0,   "IGS", "The Gladiator / Road of the Sword / Shen Jian (V101)", GAME_IMPERFECT_SOUND )
 GAME( 2002, dmnfrnt,  pgm,        svg, sango,    dmnfrnt,    ROT0,   "IGS", "Demon Front (V102)", GAME_IMPERFECT_SOUND )
 GAME( 2002, dmnfrnta, dmnfrnt,    svg, sango,    dmnfrnt,    ROT0,   "IGS", "Demon Front (V105)", GAME_IMPERFECT_SOUND )
-//GAME( 2005, svg,      pgm,        theglad, theglad,  svg,        ROT0,   "IGS", "S.V.G. - Spectral vs Generation (V200)", GAME_IMPERFECT_SOUND )
+GAME( 2005, svg,      pgm,        theglad, theglad,  svg,    ROT0,   "IGS", "S.V.G. - Spectral vs Generation (V200)", GAME_IMPERFECT_SOUND )
