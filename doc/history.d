@@ -1,7 +1,7 @@
 Name
 	history - History For AdvanceMAME/MESS
 
-AdvanceMAME/MESS Version 4.1 2025/05
+AdvanceMAME/MESS Version 5.0 2025/05
 	New games supported or improved: [arcadez2003] [grant2258] [Andrea Mazzoleni]
 		19yy - 19YY
 		aladmdb - Aladdin (bootleg of Japanese Megadrive version)
@@ -10,12 +10,12 @@ AdvanceMAME/MESS Version 4.1 2025/05
 		barek3mb - Bare Knuckle III (bootleg of Megadrive version)
 		baryon - Baryon - Future Assault
 		bigfight - Big Fight - Big Trouble In The Atlantic Ocean
-		bpanicdx - Block Panic DX (2025-01-01)
+		bpanicdx - Block Panic DX
 		brapboys - B.Rap Boys (World)
 		caravan - Project Neon Caravan Edition (Prealpha 0.4.19)
 		cbarrel - Captain Barrel
 		chinagat - China Gate (US)
-		cnbe2018 - Codename: Blut Engel (2018-09-05)
+		cnbe2018 - Codename: Blut Engel
 		columnsn - Columns (NeoGeo)(Homebrew)
 		cutefght - Cute Fighter
 		cyborg - Cyborg Force
@@ -24,7 +24,7 @@ AdvanceMAME/MESS Version 4.1 2025/05
 		dblewing - Double Wings
 		ddp2 - DoDonPachi II - Bee Storm
 		deerhunt - Deer Hunting USA V4.3
-		deluxe5 - Deluxe 5 (ver. 0107, 07-01-2000)
+		deluxe5 - Deluxe 5 (ver. 0107)
 		denseib - Ghost Chaser Densei (SNES bootleg)
 		dicegame - Dice - The Dice Game
 		diggerma - Digger Man (prototype)
@@ -35,12 +35,12 @@ AdvanceMAME/MESS Version 4.1 2025/05
 		ffeast - Frog Feast (NeoGeo)
 		ffight2b - Final Fight 2 (SNES bootleg)
 		flagrall - '96 Flag Rally
-		flapchck - Flappy Chicken (2023-04-30)
+		flapchck - Flappy Chicken
 		fspiderb - Frog & Spiders (bootleg)
 		gaialast - Gaia - The Last Choice of Earth
 		gulunpa - Gulun.Pa! (Japan 931220 L)
 		hangzo - Hangzo (Japan, prototype)
-		hypernoi - Hypernoid (2021-11-28)
+		hypernoi - Hypernoid
 		igmo - IGMO
 		iron - Iron (SNES bootleg)
 		josvolly - Joshi Volleyball
@@ -50,7 +50,7 @@ AdvanceMAME/MESS Version 4.1 2025/05
 		knightsc - Knight's Chance
 		lasthope - Last Hope (bootleg AES to MVS conversion, no coin support)
 		legendsb - Legend (SNES bootleg)
-		looptris - Looptris (2021-12-26)
+		looptris - Looptris
 		mastfury - Master's Fury
 		matchit2 - Match It II
 		mazeinv - Maze Invaders (prototype)
@@ -74,7 +74,7 @@ AdvanceMAME/MESS Version 4.1 2025/05
 		racingb - Racing Beat (World)
 		raphero - Rapid Hero (Japan)
 		riskchal - Risky Challenge
-		rolcrush - Rolling Crush (version 1.07.E - 1999/02/11)
+		rolcrush - Rolling Crush (version 1.07.E)
 		rumba - Rumba Lumber
 		rushbets - Rushing Beat Shura (SNES bootleg)
 		safarir - Safari Rally (Japan)
@@ -86,7 +86,7 @@ AdvanceMAME/MESS Version 4.1 2025/05
 		sonic3mb - Sonic The Hedgehog 3 (bootleg of Mega Drive version)
 		swa Star - Wars Arcade
 		swatpolc - SWAT Police
-		teot - The Eye of Typhoon (Tsunami Edition, beta 7, 2022-07-31)
+		teot - The Eye of Typhoon (Tsunami Edition, beta 7)
 		tgm2 - Tetris the Absolute The Grand Master 2
 		tharrier - Task Force Harrier
 		timesup - Time's Up!
@@ -106,7 +106,7 @@ AdvanceMAME/MESS Version 4.1 2025/05
 		wschamp - Wing Shooting Championship V2.00
 		xeno - Xeno Crisis (Neo Geo MVS)
 	New clones with relevant differences:
-		bublbob2p - Bubble Bobble II (Ver 0.0J 1993/12/13, prototype)
+		bublbob2p - Bubble Bobble II (Ver 0.0J, prototype)
 			https://mamedev.emulab.it/haze/2013/08/15/the-return-of-super-drunk/
 		tfrceacjpb - ThunderForce AC (Japan, prototype, bootleg)
 			https://shmups.system11.org/viewtopic.php?f=1&t=66235
@@ -125,7 +125,7 @@ AdvanceMAME/MESS Version 4.1 2025/05
 	) Drop the dir_crc support [Andrea Mazzoleni]
 	) Rename mspactwin to mspactwn to stay in the 8 chars limit [Andrea Mazzoleni]
 
-AdvanceMENU Version 4.1 2025/05
+AdvanceMENU Version 5.0 2025/05
 	) In menu stats list also the game description [Andrea Mazzoleni]
 	) New misc_sync option as default off as it's not expected to be needed [Andrea Mazzoleni]
 	) Fix some warnings to allow building with gcc 15 using c23 as default [Andrea Mazzoleni]
