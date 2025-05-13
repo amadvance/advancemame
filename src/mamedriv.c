@@ -6739,9 +6739,10 @@ Other Sun games
 	DRIVER( ddp2 )		/* (c) 2001 */
 	DRIVER( puzzli2 )	/* (c) 2001 */
 	DRIVER( martmast )	/* (c) 2001 */
-	DRIVER( theglad )	/* (c) 2001 */
+	DRIVER( theglad )	/* (c) 2003 */
 	DRIVER( dmnfrnt )	/* (c) 2002 */
 	DRIVER( dmnfrnta )	/* (c) 2002 */
+        DRIVER( svg )	        /* (c) 2005 */
 
 	/* AdvanceMAME new games from ShmupMAME v3.0b */
 	/* Cave PGM System Games */
