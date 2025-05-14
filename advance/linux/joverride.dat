@@ -1,4 +1,4 @@
-		/* 3H Dual Arcade 3H Dual Arcade */
+		/* 3H Dual Arcade 3H Dual Arcade (16c0:75e1) */
 		{ 0x16c0, 0x75e1, "3H Dual Arcade 3H Dual Arcade", 0, "a", JOYB_A },
 		{ 0x16c0, 0x75e1, "3H Dual Arcade 3H Dual Arcade", 1, "b", JOYB_B },
 		{ 0x16c0, 0x75e1, "3H Dual Arcade 3H Dual Arcade", 2, "x", JOYB_X },
@@ -9,7 +9,7 @@
 		{ 0x16c0, 0x75e1, "3H Dual Arcade 3H Dual Arcade", 6, "tr2", JOYB_TR2 },
 		{ 0x16c0, 0x75e1, "3H Dual Arcade 3H Dual Arcade", 4, "select", JOYB_SELECT },
 		{ 0x16c0, 0x75e1, "3H Dual Arcade 3H Dual Arcade", 7, "start", JOYB_START },
-		/* 7039RG */
+		/* 7039RG (1949:0402) */
 		{ 0x1949, 0x0402, "7039RG", 0, "a", JOYB_A },
 		{ 0x1949, 0x0402, "7039RG", 1, "b", JOYB_B },
 		{ 0x1949, 0x0402, "7039RG", 3, "x", JOYB_X },
@@ -20,7 +20,7 @@
 		{ 0x1949, 0x0402, "7039RG", 9, "tr2", JOYB_TR2 },
 		{ 0x1949, 0x0402, "7039RG", 10, "select", JOYB_SELECT },
 		{ 0x1949, 0x0402, "7039RG", 11, "start", JOYB_START },
-		/* 8BitDo 8BitDo Lite 2 */
+		/* 8BitDo 8BitDo Lite 2 (2dc8:5112) */
 		{ 0x2dc8, 0x5112, "8BitDo 8BitDo Lite 2", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x5112, "8BitDo 8BitDo Lite 2", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x5112, "8BitDo 8BitDo Lite 2", 3, "x", JOYB_X },
@@ -31,7 +31,7 @@
 		{ 0x2dc8, 0x5112, "8BitDo 8BitDo Lite 2", 9, "tr2", JOYB_TR2 },
 		{ 0x2dc8, 0x5112, "8BitDo 8BitDo Lite 2", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x5112, "8BitDo 8BitDo Lite 2", 11, "start", JOYB_START },
-		/* 8BitDo M30 gamepad */
+		/* 8BitDo M30 gamepad (2dc8:5006) */
 		{ 0x2dc8, 0x5006, "8BitDo M30 gamepad", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x5006, "8BitDo M30 gamepad", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x5006, "8BitDo M30 gamepad", 4, "x", JOYB_X },
@@ -43,7 +43,7 @@
 		{ 0x2dc8, 0x5006, "8BitDo M30 gamepad", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x5006, "8BitDo M30 gamepad", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x5006, "8BitDo M30 gamepad", 2, "mode", JOYB_MODE },
-		/* 8BitDo M30 gamepad */
+		/* 8BitDo M30 gamepad (2dc8:0651) */
 		{ 0x2dc8, 0x0651, "8BitDo M30 gamepad", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x0651, "8BitDo M30 gamepad", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x0651, "8BitDo M30 gamepad", 4, "x", JOYB_X },
@@ -55,7 +55,7 @@
 		{ 0x2dc8, 0x0651, "8BitDo M30 gamepad", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x0651, "8BitDo M30 gamepad", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x0651, "8BitDo M30 gamepad", 2, "mode", JOYB_MODE },
-		/* 8BitDo M30 gamepad */
+		/* 8BitDo M30 gamepad (045e:02e0) */
 		{ 0x045e, 0x02e0, "8BitDo M30 gamepad", 1, "a", JOYB_A },
 		{ 0x045e, 0x02e0, "8BitDo M30 gamepad", 0, "b", JOYB_B },
 		{ 0x045e, 0x02e0, "8BitDo M30 gamepad", 3, "x", JOYB_X },
@@ -65,7 +65,7 @@
 		{ 0x045e, 0x02e0, "8BitDo M30 gamepad", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x02e0, "8BitDo M30 gamepad", 7, "start", JOYB_START },
 		{ 0x045e, 0x02e0, "8BitDo M30 gamepad", 10, "mode", JOYB_MODE },
-		/* JJ */
+		/* JJ (2dc8:9026) */
 		{ 0x2dc8, 0x9026, "JJ", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x9026, "JJ", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x9026, "JJ", 4, "x", JOYB_X },
@@ -74,7 +74,7 @@
 		{ 0x2dc8, 0x9026, "JJ", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x9026, "JJ", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x9026, "JJ", 11, "start", JOYB_START },
-		/* 8BitDo NEOGEO GP */
+		/* 8BitDo NEOGEO GP (2dc8:9025) */
 		{ 0x2dc8, 0x9025, "8BitDo NEOGEO GP", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x9025, "8BitDo NEOGEO GP", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x9025, "8BitDo NEOGEO GP", 4, "x", JOYB_X },
@@ -83,7 +83,7 @@
 		{ 0x2dc8, 0x9025, "8BitDo NEOGEO GP", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x9025, "8BitDo NEOGEO GP", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x9025, "8BitDo NEOGEO GP", 11, "start", JOYB_START },
-		/* 8BitDo Pro 2 */
+		/* 8BitDo Pro 2 (045e:02e0) */
 		{ 0x045e, 0x02e0, "8BitDo Pro 2", 1, "a", JOYB_A },
 		{ 0x045e, 0x02e0, "8BitDo Pro 2", 0, "b", JOYB_B },
 		{ 0x045e, 0x02e0, "8BitDo Pro 2", 3, "x", JOYB_X },
@@ -93,7 +93,7 @@
 		{ 0x045e, 0x02e0, "8BitDo Pro 2", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x02e0, "8BitDo Pro 2", 7, "start", JOYB_START },
 		{ 0x045e, 0x02e0, "8BitDo Pro 2", 10, "mode", JOYB_MODE },
-		/* 8BitDo N30 Pro 2 */
+		/* 8BitDo N30 Pro 2 (2dc8:2865) */
 		{ 0x2dc8, 0x2865, "8BitDo N30 Pro 2", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x2865, "8BitDo N30 Pro 2", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x2865, "8BitDo N30 Pro 2", 3, "x", JOYB_X },
@@ -104,7 +104,7 @@
 		{ 0x2dc8, 0x2865, "8BitDo N30 Pro 2", 9, "tr2", JOYB_TR2 },
 		{ 0x2dc8, 0x2865, "8BitDo N30 Pro 2", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x2865, "8BitDo N30 Pro 2", 11, "start", JOYB_START },
-		/* 8Bitdo N30 Pro 2 */
+		/* 8Bitdo N30 Pro 2 (2dc8:9015) */
 		{ 0x2dc8, 0x9015, "8Bitdo N30 Pro 2", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x9015, "8Bitdo N30 Pro 2", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x9015, "8Bitdo N30 Pro 2", 3, "x", JOYB_X },
@@ -115,7 +115,7 @@
 		{ 0x2dc8, 0x9015, "8Bitdo N30 Pro 2", 9, "tr2", JOYB_TR2 },
 		{ 0x2dc8, 0x9015, "8Bitdo N30 Pro 2", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x9015, "8Bitdo N30 Pro 2", 11, "start", JOYB_START },
-		/* 8Bitdo NES30 Pro   8Bitdo NES30 Pro */
+		/* 8Bitdo NES30 Pro   8Bitdo NES30 Pro (2dc8:9001) */
 		{ 0x2dc8, 0x9001, "8Bitdo NES30 Pro   8Bitdo NES30 Pro", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x9001, "8Bitdo NES30 Pro   8Bitdo NES30 Pro", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x9001, "8Bitdo NES30 Pro   8Bitdo NES30 Pro", 3, "x", JOYB_X },
@@ -126,7 +126,7 @@
 		{ 0x2dc8, 0x9001, "8Bitdo NES30 Pro   8Bitdo NES30 Pro", 9, "tr2", JOYB_TR2 },
 		{ 0x2dc8, 0x9001, "8Bitdo NES30 Pro   8Bitdo NES30 Pro", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x9001, "8Bitdo NES30 Pro   8Bitdo NES30 Pro", 11, "start", JOYB_START },
-		/* 8BitDo SN30 Pro+ */
+		/* 8BitDo SN30 Pro+ (2dc8:6102) */
 		{ 0x2dc8, 0x6102, "8BitDo SN30 Pro+", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x6102, "8BitDo SN30 Pro+", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x6102, "8BitDo SN30 Pro+", 3, "x", JOYB_X },
@@ -138,7 +138,7 @@
 		{ 0x2dc8, 0x6102, "8BitDo SN30 Pro+", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x6102, "8BitDo SN30 Pro+", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x6102, "8BitDo SN30 Pro+", 2, "mode", JOYB_MODE },
-		/* 8BitDo SN30 Pro+ */
+		/* 8BitDo SN30 Pro+ (045e:02e0) */
 		{ 0x045e, 0x02e0, "8BitDo SN30 Pro+", 1, "a", JOYB_A },
 		{ 0x045e, 0x02e0, "8BitDo SN30 Pro+", 0, "b", JOYB_B },
 		{ 0x045e, 0x02e0, "8BitDo SN30 Pro+", 3, "x", JOYB_X },
@@ -148,7 +148,7 @@
 		{ 0x045e, 0x02e0, "8BitDo SN30 Pro+", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x02e0, "8BitDo SN30 Pro+", 7, "start", JOYB_START },
 		{ 0x045e, 0x02e0, "8BitDo SN30 Pro+", 10, "mode", JOYB_MODE },
-		/* 8BitDo SN30 Pro+ */
+		/* 8BitDo SN30 Pro+ (2dc8:6002) */
 		{ 0x2dc8, 0x6002, "8BitDo SN30 Pro+", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x6002, "8BitDo SN30 Pro+", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x6002, "8BitDo SN30 Pro+", 3, "x", JOYB_X },
@@ -160,7 +160,7 @@
 		{ 0x2dc8, 0x6002, "8BitDo SN30 Pro+", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x6002, "8BitDo SN30 Pro+", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x6002, "8BitDo SN30 Pro+", 2, "mode", JOYB_MODE },
-		/* 8BitDo 8BitDo Ultimate 2C Wireless Controller */
+		/* 8BitDo 8BitDo Ultimate 2C Wireless Controller (2dc8:310a) */
 		{ 0x2dc8, 0x310a, "8BitDo 8BitDo Ultimate 2C Wireless Controller", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x310a, "8BitDo 8BitDo Ultimate 2C Wireless Controller", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x310a, "8BitDo 8BitDo Ultimate 2C Wireless Controller", 3, "x", JOYB_X },
@@ -170,7 +170,7 @@
 		{ 0x2dc8, 0x310a, "8BitDo 8BitDo Ultimate 2C Wireless Controller", 6, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x310a, "8BitDo 8BitDo Ultimate 2C Wireless Controller", 7, "start", JOYB_START },
 		{ 0x2dc8, 0x310a, "8BitDo 8BitDo Ultimate 2C Wireless Controller", 8, "mode", JOYB_MODE },
-		/* 8BitDo Ultimate 2 Wireless */
+		/* 8BitDo Ultimate 2 Wireless (2dc8:6012) */
 		{ 0x2dc8, 0x6012, "8BitDo Ultimate 2 Wireless", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x6012, "8BitDo Ultimate 2 Wireless", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x6012, "8BitDo Ultimate 2 Wireless", 4, "x", JOYB_X },
@@ -182,7 +182,7 @@
 		{ 0x2dc8, 0x6012, "8BitDo Ultimate 2 Wireless", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x6012, "8BitDo Ultimate 2 Wireless", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x6012, "8BitDo Ultimate 2 Wireless", 12, "mode", JOYB_MODE },
-		/* 8BitDo Ultimate 2 Wireless */
+		/* 8BitDo Ultimate 2 Wireless (2dc8:310b) */
 		{ 0x2dc8, 0x310b, "8BitDo Ultimate 2 Wireless", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x310b, "8BitDo Ultimate 2 Wireless", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x310b, "8BitDo Ultimate 2 Wireless", 3, "x", JOYB_X },
@@ -192,7 +192,7 @@
 		{ 0x2dc8, 0x310b, "8BitDo Ultimate 2 Wireless", 6, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x310b, "8BitDo Ultimate 2 Wireless", 7, "start", JOYB_START },
 		{ 0x2dc8, 0x310b, "8BitDo Ultimate 2 Wireless", 8, "mode", JOYB_MODE },
-		/* 8BitDo Ultimate 3mode Xbox */
+		/* 8BitDo Ultimate 3mode Xbox (2dc8:901b) */
 		{ 0x2dc8, 0x901b, "8BitDo Ultimate 3mode Xbox", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x901b, "8BitDo Ultimate 3mode Xbox", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x901b, "8BitDo Ultimate 3mode Xbox", 3, "x", JOYB_X },
@@ -203,7 +203,7 @@
 		{ 0x2dc8, 0x901b, "8BitDo Ultimate 3mode Xbox", 9, "tr2", JOYB_TR2 },
 		{ 0x2dc8, 0x901b, "8BitDo Ultimate 3mode Xbox", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x901b, "8BitDo Ultimate 3mode Xbox", 11, "start", JOYB_START },
-		/* 8BitDo Ultimate C Wired Controller  */
+		/* 8BitDo Ultimate C Wired Controller (2dc8:3106) */
 		{ 0x2dc8, 0x3106, "8BitDo Ultimate C Wired Controller ", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x3106, "8BitDo Ultimate C Wired Controller ", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x3106, "8BitDo Ultimate C Wired Controller ", 3, "x", JOYB_X },
@@ -213,7 +213,7 @@
 		{ 0x2dc8, 0x3106, "8BitDo Ultimate C Wired Controller ", 6, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x3106, "8BitDo Ultimate C Wired Controller ", 7, "start", JOYB_START },
 		{ 0x2dc8, 0x3106, "8BitDo Ultimate C Wired Controller ", 8, "mode", JOYB_MODE },
-		/* 8BitDo Ultimate C Wired Controller  */
+		/* 8BitDo Ultimate C Wired Controller (2dc8:3017) */
 		{ 0x2dc8, 0x3017, "8BitDo Ultimate C Wired Controller ", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x3017, "8BitDo Ultimate C Wired Controller ", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x3017, "8BitDo Ultimate C Wired Controller ", 4, "x", JOYB_X },
@@ -225,7 +225,7 @@
 		{ 0x2dc8, 0x3017, "8BitDo Ultimate C Wired Controller ", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x3017, "8BitDo Ultimate C Wired Controller ", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x3017, "8BitDo Ultimate C Wired Controller ", 12, "mode", JOYB_MODE },
-		/* 8BitDo 8BitDo Ultimate Wired Controller */
+		/* 8BitDo 8BitDo Ultimate Wired Controller (2dc8:3011) */
 		{ 0x2dc8, 0x3011, "8BitDo 8BitDo Ultimate Wired Controller", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x3011, "8BitDo 8BitDo Ultimate Wired Controller", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x3011, "8BitDo 8BitDo Ultimate Wired Controller", 4, "x", JOYB_X },
@@ -237,7 +237,7 @@
 		{ 0x2dc8, 0x3011, "8BitDo 8BitDo Ultimate Wired Controller", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x3011, "8BitDo 8BitDo Ultimate Wired Controller", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x3011, "8BitDo 8BitDo Ultimate Wired Controller", 12, "mode", JOYB_MODE },
-		/* 8BitDoUltimate wireless Controller for PC */
+		/* 8BitDoUltimate wireless Controller for PC (2dc8:3013) */
 		{ 0x2dc8, 0x3013, "8BitDoUltimate wireless Controller for PC", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x3013, "8BitDoUltimate wireless Controller for PC", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x3013, "8BitDoUltimate wireless Controller for PC", 4, "x", JOYB_X },
@@ -249,7 +249,7 @@
 		{ 0x2dc8, 0x3013, "8BitDoUltimate wireless Controller for PC", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x3013, "8BitDoUltimate wireless Controller for PC", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x3013, "8BitDoUltimate wireless Controller for PC", 12, "mode", JOYB_MODE },
-		/* 8BitDo Zero 2 gamepad */
+		/* 8BitDo Zero 2 gamepad (2dc8:3230) */
 		{ 0x2dc8, 0x3230, "8BitDo Zero 2 gamepad", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x3230, "8BitDo Zero 2 gamepad", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x3230, "8BitDo Zero 2 gamepad", 3, "x", JOYB_X },
@@ -258,7 +258,7 @@
 		{ 0x2dc8, 0x3230, "8BitDo Zero 2 gamepad", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x3230, "8BitDo Zero 2 gamepad", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x3230, "8BitDo Zero 2 gamepad", 11, "start", JOYB_START },
-		/* 8Bitdo 8Bitdo SF30 Wireless Controller */
+		/* 8Bitdo 8Bitdo SF30 Wireless Controller (2dc8:3001) */
 		{ 0x2dc8, 0x3001, "8Bitdo 8Bitdo SF30 Wireless Controller", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x3001, "8Bitdo 8Bitdo SF30 Wireless Controller", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x3001, "8Bitdo 8Bitdo SF30 Wireless Controller", 3, "x", JOYB_X },
@@ -267,7 +267,7 @@
 		{ 0x2dc8, 0x3001, "8Bitdo 8Bitdo SF30 Wireless Controller", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x3001, "8Bitdo 8Bitdo SF30 Wireless Controller", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x3001, "8Bitdo 8Bitdo SF30 Wireless Controller", 11, "start", JOYB_START },
-		/* 8Bitdo 8Bitdo SN30 Wireless Controller */
+		/* 8Bitdo 8Bitdo SN30 Wireless Controller (2dc8:3000) */
 		{ 0x2dc8, 0x3000, "8Bitdo 8Bitdo SN30 Wireless Controller", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x3000, "8Bitdo 8Bitdo SN30 Wireless Controller", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x3000, "8Bitdo 8Bitdo SN30 Wireless Controller", 3, "x", JOYB_X },
@@ -276,7 +276,7 @@
 		{ 0x2dc8, 0x3000, "8Bitdo 8Bitdo SN30 Wireless Controller", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x3000, "8Bitdo 8Bitdo SN30 Wireless Controller", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x3000, "8Bitdo 8Bitdo SN30 Wireless Controller", 11, "start", JOYB_START },
-		/* 8Bitdo Joy */
+		/* 8Bitdo Joy (1080:0009) */
 		{ 0x1080, 0x0009, "8Bitdo Joy", 12, "a", JOYB_A },
 		{ 0x1080, 0x0009, "8Bitdo Joy", 11, "b", JOYB_B },
 		{ 0x1080, 0x0009, "8Bitdo Joy", 15, "x", JOYB_X },
@@ -287,7 +287,7 @@
 		{ 0x1080, 0x0009, "8Bitdo Joy", 20, "tr2", JOYB_TR2 },
 		{ 0x1080, 0x0009, "8Bitdo Joy", 21, "select", JOYB_SELECT },
 		{ 0x1080, 0x0009, "8Bitdo Joy", 22, "start", JOYB_START },
-		/* 8Bitdo JoyStick    8Bitdo Joy     */
+		/* 8Bitdo JoyStick    8Bitdo Joy (8000:1002) */
 		{ 0x8000, 0x1002, "8Bitdo JoyStick    8Bitdo Joy    ", 2, "a", JOYB_A },
 		{ 0x8000, 0x1002, "8Bitdo JoyStick    8Bitdo Joy    ", 1, "b", JOYB_B },
 		{ 0x8000, 0x1002, "8Bitdo JoyStick    8Bitdo Joy    ", 3, "x", JOYB_X },
@@ -298,7 +298,7 @@
 		{ 0x8000, 0x1002, "8Bitdo JoyStick    8Bitdo Joy    ", 7, "tr2", JOYB_TR2 },
 		{ 0x8000, 0x1002, "8Bitdo JoyStick    8Bitdo Joy    ", 8, "select", JOYB_SELECT },
 		{ 0x8000, 0x1002, "8Bitdo JoyStick    8Bitdo Joy    ", 9, "start", JOYB_START },
-		/* 8Bitdo NES30 Arcade */
+		/* 8Bitdo NES30 Arcade (2dc8:1080) */
 		{ 0x2dc8, 0x1080, "8Bitdo NES30 Arcade", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x1080, "8Bitdo NES30 Arcade", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x1080, "8Bitdo NES30 Arcade", 4, "x", JOYB_X },
@@ -309,7 +309,7 @@
 		{ 0x2dc8, 0x1080, "8Bitdo NES30 Arcade", 9, "tr2", JOYB_TR2 },
 		{ 0x2dc8, 0x1080, "8Bitdo NES30 Arcade", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x1080, "8Bitdo NES30 Arcade", 11, "start", JOYB_START },
-		/* 8Bitdo             8Bitdo NES30 Arcade */
+		/* 8Bitdo             8Bitdo NES30 Arcade (2dc8:1003) */
 		{ 0x2dc8, 0x1003, "8Bitdo             8Bitdo NES30 Arcade", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x1003, "8Bitdo             8Bitdo NES30 Arcade", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x1003, "8Bitdo             8Bitdo NES30 Arcade", 4, "x", JOYB_X },
@@ -320,7 +320,7 @@
 		{ 0x2dc8, 0x1003, "8Bitdo             8Bitdo NES30 Arcade", 9, "tr2", JOYB_TR2 },
 		{ 0x2dc8, 0x1003, "8Bitdo             8Bitdo NES30 Arcade", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x1003, "8Bitdo             8Bitdo NES30 Arcade", 11, "start", JOYB_START },
-		/* 8Bitdo FC30 GamePad */
+		/* 8Bitdo FC30 GamePad (2dc8:2810) */
 		{ 0x2dc8, 0x2810, "8Bitdo FC30 GamePad", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x2810, "8Bitdo FC30 GamePad", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x2810, "8Bitdo FC30 GamePad", 3, "x", JOYB_X },
@@ -329,7 +329,7 @@
 		{ 0x2dc8, 0x2810, "8Bitdo FC30 GamePad", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x2810, "8Bitdo FC30 GamePad", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x2810, "8Bitdo FC30 GamePad", 11, "start", JOYB_START },
-		/* 8Bitdo FC30 II */
+		/* 8Bitdo FC30 II (2dc8:2810) */
 		{ 0x2dc8, 0x2810, "8Bitdo FC30 II", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x2810, "8Bitdo FC30 II", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x2810, "8Bitdo FC30 II", 3, "x", JOYB_X },
@@ -338,7 +338,7 @@
 		{ 0x2dc8, 0x2810, "8Bitdo FC30 II", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x2810, "8Bitdo FC30 II", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x2810, "8Bitdo FC30 II", 11, "start", JOYB_START },
-		/* FC30               FC30  Joystick */
+		/* FC30               FC30  Joystick (2dc8:ab11) */
 		{ 0x2dc8, 0xab11, "FC30               FC30  Joystick", 0, "a", JOYB_A },
 		{ 0x2dc8, 0xab11, "FC30               FC30  Joystick", 1, "b", JOYB_B },
 		{ 0x2dc8, 0xab11, "FC30               FC30  Joystick", 3, "x", JOYB_X },
@@ -347,7 +347,7 @@
 		{ 0x2dc8, 0xab11, "FC30               FC30  Joystick", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0xab11, "FC30               FC30  Joystick", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0xab11, "FC30               FC30  Joystick", 11, "start", JOYB_START },
-		/* 8Bitdo NES30 GamePad */
+		/* 8Bitdo NES30 GamePad (2dc8:2820) */
 		{ 0x2dc8, 0x2820, "8Bitdo NES30 GamePad", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x2820, "8Bitdo NES30 GamePad", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x2820, "8Bitdo NES30 GamePad", 3, "x", JOYB_X },
@@ -356,7 +356,7 @@
 		{ 0x2dc8, 0x2820, "8Bitdo NES30 GamePad", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x2820, "8Bitdo NES30 GamePad", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x2820, "8Bitdo NES30 GamePad", 11, "start", JOYB_START },
-		/* NES30              NES30 Joystick */
+		/* NES30              NES30 Joystick (2dc8:ab12) */
 		{ 0x2dc8, 0xab12, "NES30              NES30 Joystick", 0, "a", JOYB_A },
 		{ 0x2dc8, 0xab12, "NES30              NES30 Joystick", 1, "b", JOYB_B },
 		{ 0x2dc8, 0xab12, "NES30              NES30 Joystick", 3, "x", JOYB_X },
@@ -365,7 +365,7 @@
 		{ 0x2dc8, 0xab12, "NES30              NES30 Joystick", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0xab12, "NES30              NES30 Joystick", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0xab12, "NES30              NES30 Joystick", 11, "start", JOYB_START },
-		/* 8Bitdo P30 Modkit */
+		/* 8Bitdo P30 Modkit (2dc8:5107) */
 		{ 0x2dc8, 0x5107, "8Bitdo P30 Modkit", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x5107, "8Bitdo P30 Modkit", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x5107, "8Bitdo P30 Modkit", 4, "x", JOYB_X },
@@ -376,7 +376,7 @@
 		{ 0x2dc8, 0x5107, "8Bitdo P30 Modkit", 9, "tr2", JOYB_TR2 },
 		{ 0x2dc8, 0x5107, "8Bitdo P30 Modkit", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x5107, "8Bitdo P30 Modkit", 11, "start", JOYB_START },
-		/* 8Bitdo FC30 Pro */
+		/* 8Bitdo FC30 Pro (2dc8:3810) */
 		{ 0x2dc8, 0x3810, "8Bitdo FC30 Pro", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x3810, "8Bitdo FC30 Pro", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x3810, "8Bitdo FC30 Pro", 3, "x", JOYB_X },
@@ -387,7 +387,7 @@
 		{ 0x2dc8, 0x3810, "8Bitdo FC30 Pro", 9, "tr2", JOYB_TR2 },
 		{ 0x2dc8, 0x3810, "8Bitdo FC30 Pro", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x3810, "8Bitdo FC30 Pro", 11, "start", JOYB_START },
-		/* 8Bitdo FC30 Pro    8Bitdo FC30 Pro */
+		/* 8Bitdo FC30 Pro    8Bitdo FC30 Pro (2dc8:9000) */
 		{ 0x2dc8, 0x9000, "8Bitdo FC30 Pro    8Bitdo FC30 Pro", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x9000, "8Bitdo FC30 Pro    8Bitdo FC30 Pro", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x9000, "8Bitdo FC30 Pro    8Bitdo FC30 Pro", 3, "x", JOYB_X },
@@ -398,7 +398,7 @@
 		{ 0x2dc8, 0x9000, "8Bitdo FC30 Pro    8Bitdo FC30 Pro", 9, "tr2", JOYB_TR2 },
 		{ 0x2dc8, 0x9000, "8Bitdo FC30 Pro    8Bitdo FC30 Pro", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x9000, "8Bitdo FC30 Pro    8Bitdo FC30 Pro", 11, "start", JOYB_START },
-		/* 8Bitdo NES30 Pro */
+		/* 8Bitdo NES30 Pro (2dc8:3820) */
 		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 3, "x", JOYB_X },
@@ -409,7 +409,7 @@
 		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 9, "tr2", JOYB_TR2 },
 		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x3820, "8Bitdo NES30 Pro", 11, "start", JOYB_START },
-		/* 8Bitdo SF30 Pro */
+		/* 8Bitdo SF30 Pro (2dc8:6100) */
 		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 3, "x", JOYB_X },
@@ -421,7 +421,7 @@
 		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x6100, "8Bitdo SF30 Pro", 2, "mode", JOYB_MODE },
-		/* 8Bitdo SF30 Pro */
+		/* 8Bitdo SF30 Pro (045e:02e0) */
 		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 1, "a", JOYB_A },
 		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 0, "b", JOYB_B },
 		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 3, "x", JOYB_X },
@@ -431,7 +431,7 @@
 		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 7, "start", JOYB_START },
 		{ 0x045e, 0x02e0, "8Bitdo SF30 Pro", 10, "mode", JOYB_MODE },
-		/* 8Bitdo SF30 Pro   8Bitdo SF30 Pro */
+		/* 8Bitdo SF30 Pro   8Bitdo SF30 Pro (2dc8:6000) */
 		{ 0x2dc8, 0x6000, "8Bitdo SF30 Pro   8Bitdo SF30 Pro", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x6000, "8Bitdo SF30 Pro   8Bitdo SF30 Pro", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x6000, "8Bitdo SF30 Pro   8Bitdo SF30 Pro", 3, "x", JOYB_X },
@@ -443,7 +443,7 @@
 		{ 0x2dc8, 0x6000, "8Bitdo SF30 Pro   8Bitdo SF30 Pro", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x6000, "8Bitdo SF30 Pro   8Bitdo SF30 Pro", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x6000, "8Bitdo SF30 Pro   8Bitdo SF30 Pro", 2, "mode", JOYB_MODE },
-		/* 8Bitdo SN30 Pro */
+		/* 8Bitdo SN30 Pro (2dc8:6101) */
 		{ 0x2dc8, 0x6101, "8Bitdo SN30 Pro", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x6101, "8Bitdo SN30 Pro", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x6101, "8Bitdo SN30 Pro", 3, "x", JOYB_X },
@@ -455,7 +455,7 @@
 		{ 0x2dc8, 0x6101, "8Bitdo SN30 Pro", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x6101, "8Bitdo SN30 Pro", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x6101, "8Bitdo SN30 Pro", 12, "mode", JOYB_MODE },
-		/* 8Bitdo SN30 Pro */
+		/* 8Bitdo SN30 Pro (045e:02e0) */
 		{ 0x045e, 0x02e0, "8Bitdo SN30 Pro", 1, "a", JOYB_A },
 		{ 0x045e, 0x02e0, "8Bitdo SN30 Pro", 0, "b", JOYB_B },
 		{ 0x045e, 0x02e0, "8Bitdo SN30 Pro", 3, "x", JOYB_X },
@@ -465,7 +465,7 @@
 		{ 0x045e, 0x02e0, "8Bitdo SN30 Pro", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x02e0, "8Bitdo SN30 Pro", 7, "start", JOYB_START },
 		{ 0x045e, 0x02e0, "8Bitdo SN30 Pro", 10, "mode", JOYB_MODE },
-		/* 8Bitdo SN30 Pro  8Bitdo SN30 Pro */
+		/* 8Bitdo SN30 Pro  8Bitdo SN30 Pro (2dc8:6001) */
 		{ 0x2dc8, 0x6001, "8Bitdo SN30 Pro  8Bitdo SN30 Pro", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x6001, "8Bitdo SN30 Pro  8Bitdo SN30 Pro", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x6001, "8Bitdo SN30 Pro  8Bitdo SN30 Pro", 3, "x", JOYB_X },
@@ -477,7 +477,7 @@
 		{ 0x2dc8, 0x6001, "8Bitdo SN30 Pro  8Bitdo SN30 Pro", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x6001, "8Bitdo SN30 Pro  8Bitdo SN30 Pro", 11, "start", JOYB_START },
 		{ 0x2dc8, 0x6001, "8Bitdo SN30 Pro  8Bitdo SN30 Pro", 12, "mode", JOYB_MODE },
-		/* 8BitDo S30 Modkit */
+		/* 8BitDo S30 Modkit (2dc8:6728) */
 		{ 0x2dc8, 0x6728, "8BitDo S30 Modkit", 1, "a", JOYB_A },
 		{ 0x2dc8, 0x6728, "8BitDo S30 Modkit", 0, "b", JOYB_B },
 		{ 0x2dc8, 0x6728, "8BitDo S30 Modkit", 4, "x", JOYB_X },
@@ -488,7 +488,7 @@
 		{ 0x2dc8, 0x6728, "8BitDo S30 Modkit", 9, "tr2", JOYB_TR2 },
 		{ 0x2dc8, 0x6728, "8BitDo S30 Modkit", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x6728, "8BitDo S30 Modkit", 11, "start", JOYB_START },
-		/* 8Bitdo SFC30 GamePad */
+		/* 8Bitdo SFC30 GamePad (2dc8:2830) */
 		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 3, "x", JOYB_X },
@@ -497,7 +497,7 @@
 		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x2830, "8Bitdo SFC30 GamePad", 11, "start", JOYB_START },
-		/* SFC30              SFC30 Joystick */
+		/* SFC30              SFC30 Joystick (2dc8:ab21) */
 		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 0, "a", JOYB_A },
 		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 1, "b", JOYB_B },
 		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 3, "x", JOYB_X },
@@ -506,7 +506,7 @@
 		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0xab21, "SFC30              SFC30 Joystick", 11, "start", JOYB_START },
-		/* 8Bitdo SNES30 GamePad */
+		/* 8Bitdo SNES30 GamePad (2dc8:2840) */
 		{ 0x2dc8, 0x2840, "8Bitdo SNES30 GamePad", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x2840, "8Bitdo SNES30 GamePad", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x2840, "8Bitdo SNES30 GamePad", 3, "x", JOYB_X },
@@ -515,7 +515,7 @@
 		{ 0x2dc8, 0x2840, "8Bitdo SNES30 GamePad", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x2840, "8Bitdo SNES30 GamePad", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x2840, "8Bitdo SNES30 GamePad", 11, "start", JOYB_START },
-		/* Bluetooth Wireless Controller    */
+		/* Bluetooth Wireless Controller (2dc8:2862) */
 		{ 0x2dc8, 0x2862, "Bluetooth Wireless Controller   ", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x2862, "Bluetooth Wireless Controller   ", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x2862, "Bluetooth Wireless Controller   ", 3, "x", JOYB_X },
@@ -524,7 +524,7 @@
 		{ 0x2dc8, 0x2862, "Bluetooth Wireless Controller   ", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x2862, "Bluetooth Wireless Controller   ", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x2862, "Bluetooth Wireless Controller   ", 11, "start", JOYB_START },
-		/* 8BitDo SN30 gamepad */
+		/* 8BitDo SN30 gamepad (2dc8:9012) */
 		{ 0x2dc8, 0x9012, "8BitDo SN30 gamepad", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x9012, "8BitDo SN30 gamepad", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x9012, "8BitDo SN30 gamepad", 3, "x", JOYB_X },
@@ -533,7 +533,7 @@
 		{ 0x2dc8, 0x9012, "8BitDo SN30 gamepad", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x9012, "8BitDo SN30 gamepad", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x9012, "8BitDo SN30 gamepad", 11, "start", JOYB_START },
-		/* SNES30             SNES30 Joy     */
+		/* SNES30             SNES30 Joy (2dc8:ab20) */
 		{ 0x2dc8, 0xab20, "SNES30             SNES30 Joy    ", 0, "a", JOYB_A },
 		{ 0x2dc8, 0xab20, "SNES30             SNES30 Joy    ", 1, "b", JOYB_B },
 		{ 0x2dc8, 0xab20, "SNES30             SNES30 Joy    ", 3, "x", JOYB_X },
@@ -542,7 +542,7 @@
 		{ 0x2dc8, 0xab20, "SNES30             SNES30 Joy    ", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0xab20, "SNES30             SNES30 Joy    ", 10, "select", JOYB_SELECT },
 		{ 0x2dc8, 0xab20, "SNES30             SNES30 Joy    ", 11, "start", JOYB_START },
-		/* 8Bitdo Zero GamePad */
+		/* 8Bitdo Zero GamePad (05a0:3232) */
 		{ 0x05a0, 0x3232, "8Bitdo Zero GamePad", 1, "a", JOYB_A },
 		{ 0x05a0, 0x3232, "8Bitdo Zero GamePad", 0, "b", JOYB_B },
 		{ 0x05a0, 0x3232, "8Bitdo Zero GamePad", 4, "x", JOYB_X },
@@ -551,7 +551,7 @@
 		{ 0x05a0, 0x3232, "8Bitdo Zero GamePad", 7, "tr", JOYB_TR },
 		{ 0x05a0, 0x3232, "8Bitdo Zero GamePad", 10, "select", JOYB_SELECT },
 		{ 0x05a0, 0x3232, "8Bitdo Zero GamePad", 11, "start", JOYB_START },
-		/* ACRUX QuanBa Arcade JoyStick 1008 */
+		/* ACRUX QuanBa Arcade JoyStick 1008 (0f30:1100) */
 		{ 0x0f30, 0x1100, "ACRUX QuanBa Arcade JoyStick 1008", 0, "a", JOYB_A },
 		{ 0x0f30, 0x1100, "ACRUX QuanBa Arcade JoyStick 1008", 1, "b", JOYB_B },
 		{ 0x0f30, 0x1100, "ACRUX QuanBa Arcade JoyStick 1008", 3, "x", JOYB_X },
@@ -562,7 +562,7 @@
 		{ 0x0f30, 0x1100, "ACRUX QuanBa Arcade JoyStick 1008", 6, "tr2", JOYB_TR2 },
 		{ 0x0f30, 0x1100, "ACRUX QuanBa Arcade JoyStick 1008", 8, "select", JOYB_SELECT },
 		{ 0x0f30, 0x1100, "ACRUX QuanBa Arcade JoyStick 1008", 9, "start", JOYB_START },
-		/* Afterglow AX.1 Gamepad for Xbox 360 */
+		/* Afterglow AX.1 Gamepad for Xbox 360 (0e6f:0413) */
 		{ 0x0e6f, 0x0413, "Afterglow AX.1 Gamepad for Xbox 360", 1, "a", JOYB_A },
 		{ 0x0e6f, 0x0413, "Afterglow AX.1 Gamepad for Xbox 360", 0, "b", JOYB_B },
 		{ 0x0e6f, 0x0413, "Afterglow AX.1 Gamepad for Xbox 360", 3, "x", JOYB_X },
@@ -571,7 +571,7 @@
 		{ 0x0e6f, 0x0413, "Afterglow AX.1 Gamepad for Xbox 360", 5, "tr", JOYB_TR },
 		{ 0x0e6f, 0x0413, "Afterglow AX.1 Gamepad for Xbox 360", 6, "select", JOYB_SELECT },
 		{ 0x0e6f, 0x0413, "Afterglow AX.1 Gamepad for Xbox 360", 7, "start", JOYB_START },
-		/* Afterglow Gamepad for Xbox 360 */
+		/* Afterglow Gamepad for Xbox 360 (0e6f:0213) */
 		{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 1, "a", JOYB_A },
 		{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 0, "b", JOYB_B },
 		{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 3, "x", JOYB_X },
@@ -580,7 +580,7 @@
 		{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 5, "tr", JOYB_TR },
 		{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 6, "select", JOYB_SELECT },
 		{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 7, "start", JOYB_START },
-		/* Afterglow Prismatic Wired Controller */
+		/* Afterglow Prismatic Wired Controller (0e6f:0139) */
 		{ 0x0e6f, 0x0139, "Afterglow Prismatic Wired Controller", 0, "a", JOYB_A },
 		{ 0x0e6f, 0x0139, "Afterglow Prismatic Wired Controller", 1, "b", JOYB_B },
 		{ 0x0e6f, 0x0139, "Afterglow Prismatic Wired Controller", 2, "x", JOYB_X },
@@ -589,7 +589,7 @@
 		{ 0x0e6f, 0x0139, "Afterglow Prismatic Wired Controller", 5, "tr", JOYB_TR },
 		{ 0x0e6f, 0x0139, "Afterglow Prismatic Wired Controller", 6, "select", JOYB_SELECT },
 		{ 0x0e6f, 0x0139, "Afterglow Prismatic Wired Controller", 7, "start", JOYB_START },
-		/* Afterglow controller for PS3 */
+		/* Afterglow controller for PS3 (0e6f:6302) */
 		{ 0x0e6f, 0x6302, "Afterglow controller for PS3", 2, "a", JOYB_A },
 		{ 0x0e6f, 0x6302, "Afterglow controller for PS3", 1, "b", JOYB_B },
 		{ 0x0e6f, 0x6302, "Afterglow controller for PS3", 3, "x", JOYB_X },
@@ -600,7 +600,7 @@
 		{ 0x0e6f, 0x6302, "Afterglow controller for PS3", 7, "tr2", JOYB_TR2 },
 		{ 0x0e6f, 0x6302, "Afterglow controller for PS3", 8, "select", JOYB_SELECT },
 		{ 0x0e6f, 0x6302, "Afterglow controller for PS3", 9, "start", JOYB_START },
-		/* Akishop Customs PS360+ v1.66 */
+		/* Akishop Customs PS360+ v1.66 (0010:0082) */
 		{ 0x0010, 0x0082, "Akishop Customs PS360+ v1.66", 2, "a", JOYB_A },
 		{ 0x0010, 0x0082, "Akishop Customs PS360+ v1.66", 1, "b", JOYB_B },
 		{ 0x0010, 0x0082, "Akishop Customs PS360+ v1.66", 3, "x", JOYB_X },
@@ -611,7 +611,7 @@
 		{ 0x0010, 0x0082, "Akishop Customs PS360+ v1.66", 7, "tr2", JOYB_TR2 },
 		{ 0x0010, 0x0082, "Akishop Customs PS360+ v1.66", 8, "select", JOYB_SELECT },
 		{ 0x0010, 0x0082, "Akishop Customs PS360+ v1.66", 9, "start", JOYB_START },
-		/* Generic X-Box pad */
+		/* Generic X-Box pad (1bad:f02a) */
 		{ 0x1bad, 0xf02a, "Generic X-Box pad", 1, "a", JOYB_A },
 		{ 0x1bad, 0xf02a, "Generic X-Box pad", 0, "b", JOYB_B },
 		{ 0x1bad, 0xf02a, "Generic X-Box pad", 3, "x", JOYB_X },
@@ -620,7 +620,7 @@
 		{ 0x1bad, 0xf02a, "Generic X-Box pad", 5, "tr", JOYB_TR },
 		{ 0x1bad, 0xf02a, "Generic X-Box pad", 6, "select", JOYB_SELECT },
 		{ 0x1bad, 0xf02a, "Generic X-Box pad", 7, "start", JOYB_START },
-		/* Generic X-Box pad */
+		/* Generic X-Box pad (1bad:f019) */
 		{ 0x1bad, 0xf019, "Generic X-Box pad", 1, "a", JOYB_A },
 		{ 0x1bad, 0xf019, "Generic X-Box pad", 0, "b", JOYB_B },
 		{ 0x1bad, 0xf019, "Generic X-Box pad", 3, "x", JOYB_X },
@@ -629,7 +629,7 @@
 		{ 0x1bad, 0xf019, "Generic X-Box pad", 5, "tr", JOYB_TR },
 		{ 0x1bad, 0xf019, "Generic X-Box pad", 6, "select", JOYB_SELECT },
 		{ 0x1bad, 0xf019, "Generic X-Box pad", 7, "start", JOYB_START },
-		/* Generic X-Box pad */
+		/* Generic X-Box pad (1bad:f039) */
 		{ 0x1bad, 0xf039, "Generic X-Box pad", 1, "a", JOYB_A },
 		{ 0x1bad, 0xf039, "Generic X-Box pad", 0, "b", JOYB_B },
 		{ 0x1bad, 0xf039, "Generic X-Box pad", 3, "x", JOYB_X },
@@ -638,7 +638,7 @@
 		{ 0x1bad, 0xf039, "Generic X-Box pad", 5, "tr", JOYB_TR },
 		{ 0x1bad, 0xf039, "Generic X-Box pad", 6, "select", JOYB_SELECT },
 		{ 0x1bad, 0xf039, "Generic X-Box pad", 7, "start", JOYB_START },
-		/* Arduino LLC Arduino Leonardo */
+		/* Arduino LLC Arduino Leonardo (2341:8036) */
 		{ 0x2341, 0x8036, "Arduino LLC Arduino Leonardo", 1, "a", JOYB_A },
 		{ 0x2341, 0x8036, "Arduino LLC Arduino Leonardo", 0, "b", JOYB_B },
 		{ 0x2341, 0x8036, "Arduino LLC Arduino Leonardo", 3, "x", JOYB_X },
@@ -649,7 +649,7 @@
 		{ 0x2341, 0x8036, "Arduino LLC Arduino Leonardo", 9, "tr2", JOYB_TR2 },
 		{ 0x2341, 0x8036, "Arduino LLC Arduino Leonardo", 6, "select", JOYB_SELECT },
 		{ 0x2341, 0x8036, "Arduino LLC Arduino Leonardo", 7, "start", JOYB_START },
-		/* Astro city mini Arcade stick */
+		/* Astro city mini Arcade stick (0ca3:0028) */
 		{ 0x0ca3, 0x0028, "Astro city mini Arcade stick", 1, "a", JOYB_A },
 		{ 0x0ca3, 0x0028, "Astro city mini Arcade stick", 2, "b", JOYB_B },
 		{ 0x0ca3, 0x0028, "Astro city mini Arcade stick", 0, "x", JOYB_X },
@@ -658,7 +658,7 @@
 		{ 0x0ca3, 0x0028, "Astro city mini Arcade stick", 5, "tr", JOYB_TR },
 		{ 0x0ca3, 0x0028, "Astro city mini Arcade stick", 8, "select", JOYB_SELECT },
 		{ 0x0ca3, 0x0028, "Astro city mini Arcade stick", 9, "start", JOYB_START },
-		/* Game Controller */
+		/* Game Controller (3250:1002) */
 		{ 0x3250, 0x1002, "Game Controller", 2, "a", JOYB_A },
 		{ 0x3250, 0x1002, "Game Controller", 1, "b", JOYB_B },
 		{ 0x3250, 0x1002, "Game Controller", 4, "x", JOYB_X },
@@ -667,7 +667,7 @@
 		{ 0x3250, 0x1002, "Game Controller", 6, "tr", JOYB_TR },
 		{ 0x3250, 0x1002, "Game Controller", 10, "select", JOYB_SELECT },
 		{ 0x3250, 0x1002, "Game Controller", 9, "start", JOYB_START },
-		/* Austgame PS to USB convert cable */
+		/* Austgame PS to USB convert cable (05e3:0596) */
 		{ 0x05e3, 0x0596, "Austgame PS to USB convert cable", 1, "a", JOYB_A },
 		{ 0x05e3, 0x0596, "Austgame PS to USB convert cable", 2, "b", JOYB_B },
 		{ 0x05e3, 0x0596, "Austgame PS to USB convert cable", 0, "x", JOYB_X },
@@ -678,7 +678,7 @@
 		{ 0x05e3, 0x0596, "Austgame PS to USB convert cable", 5, "tr2", JOYB_TR2 },
 		{ 0x05e3, 0x0596, "Austgame PS to USB convert cable", 9, "select", JOYB_SELECT },
 		{ 0x05e3, 0x0596, "Austgame PS to USB convert cable", 8, "start", JOYB_START },
-		/* BDA Pro Ex */
+		/* BDA Pro Ex (20d6:ca6d) */
 		{ 0x20d6, 0xca6d, "BDA Pro Ex", 1, "a", JOYB_A },
 		{ 0x20d6, 0xca6d, "BDA Pro Ex", 2, "b", JOYB_B },
 		{ 0x20d6, 0xca6d, "BDA Pro Ex", 0, "x", JOYB_X },
@@ -689,7 +689,7 @@
 		{ 0x20d6, 0xca6d, "BDA Pro Ex", 7, "tr2", JOYB_TR2 },
 		{ 0x20d6, 0xca6d, "BDA Pro Ex", 8, "select", JOYB_SELECT },
 		{ 0x20d6, 0xca6d, "BDA Pro Ex", 9, "start", JOYB_START },
-		/* BETOP BETOP XF1 BFM DONGLE */
+		/* BETOP BETOP XF1 BFM DONGLE (20bc:503d) */
 		{ 0x20bc, 0x503d, "BETOP BETOP XF1 BFM DONGLE", 3, "a", JOYB_A },
 		{ 0x20bc, 0x503d, "BETOP BETOP XF1 BFM DONGLE", 4, "b", JOYB_B },
 		{ 0x20bc, 0x503d, "BETOP BETOP XF1 BFM DONGLE", 6, "x", JOYB_X },
@@ -700,7 +700,7 @@
 		{ 0x20bc, 0x503d, "BETOP BETOP XF1 BFM DONGLE", 12, "tr2", JOYB_TR2 },
 		{ 0x20bc, 0x503d, "BETOP BETOP XF1 BFM DONGLE", 13, "select", JOYB_SELECT },
 		{ 0x20bc, 0x503d, "BETOP BETOP XF1 BFM DONGLE", 14, "start", JOYB_START },
-		/* BETOP AX1 BFM */
+		/* BETOP AX1 BFM (20bc:5500) */
 		{ 0x20bc, 0x5500, "BETOP AX1 BFM", 10, "a", JOYB_A },
 		{ 0x20bc, 0x5500, "BETOP AX1 BFM", 9, "b", JOYB_B },
 		{ 0x20bc, 0x5500, "BETOP AX1 BFM", 13, "x", JOYB_X },
@@ -711,7 +711,7 @@
 		{ 0x20bc, 0x5500, "BETOP AX1 BFM", 18, "tr2", JOYB_TR2 },
 		{ 0x20bc, 0x5500, "BETOP AX1 BFM", 19, "select", JOYB_SELECT },
 		{ 0x20bc, 0x5500, "BETOP AX1 BFM", 20, "start", JOYB_START },
-		/* BUFFALO INC. BUFFALO BGC-FC801 USB Gamepad */
+		/* BUFFALO INC. BUFFALO BGC-FC801 USB Gamepad (0411:00c6) */
 		{ 0x0411, 0x00c6, "BUFFALO INC. BUFFALO BGC-FC801 USB Gamepad", 0, "a", JOYB_A },
 		{ 0x0411, 0x00c6, "BUFFALO INC. BUFFALO BGC-FC801 USB Gamepad", 1, "b", JOYB_B },
 		{ 0x0411, 0x00c6, "BUFFALO INC. BUFFALO BGC-FC801 USB Gamepad", 2, "x", JOYB_X },
@@ -720,7 +720,7 @@
 		{ 0x0411, 0x00c6, "BUFFALO INC. BUFFALO BGC-FC801 USB Gamepad", 5, "tr", JOYB_TR },
 		{ 0x0411, 0x00c6, "BUFFALO INC. BUFFALO BGC-FC801 USB Gamepad", 6, "select", JOYB_SELECT },
 		{ 0x0411, 0x00c6, "BUFFALO INC. BUFFALO BGC-FC801 USB Gamepad", 7, "start", JOYB_START },
-		/* Bigben Revolution Pro */
+		/* Bigben Revolution Pro (146b:0d01) */
 		{ 0x146b, 0x0d01, "Bigben Revolution Pro", 1, "a", JOYB_A },
 		{ 0x146b, 0x0d01, "Bigben Revolution Pro", 0, "b", JOYB_B },
 		{ 0x146b, 0x0d01, "Bigben Revolution Pro", 2, "x", JOYB_X },
@@ -730,63 +730,63 @@
 		{ 0x146b, 0x0d01, "Bigben Revolution Pro", 8, "select", JOYB_SELECT },
 		{ 0x146b, 0x0d01, "Bigben Revolution Pro", 9, "start", JOYB_START },
 		{ 0x146b, 0x0d01, "Bigben Revolution Pro", 10, "mode", JOYB_MODE },
-		/* Bliss-Box 4-Play ATARI */
+		/* Bliss-Box 4-Play ATARI (16d0:0d04) */
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play ATARI", 1, "b", JOYB_B },
-		/* Bliss-Box 4-Play ATARI */
+		/* Bliss-Box 4-Play ATARI (16d0:0d05) */
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play ATARI", 1, "b", JOYB_B },
-		/* Bliss-Box 4-Play ATARI */
+		/* Bliss-Box 4-Play ATARI (16d0:0d06) */
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play ATARI", 1, "b", JOYB_B },
-		/* Bliss-Box 4-Play ATARI */
+		/* Bliss-Box 4-Play ATARI (16d0:0d07) */
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play ATARI", 1, "b", JOYB_B },
-		/* Bliss-Box 4-Play GC */
+		/* Bliss-Box 4-Play GC (16d0:0d04) */
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GC", 2, "a", JOYB_A },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GC", 1, "b", JOYB_B },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GC", 4, "x", JOYB_X },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GC", 3, "y", JOYB_Y },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GC", 5, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GC", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play GC */
+		/* Bliss-Box 4-Play GC (16d0:0d05) */
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GC", 2, "a", JOYB_A },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GC", 1, "b", JOYB_B },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GC", 4, "x", JOYB_X },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GC", 3, "y", JOYB_Y },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GC", 5, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GC", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play GC */
+		/* Bliss-Box 4-Play GC (16d0:0d06) */
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GC", 2, "a", JOYB_A },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GC", 1, "b", JOYB_B },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GC", 4, "x", JOYB_X },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GC", 3, "y", JOYB_Y },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GC", 5, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GC", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play GC */
+		/* Bliss-Box 4-Play GC (16d0:0d07) */
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GC", 2, "a", JOYB_A },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GC", 1, "b", JOYB_B },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GC", 4, "x", JOYB_X },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GC", 3, "y", JOYB_Y },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GC", 5, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GC", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play GEN_3 */
+		/* Bliss-Box 4-Play GEN_3 (16d0:0d04) */
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GEN_3", 10, "a", JOYB_A },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GEN_3", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GEN_3", 1, "y", JOYB_Y },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GEN_3", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play GEN_3 */
+		/* Bliss-Box 4-Play GEN_3 (16d0:0d05) */
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GEN_3", 10, "a", JOYB_A },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GEN_3", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GEN_3", 1, "y", JOYB_Y },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GEN_3", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play GEN_3 */
+		/* Bliss-Box 4-Play GEN_3 (16d0:0d06) */
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GEN_3", 10, "a", JOYB_A },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GEN_3", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GEN_3", 1, "y", JOYB_Y },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GEN_3", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play GEN_3 */
+		/* Bliss-Box 4-Play GEN_3 (16d0:0d07) */
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GEN_3", 10, "a", JOYB_A },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GEN_3", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GEN_3", 1, "y", JOYB_Y },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GEN_3", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play GEN_6 */
+		/* Bliss-Box 4-Play GEN_6 (16d0:0d04) */
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GEN_6", 10, "a", JOYB_A },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GEN_6", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GEN_6", 4, "x", JOYB_X },
@@ -795,7 +795,7 @@
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GEN_6", 9, "tr", JOYB_TR },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GEN_6", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play GEN_6", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play GEN_6 */
+		/* Bliss-Box 4-Play GEN_6 (16d0:0d05) */
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GEN_6", 10, "a", JOYB_A },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GEN_6", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GEN_6", 4, "x", JOYB_X },
@@ -804,7 +804,7 @@
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GEN_6", 9, "tr", JOYB_TR },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GEN_6", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play GEN_6", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play GEN_6 */
+		/* Bliss-Box 4-Play GEN_6 (16d0:0d06) */
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GEN_6", 10, "a", JOYB_A },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GEN_6", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GEN_6", 4, "x", JOYB_X },
@@ -813,7 +813,7 @@
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GEN_6", 9, "tr", JOYB_TR },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GEN_6", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play GEN_6", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play GEN_6 */
+		/* Bliss-Box 4-Play GEN_6 (16d0:0d07) */
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GEN_6", 10, "a", JOYB_A },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GEN_6", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GEN_6", 4, "x", JOYB_X },
@@ -822,7 +822,7 @@
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GEN_6", 9, "tr", JOYB_TR },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GEN_6", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play GEN_6", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play N64 */
+		/* Bliss-Box 4-Play N64 (16d0:0d04) */
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play N64", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play N64", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play N64", 9, "x", JOYB_X },
@@ -833,7 +833,7 @@
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play N64", 8, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play N64", 7, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play N64", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play N64 */
+		/* Bliss-Box 4-Play N64 (16d0:0d05) */
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play N64", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play N64", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play N64", 9, "x", JOYB_X },
@@ -844,7 +844,7 @@
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play N64", 8, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play N64", 7, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play N64", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play N64 */
+		/* Bliss-Box 4-Play N64 (16d0:0d06) */
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play N64", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play N64", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play N64", 9, "x", JOYB_X },
@@ -855,7 +855,7 @@
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play N64", 8, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play N64", 7, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play N64", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play N64 */
+		/* Bliss-Box 4-Play N64 (16d0:0d07) */
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play N64", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play N64", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play N64", 9, "x", JOYB_X },
@@ -866,27 +866,27 @@
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play N64", 8, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play N64", 7, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play N64", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play NES */
+		/* Bliss-Box 4-Play NES (16d0:0d04) */
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play NES", 2, "a", JOYB_A },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play NES", 1, "b", JOYB_B },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play NES", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play NES", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play NES */
+		/* Bliss-Box 4-Play NES (16d0:0d05) */
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play NES", 2, "a", JOYB_A },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play NES", 1, "b", JOYB_B },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play NES", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play NES", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play NES */
+		/* Bliss-Box 4-Play NES (16d0:0d06) */
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play NES", 2, "a", JOYB_A },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play NES", 1, "b", JOYB_B },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play NES", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play NES", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play NES */
+		/* Bliss-Box 4-Play NES (16d0:0d07) */
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play NES", 2, "a", JOYB_A },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play NES", 1, "b", JOYB_B },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play NES", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play NES", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play PSX_DS2 */
+		/* Bliss-Box 4-Play PSX_DS2 (16d0:0d04) */
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play PSX_DS2", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play PSX_DS2", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play PSX_DS2", 3, "x", JOYB_X },
@@ -897,7 +897,7 @@
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play PSX_DS2", 10, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play PSX_DS2", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play PSX_DS2", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play PSX_DS2 */
+		/* Bliss-Box 4-Play PSX_DS2 (16d0:0d05) */
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play PSX_DS2", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play PSX_DS2", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play PSX_DS2", 3, "x", JOYB_X },
@@ -908,7 +908,7 @@
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play PSX_DS2", 10, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play PSX_DS2", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play PSX_DS2", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play PSX_DS2 */
+		/* Bliss-Box 4-Play PSX_DS2 (16d0:0d06) */
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play PSX_DS2", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play PSX_DS2", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play PSX_DS2", 3, "x", JOYB_X },
@@ -919,7 +919,7 @@
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play PSX_DS2", 10, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play PSX_DS2", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play PSX_DS2", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play PSX_DS2 */
+		/* Bliss-Box 4-Play PSX_DS2 (16d0:0d07) */
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play PSX_DS2", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play PSX_DS2", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play PSX_DS2", 3, "x", JOYB_X },
@@ -930,7 +930,7 @@
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play PSX_DS2", 10, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play PSX_DS2", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play PSX_DS2", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play SATURN_DIGITAL */
+		/* Bliss-Box 4-Play SATURN_DIGITAL (16d0:0d04) */
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play SATURN_DIGITAL", 2, "a", JOYB_A },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play SATURN_DIGITAL", 1, "b", JOYB_B },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play SATURN_DIGITAL", 4, "x", JOYB_X },
@@ -940,7 +940,7 @@
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play SATURN_DIGITAL", 7, "tl2", JOYB_TL2 },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play SATURN_DIGITAL", 8, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play SATURN_DIGITAL", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play SATURN_DIGITAL */
+		/* Bliss-Box 4-Play SATURN_DIGITAL (16d0:0d05) */
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play SATURN_DIGITAL", 2, "a", JOYB_A },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play SATURN_DIGITAL", 1, "b", JOYB_B },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play SATURN_DIGITAL", 4, "x", JOYB_X },
@@ -950,7 +950,7 @@
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play SATURN_DIGITAL", 7, "tl2", JOYB_TL2 },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play SATURN_DIGITAL", 8, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play SATURN_DIGITAL", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play SATURN_DIGITAL */
+		/* Bliss-Box 4-Play SATURN_DIGITAL (16d0:0d06) */
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play SATURN_DIGITAL", 2, "a", JOYB_A },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play SATURN_DIGITAL", 1, "b", JOYB_B },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play SATURN_DIGITAL", 4, "x", JOYB_X },
@@ -960,7 +960,7 @@
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play SATURN_DIGITAL", 7, "tl2", JOYB_TL2 },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play SATURN_DIGITAL", 8, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play SATURN_DIGITAL", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play SATURN_DIGITAL */
+		/* Bliss-Box 4-Play SATURN_DIGITAL (16d0:0d07) */
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play SATURN_DIGITAL", 2, "a", JOYB_A },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play SATURN_DIGITAL", 1, "b", JOYB_B },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play SATURN_DIGITAL", 4, "x", JOYB_X },
@@ -970,7 +970,7 @@
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play SATURN_DIGITAL", 7, "tl2", JOYB_TL2 },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play SATURN_DIGITAL", 8, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play SATURN_DIGITAL", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play SNES */
+		/* Bliss-Box 4-Play SNES (16d0:0d04) */
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play SNES", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play SNES", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play SNES", 3, "x", JOYB_X },
@@ -979,7 +979,7 @@
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play SNES", 8, "tr", JOYB_TR },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play SNES", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play SNES", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play SNES */
+		/* Bliss-Box 4-Play SNES (16d0:0d05) */
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play SNES", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play SNES", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play SNES", 3, "x", JOYB_X },
@@ -988,7 +988,7 @@
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play SNES", 8, "tr", JOYB_TR },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play SNES", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play SNES", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play SNES */
+		/* Bliss-Box 4-Play SNES (16d0:0d06) */
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play SNES", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play SNES", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play SNES", 3, "x", JOYB_X },
@@ -997,7 +997,7 @@
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play SNES", 8, "tr", JOYB_TR },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play SNES", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play SNES", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play SNES */
+		/* Bliss-Box 4-Play SNES (16d0:0d07) */
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play SNES", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play SNES", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play SNES", 3, "x", JOYB_X },
@@ -1006,7 +1006,7 @@
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play SNES", 8, "tr", JOYB_TR },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play SNES", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play SNES", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play WII_CLASSIC */
+		/* Bliss-Box 4-Play WII_CLASSIC (16d0:0d04) */
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play WII_CLASSIC", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play WII_CLASSIC", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play WII_CLASSIC", 3, "x", JOYB_X },
@@ -1017,7 +1017,7 @@
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play WII_CLASSIC", 10, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play WII_CLASSIC", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d04, "Bliss-Box 4-Play WII_CLASSIC", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play WII_CLASSIC */
+		/* Bliss-Box 4-Play WII_CLASSIC (16d0:0d05) */
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play WII_CLASSIC", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play WII_CLASSIC", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play WII_CLASSIC", 3, "x", JOYB_X },
@@ -1028,7 +1028,7 @@
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play WII_CLASSIC", 10, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play WII_CLASSIC", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d05, "Bliss-Box 4-Play WII_CLASSIC", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play WII_CLASSIC */
+		/* Bliss-Box 4-Play WII_CLASSIC (16d0:0d06) */
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play WII_CLASSIC", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play WII_CLASSIC", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play WII_CLASSIC", 3, "x", JOYB_X },
@@ -1039,7 +1039,7 @@
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play WII_CLASSIC", 10, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play WII_CLASSIC", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d06, "Bliss-Box 4-Play WII_CLASSIC", 6, "start", JOYB_START },
-		/* Bliss-Box 4-Play WII_CLASSIC */
+		/* Bliss-Box 4-Play WII_CLASSIC (16d0:0d07) */
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play WII_CLASSIC", 4, "a", JOYB_A },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play WII_CLASSIC", 2, "b", JOYB_B },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play WII_CLASSIC", 3, "x", JOYB_X },
@@ -1050,7 +1050,7 @@
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play WII_CLASSIC", 10, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play WII_CLASSIC", 5, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0d07, "Bliss-Box 4-Play WII_CLASSIC", 6, "start", JOYB_START },
-		/* BLISS-BOX 4PLAY PORT */
+		/* BLISS-BOX 4PLAY PORT (16d0:0a60) */
 		{ 0x16d0, 0x0a60, "BLISS-BOX 4PLAY PORT", 7, "a", JOYB_A },
 		{ 0x16d0, 0x0a60, "BLISS-BOX 4PLAY PORT", 5, "b", JOYB_B },
 		{ 0x16d0, 0x0a60, "BLISS-BOX 4PLAY PORT", 6, "x", JOYB_X },
@@ -1061,7 +1061,7 @@
 		{ 0x16d0, 0x0a60, "BLISS-BOX 4PLAY PORT", 13, "tr2", JOYB_TR2 },
 		{ 0x16d0, 0x0a60, "BLISS-BOX 4PLAY PORT", 8, "select", JOYB_SELECT },
 		{ 0x16d0, 0x0a60, "BLISS-BOX 4PLAY PORT", 9, "start", JOYB_START },
-		/*  CHA1     CHA1    */
+		/* CHA1     CHA1 (1c5a:0024) */
 		{ 0x1c5a, 0x0024, " CHA1     CHA1   ", 4, "a", JOYB_A },
 		{ 0x1c5a, 0x0024, " CHA1     CHA1   ", 3, "b", JOYB_B },
 		{ 0x1c5a, 0x0024, " CHA1     CHA1   ", 1, "x", JOYB_X },
@@ -1070,7 +1070,7 @@
 		{ 0x1c5a, 0x0024, " CHA1     CHA1   ", 5, "tr", JOYB_TR },
 		{ 0x1c5a, 0x0024, " CHA1     CHA1   ", 7, "select", JOYB_SELECT },
 		{ 0x1c5a, 0x0024, " CHA1     CHA1   ", 6, "start", JOYB_START },
-		/*  CHA2     CHA2    */
+		/* CHA2     CHA2 (1c5b:0025) */
 		{ 0x1c5b, 0x0025, " CHA2     CHA2   ", 4, "a", JOYB_A },
 		{ 0x1c5b, 0x0025, " CHA2     CHA2   ", 3, "b", JOYB_B },
 		{ 0x1c5b, 0x0025, " CHA2     CHA2   ", 1, "x", JOYB_X },
@@ -1079,7 +1079,7 @@
 		{ 0x1c5b, 0x0025, " CHA2     CHA2   ", 5, "tr", JOYB_TR },
 		{ 0x1c5b, 0x0025, " CHA2     CHA2   ", 7, "select", JOYB_SELECT },
 		{ 0x1c5b, 0x0025, " CHA2     CHA2   ", 6, "start", JOYB_START },
-		/* ShanWan USB WirelessGamepad  */
+		/* ShanWan USB WirelessGamepad (2563:0547) */
 		{ 0x2563, 0x0547, "ShanWan USB WirelessGamepad ", 1, "a", JOYB_A },
 		{ 0x2563, 0x0547, "ShanWan USB WirelessGamepad ", 2, "b", JOYB_B },
 		{ 0x2563, 0x0547, "ShanWan USB WirelessGamepad ", 0, "x", JOYB_X },
@@ -1090,7 +1090,7 @@
 		{ 0x2563, 0x0547, "ShanWan USB WirelessGamepad ", 7, "tr2", JOYB_TR2 },
 		{ 0x2563, 0x0547, "ShanWan USB WirelessGamepad ", 8, "select", JOYB_SELECT },
 		{ 0x2563, 0x0547, "ShanWan USB WirelessGamepad ", 9, "start", JOYB_START },
-		/* DragonRise Inc. PC TWIN SHOCK Gamepad */
+		/* DragonRise Inc. PC TWIN SHOCK Gamepad (0079:0006) */
 		{ 0x0079, 0x0006, "DragonRise Inc. PC TWIN SHOCK Gamepad", 1, "a", JOYB_A },
 		{ 0x0079, 0x0006, "DragonRise Inc. PC TWIN SHOCK Gamepad", 2, "b", JOYB_B },
 		{ 0x0079, 0x0006, "DragonRise Inc. PC TWIN SHOCK Gamepad", 0, "x", JOYB_X },
@@ -1101,14 +1101,14 @@
 		{ 0x0079, 0x0006, "DragonRise Inc. PC TWIN SHOCK Gamepad", 7, "tr2", JOYB_TR2 },
 		{ 0x0079, 0x0006, "DragonRise Inc. PC TWIN SHOCK Gamepad", 8, "select", JOYB_SELECT },
 		{ 0x0079, 0x0006, "DragonRise Inc. PC TWIN SHOCK Gamepad", 9, "start", JOYB_START },
-		/* DragonRise Inc.   Generic   USB  Joystick   */
+		/* DragonRise Inc.   Generic   USB  Joystick (0079:0006) */
 		{ 0x0079, 0x0006, "DragonRise Inc.   Generic   USB  Joystick  ", 5, "b", JOYB_B },
 		{ 0x0079, 0x0006, "DragonRise Inc.   Generic   USB  Joystick  ", 4, "y", JOYB_Y },
 		{ 0x0079, 0x0006, "DragonRise Inc.   Generic   USB  Joystick  ", 6, "tl", JOYB_TL },
 		{ 0x0079, 0x0006, "DragonRise Inc.   Generic   USB  Joystick  ", 7, "tr", JOYB_TR },
 		{ 0x0079, 0x0006, "DragonRise Inc.   Generic   USB  Joystick  ", 8, "tl2", JOYB_TL2 },
 		{ 0x0079, 0x0006, "DragonRise Inc.   Generic   USB  Joystick  ", 9, "start", JOYB_START },
-		/* Performance Designed Products EA SPORTS Controller for PS3 */
+		/* Performance Designed Products EA SPORTS Controller for PS3 (0e6f:0130) */
 		{ 0x0e6f, 0x0130, "Performance Designed Products EA SPORTS Controller for PS3", 2, "a", JOYB_A },
 		{ 0x0e6f, 0x0130, "Performance Designed Products EA SPORTS Controller for PS3", 1, "b", JOYB_B },
 		{ 0x0e6f, 0x0130, "Performance Designed Products EA SPORTS Controller for PS3", 3, "x", JOYB_X },
@@ -1120,7 +1120,7 @@
 		{ 0x0e6f, 0x0130, "Performance Designed Products EA SPORTS Controller for PS3", 8, "select", JOYB_SELECT },
 		{ 0x0e6f, 0x0130, "Performance Designed Products EA SPORTS Controller for PS3", 9, "start", JOYB_START },
 		{ 0x0e6f, 0x0130, "Performance Designed Products EA SPORTS Controller for PS3", 12, "mode", JOYB_MODE },
-		/* ELECOM JC-U4113S DirectInput Mode */
+		/* ELECOM JC-U4113S DirectInput Mode (056e:2010) */
 		{ 0x056e, 0x2010, "ELECOM JC-U4113S DirectInput Mode", 3, "a", JOYB_A },
 		{ 0x056e, 0x2010, "ELECOM JC-U4113S DirectInput Mode", 2, "b", JOYB_B },
 		{ 0x056e, 0x2010, "ELECOM JC-U4113S DirectInput Mode", 1, "x", JOYB_X },
@@ -1132,7 +1132,7 @@
 		{ 0x056e, 0x2010, "ELECOM JC-U4113S DirectInput Mode", 10, "select", JOYB_SELECT },
 		{ 0x056e, 0x2010, "ELECOM JC-U4113S DirectInput Mode", 11, "start", JOYB_START },
 		{ 0x056e, 0x2010, "ELECOM JC-U4113S DirectInput Mode", 12, "mode", JOYB_MODE },
-		/* ELECOM JC-U4113S XInput Mode */
+		/* ELECOM JC-U4113S XInput Mode (056e:2013) */
 		{ 0x056e, 0x2013, "ELECOM JC-U4113S XInput Mode", 1, "a", JOYB_A },
 		{ 0x056e, 0x2013, "ELECOM JC-U4113S XInput Mode", 0, "b", JOYB_B },
 		{ 0x056e, 0x2013, "ELECOM JC-U4113S XInput Mode", 3, "x", JOYB_X },
@@ -1142,7 +1142,7 @@
 		{ 0x056e, 0x2013, "ELECOM JC-U4113S XInput Mode", 6, "select", JOYB_SELECT },
 		{ 0x056e, 0x2013, "ELECOM JC-U4113S XInput Mode", 7, "start", JOYB_START },
 		{ 0x056e, 0x2013, "ELECOM JC-U4113S XInput Mode", 8, "mode", JOYB_MODE },
-		/* USB GAMEPAD 8116 */
+		/* USB GAMEPAD 8116 (1a34:0802) */
 		{ 0x1a34, 0x0802, "USB GAMEPAD 8116", 0, "a", JOYB_A },
 		{ 0x1a34, 0x0802, "USB GAMEPAD 8116", 1, "b", JOYB_B },
 		{ 0x1a34, 0x0802, "USB GAMEPAD 8116", 2, "x", JOYB_X },
@@ -1151,7 +1151,7 @@
 		{ 0x1a34, 0x0802, "USB GAMEPAD 8116", 5, "tr", JOYB_TR },
 		{ 0x1a34, 0x0802, "USB GAMEPAD 8116", 8, "select", JOYB_SELECT },
 		{ 0x1a34, 0x0802, "USB GAMEPAD 8116", 9, "start", JOYB_START },
-		/* Flydigi VADER2P */
+		/* Flydigi VADER2P (07d7:0040) */
 		{ 0x07d7, 0x0040, "Flydigi VADER2P", 2, "a", JOYB_A },
 		{ 0x07d7, 0x0040, "Flydigi VADER2P", 1, "b", JOYB_B },
 		{ 0x07d7, 0x0040, "Flydigi VADER2P", 4, "x", JOYB_X },
@@ -1163,7 +1163,7 @@
 		{ 0x07d7, 0x0040, "Flydigi VADER2P", 9, "select", JOYB_SELECT },
 		{ 0x07d7, 0x0040, "Flydigi VADER2P", 10, "start", JOYB_START },
 		{ 0x07d7, 0x0040, "Flydigi VADER2P", 4, "mode", JOYB_MODE },
-		/* Flydigi VADER2 */
+		/* Flydigi VADER2 (07d7:0040) */
 		{ 0x07d7, 0x0040, "Flydigi VADER2", 2, "a", JOYB_A },
 		{ 0x07d7, 0x0040, "Flydigi VADER2", 1, "b", JOYB_B },
 		{ 0x07d7, 0x0040, "Flydigi VADER2", 4, "x", JOYB_X },
@@ -1175,7 +1175,7 @@
 		{ 0x07d7, 0x0040, "Flydigi VADER2", 9, "select", JOYB_SELECT },
 		{ 0x07d7, 0x0040, "Flydigi VADER2", 10, "start", JOYB_START },
 		{ 0x07d7, 0x0040, "Flydigi VADER2", 4, "mode", JOYB_MODE },
-		/* GAMESAIKE USB GAME Controller  */
+		/* GAMESAIKE USB GAME Controller (04d9:0f16) */
 		{ 0x04d9, 0x0f16, "GAMESAIKE USB GAME Controller ", 1, "a", JOYB_A },
 		{ 0x04d9, 0x0f16, "GAMESAIKE USB GAME Controller ", 2, "b", JOYB_B },
 		{ 0x04d9, 0x0f16, "GAMESAIKE USB GAME Controller ", 0, "x", JOYB_X },
@@ -1186,7 +1186,7 @@
 		{ 0x04d9, 0x0f16, "GAMESAIKE USB GAME Controller ", 5, "tr2", JOYB_TR2 },
 		{ 0x04d9, 0x0f16, "GAMESAIKE USB GAME Controller ", 8, "select", JOYB_SELECT },
 		{ 0x04d9, 0x0f16, "GAMESAIKE USB GAME Controller ", 9, "start", JOYB_START },
-		/* GPD Win 2 X-Box Controller */
+		/* GPD Win 2 X-Box Controller (0079:18d4) */
 		{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 1, "a", JOYB_A },
 		{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, "b", JOYB_B },
 		{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 3, "x", JOYB_X },
@@ -1195,7 +1195,7 @@
 		{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 10, "tr", JOYB_TR },
 		{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 4, "tl2", JOYB_TL2 },
 		{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 5, "tr2", JOYB_TR2 },
-		/* GameStick Controller */
+		/* GameStick Controller (0f0d:1011) */
 		{ 0x0f0d, 0x1011, "GameStick Controller", 12, "a", JOYB_A },
 		{ 0x0f0d, 0x1011, "GameStick Controller", 11, "b", JOYB_B },
 		{ 0x0f0d, 0x1011, "GameStick Controller", 15, "x", JOYB_X },
@@ -1203,7 +1203,7 @@
 		{ 0x0f0d, 0x1011, "GameStick Controller", 17, "tl", JOYB_TL },
 		{ 0x0f0d, 0x1011, "GameStick Controller", 18, "tr", JOYB_TR },
 		{ 0x0f0d, 0x1011, "GameStick Controller", 22, "start", JOYB_START },
-		/*    Gamesir-T4 1.25 */
+		/* Gamesir-T4 1.25 (05ac:061c) */
 		{ 0x05ac, 0x061c, "   Gamesir-T4 1.25", 0, "a", JOYB_A },
 		{ 0x05ac, 0x061c, "   Gamesir-T4 1.25", 1, "b", JOYB_B },
 		{ 0x05ac, 0x061c, "   Gamesir-T4 1.25", 3, "x", JOYB_X },
@@ -1213,7 +1213,7 @@
 		{ 0x05ac, 0x061c, "   Gamesir-T4 1.25", 10, "select", JOYB_SELECT },
 		{ 0x05ac, 0x061c, "   Gamesir-T4 1.25", 11, "start", JOYB_START },
 		{ 0x05ac, 0x061c, "   Gamesir-T4 1.25", 3, "mode", JOYB_MODE },
-		/* Generic X-Box pad */
+		/* Generic X-Box pad (0e4c:1103) */
 		{ 0x0e4c, 0x1103, "Generic X-Box pad", 1, "a", JOYB_A },
 		{ 0x0e4c, 0x1103, "Generic X-Box pad", 0, "b", JOYB_B },
 		{ 0x0e4c, 0x1103, "Generic X-Box pad", 4, "x", JOYB_X },
@@ -1222,7 +1222,7 @@
 		{ 0x0e4c, 0x1103, "Generic X-Box pad", 2, "tr", JOYB_TR },
 		{ 0x0e4c, 0x1103, "Generic X-Box pad", 6, "select", JOYB_SELECT },
 		{ 0x0e4c, 0x1103, "Generic X-Box pad", 7, "start", JOYB_START },
-		/* Gametel */
+		/* Gametel (25b6:0001) */
 		{ 0x25b6, 0x0001, "Gametel", 4, "a", JOYB_A },
 		{ 0x25b6, 0x0001, "Gametel", 7, "b", JOYB_B },
 		{ 0x25b6, 0x0001, "Gametel", 6, "x", JOYB_X },
@@ -1231,7 +1231,7 @@
 		{ 0x25b6, 0x0001, "Gametel", 9, "tr", JOYB_TR },
 		{ 0x25b6, 0x0001, "Gametel", 10, "select", JOYB_SELECT },
 		{ 0x25b6, 0x0001, "Gametel", 11, "start", JOYB_START },
-		/* Gamtec.,Ltd SmartJoy PLUS Adapter */
+		/* Gamtec.,Ltd SmartJoy PLUS Adapter (0925:0005) */
 		{ 0x0925, 0x0005, "Gamtec.,Ltd SmartJoy PLUS Adapter", 1, "a", JOYB_A },
 		{ 0x0925, 0x0005, "Gamtec.,Ltd SmartJoy PLUS Adapter", 2, "b", JOYB_B },
 		{ 0x0925, 0x0005, "Gamtec.,Ltd SmartJoy PLUS Adapter", 0, "x", JOYB_X },
@@ -1242,7 +1242,7 @@
 		{ 0x0925, 0x0005, "Gamtec.,Ltd SmartJoy PLUS Adapter", 5, "tr2", JOYB_TR2 },
 		{ 0x0925, 0x0005, "Gamtec.,Ltd SmartJoy PLUS Adapter", 9, "select", JOYB_SELECT },
 		{ 0x0925, 0x0005, "Gamtec.,Ltd SmartJoy PLUS Adapter", 8, "start", JOYB_START },
-		/* Gasia Co.,Ltd PS(R) Gamepad */
+		/* Gasia Co.,Ltd PS(R) Gamepad (0e8f:0008) */
 		{ 0x0e8f, 0x0008, "Gasia Co.,Ltd PS(R) Gamepad", 1, "a", JOYB_A },
 		{ 0x0e8f, 0x0008, "Gasia Co.,Ltd PS(R) Gamepad", 2, "b", JOYB_B },
 		{ 0x0e8f, 0x0008, "Gasia Co.,Ltd PS(R) Gamepad", 0, "x", JOYB_X },
@@ -1254,7 +1254,7 @@
 		{ 0x0e8f, 0x0008, "Gasia Co.,Ltd PS(R) Gamepad", 8, "select", JOYB_SELECT },
 		{ 0x0e8f, 0x0008, "Gasia Co.,Ltd PS(R) Gamepad", 9, "start", JOYB_START },
 		{ 0x0e8f, 0x0008, "Gasia Co.,Ltd PS(R) Gamepad", 12, "mode", JOYB_MODE },
-		/* SWITCH CO.,LTD. Controller (Dinput) */
+		/* SWITCH CO.,LTD. Controller (Dinput) (0079:0006) */
 		{ 0x0079, 0x0006, "SWITCH CO.,LTD. Controller (Dinput)", 8, "a", JOYB_A },
 		{ 0x0079, 0x0006, "SWITCH CO.,LTD. Controller (Dinput)", 6, "b", JOYB_B },
 		{ 0x0079, 0x0006, "SWITCH CO.,LTD. Controller (Dinput)", 8, "y", JOYB_Y },
@@ -1262,7 +1262,7 @@
 		{ 0x0079, 0x0006, "SWITCH CO.,LTD. Controller (Dinput)", 5, "tr", JOYB_TR },
 		{ 0x0079, 0x0006, "SWITCH CO.,LTD. Controller (Dinput)", 7, "tl2", JOYB_TL2 },
 		{ 0x0079, 0x0006, "SWITCH CO.,LTD. Controller (Dinput)", 9, "start", JOYB_START },
-		/* Generic X-Box pad */
+		/* Generic X-Box pad (2dc8:200f) */
 		{ 0x2dc8, 0x200f, "Generic X-Box pad", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x200f, "Generic X-Box pad", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x200f, "Generic X-Box pad", 2, "x", JOYB_X },
@@ -1271,7 +1271,7 @@
 		{ 0x2dc8, 0x200f, "Generic X-Box pad", 5, "tr", JOYB_TR },
 		{ 0x2dc8, 0x200f, "Generic X-Box pad", 6, "select", JOYB_SELECT },
 		{ 0x2dc8, 0x200f, "Generic X-Box pad", 7, "start", JOYB_START },
-		/* Google LLC Stadia Controller rev. A */
+		/* Google LLC Stadia Controller rev. A (18d1:9400) */
 		{ 0x18d1, 0x9400, "Google LLC Stadia Controller rev. A", 1, "a", JOYB_A },
 		{ 0x18d1, 0x9400, "Google LLC Stadia Controller rev. A", 0, "b", JOYB_B },
 		{ 0x18d1, 0x9400, "Google LLC Stadia Controller rev. A", 3, "x", JOYB_X },
@@ -1283,7 +1283,7 @@
 		{ 0x18d1, 0x9400, "Google LLC Stadia Controller rev. A", 6, "select", JOYB_SELECT },
 		{ 0x18d1, 0x9400, "Google LLC Stadia Controller rev. A", 7, "start", JOYB_START },
 		{ 0x18d1, 0x9400, "Google LLC Stadia Controller rev. A", 8, "mode", JOYB_MODE },
-		/* Gravis Destroyer Tiltpad */
+		/* Gravis Destroyer Tiltpad (047d:4008) */
 		{ 0x047d, 0x4008, "Gravis Destroyer Tiltpad", 2, "a", JOYB_A },
 		{ 0x047d, 0x4008, "Gravis Destroyer Tiltpad", 1, "b", JOYB_B },
 		{ 0x047d, 0x4008, "Gravis Destroyer Tiltpad", 3, "x", JOYB_X },
@@ -1294,7 +1294,7 @@
 		{ 0x047d, 0x4008, "Gravis Destroyer Tiltpad", 5, "tr2", JOYB_TR2 },
 		{ 0x047d, 0x4008, "Gravis Destroyer Tiltpad", 4, "select", JOYB_SELECT },
 		{ 0x047d, 0x4008, "Gravis Destroyer Tiltpad", 5, "start", JOYB_START },
-		/* Gravis GamePad Pro USB  */
+		/* Gravis GamePad Pro USB (0428:4001) */
 		{ 0x0428, 0x4001, "Gravis GamePad Pro USB ", 2, "a", JOYB_A },
 		{ 0x0428, 0x4001, "Gravis GamePad Pro USB ", 1, "b", JOYB_B },
 		{ 0x0428, 0x4001, "Gravis GamePad Pro USB ", 3, "x", JOYB_X },
@@ -1305,7 +1305,7 @@
 		{ 0x0428, 0x4001, "Gravis GamePad Pro USB ", 7, "tr2", JOYB_TR2 },
 		{ 0x0428, 0x4001, "Gravis GamePad Pro USB ", 8, "select", JOYB_SELECT },
 		{ 0x0428, 0x4001, "Gravis GamePad Pro USB ", 9, "start", JOYB_START },
-		/* GreenAsia Inc.      USB  Joystick   */
+		/* GreenAsia Inc.      USB  Joystick (0e8f:0012) */
 		{ 0x0e8f, 0x0012, "GreenAsia Inc.      USB  Joystick  ", 1, "a", JOYB_A },
 		{ 0x0e8f, 0x0012, "GreenAsia Inc.      USB  Joystick  ", 2, "b", JOYB_B },
 		{ 0x0e8f, 0x0012, "GreenAsia Inc.      USB  Joystick  ", 0, "x", JOYB_X },
@@ -1316,7 +1316,7 @@
 		{ 0x0e8f, 0x0012, "GreenAsia Inc.      USB  Joystick  ", 7, "tr2", JOYB_TR2 },
 		{ 0x0e8f, 0x0012, "GreenAsia Inc.      USB  Joystick  ", 8, "select", JOYB_SELECT },
 		{ 0x0e8f, 0x0012, "GreenAsia Inc.      USB  Joystick  ", 9, "start", JOYB_START },
-		/* HJZ Mayflash WiiU Pro Game Controller Adapter */
+		/* HJZ Mayflash WiiU Pro Game Controller Adapter (0079:1800) */
 		{ 0x0079, 0x1800, "HJZ Mayflash WiiU Pro Game Controller Adapter", 2, "a", JOYB_A },
 		{ 0x0079, 0x1800, "HJZ Mayflash WiiU Pro Game Controller Adapter", 1, "b", JOYB_B },
 		{ 0x0079, 0x1800, "HJZ Mayflash WiiU Pro Game Controller Adapter", 3, "x", JOYB_X },
@@ -1327,7 +1327,7 @@
 		{ 0x0079, 0x1800, "HJZ Mayflash WiiU Pro Game Controller Adapter", 7, "tr2", JOYB_TR2 },
 		{ 0x0079, 0x1800, "HJZ Mayflash WiiU Pro Game Controller Adapter", 8, "select", JOYB_SELECT },
 		{ 0x0079, 0x1800, "HJZ Mayflash WiiU Pro Game Controller Adapter", 9, "start", JOYB_START },
-		/* HOLTEK Twin Shock */
+		/* HOLTEK Twin Shock (04d9:138c) */
 		{ 0x04d9, 0x138c, "HOLTEK Twin Shock", 0, "a", JOYB_A },
 		{ 0x04d9, 0x138c, "HOLTEK Twin Shock", 2, "b", JOYB_B },
 		{ 0x04d9, 0x138c, "HOLTEK Twin Shock", 1, "x", JOYB_X },
@@ -1337,7 +1337,7 @@
 		{ 0x04d9, 0x138c, "HOLTEK Twin Shock", 8, "select", JOYB_SELECT },
 		{ 0x04d9, 0x138c, "HOLTEK Twin Shock", 1, "start", JOYB_START },
 		{ 0x04d9, 0x138c, "HOLTEK Twin Shock", 8, "mode", JOYB_MODE },
-		/* HORI CO.,LTD. HORIPAD S */
+		/* HORI CO.,LTD. HORIPAD S (0f0d:00c1) */
 		{ 0x0f0d, 0x00c1, "HORI CO.,LTD. HORIPAD S", 2, "a", JOYB_A },
 		{ 0x0f0d, 0x00c1, "HORI CO.,LTD. HORIPAD S", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x00c1, "HORI CO.,LTD. HORIPAD S", 3, "x", JOYB_X },
@@ -1349,7 +1349,7 @@
 		{ 0x0f0d, 0x00c1, "HORI CO.,LTD. HORIPAD S", 8, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x00c1, "HORI CO.,LTD. HORIPAD S", 9, "start", JOYB_START },
 		{ 0x0f0d, 0x00c1, "HORI CO.,LTD. HORIPAD S", 12, "mode", JOYB_MODE },
-		/* HORI CO.,LTD. Fighting Commander 4 */
+		/* HORI CO.,LTD. Fighting Commander 4 (0f0d:005e) */
 		{ 0x0f0d, 0x005e, "HORI CO.,LTD. Fighting Commander 4", 2, "a", JOYB_A },
 		{ 0x0f0d, 0x005e, "HORI CO.,LTD. Fighting Commander 4", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x005e, "HORI CO.,LTD. Fighting Commander 4", 3, "x", JOYB_X },
@@ -1361,7 +1361,7 @@
 		{ 0x0f0d, 0x005e, "HORI CO.,LTD. Fighting Commander 4", 8, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x005e, "HORI CO.,LTD. Fighting Commander 4", 9, "start", JOYB_START },
 		{ 0x0f0d, 0x005e, "HORI CO.,LTD. Fighting Commander 4", 12, "mode", JOYB_MODE },
-		/* HORI CO.,LTD. Fighting Commander */
+		/* HORI CO.,LTD. Fighting Commander (0f0d:0085) */
 		{ 0x0f0d, 0x0085, "HORI CO.,LTD. Fighting Commander", 2, "a", JOYB_A },
 		{ 0x0f0d, 0x0085, "HORI CO.,LTD. Fighting Commander", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x0085, "HORI CO.,LTD. Fighting Commander", 3, "x", JOYB_X },
@@ -1373,7 +1373,7 @@
 		{ 0x0f0d, 0x0085, "HORI CO.,LTD. Fighting Commander", 8, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x0085, "HORI CO.,LTD. Fighting Commander", 9, "start", JOYB_START },
 		{ 0x0f0d, 0x0085, "HORI CO.,LTD. Fighting Commander", 12, "mode", JOYB_MODE },
-		/* HORI CO.,LTD. Fighting Commander */
+		/* HORI CO.,LTD. Fighting Commander (0f0d:0084) */
 		{ 0x0f0d, 0x0084, "HORI CO.,LTD. Fighting Commander", 2, "a", JOYB_A },
 		{ 0x0f0d, 0x0084, "HORI CO.,LTD. Fighting Commander", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x0084, "HORI CO.,LTD. Fighting Commander", 3, "x", JOYB_X },
@@ -1385,7 +1385,7 @@
 		{ 0x0f0d, 0x0084, "HORI CO.,LTD. Fighting Commander", 8, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x0084, "HORI CO.,LTD. Fighting Commander", 9, "start", JOYB_START },
 		{ 0x0f0d, 0x0084, "HORI CO.,LTD. Fighting Commander", 12, "mode", JOYB_MODE },
-		/* Generic X-Box pad */
+		/* Generic X-Box pad (0f0d:0086) */
 		{ 0x0f0d, 0x0086, "Generic X-Box pad", 1, "a", JOYB_A },
 		{ 0x0f0d, 0x0086, "Generic X-Box pad", 0, "b", JOYB_B },
 		{ 0x0f0d, 0x0086, "Generic X-Box pad", 3, "x", JOYB_X },
@@ -1395,7 +1395,7 @@
 		{ 0x0f0d, 0x0086, "Generic X-Box pad", 6, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x0086, "Generic X-Box pad", 7, "start", JOYB_START },
 		{ 0x0f0d, 0x0086, "Generic X-Box pad", 8, "mode", JOYB_MODE },
-		/* HORI Fighting Commander */
+		/* HORI Fighting Commander (0f0d:00dc) */
 		{ 0x0f0d, 0x00dc, "HORI Fighting Commander", 0, "a", JOYB_A },
 		{ 0x0f0d, 0x00dc, "HORI Fighting Commander", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x00dc, "HORI Fighting Commander", 2, "x", JOYB_X },
@@ -1405,7 +1405,7 @@
 		{ 0x0f0d, 0x00dc, "HORI Fighting Commander", 6, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x00dc, "HORI Fighting Commander", 7, "start", JOYB_START },
 		{ 0x0f0d, 0x00dc, "HORI Fighting Commander", 8, "mode", JOYB_MODE },
-		/* HORIPAD S */
+		/* HORIPAD S (1a34:0203) */
 		{ 0x1a34, 0x0203, "HORIPAD S", 2, "a", JOYB_A },
 		{ 0x1a34, 0x0203, "HORIPAD S", 1, "b", JOYB_B },
 		{ 0x1a34, 0x0203, "HORIPAD S", 3, "x", JOYB_X },
@@ -1416,7 +1416,7 @@
 		{ 0x1a34, 0x0203, "HORIPAD S", 7, "tr2", JOYB_TR2 },
 		{ 0x1a34, 0x0203, "HORIPAD S", 8, "select", JOYB_SELECT },
 		{ 0x1a34, 0x0203, "HORIPAD S", 9, "start", JOYB_START },
-		/* Hori Fighting Stick EX2 */
+		/* Hori Fighting Stick EX2 (0f0d:000d) */
 		{ 0x0f0d, 0x000d, "Hori Fighting Stick EX2", 0, "a", JOYB_A },
 		{ 0x0f0d, 0x000d, "Hori Fighting Stick EX2", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x000d, "Hori Fighting Stick EX2", 2, "x", JOYB_X },
@@ -1427,7 +1427,7 @@
 		{ 0x0f0d, 0x000d, "Hori Fighting Stick EX2", 5, "tr2", JOYB_TR2 },
 		{ 0x0f0d, 0x000d, "Hori Fighting Stick EX2", 8, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x000d, "Hori Fighting Stick EX2", 9, "start", JOYB_START },
-		/* HORI CO.,LTD. Fighting Stick mini 4 */
+		/* HORI CO.,LTD. Fighting Stick mini 4 (0f0d:0087) */
 		{ 0x0f0d, 0x0087, "HORI CO.,LTD. Fighting Stick mini 4", 2, "a", JOYB_A },
 		{ 0x0f0d, 0x0087, "HORI CO.,LTD. Fighting Stick mini 4", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x0087, "HORI CO.,LTD. Fighting Stick mini 4", 3, "x", JOYB_X },
@@ -1437,7 +1437,7 @@
 		{ 0x0f0d, 0x0087, "HORI CO.,LTD. Fighting Stick mini 4", 8, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x0087, "HORI CO.,LTD. Fighting Stick mini 4", 9, "start", JOYB_START },
 		{ 0x0f0d, 0x0087, "HORI CO.,LTD. Fighting Stick mini 4", 12, "mode", JOYB_MODE },
-		/* Generic X-Box pad */
+		/* Generic X-Box pad (0f0d:0137) */
 		{ 0x0f0d, 0x0137, "Generic X-Box pad", 0, "a", JOYB_A },
 		{ 0x0f0d, 0x0137, "Generic X-Box pad", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x0137, "Generic X-Box pad", 2, "x", JOYB_X },
@@ -1447,7 +1447,7 @@
 		{ 0x0f0d, 0x0137, "Generic X-Box pad", 6, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x0137, "Generic X-Box pad", 7, "start", JOYB_START },
 		{ 0x0f0d, 0x0137, "Generic X-Box pad", 8, "mode", JOYB_MODE },
-		/* HORIPAD ONE */
+		/* HORIPAD ONE (0f0d:0067) */
 		{ 0x0f0d, 0x0067, "HORIPAD ONE", 1, "a", JOYB_A },
 		{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, "b", JOYB_B },
 		{ 0x0f0d, 0x0067, "HORIPAD ONE", 3, "x", JOYB_X },
@@ -1457,7 +1457,7 @@
 		{ 0x0f0d, 0x0067, "HORIPAD ONE", 6, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x0067, "HORIPAD ONE", 7, "start", JOYB_START },
 		{ 0x0f0d, 0x0067, "HORIPAD ONE", 8, "mode", JOYB_MODE },
-		/* HORI CO.,LTD. HORIPAD mini4 */
+		/* HORI CO.,LTD. HORIPAD mini4 (0f0d:00ee) */
 		{ 0x0f0d, 0x00ee, "HORI CO.,LTD. HORIPAD mini4", 2, "a", JOYB_A },
 		{ 0x0f0d, 0x00ee, "HORI CO.,LTD. HORIPAD mini4", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x00ee, "HORI CO.,LTD. HORIPAD mini4", 3, "x", JOYB_X },
@@ -1469,7 +1469,7 @@
 		{ 0x0f0d, 0x00ee, "HORI CO.,LTD. HORIPAD mini4", 8, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x00ee, "HORI CO.,LTD. HORIPAD mini4", 9, "start", JOYB_START },
 		{ 0x0f0d, 0x00ee, "HORI CO.,LTD. HORIPAD mini4", 12, "mode", JOYB_MODE },
-		/* HORI CO.,LTD  PAD A */
+		/* HORI CO.,LTD  PAD A (0f0d:004d) */
 		{ 0x0f0d, 0x004d, "HORI CO.,LTD  PAD A", 1, "a", JOYB_A },
 		{ 0x0f0d, 0x004d, "HORI CO.,LTD  PAD A", 2, "b", JOYB_B },
 		{ 0x0f0d, 0x004d, "HORI CO.,LTD  PAD A", 0, "x", JOYB_X },
@@ -1480,7 +1480,7 @@
 		{ 0x0f0d, 0x004d, "HORI CO.,LTD  PAD A", 7, "tr2", JOYB_TR2 },
 		{ 0x0f0d, 0x004d, "HORI CO.,LTD  PAD A", 8, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x004d, "HORI CO.,LTD  PAD A", 9, "start", JOYB_START },
-		/* HORI CO.,LTD. REAL ARCADE PRO.3 */
+		/* HORI CO.,LTD. REAL ARCADE PRO.3 (0f0d:0011) */
 		{ 0x0f0d, 0x0011, "HORI CO.,LTD. REAL ARCADE PRO.3", 2, "a", JOYB_A },
 		{ 0x0f0d, 0x0011, "HORI CO.,LTD. REAL ARCADE PRO.3", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x0011, "HORI CO.,LTD. REAL ARCADE PRO.3", 3, "x", JOYB_X },
@@ -1492,7 +1492,7 @@
 		{ 0x0f0d, 0x0011, "HORI CO.,LTD. REAL ARCADE PRO.3", 8, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x0011, "HORI CO.,LTD. REAL ARCADE PRO.3", 9, "start", JOYB_START },
 		{ 0x0f0d, 0x0011, "HORI CO.,LTD. REAL ARCADE PRO.3", 12, "mode", JOYB_MODE },
-		/* HORI CO.,LTD. Real Arcade Pro.4 */
+		/* HORI CO.,LTD. Real Arcade Pro.4 (0f0d:006a) */
 		{ 0x0f0d, 0x006a, "HORI CO.,LTD. Real Arcade Pro.4", 2, "a", JOYB_A },
 		{ 0x0f0d, 0x006a, "HORI CO.,LTD. Real Arcade Pro.4", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x006a, "HORI CO.,LTD. Real Arcade Pro.4", 3, "x", JOYB_X },
@@ -1504,7 +1504,7 @@
 		{ 0x0f0d, 0x006a, "HORI CO.,LTD. Real Arcade Pro.4", 8, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x006a, "HORI CO.,LTD. Real Arcade Pro.4", 9, "start", JOYB_START },
 		{ 0x0f0d, 0x006a, "HORI CO.,LTD. Real Arcade Pro.4", 12, "mode", JOYB_MODE },
-		/* HORI CO.,LTD. Real Arcade Pro V */
+		/* HORI CO.,LTD. Real Arcade Pro V (0f0d:00aa) */
 		{ 0x0f0d, 0x00aa, "HORI CO.,LTD. Real Arcade Pro V", 2, "a", JOYB_A },
 		{ 0x0f0d, 0x00aa, "HORI CO.,LTD. Real Arcade Pro V", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x00aa, "HORI CO.,LTD. Real Arcade Pro V", 3, "x", JOYB_X },
@@ -1516,7 +1516,7 @@
 		{ 0x0f0d, 0x00aa, "HORI CO.,LTD. Real Arcade Pro V", 8, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x00aa, "HORI CO.,LTD. Real Arcade Pro V", 9, "start", JOYB_START },
 		{ 0x0f0d, 0x00aa, "HORI CO.,LTD. Real Arcade Pro V", 12, "mode", JOYB_MODE },
-		/* Handheld Daemon Controller */
+		/* Handheld Daemon Controller (5335:0001) */
 		{ 0x5335, 0x0001, "Handheld Daemon Controller", 1, "a", JOYB_A },
 		{ 0x5335, 0x0001, "Handheld Daemon Controller", 0, "b", JOYB_B },
 		{ 0x5335, 0x0001, "Handheld Daemon Controller", 3, "x", JOYB_X },
@@ -1525,7 +1525,7 @@
 		{ 0x5335, 0x0001, "Handheld Daemon Controller", 5, "tr", JOYB_TR },
 		{ 0x5335, 0x0001, "Handheld Daemon Controller", 6, "select", JOYB_SELECT },
 		{ 0x5335, 0x0001, "Handheld Daemon Controller", 7, "start", JOYB_START },
-		/* Handheld Controller */
+		/* Handheld Controller (045e:028e) */
 		{ 0x045e, 0x028e, "Handheld Controller", 7, "a", JOYB_A },
 		{ 0x045e, 0x028e, "Handheld Controller", 6, "b", JOYB_B },
 		{ 0x045e, 0x028e, "Handheld Controller", 9, "x", JOYB_X },
@@ -1534,7 +1534,7 @@
 		{ 0x045e, 0x028e, "Handheld Controller", 11, "tr", JOYB_TR },
 		{ 0x045e, 0x028e, "Handheld Controller", 12, "select", JOYB_SELECT },
 		{ 0x045e, 0x028e, "Handheld Controller", 13, "start", JOYB_START },
-		/* Harmonix Xbox 360 Controller */
+		/* Harmonix Xbox 360 Controller (1bad:f900) */
 		{ 0x1bad, 0xf900, "Harmonix Xbox 360 Controller", 1, "a", JOYB_A },
 		{ 0x1bad, 0xf900, "Harmonix Xbox 360 Controller", 0, "b", JOYB_B },
 		{ 0x1bad, 0xf900, "Harmonix Xbox 360 Controller", 3, "x", JOYB_X },
@@ -1543,7 +1543,7 @@
 		{ 0x1bad, 0xf900, "Harmonix Xbox 360 Controller", 5, "tr", JOYB_TR },
 		{ 0x1bad, 0xf900, "Harmonix Xbox 360 Controller", 6, "select", JOYB_SELECT },
 		{ 0x1bad, 0xf900, "Harmonix Xbox 360 Controller", 7, "start", JOYB_START },
-		/* Honey Bee QuasiCON */
+		/* Honey Bee QuasiCON (12ab:0002) */
 		{ 0x12ab, 0x0002, "Honey Bee QuasiCON", 1, "a", JOYB_A },
 		{ 0x12ab, 0x0002, "Honey Bee QuasiCON", 0, "b", JOYB_B },
 		{ 0x12ab, 0x0002, "Honey Bee QuasiCON", 3, "x", JOYB_X },
@@ -1555,7 +1555,7 @@
 		{ 0x12ab, 0x0002, "Honey Bee QuasiCON", 4, "select", JOYB_SELECT },
 		{ 0x12ab, 0x0002, "Honey Bee QuasiCON", 5, "start", JOYB_START },
 		{ 0x12ab, 0x0002, "Honey Bee QuasiCON", 8, "mode", JOYB_MODE },
-		/* HuiJia  JC-W01U */
+		/* HuiJia  JC-W01U (056e:2007) */
 		{ 0x056e, 0x2007, "HuiJia  JC-W01U", 3, "a", JOYB_A },
 		{ 0x056e, 0x2007, "HuiJia  JC-W01U", 2, "b", JOYB_B },
 		{ 0x056e, 0x2007, "HuiJia  JC-W01U", 1, "x", JOYB_X },
@@ -1566,7 +1566,7 @@
 		{ 0x056e, 0x2007, "HuiJia  JC-W01U", 7, "tr2", JOYB_TR2 },
 		{ 0x056e, 0x2007, "HuiJia  JC-W01U", 8, "select", JOYB_SELECT },
 		{ 0x056e, 0x2007, "HuiJia  JC-W01U", 9, "start", JOYB_START },
-		/* USB Gamepad */
+		/* USB Gamepad (0079:0011) */
 		{ 0x0079, 0x0011, "USB Gamepad", 2, "a", JOYB_A },
 		{ 0x0079, 0x0011, "USB Gamepad", 1, "b", JOYB_B },
 		{ 0x0079, 0x0011, "USB Gamepad", 4, "x", JOYB_X },
@@ -1575,14 +1575,14 @@
 		{ 0x0079, 0x0011, "USB Gamepad", 5, "tr", JOYB_TR },
 		{ 0x0079, 0x0011, "USB Gamepad", 8, "select", JOYB_SELECT },
 		{ 0x0079, 0x0011, "USB Gamepad", 9, "start", JOYB_START },
-		/* Hyperkin Trooper V2 */
+		/* Hyperkin Trooper V2 (2e24:386a) */
 		{ 0x2e24, 0x386a, "Hyperkin Trooper V2", 1, "a", JOYB_A },
 		{ 0x2e24, 0x386a, "Hyperkin Trooper V2", 0, "b", JOYB_B },
 		{ 0x2e24, 0x386a, "Hyperkin Trooper V2", 2, "tl", JOYB_TL },
 		{ 0x2e24, 0x386a, "Hyperkin Trooper V2", 3, "tr", JOYB_TR },
 		{ 0x2e24, 0x386a, "Hyperkin Trooper V2", 4, "select", JOYB_SELECT },
 		{ 0x2e24, 0x386a, "Hyperkin Trooper V2", 5, "start", JOYB_START },
-		/* Jess Tech Colour Rumble Pad */
+		/* Jess Tech Colour Rumble Pad (0f30:0111) */
 		{ 0x0f30, 0x0111, "Jess Tech Colour Rumble Pad", 3, "a", JOYB_A },
 		{ 0x0f30, 0x0111, "Jess Tech Colour Rumble Pad", 2, "b", JOYB_B },
 		{ 0x0f30, 0x0111, "Jess Tech Colour Rumble Pad", 1, "x", JOYB_X },
@@ -1593,7 +1593,7 @@
 		{ 0x0f30, 0x0111, "Jess Tech Colour Rumble Pad", 7, "tr2", JOYB_TR2 },
 		{ 0x0f30, 0x0111, "Jess Tech Colour Rumble Pad", 8, "select", JOYB_SELECT },
 		{ 0x0f30, 0x0111, "Jess Tech Colour Rumble Pad", 9, "start", JOYB_START },
-		/* Jess Tech Dual Analog Rumble Pad */
+		/* Jess Tech Dual Analog Rumble Pad (0f30:0110) */
 		{ 0x0f30, 0x0110, "Jess Tech Dual Analog Rumble Pad", 3, "a", JOYB_A },
 		{ 0x0f30, 0x0110, "Jess Tech Dual Analog Rumble Pad", 2, "b", JOYB_B },
 		{ 0x0f30, 0x0110, "Jess Tech Dual Analog Rumble Pad", 1, "x", JOYB_X },
@@ -1604,7 +1604,7 @@
 		{ 0x0f30, 0x0110, "Jess Tech Dual Analog Rumble Pad", 7, "tr2", JOYB_TR2 },
 		{ 0x0f30, 0x0110, "Jess Tech Dual Analog Rumble Pad", 8, "select", JOYB_SELECT },
 		{ 0x0f30, 0x0110, "Jess Tech Dual Analog Rumble Pad", 9, "start", JOYB_START },
-		/* Logic3 Controller */
+		/* Logic3 Controller (0e6f:0401) */
 		{ 0x0e6f, 0x0401, "Logic3 Controller", 1, "a", JOYB_A },
 		{ 0x0e6f, 0x0401, "Logic3 Controller", 0, "b", JOYB_B },
 		{ 0x0e6f, 0x0401, "Logic3 Controller", 3, "x", JOYB_X },
@@ -1614,7 +1614,7 @@
 		{ 0x0e6f, 0x0401, "Logic3 Controller", 6, "select", JOYB_SELECT },
 		{ 0x0e6f, 0x0401, "Logic3 Controller", 7, "start", JOYB_START },
 		{ 0x0e6f, 0x0401, "Logic3 Controller", 8, "mode", JOYB_MODE },
-		/* Logitech ChillStream PS3/USB Corded Gamepad */
+		/* Logitech ChillStream PS3/USB Corded Gamepad (046d:cad1) */
 		{ 0x046d, 0xcad1, "Logitech ChillStream PS3/USB Corded Gamepad", 1, "a", JOYB_A },
 		{ 0x046d, 0xcad1, "Logitech ChillStream PS3/USB Corded Gamepad", 2, "b", JOYB_B },
 		{ 0x046d, 0xcad1, "Logitech ChillStream PS3/USB Corded Gamepad", 0, "x", JOYB_X },
@@ -1625,7 +1625,7 @@
 		{ 0x046d, 0xcad1, "Logitech ChillStream PS3/USB Corded Gamepad", 7, "tr2", JOYB_TR2 },
 		{ 0x046d, 0xcad1, "Logitech ChillStream PS3/USB Corded Gamepad", 8, "select", JOYB_SELECT },
 		{ 0x046d, 0xcad1, "Logitech ChillStream PS3/USB Corded Gamepad", 9, "start", JOYB_START },
-		/* Logitech Chillstream Controller */
+		/* Logitech Chillstream Controller (046d:c242) */
 		{ 0x046d, 0xc242, "Logitech Chillstream Controller", 1, "a", JOYB_A },
 		{ 0x046d, 0xc242, "Logitech Chillstream Controller", 0, "b", JOYB_B },
 		{ 0x046d, 0xc242, "Logitech Chillstream Controller", 3, "x", JOYB_X },
@@ -1634,7 +1634,7 @@
 		{ 0x046d, 0xc242, "Logitech Chillstream Controller", 5, "tr", JOYB_TR },
 		{ 0x046d, 0xc242, "Logitech Chillstream Controller", 6, "select", JOYB_SELECT },
 		{ 0x046d, 0xc242, "Logitech Chillstream Controller", 7, "start", JOYB_START },
-		/* Logitech Logitech Cordless RumblePad 2 */
+		/* Logitech Logitech Cordless RumblePad 2 (046d:c219) */
 		{ 0x046d, 0xc219, "Logitech Logitech Cordless RumblePad 2", 2, "a", JOYB_A },
 		{ 0x046d, 0xc219, "Logitech Logitech Cordless RumblePad 2", 1, "b", JOYB_B },
 		{ 0x046d, 0xc219, "Logitech Logitech Cordless RumblePad 2", 3, "x", JOYB_X },
@@ -1645,7 +1645,7 @@
 		{ 0x046d, 0xc219, "Logitech Logitech Cordless RumblePad 2", 7, "tr2", JOYB_TR2 },
 		{ 0x046d, 0xc219, "Logitech Logitech Cordless RumblePad 2", 8, "select", JOYB_SELECT },
 		{ 0x046d, 0xc219, "Logitech Logitech Cordless RumblePad 2", 9, "start", JOYB_START },
-		/* Driving Force GT */
+		/* Driving Force GT (046d:c29a) */
 		{ 0x046d, 0xc29a, "Driving Force GT", 2, "a", JOYB_A },
 		{ 0x046d, 0xc29a, "Driving Force GT", 0, "b", JOYB_B },
 		{ 0x046d, 0xc29a, "Driving Force GT", 3, "x", JOYB_X },
@@ -1657,7 +1657,7 @@
 		{ 0x046d, 0xc29a, "Driving Force GT", 8, "select", JOYB_SELECT },
 		{ 0x046d, 0xc29a, "Driving Force GT", 9, "start", JOYB_START },
 		{ 0x046d, 0xc29a, "Driving Force GT", 20, "mode", JOYB_MODE },
-		/* Logitech Logitech Dual Action */
+		/* Logitech Logitech Dual Action (046d:c216) */
 		{ 0x046d, 0xc216, "Logitech Logitech Dual Action", 2, "a", JOYB_A },
 		{ 0x046d, 0xc216, "Logitech Logitech Dual Action", 1, "b", JOYB_B },
 		{ 0x046d, 0xc216, "Logitech Logitech Dual Action", 3, "x", JOYB_X },
@@ -1668,7 +1668,7 @@
 		{ 0x046d, 0xc216, "Logitech Logitech Dual Action", 7, "tr2", JOYB_TR2 },
 		{ 0x046d, 0xc216, "Logitech Logitech Dual Action", 8, "select", JOYB_SELECT },
 		{ 0x046d, 0xc216, "Logitech Logitech Dual Action", 9, "start", JOYB_START },
-		/* G27 Racing Wheel */
+		/* G27 Racing Wheel (046d:c29b) */
 		{ 0x046d, 0xc29b, "G27 Racing Wheel", 2, "a", JOYB_A },
 		{ 0x046d, 0xc29b, "G27 Racing Wheel", 3, "x", JOYB_X },
 		{ 0x046d, 0xc29b, "G27 Racing Wheel", 7, "tl", JOYB_TL },
@@ -1677,7 +1677,7 @@
 		{ 0x046d, 0xc29b, "G27 Racing Wheel", 18, "tr2", JOYB_TR2 },
 		{ 0x046d, 0xc29b, "G27 Racing Wheel", 11, "select", JOYB_SELECT },
 		{ 0x046d, 0xc29b, "G27 Racing Wheel", 8, "start", JOYB_START },
-		/* Logitech Gamepad F310 */
+		/* Logitech Gamepad F310 (046d:c21d) */
 		{ 0x046d, 0xc21d, "Logitech Gamepad F310", 1, "a", JOYB_A },
 		{ 0x046d, 0xc21d, "Logitech Gamepad F310", 0, "b", JOYB_B },
 		{ 0x046d, 0xc21d, "Logitech Gamepad F310", 3, "x", JOYB_X },
@@ -1687,7 +1687,7 @@
 		{ 0x046d, 0xc21d, "Logitech Gamepad F310", 6, "select", JOYB_SELECT },
 		{ 0x046d, 0xc21d, "Logitech Gamepad F310", 7, "start", JOYB_START },
 		{ 0x046d, 0xc21d, "Logitech Gamepad F310", 8, "mode", JOYB_MODE },
-		/* Logitech Gamepad F510 */
+		/* Logitech Gamepad F510 (046d:c21e) */
 		{ 0x046d, 0xc21e, "Logitech Gamepad F510", 1, "a", JOYB_A },
 		{ 0x046d, 0xc21e, "Logitech Gamepad F510", 0, "b", JOYB_B },
 		{ 0x046d, 0xc21e, "Logitech Gamepad F510", 3, "x", JOYB_X },
@@ -1697,7 +1697,7 @@
 		{ 0x046d, 0xc21e, "Logitech Gamepad F510", 6, "select", JOYB_SELECT },
 		{ 0x046d, 0xc21e, "Logitech Gamepad F510", 7, "start", JOYB_START },
 		{ 0x046d, 0xc21e, "Logitech Gamepad F510", 8, "mode", JOYB_MODE },
-		/* Logitech Gamepad F710 */
+		/* Logitech Gamepad F710 (046d:c21f) */
 		{ 0x046d, 0xc21f, "Logitech Gamepad F710", 1, "a", JOYB_A },
 		{ 0x046d, 0xc21f, "Logitech Gamepad F710", 0, "b", JOYB_B },
 		{ 0x046d, 0xc21f, "Logitech Gamepad F710", 3, "x", JOYB_X },
@@ -1707,7 +1707,7 @@
 		{ 0x046d, 0xc21f, "Logitech Gamepad F710", 6, "select", JOYB_SELECT },
 		{ 0x046d, 0xc21f, "Logitech Gamepad F710", 7, "start", JOYB_START },
 		{ 0x046d, 0xc21f, "Logitech Gamepad F710", 8, "mode", JOYB_MODE },
-		/* Logitech Logitech(R) Precision(TM) Gamepad */
+		/* Logitech Logitech(R) Precision(TM) Gamepad (046d:c21a) */
 		{ 0x046d, 0xc21a, "Logitech Logitech(R) Precision(TM) Gamepad", 1, "a", JOYB_A },
 		{ 0x046d, 0xc21a, "Logitech Logitech(R) Precision(TM) Gamepad", 2, "b", JOYB_B },
 		{ 0x046d, 0xc21a, "Logitech Logitech(R) Precision(TM) Gamepad", 0, "x", JOYB_X },
@@ -1718,7 +1718,7 @@
 		{ 0x046d, 0xc21a, "Logitech Logitech(R) Precision(TM) Gamepad", 7, "tr2", JOYB_TR2 },
 		{ 0x046d, 0xc21a, "Logitech Logitech(R) Precision(TM) Gamepad", 8, "select", JOYB_SELECT },
 		{ 0x046d, 0xc21a, "Logitech Logitech(R) Precision(TM) Gamepad", 9, "start", JOYB_START },
-		/* Logitech Logitech RumblePad 2 USB */
+		/* Logitech Logitech RumblePad 2 USB (046d:c218) */
 		{ 0x046d, 0xc218, "Logitech Logitech RumblePad 2 USB", 2, "a", JOYB_A },
 		{ 0x046d, 0xc218, "Logitech Logitech RumblePad 2 USB", 1, "b", JOYB_B },
 		{ 0x046d, 0xc218, "Logitech Logitech RumblePad 2 USB", 3, "x", JOYB_X },
@@ -1729,7 +1729,7 @@
 		{ 0x046d, 0xc218, "Logitech Logitech RumblePad 2 USB", 7, "tr2", JOYB_TR2 },
 		{ 0x046d, 0xc218, "Logitech Logitech RumblePad 2 USB", 8, "select", JOYB_SELECT },
 		{ 0x046d, 0xc218, "Logitech Logitech RumblePad 2 USB", 9, "start", JOYB_START },
-		/* Logitech WingMan Action Pad */
+		/* Logitech WingMan Action Pad (046d:c20b) */
 		{ 0x046d, 0xc20b, "Logitech WingMan Action Pad", 1, "a", JOYB_A },
 		{ 0x046d, 0xc20b, "Logitech WingMan Action Pad", 0, "b", JOYB_B },
 		{ 0x046d, 0xc20b, "Logitech WingMan Action Pad", 4, "x", JOYB_X },
@@ -1739,7 +1739,7 @@
 		{ 0x046d, 0xc20b, "Logitech WingMan Action Pad", 0, "tl2", JOYB_TL2 },
 		{ 0x046d, 0xc20b, "Logitech WingMan Action Pad", 2, "tr2", JOYB_TR2 },
 		{ 0x046d, 0xc20b, "Logitech WingMan Action Pad", 8, "start", JOYB_START },
-		/* Logitech Inc. WingMan RumblePad */
+		/* Logitech Inc. WingMan RumblePad (046d:c20a) */
 		{ 0x046d, 0xc20a, "Logitech Inc. WingMan RumblePad", 0, "a", JOYB_A },
 		{ 0x046d, 0xc20a, "Logitech Inc. WingMan RumblePad", 1, "b", JOYB_B },
 		{ 0x046d, 0xc20a, "Logitech Inc. WingMan RumblePad", 3, "x", JOYB_X },
@@ -1749,7 +1749,7 @@
 		{ 0x046d, 0xc20a, "Logitech Inc. WingMan RumblePad", 2, "tl2", JOYB_TL2 },
 		{ 0x046d, 0xc20a, "Logitech Inc. WingMan RumblePad", 8, "select", JOYB_SELECT },
 		{ 0x046d, 0xc20a, "Logitech Inc. WingMan RumblePad", 5, "start", JOYB_START },
-		/* MAD CATZ ,Ltd. Mad Catz Game Controller */
+		/* MAD CATZ ,Ltd. Mad Catz Game Controller (0738:4426) */
 		{ 0x0738, 0x4426, "MAD CATZ ,Ltd. Mad Catz Game Controller", 1, "a", JOYB_A },
 		{ 0x0738, 0x4426, "MAD CATZ ,Ltd. Mad Catz Game Controller", 0, "b", JOYB_B },
 		{ 0x0738, 0x4426, "MAD CATZ ,Ltd. Mad Catz Game Controller", 3, "x", JOYB_X },
@@ -1760,7 +1760,7 @@
 		{ 0x0738, 0x4426, "MAD CATZ ,Ltd. Mad Catz Game Controller", 11, "tr2", JOYB_TR2 },
 		{ 0x0738, 0x4426, "MAD CATZ ,Ltd. Mad Catz Game Controller", 6, "select", JOYB_SELECT },
 		{ 0x0738, 0x4426, "MAD CATZ ,Ltd. Mad Catz Game Controller", 8, "start", JOYB_START },
-		/* MAGIC-NS */
+		/* MAGIC-NS (0079:18d2) */
 		{ 0x0079, 0x18d2, "MAGIC-NS", 1, "a", JOYB_A },
 		{ 0x0079, 0x18d2, "MAGIC-NS", 2, "b", JOYB_B },
 		{ 0x0079, 0x18d2, "MAGIC-NS", 0, "x", JOYB_X },
@@ -1772,14 +1772,14 @@
 		{ 0x0079, 0x18d2, "MAGIC-NS", 8, "select", JOYB_SELECT },
 		{ 0x0079, 0x18d2, "MAGIC-NS", 9, "start", JOYB_START },
 		{ 0x0079, 0x18d2, "MAGIC-NS", 12, "mode", JOYB_MODE },
-		/* MAYFLASH N64 USB Adapter MF103 */
+		/* MAYFLASH N64 USB Adapter MF103 (2f24:00f5) */
 		{ 0x2f24, 0x00f5, "MAYFLASH N64 USB Adapter MF103", 1, "a", JOYB_A },
 		{ 0x2f24, 0x00f5, "MAYFLASH N64 USB Adapter MF103", 2, "b", JOYB_B },
 		{ 0x2f24, 0x00f5, "MAYFLASH N64 USB Adapter MF103", 4, "tl", JOYB_TL },
 		{ 0x2f24, 0x00f5, "MAYFLASH N64 USB Adapter MF103", 5, "tr", JOYB_TR },
 		{ 0x2f24, 0x00f5, "MAYFLASH N64 USB Adapter MF103", 6, "tl2", JOYB_TL2 },
 		{ 0x2f24, 0x00f5, "MAYFLASH N64 USB Adapter MF103", 9, "start", JOYB_START },
-		/* mayflash limited MAYFLASH GameCube Controller Adapter */
+		/* mayflash limited MAYFLASH GameCube Controller Adapter (0079:1843) */
 		{ 0x0079, 0x1843, "mayflash limited MAYFLASH GameCube Controller Adapter", 2, "a", JOYB_A },
 		{ 0x0079, 0x1843, "mayflash limited MAYFLASH GameCube Controller Adapter", 1, "b", JOYB_B },
 		{ 0x0079, 0x1843, "mayflash limited MAYFLASH GameCube Controller Adapter", 3, "x", JOYB_X },
@@ -1787,12 +1787,12 @@
 		{ 0x0079, 0x1843, "mayflash limited MAYFLASH GameCube Controller Adapter", 4, "tl", JOYB_TL },
 		{ 0x0079, 0x1843, "mayflash limited MAYFLASH GameCube Controller Adapter", 5, "tr", JOYB_TR },
 		{ 0x0079, 0x1843, "mayflash limited MAYFLASH GameCube Controller Adapter", 9, "start", JOYB_START },
-		/* MOSIC      SPEED-LINK Competition Pro  */
+		/* MOSIC      SPEED-LINK Competition Pro (040b:6533) */
 		{ 0x040b, 0x6533, "MOSIC      SPEED-LINK Competition Pro ", 0, "a", JOYB_A },
 		{ 0x040b, 0x6533, "MOSIC      SPEED-LINK Competition Pro ", 2, "b", JOYB_B },
 		{ 0x040b, 0x6533, "MOSIC      SPEED-LINK Competition Pro ", 3, "select", JOYB_SELECT },
 		{ 0x040b, 0x6533, "MOSIC      SPEED-LINK Competition Pro ", 1, "start", JOYB_START },
-		/* MOSIC      USB 2A8K  GamePad           */
+		/* MOSIC      USB 2A8K  GamePad (040b:6530) */
 		{ 0x040b, 0x6530, "MOSIC      USB 2A8K  GamePad          ", 3, "a", JOYB_A },
 		{ 0x040b, 0x6530, "MOSIC      USB 2A8K  GamePad          ", 2, "b", JOYB_B },
 		{ 0x040b, 0x6530, "MOSIC      USB 2A8K  GamePad          ", 1, "x", JOYB_X },
@@ -1801,7 +1801,7 @@
 		{ 0x040b, 0x6530, "MOSIC      USB 2A8K  GamePad          ", 5, "tr", JOYB_TR },
 		{ 0x040b, 0x6530, "MOSIC      USB 2A8K  GamePad          ", 6, "select", JOYB_SELECT },
 		{ 0x040b, 0x6530, "MOSIC      USB 2A8K  GamePad          ", 7, "start", JOYB_START },
-		/* MY-POWER CO.,LTD. 2In1 USB Joystick */
+		/* MY-POWER CO.,LTD. 2In1 USB Joystick (0e8f:0003) */
 		{ 0x0e8f, 0x0003, "MY-POWER CO.,LTD. 2In1 USB Joystick", 1, "a", JOYB_A },
 		{ 0x0e8f, 0x0003, "MY-POWER CO.,LTD. 2In1 USB Joystick", 2, "b", JOYB_B },
 		{ 0x0e8f, 0x0003, "MY-POWER CO.,LTD. 2In1 USB Joystick", 0, "x", JOYB_X },
@@ -1812,7 +1812,7 @@
 		{ 0x0e8f, 0x0003, "MY-POWER CO.,LTD. 2In1 USB Joystick", 7, "tr2", JOYB_TR2 },
 		{ 0x0e8f, 0x0003, "MY-POWER CO.,LTD. 2In1 USB Joystick", 8, "select", JOYB_SELECT },
 		{ 0x0e8f, 0x0003, "MY-POWER CO.,LTD. 2In1 USB Joystick", 9, "start", JOYB_START },
-		/* Mad catz Inc. Mad Catz FightPad PRO PS3 */
+		/* Mad catz Inc. Mad Catz FightPad PRO PS3 (0738:3250) */
 		{ 0x0738, 0x3250, "Mad catz Inc. Mad Catz FightPad PRO PS3", 2, "a", JOYB_A },
 		{ 0x0738, 0x3250, "Mad catz Inc. Mad Catz FightPad PRO PS3", 1, "b", JOYB_B },
 		{ 0x0738, 0x3250, "Mad catz Inc. Mad Catz FightPad PRO PS3", 3, "x", JOYB_X },
@@ -1824,7 +1824,7 @@
 		{ 0x0738, 0x3250, "Mad catz Inc. Mad Catz FightPad PRO PS3", 8, "select", JOYB_SELECT },
 		{ 0x0738, 0x3250, "Mad catz Inc. Mad Catz FightPad PRO PS3", 9, "start", JOYB_START },
 		{ 0x0738, 0x3250, "Mad catz Inc. Mad Catz FightPad PRO PS3", 12, "mode", JOYB_MODE },
-		/* Mad catz Inc. Mad Catz FightPad PRO PS4 */
+		/* Mad catz Inc. Mad Catz FightPad PRO PS4 (0738:8250) */
 		{ 0x0738, 0x8250, "Mad catz Inc. Mad Catz FightPad PRO PS4", 2, "a", JOYB_A },
 		{ 0x0738, 0x8250, "Mad catz Inc. Mad Catz FightPad PRO PS4", 1, "b", JOYB_B },
 		{ 0x0738, 0x8250, "Mad catz Inc. Mad Catz FightPad PRO PS4", 3, "x", JOYB_X },
@@ -1836,7 +1836,7 @@
 		{ 0x0738, 0x8250, "Mad catz Inc. Mad Catz FightPad PRO PS4", 8, "select", JOYB_SELECT },
 		{ 0x0738, 0x8250, "Mad catz Inc. Mad Catz FightPad PRO PS4", 9, "start", JOYB_START },
 		{ 0x0738, 0x8250, "Mad catz Inc. Mad Catz FightPad PRO PS4", 12, "mode", JOYB_MODE },
-		/* Mad Catz FightStick TE2+ PS3 */
+		/* Mad Catz FightStick TE2+ PS3 (0738:3481) */
 		{ 0x0738, 0x3481, "Mad Catz FightStick TE2+ PS3", 2, "a", JOYB_A },
 		{ 0x0738, 0x3481, "Mad Catz FightStick TE2+ PS3", 1, "b", JOYB_B },
 		{ 0x0738, 0x3481, "Mad Catz FightStick TE2+ PS3", 3, "x", JOYB_X },
@@ -1848,7 +1848,7 @@
 		{ 0x0738, 0x3481, "Mad Catz FightStick TE2+ PS3", 8, "select", JOYB_SELECT },
 		{ 0x0738, 0x3481, "Mad Catz FightStick TE2+ PS3", 9, "start", JOYB_START },
 		{ 0x0738, 0x3481, "Mad Catz FightStick TE2+ PS3", 12, "mode", JOYB_MODE },
-		/* Mad Catz FightStick TE2+ PS4 */
+		/* Mad Catz FightStick TE2+ PS4 (0738:8481) */
 		{ 0x0738, 0x8481, "Mad Catz FightStick TE2+ PS4", 2, "a", JOYB_A },
 		{ 0x0738, 0x8481, "Mad Catz FightStick TE2+ PS4", 1, "b", JOYB_B },
 		{ 0x0738, 0x8481, "Mad Catz FightStick TE2+ PS4", 3, "x", JOYB_X },
@@ -1860,14 +1860,14 @@
 		{ 0x0738, 0x8481, "Mad Catz FightStick TE2+ PS4", 8, "select", JOYB_SELECT },
 		{ 0x0738, 0x8481, "Mad Catz FightStick TE2+ PS4", 9, "start", JOYB_START },
 		{ 0x0738, 0x8481, "Mad Catz FightStick TE2+ PS4", 12, "mode", JOYB_MODE },
-		/* Mad Catz V.1 Stick */
+		/* Mad Catz V.1 Stick (0738:2237) */
 		{ 0x0738, 0x2237, "Mad Catz V.1 Stick", 1, "a", JOYB_A },
 		{ 0x0738, 0x2237, "Mad Catz V.1 Stick", 0, "b", JOYB_B },
 		{ 0x0738, 0x2237, "Mad Catz V.1 Stick", 5, "x", JOYB_X },
 		{ 0x0738, 0x2237, "Mad Catz V.1 Stick", 4, "y", JOYB_Y },
 		{ 0x0738, 0x2237, "Mad Catz V.1 Stick", 2, "tl", JOYB_TL },
 		{ 0x0738, 0x2237, "Mad Catz V.1 Stick", 3, "tr", JOYB_TR },
-		/* Mad Catz Wired Xbox 360 Controller (SFIV) */
+		/* Mad Catz Wired Xbox 360 Controller (SFIV) (0738:4738) */
 		{ 0x0738, 0x4738, "Mad Catz Wired Xbox 360 Controller (SFIV)", 1, "a", JOYB_A },
 		{ 0x0738, 0x4738, "Mad Catz Wired Xbox 360 Controller (SFIV)", 0, "b", JOYB_B },
 		{ 0x0738, 0x4738, "Mad Catz Wired Xbox 360 Controller (SFIV)", 3, "x", JOYB_X },
@@ -1879,7 +1879,7 @@
 		{ 0x0738, 0x4738, "Mad Catz Wired Xbox 360 Controller (SFIV)", 8, "select", JOYB_SELECT },
 		{ 0x0738, 0x4738, "Mad Catz Wired Xbox 360 Controller (SFIV)", 9, "start", JOYB_START },
 		{ 0x0738, 0x4738, "Mad Catz Wired Xbox 360 Controller (SFIV)", 10, "mode", JOYB_MODE },
-		/* Mad Catz Xbox 360 Controller */
+		/* Mad Catz Xbox 360 Controller (1bad:f016) */
 		{ 0x1bad, 0xf016, "Mad Catz Xbox 360 Controller", 1, "a", JOYB_A },
 		{ 0x1bad, 0xf016, "Mad Catz Xbox 360 Controller", 0, "b", JOYB_B },
 		{ 0x1bad, 0xf016, "Mad Catz Xbox 360 Controller", 3, "x", JOYB_X },
@@ -1889,14 +1889,14 @@
 		{ 0x1bad, 0xf016, "Mad Catz Xbox 360 Controller", 6, "select", JOYB_SELECT },
 		{ 0x1bad, 0xf016, "Mad Catz Xbox 360 Controller", 7, "start", JOYB_START },
 		{ 0x1bad, 0xf016, "Mad Catz Xbox 360 Controller", 8, "mode", JOYB_MODE },
-		/* Magicsee R1        */
+		/* Magicsee R1 (248a:8266) */
 		{ 0x248a, 0x8266, "Magicsee R1       ", 1, "a", JOYB_A },
 		{ 0x248a, 0x8266, "Magicsee R1       ", 3, "b", JOYB_B },
 		{ 0x248a, 0x8266, "Magicsee R1       ", 0, "x", JOYB_X },
 		{ 0x248a, 0x8266, "Magicsee R1       ", 4, "y", JOYB_Y },
 		{ 0x248a, 0x8266, "Magicsee R1       ", 7, "select", JOYB_SELECT },
 		{ 0x248a, 0x8266, "Magicsee R1       ", 6, "start", JOYB_START },
-		/* Mayflash Ltd Mayflash MD USB Adapter */
+		/* Mayflash Ltd Mayflash MD USB Adapter (0079:1824) */
 		{ 0x0079, 0x1824, "Mayflash Ltd Mayflash MD USB Adapter", 2, "a", JOYB_A },
 		{ 0x0079, 0x1824, "Mayflash Ltd Mayflash MD USB Adapter", 1, "b", JOYB_B },
 		{ 0x0079, 0x1824, "Mayflash Ltd Mayflash MD USB Adapter", 4, "x", JOYB_X },
@@ -1905,7 +1905,7 @@
 		{ 0x0079, 0x1824, "Mayflash Ltd Mayflash MD USB Adapter", 6, "tr", JOYB_TR },
 		{ 0x0079, 0x1824, "Mayflash Ltd Mayflash MD USB Adapter", 7, "select", JOYB_SELECT },
 		{ 0x0079, 0x1824, "Mayflash Ltd Mayflash MD USB Adapter", 9, "start", JOYB_START },
-		/* MAYFLASH Arcade Fightstick F101 */
+		/* MAYFLASH Arcade Fightstick F101 (2f24:0037) */
 		{ 0x2f24, 0x0037, "MAYFLASH Arcade Fightstick F101", 1, "a", JOYB_A },
 		{ 0x2f24, 0x0037, "MAYFLASH Arcade Fightstick F101", 2, "b", JOYB_B },
 		{ 0x2f24, 0x0037, "MAYFLASH Arcade Fightstick F101", 0, "x", JOYB_X },
@@ -1917,7 +1917,7 @@
 		{ 0x2f24, 0x0037, "MAYFLASH Arcade Fightstick F101", 8, "select", JOYB_SELECT },
 		{ 0x2f24, 0x0037, "MAYFLASH Arcade Fightstick F101", 9, "start", JOYB_START },
 		{ 0x2f24, 0x0037, "MAYFLASH Arcade Fightstick F101", 12, "mode", JOYB_MODE },
-		/* MAYFLASH Arcade Fightstick F101 */
+		/* MAYFLASH Arcade Fightstick F101 (2f24:006e) */
 		{ 0x2f24, 0x006e, "MAYFLASH Arcade Fightstick F101", 1, "a", JOYB_A },
 		{ 0x2f24, 0x006e, "MAYFLASH Arcade Fightstick F101", 4, "b", JOYB_B },
 		{ 0x2f24, 0x006e, "MAYFLASH Arcade Fightstick F101", 0, "x", JOYB_X },
@@ -1929,7 +1929,7 @@
 		{ 0x2f24, 0x006e, "MAYFLASH Arcade Fightstick F101", 10, "select", JOYB_SELECT },
 		{ 0x2f24, 0x006e, "MAYFLASH Arcade Fightstick F101", 11, "start", JOYB_START },
 		{ 0x2f24, 0x006e, "MAYFLASH Arcade Fightstick F101", 12, "mode", JOYB_MODE },
-		/* MAYFLASH Arcade Fightstick F300/F500 V2 */
+		/* MAYFLASH Arcade Fightstick F300/F500 V2 (0079:181c) */
 		{ 0x0079, 0x181c, "MAYFLASH Arcade Fightstick F300/F500 V2", 1, "a", JOYB_A },
 		{ 0x0079, 0x181c, "MAYFLASH Arcade Fightstick F300/F500 V2", 0, "b", JOYB_B },
 		{ 0x0079, 0x181c, "MAYFLASH Arcade Fightstick F300/F500 V2", 4, "x", JOYB_X },
@@ -1941,7 +1941,7 @@
 		{ 0x0079, 0x181c, "MAYFLASH Arcade Fightstick F300/F500 V2", 10, "select", JOYB_SELECT },
 		{ 0x0079, 0x181c, "MAYFLASH Arcade Fightstick F300/F500 V2", 11, "start", JOYB_START },
 		{ 0x0079, 0x181c, "MAYFLASH Arcade Fightstick F300/F500 V2", 12, "mode", JOYB_MODE },
-		/* MAYFLASH Arcade Fightstick F300 */
+		/* MAYFLASH Arcade Fightstick F300 (0079:1830) */
 		{ 0x0079, 0x1830, "MAYFLASH Arcade Fightstick F300", 1, "a", JOYB_A },
 		{ 0x0079, 0x1830, "MAYFLASH Arcade Fightstick F300", 2, "b", JOYB_B },
 		{ 0x0079, 0x1830, "MAYFLASH Arcade Fightstick F300", 0, "x", JOYB_X },
@@ -1952,7 +1952,7 @@
 		{ 0x0079, 0x1830, "MAYFLASH Arcade Fightstick F300", 7, "tr2", JOYB_TR2 },
 		{ 0x0079, 0x1830, "MAYFLASH Arcade Fightstick F300", 8, "select", JOYB_SELECT },
 		{ 0x0079, 0x1830, "MAYFLASH Arcade Fightstick F300", 9, "start", JOYB_START },
-		/* HuiJia  USB GamePad */
+		/* HuiJia  USB GamePad (1a34:f705) */
 		{ 0x1a34, 0xf705, "HuiJia  USB GamePad", 1, "a", JOYB_A },
 		{ 0x1a34, 0xf705, "HuiJia  USB GamePad", 2, "b", JOYB_B },
 		{ 0x1a34, 0xf705, "HuiJia  USB GamePad", 0, "x", JOYB_X },
@@ -1960,14 +1960,14 @@
 		{ 0x1a34, 0xf705, "HuiJia  USB GamePad", 4, "tl", JOYB_TL },
 		{ 0x1a34, 0xf705, "HuiJia  USB GamePad", 5, "tr", JOYB_TR },
 		{ 0x1a34, 0xf705, "HuiJia  USB GamePad", 9, "start", JOYB_START },
-		/* HuiJia  USB GamePad */
+		/* HuiJia  USB GamePad (0e8f:3013) */
 		{ 0x0e8f, 0x3013, "HuiJia  USB GamePad", 1, "a", JOYB_A },
 		{ 0x0e8f, 0x3013, "HuiJia  USB GamePad", 2, "b", JOYB_B },
 		{ 0x0e8f, 0x3013, "HuiJia  USB GamePad", 6, "tl", JOYB_TL },
 		{ 0x0e8f, 0x3013, "HuiJia  USB GamePad", 7, "tr", JOYB_TR },
 		{ 0x0e8f, 0x3013, "HuiJia  USB GamePad", 8, "tl2", JOYB_TL2 },
 		{ 0x0e8f, 0x3013, "HuiJia  USB GamePad", 9, "start", JOYB_START },
-		/* HuiJia  USB GamePad */
+		/* HuiJia  USB GamePad (0e8f:3010) */
 		{ 0x0e8f, 0x3010, "HuiJia  USB GamePad", 1, "a", JOYB_A },
 		{ 0x0e8f, 0x3010, "HuiJia  USB GamePad", 0, "b", JOYB_B },
 		{ 0x0e8f, 0x3010, "HuiJia  USB GamePad", 4, "x", JOYB_X },
@@ -1977,7 +1977,7 @@
 		{ 0x0e8f, 0x3010, "HuiJia  USB GamePad", 5, "tl2", JOYB_TL2 },
 		{ 0x0e8f, 0x3010, "HuiJia  USB GamePad", 7, "tr2", JOYB_TR2 },
 		{ 0x0e8f, 0x3010, "HuiJia  USB GamePad", 9, "start", JOYB_START },
-		/* HJZ Mayflash Wiimote PC Adapter */
+		/* HJZ Mayflash Wiimote PC Adapter (0079:1803) */
 		{ 0x0079, 0x1803, "HJZ Mayflash Wiimote PC Adapter", 3, "a", JOYB_A },
 		{ 0x0079, 0x1803, "HJZ Mayflash Wiimote PC Adapter", 2, "b", JOYB_B },
 		{ 0x0079, 0x1803, "HJZ Mayflash Wiimote PC Adapter", 0, "x", JOYB_X },
@@ -1987,7 +1987,7 @@
 		{ 0x0079, 0x1803, "HJZ Mayflash Wiimote PC Adapter", 4, "select", JOYB_SELECT },
 		{ 0x0079, 0x1803, "HJZ Mayflash Wiimote PC Adapter", 5, "start", JOYB_START },
 		{ 0x0079, 0x1803, "HJZ Mayflash Wiimote PC Adapter", 11, "mode", JOYB_MODE },
-		/* Mega World Thrustmaster dual analog 3.2 */
+		/* Mega World Thrustmaster dual analog 3.2 (044f:b315) */
 		{ 0x044f, 0xb315, "Mega World Thrustmaster dual analog 3.2", 2, "a", JOYB_A },
 		{ 0x044f, 0xb315, "Mega World Thrustmaster dual analog 3.2", 0, "b", JOYB_B },
 		{ 0x044f, 0xb315, "Mega World Thrustmaster dual analog 3.2", 3, "x", JOYB_X },
@@ -1998,7 +1998,7 @@
 		{ 0x044f, 0xb315, "Mega World Thrustmaster dual analog 3.2", 7, "tr2", JOYB_TR2 },
 		{ 0x044f, 0xb315, "Mega World Thrustmaster dual analog 3.2", 11, "select", JOYB_SELECT },
 		{ 0x044f, 0xb315, "Mega World Thrustmaster dual analog 3.2", 10, "start", JOYB_START },
-		/* Mega World USB 2-Axis 8-Button Gamepad */
+		/* Mega World USB 2-Axis 8-Button Gamepad (07b5:0213) */
 		{ 0x07b5, 0x0213, "Mega World USB 2-Axis 8-Button Gamepad", 2, "a", JOYB_A },
 		{ 0x07b5, 0x0213, "Mega World USB 2-Axis 8-Button Gamepad", 0, "b", JOYB_B },
 		{ 0x07b5, 0x0213, "Mega World USB 2-Axis 8-Button Gamepad", 3, "x", JOYB_X },
@@ -2007,7 +2007,7 @@
 		{ 0x07b5, 0x0213, "Mega World USB 2-Axis 8-Button Gamepad", 6, "tr", JOYB_TR },
 		{ 0x07b5, 0x0213, "Mega World USB 2-Axis 8-Button Gamepad", 5, "select", JOYB_SELECT },
 		{ 0x07b5, 0x0213, "Mega World USB 2-Axis 8-Button Gamepad", 7, "start", JOYB_START },
-		/* Mega World USB Game Controllers */
+		/* Mega World USB Game Controllers (07b5:0314) */
 		{ 0x07b5, 0x0314, "Mega World USB Game Controllers", 3, "a", JOYB_A },
 		{ 0x07b5, 0x0314, "Mega World USB Game Controllers", 2, "b", JOYB_B },
 		{ 0x07b5, 0x0314, "Mega World USB Game Controllers", 1, "x", JOYB_X },
@@ -2018,7 +2018,7 @@
 		{ 0x07b5, 0x0314, "Mega World USB Game Controllers", 7, "tr2", JOYB_TR2 },
 		{ 0x07b5, 0x0314, "Mega World USB Game Controllers", 8, "select", JOYB_SELECT },
 		{ 0x07b5, 0x0314, "Mega World USB Game Controllers", 9, "start", JOYB_START },
-		/* Microntek              USB Joystick           */
+		/* Microntek              USB Joystick (0079:0006) */
 		{ 0x0079, 0x0006, "Microntek              USB Joystick          ", 1, "a", JOYB_A },
 		{ 0x0079, 0x0006, "Microntek              USB Joystick          ", 2, "b", JOYB_B },
 		{ 0x0079, 0x0006, "Microntek              USB Joystick          ", 0, "x", JOYB_X },
@@ -2029,7 +2029,7 @@
 		{ 0x0079, 0x0006, "Microntek              USB Joystick          ", 7, "tr2", JOYB_TR2 },
 		{ 0x0079, 0x0006, "Microntek              USB Joystick          ", 8, "select", JOYB_SELECT },
 		{ 0x0079, 0x0006, "Microntek              USB Joystick          ", 9, "start", JOYB_START },
-		/* Microsoft X-Box 360 pad */
+		/* Microsoft X-Box 360 pad (045e:028e) */
 		{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", 1, "a", JOYB_A },
 		{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", 0, "b", JOYB_B },
 		{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", 3, "x", JOYB_X },
@@ -2039,7 +2039,7 @@
 		{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", 7, "start", JOYB_START },
 		{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", 8, "mode", JOYB_MODE },
-		/* Microsoft® Microsoft® SideWinder® Game Pad USB */
+		/* Microsoft® Microsoft® SideWinder® Game Pad USB (045e:0007) */
 		{ 0x045e, 0x0007, "Microsoft® Microsoft® SideWinder® Game Pad USB", 1, "a", JOYB_A },
 		{ 0x045e, 0x0007, "Microsoft® Microsoft® SideWinder® Game Pad USB", 0, "b", JOYB_B },
 		{ 0x045e, 0x0007, "Microsoft® Microsoft® SideWinder® Game Pad USB", 4, "x", JOYB_X },
@@ -2050,14 +2050,14 @@
 		{ 0x045e, 0x0007, "Microsoft® Microsoft® SideWinder® Game Pad USB", 7, "tr2", JOYB_TR2 },
 		{ 0x045e, 0x0007, "Microsoft® Microsoft® SideWinder® Game Pad USB", 9, "select", JOYB_SELECT },
 		{ 0x045e, 0x0007, "Microsoft® Microsoft® SideWinder® Game Pad USB", 8, "start", JOYB_START },
-		/* Microsoft® Microsoft® SideWinder® Plug & Play Game Pad */
+		/* Microsoft® Microsoft® SideWinder® Plug & Play Game Pad (045e:0027) */
 		{ 0x045e, 0x0027, "Microsoft® Microsoft® SideWinder® Plug & Play Game Pad", 1, "a", JOYB_A },
 		{ 0x045e, 0x0027, "Microsoft® Microsoft® SideWinder® Plug & Play Game Pad", 0, "b", JOYB_B },
 		{ 0x045e, 0x0027, "Microsoft® Microsoft® SideWinder® Plug & Play Game Pad", 3, "x", JOYB_X },
 		{ 0x045e, 0x0027, "Microsoft® Microsoft® SideWinder® Plug & Play Game Pad", 2, "y", JOYB_Y },
 		{ 0x045e, 0x0027, "Microsoft® Microsoft® SideWinder® Plug & Play Game Pad", 4, "tl", JOYB_TL },
 		{ 0x045e, 0x0027, "Microsoft® Microsoft® SideWinder® Plug & Play Game Pad", 5, "tr", JOYB_TR },
-		/* Microsoft SideWinder Dual Strike USB version 1.0 */
+		/* Microsoft SideWinder Dual Strike USB version 1.0 (045e:0028) */
 		{ 0x045e, 0x0028, "Microsoft SideWinder Dual Strike USB version 1.0", 2, "a", JOYB_A },
 		{ 0x045e, 0x0028, "Microsoft SideWinder Dual Strike USB version 1.0", 3, "b", JOYB_B },
 		{ 0x045e, 0x0028, "Microsoft SideWinder Dual Strike USB version 1.0", 0, "x", JOYB_X },
@@ -2067,7 +2067,7 @@
 		{ 0x045e, 0x0028, "Microsoft SideWinder Dual Strike USB version 1.0", 5, "select", JOYB_SELECT },
 		{ 0x045e, 0x0028, "Microsoft SideWinder Dual Strike USB version 1.0", 4, "start", JOYB_START },
 		{ 0x045e, 0x0028, "Microsoft SideWinder Dual Strike USB version 1.0", 8, "mode", JOYB_MODE },
-		/* Generic X-Box pad */
+		/* Generic X-Box pad (045e:0b00) */
 		{ 0x045e, 0x0b00, "Generic X-Box pad", 1, "a", JOYB_A },
 		{ 0x045e, 0x0b00, "Generic X-Box pad", 0, "b", JOYB_B },
 		{ 0x045e, 0x0b00, "Generic X-Box pad", 3, "x", JOYB_X },
@@ -2076,7 +2076,7 @@
 		{ 0x045e, 0x0b00, "Generic X-Box pad", 5, "tr", JOYB_TR },
 		{ 0x045e, 0x0b00, "Generic X-Box pad", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x0b00, "Generic X-Box pad", 7, "start", JOYB_START },
-		/* Xbox Wireless Controller */
+		/* Xbox Wireless Controller (045e:0b20) */
 		{ 0x045e, 0x0b20, "Xbox Wireless Controller", 1, "a", JOYB_A },
 		{ 0x045e, 0x0b20, "Xbox Wireless Controller", 0, "b", JOYB_B },
 		{ 0x045e, 0x0b20, "Xbox Wireless Controller", 3, "x", JOYB_X },
@@ -2086,7 +2086,7 @@
 		{ 0x045e, 0x0b20, "Xbox Wireless Controller", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x0b20, "Xbox Wireless Controller", 7, "start", JOYB_START },
 		{ 0x045e, 0x0b20, "Xbox Wireless Controller", 8, "mode", JOYB_MODE },
-		/* Microsoft X-Box One Elite pad */
+		/* Microsoft X-Box One Elite pad (045e:02e3) */
 		{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 1, "a", JOYB_A },
 		{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 0, "b", JOYB_B },
 		{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 3, "x", JOYB_X },
@@ -2096,7 +2096,7 @@
 		{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 7, "start", JOYB_START },
 		{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 8, "mode", JOYB_MODE },
-		/* Microsoft X-Box One S pad */
+		/* Microsoft X-Box One S pad (045e:02ea) */
 		{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 1, "a", JOYB_A },
 		{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 0, "b", JOYB_B },
 		{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 3, "x", JOYB_X },
@@ -2106,7 +2106,7 @@
 		{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 7, "start", JOYB_START },
 		{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 8, "mode", JOYB_MODE },
-		/* Xbox Wireless Controller */
+		/* Xbox Wireless Controller (045e:02e0) */
 		{ 0x045e, 0x02e0, "Xbox Wireless Controller", 1, "a", JOYB_A },
 		{ 0x045e, 0x02e0, "Xbox Wireless Controller", 0, "b", JOYB_B },
 		{ 0x045e, 0x02e0, "Xbox Wireless Controller", 3, "x", JOYB_X },
@@ -2115,7 +2115,7 @@
 		{ 0x045e, 0x02e0, "Xbox Wireless Controller", 5, "tr", JOYB_TR },
 		{ 0x045e, 0x02e0, "Xbox Wireless Controller", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x02e0, "Xbox Wireless Controller", 7, "start", JOYB_START },
-		/* Microsoft X-Box One pad */
+		/* Microsoft X-Box One pad (045e:02d1) */
 		{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 1, "a", JOYB_A },
 		{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 0, "b", JOYB_B },
 		{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 3, "x", JOYB_X },
@@ -2125,7 +2125,7 @@
 		{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 7, "start", JOYB_START },
 		{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 8, "mode", JOYB_MODE },
-		/* Microsoft X-Box One pad (Firmware 2015) */
+		/* Microsoft X-Box One pad (Firmware 2015) (045e:02dd) */
 		{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 1, "a", JOYB_A },
 		{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 0, "b", JOYB_B },
 		{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 3, "x", JOYB_X },
@@ -2135,7 +2135,7 @@
 		{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 7, "start", JOYB_START },
 		{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 8, "mode", JOYB_MODE },
-		/* Microsoft X-Box Series X|S pad */
+		/* Microsoft X-Box Series X|S pad (045e:0b12) */
 		{ 0x045e, 0x0b12, "Microsoft X-Box Series X|S pad", 1, "a", JOYB_A },
 		{ 0x045e, 0x0b12, "Microsoft X-Box Series X|S pad", 0, "b", JOYB_B },
 		{ 0x045e, 0x0b12, "Microsoft X-Box Series X|S pad", 3, "x", JOYB_X },
@@ -2145,7 +2145,7 @@
 		{ 0x045e, 0x0b12, "Microsoft X-Box Series X|S pad", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x0b12, "Microsoft X-Box Series X|S pad", 7, "start", JOYB_START },
 		{ 0x045e, 0x0b12, "Microsoft X-Box Series X|S pad", 8, "mode", JOYB_MODE },
-		/* Microsoft X-Box Series X|S pad */
+		/* Microsoft X-Box Series X|S pad (045e:028e) */
 		{ 0x045e, 0x028e, "Microsoft X-Box Series X|S pad", 1, "a", JOYB_A },
 		{ 0x045e, 0x028e, "Microsoft X-Box Series X|S pad", 0, "b", JOYB_B },
 		{ 0x045e, 0x028e, "Microsoft X-Box Series X|S pad", 3, "x", JOYB_X },
@@ -2155,7 +2155,7 @@
 		{ 0x045e, 0x028e, "Microsoft X-Box Series X|S pad", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x028e, "Microsoft X-Box Series X|S pad", 7, "start", JOYB_START },
 		{ 0x045e, 0x028e, "Microsoft X-Box Series X|S pad", 8, "mode", JOYB_MODE },
-		/* Microsoft X-Box pad (Japan) */
+		/* Microsoft X-Box pad (Japan) (045e:0285) */
 		{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", 1, "a", JOYB_A },
 		{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", 0, "b", JOYB_B },
 		{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", 4, "x", JOYB_X },
@@ -2164,7 +2164,7 @@
 		{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", 2, "tr", JOYB_TR },
 		{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", 7, "start", JOYB_START },
-		/* Microsoft X-Box pad v1 (US) */
+		/* Microsoft X-Box pad v1 (US) (045e:0202) */
 		{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", 1, "a", JOYB_A },
 		{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", 0, "b", JOYB_B },
 		{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", 4, "x", JOYB_X },
@@ -2173,7 +2173,7 @@
 		{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", 2, "tr", JOYB_TR },
 		{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", 7, "start", JOYB_START },
-		/* Microsoft X-Box pad v2 (US) */
+		/* Microsoft X-Box pad v2 (US) (045e:0289) */
 		{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", 1, "a", JOYB_A },
 		{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", 0, "b", JOYB_B },
 		{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", 4, "x", JOYB_X },
@@ -2182,7 +2182,7 @@
 		{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", 2, "tr", JOYB_TR },
 		{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", 7, "start", JOYB_START },
-		/* MOCUTE-032_B43-0F1E */
+		/* MOCUTE-032_B43-0F1E (0005:05ac) */
 		{ 0x0005, 0x05ac, "MOCUTE-032_B43-0F1E", 12, "a", JOYB_A },
 		{ 0x0005, 0x05ac, "MOCUTE-032_B43-0F1E", 13, "b", JOYB_B },
 		{ 0x0005, 0x05ac, "MOCUTE-032_B43-0F1E", 14, "x", JOYB_X },
@@ -2192,7 +2192,7 @@
 		{ 0x0005, 0x05ac, "MOCUTE-032_B43-0F1E", 16, "tl2", JOYB_TL2 },
 		{ 0x0005, 0x05ac, "MOCUTE-032_B43-0F1E", 20, "tr2", JOYB_TR2 },
 		{ 0x0005, 0x05ac, "MOCUTE-032_B43-0F1E", 21, "start", JOYB_START },
-		/* Moga Pro HID */
+		/* Moga Pro HID (20d6:0dad) */
 		{ 0x20d6, 0x0dad, "Moga Pro HID", 1, "a", JOYB_A },
 		{ 0x20d6, 0x0dad, "Moga Pro HID", 0, "b", JOYB_B },
 		{ 0x20d6, 0x0dad, "Moga Pro HID", 3, "x", JOYB_X },
@@ -2201,7 +2201,7 @@
 		{ 0x20d6, 0x0dad, "Moga Pro HID", 5, "tr", JOYB_TR },
 		{ 0x20d6, 0x0dad, "Moga Pro HID", 9, "select", JOYB_SELECT },
 		{ 0x20d6, 0x0dad, "Moga Pro HID", 6, "start", JOYB_START },
-		/* NVIDIA Corporation NVIDIA Controller v01.04 */
+		/* NVIDIA Corporation NVIDIA Controller v01.04 (0955:7214) */
 		{ 0x0955, 0x7214, "NVIDIA Corporation NVIDIA Controller v01.04", 1, "a", JOYB_A },
 		{ 0x0955, 0x7214, "NVIDIA Corporation NVIDIA Controller v01.04", 0, "b", JOYB_B },
 		{ 0x0955, 0x7214, "NVIDIA Corporation NVIDIA Controller v01.04", 3, "x", JOYB_X },
@@ -2209,7 +2209,7 @@
 		{ 0x0955, 0x7214, "NVIDIA Corporation NVIDIA Controller v01.04", 4, "tl", JOYB_TL },
 		{ 0x0955, 0x7214, "NVIDIA Corporation NVIDIA Controller v01.04", 5, "tr", JOYB_TR },
 		{ 0x0955, 0x7214, "NVIDIA Corporation NVIDIA Controller v01.04", 6, "start", JOYB_START },
-		/* NVIDIA Corporation NVIDIA Controller v01.03 */
+		/* NVIDIA Corporation NVIDIA Controller v01.03 (0955:7210) */
 		{ 0x0955, 0x7210, "NVIDIA Corporation NVIDIA Controller v01.03", 5, "a", JOYB_A },
 		{ 0x0955, 0x7210, "NVIDIA Corporation NVIDIA Controller v01.03", 4, "b", JOYB_B },
 		{ 0x0955, 0x7210, "NVIDIA Corporation NVIDIA Controller v01.03", 7, "x", JOYB_X },
@@ -2218,7 +2218,7 @@
 		{ 0x0955, 0x7210, "NVIDIA Corporation NVIDIA Controller v01.03", 9, "tr", JOYB_TR },
 		{ 0x0955, 0x7210, "NVIDIA Corporation NVIDIA Controller v01.03", 3, "select", JOYB_SELECT },
 		{ 0x0955, 0x7210, "NVIDIA Corporation NVIDIA Controller v01.03", 11, "start", JOYB_START },
-		/* Nintendo Co., Ltd. Pro Controller */
+		/* Nintendo Co., Ltd. Pro Controller (057e:2009) */
 		{ 0x057e, 0x2009, "Nintendo Co., Ltd. Pro Controller", 1, "a", JOYB_A },
 		{ 0x057e, 0x2009, "Nintendo Co., Ltd. Pro Controller", 0, "b", JOYB_B },
 		{ 0x057e, 0x2009, "Nintendo Co., Ltd. Pro Controller", 2, "x", JOYB_X },
@@ -2230,7 +2230,7 @@
 		{ 0x057e, 0x2009, "Nintendo Co., Ltd. Pro Controller", 9, "select", JOYB_SELECT },
 		{ 0x057e, 0x2009, "Nintendo Co., Ltd. Pro Controller", 10, "start", JOYB_START },
 		{ 0x057e, 0x2009, "Nintendo Co., Ltd. Pro Controller", 11, "mode", JOYB_MODE },
-		/* N64 Controller */
+		/* N64 Controller (057e:2019) */
 		{ 0x057e, 0x2019, "N64 Controller", 0, "a", JOYB_A },
 		{ 0x057e, 0x2019, "N64 Controller", 1, "b", JOYB_B },
 		{ 0x057e, 0x2019, "N64 Controller", 6, "tl", JOYB_TL },
@@ -2240,21 +2240,21 @@
 		{ 0x057e, 0x2019, "N64 Controller", 5, "select", JOYB_SELECT },
 		{ 0x057e, 0x2019, "N64 Controller", 11, "start", JOYB_START },
 		{ 0x057e, 0x2019, "N64 Controller", 12, "mode", JOYB_MODE },
-		/* Nintendo Switch Online NES Controller (L) */
+		/* Nintendo Switch Online NES Controller (L) (057e:2007) */
 		{ 0x057e, 0x2007, "Nintendo Switch Online NES Controller (L)", 1, "a", JOYB_A },
 		{ 0x057e, 0x2007, "Nintendo Switch Online NES Controller (L)", 0, "b", JOYB_B },
 		{ 0x057e, 0x2007, "Nintendo Switch Online NES Controller (L)", 4, "tl", JOYB_TL },
 		{ 0x057e, 0x2007, "Nintendo Switch Online NES Controller (L)", 5, "tr", JOYB_TR },
 		{ 0x057e, 0x2007, "Nintendo Switch Online NES Controller (L)", 8, "select", JOYB_SELECT },
 		{ 0x057e, 0x2007, "Nintendo Switch Online NES Controller (L)", 9, "start", JOYB_START },
-		/* Nintendo Switch Online NES Controller (R) */
+		/* Nintendo Switch Online NES Controller (R) (057e:2007) */
 		{ 0x057e, 0x2007, "Nintendo Switch Online NES Controller (R)", 1, "a", JOYB_A },
 		{ 0x057e, 0x2007, "Nintendo Switch Online NES Controller (R)", 0, "b", JOYB_B },
 		{ 0x057e, 0x2007, "Nintendo Switch Online NES Controller (R)", 4, "tl", JOYB_TL },
 		{ 0x057e, 0x2007, "Nintendo Switch Online NES Controller (R)", 5, "tr", JOYB_TR },
 		{ 0x057e, 0x2007, "Nintendo Switch Online NES Controller (R)", 8, "select", JOYB_SELECT },
 		{ 0x057e, 0x2007, "Nintendo Switch Online NES Controller (R)", 9, "start", JOYB_START },
-		/* Nintendo Wii Remote Pro Controller */
+		/* Nintendo Wii Remote Pro Controller (057e:0330) */
 		{ 0x057e, 0x0330, "Nintendo Wii Remote Pro Controller", 1, "a", JOYB_A },
 		{ 0x057e, 0x0330, "Nintendo Wii Remote Pro Controller", 0, "b", JOYB_B },
 		{ 0x057e, 0x0330, "Nintendo Wii Remote Pro Controller", 2, "x", JOYB_X },
@@ -2266,7 +2266,7 @@
 		{ 0x057e, 0x0330, "Nintendo Wii Remote Pro Controller", 8, "select", JOYB_SELECT },
 		{ 0x057e, 0x0330, "Nintendo Wii Remote Pro Controller", 9, "start", JOYB_START },
 		{ 0x057e, 0x0330, "Nintendo Wii Remote Pro Controller", 10, "mode", JOYB_MODE },
-		/* Performance Designed Products Wired Fight Pad Pro for Nintendo  */
+		/* Performance Designed Products Wired Fight Pad Pro for Nintendo (0e6f:0185) */
 		{ 0x0e6f, 0x0185, "Performance Designed Products Wired Fight Pad Pro for Nintendo ", 2, "a", JOYB_A },
 		{ 0x0e6f, 0x0185, "Performance Designed Products Wired Fight Pad Pro for Nintendo ", 1, "b", JOYB_B },
 		{ 0x0e6f, 0x0185, "Performance Designed Products Wired Fight Pad Pro for Nintendo ", 3, "x", JOYB_X },
@@ -2278,7 +2278,7 @@
 		{ 0x0e6f, 0x0185, "Performance Designed Products Wired Fight Pad Pro for Nintendo ", 8, "select", JOYB_SELECT },
 		{ 0x0e6f, 0x0185, "Performance Designed Products Wired Fight Pad Pro for Nintendo ", 9, "start", JOYB_START },
 		{ 0x0e6f, 0x0185, "Performance Designed Products Wired Fight Pad Pro for Nintendo ", 12, "mode", JOYB_MODE },
-		/* PDP Wired Controller for Xbox One - Camo Series */
+		/* PDP Wired Controller for Xbox One - Camo Series (0e6f:02a6) */
 		{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 1, "a", JOYB_A },
 		{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 0, "b", JOYB_B },
 		{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 3, "x", JOYB_X },
@@ -2288,7 +2288,7 @@
 		{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 6, "select", JOYB_SELECT },
 		{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 7, "start", JOYB_START },
 		{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 8, "mode", JOYB_MODE },
-		/* PDP Wired Controller for Xbox One - Stealth Series */
+		/* PDP Wired Controller for Xbox One - Stealth Series (0e6f:02a4) */
 		{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 1, "a", JOYB_A },
 		{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 0, "b", JOYB_B },
 		{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 3, "x", JOYB_X },
@@ -2298,7 +2298,7 @@
 		{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 6, "select", JOYB_SELECT },
 		{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 7, "start", JOYB_START },
 		{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 8, "mode", JOYB_MODE },
-		/* USB,4-Axis,12-Button with POV */
+		/* USB,4-Axis,12-Button with POV (0583:b031) */
 		{ 0x0583, 0xb031, "USB,4-Axis,12-Button with POV", 2, "a", JOYB_A },
 		{ 0x0583, 0xb031, "USB,4-Axis,12-Button with POV", 1, "b", JOYB_B },
 		{ 0x0583, 0xb031, "USB,4-Axis,12-Button with POV", 3, "x", JOYB_X },
@@ -2309,7 +2309,7 @@
 		{ 0x0583, 0xb031, "USB,4-Axis,12-Button with POV", 7, "tr2", JOYB_TR2 },
 		{ 0x0583, 0xb031, "USB,4-Axis,12-Button with POV", 8, "select", JOYB_SELECT },
 		{ 0x0583, 0xb031, "USB,4-Axis,12-Button with POV", 9, "start", JOYB_START },
-		/* Sony Interactive Entertainment Controller */
+		/* Sony Interactive Entertainment Controller (054c:0cda) */
 		{ 0x054c, 0x0cda, "Sony Interactive Entertainment Controller", 1, "a", JOYB_A },
 		{ 0x054c, 0x0cda, "Sony Interactive Entertainment Controller", 2, "b", JOYB_B },
 		{ 0x054c, 0x0cda, "Sony Interactive Entertainment Controller", 0, "x", JOYB_X },
@@ -2320,7 +2320,7 @@
 		{ 0x054c, 0x0cda, "Sony Interactive Entertainment Controller", 5, "tr2", JOYB_TR2 },
 		{ 0x054c, 0x0cda, "Sony Interactive Entertainment Controller", 8, "select", JOYB_SELECT },
 		{ 0x054c, 0x0cda, "Sony Interactive Entertainment Controller", 9, "start", JOYB_START },
-		/* playsega controller */
+		/* playsega controller (0e8f:0041) */
 		{ 0x0e8f, 0x0041, "playsega controller", 2, "a", JOYB_A },
 		{ 0x0e8f, 0x0041, "playsega controller", 1, "b", JOYB_B },
 		{ 0x0e8f, 0x0041, "playsega controller", 4, "x", JOYB_X },
@@ -2330,7 +2330,7 @@
 		{ 0x0e8f, 0x0041, "playsega controller", 6, "tl2", JOYB_TL2 },
 		{ 0x0e8f, 0x0041, "playsega controller", 7, "tr2", JOYB_TR2 },
 		{ 0x0e8f, 0x0041, "playsega controller", 8, "start", JOYB_START },
-		/* HORI CO.,LTD. POKKEN CONTROLLER */
+		/* HORI CO.,LTD. POKKEN CONTROLLER (0f0d:0092) */
 		{ 0x0f0d, 0x0092, "HORI CO.,LTD. POKKEN CONTROLLER", 2, "a", JOYB_A },
 		{ 0x0f0d, 0x0092, "HORI CO.,LTD. POKKEN CONTROLLER", 1, "b", JOYB_B },
 		{ 0x0f0d, 0x0092, "HORI CO.,LTD. POKKEN CONTROLLER", 3, "x", JOYB_X },
@@ -2342,7 +2342,7 @@
 		{ 0x0f0d, 0x0092, "HORI CO.,LTD. POKKEN CONTROLLER", 8, "select", JOYB_SELECT },
 		{ 0x0f0d, 0x0092, "HORI CO.,LTD. POKKEN CONTROLLER", 9, "start", JOYB_START },
 		{ 0x0f0d, 0x0092, "HORI CO.,LTD. POKKEN CONTROLLER", 12, "mode", JOYB_MODE },
-		/* PowerA NSW wired controller */
+		/* PowerA NSW wired controller (20d6:a713) */
 		{ 0x20d6, 0xa713, "PowerA NSW wired controller", 2, "a", JOYB_A },
 		{ 0x20d6, 0xa713, "PowerA NSW wired controller", 1, "b", JOYB_B },
 		{ 0x20d6, 0xa713, "PowerA NSW wired controller", 3, "x", JOYB_X },
@@ -2354,7 +2354,7 @@
 		{ 0x20d6, 0xa713, "PowerA NSW wired controller", 8, "select", JOYB_SELECT },
 		{ 0x20d6, 0xa713, "PowerA NSW wired controller", 9, "start", JOYB_START },
 		{ 0x20d6, 0xa713, "PowerA NSW wired controller", 12, "mode", JOYB_MODE },
-		/* Microsoft Xbox Controller */
+		/* Microsoft Xbox Controller (20d6:2015) */
 		{ 0x20d6, 0x2015, "Microsoft Xbox Controller", 1, "a", JOYB_A },
 		{ 0x20d6, 0x2015, "Microsoft Xbox Controller", 0, "b", JOYB_B },
 		{ 0x20d6, 0x2015, "Microsoft Xbox Controller", 3, "x", JOYB_X },
@@ -2364,7 +2364,7 @@
 		{ 0x20d6, 0x2015, "Microsoft Xbox Controller", 7, "select", JOYB_SELECT },
 		{ 0x20d6, 0x2015, "Microsoft Xbox Controller", 6, "start", JOYB_START },
 		{ 0x20d6, 0x2015, "Microsoft Xbox Controller", 8, "mode", JOYB_MODE },
-		/* Generic X-Box pad */
+		/* Generic X-Box pad (20d6:2015) */
 		{ 0x20d6, 0x2015, "Generic X-Box pad", 1, "a", JOYB_A },
 		{ 0x20d6, 0x2015, "Generic X-Box pad", 0, "b", JOYB_B },
 		{ 0x20d6, 0x2015, "Generic X-Box pad", 3, "x", JOYB_X },
@@ -2374,7 +2374,7 @@
 		{ 0x20d6, 0x2015, "Generic X-Box pad", 7, "select", JOYB_SELECT },
 		{ 0x20d6, 0x2015, "Generic X-Box pad", 6, "start", JOYB_START },
 		{ 0x20d6, 0x2015, "Generic X-Box pad", 8, "mode", JOYB_MODE },
-		/* PowerA Wired Switch Controller - Zelda: Breath of the Wild Edition */
+		/* PowerA Wired Switch Controller - Zelda: Breath of the Wild Edition (20d6:a711) */
 		{ 0x20d6, 0xa711, "PowerA Wired Switch Controller - Zelda: Breath of the Wild Edition", 2, "a", JOYB_A },
 		{ 0x20d6, 0xa711, "PowerA Wired Switch Controller - Zelda: Breath of the Wild Edition", 1, "b", JOYB_B },
 		{ 0x20d6, 0xa711, "PowerA Wired Switch Controller - Zelda: Breath of the Wild Edition", 3, "x", JOYB_X },
@@ -2385,7 +2385,7 @@
 		{ 0x20d6, 0xa711, "PowerA Wired Switch Controller - Zelda: Breath of the Wild Edition", 7, "tr2", JOYB_TR2 },
 		{ 0x20d6, 0xa711, "PowerA Wired Switch Controller - Zelda: Breath of the Wild Edition", 8, "select", JOYB_SELECT },
 		{ 0x20d6, 0xa711, "PowerA Wired Switch Controller - Zelda: Breath of the Wild Edition", 9, "start", JOYB_START },
-		/* Jess Technology Co., Ltd. QanBa Joystick Plus */
+		/* Jess Technology Co., Ltd. QanBa Joystick Plus (0f30:1012) */
 		{ 0x0f30, 0x1012, "Jess Technology Co., Ltd. QanBa Joystick Plus", 1, "a", JOYB_A },
 		{ 0x0f30, 0x1012, "Jess Technology Co., Ltd. QanBa Joystick Plus", 0, "b", JOYB_B },
 		{ 0x0f30, 0x1012, "Jess Technology Co., Ltd. QanBa Joystick Plus", 3, "x", JOYB_X },
@@ -2396,7 +2396,7 @@
 		{ 0x0f30, 0x1012, "Jess Technology Co., Ltd. QanBa Joystick Plus", 7, "tr2", JOYB_TR2 },
 		{ 0x0f30, 0x1012, "Jess Technology Co., Ltd. QanBa Joystick Plus", 8, "select", JOYB_SELECT },
 		{ 0x0f30, 0x1012, "Jess Technology Co., Ltd. QanBa Joystick Plus", 9, "start", JOYB_START },
-		/* Qnyx Snes Replica */
+		/* Qnyx Snes Replica (081f:e401) */
 		{ 0x081f, 0xe401, "Qnyx Snes Replica", 1, "a", JOYB_A },
 		{ 0x081f, 0xe401, "Qnyx Snes Replica", 2, "b", JOYB_B },
 		{ 0x081f, 0xe401, "Qnyx Snes Replica", 0, "x", JOYB_X },
@@ -2405,7 +2405,7 @@
 		{ 0x081f, 0xe401, "Qnyx Snes Replica", 5, "tr", JOYB_TR },
 		{ 0x081f, 0xe401, "Qnyx Snes Replica", 8, "select", JOYB_SELECT },
 		{ 0x081f, 0xe401, "Qnyx Snes Replica", 9, "start", JOYB_START },
-		/* Razer Kishi */
+		/* Razer Kishi (27f8:0bbf) */
 		{ 0x27f8, 0x0bbf, "Razer Kishi", 6, "a", JOYB_A },
 		{ 0x27f8, 0x0bbf, "Razer Kishi", 5, "b", JOYB_B },
 		{ 0x27f8, 0x0bbf, "Razer Kishi", 9, "x", JOYB_X },
@@ -2414,7 +2414,7 @@
 		{ 0x27f8, 0x0bbf, "Razer Kishi", 12, "tr", JOYB_TR },
 		{ 0x27f8, 0x0bbf, "Razer Kishi", 15, "select", JOYB_SELECT },
 		{ 0x27f8, 0x0bbf, "Razer Kishi", 16, "start", JOYB_START },
-		/* Razer Razer Raiju Tournament Edition Wired */
+		/* Razer Razer Raiju Tournament Edition Wired (1532:1007) */
 		{ 0x1532, 0x1007, "Razer Razer Raiju Tournament Edition Wired", 2, "a", JOYB_A },
 		{ 0x1532, 0x1007, "Razer Razer Raiju Tournament Edition Wired", 1, "b", JOYB_B },
 		{ 0x1532, 0x1007, "Razer Razer Raiju Tournament Edition Wired", 3, "x", JOYB_X },
@@ -2426,7 +2426,7 @@
 		{ 0x1532, 0x1007, "Razer Razer Raiju Tournament Edition Wired", 8, "select", JOYB_SELECT },
 		{ 0x1532, 0x1007, "Razer Razer Raiju Tournament Edition Wired", 9, "start", JOYB_START },
 		{ 0x1532, 0x1007, "Razer Razer Raiju Tournament Edition Wired", 12, "mode", JOYB_MODE },
-		/* Razer Raiju Tournament Edition */
+		/* Razer Raiju Tournament Edition (1532:100a) */
 		{ 0x1532, 0x100a, "Razer Raiju Tournament Edition", 2, "a", JOYB_A },
 		{ 0x1532, 0x100a, "Razer Raiju Tournament Edition", 1, "b", JOYB_B },
 		{ 0x1532, 0x100a, "Razer Raiju Tournament Edition", 3, "x", JOYB_X },
@@ -2438,7 +2438,7 @@
 		{ 0x1532, 0x100a, "Razer Raiju Tournament Edition", 8, "select", JOYB_SELECT },
 		{ 0x1532, 0x100a, "Razer Raiju Tournament Edition", 9, "start", JOYB_START },
 		{ 0x1532, 0x100a, "Razer Raiju Tournament Edition", 12, "mode", JOYB_MODE },
-		/* Licensed by Sony Computer Entertainment Guitar Hero4 for PlayStation (R) 3 */
+		/* Licensed by Sony Computer Entertainment Guitar Hero4 for PlayStation (R) 3 (12ba:0100) */
 		{ 0x12ba, 0x0100, "Licensed by Sony Computer Entertainment Guitar Hero4 for PlayStation (R) 3", 2, "a", JOYB_A },
 		{ 0x12ba, 0x0100, "Licensed by Sony Computer Entertainment Guitar Hero4 for PlayStation (R) 3", 1, "b", JOYB_B },
 		{ 0x12ba, 0x0100, "Licensed by Sony Computer Entertainment Guitar Hero4 for PlayStation (R) 3", 3, "x", JOYB_X },
@@ -2447,7 +2447,7 @@
 		{ 0x12ba, 0x0100, "Licensed by Sony Computer Entertainment Guitar Hero4 for PlayStation (R) 3", 8, "select", JOYB_SELECT },
 		{ 0x12ba, 0x0100, "Licensed by Sony Computer Entertainment Guitar Hero4 for PlayStation (R) 3", 9, "start", JOYB_START },
 		{ 0x12ba, 0x0100, "Licensed by Sony Computer Entertainment Guitar Hero4 for PlayStation (R) 3", 12, "mode", JOYB_MODE },
-		/* RedOctane MIDI Drum GuitarHero for Playstation (R) 3 */
+		/* RedOctane MIDI Drum GuitarHero for Playstation (R) 3 (12ba:0120) */
 		{ 0x12ba, 0x0120, "RedOctane MIDI Drum GuitarHero for Playstation (R) 3", 2, "a", JOYB_A },
 		{ 0x12ba, 0x0120, "RedOctane MIDI Drum GuitarHero for Playstation (R) 3", 1, "b", JOYB_B },
 		{ 0x12ba, 0x0120, "RedOctane MIDI Drum GuitarHero for Playstation (R) 3", 3, "x", JOYB_X },
@@ -2455,21 +2455,21 @@
 		{ 0x12ba, 0x0120, "RedOctane MIDI Drum GuitarHero for Playstation (R) 3", 8, "select", JOYB_SELECT },
 		{ 0x12ba, 0x0120, "RedOctane MIDI Drum GuitarHero for Playstation (R) 3", 9, "start", JOYB_START },
 		{ 0x12ba, 0x0120, "RedOctane MIDI Drum GuitarHero for Playstation (R) 3", 12, "mode", JOYB_MODE },
-		/* 8Bitdo N64 GamePad */
+		/* 8Bitdo N64 GamePad (2dc8:3830) */
 		{ 0x2dc8, 0x3830, "8Bitdo N64 GamePad", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x3830, "8Bitdo N64 GamePad", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x3830, "8Bitdo N64 GamePad", 6, "tl", JOYB_TL },
 		{ 0x2dc8, 0x3830, "8Bitdo N64 GamePad", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x3830, "8Bitdo N64 GamePad", 10, "tl2", JOYB_TL2 },
 		{ 0x2dc8, 0x3830, "8Bitdo N64 GamePad", 11, "start", JOYB_START },
-		/* 8Bitdo N64         8Bitdo N64      */
+		/* 8Bitdo N64         8Bitdo N64 (2dc8:9002) */
 		{ 0x2dc8, 0x9002, "8Bitdo N64         8Bitdo N64     ", 0, "a", JOYB_A },
 		{ 0x2dc8, 0x9002, "8Bitdo N64         8Bitdo N64     ", 1, "b", JOYB_B },
 		{ 0x2dc8, 0x9002, "8Bitdo N64         8Bitdo N64     ", 6, "tl", JOYB_TL },
 		{ 0x2dc8, 0x9002, "8Bitdo N64         8Bitdo N64     ", 7, "tr", JOYB_TR },
 		{ 0x2dc8, 0x9002, "8Bitdo N64         8Bitdo N64     ", 10, "tl2", JOYB_TL2 },
 		{ 0x2dc8, 0x9002, "8Bitdo N64         8Bitdo N64     ", 11, "start", JOYB_START },
-		/* SWITCH CO.,LTD. USB Gamepad  */
+		/* SWITCH CO.,LTD. USB Gamepad (0079:0011) */
 		{ 0x0079, 0x0011, "SWITCH CO.,LTD. USB Gamepad ", 2, "a", JOYB_A },
 		{ 0x0079, 0x0011, "SWITCH CO.,LTD. USB Gamepad ", 1, "b", JOYB_B },
 		{ 0x0079, 0x0011, "SWITCH CO.,LTD. USB Gamepad ", 3, "x", JOYB_X },
@@ -2480,7 +2480,7 @@
 		{ 0x0079, 0x0011, "SWITCH CO.,LTD. USB Gamepad ", 7, "tr2", JOYB_TR2 },
 		{ 0x0079, 0x0011, "SWITCH CO.,LTD. USB Gamepad ", 8, "select", JOYB_SELECT },
 		{ 0x0079, 0x0011, "SWITCH CO.,LTD. USB Gamepad ", 9, "start", JOYB_START },
-		/* RetroFlag Wired Controller */
+		/* RetroFlag Wired Controller (0583:2060) */
 		{ 0x0583, 0x2060, "RetroFlag Wired Controller", 0, "a", JOYB_A },
 		{ 0x0583, 0x2060, "RetroFlag Wired Controller", 1, "b", JOYB_B },
 		{ 0x0583, 0x2060, "RetroFlag Wired Controller", 2, "x", JOYB_X },
@@ -2491,7 +2491,7 @@
 		{ 0x0583, 0x2060, "RetroFlag Wired Controller", 9, "tr2", JOYB_TR2 },
 		{ 0x0583, 0x2060, "RetroFlag Wired Controller", 6, "select", JOYB_SELECT },
 		{ 0x0583, 0x2060, "RetroFlag Wired Controller", 7, "start", JOYB_START },
-		/* Brain Actuated Technologies N64 RetroPort */
+		/* Brain Actuated Technologies N64 RetroPort (1234:0004) */
 		{ 0x1234, 0x0004, "Brain Actuated Technologies N64 RetroPort", 7, "a", JOYB_A },
 		{ 0x1234, 0x0004, "Brain Actuated Technologies N64 RetroPort", 6, "b", JOYB_B },
 		{ 0x1234, 0x0004, "Brain Actuated Technologies N64 RetroPort", 10, "x", JOYB_X },
@@ -2500,22 +2500,22 @@
 		{ 0x1234, 0x0004, "Brain Actuated Technologies N64 RetroPort", 12, "tr", JOYB_TR },
 		{ 0x1234, 0x0004, "Brain Actuated Technologies N64 RetroPort", 5, "tl2", JOYB_TL2 },
 		{ 0x1234, 0x0004, "Brain Actuated Technologies N64 RetroPort", 4, "start", JOYB_START },
-		/* retroUSB NES RetroPort */
+		/* retroUSB NES RetroPort (04d8:f064) */
 		{ 0x04d8, 0xf064, "retroUSB NES RetroPort", 0, "a", JOYB_A },
 		{ 0x04d8, 0xf064, "retroUSB NES RetroPort", 1, "b", JOYB_B },
 		{ 0x04d8, 0xf064, "retroUSB NES RetroPort", 2, "select", JOYB_SELECT },
 		{ 0x04d8, 0xf064, "retroUSB NES RetroPort", 3, "start", JOYB_START },
-		/* RetroUSB.com RetroPad */
+		/* RetroUSB.com RetroPad (f000:0003) */
 		{ 0xf000, 0x0003, "RetroUSB.com RetroPad", 1, "a", JOYB_A },
 		{ 0xf000, 0x0003, "RetroUSB.com RetroPad", 0, "b", JOYB_B },
 		{ 0xf000, 0x0003, "RetroUSB.com RetroPad", 2, "select", JOYB_SELECT },
 		{ 0xf000, 0x0003, "RetroUSB.com RetroPad", 3, "start", JOYB_START },
-		/* NES RetroPort */
+		/* NES RetroPort (04d8:f064) */
 		{ 0x04d8, 0xf064, "NES RetroPort", 0, "a", JOYB_A },
 		{ 0x04d8, 0xf064, "NES RetroPort", 1, "b", JOYB_B },
 		{ 0x04d8, 0xf064, "NES RetroPort", 2, "select", JOYB_SELECT },
 		{ 0x04d8, 0xf064, "NES RetroPort", 3, "start", JOYB_START },
-		/* RetroUSB.com SNES RetroPort */
+		/* RetroUSB.com SNES RetroPort (f000:00f1) */
 		{ 0xf000, 0x00f1, "RetroUSB.com SNES RetroPort", 5, "a", JOYB_A },
 		{ 0xf000, 0x00f1, "RetroUSB.com SNES RetroPort", 1, "b", JOYB_B },
 		{ 0xf000, 0x00f1, "RetroUSB.com SNES RetroPort", 4, "x", JOYB_X },
@@ -2524,7 +2524,7 @@
 		{ 0xf000, 0x00f1, "RetroUSB.com SNES RetroPort", 7, "tr", JOYB_TR },
 		{ 0xf000, 0x00f1, "RetroUSB.com SNES RetroPort", 2, "select", JOYB_SELECT },
 		{ 0xf000, 0x00f1, "RetroUSB.com SNES RetroPort", 3, "start", JOYB_START },
-		/* Retrode Mega Drive */
+		/* Retrode Mega Drive (0403:97c1) */
 		{ 0x0403, 0x97c1, "Retrode Mega Drive", 4, "a", JOYB_A },
 		{ 0x0403, 0x97c1, "Retrode Mega Drive", 0, "b", JOYB_B },
 		{ 0x0403, 0x97c1, "Retrode Mega Drive", 5, "x", JOYB_X },
@@ -2533,7 +2533,7 @@
 		{ 0x0403, 0x97c1, "Retrode Mega Drive", 7, "tr", JOYB_TR },
 		{ 0x0403, 0x97c1, "Retrode Mega Drive", 2, "select", JOYB_SELECT },
 		{ 0x0403, 0x97c1, "Retrode Mega Drive", 3, "start", JOYB_START },
-		/* Retrode Mega Drive */
+		/* Retrode Mega Drive (0403:97c1) */
 		{ 0x0403, 0x97c1, "Retrode Mega Drive", 4, "a", JOYB_A },
 		{ 0x0403, 0x97c1, "Retrode Mega Drive", 0, "b", JOYB_B },
 		{ 0x0403, 0x97c1, "Retrode Mega Drive", 5, "x", JOYB_X },
@@ -2542,7 +2542,7 @@
 		{ 0x0403, 0x97c1, "Retrode Mega Drive", 7, "tr", JOYB_TR },
 		{ 0x0403, 0x97c1, "Retrode Mega Drive", 2, "select", JOYB_SELECT },
 		{ 0x0403, 0x97c1, "Retrode Mega Drive", 3, "start", JOYB_START },
-		/* Retrode SNES / N64 */
+		/* Retrode SNES / N64 (0403:97c1) */
 		{ 0x0403, 0x97c1, "Retrode SNES / N64", 4, "a", JOYB_A },
 		{ 0x0403, 0x97c1, "Retrode SNES / N64", 0, "b", JOYB_B },
 		{ 0x0403, 0x97c1, "Retrode SNES / N64", 5, "x", JOYB_X },
@@ -2551,7 +2551,7 @@
 		{ 0x0403, 0x97c1, "Retrode SNES / N64", 7, "tr", JOYB_TR },
 		{ 0x0403, 0x97c1, "Retrode SNES / N64", 2, "select", JOYB_SELECT },
 		{ 0x0403, 0x97c1, "Retrode SNES / N64", 3, "start", JOYB_START },
-		/* Retrode SNES / N64 */
+		/* Retrode SNES / N64 (0403:97c1) */
 		{ 0x0403, 0x97c1, "Retrode SNES / N64", 4, "a", JOYB_A },
 		{ 0x0403, 0x97c1, "Retrode SNES / N64", 0, "b", JOYB_B },
 		{ 0x0403, 0x97c1, "Retrode SNES / N64", 5, "x", JOYB_X },
@@ -2560,14 +2560,14 @@
 		{ 0x0403, 0x97c1, "Retrode SNES / N64", 7, "tr", JOYB_TR },
 		{ 0x0403, 0x97c1, "Retrode SNES / N64", 2, "select", JOYB_SELECT },
 		{ 0x0403, 0x97c1, "Retrode SNES / N64", 3, "start", JOYB_START },
-		/* Retrolink Nintento 64 Classic USB */
+		/* Retrolink Nintento 64 Classic USB (0079:0006) */
 		{ 0x0079, 0x0006, "Retrolink Nintento 64 Classic USB", 6, "a", JOYB_A },
 		{ 0x0079, 0x0006, "Retrolink Nintento 64 Classic USB", 8, "b", JOYB_B },
 		{ 0x0079, 0x0006, "Retrolink Nintento 64 Classic USB", 4, "tl", JOYB_TL },
 		{ 0x0079, 0x0006, "Retrolink Nintento 64 Classic USB", 5, "tr", JOYB_TR },
 		{ 0x0079, 0x0006, "Retrolink Nintento 64 Classic USB", 7, "tl2", JOYB_TL2 },
 		{ 0x0079, 0x0006, "Retrolink Nintento 64 Classic USB", 9, "start", JOYB_START },
-		/* USB Gamepad  */
+		/* USB Gamepad (0079:0011) */
 		{ 0x0079, 0x0011, "USB Gamepad ", 2, "a", JOYB_A },
 		{ 0x0079, 0x0011, "USB Gamepad ", 1, "b", JOYB_B },
 		{ 0x0079, 0x0011, "USB Gamepad ", 3, "x", JOYB_X },
@@ -2577,7 +2577,7 @@
 		{ 0x0079, 0x0011, "USB Gamepad ", 4, "tl2", JOYB_TL2 },
 		{ 0x0079, 0x0011, "USB Gamepad ", 5, "tr2", JOYB_TR2 },
 		{ 0x0079, 0x0011, "USB Gamepad ", 8, "start", JOYB_START },
-		/* Rock Candy Gamepad for PS3 */
+		/* Rock Candy Gamepad for PS3 (0e6f:011e) */
 		{ 0x0e6f, 0x011e, "Rock Candy Gamepad for PS3", 2, "a", JOYB_A },
 		{ 0x0e6f, 0x011e, "Rock Candy Gamepad for PS3", 1, "b", JOYB_B },
 		{ 0x0e6f, 0x011e, "Rock Candy Gamepad for PS3", 3, "x", JOYB_X },
@@ -2588,12 +2588,12 @@
 		{ 0x0e6f, 0x011e, "Rock Candy Gamepad for PS3", 7, "tr2", JOYB_TR2 },
 		{ 0x0e6f, 0x011e, "Rock Candy Gamepad for PS3", 8, "select", JOYB_SELECT },
 		{ 0x0e6f, 0x011e, "Rock Candy Gamepad for PS3", 9, "start", JOYB_START },
-		/* 3B controller */
+		/* 3B controller (0ca3:0025) */
 		{ 0x0ca3, 0x0025, "3B controller", 5, "a", JOYB_A },
 		{ 0x0ca3, 0x0025, "3B controller", 1, "b", JOYB_B },
 		{ 0x0ca3, 0x0025, "3B controller", 2, "y", JOYB_Y },
 		{ 0x0ca3, 0x0025, "3B controller", 9, "start", JOYB_START },
-		/* 6B controller */
+		/* 6B controller (0ca3:0024) */
 		{ 0x0ca3, 0x0024, "6B controller", 5, "a", JOYB_A },
 		{ 0x0ca3, 0x0024, "6B controller", 1, "b", JOYB_B },
 		{ 0x0ca3, 0x0024, "6B controller", 0, "x", JOYB_X },
@@ -2602,7 +2602,7 @@
 		{ 0x0ca3, 0x0024, "6B controller", 4, "tr", JOYB_TR },
 		{ 0x0ca3, 0x0024, "6B controller", 8, "select", JOYB_SELECT },
 		{ 0x0ca3, 0x0024, "6B controller", 9, "start", JOYB_START },
-		/* SHANWAN Android Gamepad */
+		/* SHANWAN Android Gamepad (2563:0526) */
 		{ 0x2563, 0x0526, "SHANWAN Android Gamepad", 0, "a", JOYB_A },
 		{ 0x2563, 0x0526, "SHANWAN Android Gamepad", 1, "b", JOYB_B },
 		{ 0x2563, 0x0526, "SHANWAN Android Gamepad", 3, "x", JOYB_X },
@@ -2613,7 +2613,7 @@
 		{ 0x2563, 0x0526, "SHANWAN Android Gamepad", 9, "tr2", JOYB_TR2 },
 		{ 0x2563, 0x0526, "SHANWAN Android Gamepad", 10, "select", JOYB_SELECT },
 		{ 0x2563, 0x0526, "SHANWAN Android Gamepad", 11, "start", JOYB_START },
-		/* ShanWan     PC/PS3/Android Gamepad */
+		/* ShanWan     PC/PS3/Android Gamepad (2563:0575) */
 		{ 0x2563, 0x0575, "ShanWan     PC/PS3/Android Gamepad", 1, "a", JOYB_A },
 		{ 0x2563, 0x0575, "ShanWan     PC/PS3/Android Gamepad", 2, "b", JOYB_B },
 		{ 0x2563, 0x0575, "ShanWan     PC/PS3/Android Gamepad", 0, "x", JOYB_X },
@@ -2624,7 +2624,7 @@
 		{ 0x2563, 0x0575, "ShanWan     PC/PS3/Android Gamepad", 7, "tr2", JOYB_TR2 },
 		{ 0x2563, 0x0575, "ShanWan     PC/PS3/Android Gamepad", 8, "select", JOYB_SELECT },
 		{ 0x2563, 0x0575, "ShanWan     PC/PS3/Android Gamepad", 9, "start", JOYB_START },
-		/* CYPRESS USB Gamepad */
+		/* CYPRESS USB Gamepad (04b4:010a) */
 		{ 0x04b4, 0x010a, "CYPRESS USB Gamepad", 2, "a", JOYB_A },
 		{ 0x04b4, 0x010a, "CYPRESS USB Gamepad", 1, "b", JOYB_B },
 		{ 0x04b4, 0x010a, "CYPRESS USB Gamepad", 3, "x", JOYB_X },
@@ -2634,7 +2634,7 @@
 		{ 0x04b4, 0x010a, "CYPRESS USB Gamepad", 4, "tl2", JOYB_TL2 },
 		{ 0x04b4, 0x010a, "CYPRESS USB Gamepad", 5, "tr2", JOYB_TR2 },
 		{ 0x04b4, 0x010a, "CYPRESS USB Gamepad", 8, "start", JOYB_START },
-		/* SNES PC Game Pad    SNES PC Game Pad    */
+		/* SNES PC Game Pad    SNES PC Game Pad (1d57:0020) */
 		{ 0x1d57, 0x0020, "SNES PC Game Pad    SNES PC Game Pad   ", 1, "a", JOYB_A },
 		{ 0x1d57, 0x0020, "SNES PC Game Pad    SNES PC Game Pad   ", 0, "b", JOYB_B },
 		{ 0x1d57, 0x0020, "SNES PC Game Pad    SNES PC Game Pad   ", 3, "x", JOYB_X },
@@ -2643,7 +2643,7 @@
 		{ 0x1d57, 0x0020, "SNES PC Game Pad    SNES PC Game Pad   ", 5, "tr", JOYB_TR },
 		{ 0x1d57, 0x0020, "SNES PC Game Pad    SNES PC Game Pad   ", 6, "select", JOYB_SELECT },
 		{ 0x1d57, 0x0020, "SNES PC Game Pad    SNES PC Game Pad   ", 7, "start", JOYB_START },
-		/* SPEEDLINK TORID */
+		/* SPEEDLINK TORID (11c0:9105) */
 		{ 0x11c0, 0x9105, "SPEEDLINK TORID", 1, "a", JOYB_A },
 		{ 0x11c0, 0x9105, "SPEEDLINK TORID", 2, "b", JOYB_B },
 		{ 0x11c0, 0x9105, "SPEEDLINK TORID", 0, "x", JOYB_X },
@@ -2654,7 +2654,7 @@
 		{ 0x11c0, 0x9105, "SPEEDLINK TORID", 7, "tr2", JOYB_TR2 },
 		{ 0x11c0, 0x9105, "SPEEDLINK TORID", 8, "select", JOYB_SELECT },
 		{ 0x11c0, 0x9105, "SPEEDLINK TORID", 9, "start", JOYB_START },
-		/* STD AxisPad */
+		/* STD AxisPad (05fd:3002) */
 		{ 0x05fd, 0x3002, "STD AxisPad", 3, "a", JOYB_A },
 		{ 0x05fd, 0x3002, "STD AxisPad", 2, "b", JOYB_B },
 		{ 0x05fd, 0x3002, "STD AxisPad", 1, "x", JOYB_X },
@@ -2665,7 +2665,7 @@
 		{ 0x05fd, 0x3002, "STD AxisPad", 5, "tr2", JOYB_TR2 },
 		{ 0x05fd, 0x3002, "STD AxisPad", 10, "select", JOYB_SELECT },
 		{ 0x05fd, 0x3002, "STD AxisPad", 11, "start", JOYB_START },
-		/* SWITCH CO.,LTD. Controller (Dinput) */
+		/* SWITCH CO.,LTD. Controller (Dinput) (2563:0575) */
 		{ 0x2563, 0x0575, "SWITCH CO.,LTD. Controller (Dinput)", 2, "a", JOYB_A },
 		{ 0x2563, 0x0575, "SWITCH CO.,LTD. Controller (Dinput)", 1, "b", JOYB_B },
 		{ 0x2563, 0x0575, "SWITCH CO.,LTD. Controller (Dinput)", 2, "y", JOYB_Y },
@@ -2673,7 +2673,7 @@
 		{ 0x2563, 0x0575, "SWITCH CO.,LTD. Controller (Dinput)", 5, "tr", JOYB_TR },
 		{ 0x2563, 0x0575, "SWITCH CO.,LTD. Controller (Dinput)", 6, "tl2", JOYB_TL2 },
 		{ 0x2563, 0x0575, "SWITCH CO.,LTD. Controller (Dinput)", 12, "start", JOYB_START },
-		/* Saitek Cyborg Rumble Pad */
+		/* Saitek Cyborg Rumble Pad (045e:0719) */
 		{ 0x045e, 0x0719, "Saitek Cyborg Rumble Pad", 1, "a", JOYB_A },
 		{ 0x045e, 0x0719, "Saitek Cyborg Rumble Pad", 0, "b", JOYB_B },
 		{ 0x045e, 0x0719, "Saitek Cyborg Rumble Pad", 3, "x", JOYB_X },
@@ -2682,7 +2682,7 @@
 		{ 0x045e, 0x0719, "Saitek Cyborg Rumble Pad", 5, "tr", JOYB_TR },
 		{ 0x045e, 0x0719, "Saitek Cyborg Rumble Pad", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x0719, "Saitek Cyborg Rumble Pad", 7, "start", JOYB_START },
-		/* SAITEK P880 */
+		/* SAITEK P880 (06a3:0109) */
 		{ 0x06a3, 0x0109, "SAITEK P880", 3, "a", JOYB_A },
 		{ 0x06a3, 0x0109, "SAITEK P880", 2, "b", JOYB_B },
 		{ 0x06a3, 0x0109, "SAITEK P880", 1, "x", JOYB_X },
@@ -2692,7 +2692,7 @@
 		{ 0x06a3, 0x0109, "SAITEK P880", 4, "select", JOYB_SELECT },
 		{ 0x06a3, 0x0109, "SAITEK P880", 5, "start", JOYB_START },
 		{ 0x06a3, 0x0109, "SAITEK P880", 10, "mode", JOYB_MODE },
-		/* Saitek P990 Dual Analog Pad */
+		/* Saitek P990 Dual Analog Pad (06a3:040b) */
 		{ 0x06a3, 0x040b, "Saitek P990 Dual Analog Pad", 2, "a", JOYB_A },
 		{ 0x06a3, 0x040b, "Saitek P990 Dual Analog Pad", 1, "b", JOYB_B },
 		{ 0x06a3, 0x040b, "Saitek P990 Dual Analog Pad", 3, "x", JOYB_X },
@@ -2704,7 +2704,7 @@
 		{ 0x06a3, 0x040b, "Saitek P990 Dual Analog Pad", 9, "select", JOYB_SELECT },
 		{ 0x06a3, 0x040b, "Saitek P990 Dual Analog Pad", 8, "start", JOYB_START },
 		{ 0x06a3, 0x040b, "Saitek P990 Dual Analog Pad", 12, "mode", JOYB_MODE },
-		/* Saitek PLC Saitek P2600 Rumble Force Pad */
+		/* Saitek PLC Saitek P2600 Rumble Force Pad (06a3:ff0d) */
 		{ 0x06a3, 0xff0d, "Saitek PLC Saitek P2600 Rumble Force Pad", 2, "a", JOYB_A },
 		{ 0x06a3, 0xff0d, "Saitek PLC Saitek P2600 Rumble Force Pad", 1, "b", JOYB_B },
 		{ 0x06a3, 0xff0d, "Saitek PLC Saitek P2600 Rumble Force Pad", 3, "x", JOYB_X },
@@ -2715,7 +2715,7 @@
 		{ 0x06a3, 0xff0d, "Saitek PLC Saitek P2600 Rumble Force Pad", 7, "tr2", JOYB_TR2 },
 		{ 0x06a3, 0xff0d, "Saitek PLC Saitek P2600 Rumble Force Pad", 9, "select", JOYB_SELECT },
 		{ 0x06a3, 0xff0d, "Saitek PLC Saitek P2600 Rumble Force Pad", 8, "start", JOYB_START },
-		/* Saitek Saitek X52 Flight Control System */
+		/* Saitek Saitek X52 Flight Control System (06a3:075c) */
 		{ 0x06a3, 0x075c, "Saitek Saitek X52 Flight Control System", 0, "a", JOYB_A },
 		{ 0x06a3, 0x075c, "Saitek Saitek X52 Flight Control System", 1, "b", JOYB_B },
 		{ 0x06a3, 0x075c, "Saitek Saitek X52 Flight Control System", 3, "x", JOYB_X },
@@ -2726,7 +2726,7 @@
 		{ 0x06a3, 0x075c, "Saitek Saitek X52 Flight Control System", 5, "tr2", JOYB_TR2 },
 		{ 0x06a3, 0x075c, "Saitek Saitek X52 Flight Control System", 30, "select", JOYB_SELECT },
 		{ 0x06a3, 0x075c, "Saitek Saitek X52 Flight Control System", 6, "start", JOYB_START },
-		/* Samsung Game Pad EI-GP20 */
+		/* Samsung Game Pad EI-GP20 (04e8:a000) */
 		{ 0x04e8, 0xa000, "Samsung Game Pad EI-GP20", 12, "a", JOYB_A },
 		{ 0x04e8, 0xa000, "Samsung Game Pad EI-GP20", 11, "b", JOYB_B },
 		{ 0x04e8, 0xa000, "Samsung Game Pad EI-GP20", 15, "x", JOYB_X },
@@ -2736,7 +2736,7 @@
 		{ 0x04e8, 0xa000, "Samsung Game Pad EI-GP20", 21, "select", JOYB_SELECT },
 		{ 0x04e8, 0xa000, "Samsung Game Pad EI-GP20", 22, "start", JOYB_START },
 		{ 0x04e8, 0xa000, "Samsung Game Pad EI-GP20", 26, "mode", JOYB_MODE },
-		/* Sanmos JY-P62U Series ONLINE GRIP */
+		/* Sanmos JY-P62U Series ONLINE GRIP (11c0:5044) */
 		{ 0x11c0, 0x5044, "Sanmos JY-P62U Series ONLINE GRIP", 1, "a", JOYB_A },
 		{ 0x11c0, 0x5044, "Sanmos JY-P62U Series ONLINE GRIP", 0, "b", JOYB_B },
 		{ 0x11c0, 0x5044, "Sanmos JY-P62U Series ONLINE GRIP", 4, "x", JOYB_X },
@@ -2748,7 +2748,7 @@
 		{ 0x11c0, 0x5044, "Sanmos JY-P62U Series ONLINE GRIP", 12, "select", JOYB_SELECT },
 		{ 0x11c0, 0x5044, "Sanmos JY-P62U Series ONLINE GRIP", 14, "start", JOYB_START },
 		{ 0x11c0, 0x5044, "Sanmos JY-P62U Series ONLINE GRIP", 15, "mode", JOYB_MODE },
-		/* ShanWan PC/PS3/Android */
+		/* ShanWan PC/PS3/Android (2563:0526) */
 		{ 0x2563, 0x0526, "ShanWan PC/PS3/Android", 1, "a", JOYB_A },
 		{ 0x2563, 0x0526, "ShanWan PC/PS3/Android", 0, "b", JOYB_B },
 		{ 0x2563, 0x0526, "ShanWan PC/PS3/Android", 4, "x", JOYB_X },
@@ -2759,7 +2759,7 @@
 		{ 0x2563, 0x0526, "ShanWan PC/PS3/Android", 9, "tr2", JOYB_TR2 },
 		{ 0x2563, 0x0526, "ShanWan PC/PS3/Android", 10, "select", JOYB_SELECT },
 		{ 0x2563, 0x0526, "ShanWan PC/PS3/Android", 11, "start", JOYB_START },
-		/* Smartjoy Family Super Smartjoy 2 */
+		/* Smartjoy Family Super Smartjoy 2 (6666:0667) */
 		{ 0x6666, 0x0667, "Smartjoy Family Super Smartjoy 2", 1, "a", JOYB_A },
 		{ 0x6666, 0x0667, "Smartjoy Family Super Smartjoy 2", 2, "b", JOYB_B },
 		{ 0x6666, 0x0667, "Smartjoy Family Super Smartjoy 2", 0, "x", JOYB_X },
@@ -2768,7 +2768,7 @@
 		{ 0x6666, 0x0667, "Smartjoy Family Super Smartjoy 2", 7, "tr", JOYB_TR },
 		{ 0x6666, 0x0667, "Smartjoy Family Super Smartjoy 2", 4, "select", JOYB_SELECT },
 		{ 0x6666, 0x0667, "Smartjoy Family Super Smartjoy 2", 5, "start", JOYB_START },
-		/* Sony Interactive Entertainment DUALSHOCK®4 USB Wireless Adaptor */
+		/* Sony Interactive Entertainment DUALSHOCK®4 USB Wireless Adaptor (054c:0ba0) */
 		{ 0x054c, 0x0ba0, "Sony Interactive Entertainment DUALSHOCK®4 USB Wireless Adaptor", 1, "a", JOYB_A },
 		{ 0x054c, 0x0ba0, "Sony Interactive Entertainment DUALSHOCK®4 USB Wireless Adaptor", 0, "b", JOYB_B },
 		{ 0x054c, 0x0ba0, "Sony Interactive Entertainment DUALSHOCK®4 USB Wireless Adaptor", 2, "x", JOYB_X },
@@ -2780,7 +2780,7 @@
 		{ 0x054c, 0x0ba0, "Sony Interactive Entertainment DUALSHOCK®4 USB Wireless Adaptor", 8, "select", JOYB_SELECT },
 		{ 0x054c, 0x0ba0, "Sony Interactive Entertainment DUALSHOCK®4 USB Wireless Adaptor", 9, "start", JOYB_START },
 		{ 0x054c, 0x0ba0, "Sony Interactive Entertainment DUALSHOCK®4 USB Wireless Adaptor", 10, "mode", JOYB_MODE },
-		/* Sony Interactive Entertainment DualSense Edge Wireless Controller */
+		/* Sony Interactive Entertainment DualSense Edge Wireless Controller (054c:0df2) */
 		{ 0x054c, 0x0df2, "Sony Interactive Entertainment DualSense Edge Wireless Controller", 1, "a", JOYB_A },
 		{ 0x054c, 0x0df2, "Sony Interactive Entertainment DualSense Edge Wireless Controller", 0, "b", JOYB_B },
 		{ 0x054c, 0x0df2, "Sony Interactive Entertainment DualSense Edge Wireless Controller", 2, "x", JOYB_X },
@@ -2792,7 +2792,7 @@
 		{ 0x054c, 0x0df2, "Sony Interactive Entertainment DualSense Edge Wireless Controller", 8, "select", JOYB_SELECT },
 		{ 0x054c, 0x0df2, "Sony Interactive Entertainment DualSense Edge Wireless Controller", 9, "start", JOYB_START },
 		{ 0x054c, 0x0df2, "Sony Interactive Entertainment DualSense Edge Wireless Controller", 10, "mode", JOYB_MODE },
-		/* Sony Interactive Entertainment DualSense Wireless Controller */
+		/* Sony Interactive Entertainment DualSense Wireless Controller (054c:0ce6) */
 		{ 0x054c, 0x0ce6, "Sony Interactive Entertainment DualSense Wireless Controller", 1, "a", JOYB_A },
 		{ 0x054c, 0x0ce6, "Sony Interactive Entertainment DualSense Wireless Controller", 0, "b", JOYB_B },
 		{ 0x054c, 0x0ce6, "Sony Interactive Entertainment DualSense Wireless Controller", 2, "x", JOYB_X },
@@ -2802,7 +2802,7 @@
 		{ 0x054c, 0x0ce6, "Sony Interactive Entertainment DualSense Wireless Controller", 8, "select", JOYB_SELECT },
 		{ 0x054c, 0x0ce6, "Sony Interactive Entertainment DualSense Wireless Controller", 9, "start", JOYB_START },
 		{ 0x054c, 0x0ce6, "Sony Interactive Entertainment DualSense Wireless Controller", 10, "mode", JOYB_MODE },
-		/* Sony PLAYSTATION(R)3 Controller */
+		/* Sony PLAYSTATION(R)3 Controller (054c:0268) */
 		{ 0x054c, 0x0268, "Sony PLAYSTATION(R)3 Controller", 1, "a", JOYB_A },
 		{ 0x054c, 0x0268, "Sony PLAYSTATION(R)3 Controller", 0, "b", JOYB_B },
 		{ 0x054c, 0x0268, "Sony PLAYSTATION(R)3 Controller", 2, "x", JOYB_X },
@@ -2814,7 +2814,7 @@
 		{ 0x054c, 0x0268, "Sony PLAYSTATION(R)3 Controller", 8, "select", JOYB_SELECT },
 		{ 0x054c, 0x0268, "Sony PLAYSTATION(R)3 Controller", 9, "start", JOYB_START },
 		{ 0x054c, 0x0268, "Sony PLAYSTATION(R)3 Controller", 10, "mode", JOYB_MODE },
-		/* Wireless Controller */
+		/* Wireless Controller (054c:05c4) */
 		{ 0x054c, 0x05c4, "Wireless Controller", 1, "a", JOYB_A },
 		{ 0x054c, 0x05c4, "Wireless Controller", 0, "b", JOYB_B },
 		{ 0x054c, 0x05c4, "Wireless Controller", 2, "x", JOYB_X },
@@ -2826,7 +2826,7 @@
 		{ 0x054c, 0x05c4, "Wireless Controller", 8, "select", JOYB_SELECT },
 		{ 0x054c, 0x05c4, "Wireless Controller", 9, "start", JOYB_START },
 		{ 0x054c, 0x05c4, "Wireless Controller", 10, "mode", JOYB_MODE },
-		/* Sony Computer Entertainment Wireless Controller */
+		/* Sony Computer Entertainment Wireless Controller (054c:05c4) */
 		{ 0x054c, 0x05c4, "Sony Computer Entertainment Wireless Controller", 1, "a", JOYB_A },
 		{ 0x054c, 0x05c4, "Sony Computer Entertainment Wireless Controller", 0, "b", JOYB_B },
 		{ 0x054c, 0x05c4, "Sony Computer Entertainment Wireless Controller", 2, "x", JOYB_X },
@@ -2836,7 +2836,7 @@
 		{ 0x054c, 0x05c4, "Sony Computer Entertainment Wireless Controller", 8, "select", JOYB_SELECT },
 		{ 0x054c, 0x05c4, "Sony Computer Entertainment Wireless Controller", 9, "start", JOYB_START },
 		{ 0x054c, 0x05c4, "Sony Computer Entertainment Wireless Controller", 10, "mode", JOYB_MODE },
-		/* Sony Interactive Entertainment Wireless Controller */
+		/* Sony Interactive Entertainment Wireless Controller (054c:09cc) */
 		{ 0x054c, 0x09cc, "Sony Interactive Entertainment Wireless Controller", 1, "a", JOYB_A },
 		{ 0x054c, 0x09cc, "Sony Interactive Entertainment Wireless Controller", 0, "b", JOYB_B },
 		{ 0x054c, 0x09cc, "Sony Interactive Entertainment Wireless Controller", 2, "x", JOYB_X },
@@ -2846,7 +2846,7 @@
 		{ 0x054c, 0x09cc, "Sony Interactive Entertainment Wireless Controller", 8, "select", JOYB_SELECT },
 		{ 0x054c, 0x09cc, "Sony Interactive Entertainment Wireless Controller", 9, "start", JOYB_START },
 		{ 0x054c, 0x09cc, "Sony Interactive Entertainment Wireless Controller", 10, "mode", JOYB_MODE },
-		/* Wireless Controller */
+		/* Wireless Controller (8087:0a2a) */
 		{ 0x8087, 0x0a2a, "Wireless Controller", 1, "a", JOYB_A },
 		{ 0x8087, 0x0a2a, "Wireless Controller", 0, "b", JOYB_B },
 		{ 0x8087, 0x0a2a, "Wireless Controller", 2, "x", JOYB_X },
@@ -2858,7 +2858,7 @@
 		{ 0x8087, 0x0a2a, "Wireless Controller", 8, "select", JOYB_SELECT },
 		{ 0x8087, 0x0a2a, "Wireless Controller", 9, "start", JOYB_START },
 		{ 0x8087, 0x0a2a, "Wireless Controller", 10, "mode", JOYB_MODE },
-		/* Sony Dualshock 4 Wireless - 500 Million Limited Edition */
+		/* Sony Dualshock 4 Wireless - 500 Million Limited Edition (054c:09cc) */
 		{ 0x054c, 0x09cc, "Sony Dualshock 4 Wireless - 500 Million Limited Edition", 2, "a", JOYB_A },
 		{ 0x054c, 0x09cc, "Sony Dualshock 4 Wireless - 500 Million Limited Edition", 1, "b", JOYB_B },
 		{ 0x054c, 0x09cc, "Sony Dualshock 4 Wireless - 500 Million Limited Edition", 3, "x", JOYB_X },
@@ -2870,7 +2870,7 @@
 		{ 0x054c, 0x09cc, "Sony Dualshock 4 Wireless - 500 Million Limited Edition", 8, "select", JOYB_SELECT },
 		{ 0x054c, 0x09cc, "Sony Dualshock 4 Wireless - 500 Million Limited Edition", 9, "start", JOYB_START },
 		{ 0x054c, 0x09cc, "Sony Dualshock 4 Wireless - 500 Million Limited Edition", 12, "mode", JOYB_MODE },
-		/* ShanWan PS3/PC Wired GamePad */
+		/* ShanWan PS3/PC Wired GamePad (2563:0523) */
 		{ 0x2563, 0x0523, "ShanWan PS3/PC Wired GamePad", 1, "a", JOYB_A },
 		{ 0x2563, 0x0523, "ShanWan PS3/PC Wired GamePad", 2, "b", JOYB_B },
 		{ 0x2563, 0x0523, "ShanWan PS3/PC Wired GamePad", 0, "x", JOYB_X },
@@ -2881,7 +2881,7 @@
 		{ 0x2563, 0x0523, "ShanWan PS3/PC Wired GamePad", 7, "tr2", JOYB_TR2 },
 		{ 0x2563, 0x0523, "ShanWan PS3/PC Wired GamePad", 8, "select", JOYB_SELECT },
 		{ 0x2563, 0x0523, "ShanWan PS3/PC Wired GamePad", 9, "start", JOYB_START },
-		/* ShanWan PS3/PC Wired GamePad */
+		/* ShanWan PS3/PC Wired GamePad (20bc:5500) */
 		{ 0x20bc, 0x5500, "ShanWan PS3/PC Wired GamePad", 1, "a", JOYB_A },
 		{ 0x20bc, 0x5500, "ShanWan PS3/PC Wired GamePad", 0, "b", JOYB_B },
 		{ 0x20bc, 0x5500, "ShanWan PS3/PC Wired GamePad", 4, "x", JOYB_X },
@@ -2892,7 +2892,7 @@
 		{ 0x20bc, 0x5500, "ShanWan PS3/PC Wired GamePad", 9, "tr2", JOYB_TR2 },
 		{ 0x20bc, 0x5500, "ShanWan PS3/PC Wired GamePad", 10, "select", JOYB_SELECT },
 		{ 0x20bc, 0x5500, "ShanWan PS3/PC Wired GamePad", 11, "start", JOYB_START },
-		/* Steam Controller */
+		/* Steam Controller (28de:0476) */
 		{ 0x28de, 0x0476, "Steam Controller", 1, "a", JOYB_A },
 		{ 0x28de, 0x0476, "Steam Controller", 0, "b", JOYB_B },
 		{ 0x28de, 0x0476, "Steam Controller", 3, "x", JOYB_X },
@@ -2901,7 +2901,7 @@
 		{ 0x28de, 0x0476, "Steam Controller", 5, "tr", JOYB_TR },
 		{ 0x28de, 0x0476, "Steam Controller", 6, "select", JOYB_SELECT },
 		{ 0x28de, 0x0476, "Steam Controller", 7, "start", JOYB_START },
-		/* Street Fighter IV FightPad */
+		/* Street Fighter IV FightPad (1bad:f028) */
 		{ 0x1bad, 0xf028, "Street Fighter IV FightPad", 1, "a", JOYB_A },
 		{ 0x1bad, 0xf028, "Street Fighter IV FightPad", 0, "b", JOYB_B },
 		{ 0x1bad, 0xf028, "Street Fighter IV FightPad", 3, "x", JOYB_X },
@@ -2910,14 +2910,14 @@
 		{ 0x1bad, 0xf028, "Street Fighter IV FightPad", 5, "tl2", JOYB_TL2 },
 		{ 0x1bad, 0xf028, "Street Fighter IV FightPad", 6, "select", JOYB_SELECT },
 		{ 0x1bad, 0xf028, "Street Fighter IV FightPad", 7, "start", JOYB_START },
-		/* TOMMO NEOGEOX Arcade Stick */
+		/* TOMMO NEOGEOX Arcade Stick (1292:4e47) */
 		{ 0x1292, 0x4e47, "TOMMO NEOGEOX Arcade Stick", 1, "a", JOYB_A },
 		{ 0x1292, 0x4e47, "TOMMO NEOGEOX Arcade Stick", 0, "b", JOYB_B },
 		{ 0x1292, 0x4e47, "TOMMO NEOGEOX Arcade Stick", 2, "x", JOYB_X },
 		{ 0x1292, 0x4e47, "TOMMO NEOGEOX Arcade Stick", 3, "y", JOYB_Y },
 		{ 0x1292, 0x4e47, "TOMMO NEOGEOX Arcade Stick", 8, "select", JOYB_SELECT },
 		{ 0x1292, 0x4e47, "TOMMO NEOGEOX Arcade Stick", 9, "start", JOYB_START },
-		/* TRBot Joypad 0 */
+		/* TRBot Joypad 0 (0378:0003) */
 		{ 0x0378, 0x0003, "TRBot Joypad 0", 21, "a", JOYB_A },
 		{ 0x0378, 0x0003, "TRBot Joypad 0", 22, "b", JOYB_B },
 		{ 0x0378, 0x0003, "TRBot Joypad 0", 23, "x", JOYB_X },
@@ -2926,7 +2926,7 @@
 		{ 0x0378, 0x0003, "TRBot Joypad 0", 28, "tr", JOYB_TR },
 		{ 0x0378, 0x0003, "TRBot Joypad 0", 25, "select", JOYB_SELECT },
 		{ 0x0378, 0x0003, "TRBot Joypad 0", 26, "start", JOYB_START },
-		/* TRBot Joypad 1 */
+		/* TRBot Joypad 1 (06f0:0003) */
 		{ 0x06f0, 0x0003, "TRBot Joypad 1", 21, "a", JOYB_A },
 		{ 0x06f0, 0x0003, "TRBot Joypad 1", 22, "b", JOYB_B },
 		{ 0x06f0, 0x0003, "TRBot Joypad 1", 23, "x", JOYB_X },
@@ -2935,7 +2935,7 @@
 		{ 0x06f0, 0x0003, "TRBot Joypad 1", 28, "tr", JOYB_TR },
 		{ 0x06f0, 0x0003, "TRBot Joypad 1", 25, "select", JOYB_SELECT },
 		{ 0x06f0, 0x0003, "TRBot Joypad 1", 26, "start", JOYB_START },
-		/* TRBot Joypad 2 */
+		/* TRBot Joypad 2 (0a68:0003) */
 		{ 0x0a68, 0x0003, "TRBot Joypad 2", 21, "a", JOYB_A },
 		{ 0x0a68, 0x0003, "TRBot Joypad 2", 22, "b", JOYB_B },
 		{ 0x0a68, 0x0003, "TRBot Joypad 2", 23, "x", JOYB_X },
@@ -2944,7 +2944,7 @@
 		{ 0x0a68, 0x0003, "TRBot Joypad 2", 28, "tr", JOYB_TR },
 		{ 0x0a68, 0x0003, "TRBot Joypad 2", 25, "select", JOYB_SELECT },
 		{ 0x0a68, 0x0003, "TRBot Joypad 2", 26, "start", JOYB_START },
-		/* TRBot Joypad 3 */
+		/* TRBot Joypad 3 (0de0:0003) */
 		{ 0x0de0, 0x0003, "TRBot Joypad 3", 21, "a", JOYB_A },
 		{ 0x0de0, 0x0003, "TRBot Joypad 3", 22, "b", JOYB_B },
 		{ 0x0de0, 0x0003, "TRBot Joypad 3", 23, "x", JOYB_X },
@@ -2953,7 +2953,7 @@
 		{ 0x0de0, 0x0003, "TRBot Joypad 3", 28, "tr", JOYB_TR },
 		{ 0x0de0, 0x0003, "TRBot Joypad 3", 25, "select", JOYB_SELECT },
 		{ 0x0de0, 0x0003, "TRBot Joypad 3", 26, "start", JOYB_START },
-		/* FGT Rumble 3-in-1 */
+		/* FGT Rumble 3-in-1 (044f:b655) */
 		{ 0x044f, 0xb655, "FGT Rumble 3-in-1", 2, "a", JOYB_A },
 		{ 0x044f, 0xb655, "FGT Rumble 3-in-1", 1, "b", JOYB_B },
 		{ 0x044f, 0xb655, "FGT Rumble 3-in-1", 3, "x", JOYB_X },
@@ -2965,7 +2965,7 @@
 		{ 0x044f, 0xb655, "FGT Rumble 3-in-1", 8, "select", JOYB_SELECT },
 		{ 0x044f, 0xb655, "FGT Rumble 3-in-1", 9, "start", JOYB_START },
 		{ 0x044f, 0xb655, "FGT Rumble 3-in-1", 12, "mode", JOYB_MODE },
-		/* Thrustmaster Dual Trigger 3-in-1 */
+		/* Thrustmaster Dual Trigger 3-in-1 (044f:b323) */
 		{ 0x044f, 0xb323, "Thrustmaster Dual Trigger 3-in-1", 2, "a", JOYB_A },
 		{ 0x044f, 0xb323, "Thrustmaster Dual Trigger 3-in-1", 1, "b", JOYB_B },
 		{ 0x044f, 0xb323, "Thrustmaster Dual Trigger 3-in-1", 3, "x", JOYB_X },
@@ -2976,7 +2976,7 @@
 		{ 0x044f, 0xb323, "Thrustmaster Dual Trigger 3-in-1", 7, "tr2", JOYB_TR2 },
 		{ 0x044f, 0xb323, "Thrustmaster Dual Trigger 3-in-1", 8, "select", JOYB_SELECT },
 		{ 0x044f, 0xb323, "Thrustmaster Dual Trigger 3-in-1", 9, "start", JOYB_START },
-		/* THRUSTMASTER FireStorm Dual Power 2  */
+		/* THRUSTMASTER FireStorm Dual Power 2 (044f:b304) */
 		{ 0x044f, 0xb304, "THRUSTMASTER FireStorm Dual Power 2 ", 2, "a", JOYB_A },
 		{ 0x044f, 0xb304, "THRUSTMASTER FireStorm Dual Power 2 ", 0, "b", JOYB_B },
 		{ 0x044f, 0xb304, "THRUSTMASTER FireStorm Dual Power 2 ", 3, "x", JOYB_X },
@@ -2987,7 +2987,7 @@
 		{ 0x044f, 0xb304, "THRUSTMASTER FireStorm Dual Power 2 ", 7, "tr2", JOYB_TR2 },
 		{ 0x044f, 0xb304, "THRUSTMASTER FireStorm Dual Power 2 ", 8, "select", JOYB_SELECT },
 		{ 0x044f, 0xb304, "THRUSTMASTER FireStorm Dual Power 2 ", 9, "start", JOYB_START },
-		/* Thrustmaster T Mini */
+		/* Thrustmaster T Mini (044f:d001) */
 		{ 0x044f, 0xd001, "Thrustmaster T Mini", 2, "a", JOYB_A },
 		{ 0x044f, 0xd001, "Thrustmaster T Mini", 0, "b", JOYB_B },
 		{ 0x044f, 0xd001, "Thrustmaster T Mini", 3, "x", JOYB_X },
@@ -2998,25 +2998,25 @@
 		{ 0x044f, 0xd001, "Thrustmaster T Mini", 7, "tr2", JOYB_TR2 },
 		{ 0x044f, 0xd001, "Thrustmaster T Mini", 8, "select", JOYB_SELECT },
 		{ 0x044f, 0xd001, "Thrustmaster T Mini", 9, "start", JOYB_START },
-		/* THRUSTMASTER Top Gun Fox 2  Pro  */
+		/* THRUSTMASTER Top Gun Fox 2  Pro (044f:b102) */
 		{ 0x044f, 0xb102, "THRUSTMASTER Top Gun Fox 2  Pro ", 0, "a", JOYB_A },
 		{ 0x044f, 0xb102, "THRUSTMASTER Top Gun Fox 2  Pro ", 1, "b", JOYB_B },
 		{ 0x044f, 0xb102, "THRUSTMASTER Top Gun Fox 2  Pro ", 3, "x", JOYB_X },
 		{ 0x044f, 0xb102, "THRUSTMASTER Top Gun Fox 2  Pro ", 6, "y", JOYB_Y },
 		{ 0x044f, 0xb102, "THRUSTMASTER Top Gun Fox 2  Pro ", 4, "tl", JOYB_TL },
 		{ 0x044f, 0xb102, "THRUSTMASTER Top Gun Fox 2  Pro ", 5, "tr", JOYB_TR },
-		/* PC Game Controller        */
+		/* PC Game Controller (11ff:3331) */
 		{ 0x11ff, 0x3331, "PC Game Controller       ", 5, "a", JOYB_A },
 		{ 0x11ff, 0x3331, "PC Game Controller       ", 4, "b", JOYB_B },
 		{ 0x11ff, 0x3331, "PC Game Controller       ", 6, "tl", JOYB_TL },
 		{ 0x11ff, 0x3331, "PC Game Controller       ", 7, "tr", JOYB_TR },
 		{ 0x11ff, 0x3331, "PC Game Controller       ", 8, "tl2", JOYB_TL2 },
 		{ 0x11ff, 0x3331, "PC Game Controller       ", 9, "start", JOYB_START },
-		/*  NES PC Game Pad NES PC Game Pad  */
+		/* NES PC Game Pad NES PC Game Pad (1d57:0021) */
 		{ 0x1d57, 0x0021, " NES PC Game Pad NES PC Game Pad ", 0, "a", JOYB_A },
 		{ 0x1d57, 0x0021, " NES PC Game Pad NES PC Game Pad ", 1, "b", JOYB_B },
 		{ 0x1d57, 0x0021, " NES PC Game Pad NES PC Game Pad ", 3, "start", JOYB_START },
-		/* Toodles 2008 ChImp PC/PS3 Controller */
+		/* Toodles 2008 ChImp PC/PS3 Controller (14d8:cd07) */
 		{ 0x14d8, 0xcd07, "Toodles 2008 ChImp PC/PS3 Controller", 2, "a", JOYB_A },
 		{ 0x14d8, 0xcd07, "Toodles 2008 ChImp PC/PS3 Controller", 1, "b", JOYB_B },
 		{ 0x14d8, 0xcd07, "Toodles 2008 ChImp PC/PS3 Controller", 3, "x", JOYB_X },
@@ -3027,7 +3027,7 @@
 		{ 0x14d8, 0xcd07, "Toodles 2008 ChImp PC/PS3 Controller", 6, "tr2", JOYB_TR2 },
 		{ 0x14d8, 0xcd07, "Toodles 2008 ChImp PC/PS3 Controller", 8, "select", JOYB_SELECT },
 		{ 0x14d8, 0xcd07, "Toodles 2008 ChImp PC/PS3 Controller", 9, "start", JOYB_START },
-		/* Toodles 2008 Cthulhu Mult */
+		/* Toodles 2008 Cthulhu Mult (14d8:face) */
 		{ 0x14d8, 0xface, "Toodles 2008 Cthulhu Mult", 2, "a", JOYB_A },
 		{ 0x14d8, 0xface, "Toodles 2008 Cthulhu Mult", 1, "b", JOYB_B },
 		{ 0x14d8, 0xface, "Toodles 2008 Cthulhu Mult", 3, "x", JOYB_X },
@@ -3038,7 +3038,7 @@
 		{ 0x14d8, 0xface, "Toodles 2008 Cthulhu Mult", 7, "tr2", JOYB_TR2 },
 		{ 0x14d8, 0xface, "Toodles 2008 Cthulhu Mult", 8, "select", JOYB_SELECT },
 		{ 0x14d8, 0xface, "Toodles 2008 Cthulhu Mult", 9, "start", JOYB_START },
-		/* Twin USB Joystick */
+		/* Twin USB Joystick (0810:0001) */
 		{ 0x0810, 0x0001, "Twin USB Joystick", 1, "a", JOYB_A },
 		{ 0x0810, 0x0001, "Twin USB Joystick", 2, "b", JOYB_B },
 		{ 0x0810, 0x0001, "Twin USB Joystick", 0, "x", JOYB_X },
@@ -3049,7 +3049,7 @@
 		{ 0x0810, 0x0001, "Twin USB Joystick", 5, "tr2", JOYB_TR2 },
 		{ 0x0810, 0x0001, "Twin USB Joystick", 8, "select", JOYB_SELECT },
 		{ 0x0810, 0x0001, "Twin USB Joystick", 9, "start", JOYB_START },
-		/* USB Joystick  */
+		/* USB Joystick (12bd:c001) */
 		{ 0x12bd, 0xc001, "USB Joystick ", 1, "a", JOYB_A },
 		{ 0x12bd, 0xc001, "USB Joystick ", 2, "b", JOYB_B },
 		{ 0x12bd, 0xc001, "USB Joystick ", 0, "x", JOYB_X },
@@ -3060,7 +3060,7 @@
 		{ 0x12bd, 0xc001, "USB Joystick ", 7, "tr2", JOYB_TR2 },
 		{ 0x12bd, 0xc001, "USB Joystick ", 8, "select", JOYB_SELECT },
 		{ 0x12bd, 0xc001, "USB Joystick ", 9, "start", JOYB_START },
-		/* USB Vibration Joystick */
+		/* USB Vibration Joystick (12bd:e001) */
 		{ 0x12bd, 0xe001, "USB Vibration Joystick", 1, "a", JOYB_A },
 		{ 0x12bd, 0xe001, "USB Vibration Joystick", 2, "b", JOYB_B },
 		{ 0x12bd, 0xe001, "USB Vibration Joystick", 0, "x", JOYB_X },
@@ -3071,7 +3071,7 @@
 		{ 0x12bd, 0xe001, "USB Vibration Joystick", 5, "tr2", JOYB_TR2 },
 		{ 0x12bd, 0xe001, "USB Vibration Joystick", 8, "select", JOYB_SELECT },
 		{ 0x12bd, 0xe001, "USB Vibration Joystick", 9, "start", JOYB_START },
-		/* USB gamepad            */
+		/* USB gamepad (081f:e401) */
 		{ 0x081f, 0xe401, "USB gamepad           ", 1, "a", JOYB_A },
 		{ 0x081f, 0xe401, "USB gamepad           ", 2, "b", JOYB_B },
 		{ 0x081f, 0xe401, "USB gamepad           ", 0, "x", JOYB_X },
@@ -3080,8 +3080,8 @@
 		{ 0x081f, 0xe401, "USB gamepad           ", 5, "tr", JOYB_TR },
 		{ 0x081f, 0xe401, "USB gamepad           ", 8, "select", JOYB_SELECT },
 		{ 0x081f, 0xe401, "USB gamepad           ", 9, "start", JOYB_START },
-		/* Ultimarc J-PAC */
-		/* Venom Limited PS3/PS4 Arcade Joystick */
+		/* Ultimarc J-PAC (d209:0450) */
+		/* Venom Limited PS3/PS4 Arcade Joystick (0079:181a) */
 		{ 0x0079, 0x181a, "Venom Limited PS3/PS4 Arcade Joystick", 2, "a", JOYB_A },
 		{ 0x0079, 0x181a, "Venom Limited PS3/PS4 Arcade Joystick", 1, "b", JOYB_B },
 		{ 0x0079, 0x181a, "Venom Limited PS3/PS4 Arcade Joystick", 3, "x", JOYB_X },
@@ -3092,7 +3092,7 @@
 		{ 0x0079, 0x181a, "Venom Limited PS3/PS4 Arcade Joystick", 7, "tr2", JOYB_TR2 },
 		{ 0x0079, 0x181a, "Venom Limited PS3/PS4 Arcade Joystick", 8, "select", JOYB_SELECT },
 		{ 0x0079, 0x181a, "Venom Limited PS3/PS4 Arcade Joystick", 9, "start", JOYB_START },
-		/* Gamepad */
+		/* Gamepad (05ac:022d) */
 		{ 0x05ac, 0x022d, "Gamepad", 0, "a", JOYB_A },
 		{ 0x05ac, 0x022d, "Gamepad", 1, "b", JOYB_B },
 		{ 0x05ac, 0x022d, "Gamepad", 3, "x", JOYB_X },
@@ -3103,7 +3103,7 @@
 		{ 0x05ac, 0x022d, "Gamepad", 9, "tr2", JOYB_TR2 },
 		{ 0x05ac, 0x022d, "Gamepad", 10, "select", JOYB_SELECT },
 		{ 0x05ac, 0x022d, "Gamepad", 11, "start", JOYB_START },
-		/* Wireless Steam Controller */
+		/* Wireless Steam Controller (28de:1142) */
 		{ 0x28de, 0x1142, "Wireless Steam Controller", 3, "a", JOYB_A },
 		{ 0x28de, 0x1142, "Wireless Steam Controller", 2, "b", JOYB_B },
 		{ 0x28de, 0x1142, "Wireless Steam Controller", 5, "x", JOYB_X },
@@ -3113,7 +3113,7 @@
 		{ 0x28de, 0x1142, "Wireless Steam Controller", 10, "select", JOYB_SELECT },
 		{ 0x28de, 0x1142, "Wireless Steam Controller", 11, "start", JOYB_START },
 		{ 0x28de, 0x1142, "Wireless Steam Controller", 12, "mode", JOYB_MODE },
-		/* SL-6566 */
+		/* SL-6566 (1a34:0809) */
 		{ 0x1a34, 0x0809, "SL-6566", 0, "a", JOYB_A },
 		{ 0x1a34, 0x0809, "SL-6566", 1, "b", JOYB_B },
 		{ 0x1a34, 0x0809, "SL-6566", 2, "x", JOYB_X },
@@ -3125,7 +3125,7 @@
 		{ 0x1a34, 0x0809, "SL-6566", 8, "select", JOYB_SELECT },
 		{ 0x1a34, 0x0809, "SL-6566", 9, "start", JOYB_START },
 		{ 0x1a34, 0x0809, "SL-6566", 5, "mode", JOYB_MODE },
-		/* Xarcade-to-Gamepad Device */
+		/* Xarcade-to-Gamepad Device (aa55:0101) */
 		{ 0xaa55, 0x0101, "Xarcade-to-Gamepad Device", 4, "a", JOYB_A },
 		{ 0xaa55, 0x0101, "Xarcade-to-Gamepad Device", 3, "b", JOYB_B },
 		{ 0xaa55, 0x0101, "Xarcade-to-Gamepad Device", 1, "x", JOYB_X },
@@ -3136,7 +3136,7 @@
 		{ 0xaa55, 0x0101, "Xarcade-to-Gamepad Device", 7, "tr2", JOYB_TR2 },
 		{ 0xaa55, 0x0101, "Xarcade-to-Gamepad Device", 8, "select", JOYB_SELECT },
 		{ 0xaa55, 0x0101, "Xarcade-to-Gamepad Device", 9, "start", JOYB_START },
-		/* Xbox 360 Wireless Receiver */
+		/* Xbox 360 Wireless Receiver (045e:02a1) */
 		{ 0x045e, 0x02a1, "Xbox 360 Wireless Receiver", 1, "a", JOYB_A },
 		{ 0x045e, 0x02a1, "Xbox 360 Wireless Receiver", 0, "b", JOYB_B },
 		{ 0x045e, 0x02a1, "Xbox 360 Wireless Receiver", 3, "x", JOYB_X },
@@ -3146,7 +3146,7 @@
 		{ 0x045e, 0x02a1, "Xbox 360 Wireless Receiver", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x02a1, "Xbox 360 Wireless Receiver", 7, "start", JOYB_START },
 		{ 0x045e, 0x02a1, "Xbox 360 Wireless Receiver", 8, "mode", JOYB_MODE },
-		/* Xbox 360 Wireless Receiver (XBOX) */
+		/* Xbox 360 Wireless Receiver (XBOX) (045e:02a1) */
 		{ 0x045e, 0x02a1, "Xbox 360 Wireless Receiver (XBOX)", 1, "a", JOYB_A },
 		{ 0x045e, 0x02a1, "Xbox 360 Wireless Receiver (XBOX)", 0, "b", JOYB_B },
 		{ 0x045e, 0x02a1, "Xbox 360 Wireless Receiver (XBOX)", 3, "x", JOYB_X },
@@ -3156,7 +3156,7 @@
 		{ 0x045e, 0x02a1, "Xbox 360 Wireless Receiver (XBOX)", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x02a1, "Xbox 360 Wireless Receiver (XBOX)", 7, "start", JOYB_START },
 		{ 0x045e, 0x02a1, "Xbox 360 Wireless Receiver (XBOX)", 8, "mode", JOYB_MODE },
-		/* Xbox 360 Wireless Receiver */
+		/* Xbox 360 Wireless Receiver (045e:0719) */
 		{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", 1, "a", JOYB_A },
 		{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", 0, "b", JOYB_B },
 		{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", 3, "x", JOYB_X },
@@ -3166,7 +3166,7 @@
 		{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", 7, "start", JOYB_START },
 		{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", 8, "mode", JOYB_MODE },
-		/* Xbox 360 Wireless Receiver */
+		/* Xbox 360 Wireless Receiver (045e:0291) */
 		{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver", 1, "a", JOYB_A },
 		{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver", 0, "b", JOYB_B },
 		{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver", 3, "x", JOYB_X },
@@ -3176,7 +3176,7 @@
 		{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver", 7, "start", JOYB_START },
 		{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver", 8, "mode", JOYB_MODE },
-		/* Xbox Wireless Controller */
+		/* Xbox Wireless Controller (045e:028e) */
 		{ 0x045e, 0x028e, "Xbox Wireless Controller", 1, "a", JOYB_A },
 		{ 0x045e, 0x028e, "Xbox Wireless Controller", 0, "b", JOYB_B },
 		{ 0x045e, 0x028e, "Xbox Wireless Controller", 3, "x", JOYB_X },
@@ -3185,7 +3185,7 @@
 		{ 0x045e, 0x028e, "Xbox Wireless Controller", 5, "tr", JOYB_TR },
 		{ 0x045e, 0x028e, "Xbox Wireless Controller", 6, "select", JOYB_SELECT },
 		{ 0x045e, 0x028e, "Xbox Wireless Controller", 7, "start", JOYB_START },
-		/* Xiaomi Mi Bluetooth Gamepad */
+		/* Xiaomi Mi Bluetooth Gamepad (2717:3144) */
 		{ 0x2717, 0x3144, "Xiaomi Mi Bluetooth Gamepad", 5, "a", JOYB_A },
 		{ 0x2717, 0x3144, "Xiaomi Mi Bluetooth Gamepad", 4, "b", JOYB_B },
 		{ 0x2717, 0x3144, "Xiaomi Mi Bluetooth Gamepad", 8, "x", JOYB_X },
@@ -3194,7 +3194,7 @@
 		{ 0x2717, 0x3144, "Xiaomi Mi Bluetooth Gamepad", 11, "tr", JOYB_TR },
 		{ 0x2717, 0x3144, "Xiaomi Mi Bluetooth Gamepad", 14, "select", JOYB_SELECT },
 		{ 0x2717, 0x3144, "Xiaomi Mi Bluetooth Gamepad", 15, "start", JOYB_START },
-		/* Xin-Mo Xin-Mo Dual Arcade */
+		/* Xin-Mo Xin-Mo Dual Arcade (16c0:05e1) */
 		{ 0x16c0, 0x05e1, "Xin-Mo Xin-Mo Dual Arcade", 1, "a", JOYB_A },
 		{ 0x16c0, 0x05e1, "Xin-Mo Xin-Mo Dual Arcade", 0, "b", JOYB_B },
 		{ 0x16c0, 0x05e1, "Xin-Mo Xin-Mo Dual Arcade", 4, "x", JOYB_X },
@@ -3205,7 +3205,7 @@
 		{ 0x16c0, 0x05e1, "Xin-Mo Xin-Mo Dual Arcade", 2, "tr2", JOYB_TR2 },
 		{ 0x16c0, 0x05e1, "Xin-Mo Xin-Mo Dual Arcade", 7, "select", JOYB_SELECT },
 		{ 0x16c0, 0x05e1, "Xin-Mo Xin-Mo Dual Arcade", 6, "start", JOYB_START },
-		/* USB Game Device */
+		/* USB Game Device (04b4:c681) */
 		{ 0x04b4, 0xc681, "USB Game Device", 1, "a", JOYB_A },
 		{ 0x04b4, 0xc681, "USB Game Device", 2, "b", JOYB_B },
 		{ 0x04b4, 0xc681, "USB Game Device", 0, "x", JOYB_X },
@@ -3216,7 +3216,7 @@
 		{ 0x04b4, 0xc681, "USB Game Device", 7, "tr2", JOYB_TR2 },
 		{ 0x04b4, 0xc681, "USB Game Device", 8, "select", JOYB_SELECT },
 		{ 0x04b4, 0xc681, "USB Game Device", 9, "start", JOYB_START },
-		/* Zeemote: SteelSeries FREE */
+		/* Zeemote: SteelSeries FREE (1038:1412) */
 		{ 0x1038, 0x1412, "Zeemote: SteelSeries FREE", 1, "a", JOYB_A },
 		{ 0x1038, 0x1412, "Zeemote: SteelSeries FREE", 0, "b", JOYB_B },
 		{ 0x1038, 0x1412, "Zeemote: SteelSeries FREE", 4, "x", JOYB_X },
@@ -3225,7 +3225,7 @@
 		{ 0x1038, 0x1412, "Zeemote: SteelSeries FREE", 7, "tr", JOYB_TR },
 		{ 0x1038, 0x1412, "Zeemote: SteelSeries FREE", 12, "select", JOYB_SELECT },
 		{ 0x1038, 0x1412, "Zeemote: SteelSeries FREE", 11, "start", JOYB_START },
-		/* Zeroplus PS Vibration Feedback Converter  */
+		/* Zeroplus PS Vibration Feedback Converter (0c12:0005) */
 		{ 0x0c12, 0x0005, "Zeroplus PS Vibration Feedback Converter ", 1, "a", JOYB_A },
 		{ 0x0c12, 0x0005, "Zeroplus PS Vibration Feedback Converter ", 2, "b", JOYB_B },
 		{ 0x0c12, 0x0005, "Zeroplus PS Vibration Feedback Converter ", 0, "x", JOYB_X },
@@ -3236,7 +3236,7 @@
 		{ 0x0c12, 0x0005, "Zeroplus PS Vibration Feedback Converter ", 5, "tr2", JOYB_TR2 },
 		{ 0x0c12, 0x0005, "Zeroplus PS Vibration Feedback Converter ", 11, "select", JOYB_SELECT },
 		{ 0x0c12, 0x0005, "Zeroplus PS Vibration Feedback Converter ", 8, "start", JOYB_START },
-		/* ZhiXu Gamepad */
+		/* ZhiXu Gamepad (0079:181c) */
 		{ 0x0079, 0x181c, "ZhiXu Gamepad", 0, "a", JOYB_A },
 		{ 0x0079, 0x181c, "ZhiXu Gamepad", 1, "b", JOYB_B },
 		{ 0x0079, 0x181c, "ZhiXu Gamepad", 3, "x", JOYB_X },
@@ -3247,7 +3247,7 @@
 		{ 0x0079, 0x181c, "ZhiXu Gamepad", 9, "tr2", JOYB_TR2 },
 		{ 0x0079, 0x181c, "ZhiXu Gamepad", 10, "select", JOYB_SELECT },
 		{ 0x0079, 0x181c, "ZhiXu Gamepad", 11, "start", JOYB_START },
-		/* raphnet.net (S)NES Atari USB */
+		/* raphnet.net (S)NES Atari USB (1781:0a96) */
 		{ 0x1781, 0x0a96, "raphnet.net (S)NES Atari USB", 4, "a", JOYB_A },
 		{ 0x1781, 0x0a96, "raphnet.net (S)NES Atari USB", 1, "b", JOYB_B },
 		{ 0x1781, 0x0a96, "raphnet.net (S)NES Atari USB", 8, "x", JOYB_X },
@@ -3256,7 +3256,7 @@
 		{ 0x1781, 0x0a96, "raphnet.net (S)NES Atari USB", 2, "tr", JOYB_TR },
 		{ 0x1781, 0x0a96, "raphnet.net (S)NES Atari USB", 5, "select", JOYB_SELECT },
 		{ 0x1781, 0x0a96, "raphnet.net (S)NES Atari USB", 9, "start", JOYB_START },
-		/* Goodbetterbest Ltd Gioteck VX2 2.4G Wireless Controller */
+		/* Goodbetterbest Ltd Gioteck VX2 2.4G Wireless Controller (25f0:83c2) */
 		{ 0x25f0, 0x83c2, "Goodbetterbest Ltd Gioteck VX2 2.4G Wireless Controller", 1, "a", JOYB_A },
 		{ 0x25f0, 0x83c2, "Goodbetterbest Ltd Gioteck VX2 2.4G Wireless Controller", 2, "b", JOYB_B },
 		{ 0x25f0, 0x83c2, "Goodbetterbest Ltd Gioteck VX2 2.4G Wireless Controller", 0, "x", JOYB_X },
@@ -3267,7 +3267,7 @@
 		{ 0x25f0, 0x83c2, "Goodbetterbest Ltd Gioteck VX2 2.4G Wireless Controller", 7, "tr2", JOYB_TR2 },
 		{ 0x25f0, 0x83c2, "Goodbetterbest Ltd Gioteck VX2 2.4G Wireless Controller", 8, "select", JOYB_SELECT },
 		{ 0x25f0, 0x83c2, "Goodbetterbest Ltd Gioteck VX2 2.4G Wireless Controller", 9, "start", JOYB_START },
-		/* ShanWan Gioteck PS3 Wired Controller */
+		/* ShanWan Gioteck PS3 Wired Controller (25f0:c121) */
 		{ 0x25f0, 0xc121, "ShanWan Gioteck PS3 Wired Controller", 1, "a", JOYB_A },
 		{ 0x25f0, 0xc121, "ShanWan Gioteck PS3 Wired Controller", 2, "b", JOYB_B },
 		{ 0x25f0, 0xc121, "ShanWan Gioteck PS3 Wired Controller", 0, "x", JOYB_X },
@@ -3278,7 +3278,7 @@
 		{ 0x25f0, 0xc121, "ShanWan Gioteck PS3 Wired Controller", 7, "tr2", JOYB_TR2 },
 		{ 0x25f0, 0xc121, "ShanWan Gioteck PS3 Wired Controller", 8, "select", JOYB_SELECT },
 		{ 0x25f0, 0xc121, "ShanWan Gioteck PS3 Wired Controller", 9, "start", JOYB_START },
-		/* USB,2-axis 8-button gamepad */
+		/* USB,2-axis 8-button gamepad (0411:00c6) */
 		{ 0x0411, 0x00c6, "USB,2-axis 8-button gamepad", 0, "a", JOYB_A },
 		{ 0x0411, 0x00c6, "USB,2-axis 8-button gamepad", 1, "b", JOYB_B },
 		{ 0x0411, 0x00c6, "USB,2-axis 8-button gamepad", 2, "x", JOYB_X },
@@ -3287,7 +3287,7 @@
 		{ 0x0411, 0x00c6, "USB,2-axis 8-button gamepad", 5, "tr", JOYB_TR },
 		{ 0x0411, 0x00c6, "USB,2-axis 8-button gamepad", 6, "select", JOYB_SELECT },
 		{ 0x0411, 0x00c6, "USB,2-axis 8-button gamepad", 7, "start", JOYB_START },
-		/* BUFFALO BSGP1601 Series  */
+		/* BUFFALO BSGP1601 Series (1dd8:000b) */
 		{ 0x1dd8, 0x000b, "BUFFALO BSGP1601 Series ", 3, "a", JOYB_A },
 		{ 0x1dd8, 0x000b, "BUFFALO BSGP1601 Series ", 5, "b", JOYB_B },
 		{ 0x1dd8, 0x000b, "BUFFALO BSGP1601 Series ", 2, "x", JOYB_X },
@@ -3299,7 +3299,7 @@
 		{ 0x1dd8, 0x000b, "BUFFALO BSGP1601 Series ", 14, "select", JOYB_SELECT },
 		{ 0x1dd8, 0x000b, "BUFFALO BSGP1601 Series ", 15, "start", JOYB_START },
 		{ 0x1dd8, 0x000b, "BUFFALO BSGP1601 Series ", 12, "mode", JOYB_MODE },
-		/* USB,2-axis 8-button gamepad   */
+		/* USB,2-axis 8-button gamepad (0583:2060) */
 		{ 0x0583, 0x2060, "USB,2-axis 8-button gamepad  ", 0, "a", JOYB_A },
 		{ 0x0583, 0x2060, "USB,2-axis 8-button gamepad  ", 1, "b", JOYB_B },
 		{ 0x0583, 0x2060, "USB,2-axis 8-button gamepad  ", 2, "x", JOYB_X },
@@ -3308,7 +3308,7 @@
 		{ 0x0583, 0x2060, "USB,2-axis 8-button gamepad  ", 5, "tr", JOYB_TR },
 		{ 0x0583, 0x2060, "USB,2-axis 8-button gamepad  ", 6, "select", JOYB_SELECT },
 		{ 0x0583, 0x2060, "USB,2-axis 8-button gamepad  ", 7, "start", JOYB_START },
-		/* iNNEXT SNES Gamepad */
+		/* iNNEXT SNES Gamepad (0079:0126) */
 		{ 0x0079, 0x0126, "iNNEXT SNES Gamepad", 1, "a", JOYB_A },
 		{ 0x0079, 0x0126, "iNNEXT SNES Gamepad", 2, "b", JOYB_B },
 		{ 0x0079, 0x0126, "iNNEXT SNES Gamepad", 0, "x", JOYB_X },
@@ -3317,7 +3317,7 @@
 		{ 0x0079, 0x0126, "iNNEXT SNES Gamepad", 5, "tr", JOYB_TR },
 		{ 0x0079, 0x0126, "iNNEXT SNES Gamepad", 8, "select", JOYB_SELECT },
 		{ 0x0079, 0x0126, "iNNEXT SNES Gamepad", 9, "start", JOYB_START },
-		/* iNNEXT SNES Gamepad */
+		/* iNNEXT SNES Gamepad (0079:0011) */
 		{ 0x0079, 0x0011, "iNNEXT SNES Gamepad", 1, "a", JOYB_A },
 		{ 0x0079, 0x0011, "iNNEXT SNES Gamepad", 2, "b", JOYB_B },
 		{ 0x0079, 0x0011, "iNNEXT SNES Gamepad", 0, "x", JOYB_X },
@@ -3326,7 +3326,7 @@
 		{ 0x0079, 0x0011, "iNNEXT SNES Gamepad", 5, "tr", JOYB_TR },
 		{ 0x0079, 0x0011, "iNNEXT SNES Gamepad", 8, "select", JOYB_SELECT },
 		{ 0x0079, 0x0011, "iNNEXT SNES Gamepad", 9, "start", JOYB_START },
-		/* ipega classic gamepad */
+		/* ipega classic gamepad (1949:0402) */
 		{ 0x1949, 0x0402, "ipega classic gamepad", 10, "a", JOYB_A },
 		{ 0x1949, 0x0402, "ipega classic gamepad", 9, "b", JOYB_B },
 		{ 0x1949, 0x0402, "ipega classic gamepad", 13, "x", JOYB_X },
@@ -3335,7 +3335,7 @@
 		{ 0x1949, 0x0402, "ipega classic gamepad", 16, "tr", JOYB_TR },
 		{ 0x1949, 0x0402, "ipega classic gamepad", 19, "select", JOYB_SELECT },
 		{ 0x1949, 0x0402, "ipega classic gamepad", 20, "start", JOYB_START },
-		/* Ipega_PG_9068_BT */
+		/* Ipega_PG_9068_BT (2563:0623) */
 		{ 0x2563, 0x0623, "Ipega_PG_9068_BT", 0, "a", JOYB_A },
 		{ 0x2563, 0x0623, "Ipega_PG_9068_BT", 1, "b", JOYB_B },
 		{ 0x2563, 0x0623, "Ipega_PG_9068_BT", 3, "x", JOYB_X },
@@ -3346,7 +3346,7 @@
 		{ 0x2563, 0x0623, "Ipega_PG_9068_BT", 9, "tr2", JOYB_TR2 },
 		{ 0x2563, 0x0623, "Ipega_PG_9068_BT", 10, "select", JOYB_SELECT },
 		{ 0x2563, 0x0623, "Ipega_PG_9068_BT", 10, "start", JOYB_START },
-		/* PG-9087 */
+		/* PG-9087 (8087:0a2a) */
 		{ 0x8087, 0x0a2a, "PG-9087", 11, "a", JOYB_A },
 		{ 0x8087, 0x0a2a, "PG-9087", 10, "b", JOYB_B },
 		{ 0x8087, 0x0a2a, "PG-9087", 14, "x", JOYB_X },
@@ -3357,7 +3357,7 @@
 		{ 0x8087, 0x0a2a, "PG-9087", 19, "tr2", JOYB_TR2 },
 		{ 0x8087, 0x0a2a, "PG-9087", 20, "select", JOYB_SELECT },
 		{ 0x8087, 0x0a2a, "PG-9087", 21, "start", JOYB_START },
-		/* kadevice.com KADE - Kick Ass Dynamic Encoder */
+		/* kadevice.com KADE - Kick Ass Dynamic Encoder (10c4:82c0) */
 		{ 0x10c4, 0x82c0, "kadevice.com KADE - Kick Ass Dynamic Encoder", 2, "a", JOYB_A },
 		{ 0x10c4, 0x82c0, "kadevice.com KADE - Kick Ass Dynamic Encoder", 1, "b", JOYB_B },
 		{ 0x10c4, 0x82c0, "kadevice.com KADE - Kick Ass Dynamic Encoder", 3, "x", JOYB_X },
@@ -3369,14 +3369,14 @@
 		{ 0x10c4, 0x82c0, "kadevice.com KADE - Kick Ass Dynamic Encoder", 8, "select", JOYB_SELECT },
 		{ 0x10c4, 0x82c0, "kadevice.com KADE - Kick Ass Dynamic Encoder", 9, "start", JOYB_START },
 		{ 0x10c4, 0x82c0, "kadevice.com KADE - Kick Ass Dynamic Encoder", 12, "mode", JOYB_MODE },
-		/* raphnet technologies Dual GC/N64 to USB v3.6 */
+		/* raphnet technologies Dual GC/N64 to USB v3.6 (289b:0063) */
 		{ 0x289b, 0x0063, "raphnet technologies Dual GC/N64 to USB v3.6", 0, "a", JOYB_A },
 		{ 0x289b, 0x0063, "raphnet technologies Dual GC/N64 to USB v3.6", 1, "b", JOYB_B },
 		{ 0x289b, 0x0063, "raphnet technologies Dual GC/N64 to USB v3.6", 4, "tl", JOYB_TL },
 		{ 0x289b, 0x0063, "raphnet technologies Dual GC/N64 to USB v3.6", 5, "tr", JOYB_TR },
 		{ 0x289b, 0x0063, "raphnet technologies Dual GC/N64 to USB v3.6", 2, "tl2", JOYB_TL2 },
 		{ 0x289b, 0x0063, "raphnet technologies Dual GC/N64 to USB v3.6", 3, "start", JOYB_START },
-		/* raphnet technologies Dual SNES to USB v2.1 */
+		/* raphnet technologies Dual SNES to USB v2.1 (289b:002f) */
 		{ 0x289b, 0x002f, "raphnet technologies Dual SNES to USB v2.1", 4, "a", JOYB_A },
 		{ 0x289b, 0x002f, "raphnet technologies Dual SNES to USB v2.1", 1, "b", JOYB_B },
 		{ 0x289b, 0x002f, "raphnet technologies Dual SNES to USB v2.1", 5, "x", JOYB_X },
@@ -3384,7 +3384,7 @@
 		{ 0x289b, 0x002f, "raphnet technologies Dual SNES to USB v2.1", 6, "tl", JOYB_TL },
 		{ 0x289b, 0x002f, "raphnet technologies Dual SNES to USB v2.1", 7, "tr", JOYB_TR },
 		{ 0x289b, 0x002f, "raphnet technologies Dual SNES to USB v2.1", 3, "start", JOYB_START },
-		/* raphnet technologies SNES to USB v2.0 */
+		/* raphnet technologies SNES to USB v2.0 (289b:0026) */
 		{ 0x289b, 0x0026, "raphnet technologies SNES to USB v2.0", 4, "a", JOYB_A },
 		{ 0x289b, 0x0026, "raphnet technologies SNES to USB v2.0", 1, "b", JOYB_B },
 		{ 0x289b, 0x0026, "raphnet technologies SNES to USB v2.0", 5, "x", JOYB_X },
@@ -3392,7 +3392,7 @@
 		{ 0x289b, 0x0026, "raphnet technologies SNES to USB v2.0", 6, "tl", JOYB_TL },
 		{ 0x289b, 0x0026, "raphnet technologies SNES to USB v2.0", 7, "tr", JOYB_TR },
 		{ 0x289b, 0x0026, "raphnet technologies SNES to USB v2.0", 3, "start", JOYB_START },
-		/* raphnet technologies SNES to USB v2.1 */
+		/* raphnet technologies SNES to USB v2.1 (289b:002e) */
 		{ 0x289b, 0x002e, "raphnet technologies SNES to USB v2.1", 4, "a", JOYB_A },
 		{ 0x289b, 0x002e, "raphnet technologies SNES to USB v2.1", 1, "b", JOYB_B },
 		{ 0x289b, 0x002e, "raphnet technologies SNES to USB v2.1", 5, "x", JOYB_X },
@@ -3400,7 +3400,7 @@
 		{ 0x289b, 0x002e, "raphnet technologies SNES to USB v2.1", 6, "tl", JOYB_TL },
 		{ 0x289b, 0x002e, "raphnet technologies SNES to USB v2.1", 7, "tr", JOYB_TR },
 		{ 0x289b, 0x002e, "raphnet technologies SNES to USB v2.1", 3, "start", JOYB_START },
-		/* raphnet.net Saturn_Adapter_2.0 */
+		/* raphnet.net Saturn_Adapter_2.0 (289b:0005) */
 		{ 0x289b, 0x0005, "raphnet.net Saturn_Adapter_2.0", 5, "a", JOYB_A },
 		{ 0x289b, 0x0005, "raphnet.net Saturn_Adapter_2.0", 2, "b", JOYB_B },
 		{ 0x289b, 0x0005, "raphnet.net Saturn_Adapter_2.0", 0, "x", JOYB_X },
@@ -3410,7 +3410,7 @@
 		{ 0x289b, 0x0005, "raphnet.net Saturn_Adapter_2.0", 3, "tl2", JOYB_TL2 },
 		{ 0x289b, 0x0005, "raphnet.net Saturn_Adapter_2.0", 4, "tr2", JOYB_TR2 },
 		{ 0x289b, 0x0005, "raphnet.net Saturn_Adapter_2.0", 9, "start", JOYB_START },
-		/* raphnet.net 4nes4snes */
+		/* raphnet.net 4nes4snes (1781:0a96) */
 		{ 0x1781, 0x0a96, "raphnet.net 4nes4snes", 4, "a", JOYB_A },
 		{ 0x1781, 0x0a96, "raphnet.net 4nes4snes", 0, "b", JOYB_B },
 		{ 0x1781, 0x0a96, "raphnet.net 4nes4snes", 5, "x", JOYB_X },
@@ -3419,7 +3419,7 @@
 		{ 0x1781, 0x0a96, "raphnet.net 4nes4snes", 7, "tr", JOYB_TR },
 		{ 0x1781, 0x0a96, "raphnet.net 4nes4snes", 2, "select", JOYB_SELECT },
 		{ 0x1781, 0x0a96, "raphnet.net 4nes4snes", 3, "start", JOYB_START },
-		/* raphnet.net GC/N64 to USB, v2.3 */
+		/* raphnet.net GC/N64 to USB, v2.3 (289b:0004) */
 		{ 0x289b, 0x0004, "raphnet.net GC/N64 to USB, v2.3", 5, "a", JOYB_A },
 		{ 0x289b, 0x0004, "raphnet.net GC/N64 to USB, v2.3", 4, "b", JOYB_B },
 		{ 0x289b, 0x0004, "raphnet.net GC/N64 to USB, v2.3", 3, "x", JOYB_X },
@@ -3428,12 +3428,12 @@
 		{ 0x289b, 0x0004, "raphnet.net GC/N64 to USB, v2.3", 7, "tr", JOYB_TR },
 		{ 0x289b, 0x0004, "raphnet.net GC/N64 to USB, v2.3", 8, "select", JOYB_SELECT },
 		{ 0x289b, 0x0004, "raphnet.net GC/N64 to USB, v2.3", 1, "start", JOYB_START },
-		/* retronicdesign.com Sega Joypad Adapter v3.0 */
+		/* retronicdesign.com Sega Joypad Adapter v3.0 (16c0:0a99) */
 		{ 0x16c0, 0x0a99, "retronicdesign.com Sega Joypad Adapter v3.0", 2, "a", JOYB_A },
 		{ 0x16c0, 0x0a99, "retronicdesign.com Sega Joypad Adapter v3.0", 1, "b", JOYB_B },
 		{ 0x16c0, 0x0a99, "retronicdesign.com Sega Joypad Adapter v3.0", 0, "y", JOYB_Y },
 		{ 0x16c0, 0x0a99, "retronicdesign.com Sega Joypad Adapter v3.0", 3, "start", JOYB_START },
-		/* usb gamepad            */
+		/* usb gamepad (0810:e501) */
 		{ 0x0810, 0xe501, "usb gamepad           ", 1, "a", JOYB_A },
 		{ 0x0810, 0xe501, "usb gamepad           ", 2, "b", JOYB_B },
 		{ 0x0810, 0xe501, "usb gamepad           ", 0, "x", JOYB_X },
@@ -3444,7 +3444,7 @@
 		{ 0x0810, 0xe501, "usb gamepad           ", 7, "tr2", JOYB_TR2 },
 		{ 0x0810, 0xe501, "usb gamepad           ", 8, "select", JOYB_SELECT },
 		{ 0x0810, 0xe501, "usb gamepad           ", 9, "start", JOYB_START },
-		/* WiseGroup.,Ltd SmartJoy Dual PLUS Adapter */
+		/* WiseGroup.,Ltd SmartJoy Dual PLUS Adapter (1a15:2262) */
 		{ 0x1a15, 0x2262, "WiseGroup.,Ltd SmartJoy Dual PLUS Adapter", 1, "a", JOYB_A },
 		{ 0x1a15, 0x2262, "WiseGroup.,Ltd SmartJoy Dual PLUS Adapter", 2, "b", JOYB_B },
 		{ 0x1a15, 0x2262, "WiseGroup.,Ltd SmartJoy Dual PLUS Adapter", 0, "x", JOYB_X },
@@ -3455,7 +3455,7 @@
 		{ 0x1a15, 0x2262, "WiseGroup.,Ltd SmartJoy Dual PLUS Adapter", 5, "tr2", JOYB_TR2 },
 		{ 0x1a15, 0x2262, "WiseGroup.,Ltd SmartJoy Dual PLUS Adapter", 9, "select", JOYB_SELECT },
 		{ 0x1a15, 0x2262, "WiseGroup.,Ltd SmartJoy Dual PLUS Adapter", 8, "start", JOYB_START },
-		/* Gamesir-G3s */
+		/* Gamesir-G3s (05ac:022d) */
 		{ 0x05ac, 0x022d, "Gamesir-G3s", 1, "a", JOYB_A },
 		{ 0x05ac, 0x022d, "Gamesir-G3s", 0, "b", JOYB_B },
 		{ 0x05ac, 0x022d, "Gamesir-G3s", 4, "x", JOYB_X },
@@ -3466,7 +3466,7 @@
 		{ 0x05ac, 0x022d, "Gamesir-G3s", 9, "tr2", JOYB_TR2 },
 		{ 0x05ac, 0x022d, "Gamesir-G3s", 10, "select", JOYB_SELECT },
 		{ 0x05ac, 0x022d, "Gamesir-G3s", 11, "start", JOYB_START },
-		/* xiaoji Gamesir-G3s 1.02 */
+		/* xiaoji Gamesir-G3s 1.02 (05ac:033d) */
 		{ 0x05ac, 0x033d, "xiaoji Gamesir-G3s 1.02", 1, "a", JOYB_A },
 		{ 0x05ac, 0x033d, "xiaoji Gamesir-G3s 1.02", 0, "b", JOYB_B },
 		{ 0x05ac, 0x033d, "xiaoji Gamesir-G3s 1.02", 4, "x", JOYB_X },
@@ -3477,7 +3477,7 @@
 		{ 0x05ac, 0x033d, "xiaoji Gamesir-G3s 1.02", 9, "tr2", JOYB_TR2 },
 		{ 0x05ac, 0x033d, "xiaoji Gamesir-G3s 1.02", 10, "select", JOYB_SELECT },
 		{ 0x05ac, 0x033d, "xiaoji Gamesir-G3s 1.02", 11, "start", JOYB_START },
-		/* Gamesir-G3v */
+		/* Gamesir-G3v (05ac:022d) */
 		{ 0x05ac, 0x022d, "Gamesir-G3v", 1, "a", JOYB_A },
 		{ 0x05ac, 0x022d, "Gamesir-G3v", 0, "b", JOYB_B },
 		{ 0x05ac, 0x022d, "Gamesir-G3v", 4, "x", JOYB_X },
@@ -3488,7 +3488,7 @@
 		{ 0x05ac, 0x022d, "Gamesir-G3v", 9, "tr2", JOYB_TR2 },
 		{ 0x05ac, 0x022d, "Gamesir-G3v", 10, "select", JOYB_SELECT },
 		{ 0x05ac, 0x022d, "Gamesir-G3v", 11, "start", JOYB_START },
-		/* xiaoji Gamesir-G3v 1.00 */
+		/* xiaoji Gamesir-G3v 1.00 (05ac:033d) */
 		{ 0x05ac, 0x033d, "xiaoji Gamesir-G3v 1.00", 1, "a", JOYB_A },
 		{ 0x05ac, 0x033d, "xiaoji Gamesir-G3v 1.00", 0, "b", JOYB_B },
 		{ 0x05ac, 0x033d, "xiaoji Gamesir-G3v 1.00", 4, "x", JOYB_X },

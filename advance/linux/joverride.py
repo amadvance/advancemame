@@ -93,14 +93,14 @@ def process(file):
 	product = amap["input_product_id"]
 	desc = amap["input_device"]
 
-	print "\t\t/* " + desc + " */"
-
 	if vendor.isdigit() and product.isdigit():
 		ivendor = int(vendor)
 		iproduct = int(product)
 	else:
 		ivendor = int(vendor, 16)
 		iproduct = int(product, 16)
+
+	print "\t\t/* " + desc.strip() + " (" + format(ivendor, '04x')  + ":" + format(iproduct, '04x') + ") */"
 
 	entry(amap, desc, ivendor, iproduct, "input_a_btn", "a", "JOYB_A")
 	entry(amap, desc, ivendor, iproduct, "input_b_btn", "b", "JOYB_B")
