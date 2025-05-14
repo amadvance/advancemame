@@ -1,0 +1,82 @@
+AdvanceBERRY
+============
+
+AdvanceBERRY is built upon the Raspbian Buster 32-bit distribution.
+
+It is tailored for a quick boot, ensuring readiness within 15 seconds of 
+powering up your Raspberry Pi.
+
+It also removes all the boot messages and instead displays a splash screen at
+startup.
+
+Beyond these modifications, it functions as a full Raspbian distribution.
+
+
+How to access the system
+========================
+
+To access the Linux command line, press ALT+F2, and log in with the username 
+'pi' and password 'advance'.
+
+For halting the AdvanceMENU frontend, first press SCROLL-LOCK to unlock it. 
+Then, press ESC to select 'Exit'.
+
+If the terminal becomes unresponsive, press 'CTRL+C' to regain control. To 
+display the cursor again, use the cursor.sh script.
+
+
+How to add ROMs and other files
+===============================
+
+ROM files should be placed in the following directory:
+
+    /opt/advance/share/advance/rom
+
+The simplest method is to insert the microSD card into a Linux system,
+mount the second partition (usually labeled as "rootfs"), and copy the
+ROM files directly into the `rom` directory.
+
+You can also add additional media files. Samples should go into the "sample"
+directory, screenshots and clips into the "snap" directory, all located under:
+
+    /opt/advance/share/advance/
+
+These folders follow the standard structure used by AdvanceMENU and
+AdvanceMAME, and files placed here will be automatically recognized.
+
+
+Bluetooth
+=========
+
+Bluetooth pairing support is facilitated by the advblue daemon, started at
+boot. If troubleshooting is required, terminate the original daemon with
+'killall advblue' and then launch it in foreground mode using 'advblue -f'.
+
+This allows you to observe the communication between advblue and the 
+'bluetoothctl' tool, which is employed for listing and pairing devices.
+
+
+Gamepad
+=======
+
+When a gamepad is connected, you can verify button mapping correctness with 
+the 'advj' tool. It displays the real-time input of pressed buttons.
+
+If the mapping is incorrect, consider submitting your mapping to libretro. 
+AdvanceMAME utilizes the libretro mappings available in the "udev" directory 
+at:
+
+	:https://github.com/libretro/retroarch-joypad-autoconfig
+
+Although using these configuration files directly is currently not feasible,
+a future version of the AdvanceMAME binary should be included in the image.
+
+
+Internals
+=========
+
+The Advance programs are installed in /opt/advance. 
+
+The configuration .RC files are in the /home/pi/.advance directory.
+
+The startup logic is in the /home/pi/.profile script.

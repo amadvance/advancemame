@@ -1,0 +1,116 @@
+AdvanceBERRY
+============
+
+AdvanceBERRY is a ready-to-use Raspberry Pi image that transforms your Pi into
+a plug-and-play arcade gaming console for your TV.
+
+Originally created as a Christmas gift for children (and their parents), it
+is designed for users with little to no computer experience.
+
+It works out of the box, no keyboard required, even at first boot. Gamepads
+are automatically detected, including Bluetooth models.
+
+
+Installation
+============
+
+AdvanceBERRY supports Raspberry Pi 3 and 4. A Raspberry Pi 3 can handle all
+classic games, though some newer ones may require frame skipping. A Raspberry
+Pi 4 provides smoother performance for nearly all included games.
+
+To install AdvanceBERRY, you’ll need a 32 GB microSD card and the Raspberry Pi
+Imager.
+
+Download the Imager here:
+
+    https://www.raspberrypi.com/software/
+
+Open Raspberry Pi Imager, click "Choose OS", select "Use custom", and browse
+to the AdvanceBERRY `.img` file. Then click "Choose Storage" and select your
+microSD card. Click "Next" to begin writing the image. When asked about custom
+settings, click "No".
+
+Once the write is complete, insert the microSD card into your Raspberry Pi,
+connect it to your TV via HDMI, power it on, and have fun!
+
+
+First Start
+===========
+
+AdvanceBERRY boots directly into the launcher frontend, with animated previews
+of each game.
+
+If a gamepad is connected, you can press 'A' or 'X' to start a game, 'B' to
+show help, or 'Y' to launch a clone version of the game.
+
+If no gamepad is detected, a pairing screen appears and will display the
+controller once it connects.
+
+For Bluetooth gamepads, make sure to press the pairing button the first time
+you use it. On later boots, just turn it on.
+
+To shut down, press the 'SELECT' button and choose 'SHUTDOWN'.
+
+Enjoy the simplicity of AdvanceBERRY!
+
+
+Customization
+=============
+
+AdvanceBERRY works perfectly without customization, but offers several
+optional settings for those who want them.
+
+You can choose to enable 'mature' games, which are disabled by default to keep
+the system family-friendly.
+
+Some games are also excluded by default because they haven’t aged well. If you
+disagree with those choices, you can include them too.
+
+To access the frontend settings, connect a keyboard and press the SCROLL LOCK
+key. This unlocks the interface. Then press the TILDE (~) key (just below ESC)
+to open the menu.
+
+To enable mature games, go to 'Listing/Types' and press SPACE to toggle them.
+
+To include excluded games, go to 'Listing/Groups', press SPACE to enable the
+'Bad' group, then use F9 to update the rating of individual games so they
+appear in the list.
+
+To save changes, go to 'Settings/Save all settings'.
+
+
+FAQ
+===
+
+* Which controllers are supported?  
+  AdvanceBERRY uses RetroArch’s joypad configuration system. You can find the
+  list of supported controllers here:  
+  https://github.com/libretro/retroarch-joypad-autoconfig/tree/master/udev
+
+* Which controller is recommended?  
+  I personally use the 8BitDo SN30 Pro Bluetooth controller, but that’s just a
+  preference. Use whatever controller you’re most comfortable with.
+
+* Which microSD card is required?  
+  A 32 GB microSD card is the minimum required. Larger cards work fine, but
+  don’t provide any real advantage. A faster card can improve boot and loading
+  times, but won’t affect in-game performance.
+
+* Can I use a different tool to write the `.img` file to the microSD?  
+  Yes, any tool that can write a disk image will work. For example, on Linux
+  you can use the `dd` command—just make sure to choose the correct device.
+
+* Is a network connection required?  
+  No. AdvanceBERRY doesn’t require or use any network connection. Wired
+  networking is enabled in case it's needed, but no services like SSH are
+  available for remote access.
+
+* My Bluetooth joypad doesn’t connect or pair. How do I fix it?  
+  If no joypad is detected at startup, AdvanceBERRY will show a countdown.
+  When the countdown ends, the Bluetooth state is reset, allowing new
+  pairings.
+
+  This is helpful if your controller was previously paired with AdvanceBERRY
+  but later connected to another device. In that case, AdvanceBERRY still
+  sees it as paired, but the controller won’t reconnect until re-paired.
+
