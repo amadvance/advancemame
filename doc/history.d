@@ -2,7 +2,7 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 5.0 2025/05
-	New games supported or improved: [arcadez2003] [grant2258] [Andrea Mazzoleni]
+	New games supported or improved: [arcadez2003] [grant2258]
 		19yy - 19YY
 		aladmdb - Aladdin (bootleg of Japanese Megadrive version)
 		backfirt - Back Fire (Tecmo)
@@ -116,22 +116,22 @@ AdvanceMAME/MESS Version 5.0 2025/05
 			Four new stages http://adb.arcadeitalia.net/?mame=dkongx
 		guwanges - Guwange (Japan Special Ver 2000 7-7
 			http://adb.arcadeitalia.net/?mame=guwanges
-	) Do not prevent startup if a mouse/joystick stick/axe/button name configured in the .ini is unplugged [Andrea Mazzoleni]
-	) Fix saving of IPT_OTHER ports the .ini file [Andrea Mazzoleni]
-	) Enable support for the MAME debugger [Andrea Mazzoleni]
-	) Use standard ports for A2600 and remove default key mapping for non-standard DIP switches [Andrea Mazzoleni]
-	) Add a new genre.ini [Andrea Mazzoleni]
-	) Remove startup "sync" to avoid delay when starting the game [Andrea Mazzoleni]
-	) Drop the dir_crc support [Andrea Mazzoleni]
-	) Rename mspactwin to mspactwn to stay in the 8 chars limit [Andrea Mazzoleni]
+	) Do not prevent startup if a mouse/joystick stick/axe/button name configured in the .ini is unplugged
+	) Fix saving of IPT_OTHER ports the .ini file
+	) Enable support for the MAME debugger
+	) Use standard ports for A2600 and remove default key mapping for non-standard DIP switches
+	) Add a new genre.ini
+	) Remove startup "sync" to avoid delay when starting the game
+	) Drop the dir_crc support
+	) Rename mspactwin to mspactwn to stay in the 8 chars limit
 
 AdvanceMENU Version 5.0 2025/05
-	) In menu stats list also the game description [Andrea Mazzoleni]
-	) New misc_sync option as default off as it's not expected to be needed [Andrea Mazzoleni]
-	) Fix some warnings to allow building with gcc 15 using c23 as default [Andrea Mazzoleni]
+	) In menu stats list also the game description
+	) New misc_sync option as default off as it's not expected to be needed
+	) Fix some warnings to allow building with gcc 15 using c23 as default
 
 AdvanceMAME/MESS Version 4.0 2024/10
-	New games supported or improved [arcadez2003] [grant2258] [Andrea Mazzoleni]
+	New games supported or improved [arcadez2003] [grant2258]
 		1943mii - 1943: The Battle of Midway Mark II (US)
 		alibaba - Ali Baba and 40 Thieves
 		asurabus - Asura Buster - Eternal Warriors (Japan)
@@ -179,22 +179,22 @@ AdvanceMAME/MESS Version 4.0 2024/10
 		tmnt2 - Teenage Mutant Ninja Turtles - Turtles in Time (4 Players ver UAA)
 		wingforc - Wing Force (Japan, prototype)
 
-	) Assume imperfect games with incomplete protection emulation [Andrea Mazzoleni]
-	) Add build for AdvanceBERRY 64 bit [Andrea Mazzoleni]
-	) Remove the auto selection of buffered vs direct write [Andrea Mazzoleni]
-	) Detect the VideoCore also in /usr [Andrea Mazzoleni]
-        ) Use XBR in all platforms [Andrea Mazzoleni]
-        ) Support OpenMP for XBR/ScaleK effect [Andrea Mazzoleni]
-        ) Add a configuration script for AdvanceBERRY [Andrea Mazzoleni]
-        ) Fix the frameskipping with slow game [Andrea Mazzoleni]
-        ) Fix and extend the speedmark support [Andrea Mazzoleni]
-        ) Update joystick definition from libretro [Andrea Mazzoleni]
-        ) Add coin option in the exit menu [Andrea Mazzoleni]
-        ) Add advmame Xbuttons configuration category [Andrea Mazzoleni]
-        ) Fix crash when saving a rotated png due integer promotion to unsigned [Andrea Mazzoleni]
+	) Assume imperfect games with incomplete protection emulation
+	) Add build for AdvanceBERRY 64 bit
+	) Remove the auto selection of buffered vs direct write
+	) Detect the VideoCore also in /usr
+        ) Use XBR in all platforms
+        ) Support OpenMP for XBR/ScaleK effect
+        ) Add a configuration script for AdvanceBERRY
+        ) Fix the frameskipping with slow game
+        ) Fix and extend the speedmark support
+        ) Update joystick definition from libretro
+        ) Add coin option in the exit menu
+        ) Add advmame Xbuttons configuration category
+        ) Fix crash when saving a rotated png due integer promotion to unsigned
 
 AdvanceMAME/MESS Version 3.10 2024/02
-	New games supported or improved [arcadez2003] [grant2258] [Scandy] [Mario Montminy] [Haze] [Andrea Mazzoleni]
+	New games supported or improved [arcadez2003] [grant2258] [Scandy] [Mario Montminy] [Haze]
 		aquario - Clockwork Aquario (prototype)
 		b2b - Bang Bang Busters (2010 NCI release)
 		bloodwar - Blood Warrior
