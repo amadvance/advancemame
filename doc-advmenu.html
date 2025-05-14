@@ -373,6 +373,9 @@ Selectable background and help images with translucency.
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#5.7.7">5.7.7 misc_quiet</a><br>
 </td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.7.8">5.7.8 misc_sync</a><br>
+</td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#6">6 Formats Supported</a><br>
 </td></tr>
@@ -3257,6 +3260,38 @@ Disables the copyright text message at the startup.
 <pre>
 misc_quiet yes | no
 </pre>
+<h4><a name="5.7.8">5.7.8</a> 
+misc_sync
+</h4>
+This helps prevent filesystem corruption in case of an unexpected
+power loss.
+<p>
+On desktop systems, if other applications are actively writing to
+disk, enabling this option may cause a slight delay before the game
+starts.
+<p>
+AdvanceMENU already performs all necessary steps, according to each
+operating system, to ensure safe disk writes. However, this option
+provides an additional layer of protection in case the underlying
+system does not fully comply with expected standards.
+<p>
+<pre>
+misc_sync yes | no
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+yes
+</em></td><td width="90%">
+Enables filesystem syncronization.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+Disables (default).
+</td></tr>
+</table>
 <h2><a name="6">6</a> 
 Formats Supported
 </h2>

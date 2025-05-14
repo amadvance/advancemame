@@ -523,19 +523,22 @@ Help screen describing the user input keys.
 <a href="#8.15.5">8.15.5 misc_freeplay</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.6">8.15.6 misc_mutedemo</a><br>
+<a href="#8.15.6">8.15.6 misc_cocktail</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.7">8.15.7 misc_lang</a><br>
+<a href="#8.15.7">8.15.7 misc_mutedemo</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.8">8.15.8 misc_smp</a><br>
+<a href="#8.15.8">8.15.8 misc_lang</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.9">8.15.9 misc_quiet</a><br>
+<a href="#8.15.9">8.15.9 misc_smp</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.10">8.15.10 misc_timetorun</a><br>
+<a href="#8.15.10">8.15.10 misc_quiet</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.15.11">8.15.11 misc_timetorun</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
 <a href="#8.16">8.16 Support Files Configuration Options</a><br>
@@ -1127,8 +1130,8 @@ You can customize with specialized options the game difficulty and
 the game freeplay. These options are smart enough to solve
 common ambiguities and errors in the game dipswitches definitions.
 <p>
-More details are in the description of the `misc_diffucilty' and
-`misc_freeplay' options.
+More details are in the description of the `misc_difficulty',
+`misc_freeplay' and 'misc_cocktail' options.
 <h3><a name="5.20">5.20</a> 
 LCD Panel
 </h3>
@@ -1601,11 +1604,6 @@ dir_snap
 Single directory for the `snapshot'
 files.
 </td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-dir_crc
-</em></td><td width="90%">
-Single directory for the `crc' files.
-</td></tr>
 </table>
 <p>
 Defaults for DOS and Windows:
@@ -1665,11 +1663,6 @@ dir_snap
 </em></td><td width="90%">
 snap
 </td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-dir_crc
-</em></td><td width="90%">
-crc
-</td></tr>
 </table>
 <p>
 Defaults for Linux and Mac OS X:
@@ -1728,11 +1721,6 @@ $home/sta
 dir_snap
 </em></td><td width="90%">
 $home/snap
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-dir_crc
-</em></td><td width="90%">
-$home/crc
 </td></tr>
 </table>
 <p>
@@ -4637,6 +4625,30 @@ Activate the freeplay.
 </td></tr>
 </table>
 <h4><a name="8.15.6">8.15.6</a> 
+misc_cocktail
+</h4>
+Selects the cocktail mode if the game support it. This
+option works only with games that select the cocktail mode
+with dipswitches.
+<p>
+<pre>
+misc_cocktail yes | no
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+Don't change the default mode (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+yes
+</em></td><td width="90%">
+Activate the cocktail mode.
+</td></tr>
+</table>
+<h4><a name="8.15.7">8.15.7</a> 
 misc_mutedemo
 </h4>
 Selects the demo nosound mode if the game support it. This
@@ -4660,7 +4672,7 @@ yes
 Mute the demo sounds.
 </td></tr>
 </table>
-<h4><a name="8.15.7">8.15.7</a> 
+<h4><a name="8.15.8">8.15.8</a> 
 misc_lang
 </h4>
 Selects the game language and country. This option uses
@@ -4698,7 +4710,7 @@ Asian languages fallback to japanese language.
 <p>
 A game clone is selected only if it's a perfectly working
 clone.
-<h4><a name="8.15.8">8.15.8</a> 
+<h4><a name="8.15.9">8.15.9</a> 
 misc_smp
 </h4>
 Enables the "Symmetric Multi-Processing" (SMP).
@@ -4729,7 +4741,7 @@ Enabled (default).
 </table>
 <p>
 You can enable or disable it also on the runtime Video menu.
-<h4><a name="8.15.9">8.15.9</a> 
+<h4><a name="8.15.10">8.15.10</a> 
 misc_quiet
 </h4>
 Doesn't print the copyright text message at the startup, the
@@ -4738,7 +4750,7 @@ disclaimer and the generic game information screens.
 <pre>
 misc_quiet yes | no
 </pre>
-<h4><a name="8.15.10">8.15.10</a> 
+<h4><a name="8.15.11">8.15.11</a> 
 misc_timetorun
 </h4>
 Run the emulation only for the given number of seconds without
