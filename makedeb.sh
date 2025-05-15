@@ -9,6 +9,6 @@ if ! ./configure CFLAGS="-O2 -fno-strict-aliasing -fno-strict-overflow -fsigned-
 	exit 1
 fi
 
-if ! make deb -j4 ; then
+if ! make CONF_ARCH=deb deb -j4 ; then
 	exit 1
 fi
