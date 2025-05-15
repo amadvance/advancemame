@@ -342,12 +342,10 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 dnl Checks for library functions.
 
 if test $ac_system = unix ; then
-	AC_HEADER_STDC
 	AC_HEADER_SYS_WAIT
 	AC_HEADER_DIRENT
-	AC_HEADER_TIME
 	AC_HEADER_TIOCGWINSZ
-	AC_CHECK_HEADERS([unistd.h sched.h netdb.h termios.h execinfo.h])
+	AC_CHECK_HEADERS([unistd.h sched.h netdb.h termios.h execinfo.h time.h sys/time.h string.h stdlib.h])
 	AC_CHECK_HEADERS([sys/utsname.h sys/types.h sys/stat.h sys/socket.h sys/select.h sys/ioctl.h sys/time.h sys/mman.h sys/io.h sys/kd.h sys/vt.h])
 	AC_CHECK_HEADERS([netinet/in.h ucontext.h])
 	AC_C_CONST
