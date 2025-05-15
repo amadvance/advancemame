@@ -15,6 +15,7 @@ jobs:
       - run: ./configure
       - run: make -j$(nproc) all
       - run: make dist
+
   build-win:
     if: false # Disabled as it takes too much time, more than half an hour
     runs-on: windows-latest
@@ -31,3 +32,79 @@ jobs:
       - run: autoreconf -i --include=/mingw32/share/aclocal
       - run: ./configure
       - run: make all
+
+  build-arm:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure apt sources for armhf
+      run: |
+        # Backup original sources
+        sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+        # Clear all existing sources
+        sudo rm -f /etc/apt/sources.list
+        sudo rm -rf /etc/apt/sources.list.d/*
+        # Configure sources for amd64 (host) and armhf (cross-compilation)
+        echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu jammy main restricted universe multiverse" | sudo tee /etc/apt/sources.list
+        echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu jammy-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
+        echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu jammy-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
+        echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports jammy main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
+        echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
+        echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports jammy-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
+
+    - name: Add armhf architecture
+      run: |
+        sudo dpkg --add-architecture armhf
+        sudo apt-get update || true  # Tolerate repository errors
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y --no-install-recommends \
+          autoconf \
+          automake \
+          libtool \
+          gcc-arm-linux-gnueabihf \
+          g++-arm-linux-gnueabihf \
+          binutils-arm-linux-gnueabihf \
+          libsdl2-dev:armhf \
+          libasound2-dev:armhf \
+          libfreetype6-dev:armhf \
+          zlib1g-dev:armhf \
+          libexpat1-dev:armhf \
+          libslang2-dev:armhf \
+          libncurses5-dev:armhf \
+          libglib2.0-dev:armhf \
+          libglib2.0-dev-bin:armhf \
+          debhelper \
+          dh-make
+
+    - name: Verify armhf dependencies
+      run: |
+        # Check that armhf libraries are installed
+        dpkg -l | grep -E 'libsdl2-dev:armhf|libasound2-dev:armhf|libfreetype6-dev:armhf|zlib1g-dev:armhf|libexpat1-dev:armhf|libslang2-dev:armhf|libncurses5-dev:armhf|libglib2.0-dev:armhf|libglib2.0-dev-bin:armhf' || {
+          echo "Error: One or more armhf dependencies are missing."
+          exit 1
+        }
+
+    - name: Run autogen.sh
+      run: |
+        ./autogen.sh
+
+    - name: Configure for armhf
+      run: |
+        ./configure --host=arm-linux-gnueabihf CFLAGS="-O2 -fno-strict-aliasing -fno-strict-overflow -fsigned-char"
+
+    - name: Build .deb package
+      run: |
+        make deb -j$(nproc)
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: armhf-deb
+        path: |
+          **/*.deb
+        retention-days: 7
