@@ -1,6 +1,9 @@
 Name
 	history - History For AdvanceMAME/MESS
 
+AdvanceMAME/MESS Version 5.1 2025/XX
+	) Fixed saving of game specific input configuration
+
 AdvanceMAME/MESS Version 5.0 2025/05
 	New games supported or improved: [arcadez2003] [grant2258]
 		19yy - 19YY
