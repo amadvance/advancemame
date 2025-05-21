@@ -37,7 +37,8 @@ mount the second partition (usually labeled as "rootfs"), and copy the
 ROM files directly into the `rom` directory.
 
 You can also add additional media files. Samples should go into the "sample"
-directory, screenshots and clips into the "snap" directory, all located under:
+directory, artworks in the "artwork" directory, screenshots and clips into
+the "snap" directory, all located under:
 
     /opt/advance/share/advance/
 
