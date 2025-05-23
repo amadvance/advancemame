@@ -81,3 +81,22 @@ The Advance programs are installed in /opt/advance.
 The configuration .RC files are in the /home/pi/.advance directory.
 
 The startup logic is in the /home/pi/.profile script.
+
+AdvanceMAME runs directly on the Linux framebuffer, without relying on the X
+graphical environment. This setup allows it to use hardware acceleration for
+scaling and multiple CPU cores for emulation and visual effects, delivering
+efficient performance.
+
+Only AdvanceMAME and the Linux kernel are active, communicating directly
+without intermediate libraries like SDL. This lean setup ensures minimal
+overhead and maximum responsiveness.
+
+Graphical effects are calibrated at runtime. The system initially attempts to
+use the XBR effect, and if performance is insufficient (though it usually
+handles it well), it automatically falls back to faster alternatives such as
+Scale2k or Scale2x.
+
+None of these effects are GPU shaders, they are implemented directly within
+AdvanceMAME. GPU shader-based effects, such as XBR when implemented as a
+shader, are generally too demanding for a Raspberry Pi and tend to negatively
+impact emulation speed.
