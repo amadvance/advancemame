@@ -182,7 +182,8 @@ int interp_16_dist(interp_uint16 p1, interp_uint16 p2)
 	if (g < 0) g = -g;
 	if (r < 0) r = -r;
 
-	return 3 * r + 4 * g + 2 * b;
+	/* 0.299 * r + 0.587 * g + 0.114 * b */
+	return 3 * r + 6 * g + 1 * b;
 }
 
 int interp_32_dist(interp_uint32 p1, interp_uint32 p2)
@@ -206,7 +207,8 @@ int interp_32_dist(interp_uint32 p1, interp_uint32 p2)
 	if (g < 0) g = -g;
 	if (r < 0) r = -r;
 
-	return 3 * r + 4 * g + 2 * b;
+	/* 0.299 * r + 0.587 * g + 0.114 * b */
+	return 3 * r + 6 * g + 1 * b;
 }
 
 int interp_yuy2_dist(interp_uint32 p1, interp_uint32 p2)
