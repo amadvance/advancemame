@@ -36,6 +36,7 @@
 
 typedef unsigned short interp_uint16;
 typedef unsigned interp_uint32;
+typedef unsigned interp_uintyuy2;
 
 /***************************************************************************/
 /* interpolation */

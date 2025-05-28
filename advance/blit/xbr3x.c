@@ -37,70 +37,49 @@
 /***************************************************************************/
 /* xbr3x C implementation */
 
-/*
- * This effect is a derivation of the XBR effect made by Hillian for the Kagi Fusion plugin.
- * We use a partially semplified algorithm to gain speed, but without loosing too much quality.
- * We also use a color distance based exclusively on the pixel luminance, mostly ignoring any chroma information.
- */
-
-/*
-           A1 B1 C1
-        A0 PA PB PC C4
-        D0 PD PE PF F4
-        G0 PG PH PI I4
-           G5 H5 I5
-
-        N0 N1 N2
-        N3 N4 N5
-        N6 N7 N8
- */
-
-#define XBR(type, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, N0, N1, N2, N3, N4, N5, N6, N7, N8) \
+#define XBR(size, PE, PI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, N0, N1, N2, N3, N4, N5, N6, N7, N8) \
 	if (PE != PH && PE != PF) { \
-		unsigned e = df3(PC, PE, PG) + df3(H5, PI, F4) + 4 * df(PH, PF); \
-		unsigned i = df3(PD, PH, I5) + df3(I4, PF, PB) + 4 * df(PE, PI); \
+		unsigned e = interp_##size##_dist3(PC, PE, PG) + interp_##size##_dist3(H5, PI, F4) + 4 * interp_##size##_dist(PH, PF); \
+		unsigned i = interp_##size##_dist3(PD, PH, I5) + interp_##size##_dist3(I4, PF, PB) + 4 * interp_##size##_dist(PE, PI); \
 		if (e < i) { \
 			int ex2 = PE != PC && PB != PC; \
 			int ex3 = PE != PG && PD != PG; \
-			unsigned ke = df(PF, PG); \
-			unsigned ki = df(PH, PC); \
-			type px = df(PE, PF) <= df(PE, PH) ? PF : PH; \
+			unsigned ke = interp_##size##_dist(PF, PG); \
+			unsigned ki = interp_##size##_dist(PH, PC); \
+			interp_uint##size px = interp_##size##_dist(PE, PF) <= interp_##size##_dist(PE, PH) ? PF : PH; \
 			if (ke == 0 && ki == 0 && ex3 && ex2) { \
-				LEFT_UP_2_3X(N7, N5, N6, N2, N8, px); \
+				LEFT_UP_2_3X(size, N7, N5, N6, N2, N8, px); \
 			} else if (2 * ke <= ki && ex3) { \
-				LEFT_2_3X(N7, N5, N6, N8, px); \
+				LEFT_2_3X(size, N7, N5, N6, N8, px); \
 			} else if (ke >= 2 * ki && ex2) { \
-				UP_2_3X(N5, N7, N2, N8, px); \
+				UP_2_3X(size, N5, N7, N2, N8, px); \
 			} else { \
-				DIA_3X(N8, N5, N7, px); \
+				DIA_3X(size, N8, N5, N7, px); \
 			} \
 		} \
 	}
 
-#define LEFT_UP_2_3X(N7, N5, N6, N2, N8, PIXEL) \
-	E[N5] = E[N7] = interp_16_31(PIXEL, E[N7]); \
-	E[N2] = E[N6] = interp_16_31(E[N6], PIXEL); \
+#define LEFT_UP_2_3X(size, N7, N5, N6, N2, N8, PIXEL) \
+	E[N5] = E[N7] = interp_##size##_31(PIXEL, E[N7]); \
+	E[N2] = E[N6] = interp_##size##_31(E[N6], PIXEL); \
 	E[N8] = PIXEL;
 
-#define LEFT_2_3X(N7, N5, N6, N8, PIXEL) \
-	E[N7] = interp_16_31(PIXEL, E[N7]); \
-	E[N5] = interp_16_31(E[N5], PIXEL); \
-	E[N6] = interp_16_31(E[N6], PIXEL); \
+#define LEFT_2_3X(size, N7, N5, N6, N8, PIXEL) \
+	E[N7] = interp_##size##_31(PIXEL, E[N7]); \
+	E[N5] = interp_##size##_31(E[N5], PIXEL); \
+	E[N6] = interp_##size##_31(E[N6], PIXEL); \
 	E[N8] = PIXEL;
 
-#define UP_2_3X(N5, N7, N2, N8, PIXEL) \
-	E[N5] = interp_16_31(PIXEL, E[N5]); \
-	E[N7] = interp_16_31(E[N7], PIXEL); \
-	E[N2] = interp_16_31(E[N2], PIXEL); \
+#define UP_2_3X(size, N5, N7, N2, N8, PIXEL) \
+	E[N5] = interp_##size##_31(PIXEL, E[N5]); \
+	E[N7] = interp_##size##_31(E[N7], PIXEL); \
+	E[N2] = interp_##size##_31(E[N2], PIXEL); \
 	E[N8] = PIXEL;
 
-#define DIA_3X(N8, N5, N7, PIXEL) \
-	E[N8] = interp_16_71(PIXEL, E[N8]); \
-	E[N5] = interp_16_71(E[N5], PIXEL); \
-	E[N7] = interp_16_71(E[N7], PIXEL);
-
-#define df(A, B) interp_16_dist(A, B)
-#define df3(A, B, C) interp_16_dist3(A, B, C)
+#define DIA_3X(size, N8, N5, N7, PIXEL) \
+	E[N8] = interp_##size##_71(PIXEL, E[N8]); \
+	E[N5] = interp_##size##_71(E[N5], PIXEL); \
+	E[N7] = interp_##size##_71(E[N7], PIXEL);
 
 void xbr3x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, interp_uint16* restrict dst2, const interp_uint16* restrict src0, const interp_uint16* restrict src1, const interp_uint16* restrict src2, const interp_uint16* restrict src3, const interp_uint16* restrict src4, unsigned count)
 {
@@ -195,10 +174,10 @@ void xbr3x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, in
 		E[7] = PE;
 		E[8] = PE;
 
-		XBR(interp_uint16, PE, xPI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, 3, 4, 5, 6, 7, 8);
-		XBR(interp_uint16, PE, PC, PF, PB, xPI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, 6, 3, 0, 7, 4, 1, 8, 5, 2);
-		XBR(interp_uint16, PE, PA, PB, PD, PC, PG, PF, PH, xPI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, 8, 7, 6, 5, 4, 3, 2, 1, 0);
-		XBR(interp_uint16, PE, PG, PD, PH, PA, xPI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 2, 5, 8, 1, 4, 7, 0, 3, 6);
+		XBR(16, PE, xPI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+		XBR(16, PE, PC, PF, PB, xPI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, 6, 3, 0, 7, 4, 1, 8, 5, 2);
+		XBR(16, PE, PA, PB, PD, PC, PG, PF, PH, xPI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+		XBR(16, PE, PG, PD, PH, PA, xPI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 2, 5, 8, 1, 4, 7, 0, 3, 6);
 
 		/* copy resulting pixel into dst */
 		dst0[0] = E[0];
@@ -221,38 +200,6 @@ void xbr3x_16_def(interp_uint16* restrict dst0, interp_uint16* restrict dst1, in
 		dst2 += 3;
 	}
 }
-
-#undef LEFT_UP_2_3X
-#undef LEFT_2_3X
-#undef UP_2_3X
-#undef DIA_3X
-#undef df
-#undef df3
-
-#define LEFT_UP_2_3X(N7, N5, N6, N2, N8, PIXEL) \
-	E[N5] = E[N7] = interp_32_31(PIXEL, E[N7]); \
-	E[N2] = E[N6] = interp_32_31(E[N6], PIXEL); \
-	E[N8] = PIXEL;
-
-#define LEFT_2_3X(N7, N5, N6, N8, PIXEL) \
-	E[N7] = interp_32_31(PIXEL, E[N7]); \
-	E[N5] = interp_32_31(E[N5], PIXEL); \
-	E[N6] = interp_32_31(E[N6], PIXEL); \
-	E[N8] = PIXEL;
-
-#define UP_2_3X(N5, N7, N2, N8, PIXEL) \
-	E[N5] = interp_32_31(PIXEL, E[N5]); \
-	E[N7] = interp_32_31(E[N7], PIXEL); \
-	E[N2] = interp_32_31(E[N2], PIXEL); \
-	E[N8] = PIXEL;
-
-#define DIA_3X(N8, N5, N7, PIXEL) \
-	E[N8] = interp_32_71(PIXEL, E[N8]); \
-	E[N5] = interp_32_71(E[N5], PIXEL); \
-	E[N7] = interp_32_71(E[N7], PIXEL);
-
-#define df(A, B) interp_32_dist(A, B)
-#define df3(A, B, C) interp_32_dist3(A, B, C)
 
 void xbr3x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, const interp_uint32* restrict src3, const interp_uint32* restrict src4, unsigned count)
 {
@@ -347,10 +294,10 @@ void xbr3x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, in
 		E[7] = PE;
 		E[8] = PE;
 
-		XBR(interp_uint32, PE, xPI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, 3, 4, 5, 6, 7, 8);
-		XBR(interp_uint32, PE, PC, PF, PB, xPI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, 6, 3, 0, 7, 4, 1, 8, 5, 2);
-		XBR(interp_uint32, PE, PA, PB, PD, PC, PG, PF, PH, xPI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, 8, 7, 6, 5, 4, 3, 2, 1, 0);
-		XBR(interp_uint32, PE, PG, PD, PH, PA, xPI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 2, 5, 8, 1, 4, 7, 0, 3, 6);
+		XBR(32, PE, xPI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+		XBR(32, PE, PC, PF, PB, xPI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, 6, 3, 0, 7, 4, 1, 8, 5, 2);
+		XBR(32, PE, PA, PB, PD, PC, PG, PF, PH, xPI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+		XBR(32, PE, PG, PD, PH, PA, xPI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 2, 5, 8, 1, 4, 7, 0, 3, 6);
 
 		/* copy resulting pixel into dst */
 		dst0[0] = E[0];
@@ -373,38 +320,6 @@ void xbr3x_32_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, in
 		dst2 += 3;
 	}
 }
-
-#undef LEFT_UP_2_3X
-#undef LEFT_2_3X
-#undef UP_2_3X
-#undef DIA_3X
-#undef df
-#undef df3
-
-#define LEFT_UP_2_3X(N7, N5, N6, N2, N8, PIXEL) \
-	E[N5] = E[N7] = interp_yuy2_31(PIXEL, E[N7]); \
-	E[N2] = E[N6] = interp_yuy2_31(E[N6], PIXEL); \
-	E[N8] = PIXEL;
-
-#define LEFT_2_3X(N7, N5, N6, N8, PIXEL) \
-	E[N7] = interp_yuy2_31(PIXEL, E[N7]); \
-	E[N5] = interp_yuy2_31(E[N5], PIXEL); \
-	E[N6] = interp_yuy2_31(E[N6], PIXEL); \
-	E[N8] = PIXEL;
-
-#define UP_2_3X(N5, N7, N2, N8, PIXEL) \
-	E[N5] = interp_yuy2_31(PIXEL, E[N5]); \
-	E[N7] = interp_yuy2_31(E[N7], PIXEL); \
-	E[N2] = interp_yuy2_31(E[N2], PIXEL); \
-	E[N8] = PIXEL;
-
-#define DIA_3X(N8, N5, N7, PIXEL) \
-	E[N8] = interp_yuy2_71(PIXEL, E[N8]); \
-	E[N5] = interp_yuy2_71(E[N5], PIXEL); \
-	E[N7] = interp_yuy2_71(E[N7], PIXEL);
-
-#define df(A, B) interp_yuy2_dist(A, B)
-#define df3(A, B, C) interp_yuy2_dist3(A, B, C)
 
 void xbr3x_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, interp_uint32* restrict dst2, const interp_uint32* restrict src0, const interp_uint32* restrict src1, const interp_uint32* restrict src2, const interp_uint32* restrict src3, const interp_uint32* restrict src4, unsigned count)
 {
@@ -499,10 +414,10 @@ void xbr3x_yuy2_def(interp_uint32* restrict dst0, interp_uint32* restrict dst1, 
 		E[7] = PE;
 		E[8] = PE;
 
-		XBR(interp_uint32, PE, xPI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, 3, 4, 5, 6, 7, 8);
-		XBR(interp_uint32, PE, PC, PF, PB, xPI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, 6, 3, 0, 7, 4, 1, 8, 5, 2);
-		XBR(interp_uint32, PE, PA, PB, PD, PC, PG, PF, PH, xPI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, 8, 7, 6, 5, 4, 3, 2, 1, 0);
-		XBR(interp_uint32, PE, PG, PD, PH, PA, xPI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 2, 5, 8, 1, 4, 7, 0, 3, 6);
+		XBR(yuy2, PE, xPI, PH, PF, PG, PC, PD, PB, PA, G5, C4, G0, D0, C1, B1, F4, I4, H5, I5, A0, A1, 0, 1, 2, 3, 4, 5, 6, 7, 8);
+		XBR(yuy2, PE, PC, PF, PB, xPI, PA, PH, PD, PG, I4, A1, I5, H5, A0, D0, B1, C1, F4, C4, G5, G0, 6, 3, 0, 7, 4, 1, 8, 5, 2);
+		XBR(yuy2, PE, PA, PB, PD, PC, PG, PF, PH, xPI, C1, G0, C4, F4, G5, H5, D0, A0, B1, A1, I4, I5, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+		XBR(yuy2, PE, PG, PD, PH, PA, xPI, PB, PF, PC, A0, I5, A1, B1, I4, F4, H5, G5, D0, G0, C1, C4, 2, 5, 8, 1, 4, 7, 0, 3, 6);
 
 		/* copy resulting pixel into dst */
 		dst0[0] = E[0];
