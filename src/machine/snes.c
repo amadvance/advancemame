@@ -336,7 +336,7 @@ static void snes_init_ram(void)
 		snes_ppu.beam.current_vert = SNES_MAX_LINES_PAL;
 	}
 
-	if (strcmp(Machine->gamedrv->name, "ffight2b") == 0 || strcmp(Machine->gamedrv->name, "rushbets") == 0) {
+	if (strcmp(Machine->gamedrv->name, "ffight2b") == 0 || strcmp(Machine->gamedrv->name, "rushbets") == 0) || strcmp(Machine->gamedrv->name, "ffight3b") == 0) {
 		ffight2b_hack = 1;
 	}
 }
