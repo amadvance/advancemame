@@ -1333,6 +1333,13 @@ static DRIVER_INIT(ffight3b)
 			rom[i] = BITSWAP8(rom[i], 4, 7, 0, 2, 5, 3, 1, 6) ^ 0xff;
 	}
 
+	// patch out protection
+	rom[0xfe33] = 0x5c;
+	rom[0xfe34] = 0x00;
+	rom[0xfe35] = 0x00;
+	rom[0xfe36] = 0xc0;
+	rom[0xfeab] = 0x60;
+
 	// boot vector. TODO: this is the same as the console version, but needs to be verified
 	rom[0xfffc] = 0x00;
 	rom[0xfffd] = 0xfe;
@@ -1341,14 +1348,6 @@ static DRIVER_INIT(ffight3b)
    	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770071, 0x770071, 0, 0, iron_770071_r);
 	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770073, 0x770073, 0, 0, iron_770073_r);
 	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770079, 0x770079, 0, 0, iron_770079_r);
-	
-	
-	// patch out protection
-	rom[0xfe33] = 0x5c;
-	rom[0xfe34] = 0x00;
-	rom[0xfe35] = 0x00;
-	rom[0xfe36] = 0xc0;
-	rom[0xfeab] = 0x60;
 	
 	init_snes_hirom();
 }
