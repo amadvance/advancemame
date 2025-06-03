@@ -1154,7 +1154,7 @@ void cps3_draw_tilemapsprite_line(int tmnum, int drawline, mame_bitmap *bitmap, 
 
 VIDEO_UPDATE(cps3)
 {
-	int y,x, count;
+	int x, count;
 //	int offset;
 
 	int bg_drawn[4] = { 0, 0, 0, 0 };
@@ -1415,23 +1415,37 @@ VIDEO_UPDATE(cps3)
 		}
 	}
 
-	// fg layer
+	/* fg layer - joystick combo meter in JoJo games relies on rowscroll */
 	{
-		// bank select? (sfiii2 intro)
-		if (cps3_ss_bank_base & 0x01000000) count = 0x000;
-		else count = 0x800;
+		int line;
 
-		for (y=0;y<32;y++)
+		/* bank select? (sfiii2 intro) */
+		if (cps3_ss_bank_base & 0x01000000)
+			count = 0x000;
+		else
+			count = 0x800;
+
+		for (line = cliprect->min_y; line <= cliprect->max_y; line++)
 		{
-			for (x=0;x<64;x++)
+			rectangle clip_line;
+			int y = line / 8;
+			int rowscroll;
+
+			clip_line = *cliprect;
+			clip_line.min_y = clip_line.max_y = line;
+
+			rowscroll = cps3_ss_ram[((line - 1) & 0x1ff) + 0x4000/4] >> 16;
+			count = (y * 64) + (cps3_ss_bank_base & 0x01000000 ? 0x000 : 0x800);
+
+			for (x = 0; x < 64; x++)
 			{
-				UINT32 data = cps3_ss_ram[count]; // +0x800 = 2nd bank, used on sfiii2 intro..
+				UINT32 data = cps3_ss_ram[count]; /* +0x800 = 2nd bank, used on sfiii2 intro.. */
 				UINT32 tile = (data >> 16) & 0x1ff;
-				int pal = (data&0x003f) >> 1;
+				int pal = (data & 0x003f) >> 1;
 				int flipx = (data & 0x0080) >> 7;
 				int flipy = (data & 0x0040) >> 6;
 				pal += cps3_ss_pal_base << 5;
-				tile+=0x200;
+				tile += 0x200;
 
 				if (cps3_ss_ram_dirty[tile])
 				{
@@ -1439,7 +1453,12 @@ VIDEO_UPDATE(cps3)
 					cps3_ss_ram_dirty[tile] = 0;
 				}
 
-				cps3_drawgfxzoom(bitmap, Machine->gfx[0],tile,pal,flipx,flipy,x*8,y*8,cliprect,CPS3_TRANSPARENCY_PEN,0,0x10000,0x10000,NULL,0);
+				cps3_drawgfxzoom(bitmap, Machine->gfx[0], tile, pal, flipx, flipy,
+					(x * 8) - rowscroll, y * 8, &clip_line,
+					CPS3_TRANSPARENCY_PEN, 0, 0x10000, 0x10000, NULL, 0);
+				cps3_drawgfxzoom(bitmap, Machine->gfx[0], tile, pal, flipx, flipy,
+					512 + (x * 8) - rowscroll, y * 8, &clip_line,
+					CPS3_TRANSPARENCY_PEN, 0, 0x10000, 0x10000, NULL, 0);
 				count++;
 			}
 		}
