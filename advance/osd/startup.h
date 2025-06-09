@@ -30,6 +30,10 @@
 
 /* the first match is used */
 
+{ "pzloop2", 12 }, /* 6.0 */
+{ "choko", 8 }, /* 6.0 */
+{ "mpang", 9 }, /* 6.0 */
+{ "jyangoku", 8 }, /* 6.0 */
 { "matchit2", 7 }, /* 4.1 */
 { "tfrceacjpb", 12 }, /* 4.1 */
 { "bublbob2p", 6 }, /* 4.1 */

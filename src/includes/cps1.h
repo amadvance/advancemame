@@ -39,5 +39,6 @@ VIDEO_UPDATE( cps1 );
 VIDEO_EOF( cps1 );
 DRIVER_INIT( cps1 );
 DRIVER_INIT( cps2 );
+DRIVER_INIT( cps2_video );
 
 #endif

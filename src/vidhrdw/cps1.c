@@ -390,6 +390,7 @@ static struct CPS1config cps1_config_table[]=
     /* CPS2 games */
 	{"cps2",    NOBATTRY, 4,4,4, 0x0000,0xffff,0x0000,0xffff },
 	{"ssf2",    NOBATTRY, 4,4,0, 0x0000,0xffff,0x0000,0xffff },
+	{"ssf2h",   NOBATTRY, 4,4,0, 0x0000,0xffff,0x0000,0xffff },
 	{"ssf2u",   NOBATTRY, 4,4,0, 0x0000,0xffff,0x0000,0xffff },
 	{"ssf2a",   NOBATTRY, 4,4,0, 0x0000,0xffff,0x0000,0xffff },
 	{"ssf2ar1", NOBATTRY, 4,4,0, 0x0000,0xffff,0x0000,0xffff },
@@ -405,13 +406,18 @@ static struct CPS1config cps1_config_table[]=
 	{"ssf2ta",  NOBATTRY, 4,4,0, 0x0000,0xffff,0x0000,0xffff, 9 },
 	{"ssf2xj",  NOBATTRY, 4,4,0, 0x0000,0xffff,0x0000,0xffff, 9 },
 	{"xmcota",  NOBATTRY, 4,4,4, 0x0000,0xffff,0x0000,0xffff, 8 },
+	{"xmcotaa", NOBATTRY, 4,4,4, 0x0000,0xffff,0x0000,0xffff, 8 },
 	{"xmcotau", NOBATTRY, 4,4,4, 0x0000,0xffff,0x0000,0xffff, 8 },
 	{"xmcotah", NOBATTRY, 4,4,4, 0x0000,0xffff,0x0000,0xffff, 8 },
 	{"xmcotaj", NOBATTRY, 4,4,4, 0x0000,0xffff,0x0000,0xffff, 8 },
 	{"xmcotaj1",NOBATTRY, 4,4,4, 0x0000,0xffff,0x0000,0xffff, 8 },
+	{"xmcotaj2",NOBATTRY, 4,4,4, 0x0000,0xffff,0x0000,0xffff, 8 },
+	{"xmcotaj3",NOBATTRY, 4,4,4, 0x0000,0xffff,0x0000,0xffff, 8 },
 	{"xmcotajr",NOBATTRY, 4,4,4, 0x0000,0xffff,0x0000,0xffff, 8 },
 	{"xmcotaa", NOBATTRY, 4,4,4, 0x0000,0xffff,0x0000,0xffff, 8 },
 	{"hsf2",    NOBATTRY, 4,4,0, 0x0000,0xffff,0x0000,0xffff, 9 },
+	{"hsf2a",   NOBATTRY, 4,4,0, 0x0000,0xffff,0x0000,0xffff, 9 },
+	{"hsf2j",   NOBATTRY, 4,4,0, 0x0000,0xffff,0x0000,0xffff, 9 },
 	{0}		/* End of table */
 };
 
@@ -758,27 +764,15 @@ DRIVER_INIT( cps1 )
 	cps1_gfx_decode();
 }
 
-DRIVER_INIT( cps2 )
+
+DRIVER_INIT( cps2_video )
 {
-	UINT16 *rom = (UINT16 *)memory_region(REGION_CPU1);
-	UINT16 *xor = (UINT16 *)memory_region(REGION_USER1);
-	int length = memory_region_length(REGION_CPU1);
-	int i;
-
-
-	for (i = 0;i < length/2;i++)
-		xor[i] ^= rom[i];
-
-	memory_set_decrypted_region(0, 0x000000, length - 1, xor);
-	m68k_set_encrypted_opcode_range(0,0,length);
-
 	cps2_gfx_decode();
 
 	scanline1 = 262;
 	scanline2 = 262;
-	scancalls = 0;
+	scancalls = 0;	
 }
-
 
 #if CPS1_DUMP_VIDEO
 void cps1_dump_video(void)
