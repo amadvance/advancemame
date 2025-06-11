@@ -974,14 +974,16 @@ static INTERRUPT_GEN( ddragon_interrupt )
 	}
 }
 
+#define DDRAGON_OVERCLOCK 2 /* overclock the game to avoid slowdowns */
+
 static MACHINE_DRIVER_START( ddragon )
 
 	/* basic machine hardware */
- 	MDRV_CPU_ADD(HD6309, 3579545)	/* 3.579545 MHz */
+ 	MDRV_CPU_ADD(HD6309, 3579545 * DDRAGON_OVERCLOCK)	/* 3.579545 MHz */
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
 	MDRV_CPU_VBLANK_INT(ddragon_interrupt,272)
 
-	MDRV_CPU_ADD(HD63701, 3579545 / 3) /* This divider seems correct by comparison to real board */
+	MDRV_CPU_ADD(HD63701, 3579545 / 3 * DDRAGON_OVERCLOCK) /* This divider seems correct by comparison to real board */
 	MDRV_CPU_PROGRAM_MAP(sub_readmem,sub_writemem)
 
  	MDRV_CPU_ADD(HD6309, 3579545)
@@ -1075,11 +1077,11 @@ MACHINE_DRIVER_END
 static MACHINE_DRIVER_START( ddragonb )
 
 	/* basic machine hardware */
- 	MDRV_CPU_ADD(HD6309, 3579545)	/* 3.579545 MHz */
+ 	MDRV_CPU_ADD(HD6309, 3579545 * DDRAGON_OVERCLOCK)	/* 3.579545 MHz */
 	MDRV_CPU_PROGRAM_MAP(readmem,writemem)
 	MDRV_CPU_VBLANK_INT(ddragon_interrupt,272)
 
- 	MDRV_CPU_ADD(HD6309, 12000000 / 3) /* 4 MHz */
+ 	MDRV_CPU_ADD(HD6309, 12000000 / 3 * DDRAGON_OVERCLOCK) /* 4 MHz */
 	MDRV_CPU_PROGRAM_MAP(sub_readmem,sub_writemem)
 
  	MDRV_CPU_ADD(HD6309, 3579545)
@@ -1123,11 +1125,11 @@ MACHINE_DRIVER_END
 static MACHINE_DRIVER_START( ddragon2 )
 
 	/* basic machine hardware */
- 	MDRV_CPU_ADD(HD6309, 3579545)	/* 3.579545 MHz */
+ 	MDRV_CPU_ADD(HD6309, 3579545 * DDRAGON_OVERCLOCK)	/* 3.579545 MHz */
 	MDRV_CPU_PROGRAM_MAP(dd2_readmem,dd2_writemem)
 	MDRV_CPU_VBLANK_INT(ddragon_interrupt,272)
 
-	MDRV_CPU_ADD(Z80,12000000 / 3) /* 4 MHz */
+	MDRV_CPU_ADD(Z80,12000000 / 3 * DDRAGON_OVERCLOCK) /* 4 MHz */
 	MDRV_CPU_PROGRAM_MAP(dd2_sub_readmem,dd2_sub_writemem)
 
 	MDRV_CPU_ADD(Z80, 3579545)
