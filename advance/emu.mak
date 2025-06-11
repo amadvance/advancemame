@@ -393,6 +393,9 @@ endif
 
 # Dependencies on VERSION/DATADIR/SYSCONFDIR
 $(OBJ)/advance/osd/emu.o: Makefile
+$(OBJ)/advance/osd/video.o: $(srcdir)/advance/osd/startup.dat
+$(OBJ)/advance/osd/video.o: $(srcdir)/advance/osd/blitmax.dat
+$(OBJ)/advance/linux/jevent.o: $(srcdir)/advance/linux/joverride.dat
 $(OBJ)/advance/linux/file.o: Makefile
 $(OBJ)/advance/osd/ui.o: Makefile
 $(MESSOBJ)/advance/osd/emu.o: Makefile

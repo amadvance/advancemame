@@ -1784,7 +1784,7 @@ adv_error advance_video_init(struct advance_video_context* context, adv_conf* cf
 }
 
 static const char* GAME_BLIT_COMBINE_MAX[] = {
-#include "blitmax.h"
+#include "blitmax.dat"
 	0
 };
 
@@ -1792,7 +1792,7 @@ static struct game_startup_struct {
 	const char* name;
 	int time;
 } GAME_STARTUP[] = {
-#include "startup.h"
+#include "startup.dat"
 	{ 0 }
 };
 
