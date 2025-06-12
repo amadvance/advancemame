@@ -133,7 +133,7 @@ static const mame_game* select_game(const char* gamename)
 		target_err("\nSimilar names are:\n");
 		for (i = 0; i < print_count && i < game_count; ++i) {
 			const mame_game* game = mame_game_at(game_map[i].index);
-			target_err("%10s %s\n", mame_game_name(game), mame_game_description(game));
+			target_err("%s %s (%s, %s)\n", mame_game_name(game), mame_game_description(game), mame_game_manufacturer(game), mame_game_year(game));
 		}
 	}
 
