@@ -5280,26 +5280,29 @@ READ8_HANDLER( K051733_r )
 
 		case 0x05:
 			return int_sqrt(op3<<16) & 0xff;
+			
+		case 0x06:
+			return K051733_ram[0x13]; /* RNG read, used by Chequered Flag for differentiate cars, could be wrong */
 
-		case 0x07:{
+		case 0x07:{ /* note: Chequered Flag definitely wants all these bits to be enabled */
 			if (xobj1c + rad < xobj2c)
-				return 0x80;
+				return 0xff;
 
 			if (xobj2c + rad < xobj1c)
-				return 0x80;
+				return 0xff;
 
 			if (yobj1c + rad < yobj2c)
-				return 0x80;
+				return 0xff;
 
 			if (yobj2c + rad < yobj1c)
-				return 0x80;
+				return 0xff;
 
 			return 0;
 		}
-		case 0x0e:
-			return ~K051733_ram[offset];
+		case 0x0e: /* best guess */
+			return (xobj2c - xobj1c) >> 8;
 		case 0x0f:
-			return ~K051733_ram[offset];
+			return (xobj2c - xobj1c) & 0xff;
 		default:
 			return K051733_ram[offset];
 	}
