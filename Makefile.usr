@@ -238,7 +238,7 @@ srcdir=.
 datadir=${prefix}/share
 sysconfdir=${prefix}/etc
 bindir=${prefix}/bin
-mandir=${prefix}/man
+mandir=${prefix}/share/man
 docdir=${prefix}/share/doc
 
 #############################################################################
