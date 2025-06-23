@@ -3,8 +3,10 @@
 Chequered Flag / Checkered Flag (GX717) (c) Konami 1988
 
 Notes:
-- Position counter doesn't behave correctly because of the K051733 protection.
+
 - 007232 volume & panning control is almost certainly wrong.
+- Needs HW tests or side-by-side tests to determine if the protection
+  is 100% ok now;
 - I've modified the YM2151 clock with an xtal of 2,on what I recall the
   music at the title screen should end when the words "Chequered Flag"
   flashes.Needs a comparison with a real PCB however. -AS
@@ -89,7 +91,7 @@ static WRITE8_HANDLER( chqflag_vreg_w )
 		memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x2800, 0x2fff, 0, 0, K051316_1_r);		/* 051316 */
 	}
 
-	/* Bits 3-7 probably control palette dimming in a similar way to TMNT2/Saunset Riders, */
+	/* Bits 3-7 probably control palette dimming in a similar way to TMNT2/Sunset Riders, */
 	/* however I don't have enough evidence to determine the exact behaviour. */
 	/* Bits 3 and 7 are set in night stages, where the background should get darker and */
 	/* the headlight (which have the shadow bit set) become highlights */
@@ -141,6 +143,7 @@ static READ8_HANDLER( analog_read_r )
 
 WRITE8_HANDLER( chqflag_sh_irqtrigger_w )
 {
+    soundlatch2_w(0, data);
 	cpunum_set_input_line(1,0,HOLD_LINE);
 }
 
@@ -193,7 +196,7 @@ static ADDRESS_MAP_START( chqflag_readmem_sound, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xb000, 0xb00d) AM_READ(K007232_read_port_1_r)	/* 007232 (chip 2) */
 	AM_RANGE(0xc001, 0xc001) AM_READ(YM2151_status_port_0_r)	/* YM2151 */
 	AM_RANGE(0xd000, 0xd000) AM_READ(soundlatch_r)			/* soundlatch_r */
-	//AM_RANGE(0xe000, 0xe000) AM_READ(MRA8_NOP)                /* ??? */
+	AM_RANGE(0xe000, 0xe000) AM_READ(soundlatch2_r)         /* engine sound volume */
 ADDRESS_MAP_END
 
 static WRITE8_HANDLER( k007232_bankswitch_w )
@@ -326,7 +329,7 @@ INPUT_PORTS_END
 
 static void chqflag_ym2151_irq_w(int data)
 {
-	cpunum_set_input_line(1,INPUT_LINE_NMI,PULSE_LINE);
+    cpunum_set_input_line(1,INPUT_LINE_NMI, data ? ASSERT_LINE : CLEAR_LINE);
 }
 
 
@@ -390,7 +393,7 @@ static MACHINE_DRIVER_START( chqflag )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
 
-	MDRV_SOUND_ADD(YM2151, 3579545/2)
+	MDRV_SOUND_ADD(YM2151, 3579545)
 	MDRV_SOUND_CONFIG(ym2151_interface)
 	MDRV_SOUND_ROUTE(0, "left", 0.80)
 	MDRV_SOUND_ROUTE(1, "right", 0.80)
@@ -480,5 +483,5 @@ static DRIVER_INIT( chqflag )
 	paletteram = &RAM[0x58000];
 }
 
-GAME( 1988, chqflag,        0, chqflag, chqflag, chqflag, ROT90, "Konami", "Chequered Flag", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_SOUND )
-GAME( 1988, chqflagj, chqflag, chqflag, chqflag, chqflag, ROT90, "Konami", "Chequered Flag (Japan)", GAME_UNEMULATED_PROTECTION | GAME_IMPERFECT_SOUND )
+GAME( 1988, chqflag,        0, chqflag, chqflag, chqflag, ROT90, "Konami", "Chequered Flag", GAME_IMPERFECT_SOUND )
+GAME( 1988, chqflagj, chqflag, chqflag, chqflag, chqflag, ROT90, "Konami", "Chequered Flag (Japan)", GAME_IMPERFECT_SOUND )
