@@ -784,7 +784,7 @@ WRITE32_HANDLER( cps3_sound_w )
 	}
 	else
 	{
-		printf("Sound [%x] %x\n", offset, data);
+		//printf("Sound [%x] %x\n", offset, data);
 	}
 }
 
@@ -802,7 +802,7 @@ READ32_HANDLER( cps3_sound_r )
 	}
 	else
 	{
-		printf("Unk sound read : %x\n", offset);
+		//printf("Unk sound read : %x\n", offset);
 		return 0;
 	}
 }
@@ -926,45 +926,45 @@ int cps3_ss_ram_is_dirty;
 UINT8* cps3_char_ram_dirty;
 int cps3_char_ram_is_dirty;
 
+static inline UINT8 get_fade(int c, int f)
+{
+	// bit 7 unknown
+	// bit 6 fade enable / disable
+	// bit 5 fade mode
+	// bit 4-0 fade value
+	if (f & 0x40) // Fading enable / disable
+		c = (f & 0x20) ? ((((c ^ 0x1f) * (~f & 0x1f)) >> 5) ^ 0x1f) : (c * (f & 0x1f) >> 5);
+        return c;
+}
+
 void cps3_set_mame_colours( int colournum, UINT16 data, UINT32 fadeval )
 {
 	int r,g,b;
-	UINT16* dst = (UINT16*)cps3_colourram;	
+	UINT16* dst = (UINT16*)cps3_colourram;
 
 	r = (data >> 0) & 0x1f;
 	g = (data >> 5) & 0x1f;
 	b = (data >> 10) & 0x1f;
 
 	/* is this 100% correct? */
-	if (fadeval!=0)
+	if (fadeval & 0x40400040)
 	{
 		int fade;
-		//printf("fadeval %08x\n",fadeval);
 
-fade = (fadeval >> 24) & 0x7f; 
-if (fade & 0x40) { 
-if (fade & 0x20) r += (0x1f - r) * (fade & 0x1f) / 0x1f; 
-else r = r * (fade & 0x1f) / 0x1f; 
-} 
-fade = (fadeval >> 16) & 0x7f; 
-if (fade & 0x40) { 
-if (fade & 0x20) g += (0x1f - g) * (fade & 0x1f) / 0x1f; 
-else g = g * (fade & 0x1f) / 0x1f; 
-} 
-fade = fadeval & 0x7f; 
-if (fade & 0x40) { 
-if (fade & 0x20) b += (0x1f - b) * (fade & 0x1f) / 0x1f; 
-else b = b * (fade & 0x1f) / 0x1f; 
-} 
+		r = get_fade(r, (fadeval & 0x7f000000) >> 24);
+		g = get_fade(g, (fadeval & 0x007f0000) >> 16);
+		b = get_fade(b, (fadeval & 0x0000007f) >> 0);
 
-		data = (r <<0) | (g << 5) | (b << 10);
+		data = (data & 0x8000) | (r << 0) | (g << 5) | (b << 10);
 	}
 
+	/* Write color to palette RAM, within valid range */
+	colournum &= 0x1ffff;
 	dst[colournum] = data;
 
 	cps3_mame_colours[colournum] = (r << (16+3)) | (g << (8+3)) | (b << (0+3));
-
-	if (colournum<0x10000) palette_set_color(colournum,r<<3,g<<3,b<<3);
+	if (colournum < 0x10000)
+		palette_set_color(colournum, r << 3, g << 3, b << 3);
 }
 
 void decode_ssram(void)
