@@ -290,15 +290,15 @@ static INTERRUPT_GEN( masterw_interrupt )
 	cpunum_set_input_line(0, 5, HOLD_LINE);
 }
 
-void silentd_interrupt6(int x)
+void silentd_interrupt4(int x)
 {
-	cpunum_set_input_line(0,6,HOLD_LINE);
+	cpunum_set_input_line(0,4,HOLD_LINE);
 }
 
 static INTERRUPT_GEN( silentd_interrupt )
 {
-	timer_set(TIME_IN_CYCLES(5000,0),0,silentd_interrupt6);
-	cpunum_set_input_line(0, 4, HOLD_LINE);
+	timer_set(TIME_IN_CYCLES(5000,0),0,silentd_interrupt4);
+	cpunum_set_input_line(0, 6, HOLD_LINE);
 }
 
 void selfeena_interrupt4(int x)
