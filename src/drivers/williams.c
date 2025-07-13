@@ -2690,6 +2690,10 @@ static DRIVER_INIT( inferno )
 	/* install RAM instead of ROM in the Dxxx slot */
 	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0xd000, 0xdfff, 0, 0, MRA8_RAM);
 	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xd000, 0xdfff, 0, 0, MWA8_RAM);
+
+	 /* hack! the sound CPU programs the DDRA register to $80 instead of $00, meaning */
+	/* that the top bit gets chopped off; not sure how to fix this for real */
+	memory_region(REGION_CPU2)[0xe015] = 0;
 }
 
 
@@ -2752,5 +2756,5 @@ GAME( 1987, lottofun, 0,        williams, lottofun, lottofun, ROT0,   "H.A.R. Ma
 /* 2nd Generation Williams hardware with tilemaps */
 GAME( 1983, mysticm,  0,        williams2,mysticm,  mysticm,  ROT0,   "Williams", "Mystic Marathon", GAME_SUPPORTS_SAVE )
 GAME( 1984, tshoot,   0,        williams2,tshoot,   tshoot,   ROT0,   "Williams", "Turkey Shoot", GAME_SUPPORTS_SAVE )
-GAME( 1984, inferno,  0,        williams2,inferno,  inferno,  ROT0,   "Williams", "Inferno", GAME_IMPERFECT_SOUND | GAME_SUPPORTS_SAVE )
+GAME( 1984, inferno,  0,        williams2,inferno,  inferno,  ROT0,   "Williams", "Inferno", GAME_SUPPORTS_SAVE )
 GAME( 1986, joust2,   0,        joust2,   joust2,   joust2,   ROT270, "Williams", "Joust 2 - Survival of the Fittest (set 1)", GAME_SUPPORTS_SAVE )
