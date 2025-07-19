@@ -133,6 +133,7 @@ Notes:
 
 extern UINT16 *gaiden_videoram,*gaiden_videoram2,*gaiden_videoram3;
 extern int gaiden_sprite_sizey;
+extern INT8	tx_offset_y, bg_offset_y, fg_offset_y, spr_offset_y;
 
 extern int raiga_alpha;
 
@@ -150,13 +151,17 @@ READ16_HANDLER( gaiden_videoram2_r );
 WRITE16_HANDLER( gaiden_videoram3_w );
 READ16_HANDLER( gaiden_videoram3_r );
 
+WRITE16_HANDLER( gaiden_flip_w );
 WRITE16_HANDLER( gaiden_txscrollx_w );
 WRITE16_HANDLER( gaiden_txscrolly_w );
 WRITE16_HANDLER( gaiden_fgscrollx_w );
 WRITE16_HANDLER( gaiden_fgscrolly_w );
 WRITE16_HANDLER( gaiden_bgscrollx_w );
 WRITE16_HANDLER( gaiden_bgscrolly_w );
-WRITE16_HANDLER( gaiden_flip_w );
+WRITE16_HANDLER( gaiden_txoffsety_w );
+WRITE16_HANDLER( gaiden_fgoffsety_w );
+WRITE16_HANDLER( gaiden_bgoffsety_w );
+WRITE16_HANDLER( gaiden_sproffsety_w );
 
 
 
@@ -398,11 +403,15 @@ static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x074000, 0x075fff) AM_WRITE(gaiden_videoram3_w) AM_BASE(&gaiden_videoram3)
 	AM_RANGE(0x076000, 0x077fff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
 	AM_RANGE(0x078000, 0x079fff) AM_WRITE(paletteram16_xxxxBBBBGGGGRRRR_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x07a002, 0x07a003) AM_WRITE(gaiden_sproffsety_w)
 	AM_RANGE(0x07a104, 0x07a105) AM_WRITE(gaiden_txscrolly_w)
+	AM_RANGE(0x07a108, 0x07a109) AM_WRITE(gaiden_txoffsety_w)
 	AM_RANGE(0x07a10c, 0x07a10d) AM_WRITE(gaiden_txscrollx_w)
 	AM_RANGE(0x07a204, 0x07a205) AM_WRITE(gaiden_fgscrolly_w)
+	AM_RANGE(0x07a208, 0x07a209) AM_WRITE(gaiden_fgoffsety_w)
 	AM_RANGE(0x07a20c, 0x07a20d) AM_WRITE(gaiden_fgscrollx_w)
 	AM_RANGE(0x07a304, 0x07a305) AM_WRITE(gaiden_bgscrolly_w)
+	AM_RANGE(0x07a308, 0x07a309) AM_WRITE(gaiden_bgoffsety_w)
 	AM_RANGE(0x07a30c, 0x07a30d) AM_WRITE(gaiden_bgscrollx_w)
 	AM_RANGE(0x07a800, 0x07a801) AM_WRITE(watchdog_reset16_w)
 	AM_RANGE(0x07a802, 0x07a803) AM_WRITE(gaiden_sound_command_w)
@@ -982,7 +991,7 @@ static MACHINE_DRIVER_START( shadoww )
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
 	MDRV_SCREEN_SIZE(32*8, 32*8)
-	MDRV_VISIBLE_AREA(0*8, 32*8-1, 2*8, 30*8-1)
+	MDRV_VISIBLE_AREA(0*8, 32*8-1, 4*8, 32*8-1)
 	MDRV_GFXDECODE(gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(4096)
 
