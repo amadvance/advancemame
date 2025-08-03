@@ -2356,6 +2356,10 @@ INPUT_PORTS_START( cps3 )
     PORT_DIPSETTING( 0x00000007, "Oceania" )
     PORT_DIPSETTING( 0x00000008, "Korea" )
 
+    PORT_DIPNAME( 0x00000010, 0x00000010, "Buffer Delay (Sprite Lag)" )
+    PORT_DIPSETTING( 0x00000010, DEF_STR( On ) )   /* 1‑frame lag – hardware‑accurate */
+    PORT_DIPSETTING( 0x00000000, DEF_STR( Off ) )  /* No lag – low‑latency mode      */
+
 INPUT_PORTS_END
 
 static INTERRUPT_GEN(cps3_interrupt)
