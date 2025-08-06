@@ -119,10 +119,10 @@ c004    "DIPSW2"
         |^------->>
         ^-------->
 
-c200    Sound command?
-    This byte is written when game plays sound effects...
-    it is set when music or sound effects (both pcm and fm) are triggered;
-    I guess it is read by another CPU,then.
+c200    Sound command
+        This byte is written when game plays sound effects...
+        it is set when music or sound effects (both pcm and fm) are triggered;
+        I guess it is read by another CPU,then.
 
 c201    Unknown,but used.
 
@@ -136,7 +136,7 @@ c203    Sprite 'overdraw'
         when an extra weapon is collected.
         Appears to work like a xor mask,a sprite removes older
         sprite 'bitmap' when present;other memory locations connected to
-    this function may be f400-f7ff...should be investigated more.
+        this function may be f400-f7ff...should be investigated more.
         -mmmh... I believe this is sci-fiction for a non-bitmap game...
 
 C208    Scroll X  0-7
@@ -222,21 +222,16 @@ The first sprite data is located at fa0b,then fa1b and so on.
 #include "sound/2203intf.h"
 #include "sound/samples.h"
 
-WRITE8_HANDLER( ninjakd2_bgvideoram_w );
-WRITE8_HANDLER( ninjakd2_fgvideoram_w );
-WRITE8_HANDLER( ninjakd2_sprite_overdraw_w );
-WRITE8_HANDLER( ninjakd2_background_enable_w );
-VIDEO_START( ninjakd2 );
-VIDEO_UPDATE( ninjakd2 );
+extern WRITE8_HANDLER( ninjakd2_bgvideoram_w );
+extern WRITE8_HANDLER( ninjakd2_fgvideoram_w );
+extern WRITE8_HANDLER( ninjakd2_scrollx_w );
+extern WRITE8_HANDLER( ninjakd2_scrolly_w );
+extern WRITE8_HANDLER( ninjakd2_sprite_overdraw_w );
+extern WRITE8_HANDLER( ninjakd2_background_enable_w );
+extern VIDEO_START( ninjakd2 );
+extern VIDEO_UPDATE( ninjakd2 );
+extern UINT8 *ninjakd2_bg_videoram, *ninjakd2_fg_videoram;
 
-extern unsigned char 	*ninjakd2_scrolly_ram;
-extern unsigned char 	*ninjakd2_scrollx_ram;
-extern unsigned char 	*ninjakd2_bgenable_ram;
-extern unsigned char 	*ninjakd2_spoverdraw_ram;
-extern unsigned char 	*ninjakd2_background_videoram;
-extern unsigned char 	*ninjakd2_foreground_videoram;
-extern size_t ninjakd2_backgroundram_size;
-extern size_t ninjakd2_foregroundram_size;
 
 static int ninjakd2_bank_latch = 255;
 
@@ -272,7 +267,7 @@ READ8_HANDLER( ninjakd2_bankselect_r )
 
 WRITE8_HANDLER( ninjakd2_bankselect_w )
 {
-	unsigned char *RAM = memory_region(REGION_CPU1);
+	unsigned char *ROM = memory_region(REGION_CPU1);
 	int bankaddress;
 
 	if (data != ninjakd2_bank_latch)
@@ -280,7 +275,7 @@ WRITE8_HANDLER( ninjakd2_bankselect_w )
 		ninjakd2_bank_latch = data;
 
 		bankaddress = 0x10000 + ((data & 0x7) * 0x4000);
-		memory_set_bankptr(1,&RAM[bankaddress]);	 /* Select 8 banks of 16k */
+		memory_set_bankptr(1,&ROM[bankaddress]);	 /* Select 8 banks of 16k */
 	}
 }
 
@@ -298,60 +293,39 @@ WRITE8_HANDLER( ninjakd2_pcm_play_w )
 		sample_start_raw(0,sampledata[i],samplelen[i],16000,0);
 }
 
-static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x7fff) AM_READ(MRA8_ROM)
-	AM_RANGE(0x8000, 0xbfff) AM_READ(MRA8_BANK1)
+static ADDRESS_MAP_START( ninjakd2_main_cpu, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+	AM_RANGE(0x8000, 0xbfff) AM_ROMBANK(1)
 	AM_RANGE(0xc000, 0xc000) AM_READ(input_port_2_r)
 	AM_RANGE(0xc001, 0xc001) AM_READ(input_port_0_r)
 	AM_RANGE(0xc002, 0xc002) AM_READ(input_port_1_r)
 	AM_RANGE(0xc003, 0xc003) AM_READ(input_port_3_r)
 	AM_RANGE(0xc004, 0xc004) AM_READ(input_port_4_r)
-	AM_RANGE(0xc200, 0xc200) AM_READ(MRA8_RAM)
-	AM_RANGE(0xc201, 0xc201) AM_READ(MRA8_RAM)		// unknown but used
-	AM_RANGE(0xc202, 0xc202) AM_READ(ninjakd2_bankselect_r)
-	AM_RANGE(0xc203, 0xc203) AM_READ(MRA8_RAM)
-	AM_RANGE(0xc208, 0xc209) AM_READ(MRA8_RAM)
-	AM_RANGE(0xc20a, 0xc20b) AM_READ(MRA8_RAM)
-	AM_RANGE(0xc20c, 0xc20c) AM_READ(MRA8_RAM)
-	AM_RANGE(0xc800, 0xffff) AM_READ(MRA8_RAM)
-ADDRESS_MAP_END
-
-
-static ADDRESS_MAP_START( writemem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0xbfff) AM_WRITE(MWA8_ROM)
 	AM_RANGE(0xc200, 0xc200) AM_WRITE(soundlatch_w)
-	AM_RANGE(0xc201, 0xc201) AM_WRITE(MWA8_RAM)		// unknown but used
+	AM_RANGE(0xc201, 0xc201) AM_WRITENOP		// unknown but used
 	AM_RANGE(0xc202, 0xc202) AM_WRITE(ninjakd2_bankselect_w)
-	AM_RANGE(0xc203, 0xc203) AM_WRITE(ninjakd2_sprite_overdraw_w) AM_BASE(&ninjakd2_spoverdraw_ram)
-	AM_RANGE(0xc208, 0xc209) AM_WRITE(MWA8_RAM) AM_BASE(&ninjakd2_scrollx_ram)
-	AM_RANGE(0xc20a, 0xc20b) AM_WRITE(MWA8_RAM) AM_BASE(&ninjakd2_scrolly_ram)
-	AM_RANGE(0xc20c, 0xc20c) AM_WRITE(ninjakd2_background_enable_w) AM_BASE(&ninjakd2_bgenable_ram)
-	AM_RANGE(0xc800, 0xcdff) AM_WRITE(paletteram_RRRRGGGGBBBBxxxx_be_w) AM_BASE(&paletteram)
-	AM_RANGE(0xd000, 0xd7ff) AM_WRITE(ninjakd2_fgvideoram_w) AM_BASE(&ninjakd2_foreground_videoram) AM_SIZE(&ninjakd2_foregroundram_size)
-	AM_RANGE(0xd800, 0xdfff) AM_WRITE(ninjakd2_bgvideoram_w) AM_BASE(&ninjakd2_background_videoram) AM_SIZE(&ninjakd2_backgroundram_size)
-	AM_RANGE(0xe000, 0xf9ff) AM_WRITE(MWA8_RAM)
-	AM_RANGE(0xfa00, 0xffff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0xc203, 0xc203) AM_WRITE(ninjakd2_sprite_overdraw_w)
+	AM_RANGE(0xc208, 0xc209) AM_WRITE(ninjakd2_scrollx_w)
+	AM_RANGE(0xc20a, 0xc20b) AM_WRITE(ninjakd2_scrolly_w)
+	AM_RANGE(0xc20c, 0xc20c) AM_WRITE(ninjakd2_background_enable_w)
+	AM_RANGE(0xc800, 0xcdff) AM_RAM AM_WRITE(paletteram_RRRRGGGGBBBBxxxx_be_w) AM_BASE(&paletteram)
+	AM_RANGE(0xd000, 0xd7ff) AM_RAM AM_WRITE(ninjakd2_fgvideoram_w) AM_BASE(&ninjakd2_fg_videoram)
+	AM_RANGE(0xd800, 0xdfff) AM_RAM AM_WRITE(ninjakd2_bgvideoram_w) AM_BASE(&ninjakd2_bg_videoram)
+	AM_RANGE(0xe000, 0xf9ff) AM_RAM
+	AM_RANGE(0xfa00, 0xffff) AM_RAM AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
 ADDRESS_MAP_END
 
-
-static ADDRESS_MAP_START( snd_readmem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0x7fff) AM_READ(MRA8_ROM)
-	AM_RANGE(0x8000, 0xbfff) AM_READ(MRA8_ROM)
-	AM_RANGE(0xc000, 0xc7ff) AM_READ(MRA8_RAM)
+static ADDRESS_MAP_START( ninjakd2_sound_cpu, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+	AM_RANGE(0x8000, 0xbfff) AM_ROM
+	AM_RANGE(0xc000, 0xc7ff) AM_RAM
 	AM_RANGE(0xe000, 0xe000) AM_READ(soundlatch_r)
-	AM_RANGE(0xefee, 0xefee) AM_READ(MRA8_NOP)
-ADDRESS_MAP_END
-
-
-static ADDRESS_MAP_START( snd_writemem, ADDRESS_SPACE_PROGRAM, 8 )
-	AM_RANGE(0x0000, 0xbfff) AM_WRITE(MWA8_ROM)
-	AM_RANGE(0xc000, 0xc7ff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0xefee, 0xefee) AM_NOP							/* CHIP COMMAND ?? */
+	AM_RANGE(0xeff5, 0xeff6) AM_WRITENOP					/* SAMPLE FREQUENCY ??? */
 	AM_RANGE(0xf000, 0xf000) AM_WRITE(ninjakd2_pcm_play_w)	/* PCM SAMPLE OFFSET*256 */
-	AM_RANGE(0xeff5, 0xeff6) AM_WRITE(MWA8_NOP)			/* SAMPLE FREQUENCY ??? */
-	AM_RANGE(0xefee, 0xefee) AM_WRITE(MWA8_NOP)			/* CHIP COMMAND ?? */
 ADDRESS_MAP_END
 
-static ADDRESS_MAP_START( snd_writeport, ADDRESS_SPACE_IO, 8 )
+static ADDRESS_MAP_START( ninjakd2_sound_io, ADDRESS_SPACE_IO, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
 	AM_RANGE(0x00, 0x00) AM_WRITE(YM2203_control_port_0_w)
 	AM_RANGE(0x01, 0x01) AM_WRITE(YM2203_write_port_0_w)
@@ -498,13 +472,13 @@ static MACHINE_DRIVER_START( ninjakd2 )
 
 	/* basic machine hardware */
 	MDRV_CPU_ADD(Z80, 12000000/2)		/* 12000000/2 ??? */
-	MDRV_CPU_PROGRAM_MAP(readmem,writemem)	/* very sensitive to these settings */
+	MDRV_CPU_PROGRAM_MAP(ninjakd2_main_cpu,0)	/* very sensitive to these settings */
 	MDRV_CPU_VBLANK_INT(ninjakd2_interrupt,1)
 
 	MDRV_CPU_ADD(Z80, 5000000)
 	/* audio CPU */		/* 5mhz crystal ??? */
-	MDRV_CPU_PROGRAM_MAP(snd_readmem,snd_writemem)
-	MDRV_CPU_IO_MAP(0,snd_writeport)
+	MDRV_CPU_PROGRAM_MAP(ninjakd2_sound_cpu,0)
+	MDRV_CPU_IO_MAP(ninjakd2_sound_io,0)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(10000)
