@@ -2,6 +2,28 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 5.1 2025/XX
+	) Add Bazooka, Taito do Brasil, 1977 from https://github.com/ninomegadriver/bazooka [ninomegadriver]
+	) Update video code to MAME 107 (#401) [arcadez2003]
+	) Update ninjakd2.c to MAME107 (#400) [arcadez2003]
+	) Fix slowdown in Taito's Fighting Hawk (#399) [arcadez2003]
+	) CPS1/2 "Buffer Delay" functions on DefMAME [Andrea Mazzoleni]
+	) Wild Fang / Tecmo Knight emulate missing gfx effect (#397) [arcadez2003]
+	) Fix slowdown in U.S. Championship V'ball (#396) [arcadez2003]
+	) Fix broken sounds for Inferno (#395) [arcadez2003]
+	) Thunder Cross Fix collisions (#394) [arcadez2003]
+	) Fix some slowdown issues in Silent Dragon (#393) [arcadez2003]
+	) Fix various graphical niggles for the video system games (#392) [arcadez2003]
+	) Fix fading in CPS3 games [komazow]
+	) Line up the Gun Targets (#390) [arcadez2003]
+	) Add Quick Shots an unprotected version of Target Hits (#389) [arcadez2003]
+	) Fix some gameplay issues with Chequered Flag improve K051733 protection (#388) [arcadez2003]
+	) Konami's Chequered Flag improve sound and K05733 protection (#387) [arcadez2003]
+	) Overclock ddragon and ddragon2 to avoid slowdowns [Andrea Mazzoleni]
+	) Update list of CPS2 games with MAME 0.277 [Andrea Mazzoleni]
+	) Thoop fix lives dipswitch default to 3 instead of 1 (#386) [arcadez2003]
+	) Support rowscroll on the score layer of cps3, fixes jojoba combo meters [komazow]
+	) Final Fight 3 patch out the protection sooner (#385) [arcadez2003]
+	) Revises the color distance function for XBR [Andrea Mazzoleni]
 	) Fixed saving of game specific input configuration
 
 AdvanceMAME/MESS Version 5.0 2025/05
