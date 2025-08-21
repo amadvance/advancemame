@@ -392,6 +392,9 @@ $(OBJ)/shared.a: \
 	$(OBJ)/vidhrdw/tlc34076.o \
 	$(OBJ)/vidhrdw/tms34061.o \
  	$(OBJ)/vidhrdw/voodoo.o \
+	$(OBJ)/drivers/bazooka.o \
+	$(OBJ)/vidhrdw/bazooka.o \
+	$(OBJ)/sndhrdw/bazooka.o \
 
 
 

@@ -7343,4 +7343,6 @@ Other Sun games
 	DRIVER( sliver )	/* (c) 1996 Hollow Corp */
 	DRIVER( intrscti )	/* ???? */
 
+	DRIVER( bazooka )       /* (c) 1977 Taito do Brasil */
+
 #endif	/* DRIVER_RECURSIVE */
