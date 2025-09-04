@@ -475,6 +475,61 @@ INPUT_PORTS_START( sonic3mb )
 	PORT_BIT( 0xff00, IP_ACTIVE_HIGH, IPT_UNUSED )
 INPUT_PORTS_END
 
+INPUT_PORTS_START( jparkmb )
+	PORT_START /* Joypad 1 (3 button + start) NOT READ DIRECTLY */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1) PORT_NAME("P1 Throw") // a
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1) PORT_NAME("P1 Sword") // b
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1) PORT_NAME("P1 Jump")  // c
+
+	PORT_START /* Joypad 2 (3 button + start) Not used */
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START /* 3rd I/O port */
+
+	/* As I don't know how it is on real hardware, this is more a guess than anything */
+	PORT_START 
+	PORT_DIPNAME( 0x01,   0x01, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x01, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x02,   0x02, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x02, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x04,   0x04, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08,   0x08, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10,   0x10, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20,   0x20, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40,   0x40, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80,   0x80, DEF_STR( Unknown ) )
+	PORT_DIPSETTING(      0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x00, DEF_STR( On ) )
+	
+	PORT_START /* coins hooked up via readinputport (4) */
+	PORT_BIT( 0x0001, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x0002, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x0004, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x0008, IP_ACTIVE_HIGH, IPT_COIN1 )
+	PORT_BIT( 0x0010, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x0020, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x0040, IP_ACTIVE_HIGH, IPT_UNUSED )
+	PORT_BIT( 0x0080, IP_ACTIVE_HIGH, IPT_COIN2 )
+	PORT_BIT( 0xff00, IP_ACTIVE_HIGH, IPT_UNUSED )
+INPUT_PORTS_END
+
 
 
 static ADDRESS_MAP_START( topshoot_readmem, ADDRESS_SPACE_PROGRAM, 16 )
@@ -736,6 +791,25 @@ ROM_START( sonic3mb )
 //	ROM_LOAD( "pic16c57xtp", 0x0000, 0x1000, NO_DUMP )
 ROM_END
 
+ROM_START( jparkmb ) /* same PCB as twinktmb, JPA-028 label */
+	ROM_REGION( 0x400000, REGION_CPU1, 0 ) /* 68000 Code */
+	ROM_LOAD16_BYTE( "f24.bin", 0x000000, 0x080000,  CRC(bdd851d2) SHA1(1a75922e848fd5c7cd4ab102c99effcfcf382097) )
+	ROM_LOAD16_BYTE( "f23.bin", 0x000001, 0x080000,  CRC(8dc66c71) SHA1(a2741ffa583a4b779b7be3e3ae628e97f792ee3d) )
+	ROM_LOAD16_BYTE( "f22.bin", 0x100000, 0x080000,  CRC(36337d06) SHA1(d537cff2c8ed58da146faf390c09252be359ccd1) )
+	ROM_LOAD16_BYTE( "f21.bin", 0x100001, 0x080000,  CRC(6ede6b6b) SHA1(cf29300d9278ea03f54cf54ea582bdd8b9bbdbbd) )
+	
+	ROM_REGION( 0x2000, REGION_CPU2, ROMREGION_ERASE00 )
+//	ROM_LOAD( "pic16c57xtp", 0x0000, 0x2000, NO_DUMP )
+ROM_END
+
+ROM_START( twinktmb ) /* same PCB as sonic2mb, but in this one the PIC is populated */
+	ROM_REGION( 0x400000, REGION_CPU1, 0 ) /* 68000 Code */
+	ROM_LOAD16_BYTE( "m2.bin", 0x000000, 0x080000,  CRC(44424f8f) SHA1(e16318bfdf869765c821c264cf9a7e6c728f7073) )
+	ROM_LOAD16_BYTE( "m1.bin", 0x000001, 0x080000,  CRC(69aa916e) SHA1(7ea6b571fd0b6494051d5846ee9b4564b7692766) )
+
+	ROM_REGION( 0x2000, REGION_CPU2, ROMREGION_ERASE00 )
+/*	ROM_LOAD( "pic16c57xtp", 0x0000, 0x2000, NO_DUMP ) */
+ROM_END 
 
 static READ16_HANDLER( vdp_fake_r )
 {
@@ -944,6 +1018,58 @@ DRIVER_INIT( sonic3mb )
 	memory_set_bankptr(4, genesis_68k_ram );
 }
 
+READ16_HANDLER( jparkmb_r )
+{
+	if (activecpu_get_pc()==0x1e327a)
+		return (readinputport(4)) ? 0x88 : 0; /* coin hack - should be using PIC instead */
+	if (activecpu_get_pc()==0x1e3254) return 0x0000; /* what's this? dips? */
+	/* logerror("jparkmb_r : %06x\n",m_maincpu->pc()); */
+	return 0x0000;
+}
+
+DRIVER_INIT( jparkmb )
+{
+   /* 100000 = writes to unpopulated MCU? */
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x100000, 0x100001, 0, 0, aladbl_w);
+    memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x300000, 0x300001, 0, 0, jparkmb_r);
+	
+	genesis_region = 0x00; /* read via io */
+		
+    memory_set_bankptr(3, memory_region(REGION_CPU1) );
+	memory_set_bankptr(4, genesis_68k_ram );
+}
+
+READ16_HANDLER( twinktmb_r )
+{
+	if (activecpu_get_pc()==0x02f81e)
+		return (readinputport(4)) ? 0x88 : 0; /* coin hack - should be using PIC instead */
+
+	if (activecpu_get_pc()==0x02f84e) return 0x0000; /* what's this? dips? */
+
+	/* logerror("twinktmb_r : %06x\n",m_maincpu->pc()); */
+
+	return 0x0000;
+}
+
+DRIVER_INIT( twinktmb )
+{
+	/* boot vectors don't seem to be valid, so they are patched... */
+	UINT8 *rom = memory_region(REGION_CPU1);
+	rom[0x01] = 0x00;
+
+	rom[0x04] = 0x00;
+	rom[0x07] = 0x46;
+	rom[0x06] = 0xcc;
+	
+    /* 100000 = writes to unpopulated MCU? */
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x100000, 0x100001, 0, 0, aladbl_w);
+    memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x300000, 0x300001, 0, 0, twinktmb_r);
+	
+	genesis_region = 0x00; /* read via io */
+		
+    memory_set_bankptr(3, memory_region(REGION_CPU1) );
+	memory_set_bankptr(4, genesis_68k_ram );
+}
 
 /* Sun Mixing Hardware, very close to actual Genesis */
 GAME( 1995, topshoot,  0,        topshoot, topshoot, topshoot, ROT0, "Sun Mixing",     "Top Shooter", 0 )
@@ -953,6 +1079,8 @@ GAME( 1996, sbubsm,    0,        sbubsm,   sbubsm,   sbubsm,   ROT0, "Sun Mixing
 GAME( 1993, aladmdb,   0,        barek3,   aladbl,   aladbl,   ROT0, "bootleg / Sega", "Aladdin (bootleg of Japanese Megadrive version)", 0 )
 GAME( 1993, sonic2mb,  0,        barek2ch, sonic2mb, sonic2mb, ROT0, "bootleg / Sega", "Sonic The Hedgehog 2 (bootleg of Mega Drive version)", 0 )
 GAME( 1993, sonic3mb,  0,        barek2ch, sonic3mb, sonic3mb, ROT0, "bootleg / Sega", "Sonic The Hedgehog 3 (bootleg of Mega Drive version)", 0 ) 
+GAME( 1993, jparkmb,   0,        barek2ch, jparkmb,  jparkmb,  ROT0, "bootleg / Sega", "Jurassic Park (bootleg of Megadrive version)", 0 )
+GAME( 1993, twinktmb,  0,        barek2ch, jparkmb,  twinktmb, ROT0, "bootleg / Sega", "Twinkle Tale (bootleg of Megadrive version)", 0 )
 GAME( 1994, barek2ch,  0,        barek2ch, barek2ch, barek2ch, ROT0, "bootleg / Sega", "Bare Knuckle II (Chinese bootleg of Megadrive version)", 0 )
 GAME( 1994, barek3mb,  0,        barek3,   barek3,   barek3,   ROT0, "bootleg / Sega", "Bare Knuckle III (bootleg of Megadrive version)", 0 ) 
 
