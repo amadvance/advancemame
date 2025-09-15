@@ -158,6 +158,7 @@ public:
 	virtual void pre_begin(unsigned level) = 0;
 	virtual void pre_end() = 0;
 	virtual void pre_text(const string& s) = 0;
+	virtual void pre_inner() = 0;
 
 	virtual void dot_begin(unsigned level) = 0;
 	virtual void dot_end() = 0;
@@ -432,6 +433,8 @@ void convert::step(const string& r)
 			state_t state_new = ns == 8 ? state_pre0 : state_pre1;
 			if (state != state_new)
 				pre_begin(ns == 16);
+			else
+				pre_inner();
 			state = state_new;
 			pre_text(a);
 			return;
@@ -629,6 +632,7 @@ public:
 	virtual void pre_begin(unsigned level);
 	virtual void pre_end();
 	virtual void pre_text(const string& s);
+	virtual void pre_inner();
 
 	virtual void dot_begin(unsigned level);
 	virtual void dot_end();
@@ -741,6 +745,8 @@ void convert_man::pre_begin(unsigned level)
 
 void convert_man::pre_end()
 {
+	os << ".PD 0" << endl;
+	os << ".PD" << endl;
 	if (state == state_pre1)
 		os << ".RE" << endl;
 	state = state_separator;
@@ -749,6 +755,10 @@ void convert_man::pre_end()
 void convert_man::pre_text(const string& s)
 {
 	os << mask(s) << endl;
+}
+
+void convert_man::pre_inner(void)
+{
 	os << ".PD 0" << endl;
 	os << ".PP" << endl;
 	os << ".PD" << endl;
@@ -906,6 +916,7 @@ public:
 	virtual void pre_begin(unsigned level);
 	virtual void pre_end();
 	virtual void pre_text(const string& s);
+	virtual void pre_inner();
 
 	virtual void dot_begin(unsigned level);
 	virtual void dot_end();
@@ -1144,6 +1155,10 @@ void convert_html::pre_text(const string& s)
 	os << "\n";
 }
 
+void convert_html::pre_inner(void)
+{
+}
+
 void convert_html::sep()
 {
 	os << "<p>" << endl;
@@ -1295,6 +1310,7 @@ public:
 	virtual void pre_begin(unsigned level);
 	virtual void pre_end();
 	virtual void pre_text(const string& s);
+	virtual void pre_inner();
 
 	virtual void dot_begin(unsigned level);
 	virtual void dot_end();
@@ -1430,6 +1446,10 @@ void convert_txt::pre_text(const string& s)
 	if (state == state_pre1)
 		os << I;
 	os << mask(s) << endl;
+}
+
+void convert_txt::pre_inner(void)
+{
 }
 
 void convert_txt::sep()
