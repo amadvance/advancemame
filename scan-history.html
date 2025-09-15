@@ -62,330 +62,167 @@ The WIP version is available in <a href="https://github.com/amadvance/advancesca
 </p>
 
 <h2> 
-AdvanceCOMP Version 2.6 2023/10
+AdvanceSCAN Version 1.18 2015/08
 </h2>
 <ul>
 <li>
-Update libdeflate to 1.19 [Darik Horn]
+Updated to new autoconf/git format.
+</li>
+<li>
+Other minor changes.
 </li>
 </ul>
 <h2> 
-AdvanceCOMP Version 2.5 2023/01
+AdvanceSCAN Version 1.17 2013/02
 </h2>
 <ul>
 <li>
-Fix segmentation fault on invalid MNG size
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 2.4 2022/11
-</h2>
-<ul>
-<li>
-Fix CVE-2022-35014, CVE-2022-35015, CVE-2022-35016, CVE-2022-35017,
-CVE-2022-35018, CVE-2022-35019, CVE-2022-35020
+In the report output (--report) don't complain about preliminary BIOS.
 </li>
 <li>
-Update libdeflate to 1.14
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 2.3 2022/04
-</h2>
-<ul>
-<li>
-Fix compatibility with modern C++ compilers.
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 2.2 2019/03
-</h2>
-<ul>
-<li>
-Fixed multiple crash conditions with invalid PNG/MNG files.
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 2.1 2018/02
-</h2>
-<ul>
-<li>
-Support ZIPs with data descriptor signature.
-</li>
-<li>
-Fixed a crash condition with invalid ZIP data.
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 2.0 2017/06
-</h2>
-<ul>
-<li>
-Added support for reading MNG files with depth of 1, 2, and 4 bits.
-</li>
-<li>
-Added 64 bits binary for Windows.
-</li>
-<li>
-Updated to libdeflate 29-May-2017.
-From https://github.com/ebiggers/libdeflate
-at commit 1726e9e87fb6f98682dfdea2356d5ee58881fe7b.
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 1.23 2016/11
-</h2>
-<ul>
-<li>
-Fixed build issue from source code due missing libdeflate header.
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 1.22 2016/11
-</h2>
-<ul>
-<li>
-Enabled again the command line wildcard expansion in the Windows
-builds. The new MingW compiler was disabling it by default.
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 1.21 2016/11
-</h2>
-<ul>
-<li>
-Added libdeflate support. It's the new default because it provides
-better performance and compression than 7z.
-From https://github.com/ebiggers/libdeflate
-at commit 28cc14994b8b57f590d31a7340c8fffc5cc37d88.
-</li>
-<li>
-Update to the latest zopfli library.
-From https://github.com/google/zopfli
-at commit 6818a0859063b946094fb6f94732836404a0d89a.
-</li>
-<li>
-Windows binaries built with MingW 4.9.3 using the MXE cross compiler at
-commit 62bcdbee56e87c81f1faa105b8777a5879d4e2e with targets
-i686-w64-mingw32 and x86_64-w64-mingw32.
-</li>
-<li>
-DOS binaries built with DJGPP 4.8.5 from
-https://github.com/andrewwutw/build-djgpp
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 1.20 2015/08
-</h2>
-<ul>
-<li>
-Fixed .gz recompression of data bigger than 400 MB.
-</li>
-<li>
-Fixed .gz recompression with -0 and -1 options.
-</li>
-<li>
-Updated to the latest zopfli [Aaron Kaluszka].
-</li>
-<li>
-Preserve the EFS flag in .zip files [Jason Penney].
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 1.19 2014/03
-</h2>
-<ul>
-<li>
-Limited the iterations number to 255 with the -3 option.
-</li>
-<li>
-Added a new -k, --keep-file-time option to advzip [Marco Banfi].
-</li>
-<li>
-Made the Windows binary again compatible with old 686 processors.
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 1.18 2013/11
-</h2>
-<ul>
-<li>
-Added build support for new powerpc architectures.
-</li>
-<li>
-Fixed build with BZIP.
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 1.17 2013/03
-</h2>
-<ul>
-<li>
-Changed to GPL3.
-</li>
-<li>
-Added zopfli support. It's enabled using -4, --shrink-insane.
-You can control the number of iterations with the
-new -i, --iter option.
-Thanks to Darik Horn for the patches.
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 1.16 2013/03
-</h2>
-<ul>
-<li>
-Allowed recompression with files with zero length.
-</li>
-<li>
-Some other minor bugfixes.
+If a rom contains only not dumped files, don't report it missing if
+no zip is present.
 </li>
 <li>
 Now in git repository.
 </li>
 </ul>
 <h2> 
-AdvanceCOMP Version 1.15 2005/10
+AdvanceSCAN Version 1.16 2012/11
 </h2>
 <ul>
 <li>
-Fixed the date displayed with the -l advzip command.
+Added support for CHD versions 4 and 5.
 </li>
 <li>
-The advdef utility now detects the file type from the file
-header instead of using the extension.
+Fixed the printout of the CHD hash.
 </li>
 <li>
-Fixed a lot of bugs in the 64 bits platforms.
+Fixed samples extension handling.
+</li>
+<li>
+Removed zlib.dll from the Windows distribution. It's no more required.
 </li>
 </ul>
 <h2> 
-AdvanceCOMP Version 1.14 2005/02
+AdvanceSCAN Version 1.15 2012/11
 </h2>
 <ul>
+<li>
+Fixed sampleof recognition.
+</li>
+</ul>
+<h2> 
+AdvanceSCAN Version 1.14 2008/12
+</h2>
+<ul>
+<li>
+Fixed the recognition of the XML 'inbios' atttribute. It's an
+important fix if you use the 'filter' feature.
+</li>
+<li>
+Fixed support for 64 bits architectures.
+</li>
+</ul>
+<h2> 
+AdvanceSCAN Version 1.13 2004/12
+</h2>
+<ul>
+<li>
+New rom zips are now created only if at least one unique
+rom is found. Roms shared with other games don't
+trigger the zip creation. For example, galaga88
+and pacmania share the rom ns1-mcu.bin. This
+functionality prevents the creation of the galaga88
+zip from a correct copy of pacmania using only the
+ns1-mcu.bin file.
+</li>
 <li>
 Relaxed a consistency check for the local header in zip files.
 The crc and size entries are allowed to contain the real
 value also if a data descriptor is present.
 </li>
-<li>
-Fixed the conversion of RGB images with less than 256 color
-with transparency data.
-</li>
-<li>
-Minor fixes at the documentation.
-</li>
 </ul>
 <h2> 
-AdvanceCOMP Version 1.13 2004/11
+AdvanceSCAN Version 1.12 2004/11
 </h2>
 <ul>
 <li>
-Added support for .svgz files at advdef [rener].
-</li>
-<li>
-Fixed the 8 bit color reduction of 32 bit png files.
+In -listinfo files are now allowed crc with the "0x"
+prefix.
 </li>
 </ul>
 <h2> 
-AdvanceCOMP Version 1.12 2004/09
+AdvanceSCAN Version 1.11 2004/09
 </h2>
 <ul>
+<li>
+Minor changes at the source. Removed the gamediff.* files.
+</li>
 <li>
 Fixed a compilation problem with gcc 3.4.
 </li>
 </ul>
 <h2> 
-AdvanceCOMP Version 1.11 2004/07
+AdvanceSCAN Version 1.10 2004/08
 </h2>
 <ul>
 <li>
-Fixed a FreeBSD libc compatibility issue recompressing
-.gz files [Radim Kolar].
+Added support for .chd files. Check the new -K option.
 </li>
 <li>
-Fixed a segmentation fault when some invalid
-compressed .zip files are tested.
+The program now automatically renames any damaged .zip
+and .chd file instead of aborting.
+</li>
+<li>
+Updated the included expat library to version 1.95.8.
 </li>
 </ul>
 <h2> 
-AdvanceCOMP Version 1.10 2004/04
+AdvanceSCAN Version 1.9 2004/07
 </h2>
 <ul>
 <li>
-Added support for alpha channel and the new -n option
-at advmng.
+Fixed a Mac OS X crash problem with XML files with
+empty items.
 </li>
 <li>
-Fixed the uncompressing error "Invalid compressed data in ..."
-with some GZIP files [Christian Lestrade].
+Only the XML driver.status entry is now used to recognize
+the game emulation status. Game not marked as
+"preliminary" are considered working games.
 </li>
 </ul>
 <h2> 
-AdvanceCOMP Version 1.9 2003/11
+AdvanceSCAN Version 1.8 2004/04
 </h2>
 <ul>
 <li>
-Added support for .tgz files at advdef.
+Added a filter capability able to filter in/out preliminary, parent
+and clone  roms. For example you can now keep separated
+preliminary and working roms.
 </li>
 <li>
-Added the -a option at advmng to create .mng files from
-a sequence of .png files.
+Added support for xml format at advdiff.
+</li>
+<li>
+Updated the expat library at version 1.95.7.
 </li>
 </ul>
 <h2> 
-AdvanceCOMP Version 1.8 2003/10
+AdvanceSCAN Version 1.7 2003/08
 </h2>
 <ul>
 <li>
-Added support for .gz files at advdef.
-</li>
-<li>
-Fixed support for .png files with splitted IDATs.
-</li>
-</ul>
-<h2> 
-AdvanceCOMP Version 1.7 2003/08
-</h2>
-<ul>
-<li>
-Fixed a Segmentation Fault bug on the advmng -r option on
-the latest gcc.
-</li>
-<li>
-Better and faster (MMX) move recognition in the advmng scroll
-compression.
-</li>
-<li>
-The frame reduction of the advmng utility is now done only if possible.
-The compression process never fails.
-</li>
-<li>
-Added a new -S (--scroll-square) option at advmng.
-</li>
-<li>
-Added a new -v (--verbose) option at advmng to show the
-compression status.
-</li>
-<li>
-Changed the internal ID for the bzip2 and LZMA compression.
-The bzip2 ID is now compatible with the PKWARE specification.
-</li>
-<li>
-Added support for RGB images with alpha channel at the advpng utility.
+Added support for reading XML info file.
 </li>
 <li>
 Updated with automake 1.7.6.
 </li>
 </ul>
 <h2> 
-AdvanceCOMP Version 1.6 2003/05
+AdvanceSCAN Version 1.6 2003/05
 </h2>
 <ul>
-<li>
-Added the `-x' option at the advmng utility to export .png files
-from a .mng clip. Useful to compress it in an MPEG file.
-</li>
 <li>
 Fixed the support for zips with additional data descriptors.
 </li>
@@ -393,18 +230,24 @@ Fixed the support for zips with additional data descriptors.
 Updated with autoconf 2.57 and automake 1.7.4.
 </li>
 <li>
+Added support for the new `nodump' flag in MAME 0.68.
+</li>
+<li>
+Removed the `redump' output because no more required.
+Now MAME 0.68 outputs the correct crc and no more
+the NOT version. No more ambiguity.
+</li>
+<li>
 Some fixes for the gcc 3.3 compiler.
 </li>
 </ul>
 <h2> 
-AdvanceCOMP Version 1.5 2003/01
+AdvanceSCAN Version 1.5 2003/02
 </h2>
 <ul>
 <li>
-Splitted from AdvanceSCAN
-</li>
-<li>
-Added the `advdef' compression utility.
+Removed the recompression utilities. Now they are in the
+AdvanceCOMP package.
 </li>
 </ul>
 <h2> 
@@ -422,14 +265,22 @@ AdvanceSCAN Version 1.3 2002/11
 </h2>
 <ul>
 <li>
+Fixed a bug in the advscan utility. When a .zip file was completly
+removed the program was aborting with a "Failed stat" message
+because it was trying to reread the just deleted file.
+</li>
+<li>
 Added the support for the transparency tRNS chunk at the
 advpng utility.
 </li>
 <li>
-Upgraded at the latest Advance Library.
+Improved the garbage detector for zipped roms.
 </li>
 <li>
-Fixes at the docs. [Filipe Estima]
+Upgraded at the lastest Advance Library.
+</li>
+<li>
+Fixes at the docs. [by Filipe Estima]
 </li>
 <li>
 Minor changes at the autoconf/automake scripts.
@@ -474,8 +325,24 @@ First public release.
 Fixed the compression percentage computation on big files.
 </li>
 <li>
+The unknow .zip files are now deleted if they contains only
+empty directories.
+</li>
+<li>
 Added the --pedantic option at the advzip utility. These
 tests are only done if requested.
+</li>
+<li>
+Renamed all the "unknow" options in "unknown".
+</li>
+<li>
+Fixed the reading of configuration file containing the \r char.
+</li>
+<li>
+Documentation fixes.
+</li>
+<li>
+Other minor fixes.
 </li>
 </ul>
 <h2> 
@@ -483,7 +350,67 @@ AdvanceSCAN Version 0.6-beta 2002/05
 </h2>
 <ul>
 <li>
-Added the AdvanceZIP utility.
+Major revision.
+</li>
+<li>
+Renamed AdvanceSCAN.
+</li>
+<li>
+Updated to the last C++ standard.
+</li>
+<li>
+General cleanup of the code.
+</li>
+<li>
+Added the AdvanceDIFF and AdvanceZIP utility.
+</li>
+</ul>
+<h2> 
+MAMESCAN Version 0.5 2001/08
+</h2>
+<ul>
+<li>
+Removed the options -fix, -cat, -collision.
+</li>
+</ul>
+<h2> 
+MAMESCAN Version 0.4 2000/02
+</h2>
+<ul>
+<li>
+Added configure for msdos.
+</li>
+</ul>
+<h2> 
+MAMESCAN Version 0.3
+</h2>
+<ul>
+<li>
+Minor revison.
+</li>
+</ul>
+<h2> 
+MAMESCAN Version 0.2
+</h2>
+<ul>
+<li>
+Minor revison.
+</li>
+</ul>
+<h2> 
+MAMESCAN Version 0.1 1999/07
+</h2>
+<ul>
+<li>
+First version.
+</li>
+</ul>
+<h2> 
+MAMESCAN Version 0.0 1998/11
+</h2>
+<ul>
+<li>
+Posted in the MAME list the new listinfo command.
 </li>
 </ul>
 
@@ -491,12 +418,6 @@ Added the AdvanceZIP utility.
 </div>
 
 <div id="footer">
-
-<div class="column">
-<span class="bold">Donate with</span>
-<br>
-<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=amadvance%40gmail%2ecom&lc=US&item_name=AdvanceMAME&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest"><img src="paypal.png" width="160" height="60" alt="PayPal"></a>
-</div>
 
 <div class="column">
 <span class="bold">Find other resources at</span>
