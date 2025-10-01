@@ -4084,6 +4084,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( bcstrya )	/* (c) 199? SemiCom */
 	DRIVER( semibase )	/* (c) 199? SemiCom */
 	DRIVER( suprtrio )	/* (c) 1994 GameAce */
+    DRIVER( sdfight )   /* (c) 1996 SemiCom */
+    DRIVER( magipur )   /* (c) 1996 Unico */
 	DRIVER( lemmings )	/* prototype (c) 1991 Data East USA (US) */
 				/* MAQ ?? */
 	DRIVER( dragngun )	/* MAR (c) 1992 Data East Corporation (US) */
