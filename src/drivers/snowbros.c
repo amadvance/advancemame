@@ -1919,6 +1919,30 @@ ROM_START( cookbib3 )
 	ROM_LOAD( "u77.bin", 0x100000, 0x80000, CRC(7823600d) SHA1(90d431f324b71758c49f3a72ee07701ceb76403f) )
 ROM_END
 
+ROM_START( pzlbreak )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 ) /* 68000 Code */
+	ROM_LOAD16_BYTE( "4.uh12", 0x00001, 0x20000, CRC(b3f04f80) SHA1(79b5414727004719ff172e084a672b21e955f0bc) )
+	ROM_LOAD16_BYTE( "5.ui12", 0x00000, 0x20000, CRC(13c298a0) SHA1(9455de7ea45c9a61ed6105023eb909c086c44007) )
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 ) /* Z80 Code */
+	ROM_LOAD( "0.u1", 0x00000, 0x10000 , CRC(1ad646b7) SHA1(0132baa097e48df2450afdcd316375dc546ea4d0) )
+
+	ROM_REGION( 0x10000, REGION_CPU3, 0 ) /* Intel 87C52 MCU Code */
+/*	ROM_LOAD( "87c52.mcu", 0x00000, 0x10000 , NO_DUMP )  */ /* can't be dumped */
+
+	ROM_REGION16_BE( 0x200, REGION_USER1, ROMREGION_ERASEFF ) /* Data from Shared RAM */
+	/* this is not a real rom but instead the data extracted from
+       shared ram, the MCU puts it there */
+    ROM_LOAD16_WORD( "protdata.bin", 0x00000, 0x200, CRC(092cb794) SHA1(eb2b336d97b440453ca37ee7605654b35dfb6bad) )
+
+	ROM_REGION( 0x040000, REGION_SOUND1, 0 ) /* Samples */
+	ROM_LOAD( "1.uj15", 0x00000, 0x40000, CRC(dbfae77c) SHA1(cc509d52cd9c608fc80df799890e62e7b4c143c6) )
+
+	ROM_REGION( 0x100000, REGION_GFX1, 0 ) /* Sprites */
+	ROM_LOAD( "2.ua4", 0x000000, 0x80000, CRC(d211705a) SHA1(b3a7f8198dc8c034b17b843b2ab0298426de3f55) )
+	ROM_LOAD( "3.ua5", 0x080000, 0x80000, CRC(6cdb73e9) SHA1(649e91ee54de2b359a207bed4d950db95515a3d8) )
+ROM_END
+
 ROM_START( 4in1boot ) /* snow bros, tetris, hyperman 1, pacman 2 */
 	ROM_REGION( 0x100000, REGION_CPU1, 0 ) /* 68000 Code */
 	ROM_LOAD16_BYTE( "u52",  0x00001, 0x80000, CRC(71815878) SHA1(e3868f5687c1d8ec817671c50ade6c56ee83bfa1) )
@@ -1932,6 +1956,21 @@ ROM_START( 4in1boot ) /* snow bros, tetris, hyperman 1, pacman 2 */
 
 	ROM_REGION( 0x200000, REGION_GFX1, 0 ) /* Sprites */
 	ROM_LOAD( "u78", 0x000000, 0x200000, CRC(6c1fbc9c) SHA1(067f32cae89fd4d57b90be659d2d648e557c11df) )
+ROM_END
+
+ROM_START( toto )
+	ROM_REGION( 0x40000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "u60.5j",  0x00000, 0x20000, CRC(39203792) SHA1(4c8d560be02a514cbf91774c7a0b4a95cf573356) )
+	ROM_LOAD16_BYTE( "u51.4j",  0x00001, 0x20000, CRC(7b846cd4) SHA1(04aa0bbaab4303fb08dff52d5515f7e764f1be6d))
+
+	ROM_REGION( 0x10000, REGION_CPU2, 0 )    /* 64k for z80 sound code */
+	ROM_LOAD( "u46.4c",   0x0000, 0x8000, CRC(77b1ef42) SHA1(75e3c8c2b687669cc56f972dd7375dab5185859c) )
+
+	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "u107.8k",          0x00000, 0x20000, CRC(4486153b) SHA1(a6dc0c17bf2328ab725bce4aaa0a413a42129fb0) )
+	ROM_LOAD( "u108.8l",          0x20000, 0x20000, CRC(3286cf5f) SHA1(133366b0e10ab86111247cbedf329e8e3a7f2148) )
+	ROM_LOAD( "u109.8m",          0x40000, 0x20000, CRC(464d7251) SHA1(f03ee54e9301ea87de4171cecdbad4a5e17929c4) )
+	ROM_LOAD( "u110.8n",          0x60000, 0x20000, CRC(7dea56df) SHA1(7e7b9238837c6f4221cff416a2de21723d2c9272) )
 ROM_END
 
 ROM_START( snowbro3 )
@@ -2442,6 +2481,44 @@ static DRIVER_INIT( cookbib3 )
 	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x200000, 0x200001, 0, 0, cookbib3_read );
 }
 
+READ16_HANDLER(toto_read)
+{
+	int pc = activecpu_get_pc();
+	if ((pc!= 0x3f010) && (pc!= 0x38008)) printf("toto prot %08x %04x\n", pc, mem_mask);
+	return 0x0700;
+}
+
+DRIVER_INIT(toto)
+{
+	/* every single rom has bits 0x10 and 0x08 swapped */
+	UINT8 *src = memory_region(REGION_CPU1);
+	int len = memory_region_length(REGION_CPU1);
+	int i;
+
+	for (i = 0; i < len; i++)
+	{
+		src[i] = BITSWAP8(src[i], 7, 6, 5, 3, 4, 2, 1, 0);
+	}
+
+	src = memory_region(REGION_GFX1);
+	len = memory_region_length(REGION_GFX1);
+
+	for (i = 0; i < len; i++)
+	{
+		src[i] = BITSWAP8(src[i], 7, 6, 5, 3, 4, 2, 1, 0);
+	}
+
+	src = memory_region(REGION_CPU2);
+	len = memory_region_length(REGION_CPU2);
+
+	for (i = 0; i < len; i++)
+	{
+		src[i] = BITSWAP8(src[i], 7, 6, 5, 3, 4, 2, 1, 0);
+	}
+
+	/* protection? (just return 0x07) */
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x500006, 0x500007, 0, 0, toto_read);
+}
 
 GAME( 1990, snowbros, 0,        snowbros, snowbros, 0, ROT0, "Toaplan", "Snow Bros. - Nick & Tom (set 1)", 0 )
 GAME( 1990, snowbroa, snowbros, snowbros, snowbros, 0, ROT0, "Toaplan", "Snow Bros. - Nick & Tom (set 2)", 0 )
@@ -2450,7 +2527,12 @@ GAME( 1990, snowbroc, snowbros, snowbros, snowbros, 0, ROT0, "Toaplan", "Snow Br
 GAME( 1990, snowbroj, snowbros, snowbros, snowbroj, 0, ROT0, "Toaplan", "Snow Bros. - Nick & Tom (Japan)", 0 )
 GAME( 1990, wintbob,  snowbros, wintbob,  snowbros, 0, ROT0, "bootleg", "The Winter Bobble", 0 )
 
-GAME( 1995, honeydol, 0,        honeydol, honeydol, 0, ROT0, "Barko Corp.", "Honey Dolls", GAME_IMPERFECT_GRAPHICS ) // based on snowbros code..
+/* Cloned snow bros hardware */
+GAME( 1995, honeydol, 0,        honeydol, honeydol, 0,        ROT0, "Barko Corp.", "Honey Dolls", GAME_IMPERFECT_GRAPHICS ) // based on snowbros code..
+GAME( 1996, toto,     0,        snowbros, snowbros, toto,     ROT0, "SoftClub","Come Back Toto", 0 ) /* modified from 'snowbros' code */
+GAME( 2002, snowbro3, snowbros, snowbro3, snowbroj, snowbro3, ROT0, "bootleg", "Snow Brothers 3 - Magical Adventure", GAME_IMPERFECT_SOUND ) // its basically snowbros code?...
+
+/* SemiCom Games */
 GAME( 1995, hyperpac, 0,        semicom,  hyperpac, hyperpac, ROT0, "SemiCom", "Hyper Pacman", 0 )
 GAME( 1995, hyperpcb, hyperpac, semicom,  hyperpac, 0,        ROT0, "bootleg", "Hyper Pacman (bootleg)", 0 )
 GAME( 1996, cookbib2, 0,        semiprot, cookbib2, cookbib2, ROT0, "SemiCom", "Cookie & Bibi 2", 0 )
@@ -2458,8 +2540,10 @@ GAME( 1996, toppyrap, 0,        semiprot, toppyrap, 0,        ROT0, "SemiCom", "
 GAME( 1997, cookbib3, 0,        semiprot, cookbib3, cookbib3, ROT0, "SemiCom", "Cookie & Bibi 3", 0 )
 GAME( 1997, 3in1semi, 0,        semiprot, moremore, 3in1semi, ROT0, "SemiCom", "XESS - The New Revolution (SemiCom 3-in-1)", 0 )
 GAME( 1997, twinkle,  0,        semiprot, moremore, 0,        ROT0, "SemiCom", "Twinkle", 0 )
+GAME( 1997, pzlbreak, 0,        semiprot, moremore, 0,        ROT0, "SemiCom / Tirano",  "Puzzle Break", 0 )
 GAME( 1999, moremore, 0,        semiprot, moremore, moremorp, ROT0, "SemiCom / Exit", "More More", 0 )
 GAME( 1999, moremorp, 0,        semiprot, moremore, moremorp, ROT0, "SemiCom / Exit", "More More Plus", 0 )
+
+/* These are very similar to the SemiCom titles */
 GAME( 1999, 4in1boot, 0,        _4in1,    4in1boot, 4in1boot, ROT0, "bootleg", "Puzzle King (bootleg)" , 0) // original is 1999, bootleg 2002?
-GAME( 2002, snowbro3, snowbros, snowbro3, snowbroj, snowbro3, ROT0, "bootleg", "Snow Brothers 3 - Magical Adventure", GAME_IMPERFECT_SOUND ) // its basically snowbros code?...
 GAME( 1993, finalttr, 0,        finalttr, finalttr, 0,        ROT0, "Jeil Computer System", "Final Tetris", 0 )
