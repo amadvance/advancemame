@@ -3526,7 +3526,7 @@ static DRIVER_INIT( magipur )
 	memcpy(mainram, src, 0x80);
 	memcpy(maincpu, memory_region(REGION_CPU1), memory_region_length(REGION_CPU1));
 
-    tumblepb_gfx1_decrypt();
+    tumblepb_gfx1_rearrange();
 }
 
 /******************************************************************************/
