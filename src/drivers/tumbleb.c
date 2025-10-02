@@ -632,7 +632,8 @@ READ16_HANDLER( semibase_unknown_r )
 {
 	return mame_rand();
 }
-static ADDRESS_MAP_START( htchctch_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+
+static ADDRESS_MAP_START( sdfight_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0fffff) AM_READ(MRA16_ROM)
 	AM_RANGE(0x100000, 0x10000f) AM_READ(semibase_unknown_r)
 	AM_RANGE(0x120000, 0x123fff) AM_READ(MRA16_RAM)
@@ -643,8 +644,34 @@ static ADDRESS_MAP_START( htchctch_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x341000, 0x342fff) AM_READ(MRA16_RAM)
 ADDRESS_MAP_END
 
-static ADDRESS_MAP_START( htchctch_writemem, ADDRESS_SPACE_PROGRAM, 16 )
+static ADDRESS_MAP_START( sdfight_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0fffff) AM_WRITE(MWA16_ROM)
+	AM_RANGE(0x100000, 0x100001) AM_WRITE(semicom_soundcmd_w)
+	AM_RANGE(0x100002, 0x100003) AM_WRITE(bcstory_tilebank_w)
+	AM_RANGE(0x120000, 0x123fff) AM_WRITE(MWA16_RAM) AM_BASE(&tumblepb_mainram)
+	AM_RANGE(0x140000, 0x1407ff) AM_WRITE(paletteram16_xBBBBBGGGGGRRRRR_word_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x160000, 0x160fff) AM_WRITE(MWA16_RAM) AM_BASE(&spriteram16) AM_SIZE(&spriteram_size) /* Bootleg sprite buffer */
+	AM_RANGE(0x18000c, 0x18000d) AM_WRITE(MWA16_NOP)
+	AM_RANGE(0x1a0000, 0x1a0fff) AM_WRITE(MWA16_RAM)
+	AM_RANGE(0x300000, 0x30000f) AM_WRITE(tumblepb_control_0_w)
+	AM_RANGE(0x320000, 0x320fff) AM_WRITE(tumblepb_pf1_data_w) AM_BASE(&tumblepb_pf1_data)
+	AM_RANGE(0x322000, 0x322fff) AM_WRITE(tumblepb_pf2_data_w) AM_BASE(&tumblepb_pf2_data)
+	AM_RANGE(0x341000, 0x342fff) AM_WRITE(MWA16_RAM) // extra ram?
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( htchctch_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x07ffff) AM_READ(MRA16_ROM)
+	AM_RANGE(0x100000, 0x10000f) AM_READ(semibase_unknown_r)
+	AM_RANGE(0x120000, 0x123fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x140000, 0x1407ff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x160000, 0x160fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x180000, 0x18000f) AM_READ(tumblepopb_controls_r)
+	AM_RANGE(0x1a0000, 0x1a0fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x341000, 0x342fff) AM_READ(MRA16_RAM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( htchctch_writemem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x07ffff) AM_WRITE(MWA16_ROM)
 	AM_RANGE(0x100000, 0x100001) AM_WRITE(semicom_soundcmd_w)
 	AM_RANGE(0x100002, 0x100003) AM_WRITE(bcstory_tilebank_w)
 	AM_RANGE(0x120000, 0x123fff) AM_WRITE(MWA16_RAM) AM_BASE(&tumblepb_mainram)
@@ -2290,8 +2317,43 @@ MACHINE_DRIVER_START( semibase )
 MACHINE_DRIVER_END
 
 MACHINE_DRIVER_START( sdfight )
-	MDRV_IMPORT_FROM(htchctch)
+	/* basic machine hardware */
+	MDRV_CPU_ADD(M68000, 15000000) /* verified */
+	MDRV_CPU_PROGRAM_MAP(sdfight_readmem,sdfight_writemem)
+	MDRV_CPU_VBLANK_INT(irq6_line_hold,1)
+
+	MDRV_CPU_ADD( Z80, 3427190) /* verified */
+
+	/* audio CPU */
+	MDRV_CPU_PROGRAM_MAP(semicom_sound_readmem,semicom_sound_writemem)
+
+	MDRV_FRAMES_PER_SECOND(60)
+	MDRV_VBLANK_DURATION(529)
+
+	MDRV_MACHINE_RESET ( htchctch )
+
+	/* video hardware */
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(40*8, 32*8)
+	MDRV_VISIBLE_AREA(0*8, 40*8-1, 1*8, 31*8-1)
+	MDRV_GFXDECODE(gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(1024)
+
+	MDRV_VIDEO_START(tumblepb)
 	MDRV_VIDEO_UPDATE( sdfight )
+
+	/* sound hardware - same as hyperpac */
+	MDRV_SPEAKER_STANDARD_STEREO("left", "right")
+
+	MDRV_SOUND_ADD_TAG("ym2151", YM2151, 3427190)
+	MDRV_SOUND_CONFIG(semicom_ym2151_interface)
+	MDRV_SOUND_ROUTE(0, "left", 0.10)
+	MDRV_SOUND_ROUTE(1, "right", 0.10)
+
+	MDRV_SOUND_ADD(OKIM6295, 1024000/132)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "left", 1.0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "right", 1.0)
 MACHINE_DRIVER_END
 
 MACHINE_DRIVER_START( metlsavr )
