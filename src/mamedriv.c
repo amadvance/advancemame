@@ -2019,12 +2019,14 @@ const game_driver * const drivers[] =
 	DRIVER( toppyrap )	/* (c) 1996 SemiCom */
 	DRIVER( cookbib2 )	/* (c) 1996 SemiCom */
 	DRIVER( cookbib3 )	/* (c) 1997 SemiCom */
+    DRIVER( pzlbreak )	/* (c) 1997 SemiCom */
 	DRIVER( 3in1semi )	/* (c) 1998 SemiCom */
 	DRIVER( moremore )	/* (c) 1999 SemiCom + Exit */
 	DRIVER( moremorp )	/* (c) 1999 SemiCom + Exit */
 	DRIVER( 4in1boot )	/* (c) 2002 but bootleg of 1999 release? */
 	DRIVER( snowbro3 )	/* (c) 2002 but hack / bootleg of snowbros? */
 	DRIVER( finalttr )	/* (c) 1993 Jeil Computer System */
+    DRIVER( toto )      /* (c) 1996 Softclub */
 
 	/* More Toaplan Games */
 	DRIVER( tekipaki )	/* TP-020 (c) 1991 Toaplan */
@@ -4084,6 +4086,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( bcstrya )	/* (c) 199? SemiCom */
 	DRIVER( semibase )	/* (c) 199? SemiCom */
 	DRIVER( suprtrio )	/* (c) 1994 GameAce */
+    DRIVER( sdfight )   /* (c) 1996 SemiCom */
+    DRIVER( magipur )   /* (c) 1996 Unico */
 	DRIVER( lemmings )	/* prototype (c) 1991 Data East USA (US) */
 				/* MAQ ?? */
 	DRIVER( dragngun )	/* MAR (c) 1992 Data East Corporation (US) */
