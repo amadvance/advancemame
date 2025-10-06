@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.69])
 dnl Get version number from git
 m4_define([git_revision], m4_esyscmd_s([./autover.sh]))
-AC_INIT([advancemame],[git_revision],[],[],[http://www.advancemame.it])
+AC_INIT([advancemame],[git_revision],[],[advance],[http://www.advancemame.it])
 AC_CONFIG_SRCDIR([advance/advance.mak])
 AC_CONFIG_HEADERS([advance/lib/config.h:advance/lib/config.hin])
 AC_CANONICAL_HOST
@@ -1233,8 +1233,6 @@ AC_SUBST([CONF_LIB_JEVENT],[$ac_lib_jevent])
 
 dnl Final
 AC_SUBST([CONF_LIB_DIRECT],[$ac_lib_direct_flag])
-AC_SUBST([mandir],['${prefix}/share/man'])
-AC_SUBST([docdir],['${prefix}/share/doc'])
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 

@@ -153,7 +153,7 @@ endif
 endif
 
 INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.txt,$(wildcard $(srcdir)/doc/*.d)))
-INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.html,$(wildcard $(srcdir)/doc/*.d)))
+INSTALL_HTMLFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.html,$(wildcard $(srcdir)/doc/*.d)))
 WEB_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.hh,$(wildcard $(srcdir)/doc/*.d)))
 
 ############################################################################
@@ -163,7 +163,7 @@ ifdef ADV_ALL
 all_override: $(ADV_ALL)
 endif
 
-all: $(OBJ_DIRS) $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_MANFILES)
+all: $(OBJ_DIRS) $(INSTALL_BINFILES) $(INSTALL_DOCFILES) $(INSTALL_HTMLFILES) $(INSTALL_MANFILES)
 mame: $(OBJ) $(OBJ)/advmame$(EXE)
 mess: $(MESSOBJ) $(MESSOBJ)/advmess$(EXE)
 emu: mame mess
@@ -183,7 +183,7 @@ web: $(WEB_DOCFILES)
 # Ensure that the doc target is always created also if a doc directory exists
 .PHONY: doc
 
-doc: $(INSTALL_DOCFILES)
+doc: $(INSTALL_DOCFILES) $(INSTALL_HTMLFILES)
 
 ############################################################################
 # Source
@@ -374,12 +374,12 @@ CONF_SRC = \
 # Install
 
 pkgdir = $(datadir)/advance
-pkgdocdir = $(docdir)/advance
 
 install-dirs:
 	-$(INSTALL_PROGRAM_DIR) $(DESTDIR)$(bindir)
 	-$(INSTALL_DATA_DIR) $(DESTDIR)$(pkgdir)
-	-$(INSTALL_DATA_DIR) $(DESTDIR)$(pkgdocdir)
+	-$(INSTALL_DATA_DIR) $(DESTDIR)$(docdir)
+	-$(INSTALL_DATA_DIR) $(DESTDIR)$(htmldir)
 	-$(INSTALL_MAN_DIR) $(DESTDIR)$(mandir)/man1
 	-$(INSTALL_DATA_DIR) $(DESTDIR)$(pkgdir)/rom
 	-$(INSTALL_DATA_DIR) $(DESTDIR)$(pkgdir)/sample
@@ -461,18 +461,29 @@ uninstall-bin:
 		rm -f $(DESTDIR)$(bindir)/$$i; \
 	done
 
-install-doc: $(INSTALL_DOCFILES)
+install-doc: $(INSTALL_DOCFILES) $(INSTALL_HTMLFILES)
 ifdef INSTALL_DOCFILES
 	@for i in $(INSTALL_DOCFILES); do \
-		echo "$(INSTALL_DATA) $$i $(DESTDIR)$(pkgdocdir)"; \
-		$(INSTALL_DATA) $$i $(DESTDIR)$(pkgdocdir); \
+		echo "$(INSTALL_DATA) $$i $(DESTDIR)$(docdir)"; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(docdir); \
+	done
+endif
+ifdef INSTALL_HTMLFILES
+	@for i in $(INSTALL_HTMLFILES); do \
+		echo "$(INSTALL_DATA) $$i $(DESTDIR)$(htmldir)"; \
+		$(INSTALL_DATA) $$i $(DESTDIR)$(htmldir); \
 	done
 endif
 
 uninstall-doc:
 ifdef INSTALL_DOCFILES
 	@for i in $(notdir $(INSTALL_DOCFILES)); do \
-		rm -f $(DESTDIR)$(pkgdocdir)/$$i; \
+		rm -f $(DESTDIR)$(docdir)/$$i; \
+	done
+endif
+ifdef INSTALL_HTMLFILES
+	@for i in $(notdir $(INSTALL_HTMLFILES)); do \
+		rm -f $(DESTDIR)$(htmldir)/$$i; \
 	done
 endif
 
@@ -501,7 +512,8 @@ uninstall-dirs:
 	-rmdir $(DESTDIR)$(pkgdir)/snap/ti99_4a
 	-rmdir $(DESTDIR)$(pkgdir)/snap
 	-rmdir $(DESTDIR)$(pkgdir)
-	-rmdir $(DESTDIR)$(pkgdocdir)
+	-rmdir $(DESTDIR)$(htmldir)
+	-rmdir $(DESTDIR)$(docdir)
 
 install: install-dirs install-bin install-data install-doc install-man
 
