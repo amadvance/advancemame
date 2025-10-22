@@ -728,7 +728,8 @@ DRIVER_INIT( cps2 )
 		UINT32 key[2];
 		UINT32 lower, upper;
 		unsigned short decoded[10] = { 0 };
-		for (int b = 0; b < 10 * 16; b++)
+		int b;
+		for (b = 0; b < 10 * 16; b++)
 		{
 			int bit = (317 - b) % 160;
 			if ((region_key[bit / 8] >> ((bit ^ 7) % 8)) & 1)
