@@ -25,6 +25,9 @@ AdvanceMAME/MESS Version 5.1 2025/XX
 	) Final Fight 3 patch out the protection sooner (#385) [arcadez2003]
 	) Revises the color distance function for XBR [Andrea Mazzoleni]
 	) Fixed saving of game specific input configuration
+	) Windows binaries built with gcc 11.5.0 using the MXE cross compiler at
+		commit 8c4378fa2b55bc28515b23e96e05d03e671d9b90 with targets
+		i686-w64-mingw32.static and x86_64-w64-mingw32.static and optimization -O2.
 
 AdvanceMAME/MESS Version 5.0 2025/05
 	New games supported or improved: [arcadez2003] [grant2258]
