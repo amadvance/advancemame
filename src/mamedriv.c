@@ -5428,6 +5428,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( cyborg )
 	DRIVER( cbarrel )
 	DRIVER( gladmort )
+    DRIVER( doubled1 )  /* (c) 2025 La Casa De Ruivo / Neo Byte Force */
 	DRIVER( 19yy )
 	DRIVER( bpanicdx )
 	DRIVER( columnsn )
