@@ -30,6 +30,7 @@
 
 /* the first match is used */
 
+{ "doubled1", 14 }, /* 6.0 */
 { "sfz2al", 8 }, /* 6.0 */
 { "pzloop2", 12 }, /* 6.0 */
 { "choko", 8 }, /* 6.0 */
