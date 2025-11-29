@@ -858,7 +858,7 @@ Configuration
 	This section describes the options used to customize the user
 	input.
 
-    device_keyboard/joystick/mouse
+    device_keyboard/joystick/mouse_*
 	These options are used to customize the input drivers.
 
 	All the `device_keyboard/joystick/mouse_*' options defined in
@@ -880,301 +880,6 @@ Configuration
 
 	Options:
 		STEP - Mouse/trackball position step (default 100).
-
-  User Interface
-	This section describes the options used to customize the user
-	interface.
-
-    ui_autocalib
-	Enables or disables the auto joystick calibration menu. If enabled and no joystick
-	is found, the calibration menu automatically starts.
-
-	If any keypress is detected this mechanism is automatically disabled, and you
-	have to start the calibration menu manually.
-
-	This is intended for a joustick only configuration.
-
-	:ui_autocalib yes | no
-
-    ui_text/bar_font/menu_font
-	Selects a font file for normal text, the title bar and online menus.
-	The formats: TrueType (TTF), GRX, PSF and RAW are supported.
-	You can find a collection of fonts in the `contrib' directory.
-
-	:ui_text_font auto | "FILE"
-	:ui_bar_font auto | "FILE"
-	:ui_menu_font auto | "FILE"
-
-	Options:
-		auto - Use the built-in font (default).
-		FILE - Font file path.
-
-	The TrueType (TTF) format is supported only if the program is
-	compiled with the FreeType2 library.
-
-    ui_text/bar_size
-	Selects the font size, if the specified font is scalable.
-	The size is expressed in number of rows and columns of text in the
-	screen.
-
-	:ui_text_size auto | ROWS [COLS]
-	:ui_bar_size auto | ROWS [COLS]
-	:ui_menu_size auto | ROWS [COLS]
-
-	Options:
-		auto - Automatically compute the size (default).
-		ROWS - Number of text rows.
-		COLS - Number of text columns. If omitted is computed from
-			the number of rows.
-
-    ui_background
-	Defines a background image in .PNG or MNG format. The image is
-	stretched to fit the screen.
-
-	ui_background FILE | none
-
-	Options:
-		none - No image (default).
-		FILE - File in .PNG or .MNG format to load.
-
-	For .MNG files only the first frame is used.
-
-    ui_exit
-	Defines an exit image/clip in .PNG or .MNG format displayed
-	at the frontexit exit. The image is stretched to fit the screen.
-
-	ui_exit FILE | none
-
-	Options:
-		none - No image (default).
-		FILE - File in .PNG or .MNG format to load.
-
-    ui_startup
-	Defines a startup image/clip in .PNG or .MNG format displayed
-	at the frontend startup. The image is stretched to fit the screen.
-
-	ui_startup FILE | none
-
-	Options:
-		none - No image (default).
-		FILE - File in .PNG or .MNG format to load.
-
-    ui_help
-	Defines an help image/clip in .PNG or .MNG format displayed when the
-	user press F1. The image is stretched to fit the screen.
-
-	ui_help FILE | none
-
-	Options:
-		none - No image (default).
-		FILE - File in .PNG or .MNG format to load.
-
-    ui_gamemsg
-	One line message displayed when a game is chosen. The
-	message is displayed only if the option `display_restoreatgame' is
-	set to `no'.
-
-	:ui_gamemsg "MESSAGE"
-
-	Options:
-		MESSAGE - Message to display (default "Run Game").
-			To prevent the display of the message use the
-			empty string "".
-
-	Examples:
-		:ui_gamemsg "Avvio il gioco..."
-
-    ui_game
-	Selects the preview type to display when a game is run. The
-	preview is displayed only if the option `display_restoreatgame' is
-	set to `no'.
-
-	:ui_game none | snap | flyers | cabinets | titles
-
-	Options:
-		none - Don't display any preview.
-		snap, flyers, cabinets, titles - Display the
-			specified preview. (default snap).
-
-    ui_skiptop/bottom/left/right
-	Defines the border area of the screen not used by the menu.
-	Generally it's the part of the screen used by the background image.
-	If a `ui_background' image is specified these values refer at image
-	size before stretching, otherwise they refer at the current video
-	mode size.
-
-	ui_skiptop N
-	ui_skipbottom N
-	ui_skipleft N
-	ui_skipright N
-
-	Options:
-		N - Number of pixel to skip (default 0).
-
-    ui_skiphorz/vert
-	Defines the inner horizontal and vertical area between tiles.
-
-	ui_skiphorz auto | N
-	ui_skipvert auto | N
-
-	Options:
-		auto - Auto select depending on the tile mode and font size (default).
-		N - Number of pixel to skip.
-
-    ui_topbar/bottombar/scrollbar/outline
-	Enables or disables the top, bottom and scroll information bars.
-	The outline is the thin box around backdrops.
-
-	ui_topbar yes | no
-	ui_bottombar yes | no
-	ui_scrollbar yes | no
-	ui_outline yes | no
-
-    ui_topname
-	Puts the game name at the top instead of at the bottom.
-
-	ui_topname yes | no
-
-    ui_name
-	Enables or disables the display of the game name in the screensaver.
-
-	ui_name yes | no
-
-    ui_color
-	Selects the user interface colors.
-
-	:ui_color TAG FOREGROUND BACKGROUND
-
-	Tags:
-		menu_item - Game menu entry.
-		menu_hidden - Game menu hidden entry.
-		menu_tag - Game menu highlight entry.
-		menu_item_select - Game menu selected entry.
-		menu_hidden_select - Game menu hidden selected entry.
-		menu_tag_select - Game menu selected highlight.
-		bar - Top and bottom bars.
-		bar_tag - Top and bottom bars highlight.
-		bar_hidden - Top and bottom bars hidden text.
-		grid - Scrollbar marker and generic background color.
-		overscan - Overscan area controlled by skip_top/bottom/left/right.
-		backdrop - Backdrop outline and backdrop border/missing.
-		help - Help.
-		help_tag - Help highlight.
-		submenu_bar - Submenu title.
-		submenu_item - Submenu entry.
-		submenu_item_select - Submenu selected entry.
-		submenu_hidden - Submenu hidden entry.
-		submenu_hidden_select - Submenu selected hidden entry.
-		icon - Icon outline and missing icon.
-		cursor - Flashing cursor. Use equal foreground and background to
-			avoid flashing.
-
-	Options:
-		FOREGROUND - Foreground color in RRGGBB
-			hex format. For example FF0000 is red,
-			00FF00 is green and 0000FF is blue.
-		BACKGROUND - Background color. Like foreground color.
-
-    ui_clip
-	Selects how play the video clips.
-
-	:ui_clip none | single | singleloop | multi | multiloop | multiloopall
-
-	Options:
-		none - No clip.
-		single - Play only one clip and only one time.
-		singleloop - Play only one clip continuously. The sound is
-			not looped.
-		multi - Play all the clips.
-		multiloop - Play all the clips, and loop the clip on the
-			cursor. The sound is not looped.
-		multiloopall - Play all the clips, and loop all the clips.
-			The sound is not looped (default).
-
-    ui_translucency
-	Selects the translucency of the user interface.
-
-	ui_translucency FACTOR
-
-	Options:
-		FACTOR - Translucency factor from 0 to 1
-			(default 0.6).
-
-	The translucency has effect only if you have a background
-	image.
-
-    ui_command
-	Defines the user commands. These commands are executed as
-	shell scripts. The video mode is not changed, so they must be
-	silent.
-
-	ui_command "MENU" SCRIPT
-
-	Options:
-		MENU - Name of the menu entry.
-		SCRIPT - Commands to execute. If you need to insert more
-			command rows you can end the line with the \ char.
-
-	In the script text some macro are substituted with information of
-	the selected game:
-		%s - The game name. For example "pacman".
-		%p - The complete path of the rom. For
-			example "c:\emu\roms\pacman.zip".
-		%f - The rom name with the extension. For
-			example "pacman.zip".
-
-	If no game is selected the macros aren't substituted.
-
-	If the script exits with an error code, a message is displayed.
-
-	Examples:
-		:ui_command "Delete Hiscore" \
-		:	rm ~/.advance/hi/%s.hi
-		:ui_command "Enable GamePad" \
-		:	rmmod analog \
-		:	sleep 1 \
-		:	modprobe analog js=gamepad
-
-    ui_command_menu
-	Selects the name of the menu entry for the commands submenu.
-
-	ui_command_menu MENU
-
-	Options:
-		MENU - Name of the menu entry (default "Command").
-
-    ui_command_error
-	Selects the message to display if a command fails.
-
-	ui_command_error MSG
-
-	Options:
-		MSG - Message to display (default "Error running the command").
-
-    ui_menukey
-	Enables or disables the key names in the menu entries.
-
-	ui_menukey yes | no
-
-    ui_console
-	Changes the user interface behavior for the use on a game
-	console system.
-
-	ui_console yes | no
-
-	In console mode the menu is reduced to contains only the
-	minimal commands, and the sound volume is propagated to the
-	emulators if possible.
-
-  Input Configuration Options
-	This section describes the options used to customize the user
-	input.
-
-    device_keyboard/joystick/mouse_*
-	These options are used to customize the input drivers.
-
-	All the `device_keyboard/joystick/mouse_*' options defined in
-	the `advdev.txt' file can be used.
 
     input_hotkey
 	Enables or disables the recognition of the special OS keyboard
@@ -1326,6 +1031,291 @@ Configuration
 	Options:
 		yes - Enable (default).
 		no - Disable.
+
+  User Interface
+	This section describes the options used to customize the user
+	interface.
+
+    ui_autocalib
+	Enables or disables the auto joystick calibration menu. If enabled and no joystick
+	is found, the calibration menu automatically starts.
+
+	If any keypress is detected this mechanism is automatically disabled, and you
+	have to start the calibration menu manually.
+
+	This is intended for a joustick only configuration.
+
+	:ui_autocalib yes | no
+
+    ui_text/bar_font/menu_font
+	Selects a font file for normal text, the title bar and online menus.
+	The formats: TrueType (TTF), GRX, PSF and RAW are supported.
+	You can find a collection of fonts in the `contrib' directory.
+
+	:ui_text_font auto | "FILE"
+	:ui_bar_font auto | "FILE"
+	:ui_menu_font auto | "FILE"
+
+	Options:
+		auto - Use the built-in font (default).
+		FILE - Font file path.
+
+	The TrueType (TTF) format is supported only if the program is
+	compiled with the FreeType2 library.
+
+    ui_text/bar_size
+	Selects the font size, if the specified font is scalable.
+	The size is expressed in number of rows and columns of text in the
+	screen.
+
+	:ui_text_size auto | ROWS [COLS]
+	:ui_bar_size auto | ROWS [COLS]
+	:ui_menu_size auto | ROWS [COLS]
+
+	Options:
+		auto - Automatically compute the size (default).
+		ROWS - Number of text rows.
+		COLS - Number of text columns. If omitted is computed from
+			the number of rows.
+
+    ui_background
+	Defines a background image in .PNG or MNG format. The image is
+	stretched to fit the screen.
+
+	:ui_background FILE | none
+
+	Options:
+		none - No image (default).
+		FILE - File in .PNG or .MNG format to load.
+
+	For .MNG files only the first frame is used.
+
+    ui_exit
+	Defines an exit image/clip in .PNG or .MNG format displayed
+	at the frontexit exit. The image is stretched to fit the screen.
+
+	:ui_exit FILE | none
+
+	Options:
+		none - No image (default).
+		FILE - File in .PNG or .MNG format to load.
+
+    ui_startup
+	Defines a startup image/clip in .PNG or .MNG format displayed
+	at the frontend startup. The image is stretched to fit the screen.
+
+	:ui_startup FILE | none
+
+	Options:
+		none - No image (default).
+		FILE - File in .PNG or .MNG format to load.
+
+    ui_help
+	Defines an help image/clip in .PNG or .MNG format displayed when the
+	user press F1. The image is stretched to fit the screen.
+
+	:ui_help FILE | none
+
+	Options:
+		none - No image (default).
+		FILE - File in .PNG or .MNG format to load.
+
+    ui_gamemsg
+	One line message displayed when a game is chosen. The
+	message is displayed only if the option `display_restoreatgame' is
+	set to `no'.
+
+	:ui_gamemsg "MESSAGE"
+
+	Options:
+		MESSAGE - Message to display (default "Run Game").
+			To prevent the display of the message use the
+			empty string "".
+
+	Examples:
+		:ui_gamemsg "Avvio il gioco..."
+
+    ui_game
+	Selects the preview type to display when a game is run. The
+	preview is displayed only if the option `display_restoreatgame' is
+	set to `no'.
+
+	:ui_game none | snap | flyers | cabinets | titles
+
+	Options:
+		none - Don't display any preview.
+		snap, flyers, cabinets, titles - Display the
+			specified preview. (default snap).
+
+    ui_skiptop/bottom/left/right
+	Defines the border area of the screen not used by the menu.
+	Generally it's the part of the screen used by the background image.
+	If a `ui_background' image is specified these values refer at image
+	size before stretching, otherwise they refer at the current video
+	mode size.
+
+	:ui_skiptop N
+	:ui_skipbottom N
+	:ui_skipleft N
+	:ui_skipright N
+
+	Options:
+		N - Number of pixel to skip (default 0).
+
+    ui_skiphorz/vert
+	Defines the inner horizontal and vertical area between tiles.
+
+	:ui_skiphorz auto | N
+	:ui_skipvert auto | N
+
+	Options:
+		auto - Auto select depending on the tile mode and font size (default).
+		N - Number of pixel to skip.
+
+    ui_topbar/bottombar/scrollbar/outline
+	Enables or disables the top, bottom and scroll information bars.
+	The outline is the thin box around backdrops.
+
+	:ui_topbar yes | no
+	:ui_bottombar yes | no
+	:ui_scrollbar yes | no
+	:ui_outline yes | no
+
+    ui_topname
+	Puts the game name at the top instead of at the bottom.
+
+	:ui_topname yes | no
+
+    ui_name
+	Enables or disables the display of the game name in the screensaver.
+
+	:ui_name yes | no
+
+    ui_color
+	Selects the user interface colors.
+
+	:ui_color TAG FOREGROUND BACKGROUND
+
+	Tags:
+		menu_item - Game menu entry.
+		menu_hidden - Game menu hidden entry.
+		menu_tag - Game menu highlight entry.
+		menu_item_select - Game menu selected entry.
+		menu_hidden_select - Game menu hidden selected entry.
+		menu_tag_select - Game menu selected highlight.
+		bar - Top and bottom bars.
+		bar_tag - Top and bottom bars highlight.
+		bar_hidden - Top and bottom bars hidden text.
+		grid - Scrollbar marker and generic background color.
+		overscan - Overscan area controlled by skip_top/bottom/left/right.
+		backdrop - Backdrop outline and backdrop border/missing.
+		help - Help.
+		help_tag - Help highlight.
+		submenu_bar - Submenu title.
+		submenu_item - Submenu entry.
+		submenu_item_select - Submenu selected entry.
+		submenu_hidden - Submenu hidden entry.
+		submenu_hidden_select - Submenu selected hidden entry.
+		icon - Icon outline and missing icon.
+		cursor - Flashing cursor. Use equal foreground and background to
+			avoid flashing.
+
+	Options:
+		FOREGROUND - Foreground color in RRGGBB
+			hex format. For example FF0000 is red,
+			00FF00 is green and 0000FF is blue.
+		BACKGROUND - Background color. Like foreground color.
+
+    ui_clip
+	Selects how play the video clips.
+
+	:ui_clip none | single | singleloop | multi | multiloop | multiloopall
+
+	Options:
+		none - No clip.
+		single - Play only one clip and only one time.
+		singleloop - Play only one clip continuously. The sound is
+			not looped.
+		multi - Play all the clips.
+		multiloop - Play all the clips, and loop the clip on the
+			cursor. The sound is not looped.
+		multiloopall - Play all the clips, and loop all the clips.
+			The sound is not looped (default).
+
+    ui_translucency
+	Selects the translucency of the user interface.
+
+	:ui_translucency FACTOR
+
+	Options:
+		FACTOR - Translucency factor from 0 to 1
+			(default 0.6).
+
+	The translucency has effect only if you have a background
+	image.
+
+    ui_command
+	Defines the user commands. These commands are executed as
+	shell scripts. The video mode is not changed, so they must be
+	silent.
+
+	:ui_command "MENU" SCRIPT
+
+	Options:
+		MENU - Name of the menu entry.
+		SCRIPT - Commands to execute. If you need to insert more
+			command rows you can end the line with the \ char.
+
+	In the script text some macro are substituted with information of
+	the selected game:
+		%s - The game name. For example "pacman".
+		%p - The complete path of the rom. For
+			example "c:\emu\roms\pacman.zip".
+		%f - The rom name with the extension. For
+			example "pacman.zip".
+
+	If no game is selected the macros aren't substituted.
+
+	If the script exits with an error code, a message is displayed.
+
+	Examples:
+		:ui_command "Delete Hiscore" \
+		:	rm ~/.advance/hi/%s.hi
+		:ui_command "Enable GamePad" \
+		:	rmmod analog \
+		:	sleep 1 \
+		:	modprobe analog js=gamepad
+
+    ui_command_menu
+	Selects the name of the menu entry for the commands submenu.
+
+	:ui_command_menu MENU
+
+	Options:
+		MENU - Name of the menu entry (default "Command").
+
+    ui_command_error
+	Selects the message to display if a command fails.
+
+	:ui_command_error MSG
+
+	Options:
+		MSG - Message to display (default "Error running the command").
+
+    ui_menukey
+	Enables or disables the key names in the menu entries.
+
+	:ui_menukey yes | no
+
+    ui_console
+	Changes the user interface behavior for the use on a game
+	console system.
+
+	:ui_console yes | no
+
+	In console mode the menu is reduced to contains only the
+	minimal commands, and the sound volume is propagated to the
+	emulators if possible.
 
   Other Configuration Options
 
