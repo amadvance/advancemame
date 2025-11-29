@@ -5,6 +5,38 @@ Name
 	is based on MAME 0.106, and it needs a romset aligned to
 	such MAME version.
 
+AdvanceMAME/MESS 5.1 (WIP)
+	Numerous game-specific fixes for slowdown (e.g., Fighting Hawk,
+	U.S. Championship V'ball, Silent Dragon), graphical issues, and
+	improved protection emulation for games like Konami's Chequered Flag.
+
+	Added Bazooka (Taito do Brasil, 1977).
+
+	Updated CPS2 game roms to be in sync with MAME 0.277. 
+
+AdvanceMAME/MESS 5.0
+	New AdvanceBERRY distribution that is a ready-to-use Raspberry Pi
+	image that transforms your Pi into a plug-and-play arcade gaming
+	console for your TV.
+
+	Introduced a massive number of new Arcade, MVS, and Homebrew/Bootleg
+	games and clones, including DoDonPachi II, Bee Storm, Virtua Racing,
+	and various SNES/MD titles.
+
+	Restored support for the MAME debugger and fixed issues where the
+	program would not start if a configured input device was unplugged.
+
+	Added a new genre.ini file, dropped the old dir_crc support, and
+	removed startup "sync" to reduce game launch delay.
+
+AdvanceMAME/MESS 4.0
+	Added a large selection of popular games, including Hyper Street
+	Fighter II: The Anniversary Edition, Primal Rage, Teenage Mutant Ninja
+	Turtles - Turtles in Time (4P), and Terra Force.
+
+	Used XBR scaling on all platforms and added support for OpenMP to
+	accelerate the XBR/ScaleK effect.
+
 AdvanceMAME/MENU 3.10
 	This version includes numerous game improvements contributed by
 	various individuals. For detailed information, please refer to the
