@@ -20,15 +20,16 @@ General FAQ
 	games. The MAME homepage is at http://www.mame.net/.
 
   How is AdvanceMAME different from MAME ?
-	AdvanceMAME is a port of MAME, written mainly by Andrea Mazzoleni, 
-	with contributions from various other people. The video support in
-	AdvanceMAME is made especially to be able to program the video
-	hardware (graphics adapter) to achieve a more faithful video 
-	emulation, also allowing the use with arcade monitors and TVs.
+	AdvanceMAME is an unofficial port of MAME, written mainly by 
+	Andrea Mazzoleni, with contributions from various other people. 
+	The video support in AdvanceMAME is made especially to be able to 
+	program the video hardware (graphics adapter) to achieve a more 
+	faithful video emulation, also allowing the use with arcade 
+	monitors and TVs.
 
 	It also contains software filters to improve the image when used
 	on monitors with a higher resolution, such as PC monitors and
-	LCD screens
+	LCD screens.
 
   I have a question that is not answered in this FAQ. Where can I get help ?
 	If you have looked through the documentation and still haven't 
@@ -40,11 +41,11 @@ General FAQ
 	http://lists.sourceforge.net/lists/listinfo/advancemame-users.
 
 AdvanceMAME FAQ
-  What MAME version AdvanceMAME is based on ?
+  What MAME version is AdvanceMAME based on ?
 	AdvanceMAME is based on the MAME 0.106 source code.
 
   How do I automatically record video and audio clips ?
-	Add this script to your advmame.rc. For any game started a 15 seconds
+	Add this script to your advmame.rc. For any game started a 15-second
 	clip is recorded.
 
 	:script_emulation delay(5000); \
@@ -92,7 +93,7 @@ DOS FAQ
   and "Error -1" ?
 	If compiling you get the "Argument list too long" error,
 	or "Error -1" you need to use the DJGPP stubedit utility
-	to increase bufsize value for some DJGPP tools, with the
+	to increase the bufsize value for some DJGPP tools, with the
 	following commands:
 
 	:stubedit c:\djgpp\bin\gcc.exe bufsize=32k
@@ -104,19 +105,19 @@ DOS FAQ
 	especially for collect2.exe.
 
   What's the best configuration in PURE DOS ?
-	My favorite choice is to use HIMEM, EMM386 and a little
+	My favorite choice is to use HIMEM, EMM386 and a small
 	cache with SMARTDRV.
 
 	In CONFIG.SYS:
-		:dos=high
-		:device=C:\DOS\W98\HIMEM.SYS
-		:device=C:\DOS\EMM386.EXE NOEMS NOVCPI
+	:dos=high
+	:device=C:\DOS\W98\HIMEM.SYS
+	:device=C:\DOS\EMM386.EXE NOEMS NOVCPI
 
 	In AUTOEXEC.BAT:
-		:smartdrv 1024
+	:smartdrv 1024
 
 	If you have a lot of RAM you can use a bigger disk cache like :
-		:smartdrv 8192
+	:smartdrv 8192
 
   Why can I use only 32M of RAM ? I have more RAM.
 	Start the EMM386.EXE device in your CONFIG.SYS with the
@@ -124,7 +125,7 @@ DOS FAQ
 
   Why can I use only 64M of RAM ? I have more RAM.
 	Don't use the DOS 6.22 version of the HIMEM.SYS device. Use a
-	newer version, the Windows 98 version works good. You don't
+	newer version, the Windows 98 version works well. You don't
 	need to upgrade your DOS, simply copy the newer HIMEM.SYS
 	from a Windows 98 installation.
 
@@ -158,7 +159,7 @@ Video FAQ
 	You cannot. If the TV-OUT signal is not enabled automatically
 	by your video board you cannot enable it manually.
 
-	If you have a TV with SCART input (all european TVs) you can buy
+	If you have a TV with SCART input (all European TVs) you can buy
 	or build a VGA to SCART cable.
 
   Can I connect my Arcade Monitor to the video board and use it with AdvanceMENU and
@@ -179,12 +180,12 @@ Video FAQ
 	http://www.tkk.fi/Misc/Electronics/circuits/vga2rgbs_ttl.gif
 
 	Some video boards can be configured to generate the composite sync signal.
-	An example is Matrox cards under Linux. Look at the matroxfb-documentation
-	in the kernel sources, and maybe the matroxset-utility.
+	An example is Matrox cards under Linux. Look at the matroxfb documentation
+	in the kernel sources, and maybe the matroxset utility.
 
   How can I avoid damaging my arcade monitor due to the signals sent out during
   system startup (before AdvanceMENU and AdvanceMAME starts) ?
-	There exists separate hardware adaptors that can be used for this
+	There exist separate hardware adaptors that can be used for this
 	purpose, such as the J-PAC http://www.ultimarc.com/jpac.html
 
 	Other options include waiting until AdvanceMENU has started up, before
@@ -195,16 +196,16 @@ Video FAQ
 	of the AdvanceCAB package to set the graphics card in an acceptable mode
 	while the system is booting. Note that the POST (Power On Self Test) screen
 	of the BIOS will still be in the "bad" video-mode, so the problem is not 
-	solved entirely by these utilities, but they allow for a nice bootup-screen
+	solved entirely by these utilities, but they allow for a nice bootup screen
 	to be displayed.
 
-	With some graphics adapters (eg. Matrox), a similar effect can be achieved 
+	With some graphics adapters (e.g. Matrox), a similar effect can be achieved 
 	under Linux by configuring the video mode of the kernel framebuffer.
 
   What is the "tearing" effect ?
 	The tearing effect is a defect of the animation caused by a wrong
-	synchronization with the game refresh rate and the video mode refresh
-	rate. It generally appears as a horizontal image split line, on the
+	synchronization between the game refresh rate and the video mode refresh
+	rate. It generally appears as a horizontal image split line; on the
 	top of this line you see the previous game frame, on the bottom of this
 	line you see the next game frame.
 
@@ -217,24 +218,24 @@ Video FAQ
 
   How can I remove the tearing effect ?
 	The only way to remove the tearing effect is to enable the
-	`display_vsync' option. To correctly work this option need a video
-	mode with a refresh rate which is a multiplier of the original game
+	`display_vsync' option. To work correctly this option needs a video
+	mode with a refresh rate which is a multiple of the original game
 	refresh rate. For example for a 50 Hz game you can use video modes
 	of 50, 100, 150 Hz.
 
   How can I reduce the tearing effect ?
 	If for some reason you cannot use the `display_vsync' option the
 	only way to reduce the tearing effect is to choose a video mode
-	refresh rate which ensure to have a randomly and fast moving tearing
+	refresh rate which ensures a randomly and fast moving tearing
 	split line.
 
-	Generally they are high refresh rates, prime with the original game
+	Generally these are high refresh rates, prime with the original game
 	frequency.
 
-  Does the "double/tripler buffer" help to reduce the tearing effect ?
+  Does the "double/triple buffer" help to reduce the tearing effect ?
 	No. A generic asynchronous buffer doesn't remove or reduce the
-	tearing effect. A synchronous buffer instead it's exactly like
-	the vsync. AdvanceMAME supports only the asynchronous buffers.
+	tearing effect. A synchronous buffer instead is exactly like
+	vsync. AdvanceMAME supports only asynchronous buffers.
 
   Can I get a good animation with a video mode with arbitrary frequency ?
 	There is no way to get a perfect animation without using
@@ -242,21 +243,21 @@ Video FAQ
 	tearing effect or a not smooth animation from some frames skipped
 	or displayed too long.
 
-	For example, suppose to use a 70 Hz video mode with a 60 Hz game.
-	You can display every frame for 1/60 of second and get the tearing
-	effect. Alternatively you can display every frame for 1/70 of second,
-	but after 7 frame you need to display a frame for 2/70 of second to
+	For example, suppose you use a 70 Hz video mode with a 60 Hz game.
+	You can display every frame for 1/60 of a second and get the tearing
+	effect. Alternatively you can display every frame for 1/70 of a second,
+	but after 7 frames you need to display a frame for 2/70 of a second to
 	synchronize with the original game speed.
 
-	The only exception is for frequencies which are multiplier of
+	The only exception is for frequencies which are multiples of
 	the original game refresh rate.
 
   Why are the smaller video modes like 256x224 not working ?
 	Your video board probably isn't able to generate the very low
-	pixelclocks needed. You can try to increase the minimum value 
+	pixel clocks needed. You can try to increase the minimum value 
 	of the `device_video_pclock' option. The video mode generation 
 	will automatically generate video modes with double or triple
-	horizontal resolutions to force the use of a pixelclock in
+	horizontal resolutions to force the use of a pixel clock in
 	the specified range.
 
 License FAQ
@@ -265,10 +266,10 @@ License FAQ
 	at http://www.opensource.org/ and not a Free Software License as defined
 	at http://www.gnu.org/.
 
-  How can be MAME 0.106 not Open Source/Free Software when the latest
+  How can MAME 0.106 not be Open Source/Free Software when the latest
   MAME is released with the GPL 2 License ?
 	MAME 0.106 was never released with the GPL 2 License.
-	Most, if not all, same source code can be found released
+	Most, if not all, of the same source code can be found released
 	with the GPL 2 in the latest MAME, but it's safer to
 	assume that MAME 0.106 is not GPL 2.
 
@@ -287,52 +288,52 @@ License FAQ
 	if you don't like it or if you want to include the
 	AdvanceMAME source in another GPL program.
 
-	You can more easily think at it as a sort of double license.
-	A GPL or a GPL + exception.
+	You can more easily think of it as a sort of double license:
+	GPL or GPL + exception.
 
-  Why the AdvanceMAME license is called GPL if it's different
+  Why is the AdvanceMAME license called GPL if it's different
   than the GPL ?
 	The GPL license used by AdvanceMAME isn't modified in any
 	way.
 
 	The license exception is added outside the GPL license text.
-	It's added at the top of every source files for which the
-	exception has the validity.
+	It is added at the top of every source file for which the
+	exception has validity.
 
-	How to add this sort of exceptions is specifically covered on
-	the Official GPL FAQ written by the same people which have
-	written the GPL license and which are the copyright holders
+	How to add this sort of exception is specifically covered in
+	the Official GPL FAQ written by the same people who have
+	written the GPL license and who are the copyright holders
 	of the GPL license.
 
 	Specifically, in the Official GPL FAQ you can see that in
-	every source files with the license exception you must add
+	every source file with the license exception you must add
 	the following text :
 
-	"This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version."
+	:"This program is free software; you can redistribute it and/or modify
+	:it under the terms of the GNU General Public License as published by
+	:the Free Software Foundation; either version 2 of the License, or
+	:(at your option) any later version."
 
 	Which explicitly claims that the program with the license
 	exception is still GPL.
 
   Does the MAME 0.106 license allow linking the MAME 0.106 source with
   a GPL source ?
-	Yes. The only requirement of the MAME 0.106 License for the
-	derivative works is the whole source availability.
+	Yes. The only requirement of the MAME 0.106 License for derivative
+	works is the whole source availability.
 	With the GPL you have it.
 
-  Does the GPL license allow to link a GPL source with a
+  Does the GPL license allow linking a GPL source with a
   MAME 0.106 source ?
 	No. The GPL license requires that the whole program be
-	released with the GPL license or with a GPL compatible
-	license. The MAME 0.106 License isn't a GPL compatible license.
+	released with the GPL license or with a GPL-compatible
+	license. The MAME 0.106 License isn't a GPL-compatible license.
 
   Does the GPL license + exception allow linking a
   GPL + exception source with a MAME 0.106 source ?
 	Yes. The license exception specifically allows it.
 
-  The license exception say "MAME library". Is MAME a library or
+  The license exception says "MAME library". Is MAME a library or
   a program ?
 	AdvanceMAME uses only the internal MAME 0.106 core, which is
 	effectively a library.
@@ -340,24 +341,24 @@ License FAQ
 	Anyway, calling a piece of software a program or a library 
 	doesn't change its license.
 
-  The GPL FAQ say: "Combining two modules means connecting
+  The GPL FAQ says: "Combining two modules means connecting
   them together so that they form a single larger program. If
   either part is covered by the GPL, the whole combination must
   also be released under the GPL--if you can't, or won't, do
   that, you may not combine them.". Is it true ?
-	Yes. But the GPL FAQ speak of a generic GPL program without
+	Yes. But the GPL FAQ speaks of a generic GPL program without
 	any exception.
 
 	The license exception explicitly allows you to combine the
 	GPL program with MAME 0.106. These exceptions exist specifically
 	to solve this problem. Essentially, if your GPL program needs
 	to use another module which is not under a GPL license, you 
-	(as copyright holder) can grant at the user the rights to link 
-	it with the not GPL module.
+	(as copyright holder) can grant the user the rights to link 
+	it with the not-GPL module.
 
 	The GPL was made to protect the interests of the copyright
 	holder. But if the copyright holder wants, he can relax the
-	license adding specific exceptions that extend the rights of
+	license by adding specific exceptions that extend the rights of
 	the users. So, the users can do things not generally
 	permitted by the standard GPL license.
 
@@ -365,7 +366,7 @@ License FAQ
 	The AdvanceMAME binary contains source from AdvanceMAME,
 	MAME, Allegro, SEAL, svgalib, zlib and FreeType2. You must
 	follow ALL these licenses when you use the binary.
-	So, you are only allowed to do things with it, if they are
+	So, you are only allowed to do things with it if they are
 	permitted by ALL these licenses.
 
   Can I sell the AdvanceMAME binary ?
@@ -382,19 +383,19 @@ License FAQ
 GPL FAQ
 	This is an extract of the Official GPL FAQ present at :
 
-		+http://www.gnu.org/licenses/gpl-faq.html
+	:http://www.gnu.org/licenses/gpl-faq.html
 
   I am writing free software that uses non-free libraries.
   What legal issues come up if I use the GPL?
 
-	If the libraries that you link with falls within the
+	If the libraries you link with fall within the
 	following exception in the GPL:
 
-		:However, as a special exception, the source code distributed need not
-		:include anything that is normally distributed (in either source or
-		:binary form) with the major components (compiler, kernel, and so on) of
-		:the operating system on which the executable runs, unless that
-		:component itself accompanies the executable.
+	:However, as a special exception, the source code distributed need not
+	:include anything that is normally distributed (in either source or
+	:binary form) with the major components (compiler, kernel, and so on) of
+	:the operating system on which the executable runs, unless that
+	:component itself accompanies the executable.
 
 	then you don't have to do anything special to use them. In
 	other words, if the libraries you need come with major parts
@@ -407,31 +408,31 @@ GPL FAQ
 	and license notice give permission to link with the program
 	FOO:
 
-		:Copyright (C) yyyy
+	:Copyright (C) yyyy  <name of author>
 
-		:This program is free software; you can redistribute it and/or modify
-		:it under the terms of the GNU General Public License as published by
-		:the Free Software Foundation; either version 2 of the License, or
-		:(at your option) any later version.
+	:This program is free software; you can redistribute it and/or modify
+	:it under the terms of the GNU General Public License as published by
+	:the Free Software Foundation; either version 2 of the License, or
+	:(at your option) any later version.
 
-		:This program is distributed in the hope that it will be useful,
-		:but WITHOUT ANY WARRANTY; without even the implied warranty of
-		:MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-		:GNU General Public License for more details.
+	:This program is distributed in the hope that it will be useful,
+	:but WITHOUT ANY WARRANTY; without even the implied warranty of
+	:MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+	:GNU General Public License for more details.
 
-		:You should have received a copy of the GNU General Public License
-		:along with this program; if not, write to the Free Software
-		:Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+	:You should have received a copy of the GNU General Public License
+	:along with this program; if not, write to the Free Software
+	:Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-		:In addition, as a special exception, <name of copyright
-		:holder> gives permission to link the code of this program with
-		:the FOO library (or with modified versions of FOO that use the
-		:same license as FOO), and distribute linked combinations including
-		:the two.  You must obey the GNU General Public License in all
-		:respects for all of the code used other than FOO.  If you modify
-		:this file, you may extend this exception to your version of the
-		:file, but you are not obligated to do so.  If you do not wish to
-		:do so, delete this exception statement from your version.
+	:In addition, as a special exception, <name of copyright
+	:holder> gives permission to link the code of this program with
+	:the FOO library (or with modified versions of FOO that use the
+	:same license as FOO), and distribute linked combinations including
+	:the two.  You must obey the GNU General Public License in all
+	:respects for all of the code used other than FOO.  If you modify
+	:this file, you may extend this exception to your version of the
+	:file, but you are not obligated to do so.  If you do not wish to
+	:do so, delete this exception statement from your version.
 
 	Only the copyright holders for the program can legally
 	authorize this exception. If you wrote the whole program
@@ -482,4 +483,3 @@ GPL FAQ
 Copyright
 	This file is Copyright (C) 2003, 2004, 2005, Andrea Mazzoleni,
 	Mikkel Holm Olsen (http://symlink.dk/)
-

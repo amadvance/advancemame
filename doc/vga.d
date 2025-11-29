@@ -5,16 +5,16 @@ Synopsis
 	:vga [/l] [/u] [/a] [/c CONFIG] [/d] [/e]
 
 Description
-	The `vga' utility is a TSR (Terminate Stay Resident) VGA BIOS
+	The `vga' utility is a TSR (Terminate and Stay Resident) VGA BIOS
 	wrapper that substitutes the default list of VGA video modes
-	with a list of the favorite modes which work best with your
+	with a list of favorite modes which work best with your
 	video hardware.
 
 	The `vga.exe' executable can be used as a standard executable or
-	it can also be loaded as a `sys' driver in the `config.sys' as a
-	`device'. Please note that the `sys' version can't be unloaded.
+	it can also be loaded as a `sys' driver in the `config.sys' with
+	`device='. Please note that the `sys' version cannot be unloaded.
 
-	At the startup the configuration file `vga.rc', created with
+	At startup the configuration file `vga.rc', created with
 	the utility `vgav', is read and all the modelines present
 	are activated. The format of this configuration file is
 	specified in the document `advv.txt'.
@@ -26,25 +26,25 @@ Description
 		standard.rc - Arcade Standard Resolution (15 kHz).
 		medium.rc - Arcade Medium Resolution (25 kHz).
 		extended.rc - Arcade Extended Resolution (16.5 kHz).
-		pcvga.rc - VGA PC Monitor.
+		pcvga.rc - VGA PC  Monitor.
 		pcsvga60.rc - SVGA PC Multisync Monitor.
 	
 	From all the modelines in the configuration file three of them
-	are chosen for the standard VGA mode 1h, 3h and 13h.
+	are chosen for the standard VGA modes 1h, 3h and 13h.
 
-		1h - width of 40*9 or 40*8 pixel.
-		3h - width of 80*9 or 80*8 pixel.
-		13h - width of 320 pixel and height of 200.
+		1h - width of 40*9 or 40*8 pixels.
+		3h - width of 80*9 or 80*8 pixels.
+		13h - width of 320 pixels and height of 200 pixels.
 
-	All the other modelines are used to adjust any other XMode
+	All the other modelines are used to adjust any other VGA mode
 	detected. When the current video mode width and height match
-	a modeline, the modeline is automatically set.
+	a modeline, the modeline is automatically applied.
 
 Options
 	These are the command line options supported:
 
 	/l
-		Load in memory the utility and adjust the current video
+		Load the utility in memory and adjust the current video
 		mode if a corresponding mode is defined in the config
 		file.
 
@@ -53,17 +53,17 @@ Options
 
 	/a
 		Adjust the current video mode if a corresponding mode
-		is defined in the config file without loading in memory
-		the utility.
+		is defined in the config file without loading the
+		utility in memory.
 
 	/c CONFIG
 		Use an arbitrary configuration file for the /l and /a
 		commands.
 
 	/d
-		Disable all the video output from others programs.
+		Disable all video output from other programs.
 		This option works only if the program is loaded in
-		memory. Remember to reenable the video output before
+		memory. Remember to re-enable the video output before
 		running your programs.
 
 	/e
@@ -77,26 +77,26 @@ Options
 	or with the `video' utility.
 
 Cards
-	This utility should works with any VGA compatible board.
+	This utility should work with any VGA-compatible board.
 
 How It Works
-	This utility intercepts all the VGA BIOS calls and if it detects
-	a ModeSet call for a know mode it uses his version of the mode.
+	This utility intercepts all VGA BIOS calls and if it detects
+	a ModeSet call for a known mode it uses its own version of the mode.
 
-	At any call of the interrupt 08h and 21h some VGA registers are
-	read. If a VGA mode with the size of a know modeline is detected
+	At any call of interrupt 08h and 21h some VGA registers are
+	read. If a VGA mode with the size of a known modeline is detected,
 	the mode is adjusted to match the mode defined in the
 	configuration file.
 
-	The disabling of the video output works ignoring all the int
+	The disabling of the video output works by ignoring all int
 	10h calls.
 
 Limitations
-	Only the `modelines' compatible with the vga hardware are used.
+	Only the modelines compatible with VGA hardware are used.
 
 	The text modes can use only the pixel clocks 28.322, 25.175,
 	14.161 and 12.587 MHz. The graphics modes can use only the
-	pixelclocks 14.161, 12.587, 7.080 and 6.293 MHz.
+	pixel clocks 14.161, 12.587, 7.080 and 6.293 MHz.
 
 Examples
 	Load it:
@@ -125,16 +125,16 @@ Examples
 
 		:device=c:\cab\vga.exe /l /d /c c:\cab\vga.rc
 
-	the latter is probably the most interesting use. You can load
+	The latter is probably the most interesting use. You can load
 	`vga' as soon as possible to adjust the video output and prevent
-	other programs to write to the screen. You can also use the
+	other programs from writing to the screen. You can also use the
 	`video' utility to load an arbitrary image to display.
 	After the system is initialized you can insert in the autoexec.bat
 	the command:
 
 		:c:\cab\vga /e
 
-	to reenable the video output.
+	to re-enable the video output.
 
 Bugs
 	The configuration file is checked only for the
@@ -143,4 +143,3 @@ Bugs
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.
-

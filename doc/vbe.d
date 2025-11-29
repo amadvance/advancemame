@@ -6,18 +6,18 @@ Synopsis
 
 Description
 	The `vbe' utility is a TSR (Terminate Stay Resident) VBE BIOS
-	wrapper. It isn't a complete VBE BIOS. It requires an existing and
+	wrapper. It is not a complete VBE BIOS. It requires an existing and
 	working VBE BIOS.
 
-	It allow to set an arbitrary video mode list with the favorite
+	It allows you to set an arbitrary video mode list with the favorite
 	modes which work best with your video hardware without any
 	restrictions in size and frequencies.
 
 	With this utility you can play all the DOS games that use the
-	standard VESA VBE services with your PC Monitor, TV and Arcade
-	Monitor.
+	standard VESA VBE services with your PC monitor, TV and arcade
+	monitor.
  
-	At the startup the configuration file `vbe.rc', created with
+	At startup the configuration file `vbe.rc', created with
 	the utility `vbev', is read and all the modelines present
 	are activated. The format of this configuration file is
 	specified in the document `advv.txt'.
@@ -33,14 +33,14 @@ Description
 		pcsvga60.rc - SVGA PC Multisync Monitor.
 
 	All the modelines present in the configuration files are used
-	to create the list of available VBE mode. For every modeline
-	three VBE modes with 8, 15, 16 bits are added.
+	to create the list of available VBE modes. For every modeline
+	three VBE modes with 8, 15 and 16 bits are added.
 
 Options
 	These are the command line options supported:
 
 	/l
-		Load in memory the utility
+		Load the utility in memory
 
 	/u
 		Unload the utility
@@ -52,8 +52,8 @@ Cards
 	The program supports only some of the `vbeline' drivers listed in the
 	`carddos.txt' file.
 
-	Some of these drivers require that you in advance load the
-	`Scitech Display Doctor' (SDD) program to work correctly.
+	Some of these drivers require that you load the
+	`Scitech Display Doctor' (SDD) program in advance to work correctly.
 
 	The available drivers are :
 		vbeline/auto - Auto detection.
@@ -87,10 +87,10 @@ Cards
 			should have a VBE3 BIOS.
 
 Limitations
-	AdvanceVBE isn't a complete VBE 2.0 bios. It requires an
+	AdvanceVBE is not a complete VBE 2.0 BIOS. It requires an
 	existing and working VBE BIOS. Specifically you can get the
 	VBE 2.0 services, like the linear frame buffer, only if the
-	preexistent BIOS supports them.
+	pre-existing BIOS supports them.
 	Eventually, before loading AdvanceVBE, you can load a software
 	BIOS like the `Scitech Display Doctor' or similar.
 
@@ -98,20 +98,20 @@ Limitations
 
 Application Problems
 	Some applications are able to use only some common resolutions
-	like 320x240, 400x300, 512x384 and 640x480. Others resolutions
+	like 320x240, 400x300, 512x384 and 640x480. Other resolutions
 	may be completely ignored or crash the application.
 
-	Others applications may get in trouble if the list of available
+	Other applications may get in trouble if the list of available
 	VBE modes contains duplicate resolutions or is too big.
 	Add only the best modelines and avoid duplicates.
 
 Use In Windows
 	The `vbe' utility is tested and working in Windows 98 with
-	a S3 board. You should only load the SDD utility (if required)
+	an S3 board. You should only load the SDD utility (if required)
 	and the `vbe' utility in the `autoexec.bat'.
 
 	Note that the Windows 16 bit HiColor modes are truly 15 bit VBE
-	modes. So you should create some 15 bits modes in the `vbe.rc'.
+	modes. So you should create some 15 bit modes in the `vbe.rc'.
 
 	Windows notices only the video modes of size 640x480,
 	800x600, 1024x768 and 1280x1024. Any other mode is ignored.
@@ -135,7 +135,7 @@ Examples
 
 		:vbe /u
 
-	You can force a specific vbeline driver adding the
+	You can force a specific vbeline driver by adding the
 	`device_video vbeline/DRIVER' option in your configuration
 	file.
 
@@ -149,4 +149,3 @@ Bugs
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.
-

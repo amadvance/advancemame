@@ -1,39 +1,39 @@
 Name{number}
 	script - AdvanceMAME Script Machine
 
-	AdvanceMAME support a scripting language to control external
-	device like lamps, keyboard leds...
-	You can assign a simple script at various events like key press,
+	AdvanceMAME supports a scripting language to control external
+	devices like lamps, keyboard leds...
+	You can assign a simple script to various events like key press,
 	game led state change or others.
 	When the event is triggered the script is started.
 
 Grammar
-	The scripts use a C like grammar.
+	The scripts use a C-like grammar.
 
 Scripts
 	These are the available scripts:
 		script_video - The video mode is set. It's the first event
 			triggered.
-		script_emulation - The emulation start. It's triggered after
+		script_emulation - The emulation starts. It's triggered after
 			the MAME confirmation screens.
-		script_play - The game play start. It happens after the
+		script_play - The game play starts. It happens after the
 			`sync_startuptime'.
 		script_led1,2,3 - The led controlled by the emulated
 			game is enabled.
 		script_turbo - The turbo button is pressed.
 		script_coin1,2,3,4 - A coin button is pressed.
 		script_start1,2,3,4 - A start button is pressed.
-		script_safequit - The game enter in the safequit status.
+		script_safequit - The game enters the safequit status.
 		script_event1-14 - The events controlled by the
 			event system.
 		script_knocker - The knocker output is triggered.
 			Like in the Q*bert game.
 
-	You can assign a script at every event. The script is started
+	You can assign a script to every event. The script is started
 	when the event is triggered.
 
 Values
-	You have two type of values. Numerical integer values and text
+	You have two types of values: numerical integer values and text
 	string values.
 
 	The numerical values are expressed with the following formats:
@@ -41,7 +41,7 @@ Values
 		0x... - Number in hexadecimal format.
 		0b... - Number in binary format.
 
-	The text values are expressed with the following formats:
+	The text values are expressed with the following format:
 		"..." - String.
 
 	Examples:
@@ -69,13 +69,13 @@ Operators
 		<= - Less or equal.
 		>= - Greater or equal.
 
-	For string values the following operators are available:
+	For string values the following operator is available:
 		+ - Concatenation.
 
 Commands
 	These are the available commands:
 		while (CONDITION) { ... } - Repeat until CONDITION is not 0.
-		if (CONDITION) { ...  } - Execute if CONDITIDION is not 0.
+		if (CONDITION) { ... } - Execute if CONDITION is not 0.
 		loop { ... } - Repeat forever.
 		repeat (N) { ... } - Repeat N times.
 		wait(CONDITION) - Wait until the CONDITION is not 0.
@@ -83,22 +83,22 @@ Commands
 
 	The 'wait()' and 'delay()' commands are used to maintain the
 	synchronization with the game emulation. When these commands
-	are executed, the script is temporarily suspended. All others
+	are executed, the script is temporarily suspended. All other
 	commands are executed continuously without any delay.
 
 	The granularity of the delay command is the frame rate period.
 	Approx. 16 ms for a 60 Hz game. Delays under this limit may
-	don't have the desired effect.
+	not have the desired effect.
 
 	IT'S VERY IMPORTANT THAT EVERY 'loop', 'while' AND 'repeat'
 	COMMANDS CONTAIN A 'delay()' CALL. Otherwise the script may
 	loop forever and the executable will lock! For example the
-	statement :
+	statement:
 
 		:loop { toggle(0, 1); }
 
-	completely STOP the emulation and you CAN'T EXIT from the program.
-	A correct one is :
+	completely stops the emulation and you can't exit from the program.
+	A correct one is:
 
 		:loop { toggle(0, 1); delay(100); }
 
@@ -110,11 +110,11 @@ Functions
 		event(EVENT) - Return 0 if the specified event is
 			not active. Return 1 if the event is active.
 		simulate_event(EVENT,NUMBER) - Simulate the specified
-			event for NUMBER milli seconds.
+			event for NUMBER milliseconds.
 		simulate_key(KEY,NUMBER) - Simulate the specified key for
-			NUMBER milli seconds.
-		log(VALUE) - Output a texr or number value in the log file.
-		msg(VALUE) - Print on screen a a text or number value.
+			NUMBER milliseconds.
+		log(VALUE) - Output a text or number value in the log file.
+		msg(VALUE) - Print on screen a text or number value.
 		system(TEXT) - Execute the specified command TEXT as a
 			shell script. Return the exit code.
 		lcd(ROW_NUMBER, VALUE) - Display a value on the LCD at the
@@ -122,12 +122,12 @@ Functions
 		rand(NUMBER) - Generate a random number from 0
 			to NUMBER - 1.
 
-	The 'event()' command can be used to determine the end of the event
+	The 'event()' function can be used to determine the end of the event
 	that started the script. For example for the 'coin1' event the
-	function return 0 when the key is released.
+	function returns 0 when the key is released.
 
 Ports
-	External devices can be controlled using the keyboard led
+	External devices can be controlled using the keyboard leds
 	or the PC ports, like the parallel port.
 
 	Generally the parallel ports are mapped at the addresses
@@ -139,7 +139,7 @@ Ports
 	These are the available functions to read and write the ports:
 
 		set(ADDRESS, VALUE) - Set the port with the specified value.
-		get(ADDRESS) - Return the value of the port
+		get(ADDRESS) - Return the value of the port.
 		on(ADDRESS, VALUE) - Enable the active bits in VALUE.
 			Like set(ADDRESS, get(ADDRESS) | VALUE).
 		off(ADDRESS, VALUE) - Disable the active bits in VALUE.
@@ -155,12 +155,12 @@ Ports
 	available on your system.
 
 Symbols
-	This is the complete list of all the predefinite symbols
+	This is the complete list of all the predefined symbols
 	available.
 
 	These are the event symbols available for the
 	`simulate_event(EVENT, TIME)' and `event(EVENT)'
-	commands :
+	commands:
 		EVENT - p1_up, p1_down, p1_left, p1_right, p2_up, p2_down,
 			p2_left, p2_right, p1_button1, p1_button2, p1_button3,
 			p1_button4, p1_button5, p1_button6, p1_button7,
@@ -173,7 +173,7 @@ Symbols
 
 	These are the user interface event symbols available for
 	the `simulate_event(EVENT, TIME)' and `event(EVENT)'
-	commands :
+	commands:
 		EVENT - ui_mode_next, ui_mode_pred, ui_record_start,
 			ui_record_stop, ui_turbo, ui_cocktail, ui_configure,
 			ui_on_screen_display, ui_pause, ui_reset_machine,
@@ -187,7 +187,7 @@ Symbols
 			ui_save_cheat, ui_watch_value.
 
 	These are the keyboard symbols available for the
-	`simulate_key(EVENT, TIME)' command :
+	`simulate_key(EVENT, TIME)' command:
 		EVENT - key_a, key_b, key_c, key_d, key_e, key_f, key_g,
 			key_h, key_i, key_j, key_k, key_l, key_m, key_n,
 			key_o, key_p, key_q, key_r, key_s, key_t, key_u,
@@ -218,13 +218,13 @@ Symbols
 		info_throttle - The current game speed. For example "100%".
 
 Examples
-	This script clears all the keyboard leds at the emulation end :
+	This script clears all the keyboard leds at the emulation end:
 
 		:script_video wait(!event()); set(0,0);
 
-	Activate all the parallel data bits when the game start, flash
-	the bit 0 during the emulation and clear them then the game
-	stop :
+	Activate all the parallel data bits when the game starts, flash
+	the bit 0 during the emulation and clear them when the game
+	stops:
 
 		:script_start \
 		:	set(0x378, 0xff); \
@@ -238,11 +238,11 @@ Examples
 
 		:script_led1 on(0, 0b1); wait(!event()); off(0, 0b1);
 
-	Map the second MAME led to the first keyboard led:
+	Map the second MAME led to the second keyboard led:
 
 		:script_led2 on(0, 0b10); wait(!event()); off(0, 0b10);
 
-	Flash the third keyboard led when the 'turbo' is active :
+	Flash the third keyboard led when the 'turbo' is active:
 
 		:script_turbo \
 		:	while (event()) { \
@@ -251,7 +251,7 @@ Examples
 		:	} \
 		:	off(0, 0b100);
 
-	Light the third keyboard led when the 'coin1' key is pressed :
+	Light the third keyboard led when the 'coin1' key is pressed:
 
 		:script_coin1 on(0, 0b100); delay(500); off(0, 0b100);
 
@@ -264,21 +264,21 @@ Examples
 		:		delay(200); \
 		:	}
 
-	Add a coin when the player start:
+	Add a coin when the player starts:
 
 		:script_start1 \
-		:	wait(!event());
+		:	wait(!event()); \
 		:	simulate_event(coin1,100); \
 		:	delay(500); \
 		:	simulate_event(start1,100);
 
-	Display continously the game speed on the LCD:
+	Display continuously the game speed on the LCD:
 
 		:script_video loop { lcd(0,"Speed " + info_throttle); delay(1000); }
 
 Configuration
 	The scripts must be inserted in the 'advmame.rc' file. You can split
-	complex scripts terminating any splitted row with the `\' char.
+	complex scripts terminating any split row with the '\' character.
 
 	For example:
 
@@ -306,4 +306,3 @@ Configuration
 
 Copyright
 	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
-

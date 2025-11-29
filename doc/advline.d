@@ -13,28 +13,28 @@ Description
 	This utility is a video modeline generator. 
 	The output of the execution is a valid list of video modes that 
 	you can use in your `cfg' files. 
-	The `.cfg' examples are generated with the predefinite options of 
+	The `.cfg' examples are generated with the predefined options of 
 	this program.
 	
-	The modelines are generated using an user specified reference
+	The modelines are generated using a user-specified reference
 	length of the Active Display, Front Porch, Sync Pulse and Back 
 	Porch.
 
-	You can also set any type of clock constrains like Horizontal Clock,
+	You can also set any type of clock constraints like Horizontal Clock,
 	Vertical Clock and Pixel Clock.
 	If you select more than one exact clock the resulting video modes 
 	will have something fixed.
 	For example the PAL modes have a fixed Vertical and Horizontal
-	clocks. This result in a fixed number of rows.
+	clocks. This results in a fixed number of rows.
 
 	The minimum and maximum clock limitations are considered as
 	suggestions. The video modes are adjusted trying to match these
-	limits. The available changes are enabling the doublescan, enabling
-	the interlace and doubling the horizontal size.
+	limits. The available changes are enabling doublescan, enabling
+	interlace and doubling the horizontal size.
 
 Options
 	/fh A,F,S,B
-		Select the horizontal format. You need specify the length
+		Select the horizontal format. You must specify the length
 		of the Active Display, Front Porch, Sync Pulse and
 		Back Porch.
 		You can use any measure unit because these values are
@@ -72,7 +72,7 @@ Options
 		of your monitor.
 
 	/vmax CLOCK
-		Suggests the maximum vertical clock in Hz.
+		Suggest the maximum vertical clock in Hz.
 		You can use this option to match the capabilities
 		of your monitor.
 
@@ -80,8 +80,8 @@ Options
 		Set the favorite video mode. If none is specified a
 		default set is generated.
 
-Predefinite Options
-	These options are a predefinite set of configurations:
+Predefined Options
+	These options are a predefined set of configurations:
 
 	/atari_standard
 		Atari standard resolution monitor
@@ -123,19 +123,19 @@ Predefinite Options
 		Generic SVGA multisync 57 Hz monitor
 		VClock 57 Hz
 
-	You can overrides some parameters using the normal options.
+	You can override some parameters using the normal options.
 
 	Examples for SVGA default modes at 75 Hz:
-		:modeline /svga60 /v 75
+		:advline /svga60 /v 75
 
 	Examples for SVGA mode 384x224 at 72 Hz:
-		:modeline /svga60 /v 72 384x224
+		:advline /svga60 /v 72 384x224
 
 Timings
-	This is the collections of video timings used by the
-	predefinite options.
+	This is the collection of video timings used by the
+	predefined options.
 
-	The nomenclature used is :
+	The nomenclature used is:
 
 		A = Active Display
 		F = Front Porch
@@ -166,9 +166,9 @@ Timings
 
 	:               Horizontal              Vertical
 	:A              52.60 us                15.39875 ms
-	:F              1.50 us                 0.190.50 ms
-	:S              4.70 us                 0.190.50 ms
-	:B              4.70 us                 0.889.00 ms
+	:F              1.50 us                 0.19050 ms
+	:S              4.70 us                 0.19050 ms
+	:B              4.70 us                 0.88900 ms
 	:F+S+B          10.90 us
         :A+F+S+B        63.50 us                16.66875 ms
 	:Clock          15.72 kHz               59.94 Hz
@@ -229,5 +229,3 @@ Timings
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.
-
-

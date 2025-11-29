@@ -10,19 +10,19 @@ Description
 	program for AdvanceMAME, AdvanceMESS and AdvanceMENU.
 
 	This utility works differently if one of the -advmamec,
-	-advmessc and -advmenuc option is specified.
+	-advmessc or -advmenuc options is specified.
 	The main difference is the name of the configuration
 	file used to store the video modes.
 
 	All the video modes used in the configuration process
-	have always negative horizontal and vertical sync polarity.
+	always have negative horizontal and vertical sync polarity.
 
 	Check the `advdev.txt' file for more details on the video
 	drivers supported.
 
 Options
 	-rc RCFILE
-		Specify an alternate name of the configuration file.
+		Specify an alternate configuration file.
 
 	-log
 		A very detailed log of operations is saved in
@@ -31,7 +31,7 @@ Options
 	-logsync
 		Like the `-log' option but the log file is not
 		buffered. This option must be used to get a complete
-		log file in presence of a machine crash.
+		log file in case of a machine crash.
 
 	-advmamec, -advmessc, -advmenuc
 		Select the mode of operation for the programs
@@ -40,16 +40,16 @@ Options
 
 	-bit N
 		Select the bit depth of the test video modes.
-		If omitted 8 bit modes are used.
+		If omitted, 8-bit modes are used.
 		Valid values are 8, 15, 16 and 32.
 
 Configuration
-	Depending one the command line options used one of the
-	`advmame.rc', `advmess.rc' and `advmenu.rc' file is used
+	Depending on the command line options used, one of the
+	`advmame.rc', `advmess.rc' or `advmenu.rc' files is used
 	to load and save the video configuration.
 
-	If the configuration process completes with success the
-	program adds these options in your configuration file:
+	If the configuration process completes successfully, the
+	program adds these options to your configuration file:
 
 		:device_video_clock ?
 		:device_video_format ?
@@ -68,4 +68,3 @@ Configuration
 
 Copyright
 	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
-

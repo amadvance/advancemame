@@ -2,11 +2,11 @@ Name
 	cost - AdvanceMAME Estimated Cost
 
 	This is a cost estimation of the Advance Projects
-	generated using the SLOCCount program by David A. Wheeler from :
+	generated using the SLOCCount program by David A. Wheeler from:
 
 		+http://www.dwheeler.com/sloccount/
 
-	Only the specifically written for the Advance project are present
+	Only the parts specifically written for the Advance project are present
 	in this estimation. The sources imported from other projects,
 	data files, and automatically generated files are excluded from the
 	estimation.
@@ -46,7 +46,7 @@ Totals
 	accounting, and so on). Many programmers forget these other costs and
 	are shocked by the high figures.
 
-	The Advance project, as hobbyist project, has no corporate overhead.
+	The Advance project, as a hobbyist project, has no corporate overhead.
 
 Projects
 	:SLOC    Project                 SLOC-by-Language
@@ -92,12 +92,10 @@ Directories
 	:47      off             ansic=47
 
 Languages
-	:Laguange       SLOC
+	:Language       SLOC
 	:ansic:        98548 (77.77%)
 	:cpp:          26967 (21.28%)
 	:asm:            686 (0.54%)
 	:yacc:           211 (0.17%)
 	:sh:             188 (0.15%)
 	:lex:            114 (0.09%)
-
-

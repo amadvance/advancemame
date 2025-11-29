@@ -136,7 +136,7 @@ Video Drivers
 	VBE3 services don't support a resolution size change.
 
 	The resolution is changed modifying only the standard
-	VGA registers. This hack may or not may works.
+	VGA registers. This hack may or may not work.
 	Also the interlaced modes are only rarely supported
 	by the various VBE3 BIOS because they are very rarely
 	used in the standard PC monitors.
@@ -173,7 +173,7 @@ Video Drivers
 	driver. Please read the `svgawin.txt' file carefully.
 
 	This driver is experimental. At present it's only tested on
-	Windows 2000 with a GeForce 2 board. It may not work will
+	Windows 2000 with a GeForce 2 board. It may not work with
 	all the other boards.
 
   Available System Drivers
@@ -264,7 +264,7 @@ Input Drivers
 	For an emergency keyboard restore you can use the emergency
 	Linux SysRq key. Check:
 
-		:http:///usr/src/linux/Documentation/sysrq.txt
+		+http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html
 
 	Leds control is supported.
 
@@ -281,7 +281,7 @@ Input Drivers
 	For an emergency keyboard restore you can use the emergency
 	Linux SysRq key. Check:
 
-		:http:///usr/src/linux/Documentation/sysrq.txt
+		+http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html
 
 	Leds control is supported.
 
@@ -312,7 +312,7 @@ Input Drivers
 	For an emergency keyboard restore you can use the emergency
 	Linux SysRq key. Check:
 
-		:http:///usr/src/linux/Documentation/sysrq.txt
+		+http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html
 
 	Leds control is not supported.
 
@@ -338,13 +338,12 @@ Input Drivers
 	It's able to autodetect all the present hardware.
 
 	This driver is also able to correctly report the type of devices
-	found. You should for example expects to have the gas pedal mapped
+	found. You should for example expect to have the gas pedal mapped
 	on the gas control of the game.
 
 	It can also be used with some custom devices connected at the
 	Parallel Port. Details on how to build these custom interfaces are
-	in the file:///usr/src/linux/Documentation/input/joystick-parport.txt
-	file.
+	in the file /usr/src/linux/Documentation/input/joystick-parport.txt.
 
 	It has a special support for the ACT Labs Lightgun to fix the wrong
 	behavior of the light-gun when shooting out of screen.
@@ -396,14 +395,14 @@ Input Drivers
 	SNES, PSX, N64 and other pads are in the Allegro sources.
 
     lgrawinput - Light Gun (Windows XP)
-	This driver works in Windows XP and it support lightguns
+	This driver works in Windows XP and it supports lightguns
 	using the Windows mouse interface.
 
 	It supports more than one lightgun at the same time
 	of the following types:
 
 	* SMOG Lightgun (http://lightgun.splinder.com/)
-	* Acts Labs Lightgun (http://www.act-labs.com/)
+	* Act Labs Lightgun (http://www.act-labs.com/)
 
 	The lightgun is automatically calibrated before
 	every use. You must move the lightgun over the whole
@@ -431,7 +430,7 @@ Input Drivers
 	The mice are searched on the /dev/input/eventX devices.
 
     raw - Serial mouse (Linux)
-	This driver works in Linux and it communicates directly with
+	This driver works in Linux and communicates directly with
 	the configured serial mice. It also supports USB mice
 	using the Linux mousedev module which maps mice to the
 	/dev/input/mouseX devices.
@@ -475,9 +474,9 @@ Input Drivers
 
 	This driver is the preferred choice for Windows XP.
 
-	Please note that this driver is not intented to be used in a window
+	Please note that this driver is not intended to be used in a window
 	environment. The application takes the control of the mouse and
-	doesn't allow to switch to other applications. It's mainly intented
+	doesn't allow to switch to other applications. It's mainly intended
 	for a fullscreen environment.
 
     cpn - CPN custom driver interface (Windows)
@@ -495,9 +494,9 @@ Input Drivers
 	and in the `contrib/cpn' directory. Check the `install'
 	and `unknown' files for install instructions.
 
-	Please note that this driver is not intented to be used in a window 
+	Please note that this driver is not intended to be used in a window 
 	environment. The application takes the control of the mouse and 
-	doesn't allow to switch to other applications. It's mainly intented 
+	doesn't allow to switch to other applications. It's mainly intended 
 	for a fullscreen environment.
 
 Video Drivers Configuration
@@ -596,14 +595,14 @@ Video Drivers Configuration
 		overlay - Use a YUV fullscreen overlay using the video board
 			hardware acceleration to display and stretch it.
 			This mode is available only in some environments, like
-			xv in X Window and DirectX in Windows. The specific
+			Xv in X Window and DirectX in Windows. The specific
 			color format used is YUY2.
 
     device_video_overlaysize
 	Select the favorite horizontal size to use with the `overlay'
 	output mode. The program selects the nearest available video mode.
 
-	device_video_overlaysize auto | SIZE
+	:device_video_overlaysize auto | SIZE
 
 	Options:
 		auto - Use the size of the current video mode (default).
@@ -648,7 +647,7 @@ Video Drivers Configuration
 			with `5 - 100' which essentially enable any
 			video mode.
 		HORZ_CLOCK - Horizontal clock range in kHz.
-		VERT_CLOCK- Vertical clock range in Hz.
+		VERT_CLOCK - Vertical clock range in Hz.
 
 	For any range you can specify a single value like `60' or a
 	range of values like `50 - 60'. For multistandard TVs and monitors
@@ -662,14 +661,14 @@ Video Drivers Configuration
     device_video_modeline
 	Define a video modeline. The modeline format is compatible with
 	the format used by the Linux SVGALIB library and by the
-	XFree Window system.
+	XFree86/X.org system.
 
 	:device_video_modeline Name CLOCK HDE HRS HRE HT VDE VRS VRE VT
 	:	[-hsync] [-vsync] [+hsync] [+vsync] [doublescan] [interlace]
 
 	Options:
 		Name - Name of the video mode. You can use the quotes
-			'"` for the names with spaces.
+			'"' for the names with spaces.
 		CLOCK - Pixel clock in MHz
 		HDE HRS HRE HT - Horizontal `Display End',
 			`Retrace Start', `Retrace End', `Total'
@@ -724,8 +723,8 @@ Video Drivers Configuration
 			low-end driver allows it (default).
 		no - Disable completely the feature.
 
-    device_color_palette8/br8/bgr15/bgr16/bgr24/bgr32/yuy2
-	Limit the use of some bit depths. If you known that
+    device_color_palette8/bgr8/bgr15/bgr16/bgr24/bgr32/yuy2
+	Limit the use of some bit depths. If you know that
 	the program doesn't work well with a specific bit depth you
 	can disable it.
 
@@ -783,7 +782,7 @@ Video Drivers Configuration
 			and 31.25 MHz for DPI).
 
     device_fb_fastset
-	Don't set the video mode if it's expected to be idential at the
+	Don't set the video mode if it's expected to be identical to the
 	current one. This can be used to avoid a screen refresh
 	when not required.
 
@@ -825,7 +824,7 @@ Video Drivers Configuration
 
     device_svgaline_skipboard
 	Selects how many board skip in the video card detection. If you have
-	more than a video card on your system you and the wrong one is
+	more than a video card on your system and the wrong one is
 	used you can force to skip an arbitrary number of video boards.
 
 	:device_svgaline_skipboard 0 | 1 | 2 | 3
@@ -857,7 +856,7 @@ Video Drivers Configuration
 
     device_svgawin_skipboard
 	Selects how many board skip in the video card detection. If you have
-	more than a video card on your system you and the wrong one is
+	more than a video card on your system and the wrong one is
 	used you can force to skip an arbitrary number of video boards.
 
 	:device_svgawin_skipboard 0 | 1 | 2 | 3
@@ -959,39 +958,6 @@ Sound Drivers Configuration
 	Example:
 		:device_alsa_device dmix
 
-	If you want to configure the ALSA library to remap the `default' device
-	to the `dmix' device for all the applications, you can create
-	the `.asoundrc' file in your home directory with the following content:
-
-		:pcm.!default {
-		:	type plug
-		:	slave.pcm "dmixer"
-		:}
-		:
-		:pcm.dmixer  {
-		:	type dmix
-		:	ipc_key 1024
-		:	slave {
-		:		pcm "hw:0,0"
-		:		period_time 0
-		:		period_size 1024
-		:		buffer_size 16384
-		:		rate 44100
-		:	}
-		:	bindings {
-		:		0 0
-		:		1 1
-		:	}
-		:}
-		: 
-		:ctl.dmixer {
-		:	type hw
-		:	card 0
-		:}
-
-	Note that the suggested `.asoundrc' on the ALSA web site has a lower
-	`buffer_size' value (4096). For AdvanceMAME a bigger buffer is required.
-
     device_alsa_mixer
 	Select the alsa mixer device.
 
@@ -1010,7 +976,7 @@ Sound Drivers Configuration
 
 	The use of this option is discouraged, it's present only for testing.
 
-	device_sdl_samples 512 | 1024 | 2048 | 2560 | 3072 | 3584 | 4096 | 6144 | 8192
+	:device_sdl_samples 512 | 1024 | 2048 | 2560 | 3072 | 3584 | 4096 | 6144 | 8192
 
 	Options:
 		SAMPLES - Number of samples of an audio fragment
@@ -1167,7 +1133,7 @@ Input Drivers Configuration
     device_raw_mousedev[0,1,2,3]
 	Select the mouse device to use.
 
-	device_raw_mousedev[0,1,2,3] auto | DEVICE
+	:device_raw_mousedev[0,1,2,3] auto | DEVICE
 
 	Options:
 		auto - Automatically map to /dev/mouse or /dev/input/mouseX.
@@ -1181,7 +1147,7 @@ Input Drivers Configuration
     device_lgrawinput_calibration
 	Select the type of calibration of the lightgun.
 
-	device_lgrawinput_calibration auto | none
+	:device_lgrawinput_calibration auto | none
 
 	Options:
 		auto - Automatically calibrates the lightgun before
@@ -1194,4 +1160,3 @@ Input Drivers Configuration
 
 Copyright
 	This file is Copyright (C) 2003, 2004, 2005 Andrea Mazzoleni.
-

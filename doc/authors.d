@@ -2,16 +2,16 @@ Name
 	authors - AdvanceMAME Authors
 
 Authors
-	The author of AdvanceMAME and releated utilities is
+	The author of AdvanceMAME and all related utilities is
 	Andrea Mazzoleni.
 
-	You can contact me sending an email at:
+	You can contact him by email at:
 
 		amadvance@gmail.com
 
 Acknowledgments
-	A lot of other people helped submitting patches, bug reports
-	and generic comments. A special mention to:
+	Many people contributed with patches, bug reports, suggestions
+	and testing. Special thanks go to:
 
 	* Nick Bourdo
 	* Prophet of Retrogames
@@ -25,5 +25,3 @@ Acknowledgments
 	* Kari Hautio
 	* Martin Adrian (wpcmame)
 	* Mikkel Holm Olsen <http://symlink.dk/>
-
-

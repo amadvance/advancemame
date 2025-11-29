@@ -1,3 +1,4 @@
+```
 Name{number}
 	advv - AdvanceMAME Video Manual Configurator
 
@@ -12,13 +13,12 @@ Description
 	video modes interactively.
 
 	This utility works differently if one of the -advmamev,
-	-advmessv, -advmenuv, -vbev, -vgav and -videowv options
-	is specified.
-	The main difference is the the name of the configuration
-	file used to store the video modes.
+	-advmessv, -advmenuv, -vbev, -vgav or -videowv options
+	is specified. The main difference is the name of the
+	configuration file used to store the video modes.
 
 	Before running this utility you must add in your configuration
-	file the option `device_video_clock' required to defines
+	file the option `device_video_clock' required to define
 	the limits of your monitor and video board. You can add them
 	manually or using the `advcfg' utility.
 
@@ -44,8 +44,8 @@ Options
 
 Use
 	When the program starts a list of modelines is printed. You can
-	walk on the list with the UP and DOWN arrows of your keyboard. 
-	You can select the modelines to use in the emulator pressing
+	walk the list with the UP and DOWN arrows of your keyboard. 
+	You can select the modelines to use in the emulator by pressing
 	SPACE.
 
 	With the LEFT and RIGHT arrows you can select the bit depth of
@@ -58,13 +58,13 @@ Use
 	modes in the configuration file. At the next run the emulator
 	will use one of the modelines that you have chosen.
 
-	If you have problem please read the `Troubleshooting' chapter
+	If you have problems please read the `Troubleshooting' chapter
 	in the `install.txt' file.
 
 	If you have correctly configured the `device_video_p/h/vclock'
 	options in your configuration file, the video modes out of
 	the frequency range supported by your monitor are displayed
-	in red, and you are prevented to use them.
+	in red, and you are prevented from using them.
 
   Creating Video Modes
 	To create a new modeline you should press F5 or F6.
@@ -76,58 +76,60 @@ Use
 	* Vertical resolution
 
 	If possible, a video mode compatible with your current monitor
-	configuration is created. If a such mode doesn't exist,
-	with F5 are favorite video modes with the specified size,
-	with F6 are favorite video modes with the specified vertical
-	frequency.
+	configuration is created. If such a mode doesn't exist,
+	with F5 favorite video modes with the specified size are
+	created, with F6 favorite video modes with the specified
+	vertical frequency are created.
 
-	If a the `device_video_format' option is present in your
+	If the `device_video_format' option is present in your
 	configuration file, the video mode is created with this
 	format. Otherwise the generic VGA monitor format is used.
 
-	All the video modes created have always negative horizontal
+	All the video modes created always have negative horizontal
 	and vertical sync polarity.
 
   Adjusting Modelines
-	You can modify the modelines in the test screen pressing ENTER
-	or in the list screen directly.
+	You can modify the modelines in the test screen by pressing
+	ENTER or directly in the list screen.
 
-	When you are in the test screen, `advv' prevent you to set a
-	modeline out of the frequency range supported by your monitor.
-	In this cases you can hear a grave long sound. Instead when you
-	are in the list screen you don't have this limitation.
+	When you are in the test screen, `advv' prevents you from
+	setting a modeline out of the frequency range supported by
+	your monitor. In these cases you will hear a low long sound.
+	When you are in the list screen you don't have this
+	limitation.
 
 	If you request a parameter not supported by your hardware
-	you will hear an acute short sound.
+	you will hear a high short sound.
 
 	You can easily change one of the clock values of your modelines
-	pressing F8.
+	by pressing F8.
 
-	Finally you can rename the modelines pressing TAB.
+	Finally you can rename the modelines by pressing TAB.
 
 	Remember to select the modified modelines with SPACE otherwise
 	they aren't saved in your configuration file and will be lost.
 
   Startup Text Mode
 	The program at startup tries to set a text mode supported by
-	your hardware to show his data.
+	your hardware to show its data.
 
-	If a modelines named `default_text' is present in your
-	configuration file the program use it.
+	If a modeline named `default_text' is present in your
+	configuration file the program uses it.
 
 	If correct `device_video_p/h/vclock' options are found in your
-	configuration file the program try to use a text mode that
-	match your clock configuration from a list of predefined
+	configuration file the program tries to use a text mode that
+	matches your clock configuration from a list of predefined
 	modes and the modes present in the configuration file.
 
-	If no one of these modes match your configuration the current
+	If none of these modes match your configuration the current
 	text mode is used.
 
 Configuration
-	Depending one the command line options used one of the `advmame.rc',
-	`advmess.rc', `advmenu.rc', `vbe.rc', `vga.rc' and
-	`videow.rc' file is used to load and save the video configuration.
+	Depending on the command line options used one of the
+	`advmame.rc', `advmess.rc', `advmenu.rc', `vbe.rc',
+	`vga.rc' or `videow.rc' files is used to load and save the
+	video configuration.
 
 Copyright
 	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
-
+```

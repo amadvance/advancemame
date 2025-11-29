@@ -15,4 +15,3 @@ Description
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.
-

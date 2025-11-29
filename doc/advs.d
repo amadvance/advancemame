@@ -8,8 +8,8 @@ Synopsis
 	:	FILES...
 
 Description
-	The `advs' plays the specified wav and mp3 files.
-	If you specify more than one file all the files are mixed
+	The `advs' utility plays the specified WAV and MP3 files.
+	If more than one file is specified all the files are mixed
 	and played together.
 
 	Press Break to terminate before the end.
@@ -19,4 +19,3 @@ Description
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.
-

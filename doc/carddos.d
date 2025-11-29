@@ -2,10 +2,10 @@ Name{number}
 	carddos - Supported DOS Video Cards
 
 	This is the list of the DOS video cards supported
-	by the Advance programs with the DOS drivers. 
+	by the Advance programs with the DOS drivers.
 
 	Please note that not all the OEM cards are listed. If your card has a
-	supported chipset, it's probably supported also if the OEM vendor is not
+	supported chipset, it's probably supported even if the OEM vendor is not
 	in the list.
 
 	Please note that some laptop video cards work only when connected to

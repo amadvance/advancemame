@@ -5,7 +5,7 @@ Name{number}
 	by the Advance programs with the Windows drivers.
 
 	Please note that not all the OEM cards are listed. If your card has a
-	supported chipset, it's probably supported also if the OEM vendor is not
+	supported chipset, it's probably supported even if the OEM vendor is not
 	in the list.
 
 	Please note that some laptop video cards work only when connected to
@@ -15,9 +15,8 @@ SubIndex
 
 SVGAWIN Drivers
 	The `svgawin' driver is a subset of the Linux SVGALIB library.
-
 	This driver is experimental. At present it's only tested on Windows
-	2000 with a GeForce 2 board. It's supposed to work with GeForge boards,
+	2000 with a GeForce 2 board. It's supposed to work with GeForce boards;
 	it may not work with all the other boards.
 
   ATI Technologies (1002)

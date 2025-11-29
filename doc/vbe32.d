@@ -6,18 +6,18 @@ Synopsis
 
 Description
 	The `vbe32' utility is a 32 bit TSR (Terminate Stay Resident)
-	VBE BIOS that completely substitutes the original VBE BIOS of your
+	VBE BIOS that completely replaces the original VBE BIOS of your
 	video board.
 
-	It allow to set an arbitrary video mode list with the favorite
+	It allows you to set an arbitrary video mode list with the favorite
 	modes which work best with your video hardware without any
 	restrictions in size and frequencies.
 
 	With this utility you can play all the DOS games that use the
-	standard VESA VBE services with your PC Monitor, TV and Arcade
-	Monitor.
+	standard VESA VBE services with your PC monitor, TV and arcade
+	monitor.
  
-	At the startup the configuration file `vbe.rc', created with
+	At startup the configuration file `vbe.rc', created with
 	the utility `vbev', is read and all the modelines present
 	are activated. The format of this configuration file is
 	specified in the document `advv.txt'.
@@ -33,14 +33,14 @@ Description
 		pcsvga60.rc - SVGA PC Multisync Monitor.
 
 	All the modelines present in the configuration files are used
-	to create the list of available VBE mode. For every modeline
-	five VBE modes with 8, 15, 16, 24, 32 bits are added.
+	to create the list of available VBE modes. For every modeline
+	five VBE modes with 8, 15, 16, 24 and 32 bits are added.
 
 Options
 	These are the command line options supported:
 
 	/l
-		Load in memory the utility
+		Load the utility in memory
 
 	/c CONFIG
 		Use an arbitrary configuration file
@@ -50,25 +50,25 @@ Cards
 	`carddos.txt' file.
 
 Limitations
-	* The VBE 1.2 standard isn't supported. This makes the program
+	* The VBE 1.2 standard is not supported. This makes the program
 		useless for 16 bit applications.
-	* The VBE 3.0 standard isn't supported.
-	* The VBE protect mode interface isn't supported. Anyway, protect mode 
+	* The VBE 3.0 standard is not supported.
+	* The VBE protected mode interface is not supported. However, protected mode 
 		programs should be able to use the VBE real mode interface.
 	* It uses a lot of conventional memory. Approx 200 kbyte.
-	* It cannot be unloaded. It's a limitation of the DPMI support
-		not resolvable.
-	* If used with CWSDPMI all the XMS memory is allocated. It's a limitation
-		of CWSDPMI. Anyway, the memory is available through the
+	* It cannot be unloaded. This is a limitation of the DPMI support
+		and cannot be resolved.
+	* If used with CWSDPMI all the XMS memory is allocated. This is a limitation
+		of CWSDPMI. However, the memory remains available through the
 		DPMI services.
-	* It doesn't work in Windows NT/2000/XP.
+	* It does not work in Windows NT/2000/XP.
 
 Application Problems
 	Some applications are able to use only some common resolutions
-	like 320x240, 400x300, 512x384, 640x480 and 800x600. Others resolutions
+	like 320x240, 400x300, 512x384, 640x480 and 800x600. Other resolutions
 	may be completely ignored or crash the application.
 
-	Others applications may get in trouble if the list of available
+	Other applications may get in trouble if the list of available
 	VBE modes contains duplicate resolutions or is too big.
 	Add only the best modelines and avoid duplicates.
 

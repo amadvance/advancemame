@@ -2,35 +2,35 @@ Name
 	history - History For AdvanceMAME/MESS
 
 AdvanceMAME/MESS Version 5.1 2025/XX
-	) Add Bazooka, Taito do Brasil, 1977 from https://github.com/ninomegadriver/bazooka [ninomegadriver]
-	) Update video code to MAME 107 (#401) [arcadez2003]
-	) Update ninjakd2.c to MAME107 (#400) [arcadez2003]
-	) Fix slowdown in Taito's Fighting Hawk (#399) [arcadez2003]
-	) CPS1/2 "Buffer Delay" functions on DefMAME [Andrea Mazzoleni]
-	) Wild Fang / Tecmo Knight emulate missing gfx effect (#397) [arcadez2003]
-	) Fix slowdown in U.S. Championship V'ball (#396) [arcadez2003]
-	) Fix broken sounds for Inferno (#395) [arcadez2003]
-	) Thunder Cross Fix collisions (#394) [arcadez2003]
-	) Fix some slowdown issues in Silent Dragon (#393) [arcadez2003]
-	) Fix various graphical niggles for the video system games (#392) [arcadez2003]
-	) Fix fading in CPS3 games [komazow]
-	) Line up the Gun Targets (#390) [arcadez2003]
-	) Add Quick Shots an unprotected version of Target Hits (#389) [arcadez2003]
-	) Fix some gameplay issues with Chequered Flag improve K051733 protection (#388) [arcadez2003]
-	) Konami's Chequered Flag improve sound and K05733 protection (#387) [arcadez2003]
-	) Overclock ddragon and ddragon2 to avoid slowdowns [Andrea Mazzoleni]
-	) Update list of CPS2 games with MAME 0.277 [Andrea Mazzoleni]
-	) Thoop fix lives dipswitch default to 3 instead of 1 (#386) [arcadez2003]
-	) Support rowscroll on the score layer of cps3, fixes jojoba combo meters [komazow]
-	) Final Fight 3 patch out the protection sooner (#385) [arcadez2003]
-	) Revises the color distance function for XBR [Andrea Mazzoleni]
-	) Fixed saving of game specific input configuration
-	) Windows binaries built with gcc 11.5.0 using the MXE cross compiler at
+	) Added Bazooka, Taito do Brasil, 1977 from https://github.com/ninomegadriver/bazooka [ninomegadriver]
+	) Updated video code to MAME 107 (#401) [arcadez2003]
+	) Updated ninjakd2.c to MAME107 (#400) [arcadez2003]
+	) Fixed slowdown in Taito's Fighting Hawk (#399) [arcadez2003]
+	) CPS1/2 "Buffer Delay" functions worked on DefMAME [Andrea Mazzoleni]
+	) Wild Fang / Tecmo Knight emulated missing gfx effect (#397) [arcadez2003]
+	) Fixed slowdown in U.S. Championship V'ball (#396) [arcadez2003]
+	) Fixed broken sounds for Inferno (#395) [arcadez2003]
+	) Thunder Cross: Fixed collisions (#394) [arcadez2003]
+	) Fixed some slowdown issues in Silent Dragon (#393) [arcadez2003]
+	) Fixed various graphical niggles for the video system games (#392) [arcadez2003]
+	) Fixed fading in CPS3 games [komazow]
+	) Lined up the Gun Targets (#390) [arcadez2003]
+	) Added Quick Shots, an unprotected version of Target Hits (#389) [arcadez2003]
+	) Fixed some gameplay issues with Chequered Flag and improved K051733 protection (#388) [arcadez2003]
+	) Konami's Chequered Flag: Improved sound and K05733 protection (#387) [arcadez2003]
+	) Overclocked ddragon and ddragon2 to avoid slowdowns [Andrea Mazzoleni]
+	) Updated list of CPS2 games with MAME 0.277 [Andrea Mazzoleni]
+	) Thoop: Fixed lives dipswitch default to 3 instead of 1 (#386) [arcadez2003]
+	) Supported rowscroll on the score layer of CPS3, fixing Jojoba combo meters [komazow]
+	) Final Fight 3: Patched out the protection sooner (#385) [arcadez2003]
+	) Revised the color distance function for XBR [Andrea Mazzoleni]
+	) Fixed saving of game-specific input configuration
+	) Windows binaries were built with gcc 11.5.0 using the MXE cross compiler at
 		commit 8c4378fa2b55bc28515b23e96e05d03e671d9b90 with targets
 		i686-w64-mingw32.static and x86_64-w64-mingw32.static and optimization -O2.
 
 AdvanceMAME/MESS Version 5.0 2025/05
-	New games supported or improved: [arcadez2003] [grant2258]
+	New games were supported or improved: [arcadez2003] [grant2258]
 		19yy - 19YY
 		aladmdb - Aladdin (bootleg of Japanese Megadrive version)
 		backfirt - Back Fire (Tecmo)
@@ -142,24 +142,24 @@ AdvanceMAME/MESS Version 5.0 2025/05
 			Three Players mode http://adb.arcadeitalia.net/?mame=ffightae
 		dkongx - Donkey Kong II - Jumpman Returns (V1.2) (hack)
 			Four new stages http://adb.arcadeitalia.net/?mame=dkongx
-		guwanges - Guwange (Japan Special Ver 2000 7-7
+		guwanges - Guwange (Japan Special Ver 2000 7-7)
 			http://adb.arcadeitalia.net/?mame=guwanges
-	) Do not prevent startup if a mouse/joystick stick/axe/button name configured in the .ini is unplugged
-	) Fix saving of IPT_OTHER ports the .ini file
-	) Enable support for the MAME debugger
-	) Use standard ports for A2600 and remove default key mapping for non-standard DIP switches
-	) Add a new genre.ini
-	) Remove startup "sync" to avoid delay when starting the game
-	) Drop the dir_crc support
-	) Rename mspactwin to mspactwn to stay in the 8 chars limit
+	) Did not prevent startup if a mouse/joystick stick/axe/button name configured in the .ini was unplugged
+	) Fixed saving of IPT_OTHER ports in the .ini file
+	) Enabled support for the MAME debugger
+	) Used standard ports for A2600 and removed default key mapping for non-standard DIP switches
+	) Added a new genre.ini
+	) Removed startup "sync" to avoid delay when starting the game
+	) Dropped the dir_crc support
+	) Renamed mspactwin to mspactwn to stay in the 8 chars limit
 
 AdvanceMENU Version 5.0 2025/05
-	) In menu stats list also the game description
-	) New misc_sync option as default off as it's not expected to be needed
-	) Fix some warnings to allow building with gcc 15 using c23 as default
+	) Listed the game description in menu stats
+	) The new misc_sync option defaulted to off as it was not expected to be needed
+	) Fixed some warnings to allow building with gcc 15 using c23 as default
 
 AdvanceMAME/MESS Version 4.0 2024/10
-	New games supported or improved [arcadez2003] [grant2258]
+	New games were supported or improved [arcadez2003] [grant2258]
 		1943mii - 1943: The Battle of Midway Mark II (US)
 		alibaba - Ali Baba and 40 Thieves
 		asurabus - Asura Buster - Eternal Warriors (Japan)
@@ -207,22 +207,22 @@ AdvanceMAME/MESS Version 4.0 2024/10
 		tmnt2 - Teenage Mutant Ninja Turtles - Turtles in Time (4 Players ver UAA)
 		wingforc - Wing Force (Japan, prototype)
 
-	) Assume imperfect games with incomplete protection emulation
-	) Add build for AdvanceBERRY 64 bit
-	) Remove the auto selection of buffered vs direct write
-	) Detect the VideoCore also in /usr
-        ) Use XBR in all platforms
-        ) Support OpenMP for XBR/ScaleK effect
-        ) Add a configuration script for AdvanceBERRY
-        ) Fix the frameskipping with slow game
-        ) Fix and extend the speedmark support
-        ) Update joystick definition from libretro
-        ) Add coin option in the exit menu
-        ) Add advmame Xbuttons configuration category
-        ) Fix crash when saving a rotated png due integer promotion to unsigned
+	) Assumed imperfect games with incomplete protection emulation
+	) Added build for AdvanceBERRY 64 bit
+	) Removed the auto selection of buffered vs direct write
+	) Detected the VideoCore also in /usr
+    ) Used XBR in all platforms
+    ) Supported OpenMP for XBR/ScaleK effect
+    ) Added a configuration script for AdvanceBERRY
+    ) Fixed the frameskipping with slow games
+    ) Fixed and extended the speedmark support
+    ) Updated joystick definition from libretro
+    ) Added coin option in the exit menu
+    ) Added advmame Xbuttons configuration category
+    ) Fixed crash when saving a rotated png due to integer promotion to unsigned
 
 AdvanceMAME/MESS Version 3.10 2024/02
-	New games supported or improved [arcadez2003] [grant2258] [Scandy] [Mario Montminy] [Haze]
+	New games were supported or improved [arcadez2003] [grant2258] [Scandy] [Mario Montminy] [Haze]
 		aquario - Clockwork Aquario (prototype)
 		b2b - Bang Bang Busters (2010 NCI release)
 		bloodwar - Blood Warrior
@@ -249,100 +249,100 @@ AdvanceMAME/MESS Version 3.10 2024/02
 		tkdensho - Toukidenshou - Angel Eyes (VER. 960614)
 		wilytowr - Wily Tower
 
-	) Fixed crash with Linux nvidia proprietary driver [Andrea Mazzoleni}
-	) Use bitmask size not EV_MAX for EVIOCGBIT ioctl. [Mark Davies]
-	) Several fixes for compile warnings, backported from more recent MAME [Greg Kennedy]
-	) Fix some minor issues in advancemame compilation [Greg Kennedy]
-	) Fix build errors due new gcc 10 default for -fno-common [Andrea Mazzoleni
-	) Fix USB issue and did various optimizations [Mario Montminy]
-	) Corrected clipping issue with battlezone, major havoc [Mario Montminy]
+	) Fixed crash with Linux NVIDIA proprietary driver [Andrea Mazzoleni]
+	) Used bitmask size not EV_MAX for EVIOCGBIT ioctl. [Mark Davies]
+	) Several fixes for compile warnings were backported from more recent MAME [Greg Kennedy]
+	) Fixed some minor issues in advancemame compilation [Greg Kennedy]
+	) Fixed build errors due to new gcc 10 default for -fno-common [Andrea Mazzoleni]
+	) Fixed USB issue and did various optimizations [Mario Montminy]
+	) Corrected clipping issue with Battlezone, Major Havoc [Mario Montminy]
 	) Added USB-DVG vector generator board support [Goldfinch2]
-	) Support make install DESTDIR=/foo just like Automake does [James Le Cuirot]
-	) Don't use auto CFLAGS/LDFLAGS if they are set but blank [James Le Cuirot]
-	) apf_vsync_int: fix invalid access to apf_ints variable [Andreas Oberritter]
-	) Adding pkg-config for ncurses and slang [Alex Barker]
+	) Supported make install DESTDIR=/foo just like Automake does [James Le Cuirot]
+	) Did not use auto CFLAGS/LDFLAGS if they were set but blank [James Le Cuirot]
+	) apf_vsync_int: Fixed invalid access to apf_ints variable [Andreas Oberritter]
+	) Added pkg-config for ncurses and slang [Alex Barker]
 
 AdvanceMENU Version 3.10 2024/02
 	) Added the new 'ui_menu_font' to change the font for the online menus.
 
 AdvanceMAME/MESS Version 3.9 2018/09
-	) Fixed input games with a relative input when controlled with
+	) Fixed input for games with a relative input when controlled with
 		an absolute controller. Like 'cabal' or 'offroad' when
 		controlled with a joystick.
-	) Added the new 'display_artwork_magnify' to use a bigger screen
-		size when the game has an artwork to display.
+	) Added the new 'display_artwork_magnify' option to use a bigger screen
+		size when the game had artwork to display.
 	) Included the cheat.dat resource in the main distribution.
-	) Fixed loading files with an absolute path, like with misc_cheatfile.
+	) Fixed loading files with an absolute path, such as with misc_cheatfile.
 
 AdvanceMENU Version 3.9 2018/09
-	) Added a new 'menu' option at the 'misc_exit' configuration to
+	) Added a new 'menu' option to the 'misc_exit' configuration to
 		have a confirmation menu before quitting.
 	) Fixed the creation of the default advmenu.rc, avoiding the "volume"
 		syntax error.
 
 AdvanceMAME/MESS Version 3.8 2018/06
-	) Change the default 'sync_resample' mode to 'internal' to all games
-		using the pokey sound chip. This avoid crashes and provide
-		a better sound audio. One example is 'starwars'.
-	) Don't update input configurations that are not changed at runtime.
-	) Added a new 'config' option to allow to decide if the .rc configuration
-		should be saved at exit or not. If saved, they are written
-		in a resiliant way, able to resist to unexpected power-downs.
-	) Fixed font size computation. Now the menu always has the same size.
-	) In AdvanceMESS added a new 'misc_ui' option to configure the keyboard
-		emulation. Note that the default is now to have partial emulation
-		by default to allow the user to control the emulator user
+	) Changed the default 'sync_resample' mode to 'internal' for all games
+		using the POKEY sound chip. This avoided crashes and provided
+		better sound audio. One example was 'starwars'.
+	) Did not update input configurations that were not changed at runtime.
+	) Added a new 'config' option to decide if the .rc configuration
+		should be saved at exit or not. If saved, they were written
+		in a resilient way, able to resist unexpected power downs.
+	) Fixed font size computation. Now the menu always had the same size.
+	) In AdvanceMESS, added a new 'misc_ui' option to configure the keyboard
+		emulation. Noted that the default was now partial emulation
+		to allow the user to control the emulator user
 		interface.
-	) In AdvanceMESS added a new 'ui_keyboard' input to show a runtime menu
-		to simulate some keypress.
+	) In AdvanceMESS, added a new 'ui_keyboard' input to show a runtime menu
+		to simulate a keypress.
 
 AdvanceMENU Version 3.8 2018/06
 	) Added support for configuring joystick and mouse buttons in the 'event'
 		configuration option.
 	) Added the 'display_resizeeffect' option like in AdvanceMAME to scale
 		screenshots.
-	) In the screensaver if the clip is too short, don't restart it when
-		it finishes, but switch to the next one.
-	) In 'lock' mode is still possible to shutdown, if the 'misc_exit'
-		option allows it.
-	) Added a new 'advblue' tool able to pair and connect automatically
-		bluetooth joysticks and gamepads. This is Linux only.
+	) In the screensaver, if the clip was too short, it was not restarted when
+		it finished, but switched to the next one.
+	) In 'lock' mode, shutdown was still possible, if the 'misc_exit'
+		option allowed it.
+	) Added a new 'advblue' tool that automatically paired and connected
+		Bluetooth joysticks and gamepads. This was Linux only.
 	) Added a new 'ui_autocalib' option to automatically start a joystick
-		calibration menu if no joystick is detected. This works better
+		calibration menu if no joystick was detected. This worked better
 		with the Linux event driver, with an immediate notification.
-		With other drivers it checks only when the idle screensaver
-		starts.
-	) Other configuration options added: 'ui_topname', 'sort smart_time',
+		With other drivers, it checked only when the idle screensaver
+		started.
+	) Other configuration options were added: 'ui_topname', 'sort smart_time',
 		'ui_text/bar_font', 'ui_outline', 'skip_horz' and 'skip_vert'
-	) The configuration .rc file is wrote in a resiliant way, able to
-		resist to unexpected power-downs. Take care that this is
-		automatically disabled if the .rc is a symbolic link.
-	) Always wait for vsync to avoid to use 100% CPU.
+	) The configuration .rc file was written in a resilient way, able to
+		resist unexpected power downs. Noted that this was
+		automatically disabled if the .rc was a symbolic link.
+	) Always waited for VSync to avoid using 100% CPU.
 	) Added a new 'exit' event to separate the exit action from the
-		generic esc one. Ensure to change also misc_exit to make this
-		command to work.
-	) Avoid to flash the cursor if it has equal foreground and background
+		generic esc one. Advised to also change misc_exit to make this
+		command work.
+	) Avoided flashing the cursor if it had equal foreground and background
 		color.
 
 AdvanceMAME/MESS Version 3.7 2018/02
-	) In the Exit menu added new Load/Save/Reset commands.
-		The Load and Save use the state file at position '0'.
+	) In the Exit menu, added new Load/Save/Reset commands.
+		The Load and Save used the state file at position '0'.
 	) Added the game uccopsar, "Undercover Cops - Alpha Renewal Version".
-		You can use the MAME rom.
-	) Fixed some issues in the z80 emulator with modern gcc compilers
-		in the x86 32 bits platforms.
+		Users could use the MAME rom.
+	) Fixed some issues in the z80 emulator with modern GCC compilers
+		in the x86 32-bit platforms.
 
 AdvanceMENU Version 3.7 2017/12
 	) Added detection for mame64.exe and mame64 executables for the
 		autoconfiguration.
 	) Renamed 'sdlmame' emulator type in Linux to 'mame'. The old 'sdlmame'
-		name is still supported.
+		name was still supported.
 
 AdvanceMAME/MESS Version 3.6 2017/12
-	) Fixed Linux ALSA sound jitter increasing the number of periods.
+	) Fixed Linux ALSA sound jitter by increasing the number of periods.
 	) Fixed screen size computation using backdrops.
 	) Disabled by default in the source distribution the MIPS DRC emulator
-		because it makes various games to crash. Like biofreak, blitz,
+		because it made various games crash. Like biofreak, blitz,
 		calspeed, carnevil, kinst and others...
 		It was already disabled in the binary releases from version 3.0.
 
@@ -350,7 +350,7 @@ AdvanceMENU Version 3.6 2017/12
 	) Fixed loop for clips in list mode.
 
 AdvanceMAME/MESS Version 3.5 2017/06
-	) Fixed led control for the Linux event keyboard interface.
+	) Fixed LED control for the Linux event keyboard interface.
 
 AdvanceMENU Version 3.5 2017/06
 	) Added a new option 'ui_scrollbar' to disable the lateral scroll
@@ -359,10 +359,10 @@ AdvanceMENU Version 3.5 2017/06
 		name in the screensaver.
 
 AdvanceMAME/MESS Version 3.4 2017/03
-	) Add supports for up to 8 players. Before it was fully
+	) Added support for up to 8 players. Before, it was fully
 		supporting only 4 players.
 	) Fixed handling of multiple identical devices in input_map[].
-	) Don't lose the device name in input_map[] if run with the device
+	) Did not lose the device name in input_map[] if run with the device
 		disconnected.
 
 AdvanceMAME/MESS Version 3.3 2017/02
@@ -370,145 +370,145 @@ AdvanceMAME/MESS Version 3.3 2017/02
 	) Fixed crashes in games xmen6p and xmen6pu.
 
 AdvanceMAME/MESS Version 3.2 2017/01
-	) The prebuilt binary for Raspberry is not linked anymore with SDL.
+	) The prebuilt binary for Raspberry was not linked anymore with SDL.
 	) Fixed a terminating hanging condition when dealing with the
-		Raspberry VideoCore. There are some hidden timing
+		Raspberry VideoCore. There were some hidden timing
 		dependencies that could cause VideoCore to misbehave.
 	) Inverted the polarity of hsync/vsync in Raspberry when using
-		hdmi_timings. In hdmi_timings 1 means "inverted polarity",
+		hdmi_timings. In hdmi_timings 1 meant "inverted polarity",
 		and then "-hsync/-vsync".
-	) Fixes aspect ratio of Sega System 32 and most Neogeo games.
-	) Improved the support for Sega Megadrive and
-		Sega Master System recognizing more software formats.
-	) In the input definitions support the use of the device name
-		to avoid issues when devices are reordered.
-		You can use the advk, advj and advm tools to get the
-		identifier names to in the 'keryboard[]', 'mouse[]' and
+	) Fixed aspect ratio of Sega System 32 and most NeoGeo games.
+	) Improved support for Sega Megadrive and
+		Sega Master System by recognizing more software formats.
+	) In the input definitions, supported the use of the device name
+		to avoid issues when devices were reordered.
+		The advk, advj, and advm tools could be used to get the
+		identifier names for the 'keyboard[]', 'mouse[]' and
 		'joystick[]' input definitions.
-	) Disabled the SDL2 system keyboard hotkeys to avoid to lose focus.
+	) Disabled the SDL2 system keyboard hotkeys to avoid losing focus.
 	) Fixed the loading of software images from the UI file browser.
 
 AdvanceMENU Version 3.2 2017/01
-	) Always prints the system name, even if it's not runnable, if it
-		has dependent software.
+	) Always printed the system name, even if it was not runnable, if it
+		had dependent software.
 	) Added a filter for duplicated games. For example,
-		you can use it to show only the MAME games not present in
+		it could be used to show only the MAME games not present in
 		AdvanceMAME.
 	) Added support for reading MNG files generated by MAME.
 
 AdvanceMAME/MESS/MENU Version 3.1 2017/01
-	) Added support for SDL2. It's the new default in Linux and Windows.
-		This results in better performance and better VSync support
+	) Added support for SDL2. It became the new default in Linux and Windows.
+		This resulted in better performance and better VSync support
 		when running in a window manager environment like X Window
-		or Windows. It also enables again the RGB effects.
-		The exception is Raspberry where SDL1 still provides better
-		performance in the X Window environment, and it's still the
+		or Windows. It also enabled again the RGB effects.
+		The exception was Raspberry, where SDL1 still provided better
+		performance in the X Window environment, and it remained the
 		default option.
-	) More reliable Raspberry video mode setting when using programmable
-		modes. It now uses the Raspberry VideoCore libraries to
-		control better the system.
-	) More precise VSync synchronization, avoiding any missing frame.
-	) In AdvanceMESS fixed the loading of disk image for the TI99-4A
+	) Implemented more reliable Raspberry video mode setting when using programmable
+		modes. It now used the Raspberry VideoCore libraries to
+		control the system better.
+	) Implemented more precise VSync synchronization, avoiding any missing frames.
+	) In AdvanceMESS, fixed the loading of a disk image for the TI99-4A
 		system.
-	) In AdvanceMAME marked 'retofinv', 'svc', 'prmrsocr' and 'viostorm'
+	) In AdvanceMAME, marked 'retofinv', 'svc', 'prmrsocr' and 'viostorm'
 		as not working to trigger the use of the working clones.
 		Also added the game 'mp_shnb3'.
-	) Fixed the UI flickering and a potential crash when SMP is active.
-	) The Linux joystick event and raw interface now support up to 32
-		button. Before it was only 12.
-	) If SMP is active, don't automatically disable the resize
-		effect if the game is too slow. This gives a more
+	) Fixed the UI flickering and a potential crash when SMP was active.
+	) The Linux joystick event and raw interface now supported up to 32
+		buttons. Before it was only 12.
+	) If SMP was active, did not automatically disable the resize
+		effect if the game was too slow. This gave a more
 		stable 'auto' effect.
 	) Changed the 'sync_resample auto' to be 'emulation' instead
-		of 'internal'. This give more stable sound when
-		the game emulation is too slow.
-	) The 'display_magnify auto' option now takes into account
+		of 'internal'. This gave more stable sound when
+		the game emulation was too slow.
+	) The 'display_magnify auto' option now took into account
 		the monitor limits to avoid over scaling.
 	) Restored the functionality of "-output fullscreen" option.
-		It wasn't able anymore to find video modes.
-	) Added support running from a SSH shell.
+		It was no longer able to find video modes.
+	) Added support for running from a SSH shell.
 	) Removed the 'lq' effect. It was not really used.
-		The 'scale2x' and 'scale2k' are faster and better.
-	) The RunClone menu now excludes preliminary clones if they
-		are already filtered out in the main list.
+		The 'scale2x' and 'scale2k' were faster and better.
+	) The RunClone menu now excluded preliminary clones if they
+		were already filtered out in the main list.
 
 AdvanceMAME/MESS/MENU Version 3.0 2016/12
-	) Now the AdvanceMAME package contains AdvanceMAME,
+	) The AdvanceMAME package now contained AdvanceMAME,
 		AdvanceMESS and AdvanceMENU.
-	) Customized for Raspberry Pi fixing various issues
-		and improving performance, functionality and
+	) Customized for Raspberry Pi, fixing various issues
+		and improving performance, functionality, and
 		documentation
-		Check the install.txt file for some more information
+		Checked the install.txt file for some more information
 		about the use with a Raspberry Pi.
-		The most important note is to run the Advance programs
+		The most important note was to run the Advance programs
 		directly from the Linux Console and outside the
 		X-Window graphics environment to be able to use the
 		Raspberry hardware acceleration.
 	) Improved synchronization to remove tearing with the Linux
 		FrameBuffer.
 	) Added a new category.ini installed automatically, that
-		is used automatically by AdvanceMENU.
-	) Added a new 'display_aspect' option that replaces
+		was used automatically by AdvanceMENU.
+	) Added a new 'display_aspect' option that replaced
 		the old 'display_aspectx' and 'display_aspecty'.
-		This one allows aspect auto-detection with 'auto'.
-		You have to manually adjust the advmame.rc file if you
-		are using the old ones.
+		This one allowed aspect auto-detection with 'auto'.
+		Users had to manually adjust the advmame.rc file if they
+		were using the old ones.
 	) Changed the default of 'display_expand' to 1.25.
-		This value allow to fill better a wide screen with
-		old games. If you like more correct aspect, select 1.0.
-	) Add a new AdvanceMENU 3x2 tile mode called "tile_tiny".
-	) Better autoconfiguration for AdvanceMENU to be able to detect
+		This value allowed to fill a wide screen better with
+		old games. If users liked more correct aspect, they selected 1.0.
+	) Added a new AdvanceMENU 3x2 tile mode called "tile_tiny".
+	) Improved autoconfiguration for AdvanceMENU to detect
 		and configure AdvanceMAME and AdvanceMESS at the first run.
-	) Change the default AdvanceMENU main and screen saver mode to animate
+	) Changed the default AdvanceMENU main and screen saver mode to animate
 		all the clips.
-	) In Linux if the system time is wrong ensure that the generated XML
-		list files are not updated every time.
-	) Added new SSE2 blitters that replace the older MMX ones
+	) In Linux if the system time was wrong, ensured that the generated XML
+		list files were not updated every time.
+	) Added new SSE2 blitters that replaced the older MMX ones
 
 AdvanceMAME/MESS Version 1.5 2016/11
 	) Imported the Toaplan driver from ThunderMAME32Plus-v0.106X.
-		This adds sound support with samples at the games:
+		This added sound support with samples for the games:
 		'batsugun', 'dogyuun', 'ghox', 'samesame', 'tekipaki',
 		'vfive' and 'vimana'.
 	) Imported the CPS3 driver from ThunderMAME32Plus-v0.106X.
-		This adds the games: 'sfiii', 'jojo' and 'warzard'.
+		This added the games: 'sfiii', 'jojo' and 'warzard'.
 	) Fixed a crashing issue in 68000 games, like Altered Beast.
-	) Added knocker support to Q*bert. You should see a keyboard
-		led on when the knocker is active [hainet].
+	) Added knocker support to Q*bert. Users should have seen a keyboard
+		LED on when the knocker was active [hainet].
 	) Set the SCHED_FIFO scheduling policy with sched_setscheduler().
-		This is reported to improve performance on Raspberry
+		This was reported to improve performance on Raspberry
 		Pi 2 boards.
-		Note that this ha effect only with root permission.
-		You can see in the log for "os: scheduling".
-	) Windows binaries built with MingW 4.9.3 using the MXE cross compiler at
+		Noted that this had effect only with root permission.
+		The log showed "os: scheduling".
+	) Windows binaries were built with MingW 4.9.3 using the MXE cross compiler at
 		commit 62bcdbee56e87c81f1faa105b8777a5879d4e2e with targets
 		i686-w64-mingw32 and x86_64-w64-mingw32 and optimization -O2.
-	) DOS binaries built with DJGPP 4.8.5 from
+	) DOS binaries were built with DJGPP 4.8.5 from
 		https://github.com/andrewwutw/build-djgpp
 
 AdvanceMENU Version 2.9 2016/11
-	) Extended display_size option to allow to select the mode height.
-	) Windows binaries built with MingW 4.9.3 using the MXE cross compiler at
+	) Extended display_size option to allow selecting the mode height.
+	) Windows binaries were built with MingW 4.9.3 using the MXE cross compiler at
 		commit 62bcdbee56e87c81f1faa105b8777a5879d4e2e with targets
 		i686-w64-mingw32 and x86_64-w64-mingw32 and optimization -O2.
 
 AdvanceMAME/MESS Version 1.4 2015/08
-	) Restored the missing keypress of coin1 broken on v1.3.
+	) Restored the missing keypress of coin1, which was broken in v1.3.
 	) Imported the Cave PGM driver from ShmupMAME v3.0b
 		with the new games 'ket', 'ddp3' and 'espgal'.
 	) Fixed build issue on AdvanceMESS about discrete.c file.
 
 AdvanceMAME/MESS Version 1.3 2015/06
-	) Added support fo Haiku OS.
+	) Added support for Haiku OS.
 	) Included free ROMs gridlee, polyplay and robby.
-	) Trick to reduce the input lag by one frame [Manlio De Pasquale].
-	) Better effect selection if display_resizeeffect is 'auto'.
+	) Implemented a trick to reduce the input lag by one frame [Manlio De Pasquale].
+	) Improved effect selection if display_resizeeffect was 'auto'.
 	) Changed the default of "magnify" to auto.
 	) Fixed manpages format.
 
 AdvanceMENU Version 2.8 2015/06
-	) Added support fo Haiku OS.
-	) Compatible with AdvanceMESS 1.3.
+	) Added support for Haiku OS.
+	) Ensured compatibility with AdvanceMESS 1.3.
 
 AdvanceMENU Version 2.7 2014/03
 	) Fixed a hang condition at termination when started directly from xinit.
@@ -516,31 +516,31 @@ AdvanceMENU Version 2.7 2014/03
 
 AdvanceMAME Version 1.2 2012/12
 	) Fixed compilation with modern compilers.
-	) Fixed the "alsa" audio driver in Linux. In modern distributions it was generating no sound.
-	) Fixed a crash at exit when SMP is enabled.
+	) Fixed the "alsa" audio driver in Linux. In modern distributions, it was generating no sound.
+	) Fixed a crash at exit when SMP was enabled.
 	) Added a new option display_magnifysize to define the area to target with display_magnify auto.
 	) Renamed the 'scale' video effect to 'scalex'.
 	) Added the new 'xbr' video scaling effect. Better than 'hq'.
 	) Added the new 'scalek' video effect. Better than 'scalex' and faster than 'xbr'.
-	) If display_resizeeffect is auto, the default effect is now 'xbr', but it's decreased at runtime
-		to 'scalek', or 'scalex' if speed is required.
-	) Removed blitting cache optimization. With modern caches it's not needed anymore.
+	) If display_resizeeffect was auto, the default effect became 'xbr', but it was decreased at runtime
+		to 'scalek', or 'scalex' if speed was required.
+	) Removed blitting cache optimization. With modern caches, it was not needed anymore.
 	) Changed default doc/man dirs to prefix/doc and prefix/man.
-	) Now in git repository.
-	) Removed DLL files from the Windows distribution. The new compiler uses static libraries.
+	) Moved to a Git repository.
+	) Removed DLL files from the Windows distribution. The new compiler used static libraries.
 	) Compiled with SDL-1.2.14, zlib-1.2.5, expat-2.0.1, freetype-2.4.4, pthreads-w32-2-8-0.
 
 AdvanceMENU Version 2.6 2012/12
-	) Fixed the "alsa" audio driver in Linux. In modern distributions it was generating no sound.
-	) Support 64 bits .ZIP archives.
-	) Support $HOME variable in directories specification for sdlmame.
-	) For MAME bioses, devices and other not runnable roms are not listed anymore.
-	) The new screen saver modes 'shutdown' and 'exit' works also with lock activated.
+	) Fixed the "alsa" audio driver in Linux. In modern distributions, it was generating no sound.
+	) Supported 64 bits .ZIP archives.
+	) Supported $HOME variable in directories specification for sdlmame.
+	) For MAME bioses, devices and other not runnable roms were not listed anymore.
+	) The new screen saver modes 'shutdown' and 'exit' worked also with lock activated.
 	) Added support for importing CatList files.
-	) Snapshot images in .ZIP archives are now read also ig they are in sub directories.
+	) Snapshot images in .ZIP archives were now read also if they were in sub directories.
 	) Renamed the old "ini" import format to "catver" to avoid confusion with the new "catlist".
 	) Removed xmame support.
-	) Removed DLL files from the Windows distribution. The new compiler uses static libraries.
+	) Removed DLL files from the Windows distribution. The new compiler used static libraries.
 	) Compiled with SDL-1.2.14, zlib-1.2.5, expat-2.0.1, freetype-2.4.4.
 
 AdvanceMAME Version 0.106.1 2008/12
@@ -548,28 +548,28 @@ AdvanceMAME Version 0.106.1 2008/12
 	) Fixed the computation of the font size of the menu for vertical games.
 	) Added support for 'lq' and 'hq' resize mode using the 'overlay' output mode.
 	) Added support for 'scanline' effects using the 'overlay' output mode.
-	) Improved the cache locality of the blitting algorithm. Not it operates on segments of row,
+	) Improved the cache locality of the blitting algorithm. It now operated on segments of rows,
 		processing one segment up to the final stage before processing the next one.
-	) The default output mode in Windows and X is now 'overlay'.
-	) The default resize effect is now 'fractional' instead of 'integer'.
-	) The 'overlaysize' option now has the default 'auto' which uses the current video mode.
+	) The default output mode in Windows and X became 'overlay'.
+	) The default resize effect became 'fractional' instead of 'integer'.
+	) The 'overlaysize' option now had the default 'auto', which used the current video mode.
 	) New Windows icon at high resolution.
-	) Ignored WINKEYS in Windows if input_hotkey is set.
-	) The SDL library now force the video driver 'directx' as default.
-		Required because from SDL 1.2.10 the default is the slow 'windib'.
-	) Windows binary is provided with SDL.dll 1.2.13.
+	) Ignored WINKEYS in Windows if input_hotkey was set.
+	) The SDL library now forced the video driver 'directx' as default.
+		Required because from SDL 1.2.10 the default was the slow 'windib'.
+	) Windows binary was provided with SDL.dll 1.2.13.
 	) Added multithread support for Windows using the pthread-win32 library.
 
 AdvanceMENU Version 2.5.0 2008/12
 	) Fixed the recognition of the BIOS roms.
-	) Smarter error detection of damaged zips.
-	) Added the option 'exit' and 'shutdown' at the screensaver.
+	) Implemented smarter error detection of damaged zips.
+	) Added the 'exit' and 'shutdown' options to the screensaver.
 	) New Windows icon at high resolution.
 	) Added automatic detection of mamepp.exe for Windows.
 	) Added automatic detection of sdlmame for Windows and *nix.
 	) Added a splash screen in Windows.
-	) The 'overlaysize' option now has the default 'auto' which uses the current video mode.
-	) Windows binary is provided with SDL.dll 1.2.13.
+	) The 'overlaysize' option now had the default 'auto', which used the current video mode.
+	) Windows binary was provided with SDL.dll 1.2.13.
 
 AdvanceMENU Version 2.4.14 2007/01
 	) Fixed compilation problem with gcc 4.x.x.
@@ -581,8 +581,8 @@ AdvanceMAME Version 0.104.0 2006/02
 	) Based on MAME 0.104
 
 AdvanceMAME Version 0.102.1 2005/12
-	) Added in the `contrib' directory a test version of cwsdpmi
-	which solves some slowdown problem in DOS with system with
+	) Added a test version of cwsdpmi in the `contrib' directory,
+	which solved some slowdown problems in DOS with systems with
 	more than 512 MB of memory.
 
 AdvanceMESS Version 0.102.0.1 2005/12
@@ -594,21 +594,21 @@ AdvanceMENU Version 2.4.13 2005/12
 
 
 AdvanceMAME Version 0.102.0 2005/12
-	) Fixed some bugs for the 64 bits platforms. It works now.
+	) Fixed some bugs for the 64 bits platforms. It worked now.
 	) Fixed a problem mapping the video memory
-		in the Linux FrambeBuffer driver.
+		in the Linux Framebuffer driver.
 	) Fixed the conditional compilation of the advv and advcfg
 		utilities.
 	) Updated zlib to version 1.2.3.
 	) Fixed some keyboard input issues with the text mode
 		utilities in Windows.
-	) Added leds support at the `raw' and `event' keyboard
-		linux drivers.
+	) Added LED support to the `raw' and `event' keyboard
+		Linux drivers.
 	) Fixed the `uninstall' make target.
 	) Increased the max number of joystick buttons to 64.
 
 AdvanceMENU Version 2.4.12 2005/12
-	) Fixed some bugs for the 64 bits platforms. It works now.
+	) Fixed some bugs for the 64 bits platforms. It worked now.
 
 AdvanceMESS Version 0.102.0.0 2005/12
 	) Based on AdvanceMAME 0.102.0.
@@ -624,7 +624,7 @@ AdvanceMAME Version 0.100.0 2005/10
 	) Updated the FAQ [Mikkel Holm Olsen].
 
 AdvanceMENU Version 2.4.11 2005/10
-	) Added a new `mute' event. Default to period key on the keypad.
+	) Added a new `mute' event. Defaulted to period key on the keypad.
 
 AdvanceMESS Version 0.99.0.0 2005/08
 	) Based on AdvanceMAME 0.99.0.
@@ -633,14 +633,14 @@ AdvanceMAME Version 0.99.0 2005/08
 	) Based on MAME 0.99
 
 AdvanceMAME Version 0.97.0 2005/06
-	) Improved the precision of all the joystick drivers.
-		Now a scale of 65536 values is used.
-	) Added support for multiple lightgun in Windows XP
+	) Improved the precision of all joystick drivers.
+		A scale of 65536 values was now used.
+	) Added support for multiple lightguns in Windows XP
 		using the new `lgrawinput' joystick driver.
 
 AdvanceMENU Version 2.4.10 2005/06
-	) Improved the precision of all the joystick drivers.
-		Now a scale of 65536 values is used.
+	) Improved the precision of all joystick drivers.
+		A scale of 65536 values was now used.
 
 AdvanceMESS Version 0.96.0.0 2005/05
 	) Based on MAME 0.96 and AdvanceMAME 0.96.0.
@@ -648,12 +648,10 @@ AdvanceMESS Version 0.96.0.0 2005/05
 AdvanceMAME Version 0.96.0 2005/05
 	) Improved the support for low clocks of the SVGALIB
 		nVidia driver for DOS and Windows.
-	) Readded in the DOS and Windows version the old
-		SVGALIB drivers for GeForce and Savage boards.
-		If you have problem with the new driver
-		you can still use the old ones with the
+	) Readded the old SVGALIB drivers for GeForce and Savage boards in the DOS and Windows versions.
+		Users with problems with the new driver could still use the old ones with the
 		names "savage_leg" and "nv3_leg".
-	) The `advv' and `advcfg' utilities are now compiled
+	) The `advv' and `advcfg' utilities were now compiled
 		and installed only if needed.
 	) Fixed the detection of the new `unichrome' driver in DOS.
 	) Added support for multiple mice in Windows XP using the
@@ -662,17 +660,15 @@ AdvanceMAME Version 0.96.0 2005/05
 		new `cpn' mouse driver.
 
 AdvanceMENU Version 2.4.9 2005/05
-	) The directory is not chaged before running an
+	) The directory was not changed before running an
 		emulator in the *nix platforms. Instead the
-		full path name of the emulator is used.
+		full path name of the emulator was used.
 	) Improved the support for low clocks of the SVGALIB
 		nVidia driver for DOS and Windows.
-	) Readded in the DOS and Windows version the old
-		SVGALIB drivers for GeForce and Savage boards.
-		If you have problem with the new driver
-		you can still use the old ones with the
+	) Readded the old SVGALIB drivers for GeForce and Savage boards in the DOS and Windows versions.
+		Users with problems with the new driver could still use the old ones with the
 		names "savage_leg" and "nv3_leg".
-	) The `advv' and `advcfg' utilities are now compiled
+	) The `advv' and `advcfg' utilities were now compiled
 		and installed only if needed.
 	) Fixed the detection of the new `unichrome' driver in DOS.
 	) Added support for multiple mice in Windows XP using the
@@ -685,41 +681,41 @@ AdvanceMESS Version 0.95.0.0 2005/04
 
 AdvanceMAME Version 0.95.0 2005/04
 	) Based on MAME 0.95
-	) The `event' and `raw' mouse driver are now enabled
-		in X. The default choice is for the `sdl' driver
-		but you can force another driver if you want.
+	) The `event' and `raw' mouse drivers were now enabled
+		in X. The default choice was for the `sdl' driver
+		but users could force another driver if they wanted.
 
 AdvanceMESS Version 0.94.0.0 2005/03
 	) Based on MAME 0.94 and AdvanceMAME 0.94.0.
 
 AdvanceMENU Version 2.4.8 2005/03
-	) The help screen exits when the played mng clip is
+	) The help screen exited when the played MNG clip was
 		terminated.
 
 AdvanceMAME Version 0.94.0 2005/03
-	) The install target now create the bin/ directory if
-		it's missing.
-	) Updated to SVGALIB 1.9.20. This add support for the
-		most recent Radeon and nVidia boards at the DOS
+	) The install target now created the bin/ directory if
+		it was missing.
+	) Updated to SVGALIB 1.9.20. This added support for the
+		most recent Radeon and NVIDIA boards in the DOS
 		version.
 
 AdvanceMENU Version 2.4.7 2005/03
 	) Added a new `ui_startup' option to display a clip/image
 		at the menu startup.
 	) Extended the `ui_help' and `ui_exit' option to
-		allow to display also a clip.
-	) Updated to SVGALIB 1.9.20. This add support for the
-		most recent Radeon and nVidia boards at the DOS
+		allow displaying also a clip.
+	) Updated to SVGALIB 1.9.20. This added support for the
+		most recent Radeon and NVIDIA boards in the DOS
 		version.
 
 AdvanceMAME Version 0.92.1 2005/02
 	) Fixed the recognition of the `sync_resample' option.
-		If you notify sound problem try setting
-		`sync_resample emulation' in your configuration
+		Users who noticed sound problems were advised to set
+		`sync_resample emulation' in their configuration
 		file.
-	) In the `integer' and `mixed' modes, the integers
-		magnification factors are chosen to ensure that
-		the complete image is displayed.
+	) In the `integer' and `mixed' modes, the integer
+		magnification factors were chosen to ensure that
+		the complete image was displayed.
 	) Based on MAME 0.92u2000.
 
 AdvanceMESS Version 0.92.0.0 2005/02
@@ -728,19 +724,18 @@ AdvanceMESS Version 0.92.0.0 2005/02
 AdvanceMAME Version 0.92.0 2005/02
 	) Added a new `system()' script function to execute
 		a shell script.
-	) Improved the behaviour of the analog input. You can now
+	) Improved the behavior of the analog input. Users could now
 		use both the keyboard and the joystick at the
 		same time.
-	) Enabled as default the use of the joystick and mouse.
+	) Enabled the use of the joystick and mouse by default.
 		The `device_joystick' and `device_mouse' options
-		have now the `auto' value as default.
+		now had the `auto' value as default.
 	) Fixed the AC97 DOS audio driver.
 
 AdvanceMENU Version 2.4.6 2005/02
-	) Before running any external program all the
-		privileges of suid/gid programs are dropped.
-	) The option `display_restoreatgame' can now be customized
-		for different emulator.
+	) Before running any external program, all privileges of suid/gid programs were dropped.
+	) The option `display_restoreatgame' could now be customized
+		for different emulators.
 	) Fixed the AC97 DOS audio driver.
 
 AdvanceMAME Version 0.90.0 2005/01

@@ -11,7 +11,7 @@ Description
 Options
 	/l IMAGE
 		Load a PCX image. The image must be a PCX image
-		in the 320x200 8bit format. The image is displayed using
+		in the 320x200 8-bit format. The image is displayed using
 		the standard VGA 320x200 256 color video mode number 13h.
 
 	/s MODE
@@ -34,7 +34,7 @@ Options
 		function.
 
 Examples
-	A good configuration for Arcade monitors/TVs may be:
+	A good configuration for arcade monitors/TVs may be:
 
 	In CONFIG.SYS:
 		:device=c:\cab\video.exe /l c:\cab\video.pcx
@@ -48,4 +48,3 @@ Examples
 
 Copyright
 	This file is Copyright (C) 2003 Andrea Mazzoleni.
-
