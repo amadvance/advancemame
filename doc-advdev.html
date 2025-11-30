@@ -234,7 +234,7 @@ and keyboard drivers used by the Advance programs.
 <a href="#4.2.4">4.2.4 device_video_singlescan/doublescan/interlace</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#4.2.5">4.2.5 device_color_palette8/br8/bgr15/bgr16/bgr24/bgr32/yuy2</a><br>
+<a href="#4.2.5">4.2.5 device_color_palette8/bgr8/bgr15/bgr16/bgr24/bgr32/yuy2</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#4.2.6">4.2.6 device_video_fastchange</a><br>
@@ -465,7 +465,7 @@ desired video mode. Unfortunately the standard
 VBE3 services don't support a resolution size change.
 <p>
 The resolution is changed modifying only the standard
-VGA registers. This hack may or not may works.
+VGA registers. This hack may or may not work.
 Also the interlaced modes are only rarely supported
 by the various VBE3 BIOS because they are very rarely
 used in the standard PC monitors.
@@ -504,7 +504,7 @@ To use this driver you need to install the included SVGAWIN
 driver. Please read the `svgawin.txt' file carefully.
 <p>
 This driver is experimental. At present it's only tested on
-Windows 2000 with a GeForce 2 board. It may not work will
+Windows 2000 with a GeForce 2 board. It may not work with
 all the other boards.
 <h3><a name="1.3">1.3</a> 
 Available System Drivers
@@ -620,9 +620,8 @@ For an emergency keyboard restore you can use the emergency
 Linux SysRq key. Check:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<pre>
-<a href="http:///usr/src/linux/Documentation/sysrq.txt">http:///usr/src/linux/Documentation/sysrq.txt</a>
-</pre>
+<a href="http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html">http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html</a>
+<br>
 </td></tr></table>
 <p>
 Leds control is supported.
@@ -642,9 +641,8 @@ For an emergency keyboard restore you can use the emergency
 Linux SysRq key. Check:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<pre>
-<a href="http:///usr/src/linux/Documentation/sysrq.txt">http:///usr/src/linux/Documentation/sysrq.txt</a>
-</pre>
+<a href="http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html">http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html</a>
+<br>
 </td></tr></table>
 <p>
 Leds control is supported.
@@ -679,9 +677,8 @@ For an emergency keyboard restore you can use the emergency
 Linux SysRq key. Check:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<pre>
-<a href="http:///usr/src/linux/Documentation/sysrq.txt">http:///usr/src/linux/Documentation/sysrq.txt</a>
-</pre>
+<a href="http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html">http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html</a>
+<br>
 </td></tr></table>
 <p>
 Leds control is not supported.
@@ -711,13 +708,12 @@ For USB devices this driver doesn't require any configuration.
 It's able to autodetect all the present hardware.
 <p>
 This driver is also able to correctly report the type of devices
-found. You should for example expects to have the gas pedal mapped
+found. You should for example expect to have the gas pedal mapped
 on the gas control of the game.
 <p>
 It can also be used with some custom devices connected at the
 Parallel Port. Details on how to build these custom interfaces are
-in the <a href="file:///usr/src/linux/Documentation/input/joystick-parport.txt">file:///usr/src/linux/Documentation/input/joystick-parport.txt</a>
-file.
+in the file /usr/src/linux/Documentation/input/joystick-parport.txt.
 <p>
 It has a special support for the ACT Labs Lightgun to fix the wrong
 behavior of the light-gun when shooting out of screen.
@@ -774,7 +770,7 @@ SNES, PSX, N64 and other pads are in the Allegro sources.
 <h4><a name="3.2.6">3.2.6</a> 
 lgrawinput - Light Gun (Windows XP)
 </h4>
-This driver works in Windows XP and it support lightguns
+This driver works in Windows XP and it supports lightguns
 using the Windows mouse interface.
 <p>
 It supports more than one lightgun at the same time
@@ -784,7 +780,7 @@ of the following types:
 SMOG Lightgun (http://lightgun.splinder.com/)
 </li>
 <li>
-Acts Labs Lightgun (http://www.act-labs.com/)
+Act Labs Lightgun (http://www.act-labs.com/)
 </li>
 </ul>
 <p>
@@ -817,7 +813,7 @@ The mice are searched on the /dev/input/eventX devices.
 <h4><a name="3.3.2">3.3.2</a> 
 raw - Serial mouse (Linux)
 </h4>
-This driver works in Linux and it communicates directly with
+This driver works in Linux and communicates directly with
 the configured serial mice. It also supports USB mice
 using the Linux mousedev module which maps mice to the
 /dev/input/mouseX devices.
@@ -865,9 +861,9 @@ are supported.
 <p>
 This driver is the preferred choice for Windows XP.
 <p>
-Please note that this driver is not intented to be used in a window
+Please note that this driver is not intended to be used in a window
 environment. The application takes the control of the mouse and
-doesn't allow to switch to other applications. It's mainly intented
+doesn't allow to switch to other applications. It's mainly intended
 for a fullscreen environment.
 <h4><a name="3.3.7">3.3.7</a> 
 cpn - CPN custom driver interface (Windows)
@@ -889,9 +885,9 @@ The CPN mouse driver is available at:
 and in the `contrib/cpn' directory. Check the `install'
 and `unknown' files for install instructions.
 <p>
-Please note that this driver is not intented to be used in a window
+Please note that this driver is not intended to be used in a window
 environment. The application takes the control of the mouse and
-doesn't allow to switch to other applications. It's mainly intented
+doesn't allow to switch to other applications. It's mainly intended
 for a fullscreen environment.
 <h2><a name="4">4</a> 
 Video Drivers Configuration
@@ -1123,7 +1119,7 @@ overlay
 Use a YUV fullscreen overlay using the video board
 hardware acceleration to display and stretch it.
 This mode is available only in some environments, like
-xv in X Window and DirectX in Windows. The specific
+Xv in X Window and DirectX in Windows. The specific
 color format used is YUY2.
 </td></tr>
 </table>
@@ -1133,7 +1129,9 @@ device_video_overlaysize
 Select the favorite horizontal size to use with the `overlay'
 output mode. The program selects the nearest available video mode.
 <p>
+<pre>
 device_video_overlaysize auto | SIZE
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -1218,11 +1216,12 @@ HORZ_CLOCK
 </em></td><td width="90%">
 Horizontal clock range in kHz.
 </td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+VERT_CLOCK
+</em></td><td width="90%">
+Vertical clock range in Hz.
+</td></tr>
 </table>
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-VERT_CLOCK- Vertical clock range in Hz.
-</td></tr></table>
 <p>
 For any range you can specify a single value like `60' or a
 range of values like `50 - 60'. For multistandard TVs and monitors
@@ -1241,7 +1240,7 @@ device_video_modeline
 </h4>
 Define a video modeline. The modeline format is compatible with
 the format used by the Linux SVGALIB library and by the
-XFree Window system.
+XFree86/X.org system.
 <p>
 <pre>
 device_video_modeline Name CLOCK HDE HRS HRE HT VDE VRS VRE VT
@@ -1254,7 +1253,7 @@ Options:
 Name
 </em></td><td width="90%">
 Name of the video mode. You can use the quotes
-'"` for the names with spaces.
+'"' for the names with spaces.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 CLOCK
@@ -1377,9 +1376,9 @@ Disable completely the feature.
 </td></tr>
 </table>
 <h4><a name="4.2.5">4.2.5</a> 
-device_color_palette8/br8/bgr15/bgr16/bgr24/bgr32/yuy2
+device_color_palette8/bgr8/bgr15/bgr16/bgr24/bgr32/yuy2
 </h4>
-Limit the use of some bit depths. If you known that
+Limit the use of some bit depths. If you know that
 the program doesn't work well with a specific bit depth you
 can disable it.
 <p>
@@ -1504,7 +1503,7 @@ and 31.25 MHz for DPI).
 <h4><a name="4.3.2">4.3.2</a> 
 device_fb_fastset
 </h4>
-Don't set the video mode if it's expected to be idential at the
+Don't set the video mode if it's expected to be identical to the
 current one. This can be used to avoid a screen refresh
 when not required.
 <p>
@@ -1602,7 +1601,7 @@ available only for the `svgaline' DOS video driver.
 device_svgaline_skipboard
 </h4>
 Selects how many board skip in the video card detection. If you have
-more than a video card on your system you and the wrong one is
+more than a video card on your system and the wrong one is
 used you can force to skip an arbitrary number of video boards.
 <p>
 <pre>
@@ -1673,7 +1672,7 @@ available only for the `svgawin' Windows video driver.
 device_svgawin_skipboard
 </h4>
 Selects how many board skip in the video card detection. If you have
-more than a video card on your system you and the wrong one is
+more than a video card on your system and the wrong one is
 used you can force to skip an arbitrary number of video boards.
 <p>
 <pre>
@@ -1984,43 +1983,6 @@ Example:
 device_alsa_device dmix
 </pre>
 </td></tr></table>
-<p>
-If you want to configure the ALSA library to remap the `default' device
-to the `dmix' device for all the applications, you can create
-the `.asoundrc' file in your home directory with the following content:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<pre>
-pcm.!default {
-&nbsp;&nbsp;&nbsp;&nbsp;type plug
-&nbsp;&nbsp;&nbsp;&nbsp;slave.pcm "dmixer"
-}
-
-pcm.dmixer  {
-&nbsp;&nbsp;&nbsp;&nbsp;type dmix
-&nbsp;&nbsp;&nbsp;&nbsp;ipc_key 1024
-&nbsp;&nbsp;&nbsp;&nbsp;slave {
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pcm "hw:0,0"
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;period_time 0
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;period_size 1024
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buffer_size 16384
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rate 44100
-&nbsp;&nbsp;&nbsp;&nbsp;}
-&nbsp;&nbsp;&nbsp;&nbsp;bindings {
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0 0
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1 1
-&nbsp;&nbsp;&nbsp;&nbsp;}
-}
-
-ctl.dmixer {
-&nbsp;&nbsp;&nbsp;&nbsp;type hw
-&nbsp;&nbsp;&nbsp;&nbsp;card 0
-}
-</pre>
-</td></tr></table>
-<p>
-Note that the suggested `.asoundrc' on the ALSA web site has a lower
-`buffer_size' value (4096). For AdvanceMAME a bigger buffer is required.
 <h4><a name="5.1.2">5.1.2</a> 
 device_alsa_mixer
 </h4>
@@ -2052,7 +2014,9 @@ Select the size of the audio fragment of the SDL library.
 <p>
 The use of this option is discouraged, it's present only for testing.
 <p>
+<pre>
 device_sdl_samples 512 | 1024 | 2048 | 2560 | 3072 | 3584 | 4096 | 6144 | 8192
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -2564,7 +2528,9 @@ device_raw_mousedev[0,1,2,3]
 </h4>
 Select the mouse device to use.
 <p>
+<pre>
 device_raw_mousedev[0,1,2,3] auto | DEVICE
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -2595,7 +2561,9 @@ device_lgrawinput_calibration
 </h4>
 Select the type of calibration of the lightgun.
 <p>
+<pre>
 device_lgrawinput_calibration auto | none
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">

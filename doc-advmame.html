@@ -75,9 +75,8 @@ advmess MACHINE [images...] [-default] [-remove] [-cfg FILE]
 Description
 </h2>
 AdvanceMAME is an unofficial MAME version for GNU/Linux, Mac OS
-X, DOS and Windows with an advanced video support for helping the
-use with TVs, Arcade Monitors, Fixed Frequencies Monitors and
-also with normal PC Monitors.
+X, DOS and Windows with advanced video support for use with TVs,
+Arcade Monitors, Fixed Frequencies Monitors and normal PC Monitors.
 <p>
 The major features are:
 <ul>
@@ -86,11 +85,11 @@ Automatic creation of `perfect' video modes with the correct
 size and clock.
 </li>
 <li>
-A lot of video boards supported for direct hardware registers
-programming. (see the card*.txt files)
+Many video boards supported for direct hardware register
+programming (see the card*.txt files).
 </li>
 <li>
-Support for 8, 15, 16 and 32 bits video modes.
+Support for 8, 15, 16 and 32 bit video modes.
 </li>
 <li>
 Real hardware scanlines.
@@ -101,23 +100,22 @@ example to play vertical games like "Pac-Man" with
 horizontal Arcade Monitors or TVs.
 </li>
 <li>
-Special `scalex', `scalek', `lq', `hq', and `xbr' effects to improve the aspect
-with modern PC Monitors.
+Special `scalex', `scalek', `lq', `hq' and `xbr' effects to improve
+the aspect on modern PC Monitors.
 </li>
 <li>
-Special `blit' effects to improve the image quality in
-stretching.
+Special `blit' effects to improve image quality when stretching.
 </li>
 <li>
-Special `rgb' effects to simulate the aspect of a real Arcade
+Special `rgb' effects to simulate the look of a real Arcade
 Monitor.
 </li>
 <li>
-Change of the video mode and other video options at runtime.
+Change of video mode and other video options at runtime.
 </li>
 <li>
-Support of Symmetric Multi-Processing (SMP) with a multiple
-thread architecture (only for Linux).
+Support for Symmetric Multi-Processing (SMP) with a multiple
+thread architecture (Linux only).
 </li>
 <li>
 Sound and video recording in WAV, PNG and MNG files.
@@ -129,7 +127,7 @@ Multiple mice support in Linux, DOS, Windows 2000 and Windows XP.
 Automatic exit after some time of inactivity.
 </li>
 <li>
-Scripts capabilities to drive external hardware devices
+Script capabilities to drive external hardware devices
 like LCDs and lights.
 </li>
 <li>
@@ -336,245 +334,245 @@ Help screen describing the user input keys.
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#8.6.4">8.6.4 display_writeeffect</a><br>
 </td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.6.5">8.6.5 Display Color Configuration Options</a><br>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#8.7">8.7 Display Color Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.6.6">8.6.6 display_brightness</a><br>
+<a href="#8.7.1">8.7.1 display_brightness</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.6.7">8.6.7 display_gamma</a><br>
+<a href="#8.7.2">8.7.2 display_gamma</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.6.8">8.6.8 display_pausebrightness</a><br>
+<a href="#8.7.3">8.7.3 display_pausebrightness</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#8.7">8.7 Display Artwork Configuration Options</a><br>
+<a href="#8.8">8.8 Display Artwork Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.7.1">8.7.1 display_artwork_backdrop/overlay/bezel</a><br>
+<a href="#8.8.1">8.8.1 display_artwork_backdrop/overlay/bezel</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.7.2">8.7.2 display_artwork_magnify</a><br>
+<a href="#8.8.2">8.8.2 display_artwork_magnify</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.7.3">8.7.3 display_artwork_crop</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#8.8">8.8 Display Vector Configuration Options</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.8.1">8.8.1 display_antialias</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.8.2">8.8.2 display_beam</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.8.3">8.8.3 display_flicker</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.8.4">8.8.4 display_translucency</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.8.5">8.8.5 display_intensity</a><br>
+<a href="#8.8.3">8.8.3 display_artwork_crop</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#8.9">8.9 Sound Configuration Options</a><br>
+<a href="#8.9">8.9 Display Vector Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.9.1">8.9.1 device_sound_*</a><br>
+<a href="#8.9.1">8.9.1 display_antialias</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.9.2">8.9.2 sound_mode</a><br>
+<a href="#8.9.2">8.9.2 display_beam</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.9.3">8.9.3 sound_samplerate</a><br>
+<a href="#8.9.3">8.9.3 display_flicker</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.9.4">8.9.4 sound_volume</a><br>
+<a href="#8.9.4">8.9.4 display_translucency</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.9.5">8.9.5 sound_adjust</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.9.6">8.9.6 sound_normalize</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.9.7">8.9.7 sound_equalizer_*</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.9.8">8.9.8 sound_latency</a><br>
+<a href="#8.9.5">8.9.5 display_intensity</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#8.10">8.10 Input Configuration Options</a><br>
+<a href="#8.10">8.10 Sound Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.10.1">8.10.1 device_keyboard/joystick/mouse_*</a><br>
+<a href="#8.10.1">8.10.1 device_sound_*</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.10.2">8.10.2 input_steadykey</a><br>
+<a href="#8.10.2">8.10.2 sound_mode</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.10.3">8.10.3 input_hotkey</a><br>
+<a href="#8.10.3">8.10.3 sound_samplerate</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.10.4">8.10.4 input_idleexit</a><br>
+<a href="#8.10.4">8.10.4 sound_volume</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.10.5">8.10.5 input_map[ANALOG]</a><br>
+<a href="#8.10.5">8.10.5 sound_adjust</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.10.6">8.10.6 input_map[DIGITAL]</a><br>
+<a href="#8.10.6">8.10.6 sound_normalize</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.10.7">8.10.7 input_name</a><br>
+<a href="#8.10.7">8.10.7 sound_equalizer_*</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.10.8">8.10.8 input_setting[*]</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.10.9">8.10.9 input_dipswitch[*]</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.10.10">8.10.10 input_configswitch[*]</a><br>
+<a href="#8.10.8">8.10.8 sound_latency</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#8.11">8.11 User Interface Configuration Options</a><br>
+<a href="#8.11">8.11 Input Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.11.1">8.11.1 ui_helpimage</a><br>
+<a href="#8.11.1">8.11.1 device_keyboard/joystick/mouse_*</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.11.2">8.11.2 ui_helptag</a><br>
+<a href="#8.11.2">8.11.2 input_steadykey</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.11.3">8.11.3 ui_font</a><br>
+<a href="#8.11.3">8.11.3 input_hotkey</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.11.4">8.11.4 ui_fontsize</a><br>
+<a href="#8.11.4">8.11.4 input_idleexit</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.11.5">8.11.5 ui_color[*]</a><br>
+<a href="#8.11.5">8.11.5 input_map[ANALOG]</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.11.6">8.11.6 ui_translucency</a><br>
+<a href="#8.11.6">8.11.6 input_map[DIGITAL]</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.11.7">8.11.7 input_name</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.11.8">8.11.8 input_setting[*]</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.11.9">8.11.9 input_dipswitch[*]</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.11.10">8.11.10 input_configswitch[*]</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#8.12">8.12 Record Configuration Options</a><br>
+<a href="#8.12">8.12 User Interface Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.12.1">8.12.1 record_sound</a><br>
+<a href="#8.12.1">8.12.1 ui_helpimage</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.12.2">8.12.2 record_video</a><br>
+<a href="#8.12.2">8.12.2 ui_helptag</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.12.3">8.12.3 record_video/sound_time</a><br>
+<a href="#8.12.3">8.12.3 ui_font</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.12.4">8.12.4 record_video_interleave</a><br>
+<a href="#8.12.4">8.12.4 ui_fontsize</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.12.5">8.12.5 ui_color[*]</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.12.6">8.12.6 ui_translucency</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#8.13">8.13 Synchronization Options</a><br>
+<a href="#8.13">8.13 Record Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.13.1">8.13.1 sync_fps</a><br>
+<a href="#8.13.1">8.13.1 record_sound</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.13.2">8.13.2 sync_speed</a><br>
+<a href="#8.13.2">8.13.2 record_video</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.13.3">8.13.3 sync_turbospeed</a><br>
+<a href="#8.13.3">8.13.3 record_video/sound_time</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.13.4">8.13.4 sync_startuptime</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.13.5">8.13.5 sync_resample</a><br>
+<a href="#8.13.4">8.13.4 record_video_interleave</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#8.14">8.14 LCD Configuration Options</a><br>
+<a href="#8.14">8.14 Synchronization Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.14.1">8.14.1 lcd_server</a><br>
+<a href="#8.14.1">8.14.1 sync_fps</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.14.2">8.14.2 lcd_timeout</a><br>
+<a href="#8.14.2">8.14.2 sync_speed</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.14.3">8.14.3 lcd_speed</a><br>
+<a href="#8.14.3">8.14.3 sync_turbospeed</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.14.4">8.14.4 sync_startuptime</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.14.5">8.14.5 sync_resample</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#8.15">8.15 Misc Configuration Options</a><br>
+<a href="#8.15">8.15 LCD Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.1">8.15.1 misc_bios</a><br>
+<a href="#8.15.1">8.15.1 lcd_server</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.2">8.15.2 misc_ramsize</a><br>
+<a href="#8.15.2">8.15.2 lcd_timeout</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.3">8.15.3 misc_ui</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.4">8.15.4 misc_difficulty</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.5">8.15.5 misc_freeplay</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.6">8.15.6 misc_cocktail</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.7">8.15.7 misc_mutedemo</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.8">8.15.8 misc_lang</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.9">8.15.9 misc_smp</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.10">8.15.10 misc_quiet</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.15.11">8.15.11 misc_timetorun</a><br>
+<a href="#8.15.3">8.15.3 lcd_speed</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#8.16">8.16 Support Files Configuration Options</a><br>
+<a href="#8.16">8.16 Misc Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.16.1">8.16.1 misc_cheat</a><br>
+<a href="#8.16.1">8.16.1 misc_bios</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.16.2">8.16.2 misc_cheatfile</a><br>
+<a href="#8.16.2">8.16.2 misc_ramsize</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.16.3">8.16.3 misc_languagefile</a><br>
+<a href="#8.16.3">8.16.3 misc_ui</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.16.4">8.16.4 misc_hiscorefile</a><br>
+<a href="#8.16.4">8.16.4 misc_difficulty</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.16.5">8.16.5 misc_safequit</a><br>
+<a href="#8.16.5">8.16.5 misc_freeplay</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.16.6">8.16.6 misc_eventdebug</a><br>
+<a href="#8.16.6">8.16.6 misc_cocktail</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.16.7">8.16.7 misc_eventfile</a><br>
+<a href="#8.16.7">8.16.7 misc_mutedemo</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.16.8">8.16.8 misc_lang</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.16.9">8.16.9 misc_smp</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.16.10">8.16.10 misc_quiet</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.16.11">8.16.11 misc_timetorun</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#8.17">8.17 Debugging Configuration Options</a><br>
+<a href="#8.17">8.17 Support Files Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.17.1">8.17.1 debug_crash</a><br>
+<a href="#8.17.1">8.17.1 misc_cheat</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.17.2">8.17.2 debug_rawsound</a><br>
+<a href="#8.17.2">8.17.2 misc_cheatfile</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#8.17.3">8.17.3 debug_speedmark</a><br>
+<a href="#8.17.3">8.17.3 misc_languagefile</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.17.4">8.17.4 misc_hiscorefile</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.17.5">8.17.5 misc_safequit</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.17.6">8.17.6 misc_eventdebug</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.17.7">8.17.7 misc_eventfile</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
+<a href="#8.18">8.18 Debugging Configuration Options</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.18.1">8.18.1 debug_crash</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.18.2">8.18.2 debug_rawsound</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#8.18.3">8.18.3 debug_speedmark</a><br>
 </td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#9">9 Signals</a><br>
@@ -586,7 +584,7 @@ Help screen describing the user input keys.
 <h2><a name="3">3</a> 
 Keys
 </h2>
-In the game play you can use the following keys:
+In gameplay you can use the following keys:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 ESC
@@ -621,17 +619,17 @@ Load a game state.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 SHIFT + F7
 </em></td><td width="90%">
-Save a gam state.
+Save a game state.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 F8
 </em></td><td width="90%">
-Decrease the frame skip value.
+Decrease frame skip.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 F9
 </em></td><td width="90%">
-Increase the frame skip value.
+Increase frame skip.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 F10
@@ -641,7 +639,7 @@ Speed throttle.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 F11
 </em></td><td width="90%">
-Display the frame per second.
+Display frames per second.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 F12
@@ -656,27 +654,27 @@ Pause.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 PAD *
 </em></td><td width="90%">
-Turbo mode until pressed.
+Turbo mode (hold).
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 PAD /
 </em></td><td width="90%">
-Cocktail mode (flip the screen vertically).
+Cocktail mode (flip screen vertically).
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 PAD
 </em></td><td width="90%">
-- Mark the current time as the startup time of the game.
+- Mark current time as game startup time.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 CTRL + ENTER
 </em></td><td width="90%">
-Start the sound and video recording.
+Start sound and video recording.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 ENTER
 </em></td><td width="90%">
-Stop the sound and video recording.
+Stop sound and video recording.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 ,
@@ -700,7 +698,7 @@ for player 1 you can use the keys:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 1
 </em></td><td width="90%">
-Play.
+Start 1 Player.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 5
@@ -708,24 +706,24 @@ Play.
 Insert coin.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-ARROW
+ARROW KEYS
 </em></td><td width="90%">
 Move.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 CTRL
 </em></td><td width="90%">
-First button.
+Button 1.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 ALT
 </em></td><td width="90%">
-Second button.
+Button 2.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 SPACE
 </em></td><td width="90%">
-Third button.
+Button 3.
 </td></tr>
 </table>
 <p>
@@ -734,7 +732,7 @@ for player 2 you can use the keys:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 2
 </em></td><td width="90%">
-Play.
+Start 2 Players.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 6
@@ -749,21 +747,21 @@ Move.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 A
 </em></td><td width="90%">
-First button.
+Button 1.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 S
 </em></td><td width="90%">
-Second button.
+Button 2.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 Q
 </em></td><td width="90%">
-Third button.
+Button 3.
 </td></tr>
 </table>
 <p>
-for AdvanceMESS are available also the following keys:
+for AdvanceMESS the following additional key is available:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 SCRLOCK
@@ -776,7 +774,7 @@ CTRL.
 <h2><a name="4">4</a> 
 Options
 </h2>
-This is the list of the available command line options:
+The following command line options are available:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td><strong>
 GAME/MACHINE
@@ -807,7 +805,7 @@ with default values.
 -cfg FILE
 </strong></td></tr><tr><td>
 Select an alternate configuration file. In Linux and Mac
-OS X the you can prefix the file name with "./" to
+OS X you can prefix the file name with "./" to
 load it from the current directory.
 </td></tr>
 </table>
@@ -896,7 +894,7 @@ file.
 Video Menu
 </h3>
 AdvanceMAME adds a new `Video' menu in MAME to change the video
-options.
+options at runtime.
 <p>
 You can select the desired video mode, the resize type and the
 video effects.
@@ -922,7 +920,7 @@ The `mixed' option allows integer stretching in the horizontal
 direction and fractional stretching in the vertical direction.
 For example 1x1.23, 2x1.18.
 The `fractional' option allows fractional stretching in any
-directions. For example 1.08x1.08, 1.34x1.78.
+direction. For example 1.08x1.08, 1.34x1.78.
 <p>
 Usually the best choice is the `mixed' option. It's very fast
 and the image quality doesn't suffer too much.
@@ -930,7 +928,7 @@ and the image quality doesn't suffer too much.
 Blit Effects
 </h3>
 AdvanceMAME supports many special video effects to improve
-the image quality when it's stretched.
+the image quality when it is stretched.
 <p>
 There are a lot of video effects: `none', `max', `mean',
 `filter', `scalex', `scalek', `lq', `hq' and `xbr'.
@@ -939,26 +937,26 @@ option, or from the runtime menu.
 <p>
 The `none' effect simply duplicates and removes rows and lines
 when the image is stretched.
-The `max' effect tries to save the image details checking the luminosity
-of the pixels in stretching. It ensures to have vertical and horizontal lines
-always of the same thickness.
-The `mean' effect tries to save the image details displaying the
+The `max' effect tries to save image details by checking the luminosity
+of the pixels in stretching. It ensures vertical and horizontal lines
+are always of the same thickness.
+The `mean' effect tries to save image details by displaying the
 mean color of the pixels in stretching.
 The `filter' effect applies a generic blur filter computing the
 mean color in the horizontal and vertical directions. The best
 results are when the image is stretched almost by a double
 factor. When the image is enlarged the filter is applied after
-stretching; when reduced, it's applied before.
+stretching; when reduced, it is applied before.
 The `scalex', `scalek', `lq', `hq' and `xbr' effects add missing pixels
-trying to match the image patterns.
+by trying to match the image patterns.
 <p>
 The `scalex', `scalek', `lq', `hq' and `xbr' effects work only if the image is
-magnified. To enable it you should also use the `magnify' option.
+magnified. To enable them you should also use the `display_magnify' option.
 <h3><a name="5.5">5.5</a> 
 RGB Effects
 </h3>
-AdvanceMAME supports also some special video effects to simulate
-the aspect of the game as displayed in an old fashion Arcade
+AdvanceMAME supports some special video effects to simulate
+the look of the game as displayed on an old-fashioned Arcade
 Monitor.
 <p>
 You can simulate the RGB triads of the screen or the vertical and
@@ -972,8 +970,8 @@ mode.
 If you choose `auto', the best video mode is chosen
 automatically.
 <p>
-You can change the active video mode pressing `,' and `.' when
-in game play.
+You can change the active video mode by pressing `,' and `.' during
+gameplay.
 <p>
 You can force a specific video mode with the option
 `display_mode'.
@@ -981,25 +979,25 @@ You can force a specific video mode with the option
 Per game/resolution/frequency/orientation options
 </h3>
 All the options are customizable in the configuration file for
-the single game or for a subset of games defined by the game
+a single game or for a subset of games defined by the game
 resolution, frequency and orientation.
 <h3><a name="5.8">5.8</a> 
 Scripts
 </h3>
-AdvanceMAME supports a basic script language capable to
-control an external hardware through the parallel port
-or keyboard led signals.
+AdvanceMAME supports a basic script language capable of
+controlling external hardware through the parallel port
+or keyboard LED signals.
 <p>
 More details are in the `script.txt' file.
 <h3><a name="5.9">5.9</a> 
 Aspect Ratio Control
 </h3>
-AdvanceMAME tries always to display the game with the
+AdvanceMAME always tries to display the game with the
 correct aspect ratio.
 <p>
-But if you want, you can permit a small aspect error
+But if you want, you can allow a small aspect error
 to enlarge the effective game image on the screen.
-It's very useful to display vertical games on
+It is very useful to display vertical games on
 horizontal monitors and vice versa.
 <p>
 More details are in the description of the `display_expand'
@@ -1007,38 +1005,37 @@ option.
 <h3><a name="5.10">5.10</a> 
 Speed Control
 </h3>
-AdvanceMAME permits a special speed control of the game
-play.
+AdvanceMAME permits special speed control of the gameplay.
 <p>
-You can play the game in a faster way, change arbitrarily the
-frame rate, skip the game startup process at the maximum speed,
-or skip the game animations pressing a key.
+You can play the game faster, change the frame rate arbitrarily,
+skip the game startup process at maximum speed,
+or skip game animations by pressing a key.
 <p>
-Press `asterisk_pad' to enable the `turbo' mode. Press `minus_pad'
-to mark the time of the real game start. The next time the game is
-started, it will execute very fast until this time.
+Press `asterisk_pad' to enable `turbo' mode. Press `minus_pad' to mark the time
+of the real game start. The next time the game is started,
+it will execute very fast until this time.
 <p>
 More details are in the description of the `sync_fps', `sync_speed',
 `sync_turbospeed' and `sync_startuptime' options.
 <p>
-The video and audio synchronization uses an advanced algorithm,
-which ensure always the best performance.
+The video and audio synchronization uses an advanced algorithm
+that ensures the best performance.
 <p>
 The program continuously measures the time required to compute a
-frame and continuously adapt the number of frame to skip and
+frame and continuously adapts the number of frames to skip and
 to draw.
 <p>
-If it detects that you have system too slow to play the game
+If it detects that your system is too slow to play the game
 at full speed, it automatically disables any frame skipping.
 <p>
-If the underline Operand System allows that, AdvanceMAME release
-the CPU when it isn't used after computing each frame reducing the
+If the underlying operating system allows it, AdvanceMAME releases
+the CPU when it isn't used after computing each frame, reducing
 CPU occupation.
 <h3><a name="5.11">5.11</a> 
 Audio Control
 </h3>
 The audio volume is automatically adjusted to ensure
-that all the emulated games have the same volume power.
+that all emulated games have the same volume level.
 <p>
 An equalizer and a spectrum analyzer are also available.
 <p>
@@ -1052,23 +1049,23 @@ to automatically exit after some time of inactivity to save
 your monitor screen.
 <p>
 For some supported games you can force the display of an
-exit menu during the game play to prevent unwanted exit.
+exit menu during gameplay to prevent unwanted exits.
 <p>
-More details are in the description of the `misc_safequit',
+More details are in the description of the `misc_safequit'
 and `input_idleexit' options.
 <h3><a name="5.13">5.13</a> 
 Input Control
 </h3>
-AdvanceMAME supports a very fine control of the mapping
-of the analog and digital inputs. You can remap any input
-event using easy to maintain text configuration files.
+AdvanceMAME supports very fine control of the mapping
+of analog and digital inputs. You can remap any input
+event using easy-to-maintain text configuration files.
 <p>
 More details are in the description of the `input_map'
 option.
 <h3><a name="5.14">5.14</a> 
 Audio and Video Recording
 </h3>
-AdvanceMAME can saves the game play in .WAV audio files and
+AdvanceMAME can save gameplay in .WAV audio files and
 .MNG video files.
 <p>
 More details are in the description of the `record_*'
@@ -1077,42 +1074,42 @@ options.
 User Interface
 </h3>
 AdvanceMAME displays the user interface directly on the screen
-instead on the game image.
+instead of on the game image.
 <p>
-This means that the interface doesn't have applied the same video
-effects of the game, it isn't limited on the game area, it
-isn't recorded on video clips and you can customize the font.
+This means that the interface doesn't have the same video
+effects applied as the game, isn't limited to the game area,
+isn't recorded in video clips and you can customize the font.
 <p>
-Also, True Type fonts with alpha blending are supported.
+TrueType fonts with alpha blending are also supported.
 <p>
 More details are in the description of the `ui_*' options.
 <h3><a name="5.16">5.16</a> 
 Input Help
 </h3>
 AdvanceMAME is able to display a help image containing the
-input mapping of the emulated game. Any input element has a
-different depending on the assigned player and if it's pressed
-or not.
+input mapping of the emulated game. Each input element has a
+different color depending on the assigned player and whether it is
+pressed or not.
 <p>
 The default image is a standard keyboard, with the used keys
 highlighted. If you have an Arcade cabinet you can create your
-personalized control image and select each region to highlight.
+own personalized control panel image and select each region to highlight.
 <p>
-Press `f1' on the game play to display it.
+Press `f1' during gameplay to display it.
 <p>
 More details are in the description of the `ui_help*' options.
 <h3><a name="5.17">5.17</a> 
 Input Text Configuration File
 </h3>
-All the user customizations are stored in a single textual
-configuration file and not in a lot of .cfg file like other MAME ports.
+All user customizations are stored in a single textual
+configuration file and not in many .cfg files like other MAME ports.
 <p>
-This allows to view, edit and copy any customization manually.
-They are also more compact because only the difference from the
-default is saved.
+This allows you to view, edit and copy any customization manually.
+They are also more compact because only the differences from the
+default are saved.
 <p>
-They are independent of the internal MAME structure, so, when it
-changes, you don't lose the customizations.
+They are independent of the internal MAME structure, so when it
+changes you don't lose your customizations.
 <p>
 More details are in the description of the `input_setting',
 `input_dipswitch', `input_configswitch' options.
@@ -1127,16 +1124,16 @@ Press `slash_pad' to flip the screen.
 Dipswitches Control
 </h3>
 You can customize with specialized options the game difficulty and
-the game freeplay. These options are smart enough to solve
-common ambiguities and errors in the game dipswitches definitions.
+freeplay. These options are smart enough to solve common ambiguities
+and errors in the game dipswitch definitions.
 <p>
 More details are in the description of the `misc_difficulty',
-`misc_freeplay' and 'misc_cocktail' options.
+`misc_freeplay' and `misc_cocktail' options.
 <h3><a name="5.20">5.20</a> 
 LCD Panel
 </h3>
 AdvanceMAME is able to talk to an `lcdproc' server located anywhere
-in internet to display arbitrary information on a real or simulated
+on the internet to display arbitrary information on a real or simulated
 LCD panel.
 <h2><a name="6">6</a> 
 Use Cases
@@ -1146,19 +1143,19 @@ on different video hardware.
 <h3><a name="6.1">6.1</a> 
 With a LCD Monitor
 </h3>
-On a LCD Monitor, AdvanceMAME is able to use the hardware
+On an LCD Monitor, AdvanceMAME is able to use the hardware
 acceleration of your video board to stretch the game image
 to fit the exact resolution of your LCD monitor.
-With an HighDefinition monitor (1920x1080/1200), this stretching
-is not noticeable and you get an image with quality comparable
-with a CRT Multi-Sync monitor.
+With a High-Definition monitor (1920x1080/1200), this stretching
+is barely noticeable and you get an image with quality comparable
+to a CRT Multi-Sync monitor.
 You can also use a bunch of video effects to remove the
-annoying pixelation or to emulate old stylish CRT aspect.
+annoying pixelation or to emulate an old-style CRT look.
 <h3><a name="6.2">6.2</a> 
 With a CRT Multi-Sync Monitor
 </h3>
 On a PC Multi-Sync monitor you can get any resolution at any
-Vertical Frequency. In this case AdvanceMAME always generates
+vertical frequency. In this case AdvanceMAME always generates
 a `perfect' video mode with the correct size and clock. It
 doesn't require any type of stretching.
 For example for the game "Bomb Jack" a video mode of 400x256
@@ -1166,86 +1163,83 @@ at 60 Hz (perfect size and perfect frequency) is used.
 <h3><a name="6.3">6.3</a> 
 With a CRT VGA Monitor/Fixed Frequency Monitor/Arcade Monitor
 </h3>
-On Fixed Frequency monitors you are physically limited on
-the choice of Horizontal Frequency in the video mode. In this
+On fixed-frequency monitors you are physically limited in the
+choice of horizontal frequency in the video mode. In this
 case AdvanceMAME takes care of your monitor's limitations
-and in the most cases it's able to use a video mode with the
-correct size but not with the correct frequency due to the
-monitor's limitations.
+and in most cases is able to use a video mode with the
+correct size but not necessarily with the correct frequency.
 For example for the game "Pac-Man" and a VGA monitor (31.5 kHz)
 a video mode of 400x288 at 100 Hz (perfect size) is used.
 <h3><a name="6.4">6.4</a> 
 With a NTSC or PAL TV
 </h3>
-On a TV you are physically limited to use both fixed Horizontal
-and Vertical Frequencies. This results on a prefixed number of
+On a TV you are physically limited to fixed horizontal
+and vertical frequencies. This results in a prefixed number of
 rows for the video mode.
-For example for a NTSC TV you can get 240 rows (480 if
+For example for an NTSC TV you can get 240 rows (480 if
 interlaced) and for a PAL TV 288 rows (576 if interlaced).
 In this case AdvanceMAME uses a video mode with the prefixed
 number of rows but with the correct number of columns. So,
-ONLY a vertical image stretching is required.
-For example for the game "Pac-Man" on a NTSC TV a video mode
+only vertical image stretching is required.
+For example for the game "Pac-Man" on an NTSC TV a video mode
 of 400x240 (perfect horizontal size) is used.
-For stretching some special algorithms are used to minimize
-the lose of details.
+Special algorithms are used for stretching to minimize
+loss of details.
 <h3><a name="6.5">6.5</a> 
 With a Multi-format NTSC and PAL TV
 </h3>
 If your TV supports both formats, AdvanceMAME automatically
-chooses the format that better fits the game requirements.
+chooses the format that best fits the game requirements.
 For example for the game "Mr. Do!" a video mode of 336x240
 NTSC (perfect size) is used. For the game "Pac-Man" a video mode
 of 400x288 PAL (perfect size) is used.
 <h2><a name="7">7</a> 
 Other Ports
 </h2>
-This section compares the AdvanceMAME video support with the
+This section compares the AdvanceMAME video support with
 other MAME ports.
 <h3><a name="7.1">7.1</a> 
 Windows MAME
 </h3>
 The official Windows MAME is forced by Windows drivers to select
 a video mode from a prefixed list of mode sizes and clocks.
-If the emulated game requires a not standard mode size the
-emulator must stretch the game image to fit the screen (losing in
-quality). If the emulated games requires a not standard clock the
+If the emulated game requires a non-standard mode size the
+emulator must stretch the game image to fit the screen (losing
+quality). If the emulated game requires a non-standard clock the
 emulator must play the game without synchronizing with the video
-vertical retrace (generating the tearing disturb on scrolling game)
-or display frames for different time (generating a not constant
+vertical retrace (generating tearing on scrolling games)
+or display frames for different times (generating non-constant
 scrolling).
 <p>
 Depending on the type of your video drivers you can sometimes
 edit the prefixed list of video modes.
 <p>
-The TV support depends on the video drivers of your board and
-it's generally limited at the interlaced mode 640x480.
+TV support depends on the video drivers of your board and
+is generally limited to the interlaced mode 640x480.
 Arcade monitors are used as NTSC TVs.
 <p>
-Generally this port is limited by Windows to get the best from
+Generally this port is limited by Windows in getting the best from
 your monitor.
 <h3><a name="7.2">7.2</a> 
 SDL MAME
 </h3>
-The official SDL MAME, is similar at AdvanceMAME when using the
-sdl video driver, which is the default when run in a modern
-Desktop environment.
+The official SDL MAME is similar to AdvanceMAME when using the
+SDL video driver, which is the default in a modern desktop environment.
 <p>
-AdvanceMAME has the benefit to allow to use more video effects,
-able to improve the image quality.
+AdvanceMAME has the benefit of allowing more video effects,
+able to improve image quality.
 <p>
 This also helps when using Arcade Monitors with specific modelines,
-because AdvanceMAME is able to streatch the image using special effects
-like 'max' that avoids to lose pixels.
+because AdvanceMAME is able to stretch the image using special effects
+like 'max' that avoids losing pixels.
 <h3><a name="7.3">7.3</a> 
 DOS MAME
 </h3>
-The official DOS MAME is limited to use only the standard
+The official DOS MAME is limited to using only the standard
 VESA resolutions. Generally they are only 320x200,
 320x240, 400x300, 512x384, 640x480, ...
 <p>
-The Arcade/TV support is limited at the mode 640x480 for the
-ATI boards.
+Arcade/TV support is limited to the mode 640x480 for ATI boards.
 <h2><a name="8">8</a> 
 Configuration
 </h2>
@@ -1255,7 +1249,7 @@ directory.
 <p>
 In Linux and Mac OS X the configuration options are read from the
 files `advmame.rc' and `advmess.rc' in the $host, $data and
-the $home directory.
+$home directories.
 The $host directory is `$SYSCONFDIR', where $SYSCONFDIR is the
 `sysconfdir' directory configured with the `configure' script.
 The default is `/usr/local/etc'.
@@ -1268,18 +1262,18 @@ If the ADVANCE environment variable is missing the $home directory
 is `$HOME/.advance' where $HOME is the value of the HOME environment
 variable.
 If both the ADVANCE and HOME environment variables are missing the
-$data directory became also the $home directory.
+$data directory also becomes the $home directory.
 <p>
 The priority of the options is in the order: $host, $home and $data.
 <p>
 The $home directory is also used to write all the information
-by the program. The files in the $host and $data directory are only read.
+by the program. The files in the $host and $data directories are only read.
 <p>
-You can include an additional configuration files with the `include'
+You can include additional configuration files with the `include'
 option. In DOS and Windows the files are searched in the current directory.
 In Linux and Mac OS X the files are searched in the $home directory if
 they are expressed as a relative path. You can force the search in the
-current directory prefixing the file with `./'.
+current directory by prefixing the file with `./'.
 To include more than one file you must divide the names with `;' in
 DOS and Windows, and with `:' in Linux and Mac OS X.
 <p>
@@ -1294,11 +1288,10 @@ In the configuration file the options are specified in this format:
 </pre>
 </td></tr></table>
 <p>
-If the SECTION is omitted the `' (empty) section is assumed.
+If the SECTION is omitted the empty section is assumed.
 <p>
 You can split long options in a multi-line format ending the line
 with the char `\':
-<p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 [SECTION/]OPTION FIRST_LINE \
@@ -1342,15 +1335,14 @@ like `neogeo'.
 The resolution and the clock of the
 game, like `244x288x60' for raster games or
 `vector' for vector games. If the vertical clock
-is a real value, it's rounded downwards to the
+is a real value, it is rounded downwards to the
 nearest integer.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 `RESOLUTION'
 </em></td><td width="90%">
 The resolution of the game, like
-`244x288' for raster games or `vector' for
-vector games.
+`244x288' for raster games or `vector' for vector games.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 `ORIENTATION'
@@ -1375,7 +1367,7 @@ Number of players in the game. One of `1players',
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 `Nbuttons'
 </em></td><td width="90%">
-Number of buttons for each player One of `1buttons',
+Number of buttons for each player. One of `1buttons',
 `2buttons', `3buttons', up to `10buttons'.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
@@ -1389,7 +1381,7 @@ For example for the game `pacman' the following sections are
 read: `pacman', `puckman', `224x288x60', `224x288', `vertical',
 `joy4way', `2players' and `1buttons'.
 <p>
-You can override any global options inserting new options in
+You can override any global options by inserting new options in
 any of the sections of the game.
 <p>
 For example:
@@ -1406,7 +1398,7 @@ horizontal/display_ror no
 Software Configuration Options
 </h3>
 This section describes the options used to customize the
-software loaded by system emulated.
+software loaded by the emulated system.
 <h4><a name="8.1.1">8.1.1</a> 
 dev_*
 </h4>
@@ -1435,7 +1427,7 @@ Load a floppydisk.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 harddisk
 </em></td><td width="90%">
-Load an harddisk.
+Load a harddisk.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 cylinder
@@ -1551,7 +1543,7 @@ files.
 dir_image
 </em></td><td width="90%">
 Multi directory specification for the
-chd/disk/cartdrige/... image files.
+chd/disk/cartridge/... image files.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 dir_diff
@@ -1724,9 +1716,9 @@ $home/snap
 </td></tr>
 </table>
 <p>
-If a not absolute dir is specified, in Linux and Mac OS X
-it's expanded as "$home/DIR:$data/DIR". In DOS and Windows
-it's maintained relative.
+If a non-absolute dir is specified, in Linux and Mac OS X
+it is expanded as "$home/DIR:$data/DIR". In DOS and Windows
+it is maintained relative.
 <p>
 For the `dir_rom' and `dir_image' the following file
 combinations are tried:
@@ -1746,11 +1738,11 @@ Where DIR is substituted with the directories specified, GAME
 is the name of the game or machine emulated, ROM is the rom
 name and EXT is the rom extension.
 <p>
-For the files searched in the `dir_image' option you can also
-specify a different zip name prefixing the rom name
+For files searched in the `dir_image' option you can also
+specify a different zip name by prefixing the rom name
 with the zip name without extension and the `=' char.
 For example to run the `ti99_4a' emulator and load the
-cartdriges `alpinerc.bin' and `alpinerg.bin' both contained in
+cartridges `alpinerc.bin' and `alpinerg.bin' both contained in
 the zip file `alpiner.zip' you can use this syntax:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
@@ -1777,7 +1769,7 @@ can be used.
 If you use a `System' video driver, you don't need to set these
 options. They are mostly ignored.
 <p>
-With a `Generate' video drivers these options are used to select
+With a `Generate' video driver these options are used to select
 and create the correct video mode. They are mandatory. You can use
 the `advcfg' utility to set them interactively.
 <h4><a name="8.4.2">8.4.2</a> 
@@ -1807,12 +1799,12 @@ available (default).
 <h4><a name="8.4.3">8.4.3</a> 
 display_adjust
 </h4>
-Controls how are generate the video modes. Correct use of this
-option removes the need of any software stretching improving a
-lot the game image.
+Controls how video modes are generated. Correct use of this
+option removes the need for any software stretching, improving
+game image quality significantly.
 <p>
-For an introduction on how the program operates on video mode,
-you can see the `install.txt' file.
+For an introduction on how the program operates on video modes,
+see the `install.txt' file.
 <p>
 <pre>
 display_adjust none | x | clock | xclock | generate_exact
@@ -1831,10 +1823,10 @@ available modelines (default).
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 x
 </em></td><td width="90%">
-Adjusts the available modeline horizontal resolution
-to match the game image's size. The stretched modeline
+Adjusts the available modeline's horizontal resolution
+to match the game image size. The stretched modeline
 keeps all the clock attributes of the original
-modeline. Also all other modeline attributes,
+modeline. All other modeline attributes,
 like doublescan and interlace, are maintained.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
@@ -1853,7 +1845,7 @@ and the vertical clock.
 generate_exact
 </em></td><td width="90%">
 Creates automatically some new modelines using
-the format specified on the `device_video_format'
+the format specified in the `device_video_format'
 option. The generated modelines will be named `generate-*'.
 Check the `advdef.txt' file for the description of
 the `device_video_format' option or simply use the
@@ -1873,24 +1865,24 @@ possible.
 generate_clock
 </em></td><td width="90%">
 Like generate_exact, and it allows generating
-modes with a vertical clock different than the game
-original clock if a perfect mode is not&nbsp;&nbsp;&nbsp;&nbsp;possible.
+modes with a vertical clock different from the game
+original clock if a perfect mode is not possible.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 generate_yclock
 </em></td><td width="90%">
-Like generate_exact, and it allows
-generating modes with a wrong vertical clock and/or size
+Like generate_exact, and it allows generating
+modes with a wrong vertical clock and/or size
 if a perfect mode is not possible. Modes with a correct size
-are favorite over mode than a correct clock.
+are preferred over modes with a correct clock.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 generate_clocky
 </em></td><td width="90%">
-Like generate_exact, and it allows
-generating modes with a wrong vertical clock and/or size
+Like generate_exact, and it allows generating
+modes with a wrong vertical clock and/or size
 if a perfect mode is not possible. Modes with a correct clock
-are favorite over mode with a correct size.
+are preferred over modes with a correct size.
 </td></tr>
 </table>
 <p>
@@ -1898,23 +1890,23 @@ The `generate' options are able to create at runtime all the
 required modelines. You don't need to create a list of modelines
 manually.
 <p>
-The not `generate' options use only the modelines defined with
+The non-`generate' options use only the modelines defined with
 the `device_video_modeline' option in the configuration file.
 You can add them manually or using the `advv' utility.
 Check the `advdev.txt' file for more details on the
 `device_video_modeline' option.
 <p>
-Of all the `generate' options, the `generate_yclock' is the
-suggested and the most powerful. The `advcfg' utility always
+Of all the `generate' options, `generate_yclock' is the
+suggested and most powerful. The `advcfg' utility always
 sets the `generate_yclock' option in your configuration file.
 <p>
-Of all the not `generate' options, the `xclock' is the
-suggested and the most powerful.
+Of all the non-`generate' options, `xclock' is the
+suggested and most powerful.
 <p>
-If you can't get good result with the `generate' options you
+If you can't get good results with the `generate' options you
 should create a list of modelines and try with the `xclock' value.
 You don't need to duplicate the same modeline with different
-horizontal resolutions and/or the clocks, because the `xclock'
+horizontal resolutions and/or clocks, because the `xclock'
 value allows the program to adjust them.
 Instead, you should create a wide set of different vertical
 resolutions on which the video mode can be chosen.
@@ -1939,27 +1931,27 @@ Automatically choose the best option (default).
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 palette8
 </em></td><td width="90%">
-Palettized 8 bits mode.
+Palettized 8 bit mode.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 bgr8
 </em></td><td width="90%">
-RGB 8 bits mode.
+RGB 8 bit mode.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 bgr15
 </em></td><td width="90%">
-RGB 15 bits mode.
+RGB 15 bit mode.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 bgr16
 </em></td><td width="90%">
-RGB 16 bits mode.
+RGB 16 bit mode.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 bgr32
 </em></td><td width="90%">
-RGB 32 bits mode.
+RGB 32 bit mode.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 yuy2
@@ -1970,14 +1962,14 @@ YUV mode in the YUY2 format.
 <p>
 Note that the 24 bit color mode isn't supported.
 <p>
-The modes are called bgr because in the video memory the order of
-the color channel is: Blue, Green, Red.
+The modes are called bgr because in video memory the order of
+the color channels is: Blue, Green, Red.
 <h4><a name="8.4.5">8.4.5</a> 
 display_resize
 </h4>
 Suggests the favorite image stretching when a video mode
 with the correct size isn't available.
-This option doesn't have any effect for vector games, they are
+This option has no effect for vector games; they are
 always stretched to fit the whole screen.
 <p>
 <pre>
@@ -2023,7 +2015,7 @@ display_magnify
 </h4>
 Suggests the use of a double or bigger resolution video mode.
 It is mainly used to enable the `scalex', `scalek', `lq', `hq' and `xbr'
-effects. This option doesn't have any effect for vector games.
+effects. This option has no effect for vector games.
 <p>
 <pre>
 display_magnify auto | 1 | 2 | 3 | 4
@@ -2034,8 +2026,8 @@ Options:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 auto
 </em></td><td width="90%">
-Double, triplicate or quadruplicate the size until
-targetting the defined display_magnifysize
+Double, triple or quadruple the size until
+targeting the defined display_magnifysize
 horizontal size (default).
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
@@ -2065,7 +2057,7 @@ display_magnifysize
 Defines the target area to reach with the auto config of display_magnify.
 The specified value is the edge of the square area to target.
 For example, with 512 the game area is expanded up to reach the size
-of 512*512 pixels.
+of 512x512 pixels.
 <p>
 <pre>
 display_magnifysize SIZE
@@ -2077,7 +2069,7 @@ Options:
 SIZE
 </em></td><td width="90%">
 Square root of the area to target. Default 600.
-The default of 600 typicall uses a magnify
+The default of 600 typically uses a magnify
 factor of 2.
 </td></tr>
 </table>
@@ -2107,7 +2099,7 @@ Try to select a doublescan video mode (default).
 <h4><a name="8.4.9">8.4.9</a> 
 display_buffer
 </h4>
-Activates the video image buffering.
+Activates video image buffering.
 <p>
 <pre>
 display_buffer yes | no
@@ -2153,7 +2145,7 @@ Use the video refresh rate (default).
 </td></tr>
 </table>
 <p>
-You can enable or disable it also on the runtime Video menu.
+You can enable or disable it also from the runtime Video menu.
 <h4><a name="8.4.11">8.4.11</a> 
 display_restore
 </h4>
@@ -2198,17 +2190,17 @@ FACTOR
 </em></td><td width="90%">
 Float factor for the fraction of frames
 to display. From 0 to 1. To completely
-disable the frame skipping use the
+disable frame skipping use the
 value 1.
 </td></tr>
 </table>
 <p>
 Use `f11' to display the speed your computer is actually
 reaching. If it is below 100%, increase the frame skip value.
-You can press `f8/f9' to change frame skip while running the game.
+You can press `F8/F9' to change frame skip while running the game.
 When set to auto (default), the frame skip setting is
 dynamically adjusted during runtime to display the maximum
-possible frames without dropping below the 100% speed.
+possible frames without dropping below 100% speed.
 Pressing `f10' you can enable and disable the throttle
 synchronization.
 <p>
@@ -2226,8 +2218,8 @@ aspect.
 <h4><a name="8.5.1">8.5.1</a> 
 display_expand
 </h4>
-Enlarges the screen area used by the vertical games on horizontal
-monitors (and horizontal games in vertical monitors).
+Enlarges the screen area used by vertical games on horizontal
+monitors (and horizontal games on vertical monitors).
 <p>
 <pre>
 display_expand FACTOR
@@ -2268,11 +2260,11 @@ Auto detection (default).
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 X/Y
 </em></td><td width="90%">
-Integer number starting from 1.
+Integer numbers starting from 1.
 </td></tr>
 </table>
 <p>
-For 16/9 TV you can use the 16 and 9 values. For truly vertical
+For 16/9 TVs you can use the values 16 and 9. For truly vertical
 monitors (not horizontal monitors rotated) you can simply swap the
 values, for example 3 and 4 instead of 4 and 3.
 <p>
@@ -2355,12 +2347,12 @@ Options:
 auto
 </em></td><td width="90%">
 Selects automatically the best effect (default).
-This selection is list based, and may be
+This selection is list-based, and may be
 incomplete.
-If the scale factor is 2, 3 o 4 the `xbr' effect
+If the scale factor is 2, 3 or 4 the `xbr' effect
 is selected. The effect is automatically downgraded
 to `scalek' or `scalex' if the emulation is too slow.
-On the other cases the `mean' or `max' effect
+In other cases the `mean' or `max' effect
 is selected.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
@@ -2373,30 +2365,30 @@ max
 </em></td><td width="90%">
 In reduction merges consecutive columns and rows using the
 lightest pixels versus the darkest.
-In expansion duplicate columns and rows using the
+In expansion duplicates columns and rows using the
 darkest pixels versus the lightest.
 Supported in both rgb and palette video modes.
-It works best for the games with black
-background or without scrolling. Like "Pac-Man".
-This effect ensures to have always rows and columns
+It works best for games with black
+background or without scrolling, like "Pac-Man".
+This effect ensures rows and columns are always
 of the same thickness.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 mean
 </em></td><td width="90%">
-In reduction it merges columns and rows using the
-mean color of the pixels. In expansion it adds
+In reduction merges columns and rows using the
+mean color of the pixels. In expansion adds
 columns and rows that are the mean of previous
 and next lines.
 Supported only in rgb video modes.
-It works best for the games with animated
-or scrolling background. Like "1941".
+It works best for games with animated
+or scrolling backgrounds, like "1941".
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 filter
 </em></td><td width="90%">
-It removes or duplicates columns and rows with
-a low pass filter in the x and the y directions.
+Removes or duplicates columns and rows with
+a low-pass filter in the x and y directions.
 It's a simple FIR filter with two points of
 equal value.
 Supported only in rgb video modes.
@@ -2404,66 +2396,66 @@ Supported only in rgb video modes.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 scalex
 </em></td><td width="90%">
-It adds the missing pixels matching the
+Adds missing pixels by matching the
 original bitmap pattern.
-It uses a 3x3 mapping analysis with 4 comparisons.
-It doesn't interpolate pixels and it compares colors
+Uses a 3x3 mapping analysis with 4 comparisons.
+Doesn't interpolate pixels and compares colors
 for equality.
-If works only for expansion factor of 2, 3 and 4.
+Works only for expansion factors of 2, 3 and 4.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 scalek
 </em></td><td width="90%">
-It adds the missing pixels matching the
+Adds missing pixels by matching the
 original bitmap pattern.
-It uses a 3x3 mapping analysis with 4 comparisons.
-It interpolates pixels and it compares colors
+Uses a 3x3 mapping analysis with 4 comparisons.
+Interpolates pixels and compares colors
 for equality.
-If works only for expansion factor of 2, 3 and 4.
+Works only for expansion factors of 2, 3 and 4.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 lq
 </em></td><td width="90%">
-It adds the missing pixels matching the
+Adds missing pixels by matching the
 original bitmap pattern.
-It uses a 3x3 mapping analysis with 8 comparisons.
-It interpolates pixels and it compares colors for equality.
-It works only for expansion factor of 2, 3 and 4.
+Uses a 3x3 mapping analysis with 8 comparisons.
+Interpolates pixels and compares colors for equality.
+Works only for expansion factors of 2, 3 and 4.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 hq
 </em></td><td width="90%">
-It adds the missing pixels matching the
+Adds missing pixels by matching the
 original bitmap pattern.
-It uses a 3x3 mapping analysis with 8 comparisons.
-It interpolates pixels and it compares colors
+Uses a 3x3 mapping analysis with 8 comparisons.
+Interpolates pixels and compares colors
 for distance.
-It works only for expansion factor of 2, 3 and 4.
+Works only for expansion factors of 2, 3 and 4.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 xbr
 </em></td><td width="90%">
-It adds the missing pixels matching the
+Adds missing pixels by matching the
 original bitmap pattern.
-It uses a 5x5 mapping analysis with a gradient estimation.
-It interpolates pixels and it compares colors
+Uses a 5x5 mapping analysis with gradient estimation.
+Interpolates pixels and compares colors
 for distance.
-It works only for expansion factor of 2, 3 and 4.
+Works only for expansion factors of 2, 3 and 4.
 </td></tr>
 </table>
 <h4><a name="8.6.2">8.6.2</a> 
 display_rgbeffect
 </h4>
-Selects a special effect to simulate the aspect of an Arcade Monitor
-with a PC monitor. The resulting image is better when you use a
-big video mode. These effects require a RGB video mode, they don't
+Selects a special effect to simulate the look of an Arcade Monitor
+on a PC monitor. The resulting image is better when you use a
+large video mode. These effects require an RGB video mode; they don't
 work with palettized or YUV modes.
 <p>
 <pre>
 display_rgbeffect none | triad3dot | triad6dot
 &nbsp;&nbsp;&nbsp;&nbsp;| triad16dot | triadstrong3dot | triadstrong6dot
 &nbsp;&nbsp;&nbsp;&nbsp;| triadstrong16dot | scan2vert | scan3vert
-&nbsp;&nbsp;&nbsp;&nbsp;| scan2horz | scan3horz.
+&nbsp;&nbsp;&nbsp;&nbsp;| scan2horz | scan3horz
 </pre>
 <p>
 Options:
@@ -2528,7 +2520,7 @@ Scanline of 3 horizontal lines.
 display_interlaceeffect
 </h4>
 Selects some special effects for interlaced video modes.
-On not interlaced modes the effects are always disabled.
+On non-interlaced modes the effects are always disabled.
 <p>
 <pre>
 display_interlaceeffect none | even | odd | filter
@@ -2559,7 +2551,7 @@ Apply a vertical filter.
 </table>
 <p>
 If your monitor uses a swapped order for interlaced rows, using the
-`even' or `odd' effect you can probably fix the image.
+`even' or `odd' effect can probably fix the image.
 <p>
 The effects operate on the rows in the following way:
 <p>
@@ -2579,8 +2571,8 @@ Row Even Odd Filter
 <h4><a name="8.6.4">8.6.4</a> 
 display_writeeffect
 </h4>
-Selects how to write the video memory. In some very old video board
-you may gain speed selecting `buffer'.
+Selects how to write video memory. On some very old video boards
+you may gain speed by selecting `buffer'.
 <p>
 <pre>
 display_writeeffect direct | buffer
@@ -2591,20 +2583,20 @@ Options:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 direct
 </em></td><td width="90%">
-Write directly the video memory (default).
+Write directly to video memory (default).
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-even
+buffer
 </em></td><td width="90%">
 Use a buffered write.
 </td></tr>
 </table>
-<h4><a name="8.6.5">8.6.5</a> 
+<h3><a name="8.7">8.7</a> 
 Display Color Configuration Options
-</h4>
-This section describes the options used to customize the display
+</h3>
+This section describes the options used to customize display
 color adjustments.
-<h4><a name="8.6.6">8.6.6</a> 
+<h4><a name="8.7.1">8.7.1</a> 
 display_brightness
 </h4>
 Selects the image brightness factor.
@@ -2621,7 +2613,7 @@ FACTOR
 Brightness float factor (default 1.0).
 </td></tr>
 </table>
-<h4><a name="8.6.7">8.6.7</a> 
+<h4><a name="8.7.2">8.7.2</a> 
 display_gamma
 </h4>
 Sets the image gamma correction factor.
@@ -2638,10 +2630,10 @@ FACTOR
 Gamma float factor (default 1.0).
 </td></tr>
 </table>
-<h4><a name="8.6.8">8.6.8</a> 
+<h4><a name="8.7.3">8.7.3</a> 
 display_pausebrightness
 </h4>
-Selects the brightness of the display when game is paused.
+Selects the brightness of the display when the game is paused.
 <p>
 <pre>
 display_pausebrightness FACTOR
@@ -2663,15 +2655,15 @@ Examples:
 display_pausebrightness 0.6
 </pre>
 </td></tr></table>
-<h3><a name="8.7">8.7</a> 
+<h3><a name="8.8">8.8</a> 
 Display Artwork Configuration Options
 </h3>
 This section describes the options used to customize the display
 artwork.
-<h4><a name="8.7.1">8.7.1</a> 
+<h4><a name="8.8.1">8.8.1</a> 
 display_artwork_backdrop/overlay/bezel
 </h4>
-Enables or disables the artworks display.
+Enables or disables the artwork display.
 <p>
 <pre>
 display_artwork_backdrop yes | no
@@ -2694,10 +2686,10 @@ Doesn't display the artwork (default for
 bezel).
 </td></tr>
 </table>
-<h4><a name="8.7.2">8.7.2</a> 
+<h4><a name="8.8.2">8.8.2</a> 
 display_artwork_magnify
 </h4>
-Scale the artwork by the specified factor to use a bigger screen
+Scales the artwork by the specified factor to use a bigger screen
 resolution than the one originally used by the game.
 <p>
 <pre>
@@ -2723,8 +2715,8 @@ Always scale by the specified factor.
 </td></tr>
 </table>
 <p>
-This options has no effect with games that don't have any artwork.
-<h4><a name="8.7.3">8.7.3</a> 
+This option has no effect with games that don't have any artwork.
+<h4><a name="8.8.3">8.8.3</a> 
 display_artwork_crop
 </h4>
 Crops the artwork at the game size.
@@ -2746,12 +2738,12 @@ no
 Doesn't crop the artwork.
 </td></tr>
 </table>
-<h3><a name="8.8">8.8</a> 
+<h3><a name="8.9">8.9</a> 
 Display Vector Configuration Options
 </h3>
 This section describes the options used to customize the display
 of vector games.
-<h4><a name="8.8.1">8.8.1</a> 
+<h4><a name="8.9.1">8.9.1</a> 
 display_antialias
 </h4>
 Enables or disables the anti-aliasing for vector games.
@@ -2773,7 +2765,7 @@ no
 Anti-aliasing disabled.
 </td></tr>
 </table>
-<h4><a name="8.8.2">8.8.2</a> 
+<h4><a name="8.9.2">8.9.2</a> 
 display_beam
 </h4>
 Sets width in pixels of vectors.
@@ -2791,7 +2783,7 @@ A float in the range of 1.0 through 16.0
 (default 1.0).
 </td></tr>
 </table>
-<h4><a name="8.8.3">8.8.3</a> 
+<h4><a name="8.9.3">8.9.3</a> 
 display_flicker
 </h4>
 Makes vectors flicker.
@@ -2809,7 +2801,7 @@ A float in the range 0.0 - 100.0
 (default 0).
 </td></tr>
 </table>
-<h4><a name="8.8.4">8.8.4</a> 
+<h4><a name="8.9.4">8.9.4</a> 
 display_translucency
 </h4>
 Enables or disables vector translucency.
@@ -2817,7 +2809,21 @@ Enables or disables vector translucency.
 <pre>
 display_translucency yes | no
 </pre>
-<h4><a name="8.8.5">8.8.5</a> 
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+yes
+</em></td><td width="90%">
+Translucency enabled (default)
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+Translucency disabled.
+</td></tr>
+</table>
+<h4><a name="8.9.5">8.9.5</a> 
 display_intensity
 </h4>
 Sets the vector intensity.
@@ -2835,18 +2841,18 @@ A float in the range 0.5 - 3.0
 (default 1.5).
 </td></tr>
 </table>
-<h3><a name="8.9">8.9</a> 
+<h3><a name="8.10">8.10</a> 
 Sound Configuration Options
 </h3>
 This section describes the options used to customize the sound.
-<h4><a name="8.9.1">8.9.1</a> 
+<h4><a name="8.10.1">8.10.1</a> 
 device_sound_*
 </h4>
 These options are used to customize the audio drivers.
 <p>
 All the `device_sound_*' options defined in the `advdev.txt'
 file can be used.
-<h4><a name="8.9.2">8.9.2</a> 
+<h4><a name="8.10.2">8.10.2</a> 
 sound_mode
 </h4>
 Sets the sound output mode.
@@ -2880,7 +2886,7 @@ surround
 </em></td><td width="90%">
 Use a fake surround effect. With
 stereo games the right channel plays part of
-the left channel as negate samples and vice-versa.
+the left channel as negated samples and vice-versa.
 With mono games the left channel is the negation of
 the right channel. This means that with surround
 enabled the output is always stereo.
@@ -2889,7 +2895,7 @@ work and you will hear silence or an attenuated
 sound.
 </td></tr>
 </table>
-<h4><a name="8.9.3">8.9.3</a> 
+<h4><a name="8.10.3">8.10.3</a> 
 sound_samplerate
 </h4>
 Sets the audio sample rate.
@@ -2910,7 +2916,7 @@ Sample rate. Common values are 11025, 22050,
 <p>
 If the sound driver doesn't support the specified sample rate a
 different value is selected.
-<h4><a name="8.9.4">8.9.4</a> 
+<h4><a name="8.10.4">8.10.4</a> 
 sound_volume
 </h4>
 Sets the global sound volume.
@@ -2935,7 +2941,7 @@ Examples:
 sound_volume -5
 </pre>
 </td></tr></table>
-<h4><a name="8.9.5">8.9.5</a> 
+<h4><a name="8.10.5">8.10.5</a> 
 sound_adjust
 </h4>
 Sets the sound gain volume. This option can be used to
@@ -2974,7 +2980,7 @@ Examples:
 sound_adjust 16
 </pre>
 </td></tr></table>
-<h4><a name="8.9.6">8.9.6</a> 
+<h4><a name="8.10.6">8.10.6</a> 
 sound_normalize
 </h4>
 Automatically increases and decreases the sound volume.
@@ -2983,9 +2989,9 @@ Automatically increases and decreases the sound volume.
 sound_normalize yes | no
 </pre>
 <p>
-Precisely, the program continously measures the normalized
+Precisely, the program continuously measures the normalized
 sound power adjusting it with the Fletcher-Munson "Equal
-Loudness Courve" at 80 dB to remove inaudible frequencies.
+Loudness Curve" at 80 dB to remove inaudible frequencies.
 It tries to keep constant the 95% median power of the
 last 3 minutes.
 <p>
@@ -3009,16 +3015,18 @@ no
 Disable it.
 </td></tr>
 </table>
-<h4><a name="8.9.7">8.9.7</a> 
+<h4><a name="8.10.7">8.10.7</a> 
 sound_equalizer_*
 </h4>
 Sets the equalizer volume. To disable the equalizer set
 all the VOLUME values to 0. The cut-off frequencies are 800
 and 8000 Hz.
 <p>
+<pre>
 sound_equalizer_lowvolume VOLUME
 sound_equalizer_midvolume VOLUME
 sound_equalizer_highvolume VOLUME
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -3026,10 +3034,10 @@ Options:
 VOLUME
 </em></td><td width="90%">
 The volume gain in dB (default 0).
-The gain is a integer value from -20 to 20.
+The gain is an integer value from -20 to 20.
 </td></tr>
 </table>
-<h4><a name="8.9.8">8.9.8</a> 
+<h4><a name="8.10.8">8.10.8</a> 
 sound_latency
 </h4>
 Sets the audio latency. The latency is the delay between a
@@ -3054,19 +3062,19 @@ Latency in seconds from 0.01 to 2.0
 If in the game play you hear some sound ticks you can try to
 increase the latency. Try doubling the value until the ticks
 go away.
-<h3><a name="8.10">8.10</a> 
+<h3><a name="8.11">8.11</a> 
 Input Configuration Options
 </h3>
 This section describes the options used to customize the user
 input.
-<h4><a name="8.10.1">8.10.1</a> 
+<h4><a name="8.11.1">8.11.1</a> 
 device_keyboard/joystick/mouse_*
 </h4>
 These options are used to customize the input drivers.
 <p>
-All the `device_keyboard/joystick/mouse_*' options defined in
-the `advdev.txt' file can be used.
-<h4><a name="8.10.2">8.10.2</a> 
+All the `device_keyboard/joystick/mouse_*'
+options defined in the `advdev.txt' file can be used.
+<h4><a name="8.11.2">8.11.2</a> 
 input_steadykey
 </h4>
 Helps recognition of very long key sequences. But slows a bit
@@ -3087,10 +3095,10 @@ Standard key recognition (default).
 yes
 </em></td><td width="90%">
 Wait until the keyboard state is stabilized
-before report any key change.
+before reporting any key change.
 </td></tr>
 </table>
-<h4><a name="8.10.3">8.10.3</a> 
+<h4><a name="8.11.3">8.11.3</a> 
 input_hotkey
 </h4>
 Enables or disables the recognition of the special OS keyboard
@@ -3114,7 +3122,7 @@ Hot key recognition (default).
 </td></tr>
 </table>
 <p>
-In DOS the hotkey recognized are:
+In DOS the hotkeys recognized are:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 CTRL+ALT+DEL
@@ -3133,7 +3141,7 @@ Break.
 </td></tr>
 </table>
 <p>
-In Linux the hotkey recognized generally are:
+In Linux the hotkeys recognized generally are:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 CTRL+C
@@ -3146,7 +3154,7 @@ ALT+Fx
 Change virtual console.
 </td></tr>
 </table>
-<h4><a name="8.10.4">8.10.4</a> 
+<h4><a name="8.11.4">8.11.4</a> 
 input_idleexit
 </h4>
 Activates the automatic exit after some time of inactivity.
@@ -3160,29 +3168,30 @@ Options:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 TIME
 </em></td><td width="90%">
-Number of seconds to wait, if 0 (default)
+Number of seconds to wait; if 0 (default)
 never exits automatically.
 </td></tr>
 </table>
-<h4><a name="8.10.5">8.10.5</a> 
+<h4><a name="8.11.5">8.11.5</a> 
 input_map[ANALOG]
 </h4>
-Changes the analog control mapping. Maps joystick, trackball
-and mouse controls on a player analog control.
+Changes the analog control mapping. Maps absolute or relative analog devices
+(joysticks, mice, trackballs, lightguns, pedals, dials, wheels, etc.)
+to the game's analog inputs.
 <p>
 <pre>
 input_map[ANALOG] auto | [[-]joystick[JOY,CONTROL,AXE]]
 &nbsp;&nbsp;&nbsp;&nbsp;[[-]mouse[MOUSE,AXE]] [[-]joystick_ball[JOY,AXE]] ...
 </pre>
 <p>
-The default is always `auto'.
+Default is always `auto'.
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 ANALOG
 </em></td><td width="90%">
-Player analog control. One of:
+Target analog control. Valid values are:
 p1_paddlex, p2_paddlex, p3_paddlex, p4_paddlex,
 p1_paddley, p2_paddley, p3_paddley, p4_paddley,
 p1_stickx, p2_stickx, p3_stickx, p4_stickx,
@@ -3201,9 +3210,9 @@ p1_mousex, p2_mousex, p3_mousex, p4_mousex,
 p1_mousey, p2_mousey, p3_mousey, p4_mousey.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
--
+- (optional prefix)
 </em></td><td width="90%">
-Invert the direction of the movement.
+Inverts the direction of the axis.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 JOY
@@ -3453,7 +3462,7 @@ input_map[p1_trackbally] mouse[0,y] -mouse[1,y]
 </td></tr></table>
 <p>
 If required you can compose the options to get a rotation
-of 45� of the control. For example:
+of 45° of the control. For example:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -3461,12 +3470,11 @@ input_map[p1_stickx] mouse[0,x] mouse[0,y]
 input_map[p1_sticky] mouse[0,x] -mouse[0,y]
 </pre>
 </td></tr></table>
-<h4><a name="8.10.6">8.10.6</a> 
+<h4><a name="8.11.6">8.11.6</a> 
 input_map[DIGITAL]
 </h4>
-Changes the digital control mapping. Maps a sequence of
-keyboard/mouse/joystick keys on a player button or analog
-simulation digital control.
+Remaps a digital control (player button, UI command, or analog simulation)
+to one or more physical inputs. Overwrites any previous mapping.
 <p>
 <pre>
 input_map[DIGITAL] auto | keyboard[KEYBOARD,KEY]
@@ -3824,10 +3832,11 @@ input_map[p1_right] keyboard[0,right] or joystick_digital[0,stick,x,right]
 input_map[p1_button1] keyboard[0,lshit] or joystick_button[0,trigger]
 </pre>
 </td></tr></table>
-<h4><a name="8.10.7">8.10.7</a> 
+<h4><a name="8.11.7">8.11.7</a> 
 input_name
 </h4>
-Changes the display name of the specified digital input.
+Changes the on-screen name shown for a physical input (useful for custom
+control-panel images).
 <p>
 <pre>
 input_name (keyboard[KEYBOARD,KEY]
@@ -3897,42 +3906,37 @@ input_name keyboard[0,lcontrol] Blue
 input_name joystick_digital[0,stick,x,right] Right
 </pre>
 </td></tr></table>
-<h4><a name="8.10.8">8.10.8</a> 
+<h4><a name="8.11.8">8.11.8</a> 
 input_setting[*]
 </h4>
-Selects some additional settings for analog inputs. These
-settings can be modified using the "Analog Config" menu
-present if the game has analog controls.
+Adjusts extra parameters for analog controls (deadzone, sensitivity, etc.).
+These appear in the “Analog Config” menu when the game uses analog inputs.
 <p>
 <pre>
-input_setting[NAME] SETTING
+input_setting[NAME] VALUE
 </pre>
-<h4><a name="8.10.9">8.10.9</a> 
+<h4><a name="8.11.9">8.11.9</a> 
 input_dipswitch[*]
 </h4>
-Selects the state of the game dipswitch. These settings can be
-modified using the "Dipswitch" menu present if the game has
-dipswitches.
+Sets the state of game DIP switches. These appear in the “Dipswitch” menu.
 <p>
 <pre>
-input_dipswitch[NAME] SETTING
+input_dipswitch[NAME] VALUE
 </pre>
-<h4><a name="8.10.10">8.10.10</a> 
+<h4><a name="8.11.10">8.11.10</a> 
 input_configswitch[*]
 </h4>
-Selects the state of the game configswitch. These settings can
-be modified using the "Config" menu present if the game has
-configswitches.
+Sets the state of game configuration switches (when present).
 <p>
 <pre>
-input_configswitch[NAME] SETTING
+input_configswitch[NAME] VALUE
 </pre>
-<h3><a name="8.11">8.11</a> 
+<h3><a name="8.12">8.12</a> 
 User Interface Configuration Options
 </h3>
 This section describes the options used to customize the user
 interface.
-<h4><a name="8.11.1">8.11.1</a> 
+<h4><a name="8.12.1">8.12.1</a> 
 ui_helpimage
 </h4>
 Selects the image to display on help request. The image must be
@@ -3960,11 +3964,11 @@ Load an arbitrary image from a file.
 </table>
 <p>
 The data used for the default image is in the `contrib/help' dir.
-<h4><a name="8.11.2">8.11.2</a> 
+<h4><a name="8.12.2">8.12.2</a> 
 ui_helptag
 </h4>
 Selects the highlight range for any digital input. When the user
-press a key/button the related range is highlighted.
+presses a key/button the related range is highlighted.
 A different color for any player is used in the image.
 <p>
 <pre>
@@ -4013,7 +4017,7 @@ ui_helptag keyboard[0,f10] 149 5 12 12
 </td></tr></table>
 <p>
 The data used for the default image is in the `contrib/help' dir.
-<h4><a name="8.11.3">8.11.3</a> 
+<h4><a name="8.12.3">8.12.3</a> 
 ui_font
 </h4>
 Selects a font file. The formats TrueType (TTF), GRX, PSF and
@@ -4040,7 +4044,7 @@ Font file path.
 <p>
 The TrueType (TTF) format is supported only if the program is
 compiled with the FreeType2 library.
-<h4><a name="8.11.4">8.11.4</a> 
+<h4><a name="8.12.4">8.12.4</a> 
 ui_fontsize
 </h4>
 Selects the font size, if the specified font is scalable.
@@ -4070,19 +4074,21 @@ Number of text columns. If omitted, it's computed from
 the number of rows.
 </td></tr>
 </table>
-<h4><a name="8.11.5">8.11.5</a> 
+<h4><a name="8.12.5">8.12.5</a> 
 ui_color[*]
 </h4>
 Selects the user interface colors.
 <p>
+<pre>
 ui_color[TAG] FOREGROUND BACKGROUND
+</pre>
 <p>
 Tags:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 interface
 </em></td><td width="90%">
-Main inteface color.
+Main interface color.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 tag
@@ -4136,12 +4142,14 @@ BACKGROUND
 Background color. Like foreground color.
 </td></tr>
 </table>
-<h4><a name="8.11.6">8.11.6</a> 
+<h4><a name="8.12.6">8.12.6</a> 
 ui_translucency
 </h4>
 Selects the translucency of the user interface.
 <p>
+<pre>
 ui_translucency FACTOR
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -4153,9 +4161,9 @@ Translucency factor from 0 to 1
 </td></tr>
 </table>
 <p>
-The translucency ha no effect on the 8 bits palettized video
+The translucency has no effect on the 8 bits palettized video
 modes.
-<h3><a name="8.12">8.12</a> 
+<h3><a name="8.13">8.13</a> 
 Record Configuration Options
 </h3>
 This section describes the options used for the recording
@@ -4165,7 +4173,7 @@ To start the recording press `left_ctrl+enter'. To end the
 recording and to save the clip press `enter'. If you press the
 start key more than one time the recording starts from the
 last press.
-<h4><a name="8.12.1">8.12.1</a> 
+<h4><a name="8.13.1">8.13.1</a> 
 record_sound
 </h4>
 Enables or disables the sound recording.
@@ -4182,7 +4190,7 @@ rate specified with the `sound_samplerate' option.
 The clip is saved without compression and without any volume
 adjustment. You should use an external utility to adjust the
 volume and compress the resulting file.
-<h4><a name="8.12.2">8.12.2</a> 
+<h4><a name="8.13.2">8.13.2</a> 
 record_video
 </h4>
 Enables or disables the video recording.
@@ -4195,12 +4203,12 @@ The video clip is saved in the `dir_snap' directory (like the
 snapshot images) in `.mng' format. The `MNG-LC' (Low Complexity)
 subformat is used.
 <p>
-The clip is saved with a lite compression, you should use an
+The clip is saved with light compression, you should use an
 external utility to compress better the resulting file.
 <p>
 A powerful compression utility is the `advmng' program
 available in the AdvanceCOMP package.
-<h4><a name="8.12.3">8.12.3</a> 
+<h4><a name="8.13.3">8.13.3</a> 
 record_video/sound_time
 </h4>
 Controls the maximum length in seconds of the recording feature.
@@ -4218,7 +4226,7 @@ TIME
 Time in seconds (default 15).
 </td></tr>
 </table>
-<h4><a name="8.12.4">8.12.4</a> 
+<h4><a name="8.13.4">8.13.4</a> 
 record_video_interleave
 </h4>
 Selects how many frames to save with the video recording.
@@ -4245,12 +4253,12 @@ Examples:
 record_video_interleave 1
 </pre>
 </td></tr></table>
-<h3><a name="8.13">8.13</a> 
+<h3><a name="8.14">8.14</a> 
 Synchronization Options
 </h3>
 This section describes the options used for the time synchronization
 of the emulated game or system.
-<h4><a name="8.13.1">8.13.1</a> 
+<h4><a name="8.14.1">8.14.1</a> 
 sync_fps
 </h4>
 Selects an arbitrary frame rate for the game.
@@ -4272,7 +4280,7 @@ FPS
 Use the specified framerate.
 </td></tr>
 </table>
-<h4><a name="8.13.2">8.13.2</a> 
+<h4><a name="8.14.2">8.14.2</a> 
 sync_speed
 </h4>
 Selects a speed factor always active. You can play the game
@@ -4297,7 +4305,7 @@ Examples:
 sync_speed 1.2
 </pre>
 </td></tr></table>
-<h4><a name="8.13.3">8.13.3</a> 
+<h4><a name="8.14.3">8.14.3</a> 
 sync_turbospeed
 </h4>
 Selects the speed factor used when the `turbo' button is
@@ -4315,7 +4323,7 @@ FACTOR
 Float speed factor (default 3.0).
 </td></tr>
 </table>
-<h4><a name="8.13.4">8.13.4</a> 
+<h4><a name="8.14.4">8.14.4</a> 
 sync_startuptime
 </h4>
 Selects the time in seconds of the duration of the startup
@@ -4346,7 +4354,7 @@ TIME
 Time in seconds.
 </td></tr>
 </table>
-<h4><a name="8.13.5">8.13.5</a> 
+<h4><a name="8.14.5">8.14.5</a> 
 sync_resample
 </h4>
 Selects the audio resampling mode.
@@ -4379,9 +4387,9 @@ current speed.
 </table>
 <p>
 Note that the `emulation' mode may result in wrong input recording
-using the `-record' or `-playback' command line option due incorrect
+using the `-record' or `-playback' command line option due to incorrect
 behavior of the emulation. Specifically some implementations may
-depend on the number of audio sample requested, information that
+depend on the number of audio samples requested, information that
 is not stored in the recorded input file.
 <p>
 The `emulation' mode may trigger some bugs in the MAME
@@ -4390,7 +4398,7 @@ by default use the `internal' mode.
 <p>
 Anyway, the `emulation' mode generates more stable sound
 if the CPU load isn't totally empty.
-<h3><a name="8.14">8.14</a> 
+<h3><a name="8.15">8.15</a> 
 LCD Configuration Options
 </h3>
 AdvanceMAME is able to display arbitrary information on a LCD display
@@ -4406,13 +4414,15 @@ program available at:
 <p>
 More details and some examples of how to display information on the LCD
 using the scripts are in the `script.txt' documentation file.
-<h4><a name="8.14.1">8.14.1</a> 
+<h4><a name="8.15.1">8.15.1</a> 
 lcd_server
 </h4>
 Selects the server address and port to use for display information on
 the LCD.
 <p>
+<pre>
 lcd_server none | [SERVER][:PORT]
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -4439,12 +4449,14 @@ Examples:
 lcd_server localhost
 </pre>
 </td></tr></table>
-<h4><a name="8.14.2">8.14.2</a> 
+<h4><a name="8.15.2">8.15.2</a> 
 lcd_timeout
 </h4>
 Selects the timeout to connect at the server.
 <p>
+<pre>
 lcd_timeout TIMEOUT
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -4454,12 +4466,14 @@ TIMEOUT
 Timeout in milliseconds (default 500).
 </td></tr>
 </table>
-<h4><a name="8.14.3">8.14.3</a> 
+<h4><a name="8.15.3">8.15.3</a> 
 lcd_speed
 </h4>
 Selects the LCD scrolling speed for long messages.
 <p>
+<pre>
 lcd_speed DELAY
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -4469,10 +4483,10 @@ DELAY
 Delay in 1/8th of seconds (default 8).
 </td></tr>
 </table>
-<h3><a name="8.15">8.15</a> 
+<h3><a name="8.16">8.16</a> 
 Misc Configuration Options
 </h3>
-<h4><a name="8.15.1">8.15.1</a> 
+<h4><a name="8.16.1">8.16.1</a> 
 misc_bios
 </h4>
 Selects the game bios in AdvanceMAME.
@@ -4502,7 +4516,7 @@ Examples:
 sonicwi2/misc_bios japan
 </pre>
 </td></tr></table>
-<h4><a name="8.15.2">8.15.2</a> 
+<h4><a name="8.16.2">8.16.2</a> 
 misc_ramsize
 </h4>
 Controls the ram size of the emulated machine in AdvanceMESS.
@@ -4532,11 +4546,11 @@ Examples:
 misc_ramsize 1024k
 </pre>
 </td></tr></table>
-<h4><a name="8.15.3">8.15.3</a> 
+<h4><a name="8.16.3">8.16.3</a> 
 misc_ui
 </h4>
-Control the keyboard emulation in AdvanceMESS. When enabled, the keyboard
-emaultion is only partial allowing to control the emulator user interface.
+Controls the keyboard emulation in AdvanceMESS. When enabled, the keyboard
+emulation is only partial allowing to control the emulator user interface.
 You can change this option at runtime pressing SCRLOCK or NUMLOCK.
 <p>
 <pre>
@@ -4557,7 +4571,7 @@ Partial keyboard emulation, allowing UI
 interaction (default).
 </td></tr>
 </table>
-<h4><a name="8.15.4">8.15.4</a> 
+<h4><a name="8.16.4">8.16.4</a> 
 misc_difficulty
 </h4>
 Selects the game difficulty. This option works only with games
@@ -4600,10 +4614,10 @@ hardest
 Hardest game play.
 </td></tr>
 </table>
-<h4><a name="8.15.5">8.15.5</a> 
+<h4><a name="8.16.5">8.16.5</a> 
 misc_freeplay
 </h4>
-Selects the freeplay mode if the game support it. This
+Selects the freeplay mode if the game supports it. This
 option works only with games that select the freeplay mode
 with dipswitches.
 <p>
@@ -4624,10 +4638,10 @@ yes
 Activate the freeplay.
 </td></tr>
 </table>
-<h4><a name="8.15.6">8.15.6</a> 
+<h4><a name="8.16.6">8.16.6</a> 
 misc_cocktail
 </h4>
-Selects the cocktail mode if the game support it. This
+Selects the cocktail mode if the game supports it. This
 option works only with games that select the cocktail mode
 with dipswitches.
 <p>
@@ -4648,10 +4662,10 @@ yes
 Activate the cocktail mode.
 </td></tr>
 </table>
-<h4><a name="8.15.7">8.15.7</a> 
+<h4><a name="8.16.7">8.16.7</a> 
 misc_mutedemo
 </h4>
-Selects the demo nosound mode if the game support it. This
+Selects the demo nosound mode if the game supports it. This
 option uses the dipswitches of the game and also the
 event database to detect if the game is in demo mode.
 <p>
@@ -4672,7 +4686,7 @@ yes
 Mute the demo sounds.
 </td></tr>
 </table>
-<h4><a name="8.15.8">8.15.8</a> 
+<h4><a name="8.16.8">8.16.8</a> 
 misc_lang
 </h4>
 Selects the game language and country. This option uses
@@ -4680,7 +4694,7 @@ both the dipswitches and the clones description to select
 the correct game to run.
 <p>
 <pre>
-misc_lang none | usa | canada | englang | italy | germany
+misc_lang none | usa | canada | england | italy | germany
 &nbsp;&nbsp;&nbsp;&nbsp;| spain | austria | norway | france | denmark
 &nbsp;&nbsp;&nbsp;&nbsp;| japan | korea | china | hongkong | taiwan
 </pre>
@@ -4704,13 +4718,13 @@ run the clone `cadashi'. If you run `cheesech' with
 `-lang germany' it's run `cheesech' setting the `Language'
 dipswitch to `German'.
 <p>
-If the specified language is not available, european and
-american languages fallback to english language.
-Asian languages fallback to japanese language.
+If the specified language is not available, European and
+American languages fallback to English language.
+Asian languages fallback to Japanese language.
 <p>
 A game clone is selected only if it's a perfectly working
 clone.
-<h4><a name="8.15.9">8.15.9</a> 
+<h4><a name="8.16.9">8.16.9</a> 
 misc_smp
 </h4>
 Enables the "Symmetric Multi-Processing" (SMP).
@@ -4741,7 +4755,7 @@ Enabled (default).
 </table>
 <p>
 You can enable or disable it also on the runtime Video menu.
-<h4><a name="8.15.10">8.15.10</a> 
+<h4><a name="8.16.10">8.16.10</a> 
 misc_quiet
 </h4>
 Doesn't print the copyright text message at the startup, the
@@ -4750,7 +4764,7 @@ disclaimer and the generic game information screens.
 <pre>
 misc_quiet yes | no
 </pre>
-<h4><a name="8.15.11">8.15.11</a> 
+<h4><a name="8.16.11">8.16.11</a> 
 misc_timetorun
 </h4>
 Run the emulation only for the given number of seconds without
@@ -4760,7 +4774,7 @@ seconds used. Useful for benchmarking.
 <pre>
 misc_timetorun SECONDS
 </pre>
-<h3><a name="8.16">8.16</a> 
+<h3><a name="8.17">8.17</a> 
 Support Files Configuration Options
 </h3>
 The AdvanceMAME emulator can use also some support files:
@@ -4794,8 +4808,8 @@ Language database.
 <p>
 These files should reside in current directory for
 DOS and Windows or in the $data or $home directories
-for Linux a Mac OS X.
-<h4><a name="8.16.1">8.16.1</a> 
+for Linux and Mac OS X.
+<h4><a name="8.17.1">8.17.1</a> 
 misc_cheat
 </h4>
 Enables or disables the cheat system. It may also change the
@@ -4819,7 +4833,7 @@ no
 Disable the cheats (default).
 </td></tr>
 </table>
-<h4><a name="8.16.2">8.16.2</a> 
+<h4><a name="8.17.2">8.17.2</a> 
 misc_cheatfile
 </h4>
 Selects the cheat files. In DOS and Windows use the
@@ -4839,7 +4853,7 @@ FILE
 Cheat file to load (default cheat.dat).
 </td></tr>
 </table>
-<h4><a name="8.16.3">8.16.3</a> 
+<h4><a name="8.17.3">8.17.3</a> 
 misc_languagefile
 </h4>
 Selects the language file.
@@ -4856,7 +4870,7 @@ FILE
 Language file to load (default english.lng).
 </td></tr>
 </table>
-<h4><a name="8.16.4">8.16.4</a> 
+<h4><a name="8.17.4">8.17.4</a> 
 misc_hiscorefile
 </h4>
 Selects the hiscore file.
@@ -4873,7 +4887,7 @@ FILE
 High score file to load (default hiscore.dat).
 </td></tr>
 </table>
-<h4><a name="8.16.5">8.16.5</a> 
+<h4><a name="8.17.5">8.17.5</a> 
 misc_safequit
 </h4>
 Activates safe quit mode. If enabled, to stop the
@@ -4900,7 +4914,7 @@ Enabled (default).
 If the file `event.dat' (specified with the `misc_eventfile'
 option) is found the exit menu is shown only
 if one or more coins are inserted or if you are playing.
-<h4><a name="8.16.6">8.16.6</a> 
+<h4><a name="8.17.6">8.17.6</a> 
 misc_eventdebug
 </h4>
 Activates the debug mode for the event/safequit feature. On the top
@@ -4926,7 +4940,7 @@ yes
 Enabled.
 </td></tr>
 </table>
-<h4><a name="8.16.7">8.16.7</a> 
+<h4><a name="8.17.7">8.17.7</a> 
 misc_eventfile
 </h4>
 Selects the event/safequit database to use.
@@ -4943,12 +4957,12 @@ FILE
 Event file to load (default event.dat).
 </td></tr>
 </table>
-<h3><a name="8.17">8.17</a> 
+<h3><a name="8.18">8.18</a> 
 Debugging Configuration Options
 </h3>
 The use of these options is discouraged. They are present only
 for testing purpose.
-<h4><a name="8.17.1">8.17.1</a> 
+<h4><a name="8.18.1">8.18.1</a> 
 debug_crash
 </h4>
 Crashes the program. It can be used to ensure that the correct
@@ -4969,14 +4983,14 @@ Don't crash the program (default).
 yes
 </em></td><td width="90%">
 Add a "Crash" menu entry in the video menu.
-If selected the program crash with a Segmentation
+If selected the program crashes with a Segmentation
 Fault.
 </td></tr>
 </table>
-<h4><a name="8.17.2">8.17.2</a> 
+<h4><a name="8.18.2">8.18.2</a> 
 debug_rawsound
 </h4>
-Disables the sound output syncronization with the video.
+Disables the sound output synchronization with the video.
 <p>
 <pre>
 debug_rawsound yes | no
@@ -4992,10 +5006,10 @@ Normal operation (default).
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 yes
 </em></td><td width="90%">
-Sound output without any syncronization.
+Sound output without any synchronization.
 </td></tr>
 </table>
-<h4><a name="8.17.3">8.17.3</a> 
+<h4><a name="8.18.3">8.18.3</a> 
 debug_speedmark
 </h4>
 Enables or disables the on-screen speed mark. If enabled, a red band

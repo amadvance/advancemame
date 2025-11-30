@@ -58,15 +58,15 @@ Documentation of the AdvanceMAME <em>scripts</em>.
 </p>
 
 <p>
-AdvanceMAME support a scripting language to control external
-device like lamps, keyboard leds...
-You can assign a simple script at various events like key press,
+AdvanceMAME supports a scripting language to control external
+devices like lamps, keyboard leds...
+You can assign a simple script to various events like key press,
 game led state change or others.
 When the event is triggered the script is started.
 <h2><a name="1">1</a> 
 Grammar
 </h2>
-The scripts use a C like grammar.
+The scripts use a C-like grammar.
 <h2><a name="2">2</a> 
 Scripts
 </h2>
@@ -81,13 +81,13 @@ triggered.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 script_emulation
 </em></td><td width="90%">
-The emulation start. It's triggered after
+The emulation starts. It's triggered after
 the MAME confirmation screens.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 script_play
 </em></td><td width="90%">
-The game play start. It happens after the
+The game play starts. It happens after the
 `sync_startuptime'.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
@@ -114,7 +114,7 @@ A start button is pressed.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 script_safequit
 </em></td><td width="90%">
-The game enter in the safequit status.
+The game enters the safequit status.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 script_event1-14
@@ -130,12 +130,12 @@ Like in the Q*bert game.
 </td></tr>
 </table>
 <p>
-You can assign a script at every event. The script is started
+You can assign a script to every event. The script is started
 when the event is triggered.
 <h2><a name="3">3</a> 
 Values
 </h2>
-You have two type of values. Numerical integer values and text
+You have two types of values: numerical integer values and text
 string values.
 <p>
 The numerical values are expressed with the following formats:
@@ -157,7 +157,7 @@ Number in binary format.
 </td></tr>
 </table>
 <p>
-The text values are expressed with the following formats:
+The text values are expressed with the following format:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 "..."
@@ -213,7 +213,7 @@ For numerical values the following operators are available:
 &gt;= - Greater or equal.
 </td></tr></table>
 <p>
-For string values the following operators are available:
+For string values the following operator is available:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
  - Concatenation.
 <br>
@@ -229,9 +229,9 @@ while (CONDITION) { ... }
 Repeat until CONDITION is not 0.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-if (CONDITION) { ...  }
+if (CONDITION) { ... }
 </em></td><td width="90%">
-Execute if CONDITIDION is not 0.
+Execute if CONDITION is not 0.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 loop { ... }
@@ -257,17 +257,17 @@ Wait the specified N milliseconds.
 <p>
 The 'wait()' and 'delay()' commands are used to maintain the
 synchronization with the game emulation. When these commands
-are executed, the script is temporarily suspended. All others
+are executed, the script is temporarily suspended. All other
 commands are executed continuously without any delay.
 <p>
 The granularity of the delay command is the frame rate period.
 Approx. 16 ms for a 60 Hz game. Delays under this limit may
-don't have the desired effect.
+not have the desired effect.
 <p>
 IT'S VERY IMPORTANT THAT EVERY 'loop', 'while' AND 'repeat'
 COMMANDS CONTAIN A 'delay()' CALL. Otherwise the script may
 loop forever and the executable will lock! For example the
-statement :
+statement:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -275,8 +275,8 @@ loop { toggle(0, 1); }
 </pre>
 </td></tr></table>
 <p>
-completely STOP the emulation and you CAN'T EXIT from the program.
-A correct one is :
+completely stops the emulation and you can't exit from the program.
+A correct one is:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -305,23 +305,23 @@ not active. Return 1 if the event is active.
 simulate_event(EVENT,NUMBER)
 </em></td><td width="90%">
 Simulate the specified
-event for NUMBER milli seconds.
+event for NUMBER milliseconds.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 simulate_key(KEY,NUMBER)
 </em></td><td width="90%">
 Simulate the specified key for
-NUMBER milli seconds.
+NUMBER milliseconds.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 log(VALUE)
 </em></td><td width="90%">
-Output a texr or number value in the log file.
+Output a text or number value in the log file.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 msg(VALUE)
 </em></td><td width="90%">
-Print on screen a a text or number value.
+Print on screen a text or number value.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 system(TEXT)
@@ -343,13 +343,13 @@ to NUMBER - 1.
 </td></tr>
 </table>
 <p>
-The 'event()' command can be used to determine the end of the event
+The 'event()' function can be used to determine the end of the event
 that started the script. For example for the 'coin1' event the
-function return 0 when the key is released.
+function returns 0 when the key is released.
 <h2><a name="7">7</a> 
 Ports
 </h2>
-External devices can be controlled using the keyboard led
+External devices can be controlled using the keyboard leds
 or the PC ports, like the parallel port.
 <p>
 Generally the parallel ports are mapped at the addresses
@@ -368,7 +368,7 @@ Set the port with the specified value.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 get(ADDRESS)
 </em></td><td width="90%">
-Return the value of the port
+Return the value of the port.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 on(ADDRESS, VALUE)
@@ -399,12 +399,12 @@ available on your system.
 <h2><a name="8">8</a> 
 Symbols
 </h2>
-This is the complete list of all the predefinite symbols
+This is the complete list of all the predefined symbols
 available.
 <p>
 These are the event symbols available for the
 `simulate_event(EVENT, TIME)' and `event(EVENT)'
-commands :
+commands:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 EVENT
@@ -423,7 +423,7 @@ service_coin3, service_coin4, service, tilt.
 <p>
 These are the user interface event symbols available for
 the `simulate_event(EVENT, TIME)' and `event(EVENT)'
-commands :
+commands:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 EVENT
@@ -443,7 +443,7 @@ ui_save_cheat, ui_watch_value.
 </table>
 <p>
 These are the keyboard symbols available for the
-`simulate_key(EVENT, TIME)' command :
+`simulate_key(EVENT, TIME)' command:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 EVENT
@@ -499,7 +499,7 @@ The current game speed. For example "100%".
 <h2><a name="9">9</a> 
 Examples
 </h2>
-This script clears all the keyboard leds at the emulation end :
+This script clears all the keyboard leds at the emulation end:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -507,9 +507,9 @@ script_video wait(!event()); set(0,0);
 </pre>
 </td></tr></table>
 <p>
-Activate all the parallel data bits when the game start, flash
-the bit 0 during the emulation and clear them then the game
-stop :
+Activate all the parallel data bits when the game starts, flash
+the bit 0 during the emulation and clear them when the game
+stops:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -531,7 +531,7 @@ script_led1 on(0, 0b1); wait(!event()); off(0, 0b1);
 </pre>
 </td></tr></table>
 <p>
-Map the second MAME led to the first keyboard led:
+Map the second MAME led to the second keyboard led:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -539,7 +539,7 @@ script_led2 on(0, 0b10); wait(!event()); off(0, 0b10);
 </pre>
 </td></tr></table>
 <p>
-Flash the third keyboard led when the 'turbo' is active :
+Flash the third keyboard led when the 'turbo' is active:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -552,7 +552,7 @@ script_turbo \
 </pre>
 </td></tr></table>
 <p>
-Light the third keyboard led when the 'coin1' key is pressed :
+Light the third keyboard led when the 'coin1' key is pressed:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -573,19 +573,19 @@ script_play \
 </pre>
 </td></tr></table>
 <p>
-Add a coin when the player start:
+Add a coin when the player starts:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 script_start1 \
-&nbsp;&nbsp;&nbsp;&nbsp;wait(!event());
+&nbsp;&nbsp;&nbsp;&nbsp;wait(!event()); \
 &nbsp;&nbsp;&nbsp;&nbsp;simulate_event(coin1,100); \
 &nbsp;&nbsp;&nbsp;&nbsp;delay(500); \
 &nbsp;&nbsp;&nbsp;&nbsp;simulate_event(start1,100);
 </pre>
 </td></tr></table>
 <p>
-Display continously the game speed on the LCD:
+Display continuously the game speed on the LCD:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -596,7 +596,7 @@ script_video loop { lcd(0,"Speed " + info_throttle); delay(1000); }
 Configuration
 </h2>
 The scripts must be inserted in the 'advmame.rc' file. You can split
-complex scripts terminating any splitted row with the `\' char.
+complex scripts terminating any split row with the '\' character.
 <p>
 For example:
 <p>

@@ -68,7 +68,7 @@ videow [/s XxYxBITS] [/a] [/o] [/e] [/d] [/c FILE] [/p]
 Description
 </h2>
 The `videow' utility can be used to control the video
-output of the PC in Windows NT/2000/XP.
+output of the PC in Windows 2000/XP.
 <p>
 It requires the `svgawin' driver installed and running.
 <p>
@@ -140,7 +140,7 @@ with the correct size found in the config file.
 /o
 </strong></td></tr><tr><td>
 Set the original Windows mode. Use this option if
-the screen become unreadable.
+the screen becomes unreadable.
 </td></tr>
 </table>
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -169,7 +169,7 @@ standard `videow.rc' file.
 <tr valign="top" align="left"><td><strong>
 /p
 </strong></td></tr><tr><td>
-Print some info of the video board.
+Print some info about the video board.
 </td></tr>
 </table>
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -177,7 +177,7 @@ Print some info of the video board.
 /n SIZE
 </strong></td></tr><tr><td>
 Set the length of the scanline in bytes. The program
-automatically select the smallest scanline size.
+automatically selects the smallest scanline size.
 </td></tr>
 </table>
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -236,7 +236,7 @@ S3 Savage.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 svgawin/millenium
 </em></td><td width="90%">
-Matrox Millennium/Millenium II.
+Matrox Millennium/Millennium II.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 svgawin/r128
@@ -299,16 +299,16 @@ Limitations
 </h2>
 <ul>
 <li>
-The program can only set the resolutions originally supported
+The program can only set resolutions originally supported
 by Windows. It cannot create new resolutions.
 </li>
 <li>
 If the video board or the video driver doesn't support interlaced
-modes, these modes are simulated skipping every odd row.
+modes, these modes are simulated by skipping every odd row.
 It doesn't look very good.
 </li>
 <li>
-The program doesn't stay resident, any successive mode change will
+The program doesn't stay resident; any successive mode change will
 reset the original video mode.
 </li>
 </ul>
@@ -317,17 +317,17 @@ Troubleshooting
 </h2>
 <ul>
 <li>
-If the mouse pointer disappears try to reenable it with the /m option.
+If the mouse pointer disappears, try to re-enable it with the /m option.
 </li>
 </ul>
 <ul>
 <li>
-If the screen image is stable but garbled it's probably because
-the Windows video driver uses a not standard scanline size.
+If the screen image is stable but garbled, it's probably because
+the Windows video driver uses a non-standard scanline size.
 Try to guess it with the /n option. You should start
 with the resolution width multiplied by the bytes per pixel.
-Then, increase this value until the screen become readable.
-Generally the correct value is multiplier of 2^n where n
+Then increase this value until the screen becomes readable.
+Generally the correct value is a multiple of 2^n where n
 may vary from 1 to 8.
 </li>
 </ul>

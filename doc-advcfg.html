@@ -71,12 +71,12 @@ The `advcfg' utility is the automatic video configuration
 program for AdvanceMAME, AdvanceMESS and AdvanceMENU.
 <p>
 This utility works differently if one of the -advmamec,
--advmessc and -advmenuc option is specified.
+-advmessc or -advmenuc options is specified.
 The main difference is the name of the configuration
 file used to store the video modes.
 <p>
 All the video modes used in the configuration process
-have always negative horizontal and vertical sync polarity.
+always have negative horizontal and vertical sync polarity.
 <p>
 Check the `advdev.txt' file for more details on the video
 drivers supported.
@@ -87,7 +87,7 @@ Options
 <tr valign="top" align="left"><td><strong>
 -rc RCFILE
 </strong></td></tr><tr><td>
-Specify an alternate name of the configuration file.
+Specify an alternate configuration file.
 </td></tr>
 </table>
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -104,7 +104,7 @@ a `.log' file. Very useful for debugging problems.
 </strong></td></tr><tr><td>
 Like the `-log' option but the log file is not
 buffered. This option must be used to get a complete
-log file in presence of a machine crash.
+log file in case of a machine crash.
 </td></tr>
 </table>
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -121,19 +121,19 @@ The default is for `advmame'.
 -bit N
 </strong></td></tr><tr><td>
 Select the bit depth of the test video modes.
-If omitted 8 bit modes are used.
+If omitted, 8-bit modes are used.
 Valid values are 8, 15, 16 and 32.
 </td></tr>
 </table>
 <h2><a name="4">4</a> 
 Configuration
 </h2>
-Depending one the command line options used one of the
-`advmame.rc', `advmess.rc' and `advmenu.rc' file is used
+Depending on the command line options used, one of the
+`advmame.rc', `advmess.rc' or `advmenu.rc' files is used
 to load and save the video configuration.
 <p>
-If the configuration process completes with success the
-program adds these options in your configuration file:
+If the configuration process completes successfully, the
+program adds these options to your configuration file:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>

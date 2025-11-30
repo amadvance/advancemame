@@ -67,7 +67,7 @@ advmenu [-default] [-remove] [-cfg FILE]
 <h2><a name="2">2</a> 
 Description
 </h2>
-AdvanceMENU is a front-end to for AdvanceMAME, AdvanceMESS,
+AdvanceMENU is a frontend for AdvanceMAME, AdvanceMESS,
 and any other emulator.
 <p>
 Simply run it in the same directory of the emulator and press
@@ -98,8 +98,8 @@ Static and Animated image and clip preview (PNG/PCX/ICO/MNG).
 Up to 192 images at the same time!
 </li>
 <li>
-Sound preview. (MP3/WAV). You can select a special sound for
-every game played when the cursor move on it.
+Sound preview (MP3/WAV). You can select a special sound for
+every game played when the cursor moves on it.
 </li>
 <li>
 Sound backgrounds (MP3/WAV). Play your favorite songs or
@@ -167,7 +167,7 @@ Selectable background and help images with translucency.
 <a href="#5.1.2">5.1.2 emulator</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.1.3">5.1.3 emulator_roms/roms_filter/altss/flyers/cabinets/icons/titles</a><br>
+<a href="#5.1.3">5.1.3 emulator_roms/roms_filter/altss/flyers/cabinets/marquees/icons/titles</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#5.1.4">5.1.4 mode</a><br>
@@ -251,10 +251,28 @@ Selectable background and help images with translucency.
 <a href="#5.4">5.4 Input Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.4.1">5.4.1 device_keyboard/joystick/mouse</a><br>
+<a href="#5.4.1">5.4.1 device_keyboard/joystick/mouse_*</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
 <a href="#5.4.2">5.4.2 mouse_delta</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.4.3">5.4.3 input_hotkey</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.4.4">5.4.4 lock</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.4.5">5.4.5 event_assign</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.4.6">5.4.6 event_repeat</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.4.7">5.4.7 event_mode</a><br>
+</td></tr>
+<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
+<a href="#5.4.8">5.4.8 event_alpha</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
 <a href="#5.5">5.5 User Interface</a><br>
@@ -326,55 +344,31 @@ Selectable background and help images with translucency.
 <a href="#5.5.22">5.5.22 ui_console</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#5.6">5.6 Input Configuration Options</a><br>
+<a href="#5.6">5.6 Other Configuration Options</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.6.1">5.6.1 device_keyboard/joystick/mouse_*</a><br>
+<a href="#5.6.1">5.6.1 idle_start</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.6.2">5.6.2 input_hotkey</a><br>
+<a href="#5.6.2">5.6.2 idle_screensaver</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.6.3">5.6.3 lock</a><br>
+<a href="#5.6.3">5.6.3 idle_screensaver_preview</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.6.4">5.6.4 event_assign</a><br>
+<a href="#5.6.4">5.6.4 group/type</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.6.5">5.6.5 event_repeat</a><br>
+<a href="#5.6.5">5.6.5 group/type/desc/info_import</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.6.6">5.6.6 event_mode</a><br>
+<a href="#5.6.6">5.6.6 misc_exit</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.6.7">5.6.7 event_alpha</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td colspan=2>
-<a href="#5.7">5.7 Other Configuration Options</a><br>
+<a href="#5.6.7">5.6.7 misc_quiet</a><br>
 </td></tr>
 <tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.7.1">5.7.1 idle_start</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.7.2">5.7.2 idle_screensaver</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.7.3">5.7.3 idle_screensaver_preview</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.7.4">5.7.4 group/type</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.7.5">5.7.5 group/type/desc/info_import</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.7.6">5.7.6 misc_exit</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.7.7">5.7.7 misc_quiet</a><br>
-</td></tr>
-<tr><td width="5%"></td><td width="5%"></td><td width="5%"></td><td>
-<a href="#5.7.8">5.7.8 misc_sync</a><br>
+<a href="#5.6.8">5.6.8 misc_sync</a><br>
 </td></tr>
 <tr><td width="5%"></td><td colspan=3>
 <a href="#6">6 Formats Supported</a><br>
@@ -410,7 +404,7 @@ with default values.
 -cfg FILE
 </strong></td></tr><tr><td>
 Select an alternate configuration file. In Linux and Mac
-OS X the you can prefix the file name with "./" to
+OS X you can prefix the file name with "./" to
 load it from the current directory.
 </td></tr>
 </table>
@@ -419,7 +413,7 @@ load it from the current directory.
 -log
 </strong></td></tr><tr><td>
 Create the file `advmenu.log' with a lot of internal
-information. Very useful for bug report.
+information. Very useful for bug reports.
 </td></tr>
 </table>
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -450,11 +444,11 @@ In DOS and Windows you can also use `/'.
 <h2><a name="4">4</a> 
 Emulators
 </h2>
-The program supports many type of emulators. The emulators
+The program supports many types of emulators. The emulators
 AdvanceMAME, AdvanceMESS, MAME, SDLMAME, DMAME,
 DMESS and DRAINE are directly supported and the only thing
 you should do is to run the AdvanceMENU program in the same
-directory of the emulator.
+directory as the emulator.
 <p>
 All the other emulators are supported with the emulator
 type `generic'.
@@ -494,34 +488,33 @@ option description.
 <p>
 The roms are searched in the path specified with the
 `emulator_roms' option in the `advmenu.rc' file. For every file
-found (with any extension) a game is added in the menu.
+found (with any extension) a game is added to the menu.
 You can filter the files with the `emulator_roms_filter' option.
 <p>
 All the snapshots are searched in the directories specified with
-the `emulator_*' options using the same name of the rom file.
+the `emulator_*' options using the same name as the rom file.
 <p>
-If you want, you can manually write a MAME like information file
-and name it as `ENUNAME.lst'. This file has the same format
-of the output of the `-listinfo' MAME command.
-Actually only the information `game', `name', `description', `year',
-`manufacturer', `cloneof' are used.
-Please note that this file is used only to add information at the
-existing games. The games present in this file are not automatically
-added at the game list.
+If you want, you can manually write a MAME-like information file
+and name it `EMUNAME.lst'. This file has the same format
+as the output of the `-listinfo' MAME command.
+Only the information `game', `name', `description', `year',
+`manufacturer' and `cloneof' are used.
+Please note that this file is used only to add information to
+existing games. Games present in this file are not automatically
+added to the game list.
 <h3><a name="4.2">4.2</a> 
 advmame - AdvanceMAME
 </h3>
-For the `advmame' emulator type the roms information is
-gathered from the file `ENUNAME.xml'. If this file doesn't
-exist, it's created automatically with emulator `-listxml'
+For the `advmame' emulator type the rom information is
+gathered from the file `EMUNAME.xml'. If this file doesn't
+exist, it is created automatically with the emulator `-listxml'
 command.
 <p>
 The directories specified in the `dir_rom' option in the
-`advmame.rc' file are used to detect the list of the
-available roms. In the DOS and Windows versions of the
-program the `advmenu.rc' file is searched in the same directory
-of the emulator. In the Unix version it's searched in the
-`HOME/.advance' directory.
+`advmame.rc' file are used to detect the list of available
+roms. In the DOS and Windows versions the `advmenu.rc' file is
+searched in the same directory as the emulator. In the Unix
+version it is searched in the `$HOME/.advance' directory.
 <p>
 The directory specified in `dir_snap' is used to
 detect the list of available snapshots.
@@ -530,7 +523,7 @@ advmess - AdvanceMESS
 </h3>
 For the `advmess' emulator the rom information is gathered
 from the file `EMUNAME.xml'. If this file doesn't exist,
-it's created automatically with emulator `-listxml' command.
+it's created automatically with the emulator `-listxml' command.
 <p>
 The directories specified in the `dir_rom' option in the
 `advmess.rc' file are used to detect the list of the
@@ -541,16 +534,16 @@ read and all the files found in the `machine' directories
 are inserted as software if the extension is recognized as a
 valid device extension for the current `machine' or if it's a
 `zip' file.
-For example if the `dir_image' options is `c:\software',
+For example if the `dir_image' option is `c:\software',
 AdvanceMENU scans the directories `c:\software\ti99_4a',
 `c:\software\sms', `c:\software\gameboy'...
 Files in the main directory `c:\software' are NOT checked.
 <p>
 When you select to run a zip file, the zip file is opened and
 all the files in the zip with a valid name and with a recognized
-device extension are added at the AdvanceMESS command line.
-A file is considered to have a valid name if has the same name
-of the zip of if it has the name of the zip with an additional
+device extension are added to the AdvanceMESS command line.
+A file is considered to have a valid name if it has the same name
+as the zip or if it has the name of the zip with an additional
 char. For example in the file `alpiner.zip' the files
 `alpiner.bin', `alpinerc.bin' and `alpinerg.bin' have a valid
 name. This feature can be used to group all the required roms
@@ -572,25 +565,25 @@ AdvanceMENU the file is moved automatically to
 <h3><a name="4.4">4.4</a> 
 mame - Windows MAME
 </h3>
-For the `mame' emulator the roms information is gathered from
-the file `EMUNAME.xml'. If this file doesn't exist, it's created
-automatically with emulator `-listxml' command.
+For the `mame' emulator the rom information is gathered from
+the file `EMUNAME.xml'. If this file doesn't exist, it is created
+automatically with the emulator `-listxml' command.
 <p>
 The directories specified in the `rompath' option in the
-`mame.ini' file are used to detect the list of the available
+`mame.ini' file are used to detect the list of available
 roms.
 <p>
-The directory specified in `snapshot_directory' is
-used to detect the list of available snapshots.
+The directory specified in `snapshot_directory' is used
+to detect the list of available snapshots.
 <h3><a name="4.5">4.5</a> 
 dmame - DOS MAME
 </h3>
-For the `dmame' emulator the roms information is gathered
-from the file `EMUNAME.xml'. If this file doesn't exist, it's
-created automatically with emulator `-listxml' command.
+For the `dmame' emulator the rom information is gathered from
+the file `EMUNAME.xml'. If this file doesn't exist, it is
+created automatically with the emulator `-listxml' command.
 <p>
 The directories specified in the `rompath' option in the
-`mame.cfg' file are used to detect the list of the available
+`mame.cfg' file are used to detect the list of available
 roms.
 <p>
 The directory specified in `snap' is used to
@@ -598,35 +591,32 @@ detect the list of available snapshots.
 <h3><a name="4.6">4.6</a> 
 dmess - DOS MESS
 </h3>
-For the `dmess' emulator the roms information is gathered
-from the file `EMUNAME.xml'. If this file doesn't exist, it's
-created automatically with emulator `-listxml' command.
+For the `dmess' emulator the rom information is gathered from
+the file `EMUNAME.xml'. If this file doesn't exist, it is
+created automatically with the emulator `-listxml' command.
 <p>
 The directories specified in the `biospath' option in the
-`mess.cfg' file are used to detect the list of the available
+`mess.cfg' file are used to detect the list of available
 bioses.
 <p>
-All the directories listed in the option `softwarepath' are
-read and all the `zip' files found in the `subsystem'
-directories are inserted as software.
-For example if the `softwarepath' options is `c:\software',
-AdvanceMENU scans the directories `c:\software\ti99_4a',
-`c:\software\sms', `c:\software\gameboy'...
+All the directories listed in the `softwarepath' option are
+read and all `zip' files found in the `subsystem' directories
+are inserted as software.
+For example if `softwarepath' is `c:\software', AdvanceMENU
+scans `c:\software\ti99_4a', `c:\software\sms', `c:\software\gameboy'...
 Zips in the main directory `c:\software' are NOT checked.
 <p>
-When you select one of these entries the zip is opened and is
-searched the first file with the same name of the zip but
-different extension. This file is used as the argument of the
-`-cart' option when running `mess'.
-AdvanceMENU is NOT able to use other supports like `-flop'.
+When you select one of these entries the zip is opened and the
+first file with the same name as the zip but different extension
+is used as the argument of the `-cart' option when running `mess'.
+AdvanceMENU is NOT able to use other media like `-flop'.
 <p>
-All the aliases present if the `mess.cfg' are inserted as
-software entries. When you select one of these entries the
-`mess' option `-alias' is used to start the game.
+All aliases present in `mess.cfg' are inserted as software
+entries. When you select one of these entries the `-alias'
+option is used to start the game.
 <p>
-You can set an arbitrary description on an alias specification
-adding it on the same line of the alias after the comment char
-'#' using this format:
+You can set an arbitrary description for an alias by adding
+it on the same line after the comment char '#' using this format:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -639,27 +629,26 @@ For example:
 <pre>
 [ti99_4a]
 ti-inva = -cart ti-invac.bin -cart ti-invag.bin \
-&nbsp;&nbsp;&nbsp;&nbsp;# Invaders | 1982 | Texas Instrument
+&nbsp;&nbsp;&nbsp;&nbsp;# Invaders | 1982 | Texas Instruments
 </pre>
 </td></tr></table>
 <p>
 At any exit of the emulator if a new snapshot is created, this file
-is moved to the correct `snap\system' directory renaming it as
+is moved to the correct `snap\system' directory and renamed to
 the software started.
-For example, suppose that you run the `ti99_4a' system with the
-software `alpiner'. If you press F12 during the emulation, the
-file `snap\ti99_4a.png' is created. When you return to
-AdvanceMENU the file is moved automatically to
+For example, if you run the `ti99_4a' system with the software
+`alpiner', the file `snap\ti99_4a.png' is created. When you return
+to AdvanceMENU the file is moved automatically to
 `snap\ti99_4a\alpiner.png'.
 <h3><a name="4.7">4.7</a> 
 draine - DOS Raine
 </h3>
-For the `draine' emulator the roms information is gathered
-from the file `EMUNAME.lst'. If this file doesn't exist, it's
-created automatically with emulator `-gameinfo' command.
+For the `draine' emulator the rom information is gathered
+from the file `EMUNAME.lst'. If this file doesn't exist, it is
+created automatically with the emulator `-gameinfo' command.
 <p>
 All the directories specified in the `rom_dir_*' options are
-used to detect the list of the available roms.
+used to detect the list of available roms.
 <p>
 The directory specified in `screenshots' is used to detect the
 list of available snapshots.
@@ -667,15 +656,14 @@ list of available snapshots.
 Configuration
 </h2>
 The file `advmenu.rc' is used to save the current state of the
-front-end. It's read at startup and saved at exit. You can
-prevent the automatic save at the exit with the `config' option.
+front-end. It is read at startup and saved at exit. You can
+prevent the automatic save at exit with the `config' option.
 <p>
 In DOS and Windows the configuration options are read from the
 file `advmenu.rc' in the current directory.
 <p>
 In Linux and Mac OS X the configuration options are read from the
-files `advmame.rc' and `advmess.rc' in the $host, $data and
-the $home directory.
+files `advmenu.rc' in the $host, $data and $home directories.
 The $host directory is `$SYSCONFDIR', where $SYSCONFDIR is the
 `sysconfdir' directory configured with the `configure' script.
 The default is `/usr/local/etc'.
@@ -688,18 +676,18 @@ If the ADVANCE environment variable is missing the $home directory
 is `$HOME/.advance' where $HOME is the value of the HOME environment
 variable.
 If both the ADVANCE and HOME environment variables are missing the
-$data directory became also the $home directory.
+$data directory also becomes the $home directory.
 <p>
 The priority of the options is in the order: $host, $home and $data.
 <p>
 The $home directory is also used to write all the information
-by the program. The files in the $host and $data directory are only read.
+by the program. The files in the $host and $data directories are only read.
 <p>
-You can include an additional configuration files with the `include'
+You can include additional configuration files with the `include'
 option. In DOS and Windows the files are searched in the current directory.
 In Linux and Mac OS X the files are searched in the $home directory if
 they are expressed as a relative path. You can force the search in the
-current directory prefixing the file with `./'.
+current directory by prefixing the file with `./'.
 To include more than one file you must divide the names with `;' in
 DOS and Windows, and with `:' in Linux and Mac OS X.
 <p>
@@ -713,13 +701,13 @@ name separator is `/' and the multi-directory separator is `:'.
 Global Configuration Options
 </h3>
 This section describes the global options used to
-customize the the program.
+customize the program.
 <p>
 A subset of the configuration options are saved per
-emulator basis to allow different configurations for
+emulator to allow different configurations for
 different emulators. Please note that these specific emulator
 configurations are not activated if you select to show
-more than one emulator at time.
+more than one emulator at the same time.
 In this case only the default configuration is used.
 Specifically these special options are `mode', `sort',
 `preview', `group_include' and `type_include'.
@@ -738,25 +726,21 @@ Options:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 save_at_exit
 </em></td><td width="90%">
-Save any changes before exiting
-(default).
+Save any changes before exit (default).
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 restore_at_exit
 </em></td><td width="90%">
-Don't save the changes. At the next
-run, restore the previous configuration.
+Restore the configuration saved at the
+last exit.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 restore_at_idle
 </em></td><td width="90%">
-Restore the previous configuration
-after the `idle' time.
+Restore the configuration after a period
+of inactivity.
 </td></tr>
 </table>
-<p>
-You can manually save the configuration at runtime from the
-main menu.
 <h4><a name="5.1.2">5.1.2</a> 
 emulator
 </h4>
@@ -799,7 +783,7 @@ It's the AdvanceMESS emulator.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 mame
 </em></td><td width="90%">
-It's the Window MAME emulator.
+It's the Windows MAME emulator.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 dmame
@@ -821,7 +805,7 @@ It's the DOS Raine emulator.
 </em></td><td width="90%">
 The executable path of the emulator.
 In DOS and Windows you can also use a batch (.bat)
-file, but this prevent the automatic generation of
+file, but this prevents the automatic generation of
 the listing file which must be generated manually.
 You can put a `-' in front of the file path
 to ignore any error returned by the executable.
@@ -832,9 +816,8 @@ ARGUMENTS
 The arguments to be passed to the emulator.
 The arguments are required only for the `generic'
 emulator. For the others, AdvanceMENU automatically
-adds the required arguments to run a
-game. However, you may wish to add extra
-arguments.
+adds the required arguments to run a game.
+However, you may wish to add extra arguments.
 </td></tr>
 </table>
 <p>
@@ -863,14 +846,14 @@ example "pacman.zip".
 </em></td><td width="90%">
 Expanded as one of the R* string,
 depending on the current menu orientation.
-Note that you cannot use space in the R* string.
+Note that you cannot use spaces in the R* strings.
 For example "%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
-correctly rotate the AdvanceMAME emulator.
+correctly rotates the AdvanceMAME emulator.
 </td></tr>
 </table>
 <p>
-For the `generic' emulator type you need use the % macros
-to tell at the emulator which game run. For all the other emulator
+For the `generic' emulator type you must use the % macros
+to tell the emulator which game to run. For all the other emulator
 types this information is automatically added by AdvanceMENU.
 <p>
 Examples for DOS and Windows:
@@ -878,7 +861,7 @@ Examples for DOS and Windows:
 <pre>
 emulator "AdvanceMAME" advmame "advmame\advmame.exe" \
 &nbsp;&nbsp;&nbsp;&nbsp;"%o[,-ror,-flipx,-rol] %o[,,-flipy,]"
-emulator "MAME" mame "mame\mame.exe" "-nohws"
+emulator "MAME" mame" "mame\mame.exe" "-nohws"
 emulator "MESS" dmess "mess\mess.exe" ""
 emulator "Raine" draine "raine\raine.exe" ""
 emulator "Custom Raine" draine "raine\raine2.bat" ""
@@ -895,12 +878,12 @@ emulator "AdvanceMAME" advmame "advmame" \
 </pre>
 </td></tr></table>
 <h4><a name="5.1.3">5.1.3</a> 
-emulator_roms/roms_filter/altss/flyers/cabinets/icons/titles
+emulator_roms/roms_filter/altss/flyers/cabinets/marquees/icons/titles
 </h4>
 Selects additional directories for the emulators. These
 directories are used in addition to any other directory
 defined in the emulator config file. The preview images and
-sounds files are also searched also in any `.zip' file present
+sound files are also searched in any `.zip' file present
 in these directories.
 <p>
 <pre>
@@ -928,7 +911,7 @@ path.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 roms_filter
 </em></td><td width="90%">
-List of pattern for the file to list.
+List of patterns for the files to list.
 An empty pattern means all files.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
@@ -971,8 +954,8 @@ Options:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 EMULATOR
 </em></td><td width="90%">
-The name for the emulator. Must be the same
-name of a defined emulator
+The name of the emulator. Must be the same
+as a previously defined emulator.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 LIST
@@ -1038,37 +1021,37 @@ Game list and preview of the selected game (default).
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 list_mixed
 </em></td><td width="90%">
-Game list and 4 preview of the selected game.
+Game list and 4 previews of the selected game.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 tile_tiny
 </em></td><td width="90%">
-Show the preview of 3x2 games.
+Show the preview of 3×2 games.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 tile_small
 </em></td><td width="90%">
-Show the preview of 4x3 games.
+Show the preview of 4×3 games.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 tile_normal
 </em></td><td width="90%">
-Show the preview of 5x6 games.
+Show the preview of 5×6 games.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 tile_big
 </em></td><td width="90%">
-Show the preview of 8x6 games.
+Show the preview of 8×6 games.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 tile_enormous
 </em></td><td width="90%">
-Show the preview of 12x9 games.
+Show the preview of 12×9 games.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 tile_giant
 </em></td><td width="90%">
-Show the preview of 16x12 games.
+Show the preview of 16×12 games.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 tile_icon
@@ -1084,7 +1067,7 @@ Special mode for marquee preview.
 <h4><a name="5.1.5">5.1.5</a> 
 mode_skip
 </h4>
-Disables some menu modes when you press `tab'.
+Disables some menu modes when you press `Tab'.
 <p>
 <pre>
 mode_skip (full | full_mixed | text | list | list_mixed
@@ -1098,7 +1081,7 @@ Options:
 SKIP
 </em></td><td width="90%">
 Multiple selections of disabled modes. Use
-an empty list to enable all the modes.
+an empty list to enable all modes.
 </td></tr>
 </table>
 <p>
@@ -1116,7 +1099,7 @@ sort
 Selects the sort order of the games displayed.
 <p>
 <pre>
-[EMULATOR/]sort parent | name | time | smart_time | play | year | manufacturer
+[EMULATOR/]sort parent | name | emulator | time | smart_time | play | timeperplay | year | manufacturer
 &nbsp;&nbsp;&nbsp;&nbsp;| type | group | size | resolution | info
 </pre>
 <p>
@@ -1134,19 +1117,19 @@ parent
 Game parent name (default).
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-emulator
-</em></td><td width="90%">
-Emulator name.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 name
 </em></td><td width="90%">
 Game name.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+emulator
+</em></td><td width="90%">
+Emulator name.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 time
 </em></td><td width="90%">
-Total Time played.
+Total time played.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 smart_time
@@ -1156,7 +1139,7 @@ Time played ignoring the first 20 minutes.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 play
 </em></td><td width="90%">
-Total Play times.
+Total play count.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 timeperplay
@@ -1166,7 +1149,7 @@ Time per play.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 year
 </em></td><td width="90%">
-Game year release.
+Game release year.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 manufacturer
@@ -1220,7 +1203,7 @@ name for a specific emulator option.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 snap
 </em></td><td width="90%">
-Files in the `snap' and `altss' dir.
+Files in the `snap' and `altss' dirs.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 flyers
@@ -1244,8 +1227,8 @@ special `mode' options `tile_icon' and `tile_marquee'.
 <h4><a name="5.1.8">5.1.8</a> 
 preview_expand
 </h4>
-Enlarges the screen area used by the vertical games on horizontal
-tile (and horizontal games in vertical tile).
+Enlarges the screen area used by vertical games on horizontal
+tile modes (and horizontal games in vertical tile modes).
 <p>
 <pre>
 preview_expand FACTOR
@@ -1283,28 +1266,12 @@ preview_default_marquee "FILE"
 preview_default_title "FILE"
 </pre>
 <p>
-Commands:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-default
-</em></td><td width="90%">
-Selects the default image for all preview
-modes.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-default_TAG
-</em></td><td width="90%">
-Selects the default image for a single
-preview mode.
-</td></tr>
-</table>
-<p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 FILE
 </em></td><td width="90%">
-The complete PATH of the image.
+The complete path of the image.
 </td></tr>
 </table>
 <p>
@@ -1321,7 +1288,7 @@ icon_space
 </h4>
 Selects the space size between icons. The `icon' mode is
 available only if you set the option `emulator_icons' in the
-emulator config file.
+emulator configuration file.
 <p>
 <pre>
 icon_space SPACE
@@ -1332,7 +1299,7 @@ Options:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 SPACE
 </em></td><td width="90%">
-The number of pixel between icons (default 43).
+Number of pixels between icons (default 43).
 </td></tr>
 </table>
 <p>
@@ -1341,7 +1308,7 @@ if there is enough space.
 <h4><a name="5.1.11">5.1.11</a> 
 merge
 </h4>
-Selects the expected format of your romset. It's used to test
+Selects the expected format of your romset. It is used to test
 the existence of the correct zips needed to run the games.
 <p>
 <pre>
@@ -1358,8 +1325,7 @@ Every clone zip contains all the needed roms.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 differential
 </em></td><td width="90%">
-Every clone zip contains only
-the unique roms (default).
+Every clone zip contains only the unique roms (default).
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 parent
@@ -1369,8 +1335,8 @@ All the roms are in the parent zip.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 any
 </em></td><td width="90%">
-Any of the above, use this if you have
-a rom set that is organized poorly.
+Any of the above; use this if you have
+a poorly organized rom set.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 disable
@@ -1381,9 +1347,9 @@ Check disabled.
 <h4><a name="5.1.12">5.1.12</a> 
 game
 </h4>
-Contains various information of the know games.
-A `game' option is added automatically at the configuration
-files for any rom found. It's used to keep some game
+Contains various information about known games.
+A `game' option is added automatically to the configuration
+file for any rom found. It is used to keep some game
 information like the play time.
 <p>
 <pre>
@@ -1421,7 +1387,7 @@ Time played in seconds.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 PLAY
 </em></td><td width="90%">
-Number of play.
+Number of plays.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 DESC
@@ -1430,7 +1396,7 @@ User description or empty "".
 </td></tr>
 </table>
 <p>
-The GROUP, TYPE and DESC argument overwrite any
+The GROUP, TYPE and DESC arguments overwrite any
 other value imported with the `group_import', `type_import',
 and `desc_import' options. The imported values take effect
 only if the user GROUP, TYPE and DESC are empty.
@@ -1458,7 +1424,7 @@ be used.
 If you use a `System' video driver, you don't need to set these
 options. They are mostly ignored.
 <p>
-With a `Generate' video drivers these options are used to select
+With a `Generate' video driver these options are used to select
 and create the correct video mode. If missing the settings for a
 standard Multisync SVGA monitor are used.
 <h4><a name="5.2.2">5.2.2</a> 
@@ -1495,7 +1461,7 @@ display_size 1600x1200
 <h4><a name="5.2.3">5.2.3</a> 
 display_resizeeffect
 </h4>
-Control the scaling transformation applied to screenshots.
+Controls the scaling transformation applied to screenshots.
 <p>
 <pre>
 display_resizeeffect auto | none | scalex | scalek | hq | xbr
@@ -1516,36 +1482,36 @@ Simply removes or duplicates lines as required.
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 scalex
 </em></td><td width="90%">
-It adds the missing pixels matching the
+Adds the missing pixels matching the
 original bitmap pattern.
-It uses a 3x3 mapping analysis with 4 comparisons.
+It uses a 3x3 window with 4 comparisons.
 It doesn't interpolate pixels and it compares colors
 for equality.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 scalek
 </em></td><td width="90%">
-It adds the missing pixels matching the
+Adds the missing pixels matching the
 original bitmap pattern.
-It uses a 3x3 mapping analysis with 4 comparisons.
+It uses a 3x3 window with 4 comparisons.
 It interpolates pixels and it compares colors
 for equality.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 hq
 </em></td><td width="90%">
-It adds the missing pixels matching the
+Adds the missing pixels matching the
 original bitmap pattern.
-It uses a 3x3 mapping analysis with 8 comparisons.
+It uses a 3x3 window with 8 comparisons.
 It interpolates pixels and it compares colors
 for distance.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 xbr
 </em></td><td width="90%">
-It adds the missing pixels matching the
+Adds the missing pixels matching the
 original bitmap pattern.
-It uses a 5x5 mapping analysis with a gradient estimation.
+It uses a 5x5 window with a gradient estimation.
 It interpolates pixels and it compares colors
 for distance.
 </td></tr>
@@ -1741,7 +1707,7 @@ Latency in seconds from 0.01 to 2.0.
 </td></tr>
 </table>
 <p>
-Increase the value if your hear a choppy audio.
+Increase the value if you hear a choppy audio.
 <h4><a name="5.3.4">5.3.4</a> 
 sound_buffer
 </h4>
@@ -1761,7 +1727,7 @@ Buffer size in seconds from 0.05 to 2.0.
 </td></tr>
 </table>
 <p>
-Increase the value if your hear a choppy audio.
+Increase the value if you hear a choppy audio.
 <h4><a name="5.3.5">5.3.5</a> 
 sound_foreground_EVENT
 </h4>
@@ -1890,7 +1856,7 @@ Selects the background music directory to search for MP3 and WAV
 files. Music tracks will be played in random order.
 <p>
 Multiple directories may be specified by separating each with a
-semicolon `;' in DOS and Windows, with a double-colon `:' in Linux
+semicolon `;' in DOS and Windows, with a colon `:' in Linux
 and Mac OS X.
 <p>
 Note that this directory must be used only for your music.
@@ -1923,24 +1889,12 @@ Input Configuration Options
 This section describes the options used to customize the user
 input.
 <h4><a name="5.4.1">5.4.1</a> 
-device_keyboard/joystick/mouse
+device_keyboard/joystick/mouse_*
 </h4>
 These options are used to customize the input drivers.
 <p>
-All the `device_keyboard/joystick/mouse_*' options defined in
-the `advdev.txt' file can be used.
-<p>
-As default the mouse and the joystick support is disabled.
-To enable it you must add the options:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<pre>
-device_mouse auto
-device_joystick auto
-</pre>
-</td></tr></table>
-<p>
-in your advmenu.rc file.
+All the `device_keyboard/joystick/mouse_*'
+options defined in the `advdev.txt' file can be used.
 <h4><a name="5.4.2">5.4.2</a> 
 mouse_delta
 </h4>
@@ -1959,6 +1913,393 @@ STEP
 Mouse/trackball position step (default 100).
 </td></tr>
 </table>
+<h4><a name="5.4.3">5.4.3</a> 
+input_hotkey
+</h4>
+Enables or disables the recognition of the special OS keyboard
+sequences.
+<p>
+<pre>
+input_hotkey yes | no
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+No hot key recognition.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+yes
+</em></td><td width="90%">
+Hot key recognition (default).
+</td></tr>
+</table>
+<p>
+In DOS the hotkeys recognized are:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+CTRL+ALT+DEL
+</em></td><td width="90%">
+Reset.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+CTRL+ALT+END
+</em></td><td width="90%">
+Quit.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+CTRL+BREAK (Pause)
+</em></td><td width="90%">
+Break.
+</td></tr>
+</table>
+<p>
+In Linux the hotkeys recognized generally are:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+CTRL+C
+</em></td><td width="90%">
+Break.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ALT+Fx
+</em></td><td width="90%">
+Change virtual console.
+</td></tr>
+</table>
+<h4><a name="5.4.4">5.4.4</a> 
+lock
+</h4>
+Locks or unlocks the user interface. When locked, the user can
+only browse and run games. Options can't be changed and the user
+cannot exit with the generic 'esc' event.
+<p>
+You can anyway allow the user to exit or shutdown, changing the
+`misc_exit' option.
+<p>
+<pre>
+lock yes | no
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+yes
+</em></td><td width="90%">
+Locked mode activated.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+Locked mode deactivated (default).
+</td></tr>
+</table>
+<h4><a name="5.4.5">5.4.5</a> 
+event_assign
+</h4>
+Customizes the input keyboard/joystick/mouse codes that trigger menu
+events.
+<p>
+<pre>
+event_assign EVENT EXPRESSION
+</pre>
+<p>
+Events:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+up, down, left, right
+</em></td><td width="90%">
+Movement.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+home, end, pgup, pgdn
+</em></td><td width="90%">
+Movement.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+enter
+</em></td><td width="90%">
+Main action, start.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+esc
+</em></td><td width="90%">
+Back action, exit &amp; cancel.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+space
+</em></td><td width="90%">
+Change action, select &amp; deselect.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+ins
+</em></td><td width="90%">
+Select all.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+del
+</em></td><td width="90%">
+Deselect all.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+menu
+</em></td><td width="90%">
+The main menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+sort
+</em></td><td width="90%">
+Changes the sort mode.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+mode
+</em></td><td width="90%">
+Change the display mode.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+preview
+</em></td><td width="90%">
+Change the preview mode.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+emulator
+</em></td><td width="90%">
+The emulator menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+help
+</em></td><td width="90%">
+Show a little help.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+group
+</em></td><td width="90%">
+Select a game group.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+type
+</em></td><td width="90%">
+Select a game type.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+exclude
+</em></td><td width="90%">
+Exclude some games with filters.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+setgroup
+</em></td><td width="90%">
+Select the group of the current game.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+settype
+</em></td><td width="90%">
+Select the type of the current game.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+runclone
+</em></td><td width="90%">
+Run a game clone.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+exit
+</em></td><td width="90%">
+Exit from the application.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+shutdown
+</em></td><td width="90%">
+Exit and shutdown the machine.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+command
+</em></td><td width="90%">
+The file command menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+rotate
+</em></td><td width="90%">
+Rotate the screen 90°.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+lock
+</em></td><td width="90%">
+Lock/unlock the user interface.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+mute
+</em></td><td width="90%">
+Mute/unmute the audio.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+calib
+</em></td><td width="90%">
+Joystick calibration menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+volume
+</em></td><td width="90%">
+The volume menu.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+difficulty
+</em></td><td width="90%">
+The difficulty menu.
+</td></tr>
+</table>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+EXPRESSION
+</em></td><td width="90%">
+Definition of the button expression that
+generates the event. It's a combination of
+key, joystick or mouse button and the operators
+`not', `or'. The `and' operator is implicit between
+consecutive codes.
+To not assign any input to the event, use the 'none' keyword.
+To completely disable the event and make it disappear
+from the menus, use the 'hidden' keyword.
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+KEY
+</em></td><td width="90%">
+The available key names are:
+a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r,
+s, t, u, v, w, x, y, z, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+0_pad, 1_pad, 2_pad, 3_pad, 4_pad, 5_pad, 6_pad,
+7_pad, 8_pad, 9_pad, f1, f2, f3, f4, f5, f6, f7, f8,
+f9, f10, f11, f12, esc, backquote, minus, equals,
+backspace, tab, openbrace, closebrace, enter,
+semicolon, quote, backslash, less, comma, period,
+slash, space, insert, del, home, end, pgup, pgdn, left,
+right, up, down, slash_pad, asterisk_pad, minus_pad,
+plus_pad, period_pad, enter_pad, prtscr, pause,
+lshift, rshift, lcontrol, rcontrol, lalt, ralt,
+lwin, rwin, menu, scrlock, numlock, capslock.
+You can also specify a keyboard scancode, like:
+scan127, scan128, ...
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+JOYSTICK
+</em></td><td width="90%">
+The available joystick buttons are:
+joy_a, joy_b, joy_c, joy_x, joy_y, joy_z,
+joy_tl (top left), joy_tr (top right),
+joy_tl2 (second top left), joy_tr2 (second top right),
+joy_start, joy_mode, joy_select,
+joy_thumbl (thumb left), joy_thumbr (thumb right),
+joy_gear_down, joy_gear_up.
+You can also use ordinal values if the driver doesn't
+export the button names:
+joy_button0, joy_button1, joy_button2, joy_button3, ...
+</td></tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+MOUSE
+</em></td><td width="90%">
+The available mouse buttons are:
+mouse_left, mouse_right, mouse_middle,
+mouse_side, mouse_extra, mouse_forward, mouse_back.
+You can also use ordinal values if the driver doesn't
+export the button names:
+mouse_button0, mouse_button1, mouse_button2, ...
+</td></tr>
+</table>
+<p>
+Examples:
+<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<pre>
+event_assign enter lcontrol or enter or joy_a or mouse_left
+event_assign menu space or joy_mode or mouse_right
+event_assign command none
+event_assign close hidden
+</pre>
+</td></tr></table>
+<p>
+The utility `advk' can be used to show key scancodes and names.
+The utilities `advj' and `advm' can be used to show the joystick and
+mouse button names.
+<h4><a name="5.4.6">5.4.6</a> 
+event_repeat
+</h4>
+Selects the repeat rate of the various events.
+<p>
+<pre>
+event_repeat FIRST_TIME NEXT_TIME
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+FIRST_TIME
+</em></td><td width="90%">
+Time of the first repeat in ms.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+NEXT_TIME
+</em></td><td width="90%">
+Time of the next repeats in ms.
+</td></tr>
+</table>
+<h4><a name="5.4.7">5.4.7</a> 
+event_mode
+</h4>
+Selects whether to wait for a complete screen update before
+processing the next event.
+<p>
+<pre>
+event_mode wait | fast
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+wait
+</em></td><td width="90%">
+The screen is completely redrawn before processing
+the next event.
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+fast
+</em></td><td width="90%">
+If an event is waiting, the screen drawing
+is interrupted (default).
+</td></tr>
+</table>
+<h4><a name="5.4.8">5.4.8</a> 
+event_alpha
+</h4>
+Disables the alphanumeric keys for fast moving.
+If you have a keyboard encoder or a keyboard hack with some
+buttons remapped to alphanumeric keys, it's useful to disable
+them.
+<p>
+<pre>
+event_alpha yes | no
+</pre>
+<p>
+Options:
+<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+yes
+</em></td><td width="90%">
+Enable (default).
+</td></tr>
+<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
+no
+</em></td><td width="90%">
+Disable.
+</td></tr>
+</table>
 <h3><a name="5.5">5.5</a> 
 User Interface
 </h3>
@@ -1973,7 +2314,7 @@ is found, the calibration menu automatically starts.
 If any keypress is detected this mechanism is automatically disabled, and you
 have to start the calibration menu manually.
 <p>
-This is intended for a joustick only configuration.
+This is intended for a joystick only configuration.
 <p>
 <pre>
 ui_autocalib yes | no
@@ -2042,10 +2383,12 @@ the number of rows.
 <h4><a name="5.5.4">5.5.4</a> 
 ui_background
 </h4>
-Defines a background image in .PNG or MNG format. The image is
+Defines a background image in .PNG or .MNG format. The image is
 stretched to fit the screen.
 <p>
+<pre>
 ui_background FILE | none
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -2066,9 +2409,11 @@ For .MNG files only the first frame is used.
 ui_exit
 </h4>
 Defines an exit image/clip in .PNG or .MNG format displayed
-at the frontexit exit. The image is stretched to fit the screen.
+at frontend exit. The image is stretched to fit the screen.
 <p>
+<pre>
 ui_exit FILE | none
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -2089,7 +2434,9 @@ ui_startup
 Defines a startup image/clip in .PNG or .MNG format displayed
 at the frontend startup. The image is stretched to fit the screen.
 <p>
+<pre>
 ui_startup FILE | none
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -2107,10 +2454,12 @@ File in .PNG or .MNG format to load.
 <h4><a name="5.5.7">5.5.7</a> 
 ui_help
 </h4>
-Defines an help image/clip in .PNG or .MNG format displayed when the
-user press F1. The image is stretched to fit the screen.
+Defines a help image/clip in .PNG or .MNG format displayed when the
+user presses F1. The image is stretched to fit the screen.
 <p>
+<pre>
 ui_help FILE | none
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -2183,21 +2532,23 @@ ui_skiptop/bottom/left/right
 </h4>
 Defines the border area of the screen not used by the menu.
 Generally it's the part of the screen used by the background image.
-If a `ui_background' image is specified these values refer at image
-size before stretching, otherwise they refer at the current video
+If a `ui_background' image is specified these values refer to image
+size before stretching, otherwise they refer to the current video
 mode size.
 <p>
+<pre>
 ui_skiptop N
 ui_skipbottom N
 ui_skipleft N
 ui_skipright N
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 N
 </em></td><td width="90%">
-Number of pixel to skip (default 0).
+Number of pixels to skip (default 0).
 </td></tr>
 </table>
 <h4><a name="5.5.11">5.5.11</a> 
@@ -2205,8 +2556,10 @@ ui_skiphorz/vert
 </h4>
 Defines the inner horizontal and vertical area between tiles.
 <p>
+<pre>
 ui_skiphorz auto | N
 ui_skipvert auto | N
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -2218,7 +2571,7 @@ Auto select depending on the tile mode and font size (default).
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 N
 </em></td><td width="90%">
-Number of pixel to skip.
+Number of pixels to skip.
 </td></tr>
 </table>
 <h4><a name="5.5.12">5.5.12</a> 
@@ -2227,22 +2580,28 @@ ui_topbar/bottombar/scrollbar/outline
 Enables or disables the top, bottom and scroll information bars.
 The outline is the thin box around backdrops.
 <p>
+<pre>
 ui_topbar yes | no
 ui_bottombar yes | no
 ui_scrollbar yes | no
 ui_outline yes | no
+</pre>
 <h4><a name="5.5.13">5.5.13</a> 
 ui_topname
 </h4>
 Puts the game name at the top instead of at the bottom.
 <p>
+<pre>
 ui_topname yes | no
+</pre>
 <h4><a name="5.5.14">5.5.14</a> 
 ui_name
 </h4>
 Enables or disables the display of the game name in the screensaver.
 <p>
+<pre>
 ui_name yes | no
+</pre>
 <h4><a name="5.5.15">5.5.15</a> 
 ui_color
 </h4>
@@ -2380,7 +2739,7 @@ Background color. Like foreground color.
 <h4><a name="5.5.16">5.5.16</a> 
 ui_clip
 </h4>
-Selects how play the video clips.
+Selects how to play the video clips.
 <p>
 <pre>
 ui_clip none | single | singleloop | multi | multiloop | multiloopall
@@ -2427,7 +2786,9 @@ ui_translucency
 </h4>
 Selects the translucency of the user interface.
 <p>
+<pre>
 ui_translucency FACTOR
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -2448,7 +2809,9 @@ Defines the user commands. These commands are executed as
 shell scripts. The video mode is not changed, so they must be
 silent.
 <p>
+<pre>
 ui_command "MENU" SCRIPT
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -2465,7 +2828,7 @@ command rows you can end the line with the \ char.
 </td></tr>
 </table>
 <p>
-In the script text some macro are substituted with information of
+In the script text some macros are substituted with information of
 the selected game:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
@@ -2507,7 +2870,9 @@ ui_command_menu
 </h4>
 Selects the name of the menu entry for the commands submenu.
 <p>
+<pre>
 ui_command_menu MENU
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -2522,7 +2887,9 @@ ui_command_error
 </h4>
 Selects the message to display if a command fails.
 <p>
+<pre>
 ui_command_error MSG
+</pre>
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -2537,413 +2904,26 @@ ui_menukey
 </h4>
 Enables or disables the key names in the menu entries.
 <p>
+<pre>
 ui_menukey yes | no
+</pre>
 <h4><a name="5.5.22">5.5.22</a> 
 ui_console
 </h4>
 Changes the user interface behavior for the use on a game
 console system.
 <p>
+<pre>
 ui_console yes | no
+</pre>
 <p>
-In console mode the menu is reduced to contains only the
+In console mode the menu is reduced to contain only the
 minimal commands, and the sound volume is propagated to the
 emulators if possible.
 <h3><a name="5.6">5.6</a> 
-Input Configuration Options
-</h3>
-This section describes the options used to customize the user
-input.
-<h4><a name="5.6.1">5.6.1</a> 
-device_keyboard/joystick/mouse_*
-</h4>
-These options are used to customize the input drivers.
-<p>
-All the `device_keyboard/joystick/mouse_*' options defined in
-the `advdev.txt' file can be used.
-<h4><a name="5.6.2">5.6.2</a> 
-input_hotkey
-</h4>
-Enables or disables the recognition of the special OS keyboard
-sequences.
-<p>
-<pre>
-input_hotkey yes | no
-</pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-no
-</em></td><td width="90%">
-No hot key recognition.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-yes
-</em></td><td width="90%">
-Hot key recognition (default).
-</td></tr>
-</table>
-<p>
-In DOS the hotkey recognized are:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-CTRL+ALT+DEL
-</em></td><td width="90%">
-Reset.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-CTRL+ALT+END
-</em></td><td width="90%">
-Quit.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-CTRL+BREAK (Pause)
-</em></td><td width="90%">
-Break.
-</td></tr>
-</table>
-<p>
-In Linux the hotkey recognized generally are:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-CTRL+C
-</em></td><td width="90%">
-Break.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-ALT+Fx
-</em></td><td width="90%">
-Change virtual console.
-</td></tr>
-</table>
-<h4><a name="5.6.3">5.6.3</a> 
-lock
-</h4>
-Locks or unlocks the user interface. When locked, the user can
-only browse and run games. Options can't be changed and the user
-cannot exit with the generic 'esc' event.
-<p>
-You can anyway allow the user to exit or shutdown, changing the
-`misc_exit' option.
-<p>
-<pre>
-lock yes | no
-</pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-yes
-</em></td><td width="90%">
-Locked mode activate.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-no
-</em></td><td width="90%">
-Locked mode deactivate (default).
-</td></tr>
-</table>
-<h4><a name="5.6.4">5.6.4</a> 
-event_assign
-</h4>
-Customizes the input keyboard codes that trigger menu
-events.
-<p>
-<pre>
-event_assign EVENT EXPRESSION
-</pre>
-<p>
-Events:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-up, down, left, right
-</em></td><td width="90%">
-Movement.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-home, end, pgup, pgdn
-</em></td><td width="90%">
-Movement.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-enter
-</em></td><td width="90%">
-Main action, start.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-esc
-</em></td><td width="90%">
-Back action, exit &amp; cancel.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-space
-</em></td><td width="90%">
-Change action, select &amp; deselect.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-ins
-</em></td><td width="90%">
-Select all.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-del
-</em></td><td width="90%">
-Deselect all.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-menu
-</em></td><td width="90%">
-The main menu.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-sort
-</em></td><td width="90%">
-Changes the sort mode.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-mode
-</em></td><td width="90%">
-Change the display mode.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-preview
-</em></td><td width="90%">
-Change the preview mode.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-emulator
-</em></td><td width="90%">
-The emulator menu.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-help
-</em></td><td width="90%">
-Show a little help.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-group
-</em></td><td width="90%">
-Select a game group.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-type
-</em></td><td width="90%">
-Select a game type.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-exclude
-</em></td><td width="90%">
-Exclude some games with filters.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-setgroup
-</em></td><td width="90%">
-Select the group of the current game
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-settype
-</em></td><td width="90%">
-Select the type of the current game
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-runclone
-</em></td><td width="90%">
-Run a game clone.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-exit
-</em></td><td width="90%">
-Exit from the application.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-shutdown
-</em></td><td width="90%">
-Exit and shutdown the machine.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-command
-</em></td><td width="90%">
-The file command menu.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-rotate
-</em></td><td width="90%">
-Rotate the screen of 90°.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-lock
-</em></td><td width="90%">
-Lock/unlock the user interface.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-mute
-</em></td><td width="90%">
-Mute/unmute the audio.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-calib
-</em></td><td width="90%">
-Joystick calibration menu.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-volume
-</em></td><td width="90%">
-The volume menu.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-difficulty
-</em></td><td width="90%">
-The difficulty menu.
-</td></tr>
-</table>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-EXPRESSION
-</em></td><td width="90%">
-Definition of the button expression that
-generates the event. It's a combination of
-the key, joystick or mouse button and of the operators `not', `or'.
-The `and' operator is implicit between consecutive codes.
-To not assign any input at the event, use the 'none' keyword.
-To completely disable the event, and to make it to disappear
-from the menus, use the 'hidden' keyword.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-KEY
-</em></td><td width="90%">
-The available key names are:
-a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r,
-s, t, u, v, w, x, y, z, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-0_pad, 1_pad, 2_pad, 3_pad, 4_pad, 5_pad, 6_pad,
-7_pad, 8_pad, 9_pad, f1, f2, f3, f4, f5, f6, f7, f8,
-f9, f10, f11, f12, esc, backquote, minus, equals,
-backspace, tab, openbrace, closebrace, enter,
-semicolon, quote, backslash, less, comma, period,
-slash, space, insert, del, home, end, pgup, pgdn, left,
-right, up, down, slash_pad, asterisk_pad, minus_pad,
-plus_pad, period_pad, enter_pad, prtscr, pause,
-lshift, rshift, lcontrol, rcontrol, lalt, ralt,
-lwin, rwin, menu, scrlock, numlock, capslock.
-You can also specify a keyboard scancode, like:
-scan127, scan128, ...
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-JOYSTICK
-</em></td><td width="90%">
-The available joystick buttons are:
-joy_a, joy_b, joy_c, joy_x, joy_y, joy_z, joy_tl (top left),
-joy_tr (top right), joy_tl2 (second top left),
-joy_tr2 (second top right), joy_start, joy_mode,
-joy_select, joy_thumbl (thumb left), joy_thumbr (thumb right),
-joy_gear_down, joy_gear_up.
-You can also use ordinal values if the driver doesn't
-export the button names:
-joy_button0, joy_button1, joy_button2, joy_button3, ...
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-MOUSE
-</em></td><td width="90%">
-The available mouse buttons are:
-mouse_left, mouse_right, mouse_middle, mouse_side,
-mouse_extra, mouse_forward, mouse_back.
-You can also use ordinal values if the driver doesn't
-export the button names:
-mouse_button0, mouse_button1, mouse_button2, ...
-</td></tr>
-</table>
-<p>
-Examples:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<pre>
-event_assign enter lcontrol or enter or joy_a or mouse_left
-event_assign menu space or joy_mode or mouse_right
-event_assign command none
-event_assign close hidden
-</pre>
-</td></tr></table>
-<p>
-The utility `advk' can be used to shown key scancodes and names.
-The utilities `advj' and `advm' can be used to shown the joystick and
-mouse button names.
-<h4><a name="5.6.5">5.6.5</a> 
-event_repeat
-</h4>
-Selects the repeat rate of the various events.
-<p>
-<pre>
-event_repeat FIRST_TIME NEXT_TIME
-</pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-FIRST_TIME
-</em></td><td width="90%">
-Time of the first repeat in ms.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-NEXT_TIME
-</em></td><td width="90%">
-Time of the next repeats in ms.
-</td></tr>
-</table>
-<h4><a name="5.6.6">5.6.6</a> 
-event_mode
-</h4>
-Selects whether to wait for a complete screen update before
-processing the next event.
-<p>
-<pre>
-event_mode wait | fast
-</pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-wait
-</em></td><td width="90%">
-The screen is completely redrawn before processing
-the next event.
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-fast
-</em></td><td width="90%">
-If an event is waiting, the screen drawing
-is interrupted (default).
-</td></tr>
-</table>
-<h4><a name="5.6.7">5.6.7</a> 
-event_alpha
-</h4>
-Disables the alphanumeric keys for fast moving.
-If you have a keyboard encoder or a keyboard hack with some
-buttons remapped to alphanumeric keys, it's useful to disable
-them.
-<p>
-<pre>
-event_alpha yes | no
-</pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-yes
-</em></td><td width="90%">
-Enable (default).
-</td></tr>
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-no
-</em></td><td width="90%">
-Disable.
-</td></tr>
-</table>
-<h3><a name="5.7">5.7</a> 
 Other Configuration Options
 </h3>
-<h4><a name="5.7.1">5.7.1</a> 
+<h4><a name="5.6.1">5.6.1</a> 
 idle_start
 </h4>
 Automatically starts a random game after some time of inactivity.
@@ -2976,7 +2956,7 @@ Examples:
 idle_start 400 60
 </pre>
 </td></tr></table>
-<h4><a name="5.7.2">5.7.2</a> 
+<h4><a name="5.6.2">5.6.2</a> 
 idle_screensaver
 </h4>
 Selects the start time of the default screen saver. The screensaver
@@ -3008,7 +2988,7 @@ Examples:
 idle_screensaver 120 14
 </pre>
 </td></tr></table>
-<h4><a name="5.7.3">5.7.3</a> 
+<h4><a name="5.6.3">5.6.3</a> 
 idle_screensaver_preview
 </h4>
 Selects the preview type to use in the screensaver. Like
@@ -3050,7 +3030,7 @@ Start a snap slide show using the animated
 snapshots and the game sounds (default).
 </td></tr>
 </table>
-<h4><a name="5.7.4">5.7.4</a> 
+<h4><a name="5.6.4">5.6.4</a> 
 group/type
 </h4>
 Selects the available `group' and `type' category names and
@@ -3091,7 +3071,7 @@ STRING
 name of the category
 </td></tr>
 </table>
-<h4><a name="5.7.5">5.7.5</a> 
+<h4><a name="5.6.5">5.6.5</a> 
 group/type/desc/info_import
 </h4>
 Selects the automatic import of the groups, types, descriptions
@@ -3139,11 +3119,6 @@ Imports the type names of the game.
 <p>
 Options:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
-<tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
-none
-</em></td><td width="90%">
-Don't import.
-</td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 catver
 </em></td><td width="90%">
@@ -3207,7 +3182,7 @@ or:
 <a href="http://www.progettosnaps.net/renameset/">http://www.progettosnaps.net/renameset/</a>
 <br>
 </td></tr></table>
-<h4><a name="5.7.6">5.7.6</a> 
+<h4><a name="5.6.6">5.6.6</a> 
 misc_exit
 </h4>
 Selects the exit mode.
@@ -3252,7 +3227,7 @@ All the exit events work but you get a menu confirmation.
 </table>
 <p>
 To lock the interface use the 'lock' option.
-<h4><a name="5.7.7">5.7.7</a> 
+<h4><a name="5.6.7">5.6.7</a> 
 misc_quiet
 </h4>
 Disables the copyright text message at the startup.
@@ -3260,7 +3235,7 @@ Disables the copyright text message at the startup.
 <pre>
 misc_quiet yes | no
 </pre>
-<h4><a name="5.7.8">5.7.8</a> 
+<h4><a name="5.6.8">5.6.8</a> 
 misc_sync
 </h4>
 This helps prevent filesystem corruption in case of an unexpected
@@ -3284,7 +3259,7 @@ Options:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 yes
 </em></td><td width="90%">
-Enables filesystem syncronization.
+Enables filesystem synchronization.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 no

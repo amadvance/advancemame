@@ -231,7 +231,7 @@ included.
 <h3><a name="1.5">1.5</a> 
 DOS
 </h3>
-In DOS, the Advance programs already contains all the required drivers
+In DOS, the Advance programs already contain all the required drivers
 for video, audio, and input controllers.
 <p>
 Generally you don't need to install additional software with
@@ -271,8 +271,8 @@ created in the user home directory in the subdirectory .advance/.
 In Windows and DOS the configuration files are created in the
 current directory.
 <p>
-When you have finished to modify the configuration files,
-it's recommended to run the programs with the `-remove' option
+When you have finished modifying the configuration files,
+it is recommended to run the programs with the `-remove' option
 to remove all the default options from the configuration files.
 <h3><a name="3.1">3.1</a> 
 AdvanceMAME
@@ -282,9 +282,9 @@ option to point where your roms reside.
 <p>
 In Linux, Mac OS X and other Unix the default rom dirs are
 /usr/local/share/advance/rom and $HOME/.advance/rom.
-In Windows and DOS is the rom/ subdirectory in the current directory.
+In Windows and DOS it is the rom/ subdirectory in the current directory.
 <p>
-If you want to run it with a with the standard video support, like any
+If you want to run it with the standard video support, like any
 other application, you don't need to configure any video options.
 <p>
 Instead, if you want to enable the direct programming of the
@@ -297,17 +297,17 @@ To run AdvanceMENU you need to configure which emulator is
 present in your system.
 <p>
 At the first run AdvanceMENU searches for all the known emulators
-and configure itself automatically. In Linux, and Mac OS X the
+and configures itself automatically. In Linux, and Mac OS X the
 emulators are searched in the current PATH list, in Windows and DOS
 only in the current directory.
 <p>
-Likely you need also to adjust the path where the
+You will likely also need to adjust the path where the
 game's .png, .mp3 and .mng snapshot files reside with the
-'emulator_altss' option.
+`emulator_altss' option.
 <p>
 In Linux, Mac OS X and other Unix the default snapshot dirs are
 /usr/local/share/advance/snap and $HOME/.advance/snap.
-In Windows and DOS is the snap/ subdirectory in the current directory.
+In Windows and DOS it is the snap/ subdirectory in the current directory.
 <h2><a name="4">4</a> 
 Video Hardware
 </h2>
@@ -316,7 +316,7 @@ of video hardware: LCD, Multi Sync monitors, Fixed
 Sync monitors, Arcade monitors and CRT TVs.
 <p>
 With the exception of PC Monitors that always accept the
-VGA signal, for other monitors you should take in account
+VGA signal, for other monitors you should take into account
 the required video signals and eventually use conversion
 circuits to adapt signals.
 <p>
@@ -334,7 +334,7 @@ LCD screens have always a native fixed resolution. To get the
 best image quality it's always recommended to use this resolution.
 <p>
 For this reason you usually don't need to enter any specific
-configuration options, and let the program to use the default
+configuration options, and let the program use the default
 video mode.
 <p>
 This mode of operation is the default when you are in
@@ -343,12 +343,12 @@ a graphics environment like X, Windows and Mac OS X.
 Multi Sync monitors (or CRT PC monitors)
 </h3>
 Multi Sync monitors support a wide range of horizontal clocks
-and requires a standard VGA connector. They are the normal PC
+and require a standard VGA connector. They are the normal PC
 monitors.
 <p>
 With PC monitors you can choose to work without any configuration,
 using only the default video mode, like a LCD screen, or configure
-the clocks supported to allow a direct video mode generation
+the clocks supported to allow direct video mode generation
 by the Advance programs.
 <p>
 You can generally find the range of clocks supported in the
@@ -363,8 +363,8 @@ device_video_clock 10 - 150 / 30.5 - 60 / 55 - 130
 Fixed Sync Monitors
 </h3>
 Fixed Sync monitors support only a few fixed horizontal clocks.
-Generally they requires separate 3,4 or 5 BNC connectors, with
-the exception of old VGA monitors which requires a standard
+Generally they require separate 3, 4 or 5 BNC connectors, with
+the exception of old VGA monitors which require a standard
 VGA connector.
 <p>
 You must find the exact clocks supported in the monitor manual.
@@ -408,7 +408,7 @@ device_video_clock 4 - 50 / 15.75 / 60
 </pre>
 </td></tr></table>
 <p>
-for a Extended Resolution 16 kHz are:
+for an Extended Resolution 16 kHz are:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -425,7 +425,7 @@ device_video_clock 4 - 50 / 25 / 60
 </td></tr></table>
 <p>
 If your monitor is multistandard, you can use more
-clock specification separating them with the `;' char.
+clock specifications separating them with the `;' char.
 <p>
 For example:
 <p>
@@ -441,9 +441,9 @@ your PC. If the monitor uses another sync signal you must
 use a sync conversion circuit.
 <p>
 If the monitor accepts a composite sync signal, instead of
-using a sync conversion circuits you can also try twisting
-the two H and V VGA signal together. It works if you select
-VGA negative H and V sync on the programs. To be on safe side
+using a sync conversion circuit you can also try twisting
+the two H and V VGA signals together. It works if you select
+VGA negative H and V sync in the programs. To be on the safe side
 I DO NOT RECOMMEND THIS HACK to connect sync signals directly
 together. Technically you should never just tie sync
 signal lines together. They are not usually designed for
@@ -454,17 +454,17 @@ You must also ensure that the monitor accepts the VGA video
 signal level of 0.7 V p-p. Generally arcade monitors require a
 video signal between 1 V and 5 V for each line.
 Therefore if you attempt to drive an arcade monitor with a
-VGA video signal you will at most, have a very dark picture with
+VGA video signal you will at most have a very dark picture with
 no contrast. You will need to buy/make an amplifier for each
 line in order for it to work.
 <h3><a name="4.5">4.5</a> 
 CRT TVs
 </h3>
-CRT TVs generally supports only two fixed combination of
-horizontal and vertical clocks, corresponding at the TV PAL
+CRT TVs generally support only two fixed combinations of
+horizontal and vertical clocks, corresponding to the TV PAL
 and NTSC standards.
 <p>
-Clocks values for PAL TV (European) are:
+Clock values for PAL TV (European) are:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -480,7 +480,7 @@ device_video_clock 4 - 50 / 15.73 / 60
 </pre>
 </td></tr></table>
 <p>
-for PAL TV (European) which supports also NTSC TV (USA) modes
+for PAL TV (European) which also supports NTSC TV (USA) modes
 (common if you use the SCART input):
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
@@ -498,10 +498,10 @@ A composite sync signal is required. It means that you must
 use a sync converter circuit to convert the VGA H/V sync with
 levels 0 - 5 V to a composite sync of levels 0 - 0.3 V.
 <p>
-The SCART input accepts also a composite video signal, but
+The SCART input also accepts a composite video signal, but
 the RGB video is far superior.
 <p>
-Remember what to enable the SCART RGB signal you must set
+Remember that to enable the SCART RGB signal you must set
 the SCART pin 16 at level 1 - 3 V (no more than 3 V).
 And to automatically switch the TV to the AV signal you
 must set the SCART pin 8 at level 9.5 - 12 V (for some
@@ -513,10 +513,10 @@ available on the VGA pin 9. Alternatively you can use the
 <h4><a name="4.5.2">4.5.2</a> 
 TVs with S-Video
 </h4>
-If your TV has a S-Video input, you can use the TV-Out signal
+If your TV has an S-Video input, you can use the TV-Out signal
 of your VGA board.
 <p>
-The quality of the S-Video signal is near at the quality of
+The quality of the S-Video signal is near to the quality of
 the RGB signal.
 <p>
 Unfortunately the TV-Out signal is generally not enabled
@@ -538,12 +538,12 @@ To make it possible, the programs need some information on your
 monitor capability in the form of the supported pixel, horizontal
 and vertical clocks.
 <p>
-With thies information the programs are able to always generate
+With this information the programs are able to always generate
 `perfect' video modes for the emulated game.
 <h3><a name="5.1">5.1</a> 
 Operation Modes
 </h3>
-The programs support two basic ways to generated video modes:
+The programs support two basic ways to generate video modes:
 the `automatic' and the `manual' operation mode.
 <p>
 In the `automatic' mode the programs automatically generate
@@ -559,12 +559,12 @@ Automatic Operation Mode
 </h4>
 In the automatic operation mode the programs automatically
 create a `perfect' video mode for the game to be emulated
-that fit exactly the whole screen with the correct aspect
+that fits exactly the whole screen with the correct aspect
 and frame rate.
 <p>
 To configure and activate this mode you need to run the
 `advcfg' utility for AdvanceMAME and `advcfg -advmenuc' for
-AdvanceMENU, and answer at the various questions.
+AdvanceMENU, and answer the various questions.
 You don't need to create a list of video modes, any needed
 video mode is created at runtime.
 <p>
@@ -589,7 +589,7 @@ and `advmame.txt' files.
 Manual Operation Mode
 </h4>
 In the manual operation mode the programs scan a list of `good'
-video modelines created manually and chose the best available.
+video modelines created manually and choose the best available.
 You must in advance create this list of video modelines with the
 `advv' utility.
 <p>
@@ -598,7 +598,7 @@ the programs in the manual operation mode. All the options used
 are documented in the `advdev.txt' file.
 <ul>
 <li>
-For AdvanceMAME add in the in the file `advmame.rc' these
+For AdvanceMAME add in the file `advmame.rc' these
 options:
 </li>
 </ul>
@@ -612,7 +612,7 @@ display_adjust x
 <ul>
 <li>
 Add in the file `advmame.rc' or `advmenu.rc' the
-`device_video_clock' option that specify which
+`device_video_clock' option that specifies which
 pixel, horizontal and vertical clocks are supported
 by your monitor.
 Generally these values are specified in the technical
@@ -634,7 +634,7 @@ on them. If the mode isn't centered try centering it
 with the ARROW keys. When you have finished press ENTER
 to save your modifications or ESC to restore the
 previous setting.
-Returned in the video mode list, if the mode is
+Returned to the video mode list, if the mode is
 displayed correctly, you can select it to be used by
 the programs pressing SPACE.
 It's very important that in all the selected modes
@@ -656,7 +656,7 @@ Press ESC to exit from `advv'
 </li>
 </ul>
 <p>
-In the `contrib/modeline' dir are present some .rc file with
+In the `contrib/modeline' dir are present some .rc files with
 some example modelines. The same modelines are contained in
 the `advv' program.
 

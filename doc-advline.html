@@ -76,24 +76,24 @@ Description
 This utility is a video modeline generator.
 The output of the execution is a valid list of video modes that
 you can use in your `cfg' files.
-The `.cfg' examples are generated with the predefinite options of
+The `.cfg' examples are generated with the predefined options of
 this program.
 <p>
-The modelines are generated using an user specified reference
+The modelines are generated using a user-specified reference
 length of the Active Display, Front Porch, Sync Pulse and Back
 Porch.
 <p>
-You can also set any type of clock constrains like Horizontal Clock,
+You can also set any type of clock constraints like Horizontal Clock,
 Vertical Clock and Pixel Clock.
 If you select more than one exact clock the resulting video modes
 will have something fixed.
 For example the PAL modes have a fixed Vertical and Horizontal
-clocks. This result in a fixed number of rows.
+clocks. This results in a fixed number of rows.
 <p>
 The minimum and maximum clock limitations are considered as
 suggestions. The video modes are adjusted trying to match these
-limits. The available changes are enabling the doublescan, enabling
-the interlace and doubling the horizontal size.
+limits. The available changes are enabling doublescan, enabling
+interlace and doubling the horizontal size.
 <h2><a name="3">3</a> 
 Options
 </h2>
@@ -101,7 +101,7 @@ Options
 <tr valign="top" align="left"><td><strong>
 /fh A,F,S,B
 </strong></td></tr><tr><td>
-Select the horizontal format. You need specify the length
+Select the horizontal format. You must specify the length
 of the Active Display, Front Porch, Sync Pulse and
 Back Porch.
 You can use any measure unit because these values are
@@ -175,7 +175,7 @@ of your monitor.
 <tr valign="top" align="left"><td><strong>
 /vmax CLOCK
 </strong></td></tr><tr><td>
-Suggests the maximum vertical clock in Hz.
+Suggest the maximum vertical clock in Hz.
 You can use this option to match the capabilities
 of your monitor.
 </td></tr>
@@ -189,9 +189,9 @@ default set is generated.
 </td></tr>
 </table>
 <h2><a name="4">4</a> 
-Predefinite Options
+Predefined Options
 </h2>
-These options are a predefinite set of configurations:
+These options are a predefined set of configurations:
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td><strong>
 /atari_standard
@@ -273,28 +273,28 @@ VClock 57 Hz
 </td></tr>
 </table>
 <p>
-You can overrides some parameters using the normal options.
+You can override some parameters using the normal options.
 <p>
 Examples for SVGA default modes at 75 Hz:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-modeline /svga60 /v 75
+advline /svga60 /v 75
 </pre>
 </td></tr></table>
 <p>
 Examples for SVGA mode 384x224 at 72 Hz:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
-modeline /svga60 /v 72 384x224
+advline /svga60 /v 72 384x224
 </pre>
 </td></tr></table>
 <h2><a name="5">5</a> 
 Timings
 </h2>
-This is the collections of video timings used by the
-predefinite options.
+This is the collection of video timings used by the
+predefined options.
 <p>
-The nomenclature used is :
+The nomenclature used is:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 A = Active Display
@@ -332,9 +332,9 @@ NTSC TVs
 <pre>
                Horizontal              Vertical
 A              52.60 us                15.39875 ms
-F              1.50 us                 0.190.50 ms
-S              4.70 us                 0.190.50 ms
-B              4.70 us                 0.889.00 ms
+F              1.50 us                 0.19050 ms
+S              4.70 us                 0.19050 ms
+B              4.70 us                 0.88900 ms
 F+S+B          10.90 us
 A+F+S+B        63.50 us                16.66875 ms
 Clock          15.72 kHz               59.94 Hz

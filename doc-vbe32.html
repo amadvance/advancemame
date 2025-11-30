@@ -67,18 +67,18 @@ vbe32 [/l] [/c CONFIG]
 Description
 </h2>
 The `vbe32' utility is a 32 bit TSR (Terminate Stay Resident)
-VBE BIOS that completely substitutes the original VBE BIOS of your
+VBE BIOS that completely replaces the original VBE BIOS of your
 video board.
 <p>
-It allow to set an arbitrary video mode list with the favorite
+It allows you to set an arbitrary video mode list with the favorite
 modes which work best with your video hardware without any
 restrictions in size and frequencies.
 <p>
 With this utility you can play all the DOS games that use the
-standard VESA VBE services with your PC Monitor, TV and Arcade
-Monitor.
+standard VESA VBE services with your PC monitor, TV and arcade
+monitor.
 <p>
-At the startup the configuration file `vbe.rc', created with
+At startup the configuration file `vbe.rc', created with
 the utility `vbev', is read and all the modelines present
 are activated. The format of this configuration file is
 specified in the document `advv.txt'.
@@ -123,8 +123,8 @@ SVGA PC Multisync Monitor.
 </table>
 <p>
 All the modelines present in the configuration files are used
-to create the list of available VBE mode. For every modeline
-five VBE modes with 8, 15, 16, 24, 32 bits are added.
+to create the list of available VBE modes. For every modeline
+five VBE modes with 8, 15, 16, 24 and 32 bits are added.
 <h2><a name="3">3</a> 
 Options
 </h2>
@@ -133,7 +133,7 @@ These are the command line options supported:
 <tr valign="top" align="left"><td><strong>
 /l
 </strong></td></tr><tr><td>
-Load in memory the utility
+Load the utility in memory
 </td></tr>
 </table>
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -153,40 +153,40 @@ Limitations
 </h2>
 <ul>
 <li>
-The VBE 1.2 standard isn't supported. This makes the program
+The VBE 1.2 standard is not supported. This makes the program
 useless for 16 bit applications.
 </li>
 <li>
-The VBE 3.0 standard isn't supported.
+The VBE 3.0 standard is not supported.
 </li>
 <li>
-The VBE protect mode interface isn't supported. Anyway, protect mode
+The VBE protected mode interface is not supported. However, protected mode
 programs should be able to use the VBE real mode interface.
 </li>
 <li>
 It uses a lot of conventional memory. Approx 200 kbyte.
 </li>
 <li>
-It cannot be unloaded. It's a limitation of the DPMI support
-not resolvable.
+It cannot be unloaded. This is a limitation of the DPMI support
+and cannot be resolved.
 </li>
 <li>
-If used with CWSDPMI all the XMS memory is allocated. It's a limitation
-of CWSDPMI. Anyway, the memory is available through the
+If used with CWSDPMI all the XMS memory is allocated. This is a limitation
+of CWSDPMI. However, the memory remains available through the
 DPMI services.
 </li>
 <li>
-It doesn't work in Windows NT/2000/XP.
+It does not work in Windows NT/2000/XP.
 </li>
 </ul>
 <h2><a name="6">6</a> 
 Application Problems
 </h2>
 Some applications are able to use only some common resolutions
-like 320x240, 400x300, 512x384, 640x480 and 800x600. Others resolutions
+like 320x240, 400x300, 512x384, 640x480 and 800x600. Other resolutions
 may be completely ignored or crash the application.
 <p>
-Others applications may get in trouble if the list of available
+Other applications may get in trouble if the list of available
 VBE modes contains duplicate resolutions or is too big.
 Add only the best modelines and avoid duplicates.
 <h2><a name="7">7</a> 
