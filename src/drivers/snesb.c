@@ -330,6 +330,7 @@ static ADDRESS_MAP_START( snesb_map, ADDRESS_SPACE_PROGRAM, 8)
 	AM_RANGE(0x400000, 0x5fffff) AM_READWRITE(snes_r_bank3, MWA8_ROM)	/* ROM (and reserved in Mode 20) */
 	AM_RANGE(0x600000, 0x6fffff) AM_READWRITE(snes_r_bank6, snes_w_bank6)	/* used by Mode 20 DSP-1 */
 	AM_RANGE(0x700000, 0x77ffff) AM_READWRITE(snes_r_sram, snes_w_sram)	/* 256KB Mode 20 save ram + reserved from 0x8000 - 0xffff */
+    AM_RANGE(0x780000, 0x7dffff) AM_NOP					/* Reserved */
 	AM_RANGE(0x7e0000, 0x7fffff) AM_RAM					/* 8KB Low RAM, 24KB High RAM, 96KB Expanded RAM */
 	AM_RANGE(0x800000, 0xffffff) AM_READWRITE(snes_r_bank4, snes_w_bank4)	/* Mirror and ROM */
 ADDRESS_MAP_END
@@ -1333,16 +1334,16 @@ static DRIVER_INIT(ffight3b)
 			rom[i] = BITSWAP8(rom[i], 4, 7, 0, 2, 5, 3, 1, 6) ^ 0xff;
 	}
 
+	// boot vector. TODO: this is the same as the console version, but needs to be verified
+	rom[0xfffc] = 0x00;
+	rom[0xfffd] = 0xfe;
+
 	// patch out protection
 	rom[0xfe33] = 0x5c;
 	rom[0xfe34] = 0x00;
 	rom[0xfe35] = 0x00;
 	rom[0xfe36] = 0xc0;
 	rom[0xfeab] = 0x60;
-
-	// boot vector. TODO: this is the same as the console version, but needs to be verified
-	rom[0xfffc] = 0x00;
-	rom[0xfffd] = 0xfe;
 
 	// extra inputs
    	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770071, 0x770071, 0, 0, iron_770071_r);
@@ -1921,8 +1922,8 @@ GAME( 1997, sblast2b,     0,         kinstb,	 sblast2b,  sblast2b,	ROT0, "bootle
 GAME( 1996, iron,         0,         kinstb,	 iron,      iron,	ROT0, "bootleg",    "Iron (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, denseib,      0,         kinstb,	 denseib,   denseib,	ROT0, "bootleg",    "Ghost Chaser Densei (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, endless,      0,         kinstb,	 iron,      endless,    ROT0, "bootleg",    "Gundam Wing: Endless Duel (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 199?, ffight3b,     0,         kinstb,     ffight2b,  ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based on beta version? protected? // black screen
-GAME( 199?, ffight3b2,    ffight3b,  kinstb,     ffight2b,  ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 2)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // black screen
+GAME( 199?, ffight3b,     0,         kinstb,     iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // based on beta version? protected? // black screen
+GAME( 199?, ffight3b2,    ffight3b,  kinstb,     iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 2)", GAME_NOT_WORKING | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS ) // black screen
 GAME( 1996, legendsb,     0,         kinstb,     iron,      legendsb,   ROT0, "bootleg",    "Legend (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, rushbets,     0,         ffight2b,   sblast2b,  rushbets,   ROT0, "bootleg",    "Rushing Beat Shura (SNES bootleg)",  GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, tmntmwb,      0,         kinstb,     sblast2b,  tmntmwb,    ROT0, "bootleg",    "Teenage Mutant Ninja Turtles - Mutant Warriors (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
