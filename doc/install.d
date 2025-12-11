@@ -11,7 +11,7 @@ System Requirements
 	The following is a list of all that you need to do.
 
 	More details on the single drivers are present in the
-	`advdev.txt' documentation file.
+	`advdev.txt` documentation file.
 
   Linux
 	In Linux the Advance programs can run either in the
@@ -48,7 +48,7 @@ System Requirements
 
 	If, however, you prefer to use an old Arcade CRT or TV screen, you can
 	configure the Advance programs to generate custom modelines for your
-	video hardware, following the instructions in the 'Video Setup'
+	video hardware, following the instructions in the `Video Setup`
 	chapter.
 
 	Users have reported achieving optimal results with Arcade CRT by using
@@ -68,7 +68,7 @@ System Requirements
 	need an HDMI->VGA or HDMI->SCART converter to connect it to a CRT
 	monitor.
 
-	There's no need for any special options in your '/boot/config.txt';
+	There's no need for any special options in your `/boot/config.txt`;
 	include only the options required to start the Raspberry with your
 	video hardware and enable command entry.
 
@@ -94,7 +94,7 @@ System Requirements
 	setting timings in other ways.
 
 	To enable programmable modes, start the Raspberry with custom mode 87
-	group 2 in '/boot/config.txt'. For example, with an Arcade Monitor:
+	group 2 in `/boot/config.txt`. For example, with an Arcade Monitor:
 
 		:dpi_group=2
 		:dpi_mode=87
@@ -127,7 +127,7 @@ System Requirements
 	longer supports direct programming of the Linux FrameBuffer.
 
 	To address this issue, you will need to edit the /boot/config.txt file
-	and comment out the 'dtoverlay=vc4-kms-v3d' line. This action
+	and comment out the `dtoverlay=vc4-kms-v3d` line. This action
 	activates the legacy video driver that still maintains support for the
 	Linux FrameBuffer (tested with Raspbian bullseye).
 
@@ -156,7 +156,7 @@ Installation
 	In Linux and other unix, the recommended way to install the Advance
 	programs is to start from the sources.
 
-	The build process is detailed in `build.txt' file, but usually
+	The build process is detailed in `build.txt` file, but usually
 	you need only the usual commands:
 
 		:./configure
@@ -181,11 +181,11 @@ Configuration
 	current directory.
 
 	When you have finished modifying the configuration files,
-	it is recommended to run the programs with the `-remove' option
+	it is recommended to run the programs with the `-remove` option
 	to remove all the default options from the configuration files.
 
   AdvanceMAME
-	To run AdvanceMAME you need at least to configure the `dir_rom'
+	To run AdvanceMAME you need at least to configure the `dir_rom`
 	option to point where your roms reside.
 
 	In Linux, Mac OS X and other Unix the default rom dirs are
@@ -196,7 +196,7 @@ Configuration
 	other application, you don't need to configure any video options.
 
 	Instead, if you want to enable the direct programming of the
-	video board you need to carefully follow the "Video Setup" chapter
+	video board you need to carefully follow the `Video Setup` chapter
 	in this file.
 
   AdvanceMENU
@@ -210,7 +210,7 @@ Configuration
 
 	You will likely also need to adjust the path where the
 	game's .png, .mp3 and .mng snapshot files reside with the
-	`emulator_altss' option.
+	`emulator_altss` option.
 
 	In Linux, Mac OS X and other Unix the default snapshot dirs are
 	/usr/local/share/advance/snap and $HOME/.advance/snap.
@@ -304,7 +304,7 @@ Video Hardware
 		:device_video_clock 4 - 50 / 25 / 60
 
 	If your monitor is multistandard, you can use more
-	clock specifications separating them with the `;' char.
+	clock specifications separating them with the `;` char.
 
 	For example:
 
@@ -398,65 +398,65 @@ Video Setup
 	and vertical clocks.
 
 	With this information the programs are able to always generate
-	`perfect' video modes for the emulated game.
+	`perfect` video modes for the emulated game.
 
   Operation Modes
 	The programs support two basic ways to generate video modes:
-	the `automatic' and the `manual' operation mode.
+	the `automatic` and the `manual` operation mode.
 
-	In the `automatic' mode the programs automatically generate
+	In the `automatic` mode the programs automatically generate
 	a video mode from scratch. It's the simplest mode of operation.
 
-	In the `manual' mode the programs pick the video mode from a
+	In the `manual` mode the programs pick the video mode from a
 	manually defined list of modelines, eventually adjusting them
 	to match the game clock or size requirements.
-	This mode of operation should be used only if the `automatic'
+	This mode of operation should be used only if the `automatic`
 	mode doesn't work.
 
     Automatic Operation Mode
 	In the automatic operation mode the programs automatically
-	create a `perfect' video mode for the game to be emulated
+	create a `perfect` video mode for the game to be emulated
 	that fits exactly the whole screen with the correct aspect
 	and frame rate.
 
 	To configure and activate this mode you need to run the
-	`advcfg' utility for AdvanceMAME and `advcfg -advmenuc' for
+	`advcfg` utility for AdvanceMAME and `advcfg -advmenuc` for
 	AdvanceMENU, and answer the various questions.
 	You don't need to create a list of video modes, any needed
 	video mode is created at runtime.
 
-	Before running the `advcfg' utility you should check your
+	Before running the `advcfg` utility you should check your
 	monitor manual for the vertical and horizontal clocks
 	supported by your monitor.
 
-	The `advcfg' utility adds these options in your `advmame.rc':
+	The `advcfg` utility adds these options in your `advmame.rc`:
 
 		:display_mode auto
 		:display_adjust generate_yclock
 		:device_video_clock ?
 		:device_video_format ?
 
-	All these options are documented in the `advdev.txt'
-	and `advmame.txt' files.
+	All these options are documented in the `advdev.txt`
+	and `advmame.txt` files.
 
     Manual Operation Mode
-	In the manual operation mode the programs scan a list of `good'
+	In the manual operation mode the programs scan a list of `good`
 	video modelines created manually and choose the best available.
 	You must in advance create this list of video modelines with the
-	`advv' utility.
+	`advv` utility.
 
 	This is the description of the few basic steps required to run
 	the programs in the manual operation mode. All the options used
-	are documented in the `advdev.txt' file.
+	are documented in the `advdev.txt` file.
 
-	) For AdvanceMAME add in the file `advmame.rc' these
+	) For AdvanceMAME add in the file `advmame.rc` these
 		options:
 
 		:display_mode auto
 		:display_adjust x
 
-	) Add in the file `advmame.rc' or `advmenu.rc' the
-		`device_video_clock' option that specifies which
+	) Add in the file `advmame.rc` or `advmenu.rc` the
+		`device_video_clock` option that specifies which
 		pixel, horizontal and vertical clocks are supported
 		by your monitor.
 		Generally these values are specified in the technical
@@ -464,7 +464,7 @@ Video Setup
 		"Video Hardware" chapter in this file for some
 		examples.
 
-	) Run the `advv' program for AdvanceMAME or `advv -advmenuv' for
+	) Run the `advv` program for AdvanceMAME or `advv -advmenuv` for
 		AdvanceMENU.
 
 	) Test the video modelines of your interest pressing ENTER
@@ -481,14 +481,14 @@ Video Setup
 		Video modes displayed in red aren't supported by
 		your video hardware.
 
-	) When you have selected the list of `good' video modes press
+	) When you have selected the list of `good` video modes press
 		F2 to save them in your configuration file.
 
-	) Press ESC to exit from `advv'
+	) Press ESC to exit from `advv`
 
-	In the `contrib/modeline' dir are present some .rc files with
+	In the `contrib/modeline` dir are present some .rc files with
 	some example modelines. The same modelines are contained in
-	the `advv' program.
+	the `advv` program.
 
 Copyright
 	This file is Copyright (C) 2003 - 2017 Andrea Mazzoleni.

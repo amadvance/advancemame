@@ -6,14 +6,14 @@ Synopsis
 	:	[/n SIZE] [/m]
 
 Description
-	The `videow' utility can be used to control the video
+	The `videow` utility can be used to control the video
 	output of the PC in Windows 2000/XP.
 
-	It requires the `svgawin' driver installed and running.
+	It requires the `svgawin` driver installed and running.
 
-	The modelines are read from the file `videow.rc'.
+	The modelines are read from the file `videow.rc`.
 	The format of this configuration file is specified in the
-	document `advv.txt'.
+	document `advv.txt`.
 
 	These are some example rc files:
 
@@ -48,7 +48,7 @@ Options
 
 	/c CONFIG
 		Use an arbitrary configuration file instead of the
-		standard `videow.rc' file.
+		standard `videow.rc` file.
 
 	/p
 		Print some info about the video board.
@@ -61,10 +61,10 @@ Options
 		Enable the use of the hardware mouse pointer.
 
 Cards
-	The program supports all the `svgawin' drivers listed in the
-	`cardwin.txt' file.
+	The program supports all the `svgawin` drivers listed in the
+	`cardwin.txt` file.
 
-	You can force the use of a specific driver using the `device_video'
+	You can force the use of a specific driver using the `device_video`
 	option in the configuration file.
 
 	The available drivers are :
@@ -124,7 +124,7 @@ Examples
 
 Bugs
 	The configuration file is checked only for the
-	`device_video_modeline' and `device_video' options.
+	`device_video_modeline` and `device_video` options.
 	All the other options are ignored.
 
 Copyright

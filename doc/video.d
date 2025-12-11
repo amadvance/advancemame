@@ -5,7 +5,7 @@ Synopsis
 	:video [/s MODE] [/e] [/d] [/r] [/l PCXIMAGE]
 
 Description
-	The `video' utility can be used to control the video
+	The `video` utility can be used to control the video
 	output of the PC in DOS.
 
 Options

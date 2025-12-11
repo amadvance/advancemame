@@ -14,7 +14,7 @@ Name{number}
 SubIndex
 
 SVGALINE Drivers
-	The `svgaline' drivers are a subset of the Linux SVGALIB library.
+	The `svgaline` drivers are a subset of the Linux SVGALIB library.
 
   ATI Technologies (1002)
 	+Fire GL X2 [414b] 
@@ -1719,7 +1719,7 @@ VBELINE Drivers
 	+86CM65 Aurora64V+ [8812] 
 
 Information
-	This list is automatically generated from the `pcidevs.txt' and `pci.ids'
+	This list is automatically generated from the `pcidevs.txt` and `pci.ids`
 	files available at:
 
 		+http://members.datafast.net.au/dft0802/downloads/pcidevs.txt

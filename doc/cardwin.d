@@ -14,7 +14,7 @@ Name{number}
 SubIndex
 
 SVGAWIN Drivers
-	The `svgawin' driver is a subset of the Linux SVGALIB library.
+	The `svgawin` driver is a subset of the Linux SVGALIB library.
 	This driver is experimental. At present it's only tested on Windows
 	2000 with a GeForce 2 board. It's supposed to work with GeForce boards;
 	it may not work with all the other boards.
@@ -1415,7 +1415,7 @@ SVGAWIN Drivers
 	+TrioV Family [8903] 
 
 Information
-	This list is automatically generated from the `pcidevs.txt' and `pci.ids'
+	This list is automatically generated from the `pcidevs.txt` and `pci.ids`
 	files available at:
 
 		+http://members.datafast.net.au/dft0802/downloads/pcidevs.txt

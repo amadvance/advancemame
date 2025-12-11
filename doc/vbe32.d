@@ -5,7 +5,7 @@ Synopsis
 	:vbe32 [/l] [/c CONFIG]
 
 Description
-	The `vbe32' utility is a 32 bit TSR (Terminate Stay Resident)
+	The `vbe32` utility is a 32 bit TSR (Terminate Stay Resident)
 	VBE BIOS that completely replaces the original VBE BIOS of your
 	video board.
 
@@ -17,10 +17,10 @@ Description
 	standard VESA VBE services with your PC monitor, TV and arcade
 	monitor.
  
-	At startup the configuration file `vbe.rc', created with
-	the utility `vbev', is read and all the modelines present
+	At startup the configuration file `vbe.rc`, created with
+	the utility `vbev`, is read and all the modelines present
 	are activated. The format of this configuration file is
-	specified in the document `advv.txt'.
+	specified in the document `advv.txt`.
 
 	These are some example rc files:
 
@@ -46,8 +46,8 @@ Options
 		Use an arbitrary configuration file
 
 Cards
-	The program supports all the `svgaline' drivers listed in the
-	`carddos.txt' file.
+	The program supports all the `svgaline` drivers listed in the
+	`carddos.txt` file.
 
 Limitations
 	* The VBE 1.2 standard is not supported. This makes the program
@@ -87,7 +87,7 @@ Examples
 
 Bugs
 	The configuration file is checked only for the
-	`device_video_modeline' options.
+	`device_video_modeline` options.
 	All the other options are ignored.
 
 Copyright

@@ -5,19 +5,19 @@ Synopsis
 	:vga [/l] [/u] [/a] [/c CONFIG] [/d] [/e]
 
 Description
-	The `vga' utility is a TSR (Terminate and Stay Resident) VGA BIOS
+	The `vga` utility is a TSR (Terminate and Stay Resident) VGA BIOS
 	wrapper that substitutes the default list of VGA video modes
 	with a list of favorite modes which work best with your
 	video hardware.
 
-	The `vga.exe' executable can be used as a standard executable or
-	it can also be loaded as a `sys' driver in the `config.sys' with
-	`device='. Please note that the `sys' version cannot be unloaded.
+	The `vga.exe` executable can be used as a standard executable or
+	it can also be loaded as a `sys` driver in the `config.sys` with
+	`device=`. Please note that the `sys` version cannot be unloaded.
 
-	At startup the configuration file `vga.rc', created with
-	the utility `vgav', is read and all the modelines present
+	At startup the configuration file `vga.rc`, created with
+	the utility `vgav`, is read and all the modelines present
 	are activated. The format of this configuration file is
-	specified in the document `advv.txt'.
+	specified in the document `advv.txt`.
 
 	These are some example rc files:
 
@@ -74,7 +74,7 @@ Options
 
 		:mode co80
 
-	or with the `video' utility.
+	or with the `video` utility.
 
 Cards
 	This utility should work with any VGA-compatible board.
@@ -126,9 +126,9 @@ Examples
 		:device=c:\cab\vga.exe /l /d /c c:\cab\vga.rc
 
 	The latter is probably the most interesting use. You can load
-	`vga' as soon as possible to adjust the video output and prevent
+	`vga` as soon as possible to adjust the video output and prevent
 	other programs from writing to the screen. You can also use the
-	`video' utility to load an arbitrary image to display.
+	`video` utility to load an arbitrary image to display.
 	After the system is initialized you can insert in the autoexec.bat
 	the command:
 
@@ -138,7 +138,7 @@ Examples
 
 Bugs
 	The configuration file is checked only for the
-	`device_video_modeline' options.
+	`device_video_modeline` options.
 	All the other options are ignored.
 
 Copyright

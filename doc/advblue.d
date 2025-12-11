@@ -5,7 +5,7 @@ Synopsis
 	:advblue [-f]
 
 Description
-	The `advblue' utility is a daemon that is able to
+	The `advblue` utility is a daemon that is able to
 	pair and connect Bluetooth joysticks automatically.
 
 	It uses the /usr/bin/bluetoothctl tool to communicate

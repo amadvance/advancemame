@@ -58,7 +58,7 @@ AdvanceMAME FAQ
 
   When I start a game with AdvanceMAME I see a copyright message before the
   game starts. How do I get rid of it ?
-	Take a look at the `misc_quiet' option.
+	Take a look at the `misc_quiet` option.
 
 AdvanceMENU FAQ
   Each time I start AdvanceMENU, I see a message about
@@ -84,7 +84,7 @@ AdvanceMENU FAQ
 
   How do I avoid AdvanceMENU jumping to different games when I press
   letter keys ?
-	Use `event_alpha no' in the AdvanceMENU configuration file. This
+	Use `event_alpha no` in the AdvanceMENU configuration file. This
 	is most often used if you have a control panel wired to a keyboard
 	hack or keyboard controller.
 
@@ -218,13 +218,13 @@ Video FAQ
 
   How can I remove the tearing effect ?
 	The only way to remove the tearing effect is to enable the
-	`display_vsync' option. To work correctly this option needs a video
+	`display_vsync` option. To work correctly this option needs a video
 	mode with a refresh rate which is a multiple of the original game
 	refresh rate. For example for a 50 Hz game you can use video modes
 	of 50, 100, 150 Hz.
 
   How can I reduce the tearing effect ?
-	If for some reason you cannot use the `display_vsync' option the
+	If for some reason you cannot use the `display_vsync` option the
 	only way to reduce the tearing effect is to choose a video mode
 	refresh rate which ensures a randomly and fast moving tearing
 	split line.
@@ -255,7 +255,7 @@ Video FAQ
   Why are the smaller video modes like 256x224 not working ?
 	Your video board probably isn't able to generate the very low
 	pixel clocks needed. You can try to increase the minimum value 
-	of the `device_video_pclock' option. The video mode generation 
+	of the `device_video_pclock` option. The video mode generation 
 	will automatically generate video modes with double or triple
 	horizontal resolutions to force the use of a pixel clock in
 	the specified range.

@@ -2,7 +2,7 @@ Name{number}
 	off - AdvanceCAB Shutdown For DOS
 
 Description
-	The `off' utility can be used to shut down an ATX-powered PC.
+	The `off` utility can be used to shut down an ATX-powered PC.
 
 	To work properly it requires an APM (Advanced Power
 	Management) BIOS version 1.2 or greater.

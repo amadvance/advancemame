@@ -48,13 +48,13 @@ Build
 	or 25 minutes on a Raspberry Pi 4.
 
 	No option is generally required. You can get the complete configure
-	option list with the `./configure --help' command.
+	option list with the `./configure --help` command.
 
 	The default installation prefix is /usr/local. You can change it
-	with the `--prefix=' option.
+	with the `--prefix=` option.
 
 	The default host configuration directory is /usr/local/etc. You can
-	change it with the `--sysconfdir=' option. Please note that instead
+	change it with the `--sysconfdir=` option. Please note that instead
 	of /usr/etc it is always used /etc.
 
 	The configure script automatically detects all the available
@@ -62,7 +62,7 @@ Build
 	--with-sdl-prefix and --with-sdl2-prefix options to search for the
 	SDL and SDL2 libraries in a specific location.
 
-	The `make install' command installs the binaries and the documentation.
+	The `make install` command installs the binaries and the documentation.
 
 	The binaries are installed in $prefix/bin, the program data
 	files in $prefix/share/advance, the documentation in

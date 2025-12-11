@@ -17,7 +17,7 @@ Description
 
 	The major features are:
 
-	* Automatic creation of `perfect' video modes with the correct
+	* Automatic creation of `perfect` video modes with the correct
 		size and clock.
 	* Many video boards supported for direct hardware register
 		programming (see the card*.txt files).
@@ -26,10 +26,10 @@ Description
 	* Software video image stretching by fractional factors, for
 		example to play vertical games like "Pac-Man" with
 		horizontal Arcade Monitors or TVs.
-	* Special `scalex', `scalek', `lq', `hq' and `xbr' effects to improve
+	* Special `scalex`, `scalek`, `lq`, `hq` and `xbr` effects to improve
 		the aspect on modern PC Monitors.
-	* Special `blit' effects to improve image quality when stretching.
-	* Special `rgb' effects to simulate the look of a real Arcade
+	* Special `blit` effects to improve image quality when stretching.
+	* Special `rgb` effects to simulate the look of a real Arcade
 		Monitor.
 	* Change of video mode and other video options at runtime.
 	* Support for Symmetric Multi-Processing (SMP) with a multiple
@@ -98,7 +98,7 @@ Options
 
 	=GAME/MACHINE
 		The game or machine to emulate. If the specified
-		GAME/MACHINE is unknown, a list of possible `guesses'
+		GAME/MACHINE is unknown, a list of possible `guesses`
 		is printed.
 
 	-default
@@ -116,7 +116,7 @@ Options
 
 	-log
 		A very detailed log of operations is saved in
-		a `.log' file. Very useful for debugging problems.
+		a `.log` file. Very useful for debugging problems.
 
 	-listxml
 		Outputs the internal MAME database in XML format.
@@ -124,7 +124,7 @@ Options
 	-record FILE
 		Record all the game inputs in the specified file.
 		The file is saved in the directory specified by the
-		`dir_inp' configuration option.
+		`dir_inp` configuration option.
 
 	-playback FILE
 		Play back the previously recorded game inputs in the
@@ -145,12 +145,12 @@ Options
 		:advmame pacman -device_sound sb -nodisplay_scanlines
 
 	You can use short options if they are unambiguous. You can remove
-	any prefix tag separated with `_' or truncate it.
-	For example `-dev_cartdrige' can be written as `-dev_cart',
-	`-cartdrige', `-cart', ...
+	any prefix tag separated with `_` or truncate it.
+	For example `-dev_cartdrige` can be written as `-dev_cart`,
+	`-cartdrige`, `-cart`, ...
 
-	In Linux and Mac OS X you can also use `--' before options instead of `-'.
-	In DOS and Windows you can also use `/'.
+	In Linux and Mac OS X you can also use `--` before options instead of `-`.
+	In DOS and Windows you can also use `/`.
 
 Features
 	This section contains a brief description of all the features
@@ -162,18 +162,18 @@ Features
 	correct size and aspect ratio.
 
 	You can control how the video modes are generated with the
-	`display_adjust' option. More details are in the `install.txt'
+	`display_adjust` option. More details are in the `install.txt`
 	file.
 
   Video Menu
-	AdvanceMAME adds a new `Video' menu in MAME to change the video
+	AdvanceMAME adds a new `Video` menu in MAME to change the video
 	options at runtime.
 
 	You can select the desired video mode, the resize type and the
 	video effects.
 
 	The selected option is displayed at the right side of the menu,
-	the effective value used for the option is displayed in `[]'.
+	the effective value used for the option is displayed in `[]`.
 
   Resize
 	AdvanceMAME supports many software stretching types of the
@@ -182,47 +182,47 @@ Features
 	But in some conditions it isn't possible, in this case the
 	image is stretched.
 
-	There are four stretch types: `none', `integer', `mixed', `fractional'.
-	You can control the type of stretching with the `display_resize' option.
+	There are four stretch types: `none`, `integer`, `mixed`, `fractional`.
+	You can control the type of stretching with the `display_resize` option.
 
-	The `none' option simply disables any type of stretching.
-	The `integer' option allows only integer stretching in the
+	The `none` option simply disables any type of stretching.
+	The `integer` option allows only integer stretching in the
 	horizontal and vertical directions. For example 1x2, 2x1, 2x2.
-	The `mixed' option allows integer stretching in the horizontal
+	The `mixed` option allows integer stretching in the horizontal
 	direction and fractional stretching in the vertical direction.
 	For example 1x1.23, 2x1.18.
-	The `fractional' option allows fractional stretching in any
+	The `fractional` option allows fractional stretching in any
 	direction. For example 1.08x1.08, 1.34x1.78.
 
-	Usually the best choice is the `mixed' option. It's very fast
+	Usually the best choice is the `mixed` option. It's very fast
 	and the image quality doesn't suffer too much.
 
   Blit Effects
 	AdvanceMAME supports many special video effects to improve
 	the image quality when it is stretched.
 
-	There are a lot of video effects: `none', `max', `mean',
-	`filter', `scalex', `scalek', `lq', `hq' and `xbr'.
-	You can select the favorite effect with the `display_resizeeffect'
+	There are a lot of video effects: `none`, `max`, `mean`,
+	`filter`, `scalex`, `scalek`, `lq`, `hq` and `xbr`.
+	You can select the favorite effect with the `display_resizeeffect`
 	option, or from the runtime menu.
 
-	The `none' effect simply duplicates and removes rows and lines
+	The `none` effect simply duplicates and removes rows and lines
 	when the image is stretched.
-	The `max' effect tries to save image details by checking the luminosity
+	The `max` effect tries to save image details by checking the luminosity
 	of the pixels in stretching. It ensures vertical and horizontal lines
 	are always of the same thickness.
-	The `mean' effect tries to save image details by displaying the
+	The `mean` effect tries to save image details by displaying the
 	mean color of the pixels in stretching.
-	The `filter' effect applies a generic blur filter computing the
+	The `filter` effect applies a generic blur filter computing the
 	mean color in the horizontal and vertical directions. The best
 	results are when the image is stretched almost by a double
 	factor. When the image is enlarged the filter is applied after
 	stretching; when reduced, it is applied before.
-	The `scalex', `scalek', `lq', `hq' and `xbr' effects add missing pixels
+	The `scalex`, `scalek`, `lq`, `hq` and `xbr` effects add missing pixels
 	by trying to match the image patterns.
 
-	The `scalex', `scalek', `lq', `hq' and `xbr' effects work only if the image is
-	magnified. To enable them you should also use the `display_magnify' option.
+	The `scalex`, `scalek`, `lq`, `hq` and `xbr` effects work only if the image is
+	magnified. To enable them you should also use the `display_magnify` option.
 
   RGB Effects
 	AdvanceMAME supports some special video effects to simulate
@@ -233,17 +233,17 @@ Features
 	horizontal scanlines.
 
   Mode Selection
-	In the `Video Mode' submenu you can select the favorite video
+	In the `Video Mode` submenu you can select the favorite video
 	mode.
 
-	If you choose `auto', the best video mode is chosen
+	If you choose `auto`, the best video mode is chosen
 	automatically.
 
-	You can change the active video mode by pressing `,' and `.' during
+	You can change the active video mode by pressing `,` and `.` during
 	gameplay.
 
 	You can force a specific video mode with the option
-	`display_mode'.
+	`display_mode`.
 
   Per game/resolution/frequency/orientation options
 	All the options are customizable in the configuration file for
@@ -255,7 +255,7 @@ Features
 	controlling external hardware through the parallel port
 	or keyboard LED signals.
 
-	More details are in the `script.txt' file.
+	More details are in the `script.txt` file.
 
   Aspect Ratio Control
 	AdvanceMAME always tries to display the game with the
@@ -266,7 +266,7 @@ Features
 	It is very useful to display vertical games on
 	horizontal monitors and vice versa.
 
-	More details are in the description of the `display_expand'
+	More details are in the description of the `display_expand`
 	option.
 
   Speed Control
@@ -276,12 +276,12 @@ Features
 	skip the game startup process at maximum speed,
 	or skip game animations by pressing a key.
 
-	Press `asterisk_pad' to enable `turbo' mode. Press `minus_pad' to mark the time
+	Press `asterisk_pad` to enable `turbo` mode. Press `minus_pad` to mark the time
 	of the real game start. The next time the game is started,
 	it will execute very fast until this time.
 
-	More details are in the description of the `sync_fps', `sync_speed',
-	`sync_turbospeed' and `sync_startuptime' options.
+	More details are in the description of the `sync_fps`, `sync_speed`,
+	`sync_turbospeed` and `sync_startuptime` options.
 
 	The video and audio synchronization uses an advanced algorithm
 	that ensures the best performance.
@@ -303,8 +303,8 @@ Features
 
 	An equalizer and a spectrum analyzer are also available.
 
-	More details are in the description of the `sound_normalize'
-	and `sound_equalizer' options.
+	More details are in the description of the `sound_normalize`
+	and `sound_equalizer` options.
 
   Exit Control
 	If you have a real Arcade Cabinet you can configure AdvanceMAME
@@ -314,22 +314,22 @@ Features
 	For some supported games you can force the display of an
 	exit menu during gameplay to prevent unwanted exits.
 
-	More details are in the description of the `misc_safequit'
-	and `input_idleexit' options.
+	More details are in the description of the `misc_safequit`
+	and `input_idleexit` options.
 
   Input Control
 	AdvanceMAME supports very fine control of the mapping
 	of analog and digital inputs. You can remap any input
 	event using easy-to-maintain text configuration files.
 
-	More details are in the description of the `input_map'
+	More details are in the description of the `input_map`
 	option.
 
   Audio and Video Recording
 	AdvanceMAME can save gameplay in .WAV audio files and
 	.MNG video files.
 
-	More details are in the description of the `record_*'
+	More details are in the description of the `record_*`
 	options.
 
   User Interface
@@ -342,7 +342,7 @@ Features
 
 	TrueType fonts with alpha blending are also supported.
 
-	More details are in the description of the `ui_*' options.
+	More details are in the description of the `ui_*` options.
 
   Input Help
 	AdvanceMAME is able to display a help image containing the
@@ -354,9 +354,9 @@ Features
 	highlighted. If you have an Arcade cabinet you can create your
 	own personalized control panel image and select each region to highlight.
 
-	Press `f1' during gameplay to display it.
+	Press `f1` during gameplay to display it.
 
-	More details are in the description of the `ui_help*' options.
+	More details are in the description of the `ui_help*` options.
 
   Input Text Configuration File
 	All user customizations are stored in a single textual
@@ -369,25 +369,25 @@ Features
 	They are independent of the internal MAME structure, so when it
 	changes you don't lose your customizations.
 
-	More details are in the description of the `input_setting',
-	`input_dipswitch', `input_configswitch' options.
+	More details are in the description of the `input_setting`,
+	`input_dipswitch`, `input_configswitch` options.
 
   Cocktail
 	For cocktail arcade cabinets you can manually flip vertically the
 	screen for games without cocktail support.
 
-	Press `slash_pad' to flip the screen.
+	Press `slash_pad` to flip the screen.
 
   Dipswitches Control
 	You can customize with specialized options the game difficulty and
 	freeplay. These options are smart enough to solve common ambiguities
 	and errors in the game dipswitch definitions.
 
-	More details are in the description of the `misc_difficulty',
-	`misc_freeplay' and `misc_cocktail' options.
+	More details are in the description of the `misc_difficulty`,
+	`misc_freeplay` and `misc_cocktail` options.
 
   LCD Panel
-	AdvanceMAME is able to talk to an `lcdproc' server located anywhere
+	AdvanceMAME is able to talk to an `lcdproc` server located anywhere
 	on the internet to display arbitrary information on a real or simulated
 	LCD panel.
 
@@ -408,7 +408,7 @@ Use Cases
   With a CRT Multi-Sync Monitor
 	On a PC Multi-Sync monitor you can get any resolution at any
 	vertical frequency. In this case AdvanceMAME always generates
-	a `perfect' video mode with the correct size and clock. It
+	a `perfect` video mode with the correct size and clock. It
 	doesn't require any type of stretching.
 	For example for the game "Bomb Jack" a video mode of 400x256
 	at 60 Hz (perfect size and perfect frequency) is used.
@@ -477,7 +477,7 @@ Other Ports
 
 	This also helps when using Arcade Monitors with specific modelines,
 	because AdvanceMAME is able to stretch the image using special effects
-	like 'max' that avoids losing pixels.
+	like `max` that avoids losing pixels.
 
   DOS MAME
 	The official DOS MAME is limited to using only the standard
@@ -488,22 +488,22 @@ Other Ports
 
 Configuration
 	In DOS and Windows the configuration options are read from the
-	files `advmame.rc' and `advmess.rc' in the current
+	files `advmame.rc` and `advmess.rc` in the current
 	directory.
 
 	In Linux and Mac OS X the configuration options are read from the
-	files `advmame.rc' and `advmess.rc' in the $host, $data and
+	files `advmame.rc` and `advmess.rc` in the $host, $data and
 	$home directories.
-	The $host directory is `$SYSCONFDIR', where $SYSCONFDIR is the
-	`sysconfdir' directory configured with the `configure' script.
-	The default is `/usr/local/etc'.
-	The $data directory is `$DATADIR/advance', where $DATADIR is the
-	`datadir' directory configured with the `configure' script.
-	The default is `/usr/local/share'.
-	The $home directory is `$ADVANCE', where $ADVANCE is the value of the
+	The $host directory is `$SYSCONFDIR`, where $SYSCONFDIR is the
+	`sysconfdir` directory configured with the `configure` script.
+	The default is `/usr/local/etc`.
+	The $data directory is `$DATADIR/advance`, where $DATADIR is the
+	`datadir` directory configured with the `configure` script.
+	The default is `/usr/local/share`.
+	The $home directory is `$ADVANCE`, where $ADVANCE is the value of the
 	ADVANCE environment variable when the program is run.
 	If the ADVANCE environment variable is missing the $home directory
-	is `$HOME/.advance' where $HOME is the value of the HOME environment
+	is `$HOME/.advance` where $HOME is the value of the HOME environment
 	variable.
 	If both the ADVANCE and HOME environment variables are missing the
 	$data directory also becomes the $home directory.
@@ -513,16 +513,16 @@ Configuration
 	The $home directory is also used to write all the information
 	by the program. The files in the $host and $data directories are only read.
 
-	You can include additional configuration files with the `include'
+	You can include additional configuration files with the `include`
 	option. In DOS and Windows the files are searched in the current directory.
 	In Linux and Mac OS X the files are searched in the $home directory if
 	they are expressed as a relative path. You can force the search in the
-	current directory by prefixing the file with `./'.
-	To include more than one file you must divide the names with `;' in
-	DOS and Windows, and with `:' in Linux and Mac OS X.
+	current directory by prefixing the file with `./`.
+	To include more than one file you must divide the names with `;` in
+	DOS and Windows, and with `:` in Linux and Mac OS X.
 
 	You can force the creation of a default configuration file with the
-	command line option `-default'.
+	command line option `-default`.
 
 	In the configuration file the options are specified in this format:
 
@@ -531,7 +531,7 @@ Configuration
 	If the SECTION is omitted the empty section is assumed.
 
 	You can split long options in a multi-line format ending the line
-	with the char `\':
+	with the char `\`:
 		:[SECTION/]OPTION FIRST_LINE \
 		:	SECOND_LINE \
 		:	... \
@@ -540,37 +540,37 @@ Configuration
 	When you run a game every option is read in different
 	sections in the following order:
 
-		`SYSTEM[SOFTWARE]' - The short system name and the loaded
-			software on the command line, like `ti99_4a[ti-inva]',
-			`a7800[digdug]' and `nes[commando]'.
-		`GAME' - The short game (or system) name, like `pacman',
-			`ti99_4a' and `nes'.
-		`PARENT' - If present, the parent name of the game,
-			like `puckman'.
-		`BIOS' - If present, the bios name of the game,
-			like `neogeo'.
-		`RESOLUTIONxCLOCK' - The resolution and the clock of the
-			game, like `244x288x60' for raster games or
-			`vector' for vector games. If the vertical clock
+		`SYSTEM[SOFTWARE]` - The short system name and the loaded
+			software on the command line, like `ti99_4a[ti-inva]`,
+			`a7800[digdug]` and `nes[commando]`.
+		`GAME` - The short game (or system) name, like `pacman`,
+			`ti99_4a` and `nes`.
+		`PARENT` - If present, the parent name of the game,
+			like `puckman`.
+		`BIOS` - If present, the bios name of the game,
+			like `neogeo`.
+		`RESOLUTIONxCLOCK` - The resolution and the clock of the
+			game, like `244x288x60` for raster games or
+			`vector` for vector games. If the vertical clock
 			is a real value, it is rounded downwards to the
 			nearest integer.
-		`RESOLUTION' - The resolution of the game, like
-			`244x288' for raster games or `vector' for vector games.
-		`ORIENTATION' - The game orientation. One of `vertical',
-			`horizontal'.
-		`CONTROLLER' - The game input device. One of `joy4way',
-			`joy8way', `doublejoy4way', `doublejoy8way',
-			`paddle', `dial', `trackball', `stick', `lightgun',
-			`mouse'.
-		`Nplayers' - Number of players in the game. One of `1players',
-			`2players', `3players', ...
-		`Nbuttons' - Number of buttons for each player. One of `1buttons',
-			`2buttons', `3buttons', up to `10buttons'.
-		`' - The default empty section.
+		`RESOLUTION` - The resolution of the game, like
+			`244x288` for raster games or `vector` for vector games.
+		`ORIENTATION` - The game orientation. One of `vertical`,
+			`horizontal`.
+		`CONTROLLER` - The game input device. One of `joy4way`,
+			`joy8way`, `doublejoy4way`, `doublejoy8way`,
+			`paddle`, `dial`, `trackball`, `stick`, `lightgun`,
+			`mouse`.
+		`Nplayers` - Number of players in the game. One of `1players`,
+			`2players`, `3players`, ...
+		`Nbuttons` - Number of buttons for each player. One of `1buttons`,
+			`2buttons`, `3buttons`, up to `10buttons`.
+		`` - The default empty section.
 
-	For example for the game `pacman' the following sections are
-	read: `pacman', `puckman', `224x288x60', `224x288', `vertical',
-	`joy4way', `2players' and `1buttons'.
+	For example for the game `pacman` the following sections are
+	read: `pacman`, `puckman`, `224x288x60`, `224x288`, `vertical`,
+	`joy4way`, `2players` and `1buttons`.
 
 	You can override any global options by inserting new options in
 	any of the sections of the game.
@@ -591,7 +591,7 @@ Configuration
 	options are mainly used on the command line to specify the
 	machine software to load.
 	The file specified is searched in the directory list specified
-	in the `dir_image' option.
+	in the `dir_image` option.
 
 	:dev_COMMAND FILE
 
@@ -635,32 +635,32 @@ Configuration
 	directories used by the program.
 
     dir_*
-	Specify all the support directories. In DOS and Windows use the `;'
-	char as directory separator. In Linux and Mac OS X use the `:' char.
+	Specify all the support directories. In DOS and Windows use the `;`
+	char as directory separator. In Linux and Mac OS X use the `:` char.
 
 	:dir_* DIR[;DIR]... (DOS, Windows)
 	:dir_* DIR[:DIR]... (Linux, Mac OS X)
 
 	Options:
 		dir_rom - Multi directory specification for the
-			AdvanceMAME `rom' files and AdvanceMESS `bios'
+			AdvanceMAME `rom` files and AdvanceMESS `bios`
 			files.
 		dir_image - Multi directory specification for the
 			chd/disk/cartridge/... image files.
 		dir_diff - Multi directory specification for the
 			disk image differential files.
 		dir_sample - Multi directory specification for the
-			zipped `sample' files. Only the zipped format
+			zipped `sample` files. Only the zipped format
 			is supported.
 		dir_artwork - Multi directory specification for the
-			zipped `artwork' files. Only the zipped format
+			zipped `artwork` files. Only the zipped format
 			is supported.
-		dir_nvram - Single directory for `nvram' files.
-		dir_memcard - Single directory for `memcard' files.
-		dir_hi - Single directory for `hi' files.
-		dir_inp - Single directory for `inp' files.
-		dir_sta - Single directory for `sta' files.
-		dir_snap - Single directory for the `snapshot'
+		dir_nvram - Single directory for `nvram` files.
+		dir_memcard - Single directory for `memcard` files.
+		dir_hi - Single directory for `hi` files.
+		dir_inp - Single directory for `inp` files.
+		dir_sta - Single directory for `sta` files.
+		dir_snap - Single directory for the `snapshot`
 			files.
 
 	Defaults for DOS and Windows:
@@ -693,7 +693,7 @@ Configuration
 	it is expanded as "$home/DIR:$data/DIR". In DOS and Windows
 	it is maintained relative.
 
-	For the `dir_rom' and `dir_image' the following file
+	For the `dir_rom` and `dir_image` the following file
 	combinations are tried:
 
 	* DIR/GAME/ROM.EXT
@@ -704,12 +704,12 @@ Configuration
 	is the name of the game or machine emulated, ROM is the rom
 	name and EXT is the rom extension.
 
-	For files searched in the `dir_image' option you can also
+	For files searched in the `dir_image` option you can also
 	specify a different zip name by prefixing the rom name
-	with the zip name without extension and the `=' char.
-	For example to run the `ti99_4a' emulator and load the
-	cartridges `alpinerc.bin' and `alpinerg.bin' both contained in
-	the zip file `alpiner.zip' you can use this syntax:
+	with the zip name without extension and the `=` char.
+	For example to run the `ti99_4a` emulator and load the
+	cartridges `alpinerc.bin` and `alpinerg.bin` both contained in
+	the zip file `alpiner.zip` you can use this syntax:
 
 		:advmess ti99_4a -cart alpiner=alpinerc.bin -cart alpiner=alpinerg.bin
 
@@ -723,15 +723,15 @@ Configuration
     device_video_*
 	These options are used to customize the video drivers.
 
-	All the `device_video_*' options described in the `advdev.txt' file
+	All the `device_video_*` options described in the `advdev.txt` file
 	can be used.
 
-	If you use a `System' video driver, you don't need to set these
+	If you use a `System` video driver, you don't need to set these
 	options. They are mostly ignored.
 
-	With a `Generate' video driver these options are used to select
+	With a `Generate` video driver these options are used to select
 	and create the correct video mode. They are mandatory. You can use
-	the `advcfg' utility to set them interactively.
+	the `advcfg` utility to set them interactively.
 
     display_mode
 	Selects a specific modeline by its name.
@@ -740,7 +740,7 @@ Configuration
 
 	Options:
 		MODELINE_NAME - Specific modeline, as named with
-			the `advv' utility.
+			the `advv` utility.
 		auto - Automatically chooses the best modeline
 			available (default).
 
@@ -750,7 +750,7 @@ Configuration
 	game image quality significantly.
 
 	For an introduction on how the program operates on video modes,
-	see the `install.txt' file.
+	see the `install.txt` file.
 
 	:display_adjust none | x | clock | xclock | generate_exact
 	:	| generate_y | generate_clock | generate_clocky
@@ -769,12 +769,12 @@ Configuration
 		xclock - Adjusts the available modeline's horizontal resolution
 			and the vertical clock.
 		generate_exact - Creates automatically some new modelines using
-			the format specified in the `device_video_format'
-			option. The generated modelines will be named `generate-*'.
-			Check the `advdef.txt' file for the description of
-			the `device_video_format' option or simply use the
-			`advcfg' utility to set it up correctly.
-			If the `device_video_format' option isn't
+			the format specified in the `device_video_format`
+			option. The generated modelines will be named `generate-*`.
+			Check the `advdef.txt` file for the description of
+			the `device_video_format` option or simply use the
+			`advcfg` utility to set it up correctly.
+			If the `device_video_format` option isn't
 			specified a default value for your monitor clock
 			limits is guessed.
 		generate_y - Like generate_exact, and it allows generating
@@ -792,27 +792,27 @@ Configuration
 			if a perfect mode is not possible. Modes with a correct clock
 			are preferred over modes with a correct size.
 
-	The `generate' options are able to create at runtime all the
+	The `generate` options are able to create at runtime all the
 	required modelines. You don't need to create a list of modelines
 	manually.
 
-	The non-`generate' options use only the modelines defined with
-	the `device_video_modeline' option in the configuration file.
-	You can add them manually or using the `advv' utility.
-	Check the `advdev.txt' file for more details on the
-	`device_video_modeline' option.
+	The non-`generate` options use only the modelines defined with
+	the `device_video_modeline` option in the configuration file.
+	You can add them manually or using the `advv` utility.
+	Check the `advdev.txt` file for more details on the
+	`device_video_modeline` option.
 
-	Of all the `generate' options, `generate_yclock' is the
-	suggested and most powerful. The `advcfg' utility always
-	sets the `generate_yclock' option in your configuration file.
+	Of all the `generate` options, `generate_yclock` is the
+	suggested and most powerful. The `advcfg` utility always
+	sets the `generate_yclock` option in your configuration file.
 
-	Of all the non-`generate' options, `xclock' is the
+	Of all the non-`generate` options, `xclock` is the
 	suggested and most powerful.
 
-	If you can't get good results with the `generate' options you
-	should create a list of modelines and try with the `xclock' value.
+	If you can't get good results with the `generate` options you
+	should create a list of modelines and try with the `xclock` value.
 	You don't need to duplicate the same modeline with different
-	horizontal resolutions and/or clocks, because the `xclock'
+	horizontal resolutions and/or clocks, because the `xclock`
 	value allows the program to adjust them.
 	Instead, you should create a wide set of different vertical
 	resolutions on which the video mode can be chosen.
@@ -853,7 +853,7 @@ Configuration
 			vertical stretch.
 		fractional - Fractional stretch (default).
 
-	The `fractional' option involves a slowdown, so use the `mixed'
+	The `fractional` option involves a slowdown, so use the `mixed`
 	option if you have a really slow machine.
 
 	Examples:
@@ -861,7 +861,7 @@ Configuration
 
     display_magnify
 	Suggests the use of a double or bigger resolution video mode.
-	It is mainly used to enable the `scalex', `scalek', `lq', `hq' and `xbr'
+	It is mainly used to enable the `scalex`, `scalek`, `lq`, `hq` and `xbr`
 	effects. This option has no effect for vector games.
 
 	:display_magnify auto | 1 | 2 | 3 | 4
@@ -911,7 +911,7 @@ Configuration
 	Synchronizes the video display with the video beam instead of
 	using the CPU timer. This option can be used only if the
 	selected video mode has an appropriate refresh rate.
-	To ensure this you can use the option `display_adjust' to allow
+	To ensure this you can use the option `display_adjust` to allow
 	a clock correction of the video mode.
 
 	:display_vsync yes | no
@@ -944,13 +944,13 @@ Configuration
 			disable frame skipping use the
 			value 1.
 
-	Use `f11' to display the speed your computer is actually
+	Use `f11` to display the speed your computer is actually
 	reaching. If it is below 100%, increase the frame skip value.
-	You can press `F8/F9' to change frame skip while running the game.
+	You can press `F8/F9` to change frame skip while running the game.
 	When set to auto (default), the frame skip setting is
 	dynamically adjusted during runtime to display the maximum
 	possible frames without dropping below 100% speed.
-	Pressing `f10' you can enable and disable the throttle
+	Pressing `f10` you can enable and disable the throttle
 	synchronization.
 
 	Examples:
@@ -1019,7 +1019,7 @@ Configuration
 
     display_resizeeffect
 	When a video mode is smaller or bigger than the original arcade
-	screen, the `resizeeffect' option controls the type of the
+	screen, the `resizeeffect` option controls the type of the
 	transformation applied.
 
 	:display_resizeeffect auto | none | max | mean | filter
@@ -1029,10 +1029,10 @@ Configuration
 		auto - Selects automatically the best effect (default).
 			This selection is list-based, and may be
 			incomplete.
-			If the scale factor is 2, 3 or 4 the `xbr' effect
+			If the scale factor is 2, 3 or 4 the `xbr` effect
 			is selected. The effect is automatically downgraded
-			to `scalek' or `scalex' if the emulation is too slow.
-			In other cases the `mean' or `max' effect
+			to `scalek` or `scalex` if the emulation is too slow.
+			In other cases the `mean` or `max` effect
 			is selected.
 		none - Simply removes or duplicates lines as required.
 		max - In reduction merges consecutive columns and rows using the
@@ -1123,7 +1123,7 @@ Configuration
 		filter - Apply a vertical filter.
 
 	If your monitor uses a swapped order for interlaced rows, using the
-	`even' or `odd' effect can probably fix the image.
+	`even` or `odd` effect can probably fix the image.
 
 	The effects operate on the rows in the following way:
 
@@ -1139,7 +1139,7 @@ Configuration
 
     display_writeeffect
 	Selects how to write video memory. On some very old video boards
-	you may gain speed by selecting `buffer'.
+	you may gain speed by selecting `buffer`.
 
 	:display_writeeffect direct | buffer
 
@@ -1273,7 +1273,7 @@ Configuration
     device_sound_*
 	These options are used to customize the audio drivers.
 
-	All the `device_sound_*' options defined in the `advdev.txt'
+	All the `device_sound_*` options defined in the `advdev.txt`
 	file can be used.
 
     sound_mode
@@ -1326,7 +1326,7 @@ Configuration
 	Sets the sound gain volume. This option can be used to
 	adjust the volume of some games to have all the games with
 	the same volume.
-	If the `sound_normalize' option is active this value is
+	If the `sound_normalize` option is active this value is
 	also automatically updated in the game play and you cannot
 	change it manually.
 
@@ -1337,7 +1337,7 @@ Configuration
 			an internal database.
 		VOLUME - The volume gain in dB (default 0).
 			The gain is a positive value from 0 to 40.
-			If the `sound_normalize' option is active the
+			If the `sound_normalize` option is active the
 			volume is automatically updated in the game
 			play.
 
@@ -1399,8 +1399,8 @@ Configuration
     device_keyboard/joystick/mouse_*
 	These options are used to customize the input drivers.
 
-	All the `device_keyboard/joystick/mouse_*'
-	options defined in the `advdev.txt' file can be used.
+	All the `device_keyboard/joystick/mouse_*`
+	options defined in the `advdev.txt` file can be used.
 
     input_steadykey
 	Helps recognition of very long key sequences. But slows a bit
@@ -1449,7 +1449,7 @@ Configuration
 	:input_map[ANALOG] auto | [[-]joystick[JOY,CONTROL,AXE]]
 	:	[[-]mouse[MOUSE,AXE]] [[-]joystick_ball[JOY,AXE]] ...
 
-	Default is always `auto'.
+	Default is always `auto`.
 
 	Options:
 		ANALOG - Target analog control. Valid values are:
@@ -1476,23 +1476,23 @@ Configuration
 		AXE - Number or name of physical axe of the
 			control: 0, 1, 2, 3 ...
 
-	The `joystick' option is used to reference all the analog
+	The `joystick` option is used to reference all the analog
 	controls which report an absolute position. For example
 	stick, lightgun, steering wheel, pedal, throttle and rudder controls.
 
-	The `joystick_ball' and `mouse' options are used to reference
+	The `joystick_ball` and `mouse` options are used to reference
 	all the analog controls which reports a relative position. For
 	example trackball, dial and mouse controls.
-	The option `joystick_ball' is for joystick devices which
-	have other relative analog controls. The option `mouse' is
+	The option `joystick_ball` is for joystick devices which
+	have other relative analog controls. The option `mouse` is
 	for mouse devices which have only relative analog controls.
 
 	The exact CONTROL and AXE names can be checked interactively
-	using the `advj' and `advm' utility. `advj' is used for
-	`joystick[]' and `joystick_ball[]' specifications. `advm' is
-	used for `mouse[]' specifications.
+	using the `advj` and `advm` utility. `advj` is used for
+	`joystick[]` and `joystick_ball[]` specifications. `advm` is
+	used for `mouse[]` specifications.
 
-	The CONTROL names for the `joystick' option are:
+	The CONTROL names for the `joystick` option are:
 		stick - Stick.
 		gas - Acceleration pedal.
 		brake - Brake pedal.
@@ -1502,12 +1502,12 @@ Configuration
 		rudder - Rudder.
 		misc - Any other.
 
-	The AXE names for the `joystick' option are:
+	The AXE names for the `joystick` option are:
 		x, y, z - Movement on the X, Y, Z axe.
 		rx, ry, rz - Rotation on the X, Y, Z axe.
 		mono - For all the control with a single axe.
 
-	The AXE names for the `joystick_ball' and `mouse'
+	The AXE names for the `joystick_ball` and `mouse`
 	options are:
 		x, y, z - Movement on the X, Y, Z axe.
 		wheel - Vertical wheel.
@@ -1559,21 +1559,21 @@ Configuration
 	:	| joystick_digital[JOY,CONTROL,AXE,DIR]
 	:	| or | not | ...
 
-	The default is always `auto' which uses the standard mapping.
+	The default is always `auto` which uses the standard mapping.
 	The previous mapping is always overwritten.
 
 	Options:
 		DIGITAL - Player button, analog simulation, digital or
 			keyboard control.
 		KEYBOARD - Number of physical keyboard: 0, 1, 2, 3, ...
-			Or the keyboard identifier that you can show with 'advk'.
+			Or the keyboard identifier that you can show with `advk`.
 		KEY - Name of physical key.
 		MOUSE - Number of physical mouse: 0, 1, 2, 3, ...
-			Or the mouse identifier that you can show with 'advm'.
+			Or the mouse identifier that you can show with `advm`.
 		MOUSE_BUTTON - Number or name of a physical mouse button:
 			0, 1, 2, 3, ...
 		JOY - Number of physical joystick: 0, 1, 2, 3, ...
-			Or the joystick identifier that you can show with 'advj'.
+			Or the joystick identifier that you can show with `advj`.
 		CONTROL - Number or name of physical control of the joystick: 0, 1, 2, 3, ...
 		DIR - Direction of the movement: left, up, right, down.
 		AXE - Number or name of physical axe of the control: 0, 1, 2, 3, ...
@@ -1686,7 +1686,7 @@ Configuration
 	Note that the p*_start, p*_select and key_* controls are avaiable
 	only in MESS.
 
-	The MOUSE_BUTTON names can be checked using the `advm' utility.
+	The MOUSE_BUTTON names can be checked using the `advm` utility.
 	Generally they are:
 		left, right, middle - Standard buttons.
 		side - Side button.
@@ -1695,7 +1695,7 @@ Configuration
 		back - Back button.
 		fourth, fifth, sixth - Misc buttons.
 
-	The KEY names can be checked using the `advk' utility.
+	The KEY names can be checked using the `advk` utility.
 	Generally they are:
 		a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u,
 		v, w, x, y, z, n0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0_pad, 1_pad,
@@ -1719,9 +1719,9 @@ Configuration
 		brightnessup, macro, mute, volumedown, volumeup, power, compose,
 		f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24.
 
-	You can also specify a numerical scancode N in the form: `scanN'.
+	You can also specify a numerical scancode N in the form: `scanN`.
 
-	The JOY_BUTTON button names can be checked using the `advj' utility.
+	The JOY_BUTTON button names can be checked using the `advj` utility.
 	Generally they are:
 		trigger - Joystick trigger button.
 		top, top2 - Joystick top buttons.
@@ -1809,7 +1809,7 @@ Configuration
 			ui_helptag options are ignored.
 		FILE - Load an arbitrary image from a file.
 
-	The data used for the default image is in the `contrib/help' dir.
+	The data used for the default image is in the `contrib/help` dir.
 
     ui_helptag
 	Selects the highlight range for any digital input. When the user
@@ -1841,12 +1841,12 @@ Configuration
 		:ui_helptag keyboard[0,f9] 137 5 12 12
 		:ui_helptag keyboard[0,f10] 149 5 12 12
 
-	The data used for the default image is in the `contrib/help' dir.
+	The data used for the default image is in the `contrib/help` dir.
 
     ui_font
 	Selects a font file. The formats TrueType (TTF), GRX, PSF and
 	RAW are supported. You can find a collection of fonts in the
-	`contrib' directory.
+	`contrib` directory.
 
 	:ui_font auto | "FILE"
 
@@ -1907,8 +1907,8 @@ Configuration
 	This section describes the options used for the recording
 	features.
 
-	To start the recording press `left_ctrl+enter'. To end the
-	recording and to save the clip press `enter'. If you press the
+	To start the recording press `left_ctrl+enter`. To end the
+	recording and to save the clip press `enter`. If you press the
 	start key more than one time the recording starts from the
 	last press.
 
@@ -1917,10 +1917,10 @@ Configuration
 
 	:record_sound yes | no
 
-	The sound clip is saved in the `dir_snap' directory (like the
-	snapshot images) in `.wav' format. Specifically the `WAV PCM
-	16 bit' format is used. The sample rate used is the same sample
-	rate specified with the `sound_samplerate' option.
+	The sound clip is saved in the `dir_snap` directory (like the
+	snapshot images) in `.wav` format. Specifically the `WAV PCM
+	16 bit` format is used. The sample rate used is the same sample
+	rate specified with the `sound_samplerate` option.
 
 	The clip is saved without compression and without any volume
 	adjustment. You should use an external utility to adjust the
@@ -1931,14 +1931,14 @@ Configuration
 
 	:record_video yes | no
 
-	The video clip is saved in the `dir_snap' directory (like the
-	snapshot images) in `.mng' format. The `MNG-LC' (Low Complexity)
+	The video clip is saved in the `dir_snap` directory (like the
+	snapshot images) in `.mng` format. The `MNG-LC` (Low Complexity)
 	subformat is used.
 
 	The clip is saved with light compression, you should use an
 	external utility to compress better the resulting file.
 
-	A powerful compression utility is the `advmng' program
+	A powerful compression utility is the `advmng` program
 	available in the AdvanceCOMP package.
 
     record_video/sound_time
@@ -1990,8 +1990,8 @@ Configuration
 		:sync_speed 1.2
 
     sync_turbospeed
-	Selects the speed factor used when the `turbo' button is
-	pressed. The default `turbo' key is `asterisk_pad'.
+	Selects the speed factor used when the `turbo` button is
+	pressed. The default `turbo` key is `asterisk_pad`.
 
 	:sync_turbospeed FACTOR
 
@@ -2000,9 +2000,9 @@ Configuration
 
     sync_startuptime
 	Selects the time in seconds of the duration of the startup
-	speed up. You can press the `startup' key to save the current
-	game time as startup time. The default `startup' key
-	is `minus_pad'.
+	speed up. You can press the `startup` key to save the current
+	game time as startup time. The default `startup` key
+	is `minus_pad`.
 
 	:sync_startuptime auto | none | TIME
 
@@ -2018,38 +2018,38 @@ Configuration
 	:sync_resample auto | emulation | internal
 
 	Options:
-		auto - Select automatically. It's almost always the `emulation'
-			mode with the exception of some games like 'starwars'
+		auto - Select automatically. It's almost always the `emulation`
+			mode with the exception of some games like `starwars`
 			and others using the pokey sound chip. (default).
 		emulation - Change the emulation to produce the requested
 			number of samples instead of resampling.
 		internal - Internally resample the sound to match the
 			current speed.
 
-	Note that the `emulation' mode may result in wrong input recording
-	using the `-record' or `-playback' command line option due to incorrect
+	Note that the `emulation` mode may result in wrong input recording
+	using the `-record` or `-playback` command line option due to incorrect
 	behavior of the emulation. Specifically some implementations may
 	depend on the number of audio samples requested, information that
 	is not stored in the recorded input file.
 
-	The `emulation' mode may trigger some bugs in the MAME
+	The `emulation` mode may trigger some bugs in the MAME
 	core. For this reason the games using the pokey sound chip
-	by default use the `internal' mode.
+	by default use the `internal` mode.
 
-	Anyway, the `emulation' mode generates more stable sound
+	Anyway, the `emulation` mode generates more stable sound
 	if the CPU load isn't totally empty.
 
   LCD Configuration Options
 	AdvanceMAME is able to display arbitrary information on a LCD display
 	using the integrated script capabilities.
 
-	To use the LCD support you must install on your system the `lcdproc'
+	To use the LCD support you must install on your system the `lcdproc`
 	program available at:
 
 		+http://lcdproc.sourceforge.net/
 
 	More details and some examples of how to display information on the LCD
-	using the scripts are in the `script.txt' documentation file.
+	using the scripts are in the `script.txt` documentation file.
 
     lcd_server
 	Selects the server address and port to use for display information on
@@ -2059,8 +2059,8 @@ Configuration
 
 	Options:
 		none - Disable the LCD support (default).
-		SERVER - Address of the server. If omitted `localhost' is used.
-		PORT - Port of the server. If omitted `13666' is used.
+		SERVER - Address of the server. If omitted `localhost` is used.
+		PORT - Port of the server. If omitted `13666` is used.
 
 	Examples:
 		:lcd_server localhost
@@ -2091,7 +2091,7 @@ Configuration
 	Options:
 		default - Use the default BIOS.
 		NAME - Select specific BIOS. For neogeo games, you can
-			use: 'euro', 'us', 'asia' or 'japan'.
+			use: `euro`, `us`, `asia` or `japan`.
 
 	Examples:
 		:sonicwi2/misc_bios japan
@@ -2103,8 +2103,8 @@ Configuration
 
 	Options:
 		auto - Automatic (default).
-		SIZE - Size of the RAM in bytes. You can use the 'k' (1024),
-			'M' (1024^2) or 'G' (1024^3) multiplier.
+		SIZE - Size of the RAM in bytes. You can use the `k` (1024),
+			`M` (1024^2) or `G` (1024^3) multiplier.
 
 	Examples:
 		:misc_ramsize 1024k
@@ -2181,10 +2181,10 @@ Configuration
 		none - Don't change the language (default).
 		LANG - If available select this language.
 
-	For example if you run `cadash' with `-lang italy' it's
-	run the clone `cadashi'. If you run `cheesech' with
-	`-lang germany' it's run `cheesech' setting the `Language'
-	dipswitch to `German'.
+	For example if you run `cadash` with `-lang italy` it's
+	run the clone `cadashi`. If you run `cheesech` with
+	`-lang germany` it's run `cheesech` setting the `Language`
+	dipswitch to `German`.
 
 	If the specified language is not available, European and
 	American languages fallback to English language.
@@ -2201,7 +2201,7 @@ Configuration
 	second thread. This behavior requires a complete bitmap redraw
 	by MAME for the games that don't already do it.
 	Generally you get a speed improvement, especially if you are using
-	a heavy video effect like `hq' and `xbr'.
+	a heavy video effect like `hq` and `xbr`.
 
 	:misc_smp yes | no
 
@@ -2250,8 +2250,8 @@ Configuration
 
     misc_cheatfile
 	Selects the cheat files. In DOS and Windows use the
-	`;' char as file separator. In Linux and Mac OS X use
-	the `:' char.
+	`;` char as file separator. In Linux and Mac OS X use
+	the `:` char.
 
 	:misc_cheatfile FILE[;FILE]... (DOS, Windows)
 	:misc_cheatfile FILE[:FILE]... (Linux, Mac OS X)
@@ -2285,7 +2285,7 @@ Configuration
 		no - Disabled.
 		yes - Enabled (default).
 
-	If the file `event.dat' (specified with the `misc_eventfile'
+	If the file `event.dat` (specified with the `misc_eventfile`
 	option) is found the exit menu is shown only
 	if one or more coins are inserted or if you are playing.
 
@@ -2339,7 +2339,7 @@ Configuration
 	Enables or disables the on-screen speed mark. If enabled, a red band
 	is displayed when the game is running at a low speed. A yellow band is
 	shown when frames are skipped to maintain speed. A green band appears
-	when you press the 'turbo' key or when the game is accelerated for
+	when you press the `turbo` key or when the game is accelerated for
 	other reasons.
 
 	:debug_speedmark yes | no

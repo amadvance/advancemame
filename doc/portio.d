@@ -8,7 +8,7 @@ Synopsis
 	:portio ADDRESS_HEX VALUE_HEX
 
 Description
-	The `portio' utility can be used to drive the parallel port
+	The `portio` utility can be used to drive the parallel port
 	or any other hardware device which uses the PC ports.
 
 	If an lpt port (lpt1,lpt2,lpt3) or a hexadecimal address is

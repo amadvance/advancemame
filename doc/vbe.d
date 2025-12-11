@@ -5,7 +5,7 @@ Synopsis
 	:vbe [/l] [/u] [/c CONFIG]
 
 Description
-	The `vbe' utility is a TSR (Terminate Stay Resident) VBE BIOS
+	The `vbe` utility is a TSR (Terminate Stay Resident) VBE BIOS
 	wrapper. It is not a complete VBE BIOS. It requires an existing and
 	working VBE BIOS.
 
@@ -17,10 +17,10 @@ Description
 	standard VESA VBE services with your PC monitor, TV and arcade
 	monitor.
  
-	At startup the configuration file `vbe.rc', created with
-	the utility `vbev', is read and all the modelines present
+	At startup the configuration file `vbe.rc`, created with
+	the utility `vbev`, is read and all the modelines present
 	are activated. The format of this configuration file is
-	specified in the document `advv.txt'.
+	specified in the document `advv.txt`.
 
 	These are some example rc files:
 
@@ -49,11 +49,11 @@ Options
 		Use an arbitrary configuration file
 
 Cards
-	The program supports only some of the `vbeline' drivers listed in the
-	`carddos.txt' file.
+	The program supports only some of the `vbeline` drivers listed in the
+	`carddos.txt` file.
 
 	Some of these drivers require that you load the
-	`Scitech Display Doctor' (SDD) program in advance to work correctly.
+	`Scitech Display Doctor` (SDD) program in advance to work correctly.
 
 	The available drivers are :
 		vbeline/auto - Auto detection.
@@ -92,7 +92,7 @@ Limitations
 	VBE 2.0 services, like the linear frame buffer, only if the
 	pre-existing BIOS supports them.
 	Eventually, before loading AdvanceVBE, you can load a software
-	BIOS like the `Scitech Display Doctor' or similar.
+	BIOS like the `Scitech Display Doctor` or similar.
 
 	The 24 and 32 bit depths are not supported.
 
@@ -106,21 +106,21 @@ Application Problems
 	Add only the best modelines and avoid duplicates.
 
 Use In Windows
-	The `vbe' utility is tested and working in Windows 98 with
+	The `vbe` utility is tested and working in Windows 98 with
 	an S3 board. You should only load the SDD utility (if required)
-	and the `vbe' utility in the `autoexec.bat'.
+	and the `vbe` utility in the `autoexec.bat`.
 
 	Note that the Windows 16 bit HiColor modes are truly 15 bit VBE
-	modes. So you should create some 15 bit modes in the `vbe.rc'.
+	modes. So you should create some 15 bit modes in the `vbe.rc`.
 
 	Windows notices only the video modes of size 640x480,
 	800x600, 1024x768 and 1280x1024. Any other mode is ignored.
 
 Tests
-	+Doom Legacy with the `s3' driver (http://www.newdoom.com/doomlegacy/)
-	+Duke Nukem 3D with the `s3' driver
-	+Quake 1.0 with the `s3' driver
-	+Windows 98 SE with the `s3' driver
+	+Doom Legacy with the `s3` driver (http://www.newdoom.com/doomlegacy/)
+	+Duke Nukem 3D with the `s3` driver
+	+Quake 1.0 with the `s3` driver
+	+Windows 98 SE with the `s3` driver
 
 Examples
 	Load it:
@@ -136,7 +136,7 @@ Examples
 		:vbe /u
 
 	You can force a specific vbeline driver by adding the
-	`device_video vbeline/DRIVER' option in your configuration
+	`device_video vbeline/DRIVER` option in your configuration
 	file.
 
 	For example :
@@ -144,7 +144,7 @@ Examples
 
 Bugs
 	The configuration file is checked only for the
-	`device_video_modeline' and `device_video' options.
+	`device_video_modeline` and `device_video` options.
 	All the other options are ignored.
 
 Copyright

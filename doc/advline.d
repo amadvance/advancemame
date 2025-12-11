@@ -12,8 +12,8 @@ Synopsis
 Description
 	This utility is a video modeline generator. 
 	The output of the execution is a valid list of video modes that 
-	you can use in your `cfg' files. 
-	The `.cfg' examples are generated with the predefined options of 
+	you can use in your `cfg` files. 
+	The `.cfg` examples are generated with the predefined options of 
 	this program.
 	
 	The modelines are generated using a user-specified reference

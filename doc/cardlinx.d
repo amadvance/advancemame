@@ -14,10 +14,10 @@ Name{number}
 SubIndex
 
 Frame Buffer Drivers
-	The `fb' driver uses the Linux Kernel Frame Buffer Drivers.
+	The `fb` driver uses the Linux Kernel Frame Buffer Drivers.
 	It supports all the video board supported by your Linux
 	Kernel which are able to create new video modes.
-	This exclude the `vesafb' driver.
+	This exclude the `vesafb` driver.
 
 	The following is the list of the drivers available on the
 	Linux Kernel 2.6.10. More recent kernels may have more
@@ -1199,7 +1199,7 @@ Frame Buffer Drivers
 	+82865G Integrated Graphics Device [2572] 
 
 SVGALIB Drivers
-	The `svgalib' driver uses the Linux SVGALIB library.
+	The `svgalib` driver uses the Linux SVGALIB library.
 	It supports all the video boards supported by the library.
 
 	The following is the list of the drivers available on the
@@ -2601,7 +2601,7 @@ SVGALIB Drivers
 	+TrioV Family [8903] 
 
 Information
-	This list is automatically generated from the `pcidevs.txt' and `pci.ids'
+	This list is automatically generated from the `pcidevs.txt` and `pci.ids`
 	files available at:
 
 		+http://members.datafast.net.au/dft0802/downloads/pcidevs.txt
@@ -2614,7 +2614,7 @@ Information
 	the submodel.
 
 	To get the PCI VID/PID of your video board you can use
-	the 'lspci -n' command and search for the class 0300.
+	the `lspci -n` command and search for the class 0300.
 
 	For example :
 
@@ -2624,7 +2624,7 @@ Information
 	:02:03.0 Class 0401: 13f6:0111 (rev 10)
 	:02:04.0 Class 0c00: 1033:00f2 (rev 01)
 
-	the PCI VID/PID is 1002:5159 for 'ATI Radeon 7000 Series'.
+	the PCI VID/PID is 1002:5159 for `ATI Radeon 7000 Series`.
 
 	The cards marked with (*) don't support interlaced modes.
 

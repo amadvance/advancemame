@@ -1573,7 +1573,7 @@ int main(int argc, char* argv[])
 	else if (arg == "txt")
 		c = new convert_txt(cin, cout);
 	else {
-		cerr << "Unknown format `" << arg << "'" << endl;
+		cerr << "Unknown format `" << arg << "`" << endl;
 		exit(EXIT_FAILURE);
 	}
 

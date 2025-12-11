@@ -17,7 +17,7 @@ Scripts
 		script_emulation - The emulation starts. It's triggered after
 			the MAME confirmation screens.
 		script_play - The game play starts. It happens after the
-			`sync_startuptime'.
+			`sync_startuptime`.
 		script_led1,2,3 - The led controlled by the emulated
 			game is enabled.
 		script_turbo - The turbo button is pressed.
@@ -81,7 +81,7 @@ Commands
 		wait(CONDITION) - Wait until the CONDITION is not 0.
 		delay(N) - Wait the specified N milliseconds.
 
-	The 'wait()' and 'delay()' commands are used to maintain the
+	The `wait()` and `delay()` commands are used to maintain the
 	synchronization with the game emulation. When these commands
 	are executed, the script is temporarily suspended. All other
 	commands are executed continuously without any delay.
@@ -90,8 +90,8 @@ Commands
 	Approx. 16 ms for a 60 Hz game. Delays under this limit may
 	not have the desired effect.
 
-	IT'S VERY IMPORTANT THAT EVERY 'loop', 'while' AND 'repeat'
-	COMMANDS CONTAIN A 'delay()' CALL. Otherwise the script may
+	IT'S VERY IMPORTANT THAT EVERY `loop`, `while` AND `repeat`
+	COMMANDS CONTAIN A `delay()` CALL. Otherwise the script may
 	loop forever and the executable will lock! For example the
 	statement:
 
@@ -122,8 +122,8 @@ Functions
 		rand(NUMBER) - Generate a random number from 0
 			to NUMBER - 1.
 
-	The 'event()' function can be used to determine the end of the event
-	that started the script. For example for the 'coin1' event the
+	The `event()` function can be used to determine the end of the event
+	that started the script. For example for the `coin1` event the
 	function returns 0 when the key is released.
 
 Ports
@@ -159,7 +159,7 @@ Symbols
 	available.
 
 	These are the event symbols available for the
-	`simulate_event(EVENT, TIME)' and `event(EVENT)'
+	`simulate_event(EVENT, TIME)` and `event(EVENT)`
 	commands:
 		EVENT - p1_up, p1_down, p1_left, p1_right, p2_up, p2_down,
 			p2_left, p2_right, p1_button1, p1_button2, p1_button3,
@@ -172,7 +172,7 @@ Symbols
 			service_coin3, service_coin4, service, tilt.
 
 	These are the user interface event symbols available for
-	the `simulate_event(EVENT, TIME)' and `event(EVENT)'
+	the `simulate_event(EVENT, TIME)` and `event(EVENT)`
 	commands:
 		EVENT - ui_mode_next, ui_mode_pred, ui_record_start,
 			ui_record_stop, ui_turbo, ui_cocktail, ui_configure,
@@ -187,7 +187,7 @@ Symbols
 			ui_save_cheat, ui_watch_value.
 
 	These are the keyboard symbols available for the
-	`simulate_key(EVENT, TIME)' command:
+	`simulate_key(EVENT, TIME)` command:
 		EVENT - key_a, key_b, key_c, key_d, key_e, key_f, key_g,
 			key_h, key_i, key_j, key_k, key_l, key_m, key_n,
 			key_o, key_p, key_q, key_r, key_s, key_t, key_u,
@@ -242,7 +242,7 @@ Examples
 
 		:script_led2 on(0, 0b10); wait(!event()); off(0, 0b10);
 
-	Flash the third keyboard led when the 'turbo' is active:
+	Flash the third keyboard led when the `turbo` is active:
 
 		:script_turbo \
 		:	while (event()) { \
@@ -251,7 +251,7 @@ Examples
 		:	} \
 		:	off(0, 0b100);
 
-	Light the third keyboard led when the 'coin1' key is pressed:
+	Light the third keyboard led when the `coin1` key is pressed:
 
 		:script_coin1 on(0, 0b100); delay(500); off(0, 0b100);
 
@@ -277,8 +277,8 @@ Examples
 		:script_video loop { lcd(0,"Speed " + info_throttle); delay(1000); }
 
 Configuration
-	The scripts must be inserted in the 'advmame.rc' file. You can split
-	complex scripts terminating any split row with the '\' character.
+	The scripts must be inserted in the `advmame.rc` file. You can split
+	complex scripts terminating any split row with the `\` character.
 
 	For example:
 

@@ -5,7 +5,7 @@ Synopsis
 	:svgawin [/l] [/u]
 
 Description
-	The `svgawin' utility installs and uninstalls the svgawin.sys
+	The `svgawin` utility installs and uninstalls the svgawin.sys
 	driver in Windows 2000/XP.
 
 	AdvanceMAME and AdvanceMENU also work without this driver, but
@@ -13,7 +13,7 @@ Description
 
 	If you install it, AdvanceMAME and AdvanceMENU automatically
 	try to use it before any other driver, unless you explicitly set
-	a different driver with the `device_video' option in the
+	a different driver with the `device_video` option in the
 	configuration files.
 
 	You must run this installation utility as Administrator.
@@ -44,7 +44,7 @@ Troubleshooting
 
 	Alternatively you can try using two different video boards, one for
 	Windows and the other for game display. Check the
-	`device_svgawin_skipboard' option to control which video board to use.
+	`device_svgawin_skipboard` option to control which video board to use.
 
 Tech
 	This driver is used to export at user level some reverse-engineered

@@ -1,4 +1,3 @@
-```
 Name{number}
 	advv - AdvanceMAME Video Manual Configurator
 
@@ -8,7 +7,7 @@ Synopsis
 	:	[-rc RCFILE]
 
 Description
-	The `advv' utility is the main video configuration program
+	The `advv` utility is the main video configuration program
 	for the Advance programs. It selects, creates and tweaks
 	video modes interactively.
 
@@ -18,11 +17,11 @@ Description
 	configuration file used to store the video modes.
 
 	Before running this utility you must add in your configuration
-	file the option `device_video_clock' required to define
+	file the option `device_video_clock` required to define
 	the limits of your monitor and video board. You can add them
-	manually or using the `advcfg' utility.
+	manually or using the `advcfg` utility.
 
-	Check the `advdev.txt' file for more details on these options.
+	Check the `advdev.txt` file for more details on these options.
 
 Options
 	-rc RCFILE
@@ -30,17 +29,17 @@ Options
 
 	-log
 		A very detailed log of operations is saved in
-		a `.log' file. Very useful for debugging problems.
+		a `.log` file. Very useful for debugging problems.
 
 	-logsync
-		Like the `-log' option but the log file is not
+		Like the `-log` option but the log file is not
 		buffered. This option must be used to get a complete
 		log file in presence of a machine crash.
 
 	-advmamev, -advmessv, -advmenuv, -vbev, -vgav, -videowv
-		Select the mode of operation for the programs `advmame',
-		`advmess', `advmenu', `vbe', `vga' and `videow'.
-		The default is `advmame'.
+		Select the mode of operation for the programs `advmame`,
+		`advmess`, `advmenu`, `vbe`, `vga` and `videow`.
+		The default is `advmame`.
 
 Use
 	When the program starts a list of modelines is printed. You can
@@ -58,10 +57,10 @@ Use
 	modes in the configuration file. At the next run the emulator
 	will use one of the modelines that you have chosen.
 
-	If you have problems please read the `Troubleshooting' chapter
-	in the `install.txt' file.
+	If you have problems please read the `Troubleshooting` chapter
+	in the `install.txt` file.
 
-	If you have correctly configured the `device_video_p/h/vclock'
+	If you have correctly configured the `device_video_p/h/vclock`
 	options in your configuration file, the video modes out of
 	the frequency range supported by your monitor are displayed
 	in red, and you are prevented from using them.
@@ -81,7 +80,7 @@ Use
 	created, with F6 favorite video modes with the specified
 	vertical frequency are created.
 
-	If the `device_video_format' option is present in your
+	If the `device_video_format` option is present in your
 	configuration file, the video mode is created with this
 	format. Otherwise the generic VGA monitor format is used.
 
@@ -92,7 +91,7 @@ Use
 	You can modify the modelines in the test screen by pressing
 	ENTER or directly in the list screen.
 
-	When you are in the test screen, `advv' prevents you from
+	When you are in the test screen, `advv` prevents you from
 	setting a modeline out of the frequency range supported by
 	your monitor. In these cases you will hear a low long sound.
 	When you are in the list screen you don't have this
@@ -113,10 +112,10 @@ Use
 	The program at startup tries to set a text mode supported by
 	your hardware to show its data.
 
-	If a modeline named `default_text' is present in your
+	If a modeline named `default_text` is present in your
 	configuration file the program uses it.
 
-	If correct `device_video_p/h/vclock' options are found in your
+	If correct `device_video_p/h/vclock` options are found in your
 	configuration file the program tries to use a text mode that
 	matches your clock configuration from a list of predefined
 	modes and the modes present in the configuration file.
@@ -126,10 +125,9 @@ Use
 
 Configuration
 	Depending on the command line options used one of the
-	`advmame.rc', `advmess.rc', `advmenu.rc', `vbe.rc',
-	`vga.rc' or `videow.rc' files is used to load and save the
+	`advmame.rc`, `advmess.rc`, `advmenu.rc`, `vbe.rc`,
+	`vga.rc` or `videow.rc` files is used to load and save the
 	video configuration.
 
 Copyright
 	This file is Copyright (C) 2003, 2004 Andrea Mazzoleni.
-```

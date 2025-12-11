@@ -105,13 +105,13 @@ AdvanceMAME 1.2
 	it fixes some important bugs, and adds some new
 	features like the new "xbr" video effect.
 
-	Note that the full DOS port and the video drivers 'svgalib'
-	for Linux and 'svgawin' for Windows are now obsolete.
+	Note that the full DOS port and the video drivers `svgalib`
+	for Linux and `svgawin` for Windows are now obsolete.
 	They are still present, but likely not working with modern
 	video boards and will be removed in future releases.
 
-	You can instead still use the 'fb' video driver using the Linux
-	Frame Buffer support, and the generic 'sdl' driver using the SDL library.
+	You can instead still use the `fb` video driver using the Linux
+	Frame Buffer support, and the generic `sdl` driver using the SDL library.
 
 AdvanceMENU 2.6
 	This version is an update for modern OSs and compilers,
@@ -144,7 +144,7 @@ AdvanceMAME 0.95.1
 	DOS.
 
 	The Windows version includes two new mouse drivers called
-	`rawinput' and `cpu' to allow the use of multiple mice
+	`rawinput` and `cpu` to allow the use of multiple mice
 	in Windows 2000 and XP. Check the documentation in the
 	advdev.txt file.
 
@@ -162,8 +162,8 @@ AdvanceMAME 0.92.1
 	for your cabinet.
 
 AdvanceMAME 0.87.0
-	This version of AdvanceMAME adds a new `device_video_clock'
-	option which replaces the previous `device_video_p/h/vclock'
+	This version of AdvanceMAME adds a new `device_video_clock`
+	option which replaces the previous `device_video_p/h/vclock`
 	options. This new option allows better support of
 	multi-standard arcade monitors. You can now specify different
 	vertical clocks for different horizontal clocks.
@@ -180,8 +180,8 @@ AdvanceMENU 2.3.8
 	configurations are not activated if you select to show
 	more than one emulator at a time.
 	In this case only the default configuration is used.
-	Specifically these special options are `mode', `sort',
-	`preview', `group_include' and `type_include'.
+	Specifically these special options are `mode`, `sort`,
+	`preview`, `group_include` and `type_include`.
 
 AdvanceMAME 0.84.0
 	This version of AdvanceMAME is based on the MAME update
@@ -196,7 +196,7 @@ AdvanceMAME 0.82.0
 	This version adds a new "Startup End" key which is normally mapped
 	as the minus key on the numeric keypad. When you press this key the
 	current game time is marked as the game startup time and
-	saved in the configuration file with the `sync_startuptime' option.
+	saved in the configuration file with the `sync_startuptime` option.
 	The next time you start the game, it will execute very fast
 	until the startup time is reached.
 
@@ -252,26 +252,26 @@ AdvanceMENU 2.2.14
 	that you now need a supported SVGA or VBE 2.0 video card.
 
 AdvanceMAME 0.72.0
-	This release contains a new set of `event' Linux
+	This release contains a new set of `event` Linux
 	drivers for keyboards, mice and joysticks based on the Linux
 	input-event interface.
 	These drivers remove any limitations on the number of
 	keyboards, mice and joysticks, and they give the best
 	support for the new USB HID devices.
-	The `raw' set of Linux drivers now has the same functionality
-	as the `svgalib' set. If you don't need the SVGALIB video you can
+	The `raw` set of Linux drivers now has the same functionality
+	as the `svgalib` set. If you don't need the SVGALIB video you can
 	now completely remove this library.
-	The `input_map' option now accepts the `auto' setting which
+	The `input_map` option now accepts the `auto` setting which
 	is able to map the correct input device to the correct
 	game control. This option works best with the new
 	Linux input-event drivers which are able to report
 	correctly the exact type of input control.
-	The `input_map' option can now remap all the digital
+	The `input_map` option can now remap all the digital
 	inputs like keys, buttons and digital joystick.
 	This feature is similar to the official MAME ctrlr remapping,
 	but it allows to select any type of digital input, not only
 	the inputs known by MAME. For example you can map the
-	`bookmark' key (present only on some keyboards) even if
+	`bookmark` key (present only on some keyboards) even if
 	there is no MAME code for it. This also removes any limitation
 	on the number of joystick and mouse buttons.
 	In Linux the host configuration files are now read in /etc;
@@ -280,15 +280,15 @@ AdvanceMAME 0.72.0
 	to set default options.
 
 AdvanceMENU 2.2.10
-	This release contains a new set of `event' Linux
+	This release contains a new set of `event` Linux
 	drivers for keyboards, mice and joysticks based on the Linux
 	input-event interface.
 	These drivers remove any limitations on the number of
 	keyboards, mice and joysticks, and they give the best
 	support for the new USB HID devices.
 
-	The `raw' set of Linux drivers now has the same functionality
-	as the `svgalib' set. If you don't need the SVGALIB video you can
+	The `raw` set of Linux drivers now has the same functionality
+	as the `svgalib` set. If you don't need the SVGALIB video you can
 	now completely remove this library.
 
 	In Linux the host configuration files are now read in /etc;
@@ -305,7 +305,7 @@ AdvanceMENU 2.2.7
 	remove the old .lst file.
 
 AdvanceMAME 0.68.0
-	This release supports the new `scale3x' and `scale4x' effects.
+	This release supports the new `scale3x` and `scale4x` effects.
 	To use them you must ensure to use a high pclock upper limit.
 	Something like 150 MHz. You also need a monitor which supports a
 	high hclock upper limit. Something like 70 kHz.
@@ -335,13 +335,13 @@ AdvanceMAME 0.63.0
 	For example C:\CHD\AREA51\AREA51.CHD.
 
 AdvanceMENU 2.2.2
-	The option `video_depth' is now removed. The video bit depth is
+	The option `video_depth` is now removed. The video bit depth is
 	chosen automatically. If you need to exclude some depth you can
-	use the new `device_color_*' options.
+	use the new `device_color_*` options.
 
 AdvanceMENU 2.2.1
-	The `group' and `type' menus are now accessible only from the
-	main menu. The `group' and `type' events now automatically switch
+	The `group` and `type` menus are now accessible only from the
+	main menu. The `group` and `type` events now automatically switch
 	to the next item without displaying a menu.
 	The selection logic is: first item, second item, ..., last item,
 	all items, and repeat.
@@ -354,12 +354,12 @@ AdvanceMAME 0.62.2 / AdvanceMESS 0.62.0.0
 
 	The option device_sdl_fullscreen is now replaced with the
 	device_video_output option which is also used to enable a new
-	`zoom' mode. Check the advv.txt file for other details.
+	`zoom` mode. Check the advv.txt file for other details.
 
 AdvanceMAME 0.62.1
 	The .CHD files are searched by default in the "image" directory.
 	The .DIF files in the "diff" directory. You can customize them
-	with the `dir_image' and `dir_diff' options.
+	with the `dir_image` and `dir_diff` options.
 
 AdvanceMAME 0.62.0 / AdvanceMESS 0.61.2
 	In Windows NT/2000/XP you need to reinstall the SVGAWIN driver.
@@ -374,7 +374,7 @@ AdvanceMAME 0.61.4 / AdvanceMESS 0.61.1
 
 	To use these video drivers you need to install the SVGAWIN.sys driver with the
 	SVGAWIN.exe utility. If installed, AdvanceMAME automatically tries to use it
-	unless you set a specific driver with the `device_video' option.
+	unless you set a specific driver with the `device_video` option.
 	If you don't install the SVGAWIN.sys driver AdvanceMAME works like the previous
 	version using only the SDL library.
 
@@ -387,38 +387,38 @@ AdvanceMENU 2.2.0
 
 	To use these video drivers you need to install the SVGAWIN.sys driver with the
 	SVGAWIN.exe utility. If installed, AdvanceMENU automatically tries to use it
-	unless you set a specific driver with the `device_video' option.
+	unless you set a specific driver with the `device_video` option.
 	If you don't install the SVGAWIN.sys driver AdvanceMENU works like the previous
 	version using only the SDL library.
 
 AdvanceMENU 2.0.0
-	The emulator type `mame' is now used for the Windows MAME.
-	The DOS MAME now requires the `dmame' emulator type.
-	The DOS MESS now requires the `dmess' emulator type.
-	The DOS Raine now requires the `draine' emulator type.
+	The emulator type `mame` is now used for the Windows MAME.
+	The DOS MAME now requires the `dmame` emulator type.
+	The DOS MESS now requires the `dmess` emulator type.
+	The DOS Raine now requires the `draine` emulator type.
 
 AdvanceMAME 0.61.0
-	The `input_analog' and `input_track' options are now replaced
-	by the new `input_map' option.
+	The `input_analog` and `input_track` options are now replaced
+	by the new `input_map` option.
 
 AdvanceMENU 1.17.4
-	The option `preview_aspect' is removed. It is automatically
-	converted to the new option `preview_expand'.
+	The option `preview_aspect` is removed. It is automatically
+	converted to the new option `preview_expand`.
 
 AdvanceMAME 0.59.1
-	The option `input_analog[] joy[]' is now changed to
-	`input_analog[] joystick[]', where the joystick stick index is
+	The option `input_analog[] joy[]` is now changed to
+	`input_analog[] joystick[]`, where the joystick stick index is
 	decremented by 1. The conversion is done automatically.
 
 AdvanceMENU 1.16.1
-	You must manually rename the Linux config directories to `$HOME/.advance' and
-	`$prefix/share/advance'. (Previously they were `*/advmame').
+	You must manually rename the Linux config directories to `$HOME/.advance` and
+	`$prefix/share/advance`. (Previously they were `*/advmame`).
 
 AdvanceMAME 0.57.1
-	You must remove the option `dir_sound' from the configuration file. The
-	sound files are now saved in the `dir_snap' directory.
-	You must manually rename the Linux config directories to `$HOME/.advance' and
-	`$prefix/share/advance'. (Previously they were `*/advmame').
+	You must remove the option `dir_sound` from the configuration file. The
+	sound files are now saved in the `dir_snap` directory.
+	You must manually rename the Linux config directories to `$HOME/.advance` and
+	`$prefix/share/advance`. (Previously they were `*/advmame`).
 
 AdvanceMENU 1.16.0
 	The format of the configuration file is changed.

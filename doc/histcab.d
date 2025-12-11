@@ -19,7 +19,7 @@ AdvanceCAB Version 1.1.2 2002/11
 		in Arcade Monitors and TVs.
 	) Made minor changes to the docs.
 	) Improved error reporting on the DOS/Windows SVGALIB drivers.
-	) The VIDEOW utility now used the `device_video' to force a specific
+	) The VIDEOW utility now used the `device_video` to force a specific
 		video driver.
 
 AdvanceCAB Version 1.1.1 2002/11
@@ -39,11 +39,11 @@ AdvanceCAB Version 1.0.0 2002/10
 		which supported all the new video boards.
 
 AdvanceCAB Version 0.11.2 2002/07
-	) Recompiled the `advv' utility with the new
+	) Recompiled the `advv` utility with the new
 		VGA and SVGA video drivers.
 
 AdvanceCAB Version 0.11.1 2002/01
-	) Recompiled the `advv' utility with lower optimizations
+	) Recompiled the `advv` utility with lower optimizations
 		and for the 386 processor.
 
 AdvanceCAB Version 0.11.0 2002/01
@@ -52,60 +52,60 @@ AdvanceCAB Version 0.11.0 2002/01
 	) Fixed a minor bug in the command /r of the video utility.
 
 AdvanceCAB Version 0.10.2 2001/10
-	) Only the `mv.exe' program was updated.
+	) Only the `mv.exe` program was updated.
 
 AdvanceCAB Version 0.10.1 2001/10
 	) Fixed a minor bug.
 
 AdvanceCAB Version 0.10 2001/09
-	) The `vbeline_driver' option was correctly read.
+	) The `vbeline_driver` option was correctly read.
 
 AdvanceCAB Version 0.9 2001/09
 	) Had the same modelines changes as AdvanceMAME 0.53.
 	) Added support for the Voodoo5 board.
-	) Added the -r option to the `video' utility to reset the
+	) Added the -r option to the `video` utility to reset the
 		video board using the reset BIOS function.
 
 AdvanceCAB Version 0.8 2001/03
-	) Corrected the default `vgaline' modes in the files
+	) Corrected the default `vgaline` modes in the files
 		standard.cfg, extended.cfg and medium.cfg.
 	) Solved some problems with the vga/vbe/video utilities.
 	) The vbe utility was tested in Windows 98 SE with a S3
 		board.
 
 AdvanceCAB Version 0.7 2001/02
-	) The `video' utility now cleared the screen before loading a
+	) The `video` utility now cleared the screen before loading a
 		PCX image.
 	) The modeline utility could now generate an arbitrary mode from
 		the command line. Example "modeline /svga60 384x224".
 
 AdvanceCAB Version 0.6 2001/01
-	) Added the `contrib/bootlogo' utility by Robert Palmqvist.
-	) Cursor shape was correctly set up by the `vga' utility.
+	) Added the `contrib/bootlogo` utility by Robert Palmqvist.
+	) Cursor shape was correctly set up by the `vga` utility.
 	) Solved the command line problems loading the utilities in
 		the config.sys. Now all the options were case insensitive.
-	) Added the new utility `modeline'. All the `mv' modelines were now
+	) Added the new utility `modeline`. All the `mv` modelines were now
 		computed with this utility.
 
 AdvanceCAB Version 0.5 2000/11
 	) AdvanceVBE/VGA was renamed AdvanceCAB.
-	) Other utilities `portio' and `off' were moved to AdvanceCAB.
+	) Other utilities `portio` and `off` were moved to AdvanceCAB.
 	) Added support for Trident cards using the new video
 		driver of VSyncMAME written by Saka.
 		Used the "vbeline_driver=vbe3" option to revert to the
 		old behavior.
-	) Corrected some register wasting in the `vga' and
-		`vbe' utility.
-	) Corrected the ModeX change in the `vga' utility.
+	) Corrected some register wasting in the `vga` and
+		`vbe` utility.
+	) Corrected the ModeX change in the `vga` utility.
 	) WARNING! Changed the command line options. Now if these utilities were called
 		without options a short help screen was
 		printed. Users were required to update all the batch files!
-	) Added `sys' support to the utilities `vga' and `portio'.
-		They could be loaded directly in the `config.sys' as a
-		`device'. These versions could not be unloaded.
-	) Added an option to the `vga' utility to disable the video
+	) Added `sys` support to the utilities `vga` and `portio`.
+		They could be loaded directly in the `config.sys` as a
+		`device`. These versions could not be unloaded.
+	) Added an option to the `vga` utility to disable the video
 		output of other programs.
-	) Added a new utility `video' to enable and disable the hardware
+	) Added a new utility `video` to enable and disable the hardware
 		video output, load images, or set an arbitrary
 		video mode.
 
@@ -121,7 +121,7 @@ AdvanceVBE/VGA Version 0.2 2000/08
 		(this should have solved some problems).
 	) Added a private stack (this should have solved A LOT of problems).
 	) Increased the max number of modelines to 64.
-	) Added the `vga' utility (preliminary).
+	) Added the `vga` utility (preliminary).
 	) Added support for the vga text mode 01h (40x25); this could
 		be used as default text mode for Arcade 25 kHz monitors.
 
