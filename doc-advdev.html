@@ -341,29 +341,29 @@ This set of drivers is able to program directly the video board
 to always generate a perfect video mode with the correct size
 and frequency.
 <p>
-They always work in `fullscreen' output mode and generally
+They always work in `fullscreen` output mode and generally
 support only a subset of video boards.
 <p>
 To function correctly these drivers require a correct
-configuration of the `device_video_*' options.
+configuration of the `device_video_*` options.
 <p>
-The `Generate' drivers are always the preferred choice.
+The `Generate` drivers are always the preferred choice.
 <h4><a name="1.1.2">1.1.2</a> 
 System drivers
 </h4>
 This set of drivers is able to use only the video modes
 available on the operating system.
 <p>
-They can work in `fullscreen' mode, `window' mode and `zoom'
+They can work in `fullscreen` mode, `window` mode and `zoom`
 output mode using the video board hardware acceleration to
-stretch the image. The default output mode is `window' if you
+stretch the image. The default output mode is `window` if you
 run the program in a window manager, otherwise the output
-mode `fullscreen' is chosen.
+mode `fullscreen` is chosen.
 <p>
 Please note that these drivers generally need to stretch the
 image losing a lot in image quality and speed.
 <p>
-These drivers don't require any `device_video_*' options
+These drivers don't require any `device_video_*` options
 because they cannot control how the video modes are generated.
 <h3><a name="1.2">1.2</a> 
 Available Generate Drivers
@@ -401,10 +401,10 @@ support in your Linux kernel.
 This driver is not available in X (when the environment DISPLAY
 variable is defined).
 <p>
-The Frame Buffer device opened is `/dev/fb0' and `/dev/fb/0', you
+The Frame Buffer device opened is `/dev/fb0` and `/dev/fb/0`, you
 can change it setting the FRAMEBUFFER environment variable.
 <p>
-The generic Frame Buffer `vesafb' driver cannot be used because
+The generic Frame Buffer `vesafb` driver cannot be used because
 it doesn't allow the creation of new video modes. If it's your
 only option you can use it through the SDL library.
 <h4><a name="1.2.2">1.2.2</a> 
@@ -419,7 +419,7 @@ This driver is generally able to synchronize with the vertical sync
 of the video mode.
 <p>
 To use these modes your video board must be supported
-by a `svgalib' driver listed in the `cardlinx.txt' file.
+by a `svgalib` driver listed in the `cardlinx.txt` file.
 To use this driver you need to install the SVGALIB library
 version 1.9.x.
 <p>
@@ -427,12 +427,12 @@ To use this driver you need to correctly configure the
 SVGALIB HorizSync and VertRefresh options in the
 file /etc/vga/libvga.config file.
 You must use a range equal or a bit larger than the range
-specified with the AdvanceMAME `device_video_clock' option.
+specified with the AdvanceMAME `device_video_clock` option.
 <p>
 This driver is not available in X (when the environment DISPLAY
 variable is defined).
 <p>
-In the `contrib/svgalib' directory there are various
+In the `contrib/svgalib` directory there are various
 SVGALIB patches to fix some problems with recent video
 boards, and to work with systems with kernel 2.6 and udev.
 <h4><a name="1.2.3">1.2.3</a> 
@@ -444,7 +444,7 @@ tweaking the hardware registers of the recognized SVGA boards.
 All clocks, all RGB bit depths are available.
 <p>
 To use these modes your video board must be supported
-by a `svgaline' driver listed in the `carddos.txt' file.
+by a `svgaline` driver listed in the `carddos.txt` file.
 <p>
 This driver is completely independent of the VGA/VBE BIOS
 of your board.
@@ -458,12 +458,12 @@ registers of the SVGA.
 All clocks, all RGB bit depths are available.
 <p>
 To use these modes your video board must be supported
-by a `vbeline' driver listed in the `carddos.txt' file.
+by a `vbeline` driver listed in the `carddos.txt` file.
 <p>
 These drivers work setting a video mode using the
 default VBE2 services and tweak some hardware SVGA
 registers to modify the obtained video mode.
-The driver `vbe3' is an exception. It requires the
+The driver `vbe3` is an exception. It requires the
 presence of a VBE3 BIOS to change the frequency of the
 desired video mode. Unfortunately the standard
 VBE3 services don't support a resolution size change.
@@ -502,10 +502,10 @@ SVGA boards.
 All clocks, all RGB bit depths are available.
 <p>
 To use these modes your video board must be supported
-by a `svgawin' driver listed in the `cardwin.txt' file.
+by a `svgawin` driver listed in the `cardwin.txt` file.
 <p>
 To use this driver you need to install the included SVGAWIN
-driver. Please read the `svgawin.txt' file carefully.
+driver. Please read the `svgawin.txt` file carefully.
 <p>
 This driver is experimental. At present it's only tested on
 Windows 2000 with a GeForce 2 board. It may not work with
@@ -524,7 +524,7 @@ It supports all RGB bit depths available and the YUV mode.
 <p>
 The output in the YUV mode is generally accelerated, and can
 be used to scale the video output to an arbitrary size.
-You can enable this feature with the `-device_video_output overlay'
+You can enable this feature with the `-device_video_output overlay`
 option.
 <p>
 You can change some options of this driver using the SDL specific
@@ -807,11 +807,11 @@ It supports more than one mouse at the same time.
 For USB devices this driver doesn't require any configuration.
 It's able to autodetect all the present hardware.
 <p>
-For serial mouse you must use the `inputattach' system
+For serial mouse you must use the `inputattach` system
 utility to attach the serial line at the event interface.
 Generally this utility is available in the joystick
 calibration package of your distribution. In this case it's
-probably simpler to use the `raw' mouse driver.
+probably simpler to use the `raw` mouse driver.
 <p>
 The mice are searched on the /dev/input/eventX devices.
 <h4><a name="3.3.2">3.3.2</a> 
@@ -852,7 +852,7 @@ allegro - Allegro mouse (DOS) [OBSOLETE]
 This driver works in DOS and it uses the Allegro library.
 <p>
 It supports up to 2 mice at the same time using the
-special `optimous' driver present in the `contrib/' directory.
+special `optimous` driver present in the `contrib/` directory.
 <h4><a name="3.3.6">3.3.6</a> 
 rawinput - Raw input interface (Windows)
 </h4>
@@ -886,8 +886,8 @@ The CPN mouse driver is available at:
 <br>
 </td></tr></table>
 <p>
-and in the `contrib/cpn' directory. Check the `install'
-and `unknown' files for install instructions.
+and in the `contrib/cpn` directory. Check the `install`
+and `unknown` files for install instructions.
 <p>
 Please note that this driver is not intended to be used in a window
 environment. The application takes the control of the mouse and
@@ -1027,8 +1027,8 @@ svgawin
 </em></td><td width="90%">
 SVGA generated graphics modes with the
 SVGAWIN included library. To use this driver you
-need to install the `svgawin.sys' driver with the
-`svgawin.exe' command line utility.
+need to install the `svgawin.sys` driver with the
+`svgawin.exe` command line utility.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 svgawin/nv3_leg
@@ -1049,27 +1049,27 @@ SDL graphics and fake text modes.
 </td></tr>
 </table>
 <p>
-Please note that to use the utilities `advv' and `advcfg' you
+Please note that to use the utilities `advv` and `advcfg` you
 must at least select a graphics and a text video driver. The
-available text video drivers are `vgaline' for DOS, `slang',
-`curses' for Linux and `sdl' for Windows.
+available text video drivers are `vgaline` for DOS, `slang`,
+`curses` for Linux and `sdl` for Windows.
 <p>
 You can force the detection of a specific model of video board
 adding the name of the model driver after the driver name using
-the `/' separator. For example to force the `vbe3' model
-detection of the `vbeline' driver you must specify
-`vbeline/vbe3'.
+the `/` separator. For example to force the `vbe3` model
+detection of the `vbeline` driver you must specify
+`vbeline/vbe3`.
 <p>
 To get the list of all the available models try using the
-`help' model name. A short help will be printed.
+`help` model name. A short help will be printed.
 <p>
 Please note that forcing a specific video driver is discouraged.
 Generally you don't need it.
 <p>
 For a more complete description of the drivers check the
-previous `VIDEO DRIVER' section.
+previous `VIDEO DRIVER` section.
 <p>
-Example to enable the `vbeline' and the `vgaline' drivers
+Example to enable the `vbeline` and the `vgaline` drivers
 with auto-detection for DOS:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -1077,7 +1077,7 @@ device_video vbeline vgaline
 </pre>
 </td></tr></table>
 <p>
-Example to force the `vbeline/vbe3' driver and the `vgaline'
+Example to force the `vbeline/vbe3` driver and the `vgaline`
 driver for DOS:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -1085,7 +1085,7 @@ device_video vbeline/vbe3 vgaline
 </pre>
 </td></tr></table>
 <p>
-Example to enable the `fb' and `slang' driver for Linux:
+Example to enable the `fb` and `slang` driver for Linux:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video fb slang
@@ -1130,7 +1130,7 @@ color format used is YUY2.
 <h4><a name="4.1.3">4.1.3</a> 
 device_video_overlaysize
 </h4>
-Select the favorite horizontal size to use with the `overlay'
+Select the favorite horizontal size to use with the `overlay`
 output mode. The program selects the nearest available video mode.
 <p>
 <pre>
@@ -1152,7 +1152,7 @@ The user favorite horizontal size.
 </td></tr>
 </table>
 <p>
-This option has effect only with the `overlay' output mode.
+This option has effect only with the `overlay` output mode.
 <h4><a name="4.1.4">4.1.4</a> 
 device_video_cursor
 </h4>
@@ -1186,9 +1186,9 @@ Always on, only if the video mode support it.
 Generate Configuration Options
 </h3>
 The following are the common video configuration options
-available for all `generate' video drivers, i.e. all the
-video drivers with the exception of `sdl' and `vbe'.
-The `sdl' and `vbe' video drivers simply ignore these
+available for all `generate` video drivers, i.e. all the
+video drivers with the exception of `sdl` and `vbe`.
+The `sdl` and `vbe` video drivers simply ignore these
 options.
 <h4><a name="4.2.1">4.2.1</a> 
 device_video_clock
@@ -1212,7 +1212,7 @@ The lower value is the lower clock generable
 by your video board. The higher value is the
 video bandwidth of your monitor. If you
 don't know these values you can start
-with `5 - 100' which essentially enable any
+with `5 - 100` which essentially enable any
 video mode.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
@@ -1227,9 +1227,9 @@ Vertical clock range in Hz.
 </td></tr>
 </table>
 <p>
-For any range you can specify a single value like `60' or a
-range of values like `50 - 60'. For multistandard TVs and monitors
-you can use more clock specifications separating them with `;'.
+For any range you can specify a single value like `60` or a
+range of values like `50 - 60`. For multistandard TVs and monitors
+you can use more clock specifications separating them with `;`.
 <p>
 For example:
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
@@ -1238,7 +1238,7 @@ device_video_clock 5 - 50 / 15.62 / 50 ; 5 - 50 / 15.73 / 60
 </pre>
 </td></tr></table>
 <p>
-Check the `install.txt' file for examples and other information.
+Check the `install.txt` file for examples and other information.
 <h4><a name="4.2.2">4.2.2</a> 
 device_video_modeline
 </h4>
@@ -1257,7 +1257,7 @@ Options:
 Name
 </em></td><td width="90%">
 Name of the video mode. You can use the quotes
-'"' for the names with spaces.
+`"` for the names with spaces.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 CLOCK
@@ -1267,14 +1267,14 @@ Pixel clock in MHz
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 HDE HRS HRE HT
 </em></td><td width="90%">
-Horizontal `Display End',
-`Retrace Start', `Retrace End', `Total'
+Horizontal `Display End`,
+`Retrace Start`, `Retrace End`, `Total`
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 VDE VRS VRE VT
 </em></td><td width="90%">
-Vertical `Display End',
-`Retrace Start', `Retrace End', `Total'
+Vertical `Display End`,
+`Retrace Start`, `Retrace End`, `Total`
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 -hsync -vsync +hsync +vsync
@@ -1353,7 +1353,7 @@ and for a VGA 31.5 kHz monitor:
 </td></tr></table>
 <p>
 Which one of these defaults is used depends on the setting of the
-`device_video_clock' option.
+`device_video_clock` option.
 <h4><a name="4.2.4">4.2.4</a> 
 device_video_singlescan/doublescan/interlace
 </h4>
@@ -1532,11 +1532,11 @@ Always set the video mode (default).
 vbeline Configuration Options
 </h3>
 The following are the common video configuration options
-available only for the `vbeline' DOS video driver.
+available only for the `vbeline` DOS video driver.
 <h4><a name="4.4.1">4.4.1</a> 
 device_vbeline_mode
 </h4>
-Select which `vbe' mode to use when generating `vbeline' modes.
+Select which `vbe` mode to use when generating `vbeline` modes.
 <p>
 The use of this option is discouraged, it's present only for testing.
 <p>
@@ -1549,25 +1549,25 @@ Options:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 smaller
 </em></td><td width="90%">
-Use the biggest `vbe' mode contained in
-the `vbeline' mode (default).
+Use the biggest `vbe` mode contained in
+the `vbeline` mode (default).
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 bigger
 </em></td><td width="90%">
-Use the smallest `vbe' mode which contains
-the `vbeline' mode.
+Use the smallest `vbe` mode which contains
+the `vbeline` mode.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 smaller_upto640
 </em></td><td width="90%">
-Like `smaller' but not
+Like `smaller` but not
 bigger than 640x480.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 bigger_upto640
 </em></td><td width="90%">
-Like `bigger' but not
+Like `bigger` but not
 bigger than 640x480.
 </td></tr>
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
@@ -1600,7 +1600,7 @@ Use always the 800x600 mode.
 svgaline Configuration Options
 </h3>
 The following are the common video configuration options
-available only for the `svgaline' DOS video driver.
+available only for the `svgaline` DOS video driver.
 <h4><a name="4.5.1">4.5.1</a> 
 device_svgaline_skipboard
 </h4>
@@ -1671,7 +1671,7 @@ Don't divide the clock (default).
 svgawin Configuration Options
 </h3>
 The following are the common video configuration options
-available only for the `svgawin' Windows video driver.
+available only for the `svgawin` Windows video driver.
 <h4><a name="4.6.1">4.6.1</a> 
 device_svgawin_skipboard
 </h4>
@@ -1972,12 +1972,12 @@ Options:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 DEVICE
 </em></td><td width="90%">
-Output device (default 'default').
+Output device (default `default`).
 </td></tr>
 </table>
 <p>
-Other possible choices generally are 'hw:0,0' for using the
-frequency and format chosen directly by the hardware, or 'dmix'
+Other possible choices generally are `hw:0,0` for using the
+frequency and format chosen directly by the hardware, or `dmix`
 for allow concurrent access to other applications at the
 audio card.
 <p>
@@ -2001,11 +2001,11 @@ Options:
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 DEVICE
 </em></td><td width="90%">
-Mixer device. The special 'channel' value is
+Mixer device. The special `channel` value is
 used to adjust the volume changing the samples
 instead of using the card mixer. Other values
-like `default' are used to select the ALSA mixer.
-(default 'channel').
+like `default` are used to select the ALSA mixer.
+(default `channel`).
 </td></tr>
 </table>
 <h3><a name="5.2">5.2</a> 
@@ -2343,8 +2343,8 @@ SDL joystick interface.
 </td></tr>
 </table>
 <p>
-For the `allegro/psxlpt*', `allegro/db9lpt*', `allegro/tgxlpt*'
-drivers you can see the source file `advance/dos/jalleg.c'
+For the `allegro/psxlpt*`, `allegro/db9lpt*`, `allegro/tgxlpt*`
+drivers you can see the source file `advance/dos/jalleg.c`
 for instructions on how to build the lpt interface. See also
 the Allegro library source distribution.
 <h4>

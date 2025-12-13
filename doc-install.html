@@ -73,7 +73,7 @@ configure some drivers and libraries on your system.
 The following is a list of all that you need to do.
 <p>
 More details on the single drivers are present in the
-`advdev.txt' documentation file.
+`advdev.txt` documentation file.
 <h3><a name="1.1">1.1</a> 
 Linux
 </h3>
@@ -112,7 +112,7 @@ with vsync enabled, even when applying the Scale2x effect.
 <p>
 If, however, you prefer to use an old Arcade CRT or TV screen, you can
 configure the Advance programs to generate custom modelines for your
-video hardware, following the instructions in the 'Video Setup'
+video hardware, following the instructions in the `Video Setup`
 chapter.
 <p>
 Users have reported achieving optimal results with Arcade CRT by using
@@ -141,7 +141,7 @@ To utilize programmable modelines with the Raspberry HDMI port, you'll
 need an HDMI-&gt;VGA or HDMI-&gt;SCART converter to connect it to a CRT
 monitor.
 <p>
-There's no need for any special options in your '/boot/config.txt';
+There's no need for any special options in your `/boot/config.txt`;
 include only the options required to start the Raspberry with your
 video hardware and enable command entry.
 <p>
@@ -168,7 +168,7 @@ If a modeline works in AdvanceMAME, it might not work when manually
 setting timings in other ways.
 <p>
 To enable programmable modes, start the Raspberry with custom mode 87
-group 2 in '/boot/config.txt'. For example, with an Arcade Monitor:
+group 2 in `/boot/config.txt`. For example, with an Arcade Monitor:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -214,7 +214,7 @@ The Raspberry Pi 4 features a new video driver that, unfortunately, no
 longer supports direct programming of the Linux FrameBuffer.
 <p>
 To address this issue, you will need to edit the /boot/config.txt file
-and comment out the 'dtoverlay=vc4-kms-v3d' line. This action
+and comment out the `dtoverlay=vc4-kms-v3d` line. This action
 activates the legacy video driver that still maintains support for the
 Linux FrameBuffer (tested with Raspbian bullseye).
 <p>
@@ -246,7 +246,7 @@ Installation
 In Linux and other unix, the recommended way to install the Advance
 programs is to start from the sources.
 <p>
-The build process is detailed in `build.txt' file, but usually
+The build process is detailed in `build.txt` file, but usually
 you need only the usual commands:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
@@ -276,12 +276,12 @@ In Windows and DOS the configuration files are created in the
 current directory.
 <p>
 When you have finished modifying the configuration files,
-it is recommended to run the programs with the `-remove' option
+it is recommended to run the programs with the `-remove` option
 to remove all the default options from the configuration files.
 <h3><a name="3.1">3.1</a> 
 AdvanceMAME
 </h3>
-To run AdvanceMAME you need at least to configure the `dir_rom'
+To run AdvanceMAME you need at least to configure the `dir_rom`
 option to point where your roms reside.
 <p>
 In Linux, Mac OS X and other Unix the default rom dirs are
@@ -292,7 +292,7 @@ If you want to run it with the standard video support, like any
 other application, you don't need to configure any video options.
 <p>
 Instead, if you want to enable the direct programming of the
-video board you need to carefully follow the "Video Setup" chapter
+video board you need to carefully follow the `Video Setup` chapter
 in this file.
 <h3><a name="3.2">3.2</a> 
 AdvanceMENU
@@ -307,7 +307,7 @@ only in the current directory.
 <p>
 You will likely also need to adjust the path where the
 game's .png, .mp3 and .mng snapshot files reside with the
-`emulator_altss' option.
+`emulator_altss` option.
 <p>
 In Linux, Mac OS X and other Unix the default snapshot dirs are
 /usr/local/share/advance/snap and $HOME/.advance/snap.
@@ -429,7 +429,7 @@ device_video_clock 4 - 50 / 25 / 60
 </td></tr></table>
 <p>
 If your monitor is multistandard, you can use more
-clock specifications separating them with the `;' char.
+clock specifications separating them with the `;` char.
 <p>
 For example:
 <p>
@@ -543,40 +543,40 @@ monitor capability in the form of the supported pixel, horizontal
 and vertical clocks.
 <p>
 With this information the programs are able to always generate
-`perfect' video modes for the emulated game.
+`perfect` video modes for the emulated game.
 <h3><a name="5.1">5.1</a> 
 Operation Modes
 </h3>
 The programs support two basic ways to generate video modes:
-the `automatic' and the `manual' operation mode.
+the `automatic` and the `manual` operation mode.
 <p>
-In the `automatic' mode the programs automatically generate
+In the `automatic` mode the programs automatically generate
 a video mode from scratch. It's the simplest mode of operation.
 <p>
-In the `manual' mode the programs pick the video mode from a
+In the `manual` mode the programs pick the video mode from a
 manually defined list of modelines, eventually adjusting them
 to match the game clock or size requirements.
-This mode of operation should be used only if the `automatic'
+This mode of operation should be used only if the `automatic`
 mode doesn't work.
 <h4><a name="5.1.1">5.1.1</a> 
 Automatic Operation Mode
 </h4>
 In the automatic operation mode the programs automatically
-create a `perfect' video mode for the game to be emulated
+create a `perfect` video mode for the game to be emulated
 that fits exactly the whole screen with the correct aspect
 and frame rate.
 <p>
 To configure and activate this mode you need to run the
-`advcfg' utility for AdvanceMAME and `advcfg -advmenuc' for
+`advcfg` utility for AdvanceMAME and `advcfg -advmenuc` for
 AdvanceMENU, and answer the various questions.
 You don't need to create a list of video modes, any needed
 video mode is created at runtime.
 <p>
-Before running the `advcfg' utility you should check your
+Before running the `advcfg` utility you should check your
 monitor manual for the vertical and horizontal clocks
 supported by your monitor.
 <p>
-The `advcfg' utility adds these options in your `advmame.rc':
+The `advcfg` utility adds these options in your `advmame.rc`:
 <p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
@@ -587,22 +587,22 @@ device_video_format ?
 </pre>
 </td></tr></table>
 <p>
-All these options are documented in the `advdev.txt'
-and `advmame.txt' files.
+All these options are documented in the `advdev.txt`
+and `advmame.txt` files.
 <h4><a name="5.1.2">5.1.2</a> 
 Manual Operation Mode
 </h4>
-In the manual operation mode the programs scan a list of `good'
+In the manual operation mode the programs scan a list of `good`
 video modelines created manually and choose the best available.
 You must in advance create this list of video modelines with the
-`advv' utility.
+`advv` utility.
 <p>
 This is the description of the few basic steps required to run
 the programs in the manual operation mode. All the options used
-are documented in the `advdev.txt' file.
+are documented in the `advdev.txt` file.
 <ul>
 <li>
-For AdvanceMAME add in the file `advmame.rc' these
+For AdvanceMAME add in the file `advmame.rc` these
 options:
 </li>
 </ul>
@@ -615,8 +615,8 @@ display_adjust x
 </td></tr></table>
 <ul>
 <li>
-Add in the file `advmame.rc' or `advmenu.rc' the
-`device_video_clock' option that specifies which
+Add in the file `advmame.rc` or `advmenu.rc` the
+`device_video_clock` option that specifies which
 pixel, horizontal and vertical clocks are supported
 by your monitor.
 Generally these values are specified in the technical
@@ -627,7 +627,7 @@ examples.
 </ul>
 <ul>
 <li>
-Run the `advv' program for AdvanceMAME or `advv -advmenuv' for
+Run the `advv` program for AdvanceMAME or `advv -advmenuv` for
 AdvanceMENU.
 </li>
 </ul>
@@ -650,19 +650,19 @@ your video hardware.
 </ul>
 <ul>
 <li>
-When you have selected the list of `good' video modes press
+When you have selected the list of `good` video modes press
 F2 to save them in your configuration file.
 </li>
 </ul>
 <ul>
 <li>
-Press ESC to exit from `advv'
+Press ESC to exit from `advv`
 </li>
 </ul>
 <p>
-In the `contrib/modeline' dir are present some .rc files with
+In the `contrib/modeline` dir are present some .rc files with
 some example modelines. The same modelines are contained in
-the `advv' program.
+the `advv` program.
 
 
 </div>
