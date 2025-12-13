@@ -20,6 +20,7 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <cstdlib>
 #include <cstdio>
@@ -86,6 +87,56 @@ string up(const string& s)
 	for (size_t i = 0; i < s.length(); ++i)
 		r += toupper(s[i]);
 	return r;
+}
+
+size_t utf8len(const std::string& str) 
+{
+	size_t count = 0;
+	size_t i = 0;
+	const size_t n = str.size();
+
+	while (i < n) {
+		unsigned char c = static_cast<unsigned char>(str[i]);
+
+		if ((c & 0x80) == 0) {
+			// ASCII
+			i += 1;
+		} else if ((c & 0xE0) == 0xC0) {
+			// 2-byte sequence
+			if (i + 1 < n && (static_cast<unsigned char>(str[i+1]) & 0xC0) == 0x80) {
+				i += 2;
+			} else {
+				// invalid continuation
+				i += 1;
+			}
+		} else if ((c & 0xF0) == 0xE0) {
+			// 3-byte sequence
+			if (i + 2 < n &&
+				(static_cast<unsigned char>(str[i+1]) & 0xC0) == 0x80 &&
+				(static_cast<unsigned char>(str[i+2]) & 0xC0) == 0x80) {
+				i += 3;
+			} else {
+				i += 1;
+			}
+		} else if ((c & 0xF8) == 0xF0) {
+			// 4-byte sequence
+			if (i + 3 < n &&
+				(static_cast<unsigned char>(str[i+1]) & 0xC0) == 0x80 &&
+				(static_cast<unsigned char>(str[i+2]) & 0xC0) == 0x80 &&
+				(static_cast<unsigned char>(str[i+3]) & 0xC0) == 0x80) {
+				i += 4;
+			} else {
+				i += 1;
+			}
+		} else {
+			// invalid leading byte
+			i += 1;
+		}
+
+		count++;
+	}
+
+	return count;
 }
 
 //---------------------------------------------------------------------------
@@ -1342,10 +1393,13 @@ string convert_txt::mask(string s)
 void convert_txt::header(const string& a, const string& b)
 {
 	if (b.length()) {
-		size_t space = (80 - b.length()) / 2;
-		os << fill(space, ' ') << fill(b.length(), '=') << endl;
+		size_t len = utf8len(b);
+		size_t space = 0;
+		if (len < 80)
+			space = (80 - len) / 2;
+		os << fill(space, ' ') << fill(len, '=') << endl;
 		os << fill(space, ' ') << b << endl;
-		os << fill(space, ' ') << fill(b.length(), '=') << endl;
+		os << fill(space, ' ') << fill(len, '=') << endl;
 	}
 }
 
@@ -1379,6 +1433,7 @@ void convert_txt::section_end()
 void convert_txt::section_text(const string& s)
 {
 	ostringstream ss;
+	ssize_t len;
 
 	if (first_line) {
 		if (state == state_section0) {
@@ -1405,8 +1460,11 @@ void convert_txt::section_text(const string& s)
 			ss << "---- " << mask(s) << " ----";
 		}
 	}
-	if (ss.str().length() > max_length)
-		max_length = ss.str().length();
+	
+	len = utf8len(ss.str());
+	if (len > max_length)
+		max_length = len;
+
 	os << ss.str() << endl;
 }
 
@@ -1555,23 +1613,45 @@ void convert_txt::tag_text(const string& s)
 
 int main(int argc, char* argv[])
 {
-	if (argc != 2) {
+	ifstream ifile;
+	ofstream ofile;
+	istream* inp = &cin;
+	ostream* out = &cout;
+
+	if (argc != 2 && argc != 3 && argc != 4) {
 		cerr << "Syntax: d2 man | html | frame | txt" << endl;
 		exit(EXIT_FAILURE);
 	}
 
 	convert* c;
 
-	string arg = argv[1];
+	if (argc >= 3) {
+		ifile.open(argv[2]);
+		if (!ifile.is_open()) {
+			cerr << "Failed to open the file " << argv[2] << endl;
+			exit(EXIT_FAILURE);
+		}
+		inp = &ifile;
+	}
 
+	if (argc >= 4) {
+		ofile.open(argv[3]);
+		if (!ofile.is_open()) {
+			cerr << "Failed to open the file " << argv[3] << endl;
+			exit(EXIT_FAILURE);
+		}
+		out = &ofile;
+	}
+
+	string arg = argv[1];
 	if (arg == "html")
-		c = new convert_html(cin, cout);
+		c = new convert_html(*inp, *out);
 	else if (arg == "frame")
-		c = new convert_frame(cin, cout);
+		c = new convert_frame(*inp, *out);
 	else if (arg == "man")
-		c = new convert_man(cin, cout);
+		c = new convert_man(*inp, *out);
 	else if (arg == "txt")
-		c = new convert_txt(cin, cout);
+		c = new convert_txt(*inp, *out);
 	else {
 		cerr << "Unknown format `" << arg << "`" << endl;
 		exit(EXIT_FAILURE);
