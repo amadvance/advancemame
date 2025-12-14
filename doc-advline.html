@@ -68,7 +68,6 @@ Synopsis
 advline [/fh A,F,S,B] [/fv A,F,S,B]
 &nbsp;&nbsp;&nbsp;&nbsp;[/p CLOCK] [/h CLOCK] [/v CLOCK] [WIDTHxHEIGHT]
 </pre>
-<p>
 <pre>
 advline [/atari_standard] [/atari_extended] [/atari_medium]
 &nbsp;&nbsp;&nbsp;&nbsp;[/atari_vga] [/pal] [/ntsc] [/hp_vga] [/vga] [/svga60]
@@ -77,28 +76,25 @@ advline [/atari_standard] [/atari_extended] [/atari_medium]
 <h2><a name="2">2</a> 
 Description
 </h2>
-This utility is a video modeline generator.
+<p>This utility is a video modeline generator.
 The output of the execution is a valid list of video modes that
 you can use in your `cfg` files.
 The `.cfg` examples are generated with the predefined options of
 this program.
-<p>
-The modelines are generated using a user-specified reference
+</p><p>The modelines are generated using a user-specified reference
 length of the Active Display, Front Porch, Sync Pulse and Back
 Porch.
-<p>
-You can also set any type of clock constraints like Horizontal Clock,
+</p><p>You can also set any type of clock constraints like Horizontal Clock,
 Vertical Clock and Pixel Clock.
 If you select more than one exact clock the resulting video modes
 will have something fixed.
 For example the PAL modes have a fixed Vertical and Horizontal
 clocks. This results in a fixed number of rows.
-<p>
-The minimum and maximum clock limitations are considered as
+</p><p>The minimum and maximum clock limitations are considered as
 suggestions. The video modes are adjusted trying to match these
 limits. The available changes are enabling doublescan, enabling
 interlace and doubling the horizontal size.
-<h2><a name="3">3</a> 
+</p><h2><a name="3">3</a> 
 Options
 </h2>
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -195,8 +191,8 @@ default set is generated.
 <h2><a name="4">4</a> 
 Predefined Options
 </h2>
-These options are a predefined set of configurations:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>These options are a predefined set of configurations:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td><strong>
 /atari_standard
 </strong></td></tr><tr><td>
@@ -276,18 +272,15 @@ Generic SVGA multisync 57 Hz monitor
 VClock 57 Hz
 </td></tr>
 </table>
-<p>
-You can override some parameters using the normal options.
-<p>
-Examples for SVGA default modes at 75 Hz:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>You can override some parameters using the normal options.
+</p><p>Examples for SVGA default modes at 75 Hz:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 advline /svga60 /v 75
 </pre>
 </td></tr></table>
-<p>
-Examples for SVGA mode 384x224 at 72 Hz:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Examples for SVGA mode 384x224 at 72 Hz:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 advline /svga60 /v 72 384x224
 </pre>
@@ -295,28 +288,24 @@ advline /svga60 /v 72 384x224
 <h2><a name="5">5</a> 
 Timings
 </h2>
-This is the collection of video timings used by the
+<p>This is the collection of video timings used by the
 predefined options.
-<p>
-The nomenclature used is:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-A = Active Display
+</p><p>The nomenclature used is:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>A = Active Display
 F = Front Porch
 S = Sync Pulse
 B = Back Porch
 S+B = Video Delay
 F+S+B = Blank
 A+F+S+B = Scan Period
-</td></tr></table>
-<p>
-|                       A              F   S   B
+</p></td></tr></table>
+<p>|                       A              F   S   B
 |----|  |----XXXXXXXXXXXXXXXXXXXXXXXXX----|  |----XXXXXXXX...
 |    |--|                                 |--|
-<h4>
+</p><h4>
 PAL TVs
 </h4>
-<p>
 <pre>
                Horizontal              Vertical
 A              52.00 us                18.468 ms
@@ -332,7 +321,6 @@ Total Pixel                            312.5
 <h4>
 NTSC TVs
 </h4>
-<p>
 <pre>
                Horizontal              Vertical
 A              52.60 us                15.39875 ms
@@ -348,7 +336,6 @@ Total Pixel                            262.5
 <h4>
 Atari Standard Resolution Monitors
 </h4>
-<p>
 <pre>
                Horizontal              Vertical
 A              46.90 us                15.30 ms
@@ -359,14 +346,12 @@ Clock          15.72 kHz               60.00 Hz
 Visible Pixel  336                     240
 Total Pixel    456                     262
 </pre>
-<p>
 <pre>
 Pixel Clock 7.16 MHz
 </pre>
 <h4>
 Atari Extended Resolution Monitors
 </h4>
-<p>
 <pre>
                Horizontal              Vertical
 A              48.00 us                17.40 ms
@@ -377,14 +362,12 @@ Clock          16.50 kHz               53.00 Hz
 Visible Pixel  512                     288
 Total Pixel    646                     312
 </pre>
-<p>
 <pre>
 Pixel Clock 10.67 MHz
 </pre>
 <h4>
 Atari Medium Resolution Monitors
 </h4>
-<p>
 <pre>
                Horizontal              Vertical
 A              32.00 us                15.40 ms
@@ -395,14 +378,12 @@ Clock          25.00 kHz               60.00 Hz
 Visible Pixel  512                     384
 Total Pixel    640                     416
 </pre>
-<p>
 <pre>
 Pixel Clock 16.00 MHz
 </pre>
 <h4>
 Atari VGA20 Resolution Monitors
 </h4>
-<p>
 <pre>
                Horizontal              Vertical
 A              25.60 us                12.20 ms
@@ -413,7 +394,6 @@ Clock          31.55 kHz               70.00 Hz
 Visible Pixel  512                     384
 Total Pixel    634                     450
 </pre>
-<p>
 <pre>
 Pixel Clock 20.00 MHz
 </pre>

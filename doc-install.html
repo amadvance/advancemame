@@ -61,75 +61,61 @@
 Documentation for the installation of AdvanceMAME.
 </p>
 
-<p>
-This document describes the installation and configuration
+<p>This document describes the installation and configuration
 process of AdvanceMAME, AdvanceMESS and AdvanceMENU.
-<h2><a name="1">1</a> 
+</p><h2><a name="1">1</a> 
 System Requirements
 </h2>
-To run the Advance programs you may need to install and
+<p>To run the Advance programs you may need to install and
 configure some drivers and libraries on your system.
-<p>
-The following is a list of all that you need to do.
-<p>
-More details on the single drivers are present in the
+</p><p>The following is a list of all that you need to do.
+</p><p>More details on the single drivers are present in the
 `advdev.txt` documentation file.
-<h3><a name="1.1">1.1</a> 
+</p><h3><a name="1.1">1.1</a> 
 Linux
 </h3>
-In Linux the Advance programs can run either in the
+<p>In Linux the Advance programs can run either in the
 X Window graphical environment or from the Linux Console.
-<p>
-In X Window the SDL library is used for everything: video,
+</p><p>In X Window the SDL library is used for everything: video,
 audio and input controllers.
-<p>
-In the Linux Console, the Linux Framebuffer is used for the
+</p><p>In the Linux Console, the Linux Framebuffer is used for the
 video, the ALSA or OSS library for audio, and the Linux Event
 or Raw interface for input controllers.
-<p>
-The video board programming functionality for Arcade Monitors
+</p><p>The video board programming functionality for Arcade Monitors
 and CRT TVs, is available only from the Linux console, using
 the Linux Framebuffer.
-<h3><a name="1.2">1.2</a> 
+</p><h3><a name="1.2">1.2</a> 
 Raspberry Pi 3
 </h3>
-With a Raspberry Pi 3, you have the same support as in Linux, along
+<p>With a Raspberry Pi 3, you have the same support as in Linux, along
 with specific Raspberry functionality, such as the accelerated
 Framebuffer.
-<p>
-For optimal performance with a Raspberry Pi 3, it's recommended to run
+</p><p>For optimal performance with a Raspberry Pi 3, it's recommended to run
 the Advance programs directly from the Linux Console. Utilizing the
 Linux Framebuffer provides hardware acceleration, which is not
 available when running it from the X Window system using the SDL
 library.
-<p>
-This operating mode is ideal for use with modern monitors or
+</p><p>This operating mode is ideal for use with modern monitors or
 flat-screen TVs and requires no additional configuration steps; it
 simply works.
-<p>
-On a Raspberry Pi 3, you can expect most games to run at full speed
+</p><p>On a Raspberry Pi 3, you can expect most games to run at full speed
 with vsync enabled, even when applying the Scale2x effect.
-<p>
-If, however, you prefer to use an old Arcade CRT or TV screen, you can
+</p><p>If, however, you prefer to use an old Arcade CRT or TV screen, you can
 configure the Advance programs to generate custom modelines for your
 video hardware, following the instructions in the `Video Setup`
 chapter.
-<p>
-Users have reported achieving optimal results with Arcade CRT by using
+</p><p>Users have reported achieving optimal results with Arcade CRT by using
 the legacy Raspbian stretch, as opposed to the more recent Raspbian
 buster and other versions. You can obtain the legacy Raspbian stretch
 from the following link:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 <a href="http://downloads.raspberrypi.org/raspbian/images/raspbian-2019-04-09/">http://downloads.raspberrypi.org/raspbian/images/raspbian-2019-04-09/</a>
 </pre>
 </td></tr></table>
-<p>
-Additionally, you can download packages by editing the /etc/apt/sources.list
+<p>Additionally, you can download packages by editing the /etc/apt/sources.list
 file and adding the following line:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 deb <a href="http://legacy.raspbian.org/raspbian/">http://legacy.raspbian.org/raspbian/</a> stretch main contrib non-free rpi
 </pre>
@@ -137,61 +123,50 @@ deb <a href="http://legacy.raspbian.org/raspbian/">http://legacy.raspbian.org/ra
 <h4><a name="1.2.1">1.2.1</a> 
 HDMI Port
 </h4>
-To utilize programmable modelines with the Raspberry HDMI port, you'll
+<p>To utilize programmable modelines with the Raspberry HDMI port, you'll
 need an HDMI-&gt;VGA or HDMI-&gt;SCART converter to connect it to a CRT
 monitor.
-<p>
-There's no need for any special options in your `/boot/config.txt`;
+</p><p>There's no need for any special options in your `/boot/config.txt`;
 include only the options required to start the Raspberry with your
 video hardware and enable command entry.
-<p>
-Regardless of the hdmi_mode you select, the Advance programs will use
+</p><p>Regardless of the hdmi_mode you select, the Advance programs will use
 mode 87, group 2, and restore your initially selected mode when
 finished.
-<h4><a name="1.2.2">1.2.2</a> 
+</p><h4><a name="1.2.2">1.2.2</a> 
 DPI Port
 </h4>
-To use programmable modelines with the Raspberry DPI port, you'll need
+<p>To use programmable modelines with the Raspberry DPI port, you'll need
 a GPIO add-on board such as Gert's VGA 666.
-<p>
-The Raspberry Pi imposes limitations on the lower range of pixel
+</p><p>The Raspberry Pi imposes limitations on the lower range of pixel
 clocks when using the DPI/GPIO interface, impacting your ability to
 control low-frequency monitors like Arcade screens.
-<p>
-Allowed pixel clocks suitable for low resolutions are 4.8 MHz, 6.4
+</p><p>Allowed pixel clocks suitable for low resolutions are 4.8 MHz, 6.4
 MHz, 9.6 MHz, and 19.2 MHz. Alternatively, you can choose any pixel
 clock greater than 31.25 MHz.
-<p>
-To address this limitation, AdvanceMAME transparently increases the
+</p><p>To address this limitation, AdvanceMAME transparently increases the
 modeline horizontal size until it reaches the 31.25 MHz pixel clock.
 If a modeline works in AdvanceMAME, it might not work when manually
 setting timings in other ways.
-<p>
-To enable programmable modes, start the Raspberry with custom mode 87
+</p><p>To enable programmable modes, start the Raspberry with custom mode 87
 group 2 in `/boot/config.txt`. For example, with an Arcade Monitor:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 dpi_group=2
 dpi_mode=87
 hdmi_timings=320 1 20 29 35 224 1 10 14 16 0 0 0 60 0 6400000 1
 </pre>
 </td></tr></table>
-<p>
-Or with a standard SVGA Monitor:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Or with a standard SVGA Monitor:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 dpi_group=2
 dpi_mode=87
 hdmi_cvt=1024 768 60
 </pre>
 </td></tr></table>
-<p>
-You may also need additional options, such as with a Raspberry Pi 3
+<p>You may also need additional options, such as with a Raspberry Pi 3
 and Gert's VGA 666:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_tree=bcm2710-rpi-3-b.dtb
 dtparam=i2c_arm=off
@@ -210,155 +185,130 @@ gpu_mem=128
 <h3><a name="1.3">1.3</a> 
 Raspberry Pi 4
 </h3>
-The Raspberry Pi 4 features a new video driver that, unfortunately, no
+<p>The Raspberry Pi 4 features a new video driver that, unfortunately, no
 longer supports direct programming of the Linux FrameBuffer.
-<p>
-To address this issue, you will need to edit the /boot/config.txt file
+</p><p>To address this issue, you will need to edit the /boot/config.txt file
 and comment out the `dtoverlay=vc4-kms-v3d` line. This action
 activates the legacy video driver that still maintains support for the
 Linux FrameBuffer (tested with Raspbian bullseye).
-<p>
-However, it's important to note that this support is sufficient for an
+</p><p>However, it's important to note that this support is sufficient for an
 LCD screen but potentially inadequate for a real Arcade monitor.
-<p>
-Nevertheless, with the new video driver, it is always possible to run
+</p><p>Nevertheless, with the new video driver, it is always possible to run
 within the X Window system using the SDL library, albeit not at the
 optimal speed.
-<h3><a name="1.4">1.4</a> 
+</p><h3><a name="1.4">1.4</a> 
 Windows/Mac OS X
 </h3>
-In Windows and Mac OS X, the Advance programs use the SDL library
+<p>In Windows and Mac OS X, the Advance programs use the SDL library
 for video, audio, and input controllers.
-<p>
-In the binary distribution for Windows the SDL library is already
+</p><p>In the binary distribution for Windows the SDL library is already
 included.
-<h3><a name="1.5">1.5</a> 
+</p><h3><a name="1.5">1.5</a> 
 DOS
 </h3>
-In DOS, the Advance programs already contain all the required drivers
+<p>In DOS, the Advance programs already contain all the required drivers
 for video, audio, and input controllers.
-<p>
-Generally you don't need to install additional software with
+</p><p>Generally you don't need to install additional software with
 the exception of a mouse driver if you want to use one.
-<h2><a name="2">2</a> 
+</p><h2><a name="2">2</a> 
 Installation
 </h2>
-In Linux and other unix, the recommended way to install the Advance
+<p>In Linux and other unix, the recommended way to install the Advance
 programs is to start from the sources.
-<p>
-The build process is detailed in `build.txt` file, but usually
+</p><p>The build process is detailed in `build.txt` file, but usually
 you need only the usual commands:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 ./configure
 make -j3
 sudo make install
 </pre>
 </td></tr></table>
-<p>
-The exceptions are the DOS, Windows and Raspberry targets.
+<p>The exceptions are the DOS, Windows and Raspberry targets.
 In such cases it's better to start from the binary distribution
 and don't compile the source.
-<h2><a name="3">3</a> 
+</p><h2><a name="3">3</a> 
 Configuration
 </h2>
-All the Advance programs require a configuration file to work.
+<p>All the Advance programs require a configuration file to work.
 They are text files with the same program name, with the ".rc"
 extension, like "advmame.rc".
-<p>
-Default configuration files are created by the programs when they
+</p><p>Default configuration files are created by the programs when they
 are started for the first time.
-<p>
-In Linux, Mac OS X and other Unix, the configuration files are
+</p><p>In Linux, Mac OS X and other Unix, the configuration files are
 created in the user home directory in the subdirectory .advance/.
 In Windows and DOS the configuration files are created in the
 current directory.
-<p>
-When you have finished modifying the configuration files,
+</p><p>When you have finished modifying the configuration files,
 it is recommended to run the programs with the `-remove` option
 to remove all the default options from the configuration files.
-<h3><a name="3.1">3.1</a> 
+</p><h3><a name="3.1">3.1</a> 
 AdvanceMAME
 </h3>
-To run AdvanceMAME you need at least to configure the `dir_rom`
+<p>To run AdvanceMAME you need at least to configure the `dir_rom`
 option to point where your roms reside.
-<p>
-In Linux, Mac OS X and other Unix the default rom dirs are
+</p><p>In Linux, Mac OS X and other Unix the default rom dirs are
 /usr/local/share/advance/rom and $HOME/.advance/rom.
 In Windows and DOS it is the rom/ subdirectory in the current directory.
-<p>
-If you want to run it with the standard video support, like any
+</p><p>If you want to run it with the standard video support, like any
 other application, you don't need to configure any video options.
-<p>
-Instead, if you want to enable the direct programming of the
+</p><p>Instead, if you want to enable the direct programming of the
 video board you need to carefully follow the `Video Setup` chapter
 in this file.
-<h3><a name="3.2">3.2</a> 
+</p><h3><a name="3.2">3.2</a> 
 AdvanceMENU
 </h3>
-To run AdvanceMENU you need to configure which emulator is
+<p>To run AdvanceMENU you need to configure which emulator is
 present in your system.
-<p>
-At the first run AdvanceMENU searches for all the known emulators
+</p><p>At the first run AdvanceMENU searches for all the known emulators
 and configures itself automatically. In Linux, and Mac OS X the
 emulators are searched in the current PATH list, in Windows and DOS
 only in the current directory.
-<p>
-You will likely also need to adjust the path where the
+</p><p>You will likely also need to adjust the path where the
 game's .png, .mp3 and .mng snapshot files reside with the
 `emulator_altss` option.
-<p>
-In Linux, Mac OS X and other Unix the default snapshot dirs are
+</p><p>In Linux, Mac OS X and other Unix the default snapshot dirs are
 /usr/local/share/advance/snap and $HOME/.advance/snap.
 In Windows and DOS it is the snap/ subdirectory in the current directory.
-<h2><a name="4">4</a> 
+</p><h2><a name="4">4</a> 
 Video Hardware
 </h2>
-The Advance programs are able to drive different types
+<p>The Advance programs are able to drive different types
 of video hardware: LCD, Multi Sync monitors, Fixed
 Sync monitors, Arcade monitors and CRT TVs.
-<p>
-With the exception of PC Monitors that always accept the
+</p><p>With the exception of PC Monitors that always accept the
 VGA signal, for other monitors you should take into account
 the required video signals and eventually use conversion
 circuits to adapt signals.
-<p>
-A lot of useful links are available on the AdvanceMAME video
+</p><p>A lot of useful links are available on the AdvanceMAME video
 link page:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<a href="http://www.advancemame.it/video-link.html">http://www.advancemame.it/video-link.html</a>
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p><a href="http://www.advancemame.it/video-link.html">http://www.advancemame.it/video-link.html</a>
 <br>
-</td></tr></table>
+</p></td></tr></table>
 <h3><a name="4.1">4.1</a> 
 LCD monitors or LCD TVs
 </h3>
-LCD screens have always a native fixed resolution. To get the
+<p>LCD screens have always a native fixed resolution. To get the
 best image quality it's always recommended to use this resolution.
-<p>
-For this reason you usually don't need to enter any specific
+</p><p>For this reason you usually don't need to enter any specific
 configuration options, and let the program use the default
 video mode.
-<p>
-This mode of operation is the default when you are in
+</p><p>This mode of operation is the default when you are in
 a graphics environment like X, Windows and Mac OS X.
-<h3><a name="4.2">4.2</a> 
+</p><h3><a name="4.2">4.2</a> 
 Multi Sync monitors (or CRT PC monitors)
 </h3>
-Multi Sync monitors support a wide range of horizontal clocks
+<p>Multi Sync monitors support a wide range of horizontal clocks
 and require a standard VGA connector. They are the normal PC
 monitors.
-<p>
-With PC monitors you can choose to work without any configuration,
+</p><p>With PC monitors you can choose to work without any configuration,
 using only the default video mode, like a LCD screen, or configure
 the clocks supported to allow direct video mode generation
 by the Advance programs.
-<p>
-You can generally find the range of clocks supported in the
+</p><p>You can generally find the range of clocks supported in the
 monitor manual, generic values are:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video_clock 10 - 150 / 30.5 - 60 / 55 - 130
 </pre>
@@ -366,85 +316,67 @@ device_video_clock 10 - 150 / 30.5 - 60 / 55 - 130
 <h3><a name="4.3">4.3</a> 
 Fixed Sync Monitors
 </h3>
-Fixed Sync monitors support only a few fixed horizontal clocks.
+<p>Fixed Sync monitors support only a few fixed horizontal clocks.
 Generally they require separate 3, 4 or 5 BNC connectors, with
 the exception of old VGA monitors which require a standard
 VGA connector.
-<p>
-You must find the exact clocks supported in the monitor manual.
-<p>
-The standard clocks for VGA monitors are:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><p>You must find the exact clocks supported in the monitor manual.
+</p><p>The standard clocks for VGA monitors are:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video_clock 10 - 50 / 31.5 / 55 - 130
 </pre>
 </td></tr></table>
-<p>
-If the monitor uses separate H/V sync signals you can
+<p>If the monitor uses separate H/V sync signals you can
 directly use the VGA sync signals of your PC. If the monitor
 uses composite sync, or sync-on-green you must use a sync
 converter circuit.
-<p>
-These monitors are generally compatible with the VGA video
+</p><p>These monitors are generally compatible with the VGA video
 signal level of 0.7 V p-p.
-<h3><a name="4.4">4.4</a> 
+</p><h3><a name="4.4">4.4</a> 
 Arcade Monitors
 </h3>
-Arcade monitors support only a few fixed horizontal and
+<p>Arcade monitors support only a few fixed horizontal and
 vertical clocks, generally the horizontal are 15.75 and 25 kHz,
 and the vertical 60 Hz.
-<p>
-You must find the exact clocks supported in the monitor
+</p><p>You must find the exact clocks supported in the monitor
 manual.
-<p>
-Please note that the manuals of some Arcade Monitors
+</p><p>Please note that the manuals of some Arcade Monitors
 incorrectly state a wide range of horizontal frequency
 like 15 - 31 kHz. Generally these monitors support only
 the three fixed clocks of 15.75, 25, 31.1 kHz. An example
 is the Wells-Gardner D9200.
-<p>
-The standard clocks for a Standard Resolution 15 kHz (CGA) are:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><p>The standard clocks for a Standard Resolution 15 kHz (CGA) are:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video_clock 4 - 50 / 15.75 / 60
 </pre>
 </td></tr></table>
-<p>
-for an Extended Resolution 16 kHz are:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>for an Extended Resolution 16 kHz are:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video_clock 4 - 50 / 16.5 / 53
 </pre>
 </td></tr></table>
-<p>
-for a Medium Resolution 25 kHz (EGA) are:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>for a Medium Resolution 25 kHz (EGA) are:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video_clock 4 - 50 / 25 / 60
 </pre>
 </td></tr></table>
-<p>
-If your monitor is multistandard, you can use more
+<p>If your monitor is multistandard, you can use more
 clock specifications separating them with the `;` char.
-<p>
-For example:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><p>For example:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video_clock 4 - 50 / 15.75 / 60 ; 4 - 50 / 25 / 60
 </pre>
 </td></tr></table>
-<p>
-If the monitor accepts separate H/V sync signals at
+<p>If the monitor accepts separate H/V sync signals at
 levels 0 - 5 V you can directly use the VGA sync signal of
 your PC. If the monitor uses another sync signal you must
 use a sync conversion circuit.
-<p>
-If the monitor accepts a composite sync signal, instead of
+</p><p>If the monitor accepts a composite sync signal, instead of
 using a sync conversion circuit you can also try twisting
 the two H and V VGA signals together. It works if you select
 VGA negative H and V sync in the programs. To be on the safe side
@@ -453,41 +385,34 @@ together. Technically you should never just tie sync
 signal lines together. They are not usually designed for
 this, so this can damage your video card. If you try, use
 with caution.
-<p>
-You must also ensure that the monitor accepts the VGA video
+</p><p>You must also ensure that the monitor accepts the VGA video
 signal level of 0.7 V p-p. Generally arcade monitors require a
 video signal between 1 V and 5 V for each line.
 Therefore if you attempt to drive an arcade monitor with a
 VGA video signal you will at most have a very dark picture with
 no contrast. You will need to buy/make an amplifier for each
 line in order for it to work.
-<h3><a name="4.5">4.5</a> 
+</p><h3><a name="4.5">4.5</a> 
 CRT TVs
 </h3>
-CRT TVs generally support only two fixed combinations of
+<p>CRT TVs generally support only two fixed combinations of
 horizontal and vertical clocks, corresponding to the TV PAL
 and NTSC standards.
-<p>
-Clock values for PAL TV (European) are:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><p>Clock values for PAL TV (European) are:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video_clock 4 - 50 / 15.62 / 50
 </pre>
 </td></tr></table>
-<p>
-for NTSC TV (USA) are:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>for NTSC TV (USA) are:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video_clock 4 - 50 / 15.73 / 60
 </pre>
 </td></tr></table>
-<p>
-for PAL TV (European) which also supports NTSC TV (USA) modes
+<p>for PAL TV (European) which also supports NTSC TV (USA) modes
 (common if you use the SCART input):
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video_clock 4 - 50 / 15.62 / 50 ; 4 - 50 / 15.73 / 60
 </pre>
@@ -495,90 +420,75 @@ device_video_clock 4 - 50 / 15.62 / 50 ; 4 - 50 / 15.73 / 60
 <h4><a name="4.5.1">4.5.1</a> 
 TVs with SCART
 </h4>
-If your TV has a SCART input, you can use directly the VGA
+<p>If your TV has a SCART input, you can use directly the VGA
 analog signal as RGB input.
-<p>
-A composite sync signal is required. It means that you must
+</p><p>A composite sync signal is required. It means that you must
 use a sync converter circuit to convert the VGA H/V sync with
 levels 0 - 5 V to a composite sync of levels 0 - 0.3 V.
-<p>
-The SCART input also accepts a composite video signal, but
+</p><p>The SCART input also accepts a composite video signal, but
 the RGB video is far superior.
-<p>
-Remember that to enable the SCART RGB signal you must set
+</p><p>Remember that to enable the SCART RGB signal you must set
 the SCART pin 16 at level 1 - 3 V (no more than 3 V).
 And to automatically switch the TV to the AV signal you
 must set the SCART pin 8 at level 9.5 - 12 V (for some
 TVs 5 V may be enough).
-<p>
-If you have a recent VGA board, you can use the 5 V power
+</p><p>If you have a recent VGA board, you can use the 5 V power
 available on the VGA pin 9. Alternatively you can use the
 5 V and 12 V PC internal power.
-<h4><a name="4.5.2">4.5.2</a> 
+</p><h4><a name="4.5.2">4.5.2</a> 
 TVs with S-Video
 </h4>
-If your TV has an S-Video input, you can use the TV-Out signal
+<p>If your TV has an S-Video input, you can use the TV-Out signal
 of your VGA board.
-<p>
-The quality of the S-Video signal is near to the quality of
+</p><p>The quality of the S-Video signal is near to the quality of
 the RGB signal.
-<p>
-Unfortunately the TV-Out signal is generally not enabled
+</p><p>Unfortunately the TV-Out signal is generally not enabled
 by the Advance programs. There are some external utilities
 for Linux and Windows able to enable the TV-Out signal,
 but their use is mainly untested.
-<h2><a name="5">5</a> 
+</p><h2><a name="5">5</a> 
 Video Setup
 </h2>
-The Advance programs have the ability to directly control your video
+<p>The Advance programs have the ability to directly control your video
 board to get the best possible fullscreen video modes with always the
 correct size and aspect ratio.
-<p>
-This feature is available in Linux with the Frame Buffer drivers.
+</p><p>This feature is available in Linux with the Frame Buffer drivers.
 The legacy SVGALIB support for Linux/Windows/DOS is still present,
 but likely too old to support your video board.
-<p>
-To make it possible, the programs need some information on your
+</p><p>To make it possible, the programs need some information on your
 monitor capability in the form of the supported pixel, horizontal
 and vertical clocks.
-<p>
-With this information the programs are able to always generate
+</p><p>With this information the programs are able to always generate
 `perfect` video modes for the emulated game.
-<h3><a name="5.1">5.1</a> 
+</p><h3><a name="5.1">5.1</a> 
 Operation Modes
 </h3>
-The programs support two basic ways to generate video modes:
+<p>The programs support two basic ways to generate video modes:
 the `automatic` and the `manual` operation mode.
-<p>
-In the `automatic` mode the programs automatically generate
+</p><p>In the `automatic` mode the programs automatically generate
 a video mode from scratch. It's the simplest mode of operation.
-<p>
-In the `manual` mode the programs pick the video mode from a
+</p><p>In the `manual` mode the programs pick the video mode from a
 manually defined list of modelines, eventually adjusting them
 to match the game clock or size requirements.
 This mode of operation should be used only if the `automatic`
 mode doesn't work.
-<h4><a name="5.1.1">5.1.1</a> 
+</p><h4><a name="5.1.1">5.1.1</a> 
 Automatic Operation Mode
 </h4>
-In the automatic operation mode the programs automatically
+<p>In the automatic operation mode the programs automatically
 create a `perfect` video mode for the game to be emulated
 that fits exactly the whole screen with the correct aspect
 and frame rate.
-<p>
-To configure and activate this mode you need to run the
+</p><p>To configure and activate this mode you need to run the
 `advcfg` utility for AdvanceMAME and `advcfg -advmenuc` for
 AdvanceMENU, and answer the various questions.
 You don't need to create a list of video modes, any needed
 video mode is created at runtime.
-<p>
-Before running the `advcfg` utility you should check your
+</p><p>Before running the `advcfg` utility you should check your
 monitor manual for the vertical and horizontal clocks
 supported by your monitor.
-<p>
-The `advcfg` utility adds these options in your `advmame.rc`:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><p>The `advcfg` utility adds these options in your `advmame.rc`:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 display_mode auto
 display_adjust generate_yclock
@@ -586,27 +496,24 @@ device_video_clock ?
 device_video_format ?
 </pre>
 </td></tr></table>
-<p>
-All these options are documented in the `advdev.txt`
+<p>All these options are documented in the `advdev.txt`
 and `advmame.txt` files.
-<h4><a name="5.1.2">5.1.2</a> 
+</p><h4><a name="5.1.2">5.1.2</a> 
 Manual Operation Mode
 </h4>
-In the manual operation mode the programs scan a list of `good`
+<p>In the manual operation mode the programs scan a list of `good`
 video modelines created manually and choose the best available.
 You must in advance create this list of video modelines with the
 `advv` utility.
-<p>
-This is the description of the few basic steps required to run
+</p><p>This is the description of the few basic steps required to run
 the programs in the manual operation mode. All the options used
 are documented in the `advdev.txt` file.
-<ul>
+</p><ul>
 <li>
 For AdvanceMAME add in the file `advmame.rc` these
 options:
 </li>
 </ul>
-<p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 display_mode auto
@@ -659,11 +566,10 @@ F2 to save them in your configuration file.
 Press ESC to exit from `advv`
 </li>
 </ul>
-<p>
-In the `contrib/modeline` dir are present some .rc files with
+<p>In the `contrib/modeline` dir are present some .rc files with
 some example modelines. The same modelines are contained in
 the `advv` program.
-
+</p>
 
 <p>
 </p>

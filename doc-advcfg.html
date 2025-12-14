@@ -71,20 +71,17 @@ advcfg [-advmamec] [-advmessc] [-advmenuc]
 <h2><a name="2">2</a> 
 Description
 </h2>
-The `advcfg` utility is the automatic video configuration
+<p>The `advcfg` utility is the automatic video configuration
 program for AdvanceMAME, AdvanceMESS and AdvanceMENU.
-<p>
-This utility works differently if one of the -advmamec,
+</p><p>This utility works differently if one of the -advmamec,
 -advmessc or -advmenuc options is specified.
 The main difference is the name of the configuration
 file used to store the video modes.
-<p>
-All the video modes used in the configuration process
+</p><p>All the video modes used in the configuration process
 always have negative horizontal and vertical sync polarity.
-<p>
-Check the `advdev.txt` file for more details on the video
+</p><p>Check the `advdev.txt` file for more details on the video
 drivers supported.
-<h2><a name="3">3</a> 
+</p><h2><a name="3">3</a> 
 Options
 </h2>
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -132,36 +129,30 @@ Valid values are 8, 15, 16 and 32.
 <h2><a name="4">4</a> 
 Configuration
 </h2>
-Depending on the command line options used, one of the
+<p>Depending on the command line options used, one of the
 `advmame.rc`, `advmess.rc` or `advmenu.rc` files is used
 to load and save the video configuration.
-<p>
-If the configuration process completes successfully, the
+</p><p>If the configuration process completes successfully, the
 program adds these options to your configuration file:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video_clock ?
 device_video_format ?
 </pre>
 </td></tr></table>
-<p>
-which define the capabilities of your monitor and video board.
+<p>which define the capabilities of your monitor and video board.
 And for the `advmame` and `advmess` modes also the options:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 display_mode auto
 display_adjust generate_yclock
 </pre>
 </td></tr></table>
-<p>
-which select the `automatic` video mode generation of the
+<p>which select the `automatic` video mode generation of the
 emulators.
-<p>
-All these options are documented in the `advdev.txt`
+</p><p>All these options are documented in the `advdev.txt`
 and `advmame.txt` files.
-
+</p>
 
 <p>
 </p>

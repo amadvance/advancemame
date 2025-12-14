@@ -70,22 +70,19 @@ vga [/l] [/u] [/a] [/c CONFIG] [/d] [/e]
 <h2><a name="2">2</a> 
 Description
 </h2>
-The `vga` utility is a TSR (Terminate and Stay Resident) VGA BIOS
+<p>The `vga` utility is a TSR (Terminate and Stay Resident) VGA BIOS
 wrapper that substitutes the default list of VGA video modes
 with a list of favorite modes which work best with your
 video hardware.
-<p>
-The `vga.exe` executable can be used as a standard executable or
+</p><p>The `vga.exe` executable can be used as a standard executable or
 it can also be loaded as a `sys` driver in the `config.sys` with
 `device=`. Please note that the `sys` version cannot be unloaded.
-<p>
-At startup the configuration file `vga.rc`, created with
+</p><p>At startup the configuration file `vga.rc`, created with
 the utility `vgav`, is read and all the modelines present
 are activated. The format of this configuration file is
 specified in the document `advv.txt`.
-<p>
-These are some example rc files:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+</p><p>These are some example rc files:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 ntsc.rc
 </em></td><td width="90%">
@@ -122,10 +119,9 @@ pcsvga60.rc
 SVGA PC Multisync Monitor.
 </td></tr>
 </table>
-<p>
-From all the modelines in the configuration file three of them
+<p>From all the modelines in the configuration file three of them
 are chosen for the standard VGA modes 1h, 3h and 13h.
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 1h
 </em></td><td width="90%">
@@ -142,15 +138,14 @@ width of 80*9 or 80*8 pixels.
 width of 320 pixels and height of 200 pixels.
 </td></tr>
 </table>
-<p>
-All the other modelines are used to adjust any other VGA mode
+<p>All the other modelines are used to adjust any other VGA mode
 detected. When the current video mode width and height match
 a modeline, the modeline is automatically applied.
-<h2><a name="3">3</a> 
+</p><h2><a name="3">3</a> 
 Options
 </h2>
-These are the command line options supported:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>These are the command line options supported:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td><strong>
 /l
 </strong></td></tr><tr><td>
@@ -200,116 +195,96 @@ running your programs.
 Enable the video output.
 </td></tr>
 </table>
-<p>
-You can force a video mode reset in text mode using the standard
+<p>You can force a video mode reset in text mode using the standard
 DOS command:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 mode co80
 </pre>
 </td></tr></table>
-<p>
-or with the `video` utility.
-<h2><a name="4">4</a> 
+<p>or with the `video` utility.
+</p><h2><a name="4">4</a> 
 Cards
 </h2>
-This utility should work with any VGA-compatible board.
-<h2><a name="5">5</a> 
+<p>This utility should work with any VGA-compatible board.
+</p><h2><a name="5">5</a> 
 How It Works
 </h2>
-This utility intercepts all VGA BIOS calls and if it detects
+<p>This utility intercepts all VGA BIOS calls and if it detects
 a ModeSet call for a known mode it uses its own version of the mode.
-<p>
-At any call of interrupt 08h and 21h some VGA registers are
+</p><p>At any call of interrupt 08h and 21h some VGA registers are
 read. If a VGA mode with the size of a known modeline is detected,
 the mode is adjusted to match the mode defined in the
 configuration file.
-<p>
-The disabling of the video output works by ignoring all int
+</p><p>The disabling of the video output works by ignoring all int
 10h calls.
-<h2><a name="6">6</a> 
+</p><h2><a name="6">6</a> 
 Limitations
 </h2>
-Only the modelines compatible with VGA hardware are used.
-<p>
-The text modes can use only the pixel clocks 28.322, 25.175,
+<p>Only the modelines compatible with VGA hardware are used.
+</p><p>The text modes can use only the pixel clocks 28.322, 25.175,
 14.161 and 12.587 MHz. The graphics modes can use only the
 pixel clocks 14.161, 12.587, 7.080 and 6.293 MHz.
-<h2><a name="7">7</a> 
+</p><h2><a name="7">7</a> 
 Examples
 </h2>
-Load it:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Load it:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 vga /l
 </pre>
 </td></tr></table>
-<p>
-Load it with an arbitrary configuration file:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Load it with an arbitrary configuration file:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 vga /l /c c:\myconf.rc
 </pre>
 </td></tr></table>
-<p>
-Unload it:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Unload it:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 vga /u
 </pre>
 </td></tr></table>
-<p>
-Load it in the config.sys file:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Load it in the config.sys file:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device=c:\cab\vga.exe /l /c c:\cab\vga.rc
 </pre>
 </td></tr></table>
-<p>
-Adjust the current video mode in the config.sys without loading
+<p>Adjust the current video mode in the config.sys without loading
 in memory the utility:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device=c:\cab\vga.exe /a /c c:\cab\vga.rc
 </pre>
 </td></tr></table>
-<p>
-Adjust the current video mode in the config.sys and disable
+<p>Adjust the current video mode in the config.sys and disable
 all the video output:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device=c:\cab\vga.exe /l /d /c c:\cab\vga.rc
 </pre>
 </td></tr></table>
-<p>
-The latter is probably the most interesting use. You can load
+<p>The latter is probably the most interesting use. You can load
 `vga` as soon as possible to adjust the video output and prevent
 other programs from writing to the screen. You can also use the
 `video` utility to load an arbitrary image to display.
 After the system is initialized you can insert in the autoexec.bat
 the command:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 c:\cab\vga /e
 </pre>
 </td></tr></table>
-<p>
-to re-enable the video output.
-<h2><a name="8">8</a> 
+<p>to re-enable the video output.
+</p><h2><a name="8">8</a> 
 Bugs
 </h2>
-The configuration file is checked only for the
+<p>The configuration file is checked only for the
 `device_video_modeline` options.
 All the other options are ignored.
-
+</p>
 
 <p>
 </p>

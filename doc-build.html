@@ -61,107 +61,83 @@
 Documentation to build AdvanceMAME.
 </p>
 
-<p>
-This file contains the instructions to build the Advance
+<p>This file contains the instructions to build the Advance
 programs from the source archives.
-<h2><a name="1">1</a> 
+</p><h2><a name="1">1</a> 
 Build
 </h2>
-To build the Advance programs you need to have installed the
+<p>To build the Advance programs you need to have installed the
 development tools.
-<p>
-What to install depends on your system, but in general you need the
+</p><p>What to install depends on your system, but in general you need the
 GCC compiler and the SDL library.
-<p>
-For Ubuntu run:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><p>For Ubuntu run:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 $ sudo apt-get update
 $ sudo apt-get install build-essential git autoconf automake libsdl2-dev libasound2-dev libfreetype6-dev zlib1g-dev libexpat1-dev libslang2-dev libncurses5-dev
 </pre>
 </td></tr></table>
-<p>
-For Raspbian run:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>For Raspbian run:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 $ sudo apt-get update
 $ sudo apt-get install git autoconf automake libsdl2-dev libasound2-dev libfreetype6-dev zlib1g-dev libexpat1-dev libslang2-dev libncurses5-dev
 </pre>
 </td></tr></table>
-<p>
-Note that on Raspbian it is highly recommended to run the Advance
+<p>Note that on Raspbian it is highly recommended to run the Advance
 programs outside the X Window graphics environment to get the best
 performance. For this reason the SDL library "libsdl2-dev" is not
 required, and you can omit it if you like.
-<p>
-At this point you can get the source code from the <a href="http://www.advancemame.it">http://www.advancemame.it</a>
+</p><p>At this point you can get the source code from the <a href="http://www.advancemame.it">http://www.advancemame.it</a>
 site and untar it with:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 $ tar xf advancemame-*.tar.gz
 $ cd advancemame-*
 </pre>
 </td></tr></table>
-<p>
-or alternatively you can get it directly with git:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>or alternatively you can get it directly with git:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 $ git clone https://github.com/amadvance/advancemame.git
 $ cd advancemame
 $ sh autogen.sh
 </pre>
 </td></tr></table>
-<p>
-Now you can build and install using the typical sequence of commands:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-$ ./configure
+<p>Now you can build and install using the typical sequence of commands:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>$ ./configure
 $ make -j3
 $ sudo make install
-</td></tr></table>
-<p>
-The -j3 option uses three parallel processes, speeding up the build.
-<p>
-The build process may be long, up to 45 minutes on a Raspberry Pi 3,
+</p></td></tr></table>
+<p>The -j3 option uses three parallel processes, speeding up the build.
+</p><p>The build process may be long, up to 45 minutes on a Raspberry Pi 3,
 or 25 minutes on a Raspberry Pi 4.
-<p>
-No option is generally required. You can get the complete configure
+</p><p>No option is generally required. You can get the complete configure
 option list with the `./configure --help` command.
-<p>
-The default installation prefix is /usr/local. You can change it
+</p><p>The default installation prefix is /usr/local. You can change it
 with the `--prefix=` option.
-<p>
-The default host configuration directory is /usr/local/etc. You can
+</p><p>The default host configuration directory is /usr/local/etc. You can
 change it with the `--sysconfdir=` option. Please note that instead
 of /usr/etc it is always used /etc.
-<p>
-The configure script automatically detects all the available
+</p><p>The configure script automatically detects all the available
 libraries and the optimization flags. You can use the
 --with-sdl-prefix and --with-sdl2-prefix options to search for the
 SDL and SDL2 libraries in a specific location.
-<p>
-The `make install` command installs the binaries and the documentation.
-<p>
-The binaries are installed in $prefix/bin, the program data
+</p><p>The `make install` command installs the binaries and the documentation.
+</p><p>The binaries are installed in $prefix/bin, the program data
 files in $prefix/share/advance, the documentation in
 $prefix/share/doc/advance, and the man pages in $prefix/man/man1.
-<p>
-On Mac OS X ensure that the directory $prefix/bin is in the
+</p><p>On Mac OS X ensure that the directory $prefix/bin is in the
 search PATH. Generally /usr/local/bin is not.
-<p>
-After the installation, you can check if AdvanceMAME starts with:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><p>After the installation, you can check if AdvanceMAME starts with:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 $ advmame robby
 </pre>
 </td></tr></table>
-<p>
-and AdvanceMESS with:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>and AdvanceMESS with:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 $ advmess ti99_4a
 </pre>

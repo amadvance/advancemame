@@ -71,17 +71,14 @@ videow [/s XxYxBITS] [/a] [/o] [/e] [/d] [/c FILE] [/p]
 <h2><a name="2">2</a> 
 Description
 </h2>
-The `videow` utility can be used to control the video
+<p>The `videow` utility can be used to control the video
 output of the PC in Windows 2000/XP.
-<p>
-It requires the `svgawin` driver installed and running.
-<p>
-The modelines are read from the file `videow.rc`.
+</p><p>It requires the `svgawin` driver installed and running.
+</p><p>The modelines are read from the file `videow.rc`.
 The format of this configuration file is specified in the
 document `advv.txt`.
-<p>
-These are some example rc files:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+</p><p>These are some example rc files:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 ntsc.rc
 </em></td><td width="90%">
@@ -194,14 +191,12 @@ Enable the use of the hardware mouse pointer.
 <h2><a name="4">4</a> 
 Cards
 </h2>
-The program supports all the `svgawin` drivers listed in the
+<p>The program supports all the `svgawin` drivers listed in the
 `cardwin.txt` file.
-<p>
-You can force the use of a specific driver using the `device_video`
+</p><p>You can force the use of a specific driver using the `device_video`
 option in the configuration file.
-<p>
-The available drivers are :
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+</p><p>The available drivers are :
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 svgawin/auto
 </em></td><td width="90%">
@@ -343,22 +338,19 @@ Try decreasing the video hardware acceleration.
 <h2><a name="7">7</a> 
 Tests
 </h2>
-Windows 2000 with a GeForce 2 board
+<p>Windows 2000 with a GeForce 2 board
 <br>
-<h2><a name="8">8</a> 
+</p><h2><a name="8">8</a> 
 Examples
 </h2>
-Set a 640x480 mode with 16 bits per pixel:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Set a 640x480 mode with 16 bits per pixel:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 videow /s 640x480x16
 </pre>
 </td></tr></table>
-<p>
-Adjust the current mode:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Adjust the current mode:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 videow /a
 </pre>
@@ -366,10 +358,10 @@ videow /a
 <h2><a name="9">9</a> 
 Bugs
 </h2>
-The configuration file is checked only for the
+<p>The configuration file is checked only for the
 `device_video_modeline` and `device_video` options.
 All the other options are ignored.
-
+</p>
 
 <p>
 </p>

@@ -70,9 +70,9 @@ video [/s MODE] [/e] [/d] [/r] [/l PCXIMAGE]
 <h2><a name="2">2</a> 
 Description
 </h2>
-The `video` utility can be used to control the video
+<p>The `video` utility can be used to control the video
 output of the PC in DOS.
-<h2><a name="3">3</a> 
+</p><h2><a name="3">3</a> 
 Options
 </h2>
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
@@ -92,9 +92,8 @@ Set an arbitrary video mode. The MODE is expressed as
 an hexadecimal BIOS number.
 </td></tr>
 </table>
-<p>
-The most common modes are:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>The most common modes are:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 1
 </em></td><td width="90%">
@@ -136,19 +135,17 @@ function.
 <h2><a name="4">4</a> 
 Examples
 </h2>
-A good configuration for arcade monitors/TVs may be:
-<p>
-In CONFIG.SYS:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>A good configuration for arcade monitors/TVs may be:
+</p><p>In CONFIG.SYS:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device=c:\cab\video.exe /l c:\cab\video.pcx
 device=c:\cab\vga.exe /l /d /c c:\cab\vga.rc
 ...other commands...
 </pre>
 </td></tr></table>
-<p>
-In AUTOEXEC.BAT:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>In AUTOEXEC.BAT:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 ...other commands...
 c:\cab\vga /e

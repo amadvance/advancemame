@@ -70,25 +70,21 @@ vbe32 [/l] [/c CONFIG]
 <h2><a name="2">2</a> 
 Description
 </h2>
-The `vbe32` utility is a 32 bit TSR (Terminate Stay Resident)
+<p>The `vbe32` utility is a 32 bit TSR (Terminate Stay Resident)
 VBE BIOS that completely replaces the original VBE BIOS of your
 video board.
-<p>
-It allows you to set an arbitrary video mode list with the favorite
+</p><p>It allows you to set an arbitrary video mode list with the favorite
 modes which work best with your video hardware without any
 restrictions in size and frequencies.
-<p>
-With this utility you can play all the DOS games that use the
+</p><p>With this utility you can play all the DOS games that use the
 standard VESA VBE services with your PC monitor, TV and arcade
 monitor.
-<p>
-At startup the configuration file `vbe.rc`, created with
+</p><p>At startup the configuration file `vbe.rc`, created with
 the utility `vbev`, is read and all the modelines present
 are activated. The format of this configuration file is
 specified in the document `advv.txt`.
-<p>
-These are some example rc files:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+</p><p>These are some example rc files:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 ntsc.rc
 </em></td><td width="90%">
@@ -125,15 +121,14 @@ pcsvga60.rc
 SVGA PC Multisync Monitor.
 </td></tr>
 </table>
-<p>
-All the modelines present in the configuration files are used
+<p>All the modelines present in the configuration files are used
 to create the list of available VBE modes. For every modeline
 five VBE modes with 8, 15, 16, 24 and 32 bits are added.
-<h2><a name="3">3</a> 
+</p><h2><a name="3">3</a> 
 Options
 </h2>
-These are the command line options supported:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>These are the command line options supported:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td><strong>
 /l
 </strong></td></tr><tr><td>
@@ -150,9 +145,9 @@ Use an arbitrary configuration file
 <h2><a name="4">4</a> 
 Cards
 </h2>
-The program supports all the `svgaline` drivers listed in the
+<p>The program supports all the `svgaline` drivers listed in the
 `carddos.txt` file.
-<h2><a name="5">5</a> 
+</p><h2><a name="5">5</a> 
 Limitations
 </h2>
 <ul>
@@ -186,34 +181,30 @@ It does not work in Windows NT/2000/XP.
 <h2><a name="6">6</a> 
 Application Problems
 </h2>
-Some applications are able to use only some common resolutions
+<p>Some applications are able to use only some common resolutions
 like 320x240, 400x300, 512x384, 640x480 and 800x600. Other resolutions
 may be completely ignored or crash the application.
-<p>
-Other applications may get in trouble if the list of available
+</p><p>Other applications may get in trouble if the list of available
 VBE modes contains duplicate resolutions or is too big.
 Add only the best modelines and avoid duplicates.
-<h2><a name="7">7</a> 
+</p><h2><a name="7">7</a> 
 Tests
 </h2>
-Doom Legacy with a GeForce 2 board (<a href="http://www.newdoom.com/doomlegacy/">http://www.newdoom.com/doomlegacy/</a>)
+<p>Doom Legacy with a GeForce 2 board (<a href="http://www.newdoom.com/doomlegacy/">http://www.newdoom.com/doomlegacy/</a>)
 <br>
 Duke Nukem 3D with a GeForce 2 board
 <br>
-<h2><a name="8">8</a> 
+</p><h2><a name="8">8</a> 
 Examples
 </h2>
-Load it:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Load it:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 vbe32 /l
 </pre>
 </td></tr></table>
-<p>
-Load it with an arbitrary configuration file:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Load it with an arbitrary configuration file:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 vbe32 /l /c c:\cab\myconf.rc
 </pre>
@@ -221,10 +212,10 @@ vbe32 /l /c c:\cab\myconf.rc
 <h2><a name="9">9</a> 
 Bugs
 </h2>
-The configuration file is checked only for the
+<p>The configuration file is checked only for the
 `device_video_modeline` options.
 All the other options are ignored.
-
+</p>
 
 <p>
 </p>

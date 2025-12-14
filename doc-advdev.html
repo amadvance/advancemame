@@ -61,10 +61,9 @@
 Documentation of the AdvanceMAME Device Drivers
 </p>
 
-<p>
-This file describes the video, sound, joystick, mouse
+<p>This file describes the video, sound, joystick, mouse
 and keyboard drivers used by the Advance programs.
-<p>The sections of this document are:<p>
+</p><p>The sections of this document are:<p>
 <table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr><td width="5%"></td><td colspan=3>
 <a href="#1">1 Video Drivers</a><br>
@@ -325,8 +324,8 @@ Video Drivers
 <h3><a name="1.1">1.1</a> 
 Types of Drivers
 </h3>
-The video drivers can be divided in two different categories:
-<ul>
+<p>The video drivers can be divided in two different categories:
+</p><ul>
 <li>
 Generate drivers able to program directly the video board.
 </li>
@@ -337,449 +336,365 @@ System drivers able to use only the available video modes.
 <h4><a name="1.1.1">1.1.1</a> 
 Generate drivers
 </h4>
-This set of drivers is able to program directly the video board
+<p>This set of drivers is able to program directly the video board
 to always generate a perfect video mode with the correct size
 and frequency.
-<p>
-They always work in `fullscreen` output mode and generally
+</p><p>They always work in `fullscreen` output mode and generally
 support only a subset of video boards.
-<p>
-To function correctly these drivers require a correct
+</p><p>To function correctly these drivers require a correct
 configuration of the `device_video_*` options.
-<p>
-The `Generate` drivers are always the preferred choice.
-<h4><a name="1.1.2">1.1.2</a> 
+</p><p>The `Generate` drivers are always the preferred choice.
+</p><h4><a name="1.1.2">1.1.2</a> 
 System drivers
 </h4>
-This set of drivers is able to use only the video modes
+<p>This set of drivers is able to use only the video modes
 available on the operating system.
-<p>
-They can work in `fullscreen` mode, `window` mode and `zoom`
+</p><p>They can work in `fullscreen` mode, `window` mode and `zoom`
 output mode using the video board hardware acceleration to
 stretch the image. The default output mode is `window` if you
 run the program in a window manager, otherwise the output
 mode `fullscreen` is chosen.
-<p>
-Please note that these drivers generally need to stretch the
+</p><p>Please note that these drivers generally need to stretch the
 image losing a lot in image quality and speed.
-<p>
-These drivers don't require any `device_video_*` options
+</p><p>These drivers don't require any `device_video_*` options
 because they cannot control how the video modes are generated.
-<h3><a name="1.2">1.2</a> 
+</p><h3><a name="1.2">1.2</a> 
 Available Generate Drivers
 </h3>
-The following is the list of all the video drivers supported.
-<h4><a name="1.2.1">1.2.1</a> 
+<p>The following is the list of all the video drivers supported.
+</p><h4><a name="1.2.1">1.2.1</a> 
 fb - Generate Frame Buffer video (Linux)
 </h4>
-This driver works in Linux and is able to create video modes
+<p>This driver works in Linux and is able to create video modes
 using the Linux Kernel Frame Buffer interface.
-<p>
-All clocks, all RGB bit depths are available.
-<p>
-This driver is able to use the Linux fb API to synchronize
+</p><p>All clocks, all RGB bit depths are available.
+</p><p>This driver is able to use the Linux fb API to synchronize
 with the vertical sync of the video mode, but generally
 it isn't possible because the low-end drivers don't support
 this feature. Anyway, if you run the program as root it can
 use the standard VGA registers to detect the vsync.
 This is the major limitation compared with the svgalib driver.
-<p>
-To allow any user to run the program as root, you can
+</p><p>To allow any user to run the program as root, you can
 use the following commands to change the executable
 permissions:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 chown root:root /usr/local/bin/advmame
 chmod u+s /usr/local/bin/advmame
 </pre>
 </td></tr></table>
-<p>
-To use this driver you must activate the Console Frame Buffer
+<p>To use this driver you must activate the Console Frame Buffer
 support in your Linux kernel.
-<p>
-This driver is not available in X (when the environment DISPLAY
+</p><p>This driver is not available in X (when the environment DISPLAY
 variable is defined).
-<p>
-The Frame Buffer device opened is `/dev/fb0` and `/dev/fb/0`, you
+</p><p>The Frame Buffer device opened is `/dev/fb0` and `/dev/fb/0`, you
 can change it setting the FRAMEBUFFER environment variable.
-<p>
-The generic Frame Buffer `vesafb` driver cannot be used because
+</p><p>The generic Frame Buffer `vesafb` driver cannot be used because
 it doesn't allow the creation of new video modes. If it's your
 only option you can use it through the SDL library.
-<h4><a name="1.2.2">1.2.2</a> 
+</p><h4><a name="1.2.2">1.2.2</a> 
 svgalib - Generate SVGA video (Linux) [OBSOLETE]
 </h4>
-This driver works in Linux and is able to use video modes obtained
+<p>This driver works in Linux and is able to use video modes obtained
 tweaking the hardware registers of the recognized SVGA boards using
 the SVGALIB library.
-<p>
-All clocks, all RGB bit depths are available.
+</p><p>All clocks, all RGB bit depths are available.
 This driver is generally able to synchronize with the vertical sync
 of the video mode.
-<p>
-To use these modes your video board must be supported
+</p><p>To use these modes your video board must be supported
 by a `svgalib` driver listed in the `cardlinx.txt` file.
 To use this driver you need to install the SVGALIB library
 version 1.9.x.
-<p>
-To use this driver you need to correctly configure the
+</p><p>To use this driver you need to correctly configure the
 SVGALIB HorizSync and VertRefresh options in the
 file /etc/vga/libvga.config file.
 You must use a range equal or a bit larger than the range
 specified with the AdvanceMAME `device_video_clock` option.
-<p>
-This driver is not available in X (when the environment DISPLAY
+</p><p>This driver is not available in X (when the environment DISPLAY
 variable is defined).
-<p>
-In the `contrib/svgalib` directory there are various
+</p><p>In the `contrib/svgalib` directory there are various
 SVGALIB patches to fix some problems with recent video
 boards, and to work with systems with kernel 2.6 and udev.
-<h4><a name="1.2.3">1.2.3</a> 
+</p><h4><a name="1.2.3">1.2.3</a> 
 svgaline - Generate SVGA video (DOS) [OBSOLETE]
 </h4>
-This driver works in DOS and is able to use video modes obtained
+<p>This driver works in DOS and is able to use video modes obtained
 tweaking the hardware registers of the recognized SVGA boards.
-<p>
-All clocks, all RGB bit depths are available.
-<p>
-To use these modes your video board must be supported
+</p><p>All clocks, all RGB bit depths are available.
+</p><p>To use these modes your video board must be supported
 by a `svgaline` driver listed in the `carddos.txt` file.
-<p>
-This driver is completely independent of the VGA/VBE BIOS
+</p><p>This driver is completely independent of the VGA/VBE BIOS
 of your board.
-<h4><a name="1.2.4">1.2.4</a> 
+</p><h4><a name="1.2.4">1.2.4</a> 
 vbeline - Generate VBE video (DOS) [OBSOLETE]
 </h4>
-This driver works in DOS and is able to use video modes obtained
+<p>This driver works in DOS and is able to use video modes obtained
 tweaking the standard VBE (VESA) BIOS mode changing the hardware
 registers of the SVGA.
-<p>
-All clocks, all RGB bit depths are available.
-<p>
-To use these modes your video board must be supported
+</p><p>All clocks, all RGB bit depths are available.
+</p><p>To use these modes your video board must be supported
 by a `vbeline` driver listed in the `carddos.txt` file.
-<p>
-These drivers work setting a video mode using the
+</p><p>These drivers work setting a video mode using the
 default VBE2 services and tweak some hardware SVGA
 registers to modify the obtained video mode.
 The driver `vbe3` is an exception. It requires the
 presence of a VBE3 BIOS to change the frequency of the
 desired video mode. Unfortunately the standard
 VBE3 services don't support a resolution size change.
-<p>
-The resolution is changed modifying only the standard
+</p><p>The resolution is changed modifying only the standard
 VGA registers. This hack may or may not work.
 Also the interlaced modes are only rarely supported
 by the various VBE3 BIOS because they are very rarely
 used in the standard PC monitors.
-<p>
-If your video board isn't supported by any drivers and
+</p><p>If your video board isn't supported by any drivers and
 you don't have a VBE3 BIOS you can try installing a
 software VESA BIOS like the SciTech Display Doctor.
-<h4><a name="1.2.5">1.2.5</a> 
+</p><h4><a name="1.2.5">1.2.5</a> 
 vgaline - Generate VGA video (DOS) [OBSOLETE]
 </h4>
-This driver works in DOS and is able to use video modes obtained
+<p>This driver works in DOS and is able to use video modes obtained
 tweaking the hardware registers of the standard VGA.
-<p>
-Only the standard VGA pixel clocks 6.29, 7.08, 12.59,
+</p><p>Only the standard VGA pixel clocks 6.29, 7.08, 12.59,
 14.16 MHz are available. Only 8 bit color modes. Only
 64 kBytes of video memory.
-<p>
-This driver supports also text modes with pixel clocks
+</p><p>This driver supports also text modes with pixel clocks
 12.59, 14.16, 25.17, 28.32 MHz.
-<p>
-This driver is completely independent of the VGA BIOS
+</p><p>This driver is completely independent of the VGA BIOS
 of your board.
-<h4><a name="1.2.6">1.2.6</a> 
+</p><h4><a name="1.2.6">1.2.6</a> 
 svgawin - Generate SVGA video (Windows) [OBSOLETE]
 </h4>
-This driver works in Windows NT/2000/XP and is able to use video
+<p>This driver works in Windows NT/2000/XP and is able to use video
 modes obtained tweaking the hardware registers of the recognized
 SVGA boards.
-<p>
-All clocks, all RGB bit depths are available.
-<p>
-To use these modes your video board must be supported
+</p><p>All clocks, all RGB bit depths are available.
+</p><p>To use these modes your video board must be supported
 by a `svgawin` driver listed in the `cardwin.txt` file.
-<p>
-To use this driver you need to install the included SVGAWIN
+</p><p>To use this driver you need to install the included SVGAWIN
 driver. Please read the `svgawin.txt` file carefully.
-<p>
-This driver is experimental. At present it's only tested on
+</p><p>This driver is experimental. At present it's only tested on
 Windows 2000 with a GeForce 2 board. It may not work with
 all the other boards.
-<h3><a name="1.3">1.3</a> 
+</p><h3><a name="1.3">1.3</a> 
 Available System Drivers
 </h3>
-The following is the list of all the System video drivers supported.
-<h4><a name="1.3.1">1.3.1</a> 
+<p>The following is the list of all the System video drivers supported.
+</p><h4><a name="1.3.1">1.3.1</a> 
 sdl - System SDL video (Linux, Windows and Mac OS X)
 </h4>
-This driver works in Linux, Windows and Mac OS X and is able to
+<p>This driver works in Linux, Windows and Mac OS X and is able to
 use video modes reported by the SDL graphics library.
-<p>
-It supports all RGB bit depths available and the YUV mode.
-<p>
-The output in the YUV mode is generally accelerated, and can
+</p><p>It supports all RGB bit depths available and the YUV mode.
+</p><p>The output in the YUV mode is generally accelerated, and can
 be used to scale the video output to an arbitrary size.
 You can enable this feature with the `-device_video_output overlay`
 option.
-<p>
-You can change some options of this driver using the SDL specific
+</p><p>You can change some options of this driver using the SDL specific
 environment variables described in the contrib/sdl/env.txt file.
-<h4><a name="1.3.2">1.3.2</a> 
+</p><h4><a name="1.3.2">1.3.2</a> 
 slang - System sLang text video (Linux)
 </h4>
-This driver works in Linux and is able to use current terminal text
+<p>This driver works in Linux and is able to use current terminal text
 mode from the Linux sLang library.
-<h4><a name="1.3.3">1.3.3</a> 
+</p><h4><a name="1.3.3">1.3.3</a> 
 curses - System curses text video (Linux)
 </h4>
-This driver works in Linux and is able to use current terminal text
+<p>This driver works in Linux and is able to use current terminal text
 mode from the Linux ncurses library.
-<h4><a name="1.3.4">1.3.4</a> 
+</p><h4><a name="1.3.4">1.3.4</a> 
 vbe - System VBE video (DOS) [OBSOLETE]
 </h4>
-This driver works in DOS and is able to use video modes reported
+<p>This driver works in DOS and is able to use video modes reported
 by the VBE BIOS.
-<h2><a name="2">2</a> 
+</p><h2><a name="2">2</a> 
 Sound Drivers
 </h2>
 <h3><a name="2.1">2.1</a> 
 Available Drivers
 </h3>
-The following is the list of all the sound drivers supported.
-<h4><a name="2.1.1">2.1.1</a> 
+<p>The following is the list of all the sound drivers supported.
+</p><h4><a name="2.1.1">2.1.1</a> 
 alsa - ALSA sound (Linux)
 </h4>
-This driver works in Linux and it uses the ALSA sound library.
-<h4><a name="2.1.2">2.1.2</a> 
+<p>This driver works in Linux and it uses the ALSA sound library.
+</p><h4><a name="2.1.2">2.1.2</a> 
 oss - OSS sound (Linux)
 </h4>
-This driver works in Linux and it uses the OSS sound library.
-<h4><a name="2.1.3">2.1.3</a> 
+<p>This driver works in Linux and it uses the OSS sound library.
+</p><h4><a name="2.1.3">2.1.3</a> 
 sdl - SDL sound (Linux, Windows and Mac OS X)
 </h4>
-This driver works in Linux, Windows and Mac OS X and it uses
+<p>This driver works in Linux, Windows and Mac OS X and it uses
 the SDL library.
-<p>
-It isn't able to use the hardware volume control of the sound card.
+</p><p>It isn't able to use the hardware volume control of the sound card.
 The volume changes are simulated reducing the sample values.
-<p>
-It isn't able to precisely control the amount of bufferized samples.
+</p><p>It isn't able to precisely control the amount of bufferized samples.
 This means that it may add a small latency on the sound output.
-<p>
-You can change some options of this driver using the SDL specific
+</p><p>You can change some options of this driver using the SDL specific
 environment variables described in the contrib/sdl/env.txt file.
-<h4><a name="2.1.4">2.1.4</a> 
+</p><h4><a name="2.1.4">2.1.4</a> 
 seal - SEAL sound (DOS) [OBSOLETE]
 </h4>
-This driver works in DOS and it uses the SEAL sound library with
+<p>This driver works in DOS and it uses the SEAL sound library with
 some specific changes for MAME.
-<p>
-The source patch and the library source can be downloaded from
+</p><p>The source patch and the library source can be downloaded from
 the MAME site:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<a href="http://www.mame.net/">http://www.mame.net/</a>
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p><a href="http://www.mame.net/">http://www.mame.net/</a>
 <br>
-</td></tr></table>
+</p></td></tr></table>
 <h4><a name="2.1.5">2.1.5</a> 
 allegro - Allegro sound (DOS) [OBSOLETE]
 </h4>
-This driver works in DOS and it uses the Allegro library.
-<h4><a name="2.1.6">2.1.6</a> 
+<p>This driver works in DOS and it uses the Allegro library.
+</p><h4><a name="2.1.6">2.1.6</a> 
 vsync - VSYNC sound (DOS) [OBSOLETE]
 </h4>
-This driver works in DOS and it uses the VSync sound drivers
+<p>This driver works in DOS and it uses the VSync sound drivers
 from the VSyncMAME emulator.
-<p>
-More info is in the VSyncMAME page:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<a href="http://vsynchmame.mameworld.net/">http://vsynchmame.mameworld.net/</a>
+</p><p>More info is in the VSyncMAME page:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p><a href="http://vsynchmame.mameworld.net/">http://vsynchmame.mameworld.net/</a>
 <br>
-</td></tr></table>
+</p></td></tr></table>
 <h2><a name="3">3</a> 
 Input Drivers
 </h2>
 <h3><a name="3.1">3.1</a> 
 Available Keyboard Drivers
 </h3>
-The following is the list of all the keyboard drivers supported.
-<h4><a name="3.1.1">3.1.1</a> 
+<p>The following is the list of all the keyboard drivers supported.
+</p><h4><a name="3.1.1">3.1.1</a> 
 event - Kernel Input-Event interface (Linux)
 </h4>
-This driver works in Linux and it uses the new style input-event
+<p>This driver works in Linux and it uses the new style input-event
 interface of the Linux kernel.
-<p>
-It supports more than one keyboard at the same time.
-<p>
-You can change console with ALT+Fx. No other hotkeys are
+</p><p>It supports more than one keyboard at the same time.
+</p><p>You can change console with ALT+Fx. No other hotkeys are
 available. The hotkeys can be optionally disabled.
-<p>
-For an emergency keyboard restore you can use the emergency
+</p><p>For an emergency keyboard restore you can use the emergency
 Linux SysRq key. Check:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<a href="http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html">http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html</a>
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p><a href="http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html">http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html</a>
 <br>
-</td></tr></table>
-<p>
-Leds control is supported.
-<h4><a name="3.1.2">3.1.2</a> 
+</p></td></tr></table>
+<p>Leds control is supported.
+</p><h4><a name="3.1.2">3.1.2</a> 
 raw - Kernel keyboard (Linux)
 </h4>
-This driver works in Linux and it uses directly the Linux kernel
+<p>This driver works in Linux and it uses directly the Linux kernel
 keyboard interface.
-<p>
-It supports only one keyboard.
-<p>
-You can change console with ALT+Fx and break the program
+</p><p>It supports only one keyboard.
+</p><p>You can change console with ALT+Fx and break the program
 with CTRL+C. No other hotkeys are available. The hotkeys can
 be optionally disabled.
-<p>
-For an emergency keyboard restore you can use the emergency
+</p><p>For an emergency keyboard restore you can use the emergency
 Linux SysRq key. Check:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<a href="http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html">http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html</a>
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p><a href="http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html">http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html</a>
 <br>
-</td></tr></table>
-<p>
-Leds control is supported.
-<h4><a name="3.1.3">3.1.3</a> 
+</p></td></tr></table>
+<p>Leds control is supported.
+</p><h4><a name="3.1.3">3.1.3</a> 
 sdl - SDL keyboard (Linux, Windows and Mac OS X)
 </h4>
-This driver works in Linux, Windows and Mac OS X and it uses
+<p>This driver works in Linux, Windows and Mac OS X and it uses
 the SDL library.
-<p>
-It supports only one keyboard.
-<p>
-You can change some options of this driver using the SDL specific
+</p><p>It supports only one keyboard.
+</p><p>You can change some options of this driver using the SDL specific
 environment variables described in the contrib/sdl/env.txt file.
-<p>
-In a Window Manager environment you can switch to fullscreen
+</p><p>In a Window Manager environment you can switch to fullscreen
 pressing ALT+ENTER.
-<p>
-Leds control is not supported.
-<h4><a name="3.1.4">3.1.4</a> 
+</p><p>Leds control is not supported.
+</p><h4><a name="3.1.4">3.1.4</a> 
 svgalib - SVGALIB keyboard (Linux) [OBSOLETE]
 </h4>
-This driver works in Linux and it uses the SVGALIB library.
-<p>
-It supports only one keyboard.
-<p>
-You can change console with ALT+Fx and break the program
+<p>This driver works in Linux and it uses the SVGALIB library.
+</p><p>It supports only one keyboard.
+</p><p>You can change console with ALT+Fx and break the program
 with CTRL+C. No other hotkeys are available. The CTRL+C hotkey
 can be optionally disabled. The ALT+Fx hotkeys are always
 enabled.
-<p>
-For an emergency keyboard restore you can use the emergency
+</p><p>For an emergency keyboard restore you can use the emergency
 Linux SysRq key. Check:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<a href="http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html">http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html</a>
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p><a href="http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html">http://www.kernel.org/doc/html/latest/admin-guide/sysrq.html</a>
 <br>
-</td></tr></table>
-<p>
-Leds control is not supported.
-<h4><a name="3.1.5">3.1.5</a> 
+</p></td></tr></table>
+<p>Leds control is not supported.
+</p><h4><a name="3.1.5">3.1.5</a> 
 allegro - Allegro keyboard (DOS) [OBSOLETE]
 </h4>
-This driver works in DOS and it uses the Allegro library.
-<p>
-It supports only one keyboard.
-<p>
-You can break the program pressing CTRL+C, CTRL+BREAK or ALT+CTRL+END.
-<p>
-Leds control is supported.
-<h3><a name="3.2">3.2</a> 
+<p>This driver works in DOS and it uses the Allegro library.
+</p><p>It supports only one keyboard.
+</p><p>You can break the program pressing CTRL+C, CTRL+BREAK or ALT+CTRL+END.
+</p><p>Leds control is supported.
+</p><h3><a name="3.2">3.2</a> 
 Available Joystick Drivers
 </h3>
-The following is the list of all the joystick drivers supported.
-<h4><a name="3.2.1">3.2.1</a> 
+<p>The following is the list of all the joystick drivers supported.
+</p><h4><a name="3.2.1">3.2.1</a> 
 event - Kernel Input-Event interface (Linux)
 </h4>
-This driver works in Linux and it uses the new style input-event
+<p>This driver works in Linux and it uses the new style input-event
 interface of the Linux kernel.
-<p>
-It supports more than one joystick or light-gun at the same time.
-<p>
-For USB devices this driver doesn't require any configuration.
+</p><p>It supports more than one joystick or light-gun at the same time.
+</p><p>For USB devices this driver doesn't require any configuration.
 It's able to autodetect all the present hardware.
-<p>
-This driver is also able to correctly report the type of devices
+</p><p>This driver is also able to correctly report the type of devices
 found. You should for example expect to have the gas pedal mapped
 on the gas control of the game.
-<p>
-It can also be used with some custom devices connected at the
+</p><p>It can also be used with some custom devices connected at the
 Parallel Port. Details on how to build these custom interfaces are
 in the file /usr/src/linux/Documentation/input/joystick-parport.txt.
-<p>
-It has a special support for the ACT Labs Lightgun to fix the wrong
+</p><p>It has a special support for the ACT Labs Lightgun to fix the wrong
 behavior of the light-gun when shooting out of screen.
-<p>
-The joysticks are searched on the /dev/input/eventX devices.
-<p>
-If you have a gameport joystick, the Linux Kernel Joystick driver
+</p><p>The joysticks are searched on the /dev/input/eventX devices.
+</p><p>If you have a gameport joystick, the Linux Kernel Joystick driver
 may prevent a correct video vsync if the joystick polling is too slow.
 Generally it results in a missing frame every 5-10 seconds.
-<h4><a name="3.2.2">3.2.2</a> 
+</p><h4><a name="3.2.2">3.2.2</a> 
 raw - Kernel joystick (Linux)
 </h4>
-This driver works in Linux and it uses directly the Linux kernel
+<p>This driver works in Linux and it uses directly the Linux kernel
 joystick interface.
-<p>
-It supports up to 4 joysticks at the same time.
-<p>
-The joysticks are searched on the /dev/jsX and /dev/input/jsX devices.
-<p>
-If you have a gameport joystick, the Linux Kernel Joystick driver
+</p><p>It supports up to 4 joysticks at the same time.
+</p><p>The joysticks are searched on the /dev/jsX and /dev/input/jsX devices.
+</p><p>If you have a gameport joystick, the Linux Kernel Joystick driver
 may prevent a correct video vsync if the joystick polling is too slow.
 Generally it results in a missing frame every 5-10 seconds.
-<h4><a name="3.2.3">3.2.3</a> 
+</p><h4><a name="3.2.3">3.2.3</a> 
 sdl - SDL joystick (Linux, Windows and Mac OS X)
 </h4>
-This driver works in Linux, Windows and Mac OS X and it uses
+<p>This driver works in Linux, Windows and Mac OS X and it uses
 the SDL joystick interface.
-<p>
-It supports more than one joystick at the same time.
-<p>
-You can change some options of this driver using the SDL specific
+</p><p>It supports more than one joystick at the same time.
+</p><p>You can change some options of this driver using the SDL specific
 environment variables described in the contrib/sdl/env.txt file.
-<h4><a name="3.2.4">3.2.4</a> 
+</p><h4><a name="3.2.4">3.2.4</a> 
 svgalib - SVGALIB joystick (Linux) [OBSOLETE]
 </h4>
-This driver works in Linux and it uses the SVGALIB library.
-<p>
-It supports up to 4 joysticks at the same time.
-<p>
-The joysticks are searched on the /dev/jsX devices.
-<p>
-If you have a gameport joystick, the Linux Kernel Joystick driver
+<p>This driver works in Linux and it uses the SVGALIB library.
+</p><p>It supports up to 4 joysticks at the same time.
+</p><p>The joysticks are searched on the /dev/jsX devices.
+</p><p>If you have a gameport joystick, the Linux Kernel Joystick driver
 may prevent a correct video vsync if the joystick polling is too slow.
 Generally it results in a missing frame every 5-10 seconds.
-<h4><a name="3.2.5">3.2.5</a> 
+</p><h4><a name="3.2.5">3.2.5</a> 
 allegro - Allegro joystick (DOS) [OBSOLETE]
 </h4>
-This driver works in DOS and it uses the Allegro library.
-<p>
-It supports only one joystick.
-<p>
-Details on how to build the Parallel Port hardware interfaces for
+<p>This driver works in DOS and it uses the Allegro library.
+</p><p>It supports only one joystick.
+</p><p>Details on how to build the Parallel Port hardware interfaces for
 SNES, PSX, N64 and other pads are in the Allegro sources.
-<h4><a name="3.2.6">3.2.6</a> 
+</p><h4><a name="3.2.6">3.2.6</a> 
 lgrawinput - Light Gun (Windows XP)
 </h4>
-This driver works in Windows XP and it supports lightguns
+<p>This driver works in Windows XP and it supports lightguns
 using the Windows mouse interface.
-<p>
-It supports more than one lightgun at the same time
+</p><p>It supports more than one lightgun at the same time
 of the following types:
-<ul>
+</p><ul>
 <li>
 SMOG Lightgun (http://lightgun.splinder.com/)
 </li>
@@ -787,131 +702,107 @@ SMOG Lightgun (http://lightgun.splinder.com/)
 Act Labs Lightgun (http://www.act-labs.com/)
 </li>
 </ul>
-<p>
-The lightgun is automatically calibrated before
+<p>The lightgun is automatically calibrated before
 every use. You must move the lightgun over the whole
 screen every time the program starts or changes video
 mode.
-<h3><a name="3.3">3.3</a> 
+</p><h3><a name="3.3">3.3</a> 
 Available Mouse Drivers
 </h3>
-The following is the list of all the mouse drivers supported.
-<h4><a name="3.3.1">3.3.1</a> 
+<p>The following is the list of all the mouse drivers supported.
+</p><h4><a name="3.3.1">3.3.1</a> 
 event - Kernel Input-Event interface (Linux)
 </h4>
-This driver works in Linux and it uses the new style input-event
+<p>This driver works in Linux and it uses the new style input-event
 interface of the Linux kernel.
-<p>
-It supports more than one mouse at the same time.
-<p>
-For USB devices this driver doesn't require any configuration.
+</p><p>It supports more than one mouse at the same time.
+</p><p>For USB devices this driver doesn't require any configuration.
 It's able to autodetect all the present hardware.
-<p>
-For serial mouse you must use the `inputattach` system
+</p><p>For serial mouse you must use the `inputattach` system
 utility to attach the serial line at the event interface.
 Generally this utility is available in the joystick
 calibration package of your distribution. In this case it's
 probably simpler to use the `raw` mouse driver.
-<p>
-The mice are searched on the /dev/input/eventX devices.
-<h4><a name="3.3.2">3.3.2</a> 
+</p><p>The mice are searched on the /dev/input/eventX devices.
+</p><h4><a name="3.3.2">3.3.2</a> 
 raw - Serial mouse (Linux)
 </h4>
-This driver works in Linux and communicates directly with
+<p>This driver works in Linux and communicates directly with
 the configured serial mice. It also supports USB mice
 using the Linux mousedev module which maps mice to the
 /dev/input/mouseX devices.
-<p>
-It supports more than one mouse at the same time.
-<p>
-To use this driver you need to configure correctly the
+</p><p>It supports more than one mouse at the same time.
+</p><p>To use this driver you need to configure correctly the
 device_raw_* options to specify the mouse types and the mouse
 devices.
-<h4><a name="3.3.3">3.3.3</a> 
+</p><h4><a name="3.3.3">3.3.3</a> 
 sdl - SDL mouse (Linux, Windows and Mac OS X)
 </h4>
-This driver works in Linux, Windows and Mac OS X and it uses
+<p>This driver works in Linux, Windows and Mac OS X and it uses
 the SDL mouse interface.
-<p>
-It supports only one mouse and only two axes.
-<p>
-You can change some options of this driver using the SDL specific
+</p><p>It supports only one mouse and only two axes.
+</p><p>You can change some options of this driver using the SDL specific
 environment variables described in the contrib/sdl/env.txt file.
-<h4><a name="3.3.4">3.3.4</a> 
+</p><h4><a name="3.3.4">3.3.4</a> 
 svgalib - SVGALIB mouse (Linux) [OBSOLETE]
 </h4>
-This driver works in Linux and it uses the SVGALIB library.
-<p>
-It supports only one mouse.
-<p>
-To use this driver you need to configure correctly the
+<p>This driver works in Linux and it uses the SVGALIB library.
+</p><p>It supports only one mouse.
+</p><p>To use this driver you need to configure correctly the
 SVGALIB mouse support in the file /etc/vga/libvga.config file.
-<h4><a name="3.3.5">3.3.5</a> 
+</p><h4><a name="3.3.5">3.3.5</a> 
 allegro - Allegro mouse (DOS) [OBSOLETE]
 </h4>
-This driver works in DOS and it uses the Allegro library.
-<p>
-It supports up to 2 mice at the same time using the
+<p>This driver works in DOS and it uses the Allegro library.
+</p><p>It supports up to 2 mice at the same time using the
 special `optimous` driver present in the `contrib/` directory.
-<h4><a name="3.3.6">3.3.6</a> 
+</p><h4><a name="3.3.6">3.3.6</a> 
 rawinput - Raw input interface (Windows)
 </h4>
-This driver works in Windows XP using the raw input interface.
-<p>
-It supports more than one mouse at the same time.
-<p>
-For any mouse up to two axes, one wheel and five buttons
+<p>This driver works in Windows XP using the raw input interface.
+</p><p>It supports more than one mouse at the same time.
+</p><p>For any mouse up to two axes, one wheel and five buttons
 are supported.
-<p>
-This driver is the preferred choice for Windows XP.
-<p>
-Please note that this driver is not intended to be used in a window
+</p><p>This driver is the preferred choice for Windows XP.
+</p><p>Please note that this driver is not intended to be used in a window
 environment. The application takes the control of the mouse and
 doesn't allow to switch to other applications. It's mainly intended
 for a fullscreen environment.
-<h4><a name="3.3.7">3.3.7</a> 
+</p><h4><a name="3.3.7">3.3.7</a> 
 cpn - CPN custom driver interface (Windows)
 </h4>
-This driver works in Windows 2000/XP using the custom CPN
+<p>This driver works in Windows 2000/XP using the custom CPN
 mouse driver.
-<p>
-It supports more than one mouse at the same time.
-<p>
-For any mouse up to two axes, and three buttons are supported.
-<p>
-The CPN mouse driver is available at:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
-<a href="http://cpnmouse.sourceforge.net/">http://cpnmouse.sourceforge.net/</a>
+</p><p>It supports more than one mouse at the same time.
+</p><p>For any mouse up to two axes, and three buttons are supported.
+</p><p>The CPN mouse driver is available at:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p><a href="http://cpnmouse.sourceforge.net/">http://cpnmouse.sourceforge.net/</a>
 <br>
-</td></tr></table>
-<p>
-and in the `contrib/cpn` directory. Check the `install`
+</p></td></tr></table>
+<p>and in the `contrib/cpn` directory. Check the `install`
 and `unknown` files for install instructions.
-<p>
-Please note that this driver is not intended to be used in a window
+</p><p>Please note that this driver is not intended to be used in a window
 environment. The application takes the control of the mouse and
 doesn't allow to switch to other applications. It's mainly intended
 for a fullscreen environment.
-<h2><a name="4">4</a> 
+</p><h2><a name="4">4</a> 
 Video Drivers Configuration
 </h2>
-The following are the video configuration options available for
+<p>The following are the video configuration options available for
 all the programs.
-<h3><a name="4.1">4.1</a> 
+</p><h3><a name="4.1">4.1</a> 
 Common Configuration Options
 </h3>
 <h4><a name="4.1.1">4.1.1</a> 
 device_video
 </h4>
-Selects the video driver to use.
-<p>
-<pre>
+<p>Selects the video driver to use.
+</p><pre>
 device_video auto | (DEVICE[/MODEL])+
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 auto
 </em></td><td width="90%">
@@ -919,9 +810,8 @@ Automatic detection of all the available drivers
 (default).
 </td></tr>
 </table>
-<p>
-The order of detection:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>The order of detection:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 DOS
 </em></td><td width="90%">
@@ -943,9 +833,8 @@ Windows
 svgawin, sdl.
 </td></tr>
 </table>
-<p>
-Options for Linux:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Linux:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 svgalib
 </em></td><td width="90%">
@@ -974,18 +863,16 @@ sdl
 SDL graphics and fake text modes.
 </td></tr>
 </table>
-<p>
-Options for Mac OS X:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Mac OS X:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 sdl
 </em></td><td width="90%">
 SDL graphics and fake text modes.
 </td></tr>
 </table>
-<p>
-Options for DOS:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for DOS:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 svgaline
 </em></td><td width="90%">
@@ -1019,9 +906,8 @@ vbe
 VBE graphics modes.
 </td></tr>
 </table>
-<p>
-Options for Windows:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Windows:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 svgawin
 </em></td><td width="90%">
@@ -1048,45 +934,37 @@ sdl
 SDL graphics and fake text modes.
 </td></tr>
 </table>
-<p>
-Please note that to use the utilities `advv` and `advcfg` you
+<p>Please note that to use the utilities `advv` and `advcfg` you
 must at least select a graphics and a text video driver. The
 available text video drivers are `vgaline` for DOS, `slang`,
 `curses` for Linux and `sdl` for Windows.
-<p>
-You can force the detection of a specific model of video board
+</p><p>You can force the detection of a specific model of video board
 adding the name of the model driver after the driver name using
 the `/` separator. For example to force the `vbe3` model
 detection of the `vbeline` driver you must specify
 `vbeline/vbe3`.
-<p>
-To get the list of all the available models try using the
+</p><p>To get the list of all the available models try using the
 `help` model name. A short help will be printed.
-<p>
-Please note that forcing a specific video driver is discouraged.
+</p><p>Please note that forcing a specific video driver is discouraged.
 Generally you don't need it.
-<p>
-For a more complete description of the drivers check the
+</p><p>For a more complete description of the drivers check the
 previous `VIDEO DRIVER` section.
-<p>
-Example to enable the `vbeline` and the `vgaline` drivers
+</p><p>Example to enable the `vbeline` and the `vgaline` drivers
 with auto-detection for DOS:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video vbeline vgaline
 </pre>
 </td></tr></table>
-<p>
-Example to force the `vbeline/vbe3` driver and the `vgaline`
+<p>Example to force the `vbeline/vbe3` driver and the `vgaline`
 driver for DOS:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video vbeline/vbe3 vgaline
 </pre>
 </td></tr></table>
-<p>
-Example to enable the `fb` and `slang` driver for Linux:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Example to enable the `fb` and `slang` driver for Linux:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video fb slang
 </pre>
@@ -1094,14 +972,12 @@ device_video fb slang
 <h4><a name="4.1.2">4.1.2</a> 
 device_video_output
 </h4>
-Select the output mode.
-<p>
-<pre>
+<p>Select the output mode.
+</p><pre>
 device_video_output auto | window | fullscreen | overlay
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 auto
 </em></td><td width="90%">
@@ -1130,15 +1006,13 @@ color format used is YUY2.
 <h4><a name="4.1.3">4.1.3</a> 
 device_video_overlaysize
 </h4>
-Select the favorite horizontal size to use with the `overlay`
+<p>Select the favorite horizontal size to use with the `overlay`
 output mode. The program selects the nearest available video mode.
-<p>
-<pre>
+</p><pre>
 device_video_overlaysize auto | SIZE
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 auto
 </em></td><td width="90%">
@@ -1151,19 +1025,16 @@ SIZE
 The user favorite horizontal size.
 </td></tr>
 </table>
-<p>
-This option has effect only with the `overlay` output mode.
-<h4><a name="4.1.4">4.1.4</a> 
+<p>This option has effect only with the `overlay` output mode.
+</p><h4><a name="4.1.4">4.1.4</a> 
 device_video_cursor
 </h4>
-Select the mouse cursor mode.
-<p>
-<pre>
+<p>Select the mouse cursor mode.
+</p><pre>
 device_video_cursor auto | off | on
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 auto
 </em></td><td width="90%">
@@ -1185,25 +1056,23 @@ Always on, only if the video mode support it.
 <h3><a name="4.2">4.2</a> 
 Generate Configuration Options
 </h3>
-The following are the common video configuration options
+<p>The following are the common video configuration options
 available for all `generate` video drivers, i.e. all the
 video drivers with the exception of `sdl` and `vbe`.
 The `sdl` and `vbe` video drivers simply ignore these
 options.
-<h4><a name="4.2.1">4.2.1</a> 
+</p><h4><a name="4.2.1">4.2.1</a> 
 device_video_clock
 </h4>
-Specify the monitor frequency range in term of horizontal and
+<p>Specify the monitor frequency range in term of horizontal and
 vertical clocks. This option is MANDATORY.
 Generally these values are specified in the technical page of
 your monitor manual.
-<p>
-<pre>
+</p><pre>
 device_video_clock PIXEL_CLOCK / HORZ_CLOCK / VERT_CLOCK [; ...]
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 PIXEL_CLOCK
 </em></td><td width="90%">
@@ -1226,33 +1095,28 @@ VERT_CLOCK
 Vertical clock range in Hz.
 </td></tr>
 </table>
-<p>
-For any range you can specify a single value like `60` or a
+<p>For any range you can specify a single value like `60` or a
 range of values like `50 - 60`. For multistandard TVs and monitors
 you can use more clock specifications separating them with `;`.
-<p>
-For example:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><p>For example:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video_clock 5 - 50 / 15.62 / 50 ; 5 - 50 / 15.73 / 60
 </pre>
 </td></tr></table>
-<p>
-Check the `install.txt` file for examples and other information.
-<h4><a name="4.2.2">4.2.2</a> 
+<p>Check the `install.txt` file for examples and other information.
+</p><h4><a name="4.2.2">4.2.2</a> 
 device_video_modeline
 </h4>
-Define a video modeline. The modeline format is compatible with
+<p>Define a video modeline. The modeline format is compatible with
 the format used by the Linux SVGALIB library and by the
 XFree86/X.org system.
-<p>
-<pre>
+</p><pre>
 device_video_modeline Name CLOCK HDE HRS HRE HT VDE VRS VRE VT
 &nbsp;&nbsp;&nbsp;&nbsp;[-hsync] [-vsync] [+hsync] [+vsync] [doublescan] [interlace]
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 Name
 </em></td><td width="90%">
@@ -1292,9 +1156,8 @@ interlace
 Interlaced mode.
 </td></tr>
 </table>
-<p>
-Examples:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Examples:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_video_modeline tweak320x240 12.59 320 336 356 400 240 \
 &nbsp;&nbsp;&nbsp;&nbsp;249 254 262 doublescan -hsync -vsync
@@ -1303,15 +1166,13 @@ device_video_modeline tweak320x240 12.59 320 336 356 400 240 \
 <h4><a name="4.2.3">4.2.3</a> 
 device_video_format
 </h4>
-Select the format of the video modes to create.
+<p>Select the format of the video modes to create.
 You can insert more than one of these option.
-<p>
-<pre>
+</p><pre>
 device_video_format HCLOCK HDE HRS HRE HT VDE VRS VRE VT
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 HCLOCK
 </em></td><td width="90%">
@@ -1323,50 +1184,40 @@ HDE HRS HRE HT VDE VRS VRE VT
 Like the modeline option
 </td></tr>
 </table>
-<p>
-When a new modeline is created, AdvanceMAME uses a linear
+<p>When a new modeline is created, AdvanceMAME uses a linear
 interpolation of the two formats with the nearest horizontal
 clock.
-<p>
-The default value of this option is for an Arcade 15 kHz monitor:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><p>The default value of this option is for an Arcade 15 kHz monitor:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 15720 0.737 0.075 0.074 0.113 0.916 0.012 0.012 0.060
 </pre>
 </td></tr></table>
-<p>
-and for an Arcade 25 kHz monitor:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>and for an Arcade 25 kHz monitor:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 25000 0.800 0.020 0.100 0.080 0.922 0.006 0.012 0.060
 </pre>
 </td></tr></table>
-<p>
-and for a VGA 31.5 kHz monitor:
-<p>
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>and for a VGA 31.5 kHz monitor:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 31500 0.800 0.020 0.120 0.060 0.914 0.019 0.004 0.063
 </pre>
 </td></tr></table>
-<p>
-Which one of these defaults is used depends on the setting of the
+<p>Which one of these defaults is used depends on the setting of the
 `device_video_clock` option.
-<h4><a name="4.2.4">4.2.4</a> 
+</p><h4><a name="4.2.4">4.2.4</a> 
 device_video_singlescan/doublescan/interlace
 </h4>
-Limit the use of certain features.
-<p>
-<pre>
+<p>Limit the use of certain features.
+</p><pre>
 device_video_singlescan yes | no
 device_video_doublescan yes | no
 device_video_interlace yes | no
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 yes
 </em></td><td width="90%">
@@ -1382,11 +1233,10 @@ Disable completely the feature.
 <h4><a name="4.2.5">4.2.5</a> 
 device_color_palette8/bgr8/bgr15/bgr16/bgr24/bgr32/yuy2
 </h4>
-Limit the use of some bit depths. If you know that
+<p>Limit the use of some bit depths. If you know that
 the program doesn't work well with a specific bit depth you
 can disable it.
-<p>
-<pre>
+</p><pre>
 device_color_palette8 yes | no
 device_color_bgr8 yes | no
 device_color_bgr15 yes | no
@@ -1395,9 +1245,8 @@ device_color_bgr24 yes | no
 device_color_bgr32 yes | no
 device_color_yuy2 yes | no
 </pre>
-<p>
-Modes:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Modes:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 palette8
 </em></td><td width="90%">
@@ -1434,9 +1283,8 @@ yuy2
 YUV mode in the YUY2 format.
 </td></tr>
 </table>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 yes
 </em></td><td width="90%">
@@ -1452,18 +1300,16 @@ Disable completely the bit depth.
 <h4><a name="4.2.6">4.2.6</a> 
 device_video_fastchange
 </h4>
-Enable or disable the fast video mode change. If enabled the
+<p>Enable or disable the fast video mode change. If enabled the
 current video mode is not reset before setting another video
 mode. The reset isn't generally required, but some
 limited DOS video BIOS need it. So, the fast change is disabled
 for default.
-<p>
-<pre>
+</p><pre>
 device_video_fastchange yes | no
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 yes
 </em></td><td width="90%">
@@ -1481,22 +1327,18 @@ fb Configuration Options
 <h4><a name="4.3.1">4.3.1</a> 
 device_hdmi/dpi_pclock_low
 </h4>
-Set the minimum pclock frequency used to drive the display. If a lower
+<p>Set the minimum pclock frequency used to drive the display. If a lower
 value is selected, transparently increases the video mode horizontal size
 until it reaches the allowed pixel clock.
-<p>
-This option works only with Raspberry Pi, when using the FrameBuffer and
+</p><p>This option works only with Raspberry Pi, when using the FrameBuffer and
 the HDMI/DPI video interface.
-<p>
-The use of this option is discouraged, it's present only for testing.
-<p>
-<pre>
+</p><p>The use of this option is discouraged, it's present only for testing.
+</p><pre>
 device_hdmi_pclock_low PCLOCK
 device_dpi_pclock_low PCLOCK
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 PCLOCK
 </em></td><td width="90%">
@@ -1507,16 +1349,14 @@ and 31.25 MHz for DPI).
 <h4><a name="4.3.2">4.3.2</a> 
 device_fb_fastset
 </h4>
-Don't set the video mode if it's expected to be identical to the
+<p>Don't set the video mode if it's expected to be identical to the
 current one. This can be used to avoid a screen refresh
 when not required.
-<p>
-<pre>
+</p><pre>
 device_fb_fastset yes | no
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 yes
 </em></td><td width="90%">
@@ -1531,21 +1371,18 @@ Always set the video mode (default).
 <h3><a name="4.4">4.4</a> 
 vbeline Configuration Options
 </h3>
-The following are the common video configuration options
+<p>The following are the common video configuration options
 available only for the `vbeline` DOS video driver.
-<h4><a name="4.4.1">4.4.1</a> 
+</p><h4><a name="4.4.1">4.4.1</a> 
 device_vbeline_mode
 </h4>
-Select which `vbe` mode to use when generating `vbeline` modes.
-<p>
-The use of this option is discouraged, it's present only for testing.
-<p>
-<pre>
+<p>Select which `vbe` mode to use when generating `vbeline` modes.
+</p><p>The use of this option is discouraged, it's present only for testing.
+</p><pre>
 device_vbeline_mode smaller | bigger | ...
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 smaller
 </em></td><td width="90%">
@@ -1599,21 +1436,19 @@ Use always the 800x600 mode.
 <h3><a name="4.5">4.5</a> 
 svgaline Configuration Options
 </h3>
-The following are the common video configuration options
+<p>The following are the common video configuration options
 available only for the `svgaline` DOS video driver.
-<h4><a name="4.5.1">4.5.1</a> 
+</p><h4><a name="4.5.1">4.5.1</a> 
 device_svgaline_skipboard
 </h4>
-Selects how many board skip in the video card detection. If you have
+<p>Selects how many board skip in the video card detection. If you have
 more than a video card on your system and the wrong one is
 used you can force to skip an arbitrary number of video boards.
-<p>
-<pre>
+</p><pre>
 device_svgaline_skipboard 0 | 1 | 2 | 3
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 0
 </em></td><td width="90%">
@@ -1635,9 +1470,8 @@ Skip 2 boards.
 Skip 3 boards.
 </td></tr>
 </table>
-<p>
-Examples:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Examples:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_svgaline_skipboard 1
 </pre>
@@ -1645,17 +1479,14 @@ device_svgaline_skipboard 1
 <h4><a name="4.5.2">4.5.2</a> 
 device_svgaline_divideclock
 </h4>
-Divide the pixelclock using the VGA sequencer. It should help to support
+<p>Divide the pixelclock using the VGA sequencer. It should help to support
 lower pixel clocks on some boards.
-<p>
-The use of this option is discouraged, it's present only for testing.
-<p>
-<pre>
+</p><p>The use of this option is discouraged, it's present only for testing.
+</p><pre>
 device_svgaline_divideclock yes | no
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 yes
 </em></td><td width="90%">
@@ -1670,21 +1501,19 @@ Don't divide the clock (default).
 <h3><a name="4.6">4.6</a> 
 svgawin Configuration Options
 </h3>
-The following are the common video configuration options
+<p>The following are the common video configuration options
 available only for the `svgawin` Windows video driver.
-<h4><a name="4.6.1">4.6.1</a> 
+</p><h4><a name="4.6.1">4.6.1</a> 
 device_svgawin_skipboard
 </h4>
-Selects how many board skip in the video card detection. If you have
+<p>Selects how many board skip in the video card detection. If you have
 more than a video card on your system and the wrong one is
 used you can force to skip an arbitrary number of video boards.
-<p>
-<pre>
+</p><pre>
 device_svgawin_skipboard 0 | 1 | 2 | 3
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 0
 </em></td><td width="90%">
@@ -1706,9 +1535,8 @@ Skip 2 boards.
 Skip 3 boards.
 </td></tr>
 </table>
-<p>
-Examples:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Examples:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_svgawin_skipboard 1
 </pre>
@@ -1716,12 +1544,10 @@ device_svgawin_skipboard 1
 <h4><a name="4.6.2">4.6.2</a> 
 device_svgawin_stub
 </h4>
-Selects how the driver uses the Windows graphics.
-<p>
-The use of this option is discouraged, it's present only for testing.
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Selects how the driver uses the Windows graphics.
+</p><p>The use of this option is discouraged, it's present only for testing.
+</p><p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 none
 </em></td><td width="90%">
@@ -1742,17 +1568,14 @@ the video mode (default).
 <h4><a name="4.6.3">4.6.3</a> 
 device_svgawin_divideclock
 </h4>
-Divides the pixelclock using the VGA sequencer. It should help to support
+<p>Divides the pixelclock using the VGA sequencer. It should help to support
 lower pixel clocks on some boards.
-<p>
-The use of this option is discouraged, it's present only for testing.
-<p>
-<pre>
+</p><p>The use of this option is discouraged, it's present only for testing.
+</p><pre>
 device_svgawin_divideclock yes | no
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 yes
 </em></td><td width="90%">
@@ -1770,14 +1593,12 @@ Sound Drivers Configuration
 <h4>
 device_sound
 </h4>
-Specify the sound-card.
-<p>
-<pre>
+<p>Specify the sound-card.
+</p><pre>
 device_sound auto | none | DEVICE
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 none
 </em></td><td width="90%">
@@ -1789,9 +1610,8 @@ auto
 Automatic detection (default).
 </td></tr>
 </table>
-<p>
-Options for Linux:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Linux:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 alsa
 </em></td><td width="90%">
@@ -1808,18 +1628,16 @@ sdl
 SDL sound interface.
 </td></tr>
 </table>
-<p>
-Options for Mac OS X:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Mac OS X:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 sdl
 </em></td><td width="90%">
 SDL sound interface.
 </td></tr>
 </table>
-<p>
-Options for DOS:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for DOS:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 seal
 </em></td><td width="90%">
@@ -1946,9 +1764,8 @@ vsync/ess
 Ensoniq Soundscape.
 </td></tr>
 </table>
-<p>
-Options Windows:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options Windows:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 sdl
 </em></td><td width="90%">
@@ -1961,28 +1778,24 @@ alsa Configuration Options
 <h4><a name="5.1.1">5.1.1</a> 
 device_alsa_device
 </h4>
-Select the alsa output device.
-<p>
-<pre>
+<p>Select the alsa output device.
+</p><pre>
 device_alsa_device DEVICE
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 DEVICE
 </em></td><td width="90%">
 Output device (default `default`).
 </td></tr>
 </table>
-<p>
-Other possible choices generally are `hw:0,0` for using the
+<p>Other possible choices generally are `hw:0,0` for using the
 frequency and format chosen directly by the hardware, or `dmix`
 for allow concurrent access to other applications at the
 audio card.
-<p>
-Example:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><p>Example:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_alsa_device dmix
 </pre>
@@ -1990,14 +1803,12 @@ device_alsa_device dmix
 <h4><a name="5.1.2">5.1.2</a> 
 device_alsa_mixer
 </h4>
-Select the alsa mixer device.
-<p>
-<pre>
+<p>Select the alsa mixer device.
+</p><pre>
 device_alsa_mixer DEVICE
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 DEVICE
 </em></td><td width="90%">
@@ -2014,16 +1825,13 @@ sdl Configuration Options
 <h4><a name="5.2.1">5.2.1</a> 
 device_sdl_samples
 </h4>
-Select the size of the audio fragment of the SDL library.
-<p>
-The use of this option is discouraged, it's present only for testing.
-<p>
-<pre>
+<p>Select the size of the audio fragment of the SDL library.
+</p><p>The use of this option is discouraged, it's present only for testing.
+</p><pre>
 device_sdl_samples 512 | 1024 | 2048 | 2560 | 3072 | 3584 | 4096 | 6144 | 8192
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 SAMPLES
 </em></td><td width="90%">
@@ -2031,23 +1839,20 @@ Number of samples of an audio fragment
 (default 2048 in Windows, 512 otherwise).
 </td></tr>
 </table>
-<p>
-Lower values can be used to reduce the sound latency.
+<p>Lower values can be used to reduce the sound latency.
 Increase the value if your hear a choppy audio.
-<h2><a name="6">6</a> 
+</p><h2><a name="6">6</a> 
 Input Drivers Configuration
 </h2>
 <h4>
 device_keyboard
 </h4>
-Selects the keyboard drivers.
-<p>
-<pre>
+<p>Selects the keyboard drivers.
+</p><pre>
 device_keyboard auto | none
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 none
 </em></td><td width="90%">
@@ -2059,9 +1864,8 @@ auto
 Automatic detection (default).
 </td></tr>
 </table>
-<p>
-Options for Linux:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Linux:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 event
 </em></td><td width="90%">
@@ -2084,30 +1888,26 @@ SDL keyboard interface. This driver is available
 only if the SDL video output is used.
 </td></tr>
 </table>
-<p>
-If you are using the SDL video driver you must also use the SDL
+<p>If you are using the SDL video driver you must also use the SDL
 keyboard driver.
-<p>
-Options for Mac OS X:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+</p><p>Options for Mac OS X:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 sdl
 </em></td><td width="90%">
 SDL keyboard interface.
 </td></tr>
 </table>
-<p>
-Options for DOS:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for DOS:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 allegro
 </em></td><td width="90%">
 Allegro keyboard interface.
 </td></tr>
 </table>
-<p>
-Options for Windows:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Windows:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 sdl
 </em></td><td width="90%">
@@ -2117,14 +1917,12 @@ SDL keyboard interface.
 <h4>
 device_joystick
 </h4>
-Selects the joystick driver.
-<p>
-<pre>
+<p>Selects the joystick driver.
+</p><pre>
 device_joystick auto | none | DEVICE
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 none
 </em></td><td width="90%">
@@ -2136,9 +1934,8 @@ auto
 Automatic detection.
 </td></tr>
 </table>
-<p>
-Options for Linux:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Linux:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 event
 </em></td><td width="90%">
@@ -2160,18 +1957,16 @@ sdl
 SDL joystick interface.
 </td></tr>
 </table>
-<p>
-Options for Mac OS X:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Mac OS X:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 sdl
 </em></td><td width="90%">
 SDL joystick interface.
 </td></tr>
 </table>
-<p>
-Options for DOS:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for DOS:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 allegro
 </em></td><td width="90%">
@@ -2333,31 +2128,27 @@ allegro/wingwarrior
 Wingman Warrior.
 </td></tr>
 </table>
-<p>
-Options for Windows:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Windows:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 sdl
 </em></td><td width="90%">
 SDL joystick interface.
 </td></tr>
 </table>
-<p>
-For the `allegro/psxlpt*`, `allegro/db9lpt*`, `allegro/tgxlpt*`
+<p>For the `allegro/psxlpt*`, `allegro/db9lpt*`, `allegro/tgxlpt*`
 drivers you can see the source file `advance/dos/jalleg.c`
 for instructions on how to build the lpt interface. See also
 the Allegro library source distribution.
-<h4>
+</p><h4>
 device_mouse
 </h4>
-Selects the mouse driver.
-<p>
-<pre>
+<p>Selects the mouse driver.
+</p><pre>
 device_mouse auto | none
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 none
 </em></td><td width="90%">
@@ -2369,9 +2160,8 @@ auto
 Automatic detection.
 </td></tr>
 </table>
-<p>
-Options for Linux:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Linux:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 event
 </em></td><td width="90%">
@@ -2393,27 +2183,24 @@ sdl
 SDL mouse interface.
 </td></tr>
 </table>
-<p>
-Options for Mac OS X:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Mac OS X:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 sdl
 </em></td><td width="90%">
 SDL mouse interface.
 </td></tr>
 </table>
-<p>
-Options for DOS:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for DOS:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 allegro
 </em></td><td width="90%">
 Allegro mouse interface.
 </td></tr>
 </table>
-<p>
-Options for Windows:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options for Windows:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 sdl
 </em></td><td width="90%">
@@ -2426,14 +2213,12 @@ raw Configuration Options
 <h4><a name="6.1.1">6.1.1</a> 
 device_raw_mousetype[0,1,2,3]
 </h4>
-Select the type of the mouse.
-<p>
-<pre>
+<p>Select the type of the mouse.
+</p><pre>
 device_raw_mousetype[0,1,2,3] auto | DEVICE
 </pre>
-<p>
-Devices:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Devices:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 auto
 </em></td><td width="90%">
@@ -2516,12 +2301,10 @@ drmousee4ds
 Digital Research double-wheeled mouse.
 </td></tr>
 </table>
-<p>
-The Linux mice under /dev/input/* are always of type ps2,
+<p>The Linux mice under /dev/input/* are always of type ps2,
 imps2 or exps2.
-<p>
-Examples:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+</p><p>Examples:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_raw_mousetype[0] ps2
 device_raw_mousetype[1] ms
@@ -2530,14 +2313,12 @@ device_raw_mousetype[1] ms
 <h4><a name="6.1.2">6.1.2</a> 
 device_raw_mousedev[0,1,2,3]
 </h4>
-Select the mouse device to use.
-<p>
-<pre>
+<p>Select the mouse device to use.
+</p><pre>
 device_raw_mousedev[0,1,2,3] auto | DEVICE
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 auto
 </em></td><td width="90%">
@@ -2549,9 +2330,8 @@ DEVICE
 Complete path of the mouse device.
 </td></tr>
 </table>
-<p>
-Examples:
-<table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
+<p>Examples:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2"><tr><td width="5%"></td><td width="95%">
 <pre>
 device_raw_mousedev[0] /dev/input/mouse0
 device_raw_mousedev[1] /dev/ttyS2
@@ -2563,14 +2343,12 @@ lgrawinput Configuration Options
 <h4><a name="6.2.1">6.2.1</a> 
 device_lgrawinput_calibration
 </h4>
-Select the type of calibration of the lightgun.
-<p>
-<pre>
+<p>Select the type of calibration of the lightgun.
+</p><pre>
 device_lgrawinput_calibration auto | none
 </pre>
-<p>
-Options:
-<table width="100%" border="0" cellspacing="0" cellpadding="2">
+<p>Options:
+</p><table width="100%" border="0" cellspacing="0" cellpadding="2">
 <tr valign="top" align="left"><td width="5%"></td><td width="5%"><em>
 auto
 </em></td><td width="90%">
