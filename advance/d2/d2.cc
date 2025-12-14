@@ -1159,16 +1159,16 @@ void convert_html::section_text(const string& s)
 
 void convert_html::para_begin(unsigned level)
 {
-	if (state == state_separator)
-		sep();
 	if (level) {
 		os << "<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr>";
 		os << "<td width=\"5%\"></td><td width=\"95%\">" << endl;
 	}
+	os << "<p>";
 }
 
 void convert_html::para_end()
 {
+	os << "</p>";
 	if (state == state_para1) {
 		os << "</td></tr></table>" << endl;
 	}
@@ -1182,8 +1182,6 @@ void convert_html::para_text(const string& s)
 
 void convert_html::pre_begin(unsigned level)
 {
-	if (state == state_separator)
-		sep();
 	if (level) {
 		os << "<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"2\"><tr>";
 		os << "<td width=\"5%\"></td><td width=\"95%\">" << endl;
@@ -1212,7 +1210,6 @@ void convert_html::pre_inner(void)
 
 void convert_html::sep()
 {
-	os << "<p>" << endl;
 }
 
 void convert_html::line()
