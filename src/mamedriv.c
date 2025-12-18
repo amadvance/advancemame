@@ -5008,6 +5008,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	/* Escape from the Planet of Robot Monsters */
 	DRIVER( eprom )		/* 136069           (c) 1989 */
 	DRIVER( eprom2 )	/* 136069           (c) 1989 */
+    DRIVER( guts )	    /* prototype */
 	/* Cyberball 2 Player */
 	DRIVER( cyberb2p )	/* 136071           (c) 1989 */
 	DRIVER( cyberb23 )	/* 136071           (c) 1989 */
