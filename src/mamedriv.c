@@ -4114,6 +4114,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( boogwina )	/* MBD (c) 1992 */
 	DRIVER( ragtime )	/* MBD (c) 1992 */
 	DRIVER( dblewing )	/* MBE (c) 1993 Mitchell */
+	DRIVER( dblewingb )	/* MBE (c) 1994 Mitchell */
 	DRIVER( fghthist )	/* MBF (c) 1993 Data East Corporation (World) */
 	DRIVER( fghthstu )	/* MBF (c) 1993 Data East Corporation (US) */
 	DRIVER( fghthsta )	/* MBF (c) 1993 Data East Corporation (US) */
