@@ -3496,18 +3496,18 @@ GAME( 1994, ggreats2, opengolf, opengolf,  racinfrc, konamigx, ROT0, "Konami", "
 
 /* Type 2: totally stock, sometimes with funny protection chips on the ROM board */
 /* these games work and are playable with minor graphics glitches */
-GAME( 1994, le2,      konamigx, le2,      le2,      konamigx, ROT0, "Konami", "Lethal Enforcers II: Gun Fighters (ver EAA)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1994, le2u,     le2,      le2,      le2,      konamigx, ROT0, "Konami", "Lethal Enforcers II: Gun Fighters (ver UAA)", GAME_IMPERFECT_GRAPHICS )
+GAME( 1994, le2,      konamigx, le2,      le2,      konamigx, ROT0, "Konami", "Lethal Enforcers II: Gun Fighters (ver EAA)", 0 )
+GAME( 1994, le2u,     le2,      le2,      le2,      konamigx, ROT0, "Konami", "Lethal Enforcers II: Gun Fighters (ver UAA)", 0 )
 GAME( 1994, le2j,     le2,      le2,      le2,      konamigx, ROT0, "Konami", "Lethal Enforcers II: Gun Fighters (ver JAA)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING)
-GAME( 1994, gokuparo, konamigx, konamigx, gokuparo, konamigx, ROT0, "Konami", "Gokujyou Parodius (ver JAD)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1994, puzldama, konamigx, konamigx, puzldama, konamigx, ROT0, "Konami", "Taisen Puzzle-dama (ver JAA)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1995, tbyahhoo, konamigx, konamigx, gokuparo, konamigx, ROT0, "Konami", "Twin Bee Yahhoo! (ver JAA)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1995, tkmmpzdm, konamigx, konamigx_6bpp, puzldama, konamigx, ROT0, "Konami", "Tokimeki Memorial Taisen Puzzle-dama (ver JAB)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1995, dragoona, konamigx, dragoonj, dragoonj, konamigx, ROT0, "Konami", "Dragoon Might (ver AAB)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1995, dragoonj, dragoona, dragoonj, dragoonj, konamigx, ROT0, "Konami", "Dragoon Might (ver JAA)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, sexyparo, konamigx, konamigx, gokuparo, konamigx, ROT0, "Konami", "Sexy Parodius (ver JAA)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, daiskiss, konamigx, konamigx, gokuparo, konamigx, ROT0, "Konami", "Daisu-Kiss (ver JAA)", GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, tokkae,   konamigx, konamigx_6bpp, puzldama, konamigx, ROT0, "Konami", "Taisen Tokkae-dama (ver JAA)", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // rom error, continously reset
+GAME( 1994, gokuparo, konamigx, konamigx, gokuparo, konamigx, ROT0, "Konami", "Gokujyou Parodius (ver JAD)", 0 )
+GAME( 1994, puzldama, konamigx, konamigx, puzldama, konamigx, ROT0, "Konami", "Taisen Puzzle-dama (ver JAA)", 0 )
+GAME( 1995, tbyahhoo, konamigx, konamigx, gokuparo, konamigx, ROT0, "Konami", "Twin Bee Yahhoo! (ver JAA)", 0 )
+GAME( 1995, tkmmpzdm, konamigx, konamigx_6bpp, puzldama, konamigx, ROT0, "Konami", "Tokimeki Memorial Taisen Puzzle-dama (ver JAB)", 0 )
+GAME( 1995, dragoona, konamigx, dragoonj, dragoonj, konamigx, ROT0, "Konami", "Dragoon Might (ver AAB)", 0 )
+GAME( 1995, dragoonj, dragoona, dragoonj, dragoonj, konamigx, ROT0, "Konami", "Dragoon Might (ver JAA)", 0 )
+GAME( 1996, sexyparo, konamigx, konamigx, gokuparo, konamigx, ROT0, "Konami", "Sexy Parodius (ver JAA)", 0 )
+GAME( 1996, daiskiss, konamigx, konamigx, gokuparo, konamigx, ROT0, "Konami", "Daisu-Kiss (ver JAA)", 0 )
+GAME( 1996, tokkae,   konamigx, konamigx_6bpp, puzldama, konamigx, ROT0, "Konami", "Taisen Tokkae-dama (ver JAA)", 0 )
 /* protection controls player ship direction in attract mode - doesn't impact playability */
 GAME( 1996, salmndr2, konamigx, konamigx_6bpp_2, gokuparo, konamigx, ROT0, "Konami", "Salamander 2 (ver JAA)", GAME_IMPERFECT_GRAPHICS|GAME_UNEMULATED_PROTECTION )
 /* bad sprite colours, part of tilemap gets blanked out when a game starts (might be more protection) */

@@ -777,7 +777,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 							src_x = src_fx;
 							src_fx += src_fdx;
 							src_x >>= FP;
-							if (eax < shdpen || szbuf_ptr[ecx*2] < z8 || szbuf_ptr[ecx*2+1] <= p8) continue;
+							if (eax < shdpen || szbuf_ptr[ecx*2] < z8 || szbuf_ptr[ecx*2+1] < p8) continue;
 							eax = dst_ptr[ecx];
 							szbuf_ptr[ecx*2] = z8;
 							szbuf_ptr[ecx*2+1] = p8;
@@ -912,7 +912,7 @@ INLINE void zdrawgfxzoom32GP( mame_bitmap *bitmap, const gfx_element *gfx, const
 						do {
 							eax = *src_ptr;
 							src_ptr += src_fdx;
-							if (eax < shdpen || szbuf_ptr[ecx*2] < z8 || szbuf_ptr[ecx*2+1] <= p8) continue;
+							if (eax < shdpen || szbuf_ptr[ecx*2] < z8 || szbuf_ptr[ecx*2+1] < p8) continue;
 							eax = dst_ptr[ecx];
 							szbuf_ptr[ecx*2] = z8;
 							szbuf_ptr[ecx*2+1] = p8;
@@ -1900,6 +1900,14 @@ WRITE16_HANDLER( K055550_word_w )
 				lim = adr+bsize*count;
 				for(i=adr; i<lim; i+=2)
 					program_write_word(i, prot_data[0x1a/2]);
+			break;
+
+			case 0x98: // memcpy (viostorm: transfer "color check" palette)
+				adr   = (prot_data[7] << 16) | prot_data[8];
+				src   = (prot_data[2] << 16) | prot_data[3];
+				count = (prot_data[10] << 16 | prot_data[11]) >> 2;
+				for (i = 0; i < count; i++)
+					program_write_dword(adr + i * 4, program_read_dword(src + i * 8));
 			break;
 
 			// WARNING: The following cases are speculation based with questionable accuracy!(AAT)
