@@ -539,6 +539,13 @@ VIDEO_EOF( f3 )
 	}
 }
 
+/* Force re-read of dynamic tile layers after state load (646a85b) */
+static void f3_postload(void)
+{
+	tilemap_mark_all_tiles_dirty(pixel_layer);
+	tilemap_mark_all_tiles_dirty(vram_layer);
+}
+
 VIDEO_START( f3 )
 {
 	const struct F3config *pCFG=&f3_config_table[0];
@@ -626,6 +633,13 @@ VIDEO_START( f3 )
 
 	state_save_register_global_array(f3_control_0);
 	state_save_register_global_array(f3_control_1);
+	state_save_register_global_pointer(videoram32, 0x2000/4);
+	state_save_register_global_pointer(spriteram32, spriteram_size/4);
+	state_save_register_global_pointer(f3_vram, 0x2000/4);
+	state_save_register_global_pointer(f3_pf_data, 0xc000/4);
+	state_save_register_global_pointer(f3_line_ram, 0x10000/4);
+	state_save_register_global_pointer(f3_pivot_ram, 0x10000/4);
+	state_save_register_func_postload(f3_postload);
 
 	for (tile = 0;tile < 256;tile++)
 		vram_dirty[tile]=1;
@@ -1833,9 +1847,9 @@ static void get_spritealphaclip_info(void)
 		line_t->spri[y]=spri;
 		line_t->sprite_alpha[y]=sprite_alpha;
 		line_t->clip0_l[y]=((clip0_low&0xff)|((clip0_high&0x1000)>>4)) - 47;
-		line_t->clip0_r[y]=(((clip0_low&0xff00)>>8)|((clip0_high&0x2000)>>5)) - 47;
+		line_t->clip0_r[y]=(((clip0_low&0xff00)>>8)|((clip0_high&0x2000)>>5)) - 48;
 		line_t->clip1_l[y]=((clip1_low&0xff)|((clip0_high&0x4000)>>6)) - 47;
-		line_t->clip1_r[y]=(((clip1_low&0xff00)>>8)|((clip0_high&0x8000)>>7)) - 47;
+		line_t->clip1_r[y]=(((clip1_low&0xff00)>>8)|((clip0_high&0x8000)>>7)) - 48;
 		if (line_t->clip0_l[y]<0) line_t->clip0_l[y]=0;
 		if (line_t->clip0_r[y]<0) line_t->clip0_r[y]=0;
 		if (line_t->clip1_l[y]<0) line_t->clip1_l[y]=0;

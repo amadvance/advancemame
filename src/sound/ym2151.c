@@ -1081,9 +1081,9 @@ void YM2151WriteReg(void *_chip, int r, int v)
 			envelope_KONKOFF(&chip->oper[ (v&7)*4 ], v );
 			break;
 
-		case 0x0f:	/* noise mode enable, noise period */
+		case 0x0f:	/* noise mode enable, noise period (rate 30 and 31 are the same) */
 			chip->noise = v;
-			chip->noise_f = chip->noise_tab[ v & 0x1f ];
+			chip->noise_f = chip->noise_tab[(v & 0x1f) == 31 ? 30 : (v & 0x1f)];
 			break;
 
 		case 0x10:	/* timer A hi */

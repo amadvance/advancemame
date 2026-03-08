@@ -2114,6 +2114,7 @@ WRITE16_HANDLER( ES5505_data_1_w )
 void ES5505_voice_bank_0_w(int voice, int bank)
 {
 	struct ES5506Chip *chip = sndti_token(SOUND_ES5505, 0);
+	stream_update(chip->stream, 0);
 #if RAINE_CHECK
 	chip->voice[voice].control = CONTROL_STOPMASK;
 #endif
@@ -2123,6 +2124,7 @@ void ES5505_voice_bank_0_w(int voice, int bank)
 void ES5505_voice_bank_1_w(int voice, int bank)
 {
 	struct ES5506Chip *chip = sndti_token(SOUND_ES5505, 1);
+	stream_update(chip->stream, 0);
 #if RAINE_CHECK
 	chip->voice[voice].control = CONTROL_STOPMASK;
 #endif

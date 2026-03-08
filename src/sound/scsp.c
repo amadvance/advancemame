@@ -1061,6 +1061,25 @@ static void *scsp_start(int sndindex, int clock, const void *config)
 		SCSP->stream = stream_create(0, 2, 44100, SCSP, SCSP_Update);
 	}
 
+	/* state save (90ff2b28) */
+	state_save_register_item_array("scsp", sndindex, SCSP->udata.data);
+	state_save_register_item_array("scsp", sndindex, SCSP->RINGBUF);
+	state_save_register_item("scsp", sndindex, SCSP->BUFPTR);
+	state_save_register_item("scsp", sndindex, SCSP->IrqTimA);
+	state_save_register_item("scsp", sndindex, SCSP->IrqTimBC);
+	state_save_register_item("scsp", sndindex, SCSP->IrqMidi);
+	state_save_register_item("scsp", sndindex, SCSP->MidiOutW);
+	state_save_register_item("scsp", sndindex, SCSP->MidiOutR);
+	state_save_register_item_array("scsp", sndindex, SCSP->MidiStack);
+	state_save_register_item("scsp", sndindex, SCSP->MidiW);
+	state_save_register_item("scsp", sndindex, SCSP->MidiR);
+	state_save_register_item_array("scsp", sndindex, SCSP->TimPris);
+	state_save_register_item_array("scsp", sndindex, SCSP->TimCnt);
+	state_save_register_item("scsp", sndindex, SCSP->scsp_dmea);
+	state_save_register_item("scsp", sndindex, SCSP->scsp_drga);
+	state_save_register_item("scsp", sndindex, SCSP->scsp_dtlg);
+	state_save_register_memory("scsp", sndindex, "slots", &SCSP->Slots[0], sizeof(struct _SLOT), 32);
+
 	return SCSP;
 }
 
