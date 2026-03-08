@@ -769,6 +769,20 @@ VIDEO_UPDATE( tmnt2 )
 	double brt;
 	int i, newdim, newen, cb, ce;
 
+	/* set layer_colorbase and sorted_layer for this frame so dimming uses current text layer */
+	bg_colorbase       = K053251_get_palette_index(K053251_CI0);
+	sprite_colorbase   = K053251_get_palette_index(K053251_CI1);
+	layer_colorbase[0] = K053251_get_palette_index(K053251_CI2);
+	layer_colorbase[1] = K053251_get_palette_index(K053251_CI4);
+	layer_colorbase[2] = K053251_get_palette_index(K053251_CI3);
+	sorted_layer[0] = 0;
+	layerpri[0] = K053251_get_priority(K053251_CI2);
+	sorted_layer[1] = 1;
+	layerpri[1] = K053251_get_priority(K053251_CI4);
+	sorted_layer[2] = 2;
+	layerpri[2] = K053251_get_priority(K053251_CI3);
+	sortlayers(sorted_layer,layerpri);
+
 	newdim = dim_v | ((~dim_c & 0x10) >> 1);
 	newen  = (K053251_get_priority(5) && K053251_get_priority(5) != 0x3e);
 
@@ -787,7 +801,7 @@ VIDEO_UPDATE( tmnt2 )
             reset properly.
         */
 
-		// find the text layer's palette range
+		/* find the text layer's palette range (using current frame's sorted_layer) */
 		cb = layer_colorbase[sorted_layer[2]] << 4;
 		ce = cb + 128;
 

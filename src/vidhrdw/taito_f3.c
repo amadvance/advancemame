@@ -539,6 +539,13 @@ VIDEO_EOF( f3 )
 	}
 }
 
+/* Force re-read of dynamic tile layers after state load (646a85b) */
+static void f3_postload(void)
+{
+	tilemap_mark_all_tiles_dirty(pixel_layer);
+	tilemap_mark_all_tiles_dirty(vram_layer);
+}
+
 VIDEO_START( f3 )
 {
 	const struct F3config *pCFG=&f3_config_table[0];
@@ -626,6 +633,13 @@ VIDEO_START( f3 )
 
 	state_save_register_global_array(f3_control_0);
 	state_save_register_global_array(f3_control_1);
+	state_save_register_global_pointer(videoram32, 0x2000/4);
+	state_save_register_global_pointer(spriteram32, spriteram_size/4);
+	state_save_register_global_pointer(f3_vram, 0x2000/4);
+	state_save_register_global_pointer(f3_pf_data, 0xc000/4);
+	state_save_register_global_pointer(f3_line_ram, 0x10000/4);
+	state_save_register_global_pointer(f3_pivot_ram, 0x10000/4);
+	state_save_register_func_postload(f3_postload);
 
 	for (tile = 0;tile < 256;tile++)
 		vram_dirty[tile]=1;
@@ -1833,9 +1847,9 @@ static void get_spritealphaclip_info(void)
 		line_t->spri[y]=spri;
 		line_t->sprite_alpha[y]=sprite_alpha;
 		line_t->clip0_l[y]=((clip0_low&0xff)|((clip0_high&0x1000)>>4)) - 47;
-		line_t->clip0_r[y]=(((clip0_low&0xff00)>>8)|((clip0_high&0x2000)>>5)) - 47;
+		line_t->clip0_r[y]=(((clip0_low&0xff00)>>8)|((clip0_high&0x2000)>>5)) - 48;
 		line_t->clip1_l[y]=((clip1_low&0xff)|((clip0_high&0x4000)>>6)) - 47;
-		line_t->clip1_r[y]=(((clip1_low&0xff00)>>8)|((clip0_high&0x8000)>>7)) - 47;
+		line_t->clip1_r[y]=(((clip1_low&0xff00)>>8)|((clip0_high&0x8000)>>7)) - 48;
 		if (line_t->clip0_l[y]<0) line_t->clip0_l[y]=0;
 		if (line_t->clip0_r[y]<0) line_t->clip0_r[y]=0;
 		if (line_t->clip1_l[y]<0) line_t->clip1_l[y]=0;
@@ -2007,12 +2021,6 @@ static void get_line_ram_info(tilemap *tmap, int sx, int sy, int pos, UINT32 *f3
 			line_enable=2;
 		else if(pri&0x8000)	//alpha2
 			line_enable=3;
-		/* special case when the blend mode is "normal" but the 6200 area is used. Might be missing a flag */
-		else if((pri&0x3000) && (f3_line_ram[0x6230/4]!= 0)  && (pos == 2) &&
-		  (((f3_line_ram[(0x6200/4) + (y>>1)] >> 4) &0xf) != 0xb) && (f3_game == EACTION2))
-		  {
-			line_enable=0x22;		
-		  }
 		else
 			line_enable=1;
 
@@ -2078,8 +2086,6 @@ static void get_line_ram_info(tilemap *tmap, int sx, int sy, int pos, UINT32 *f3
 			/* If clipping enabled for this line have to disable 'all opaque' optimisation */
 			if (line_t->clip0[y]!=0x7fff0000 || line_t->clip1[y]!=0)
 				line_t->alpha_mode[y]&=~0x80;
-			
-			if ((pos ==1) && ((((f3_line_ram[(0x6200/4) + (y>>1)]) >> 4) &0xf) > 0xb)  && (f3_game == EACTION2)) line_t->alpha_mode[y] = 0x22;  /*hack*/
 
 			/* set pixmap index */
 			line_t->x_count[y]=x_index_fx & 0xffff; // Fractional part

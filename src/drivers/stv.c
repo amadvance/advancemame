@@ -1036,12 +1036,12 @@ WRITE32_HANDLER ( stv_io_w32 )
 		case 1:
 			if(LO_WORD_ACCESS)
 			{
-				/*Why does the BIOS tests these as ACTIVE HIGH?A program bug?*/
+				/* IOGA port D: coin counter active high, lockout active low (BIOS test spec, 2321f5c9) */
 				ioga[1] = (data) & 0xff;
-				coin_counter_w(0,~data & 0x01);
-				coin_counter_w(1,~data & 0x02);
-				coin_lockout_w(0,~data & 0x04);
-				coin_lockout_w(1,~data & 0x08);
+				coin_counter_w(0, data & 0x01);
+				coin_counter_w(1, data & 0x02);
+				coin_lockout_w(0, ~data & 0x04);
+				coin_lockout_w(1, ~data & 0x08);
 				/*
                 other bits reserved
                 */

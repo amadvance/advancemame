@@ -125,7 +125,6 @@ typedef struct
 	mame_timer	*timer_B;
 	double		timer_A_time[1024];		/* timer A times for MAME */
 	double		timer_B_time[256];		/* timer B times for MAME */
-	int			irqlinestate;
 #else
 	UINT8		tim_A;					/* timer A enable (0-disabled) */
 	UINT8		tim_B;					/* timer B enable (0-disabled) */
@@ -781,47 +780,6 @@ INLINE void envelope_KONKOFF(YM2151Operator * op, int v)
 
 
 #ifdef USE_MAME_TIMERS
-
-static void irqAon_callback(void *param)
-{
-	YM2151 *chip = param;
-	int oldstate = chip->irqlinestate;
-
-	chip->irqlinestate |= 1;
-
-	if (oldstate == 0 && chip->irqhandler) (*chip->irqhandler)(1);
-}
-
-static void irqBon_callback(void *param)
-{
-	YM2151 *chip = param;
-	int oldstate = chip->irqlinestate;
-
-	chip->irqlinestate |= 2;
-
-	if (oldstate == 0 && chip->irqhandler) (*chip->irqhandler)(1);
-}
-
-static void irqAoff_callback(void *param)
-{
-	YM2151 *chip = param;
-	int oldstate = chip->irqlinestate;
-
-	chip->irqlinestate &= ~1;
-
-	if (oldstate == 1 && chip->irqhandler) (*chip->irqhandler)(0);
-}
-
-static void irqBoff_callback(void *param)
-{
-	YM2151 *chip = param;
-	int oldstate = chip->irqlinestate;
-
-	chip->irqlinestate &= ~2;
-
-	if (oldstate == 2 && chip->irqhandler) (*chip->irqhandler)(0);
-}
-
 static void timer_callback_a (void *param)
 {
 	YM2151 *chip = param;
@@ -829,8 +787,9 @@ static void timer_callback_a (void *param)
 	chip->timer_A_index_old = chip->timer_A_index;
 	if (chip->irq_enable & 0x04)
 	{
+		int oldstate = chip->status & 3;
 		chip->status |= 1;
-		timer_set_ptr(TIME_NOW,chip,irqAon_callback);
+		if ((!oldstate) && (chip->irqhandler)) (*chip->irqhandler)(1);
 	}
 	if (chip->irq_enable & 0x80)
 		chip->csm_req = 2;		/* request KEY ON / KEY OFF sequence */
@@ -842,8 +801,9 @@ static void timer_callback_b (void *param)
 	chip->timer_B_index_old = chip->timer_B_index;
 	if (chip->irq_enable & 0x08)
 	{
+		int oldstate = chip->status & 3;
 		chip->status |= 2;
-		timer_set_ptr(TIME_NOW,chip,irqBon_callback);
+		if ((!oldstate) && (chip->irqhandler)) (*chip->irqhandler)(1);
 	}
 }
 #if 0
@@ -1081,9 +1041,9 @@ void YM2151WriteReg(void *_chip, int r, int v)
 			envelope_KONKOFF(&chip->oper[ (v&7)*4 ], v );
 			break;
 
-		case 0x0f:	/* noise mode enable, noise period */
+		case 0x0f:	/* noise mode enable, noise period (rate 30 and 31 are the same) */
 			chip->noise = v;
-			chip->noise_f = chip->noise_tab[ v & 0x1f ];
+			chip->noise_f = chip->noise_tab[(v & 0x1f) == 31 ? 30 : (v & 0x1f)];
 			break;
 
 		case 0x10:	/* timer A hi */
@@ -1102,28 +1062,19 @@ void YM2151WriteReg(void *_chip, int r, int v)
 
 			chip->irq_enable = v;	/* bit 3-timer B, bit 2-timer A, bit 7 - CSM */
 
-			if (v&0x10)	/* reset timer A irq flag */
-			{
-#ifdef USE_MAME_TIMERS
-				chip->status &= ~1;
-				timer_set_ptr(TIME_NOW,chip,irqAoff_callback);
-#else
-				int oldstate = chip->status & 3;
-				chip->status &= ~1;
-				if ((oldstate==1) && (chip->irqhandler)) (*chip->irqhandler)(0);
-#endif
-			}
-
 			if (v&0x20)	/* reset timer B irq flag */
 			{
-#ifdef USE_MAME_TIMERS
-				chip->status &= ~2;
-				timer_set_ptr(TIME_NOW,chip,irqBoff_callback);
-#else
 				int oldstate = chip->status & 3;
-				chip->status &= ~2;
+				chip->status &= 0xfd;
 				if ((oldstate==2) && (chip->irqhandler)) (*chip->irqhandler)(0);
-#endif
+			}
+
+			if (v&0x10)	/* reset timer A irq flag */
+			{
+				int oldstate = chip->status & 3;
+				chip->status &= 0xfe;
+				if ((oldstate==1) && (chip->irqhandler)) (*chip->irqhandler)(0);
+
 			}
 
 			if (v&0x02){	/* load and start timer B */
@@ -1485,10 +1436,6 @@ static void ym2151_state_save_register( YM2151 *chip, int sndindex )
 	state_save_register_item(buf1, sndindex, chip->timer_B_index);
 	state_save_register_item(buf1, sndindex, chip->timer_A_index_old);
 	state_save_register_item(buf1, sndindex, chip->timer_B_index_old);
-
-#ifdef USE_MAME_TIMERS
-	state_save_register_item(buf1, sndindex, chip->irqlinestate);
-#endif
 
 	state_save_register_item_array(buf1, sndindex, chip->connect);
 

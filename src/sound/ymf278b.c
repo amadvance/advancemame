@@ -670,6 +670,23 @@ static void *ymf278b_start(int sndindex, int clock, const void *config)
 		chip->mix_level[i] = chip->volume[8*i+8];
 	chip->mix_level[7] = 0;
 
+	/* state save (90ff2b28) */
+	state_save_register_item("ymf278b", sndindex, chip->timer_a_count);
+	state_save_register_item("ymf278b", sndindex, chip->timer_b_count);
+	state_save_register_item("ymf278b", sndindex, chip->enable);
+	state_save_register_item("ymf278b", sndindex, chip->current_irq);
+	state_save_register_item("ymf278b", sndindex, chip->port_A);
+	state_save_register_item("ymf278b", sndindex, chip->port_B);
+	state_save_register_item("ymf278b", sndindex, chip->port_C);
+	state_save_register_item("ymf278b", sndindex, chip->fm_l);
+	state_save_register_item("ymf278b", sndindex, chip->fm_r);
+	state_save_register_item("ymf278b", sndindex, chip->pcm_l);
+	state_save_register_item("ymf278b", sndindex, chip->pcm_r);
+	state_save_register_item("ymf278b", sndindex, chip->wavetblhdr);
+	state_save_register_item("ymf278b", sndindex, chip->memmode);
+	state_save_register_item("ymf278b", sndindex, chip->memadr);
+	state_save_register_memory("ymf278b", sndindex, "slots", &chip->slots[0], sizeof(YMF278BSlot), 24);
+
 	return chip;
 }
 
