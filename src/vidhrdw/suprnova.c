@@ -63,14 +63,18 @@ void skns_sprite_kludge(int x, int y)
 	sprite_kludge_y = y;
 }
 
-/* Zooming blitter, zoom is by way of both source and destination offsets */
-/* We are working in .6 fixed point if you hadn't guessed */
-
-#define z_decls(step)				\
+/* Zooming blitter, zoom is by way of both source and destination offsets
 	UINT16 zxs = 0x40-(zx>>10);			\
 	UINT16 zxd = 0x40-((zx>>2) & 0x3f);		\
 	UINT16 zys = 0x40-(zy>>10);			\
 	UINT16 zyd = 0x40-((zy>>2) & 0x3f);		\
+ We are working in .6 fixed point if you hadn't guessed */
+
+#define z_decls(step)				\
+	UINT16 zxs = 0x40-(zx_m>>2);			\
+	UINT16 zxd = 0x40-(zx_s>>2);		\
+	UINT16 zys = 0x40-(zy_m>>2);			\
+	UINT16 zyd = 0x40-(zy_s>>2);		\
 	int xs, ys, xd, yd, old, old2;		\
 	int step_spr = step;				\
 	int bxs = 0, bys = 0;				\
@@ -162,7 +166,8 @@ void skns_sprite_kludge(int x, int y)
 		old2 += 0x40;				\
 	}
 
-static void blit_nf_z(mame_bitmap *bitmap, const rectangle *cliprect, const UINT8 *src, int x, int y, int sx, int sy, UINT16 zx, UINT16 zy, int colour)
+
+static void blit_nf_z(mame_bitmap *bitmap, const rectangle *cliprect, const UINT8 *src, int x, int y, int sx, int sy, UINT16 zx_m, UINT16 zx_s, UINT16 zy_m, UINT16 zy_s, int colour)
 {
 	z_decls(sx);
 	z_clamp_x_min();
@@ -176,7 +181,8 @@ static void blit_nf_z(mame_bitmap *bitmap, const rectangle *cliprect, const UINT
 	}
 }
 
-static void blit_fy_z(mame_bitmap *bitmap, const rectangle *cliprect, const UINT8 *src, int x, int y, int sx, int sy, UINT16 zx, UINT16 zy, int colour)
+
+static void blit_fy_z(mame_bitmap *bitmap, const rectangle *cliprect, const UINT8 *src, int x, int y, int sx, int sy, UINT16 zx_m, UINT16 zx_s, UINT16 zy_m, UINT16 zy_s, int colour)
 {
 	z_decls(sx);
 	z_clamp_x_min();
@@ -190,7 +196,8 @@ static void blit_fy_z(mame_bitmap *bitmap, const rectangle *cliprect, const UINT
 	}
 }
 
-static void blit_fx_z(mame_bitmap *bitmap, const rectangle *cliprect, const UINT8 *src, int x, int y, int sx, int sy, UINT16 zx, UINT16 zy, int colour)
+
+static void blit_fx_z(mame_bitmap *bitmap, const rectangle *cliprect, const UINT8 *src, int x, int y, int sx, int sy, UINT16 zx_m, UINT16 zx_s, UINT16 zy_m, UINT16 zy_s, int colour)
 {
 	z_decls(sx);
 	z_clamp_x_max();
@@ -204,7 +211,8 @@ static void blit_fx_z(mame_bitmap *bitmap, const rectangle *cliprect, const UINT
 	}
 }
 
-static void blit_fxy_z(mame_bitmap *bitmap, const rectangle *cliprect, const UINT8 *src, int x, int y, int sx, int sy, UINT16 zx, UINT16 zy, int colour)
+
+static void blit_fxy_z(mame_bitmap *bitmap, const rectangle *cliprect, const UINT8 *src, int x, int y, int sx, int sy, UINT16 zx_m, UINT16 zx_s, UINT16 zy_m, UINT16 zy_s, int colour)
 {
 	z_decls(sx);
 	z_clamp_x_max();
@@ -218,7 +226,7 @@ static void blit_fxy_z(mame_bitmap *bitmap, const rectangle *cliprect, const UIN
 	}
 }
 
-static void (*blit_z[4])(mame_bitmap *bitmap, const rectangle *cliprect, const UINT8 *src, int x, int y, int sx, int sy, UINT16 zx, UINT16 zy, int colour) = {
+static void (*blit_z[4])(mame_bitmap *bitmap, const rectangle *cliprect, const UINT8 *src, int x, int y, int sx, int sy, UINT16 zx_m, UINT16 zx_s, UINT16 zy_m, UINT16 zy_s, int colour) = {
 	blit_nf_z,
 	blit_fy_z,
 	blit_fx_z,
@@ -275,7 +283,9 @@ void skns_drawsprites( mame_bitmap *bitmap, const rectangle *cliprect )
 	int xsize,ysize, size, xpos=0,ypos=0, pri=0, romoffset, colour=0, xflip,yflip, joint;
 	int sx,sy;
 	int endromoffs=0;
-	UINT16 zoomx, zoomy;
+	int grow;
+	UINT16 zoomx_m, zoomx_s, zoomy_m, zoomy_s;
+	
 
 
 	if (!disabled){
@@ -409,9 +419,36 @@ void skns_drawsprites( mame_bitmap *bitmap, const rectangle *cliprect )
 			} else {
 				romoffset = endromoffs;
 			}
+			
+			grow = (source[0]>>23) & 1;
 
-			zoomx = source[2] >> 16;
-			zoomy = source[3] >> 16;
+			if (!grow)
+			{
+				zoomx_m = (source[2] >> 24)&0x00fc;
+				zoomx_s = (source[2] >> 16)&0x00fc;
+				zoomy_m = (source[3] >> 24)&0x00fc;
+				zoomy_s = (source[3] >> 16)&0x00fc;
+			}
+			else
+			{
+
+
+				// sengekis uses this on sprites which are shrinking as they head towards the ground
+				// it's also used on the input test of Gals Panic S2
+				//
+				// it appears to offer a higher precision 'shrink' mode (although I'm not entirely
+				//  convinced this implementation is correct because we simply end up ignoring
+				//  part of the data)
+				zoomx_m = 0;
+				zoomx_s = (source[2] >> 24)&0x00fc;
+				zoomy_m = 0;
+				zoomy_s = (source[3] >> 24)&0x00fc;
+
+
+			}
+
+			//zoomx = source[2] >> 16;
+			//zoomy = source[3] >> 16;
 
 			romoffset &= memory_region_length (REGION_GFX1)-1;
 
@@ -423,9 +460,9 @@ void skns_drawsprites( mame_bitmap *bitmap, const rectangle *cliprect )
 			{
 				int NewColour = colour*256;
 
-				if(zoomx || zoomy)
+				if(zoomx_m || zoomx_s || zoomy_m || zoomy_s)
 				{
-					blit_z[ (xflip<<1) | yflip ](bitmap, cliprect, decodebuffer, sx, sy, xsize, ysize, zoomx, zoomy, NewColour);
+					  blit_z[ (xflip<<1) | yflip ](bitmap, cliprect, decodebuffer, sx, sy, xsize, ysize, zoomx_m, zoomx_s, zoomy_m, zoomy_s, NewColour);
 				}
 				else
 				{
