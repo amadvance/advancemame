@@ -6857,6 +6857,7 @@ Other Sun games
 	DRIVER( ket )
 	DRIVER( keta )
 	DRIVER( ketb )
+    DRIVER( ketikd )
 	DRIVER( ddp3 )
 	DRIVER( ddp3a )
 	DRIVER( ddp3b )
