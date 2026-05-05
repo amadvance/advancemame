@@ -926,46 +926,63 @@ int cps3_ss_ram_is_dirty;
 UINT8* cps3_char_ram_dirty;
 int cps3_char_ram_is_dirty;
 
-static inline UINT8 get_fade(int c, int f)
-{
-	// bit 7 unknown
-	// bit 6 fade enable / disable
-	// bit 5 fade mode
-	// bit 4-0 fade value
-	if (f & 0x40) // Fading enable / disable
-		c = (f & 0x20) ? ((((c ^ 0x1f) * (~f & 0x1f)) >> 5) ^ 0x1f) : (c * (f & 0x1f) >> 5);
-        return c;
-}
-
 void cps3_set_mame_colours( int colournum, UINT16 data, UINT32 fadeval )
 {
-	int r,g,b;
-	UINT16* dst = (UINT16*)cps3_colourram;
+    int r,g,b;
+    UINT16* dst = (UINT16*)cps3_colourram;
 
-	r = (data >> 0) & 0x1f;
-	g = (data >> 5) & 0x1f;
-	b = (data >> 10) & 0x1f;
+    r = (data >> 0) & 0x1f;
+    g = (data >> 5) & 0x1f;
+    b = (data >> 10) & 0x1f;
 
-	/* is this 100% correct? */
-	if (fadeval & 0x40400040)
-	{
-		int fade;
+    /* is this 100% correct? */
+    if (fadeval & 0x40400040)
+    {
+        int fade;
+        //printf("fadeval %08x\n", fadeval);
 
-		r = get_fade(r, (fadeval & 0x7f000000) >> 24);
-		g = get_fade(g, (fadeval & 0x007f0000) >> 16);
-		b = get_fade(b, (fadeval & 0x0000007f) >> 0);
+        /* Apply fade to Red channel */
+        fade = (fadeval & 0x7f000000) >> 24;
+        if (fade & 0x40)
+        {
+            if (fade & 0x20)
+                r = (((0x1f - r) * (0x1f - (fade & 0x1f))) >> 5) ^ 0x1f;
+            else
+                r = (r * (fade & 0x1f)) >> 5;
+        }
 
-		data = (data & 0x8000) | (r << 0) | (g << 5) | (b << 10);
-	}
+        /* Apply fade to Green channel */
+        fade = (fadeval & 0x007f0000) >> 16;
+        if (fade & 0x40)
+        {
+            if (fade & 0x20)
+                g = (((0x1f - g) * (0x1f - (fade & 0x1f))) >> 5) ^ 0x1f;
+            else
+                g = (g * (fade & 0x1f)) >> 5;
+        }
 
-	/* Write color to palette RAM, within valid range */
-	colournum &= 0x1ffff;
-	dst[colournum] = data;
+        /* Apply fade to Blue channel */
+        fade = (fadeval & 0x0000007f) >> 0;
+        if (fade & 0x40)
+        {
+            if (fade & 0x20)
+                b = (((0x1f - b) * (0x1f - (fade & 0x1f))) >> 5) ^ 0x1f;
+            else
+                b = (b * (fade & 0x1f)) >> 5;
+        }
 
-	cps3_mame_colours[colournum] = (r << (16+3)) | (g << (8+3)) | (b << (0+3));
-	if (colournum < 0x10000)
-		palette_set_color(colournum, r << 3, g << 3, b << 3);
+        /* Reconstruct 16-bit color, preserving the top bit (if any) */
+        data = (data & 0x8000) | (r << 0) | (g << 5) | (b << 10);
+    }
+
+    /* Write color to palette RAM, within valid range */
+    colournum &= 0x1ffff;
+    dst[colournum] = data;
+    cps3_mame_colours[colournum] = (r << (16+3)) | (g << (8+3)) | (b << (0+3));
+    if (colournum < 0x10000)
+        palette_set_color(colournum, r << 3, g << 3, b << 3);
 }
+
 
 void decode_ssram(void)
 {
@@ -1415,54 +1432,54 @@ VIDEO_UPDATE(cps3)
 		}
 	}
 
-	/* fg layer - joystick combo meter in JoJo games relies on rowscroll */
-	{
-		int line;
+       /* fg layer - joystick combo meter in JoJo games relies on rowscroll */
+       {
+               int line;
 
-		/* bank select? (sfiii2 intro) */
-		if (cps3_ss_bank_base & 0x01000000)
-			count = 0x000;
-		else
-			count = 0x800;
+               /* bank select? (sfiii2 intro) */
+               if (cps3_ss_bank_base & 0x01000000)
+                       count = 0x000;
+               else
+                       count = 0x800;
 
-		for (line = cliprect->min_y; line <= cliprect->max_y; line++)
-		{
-			rectangle clip_line;
-			int y = line / 8;
-			int rowscroll;
+               for (line = cliprect->min_y; line <= cliprect->max_y; line++)
+               {
+                       rectangle clip_line;
+                       int y = line / 8;
+                       int rowscroll;
 
-			clip_line = *cliprect;
-			clip_line.min_y = clip_line.max_y = line;
+                       clip_line = *cliprect;
+                       clip_line.min_y = clip_line.max_y = line;
 
-			rowscroll = cps3_ss_ram[((line - 1) & 0x1ff) + 0x4000/4] >> 16;
-			count = (y * 64) + (cps3_ss_bank_base & 0x01000000 ? 0x000 : 0x800);
+                       rowscroll = cps3_ss_ram[((line - 1) & 0x1ff) + 0x4000/4] >> 16;
+                       count = (y * 64) + (cps3_ss_bank_base & 0x01000000 ? 0x000 : 0x800);
 
-			for (x = 0; x < 64; x++)
-			{
-				UINT32 data = cps3_ss_ram[count]; /* +0x800 = 2nd bank, used on sfiii2 intro.. */
-				UINT32 tile = (data >> 16) & 0x1ff;
-				int pal = (data & 0x003f) >> 1;
-				int flipx = (data & 0x0080) >> 7;
-				int flipy = (data & 0x0040) >> 6;
-				pal += cps3_ss_pal_base << 5;
-				tile += 0x200;
+                       for (x = 0; x < 64; x++)
+                       {
+                               UINT32 data = cps3_ss_ram[count]; /* +0x800 = 2nd bank, used on sfiii2 intro.. */
+                               UINT32 tile = (data >> 16) & 0x1ff;
+                               int pal = (data & 0x003f) >> 1;
+                               int flipx = (data & 0x0080) >> 7;
+                               int flipy = (data & 0x0040) >> 6;
+                               pal += cps3_ss_pal_base << 5;
+                               tile += 0x200;
 
-				if (cps3_ss_ram_dirty[tile])
-				{
-					decodechar(Machine->gfx[0], tile, (UINT8*)cps3_ss_ram, &cps3_tiles8x8_layout);
-					cps3_ss_ram_dirty[tile] = 0;
-				}
+                               if (cps3_ss_ram_dirty[tile])
+                               {
+                                       decodechar(Machine->gfx[0], tile, (UINT8*)cps3_ss_ram, &cps3_tiles8x8_layout);
+                                       cps3_ss_ram_dirty[tile] = 0;
+                               }
 
-				cps3_drawgfxzoom(bitmap, Machine->gfx[0], tile, pal, flipx, flipy,
-					(x * 8) - rowscroll, y * 8, &clip_line,
-					CPS3_TRANSPARENCY_PEN, 0, 0x10000, 0x10000, NULL, 0);
-				cps3_drawgfxzoom(bitmap, Machine->gfx[0], tile, pal, flipx, flipy,
-					512 + (x * 8) - rowscroll, y * 8, &clip_line,
-					CPS3_TRANSPARENCY_PEN, 0, 0x10000, 0x10000, NULL, 0);
-				count++;
-			}
-		}
-	}
+                               cps3_drawgfxzoom(bitmap, Machine->gfx[0], tile, pal, flipx, flipy,
+                                               (x * 8) - rowscroll, y * 8, &clip_line,
+                                               CPS3_TRANSPARENCY_PEN, 0, 0x10000, 0x10000, NULL, 0);
+                               cps3_drawgfxzoom(bitmap, Machine->gfx[0], tile, pal, flipx, flipy,
+                                               512 + (x * 8) - rowscroll, y * 8, &clip_line,
+                                               CPS3_TRANSPARENCY_PEN, 0, 0x10000, 0x10000, NULL, 0);
+                               count++;
+                       }
+               }
+       }
 	return;
 }
 
@@ -1872,6 +1889,8 @@ UINT32 paldma_dest;
 UINT32 paldma_fade;
 UINT32 paldma_other2;
 UINT32 paldma_length;
+static mame_timer* cps3_dma10_timer;
+static int cps3_dma10_pending;
 
 WRITE32_HANDLER( cps3_palettedma_w )
 {
@@ -1901,16 +1920,18 @@ WRITE32_HANDLER( cps3_palettedma_w )
 			if (data & 0x0002)
 			{
 				int i;
+				UINT32 dmalen = paldma_length | ((data & 0x0001) << 16);
 			//  if(DEBUG_PRINTF) printf("CPS3 pal dma start %08x (real: %08x) dest %08x fade %08x other2 %08x (length %04x)\n", paldma_source, paldma_realsource, paldma_dest, paldma_fade, paldma_other2, paldma_length);
 
-				for (i=0;i<paldma_length;i++)
+				for (i=0;i<dmalen;i++)
 				{
 					UINT16* src = (UINT16*)memory_region(REGION_USER5);
 					UINT16 coldata = src[BYTE_XOR_BE(((paldma_realsource>>1)+i))];
 
 					cps3_set_mame_colours((paldma_dest+i)^1, coldata, paldma_fade);
 				}
-				cpunum_set_input_line(0,10, ASSERT_LINE);
+				cps3_dma10_pending = 1;
+				timer_adjust(cps3_dma10_timer, TIME_IN_USEC(100), 0, 0);
 			}
 		}
 	}
@@ -2306,45 +2327,52 @@ ADDRESS_MAP_END
 
 
 
+/* ------------------------------------------------------------------------- */
+/* 置き換え用：INPUT_PORTS_START(cps3) 全体                                  */
+/* ------------------------------------------------------------------------- */
 INPUT_PORTS_START( cps3 )
-	PORT_START
-	PORT_BIT( 0x00000001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
-	PORT_BIT( 0x00000002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
-	PORT_BIT( 0x00000004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
-	PORT_BIT( 0x00000008, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
-	PORT_BIT( 0x00000010, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
-	PORT_BIT( 0x00000020, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
-	PORT_BIT( 0x00000040, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
-	PORT_BIT( 0x00000080, IP_ACTIVE_LOW, IPT_UNUSED ) // nothing here?
-	PORT_BIT( 0x00000100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
-	PORT_BIT( 0x00000200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
-	PORT_BIT( 0x00000400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
-	PORT_BIT( 0x00000800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
-	PORT_BIT( 0x00001000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
-	PORT_BIT( 0x00002000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
-	PORT_BIT( 0x00004000, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
-	PORT_BIT( 0x00008000, IP_ACTIVE_LOW, IPT_UNUSED ) // nothing here?
-	PORT_BIT( 0x00010000, IP_ACTIVE_LOW, IPT_SERVICE1 )
-	PORT_BIT( 0x00020000, IP_ACTIVE_LOW, IPT_SERVICE ) PORT_NAME( DEF_STR( Service_Mode )) PORT_CODE(KEYCODE_F2)
-	PORT_BIT( 0x00fc0000, IP_ACTIVE_LOW, IPT_UNUSED ) // nothing here?
-	PORT_BIT( 0x01000000, IP_ACTIVE_LOW, IPT_COIN1 )
-	PORT_BIT( 0x02000000, IP_ACTIVE_LOW, IPT_COIN2 )
-	PORT_BIT( 0x04000000, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(2)
-	PORT_BIT( 0x08000000, IP_ACTIVE_LOW, IPT_UNUSED ) // nothing here?
-	PORT_BIT( 0x10000000, IP_ACTIVE_LOW, IPT_START1 )
-	PORT_BIT( 0x20000000, IP_ACTIVE_LOW, IPT_START2 )
-	PORT_BIT( 0xc0000000, IP_ACTIVE_LOW, IPT_UNUSED ) // nothing here?
-
-	PORT_START
-	PORT_BIT( 0x0001ffff, IP_ACTIVE_LOW, IPT_UNUSED ) // nothing here?
-	PORT_BIT( 0x00020000, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(1)
-	PORT_BIT( 0x00040000, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(1)
-	PORT_BIT( 0x00080000, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
-	PORT_BIT( 0x00100000, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
-	PORT_BIT( 0x00200000, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(2)
-	PORT_BIT( 0xffc00000, IP_ACTIVE_LOW, IPT_UNUSED ) // nothing here?
-
+    /* ---------- PLAYERS 1 & 2 COMMON (PORT 0) ---------- */
     PORT_START
+    PORT_BIT( 0x00000001, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    ) PORT_PLAYER(1)
+    PORT_BIT( 0x00000002, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  ) PORT_PLAYER(1)
+    PORT_BIT( 0x00000004, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(1)
+    PORT_BIT( 0x00000008, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+    PORT_BIT( 0x00000010, IP_ACTIVE_LOW, IPT_BUTTON1        ) PORT_PLAYER(1)
+    PORT_BIT( 0x00000020, IP_ACTIVE_LOW, IPT_BUTTON2        ) PORT_PLAYER(1)
+    PORT_BIT( 0x00000040, IP_ACTIVE_LOW, IPT_BUTTON3        ) PORT_PLAYER(1)
+    PORT_BIT( 0x00000080, IP_ACTIVE_LOW, IPT_UNUSED )
+    PORT_BIT( 0x00000100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP    ) PORT_PLAYER(2)
+    PORT_BIT( 0x00000200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN  ) PORT_PLAYER(2)
+    PORT_BIT( 0x00000400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT  ) PORT_PLAYER(2)
+    PORT_BIT( 0x00000800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+    PORT_BIT( 0x00001000, IP_ACTIVE_LOW, IPT_BUTTON1        ) PORT_PLAYER(2)
+    PORT_BIT( 0x00002000, IP_ACTIVE_LOW, IPT_BUTTON2        ) PORT_PLAYER(2)
+    PORT_BIT( 0x00004000, IP_ACTIVE_LOW, IPT_BUTTON3        ) PORT_PLAYER(2)
+    PORT_BIT( 0x00008000, IP_ACTIVE_LOW, IPT_UNUSED )
+    PORT_BIT( 0x00010000, IP_ACTIVE_LOW, IPT_SERVICE1 )
+    PORT_BIT( 0x00020000, IP_ACTIVE_LOW, IPT_SERVICE         ) PORT_NAME( DEF_STR( Service_Mode )) PORT_CODE(KEYCODE_F2)
+    PORT_BIT( 0x00fc0000, IP_ACTIVE_LOW, IPT_UNUSED )
+    PORT_BIT( 0x01000000, IP_ACTIVE_LOW, IPT_COIN1 )
+    PORT_BIT( 0x02000000, IP_ACTIVE_LOW, IPT_COIN2 )
+    PORT_BIT( 0x04000000, IP_ACTIVE_LOW, IPT_BUTTON6        ) PORT_PLAYER(2)
+    PORT_BIT( 0x08000000, IP_ACTIVE_LOW, IPT_UNUSED )
+    PORT_BIT( 0x10000000, IP_ACTIVE_LOW, IPT_START1 )
+    PORT_BIT( 0x20000000, IP_ACTIVE_LOW, IPT_START2 )
+    PORT_BIT( 0xc0000000, IP_ACTIVE_LOW, IPT_UNUSED )
+
+    /* ---------- EXTRA BUTTONS / UNUSED (PORT 1) ---------- */
+    PORT_START
+    PORT_BIT( 0x0001ffff, IP_ACTIVE_LOW, IPT_UNUSED )
+    PORT_BIT( 0x00020000, IP_ACTIVE_LOW, IPT_BUTTON6 ) PORT_PLAYER(1)
+    PORT_BIT( 0x00040000, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(1)
+    PORT_BIT( 0x00080000, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(1)
+    PORT_BIT( 0x00100000, IP_ACTIVE_LOW, IPT_BUTTON4 ) PORT_PLAYER(2)
+    PORT_BIT( 0x00200000, IP_ACTIVE_LOW, IPT_BUTTON5 ) PORT_PLAYER(2)
+    PORT_BIT( 0xffc00000, IP_ACTIVE_LOW, IPT_UNUSED )
+
+    /* ---------- CONFIGURATION DIP (PORT 2) ---------- */
+    PORT_START
+    /* 0x0F = Region (既存) */
     PORT_DIPNAME( 0x0000000f, 0x00000000, DEF_STR( Region ) )
     PORT_DIPSETTING( 0x00000000, "Default" )
     PORT_DIPSETTING( 0x00000001, DEF_STR( Japan ) )
@@ -2356,23 +2384,48 @@ INPUT_PORTS_START( cps3 )
     PORT_DIPSETTING( 0x00000007, "Oceania" )
     PORT_DIPSETTING( 0x00000008, "Korea" )
 
+    /* 0x10 = Buffer Delay ON/OFF（新規追加） */
     PORT_DIPNAME( 0x00000010, 0x00000010, "Buffer Delay (Sprite Lag)" )
     PORT_DIPSETTING( 0x00000010, DEF_STR( On ) )   /* 1‑frame lag – hardware‑accurate */
     PORT_DIPSETTING( 0x00000000, DEF_STR( Off ) )  /* No lag – low‑latency mode      */
-
 INPUT_PORTS_END
 
+
+/* ------------------------------------------------------------------------- */
+/* 置き換え用：static INTERRUPT_GEN(cps3_interrupt) 全体                      */
+/* ------------------------------------------------------------------------- */
 static INTERRUPT_GEN(cps3_interrupt)
 {
-	static int i = 0;
-	i++;
-	i%=16;
+    static int i = 0;
+    i++;
+    i %= 16;            /* 1 フレームを 16 分割して呼び出される */
 
-	if (i==8) { cpunum_set_input_line(0,10, ASSERT_LINE); return ; }
+    /* Buffer Delay DIP（Port 2 bit 0x10）
+       ON  : ハードウェア同等の 1 フレーム遅延
+       OFF : 遅延を無効化（低レイテンシ）                       */
+    if (readinputport(2) & 0x00000010)     /* Buffer Delay = ON */
+    {
+        if (i == 8)                        /* 従来どおり半フレーム後 */
+        {
+            cpunum_set_input_line(0, 10, ASSERT_LINE);   /* IRQ10 : スプライト DMA 完了 */
+            return;
+        }
+    }
+    else                                   /* Buffer Delay = OFF */
+    {
+        if (i == 1)                        /* ほぼ即時（slice 1）で IRQ10 */
+        {
+            cpunum_set_input_line(0, 10, ASSERT_LINE);   /* 1 フレーム短縮 */
+            /* return しない—IRQ12 を後で発生させるため継続 */
+        }
+    }
 
-
-	if (i==14) { cpunum_set_input_line(0,12, ASSERT_LINE); return ; }
-
+    /* V‑Blank 対応 IRQ12（従来どおり slice 14） */
+    if (i == 14)
+    {
+        cpunum_set_input_line(0, 12, ASSERT_LINE);
+        return;
+    }
 }
 
 
@@ -2398,12 +2451,23 @@ static void fastboot_timer_callback(int num)
 	cpunum_set_reg(0,SH2_VBR, 0x6000000);
 }
 
+static void cps3_dma10_timer_callback(int num)
+{
+	if (cps3_dma10_pending)
+	{
+		cps3_dma10_pending = 0;
+		cpunum_set_input_line(0,10, ASSERT_LINE);
+	}
+}
+
 MACHINE_RESET(cps3_reset)
 {
 	UINT32 *rom = (UINT32*)memory_region ( REGION_USER1 );
 	UINT32 dip = readinputport(2) & 0xf;
 
 	fastboot_timer = timer_alloc(fastboot_timer_callback);
+	cps3_dma10_timer = timer_alloc(cps3_dma10_timer_callback);
+	cps3_dma10_pending = 0;
 //  printf("reset\n");
 	timer_adjust(fastboot_timer,  TIME_NOW, 0, 0);
 
