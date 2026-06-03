@@ -366,8 +366,10 @@ typedef struct _cps3_voice_
 {
 	UINT32 regs[8];
 	UINT32 pos;
-	UINT16 frac;
+	UINT32 frac;
 } cps3_voice;
+
+#define CPS3_VOL_SHIFT	8	/* add_int(..., 32768<<8) on float → INT32 stream is >> 8 */
 
 struct
 {
@@ -690,29 +692,21 @@ static void cps3_stream_update(void *param, stream_sample_t **inputs, stream_sam
 		if (chip.key & (1 << i))
 		{
 			int j;
-
-			/* TODO */
-			#define SWAP(a) ((a >> 16) | ((a & 0xffff) << 16))
-
 			cps3_voice *vptr = &chip.voice[i];
-
-			UINT32 start = vptr->regs[1];
-			UINT32 end   = vptr->regs[5];
-			UINT32 loop  = (vptr->regs[3] & 0xffff) + ((vptr->regs[4] & 0xffff) << 16);
-			UINT32 step  = (vptr->regs[3] >> 16);
-
-			INT16 vol_l = (vptr->regs[7] & 0xffff);
-			INT16 vol_r = ((vptr->regs[7] >> 16) & 0xffff);
-
+			UINT32 start = (vptr->regs[1] >> 16 & 0x0000ffff) | (vptr->regs[1] << 16 & 0xffff0000);
+			UINT32 end   = (vptr->regs[5] >> 16 & 0x0000ffff) | (vptr->regs[5] << 16 & 0xffff0000);
+			UINT32 loop  = (vptr->regs[3] & 0x0000ffff) | (vptr->regs[4] << 16 & 0xffff0000);
+			int loop_enable = (vptr->regs[2] & 1);
+			UINT32 step  = vptr->regs[3] >> 16 & 0xffff;
+			INT16 vol_l = (INT16)(vptr->regs[7] & 0xffff);
+			INT16 vol_r = (INT16)(vptr->regs[7] >> 16 & 0xffff);
 			UINT32 pos = vptr->pos;
-			UINT16 frac = vptr->frac;
+			UINT32 frac = vptr->frac;
 
-			/* TODO */
-			start = SWAP(start) - 0x400000;
-			end = SWAP(end) - 0x400000;
+			start -= 0x400000;
+			end -= 0x400000;
 			loop -= 0x400000;
 
-			/* Go through the buffer and add voice contributions */
 			for (j = 0; j < length; j ++)
 			{
 				INT32 sample;
@@ -720,25 +714,19 @@ static void cps3_stream_update(void *param, stream_sample_t **inputs, stream_sam
 				pos += (frac >> 12);
 				frac &= 0xfff;
 
-
-				if (start + pos >= end)
+				if ((start + pos) >= end)
 				{
-					if (vptr->regs[2])
-					{
-						pos = loop - start;
-					}
+					if (loop_enable)
+						pos = (pos + loop) - end;
 					else
-					{
-						chip.key &= ~(1 << i);
 						break;
-					}
 				}
 
 				sample = base[BYTE4_XOR_LE(start + pos)];
 				frac += step;
 
-				buffer[0][j] += (sample * (vol_l >> 8));
-				buffer[1][j] += (sample * (vol_r >> 8));
+				buffer[0][j] += ((INT32)sample * (INT32)vol_l) >> CPS3_VOL_SHIFT;
+				buffer[1][j] += ((INT32)sample * (INT32)vol_r) >> CPS3_VOL_SHIFT;
 			}
 
 			vptr->pos = pos;
