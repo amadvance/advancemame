@@ -634,7 +634,6 @@ static void optimise_sboxes(struct optimised_sbox* out, const struct sbox* in)
 	}
 }
 
-
 static void cps2_decrypt(const UINT32* master_key, unsigned int lower_limit, unsigned int upper_limit)
 {
 	UINT16 *rom = (UINT16 *)memory_region(REGION_CPU1);

@@ -1407,6 +1407,34 @@ static DRIVER_INIT ( puzloop2 )
 	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x804000, 0x804001, 0, 0, pl2_port_0_word_r);
 }
 
+/* sfzj: unlock hidden Q-Sound code 0x34 in service sound test */
+static void sfzj_unlock_hidden_sound(void)
+{
+	UINT16 *oprom = (UINT16 *)memory_get_op_ptr(0, 0x4daf0, 0);
+	if (oprom)
+	{
+		/*
+		@ 0x4DAF0 (decrypted 68000):
+		  0c41 0034     cmpi.w  #0x34,D1
+		  6706          beq.s   *+8          ; code 0x34 -> rts (blocked)
+		Replace cmpi+beq with NOP so code 0x34 reaches the play path.
+		*/
+		if (oprom[0] == 0x0c41
+			&& oprom[1] == 0x0034
+			&& oprom[2] == 0x6706) {
+			oprom[0] = 0x4e71;
+			oprom[1] = 0x4e71;
+			oprom[2] = 0x4e71;
+		}
+	}
+}
+
+static DRIVER_INIT( sfzj )
+{
+	init_cps2();
+	sfzj_unlock_hidden_sound();
+}
+
 static const gfx_layout cps1_layout8x8 =
 {
 	8,8,
@@ -10600,13 +10628,13 @@ GAME( 1995, sfar3,    sfa,     cps2, ssf2,    cps2, ROT0,   "Capcom", "Street Fi
 GAME( 1995, sfau,     sfa,     cps2, ssf2,    cps2, ROT0,   "Capcom", "Street Fighter Alpha: Warriors' Dreams (USA 950627)", 0 )
 GAME( 1995, sfza,     sfa,     cps2, ssf2,    cps2, ROT0,   "Capcom", "Street Fighter Zero (Asia 950627)", 0 )
 GAME( 1995, sfzar1,   sfa,     cps2, ssf2,    cps2, ROT0,   "Capcom", "Street Fighter Zero (Asia 950605)", 0 )
-GAME( 1995, sfzj,     sfa,     cps2, ssf2,    cps2, ROT0,   "Capcom", "Street Fighter Zero (Japan 950727)", 0 )
-GAME( 1995, sfzjr1,   sfa,     cps2, ssf2,    cps2, ROT0,   "Capcom", "Street Fighter Zero (Japan 950627)", 0 )
-GAME( 1995, sfzjr2,   sfa,     cps2, ssf2,    cps2, ROT0,   "Capcom", "Street Fighter Zero (Japan 950605)", 0 )
-GAME( 1995, sfzh,     sfa,     cps2, ssf2,    cps2, ROT0,   "Capcom", "Street Fighter Zero (Hispanic 950718)", 0 )
-GAME( 1995, sfzhr1,   sfa,     cps2, ssf2,    cps2, ROT0,   "Capcom", "Street Fighter Zero (Hispanic 950627)", 0 )
-GAME( 1995, sfzb,     sfa,     cps2, ssf2,    cps2, ROT0,   "Capcom", "Street Fighter Zero (Brazil 951109)", 0 )
-GAME( 1995, sfzbr1,   sfa,     cps2, ssf2,    cps2, ROT0,   "Capcom", "Street Fighter Zero (Brazil 950727)", 0 )
+GAME( 1995, sfzj,     sfa,     cps2, ssf2,    sfzj, ROT0,   "Capcom", "Street Fighter Zero (Japan 950727)", 0 )
+GAME( 1995, sfzjr1,   sfa,     cps2, ssf2,    sfzj, ROT0,   "Capcom", "Street Fighter Zero (Japan 950627)", 0 )
+GAME( 1995, sfzjr2,   sfa,     cps2, ssf2,    sfzj, ROT0,   "Capcom", "Street Fighter Zero (Japan 950605)", 0 )
+GAME( 1995, sfzh,     sfa,     cps2, ssf2,    sfzj, ROT0,   "Capcom", "Street Fighter Zero (Hispanic 950718)", 0 )
+GAME( 1995, sfzhr1,   sfa,     cps2, ssf2,    sfzj, ROT0,   "Capcom", "Street Fighter Zero (Hispanic 950627)", 0 )
+GAME( 1995, sfzb,     sfa,     cps2, ssf2,    sfzj, ROT0,   "Capcom", "Street Fighter Zero (Brazil 951109)", 0 )
+GAME( 1995, sfzbr1,   sfa,     cps2, ssf2,    sfzj, ROT0,   "Capcom", "Street Fighter Zero (Brazil 950727)", 0 )
 GAME( 1995, mmancp2u, megaman, cps2, sgemf,   cps2, ROT0,   "Capcom", "Mega Man: The Power Battle (CPS2, USA 951006, SAMPLE Version)", 0 )
 GAME( 1995, mmancp2ur1,megaman,cps2, sgemf,   cps2, ROT0,   "Capcom", "Mega Man: The Power Battle (CPS2, USA 950926, SAMPLE Version)", 0 )
 GAME( 1995, mmancp2ur2,megaman,cps2, sgemf,   cps2, ROT0,   "Capcom", "Mega Man: The Power Battle (CPS2, USA 950925, SAMPLE Version)", 0 )
