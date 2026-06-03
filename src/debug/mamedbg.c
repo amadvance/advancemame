@@ -76,6 +76,17 @@ int debug_trace_delay = 0;	/* set to 0 to force a screen update */
 UINT8 debugger_bitmap_changed;
 UINT8 debugger_focus;
 
+const char* code_name_up(int k)
+{
+	static char buf[128];
+	int i;
+	const char* name = code_name(k);
+	strcpy(buf, name);
+	for(i = 0;buf[i];++i)
+		buf[i] = toupper(buf[i]);
+	return buf;
+}
+
 /****************************************************************************
  * Limits
  ****************************************************************************/
@@ -2788,7 +2799,7 @@ static void edit_regs( void )
 	set_screen_curpos( win_get_cx_abs(win), win_get_cy_abs(win) );
 
 	i = readkey();
-	k = code_name(i);
+	k = code_name_up(i);
 
 	shift = ( pedit[ regs->idx ].w - 1 - regs->nibble ) * 4;
 	mask = ~(0x0000000f << shift);
@@ -2910,7 +2921,7 @@ static void edit_dasm(void)
 	set_screen_curpos( win_get_cx_abs(win), win_get_cy_abs(win) );
 
 	i = readkey();
-	k = code_name(i);
+	k = code_name_up(i);
 
 	switch( i )
 	{
@@ -2989,7 +3000,7 @@ static void edit_mem( int which )
 	win_set_title( win, name_memory(DBGMEM[which].address) );
 
 	i = readkey();
-	k = code_name(i);
+	k = code_name_up(i);
 
 	shift = (pedit[DBGMEM[which].offset].w - 1 - DBGMEM[which].nibble) * 4;
 	mask = ~(0x0f << shift);
@@ -3264,11 +3275,12 @@ static void edit_cmds(void)
 	cmd = edit_cmds_info();
 
 	i = readkey();
-	k = code_name(i);
+	k = code_name_up(i);
 	l = strlen(k);
 
-	if( l == 1 )
+	if( l == 1 ) {
 		edit_cmds_append(k);
+	}
 
 	switch( i )
 	{
@@ -3436,7 +3448,7 @@ static void cmd_help( void )
 			}
 			else
 			{
-				dst += sprintf( dst, "[%s]\t%s", code_name(commands[i].key), commands[i].info ) + 1;
+				dst += sprintf( dst, "[%s]\t%s", code_name_up(commands[i].key), commands[i].info ) + 1;
 			}
 		}
 	}
@@ -4139,7 +4151,7 @@ static void cmd_search_memory(void)
 		set_screen_curpos( win_get_cx_abs(win), win_get_cy_abs(win) );
 
 		i = readkey();
-		k = code_name(i);
+		k = code_name_up(i);
 
 		shift = (1 - nibble) * 4;
 		mask = ~(0xf << shift);

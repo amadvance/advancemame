@@ -1,6 +1,7 @@
 ./configure --disable-pthread --enable-debugger $@
 
-echo Run with -debug -output window
-echo Press TILDE (upper/left key) to enter debugger
-echo Press ESC to exit the debugger
-echo Press NUMLOCK to get help in the debugger
+echo ""
+echo "Run with -debug -output window"
+echo "Press TILDE (upper/left key) to enter debugger"
+echo "Press ESC to exit the debugger"
+echo "Press NUMLOCK to get help in the debugger"

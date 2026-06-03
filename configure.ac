@@ -1303,10 +1303,6 @@ if test $ac_lib_sdl = yes -o $ac_lib_sdl2 = yes; then
 	echo "SDLLIBS :" $SDLLIBS
 fi
 
-if test ! $ac_with_emu = none ; then
-	echo ""
-	echo "== Configuration =="
-	echo "Emulator :" $ac_with_emu
-	echo "Debugger :" $ac_enable_debugger
-fi
-
+echo ""
+echo "== Configuration =="
+echo "Debugger :" $ac_enable_debugger "(Use ./configure.debugger to enable it)"
