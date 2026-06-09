@@ -1452,6 +1452,13 @@ static MACHINE_DRIVER_START( ldrun3 )
 	MDRV_GFXDECODE(ldrun3_gfxdecodeinfo)
 
 	MDRV_VISIBLE_AREA((64*8-384)/2, 64*8-(64*8-384)/2-1-8, 0*8, 31*8-1)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(tr606_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
 
@@ -1467,6 +1474,13 @@ static MACHINE_DRIVER_START( ldrun4 )
 	MDRV_GFXDECODE(ldrun3_gfxdecodeinfo)
 	MDRV_VIDEO_START(ldrun4)
 	MDRV_VIDEO_UPDATE(ldrun4)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(tr606_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
 
