@@ -2642,6 +2642,10 @@ void osd_update_video_and_audio(mame_display *display)
 #endif
 		);
 
+	if (CONTEXT.input.state.input_forced_exit_flag) {
+		mame_schedule_exit();
+	}
+
 	profiler_mark(PROFILER_END);
 }
 

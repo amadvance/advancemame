@@ -666,6 +666,45 @@ void advance_record_snapshot_update(struct advance_record_context* context, cons
 #endif
 }
 
+void advance_record_debug_snapshot_update(struct advance_record_context* context, unsigned frame, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation)
+{
+	char file[FILE_MAXPATH];
+	adv_fz* f;
+	const mame_game* game = CONTEXT.game;
+	const char* name = game ? mame_game_name(game) : "snap";
+
+#ifdef USE_SMP
+	pthread_mutex_lock(&context->state.access_mutex);
+#endif
+
+	snprintf(file, sizeof(file), "%s/%s_%05u.png", context->config.dir_buffer, name, frame);
+
+	f = fzopen(file, "wb");
+	if (!f) {
+		log_std(("ERROR: opening debug snapshot file %s\n", file));
+#ifdef USE_SMP
+		pthread_mutex_unlock(&context->state.access_mutex);
+#endif
+		return;
+	}
+
+	if (advance_record_png_write(f, video_buffer, video_width, video_height, video_bytes_per_pixel, video_bytes_per_scanline, color_def, palette_map, palette_max, orientation) != 0) {
+		log_std(("ERROR: writing debug snapshot file %s\n", file));
+		fzclose(f);
+		remove(file);
+#ifdef USE_SMP
+		pthread_mutex_unlock(&context->state.access_mutex);
+#endif
+		return;
+	}
+
+	fzclose(f);
+
+#ifdef USE_SMP
+	pthread_mutex_unlock(&context->state.access_mutex);
+#endif
+}
+
 adv_error advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context)
 {
 	sncpy(context->config.dir_buffer, sizeof(context->config.dir_buffer), conf_string_get_default(cfg_context, "dir_snap"));
@@ -674,6 +713,9 @@ adv_error advance_record_config_load(struct advance_record_context* context, adv
 	context->config.video_flag = conf_bool_get_default(cfg_context, "record_video");
 	context->config.sound_flag = conf_bool_get_default(cfg_context, "record_sound");
 	context->config.video_interlace = conf_int_get_default(cfg_context, "record_video_interleave");
+	context->config.debug_snap_step = conf_int_get_default(cfg_context, "debug_snap_step");
+	context->config.debug_exit = conf_int_get_default(cfg_context, "debug_exit");
+	context->state.debug_frame_counter = 0;
 
 	/* override */
 	if (context->config.sound_time == 0) {
@@ -693,6 +735,8 @@ adv_error advance_record_init(struct advance_record_context* context, adv_conf* 
 	conf_bool_register_default(cfg_context, "record_sound", 1);
 	conf_bool_register_default(cfg_context, "record_video", 1);
 	conf_int_register_limit_default(cfg_context, "record_video_interleave", 1, 30, 2);
+	conf_int_register_limit_default(cfg_context, "debug_snap_step", 0, 1000000, 0);
+	conf_int_register_limit_default(cfg_context, "debug_exit", 0, 1000000, 0);
 
 #ifdef USE_SMP
 	if (pthread_mutex_init(&context->state.access_mutex, NULL) != 0)
