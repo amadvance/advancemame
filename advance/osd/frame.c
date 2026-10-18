@@ -2106,6 +2106,43 @@ static void video_frame_game(struct advance_video_context* context, struct advan
 				advance_record_snapshot_update(record_context, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, context->state.game_color_def, context->state.palette_map, context->state.palette_total, context->config.game_orientation);
 			}
 		}
+
+		if (!context->state.pause_flag && (record_context->config.debug_snap_step != 0 || record_context->config.debug_exit != 0)) {
+			if (record_context->config.debug_exit == 0 || record_context->state.debug_frame_counter < record_context->config.debug_exit) {
+				++record_context->state.debug_frame_counter;
+
+				if (record_context->config.debug_snap_step != 0
+					&& (record_context->state.debug_frame_counter % record_context->config.debug_snap_step) == 0) {
+
+					unsigned pos_x = context->state.game_used_pos_x;
+					unsigned pos_y = context->state.game_used_pos_y;
+					unsigned size_x = context->state.game_used_size_x;
+					unsigned size_y = context->state.game_used_size_y;
+					int dp = context->state.game_bytes_per_pixel;
+					int dw = bitmap->bytes_per_scanline;
+					int offset;
+
+					/* restore the original orientation */
+					if ((context->config.blit_orientation & OSD_ORIENTATION_SWAP_XY) != 0) {
+						SWAP(unsigned, pos_x, pos_y);
+						SWAP(unsigned, size_x, size_y);
+					}
+
+					offset = pos_x * dp + pos_y * dw;
+
+					if (context->state.game_rgb_flag) {
+						advance_record_debug_snapshot_update(record_context, record_context->state.debug_frame_counter, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, context->state.game_color_def, 0, 0, context->config.game_orientation);
+					} else {
+						advance_record_debug_snapshot_update(record_context, record_context->state.debug_frame_counter, (unsigned char*)bitmap->ptr + offset, size_x, size_y, dp, dw, context->state.game_color_def, context->state.palette_map, context->state.palette_total, context->config.game_orientation);
+					}
+				}
+
+				if (record_context->config.debug_exit != 0
+					&& record_context->state.debug_frame_counter >= record_context->config.debug_exit) {
+					CONTEXT.input.state.input_forced_exit_flag = 1;
+				}
+			}
+		}
 	}
 }
 

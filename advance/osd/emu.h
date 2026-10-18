@@ -404,6 +404,8 @@ struct advance_record_config_context {
 	adv_bool video_flag; /**< Main activation flag for video recording. */
 	adv_bool sound_flag; /**< Main activation flag for sound recording. */
 	unsigned video_interlace; /**< Interlace factor for the video recording. */
+	unsigned debug_snap_step; /**< Step of frames to snapshot (0 disabled). */
+	unsigned debug_exit; /**< Frame number to automatically exit (0 disabled). */
 };
 
 struct advance_record_state_context {
@@ -427,6 +429,8 @@ struct advance_record_state_context {
 	unsigned video_freq_base; /**< Frequency step value. */
 	adv_bool video_stopped_flag; /**< If the video recording is stopped. */
 
+	unsigned debug_frame_counter; /**< Frame counter for debug features. */
+
 	char sound_file_buffer[FILE_MAXPATH]; /**< Sound file */
 	FILE* sound_f; /**< Sound handle */
 
@@ -448,6 +452,7 @@ adv_error advance_record_config_load(struct advance_record_context* context, adv
 void advance_record_sound_update(struct advance_record_context* context, const short* sample_buffer, unsigned sample_count);
 void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
 void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
+void advance_record_debug_snapshot_update(struct advance_record_context* context, unsigned frame, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
 
 adv_bool advance_record_sound_is_active(struct advance_record_context* context);
 adv_bool advance_record_video_is_active(struct advance_record_context* context);

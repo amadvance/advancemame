@@ -531,6 +531,8 @@ void advance_video_skip(struct advance_video_context* context, struct advance_es
 	if (!context->state.sync_throttle_flag
 		|| advance_record_video_is_active(record_context)
 		|| advance_record_snapshot_is_active(record_context)
+		|| record_context->config.debug_snap_step != 0
+		|| record_context->config.debug_exit != 0
 	) {
 		video_frame_skip_none(context, estimate_context);
 	} else {
