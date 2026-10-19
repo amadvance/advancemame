@@ -1015,6 +1015,11 @@ static MACHINE_DRIVER_START( ffight2b )
 	MDRV_VISIBLE_AREA(0, SNES_SCR_WIDTH-1, 16, SNES_SCR_HEIGHT-1-24)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( ffight3b )
+	MDRV_IMPORT_FROM(kinstb)
+	MDRV_VISIBLE_AREA(0, SNES_SCR_WIDTH-1, 20, 208)
+MACHINE_DRIVER_END
+
 static DRIVER_INIT(kinstb)
 {
 	INT32 i;
@@ -2012,8 +2017,8 @@ GAME( 1996, denseib,      0,         kinstb,	 denseib,   denseib,	ROT0, "bootleg
 GAME( 1996, denseib2,     denseib,   kinstb,	 denseib,   denseib2,	ROT0, "bootleg",    "Ghost Chaser Densei (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, endless,      0,         kinstb,	 iron,      endless,    ROT0, "bootleg",    "Gundam Wing: Endless Duel (SNES bootleg, set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, endlessa,     endless,   kinstb,	 iron,      endless,    ROT0, "bootleg",    "Gundam Wing: Endless Duel (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 199?, ffight3b,     0,         kinstb,     iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 199?, ffight3b2,    ffight3b,  kinstb,     iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 199?, ffight3b,     0,         ffight3b,   iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 199?, ffight3b2,    ffight3b,  ffight3b,   iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, legendsb,     0,         kinstb,     iron,      legendsb,   ROT0, "bootleg",    "Legend (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, rushbets,     0,         ffight2b,   sblast2b,  rushbets,   ROT0, "bootleg",    "Rushing Beat Shura (SNES bootleg)",  GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1997, tmntmwb,      0,         kinstb,     sblast2b,  tmntmwb,    ROT0, "bootleg",    "Teenage Mutant Ninja Turtles - Mutant Warriors (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
