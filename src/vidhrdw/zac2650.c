@@ -5,6 +5,7 @@
 /*************************************************************/
 
 #include "driver.h"
+#include "sound/samples.h"
 
 UINT8 *s2636ram;
 static mame_bitmap *spritebitmap;
@@ -33,6 +34,16 @@ WRITE8_HANDLER( tinvader_videoram_w )
 
 WRITE8_HANDLER( zac_s2636_w )
 {
+	if (offset == 0xc7)
+	{
+		if (data != 0 && data != s2636ram[0xc7])
+		{
+			static int fleet_step = 0;
+			sample_start(3, 3 + (fleet_step & 3), 0);
+			fleet_step++;
+		}
+	}
+
 	if (s2636ram[offset] != data)
     {
 		s2636ram[offset] = data;

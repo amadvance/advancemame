@@ -11,6 +11,7 @@
 #include "driver.h"
 #include "artwork.h"
 #include "cpu/s2650/s2650.h"
+#include "sound/samples.h"
 
 extern UINT8 *s2636ram;
 
@@ -331,6 +332,27 @@ static const gfx_decode tinvader_gfxdecodeinfo[] =
 	{ -1 } /* end of array */
 };
 
+static const char *tinvader_sample_names[] =
+{
+	"*invaders",
+	"1.wav",	/* 0: Shot/Missile */
+	"2.wav",	/* 1: Base Hit/Explosion */
+	"3.wav",	/* 2: Invader Hit */
+	"4.wav",	/* 3: Fleet move 1 */
+	"5.wav",	/* 4: Fleet move 2 */
+	"6.wav",	/* 5: Fleet move 3 */
+	"7.wav",	/* 6: Fleet move 4 */
+	"8.wav",	/* 7: UFO/Saucer Hit */
+	"9.wav",	/* 8: Bonus Base */
+	0
+};
+
+static struct Samplesinterface tinvader_samples_interface =
+{
+	6,	/* 6 channels */
+	tinvader_sample_names
+};
+
 static MACHINE_DRIVER_START( tinvader )
 
 	/* basic machine hardware */
@@ -354,20 +376,38 @@ static MACHINE_DRIVER_START( tinvader )
 	MDRV_VIDEO_UPDATE(tinvader)
 
 	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(tinvader_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
 WRITE8_HANDLER( tinvader_sound_w )
 {
-    /* sounds are NOT the same as space invaders */
+	logerror("Register %x = Data %d\n", data & 0xfe, data & 0x01);
 
-	logerror("Register %x = Data %d\n",data & 0xfe,data & 0x01);
-
-    /* 08 = hit invader */
-    /* 20 = bonus (extra base) */
-    /* 40 = saucer */
-	/* 84 = fire */
-    /* 90 = die */
-    /* c4 = hit saucer */
+	if (data & 0x01)
+	{
+		switch (data & 0xfe)
+		{
+			case 0x84:  /* fire / shot */
+				sample_start(0, 0, 0);
+				break;
+			case 0x90:  /* die / player base hit */
+				sample_start(1, 1, 0);
+				break;
+			case 0x08:  /* hit invader */
+				sample_start(2, 2, 0);
+				break;
+			case 0xc4:  /* hit saucer */
+				sample_start(4, 7, 0);
+				break;
+			case 0x20:  /* bonus base */
+				sample_start(5, 8, 0);
+				break;
+		}
+	}
 }
 
 ROM_START( sia2650 )
@@ -414,6 +454,6 @@ static DRIVER_INIT( tinvader )
 }
 
 
-GAME( 1978, sia2650,  0,       tinvader, sinvader, 0,        ROT270, "Zaccaria/Zelco", "Super Invader Attack", GAME_NO_SOUND )
-GAME( 1978, tinv2650, sia2650, tinvader, tinvader, tinvader, ROT270, "Zaccaria/Zelco", "The Invaders",			GAME_NO_SOUND )
+GAME( 1978, sia2650,  0,       tinvader, sinvader, 0,        ROT270, "Zaccaria/Zelco", "Super Invader Attack", 0 )
+GAME( 1978, tinv2650, sia2650, tinvader, tinvader, tinvader, ROT270, "Zaccaria/Zelco", "The Invaders",			0 )
 GAME( 1979, dodgem,   0,       tinvader, dodgem,   0,        ROT0,   "Zaccaria",		"Dodgem",				GAME_NO_SOUND )
