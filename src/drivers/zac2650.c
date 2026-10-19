@@ -29,10 +29,10 @@ extern VIDEO_UPDATE( tinvader );
 #define PURPLE			MAKE_ARGB(0x04,0xff,0x20,0xff)
 
 OVERLAY_START( tinv2650_overlay )
-	OVERLAY_RECT(   0,   0, 720, 768, WHITE )
-	OVERLAY_RECT(  48,   0, 216, 768, GREEN )
-	OVERLAY_RECT(   0, 144,  48, 402, GREEN )
-	OVERLAY_RECT( 576,   0, 627, 768, PURPLE )
+	OVERLAY_RECT(   0,   0, 720, 256, WHITE )
+	OVERLAY_RECT(  48,   0, 216, 256, GREEN )
+	OVERLAY_RECT(   0,  48,  48, 134, GREEN )
+	OVERLAY_RECT( 576,   0, 627, 256, PURPLE )
 OVERLAY_END
 
 static ADDRESS_MAP_START( readmem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -272,27 +272,24 @@ static PALETTE_INIT( zac2650 )
 
 static const gfx_layout tinvader_character =
 {
-	24,24,
+	24,8,
 	128,
 	1,
 	{ 0 },
 	{ 0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7 },
-   	{ 0*8, 0*8, 0*8, 1*8, 1*8, 1*8, 2*8, 2*8, 2*8, 3*8, 3*8, 3*8, 4*8, 4*8, 4*8,
-	  5*8, 5*8, 5*8, 6*8, 6*8, 6*8, 7*8, 7*8, 7*8 },
+	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
 	8*8
 };
 
 
 static const gfx_layout s2636_character8 =
 {
-	32,30,
+	32,10,
 	16,
 	1,
 	{ 0 },
 	{ 0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7 },
-   	{ 0*8, 0*8, 0*8, 1*8, 1*8, 1*8, 2*8, 2*8, 2*8, 3*8, 3*8, 3*8,
-	  4*8, 4*8, 4*8, 5*8, 5*8, 5*8, 6*8, 6*8, 6*8, 7*8, 7*8, 7*8,
-	  8*8, 8*8, 8*8, 9*8, 9*8, 9*8 	} ,
+	{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8, 8*8, 9*8 },
 	8*8
 };
 
@@ -302,18 +299,15 @@ static const UINT32 s2636_character16_xoffset[64] =
 	4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7
 };
 
-static const UINT32 s2636_character16_yoffset[60] =
+static const UINT32 s2636_character16_yoffset[20] =
 {
-	0*8, 0*8, 0*8, 0*8, 0*8, 0*8, 1*8, 1*8, 1*8, 1*8, 1*8, 1*8,
-	2*8, 2*8, 2*8, 2*8, 2*8, 2*8, 3*8, 3*8, 3*8, 3*8, 3*8, 3*8,
-	4*8, 4*8, 4*8, 4*8, 4*8, 4*8, 5*8, 5*8, 5*8, 5*8, 5*8, 5*8,
-	6*8, 6*8, 6*8, 6*8, 6*8, 6*8, 7*8, 7*8, 7*8, 7*8, 7*8, 7*8,
-	8*8, 8*8, 8*8, 8*8, 8*8, 8*8, 9*8, 9*8, 9*8, 9*8, 9*8, 9*8
+	0*8, 0*8, 1*8, 1*8, 2*8, 2*8, 3*8, 3*8, 4*8, 4*8,
+	5*8, 5*8, 6*8, 6*8, 7*8, 7*8, 8*8, 8*8, 9*8, 9*8
 };
 
 static const gfx_layout s2636_character16 =
 {
-	64,60,
+	64,20,
 	16,
 	1,
 	{ 0 },
@@ -365,8 +359,8 @@ static MACHINE_DRIVER_START( tinvader )
 
 	/* video hardware */
 	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
-	MDRV_SCREEN_SIZE(30*24, 32*24)
-	MDRV_VISIBLE_AREA(0, 719, 0, 767)
+	MDRV_SCREEN_SIZE(30*24, 32*8)
+	MDRV_VISIBLE_AREA(0, 719, 0, 255)
 	MDRV_GFXDECODE(tinvader_gfxdecodeinfo)
 	MDRV_PALETTE_LENGTH(2)
 	MDRV_COLORTABLE_LENGTH(4)
