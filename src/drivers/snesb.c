@@ -1136,6 +1136,64 @@ static DRIVER_INIT( denseib )
 	init_snes_hirom();
 }
 
+static DRIVER_INIT( denseib2 )
+{
+	UINT8 *src = memory_region(REGION_USER7);
+	UINT8 *dst = memory_region(REGION_USER3);
+	INT32 i;
+
+	static const UINT8 address_tab_high[0x40] = {
+		0x0b, 0x1d, 0x05, 0x15, 0x09, 0x19, 0x04, 0x13, 0x02, 0x1f, 0x07, 0x17, 0x0d, 0x11, 0x0a, 0x1a,
+		0x14, 0x0e, 0x18, 0x06, 0x1e, 0x01, 0x10, 0x0c, 0x1b, 0x0f, 0x16, 0x00, 0x12, 0x08, 0x1c, 0x03,
+		0x2b, 0x3d, 0x25, 0x35, 0x29, 0x39, 0x24, 0x33, 0x22, 0x3f, 0x27, 0x37, 0x2d, 0x31, 0x2a, 0x3a,
+		0x34, 0x2e, 0x38, 0x26, 0x3e, 0x21, 0x30, 0x2c, 0x3b, 0x2f, 0x36, 0x20, 0x32, 0x28, 0x3c, 0x23
+	};
+
+	static const UINT8 address_tab_low[0x40] = {
+		0x14, 0x1d, 0x11, 0x3c, 0x0a, 0x29, 0x2d, 0x2e, 0x30, 0x32, 0x16, 0x36, 0x05, 0x25, 0x26, 0x37,
+		0x20, 0x21, 0x27, 0x28, 0x33, 0x34, 0x23, 0x12, 0x1e, 0x1f, 0x3b, 0x24, 0x2c, 0x35, 0x38, 0x39,
+		0x3d, 0x0c, 0x2a, 0x0d, 0x22, 0x18, 0x19, 0x1a, 0x03, 0x08, 0x04, 0x3a, 0x0b, 0x0f, 0x15, 0x17,
+		0x1b, 0x13, 0x00, 0x1c, 0x2b, 0x01, 0x06, 0x2f, 0x07, 0x09, 0x02, 0x31, 0x10, 0x0e, 0x3f, 0x3e
+	};
+
+	static const UINT8 data_high[16] = {
+		0x03, 0x04, 0x85, 0x01, 0x81, 0x87, 0x07, 0x05, 0x86, 0x00, 0x02, 0x82, 0x84, 0x83, 0x06, 0x80
+	};
+
+	static const UINT8 data_low[16] = {
+		0x30, 0x40, 0x58, 0x10, 0x18, 0x78, 0x70, 0x50, 0x68, 0x00, 0x20, 0x28, 0x48, 0x38, 0x60, 0x08
+	};
+
+	for (i = 0; i < 0x200000; i++)
+	{
+		int j = (address_tab_high[i >> 15] << 15) + (i & 0x7fc0) + address_tab_low[i & 0x3f];
+
+		dst[i] = data_high[src[j] >> 4] | data_low[src[j] & 0xf];
+
+		if (i >= 0x00000 && i < 0x10000)
+			dst[i] = BITSWAP8(dst[i], 2, 1, 3, 0, 7, 4, 5, 6) ^ 0xff;
+
+		if (i >= 0x10000 && i < 0x20000)
+			dst[i] = BITSWAP8(dst[i], 1, 7, 4, 5, 6, 0, 3, 2);
+
+		if (i >= 0x20000 && i < 0x30000)
+			dst[i] = BITSWAP8(dst[i], 0, 2, 6, 7, 5, 3, 4, 1) ^ 0xff;
+
+		if (i >= 0x30000 && i < 0x40000)
+			dst[i] = BITSWAP8(dst[i], 6, 5, 0, 3, 1, 7, 2, 4) ^ 0xff;
+	}
+
+	/* boot vector */
+	dst[0xfffc] = 0x40;
+	dst[0xfffd] = 0xf7;
+
+	/* extra inputs */
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770071, 0x770071, 0, 0, denseib_770071_r);
+	memory_install_read8_handler(0, ADDRESS_SPACE_PROGRAM, 0x770079, 0x770079, 0, 0, denseib_770079_r);
+
+	init_snes_hirom();
+}
+
 static const UINT8 data_substitution0[] = {0x88,0x02,0x2a,0x08,0x28,0xaa,0x8a,0x0a,0xa2,0x00,0x80,0xa0,0x22,0xa8,0x82,0x20,};
 static const UINT8 data_substitution1[] = {0x44,0x01,0x51,0x40,0x50,0x55,0x45,0x41,0x15,0x00,0x04,0x14,0x11,0x54,0x05,0x10,};
 static const UINT8 address_substitution_low[] = 
@@ -1843,6 +1901,21 @@ ROM_START( denseib )
 	ROM_REGION(0x800,     REGION_USER6, ROMREGION_ERASEFF)
 ROM_END
 
+ROM_START( denseib2 )
+	ROM_REGION( 0x200000, REGION_USER3, ROMREGION_ERASEFF )
+
+	ROM_REGION(0x100,     REGION_USER5, 0)
+	ROM_LOAD("spc700.rom", 0, 0x40, CRC(44bb3a40) SHA1(97e352553e94242ae823547cd853eecda55c20f0) )
+
+	ROM_REGION(0x800,     REGION_USER6, ROMREGION_ERASEFF)
+
+	ROM_REGION( 0x200000, REGION_USER7, ROMREGION_DISPOSE )
+	ROM_LOAD( "u31.bin", 0x000000, 0x080000, CRC(834723a8) SHA1(3f56bba5017f77147e7d52618678f1e2eff4991b) )
+	ROM_LOAD( "u32.bin", 0x080000, 0x080000, CRC(9748e86b) SHA1(68a62e0961d735602ae6ebd1aca5990c588ccbb1) )
+	ROM_LOAD( "u33.bin", 0x100000, 0x080000, CRC(abcc6b61) SHA1(ef90f23b674f6dd36b3d60c9c395a1d4bc853798) )
+	ROM_LOAD( "u34.bin", 0x180000, 0x080000, CRC(0a16ac96) SHA1(ddc11009d4b35a151aa7e357346f3ac109e112ef) )
+ROM_END
+
 ROM_START( endless )
 	ROM_REGION( 0x400000, REGION_USER3, ROMREGION_ERASEFF )
 
@@ -1856,6 +1929,21 @@ ROM_START( endless )
 	ROM_LOAD( "endlessduel.unknownposition2", 0x080000, 0x80000, CRC(ad2052f9) SHA1(d61382e3d93eb0bff45fb534cec0ce5ae3626165) )
 	ROM_LOAD( "endlessduel.unknownposition3", 0x100000, 0x80000, CRC(30d06d7a) SHA1(17c617d94abb10c3bdf9d51013b116f4ef4debe8) )
 	ROM_LOAD( "endlessduel.unknownposition4", 0x180000, 0x80000, CRC(9a9493ad) SHA1(82ee4fce9cc2014cb8404fd43eebb7941cdb9ac1) )
+ROM_END
+
+ROM_START( endlessa )
+	ROM_REGION( 0x400000, REGION_USER3, ROMREGION_ERASEFF )
+
+	ROM_REGION(0x100,     REGION_USER5, 0)
+	ROM_LOAD("spc700.rom", 0, 0x40, CRC(44bb3a40) SHA1(97e352553e94242ae823547cd853eecda55c20f0) )
+
+	ROM_REGION(0x800,     REGION_USER6, ROMREGION_ERASEFF)
+
+	ROM_REGION( 0x200000, REGION_USER7, ROMREGION_DISPOSE )
+	ROM_LOAD( "gundam wing endless duel.c23", 0x000000, 0x80000, CRC(e49acd29) SHA1(ac137261fe7a7691738ac812bea9591256eb9038) )
+	ROM_LOAD( "gundam wing endless duel.c20", 0x080000, 0x80000, CRC(cf22a554) SHA1(86a31c83a1d28038c334949e82182c07010ccb3c) )
+	ROM_LOAD( "gundam wing endless duel.c22", 0x100000, 0x80000, CRC(30d06d7a) SHA1(17c617d94abb10c3bdf9d51013b116f4ef4debe8) )
+	ROM_LOAD( "gundam wing endless duel.c21", 0x180000, 0x80000, CRC(0cc430c0) SHA1(fb36359e7e3919244c47a6da43f31dc2a79fcba6) )
 ROM_END
 
 ROM_START( rushbets )
@@ -1920,8 +2008,10 @@ GAME( 199?, kinstb,       0,         kinstb,	 kinstb,    kinstb,	ROT0, "bootleg"
 GAME( 1996, ffight2b,     0,         ffight2b,	 ffight2b,  ffight2b,	ROT0, "bootleg",    "Final Fight 2 (SNES bootleg)", GAME_IMPERFECT_SOUND )
 GAME( 1997, sblast2b,     0,         kinstb,	 sblast2b,  sblast2b,	ROT0, "bootleg",    "Sonic Blast Man TURBO 2 (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_SOUND )
 GAME( 1996, iron,         0,         kinstb,	 iron,      iron,	ROT0, "bootleg",    "Iron (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, denseib,      0,         kinstb,	 denseib,   denseib,	ROT0, "bootleg",    "Ghost Chaser Densei (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
-GAME( 1996, endless,      0,         kinstb,	 iron,      endless,    ROT0, "bootleg",    "Gundam Wing: Endless Duel (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, denseib,      0,         kinstb,	 denseib,   denseib,	ROT0, "bootleg",    "Ghost Chaser Densei (SNES bootleg, set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, denseib2,     denseib,   kinstb,	 denseib,   denseib2,	ROT0, "bootleg",    "Ghost Chaser Densei (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, endless,      0,         kinstb,	 iron,      endless,    ROT0, "bootleg",    "Gundam Wing: Endless Duel (SNES bootleg, set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
+GAME( 1996, endlessa,     endless,   kinstb,	 iron,      endless,    ROT0, "bootleg",    "Gundam Wing: Endless Duel (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 199?, ffight3b,     0,         kinstb,     iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 1)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 199?, ffight3b2,    ffight3b,  kinstb,     iron,      ffight3b,   ROT0, "bootleg",    "Final Fight 3 (SNES bootleg, set 2)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
 GAME( 1996, legendsb,     0,         kinstb,     iron,      legendsb,   ROT0, "bootleg",    "Legend (SNES bootleg)", GAME_IMPERFECT_SOUND | GAME_IMPERFECT_GRAPHICS )
