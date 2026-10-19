@@ -173,6 +173,8 @@ static struct
 	{ "gdariusb", tt01, tt07 }, /* OK */
 	{ "gdarius2", tt01, tt07 }, /* OK */
 	{ "taitogn",  tt10, tt16 }, /* shows gnet logo */
+	{ "aerofgts", kn01, kn02 }, /* OK */
+	{ "aerofgtst",kn01, kn02 }, /* OK */
 	{ "sncwgltd", kn01, kn02 }, /* OK */
 	{ NULL, NULL, NULL }
 };
@@ -2643,28 +2645,66 @@ Key:    Mother    KN01
 
 static WRITE32_HANDLER( coh1002v_bnk_w )
 {
-	memory_set_bankptr( 2, memory_region( REGION_USER3 ) + ( data * 0x100000 ) );
+	UINT8 *region = memory_region( REGION_USER3 );
+	if( region )
+	{
+		memory_set_bankptr( 2, region + ( data * 0x100000 ) );
+	}
 }
 
 DRIVER_INIT( coh1002v )
 {
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1f000000, 0x1f27ffff, 0, 0, MRA32_BANK1 );
-	memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00000, 0x1fbfffff, 0, 0, MRA32_BANK2 );
-	memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00000, 0x1fb00003, 0, 0, coh1002v_bnk_w );
+	if( memory_region( REGION_USER2 ) )
+	{
+		memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1f000000, 0x1f27ffff, 0, 0, MRA32_BANK1 );
+	}
+	if( memory_region( REGION_USER3 ) )
+	{
+		memory_install_read32_handler ( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00000, 0x1fbfffff, 0, 0, MRA32_BANK2 );
+		memory_install_write32_handler( 0, ADDRESS_SPACE_PROGRAM, 0x1fb00000, 0x1fb00003, 0, 0, coh1002v_bnk_w );
+	}
 
 	zn_driver_init();
 }
 
 MACHINE_RESET( coh1002v )
 {
-	memory_set_bankptr( 1, memory_region( REGION_USER2 ) ); /* fixed game rom */
-	memory_set_bankptr( 2, memory_region( REGION_USER3 ) ); /* banked rom */
+	if( memory_region( REGION_USER2 ) )
+	{
+		memory_set_bankptr( 1, memory_region( REGION_USER2 ) ); /* fixed game rom */
+	}
+	if( memory_region( REGION_USER3 ) )
+	{
+		memory_set_bankptr( 2, memory_region( REGION_USER3 ) ); /* banked rom */
+	}
 	zn_machine_init();
 }
 
 INTERRUPT_GEN( coh1002v_vblank )
 {
 	/* kludge: to stop dropping into test mode on bootup */
+	if(strcmp( Machine->gamedrv->name, "aerofgts" ) == 0 )
+	{
+		if (psxreadbyte(0x0db4d6) == 0)
+		{
+			psxwritebyte(0x0db4d6, 1);
+		}
+		if (psxreadbyte(0x0db4d7) == 0)
+		{
+			psxwritebyte(0x0db4d7, 1);
+		}
+	}
+	if(strcmp( Machine->gamedrv->name, "aerofgtst" ) == 0 )
+	{
+		if (psxreadbyte(0x0db49a) == 0)
+		{
+			psxwritebyte(0x0db49a, 1);
+		}
+		if (psxreadbyte(0x0db49b) == 0)
+		{
+			psxwritebyte(0x0db49b, 1);
+		}
+	}
 	if(strcmp( Machine->gamedrv->name, "sncwgltd" ) == 0 )
 	{
 		if (psxreadbyte(0x0db422) == 0)
@@ -3102,7 +3142,7 @@ INPUT_PORTS_START( zn )
 	PORT_START		/* IN6 */
 	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNKNOWN )
 
-	PORT_START		/* IN7 */
+	PORT_START_TAG("DSW")		/* IN7 */
 	PORT_DIPNAME( 0x01, 0x01, "Freeze" )
 	PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
@@ -3115,6 +3155,18 @@ INPUT_PORTS_START( zn )
 	PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
 	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
 	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+INPUT_PORTS_END
+
+INPUT_PORTS_START( aerofgts )
+	PORT_INCLUDE( zn )
+
+	PORT_MODIFY("DSW")
+	PORT_DIPNAME( 0x04, 0x04, "Test Mode" )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, "Save" )
+	PORT_DIPSETTING(    0x08, DEF_STR( Yes ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( No ) )
 INPUT_PORTS_END
 
 
@@ -4009,7 +4061,49 @@ ROM_END
 
 #define KN_BIOS \
 	ROM_REGION32_LE( 0x080000, REGION_USER1, 0 ) \
-	ROM_LOAD( "coh-1002v.353", 0x0000000, 0x080000, CRC(5ff165f3) SHA1(8f59314c1093446b9bcb06d232244da6df78e206) )
+	ROM_LOAD( "coh-1002v.ic353", 0x0000000, 0x080000, CRC(5ff165f3) SHA1(8f59314c1093446b9bcb06d232244da6df78e206) )
+
+ROM_START( coh1002v )
+	KN_BIOS
+ROM_END
+
+ROM_START( aerofgts )
+	KN_BIOS
+
+	ROM_REGION32_LE( 0x0280000, REGION_USER2, 0 )
+	ROM_LOAD( "1-8_prog0_usa_aa9e.ic5", 0x0000000, 0x080000, CRC(d15a4904) SHA1(4e329f56584df4b057b56e21f0230dda4ec46bcf) )
+	ROM_LOAD( "1-8_prog1_usa_0a1e.ic6", 0x0080000, 0x080000, CRC(d6625176) SHA1(018bba263effda1a0b64023aa08b384f0590245b) )
+	ROM_LOAD( "1-8_prog2_usa_c4b3.ic7", 0x0100000, 0x080000, CRC(df5ba2f7) SHA1(19153084e7cff632380b67a2fff800644a2fbf7d) )
+	ROM_LOAD( "1-8_prog3_usa_e1d8.ic8", 0x0180000, 0x080000, CRC(8711574a) SHA1(d02a9dac78ee468985c2f2c8d3b9a588f6fc7c02) )
+	ROM_LOAD( "1-8_prog4_usa_9127.ic9", 0x0200000, 0x080000, CRC(670d9b27) SHA1(a4bca91c36d06cb0663d2478096bbc1668e01d60) )
+
+	ROM_REGION32_LE( 0x1800000, REGION_USER3, 0 )
+	ROM_LOAD( "ic11.bin",     0x0000000, 0x400000, CRC(a93f6fee) SHA1(6f079643b50833f8fb497c49945ad23326cc9170) )
+	ROM_LOAD( "ic12.bin",     0x0400000, 0x400000, CRC(9f584ef7) SHA1(12c04e198f17d1915f58e83aff45ca2e76773df8) )
+	ROM_LOAD( "ic13.bin",     0x0800000, 0x400000, CRC(652e9c78) SHA1(a929b2944de72606338acb822c1031463e2b1cc5) )
+	ROM_LOAD( "ic14.bin",     0x0c00000, 0x400000, CRC(c4ef1424) SHA1(1734a6ee6d0be94d24afefcf2a125b74747f53d0) )
+	ROM_LOAD( "ic15.bin",     0x1000000, 0x400000, CRC(2551d816) SHA1(e1500d4bfa8cc55220c366a5852263ac2070da82) )
+	ROM_LOAD( "ic16.bin",     0x1400000, 0x400000, CRC(21b401bc) SHA1(89374b80453c474aa1dd3a219422f557f95a262c) )
+ROM_END
+
+ROM_START( aerofgtst )
+	KN_BIOS
+
+	ROM_REGION32_LE( 0x0280000, REGION_USER2, 0 )
+	ROM_LOAD( "vs.ic5",       0x0000000, 0x080000, CRC(453dd514) SHA1(189fe5598485de160f5c0add90235ed63ed92747) )
+	ROM_LOAD( "vs.ic6",       0x0080000, 0x080000, CRC(24257295) SHA1(fe6d969c407f2c26c3af2a2a5015dc83b1675e9a) )
+	ROM_LOAD( "vs.ic7",       0x0100000, 0x080000, CRC(df5ba2f7) SHA1(19153084e7cff632380b67a2fff800644a2fbf7d) )
+	ROM_LOAD( "vs.ic8",       0x0180000, 0x080000, CRC(df638f92) SHA1(5704eed2ef798a91a0398948af0324955ec38534) )
+	ROM_LOAD( "vs.ic9",       0x0200000, 0x080000, CRC(1294aa24) SHA1(07ca2cc3f117cfd48d2ca558d9435a3fc238c0fe) )
+
+	ROM_REGION32_LE( 0x1800000, REGION_USER3, 0 )
+	ROM_LOAD( "ic11.bin",     0x0000000, 0x400000, CRC(a93f6fee) SHA1(6f079643b50833f8fb497c49945ad23326cc9170) )
+	ROM_LOAD( "ic12.bin",     0x0400000, 0x400000, CRC(9f584ef7) SHA1(12c04e198f17d1915f58e83aff45ca2e76773df8) )
+	ROM_LOAD( "ic13.bin",     0x0800000, 0x400000, CRC(652e9c78) SHA1(a929b2944de72606338acb822c1031463e2b1cc5) )
+	ROM_LOAD( "ic14.bin",     0x0c00000, 0x400000, CRC(c4ef1424) SHA1(1734a6ee6d0be94d24afefcf2a125b74747f53d0) )
+	ROM_LOAD( "ic15.bin",     0x1000000, 0x400000, CRC(2551d816) SHA1(e1500d4bfa8cc55220c366a5852263ac2070da82) )
+	ROM_LOAD( "ic16.bin",     0x1400000, 0x400000, CRC(21b401bc) SHA1(89374b80453c474aa1dd3a219422f557f95a262c) )
+ROM_END
 
 ROM_START( sncwgltd )
 	KN_BIOS
@@ -4592,8 +4686,14 @@ GAME( 2001, mfjump,   tps,      coh1002m, zn, coh1002m, ROT0, "Tecmo", "Monster 
 
 /* Video System */
 
-/* only one game dumped on this system, so coh-1002v.353 is included in the game zip file */
-GAME( 1996, sncwgltd, 0,        coh1002v, zn, coh1002v, ROT270, "Video System", "Sonic Wings Limited (JAPAN)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+/* A dummy driver, so that the bios can be debugged, and to serve as */
+/* parent for the coh-1002v.ic353 file, so that we do not have to include */
+/* it in every zip file */
+GAME( 1996, coh1002v, 0,        coh1002v, zn,       coh1002v, ROT0,   "Video System Co.", "Video System PSX", NOT_A_DRIVER )
+
+GAME( 1996, aerofgts, coh1002v, coh1002v, aerofgts, coh1002v, ROT270, "McO'River, Inc.",  "Aero Fighters Special (USA)",    GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1996, aerofgtst,aerofgts, coh1002v, aerofgts, coh1002v, ROT270, "Video System Co.", "Aero Fighters Special (Taiwan)", GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
+GAME( 1996, sncwgltd, aerofgts, coh1002v, aerofgts, coh1002v, ROT270, "Video System Co.", "Sonic Wings Limited (Japan)",    GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND )
 
 /* Taito */
 
