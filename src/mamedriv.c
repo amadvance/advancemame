@@ -2795,7 +2795,10 @@ V-V                           TP-027
 	DRIVER( jdreddb )	/* Judge Dredd (Rev B) */
 
 	/* Video System ZN1 */
-	DRIVER( sncwgltd )	/* Sonic Wings Limited (JAPAN) */
+	DRIVER( coh1002v )	/* Video System PSX */
+	DRIVER( aerofgts )	/* Aero Fighters Special (USA) */
+	DRIVER( aerofgtst )	/* Aero Fighters Special (Taiwan) */
+	DRIVER( sncwgltd )	/* Sonic Wings Limited (Japan) */
 
 	/* Taito FX1a */
 	DRIVER( taitofx1 )
