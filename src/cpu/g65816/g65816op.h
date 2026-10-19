@@ -444,6 +444,7 @@ INLINE void g65816i_check_maskable_interrupt(void)
 	if(!(CPU_STOPPED & STOP_LEVEL_STOP) && LINE_IRQ && !FLAG_I)
 	{
 		g65816i_interrupt_hardware(VECTOR_IRQ);
+		CPU_STOPPED &= ~STOP_LEVEL_WAI;
 		LINE_IRQ=0;
 	}
 }
@@ -2342,6 +2343,9 @@ INLINE int g65816i_correct_mode(void)
 
 TABLE_FUNCTION(int, execute, (int clocks))
 {
+	// do a check here also in case we're in STOP_WAI mode - this'll clear it when the IRQ happens
+	g65816i_check_maskable_interrupt();
+
 	if(!CPU_STOPPED)
 	{
 		CLOCKS = clocks;
