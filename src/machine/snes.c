@@ -42,8 +42,6 @@ static mame_timer *snes_hblank_timer;
 static mame_timer *snes_nmi_timer;
 static mame_timer *snes_hirq_timer;
 static double hblank_offset;
-UINT32 ffight2b_skip_frame = 0;
-UINT32 ffight2b_hack = 0;
 
 // full graphic variables
 static UINT16 vram_fgr_high, vram_fgr_increment, vram_fgr_count, vram_fgr_mask, vram_fgr_shift, vram_read_buffer;
@@ -161,8 +159,6 @@ static void snes_scanline_tick(int ref)
 			// NMI goes off about 12 cycles after this (otherwise Chrono Trigger, NFL QB Club, etc. lock up)
 			timer_adjust(snes_nmi_timer, TIME_IN_CYCLES(12, 0), 0, TIME_NEVER);
 		}
-
-		ffight2b_skip_frame = 1;
 	}
 
 	// hdma reset happens at scanline 0, H=~6
@@ -334,10 +330,6 @@ static void snes_init_ram(void)
 	else
 	{
 		snes_ppu.beam.current_vert = SNES_MAX_LINES_PAL;
-	}
-
-	if (strcmp(Machine->gamedrv->name, "ffight2b") == 0 || strcmp(Machine->gamedrv->name, "rushbets") == 0) {
-		ffight2b_hack = 1;
 	}
 }
 
@@ -1256,7 +1248,6 @@ WRITE8_HANDLER( snes_w_io )
 			break;
 		case TM:		/* Main screen designation */
 		case TS:		/* Subscreen designation */
-			ffight2b_skip_frame = 0;
 			break;
 		case TMW:		/* Window mask for main screen designation */
 		case TSW:		/* Window mask for subscreen designation */
@@ -1384,7 +1375,10 @@ WRITE8_HANDLER( snes_w_io )
 			data = 0;	/* Once DMA is done we need to reset all bits to 0 */
 			break;
 		case HDMAEN:	/* HDMA channel designation */
-			break;
+			snes_ram[HDMAEN] = data;
+			if (data)
+				snes_hdma_init();
+			return;
 		case MEMSEL:	/* Access cycle designation in memory (2) area */
 			/* FIXME: Need to adjust the speed only during access of banks 0x80+
              * Currently we are just increasing it no matter what */
