@@ -715,6 +715,7 @@ adv_error advance_record_config_load(struct advance_record_context* context, adv
 	context->config.video_interlace = conf_int_get_default(cfg_context, "record_video_interleave");
 	context->config.debug_snap_step = conf_int_get_default(cfg_context, "debug_snap_step");
 	context->config.debug_exit = conf_int_get_default(cfg_context, "debug_exit");
+	context->config.debug_cpu = conf_int_get_default(cfg_context, "debug_cpu");
 	context->state.debug_frame_counter = 0;
 
 	/* override */
@@ -737,6 +738,7 @@ adv_error advance_record_init(struct advance_record_context* context, adv_conf* 
 	conf_int_register_limit_default(cfg_context, "record_video_interleave", 1, 30, 2);
 	conf_int_register_limit_default(cfg_context, "debug_snap_step", 0, 1000000, 0);
 	conf_int_register_limit_default(cfg_context, "debug_exit", 0, 1000000, 0);
+	conf_int_register_limit_default(cfg_context, "debug_cpu", -2, 16, -2);
 
 #ifdef USE_SMP
 	if (pthread_mutex_init(&context->state.access_mutex, NULL) != 0)

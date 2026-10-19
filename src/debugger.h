@@ -27,9 +27,11 @@
 #endif
 
 
-/* handy macro for CPU cores */
 #ifdef MAME_DEBUG
-#define CALL_MAME_DEBUG			if (Machine->debug_mode) mame_debug_hook();
+extern int debug_cpu_active;
+void debug_cpu_hook(void);
+
+#define CALL_MAME_DEBUG			do { if (Machine->debug_mode) mame_debug_hook(); else if (debug_cpu_active >= -1) debug_cpu_hook(); } while (0)
 #else
 #define CALL_MAME_DEBUG
 #endif
