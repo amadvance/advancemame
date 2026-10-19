@@ -109,6 +109,36 @@ Run official MAME with a limited execution duration:
 #### 2. Comparing with AdvanceMAME
 Log instructions or register state in AdvanceMAME (e.g., via debug logging in the CPU core or driver memory handlers) and compare the trace logs side-by-side using `diff` or head-to-head text comparison. This quickly pinpoints the exact branch condition, unmapped memory read, or protection check where AdvanceMAME diverges.
 
+### Simulating Inputs & Snapshots in Official MAME (-autoboot_script)
+Official MAME (`/usr/local/bin/mame`) supports automated Lua scripting via `-autoboot_script <script.lua>`. This allows simulating coin insertion, start/directional inputs, and capturing reference snapshots at specific frames for head-to-head visual comparison with AdvanceMAME:
+
+1. Create a Lua script (e.g. `/tmp/test_mame.lua`):
+```lua
+local frame = 0
+emu.register_frame_done(function()
+    frame = frame + 1
+    -- Insert coin at frame 300, release at frame 310
+    if frame == 300 then
+        manager.machine.ioport.ports[":SYSTEM"]:field(0x10):set_value(1)
+    end
+    if frame == 310 then
+        manager.machine.ioport.ports[":SYSTEM"]:field(0x10):set_value(0)
+    end
+    -- Take screenshot at frame 340
+    if frame == 340 then
+        manager.machine.video:snapshot()
+    end
+end)
+```
+
+2. Run official MAME with the script:
+```bash
+/usr/local/bin/mame <driver_name> -rompath "/extra/advmame/rom;/extra/mame271/rom" -autoboot_script /tmp/test_mame.lua -seconds_to_run 6 -window -nomaximize -snapname /tmp/mame_test
+```
+
+> [!TIP]
+> To find the exact input port tag (e.g. `":SYSTEM"`, `":IN0"`, `":DSW"`) and field bitmask (e.g. `0x10` for `IPT_COIN1`), inspect the driver's `INPUT_PORTS_START` macro in `resource/mamegit/`.
+
 ---
 
 ## 5. Backporting Guidelines (Modern MAME -> AdvanceMAME)
