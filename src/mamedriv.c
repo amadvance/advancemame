@@ -1528,13 +1528,17 @@ const game_driver * const drivers[] =
 	DRIVER( undoukai )	/* A17 (c) 1984 Taito */
 	DRIVER( 40love )	/* A30 (c) 1984 Taito */
 	DRIVER( tsamurai )	/* A35 (c) 1985 Taito */
-	DRIVER( tsamura2 )	/* A35 (c) 1985 Taito */
+	DRIVER( tsamurai2 )	/* A35 (c) 1985 Taito */
+	DRIVER( tsamuraih )	/* bootleg */
+	DRIVER( ladymstr )	/* A49 (c) 1985 Taito */
+	DRIVER( ladymstr2 )	/* A49 (c) 1985 Taito */
 	DRIVER( nunchaku )	/* ??? (c) 1985 Taito */
 	DRIVER( yamagchi )	/* A38 (c) 1985 Taito */
 	DRIVER( m660 )		/* ??? (c) 1986 Taito America Corporation */
 	DRIVER( m660j )		/* ??? (c) 1986 Taito Corporation (Japan) */
 	DRIVER( m660b )		/* bootleg */
 	DRIVER( alphaxz )	/* ??? (c) 1986 Ed/Wood Place */
+	DRIVER( the26thz )	/* A72 (c) 1986 Ed/Taito */
 	DRIVER( buggychl )	/* A22 (c) 1984 Taito Corporation */
 	DRIVER( buggycht )	/* A22 (c) 1984 Taito Corporation + Tefri license */
 	DRIVER( ssrj )		/* A40 (c) 1985 Taito Corporation */
