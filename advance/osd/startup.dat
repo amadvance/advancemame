@@ -30,6 +30,8 @@
 
 /* the first match is used */
 
+{ "targeth", 30 }, /* 6.0 */
+{ "tokkae", 15 }, /* 6.0 */
 { "doubled1", 14 }, /* 6.0 */
 { "sfz2al", 8 }, /* 6.0 */
 { "pzloop2", 12 }, /* 6.0 */
