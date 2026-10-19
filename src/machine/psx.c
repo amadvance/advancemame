@@ -210,13 +210,13 @@ void dma_finished( int n_channel )
 				if( n_address == 0xffffff )
 				{
 					m_p_n_dmabase[ n_channel ] = n_address;
-					dma_start_timer( n_channel, 19000 );
+					dma_start_timer( n_channel, 500 );
 					return;
 				}
 				if( n_total > 65535 )
 				{
 					m_p_n_dmabase[ n_channel ] = n_address;
-					dma_start_timer( n_channel, 16 );
+					dma_start_timer( n_channel, 16000 );
 					return;
 				}
 				n_address &= n_adrmask;

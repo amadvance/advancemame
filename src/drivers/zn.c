@@ -2648,7 +2648,7 @@ static WRITE32_HANDLER( coh1002v_bnk_w )
 	UINT8 *region = memory_region( REGION_USER3 );
 	if( region )
 	{
-		memory_set_bankptr( 2, region + ( data * 0x100000 ) );
+		memory_set_bankptr( 2, region + ( ( data & 0xff ) * 0x100000 ) );
 	}
 }
 
