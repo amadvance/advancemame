@@ -839,6 +839,108 @@ static int r2play_prepare_and_decrypt_sprites(UINT8 *rom)
 	return 0;
 }
 
+static const UINT8 rotate_zt[256] = {
+	0x0a, 0x0a, 0x0b, 0x0e, 0x02, 0x12, 0x0d, 0x16, 0x01, 0x1b, 0x08, 0x15, 0x03, 0x14, 0x0f, 0x1f,
+	0x10, 0x1d, 0x03, 0x0b, 0x16, 0x07, 0x10, 0x19, 0x1f, 0x1c, 0x03, 0x0b, 0x15, 0x0d, 0x00, 0x14,
+	0x15, 0x0d, 0x0c, 0x1b, 0x18, 0x18, 0x0b, 0x1b, 0x16, 0x17, 0x01, 0x0e, 0x14, 0x0c, 0x1e, 0x13,
+	0x13, 0x12, 0x19, 0x0b, 0x1b, 0x1a, 0x0d, 0x04, 0x00, 0x00, 0x12, 0x06, 0x0f, 0x1c, 0x19, 0x1b,
+	0x01, 0x04, 0x15, 0x1c, 0x02, 0x13, 0x0f, 0x09, 0x1c, 0x05, 0x09, 0x05, 0x0d, 0x17, 0x13, 0x1f,
+	0x17, 0x19, 0x0f, 0x04, 0x05, 0x03, 0x0c, 0x03, 0x13, 0x02, 0x09, 0x0d, 0x1d, 0x1a, 0x02, 0x0d,
+	0x0d, 0x0f, 0x13, 0x1c, 0x05, 0x03, 0x09, 0x08, 0x03, 0x1d, 0x05, 0x1f, 0x0b, 0x15, 0x06, 0x10,
+	0x0c, 0x15, 0x18, 0x0c, 0x18, 0x1f, 0x1d, 0x1d, 0x1d, 0x0e, 0x1f, 0x0c, 0x14, 0x0d, 0x0a, 0x08,
+	0x0f, 0x12, 0x08, 0x06, 0x0d, 0x1d, 0x19, 0x1e, 0x1c, 0x08, 0x09, 0x1e, 0x1a, 0x14, 0x08, 0x17,
+	0x11, 0x0e, 0x1a, 0x18, 0x01, 0x08, 0x05, 0x01, 0x06, 0x1e, 0x15, 0x1d, 0x0c, 0x09, 0x1b, 0x07,
+	0x12, 0x00, 0x0c, 0x05, 0x03, 0x08, 0x19, 0x09, 0x09, 0x06, 0x13, 0x12, 0x0b, 0x1a, 0x09, 0x09,
+	0x03, 0x09, 0x00, 0x07, 0x1c, 0x10, 0x14, 0x01, 0x17, 0x03, 0x05, 0x11, 0x1e, 0x12, 0x14, 0x19,
+	0x10, 0x10, 0x08, 0x08, 0x07, 0x0c, 0x12, 0x1f, 0x02, 0x08, 0x1f, 0x14, 0x1e, 0x14, 0x02, 0x13,
+	0x04, 0x10, 0x1e, 0x08, 0x0b, 0x14, 0x19, 0x1a, 0x07, 0x1c, 0x13, 0x07, 0x10, 0x14, 0x15, 0x1e,
+	0x18, 0x0a, 0x0c, 0x1f, 0x0e, 0x05, 0x11, 0x08, 0x04, 0x06, 0x12, 0x0c, 0x00, 0x04, 0x0b, 0x07,
+	0x14, 0x0a, 0x0c, 0x16, 0x02, 0x0a, 0x0f, 0x0d, 0x0c, 0x1d, 0x1e, 0x13, 0x0a, 0x08, 0x12, 0x0b
+};
+
+static const UINT8 x5_zt[256] = {
+	0x0d, 0x14, 0x13, 0x1b, 0x1a, 0x05, 0x1a, 0x05, 0x1b, 0x17, 0x0d, 0x0f, 0x00, 0x17, 0x09, 0x04,
+	0x13, 0x0f, 0x14, 0x17, 0x14, 0x0f, 0x1b, 0x0a, 0x0a, 0x15, 0x07, 0x0b, 0x0e, 0x05, 0x18, 0x12,
+	0x1c, 0x01, 0x17, 0x02, 0x04, 0x00, 0x06, 0x12, 0x00, 0x0a, 0x1c, 0x19, 0x10, 0x1b, 0x16, 0x03,
+	0x1c, 0x13, 0x16, 0x13, 0x15, 0x1d, 0x04, 0x14, 0x17, 0x1d, 0x01, 0x03, 0x1f, 0x1f, 0x1a, 0x10,
+	0x08, 0x0c, 0x09, 0x16, 0x04, 0x19, 0x03, 0x14, 0x0c, 0x1d, 0x09, 0x08, 0x00, 0x1c, 0x0b, 0x18,
+	0x1b, 0x00, 0x16, 0x0f, 0x0b, 0x1c, 0x0d, 0x16, 0x09, 0x15, 0x0c, 0x01, 0x18, 0x04, 0x04, 0x03,
+	0x11, 0x0f, 0x03, 0x17, 0x04, 0x0a, 0x05, 0x1b, 0x08, 0x07, 0x0e, 0x08, 0x06, 0x16, 0x0f, 0x0d,
+	0x0a, 0x14, 0x0a, 0x11, 0x14, 0x02, 0x08, 0x1f, 0x0e, 0x13, 0x0e, 0x02, 0x08, 0x13, 0x04, 0x19,
+	0x0e, 0x00, 0x01, 0x1d, 0x02, 0x19, 0x08, 0x1c, 0x13, 0x09, 0x11, 0x14, 0x1e, 0x04, 0x03, 0x18,
+	0x1f, 0x05, 0x0f, 0x03, 0x09, 0x0d, 0x12, 0x0f, 0x0d, 0x0e, 0x15, 0x1a, 0x17, 0x1c, 0x1d, 0x10,
+	0x15, 0x00, 0x18, 0x18, 0x00, 0x08, 0x08, 0x01, 0x0d, 0x10, 0x14, 0x12, 0x03, 0x1c, 0x05, 0x0a,
+	0x0f, 0x0d, 0x15, 0x00, 0x0b, 0x1f, 0x00, 0x1d, 0x1d, 0x1a, 0x13, 0x16, 0x08, 0x1b, 0x03, 0x12,
+	0x02, 0x10, 0x0e, 0x10, 0x04, 0x05, 0x09, 0x07, 0x1d, 0x04, 0x05, 0x06, 0x17, 0x05, 0x1a, 0x04,
+	0x1f, 0x0e, 0x09, 0x13, 0x15, 0x12, 0x1c, 0x13, 0x03, 0x09, 0x12, 0x08, 0x19, 0x17, 0x00, 0x19,
+	0x1f, 0x06, 0x1c, 0x05, 0x18, 0x0a, 0x1f, 0x1e, 0x0d, 0x05, 0x1e, 0x1a, 0x11, 0x13, 0x15, 0x0c,
+	0x05, 0x16, 0x11, 0x06, 0x12, 0x0c, 0x0c, 0x0f, 0x1c, 0x18, 0x08, 0x1e, 0x1c, 0x16, 0x15, 0x03
+};
+
+static const UINT16 x11_zt[512] = {
+	0x7e9, 0x625, 0x625, 0x006, 0x006, 0x14a, 0x14a, 0x7e9, 0x657, 0x417, 0x417, 0x1a7, 0x1a7, 0x22f, 0x22f, 0x657,
+	0x37e, 0x447, 0x447, 0x117, 0x117, 0x735, 0x735, 0x37e, 0x3be, 0x487, 0x487, 0x724, 0x724, 0x6e3, 0x6e3, 0x3be,
+	0x646, 0x035, 0x035, 0x57e, 0x57e, 0x134, 0x134, 0x646, 0x09a, 0x4d1, 0x4d1, 0x511, 0x511, 0x5d5, 0x5d5, 0x09a,
+	0x3e2, 0x5c6, 0x5c6, 0x3b6, 0x3b6, 0x354, 0x354, 0x3e2, 0x6e3, 0x7d6, 0x7d6, 0x317, 0x317, 0x1f0, 0x1f0, 0x6e3,
+	0x115, 0x462, 0x462, 0x620, 0x620, 0x0ce, 0x0ce, 0x115, 0x715, 0x7ec, 0x7ec, 0x1e6, 0x1e6, 0x610, 0x610, 0x715,
+	0x34a, 0x718, 0x718, 0x7ba, 0x7ba, 0x288, 0x288, 0x34a, 0x6e7, 0x193, 0x193, 0x3d2, 0x3d2, 0x78f, 0x78f, 0x6e7,
+	0x57c, 0x014, 0x014, 0x6b3, 0x6b3, 0x204, 0x204, 0x57c, 0x3f4, 0x782, 0x782, 0x5b4, 0x5b4, 0x375, 0x375, 0x3f4,
+	0x17d, 0x660, 0x660, 0x48d, 0x48d, 0x7ff, 0x7ff, 0x17d, 0x5b1, 0x39d, 0x39d, 0x48c, 0x48c, 0x5ab, 0x5ab, 0x5b1,
+	0x3d3, 0x4f6, 0x4f6, 0x7b9, 0x7b9, 0x5df, 0x5df, 0x3d3, 0x349, 0x4c5, 0x4c5, 0x403, 0x403, 0x0ab, 0x0ab, 0x349,
+	0x46b, 0x790, 0x790, 0x59f, 0x59f, 0x2b1, 0x2b1, 0x46b, 0x6c5, 0x4e7, 0x4e7, 0x023, 0x023, 0x0b0, 0x0b0, 0x6c5,
+	0x2d6, 0x3e2, 0x3e2, 0x7f3, 0x7f3, 0x376, 0x376, 0x2d6, 0x2d7, 0x0bf, 0x0bf, 0x14b, 0x14b, 0x65b, 0x65b, 0x2d7,
+	0x68d, 0x360, 0x360, 0x434, 0x434, 0x5fa, 0x5fa, 0x68d, 0x654, 0x386, 0x386, 0x28b, 0x28b, 0x2e1, 0x2e1, 0x654,
+	0x1ee, 0x4e8, 0x4e8, 0x482, 0x482, 0x471, 0x471, 0x1ee, 0x221, 0x3de, 0x3de, 0x467, 0x467, 0x21b, 0x21b, 0x221,
+	0x7a6, 0x6b6, 0x6b6, 0x157, 0x157, 0x658, 0x658, 0x7a6, 0x1e9, 0x6e3, 0x6e3, 0x340, 0x340, 0x2cd, 0x2cd, 0x1e9,
+	0x045, 0x566, 0x566, 0x1f0, 0x1f0, 0x5a1, 0x5a1, 0x045, 0x559, 0x0d4, 0x0d4, 0x67c, 0x67c, 0x21a, 0x21a, 0x559,
+	0x187, 0x13b, 0x13b, 0x68e, 0x68e, 0x0f6, 0x0f6, 0x187, 0x2b5, 0x4c2, 0x4c2, 0x2b6, 0x2b6, 0x6a4, 0x6a4, 0x2b5,
+	0x56b, 0x1b2, 0x1b2, 0x15d, 0x15d, 0x3aa, 0x3aa, 0x56b, 0x506, 0x67a, 0x67a, 0x5db, 0x5db, 0x5ef, 0x5ef, 0x506,
+	0x5ab, 0x3ed, 0x3ed, 0x2b3, 0x2b3, 0x504, 0x504, 0x5ab, 0x137, 0x761, 0x761, 0x735, 0x735, 0x6e9, 0x6e9, 0x137,
+	0x35a, 0x7bb, 0x7bb, 0x190, 0x190, 0x0a8, 0x0a8, 0x35a, 0x797, 0x164, 0x164, 0x1b8, 0x1b8, 0x761, 0x761, 0x797,
+	0x138, 0x076, 0x076, 0x613, 0x613, 0x055, 0x055, 0x138, 0x2e2, 0x493, 0x493, 0x0c2, 0x0c2, 0x785, 0x785, 0x2e2,
+	0x60b, 0x41a, 0x41a, 0x22a, 0x22a, 0x2a1, 0x2a1, 0x60b, 0x5cb, 0x092, 0x092, 0x656, 0x656, 0x5db, 0x5db, 0x5cb,
+	0x00a, 0x490, 0x490, 0x39d, 0x39d, 0x572, 0x572, 0x00a, 0x600, 0x4cd, 0x4cd, 0x33f, 0x33f, 0x0bc, 0x0bc, 0x600,
+	0x047, 0x685, 0x685, 0x4b0, 0x4b0, 0x330, 0x330, 0x047, 0x7b4, 0x590, 0x590, 0x1db, 0x1db, 0x349, 0x349, 0x7b4,
+	0x6ae, 0x7a3, 0x7a3, 0x6fa, 0x6fa, 0x2d4, 0x2d4, 0x6ae, 0x117, 0x2fe, 0x2fe, 0x756, 0x756, 0x627, 0x627, 0x117,
+	0x337, 0x55e, 0x55e, 0x2ef, 0x2ef, 0x2a9, 0x2a9, 0x337, 0x382, 0x02a, 0x02a, 0x4af, 0x4af, 0x7fa, 0x7fa, 0x382,
+	0x73f, 0x6d8, 0x6d8, 0x7d2, 0x7d2, 0x52d, 0x52d, 0x73f, 0x385, 0x303, 0x303, 0x3eb, 0x3eb, 0x689, 0x689, 0x385,
+	0x6cd, 0x4c3, 0x4c3, 0x2df, 0x2df, 0x1d5, 0x1d5, 0x6cd, 0x7da, 0x44c, 0x44c, 0x764, 0x764, 0x7f6, 0x7f6, 0x7da,
+	0x7c1, 0x276, 0x276, 0x27f, 0x27f, 0x1c9, 0x1c9, 0x7c1, 0x58c, 0x001, 0x001, 0x07f, 0x07f, 0x62b, 0x62b, 0x58c,
+	0x374, 0x746, 0x746, 0x5b2, 0x5b2, 0x35e, 0x35e, 0x374, 0x64d, 0x1fd, 0x1fd, 0x2dc, 0x2dc, 0x550, 0x550, 0x64d,
+	0x33d, 0x40c, 0x40c, 0x3a4, 0x3a4, 0x293, 0x293, 0x33d, 0x0c0, 0x462, 0x462, 0x6fb, 0x6fb, 0x4b0, 0x4b0, 0x0c0,
+	0x2aa, 0x175, 0x175, 0x01e, 0x01e, 0x762, 0x762, 0x2aa, 0x216, 0x76b, 0x76b, 0x728, 0x728, 0x15f, 0x15f, 0x216,
+	0x30e, 0x0d8, 0x0d8, 0x55c, 0x55c, 0x31c, 0x31c, 0x30e, 0x351, 0x3dc, 0x3dc, 0x6c1, 0x6c1, 0x651, 0x651, 0x351
+};
+
+static int zeroteam_prepare_and_decrypt_sprites(UINT8 *rom)
+{
+	UINT32 swap32[4][256];
+	UINT16 swap16[2][256];
+	UINT16 gm[16];
+	UINT32 i, byte, lane;
+	for (lane = 0; lane < 4; ++lane)
+		for (byte = 0; byte < 256; ++byte)
+			swap32[lane][byte] = r2_bitswap32(byte << (lane * 8));
+	for (lane = 0; lane < 2; ++lane)
+		for (byte = 0; byte < 256; ++byte)
+			swap16[lane][byte] = r2_bitswap16((UINT16)(byte << (lane * 8)));
+	for (i = 0; i < 16; ++i) gm[i] = r2_gm(i);
+	for (i = 0; i < 0x400000U / 4U; ++i)
+	{
+		UINT32 i1 = i & 0xff;
+		UINT32 i2 = i & 0xff;
+		UINT32 i3 = (i >> 7) & 0x1ff;
+		UINT32 v = r2_yrot(r2_read32le_buf(rom + i * 4), rotate_zt[i1]);
+		UINT16 low = (UINT16)((x5_zt[i2] << 11) ^ x11_zt[i3] ^ gm[(i >> 16) & 15]);
+		UINT16 high = (UINT16)(swap16[0][low & 255] | swap16[1][low >> 8]);
+		UINT32 key = ((UINT32)low | ((UINT32)high << 16)) ^ 0xa5800000U;
+		v = swap32[0][v & 255] | swap32[1][(v >> 8) & 255] |
+		    swap32[2][(v >> 16) & 255] | swap32[3][v >> 24];
+		r2_write32le_buf(rom + i * 4, r2_partial_carry_fast(v, key, 0x7b67b7b9U) ^ 0xf1412ea8U);
+	}
+	return 0;
+}
+
 /* -----------------------------------------------------------------------
  * Video
  * ----------------------------------------------------------------------- */
@@ -1041,6 +1143,9 @@ VIDEO_START(r2play)
 	return 0;
 }
 
+static const int r2_default_spri[5] = { 0, 1, 2, 3, -1 };
+static const int *r2_cur_spri = r2_default_spri;
+
 VIDEO_UPDATE(r2play)
 {
 	int sx, sy;
@@ -1060,15 +1165,16 @@ VIDEO_UPDATE(r2play)
 
 	r2_prepare_sprite_lists();
 
-	/* Priority order follows the later working implementation. */
-	r2play_draw_sprites(bitmap, cliprect, 0);
+	/* Priority order follows game-specific table (Raiden 2: {0,1,2,3,-1}, Zero Team: {-1,0,1,2,3}) */
+	if (r2_cur_spri[0] >= 0) r2play_draw_sprites(bitmap, cliprect, r2_cur_spri[0]);
 	if (!(r2_video_enable() & 0x01)) tilemap_draw(bitmap, cliprect, r2play_background_layer, 0, 0);
-	r2play_draw_sprites(bitmap, cliprect, 1);
+	if (r2_cur_spri[1] >= 0) r2play_draw_sprites(bitmap, cliprect, r2_cur_spri[1]);
 	if (!(r2_video_enable() & 0x02)) tilemap_draw(bitmap, cliprect, r2play_midground_layer, 0, 0);
-	r2play_draw_sprites(bitmap, cliprect, 2);
+	if (r2_cur_spri[2] >= 0) r2play_draw_sprites(bitmap, cliprect, r2_cur_spri[2]);
 	if (!(r2_video_enable() & 0x04)) tilemap_draw(bitmap, cliprect, r2play_foreground_layer, 0, 0);
-	r2play_draw_sprites(bitmap, cliprect, 3);
+	if (r2_cur_spri[3] >= 0) r2play_draw_sprites(bitmap, cliprect, r2_cur_spri[3]);
 	if (!(r2_video_enable() & 0x08)) tilemap_draw(bitmap, cliprect, r2play_text_layer, 0, 0);
+	if (r2_cur_spri[4] >= 0) r2play_draw_sprites(bitmap, cliprect, r2_cur_spri[4]);
 //	r2_debug_video(bitmap, cliprect);
 }
 
@@ -1445,6 +1551,86 @@ INPUT_PORTS_START( raiden2n ) /* For "Newer" (V33) versions of Raiden 2 & Raiden
 	PORT_BIT( 0xfc, IP_ACTIVE_LOW, IPT_UNUSED )
 INPUT_PORTS_END
 
+INPUT_PORTS_START( nzeroteam )
+	PORT_START /* port 0: coins read through sound cpu */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(4)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_COIN2 ) PORT_IMPULSE(4)
+	PORT_BIT( 0xfc, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START /* port 1: SYSTEM */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0xf8, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START /* port 2: P1 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(1)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(1)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START /* port 3: P2 */
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_PLAYER(2)
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 ) PORT_PLAYER(2)
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START /* port 4: DSW1 */
+	PORT_DIPNAME( 0x07, 0x07, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x07, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x06, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x05, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( 1C_6C ) )
+	PORT_DIPNAME( 0x38, 0x38, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 4C_1C ) )
+	PORT_DIPSETTING(    0x08, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x38, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x30, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x28, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x18, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( 1C_6C ) )
+	PORT_DIPNAME( 0x40, 0x40, "Starting Coin" )
+	PORT_DIPSETTING(    0x40, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x00, "X 2" )
+	PORT_DIPNAME( 0x80, 0x80, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+
+	PORT_START /* port 5: DSW2 */
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( Hard ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( Easy ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Very_Hard ) )
+	PORT_DIPNAME( 0x0c, 0x0c, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x0c, "2" )
+	PORT_DIPSETTING(    0x08, "4" )
+	PORT_DIPSETTING(    0x04, "3" )
+	PORT_DIPSETTING(    0x00, "1" )
+	PORT_DIPNAME( 0x30, 0x30, DEF_STR( Bonus_Life ) )
+	PORT_DIPSETTING(    0x30, "2000000" )
+	PORT_DIPSETTING(    0x20, "1000000" )
+	PORT_DIPSETTING(    0x10, "3000000" )
+	PORT_DIPSETTING(    0x00, "No Extend" )
+	PORT_DIPNAME( 0x40, 0x40, "Demo Sound" )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( On ) )
+	PORT_SERVICE( 0x80, IP_ACTIVE_LOW )
+INPUT_PORTS_END
+
 /* -----------------------------------------------------------------------
  * Graphics decode
  * ----------------------------------------------------------------------- */
@@ -1565,6 +1751,7 @@ static void r2_state_save_register(void)
 static MACHINE_RESET(raiden2)
 {
 	r2_is_raidendx = 0;
+	r2_cur_spri = r2_default_spri;
 	machine_reset_seibu_sound_1();
 	seibu_bank_w(0, 0);
 
@@ -1629,6 +1816,7 @@ MACHINE_DRIVER_END
 static MACHINE_RESET(raidendx)
 {
 	r2_is_raidendx = 1;
+	r2_cur_spri = r2_default_spri;
 	machine_reset_seibu_sound_1();
 	seibu_bank_w(0, 0);
 
@@ -1649,6 +1837,256 @@ static MACHINE_RESET(raidendx)
 static MACHINE_DRIVER_START( raidendx )
 	MDRV_IMPORT_FROM(raiden2)
 	MDRV_MACHINE_RESET(raidendx)
+MACHINE_DRIVER_END
+
+/* -----------------------------------------------------------------------
+ * New Zero Team (V33 SYSTEM TYPE_B hardware with SEI333 / COPX-D3)
+ * ----------------------------------------------------------------------- */
+
+static UINT8 *nzt_tile_ram;
+static UINT8 *nzt_pal_ram;
+static UINT16 nzt_i_dx, nzt_i_dy, nzt_i_angle;
+static UINT32 nzt_i_sdist;
+
+static WRITE8_HANDLER(nzt_math_w)
+{
+	switch (offset)
+	{
+		case 0x00: nzt_i_dx = (nzt_i_dx & 0xff00) | data; break;
+		case 0x01: nzt_i_dx = (nzt_i_dx & 0x00ff) | ((UINT16)data << 8); break;
+		case 0x02: nzt_i_dy = (nzt_i_dy & 0xff00) | data; break;
+		case 0x03: nzt_i_dy = (nzt_i_dy & 0x00ff) | ((UINT16)data << 8); break;
+		case 0x04: nzt_i_sdist = (nzt_i_sdist & 0xffffff00U) | data; break;
+		case 0x05: nzt_i_sdist = (nzt_i_sdist & 0xffff00ffU) | ((UINT32)data << 8); break;
+		case 0x06: nzt_i_sdist = (nzt_i_sdist & 0xff00ffffU) | ((UINT32)data << 16); break;
+		case 0x07: nzt_i_sdist = (nzt_i_sdist & 0x00ffffffU) | ((UINT32)data << 24); break;
+		case 0x08: nzt_i_angle = (nzt_i_angle & 0xff00) | data; break;
+		case 0x09: nzt_i_angle = (nzt_i_angle & 0x00ff) | ((UINT16)data << 8); break;
+	}
+}
+
+static READ8_HANDLER(nzt_math_r)
+{
+	UINT8 *math = memory_region(REGION_USER2);
+	switch (offset)
+	{
+		case 0x00:
+		{
+			UINT16 val = math ? math[((nzt_i_dy & 0xff) << 8) | (nzt_i_dx & 0xff)] : 0;
+			return val & 0xff;
+		}
+		case 0x01:
+		{
+			UINT16 val = math ? math[((nzt_i_dy & 0xff) << 8) | (nzt_i_dx & 0xff)] : 0;
+			return (val >> 8) & 0xff;
+		}
+		case 0x02:
+		{
+			UINT16 val = (UINT16)sqrt((double)nzt_i_sdist);
+			return val & 0xff;
+		}
+		case 0x03:
+		{
+			UINT16 val = (UINT16)sqrt((double)nzt_i_sdist);
+			return (val >> 8) & 0xff;
+		}
+		case 0x04:
+		{
+			int off = 65536 + (nzt_i_angle & 0xff) * 4;
+			UINT16 val = math ? ((UINT16)math[off] | ((UINT16)math[off + 1] << 8)) : 0;
+			return val & 0xff;
+		}
+		case 0x05:
+		{
+			int off = 65536 + (nzt_i_angle & 0xff) * 4;
+			UINT16 val = math ? ((UINT16)math[off] | ((UINT16)math[off + 1] << 8)) : 0;
+			return (val >> 8) & 0xff;
+		}
+		case 0x06:
+		{
+			int off = 65536 + (nzt_i_angle & 0xff) * 4;
+			UINT16 val = math ? ((UINT16)math[off + 2] | ((UINT16)math[off + 3] << 8)) : 0;
+			return val & 0xff;
+		}
+		case 0x07:
+		{
+			int off = 65536 + (nzt_i_angle & 0xff) * 4;
+			UINT16 val = math ? ((UINT16)math[off + 2] | ((UINT16)math[off + 3] << 8)) : 0;
+			return (val >> 8) & 0xff;
+		}
+		default:
+			return 0;
+	}
+}
+
+static WRITE8_HANDLER(nzt_tilemapdma_w)
+{
+	if (!nzt_tile_ram || !r2play_back_data || !r2play_fore_data || !r2play_mid_data || !videoram) return;
+	memcpy(r2play_back_data, nzt_tile_ram, 0x800);
+	if (r2play_background_layer) tilemap_mark_all_tiles_dirty(r2play_background_layer);
+
+	memcpy(r2play_fore_data, nzt_tile_ram + 0x800, 0x800);
+	if (r2play_foreground_layer) tilemap_mark_all_tiles_dirty(r2play_foreground_layer);
+
+	memcpy(r2play_mid_data, nzt_tile_ram + 0x1000, 0x800);
+	if (r2play_midground_layer) tilemap_mark_all_tiles_dirty(r2play_midground_layer);
+
+	memcpy(videoram, nzt_tile_ram + 0x1800, 0x1000);
+	if (r2play_text_layer) tilemap_mark_all_tiles_dirty(r2play_text_layer);
+}
+
+static WRITE8_HANDLER(nzt_paldma_w)
+{
+	if (!nzt_pal_ram || !paletteram) return;
+	int i;
+	for (i = 0; i < 0x1000; i++)
+	{
+		paletteram_xBBBBBGGGGGRRRRR_le_w(i, nzt_pal_ram[i]);
+	}
+}
+
+static READ8_HANDLER(nzt_inputs_r)
+{
+	switch (offset)
+	{
+		case 0: return readinputport(4); /* DSW1 */
+		case 1: return readinputport(5); /* DSW2 */
+		case 4: return readinputport(2); /* P1 */
+		case 5: return readinputport(3); /* P2 */
+		case 12: return readinputport(1); /* SYSTEM */
+		default: return 0xff;
+	}
+}
+
+static ADDRESS_MAP_START( nzeroteam_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x003ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x00430, 0x00437) AM_READ(nzt_math_r)
+	AM_RANGE(0x00600, 0x0064f) AM_READ(r2_cop_r)
+	AM_RANGE(0x00740, 0x0074f) AM_READ(nzt_inputs_r)
+	AM_RANGE(0x00780, 0x0079f) AM_READ(r2_sound_main_r)
+	AM_RANGE(0x00000, 0x007ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x00800, 0x0bfff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x0c000, 0x0c7ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x0c800, 0x0cfff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x0d000, 0x0f7ff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x0f800, 0x0ffff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x10000, 0x1efff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x1f000, 0x1ffff) AM_READ(MRA8_RAM)
+	AM_RANGE(0x20000, 0xfffff) AM_READ(MRA8_ROM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( nzeroteam_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x00000, 0x003ff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x00400, 0x00401) AM_WRITE(nzt_tilemapdma_w)
+	AM_RANGE(0x00402, 0x00403) AM_WRITE(nzt_paldma_w)
+	AM_RANGE(0x00406, 0x00407) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x00420, 0x00429) AM_WRITE(nzt_math_w)
+	AM_RANGE(0x00600, 0x0064f) AM_WRITE(r2_cop_w)
+	AM_RANGE(0x0068e, 0x0068f) AM_WRITE(buffer_spriteram_w)
+	AM_RANGE(0x006b0, 0x006bd) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x00780, 0x0079f) AM_WRITE(r2_sound_main_w)
+	AM_RANGE(0x00000, 0x007ff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x00800, 0x0bfff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x0c000, 0x0c7ff) AM_WRITE(MWA8_RAM) AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x0c800, 0x0cfff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x0d000, 0x0f7ff) AM_WRITE(MWA8_RAM) AM_BASE(&nzt_tile_ram)
+	AM_RANGE(0x0f800, 0x0ffff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x10000, 0x1efff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x1f000, 0x1ffff) AM_WRITE(MWA8_RAM) AM_BASE(&nzt_pal_ram)
+	AM_RANGE(0x20000, 0xfffff) AM_WRITE(MWA8_ROM)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( nzeroteam_sound_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x1fff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0x2000, 0x27ff) AM_WRITE(MWA8_RAM)
+	AM_RANGE(0x4000, 0x4000) AM_WRITE(seibu_pending_w)
+	AM_RANGE(0x4001, 0x4001) AM_WRITE(seibu_irq_clear_w)
+	AM_RANGE(0x4002, 0x4002) AM_WRITE(seibu_rst10_ack_w)
+	AM_RANGE(0x4003, 0x4003) AM_WRITE(seibu_rst18_ack_w)
+	AM_RANGE(0x4007, 0x4007) AM_WRITE(seibu_bank_w)
+	AM_RANGE(0x4008, 0x4008) AM_WRITE(YM3812_control_port_0_w)
+	AM_RANGE(0x4009, 0x4009) AM_WRITE(YM3812_write_port_0_w)
+	AM_RANGE(0x4018, 0x4019) AM_WRITE(seibu_main_data_w)
+	AM_RANGE(0x401a, 0x401a) AM_WRITE(seibu_bank_w)
+	AM_RANGE(0x401b, 0x401b) AM_WRITE(seibu_coin_w)
+	AM_RANGE(0x6000, 0x6000) AM_WRITE(OKIM6295_data_0_w)
+	AM_RANGE(0x8000, 0xffff) AM_WRITE(MWA8_ROM)
+ADDRESS_MAP_END
+
+static VIDEO_START(nzeroteam)
+{
+	r2play_back_data = auto_malloc(0x800);
+	r2play_fore_data = auto_malloc(0x800);
+	r2play_mid_data  = auto_malloc(0x800);
+	videoram         = auto_malloc(0x1000);
+	paletteram       = auto_malloc(0x1000);
+	if (!r2play_back_data || !r2play_fore_data || !r2play_mid_data || !videoram || !paletteram)
+		return 1;
+	memset(r2play_back_data, 0, 0x800);
+	memset(r2play_fore_data, 0, 0x800);
+	memset(r2play_mid_data, 0, 0x800);
+	memset(videoram, 0, 0x1000);
+	memset(paletteram, 0, 0x1000);
+	return video_start_r2play();
+}
+
+static MACHINE_RESET(nzeroteam)
+{
+	static const int nzt_spri[5] = { -1, 0, 1, 2, 3 };
+	r2_is_raidendx = 0;
+	r2_cur_spri = nzt_spri;
+	machine_reset_seibu_sound_1();
+	seibu_bank_w(0, 0);
+
+	r2play_bg_bank = 0;
+	r2play_mid_bank = 1;
+	r2play_fg_bank = 2;
+	r2play_tx_bank = 0;
+	memset(r2_scroll, 0, sizeof(r2_scroll));
+	r2_layer_enable = 0;
+	r2_reset_cop();
+	if (buffered_spriteram)
+		memset(buffered_spriteram, 0, spriteram_size);
+
+	nzt_i_dx = nzt_i_dy = nzt_i_angle = 0;
+	nzt_i_sdist = 0;
+}
+
+static struct YM3812interface nzt_ym3812_interface =
+{
+	seibu_ym3812_irqhandler
+};
+
+static MACHINE_DRIVER_START( nzeroteam )
+	MDRV_CPU_ADD(V33, 32000000/2)
+	MDRV_CPU_PROGRAM_MAP(nzeroteam_readmem, nzeroteam_writemem)
+	MDRV_CPU_VBLANK_INT(r2play_interrupt, 1)
+
+	MDRV_CPU_ADD(Z80, 14318180/4)
+	MDRV_CPU_PROGRAM_MAP(seibu_sound_readmem, nzeroteam_sound_writemem)
+
+	MDRV_FRAMES_PER_SECOND(55.47)
+	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
+	MDRV_MACHINE_RESET(nzeroteam)
+
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER | VIDEO_BUFFERS_SPRITERAM)
+	MDRV_SCREEN_SIZE(44*8, 34*8)
+	MDRV_VISIBLE_AREA(0*8, 40*8-1, 0*8, 32*8-1)
+	MDRV_GFXDECODE(r2play_gfxdecodeinfo)
+	MDRV_PALETTE_LENGTH(2048)
+	MDRV_VIDEO_START(nzeroteam)
+	MDRV_VIDEO_UPDATE(r2play)
+
+	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+
+	MDRV_SOUND_ADD(YM3812, 14318180/4)
+	MDRV_SOUND_CONFIG(nzt_ym3812_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+
+	MDRV_SOUND_ADD(OKIM6295, 1320000)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.40)
 MACHINE_DRIVER_END
 
 #define construct_r2play construct_raiden2
@@ -2531,34 +2969,70 @@ ROM_START( zeroteab )
 	ROM_LOAD( "pcm", 0x00000, 0x40000,  CRC(48be32b1) SHA1(969d2191a3c46871ee8bf93088b3cecce3eccf0c) ) // 6.4a
 ROM_END
 
-ROM_START( nzerotea )
-	ROM_REGION( 0x200000, REGION_USER1, 0 ) /* v30 main cpu */
+ROM_START( nzeroteam )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 ) /* v33 main cpu */
+	ROM_LOAD16_BYTE("seibu_1.u0224", 0x000000, 0x80000, CRC(ce1bcaf4) SHA1(1c340575e440b716caca8605cc5e1221060e3714) )
+	ROM_LOAD16_BYTE("seibu_2.u0226", 0x000001, 0x80000, CRC(03f6e32d) SHA1(5363f20d515ff84346aa15f7b9d95c5805d81285) )
+
+	ROM_REGION( 0x20000, REGION_USER2, 0 ) /* SEI333 (AKA COPX-D3) data */
+	ROM_LOAD( "copx-d3.bin", 0x00000, 0x20000, CRC(fa2cf3ad) SHA1(13eee40704d3333874b6e3da9ee7d969c6dc662a) )
+
+	ROM_REGION( 0x20000, REGION_CPU2, 0 ) /* 64k code for sound Z80 */
+	ROM_LOAD( "sound",       0x000000, 0x08000, CRC(7ec1fbc3) SHA1(48299d6530f641b18764cc49e283c347d0918a47) )
+	ROM_CONTINUE(            0x010000, 0x08000 )    /* banked stuff */
+	ROM_COPY( REGION_CPU2, 0, 0x018000, 0x08000 )
+
+	ROM_REGION( 0x020000, REGION_GFX1, 0 ) /* chars */
+	ROM_LOAD16_BYTE( "seibu_5.u0616", 0x000000, 0x010000, CRC(ce68ba3c) SHA1(52830533711ec906bf4fe9d06e065ec80b25b4da) )
+	ROM_LOAD16_BYTE( "seibu_6.u0617", 0x000001, 0x010000, CRC(cf44aea7) SHA1(e8d622fd5c10133fa563402daf0690fdff297f94) )
+
+	ROM_REGION( 0x400000, REGION_GFX2, 0 ) /* background gfx */
+	ROM_LOAD( "back-1", 0x000000, 0x100000, CRC(8b7f9219) SHA1(3412b6f8a4fe245e521ddcf185a53f2f4520eb57) )
+	ROM_LOAD( "back-2", 0x100000, 0x080000, CRC(ce61c952) SHA1(52a843c8ba428b121fab933dd3b313b2894d80ac) )
+
+	ROM_REGION( 0x800000, REGION_GFX3, 0 ) /* sprite gfx (encrypted) */
+	ROM_LOAD32_WORD( "obj-1", 0x000000, 0x200000, CRC(45be8029) SHA1(adc164f9dede9a86b96a4d709e9cba7d2ad0e564) )
+	ROM_LOAD32_WORD( "obj-2", 0x000002, 0x200000, CRC(cb61c19d) SHA1(151a2ce9c32f3321a974819e9b165dddc31c8153) )
+
+	ROM_REGION( 0x100000, REGION_SOUND1, 0 ) /* ADPCM samples */
+	ROM_LOAD( "pcm", 0x00000, 0x40000, CRC(48be32b1) SHA1(969d2191a3c46871ee8bf93088b3cecce3eccf0c) )
+ROM_END
+
+ROM_START( nzeroteama )
+	ROM_REGION( 0x100000, REGION_CPU1, 0 ) /* v33 main cpu */
 	ROM_LOAD16_BYTE("prg1",   0x000000, 0x80000, CRC(3c7d9410) SHA1(25f2121b6c2be73f11263934266901ed5d64d2ee) )
 	ROM_LOAD16_BYTE("prg2",   0x000001, 0x80000, CRC(6cba032d) SHA1(bf5d488cd578fff09e62e3650efdee7658033e3f) )
 
+	ROM_REGION( 0x20000, REGION_USER2, 0 ) /* SEI333 (AKA COPX-D3) data */
+	ROM_LOAD( "copx-d3.bin", 0x00000, 0x20000, CRC(fa2cf3ad) SHA1(13eee40704d3333874b6e3da9ee7d969c6dc662a) )
+
 	ROM_REGION( 0x20000, REGION_CPU2, 0 ) /* 64k code for sound Z80 */
-	ROM_LOAD( "sound",  0x000000, 0x10000, CRC(7ec1fbc3) SHA1(48299d6530f641b18764cc49e283c347d0918a47) )
+	ROM_LOAD( "sound",       0x000000, 0x08000, CRC(7ec1fbc3) SHA1(48299d6530f641b18764cc49e283c347d0918a47) )
+	ROM_CONTINUE(            0x010000, 0x08000 )    /* banked stuff */
+	ROM_COPY( REGION_CPU2, 0, 0x018000, 0x08000 )
 
-	ROM_REGION( 0x020000, REGION_GFX1, ROMREGION_DISPOSE ) /* chars */
-	ROM_LOAD16_BYTE( "fix1",	0x000000,	0x010000,	CRC(0c4895b0) SHA1(f595dbe5a19edb8a06ea60105ee26b95db4a2619) )
-	ROM_LOAD16_BYTE( "fix2",	0x000001,	0x010000,	CRC(07d8e387) SHA1(52f54a6a4830592784cdf643a5f255aa3db53e50) )
+	ROM_REGION( 0x020000, REGION_GFX1, 0 ) /* chars */
+	ROM_LOAD16_BYTE( "fix1", 0x000000, 0x010000, CRC(0c4895b0) SHA1(f595dbe5a19edb8a06ea60105ee26b95db4a2619) )
+	ROM_LOAD16_BYTE( "fix2", 0x000001, 0x010000, CRC(07d8e387) SHA1(52f54a6a4830592784cdf643a5f255aa3db53e50) )
 
-	ROM_REGION( 0x400000, REGION_GFX2, ROMREGION_DISPOSE ) /* background gfx */
-	ROM_LOAD( "back-1",   0x000000, 0x100000, CRC(8b7f9219) SHA1(3412b6f8a4fe245e521ddcf185a53f2f4520eb57) )
-	ROM_LOAD( "back-2",   0x100000, 0x080000, CRC(ce61c952) SHA1(52a843c8ba428b121fab933dd3b313b2894d80ac) )
+	ROM_REGION( 0x400000, REGION_GFX2, 0 ) /* background gfx */
+	ROM_LOAD( "back-1", 0x000000, 0x100000, CRC(8b7f9219) SHA1(3412b6f8a4fe245e521ddcf185a53f2f4520eb57) )
+	ROM_LOAD( "back-2", 0x100000, 0x080000, CRC(ce61c952) SHA1(52a843c8ba428b121fab933dd3b313b2894d80ac) )
 
-	ROM_REGION( 0x800000, REGION_GFX3, ROMREGION_DISPOSE ) /* sprite gfx (encrypted) (diff encrypt to raiden2? ) */
-	ROM_LOAD32_WORD( "obj-1",  0x000000, 0x200000, CRC(45be8029) SHA1(adc164f9dede9a86b96a4d709e9cba7d2ad0e564) )
-	ROM_LOAD32_WORD( "obj-2",  0x000002, 0x200000, CRC(cb61c19d) SHA1(151a2ce9c32f3321a974819e9b165dddc31c8153) )
+	ROM_REGION( 0x800000, REGION_GFX3, 0 ) /* sprite gfx (encrypted) */
+	ROM_LOAD32_WORD( "obj-1", 0x000000, 0x200000, CRC(45be8029) SHA1(adc164f9dede9a86b96a4d709e9cba7d2ad0e564) )
+	ROM_LOAD32_WORD( "obj-2", 0x000002, 0x200000, CRC(cb61c19d) SHA1(151a2ce9c32f3321a974819e9b165dddc31c8153) )
 
-	ROM_REGION( 0x100000, REGION_SOUND1, 0 )	/* ADPCM samples */
-	ROM_LOAD( "pcm", 0x00000, 0x40000,  CRC(48be32b1) SHA1(969d2191a3c46871ee8bf93088b3cecce3eccf0c) )
+	ROM_REGION( 0x100000, REGION_SOUND1, 0 ) /* ADPCM samples */
+	ROM_LOAD( "pcm", 0x00000, 0x40000, CRC(48be32b1) SHA1(969d2191a3c46871ee8bf93088b3cecce3eccf0c) )
 ROM_END
 
+#define rom_nzerotea rom_nzeroteama
 
 static DRIVER_INIT( raiden2 )
 {
 	r2_is_raidendx = 0;
+	r2_cur_spri = r2_default_spri;
 	UINT8 *gfx = memory_region(REGION_GFX3);
 	UINT8 *cpu1 = memory_region(REGION_CPU1);
 	if (cpu1 && memory_region_length(REGION_CPU1) >= 0x200000)
@@ -2577,6 +3051,23 @@ static DRIVER_INIT( raidendx )
 	init_raiden2();
 	r2_is_raidendx = 1;
 }
+
+static DRIVER_INIT( nzeroteam )
+{
+	r2_is_raidendx = 0;
+	static const int nzt_spri[5] = { -1, 0, 1, 2, 3 };
+	r2_cur_spri = nzt_spri;
+
+	UINT8 *gfx = memory_region(REGION_GFX3);
+	if (gfx && memory_region_length(REGION_GFX3) >= 0x400000)
+	{
+		if (zeroteam_prepare_and_decrypt_sprites(gfx) != 0)
+			logerror("New Zero Team: sprite decryption failed\n");
+	}
+}
+
+#define init_nzeroteama init_nzeroteam
+#define init_nzerotea init_nzeroteam
 
 /* GAME DRIVERS */
 
@@ -2603,7 +3094,9 @@ GAME( 1994, raidendxnl, raidendx, raidendx, raidendx, raidendx, ROT270, "Seibu K
 GAME( 1994, raidendxj,  raidendx, raidendx, raidendx, raidendx, ROT270, "Seibu Kaihatsu", "Raiden DX (Japan)", GAME_IMPERFECT_GRAPHICS|GAME_IMPERFECT_SOUND )
 GAME( 1994, raidendxch, raidendx, raidendx, raidendx, raidendx, ROT270, "Seibu Kaihatsu (Ideal International Development Corp license) ", "Raiden DX (China)", GAME_IMPERFECT_GRAPHICS|GAME_IMPERFECT_SOUND )
 
-GAME( 1993, zeroteam,   0,        raiden2,  raiden2,  raiden2,  ROT0,   "Seibu Kaihatsu", "Zero Team (set 1)", GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 1993, zeroteaa,   zeroteam, raiden2,  raiden2,  raiden2,  ROT0,   "Seibu Kaihatsu", "Zero Team (set 2)", GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 1993, zeroteab,   zeroteam, raiden2,  raiden2,  raiden2,  ROT0,   "Seibu Kaihatsu", "Zero Team (set 3)", GAME_NOT_WORKING|GAME_NO_SOUND )
-GAME( 1993, nzerotea,   zeroteam, raiden2,  raiden2,  raiden2,  ROT0,   "Seibu Kaihatsu", "New Zero Team", GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1993, zeroteam,   0,         raiden2,   raiden2,   raiden2,   ROT0, "Seibu Kaihatsu", "Zero Team (set 1)", GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1993, zeroteaa,   zeroteam,  raiden2,   raiden2,   raiden2,   ROT0, "Seibu Kaihatsu", "Zero Team (set 2)", GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1993, zeroteab,   zeroteam,  raiden2,   raiden2,   raiden2,   ROT0, "Seibu Kaihatsu", "Zero Team (set 3)", GAME_NOT_WORKING|GAME_NO_SOUND )
+GAME( 1997, nzeroteam,  zeroteam,  nzeroteam, nzeroteam, nzeroteam, ROT0, "Seibu Kaihatsu", "New Zero Team (V33 SYSTEM TYPE_B hardware)", 0 )
+GAME( 1997, nzeroteama, nzeroteam, nzeroteam, nzeroteam, nzeroteam, ROT0, "Seibu Kaihatsu (Zhongguo Shantou Yihuang license)", "New Zero Team (V33 SYSTEM TYPE_B hardware, Zhongguo Shantou Yihuang license)", 0 )
+GAME( 1997, nzerotea,   nzeroteam, nzeroteam, nzeroteam, nzeroteam, ROT0, "Seibu Kaihatsu", "New Zero Team", 0 )
