@@ -68,6 +68,7 @@ If ROMs are missing or mismatched, AdvanceMAME will list all required ROM filena
 AdvanceMAME includes built-in options for deterministic frame capture and automated exit:
 - `-debug_snap_step <X>`: Save game frames as PNG images every `X` frames (if 1, saves every frame; default 0 = disabled). Saved to `/home/am/.advance/snap/<driver_name>_<frame:05d>.png`.
 - `-debug_exit <X>`: Automatically force a clean exit at frame `X` (default 0 = disabled).
+- `-debug_cpu <N>`: Trace CPU instruction execution and registers in real time directly to `stdout` (`<N>` is CPU index: `0` for CPU 0 / main CPU, `1` for CPU 1, `-1` for all CPUs; default `-2` = disabled). Available when built with debugger support (`make CONF_DEBUGGER=yes`, which defines `MAME_DEBUG`), ensuring standard release builds incur zero CPU overhead.
 
 Example: capture every 10th frame up to frame 200 and exit:
 ```bash

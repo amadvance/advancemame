@@ -646,6 +646,56 @@ const struct mame_game* mame_playback_look(const char* file)
 	}
 }
 
+#ifdef MAME_DEBUG
+int debug_cpu_active = -2;
+
+void debug_cpu_hook(void)
+{
+	char dasm[128];
+	char regs_buf[512];
+	char *dst = regs_buf;
+	int active_cpu = cpu_getactivecpu();
+	unsigned pc;
+	unsigned addr_width;
+	const INT8 *layout;
+	int i;
+
+	if (active_cpu < 0)
+		return;
+
+	if (debug_cpu_active >= 0 && active_cpu != debug_cpu_active)
+		return;
+
+	pc = activecpu_get_pc();
+	addr_width = (activecpu_addrbus_width(ADDRESS_SPACE_PROGRAM) + 3) / 4;
+
+	/* Disassemble current instruction */
+	activecpu_dasm(dasm, pc);
+
+	/* Collect registers */
+	*dst = 0;
+	layout = (const INT8*)activecpu_register_layout();
+	if (layout) {
+		for (i = 0; layout[i] && i < 32; i++) {
+			const char *r;
+			if (layout[i] == -1)
+				continue;
+			r = activecpu_reg_string(layout[i]);
+			if (r) {
+				if (*r == '~') r++;
+				dst += sprintf(dst, "%s ", r);
+			}
+		}
+	}
+
+	if (debug_cpu_active == -1)
+		printf("[CPU%d] %0*X: %-25s | %s\n", active_cpu, addr_width, pc, dasm, regs_buf);
+	else
+		printf("%0*X: %-25s | %s\n", addr_width, pc, dasm, regs_buf);
+	fflush(stdout);
+}
+#endif
+
 /**
  * Run a game
  */
@@ -656,6 +706,14 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 
 	/* store the game pointer */
 	context->game = advance->game;
+
+#ifdef MAME_DEBUG
+	debug_cpu_active = context->record.config.debug_cpu;
+#else
+	if (context->record.config.debug_cpu >= -1) {
+		fprintf(stderr, "WARNING: -debug_cpu requires compiling AdvanceMAME with debugger support (e.g. make CONF_DEBUGGER=yes)\n");
+	}
+#endif
 
 	options.record = 0;
 	options.playback = 0;
@@ -812,6 +870,10 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	hardware_script_info(mame_game_description(context->game), mame_game_manufacturer(context->game), mame_game_year(context->game), "Loading");
 
 	r = run_game(game_index);
+
+#ifdef MAME_DEBUG
+	debug_cpu_active = -2;
+#endif
 
 	if (options.bios) {
 		free(options.bios);

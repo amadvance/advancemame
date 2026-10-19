@@ -406,6 +406,7 @@ struct advance_record_config_context {
 	unsigned video_interlace; /**< Interlace factor for the video recording. */
 	unsigned debug_snap_step; /**< Step of frames to snapshot (0 disabled). */
 	unsigned debug_exit; /**< Frame number to automatically exit (0 disabled). */
+	int debug_cpu; /**< CPU number to trace (-1 for all, default -2 disabled). */
 };
 
 struct advance_record_state_context {

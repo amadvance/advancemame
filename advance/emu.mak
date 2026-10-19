@@ -697,6 +697,7 @@ MESSOBJDIRS += \
 
 ifeq ($(CONF_DEBUGGER),yes)
 EMUDEFS += -DMAME_DEBUG
+EMUCFLAGS += -DMAME_DEBUG
 else
 # don't include the debug only modules
 DBGOBJS =
