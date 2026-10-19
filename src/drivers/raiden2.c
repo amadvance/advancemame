@@ -3649,4 +3649,4 @@ GAME( 1993, zeroteab,   zeroteam,  raiden2,   raiden2,   raiden2,   ROT0, "Seibu
 GAME( 1997, nzeroteam,  zeroteam,  nzeroteam, nzeroteam, nzeroteam, ROT0, "Seibu Kaihatsu", "New Zero Team (V33 SYSTEM TYPE_B hardware)", 0 )
 GAME( 1997, nzeroteama, nzeroteam, nzeroteam, nzeroteam, nzeroteam, ROT0, "Seibu Kaihatsu (Zhongguo Shantou Yihuang license)", "New Zero Team (V33 SYSTEM TYPE_B hardware, Zhongguo Shantou Yihuang license)", 0 )
 GAME( 1997, nzerotea,   nzeroteam, nzeroteam, nzeroteam, nzeroteam, ROT0, "Seibu Kaihatsu", "New Zero Team", 0 )
-GAME( 2000, zerotm2k,   nzeroteam, zerotm2k,  zerotm2k,  zerotm2k,  ROT0, "Seibu Kaihatsu", "Zero Team 2000", 0 )
+GAME( 2000, zerotm2k,   0,         zerotm2k,  zerotm2k,  zerotm2k,  ROT0, "Seibu Kaihatsu", "Zero Team 2000", 0 )
