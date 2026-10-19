@@ -74,7 +74,7 @@ int SpriteCollision(int first,int second)
     if((s2636ram[first * 0x10 + 10] < 0xf0) && (s2636ram[second * 0x10 + 10] < 0xf0))
     {
     	int fx     = (s2636ram[first * 0x10 + 10] * 4)-22;
-        int fy     = (s2636ram[first * 0x10 + 12] * 3)+3;
+        int fy     = s2636ram[first * 0x10 + 12] + 1;
 		int expand = (first==1) ? 2 : 1;
 
         /* Draw first sprite */
@@ -110,7 +110,7 @@ int SpriteCollision(int first,int second)
 			    second * 2,
 			    1,
 			    0,0,
-			    (s2636ram[second * 0x10 + 10] * 4)-22,(s2636ram[second * 0x10 + 12] * 3) + 3,
+			    (s2636ram[second * 0x10 + 10] * 4)-22, s2636ram[second * 0x10 + 12] + 1,
 			    0, TRANSPARENCY_PEN, 0);
 
         /* Remove fingerprint */
@@ -154,7 +154,7 @@ static void get_bg_tile_info(int tile_index)
 VIDEO_START( tinvader )
 {
 	bg_tilemap = tilemap_create(get_bg_tile_info, tilemap_scan_rows,
-		TILEMAP_OPAQUE, 24, 24, 32, 32);
+		TILEMAP_OPAQUE, 24, 8, 32, 32);
 
 	if ( !bg_tilemap )
 		return 1;
@@ -195,7 +195,7 @@ static void tinvader_draw_sprites( mame_bitmap *bitmap )
             int spriteno = (offs / 8);
 			int expand   = ((s2636ram[0xc0] & (spriteno*2))!=0) ? 2 : 1;
             int bx       = (s2636ram[offs+10] * 4) - 22;
-            int by       = (s2636ram[offs+12] * 3) + 3;
+            int by       = s2636ram[offs+12] + 1;
             int x,y;
 
             if(dirtychar[spriteno])
