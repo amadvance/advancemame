@@ -5936,6 +5936,9 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( nzeroteam )
 	DRIVER( nzeroteama )
 	DRIVER( nzerotea )
+	DRIVER( r2dx_v33 )
+	DRIVER( r2dx_v33_r2 )
+	DRIVER( zerotm2k )
 
 	/* Seibu SPI System games */
 
