@@ -1055,7 +1055,9 @@ const game_driver * const drivers[] =
 	DRIVER( sblast2b )      /* bootleg */
 	DRIVER( iron )          /* bootleg */
 	DRIVER( denseib )       /* bootleg */
+	DRIVER( denseib2 )      /* bootleg */
 	DRIVER( endless )       /* bootleg */
+	DRIVER( endlessa )      /* bootleg */
 	DRIVER( ffight3b )      /* bootleg */
 	DRIVER( ffight3b2 )     /* bootleg */
 	DRIVER( legendsb )      /* bootleg */
