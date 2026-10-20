@@ -55,8 +55,10 @@ typedef void (process_t)(struct state_t* state, enum token_t t, const char* s, u
  */
 struct level_t {
 	const char* tag; /**< Tag name. */
+	char local_buf[512]; /**< Small inline buffer to avoid heap allocations. */
 	char* data; /**< Accumulative data. */
 	unsigned len; /**< Length of the data. */
+	unsigned cap; /**< Allocated capacity. */
 	process_t* process; /**< Processing function. */
 };
 
@@ -66,6 +68,7 @@ struct level_t {
 struct state_t {
 	XML_Parser parser; /**< Parser. */
 	int depth; /**< Current depth. */
+	int ignore_depth; /**< Depth of ignored subtrees. */
 	struct level_t level[DEPTH_MAX]; /**< Level state. */
 	int error; /**< Error flag. */
 	emulator* e; /**< Current parent emulator. */
@@ -74,7 +77,8 @@ struct state_t {
 	machinedevice* m; /**< Machine device. */
 	unsigned rom_size; /**< Size of the current rom. */
 	bool rom_merge; /**< Merge of the current rom. */
-
+	string user_prefix; /**< Precomputed emulator user prefix. */
+	game_set::iterator last_inserted; /**< Hint iterator for faster sorted insertion. */
 };
 
 /****************************************************************************/
@@ -96,7 +100,7 @@ static void process_game(struct state_t* state, enum token_t t, const char* s, u
 		state->g = new game;
 		state->g->emulator_set(state->e);
 	} else if (t == token_close) {
-		state->a->insert(*state->g);
+		state->last_inserted = state->a->insert(state->last_inserted, *state->g);
 		delete state->g;
 		state->g = 0;
 	}
@@ -105,12 +109,11 @@ static void process_game(struct state_t* state, enum token_t t, const char* s, u
 static void process_runnable(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
-		string v = string(s, len);
 		if (!state->g) {
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		if (v == "no")
+		if (len == 2 && s[0] == 'n' && s[1] == 'o')
 			state->g->flag_set(true, emulator::flag_derived_resource);
 	}
 }
@@ -118,12 +121,11 @@ static void process_runnable(struct state_t* state, enum token_t t, const char* 
 static void process_isbios(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
-		string v = string(s, len);
 		if (!state->g) {
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		if (v == "yes")
+		if (len == 3 && s[0] == 'y' && s[1] == 'e' && s[2] == 's')
 			state->g->flag_set(true, emulator::flag_derived_resource);
 	}
 }
@@ -131,12 +133,11 @@ static void process_isbios(struct state_t* state, enum token_t t, const char* s,
 static void process_isdevice(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
-		string v = string(s, len);
 		if (!state->g) {
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		if (v == "yes")
+		if (len == 3 && s[0] == 'y' && s[1] == 'e' && s[2] == 's')
 			state->g->flag_set(true, emulator::flag_derived_resource);
 	}
 }
@@ -148,7 +149,9 @@ static void process_name(struct state_t* state, enum token_t t, const char* s, u
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		state->g->name_set(state->e->user_name_get() + "/" + string(s, len));
+		string n = state->user_prefix;
+		n.append(s, len);
+		state->g->name_set(n);
 	}
 }
 
@@ -192,7 +195,9 @@ static void process_cloneof(struct state_t* state, enum token_t t, const char* s
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		state->g->cloneof_set(state->e->user_name_get() + "/" + string(s, len));
+		string n = state->user_prefix;
+		n.append(s, len);
+		state->g->cloneof_set(n);
 	}
 }
 
@@ -203,7 +208,9 @@ static void process_romof(struct state_t* state, enum token_t t, const char* s, 
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		state->g->romof_set(state->e->user_name_get() + "/" + string(s, len));
+		string n = state->user_prefix;
+		n.append(s, len);
+		state->g->romof_set(n);
 	}
 }
 
@@ -214,10 +221,9 @@ static void process_driverstatus(struct state_t* state, enum token_t t, const ch
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		string v = string(s, len);
-		if (v == "preliminary")
+		if (len == 11 && memcmp(s, "preliminary", 11) == 0)
 			state->g->play_set(play_preliminary);
-		if (v == "imperfect" && state->g->play_get() < play_imperfect)
+		if (len == 9 && memcmp(s, "imperfect", 9) == 0 && state->g->play_get() < play_imperfect)
 			state->g->play_set(play_imperfect);
 	}
 }
@@ -240,8 +246,7 @@ static void process_rom(struct state_t* state, enum token_t t, const char* s, un
 static void process_romsize(struct state_t* state, enum token_t t, const char* s, unsigned len, const char** attributes)
 {
 	if (t == token_data) {
-		string v = string(s, len);
-		state->rom_size = atoi(v.c_str());
+		state->rom_size = strtoul(s, 0, 10);
 	}
 }
 
@@ -298,8 +303,7 @@ static void process_videoscreen(struct state_t* state, enum token_t t, const cha
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		string v = string(s, len);
-		state->g->flag_set(v == "vector", emulator::flag_derived_vector);
+		state->g->flag_set(len == 6 && memcmp(s, "vector", 6) == 0, emulator::flag_derived_vector);
 	}
 }
 
@@ -310,8 +314,7 @@ static void process_videoorientation(struct state_t* state, enum token_t t, cons
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		string v = string(s, len);
-		state->g->flag_set(v == "vertical", emulator::flag_derived_vertical);
+		state->g->flag_set(len == 8 && memcmp(s, "vertical", 8) == 0, emulator::flag_derived_vertical);
 	}
 }
 
@@ -322,8 +325,7 @@ static void process_videowidth(struct state_t* state, enum token_t t, const char
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		string v = string(s, len);
-		state->g->sizex_set(atoi(v.c_str()));
+		state->g->sizex_set(strtoul(s, 0, 10));
 	}
 }
 
@@ -334,8 +336,7 @@ static void process_videoheight(struct state_t* state, enum token_t t, const cha
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		string v = string(s, len);
-		state->g->sizey_set(atoi(v.c_str()));
+		state->g->sizey_set(strtoul(s, 0, 10));
 	}
 }
 
@@ -346,8 +347,7 @@ static void process_videoaspectx(struct state_t* state, enum token_t t, const ch
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		string v = string(s, len);
-		state->g->aspectx_set(atoi(v.c_str()));
+		state->g->aspectx_set(strtoul(s, 0, 10));
 	}
 }
 
@@ -358,8 +358,7 @@ static void process_videoaspecty(struct state_t* state, enum token_t t, const ch
 			process_error(state, 0, "invalid state");
 			return;
 		}
-		string v = string(s, len);
-		state->g->aspecty_set(atoi(v.c_str()));
+		state->g->aspecty_set(strtoul(s, 0, 10));
 	}
 }
 
@@ -393,6 +392,8 @@ static struct conversion_t CONV2[] = {
 	{ 2, { match_mamemessraine, match_gamemachine, "romof", 0, 0 }, process_romof },
 	{ 2, { match_mamemessraine, match_gamemachine, "rom", 0, 0 }, process_rom },
 	{ 2, { match_mamemessraine, match_gamemachine, "device", 0, 0 }, process_device },
+	{ 2, { match_mamemessraine, match_gamemachine, "driver", 0, 0 }, 0 },
+	{ 2, { match_mamemessraine, match_gamemachine, "video", 0, 0 }, 0 },
 	{ 0, { 0, 0, 0, 0, 0 }, 0 }
 };
 
@@ -401,6 +402,7 @@ static struct conversion_t CONV3[] = {
 	{ 3, { match_mamemessraine, match_gamemachine, "rom", "size", 0 }, process_romsize },
 	{ 3, { match_mamemessraine, match_gamemachine, "device", "name", 0 }, process_devicename },
 	{ 3, { match_mamemessraine, match_gamemachine, "device", "type", 0 }, process_devicename }, /* from MESS 0.106, instead of "name" */
+	{ 3, { match_mamemessraine, match_gamemachine, "device", "extension", 0 }, 0 },
 	{ 3, { match_mamemessraine, match_gamemachine, "driver", "status", 0 }, process_driverstatus },
 	{ 3, { match_mamemessraine, match_gamemachine, "video", "screen", 0 }, process_videoscreen },
 	{ 3, { match_mamemessraine, match_gamemachine, "video", "orientation", 0 }, process_videoorientation },
@@ -417,7 +419,125 @@ static struct conversion_t CONV4[] = {
 };
 
 /**
- * Identify the specified element/attribute.
+ * Check if an XML tag is a relevant child element of <game> or <machine>.
+ *
+ * Quickly filters out unsupported or unwanted XML elements at depth 1
+ * (such as dipswitch, configuration, port, chip, softwarelist, slot),
+ * allowing the parser to skip entire subtrees early.
+ */
+static inline bool is_game_child_tag(const char* name)
+{
+	switch (name[0]) {
+	case 'd':
+		return strcmp(name, "description") == 0
+			|| strcmp(name, "driver") == 0
+			|| strcmp(name, "device") == 0;
+	case 'y':
+		return strcmp(name, "year") == 0;
+	case 'm':
+		return strcmp(name, "manufacturer") == 0;
+	case 'r':
+		return strcmp(name, "rom") == 0
+			|| strcmp(name, "romof") == 0
+			|| strcmp(name, "runnable") == 0;
+	case 'v':
+		return strcmp(name, "video") == 0;
+	case 'n':
+		return strcmp(name, "name") == 0;
+	case 'c':
+		return strcmp(name, "cloneof") == 0;
+	case 'i':
+		return strcmp(name, "isbios") == 0
+			|| strcmp(name, "isdevice") == 0;
+	default:
+		return false;
+	}
+}
+
+/**
+ * Direct processing of XML element attributes.
+ *
+ * Bypasses the generic hierarchical conversion table to quickly extract
+ * game metadata stored directly as XML attributes in modern MAME XML formats.
+ */
+static inline void process_attributes_direct(struct state_t* state, const XML_Char* tag, const XML_Char** attributes)
+{
+	if (!attributes || !attributes[0])
+		return;
+
+	if (strcmp(tag, "game") == 0 || strcmp(tag, "machine") == 0) {
+		for (int i = 0; attributes[i]; i += 2) {
+			const char* k = attributes[i];
+			const char* v = attributes[i + 1];
+			unsigned l = strlen(v);
+			if (strcmp(k, "name") == 0)
+				process_name(state, token_data, v, l, 0);
+			else if (strcmp(k, "cloneof") == 0)
+				process_cloneof(state, token_data, v, l, 0);
+			else if (strcmp(k, "romof") == 0)
+				process_romof(state, token_data, v, l, 0);
+			else if (strcmp(k, "runnable") == 0)
+				process_runnable(state, token_data, v, l, 0);
+			else if (strcmp(k, "isbios") == 0)
+				process_isbios(state, token_data, v, l, 0);
+			else if (strcmp(k, "isdevice") == 0)
+				process_isdevice(state, token_data, v, l, 0);
+		}
+	} else if (strcmp(tag, "rom") == 0) {
+		for (int i = 0; attributes[i]; i += 2) {
+			const char* k = attributes[i];
+			const char* v = attributes[i + 1];
+			unsigned l = strlen(v);
+			if (strcmp(k, "size") == 0)
+				process_romsize(state, token_data, v, l, 0);
+			else if (strcmp(k, "merge") == 0)
+				process_rommerge(state, token_data, v, l, 0);
+		}
+	} else if (strcmp(tag, "driver") == 0) {
+		for (int i = 0; attributes[i]; i += 2) {
+			const char* k = attributes[i];
+			const char* v = attributes[i + 1];
+			if (strcmp(k, "status") == 0)
+				process_driverstatus(state, token_data, v, strlen(v), 0);
+		}
+	} else if (strcmp(tag, "video") == 0) {
+		for (int i = 0; attributes[i]; i += 2) {
+			const char* k = attributes[i];
+			const char* v = attributes[i + 1];
+			unsigned l = strlen(v);
+			if (strcmp(k, "screen") == 0)
+				process_videoscreen(state, token_data, v, l, 0);
+			else if (strcmp(k, "orientation") == 0)
+				process_videoorientation(state, token_data, v, l, 0);
+			else if (strcmp(k, "width") == 0)
+				process_videowidth(state, token_data, v, l, 0);
+			else if (strcmp(k, "height") == 0)
+				process_videoheight(state, token_data, v, l, 0);
+			else if (strcmp(k, "aspectx") == 0)
+				process_videoaspectx(state, token_data, v, l, 0);
+			else if (strcmp(k, "aspecty") == 0)
+				process_videoaspecty(state, token_data, v, l, 0);
+		}
+	} else if (strcmp(tag, "device") == 0) {
+		for (int i = 0; attributes[i]; i += 2) {
+			const char* k = attributes[i];
+			if (strcmp(k, "name") == 0 || strcmp(k, "type") == 0)
+				process_devicename(state, token_data, attributes[i + 1], strlen(attributes[i + 1]), 0);
+		}
+	} else if (strcmp(tag, "extension") == 0) {
+		for (int i = 0; attributes[i]; i += 2) {
+			const char* k = attributes[i];
+			if (strcmp(k, "name") == 0)
+				process_deviceextensionname(state, token_data, attributes[i + 1], strlen(attributes[i + 1]), 0);
+		}
+	}
+}
+
+/**
+ * Identify the conversion rule for the current XML tag hierarchy.
+ *
+ * Finds the matching rule in conversion tables (CONV1..CONV4) corresponding
+ * to the current element hierarchy in the XML tree.
  */
 static struct conversion_t* identify(unsigned depth, const struct level_t* level)
 {
@@ -458,92 +578,158 @@ static struct conversion_t* identify(unsigned depth, const struct level_t* level
 }
 
 /**
- * End Handler for the Expat parser.
+ * End element callback for the Expat parser.
+ *
+ * Handles closing XML tags (</tag>), finalizing data processing and cleaning up
+ * per-level state and buffers.
  */
 static void end_handler(void* data, const XML_Char* name)
 {
 	struct state_t* state = (struct state_t*)data;
 
-	if (state->depth < DEPTH_MAX) {
+	if (state->ignore_depth > 0) {
+		--state->ignore_depth;
+		return;
+	}
+
+	if (state->depth < DEPTH_MAX && state->depth >= 0) {
 		if (state->error == 0) {
 			if (state->level[state->depth].process) {
-				if (state->level[state->depth].data != 0) {
-					state->level[state->depth].process(state, token_data, state->level[state->depth].data, state->level[state->depth].len, 0);
-				} else {
-					state->level[state->depth].process(state, token_data, "", 0, 0);
-				}
+				const char* d = state->level[state->depth].data ? state->level[state->depth].data : "";
+				unsigned l = state->level[state->depth].len;
+				state->level[state->depth].process(state, token_data, d, l, 0);
 				state->level[state->depth].process(state, token_close, 0, 0, 0);
 			}
 		}
-		free(state->level[state->depth].data);
+		if (state->level[state->depth].data && state->level[state->depth].data != state->level[state->depth].local_buf) {
+			free(state->level[state->depth].data);
+		}
+		state->level[state->depth].data = 0;
+		state->level[state->depth].len = 0;
+		state->level[state->depth].cap = 0;
 	}
 
 	--state->depth;
 }
 
 /**
- * Data Handler for the Expat parser.
+ * Character data callback for the Expat parser.
+ *
+ * Accumulates text content enclosed inside XML elements.
  */
 void data_handler(void* data, const XML_Char* s, int len)
 {
 	struct state_t* state = (struct state_t*)data;
 
-	if (state->depth < DEPTH_MAX) {
-		if (state->error == 0) {
-			/* accumulate the data */
-			unsigned new_len = state->level[state->depth].len + len;
-			state->level[state->depth].data = (char*)realloc(state->level[state->depth].data, new_len);
-			if (!state->level[state->depth].data) {
-				process_error(state, state->level[state->depth].tag, "low memory");
-				return;
-			}
-			memcpy(state->level[state->depth].data + state->level[state->depth].len, s, len);
-			state->level[state->depth].len += len;
+	if (state->ignore_depth > 0 || state->depth >= DEPTH_MAX || state->depth < 0)
+		return;
+	if (state->error != 0 || state->level[state->depth].process == 0)
+		return;
+
+	struct level_t* lvl = &state->level[state->depth];
+	unsigned required = lvl->len + len + 1;
+	if (lvl->data == lvl->local_buf) {
+		if (required <= sizeof(lvl->local_buf)) {
+			memcpy(lvl->data + lvl->len, s, len);
+			lvl->len += len;
+			lvl->data[lvl->len] = 0;
+			return;
 		}
+		lvl->cap = required * 2;
+		lvl->data = (char*)malloc(lvl->cap);
+		if (!lvl->data) {
+			process_error(state, lvl->tag, "low memory");
+			return;
+		}
+		memcpy(lvl->data, lvl->local_buf, lvl->len);
+	} else if (!lvl->data) {
+		if (required <= sizeof(lvl->local_buf)) {
+			lvl->data = lvl->local_buf;
+			memcpy(lvl->data, s, len);
+			lvl->len = len;
+			lvl->data[len] = 0;
+			return;
+		}
+		lvl->cap = required * 2;
+		lvl->data = (char*)malloc(lvl->cap);
+		if (!lvl->data) {
+			process_error(state, lvl->tag, "low memory");
+			return;
+		}
+	} else if (required > lvl->cap) {
+		lvl->cap = required * 2;
+		char* newdata = (char*)realloc(lvl->data, lvl->cap);
+		if (!newdata) {
+			free(lvl->data);
+			lvl->data = 0;
+			process_error(state, lvl->tag, "low memory");
+			return;
+		}
+		lvl->data = newdata;
 	}
+	memcpy(lvl->data + lvl->len, s, len);
+	lvl->len += len;
+	lvl->data[lvl->len] = 0;
 }
 
 /**
- * Start Handler for the Expat parser.
+ * Start element callback for the Expat parser.
+ *
+ * Handles opening XML tags (<tag ...>), managing subtree skipping, tracking
+ * parser hierarchy depth, and dispatching element and attribute handlers.
  */
 static void start_handler(void* data, const XML_Char* name, const XML_Char** attributes)
 {
 	struct state_t* state = (struct state_t*)data;
-	struct conversion_t* c;
-	unsigned i;
+
+	if (state->ignore_depth > 0) {
+		++state->ignore_depth;
+		return;
+	}
+
+	if (state->depth == 1) {
+		// Children of game/machine (depth 1)
+		if (!is_game_child_tag(name)) {
+			state->ignore_depth = 1;
+			return;
+		}
+	} else if (state->depth == 2) {
+		if (state->level[2].tag && strcmp(state->level[2].tag, "device") == 0) {
+			if (strcmp(name, "extension") != 0 && strcmp(name, "name") != 0 && strcmp(name, "type") != 0) {
+				state->ignore_depth = 1;
+				return;
+			}
+		}
+	}
+
+	if (state->depth + 1 >= DEPTH_MAX) {
+		state->ignore_depth = 1;
+		return;
+	}
 
 	++state->depth;
 
-	if (state->depth < DEPTH_MAX) {
-		state->level[state->depth].tag = name;
-		state->level[state->depth].data = 0;
-		state->level[state->depth].len = 0;
+	state->level[state->depth].tag = name;
+	state->level[state->depth].data = 0;
+	state->level[state->depth].len = 0;
+	state->level[state->depth].cap = 0;
+	state->level[state->depth].process = 0;
 
-		if (state->error == 0) {
-			c = identify(state->depth, state->level);
-			if (c) {
-				state->level[state->depth].process = c->process;
+	if (state->error == 0) {
+		struct conversion_t* c = identify(state->depth, state->level);
+		if (c) {
+			state->level[state->depth].process = c->process;
+			if (state->level[state->depth].process)
 				state->level[state->depth].process(state, token_open, 0, 0, attributes);
-			} else {
-				state->level[state->depth].process = 0;
-			}
-
-			for (i = 0; attributes[i]; i += 2) {
-				const char* null_atts[1] = { 0 };
-				start_handler(data, attributes[i], null_atts);
-				data_handler(data, attributes[i + 1], strlen(attributes[i + 1]));
-				end_handler(data, attributes[i]);
-			}
-		} else {
-			state->level[state->depth].process = 0;
 		}
+		process_attributes_direct(state, name, attributes);
 	}
 }
 
 bool mame_info::load_xml(istream& is, game_set& gar)
 {
 	struct state_t state;
-	char buf[16384];
+	const int BUF_SIZE = 64 * 1024;
 
 	state.parser = XML_ParserCreate(NULL);
 	if (!state.parser) {
@@ -551,31 +737,45 @@ bool mame_info::load_xml(istream& is, game_set& gar)
 	}
 
 	state.depth = -1;
+	state.ignore_depth = 0;
 	state.error = 0;
 	state.e = this;
 	state.g = 0;
 	state.a = &gar;
 	state.m = 0;
+	state.user_prefix = user_name_get() + "/";
+	state.last_inserted = gar.end();
+
+	for (int i = 0; i < DEPTH_MAX; ++i) {
+		state.level[i].tag = 0;
+		state.level[i].data = 0;
+		state.level[i].len = 0;
+		state.level[i].cap = 0;
+		state.level[i].process = 0;
+	}
 
 	XML_SetUserData(state.parser, &state);
 	XML_SetElementHandler(state.parser, start_handler, end_handler);
 	XML_SetCharacterDataHandler(state.parser, data_handler);
+	XML_SetParamEntityParsing(state.parser, XML_PARAM_ENTITY_PARSING_NEVER);
 
 	while (1) {
-		bool done;
-		int len;
+		void* buf = XML_GetBuffer(state.parser, BUF_SIZE);
+		if (!buf) {
+			process_error(&state, "", "out of memory");
+			break;
+		}
 
-		is.read(buf, sizeof(buf));
+		is.read((char*)buf, BUF_SIZE);
 		if (is.bad()) {
 			process_error(&state, "", "read error");
 			break;
 		}
 
-		len = is.gcount();
+		int len = is.gcount();
+		bool done = is.eof();
 
-		done = is.eof();
-
-		if (XML_Parse(state.parser, buf, len, done) == XML_STATUS_ERROR) {
+		if (XML_ParseBuffer(state.parser, len, done) == XML_STATUS_ERROR) {
 			process_error(&state, "", XML_ErrorString(XML_GetErrorCode(state.parser)));
 			break;
 		}
@@ -585,6 +785,15 @@ bool mame_info::load_xml(istream& is, game_set& gar)
 	}
 
 	XML_ParserFree(state.parser);
+
+	if (state.g) {
+		delete state.g;
+		state.g = 0;
+	}
+	if (state.m) {
+		delete state.m;
+		state.m = 0;
+	}
 
 	if (state.error) {
 		return false;
