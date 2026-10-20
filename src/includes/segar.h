@@ -22,6 +22,10 @@ WRITE8_HANDLER( spaceod_audio_ports_w );
 WRITE8_HANDLER( monsterb_audio_8255_w );
  READ8_HANDLER( monsterb_audio_8255_r );
 
+WRITE8_HANDLER( sega005_sound_a_w );
+WRITE8_HANDLER( sega005_sound_b_w );
+SOUND_START( 005 );
+
  READ8_HANDLER( monsterb_sh_rom_r );
  READ8_HANDLER( monsterb_sh_t1_r );
  READ8_HANDLER( monsterb_sh_command_r );
