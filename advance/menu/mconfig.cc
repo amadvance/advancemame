@@ -844,6 +844,7 @@ static bool config_load_orientation(adv_conf* config_context, unsigned& mask)
 
 bool config_state::load(adv_conf* config_context, bool opt_verbose)
 {
+	target_clock_t t_load_total = target_clock();
 	string a0, a1;
 	string::size_type p;
 
@@ -1081,9 +1082,11 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	}
 
 	// load the game definitions
+	target_clock_t t_step = target_clock();
 	for (pemulator_container::iterator i = emu_active.begin(); i != emu_active.end(); ) {
 		if (opt_verbose)
 			target_nfo("log: load game for %s\n", (*i)->user_name_get().c_str());
+		target_clock_t t_emu = target_clock();
 		if (!(*i)->load_game(gar, quiet)) {
 			if (!quiet)
 				target_err("Emulator '%s' without game information, ignoring it.\n", (*i)->user_exe_path_get().c_str());
@@ -1091,11 +1094,14 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 			++i;
 			emu_active.erase(j);
 		} else {
+			log_std(("startup:   load_game '%s': %.2f ms\n", (*i)->user_name_get().c_str(), (double)(target_clock() - t_emu) * 1000.0 / TARGET_CLOCKS_PER_SEC));
 			++i;
 		}
 	}
+	log_std(("startup: load_game total: %.2f ms (%u total games)\n", (double)(target_clock() - t_step) * 1000.0 / TARGET_CLOCKS_PER_SEC, (unsigned)gar.size()));
 
 	// load the emulator configurations
+	t_step = target_clock();
 	for (pemulator_container::iterator i = emu_active.begin(); i != emu_active.end(); ) {
 		if (opt_verbose)
 			target_nfo("log: load cfg for %s\n", (*i)->user_name_get().c_str());
@@ -1107,6 +1113,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 			++i;
 		}
 	}
+	log_std(("startup: load_cfg total: %.2f ms\n", (double)(target_clock() - t_step) * 1000.0 / TARGET_CLOCKS_PER_SEC));
 
 	// remove emulator without roms
 	for (pemulator_container::iterator i = emu_active.begin(); i != emu_active.end(); ) {
@@ -1122,6 +1129,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	}
 
 	// load the software definitions
+	t_step = target_clock();
 	for (pemulator_container::iterator i = emu_active.begin(); i != emu_active.end(); ) {
 		if (opt_verbose)
 			target_nfo("log: load software for %s\n", (*i)->user_name_get().c_str());
@@ -1135,30 +1143,40 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 			++i;
 		}
 	}
+	log_std(("startup: load_software total: %.2f ms\n", (double)(target_clock() - t_step) * 1000.0 / TARGET_CLOCKS_PER_SEC));
 
 	if (emu_active.size() == 0) {
 		target_err("No working emulator found. Adjust the `emulator' options in your configuration file. These options are documented in the `advmenu.txt' file.\n");
 		return false;
 	}
 
+	t_step = target_clock();
 	if (!load_iterator_rename_import(config_context, "rename_import", opt_verbose))
 		return false;
+	log_std(("startup: rename_import total: %.2f ms\n", (double)(target_clock() - t_step) * 1000.0 / TARGET_CLOCKS_PER_SEC));
 
 	// cache some values and relations
 	if (opt_verbose)
 		target_nfo("log: cache\n");
+	t_step = target_clock();
 	gar.cache(merge);
+	log_std(("startup: gar.cache (dupe & relations): %.2f ms\n", (double)(target_clock() - t_step) * 1000.0 / TARGET_CLOCKS_PER_SEC));
 
 	// set the previews
+	t_step = target_clock();
 	for (pemulator_container::iterator i = emu_active.begin(); i != emu_active.end(); ++i) {
 		if (opt_verbose)
 			target_nfo("log: load preview for %s\n", (*i)->user_name_get().c_str());
+		target_clock_t t_prev = target_clock();
 		(*i)->preview_set(gar);
+		log_std(("startup:   preview_set '%s': %.2f ms\n", (*i)->user_name_get().c_str(), (double)(target_clock() - t_prev) * 1000.0 / TARGET_CLOCKS_PER_SEC));
 	}
+	log_std(("startup: preview_set total: %.2f ms\n", (double)(target_clock() - t_step) * 1000.0 / TARGET_CLOCKS_PER_SEC));
 
 	if (opt_verbose)
 		target_nfo("log: load group and types\n");
 
+	t_step = target_clock();
 	// load the group/type informations
 	if (!config_load_iterator_pcategory(config_context, "group", group))
 		return false;
@@ -1181,8 +1199,10 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		i->auto_group_set(group.undefined_get());
 		i->auto_type_set(type.undefined_get());
 	}
+	log_std(("startup: categories and games info: %.2f ms\n", (double)(target_clock() - t_step) * 1000.0 / TARGET_CLOCKS_PER_SEC));
 
 	// load the emulator data
+	t_step = target_clock();
 	for (pemulator_container::iterator i = emu_active.begin(); i != emu_active.end(); ++i) {
 		if (opt_verbose)
 			target_nfo("log: load data for %s\n", (*i)->user_name_get().c_str());
@@ -1190,6 +1210,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 			return false;
 		}
 	}
+	log_std(("startup: load_data total: %.2f ms\n", (double)(target_clock() - t_step) * 1000.0 / TARGET_CLOCKS_PER_SEC));
 
 	// load the emulator active
 	if (!config_load_iterator_emu_include(config_context, "emulator_include", include_emu_orig))
@@ -1202,6 +1223,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		}
 	}
 
+	t_step = target_clock();
 	if (!load_iterator_import(config_context, "desc_import", &config_state::import_desc, opt_verbose))
 		return false;
 	if (!load_iterator_import(config_context, "info_import", &config_state::import_info, opt_verbose))
@@ -1210,6 +1232,7 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		return false;
 	if (!load_iterator_import(config_context, "group_import", &config_state::import_group, opt_verbose))
 		return false;
+	log_std(("startup: desc/info/type/group imports total: %.2f ms\n", (double)(target_clock() - t_step) * 1000.0 / TARGET_CLOCKS_PER_SEC));
 
 	/* if the default inclusion are empty add everything */
 	/* note that <undefined> is always present */
@@ -1226,7 +1249,11 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 	if (opt_verbose)
 		target_nfo("log: load background music list\n");
 
+	t_step = target_clock();
 	config_load_background_list(sound_background_loop_dir, sound_background);
+	log_std(("startup: background music list: %.2f ms\n", (double)(target_clock() - t_step) * 1000.0 / TARGET_CLOCKS_PER_SEC));
+
+	log_std(("startup: config_state::load total: %.2f ms\n", (double)(target_clock() - t_load_total) * 1000.0 / TARGET_CLOCKS_PER_SEC));
 
 	if (opt_verbose)
 		target_nfo("log: start\n");
@@ -1856,6 +1883,8 @@ static const renameset_map& renameset_get(const std::string& path)
 	if (it != cache.end())
 		return it->second;
 
+	target_clock_t t0 = target_clock();
+
 	renameset_map& rmap = cache[path];
 	const char* rpath = file_config_file_home(cpath_export(path));
 	FILE* f = fopen(rpath, "r");
@@ -1904,6 +1933,8 @@ static const renameset_map& renameset_get(const std::string& path)
 	}
 	fclose(f);
 
+	target_clock_t t1 = target_clock();
+
 	// Compute connected components (equivalence classes)
 	std::set<std::string> visited;
 	for (std::map<std::string, std::set<std::string> >::iterator i = adj.begin(); i != adj.end(); ++i) {
@@ -1940,14 +1971,24 @@ static const renameset_map& renameset_get(const std::string& path)
 		}
 	}
 
+	target_clock_t t2 = target_clock();
+	log_std(("startup:     rename file '%s': parse=%.2f ms, connected components=%.2f ms, total=%.2f ms (%u keys)\n",
+		rpath,
+		(double)(t1 - t0) * 1000.0 / TARGET_CLOCKS_PER_SEC,
+		(double)(t2 - t1) * 1000.0 / TARGET_CLOCKS_PER_SEC,
+		(double)(t2 - t0) * 1000.0 / TARGET_CLOCKS_PER_SEC,
+		(unsigned)rmap.size()));
+
 	return rmap;
 }
 
 void config_import::import_dat(game_set& gar)
 {
 	const renameset_map& rmap = renameset_get(file);
+	target_clock_t t0 = target_clock();
 	string prefix = emulator + "/";
 
+	unsigned matched = 0;
 	for (game_set::iterator i = gar.begin(); i != gar.end(); ++i) {
 		if (i->name_get().compare(0, prefix.length(), prefix) == 0) {
 			string base_name = file_file(i->name_get());
@@ -1956,9 +1997,14 @@ void config_import::import_dat(game_set& gar)
 				for (size_t k = 0; k < it->second.size(); ++k) {
 					i->alt_name_insert(it->second[k]);
 				}
+				++matched;
 			}
 		}
 	}
+	log_std(("startup:     rename match '%s': %.2f ms (%u games matched)\n",
+		emulator.c_str(),
+		(double)(target_clock() - t0) * 1000.0 / TARGET_CLOCKS_PER_SEC,
+		matched));
 }
 
 void config_import::import_rename(game_set& gar)

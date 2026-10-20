@@ -721,12 +721,15 @@ bool mame_info::load_game_xml(game_set& gar)
 		target_err("Try running manually the command: '%s -listxml > %s'.\n", user_exe_path.c_str(), cpath_export(xml_file));
 		return false;
 	}
+	target_clock_t t0 = target_clock();
+	unsigned prev_games = gar.size();
 	if (!load_xml(f, gar)) {
 		f.close();
 		target_err("Error reading the '%s' information from file '%s'.\n", user_name_get().c_str(), cpath_export(xml_file));
 		return false;
 	}
 	f.close();
+	log_std(("startup:     load_game_xml '%s': %.2f ms (%u games parsed)\n", user_name_get().c_str(), (double)(target_clock() - t0) * 1000.0 / TARGET_CLOCKS_PER_SEC, (unsigned)(gar.size() - prev_games)));
 
 	return true;
 }
