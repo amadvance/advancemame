@@ -88,9 +88,11 @@ static int read_wav_sample(mame_file *f, struct loaded_sample *sample)
 	if (temp16 != 1)
 		return 0;
 
-	/* number of channels -- only mono is supported */
-	offset += mame_fread_lsbfirst(f, &temp16, 2);
-	if (temp16 != 1)
+	UINT16 channels;
+
+	/* number of channels -- mono or stereo */
+	offset += mame_fread_lsbfirst(f, &channels, 2);
+	if (channels != 1 && channels != 2)
 		return 0;
 
 	/* sample rate */
@@ -130,7 +132,7 @@ static int read_wav_sample(mame_file *f, struct loaded_sample *sample)
 		return 0;
 
 	/* fill in the sample data */
-	sample->length = length;
+	sample->length = length / channels;
 	sample->frequency = rate;
 
 	/* read the data in */
@@ -139,20 +141,46 @@ static int read_wav_sample(mame_file *f, struct loaded_sample *sample)
 		unsigned char *tempptr;
 		int sindex;
 
-		sample->data = auto_malloc(sizeof(*sample->data) * length);
-		mame_fread(f, sample->data, length);
+		tempptr = auto_malloc(length);
+		mame_fread(f, tempptr, length);
+		sample->data = auto_malloc(sizeof(*sample->data) * sample->length);
 
 		/* convert 8-bit data to signed samples */
-		tempptr = (unsigned char *)sample->data;
-		for (sindex = length - 1; sindex >= 0; sindex--)
-			sample->data[sindex] = (INT8)(tempptr[sindex] ^ 0x80) * 256;
+		if (channels == 1)
+		{
+			for (sindex = 0; sindex < sample->length; sindex++)
+				sample->data[sindex] = (INT8)(tempptr[sindex] ^ 0x80) * 256;
+		}
+		else
+		{
+			for (sindex = 0; sindex < sample->length; sindex++)
+			{
+				INT32 val = (INT8)(tempptr[sindex * 2] ^ 0x80) + (INT8)(tempptr[sindex * 2 + 1] ^ 0x80);
+				sample->data[sindex] = val * 128;
+			}
+		}
 	}
 	else
 	{
-		/* 16-bit data is fine as-is */
-		sample->data = auto_malloc(sizeof(*sample->data) * (length/2));
-		mame_fread_lsbfirst(f, sample->data, length);
+		int sindex;
+
 		sample->length /= 2;
+		if (channels == 1)
+		{
+			sample->data = auto_malloc(sizeof(*sample->data) * sample->length);
+			mame_fread_lsbfirst(f, sample->data, length);
+		}
+		else
+		{
+			INT16 *tempptr = auto_malloc(length);
+			mame_fread_lsbfirst(f, tempptr, length);
+			sample->data = auto_malloc(sizeof(*sample->data) * sample->length);
+			for (sindex = 0; sindex < sample->length; sindex++)
+			{
+				INT32 val = (INT32)tempptr[sindex * 2] + (INT32)tempptr[sindex * 2 + 1];
+				sample->data[sindex] = val / 2;
+			}
+		}
 	}
 	return 1;
 }

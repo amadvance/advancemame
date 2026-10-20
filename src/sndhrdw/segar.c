@@ -29,6 +29,7 @@
 #include "sound/samples.h"
 #include "sound/tms36xx.h"
 #include "sound/dac.h"
+#include "machine/8255ppi.h"
 
 #define TOTAL_SOUNDS 16
 
@@ -196,10 +197,78 @@ Melody Generator:
     The output of this feeds into a 4391, which produces "MELODY" output.
 ***************************************************************************/
 
+static UINT8 sega005_sound_state[2];
+
 const char *s005_sample_names[] =
 {
-		0
+	"*005",
+	"lexplode.wav",     /* 0 */
+	"sexplode.wav",     /* 1 */
+	"dropbomb.wav",     /* 2 */
+	"shoot.wav",        /* 3 */
+	"missile.wav",      /* 4 */
+	"helicopt.wav",     /* 5 */
+	"whistle.wav",      /* 6 */
+	0
 };
+
+WRITE8_HANDLER( sega005_sound_a_w )
+{
+	UINT8 diff = data ^ sega005_sound_state[0];
+	sega005_sound_state[0] = data;
+
+	/* LARGE EXPL: channel 0 */
+	if ((diff & 0x01) && !(data & 0x01)) sample_start(0, 0, 0);
+
+	/* SMALL EXPL: channel 1 */
+	if ((diff & 0x02) && !(data & 0x02)) sample_start(1, 1, 0);
+
+	/* DROP BOMB: channel 2 */
+	if ((diff & 0x04) && !(data & 0x04)) sample_start(2, 2, 0);
+
+	/* SHOOT PISTOL: channel 3 */
+	if ((diff & 0x08) && !(data & 0x08)) sample_start(3, 3, 0);
+
+	/* MISSILE: channel 4 */
+	if ((diff & 0x10) && !(data & 0x10)) sample_start(4, 4, 0);
+
+	/* HELICOPTER: channel 5 */
+	if ((diff & 0x20) && !(data & 0x20) && !sample_playing(5)) sample_start(5, 5, 1);
+	if ((diff & 0x20) &&  (data & 0x20)) sample_stop(5);
+
+	/* WHISTLE: channel 6 */
+	if ((diff & 0x40) && !(data & 0x40) && !sample_playing(6)) sample_start(6, 6, 1);
+	if ((diff & 0x40) &&  (data & 0x40)) sample_stop(6);
+}
+
+WRITE8_HANDLER( sega005_sound_b_w )
+{
+	/* Port B controls the melody generator hardware which is not emulated */
+	sega005_sound_state[1] = data;
+}
+
+SOUND_START( 005 )
+{
+	static const ppi8255_interface ppi_intf =
+	{
+		1,
+		{ 0 },
+		{ 0 },
+		{ 0 },
+		{ sega005_sound_a_w },
+		{ sega005_sound_b_w },
+		{ 0 }
+	};
+
+	sega005_sound_state[0] = 0xff;
+	sega005_sound_state[1] = 0xff;
+
+	ppi8255_init(&ppi_intf);
+
+	state_save_register_global_array(sega005_sound_state);
+
+	return 0;
+}
 
 /***************************************************************************
 Space Odyssey

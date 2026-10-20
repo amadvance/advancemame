@@ -57,6 +57,7 @@
 #include "sound/samples.h"
 #include "sound/tms36xx.h"
 #include "sound/sp0250.h"
+#include "machine/8255ppi.h"
 
 
 
@@ -1066,9 +1067,10 @@ static struct Samplesinterface spaceod_samples_interface =
 
 static struct Samplesinterface samples_interface_005 =
 {
-	12,    /* 12 channels */
+	7,
 	s005_sample_names
 };
+
 
 
 static struct Samplesinterface monsterb_samples_interface =
@@ -1162,9 +1164,11 @@ static MACHINE_DRIVER_START( 005 )
 	MDRV_IMPORT_FROM(segar)
 
 	/* sound hardware */
+	MDRV_SOUND_START(005)
+
 	MDRV_SOUND_ADD(SAMPLES, 0)
 	MDRV_SOUND_CONFIG(samples_interface_005)
-	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
 
@@ -1417,6 +1421,9 @@ ROM_START( 005 )
 
 	ROM_REGION( 0x0800, REGION_SOUND1, 0 )      /* 2k for sound */
 	ROM_LOAD( "epr-1286.16",  0x0000, 0x0800, CRC(fbe0d501) SHA1(bfa277689790f835d8a43be4beee0581e1096bcc) )
+
+	ROM_REGION( 0x0020, REGION_PROMS, 0 )
+	ROM_LOAD( "6331.sound-u8",     0x0000, 0x0020, BAD_DUMP CRC(1d298cb0) SHA1(bb0bb62365402543e3154b9a77be9c75010e6abc) )	/* missing sound PROM! */
 ROM_END
 
 
@@ -1664,6 +1671,10 @@ static DRIVER_INIT( 005 )
 {
 	/* This game uses the 315-0070 security chip */
 	sega_security(70);
+
+	/* install the 8255 PPI for the sound board */
+	memory_install_read8_handler (0, ADDRESS_SPACE_IO, 0x0c, 0x0f, 0, 0, ppi8255_0_r);
+	memory_install_write8_handler(0, ADDRESS_SPACE_IO, 0x0c, 0x0f, 0, 0, ppi8255_0_w);
 }
 
 
@@ -1769,7 +1780,7 @@ GAME( 1981, astrob,   0,       astrob,   astrob,   astrob,   ROT270, "Sega", "As
 GAME( 1981, astrob2,  astrob,  astrob,   astrob2,  astrob,   ROT270, "Sega", "Astro Blaster (version 2)", 0 )
 GAME( 1981, astrob2a, astrob,  astrob,   astrob2,  astrob,   ROT270, "Sega", "Astro Blaster (version 2a)", 0 )
 GAME( 1981, astrob1,  astrob,  astrob,   astrob1,  astrob,   ROT270, "Sega", "Astro Blaster (version 1)", GAME_NOT_WORKING )
-GAME( 1981, 005,      0,       005,      005,      005,      ROT270, "Sega", "005", GAME_NO_SOUND )
+GAME( 1981, 005,      0,       005,      005,      005,      ROT270, "Sega", "005", GAME_IMPERFECT_SOUND )
 GAME( 1982, monsterb, 0,       monsterb, monsterb, monsterb, ROT270, "Sega", "Monster Bash", 0 )
 GAME( 1982, monster2, monsterb,monsterb, monsterb, monster2, ROT270, "Sega", "Monster Bash (2 board version)",GAME_IMPERFECT_GRAPHICS )
 GAME( 1981, spaceod,  0,       spaceod,  spaceod,  spaceod,  ROT270, "Sega", "Space Odyssey", 0 )
