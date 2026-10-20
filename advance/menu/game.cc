@@ -490,6 +490,20 @@ void game_set::cache(merge_t merge)
 
 		i->flag_set(j != dar.end() && (i->play_best_get() == play_preliminary || j->count_get() > 1), game::flag_duplicate);
 	}
+
+	// propagate dupe info to parent games if any clone is duplicate
+	for (iterator i = begin(); i != end(); ++i) {
+		if (i->duplicate_get())
+			continue;
+
+		bool is_software = i->software_get();
+		for (pgame_container::const_iterator j = i->clone_bag_get().begin(); j != i->clone_bag_get().end(); ++j) {
+			if (is_software == (*j)->software_get() && (*j)->duplicate_get()) {
+				i->flag_set(true, game::flag_duplicate);
+				break;
+			}
+		}
+	}
 }
 
 bool game_set::is_tree_rom_of_present(const string& name, merge_t type) const
