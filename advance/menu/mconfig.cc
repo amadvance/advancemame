@@ -26,6 +26,10 @@
 #include "advance.h"
 
 #include <sstream>
+#include <map>
+#include <set>
+#include <vector>
+#include <list>
 
 using namespace std;
 
@@ -264,6 +268,7 @@ void config_state::conf_register(adv_conf* config_context)
 	conf_string_register_multi(config_context, "group_import");
 	conf_string_register_multi(config_context, "desc_import");
 	conf_string_register_multi(config_context, "info_import");
+	conf_string_register_multi(config_context, "rename_import");
 	conf_string_register_multi(config_context, "game");
 	conf_int_register_enum_default(config_context, "sort", conf_enum(OPTION_SORT), sort_by_root_name);
 	conf_bool_register_default(config_context, "lock", 0);
@@ -652,6 +657,47 @@ bool config_state::load_iterator_import(adv_conf* config_context, const string& 
 			target_nfo("log: importing from %s\n", a2.c_str());
 
 		j.import(gar, *this, set);
+
+		conf_iterator_next(&i);
+	}
+
+	return true;
+}
+
+bool config_state::load_iterator_rename_import(adv_conf* config_context, const string& tag, bool opt_verbose)
+{
+	adv_conf_iterator i;
+	conf_iterator_begin(&i, config_context, tag.c_str());
+	while (!conf_iterator_is_end(&i)) {
+		string a0, a1, a2, a3;
+		string s = conf_iterator_string_get(&i);
+
+		if (!config_split(s, a0, a1, a2, a3))
+			return false;
+
+		if (a0 != "dat") {
+			config_error_oa(tag, a0);
+			return false;
+		}
+
+		if (!config_is_emulator(emu, a1)) {
+			config_error_oa(tag, a1);
+			return false;
+		}
+
+		if (a2.length() == 0) {
+			config_error_oa(tag, a2);
+			return false;
+		}
+
+		a2 = path_import(a2);
+
+		config_import j(a0, a1, a2, a3);
+
+		if (opt_verbose)
+			target_nfo("log: importing rename from %s\n", a2.c_str());
+
+		j.import_rename(gar);
 
 		conf_iterator_next(&i);
 	}
@@ -1094,6 +1140,9 @@ bool config_state::load(adv_conf* config_context, bool opt_verbose)
 		target_err("No working emulator found. Adjust the `emulator' options in your configuration file. These options are documented in the `advmenu.txt' file.\n");
 		return false;
 	}
+
+	if (!load_iterator_rename_import(config_context, "rename_import", opt_verbose))
+		return false;
 
 	// cache some values and relations
 	if (opt_verbose)
@@ -1796,6 +1845,126 @@ void config_import::import(game_set& gar, config_state& config, void (config_sta
 		import_mac(gar, config, set);
 	else if (type == "nms")
 		import_nms(gar, config, set);
+}
+
+typedef std::map<std::string, std::vector<std::string> > renameset_map;
+
+static const renameset_map& renameset_get(const std::string& path)
+{
+	static std::map<std::string, renameset_map> cache;
+	std::map<std::string, renameset_map>::iterator it = cache.find(path);
+	if (it != cache.end())
+		return it->second;
+
+	renameset_map& rmap = cache[path];
+	const char* rpath = file_config_file_home(cpath_export(path));
+	FILE* f = fopen(rpath, "r");
+	if (!f) {
+		log_std(("import: unable to open rename file '%s'\n", rpath));
+		return rmap;
+	}
+
+	std::map<std::string, std::set<std::string> > adj;
+	char buf[1024];
+	while (fgets(buf, sizeof(buf), f)) {
+		char* p = buf;
+		while (*p == ' ' || *p == '\t') ++p;
+		if (*p == 0 || *p == '#' || *p == '$' || *p == '\r' || *p == '\n')
+			continue;
+
+		char* sep = strchr(p, '>');
+		if (!sep)
+			continue;
+
+		// Extract old_name (token before '>')
+		char* old_end = sep;
+		while (old_end > p && (old_end[-1] == ' ' || old_end[-1] == '\t'))
+			--old_end;
+		*old_end = 0;
+		while (*p == ' ' || *p == '\t') ++p;
+		char* old_start = p;
+		while (*p && *p != ' ' && *p != '\t' && *p != '\r' && *p != '\n')
+			++p;
+		*p = 0;
+		std::string old_name(old_start);
+
+		// Extract new_name (token after '>')
+		char* q = sep + 1;
+		while (*q == ' ' || *q == '\t') ++q;
+		char* new_start = q;
+		while (*q && *q != ' ' && *q != '\t' && *q != '\r' && *q != '\n' && *q != '(')
+			++q;
+		*q = 0;
+		std::string new_name(new_start);
+
+		if (!old_name.empty() && !new_name.empty() && old_name != new_name) {
+			adj[old_name].insert(new_name);
+			adj[new_name].insert(old_name);
+		}
+	}
+	fclose(f);
+
+	// Compute connected components (equivalence classes)
+	std::set<std::string> visited;
+	for (std::map<std::string, std::set<std::string> >::iterator i = adj.begin(); i != adj.end(); ++i) {
+		if (visited.find(i->first) != visited.end())
+			continue;
+
+		std::vector<std::string> comp;
+		std::list<std::string> queue;
+		queue.push_back(i->first);
+		visited.insert(i->first);
+
+		while (!queue.empty()) {
+			std::string curr = queue.front();
+			queue.pop_front();
+			comp.push_back(curr);
+
+			const std::set<std::string>& neighbors = adj[curr];
+			for (std::set<std::string>::const_iterator n = neighbors.begin(); n != neighbors.end(); ++n) {
+				if (visited.find(*n) == visited.end()) {
+					visited.insert(*n);
+					queue.push_back(*n);
+				}
+			}
+		}
+
+		if (comp.size() > 1) {
+			for (size_t a = 0; a < comp.size(); ++a) {
+				std::vector<std::string>& aliases = rmap[comp[a]];
+				for (size_t b = 0; b < comp.size(); ++b) {
+					if (a != b)
+						aliases.push_back(comp[b]);
+				}
+			}
+		}
+	}
+
+	return rmap;
+}
+
+void config_import::import_dat(game_set& gar)
+{
+	const renameset_map& rmap = renameset_get(file);
+	string prefix = emulator + "/";
+
+	for (game_set::iterator i = gar.begin(); i != gar.end(); ++i) {
+		if (i->name_get().compare(0, prefix.length(), prefix) == 0) {
+			string base_name = file_file(i->name_get());
+			renameset_map::const_iterator it = rmap.find(base_name);
+			if (it != rmap.end()) {
+				for (size_t k = 0; k < it->second.size(); ++k) {
+					i->alt_name_insert(it->second[k]);
+				}
+			}
+		}
+	}
+}
+
+void config_import::import_rename(game_set& gar)
+{
+	if (type == "dat")
+		import_dat(gar);
 }
 
 bool config_emulator_state::load(adv_conf* config_context, const string& section)

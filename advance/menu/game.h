@@ -77,6 +77,7 @@ enum play_t {
 class game;
 
 typedef std::list<const game*> pgame_container;
+typedef std::vector<std::string> string_bag;
 
 class game {
 	static const unsigned flag_session_set = 0x1;
@@ -121,6 +122,7 @@ class game {
 
 	mutable path_container rzs; // set of rom zip for the game
 
+	mutable string_bag alt_name_bag; // alternate/rename names for dupe matching
 	mutable pgame_container clone_bag; // clones
 	mutable const game* parent; // parent
 
@@ -287,6 +289,15 @@ public:
 	{
 		return flag_get(flag_duplicate);
 	}
+	void alt_name_insert(const std::string& A) const
+	{
+		for (unsigned i = 0; i < alt_name_bag.size(); ++i) {
+			if (alt_name_bag[i] == A)
+				return;
+		}
+		alt_name_bag.push_back(A);
+	}
+	const string_bag& alt_name_bag_get() const { return alt_name_bag; }
 };
 
 typedef std::list<game> game_container;

@@ -1364,12 +1364,14 @@ Configuration
 			name for a specific emulator option.
 		STRING - name of the category
 
-    group/type/desc/info_import
-	Selects the automatic import of the groups, types, descriptions
-	and extra information from an external file. The extra info are
-	additional information displayed for every game.
+    group/type/desc/info/rename_import
+	Selects the automatic import of the groups, types, descriptions,
+	extra information and game renames from an external file. The extra info are
+	additional information displayed for every game. The game renames are
+	used to identify duplicate games between different emulators.
 
-	The file formats supported are CATVER, CATLIST/CAT32, MacMAME and NMS.
+	The file formats supported are CATVER, CATLIST/CAT32, MacMAME, NMS
+	and DAT.
 	The files are read in the current directory in DOS and Windows
 	and in the $home directory in Linux and Mac OS X.
 
@@ -1380,6 +1382,7 @@ Configuration
 	:info_import (catver | catlist | mac | nms) "EMULATOR" "FILE" ["SECTION"]
 	:group_import (catver | catlist | mac | nms) "EMULATOR" "FILE" ["SECTION"]
 	:type_import (catver | catlist | mac | nms) "EMULATOR" "FILE" ["SECTION"]
+	:rename_import dat "EMULATOR" "FILE"
 
 	Commands:
 		desc_import - Imports the game names shown in the menu.
@@ -1387,6 +1390,8 @@ Configuration
 			bottom bar of the menu.
 		group_import - Imports the group names of the game.
 		type_import - Imports the type names of the game.
+		rename_import - Imports game rename history to identify
+			duplicate games across emulators.
 
 	Options:
 		catver - Import in the CATVER format. In this format you must
@@ -1394,6 +1399,7 @@ Configuration
 		catlist - Import in the CATLIST/CAT32 format.
 		mac - Import in the MacMAME format.
 		nms - Import in the NMS format.
+		dat - Import in the DAT rename format (such as renameSET.dat).
 		EMULATOR - The emulator tag name as specified in
 			the `emulator` option.
 		FILE - The file name.
@@ -1405,8 +1411,9 @@ Configuration
 		:group_import catlist "advmame" "catlist.ini"
 		:type_import mac "advmame" "Genre 37b14.txt"
 		:desc_import nms "raine" "raine.nms"
+		:rename_import dat "mame" "renameSET.dat"
 
-	The CATVER/CATLIST files can be downloaded from:
+	The CATVER/CATLIST and renameSET files can be downloaded from:
 
 		+http://www.progettoemma.net/?catlist
 
