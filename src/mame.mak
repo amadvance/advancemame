@@ -60,6 +60,7 @@ CPUS += I8051
 CPUS += I8052
 CPUS += I8751
 CPUS += I8752
+CPUS += DS5002FP
 CPUS += M6800
 CPUS += M6801
 CPUS += M6802
@@ -686,7 +687,7 @@ $(OBJ)/gaelco.a: \
 	$(OBJ)/drivers/targeth.o $(OBJ)/vidhrdw/targeth.o \
 	$(OBJ)/drivers/thoop2.o $(OBJ)/vidhrdw/thoop2.o \
 	$(OBJ)/drivers/xorworld.o $(OBJ)/vidhrdw/xorworld.o \
-	$(OBJ)/drivers/wrally.o $(OBJ)/machine/wrally.o $(OBJ)/vidhrdw/wrally.o \
+	$(OBJ)/drivers/wrally.o $(OBJ)/machine/wrally.o $(OBJ)/vidhrdw/wrally.o $(OBJ)/machine/gaelcrpt.o \
 
 $(OBJ)/gameplan.a: \
 	$(OBJ)/drivers/enigma2.o \

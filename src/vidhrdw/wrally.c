@@ -12,10 +12,7 @@ UINT16 *wrally_spriteram;
 UINT16 *wrally_vregs;
 UINT16 *wrally_videoram;
 
-static tilemap *pant[2];
-
-/* from machine/wrally.c */
-extern UINT16 *wrally_encr_table[2];
+tilemap *wrally_pant[2];
 
 /***************************************************************************
 
@@ -33,11 +30,13 @@ extern UINT16 *wrally_encr_table[2];
     -----+-FEDCBA98-76543210-+--------------------------
       0  | --xxxxxx xxxxxxxx | code
       0  | xx------ -------- | not used?
-      1  | xxxxxxxx xxxxxxxx | unknown
-
-      preliminary
+      1  | -------- ---xxxxx | color
+      1  | -------- --x----- | priority
+      1  | -------- -x------ | flip y
+      1  | -------- x------- | flip x
+      1  | ---xxxxx -------- | data used to handle collisions, speed, etc
+      1  | xxx----- -------- | not used?
 */
-
 
 static void get_tile_info_wrally_screen0(int tile_index)
 {
@@ -45,7 +44,9 @@ static void get_tile_info_wrally_screen0(int tile_index)
 	int data2 = wrally_videoram[(tile_index << 1) + 1];
 	int code = data & 0x3fff;
 
-	SET_TILE_INFO(0, code, data2 & 0x1f, TILE_FLIPXY((data2 >> 5) & 0x00))
+	tile_info.priority = (data2 >> 5) & 0x01;
+
+	SET_TILE_INFO(0, code, data2 & 0x1f, TILE_FLIPYX((data2 >> 6) & 0x03));
 }
 
 static void get_tile_info_wrally_screen1(int tile_index)
@@ -54,22 +55,10 @@ static void get_tile_info_wrally_screen1(int tile_index)
 	int data2 = wrally_videoram[(0x2000/2) + (tile_index << 1) + 1];
 	int code = data & 0x3fff;
 
-	SET_TILE_INFO(0, code, data2 & 0x1f, TILE_FLIPXY((data2 >> 5) & 0x00))
+	tile_info.priority = (data2 >> 5) & 0x01;
+
+	SET_TILE_INFO(0, code, data2 & 0x1f, TILE_FLIPYX((data2 >> 6) & 0x03));
 }
-
-/***************************************************************************
-
-    Memory Handlers
-
-***************************************************************************/
-
-WRITE16_HANDLER( wrally_vram_w )
-{
-	wrally_videoram[offset] = wrally_encr_table[offset & 0x01][data];
-
-	tilemap_mark_tile_dirty(pant[(offset & 0x1fff) >> 12], ((offset << 1) & 0x1fff) >> 2);
-}
-
 
 /***************************************************************************
 
@@ -79,18 +68,17 @@ WRITE16_HANDLER( wrally_vram_w )
 
 VIDEO_START( wrally )
 {
-	pant[0] = tilemap_create(get_tile_info_wrally_screen0,tilemap_scan_rows,TILEMAP_TRANSPARENT,16,16,64,32);
-	pant[1] = tilemap_create(get_tile_info_wrally_screen1,tilemap_scan_rows,TILEMAP_TRANSPARENT,16,16,64,32);
+	wrally_pant[0] = tilemap_create(get_tile_info_wrally_screen0,tilemap_scan_rows,TILEMAP_TRANSPARENT,16,16,64,32);
+	wrally_pant[1] = tilemap_create(get_tile_info_wrally_screen1,tilemap_scan_rows,TILEMAP_TRANSPARENT,16,16,64,32);
 
-	if (!pant[0] || !pant[1])
+	if (!wrally_pant[0] || !wrally_pant[1])
 		return 1;
 
-	tilemap_set_transparent_pen(pant[0],0);
-	tilemap_set_transparent_pen(pant[1],0);
+	tilemap_set_transparent_pen(wrally_pant[0],0);
+	tilemap_set_transparent_pen(wrally_pant[1],0);
 
 	return 0;
 }
-
 
 /***************************************************************************
 
@@ -111,44 +99,81 @@ VIDEO_START( wrally )
       1  | xxxxxxxx xxxxxxxx | unknown
       2  | ------xx xxxxxxxx | x position
       2  | --xxxx-- -------- | sprite color (low 4 bits)
-      2  | xx------ -------- | unknown
+      2  | -x------ -------- | shadows/highlights (see below)
+      2  | x------- -------- | not used?
       3  | --xxxxxx xxxxxxxx | sprite code
       3  | xx------ -------- | not used?
 
-      preliminary
+    For shadows/highlights, the tile color below the sprite will be set using a
+    palette (from the 8 available) based on the gfx pen of the sprite. Only pens
+    in the range 0x8-0xf are used.
 */
 
-static void gaelco_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
+static void draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect, int priority)
 {
-	int i, x, y, ex, ey;
+	int i, px, py;
 	const gfx_element *gfx = Machine->gfx[0];
 
-	static int x_offset[2] = {0x0,0x2};
-	static int y_offset[2] = {0x0,0x1};
-
-	for (i = 3; i < (0x1000 - 6)/2; i += 4){
+	for (i = 6/2; i < (0x1000 - 6)/2; i += 4) {
 		int sx = wrally_spriteram[i+2] & 0x03ff;
 		int sy = (240 - (wrally_spriteram[i] & 0x00ff)) & 0x00ff;
 		int number = wrally_spriteram[i+3] & 0x3fff;
-		int color = ((wrally_spriteram[i+2] & 0xfc00) >> 10);
+		int color = (wrally_spriteram[i+2] & 0x7c00) >> 10;
 		int attr = (wrally_spriteram[i] & 0xfe00) >> 9;
 
 		int xflip = attr & 0x20;
 		int yflip = attr & 0x40;
-		int spr_size = 1;
+		int color_effect = (color & 0x10) >> 4;
+		int high_priority = number >= 0x3700;
+		color = color & 0x0f;
 
-		color = (color & 0x0f);
+		if (high_priority != priority) continue;
 
-		for (y = 0; y < spr_size; y++){
-			for (x = 0; x < spr_size; x++){
+		if (flip_screen) {
+			sy = sy + 248;
+		}
 
-				ex = xflip ? (spr_size-1-x) : x;
-				ey = yflip ? (spr_size-1-y) : y;
+		if (!color_effect) {
+			drawgfx(bitmap,gfx,number,
+					0x20 + color,xflip,yflip,
+					sx - 0x0f,sy,
+					cliprect,TRANSPARENCY_PEN,0);
+		} else {
+			/* get a pointer to the current sprite's gfx data */
+			UINT8 *gfx_src = gfx->gfxdata + (number % gfx->total_elements)*gfx->char_modulo;
 
-				drawgfx(bitmap,gfx,number + x_offset[ex] + y_offset[ey],
-						0x20 + color,xflip,yflip,
-						sx-0x0f+x*16,sy+y*16,
-						&Machine->visible_area,TRANSPARENCY_PEN,0);
+			for (py = 0; py < gfx->height; py++){
+				/* get a pointer to the current line in the screen bitmap */
+				int ypos = ((sy + py) & 0x1ff);
+				int gfx_py = yflip ? (gfx->height - 1 - py) : py;
+				UINT16 *srcy;
+
+				if ((ypos < cliprect->min_y) || (ypos > cliprect->max_y)) continue;
+
+				srcy = (UINT16 *)bitmap->line[ypos];
+
+				for (px = 0; px < gfx->width; px++){
+					/* get current pixel */
+					int xpos = (((sx + px) & 0x3ff) - 0x0f) & 0x3ff;
+					UINT16 *pixel;
+					int src_color;
+					int gfx_px = xflip ? (gfx->width - 1 - px) : px;
+					int gfx_pen;
+
+					if ((xpos < cliprect->min_x) || (xpos > cliprect->max_x)) continue;
+
+					pixel = srcy + xpos;
+					src_color = *pixel;
+
+					/* get associated pen for the current sprite pixel */
+					gfx_pen = gfx_src[gfx->line_modulo*gfx_py + gfx_px];
+
+					/* pens 8..15 are used to select a palette */
+					if ((gfx_pen < 8) || (gfx_pen >= 16)) continue;
+
+					/* modify the color of the tile */
+					*pixel = src_color + (gfx_pen-8)*1024;
+				}
 			}
 		}
 	}
@@ -163,14 +188,26 @@ static void gaelco_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect)
 VIDEO_UPDATE( wrally )
 {
 	/* set scroll registers */
-	tilemap_set_scrolly(pant[0], 0, wrally_vregs[0]);
-	tilemap_set_scrollx(pant[0], 0, wrally_vregs[1]);
-	tilemap_set_scrolly(pant[1], 0, wrally_vregs[2]);
-	tilemap_set_scrollx(pant[1], 0, wrally_vregs[3]);
+	if (!flip_screen) {
+		tilemap_set_scrolly(wrally_pant[0], 0, wrally_vregs[0]);
+		tilemap_set_scrollx(wrally_pant[0], 0, wrally_vregs[1]+4);
+		tilemap_set_scrolly(wrally_pant[1], 0, wrally_vregs[2]);
+		tilemap_set_scrollx(wrally_pant[1], 0, wrally_vregs[3]);
+	} else {
+		tilemap_set_scrolly(wrally_pant[0], 0, 248 - wrally_vregs[0]);
+		tilemap_set_scrollx(wrally_pant[0], 0, 1024 - wrally_vregs[1] - 4);
+		tilemap_set_scrolly(wrally_pant[1], 0, 248 - wrally_vregs[2]);
+		tilemap_set_scrollx(wrally_pant[1], 0, 1024 - wrally_vregs[3]);
+	}
 
-	fillbitmap( bitmap, Machine->pens[0], cliprect );
+	/* draw tilemaps + sprites */
+	tilemap_draw(bitmap,cliprect,wrally_pant[1],TILEMAP_IGNORE_TRANSPARENCY,0);
+	tilemap_draw(bitmap,cliprect,wrally_pant[0],0,0);
 
-	tilemap_draw(bitmap,cliprect,pant[1],0,0);
-	tilemap_draw(bitmap,cliprect,pant[0],0,0);
-	gaelco_draw_sprites(bitmap,cliprect);
+	draw_sprites(bitmap,cliprect,0);
+
+	tilemap_draw(bitmap,cliprect,wrally_pant[1],1,0);
+	tilemap_draw(bitmap,cliprect,wrally_pant[0],1,0);
+
+	draw_sprites(bitmap,cliprect,1);
 }

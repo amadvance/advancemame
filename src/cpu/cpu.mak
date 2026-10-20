@@ -357,6 +357,21 @@ endif
 
 
 #-------------------------------------------------
+# Dallas DS5002FP
+#-------------------------------------------------
+
+CPUDEFS += -DHAS_DS5002FP=$(if $(filter DS5002FP,$(CPUS)),1,0)
+
+ifneq ($(filter DS5002FP,$(CPUS)),)
+OBJDIRS += $(OBJ)/cpu/ds5002fp
+CPUOBJS += $(OBJ)/cpu/ds5002fp/ds5002fp.o
+DBGOBJS += $(OBJ)/cpu/ds5002fp/ds5002fpdasm.o
+$(OBJ)/cpu/ds5002fp/ds5002fp.o: ds5002fp.c ds5002fp.h ds5002fpops.c
+endif
+
+
+
+#-------------------------------------------------
 # Intel 8086 series
 #-------------------------------------------------
 
