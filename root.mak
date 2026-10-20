@@ -100,6 +100,9 @@ endif
 ifneq ($(wildcard $(srcdir)/advance/d2.mak),)
 include $(srcdir)/advance/d2.mak
 endif
+ifneq ($(wildcard $(srcdir)/advance/bare.mak),)
+include $(srcdir)/advance/bare.mak
+endif
 
 #############################################################################
 # Standard GNU targets

@@ -19,6 +19,7 @@ BLUEOBJ = obj/blue/$(BINARYDIR)
 CFGOBJ = obj/cfg/$(BINARYDIR)
 LINEOBJ = obj/line/$(BINARYBUILDDIR)
 D2OBJ = obj/d2/$(BINARYBUILDDIR)
+BAREOBJ = obj/bare/$(BINARYDIR)
 DOCOBJ = $(srcdir)/doc
 
 ############################################################################
@@ -84,6 +85,8 @@ M_INSTALL_BINFILES = $(MOBJ)/advm$(EXE)
 M_INSTALL_MANFILES = $(DOCOBJ)/advm.1
 BLUE_INSTALL_BINFILES = $(BLUEOBJ)/advblue$(EXE)
 BLUE_INSTALL_MANFILES = $(DOCOBJ)/advblue.1
+BARE_INSTALL_BINFILES = $(BAREOBJ)/advbare$(EXE)
+BARE_INSTALL_MANFILES = $(DOCOBJ)/advbare.1
 
 ############################################################################
 # Install
@@ -151,6 +154,11 @@ INSTALL_BINFILES += $(BLUE_INSTALL_BINFILES)
 INSTALL_MANFILES += $(BLUE_INSTALL_MANFILES)
 endif
 endif
+ifneq ($(wildcard $(srcdir)/advance/bare.mak),)
+OBJ_DIRS += $(BAREOBJ)
+INSTALL_BINFILES += $(BARE_INSTALL_BINFILES)
+INSTALL_MANFILES += $(BARE_INSTALL_MANFILES)
+endif
 
 INSTALL_DOCFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.txt,$(wildcard $(srcdir)/doc/*.d)))
 INSTALL_HTMLFILES += $(subst $(srcdir)/doc/,$(DOCOBJ)/,$(subst .d,.html,$(wildcard $(srcdir)/doc/*.d)))
@@ -176,6 +184,7 @@ i: $(IOBJ) $(IOBJ)/advi$(EXE)
 j: $(JOBJ) $(JOBJ)/advj$(EXE)
 m: $(MOBJ) $(MOBJ)/advm$(EXE)
 blue: $(BLUEOBJ) $(BLUEOBJ)/advblue$(EXE)
+bare: $(BAREOBJ) $(BAREOBJ)/advbare$(EXE)
 line: $(LINEOBJ) $(LINEOBJ)/advline$(EXE_FOR_BUILD)
 d2: $(D2OBJ) $(D2OBJ)/advd2$(EXE_FOR_BUILD)
 web: $(WEB_DOCFILES)
@@ -579,7 +588,8 @@ DEB_BINFILES = \
 	$(K_INSTALL_BINFILES) \
 	$(J_INSTALL_BINFILES) \
 	$(M_INSTALL_BINFILES) \
-	$(BLUE_INSTALL_BINFILES)
+	$(BLUE_INSTALL_BINFILES) \
+	$(BARE_INSTALL_BINFILES)
 DEB_MANFILES = \
 	$(MAME_INSTALL_MANFILES) \
 	$(MESS_INSTALL_MANFILES) \
@@ -590,7 +600,8 @@ DEB_MANFILES = \
 	$(K_INSTALL_MANFILES) \
 	$(J_INSTALL_MANFILES) \
 	$(M_INSTALL_MANFILES) \
-	$(BLUE_INSTALL_MANFILES)
+	$(BLUE_INSTALL_MANFILES) \
+	$(BARE_INSTALL_MANFILES)
 DEB_DATAFILES = \
 	$(MAME_INSTALL_DATAFILES) \
 	$(MESS_INSTALL_DATAFILES)
