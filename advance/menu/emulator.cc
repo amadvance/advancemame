@@ -677,7 +677,15 @@ bool mame_info::update_xml()
 		argv[argc++] = strdup("-listxml");
 	argv[argc] = 0;
 
-	int r = target_spawn_redirect(argv[0], argv, cpath_export(xml_file));
+	int r;
+	if (has_bare_xml()) {
+		r = target_spawn_redirect(argv[0], argv, cpath_export(xml_file));
+	} else {
+		const char* filter_argv[2];
+		filter_argv[0] = "advbare";
+		filter_argv[1] = 0;
+		r = target_spawn_pipe(argv[0], argv, filter_argv[0], filter_argv, cpath_export(xml_file));
+	}
 
 	for (int i = 0; i < argc; ++i)
 		free(const_cast<char*>(argv[i]));
@@ -718,7 +726,10 @@ bool mame_info::load_game_xml(game_set& gar)
 	ifstream f(cpath_export(xml_file), ios::in | ios::binary);
 	if (!f) {
 		target_err("Error opening the '%s' information file '%s'.\n", user_name_get().c_str(), cpath_export(xml_file));
-		target_err("Try running manually the command: '%s -listxml > %s'.\n", user_exe_path.c_str(), cpath_export(xml_file));
+		if (has_bare_xml())
+			target_err("Try running manually the command: '%s -listbare > %s'.\n", user_exe_path.c_str(), cpath_export(xml_file));
+		else
+			target_err("Try running manually the command: '%s -listxml | advbare > %s'.\n", user_exe_path.c_str(), cpath_export(xml_file));
 		return false;
 	}
 	target_clock_t t0 = target_clock();
@@ -754,7 +765,10 @@ bool mame_info::load_game(game_set& gar, bool quiet)
 			return load_game_xml(gar);
 		}
 
-		target_err("Error generating the '%s' information file with -listxml.\n", user_name_get().c_str());
+		if (has_bare_xml())
+			target_err("Error generating the '%s' information file with -listbare.\n", user_name_get().c_str());
+		else
+			target_err("Error generating the '%s' information file with -listxml and advbare.\n", user_name_get().c_str());
 	}
 
 	return false;

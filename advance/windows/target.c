@@ -508,6 +508,54 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 	return r;
 }
 
+adv_error target_spawn_pipe(const char* file1, const char** argv1, const char* file2, const char** argv2, const char* output)
+{
+	char cmdline[EXEC_MAX];
+	char* comspec;
+	unsigned i;
+	int r;
+
+	if (!file2)
+		return target_spawn_redirect(file1, argv1, output);
+
+	os_fire();
+
+	comspec = getenv("COMSPEC");
+	if (!comspec) {
+		log_std(("ERROR:windows: getenv(COMSPEC) failed\n"));
+		return -1;
+	}
+
+	*cmdline = 0;
+
+	sncatarg(cmdline, EXEC_MAX, comspec);
+	sncat(cmdline, EXEC_MAX, " /S /C \"");
+
+	for (i = 0; argv1[i]; ++i) {
+		if (i)
+			sncat(cmdline, EXEC_MAX, " ");
+		sncatarg(cmdline, EXEC_MAX, argv1[i]);
+	}
+
+	sncat(cmdline, EXEC_MAX, " | ");
+
+	for (i = 0; argv2[i]; ++i) {
+		if (i)
+			sncat(cmdline, EXEC_MAX, " ");
+		sncatarg(cmdline, EXEC_MAX, argv2[i]);
+	}
+
+	sncat(cmdline, EXEC_MAX, " > ");
+	sncatarg(cmdline, EXEC_MAX, output);
+	sncat(cmdline, EXEC_MAX, "\"");
+
+	r = exec(cmdline);
+
+	log_std(("windows: spawn_pipe return %d\n", r));
+
+	return r;
+}
+
 adv_error target_spawn(const char* file, const char** argv)
 {
 	char cmdline[EXEC_MAX];

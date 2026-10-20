@@ -468,6 +468,41 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 	return r;
 }
 
+adv_error target_spawn_pipe(const char* file1, const char** argv1, const char* file2, const char** argv2, const char* output)
+{
+	int r;
+	char cmdline[EXEC_MAX];
+	unsigned i;
+
+	if (!file2)
+		return target_spawn_redirect(file1, argv1, output);
+
+	*cmdline = 0;
+
+	for (i = 0; argv1[i]; ++i) {
+		if (i)
+			sncat(cmdline, EXEC_MAX, " ");
+		sncat(cmdline, EXEC_MAX, argv1[i]);
+	}
+
+	sncat(cmdline, EXEC_MAX, " | ");
+
+	for (i = 0; argv2[i]; ++i) {
+		if (i)
+			sncat(cmdline, EXEC_MAX, " ");
+		sncat(cmdline, EXEC_MAX, argv2[i]);
+	}
+
+	sncat(cmdline, EXEC_MAX, " > ");
+	sncat(cmdline, EXEC_MAX, output);
+
+	__djgpp_exception_toggle();
+	r = system(cmdline);
+	__djgpp_exception_toggle();
+
+	return r;
+}
+
 adv_error target_spawn(const char* file, const char** argv)
 {
 	int r;

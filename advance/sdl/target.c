@@ -227,6 +227,32 @@ int target_spawn(const char* file, const char** argv)
 	return 0;
 }
 
+int target_spawn_pipe(const char* file1, const char** argv1, const char* file2, const char** argv2, const char* output)
+{
+	char cmdline[TARGET_MAXCMD];
+	unsigned i;
+
+	*cmdline = 0;
+	for (i = 0; argv1[i]; ++i) {
+		if (i) sncat(cmdline, TARGET_MAXCMD, " ");
+		sncat(cmdline, TARGET_MAXCMD, argv1[i]);
+	}
+	if (file2) {
+		sncat(cmdline, TARGET_MAXCMD, " | ");
+		for (i = 0; argv2[i]; ++i) {
+			if (i) sncat(cmdline, TARGET_MAXCMD, " ");
+			sncat(cmdline, TARGET_MAXCMD, argv2[i]);
+		}
+	}
+	sncat(cmdline, TARGET_MAXCMD, " > ");
+	sncat(cmdline, TARGET_MAXCMD, output);
+
+	if (system(cmdline) != 0)
+		return -1;
+
+	return 0;
+}
+
 int target_mkdir(const char* file)
 {
 	return mkdir(file);

@@ -242,6 +242,17 @@ adv_error target_script(const char* script);
 adv_error target_spawn_redirect(const char* file, const char** argv, const char* output);
 
 /**
+ * Execute two external programs connected with a pipe and output redirection.
+ * \param file1 First program to run.
+ * \param argv1 Arguments for first program. Use 0 to terminate.
+ * \param file2 Second program to run. Use 0 for none.
+ * \param argv2 Arguments for second program. Use 0 to terminate.
+ * \param output Output stream for second program.
+ * \return Like system().
+ */
+adv_error target_spawn_pipe(const char* file1, const char** argv1, const char* file2, const char** argv2, const char* output);
+
+/**
  * Execute an external program.
  * \param file Program to run.
  * \param argv Arguments. Use 0 to terminate.

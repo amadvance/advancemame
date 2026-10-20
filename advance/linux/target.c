@@ -864,6 +864,117 @@ adv_error target_spawn_redirect(const char* file, const char** argv, const char*
 	}
 }
 
+adv_error target_spawn_pipe(const char* file1, const char** argv1, const char* file2, const char** argv2, const char* output)
+{
+	int r1 = 0, r2 = 0;
+	int i;
+	int pipefd[2];
+	pid_t p1, p2;
+
+	if (!file2)
+		return target_spawn_redirect(file1, argv1, output);
+
+	log_std(("linux: spawn_pipe %s | %s > %s\n", file1, file2, output));
+	for (i = 0; argv1[i]; ++i)
+		log_std(("linux: spawn_pipe 1 arg%d %s\n", i, argv1[i]));
+	for (i = 0; argv2[i]; ++i)
+		log_std(("linux: spawn_pipe 2 arg%d %s\n", i, argv2[i]));
+	log_std(("linux: spawn_pipe output %s\n", output));
+
+	if (pipe(pipefd) == -1) {
+		log_std(("ERROR:linux: spawn_pipe pipe() failed\n"));
+		return -1;
+	}
+
+	p1 = fork();
+	if (p1 == -1) {
+		log_std(("ERROR:linux: spawn_pipe fork(1) failed\n"));
+		close(pipefd[0]);
+		close(pipefd[1]);
+		return -1;
+	}
+
+	if (p1 == 0) {
+		close(pipefd[0]);
+		if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
+			exit(127);
+		}
+		close(pipefd[1]);
+
+		if (seteuid(getuid()) != 0) exit(127);
+		if (setegid(getgid()) != 0) exit(127);
+
+		execvp(file1, (char**)argv1);
+		exit(127);
+	}
+
+	p2 = fork();
+	if (p2 == -1) {
+		log_std(("ERROR:linux: spawn_pipe fork(2) failed\n"));
+		close(pipefd[0]);
+		close(pipefd[1]);
+		waitpid(p1, &r1, 0);
+		return -1;
+	}
+
+	if (p2 == 0) {
+		int f;
+
+		close(pipefd[1]);
+		if (dup2(pipefd[0], STDIN_FILENO) == -1) {
+			exit(127);
+		}
+		close(pipefd[0]);
+
+		f = open(output, O_WRONLY | O_CREAT | O_TRUNC,
+				S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+		if (f == -1) {
+			exit(127);
+		}
+		if (dup2(f, STDOUT_FILENO) == -1) {
+			exit(127);
+		}
+		close(f);
+
+		if (seteuid(getuid()) != 0) exit(127);
+		if (setegid(getgid()) != 0) exit(127);
+
+		execvp(file2, (char**)argv2);
+		exit(127);
+	}
+
+	close(pipefd[0]);
+	close(pipefd[1]);
+
+	while (1) {
+		if (waitpid(p1, &r1, 0) == -1) {
+			if (errno != EINTR) {
+				r1 = -1;
+				break;
+			}
+		} else {
+			break;
+		}
+	}
+
+	while (1) {
+		if (waitpid(p2, &r2, 0) == -1) {
+			if (errno != EINTR) {
+				r2 = -1;
+				break;
+			}
+		} else {
+			break;
+		}
+	}
+
+	log_std(("linux: spawn_pipe return %d, %d\n", r1, r2));
+
+	if (!WIFEXITED(r1) || WEXITSTATUS(r1) != 0)
+		return r1;
+	return r2;
+}
+
 adv_error target_spawn(const char* file, const char** argv)
 {
 	int r;
