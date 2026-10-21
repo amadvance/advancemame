@@ -406,7 +406,19 @@ struct advance_record_config_context {
 	unsigned video_interlace; /**< Interlace factor for the video recording. */
 	unsigned debug_snap_step; /**< Step of frames to snapshot (0 disabled). */
 	unsigned debug_exit; /**< Frame number to automatically exit (0 disabled). */
+	adv_bool debug_sound; /**< Record audio automatically until exit. */
 	int debug_cpu; /**< CPU number to trace (-1 for all, default -2 disabled). */
+};
+
+struct advance_record_sound_state {
+	adv_bool active_flag;
+	adv_bool stereo_flag;
+	double frequency;
+	unsigned sample_counter;
+	unsigned sample_size;
+	adv_bool stopped_flag;
+	char file_buffer[FILE_MAXPATH];
+	FILE* f;
 };
 
 struct advance_record_state_context {
@@ -414,15 +426,11 @@ struct advance_record_state_context {
 	pthread_mutex_t access_mutex;
 #endif
 
-	adv_bool sound_active_flag; /**< Main activation flag for sound recording. */
+	struct advance_record_sound_state sound;
+	struct advance_record_sound_state debug_sound;
+	adv_bool debug_sound_failed; /**< Avoid retrying failed debug recordings every frame. */
 	adv_bool video_active_flag; /**< Main activation flag for video recording. */
 	adv_bool snapshot_active_flag; /**< Main activatio flag for snapshot recording. */
-
-	adv_bool sound_stereo_flag; /**< Number of channels 1 (==0) or 2 (!=0) channels. */
-	double sound_frequency; /**< Frequency. */
-	unsigned sound_sample_counter; /**< Samples saved. */
-	unsigned sound_sample_size; /**< Size in byte of one sample. */
-	adv_bool sound_stopped_flag; /**< If the sound recording is stopped. */
 
 	double video_frequency;
 	unsigned video_sample_counter;
@@ -431,9 +439,6 @@ struct advance_record_state_context {
 	adv_bool video_stopped_flag; /**< If the video recording is stopped. */
 
 	unsigned debug_frame_counter; /**< Frame counter for debug features. */
-
-	char sound_file_buffer[FILE_MAXPATH]; /**< Sound file */
-	FILE* sound_f; /**< Sound handle */
 
 	char video_file_buffer[FILE_MAXPATH]; /**< Video file */
 	adv_fz* video_f; /**< Video handle */
