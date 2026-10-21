@@ -7242,6 +7242,13 @@ Other Sun games
 	DRIVER( mv4in1 )	/* (c) 1983 Entertainment Enterprises */
 	DRIVER( ltcasin2 )	/* (c) 1984 Digital Controls Inc */
 	DRIVER( coolmini )	/* (c) 1999 Semicom */
+	DRIVER( aoh )
+	DRIVER( dtfamily )
+	DRIVER( jmpbreak )
+	DRIVER( mrdig )
+	DRIVER( newxpang )
+	DRIVER( poosho )
+	DRIVER( toyland )
 	DRIVER( luplup )	/* (c) 1999 Omega System */
 	DRIVER( luplup29 )	/* (c) 1999 Omega System */
 	DRIVER( puzlbang )	/* (c) 1999 Omega System */
