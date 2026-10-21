@@ -80,7 +80,12 @@ emulated now. ;)
 
 #include "driver.h"
 #include "cpu/z80/z80.h"
+#include "cpu/z80/z80daisy.h"
 #include "sound/samples.h"
+#include "sound/dac.h"
+#include "machine/z80ctc.h"
+#include "machine/z80pio.h"
+#include "machine/z80sio.h"
 
 /* video hardware access */
 extern unsigned char *polyplay_characterram;
@@ -197,7 +202,7 @@ static ADDRESS_MAP_START( writeport_polyplay, ADDRESS_SPACE_IO, 8 )
 ADDRESS_MAP_END
 
 INPUT_PORTS_START( polyplay )
-	PORT_START	/* IN0 */
+	PORT_START_TAG("IN0")	/* IN0 */
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 )
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_8WAY
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_8WAY
@@ -307,7 +312,7 @@ static const gfx_decode gfxdecodeinfo[] =
 static MACHINE_DRIVER_START( polyplay )
 
 	/* basic machine hardware */
-	MDRV_CPU_ADD(Z80, 9830400/4)
+	MDRV_CPU_ADD_TAG("main", Z80, 9830400/4)
 	MDRV_CPU_PROGRAM_MAP(polyplay_readmem,polyplay_writemem)
 	MDRV_CPU_IO_MAP(readport_polyplay,writeport_polyplay)
 	MDRV_CPU_PERIODIC_INT(periodic_interrupt,TIME_IN_HZ(75))
@@ -331,7 +336,7 @@ static MACHINE_DRIVER_START( polyplay )
 	/* sound hardware */
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_ADD_TAG("samples", SAMPLES, 0)
 	MDRV_SOUND_CONFIG(custom_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.25)
 MACHINE_DRIVER_END
@@ -386,3 +391,150 @@ static void timer_callback(int param)
 
 /* game driver */
 GAME( 1985, polyplay, 0, polyplay, polyplay, 0, ROT0, "VEB Polytechnik Karl-Marx-Stadt", "Poly-Play", 0 )
+
+ROM_START( polyplay2 )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "2_1.rom",           0x0000, 0x2000, CRC(d728ca42) SHA1(7359a59ba7f205b3ac95c8a0946093f24bdaa4da) )
+	ROM_LOAD( "2_2.rom",           0x2000, 0x2000, CRC(52316236) SHA1(88c159621d40953240c5d2f1d6dcebb8f5e1ee81) )
+	ROM_LOAD( "2_3.rom",           0x4000, 0x2000, CRC(e199d303) SHA1(fea2c3c659222553f36b3e922c6ac017f7111025) )
+	ROM_LOAD( "2_4.rom",           0x6000, 0x2000, CRC(1324c2e2) SHA1(c0102d5abbb2f4dbb5b8dff5ad515bc3f2af9166) )
+	ROM_LOAD( "2_5.rom",           0x8000, 0x2000, CRC(2e959fe9) SHA1(1f0a80bb26d0ae332d4a4313ec22ab7eefcf1e34) )
+	ROM_LOAD( "2_6.rom",           0xA000, 0x2000, CRC(85774542) SHA1(420349a0d812bc0052a77cbc6c5ab84262e58b32) )
+
+	/* Keep the font in CPU space for the existing video decoder. */
+	ROM_LOAD( "1_1.bin",           0xd000, 0x0800, CRC(4f028af9) SHA1(319537234069b43cfffafe567cc599ae05f24e23) )
+ROM_END
+
+static int polyplay2_level[2];
+
+static struct z80_irq_daisy_chain polyplay2_daisy[];
+
+static void polyplay2_irq(int state)
+{
+	cpunum_set_input_line(0, 0, z80daisy_update_irq_state(polyplay2_daisy));
+}
+
+static WRITE8_HANDLER( polyplay2_sound0 )
+{
+	if (data) DAC_data_w(0, (polyplay2_level[0] ^= 1) ? 255 : 0);
+}
+static WRITE8_HANDLER( polyplay2_sound1 )
+{
+	if (data) DAC_data_w(1, (polyplay2_level[1] ^= 1) ? 255 : 0);
+}
+
+static z80ctc_interface polyplay2_ctc = { 9830400/4, 0, polyplay2_irq, polyplay2_sound0, polyplay2_sound1, NULL };
+static z80pio_interface polyplay2_pio = { polyplay2_irq, NULL, NULL };
+static z80sio_interface polyplay2_sio = { 9830400/4, polyplay2_irq, NULL, NULL, NULL, NULL };
+static struct z80_irq_daisy_chain polyplay2_daisy[] =
+{
+	{ z80ctc_reset, z80ctc_irq_state, z80ctc_irq_ack, z80ctc_irq_reti, 0 },
+	{ z80pio_reset, z80pio_irq_state, z80pio_irq_ack, z80pio_irq_reti, 0 },
+	{ z80sio_reset, z80sio_irq_state, z80sio_irq_ack, z80sio_irq_reti, 0 },
+	{ 0, 0, 0, 0, -1 }
+};
+
+static MACHINE_START( polyplay2 )
+{
+	z80ctc_init(0, &polyplay2_ctc);
+	z80pio_init(0, &polyplay2_pio);
+	z80sio_init(0, &polyplay2_sio);
+	return 0;
+}
+static MACHINE_RESET( polyplay2 )
+{
+	z80ctc_reset(0);
+	z80pio_reset(0);
+	z80sio_reset(0);
+	polyplay2_level[0] = polyplay2_level[1] = 0;
+}
+
+static INTERRUPT_GEN( polyplay2_nmi )
+{
+	/* AC zero crossing, 100 Hz. Also refresh external PIO input pins. */
+	z80pio_p_w(0, 0, readinputport(0));
+	z80pio_p_w(0, 1, 0);
+	cpunum_set_input_line(0, INPUT_LINE_NMI, PULSE_LINE);
+}
+
+static READ8_HANDLER( polyplay2_pio_r )
+{
+	if (offset & 2) return z80pio_c_r(0, offset & 1);
+	z80pio_p_w(0, 0, readinputport(0));
+	return z80pio_d_r(0, offset & 1);
+}
+static WRITE8_HANDLER( polyplay2_pio_w )
+{
+	if (offset & 2) z80pio_c_w(0, offset & 1, data);
+	else z80pio_d_w(0, offset & 1, data);
+}
+static READ8_HANDLER( polyplay2_sio_r )
+{
+	return (offset & 2) ? z80sio_c_r(0, offset & 1) : z80sio_d_r(0, offset & 1);
+}
+static WRITE8_HANDLER( polyplay2_sio_w )
+{
+	if (offset & 2) z80sio_c_w(0, offset & 1, data);
+	else z80sio_d_w(0, offset & 1, data);
+}
+
+static ADDRESS_MAP_START( polyplay2_mem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xbfff) AM_ROM
+	AM_RANGE(0xc000, 0xcfff) AM_RAM
+	AM_RANGE(0xd000, 0xd7ff) AM_ROM
+	AM_RANGE(0xea00, 0xebff) AM_RAM
+	AM_RANGE(0xec00, 0xf7ff) AM_READWRITE(polyplay_characterram_r, polyplay_characterram_w) AM_BASE(&polyplay_characterram)
+	AM_RANGE(0xf800, 0xffff) AM_READWRITE(videoram_r, videoram_w) AM_BASE(&videoram) AM_SIZE(&videoram_size)
+ADDRESS_MAP_END
+static ADDRESS_MAP_START( polyplay2_io, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x80, 0x83) AM_READWRITE(z80ctc_0_r, z80ctc_0_w)
+	AM_RANGE(0x84, 0x87) AM_READWRITE(polyplay2_pio_r, polyplay2_pio_w)
+	AM_RANGE(0x88, 0x8b) AM_READWRITE(polyplay2_sio_r, polyplay2_sio_w)
+ADDRESS_MAP_END
+
+INPUT_PORTS_START( polyplay2 )
+	PORT_INCLUDE(polyplay)
+	PORT_MODIFY("IN0")
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_COIN1 )
+INPUT_PORTS_END
+
+static const gfx_decode polyplay2_gfx[] =
+{
+	{ REGION_CPU1, 0xd000, &charlayout_1_bit, 0, 1 },
+	{ REGION_CPU1, 0xec00, &charlayout_3_bit, 2, 1 },
+	{ -1 }
+};
+static MACHINE_DRIVER_START( polyplay2 )
+	MDRV_IMPORT_FROM(polyplay)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_CONFIG(polyplay2_daisy)
+	MDRV_CPU_PROGRAM_MAP(polyplay2_mem,0)
+	MDRV_CPU_IO_MAP(polyplay2_io,0)
+	MDRV_CPU_PERIODIC_INT(polyplay2_nmi,TIME_IN_HZ(100))
+	MDRV_CPU_VBLANK_INT(0,0)
+	MDRV_MACHINE_START(polyplay2)
+	MDRV_MACHINE_RESET(polyplay2)
+	MDRV_GFXDECODE(polyplay2_gfx)
+	MDRV_SOUND_REMOVE("samples")
+	MDRV_SOUND_ADD(DAC,0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS,"mono",0.5)
+	MDRV_SOUND_ADD(DAC,0)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS,"mono",0.5)
+MACHINE_DRIVER_END
+
+GAME( 1989, polyplay2, 0, polyplay2, polyplay2, 0, ROT0, "VEB Polytechnik Karl-Marx-Stadt", "Poly-Play (ZRE-PP)", 0 )
+
+ROM_START( polyplay2c )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "2_1.bin",           0x0000, 0x2000, CRC(bf22f44f) SHA1(dd412b45f49ceffe336d905043c7af2447c577a0) )
+	ROM_LOAD( "2_2.bin",           0x2000, 0x2000, CRC(e54b8be8) SHA1(23037102eab60fd03c349ad154b2498139e84dd4) )
+	ROM_LOAD( "2_3.bin",           0x4000, 0x2000, CRC(ac43ec6b) SHA1(1662e10d80d47c1e3c54d4ef232c0d671fecce96) )
+	ROM_LOAD( "2_4.bin",           0x6000, 0x2000, CRC(703f3d46) SHA1(5ab571cb63ffdbce86b6e452988402e5c1098009) )
+	ROM_LOAD( "2_5.bin",           0x8000, 0x2000, CRC(d5ef6ed8) SHA1(317f251dc85b412b1390651d39a95ce57dd92999) )
+
+	/* Font at the ZRE-PP CPU address. */
+	ROM_LOAD( "1_1.bin",           0xd000, 0x0800, CRC(4f028af9) SHA1(319537234069b43cfffafe567cc599ae05f24e23) )
+ROM_END
+
+GAME( 1989, polyplay2c, polyplay2, polyplay2, polyplay2, 0, ROT0, "VEB Polytechnik Karl-Marx-Stadt", "Poly-Play (ZRE-PP - Czech)", 0 )

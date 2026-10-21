@@ -7110,6 +7110,8 @@ Other Sun games
 	DRIVER( crazyblk )	/* (c) 1983 Kiwako + ECI license */
 	DRIVER( blkbustr )	/* (c) 1983 Kiwako + ECI license */
 	DRIVER( polyplay )
+	DRIVER( polyplay2 )
+	DRIVER( polyplay2c )
 	DRIVER( amspdwy )	/* no copyright notice, but (c) 1987 Enerdyne Technologies, Inc. */
 	DRIVER( amspdwya )	/* no copyright notice, but (c) 1987 Enerdyne Technologies, Inc. */
 	DRIVER( othldrby )	/* (c) 1995 Sunwise */

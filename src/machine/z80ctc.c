@@ -290,6 +290,10 @@ void z80ctc_w(int which, int ch, UINT8 data)
 	/* this must be a control word */
 	if ((data & CONTROL) == CONTROL_WORD)
 	{
+		/* ZRE-PP changes timer to counter mode without asserting reset */
+		if ((mode & MODE) == MODE_TIMER && (data & MODE) == MODE_COUNTER && !(data & RESET))
+			timer_adjust(ctc->timer[ch], TIME_NEVER, 0, 0);
+
 		/* set the new mode */
 		ctc->mode[ch] = data;
 		VPRINTF(("CTC ch.%d mode = %02x\n", ch, data));
