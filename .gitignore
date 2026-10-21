@@ -1,6 +1,7 @@
 # upload
 makepush.sh
 makeftp.sh
+makessh.sh
 
 # autotools
 Makefile
@@ -17,10 +18,15 @@ missing
 stamp-h1
 advance/lib/config.h
 advance/lib/config.hin~
+config.guess~
+config.sub~
+configure~
+install-sh~
 
 # projects
 *.dst
 *.epr
+*.geany
 
 # archive
 archive/
@@ -39,6 +45,7 @@ advmess
 advmessd
 advmenu
 advmenud
+advbare
 advs
 advv
 advblue
@@ -62,4 +69,18 @@ obj/
 *.ori/
 *.complete/
 www/
+support/*.sh
+support/catver.ini
 
+# raspberry
+raspberry/*.sh
+raspberry/*.img
+raspberry/CONFIG
+raspberry/FIRMWARE
+raspberry/SPEED
+raspberry/TODO
+raspberry/distro/
+raspberry/firmware/
+raspberry/image/
+raspberry/joystick_logs/
+raspberry/support/
