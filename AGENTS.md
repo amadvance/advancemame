@@ -34,13 +34,24 @@ AdvanceMAME uses a standard Makefile:
 
 ```bash
 # Build the project (executable placed at obj/mame/linux/blend/advmame)
-make
-
-# Parallel build if needed
 make -j$(nproc)
 ```
 
-The resulting executable can be invoked as `./obj/mame/linux/blend/advmame` or via symlink `./advmame`.
+The resulting executable can be invoked as `./obj/mame/linux/blend/advmame`.
+
+To build with debugger support, use:
+
+```bash
+make -j$(nproc) CONF_DEBUGGER=yes
+```
+
+This defines `MAME_DEBUG` and enables `-debug_cpu`, `-debug_watch`, and `-debug_break`. The debugger executable is placed at `obj/mame/linux/blend-debugger/advmame`; invoke it explicitly when using these options:
+
+```bash
+./obj/mame/linux/blend-debugger/advmame <driver_name> -output window -debug_cpu 0 -debug_exit 120
+```
+
+The debugger build uses a separate output directory, so it can coexist with the standard build. Use `make -j$(nproc)` for the standard build and keep `CONF_DEBUGGER=yes` on subsequent debugger build commands.
 
 ---
 
@@ -117,7 +128,7 @@ go
 ```
 Run official MAME with a limited execution duration:
 ```bash
-/usr/local/bin/mame <driver_name> -rompath "/extra/advmame/rom;/extra/mame271/rom" -debug -debugscript /tmp/trace.cmd -seconds_to_run 3 -window -nomaximize
+/usr/local/bin/mame <driver_name> -rompath "/extra/advmame/rom;/extra/mame/rom" -debug -debugscript /tmp/trace.cmd -seconds_to_run 3 -window -nomaximize
 ```
 > [!NOTE]
 > In official MAME on Linux, multiple paths in `-rompath` must be separated by semicolons (`;`) enclosed in quotes, not colons (`:`).
@@ -149,7 +160,7 @@ end)
 
 2. Run official MAME with the script:
 ```bash
-/usr/local/bin/mame <driver_name> -rompath "/extra/advmame/rom;/extra/mame271/rom" -autoboot_script /tmp/test_mame.lua -seconds_to_run 6 -window -nomaximize -snapname /tmp/mame_test
+/usr/local/bin/mame <driver_name> -rompath "/extra/advmame/rom;/extra/mame/rom" -autoboot_script /tmp/test_mame.lua -seconds_to_run 6 -window -nomaximize -snapname /tmp/mame_test
 ```
 
 > [!TIP]
@@ -223,3 +234,4 @@ The following are subtle, non-obvious traps frequently encountered when debuggin
 - **Always Use Window Mode**: Always use `-output window` whenever launching or running games with AdvanceMAME.
 - **Commit Messages**: Every time a change is done, a single line commit description should be provided for that change.
 - **Git Commits**: Never commit changes to git.
+- **Temporary files** Create temporary files and directories under `/tmp/advancemame/`.
