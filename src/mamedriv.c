@@ -6299,7 +6299,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( airbustj )	/* (c) 1990 Kaneko + Namco (Japan) */
 	DRIVER( galpanic )	/* (c) 1990 Kaneko */
 	DRIVER( galpanib )	/* (c) 1990 Kaneko */
-	DRIVER( galpania )	/* (c) 1990 Kaneko */
+	DRIVER( galsnew )	/* (c) 1990 Kaneko */
 	DRIVER( galpani2 )	/* (c) 1993 Kaneko */
 	DRIVER( gpan2qiz )	/* (c) 1993 Kaneko */
 	DRIVER( jchan )		/* (c) 1995 Kaneko */
@@ -6609,6 +6609,8 @@ Other Sun games
 	DRIVER( wownfant )
 	DRIVER( fantsia2 )	/* (c) 1997 Comad */
 	DRIVER( fntsia2a )	/* (c) 1997 Comad */
+	DRIVER( missw02 )
+	DRIVER( pgalvip )
 	DRIVER( galhustl )	/* (c) 1997 ACE International */
 
 	/* Playmark games */

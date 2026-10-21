@@ -93,19 +93,6 @@ Stephh's additional notes :
    button 1, I have no idea if its complete or not
 
 
-Paul's Notes:
----------------------
-
-I've added the set dumped by The Sheep (galpania).
-It's memory map is a bit different, and the sprites are the same as the Comad games.
-I've had to had a couple of things including the group bits.
-There is some garbage tiles when you start a level instead of the expected text.
-(maybe it should use a different gfx rom?)
-There's probably a third tilemap at 0x580000 - 0x583fff used for the title logo.
-
-The roms are piggy-backed in the same way.
-
-
 -- Zip Zap notes ---
 
 Bg for select screens seems to be corrupt
@@ -143,6 +130,13 @@ WRITE16_HANDLER( galpanic_paletteram_w );
 VIDEO_START( galpanic );
 VIDEO_UPDATE( galpanic );
 VIDEO_UPDATE( comad );
+PALETTE_INIT( galsnew );
+VIDEO_START( galsnew );
+VIDEO_UPDATE( galsnew );
+extern UINT16 *galsnew_viewram, *galsnew_viewregs;
+WRITE16_HANDLER( galsnew_viewram_w );
+WRITE16_HANDLER( galsnew_tilebank_w );
+WRITE16_HANDLER( galsnew_tilebank0_w );
 
 
 
@@ -189,15 +183,6 @@ static WRITE16_HANDLER( galpania_6295_bankswitch_w )
 	}
 }
 
-static WRITE16_HANDLER( galpania_misc_w )
-{
-	if (ACCESSING_LSB)
-	{
-		galpanic_clear_sprites = data & 0x0004;
-	}
-
-	// other bits unknown !
-}
 
 static WRITE16_HANDLER( galpanic_coin_w )
 {
@@ -238,6 +223,27 @@ static ADDRESS_MAP_START( galpanic, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xd00000, 0xd00001) AM_WRITE(MWA16_NOP)	/* ??? */
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( galsnew_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x3fffff) AM_ROM
+	AM_RANGE(0x400000, 0x400001) AM_READWRITE(OKIM6295_status_0_lsb_r, OKIM6295_data_0_lsb_w)
+	AM_RANGE(0x500000, 0x51ffff) AM_RAM AM_BASE(&galpanic_fgvideoram) AM_SIZE(&galpanic_fgvideoram_size)
+	AM_RANGE(0x520000, 0x53ffff) AM_RAM AM_WRITE(galpanic_bgvideoram_w) AM_BASE(&galpanic_bgvideoram)
+	AM_RANGE(0x580000, 0x583fff) AM_RAM AM_WRITE(galsnew_viewram_w) AM_BASE(&galsnew_viewram)
+	AM_RANGE(0x600000, 0x600fff) AM_RAM AM_WRITE(galpanic_paletteram_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x680000, 0x68001f) AM_RAM AM_BASE(&galsnew_viewregs)
+	AM_RANGE(0x700000, 0x700fff) AM_RAM AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x780000, 0x78001f) AM_READWRITE(kaneko16_sprites_regs_r, kaneko16_sprites_regs_w) AM_BASE(&kaneko16_sprites_regs)
+	AM_RANGE(0x800000, 0x800001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x800002, 0x800003) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x800004, 0x800005) AM_READ(input_port_2_word_r)
+	AM_RANGE(0x900000, 0x900001) AM_WRITE(galpania_6295_bankswitch_w)
+	AM_RANGE(0xa00000, 0xa00001) AM_WRITENOP
+	AM_RANGE(0xc80000, 0xc8ffff) AM_RAM
+	AM_RANGE(0xd80000, 0xd80001) AM_WRITE(galsnew_tilebank_w)
+	AM_RANGE(0xe00000, 0xe00015) AM_READWRITE(galpanib_calc_r, galpanib_calc_w)
+	AM_RANGE(0xe80000, 0xe80001) AM_WRITE(galsnew_tilebank0_w)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( galpanib, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x3fffff) AM_ROM
 	AM_RANGE(0x400000, 0x400001) AM_READWRITE(OKIM6295_status_0_lsb_r,OKIM6295_data_0_lsb_w)
@@ -256,27 +262,6 @@ static ADDRESS_MAP_START( galpanib, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xe00000, 0xe00015) AM_READWRITE(galpanib_calc_r,galpanib_calc_w)
 ADDRESS_MAP_END
 
-static ADDRESS_MAP_START( galpania, ADDRESS_SPACE_PROGRAM, 16 )
-	AM_RANGE(0x000000, 0x3fffff) AM_ROM
-	AM_RANGE(0x400000, 0x400001) AM_READWRITE(OKIM6295_status_0_lsb_r,OKIM6295_data_0_lsb_w)
-	AM_RANGE(0x500000, 0x51ffff) AM_RAM AM_BASE(&galpanic_fgvideoram) AM_SIZE(&galpanic_fgvideoram_size)
-	AM_RANGE(0x520000, 0x53ffff) AM_READWRITE(MRA16_RAM,galpanic_bgvideoram_w) AM_BASE(&galpanic_bgvideoram )	/* + work RAM */
-	AM_RANGE(0x580000, 0x583fff) AM_RAM	/* another tilemap? */
-	AM_RANGE(0x600000, 0x600fff) AM_READWRITE(MRA16_RAM,galpanic_paletteram_w) AM_BASE(&paletteram16)	/* 1024 colors, but only 512 seem to be used */
-	AM_RANGE(0x680000, 0x68001f) AM_WRITE(MWA16_NOP)	/* ??? */
-	AM_RANGE(0x700000, 0x700fff) AM_RAM AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
-	AM_RANGE(0x780000, 0x780001) AM_WRITE(galpania_misc_w)
-	AM_RANGE(0x780002, 0x78001f) AM_WRITE(MWA16_NOP)	/* ??? */
-	AM_RANGE(0x800000, 0x800001) AM_READ(input_port_0_word_r)
-	AM_RANGE(0x800002, 0x800003) AM_READ(input_port_1_word_r)
-	AM_RANGE(0x800004, 0x800005) AM_READ(input_port_2_word_r)
-	AM_RANGE(0x900000, 0x900001) AM_WRITE(galpania_6295_bankswitch_w)
-	AM_RANGE(0xa00000, 0xa00001) AM_WRITE(galpanic_coin_w)	/* coin counters */
-	AM_RANGE(0xc80000, 0xc8ffff) AM_RAM	/* work RAM */
-	AM_RANGE(0xd80000, 0xd80001) AM_WRITE(MWA16_NOP)	/* ??? */
-	AM_RANGE(0xe00000, 0xe00015) AM_READWRITE(galpanib_calc_r,galpanib_calc_w)
-	AM_RANGE(0xe80000, 0xe80001) AM_WRITE(MWA16_NOP)	/* ??? */
-ADDRESS_MAP_END
 
 static READ16_HANDLER( kludge )
 {
@@ -421,6 +406,23 @@ static ADDRESS_MAP_START( wownfant_map, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0xf80000, 0xf8ffff) AM_RAM
 ADDRESS_MAP_END
 
+static ADDRESS_MAP_START( pgalvip_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x0fffff) AM_READ(MRA16_ROM)
+	AM_RANGE(0x200000, 0x2fffff) AM_READ(MRA16_ROM)
+    AM_RANGE(0x500000, 0x51ffff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x580000, 0x583fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x600000, 0x6007ff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x600800, 0x600fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x680000, 0x68001f) AM_READ(MRA16_RAM)
+	AM_RANGE(0x700000, 0x700fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x780000, 0x78001f) AM_READ(MRA16_RAM)
+	AM_RANGE(0x800000, 0x800001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x800002, 0x800003) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x800004, 0x800005) AM_READ(input_port_2_word_r)
+	AM_RANGE(0xd00000, 0xd00001) AM_READ(OKIM6295_status_0_msb_r)
+	AM_RANGE(0xe80000, 0xe8ffff) AM_READ(MRA16_RAM)
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( galhustl_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0fffff) AM_READ(MRA16_ROM)
     AM_RANGE(0x500000, 0x51ffff) AM_READ(MRA16_RAM)
@@ -560,6 +562,80 @@ ADDRESS_MAP_END
 	PORT_DIPSETTING(      0x0000, DEF_STR( 1C_4C ) )	PORT_CONDITION("DSW2",0x0008,PORTCOND_EQUALS,0x0000)\
 	PORT_DIPSETTING(      0x0000, DEF_STR( 1C_6C ) )	PORT_CONDITION("DSW2",0x0008,PORTCOND_EQUALS,0x0008)
 
+
+static INPUT_PORTS_START( galsnew )
+	PORT_START_TAG("DSW1")
+	PORT_DIPNAME( 0x0003, 0x0003, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Easy ) )
+	PORT_DIPSETTING(      0x0003, DEF_STR( Normal ) )
+	PORT_DIPSETTING(      0x0001, DEF_STR( Hard ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Hardest ) )
+	PORT_DIPNAME(0x000c, 0x000c, DEF_STR(Unknown))
+	PORT_DIPSETTING(0x000c, DEF_STR(Off))
+	PORT_DIPSETTING(0x0000, DEF_STR(On))
+	PORT_DIPNAME(0x0030, 0x0030, DEF_STR(Lives))
+	PORT_DIPSETTING(0x0010, "2")
+	PORT_DIPSETTING(0x0030, "3")
+	PORT_DIPSETTING(0x0020, "4")
+	PORT_DIPSETTING(0x0000, "5")
+	PORT_DIPNAME(0x0040, 0x0040, DEF_STR(Demo_Sounds))
+	PORT_DIPSETTING(0x0000, DEF_STR(Off))
+	PORT_DIPSETTING(0x0040, DEF_STR(On))
+	PORT_DIPNAME( 0x0080, 0x0080, "Show Ending Picture" )
+	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( On ) )
+
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY PORT_PLAYER(1)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY PORT_PLAYER(1)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("DSW2")
+	PORT_DIPNAME( 0x0001, 0x0001, DEF_STR( Unused ) )
+	PORT_DIPSETTING(0x0001, DEF_STR(Off))
+	PORT_DIPSETTING(0x0000, DEF_STR(On))
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Flip_Screen ) )
+	PORT_DIPSETTING(      0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( On ) )
+	PORT_SERVICE( 0x0004, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x0038, 0x0038, DEF_STR( Coin_A ) )
+	PORT_DIPSETTING(      0x0028, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x0038, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0018, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x0010, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 1C_4C ) )
+	PORT_DIPSETTING(      0x0008, DEF_STR( 1C_6C ) )
+	PORT_DIPNAME( 0x00c0, 0x00c0, DEF_STR( Coin_B ) )
+	PORT_DIPSETTING(      0x0080, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(      0x00c0, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(      0x0040, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(      0x0000, DEF_STR( 1C_6C ) )
+
+
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY PORT_PLAYER(2)
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNUSED )
+
+	PORT_START_TAG("SYSTEM")
+	PORT_BIT( 0x00ff, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0100, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x0200, IP_ACTIVE_LOW, IPT_START2 )
+	PORT_BIT( 0x0400, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x0800, IP_ACTIVE_LOW, IPT_COIN2 )
+	PORT_BIT( 0x1000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x2000, IP_ACTIVE_LOW, IPT_TILT )
+	PORT_BIT( 0x4000, IP_ACTIVE_LOW, IPT_SERVICE1 )
+	PORT_BIT( 0x8000, IP_ACTIVE_LOW, IPT_UNKNOWN )
+INPUT_PORTS_END
 
 INPUT_PORTS_START( galpanic )
 	PORT_START_TAG("DSW1")
@@ -1032,6 +1108,21 @@ static const gfx_layout spritelayout =
 	128*8
 };
 
+static const gfx_layout galsnew_tiles =
+{
+	16, 16, RGN_FRAC(1,1), 4, { 0, 1, 2, 3 },
+	{ 4, 0, 12, 8, 20, 16, 28, 24, 260, 256, 268, 264, 276, 272, 284, 280 },
+	{ 0, 32, 64, 96, 128, 160, 192, 224, 512, 544, 576, 608, 640, 672, 704, 736 },
+	1024
+};
+
+static const gfx_decode galsnew_gfx[] =
+{
+	{ REGION_GFX1, 0, &spritelayout, 256, 64 },
+	{ REGION_GFX2, 0, &galsnew_tiles, 1024, 64 },
+	{ -1 }
+};
+
 static const gfx_decode gfxdecodeinfo[] =
 {
 	{ REGION_GFX1, 0, &spritelayout,  256, 16 },
@@ -1071,6 +1162,20 @@ static MACHINE_DRIVER_START( galpanic )
 MACHINE_DRIVER_END
 
 
+static MACHINE_DRIVER_START( galsnew )
+	MDRV_IMPORT_FROM(galpanic)
+	MDRV_CPU_REPLACE("main", M68000, 12000000)
+	MDRV_CPU_PROGRAM_MAP(galsnew_map, 0)
+	MDRV_WATCHDOG_VBLANK_INIT(DEFAULT_60HZ_3S_VBLANK_WATCHDOG)
+	MDRV_CPU_VBLANK_INT(galhustl_interrupt, 3)
+	MDRV_GFXDECODE(galsnew_gfx)
+	MDRV_PALETTE_LENGTH(2048 + 32768)
+	MDRV_COLORTABLE_LENGTH(2048)
+	MDRV_PALETTE_INIT(galsnew)
+	MDRV_VIDEO_START(galsnew)
+	MDRV_VIDEO_UPDATE(galsnew)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( galpanib )
 
 	/* basic machine hardware */
@@ -1082,19 +1187,6 @@ static MACHINE_DRIVER_START( galpanib )
 	MDRV_WATCHDOG_VBLANK_INIT(DEFAULT_60HZ_3S_VBLANK_WATCHDOG)
 MACHINE_DRIVER_END
 
-static MACHINE_DRIVER_START( galpania )
-
-	/* basic machine hardware */
-	MDRV_IMPORT_FROM(galpanic)
-	MDRV_CPU_REPLACE("main", M68000, 10000000)
-	MDRV_CPU_PROGRAM_MAP(galpania,0)
-
-	/* arm watchdog */
-	MDRV_WATCHDOG_VBLANK_INIT(DEFAULT_60HZ_3S_VBLANK_WATCHDOG)
-
-	/* video hardware */
-	MDRV_VIDEO_UPDATE(comad)
-MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( comad )
 
@@ -1173,6 +1265,12 @@ MACHINE_DRIVER_END
 
 
 
+static MACHINE_DRIVER_START( pgalvip )
+	MDRV_IMPORT_FROM(galhustl)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(pgalvip_readmem, galhustl_writemem)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( zipzap )
 
 	/* basic machine hardware */
@@ -1223,30 +1321,6 @@ ROM_START( galpanic )
 	ROM_LOAD( "pm007e.u",     0xc0000, 0x80000, CRC(c7ed7950) SHA1(133258b058d3c562208d0d00b9fac71202647c32) )
 ROM_END
 
-ROM_START( galpania )
-	ROM_REGION( 0x400000, REGION_CPU1, 0 )	/* 68000 code */
-	ROM_LOAD16_BYTE( "pm110.4m2",    0x000000, 0x80000, CRC(ae6b17a8) SHA1(f3a625eef45cc85cdf9760f77ea7ce93387911f9) )
-	ROM_LOAD16_BYTE( "pm109.4m1",    0x000001, 0x80000, CRC(b85d792d) SHA1(0ed78e15f6e58285ce6944200b023ada1e673b0e) )
-	/* Piggy-backed the same as the other set, maybe bad-dump, or maybe the gfx rom is different? */
-	ROM_LOAD16_BYTE( "pm110e.u87",    0x000000, 0x20000, BAD_DUMP CRC(34e1ee0d) SHA1(567df65b04667a6d35725c4a131fb174acb3ad0a) )
-	ROM_LOAD16_BYTE( "pm109e.u88",    0x000001, 0x20000, BAD_DUMP CRC(c694255a) SHA1(16faf5ea5ff69a0e7a981021ea5fc09a0aefd7cf) )
-	ROM_LOAD16_BYTE( "pm004e.8",     0x100001, 0x80000, CRC(d3af52bc) SHA1(46be057106388578defecab1cdd1793ec76ebe92) )
-	ROM_LOAD16_BYTE( "pm005e.7",     0x100000, 0x80000, CRC(d7ec650c) SHA1(6c2250c74381497154bf516e0cf1db6bb56bb446) )
-	ROM_LOAD16_BYTE( "pm000e.15",    0x200001, 0x80000, CRC(5d220f3f) SHA1(7ff373e01027c8832712f7a2d732f8e49b875878) )
-	ROM_LOAD16_BYTE( "pm001e.14",    0x200000, 0x80000, CRC(90433eb1) SHA1(8688a85747ad9ecac395d782f130baa64fb9d12b) )
-	ROM_LOAD16_BYTE( "pm002e.17",    0x300001, 0x80000, CRC(713ee898) SHA1(c9f608a57fb90e5ee15eb76a74a7afcc406d5b4e) )
-	ROM_LOAD16_BYTE( "pm003e.16",    0x300000, 0x80000, CRC(6bb060fd) SHA1(4fc3946866c5a55e8340b62b5ad9beae723ce0da) )
-
-	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE )	/* sprites */
-	/* this could be different on this set ... */
-	ROM_LOAD( "galpania_pm006e.67",    0x000000, 0x100000, BAD_DUMP CRC(57aec037) SHA1(e6ba095b6892d4dcd76ba3343a97dd98ae29dc24) )
-
-	ROM_REGION( 0x140000, REGION_SOUND1, 0 )	/* OKIM6295 samples */
-	/* 00000-2ffff is fixed, 30000-3ffff is bank switched from all the ROMs */
-	ROM_LOAD( "pm008e.l",     0x00000, 0x80000, CRC(d9379ba8) SHA1(5ae7c743319b1a12f2b101a9f0f8fe0728ed1476) )
-	ROM_RELOAD(               0x40000, 0x80000 )
-	ROM_LOAD( "pm007e.u",     0xc0000, 0x80000, CRC(c7ed7950) SHA1(133258b058d3c562208d0d00b9fac71202647c32) )
-ROM_END
 
 ROM_START( galpanib )
 	ROM_REGION( 0x400000, REGION_CPU1, 0 )	/* 68000 code */
@@ -1578,9 +1652,96 @@ ROM_START( wownfant )
 	ROM_LOAD( "ep-4001 42750001 u1.u1", 0xc0000, 0x80000, CRC(864167c2) SHA1(c454b26b6dea993e6bd64546f92beef05e46d7d7) )
 ROM_END
 
+ROM_START( galsnew )
+	ROM_REGION( 0x400000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "pm110e_u87-01.u87",  0x000000, 0x20000, CRC(34e1ee0d) SHA1(567df65b04667a6d35725c4a131fb174acb3ad0a) )
+	ROM_LOAD16_BYTE( "pm109e_u88-01.u88",  0x000001, 0x20000, CRC(c694255a) SHA1(16faf5ea5ff69a0e7a981021ea5fc09a0aefd7cf) )
+
+	ROM_LOAD16_BYTE( "pm004e.u86", 0x100001, 0x80000, CRC(d3af52bc) SHA1(46be057106388578defecab1cdd1793ec76ebe92) )
+	ROM_LOAD16_BYTE( "pm005e.u85", 0x100000, 0x80000, CRC(d7ec650c) SHA1(6c2250c74381497154bf516e0cf1db6bb56bb446) )
+	ROM_LOAD16_BYTE( "pm000e.u74", 0x200001, 0x80000, CRC(5d220f3f) SHA1(7ff373e01027c8832712f7a2d732f8e49b875878) )
+	ROM_LOAD16_BYTE( "pm001e.u73", 0x200000, 0x80000, CRC(90433eb1) SHA1(8688a85747ad9ecac395d782f130baa64fb9d12b) )
+	ROM_LOAD16_BYTE( "pm002e.u76", 0x300001, 0x80000, CRC(713ee898) SHA1(c9f608a57fb90e5ee15eb76a74a7afcc406d5b4e) )
+	ROM_LOAD16_BYTE( "pm003e.u75", 0x300000, 0x80000, CRC(6bb060fd) SHA1(4fc3946866c5a55e8340b62b5ad9beae723ce0da) )
+
+	ROM_LOAD16_WORD_SWAP( "pm017e.u84", 0x80000, 0x80000, CRC(bc41b6ca) SHA1(0aeaf024dd7c84550e7df27230a1d4f04cc1d61c) )
+
+	ROM_REGION( 0x200000, REGION_GFX1, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+
+	ROM_LOAD( "pm006e.u83",        0x000000, 0x080000, CRC(a7555d9a) SHA1(f95821b3358d9ab03ca9ead38fd358062259d89d) )
+	ROM_LOAD( "pm206e.u82",        0x080000, 0x080000, CRC(cc978baa) SHA1(59a95bcbaeca9d356f61ea42af4da116afbb1491) )
+	ROM_LOAD( "pm018e.u94",        0x100000, 0x080000, CRC(f542d708) SHA1(f515cca9e96401303ed45b4372f6079f29b7a999) )
+
+
+	ROM_REGION( 0x200000, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+
+	ROM_REGION( 0x200000, REGION_GFX3, 0 )
+	ROM_LOAD( "pm013e.u89", 0x000000, 0x080000, CRC(10f27b05) SHA1(0f8ade713f6b430b5a23370a17326d53229951de) )
+	ROM_LOAD( "pm014e.u90", 0x080000, 0x080000, CRC(2f367106) SHA1(1cd16e286e77e8e1b7668bbb6f2978101656b720) )
+	ROM_LOAD( "pm015e.u91", 0x100000, 0x080000, CRC(a563f8ef) SHA1(6e4171746e4d401992bf3a7619d5bed0063d57e5) )
+	ROM_LOAD( "pm016e.u92", 0x180000, 0x080000, CRC(c0b9494c) SHA1(f0b066dd78eb9fcf947da90ddb6c7b62299c5743) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, ROMREGION_ERASE00 )
+
+	ROM_LOAD( "pm008e.u46", 0x00000, 0x80000, CRC(d9379ba8) SHA1(5ae7c743319b1a12f2b101a9f0f8fe0728ed1476) )
+	ROM_RELOAD( 0x40000, 0x80000 )
+	ROM_LOAD( "pm007e.u47", 0xc0000, 0x80000, CRC(c7ed7950) SHA1(133258b058d3c562208d0d00b9fac71202647c32) )
+ROM_END
+
+ROM_START( missw02 )
+	ROM_REGION( 0x500000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "u81",       0x000000, 0x080000, CRC(86ca4d5f) SHA1(0f7781b10034383615836154b486a2a9f71c6a16) )
+	ROM_LOAD16_BYTE( "u80",       0x000001, 0x080000, CRC(96d40592) SHA1(9ef7d37b68b2c748238d7da6fb4c2e67566b0784) )
+	ROM_LOAD16_WORD_SWAP( "gfx1", 0x100000, 0x200000, CRC(fdfe36ba) SHA1(128277e44e2368267e097bb3510c797cc690d1ff) )
+	ROM_LOAD16_WORD_SWAP( "gfx2", 0x300000, 0x200000, CRC(aa769a81) SHA1(2beb6da9327ddce7bec934bcf610061fc3b9ab09) )
+
+	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "u113", 0x00000, 0x80000, CRC(3e77ca1f) SHA1(f946e65a29bc02b89c02b2a869578d38cfe7e2d0) )
+	ROM_LOAD( "u112", 0x80000, 0x80000, CRC(51f4b604) SHA1(52e8ce0a2c1b9b00f04e0c775789bc550bad8ae0) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, ROMREGION_ERASE00 )
+
+	ROM_LOAD( "u4", 0x00000, 0x80000, CRC(06dc889e) SHA1(726561ff01bbde43669293a6ff7ee22b048b4118) )
+	ROM_RELOAD( 0x40000, 0x80000 )
+	ROM_LOAD( "u1", 0xc0000, 0x80000, CRC(864167c2) SHA1(c454b26b6dea993e6bd64546f92beef05e46d7d7) )
+ROM_END
+
+ROM_START( pgalvip )
+	ROM_REGION( 0x300000, REGION_CPU1, ROMREGION_ERASEFF )
+	ROM_LOAD16_BYTE( "afega_15.ue17", 0x00000, 0x20000, CRC(050060ca) SHA1(1e2a1d6aaf5038269d192baf3520f4af7a299325) )
+	ROM_LOAD16_BYTE( "afega_16.ud17", 0x00001, 0x20000, CRC(d32e4052) SHA1(632d9affee92a526c0e9399230ecf485922c6df4) )
+	ROM_LOAD16_BYTE( "afega_13.rob1", 0x200000, 0x80000, CRC(ac51ef72) SHA1(01acb29ff474c52fcb323cdb14e0d6f804c93255) )
+	ROM_LOAD16_BYTE( "afega_14.roa1", 0x200001, 0x80000, CRC(0877c00f) SHA1(91c325d6c21045f08abca86a9c4d46023363dd2e) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, ROMREGION_ERASE00 )
+
+	ROM_LOAD( "afega_12.ub6", 0x00000, 0x20000, CRC(d32a6c0c) SHA1(6f16043ed1e174b42de83462e2ea7a601bac6678) )
+	ROM_RELOAD( 0x40000, 0x20000 )
+	ROM_LOAD( "afega_11.uc6", 0xc0000, 0x80000, CRC(2168e54a) SHA1(87534334b16d3ddc3daefcb1b8086aff44157ccf) )
+
+	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "afega_17.u5", 0x00000, 0x80000, CRC(a8a50745) SHA1(e51963947c7a7556b8531d172b9d7bf9f321b21b) )
+ROM_END
+
+static DRIVER_INIT( galsnew )
+{
+	UINT32 *src = (UINT32 *)memory_region(REGION_GFX3);
+	UINT32 *dst = (UINT32 *)memory_region(REGION_GFX2);
+	unsigned i;
+	for (i = 0; i < 0x80000; ++i)
+	{
+		unsigned a = BITSWAP24(i, 23,22,21,20,19,18,15,9,10,8,7,12,13,16,17,6,5,4,3,14,11,2,1,0);
+		a ^= 0x0528f;
+		a = (a & ~0x001ff) | ((a + 0x00043) & 0x001ff);
+		a = (a & ~0x1fe00) | ((a - 0x09600) & 0x1fe00);
+		a = BITSWAP24(a, 23,22,21,20,19,18,9,10,17,4,11,12,3,15,16,14,13,8,7,6,5,2,1,0);
+		dst[i] = src[a];
+	}
+}
+
 GAME( 1990, galpanic, 0,        galpanic, galpanic, 0, ROT90, "Kaneko", "Gals Panic (set 1)", GAME_NO_COCKTAIL )
 GAME( 1990, galpanib, galpanic, galpanib, galpanib, 0, ROT90, "Kaneko", "Gals Panic (set 2)", GAME_NO_COCKTAIL )
-GAME( 1990, galpania, galpanic, galpania, galpanib, 0, ROT90, "Kaneko", "Gals Panic (set 3)", GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
+GAME( 1990, galsnew, 0, galsnew, galsnew, galsnew, ROT90, "Kaneko", "Gals Panic (Export, EXPRO-02 PCB)", GAME_NO_COCKTAIL )
 GAME( 1994, fantasia, 0,        comad,    fantasia, 0, ROT90, "Comad & New Japan System", "Fantasia", GAME_NO_COCKTAIL )
 GAME( 1994, supmodel, 0,        supmodel, fantasia, 0, ROT90, "Comad & New Japan System", "Super Model",GAME_NO_COCKTAIL ) // 'official' or hack of fantasia?
 GAME( 1995, newfant,  0,        comad,    fantasia, 0, ROT90, "Comad & New Japan System", "New Fantasia", GAME_NO_COCKTAIL )
@@ -1592,5 +1753,7 @@ GAME( 1997, fantsia2, 0,        fantsia2, missw96,  0, ROT0,  "Comad", "Fantasia
 GAME( 1997, fntsia2a, fantsia2, fantsia2, missw96,  0, ROT0,  "Comad", "Fantasia II (Less Explicit)", GAME_NO_COCKTAIL )
 GAME( 1997, supmodl2, 0, supmodl2, missw96, 0, ROT0, "Comad", "Super Model II", GAME_NO_COCKTAIL )
 GAME( 2002, wownfant, 0, wownfant, missw96, 0, ROT0, "Comad", "WOW New Fantasia (Explicit)", GAME_NO_COCKTAIL )
-GAME( 1997, galhustl, 0,        galhustl, galhustl, 0, ROT0,  "ACE International", "Gals Hustler", 0 )
+GAME( 2002, missw02, 0, wownfant, missw96, 0, ROT0, "Comad", "Miss World 2002", GAME_NO_COCKTAIL )
+GAME( 1996, pgalvip, 0, pgalvip, galhustl, 0, ROT0, "ACE International / Afega", "Pocket Gals V.I.P (set 1)", 0 )
+GAME( 1997, galhustl, pgalvip, galhustl, galhustl, 0, ROT0,  "ACE International", "Gals Hustler", 0 )
 GAME( 1995, zipzap,   0,        zipzap,   zipzap,   0, ROT90, "Barko Corp", "Zip & Zap", GAME_IMPERFECT_GRAPHICS|GAME_IMPERFECT_SOUND )
