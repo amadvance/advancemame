@@ -68,14 +68,20 @@ If ROMs are missing or mismatched, AdvanceMAME will list all required ROM filena
 AdvanceMAME includes built-in options for deterministic frame capture and automated exit:
 - `-debug_snap_step <X>`: Save game frames as PNG images every `X` frames (if 1, saves every frame; default 0 = disabled). Saved to `/home/am/.advance/snap/<driver_name>_<frame:05d>.png`.
 - `-debug_sound`: Record game audio automatically to WAV in `dir_snap` until exit. Independent of manual recording keys and time limits; overwrites `dir_snap/<driver_name>.wav` on each run.
+- `-debug_start <X>`: Start CPU traces, automatic PNG snapshots and debug WAV capture at frame `X` (default 0 = immediately). Frames are numbered from 1. Snapshot intervals and `-debug_exit` remain absolute; for example, start 100 with step 10 first captures frame 100. Manual recording and scripted inputs are not delayed.
 - `-debug_exit <X>`: Automatically force a clean exit at frame `X` (default 0 = disabled).
-- `-debug_cpu <N>`: Trace CPU instruction execution and registers in real time directly to `stdout` (`<N>` is CPU index: `0` for CPU 0 / main CPU, `1` for CPU 1, `-1` for all CPUs; default `-2` = disabled). Available when built with debugger support (`make CONF_DEBUGGER=yes`, which defines `MAME_DEBUG`), ensuring standard release builds incur zero CPU overhead.
+- `-debug_cpu <N>`: Trace CPU instruction execution and registers in real time to `dir_snap/<driver_name>.cpu`, overwriting the file on each run (`<N>` is CPU index: `0` for CPU 0 / main CPU, `1` for CPU 1, `-1` for all CPUs; default `-2` = disabled). Available when built with debugger support (`make CONF_DEBUGGER=yes`, which defines `MAME_DEBUG`), ensuring standard release builds incur zero CPU overhead.
 
 Example: capture every 10th frame up to frame 200 and exit:
 ```bash
 ./obj/mame/linux/blend/advmame <driver_name> -output window -debug_snap_step 10 -debug_exit 200
 ```
 The saved PNG snapshots can be viewed using image viewer tools to inspect tilemaps, sprites, colors, and text layer integrity.
+
+Example: trace CPU 0 and capture PNG/WAV from frame 100 to frame 120 (requires a debugger-enabled build):
+```bash
+./obj/mame/linux/blend-debugger/advmame <driver_name> -output window -debug_cpu 0 -debug_start 100 -debug_snap_step 10 -debug_sound -debug_exit 120
+```
 
 ### Scripting & Input Simulation (-script_play)
 AdvanceMAME supports automated scripting via `-script_play`. This is useful for simulating inputs such as inserting coins (`coin1`) and pressing start (`start1`) without manual interaction, allowing agents to navigate menus or transition from attract mode into active gameplay:

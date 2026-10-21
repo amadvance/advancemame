@@ -648,6 +648,8 @@ const struct mame_game* mame_playback_look(const char* file)
 
 #ifdef MAME_DEBUG
 int debug_cpu_active = -2;
+static FILE* debug_cpu_trace_file;
+static adv_bool debug_cpu_trace_failed;
 
 void debug_cpu_hook(void)
 {
@@ -661,6 +663,10 @@ void debug_cpu_hook(void)
 	int i;
 
 	if (active_cpu < 0)
+		return;
+
+	/* Use the same absolute frame counter as debug PNG and WAV captures. */
+	if (CONTEXT.record.state.debug_frame_counter < CONTEXT.record.config.debug_start)
 		return;
 
 	if (debug_cpu_active >= 0 && active_cpu != debug_cpu_active)
@@ -689,10 +695,15 @@ void debug_cpu_hook(void)
 	}
 
 	if (debug_cpu_active == -1)
-		printf("[CPU%d] %0*X: %-25s | %s\n", active_cpu, addr_width, pc, dasm, regs_buf);
+		fprintf(debug_cpu_trace_file, "[CPU%d] %0*X: %-25s | %s\n", active_cpu, addr_width, pc, dasm, regs_buf);
 	else
-		printf("%0*X: %-25s | %s\n", addr_width, pc, dasm, regs_buf);
-	fflush(stdout);
+		fprintf(debug_cpu_trace_file, "%0*X: %-25s | %s\n", addr_width, pc, dasm, regs_buf);
+	if (fflush(debug_cpu_trace_file) != 0) {
+		target_err("Error writing CPU trace file.\n");
+		debug_cpu_trace_failed = 1;
+		debug_cpu_active = -2;
+		CONTEXT.input.state.input_forced_exit_flag = 1;
+	}
 }
 #endif
 
@@ -711,7 +722,8 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	debug_cpu_active = context->record.config.debug_cpu;
 #else
 	if (context->record.config.debug_cpu >= -1) {
-		fprintf(stderr, "WARNING: -debug_cpu requires compiling AdvanceMAME with debugger support (e.g. make CONF_DEBUGGER=yes)\n");
+		target_err("-debug_cpu requires debugger support (make CONF_DEBUGGER=yes).\n");
+		return -1;
 	}
 #endif
 
@@ -869,10 +881,34 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 
 	hardware_script_info(mame_game_description(context->game), mame_game_manufacturer(context->game), mame_game_year(context->game), "Loading");
 
+#ifdef MAME_DEBUG
+	debug_cpu_trace_failed = 0;
+	if (debug_cpu_active >= -1) {
+		char path[FILE_MAXPATH];
+		snprintf(path, sizeof(path), "%s/%s.cpu", context->record.config.dir_buffer, mame_game_name(context->game));
+		debug_cpu_trace_file = fopen(path, "w");
+		if (!debug_cpu_trace_file) {
+			target_err("Unable to open CPU trace file '%s': %s.\n", path, strerror(errno));
+			r = -1;
+			goto trace_done;
+		}
+	}
+#endif
+
 	r = run_game(game_index);
 
 #ifdef MAME_DEBUG
+trace_done:
 	debug_cpu_active = -2;
+	if (debug_cpu_trace_file) {
+		if (fclose(debug_cpu_trace_file) != 0) {
+			target_err("Error closing CPU trace file.\n");
+			debug_cpu_trace_failed = 1;
+		}
+		debug_cpu_trace_file = 0;
+	}
+	if (debug_cpu_trace_failed)
+		r = -1;
 #endif
 
 	if (options.bios) {

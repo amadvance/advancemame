@@ -643,7 +643,8 @@ void advance_record_sound_update(struct advance_record_context* context, const s
 
 	sound_update(&context->state.sound, sample_buffer, sample_count, context->config.sound_time, !context->state.video_active_flag);
 
-	if (context->config.debug_sound && !context->state.debug_sound_failed) {
+	if (context->config.debug_sound && !context->state.debug_sound_failed
+		&& context->state.debug_frame_counter >= context->config.debug_start) {
 		if (!context->state.debug_sound.active_flag) {
 			struct advance_sound_context* sound_context = &CONTEXT.sound;
 			char path_wav[FILE_MAXPATH];
@@ -742,6 +743,7 @@ adv_error advance_record_config_load(struct advance_record_context* context, adv
 	context->config.video_interlace = conf_int_get_default(cfg_context, "record_video_interleave");
 	context->config.debug_snap_step = conf_int_get_default(cfg_context, "debug_snap_step");
 	context->config.debug_exit = conf_int_get_default(cfg_context, "debug_exit");
+	context->config.debug_start = conf_int_get_default(cfg_context, "debug_start");
 	context->config.debug_sound = conf_bool_get_default(cfg_context, "debug_sound");
 	context->config.debug_cpu = conf_int_get_default(cfg_context, "debug_cpu");
 	context->state.debug_frame_counter = 0;
@@ -766,6 +768,7 @@ adv_error advance_record_init(struct advance_record_context* context, adv_conf* 
 	conf_int_register_limit_default(cfg_context, "record_video_interleave", 1, 30, 2);
 	conf_int_register_limit_default(cfg_context, "debug_snap_step", 0, 1000000, 0);
 	conf_int_register_limit_default(cfg_context, "debug_exit", 0, 1000000, 0);
+	conf_int_register_limit_default(cfg_context, "debug_start", 0, 1000000, 0);
 	conf_bool_register_default(cfg_context, "debug_sound", 0);
 	conf_int_register_limit_default(cfg_context, "debug_cpu", -2, 16, -2);
 
