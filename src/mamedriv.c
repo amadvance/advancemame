@@ -6862,6 +6862,9 @@ Other Sun games
 	DRIVER( kovj )		/* (c) 1999 */
 	DRIVER( killbldp )
 	DRIVER( svg )
+	DRIVER( oldsplus )
+	DRIVER( kovshp )
+	DRIVER( kovytzy )
 	DRIVER( kovsh )		/* (c) 1999 */
 	DRIVER( photoy2k )	/* (c) 1999 */
 	DRIVER( raf102j )	/* (c) 1999 */
