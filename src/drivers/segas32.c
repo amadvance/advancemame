@@ -2108,6 +2108,14 @@ static MACHINE_DRIVER_START( system32 )
 MACHINE_DRIVER_END
 
 
+static MACHINE_RESET( f1lap );
+
+static MACHINE_DRIVER_START( f1lap )
+	MDRV_IMPORT_FROM(system32)
+	MDRV_MACHINE_RESET(f1lap)
+MACHINE_DRIVER_END
+
+
 static MACHINE_DRIVER_START( system32_v20 )
 	MDRV_IMPORT_FROM(system32)
 
@@ -3640,29 +3648,75 @@ static DRIVER_INIT( f1en )
 	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x810048, 0x810048, 0, 0, f1en_comms_echo_w);
 }
 
-static void f1lap_fd1149_vblank(void);
+static UINT8 f1lap_comms_ram[0x800];
+static UINT8 f1lap_comms_cn;
+static UINT8 f1lap_comms_fg;
 
-int val;
-
-void f1lap_fd1149_vblank(void)
+static MACHINE_RESET( f1lap )
 {
-	// needed to start a game
-	UINT8 val = program_read_byte(0x20EE81);
-	if (val == 0xff)  program_write_byte(0x20EE81,0);
+	machine_reset_system32();
+	memset(f1lap_comms_ram, 0, sizeof(f1lap_comms_ram));
+	f1lap_comms_cn = 0;
+	f1lap_comms_fg = 0;
+}
 
-	program_write_byte(0x20F7C6, 0);
+static READ16_HANDLER( f1lap_comms_r )
+{
+	return 0xff00 | f1lap_comms_ram[offset];
+}
 
+static WRITE16_HANDLER( f1lap_comms_w )
+{
+	if (ACCESSING_LSB)
+		f1lap_comms_ram[offset] = data;
+}
+
+static READ16_HANDLER( f1lap_comms_control_r )
+{
+	return 0xfffe | (offset ? f1lap_comms_fg : f1lap_comms_cn);
+}
+
+static WRITE16_HANDLER( f1lap_comms_control_w )
+{
+	if (ACCESSING_LSB)
+	{
+		if (!offset)
+			f1lap_comms_cn = data & 1;
+		else if (f1lap_comms_cn)
+			f1lap_comms_fg = data & 1;
+	}
+}
+
+static void f1lap_fd1149_vblank(void)
+{
+	UINT8 val = program_read_byte(0x20ee81);
+	if (val == 0xff)
+		program_write_byte(0x20ee81, 0);
+	program_write_byte(0x20f7c6, 0);
+
+	/* A single cabinet closes the communication ring on itself. */
+	if (f1lap_comms_cn)
+	{
+		f1lap_comms_ram[0] = 1;
+		f1lap_comms_ram[2] = 1;
+		f1lap_comms_ram[3] = 1;
+		if (f1lap_comms_ram[4])
+		{
+			memcpy(&f1lap_comms_ram[0xf0], &f1lap_comms_ram[0x10], 0xe0);
+			f1lap_comms_ram[4] = 0;
+		}
+	}
 }
 
 static DRIVER_INIT( f1lap )
 {
 	segas32_common_init(analog_custom_io_r, analog_custom_io_w, NULL);
-	
-	dual_pcb_comms = auto_malloc(0x1000);
-	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x800000, 0x800fff, 0, 0, dual_pcb_comms_r);
-	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x800000, 0x800fff, 0, 0, dual_pcb_comms_w);
-	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x801000, 0x801003, 0, 0, dual_pcb_masterslave);
-	
+
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x800000, 0x800fff, 0, 0, f1lap_comms_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x800000, 0x800fff, 0, 0, f1lap_comms_w);
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, 0x801000, 0x801003, 0, 0, f1lap_comms_control_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, 0x801000, 0x801003, 0, 0, f1lap_comms_control_w);
+
 	system32_prot_vblank = f1lap_fd1149_vblank;
 }
 
@@ -3817,7 +3871,7 @@ GAME( 1992, darkedge, 0,        system32,     darkedge, darkedge, ROT0, "Sega", 
 GAME( 1992, darkedgj, darkedge, system32,     darkedge, darkedge, ROT0, "Sega",   "Dark Edge (Japan)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1994, dbzvrvs,  0,        system32,     dbzvrvs,  dbzvrvs,  ROT0, "Sega / Banpresto", "Dragon Ball Z V.R.V.S.", GAME_IMPERFECT_GRAPHICS)
 GAME( 1991, f1en,     0,        system32,     f1en,     f1en,     ROT0, "Sega",   "F1 Exhaust Note", GAME_IMPERFECT_GRAPHICS )
-GAME( 1993, f1lap,    0,        system32,     f1lap,    f1lap,    ROT0, "Sega",   "F1 Super Lap", GAME_IMPERFECT_GRAPHICS | GAME_NOT_WORKING ) // not passing the "networking check"
+GAME( 1993, f1lap,    0,        f1lap,        f1lap,    f1lap,    ROT0, "Sega",   "F1 Super Lap", GAME_IMPERFECT_GRAPHICS )
 GAME( 1992, ga2,      0,        system32_v20, ga2,      ga2,      ROT0, "Sega",   "Golden Axe: The Revenge of Death Adder (World)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1992, ga2u,     ga2,      system32_v20, ga2u,     ga2,      ROT0, "Sega",   "Golden Axe: The Revenge of Death Adder (US)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1992, ga2j,     ga2,      system32_v20, ga2,      ga2,      ROT0, "Sega",   "Golden Axe: The Revenge of Death Adder (Japan)", GAME_IMPERFECT_GRAPHICS )
