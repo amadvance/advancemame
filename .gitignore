@@ -71,6 +71,7 @@ obj/
 www/
 support/*.sh
 support/catver.ini
+support/renameSET.dat
 
 # raspberry
 raspberry/*.sh
