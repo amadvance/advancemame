@@ -5811,6 +5811,8 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( tripool )	/* (c) 1981 Noma (Casino Tech license) */
 	DRIVER( tripoola )	/* (c) 1981 Noma (Costal Games license) */
 	DRIVER( joinem )	/* (c) 1986 Global */
+	DRIVER( unclepoo )	/* (c) 1983 Diatec */
+	DRIVER( loverboy )	/* (c) 1983 G.T Enterprise Inc */
 	DRIVER( striv )		/* (c) 1985 Hara Industries */
 	DRIVER( jack )		/* (c) 1982 Cinematronics */
 	DRIVER( jack2 )		/* (c) 1982 Cinematronics */

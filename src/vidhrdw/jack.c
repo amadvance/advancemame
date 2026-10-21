@@ -9,6 +9,8 @@
 #include "driver.h"
 
 static tilemap *bg_tilemap;
+static int joinem_palette_bank;
+UINT8 *joinem_scrollram;
 
 WRITE8_HANDLER( jack_videoram_w )
 {
@@ -112,6 +114,23 @@ VIDEO_UPDATE( jack )
    3bpp gfx and different banking / colors bits
 */
 
+WRITE8_HANDLER( joinem_palette_bank_w )
+{
+	int bank = data & (((Machine->drv->total_colors - 1) >> 3) & 0x18);
+	if (bank != joinem_palette_bank)
+	{
+		joinem_palette_bank = bank;
+		tilemap_mark_all_tiles_dirty(bg_tilemap);
+	}
+}
+
+WRITE8_HANDLER( joinem_scroll_w )
+{
+	joinem_scrollram[offset] = data;
+	if ((offset & 3) == 0)
+		tilemap_set_scrolly(bg_tilemap, offset >> 2, -data);
+}
+
 PALETTE_INIT( joinem )
 {
 	int i;
@@ -138,19 +157,21 @@ PALETTE_INIT( joinem )
 
 static void joinem_get_bg_tile_info(int tile_index)
 {
-	int code = videoram[tile_index] + ((colorram[tile_index] & 0x01) << 8);
-	int color = (colorram[tile_index] & 0x38) >> 3;
+	int code = videoram[tile_index] + ((colorram[tile_index] & 0x03) << 8);
+	int color = ((colorram[tile_index] & 0x38) >> 3) | joinem_palette_bank;
 
 	SET_TILE_INFO(0, code, color, 0)
 }
 
 VIDEO_START( joinem )
 {
+	joinem_palette_bank = 0;
 	bg_tilemap = tilemap_create(joinem_get_bg_tile_info, tilemap_scan_cols_flipy, TILEMAP_OPAQUE, 8, 8, 32, 32);
 
 	if ( !bg_tilemap )
 		return 1;
 
+	tilemap_set_scroll_cols(bg_tilemap, 32);
 	return 0;
 }
 
@@ -164,8 +185,8 @@ static void joinem_draw_sprites( mame_bitmap *bitmap )
 
 		sx    = spriteram[offs + 1];
 		sy    = spriteram[offs];
-		num   = spriteram[offs + 2] + ((spriteram[offs + 3] & 0x01) << 8);
-		color = (spriteram[offs + 3] & 0x38) >> 3;
+		num   = spriteram[offs + 2] + ((spriteram[offs + 3] & 0x03) << 8);
+		color = ((spriteram[offs + 3] & 0x38) >> 3) | joinem_palette_bank;
 		flipx = (spriteram[offs + 3] & 0x80);
 		flipy = (spriteram[offs + 3] & 0x40);
 
