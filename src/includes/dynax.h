@@ -59,3 +59,9 @@ VIDEO_UPDATE( mjdialq2 );
 VIDEO_UPDATE( jantouki );
 
 PALETTE_INIT( sprtmtch );
+
+WRITE8_HANDLER( cdracula_blitter_rev2_w );
+WRITE8_HANDLER( cdracula_blit_flags_w );
+VIDEO_UPDATE( cdracula );
+VIDEO_START( cdracula );
+void cdracula_update_irq(void);

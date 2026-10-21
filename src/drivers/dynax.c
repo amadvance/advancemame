@@ -75,6 +75,7 @@ TODO:
 #include "sound/3812intf.h"
 #include "sound/msm5205.h"
 #include "sound/2413intf.h"
+#include "sound/okim6295.h"
 
 /***************************************************************************
 
@@ -2499,6 +2500,171 @@ static struct MSM5205interface hanamai_msm5205_interface =
 
 
 
+static WRITE8_HANDLER( cdracula_sound_rombank_w )
+{
+	if (data < memory_region_length(REGION_SOUND1) / 0x40000)
+		OKIM6295_set_bank_base(0, data * 0x40000);
+}
+
+static int cdracula_blitter_irq_mask;
+
+void cdracula_update_irq(void)
+{
+	if (!cdracula_blitter_irq_mask)
+		dynax_blitter_irq = 0;
+	sprtmtch_update_irq();
+}
+
+static WRITE8_HANDLER( cdracula_blitter_ack_w )
+{
+	cdracula_blitter_irq_mask = data & 1;
+	cdracula_update_irq();
+}
+
+static MACHINE_RESET( cdracula )
+{
+	cdracula_blitter_irq_mask = 0;
+	dynax_blitter_irq = dynax_vblank_irq = dynax_sound_irq = 0;
+	OKIM6295_set_bank_base(0, 0);
+	cdracula_update_irq();
+}
+
+static ADDRESS_MAP_START( cdracula_readmem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xbfff) AM_READ(MRA8_ROM)
+	AM_RANGE(0xc000, 0xffff) AM_READ(MRA8_RAM)
+ADDRESS_MAP_END
+static ADDRESS_MAP_START( cdracula_writemem, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xbfff) AM_WRITE(MWA8_ROM)
+	AM_RANGE(0xc000, 0xffff) AM_WRITE(MWA8_RAM)
+ADDRESS_MAP_END
+static ADDRESS_MAP_START( cdracula_readport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x10, 0x10) AM_READ(OKIM6295_status_0_r)
+	AM_RANGE(0x11, 0x11) AM_READ(MRA8_NOP)
+	AM_RANGE(0x20, 0x20) AM_READ(input_port_0_r)
+	AM_RANGE(0x21, 0x21) AM_READ(input_port_1_r)
+	AM_RANGE(0x22, 0x22) AM_READ(input_port_2_r)
+	AM_RANGE(0x60, 0x60) AM_READ(input_port_4_r)
+	AM_RANGE(0x61, 0x61) AM_READ(input_port_3_r)
+ADDRESS_MAP_END
+static ADDRESS_MAP_START( cdracula_writeport, ADDRESS_SPACE_IO, 8 )
+	ADDRESS_MAP_FLAGS( AMEF_ABITS(8) )
+	AM_RANGE(0x01, 0x07) AM_WRITE(cdracula_blitter_rev2_w)
+	AM_RANGE(0x10, 0x10) AM_WRITE(OKIM6295_data_0_w)
+	AM_RANGE(0x11, 0x13) AM_WRITE(MWA8_NOP)
+	AM_RANGE(0x30, 0x30) AM_WRITE(dynax_layer_enable_w)
+	AM_RANGE(0x32, 0x32) AM_WRITE(dynax_blit_pen_w)
+	AM_RANGE(0x33, 0x33) AM_WRITE(cdracula_blit_flags_w)
+	AM_RANGE(0x34, 0x34) AM_WRITE(dynax_blit_palette01_w)
+	AM_RANGE(0x35, 0x35) AM_WRITE(dynax_blit_palette23_w)
+	AM_RANGE(0x36, 0x36) AM_WRITE(dynax_blit_backpen_w)
+	AM_RANGE(0x37, 0x37) AM_WRITE(dynax_vblank_ack_w)
+	AM_RANGE(0x41, 0x41) AM_WRITE(dynax_flipscreen_w)
+	AM_RANGE(0x44, 0x44) AM_WRITE(cdracula_blitter_ack_w)
+	AM_RANGE(0x45, 0x45) AM_WRITE(dynax_blit_palbank_w)
+	AM_RANGE(0x6b, 0x6b) AM_WRITE(cdracula_sound_rombank_w)
+ADDRESS_MAP_END
+
+static INPUT_PORTS_START( cdracula )
+	PORT_START
+	PORT_BIT(  0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(1)
+	PORT_BIT(  0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
+	PORT_BIT(  0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
+	PORT_BIT(  0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
+	PORT_BIT(  0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
+	PORT_BIT(  0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
+	PORT_BIT(  0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_START1 )
+
+	PORT_START
+	PORT_BIT(  0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_PLAYER(2)
+	PORT_BIT(  0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
+	PORT_BIT(  0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
+	PORT_BIT(  0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
+	PORT_BIT(  0x10, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_BIT(  0x20, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT(  0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_START2 )
+
+	PORT_START
+	PORT_BIT(  0x01, IP_ACTIVE_LOW, IPT_COIN1 ) PORT_IMPULSE(10)
+	PORT_BIT(  0x02, IP_ACTIVE_LOW, IPT_COIN2 ) PORT_IMPULSE(10)
+	PORT_BIT(  0x04, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+	PORT_BIT(  0x08, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+	PORT_BIT(  0x10, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+	PORT_BIT(  0x20, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+	PORT_BIT(  0x40, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+	PORT_BIT(  0x80, IP_ACTIVE_LOW, IPT_UNKNOWN  )
+
+	PORT_START
+	PORT_DIPNAME( 0x03, 0x02, DEF_STR( Difficulty ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( Easy )    )
+	PORT_DIPSETTING(    0x02, DEF_STR( Normal )  )
+	PORT_DIPSETTING(    0x01, DEF_STR( Hard )    )
+	PORT_DIPSETTING(    0x00, DEF_STR( Hardest ) )
+	PORT_DIPNAME( 0x0c, 0x08, "Time" )
+	PORT_DIPSETTING(    0x0c, "120 sec" )
+	PORT_DIPSETTING(    0x08, "90 sec" )
+	PORT_DIPSETTING(    0x04, "60 sec" )
+	PORT_DIPSETTING(    0x00, "60 sec (duplicate)" )
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0x10, "3" )
+	PORT_DIPSETTING(    0x00, "5" )
+	PORT_DIPNAME( 0x20, 0x20, "Max Lives" )
+	PORT_DIPSETTING(    0x20, "5" )
+	PORT_DIPSETTING(    0x00, "8" )
+	PORT_DIPNAME( 0x40, 0x40, "Unknown 1-7" )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_SERVICE( 0x80, IP_ACTIVE_LOW )
+
+	PORT_START
+	PORT_DIPNAME( 0x03, 0x03, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 3C_1C ) )
+	PORT_DIPSETTING(    0x01, DEF_STR( 2C_1C ) )
+	PORT_DIPSETTING(    0x03, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x02, DEF_STR( 1C_2C ) )
+	PORT_DIPNAME( 0x04, 0x04, "Unknown 2-3" )
+	PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, "Reset Tiles After Miss" )
+	PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x10, 0x10, "Unknown 2-5" )
+	PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x20, 0x20, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( On ) )
+	PORT_DIPNAME( 0x40, 0x40, "Sound Test" )
+	PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0x80, 0x80, "Graphics Test" )
+	PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+INPUT_PORTS_END
+
+static MACHINE_DRIVER_START( cdracula )
+	MDRV_CPU_ADD(Z80,21477272 / 4)
+	MDRV_MACHINE_RESET(cdracula)
+	MDRV_CPU_PROGRAM_MAP(cdracula_readmem,cdracula_writemem)
+	MDRV_CPU_IO_MAP(cdracula_readport,cdracula_writeport)
+	MDRV_CPU_VBLANK_INT(sprtmtch_vblank_interrupt,1)
+	MDRV_FRAMES_PER_SECOND(58.56)
+	MDRV_VBLANK_DURATION(0)
+	MDRV_VIDEO_ATTRIBUTES(VIDEO_TYPE_RASTER)
+	MDRV_SCREEN_SIZE(512,256)
+	MDRV_VISIBLE_AREA(16,495,16,255)
+	MDRV_PALETTE_LENGTH(512)
+	MDRV_PALETTE_INIT(sprtmtch)
+	MDRV_VIDEO_START(cdracula)
+	MDRV_VIDEO_UPDATE(cdracula)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(OKIM6295,1000000 / 132)
+	MDRV_SOUND_CONFIG(okim6295_interface_region_1)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS,"mono",0.80)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( hanamai )
 
 	/* basic machine hardware */
@@ -3860,6 +4026,72 @@ ROM_START( neruton )
 	ROM_LOAD( "4503.1a",      0x2e0000, 0x020000, CRC(dcbe2805) SHA1(713edd2e3c950bc689446441eb85197bb7b1eb89) )
 ROM_END
 
+ROM_START( blktouch )
+	ROM_REGION( 0x90000, REGION_CPU1, 0 )
+	ROM_LOAD( "u43_d8",  0x00000, 0x10000, CRC(0972ab8c) SHA1(ff751fbb37562f216a4fddebd9190acee1f357c8) )
+	ROM_LOAD( "u45_d10", 0x28000, 0x10000, CRC(5745424a) SHA1(d244d9a9b4c49d255f114842147ba0a795a3e9ac) )
+
+	ROM_REGION( 0x100000, REGION_GFX1, 0 )
+	ROM_LOAD( "u33_g1", 0x80000, 0x40000, CRC(88737a8b) SHA1(9d812ee732f6cc43c78d8585dabf1b51ed4b89ba) )
+	ROM_LOAD( "u34_h1", 0x40000, 0x40000, CRC(07216e11) SHA1(402b201c665503a2c9bb1b2f74da0c3db5c3f660) )
+	ROM_LOAD( "u35_i1", 0x00000, 0x40000, CRC(4ae52ccb) SHA1(84c9466e6f574ec99947084a2e8a336935ad4186) )
+
+	ROM_REGION( 0x400, REGION_PROMS, 0 )
+	ROM_LOAD( "u12",  0x200, 0x200, CRC(80d282ff) SHA1(3ad8dc61fe098ceac3a4be8742c1b360dfa7223a) )
+	ROM_LOAD( "u13",  0x000, 0x200, CRC(6984aaa9) SHA1(91645cd944cb21266edd13e55a8dc846f6edc419) )
+ROM_END
+
+ROM_START( cdracula )
+	ROM_REGION( 0x10000, REGION_CPU1, 0 )
+	ROM_LOAD( "escape.u202", 0x000000, 0x10000, CRC(92ceb689) SHA1(1b5d6cd51fc961f1b9a7b99d9ba48da8ea2e503b) )
+
+	ROM_REGION( 0x100000, REGION_GFX1, 0 )
+	ROM_LOAD( "escape.u214", 0x00000, 0x40000, CRC(52c2f3bc) SHA1(764fb447d749c1b83d2bb6bcd517949a1cd76593) )
+	ROM_LOAD( "escape.u212", 0x40000, 0x40000, CRC(df536e91) SHA1(2c988e7793b2665d8ebb12a8f80a9aefdd3ed1dd) )
+	ROM_LOAD( "escape.u210", 0x80000, 0x40000, CRC(d3f5bac2) SHA1(d81ac3ca159985b0a79d02ebe707b46fdeaefe64) )
+
+	ROM_REGION( 0xc0000, REGION_SOUND1, 0 )
+	ROM_LOAD( "escape.ua", 0x00000, 0x20000, CRC(2f25be27) SHA1(9b7653ae9ebfd4a301d786c5c731478774e5171d) )
+	ROM_LOAD( "escape.ub", 0x20000, 0x20000, CRC(536a8dd0) SHA1(1ec226b0cd4d1320cdfce0a447ea0e481b85a802) )
+	ROM_LOAD( "escape.uc", 0x40000, 0x20000, CRC(393fa285) SHA1(654ab2fb92efa28f65bcc7c70a9fae2e43657309) )
+	ROM_LOAD( "escape.ud", 0x60000, 0x20000, CRC(eff474af) SHA1(7ab1f0079d051c9b0c4aa566a4d92032c7060d8e) )
+	ROM_LOAD( "escape.ue", 0x80000, 0x20000, CRC(0f9dc93b) SHA1(a3b33795cf07882ecc80d9afa5174e771ee0df08) )
+	ROM_FILL(              0xa0000, 0x20000, 0x000000 )
+
+	ROM_REGION( 0x400, REGION_PROMS, 0 )
+	ROM_LOAD( "82s147an.u26", 0x000, 0x200, CRC(1a3fe146) SHA1(7d1b4dd66fc95ea5ed584f0bb571cca09fe519b0) )
+	ROM_LOAD( "82s147an.u25", 0x200, 0x200, CRC(31791990) SHA1(526c0d516f290dc6cc2ec76d9bcec8c900e2ae10) )
+ROM_END
+
+ROM_START( intrgirl )
+	ROM_REGION( 0x90000, REGION_CPU1, 0 )
+	ROM_LOAD( "ka-1.ug3", 0x00000, 0x10000, CRC(07b36540) SHA1(1679438a153a7449256c826c4f10443e739c0825) )
+	ROM_LOAD( "ka-2.ug5", 0x28000, 0x10000, CRC(9f2fc058) SHA1(0be90d44ca7cac7040dfa53ba36f6bc3d504fb01) )
+
+	ROM_REGION( 0x100000, REGION_GFX1, 0 )
+	ROM_LOAD( "ka-3.rom1", 0x00000, 0x40000, CRC(57fd8b34) SHA1(b7fa977bb79a0e831bc86be635398950dd717b47) )
+	ROM_LOAD( "ka-4.rom2", 0x40000, 0x40000, CRC(ad90d3a1) SHA1(d955620fdd4aacc96e59e9f94da85568cce47843) )
+	ROM_LOAD( "ka-5.rom3", 0x80000, 0x40000, CRC(2ed30171) SHA1(883d9e96df4f234652b01599e065f7f1985d1748) )
+
+	ROM_REGION( 0x400, REGION_PROMS, 0 )
+	ROM_LOAD( "n82s147n.uk16", 0x000, 0x200, CRC(17dd1678) SHA1(4ed1beea3de44a6b35c84fb49f65a3a258e716fd) )
+	ROM_LOAD( "n82s147n.uk15", 0x200, 0x200, CRC(256e75bd) SHA1(63cb6e824742e8d45e8d69183b8f7693fc0fd6d4) )
+
+	ROM_REGION( 0x104, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_LOAD( "pal16l8acn.ug6", 0x000, 0x104, NO_DUMP )
+ROM_END
+
+static DRIVER_INIT( blktouch )
+{
+	int i;
+	UINT8 *rom = memory_region(REGION_CPU1);
+	UINT8 *gfx = memory_region(REGION_GFX1);
+	for (i = 0; i < 0x90000; i++)
+		rom[i] = BITSWAP8(rom[i],7,6,5,3,4,2,1,0);
+	for (i = 0; i < 0xc0000; i++)
+		gfx[i] = BITSWAP8(gfx[i],7,6,5,3,4,2,1,0);
+}
+
 
 /***************************************************************************
 
@@ -3888,5 +4120,7 @@ GAME( 1993, mjelctrn, 0,        mjelctrn, mjelctrn, mjelct3,  ROT180, "Dynax",  
 GAME( 1990, mjelct3,  mjelctrn, mjelctrn, mjelct3,  mjelct3,  ROT180, "Dynax",                   "Mahjong Electron Base (parts 2 & 3, Japan)"           , 0 )
 GAME( 1990, mjelct3a, mjelctrn, mjelctrn, mjelct3,  mjelct3a, ROT180, "Dynax",                   "Mahjong Electron Base (parts 2 & 3, alt., Japan)"     , 0 )
 GAME( 1990, neruton,  0,        neruton,  neruton,  mjelct3,  ROT180, "Dynax / Yukiyoshi Tokoro","Mahjong Neruton Haikujirada (Japan)",                         GAME_IMPERFECT_GRAPHICS )	// e.g. dynax logo
-/* not a dynax board */
 GAME( 1995, shpeng,   0,        sprtmtch, sprtmtch, 0,        ROT0,   "WSAC Systems?",                   "Sea Hunter Penguin"                                 , GAME_WRONG_COLORS ) // proms?
+GAME( 199?, blktouch, 0,        sprtmtch, sprtmtch, blktouch, ROT0,   "Yang Gi Co Ltd.", "Black Touch (Korea)", 0 )
+GAME( 1994, cdracula, 0,        cdracula, cdracula, 0,        ROT0,   "Yun Sung (Escape license)", "Castle Of Dracula", 0 )
+GAME( 1995, intrgirl, 0,        sprtmtch, sprtmtch, 0,        ROT0,   "Barko", "Intergirl", GAME_NO_COCKTAIL )

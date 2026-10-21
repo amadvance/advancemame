@@ -6769,6 +6769,9 @@ Other Sun games
 	DRIVER( jantouki )	/* "27" Jantouki 1989 Dynax */
 	DRIVER( mjifb )		/* "29" 1990 Dynax */
 	DRIVER( sprtmtch )	/* "31" (c) 1989 Dynax + Fabtek license */
+	DRIVER( blktouch )
+	DRIVER( cdracula )
+	DRIVER( intrgirl )
 	DRIVER( maya )		/* (c) 1994 Promat */
 	DRIVER( inca )		/* (c) 199? ???? */
 	DRIVER( mcnpshnt )	/* "33" Mahjong Campus Hunting 1990 Dynax */

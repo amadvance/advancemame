@@ -74,6 +74,7 @@ static int flipscreen;
 #define LAYOUT_HNORIDUR	1	// same as hanamai but some bits are inverted and layer order is reversed
 #define LAYOUT_DRGPUNCH	2	// 3 couples of layers, interleaved
 #define LAYOUT_MJDIALQ2	3	// 2 layers
+#define LAYOUT_CDRACULA 5
 #define LAYOUT_JANTOUKI	4	// 2 x (4 couples of layers, interleaved)
 
 static int layer_layout;
@@ -318,6 +319,17 @@ INLINE void blitter_plot_pixel(int layer,int mask, int x, int y, int pen, int wr
 
 	switch (layer_layout)
 	{
+		case LAYOUT_CDRACULA:
+		{
+			int i;
+			for (i = 0; i < 4; i++)
+			{
+				if (mask & (0x10 << i)) dynax_pixmap[i][1 ^ flipscreen][addr] = pen;
+				if (mask & (0x01 << i)) dynax_pixmap[i][0 ^ flipscreen][addr] = pen;
+			}
+			break;
+		}
+
 		case LAYOUT_HANAMAI:
 			if (mask & 0x01)	dynax_pixmap[layer+0][hanamai_layer_half][addr] = pen;
 			if (mask & 0x02)	dynax_pixmap[layer+1][hanamai_layer_half][addr] = pen;
@@ -389,6 +401,17 @@ if (flags & 0xf4) ui_popup("flags %02x",flags);
 
 		switch (layer_layout)
 		{
+			case LAYOUT_CDRACULA:
+			{
+				int i;
+				for (i = 0; i < 4; i++)
+				{
+					if (mask & (0x10 << i)) memset(&dynax_pixmap[i][1 ^ flipscreen][start], pen, len);
+					if (mask & (0x01 << i)) memset(&dynax_pixmap[i][0 ^ flipscreen][start], pen, len);
+				}
+				break;
+			}
+
 			case LAYOUT_HANAMAI:
 				if (mask & 0x01)	memset(&dynax_pixmap[layer+0][0][start],pen,len);
 				if (mask & 0x01)	memset(&dynax_pixmap[layer+0][1][start],pen,len);
@@ -852,7 +875,7 @@ void hanamai_copylayer(mame_bitmap *bitmap,const rectangle *cliprect,int i)
 	scrollx = dynax_blit_scroll_x;
 	scrolly = dynax_blit_scroll_y;
 
-	if (	(layer_layout == LAYOUT_HANAMAI		&&	i == 1)	||
+	if (	((layer_layout == LAYOUT_HANAMAI || layer_layout == LAYOUT_CDRACULA) && i == 1)	||
 			(layer_layout == LAYOUT_HNORIDUR	&&	i == 1)	)
 	{
 		scrollx = extra_scroll_x;
@@ -1223,4 +1246,37 @@ VIDEO_UPDATE( mjdialq2 )
 
 	if (layers_ctrl & 1)	mjdialq2_copylayer( bitmap, cliprect, 0 );
 	if (layers_ctrl & 2)	mjdialq2_copylayer( bitmap, cliprect, 1 );
+}
+
+VIDEO_START( cdracula )
+{
+	if (video_start_hanamai()) return 1;
+	layer_layout = LAYOUT_CDRACULA;
+	update_irq_func = cdracula_update_irq;
+	return 0;
+}
+
+WRITE8_HANDLER( cdracula_blitter_rev2_w )
+{
+	if (offset == 0)
+		dynax_blit_dest = data;
+	else
+		dynax_blitter_rev2_w(offset, data);
+}
+
+WRITE8_HANDLER( cdracula_blit_flags_w )
+{
+	int flags = (data & 0x08) | ((data & 0x10) >> 3) | ((data & 0x80) >> 7);
+	dynax_blitter_start(flags);
+}
+
+VIDEO_UPDATE( cdracula )
+{
+	int layers = ~dynax_layer_enable;
+	fillbitmap(bitmap, (dynax_blit_backpen & 0xff) + (dynax_blit_palbank & 1) * 256, cliprect);
+	extra_scroll_y = -8;
+	if (layers & 8) hanamai_copylayer(bitmap, cliprect, 3);
+	if (layers & 2) hanamai_copylayer(bitmap, cliprect, 1);
+	if (layers & 4) hanamai_copylayer(bitmap, cliprect, 2);
+	if (layers & 1) hanamai_copylayer(bitmap, cliprect, 0);
 }
