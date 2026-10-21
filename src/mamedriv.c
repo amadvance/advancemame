@@ -6604,6 +6604,9 @@ Other Sun games
 	DRIVER( zipzap )	/* (c) 1995 Barko Corp */
 	DRIVER( missw96 )	/* (c) 1996 Comad */
 	DRIVER( missmw96 )	/* (c) 1996 Comad */
+	DRIVER( smissw )
+	DRIVER( supmodl2 )
+	DRIVER( wownfant )
 	DRIVER( fantsia2 )	/* (c) 1997 Comad */
 	DRIVER( fntsia2a )	/* (c) 1997 Comad */
 	DRIVER( galhustl )	/* (c) 1997 ACE International */

@@ -353,6 +353,74 @@ static ADDRESS_MAP_START( fantsia2_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 ADDRESS_MAP_END
 
 
+static READ16_HANDLER( comad_scanline_r )
+{
+	return (cpu_getscanline() & 7) << 8;
+}
+
+static ADDRESS_MAP_START( smissw_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x4fffff) AM_ROM
+	AM_RANGE(0x500000, 0x51ffff) AM_RAM AM_BASE(&galpanic_fgvideoram) AM_SIZE(&galpanic_fgvideoram_size)
+	AM_RANGE(0x520000, 0x53ffff) AM_RAM AM_WRITE(galpanic_bgvideoram_w) AM_BASE(&galpanic_bgvideoram)
+	AM_RANGE(0x580000, 0x583fff) AM_RAM
+	AM_RANGE(0x600000, 0x600fff) AM_RAM AM_WRITE(galpanic_paletteram_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x680000, 0x68001f) AM_RAM
+	AM_RANGE(0x700000, 0x700fff) AM_RAM AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x780000, 0x78001f) AM_RAM
+	AM_RANGE(0x800000, 0x800001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x800002, 0x800003) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x800004, 0x800005) AM_READ(input_port_2_word_r)
+	AM_RANGE(0x800006, 0x800007) AM_READ(comad_scanline_r)
+	AM_RANGE(0x80000e, 0x80000f) AM_READ(comad_scanline_r)
+	AM_RANGE(0x900000, 0x900001) AM_WRITE(galpania_6295_bankswitch_w)
+	AM_RANGE(0xa00000, 0xa00001) AM_WRITENOP
+	AM_RANGE(0xc00000, 0xc0ffff) AM_RAM
+	AM_RANGE(0xd80000, 0xd80001) AM_WRITENOP
+	AM_RANGE(0xe00012, 0xe00013) AM_WRITENOP
+	AM_RANGE(0xe80000, 0xe80001) AM_WRITENOP
+	AM_RANGE(0xf00000, 0xf00001) AM_READWRITE(comad_OKIM6295_status_0_msb_r, OKIM6295_data_0_msb_w)
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( supmodl2_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x4fffff) AM_ROM
+	AM_RANGE(0x500000, 0x51ffff) AM_RAM AM_BASE(&galpanic_fgvideoram) AM_SIZE(&galpanic_fgvideoram_size)
+	AM_RANGE(0x520000, 0x53ffff) AM_RAM AM_WRITE(galpanic_bgvideoram_w) AM_BASE(&galpanic_bgvideoram)
+	AM_RANGE(0x580000, 0x583fff) AM_RAM
+	AM_RANGE(0x600000, 0x600fff) AM_RAM AM_WRITE(galpanic_paletteram_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x680000, 0x68001f) AM_RAM
+	AM_RANGE(0x700000, 0x700fff) AM_RAM AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x780000, 0x78001f) AM_RAM
+	AM_RANGE(0x800000, 0x800001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x800002, 0x800003) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x800004, 0x800005) AM_READ(input_port_2_word_r)
+	AM_RANGE(0x800006, 0x800007) AM_READ(comad_scanline_r)
+	AM_RANGE(0x800008, 0x800009) AM_READ(comad_scanline_r)
+	AM_RANGE(0x80000a, 0x80000b) AM_READ(comad_scanline_r)
+	AM_RANGE(0x900000, 0x900001) AM_WRITE(galpania_6295_bankswitch_w)
+	AM_RANGE(0xa00000, 0xa00001) AM_WRITENOP
+	AM_RANGE(0xc80000, 0xc80001) AM_READWRITE(comad_OKIM6295_status_0_msb_r, OKIM6295_data_0_msb_w)
+	AM_RANGE(0xf80000, 0xf8ffff) AM_RAM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( wownfant_map, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x4fffff) AM_ROM
+	AM_RANGE(0x500000, 0x51ffff) AM_RAM AM_BASE(&galpanic_fgvideoram) AM_SIZE(&galpanic_fgvideoram_size)
+	AM_RANGE(0x520000, 0x53ffff) AM_RAM AM_WRITE(galpanic_bgvideoram_w) AM_BASE(&galpanic_bgvideoram)
+	AM_RANGE(0x580000, 0x583fff) AM_RAM
+	AM_RANGE(0x600000, 0x600fff) AM_RAM AM_WRITE(galpanic_paletteram_w) AM_BASE(&paletteram16)
+	AM_RANGE(0x680000, 0x68001f) AM_RAM
+	AM_RANGE(0x700000, 0x700fff) AM_RAM AM_BASE(&spriteram16) AM_SIZE(&spriteram_size)
+	AM_RANGE(0x780000, 0x78001f) AM_RAM
+	AM_RANGE(0x800000, 0x800001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x800002, 0x800003) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x800004, 0x800005) AM_READ(input_port_2_word_r)
+	AM_RANGE(0x800008, 0x800009) AM_READ(comad_scanline_r)
+	AM_RANGE(0x900000, 0x900001) AM_WRITE(galpania_6295_bankswitch_w)
+	AM_RANGE(0xa00000, 0xa00001) AM_WRITENOP
+	AM_RANGE(0xc80000, 0xc80001) AM_READWRITE(comad_OKIM6295_status_0_msb_r, OKIM6295_data_0_msb_w)
+	AM_RANGE(0xf80000, 0xf8ffff) AM_RAM
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( galhustl_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0fffff) AM_READ(MRA16_ROM)
     AM_RANGE(0x500000, 0x51ffff) AM_READ(MRA16_RAM)
@@ -1068,6 +1136,27 @@ static MACHINE_DRIVER_START( fantsia2 )
 	MDRV_VIDEO_UPDATE(comad)
 MACHINE_DRIVER_END
 
+static MACHINE_DRIVER_START( smissw )
+	MDRV_IMPORT_FROM(fantsia2)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(smissw_map, 0)
+	MDRV_CPU_VBLANK_INT(galhustl_interrupt, 3)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( supmodl2 )
+	MDRV_IMPORT_FROM(fantsia2)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(supmodl2_map, 0)
+	MDRV_CPU_VBLANK_INT(galhustl_interrupt, 3)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( wownfant )
+	MDRV_IMPORT_FROM(fantsia2)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(wownfant_map, 0)
+	MDRV_CPU_VBLANK_INT(galhustl_interrupt, 3)
+MACHINE_DRIVER_END
+
 static MACHINE_DRIVER_START( galhustl )
 
 	/* basic machine hardware */
@@ -1426,6 +1515,69 @@ ROM_START( supmodel )
 	ROM_LOAD( "music2.2", 0xc0000, 0x80000, CRC(cccae65a) SHA1(5e4e2e51884eaf191f103aa189ff33371fc91d6d) )
 ROM_END
 
+ROM_START( smissw )
+	ROM_REGION( 0x500000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "10_prog2.ue17", 0x000000, 0x80000, CRC(e99e520f) SHA1(edd06a3b0f8d30a4020e6ea452abb0afd79d426a) )
+	ROM_LOAD16_BYTE( "6_prog1.ud17",  0x000001, 0x80000, CRC(22831657) SHA1(eeabcdef543048ccceabc4c3b4b288aec959a14f) )
+	ROM_LOAD16_BYTE( "9_im1-b.ue16b", 0x100000, 0x80000, CRC(fff1eee4) SHA1(1b88d45b5cc0b5a03296d4dc950e570fa4dc19c2) )
+	ROM_LOAD16_BYTE( "5_im1-a.ue16a", 0x100001, 0x80000, CRC(2134a72d) SHA1(f907ec8a1d6e5755a821e69564074ff05e426bb1) )
+	ROM_LOAD16_BYTE( "8_im2-b.ue15b", 0x200000, 0x80000, CRC(cf44b638) SHA1(0fe5bdb62492c31c3efffa6d85f5d6a3b4ddb2e0) )
+	ROM_LOAD16_BYTE( "4_im2-a.ue15a", 0x200001, 0x80000, CRC(d22b270f) SHA1(21bd2ced1b5fb3c08687addaa890ee621a56fff0) )
+	ROM_LOAD16_BYTE( "7_im3-b.ue14b", 0x300000, 0x80000, CRC(12a9441d) SHA1(d9cd51e0c3ffac5fc561e0927c419bce0157337e) )
+	ROM_LOAD16_BYTE( "3_im3-a.ue14a", 0x300001, 0x80000, CRC(8c656fc9) SHA1(c3fe5de7cd6cd520bbd205ec62ac0dda51f71eeb) )
+
+	ROM_REGION( 0x80000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "15_obj11.u5", 0x00000, 0x80000, CRC(3983152f) SHA1(6308e936ba54e88b34253f1d4fbd44725e9d88ae) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )
+
+	ROM_LOAD( "1_music1.ub6", 0x00000, 0x80000, CRC(e78a659e) SHA1(d209184c70e0d7e6d17034c6f536535cda782d42) )
+	ROM_RELOAD( 0x40000, 0x80000 )
+	ROM_LOAD( "2_music2.uc6", 0xc0000, 0x80000, CRC(60fa0c00) SHA1(391aa31e61663cc083a8a2320ba48a9859f3fd4e) )
+ROM_END
+
+ROM_START( supmodl2 )
+	ROM_REGION( 0x500000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "12_prog2.ue17",   0x000000, 0x80000, CRC(9107f65d) SHA1(c66c1cfeae2afc5a1bf0d6385291592c0f9b1578) )
+	ROM_LOAD16_BYTE( "7_prog1.ud17",    0x000001, 0x80000, CRC(0d9253a7) SHA1(2c7e84bfbf648c22acf76dbfcbb9e2416225abc9) )
+	ROM_LOAD16_BYTE( "11_i-scr2.ue16b", 0x100000, 0x80000, CRC(b836c1f3) SHA1(56c611313336dbb0ebcdba42ba73c5738ca7c8d7) )
+	ROM_LOAD16_BYTE( "6_i-scr1.ue16a",  0x100001, 0x80000, CRC(d56cac96) SHA1(31fe266ba6abbd51ed7ff6089ebc86e528ac249a) )
+	ROM_LOAD16_BYTE( "10_i-scr4.ue15b", 0x200000, 0x80000, CRC(aa85a247) SHA1(6508c0f8b1bc397599ecb0ae5c9a9ebcc532bdd8) )
+	ROM_LOAD16_BYTE( "5_i-scr3.ue15a",  0x200001, 0x80000, CRC(3e9bd17a) SHA1(cbbd90120fe9504eac05bb6c8f38d16b44d8b475) )
+	ROM_LOAD16_BYTE( "9_i-scr6.ue14b",  0x300000, 0x80000, CRC(d21355dc) SHA1(f449f6b2c815453545a798e6d7081327b8c1677c) )
+	ROM_LOAD16_BYTE( "4_i-scr5.ue14a",  0x300001, 0x80000, CRC(d1c9155c) SHA1(9d50e0875feab77a91cc1d8fe575ad6361bfada2) )
+	ROM_LOAD16_BYTE( "8_i-scr8.ue20b",  0x400000, 0x80000, CRC(7ffe761e) SHA1(63d0b6e3e34a465e038f8f96ae5f3f1e3666aaaa) )
+	ROM_LOAD16_BYTE( "3_i-scr7.ue20a",  0x400001, 0x80000, CRC(d2bb19ef) SHA1(b8dee4c64915ae9d7e3a79a0d32f692f5e2a0d06) )
+
+	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "13_obj1.u5", 0x00000, 0x80000, CRC(52e6872a) SHA1(7e5274b9a415ee0e536cd3b87f73d3eae9644669) )
+	ROM_LOAD( "14_obj2.u4", 0x80000, 0x80000, CRC(ea6e3861) SHA1(463b40f5441231a0451571a0b8afe1ed0fd4b164) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )
+
+	ROM_LOAD( "1_music1.ub6", 0x00000, 0x80000, CRC(23cc4f9c) SHA1(06b5342c25de966ce590917c571e5b19af1fef7d) )
+	ROM_RELOAD( 0x40000, 0x80000 )
+	ROM_LOAD( "2_music2.uc6", 0xc0000, 0x80000, CRC(864167c2) SHA1(c454b26b6dea993e6bd64546f92beef05e46d7d7) )
+ROM_END
+
+ROM_START( wownfant )
+	ROM_REGION( 0x500000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "ep-4001 42750001 u81.u81",     0x000000, 0x080000, CRC(9942d200) SHA1(d2f69c0949881ef4aef202b564eac069c030a497) )
+	ROM_LOAD16_BYTE( "ep-4001 42750001 u80.u80",     0x000001, 0x080000, CRC(17359eeb) SHA1(90bb9da6bdf56fa9eb0ad03691750518a2a3f879) )
+	ROM_LOAD16_WORD_SWAP( "ep-061 43750002 - 1.bin", 0x100000, 0x200000, CRC(c318e841) SHA1(ba7af736d3b0accca474b0de1c8299eb3c449ef9) )
+	ROM_LOAD16_WORD_SWAP( "ep-061 43750002 - 2.bin", 0x300000, 0x200000, CRC(8871dc3a) SHA1(8e028f1430474df19bb9a912ee9e407fe4582558) )
+
+	ROM_REGION( 0x100000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "ep-4001 42750001 u113.u113", 0x00000, 0x80000, CRC(3e77ca1f) SHA1(f946e65a29bc02b89c02b2a869578d38cfe7e2d0) )
+	ROM_LOAD( "ep-4001 42750001 u112.u112", 0x80000, 0x80000, CRC(51f4b604) SHA1(52e8ce0a2c1b9b00f04e0c775789bc550bad8ae0) )
+
+	ROM_REGION( 0x140000, REGION_SOUND1, 0 )
+
+	ROM_LOAD( "ep-4001 42750001 u4.u4", 0x00000, 0x80000, CRC(06dc889e) SHA1(726561ff01bbde43669293a6ff7ee22b048b4118) )
+	ROM_RELOAD( 0x40000, 0x80000 )
+	ROM_LOAD( "ep-4001 42750001 u1.u1", 0xc0000, 0x80000, CRC(864167c2) SHA1(c454b26b6dea993e6bd64546f92beef05e46d7d7) )
+ROM_END
+
 GAME( 1990, galpanic, 0,        galpanic, galpanic, 0, ROT90, "Kaneko", "Gals Panic (set 1)", GAME_NO_COCKTAIL )
 GAME( 1990, galpanib, galpanic, galpanib, galpanib, 0, ROT90, "Kaneko", "Gals Panic (set 2)", GAME_NO_COCKTAIL )
 GAME( 1990, galpania, galpanic, galpania, galpanib, 0, ROT90, "Kaneko", "Gals Panic (set 3)", GAME_NO_COCKTAIL | GAME_IMPERFECT_GRAPHICS )
@@ -1435,7 +1587,10 @@ GAME( 1995, newfant,  0,        comad,    fantasia, 0, ROT90, "Comad & New Japan
 GAME( 1995, fantsy95, 0,        comad,    fantasia, 0, ROT90, "Hi-max Technology Inc.", "Fantasy '95", GAME_NO_COCKTAIL )
 GAME( 1996, missw96,  0,        comad,    missw96,  0, ROT0,  "Comad", "Miss World '96 (Nude)", GAME_NO_COCKTAIL )
 GAME( 1996, missmw96, missw96,  comad,    missw96,  0, ROT0,  "Comad", "Miss Mister World '96 (Nude)", GAME_NO_COCKTAIL )
+GAME( 1996, smissw, 0, smissw, missw96, 0, ROT0, "Comad", "Super Miss World", GAME_NO_COCKTAIL )
 GAME( 1997, fantsia2, 0,        fantsia2, missw96,  0, ROT0,  "Comad", "Fantasia II (Explicit)", GAME_NO_COCKTAIL )
 GAME( 1997, fntsia2a, fantsia2, fantsia2, missw96,  0, ROT0,  "Comad", "Fantasia II (Less Explicit)", GAME_NO_COCKTAIL )
+GAME( 1997, supmodl2, 0, supmodl2, missw96, 0, ROT0, "Comad", "Super Model II", GAME_NO_COCKTAIL )
+GAME( 2002, wownfant, 0, wownfant, missw96, 0, ROT0, "Comad", "WOW New Fantasia (Explicit)", GAME_NO_COCKTAIL )
 GAME( 1997, galhustl, 0,        galhustl, galhustl, 0, ROT0,  "ACE International", "Gals Hustler", 0 )
 GAME( 1995, zipzap,   0,        zipzap,   zipzap,   0, ROT90, "Barko Corp", "Zip & Zap", GAME_IMPERFECT_GRAPHICS|GAME_IMPERFECT_SOUND )
