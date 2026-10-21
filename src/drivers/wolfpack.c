@@ -5,6 +5,16 @@ Atari Wolf Pack (prototype) driver
 ***************************************************************************/
 
 #include "driver.h"
+#include "sound/custom.h"
+#include "sound/samples.h"
+
+extern struct CustomSound_interface wolfpack_speech_interface;
+extern struct Samplesinterface wolfpack_samples_interface;
+extern int wolfpack_speech_busy(void);
+extern void wolfpack_effect_reset(void);
+extern WRITE8_HANDLER( wolfpack_word_w );
+extern WRITE8_HANDLER( wolfpack_start_speech_w );
+extern WRITE8_HANDLER( wolfpack_effect_w );
 
 extern int wolfpack_collision;
 
@@ -46,6 +56,7 @@ static void periodic_callback(int scanline)
 static MACHINE_RESET( wolfpack )
 {
 	timer_set(cpu_getscanlinetime(0), 0, periodic_callback);
+	wolfpack_effect_reset();
 }
 
 
@@ -111,6 +122,9 @@ static READ8_HANDLER( wolfpack_misc_r )
 	/* BIT6 => UNUSED      */
 	/* BIT7 => VBLANK      */
 
+	if (!wolfpack_speech_busy())
+		val |= 0x01;
+
 	if (!wolfpack_collision)
 	{
 		val |= 0x10;
@@ -124,18 +138,39 @@ static READ8_HANDLER( wolfpack_misc_r )
 }
 
 
-static WRITE8_HANDLER( wolfpack_high_explo_w ) { }
-static WRITE8_HANDLER( wolfpack_sonar_ping_w ) {}
-static WRITE8_HANDLER( wolfpack_sirlat_w ) {}
-static WRITE8_HANDLER( wolfpack_pt_sound_w ) {}
-static WRITE8_HANDLER( wolfpack_start_speech_w ) {}
-static WRITE8_HANDLER( wolfpack_launch_torpedo_w ) {}
-static WRITE8_HANDLER( wolfpack_low_explo_w ) {}
-static WRITE8_HANDLER( wolfpack_screw_cont_w ) {}
+static WRITE8_HANDLER( wolfpack_high_explo_w )
+{
+	wolfpack_effect_w(0, data);
+}
+static WRITE8_HANDLER( wolfpack_sonar_ping_w )
+{
+	wolfpack_effect_w(1, data);
+}
+static WRITE8_HANDLER( wolfpack_sirlat_w )
+{
+	wolfpack_effect_w(2, data);
+}
+static WRITE8_HANDLER( wolfpack_pt_sound_w )
+{
+	wolfpack_effect_w(3, data);
+}
+
+static WRITE8_HANDLER( wolfpack_launch_torpedo_w )
+{
+	wolfpack_effect_w(4, data);
+}
+static WRITE8_HANDLER( wolfpack_low_explo_w )
+{
+	wolfpack_effect_w(5, data);
+}
+static WRITE8_HANDLER( wolfpack_screw_cont_w )
+{
+	wolfpack_effect_w(6, data);
+}
 static WRITE8_HANDLER( wolfpack_lamp_flash_w ) {}
 static WRITE8_HANDLER( wolfpack_warning_light_w ) {}
 static WRITE8_HANDLER( wolfpack_audamp_w ) {}
-static WRITE8_HANDLER( wolfpack_word_w ) {}
+
 
 
 static WRITE8_HANDLER( wolfpack_attract_w )
@@ -365,6 +400,13 @@ static MACHINE_DRIVER_START(wolfpack)
 	MDRV_VIDEO_EOF(wolfpack)
 
 	/* sound hardware */
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_SOUND_ADD(CUSTOM, 20000)
+	MDRV_SOUND_CONFIG(wolfpack_speech_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+	MDRV_SOUND_ADD(SAMPLES, 0)
+	MDRV_SOUND_CONFIG(wolfpack_samples_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.65)
 MACHINE_DRIVER_END
 
 
@@ -392,10 +434,10 @@ ROM_START( wolfpack )
 	ROM_REGION( 0x0400, REGION_GFX4, ROMREGION_DISPOSE )
 	ROM_LOAD( "30293.m6", 0x0000, 0x0400, CRC(11900d47) SHA1(2dcb3c3488a5e9ed7f1751649f8dc25696f0f57a) )
 
-	ROM_REGION( 0x0800, REGION_SOUND1, ROMREGION_DISPOSE ) /* voice data */
+	ROM_REGION( 0x0800, REGION_SOUND1, 0 ) /* voice data */
 	ROM_LOAD_NIB_LOW ( "30863.r1", 0x0000, 0x0800, CRC(3f779f13) SHA1(8ed8a1bf680e8277066416f467388e3875e8cbbd) )
 	ROM_LOAD_NIB_HIGH( "30864.r3", 0x0000, 0x0800, CRC(c4a58d1d) SHA1(a2ba9354b99c739bbfa94458d671c109be163ca0) )
 ROM_END
 
 
-GAME( 1978, wolfpack, 0, wolfpack, wolfpack, 0, ORIENTATION_FLIP_Y, "Atari", "Wolf Pack (prototype)", GAME_NO_SOUND )
+GAME( 1978, wolfpack, 0, wolfpack, wolfpack, 0, ORIENTATION_FLIP_Y, "Atari", "Wolf Pack (prototype)", GAME_IMPERFECT_SOUND )

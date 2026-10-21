@@ -500,7 +500,7 @@ $(OBJ)/atari.a: \
 	$(OBJ)/drivers/tunhunt.o $(OBJ)/vidhrdw/tunhunt.o \
 	$(OBJ)/drivers/videopin.o $(OBJ)/sndhrdw/videopin.o $(OBJ)/vidhrdw/videopin.o \
 	$(OBJ)/drivers/vindictr.o $(OBJ)/vidhrdw/vindictr.o \
-	$(OBJ)/drivers/wolfpack.o $(OBJ)/vidhrdw/wolfpack.o \
+	$(OBJ)/drivers/wolfpack.o $(OBJ)/sndhrdw/wolfpack.o $(OBJ)/vidhrdw/wolfpack.o \
 	$(OBJ)/drivers/xybots.o $(OBJ)/vidhrdw/xybots.o \
 	$(OBJ)/machine/asic65.o \
 	$(OBJ)/machine/atari_vg.o \
