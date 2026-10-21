@@ -696,6 +696,9 @@ MESSOBJDIRS += \
 	$(MESSOBJ)/mess/cpu
 
 ifeq ($(CONF_DEBUGGER),yes)
+# CPU instruction hooks are defined in these headers; rebuild cores when they change.
+$(sort $(CPUOBJS)): $(srcdir)/src/debugger.h
+$(sort $(MESSCPUOBJS)): $(srcdir)/srcmess/debugger.h
 EMUDEFS += -DMAME_DEBUG
 EMUCFLAGS += -DMAME_DEBUG
 else

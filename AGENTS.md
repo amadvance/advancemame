@@ -68,9 +68,13 @@ If ROMs are missing or mismatched, AdvanceMAME will list all required ROM filena
 AdvanceMAME includes built-in options for deterministic frame capture and automated exit:
 - `-debug_snap_step <X>`: Save game frames as PNG images every `X` frames (if 1, saves every frame; default 0 = disabled). Saved to `/home/am/.advance/snap/<driver_name>_<frame:05d>.png`.
 - `-debug_sound`: Record game audio automatically to WAV in `dir_snap` until exit. Independent of manual recording keys and time limits; overwrites `dir_snap/<driver_name>.wav` on each run.
-- `-debug_start <X>`: Start CPU traces, automatic PNG snapshots and debug WAV capture at frame `X` (default 0 = immediately). Frames are numbered from 1. Snapshot intervals and `-debug_exit` remain absolute; for example, start 100 with step 10 first captures frame 100. Manual recording and scripted inputs are not delayed.
+- `-debug_start <X>`: Enable CPU traces, memory watches, PC breakpoints, automatic PNG snapshots and debug WAV capture at frame `X` (default 0 = immediately). Frames are numbered from 1. Snapshot intervals and `-debug_exit` remain absolute; for example, start 100 with step 10 first captures frame 100. Manual recording and scripted inputs are not delayed.
 - `-debug_exit <X>`: Automatically force a clean exit at frame `X` (default 0 = disabled).
 - `-debug_cpu <N>`: Trace CPU instruction execution and registers in real time to `dir_snap/<driver_name>.cpu`, overwriting the file on each run (`<N>` is CPU index: `0` for CPU 0 / main CPU, `1` for CPU 1, `-1` for all CPUs; default `-2` = disabled). Available when built with debugger support (`make CONF_DEBUGGER=yes`, which defines `MAME_DEBUG`), ensuring standard release builds incur zero CPU overhead.
+- `-debug_watch <cpu>:<address>:<length>`: Log reads and writes overlapping one byte range in the CPU's program memory space to `dir_snap/<driver_name>.watch`. Addresses are hexadecimal (optional `0x`), lengths are decimal or `0x` hexadecimal, and CPU indices are decimal. Each line contains frame, CPU, instruction PC, direction, access width, byte address and actual data. Includes banked RAM and handler accesses through the core memory accessors; direct pointer accesses and opcode fetches that bypass those accessors are not recorded. Requires `CONF_DEBUGGER=yes`.
+- `-debug_break <cpu>:<address>`: On the first matching PC, save the selected CPU's instruction/register state to `dir_snap/<driver_name>.break`, then save `dir_snap/<driver_name>.break.png` and exit. Uses the same CPU/address notation as `-debug_watch` and requires `CONF_DEBUGGER=yes`. Registers are captured at the instruction hook; CPU cores may finish that instruction before suspension. The PNG is captured at the next video update with CPUs suspended, including when the match occurs before the first frame. It is not an instruction-level rendering of the screen.
+
+Both options work independently of `-debug_cpu`, are gated by `-debug_start`, and overwrite their output files each run. Enabling `-debug_break` also removes its old PNG so a missed breakpoint cannot leave a stale screenshot. Use `-debug_exit` as a fallback if a breakpoint is never reached. Only one watched range and one breakpoint can be configured per run; watch addresses/lengths use bytes, while breakpoint addresses use the CPU's native PC units.
 
 Example: capture every 10th frame up to frame 200 and exit:
 ```bash
@@ -81,6 +85,11 @@ The saved PNG snapshots can be viewed using image viewer tools to inspect tilema
 Example: trace CPU 0 and capture PNG/WAV from frame 100 to frame 120 (requires a debugger-enabled build):
 ```bash
 ./obj/mame/linux/blend-debugger/advmame <driver_name> -output window -debug_cpu 0 -debug_start 100 -debug_snap_step 10 -debug_sound -debug_exit 120
+```
+
+Example: watch main CPU RAM and exit on a PC match (addresses below are illustrative):
+```bash
+./obj/mame/linux/blend-debugger/advmame loverboy -output window -debug_watch 0:8000:0x100 -debug_break 0:1234 -debug_start 100 -debug_exit 600
 ```
 
 ### Scripting & Input Simulation (-script_play)

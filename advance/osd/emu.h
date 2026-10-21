@@ -409,6 +409,11 @@ struct advance_record_config_context {
 	unsigned debug_start; /**< First frame to trace/capture (0 starts immediately). */
 	adv_bool debug_sound; /**< Record audio automatically until exit. */
 	int debug_cpu; /**< CPU number to trace (-1 for all, default -2 disabled). */
+	int debug_watch_cpu; /**< Watched CPU, -1 disables memory logging. */
+	unsigned debug_watch_address;
+	unsigned debug_watch_length;
+	int debug_break_cpu; /**< Breakpoint CPU, -1 disables the breakpoint. */
+	unsigned debug_break_address;
 };
 
 struct advance_record_sound_state {
@@ -439,6 +444,8 @@ struct advance_record_state_context {
 	unsigned video_freq_base; /**< Frequency step value. */
 	adv_bool video_stopped_flag; /**< If the video recording is stopped. */
 
+	adv_bool debug_break_failed; /**< Failure writing the breakpoint screenshot. */
+	adv_bool debug_break_pending; /**< Capture a frame and exit after a PC match. */
 	unsigned debug_frame_counter; /**< Frame counter for debug features. */
 
 	char video_file_buffer[FILE_MAXPATH]; /**< Video file */
@@ -459,7 +466,7 @@ adv_error advance_record_config_load(struct advance_record_context* context, adv
 void advance_record_sound_update(struct advance_record_context* context, const short* sample_buffer, unsigned sample_count);
 void advance_record_video_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
 void advance_record_snapshot_update(struct advance_record_context* context, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
-void advance_record_debug_snapshot_update(struct advance_record_context* context, unsigned frame, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
+adv_error advance_record_debug_snapshot_update(struct advance_record_context* context, unsigned frame, adv_bool breakpoint, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation);
 
 adv_bool advance_record_sound_is_active(struct advance_record_context* context);
 adv_bool advance_record_video_is_active(struct advance_record_context* context);

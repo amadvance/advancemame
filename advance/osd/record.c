@@ -694,7 +694,7 @@ void advance_record_snapshot_update(struct advance_record_context* context, cons
 #endif
 }
 
-void advance_record_debug_snapshot_update(struct advance_record_context* context, unsigned frame, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation)
+adv_error advance_record_debug_snapshot_update(struct advance_record_context* context, unsigned frame, adv_bool breakpoint, const void* video_buffer, unsigned video_width, unsigned video_height, unsigned video_bytes_per_pixel, unsigned video_bytes_per_scanline, adv_color_def color_def, adv_color_rgb* palette_map, unsigned palette_max, unsigned orientation)
 {
 	char file[FILE_MAXPATH];
 	adv_fz* f;
@@ -705,7 +705,10 @@ void advance_record_debug_snapshot_update(struct advance_record_context* context
 	pthread_mutex_lock(&context->state.access_mutex);
 #endif
 
-	snprintf(file, sizeof(file), "%s/%s_%05u.png", context->config.dir_buffer, name, frame);
+	if (breakpoint)
+		snprintf(file, sizeof(file), "%s/%s.break.png", context->config.dir_buffer, name);
+	else
+		snprintf(file, sizeof(file), "%s/%s_%05u.png", context->config.dir_buffer, name, frame);
 
 	f = fzopen(file, "wb");
 	if (!f) {
@@ -713,7 +716,7 @@ void advance_record_debug_snapshot_update(struct advance_record_context* context
 #ifdef USE_SMP
 		pthread_mutex_unlock(&context->state.access_mutex);
 #endif
-		return;
+		return -1;
 	}
 
 	if (advance_record_png_write(f, video_buffer, video_width, video_height, video_bytes_per_pixel, video_bytes_per_scanline, color_def, palette_map, palette_max, orientation) != 0) {
@@ -723,7 +726,7 @@ void advance_record_debug_snapshot_update(struct advance_record_context* context
 #ifdef USE_SMP
 		pthread_mutex_unlock(&context->state.access_mutex);
 #endif
-		return;
+		return -1;
 	}
 
 	fzclose(f);
@@ -731,6 +734,48 @@ void advance_record_debug_snapshot_update(struct advance_record_context* context
 #ifdef USE_SMP
 	pthread_mutex_unlock(&context->state.access_mutex);
 #endif
+	return 0;
+}
+
+/* Addresses are hexadecimal; lengths are decimal or prefixed with 0x. */
+static adv_error debug_option_parse(const char* option, const char* text, int* cpu, unsigned* address, unsigned* length)
+{
+	char* end;
+	unsigned long value;
+	*cpu = -1;
+	if (!*text)
+		return 0;
+	if (*text < '0' || *text > '9')
+		goto invalid;
+	errno = 0;
+	value = strtoul(text, &end, 10);
+	if (errno || value >= 16 || *end != ':')
+		goto invalid;
+	*cpu = value;
+	text = end + 1;
+	if (!isxdigit((unsigned char)*text))
+		goto invalid;
+	errno = 0;
+	value = strtoul(text, &end, 16);
+	if (errno || value > 0xffffffffUL)
+		goto invalid;
+	*address = value;
+	if (!length && !*end)
+		return 0;
+	if (!length || *end != ':')
+		goto invalid;
+	text = end + 1;
+	if (*text < '0' || *text > '9')
+		goto invalid;
+	errno = 0;
+	value = strtoul(text, &end, text[0] == '0' && (text[1] == 'x' || text[1] == 'X') ? 16 : 10);
+	if (errno || *end || !value || value > 0xffffffffUL || value - 1 > 0xffffffffUL - *address)
+		goto invalid;
+	*length = value;
+	return 0;
+invalid:
+	target_err("Invalid -%s: expected cpu:hex_address%s.\n", option, length ? ":length" : "");
+	return -1;
 }
 
 adv_error advance_record_config_load(struct advance_record_context* context, adv_conf* cfg_context)
@@ -747,6 +792,13 @@ adv_error advance_record_config_load(struct advance_record_context* context, adv
 	context->config.debug_sound = conf_bool_get_default(cfg_context, "debug_sound");
 	context->config.debug_cpu = conf_int_get_default(cfg_context, "debug_cpu");
 	context->state.debug_frame_counter = 0;
+	context->state.debug_break_pending = 0;
+	context->state.debug_break_failed = 0;
+	if (debug_option_parse("debug_watch", conf_string_get_default(cfg_context, "debug_watch"),
+		&context->config.debug_watch_cpu, &context->config.debug_watch_address, &context->config.debug_watch_length) != 0
+		|| debug_option_parse("debug_break", conf_string_get_default(cfg_context, "debug_break"),
+		&context->config.debug_break_cpu, &context->config.debug_break_address, 0) != 0)
+		return -1;
 
 	/* override */
 	if (context->config.sound_time == 0) {
@@ -769,6 +821,8 @@ adv_error advance_record_init(struct advance_record_context* context, adv_conf* 
 	conf_int_register_limit_default(cfg_context, "debug_snap_step", 0, 1000000, 0);
 	conf_int_register_limit_default(cfg_context, "debug_exit", 0, 1000000, 0);
 	conf_int_register_limit_default(cfg_context, "debug_start", 0, 1000000, 0);
+	conf_string_register_default(cfg_context, "debug_watch", "");
+	conf_string_register_default(cfg_context, "debug_break", "");
 	conf_bool_register_default(cfg_context, "debug_sound", 0);
 	conf_int_register_limit_default(cfg_context, "debug_cpu", -2, 16, -2);
 

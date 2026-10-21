@@ -648,62 +648,117 @@ const struct mame_game* mame_playback_look(const char* file)
 
 #ifdef MAME_DEBUG
 int debug_cpu_active = -2;
+int debug_break_active;
+int debug_watch_active;
 static FILE* debug_cpu_trace_file;
-static adv_bool debug_cpu_trace_failed;
+static FILE* debug_watch_file;
+static FILE* debug_break_file;
+static adv_bool debug_capture_failed;
+static adv_bool debug_watch_suppressed;
+
+static void debug_capture_error(const char* operation)
+{
+	target_err("Error %s debug capture file.\n", operation);
+	debug_capture_failed = 1;
+	debug_cpu_active = -2;
+	debug_watch_active = debug_break_active = 0;
+	CONTEXT.input.state.input_forced_exit_flag = 1;
+}
+
+static FILE* debug_capture_open(const char* suffix)
+{
+	char path[FILE_MAXPATH];
+	FILE* f;
+	snprintf(path, sizeof(path), "%s/%s.%s", CONTEXT.record.config.dir_buffer, mame_game_name(CONTEXT.game), suffix);
+	f = fopen(path, "w");
+	if (!f)
+		target_err("Unable to open debug capture file '%s': %s.\n", path, strerror(errno));
+	return f;
+}
+
+static void debug_capture_close(FILE** f)
+{
+	if (*f) {
+		if (fclose(*f) != 0)
+			debug_capture_error("closing");
+		*f = 0;
+	}
+}
+
+/* Used both by instruction traces and by one-shot breakpoint reports. */
+static void debug_cpu_dump(FILE* f, int cpu, adv_bool prefix)
+{
+	char dasm[128];
+	const INT8* layout;
+	unsigned pc = activecpu_get_pc();
+	unsigned width = (activecpu_addrbus_width(ADDRESS_SPACE_PROGRAM) + 3) / 4;
+	int i;
+
+	/* Disassemblers may use memory accessors. Do not log their reads as CPU traffic. */
+	debug_watch_suppressed = 1;
+	activecpu_dasm(dasm, pc);
+	if (prefix)
+		fprintf(f, "[CPU%d] ", cpu);
+	fprintf(f, "%0*X: %-25s | ", width, pc, dasm);
+	layout = (const INT8*)activecpu_register_layout();
+	if (layout) {
+		for (i = 0; i < 32 && layout[i]; ++i) {
+			const char* reg;
+			if (layout[i] == -1)
+				continue;
+			reg = activecpu_reg_string(layout[i]);
+			if (reg)
+				fprintf(f, "%s ", *reg == '~' ? reg + 1 : reg);
+		}
+	}
+	debug_watch_suppressed = 0;
+	fprintf(f, "\n");
+	if (fflush(f) != 0)
+		debug_capture_error("writing");
+}
 
 void debug_cpu_hook(void)
 {
-	char dasm[128];
-	char regs_buf[512];
-	char *dst = regs_buf;
-	int active_cpu = cpu_getactivecpu();
-	unsigned pc;
-	unsigned addr_width;
-	const INT8 *layout;
-	int i;
-
-	if (active_cpu < 0)
+	struct advance_record_context* context = &CONTEXT.record;
+	int cpu = cpu_getactivecpu();
+	if (cpu < 0 || context->state.debug_frame_counter < context->config.debug_start)
 		return;
 
-	/* Use the same absolute frame counter as debug PNG and WAV captures. */
-	if (CONTEXT.record.state.debug_frame_counter < CONTEXT.record.config.debug_start)
-		return;
+	if (debug_cpu_active == -1 || debug_cpu_active == cpu)
+		debug_cpu_dump(debug_cpu_trace_file, cpu, debug_cpu_active == -1);
 
-	if (debug_cpu_active >= 0 && active_cpu != debug_cpu_active)
-		return;
-
-	pc = activecpu_get_pc();
-	addr_width = (activecpu_addrbus_width(ADDRESS_SPACE_PROGRAM) + 3) / 4;
-
-	/* Disassemble current instruction */
-	activecpu_dasm(dasm, pc);
-
-	/* Collect registers */
-	*dst = 0;
-	layout = (const INT8*)activecpu_register_layout();
-	if (layout) {
-		for (i = 0; layout[i] && i < 32; i++) {
-			const char *r;
-			if (layout[i] == -1)
-				continue;
-			r = activecpu_reg_string(layout[i]);
-			if (r) {
-				if (*r == '~') r++;
-				dst += sprintf(dst, "%s ", r);
-			}
-		}
+	if (debug_break_active && cpu == context->config.debug_break_cpu
+		&& activecpu_get_pc() == context->config.debug_break_address) {
+		int i;
+		debug_break_active = 0;
+		fprintf(debug_break_file, "Frame %u\n", context->state.debug_frame_counter);
+		debug_cpu_dump(debug_break_file, cpu, 1);
+		if (debug_capture_failed)
+			return;
+		context->state.debug_break_pending = 1;
+		/* Leave timers/video running so even a breakpoint at reset gets a PNG.
+		   CPU cores can finish the instruction containing this hook. */
+		for (i = 0; i < cpu_gettotalcpu(); ++i)
+			cpunum_suspend(i, SUSPEND_REASON_DISABLE, 1);
 	}
+}
 
-	if (debug_cpu_active == -1)
-		fprintf(debug_cpu_trace_file, "[CPU%d] %0*X: %-25s | %s\n", active_cpu, addr_width, pc, dasm, regs_buf);
-	else
-		fprintf(debug_cpu_trace_file, "%0*X: %-25s | %s\n", addr_width, pc, dasm, regs_buf);
-	if (fflush(debug_cpu_trace_file) != 0) {
-		target_err("Error writing CPU trace file.\n");
-		debug_cpu_trace_failed = 1;
-		debug_cpu_active = -2;
-		CONTEXT.input.state.input_forced_exit_flag = 1;
-	}
+void debug_watch_hook(int space, offs_t address, unsigned size, UINT64 data, int write)
+{
+	struct advance_record_context* context = &CONTEXT.record;
+	UINT64 start = context->config.debug_watch_address;
+	UINT64 end = start + context->config.debug_watch_length;
+	int cpu = cpu_getactivecpu();
+	if (space != ADDRESS_SPACE_PROGRAM || debug_watch_suppressed
+		|| cpu != context->config.debug_watch_cpu || cpu != cpu_getexecutingcpu()
+		|| context->state.debug_frame_counter < context->config.debug_start
+		|| (UINT64)address >= end || (UINT64)address + size <= start)
+		return;
+	fprintf(debug_watch_file, "Frame %u [CPU%d] PC=%08X %c%u %08X = %0*llX\n",
+		context->state.debug_frame_counter, cpu, activecpu_get_previouspc(),
+		write ? 'W' : 'R', size * 8, address, size * 2, (unsigned long long)data);
+	if (fflush(debug_watch_file) != 0)
+		debug_capture_error("writing");
 }
 #endif
 
@@ -719,10 +774,25 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	context->game = advance->game;
 
 #ifdef MAME_DEBUG
+	{
+		machine_config machine;
+		int count;
+		expand_machine_driver(((const game_driver*)context->game)->drv, &machine);
+		for (count = 0; count < MAX_CPU && machine.cpu[count].cpu_type != CPU_DUMMY; ++count) {}
+		if (context->record.config.debug_cpu >= count
+			|| context->record.config.debug_watch_cpu >= count
+			|| context->record.config.debug_break_cpu >= count) {
+			target_err("Debug CPU index out of range: this game has %d CPUs.\n", count);
+			return -1;
+		}
+	}
 	debug_cpu_active = context->record.config.debug_cpu;
+	debug_watch_active = context->record.config.debug_watch_cpu >= 0;
+	debug_break_active = context->record.config.debug_break_cpu >= 0;
 #else
-	if (context->record.config.debug_cpu >= -1) {
-		target_err("-debug_cpu requires debugger support (make CONF_DEBUGGER=yes).\n");
+	if (context->record.config.debug_cpu >= -1 || context->record.config.debug_watch_cpu >= 0
+		|| context->record.config.debug_break_cpu >= 0) {
+		target_err("-debug_cpu, -debug_watch and -debug_break require debugger support (make CONF_DEBUGGER=yes).\n");
 		return -1;
 	}
 #endif
@@ -882,15 +952,21 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	hardware_script_info(mame_game_description(context->game), mame_game_manufacturer(context->game), mame_game_year(context->game), "Loading");
 
 #ifdef MAME_DEBUG
-	debug_cpu_trace_failed = 0;
-	if (debug_cpu_active >= -1) {
+	debug_capture_failed = 0;
+	debug_watch_suppressed = 0;
+	if (debug_cpu_active >= -1 && !(debug_cpu_trace_file = debug_capture_open("cpu")))
+		goto trace_open_error;
+	if (debug_watch_active && !(debug_watch_file = debug_capture_open("watch")))
+		goto trace_open_error;
+	if (debug_break_active) {
 		char path[FILE_MAXPATH];
-		snprintf(path, sizeof(path), "%s/%s.cpu", context->record.config.dir_buffer, mame_game_name(context->game));
-		debug_cpu_trace_file = fopen(path, "w");
-		if (!debug_cpu_trace_file) {
-			target_err("Unable to open CPU trace file '%s': %s.\n", path, strerror(errno));
-			r = -1;
-			goto trace_done;
+		if (!(debug_break_file = debug_capture_open("break")))
+			goto trace_open_error;
+		/* A missed breakpoint must not leave a screenshot from a previous run. */
+		snprintf(path, sizeof(path), "%s/%s.break.png", context->record.config.dir_buffer, mame_game_name(context->game));
+		if (unlink(path) != 0 && errno != ENOENT) {
+			target_err("Unable to remove old breakpoint screenshot '%s': %s.\n", path, strerror(errno));
+			goto trace_open_error;
 		}
 	}
 #endif
@@ -898,16 +974,18 @@ int mame_game_run(struct advance_context* context, const struct mame_option* adv
 	r = run_game(game_index);
 
 #ifdef MAME_DEBUG
+	goto trace_done;
+trace_open_error:
+	r = -1;
 trace_done:
 	debug_cpu_active = -2;
-	if (debug_cpu_trace_file) {
-		if (fclose(debug_cpu_trace_file) != 0) {
-			target_err("Error closing CPU trace file.\n");
-			debug_cpu_trace_failed = 1;
-		}
-		debug_cpu_trace_file = 0;
-	}
-	if (debug_cpu_trace_failed)
+	debug_watch_active = debug_break_active = 0;
+	debug_capture_close(&debug_cpu_trace_file);
+	debug_capture_close(&debug_watch_file);
+	debug_capture_close(&debug_break_file);
+	if (context->record.state.debug_break_failed)
+		target_err("Error writing breakpoint screenshot.\n");
+	if (debug_capture_failed || context->record.state.debug_break_failed)
 		r = -1;
 #endif
 

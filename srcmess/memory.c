@@ -93,6 +93,7 @@
 
 #include "driver.h"
 #include "profiler.h"
+#include "debugger.h"
 #if defined(MAME_DEBUG) && defined(NEW_DEBUGGER)
 #include "debug/debugcpu.h"
 #endif
@@ -137,7 +138,27 @@
 
 /* macros for the profiler */
 #define MEMREADSTART()			do { profiler_mark(PROFILER_MEMREAD); } while (0)
-#define MEMREADEND(ret)			do { profiler_mark(PROFILER_END); return ret; } while (0)
+#ifdef MAME_DEBUG
+/* Keep the returned value: reading hardware twice can acknowledge an IRQ or pop a FIFO. */
+#define WATCH_READ_VARS(type) type watch_data; offs_t watch_address; int watch_space
+#define WATCH_READ_START(space, address) do { watch_space = (space); watch_address = (address); } while (0)
+#define WATCH_WRITE(space, size, address, data) do { \
+	if (debug_watch_active && !debugger_access) \
+		debug_watch_hook(space, address, size, data, 1); \
+} while (0)
+#define MEMREADEND(ret) do { \
+	watch_data = (ret); \
+	if (debug_watch_active && !debugger_access) \
+		debug_watch_hook(watch_space, watch_address, sizeof(watch_data), watch_data, 0); \
+	profiler_mark(PROFILER_END); \
+	return watch_data; \
+} while (0)
+#else
+#define WATCH_READ_VARS(type)
+#define WATCH_READ_START(space, address)
+#define WATCH_WRITE(space, size, address, data)
+#define MEMREADEND(ret) do { profiler_mark(PROFILER_END); return ret; } while (0)
+#endif
 #define MEMWRITESTART()			do { profiler_mark(PROFILER_MEMWRITE); } while (0)
 #define MEMWRITEEND(ret)		do { (ret); profiler_mark(PROFILER_END); return; } while (0)
 
@@ -2383,10 +2404,12 @@ static void *memory_find_base(int cpunum, int spacenum, int readwrite, offs_t of
 #define READBYTE8(name,spacenum)														\
 UINT8 name(offs_t address)																\
 {																						\
+	WATCH_READ_VARS(UINT8); \
 	UINT32 entry;																		\
 	MEMREADSTART();																		\
 	PERFORM_LOOKUP(readlookup,active_address_space[spacenum],~0);						\
 	DEBUG_HOOK_READ(spacenum, 1, address);												\
+	WATCH_READ_START(spacenum, address); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].readhandlers[entry].offset) & active_address_space[spacenum].readhandlers[entry].mask;\
@@ -2402,10 +2425,12 @@ UINT8 name(offs_t address)																\
 #define READBYTE(name,spacenum,xormacro,handlertype,ignorebits,shiftbytes,masktype)		\
 UINT8 name(offs_t address)																\
 {																						\
+	WATCH_READ_VARS(UINT8); \
 	UINT32 entry;																		\
 	MEMREADSTART();																		\
 	PERFORM_LOOKUP(readlookup,active_address_space[spacenum],~0);						\
 	DEBUG_HOOK_READ(spacenum, 1, address);												\
+	WATCH_READ_START(spacenum, address); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].readhandlers[entry].offset) & active_address_space[spacenum].readhandlers[entry].mask;\
@@ -2437,10 +2462,12 @@ UINT8 name(offs_t address)																\
 #define READWORD16(name,spacenum)														\
 UINT16 name(offs_t address)																\
 {																						\
+	WATCH_READ_VARS(UINT16); \
 	UINT32 entry;																		\
 	MEMREADSTART();																		\
 	PERFORM_LOOKUP(readlookup,active_address_space[spacenum],~1);						\
 	DEBUG_HOOK_READ(spacenum, 2, address);												\
+	WATCH_READ_START(spacenum, address); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].readhandlers[entry].offset) & active_address_space[spacenum].readhandlers[entry].mask;\
@@ -2456,10 +2483,12 @@ UINT16 name(offs_t address)																\
 #define READWORD(name,spacenum,xormacro,handlertype,ignorebits,shiftbytes,masktype)		\
 UINT16 name(offs_t address)																\
 {																						\
+	WATCH_READ_VARS(UINT16); \
 	UINT32 entry;																		\
 	MEMREADSTART();																		\
 	PERFORM_LOOKUP(readlookup,active_address_space[spacenum],~1);						\
 	DEBUG_HOOK_READ(spacenum, 2, address);												\
+	WATCH_READ_START(spacenum, address); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].readhandlers[entry].offset) & active_address_space[spacenum].readhandlers[entry].mask;\
@@ -2489,10 +2518,12 @@ UINT16 name(offs_t address)																\
 #define READDWORD32(name,spacenum)														\
 UINT32 name(offs_t address)																\
 {																						\
+	WATCH_READ_VARS(UINT32); \
 	UINT32 entry;																		\
 	MEMREADSTART();																		\
 	PERFORM_LOOKUP(readlookup,active_address_space[spacenum],~3);						\
 	DEBUG_HOOK_READ(spacenum, 4, address);												\
+	WATCH_READ_START(spacenum, address); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].readhandlers[entry].offset) & active_address_space[spacenum].readhandlers[entry].mask;\
@@ -2508,10 +2539,12 @@ UINT32 name(offs_t address)																\
 #define READDWORD(name,spacenum,xormacro,handlertype,ignorebits,shiftbytes,masktype)	\
 UINT32 name(offs_t address)																\
 {																						\
+	WATCH_READ_VARS(UINT32); \
 	UINT32 entry;																		\
 	MEMREADSTART();																		\
 	PERFORM_LOOKUP(readlookup,active_address_space[spacenum],~3);						\
 	DEBUG_HOOK_READ(spacenum, 4, address);												\
+	WATCH_READ_START(spacenum, address); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].readhandlers[entry].offset) & active_address_space[spacenum].readhandlers[entry].mask;\
@@ -2539,10 +2572,12 @@ UINT32 name(offs_t address)																\
 #define READQWORD64(name,spacenum)														\
 UINT64 name(offs_t address)																\
 {																						\
+	WATCH_READ_VARS(UINT64); \
 	UINT32 entry;																		\
 	MEMREADSTART();																		\
 	PERFORM_LOOKUP(readlookup,active_address_space[spacenum],~7);						\
 	DEBUG_HOOK_READ(spacenum, 8, address);												\
+	WATCH_READ_START(spacenum, address); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].readhandlers[entry].offset) & active_address_space[spacenum].readhandlers[entry].mask;\
@@ -2567,6 +2602,7 @@ void name(offs_t address, UINT8 data)													\
 	MEMWRITESTART();																	\
 	PERFORM_LOOKUP(writelookup,active_address_space[spacenum],~0);						\
 	DEBUG_HOOK_WRITE(spacenum, 1, address, data);										\
+	WATCH_WRITE(spacenum, 1, address, data); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].writehandlers[entry].offset) & active_address_space[spacenum].writehandlers[entry].mask;\
@@ -2585,6 +2621,7 @@ void name(offs_t address, UINT8 data)													\
 	MEMWRITESTART();																	\
 	PERFORM_LOOKUP(writelookup,active_address_space[spacenum],~0);						\
 	DEBUG_HOOK_WRITE(spacenum, 1, address, data);										\
+	WATCH_WRITE(spacenum, 1, address, data); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].writehandlers[entry].offset) & active_address_space[spacenum].writehandlers[entry].mask;\
@@ -2619,6 +2656,7 @@ void name(offs_t address, UINT16 data)													\
 	MEMWRITESTART();																	\
 	PERFORM_LOOKUP(writelookup,active_address_space[spacenum],~1);						\
 	DEBUG_HOOK_WRITE(spacenum, 2, address, data);										\
+	WATCH_WRITE(spacenum, 2, address, data); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].writehandlers[entry].offset) & active_address_space[spacenum].writehandlers[entry].mask;\
@@ -2637,6 +2675,7 @@ void name(offs_t address, UINT16 data)													\
 	MEMWRITESTART();																	\
 	PERFORM_LOOKUP(writelookup,active_address_space[spacenum],~1);						\
 	DEBUG_HOOK_WRITE(spacenum, 2, address, data);										\
+	WATCH_WRITE(spacenum, 2, address, data); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].writehandlers[entry].offset) & active_address_space[spacenum].writehandlers[entry].mask;\
@@ -2669,6 +2708,7 @@ void name(offs_t address, UINT32 data)													\
 	MEMWRITESTART();																	\
 	PERFORM_LOOKUP(writelookup,active_address_space[spacenum],~3);						\
 	DEBUG_HOOK_WRITE(spacenum, 4, address, data);										\
+	WATCH_WRITE(spacenum, 4, address, data); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].writehandlers[entry].offset) & active_address_space[spacenum].writehandlers[entry].mask;\
@@ -2687,6 +2727,7 @@ void name(offs_t address, UINT32 data)													\
 	MEMWRITESTART();																	\
 	PERFORM_LOOKUP(writelookup,active_address_space[spacenum],~3);						\
 	DEBUG_HOOK_WRITE(spacenum, 4, address, data);										\
+	WATCH_WRITE(spacenum, 4, address, data); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].writehandlers[entry].offset) & active_address_space[spacenum].writehandlers[entry].mask;\
@@ -2717,6 +2758,7 @@ void name(offs_t address, UINT64 data)													\
 	MEMWRITESTART();																	\
 	PERFORM_LOOKUP(writelookup,active_address_space[spacenum],~7);						\
 	DEBUG_HOOK_WRITE(spacenum, 8, address, data);										\
+	WATCH_WRITE(spacenum, 8, address, data); \
 																						\
 	/* handle banks inline */															\
 	address = (address - active_address_space[spacenum].writehandlers[entry].offset) & active_address_space[spacenum].writehandlers[entry].mask;\
