@@ -6851,10 +6851,10 @@ Other Sun games
 	DRIVER( orld111c )	/* (c) 1997 */
 	DRIVER( orld105k )	/* (c) 1997 */
 	DRIVER( drgw2 )		/* (c) 1997 */
-	DRIVER( drgw2c )	/* (c) 1997 */
-	DRIVER( drgw2j )	/* (c) 1997 */
-	DRIVER( drgw3 )		/* (c) 1998 */
-	DRIVER( drgw3k )	/* (c) 1998 */
+	DRIVER( drgw2100c )	/* (c) 1997 */
+	DRIVER( drgw2100j )	/* (c) 1997 */
+	DRIVER( drgw3100 )		/* (c) 1998 */
+	DRIVER( drgw3 )	/* (c) 1998 */
 	DRIVER( kov )		/* (c) 1999 */
 	DRIVER( kovplus )	/* (c) 1999 */
 	DRIVER( kovplusa )	/* (c) 1999 */
@@ -6879,9 +6879,10 @@ Other Sun games
 	DRIVER( puzzli2 )	/* (c) 1999 */
 	DRIVER( puzzli2s )	/* (c) 2001 */
 	DRIVER( martmast )	/* (c) 2001 */
-	DRIVER( theglad )	/* (c) 2001 */
+	DRIVER( theglad )
+	DRIVER( theglad100 )	/* (c) 2003 */
+	DRIVER( dmnfrnt102 )	/* (c) 2002 */
 	DRIVER( dmnfrnt )	/* (c) 2002 */
-	DRIVER( dmnfrnta )	/* (c) 2002 */
 	DRIVER( py2k2 )
 
 	/* AdvanceMAME new games from ShmupMAME v3.0b */

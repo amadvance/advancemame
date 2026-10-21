@@ -265,32 +265,15 @@ void pgm_pstar_decrypt(void)
 
 void pgm_dw3_decrypt(void)
 {
-
-//  int i;
-//  unsigned short *src=(unsigned short *) (OP_ROM+0x100000);
-
-	int i;
-	UINT16 *src = (UINT16 *) (memory_region(REGION_CPU1)+0x100000);
-
-	int rom_size = 0x100000;
-
-	for(i=0; i<rom_size/2; i++) {
+	UINT16 *src = (UINT16 *)(memory_region(REGION_CPU1) + 0x100000);
+	unsigned i;
+	for (i = 0; i < 0x100000 / 2; ++i)
+	{
 		UINT16 x = src[i];
-
-		if((i & 0x005460) == 0x001400)
+		if ((i & 0x005460) == 0x001400 || (i & 0x005450) == 0x001040)
 			x ^= 0x0100;
-
-		if((i & 0x005450) == 0x001040)
-			x ^= 0x0100;
-
-		if((i & 0x005e00) == 0x001c00)
-			x ^= 0x40;
-
-		if((i & 0x005580) == 0x001100)
-			x ^= 0x40;
-
-
-
+		if ((i & 0x005e00) == 0x001c00 || (i & 0x005580) == 0x001100)
+			x ^= 0x0040;
 		src[i] = x;
 	}
 }

@@ -233,7 +233,7 @@ static void pgm_drawsprites(int priority, mame_bitmap* bitmap)
 		if (xpos > 0x3ff) xpos -=0x800;
 		if (ypos > 0x1ff) ypos -=0x400;
 
-		if (high == 0) break; /* is this right? */
+		if (pgm_sprite_source[4] == 0) break;
 
 		if ((priority == 1) && (pri == 0)) break;
 

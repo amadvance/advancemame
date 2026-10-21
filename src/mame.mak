@@ -716,6 +716,7 @@ $(OBJ)/igs.a: \
 	$(OBJ)/drivers/tarzan.o \
 	$(OBJ)/machine/pgmcrypt.o \
 	$(OBJ)/machine/pgmprot.o \
+	$(OBJ)/machine/pgm025.o \
 	$(OBJ)/machine/pgmy2ks.o \
 
 $(OBJ)/irem.a: \
