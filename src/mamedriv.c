@@ -6258,8 +6258,10 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( targeth )	/* (c) 1994 - Ref 940531 */
 	DRIVER( quickshts )	/* (c) 1994 - Ref 940531 */
 	DRIVER( thoop2 )	/* (c) 1994 - Ref ??? */
+	DRIVER( sltpcycl )
+	DRIVER( sltpstep )
 	DRIVER( aligator )	/* (c) 1994 - Ref 940411 */
-	DRIVER( aligatun )	/* (c) 1994 - Ref 940411 (unprotected) */
+	DRIVER( aligatorun )	/* (c) 1994 - Ref 940411 (unprotected) */
 	DRIVER( biomtoy )	/* (c) 1995 - Ref 922804/2 - (unprotected) */
 	DRIVER( touchgo )	/* (c) 1995 - Ref 950906 */
 	DRIVER( touchgon )	/* (c) 1995 - Ref 950906 */
@@ -6267,9 +6269,10 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( touchgok )      /* (c) 1995 - Ref 950510-1 - (unprotected) */
 	DRIVER( wrally2 )	/* (c) 1995 - Ref 950510 */
 	DRIVER( maniacsp )	/* (c) 1996 - Ref 922804/2 - (prototype) */
-	DRIVER( maniacsq )	/* (c) 1996 - Ref ??? - (unprotected) */
+	DRIVER( maniacsq )
+	DRIVER( maniacsqu )	/* (c) 1996 - Ref ??? - (unprotected) */
+	DRIVER( snowboara )	/* (c) 1996 - Ref 960419/1 */
 	DRIVER( snowboar )	/* (c) 1996 - Ref 960419/1 */
-	DRIVER( snowbalt )	/* (c) 1996 - Ref 960419/1 */
 	DRIVER( bang )		/* (c) 1998 - Ref ??? */
 	DRIVER( bangj )		/* (c) 1999 - Ref ??? */
 

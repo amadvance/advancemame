@@ -21,6 +21,7 @@
 #include "driver.h"
 #include "cpu/m68000/m68000.h"
 #include "sound/gaelco.h"
+#include "cpu/ds5002fp/ds5002fp.h"
 
 extern UINT16 *gaelco_sndregs;
 extern UINT16 *gaelco2_vregs;
@@ -51,10 +52,69 @@ WRITE16_HANDLER( gaelco2_palette_w );
 VIDEO_UPDATE( gaelco2 );
 VIDEO_EOF( gaelco2 );
 VIDEO_START( gaelco2 );
+VIDEO_START( saltcrdi );
 VIDEO_UPDATE( gaelco2_dual );
 VIDEO_START( gaelco2_dual );
 VIDEO_UPDATE( bang );
 
+
+static UINT16 *gaelco2_workram;
+static UINT8 wrally2_analog[2];
+static int wrally2_adc_clock, wrally2_adc_select;
+
+static READ8_HANDLER( gaelco2_mcu_shared_r )
+{
+	return ((UINT8 *)gaelco2_workram)[0x8000 + BYTE_XOR_BE(offset)];
+}
+
+static WRITE8_HANDLER( gaelco2_mcu_shared_w )
+{
+	((UINT8 *)gaelco2_workram)[0x8000 + BYTE_XOR_BE(offset)] = data;
+}
+
+static READ8_HANDLER( gaelco2_mcu_sram_r ) { return memory_region(REGION_CPU2)[offset]; }
+static WRITE8_HANDLER( gaelco2_mcu_sram_w ) { memory_region(REGION_CPU2)[offset] = data; }
+
+static ADDRESS_MAP_START( gaelco2_mcu_program, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x7fff) AM_ROM
+ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( gaelco2_mcu_data, ADDRESS_SPACE_DATA, 8 )
+	AM_RANGE(0x08000, 0x0ffff) AM_READWRITE(gaelco2_mcu_shared_r, gaelco2_mcu_shared_w)
+	AM_RANGE(0x10000, 0x17fff) AM_READWRITE(gaelco2_mcu_sram_r, gaelco2_mcu_sram_w)
+ADDRESS_MAP_END
+
+static ds5002fp_config gaelco2_dallas_config = { 0x19, 0x00, 0x80 };
+static ds5002fp_config wrally2_dallas_config = { 0x69, 0x00, 0x80 };
+
+static MACHINE_RESET( gaelco2_dallas )
+{
+	int i;
+	UINT8 *scratch = memory_region(REGION_USER1);
+	wrally2_analog[0] = wrally2_analog[1] = 0x8a;
+	wrally2_adc_clock = wrally2_adc_select = 0;
+	if (scratch)
+	{
+		cpuintrf_push_context(1);
+		for (i = 0; i < 0x80; ++i)
+			ds5002fp_internal_w(i, scratch[i]);
+		cpuintrf_pop_context();
+	}
+}
+
+static NVRAM_HANDLER( gaelco2_dallas )
+{
+	if (read_or_write)
+		mame_fwrite(file, memory_region(REGION_CPU2), 0x8000);
+	else if (file)
+		mame_fread(file, memory_region(REGION_CPU2), 0x8000);
+}
+
+static NVRAM_HANDLER( wrally2_dallas )
+{
+	nvram_handler_gaelco2(file, read_or_write);
+	nvram_handler_gaelco2_dallas(file, read_or_write);
+}
 
 #define TILELAYOUT16(NUM) static const gfx_layout tilelayout16_##NUM =				\
 {																					\
@@ -105,7 +165,7 @@ static ADDRESS_MAP_START( maniacsq_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x218004, 0x218009) AM_WRITE(MWA16_RAM) AM_BASE(&gaelco2_vregs)			/* Video Registers */
 	AM_RANGE(0x30004a, 0x30004b) AM_WRITE(MWA16_NOP)							/* Sound muting? */
 	AM_RANGE(0x500000, 0x500001) AM_WRITE(gaelco2_coin_w)						/* Coin lockout + counters */
-	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM)							/* Work RAM */
+	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM) AM_BASE(&gaelco2_workram)							/* Work RAM */
 ADDRESS_MAP_END
 
 
@@ -195,7 +255,7 @@ static struct gaelcosnd_interface maniacsq_snd_interface =
 
 static MACHINE_DRIVER_START( maniacsq )
 	/* basic machine hardware */
-	MDRV_CPU_ADD(M68000, 26000000/2)		/* 13 MHz? */
+	MDRV_CPU_ADD_TAG("main", M68000, 24000000/2)
 	MDRV_CPU_PROGRAM_MAP(maniacsq_readmem, maniacsq_writemem)
 	MDRV_CPU_VBLANK_INT(irq6_line_hold, 1)
 
@@ -207,7 +267,7 @@ static MACHINE_DRIVER_START( maniacsq )
 	MDRV_SCREEN_SIZE(64*16, 32*16)
 	MDRV_VISIBLE_AREA(0, 320-1, 16, 256-1)
 	MDRV_GFXDECODE(gfxdecodeinfo_0x0080000)
-	MDRV_PALETTE_LENGTH(4096*16 - 16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
+	MDRV_PALETTE_LENGTH(4096*16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
 
 	MDRV_VIDEO_START(gaelco2)
 	MDRV_VIDEO_EOF(gaelco2)
@@ -224,6 +284,25 @@ MACHINE_DRIVER_END
 
 
 ROM_START( maniacsq )
+	ROM_REGION( 0x040000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "tms27c010a.msu45",   0x000000, 0x020000, CRC(fa44c907) SHA1(4d9b3a6cf044395cc4e04f6dd8d1109e8ee4d52d) )
+	ROM_LOAD16_BYTE( "tms27c010a.msu44",   0x000001, 0x020000, CRC(42e20121) SHA1(6662fa8ec5756bf5c4ebaaa9aa2e0e241cf582a4) )
+
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )
+	ROM_LOAD( "maniacsq_ds5002fp_sram.bin", 0x00000, 0x8000, CRC(afe9703d) SHA1(e737bf154bcb268b8f0764879b513489b163e462) )
+
+	ROM_REGION( 0x0280000, REGION_GFX1, 0 )
+
+	ROM_LOAD( "ms1",   0x0000000, 0x0080000, CRC(d8551b2f) SHA1(78b5b07112bd89fed18055180e7cc64f8e0bd0b1) )
+	ROM_LOAD( "ms2",   0x0080000, 0x0080000, CRC(b269c427) SHA1(b7f9501529fbb7ee82700cff82740ba5770cf3c5) )
+	ROM_LOAD( "ms3",   0x0100000, 0x0020000, CRC(af4ea5e7) SHA1(ffaf09dc2588e32c124e7dd2f86ba009f1b8b176) )
+	ROM_FILL(          0x0120000, 0x0060000, 0x00 )
+	ROM_LOAD( "ms4",   0x0180000, 0x0020000, CRC(578c3588) SHA1(c2e1fba29f21d6822677886fb2d26e050b336c14) )
+	ROM_FILL(          0x01a0000, 0x0060000, 0x00 )
+	ROM_FILL(          0x0200000, 0x0080000, 0x00 )
+ROM_END
+
+ROM_START( maniacsqu )
 	ROM_REGION( 0x040000, REGION_CPU1, 0 )	/* 68000 code */
 	ROM_LOAD16_BYTE( "d8-d15.1m",	0x000000, 0x020000, CRC(9121d1b6) SHA1(ad8f0d996b6d42fc0c6645466608e82ca96e0b66) )
 	ROM_LOAD16_BYTE( "d0-d7.1m",	0x000001, 0x020000, CRC(a95cfd2a) SHA1(b5bad76f12d2a1f6bf6b35482f2f933ceb00e552) )
@@ -304,7 +383,7 @@ static ADDRESS_MAP_START( bang_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x30000a, 0x30000b) AM_WRITE(gaelco2_eeprom_sk_w)				/* EEPROM serial clock */
 	AM_RANGE(0x30000c, 0x30000d) AM_WRITE(gaelco2_eeprom_cs_w)				/* EEPROM chip select */
 	AM_RANGE(0x310000, 0x310001) AM_WRITE(clr_gun_int_w)						/* CLR INT Gun */
-	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM)							/* Work RAM */
+	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM) AM_BASE(&gaelco2_workram)							/* Work RAM */
 ADDRESS_MAP_END
 
 
@@ -359,7 +438,7 @@ static MACHINE_DRIVER_START( bang )
 	MDRV_SCREEN_SIZE(64*16, 32*16)
 	MDRV_VISIBLE_AREA(0, 320-1, 16, 256-1)
 	MDRV_GFXDECODE(gfxdecodeinfo_0x0200000)
-	MDRV_PALETTE_LENGTH(4096*16 - 16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
+	MDRV_PALETTE_LENGTH(4096*16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
 
 	MDRV_VIDEO_START(gaelco2)
 	MDRV_VIDEO_EOF(gaelco2)
@@ -457,7 +536,7 @@ static ADDRESS_MAP_START( alighunt_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x218004, 0x218009) AM_WRITE(MWA16_RAM) AM_BASE(&gaelco2_vregs)			/* Video Registers */
 	AM_RANGE(0x500000, 0x500001) AM_WRITE(gaelco2_coin_w)						/* Coin lockout + counters */
 	AM_RANGE(0x500006, 0x500007) AM_WRITE(MWA16_NOP)							/* ??? */
-	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM)							/* Work RAM */
+	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM) AM_BASE(&gaelco2_workram)							/* Work RAM */
 ADDRESS_MAP_END
 
 
@@ -559,7 +638,7 @@ static MACHINE_DRIVER_START( alighunt )
 	MDRV_SCREEN_SIZE(64*16, 32*16)
 	MDRV_VISIBLE_AREA(0, 320-1, 16, 256-1)
 	MDRV_GFXDECODE(gfxdecodeinfo_0x0400000)
-	MDRV_PALETTE_LENGTH(4096*16 - 16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
+	MDRV_PALETTE_LENGTH(4096*16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
 
 	MDRV_VIDEO_START(gaelco2)
 	MDRV_VIDEO_EOF(gaelco2)
@@ -625,9 +704,11 @@ ROM_START( aligator )
 	ROM_LOAD( "u47",		0x0400000, 0x0400000, CRC(74a5a29f) SHA1(8ea2aa1f8a80c5b88ca9222c5ecc3c4794e0a160) )	/* GFX + Sound */
 	ROM_LOAD( "u50",		0x0800000, 0x0400000, CRC(85daecf9) SHA1(824f6d2491075b1ef96ecd6667c5510409338a2f) )	/* GFX only */
 	ROM_LOAD( "u49",		0x0c00000, 0x0400000, CRC(70a4ee0b) SHA1(07b09916f0366d0c6eed94a905ec0b9d6ac9e7e1) )	/* GFX + Sound */
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )
+	ROM_LOAD( "aligator_ds5002fp_sram.bin", 0, 0x8000, CRC(6558f215) SHA1(c961a9c81aa6b746294baf83ea5d1fcf7acab9db) )
 ROM_END
 
-ROM_START( aligatun )
+ROM_START( aligatorun )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )	/* 68000 code */
 	ROM_LOAD16_BYTE(	"ahntu45n.040",	0x000000, 0x080000, CRC(fc02cb2d) SHA1(700aa60ec0d2bb705b1335de63daae678dcb8570) )
 	ROM_LOAD16_BYTE(	"ahntu44n.040",	0x000001, 0x080000, CRC(7fbea3a3) SHA1(89efa5b7908c2f010a3097954dbccd9cb7adc50c) )
@@ -660,11 +741,6 @@ static WRITE16_HANDLER( touchgo_coin_w )
 	}
 }
 
-/* the game expects this value each frame to know that the DS5002FP is alive */
-READ16_HANDLER ( dallas_kludge_r )
-{
-	return 0x0200;
-}
 
 static ADDRESS_MAP_START( touchgo_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0fffff) AM_READ(MRA16_ROM)			/* ROM */
@@ -676,7 +752,7 @@ static ADDRESS_MAP_START( touchgo_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x300002, 0x300003) AM_READ(input_port_1_word_r)/* DSW #1 + Input 2P */
 	AM_RANGE(0x300004, 0x300005) AM_READ(input_port_2_word_r)/* COINSW + Input 3P */
 	AM_RANGE(0x300006, 0x300007) AM_READ(input_port_3_word_r)/* SERVICESW + Input 4P */
-	AM_RANGE(0xfefffa, 0xfefffb) AM_READ(dallas_kludge_r)	/* DS5002FP related patch */
+
 	AM_RANGE(0xfe0000, 0xfeffff) AM_READ(MRA16_RAM)			/* Work RAM */
 ADDRESS_MAP_END
 
@@ -701,7 +777,7 @@ static ADDRESS_MAP_START( touchgo_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x210000, 0x211fff) AM_WRITE(gaelco2_palette_w) AM_BASE(&paletteram16)	/* Palette */
 	AM_RANGE(0x218004, 0x218009) AM_WRITE(MWA16_RAM) AM_BASE(&gaelco2_vregs)			/* Video Registers */
 	AM_RANGE(0x500000, 0x50001f) AM_WRITE(touchgo_coin_w)						/* Coin counters */
-	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM)							/* Work RAM */
+	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM) AM_BASE(&gaelco2_workram)							/* Work RAM */
 ADDRESS_MAP_END
 
 
@@ -845,7 +921,7 @@ static MACHINE_DRIVER_START( touchgo )
 	MDRV_ASPECT_RATIO(8,3)
 #endif
 	MDRV_GFXDECODE(gfxdecodeinfo_0x0400000)
-	MDRV_PALETTE_LENGTH(4096*16 - 16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
+	MDRV_PALETTE_LENGTH(4096*16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
 
 	MDRV_VIDEO_START(gaelco2_dual)
 	MDRV_VIDEO_EOF(gaelco2)
@@ -882,7 +958,7 @@ static MACHINE_DRIVER_START( touchgok )
 	MDRV_ASPECT_RATIO(8,3)
 #endif
 	MDRV_GFXDECODE(gfxdecodeinfo_0x0400000)
-	MDRV_PALETTE_LENGTH(4096*16 - 16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
+	MDRV_PALETTE_LENGTH(4096*16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
 
 	MDRV_VIDEO_START(gaelco2_dual)
 	MDRV_VIDEO_EOF(gaelco2)
@@ -957,6 +1033,10 @@ ROM_START( touchgo ) /* REF: 950906 */
 	ROM_LOAD( "ic66",  0x0400000, 0x0200000, CRC(52682953) SHA1(82cde061bdd827ed4a47a9a4256cd0e887ebc29d) )	/* Sound only */
 	ROM_FILL(          0x0600000, 0x0200000, 0x0 )			/* Empty */
 	ROM_LOAD( "ic67",  0x0800000, 0x0400000, CRC(c0a2ce5b) SHA1(94b024373c7c546c0f4fe9737639f02e9c7ebbdb) )	/* GFX only */
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )
+	ROM_LOAD( "touchgo_ds5002fp_sram.bin", 0, 0x8000, CRC(6a238adb) SHA1(4ac5ff8e3d90454f764477146a0b8dc8c8062420) )
+	ROM_REGION( 0x80, REGION_USER1, 0 )
+	ROM_LOAD( "touchgo_scratch", 0, 0x80, CRC(f9ca54ff) SHA1(416f7bd89442dc1f736efe457b0f9a7f4f9f0bd5) )
 ROM_END
 
 ROM_START( touchgon ) /* REF 950906, no plug-in daughterboard, Non North America Notice */
@@ -973,6 +1053,10 @@ ROM_START( touchgon ) /* REF 950906, no plug-in daughterboard, Non North America
 	ROM_LOAD( "ic66",  0x0400000, 0x0200000, CRC(52682953) SHA1(82cde061bdd827ed4a47a9a4256cd0e887ebc29d) )	/* Sound only */
 	ROM_FILL(          0x0600000, 0x0200000, 0x0 )			/* Empty */
 	ROM_LOAD( "ic67",  0x0800000, 0x0400000, CRC(c0a2ce5b) SHA1(94b024373c7c546c0f4fe9737639f02e9c7ebbdb) )	/* GFX only */
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )
+	ROM_LOAD( "touchgo_ds5002fp_sram.bin", 0, 0x8000, CRC(6a238adb) SHA1(4ac5ff8e3d90454f764477146a0b8dc8c8062420) )
+	ROM_REGION( 0x80, REGION_USER1, 0 )
+	ROM_LOAD( "touchgo_scratch", 0, 0x80, CRC(f9ca54ff) SHA1(416f7bd89442dc1f736efe457b0f9a7f4f9f0bd5) )
 ROM_END
 
 ROM_START( touchgoe ) /* REF: 950510-1 */
@@ -989,6 +1073,10 @@ ROM_START( touchgoe ) /* REF: 950510-1 */
 	ROM_LOAD( "ic66",  0x0400000, 0x0200000, CRC(52682953) SHA1(82cde061bdd827ed4a47a9a4256cd0e887ebc29d) )	/* Sound only */
 	ROM_FILL(          0x0600000, 0x0200000, 0x0 )			/* Empty */
 	ROM_LOAD( "ic67",  0x0800000, 0x0400000, CRC(c0a2ce5b) SHA1(94b024373c7c546c0f4fe9737639f02e9c7ebbdb) )	/* GFX only */
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )
+	ROM_LOAD( "touchgo_ds5002fp_sram.bin", 0, 0x8000, CRC(6a238adb) SHA1(4ac5ff8e3d90454f764477146a0b8dc8c8062420) )
+	ROM_REGION( 0x80, REGION_USER1, 0 )
+	ROM_LOAD( "touchgo_scratch", 0, 0x80, CRC(f9ca54ff) SHA1(416f7bd89442dc1f736efe457b0f9a7f4f9f0bd5) )
 ROM_END
 
 ROM_START( touchgok ) /* REF: 950510-1 - ds5002fp unpopulated, game is unprotected */
@@ -1037,7 +1125,7 @@ static ADDRESS_MAP_START( snowboar_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x30000a, 0x30000b) AM_WRITE(gaelco2_eeprom_sk_w)				/* EEPROM serial clock */
 	AM_RANGE(0x30000c, 0x30000d) AM_WRITE(gaelco2_eeprom_cs_w)				/* EEPROM chip select */
 	AM_RANGE(0x310000, 0x31ffff) AM_WRITE(snowboar_protection_w) AM_BASE(&snowboar_protection)/* Protection */
-	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM)							/* Work RAM */
+	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM) AM_BASE(&gaelco2_workram)							/* Work RAM */
 ADDRESS_MAP_END
 
 
@@ -1094,7 +1182,7 @@ static MACHINE_DRIVER_START( snowboar )
 	MDRV_SCREEN_SIZE(64*16, 32*16)
 	MDRV_VISIBLE_AREA(0, 384-1, 16, 256-1)
 	MDRV_GFXDECODE(gfxdecodeinfo_0x0400000)
-	MDRV_PALETTE_LENGTH(4096*16 - 16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
+	MDRV_PALETTE_LENGTH(4096*16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
 
 	MDRV_VIDEO_START(gaelco2)
 	MDRV_VIDEO_EOF(gaelco2)
@@ -1145,7 +1233,7 @@ REF: 960419/1
 -----------------------------------------------------------------------------|
 */
 
-ROM_START( snowboar )
+ROM_START( snowboara )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )	/* 68000 code */
 	ROM_LOAD16_BYTE(	"sb53",	0x000000, 0x080000, CRC(e4eaefd4) SHA1(c7de2ae3a4a919fbe16d4997e3f9e2303b8c96b1) )
 	ROM_LOAD16_BYTE(	"sb55",	0x000001, 0x080000, CRC(e2476994) SHA1(2ad18652a1fc6ac058c8399373fb77e7a81d5bbd) )
@@ -1161,7 +1249,7 @@ ROM_START( snowboar )
 	ROM_LOAD( "sb46",		0x0800000, 0x0400000, CRC(22e7c648) SHA1(baddb9bc13accd83bea61533d7286cf61cd89279) )	/* GFX only */
 ROM_END
 
-ROM_START( snowbalt )
+ROM_START( snowboar )
 	ROM_REGION( 0x100000, REGION_CPU1, 0 )	/* 68000 code */
 	ROM_LOAD16_BYTE(	"sb.53",	0x000000, 0x080000, CRC(4742749e) SHA1(933e39893ab74895ae4a99a932f8245a03ea0b5d) )
 	ROM_LOAD16_BYTE(	"sb.55",	0x000001, 0x080000, CRC(6ddc431f) SHA1(8801c0cf1711bb956447ba1e631db28bd075caea) )
@@ -1204,6 +1292,41 @@ ROM_END
                             WORLD RALLY 2
   ============================================================================*/
 
+static READ16_HANDLER( wrally2_input1_r )
+{
+	return (readinputport(0) & ~0x40) | ((wrally2_analog[0] >> 1) & 0x40);
+}
+
+static READ16_HANDLER( wrally2_input2_r )
+{
+	return (readinputport(2) & ~0x40) | ((wrally2_analog[1] >> 1) & 0x40);
+}
+
+static WRITE16_HANDLER( wrally2_adc_w )
+{
+	int state = data & 1;
+	if (!ACCESSING_LSB)
+		return;
+	if (offset == 0 && state != wrally2_adc_clock)
+	{
+		if (!state)
+		{
+			wrally2_analog[0] <<= 1;
+			wrally2_analog[1] <<= 1;
+		}
+		wrally2_adc_clock = state;
+	}
+	else if (offset == 4 && state != wrally2_adc_select)
+	{
+		if (!state)
+		{
+			wrally2_analog[0] = readinputportbytag("P1Wheel");
+			wrally2_analog[1] = readinputportbytag("P2Wheel");
+		}
+		wrally2_adc_select = state;
+	}
+}
+
 static ADDRESS_MAP_START( wrally2_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x000000, 0x0fffff) AM_READ(MRA16_ROM)			/* ROM */
 	AM_RANGE(0x202890, 0x2028ff) AM_READ(gaelcosnd_r)		/* Sound Registers */
@@ -1211,9 +1334,9 @@ static ADDRESS_MAP_START( wrally2_readmem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x210000, 0x211fff) AM_READ(MRA16_RAM)			/* Palette */
 	AM_RANGE(0x212000, 0x213fff) AM_READ(MRA16_RAM)			/* Extra RAM */
 	AM_RANGE(0x218004, 0x218009) AM_READ(MRA16_RAM)			/* Video Registers */
-	AM_RANGE(0x300000, 0x300001) AM_READ(input_port_0_word_r)/* DIPSW #2 + Inputs 1P */
+	AM_RANGE(0x300000, 0x300001) AM_READ(wrally2_input1_r)/* DIPSW #2 + Inputs 1P */
 	AM_RANGE(0x300002, 0x300003) AM_READ(input_port_1_word_r)/* DIPSW #1 */
-	AM_RANGE(0x300004, 0x300005) AM_READ(input_port_2_word_r)/* Inputs 2P + COINSW */
+	AM_RANGE(0x300004, 0x300005) AM_READ(wrally2_input2_r)/* Inputs 2P + COINSW */
 	AM_RANGE(0x300006, 0x300007) AM_READ(input_port_3_word_r)/* SERVICESW */
 	AM_RANGE(0xfe0000, 0xfeffff) AM_READ(MRA16_RAM)			/* Work RAM */
 ADDRESS_MAP_END
@@ -1226,8 +1349,8 @@ static ADDRESS_MAP_START( wrally2_writemem, ADDRESS_SPACE_PROGRAM, 16 )
 	AM_RANGE(0x212000, 0x213fff) AM_WRITE(MWA16_RAM)							/* Extra RAM */
 	AM_RANGE(0x218004, 0x218009) AM_WRITE(MWA16_RAM) AM_BASE(&gaelco2_vregs)			/* Video Registers */
 	AM_RANGE(0x400000, 0x400011) AM_WRITE(wrally2_coin_w)						/* Coin Counters */
-	AM_RANGE(0x400028, 0x400031) AM_WRITE(MWA16_NOP)							/* Pot Wheel input bit select */
-	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM)							/* Work RAM */
+	AM_RANGE(0x400028, 0x400031) AM_WRITE(wrally2_adc_w)
+	AM_RANGE(0xfe0000, 0xfeffff) AM_WRITE(MWA16_RAM) AM_BASE(&gaelco2_workram)							/* Work RAM */
 ADDRESS_MAP_END
 
 
@@ -1249,10 +1372,10 @@ PORT_START	/* DIPSW #2 + 1P INPUTS */
 	PORT_DIPSETTING(      0x0000, DEF_STR( Off ) )
 	PORT_DIPSETTING(      0x0400, DEF_STR( On ) )
 	PORT_DIPNAME( 0x0800, 0x0800, "Cabinet 1 Control Configuration" )
-	PORT_DIPSETTING(      0x0000, "Pot Wheel" )		/* TO-DO */
+	PORT_DIPSETTING(      0x0000, "Pot Wheel" )
 	PORT_DIPSETTING(      0x0800, DEF_STR( Joystick ) )
 	PORT_DIPNAME( 0x1000, 0x1000, "Cabinet 2 Control Configuration" )
-	PORT_DIPSETTING(      0x0000, "Pot Wheel" )		/* TO-DO */
+	PORT_DIPSETTING(      0x0000, "Pot Wheel" )
 	PORT_DIPSETTING(      0x1000, DEF_STR( Joystick ) )
 #ifdef ONE_MONITOR
 	PORT_DIPNAME( 0x2000, 0x0000, "Monitors" )
@@ -1318,6 +1441,10 @@ PORT_START	/* SERVICESW */
 
 PORT_START	/* Fake: To switch between monitors at run time */
 	PORT_BIT(0x01, IP_ACTIVE_HIGH, IPT_SERVICE4 ) PORT_TOGGLE
+	PORT_START_TAG("P1Wheel")
+	PORT_BIT(0xff, 0x8a, IPT_PADDLE) PORT_MINMAX(0, 255) PORT_SENSITIVITY(25) PORT_KEYDELTA(25) PORT_REVERSE PORT_PLAYER(1)
+	PORT_START_TAG("P2Wheel")
+	PORT_BIT(0xff, 0x8a, IPT_PADDLE) PORT_MINMAX(0, 255) PORT_SENSITIVITY(25) PORT_KEYDELTA(25) PORT_REVERSE PORT_PLAYER(2)
 INPUT_PORTS_END
 
 static struct gaelcosnd_interface wrally2_snd_interface =
@@ -1347,7 +1474,7 @@ static MACHINE_DRIVER_START( wrally2 )
 	MDRV_ASPECT_RATIO(8,3)
 #endif
 	MDRV_GFXDECODE(gfxdecodeinfo_0x0200000)
-	MDRV_PALETTE_LENGTH(4096*16 - 16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
+	MDRV_PALETTE_LENGTH(4096*16)	/* game's palette is 4096 but we allocate 15 more for shadows & highlights */
 
 	MDRV_VIDEO_START(gaelco2_dual)
 	MDRV_VIDEO_EOF(gaelco2)
@@ -1439,19 +1566,172 @@ ROM_START( wrally2 )
 	ROM_LOAD( "wr2.21d",	0x0800000, 0x0080000, CRC(899b0583) SHA1(a313e679980cc4da22bc70f2c7c9685af4f3d6df) ) 	/* GFX only */
 	ROM_LOAD( "wr2.14d",	0x0880000, 0x0080000, CRC(6eb781d5) SHA1(d5c13db88e6de606b34805391cef9f3fbf09fac4) ) 	/* GFX only */
 	ROM_FILL(				0x0900000, 0x0100000, 0x0 )			/* Empty */
+	ROM_REGION( 0x8000, REGION_CPU2, 0 )
+	ROM_LOAD( "wrally2_ds5002fp_sram.bin", 0, 0x8000, CRC(4c532e9e) SHA1(d0aad72b204d4abd3b8d7d5bbaf8d2d2f78edaa6) )
 ROM_END
 
 
 
-GAME( 1994, aligator, 0,        alighunt, alighunt, alighunt, ROT0, "Gaelco", "Alligator Hunt", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1994, aligatun, aligator, alighunt, alighunt, alighunt, ROT0, "Gaelco", "Alligator Hunt (unprotected)", 0 )
-GAME( 1995, touchgo,  0,        touchgo,  touchgo,  touchgo,  ROT0, "Gaelco", "Touch & Go (World)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1995, touchgon, touchgo,  touchgo,  touchgo,  touchgo,  ROT0, "Gaelco", "Touch & Go (Non North America)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1995, touchgoe, touchgo,  touchgo,  touchgo,  touchgo,  ROT0, "Gaelco", "Touch & Go (earlier revision)", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1995, touchgok, touchgo,  touchgok, touchgo,  touchgo,  ROT0, "Gaelco", "Touch & Go (Korea, unprotected)", GAME_IMPERFECT_SOUND )
-GAME( 1995, wrally2,  0,        wrally2,  wrally2,  0,        ROT0, "Gaelco", "World Rally 2: Twin Racing", GAME_UNEMULATED_PROTECTION | GAME_NOT_WORKING )
-GAME( 1996, maniacsq, 0,        maniacsq, maniacsq, 0,        ROT0, "Gaelco", "Maniac Square (unprotected)", 0 )
-GAME( 1996, snowboar, 0,        snowboar, snowboar, snowboar, ROT0, "Gaelco", "Snow Board Championship (set 1)", 0 )
-GAME( 1996, snowbalt, snowboar, snowboar, snowboar, 0,        ROT0, "Gaelco", "Snow Board Championship (set 2)", 0 )
+static ADDRESS_MAP_START( saltcrdi_readmem, ADDRESS_SPACE_PROGRAM, 16 )
+	AM_RANGE(0x000000, 0x03ffff) AM_READ(MRA16_ROM)
+	AM_RANGE(0x202890, 0x2028ff) AM_READ(gaelcosnd_r)
+	AM_RANGE(0x200000, 0x20ffff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x210000, 0x211fff) AM_READ(MRA16_RAM)
+	AM_RANGE(0x218004, 0x218009) AM_READ(MRA16_RAM)
+	AM_RANGE(0x300000, 0x300001) AM_READ(input_port_0_word_r)
+	AM_RANGE(0x310000, 0x310001) AM_READ(input_port_1_word_r)
+	AM_RANGE(0x320000, 0x320001) AM_READ(input_port_2_word_r)
+	AM_RANGE(0xfe0000, 0xfeffff) AM_READ(MRA16_RAM)
+ADDRESS_MAP_END
+
+static INPUT_PORTS_START( saltcrdi )
+	PORT_START_TAG("IN0")
+	PORT_BIT( 0x0001, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0002, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0004, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0008, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_BUTTON2 )
+	PORT_BIT( 0x0040, IP_ACTIVE_LOW, IPT_BUTTON3 )
+	PORT_BIT( 0x0080, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0xff00, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("DSW")
+	PORT_SERVICE(0x01, IP_ACTIVE_LOW)
+	PORT_DIPNAME(0x02, 0x02, DEF_STR(Unknown))
+	PORT_DIPSETTING(0x02, DEF_STR(Off))
+	PORT_DIPSETTING(0, DEF_STR(On))
+	PORT_DIPNAME(0x04, 0x04, DEF_STR(Unknown))
+	PORT_DIPSETTING(0x04, DEF_STR(Off))
+	PORT_DIPSETTING(0, DEF_STR(On))
+	PORT_DIPNAME(0x08, 0x08, DEF_STR(Unknown))
+	PORT_DIPSETTING(0x08, DEF_STR(Off))
+	PORT_DIPSETTING(0, DEF_STR(On))
+	PORT_DIPNAME(0x10, 0x10, DEF_STR(Unknown))
+	PORT_DIPSETTING(0x10, DEF_STR(Off))
+	PORT_DIPSETTING(0, DEF_STR(On))
+	PORT_DIPNAME( 0xe0, 0x00, DEF_STR( Language ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Spanish ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( English ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( German ) )
+	PORT_DIPSETTING(    0x60, "Catalan" )
+	PORT_DIPSETTING(    0x80, DEF_STR( Spanish ) )
+	PORT_DIPSETTING(    0xa0, "Portuguese" )
+	PORT_DIPSETTING(    0xc0, DEF_STR( French ) )
+	PORT_DIPSETTING(    0xe0, DEF_STR( Spanish ) )
+	PORT_BIT( 0xff00, IP_ACTIVE_LOW, IPT_UNKNOWN )
+
+	PORT_START_TAG("COIN")
+	PORT_BIT( 0xffff, IP_ACTIVE_LOW, IPT_UNKNOWN )
+INPUT_PORTS_END
+
+static MACHINE_DRIVER_START( saltcrdi )
+	MDRV_IMPORT_FROM(maniacsq)
+	MDRV_CPU_REPLACE("main", M68000, 12000000)
+	MDRV_CPU_PROGRAM_MAP(saltcrdi_readmem, maniacsq_writemem)
+	MDRV_VIDEO_START(saltcrdi)
+	MDRV_VISIBLE_AREA(0, 384-1, 16, 256-1)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( maniacsq_dallas )
+	MDRV_IMPORT_FROM(maniacsq)
+	MDRV_CPU_ADD(DS5002FP, 12000000)
+	MDRV_CPU_CONFIG(gaelco2_dallas_config)
+	MDRV_CPU_PROGRAM_MAP(gaelco2_mcu_program, 0)
+	MDRV_CPU_DATA_MAP(gaelco2_mcu_data, 0)
+	MDRV_INTERLEAVE(640)
+	MDRV_MACHINE_RESET(gaelco2_dallas)
+	MDRV_NVRAM_HANDLER(gaelco2_dallas)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( alighunt_dallas )
+	MDRV_IMPORT_FROM(alighunt)
+	MDRV_CPU_ADD(DS5002FP, 12000000)
+	MDRV_CPU_CONFIG(gaelco2_dallas_config)
+	MDRV_CPU_PROGRAM_MAP(gaelco2_mcu_program, 0)
+	MDRV_CPU_DATA_MAP(gaelco2_mcu_data, 0)
+	MDRV_INTERLEAVE(640)
+	MDRV_MACHINE_RESET(gaelco2_dallas)
+	MDRV_NVRAM_HANDLER(gaelco2_dallas)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( touchgo_dallas )
+	MDRV_IMPORT_FROM(touchgo)
+	MDRV_CPU_ADD(DS5002FP, 16000000)
+	MDRV_CPU_CONFIG(gaelco2_dallas_config)
+	MDRV_CPU_PROGRAM_MAP(gaelco2_mcu_program, 0)
+	MDRV_CPU_DATA_MAP(gaelco2_mcu_data, 0)
+	MDRV_INTERLEAVE(640)
+	MDRV_MACHINE_RESET(gaelco2_dallas)
+	MDRV_NVRAM_HANDLER(gaelco2_dallas)
+MACHINE_DRIVER_END
+
+static MACHINE_DRIVER_START( wrally2_dallas )
+	MDRV_IMPORT_FROM(wrally2)
+	MDRV_CPU_ADD(DS5002FP, 13000000)
+	MDRV_CPU_CONFIG(wrally2_dallas_config)
+	MDRV_CPU_PROGRAM_MAP(gaelco2_mcu_program, 0)
+	MDRV_CPU_DATA_MAP(gaelco2_mcu_data, 0)
+	MDRV_INTERLEAVE(640)
+	MDRV_MACHINE_RESET(gaelco2_dallas)
+	MDRV_NVRAM_HANDLER(wrally2_dallas)
+MACHINE_DRIVER_END
+
+ROM_START( sltpcycl )
+	ROM_REGION( 0x040000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "bi-n-21-27c512.u21",   0x000000, 0x010000, CRC(1d2e9a68) SHA1(b9bb4eeefe90850b648dc45689a08f3c28147856) )
+	ROM_LOAD16_BYTE( "bi-n-23-27c512.u23",   0x000001, 0x010000, CRC(5865351d) SHA1(a62b8ec88ef41d96b65a03ccaeadbec21803df34) )
+
+	ROM_REGION( 0x0280000, REGION_GFX1, ROMREGION_ERASEFF )
+	ROM_LOAD( "bi-40-bank0-27c1001.u40",   0x0000000, 0x0020000, CRC(56822524) SHA1(aae133e9fb85ba8995c095cc540aa35b65c27777) )
+	ROM_LOAD( "bi-39-bank0-27c1001.u39",   0x0080000, 0x0020000, CRC(30dfcde1) SHA1(caf4429d0e1185c157eca436e9bb3a8513781a97) )
+	ROM_LOAD( "bi-38-bank0-27c1001.u38",   0x0100000, 0x0020000, CRC(84ec4b34) SHA1(01376f2534c4bc51d0a357d80db28b24c3fd71f6) )
+	ROM_LOAD( "bi-37-bank0-27c1001.u37",   0x0180000, 0x0020000, CRC(779fca47) SHA1(fce95893a5bcf0c6f26c223491c95154f072c92b) )
+	ROM_FILL(                              0x0200000, 0x0020000, 0x00 )
+	ROM_LOAD( "bi-44-bank1-27c1001.u44",   0x0020000, 0x0020000, CRC(171d2f88) SHA1(e2b406dad78e3ab5bebb673ed03db5d27879283e) )
+	ROM_LOAD( "bi-43-bank1-27c1001.u43",   0x00a0000, 0x0020000, CRC(69b35d81) SHA1(d9657e3d592079071df019cd75d676fa4b1bcba9) )
+	ROM_LOAD( "bi-42-bank1-27c1001.u42",   0x0120000, 0x0020000, CRC(eaef0565) SHA1(4214b05f1df3062eaeea91505b61816725556ed5) )
+	ROM_LOAD( "bi-41-bank1-27c1001.u41",   0x01a0000, 0x0020000, CRC(c4d24254) SHA1(e6ff7624e628dc6ace11a50b6ff89812844b52c5) )
+	ROM_FILL(                              0x0220000, 0x0020000, 0x00 )
+
+	ROM_REGION( 0x0800, REGION_USER2, 0 )
+	ROM_LOAD( "2-st62t15c6", 0x0000, 0x0800, NO_DUMP )
+
+	ROM_REGION( 0x0104, REGION_USER3, 0 )
+	ROM_LOAD( "6.pal16l8.u12", 0x0000, 0x0104, NO_DUMP )
+ROM_END
+
+ROM_START( sltpstep )
+	ROM_REGION( 0x040000, REGION_CPU1, 0 )
+	ROM_LOAD16_BYTE( "st_u_21.u21",   0x000000, 0x010000, CRC(2274f931) SHA1(c7b32bbb46e349769376bfaffe663170873bd083) )
+	ROM_LOAD16_BYTE( "st_u_23.u23",   0x000001, 0x010000, CRC(07c69f55) SHA1(886bef76b2aff046fd1c9a4837f359cb59095125) )
+
+	ROM_REGION( 0x0280000, REGION_GFX1, ROMREGION_ERASEFF )
+	ROM_LOAD( "st_u_40.u40",   0x0000000, 0x0080000, CRC(813270de) SHA1(9a6ce7679bd5c6ecf0c3328d6ff9dc2240a95328) )
+	ROM_LOAD( "st_u_39.u39",   0x0080000, 0x0080000, CRC(1d42e124) SHA1(add866310511f4f406b80ed0d3983b79b80c701c) )
+	ROM_LOAD( "st_u_38.u38",   0x0100000, 0x0080000, CRC(9d0d795c) SHA1(ef7cf61f8c687ecc68678a634f65386cc25d8a8f) )
+	ROM_LOAD( "st_u_37.u37",   0x0180000, 0x0080000, CRC(5543d4d1) SHA1(1f9f358dfb252412468ddd68331bda5acbe99329) )
+	ROM_FILL(                              0x0200000, 0x0080000, 0x00 )
+
+	ROM_REGION( 0x0800, REGION_USER2, 0 )
+	ROM_LOAD( "cpu_6022-1-st62t15b6.ic4", 0x0000, 0x0800, NO_DUMP )
+
+	ROM_REGION( 0x0104, REGION_USER3, 0 )
+	ROM_LOAD( "6.pal16l8.u12", 0x0000, 0x0104, NO_DUMP )
+ROM_END
+
+GAME( 1994, aligator, 0,        alighunt_dallas, alighunt, alighunt, ROT0, "Gaelco", "Alligator Hunt", 0 )
+GAME( 1994, aligatorun, aligator, alighunt, alighunt, alighunt, ROT0, "Gaelco", "Alligator Hunt (unprotected)", 0 )
+GAME( 1995, touchgo,  0,        touchgo_dallas,  touchgo,  touchgo,  ROT0, "Gaelco", "Touch & Go (World)", 0 )
+GAME( 1995, touchgon, touchgo,  touchgo_dallas,  touchgo,  touchgo,  ROT0, "Gaelco", "Touch & Go (Non North America)", 0 )
+GAME( 1995, touchgoe, touchgo,  touchgo_dallas,  touchgo,  touchgo,  ROT0, "Gaelco", "Touch & Go (earlier revision)", 0 )
+GAME( 1995, touchgok, touchgo,  touchgok, touchgo,  touchgo,  ROT0, "Gaelco", "Touch & Go (Korea, unprotected)", 0 )
+GAME( 1995, wrally2,  0,        wrally2_dallas,  wrally2,  0,        ROT0, "Gaelco", "World Rally 2: Twin Racing", 0 )
+GAME( 1996, maniacsq, 0, maniacsq_dallas, maniacsq, 0, ROT0, "Gaelco", "Maniac Square (protected, Version 1.0, Checksum DEEE)", 0 )
+GAME( 1996, maniacsqu, maniacsq,        maniacsq, maniacsq, 0,        ROT0, "Gaelco", "Maniac Square (unprotected)", 0 )
+GAME( 1997, snowboar, 0, snowboar, snowboar, 0,        ROT0, "Gaelco", "Snow Board Championship (Version 2.1)", 0 )
+GAME( 1996, snowboara, snowboar,        snowboar, snowboar, snowboar, ROT0, "Gaelco", "Snow Board Championship (Version 2.0)", 0 )
 GAME( 1998, bang,     0,        bang,     bang,     bang,     ROT0, "Gaelco", "Bang!", 0 )
-GAME( 1998, bangj,    bang,     bang,     bang,     bang,     ROT0, "Gaelco", "Gun Gabacho (Japan)", 0 )
+GAME( 1999, bangj,    bang,     bang,     bang,     bang,     ROT0, "Gaelco", "Gun Gabacho (Japan)", 0 )
+GAME( 1997, sltpcycl, 0, saltcrdi, saltcrdi, 0, ROT0, "Salter Fitness / Gaelco", "Pro Cycle Tele Cardioline (Salter Fitness Bike V.1.0, Checksum 02AB)", 0 )
+GAME( 1997, sltpstep, 0, saltcrdi, saltcrdi, 0, ROT0, "Salter Fitness / Gaelco", "Pro Stepper Tele Cardioline (Salter Fitness Stepper V.1.0, Checksum F208)", 0 )

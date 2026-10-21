@@ -220,34 +220,30 @@ WRITE16_HANDLER( gaelcosnd_w )
 
 	COMBINE_DATA(&gaelco_sndregs[offset]);
 
-	switch(offset & 0x07){
-		case 0x03:
-			/* trigger sound */
-			if ((gaelco_sndregs[offset - 1] != 0) && (data != 0)){
-				if (!channel->active){
-					channel->active = 1;
+	switch (offset & 7)
+	{
+		case 3:
+			if (gaelco_sndregs[offset - 1] && gaelco_sndregs[offset])
+			{
+				channel->loop = 1;
+				if (!channel->active)
 					channel->chunkNum = 0;
-					channel->loop = 0;
-#ifdef LOG_SOUND
-	logerror("(GAE1) Playing sample channel: %02d, type: %02x, bank: %02x, end: %08x, Length: %04x\n", offset >> 3, (gaelco_sndregs[offset - 2] >> 4) & 0x0f, gaelco_sndregs[offset - 2] & 0x03, gaelco_sndregs[offset - 1] << 8, data);
-#endif
-				}
-			} else {
-				channel->active = 0;
+				channel->active = 1;
 			}
-
+			else
+				channel->active = 0;
 			break;
 
-		case 0x07: /* enable/disable looping */
-			if ((gaelco_sndregs[offset - 1] != 0) && (data != 0)){
-#ifdef LOG_SOUND
-	logerror("(GAE1) Looping in channel: %02d, type: %02x, bank: %02x, end: %08x, Length: %04x\n", offset >> 3, (gaelco_sndregs[offset - 2] >> 4) & 0x0f, gaelco_sndregs[offset - 2] & 0x03, gaelco_sndregs[offset - 1] << 8, data);
-#endif
+		case 7:
+			if (gaelco_sndregs[offset - 1] && gaelco_sndregs[offset])
+			{
 				channel->loop = 1;
-			} else {
-				channel->loop = 0;
+				if (!channel->active)
+					channel->chunkNum = 1;
+				channel->active = 1;
 			}
-
+			else
+				channel->loop = 0;
 			break;
 	}
 }

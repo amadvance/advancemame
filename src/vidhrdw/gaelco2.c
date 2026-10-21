@@ -80,6 +80,7 @@ Multi monitor notes:
 
 UINT16 *gaelco2_vregs;
 static UINT16 *gaelco2_videoram;
+static int gaelco2_sprite_xoffset;
 
 /* tilemaps */
 static tilemap *pant[2];
@@ -252,9 +253,6 @@ WRITE16_HANDLER( gaelco2_palette_w )
 
 	/* update shadow/highligh palettes */
 	for (i = 1; i < 16; i++){
-		/* because the last palette entry is reserved for shadows and highlights, we
-        don't use it and that way we save some colors so the UI looks fine ;-) */
-		if ((offset >= 0xff0) && (offset <= 0xfff)) return;
 
 		auxr = ADJUST_COLOR(r + pen_color_adjust[i]);
 		auxg = ADJUST_COLOR(g + pen_color_adjust[i]);
@@ -272,6 +270,7 @@ WRITE16_HANDLER( gaelco2_palette_w )
 
 VIDEO_START( gaelco2 )
 {
+	gaelco2_sprite_xoffset = 0;
 	gaelco2_videoram = spriteram16;
 
 	/* create tilemaps */
@@ -298,6 +297,7 @@ VIDEO_START( gaelco2 )
 
 VIDEO_START( gaelco2_dual )
 {
+	gaelco2_sprite_xoffset = 0;
 	gaelco2_videoram = spriteram16;
 
 	/* create tilemaps */
@@ -321,6 +321,7 @@ VIDEO_START( gaelco2_dual )
 
 VIDEO_START( gaelco2_dual )
 {
+	gaelco2_sprite_xoffset = 0;
 	gaelco2_videoram = spriteram16;
 
 	/* create tilemaps */
@@ -404,7 +405,7 @@ static void gaelco2_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect,
 		int data3 = buffered_spriteram16[(j/2) + 2];
 		int data4 = buffered_spriteram16[(j/2) + 3];
 
-		int sx = data3 & 0x3ff;
+		int sx = (data3 & 0x3ff) + gaelco2_sprite_xoffset;
 		int sy = data2 & 0x1ff;
 
 		int xflip = data2 & 0x800;
@@ -466,7 +467,7 @@ static void gaelco2_draw_sprites(mame_bitmap *bitmap, const rectangle *cliprect,
 								if ((xpos < cliprect->min_x) || (xpos > cliprect->max_x)) continue;
 
 								/* make background color darker or brighter */
-								*pixel = src_color + 4096*gfx_pen;
+								*pixel = (src_color & 0x0fff) | (0x1000 * gfx_pen);
 							}
 						}
 					}
@@ -532,6 +533,31 @@ VIDEO_UPDATE( bang )
 }
 
 
+static int gaelco2_rowscroll_y(int first_screen)
+{
+	const UINT16 base = first_screen ? 0x2000 / 2 : 0x2400 / 2;
+
+	const UINT8 checkoffsets[32] = {
+		0x02, 0x0e, 0x0a, 0x1b, 0x15, 0x13, 0x04, 0x19,
+		0x0c, 0x1f, 0x08, 0x1d, 0x11, 0x06, 0x17, 0x10,
+		0x01, 0x0d, 0x16, 0x09, 0x1a, 0x05, 0x1e, 0x00,
+		0x12, 0x0b, 0x14, 0x03, 0x1c, 0x18, 0x07, 0x0f };
+
+	int i, usescroll = 0;
+	for (i = 31; i >= 0; i--)
+	{
+		const int checkoffset = (0x80 / 2) + ((checkoffsets[i] * 3) + 1);
+
+		if ((gaelco2_videoram[base + checkoffset] & 0x1000))
+		{
+			usescroll = 31 - i;
+		}
+	}
+
+	return usescroll;
+}
+
+
 #ifdef ONE_MONITOR
 
 VIDEO_UPDATE( gaelco2_dual )
@@ -550,17 +576,14 @@ VIDEO_UPDATE( gaelco2_dual )
 	int scroll0y = gaelco2_videoram[0x2800/2] + yoff0;
 	int scroll1y = gaelco2_videoram[0x2804/2] + yoff1;
 
-	// if linescroll is enabled y-scroll handling changes too?
-	// touchgo uses 0x1f0 / 0x1ef between game and intro screens but actual scroll position needs to be different
-	// this aligns the crowd with the advertising boards
 	if (gaelco2_vregs[0] & 0x8000)
 	{
-		scroll0y += 32;
+		scroll0y += gaelco2_rowscroll_y(1);
 	}
 
 	if (gaelco2_vregs[1] & 0x8000)
 	{
-		scroll1y += 32;
+		scroll1y += gaelco2_rowscroll_y(0);
 	}
  
 
@@ -602,17 +625,14 @@ VIDEO_UPDATE( gaelco2_dual )
 	int scroll0y = gaelco2_videoram[0x2800/2] + yoff0;
 	int scroll1y = gaelco2_videoram[0x2804/2] + yoff1;
 
-	// if linescroll is enabled y-scroll handling changes too?
-	// touchgo uses 0x1f0 / 0x1ef between game and intro screens but actual scroll position needs to be different
-	// this aligns the crowd with the advertising boards
 	if (gaelco2_vregs[0] & 0x8000)
 	{
-		scroll0y += 32;
+		scroll0y += gaelco2_rowscroll_y(1);
 	}
 
 	if (gaelco2_vregs[1] & 0x8000)
 	{
-		scroll1y += 32;
+		scroll1y += gaelco2_rowscroll_y(0);
 	}
  
 
@@ -656,4 +676,11 @@ VIDEO_EOF( gaelco2 )
 {
 	/* sprites are one frame ahead */
 	buffer_spriteram16_w(0, 0, 0);
+}
+
+VIDEO_START( saltcrdi )
+{
+	int result = video_start_gaelco2();
+	gaelco2_sprite_xoffset = 1;
+	return result;
 }
