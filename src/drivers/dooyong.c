@@ -40,9 +40,6 @@ Pop Bingo
 - appears to combine 2 4bpp layers to make 1 8bpp layer, for now we just
   treat it as 1 8bpp layer and ignore the 2nd set of registers.
 - some unknown reads / writes
-Flying Tiger
-- sprite/fg priority is not understood
-- layer2 palette bank
 
 ***************************************************************************/
 
@@ -61,6 +58,9 @@ WRITE8_HANDLER( lastday_ctrl_w );
 WRITE8_HANDLER( pollux_ctrl_w );
 WRITE8_HANDLER( primella_ctrl_w );
 WRITE8_HANDLER( flytiger_ctrl_w );
+READ8_HANDLER( flytiger_paletteram_r );
+WRITE8_HANDLER( flytiger_paletteram_w );
+MACHINE_RESET( flytiger );
 WRITE16_HANDLER( rshark_ctrl_w );
 VIDEO_UPDATE( lastday );
 VIDEO_UPDATE( gulfstrm );
@@ -193,7 +193,7 @@ static ADDRESS_MAP_START( flytiger_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xe004, 0xe004) AM_READ(input_port_4_r)
 	AM_RANGE(0xe006, 0xe006) AM_READ(input_port_0_r)
 	AM_RANGE(0xe008, 0xe008) AM_READ(input_port_1_r)
-	AM_RANGE(0xe800, 0xefff) AM_READ(MRA8_RAM)
+	AM_RANGE(0xe800, 0xefff) AM_READ(flytiger_paletteram_r)
 	AM_RANGE(0xf000, 0xf7ff) AM_READ(MRA8_RAM)
 	AM_RANGE(0xf800, 0xffff) AM_READ(MRA8_RAM)
 ADDRESS_MAP_END
@@ -207,7 +207,7 @@ static ADDRESS_MAP_START( flytiger_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xe020, 0xe020) AM_WRITE(soundlatch_w)
 	AM_RANGE(0xe030, 0xe036) AM_WRITE(MWA8_RAM) AM_BASE(&lastday_bgscroll)
 	AM_RANGE(0xe040, 0xe046) AM_WRITE(MWA8_RAM) AM_BASE(&lastday_fgscroll)
-	AM_RANGE(0xe800, 0xefff) AM_WRITE(paletteram_xRRRRRGGGGGBBBBB_le_w) AM_BASE(&paletteram)
+	AM_RANGE(0xe800, 0xefff) AM_WRITE(flytiger_paletteram_w)
 	AM_RANGE(0xf000, 0xffff) AM_WRITE(MWA8_RAM) AM_BASE(&lastday_txvideoram)
 ADDRESS_MAP_END
 
@@ -628,7 +628,7 @@ INPUT_PORTS_START( flytiger )
 	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_START2 )
 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_SERVICE1 )
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_UNKNOWN )
-	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_VBLANK )
 	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN )
 INPUT_PORTS_END
 
@@ -1044,6 +1044,8 @@ static MACHINE_DRIVER_START( flytiger )
 	MDRV_CPU_ADD(Z80, 4000000)
 	/* audio CPU */	/* ??? */
 	MDRV_CPU_PROGRAM_MAP(bluehawk_sound_readmem,bluehawk_sound_writemem)
+
+	MDRV_MACHINE_RESET(flytiger)
 
 	MDRV_FRAMES_PER_SECOND(60)
 	MDRV_VBLANK_DURATION(DEFAULT_60HZ_VBLANK_DURATION)
@@ -1924,7 +1926,7 @@ GAME( 1991, gulfstr2, gulfstrm, gulfstrm, gulfstrm, 0, ROT270, "Dooyong (Media S
 GAME( 1991, pollux,   0,        pollux,   pollux,   0, ROT270, "Dooyong", "Pollux (set 1)", GAME_IMPERFECT_SOUND )
 GAME( 1991, polluxa,  pollux,   pollux,   pollux,   0, ROT270, "Dooyong", "Pollux (set 2)", GAME_IMPERFECT_SOUND )
 GAME( 1991, polluxa2, pollux,   pollux,   pollux,   0, ROT270, "Dooyong", "Pollux (set 3)", GAME_IMPERFECT_SOUND ) /* Original Dooyong Board distributed by TCH */
-GAME( 1992, flytiger, 0,        flytiger, flytiger, 0, ROT270, "Dooyong", "Flying Tiger", GAME_IMPERFECT_GRAPHICS | GAME_WRONG_COLORS )
+GAME( 1992, flytiger, 0,        flytiger, flytiger, 0, ROT270, "Dooyong", "Flying Tiger (set 1)", 0 )
 GAME( 1993, bluehawk, 0,        bluehawk, bluehawk, 0, ROT270, "Dooyong", "Blue Hawk", GAME_IMPERFECT_GRAPHICS )
 GAME( 1993, bluehawn, bluehawk, bluehawk, bluehawk, 0, ROT270, "[Dooyong] (NTC license)", "Blue Hawk (NTC)", GAME_IMPERFECT_GRAPHICS )
 GAME( 1993, sadari,   0,        primella, primella, 0, ROT0,   "[Dooyong] (NTC license)", "Sadari", 0 )

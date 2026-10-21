@@ -8,6 +8,8 @@ UINT16 *rshark_scroll1,*rshark_scroll2,*rshark_scroll3,*rshark_scroll4;
 UINT16 *popbingo_scroll, *popbingo_scroll2;
 static int tx_pri;
 static int flytiger_pri;
+static UINT8 flytiger_palette_bank;
+static UINT8 flytiger_palette_ram[0x1000];
 static int sprites_disabled;
 
 
@@ -62,12 +64,43 @@ WRITE8_HANDLER( primella_ctrl_w )
 //  logerror("%04x: bankswitch = %02x\n",activecpu_get_pc(),data&0xe0);
 }
 
+static void flytiger_set_color(int offset)
+{
+	int bank_offset = offset + (flytiger_palette_bank ? 0x800 : 0);
+	UINT16 value = flytiger_palette_ram[bank_offset] | (flytiger_palette_ram[bank_offset + 1] << 8);
+	palette_set_color(offset / 2, pal5bit(value >> 10), pal5bit(value >> 5), pal5bit(value));
+}
+
+MACHINE_RESET( flytiger )
+{
+	flytiger_palette_bank = 0;
+	flytiger_pri = 0;
+	memset(flytiger_palette_ram, 0, sizeof(flytiger_palette_ram));
+}
+
+READ8_HANDLER( flytiger_paletteram_r )
+{
+	return flytiger_palette_ram[offset + (flytiger_palette_bank ? 0x800 : 0)];
+}
+
+WRITE8_HANDLER( flytiger_paletteram_w )
+{
+	flytiger_palette_ram[offset + (flytiger_palette_bank ? 0x800 : 0)] = data;
+	flytiger_set_color(offset & ~1);
+}
+
 WRITE8_HANDLER( flytiger_ctrl_w )
 {
 	/* bit 0 is flip screen */
 	flip_screen_set(data & 0x01);
 
-	/* bits 1, 2, 3 used but unknown */
+	if (flytiger_palette_bank != (data & 0x08))
+	{
+		int i;
+		flytiger_palette_bank = data & 0x08;
+		for (i = 0; i < 0x800; i += 2)
+			flytiger_set_color(i);
+	}
 
 	/* bit 4 changes tilemaps priority */
 	flytiger_pri = data & 0x10;
@@ -337,7 +370,7 @@ static void flytiger_draw_layer2(mame_bitmap *bitmap,int gfx,const unsigned char
 
 		attr = tilemap[toffs];
 		code = tilemap[toffs+1] | ((attr & 0x01) << 8) | ((attr & 0x80) << 2),
-		color = (attr & 0x78) >> 3; //TODO: missing 4th bit or palette bank
+		color = (attr & 0x78) >> 3;
 		sx = 32 * ((offs/2) / 8) - (scrollx & 0x1f);
 		sy = (32 * ((offs/2) % 8) - scrolly) & 0xff;
 
