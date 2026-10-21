@@ -66,6 +66,8 @@
 #include "debugger.h"
 #include "i8051.h"
 
+/* Updated UART context, callback configuration, timer modes and interrupt masks. */
+
 #define VERBOSE 1
 
 #if VERBOSE
@@ -154,6 +156,8 @@ typedef struct {
 	UINT8	acc;			//Accumulator
 	UINT8	b;				//Register B
 
+	I8051_UART serial;
+
 	//Internal Ram
 	UINT8	IntRam[0xff+1];	//Max 256 Bytes of Internal RAM (8031/51 have 128, 8032/52 have 256)
 
@@ -176,7 +180,7 @@ typedef struct {
 int i8051_icount;
 
 static I8051 i8051;
-static I8051_UART uart;
+#define uart i8051.serial
 
 /* Layout of the registers in the debugger (-1 = end of a line, 0 = end of layout) */
 static UINT8 i8051_reg_layout[] = {
@@ -498,6 +502,11 @@ void i8051_init(int index, int clock, const void *config, int (*irqcallback)(int
 	i8051_set_irq_callback(irqcallback);
 
 	//Internal stuff
+	state_save_register_item("i8051", index, uart.timerbaud);
+	state_save_register_item("i8051", index, uart.sending);
+	state_save_register_item("i8051", index, uart.data_out);
+	state_save_register_item("i8051", index, uart.bits_to_send);
+	state_save_register_item("i8051", index, uart.bitcycles);
 	state_save_register_item("i8051", index, i8051.ppc);
 	state_save_register_item("i8051", index, i8051.pc);
 	state_save_register_item("i8051", index, i8051.subtype);
@@ -1477,7 +1486,13 @@ INLINE UINT8 check_interrupts(void)
 	if(!GET_EA)	return 0;
 
 	//Any Interrupts Pending?
-	if(NO_PENDING_IRQ) return 0;
+	if (!((GET_EX0 && GET_IE0) || (GET_ET0 && GET_TF0)
+		|| (GET_EX1 && GET_IE1) || (GET_ET1 && GET_TF1)
+		|| (GET_ES && (GET_TI || GET_RI))
+#if (HAS_I8052 || HAS_I8752)
+		|| (GET_ET2 && (GET_TF2 || GET_EXF2))
+#endif
+		)) return 0;
 
 	//Skip if current irq in progress is high priority!
 	if(i8051.irq_priority)	{ /* LOG(("high priority irq in progress, skipping irq request\n")); */ return 0; }
@@ -1486,25 +1501,25 @@ INLINE UINT8 check_interrupts(void)
 	//NOTE: The order of checking is based on the internal/default priority levels when levels are the same
 
 	//External Int 0
-	if(GET_IE0) {
+	if(GET_EX0 && GET_IE0) {
 		//Set vector & priority level request
 		i8051.int_vec = V_IE0;
 		i8051.priority_request = GET_PX0;
 	}
 	//Timer 0 overflow
-	if(!i8051.priority_request && GET_TF0 && (!i8051.int_vec || (i8051.int_vec && GET_PT0))) {
+	if(!i8051.priority_request && GET_ET0 && GET_TF0 && (!i8051.int_vec || (i8051.int_vec && GET_PT0))) {
 		//Set vector & priority level request
 		i8051.int_vec = V_TF0;
 		i8051.priority_request = GET_PT0;
 	}
 	//External Int 1
-	if(!i8051.priority_request && GET_IE1 && (!i8051.int_vec || (i8051.int_vec && GET_PX1))) {
+	if(!i8051.priority_request && GET_EX1 && GET_IE1 && (!i8051.int_vec || (i8051.int_vec && GET_PX1))) {
 		//Set vector & priority level request
 		i8051.int_vec = V_IE1;
 		i8051.priority_request = GET_PX1;
 	}
 	//Timer 1 overflow
-	if(!i8051.priority_request && GET_TF1 && (!i8051.int_vec || (i8051.int_vec && GET_PT1))) {
+	if(!i8051.priority_request && GET_ET1 && GET_TF1 && (!i8051.int_vec || (i8051.int_vec && GET_PT1))) {
 		//Set vector & priority level request
 		i8051.int_vec = V_TF1;
 		i8051.priority_request = GET_PT1;
@@ -1517,7 +1532,7 @@ INLINE UINT8 check_interrupts(void)
 	}
 #if (HAS_I8052 || HAS_I8752)
 	//Timer 2 overflow (Either Timer Overflow OR External Interrupt)
-	if(!i8051.priority_request && (GET_TF2 || GET_EXF2) && (!i8051.int_vec || (i8051.int_vec && GET_PT2))) {
+	if(!i8051.priority_request && GET_ET2 && (GET_TF2 || GET_EXF2) && (!i8051.int_vec || (i8051.int_vec && GET_PT2))) {
 		//Set vector & priority level request
 		i8051.int_vec = V_TF2;
 		i8051.priority_request = GET_PT2;
@@ -1583,18 +1598,27 @@ void i8051_set_irq_callback(int (*callback)(int irqline))
 void i8051_set_serial_tx_callback(void (*callback)(int data))
 {
 	//Hold in static variable since this function can get called before reset has run, which wipes i8051 memory clean
-	hold_serial_tx_callback = callback;
+	if (cpu_getactivecpu() >= 0)
+		i8051.serial_tx_callback = callback;
+	else
+		hold_serial_tx_callback = callback;
 }
 void i8051_set_serial_rx_callback(int (*callback)(void))
 {
 	//Hold in static variable since this function can get called before reset has run, which wipes i8051 memory clean
-	hold_serial_rx_callback = callback;
+	if (cpu_getactivecpu() >= 0)
+		i8051.serial_rx_callback = callback;
+	else
+		hold_serial_rx_callback = callback;
 }
 
 void i8051_set_eram_iaddr_callback(READ32_HANDLER((*callback)))
 {
 	//Hold in static variable since this function can get called before reset has run, which wipes i8051 memory clean
-	hold_eram_iaddr_callback = callback;
+	if (cpu_getactivecpu() >= 0)
+		i8051.eram_iaddr_callback = callback;
+	else
+		hold_eram_iaddr_callback = callback;
 }
 
 
@@ -1812,11 +1836,8 @@ static WRITE8_HANDLER(internal_ram_iwrite)
 */
 static READ32_HANDLER(external_ram_iaddr)
 {
-/*  if(i8051.eram_iaddr_callback)
-        return i8051.eram_iaddr_callback(offset,mem_mask);
-    else
-        LOG(("i8051 #%d: external ram address requested (8 bit offset=%02x), but no callback available! at PC:%04x\n", cpu_getactivecpu(), offset, PC));
-*/
+	if (i8051.eram_iaddr_callback)
+		return i8051.eram_iaddr_callback(offset, mem_mask);
 	return offset;
 }
 
@@ -1980,6 +2001,23 @@ INLINE void do_sub_flags(UINT8 a, UINT8 data, UINT8 c)
 #endif
 }
 
+static void timer1_serial_clock(void)
+{
+	int divider = (R_PCON & 0x80) ? 16 : 32;
+#if (HAS_I8052 || HAS_I8752)
+	if (GET_TCLK)
+		return;
+#endif
+	if (uart.sending && uart.timerbaud && uart.bits_to_send)
+	{
+		if (++uart.bitcycles >= divider)
+		{
+			uart.bitcycles = 0;
+			--uart.bits_to_send;
+		}
+	}
+}
+
 INLINE void update_timer(int cyc)
 {
 	//This code sucks, needs to be rewritten SJE
@@ -1991,7 +2029,7 @@ INLINE void update_timer(int cyc)
 	//Update Timer 0
 	if(GET_TR0) {
 		//Determine Mode
-		int mode = GET_M0_0 + GET_M0_1;
+		int mode = GET_M0_0 + 2 * GET_M0_1;
 		int overflow;
 		UINT16 count = 0;
 		switch(mode) {
@@ -2051,7 +2089,7 @@ INLINE void update_timer(int cyc)
 	//Update Timer 1
 	if(GET_TR1) {
 		//Determine Mode
-		int mode = GET_M1_0 + GET_M1_1;
+		int mode = GET_M1_0 + 2 * GET_M1_1;
 		int overflow;
 		UINT16 count = 0;
 		switch(mode) {
@@ -2065,7 +2103,7 @@ INLINE void update_timer(int cyc)
 				//Check for overflow
 				if((UINT32)(count+(cyc/12))>overflow) {
 
-					//TODO: Timer 1 can be set as Serial Baud Rate in the 8051 only... process bits here..
+					timer1_serial_clock();
 
 					//Any overflow from cycles?
 					cyc-= (overflow-count)*12;
@@ -2092,19 +2130,15 @@ INLINE void update_timer(int cyc)
 				R_TH1 = (count>>8) & 0xff;
 				R_TL1 = count & 0xff;
 				break;
-			case 2:			//8 Bit Autoreload
-				overflow = 0xff;
-				count = R_TL1;
-				//Check for overflow
-				if(count+(cyc/12)>overflow) {
-                    SET_TF1(1);
-					//Reload
-					count = R_TH1+(overflow-count);
+			case 2:
+				count = R_TL1 + cyc / 12;
+				while (count > 0xff)
+				{
+					SET_TF1(1);
+					timer1_serial_clock();
+					count = R_TH1 + count - 0x100;
 				}
-				else
-					count+=(cyc/12);
-				//Update new values of the counter
-				R_TL1 = count & 0xff;
+				R_TL1 = count;
 				break;
 			case 3:			//Split Timer
 				break;
@@ -2166,7 +2200,7 @@ INLINE void update_timer(int cyc)
 //NOTE: Enable Serial Port Interrupt bit is NOT required to send/receive data!
 INLINE void serial_transmit(UINT8 data)
 {
-	int mode = GET_SM0+GET_SM1;
+	int mode = 2 * GET_SM0 + GET_SM1;
 
 	//Flag that we're sending data
 	uart.sending = 1;
@@ -2181,6 +2215,7 @@ INLINE void serial_transmit(UINT8 data)
 		//8 bit uart ( + start,stop bit ) - baud set by timer1 or timer2
 		case 1:
 			uart.timerbaud = 1;
+			uart.bitcycles = 0;
 			uart.bits_to_send = 8+2;
 			break;
 		//9 bit uart

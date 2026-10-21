@@ -3823,7 +3823,7 @@ static void hyperstone_set(void)
 				val =  (SP & 0xfffffe00) | (GET_FP << 2);
 
 				//plus carry into bit 9
-				val += (( (SP & 0x100) && (SIGN_BIT(SR) == 0) ) ? 1 : 0);
+				val += (( (SP & 0x100) && (SIGN_BIT(SR) == 0) ) ? 0x200 : 0);
 
 				SET_DREG(val);
 

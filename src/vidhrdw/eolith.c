@@ -1,8 +1,10 @@
 #include "driver.h"
+#include "includes/eolith.h"
 
 int eolith_buffer = 0;
 static mame_bitmap *bitmaps[2];
 static UINT32 *eo_vram;
+static int pen2_visible, last_pen2_x, last_pen2_y;
 
 static void plot_pixel_rgb(int x, int y, int color)
 {
@@ -62,17 +64,44 @@ READ32_HANDLER( eolith_vram_r )
 
 VIDEO_START( eolith )
 {
+	pen2_visible = 0;
+	last_pen2_x = 80;
+	last_pen2_y = 60;
 	eo_vram = auto_malloc(0x40000*2);
+	memset(eo_vram, 0, 0x40000*2);
 	bitmaps[0] = auto_bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height);
 	bitmaps[1] = auto_bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height);
 
 	if(!bitmaps[0] || !bitmaps[1])
 		return 1;
 
+	fillbitmap(bitmaps[0], 0, NULL);
+	fillbitmap(bitmaps[1], 0, NULL);
 	return 0;
 }
 
 VIDEO_UPDATE( eolith )
 {
 	copybitmap(bitmap,bitmaps[eolith_buffer ^ 1],0,0,0,0,cliprect,TRANSPARENCY_NONE, 0);
+}
+
+VIDEO_UPDATE( hidctch3 )
+{
+	int x, y;
+	int pen2_x = readinputport(4);
+	int pen2_y = readinputport(5);
+
+	video_update_eolith(screen, bitmap, cliprect);
+	hidctch3_pen_position(0, &x, &y);
+	draw_crosshair(bitmap, x, y, cliprect, 0);
+	if (pen2_x != last_pen2_x || pen2_y != last_pen2_y
+		|| (readinputport(0) & 0xff000000) != 0xff000000)
+		pen2_visible = 1;
+	last_pen2_x = pen2_x;
+	last_pen2_y = pen2_y;
+	if (pen2_visible)
+	{
+		hidctch3_pen_position(1, &x, &y);
+		draw_crosshair(bitmap, x, y, cliprect, 1);
+	}
 }

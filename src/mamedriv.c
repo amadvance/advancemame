@@ -7258,6 +7258,13 @@ Other Sun games
 	DRIVER( suplup )	/* (c) 1999 Omega System */
 	DRIVER( vamphalf )	/* (c) 1999 DanBi & F2 System */
 	DRIVER( misncrft )	/* (c) 2000 Sun */
+	DRIVER( candy )
+	DRIVER( hidctch3 )
+	DRIVER( hidnc2k )
+	DRIVER( ironfort )
+	DRIVER( linkypip )
+	DRIVER( penfan )
+	DRIVER( stealsee )
 	DRIVER( hidnctch )	/* (c) 1998 Eolith */
 	DRIVER( puzzlekg )	/* (c) 1998 Eolith */
 	DRIVER( hidctch2 )	/* (c) 1999 Eolith */
