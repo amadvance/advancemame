@@ -592,11 +592,11 @@ static void HandleMemSingle( UINT32 insn )
 		/* Pre-indexed addressing */
 		if (insn & INSN_SDT_U)
 		{
-			rnv = (GetRegister(rn) + off);
+			rnv = ((rn == eR15 ? R15 & ADDRESS_MASK : GetRegister(rn)) + off);
 		}
 		else
 		{
-			rnv = (GetRegister(rn) - off);
+			rnv = ((rn == eR15 ? R15 & ADDRESS_MASK : GetRegister(rn)) - off);
 		}
 
 		if (insn & INSN_SDT_W)
@@ -607,7 +607,7 @@ static void HandleMemSingle( UINT32 insn )
 		}
 		else if (rn == eR15)
 		{
-			rnv = (rnv & ADDRESS_MASK) + 8;
+			rnv += 8;
 		}
 	}
 	else
@@ -887,36 +887,12 @@ static void HandleALU( UINT32 insn )
 				SetRegister(rdn,rd);
 			}
 		}
-	/* TST & TEQ can affect R15 (the condition code register) with the S bit set */
-	} else if (rdn==eR15) {
-		if (insn & INSN_S) {
-			if (ARM_DEBUG_CORE)
-				logerror("%08x: TST class on R15 s bit set\n",R15);
-
-			/* Dubious hack for 'TEQS R15, #$3', the docs suggest execution
-                should continue two instructions later (because pipelined R15
-                is read back as already being incremented), but it seems the
-                hardware should execute the instruction in the delay slot.
-                Simulate it by just setting the PC back to the previously
-                skipped instruction.
-
-                See Heavy Smash (Data East) at 0x1c4
-            */
-			if (insn==0xe33ff003)
-				rd-=4;
-
-			if ((R15&MODE_MASK)!=0)
-			{
-				SetRegister(15, rd);
-			}
-			else
-			{
-				SetRegister(15, (rd&ADDRESS_MASK) | (rd&PSR_MASK) | (R15&IRQ_MASK) | (R15&MODE_MASK));
-			}
-		} else {
-			if (ARM_DEBUG_CORE)
-				logerror("%08x: TST class on R15 no s bit set\n",R15);
-		}
+	} else if (rdn == eR15 && (insn & INSN_S)) {
+		rd = (rd & ~ADDRESS_MASK) | (R15 & ADDRESS_MASK);
+		if ((R15 & MODE_MASK) != 0)
+			SetRegister(rdn, rd);
+		else
+			SetRegister(rdn, (rd & (ADDRESS_MASK | PSR_MASK)) | (R15 & (IRQ_MASK | MODE_MASK)));
 	}
 }
 

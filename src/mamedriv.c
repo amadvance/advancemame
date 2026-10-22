@@ -6006,7 +6006,7 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( heatbrlu )	/* (c) 1992 Tad (US) */
 	DRIVER( godzilla )	/* (c) 1993 Banpresto */
 	DRIVER( denjinmk )	/* (c) 199? Banpresto */
-	DRIVER( sdgndmrb )	/* (c) 1993 Banpresto */
+	DRIVER( grainbow )	/* (c) 1993 Banpresto */
 	DRIVER( cupsoc )	/* (c) 1992 Seibu */
 	DRIVER( cupsoc2 )	/* (c) 1992 Seibu */
 	DRIVER( olysoc92 )	/* (c) 1992 Seibu */
@@ -7348,8 +7348,8 @@ Other Sun games
 	DRIVER( hotblock )	/* (c) 1993 Nics? / Nix? */
 	DRIVER( pntnpuzl )	/* Century? */
 	DRIVER( trucocl )	/* (c) 1991 Miky SRL */
-	DRIVER( ertictac )	/* (c) 1992 Sisteme */
-	DRIVER( poizone )   /* (c) 1990 Sisteme */
+	DRIVER( ertictac )	/* (c) 1990 Sisteme */
+	DRIVER( poizone )	/* (c) 1991 Eterna */
 	DRIVER( ssfindo )	/* (c) 1999 Icarus */
 	DRIVER( ppcar )		/* (c) 1999 Icarus */
 	DRIVER( monzagp )	/* (c) 1981 Leante Games */
