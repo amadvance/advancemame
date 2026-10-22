@@ -49,6 +49,9 @@ protected:
 	tristate_t exclude_duplicate_effective;
 	tristate_t exclude_duplicate_orig;
 
+	tristate_t exclude_clip_effective;
+	tristate_t exclude_clip_orig;
+
 	std::string attrib_compile(const std::string& value0, const std::string& value1);
 
 	std::string name;
