@@ -311,6 +311,10 @@ void pgm_pstar_decrypt(void);
 void pgm_puzzli2_decrypt(void);
 void pgm_ddp2_decrypt(void);
 void pgm_py2k2_decrypt(void);
+void pgm_ket_decrypt(void);
+void pgm_espgal_decrypt(void);
+static MACHINE_RESET( pgm_cave );
+static NVRAM_HANDLER( pgm_cave );
 
 READ16_HANDLER( pgm_asic3_r );
 WRITE16_HANDLER( pgm_asic3_w );
@@ -892,10 +896,8 @@ static ADDRESS_MAP_START( ddp2_mem, ADDRESS_SPACE_PROGRAM, 16)
 	AM_RANGE(0xd10000, 0xd10001) AM_READWRITE(ddp2_arm7_latch_68k_r, ddp2_arm7_latch_68k_w) /* ARM7 Latch */
 ADDRESS_MAP_END
 
-static ADDRESS_MAP_START( cavepgm_mem, ADDRESS_SPACE_PROGRAM, 16)
-	AM_RANGE(0x000000, 0x07ffff) AM_ROM   /* larger BIOS ROM */
-	AM_RANGE(0xfffffe, 0xffffff) AM_ROMBANK(1) /* Game ROM (unmapped for now, might not even have it) */
-	AM_RANGE(0x400000, 0x4fffff) AM_RAM AM_BASE(&olds_sharedprotram) // Shared with protection device
+static ADDRESS_MAP_START( pgm_cave_mem, ADDRESS_SPACE_PROGRAM, 16)
+	AM_RANGE(0x000000, 0x3fffff) AM_ROM
 
 	AM_RANGE(0x700006, 0x700007) AM_WRITENOP // Watchdog?
 
@@ -1044,6 +1046,45 @@ static INPUT_PORTS_START( pgm )
 //  PORT_DIPSETTING(      0x0001, DEF_STR( World ) ) // again?
 	PORT_DIPSETTING(      0x0002, "Korea" )
 	PORT_DIPSETTING(      0x0003, "China" )
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( espgal )
+	PORT_INCLUDE(pgm)
+	PORT_MODIFY("P3P4")
+	PORT_BIT( 0xffff, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_MODIFY("Service")
+	PORT_BIT( 0x0010, IP_ACTIVE_LOW, IPT_SERVICE2 ) PORT_NAME("Test")
+	PORT_BIT( 0x0020, IP_ACTIVE_LOW, IPT_SERVICE1 ) PORT_NAME("Service")
+	PORT_BIT( 0x0ccc, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_MODIFY("DSW")
+	PORT_SERVICE( 0x0001, IP_ACTIVE_LOW )
+	PORT_DIPNAME( 0x0002, 0x0002, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x0002, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0004, 0x0004, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x0004, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0008, 0x0008, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x0008, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0010, 0x0010, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x0010, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0020, 0x0020, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x0020, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0040, 0x0040, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x0040, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x0000, DEF_STR( On ) )
+	PORT_DIPNAME( 0x0080, 0x0080, DEF_STR( Unknown ) )
+	PORT_DIPSETTING( 0x0080, DEF_STR( Off ) )
+	PORT_DIPSETTING( 0x0000, DEF_STR( On ) )
+INPUT_PORTS_END
+
+static INPUT_PORTS_START( ddp3 )
+	PORT_INCLUDE(espgal)
+	PORT_MODIFY("Service")
+	PORT_BIT( 0x0300, IP_ACTIVE_LOW, IPT_UNUSED )
 INPUT_PORTS_END
 
 static INPUT_PORTS_START( dw3 )
@@ -1679,8 +1720,7 @@ static const gfx_decode gfxdecodeinfo[] =
 
 /*** Machine Driver **********************************************************/
 
-/* only dragon world 2 NEEDs irq4, Puzzli 2 explicitly doesn't want it, what
-   is the source? maybe the protection device? */
+/* IRQ4 handles input polling on some boards; Puzzli 2 requires it disabled. */
 static INTERRUPT_GEN( drgw_interrupt ) {
 	if( cpu_getiloops() == 0 )
 		cpunum_set_input_line(0, 6, HOLD_LINE);
@@ -1706,7 +1746,7 @@ static MACHINE_DRIVER_START( pgm )
 	/* audio CPU */
 
 	MDRV_SPEAKER_STANDARD_MONO("mono")
-	MDRV_SOUND_ADD(ICS2115, 0)
+	MDRV_SOUND_ADD_TAG("ics", ICS2115, 0)
 	MDRV_SOUND_CONFIG(pgm_ics2115_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 5.0)
 
@@ -1803,15 +1843,17 @@ static MACHINE_DRIVER_START( ddp2 )
 
 MACHINE_DRIVER_END
 
-static MACHINE_DRIVER_START( cavepgm )
+static MACHINE_DRIVER_START( pgm_cave )
 	MDRV_IMPORT_FROM(pgm)
-
 	MDRV_CPU_MODIFY("main")
-	MDRV_CPU_PROGRAM_MAP(cavepgm_mem,0)
-
-	/* protection CPU */
-//  MDRV_CPU_ADD_TAG("prot", ARM7, 20000000)    // ???
-//  MDRV_CPU_PROGRAM_MAP(arm7_map, 0)
+	MDRV_CPU_PROGRAM_MAP(pgm_cave_mem, 0)
+	MDRV_CPU_VBLANK_INT(drgw_interrupt, 2)
+	MDRV_CPU_REPLACE("sound", Z80, 8467200)
+	MDRV_MACHINE_RESET(pgm_cave)
+	MDRV_NVRAM_HANDLER(pgm_cave)
+	MDRV_FRAMES_PER_SECOND(59.17)
+	MDRV_SOUND_MODIFY("ics")
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 3.0)
 MACHINE_DRIVER_END
 
 static MACHINE_RESET( pgm_protected )
@@ -6569,6 +6611,294 @@ ROM_START( kovytzy )
 	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
 ROM_END
 
+static UINT16 cave_asic_value, cave_asic_key;
+static UINT32 cave_asic_response, cave_asic_slots[256];
+static UINT8 cave_asic_slot;
+
+static MACHINE_RESET( pgm_cave )
+{
+	machine_reset_pgm();
+	cave_asic_value = cave_asic_key = cave_asic_slot = 0;
+	cave_asic_response = 0;
+	memset(cave_asic_slots, 0, sizeof(cave_asic_slots));
+}
+
+static NVRAM_HANDLER( pgm_cave )
+{
+	if (read_or_write)
+		mame_fwrite(file, pgm_mainram, 0x20000);
+	else if (file)
+		mame_fread(file, pgm_mainram, 0x20000);
+	else
+		memset(pgm_mainram, 0, 0x20000);
+}
+
+static READ16_HANDLER( cave_asic_r )
+{
+	UINT16 key = cave_asic_key | (cave_asic_key >> 8);
+	return (cave_asic_response >> (offset * 16)) ^ key;
+}
+
+static WRITE16_HANDLER( cave_asic_w )
+{
+	UINT16 key, command;
+	if (!offset)
+	{
+		COMBINE_DATA(&cave_asic_value);
+		return;
+	}
+	if (offset != 1)
+		return;
+	if ((data >> 8) == 0xff)
+		cave_asic_key = 0xff00;
+	key = cave_asic_key | (cave_asic_key >> 8);
+	cave_asic_key = (cave_asic_key + 0x100) & 0xff00;
+	if (cave_asic_key == 0xff00)
+		cave_asic_key = 0x100;
+	command = (data ^ key) & 0xff;
+	cave_asic_value ^= key;
+	cave_asic_response = 0x880000;
+	switch (command)
+	{
+		case 0x40:
+			cave_asic_slots[(cave_asic_value >> 10) & 31] =
+				(cave_asic_slots[(cave_asic_value >> 5) & 31] +
+				cave_asic_slots[cave_asic_value & 31]) & 0xffffff;
+			break;
+		case 0x67:
+			cave_asic_slot = cave_asic_value >> 8;
+			cave_asic_slots[cave_asic_slot] = (cave_asic_value & 0xff) << 16;
+			break;
+		case 0xe5:
+			cave_asic_slots[cave_asic_slot] |= cave_asic_value;
+			break;
+		case 0x8e:
+			cave_asic_response = cave_asic_slots[cave_asic_value & 0xff];
+			break;
+		case 0x99:
+			cave_asic_key = 0x100;
+			break;
+	}
+}
+
+static void pgm_cave_init(offs_t address)
+{
+	expand_32x32x5bpp();
+	expand_colourdata();
+	memory_install_read16_handler(0, ADDRESS_SPACE_PROGRAM, address, address + 3, 0, 0, cave_asic_r);
+	memory_install_write16_handler(0, ADDRESS_SPACE_PROGRAM, address, address + 5, 0, 0, cave_asic_w);
+}
+
+static DRIVER_INIT( ddp3 )
+{
+	pgm_cave_init(0x500000);
+	pgm_py2k2_decrypt();
+}
+
+static DRIVER_INIT( ddp3blk )
+{
+	UINT16 *rom = (UINT16 *)memory_region(REGION_CPU1);
+	init_ddp3();
+	rom[0x13c33a / 2] = 0x4e71;
+	rom[0x13c33c / 2] = 0x4e71;
+	rom[0x13c348 / 2] = 0x4e71;
+	rom[0x13c34a / 2] = 0x4e71;
+}
+
+static DRIVER_INIT( ket )
+{
+	pgm_cave_init(0x400000);
+	pgm_ket_decrypt();
+}
+
+static DRIVER_INIT( espgal )
+{
+	pgm_cave_init(0x400000);
+	pgm_espgal_decrypt();
+}
+
+
+ROM_START( ddp3 )
+	ROM_REGION( 0x600000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ddp3_bios.u37",    0x00000, 0x080000, CRC(b3cc5c8f) SHA1(02d9511cf71e4a0d6ca8fd9a1ef2c79b0d001824) )
+	ROM_LOAD16_WORD_SWAP( "ddp3_v101_16m.u36",  0x100000, 0x200000, CRC(fba2180e) SHA1(59c1a76243e587c07215c8a76649401ef0bff7c7) )
+	ROM_REGION32_LE( 0x400000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) )
+	ROM_LOAD( "cave_t04401w064.u19",0x400000, 0x800000, CRC(3a95f19c) SHA1(fd3c47cf0b8b1e20c6bec4be68a089fc8bbf4dbe) )
+	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_REGION( 0x1c00000, REGION_GFX3, 0 )
+	ROM_LOAD( "cave_a04401w064.u7",  0x0000000, 0x0800000, CRC(ed229794) SHA1(1cf1863495a18c7c7d277a9be43ec116b00960b0) )
+	ROM_LOAD( "cave_a04402w064.u8",  0x0800000, 0x0800000, CRC(752167b0) SHA1(c33c3398dd8e479c9d5bd348924958a6aecbf0fc) )
+	ROM_REGION( 0x1000000, REGION_GFX4, 0 )
+	ROM_LOAD( "cave_b04401w064.u1",  0x0000000, 0x0800000, CRC(17731c9d) SHA1(0e0aa0ec01035323985ac8e08228a0fd6edf6689) )
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "pgm_m01s.rom", 0x000000, 0x200000, CRC(45ae7159) SHA1(d3ed3ff3464557fd0df6b069b2e431528b0ebfa8) )
+	ROM_LOAD( "cave_m04401b032.u17",  0x400000, 0x400000, CRC(5a0dbd76) SHA1(06ab202f6bd5ebfb35b9d8cc7a8fb83ec8840659) )
+ROM_END
+
+ROM_START( ddpdoj )
+	ROM_REGION( 0x600000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ddp3_bios.u37",    0x00000, 0x080000, CRC(b3cc5c8f) SHA1(02d9511cf71e4a0d6ca8fd9a1ef2c79b0d001824) )
+	ROM_LOAD16_WORD_SWAP( "ddp3_v101.u36",  0x100000, 0x200000, CRC(195b5c1e) SHA1(f18d791c034b0a3d85888a92fb5d326ee3deb04f) )
+	ROM_REGION32_LE( 0x400000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) )
+	ROM_LOAD( "t04401w064.u19",0x400000, 0x800000, CRC(3a95f19c) SHA1(fd3c47cf0b8b1e20c6bec4be68a089fc8bbf4dbe) )
+	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_REGION( 0x1c00000, REGION_GFX3, 0 )
+	ROM_LOAD( "a04401w064.u7",  0x0000000, 0x0800000, CRC(ed229794) SHA1(1cf1863495a18c7c7d277a9be43ec116b00960b0) )
+	ROM_LOAD( "a04402w064.u8",  0x0800000, 0x0800000, CRC(752167b0) SHA1(c33c3398dd8e479c9d5bd348924958a6aecbf0fc) )
+	ROM_REGION( 0x1000000, REGION_GFX4, 0 )
+	ROM_LOAD( "b04401w064.u1",  0x0000000, 0x0800000, CRC(8cbff066) SHA1(eef1cd566bc70ebf45f047e56026803d5c1dac43) )
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "pgm_m01s.rom", 0x000000, 0x200000, CRC(45ae7159) SHA1(d3ed3ff3464557fd0df6b069b2e431528b0ebfa8) )
+	ROM_LOAD( "m04401b032.u17",  0x400000, 0x400000, CRC(5a0dbd76) SHA1(06ab202f6bd5ebfb35b9d8cc7a8fb83ec8840659) )
+ROM_END
+
+ROM_START( ddpdoja )
+	ROM_REGION( 0x600000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ddp3_bios.u37",    0x00000, 0x080000, CRC(b3cc5c8f) SHA1(02d9511cf71e4a0d6ca8fd9a1ef2c79b0d001824) )
+	ROM_LOAD16_WORD_SWAP( "ddp3_d_d_1_0.u36",  0x100000, 0x200000, CRC(5d3f85ba) SHA1(4c24ea206140863d456179750366921442e1d2b8) )
+	ROM_REGION32_LE( 0x400000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) )
+	ROM_LOAD( "t04401w064.u19",0x400000, 0x800000, CRC(3a95f19c) SHA1(fd3c47cf0b8b1e20c6bec4be68a089fc8bbf4dbe) )
+	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_REGION( 0x1c00000, REGION_GFX3, 0 )
+	ROM_LOAD( "a04401w064.u7",  0x0000000, 0x0800000, CRC(ed229794) SHA1(1cf1863495a18c7c7d277a9be43ec116b00960b0) )
+	ROM_LOAD( "a04402w064.u8",  0x0800000, 0x0800000, CRC(752167b0) SHA1(c33c3398dd8e479c9d5bd348924958a6aecbf0fc) )
+	ROM_REGION( 0x1000000, REGION_GFX4, 0 )
+	ROM_LOAD( "b04401w064.u1",  0x0000000, 0x0800000, CRC(8cbff066) SHA1(eef1cd566bc70ebf45f047e56026803d5c1dac43) )
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "pgm_m01s.rom", 0x000000, 0x200000, CRC(45ae7159) SHA1(d3ed3ff3464557fd0df6b069b2e431528b0ebfa8) )
+	ROM_LOAD( "m04401b032.u17",  0x400000, 0x400000, CRC(5a0dbd76) SHA1(06ab202f6bd5ebfb35b9d8cc7a8fb83ec8840659) )
+ROM_END
+
+ROM_START( ddpdojb )
+	ROM_REGION( 0x600000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ddp3_bios.u37",    0x00000, 0x080000, CRC(b3cc5c8f) SHA1(02d9511cf71e4a0d6ca8fd9a1ef2c79b0d001824) )
+	ROM_LOAD16_WORD_SWAP( "dd v100.bin",  0x100000, 0x200000, CRC(7da0c1e4) SHA1(aca2fe35ba0ab3628900fa2aba2d22fc4fd7046d) )
+	ROM_REGION32_LE( 0x400000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) )
+	ROM_LOAD( "t04401w064.u19",0x400000, 0x800000, CRC(3a95f19c) SHA1(fd3c47cf0b8b1e20c6bec4be68a089fc8bbf4dbe) )
+	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_REGION( 0x1c00000, REGION_GFX3, 0 )
+	ROM_LOAD( "a04401w064.u7",  0x0000000, 0x0800000, CRC(ed229794) SHA1(1cf1863495a18c7c7d277a9be43ec116b00960b0) )
+	ROM_LOAD( "a04402w064.u8",  0x0800000, 0x0800000, CRC(752167b0) SHA1(c33c3398dd8e479c9d5bd348924958a6aecbf0fc) )
+	ROM_REGION( 0x1000000, REGION_GFX4, 0 )
+	ROM_LOAD( "b04401w064.u1",  0x0000000, 0x0800000, CRC(8cbff066) SHA1(eef1cd566bc70ebf45f047e56026803d5c1dac43) )
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "pgm_m01s.rom", 0x000000, 0x200000, CRC(45ae7159) SHA1(d3ed3ff3464557fd0df6b069b2e431528b0ebfa8) )
+	ROM_LOAD( "m04401b032.u17",  0x400000, 0x400000, CRC(5a0dbd76) SHA1(06ab202f6bd5ebfb35b9d8cc7a8fb83ec8840659) )
+ROM_END
+
+ROM_START( ddp3blk )
+	ROM_REGION( 0x600000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ddp3_bios.u37",    0x00000, 0x080000, CRC(b3cc5c8f) SHA1(02d9511cf71e4a0d6ca8fd9a1ef2c79b0d001824) )
+	ROM_LOAD16_WORD_SWAP( "ddb10.u45",  0x100000, 0x200000, CRC(72b35510) SHA1(9a432e5e1ebe61aafd737b6acc905653e5af0d38) )
+	ROM_REGION32_LE( 0x400000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) )
+	ROM_LOAD( "t04401w064.u19",0x400000, 0x800000, CRC(3a95f19c) SHA1(fd3c47cf0b8b1e20c6bec4be68a089fc8bbf4dbe) )
+	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_REGION( 0x1c00000, REGION_GFX3, 0 )
+	ROM_LOAD( "a04401w064.u7",  0x0000000, 0x0800000, CRC(ed229794) SHA1(1cf1863495a18c7c7d277a9be43ec116b00960b0) )
+	ROM_LOAD( "a04402w064.u8",  0x0800000, 0x0800000, CRC(752167b0) SHA1(c33c3398dd8e479c9d5bd348924958a6aecbf0fc) )
+	ROM_REGION( 0x1000000, REGION_GFX4, 0 )
+	ROM_LOAD( "b04401w064.u1",  0x0000000, 0x0800000, CRC(8cbff066) SHA1(eef1cd566bc70ebf45f047e56026803d5c1dac43) )
+	ROM_REGION( 0x1000000, REGION_SOUND1, 0 )
+	ROM_LOAD( "pgm_m01s.rom", 0x000000, 0x200000, CRC(45ae7159) SHA1(d3ed3ff3464557fd0df6b069b2e431528b0ebfa8) )
+	ROM_LOAD( "m04401b032.u17",  0x400000, 0x400000, CRC(5a0dbd76) SHA1(06ab202f6bd5ebfb35b9d8cc7a8fb83ec8840659) )
+ROM_END
+
+ROM_START( ket )
+	ROM_REGION( 0x600000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ketsui_v100.u38", 0x000000, 0x200000, CRC(dfe62f3b) SHA1(baa58d1ce47a707f84f65779ac0689894793e9d9) )
+	ROM_REGION32_LE( 0x400000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) )
+	ROM_LOAD( "t04701w064.u19",   0x400000, 0x800000, CRC(2665b041) SHA1(fb1107778b66f2af0de77ac82e1ee2902f53a959) )
+	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_REGION( 0x1000000, REGION_GFX3, 0 )
+	ROM_LOAD( "a04701w064.u7",    0x0000000, 0x0800000, CRC(5ef1b94b) SHA1(f10dfa46e0a4d297c3a856aea5b49d648f98935c) )
+	ROM_LOAD( "a04702w064.u8",    0x0800000, 0x0800000, CRC(26d6da7f) SHA1(f20e07a7994f41b5ed917f8b0119dc5542f3541c) )
+	ROM_REGION( 0x0800000, REGION_GFX4, 0 )
+	ROM_LOAD( "b04701w064.u1",    0x0000000, 0x0800000, CRC(1bec008d) SHA1(07d117dc2eebb35727fb18a7c563acbaf25a8d36) )
+	ROM_REGION( 0x800000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "m04701b032.u17",    0x400000, 0x400000, CRC(b46e22d1) SHA1(670853dc485942fb96380568494bdf3235f446ee) )
+ROM_END
+
+ROM_START( keta )
+	ROM_REGION( 0x600000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ketsui_prg_revised.bin", 0x000000, 0x200000, CRC(69fcf5eb) SHA1(f726e251b4daa2f8d717e32000d4d7abc71c710d) )
+	ROM_REGION32_LE( 0x400000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) )
+	ROM_LOAD( "t04701w064.u19",   0x400000, 0x800000, CRC(2665b041) SHA1(fb1107778b66f2af0de77ac82e1ee2902f53a959) )
+	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_REGION( 0x1000000, REGION_GFX3, 0 )
+	ROM_LOAD( "a04701w064.u7",    0x0000000, 0x0800000, CRC(5ef1b94b) SHA1(f10dfa46e0a4d297c3a856aea5b49d648f98935c) )
+	ROM_LOAD( "a04702w064.u8",    0x0800000, 0x0800000, CRC(26d6da7f) SHA1(f20e07a7994f41b5ed917f8b0119dc5542f3541c) )
+	ROM_REGION( 0x0800000, REGION_GFX4, 0 )
+	ROM_LOAD( "b04701w064.u1",    0x0000000, 0x0800000, CRC(1bec008d) SHA1(07d117dc2eebb35727fb18a7c563acbaf25a8d36) )
+	ROM_REGION( 0x800000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "music-1.u17",    0x400000, 0x400000, CRC(b46e22d1) SHA1(670853dc485942fb96380568494bdf3235f446ee) )
+ROM_END
+
+ROM_START( ketb )
+	ROM_REGION( 0x600000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ketsui_prg_original.bin", 0x000000, 0x200000, CRC(cca5e153) SHA1(b653feaa2004c379312def6b1613c3497f654ddf) )
+	ROM_REGION32_LE( 0x400000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) )
+	ROM_LOAD( "t04701w064.u19",   0x400000, 0x800000, CRC(2665b041) SHA1(fb1107778b66f2af0de77ac82e1ee2902f53a959) )
+	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_REGION( 0x1000000, REGION_GFX3, 0 )
+	ROM_LOAD( "a04701w064.u7",    0x0000000, 0x0800000, CRC(5ef1b94b) SHA1(f10dfa46e0a4d297c3a856aea5b49d648f98935c) )
+	ROM_LOAD( "a04702w064.u8",    0x0800000, 0x0800000, CRC(26d6da7f) SHA1(f20e07a7994f41b5ed917f8b0119dc5542f3541c) )
+	ROM_REGION( 0x0800000, REGION_GFX4, 0 )
+	ROM_LOAD( "b04701w064.u1",    0x0000000, 0x0800000, CRC(1bec008d) SHA1(07d117dc2eebb35727fb18a7c563acbaf25a8d36) )
+	ROM_REGION( 0x800000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "music-1.u17",    0x400000, 0x400000, CRC(b46e22d1) SHA1(670853dc485942fb96380568494bdf3235f446ee) )
+ROM_END
+
+ROM_START( ketikd )
+	ROM_REGION( 0x600000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "ketsui_v100_ikd.u38", 0x000000, 0x200000, CRC(dfa8a180) SHA1(ba899ba93a269c200a478b1507071e24f9848327) )
+	ROM_REGION32_LE( 0x400000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) )
+	ROM_LOAD( "t04701w064.u19",   0x400000, 0x800000, CRC(2665b041) SHA1(fb1107778b66f2af0de77ac82e1ee2902f53a959) )
+	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_REGION( 0x1000000, REGION_GFX3, 0 )
+	ROM_LOAD( "a04701w064.u7",    0x0000000, 0x0800000, CRC(5ef1b94b) SHA1(f10dfa46e0a4d297c3a856aea5b49d648f98935c) )
+	ROM_LOAD( "a04702w064.u8",    0x0800000, 0x0800000, CRC(26d6da7f) SHA1(f20e07a7994f41b5ed917f8b0119dc5542f3541c) )
+	ROM_REGION( 0x0800000, REGION_GFX4, 0 )
+	ROM_LOAD( "b04701w064.u1",    0x0000000, 0x0800000, CRC(1bec008d) SHA1(07d117dc2eebb35727fb18a7c563acbaf25a8d36) )
+	ROM_REGION( 0x800000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "m04701b032.u17",    0x400000, 0x400000, CRC(b46e22d1) SHA1(670853dc485942fb96380568494bdf3235f446ee) )
+ROM_END
+
+ROM_START( espgal )
+	ROM_REGION( 0x600000, REGION_CPU1, 0 )
+	ROM_LOAD16_WORD_SWAP( "espgaluda_v100.u38", 0x000000, 0x200000, CRC(08ecec34) SHA1(bce2e7fb9105ed51603d09cbd3a9eeb5b8f47ee2) )
+	ROM_REGION32_LE( 0x400000, REGION_USER1, ROMREGION_ERASE00 )
+	ROM_REGION( 0xc00000, REGION_GFX1, 0 )
+	ROM_LOAD( "pgm_t01s.rom", 0x000000, 0x200000, CRC(1a7123a0) SHA1(cc567f577bfbf45427b54d6695b11b74f2578af3) )
+	ROM_LOAD( "t04801w064.u19",   0x400000, 0x800000, CRC(6021c79e) SHA1(fbc340dafb18aa3094de29b881318a5a9794e4bc) )
+	ROM_REGION( 0xc00000/5*8, REGION_GFX2, ROMREGION_DISPOSE | ROMREGION_ERASEFF )
+	ROM_REGION( 0x1000000, REGION_GFX3, 0 )
+	ROM_LOAD( "a04801w064.u7",    0x0000000, 0x0800000, CRC(26dd4932) SHA1(9bbabb5a53cb5ba88397cc2c258980f3b70314ce) )
+	ROM_LOAD( "a04802w064.u8",    0x0800000, 0x0800000, CRC(0e6bf7a9) SHA1(a7541e2b5a0df2bc62a5b347e54dbc2ed1922db2) )
+	ROM_REGION( 0x0800000, REGION_GFX4, 0 )
+	ROM_LOAD( "b04801w064.u1",    0x0000000, 0x0800000, CRC(98dce13a) SHA1(61d48b7117459f7babc022b68231f6928177a71d) )
+	ROM_REGION( 0x800000, REGION_SOUND1, ROMREGION_ERASE00 )
+	ROM_LOAD( "w04801b032.u17",    0x400000, 0x400000, CRC(60298536) SHA1(6b7333f16cce778c5725dbdf75a5446f0906397a) )
+ROM_END
+
+
 GAME( 1997, pgm,      0,          pgm, pgm,      0,          ROT0,   "IGS", "PGM (Polygame Master) System BIOS", NOT_A_DRIVER )
 GAME( 1997, orlegend, pgm,        pgm, pgm,      orlegend,   ROT0,   "IGS", "Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 126)", GAME_IMPERFECT_SOUND  )
 GAME( 1997, orlegnde, orlegend,   pgm, pgm,      orlegend,   ROT0,   "IGS", "Oriental Legend / Xi Yo Gi Shi Re Zuang (ver. 112)", GAME_IMPERFECT_SOUND  )
@@ -6612,3 +6942,14 @@ GAME( 1999, puzlstar, pgm,        pgm, sango,    pstar,      ROT0,   "IGS", "Puz
 GAME( 2004, oldsplus, pgm, oldsplus, oldsplus, oldsplus, ROT0, "IGS", "Oriental Legend 2 (Korea) / Xiyou Shi E Zhuan Qunmoluanwu (World, China, Japan, Hong Kong, Taiwan) (ver. 205) [Oriental Ex]", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION )
 GAME( 2004, kovshp, pgm, kovsh, pgm, kovshp, ROT0, "IGS", "Knights of Valour Super Heroes Plus / Sanguo Zhan Ji Luanshi Xiaoxiong (ver. 101)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION )
 GAME( 1999, kovytzy, pgm, kovsh, pgm, kovshp, ROT0, "IGS", "Knights of Valour Super Heroes / Sanguo Zhan Ji Fengyun Zaiqi / Sangoku Senki Super Heroes (SANGO EX+) (ver. 201 'Yitong Zhongyuan', China)", GAME_IMPERFECT_SOUND | GAME_UNEMULATED_PROTECTION )
+
+GAME( 2002, ddp3,        0,         pgm_cave,    ddp3,     ddp3,       ROT270, "Cave (AMI license)", "DoDonPachi III (World, 2002.05.15 Master Ver)", GAME_IMPERFECT_SOUND )
+GAME( 2002, ddpdoj,      ddp3,      pgm_cave,    ddp3,     ddp3,       ROT270, "Cave (AMI license)", "DoDonPachi Dai-Ou-Jou (Japan, 2002.04.05.Master Ver, 68k Label V101)", GAME_IMPERFECT_SOUND )
+GAME( 2002, ddpdoja,     ddp3,      pgm_cave,    ddp3,     ddp3,       ROT270, "Cave (AMI license)", "DoDonPachi Dai-Ou-Jou (Japan, 2002.04.05.Master Ver, 68k Label V100)", GAME_IMPERFECT_SOUND )
+GAME( 2002, ddpdojb,     ddp3,      pgm_cave,    ddp3,     ddp3,       ROT270, "Cave (AMI license)", "DoDonPachi Dai-Ou-Jou (Japan, 2002.04.05 Master Ver)", GAME_IMPERFECT_SOUND )
+GAME( 2002, ddp3blk,      ddp3,      pgm_cave,    ddp3,     ddp3blk,    ROT270, "Cave", "DoDonPachi Dai-Ou-Jou (Black Label)", GAME_IMPERFECT_SOUND)
+GAME( 2002, ket,          0,         pgm_cave,    ddp3,     ket,        ROT270, "Cave", "Ketsui Kizuna Jigoku Tachi", GAME_IMPERFECT_SOUND)
+GAME( 2002, keta,         ket,       pgm_cave,    ddp3,     ket,        ROT270, "Cave", "Ketsui Kizuna Jigoku Tachi (older)", GAME_IMPERFECT_SOUND)
+GAME( 2002, ketb,         ket,       pgm_cave,    ddp3,     ket,        ROT270, "Cave", "Ketsui Kizuna Jigoku Tachi (first revision)", GAME_IMPERFECT_SOUND)
+GAME( 2007, ketikd,       ket,       pgm_cave,    ddp3,     ket,        ROT270, "Cave", "Ketsui Kizuna Jigoku Tachi (IKD 2007 Special - 2007 Cave Matsuri Version)", GAME_IMPERFECT_SOUND )
+GAME( 2003, espgal,       0,         pgm_cave,    espgal,     espgal,     ROT270, "Cave", "EspGaluda", GAME_IMPERFECT_SOUND)

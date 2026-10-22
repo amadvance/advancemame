@@ -6896,16 +6896,15 @@ Other Sun games
 	DRIVER( dmnfrnt )	/* (c) 2002 */
 	DRIVER( py2k2 )
 
-	/* AdvanceMAME new games from ShmupMAME v3.0b */
-	/* Cave PGM System Games */
+	DRIVER( ddp3 )
+	DRIVER( ddpdoj )
+	DRIVER( ddpdoja )
+	DRIVER( ddpdojb )
+	DRIVER( ddp3blk )
 	DRIVER( ket )
 	DRIVER( keta )
 	DRIVER( ketb )
-    DRIVER( ketikd )
-	DRIVER( ddp3 )
-	DRIVER( ddp3a )
-	DRIVER( ddp3b )
-	DRIVER( ddp3blk )
+	DRIVER( ketikd )
 	DRIVER( espgal )
 
 	/* RamTek games */
