@@ -1041,3 +1041,12 @@ CPUOBJS += $(OBJ)/cpu/z8000/z8000.o
 DBGOBJS += $(OBJ)/cpu/z8000/8000dasm.o
 $(OBJ)/cpu/z8000/z8000.o: z8000.c z8000.h z8000cpu.h z8000dab.h z8000ops.c z8000tbl.c
 endif
+
+CPUDEFS += -DHAS_SH3BE=$(if $(filter SH3BE,$(CPUS)),1,0)
+ifneq ($(filter SH3BE,$(CPUS)),)
+OBJDIRS += $(OBJ)/cpu/sh3
+CPUOBJS += $(OBJ)/cpu/sh3/sh3.o
+DBGOBJS += $(OBJ)/cpu/sh3/sh3dasm.o
+$(OBJ)/cpu/sh3/sh3.o: CFLAGS += -fno-strict-aliasing
+$(OBJ)/cpu/sh3/sh3.o: sh3.c sh3.h sh3comn.h sh4regs.h sh4dmac.h
+endif

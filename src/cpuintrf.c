@@ -125,6 +125,7 @@ void rm7000be_get_info(UINT32 state, union cpuinfo *info);
 void rm7000le_get_info(UINT32 state, union cpuinfo *info);
 void arm_get_info(UINT32 state, union cpuinfo *info);
 void arm7_get_info(UINT32 state, union cpuinfo *info);
+void sh3be_get_info(UINT32 state, union cpuinfo *info);
 void sh2_get_info(UINT32 state, union cpuinfo *info);
 void dsp32c_get_info(UINT32 state, union cpuinfo *info);
 void pic16C54_get_info(UINT32 state, union cpuinfo *info);
@@ -557,6 +558,9 @@ static const struct
 #endif
 #if (HAS_ARM7)
 	{ CPU_ARM7, arm7_get_info },
+#endif
+#if (HAS_SH3BE)
+	{ CPU_SH3BE, sh3be_get_info },
 #endif
 #if (HAS_SH2)
 	{ CPU_SH2, sh2_get_info },

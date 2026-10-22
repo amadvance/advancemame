@@ -132,7 +132,7 @@ const rom_entry *rom_first_chunk(const rom_entry *romp)
 const rom_entry *rom_next_chunk(const rom_entry *romp)
 {
 	romp++;
-	return (ROMENTRY_ISCONTINUE(romp)) ? romp : NULL;
+	return (ROMENTRY_ISCONTINUE(romp) || ROMENTRY_ISIGNORE(romp)) ? romp : NULL;
 }
 
 
@@ -523,6 +523,13 @@ static int read_rom_data(rom_load_data *romdata, const rom_entry *romp)
 	UINT8 *base = romdata->regionbase + ROM_GETOFFSET(romp);
 	int i;
 
+	if (ROMENTRY_ISIGNORE(romp))
+	{
+		if (romdata->file)
+			mame_fseek(romdata->file, numbytes, SEEK_CUR);
+		return 0;
+	}
+
 	debugload("Loading ROM data: offs=%X len=%X mask=%02X group=%d skip=%d reverse=%d\n", ROM_GETOFFSET(romp), numbytes, datamask, groupsize, skip, reversed);
 
 	/* make sure the length was an even multiple of the group size */
@@ -714,9 +721,9 @@ static int process_rom_entries(rom_load_data *romdata, const rom_entry *romp)
 	while (!ROMENTRY_ISREGIONEND(romp))
 	{
 		/* if this is a continue entry, it's invalid */
-		if (ROMENTRY_ISCONTINUE(romp))
+		if (ROMENTRY_ISCONTINUE(romp) || ROMENTRY_ISIGNORE(romp))
 		{
-			printf("Error in RomModule definition: ROM_CONTINUE not preceded by ROM_LOAD\n");
+			printf("Error in RomModule definition: ROM_CONTINUE or ROM_IGNORE not preceded by ROM_LOAD\n");
 			goto fatalerror;
 		}
 
@@ -776,7 +783,7 @@ static int process_rom_entries(rom_load_data *romdata, const rom_entry *romp)
 						if (readresult == -1)
 							goto fatalerror;
 					}
-					while (ROMENTRY_ISCONTINUE(romp));
+					while (ROMENTRY_ISCONTINUE(romp) || ROMENTRY_ISIGNORE(romp));
 
 					/* if this was the first use of this file, verify the length and CRC */
 					if (baserom)

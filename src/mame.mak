@@ -120,6 +120,7 @@ CPUS += R5000
 CPUS += QED5271
 CPUS += RM7000
 CPUS += SH2
+CPUS += SH3BE
 CPUS += DSP32C
 #CPUS += PIC16C54
 CPUS += PIC16C55
@@ -1520,3 +1521,8 @@ $(OBJ)/misc.a: \
 	$(OBJ)/drivers/xyonix.o $(OBJ)/vidhrdw/xyonix.o \
 
  
+
+DRVLIBS += $(OBJ)/cv1k.a
+$(OBJ)/cv1k.a: $(OBJ)/drivers/cv1k.o $(OBJ)/machine/cv1k_flash.o $(OBJ)/machine/cv1k_rtc.o $(OBJ)/sound/cv1k_mpeg.o $(OBJ)/sound/cv1k_ymz.o $(OBJ)/vidhrdw/cv1k.o $(OBJ)/vidhrdw/cv1k_blit0.o $(OBJ)/vidhrdw/cv1k_blit1.o $(OBJ)/vidhrdw/cv1k_blit2.o $(OBJ)/vidhrdw/cv1k_blit3.o $(OBJ)/vidhrdw/cv1k_blit4.o $(OBJ)/vidhrdw/cv1k_blit5.o $(OBJ)/vidhrdw/cv1k_blit6.o $(OBJ)/vidhrdw/cv1k_blit7.o $(OBJ)/vidhrdw/cv1k_blit8.o
+
+$(OBJ)/vidhrdw/cv1k_blit0.o $(OBJ)/vidhrdw/cv1k_blit1.o $(OBJ)/vidhrdw/cv1k_blit2.o $(OBJ)/vidhrdw/cv1k_blit3.o $(OBJ)/vidhrdw/cv1k_blit4.o $(OBJ)/vidhrdw/cv1k_blit5.o $(OBJ)/vidhrdw/cv1k_blit6.o $(OBJ)/vidhrdw/cv1k_blit7.o $(OBJ)/vidhrdw/cv1k_blit8.o: src/vidhrdw/cv1k_blit.h src/vidhrdw/epic12in.inc src/vidhrdw/epic12pixel.inc

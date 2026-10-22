@@ -199,6 +199,7 @@ enum
 	CPU_SM8500,
 	CPU_V30MZ,
 #endif /* MESS */
+    CPU_SH3BE,
     CPU_COUNT
 };
 

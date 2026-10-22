@@ -28,7 +28,8 @@
 #define ROMENTRYTYPE_FILL			5					/* this entry fills an area with a constant value */
 #define ROMENTRYTYPE_COPY			6					/* this entry copies data from another region/offset */
 #define ROMENTRYTYPE_CARTRIDGE		7					/* this entry specifies a cartridge (MESS) */
-#define ROMENTRYTYPE_COUNT			8
+#define ROMENTRYTYPE_IGNORE			8
+#define ROMENTRYTYPE_COUNT			9
 
 
 /* ----- per-region constants ----- */
@@ -169,6 +170,8 @@ struct _rom_load_data
 #define ROMENTRY_COPY				((const char *)ROMENTRYTYPE_COPY)
 #define ROMENTRY_CARTRIDGE			((const char *)ROMENTRYTYPE_CARTRIDGE)
 
+#define ROMENTRY_IGNORE				((const char *)ROMENTRYTYPE_IGNORE)
+
 #define ROMENTRY_GETTYPE(r)			((FPTR)(r)->_name)
 #define ROMENTRY_ISSPECIAL(r)		(ROMENTRY_GETTYPE(r) < ROMENTRYTYPE_COUNT)
 #define ROMENTRY_ISFILE(r)			(!ROMENTRY_ISSPECIAL(r))
@@ -176,6 +179,7 @@ struct _rom_load_data
 #define ROMENTRY_ISEND(r)			((r)->_name == ROMENTRY_END)
 #define ROMENTRY_ISRELOAD(r)		((r)->_name == ROMENTRY_RELOAD)
 #define ROMENTRY_ISCONTINUE(r)		((r)->_name == ROMENTRY_CONTINUE)
+#define ROMENTRY_ISIGNORE(r)		((r)->_name == ROMENTRY_IGNORE)
 #define ROMENTRY_ISFILL(r)			((r)->_name == ROMENTRY_FILL)
 #define ROMENTRY_ISCOPY(r)			((r)->_name == ROMENTRY_COPY)
 #define ROMENTRY_ISREGIONEND(r)		(ROMENTRY_ISREGION(r) || ROMENTRY_ISEND(r))
@@ -245,6 +249,7 @@ struct _rom_load_data
 #define ROMX_LOAD(name,offset,length,hash,flags)	{ name, offset, length, flags, hash },
 #define ROM_LOAD(name,offset,length,hash)			ROMX_LOAD(name, offset, length, hash, 0)
 #define ROM_LOAD_OPTIONAL(name,offset,length,hash)	ROMX_LOAD(name, offset, length, hash, ROM_OPTIONAL)
+#define ROM_IGNORE(length)						ROMX_LOAD(ROMENTRY_IGNORE, 0, length, 0, ROM_INHERITFLAGS)
 #define ROM_CONTINUE(offset,length)					ROMX_LOAD(ROMENTRY_CONTINUE, offset, length, 0, ROM_INHERITFLAGS)
 #define ROM_RELOAD(offset,length)					ROMX_LOAD(ROMENTRY_RELOAD, offset, length, 0, ROM_INHERITFLAGS)
 #define ROM_FILL(offset,length,value)				ROM_LOAD(ROMENTRY_FILL, offset, length, (const char*)value)
