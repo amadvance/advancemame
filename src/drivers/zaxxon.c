@@ -5,8 +5,6 @@
     TODO:
 
     - service coin lockout (needs to be added to MAME core)
-    - razmataz/ixion unknown reads
-    - razmataz/ixion sound
     - verify congo sound cpu speeds
     - rename roms properly
     - discrete sound emulation
@@ -16,11 +14,6 @@
 /***************************************************************************
 
 Notes:
-
-- the duck season in razmataz is controlled by ff3c, maybe a timer. When it's
-  0, it ends. We are currently returning 0xff so it never ends unitl you shoot
-  stop.
-
 
 Zaxxon memory map (preliminary)
 
@@ -156,6 +149,7 @@ NMI causes a ROM/RAM test.
 
 #include "driver.h"
 #include "machine/segacrpt.h"
+#include "sndhrdw/segasnd.h"
 #include "sound/sn76496.h"
 #include "sound/samples.h"
 
@@ -176,6 +170,7 @@ extern VIDEO_START( congo );
 
 extern VIDEO_UPDATE( zaxxon );
 extern VIDEO_UPDATE( razmataz );
+extern VIDEO_UPDATE( ixion );
 extern VIDEO_UPDATE( congo );
 extern VIDEO_UPDATE( futspy );
 
@@ -204,14 +199,11 @@ static WRITE8_HANDLER( razmataz_flipscreen_w )
 	flip_screen_set(data & 0x01);
 }
 
-static READ8_HANDLER( razmataz_unknown1_r )
-{
-	return rand() & 0xff;
-}
+static UINT16 razmataz_counter;
 
-static READ8_HANDLER( razmataz_unknown2_r )
+static READ8_HANDLER( razmataz_counter_r )
 {
-	return 0xff;
+	return razmataz_counter++ >> 8;
 }
 
 static int razmataz_dial_r(int num)
@@ -312,8 +304,8 @@ static ADDRESS_MAP_START( razmataz_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xc008, 0xc008) AM_READ(razmataz_dial_1_r)
 	AM_RANGE(0xc00c, 0xc00c) AM_READ(input_port_7_r)
 	AM_RANGE(0xc100, 0xc100) AM_READ(input_port_2_r)
-	AM_RANGE(0xc80a, 0xc80a) AM_READ(razmataz_unknown1_r)	// needed, otherwise the game hangs
-	AM_RANGE(0xff3c, 0xff3c) AM_READ(razmataz_unknown2_r)	// timer? if 0, "duck season" ends
+	AM_RANGE(0xc80a, 0xc80a) AM_READ(razmataz_counter_r)
+	AM_RANGE(0xe03c, 0xe03c) AM_MIRROR(0x1f00) AM_READ(sega_usb_status_r)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( razmataz_writemem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -332,7 +324,7 @@ static ADDRESS_MAP_START( razmataz_writemem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xe0fa, 0xe0fa) AM_WRITE(MWA8_RAM) AM_BASE(&zaxxon_background_color_bank)
 	AM_RANGE(0xe0fb, 0xe0fb) AM_WRITE(MWA8_RAM) AM_BASE(&zaxxon_background_enable)
 	AM_RANGE(0xe0fc, 0xe0ff) AM_WRITE(MWA8_NOP)
-	AM_RANGE(0xff3c, 0xff3c) AM_WRITE(MWA8_NOP)	// sound
+	AM_RANGE(0xe03c, 0xe03c) AM_MIRROR(0x1f00) AM_WRITE(sega_usb_data_w)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( ixion_readmem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -345,7 +337,7 @@ static ADDRESS_MAP_START( ixion_readmem, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xc002, 0xc002) AM_READ(input_port_3_r)
 	AM_RANGE(0xc003, 0xc003) AM_READ(input_port_4_r)
 	AM_RANGE(0xc100, 0xc100) AM_READ(input_port_2_r)
-	AM_RANGE(0xff3c, 0xff3c) AM_READ(razmataz_unknown2_r)	// no idea .. timer? in razmataz
+	AM_RANGE(0xe03c, 0xe03c) AM_MIRROR(0x1f00) AM_READ(sega_usb_status_r)
 ADDRESS_MAP_END
 
 static ADDRESS_MAP_START( congo_readmem, ADDRESS_SPACE_PROGRAM, 8 )
@@ -1164,6 +1156,13 @@ MACHINE_RESET( futspy )
 	zaxxon_vid_type = 2;
 }
 
+static MACHINE_RESET( razmataz )
+{
+	machine_reset_zaxxon();
+	razmataz_counter = 0;
+	sega_usb_reset(0x10);
+}
+
 /* Machine Drivers */
 
 static MACHINE_DRIVER_START( root )
@@ -1208,6 +1207,9 @@ static MACHINE_DRIVER_START( razmataz )
 
 	MDRV_VIDEO_START(razmataz)
 	MDRV_VIDEO_UPDATE(razmataz)
+	MDRV_MACHINE_RESET(razmataz)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_IMPORT_FROM(sega_universal_sound_board_rom)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( ixion )
@@ -1217,7 +1219,10 @@ static MACHINE_DRIVER_START( ixion )
 	MDRV_CPU_PROGRAM_MAP(ixion_readmem, razmataz_writemem)
 
 	MDRV_VIDEO_START(razmataz)
-	MDRV_VIDEO_UPDATE(razmataz)
+	MDRV_VIDEO_UPDATE(ixion)
+	MDRV_MACHINE_RESET(razmataz)
+	MDRV_SPEAKER_STANDARD_MONO("mono")
+	MDRV_IMPORT_FROM(sega_universal_sound_board_rom)
 MACHINE_DRIVER_END
 
 static MACHINE_DRIVER_START( congo )
@@ -1431,9 +1436,9 @@ ROM_START( razmataz )
 	ROM_LOAD( "clr.u98",       0x0000, 0x0100, CRC(0fd671af) SHA1(7f26139398754dae7383c9375fca95b7970fcefb) ) /* palette */
 	ROM_LOAD( "clr.u72",       0x0100, 0x0100, CRC(03233bc5) SHA1(30bd690da7eda4e13df90d7ee59dbf744b3541a4) ) /* char lookup table */
 
-	ROM_REGION( 0x1000, REGION_SOUND1, 0 ) /* sound? */
-	ROM_LOAD( "1923.u50",      0x0000, 0x0800, CRC(59994a51) SHA1(57ccee24a989efe39f8ffc08aab7d72a1cdef3d1) )
-	ROM_LOAD( "1924.u51",      0x0800, 0x0800, CRC(a75e0011) SHA1(7d67ce2e8a2de471221b3b565a937ae1a35e1560) )
+	ROM_REGION( 0x1000, REGION_CPU2, 0 )
+	ROM_LOAD( "1924.u51",      0x0000, 0x0800, CRC(a75e0011) SHA1(7d67ce2e8a2de471221b3b565a937ae1a35e1560) )
+	ROM_LOAD( "1923.u50",      0x0800, 0x0800, CRC(59994a51) SHA1(57ccee24a989efe39f8ffc08aab7d72a1cdef3d1) )
 ROM_END
 
 ROM_START( ixion )
@@ -1467,9 +1472,9 @@ ROM_START( ixion )
 	ROM_LOAD( "1942a.u98",       0x0000, 0x0100, CRC(3a8e6f74) SHA1(c2d480f8c8a111c1e23cbf819dea807f8128208d) ) /* palette */
 	ROM_LOAD( "1941a.u72",       0x0100, 0x0100, CRC(a5d0d97e) SHA1(2677508b44f9b7a6c6ee56e49a7b88073e80debe) ) /* char lookup */
 
-	ROM_REGION( 0x1000, REGION_SOUND1, 0 ) /* sound? */
-	ROM_LOAD( "1943a.u50",      0x0000, 0x0800, CRC(77e5a1f0) SHA1(00152ffb59ebac718b300fdf24314b456748ffbe) )
-	ROM_LOAD( "1944a.u51",      0x0800, 0x0800, CRC(88215098) SHA1(54bd1c71e7f10f20623e47f4e791f54ce698bc08) )
+	ROM_REGION( 0x1000, REGION_CPU2, 0 )
+	ROM_LOAD( "1944a.u51",      0x0000, 0x0800, CRC(88215098) SHA1(54bd1c71e7f10f20623e47f4e791f54ce698bc08) )
+	ROM_LOAD( "1943a.u50",      0x0800, 0x0800, CRC(77e5a1f0) SHA1(00152ffb59ebac718b300fdf24314b456748ffbe) )
 ROM_END
 
 ROM_START( congo )
@@ -1682,8 +1687,8 @@ GAME( 1982, zaxxon,   0,      zaxxon,   zaxxon,   0,        ROT90,  "Sega",    "
 GAME( 1982, zaxxon2,  zaxxon, zaxxon,   zaxxon,   0,        ROT90,  "Sega",    "Zaxxon (set 2)", 0 )
 GAME( 1982, zaxxonb,  zaxxon, zaxxon,   zaxxon,   zaxxonb,  ROT90,  "bootleg", "Jackson", 0 )
 GAME( 1982, szaxxon,  0,      zaxxon,   szaxxon,  szaxxon,  ROT90,  "Sega",    "Super Zaxxon", 0 )
-GAME( 1983, razmataz, 0,      razmataz, razmataz, razmataz, ROT270, "Sega",    "Razzmatazz", GAME_NO_SOUND )
-GAME( 1983, ixion,    0,      ixion,    ixion,    ixion,    ROT270, "Sega",    "Ixion (prototype)", GAME_NO_SOUND )
+GAME( 1984, futspy,   0,      futspy,   futspy,   futspy,   ROT270, "Sega",    "Future Spy", 0 )
+GAME( 1983, razmataz, 0,      razmataz, razmataz, razmataz, ROT270, "Sega",    "Razzmatazz", GAME_IMPERFECT_SOUND )
+GAME( 1983, ixion,    0,      ixion,    ixion,    ixion,    ROT270, "Sega",    "Ixion (prototype)", GAME_IMPERFECT_SOUND )
 GAME( 1983, congo,    0,	  congo,    congo,    0,        ROT90,  "Sega",    "Congo Bongo", 0 )
 GAME( 1983, tiptop,   congo,  congo,    tiptop,   0,        ROT90,  "Sega",    "Tip Top", 0 )
-GAME( 1984, futspy,   0,      futspy,   futspy,   futspy,   ROT270, "Sega",    "Future Spy", 0 )

@@ -12,6 +12,7 @@ WRITE8_HANDLER( sega_speech_control_w );
 
 
 MACHINE_DRIVER_EXTERN( sega_universal_sound_board );
+MACHINE_DRIVER_EXTERN( sega_universal_sound_board_rom );
 
 void sega_usb_reset(UINT8 t0_clock_mask);
 

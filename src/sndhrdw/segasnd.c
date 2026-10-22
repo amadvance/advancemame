@@ -833,6 +833,10 @@ static ADDRESS_MAP_START( usb_map, ADDRESS_SPACE_PROGRAM, 8 )
 ADDRESS_MAP_END
 
 
+static ADDRESS_MAP_START( usb_map_rom, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0x0fff) AM_ROM
+ADDRESS_MAP_END
+
 static ADDRESS_MAP_START( usb_portmap, ADDRESS_SPACE_IO, 8 )
 	AM_RANGE(0x00, 0xff) AM_READWRITE(usb_workram_r, usb_workram_w)
 	AM_RANGE(I8039_p1, I8039_p1) AM_READWRITE(usb_p1_r, usb_p1_w)
@@ -872,4 +876,10 @@ MACHINE_DRIVER_START( sega_universal_sound_board )
 	MDRV_SOUND_ADD(CUSTOM, 0)
 	MDRV_SOUND_CONFIG(usb_custom_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 1.0)
+MACHINE_DRIVER_END
+
+MACHINE_DRIVER_START( sega_universal_sound_board_rom )
+	MDRV_IMPORT_FROM(sega_universal_sound_board)
+	MDRV_CPU_MODIFY("usb")
+	MDRV_CPU_PROGRAM_MAP(usb_map_rom, 0)
 MACHINE_DRIVER_END

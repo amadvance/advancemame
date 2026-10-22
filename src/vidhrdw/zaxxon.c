@@ -362,6 +362,13 @@ VIDEO_UPDATE( razmataz )
 	tilemap_draw(bitmap, cliprect, fg_tilemap, 0, 0);
 }
 
+VIDEO_UPDATE( ixion )
+{
+	razmataz_draw_background(bitmap, cliprect);
+	tilemap_draw(bitmap, cliprect, fg_tilemap, 0, 0);
+	zaxxon_draw_sprites(bitmap, cliprect);
+}
+
 /* Congo Bongo */
 
 static void congo_get_fg_tile_info(int tile_index)
