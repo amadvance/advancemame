@@ -2433,6 +2433,8 @@ V-V                           TP-027
 	DRIVER( mbomberj )	/* 13/07/1993 (c) 1993 (Japan) (CPS1 + QSound) */
 	DRIVER( mbombrd )	/* 06/12/1993 (c) 1993 (World) (CPS1 + QSound) */
 	DRIVER( mbombrdj )	/* 06/12/1993 (c) 1993 (Japan) (CPS1 + QSound) */
+	DRIVER( ganbare )
+	DRIVER( mpumpkin )
 	DRIVER( pnickj )	/* 08/06/1994 (c) 1994 Compile + Capcom license (Japan) not listed on Capcom's site */
 	DRIVER( qad )		/* 01/07/1992 (c) 1992 (US)    */
 	DRIVER( qadj )		/* 21/09/1994 (c) 1994 (Japan) */

@@ -246,6 +246,19 @@ void timekeeper_init( int chip, int type, UINT8 *data )
 		c->offset_flags = -1;
 		c->size = 0x800;
 		break;
+	case TIMEKEEPER_M48T35:
+		c->offset_control = 0x7ff8;
+		c->offset_seconds = 0x7ff9;
+		c->offset_minutes = 0x7ffa;
+		c->offset_hours = 0x7ffb;
+		c->offset_day = 0x7ffc;
+		c->offset_date = 0x7ffd;
+		c->offset_month = 0x7ffe;
+		c->offset_year = 0x7fff;
+		c->offset_century = -1;
+		c->offset_flags = -1;
+		c->size = 0x8000;
+		break;
 	case TIMEKEEPER_M48T58:
 		c->offset_control = 0x1ff8;
 		c->offset_seconds = 0x1ff9;

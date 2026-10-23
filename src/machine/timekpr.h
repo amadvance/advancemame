@@ -17,6 +17,7 @@ extern void timekeeper_init( int chip, int type, UINT8 *data );
 #define TIMEKEEPER_M48T58 ( 1 )
 #define TIMEKEEPER_M48T02 ( 2 )
 #define TIMEKEEPER_MK48T08 ( 3 )
+#define TIMEKEEPER_M48T35 ( 4 )
 
 /* nvram handlers */
 
