@@ -6491,7 +6491,13 @@ BOMULEUL CHAJARA SEGA ST-V  1997/04/11
 	DRIVER( srmp6 )		/* (c) 1996 Seta (Japan) */
 
 	/* Seta Aleck64 and similar (N64 based) */
+	DRIVER( aleck64 )
 	DRIVER( 11beat )
+	DRIVER( starsldr )
+	DRIVER( vivdolls )
+	DRIVER( twrshaft )
+	DRIVER( doncdoon )
+	DRIVER( kurufev )
 	DRIVER( mtetrisc )
 
 	/* Atlus games */

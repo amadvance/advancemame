@@ -1,12 +1,13 @@
 #ifndef _INCLUDES_N64_H_
 #define _INCLUDES_N64_H_
 
-/*----------- defined in vidhrdw/n64.c -----------*/
-
 extern VIDEO_START( n64 );
 extern VIDEO_UPDATE( n64 );
 extern void rdp_process_list(void);
 
+#define DACRATE_NTSC	(48681812)
+#define DACRATE_PAL	(49656530)
+#define DACRATE_MPAL	(48628316)
 
 #define SP_INTERRUPT	0x1
 #define SI_INTERRUPT	0x2
@@ -21,7 +22,7 @@ extern void rdp_process_list(void);
 #define SP_STATUS_DMAFULL		0x0008
 #define SP_STATUS_IOFULL		0x0010
 #define SP_STATUS_SSTEP			0x0020
-#define SP_STATUS_INT_ON_BRK		0x0040
+#define SP_STATUS_INTR_BREAK	0x0040
 #define SP_STATUS_SIGNAL0		0x0080
 #define SP_STATUS_SIGNAL1		0x0100
 #define SP_STATUS_SIGNAL2		0x0200
@@ -35,8 +36,6 @@ extern void rdp_process_list(void);
 #define DP_STATUS_FREEZE		0x02
 #define DP_STATUS_FLUSH			0x04
 
-/*----------- defined in machine/n64.c -----------*/
-
 extern UINT32 *rdram;
 extern UINT32 *rsp_imem;
 extern UINT32 *rsp_dmem;
@@ -44,8 +43,6 @@ extern UINT32 *rsp_dmem;
 extern void signal_rcp_interrupt(int interrupt);
 extern void clear_rcp_interrupt(int interrupt);
 
-
-/* read/write handlers for the N64 subsystems */
 extern READ32_HANDLER( n64_mi_reg_r );
 extern WRITE32_HANDLER( n64_mi_reg_w );
 extern READ32_HANDLER( n64_sp_reg_r );
@@ -65,8 +62,7 @@ extern WRITE32_HANDLER( n64_si_reg_w );
 extern READ32_HANDLER( n64_pif_ram_r );
 extern WRITE32_HANDLER( n64_pif_ram_w );
 
-extern struct CustomSound_interface n64_sound_interface;
-
+void n64_machine_start(void);
 void n64_machine_reset(void);
 
 #endif
