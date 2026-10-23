@@ -8,6 +8,7 @@
 
 PALETTE_INIT( pacman );
 VIDEO_START( pacman );
+VIDEO_START( birdiy );
 VIDEO_UPDATE( pacman );
 
 WRITE8_HANDLER( pacman_videoram_w );

@@ -110,7 +110,10 @@ const game_driver * const drivers[] =
 	/* S2650 Pacman Kits */
 	DRIVER( drivfrcp )	/* (c) 1984 Shinkai Inc. (Magic Eletronics Inc. licence) */
 	DRIVER( 8bpm )		/* (c) 1985 Seatongrove Ltd (Magic Eletronics USA licence) */
+	DRIVER( clubpacm )
+	DRIVER( birdiy )
 	DRIVER( porky )		/* (c) 1985 Shinkai Inc. (Magic Eletronics Inc. licence) */
+	DRIVER( numcrash )
 
 	DRIVER( pengo )		/* 834-0386 (c) 1982 Sega */
 	DRIVER( pengo2 )	/* 834-0386 (c) 1982 Sega */
