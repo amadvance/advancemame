@@ -1067,6 +1067,14 @@ const game_driver * const drivers[] =
 	DRIVER( wldgunsb )      /* bootleg */
 
 	/* Midway 8080 b/w games */
+	DRIVER( seawolfo )
+	DRIVER( seawolfa )
+	DRIVER( gunfighto )
+	DRIVER( roadrunm )
+	DRIVER( spacwalk )
+	DRIVER( einning )
+	DRIVER( blueshrkmr )
+	DRIVER( blueshrkmr2 )
 	DRIVER( seawolf )	/* 596 [1976] */
 	DRIVER( gunfight )	/* 597 [1975] */
 	/* 603 - Top Gun [1976] */
@@ -1083,7 +1091,6 @@ const game_driver * const drivers[] =
 	DRIVER( clowns )	/* 630 [1978] */
 	DRIVER( clowns1 )	/* 630 [1978] */
 				/* 640 - Space Walk [1978] */
-	DRIVER( einnings )	/* 642 [1978] Midway */
 	DRIVER( shuffle )	/* 643 [1978] */
 	DRIVER( dogpatch )	/* 644 [1977] */
 	DRIVER( spcenctr )	/* 645 (c) 1980 Midway */
