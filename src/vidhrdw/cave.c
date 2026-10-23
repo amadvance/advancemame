@@ -112,6 +112,15 @@ static struct sprite_cave *sprite_table[MAX_PRIORITY][MAX_SPRITE_NUM+1];
 static mame_bitmap *sprite_zbuf;
 static UINT16 sprite_zbuf_baseval = 0x10000-MAX_SPRITE_NUM;
 
+UINT16 *ppsatan_vram[3], *ppsatan_vctrl[3];
+UINT16 *ppsatan_videoregs[3], *ppsatan_spriteram[3], *ppsatan_paletteram[3];
+static int ppsatan_active, ppsatan_chip;
+static tilemap *ppsatan_tilemaps[3];
+static struct sprite_cave *ppsatan_sprites[3];
+static int ppsatan_sprite_count[3];
+static mame_bitmap *ppsatan_bitmap[3];
+static void ppsatan_get_sprite_info(void);
+
 static void (*get_sprite_info)(void);
 static void (*cave_sprite_draw)( int priority );
 
@@ -355,7 +364,7 @@ INLINE void vram_8x8_w(UINT16 *VRAM, tilemap *TILEMAP,ATTR_UNUSED offs_t offset,
 	tilemap_mark_tile_dirty(TILEMAP,offset/2);
 }
 
-static void get_tile_info_0(int tile_index)	{ get_tile_info(0, cave_vram_0, tiledim_0, tile_index); }
+static void get_tile_info_0(int tile_index)	{ get_tile_info(ppsatan_active ? ppsatan_chip : 0, cave_vram_0, tiledim_0, tile_index); }
 static void get_tile_info_1(int tile_index)	{ get_tile_info(1, cave_vram_1, tiledim_1, tile_index); }
 static void get_tile_info_2(int tile_index)	{ get_tile_info(2, cave_vram_2, tiledim_2, tile_index); }
 static void get_tile_info_3(int tile_index)	{ get_tile_info(3, cave_vram_3, tiledim_3, tile_index); }
@@ -389,6 +398,7 @@ static int background_color;
 
 int cave_vh_start( int num )
 {
+	ppsatan_active = 0;
 	tilemap_0 = 0;
 	tilemap_1 = 0;
 	tilemap_2 = 0;
@@ -531,9 +541,9 @@ VIDEO_START( sailormn_3_layers )
 
 static void get_sprite_info_cave(void)
 {
-	const int region				=	REGION_GFX1;
+	const int region				=	ppsatan_active ? (ppsatan_chip == 0 ? REGION_GFX1 : ppsatan_chip == 1 ? REGION_GFX5 : REGION_GFX6) : REGION_GFX1;
 
-	const pen_t          *base_pal	=	Machine->remapped_colortable + 0;
+	const pen_t          *base_pal	=	Machine->remapped_colortable + (ppsatan_active ? ppsatan_chip * 0x4800 : 0);
 	const unsigned char  *base_gfx	=	memory_region(region);
 	int                   code_max	=	memory_region_length(region) / (16*16);
 
@@ -545,15 +555,15 @@ static void get_sprite_info_cave(void)
 	int	glob_flipx	=	cave_videoregs[ 0 ] & 0x8000;
 	int	glob_flipy	=	cave_videoregs[ 1 ] & 0x8000;
 
-	int max_x		=	Machine->drv->screen_width;
-	int max_y		=	Machine->drv->screen_height;
+	int max_x		=	screen_width;
+	int max_y		=	screen_height;
 
 	for (; source < finish; source+=8 )
 	{
 		int x,y,attr,code,zoomx,zoomy,size,flipx,flipy;
 		int total_width_f,total_height_f;
 
-		if (cave_spritetype == 2)	/* Hot Dog Storm */
+		if (ppsatan_active ? !(cave_videoregs[5] & 0x3000) : cave_spritetype == 2)
 		{
 			x		=		(source[ 0 ] & 0x3ff) << 8;
 			y		=		(source[ 1 ] & 0x3ff) << 8;
@@ -610,7 +620,7 @@ static void get_sprite_info_cave(void)
 			sprite->ycount0 = sprite->zoomy_re - 1;
 		}
 
-		if (cave_spritetype == 2)
+		if (ppsatan_active ? !(cave_videoregs[5] & 0x3000) : cave_spritetype == 2)
 		{
 			x >>= 8;
 			y >>= 8;
@@ -1542,6 +1552,11 @@ VIDEO_UPDATE( cave )
 /**************************************************************/
 void cave_get_sprite_info(void)
 {
+	if (ppsatan_active)
+	{
+		if (!skip_this_frame()) ppsatan_get_sprite_info();
+		return;
+	}
 	if(cave_kludge == 3)	/* mazinger metmqstr */
 	{
 		if (skip_this_frame() == 0)
@@ -1558,5 +1573,106 @@ void cave_get_sprite_info(void)
 			spriteram_bank = cave_videoregs[ 4 ] & 1;
 			(*get_sprite_info)();
 		}
+	}
+}
+
+static void ppsatan_select(int chip)
+{
+	ppsatan_chip = chip;
+	cave_vram_0 = ppsatan_vram[chip];
+	cave_vctrl_0 = ppsatan_vctrl[chip];
+	cave_videoregs = ppsatan_videoregs[chip];
+	spriteram16 = ppsatan_spriteram[chip];
+	sprite_cave = ppsatan_sprites[chip];
+	num_sprites = ppsatan_sprite_count[chip];
+	tilemap_0 = ppsatan_tilemaps[chip];
+}
+
+static void ppsatan_get_sprite_info(void)
+{
+	int chip;
+	for (chip = 0; chip < 3; chip++)
+	{
+		ppsatan_select(chip);
+		spriteram_bank = cave_videoregs[4] & 1;
+		get_sprite_info_cave();
+		ppsatan_sprite_count[chip] = num_sprites;
+	}
+}
+
+static WRITE16_HANDLER( ppsatan_vram_w )
+{
+	int chip = offset / (0x8000 / 2);
+	vram_w(ppsatan_vram[chip], ppsatan_tilemaps[chip], offset % (0x8000 / 2), data, mem_mask);
+}
+
+WRITE16_HANDLER( ppsatan_vram0_w ) { ppsatan_vram_w(offset, data, mem_mask); }
+WRITE16_HANDLER( ppsatan_vram1_w ) { ppsatan_vram_w(offset + 0x4000, data, mem_mask); }
+WRITE16_HANDLER( ppsatan_vram2_w ) { ppsatan_vram_w(offset + 0x8000, data, mem_mask); }
+
+PALETTE_INIT( ppsatan )
+{
+	int chip, color, pen;
+	for (chip = 0; chip < 3; chip++)
+	{
+		int table = chip * 0x4800;
+		int palette = chip * 0x4800;
+		for (color = 0; color < 0x4800; color++)
+			colortable[table + color] = palette + color % 0x4800;
+		for (color = 0; color < 0x40; color++)
+			for (pen = 0; pen < 16; pen++)
+			{
+				colortable[table + color * 256 + pen] = palette + 0x3c00 + color * 16 + pen;
+				colortable[table + 0x4000 + color * 16 + pen] = palette + color * 16 + pen;
+			}
+	}
+}
+
+VIDEO_START( ppsatan )
+{
+	int chip;
+	spriteram_size = 0x8000;
+	if (cave_vh_start(1)) return 1;
+	ppsatan_active = 1;
+	screen_width = 320;
+	screen_height = 240;
+	for (chip = 0; chip < 3; chip++)
+	{
+		ppsatan_tilemaps[chip] = tilemap_create(get_tile_info_0, tilemap_scan_rows,
+			TILEMAP_TRANSPARENT, 8, 8, 64, 64);
+		if (!ppsatan_tilemaps[chip]) return 1;
+		tilemap_set_transparent_pen(ppsatan_tilemaps[chip], 0);
+		tilemap_set_scrolldx(ppsatan_tilemaps[chip], 0, 320);
+		tilemap_set_scrolldy(ppsatan_tilemaps[chip], 0, 208);
+		ppsatan_sprites[chip] = auto_malloc(MAX_SPRITE_NUM * sizeof(struct sprite_cave));
+		ppsatan_sprite_count[chip] = 0;
+		ppsatan_bitmap[chip] = auto_bitmap_alloc(320, 240);
+		if (!ppsatan_bitmap[chip]) return 1;
+	}
+	ppsatan_select(0);
+	return 0;
+}
+
+VIDEO_UPDATE( ppsatan )
+{
+	const rectangle area = { 0, 319, 0, 223 };
+	const int x[3] = { 160, 0, 320 };
+	const int y[3] = { 0, 224, 224 };
+	int chip;
+	fillbitmap(bitmap, get_black_pen(), cliprect);
+	for (chip = 0; chip < 3; chip++)
+	{
+		ppsatan_select(chip);
+		tilemap_mark_all_tiles_dirty(tilemap_0);
+		background_color = chip * 0x4800 + 0x43f0;
+		cave_layers_offs_x = (cave_vctrl_0[0] & 0x8000) ? 0x11 : 0x13 - chip - (chip == 2 ? 57 : 0);
+		video_update_cave(0, ppsatan_bitmap[chip], &area);
+		if (chip)
+		{
+			int player = 2 - chip;
+			draw_crosshair(ppsatan_bitmap[chip], readinputport(1 + player * 2) & 0x7fff,
+				readinputport(2 + player * 2), &area, player);
+		}
+		copybitmap(bitmap, ppsatan_bitmap[chip], 0, 0, x[chip], y[chip], cliprect, TRANSPARENCY_NONE, 0);
 	}
 }

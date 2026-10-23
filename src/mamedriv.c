@@ -2163,6 +2163,9 @@ V-V                           TP-027
 	DRIVER( guwange )	/* (c) 1999 Atlus/Cave */
 	DRIVER( guwanges )	/* (c) 2000 Atlus/Cave */
 	DRIVER( gaia )		/* (c) 1999 Noise Factory */
+	DRIVER( ppsatan )
+	DRIVER( crusherm )
+	DRIVER( theroes )
 	DRIVER( korokoro )	/* (c) 1999 Takumi */
 
 	/* Kyugo games */
