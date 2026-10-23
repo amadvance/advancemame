@@ -1625,6 +1625,7 @@ const game_driver * const drivers[] =
 	DRIVER( arkbloc2 )	/* bootleg */
 	DRIVER( arkangc )	/* bootleg */
 	DRIVER( arkatour )	/* ??? (c) 1987 Taito America Corporation + Romstar license (US) */
+	DRIVER( brixian )
 	DRIVER( tetrsark )	/* ??? (c) D.R.Korea */
 	DRIVER( sqix )		/* B03 1987 */
 	DRIVER( sqixa )		/* B03 1987 */

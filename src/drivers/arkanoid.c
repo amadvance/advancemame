@@ -56,6 +56,19 @@ extern MACHINE_START( arkanoid );
 extern MACHINE_RESET( arkanoid );
 
 extern WRITE8_HANDLER( arkanoid_d008_w );
+extern VIDEO_UPDATE( brixian );
+
+static UINT8 *brixian_ram;
+
+static WRITE8_HANDLER( brixian_d008_w )
+{
+	arkanoid_d008_w(offset, data | 0x08);
+}
+
+static WRITE8_HANDLER( tetrsark_d008_w )
+{
+	arkanoid_d008_w(offset, (data & ~0x08) | ((data & 0x80) >> 4));
+}
 
 extern READ8_HANDLER( arkanoid_Z80_mcu_r );
 extern WRITE8_HANDLER( arkanoid_Z80_mcu_w );
@@ -106,6 +119,18 @@ static ADDRESS_MAP_START( bootleg_map, ADDRESS_SPACE_PROGRAM, 8 )
 	AM_RANGE(0xe840, 0xefff) AM_RAM
 	AM_RANGE(0xf000, 0xffff) AM_READNOP	/* fixes instant death in final level */
 ADDRESS_MAP_END
+
+static ADDRESS_MAP_START( brixian_map, ADDRESS_SPACE_PROGRAM, 8 )
+	AM_RANGE(0x0000, 0xbfff) AM_ROM
+	AM_RANGE(0xc000, 0xc7ff) AM_RAM AM_BASE(&brixian_ram)
+	AM_RANGE(0xd000, 0xd000) AM_WRITE(AY8910_control_port_0_w)
+	AM_RANGE(0xd001, 0xd001) AM_READWRITE(AY8910_read_port_0_r, AY8910_write_port_0_w)
+	AM_RANGE(0xd008, 0xd008) AM_WRITE(brixian_d008_w)
+	AM_RANGE(0xe000, 0xe7ff) AM_RAM AM_WRITE(arkanoid_videoram_w) AM_BASE(&videoram)
+	AM_RANGE(0xe800, 0xe83f) AM_RAM AM_BASE(&spriteram) AM_SIZE(&spriteram_size)
+	AM_RANGE(0xe840, 0xefff) AM_RAM
+ADDRESS_MAP_END
+
 
 static ADDRESS_MAP_START( mcu_map, ADDRESS_SPACE_PROGRAM, 8 )
 	ADDRESS_MAP_FLAGS( AMEF_ABITS(11) )
@@ -239,71 +264,76 @@ INPUT_PORTS_START( arkatayt )
 INPUT_PORTS_END
 
 INPUT_PORTS_START( tetrsark )
-	/* most of these probably just aren't connected rather than being dipswitches */
 	PORT_START_TAG("IN0")
-	/*
-    PORT_DIPNAME( 0x01, 0x01, "0" )
-    PORT_DIPSETTING(    0x01, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-    PORT_DIPNAME( 0x02, 0x02, DEF_STR( Unknown ) )
-    PORT_DIPSETTING(    0x02, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-    PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown ) )
-    PORT_DIPSETTING(    0x04, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-    PORT_DIPNAME( 0x08, 0x08, DEF_STR( Unknown ) )
-    PORT_DIPSETTING(    0x08, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-    PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
-    PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-    PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
-    PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-    PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
-    PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-    PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
-    PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-    */
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+
 	PORT_START_TAG("IN1")
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
 
 	PORT_START_TAG("IN2")
-
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
 	PORT_START_TAG("IN3")
-
-	PORT_START_TAG("IN4")
+	PORT_BIT( 0xff, IP_ACTIVE_LOW, IPT_UNUSED )
+	PORT_START_TAG("DSW")
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(2)
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(2)
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(2)
-	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2) // or up? it rotates the piece.
-	/* coinage? */
-    PORT_DIPNAME( 0x10, 0x10, DEF_STR( Unknown ) )
-    PORT_DIPSETTING(    0x10, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-    PORT_DIPNAME( 0x20, 0x20, DEF_STR( Unknown ) )
-    PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-    PORT_DIPNAME( 0x40, 0x40, DEF_STR( Unknown ) )
-    PORT_DIPSETTING(    0x40, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
-    PORT_DIPNAME( 0x80, 0x80, DEF_STR( Unknown ) )
-    PORT_DIPSETTING(    0x80, DEF_STR( Off ) )
-    PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(2)
+	PORT_DIPNAME( 0x10, 0x10, DEF_STR( Cabinet ) )
+	PORT_DIPSETTING(    0x10, DEF_STR( Upright ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( Cocktail ) )
+	PORT_DIPNAME( 0x20, 0x00, DEF_STR( Demo_Sounds ) )
+	PORT_DIPSETTING(    0x20, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( On ) )
+	PORT_DIPNAME( 0xc0, 0xc0, DEF_STR( Coinage ) )
+	PORT_DIPSETTING(    0xc0, DEF_STR( 1C_1C ) )
+	PORT_DIPSETTING(    0x80, DEF_STR( 1C_2C ) )
+	PORT_DIPSETTING(    0x40, DEF_STR( 1C_3C ) )
+	PORT_DIPSETTING(    0x00, DEF_STR( 1C_5C ) )
 
-	PORT_START_TAG("IN5")
+	PORT_START_TAG("INPUTS")
 	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_PLAYER(1)
 	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_PLAYER(1)
 	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_PLAYER(1)
-	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1) // or up? it rotates the piece.
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON1 ) PORT_PLAYER(1)
 	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_START1 )
 	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_START2 )
-//  PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN1 ) // WTF? it does't work
-//  PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN2 ) // WTF? it does't work
-	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(1)
-	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON2 ) PORT_PLAYER(2)
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_COIN2 )
 INPUT_PORTS_END
+
+
+INPUT_PORTS_START( brixian )
+	PORT_START_TAG("INPUTS")
+	PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP ) PORT_4WAY
+	PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN ) PORT_4WAY
+	PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT ) PORT_4WAY
+	PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT ) PORT_4WAY
+	PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 )
+	PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_START1 )
+	PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_COIN1 )
+	PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON2 )
+
+	PORT_START_TAG("DSW")
+	PORT_DIPNAME( 0x03, 0x02, "Time Left" )
+	PORT_DIPSETTING(    0x00, "More" )
+	PORT_DIPSETTING(    0x01, DEF_STR( Normal ) )
+	PORT_DIPSETTING(    0x02, "Normal (dupe)" )
+	PORT_DIPSETTING(    0x03, "Less" )
+	PORT_DIPNAME( 0x04, 0x04, DEF_STR( Unknown )  )
+	PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
+	PORT_DIPSETTING(    0x04, DEF_STR( On ) )
+	PORT_DIPNAME( 0x08, 0x08, "Speed of Elevator" )
+	PORT_DIPSETTING(    0x00, "Fast" )
+	PORT_DIPSETTING(    0x08, "Slow" )
+	PORT_DIPNAME( 0xf0, 0x10, DEF_STR( Lives ) )
+	PORT_DIPSETTING(    0xf0, "2" )
+	PORT_DIPSETTING(    0x70, "3" )
+	PORT_DIPSETTING(    0x30, "4" )
+	PORT_DIPSETTING(    0x10, "5" )
+	PORT_DIPSETTING(    0x00, "6" )
+INPUT_PORTS_END
+
 
 /* Graphics Layouts */
 
@@ -367,7 +397,7 @@ static MACHINE_DRIVER_START( arkanoid )
 	// sound hardware
 	MDRV_SPEAKER_STANDARD_MONO("mono")
 
-	MDRV_SOUND_ADD(AY8910, 1500000)
+	MDRV_SOUND_ADD_TAG("aysnd", AY8910, 1500000)
 	MDRV_SOUND_CONFIG(ay8910_interface)
 	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.33)
 MACHINE_DRIVER_END
@@ -380,6 +410,22 @@ static MACHINE_DRIVER_START( bootleg )
 	MDRV_CPU_PROGRAM_MAP(bootleg_map, 0)
 
 	MDRV_CPU_REMOVE("mcu")
+MACHINE_DRIVER_END
+
+static struct AY8910interface brixian_ay8910_interface =
+{
+	input_port_0_r,
+	input_port_1_r
+};
+
+static MACHINE_DRIVER_START( brixian )
+	MDRV_IMPORT_FROM(bootleg)
+	MDRV_CPU_MODIFY("main")
+	MDRV_CPU_PROGRAM_MAP(brixian_map, 0)
+	MDRV_VIDEO_UPDATE(brixian)
+	MDRV_SOUND_REPLACE("aysnd", AY8910, 1500000)
+	MDRV_SOUND_CONFIG(brixian_ay8910_interface)
+	MDRV_SOUND_ROUTE(ALL_OUTPUTS, "mono", 0.50)
 MACHINE_DRIVER_END
 
 /* ROMs */
@@ -612,7 +658,35 @@ ROM_START( tetrsark )
 	ROM_LOAD( "a75-09.bpr",    0x0400, 0x0200, CRC(a7c6c277) SHA1(adaa003dcd981576ea1cc5f697d709b2d6b2ea29) )	/* blue component */
 ROM_END
 
+ROM_START( brixian )
+	ROM_REGION( 0x18000, REGION_CPU1, 0 )
+	ROM_LOAD( "b1.bin",    0x00000, 0x8000, CRC(3d167d09) SHA1(1d5bd098b655b8d2f956cfcb718213915bee3e41) )
+	ROM_LOAD( "e7.bin",    0x08000, 0x2000, CRC(9e3707ab) SHA1(a04fb4824239f8ed1ef1de2f3c0f9d749320b2ba) )
+
+	ROM_REGION( 0x0800, REGION_CPU2, 0 )
+	ROM_LOAD( "68705p5", 0x0000, 0x0800, NO_DUMP )
+
+	ROM_REGION( 0x200, REGION_USER1, 0 )
+	ROM_LOAD( "protdata.bin", 0x00000, 0x200, CRC(a4131c0b) SHA1(5ddbd39c26e1bc9ec5f216e399c09994a23d09a7) )
+
+	ROM_REGION( 0x18000, REGION_GFX1, ROMREGION_DISPOSE )
+	ROM_LOAD( "b4.bin",     0x00000, 0x8000, CRC(34a7a693) SHA1(793fa6dd065a158bedcd0fdc494cc8fc793ae8be) )
+	ROM_LOAD( "c4.bin",     0x08000, 0x8000, CRC(d422eda5) SHA1(4874b57ec8a8aa29937f5ccc2a734ffeb7834d8a) )
+	ROM_LOAD( "e4.bin",     0x10000, 0x8000, CRC(9b2e79d6) SHA1(8a40e0ef2a792efc37ea50eec01cf3fb5a3e3215) )
+
+	ROM_REGION( 0x0600, REGION_PROMS, 0 )
+	ROM_LOAD( "n82s131n.6l", 0x0000, 0x0200, CRC(0fa51a5b) SHA1(8c5cb69fbff8a3ba90f945c35f72754f9cc8f18c) )
+	ROM_LOAD( "n82s131n.6p", 0x0200, 0x0200, CRC(d833ad33) SHA1(a7c17c96a670916e7102afc94dc2f0cb0455f0ce) )
+	ROM_LOAD( "n82s131n.6m", 0x0400, 0x0200, CRC(05297649) SHA1(35f99cf8dddd66e26e2110619eb46bd6ccff41df) )
+ROM_END
+
 /* Driver Initialization */
+
+static DRIVER_INIT( brixian )
+{
+	memcpy(brixian_ram + 0x600, memory_region(REGION_USER1), 0x200);
+}
+
 
 static DRIVER_INIT( paddle2 )
 {
@@ -625,6 +699,8 @@ static DRIVER_INIT( tetrsark )
 {
 	unsigned char *ROM = memory_region(REGION_CPU1);
 	int x;
+
+	memory_install_write8_handler(0, ADDRESS_SPACE_PROGRAM, 0xd008, 0xd008, 0, 0, tetrsark_d008_w);
 
 	for (x=0;x<0x8000;x++)
 	{
@@ -640,10 +716,11 @@ GAME( 1986, arknoiuo, arkanoid, arkanoid, arkanoid, 0,       ROT90, "Taito Ameri
 GAME( 1986, arknoidj, arkanoid, arkanoid, arknoidj, 0,       ROT90, "Taito Corporation", "Arkanoid (Japan)", GAME_SUPPORTS_SAVE )
 GAME( 1986, arkbl2,   arkanoid, arkanoid, arknoidj, 0,       ROT90, "bootleg", "Arkanoid (Japanese bootleg Set 2)", GAME_NOT_WORKING )
 GAME( 1986, arkbl3,   arkanoid, bootleg,  arknoidj, paddle2, ROT90, "bootleg", "Arkanoid (Japanese bootleg Set 3)", GAME_NOT_WORKING )
-GAME( 1988, paddle2,  arkanoid, bootleg,  arknoidj, paddle2, ROT90, "bootleg", "Paddle 2", GAME_UNEMULATED_PROTECTION | GAME_SUPPORTS_SAVE )
-GAME( 1986, arkatayt, arkanoid, bootleg,  arkatayt, 0,       ROT90, "bootleg", "Arkanoid (Tayto bootleg, Japanese)", GAME_SUPPORTS_SAVE )
+GAME( 1986, arkangc,  arkanoid, bootleg,  arknoidj, 0,       ROT90, "bootleg", "Arkanoid (Game Corporation bootleg)", GAME_SUPPORTS_SAVE )
 GAME( 1986, arkblock, arkanoid, bootleg,  arknoidj, 0,       ROT90, "bootleg", "Block (bootleg, Japanese)", GAME_NOT_WORKING )
 GAME( 1986, arkbloc2, arkanoid, bootleg,  arknoidj, 0,       ROT90, "bootleg", "Block (Game Corporation bootleg)", GAME_SUPPORTS_SAVE )
-GAME( 1986, arkangc,  arkanoid, bootleg,  arknoidj, 0,       ROT90, "bootleg", "Arkanoid (Game Corporation bootleg)", GAME_SUPPORTS_SAVE )
+GAME( 1988, paddle2,  arkanoid, bootleg,  arknoidj, paddle2, ROT90, "bootleg", "Paddle 2", GAME_UNEMULATED_PROTECTION | GAME_SUPPORTS_SAVE )
+GAME( 1986, arkatayt, arkanoid, bootleg,  arkatayt, 0,       ROT90, "bootleg", "Arkanoid (Tayto bootleg, Japanese)", GAME_SUPPORTS_SAVE )
 GAME( 1987, arkatour, arkanoid, arkanoid, arkanoid, 0,       ROT90, "Taito America Corporation (Romstar license)", "Tournament Arkanoid (US)", GAME_SUPPORTS_SAVE )
-GAME( 19??, tetrsark, 0,        bootleg,  tetrsark, tetrsark,ROT0,  "D.R. Korea", "Tetris (D.R. Korea)", GAME_SUPPORTS_SAVE | GAME_WRONG_COLORS )
+GAME( 19??, tetrsark, 0,        bootleg,  tetrsark, tetrsark,ROT0,  "D.R. Korea", "Tetris (D.R. Korea, set 1, encrypted)", GAME_SUPPORTS_SAVE )
+GAME( 1993, brixian,  0,        brixian,  brixian,  brixian, ROT0, "Cheil Computer System", "Brixian", GAME_SUPPORTS_SAVE )
