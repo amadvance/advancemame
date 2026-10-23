@@ -161,8 +161,16 @@ void CLIB_DECL discrete_log(const char *text, ...)
  *
  *************************************/
 
+#include "mw_discrete.h"
+typedef struct node_description node_description;
+#include "mw_disc_wav.c"
+#include "mw_disc_mth.c"
+#include "mw_disc_flt.c"
+#include "mw_disc_dev.c"
+
 static struct discrete_module module_list[] =
 {
+#include "mw_discrete.inc"
 	{ DSO_OUTPUT      ,"DSO_OUTPUT"      ,0                                      ,NULL                  ,NULL                 },
 	{ DSO_CSVLOG      ,"DSO_CSVLOG"      ,0                                      ,NULL                  ,NULL                 },
 	{ DSO_WAVELOG     ,"DSO_WAVELOG"     ,0                                      ,NULL                  ,NULL                 },
@@ -315,7 +323,7 @@ static void *discrete_start(int sndindex, int clock, const void *config)
 			fatalerror("discrete_start() - Invalid node number on node %02d descriptor", info->node_count);
 
 		/* make sure the node type is valid */
-		if (intf[info->node_count].type > DSO_OUTPUT)
+		if ((intf[info->node_count].type > DSO_OUTPUT && (intf[info->node_count].type < 256 || intf[info->node_count].type >= MW_DISCRETE_TYPE_END)))
 			fatalerror("discrete_start() - Invalid function type on NODE_%02d", intf[info->node_count].node - NODE_START);
 	}
 	info->node_count++;

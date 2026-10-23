@@ -66,7 +66,8 @@ ifneq ($(filter DISCRETE,$(SOUNDS)),)
 SOUNDOBJS += $(OBJ)/sound/discrete.o
 $(OBJ)/sound/discrete.o: discrete.c discrete.h \
 		disc_dev.c disc_flt.c disc_inp.c \
-		disc_mth.c disc_wav.c
+		disc_mth.c disc_wav.c mw_discrete.h mw_discrete.inc \
+		mw_disc_dev.c mw_disc_flt.c mw_disc_mth.c mw_disc_wav.c
 endif
 
 
