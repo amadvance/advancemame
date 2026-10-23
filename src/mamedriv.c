@@ -3604,6 +3604,8 @@ Sep.1994 Quiz Ghost Hunter
 	DRIVER( mausuke )	/* (c) 1995 Data East */
 	DRIVER( batmanfr )	/* (c) 1996 Acclaim */
 
+	DRIVER( techbowl )
+	DRIVER( wasafari )
 	DRIVER( critcrsh )	/* (c) 1995 Sega */
 
 	DRIVER( sfish2 )	/* (c) 1995 */

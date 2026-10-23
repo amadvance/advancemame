@@ -1107,7 +1107,7 @@ $(OBJ)/sega.a: \
 	$(OBJ)/drivers/segaybd.o $(OBJ)/vidhrdw/segaybd.o \
 	$(OBJ)/drivers/sg1000a.o $(OBJ)/vidhrdw/tms9928a.o \
 	$(OBJ)/drivers/stactics.o $(OBJ)/machine/stactics.o $(OBJ)/vidhrdw/stactics.o \
-	$(OBJ)/drivers/stv.o $(OBJ)/drivers/stvhacks.o $(OBJ)/machine/stvcd.o \
+	$(OBJ)/machine/stvcrypt.o $(OBJ)/drivers/stv.o $(OBJ)/drivers/stvhacks.o $(OBJ)/machine/stvcd.o \
 	$(OBJ)/drivers/suprloco.o $(OBJ)/vidhrdw/suprloco.o \
 	$(OBJ)/drivers/system1.o $(OBJ)/vidhrdw/system1.o \
 	$(OBJ)/drivers/system16.o $(OBJ)/machine/system16.o $(OBJ)/sndhrdw/system16.o $(OBJ)/vidhrdw/system16.o $(OBJ)/vidhrdw/sys16spr.o \
@@ -1532,3 +1532,6 @@ $(OBJ)/cv1k.a: $(OBJ)/drivers/cv1k.o $(OBJ)/machine/cv1k_flash.o $(OBJ)/machine/
 $(OBJ)/vidhrdw/cv1k_blit0.o $(OBJ)/vidhrdw/cv1k_blit1.o $(OBJ)/vidhrdw/cv1k_blit2.o $(OBJ)/vidhrdw/cv1k_blit3.o $(OBJ)/vidhrdw/cv1k_blit4.o $(OBJ)/vidhrdw/cv1k_blit5.o $(OBJ)/vidhrdw/cv1k_blit6.o $(OBJ)/vidhrdw/cv1k_blit7.o $(OBJ)/vidhrdw/cv1k_blit8.o: src/vidhrdw/cv1k_blit.h src/vidhrdw/epic12in.inc src/vidhrdw/epic12pixel.inc
 
 $(OBJ)/sndhrdw/mw8080bw.o: src/sound/mw_discrete.h
+
+$(OBJ)/drivers/stv.o: src/machine/stvrax.h
+$(OBJ)/cpu/adsp2100/adsp2100.o: src/cpu/adsp2100/2100ops.c
