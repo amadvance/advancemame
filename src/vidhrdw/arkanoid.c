@@ -130,3 +130,8 @@ VIDEO_UPDATE( arkanoid )
 	tilemap_draw(bitmap, &Machine->visible_area, bg_tilemap, 0, 0);
 	arkanoid_draw_sprites(bitmap);
 }
+
+VIDEO_UPDATE( brixian )
+{
+	tilemap_draw(bitmap, &Machine->visible_area, bg_tilemap, 0, 0);
+}
